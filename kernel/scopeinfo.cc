@@ -17,123 +17,123 @@
  *
  */
 
-#include "kernel/scopeinfo.h"
+#ضمن "kernel/scopeinfo.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template <typename I, typename Filter> void ModuleHdlnameIndex::index_items(I begin, I end, Filter filter)
+سانچو <قسم_نالو I, قسم_نالو Filter> فراغ Module_Hdlname_اشاريو::اشاريو_شيون(I begin, I پڇاڙي, Filter filter)
 {
-	for (; begin != end; ++begin) {
-		auto const &item = *begin;
+	لكل (; begin != پڇاڙي; ++begin) {
+		خودڪار ثابت &شي = *begin;
 
-		if (!filter(item))
-			continue;
-		std::vector<IdString> path = parse_hdlname(item);
-		if (!path.empty())
-			lookup.emplace(item, tree.insert(path, item));
+		إذا (!filter(شي))
+			استمر;
+		std::ويڪٽر<IdString> رستو_2 = parse_hdlname(شي);
+		إذا (!رستو_2.خالي_جايون())
+			lookup.emplace(شي, وڻ.وجهو(رستو_2, شي));
 	}
 }
 
-void ModuleHdlnameIndex::index()
+فراغ Module_Hdlname_اشاريو::اشاريو()
 {
-	index_wires();
-	index_cells();
+	اشاريو_wires();
+	اشاريو_cells();
 }
 
-void ModuleHdlnameIndex::index_wires()
+فراغ Module_Hdlname_اشاريو::اشاريو_wires()
 {
-	auto wires = module->wires();
-	index_items(wires.begin(), wires.end(), [](Wire *) { return true; });
+	خودڪار wires = module->wires();
+	اشاريو_شيون(wires.begin(), wires.پڇاڙي(), [](Wire *) { أرجع سچ; });
 }
 
-void ModuleHdlnameIndex::index_cells()
+فراغ Module_Hdlname_اشاريو::اشاريو_cells()
 {
-	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *) { return true; });
+	خودڪار cells = module->cells();
+	اشاريو_شيون(cells.begin(), cells.پڇاڙي(), [](Cell *) { أرجع سچ; });
 }
 
-void ModuleHdlnameIndex::index_scopeinfo_cells()
+فراغ Module_Hdlname_اشاريو::اشاريو_scopeinfo_cells()
 {
-	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *cell) { return cell->type == ID($scopeinfo); });
+	خودڪار cells = module->cells();
+	اشاريو_شيون(cells.begin(), cells.پڇاڙي(), [](Cell *cell) { أرجع cell->type == ID($scopeinfo); });
 }
 
-std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
+std::ويڪٽر<std::string> Module_Hdlname_اشاريو::scope_sources(Cursor cursor)
 {
-	std::vector<std::string> result;
+	std::ويڪٽر<std::string> نتيجو;
 
-	for (; !cursor.is_root(); cursor = cursor.parent()) {
-		if (!cursor.has_entry()) {
-			result.push_back("");
-			result.push_back("");
-			continue;
+	لكل (; !cursor.is_پاڙ(); cursor = cursor.والد()) {
+		إذا (!cursor.has_داخلا_2()) {
+			نتيجو.ڌڪو_پٺ("");
+			نتيجو.ڌڪو_پٺ("");
+			استمر;
 		}
-		Cell *cell = cursor.entry().cell();
-		if (cell == nullptr || cell->type != ID($scopeinfo)) {
-			result.push_back("");
-			result.push_back("");
-			continue;
+		Cell *cell = cursor.داخلا_2().cell();
+		إذا (cell == خالي_اشارو || cell->type != ID($scopeinfo)) {
+			نتيجو.ڌڪو_پٺ("");
+			نتيجو.ڌڪو_پٺ("");
+			استمر;
 		}
-		result.push_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Module, ID::src).decode_string());
-		result.push_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Cell, ID::src).decode_string());
+		نتيجو.ڌڪو_پٺ(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Module, ID::src).decode_string());
+		نتيجو.ڌڪو_پٺ(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Cell, ID::src).decode_string());
 	}
 
-	result.push_back(module->get_src_attribute());
+	نتيجو.ڌڪو_پٺ(module->get_src_attribute());
 
-	std::reverse(result.begin(), result.end());
+	std::ابتو(نتيجو.begin(), نتيجو.پڇاڙي());
 
-	return result;
+	أرجع نتيجو;
 }
 
-static const char *attr_prefix(ScopeinfoAttrs attrs)
+ساكن ثابت حرف *attr_اڳياڙي(ScopeinfoAttrs attrs)
 {
-	switch (attrs) {
-	case ScopeinfoAttrs::Cell:
-		return "\\cell_";
-	case ScopeinfoAttrs::Module:
-		return "\\module_";
-	default:
+	بدل (attrs) {
+	حالة ScopeinfoAttrs::Cell:
+		أرجع "\\cell_";
+	حالة ScopeinfoAttrs::Module:
+		أرجع "\\module_";
+	افتراضي:
 		log_abort();
 	}
 }
 
-bool scopeinfo_has_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
+منطقي scopeinfo_has_attribute(ثابت RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
 {
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
-	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	return key != IdString::Null && scopeinfo->has_attribute(key);
+	IdString ڪنجي = twines.ڳوليو(attr_اڳياڙي(attrs) + twines.unescaped_str(id));
+	أرجع ڪنجي != IdString::Null && scopeinfo->has_attribute(ڪنجي);
 }
 
-RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
+RTLIL::Const scopeinfo_get_attribute(ثابت RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
 {
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
-	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	if (key == IdString::Null)
-		return RTLIL::Const();
-	auto found = scopeinfo->attributes.find(key);
-	if (found == scopeinfo->attributes.end())
-		return RTLIL::Const();
-	return found->second;
+	IdString ڪنجي = twines.ڳوليو(attr_اڳياڙي(attrs) + twines.unescaped_str(id));
+	إذا (ڪنجي == IdString::Null)
+		أرجع RTLIL::Const();
+	خودڪار مليو = scopeinfo->خاصيتون.ڳوليو(ڪنجي);
+	إذا (مليو == scopeinfo->خاصيتون.پڇاڙي())
+		أرجع RTLIL::Const();
+	أرجع مليو->ٻيو;
 }
 
-dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs)
+dict<RTLIL::IdString, RTLIL::Const> scopeinfo_خاصيتون(ثابت RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs)
 {
-	dict<RTLIL::IdString, RTLIL::Const> attributes;
+	dict<RTLIL::IdString, RTLIL::Const> خاصيتون;
 
-	const char *prefix = attr_prefix(attrs);
-	size_t prefix_len = strlen(prefix);
+	ثابت حرف *اڳياڙي_2 = attr_اڳياڙي(attrs);
+	سائيز_t اڳياڙي_len = لڙي_ڊيگهه(اڳياڙي_2);
 	TwinePool &twines = scopeinfo->twines();
 
-	for (auto const &entry : scopeinfo->attributes) {
-		std::string name = twines.str(entry.first);
-		if (name.compare(0, prefix_len, prefix) != 0)
-			continue;
-		attributes.emplace(twines.add(RTLIL::escape_id(name.substr(prefix_len))), entry.second);
+	لكل (خودڪار ثابت &داخلا_2 : scopeinfo->خاصيتون) {
+		std::string name = twines.str(داخلا_2.پهريون);
+		إذا (name.compare(0, اڳياڙي_len, اڳياڙي_2) != 0)
+			استمر;
+		خاصيتون.emplace(twines.جوڙيو(RTLIL::escape_id(name.substr(اڳياڙي_len))), داخلا_2.ٻيو);
 	}
 
-	return attributes;
+	أرجع خاصيتون;
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پڇاڙي

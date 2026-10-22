@@ -1,215 +1,215 @@
-#include "kernel/cost.h"
-#include "kernel/macc.h"
+#ضمن "kernel/cost.h"
+#ضمن "kernel/macc.h"
 
 USING_YOSYS_NAMESPACE
 
-unsigned int CellCosts::get(RTLIL::Module *mod)
+بنانشان صحيح CellCosts::get(RTLIL::Module *mod)
 {
-	if (mod_cost_cache_.count(mod->name))
-		return mod_cost_cache_.at(mod->name);
+	إذا (mod_لاڳت_cache.ڳڻپ(mod->name))
+		أرجع mod_لاڳت_cache.at(mod->name);
 
-	unsigned int module_cost = 1;
-	for (auto c : mod->cells()) {
-		unsigned int new_cost = module_cost + get(c);
-		module_cost = new_cost >= module_cost ? new_cost : INT_MAX;
+	بنانشان صحيح module_لاڳت = 1;
+	لكل (خودڪار c : mod->cells()) {
+		بنانشان صحيح new_لاڳت = module_لاڳت + get(c);
+		module_لاڳت = new_لاڳت >= module_لاڳت ? new_لاڳت : وڌ_کان_وڌ_عدد;
 	}
 
-	mod_cost_cache_[mod->name] = module_cost;
-	return module_cost;
+	mod_لاڳت_cache[mod->name] = module_لاڳت;
+	أرجع module_لاڳت;
 }
 
-static unsigned int y_coef(RTLIL::IdString type)
+ساكن بنانشان صحيح y_coef(RTLIL::IdString type)
 {
-	if (
+	إذا (
 	  // equality
-	  type.in(ID($bweqx), ID($nex), ID($eqx)) ||
+	  type.اندريون(ID($bweqx), ID($nex), ID($eqx)) ||
 	  // basic logic
-	  type.in(ID($and), ID($or), ID($xor), ID($xnor), ID($not)) ||
+	  type.اندريون(ID($and), ID($or), ID($xor), ID($xnor), ID($not)) ||
 	  // mux
-	  type.in(ID($bwmux), ID($mux)) ||
+	  type.اندريون(ID($bwmux), ID($mux)) ||
 	  // others
 	  type == ID($tribuf)) {
-		return 1;
-	} else if (type == ID($neg)) {
-		return 4;
-	} else if (type == ID($demux)) {
-		return 2;
-	} else if (type == ID($fa)) {
-		return 5;
-	} else if (type.in(ID($add), ID($sub), ID($alu))) {
+		أرجع 1;
+	} وإلا إذا (type == ID($neg)) {
+		أرجع 4;
+	} وإلا إذا (type == ID($demux)) {
+		أرجع 2;
+	} وإلا إذا (type == ID($fa)) {
+		أرجع 5;
+	} وإلا إذا (type.اندريون(ID($جوڙيو), ID($sub), ID($alu))) {
 		// multi-bit adders
-		return 8;
-	} else if (type.in(ID($shl), ID($sshl))) {
+		أرجع 8;
+	} وإلا إذا (type.اندريون(ID($shl), ID($sshl))) {
 		// left shift
-		return 10;
+		أرجع 10;
 	}
-	return 0;
+	أرجع 0;
 }
 
-static unsigned int max_inp_coef(RTLIL::IdString type)
+ساكن بنانشان صحيح max_inp_coef(RTLIL::IdString type)
 {
-	if (
+	إذا (
 	  // binop reduce
-	  type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)) ||
+	  type.اندريون(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)) ||
 	  // others
-	  type.in(ID($logic_not), ID($pmux), ID($bmux))) {
-		return 1;
-	} else if (
+	  type.اندريون(ID($logic_not), ID($pmux), ID($bmux))) {
+		أرجع 1;
+	} وإلا إذا (
 	  // equality
-	  type.in(ID($eq), ID($ne)) ||
+	  type.اندريون(ID($eq), ID($ne)) ||
 	  // logic
-	  type.in(ID($logic_and), ID($logic_or))) {
-		return 2;
-	} else if (type == ID($lcu)) {
-		return 5;
-	} else if (type.in(ID($lt), ID($le), ID($ge), ID($gt))) {
+	  type.اندريون(ID($logic_and), ID($logic_or))) {
+		أرجع 2;
+	} وإلا إذا (type == ID($lcu)) {
+		أرجع 5;
+	} وإلا إذا (type.اندريون(ID($lt), ID($le), ID($ge), ID($gt))) {
 		// comparison
-		return 7;
+		أرجع 7;
 	}
-	return 0;
+	أرجع 0;
 }
 
-static unsigned int sum_coef(RTLIL::IdString type)
+ساكن بنانشان صحيح جوڙ_coef(RTLIL::IdString type)
 {
-	if (type.in(ID($shr), ID($sshr))) {
+	إذا (type.اندريون(ID($shr), ID($sshr))) {
 		// right shift
-		return 4;
-	} else if (type.in(ID($shift), ID($shiftx))) {
-		// shift
-		return 8;
+		أرجع 4;
+	} وإلا إذا (type.اندريون(ID($سرڪايو), ID($shiftx))) {
+		//سرڪايو
+		أرجع 8;
 	}
-	return 0;
+	أرجع 0;
 }
 
-static unsigned int is_div_mod(RTLIL::IdString type)
+ساكن بنانشان صحيح is_div_mod(RTLIL::IdString type)
 {
-	return (type == ID($div) || type == ID($divfloor) || type == ID($mod) || type == ID($modfloor));
+	أرجع (type == ID($div) || type == ID($divfloor) || type == ID($mod) || type == ID($modfloor));
 }
 
-static bool is_free(RTLIL::IdString type)
+ساكن منطقي is_free(RTLIL::IdString type)
 {
-	return (
-	  // tags
-	  type.in(ID($overwrite_tag), ID($set_tag), ID($original_tag), ID($get_tag)) ||
+	أرجع (
+	  //ٽيگ_فهرست
+	  type.اندريون(ID($overwrite_ٽيگ), ID($سيٽ_ٽيگ), ID($original_ٽيگ), ID($get_ٽيگ)) ||
 	  // formal
-	  type.in(ID($check), ID($equiv), ID($initstate), ID($assert), ID($assume), ID($live), ID($cover), ID($fair)) ||
-	  type.in(ID($allseq), ID($allconst), ID($anyseq), ID($anyconst), ID($anyinit)) ||
+	  type.اندريون(ID($check), ID($equiv), ID($initstate), ID($أكد), ID($assume), ID($جيئرو), ID($cover), ID($fair)) ||
+	  type.اندريون(ID($allseq), ID($allconst), ID($anyseq), ID($anyconst), ID($anyinit)) ||
 	  // utilities
-	  type.in(ID($scopeinfo), ID($print)) ||
+	  type.اندريون(ID($scopeinfo), ID($print)) ||
 	  // real but free
-	  type.in(ID($concat), ID($slice), ID($pos)) ||
+	  type.اندريون(ID($concat), ID($ٽڪرو), ID($pos)) ||
 	  // specify
-	  type.in(ID($specrule), ID($specify2), ID($specify3)));
+	  type.اندريون(ID($specrule), ID($specify2), ID($specify3)));
 }
 
-unsigned int max_inp_width(RTLIL::Cell *cell)
+بنانشان صحيح max_inp_ويڪر(RTLIL::Cell *cell)
 {
-	unsigned int max = 0;
-	RTLIL::IdString input_width_params[] = {
-	  ID::WIDTH,
-	  ID::A_WIDTH,
-	  ID::B_WIDTH,
-	  ID::S_WIDTH,
+	بنانشان صحيح max = 0;
+	RTLIL::IdString داخلا_ويڪر_params[] = {
+	  ID::ويڪر_2,
+	  ID::A_ويڪر,
+	  ID::B_ويڪر,
+	  ID::S_ويڪر,
 	};
 
-	if (cell->type == ID($bmux))
-		return cell->getParam(ID::WIDTH).as_int() << cell->getParam(ID::S_WIDTH).as_int();
+	إذا (cell->type == ID($bmux))
+		أرجع cell->getParam(ID::ويڪر_2).as_int() << cell->getParam(ID::S_ويڪر).as_int();
 
-	for (RTLIL::IdString param : input_width_params)
-		if (cell->hasParam(param))
-			max = std::max(max, (unsigned int)cell->getParam(param).as_int());
-	return max;
+	لكل (RTLIL::IdString param : داخلا_ويڪر_params)
+		إذا (cell->hasParam(param))
+			max = std::max(max, (بنانشان صحيح)cell->getParam(param).as_int());
+	أرجع max;
 }
 
-unsigned int port_width_sum(RTLIL::Cell *cell)
+بنانشان صحيح پورٽ_ويڪر_جوڙ(RTLIL::Cell *cell)
 {
-	unsigned int sum = 0;
-	RTLIL::IdString port_width_params[] = {
-	  ID::WIDTH, ID::A_WIDTH, ID::B_WIDTH, ID::S_WIDTH, ID::Y_WIDTH,
+	بنانشان صحيح جوڙ = 0;
+	RTLIL::IdString پورٽ_ويڪر_params[] = {
+	  ID::ويڪر_2, ID::A_ويڪر, ID::B_ويڪر, ID::S_ويڪر, ID::Y_ويڪر,
 	};
 
-	for (auto param : port_width_params)
-		if (cell->hasParam(param))
-			sum += cell->getParam(param).as_int();
+	لكل (خودڪار param : پورٽ_ويڪر_params)
+		إذا (cell->hasParam(param))
+			جوڙ += cell->getParam(param).as_int();
 
-	return sum;
+	أرجع جوڙ;
 }
 
-unsigned int CellCosts::get(RTLIL::Cell *cell)
+بنانشان صحيح CellCosts::get(RTLIL::Cell *cell)
 {
 
 	// simple 1-bit cells
-	if (cmos_gate_cost().count(cell->type))
-		return 1;
+	إذا (cmos_gate_لاڳت().ڳڻپ(cell->type))
+		أرجع 1;
 
-	if (design_ && design_->module(cell->type) && cell->parameters.empty()) {
+	إذا (design_ && design_->module(cell->type) && cell->parameters.خالي_جايون()) {
 		log_debug("%s is a module, recurse\n", cell->name);
-		return get(design_->module(cell->type));
-	} else if (cell->is_builtin_ff()) {
-		log_assert(cell->hasPort(ID::Q) && "Weird flip flop");
+		أرجع get(design_->module(cell->type));
+	} وإلا إذا (cell->is_builtin_ff()) {
+		log_assert(cell->has_پورٽ(ID::Q) && "Weird flip flop");
 		log_debug("%s is ff\n", cell->name);
-		return cell->getParam(ID::WIDTH).as_int();
-	} else if (cell->type.in(ID($mem), ID($mem_v2))) {
+		أرجع cell->getParam(ID::ويڪر_2).as_int();
+	} وإلا إذا (cell->type.اندريون(ID($mem), ID($mem_v2))) {
 		log_debug("%s is mem\n", cell->name);
-		return cell->getParam(ID::WIDTH).as_int() * cell->getParam(ID::SIZE).as_int();
-	} else if (y_coef(cell->type)) {
+		أرجع cell->getParam(ID::ويڪر_2).as_int() * cell->getParam(ID::سائيز_2).as_int();
+	} وإلا إذا (y_coef(cell->type)) {
 		// linear with Y_WIDTH or WIDTH
-		log_assert((cell->hasParam(ID::Y_WIDTH) || cell->hasParam(ID::WIDTH)) && "Unknown width");
-		auto param = cell->hasParam(ID::Y_WIDTH) ? ID::Y_WIDTH : ID::WIDTH;
-		int width = cell->getParam(param).as_int();
-		if (cell->type == ID($demux))
-			width <<= cell->getParam(ID::S_WIDTH).as_int();
-		log_debug("%s Y*coef %d * %d\n", cell->name, width, y_coef(cell->type));
-		return width * y_coef(cell->type);
-	} else if (sum_coef(cell->type)) {
+		log_assert((cell->hasParam(ID::Y_ويڪر) || cell->hasParam(ID::ويڪر_2)) && "Unknown width");
+		خودڪار param = cell->hasParam(ID::Y_ويڪر) ? ID::Y_ويڪر : ID::ويڪر_2;
+		صحيح ويڪر = cell->getParam(param).as_int();
+		إذا (cell->type == ID($demux))
+			ويڪر <<= cell->getParam(ID::S_ويڪر).as_int();
+		log_debug("%s Y*coef %d * %d\n", cell->name, ويڪر, y_coef(cell->type));
+		أرجع ويڪر * y_coef(cell->type);
+	} وإلا إذا (جوڙ_coef(cell->type)) {
 		// linear with sum of port widths
-		unsigned int sum = port_width_sum(cell);
-		log_debug("%s sum*coef %d * %d\n", cell->name, sum, sum_coef(cell->type));
-		return sum * sum_coef(cell->type);
-	} else if (max_inp_coef(cell->type)) {
+		بنانشان صحيح جوڙ = پورٽ_ويڪر_جوڙ(cell);
+		log_debug("%s sum*coef %d * %d\n", cell->name, جوڙ, جوڙ_coef(cell->type));
+		أرجع جوڙ * جوڙ_coef(cell->type);
+	} وإلا إذا (max_inp_coef(cell->type)) {
 		// linear with largest input width
-		unsigned int max = max_inp_width(cell);
+		بنانشان صحيح max = max_inp_ويڪر(cell);
 		log_debug("%s max*coef %d * %d\n", cell->name, max, max_inp_coef(cell->type));
-		return max * max_inp_coef(cell->type);
-	} else if (is_div_mod(cell->type) || cell->type == ID($mul)) {
+		أرجع max * max_inp_coef(cell->type);
+	} وإلا إذا (is_div_mod(cell->type) || cell->type == ID($mul)) {
 		// quadratic with sum of port widths
-		unsigned int sum = port_width_sum(cell);
-		unsigned int coef = cell->type == ID($mul) ? 3 : 5;
-		log_debug("%s coef*(sum**2) %d * %d\n", cell->name, coef, sum * sum);
-		return coef * sum * sum;
-	} else if (cell->type.in(ID($macc), ID($macc_v2))) {
+		بنانشان صحيح جوڙ = پورٽ_ويڪر_جوڙ(cell);
+		بنانشان صحيح coef = cell->type == ID($mul) ? 3 : 5;
+		log_debug("%s coef*(sum**2) %d * %d\n", cell->name, coef, جوڙ * جوڙ);
+		أرجع coef * جوڙ * جوڙ;
+	} وإلا إذا (cell->type.اندريون(ID($macc), ID($macc_v2))) {
 		// quadratic per term
-		unsigned int cost_sum = 0;
+		بنانشان صحيح لاڳت_جوڙ = 0;
 		Macc macc;
 		macc.from_cell(cell);
-		unsigned int y_width = cell->getParam(ID::Y_WIDTH).as_int();
-		for (auto &term: macc.terms) {
-			if (term.in_b.empty()) {
+		بنانشان صحيح y_ويڪر = cell->getParam(ID::Y_ويڪر).as_int();
+		لكل (خودڪار &رڪن: macc.terms) {
+			إذا (رڪن.اندريون_b.خالي_جايون()) {
 				// neglect addends
-				continue;
+				استمر;
 			}
-			unsigned a_width = term.in_a.size(), b_width = term.in_b.size();
-			unsigned int sum = a_width + b_width + std::min(y_width, a_width + b_width);
-			cost_sum += 3 * sum * sum;
+			بنانشان a_ويڪر = رڪن.اندريون_a.سائيز(), b_ويڪر = رڪن.اندريون_b.سائيز();
+			بنانشان صحيح جوڙ = a_ويڪر + b_ويڪر + std::min(y_ويڪر, a_ويڪر + b_ويڪر);
+			لاڳت_جوڙ += 3 * جوڙ * جوڙ;
 		}
-		return cost_sum;
-	} else if (cell->type == ID($lut)) {
-		int width = cell->getParam(ID::WIDTH).as_int();
-		unsigned int cost = 1U << (unsigned int)width;
-		log_debug("%s is 2**%d\n", cell->name, width);
-		return cost;
-	} else if (cell->type == ID($sop)) {
-		int width = cell->getParam(ID::WIDTH).as_int();
-		int depth = cell->getParam(ID::DEPTH).as_int();
-		log_debug("%s is (2*%d + 1)*%d\n", cell->name, width, depth);
-		return (2 * width + 1) * depth;
-	} else if (is_free(cell->type)) {
+		أرجع لاڳت_جوڙ;
+	} وإلا إذا (cell->type == ID($lut)) {
+		صحيح ويڪر = cell->getParam(ID::ويڪر_2).as_int();
+		بنانشان صحيح لاڳت = 1U << (بنانشان صحيح)ويڪر;
+		log_debug("%s is 2**%d\n", cell->name, ويڪر);
+		أرجع لاڳت;
+	} وإلا إذا (cell->type == ID($sop)) {
+		صحيح ويڪر = cell->getParam(ID::ويڪر_2).as_int();
+		صحيح اونهائي = cell->getParam(ID::اونهائي_2).as_int();
+		log_debug("%s is (2*%d + 1)*%d\n", cell->name, ويڪر, اونهائي);
+		أرجع (2 * ويڪر + 1) * اونهائي;
+	} وإلا إذا (is_free(cell->type)) {
 		log_debug("%s is free\n", cell->name);
-		return 0;
+		أرجع 0;
 	}
 	// TODO: $fsm
 	// ignored: $pow $memrd $memwr $meminit (and v2 counterparts)
 
-	log_warning("Can't determine cost of %s cell (%d parameters).\n", cell->type.unescape(), GetSize(cell->parameters));
-	return 1;
+	log_warning("Can't determine cost of %s cell (%d parameters).\n", cell->type.unescape(), Get_سائيز(cell->parameters));
+	أرجع 1;
 }

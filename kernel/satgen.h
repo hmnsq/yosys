@@ -17,285 +17,285 @@
  *
  */
 
-#ifndef SATGEN_H
-#define SATGEN_H
+#جيڪڏهن_وصف_نه_ٿيل SATGEN_H
+#وصف_ڪريو SATGEN_H
 
-#include "kernel/rtlil.h"
-#include "kernel/sigtools.h"
-#include "kernel/celltypes.h"
-#include "kernel/macc.h"
+#ضمن "kernel/rtlil.h"
+#ضمن "kernel/sigtools.h"
+#ضمن "kernel/celltypes.h"
+#ضمن "kernel/macc.h"
 
-#include "libs/ezsat/ezminisat.h"
+#ضمن "libs/ezsat/ezminisat.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // defined in kernel/register.cc
-extern struct SatSolver *yosys_satsolver_list;
-extern struct SatSolver *yosys_satsolver;
+خارجي بنية SatSolver *yosys_satsolver_list;
+خارجي بنية SatSolver *yosys_satsolver;
 
-struct SatSolver
+بنية SatSolver
 {
 	string name;
-	SatSolver *next;
-	virtual ezSAT *create() = 0;
+	SatSolver *ايندڙ;
+	مجازي ezSAT *create() = 0;
 
 	SatSolver(string name) : name(name) {
-		next = yosys_satsolver_list;
+		ايندڙ = yosys_satsolver_list;
 		yosys_satsolver_list = this;
 	}
 
-	virtual ~SatSolver() {
-		auto p = &yosys_satsolver_list;
-		while (*p) {
-			if (*p == this)
-				*p = next;
-			else
-				p = &(*p)->next;
+	مجازي ~SatSolver() {
+		خودڪار p = &yosys_satsolver_list;
+		طالما (*p) {
+			إذا (*p == this)
+				*p = ايندڙ;
+			وإلا
+				p = &(*p)->ايندڙ;
 		}
-		if (yosys_satsolver == this)
+		إذا (yosys_satsolver == this)
 			yosys_satsolver = yosys_satsolver_list;
 	}
 };
 
-struct ezSatPtr : public std::unique_ptr<ezSAT> {
+بنية ezSatPtr : عام std::unique_ptr<ezSAT> {
 	ezSatPtr() : unique_ptr<ezSAT>(yosys_satsolver->create()) { }
 	explicit ezSatPtr(SatSolver *solver) : unique_ptr<ezSAT>((solver ? solver : yosys_satsolver)->create()) { }
 };
 
-struct SatGen
+بنية SatGen
 {
 	ezSAT *ez;
-	const SigMap *sigmap;
-	std::string prefix;
+	ثابت SigMap *sigmap;
+	std::string اڳياڙي_2;
 	SigPool initial_state;
 	std::map<std::string, RTLIL::SigSpec> asserts_a, asserts_en;
 	std::map<std::string, RTLIL::SigSpec> assumes_a, assumes_en;
-	std::map<std::string, std::map<RTLIL::SigBit, int>> imported_signals;
-	std::map<std::pair<std::string, int>, bool> initstates;
+	std::map<std::string, std::map<RTLIL::Sig_ٻٽو_انگ, صحيح>> imported_سگنل;
+	std::map<std::pair<std::string, صحيح>, bool> initstates;
 	bool ignore_div_by_zero;
 	bool model_undef;
 	bool def_formal = false;
 	bool model_barriers = false;
 
-	SatGen(ezSAT *ez, const SigMap *sigmap, std::string prefix = std::string()) :
-			ez(ez), sigmap(sigmap), prefix(prefix), ignore_div_by_zero(false), model_undef(false)
+	SatGen(ezSAT *ez, ثابت SigMap *sigmap, std::string اڳياڙي_2 = std::string()) :
+			ez(ez), sigmap(sigmap), اڳياڙي_2(اڳياڙي_2), ignore_div_by_zero(false), model_undef(false)
 	{
 	}
 
-	void setContext(const SigMap *sigmap, std::string prefix = std::string())
+	فراغ سيٽ_Context(ثابت SigMap *sigmap, std::string اڳياڙي_2 = std::string())
 	{
 		this->sigmap = sigmap;
-		this->prefix = prefix;
+		this->اڳياڙي_2 = اڳياڙي_2;
 	}
 
-	std::vector<int> importSigSpecWorker(RTLIL::SigSpec sig, std::string &pf, bool undef_mode, bool dup_undef)
+	std::ويڪٽر<صحيح> import_Sig_Spec_ڪم_ڪندڙ(RTLIL::SigSpec sig, std::string &pf, bool undef_گهڻائي, bool dup_undef)
 	{
-		log_assert(!undef_mode || model_undef);
+		log_assert(!undef_گهڻائي || model_undef);
 		sigmap->apply(sig);
 
-		std::vector<int> vec;
-		vec.reserve(GetSize(sig));
+		std::ويڪٽر<صحيح> vec;
+		vec.reserve(Get_سائيز(sig));
 
-		for (auto &bit : sig)
-			if (bit.wire == NULL) {
-				if (model_undef && dup_undef && bit == RTLIL::State::Sx)
-					vec.push_back(ez->frozen_literal());
-				else
-					vec.push_back(bit == (undef_mode ? RTLIL::State::Sx : RTLIL::State::S1) ? ez->CONST_TRUE : ez->CONST_FALSE);
-			} else {
-				std::string wire_name = bit.wire->name.unescape();
+		لكل (خودڪار &ٻٽو_انگ : sig)
+			إذا (ٻٽو_انگ.wire == عدم) {
+				إذا (model_undef && dup_undef && ٻٽو_انگ == RTLIL::State::Sx)
+					vec.ڌڪو_پٺ(ez->frozen_literal());
+				وإلا
+					vec.ڌڪو_پٺ(ٻٽو_انگ == (undef_گهڻائي ? RTLIL::State::Sx : RTLIL::State::S1) ? ez->CONST_TRUE : ez->CONST_FALSE);
+			} وإلا {
+				std::string wire_name = ٻٽو_انگ.wire->name.unescape();
 				std::string name = pf +
-					(bit.wire->width == 1 ? wire_name : stringf("%s [%d]", wire_name, bit.offset));
-				vec.push_back(ez->frozen_literal(name));
-				imported_signals[pf][bit] = vec.back();
+					(ٻٽو_انگ.wire->ويڪر == 1 ? wire_name : stringf("%s [%d]", wire_name, ٻٽو_انگ.وٿي));
+				vec.ڌڪو_پٺ(ez->frozen_literal(name));
+				imported_سگنل[pf][ٻٽو_انگ] = vec.پٺ();
 			}
-		return vec;
+		أرجع vec;
 	}
 
-	std::vector<int> importSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::ويڪٽر<صحيح> importSigSpec(RTLIL::SigSpec sig, صحيح timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, false, false);
+		std::string pf = اڳياڙي_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		أرجع import_Sig_Spec_ڪم_ڪندڙ(sig, pf, false, false);
 	}
 
-	std::vector<int> importDefSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::ويڪٽر<صحيح> importDefSigSpec(RTLIL::SigSpec sig, صحيح timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, false, true);
+		std::string pf = اڳياڙي_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		أرجع import_Sig_Spec_ڪم_ڪندڙ(sig, pf, false, true);
 	}
 
-	std::vector<int> importUndefSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::ويڪٽر<صحيح> importUndefSigSpec(RTLIL::SigSpec sig, صحيح timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = "undef:" + prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, true, false);
+		std::string pf = "undef:" + اڳياڙي_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		أرجع import_Sig_Spec_ڪم_ڪندڙ(sig, pf, true, false);
 	}
 
-	int importSigBit(RTLIL::SigBit bit, int timestep = -1)
+	صحيح import_Sig_ٻٽو_انگ(RTLIL::Sig_ٻٽو_انگ ٻٽو_انگ, صحيح timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, false, false).front();
+		std::string pf = اڳياڙي_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		أرجع import_Sig_Spec_ڪم_ڪندڙ(ٻٽو_انگ, pf, false, false).front();
 	}
 
-	int importDefSigBit(RTLIL::SigBit bit, int timestep = -1)
+	صحيح import_Def_Sig_ٻٽو_انگ(RTLIL::Sig_ٻٽو_انگ ٻٽو_انگ, صحيح timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, false, true).front();
+		std::string pf = اڳياڙي_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		أرجع import_Sig_Spec_ڪم_ڪندڙ(ٻٽو_انگ, pf, false, true).front();
 	}
 
-	int importUndefSigBit(RTLIL::SigBit bit, int timestep = -1)
+	صحيح import_Undef_Sig_ٻٽو_انگ(RTLIL::Sig_ٻٽو_انگ ٻٽو_انگ, صحيح timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = "undef:" + prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, true, false).front();
+		std::string pf = "undef:" + اڳياڙي_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		أرجع import_Sig_Spec_ڪم_ڪندڙ(ٻٽو_انگ, pf, true, false).front();
 	}
 
-	bool importedSigBit(RTLIL::SigBit bit, int timestep = -1)
+	bool imported_Sig_ٻٽو_انگ(RTLIL::Sig_ٻٽو_انگ ٻٽو_انگ, صحيح timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return imported_signals[pf].count(bit) != 0;
+		std::string pf = اڳياڙي_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		أرجع imported_سگنل[pf].ڳڻپ(ٻٽو_انگ) != 0;
 	}
 
-	void getAsserts(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, int timestep = -1)
+	فراغ getAsserts(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, صحيح timestep = -1)
 	{
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		std::string pf = اڳياڙي_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
 		sig_a = asserts_a[pf];
 		sig_en = asserts_en[pf];
 	}
 
-	void getAssumes(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, int timestep = -1)
+	فراغ getAssumes(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, صحيح timestep = -1)
 	{
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		std::string pf = اڳياڙي_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
 		sig_a = assumes_a[pf];
 		sig_en = assumes_en[pf];
 	}
 
-	int importAsserts(int timestep = -1)
+	صحيح importAsserts(صحيح timestep = -1)
 	{
-		std::vector<int> check_bits, enable_bits;
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		if (model_undef) {
-			check_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_a[pf], timestep)), importDefSigSpec(asserts_a[pf], timestep));
-			enable_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_en[pf], timestep)), importDefSigSpec(asserts_en[pf], timestep));
-		} else {
-			check_bits = importDefSigSpec(asserts_a[pf], timestep);
-			enable_bits = importDefSigSpec(asserts_en[pf], timestep);
+		std::ويڪٽر<صحيح> check_بٽ, enable_بٽ;
+		std::string pf = اڳياڙي_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		إذا (model_undef) {
+			check_بٽ = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_a[pf], timestep)), importDefSigSpec(asserts_a[pf], timestep));
+			enable_بٽ = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_en[pf], timestep)), importDefSigSpec(asserts_en[pf], timestep));
+		} وإلا {
+			check_بٽ = importDefSigSpec(asserts_a[pf], timestep);
+			enable_بٽ = importDefSigSpec(asserts_en[pf], timestep);
 		}
-		return ez->vec_reduce_and(ez->vec_or(check_bits, ez->vec_not(enable_bits)));
+		أرجع ez->vec_reduce_and(ez->vec_or(check_بٽ, ez->vec_not(enable_بٽ)));
 	}
 
-	int importAssumes(int timestep = -1)
+	صحيح importAssumes(صحيح timestep = -1)
 	{
-		std::vector<int> check_bits, enable_bits;
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		if (model_undef) {
-			check_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_a[pf], timestep)), importDefSigSpec(assumes_a[pf], timestep));
-			enable_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_en[pf], timestep)), importDefSigSpec(assumes_en[pf], timestep));
-		} else {
-			check_bits = importDefSigSpec(assumes_a[pf], timestep);
-			enable_bits = importDefSigSpec(assumes_en[pf], timestep);
+		std::ويڪٽر<صحيح> check_بٽ, enable_بٽ;
+		std::string pf = اڳياڙي_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		إذا (model_undef) {
+			check_بٽ = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_a[pf], timestep)), importDefSigSpec(assumes_a[pf], timestep));
+			enable_بٽ = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_en[pf], timestep)), importDefSigSpec(assumes_en[pf], timestep));
+		} وإلا {
+			check_بٽ = importDefSigSpec(assumes_a[pf], timestep);
+			enable_بٽ = importDefSigSpec(assumes_en[pf], timestep);
 		}
-		return ez->vec_reduce_and(ez->vec_or(check_bits, ez->vec_not(enable_bits)));
+		أرجع ez->vec_reduce_and(ez->vec_or(check_بٽ, ez->vec_not(enable_بٽ)));
 	}
 
-	int signals_eq(RTLIL::SigSpec lhs, RTLIL::SigSpec rhs, int timestep_lhs = -1, int timestep_rhs = -1)
+	صحيح سگنل_eq(RTLIL::SigSpec lhs, RTLIL::SigSpec rhs, صحيح timestep_lhs = -1, صحيح timestep_rhs = -1)
 	{
-		if (timestep_rhs < 0)
+		إذا (timestep_rhs < 0)
 			timestep_rhs = timestep_lhs;
 
-		log_assert(lhs.size() == rhs.size());
+		log_assert(lhs.سائيز() == rhs.سائيز());
 
-		std::vector<int> vec_lhs = importSigSpec(lhs, timestep_lhs);
-		std::vector<int> vec_rhs = importSigSpec(rhs, timestep_rhs);
+		std::ويڪٽر<صحيح> vec_lhs = importSigSpec(lhs, timestep_lhs);
+		std::ويڪٽر<صحيح> vec_rhs = importSigSpec(rhs, timestep_rhs);
 
-		if (!model_undef)
-			return ez->vec_eq(vec_lhs, vec_rhs);
+		إذا (!model_undef)
+			أرجع ez->vec_eq(vec_lhs, vec_rhs);
 
-		std::vector<int> undef_lhs = importUndefSigSpec(lhs, timestep_lhs);
-		std::vector<int> undef_rhs = importUndefSigSpec(rhs, timestep_rhs);
+		std::ويڪٽر<صحيح> undef_lhs = importUndefSigSpec(lhs, timestep_lhs);
+		std::ويڪٽر<صحيح> undef_rhs = importUndefSigSpec(rhs, timestep_rhs);
 
-		std::vector<int> eq_bits;
-		for (int i = 0; i < lhs.size(); i++)
-			eq_bits.push_back(ez->AND(ez->IFF(undef_lhs.at(i), undef_rhs.at(i)),
+		std::ويڪٽر<صحيح> eq_بٽ;
+		لكل (صحيح i = 0; i < lhs.سائيز(); i++)
+			eq_بٽ.ڌڪو_پٺ(ez->AND(ez->IFF(undef_lhs.at(i), undef_rhs.at(i)),
 					ez->IFF(ez->OR(vec_lhs.at(i), undef_lhs.at(i)), ez->OR(vec_rhs.at(i), undef_rhs.at(i)))));
-		return ez->expression(ezSAT::OpAnd, eq_bits);
+		أرجع ez->اظهار_2(ezSAT::OpAnd, eq_بٽ);
 	}
 
-	void extendSignalWidth(std::vector<int> &vec_a, std::vector<int> &vec_b, RTLIL::Cell *cell, size_t y_width = 0, bool forced_signed = false)
+	فراغ extend_Signal_ويڪر(std::ويڪٽر<صحيح> &vec_a, std::ويڪٽر<صحيح> &vec_b, RTLIL::Cell *cell, سائيز_t y_ويڪر = 0, bool forced_signed = false)
 	{
 		bool is_signed = forced_signed;
-		if (!forced_signed && cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters.count(ID::B_SIGNED) > 0)
+		إذا (!forced_signed && cell->parameters.ڳڻپ(ID::A_SIGNED) > 0 && cell->parameters.ڳڻپ(ID::B_SIGNED) > 0)
 			is_signed = cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool();
-		while (vec_a.size() < vec_b.size() || vec_a.size() < y_width)
-			vec_a.push_back(is_signed && vec_a.size() > 0 ? vec_a.back() : ez->CONST_FALSE);
-		while (vec_b.size() < vec_a.size() || vec_b.size() < y_width)
-			vec_b.push_back(is_signed && vec_b.size() > 0 ? vec_b.back() : ez->CONST_FALSE);
+		طالما (vec_a.سائيز() < vec_b.سائيز() || vec_a.سائيز() < y_ويڪر)
+			vec_a.ڌڪو_پٺ(is_signed && vec_a.سائيز() > 0 ? vec_a.پٺ() : ez->CONST_FALSE);
+		طالما (vec_b.سائيز() < vec_a.سائيز() || vec_b.سائيز() < y_ويڪر)
+			vec_b.ڌڪو_پٺ(is_signed && vec_b.سائيز() > 0 ? vec_b.پٺ() : ez->CONST_FALSE);
 	}
 
-	void extendSignalWidth(std::vector<int> &vec_a, std::vector<int> &vec_b, std::vector<int> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
+	فراغ extend_Signal_ويڪر(std::ويڪٽر<صحيح> &vec_a, std::ويڪٽر<صحيح> &vec_b, std::ويڪٽر<صحيح> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
 	{
-		extendSignalWidth(vec_a, vec_b, cell, vec_y.size(), forced_signed);
-		while (vec_y.size() < vec_a.size())
-			vec_y.push_back(ez->literal());
+		extend_Signal_ويڪر(vec_a, vec_b, cell, vec_y.سائيز(), forced_signed);
+		طالما (vec_y.سائيز() < vec_a.سائيز())
+			vec_y.ڌڪو_پٺ(ez->literal());
 	}
 
-	void extendSignalWidthUnary(std::vector<int> &vec_a, std::vector<int> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
+	فراغ extend_Signal_ويڪر_Unary(std::ويڪٽر<صحيح> &vec_a, std::ويڪٽر<صحيح> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
 	{
-		bool is_signed = forced_signed || (cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool());
-		while (vec_a.size() < vec_y.size())
-			vec_a.push_back(is_signed && vec_a.size() > 0 ? vec_a.back() : ez->CONST_FALSE);
-		while (vec_y.size() < vec_a.size())
-			vec_y.push_back(ez->literal());
+		bool is_signed = forced_signed || (cell->parameters.ڳڻپ(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool());
+		طالما (vec_a.سائيز() < vec_y.سائيز())
+			vec_a.ڌڪو_پٺ(is_signed && vec_a.سائيز() > 0 ? vec_a.پٺ() : ez->CONST_FALSE);
+		طالما (vec_y.سائيز() < vec_a.سائيز())
+			vec_y.ڌڪو_پٺ(ez->literal());
 	}
 
-	void undefGating(std::vector<int> &vec_y, std::vector<int> &vec_yy, std::vector<int> &vec_undef)
+	فراغ undefGating(std::ويڪٽر<صحيح> &vec_y, std::ويڪٽر<صحيح> &vec_yy, std::ويڪٽر<صحيح> &vec_undef)
 	{
 		log_assert(model_undef);
-		log_assert(vec_y.size() == vec_yy.size());
-		if (vec_y.size() > vec_undef.size()) {
-			std::vector<int> trunc_y(vec_y.begin(), vec_y.begin() + vec_undef.size());
-			std::vector<int> trunc_yy(vec_yy.begin(), vec_yy.begin() + vec_undef.size());
-			ez->assume(ez->expression(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(trunc_y, trunc_yy))));
-		} else {
-			log_assert(vec_y.size() == vec_undef.size());
-			ez->assume(ez->expression(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(vec_y, vec_yy))));
+		log_assert(vec_y.سائيز() == vec_yy.سائيز());
+		إذا (vec_y.سائيز() > vec_undef.سائيز()) {
+			std::ويڪٽر<صحيح> trunc_y(vec_y.begin(), vec_y.begin() + vec_undef.سائيز());
+			std::ويڪٽر<صحيح> trunc_yy(vec_yy.begin(), vec_yy.begin() + vec_undef.سائيز());
+			ez->assume(ez->اظهار_2(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(trunc_y, trunc_yy))));
+		} وإلا {
+			log_assert(vec_y.سائيز() == vec_undef.سائيز());
+			ez->assume(ez->اظهار_2(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(vec_y, vec_yy))));
 		}
 	}
 
-	std::pair<std::vector<int>, std::vector<int>> mux(int s, int undef_s, const std::vector<int> &a, const std::vector<int> &undef_a, const std::vector<int> &b, const std::vector<int> &undef_b) {
-		std::vector<int> res;
-		std::vector<int> undef_res;
+	std::pair<std::ويڪٽر<صحيح>, std::ويڪٽر<صحيح>> mux(صحيح s, صحيح undef_s, ثابت std::ويڪٽر<صحيح> &a, ثابت std::ويڪٽر<صحيح> &undef_a, ثابت std::ويڪٽر<صحيح> &b, ثابت std::ويڪٽر<صحيح> &undef_b) {
+		std::ويڪٽر<صحيح> res;
+		std::ويڪٽر<صحيح> undef_res;
 		res = ez->vec_ite(s, b, a);
-		if (model_undef) {
-			std::vector<int> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
-			std::vector<int> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
+		إذا (model_undef) {
+			std::ويڪٽر<صحيح> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
+			std::ويڪٽر<صحيح> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
 			undef_res = ez->vec_ite(undef_s, undef_ab, ez->vec_ite(s, undef_b, undef_a));
 		}
-		return std::make_pair(res, undef_res);
+		أرجع std::make_pair(res, undef_res);
 	}
 
-	void undefGating(int y, int yy, int undef)
+	فراغ undefGating(صحيح y, صحيح yy, صحيح undef)
 	{
 		ez->assume(ez->OR(undef, ez->IFF(y, yy)));
 	}
 
-	void setInitState(int timestep)
+	فراغ سيٽ_Init_State(صحيح timestep)
 	{
-		auto key = make_pair(prefix, timestep);
-		log_assert(initstates.count(key) == 0 || initstates.at(key) == true);
-		initstates[key] = true;
+		خودڪار ڪنجي = make_pair(اڳياڙي_2, timestep);
+		log_assert(initstates.ڳڻپ(ڪنجي) == 0 || initstates.at(ڪنجي) == true);
+		initstates[ڪنجي] = true;
 	}
 
-	bool importCell(RTLIL::Cell *cell, int timestep = -1);
+	bool importCell(RTLIL::Cell *cell, صحيح timestep = -1);
 };
 
-void report_missing_model(bool warn_only, RTLIL::Cell* cell);
+فراغ report_missing_model(bool warn_only, RTLIL::Cell* cell);
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پڇاڙي
 
-#endif
+#جيڪڏهن_پورو

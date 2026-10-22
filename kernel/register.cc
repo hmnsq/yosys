@@ -17,96 +17,96 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/satgen.h"
-#include "kernel/json.h"
-#include "kernel/gzip.h"
-#include "kernel/log_help.h"
-#include "kernel/newcelltypes.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/satgen.h"
+#ضمن "kernel/json.h"
+#ضمن "kernel/gzip.h"
+#ضمن "kernel/log_help.h"
+#ضمن "kernel/newcelltypes.h"
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <filesystem>
+#ضمن <string.h>
+#ضمن <stdlib.h>
+#ضمن <stdio.h>
+#ضمن <errno.h>
+#ضمن <filesystem>
 
 YOSYS_NAMESPACE_BEGIN
 
-#define MAX_REG_COUNT 1000
+#وصف_ڪريو MAX_REG_ڳڻپ 1000
 
-bool echo_mode = false;
-Pass *first_queued_pass;
+منطقي echo_گهڻائي = خطأ;
+Pass *پهريون_queued_pass;
 Pass *current_pass;
 
-std::map<std::string, Frontend*> frontend_register;
-std::map<std::string, Pass*> pass_register;
-std::map<std::string, Backend*> backend_register;
-std::map<std::string, Target> target_register;
+std::map<std::string, Frontend*> frontend_رجسٽر;
+std::map<std::string, Pass*> pass_رجسٽر;
+std::map<std::string, Backend*> backend_رجسٽر;
+std::map<std::string, هدف> هدف_رجسٽر;
 
-std::vector<std::string> Frontend::next_args;
+std::ويڪٽر<std::string> Frontend::ايندڙ_دليلون;
 
-bool GarbageCollectionGuard::is_enabled_ = true;
+منطقي GarbageCollectionGuard::is_enabled_ = سچ;
 
-static bool garbage_collection_requested = false;
+ساكن منطقي garbage_collection_requested = خطأ;
 
-void request_garbage_collection()
+فراغ request_garbage_collection()
 {
-	garbage_collection_requested = true;
+	garbage_collection_requested = سچ;
 }
 
-void try_collect_garbage()
+فراغ try_collect_garbage()
 {
-	if (!GarbageCollectionGuard::is_enabled() || !garbage_collection_requested)
-		return;
-	garbage_collection_requested = false;
-	if (yosys_design)
+	إذا (!GarbageCollectionGuard::is_enabled() || !garbage_collection_requested)
+		أرجع;
+	garbage_collection_requested = خطأ;
+	إذا (yosys_design)
 		yosys_design->gc_twines();
 }
 
-Pass::Pass(std::string name, std::string short_help, source_location location) :
+Pass::Pass(std::string name, std::string short_help, ذريعو_location location) :
 	pass_name(name), short_help(short_help), location(location)
 {
-	next_queued_pass = first_queued_pass;
-	first_queued_pass = this;
+	ايندڙ_queued_pass = پهريون_queued_pass;
+	پهريون_queued_pass = هذا;
 	call_counter = 0;
 	runtime_ns = 0;
 }
 
-void Pass::run_register()
+فراغ Pass::لاڳيتو_رجسٽر()
 {
-	if (pass_register.count(pass_name) && !replace_existing_pass())
+	إذا (pass_رجسٽر.ڳڻپ(pass_name) && !replace_existing_pass())
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
-	pass_register[pass_name] = this;
+	pass_رجسٽر[pass_name] = هذا;
 }
 
-void Pass::init_register()
+فراغ Pass::init_رجسٽر()
 {
-	vector<Pass*> added_passes;
-	while (first_queued_pass) {
-		added_passes.push_back(first_queued_pass);
-		first_queued_pass->run_register();
-		first_queued_pass = first_queued_pass->next_queued_pass;
+	ويڪٽر<Pass*> added_passes;
+	طالما (پهريون_queued_pass) {
+		added_passes.ڌڪو_پٺ(پهريون_queued_pass);
+		پهريون_queued_pass->لاڳيتو_رجسٽر();
+		پهريون_queued_pass = پهريون_queued_pass->ايندڙ_queued_pass;
 	}
-	for (auto added_pass : added_passes)
-		added_pass->on_register();
+	لكل (خودڪار added_pass : added_passes)
+		added_pass->on_رجسٽر();
 }
 
-void Pass::done_register()
+فراغ Pass::پورو_رجسٽر()
 {
-	for (auto &it : pass_register)
-		it.second->on_shutdown();
+	لكل (خودڪار &it : pass_رجسٽر)
+		it.ٻيو->on_shutdown();
 
-	frontend_register.clear();
-	pass_register.clear();
-	backend_register.clear();
-	log_assert(first_queued_pass == NULL);
+	frontend_رجسٽر.clear();
+	pass_رجسٽر.clear();
+	backend_رجسٽر.clear();
+	log_assert(پهريون_queued_pass == عدم);
 }
 
-void Pass::on_register()
+فراغ Pass::on_رجسٽر()
 {
 }
 
-void Pass::on_shutdown()
+فراغ Pass::on_shutdown()
 {
 }
 
@@ -119,1134 +119,1134 @@ Pass::pre_post_exec_state_t Pass::pre_execute()
 	pre_post_exec_state_t state;
 	call_counter++;
 	state.begin_ns = PerformanceTimer::query();
-	state.parent_pass = current_pass;
-	current_pass = this;
+	state.والد_pass = current_pass;
+	current_pass = هذا;
 	clear_flags();
-	return state;
+	أرجع state;
 }
 
-void Pass::post_execute(Pass::pre_post_exec_state_t state)
+فراغ Pass::post_execute(Pass::pre_post_exec_state_t state)
 {
 	log_suppressed();
 
-	int64_t time_ns = PerformanceTimer::query() - state.begin_ns;
-	runtime_ns += time_ns;
-	current_pass = state.parent_pass;
-	subtract_from_current_runtime_ns(time_ns);
+	int64_t وقت_ns = PerformanceTimer::query() - state.begin_ns;
+	runtime_ns += وقت_ns;
+	current_pass = state.والد_pass;
+	ڪٽيو_from_current_runtime_ns(وقت_ns);
 }
 
-void Pass::subtract_from_current_runtime_ns(int64_t time_ns)
+فراغ Pass::ڪٽيو_from_current_runtime_ns(int64_t وقت_ns)
 {
-	if (current_pass)
-		current_pass->runtime_ns -= time_ns;
+	إذا (current_pass)
+		current_pass->runtime_ns -= وقت_ns;
 }
 
-void Pass::help()
+فراغ Pass::help()
 {
-	auto prettyHelp = PrettyHelp();
-	if (formatted_help()) {
+	خودڪار prettyHelp = PrettyHelp();
+	إذا (formatted_help()) {
 		prettyHelp.log_help();
-	} else {
-		log("\n");
-		log("No help message for command `%s'.\n", pass_name);
-		log("\n");
+	} وإلا {
+		لاگرٿم("\n");
+		لاگرٿم("No help message for command `%s'.\n", pass_name);
+		لاگرٿم("\n");
 	}
 }
 
-bool Pass::formatted_help()
+منطقي Pass::formatted_help()
 {
-	return false;
+	أرجع خطأ;
 }
 
-void Pass::clear_flags()
+فراغ Pass::clear_flags()
 {
 }
 
-void Pass::cmd_log_args(const std::vector<std::string> &args)
+فراغ Pass::cmd_log_دليلون(ثابت std::ويڪٽر<std::string> &دليلون_2)
 {
-	if (args.size() <= 1)
-		return;
-	std::string message = "Full command line:";
-	for (size_t i = 0; i < args.size(); i++)
-		message += stringf(" %s", args[i]);
-	log("%s\n", message);
+	إذا (دليلون_2.سائيز() <= 1)
+		أرجع;
+	std::string پيغام = "Full command line:";
+	لكل (سائيز_t i = 0; i < دليلون_2.سائيز(); i++)
+		پيغام += stringf(" %s", دليلون_2[i]);
+	لاگرٿم("%s\n", پيغام);
 }
 
-void Pass::cmd_error(const std::vector<std::string> &args, size_t argidx, std::string msg)
+فراغ Pass::cmd_error(ثابت std::ويڪٽر<std::string> &دليلون_2, سائيز_t argidx, std::string نياپو)
 {
-	std::string command_text;
-	int error_pos = 0;
+	std::string command_متن;
+	صحيح error_pos = 0;
 
-	for (size_t i = 0; i < args.size(); i++) {
-		if (i < argidx)
-			error_pos += args[i].size() + 1;
-		command_text = command_text + (command_text.empty() ? "" : " ") + args[i];
+	لكل (سائيز_t i = 0; i < دليلون_2.سائيز(); i++) {
+		إذا (i < argidx)
+			error_pos += دليلون_2[i].سائيز() + 1;
+		command_متن = command_متن + (command_متن.خالي_جايون() ? "" : " ") + دليلون_2[i];
 	}
 
-	log("\n");
-	log("Syntax error in command `%s':\n", command_text);
+	لاگرٿم("\n");
+	لاگرٿم("Syntax error in command `%s':\n", command_متن);
 	help();
 
 	log_cmd_error("Command syntax error: %s\n> %s\n> %*s^\n",
-			msg.c_str(), command_text.c_str(), error_pos, "");
+			نياپو.c_str(), command_متن.c_str(), error_pos, "");
 }
 
-void Pass::extra_args(std::vector<std::string> args, size_t argidx, RTLIL::Design *design, bool select)
+فراغ Pass::extra_دليلون(std::ويڪٽر<std::string> دليلون_2, سائيز_t argidx, RTLIL::Design *design, منطقي select)
 {
-	for (; argidx < args.size(); argidx++)
+	لكل (; argidx < دليلون_2.سائيز(); argidx++)
 	{
-		std::string arg = args[argidx];
+		std::string arg = دليلون_2[argidx];
 
-		if (arg.compare(0, 1, "-") == 0)
-			cmd_error(args, argidx, "Unknown option or option in arguments.");
+		إذا (arg.compare(0, 1, "-") == 0)
+			cmd_error(دليلون_2, argidx, "Unknown option or option in arguments.");
 
-		if (!select)
-			cmd_error(args, argidx, "Extra argument.");
+		إذا (!select)
+			cmd_error(دليلون_2, argidx, "Extra argument.");
 
-		handle_extra_select_args(this, args, argidx, args.size(), design);
-		break;
+		handle_extra_select_دليلون(هذا, دليلون_2, argidx, دليلون_2.سائيز(), design);
+		اكسر;
 	}
 	// cmd_log_args(args);
 }
 
-void Pass::call(RTLIL::Design *design, std::string command)
+فراغ Pass::call(RTLIL::Design *design, std::string command)
 {
-	std::vector<std::string> args;
+	std::ويڪٽر<std::string> دليلون_2;
 
 	std::string cmd_buf = command;
-	std::string tok = next_token(cmd_buf, " \t\r\n", true);
+	std::string tok = ايندڙ_token(cmd_buf, " \t\r\n", سچ);
 
-	if (tok.empty())
-		return;
+	إذا (tok.خالي_جايون())
+		أرجع;
 
-	if (tok[0] == '!') {
-#if defined(YOSYS_ENABLE_SPAWN)
-		cmd_buf = command.substr(command.find('!') + 1);
-		while (!cmd_buf.empty() && (cmd_buf.back() == ' ' || cmd_buf.back() == '\t' ||
-				cmd_buf.back() == '\r' || cmd_buf.back() == '\n'))
-			cmd_buf.resize(cmd_buf.size()-1);
-		log_header(design, "Shell command: %s\n", cmd_buf);
-		int retCode = run_command(cmd_buf);
-		if (retCode != 0)
-			log_cmd_error("Shell command returned error code %d.\n", retCode);
-		return;
-#else
+	إذا (tok[0] == '!') {
+#إذا defined(YOSYS_ENABLE_SPAWN)
+		cmd_buf = command.substr(command.ڳوليو('!') + 1);
+		طالما (!cmd_buf.خالي_جايون() && (cmd_buf.پٺ() == ' ' || cmd_buf.پٺ() == '\t' ||
+				cmd_buf.پٺ() == '\r' || cmd_buf.پٺ() == '\n'))
+			cmd_buf.resize(cmd_buf.سائيز()-1);
+		log_سرو(design, "Shell command: %s\n", cmd_buf);
+		صحيح ret_ڪوڊ = لاڳيتو_command(cmd_buf);
+		إذا (ret_ڪوڊ != 0)
+			log_cmd_error("Shell command returned error code %d.\n", ret_ڪوڊ);
+		أرجع;
+#وإلا
 		log_cmd_error("Shell is not available.\n");
-#endif
+#جيڪڏهن_پورو
 	}
 
-	while (!tok.empty()) {
-		if (tok[0] == '#') {
-			int stop;
-			for (stop = 0; stop < GetSize(cmd_buf); stop++)
-				if (cmd_buf[stop] == '\r' || cmd_buf[stop] == '\n')
-					break;
+	طالما (!tok.خالي_جايون()) {
+		إذا (tok[0] == '#') {
+			صحيح stop;
+			لكل (stop = 0; stop < Get_سائيز(cmd_buf); stop++)
+				إذا (cmd_buf[stop] == '\r' || cmd_buf[stop] == '\n')
+					اكسر;
 			cmd_buf = cmd_buf.substr(stop);
-		} else
-		if (tok.back() == ';') {
-			int num_semikolon = 0;
-			while (!tok.empty() && tok.back() == ';')
-				tok.resize(tok.size()-1), num_semikolon++;
-			if (!tok.empty())
-				args.push_back(tok);
-			call(design, args);
-			args.clear();
-			if (num_semikolon == 2)
+		} وإلا
+		إذا (tok.پٺ() == ';') {
+			صحيح انگ_semikolon = 0;
+			طالما (!tok.خالي_جايون() && tok.پٺ() == ';')
+				tok.resize(tok.سائيز()-1), انگ_semikolon++;
+			إذا (!tok.خالي_جايون())
+				دليلون_2.ڌڪو_پٺ(tok);
+			call(design, دليلون_2);
+			دليلون_2.clear();
+			إذا (انگ_semikolon == 2)
 				call(design, "clean");
-			if (num_semikolon == 3)
+			إذا (انگ_semikolon == 3)
 				call(design, "clean -purge");
-		} else
-			args.push_back(tok);
-		bool found_nl = false;
-		for (auto c : cmd_buf) {
-			if (c == ' ' || c == '\t')
-				continue;
-			if (c == '\r' || c == '\n')
-				found_nl = true;
-			break;
+		} وإلا
+			دليلون_2.ڌڪو_پٺ(tok);
+		منطقي مليو_nl = خطأ;
+		لكل (خودڪار c : cmd_buf) {
+			إذا (c == ' ' || c == '\t')
+				استمر;
+			إذا (c == '\r' || c == '\n')
+				مليو_nl = سچ;
+			اكسر;
 		}
-		if (found_nl) {
-			call(design, args);
-			args.clear();
+		إذا (مليو_nl) {
+			call(design, دليلون_2);
+			دليلون_2.clear();
 		}
-		tok = next_token(cmd_buf, " \t\r\n", true);
+		tok = ايندڙ_token(cmd_buf, " \t\r\n", سچ);
 	}
 
-	call(design, args);
+	call(design, دليلون_2);
 }
 
-void Pass::call(RTLIL::Design *design, std::vector<std::string> args)
+فراغ Pass::call(RTLIL::Design *design, std::ويڪٽر<std::string> دليلون_2)
 {
-	if (args.size() == 0 || args[0][0] == '#' || args[0][0] == ':')
-		return;
+	إذا (دليلون_2.سائيز() == 0 || دليلون_2[0][0] == '#' || دليلون_2[0][0] == ':')
+		أرجع;
 
-	if (echo_mode) {
-		std::string message = stringf("%s", create_prompt(design, 0, false));
-		for (size_t i = 0; i < args.size(); i++)
-			message += stringf("%s%s", i ? " " : "", args[i]);
-		log("\n");
-		log("%s\n", message);
+	إذا (echo_گهڻائي) {
+		std::string پيغام = stringf("%s", create_prompt(design, 0, خطأ));
+		لكل (سائيز_t i = 0; i < دليلون_2.سائيز(); i++)
+			پيغام += stringf("%s%s", i ? " " : "", دليلون_2[i]);
+		لاگرٿم("\n");
+		لاگرٿم("%s\n", پيغام);
 	}
 
-	if (pass_register.count(args[0]) == 0)
-		log_cmd_error("No such command: %s (type 'help' for a command overview)\n", args[0]);
-	Pass *pass = pass_register[args[0]];
+	إذا (pass_رجسٽر.ڳڻپ(دليلون_2[0]) == 0)
+		log_cmd_error("No such command: %s (type 'help' for a command overview)\n", دليلون_2[0]);
+	Pass *pass = pass_رجسٽر[دليلون_2[0]];
 
 	// Collect garbage before the next pass if requested. No need to collect garbage after the last pass.
 	try_collect_garbage();
 	GarbageCollectionGuard gc_guard(pass->allow_garbage_collection_during_pass());
 
-	if (pass->experimental_flag)
-		log_experimental(args[0]);
+	إذا (pass->experimental_flag)
+		log_experimental(دليلون_2[0]);
 
-	size_t orig_sel_stack_pos = design->selection_stack.size();
-	auto state = pass->pre_execute();
-	pass->execute(args, design);
+	سائيز_t orig_sel_ڍير_pos = design->selection_ڍير.سائيز();
+	خودڪار state = pass->pre_execute();
+	pass->execute(دليلون_2, design);
 	pass->post_execute(state);
-	while (design->selection_stack.size() > orig_sel_stack_pos)
-		design->pop_selection();
+	طالما (design->selection_ڍير.سائيز() > orig_sel_ڍير_pos)
+		design->ڪڍو_selection();
 }
 
-void Pass::call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::string command)
+فراغ Pass::call_on_selection(RTLIL::Design *design, ثابت RTLIL::Selection &selection, std::string command)
 {
-	IdString backup_selected_active_module = design->selected_active_module;
-	design->selected_active_module.clear();
-	design->push_selection(selection);
+	IdString backup_selected_سرگرم_module = design->selected_سرگرم_module;
+	design->selected_سرگرم_module.clear();
+	design->ڌڪو_selection(selection);
 
 	Pass::call(design, command);
 
-	design->pop_selection();
-	design->selected_active_module = backup_selected_active_module;
+	design->ڪڍو_selection();
+	design->selected_سرگرم_module = backup_selected_سرگرم_module;
 }
 
-void Pass::call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::vector<std::string> args)
+فراغ Pass::call_on_selection(RTLIL::Design *design, ثابت RTLIL::Selection &selection, std::ويڪٽر<std::string> دليلون_2)
 {
-	IdString backup_selected_active_module = design->selected_active_module;
-	design->selected_active_module.clear();
-	design->push_selection(selection);
+	IdString backup_selected_سرگرم_module = design->selected_سرگرم_module;
+	design->selected_سرگرم_module.clear();
+	design->ڌڪو_selection(selection);
 
-	Pass::call(design, args);
+	Pass::call(design, دليلون_2);
 
-	design->pop_selection();
-	design->selected_active_module = backup_selected_active_module;
+	design->ڪڍو_selection();
+	design->selected_سرگرم_module = backup_selected_سرگرم_module;
 }
 
-void Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command)
+فراغ Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command)
 {
-	IdString backup_selected_active_module = design->selected_active_module;
-	design->selected_active_module = module->name;
-	design->push_empty_selection();
+	IdString backup_selected_سرگرم_module = design->selected_سرگرم_module;
+	design->selected_سرگرم_module = module->name;
+	design->ڌڪو_خالي_جايون_selection();
 	design->select(module);
 
 	Pass::call(design, command);
 
-	design->pop_selection();
-	design->selected_active_module = backup_selected_active_module;
+	design->ڪڍو_selection();
+	design->selected_سرگرم_module = backup_selected_سرگرم_module;
 }
 
-void Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vector<std::string> args)
+فراغ Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::ويڪٽر<std::string> دليلون_2)
 {
-	IdString backup_selected_active_module = design->selected_active_module;
-	design->selected_active_module = module->name;
-	design->push_empty_selection();
+	IdString backup_selected_سرگرم_module = design->selected_سرگرم_module;
+	design->selected_سرگرم_module = module->name;
+	design->ڌڪو_خالي_جايون_selection();
 	design->select(module);
 
-	Pass::call(design, args);
+	Pass::call(design, دليلون_2);
 
-	design->pop_selection();
-	design->selected_active_module = backup_selected_active_module;
+	design->ڪڍو_selection();
+	design->selected_سرگرم_module = backup_selected_سرگرم_module;
 }
 
-bool ScriptPass::check_label(std::string label, std::string info)
+منطقي ScriptPass::check_label(std::string label, std::string info)
 {
-	if (active_design == nullptr) {
-		log("\n");
-		if (info.empty())
-			log("    %s:\n", label);
-		else
-			log("    %s:    %s\n", label, info);
-		return true;
-	} else {
-		if (!active_run_from.empty() && active_run_from == active_run_to) {
-			block_active = (label == active_run_from);
-		} else {
-			if (label == active_run_from)
-				block_active = true;
-			if (label == active_run_to)
-				block_active = false;
+	إذا (سرگرم_design == خالي_اشارو) {
+		لاگرٿم("\n");
+		إذا (info.خالي_جايون())
+			لاگرٿم("    %s:\n", label);
+		وإلا
+			لاگرٿم("    %s:    %s\n", label, info);
+		أرجع سچ;
+	} وإلا {
+		إذا (!سرگرم_لاڳيتو_from.خالي_جايون() && سرگرم_لاڳيتو_from == سرگرم_لاڳيتو_منزل) {
+			بلاڪ_سرگرم = (label == سرگرم_لاڳيتو_from);
+		} وإلا {
+			إذا (label == سرگرم_لاڳيتو_from)
+				بلاڪ_سرگرم = سچ;
+			إذا (label == سرگرم_لاڳيتو_منزل)
+				بلاڪ_سرگرم = خطأ;
 		}
-		return block_active;
+		أرجع بلاڪ_سرگرم;
 	}
 }
 
-void ScriptPass::run(std::string command, std::string info)
+فراغ ScriptPass::لاڳيتو(std::string command, std::string info)
 {
-	if (active_design == nullptr) {
-		if (info.empty())
-			log("        %s\n", command);
-		else
-			log("        %s    %s\n", command, info);
-	} else {
-		Pass::call(active_design, command);
-		active_design->check();
+	إذا (سرگرم_design == خالي_اشارو) {
+		إذا (info.خالي_جايون())
+			لاگرٿم("        %s\n", command);
+		وإلا
+			لاگرٿم("        %s    %s\n", command, info);
+	} وإلا {
+		Pass::call(سرگرم_design, command);
+		سرگرم_design->check();
 	}
 }
 
-void ScriptPass::run_nocheck(std::string command, std::string info)
+فراغ ScriptPass::لاڳيتو_nocheck(std::string command, std::string info)
 {
-	if (active_design == nullptr) {
-		if (info.empty())
-			log("        %s\n", command);
-		else
-			log("        %s    %s\n", command, info);
-	} else {
-		Pass::call(active_design, command);
+	إذا (سرگرم_design == خالي_اشارو) {
+		إذا (info.خالي_جايون())
+			لاگرٿم("        %s\n", command);
+		وإلا
+			لاگرٿم("        %s    %s\n", command, info);
+	} وإلا {
+		Pass::call(سرگرم_design, command);
 	}
 }
 
-void ScriptPass::run_script(RTLIL::Design *design, std::string run_from, std::string run_to)
+فراغ ScriptPass::لاڳيتو_script(RTLIL::Design *design, std::string لاڳيتو_from, std::string لاڳيتو_منزل)
 {
-	help_mode = false;
-	active_design = design;
-	block_active = run_from.empty();
-	active_run_from = run_from;
-	active_run_to = run_to;
+	help_گهڻائي = خطأ;
+	سرگرم_design = design;
+	بلاڪ_سرگرم = لاڳيتو_from.خالي_جايون();
+	سرگرم_لاڳيتو_from = لاڳيتو_from;
+	سرگرم_لاڳيتو_منزل = لاڳيتو_منزل;
 	script();
 }
 
-void ScriptPass::help_script()
+فراغ ScriptPass::help_script()
 {
 	clear_flags();
-	help_mode = true;
-	active_design = nullptr;
-	block_active = true;
-	active_run_from.clear();
-	active_run_to.clear();
+	help_گهڻائي = سچ;
+	سرگرم_design = خالي_اشارو;
+	بلاڪ_سرگرم = سچ;
+	سرگرم_لاڳيتو_from.clear();
+	سرگرم_لاڳيتو_منزل.clear();
 	script();
 }
 
-Frontend::Frontend(std::string name, std::string short_help, source_location location) :
+Frontend::Frontend(std::string name, std::string short_help, ذريعو_location location) :
 		Pass(name.rfind("=", 0) == 0 ? name.substr(1) : "read_" + name, short_help, location),
 		frontend_name(name.rfind("=", 0) == 0 ? name.substr(1) : name)
 {
 }
 
-void Frontend::run_register()
+فراغ Frontend::لاڳيتو_رجسٽر()
 {
-	if (pass_register.count(pass_name) && !replace_existing_pass())
+	إذا (pass_رجسٽر.ڳڻپ(pass_name) && !replace_existing_pass())
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
-	pass_register[pass_name] = this;
+	pass_رجسٽر[pass_name] = هذا;
 
-	if (frontend_register.count(frontend_name) && !replace_existing_pass())
+	إذا (frontend_رجسٽر.ڳڻپ(frontend_name) && !replace_existing_pass())
 		log_error("Unable to register frontend '%s', frontend already exists!\n", frontend_name);
-	frontend_register[frontend_name] = this;
+	frontend_رجسٽر[frontend_name] = هذا;
 }
 
 Frontend::~Frontend()
 {
 }
 
-void Frontend::execute(std::vector<std::string> args, RTLIL::Design *design)
+فراغ Frontend::execute(std::ويڪٽر<std::string> دليلون_2, RTLIL::Design *design)
 {
-	log_assert(next_args.empty());
-	do {
-		std::istream *f = NULL;
-		next_args.clear();
-		auto state = pre_execute();
-		execute(f, std::string(), args, design);
+	log_assert(ايندڙ_دليلون.خالي_جايون());
+	افعل {
+		std::istream *f = عدم;
+		ايندڙ_دليلون.clear();
+		خودڪار state = pre_execute();
+		execute(f, std::string(), دليلون_2, design);
 		post_execute(state);
-		args = next_args;
-		delete f;
-	} while (!args.empty());
+		دليلون_2 = ايندڙ_دليلون;
+		ميٽيو f;
+	} طالما (!دليلون_2.خالي_جايون());
 }
 
-FILE *Frontend::current_script_file = NULL;
-std::string Frontend::last_here_document;
+FILE *Frontend::current_script_file = عدم;
+std::string Frontend::آخري_هتي_document;
 std::string Frontend::current_script_filename;
-int Frontend::current_script_lineno = 0;
+صحيح Frontend::current_script_lineno = 0;
 
-void Frontend::extra_args(std::istream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_input)
+فراغ Frontend::extra_دليلون(std::istream *&f, std::string &filename, std::ويڪٽر<std::string> دليلون_2, سائيز_t argidx, منطقي bin_داخلا)
 {
-	bool called_with_fp = f != NULL;
+	منطقي called_with_fp = f != عدم;
 
-	next_args.clear();
+	ايندڙ_دليلون.clear();
 
-	if (argidx < args.size())
+	إذا (argidx < دليلون_2.سائيز())
 	{
-		std::string arg = args[argidx];
+		std::string arg = دليلون_2[argidx];
 
-		if (arg.compare(0, 1, "-") == 0)
-			cmd_error(args, argidx, "Unknown option or option in arguments.");
-		if (f != NULL)
-			cmd_error(args, argidx, "Extra filename argument in direct file mode.");
+		إذا (arg.compare(0, 1, "-") == 0)
+			cmd_error(دليلون_2, argidx, "Unknown option or option in arguments.");
+		إذا (f != عدم)
+			cmd_error(دليلون_2, argidx, "Extra filename argument in direct file mode.");
 
 		filename = arg;
 		//Accommodate heredocs with EOT marker spaced out from "<<", e.g. "<< EOT" vs. "<<EOT"
-		if (filename == "<<" && argidx+1 < args.size())
-			filename += args[++argidx];
-		if (filename.compare(0, 2, "<<") == 0) {
-			if (filename.size() <= 2)
+		إذا (filename == "<<" && argidx+1 < دليلون_2.سائيز())
+			filename += دليلون_2[++argidx];
+		إذا (filename.compare(0, 2, "<<") == 0) {
+			إذا (filename.سائيز() <= 2)
 				log_error("Missing EOT marker in here document!\n");
 			std::string eot_marker = filename.substr(2);
-			filename = (Frontend::current_script_file == nullptr) ?  "<stdin>" : "<inlined>";
-			last_here_document.clear();
-			while (1) {
-				std::string buffer;
-				char block[4096];
-				while (1) {
-					if (fgets(block, 4096, Frontend::current_script_file == nullptr? stdin : Frontend::current_script_file) == nullptr)
+			filename = (Frontend::current_script_file == خالي_اشارو) ?  "<stdin>" : "<inlined>";
+			آخري_هتي_document.clear();
+			طالما (1) {
+				std::string بفر;
+				حرف بلاڪ[4096];
+				طالما (1) {
+					إذا (fgets(بلاڪ, 4096, Frontend::current_script_file == خالي_اشارو? stdin : Frontend::current_script_file) == خالي_اشارو)
 						log_error("Unexpected end of file in here document '%s'!\n", filename);
-					buffer += block;
-					if (buffer.size() > 0 && (buffer[buffer.size() - 1] == '\n' || buffer[buffer.size() - 1] == '\r'))
-						break;
+					بفر += بلاڪ;
+					إذا (بفر.سائيز() > 0 && (بفر[بفر.سائيز() - 1] == '\n' || بفر[بفر.سائيز() - 1] == '\r'))
+						اكسر;
 				}
 				Frontend::current_script_lineno++;
-				size_t indent = buffer.find_first_not_of(" \t\r\n");
-				if (indent != std::string::npos && buffer.compare(indent, eot_marker.size(), eot_marker) == 0)
-					break;
-				last_here_document += buffer;
+				سائيز_t indent = بفر.ڳوليو_پهريون_not_جو(" \t\r\n");
+				إذا (indent != std::string::npos && بفر.compare(indent, eot_marker.سائيز(), eot_marker) == 0)
+					اكسر;
+				آخري_هتي_document += بفر;
 			}
-			f = new std::istringstream(last_here_document);
-		} else {
+			f = جديد std::istringstream(آخري_هتي_document);
+		} وإلا {
 			rewrite_filename(filename);
-			vector<string> filenames = glob_filename(filename);
+			ويڪٽر<string> filenames = glob_filename(filename);
 			filename = filenames.front();
-			if (GetSize(filenames) > 1) {
-				next_args.insert(next_args.end(), args.begin(), args.begin()+argidx);
-				next_args.insert(next_args.end(), filenames.begin()+1, filenames.end());
+			إذا (Get_سائيز(filenames) > 1) {
+				ايندڙ_دليلون.وجهو(ايندڙ_دليلون.پڇاڙي(), دليلون_2.begin(), دليلون_2.begin()+argidx);
+				ايندڙ_دليلون.وجهو(ايندڙ_دليلون.پڇاڙي(), filenames.begin()+1, filenames.پڇاڙي());
 			}
-			yosys_input_files.insert(filename);
-			f = uncompressed(filename, bin_input ? std::ifstream::binary : std::ifstream::in);
+			yosys_داخلا_files.وجهو(filename);
+			f = uncompressed(filename, bin_داخلا ? std::ifstream::ٻٽو : std::ifstream::اندريون);
 		}
 
-		for (size_t i = argidx+1; i < args.size(); i++)
-			if (args[i].compare(0, 1, "-") == 0)
-				cmd_error(args, i, "Found option, expected arguments.");
+		لكل (سائيز_t i = argidx+1; i < دليلون_2.سائيز(); i++)
+			إذا (دليلون_2[i].compare(0, 1, "-") == 0)
+				cmd_error(دليلون_2, i, "Found option, expected arguments.");
 
-		if (argidx+1 < args.size()) {
-			if (next_args.empty())
-				next_args.insert(next_args.end(), args.begin(), args.begin()+argidx);
-			next_args.insert(next_args.end(), args.begin()+argidx+1, args.end());
-			args.erase(args.begin()+argidx+1, args.end());
+		إذا (argidx+1 < دليلون_2.سائيز()) {
+			إذا (ايندڙ_دليلون.خالي_جايون())
+				ايندڙ_دليلون.وجهو(ايندڙ_دليلون.پڇاڙي(), دليلون_2.begin(), دليلون_2.begin()+argidx);
+			ايندڙ_دليلون.وجهو(ايندڙ_دليلون.پڇاڙي(), دليلون_2.begin()+argidx+1, دليلون_2.پڇاڙي());
+			دليلون_2.erase(دليلون_2.begin()+argidx+1, دليلون_2.پڇاڙي());
 		}
 	}
 
-	if (f == NULL)
-		cmd_error(args, argidx, "No filename given.");
+	إذا (f == عدم)
+		cmd_error(دليلون_2, argidx, "No filename given.");
 
-	if (called_with_fp)
-		args.push_back(filename);
-	args[0] = pass_name;
+	إذا (called_with_fp)
+		دليلون_2.ڌڪو_پٺ(filename);
+	دليلون_2[0] = pass_name;
 	// cmd_log_args(args);
 }
 
-void Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command)
+فراغ Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command)
 {
-	std::vector<std::string> args;
-	char *s = strdup(command.c_str());
-	for (char *p = strtok(s, " \t\r\n"); p; p = strtok(NULL, " \t\r\n"))
-		args.push_back(p);
-	free(s);
-	frontend_call(design, f, filename, args);
+	std::ويڪٽر<std::string> دليلون_2;
+	حرف *s = strdup(command.c_str());
+	لكل (حرف *p = strtok(s, " \t\r\n"); p; p = strtok(عدم, " \t\r\n"))
+		دليلون_2.ڌڪو_پٺ(p);
+	حرر(s);
+	frontend_call(design, f, filename, دليلون_2);
 }
 
-void Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> args)
+فراغ Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::ويڪٽر<std::string> دليلون_2)
 {
-	if (args.size() == 0)
-		return;
-	if (frontend_register.count(args[0]) == 0)
-		log_cmd_error("No such frontend: %s\n", args[0]);
+	إذا (دليلون_2.سائيز() == 0)
+		أرجع;
+	إذا (frontend_رجسٽر.ڳڻپ(دليلون_2[0]) == 0)
+		log_cmd_error("No such frontend: %s\n", دليلون_2[0]);
 
-	if (f != NULL) {
-		auto state = frontend_register[args[0]]->pre_execute();
-		frontend_register[args[0]]->execute(f, filename, args, design);
-		frontend_register[args[0]]->post_execute(state);
-	} else if (filename == "-") {
-		std::istream *f_cin = &std::cin;
-		auto state = frontend_register[args[0]]->pre_execute();
-		frontend_register[args[0]]->execute(f_cin, "<stdin>", args, design);
-		frontend_register[args[0]]->post_execute(state);
-	} else {
-		if (!filename.empty())
-			args.push_back(filename);
-		frontend_register[args[0]]->execute(args, design);
+	إذا (f != عدم) {
+		خودڪار state = frontend_رجسٽر[دليلون_2[0]]->pre_execute();
+		frontend_رجسٽر[دليلون_2[0]]->execute(f, filename, دليلون_2, design);
+		frontend_رجسٽر[دليلون_2[0]]->post_execute(state);
+	} وإلا إذا (filename == "-") {
+		std::istream *f_cin = &std::اندر;
+		خودڪار state = frontend_رجسٽر[دليلون_2[0]]->pre_execute();
+		frontend_رجسٽر[دليلون_2[0]]->execute(f_cin, "<stdin>", دليلون_2, design);
+		frontend_رجسٽر[دليلون_2[0]]->post_execute(state);
+	} وإلا {
+		إذا (!filename.خالي_جايون())
+			دليلون_2.ڌڪو_پٺ(filename);
+		frontend_رجسٽر[دليلون_2[0]]->execute(دليلون_2, design);
 	}
 }
 
-Backend::Backend(std::string name, std::string short_help, source_location location) :
+Backend::Backend(std::string name, std::string short_help, ذريعو_location location) :
 		Pass(name.rfind("=", 0) == 0 ? name.substr(1) : "write_" + name, short_help, location),
 		backend_name(name.rfind("=", 0) == 0 ? name.substr(1) : name)
 {
 }
 
-void Backend::run_register()
+فراغ Backend::لاڳيتو_رجسٽر()
 {
-	if (pass_register.count(pass_name))
+	إذا (pass_رجسٽر.ڳڻپ(pass_name))
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
-	pass_register[pass_name] = this;
+	pass_رجسٽر[pass_name] = هذا;
 
-	if (backend_register.count(backend_name))
+	إذا (backend_رجسٽر.ڳڻپ(backend_name))
 		log_error("Unable to register backend '%s', backend already exists!\n", backend_name);
-	backend_register[backend_name] = this;
+	backend_رجسٽر[backend_name] = هذا;
 }
 
 Backend::~Backend()
 {
 }
 
-void Backend::execute(std::vector<std::string> args, RTLIL::Design *design)
+فراغ Backend::execute(std::ويڪٽر<std::string> دليلون_2, RTLIL::Design *design)
 {
-	std::ostream *f = NULL;
-	auto state = pre_execute();
-	execute(f, std::string(), args, design);
+	std::ostream *f = عدم;
+	خودڪار state = pre_execute();
+	execute(f, std::string(), دليلون_2, design);
 	post_execute(state);
-	if (f != &std::cout)
-		delete f;
+	إذا (f != &std::ٻاهر)
+		ميٽيو f;
 }
 
-void Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_output)
+فراغ Backend::extra_دليلون(std::ostream *&f, std::string &filename, std::ويڪٽر<std::string> دليلون_2, سائيز_t argidx, منطقي bin_output)
 {
-	bool called_with_fp = f != NULL;
+	منطقي called_with_fp = f != عدم;
 
-	for (; argidx < args.size(); argidx++)
+	لكل (; argidx < دليلون_2.سائيز(); argidx++)
 	{
-		std::string arg = args[argidx];
+		std::string arg = دليلون_2[argidx];
 
-		if (arg.compare(0, 1, "-") == 0 && arg != "-")
-			cmd_error(args, argidx, "Unknown option or option in arguments.");
-		if (f != NULL)
-			cmd_error(args, argidx, "Extra filename argument in direct file mode.");
+		إذا (arg.compare(0, 1, "-") == 0 && arg != "-")
+			cmd_error(دليلون_2, argidx, "Unknown option or option in arguments.");
+		إذا (f != عدم)
+			cmd_error(دليلون_2, argidx, "Extra filename argument in direct file mode.");
 
-		if (arg == "-") {
+		إذا (arg == "-") {
 			filename = "<stdout>";
-			f = &std::cout;
-			continue;
+			f = &std::ٻاهر;
+			استمر;
 		}
 
 		filename = arg;
 		rewrite_filename(filename);
-		if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".gz") == 0) {
-#ifdef YOSYS_ENABLE_ZLIB
-			gzip_ostream *gf = new gzip_ostream;
-			if (!gf->open(filename)) {
-				delete gf;
+		إذا (filename.سائيز() > 3 && filename.compare(filename.سائيز()-3, std::string::npos, ".gz") == 0) {
+#جيڪڏهن_وصف_ٿيل YOSYS_ENABLE_ZLIB
+			gzip_ostream *gf = جديد gzip_ostream;
+			إذا (!gf->open(filename)) {
+				ميٽيو gf;
 				log_cmd_error("Can't open output file `%s' for writing: %s\n", filename, strerror(errno));
 			}
-			yosys_output_files.insert(filename);
+			yosys_output_files.وجهو(filename);
 			f = gf;
-#else
+#وإلا
 			log_cmd_error("Yosys is compiled without zlib support, unable to write gzip output.\n");
-#endif
-		} else {
-			std::ofstream *ff = new std::ofstream;
-			ff->open(filename.c_str(), bin_output ? (std::ofstream::trunc | std::ofstream::binary) : std::ofstream::trunc);
-			yosys_output_files.insert(filename);
-			if (ff->fail()) {
-				delete ff;
+#جيڪڏهن_پورو
+		} وإلا {
+			std::ofstream *ff = جديد std::ofstream;
+			ff->open(filename.c_str(), bin_output ? (std::ofstream::trunc | std::ofstream::ٻٽو) : std::ofstream::trunc);
+			yosys_output_files.وجهو(filename);
+			إذا (ff->fail()) {
+				ميٽيو ff;
 				log_cmd_error("Can't open output file `%s' for writing: %s\n", filename, strerror(errno));
 			}
 			f = ff;
 		}
 	}
 
-	if (called_with_fp)
-		args.push_back(filename);
-	args[0] = pass_name;
+	إذا (called_with_fp)
+		دليلون_2.ڌڪو_پٺ(filename);
+	دليلون_2[0] = pass_name;
 	// cmd_log_args(args);
 
-	if (f == NULL) {
+	إذا (f == عدم) {
 		filename = "<stdout>";
-		f = &std::cout;
+		f = &std::ٻاهر;
 	}
 }
 
-void Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command)
+فراغ Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command)
 {
-	std::vector<std::string> args;
-	char *s = strdup(command.c_str());
-	for (char *p = strtok(s, " \t\r\n"); p; p = strtok(NULL, " \t\r\n"))
-		args.push_back(p);
-	free(s);
-	backend_call(design, f, filename, args);
+	std::ويڪٽر<std::string> دليلون_2;
+	حرف *s = strdup(command.c_str());
+	لكل (حرف *p = strtok(s, " \t\r\n"); p; p = strtok(عدم, " \t\r\n"))
+		دليلون_2.ڌڪو_پٺ(p);
+	حرر(s);
+	backend_call(design, f, filename, دليلون_2);
 }
 
-void Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> args)
+فراغ Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::ويڪٽر<std::string> دليلون_2)
 {
-	if (args.size() == 0)
-		return;
-	if (backend_register.count(args[0]) == 0)
-		log_cmd_error("No such backend: %s\n", args[0]);
+	إذا (دليلون_2.سائيز() == 0)
+		أرجع;
+	إذا (backend_رجسٽر.ڳڻپ(دليلون_2[0]) == 0)
+		log_cmd_error("No such backend: %s\n", دليلون_2[0]);
 
-	size_t orig_sel_stack_pos = design->selection_stack.size();
+	سائيز_t orig_sel_ڍير_pos = design->selection_ڍير.سائيز();
 
-	if (f != NULL) {
-		auto state = backend_register[args[0]]->pre_execute();
-		backend_register[args[0]]->execute(f, filename, args, design);
-		backend_register[args[0]]->post_execute(state);
-	} else if (filename == "-") {
-		std::ostream *f_cout = &std::cout;
-		auto state = backend_register[args[0]]->pre_execute();
-		backend_register[args[0]]->execute(f_cout, "<stdout>", args, design);
-		backend_register[args[0]]->post_execute(state);
-	} else {
-		if (!filename.empty())
-			args.push_back(filename);
-		backend_register[args[0]]->execute(args, design);
+	إذا (f != عدم) {
+		خودڪار state = backend_رجسٽر[دليلون_2[0]]->pre_execute();
+		backend_رجسٽر[دليلون_2[0]]->execute(f, filename, دليلون_2, design);
+		backend_رجسٽر[دليلون_2[0]]->post_execute(state);
+	} وإلا إذا (filename == "-") {
+		std::ostream *f_cout = &std::ٻاهر;
+		خودڪار state = backend_رجسٽر[دليلون_2[0]]->pre_execute();
+		backend_رجسٽر[دليلون_2[0]]->execute(f_cout, "<stdout>", دليلون_2, design);
+		backend_رجسٽر[دليلون_2[0]]->post_execute(state);
+	} وإلا {
+		إذا (!filename.خالي_جايون())
+			دليلون_2.ڌڪو_پٺ(filename);
+		backend_رجسٽر[دليلون_2[0]]->execute(دليلون_2, design);
 	}
 
-	while (design->selection_stack.size() > orig_sel_stack_pos)
-		design->pop_selection();
+	طالما (design->selection_ڍير.سائيز() > orig_sel_ڍير_pos)
+		design->ڪڍو_selection();
 }
 
-struct SimHelper {
+بنية SimHelper {
 	string name;
-	inline string filesafe_name() {
-		if (name.at(0) == '$')
-			if (name.at(1) == '_')
-				return "gate" + name.substr(1);
-			else
-				return "word_" + name.substr(1);
-		else
-			return name;
+	مضمن string filesafe_name() {
+		إذا (name.at(0) == '$')
+			إذا (name.at(1) == '_')
+				أرجع "gate" + name.substr(1);
+			وإلا
+				أرجع "word_" + name.substr(1);
+		وإلا
+			أرجع name;
 	}
 	string title;
 	string ports;
-	string source;
+	string ذريعو;
 	string desc;
-	string code;
-	string group;
+	string ڪوڊ;
+	string گروهه;
 	string ver;
-	string tags;
+	string ٽيگ_فهرست;
 };
 
-static bool is_code_getter(string name) {
-	return *(--(name.end())) == '+';
+ساكن منطقي is_ڪوڊ_getter(string name) {
+	أرجع *(--(name.پڇاڙي())) == '+';
 }
 
-static string get_cell_name(string name) {
-	return is_code_getter(name) ? name.substr(0, name.length()-1) : name;
+ساكن string get_cell_name(string name) {
+	أرجع is_ڪوڊ_getter(name) ? name.substr(0, name.ڊيگهائي()-1) : name;
 }
 
-static void log_warning_flags(Pass *pass) {
-	bool has_warnings = false;
-	const string name = pass->pass_name;
-	if (pass->experimental_flag) {
-		if (!has_warnings) log("\n");
-		has_warnings = true;
-		log("WARNING: THE '%s' COMMAND IS EXPERIMENTAL.\n", name);
+ساكن فراغ log_warning_flags(Pass *pass) {
+	منطقي has_warnings = خطأ;
+	ثابت string name = pass->pass_name;
+	إذا (pass->experimental_flag) {
+		إذا (!has_warnings) لاگرٿم("\n");
+		has_warnings = سچ;
+		لاگرٿم("WARNING: THE '%s' COMMAND IS EXPERIMENTAL.\n", name);
 	}
-	if (pass->internal_flag) {
-		if (!has_warnings) log("\n");
-		has_warnings = true;
-		log("WARNING: THE '%s' COMMAND IS INTENDED FOR INTERNAL DEVELOPER USE ONLY.\n", name);
+	إذا (pass->اندروني_flag) {
+		إذا (!has_warnings) لاگرٿم("\n");
+		has_warnings = سچ;
+		لاگرٿم("WARNING: THE '%s' COMMAND IS INTENDED FOR INTERNAL DEVELOPER USE ONLY.\n", name);
 	}
-	if (has_warnings)
-		log("\n");
+	إذا (has_warnings)
+		لاگرٿم("\n");
 }
 
-static struct CellHelpMessages {
+ساكن بنية CellHelpMessages {
 	dict<string, SimHelper> cell_help;
 	CellHelpMessages() {
-#include "kernel/simlib_help.inc"
-#include "kernel/simcells_help.inc"
-		cell_help.sort();
+#ضمن "kernel/simlib_help.inc"
+#ضمن "kernel/simcells_help.inc"
+		cell_help.ترتيب_ڏيو();
 	}
-	bool contains(string name) { return cell_help.count(get_cell_name(name)) > 0; }
-	SimHelper get(string name) { return cell_help[get_cell_name(name)]; }
+	منطقي شامل_آهي(string name) { أرجع cell_help.ڳڻپ(get_cell_name(name)) > 0; }
+	SimHelper get(string name) { أرجع cell_help[get_cell_name(name)]; }
 } cell_help_messages;
 
-struct HelpPass : public Pass {
+بنية HelpPass : عام Pass {
 	HelpPass() : Pass("help", "display help messages") { }
-	void help() override
+	فراغ help() override
 	{
-		log("\n");
-		log("    help  ................  list all commands\n");
-		log("    help <command>  ......  print help message for given command\n");
-		log("    help -all  ...........  print complete command reference\n");
-		log("\n");
-		log("    help -cells ..........  list all cell types\n");
-		log("    help <celltype>  .....  print help message for given cell type\n");
-		log("    help <celltype>+  ....  print verilog code for given cell type\n");
-		log("\n");
+		لاگرٿم("\n");
+		لاگرٿم("    help  ................  list all commands\n");
+		لاگرٿم("    help <command>  ......  print help message for given command\n");
+		لاگرٿم("    help -all  ...........  print complete command reference\n");
+		لاگرٿم("\n");
+		لاگرٿم("    help -cells ..........  list all cell types\n");
+		لاگرٿم("    help <celltype>  .....  print help message for given cell type\n");
+		لاگرٿم("    help <celltype>+  ....  print verilog code for given cell type\n");
+		لاگرٿم("\n");
 	}
-	bool dump_cmds_json(PrettyJson &json) {
+	منطقي dump_cmds_json(PrettyJson &json) {
 		// init json
 		json.begin_object();
-		json.entry("version", "Yosys command reference");
-		json.entry("generator", yosys_version_str);
+		json.داخلا_2("version", "Yosys command reference");
+		json.داخلا_2("generator", yosys_نسخو_str);
 
-		bool raise_error = false;
-		std::map<string, vector<string>> groups;
+		منطقي raise_error = خطأ;
+		std::map<string, ويڪٽر<string>> groups;
 
 		// get root path
-		auto this_path = std::filesystem::path(source_location::current().file_name());
-		auto source_root = this_path.parent_path().parent_path();
+		خودڪار this_رستو = std::filesystem::رستو_2(ذريعو_location::current().file_name());
+		خودڪار ذريعو_پاڙ = this_رستو.والد_رستو().والد_رستو();
 
 		json.name("cmds"); json.begin_object();
 		// iterate over commands
-		for (auto &it : pass_register) {
-			auto name = it.first;
-			auto pass = it.second;
-			auto title = pass->short_help;
+		لكل (خودڪار &it : pass_رجسٽر) {
+			خودڪار name = it.پهريون;
+			خودڪار pass = it.ٻيو;
+			خودڪار title = pass->short_help;
 
-			auto cmd_help = PrettyHelp();
-			auto has_pretty_help = pass->formatted_help();
+			خودڪار cmd_help = PrettyHelp();
+			خودڪار has_pretty_help = pass->formatted_help();
 
-			if (!has_pretty_help) {
-				enum PassUsageState {
+			إذا (!has_pretty_help) {
+				تعداد PassUsageState {
 					PUState_none,
 					PUState_signature,
 					PUState_options,
 					PUState_optionbody,
 				};
 
-				source_location null_source;
-				string current_buffer = "";
-				auto root_listing = cmd_help.get_root();
-				auto current_listing = root_listing;
+				ذريعو_location null_ذريعو;
+				string current_بفر = "";
+				خودڪار پاڙ_listing_2 = cmd_help.get_پاڙ();
+				خودڪار current_listing = پاڙ_listing_2;
 
 				// dump command help
 				std::ostringstream buf;
 				{
-					auto log_scope = logger().sink_scope();
-					logger().add_sink<StreamLogSink>(buf);
+					خودڪار log_scope = logger().sink_scope();
+					logger().جوڙيو_sink<وهڪرو_Log_Sink>(buf);
 					pass->help();
 				}
 				std::stringstream ss;
 				ss << buf.str();
 
 				// parse command help
-				size_t def_strip_count = 0;
-				auto current_state = PUState_none;
-				auto catch_verific = false;
-				auto blank_lines = 2;
-				for (string line; std::getline(ss, line, '\n');) {
+				سائيز_t def_strip_ڳڻپ = 0;
+				خودڪار current_state = PUState_none;
+				خودڪار catch_verific = خطأ;
+				خودڪار blank_سٽون = 2;
+				لكل (string سٽ; std::getline(ss, سٽ, '\n');) {
 					// find position of first non space character
-					std::size_t first_pos = line.find_first_not_of(" \t");
-					std::size_t last_pos = line.find_last_not_of(" \t");
-					if (first_pos == std::string::npos) {
-						switch (current_state)
+					std::سائيز_t پهريون_pos = سٽ.ڳوليو_پهريون_not_جو(" \t");
+					std::سائيز_t آخري_pos = سٽ.ڳوليو_آخري_not_جو(" \t");
+					إذا (پهريون_pos == std::string::npos) {
+						بدل (current_state)
 						{
-						case PUState_signature:
-							root_listing->usage(current_buffer, null_source);
-							current_listing = root_listing;
+						حالة PUState_signature:
+							پاڙ_listing_2->usage(current_بفر, null_ذريعو);
+							current_listing = پاڙ_listing_2;
 							current_state = PUState_none;
-							current_buffer = "";
-							break;
-						case PUState_none:
-						case PUState_optionbody:
-							blank_lines += 1;
-							break;
-						default:
-							break;
+							current_بفر = "";
+							اكسر;
+						حالة PUState_none:
+						حالة PUState_optionbody:
+							blank_سٽون += 1;
+							اكسر;
+						افتراضي:
+							اكسر;
 						}
 						// skip empty lines
-						continue;
+						استمر;
 					}
 
 					// strip leading and trailing whitespace
-					std::string stripped_line = line.substr(first_pos, last_pos - first_pos +1);
-					bool IsDefinition = stripped_line[0] == '-';
-					IsDefinition &= stripped_line[1] != ' ' && stripped_line[1] != '>';
-					bool IsDedent = def_strip_count && first_pos < def_strip_count;
-					bool IsIndent = def_strip_count < first_pos;
+					std::string stripped_سٽ = سٽ.substr(پهريون_pos, آخري_pos - پهريون_pos +1);
+					منطقي IsDefinition = stripped_سٽ[0] == '-';
+					IsDefinition &= stripped_سٽ[1] != ' ' && stripped_سٽ[1] != '>';
+					منطقي IsDedent = def_strip_ڳڻپ && پهريون_pos < def_strip_ڳڻپ;
+					منطقي IsIndent = def_strip_ڳڻپ < پهريون_pos;
 
 					// line looks like a signature
-					bool IsSignature = stripped_line.find(name) == 0 && (stripped_line.length() == name.length() || stripped_line.at(name.size()) == ' ');
+					منطقي IsSignature = stripped_سٽ.ڳوليو(name) == 0 && (stripped_سٽ.ڊيگهائي() == name.ڊيگهائي() || stripped_سٽ.at(name.سائيز()) == ' ');
 
-					if (IsSignature && first_pos <= 4 && (blank_lines >= 2 || current_state == PUState_signature)) {
-						if (current_state == PUState_options || current_state == PUState_optionbody) {
-							current_listing->codeblock(current_buffer, "none", null_source);
-							current_buffer = "";
-						} else if (current_state == PUState_signature) {
-							root_listing->usage(current_buffer, null_source);
-							current_buffer = "";
-						} else if (current_state == PUState_none && !current_buffer.empty()) {
-							current_listing->codeblock(current_buffer, "none", null_source);
-							current_buffer = "";
+					إذا (IsSignature && پهريون_pos <= 4 && (blank_سٽون >= 2 || current_state == PUState_signature)) {
+						إذا (current_state == PUState_options || current_state == PUState_optionbody) {
+							current_listing->codeblock(current_بفر, "none", null_ذريعو);
+							current_بفر = "";
+						} وإلا إذا (current_state == PUState_signature) {
+							پاڙ_listing_2->usage(current_بفر, null_ذريعو);
+							current_بفر = "";
+						} وإلا إذا (current_state == PUState_none && !current_بفر.خالي_جايون()) {
+							current_listing->codeblock(current_بفر, "none", null_ذريعو);
+							current_بفر = "";
 						}
-						current_listing = root_listing;
+						current_listing = پاڙ_listing_2;
 						current_state = PUState_signature;
-						def_strip_count = first_pos;
-						catch_verific = false;
-					} else if (IsDedent) {
-						def_strip_count = first_pos;
-						if (current_state == PUState_optionbody) {
-							if (!current_buffer.empty()) {
-								current_listing->codeblock(current_buffer, "none", null_source);
-								current_buffer = "";
+						def_strip_ڳڻپ = پهريون_pos;
+						catch_verific = خطأ;
+					} وإلا إذا (IsDedent) {
+						def_strip_ڳڻپ = پهريون_pos;
+						إذا (current_state == PUState_optionbody) {
+							إذا (!current_بفر.خالي_جايون()) {
+								current_listing->codeblock(current_بفر, "none", null_ذريعو);
+								current_بفر = "";
 							}
-							if (IsIndent) {
+							إذا (IsIndent) {
 								current_state = PUState_options;
-								current_listing = root_listing->back();
-							} else {
+								current_listing = پاڙ_listing_2->پٺ();
+							} وإلا {
 								current_state = PUState_none;
-								current_listing = root_listing;
+								current_listing = پاڙ_listing_2;
 							}
-						} else {
+						} وإلا {
 							current_state = PUState_none;
 						}
 					}
 
-					if (IsDefinition && !catch_verific && current_state != PUState_signature) {
-						if (!current_buffer.empty()) {
-							current_listing->codeblock(current_buffer, "none", null_source);
-							current_buffer = "";
+					إذا (IsDefinition && !catch_verific && current_state != PUState_signature) {
+						إذا (!current_بفر.خالي_جايون()) {
+							current_listing->codeblock(current_بفر, "none", null_ذريعو);
+							current_بفر = "";
 						}
 						current_state = PUState_options;
-						current_listing = root_listing->open_option(stripped_line, null_source);
-						def_strip_count = first_pos;
-					} else {
-						if (current_state == PUState_options) {
+						current_listing = پاڙ_listing_2->open_option(stripped_سٽ, null_ذريعو);
+						def_strip_ڳڻپ = پهريون_pos;
+					} وإلا {
+						إذا (current_state == PUState_options) {
 							current_state = PUState_optionbody;
 						}
-						if (current_buffer.empty())
-							current_buffer = stripped_line;
-						else if (current_state == PUState_signature && IsIndent)
-							current_buffer += stripped_line;
-						else if (current_state == PUState_none) {
-							current_buffer += (blank_lines > 0 ? "\n\n" : "\n") + line;
-						} else
-							current_buffer += (blank_lines > 0 ? "\n\n" : "\n") + stripped_line;
-						if (stripped_line.compare("Command file parser supports following commands in file:") == 0)
-							catch_verific = true;
+						إذا (current_بفر.خالي_جايون())
+							current_بفر = stripped_سٽ;
+						وإلا إذا (current_state == PUState_signature && IsIndent)
+							current_بفر += stripped_سٽ;
+						وإلا إذا (current_state == PUState_none) {
+							current_بفر += (blank_سٽون > 0 ? "\n\n" : "\n") + سٽ;
+						} وإلا
+							current_بفر += (blank_سٽون > 0 ? "\n\n" : "\n") + stripped_سٽ;
+						إذا (stripped_سٽ.compare("Command file parser supports following commands in file:") == 0)
+							catch_verific = سچ;
 					}
-					blank_lines = 0;
+					blank_سٽون = 0;
 				}
 
-				if (!current_buffer.empty()) {
-					if (current_buffer.size() > 64 && current_buffer.substr(0, 64).compare("The following commands are executed by this synthesis command:\n\n") == 0) {
-						current_listing->paragraph(current_buffer.substr(0, 62), null_source);
-						current_listing->codeblock(current_buffer.substr(64), "yoscrypt", null_source);
-					} else
-						current_listing->codeblock(current_buffer, "none", null_source);
-					current_buffer = "";
+				إذا (!current_بفر.خالي_جايون()) {
+					إذا (current_بفر.سائيز() > 64 && current_بفر.substr(0, 64).compare("The following commands are executed by this synthesis command:\n\n") == 0) {
+						current_listing->paragraph(current_بفر.substr(0, 62), null_ذريعو);
+						current_listing->codeblock(current_بفر.substr(64), "yoscrypt", null_ذريعو);
+					} وإلا
+						current_listing->codeblock(current_بفر, "none", null_ذريعو);
+					current_بفر = "";
 				}
 			}
 
 			// fix path
-			string source_file = pass->location.file_name();
-			bool has_source = source_file.compare("unknown") != 0;
-			std::filesystem::path source_path;
-			auto skip_source_group = false;
+			string ذريعو_file = pass->location.file_name();
+			منطقي has_ذريعو = ذريعو_file.compare("unknown") != 0;
+			std::filesystem::رستو_2 ذريعو_رستو;
+			خودڪار skip_ذريعو_گروهه = خطأ;
 
-			if (has_source) {
-				source_path = fixup_source_path(pass->location.file_name(), source_root, &skip_source_group);
-				source_file = source_path.string();
+			إذا (has_ذريعو) {
+				ذريعو_رستو = fixup_ذريعو_رستو(pass->location.file_name(), ذريعو_پاڙ, &skip_ذريعو_گروهه);
+				ذريعو_file = ذريعو_رستو.string();
 			}
 
 			// attempt auto group
-			if (!cmd_help.has_group()) {
-				if (pass->internal_flag)
-					cmd_help.group = "internal";
-				else if (source_file.find("backends/") == 0 || (!has_source && name.find("read_") == 0))
-					cmd_help.group = "backends";
-				else if (source_file.find("frontends/") == 0 || (!has_source && name.find("write_") == 0))
-					cmd_help.group = "frontends";
-				else if (has_source) {
-					if (source_path.has_parent_path() && !skip_source_group)
-						cmd_help.group = source_path.parent_path().string();
+			إذا (!cmd_help.has_گروهه()) {
+				إذا (pass->اندروني_flag)
+					cmd_help.گروهه = "internal";
+				وإلا إذا (ذريعو_file.ڳوليو("backends/") == 0 || (!has_ذريعو && name.ڳوليو("read_") == 0))
+					cmd_help.گروهه = "backends";
+				وإلا إذا (ذريعو_file.ڳوليو("frontends/") == 0 || (!has_ذريعو && name.ڳوليو("write_") == 0))
+					cmd_help.گروهه = "frontends";
+				وإلا إذا (has_ذريعو) {
+					إذا (ذريعو_رستو.has_والد_رستو() && !skip_ذريعو_گروهه)
+						cmd_help.گروهه = ذريعو_رستو.والد_رستو().string();
 				}
 				// implicit !has_source
-				else if (name.find("equiv") == 0)
-					cmd_help.group = "passes/equiv";
-				else if (name.find("fsm") == 0)
-					cmd_help.group = "passes/fsm";
-				else if (name.find("memory") == 0)
-					cmd_help.group = "passes/memory";
-				else if (name.find("opt") == 0)
-					cmd_help.group = "passes/opt";
-				else if (name.find("proc") == 0)
-					cmd_help.group = "passes/proc";
+				وإلا إذا (name.ڳوليو("equiv") == 0)
+					cmd_help.گروهه = "passes/equiv";
+				وإلا إذا (name.ڳوليو("fsm") == 0)
+					cmd_help.گروهه = "passes/fsm";
+				وإلا إذا (name.ڳوليو("memory") == 0)
+					cmd_help.گروهه = "passes/memory";
+				وإلا إذا (name.ڳوليو("opt") == 0)
+					cmd_help.گروهه = "passes/opt";
+				وإلا إذا (name.ڳوليو("proc") == 0)
+					cmd_help.گروهه = "passes/proc";
 			}
 
-			if (groups.count(cmd_help.group) == 0) {
-				groups[cmd_help.group] = vector<string>();
+			إذا (groups.ڳڻپ(cmd_help.گروهه) == 0) {
+				groups[cmd_help.گروهه] = ويڪٽر<string>();
 			}
-			groups[cmd_help.group].push_back(name);
+			groups[cmd_help.گروهه].ڌڪو_پٺ(name);
 
 			// write to json
 			json.name(name.c_str()); json.begin_object();
-			json.entry("title", title);
+			json.داخلا_2("title", title);
 			json.name("content"); json.begin_array();
-			for (auto &content : cmd_help)
-				json.value(content.to_json(source_root));
-			json.end_array();
-			json.entry("group", cmd_help.group);
-			json.entry("source_file", source_file);
-			json.entry("source_line", pass->location.line());
-			json.entry("source_func", pass->location.function_name());
-			json.entry("experimental_flag", pass->experimental_flag);
-			json.entry("internal_flag", pass->internal_flag);
-			json.end_object();
+			لكل (خودڪار &content : cmd_help)
+				json.قدر(content.منزل_json(ذريعو_پاڙ));
+			json.پڇاڙي_array();
+			json.داخلا_2("group", cmd_help.گروهه);
+			json.داخلا_2("source_file", ذريعو_file);
+			json.داخلا_2("source_line", pass->location.سٽ());
+			json.داخلا_2("source_func", pass->location.function_name());
+			json.داخلا_2("experimental_flag", pass->experimental_flag);
+			json.داخلا_2("internal_flag", pass->اندروني_flag);
+			json.پڇاڙي_object();
 		}
-		json.end_object();
+		json.پڇاڙي_object();
 
-		json.entry("groups", groups);
+		json.داخلا_2("groups", groups);
 
-		json.end_object();
-		return raise_error;
+		json.پڇاڙي_object();
+		أرجع raise_error;
 	}
-	bool dump_cells_json(PrettyJson &json) {
+	منطقي dump_cells_json(PrettyJson &json) {
 		// init json
 		json.begin_object();
-		json.entry("version", "Yosys internal cells");
-		json.entry("generator", yosys_maybe_version());
+		json.داخلا_2("version", "Yosys internal cells");
+		json.داخلا_2("generator", yosys_maybe_نسخو());
 
-		dict<string, vector<string>> groups;
-		dict<string, pair<SimHelper, StaticCellTypes::CellTableBuilder::CellInfo>> cells;
+		dict<string, ويڪٽر<string>> groups;
+		dict<string, pair<SimHelper, StaticCellTypes::Cell_جدول_Builder::CellInfo>> cells;
 
 		// iterate over cells
-		bool raise_error = false;
-		for (auto it : StaticCellTypes::builder.cells) {
-			if (!StaticCellTypes::categories.is_known(it.type))
-				continue;
-			auto name = ID::str(it.type);
-			if (cell_help_messages.contains(name)) {
-				auto cell_help = cell_help_messages.get(name);
-				groups[cell_help.group].emplace_back(name);
-				auto cell_pair = pair<SimHelper, StaticCellTypes::CellTableBuilder::CellInfo>(cell_help, it);
+		منطقي raise_error = خطأ;
+		لكل (خودڪار it : StaticCellTypes::builder.cells) {
+			إذا (!StaticCellTypes::categories.is_معلوم(it.type))
+				استمر;
+			خودڪار name = ID::str(it.type);
+			إذا (cell_help_messages.شامل_آهي(name)) {
+				خودڪار cell_help = cell_help_messages.get(name);
+				groups[cell_help.گروهه].emplace_پٺ(name);
+				خودڪار cell_pair = pair<SimHelper, StaticCellTypes::Cell_جدول_Builder::CellInfo>(cell_help, it);
 				cells.emplace(name, cell_pair);
-			} else {
-				log("ERROR: Missing cell help for cell '%s'.\n", name);
-				raise_error |= true;
+			} وإلا {
+				لاگرٿم("ERROR: Missing cell help for cell '%s'.\n", name);
+				raise_error |= سچ;
 			}
 		}
-		for (auto &it : cell_help_messages.cell_help) {
-			if (cells.count(it.first) == 0) {
-				log_warning("Found cell model '%s' without matching cell type.\n", it.first);
+		لكل (خودڪار &it : cell_help_messages.cell_help) {
+			إذا (cells.ڳڻپ(it.پهريون) == 0) {
+				log_warning("Found cell model '%s' without matching cell type.\n", it.پهريون);
 			}
 		}
 
 		// write to json
 		json.name("groups"); json.begin_object();
-		groups.sort();
-		for (auto &it : groups) {
-			json.name(it.first.c_str()); json.value(it.second);
+		groups.ترتيب_ڏيو();
+		لكل (خودڪار &it : groups) {
+			json.name(it.پهريون.c_str()); json.قدر(it.ٻيو);
 		}
-		json.end_object();
+		json.پڇاڙي_object();
 
 		json.name("cells"); json.begin_object();
-		cells.sort();
-		for (auto &it : cells) {
-			auto ch = it.second.first;
-			auto ct = it.second.second;
+		cells.ترتيب_ڏيو();
+		لكل (خودڪار &it : cells) {
+			خودڪار ch = it.ٻيو.پهريون;
+			خودڪار ct = it.ٻيو.ٻيو;
 			json.name(ch.name.c_str()); json.begin_object();
-			json.name("title"); json.value(ch.title);
-			json.name("ports"); json.value(ch.ports);
-			json.name("source"); json.value(ch.source);
-			json.name("desc"); json.value(ch.desc);
-			json.name("code"); json.value(ch.code);
-			vector<string> inputs, outputs;
-			for (auto &input : ct.inputs)
-				inputs.push_back(ID::str(input));
-			json.name("inputs"); json.value(inputs);
-			for (auto &output : ct.outputs)
-				outputs.push_back(ID::str(output));
-			json.name("outputs"); json.value(outputs);
-			vector<string> properties;
+			json.name("title"); json.قدر(ch.title);
+			json.name("ports"); json.قدر(ch.ports);
+			json.name("source"); json.قدر(ch.ذريعو);
+			json.name("desc"); json.قدر(ch.desc);
+			json.name("code"); json.قدر(ch.ڪوڊ);
+			ويڪٽر<string> inputs, outputs;
+			لكل (خودڪار &داخلا : ct.inputs)
+				inputs.ڌڪو_پٺ(ID::str(داخلا));
+			json.name("inputs"); json.قدر(inputs);
+			لكل (خودڪار &output : ct.outputs)
+				outputs.ڌڪو_پٺ(ID::str(output));
+			json.name("outputs"); json.قدر(outputs);
+			ويڪٽر<string> properties;
 			// CellType properties
-			if (ct.features.is_evaluable) properties.push_back("is_evaluable");
-			if (ct.features.is_combinatorial) properties.push_back("is_combinatorial");
-			if (ct.features.is_synthesizable) properties.push_back("is_synthesizable");
+			إذا (ct.features.is_evaluable) properties.ڌڪو_پٺ("is_evaluable");
+			إذا (ct.features.is_combinatorial) properties.ڌڪو_پٺ("is_combinatorial");
+			إذا (ct.features.is_synthesizable) properties.ڌڪو_پٺ("is_synthesizable");
 			// SimHelper properties
-			size_t last = 0; size_t next = 0;
-			while ((next = ch.tags.find(", ", last)) != string::npos) {
-				properties.push_back(ch.tags.substr(last, next-last));
-				last = next + 2;
+			سائيز_t آخري = 0; سائيز_t ايندڙ = 0;
+			طالما ((ايندڙ = ch.ٽيگ_فهرست.ڳوليو(", ", آخري)) != string::npos) {
+				properties.ڌڪو_پٺ(ch.ٽيگ_فهرست.substr(آخري, ايندڙ-آخري));
+				آخري = ايندڙ + 2;
 			}
-			auto final_tag = ch.tags.substr(last);
-			if (final_tag.size()) properties.push_back(final_tag);
-			json.name("properties"); json.value(properties);
-			json.end_object();
+			خودڪار final_ٽيگ = ch.ٽيگ_فهرست.substr(آخري);
+			إذا (final_ٽيگ.سائيز()) properties.ڌڪو_پٺ(final_ٽيگ);
+			json.name("properties"); json.قدر(properties);
+			json.پڇاڙي_object();
 		}
-		json.end_object();
+		json.پڇاڙي_object();
 
-		json.end_object();
-		return raise_error;
+		json.پڇاڙي_object();
+		أرجع raise_error;
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design*) override
+	فراغ execute(std::ويڪٽر<std::string> دليلون_2, RTLIL::Design*) override
 	{
-		if (args.size() == 1) {
-			log("\n");
-			for (auto &it : pass_register)
-				log("    %-20s %s\n", it.first, it.second->short_help);
-			log("\n");
-			log("Type 'help <command>' for more information on a command.\n");
-			log("Type 'help -cells' for a list of all cell types.\n");
-			log("\n");
-			return;
+		إذا (دليلون_2.سائيز() == 1) {
+			لاگرٿم("\n");
+			لكل (خودڪار &it : pass_رجسٽر)
+				لاگرٿم("    %-20s %s\n", it.پهريون, it.ٻيو->short_help);
+			لاگرٿم("\n");
+			لاگرٿم("Type 'help <command>' for more information on a command.\n");
+			لاگرٿم("Type 'help -cells' for a list of all cell types.\n");
+			لاگرٿم("\n");
+			أرجع;
 		}
 
-		if (args.size() == 2) {
-			if (args[1] == "-all") {
-				for (auto &it : pass_register) {
-					log("\n");
-					log("\n");
-					log("%s  --  %s\n", it.first, it.second->short_help);
-					std::string msg;
-					for (size_t i = 0; i < it.first.size() + it.second->short_help.size() + 6; i++)
-						msg += '=';
-					log("%s\n", msg);
-					it.second->help();
-					log_warning_flags(it.second);
+		إذا (دليلون_2.سائيز() == 2) {
+			إذا (دليلون_2[1] == "-all") {
+				لكل (خودڪار &it : pass_رجسٽر) {
+					لاگرٿم("\n");
+					لاگرٿم("\n");
+					لاگرٿم("%s  --  %s\n", it.پهريون, it.ٻيو->short_help);
+					std::string نياپو;
+					لكل (سائيز_t i = 0; i < it.پهريون.سائيز() + it.ٻيو->short_help.سائيز() + 6; i++)
+						نياپو += '=';
+					لاگرٿم("%s\n", نياپو);
+					it.ٻيو->help();
+					log_warning_flags(it.ٻيو);
 				}
 			}
-			else if (args[1] == "-cells") {
-				log("\n");
-				for (auto &it : cell_help_messages.cell_help) {
-					SimHelper help_cell = it.second;
-					log("    %-15s %s\n", help_cell.name, help_cell.ports);
+			وإلا إذا (دليلون_2[1] == "-cells") {
+				لاگرٿم("\n");
+				لكل (خودڪار &it : cell_help_messages.cell_help) {
+					SimHelper help_cell = it.ٻيو;
+					لاگرٿم("    %-15s %s\n", help_cell.name, help_cell.ports);
 				}
-				log("\n");
-				log("Type 'help <cell_type>' for more information on a cell type.\n");
-				log("\n");
-				return;
+				لاگرٿم("\n");
+				لاگرٿم("Type 'help <cell_type>' for more information on a cell type.\n");
+				لاگرٿم("\n");
+				أرجع;
 			}
-			else if (pass_register.count(args[1])) {
-				pass_register.at(args[1])->help();
-				log_warning_flags(pass_register.at(args[1]));
+			وإلا إذا (pass_رجسٽر.ڳڻپ(دليلون_2[1])) {
+				pass_رجسٽر.at(دليلون_2[1])->help();
+				log_warning_flags(pass_رجسٽر.at(دليلون_2[1]));
 			}
-			else if (cell_help_messages.contains(args[1])) {
-				auto help_cell = cell_help_messages.get(args[1]);
-				if (is_code_getter(args[1])) {
-						log("\n");
-						log("%s\n", help_cell.code);
-				} else {
-					log("\n");
-					log("    %s %s\n", help_cell.name, help_cell.ports);
-					log("\n");
-					if (help_cell.ver == "2" || help_cell.ver == "2a") {
-						if (help_cell.title != "") log("%s:\n", help_cell.title);
+			وإلا إذا (cell_help_messages.شامل_آهي(دليلون_2[1])) {
+				خودڪار help_cell = cell_help_messages.get(دليلون_2[1]);
+				إذا (is_ڪوڊ_getter(دليلون_2[1])) {
+						لاگرٿم("\n");
+						لاگرٿم("%s\n", help_cell.ڪوڊ);
+				} وإلا {
+					لاگرٿم("\n");
+					لاگرٿم("    %s %s\n", help_cell.name, help_cell.ports);
+					لاگرٿم("\n");
+					إذا (help_cell.ver == "2" || help_cell.ver == "2a") {
+						إذا (help_cell.title != "") لاگرٿم("%s:\n", help_cell.title);
 						std::stringstream ss;
 						ss << help_cell.desc;
-						for (std::string line; std::getline(ss, line, '\n');) {
-							if (line != "::") log("%s\n", line);
+						لكل (std::string سٽ; std::getline(ss, سٽ, '\n');) {
+							إذا (سٽ != "::") لاگرٿم("%s\n", سٽ);
 						}
-					} else if (help_cell.desc.length()) {
-						log("%s\n", help_cell.desc);
-					} else {
-						log("No help message for this cell type found.\n");
+					} وإلا إذا (help_cell.desc.ڊيگهائي()) {
+						لاگرٿم("%s\n", help_cell.desc);
+					} وإلا {
+						لاگرٿم("No help message for this cell type found.\n");
 					}
-					log("\n");
-					log("Run 'help %s+' to display the Verilog model for this cell type.\n", args[1]);
-					log("\n");
+					لاگرٿم("\n");
+					لاگرٿم("Run 'help %s+' to display the Verilog model for this cell type.\n", دليلون_2[1]);
+					لاگرٿم("\n");
 				}
 			}
-			else
-				log("No such command or cell type: %s\n", args[1]);
-			return;
-		} else if (args.size() == 3) {
+			وإلا
+				لاگرٿم("No such command or cell type: %s\n", دليلون_2[1]);
+			أرجع;
+		} وإلا إذا (دليلون_2.سائيز() == 3) {
 			// this option is undocumented as it is for internal use only
-			if (args[1] == "-dump-cmds-json") {
+			إذا (دليلون_2[1] == "-dump-cmds-json") {
 				PrettyJson json;
-				if (!json.write_to_file(args[2]))
-					log_error("Can't open file `%s' for writing: %s\n", args[2], strerror(errno));
-				if (dump_cmds_json(json)) {
+				إذا (!json.write_منزل_file(دليلون_2[2]))
+					log_error("Can't open file `%s' for writing: %s\n", دليلون_2[2], strerror(errno));
+				إذا (dump_cmds_json(json)) {
 					log_abort();
 				}
 			}
 			// this option is undocumented as it is for internal use only
-			else if (args[1] == "-dump-cells-json") {
+			وإلا إذا (دليلون_2[1] == "-dump-cells-json") {
 				PrettyJson json;
-				if (!json.write_to_file(args[2]))
-					log_error("Can't open file `%s' for writing: %s\n", args[2], strerror(errno));
-				if (dump_cells_json(json)) {
+				إذا (!json.write_منزل_file(دليلون_2[2]))
+					log_error("Can't open file `%s' for writing: %s\n", دليلون_2[2], strerror(errno));
+				إذا (dump_cells_json(json)) {
 					log_error("One or more cells defined in celltypes.h are missing help documentation.\n");
 				}
 			}
-			else
-				log("Unknown help command: `%s %s'\n", args[1], args[2]);
-			return;
+			وإلا
+				لاگرٿم("Unknown help command: `%s %s'\n", دليلون_2[1], دليلون_2[2]);
+			أرجع;
 		}
 
 		help();
 	}
 } HelpPass;
 
-struct EchoPass : public Pass {
+بنية EchoPass : عام Pass {
 	EchoPass() : Pass("echo", "turning echoing back of commands on and off") { }
-	void help() override
+	فراغ help() override
 	{
-		log("\n");
-		log("    echo on\n");
-		log("\n");
-		log("Print all commands to log before executing them.\n");
-		log("\n");
-		log("\n");
-		log("    echo off\n");
-		log("\n");
-		log("Do not print all commands to log before executing them. (default)\n");
-		log("\n");
+		لاگرٿم("\n");
+		لاگرٿم("    echo on\n");
+		لاگرٿم("\n");
+		لاگرٿم("Print all commands to log before executing them.\n");
+		لاگرٿم("\n");
+		لاگرٿم("\n");
+		لاگرٿم("    echo off\n");
+		لاگرٿم("\n");
+		لاگرٿم("Do not print all commands to log before executing them. (default)\n");
+		لاگرٿم("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design*) override
+	فراغ execute(std::ويڪٽر<std::string> دليلون_2, RTLIL::Design*) override
 	{
-		if (args.size() > 2)
-			cmd_error(args, 2, "Unexpected argument.");
+		إذا (دليلون_2.سائيز() > 2)
+			cmd_error(دليلون_2, 2, "Unexpected argument.");
 
-		if (args.size() == 2) {
-			if (args[1] == "on")
-				echo_mode = true;
-			else if (args[1] == "off")
-				echo_mode = false;
-			else
-				cmd_error(args, 1, "Unexpected argument.");
+		إذا (دليلون_2.سائيز() == 2) {
+			إذا (دليلون_2[1] == "on")
+				echo_گهڻائي = سچ;
+			وإلا إذا (دليلون_2[1] == "off")
+				echo_گهڻائي = خطأ;
+			وإلا
+				cmd_error(دليلون_2, 1, "Unexpected argument.");
 		}
 
-		log("echo %s\n", echo_mode ? "on" : "off");
+		لاگرٿم("echo %s\n", echo_گهڻائي ? "on" : "off");
 	}
 } EchoPass;
 
 SatSolver *yosys_satsolver_list;
 SatSolver *yosys_satsolver;
 
-struct MinisatSatSolver : public SatSolver {
+بنية MinisatSatSolver : عام SatSolver {
 	MinisatSatSolver() : SatSolver("minisat") {
-		yosys_satsolver = this;
+		yosys_satsolver = هذا;
 	}
 	ezSAT *create() override {
-		return new ezMiniSAT();
+		أرجع جديد ezMiniSAT();
 	}
 } MinisatSatSolver;
 
-struct LicensePass : public Pass {
+بنية LicensePass : عام Pass {
 	LicensePass() : Pass("license", "print license terms") { }
-	void help() override
+	فراغ help() override
 	{
-		log("\n");
-		log("    license\n");
-		log("\n");
-		log("This command produces the following notice.\n");
+		لاگرٿم("\n");
+		لاگرٿم("    license\n");
+		لاگرٿم("\n");
+		لاگرٿم("This command produces the following notice.\n");
 		notice();
 	}
-	void execute(std::vector<std::string>, RTLIL::Design*) override
+	فراغ execute(std::ويڪٽر<std::string>, RTLIL::Design*) override
 	{
 		notice();
 	}
-	void notice()
+	فراغ notice()
 	{
-		log("\n");
-		log(" /----------------------------------------------------------------------------\\\n");
-		log(" |                                                                            |\n");
-		log(" |  yosys -- Yosys Open SYnthesis Suite                                       |\n");
-		log(" |                                                                            |\n");
-		log(" |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |\n");
-		log(" |                                                                            |\n");
-		log(" |  Permission to use, copy, modify, and/or distribute this software for any  |\n");
-		log(" |  purpose with or without fee is hereby granted, provided that the above    |\n");
-		log(" |  copyright notice and this permission notice appear in all copies.         |\n");
-		log(" |                                                                            |\n");
-		log(" |  THE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES  |\n");
-		log(" |  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF          |\n");
-		log(" |  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR   |\n");
-		log(" |  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    |\n");
-		log(" |  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN     |\n");
-		log(" |  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF   |\n");
-		log(" |  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.            |\n");
-		log(" |                                                                            |\n");
-		log(" \\----------------------------------------------------------------------------/\n");
-		log("\n");
+		لاگرٿم("\n");
+		لاگرٿم(" /----------------------------------------------------------------------------\\\n");
+		لاگرٿم(" |                                                                            |\n");
+		لاگرٿم(" |  yosys -- Yosys Open SYnthesis Suite                                       |\n");
+		لاگرٿم(" |                                                                            |\n");
+		لاگرٿم(" |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |\n");
+		لاگرٿم(" |                                                                            |\n");
+		لاگرٿم(" |  Permission to use, copy, modify, and/or distribute this software for any  |\n");
+		لاگرٿم(" |  purpose with or without fee is hereby granted, provided that the above    |\n");
+		لاگرٿم(" |  copyright notice and this permission notice appear in all copies.         |\n");
+		لاگرٿم(" |                                                                            |\n");
+		لاگرٿم(" |  THE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES  |\n");
+		لاگرٿم(" |  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF          |\n");
+		لاگرٿم(" |  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR   |\n");
+		لاگرٿم(" |  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    |\n");
+		لاگرٿم(" |  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN     |\n");
+		لاگرٿم(" |  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF   |\n");
+		لاگرٿم(" |  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.            |\n");
+		لاگرٿم(" |                                                                            |\n");
+		لاگرٿم(" \\----------------------------------------------------------------------------/\n");
+		لاگرٿم("\n");
 	}
 } LicensePass;
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پڇاڙي

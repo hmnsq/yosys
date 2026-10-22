@@ -17,118 +17,118 @@
  *
  */
 
-#ifndef LOG_HELP_H
-#define LOG_HELP_H
+#جيڪڏهن_وصف_نه_ٿيل LOG_HELP_H
+#وصف_ڪريو LOG_HELP_H
 
-#include "kernel/yosys_common.h"
-#include "kernel/json.h"
-#include <filesystem>
-#include <string_view>
+#ضمن "kernel/yosys_common.h"
+#ضمن "kernel/json.h"
+#ضمن <filesystem>
+#ضمن <string_view>
 
 YOSYS_NAMESPACE_BEGIN
 
-std::filesystem::path fixup_source_path (const char* source_file,
-	const std::filesystem::path &source_root, bool* skip_source_group = nullptr);
+std::filesystem::رستو_2 fixup_ذريعو_رستو (ثابت حرف* ذريعو_file,
+	ثابت std::filesystem::رستو_2 &ذريعو_پاڙ, bool* skip_ذريعو_گروهه = nullptr);
 
 class ContentListing {
-	vector<ContentListing> _content;
-public:
+	ويڪٽر<ContentListing> _content;
+عام:
 	string type;
 	string body;
-	const char* source_file;
-	int source_line;
+	ثابت حرف* ذريعو_file;
+	صحيح ذريعو_سٽ;
 	std::map<string, string> options;
 
 	ContentListing(
 		string type = "root", string body = "",
-		const char* source_file = "unknown", int source_line = 0
-	) : type(type), body(body), source_file(source_file), source_line(source_line) {
+		ثابت حرف* ذريعو_file = "unknown", صحيح ذريعو_سٽ = 0
+	) : type(type), body(body), ذريعو_file(ذريعو_file), ذريعو_سٽ(ذريعو_سٽ) {
 		_content = {};
 		options = {};
 	}
 
-	ContentListing(string type, string body, source_location location) :
-		ContentListing(type, body, location.file_name(), location.line()) { }
+	ContentListing(string type, string body, ذريعو_location location) :
+		ContentListing(type, body, location.file_name(), location.سٽ()) { }
 
-	void add_content(string type, string body, source_location location) {
-		_content.push_back({type, body, location});
+	فراغ جوڙيو_content(string type, string body, ذريعو_location location) {
+		_content.ڌڪو_پٺ({type, body, location});
 	}
 
-	bool has_source() const { return strlen(source_file) && strcmp(source_file, "unknown") != 0; }
-	bool has_content() const { return _content.size() != 0; }
+	bool has_ذريعو() ثابت { أرجع لڙي_ڊيگهه(ذريعو_file) && strcmp(ذريعو_file, "unknown") != 0; }
+	bool has_content() ثابت { أرجع _content.سائيز() != 0; }
 
-	vector<ContentListing>::const_iterator begin() const { return _content.cbegin(); }
-	vector<ContentListing>::const_iterator end() const { return _content.cend(); }
+	ويڪٽر<ContentListing>::const_iterator begin() ثابت { أرجع _content.cbegin(); }
+	ويڪٽر<ContentListing>::const_iterator پڇاڙي() ثابت { أرجع _content.cend(); }
 
-	ContentListing* back() {
-		return &_content.back();
+	ContentListing* پٺ() {
+		أرجع &_content.پٺ();
 	}
 
-	void set_option(string key, string val = "") {
-		options[key] = val;
+	فراغ سيٽ_option(string ڪنجي, string val = "") {
+		options[ڪنجي] = val;
 	}
 
-	void usage(
-		const string &text,
-		const source_location location = source_location::current()
+	فراغ usage(
+		ثابت string &متن,
+		ثابت ذريعو_location location = ذريعو_location::current()
 	);
-	void option(
-		const string &text,
-		const string &description = "",
-		const source_location location = source_location::current()
+	فراغ option(
+		ثابت string &متن,
+		ثابت string &description = "",
+		ثابت ذريعو_location location = ذريعو_location::current()
 	);
-	void codeblock(
-		const string &code,
-		const string &language = "none",
-		const source_location location = source_location::current()
+	فراغ codeblock(
+		ثابت string &ڪوڊ,
+		ثابت string &language = "none",
+		ثابت ذريعو_location location = ذريعو_location::current()
 	);
-	void paragraph(
-		const string &text,
-		const source_location location = source_location::current()
+	فراغ paragraph(
+		ثابت string &متن,
+		ثابت ذريعو_location location = ذريعو_location::current()
 	);
 
 	ContentListing* open_usage(
-		const string &text,
-		const source_location location = source_location::current()
+		ثابت string &متن,
+		ثابت ذريعو_location location = ذريعو_location::current()
 	);
 	ContentListing* open_option(
-		const string &text,
-		const source_location location = source_location::current()
+		ثابت string &متن,
+		ثابت ذريعو_location location = ذريعو_location::current()
 	);
 
-	Json to_json(const std::filesystem::path &source_root) const;
+	Json منزل_json(ثابت std::filesystem::رستو_2 &ذريعو_پاڙ) ثابت;
 };
 
 class PrettyHelp
 {
-public:
-	string group = "unknown";
+عام:
+	string گروهه = "unknown";
 
-private:
-	PrettyHelp *_prior;
-	ContentListing _root_listing;
+خاص:
+	PrettyHelp *اڳواٽ;
+	ContentListing پاڙ_listing;
 
-public:
+عام:
 	PrettyHelp();
 	~PrettyHelp();
 
-	static PrettyHelp *get_current();
+	ساكن PrettyHelp *get_current();
 
-	bool has_content() const { return _root_listing.has_content(); }
+	bool has_content() ثابت { أرجع پاڙ_listing.has_content(); }
 
-	vector<ContentListing>::const_iterator begin() const { return _root_listing.begin(); }
-	vector<ContentListing>::const_iterator end() const { return _root_listing.end(); }
+	ويڪٽر<ContentListing>::const_iterator begin() ثابت { أرجع پاڙ_listing.begin(); }
+	ويڪٽر<ContentListing>::const_iterator پڇاڙي() ثابت { أرجع پاڙ_listing.پڇاڙي(); }
 
-	ContentListing* get_root() {
-		return &_root_listing;
+	ContentListing* get_پاڙ() {
+		أرجع &پاڙ_listing;
 	}
 
-	void set_group(const string g) { group = g; }
-	bool has_group() const { return group.compare("unknown") != 0; }
+	فراغ سيٽ_گروهه(ثابت string g) { گروهه = g; }
+	bool has_گروهه() ثابت { أرجع گروهه.compare("unknown") != 0; }
 
-	void log_help() const;
+	فراغ log_help() ثابت;
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پڇاڙي
 
-#endif
+#جيڪڏهن_پورو

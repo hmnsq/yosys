@@ -1,94 +1,94 @@
-#include "kernel/yosys_common.h"
-#include "kernel/log.h"
-#include <iostream>
-#include <string>
-#include <filesystem>
-#include <system_error>
+#ضمن "kernel/yosys_common.h"
+#ضمن "kernel/log.h"
+#ضمن <iostream>
+#ضمن <string>
+#ضمن <filesystem>
+#ضمن <system_error>
 
-#if !defined(WIN32)
-#include <dirent.h>
-#include <unistd.h>
-#else
-#include <io.h>
-#endif
+#إذا !defined(WIN32)
+#ضمن <dirent.h>
+#ضمن <unistd.h>
+#وإلا
+#ضمن <io.h>
+#جيڪڏهن_پورو
 
-#if !defined(_WIN32) && !defined(__wasi__)
-#include <sys/file.h>
-#include <fcntl.h>
-#include <cerrno>
-#endif
+#إذا !defined(_WIN32) && !defined(__wasi__)
+#ضمن <sys/file.h>
+#ضمن <fcntl.h>
+#ضمن <cerrno>
+#جيڪڏهن_پورو
 
 YOSYS_NAMESPACE_BEGIN
 
 // Set of utilities for handling files
 
-int readsome(std::istream &f, char *s, int n)
+صحيح readsome(std::istream &f, حرف *s, صحيح n)
 {
-	int rc = int(f.readsome(s, n));
+	صحيح rc = صحيح(f.readsome(s, n));
 
 	// f.readsome() sometimes returns 0 on a non-empty stream..
-	if (rc == 0) {
-		int c = f.get();
-		if (c != EOF) {
+	إذا (rc == 0) {
+		صحيح c = f.get();
+		إذا (c != EOF) {
 			*s = c;
 			rc = 1;
 		}
 	}
 
-	return rc;
+	أرجع rc;
 }
 
-std::string next_token(std::string &text, const char *sep, bool long_strings)
+std::string ايندڙ_token(std::string &متن, ثابت حرف *sep, منطقي long_لڙيون)
 {
-	size_t pos_begin = text.find_first_not_of(sep);
+	سائيز_t pos_begin = متن.ڳوليو_پهريون_not_جو(sep);
 
-	if (pos_begin == std::string::npos)
-		pos_begin = text.size();
+	إذا (pos_begin == std::string::npos)
+		pos_begin = متن.سائيز();
 
-	if (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
+	إذا (long_لڙيون && pos_begin != متن.سائيز() && متن[pos_begin] == '"') {
 		std::string sep_string = sep;
-		for (size_t i = pos_begin+1; i < text.size(); i++) {
-			if (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
-				std::string token = text.substr(pos_begin, i-pos_begin+1);
-				text = text.substr(i+1);
-				return token;
+		لكل (سائيز_t i = pos_begin+1; i < متن.سائيز(); i++) {
+			إذا (متن[i] == '"' && (i+1 == متن.سائيز() || sep_string.ڳوليو(متن[i+1]) != std::string::npos)) {
+				std::string token = متن.substr(pos_begin, i-pos_begin+1);
+				متن = متن.substr(i+1);
+				أرجع token;
 			}
-			if (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
-				std::string token = text.substr(pos_begin, i-pos_begin+1);
-				text = text.substr(i+2);
-				return token + ";";
+			إذا (i+1 < متن.سائيز() && متن[i] == '"' && متن[i+1] == ';' && (i+2 == متن.سائيز() || sep_string.ڳوليو(متن[i+2]) != std::string::npos)) {
+				std::string token = متن.substr(pos_begin, i-pos_begin+1);
+				متن = متن.substr(i+2);
+				أرجع token + ";";
 			}
 		}
 	}
 
-	size_t pos_end = text.find_first_of(sep, pos_begin);
+	سائيز_t pos_پڇاڙي = متن.ڳوليو_پهريون_جو(sep, pos_begin);
 
-	if (pos_end == std::string::npos)
-		pos_end = text.size();
+	إذا (pos_پڇاڙي == std::string::npos)
+		pos_پڇاڙي = متن.سائيز();
 
-	std::string token = text.substr(pos_begin, pos_end-pos_begin);
-	text = text.substr(pos_end);
-	return token;
+	std::string token = متن.substr(pos_begin, pos_پڇاڙي-pos_begin);
+	متن = متن.substr(pos_پڇاڙي);
+	أرجع token;
 }
 
-std::vector<std::string> split_tokens(const std::string &text, const char *sep)
+std::ويڪٽر<std::string> ورهايو_ٽوڪن(ثابت std::string &متن, ثابت حرف *sep)
 {
-	std::vector<std::string> tokens;
+	std::ويڪٽر<std::string> ٽوڪن;
 	std::string current_token;
-	for (char c : text) {
-		if (strchr(sep, c)) {
-			if (!current_token.empty()) {
-				tokens.push_back(current_token);
+	لكل (حرف c : متن) {
+		إذا (strchr(sep, c)) {
+			إذا (!current_token.خالي_جايون()) {
+				ٽوڪن.ڌڪو_پٺ(current_token);
 				current_token.clear();
 			}
-		} else
+		} وإلا
 			current_token += c;
 	}
-	if (!current_token.empty()) {
-		tokens.push_back(current_token);
+	إذا (!current_token.خالي_جايون()) {
+		ٽوڪن.ڌڪو_پٺ(current_token);
 		current_token.clear();
 	}
-	return tokens;
+	أرجع ٽوڪن;
 }
 
 // this is very similar to fnmatch(). the exact rules used by this
@@ -102,396 +102,396 @@ std::vector<std::string> split_tokens(const std::string &text, const char *sep)
 // a backslash may be used to escape the next characters in the
 // pattern. each special character can also simply match itself.
 //
-bool patmatch(const char *pattern, const char *string)
+منطقي patmatch(ثابت حرف *نمونو, ثابت حرف *string)
 {
-	if (*pattern == 0)
-		return *string == 0;
+	إذا (*نمونو == 0)
+		أرجع *string == 0;
 
-	if (*pattern == '\\') {
-		if (pattern[1] == string[0] && patmatch(pattern+2, string+1))
-			return true;
+	إذا (*نمونو == '\\') {
+		إذا (نمونو[1] == string[0] && patmatch(نمونو+2, string+1))
+			أرجع سچ;
 	}
 
-	if (*pattern == '?') {
-		if (*string == 0)
-			return false;
-		return patmatch(pattern+1, string+1);
+	إذا (*نمونو == '?') {
+		إذا (*string == 0)
+			أرجع خطأ;
+		أرجع patmatch(نمونو+1, string+1);
 	}
 
-	if (*pattern == '*') {
-		while (*string) {
-			if (patmatch(pattern+1, string++))
-				return true;
+	إذا (*نمونو == '*') {
+		طالما (*string) {
+			إذا (patmatch(نمونو+1, string++))
+				أرجع سچ;
 		}
-		return pattern[1] == 0;
+		أرجع نمونو[1] == 0;
 	}
 
-	if (*pattern == '[') {
-		bool found_match = false;
-		bool inverted_list = pattern[1] == '!';
-		const char *p = pattern + (inverted_list ? 1 : 0);
+	إذا (*نمونو == '[') {
+		منطقي مليو_ميلاپ = خطأ;
+		منطقي inverted_list = نمونو[1] == '!';
+		ثابت حرف *p = نمونو + (inverted_list ? 1 : 0);
 
-		while (*++p) {
-			if (*p == ']') {
-				if (found_match != inverted_list && patmatch(p+1, string+1))
-					return true;
-				break;
+		طالما (*++p) {
+			إذا (*p == ']') {
+				إذا (مليو_ميلاپ != inverted_list && patmatch(p+1, string+1))
+					أرجع سچ;
+				اكسر;
 			}
 
-			if (*p == '\\') {
-				if (*++p == *string)
-					found_match = true;
-			} else
-			if (*p == *string)
-				found_match = true;
+			إذا (*p == '\\') {
+				إذا (*++p == *string)
+					مليو_ميلاپ = سچ;
+			} وإلا
+			إذا (*p == *string)
+				مليو_ميلاپ = سچ;
 		}
 	}
 
-	if (*pattern == *string)
-		return patmatch(pattern+1, string+1);
+	إذا (*نمونو == *string)
+		أرجع patmatch(نمونو+1, string+1);
 
-	return false;
+	أرجع خطأ;
 }
 
-std::string get_base_tmpdir()
+std::string get_بنياد_tmpdir()
 {
-	static std::string tmpdir;
+	ساكن std::string tmpdir;
 
-	if (!tmpdir.empty()) {
-		return tmpdir;
+	إذا (!tmpdir.خالي_جايون()) {
+		أرجع tmpdir;
 	}
 
-#if defined(_WIN32)
+#إذا defined(_WIN32)
 	std::wstring wtmppath(4096, L'\0');
 	// typically returns a 8.3 path, but this can be disabled via registry
-	if (!GetTempPathW(wtmppath.size(), wtmppath.data()))
+	إذا (!Get_عارضي_رستو_W(wtmppath.سائيز(), wtmppath.معلومات()))
 		log_error("GetTempPathW() failed.\n");
-	wtmppath.resize(wtmppath.find(L'\0'));
+	wtmppath.resize(wtmppath.ڳوليو(L'\0'));
 	std::string utmppath;
-	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), NULL, NULL) == 0)
+	utmppath.resize(Wide_Char_منزل_Multi_Byte(CP_UTF8, 0, wtmppath.معلومات(), wtmppath.سائيز(), عدم, 0, عدم, عدم));
+	إذا (Wide_Char_منزل_Multi_Byte(CP_UTF8, 0, wtmppath.معلومات(), wtmppath.سائيز(), utmppath.معلومات(), utmppath.سائيز(), عدم, عدم) == 0)
 		log_error("WideCharToMultiByte() failed.\n");
 	tmpdir += utmppath;
-#else
-	char * var = std::getenv("TMPDIR");
-	if (var && strlen(var)!=0) {
-		tmpdir.assign(var);
+#وإلا
+	حرف * var = std::getenv("TMPDIR");
+	إذا (var && لڙي_ڊيگهه(var)!=0) {
+		tmpdir.سونپيو(var);
 		// We return the directory name without the trailing '/'
-		while (!tmpdir.empty() && (tmpdir.back() == '/')) {
-			tmpdir.pop_back();
+		طالما (!tmpdir.خالي_جايون() && (tmpdir.پٺ() == '/')) {
+			tmpdir.ڪڍو_پٺ();
 		}
-	} else {
-		tmpdir.assign("/tmp");
+	} وإلا {
+		tmpdir.سونپيو("/tmp");
 	}
-#endif
-	return tmpdir;
+#جيڪڏهن_پورو
+	أرجع tmpdir;
 }
 
-std::string make_temp_file(std::string template_str)
+std::string make_عارضي_file(std::string template_str)
 {
-	size_t pos = template_str.rfind("XXXXXX");
+	سائيز_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
-#if defined(__wasm)
-	static size_t index = 0;
-	template_str.replace(pos, 6, stringf("%06zu", index++));
-#elif defined(_WIN32)
-#ifndef YOSYS_WIN32_UNIX_DIR
-	std::replace(template_str.begin(), template_str.end(), '/', '\\');
-#endif
-	while (1) {
-		for (int i = 0; i < 6; i++) {
-			static std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-			static uint32_t x = 314159265 ^ uint32_t(time(NULL));
+#إذا defined(__wasm)
+	ساكن سائيز_t اشاريو = 0;
+	template_str.replace(pos, 6, stringf("%06zu", اشاريو++));
+#وإلاإذا defined(_WIN32)
+#جيڪڏهن_وصف_نه_ٿيل YOSYS_WIN32_UNIX_DIR
+	std::replace(template_str.begin(), template_str.پڇاڙي(), '/', '\\');
+#جيڪڏهن_پورو
+	طالما (1) {
+		لكل (صحيح i = 0; i < 6; i++) {
+			ساكن std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			ساكن uint32_t x = 314159265 ^ uint32_t(وقت_2(عدم));
 			x ^= x << 13, x ^= x >> 17, x ^= x << 5;
-			template_str[pos+i] = y[x % y.size()];
+			template_str[pos+i] = y[x % y.سائيز()];
 		}
-		if (_access(template_str.c_str(), 0) != 0)
-			break;
+		إذا (_access(template_str.c_str(), 0) != 0)
+			اكسر;
 	}
-#else
-	int suffixlen = template_str.size() - pos - 6;
+#وإلا
+	صحيح suffixlen = template_str.سائيز() - pos - 6;
 
-	char *p = strdup(template_str.c_str());
+	حرف *p = strdup(template_str.c_str());
 	close(mkstemps(p, suffixlen));
 	template_str = p;
-	free(p);
-#endif
+	حرر(p);
+#جيڪڏهن_پورو
 
-	return template_str;
+	أرجع template_str;
 }
 
-std::string make_temp_dir(std::string template_str)
+std::string make_عارضي_dir(std::string template_str)
 {
-#if defined(_WIN32)
-	template_str = make_temp_file(template_str);
+#إذا defined(_WIN32)
+	template_str = make_عارضي_file(template_str);
 	mkdir(template_str.c_str());
-	return template_str;
-#elif defined(__wasm)
-	template_str = make_temp_file(template_str);
+	أرجع template_str;
+#وإلاإذا defined(__wasm)
+	template_str = make_عارضي_file(template_str);
 	mkdir(template_str.c_str(), 0777);
-	return template_str;
-#else
+	أرجع template_str;
+#وإلا
 #  ifndef NDEBUG
-	size_t pos = template_str.rfind("XXXXXX");
+	سائيز_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
 
-	int suffixlen = template_str.size() - pos - 6;
+	صحيح suffixlen = template_str.سائيز() - pos - 6;
 	log_assert(suffixlen == 0);
 #  endif
 
-	char *p = strdup(template_str.c_str());
+	حرف *p = strdup(template_str.c_str());
 	log_assert(p);
-	char *res = mkdtemp(p);
-	if (!res)
+	حرف *res = mkdtemp(p);
+	إذا (!res)
 		log_error("mkdtemp failed for '%s': %s [Error %d]\n",
 			p, strerror(errno), errno);
 	template_str = p;
-	free(p);
+	حرر(p);
 
-	return template_str;
-#endif
+	أرجع template_str;
+#جيڪڏهن_پورو
 }
 
-bool check_is_directory(const std::string& dirname)
+منطقي check_is_directory(ثابت std::string& dirname)
 {
-#if defined(_WIN32)
-	struct _stat info;
-	auto dirname_ = dirname;
+#إذا defined(_WIN32)
+	بنية _stat info;
+	خودڪار dirname_ = dirname;
 
 	/* On old versions of Visual Studio and current versions on MinGW,
 	   _stat will fail if the path ends with a trailing slash. */
-	if (dirname.back() == '/' || dirname.back() == '\\') {
-		dirname_ = dirname.substr(0, dirname.length() - 1);
+	إذا (dirname.پٺ() == '/' || dirname.پٺ() == '\\') {
+		dirname_ = dirname.substr(0, dirname.ڊيگهائي() - 1);
 	}
 
-	if (_stat(dirname_.c_str(), &info) != 0)
+	إذا (_stat(dirname_.c_str(), &info) != 0)
 	{
-		return false;
+		أرجع خطأ;
 	}
-	return (info.st_mode & _S_IFDIR) != 0;
-#else
-	struct stat info;
-	if (stat(dirname.c_str(), &info) != 0)
+	أرجع (info.st_گهڻائي & _S_IFDIR) != 0;
+#وإلا
+	بنية stat info;
+	إذا (stat(dirname.c_str(), &info) != 0)
 	{
-		return false;
+		أرجع خطأ;
 	}
-	return (info.st_mode & S_IFDIR) != 0;
-#endif
+	أرجع (info.st_گهڻائي & S_IFDIR) != 0;
+#جيڪڏهن_پورو
 }
 
-#ifdef _WIN32
-bool check_accessible(const std::string& filename, bool)
+#جيڪڏهن_وصف_ٿيل _WIN32
+منطقي check_accessible(ثابت std::string& filename, منطقي)
 {
-	return _access(filename.c_str(), 0) == 0;
+	أرجع _access(filename.c_str(), 0) == 0;
 }
-#else
-bool check_accessible(const std::string& filename, bool is_exec)
+#وإلا
+منطقي check_accessible(ثابت std::string& filename, منطقي is_exec)
 {
-	return access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
+	أرجع access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
 }
-#endif
+#جيڪڏهن_پورو
 
-bool check_file_exists(const std::string& filename, bool is_exec)
+منطقي check_file_exists(ثابت std::string& filename, منطقي is_exec)
 {
-	return check_accessible(filename, is_exec) && !check_is_directory(filename);
+	أرجع check_accessible(filename, is_exec) && !check_is_directory(filename);
 }
-bool check_directory_exists(const std::string& filename, bool is_exec)
+منطقي check_directory_exists(ثابت std::string& filename, منطقي is_exec)
 {
-	return check_accessible(filename, is_exec) && check_is_directory(filename);
-}
-
-bool is_absolute_path(std::string filename)
-{
-#ifdef _WIN32
-	return filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
-#else
-	return filename[0] == '/';
-#endif
+	أرجع check_accessible(filename, is_exec) && check_is_directory(filename);
 }
 
-void remove_directory(std::string dirname)
+منطقي is_absolute_رستو(std::string filename)
 {
-#ifdef _WIN32
-	run_command(stringf("rmdir /s /q \"%s\"", dirname));
-#else
-	struct stat stbuf;
-	struct dirent **namelist;
-	int n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
+#جيڪڏهن_وصف_ٿيل _WIN32
+	أرجع filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
+#وإلا
+	أرجع filename[0] == '/';
+#جيڪڏهن_پورو
+}
+
+فراغ remove_directory(std::string dirname)
+{
+#جيڪڏهن_وصف_ٿيل _WIN32
+	لاڳيتو_command(stringf("rmdir /s /q \"%s\"", dirname));
+#وإلا
+	بنية stat stbuf;
+	بنية dirent **namelist;
+	صحيح n = scandir(dirname.c_str(), &namelist, خالي_اشارو, alphasort);
 	log_assert(n >= 0);
-	for (int i = 0; i < n; i++) {
-		if (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
-			std::string buffer = stringf("%s/%s", dirname, namelist[i]->d_name);
-			if (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
-				remove(buffer.c_str());
-			} else
-				remove_directory(buffer);
+	لكل (صحيح i = 0; i < n; i++) {
+		إذا (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
+			std::string بفر = stringf("%s/%s", dirname, namelist[i]->d_name);
+			إذا (!stat(بفر.c_str(), &stbuf) && S_ISREG(stbuf.st_گهڻائي)) {
+				remove(بفر.c_str());
+			} وإلا
+				remove_directory(بفر);
 		}
-		free(namelist[i]);
+		حرر(namelist[i]);
 	}
-	free(namelist);
+	حرر(namelist);
 	rmdir(dirname.c_str());
-#endif
+#جيڪڏهن_پورو
 }
 
-bool create_directory(const std::string& dirname)
+منطقي create_directory(ثابت std::string& dirname)
 {
-#if defined(_WIN32)
-	int ret = _mkdir(dirname.c_str());
-#else
-	mode_t mode = 0755;
-	int ret = mkdir(dirname.c_str(), mode);
-#endif
-	if (ret == 0)
-		return true;
+#إذا defined(_WIN32)
+	صحيح ret = _mkdir(dirname.c_str());
+#وإلا
+	گهڻائي_t گهڻائي = 0755;
+	صحيح ret = mkdir(dirname.c_str(), گهڻائي);
+#جيڪڏهن_پورو
+	إذا (ret == 0)
+		أرجع سچ;
 
-	switch (errno)
+	بدل (errno)
 	{
-	case ENOENT:
+	حالة ENOENT:
 		// parent didn't exist, try to create it
 		{
-			std::string::size_type pos = dirname.find_last_of('/');
-			if (pos == std::string::npos)
-#if defined(_WIN32)
-				pos = dirname.find_last_of('\\');
-			if (pos == std::string::npos)
-#endif
-				return false;
-			if (!create_directory( dirname.substr(0, pos) ))
-				return false;
+			std::string::سائيز_type pos = dirname.ڳوليو_آخري_جو('/');
+			إذا (pos == std::string::npos)
+#إذا defined(_WIN32)
+				pos = dirname.ڳوليو_آخري_جو('\\');
+			إذا (pos == std::string::npos)
+#جيڪڏهن_پورو
+				أرجع خطأ;
+			إذا (!create_directory( dirname.substr(0, pos) ))
+				أرجع خطأ;
 		}
 		// now, try to create again
-#if defined(_WIN32)
-		return 0 == _mkdir(dirname.c_str());
-#else
-		return 0 == mkdir(dirname.c_str(), mode);
-#endif
+#إذا defined(_WIN32)
+		أرجع 0 == _mkdir(dirname.c_str());
+#وإلا
+		أرجع 0 == mkdir(dirname.c_str(), گهڻائي);
+#جيڪڏهن_پورو
 
-	case EEXIST:
+	حالة EEXIST:
 		// done!
-		return check_directory_exists(dirname);
+		أرجع check_directory_exists(dirname);
 
-	default:
-		return false;
+	افتراضي:
+		أرجع خطأ;
 	}
 }
 
-bool make_private_directory(const std::string& dirname)
+منطقي make_ذاتي_directory(ثابت std::string& dirname)
 {
-#if defined(_WIN32) || defined(__wasi__)
-	if (!create_directory(dirname)) {
+#إذا defined(_WIN32) || defined(__wasi__)
+	إذا (!create_directory(dirname)) {
 		log_warning("Cannot create the directory %s\n", dirname.c_str());
-		return false;
+		أرجع خطأ;
 	}
-	return true;
-#else
-	if (mkdir(dirname.c_str(), 0700) == 0)
-		return true;
+	أرجع سچ;
+#وإلا
+	إذا (mkdir(dirname.c_str(), 0700) == 0)
+		أرجع سچ;
 
 	// Keep the errno of each mkdir(), create_directory() below makes its own calls
-	int err = errno;
-	std::string parent = std::filesystem::path(dirname).parent_path().string();
+	صحيح err = errno;
+	std::string والد = std::filesystem::رستو_2(dirname).والد_رستو().string();
 
-	if (err == ENOENT && !parent.empty() && create_directory(parent)) {
-		if (mkdir(dirname.c_str(), 0700) == 0)
-			return true;
+	إذا (err == ENOENT && !والد.خالي_جايون() && create_directory(والد)) {
+		إذا (mkdir(dirname.c_str(), 0700) == 0)
+			أرجع سچ;
 		err = errno;
 	}
 
-	if (err != EEXIST) {
+	إذا (err != EEXIST) {
 		log_warning("Cannot create the directory %s: %s\n", dirname.c_str(), strerror(err));
-		return false;
+		أرجع خطأ;
 	}
 
 	// Do not use a leftover that isn't ours
-	struct stat st;
-	if (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
+	بنية stat st;
+	إذا (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_گهڻائي) || st.st_uid != geteuid()) {
 		log_warning("%s is not a directory of this user\n", dirname.c_str());
-		return false;
+		أرجع خطأ;
 	}
 	// Repair the mode if something changed it
-	mode_t mode = st.st_mode & 0777;
-	if (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
+	گهڻائي_t گهڻائي = st.st_گهڻائي & 0777;
+	إذا (((گهڻائي & S_IRWXU) != S_IRWXU || (گهڻائي & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
 		log_warning("Cannot make the directory %s private: %s\n", dirname.c_str(), strerror(errno));
-		return false;
+		أرجع خطأ;
 	}
 
-	return true;
-#endif
+	أرجع سچ;
+#جيڪڏهن_پورو
 }
 
-std::string make_user_tmpdir(const std::string& name)
+std::string make_user_tmpdir(ثابت std::string& name)
 {
-	log_assert(!name.empty() && name.find('/') == std::string::npos);
-#if defined(_WIN32) || defined(__wasi__)
-	std::string dirname = get_base_tmpdir() + "/" + name;
-#else
-	std::string dirname = stringf("%s/%s-%u", get_base_tmpdir().c_str(), name.c_str(), (unsigned)geteuid());
-#endif
-	return make_private_directory(dirname) ? dirname : "";
+	log_assert(!name.خالي_جايون() && name.ڳوليو('/') == std::string::npos);
+#إذا defined(_WIN32) || defined(__wasi__)
+	std::string dirname = get_بنياد_tmpdir() + "/" + name;
+#وإلا
+	std::string dirname = stringf("%s/%s-%u", get_بنياد_tmpdir().c_str(), name.c_str(), (بنانشان)geteuid());
+#جيڪڏهن_پورو
+	أرجع make_ذاتي_directory(dirname) ? dirname : "";
 }
 
-std::string escape_filename_spaces(const std::string& filename)
+std::string escape_filename_spaces(ثابت std::string& filename)
 {
-	std::string out;
-	out.reserve(filename.size());
-	for (auto c : filename)
+	std::string ٻاهريون;
+	ٻاهريون.reserve(filename.سائيز());
+	لكل (خودڪار c : filename)
 	{
-		if (c == ' ')
-			out += "\\ ";
-		else
-			out.push_back(c);
+		إذا (c == ' ')
+			ٻاهريون += "\\ ";
+		وإلا
+			ٻاهريون.ڌڪو_پٺ(c);
 	}
-	return out;
+	أرجع ٻاهريون;
 }
 
-void append_globbed(std::vector<std::string>& paths, std::string pattern)
+فراغ append_globbed(std::ويڪٽر<std::string>& paths, std::string نمونو)
 {
-	rewrite_filename(pattern);
-	std::vector<std::string> globbed = glob_filename(pattern);
-	copy(globbed.begin(), globbed.end(), back_inserter(paths));
+	rewrite_filename(نمونو);
+	std::ويڪٽر<std::string> globbed = glob_filename(نمونو);
+	copy(globbed.begin(), globbed.پڇاڙي(), پٺ_inserter(paths));
 }
 
-std::string name_from_file_path(std::string path) {
-	return std::filesystem::path(path).filename().string();
+std::string name_from_file_رستو(std::string رستو_2) {
+	أرجع std::filesystem::رستو_2(رستو_2).filename().string();
 }
 
-std::string absolute_path(const std::string& path)
+std::string absolute_رستو(ثابت std::string& رستو_2)
 {
-	std::error_code ec;
-	std::filesystem::path result = std::filesystem::absolute(path, ec);
+	std::error_ڪوڊ ec;
+	std::filesystem::رستو_2 نتيجو = std::filesystem::absolute(رستو_2, ec);
 
-	if (ec)
-		return "";
+	إذا (ec)
+		أرجع "";
 
-	result = std::filesystem::weakly_canonical(result, ec);
+	نتيجو = std::filesystem::weakly_canonical(نتيجو, ec);
 
-	if (ec)
-		return "";
+	إذا (ec)
+		أرجع "";
 
-	return result.string();
+	أرجع نتيجو.string();
 }
 
 // Includes OS_PATH_SEP at the end if present
-std::string parent_from_file_path(std::string path) {
-	auto parent = std::filesystem::path(path).parent_path();
-	if (parent.empty()) {
-		return "";
+std::string والد_from_file_رستو(std::string رستو_2) {
+	خودڪار والد = std::filesystem::رستو_2(رستو_2).والد_رستو();
+	إذا (والد.خالي_جايون()) {
+		أرجع "";
 	}
 	// Add trailing separator to match original behavior
-	std::string result = parent.string();
-	if (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
-		result += std::filesystem::path::preferred_separator;
+	std::string نتيجو = والد.string();
+	إذا (!نتيجو.خالي_جايون() && نتيجو.پٺ() != std::filesystem::رستو_2::preferred_separator) {
+		نتيجو += std::filesystem::رستو_2::preferred_separator;
 	}
-	return result;
+	أرجع نتيجو;
 }
 
-void format_emit_unescaped(std::string &result, std::string_view fmt)
+فراغ format_emit_unescaped(std::string &نتيجو, std::string_view fmt)
 {
-	result.reserve(result.size() + fmt.size());
-	for (size_t i = 0; i < fmt.size(); ++i) {
-		char ch = fmt[i];
-		result.push_back(ch);
-		if (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
+	نتيجو.reserve(نتيجو.سائيز() + fmt.سائيز());
+	لكل (سائيز_t i = 0; i < fmt.سائيز(); ++i) {
+		حرف ch = fmt[i];
+		نتيجو.ڌڪو_پٺ(ch);
+		إذا (ch == '%' && i + 1 < fmt.سائيز() && fmt[i + 1] == '%') {
 			++i;
 		}
 	}
@@ -499,251 +499,251 @@ void format_emit_unescaped(std::string &result, std::string_view fmt)
 
 std::string unescape_format_string(std::string_view fmt)
 {
-	std::string result;
-	format_emit_unescaped(result, fmt);
-	return result;
+	std::string نتيجو;
+	format_emit_unescaped(نتيجو, fmt);
+	أرجع نتيجو;
 }
 
-static std::string string_view_stringf(std::string_view spec, ...)
+ساكن std::string string_view_stringf(std::string_view spec, ...)
 {
 	va_list ap;
 	va_start(ap, spec);
-	std::string result = vstringf(std::string(spec).c_str(), ap);
+	std::string نتيجو = vstringf(std::string(spec).c_str(), ap);
 	va_end(ap);
-	return result;
+	أرجع نتيجو;
 }
 
-static int spec_parameter_size(std::string_view spec)
+ساكن صحيح spec_parameter_سائيز(std::string_view spec)
 {
 	// Every valid spec starts with '%' which means the code below
 	// won't look before the spec start.
-	switch (spec[spec.size() - 1]) {
-	case 'd':
-	case 'i':
-	case 'o':
-	case 'u':
-	case 'x':
-	case 'X':
-		switch (spec[spec.size() - 2]) {
-		case 'h':
-			if (spec[spec.size() - 3] == 'h')
-				return sizeof(char);
-			return sizeof(short);
-		case 'l':
-			if (spec[spec.size() - 3] == 'l')
-				return sizeof(long long);
-			return sizeof(long);
-		case 'L':
-		case 'q':
-			return sizeof(long long);
-		case 'j':
-			return sizeof(intmax_t);
-		case 'z':
-		case 'Z':
-			return sizeof(size_t);
-		case 't':
-			return sizeof(ptrdiff_t);
+	بدل (spec[spec.سائيز() - 1]) {
+	حالة 'd':
+	حالة 'i':
+	حالة 'o':
+	حالة 'u':
+	حالة 'x':
+	حالة 'X':
+		بدل (spec[spec.سائيز() - 2]) {
+		حالة 'h':
+			إذا (spec[spec.سائيز() - 3] == 'h')
+				أرجع حجم(حرف);
+			أرجع حجم(ننڍو);
+		حالة 'l':
+			إذا (spec[spec.سائيز() - 3] == 'l')
+				أرجع حجم(ڊگهو ڊگهو);
+			أرجع حجم(ڊگهو);
+		حالة 'L':
+		حالة 'q':
+			أرجع حجم(ڊگهو ڊگهو);
+		حالة 'j':
+			أرجع حجم(intmax_t);
+		حالة 'z':
+		حالة 'Z':
+			أرجع حجم(سائيز_t);
+		حالة 't':
+			أرجع حجم(ptrdiff_t);
 		}
-		return sizeof(int);
-	case 'e':
-	case 'E':
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-	case 'a':
-	case 'A':
-		if (spec[spec.size() - 2] == 'L')
-			return sizeof(long double);
-		if (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
-			return sizeof(long double);
-		return sizeof(double);
-	case 'c':
-		if (spec[spec.size() - 2] == 'l') {
-			return sizeof(wchar_t);
+		أرجع حجم(صحيح);
+	حالة 'e':
+	حالة 'E':
+	حالة 'f':
+	حالة 'F':
+	حالة 'g':
+	حالة 'G':
+	حالة 'a':
+	حالة 'A':
+		إذا (spec[spec.سائيز() - 2] == 'L')
+			أرجع حجم(ڊگهو مزدوج);
+		إذا (spec[spec.سائيز() - 2] == 'l' && spec[spec.سائيز() - 3] == 'l')
+			أرجع حجم(ڊگهو مزدوج);
+		أرجع حجم(مزدوج);
+	حالة 'c':
+		إذا (spec[spec.سائيز() - 2] == 'l') {
+			أرجع حجم(wchar_t);
 		}
-		return sizeof(unsigned char);
-	case 'C':
-		return sizeof(wchar_t);
-	case 's':
-	case 'p':
-	case 'S':
-	case 'n':
-		return sizeof(void *);
-	case 'm':
-		return sizeof(int);
-	default:
-		return -1;
+		أرجع حجم(بنانشان حرف);
+	حالة 'C':
+		أرجع حجم(wchar_t);
+	حالة 's':
+	حالة 'p':
+	حالة 'S':
+	حالة 'n':
+		أرجع حجم(فراغ *);
+	حالة 'm':
+		أرجع حجم(صحيح);
+	افتراضي:
+		أرجع -1;
 	}
 }
 
-template <typename Arg>
-static void format_emit_stringf(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, Arg arg)
+سانچو <قسم_نالو Arg>
+ساكن فراغ format_emit_stringf(std::string &نتيجو, std::string_view spec, صحيح *dynamic_ints,
+	Dynamic_Int_ڳڻپ انگ_dynamic_ints, Arg arg)
 {
 	// Delegate nontrivial formats to the C library.
-	switch (num_dynamic_ints) {
-	case DynamicIntCount::NONE:
-		result += string_view_stringf(spec, arg);
-		return;
-	case DynamicIntCount::ONE:
-		result += string_view_stringf(spec, dynamic_ints[0], arg);
-		return;
-	case DynamicIntCount::TWO:
-		result += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
-		return;
+	بدل (انگ_dynamic_ints) {
+	حالة Dynamic_Int_ڳڻپ::NONE:
+		نتيجو += string_view_stringf(spec, arg);
+		أرجع;
+	حالة Dynamic_Int_ڳڻپ::ONE:
+		نتيجو += string_view_stringf(spec, dynamic_ints[0], arg);
+		أرجع;
+	حالة Dynamic_Int_ڳڻپ::TWO:
+		نتيجو += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
+		أرجع;
 	}
 	YOSYS_ABORT("Internal error");
 }
 
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, long long arg)
+فراغ format_emit_long_long(std::string &نتيجو, std::string_view spec, صحيح *dynamic_ints,
+	Dynamic_Int_ڳڻپ انگ_dynamic_ints, ڊگهو ڊگهو arg)
 {
-	if (spec == "%d") {
+	إذا (spec == "%d") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<int>(arg));
-		return;
+		نتيجو += std::منزل_string(static_cast<صحيح>(arg));
+		أرجع;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	إذا (spec_parameter_سائيز(spec) <= 4) {
 		// On some platforms (Wasm) we must ensure that the arg is properly aligned
 		// after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(نتيجو, spec, dynamic_ints, انگ_dynamic_ints, (صحيح)arg);
+	} وإلا {
+		format_emit_stringf(نتيجو, spec, dynamic_ints, انگ_dynamic_ints, arg);
 	}
 }
 
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, unsigned long long arg)
+فراغ format_emit_unsigned_long_long(std::string &نتيجو, std::string_view spec, صحيح *dynamic_ints,
+	Dynamic_Int_ڳڻپ انگ_dynamic_ints, بنانشان ڊگهو ڊگهو arg)
 {
-	if (spec == "%u") {
+	إذا (spec == "%u") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<unsigned int>(arg));
-		return;
+		نتيجو += std::منزل_string(static_cast<بنانشان صحيح>(arg));
+		أرجع;
 	}
-	if (spec == "%c") {
-		result += static_cast<char>(arg);
-		return;
+	إذا (spec == "%c") {
+		نتيجو += static_cast<حرف>(arg);
+		أرجع;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	إذا (spec_parameter_سائيز(spec) <= 4) {
                 // On some platforms (Wasm) we must ensure that the arg is properly aligned
                 // after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (unsigned int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(نتيجو, spec, dynamic_ints, انگ_dynamic_ints, (بنانشان صحيح)arg);
+	} وإلا {
+		format_emit_stringf(نتيجو, spec, dynamic_ints, انگ_dynamic_ints, arg);
 	}
 }
 
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, double arg)
+فراغ format_emit_double(std::string &نتيجو, std::string_view spec, صحيح *dynamic_ints,
+	Dynamic_Int_ڳڻپ انگ_dynamic_ints, مزدوج arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(نتيجو, spec, dynamic_ints, انگ_dynamic_ints, arg);
 }
 
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const char *arg)
+فراغ format_emit_char_ptr(std::string &نتيجو, std::string_view spec, صحيح *dynamic_ints,
+	Dynamic_Int_ڳڻپ انگ_dynamic_ints, ثابت حرف *arg)
 {
-	if (spec == "%s") {
+	إذا (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += arg;
-		return;
+		نتيجو += arg;
+		أرجع;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(نتيجو, spec, dynamic_ints, انگ_dynamic_ints, arg);
 }
 
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const std::string &arg)
+فراغ format_emit_string(std::string &نتيجو, std::string_view spec, صحيح *dynamic_ints,
+	Dynamic_Int_ڳڻپ انگ_dynamic_ints, ثابت std::string &arg)
 {
-	if (spec == "%s") {
+	إذا (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += arg;
-		return;
+		نتيجو += arg;
+		أرجع;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg.c_str());
+	format_emit_stringf(نتيجو, spec, dynamic_ints, انگ_dynamic_ints, arg.c_str());
 }
 
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, std::string_view arg)
+فراغ format_emit_string_view(std::string &نتيجو, std::string_view spec, صحيح *dynamic_ints,
+	Dynamic_Int_ڳڻپ انگ_dynamic_ints, std::string_view arg)
 {
-	if (spec == "%s") {
+	إذا (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		// We can output the string without creating a temporary copy.
-		result += arg;
-		return;
+		نتيجو += arg;
+		أرجع;
 	}
 	// Delegate nontrivial formats to the C library. We need to construct
 	// a temporary string to ensure null termination.
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, std::string(arg).c_str());
+	format_emit_stringf(نتيجو, spec, dynamic_ints, انگ_dynamic_ints, std::string(arg).c_str());
 }
 
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const void *arg)
+فراغ format_emit_void_ptr(std::string &نتيجو, std::string_view spec, صحيح *dynamic_ints,
+	Dynamic_Int_ڳڻپ انگ_dynamic_ints, ثابت فراغ *arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(نتيجو, spec, dynamic_ints, انگ_dynamic_ints, arg);
 }
 
-#if defined(_WIN32)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#إذا defined(_WIN32)
+Scoped_File_تالو::Scoped_File_تالو(ثابت std::string &رستو_2)
 {
-	HANDLE h = CreateFileA(path.c_str(), GENERIC_READ | GENERIC_WRITE,
+	HANDLE h = CreateFileA(رستو_2.c_str(), GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-			NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h == INVALID_HANDLE_VALUE) {
-		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+			عدم, OPEN_ALWAYS, FILE_ATTRIBUTE_عام, عدم);
+	إذا (h == INVALID_HANDLE_قدر) {
+		log_warning("Cannot open lock file %s, proceeding without lock\n", رستو_2.c_str());
+		أرجع;
 	}
 	OVERLAPPED ov = {};
-	if (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
-		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
+	إذا (!تالو_File_Ex(h, LOCKFILE_EXCLUSIVE_تالو, 0, MAXDWORD, MAXDWORD, &ov)) {
+		log_warning("Cannot lock %s, proceeding without lock\n", رستو_2.c_str());
 		CloseHandle(h);
-		return;
+		أرجع;
 	}
 	handle = h;
 }
 
-ScopedFileLock::~ScopedFileLock()
+Scoped_File_تالو::~Scoped_File_تالو()
 {
-	if (handle != nullptr) {
+	إذا (handle != خالي_اشارو) {
 		OVERLAPPED ov = {};
 		UnlockFileEx(handle, 0, MAXDWORD, MAXDWORD, &ov);
 		CloseHandle(handle);
 	}
 }
-#elif !defined(__wasi__)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#وإلاإذا !defined(__wasi__)
+Scoped_File_تالو::Scoped_File_تالو(ثابت std::string &رستو_2)
 {
-	fd = open(path.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0666);
-	if (fd < 0)
-		fd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
-	if (fd < 0) {
-		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+	fd = open(رستو_2.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0666);
+	إذا (fd < 0)
+		fd = open(رستو_2.c_str(), O_RDONLY | O_CLOEXEC);
+	إذا (fd < 0) {
+		log_warning("Cannot open lock file %s, proceeding without lock\n", رستو_2.c_str());
+		أرجع;
 	}
-	int ret;
-	while ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
-	if (ret != 0)
-		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
+	صحيح ret;
+	طالما ((ret = flock(fd, تالو_EX)) != 0 && errno == EINTR);
+	إذا (ret != 0)
+		log_warning("Cannot lock %s, proceeding without lock\n", رستو_2.c_str());
 }
 
-ScopedFileLock::~ScopedFileLock()
+Scoped_File_تالو::~Scoped_File_تالو()
 {
-	if (fd >= 0)
+	إذا (fd >= 0)
 		close(fd); // releases the flock
 }
-#else
-ScopedFileLock::ScopedFileLock(const std::string &) {}
-ScopedFileLock::~ScopedFileLock() {}
-#endif
+#وإلا
+Scoped_File_تالو::Scoped_File_تالو(ثابت std::string &) {}
+Scoped_File_تالو::~Scoped_File_تالو() {}
+#جيڪڏهن_پورو
 
-unsigned get_process_id()
+بنانشان get_process_id()
 {
-#if defined(_WIN32)
-	return GetCurrentProcessId();
-#elif defined(__wasi__)
-	return 0;
-#else
-	return getpid();
-#endif
+#إذا defined(_WIN32)
+	أرجع GetCurrentProcessId();
+#وإلاإذا defined(__wasi__)
+	أرجع 0;
+#وإلا
+	أرجع getpid();
+#جيڪڏهن_پورو
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پڇاڙي

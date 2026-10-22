@@ -17,261 +17,261 @@
  *
  */
 
-#ifndef TOPO_SCC_H
-#define TOPO_SCC_H
+#جيڪڏهن_وصف_نه_ٿيل TOPO_SCC_H
+#وصف_ڪريو TOPO_SCC_H
 
-#include "kernel/yosys.h"
+#ضمن "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-class SigCellGraph {
-public:
-    typedef int node_type;
+class Sig_Cell_گراف {
+عام:
+    تعريفنوع صحيح ڳنڍ_type;
 
-    struct successor_enumerator {
-        std::vector<std::pair<int, int>>::const_iterator current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
-            log_assert(!finished());
-            node_type result = current->second;
+    بنية successor_enumerator {
+        std::ويڪٽر<std::pair<صحيح, صحيح>>::const_iterator current, پڇاڙي;
+        bool ختم() ثابت { أرجع current == پڇاڙي; }
+        ڳنڍ_type ايندڙ() {
+            log_assert(!ختم());
+            ڳنڍ_type نتيجو = current->ٻيو;
             ++current;
-            return result;
+            أرجع نتيجو;
         }
     };
 
-    struct node_enumerator {
-        int current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
-            log_assert(!finished());
-            node_type result = current;
+    بنية ڳنڍ_enumerator {
+        صحيح current, پڇاڙي;
+        bool ختم() ثابت { أرجع current == پڇاڙي; }
+        ڳنڍ_type ايندڙ() {
+            log_assert(!ختم());
+            ڳنڍ_type نتيجو = current;
             ++current;
-            return result;
+            أرجع نتيجو;
         }
     };
 
-private:
+خاص:
     idict<RTLIL::Cell *> cell_ids;
-    idict<RTLIL::SigBit> sig_ids;
-    std::vector<std::pair<int, int>> edges;
-    std::vector<std::pair<int, int>> edge_ranges;
-    std::vector<int> indices_;
-    int offset;
+    idict<RTLIL::Sig_ٻٽو_انگ> sig_ids;
+    std::ويڪٽر<std::pair<صحيح, صحيح>> ڪنارا;
+    std::ويڪٽر<std::pair<صحيح, صحيح>> ڪنارو_ranges;
+    std::ويڪٽر<صحيح> indices_;
+    صحيح وٿي;
     bool computed = false;
 
-    void compute() {
-        offset = GetSize(sig_ids);
-        edge_ranges.clear();
+    فراغ compute() {
+        وٿي = Get_سائيز(sig_ids);
+        ڪنارو_ranges.clear();
         indices_.clear();
-        indices_.resize(GetSize(sig_ids) + GetSize(cell_ids), -1);
+        indices_.resize(Get_سائيز(sig_ids) + Get_سائيز(cell_ids), -1);
 
-        std::sort(edges.begin(), edges.end());
-        auto last = std::unique(edges.begin(), edges.end());
-        edges.erase(last, edges.end());
-        auto edge = edges.begin();
-        auto edge_end = edges.end();
-        int range_begin = 0;
-        for (int node = -offset, node_end = GetSize(cell_ids); node != node_end; ++node) {
-            while (edge != edge_end && edge->first <= node)
-                ++edge;
-            int range_end = edge - edges.begin();
-            edge_ranges.emplace_back(std::make_pair(range_begin, range_end));
-            range_begin = range_end;
+        std::ترتيب_ڏيو(ڪنارا.begin(), ڪنارا.پڇاڙي());
+        خودڪار آخري = std::unique(ڪنارا.begin(), ڪنارا.پڇاڙي());
+        ڪنارا.erase(آخري, ڪنارا.پڇاڙي());
+        خودڪار ڪنارو = ڪنارا.begin();
+        خودڪار ڪنارو_پڇاڙي = ڪنارا.پڇاڙي();
+        صحيح range_begin = 0;
+        لكل (صحيح ڳنڍ = -وٿي, ڳنڍ_پڇاڙي = Get_سائيز(cell_ids); ڳنڍ != ڳنڍ_پڇاڙي; ++ڳنڍ) {
+            طالما (ڪنارو != ڪنارو_پڇاڙي && ڪنارو->پهريون <= ڳنڍ)
+                ++ڪنارو;
+            صحيح range_پڇاڙي_2 = ڪنارو - ڪنارا.begin();
+            ڪنارو_ranges.emplace_پٺ(std::make_pair(range_begin, range_پڇاڙي_2));
+            range_begin = range_پڇاڙي_2;
         }
     }
 
-public:
-    node_type node(RTLIL::Cell *cell) { return cell_ids(cell); }
-    node_type node(SigBit const &bit) { return ~sig_ids(bit); }
+عام:
+    ڳنڍ_type ڳنڍ(RTLIL::Cell *cell) { أرجع cell_ids(cell); }
+    ڳنڍ_type ڳنڍ(Sig_ٻٽو_انگ ثابت &ٻٽو_انگ) { أرجع ~sig_ids(ٻٽو_انگ); }
 
-    bool is_cell(node_type node) { return node >= 0; }
-    bool is_sig(node_type node) { return node < 0; }
+    bool is_cell(ڳنڍ_type ڳنڍ) { أرجع ڳنڍ >= 0; }
+    bool is_sig(ڳنڍ_type ڳنڍ) { أرجع ڳنڍ < 0; }
 
-    Cell *cell(node_type node) { return node >= 0 ? cell_ids[node] : nullptr; }
-    SigBit sig(node_type node) { return node < 0 ? sig_ids[~node] : SigBit(); }
+    Cell *cell(ڳنڍ_type ڳنڍ) { أرجع ڳنڍ >= 0 ? cell_ids[ڳنڍ] : nullptr; }
+    Sig_ٻٽو_انگ sig(ڳنڍ_type ڳنڍ) { أرجع ڳنڍ < 0 ? sig_ids[~ڳنڍ] : Sig_ٻٽو_انگ(); }
 
-    template<typename Src, typename Dst>
-    void add_edge(Src &&src, Dst &&dst) {
+    سانچو<typename Src, typename Dst>
+    فراغ جوڙيو_ڪنارو(Src &&src, Dst &&dst) {
         computed = false;
-        node_type src_node = node(std::forward<Src>(src));
-        node_type dst_node = node(std::forward<Dst>(dst));
-        edges.emplace_back(std::make_pair(src_node, dst_node));
+        ڳنڍ_type src_ڳنڍ = ڳنڍ(std::forward<Src>(src));
+        ڳنڍ_type dst_ڳنڍ = ڳنڍ(std::forward<Dst>(dst));
+        ڪنارا.emplace_پٺ(std::make_pair(src_ڳنڍ, dst_ڳنڍ));
     }
 
-    node_enumerator enumerate_nodes() {
-        if (!computed) compute();
-        return {-GetSize(sig_ids), GetSize(cell_ids)};
+    ڳنڍ_enumerator enumerate_nodes() {
+        إذا (!computed) compute();
+        أرجع {-Get_سائيز(sig_ids), Get_سائيز(cell_ids)};
     }
 
-    successor_enumerator enumerate_successors(node_type const &node) const {
-        auto range = edge_ranges[node + offset];
-        return {edges.begin() + range.first, edges.begin() + range.second};
+    successor_enumerator enumerate_جانشين(ڳنڍ_type ثابت &ڳنڍ) ثابت {
+        خودڪار range = ڪنارو_ranges[ڳنڍ + وٿي];
+        أرجع {ڪنارا.begin() + range.پهريون, ڪنارا.begin() + range.ٻيو};
     }
 
-    int &dfs_index(node_type const &node) {
-        return indices_[node + offset];
+    صحيح &dfs_اشاريو(ڳنڍ_type ثابت &ڳنڍ) {
+        أرجع indices_[ڳنڍ + وٿي];
     }
 };
 
 
-class IntGraph {
-public:
-    typedef int node_type;
+class Int_گراف {
+عام:
+    تعريفنوع صحيح ڳنڍ_type;
 
-    struct successor_enumerator {
-        std::vector<std::pair<int, int>>::const_iterator current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
-            log_assert(!finished());
-            node_type result = current->second;
+    بنية successor_enumerator {
+        std::ويڪٽر<std::pair<صحيح, صحيح>>::const_iterator current, پڇاڙي;
+        bool ختم() ثابت { أرجع current == پڇاڙي; }
+        ڳنڍ_type ايندڙ() {
+            log_assert(!ختم());
+            ڳنڍ_type نتيجو = current->ٻيو;
             ++current;
-            return result;
+            أرجع نتيجو;
         }
     };
 
-    struct node_enumerator {
-        int current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
-            log_assert(!finished());
-            node_type result = current;
+    بنية ڳنڍ_enumerator {
+        صحيح current, پڇاڙي;
+        bool ختم() ثابت { أرجع current == پڇاڙي; }
+        ڳنڍ_type ايندڙ() {
+            log_assert(!ختم());
+            ڳنڍ_type نتيجو = current;
             ++current;
-            return result;
+            أرجع نتيجو;
         }
     };
 
-private:
-    std::vector<std::pair<int, int>> edges;
-    std::vector<std::pair<int, int>> edge_ranges;
-    std::vector<int> indices_;
+خاص:
+    std::ويڪٽر<std::pair<صحيح, صحيح>> ڪنارا;
+    std::ويڪٽر<std::pair<صحيح, صحيح>> ڪنارو_ranges;
+    std::ويڪٽر<صحيح> indices_;
     bool computed = false;
 
-    void compute() {
-        edge_ranges.clear();
+    فراغ compute() {
+        ڪنارو_ranges.clear();
 
-        int node_end = 0;
-        for (auto const &edge : edges)
-            node_end = std::max(node_end, std::max(edge.first, edge.second) + 1);
+        صحيح ڳنڍ_پڇاڙي = 0;
+        لكل (خودڪار ثابت &ڪنارو : ڪنارا)
+            ڳنڍ_پڇاڙي = std::max(ڳنڍ_پڇاڙي, std::max(ڪنارو.پهريون, ڪنارو.ٻيو) + 1);
         indices_.clear();
-        indices_.resize(node_end, -1);
+        indices_.resize(ڳنڍ_پڇاڙي, -1);
 
-        std::sort(edges.begin(), edges.end());
-        auto last = std::unique(edges.begin(), edges.end());
-        edges.erase(last, edges.end());
-        auto edge = edges.begin();
-        auto edge_end = edges.end();
-        int range_begin = 0;
-        for (int node = 0; node != node_end; ++node) {
-            while (edge != edge_end && edge->first <= node)
-                ++edge;
-            int range_end = edge - edges.begin();
-            edge_ranges.emplace_back(std::make_pair(range_begin, range_end));
-            range_begin = range_end;
+        std::ترتيب_ڏيو(ڪنارا.begin(), ڪنارا.پڇاڙي());
+        خودڪار آخري = std::unique(ڪنارا.begin(), ڪنارا.پڇاڙي());
+        ڪنارا.erase(آخري, ڪنارا.پڇاڙي());
+        خودڪار ڪنارو = ڪنارا.begin();
+        خودڪار ڪنارو_پڇاڙي = ڪنارا.پڇاڙي();
+        صحيح range_begin = 0;
+        لكل (صحيح ڳنڍ = 0; ڳنڍ != ڳنڍ_پڇاڙي; ++ڳنڍ) {
+            طالما (ڪنارو != ڪنارو_پڇاڙي && ڪنارو->پهريون <= ڳنڍ)
+                ++ڪنارو;
+            صحيح range_پڇاڙي_2 = ڪنارو - ڪنارا.begin();
+            ڪنارو_ranges.emplace_پٺ(std::make_pair(range_begin, range_پڇاڙي_2));
+            range_begin = range_پڇاڙي_2;
         }
     }
 
-public:
-    void add_edge(int src, int dst) {
+عام:
+    فراغ جوڙيو_ڪنارو(صحيح src, صحيح dst) {
         log_assert(src >= 0);
         log_assert(dst >= 0);
         computed = false;
-        edges.emplace_back(std::make_pair(src, dst));
+        ڪنارا.emplace_پٺ(std::make_pair(src, dst));
     }
 
-    node_enumerator enumerate_nodes() {
-        if (!computed) compute();
-        return {0, GetSize(indices_)};
+    ڳنڍ_enumerator enumerate_nodes() {
+        إذا (!computed) compute();
+        أرجع {0, Get_سائيز(indices_)};
     }
 
-    successor_enumerator enumerate_successors(int node) const {
-        auto range = edge_ranges[node];
-        return {edges.begin() + range.first, edges.begin() + range.second};
+    successor_enumerator enumerate_جانشين(صحيح ڳنڍ) ثابت {
+        خودڪار range = ڪنارو_ranges[ڳنڍ];
+        أرجع {ڪنارا.begin() + range.پهريون, ڪنارا.begin() + range.ٻيو};
     }
 
-    int &dfs_index(node_type const &node) {
-        return indices_[node];
+    صحيح &dfs_اشاريو(ڳنڍ_type ثابت &ڳنڍ) {
+        أرجع indices_[ڳنڍ];
     }
 };
 
-template<typename G, typename ComponentCallback>
+سانچو<typename G, typename ComponentCallback>
 class TopoSortedSccs
 {
-    typedef typename G::node_enumerator node_enumerator;
-    typedef typename G::successor_enumerator successor_enumerator;
-    typedef typename G::node_type node_type;
+    تعريفنوع typename G::ڳنڍ_enumerator ڳنڍ_enumerator;
+    تعريفنوع typename G::successor_enumerator successor_enumerator;
+    تعريفنوع typename G::ڳنڍ_type ڳنڍ_type;
 
-    struct dfs_entry {
-        node_type node;
-        successor_enumerator successors;
-        int lowlink;
+    بنية dfs_داخلا {
+        ڳنڍ_type ڳنڍ;
+        successor_enumerator جانشين;
+        صحيح lowlink;
 
-        dfs_entry(node_type node, successor_enumerator successors, int lowlink) :
-            node(node), successors(successors), lowlink(lowlink)
+        dfs_داخلا(ڳنڍ_type ڳنڍ, successor_enumerator جانشين, صحيح lowlink) :
+            ڳنڍ(ڳنڍ), جانشين(جانشين), lowlink(lowlink)
         {}
     };
 
-    G &graph;
+    G &گراف_3;
     ComponentCallback component;
 
-    std::vector<dfs_entry> dfs_stack;
-    std::vector<node_type> component_stack;
-    int next_index = 0;
+    std::ويڪٽر<dfs_داخلا> dfs_ڍير;
+    std::ويڪٽر<ڳنڍ_type> component_ڍير;
+    صحيح ايندڙ_اشاريو = 0;
 
-public:
-    TopoSortedSccs(G &graph, ComponentCallback component)
-    : graph(graph), component(component) {}
+عام:
+    TopoSortedSccs(G &گراف_3, ComponentCallback component)
+    : گراف_3(گراف_3), component(component) {}
 
     // process all sources (nodes without a successor)
     TopoSortedSccs &process_sources() {
-        node_enumerator nodes = graph.enumerate_nodes();
-        while (!nodes.finished()) {
-            node_type node = nodes.next();
-            successor_enumerator successors = graph.enumerate_successors(node);
-            if (successors.finished())
+        ڳنڍ_enumerator nodes = گراف_3.enumerate_nodes();
+        طالما (!nodes.ختم()) {
+            ڳنڍ_type ڳنڍ = nodes.ايندڙ();
+            successor_enumerator جانشين = گراف_3.enumerate_جانشين(ڳنڍ);
+            إذا (جانشين.ختم())
             {
-                graph.dfs_index(node) = next_index;
-                next_index++;
-                component_stack.push_back(node);
-                component(component_stack.data(), component_stack.data() + 1);
-                component_stack.clear();
-                graph.dfs_index(node) = INT_MAX;
+                گراف_3.dfs_اشاريو(ڳنڍ) = ايندڙ_اشاريو;
+                ايندڙ_اشاريو++;
+                component_ڍير.ڌڪو_پٺ(ڳنڍ);
+                component(component_ڍير.معلومات(), component_ڍير.معلومات() + 1);
+                component_ڍير.clear();
+                گراف_3.dfs_اشاريو(ڳنڍ) = وڌ_کان_وڌ_عدد;
             }
         }
-        return *this;
+        أرجع *this;
     }
 
     // process all remaining nodes in the graph
     TopoSortedSccs &process_all() {
-        node_enumerator nodes = graph.enumerate_nodes();
+        ڳنڍ_enumerator nodes = گراف_3.enumerate_nodes();
         // iterate over all nodes to ensure we process the whole graph
-        while (!nodes.finished())
-            process(nodes.next());
-        return *this;
+        طالما (!nodes.ختم())
+            process(nodes.ايندڙ());
+        أرجع *this;
     }
 
     // process all nodes that are reachable from a given start node
-    TopoSortedSccs &process(node_type node) {
+    TopoSortedSccs &process(ڳنڍ_type ڳنڍ) {
         // only start a new search if the node wasn't visited yet
-        if (graph.dfs_index(node) >= 0)
-            return *this;
-        while (true) {
+        إذا (گراف_3.dfs_اشاريو(ڳنڍ) >= 0)
+            أرجع *this;
+        طالما (true) {
             // at this point we're visiting the node for the first time during
             // the DFS search
 
             // we record the timestamp of when we first visited the node as the
             // dfs_index
-            int lowlink = next_index;
-            next_index++;
-            graph.dfs_index(node) = lowlink;
+            صحيح lowlink = ايندڙ_اشاريو;
+            ايندڙ_اشاريو++;
+            گراف_3.dfs_اشاريو(ڳنڍ) = lowlink;
 
             // and we add the node to the component stack where it will remain
             // until all nodes of the component containing this node are popped
-            component_stack.push_back(node);
+            component_ڍير.ڌڪو_پٺ(ڳنڍ);
 
             // then we start iterating over the successors of this node
-            successor_enumerator successors = graph.enumerate_successors(node);
-            while (true) {
-                if (successors.finished()) {
+            successor_enumerator جانشين = گراف_3.enumerate_جانشين(ڳنڍ);
+            طالما (true) {
+                إذا (جانشين.ختم()) {
                     // when we processed all successors, i.e. when we visited
                     // the complete DFS subtree rooted at the current node, we
                     // first check whether the current node is a SCC root
@@ -279,64 +279,64 @@ public:
                     // (why this check identifies SCC roots is out of scope for
                     // this comment, see other material on Tarjan's SCC
                     // algorithm)
-                    if (lowlink == graph.dfs_index(node)) {
+                    إذا (lowlink == گراف_3.dfs_اشاريو(ڳنڍ)) {
                         // the SCC containing the current node is at the top of
                         // the component stack, with the current node at the bottom
-                        int current = GetSize(component_stack);
-                        do {
+                        صحيح current = Get_سائيز(component_ڍير);
+                        افعل {
                             --current;
-                        } while (component_stack[current] != node);
+                        } طالما (component_ڍير[current] != ڳنڍ);
 
                         // we invoke the callback with a pointer range of the
                         // nodes in the SCC
 
-                        node_type *stack_ptr = component_stack.data();
-                        node_type *component_begin = stack_ptr + current;
-                        node_type *component_end = stack_ptr + component_stack.size();
+                        ڳنڍ_type *ڍير_ptr = component_ڍير.معلومات();
+                        ڳنڍ_type *component_begin = ڍير_ptr + current;
+                        ڳنڍ_type *component_پڇاڙي = ڍير_ptr + component_ڍير.سائيز();
 
                         // note that we allow the callback to permute the nodes
                         // in this range as well as to modify dfs_index of the
                         // nodes in the SCC.
-                        component(component_begin, component_end);
+                        component(component_begin, component_پڇاڙي);
 
                         // by setting the dfs_index of all already emitted
                         // nodes to INT_MAX, we don't need a separate check for
                         // whether successor nodes are still on the component
                         // stack before updating the lowlink value
-                        for (; component_begin != component_end; ++component_begin)
-                            graph.dfs_index(*component_begin) = INT_MAX;
-                        component_stack.resize(current);
+                        لكل (; component_begin != component_پڇاڙي; ++component_begin)
+                            گراف_3.dfs_اشاريو(*component_begin) = وڌ_کان_وڌ_عدد;
+                        component_ڍير.resize(current);
                     }
 
                     // after checking for a completed SCC the DFS either
                     // continues the search at the parent node or returns to
                     // the outer loop if we already are at the root node.
-                    if (dfs_stack.empty())
-                        return *this;
-                    auto &dfs_top = dfs_stack.back();
+                    إذا (dfs_ڍير.خالي_جايون())
+                        أرجع *this;
+                    خودڪار &dfs_چوٽي = dfs_ڍير.پٺ();
 
-                    node = dfs_top.node;
-                    successors = std::move(dfs_top.successors);
+                    ڳنڍ = dfs_چوٽي.ڳنڍ;
+                    جانشين = std::move(dfs_چوٽي.جانشين);
 
                     // the parent's lowlink is updated when returning
-                    lowlink = min(lowlink, dfs_top.lowlink);
-                    dfs_stack.pop_back();
+                    lowlink = min(lowlink, dfs_چوٽي.lowlink);
+                    dfs_ڍير.ڪڍو_پٺ();
                     // continue checking the remaining successors of the parent node.
-                } else {
-                    node_type succ = successors.next();
-                    if (graph.dfs_index(succ) < 0) {
+                } وإلا {
+                    ڳنڍ_type succ = جانشين.ايندڙ();
+                    إذا (گراف_3.dfs_اشاريو(succ) < 0) {
                         // if the successor wasn't visted yet, the DFS recurses
                         // into the successor
 
                         // we save the state for this node and make the
                         // successor the current node.
-                        dfs_stack.emplace_back(node, std::move(successors), lowlink);
-                        node = succ;
+                        dfs_ڍير.emplace_پٺ(ڳنڍ, std::move(جانشين), lowlink);
+                        ڳنڍ = succ;
 
                         // this break gets us to the section corresponding to
                         // the function entry in the recursive version
-                        break;
-                    } else {
+                        اكسر;
+                    } وإلا {
                         // the textbook version guards this update with a check
                         // whether the successor is still on the component
                         // stack. If the successor node was already visisted
@@ -344,7 +344,7 @@ public:
                         // of an already emitted SCC. We can avoid this check
                         // by setting the DFS index of all nodes in a SCC to
                         // INT_MAX when the SCC is emitted.
-                        lowlink = min(lowlink, graph.dfs_index(succ));
+                        lowlink = min(lowlink, گراف_3.dfs_اشاريو(succ));
                     }
                 }
             }
@@ -352,6 +352,6 @@ public:
     }
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پڇاڙي
 
-#endif
+#جيڪڏهن_پورو
