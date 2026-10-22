@@ -1,8 +1,8 @@
 #ifndef NEWCELLTYPES_H
 #define NEWCELLTYPES_H
 
-#include "kernel/rtlil.h"
-#include "kernel/yosys.h"
+#अन्तर्भाव "kernel/rtlil.h"
+#अन्तर्भाव "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -14,32 +14,32 @@ YOSYS_NAMESPACE_BEGIN
 namespace StaticCellTypes {
 
 // Given by last internal cell type IdString constids.inc, compilation error if too low
-constexpr int MAX_CELLS = 300;
+constexpr पूर्णाङ्क MAX_CELLS = 300;
 // Currently given by _MUX16_, compilation error if too low
-constexpr int MAX_PORTS = 20;
-struct CellTableBuilder {
-	struct PortList {
+constexpr पूर्णाङ्क MAX_PORTS = 20;
+संरचना CellTableBuilder {
+	संरचना PortList {
 		std::array<RTLIL::IdString, MAX_PORTS> ports{};
-		size_t count = 0;
-		constexpr PortList() = default;
+		माप_प्रकार गिनती = 0;
+		constexpr PortList() = स्वभाव;
 		constexpr PortList(std::initializer_list<RTLIL::IdString> init) {
-			for (auto p : init) {
-				ports[count++] = p;
+			प्रति (स्वतः p : init) {
+				ports[गिनती++] = p;
 			}
 		}
-		constexpr auto begin() const { return ports.begin(); }
-		constexpr auto end() const { return ports.begin() + count; }
-		constexpr bool contains(RTLIL::IdString port) const {
-			for (size_t i = 0; i < count; i++) {
-				if (port == ports[i])
-					return true;
+		constexpr स्वतः begin() ध्रुव { प्रत्यागम ports.begin(); }
+		constexpr स्वतः end() ध्रुव { प्रत्यागम ports.begin() + गिनती; }
+		constexpr bool contains(RTLIL::IdString port) ध्रुव {
+			प्रति (माप_प्रकार i = 0; i < गिनती; i++) {
+				यदि (port == ports[i])
+					प्रत्यागम true;
 			}
 
-			return false;
+			प्रत्यागम false;
 		}
-		constexpr size_t size() const { return count; }
+		constexpr माप_प्रकार size() ध्रुव { प्रत्यागम गिनती; }
 	};
-	struct Features {
+	संरचना Features {
 		bool is_evaluable = false;
 		bool is_combinatorial = false;
 		bool is_synthesizable = false;
@@ -49,18 +49,18 @@ struct CellTableBuilder {
 		bool is_anyinit = false;
 		bool is_tristate = false;
 	};
-	struct CellInfo {
+	संरचना CellInfo {
 		RTLIL::IdString type;
 		PortList inputs, outputs;
 		Features features;
 	};
 	std::array<CellInfo, MAX_CELLS> cells{};
-	size_t count = 0;
+	माप_प्रकार गिनती = 0;
 
-	constexpr void setup_type(RTLIL::IdString type, std::initializer_list<RTLIL::IdString> inputs, std::initializer_list<RTLIL::IdString> outputs, const Features& features) {
-		cells[count++] = {type, PortList(inputs), PortList(outputs), features};
+	constexpr शून्य setup_type(RTLIL::IdString type, std::initializer_list<RTLIL::IdString> inputs, std::initializer_list<RTLIL::IdString> outputs, ध्रुव Features& features) {
+		cells[गिनती++] = {type, PortList(inputs), PortList(outputs), features};
 	}
-	constexpr void setup_internals_other()
+	constexpr शून्य setup_internals_other()
 	{
 		Features features {};
 		features.is_tristate = true;
@@ -70,7 +70,7 @@ struct CellTableBuilder {
 		setup_type(ID($barrier), {ID::A}, {ID::Y}, features);
 
 		features = {};
-		setup_type(ID($assert), {ID::A, ID::EN}, {}, features);
+		setup_type(ID($प्रतिज्ञा), {ID::A, ID::EN}, {}, features);
 		setup_type(ID($assume), {ID::A, ID::EN}, {}, features);
 		setup_type(ID($live), {ID::A, ID::EN}, {}, features);
 		setup_type(ID($fair), {ID::A, ID::EN}, {}, features);
@@ -92,10 +92,10 @@ struct CellTableBuilder {
 		setup_type(ID($original_tag), {ID::A}, {ID::Y}, features);
 		setup_type(ID($future_ff), {ID::A}, {ID::Y}, features);
 		setup_type(ID($scopeinfo), {}, {}, features);
-		setup_type(ID($input_port), {}, {ID::Y}, features);
+		setup_type(ID($निवेश_port), {}, {ID::Y}, features);
 		setup_type(ID($connect), {ID::A, ID::B}, {}, features);
 	}
-	constexpr void setup_internals_eval()
+	constexpr शून्य setup_internals_eval()
 	{
 		Features features {};
 		features.is_evaluable = true;
@@ -105,25 +105,25 @@ struct CellTableBuilder {
 			ID($logic_not), ID($slice), ID($lut), ID($sop)
 		};
 
-		std::initializer_list<RTLIL::IdString> binary_ops = {
+		std::initializer_list<RTLIL::IdString> द्विआधारी_ops = {
 			ID($and), ID($or), ID($xor), ID($xnor),
 			ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx),
 			ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt),
-			ID($add), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow),
+			ID($add), ID($sub), ID($mul), ID($भाग), ID($mod), ID($divfloor), ID($modfloor), ID($घात),
 			ID($logic_and), ID($logic_or), ID($concat), ID($macc),
 			ID($bweqx)
 		};
 
-		for (auto type : unary_ops)
+		प्रति (स्वतः type : unary_ops)
 			setup_type(type, {ID::A}, {ID::Y}, features);
 
-		for (auto type : binary_ops)
+		प्रति (स्वतः type : द्विआधारी_ops)
 			setup_type(type, {ID::A, ID::B}, {ID::Y}, features);
 
-		for (auto type : {ID($mux), ID($pmux), ID($bwmux)})
+		प्रति (स्वतः type : {ID($mux), ID($pmux), ID($bwmux)})
 			setup_type(type, {ID::A, ID::B, ID::S}, {ID::Y}, features);
 
-		for (auto type : {ID($bmux), ID($demux)})
+		प्रति (स्वतः type : {ID($bmux), ID($demux)})
 			setup_type(type, {ID::A, ID::S}, {ID::Y}, features);
 
 		setup_type(ID($lcu), {ID::P, ID::G, ID::CI}, {ID::CO}, features);
@@ -131,7 +131,7 @@ struct CellTableBuilder {
 		setup_type(ID($macc_v2), {ID::A, ID::B, ID::C}, {ID::Y}, features);
 		setup_type(ID($fa), {ID::A, ID::B, ID::C}, {ID::X, ID::Y}, features);
 	}
-	constexpr void setup_internals_ff()
+	constexpr शून्य setup_internals_ff()
 	{
 		Features features {};
 		features.is_ff = true;
@@ -152,13 +152,13 @@ struct CellTableBuilder {
 		setup_type(ID($adlatch), {ID::EN, ID::D, ID::ARST}, {ID::Q}, features);
 		setup_type(ID($dlatchsr), {ID::EN, ID::SET, ID::CLR, ID::D}, {ID::Q}, features);
 	}
-	constexpr void setup_internals_anyinit()
+	constexpr शून्य setup_internals_anyinit()
 	{
 		Features features {};
 		features.is_anyinit = true;
 		setup_type(ID($anyinit), {ID::D}, {ID::Q}, features);
 	}
-	constexpr void setup_internals_mem_noff()
+	constexpr शून्य setup_internals_mem_noff()
 	{
 		Features features {};
 		features.is_mem_noff = true;
@@ -176,7 +176,7 @@ struct CellTableBuilder {
 		// What?
 		setup_type(ID($fsm), {ID::CLK, ID::ARST, ID::CTRL_IN}, {ID::CTRL_OUT}, features);
 	}
-	constexpr void setup_stdcells_tristate()
+	constexpr शून्य setup_stdcells_tristate()
 	{
 		Features features {};
 		features.is_stdcell = true;
@@ -184,7 +184,7 @@ struct CellTableBuilder {
 		setup_type(ID($_TBUF_), {ID::A, ID::E}, {ID::Y}, features);
 	}
 
-	constexpr void setup_stdcells_eval()
+	constexpr शून्य setup_stdcells_eval()
 	{
 		Features features {};
 		features.is_stdcell = true;
@@ -210,7 +210,7 @@ struct CellTableBuilder {
 		setup_type(ID($_OAI4_), {ID::A, ID::B, ID::C, ID::D}, {ID::Y}, features);
 	}
 
-	constexpr void setup_stdcells_ff() {
+	constexpr शून्य setup_stdcells_ff() {
 		Features features {};
 		features.is_stdcell = true;
 		features.is_ff = true;
@@ -421,54 +421,54 @@ struct CellTableBuilder {
 
 constexpr CellTableBuilder builder {};
 
-struct PortInfo {
-	struct PortLists {
+संरचना PortInfo {
+	संरचना PortLists {
 		std::array<CellTableBuilder::PortList, MAX_CELLS> data{};
-		constexpr CellTableBuilder::PortList operator()(IdString type) const {
-			return data[type.raw()];
+		constexpr CellTableBuilder::PortList चालक()(IdString type) ध्रुव {
+			प्रत्यागम data[type.raw()];
 		}
-		constexpr CellTableBuilder::PortList& operator[](size_t idx) {
-			return data[idx];
+		constexpr CellTableBuilder::PortList& चालक[](माप_प्रकार idx) {
+			प्रत्यागम data[idx];
 		}
-		constexpr size_t size() const { return data.size(); }
+		constexpr माप_प्रकार size() ध्रुव { प्रत्यागम data.size(); }
 	};
 	PortLists inputs {};
 	PortLists outputs {};
 	constexpr PortInfo() {
-		for (size_t i = 0; i < builder.count; ++i) {
-			auto& cell = builder.cells[i];
-			size_t idx = cell.type.raw();
+		प्रति (माप_प्रकार i = 0; i < builder.गिनती; ++i) {
+			स्वतः& cell = builder.cells[i];
+			माप_प्रकार idx = cell.type.raw();
 			inputs[idx] = cell.inputs;
 			outputs[idx] = cell.outputs;
 		}
 	}
 };
 
-struct Categories {
-	struct Category {
+संरचना Categories {
+	संरचना Category {
 		std::array<bool, MAX_CELLS> data{};
-		constexpr bool operator()(IdString type) const {
-			size_t idx = type.raw();
-			if (idx >= MAX_CELLS)
-				return false;
-			return data[idx];
+		constexpr bool चालक()(IdString type) ध्रुव {
+			माप_प्रकार idx = type.raw();
+			यदि (idx >= MAX_CELLS)
+				प्रत्यागम false;
+			प्रत्यागम data[idx];
 		}
-		constexpr bool operator[](size_t idx) {
-			return data[idx];
+		constexpr bool चालक[](माप_प्रकार idx) {
+			प्रत्यागम data[idx];
 		}
-		constexpr void set_id(IdString type, bool val = true) {
-			size_t idx = type.raw();
-			if (idx >= MAX_CELLS) {
-				if (std::is_constant_evaluated())
+		constexpr शून्य set_id(IdString type, bool val = true) {
+			माप_प्रकार idx = type.raw();
+			यदि (idx >= MAX_CELLS) {
+				यदि (std::is_constant_evaluated())
 					throw "cell type index out of range";
 				log_abort();
 			}
 			data[idx] = val;
 		}
-		constexpr void set(size_t idx, bool val = true) {
+		constexpr शून्य set(माप_प्रकार idx, bool val = true) {
 			data[idx] = val;
 		}
-		constexpr size_t size() const { return data.size(); }
+		constexpr माप_प्रकार size() ध्रुव { प्रत्यागम data.size(); }
 	};
 	Category empty {};
 	Category is_known {};
@@ -481,9 +481,9 @@ struct Categories {
 	Category is_anyinit {};
 	Category is_tristate {};
 	constexpr Categories() {
-		for (size_t i = 0; i < builder.count; ++i) {
-			auto& cell = builder.cells[i];
-			size_t idx = cell.type.raw();
+		प्रति (माप_प्रकार i = 0; i < builder.गिनती; ++i) {
+			स्वतः& cell = builder.cells[i];
+			माप_प्रकार idx = cell.type.raw();
 			is_known.set(idx);
 			is_evaluable.set(idx, cell.features.is_evaluable);
 			is_combinatorial.set(idx, cell.features.is_combinatorial);
@@ -495,47 +495,47 @@ struct Categories {
 			is_tristate.set(idx, cell.features.is_tristate);
 		}
 	}
-	constexpr static Category join(Category left, Category right) {
+	constexpr स्थिर Category join(Category बायाँ_2, Category दायाँ_2) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
-			c.set(i, left[i] || right[i]);
+		प्रति (माप_प्रकार i = 0; i < MAX_CELLS; ++i) {
+			c.set(i, बायाँ_2[i] || दायाँ_2[i]);
 		}
-		return c;
+		प्रत्यागम c;
 	}
-	constexpr static Category meet(Category left, Category right) {
+	constexpr स्थिर Category meet(Category बायाँ_2, Category दायाँ_2) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
-			c.set(i, left[i] && right[i]);
+		प्रति (माप_प्रकार i = 0; i < MAX_CELLS; ++i) {
+			c.set(i, बायाँ_2[i] && दायाँ_2[i]);
 		}
-		return c;
+		प्रत्यागम c;
 	}
 	// Sketchy! Make sure to always meet with only the known universe.
 	// In other words, no modus tollens allowed
-	constexpr static Category complement(Category arg) {
+	constexpr स्थिर Category complement(Category arg) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
+		प्रति (माप_प्रकार i = 0; i < MAX_CELLS; ++i) {
 			c.set(i, !arg[i]);
 		}
-		return c;
+		प्रत्यागम c;
 	}
 };
 
 // Pure
-static constexpr PortInfo port_info;
-static constexpr Categories categories;
+स्थिर constexpr PortInfo port_info;
+स्थिर constexpr Categories categories;
 
 // Legacy
 namespace Compat {
-	static constexpr auto internals_all = Categories::meet(categories.is_known, Categories::complement(categories.is_stdcell));
-	static constexpr auto mem_ff = Categories::join(categories.is_ff, categories.is_mem_noff);
+	स्थिर constexpr स्वतः internals_all = Categories::meet(categories.is_known, Categories::complement(categories.is_stdcell));
+	स्थिर constexpr स्वतः mem_ff = Categories::join(categories.is_ff, categories.is_mem_noff);
 	// old setup_internals + setup_stdcells
-	static constexpr auto nomem_noff = Categories::meet(categories.is_known, Categories::complement(mem_ff));
-	static constexpr auto internals_mem_ff = Categories::meet(internals_all, mem_ff);
+	स्थिर constexpr स्वतः nomem_noff = Categories::meet(categories.is_known, Categories::complement(mem_ff));
+	स्थिर constexpr स्वतः internals_mem_ff = Categories::meet(internals_all, mem_ff);
 	// old setup_internals
-	static constexpr auto internals_nomem_noff = Categories::meet(internals_all, nomem_noff);
+	स्थिर constexpr स्वतः internals_nomem_noff = Categories::meet(internals_all, nomem_noff);
 	// old setup_stdcells
-	static constexpr auto stdcells_nomem_noff = Categories::meet(categories.is_stdcell, nomem_noff);
-	static constexpr auto stdcells_mem = Categories::meet(categories.is_stdcell, categories.is_mem_noff);
+	स्थिर constexpr स्वतः stdcells_nomem_noff = Categories::meet(categories.is_stdcell, nomem_noff);
+	स्थिर constexpr स्वतः stdcells_mem = Categories::meet(categories.is_stdcell, categories.is_mem_noff);
 	// old setup_internals_eval
 	// static constexpr auto internals_eval = Categories::meet(internals_all, categories.is_evaluable);
 };
@@ -550,7 +550,7 @@ namespace {
 
 };
 
-struct NewCellType {
+संरचना NewCellType {
 	RTLIL::IdString type;
 	pool<RTLIL::IdString> inputs, outputs;
 	bool is_evaluable;
@@ -558,7 +558,7 @@ struct NewCellType {
 	bool is_synthesizable;
 };
 
-struct NewCellTypes {
+संरचना NewCellTypes {
 	StaticCellTypes::Categories::Category static_cell_types = StaticCellTypes::categories.empty;
 	dict<IdString, NewCellType> custom_cell_types {};
 
@@ -570,82 +570,82 @@ struct NewCellTypes {
 		static_cell_types = StaticCellTypes::categories.empty;
 		setup(design);
 	}
-	void setup(RTLIL::Design *design = NULL) {
-		if (design)
+	शून्य setup(RTLIL::Design *design = रिक्त) {
+		यदि (design)
 			setup_design(design);
 		static_cell_types = StaticCellTypes::categories.is_known;
 	}
-	void setup_design(RTLIL::Design *design) {
-		for (auto module : design->modules())
+	शून्य setup_design(RTLIL::Design *design) {
+		प्रति (स्वतः module : design->modules())
 			setup_module(module);
 	}
 
-	void setup_module(RTLIL::Module *module) {
+	शून्य setup_module(RTLIL::Module *module) {
 		pool<IdString> inputs, outputs;
-		for (auto wire_name : module->ports) {
+		प्रति (स्वतः wire_name : module->ports) {
 			RTLIL::Wire *wire = module->wire(wire_name);
-			if (wire->port_input)
-				inputs.insert(wire->name);
-			if (wire->port_output)
-				outputs.insert(wire->name);
+			यदि (wire->port_निवेश)
+				inputs.जोड़ो(wire->name);
+			यदि (wire->port_output)
+				outputs.जोड़ो(wire->name);
 		}
 		setup_type(module->name, inputs, outputs);
 	}
 
-	void setup_type(RTLIL::IdString type, const pool<RTLIL::IdString> &inputs, const pool<RTLIL::IdString> &outputs, bool is_evaluable = false, bool is_combinatorial = false, bool is_synthesizable = false) {
+	शून्य setup_type(RTLIL::IdString type, ध्रुव pool<RTLIL::IdString> &inputs, ध्रुव pool<RTLIL::IdString> &outputs, bool is_evaluable = false, bool is_combinatorial = false, bool is_synthesizable = false) {
 		NewCellType ct = {type, inputs, outputs, is_evaluable, is_combinatorial, is_synthesizable};
 		custom_cell_types[ct.type] = ct;
 	}
 
-	void clear() {
+	शून्य clear() {
 		custom_cell_types.clear();
 		static_cell_types = StaticCellTypes::categories.empty;
 	}
 
-	bool cell_known(IdString type) const {
-		return static_cell_types(type) || custom_cell_types.count(type) != 0;
+	bool cell_known(IdString type) ध्रुव {
+		प्रत्यागम static_cell_types(type) || custom_cell_types.गिनती(type) != 0;
 	}
 
-	bool cell_output(IdString type, IdString port) const
+	bool cell_output(IdString type, IdString port) ध्रुव
 	{
-		if (static_cell_types(type) && StaticCellTypes::port_info.outputs(type).contains(port)) {
-			return true;
+		यदि (static_cell_types(type) && StaticCellTypes::port_info.outputs(type).contains(port)) {
+			प्रत्यागम true;
 		}
-		auto it = custom_cell_types.find(type);
-		return it != custom_cell_types.end() && it->second.outputs.count(port) != 0;
+		स्वतः it = custom_cell_types.find(type);
+		प्रत्यागम it != custom_cell_types.end() && it->second.outputs.गिनती(port) != 0;
 	}
 
-	bool cell_input(IdString type, IdString port) const
+	bool cell_निवेश(IdString type, IdString port) ध्रुव
 	{
-		if (static_cell_types(type) && StaticCellTypes::port_info.inputs(type).contains(port)) {
-			return true;
+		यदि (static_cell_types(type) && StaticCellTypes::port_info.inputs(type).contains(port)) {
+			प्रत्यागम true;
 		}
-		auto it = custom_cell_types.find(type);
-		return it != custom_cell_types.end() && it->second.inputs.count(port) != 0;
+		स्वतः it = custom_cell_types.find(type);
+		प्रत्यागम it != custom_cell_types.end() && it->second.inputs.गिनती(port) != 0;
 	}
 
-	RTLIL::PortDir cell_port_dir(RTLIL::IdString type, RTLIL::IdString port) const
+	RTLIL::PortDir cell_port_dir(RTLIL::IdString type, RTLIL::IdString port) ध्रुव
 	{
-		bool is_input, is_output;
-		if (static_cell_types(type)) {
-			is_input = StaticCellTypes::port_info.inputs(type).contains(port);
+		bool is_निवेश, is_output;
+		यदि (static_cell_types(type)) {
+			is_निवेश = StaticCellTypes::port_info.inputs(type).contains(port);
 			is_output = StaticCellTypes::port_info.outputs(type).contains(port);
-		} else {
-			auto it = custom_cell_types.find(type);
-			if (it == custom_cell_types.end())
-				return RTLIL::PD_UNKNOWN;
-			is_input = it->second.inputs.count(port);
-			is_output = it->second.outputs.count(port);
+		} अन्यथा {
+			स्वतः it = custom_cell_types.find(type);
+			यदि (it == custom_cell_types.end())
+				प्रत्यागम RTLIL::PD_UNKNOWN;
+			is_निवेश = it->second.inputs.गिनती(port);
+			is_output = it->second.outputs.गिनती(port);
 		}
-		return RTLIL::PortDir(is_input + is_output * 2);
+		प्रत्यागम RTLIL::PortDir(is_निवेश + is_output * 2);
 	}
-	bool cell_evaluable(IdString type) const
+	bool cell_evaluable(IdString type) ध्रुव
 	{
-		return static_cell_types(type) && StaticCellTypes::categories.is_evaluable(type);
+		प्रत्यागम static_cell_types(type) && StaticCellTypes::categories.is_evaluable(type);
 	}
 };
 
-extern NewCellTypes yosys_celltypes;
+बाह्य NewCellTypes yosys_celltypes;
 
 YOSYS_NAMESPACE_END
 
