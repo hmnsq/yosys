@@ -33,7 +33,7 @@ YOSYS_NAMESPACE_BEGIN
 // ------------------------------------------------
 
 template<typename Key, typename T>
-struct stackmap
+sa_nracanaa stackmap
 {
 private:
 	std::vector<dict<Key, T*>> backup_state;
@@ -47,57 +47,57 @@ public:
 	template<typename Other>
 	void operator=(const Other &other)
 	{
-		for (auto &it : current_state)
-			if (!backup_state.empty() && backup_state.back().count(it.first) == 0)
+		ສຳລັບ (auto &it : current_state)
+			ຖ້າ (!backup_state.empty() && backup_state.back().count(it.first) == 0)
 				backup_state.back()[it.first] = new T(it.second);
 		current_state.clear();
 
-		for (auto &it : other)
+		ສຳລັບ (auto &it : other)
 			set(it.first, it.second);
 	}
 
 	bool has(const Key &k)
 	{
-		return current_state.count(k) != 0;
+		ສົ່ງຄືນ current_state.count(k) != 0;
 	}
 
 	void set(const Key &k, const T &v)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
+		ຖ້າ (!backup_state.empty() && backup_state.back().count(k) == 0)
 			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
 		current_state[k] = v;
 	}
 
 	void unset(const Key &k)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
+		ຖ້າ (!backup_state.empty() && backup_state.back().count(k) == 0)
 			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
 		current_state.erase(k);
 	}
 
 	const T &get(const Key &k)
 	{
-		if (current_state.count(k) == 0)
-			return empty_tuple;
-		return current_state.at(k);
+		ຖ້າ (current_state.count(k) == 0)
+			ສົ່ງຄືນ empty_tuple;
+		ສົ່ງຄືນ current_state.at(k);
 	}
 
 	void reset(const Key &k)
 	{
-		for (int i = GetSize(backup_state)-1; i >= 0; i--)
-			if (backup_state[i].count(k) != 0) {
-				if (backup_state[i].at(k) == nullptr)
+		ສຳລັບ (ຈຳນວນເຕັມ i = GetSize(backup_state)-1; i >= 0; i--)
+			ຖ້າ (backup_state[i].count(k) != 0) {
+				ຖ້າ (backup_state[i].at(k) == nullptr)
 					current_state.erase(k);
-				else
+				ບໍ່ດັ່ງນັ້ນ
 					current_state[k] = *backup_state[i].at(k);
-				return;
+				ສົ່ງຄືນ;
 			}
 		current_state.erase(k);
 	}
 
 	const dict<Key, T> &stdmap()
 	{
-		return current_state;
+		ສົ່ງຄືນ current_state;
 	}
 
 	void save()
@@ -108,18 +108,18 @@ public:
 	void restore()
 	{
 		log_assert(!backup_state.empty());
-		for (auto &it : backup_state.back())
-			if (it.second != nullptr) {
+		ສຳລັບ (auto &it : backup_state.back())
+			ຖ້າ (it.second != nullptr) {
 				current_state[it.first] = *it.second;
 				delete it.second;
-			} else
+			} ບໍ່ດັ່ງນັ້ນ
 				current_state.erase(it.first);
 		backup_state.pop_back();
 	}
 
 	~stackmap()
 	{
-		while (!backup_state.empty())
+		ໃນຂະນະທີ່ (!backup_state.empty())
 			restore();
 	}
 };
@@ -136,13 +136,13 @@ template <typename T, typename C = std::less<T>> class TopoSort
 public:
 	// We use this ordering of the edges in the adjacency matrix for
 	// exact compatibility with an older implementation.
-	struct IndirectCmp {
+	sa_nracanaa IndirectCmp {
 		IndirectCmp(const std::vector<T> &nodes, const C &node_cmp) : node_cmp_(node_cmp), nodes_(nodes) {}
-		bool operator()(int a, int b) const
+		bool operator()(ຈຳນວນເຕັມ a, ຈຳນວນເຕັມ b) const
 		{
 			log_assert(static_cast<size_t>(a) < nodes_.size());
 			log_assert(static_cast<size_t>(b) < nodes_.size());
-			return node_cmp_(nodes_[a], nodes_[b]);
+			ສົ່ງຄືນ node_cmp_(nodes_[a], nodes_[b]);
 		}
 		const C node_cmp_;
 		const std::vector<T> &nodes_;
@@ -150,9 +150,9 @@ public:
 
 	bool analyze_loops;
 	// The stability doesn't rely on std::less of T, so pointers are safe
-	std::map<T, int, C> node_to_index;
+	std::map<T, ຈຳນວນເຕັມ, C> node_to_index;
 	// edges[i] is the set of nodes with an edge into node i
-	std::vector<std::set<int, IndirectCmp>> edges;
+	std::vector<std::set<ຈຳນວນເຕັມ, IndirectCmp>> edges;
 	std::vector<T> sorted;
 	std::set<std::vector<T>> loops;
 
@@ -163,21 +163,21 @@ public:
 		found_loops = false;
 	}
 
-	int node(T n)
+	ຈຳນວນເຕັມ node(T n)
 	{
-		auto rv = node_to_index.emplace(n, static_cast<int>(nodes.size()));
-		if (rv.second) {
+		auto rv = node_to_index.emplace(n, static_cast<ຈຳນວນເຕັມ>(nodes.size()));
+		ຖ້າ (rv.second) {
 			nodes.push_back(n);
-			edges.push_back(std::set<int, IndirectCmp>(indirect_cmp));
+			edges.push_back(std::set<ຈຳນວນເຕັມ, IndirectCmp>(indirect_cmp));
 		}
-		return rv.first->second;
+		ສົ່ງຄືນ rv.first->second;
 	}
 
-	void edge(int l_index, int r_index) { edges[r_index].insert(l_index); }
+	void edge(ຈຳນວນເຕັມ l_index, ຈຳນວນເຕັມ r_index) { edges[r_index].insert(l_index); }
 
 	void edge(T left, T right) { edge(node(left), node(right)); }
 
-	bool has_node(const T &node) { return node_to_index.find(node) != node_to_index.end(); }
+	bool has_node(const T &node) { ສົ່ງຄືນ node_to_index.find(node) != node_to_index.end(); }
 
 	bool sort()
 	{
@@ -191,15 +191,15 @@ public:
 		std::vector<bool> node_is_sorted(edges.size(), false);
 		std::vector<bool> node_is_on_stack(edges.size(), false);
 		// Only used with analyze_loops
-		std::vector<int> stack;
+		std::vector<ຈຳນວນເຕັມ> stack;
 		sorted.reserve(edges.size());
 
-		for (const auto &it : node_to_index)
+		ສຳລັບ (const auto &it : node_to_index)
 			sort_worker(it.second, node_is_sorted, node_is_on_stack, stack);
 
 		log_assert(GetSize(sorted) == GetSize(nodes));
 
-		return !found_loops;
+		ສົ່ງຄືນ !found_loops;
 	}
 
 	// Build the more expensive representation of edges for
@@ -207,14 +207,14 @@ public:
 	std::map<T, std::set<T, C>, C> get_database()
 	{
 		std::map<T, std::set<T, C>, C> database(node_to_index.key_comp());
-		for (size_t i = 0; i < nodes.size(); ++i) {
+		ສຳລັບ (size_t i = 0; i < nodes.size(); ++i) {
 			std::set<T, C> converted_edge_set(node_to_index.key_comp());
-			for (int other_node : edges[i]) {
+			ສຳລັບ (ຈຳນວນເຕັມ other_node : edges[i]) {
 				converted_edge_set.insert(nodes[other_node]);
 			}
 			database.emplace(nodes[i], converted_edge_set);
 		}
-		return database;
+		ສົ່ງຄືນ database;
 	}
 
 private:
@@ -222,37 +222,37 @@ private:
 	std::vector<T> nodes;
 	const IndirectCmp indirect_cmp;
 
-	void sort_worker(const int root_index, std::vector<bool> &node_is_sorted, std::vector<bool> &node_is_on_stack, std::vector<int> &stack)
+	void sort_worker(const ຈຳນວນເຕັມ root_index, std::vector<bool> &node_is_sorted, std::vector<bool> &node_is_on_stack, std::vector<ຈຳນວນເຕັມ> &stack)
 	{
-		if (node_is_on_stack[root_index]) {
+		ຖ້າ (node_is_on_stack[root_index]) {
 			// We've been here before, meaning we have a loop
 			found_loops = true;
-			if (analyze_loops) {
+			ຖ້າ (analyze_loops) {
 				std::vector<T> loop;
-				for (int i = GetSize(stack) - 1; i >= 0; i--) {
-					const int index = stack[i];
+				ສຳລັບ (ຈຳນວນເຕັມ i = GetSize(stack) - 1; i >= 0; i--) {
+					const ຈຳນວນເຕັມ index = stack[i];
 					loop.push_back(nodes[index]);
-					if (index == root_index)
-						break;
+					ຖ້າ (index == root_index)
+						bha_nga;
 				}
 				loops.insert(loop);
 			}
-			return;
+			ສົ່ງຄືນ;
 		}
 
 		// We're done if we've already sorted this subgraph
-		if (node_is_sorted[root_index])
-			return;
+		ຖ້າ (node_is_sorted[root_index])
+			ສົ່ງຄືນ;
 
-		if (!edges[root_index].empty()) {
-			if (analyze_loops)
+		ຖ້າ (!edges[root_index].empty()) {
+			ຖ້າ (analyze_loops)
 				stack.push_back(root_index);
 			node_is_on_stack[root_index] = true;
 
-			for (int left_n : edges[root_index])
+			ສຳລັບ (ຈຳນວນເຕັມ left_n : edges[root_index])
 				sort_worker(left_n, node_is_sorted, node_is_on_stack, stack);
 
-			if (analyze_loops)
+			ຖ້າ (analyze_loops)
 				stack.pop_back();
 			node_is_on_stack[root_index] = false;
 		}
@@ -265,64 +265,64 @@ private:
 // this class is used for implementing operator-> on iterators that return values rather than references
 // it's necessary because in C++ operator-> is called recursively until a raw pointer is obtained
 template<class T>
-struct arrow_proxy {
+sa_nracanaa arrow_proxy {
 	T v;
 	explicit arrow_proxy(T const & v) : v(v) {}
-	T* operator->() { return &v; }
+	T* operator->() { ສົ່ງຄືນ &v; }
 };
 
-inline int ceil_log2(int x)
+anta_hstha ຈຳນວນເຕັມ ceil_log2(ຈຳນວນເຕັມ x)
 {
-#if defined(__GNUC__)
-        return x > 1 ? (8*sizeof(int)) - __builtin_clz(x-1) : 0;
-#else
-	if (x <= 0)
-		return 0;
-	for (int i = 0; i < 32; i++)
-		if (((x-1) >> i) == 0)
-			return i;
+#ຖ້າ defined(__GNUC__)
+        ສົ່ງຄືນ x > 1 ? (8*parimaa_na(ຈຳນວນເຕັມ)) - __builtin_clz(x-1) : 0;
+#ບໍ່ດັ່ງນັ້ນ
+	ຖ້າ (x <= 0)
+		ສົ່ງຄືນ 0;
+	ສຳລັບ (ຈຳນວນເຕັມ i = 0; i < 32; i++)
+		ຖ້າ (((x-1) >> i) == 0)
+			ສົ່ງຄືນ i;
 	log_abort();
 #endif
 }
 
 template <typename T>
 auto reversed(T& container) {
-	struct reverse_view {
+	sa_nracanaa reverse_view {
 		reverse_view(T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
+		auto begin() const { ສົ່ງຄືນ container.rbegin(); }
+		auto end() const { ສົ່ງຄືນ container.rend(); }
 		T& container;
 	};
-	return reverse_view{container};
+	ສົ່ງຄືນ reverse_view{container};
 }
 
 template <typename T>
 auto reversed(const T& container) {
-	struct reverse_view {
+	sa_nracanaa reverse_view {
 		reverse_view(const T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
+		auto begin() const { ສົ່ງຄືນ container.rbegin(); }
+		auto end() const { ສົ່ງຄືນ container.rend(); }
 		const T& container;
 	};
-	return reverse_view{container};
+	ສົ່ງຄືນ reverse_view{container};
 }
 
 // A range of integers [start_, end_) that can be iterated over with a
 // C++ range-based for loop.
-struct IntRange {
-	int start_;
-	int end_;
-	struct Int {
-		int v;
-		int operator*() const { return v; }
-		Int &operator++() { ++v; return *this; }
-		bool operator!=(const Int &other) const { return v != other.v; }
+sa_nracanaa IntRange {
+	ຈຳນວນເຕັມ start_;
+	ຈຳນວນເຕັມ end_;
+	sa_nracanaa Int {
+		ຈຳນວນເຕັມ v;
+		ຈຳນວນເຕັມ operator*() const { ສົ່ງຄືນ v; }
+		Int &operator++() { ++v; ສົ່ງຄືນ *this; }
+		bool operator!=(const Int &other) const { ສົ່ງຄືນ v != other.v; }
 	};
-	Int begin() const { return {start_}; }
-	Int end() const { return {end_}; }
+	Int begin() const { ສົ່ງຄືນ {start_}; }
+	Int end() const { ສົ່ງຄືນ {end_}; }
 
-	bool operator==(const IntRange &other) const { return start_ == other.start_ && end_ == other.end_; }
-	bool operator!=(const IntRange &other) const { return !(*this == other); }
+	bool operator==(const IntRange &other) const { ສົ່ງຄືນ start_ == other.start_ && end_ == other.end_; }
+	bool operator!=(const IntRange &other) const { ສົ່ງຄືນ !(*this == other); }
 };
 
 YOSYS_NAMESPACE_END

@@ -53,7 +53,7 @@ namespace py = pybind11;
 #endif
 #include <inttypes.h>
 
-#if defined (__linux__) || defined(__FreeBSD__)
+#ຖ້າ defined (__linux__) || defined(__FreeBSD__)
 #  include <sys/resource.h>
 #  include <sys/types.h>
 #  include <unistd.h>
@@ -64,7 +64,7 @@ namespace py = pybind11;
 #  include <sys/user.h>
 #endif
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#ຖ້າ !defined(_WIN32) || defined(__MINGW32__)
 #  include <unistd.h>
 #endif
 
@@ -73,44 +73,44 @@ namespace py = pybind11;
 
 USING_YOSYS_NAMESPACE
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-int yosys_history_offset = 0;
+#ຖ້າ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+ຈຳນວນເຕັມ yosys_history_offset = 0;
 std::string yosys_history_file;
 #endif
 
 void yosys_atexit()
 {
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	if (!yosys_history_file.empty()) {
-#if defined(YOSYS_ENABLE_READLINE)
-		if (yosys_history_offset > 0) {
+#ຖ້າ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	ຖ້າ (!yosys_history_file.empty()) {
+#ຖ້າ defined(YOSYS_ENABLE_READLINE)
+		ຖ້າ (yosys_history_offset > 0) {
 			history_truncate_file(yosys_history_file.c_str(), 100);
 			append_history(where_history() - yosys_history_offset, yosys_history_file.c_str());
-		} else
+		} ບໍ່ດັ່ງນັ້ນ
 			write_history(yosys_history_file.c_str());
-#else
+#ບໍ່ດັ່ງນັ້ນ
 		write_history(yosys_history_file.c_str());
 #endif
 	}
 
 	clear_history();
-#if defined(YOSYS_ENABLE_READLINE)
+#ຖ້າ defined(YOSYS_ENABLE_READLINE)
 	HIST_ENTRY **hist_list = history_list();
-	if (hist_list != NULL)
+	ຖ້າ (hist_list != NULL)
 		free(hist_list);
 #endif
 #endif
 }
 
-#if defined(__OpenBSD__)
+#ຖ້າ defined(__OpenBSD__)
 namespace Yosys {
-extern char *yosys_argv0;
-extern char yosys_path[PATH_MAX];
+extern var_na *yosys_argv0;
+extern var_na yosys_path[PATH_MAX];
 };
 #endif
 #ifdef YOSYS_ENABLE_TCL
 namespace Yosys {
-	extern int yosys_tcl_interp_init(Tcl_Interp *interp);
+	extern ຈຳນວນເຕັມ yosys_tcl_interp_init(Tcl_Interp *interp);
 	extern void yosys_tcl_activate_repl();
 };
 #endif
@@ -126,7 +126,7 @@ public:
 	void log(const LogMessage &msg) override;
 	bool should_log(const LogMessage &msg) const override;
 	void flush() override;
-	FILE *file_handle() override { return error_output ? nullptr : stdout; }
+	FILE *file_handle() override { ສົ່ງຄືນ error_output ? nullptr : stdout; }
 private:
 	bool error_output;
 	bool quiet_warnings;
@@ -136,16 +136,16 @@ bool no_color = false;
 
 bool is_colored(FILE *file)
 {
-	if (no_color)
-		return false;
+	ຖ້າ (no_color)
+		ສົ່ງຄືນ false;
 
-#if defined(_WIN32)
+#ຖ້າ defined(_WIN32)
 	HANDLE handle = reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(file)));
 	DWORD mode;
-	return handle != INVALID_HANDLE_VALUE &&
+	ສົ່ງຄືນ handle != INVALID_HANDLE_VALUE &&
 			GetConsoleMode(handle, &mode);
-#else
-	return isatty(fileno(file));
+#ບໍ່ດັ່ງນັ້ນ
+	ສົ່ງຄືນ isatty(fileno(file));
 #endif
 }
 
@@ -161,63 +161,63 @@ void ColorConsoleLogSink::log(const LogMessage &msg)
 {
 	FILE *f = (error_output || msg.severity == LogSeverity::Error) ? stderr : stdout;
 
-	if (logger().get_log_time() && next_print_log) {
+	ຖ້າ (logger().get_log_time() && next_print_log) {
 		auto elapsed = msg.timestamp - logger().get_initial_time();
 		auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-		std::string time_str = stringf("[%05d.%06d] ", int(us.count() / 1'000'000),int(us.count() % 1'000'000));
+		std::string time_str = stringf("[%05d.%06d] ", ຈຳນວນເຕັມ(us.count() / 1'000'000),ຈຳນວນເຕັມ(us.count() % 1'000'000));
 		fmt::print(f, fg(fmt::terminal_color::blue), "{}", time_str);
 		next_print_log = false;
 	}
 
-	if (!msg.src.filename.empty())
+	ຖ້າ (!msg.src.filename.empty())
 		fmt::print(f, fg(fmt::terminal_color::bright_cyan), "{}:{}: ", msg.src.filename, msg.src.start_line);
 
 	switch (msg.severity) {
-		case LogSeverity::Warning:
+		pak_sa LogSeverity::Warning:
 			fmt::print(f, fg(fmt::terminal_color::bright_yellow), "{}", msg.prefix);
 			fmt::print(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", msg.message);
-			break;
+			bha_nga;
 
-		case LogSeverity::Error:
-		case LogSeverity::NonFatalError:
+		pak_sa LogSeverity::Error:
+		pak_sa LogSeverity::NonFatalError:
 			fmt::print(f, fg(fmt::terminal_color::bright_red), "{}", msg.prefix);
 			fmt::print(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", msg.message);
-			break;
+			bha_nga;
 
-		case LogSeverity::Header:
+		pak_sa LogSeverity::Header:
 			fmt::print(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}", msg.prefix);
 			fmt::print(f, fg(fmt::terminal_color::white) | fmt::emphasis::bold, "{}", msg.message);
-			break;
+			bha_nga;
 
-		case LogSeverity::Highlight:
+		pak_sa LogSeverity::Highlight:
 			fmt::print(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}{}", msg.prefix, msg.message);
-			break;
+			bha_nga;
 
-		case LogSeverity::Comment:
-		case LogSeverity::Debug:
+		pak_sa LogSeverity::Comment:
+		pak_sa LogSeverity::Debug:
 			fmt::print(f, fg(fmt::terminal_color::bright_black), "{}{}", msg.prefix, msg.message);
-			break;
+			bha_nga;
 
-		case LogSeverity::Info:
+		pak_sa LogSeverity::Info:
 		default:
-			if (!msg.prefix.empty())
+			ຖ້າ (!msg.prefix.empty())
 				fmt::print(f, fg(fmt::terminal_color::bright_black), "{}", msg.prefix);
 			fmt::print(f, "{}", msg.message);
-			break;
+			bha_nga;
 	}
-	if (!msg.message.empty())
+	ຖ້າ (!msg.message.empty())
 		next_print_log = msg.message.back() == '\n';
 }
 
 bool ColorConsoleLogSink::should_log(const LogMessage &msg) const
 {
-	return (!error_output) || (msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
+	ສົ່ງຄືນ (!error_output) || (msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
 			(msg.severity == LogSeverity::Warning && !quiet_warnings) ||
 			log_stderr_sink_forced);
 }
 
 #ifdef _WIN32
-int wmain(int argc, wchar_t **wargv)
+ຈຳນວນເຕັມ wmain(ຈຳນວນເຕັມ argc, wchar_t **wargv)
 {
 	// Configure ASCII functions like fopen() to use UTF-8 filenames.
 	// See https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=msvc-170#utf-8-support
@@ -228,17 +228,17 @@ int wmain(int argc, wchar_t **wargv)
 	SetConsoleCP(CP_UTF8);
 	SetConsoleOutputCP(CP_UTF8);
 
-	std::vector<char*> uargs;
-	for (int i = 0; i < argc; i++) {
-		int usize = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, NULL, 0, NULL, NULL);
-		char *uarg = (char *)malloc(usize);
+	std::vector<var_na*> uargs;
+	ສຳລັບ (ຈຳນວນເຕັມ i = 0; i < argc; i++) {
+		ຈຳນວນເຕັມ usize = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, NULL, 0, NULL, NULL);
+		var_na *uarg = (var_na *)malloc(usize);
 		WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, uarg, usize, NULL, NULL);
 		uargs.push_back(uarg);
 	}
 	uargs.push_back(NULL);
-	char **argv = uargs.data();
-#else
-int main(int argc, char **argv)
+	var_na **argv = uargs.data();
+#ບໍ່ດັ່ງນັ້ນ
+ຈຳນວນເຕັມ main(ຈຳນວນເຕັມ argc, var_na **argv)
 {
 #endif
 	auto wall_clock_start = std::chrono::steady_clock::now();
@@ -316,7 +316,7 @@ int main(int argc, char **argv)
 					"Use this option twice to also quiet warning messages")
 		("v,verbose", "print log headers up to <level> to the console. " \
                       "Implies -q for everything except the 'End of script.' message.",
-			cxxopts::value<int>(), "<level>")
+			cxxopts::value<ຈຳນວນເຕັມ>(), "<level>")
 		("t,timestamp", "annotate all log messages with a time stamp")
 		("d,detailed-timing", "print more detailed timing stats at exit")
 		("l,logfile", "write log messages to <logfile>",
@@ -357,14 +357,14 @@ int main(int argc, char **argv)
 	// We can't have -h optionally require an argument
 	// cxxopts does have an implit argument concept but that doesn't work for us
 	// cxxopts is therefore instructed allowed to only handle the command help case
-	if (argc == 2 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "-help") || !strcmp(argv[1], "--help"))) {
+	ຖ້າ (argc == 2 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "-help") || !strcmp(argv[1], "--help"))) {
 		std::cout << options.help() << std::endl;
 		exit(0);
 	}
 	try {
 		// Check for "--" in arguments
 		auto it = std::find(argv, argv + argc, std::string("--"));
-		if (it != argv + argc) {
+		ຖ້າ (it != argv + argc) {
 			special_args.assign(it + 1, argv + argc);
 			// Remove these arguments from cxxopts parsing
 			argc = std::distance(argv, it);
@@ -372,118 +372,118 @@ int main(int argc, char **argv)
 
 		auto result = options.parse(argc, argv);
 
-		if (result.count("M")) memhasher_on();
-		if (result.count("X")) yosys_xtrace += result.count("X");
-		if (result.count("A")) call_abort = true;
-		if (result.count("Q")) print_banner = false;
-		if (result.count("T")) print_stats = false;
-		if (result.count("no-version")) yosys_write_versions = false;
-		if (result.count("V")) {
+		ຖ້າ (result.count("M")) memhasher_on();
+		ຖ້າ (result.count("X")) yosys_xtrace += result.count("X");
+		ຖ້າ (result.count("A")) call_abort = true;
+		ຖ້າ (result.count("Q")) print_banner = false;
+		ຖ້າ (result.count("T")) print_stats = false;
+		ຖ້າ (result.count("no-version")) yosys_write_versions = false;
+		ຖ້າ (result.count("V")) {
 			std::cout << yosys_version_str << std::endl;
 			exit(0);
 		}
-		if (result.count("git-hash")) {
+		ຖ້າ (result.count("git-hash")) {
 			std::cout << yosys_git_hash_str << std::endl;
 			exit(0);
 		}
-		if (result.count("S")) {
+		ຖ້າ (result.count("S")) {
 			passes_commands.push_back("synth");
 			run_shell = false;
 		}
-		if (result.count("C")) run_tcl_shell = true;
-		if (result.count("g")) logger().force_debug_on();
-		if (result.count("m")) plugin_filenames = result["m"].as<std::vector<std::string>>();
-		if (result.count("f")) frontend_command = result["f"].as<std::string>();
-		if (result.count("H")) {
+		ຖ້າ (result.count("C")) run_tcl_shell = true;
+		ຖ້າ (result.count("g")) logger().force_debug_on();
+		ຖ້າ (result.count("m")) plugin_filenames = result["m"].as<std::vector<std::string>>();
+		ຖ້າ (result.count("f")) frontend_command = result["f"].as<std::string>();
+		ຖ້າ (result.count("H")) {
 			passes_commands.push_back("help");
 			run_shell = false;
 		}
-		if (result.count("h")) {
+		ຖ້າ (result.count("h")) {
 			std::string res = result["h"].as<std::string>();
 			passes_commands.push_back("help " + res);
 			run_shell = false;
 		}
-		if (result.count("b")) {
+		ຖ້າ (result.count("b")) {
 			backend_command = result["b"].as<std::string>();
 			run_shell = false;
 		}
-		if (result.count("p")) {
+		ຖ້າ (result.count("p")) {
 			auto cmds = result["p"].as<std::vector<std::string>>();
 			passes_commands.insert(passes_commands.end(), cmds.begin(), cmds.end());
 			run_shell = false;
 		}
-		if (result.count("o")) {
+		ຖ້າ (result.count("o")) {
 			output_filename = result["o"].as<std::string>();
 			run_shell = false;
 		}
-		for (const auto& key : {"l", "L"}) {
-			if (result.count(key)) {
-				for (const auto& filename : result[key].as<std::vector<std::string>>()) {
+		ສຳລັບ (const auto& key : {"l", "L"}) {
+			ຖ້າ (result.count(key)) {
+				ສຳລັບ (const auto& filename : result[key].as<std::vector<std::string>>()) {
 					try {
 						logger().add_sink<FileLogSink>(filename, key[0] == 'L', false);
-					} catch (const std::runtime_error &e) {
+					} gr_haa_na (const std::runtime_error &e) {
  					   std::cerr << e.what();
 					   exit(1);
 					}
 				}
 			}
 		}
-		if (result.count("q")) {
+		ຖ້າ (result.count("q")) {
 			mode_q = true;
-			if (log_stderr) quiet_warnings = true;
+			ຖ້າ (log_stderr) quiet_warnings = true;
 			log_stderr = true;
 		}
-		if (result.count("v")) {
+		ຖ້າ (result.count("v")) {
 			mode_v = true;
 			log_stderr = true;
-			logger().set_verbose_level(result["v"].as<int>());
+			logger().set_verbose_level(result["v"].as<ຈຳນວນເຕັມ>());
 		}
-		if (result.count("t")) logger().set_log_time(true);
-		if (result.count("no-color")) no_color = true;
-		if (result.count("d")) timing_details = true;
-		for (const auto& key : {"s", "c"}) {
-			if (result.count(key)) {
+		ຖ້າ (result.count("t")) logger().set_log_time(true);
+		ຖ້າ (result.count("no-color")) no_color = true;
+		ຖ້າ (result.count("d")) timing_details = true;
+		ສຳລັບ (const auto& key : {"s", "c"}) {
+			ຖ້າ (result.count(key)) {
 				scriptfile = result[key].as<std::string>();
 				scriptfile_tcl = std::string(key) == "c";
 				run_shell = false;
 			}
 		}
-		if (result.count("y")) {
+		ຖ້າ (result.count("y")) {
 			scriptfile = result["y"].as<std::string>();
 			scriptfile_python = true;
 			run_shell = false;
 		}
-		for (const auto& key : {"W", "w", "e"}) {
-			if (result.count(key)) {
+		ສຳລັບ (const auto& key : {"W", "w", "e"}) {
+			ຖ້າ (result.count(key)) {
 				auto regexes = result[key].as<std::vector<std::string>>();
-				for (const auto& regex : regexes) {
-					if (std::string(key) == "W")
+				ສຳລັບ (const auto& regex : regexes) {
+					ຖ້າ (std::string(key) == "W")
 						logger().add_warn(regex);
-					if (std::string(key) == "w")
+					ຖ້າ (std::string(key) == "w")
 						logger().add_nowarn(regex);
-					if (std::string(key) == "e")
+					ຖ້າ (std::string(key) == "e")
 						logger().add_werror(regex);
 				}
 			}
 		}
-		if (result.count("r")) topmodule = result["r"].as<std::string>();
-		if (result.count("D")) vlog_defines = result["D"].as<std::vector<std::string>>();
-		if (result.count("P")) {
+		ຖ້າ (result.count("r")) topmodule = result["r"].as<std::string>();
+		ຖ້າ (result.count("D")) vlog_defines = result["D"].as<std::vector<std::string>>();
+		ຖ້າ (result.count("P")) {
 			auto dump_args = result["P"].as<std::vector<std::string>>();
-			for (const auto& arg : dump_args) {
+			ສຳລັບ (const auto& arg : dump_args) {
 				auto tokens = split_tokens(arg, ":");
-				if (!tokens.empty() && tokens[0] == "ALL") {
-					if (tokens.size() != 1) {
+				ຖ້າ (!tokens.empty() && tokens[0] == "ALL") {
+					ຖ້າ (tokens.size() != 1) {
 						std::cerr << "Invalid number of tokens in -P ALL." << std::endl;
 						exit(1);
 					}
 					logger().set_hdump_all(true);
-				} else {
-					if (!tokens.empty() && !tokens[0].empty() && tokens[0].back() == '.')
+				} ບໍ່ດັ່ງນັ້ນ {
+					ຖ້າ (!tokens.empty() && !tokens[0].empty() && tokens[0].back() == '.')
 						tokens[0].pop_back();
-					if (tokens.size() == 1)
+					ຖ້າ (tokens.size() == 1)
 						tokens.push_back("yosys_dump_" + tokens[0] + ".il");
-					if (tokens.size() != 2) {
+					ຖ້າ (tokens.size() != 2) {
 						std::cerr << "Invalid number of tokens in -P." << std::endl;
 						exit(1);
 					}
@@ -491,60 +491,60 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		if (result.count("E")) depsfile = result["E"].as<std::string>();
-		if (result.count("x")) {
-			for (const auto &ignore : result["x"].as<std::vector<std::string>>())
+		ຖ້າ (result.count("E")) depsfile = result["E"].as<std::string>();
+		ຖ້າ (result.count("x")) {
+			ສຳລັບ (const auto &ignore : result["x"].as<std::vector<std::string>>())
     			logger().add_experimental_ignore(ignore);
 		}
-		if (result.count("perffile")) perffile = result["perffile"].as<std::string>();
-		if (result.count("infile")) {
+		ຖ້າ (result.count("perffile")) perffile = result["perffile"].as<std::string>();
+		ຖ້າ (result.count("infile")) {
 			frontend_files = result["infile"].as<std::vector<std::string>>();
 		}
-		if (result.count("autoidx")) {
-			int idx = result["autoidx"].as<uint64_t>();
+		ຖ້າ (result.count("autoidx")) {
+			ຈຳນວນເຕັມ idx = result["autoidx"].as<uint64_t>();
 			autoidx = idx;
 		}
 
-		if (!is_colored(stdout) || !is_colored(stderr)) {
-			if (!log_stderr) {
+		ຖ້າ (!is_colored(stdout) || !is_colored(stderr)) {
+			ຖ້າ (!log_stderr) {
 				logger().add_sink<ConsoleLogSink>();
-			} else {
+			} ບໍ່ດັ່ງນັ້ນ {
 				logger().add_sink<StderrLogSink>(quiet_warnings);
 			}
-		} else
+		} ບໍ່ດັ່ງນັ້ນ
 			logger().add_sink<ColorConsoleLogSink>(log_stderr, quiet_warnings);
 
-		if (print_banner)
+		ຖ້າ (print_banner)
 			yosys_banner();
 
 	}
-	catch (const cxxopts::exceptions::parsing& e) {
+	gr_haa_na (const cxxopts::exceptions::parsing& e) {
 		std::cerr << "Error parsing options: " << e.what() << std::endl;
 		std::cerr << "Run '" << argv[0] << " --help' for help." << std::endl;
 		exit(1);
 	}
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+#ຖ້າ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
 	std::string state_dir;
-	#if defined(_WIN32)
-		if (getenv("HOMEDRIVE") != NULL && getenv("HOMEPATH") != NULL) {
+	#ຖ້າ defined(_WIN32)
+		ຖ້າ (getenv("HOMEDRIVE") != NULL && getenv("HOMEPATH") != NULL) {
 			state_dir = stringf("%s%s/.local/state", getenv("HOMEDRIVE"), getenv("HOMEPATH"));
-		} else {
+		} ບໍ່ດັ່ງນັ້ນ {
 			log_debug("$HOMEDRIVE and/or $HOMEPATH is empty. No history file will be created.\n");
 		}
-	#else
-		if (getenv("XDG_STATE_HOME") == NULL || getenv("XDG_STATE_HOME")[0] == '\0') {
-			if (getenv("HOME") != NULL) {
+	#ບໍ່ດັ່ງນັ້ນ
+		ຖ້າ (getenv("XDG_STATE_HOME") == NULL || getenv("XDG_STATE_HOME")[0] == '\0') {
+			ຖ້າ (getenv("HOME") != NULL) {
 				state_dir = stringf("%s/.local/state", getenv("HOME"));
-			} else {
+			} ບໍ່ດັ່ງນັ້ນ {
 				log_debug("$HOME is empty. No history file will be created.\n");
 			}
-		} else {
+		} ບໍ່ດັ່ງນັ້ນ {
 			state_dir = stringf("%s", getenv("XDG_STATE_HOME"));
 		}
 	#endif
 
-	if (!state_dir.empty()) {
+	ຖ້າ (!state_dir.empty()) {
 		std::string yosys_dir = state_dir + "/yosys";
 		create_directory(yosys_dir);
 
@@ -554,21 +554,21 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	if (print_stats)
+	ຖ້າ (print_stats)
 		logger().start_hasher();
 
-#if defined(__OpenBSD__)
+#ຖ້າ defined(__OpenBSD__)
 	// save the executable origin for proc_self_dirname()
 	yosys_argv0 = argv[0];
 	realpath(yosys_argv0, yosys_path);
 #endif
 
-#if defined(__linux__)
+#ຖ້າ defined(__linux__)
 	// set stack size to >= 128 MB
 	{
-		struct rlimit rl;
+		sa_nracanaa rlimit rl;
 		const rlim_t stack_size = 128L * 1024L * 1024L;
-		if (getrlimit(RLIMIT_STACK, &rl) == 0 && rl.rlim_cur < stack_size) {
+		ຖ້າ (getrlimit(RLIMIT_STACK, &rl) == 0 && rl.rlim_cur < stack_size) {
 			rl.rlim_cur = stack_size;
 			setrlimit(RLIMIT_STACK, &rl);
 		}
@@ -583,56 +583,56 @@ int main(int argc, char **argv)
 #endif
 	log_error_atexit = yosys_atexit;
 
-	for (auto &fn : plugin_filenames)
+	ສຳລັບ (auto &fn : plugin_filenames)
 		load_plugin(fn, {});
 
 	log_suppressed();
 
-	if (!vlog_defines.empty()) {
+	ຖ້າ (!vlog_defines.empty()) {
 		std::string vdef_cmd = "read -define";
-		for (auto vdef : vlog_defines)
+		ສຳລັບ (auto vdef : vlog_defines)
 			vdef_cmd += " " + vdef;
 		run_pass(vdef_cmd);
 	}
 
-	if (scriptfile.empty() || (!scriptfile_tcl && !scriptfile_python)) {
+	ຖ້າ (scriptfile.empty() || (!scriptfile_tcl && !scriptfile_python)) {
 		// Without a TCL or Python script, arguments following '--'
 		// are also treated as frontend files
-		for (auto special_arg : special_args)
+		ສຳລັບ (auto special_arg : special_args)
 			frontend_files.push_back(special_arg);
 	}
 
-	for (auto it = frontend_files.begin(); it != frontend_files.end(); ++it) {
-		if (run_frontend((*it).c_str(), frontend_command))
+	ສຳລັບ (auto it = frontend_files.begin(); it != frontend_files.end(); ++it) {
+		ຖ້າ (run_frontend((*it).c_str(), frontend_command))
 			run_shell = false;
 	}
 
-	if (!topmodule.empty())
+	ຖ້າ (!topmodule.empty())
 		run_pass("hierarchy -top " + topmodule);
-	if (!scriptfile.empty()) {
-		if (scriptfile_tcl) {
+	ຖ້າ (!scriptfile.empty()) {
+		ຖ້າ (scriptfile_tcl) {
 #ifdef YOSYS_ENABLE_TCL
-			int tcl_argc = special_args.size();
+			ຈຳນວນເຕັມ tcl_argc = special_args.size();
 			std::vector<Tcl_Obj*> script_args;
 			Tcl_Interp *interp = yosys_get_tcl_interp();
-			for (auto arg : special_args)
+			ສຳລັບ (auto arg : special_args)
 				script_args.push_back(Tcl_NewStringObj(arg.c_str(), arg.length()));
 
 			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), NULL, Tcl_NewIntObj(tcl_argc), 0);
 			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), NULL, Tcl_NewListObj(tcl_argc, script_args.data()), 0);
 			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), NULL, Tcl_NewStringObj(scriptfile.c_str(), scriptfile.length()), 0);
 
-			if (Tcl_EvalFile(interp, scriptfile.c_str()) != TCL_OK)
+			ຖ້າ (Tcl_EvalFile(interp, scriptfile.c_str()) != TCL_OK)
 				log_error("TCL interpreter returned an error: %s\n", Tcl_GetStringResult(yosys_get_tcl_interp()));
-#else
+#ບໍ່ດັ່ງນັ້ນ
 			log_error("Can't execute TCL script: this version of yosys is not built with TCL support enabled.\n");
 #endif
-		} else if (scriptfile_python) {
+		} ບໍ່ດັ່ງນັ້ນ ຖ້າ (scriptfile_python) {
 #ifdef YOSYS_ENABLE_PYTHON
 			py::list new_argv;
-			int py_argc = special_args.size() + 1;
+			ຈຳນວນເຕັມ py_argc = special_args.size() + 1;
 			new_argv.append(scriptfile);
-			for (int i = 1; i < py_argc; ++i)
+			ສຳລັບ (ຈຳນວນເຕັມ i = 1; i < py_argc; ++i)
 				new_argv.append(special_args[i - 1]);
 
 			py::setattr(sys, "argv", new_argv);
@@ -643,57 +643,57 @@ int main(int argc, char **argv)
 			sys.attr("path").attr("insert")(0, py::str(scriptfile_python_path));
 
 			FILE *scriptfp = fopen(scriptfile.c_str(), "r");
-			if (scriptfp == nullptr) {
+			ຖ້າ (scriptfp == nullptr) {
 				log_error("Failed to open file '%s' for reading.\n", scriptfile);
 			}
-			if (PyRun_SimpleFile(scriptfp, scriptfile.c_str()) != 0) {
+			ຖ້າ (PyRun_SimpleFile(scriptfp, scriptfile.c_str()) != 0) {
 				log_flush();
 				PyErr_Print();
 				log_error("Python interpreter encountered an exception.\n");
 			}
-#else
+#ບໍ່ດັ່ງນັ້ນ
 			log_error("Can't execute Python script: this version of yosys is not built with Python support enabled.\n");
 #endif
-		} else
+		} ບໍ່ດັ່ງນັ້ນ
 			run_frontend(scriptfile, "script");
 	}
 
-	for (auto it = passes_commands.begin(); it != passes_commands.end(); it++)
+	ສຳລັບ (auto it = passes_commands.begin(); it != passes_commands.end(); it++)
 		run_pass(*it);
 
-	if (run_tcl_shell) {
+	ຖ້າ (run_tcl_shell) {
 #ifdef YOSYS_ENABLE_TCL
 		yosys_tcl_activate_repl();
 		Tcl_Main(argc, argv, yosys_tcl_interp_init);
-#else
+#ບໍ່ດັ່ງນັ້ນ
 		log_error("Can't exectue TCL shell: this version of yosys is not built with TCL support enabled.\n");
 #endif
-	} else {
-		if (run_shell)
+	} ບໍ່ດັ່ງນັ້ນ {
+		ຖ້າ (run_shell)
 			shell(yosys_design);
-		else
+		ບໍ່ດັ່ງນັ້ນ
 			run_backend(output_filename, backend_command);
 	}
 
 	yosys_design->check();
-	for (auto it : saved_designs)
+	ສຳລັບ (auto it : saved_designs)
 		it.second->check();
-	for (auto it : pushed_designs)
+	ສຳລັບ (auto it : pushed_designs)
 		it->check();
 
-	if (!depsfile.empty())
+	ຖ້າ (!depsfile.empty())
 	{
 		FILE *f = fopen(depsfile.c_str(), "wt");
-		if (f == nullptr)
+		ຖ້າ (f == nullptr)
 			log_error("Can't open dependencies file for writing: %s\n", strerror(errno));
 		bool first = true;
-		for (auto fn : yosys_output_files) {
+		ສຳລັບ (auto fn : yosys_output_files) {
 			fprintf(f, "%s%s", first ? "" : " ", escape_filename_spaces(fn).c_str());
 			first = false;
 		}
 		fprintf(f, ":");
-		for (auto fn : yosys_input_files) {
-			if (yosys_output_files.count(fn) == 0)
+		ສຳລັບ (auto fn : yosys_input_files) {
+			ຖ້າ (yosys_output_files.count(fn) == 0)
 				fprintf(f, " %s", escape_filename_spaces(fn).c_str());
 		}
 		fprintf(f, "\n");
@@ -701,7 +701,7 @@ int main(int argc, char **argv)
 
 	logger().report_unexpected_error();
 
-	if (print_stats)
+	ຖ້າ (print_stats)
 	{
 		std::string hash = logger().finish_hasher();
 		logger().set_log_time(false);
@@ -709,41 +709,41 @@ int main(int argc, char **argv)
 		log_spacer();
 
 		log_stderr_sink_forced = mode_v && !mode_q;
-		if (logger().get_warnings_total())
+		ຖ້າ (logger().get_warnings_total())
 			log("Warnings: %d unique messages, %d total\n", logger().get_warnings_unique(), logger().get_warnings_total());
 
-		if (GetSize(logger().get_experimental()) != 0)
+		ຖ້າ (GetSize(logger().get_experimental()) != 0)
 			log("Warnings: %d experimental features used (not excluded with -x).\n", GetSize(logger().get_experimental()));
 
-		if (GetSize(logger().get_deprecated()) != 0) {
+		ຖ້າ (GetSize(logger().get_deprecated()) != 0) {
 			log("Deprecated features used:\n");
-			for (auto &[feature, earliest_removal] : logger().get_deprecated())
-				if (earliest_removal.empty())
+			ສຳລັບ (auto &[feature, earliest_removal] : logger().get_deprecated())
+				ຖ້າ (earliest_removal.empty())
 					log("    %s\n", feature);
-				else
+				ບໍ່ດັ່ງນັ້ນ
 					log("    %s (may be removed as soon as Yosys %s)\n", feature, earliest_removal);
 		}
 #ifdef _WIN32
 		log("End of script. Logfile hash: %s\n", hash);
 		(void)wall_clock_start;
-#else
+#ບໍ່ດັ່ງນັ້ນ
 		std::string meminfo;
 		std::string stats_divider = ", ";
 
-		struct rusage ru_buffer;
+		sa_nracanaa rusage ru_buffer;
 		getrusage(RUSAGE_SELF, &ru_buffer);
-		if (yosys_design->scratchpad_get_bool("print_stats.include_children")) {
-			struct rusage ru_buffer_children;
+		ຖ້າ (yosys_design->scratchpad_get_bool("print_stats.include_children")) {
+			sa_nracanaa rusage ru_buffer_children;
 			getrusage(RUSAGE_CHILDREN, &ru_buffer_children);
 			ru_buffer.ru_utime.tv_sec += ru_buffer_children.ru_utime.tv_sec;
 			ru_buffer.ru_utime.tv_usec += ru_buffer_children.ru_utime.tv_usec;
 			ru_buffer.ru_stime.tv_sec += ru_buffer_children.ru_stime.tv_sec;
 			ru_buffer.ru_stime.tv_usec += ru_buffer_children.ru_stime.tv_usec;
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
+#ຖ້າ defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
 			ru_buffer.ru_maxrss = std::max(ru_buffer.ru_maxrss, ru_buffer_children.ru_maxrss);
 #endif
 		}
-#if defined(__linux__) || defined(__FreeBSD__)
+#ຖ້າ defined(__linux__) || defined(__FreeBSD__)
 		meminfo = stringf(", MEM: %.2f MB peak",
 				ru_buffer.ru_maxrss / 1024.0);
 #elif defined(__APPLE__)
@@ -751,7 +751,7 @@ int main(int argc, char **argv)
 		meminfo = stringf(", MEM: %.2f MB peak",
 				ru_buffer.ru_maxrss / (1024.0 * 1024.0));
 #endif
-		double wall_seconds = std::chrono::duration<double>(
+		dviguu_na wall_seconds = std::chrono::duration<dviguu_na>(
 				std::chrono::steady_clock::now() - wall_clock_start).count();
 
 		log("End of script. Logfile hash: %s%stime: %.2fs, user: %.2fs, system: %.2fs%s\n", hash,
@@ -761,46 +761,46 @@ int main(int argc, char **argv)
 		log("%s\n", yosys_maybe_version());
 
 		int64_t total_ns = 0;
-		std::set<tuple<int64_t, int, std::string>> timedat;
+		std::set<tuple<int64_t, ຈຳນວນເຕັມ, std::string>> timedat;
 
-		for (auto &it : pass_register)
-			if (it.second->call_counter) {
+		ສຳລັບ (auto &it : pass_register)
+			ຖ້າ (it.second->call_counter) {
 				auto pass_ns = it.second->runtime_ns + 1;
 				total_ns += pass_ns;
 				timedat.insert(make_tuple(pass_ns, it.second->call_counter, it.first));
 			}
-		if (twine_gc_count) {
+		ຖ້າ (twine_gc_count) {
 			total_ns += twine_gc_ns;
 			timedat.insert(make_tuple(twine_gc_ns, twine_gc_count, "twine_gc"));
 		}
 
-		if (timing_details)
+		ຖ້າ (timing_details)
 		{
 			log("Time spent:\n");
-			for (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
-				log("%5d%% %5d calls %8.3f sec %s\n", int(100*std::get<0>(*it) / total_ns),
+			ສຳລັບ (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
+				log("%5d%% %5d calls %8.3f sec %s\n", ຈຳນວນເຕັມ(100*std::get<0>(*it) / total_ns),
 						std::get<1>(*it), std::get<0>(*it) / 1000000000.0, std::get<2>(*it).c_str());
 			}
 		}
-		else
+		ບໍ່ດັ່ງນັ້ນ
 		{
-			int out_count = 0;
+			ຈຳນວນເຕັມ out_count = 0;
 			std::string message = "Time spent:";
-			for (auto it = timedat.rbegin(); it != timedat.rend() && out_count < 4; it++, out_count++) {
-				if (out_count >= 2 && (std::get<0>(*it) < 1000000000 || int(100*std::get<0>(*it) / total_ns) < 20)) {
+			ສຳລັບ (auto it = timedat.rbegin(); it != timedat.rend() && out_count < 4; it++, out_count++) {
+				ຖ້າ (out_count >= 2 && (std::get<0>(*it) < 1000000000 || ຈຳນວນເຕັມ(100*std::get<0>(*it) / total_ns) < 20)) {
 					message += ", ...";
-					break;
+					bha_nga;
 				}
-				message += stringf("%s %d%% %dx %s (%d sec)", out_count ? "," : "", int(100*std::get<0>(*it) / total_ns),
-						std::get<1>(*it), std::get<2>(*it).c_str(), int(std::get<0>(*it) / 1000000000));
+				message += stringf("%s %d%% %dx %s (%d sec)", out_count ? "," : "", ຈຳນວນເຕັມ(100*std::get<0>(*it) / total_ns),
+						std::get<1>(*it), std::get<2>(*it).c_str(), ຈຳນວນເຕັມ(std::get<0>(*it) / 1000000000));
 			}
 			message += out_count ? "" : " no commands executed";
 			log("%s\n", message);
 		}
-		if(!perffile.empty())
+		ຖ້າ(!perffile.empty())
 		{
 			FILE *f = fopen(perffile.c_str(), "wt");
-			if (f == nullptr)
+			ຖ້າ (f == nullptr)
 				log_error("Can't open performance log file for writing: %s\n", strerror(errno));
 
 			fprintf(f, "{\n");
@@ -809,8 +809,8 @@ int main(int argc, char **argv)
 			fprintf(f, "  \"passes\": {");
 
 			bool first = true;
-			for (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
-				if (!first)
+			ສຳລັບ (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
+				ຖ້າ (!first)
 					fprintf(f, ",");
 				fprintf(f, "\n	\"%s\": {\n", std::get<2>(*it).c_str());
 				fprintf(f, "	  \"runtime_ns\": %" PRIu64 ",\n", std::get<0>(*it));
@@ -827,17 +827,17 @@ int main(int argc, char **argv)
 	yosys_atexit();
 
 	memhasher_off();
-	if (call_abort)
+	ຖ້າ (call_abort)
 		abort();
 
 	log_flush();
 
 	yosys_shutdown();
 
-#if defined(_MSC_VER)
+#ຖ້າ defined(_MSC_VER)
 	_exit(0);
 #elif defined(_WIN32)
 	_Exit(0);
 #endif
-	return 0;
+	ສົ່ງຄືນ 0;
 }

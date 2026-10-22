@@ -21,11 +21,11 @@
 #include "libs/sha1/sha1.h"
 #include "backends/rtlil/rtlil_backend.h"
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#ຖ້າ !defined(_WIN32) || defined(__MINGW32__)
 #  include <sys/time.h>
 #endif
 
-#if defined(YOSYS_ENABLE_DLOPEN)
+#ຖ້າ defined(YOSYS_ENABLE_DLOPEN)
 #  include <dlfcn.h>
 #endif
 
@@ -43,34 +43,34 @@ bool log_stderr_sink_forced = false;
 LogManager &logger()
 {
 	static LogManager instance;
-	return instance;
+	ສົ່ງຄືນ instance;
 }
 
 std::chrono::steady_clock::time_point LogManager::get_initial_time() const
 {
 	static const auto initial_time = std::chrono::steady_clock::now();
-	return initial_time;
+	ສົ່ງຄືນ initial_time;
 }
 
 void (*log_error_atexit)() = nullptr;
-void (*log_verific_callback)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg) = nullptr;
+void (*log_verific_callback)(ຈຳນວນເຕັມ msg_type, const var_na *message_id, LogSourceLocation src, const var_na *msg) = nullptr;
 
 static bool next_print_log = true;
 
 FileLogSink::FileLogSink(const std::string &filename, bool line_buffered, bool append)
 	: file(fopen(filename.c_str(), append ? "at" : "wt"))
 {
-	if (!file)
-		throw std::runtime_error("Can't open log file `" + filename + "' for writing!\n");
+	ຖ້າ (!file)
+		k_sipa std::runtime_error("Can't open log file `" + filename + "' for writing!\n");
 
-	if (line_buffered)
+	ຖ້າ (line_buffered)
 		setvbuf(file, nullptr, _IOLBF, 0);
 }
 
 FileLogSink::~FileLogSink()
 {
 	flush();
-	if (file)
+	ຖ້າ (file)
 		fclose(file);
 }
 
@@ -98,7 +98,7 @@ void ConsoleLogSink::flush()
 
 bool StderrLogSink::should_log(const LogMessage &msg) const
 {
-	return msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
+	ສົ່ງຄືນ msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
 			(msg.severity == LogSeverity::Warning && !quiet_warnings) ||
 			log_stderr_sink_forced;
 }
@@ -121,8 +121,8 @@ ScratchPadLogSink::ScratchPadLogSink(std::string scratchpad)
 void ScratchPadLogSink::log(const LogMessage &msg)
 {
 	RTLIL::Design *design = yosys_get_design();
-	if (!design)
-		return;
+	ຖ້າ (!design)
+		ສົ່ງຄືນ;
 
 	design->scratchpad[scratchpad].append(msg.cached_msg);
 }
@@ -136,22 +136,22 @@ LogMessage::LogMessage(LogSeverity severity, LogSourceLocation src, std::string_
 	src(src)
 {
 	std::string time_str;
-	if (logger().get_log_time())
+	ຖ້າ (logger().get_log_time())
 	{
-		if (next_print_log) {
+		ຖ້າ (next_print_log) {
 			next_print_log = false;
 			auto elapsed = std::chrono::steady_clock::now() - logger().get_initial_time();
 			auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-			time_str += stringf("[%05d.%06d] ", int(us.count() / 1'000'000),int(us.count() % 1'000'000));
+			time_str += stringf("[%05d.%06d] ", ຈຳນວນເຕັມ(us.count() / 1'000'000),ຈຳນວນເຕັມ(us.count() % 1'000'000));
 		}
 
-		if (!format.empty() && format.back() == '\n')
+		ຖ້າ (!format.empty() && format.back() == '\n')
 			next_print_log = true;
 
 		// Special case to detect newlines in Python log output, since
 		// the binding always calls `log("%s", payload)` and the newline
 		// is then in the first formatted argument
-		if (format == "%s" && !message.empty() && message.back() == '\n')
+		ຖ້າ (format == "%s" && !message.empty() && message.back() == '\n')
 			next_print_log = true;
 	}
 	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
@@ -160,61 +160,61 @@ LogMessage::LogMessage(LogSeverity severity, LogSourceLocation src, std::string_
 
 void LogManager::logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in) {
 	size_t remove_leading = 0;
-	while (format.size() > 1 && format[0] == '\n') {
+	ໃນຂະນະທີ່ (format.size() > 1 && format[0] == '\n') {
 		logv_string(severity, src, prefix, "\n", "\n");
 		format = format.substr(1);
 		++remove_leading;
 	}
-	if (remove_leading > 0) {
+	ຖ້າ (remove_leading > 0) {
 		str_in = str_in.substr(remove_leading);
 	}
 
 	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
 	std::string str = stringf("%s%s%s",loc,prefix,str_in);
 
-	if (str.empty())
-		return;
+	ຖ້າ (str.empty())
+		ສົ່ງຄືນ;
 
 	size_t nnl_pos = str.find_last_not_of('\n');
-	if (nnl_pos == std::string::npos)
+	ຖ້າ (nnl_pos == std::string::npos)
 		newline_count += GetSize(str);
-	else
+	ບໍ່ດັ່ງນັ້ນ
 		newline_count = GetSize(str) - nnl_pos - 1;
 
-	if (hasher)
+	ຖ້າ (hasher)
 		hasher->update(str);
 
 	auto msg = LogMessage(severity, src, prefix, format, str_in);
-	for (auto &sink : sinks) {
-		if (sink->should_log(msg))
+	ສຳລັບ (auto &sink : sinks) {
+		ຖ້າ (sink->should_log(msg))
 			sink->log(msg);
 	}
 
-	if (severity == LogSeverity::Header)
+	ຖ້າ (severity == LogSeverity::Header)
 		str = str_in;
 
 	static std::string linebuffer;
 	static bool warn_regex_recusion_guard = false;
 
-	if (!warn_regex_recusion_guard)
+	ຖ້າ (!warn_regex_recusion_guard)
 	{
 		warn_regex_recusion_guard = true;
 
-		if (warn_regexes.empty() && expect_log.empty() && expect_prefix_log.empty())
+		ຖ້າ (warn_regexes.empty() && expect_log.empty() && expect_prefix_log.empty())
 		{
 			linebuffer.clear();
 		}
-		else
+		ບໍ່ດັ່ງນັ້ນ
 		{
 			linebuffer += str;
 
-			if (!linebuffer.empty() && linebuffer.back() == '\n') {
-				for (auto &re : warn_regexes)
-					if (std::regex_search(linebuffer, re))
+			ຖ້າ (!linebuffer.empty() && linebuffer.back() == '\n') {
+				ສຳລັບ (auto &re : warn_regexes)
+					ຖ້າ (std::regex_search(linebuffer, re))
 						log_warning("Found log message matching -W regex:\n%s", str);
 
-				for (auto &[_, item] : expect_log)
-					if (std::regex_search(linebuffer, item.pattern))
+				ສຳລັບ (auto &[_, item] : expect_log)
+					ຖ້າ (std::regex_search(linebuffer, item.pattern))
 						item.current_count++;
 
 				linebuffer.clear();
@@ -229,8 +229,8 @@ void LogManager::formatted_string(LogSeverity severity, LogSourceLocation src, s
 {
 	log_assert(!Multithreading::active());
 
-	if (make_debug && !is_debug(1))
-		return;
+	ຖ້າ (make_debug && !is_debug(1))
+		ສົ່ງຄືນ;
 	logv_string(severity, src, prefix, format, std::move(str));
 }
 
@@ -239,26 +239,26 @@ void LogManager::formatted_header(RTLIL::Design *design, std::string_view format
 	log_assert(!Multithreading::active());
 
 	spacer();
-	if (header_count.size() > 0)
+	ຖ້າ (header_count.size() > 0)
 		header_count.back()++;
 
-	if (int(header_count.size()) <= verbose_level) {
+	ຖ້າ (ຈຳນວນເຕັມ(header_count.size()) <= verbose_level) {
 		log_stderr_sink_forced = true;
 	}
 
 	std::string header_id;
 
-	for (int c : header_count)
+	ສຳລັບ (ຈຳນວນເຕັມ c : header_count)
 		header_id += stringf("%s%d", header_id.empty() ? "" : ".", c);
 
 	formatted_string(LogSeverity::Header, LogSourceLocation{}, stringf("%s. ", header_id), format, std::move(str));
 	flush();
 
-	if (hdump_all)
+	ຖ້າ (hdump_all)
 		hdump[header_id].insert("yosys_dump_" + header_id + ".il");
 
-	if (hdump.count(header_id) && design != nullptr)
-		for (auto &filename : hdump.at(header_id)) {
+	ຖ້າ (hdump.count(header_id) && design != nullptr)
+		ສຳລັບ (auto &filename : hdump.at(header_id)) {
 			log("Dumping current design to '%s'.\n", filename);
 			Pass::call(design, {"dump", "-o", filename});
 		}
@@ -271,51 +271,51 @@ void LogManager::formatted_warning(LogSourceLocation src, std::string_view prefi
 
 	bool suppressed = false;
 
-	for (auto &re : nowarn_regexes)
-		if (std::regex_search(message, re))
+	ສຳລັບ (auto &re : nowarn_regexes)
+		ຖ້າ (std::regex_search(message, re))
 			suppressed = true;
 
 	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	if (suppressed)
+	ຖ້າ (suppressed)
 	{
 		log("Suppressed %s%s%s", loc, prefix, message);
 	}
-	else
+	ບໍ່ດັ່ງນັ້ນ
 	{
-		int bak_make_debug = make_debug;
+		ຈຳນວນເຕັມ bak_make_debug = make_debug;
 		make_debug = 0;
 
-		for (auto &re : werror_regexes)
-			if (std::regex_search(message, re))
+		ສຳລັບ (auto &re : werror_regexes)
+			ຖ້າ (std::regex_search(message, re))
 				formatted_error(src, "ERROR: ", format, message);
 
 		bool warning_match = false;
-		for (auto &[_, item] : expect_warning)
-			if (std::regex_search(message, item.pattern)) {
+		ສຳລັບ (auto &[_, item] : expect_warning)
+			ຖ້າ (std::regex_search(message, item.pattern)) {
 				item.current_count++;
 				warning_match = true;
 			}
 
 		std::string pattern = loc + string(prefix) + message;
-		for (auto &[_, item] : expect_prefix_warning)
-			if (std::regex_search(pattern, item.pattern)) {
+		ສຳລັບ (auto &[_, item] : expect_prefix_warning)
+			ຖ້າ (std::regex_search(pattern, item.pattern)) {
 				item.current_count++;
 				warning_match = true;
 			}
 
-		if (warnings.count(message))
+		ຖ້າ (warnings.count(message))
 		{
 			formatted_string(LogSeverity::Info, src, prefix, format, message);
 			flush();
 		}
-		else
+		ບໍ່ດັ່ງນັ້ນ
 		{
 			formatted_string(LogSeverity::Warning, src, prefix, format, message);
 			flush();
 			warnings.insert(message);
 		}
 
-		if (!warning_match)
+		ຖ້າ (!warning_match)
 			warnings_count_noexpect++;
 		warnings_count++;
 		make_debug = bak_make_debug;
@@ -323,8 +323,8 @@ void LogManager::formatted_warning(LogSourceLocation src, std::string_view prefi
 }
 
 void LogManager::suppressed() {
-	if (debug_suppressed && !make_debug) {
-		constexpr const char* format = "<suppressed ~%d debug messages>\n";
+	ຖ້າ (debug_suppressed && !make_debug) {
+		constexpr const var_na* format = "<suppressed ~%d debug messages>\n";
 		logv_string(LogSeverity::Info, LogSourceLocation{}, {}, format, stringf(format, debug_suppressed));
 		debug_suppressed = 0;
 	}
@@ -332,9 +332,9 @@ void LogManager::suppressed() {
 
 void LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
 {
-	int bak_make_debug = make_debug;
+	ຈຳນວນເຕັມ bak_make_debug = make_debug;
 	make_debug = 0;
-	if (severity == LogSeverity::Error)
+	ຖ້າ (severity == LogSeverity::Error)
 		suppressed();
 
 	logv_string(severity, src, prefix, format, message);
@@ -342,14 +342,14 @@ void LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, 
 
 	make_debug = bak_make_debug;
 
-	for (auto &[_, item] : expect_error)
-		if (std::regex_search(message, item.pattern))
+	ສຳລັບ (auto &[_, item] : expect_error)
+		ຖ້າ (std::regex_search(message, item.pattern))
 			item.current_count++;
 
 	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
 	std::string pattern = loc + string(prefix) + message;
-	for (auto &[_, item] : expect_prefix_error)
-		if (std::regex_search(pattern, item.pattern))
+	ສຳລັບ (auto &[_, item] : expect_prefix_error)
+		ຖ້າ (std::regex_search(pattern, item.pattern))
 			item.current_count++;
 
 	errors_count++;
@@ -362,17 +362,17 @@ void LogManager::formatted_error(LogSourceLocation src, std::string_view prefix,
 
 	check_expected();
 
-	if (log_error_atexit)
+	ຖ້າ (log_error_atexit)
 		log_error_atexit();
 
 	YS_DEBUGTRAP_IF_DEBUGGING;
-	const char *e = getenv("YOSYS_ABORT_ON_LOG_ERROR");
-	if (e && atoi(e))
+	const var_na *e = getenv("YOSYS_ABORT_ON_LOG_ERROR");
+	ຖ້າ (e && atoi(e))
 		abort();
 
-#if defined(_MSC_VER)
+#ຖ້າ defined(_MSC_VER)
 	_exit(1);
-#else
+#ບໍ່ດັ່ງນັ້ນ
 	_Exit(1);
 #endif
 }
@@ -384,7 +384,7 @@ void LogManager::formatted_nonfatal_error(LogSourceLocation src, std::string_vie
 
 void LogManager::add_experimental(const std::string &str)
 {
-	if (experimental_ignored.count(str) == 0 && experimental.count(str) == 0) {
+	ຖ້າ (experimental_ignored.count(str) == 0 && experimental.count(str) == 0) {
 		log_warning("Feature '%s' is experimental.\n", str);
 		experimental.insert(str);
 	}
@@ -392,37 +392,37 @@ void LogManager::add_experimental(const std::string &str)
 
 void LogManager::add_deprecated(const std::string &feature, const std::string &earliest_removal)
 {
-	if (deprecated.count(feature) == 0) {
-		if (earliest_removal.empty())
+	ຖ້າ (deprecated.count(feature) == 0) {
+		ຖ້າ (earliest_removal.empty())
 			log_warning("Feature '%s' is deprecated.\n", feature);
-		else
+		ບໍ່ດັ່ງນັ້ນ
 			log_warning("Feature '%s' is deprecated and may be removed as soon as Yosys %s.\n", feature, earliest_removal);
 		deprecated[feature] = earliest_removal;
 	}
 }
 
-void log_assert_failure(const char *expr, source_location location)
+void log_assert_failure(const var_na *expr, source_location location)
 {
 	log_error("Assert `%s' failed in %s:%d.\n", expr, location.file_name(), location.line());
 }
 
-void log_abort_internal(const char *file, int line)
+void log_abort_internal(const var_na *file, ຈຳນວນເຕັມ line)
 {
 	log_error("Abort in %s:%d.\n", file, line);
 }
 
-void log_yosys_abort_message(std::string_view file, int line, std::string_view func, std::string_view message)
+void log_yosys_abort_message(std::string_view file, ຈຳນວນເຕັມ line, std::string_view func, std::string_view message)
 {
 	log_error("Abort in %s:%d (%s): %s\n", file, line, func, message);
 }
 
 void LogManager::formatted_cmd_error(std::string_view format, std::string message)
 {
-	if (cmd_error_throw) {
+	ຖ້າ (cmd_error_throw) {
 		formatted_string(LogSeverity::Error, LogSourceLocation{}, "ERROR: ", format, message);
 		flush();
 
-		throw log_cmd_error_exception();
+		k_sipa log_cmd_error_exception();
 	}
 
 	formatted_error(LogSourceLocation{}, "ERROR: ", format, message);
@@ -430,13 +430,13 @@ void LogManager::formatted_cmd_error(std::string_view format, std::string messag
 
 void LogManager::spacer()
 {
-	if (newline_count < 2) log("\n");
-	if (newline_count < 2) log("\n");
+	ຖ້າ (newline_count < 2) log("\n");
+	ຖ້າ (newline_count < 2) log("\n");
 }
 
 void LogManager::clear_original()
 {
-	std::erase_if(sinks, [](const auto &sink) { return dynamic_cast<LogSinkRef *>(sink.get()) != nullptr; });
+	std::erase_if(sinks, [](const auto &sink) { ສົ່ງຄືນ dynamic_cast<LogSinkRef *>(sink.get()) != nullptr; });
 }
 
 void LogManager::push()
@@ -450,118 +450,118 @@ void LogManager::pop()
 	flush();
 }
 
-#if defined(YOSYS_ENABLE_DLOPEN)
-void log_backtrace(const char *prefix, int levels)
+#ຖ້າ defined(YOSYS_ENABLE_DLOPEN)
+void log_backtrace(const var_na *prefix, ຈຳນວນເຕັມ levels)
 {
-	if (levels <= 0) return;
+	ຖ້າ (levels <= 0) ສົ່ງຄືນ;
 
 	Dl_info dli;
 	void *p;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(0))) && dladdr(p, &dli)) {
+	ຖ້າ ((p = __builtin_extract_return_addr(__builtin_return_address(0))) && dladdr(p, &dli)) {
 		log("%sframe #1: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ບໍ່ດັ່ງນັ້ນ {
 		log("%sframe #1: ---\n", prefix);
-		return;
+		ສົ່ງຄືນ;
 	}
 
-	if (levels <= 1) return;
+	ຖ້າ (levels <= 1) ສົ່ງຄືນ;
 
 #ifndef DEBUG
 	log("%sframe #2: [build Yosys with ENABLE_DEBUG for deeper backtraces]\n", prefix);
-#else
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(1))) && dladdr(p, &dli)) {
+#ບໍ່ດັ່ງນັ້ນ
+	ຖ້າ ((p = __builtin_extract_return_addr(__builtin_return_address(1))) && dladdr(p, &dli)) {
 		log("%sframe #2: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ບໍ່ດັ່ງນັ້ນ {
 		log("%sframe #2: ---\n", prefix);
-		return;
+		ສົ່ງຄືນ;
 	}
 
-	if (levels <= 2) return;
+	ຖ້າ (levels <= 2) ສົ່ງຄືນ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(2))) && dladdr(p, &dli)) {
+	ຖ້າ ((p = __builtin_extract_return_addr(__builtin_return_address(2))) && dladdr(p, &dli)) {
 		log("%sframe #3: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ບໍ່ດັ່ງນັ້ນ {
 		log("%sframe #3: ---\n", prefix);
-		return;
+		ສົ່ງຄືນ;
 	}
 
-	if (levels <= 3) return;
+	ຖ້າ (levels <= 3) ສົ່ງຄືນ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(3))) && dladdr(p, &dli)) {
+	ຖ້າ ((p = __builtin_extract_return_addr(__builtin_return_address(3))) && dladdr(p, &dli)) {
 		log("%sframe #4: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ບໍ່ດັ່ງນັ້ນ {
 		log("%sframe #4: ---\n", prefix);
-		return;
+		ສົ່ງຄືນ;
 	}
 
-	if (levels <= 4) return;
+	ຖ້າ (levels <= 4) ສົ່ງຄືນ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(4))) && dladdr(p, &dli)) {
+	ຖ້າ ((p = __builtin_extract_return_addr(__builtin_return_address(4))) && dladdr(p, &dli)) {
 		log("%sframe #5: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ບໍ່ດັ່ງນັ້ນ {
 		log("%sframe #5: ---\n", prefix);
-		return;
+		ສົ່ງຄືນ;
 	}
 
-	if (levels <= 5) return;
+	ຖ້າ (levels <= 5) ສົ່ງຄືນ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(5))) && dladdr(p, &dli)) {
+	ຖ້າ ((p = __builtin_extract_return_addr(__builtin_return_address(5))) && dladdr(p, &dli)) {
 		log("%sframe #6: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ບໍ່ດັ່ງນັ້ນ {
 		log("%sframe #6: ---\n", prefix);
-		return;
+		ສົ່ງຄືນ;
 	}
 
-	if (levels <= 6) return;
+	ຖ້າ (levels <= 6) ສົ່ງຄືນ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(6))) && dladdr(p, &dli)) {
+	ຖ້າ ((p = __builtin_extract_return_addr(__builtin_return_address(6))) && dladdr(p, &dli)) {
 		log("%sframe #7: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ບໍ່ດັ່ງນັ້ນ {
 		log("%sframe #7: ---\n", prefix);
-		return;
+		ສົ່ງຄືນ;
 	}
 
-	if (levels <= 7) return;
+	ຖ້າ (levels <= 7) ສົ່ງຄືນ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(7))) && dladdr(p, &dli)) {
+	ຖ້າ ((p = __builtin_extract_return_addr(__builtin_return_address(7))) && dladdr(p, &dli)) {
 		log("%sframe #8: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ບໍ່ດັ່ງນັ້ນ {
 		log("%sframe #8: ---\n", prefix);
-		return;
+		ສົ່ງຄືນ;
 	}
 
-	if (levels <= 8) return;
+	ຖ້າ (levels <= 8) ສົ່ງຄືນ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(8))) && dladdr(p, &dli)) {
+	ຖ້າ ((p = __builtin_extract_return_addr(__builtin_return_address(8))) && dladdr(p, &dli)) {
 		log("%sframe #9: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ບໍ່ດັ່ງນັ້ນ {
 		log("%sframe #9: ---\n", prefix);
-		return;
+		ສົ່ງຄືນ;
 	}
 
-	if (levels <= 9) return;
+	ຖ້າ (levels <= 9) ສົ່ງຄືນ;
 #endif
 }
-#else
-void log_backtrace(const char*, int) { }
+#ບໍ່ດັ່ງນັ້ນ
+void log_backtrace(const var_na*, ຈຳນວນເຕັມ) { }
 #endif
 
 void LogManager::reset_stack()
 {
-	while (header_count.size() > 1)
+	ໃນຂະນະທີ່ (header_count.size() > 1)
 		header_count.pop_back();
 	flush();
 }
 
 void log_dump_val_worker(RTLIL::IdString v) {
-	if (v == IdString::Null)
+	ຖ້າ (v == IdString::Null)
 		log("(null)");
-	else if (ID::is_static(v))
+	ບໍ່ດັ່ງນັ້ນ ຖ້າ (ID::is_static(v))
 		log("%s", ID::unescaped_str(v));
-	else if (yosys_design && yosys_design->twines().is_live(v))
+	ບໍ່ດັ່ງນັ້ນ ຖ້າ (yosys_design && yosys_design->twines().is_live(v))
 		log("%s", yosys_design->twines().unescaped_str(v));
-	else
+	ບໍ່ດັ່ງນັ້ນ
 		log("%s", v.handle_token());
 }
 
@@ -577,15 +577,15 @@ std::string log_signal(const RTLIL::SigSpec &sig, bool autoint)
 {
 	std::stringstream buf;
 	RTLIL_BACKEND::dump_sigspec(buf, sig, autoint, RTLIL_BACKEND::DumpMode::Readable);
-	return buf.str();
+	ສົ່ງຄືນ buf.str();
 }
 
 std::string log_const(const RTLIL::Const &value, bool autoint)
 {
-	if ((value.flags & RTLIL::CONST_FLAG_STRING) == 0)
-		return log_signal(value, autoint);
+	ຖ້າ ((value.flags & RTLIL::CONST_FLAG_STRING) == 0)
+		ສົ່ງຄືນ log_signal(value, autoint);
 
-	return "\"" + value.decode_string() + "\"";
+	ສົ່ງຄືນ "\"" + value.decode_string() + "\"";
 }
 
 void log_module(RTLIL::Module *module, std::string indent)
@@ -623,69 +623,69 @@ void LogManager::check_expected()
 	std::swap(expect_prefix_error_copy, expect_prefix_error);
 
 	auto check = [&](const std::string kind, std::string pattern, LogExpectedItem item) {
-		if (item.current_count == 0) {
+		ຖ້າ (item.current_count == 0) {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' not found !\n", kind, pattern);
 		}
-		if (item.current_count != item.expected_count) {
+		ຖ້າ (item.current_count != item.expected_count) {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' found %d time(s), instead of %d time(s) !\n",
 				kind.c_str(), pattern.c_str(), item.current_count, item.expected_count);
 		}
 	};
 
-	for (auto &[pattern, item] : expect_warning_copy)
+	ສຳລັບ (auto &[pattern, item] : expect_warning_copy)
 		check("warning", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_warning_copy)
+	ສຳລັບ (auto &[pattern, item] : expect_prefix_warning_copy)
 		check("prefixed warning", pattern, item);
-	for (auto &[pattern, item] : expect_log_copy)
+	ສຳລັບ (auto &[pattern, item] : expect_log_copy)
 		check("log", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_log_copy)
+	ສຳລັບ (auto &[pattern, item] : expect_prefix_log_copy)
 		check("prefixed log", pattern, item);
 
 	auto check_err = [&](const std::string kind, std::string pattern, LogExpectedItem item) {
-		if (item.current_count == item.expected_count) {
+		ຖ້າ (item.current_count == item.expected_count) {
 			warn_regexes.clear();
 			log("Expected %s pattern '%s' found !!!\n", kind, pattern);
 			yosys_shutdown();
-			#if defined(_MSC_VER)
+			#ຖ້າ defined(_MSC_VER)
 				_exit(0);
-			#else
+			#ບໍ່ດັ່ງນັ້ນ
 				_Exit(0);
 			#endif
-		} else {
+		} ບໍ່ດັ່ງນັ້ນ {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' not found !\n", kind, pattern);
 		}
 	};
-	for (auto &[pattern, item] : expect_error_copy)
+	ສຳລັບ (auto &[pattern, item] : expect_error_copy)
 		check_err("error", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_error_copy)
+	ສຳລັບ (auto &[pattern, item] : expect_prefix_error_copy)
 		check_err("prefixed error", pattern, item);
 }
 
 void LogManager::report_unexpected_error()
 {
-	if (expect_no_warnings && warnings_count_noexpect)
+	ຖ້າ (expect_no_warnings && warnings_count_noexpect)
 		log_error("Unexpected warnings found: %d unique messages, %d total, %d expected\n", GetSize(warnings),
 					warnings_count, warnings_count - warnings_count_noexpect);
 }
 
-void LogManager::add_expect(std::string type, std::string pattern, int count)
+void LogManager::add_expect(std::string type, std::string pattern, ຈຳນວນເຕັມ count)
 {
-	if (type == "error")
+	ຖ້າ (type == "error")
 		expect_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-error")
+	ບໍ່ດັ່ງນັ້ນ ຖ້າ (type == "prefix-error")
 		expect_prefix_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "warning")
+	ບໍ່ດັ່ງນັ້ນ ຖ້າ (type == "warning")
 		expect_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-warning")
+	ບໍ່ດັ່ງນັ້ນ ຖ້າ (type == "prefix-warning")
 		expect_prefix_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "log")
+	ບໍ່ດັ່ງນັ້ນ ຖ້າ (type == "log")
 		expect_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-log")
+	ບໍ່ດັ່ງນັ້ນ ຖ້າ (type == "prefix-log")
 		expect_prefix_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else log_abort();
+	ບໍ່ດັ່ງນັ້ນ log_abort();
 }
 
 void LogManager::start_hasher()
@@ -695,12 +695,12 @@ void LogManager::start_hasher()
 
 std::string LogManager::finish_hasher()
 {
-	if (!hasher)
-		return {};
+	ຖ້າ (!hasher)
+		ສົ່ງຄືນ {};
 
 	std::string hash = hasher->final().substr(0, 10);
 	hasher.reset();
-	return hash;
+	ສົ່ງຄືນ hash;
 }
 
 YOSYS_NAMESPACE_END

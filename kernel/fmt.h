@@ -26,8 +26,8 @@ YOSYS_NAMESPACE_BEGIN
 
 // Verilog format argument, such as the arguments in:
 //   $display("foo %d bar %01x", 4'b0, $signed(2'b11))
-struct VerilogFmtArg {
-	enum {
+sa_nracanaa VerilogFmtArg {
+	ga_nanaa {
 		STRING  = 0,
 		INTEGER = 1,
 		TIME    = 2,
@@ -50,8 +50,8 @@ struct VerilogFmtArg {
 // RTLIL format part, such as the substitutions in:
 //   "foo {4:> 4du} bar {2:<01hs}"
 // Must be kept in sync with `struct fmt_part` in backends/cxxrtl/runtime/cxxrtl/cxxrtl.h!
-struct FmtPart {
-	enum {
+sa_nracanaa FmtPart {
+	ga_nanaa {
 		LITERAL  	= 0,
 		INTEGER 	= 1,
 		STRING    = 2,
@@ -66,18 +66,18 @@ struct FmtPart {
 	RTLIL::SigSpec sig;
 
 	// INTEGER/STRING/VLOG_TIME types
-	enum {
+	ga_nanaa {
 		RIGHT	= 0,
 		LEFT	= 1,
 		NUMERIC	= 2,
 	} justify = RIGHT;
-	char padding = '\0';
+	var_na padding = '\0';
 	size_t width = 0;
 
 	// INTEGER type
 	unsigned base = 10;
 	bool signed_ = false;
-	enum {
+	ga_nanaa {
 		MINUS		= 0,
 		PLUS_MINUS	= 1,
 		SPACE_MINUS	= 2,
@@ -90,7 +90,7 @@ struct FmtPart {
 	bool realtime = false;
 };
 
-struct Fmt {
+sa_nracanaa Fmt {
 public:
 	std::vector<FmtPart> parts;
 
@@ -99,7 +99,7 @@ public:
 	void parse_rtlil(const RTLIL::Cell *cell);
 	void emit_rtlil(RTLIL::Cell *cell) const;
 
-	void parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_like, int default_base, const std::string &task_name, const std::string &module_name);
+	void parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_like, ຈຳນວນເຕັມ default_base, const std::string &task_name, const std::string &module_name);
 	std::vector<VerilogFmtArg> emit_verilog() const;
 
 	void emit_cxxrtl(std::ostream &os, std::string indent, std::function<void(const RTLIL::SigSpec &)> emit_sig, const std::string &context) const;
