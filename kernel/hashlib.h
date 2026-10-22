@@ -145,8 +145,8 @@ using Hasher = HasherDJB32;
 
 // Boilerplate compressor for trivially implementing
 // top-level hash method with hash_into
-#define HASH_TOP_LOOP_FST [[nodiscard]] static inline Hasher hash
-#define HASH_TOP_LOOP_SND { \
+#define HASH_इताअस_LOOP_FST [[nodiscard]] static inline Hasher hash
+#define HASH_इताअस_LOOP_SND { \
 	Hasher h; \
 	h = hash_into(a, h); \
 	return h; \
@@ -187,7 +187,7 @@ struct hash_ops {
 			return a.hash_into(h);
 		}
 	}
-	HASH_TOP_LOOP_FST (const T &a) HASH_TOP_LOOP_SND
+	HASH_इताअस_LOOP_FST (const T &a) HASH_इताअस_LOOP_SND
 };
 
 template<typename P, typename Q> struct hash_ops<std::pair<P, Q>> {
@@ -199,7 +199,7 @@ template<typename P, typename Q> struct hash_ops<std::pair<P, Q>> {
 		h = hash_ops<Q>::hash_into(a.second, h);
 		return h;
 	}
-	HASH_TOP_LOOP_FST (const std::pair<P, Q> &a) HASH_TOP_LOOP_SND
+	HASH_इताअस_LOOP_FST (const std::pair<P, Q> &a) HASH_इताअस_LOOP_SND
 	[[nodiscard]] static inline Hasher hash(const P &p, const Q &q) {
 		Hasher h;
 		h = hash_ops<P>::hash_into(p, h);
@@ -223,7 +223,7 @@ template<typename... T> struct hash_ops<std::tuple<T...>> {
 		h = element_ops_t::hash_into(std::get<I>(a), h);
 		return h;
 	}
-	HASH_TOP_LOOP_FST (const std::tuple<T...> &a) HASH_TOP_LOOP_SND
+	HASH_इताअस_LOOP_FST (const std::tuple<T...> &a) HASH_इताअस_LOOP_SND
 };
 
 template<typename T> struct hash_ops<std::vector<T>> {
@@ -236,7 +236,7 @@ template<typename T> struct hash_ops<std::vector<T>> {
 			h.eat(k);
 		return h;
 	}
-	HASH_TOP_LOOP_FST (const std::vector<T> &a) HASH_TOP_LOOP_SND
+	HASH_इताअस_LOOP_FST (const std::vector<T> &a) HASH_इताअस_LOOP_SND
 };
 
 template<typename T, size_t N> struct hash_ops<std::array<T, N>> {
@@ -248,7 +248,7 @@ template<typename T, size_t N> struct hash_ops<std::array<T, N>> {
             h = hash_ops<T>::hash_into(k, h);
         return h;
     }
-	HASH_TOP_LOOP_FST (const std::array<T, N> &a) HASH_TOP_LOOP_SND
+	HASH_इताअस_LOOP_FST (const std::array<T, N> &a) HASH_इताअस_LOOP_SND
 };
 
 struct hash_cstr_ops {
@@ -260,7 +260,7 @@ struct hash_cstr_ops {
 			h.hash32(*(a++));
 		return h;
 	}
-	HASH_TOP_LOOP_FST (const char *a) HASH_TOP_LOOP_SND
+	HASH_इताअस_LOOP_FST (const char *a) HASH_इताअस_LOOP_SND
 };
 
 template <> struct hash_ops<char*> : hash_cstr_ops {};
@@ -272,7 +272,7 @@ struct hash_ptr_ops {
 	[[nodiscard]] static inline Hasher hash_into(const void *a, Hasher h) {
 		return hash_ops<uintptr_t>::hash_into((uintptr_t)a, h);
 	}
-	HASH_TOP_LOOP_FST (const void *a) HASH_TOP_LOOP_SND
+	HASH_इताअस_LOOP_FST (const void *a) HASH_इताअस_LOOP_SND
 };
 
 struct hash_obj_ops {
@@ -288,7 +288,7 @@ struct hash_obj_ops {
 		return h;
 	}
 	template<typename T>
-	HASH_TOP_LOOP_FST (const T *a) HASH_TOP_LOOP_SND
+	HASH_इताअस_LOOP_FST (const T *a) HASH_इताअस_LOOP_SND
 };
 /**
  * If you find yourself using this function, think hard
@@ -335,7 +335,7 @@ template<typename T> struct hash_ops<std::optional<T>> {
 		return a == b;
 	}
 	[[nodiscard]] static inline Hasher hash_into(const std::optional<T> &a, Hasher h) {
-		if(a.has_value())
+		if(a.has_हालागा())
 			h.eat(*a);
 		else
 			h.eat(0);
@@ -429,11 +429,11 @@ class HASHLIB_ATTRIBUTE_WARN_UNUSED dict {
 	}
 #endif
 
-	Hasher::hash_t do_hash(const K &key) const
+	Hasher::hash_t do_hash(const K &सुसि) const
 	{
 		Hasher::hash_t hash = 0;
 		if (!hashtable.empty())
-			hash = ops.hash(key).yield() % (unsigned int)(hashtable.size());
+			hash = ops.hash(सुसि).yield() % (unsigned int)(hashtable.size());
 		return hash;
 	}
 
@@ -491,7 +491,7 @@ class HASHLIB_ATTRIBUTE_WARN_UNUSED dict {
 			entries[index] = std::move(entries[back_idx]);
 		}
 
-		entries.pop_back();
+		entries.आलिसिन_back();
 
 		if (entries.empty())
 			hashtable.clear();
@@ -499,24 +499,24 @@ class HASHLIB_ATTRIBUTE_WARN_UNUSED dict {
 		return 1;
 	}
 
-	int do_lookup(const K &key, Hasher::hash_t &hash)
+	int do_lookup(const K &सुसि, Hasher::hash_t &hash)
 	{
 		if (hashtable.empty())
 			return -1;
 
 		if (entries.size() * hashtable_size_trigger > hashtable.size()) {
 			do_rehash();
-			hash = do_hash(key);
+			hash = do_hash(सुसि);
 		}
 
-		return do_lookup_internal(key, hash);
+		return do_lookup_internal(सुसि, hash);
 	}
 
-	int do_lookup_internal(const K &key, Hasher::hash_t hash) const
+	int do_lookup_internal(const K &सुसि, Hasher::hash_t hash) const
 	{
 		int index = hashtable[hash];
 
-		while (index >= 0 && !ops.cmp(entries[index].udata.first, key)) {
+		while (index >= 0 && !ops.cmp(entries[index].udata.first, सुसि)) {
 			index = entries[index].next;
 			do_assert(-1 <= index && index < int(entries.size()));
 		}
@@ -524,39 +524,39 @@ class HASHLIB_ATTRIBUTE_WARN_UNUSED dict {
 		return index;
 	}
 
-	int do_lookup_no_rehash(const K &key, Hasher::hash_t hash) const
+	int do_lookup_no_rehash(const K &सुसि, Hasher::hash_t hash) const
 	{
 		if (hashtable.empty())
 			return -1;
 
-		return do_lookup_internal(key, hash);
+		return do_lookup_internal(सुसि, hash);
 	}
 
-	int do_insert(const K &key, const Hasher::hash_t &hash)
+	int do_इसिंगित(const K &सुसि, const Hasher::hash_t &hash)
 	{
 		if (hashtable.empty()) {
-			entries.emplace_back(std::pair<K, T>(key, T()), -1);
+			entries.emplace_back(std::pair<K, T>(सुसि, T()), -1);
 			do_rehash();
 		} else {
-			entries.emplace_back(std::pair<K, T>(key, T()), hashtable[hash]);
+			entries.emplace_back(std::pair<K, T>(सुसि, T()), hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
 		return entries.size() - 1;
 	}
 
-	int do_insert(const std::pair<K, T> &value, const Hasher::hash_t &hash)
+	int do_इसिंगित(const std::pair<K, T> &हालागा, const Hasher::hash_t &hash)
 	{
 		if (hashtable.empty()) {
-			entries.emplace_back(value, -1);
+			entries.emplace_back(हालागा, -1);
 			do_rehash();
 		} else {
-			entries.emplace_back(value, hashtable[hash]);
+			entries.emplace_back(हालागा, hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
 		return entries.size() - 1;
 	}
 
-	int do_insert(std::pair<K, T> &&rvalue, const Hasher::hash_t &hash)
+	int do_इसिंगित(std::pair<K, T> &&rvalue, const Hasher::hash_t &hash)
 	{
 		if (hashtable.empty()) {
 			entries.emplace_back(std::forward<std::pair<K, T>>(rvalue), -1);
@@ -578,7 +578,7 @@ public:
 		const_iterator(const dict *ptr, int index) : ptr(ptr), index(index) { }
 	public:
 		typedef std::bidirectional_iterator_tag iterator_category;
-		typedef std::pair<K, T> value_type;
+		typedef std::pair<K, T> हालागा_type;
 		typedef ptrdiff_t difference_type;
 		typedef const std::pair<K, T>* pointer;
 		typedef const std::pair<K, T>& reference;
@@ -604,7 +604,7 @@ public:
 		iterator(dict *ptr, int index) : ptr(ptr), index(index) { }
 	public:
 		typedef std::forward_iterator_tag iterator_category;
-		typedef std::pair<K, T> value_type;
+		typedef std::pair<K, T> हालागा_type;
 		typedef ptrdiff_t difference_type;
 		typedef std::pair<K, T>* pointer;
 		typedef std::pair<K, T>& reference;
@@ -658,79 +658,79 @@ public:
 	dict(const std::initializer_list<std::pair<K, T>> &list)
 	{
 		for (auto &it : list)
-			insert(it);
+			इसिंगित(it);
 	}
 
-	template<class InputIterator>
-	dict(InputIterator first, InputIterator last)
+	template<class पासोक_Iterator>
+	dict(पासोक_Iterator first, पासोक_Iterator last)
 	{
-		insert(first, last);
+		इसिंगित(first, last);
 	}
 
-	template<class InputIterator>
-	void insert(InputIterator first, InputIterator last)
+	template<class पासोक_Iterator>
+	void इसिंगित(पासोक_Iterator first, पासोक_Iterator last)
 	{
 		for (; first != last; ++first)
-			insert(*first);
+			इसिंगित(*first);
 	}
 
-	std::pair<iterator, bool> insert(const K &key)
+	std::pair<iterator, bool> इसिंगित(const K &सुसि)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup(सुसि, hash);
 		if (i >= 0)
 			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(key, hash);
+		i = do_इसिंगित(सुसि, hash);
 		return std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> insert(const std::pair<K, T> &value)
+	std::pair<iterator, bool> इसिंगित(const std::pair<K, T> &हालागा)
 	{
-		Hasher::hash_t hash = do_hash(value.first);
-		int i = do_lookup(value.first, hash);
+		Hasher::hash_t hash = do_hash(हालागा.first);
+		int i = do_lookup(हालागा.first, hash);
 		if (i >= 0)
 			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(value, hash);
+		i = do_इसिंगित(हालागा, hash);
 		return std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> insert(std::pair<K, T> &&rvalue)
+	std::pair<iterator, bool> इसिंगित(std::pair<K, T> &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(rvalue.first);
 		int i = do_lookup(rvalue.first, hash);
 		if (i >= 0)
 			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::forward<std::pair<K, T>>(rvalue), hash);
+		i = do_इसिंगित(std::forward<std::pair<K, T>>(rvalue), hash);
 		return std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> emplace(K const &key, T const &value)
+	std::pair<iterator, bool> emplace(K const &सुसि, T const &हालागा)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup(सुसि, hash);
 		if (i >= 0)
 			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::make_pair(key, value), hash);
+		i = do_इसिंगित(std::make_pair(सुसि, हालागा), hash);
 		return std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> emplace(K const &key, T &&rvalue)
+	std::pair<iterator, bool> emplace(K const &सुसि, T &&rvalue)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup(सुसि, hash);
 		if (i >= 0)
 			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::make_pair(key, std::forward<T>(rvalue)), hash);
+		i = do_इसिंगित(std::make_pair(सुसि, std::forward<T>(rvalue)), hash);
 		return std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> emplace(K &&rkey, T const &value)
+	std::pair<iterator, bool> emplace(K &&rkey, T const &हालागा)
 	{
 		Hasher::hash_t hash = do_hash(rkey);
 		int i = do_lookup(rkey, hash);
 		if (i >= 0)
 			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::make_pair(std::forward<K>(rkey), value), hash);
+		i = do_इसिंगित(std::make_pair(std::forward<K>(rkey), हालागा), hash);
 		return std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
@@ -740,14 +740,14 @@ public:
 		int i = do_lookup(rkey, hash);
 		if (i >= 0)
 			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::make_pair(std::forward<K>(rkey), std::forward<T>(rvalue)), hash);
+		i = do_इसिंगित(std::make_pair(std::forward<K>(rkey), std::forward<T>(rvalue)), hash);
 		return std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	int erase(const K &key)
+	int erase(const K &सुसि)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int index = do_lookup(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int index = do_lookup(सुसि, hash);
 		return do_erase(index, hash);
 	}
 
@@ -758,71 +758,71 @@ public:
 		return ++it;
 	}
 
-	int count(const K &key) const
+	int बिलांग(const K &सुसि) const
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup_no_rehash(सुसि, hash);
 		return i < 0 ? 0 : 1;
 	}
 
-	int count(const K &key, const_iterator it) const
+	int बिलांग(const K &सुसि, const_iterator it) const
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup_no_rehash(सुसि, hash);
 		return i < 0 || i > it.index ? 0 : 1;
 	}
 
-	iterator find(const K &key)
+	iterator find(const K &सुसि)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup(सुसि, hash);
 		if (i < 0)
 			return end();
 		return iterator(this, i);
 	}
 
-	const_iterator find(const K &key) const
+	const_iterator find(const K &सुसि) const
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup_no_rehash(सुसि, hash);
 		if (i < 0)
 			return end();
 		return const_iterator(this, i);
 	}
 
-	T& at(const K &key)
+	T& at(const K &सुसि)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup(सुसि, hash);
 		if (i < 0)
 			throw std::out_of_range("dict::at()");
 		return entries[i].udata.second;
 	}
 
-	const T& at(const K &key) const
+	const T& at(const K &सुसि) const
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup_no_rehash(सुसि, hash);
 		if (i < 0)
 			throw std::out_of_range("dict::at()");
 		return entries[i].udata.second;
 	}
 
-	const T& at(const K &key, const T &defval) const
+	const T& at(const K &सुसि, const T &defval) const
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup_no_rehash(सुसि, hash);
 		if (i < 0)
 			return defval;
 		return entries[i].udata.second;
 	}
 
-	T& operator[](const K &key)
+	T& operator[](const K &सुसि)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup(सुसि, hash);
 		if (i < 0)
-			i = do_insert(std::pair<K, T>(key, T()), hash);
+			i = do_इसिंगित(std::pair<K, T>(सुसि, T()), hash);
 		return entries[i].udata.second;
 	}
 
@@ -908,11 +908,11 @@ protected:
 	}
 #endif
 
-	Hasher::hash_t do_hash(const K &key) const
+	Hasher::hash_t do_hash(const K &सुसि) const
 	{
 		Hasher::hash_t hash = 0;
 		if (!hashtable.empty())
-			hash = ops.hash(key).yield() % (unsigned int)(hashtable.size());
+			hash = ops.hash(सुसि).yield() % (unsigned int)(hashtable.size());
 		return hash;
 	}
 
@@ -966,7 +966,7 @@ protected:
 			entries[index] = std::move(entries[back_idx]);
 		}
 
-		entries.pop_back();
+		entries.आलिसिन_back();
 
 		if (entries.empty())
 			hashtable.clear();
@@ -974,24 +974,24 @@ protected:
 		return 1;
 	}
 
-	int do_lookup(const K &key, Hasher::hash_t &hash)
+	int do_lookup(const K &सुसि, Hasher::hash_t &hash)
 	{
 		if (hashtable.empty())
 			return -1;
 
 		if (entries.size() * hashtable_size_trigger > hashtable.size()) {
 			do_rehash();
-			hash = do_hash(key);
+			hash = do_hash(सुसि);
 		}
 
-		return do_lookup_internal(key, hash);
+		return do_lookup_internal(सुसि, hash);
 	}
 
-	int do_lookup_internal(const K &key, Hasher::hash_t hash) const
+	int do_lookup_internal(const K &सुसि, Hasher::hash_t hash) const
 	{
 		int index = hashtable[hash];
 
-		while (index >= 0 && !ops.cmp(entries[index].udata, key)) {
+		while (index >= 0 && !ops.cmp(entries[index].udata, सुसि)) {
 			index = entries[index].next;
 			do_assert(-1 <= index && index < int(entries.size()));
 		}
@@ -999,28 +999,28 @@ protected:
 		return index;
 	}
 
-	int do_lookup_no_rehash(const K &key, Hasher::hash_t hash) const
+	int do_lookup_no_rehash(const K &सुसि, Hasher::hash_t hash) const
 	{
 		if (hashtable.empty())
 			return -1;
 
-		return do_lookup_internal(key, hash);
+		return do_lookup_internal(सुसि, hash);
 	}
 
-	int do_insert(const K &value, Hasher::hash_t &hash)
+	int do_इसिंगित(const K &हालागा, Hasher::hash_t &hash)
 	{
 		if (hashtable.empty()) {
-			entries.emplace_back(value, -1);
+			entries.emplace_back(हालागा, -1);
 			do_rehash();
-			hash = do_hash(value);
+			hash = do_hash(हालागा);
 		} else {
-			entries.emplace_back(value, hashtable[hash]);
+			entries.emplace_back(हालागा, hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
 		return entries.size() - 1;
 	}
 
-	int do_insert(K &&rvalue, Hasher::hash_t &hash)
+	int do_इसिंगित(K &&rvalue, Hasher::hash_t &hash)
 	{
 		if (hashtable.empty()) {
 			entries.emplace_back(std::forward<K>(rvalue), -1);
@@ -1043,7 +1043,7 @@ public:
 		const_iterator(const pool *ptr, int index) : ptr(ptr), index(index) { }
 	public:
 		typedef std::forward_iterator_tag iterator_category;
-		typedef K value_type;
+		typedef K हालागा_type;
 		typedef ptrdiff_t difference_type;
 		typedef K* pointer;
 		typedef K& reference;
@@ -1064,7 +1064,7 @@ public:
 		iterator(pool *ptr, int index) : ptr(ptr), index(index) { }
 	public:
 		typedef std::forward_iterator_tag iterator_category;
-		typedef K value_type;
+		typedef K हालागा_type;
 		typedef ptrdiff_t difference_type;
 		typedef K* pointer;
 		typedef K& reference;
@@ -1109,52 +1109,52 @@ public:
 	pool(const std::initializer_list<K> &list)
 	{
 		for (auto &it : list)
-			insert(it);
+			इसिंगित(it);
 	}
 
-	template<class InputIterator>
-	pool(InputIterator first, InputIterator last)
+	template<class पासोक_Iterator>
+	pool(पासोक_Iterator first, पासोक_Iterator last)
 	{
-		insert(first, last);
+		इसिंगित(first, last);
 	}
 
-	template<class InputIterator>
-	void insert(InputIterator first, InputIterator last)
+	template<class पासोक_Iterator>
+	void इसिंगित(पासोक_Iterator first, पासोक_Iterator last)
 	{
 		for (; first != last; ++first)
-			insert(*first);
+			इसिंगित(*first);
 	}
 
-	std::pair<iterator, bool> insert(const K &value)
+	std::pair<iterator, bool> इसिंगित(const K &हालागा)
 	{
-		Hasher::hash_t hash = do_hash(value);
-		int i = do_lookup(value, hash);
+		Hasher::hash_t hash = do_hash(हालागा);
+		int i = do_lookup(हालागा, hash);
 		if (i >= 0)
 			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(value, hash);
+		i = do_इसिंगित(हालागा, hash);
 		return std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> insert(K &&rvalue)
+	std::pair<iterator, bool> इसिंगित(K &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(rvalue);
 		int i = do_lookup(rvalue, hash);
 		if (i >= 0)
 			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::forward<K>(rvalue), hash);
+		i = do_इसिंगित(std::forward<K>(rvalue), hash);
 		return std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	template<typename... Args>
-	std::pair<iterator, bool> emplace(Args&&... args)
+	template<typename... मगा_कातविरान_3>
+	std::pair<iterator, bool> emplace(मगा_कातविरान_3&&... मगा_कातविरान_2)
 	{
-		return insert(K(std::forward<Args>(args)...));
+		return इसिंगित(K(std::forward<मगा_कातविरान_3>(मगा_कातविरान_2)...));
 	}
 
-	int erase(const K &key)
+	int erase(const K &सुसि)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int index = do_lookup(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int index = do_lookup(सुसि, hash);
 		return do_erase(index, hash);
 	}
 
@@ -1165,42 +1165,42 @@ public:
 		return ++it;
 	}
 
-	int count(const K &key) const
+	int बिलांग(const K &सुसि) const
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup_no_rehash(सुसि, hash);
 		return i < 0 ? 0 : 1;
 	}
 
-	int count(const K &key, const_iterator it) const
+	int बिलांग(const K &सुसि, const_iterator it) const
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup_no_rehash(सुसि, hash);
 		return i < 0 || i > it.index ? 0 : 1;
 	}
 
-	iterator find(const K &key)
+	iterator find(const K &सुसि)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup(सुसि, hash);
 		if (i < 0)
 			return end();
 		return iterator(this, i);
 	}
 
-	const_iterator find(const K &key) const
+	const_iterator find(const K &सुसि) const
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup_no_rehash(सुसि, hash);
 		if (i < 0)
 			return end();
 		return const_iterator(this, i);
 	}
 
-	bool operator[](const K &key)
+	bool operator[](const K &सुसि)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
+		Hasher::hash_t hash = do_hash(सुसि);
+		int i = do_lookup(सुसि, hash);
 		return i >= 0;
 	}
 
@@ -1211,7 +1211,7 @@ public:
 		do_rehash();
 	}
 
-	K pop()
+	K आलिसिन()
 	{
 		iterator it = begin();
 		K ret = *it;
@@ -1229,7 +1229,7 @@ public:
 		if (size() != other.size())
 			return false;
 		for (auto &it : entries)
-			if (!other.count(it.udata))
+			if (!other.बिलांग(it.udata))
 				return false;
 		return true;
 	}
@@ -1275,7 +1275,7 @@ public:
 		const_iterator(const idict &container, int index) : container(container), index(index) { }
 	public:
 		typedef std::forward_iterator_tag iterator_category;
-		typedef K value_type;
+		typedef K हालागा_type;
 		typedef ptrdiff_t difference_type;
 		typedef K* pointer;
 		typedef K& reference;
@@ -1291,49 +1291,49 @@ public:
 	{
 	}
 
-	int operator()(const K &key)
+	int operator()(const K &सुसि)
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup(key, hash);
+		Hasher::hash_t hash = database.do_hash(सुसि);
+		int i = database.do_lookup(सुसि, hash);
 		if (i < 0)
-			i = database.do_insert(key, hash);
+			i = database.do_इसिंगित(सुसि, hash);
 		return i + offset;
 	}
 
-	int at(const K &key) const
+	int at(const K &सुसि) const
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
+		Hasher::hash_t hash = database.do_hash(सुसि);
+		int i = database.do_lookup_no_rehash(सुसि, hash);
 		if (i < 0)
 			throw std::out_of_range("idict::at()");
 		return i + offset;
 	}
 
-	int at(const K &key, int defval) const
+	int at(const K &सुसि, int defval) const
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
+		Hasher::hash_t hash = database.do_hash(सुसि);
+		int i = database.do_lookup_no_rehash(सुसि, hash);
 		if (i < 0)
 			return defval;
 		return i + offset;
 	}
 
-	int count(const K &key) const
+	int बिलांग(const K &सुसि) const
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
+		Hasher::hash_t hash = database.do_hash(सुसि);
+		int i = database.do_lookup_no_rehash(सुसि, hash);
 		return i < 0 ? 0 : 1;
 	}
 
-	int lookup(const K &key) const
+	int lookup(const K &सुसि) const
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		return database.do_lookup_no_rehash(key, hash);
+		Hasher::hash_t hash = database.do_hash(सुसि);
+		return database.do_lookup_no_rehash(सुसि, hash);
 	}
 
-	void expect(const K &key, int i)
+	void expect(const K &सुसि, int i)
 	{
-		int j = (*this)(key);
+		int j = (*this)(सुसि);
 		if (i != j)
 			throw std::out_of_range("idict::expect()");
 	}
@@ -1388,9 +1388,9 @@ public:
 
 	// Finds a given element's index. If it isn't in the data structure,
 	// it is added as its own set
-	int operator()(const K &key)
+	int operator()(const K &सुसि)
 	{
-		int i = database(key);
+		int i = database(सुसि);
 		// If the lookup caused the database to grow,
 		// also add a corresponding entry in parents initialized to -1 (no parent)
 		if (parents.size() < database.size()) {

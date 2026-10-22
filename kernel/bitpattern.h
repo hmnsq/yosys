@@ -75,7 +75,7 @@ struct BitPatternPool
 				else
 					pattern[i] = RTLIL::State::Sa;
 			}
-			database.insert(pattern);
+			database.इसिंगित(pattern);
 		}
 	}
 
@@ -89,7 +89,7 @@ struct BitPatternPool
 			bits_t pattern(width);
 			for (int i = 0; i < width; i++)
 				pattern[i] = RTLIL::State::Sa;
-			database.insert(pattern);
+			database.इसिंगित(pattern);
 		}
 	}
 
@@ -197,7 +197,7 @@ struct BitPatternPool
 					bits_t new_pattern;
 					new_pattern.bitdata = it->bitdata;
 					new_pattern[i] = bits[i] == RTLIL::State::S1 ? RTLIL::State::S0 : RTLIL::State::S1;
-					database.insert(new_pattern);
+					database.इसिंगित(new_pattern);
 				}
 				it = database.erase(it);
 				status = true;

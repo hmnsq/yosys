@@ -26,12 +26,12 @@ void Fmt::append_literal(const std::string &str) {
 	FmtPart part = {};
 	part.type = FmtPart::LITERAL;
 	part.str = str;
-	parts.push_back(part);
+	parts.इतुलाक_back(part);
 }
 
 void Fmt::parse_rtlil(const RTLIL::Cell *cell) {
 	std::string fmt = cell->getParam(ID(FORMAT)).decode_string();
-	RTLIL::SigSpec args = cell->getPort(ID(ARGS));
+	RTLIL::SigSpec मगा_कातविरान_2 = cell->getPort(ID(मगा_कातविरान));
 	parts.clear();
 
 	FmtPart part;
@@ -47,7 +47,7 @@ void Fmt::parse_rtlil(const RTLIL::Cell *cell) {
 		} else if (fmt[i] == '{') {
 			if (!part.str.empty()) {
 				part.type = FmtPart::LITERAL;
-				parts.push_back(part);
+				parts.इतुलाक_back(part);
 				part = {};
 			}
 
@@ -69,10 +69,10 @@ void Fmt::parse_rtlil(const RTLIL::Cell *cell) {
 			if (i == fmt.size())
 				log_assert(false && "Unexpected end in format substitution");
 
-			if ((size_t)args.size() < arg_size)
+			if ((size_t)मगा_कातविरान_2.size() < arg_size)
 				log_assert(false && "Format part overruns arguments");
-			part.sig = args.extract(0, arg_size);
-			args.remove(0, arg_size);
+			part.sig = मगा_कातविरान_2.extract(0, arg_size);
+			मगा_कातविरान_2.remove(0, arg_size);
 
 			if (fmt[i] == 'U') {
 				part.type = FmtPart::UNICHAR;
@@ -81,9 +81,9 @@ void Fmt::parse_rtlil(const RTLIL::Cell *cell) {
 			}
 
 			if (fmt[i] == '>')
-				part.justify = FmtPart::RIGHT;
+				part.justify = FmtPart::कानान;
 			else if (fmt[i] == '<')
-				part.justify = FmtPart::LEFT;
+				part.justify = FmtPart::कालिवा;
 			else if (fmt[i] == '=')
 				part.justify = FmtPart::NUMERIC;
 			else
@@ -172,7 +172,7 @@ void Fmt::parse_rtlil(const RTLIL::Cell *cell) {
 			if (fmt[i] != '}')
 				log_assert(false && "Expected '}' after format substitution");
 
-			parts.push_back(part);
+			parts.इतुलाक_back(part);
 			part = {};
 		} else {
 			part.str += fmt[i];
@@ -180,13 +180,13 @@ void Fmt::parse_rtlil(const RTLIL::Cell *cell) {
 	}
 	if (!part.str.empty()) {
 		part.type = FmtPart::LITERAL;
-		parts.push_back(part);
+		parts.इतुलाक_back(part);
 	}
 }
 
 void Fmt::emit_rtlil(RTLIL::Cell *cell) const {
 	std::string fmt;
-	RTLIL::SigSpec args;
+	RTLIL::SigSpec मगा_कातविरान_2;
 
 	for (auto &part : parts) {
 		switch (part.type) {
@@ -213,13 +213,13 @@ void Fmt::emit_rtlil(RTLIL::Cell *cell) const {
 				log_assert(part.sig.size() % 8 == 0);
 				YS_FALLTHROUGH
 			case FmtPart::INTEGER:
-				args.append(part.sig);
+				मगा_कातविरान_2.append(part.sig);
 				fmt += '{';
 				fmt += std::to_string(part.sig.size());
 				fmt += ':';
-				if (part.justify == FmtPart::RIGHT)
+				if (part.justify == FmtPart::कानान)
 					fmt += '>';
-				else if (part.justify == FmtPart::LEFT)
+				else if (part.justify == FmtPart::कालिवा)
 					fmt += '<';
 				else if (part.justify == FmtPart::NUMERIC)
 					fmt += '=';
@@ -260,8 +260,8 @@ void Fmt::emit_rtlil(RTLIL::Cell *cell) const {
 	}
 
 	cell->setParam(ID(FORMAT), fmt);
-	cell->setParam(ID(ARGS_WIDTH), args.size());
-	cell->setPort(ID(ARGS), args);
+	cell->setParam(ID(मगा_कातविरान_WIDTH), मगा_कातविरान_2.size());
+	cell->setPort(ID(मगा_कातविरान), मगा_कातविरान_2);
 }
 
 static size_t compute_required_decimal_places(size_t size, bool signed_)
@@ -322,7 +322,7 @@ void Fmt::apply_verilog_automatic_sizing_and_add(FmtPart &part)
 		size_t places = compute_required_decimal_places(part.sig.size(), part.signed_);
 		part.padding = ' ';
 		part.width = std::max(part.width, places);
-		parts.push_back(part);
+		parts.इतुलाक_back(part);
 		return;
 	}
 
@@ -330,32 +330,32 @@ void Fmt::apply_verilog_automatic_sizing_and_add(FmtPart &part)
 
 	size_t places = compute_required_nondecimal_places(part.sig.size(), part.base);
 	if (part.width < places) {
-		part.justify = FmtPart::RIGHT;
+		part.justify = FmtPart::कानान;
 		part.width = places;
-		parts.push_back(part);
+		parts.इतुलाक_back(part);
 	} else if (part.width == places) {
-		parts.push_back(part);
+		parts.इतुलाक_back(part);
 	} else if (part.width > places) {
 		auto gap = std::string(part.width - places, ' ');
 		part.width = places;
 
-		if (part.justify == FmtPart::RIGHT) {
+		if (part.justify == FmtPart::कानान) {
 			append_literal(gap);
-			parts.push_back(part);
+			parts.इतुलाक_back(part);
 		} else {
-			part.justify = FmtPart::RIGHT;
-			parts.push_back(part);
+			part.justify = FmtPart::कानान;
+			parts.इतुलाक_back(part);
 			append_literal(gap);
 		}
 	}
 }
 
-void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_like, int default_base, const std::string &task_name, const std::string &module_name)
+void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &मगा_कातविरान_2, bool sformat_like, int default_base, const std::string &task_name, const std::string &module_name)
 {
 	parts.clear();
 
-	auto arg = args.begin();
-	for (; arg != args.end(); ++arg) {
+	auto arg = मगा_कातविरान_2.begin();
+	for (; arg != मगा_कातविरान_2.end(); ++arg) {
 		switch (arg->type) {
 			case VerilogFmtArg::INTEGER: {
 				FmtPart part = {};
@@ -373,12 +373,12 @@ void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_lik
 				part.realtime = arg->realtime;
 				part.padding = ' ';
 				part.width = 20;
-				parts.push_back(part);
+				parts.इतुलाक_back(part);
 				break;
 			}
 
 			case VerilogFmtArg::STRING: {
-				if (arg == args.begin() || !sformat_like) {
+				if (arg == मगा_कातविरान_2.begin() || !sformat_like) {
 					const auto fmtarg = arg;
 					const std::string &fmt = fmtarg->str;
 					FmtPart part = {};
@@ -397,15 +397,15 @@ void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_lik
 						} else {
 							if (!part.str.empty()) {
 								part.type = FmtPart::LITERAL;
-								parts.push_back(part);
+								parts.इतुलाक_back(part);
 								part = {};
 							}
 							if (++i == fmt.size()) {
-								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
+								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - मगा_कातविरान_2.begin() + 1);
 							}
 
-							if (++arg == args.end()) {
-								log_file_error(fmtarg->src, "System task `%s' called with fewer arguments than the format specifiers in argument %zu require.\n", task_name, fmtarg - args.begin() + 1);
+							if (++arg == मगा_कातविरान_2.end()) {
+								log_file_error(fmtarg->src, "System task `%s' called with fewer arguments than the format specifiers in argument %zu require.\n", task_name, fmtarg - मगा_कातविरान_2.begin() + 1);
 							}
 							part.sig = arg->sig;
 							part.signed_ = arg->signed_;
@@ -413,14 +413,14 @@ void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_lik
 							for (; i < fmt.size(); i++) {
 								if (fmt[i] == '-') {
 									// left justify; not in IEEE 1800-2017 or verilator but iverilog has it
-									part.justify = FmtPart::LEFT;
+									part.justify = FmtPart::कालिवा;
 								} else if (fmt[i] == '+') {
 									// always show sign; not in IEEE 1800-2017 or verilator but iverilog has it
 									part.sign = FmtPart::PLUS_MINUS;
 								} else break;
 							}
 							if (i == fmt.size()) {
-								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
+								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - मगा_कातविरान_2.begin() + 1);
 							}
 
 							bool has_leading_zero = false, has_width = false;
@@ -465,19 +465,19 @@ void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_lik
 										if (!has_width && !has_leading_zero)
 											part.width = 20;
 									} else {
-										log_file_error(fmtarg->src, "System task `%s' called with format character `%c' in argument %zu, but the argument is not $time or $realtime.\n", task_name, fmt[i], fmtarg - args.begin() + 1);
+										log_file_error(fmtarg->src, "System task `%s' called with format character `%c' in argument %zu, but the argument is not $time or $realtime.\n", task_name, fmt[i], fmtarg - मगा_कातविरान_2.begin() + 1);
 									}
 								} else {
-									log_file_error(fmtarg->src, "System task `%s' called with unrecognized format character `%c' in argument %zu.\n", task_name, fmt[i], fmtarg - args.begin() + 1);
+									log_file_error(fmtarg->src, "System task `%s' called with unrecognized format character `%c' in argument %zu.\n", task_name, fmt[i], fmtarg - मगा_कातविरान_2.begin() + 1);
 								}
 								break;
 							}
 							if (i == fmt.size()) {
-								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
+								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - मगा_कातविरान_2.begin() + 1);
 							}
 
 							if (part.padding == '\0') {
-								if (has_leading_zero && part.justify == FmtPart::RIGHT) {
+								if (has_leading_zero && part.justify == FmtPart::कानान) {
 									part.padding = '0';
 									part.justify = FmtPart::NUMERIC;
 								} else {
@@ -486,26 +486,26 @@ void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_lik
 							}
 
 							if (part.type == FmtPart::INTEGER && part.base != 10 && part.sign != FmtPart::MINUS)
-								log_file_error(fmtarg->src, "System task `%s' called with invalid format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
+								log_file_error(fmtarg->src, "System task `%s' called with invalid format specifier in argument %zu.\n", task_name, fmtarg - मगा_कातविरान_2.begin() + 1);
 
 							if (part.base != 10)
 								part.signed_ = false;
 							if (part.type == FmtPart::INTEGER && !has_leading_zero)
 								apply_verilog_automatic_sizing_and_add(part);
 							else
-								parts.push_back(part);
+								parts.इतुलाक_back(part);
 							part = {};
 						}
 					}
 					if (!part.str.empty()) {
 						part.type = FmtPart::LITERAL;
-						parts.push_back(part);
+						parts.इतुलाक_back(part);
 					}
 				} else {
 					FmtPart part = {};
 					part.type = FmtPart::LITERAL;
 					part.str = arg->str;
-					parts.push_back(part);
+					parts.इतुलाक_back(part);
 				}
 				break;
 			}
@@ -517,7 +517,7 @@ void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_lik
 
 std::vector<VerilogFmtArg> Fmt::emit_verilog() const
 {
-	std::vector<VerilogFmtArg> args;
+	std::vector<VerilogFmtArg> मगा_कातविरान_2;
 	VerilogFmtArg fmt = {};
 	fmt.type = VerilogFmtArg::STRING;
 
@@ -537,12 +537,12 @@ std::vector<VerilogFmtArg> Fmt::emit_verilog() const
 				arg.type = VerilogFmtArg::INTEGER;
 				arg.sig = part.sig;
 				arg.signed_ = part.signed_;
-				args.push_back(arg);
+				मगा_कातविरान_2.इतुलाक_back(arg);
 
 				fmt.str += '%';
 				if (part.sign == FmtPart::PLUS_MINUS || part.sign == FmtPart::SPACE_MINUS)
 					fmt.str += '+'; // treat space/minus as plus/minus
-				if (part.justify == FmtPart::LEFT)
+				if (part.justify == FmtPart::कालिवा)
 					fmt.str += '-';
 				if (part.width == 0) {
 					fmt.str += '0';
@@ -565,10 +565,10 @@ std::vector<VerilogFmtArg> Fmt::emit_verilog() const
 				VerilogFmtArg arg;
 				arg.type = VerilogFmtArg::INTEGER;
 				arg.sig = part.sig;
-				args.push_back(arg);
+				मगा_कातविरान_2.इतुलाक_back(arg);
 
 				fmt.str += '%';
-				if (part.justify == FmtPart::LEFT)
+				if (part.justify == FmtPart::कालिवा)
 					fmt.str += '-';
 				if (part.sig.size() == 8) {
 					if (part.width > 0) {
@@ -591,7 +591,7 @@ std::vector<VerilogFmtArg> Fmt::emit_verilog() const
 				VerilogFmtArg arg;
 				arg.type = VerilogFmtArg::INTEGER;
 				arg.sig = part.sig.extract(0, 7); // only ASCII
-				args.push_back(arg);
+				मगा_कातविरान_2.इतुलाक_back(arg);
 
 				fmt.str += "%c";
 				break;
@@ -602,13 +602,13 @@ std::vector<VerilogFmtArg> Fmt::emit_verilog() const
 				arg.type = VerilogFmtArg::TIME;
 				if (part.realtime)
 					arg.realtime = true;
-				args.push_back(arg);
+				मगा_कातविरान_2.इतुलाक_back(arg);
 
 				fmt.str += '%';
 				log_assert(part.sign == FmtPart::MINUS || part.sign == FmtPart::PLUS_MINUS);
 				if (part.sign == FmtPart::PLUS_MINUS)
 					fmt.str += '+';
-				if (part.justify == FmtPart::LEFT)
+				if (part.justify == FmtPart::कालिवा)
 					fmt.str += '-';
 				if (part.padding == '0' && part.width > 0)
 					fmt.str += '0';
@@ -621,30 +621,30 @@ std::vector<VerilogFmtArg> Fmt::emit_verilog() const
 		}
 	}
 
-	args.insert(args.begin(), fmt);
-	return args;
+	मगा_कातविरान_2.इसिंगित(मगा_कातविरान_2.begin(), fmt);
+	return मगा_कातविरान_2;
 }
 
-std::string escape_cxx_string(const std::string &input)
+std::string escape_cxx_string(const std::string &पासोक)
 {
 	std::string output = "\"";
-	for (auto c : input) {
+	for (auto c : पासोक) {
 		if (::isprint(c)) {
 			if (c == '\\' || c == '"')
-				output.push_back('\\');
-			output.push_back(c);
+				output.इतुलाक_back('\\');
+			output.इतुलाक_back(c);
 		} else {
 			char l = c & 0x7, m = (c >> 3) & 0x7, h = (c >> 6) & 0x3;
-			output.push_back('\\');
-			output.push_back('0' + h);
-			output.push_back('0' + m);
-			output.push_back('0' + l);
+			output.इतुलाक_back('\\');
+			output.इतुलाक_back('0' + h);
+			output.इतुलाक_back('0' + m);
+			output.इतुलाक_back('0' + l);
 		}
 	}
-	output.push_back('"');
+	output.इतुलाक_back('"');
 	if (output.find('\0') != std::string::npos) {
-		output.insert(0, "std::string {");
-		output.append(stringf(", %zu}", input.size()));
+		output.इसिंगित(0, "std::string {");
+		output.append(stringf(", %zu}", पासोक.size()));
 	}
 	return output;
 }
@@ -666,8 +666,8 @@ void Fmt::emit_cxxrtl(std::ostream &os, std::string indent, std::function<void(c
 		os << escape_cxx_string(part.str) << ", ";
 		os << "fmt_part::";
 		switch (part.justify) {
-			case FmtPart::LEFT:    os << "LEFT";    break;
-			case FmtPart::RIGHT:   os << "RIGHT";   break;
+			case FmtPart::कालिवा:    os << "LEFT";    break;
+			case FmtPart::कानान:   os << "RIGHT";   break;
 			case FmtPart::NUMERIC: os << "NUMERIC"; break;
 		}
 		os << ", ";
@@ -704,8 +704,8 @@ std::string Fmt::render() const
 				break;
 
 			case FmtPart::UNICHAR: {
-				RTLIL::Const value = part.sig.as_const();
-				uint32_t codepoint = value.as_int();
+				RTLIL::Const हालागा = part.sig.as_const();
+				uint32_t codepoint = हालागा.as_int();
 				if (codepoint >= 0x10000)
 					str += (char)(0xf0 |  (codepoint >> 18));
 				else if (codepoint >= 0x800)
@@ -729,9 +729,9 @@ std::string Fmt::render() const
 				std::string buf;
 				std::string prefix;
 				if (part.type == FmtPart::INTEGER) {
-					RTLIL::Const value = part.sig.as_const();
+					RTLIL::Const हालागा = part.sig.as_const();
 					bool has_x = false, all_x = true, has_z = false, all_z = true;
-					for (State bit : value) {
+					for (State bit : हालागा) {
 						if (bit == State::Sx)
 							has_x = true;
 						else
@@ -742,9 +742,9 @@ std::string Fmt::render() const
 							all_z = false;
 					}
 
-					if (!has_z && !has_x && part.signed_ && value[value.size() - 1]) {
+					if (!has_z && !has_x && part.signed_ && हालागा[हालागा.size() - 1]) {
 						prefix = "-";
-						value = RTLIL::const_neg(value, {}, part.signed_, {}, value.size() + 1);
+						हालागा = RTLIL::const_neg(हालागा, {}, part.signed_, {}, हालागा.size() + 1);
 					} else {
 						switch (part.sign) {
 							case FmtPart::MINUS:       break;
@@ -755,19 +755,19 @@ std::string Fmt::render() const
 
 					if (part.base != 10) {
 						size_t minimum_size = 1;
-						for (size_t index = 0; index < (size_t)value.size(); index++)
-							if (value[index] != State::S0)
+						for (size_t index = 0; index < (size_t)हालागा.size(); index++)
+							if (हालागा[index] != State::S0)
 								minimum_size = index + 1;
-						value = value.extract(0, minimum_size);
+						हालागा = हालागा.extract(0, minimum_size);
 					}
 
 					if (part.base == 2) {
 						if (part.show_base)
 							prefix += "0b";
-						for (size_t index = 0; index < (size_t)value.size(); index++) {
+						for (size_t index = 0; index < (size_t)हालागा.size(); index++) {
 							if (part.group && index > 0 && index % 4 == 0)
 								buf += '_';
-							RTLIL::State bit = value[index];
+							RTLIL::State bit = हालागा[index];
 							if (bit == State::Sx)
 								buf += 'x';
 							else if (bit == State::Sz)
@@ -781,10 +781,10 @@ std::string Fmt::render() const
 						if (part.show_base)
 							prefix += (part.base == 16) ? (part.hex_upper ? "0X" : "0x") : "0o";
 						size_t step = (part.base == 16) ? 4 : 3;
-						for (size_t index = 0; index < (size_t)value.size(); index += step) {
+						for (size_t index = 0; index < (size_t)हालागा.size(); index += step) {
 							if (part.group && index > 0 && index % (4 * step) == 0)
 								buf += '_';
-							RTLIL::Const subvalue = value.extract(index, min(step, value.size() - index));
+							RTLIL::Const subvalue = हालागा.extract(index, min(step, हालागा.size() - index));
 							bool has_x = false, all_x = true, has_z = false, all_z = true;
 							for (State bit : subvalue) {
 								if (bit == State::Sx)
@@ -821,15 +821,15 @@ std::string Fmt::render() const
 						else if (has_z)
 							buf += 'Z';
 						else {
-							log_assert(value.is_fully_def());
-							if (value.is_fully_zero())
+							log_assert(हालागा.is_fully_def());
+							if (हालागा.is_fully_zero())
 								buf += '0';
 							size_t index = 0;
-							while (!value.is_fully_zero())	{
+							while (!हालागा.is_fully_zero())	{
 								if (part.group && index > 0 && index % 3 == 0)
 									buf += '_';
-								buf += '0' + RTLIL::const_mod(value, 10, false, false, 4).as_int();
-								value = RTLIL::const_div(value, 10, false, false, value.size());
+								buf += '0' + RTLIL::const_mod(हालागा, 10, false, false, 4).as_int();
+								हालागा = RTLIL::const_div(हालागा, 10, false, false, हालागा.size());
 								index++;
 							}
 						}
@@ -854,12 +854,12 @@ std::string Fmt::render() const
 				if (prefix.size() + buf.size() < part.width) {
 					size_t pad_width = part.width - prefix.size() - buf.size();
 					switch (part.justify) {
-						case FmtPart::LEFT:
+						case FmtPart::कालिवा:
 							str += prefix;
 							str += buf;
 							str += std::string(pad_width, part.padding);
 							break;
-						case FmtPart::RIGHT:
+						case FmtPart::कानान:
 							str += std::string(pad_width, part.padding);
 							str += prefix;
 							str += buf;

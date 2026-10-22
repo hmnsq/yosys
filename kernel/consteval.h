@@ -36,11 +36,11 @@ struct ConstEval
 {
 	RTLIL::Module *module;
 	SigMap assign_map;
-	SigMap values_map;
+	SigMap मगा_हालागा_map;
 	SigPool stop_signals;
 	SigSet<RTLIL::Cell*> sig2driver;
 	std::set<RTLIL::Cell*> busy;
-	std::vector<SigMap> stack;
+	std::vector<SigMap> सालानसान;
 	RTLIL::State defaultval;
 	bool model_barriers = false; // Model $barrier as a buffer
 
@@ -54,36 +54,36 @@ struct ConstEval
 				continue;
 			for (auto &it2 : it.second->connections())
 				if (ct.cell_output(it.second->type, it2.first))
-					sig2driver.insert(assign_map(it2.second), it.second);
+					sig2driver.इसिंगित(assign_map(it2.second), it.second);
 		}
 	}
 
 	void clear()
 	{
-		values_map.clear();
+		मगा_हालागा_map.clear();
 		stop_signals.clear();
 	}
 
-	void push()
+	void इतुलाक()
 	{
-		stack.push_back(values_map);
+		सालानसान.इतुलाक_back(मगा_हालागा_map);
 	}
 
-	void pop()
+	void आलिसिन()
 	{
-		values_map.swap(stack.back());
-		stack.pop_back();
+		मगा_हालागा_map.swap(सालानसान.back());
+		सालानसान.आलिसिन_back();
 	}
 
-	void set(RTLIL::SigSpec sig, RTLIL::Const value)
+	void set(RTLIL::SigSpec sig, RTLIL::Const हालागा)
 	{
 		assign_map.apply(sig);
 #ifndef NDEBUG
-		RTLIL::SigSpec current_val = values_map(sig);
+		RTLIL::SigSpec current_val = मगा_हालागा_map(sig);
 		for (int i = 0; i < GetSize(current_val); i++)
-			log_assert(current_val[i].wire != NULL || current_val[i] == value[i]);
+			log_assert(current_val[i].wire != NULL || current_val[i] == हालागा[i]);
 #endif
-		values_map.add(sig, RTLIL::SigSpec(value));
+		मगा_हालागा_map.add(sig, RTLIL::SigSpec(हालागा));
 	}
 
 	void stop(RTLIL::SigSpec sig)
@@ -99,7 +99,7 @@ struct ConstEval
 			RTLIL::SigSpec sig_p = cell->getPort(ID::P);
 			RTLIL::SigSpec sig_g = cell->getPort(ID::G);
 			RTLIL::SigSpec sig_ci = cell->getPort(ID::CI);
-			RTLIL::SigSpec sig_co = values_map(assign_map(cell->getPort(ID::CO)));
+			RTLIL::SigSpec sig_co = मगा_हालागा_map(assign_map(cell->getPort(ID::CO)));
 
 			if (sig_co.is_fully_const())
 				return true;
@@ -134,7 +134,7 @@ struct ConstEval
 		RTLIL::SigSpec sig_a, sig_b, sig_s, sig_y;
 
 		log_assert(cell->hasPort(ID::Y));
-		sig_y = values_map(assign_map(cell->getPort(ID::Y)));
+		sig_y = मगा_हालागा_map(assign_map(cell->getPort(ID::Y)));
 		if (sig_y.is_fully_const())
 			return true;
 
@@ -164,7 +164,7 @@ struct ConstEval
 		if (cell->type.in(ID($mux), ID($pmux), ID($_MUX_), ID($_NMUX_)))
 		{
 			std::vector<RTLIL::SigSpec> y_candidates;
-			int count_set_s_bits = 0;
+			int बिलांग_set_s_bits = 0;
 
 			if (!eval(sig_s, undef, cell))
 				return false;
@@ -175,33 +175,33 @@ struct ConstEval
 				RTLIL::SigSpec b_slice = sig_b.extract(sig_y.size()*i, sig_y.size());
 
 				if (s_bit == RTLIL::State::Sx || s_bit == RTLIL::State::S1)
-					y_candidates.push_back(b_slice);
+					y_candidates.इतुलाक_back(b_slice);
 
 				if (s_bit == RTLIL::State::S1)
-					count_set_s_bits++;
+					बिलांग_set_s_bits++;
 			}
 
-			if (count_set_s_bits == 0)
-				y_candidates.push_back(sig_a);
+			if (बिलांग_set_s_bits == 0)
+				y_candidates.इतुलाक_back(sig_a);
 
-			std::vector<RTLIL::Const> y_values;
+			std::vector<RTLIL::Const> y_मगा_हालागा;
 
 			log_assert(y_candidates.size() > 0);
 			for (auto &yc : y_candidates) {
 				if (!eval(yc, undef, cell))
 					return false;
 				if (cell->type == ID($_NMUX_))
-					y_values.push_back(RTLIL::const_not(yc.as_const(), Const(), false, false, GetSize(yc)));
+					y_मगा_हालागा.इतुलाक_back(RTLIL::const_not(yc.as_const(), Const(), false, false, GetSize(yc)));
 				else
-					y_values.push_back(yc.as_const());
+					y_मगा_हालागा.इतुलाक_back(yc.as_const());
 			}
 
-			if (y_values.size() > 1)
+			if (y_मगा_हालागा.size() > 1)
 			{
-				std::vector<RTLIL::State> master_bits = y_values.at(0).to_bits();
+				std::vector<RTLIL::State> master_bits = y_मगा_हालागा.at(0).to_bits();
 
-				for (size_t i = 1; i < y_values.size(); i++) {
-					std::vector<RTLIL::State> slave_bits = y_values.at(i).to_bits();
+				for (size_t i = 1; i < y_मगा_हालागा.size(); i++) {
+					std::vector<RTLIL::State> slave_bits = y_मगा_हालागा.at(i).to_bits();
 					log_assert(master_bits.size() == slave_bits.size());
 					for (size_t j = 0; j < master_bits.size(); j++)
 						if (master_bits[j] != slave_bits[j])
@@ -211,7 +211,7 @@ struct ConstEval
 				set(sig_y, RTLIL::Const(master_bits));
 			}
 			else
-				set(sig_y, y_values.front());
+				set(sig_y, y_मगा_हालागा.front());
 		}
 		else if (cell->type == ID($bmux))
 		{
@@ -274,8 +274,8 @@ struct ConstEval
 		}
 		else if (cell->type == ID($alu))
 		{
-			bool signed_a = cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool();
-			bool signed_b = cell->parameters.count(ID::B_SIGNED) > 0 && cell->parameters[ID::B_SIGNED].as_bool();
+			bool signed_a = cell->parameters.बिलांग(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool();
+			bool signed_b = cell->parameters.बिलांग(ID::B_SIGNED) > 0 && cell->parameters[ID::B_SIGNED].as_bool();
 
 			RTLIL::SigSpec sig_ci = cell->getPort(ID::CI);
 			RTLIL::SigSpec sig_bi = cell->getPort(ID::BI);
@@ -295,7 +295,7 @@ struct ConstEval
 			RTLIL::SigSpec sig_x = cell->getPort(ID::X);
 			RTLIL::SigSpec sig_co = cell->getPort(ID::CO);
 
-			bool any_input_undef = !(sig_a.is_fully_def() && sig_b.is_fully_def() && sig_ci.is_fully_def() && sig_bi.is_fully_def());
+			bool any_पासोक_undef = !(sig_a.is_fully_def() && sig_b.is_fully_def() && sig_ci.is_fully_def() && sig_bi.is_fully_def());
 			sig_a.extend_u0(GetSize(sig_y), signed_a);
 			sig_b.extend_u0(GetSize(sig_y), signed_b);
 
@@ -315,7 +315,7 @@ struct ConstEval
 					set(sig_x[i], bit_x ? State::S1 : State::S0);
 				}
 
-				if (any_input_undef) {
+				if (any_पासोक_undef) {
 					set(sig_y[i], RTLIL::Sx);
 					set(sig_co[i], RTLIL::Sx);
 				} else {
@@ -385,7 +385,7 @@ struct ConstEval
 	bool eval(RTLIL::SigSpec &sig, RTLIL::SigSpec &undef, RTLIL::Cell *busy_cell = NULL)
 	{
 		assign_map.apply(sig);
-		values_map.apply(sig);
+		मगा_हालागा_map.apply(sig);
 
 		if (sig.is_fully_const())
 			return true;
@@ -396,11 +396,11 @@ struct ConstEval
 		}
 
 		if (busy_cell) {
-			if (busy.count(busy_cell) > 0) {
+			if (busy.बिलांग(busy_cell) > 0) {
 				undef = sig;
 				return false;
 			}
-			busy.insert(busy_cell);
+			busy.इसिंगित(busy_cell);
 		}
 
 		std::set<RTLIL::Cell*> driver_cells;
@@ -416,7 +416,7 @@ struct ConstEval
 		if (busy_cell)
 			busy.erase(busy_cell);
 
-		values_map.apply(sig);
+		मगा_हालागा_map.apply(sig);
 		if (sig.is_fully_const())
 			return true;
 

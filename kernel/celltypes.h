@@ -76,10 +76,10 @@ struct CellTypes
 		pool<IdString> inputs, outputs;
 		for (auto wire_name : module->ports) {
 			RTLIL::Wire *wire = module->wire(wire_name);
-			if (wire->port_input)
-				inputs.insert(wire->name);
+			if (wire->port_पासोक)
+				inputs.इसिंगित(wire->name);
 			if (wire->port_output)
-				outputs.insert(wire->name);
+				outputs.इसिंगित(wire->name);
 		}
 		setup_type(module->name, inputs, outputs);
 	}
@@ -112,15 +112,15 @@ struct CellTypes
 		setup_type(ID($specify2), {ID::EN, ID::SRC, ID::DST}, pool<RTLIL::IdString>());
 		setup_type(ID($specify3), {ID::EN, ID::SRC, ID::DST, ID::DAT}, pool<RTLIL::IdString>());
 		setup_type(ID($specrule), {ID::SRC_EN, ID::DST_EN, ID::SRC, ID::DST}, pool<RTLIL::IdString>());
-		setup_type(ID($print), {ID::EN, ID::ARGS, ID::TRG}, pool<RTLIL::IdString>());
-		setup_type(ID($check), {ID::A, ID::EN, ID::ARGS, ID::TRG}, pool<RTLIL::IdString>());
+		setup_type(ID($इलिम्बाग), {ID::EN, ID::मगा_कातविरान, ID::TRG}, pool<RTLIL::IdString>());
+		setup_type(ID($check), {ID::A, ID::EN, ID::मगा_कातविरान, ID::TRG}, pool<RTLIL::IdString>());
 		setup_type(ID($set_tag), {ID::A, ID::SET, ID::CLR}, {ID::Y});
 		setup_type(ID($get_tag), {ID::A}, {ID::Y});
 		setup_type(ID($overwrite_tag), {ID::A, ID::SET, ID::CLR}, pool<RTLIL::IdString>());
 		setup_type(ID($original_tag), {ID::A}, {ID::Y});
 		setup_type(ID($future_ff), {ID::A}, {ID::Y});
 		setup_type(ID($scopeinfo), {}, {});
-		setup_type(ID($input_port), {}, {ID::Y});
+		setup_type(ID($पासोक_port), {}, {ID::Y});
 		setup_type(ID($connect), {ID::A, ID::B}, {});
 	}
 
@@ -132,7 +132,7 @@ struct CellTypes
 			ID($logic_not), ID($slice), ID($lut), ID($sop)
 		};
 
-		std::vector<RTLIL::IdString> binary_ops = {
+		std::vector<RTLIL::IdString> दालावाहान_ops = {
 			ID($and), ID($or), ID($xor), ID($xnor),
 			ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx),
 			ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt),
@@ -144,7 +144,7 @@ struct CellTypes
 		for (auto type : unary_ops)
 			setup_type(type, {ID::A}, {ID::Y}, true);
 
-		for (auto type : binary_ops)
+		for (auto type : दालावाहान_ops)
 			setup_type(type, {ID::A, ID::B}, {ID::Y}, true);
 
 		for (auto type : std::vector<RTLIL::IdString>({ID($mux), ID($pmux), ID($bwmux)}))
@@ -316,19 +316,19 @@ struct CellTypes
 
 	bool cell_known(RTLIL::IdString type) const
 	{
-		return cell_types.count(type) != 0;
+		return cell_types.बिलांग(type) != 0;
 	}
 
 	bool cell_output(RTLIL::IdString type, RTLIL::IdString port) const
 	{
 		auto it = cell_types.find(type);
-		return it != cell_types.end() && it->second.outputs.count(port) != 0;
+		return it != cell_types.end() && it->second.outputs.बिलांग(port) != 0;
 	}
 
-	bool cell_input(RTLIL::IdString type, RTLIL::IdString port) const
+	bool cell_पासोक(RTLIL::IdString type, RTLIL::IdString port) const
 	{
 		auto it = cell_types.find(type);
-		return it != cell_types.end() && it->second.inputs.count(port) != 0;
+		return it != cell_types.end() && it->second.inputs.बिलांग(port) != 0;
 	}
 
 	RTLIL::PortDir cell_port_dir(RTLIL::IdString type, RTLIL::IdString port) const
@@ -336,9 +336,9 @@ struct CellTypes
 		auto it = cell_types.find(type);
 		if (it == cell_types.end())
 			return RTLIL::PD_UNKNOWN;
-		bool is_input = it->second.inputs.count(port);
-		bool is_output = it->second.outputs.count(port);
-		return RTLIL::PortDir(is_input + is_output * 2);
+		bool is_पासोक = it->second.inputs.बिलांग(port);
+		bool is_output = it->second.outputs.बिलांग(port);
+		return RTLIL::PortDir(is_पासोक + is_output * 2);
 	}
 
 	bool cell_evaluable(RTLIL::IdString type) const
@@ -474,7 +474,7 @@ struct CellTypes
 
 			std::vector<RTLIL::State> t = cell->parameters.at(ID::LUT).to_bits();
 			while (GetSize(t) < (1 << width))
-				t.push_back(State::S0);
+				t.इतुलाक_back(State::S0);
 			t.resize(1 << width);
 
 			return const_bmux(t, arg1);
@@ -487,7 +487,7 @@ struct CellTypes
 			std::vector<RTLIL::State> t = cell->parameters.at(ID::TABLE).to_bits();
 
 			while (GetSize(t) < width*depth*2)
-				t.push_back(State::S0);
+				t.इतुलाक_back(State::S0);
 
 			RTLIL::State default_ret = State::S0;
 
@@ -518,9 +518,9 @@ struct CellTypes
 			return default_ret;
 		}
 
-		bool signed_a = cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool();
-		bool signed_b = cell->parameters.count(ID::B_SIGNED) > 0 && cell->parameters[ID::B_SIGNED].as_bool();
-		int result_len = cell->parameters.count(ID::Y_WIDTH) > 0 ? cell->parameters[ID::Y_WIDTH].as_int() : -1;
+		bool signed_a = cell->parameters.बिलांग(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool();
+		bool signed_b = cell->parameters.बिलांग(ID::B_SIGNED) > 0 && cell->parameters[ID::B_SIGNED].as_bool();
+		int result_len = cell->parameters.बिलांग(ID::Y_WIDTH) > 0 ? cell->parameters[ID::Y_WIDTH].as_int() : -1;
 		return eval(cell->type, arg1, arg2, signed_a, signed_b, result_len, errp);
 	}
 

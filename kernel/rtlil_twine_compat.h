@@ -46,8 +46,8 @@ struct WrappedIdBase {
 		return pool ? pool->begins_with(self().ref(), s) : str().starts_with(s);
 	}
 	bool ends_with(const char *s) const { return str().ends_with(s); }
-	template<typename... Ts> bool in(Ts &&...args) const {
-		return self().ref().in(std::forward<Ts>(args)...);
+	template<typename... Ts> bool in(Ts &&...मगा_कातविरान_2) const {
+		return self().ref().in(std::forward<Ts>(मगा_कातविरान_2)...);
 	}
 	bool in(const pool<IdString> &rhs) const { return self().ref().in(rhs); }
 	std::string substr(size_t pos = 0, size_t len = std::string::npos) const {

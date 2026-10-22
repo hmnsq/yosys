@@ -49,10 +49,10 @@ class FstData
 
 	std::vector<FstVar>& getVars() { return vars; };
 
-	void reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t plen);
+	void reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_हालागा, uint32_t plen);
 	void reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start_time, uint64_t end_time, unsigned int end_cycle, CallbackFunction cb);
 
-	std::string valueOf(fstHandle signal);
+	std::string हालागा_Of(fstHandle signal);
 	fstHandle getHandle(std::string name);
 	dict<int,fstHandle> getMemoryHandles(std::string name);
 	int getScale() { return scale; }

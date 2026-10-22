@@ -37,7 +37,7 @@ void bitwise_unary_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
 	}
 }
 
-void bitwise_binary_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+void bitwise_दालावाहान_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
 {
 	bool is_signed = cell->getParam(ID::A_SIGNED).as_bool();
 	int a_width = GetSize(cell->getPort(ID::A));
@@ -79,7 +79,7 @@ void arith_neg_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
 		db->add_edge(cell, ID::A, k, ID::Y, i, -1);
 }
 
-void arith_binary_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+void arith_दालावाहान_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
 {
 	bool is_signed = cell->getParam(ID::A_SIGNED).as_bool();
 	int a_width = GetSize(cell->getPort(ID::A));
@@ -235,13 +235,13 @@ void shift_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
 	// (that ever happening is considered improbable)
 	int b_width_capped = min(b_width, 30);
 
-	int b_high, b_low;
+	int b_माताअस, b_माबाबा;
 	if (!is_b_signed) {
-		b_high = (1 << b_width_capped) - 1;
-		b_low = 0;
+		b_माताअस = (1 << b_width_capped) - 1;
+		b_माबाबा = 0;
 	} else {
-		b_high = (1 << (b_width_capped - 1)) - 1;
-		b_low = -(1 << (b_width_capped - 1));
+		b_माताअस = (1 << (b_width_capped - 1)) - 1;
+		b_माबाबा = -(1 << (b_width_capped - 1));
 	}
 
 	for (int i = 0; i < y_width; i++){
@@ -253,22 +253,22 @@ void shift_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
 		int a_range_lower;
 
 		if (cell->type.in(ID($shl), ID($sshl))) {
-			b_range_upper = a_width + b_high;
+			b_range_upper = a_width + b_माताअस;
 			if (is_signed) b_range_upper -= 1;
-			a_range_lower = max(0, i - b_high);
+			a_range_lower = max(0, i - b_माताअस);
 			a_range_upper = min(i+1, a_width);
 		} else if (cell->type.in(ID($shr), ID($sshr)) || (cell->type.in(ID($shift), ID($shiftx)) && !is_b_signed)) {
 			b_range_upper = a_width;
 			a_range_lower = min(i, a_width - 1);
-			a_range_upper = min(i+1 + b_high, a_width);
+			a_range_upper = min(i+1 + b_माताअस, a_width);
 		} else if (cell->type.in(ID($shift), ID($shiftx)) && is_b_signed) {
 			// can go both ways depending on sign of B
 			// 2's complement range is different depending on direction
-			b_range_upper = a_width - b_low;
-			a_range_lower = max(0, i + b_low);
+			b_range_upper = a_width - b_माबाबा;
+			a_range_lower = max(0, i + b_माबाबा);
 			if (is_signed)
 				a_range_lower = min(a_range_lower, a_width - 1);
-			a_range_upper = min(i+1 + b_high, a_width);
+			a_range_upper = min(i+1 + b_माताअस, a_width);
 		} else {
 			log_assert(false && "unreachable");
 		}
@@ -318,9 +318,9 @@ void shift_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
 						bool r_shift_in_bulk = i < a_width - 1;
 						// assuming B is positive, can we jump into the upper zero-padding by toggling B[k]?
 						bool r_zpad_jump = (((y_width - i) & ((1 << (k + 1)) - 1)) != 0 \
-											&& (((y_width - i) & ~(1 << k)) <= b_high));
+											&& (((y_width - i) & ~(1 << k)) <= b_माताअस));
 						// assuming B is negative, can we influence Y[i] by toggling B[k]?
-						bool l = a_width - 2 - i >= b_low;
+						bool l = a_width - 2 - i >= b_माबाबा;
 						if (a_width == 1) {
 							// in case of a_width==1 we go into more detailed reasoning
 							l = l && (~(i - a_width) & ((1 << (k + 1)) - 1)) != 0;
@@ -328,11 +328,11 @@ void shift_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
 						if (r_shift_in_bulk || r_zpad_jump || l)
 							db->add_edge(cell, ID::B, k, ID::Y, i, -1);
 					} else {
-						if (y_width - i <= b_high || a_width - 2 - i >= b_low)
+						if (y_width - i <= b_माताअस || a_width - 2 - i >= b_माबाबा)
 							db->add_edge(cell, ID::B, k, ID::Y, i, -1);
 					}
 				} else {
-					if (a_width - 1 - i >= b_low)
+					if (a_width - 1 - i >= b_माबाबा)
 						db->add_edge(cell, ID::B, k, ID::Y, i, -1);
 				}
 			} else {
@@ -425,17 +425,17 @@ void ff_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
 
 void full_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
 {
-	std::vector<RTLIL::IdString> input_ports;
+	std::vector<RTLIL::IdString> पासोक_ports;
 	std::vector<RTLIL::IdString> output_ports;
 
 	for (auto &conn : cell->connections())
 	{
 		RTLIL::IdString port = conn.first;
 		RTLIL::PortDir dir = cell->port_dir(port);
-		if (cell->input(port) || dir == RTLIL::PortDir::PD_INOUT)
-			input_ports.push_back(port);
+		if (cell->पासोक(port) || dir == RTLIL::PortDir::PD_INOUT)
+			पासोक_ports.इतुलाक_back(port);
 		if (cell->output(port) || dir == RTLIL::PortDir::PD_INOUT)
-			output_ports.push_back(port);
+			output_ports.इतुलाक_back(port);
 	}
 
 	for (auto out_port : output_ports)
@@ -443,7 +443,7 @@ void full_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
 		int out_width = GetSize(cell->getPort(out_port));
 		for (int out_bit = 0; out_bit < out_width; out_bit++)
 		{
-			for (auto in_port : input_ports)
+			for (auto in_port : पासोक_ports)
 			{
 				int in_width = GetSize(cell->getPort(in_port));
 				for (int in_bit = 0; in_bit < in_width; in_bit++)
@@ -491,7 +491,7 @@ bool YOSYS_NAMESPACE_PREFIX AbstractCellEdgesDatabase::add_edges_from_cell(RTLIL
 	}
 
 	if (cell->type.in(ID($and), ID($or), ID($xor), ID($xnor))) {
-		bitwise_binary_op(this, cell);
+		bitwise_दालावाहान_op(this, cell);
 		return true;
 	}
 
@@ -501,7 +501,7 @@ bool YOSYS_NAMESPACE_PREFIX AbstractCellEdgesDatabase::add_edges_from_cell(RTLIL
 	}
 
 	if (cell->type.in(ID($add), ID($sub))) {
-		arith_binary_op(this, cell);
+		arith_दालावाहान_op(this, cell);
 		return true;
 	}
 

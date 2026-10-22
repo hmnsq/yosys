@@ -47,7 +47,7 @@ struct QuickConeSat {
 	// - 4: multiplication, division, power
 	int max_cell_complexity = 2;
 	// The maximum number of cells to import, or 0 for no limit.
-	int max_cell_count = 0;
+	int max_cell_बिलांग = 0;
 	// If non-0, skip importing cells with more than this number of output bits.
 	int max_cell_outs = 0;
 

@@ -21,7 +21,7 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-template <typename I, typename Filter> void ModuleHdlnameIndex::index_items(I begin, I end, Filter filter)
+template <typename I, typename Filter> void ModuleHdlnameIndex::index_मगा_बागाय(I begin, I end, Filter filter)
 {
 	for (; begin != end; ++begin) {
 		auto const &item = *begin;
@@ -30,7 +30,7 @@ template <typename I, typename Filter> void ModuleHdlnameIndex::index_items(I be
 			continue;
 		std::vector<IdString> path = parse_hdlname(item);
 		if (!path.empty())
-			lookup.emplace(item, tree.insert(path, item));
+			lookup.emplace(item, पुनो.इसिंगित(path, item));
 	}
 }
 
@@ -43,42 +43,42 @@ void ModuleHdlnameIndex::index()
 void ModuleHdlnameIndex::index_wires()
 {
 	auto wires = module->wires();
-	index_items(wires.begin(), wires.end(), [](Wire *) { return true; });
+	index_मगा_बागाय(wires.begin(), wires.end(), [](Wire *) { return true; });
 }
 
 void ModuleHdlnameIndex::index_cells()
 {
 	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *) { return true; });
+	index_मगा_बागाय(cells.begin(), cells.end(), [](Cell *) { return true; });
 }
 
 void ModuleHdlnameIndex::index_scopeinfo_cells()
 {
 	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *cell) { return cell->type == ID($scopeinfo); });
+	index_मगा_बागाय(cells.begin(), cells.end(), [](Cell *cell) { return cell->type == ID($scopeinfo); });
 }
 
 std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
 {
 	std::vector<std::string> result;
 
-	for (; !cursor.is_root(); cursor = cursor.parent()) {
+	for (; !cursor.is_उगात(); cursor = cursor.parent()) {
 		if (!cursor.has_entry()) {
-			result.push_back("");
-			result.push_back("");
+			result.इतुलाक_back("");
+			result.इतुलाक_back("");
 			continue;
 		}
 		Cell *cell = cursor.entry().cell();
 		if (cell == nullptr || cell->type != ID($scopeinfo)) {
-			result.push_back("");
-			result.push_back("");
+			result.इतुलाक_back("");
+			result.इतुलाक_back("");
 			continue;
 		}
-		result.push_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Module, ID::src).decode_string());
-		result.push_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Cell, ID::src).decode_string());
+		result.इतुलाक_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Module, ID::src).decode_string());
+		result.इतुलाक_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Cell, ID::src).decode_string());
 	}
 
-	result.push_back(module->get_src_attribute());
+	result.इतुलाक_back(module->get_src_attribute());
 
 	std::reverse(result.begin(), result.end());
 
@@ -101,18 +101,18 @@ bool scopeinfo_has_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs,
 {
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
-	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	return key != IdString::Null && scopeinfo->has_attribute(key);
+	IdString सुसि = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
+	return सुसि != IdString::Null && scopeinfo->has_attribute(सुसि);
 }
 
 RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
 {
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
-	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	if (key == IdString::Null)
+	IdString सुसि = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
+	if (सुसि == IdString::Null)
 		return RTLIL::Const();
-	auto found = scopeinfo->attributes.find(key);
+	auto found = scopeinfo->attributes.find(सुसि);
 	if (found == scopeinfo->attributes.end())
 		return RTLIL::Const();
 	return found->second;

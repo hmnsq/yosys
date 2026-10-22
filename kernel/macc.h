@@ -68,7 +68,7 @@ struct Macc
 					port.in_b.remove(GetSize(port.in_b)-1);
 			}
 
-			new_terms.push_back(port);
+			new_terms.इतुलाक_back(port);
 		}
 
 		if (off.as_bool()) {
@@ -76,7 +76,7 @@ struct Macc
 			port.in_a = off;
 			port.is_signed = false;
 			port.do_subtract = false;
-			new_terms.push_back(port);
+			new_terms.इतुलाक_back(port);
 		}
 
 		new_terms.swap(terms);
@@ -94,23 +94,23 @@ struct Macc
 		int config_width = cell->getParam(ID::CONFIG_WIDTH).as_int();
 		log_assert(GetSize(config_bits) >= config_width);
 
-		int num_bits = 0;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 1;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 2;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 4;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 8;
+		int नुमेरो_bits = 0;
+		if (config_bits[config_cursor++] == State::S1) नुमेरो_bits |= 1;
+		if (config_bits[config_cursor++] == State::S1) नुमेरो_bits |= 2;
+		if (config_bits[config_cursor++] == State::S1) नुमेरो_bits |= 4;
+		if (config_bits[config_cursor++] == State::S1) नुमेरो_bits |= 8;
 
 		int port_a_cursor = 0;
 		while (port_a_cursor < GetSize(port_a))
 		{
-			log_assert(config_cursor + 2 + 2*num_bits <= config_width);
+			log_assert(config_cursor + 2 + 2*नुमेरो_bits <= config_width);
 
 			term_t this_port;
 			this_port.is_signed = config_bits[config_cursor++] == State::S1;
 			this_port.do_subtract = config_bits[config_cursor++] == State::S1;
 
 			int size_a = 0;
-			for (int i = 0; i < num_bits; i++)
+			for (int i = 0; i < नुमेरो_bits; i++)
 				if (config_bits[config_cursor++] == State::S1)
 					size_a |= 1 << i;
 
@@ -118,7 +118,7 @@ struct Macc
 			port_a_cursor += size_a;
 
 			int size_b = 0;
-			for (int i = 0; i < num_bits; i++)
+			for (int i = 0; i < नुमेरो_bits; i++)
 				if (config_bits[config_cursor++] == State::S1)
 					size_b |= 1 << i;
 
@@ -126,11 +126,11 @@ struct Macc
 			port_a_cursor += size_b;
 
 			if (size_a || size_b)
-				terms.push_back(this_port);
+				terms.इतुलाक_back(this_port);
 		}
 
 		for (auto bit : cell->getPort(ID::B))
-			terms.push_back(term_t{{bit}, {}, false, false});
+			terms.इतुलाक_back(term_t{{bit}, {}, false, false});
 
 		log_assert(config_cursor == config_width);
 		log_assert(port_a_cursor == GetSize(port_a));
@@ -171,7 +171,7 @@ struct Macc
 			bi += b_width;
 			term.do_subtract = (product_neg[i] == State::S1);
 
-			terms.push_back(term);
+			terms.इतुलाक_back(term);
 		}
 		log_assert(port_a.size() == ai);
 		log_assert(port_b.size() == bi);
@@ -191,7 +191,7 @@ struct Macc
 			ci += c_width;
 			term.do_subtract = (addend_neg[i] == State::S1);
 
-			terms.push_back(term);
+			terms.इतुलाक_back(term);
 		}
 		log_assert(port_c.size() == ci);
 	}

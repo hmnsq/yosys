@@ -358,9 +358,9 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 				std::vector<int> ss;
 				for (int j = 0; j < GetSize(s); j++) {
 					if (i & 1 << j)
-						ss.push_back(s[j]);
+						ss.इतुलाक_back(s[j]);
 					else
-						ss.push_back(ez->NOT(s[j]));
+						ss.इतुलाक_back(ez->NOT(s[j]));
 				}
 				int sss = ez->expression(ezSAT::OpAnd, ss);
 
@@ -654,24 +654,24 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 			extend_bit = a.back();
 
 		while (y.size() < a.size())
-			y.push_back(ez->literal());
+			y.इतुलाक_back(ez->literal());
 		while (y.size() > a.size())
-			a.push_back(extend_bit);
+			a.इतुलाक_back(extend_bit);
 
 		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
 		std::vector<int> shifted_a;
 
 		if (cell->type.in( ID($shl), ID($sshl)))
-			shifted_a = ez->vec_shift_left(a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+			shifted_a = ez->vec_shift_कालिवा(a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
 
 		if (cell->type == ID($shr))
-			shifted_a = ez->vec_shift_right(a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+			shifted_a = ez->vec_shift_कानान(a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
 
 		if (cell->type == ID($sshr))
-			shifted_a = ez->vec_shift_right(a, b, false, cell->parameters[ID::A_SIGNED].as_bool() ? a.back() : ez->CONST_FALSE, ez->CONST_FALSE);
+			shifted_a = ez->vec_shift_कानान(a, b, false, cell->parameters[ID::A_SIGNED].as_bool() ? a.back() : ez->CONST_FALSE, ez->CONST_FALSE);
 
 		if (cell->type.in(ID($shift), ID($shiftx)))
-			shifted_a = ez->vec_shift_right(a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
+			shifted_a = ez->vec_shift_कानान(a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
 
 		ez->assume(ez->vec_eq(shifted_a, yy));
 
@@ -687,24 +687,24 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 				extend_bit = undef_a.back();
 
 			while (undef_y.size() < undef_a.size())
-				undef_y.push_back(ez->literal());
+				undef_y.इतुलाक_back(ez->literal());
 			while (undef_y.size() > undef_a.size())
-				undef_a.push_back(extend_bit);
+				undef_a.इतुलाक_back(extend_bit);
 
 			if (cell->type.in(ID($shl), ID($sshl)))
-				undef_a_shifted = ez->vec_shift_left(undef_a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+				undef_a_shifted = ez->vec_shift_कालिवा(undef_a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
 
 			if (cell->type == ID($shr))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+				undef_a_shifted = ez->vec_shift_कानान(undef_a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
 
 			if (cell->type == ID($sshr))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, false, cell->parameters[ID::A_SIGNED].as_bool() ? undef_a.back() : ez->CONST_FALSE, ez->CONST_FALSE);
+				undef_a_shifted = ez->vec_shift_कानान(undef_a, b, false, cell->parameters[ID::A_SIGNED].as_bool() ? undef_a.back() : ez->CONST_FALSE, ez->CONST_FALSE);
 
 			if (cell->type == ID($shift))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
+				undef_a_shifted = ez->vec_shift_कानान(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
 
 			if (cell->type == ID($shiftx))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_TRUE, ez->CONST_TRUE);
+				undef_a_shifted = ez->vec_shift_कानान(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_TRUE, ez->CONST_TRUE);
 
 			int undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
 			std::vector<int> undef_all_y_bits(undef_y.size(), undef_any_b);
@@ -757,13 +757,13 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 			std::vector<int> in_b = importDefSigSpec(port.in_b, timestep);
 
 			while (GetSize(in_a) < GetSize(y))
-				in_a.push_back(port.is_signed && !in_a.empty() ? in_a.back() : ez->CONST_FALSE);
+				in_a.इतुलाक_back(port.is_signed && !in_a.empty() ? in_a.back() : ez->CONST_FALSE);
 			in_a.resize(GetSize(y));
 
 			if (GetSize(in_b))
 			{
 				while (GetSize(in_b) < GetSize(y))
-					in_b.push_back(port.is_signed && !in_b.empty() ? in_b.back() : ez->CONST_FALSE);
+					in_b.इतुलाक_back(port.is_signed && !in_b.empty() ? in_b.back() : ez->CONST_FALSE);
 				in_b.resize(GetSize(y));
 
 				for (int i = 0; i < GetSize(in_b); i++) {
@@ -832,11 +832,11 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 		std::vector<int> y_u(a_u.size(), ez->CONST_FALSE);
 		for (int i = int(a.size())-1; i >= 0; i--)
 		{
-			chain_buf.insert(chain_buf.end(), chain_buf.size(), ez->CONST_FALSE);
+			chain_buf.इसिंगित(chain_buf.end(), chain_buf.size(), ez->CONST_FALSE);
 
 			std::vector<int> b_shl(i, ez->CONST_FALSE);
-			b_shl.insert(b_shl.end(), b_u.begin(), b_u.end());
-			b_shl.insert(b_shl.end(), chain_buf.size()-b_shl.size(), ez->CONST_FALSE);
+			b_shl.इसिंगित(b_shl.end(), b_u.begin(), b_u.end());
+			b_shl.इसिंगित(b_shl.end(), chain_buf.size()-b_shl.size(), ez->CONST_FALSE);
 
 			y_u.at(i) = ez->vec_ge_unsigned(chain_buf, b_shl);
 			chain_buf = ez->vec_ite(y_u.at(i), ez->vec_sub(chain_buf, b_shl), chain_buf);
@@ -893,17 +893,17 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 					only_first_one.at(0) = ez->CONST_TRUE;
 					div_zero_result = ez->vec_ite(a.back(), only_first_one, all_ones);
 				} else {
-					div_zero_result.insert(div_zero_result.end(), cell->getPort(ID::A).size(), ez->CONST_TRUE);
-					div_zero_result.insert(div_zero_result.end(), y.size() - div_zero_result.size(), ez->CONST_FALSE);
+					div_zero_result.इसिंगित(div_zero_result.end(), cell->getPort(ID::A).size(), ez->CONST_TRUE);
+					div_zero_result.इसिंगित(div_zero_result.end(), y.size() - div_zero_result.size(), ez->CONST_FALSE);
 				}
 			} else if (cell->type.in(ID($mod), ID($modfloor))) {
 				// a mod 0 = a
 				int copy_a_bits = min(cell->getPort(ID::A).size(), cell->getPort(ID::B).size());
-				div_zero_result.insert(div_zero_result.end(), a.begin(), a.begin() + copy_a_bits);
+				div_zero_result.इसिंगित(div_zero_result.end(), a.begin(), a.begin() + copy_a_bits);
 				if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
-					div_zero_result.insert(div_zero_result.end(), y.size() - div_zero_result.size(), div_zero_result.back());
+					div_zero_result.इसिंगित(div_zero_result.end(), y.size() - div_zero_result.size(), div_zero_result.back());
 				else
-					div_zero_result.insert(div_zero_result.end(), y.size() - div_zero_result.size(), ez->CONST_FALSE);
+					div_zero_result.इसिंगित(div_zero_result.end(), y.size() - div_zero_result.size(), ez->CONST_FALSE);
 			}
 			ez->assume(ez->vec_eq(yy, ez->vec_ite(ez->expression(ezSAT::OpOr, b), y_tmp, div_zero_result)));
 		}
@@ -923,9 +923,9 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 
 		std::vector<int> lut;
 		for (auto bit : cell->getParam(ID::LUT))
-			lut.push_back(bit == State::S1 ? ez->CONST_TRUE : ez->CONST_FALSE);
+			lut.इतुलाक_back(bit == State::S1 ? ez->CONST_TRUE : ez->CONST_FALSE);
 		while (GetSize(lut) < (1 << GetSize(a)))
-			lut.push_back(ez->CONST_FALSE);
+			lut.इतुलाक_back(ez->CONST_FALSE);
 		lut.resize(1 << GetSize(a));
 
 		if (model_undef)
@@ -976,7 +976,7 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 
 		vector<State> table_raw = cell->getParam(ID::TABLE).to_bits();
 		while (GetSize(table_raw) < 2*width*depth)
-			table_raw.push_back(State::S0);
+			table_raw.इतुलाक_back(State::S0);
 
 		vector<vector<int>> table(depth);
 
@@ -987,11 +987,11 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 			bool pat1 = (table_raw[2*width*i + 2*j + 1] == State::S1);
 
 			if (pat0 && !pat1)
-				table.at(i).push_back(0);
+				table.at(i).इतुलाक_back(0);
 			else if (!pat0 && pat1)
-				table.at(i).push_back(1);
+				table.at(i).इतुलाक_back(1);
 			else
-				table.at(i).push_back(-1);
+				table.at(i).इतुलाक_back(-1);
 		}
 
 		if (model_undef)
@@ -1006,9 +1006,9 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 
 				for (int j = 0; j < width; j++)
 					if (table.at(i).at(j) >= 0) {
-						cmp_a.push_back(a.at(j));
-						cmp_ua.push_back(undef_a.at(j));
-						cmp_b.push_back(table.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
+						cmp_a.इतुलाक_back(a.at(j));
+						cmp_ua.इतुलाक_back(undef_a.at(j));
+						cmp_b.इतुलाक_back(table.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
 					}
 
 				std::vector<int> masked_a = ez->vec_or(cmp_a, cmp_ua);
@@ -1017,8 +1017,8 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 				int masked_eq = ez->vec_eq(masked_a, masked_b);
 				int any_undef = ez->expression(ezSAT::OpOr, cmp_ua);
 
-				undef_products.push_back(ez->AND(any_undef, masked_eq));
-				products.push_back(ez->AND(ez->NOT(any_undef), masked_eq));
+				undef_products.इतुलाक_back(ez->AND(any_undef, masked_eq));
+				products.इतुलाक_back(ez->AND(ez->NOT(any_undef), masked_eq));
 			}
 
 			int yy = ez->expression(ezSAT::OpOr, products);
@@ -1035,11 +1035,11 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 
 				for (int j = 0; j < width; j++)
 					if (table.at(i).at(j) >= 0) {
-						cmp_a.push_back(a.at(j));
-						cmp_b.push_back(table.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
+						cmp_a.इतुलाक_back(a.at(j));
+						cmp_b.इतुलाक_back(table.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
 					}
 
-				products.push_back(ez->vec_eq(cmp_a, cmp_b));
+				products.इतुलाक_back(ez->vec_eq(cmp_a, cmp_b));
 			}
 
 			ez->SET(y, ez->expression(ezSAT::OpOr, products));
@@ -1163,10 +1163,10 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 			extendSignalWidth(undef_a, undef_b, undef_co, cell);
 
 			std::vector<int> all_inputs_undef;
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_a.begin(), undef_a.end());
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_b.begin(), undef_b.end());
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_ci.begin(), undef_ci.end());
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_bi.begin(), undef_bi.end());
+			all_inputs_undef.इसिंगित(all_inputs_undef.end(), undef_a.begin(), undef_a.end());
+			all_inputs_undef.इसिंगित(all_inputs_undef.end(), undef_b.begin(), undef_b.end());
+			all_inputs_undef.इसिंगित(all_inputs_undef.end(), undef_ci.begin(), undef_ci.end());
+			all_inputs_undef.इसिंगित(all_inputs_undef.end(), undef_bi.begin(), undef_bi.end());
 			int undef_any = ez->expression(ezSAT::OpOr, all_inputs_undef);
 
 			for (int i = 0; i < GetSize(undef_y); i++) {
@@ -1349,13 +1349,13 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 
 	if (cell->type == ID($initstate))
 	{
-		auto key = make_pair(prefix, timestep);
-		if (initstates.count(key) == 0)
-			initstates[key] = false;
+		auto सुसि = make_pair(prefix, timestep);
+		if (initstates.बिलांग(सुसि) == 0)
+			initstates[सुसि] = false;
 
 		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 		log_assert(GetSize(y) == 1);
-		ez->SET(y[0], initstates[key] ? ez->CONST_TRUE : ez->CONST_FALSE);
+		ez->SET(y[0], initstates[सुसि] ? ez->CONST_TRUE : ez->CONST_FALSE);
 
 		if (model_undef) {
 			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
@@ -1382,7 +1382,7 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 		return true;
 	}
 
-	if (cell->type == ID($scopeinfo) || cell->type == ID($input_port))
+	if (cell->type == ID($scopeinfo) || cell->type == ID($पासोक_port))
 	{
 		return true;
 	}

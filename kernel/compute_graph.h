@@ -29,7 +29,7 @@ template<
     typename Fn, // Function type (deduplicated across whole graph)
     typename Attr = std::tuple<>, // Call attributes (present in every node)
     typename SparseAttr = std::tuple<>, // Sparse call attributes (optional per node)
-    typename Key = std::tuple<> // Stable keys to refer to nodes
+    typename सुसि_2 = std::tuple<> // Stable keys to refer to nodes
 >
 struct ComputeGraph
 {
@@ -39,23 +39,23 @@ private:
     // Functions are deduplicated by assigning unique ids
     idict<Fn> functions;
 
-    struct Node {
+    struct बुहोल_2 {
         int fn_index;
         int arg_offset;
-        int arg_count;
+        int arg_बिलांग;
         Attr attr;
 
-        Node(int fn_index, Attr &&attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(std::move(attr)) {}
+        बुहोल_2(int fn_index, Attr &&attr, int arg_offset, int arg_बिलांग = 0)
+            : fn_index(fn_index), arg_offset(arg_offset), arg_बिलांग(arg_बिलांग), attr(std::move(attr)) {}
 
-        Node(int fn_index, Attr const &attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(attr) {}
+        बुहोल_2(int fn_index, Attr const &attr, int arg_offset, int arg_बिलांग = 0)
+            : fn_index(fn_index), arg_offset(arg_offset), arg_बिलांग(arg_बिलांग), attr(attr) {}
     };
 
 
-    std::vector<Node> nodes;
-    std::vector<int> args;
-    dict<Key, int> keys_;
+    std::vector<बुहोल_2> nodes;
+    std::vector<int> मगा_कातविरान_2;
+    dict<सुसि_2, int> मगा_सुसि;
     dict<int, SparseAttr> sparse_attrs;
 
 public:
@@ -73,37 +73,37 @@ public:
 
         void check() const { log_assert(index_ < graph_->size()); }
 
-        Node const &deref() const { check(); return graph_->nodes[index_]; }
+        बुहोल_2 const &deref() const { check(); return graph_->nodes[index_]; }
 
     public:
         ComputeGraph const &graph() const { return graph_; }
         int index() const { return index_; }
 
-        int size() const { return deref().arg_count; }
+        int size() const { return deref().arg_बिलांग; }
 
         BaseRef arg(int n) const
         {
-            Node const &node = deref();
-            log_assert(n >= 0 && n < node.arg_count);
-            return BaseRef(graph_, graph_->args[node.arg_offset + n]);
+            बुहोल_2 const &बुहोल = deref();
+            log_assert(n >= 0 && n < बुहोल.arg_बिलांग);
+            return BaseRef(graph_, graph_->मगा_कातविरान_2[बुहोल.arg_offset + n]);
         }
 
         std::vector<int>::const_iterator arg_indices_cbegin() const
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset;
+            बुहोल_2 const &बुहोल = deref();
+            return graph_->मगा_कातविरान_2.cbegin() + बुहोल.arg_offset;
         }
 
         std::vector<int>::const_iterator arg_indices_cend() const
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset + node.arg_count;
+            बुहोल_2 const &बुहोल = deref();
+            return graph_->मगा_कातविरान_2.cbegin() + बुहोल.arg_offset + बुहोल.arg_बिलांग;
         }
 
         Fn const &function() const { return graph_->functions[deref().fn_index]; }
         Attr const &attr() const { return deref().attr; }
 
-        bool has_sparse_attr() const { return graph_->sparse_attrs.count(index_); }
+        bool has_sparse_attr() const { return graph_->sparse_attrs.बिलांग(index_); }
 
         SparseAttr const &sparse_attr() const
         {
@@ -120,7 +120,7 @@ public:
     private:
         friend struct ComputeGraph;
         Ref(ComputeGraph *graph, int index) : BaseRef<ComputeGraph>(graph, index) {}
-        Node &deref() const { this->check(); return this->graph_->nodes[this->index_]; }
+        बुहोल_2 &deref() const { this->check(); return this->graph_->nodes[this->index_]; }
 
     public:
         Ref(BaseRef<ComputeGraph> ref) : Ref(ref.graph_, ref.index_) {}
@@ -141,11 +141,11 @@ public:
         void append_arg(int arg) const
         {
             log_assert(arg >= 0 && arg < this->graph_->size());
-            Node &node = deref();
-            if (node.arg_offset + node.arg_count != GetSize(this->graph_->args))
-                move_args(node);
-            this->graph_->args.push_back(arg);
-            node.arg_count++;
+            बुहोल_2 &बुहोल = deref();
+            if (बुहोल.arg_offset + बुहोल.arg_बिलांग != GetSize(this->graph_->मगा_कातविरान_2))
+                move_मगा_कातविरान(बुहोल);
+            this->graph_->मगा_कातविरान_2.इतुलाक_back(arg);
+            बुहोल.arg_बिलांग++;
         }
 
         operator ConstRef() const
@@ -163,44 +163,44 @@ public:
             this->graph_->sparse_attrs.erase(this->index_);
         }
 
-        void assign_key(Key const &key) const
+        void assign_सुसि(सुसि_2 const &सुसि) const
         {
-            this->graph_->keys_.emplace(key, this->index_);
+            this->graph_->मगा_सुसि.emplace(सुसि, this->index_);
         }
 
     private:
-        void move_args(Node &node) const
+        void move_मगा_कातविरान(बुहोल_2 &बुहोल) const
         {
-            auto &args = this->graph_->args;
-            int old_offset = node.arg_offset;
-            node.arg_offset = GetSize(args);
-            for (int i = 0; i != node.arg_count; ++i)
-                args.push_back(args[old_offset + i]);
+            auto &मगा_कातविरान_2 = this->graph_->मगा_कातविरान_2;
+            int old_offset = बुहोल.arg_offset;
+            बुहोल.arg_offset = GetSize(मगा_कातविरान_2);
+            for (int i = 0; i != बुहोल.arg_बिलांग; ++i)
+                मगा_कातविरान_2.इतुलाक_back(मगा_कातविरान_2[old_offset + i]);
         }
 
     };
 
-    bool has_key(Key const &key) const
+    bool has_सुसि(सुसि_2 const &सुसि) const
     {
-        return keys_.count(key);
+        return मगा_सुसि.बिलांग(सुसि);
     }
 
-    dict<Key, int> const &keys() const
+    dict<सुसि_2, int> const &मगा_सुसि_2() const
     {
-        return keys_;
+        return मगा_सुसि;
     }
 
-    ConstRef operator()(Key const &key) const
+    ConstRef operator()(सुसि_2 const &सुसि) const
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
+        auto it = मगा_सुसि.find(सुसि);
+        log_assert(it != मगा_सुसि.end());
         return (*this)[it->second];
     }
 
-    Ref operator()(Key const &key)
+    Ref operator()(सुसि_2 const &सुसि)
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
+        auto it = मगा_सुसि.find(सुसि);
+        log_assert(it != मगा_सुसि.end());
         return (*this)[it->second];
     }
 
@@ -213,7 +213,7 @@ public:
     {
         int index = GetSize(nodes);
         int fn_index = functions(function);
-        nodes.emplace_back(fn_index, std::move(attr), GetSize(args));
+        nodes.emplace_back(fn_index, std::move(attr), GetSize(मगा_कातविरान_2));
         return Ref(this, index);
     }
 
@@ -221,40 +221,40 @@ public:
     {
         int index = GetSize(nodes);
         int fn_index = functions(function);
-        nodes.emplace_back(fn_index, attr,  GetSize(args));
+        nodes.emplace_back(fn_index, attr,  GetSize(मगा_कातविरान_2));
         return Ref(this, index);
     }
 
     template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T &&args)
+    Ref add(Fn const &function, Attr const &attr, T &&मगा_कातविरान_2)
     {
         Ref added = add(function, attr);
-        for (auto arg : args)
+        for (auto arg : मगा_कातविरान_2)
             added.append_arg(arg);
         return added;
     }
 
     template<typename T>
-    Ref add(Fn const &function, Attr &&attr, T &&args)
+    Ref add(Fn const &function, Attr &&attr, T &&मगा_कातविरान_2)
     {
         Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        for (auto arg : मगा_कातविरान_2)
             added.append_arg(arg);
         return added;
     }
 
-    Ref add(Fn const &function, Attr const &attr, std::initializer_list<Ref> args)
+    Ref add(Fn const &function, Attr const &attr, std::initializer_list<Ref> मगा_कातविरान_2)
     {
         Ref added = add(function, attr);
-        for (auto arg : args)
+        for (auto arg : मगा_कातविरान_2)
             added.append_arg(arg);
         return added;
     }
 
-    Ref add(Fn const &function, Attr &&attr, std::initializer_list<Ref> args)
+    Ref add(Fn const &function, Attr &&attr, std::initializer_list<Ref> मगा_कातविरान_2)
     {
         Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        for (auto arg : मगा_कातविरान_2)
             added.append_arg(arg);
         return added;
     }
@@ -268,17 +268,17 @@ public:
         return added;
     }
 
-    void compact_args()
+    void compact_मगा_कातविरान()
     {
-        std::vector<int> new_args;
-        for (auto &node : nodes)
+        std::vector<int> new_मगा_कातविरान;
+        for (auto &बुहोल : nodes)
         {
-            int new_offset = GetSize(new_args);
-            for (int i = 0; i < node.arg_count; i++)
-                new_args.push_back(args[node.arg_offset + i]);
-            node.arg_offset = new_offset;
+            int new_offset = GetSize(new_मगा_कातविरान);
+            for (int i = 0; i < बुहोल.arg_बिलांग; i++)
+                new_मगा_कातविरान.इतुलाक_back(मगा_कातविरान_2[बुहोल.arg_offset + i]);
+            बुहोल.arg_offset = new_offset;
         }
-        std::swap(args, new_args);
+        std::swap(मगा_कातविरान_2, new_मगा_कातविरान);
     }
 
     void permute(std::vector<int> const &perm)
@@ -299,7 +299,7 @@ public:
     void permute(std::vector<int> const &perm, std::vector<int> const &inv_perm)
     {
         log_assert(inv_perm.size() == nodes.size());
-        std::vector<Node> new_nodes;
+        std::vector<बुहोल_2> new_nodes;
         new_nodes.reserve(perm.size());
         dict<int, SparseAttr> new_sparse_attrs;
         for (int i : perm)
@@ -314,19 +314,19 @@ public:
         std::swap(nodes, new_nodes);
         std::swap(sparse_attrs, new_sparse_attrs);
 
-        compact_args();
-        for (int &arg : args)
+        compact_मगा_कातविरान();
+        for (int &arg : मगा_कातविरान_2)
         {
             log_assert(arg < GetSize(inv_perm));
             log_assert(inv_perm[arg] >= 0);
             arg = inv_perm[arg];
         }
 
-        for (auto &key : keys_)
+        for (auto &सुसि : मगा_सुसि)
         {
-            log_assert(key.second < GetSize(inv_perm));
-            log_assert(inv_perm[key.second] >= 0);
-            key.second = inv_perm[key.second];
+            log_assert(सुसि.second < GetSize(inv_perm));
+            log_assert(inv_perm[सुसि.second] >= 0);
+            सुसि.second = inv_perm[सुसि.second];
         }
     }
 
@@ -342,27 +342,27 @@ public:
         }
 
 
-        typedef int node_type;
+        typedef int बुहोल_type;
 
-        struct node_enumerator {
+        struct बुहोल_enumerator {
         private:
             friend struct SccAdaptor;
             int current, end;
-            node_enumerator(int current, int end) : current(current), end(end) {}
+            बुहोल_enumerator(int current, int end) : current(current), end(end) {}
 
         public:
 
             bool finished() const { return current == end; }
-            node_type next() {
+            बुहोल_type next() {
                 log_assert(!finished());
-                node_type result = current;
+                बुहोल_type result = current;
                 ++current;
                 return result;
             }
         };
 
-        node_enumerator enumerate_nodes() {
-            return node_enumerator(0, GetSize(indices_));
+        बुहोल_enumerator enumerate_nodes() {
+            return बुहोल_enumerator(0, GetSize(indices_));
         }
 
 
@@ -375,9 +375,9 @@ public:
 
         public:
             bool finished() const { return current == end; }
-            node_type next() {
+            बुहोल_type next() {
                 log_assert(!finished());
-                node_type result = *current;
+                बुहोल_type result = *current;
                 ++current;
                 return result;
             }
@@ -388,7 +388,7 @@ public:
             return successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
         }
 
-        int &dfs_index(node_type const &node) { return indices_[node]; }
+        int &dfs_index(बुहोल_type const &बुहोल) { return indices_[बुहोल]; }
 
         std::vector<int> const &dfs_indices() { return indices_; }
     };

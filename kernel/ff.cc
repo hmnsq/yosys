@@ -22,15 +22,15 @@
 USING_YOSYS_NAMESPACE
 
 // sorry
-template<typename InputType, typename OutputType, typename = std::enable_if_t<std::is_base_of_v<FfTypeData, OutputType>>>
-void manufacture_info(InputType flop, OutputType& info, FfInitVals *initvals) {
+template<typename पासोक_Type, typename OutputType, typename = std::enable_if_t<std::is_base_of_v<FfTypeData, OutputType>>>
+void manufacture_info(पासोक_Type flop, OutputType& info, FfInitVals *initvals) {
 	Cell* cell = nullptr;
 	IdString type;
-	constexpr bool have_cell = std::is_same_v<InputType, Cell*>;
-	if constexpr (std::is_same_v<InputType, IdString>) {
+	constexpr bool have_cell = std::is_same_v<पासोक_Type, Cell*>;
+	if constexpr (std::is_same_v<पासोक_Type, IdString>) {
 		type = flop;
 	} else {
-		static_assert(std::is_same_v<InputType, Cell*>);
+		static_assert(std::is_same_v<पासोक_Type, Cell*>);
 		cell = flop;
 		type = flop->type;
 	}
@@ -101,7 +101,7 @@ void manufacture_info(InputType flop, OutputType& info, FfInitVals *initvals) {
 			if constexpr (have_cell) {
 				info.sig_arst = cell->getPort(ID::ARST);
 				info.pol_arst = cell->getParam(ID::ARST_POLARITY).as_bool();
-				info.val_arst = cell->getParam(ID::ARST_VALUE);
+				info.val_arst = cell->getParam(ID::ARST_हालागा);
 			}
 		}
 		if (type.in(ID($sdff), ID($sdffe), ID($sdffce))) {
@@ -109,7 +109,7 @@ void manufacture_info(InputType flop, OutputType& info, FfInitVals *initvals) {
 			if constexpr (have_cell) {
 				info.sig_srst = cell->getPort(ID::SRST);
 				info.pol_srst = cell->getParam(ID::SRST_POLARITY).as_bool();
-				info.val_srst = cell->getParam(ID::SRST_VALUE);
+				info.val_srst = cell->getParam(ID::SRST_हालागा);
 			}
 			info.ce_over_srst = type == ID($sdffce);
 		}
@@ -379,11 +379,11 @@ FfData FfData::slice(const std::vector<int> &bits) {
 			res.sig_set.append(sig_set[i]);
 		}
 		if (has_arst)
-			arst_bits->push_back(val_arst[i]);
+			arst_bits->इतुलाक_back(val_arst[i]);
 		if (has_srst)
-			srst_bits->push_back(val_srst[i]);
+			srst_bits->इतुलाक_back(val_srst[i]);
 		if (initvals)
-			init_bits->push_back(val_init[i]);
+			init_bits->इतुलाक_back(val_init[i]);
 	}
 
 	if (has_arst)

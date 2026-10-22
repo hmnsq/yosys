@@ -23,7 +23,7 @@ USING_YOSYS_NAMESPACE
 
 bool FfMergeHelper::is_output_unused(RTLIL::SigSpec sig) {
 	for (auto bit : (*sigmap)(sig))
-		if (sigbit_users_count[bit] != 0)
+		if (sigbit_users_बिलांग[bit] != 0)
 			return false;
 	return true;
 }
@@ -36,7 +36,7 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 
 	for (auto bit : sig)
 	{
-		if (bit.wire == NULL || sigbit_users_count[bit] == 0) {
+		if (bit.wire == NULL || sigbit_users_बिलांग[bit] == 0) {
 			ff.width++;
 			ff.sig_q.append(bit);
 			ff.sig_d.append(bit);
@@ -48,7 +48,7 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			continue;
 		}
 
-		if (sigbit_users_count[bit] != 1)
+		if (sigbit_users_बिलांग[bit] != 1)
 			return false;
 
 		auto &sinks = dff_sink[bit];
@@ -58,7 +58,7 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 		Cell *cell;
 		int idx;
 		std::tie(cell, idx) = *sinks.begin();
-		bits.insert(std::make_pair(cell, idx));
+		bits.इसिंगित(std::make_pair(cell, idx));
 
 		FfData cur_ff(initvals, cell);
 
@@ -156,7 +156,7 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 	return found;
 }
 
-bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+bool FfMergeHelper::find_पासोक_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
@@ -167,7 +167,7 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 	for (auto bit : sig)
 	{
 		if (bit.wire == NULL) {
-			const_bits.insert(ff.width);
+			const_bits.इसिंगित(ff.width);
 			ff.width++;
 			ff.sig_q.append(bit);
 			ff.sig_d.append(bit);
@@ -180,13 +180,13 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			continue;
 		}
 
-		if (!dff_driver.count(bit))
+		if (!dff_driver.बिलांग(bit))
 			return false;
 
 		Cell *cell;
 		int idx;
 		std::tie(cell, idx) = dff_driver[bit];
-		bits.insert(std::make_pair(cell, idx));
+		bits.इसिंगित(std::make_pair(cell, idx));
 
 		FfData cur_ff(initvals, cell);
 
@@ -307,7 +307,7 @@ void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
 	}
 }
 
-void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, int>> &bits) {
+void FfMergeHelper::mark_पासोक_ff(const pool<std::pair<Cell *, int>> &bits) {
 	for (auto &it : bits) {
 		Cell *cell = it.first;
 		int idx = it.second;
@@ -317,7 +317,7 @@ void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, int>> &bits) {
 			// (for the D port).  Bump it as it is now connected
 			// to the merged-to cell as well.  This suffices for
 			// it to not be considered for output merging.
-			sigbit_users_count[d[idx]]++;
+			sigbit_users_बिलांग[d[idx]]++;
 		}
 	}
 }
@@ -332,7 +332,7 @@ void FfMergeHelper::set(FfInitVals *initvals_, RTLIL::Module *module_)
 	for (auto wire : module->wires()) {
 		if (wire->port_output)
 			for (auto bit : (*sigmap)(wire))
-				sigbit_users_count[bit]++;
+				sigbit_users_बिलांग[bit]++;
 	}
 
 	for (auto cell : module->cells()) {
@@ -340,21 +340,21 @@ void FfMergeHelper::set(FfInitVals *initvals_, RTLIL::Module *module_)
 			if (cell->hasPort(ID::D)) {
 				SigSpec d = (*sigmap)(cell->getPort(ID::D));
 				for (int i = 0; i < GetSize(d); i++)
-					dff_sink[d[i]].insert(std::make_pair(cell, i));
+					dff_sink[d[i]].इसिंगित(std::make_pair(cell, i));
 			}
 			SigSpec q = (*sigmap)(cell->getPort(ID::Q));
 			for (int i = 0; i < GetSize(q); i++)
 				dff_driver[q[i]] = std::make_pair(cell, i);
 		}
 		for (auto &conn : cell->connections())
-			if (!cell->known() || cell->input(conn.first))
+			if (!cell->known() || cell->पासोक(conn.first))
 				for (auto bit : (*sigmap)(conn.second))
-					sigbit_users_count[bit]++;
+					sigbit_users_बिलांग[bit]++;
 	}
 }
 
 void FfMergeHelper::clear() {
 	dff_driver.clear();
 	dff_sink.clear();
-	sigbit_users_count.clear();
+	sigbit_users_बिलांग.clear();
 }

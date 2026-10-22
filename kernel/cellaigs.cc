@@ -21,31 +21,31 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-AigNode::AigNode()
+Aig_बुहोल::Aig_बुहोल()
 {
 	portbit = -1;
 	inverter = false;
-	left_parent = -1;
-	right_parent = -1;
+	कालिवा_parent = -1;
+	कानान_parent = -1;
 }
 
-bool AigNode::operator==(const AigNode &other) const
+bool Aig_बुहोल::operator==(const Aig_बुहोल &other) const
 {
 	if (portname != other.portname) return false;
 	if (portbit != other.portbit) return false;
 	if (inverter != other.inverter) return false;
-	if (left_parent != other.left_parent) return false;
-	if (right_parent != other.right_parent) return false;
+	if (कालिवा_parent != other.कालिवा_parent) return false;
+	if (कानान_parent != other.कानान_parent) return false;
 	return true;
 }
 
-Hasher AigNode::hash_into(Hasher h) const
+Hasher Aig_बुहोल::hash_into(Hasher h) const
 {
 	h.eat(portname);
 	h.eat(portbit);
 	h.eat(inverter);
-	h.eat(left_parent);
-	h.eat(right_parent);
+	h.eat(कालिवा_parent);
+	h.eat(कानान_parent);
 	return h;
 }
 
@@ -64,31 +64,31 @@ struct AigMaker
 {
 	Aig *aig;
 	Cell *cell;
-	idict<AigNode> aig_indices;
+	idict<Aig_बुहोल> aig_indices;
 
 	AigMaker(Aig *aig, Cell *cell) : aig(aig), cell(cell) {}
 
-	int node2index(const AigNode &node)
+	int node2index(const Aig_बुहोल &बुहोल)
 	{
-		if (node.left_parent > node.right_parent) {
-			AigNode n(node);
-			std::swap(n.left_parent, n.right_parent);
+		if (बुहोल.कालिवा_parent > बुहोल.कानान_parent) {
+			Aig_बुहोल n(बुहोल);
+			std::swap(n.कालिवा_parent, n.कानान_parent);
 			return node2index(n);
 		}
 
-		if (!aig_indices.count(node)) {
-			aig_indices.expect(node, GetSize(aig->nodes));
-			aig->nodes.push_back(node);
+		if (!aig_indices.बिलांग(बुहोल)) {
+			aig_indices.expect(बुहोल, GetSize(aig->nodes));
+			aig->nodes.इतुलाक_back(बुहोल);
 		}
 
-		return aig_indices.at(node);
+		return aig_indices.at(बुहोल);
 	}
 
-	int bool_node(bool value)
+	int bool_बुहोल(bool हालागा)
 	{
-		AigNode node;
-		node.inverter = value;
-		return node2index(node);
+		Aig_बुहोल बुहोल;
+		बुहोल.inverter = हालागा;
+		return node2index(बुहोल);
 	}
 
 	int inport(IdString portname, int portbit = 0, bool inverter = false)
@@ -96,23 +96,23 @@ struct AigMaker
 		if (portbit >= GetSize(cell->getPort(portname))) {
 			IdString signed_param = cell->twines().find(
 				cell->twines().str(portname) + "_SIGNED");
-		if (signed_param != IdString::Null && cell->parameters.count(signed_param) && cell->getParam(signed_param).as_bool())
+		if (signed_param != IdString::Null && cell->parameters.बिलांग(signed_param) && cell->getParam(signed_param).as_bool())
 				return inport(portname, GetSize(cell->getPort(portname))-1, inverter);
-			return bool_node(inverter);
+			return bool_बुहोल(inverter);
 		}
 
-		AigNode node;
-		node.portname = portname;
-		node.portbit = portbit;
-		node.inverter = inverter;
-		return node2index(node);
+		Aig_बुहोल बुहोल;
+		बुहोल.portname = portname;
+		बुहोल.portbit = portbit;
+		बुहोल.inverter = inverter;
+		return node2index(बुहोल);
 	}
 
 	vector<int> inport_vec(IdString portname, int width)
 	{
 		vector<int> vec;
 		for (int i = 0; i < width; i++)
-			vec.push_back(inport(portname, i));
+			vec.इतुलाक_back(inport(portname, i));
 		return vec;
 	}
 
@@ -123,10 +123,10 @@ struct AigMaker
 
 	int not_gate(int A)
 	{
-		AigNode node(aig_indices[A]);
-		node.outports.clear();
-		node.inverter = !node.inverter;
-		return node2index(node);
+		Aig_बुहोल बुहोल(aig_indices[A]);
+		बुहोल.outports.clear();
+		बुहोल.inverter = !बुहोल.inverter;
+		return node2index(बुहोल);
 	}
 
 	int and_gate(int A, int B, bool inverter = false)
@@ -134,43 +134,43 @@ struct AigMaker
 		if (A == B)
 			return inverter ? not_gate(A) : A;
 
-		const AigNode &nA = aig_indices[A];
-		const AigNode &nB = aig_indices[B];
+		const Aig_बुहोल &nA = aig_indices[A];
+		const Aig_बुहोल &nB = aig_indices[B];
 
-		AigNode nB_inv(nB);
+		Aig_बुहोल nB_inv(nB);
 		nB_inv.inverter = !nB_inv.inverter;
 
 		if (nA == nB_inv)
-			return bool_node(inverter);
+			return bool_बुहोल(inverter);
 
-		bool nA_bool = nA.portbit < 0 && nA.left_parent < 0 && nA.right_parent < 0;
-		bool nB_bool = nB.portbit < 0 && nB.left_parent < 0 && nB.right_parent < 0;
+		bool nA_bool = nA.portbit < 0 && nA.कालिवा_parent < 0 && nA.कानान_parent < 0;
+		bool nB_bool = nB.portbit < 0 && nB.कालिवा_parent < 0 && nB.कानान_parent < 0;
 
 		if (nA_bool && nB_bool) {
 			bool bA = nA.inverter;
 			bool bB = nB.inverter;
-			return bool_node(inverter != (bA && bB));
+			return bool_बुहोल(inverter != (bA && bB));
 		}
 
 		if (nA_bool) {
 			bool bA = nA.inverter;
 			if (inverter)
-				return bA ? not_gate(B) : bool_node(true);
-			return bA ? B : bool_node(false);
+				return bA ? not_gate(B) : bool_बुहोल(true);
+			return bA ? B : bool_बुहोल(false);
 		}
 
 		if (nB_bool) {
 			bool bB = nB.inverter;
 			if (inverter)
-				return bB ? not_gate(A) : bool_node(true);
-			return bB ? A : bool_node(false);
+				return bB ? not_gate(A) : bool_बुहोल(true);
+			return bB ? A : bool_बुहोल(false);
 		}
 
-		AigNode node;
-		node.inverter = inverter;
-		node.left_parent = A;
-		node.right_parent = B;
-		return node2index(node);
+		Aig_बुहोल बुहोल;
+		बुहोल.inverter = inverter;
+		बुहोल.कालिवा_parent = A;
+		बुहोल.कानान_parent = B;
+		return node2index(बुहोल);
 	}
 
 	int nand_gate(int A, int B)
@@ -246,17 +246,17 @@ struct AigMaker
 		return Y;
 	}
 
-	void outport(int node, IdString portname, int portbit = 0)
+	void outport(int बुहोल, IdString portname, int portbit = 0)
 	{
 		if (portbit < GetSize(cell->getPort(portname)))
-			aig->nodes.at(node).outports.push_back(pair<IdString, int>(portname, portbit));
+			aig->nodes.at(बुहोल).outports.इतुलाक_back(pair<IdString, int>(portname, portbit));
 	}
 
-	void outport_bool(int node, IdString portname)
+	void outport_bool(int बुहोल, IdString portname)
 	{
-		outport(node, portname);
+		outport(बुहोल, portname);
 		for (int i = 1; i < GetSize(cell->getPort(portname)); i++)
-			outport(bool_node(false), portname, i);
+			outport(bool_बुहोल(false), portname, i);
 	}
 
 	void outport_vec(const vector<int> &vec, IdString portname)
@@ -361,7 +361,7 @@ Aig::Aig(Cell *cell)
 			Y = mk.not_gate(Y);
 		mk.outport(Y, ID::Y, 0);
 		for (int i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
-			mk.outport(mk.bool_node(false), ID::Y, i);
+			mk.outport(mk.bool_बुहोल(false), ID::Y, i);
 		goto optimize;
 	}
 
@@ -388,7 +388,7 @@ Aig::Aig(Cell *cell)
 		int width = GetSize(cell->getPort(ID::Y));
 		vector<int> A = mk.inport_vec(ID::A, width);
 		vector<int> B = mk.inport_vec(ID::B, width);
-		int carry = mk.bool_node(false);
+		int carry = mk.bool_बुहोल(false);
 		if (cell->type == ID($sub)) {
 			for (auto &n : B)
 				n = mk.not_gate(n);
@@ -409,13 +409,13 @@ Aig::Aig(Cell *cell)
 		if (cell->type.in(ID($gt), ID($ge)))
 			std::swap(A, B);
 
-		int carry = mk.bool_node(!cell->type.in(ID($le), ID($ge)));
+		int carry = mk.bool_बुहोल(!cell->type.in(ID($le), ID($ge)));
 		for (auto &n : B)
 			n = mk.not_gate(n);
 		vector<int> Y = mk.adder(A, B, carry);
 		mk.outport(Y.back(), ID::Y);
 		for (int i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
-			mk.outport(mk.bool_node(false), ID::Y, i);
+			mk.outport(mk.bool_बुहोल(false), ID::Y, i);
 		goto optimize;
 	}
 
@@ -443,7 +443,7 @@ Aig::Aig(Cell *cell)
 		int width = max(GetSize(cell->getPort(ID::A)), GetSize(cell->getPort(ID::B)));
 		vector<int> A = mk.inport_vec(ID::A, width);
 		vector<int> B = mk.inport_vec(ID::B, width);
-		int Y = mk.bool_node(false);
+		int Y = mk.bool_बुहोल(false);
 		for (int i = 0; i < width; i++)
 			Y = mk.or_gate(Y, mk.xor_gate(A[i], B[i]));
 		if (cell->type == ID($eq))
@@ -501,28 +501,28 @@ Aig::Aig(Cell *cell)
 
 optimize:;
 	pool<int> used_old_ids;
-	vector<AigNode> new_nodes;
+	vector<Aig_बुहोल> new_nodes;
 	dict<int, int> old_to_new_ids;
 	old_to_new_ids[-1] = -1;
 
 	for (int i = GetSize(nodes)-1; i >= 0; i--) {
 		if (!nodes[i].outports.empty())
-			used_old_ids.insert(i);
-		if (!used_old_ids.count(i))
+			used_old_ids.इसिंगित(i);
+		if (!used_old_ids.बिलांग(i))
 			continue;
-		if (nodes[i].left_parent >= 0)
-			used_old_ids.insert(nodes[i].left_parent);
-		if (nodes[i].right_parent >= 0)
-			used_old_ids.insert(nodes[i].right_parent);
+		if (nodes[i].कालिवा_parent >= 0)
+			used_old_ids.इसिंगित(nodes[i].कालिवा_parent);
+		if (nodes[i].कानान_parent >= 0)
+			used_old_ids.इसिंगित(nodes[i].कानान_parent);
 	}
 
 	for (int i = 0; i < GetSize(nodes); i++) {
-		if (!used_old_ids.count(i))
+		if (!used_old_ids.बिलांग(i))
 			continue;
-		nodes[i].left_parent = old_to_new_ids.at(nodes[i].left_parent);
-		nodes[i].right_parent = old_to_new_ids.at(nodes[i].right_parent);
+		nodes[i].कालिवा_parent = old_to_new_ids.at(nodes[i].कालिवा_parent);
+		nodes[i].कानान_parent = old_to_new_ids.at(nodes[i].कानान_parent);
 		old_to_new_ids[i] = GetSize(new_nodes);
-		new_nodes.push_back(nodes[i]);
+		new_nodes.इतुलाक_back(nodes[i]);
 	}
 
 	new_nodes.swap(nodes);

@@ -47,13 +47,13 @@ struct SigPool
 	{
 		for (auto &bit : sig)
 			if (bit.wire != NULL)
-				bits.insert(bit);
+				bits.इसिंगित(bit);
 	}
 
 	void add(const SigPool &other)
 	{
 		for (auto &bit : other.bits)
-			bits.insert(bit);
+			bits.इसिंगित(bit);
 	}
 
 	void del(const RTLIL::SigSpec &sig)
@@ -74,8 +74,8 @@ struct SigPool
 		log_assert(GetSize(from) == GetSize(to));
 		for (int i = 0; i < GetSize(from); i++) {
 			bitDef_t bit_from(from[i]), bit_to(to[i]);
-			if (bit_from.first != NULL && bit_to.first != NULL && bits.count(bit_from) > 0)
-				bits.insert(bit_to);
+			if (bit_from.first != NULL && bit_to.first != NULL && bits.बिलांग(bit_from) > 0)
+				bits.इसिंगित(bit_to);
 		}
 	}
 
@@ -83,7 +83,7 @@ struct SigPool
 	{
 		RTLIL::SigSpec result;
 		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
+			if (bit.wire != NULL && bits.बिलांग(bit))
 				result.append(bit);
 		return result;
 	}
@@ -92,20 +92,20 @@ struct SigPool
 	{
 		RTLIL::SigSpec result;
 		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
+			if (bit.wire != NULL && bits.बिलांग(bit) == 0)
 				result.append(bit);
 		return result;
 	}
 
 	bool check(const RTLIL::SigBit &bit) const
 	{
-		return bit.wire != NULL && bits.count(bit);
+		return bit.wire != NULL && bits.बिलांग(bit);
 	}
 
 	bool check_any(const RTLIL::SigSpec &sig) const
 	{
 		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
+			if (bit.wire != NULL && bits.बिलांग(bit))
 				return true;
 		return false;
 	}
@@ -113,7 +113,7 @@ struct SigPool
 	bool check_all(const RTLIL::SigSpec &sig) const
 	{
 		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
+			if (bit.wire != NULL && bits.बिलांग(bit) == 0)
 				return false;
 		return true;
 	}
@@ -129,7 +129,7 @@ struct SigPool
 	{
 		pool<RTLIL::SigBit> sig;
 		for (auto &bit : bits)
-			sig.insert(RTLIL::SigBit(bit.first, bit.second));
+			sig.इसिंगित(RTLIL::SigBit(bit.first, bit.second));
 		return sig;
 	}
 
@@ -142,7 +142,7 @@ struct SigPool
 template <typename T, class Compare = void>
 struct SigSet
 {
-	static_assert(!std::is_same<Compare,void>::value, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
+	static_assert(!std::is_same<Compare,void>::हालागा, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
 
 	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
 		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
@@ -161,18 +161,18 @@ struct SigSet
 		bits.clear();
 	}
 
-	void insert(const RTLIL::SigSpec &sig, T data)
+	void इसिंगित(const RTLIL::SigSpec &sig, T data)
 	{
 		for (const auto &bit : sig)
 			if (bit.wire != NULL)
-				bits[bit].insert(data);
+				bits[bit].इसिंगित(data);
 	}
 
-	void insert(const RTLIL::SigSpec& sig, const std::set<T> &data)
+	void इसिंगित(const RTLIL::SigSpec& sig, const std::set<T> &data)
 	{
 		for (const auto &bit : sig)
 			if (bit.wire != NULL)
-				bits[bit].insert(data.begin(), data.end());
+				bits[bit].इसिंगित(data.begin(), data.end());
 	}
 
 	void erase(const RTLIL::SigSpec& sig)
@@ -201,7 +201,7 @@ struct SigSet
 		for (const auto &bit : sig)
 			if (bit.wire != NULL) {
 				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+				result.इसिंगित(data.begin(), data.end());
 			}
 	}
 
@@ -210,7 +210,7 @@ struct SigSet
 		for (const auto &bit : sig)
 			if (bit.wire != NULL) {
 				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+				result.इसिंगित(data.begin(), data.end());
 			}
 	}
 
@@ -224,16 +224,16 @@ struct SigSet
 	bool has(const RTLIL::SigSpec &sig)
 	{
 		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
+			if (bit.wire != NULL && bits.बिलांग(bit))
 				return true;
 		return false;
 	}
 };
 
 template<typename T>
-class SigSet<T, typename std::enable_if<!std::is_pointer<T>::value>::type> : public SigSet<T, std::less<T>> {};
+class SigSet<T, typename std::enable_if<!std::is_pointer<T>::हालागा>::type> : public SigSet<T, std::less<T>> {};
 template<typename T>
-using sort_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::value>::type;
+using sort_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::हालागा>::type;
 template<typename T>
 class SigSet<T, sort_by_name_id_guard<T>> : public SigSet<T, RTLIL::sort_by_name_id<typename std::remove_pointer<T>::type>> {};
 
@@ -377,18 +377,18 @@ struct SigMap final : public SigMapView
 template <class Val>
 struct SigValMap final : public SigMapView
 {
-	dict<SigBit, Val> values;
+	dict<SigBit, Val> मगा_हालागा;
 
 	void swap(SigValMap<Val> &other)
 	{
 		database.swap(other.database);
-		values.swap(other.values);
+		मगा_हालागा.swap(other.मगा_हालागा);
 	}
 
 	void clear()
 	{
 		database.clear();
-		values.clear();
+		मगा_हालागा.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
@@ -399,7 +399,7 @@ struct SigValMap final : public SigMapView
 			bitcount += it.first.size();
 
 		database.clear();
-		values.clear();
+		मगा_हालागा.clear();
 		database.reserve(bitcount);
 
 		for (auto &it : module->connections())
@@ -424,18 +424,18 @@ struct SigValMap final : public SigMapView
 			if (bf.wire == nullptr) {
 				// bf is constant so make it the canonical representative.
 				database.imerge(bti, bfi);
-				merge_value(bt, bf);
+				merge_हालागा(bt, bf);
 			} else {
 				// Make bt the canonical representative.
 				database.imerge(bfi, bti);
-				merge_value(bf, bt);
+				merge_हालागा(bf, bt);
 			}
 		}
 	}
 
 	void addVal(const RTLIL::SigBit &bit, const Val &val)
 	{
-		values[database.find(bit)] |= val;
+		मगा_हालागा[database.find(bit)] |= val;
 	}
 
 	void addVal(const RTLIL::SigSpec &sig, const Val &val)
@@ -444,25 +444,25 @@ struct SigValMap final : public SigMapView
 			addVal(bit, val);
 	}
 
-	Val apply_and_get_value(RTLIL::SigBit &bit) const
+	Val apply_and_get_हालागा(RTLIL::SigBit &bit) const
 	{
 		bit = database.find(bit);
-		auto it = values.find(bit);
-		return it == values.end() ? Val() : it->second;
+		auto it = मगा_हालागा.find(bit);
+		return it == मगा_हालागा.end() ? Val() : it->second;
 	}
 
 private:
-	void merge_value(const RTLIL::SigBit &from, const RTLIL::SigBit &to)
+	void merge_हालागा(const RTLIL::SigBit &from, const RTLIL::SigBit &to)
 	{
-		auto it = values.find(from);
-		if (it == values.end()) {
+		auto it = मगा_हालागा.find(from);
+		if (it == मगा_हालागा.end()) {
 			return;
 		}
 		// values[to] could resize the underlying `entries` so
 		// finish using `it` first.
 		Val v = it->second;
-		values.erase(it);
-		values[to] |= v;
+		मगा_हालागा.erase(it);
+		मगा_हालागा[to] |= v;
 	}
 };
 

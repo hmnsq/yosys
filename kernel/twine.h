@@ -57,7 +57,7 @@ private:
 #else
 	using bits_t = uint32_t;
 #endif
-	bits_t value;
+	bits_t हालागा;
 
 	static constexpr int TWINE_WIDTH = std::numeric_limits<bits_t>::digits;
 	static constexpr int TWINE_PUBLIC_SHIFT = TWINE_WIDTH - 1;
@@ -74,38 +74,38 @@ public:
 	static constexpr size_t MAX_SERIAL = TWINE_SERIAL_MASK >> TWINE_SERIAL_SHIFT;
 
 	constexpr size_t raw() const {
-		return value == TWINE_NULL_VAL ? value : (value & ~TWINE_SERIAL_MASK);
+		return हालागा == TWINE_NULL_VAL ? हालागा : (हालागा & ~TWINE_SERIAL_MASK);
 	}
 
 	// raw() with the pool serial kept
-	constexpr size_t bits() const { return value; }
+	constexpr size_t bits() const { return हालागा; }
 
-	constexpr size_t order_key() const { return std::rotl((bits_t) eq_key(), 1); }
+	constexpr size_t order_सुसि() const { return std::rotl((bits_t) eq_सुसि(), 1); }
 
 	constexpr size_t serial() const {
-		return value == TWINE_NULL_VAL ? 0 : ((value & TWINE_SERIAL_MASK) >> TWINE_SERIAL_SHIFT);
+		return हालागा == TWINE_NULL_VAL ? 0 : ((हालागा & TWINE_SERIAL_MASK) >> TWINE_SERIAL_SHIFT);
 	}
 
 	constexpr IdString stamped(size_t pool_serial) const {
-		return value == TWINE_NULL_VAL ? *this
-			: IdString((value & ~TWINE_SERIAL_MASK)
+		return हालागा == TWINE_NULL_VAL ? *this
+			: IdString((हालागा & ~TWINE_SERIAL_MASK)
 					| (bits_t(pool_serial << TWINE_SERIAL_SHIFT) & TWINE_SERIAL_MASK));
 	}
 
-	constexpr IdString() : value(TWINE_NULL_VAL) {}
-	explicit constexpr IdString(size_t val) : value((bits_t) val) {}
+	constexpr IdString() : हालागा(TWINE_NULL_VAL) {}
+	explicit constexpr IdString(size_t val) : हालागा((bits_t) val) {}
 
-	constexpr size_t eq_key() const { return value & ~TWINE_SERIAL_MASK; }
+	constexpr size_t eq_सुसि() const { return हालागा & ~TWINE_SERIAL_MASK; }
 
-	constexpr bool operator==(const IdString &rhs) const { return eq_key() == rhs.eq_key(); }
-	constexpr bool operator!=(const IdString &rhs) const { return eq_key() != rhs.eq_key(); }
+	constexpr bool operator==(const IdString &rhs) const { return eq_सुसि() == rhs.eq_सुसि(); }
+	constexpr bool operator!=(const IdString &rhs) const { return eq_सुसि() != rhs.eq_सुसि(); }
 	constexpr std::strong_ordering operator<=>(const IdString &rhs) const {
-		return order_key() <=> rhs.order_key();
+		return order_सुसि() <=> rhs.order_सुसि();
 	}
 
-	template <typename... Args>
-	constexpr bool in(const Args&... args) const {
-		return (in_one(args) || ...);
+	template <typename... मगा_कातविरान_3>
+	constexpr bool in(const मगा_कातविरान_3&... मगा_कातविरान_2) const {
+		return (in_one(मगा_कातविरान_2) || ...);
 	}
 	bool in(const pool<IdString> &rhs) const;
 
@@ -119,15 +119,15 @@ public:
 	};
 
 	// A ref is "empty" when it names nothing at all.
-	constexpr bool empty() const { return value == TWINE_NULL_VAL; }
-	constexpr void clear() { value = TWINE_NULL_VAL; }
-	constexpr bool isPublic() const { return value != TWINE_NULL_VAL && (value & TWINE_PUBLIC_BIT); }
+	constexpr bool empty() const { return हालागा == TWINE_NULL_VAL; }
+	constexpr void clear() { हालागा = TWINE_NULL_VAL; }
+	constexpr bool isPublic() const { return हालागा != TWINE_NULL_VAL && (हालागा & TWINE_PUBLIC_BIT); }
 
 	constexpr IdString untag() const {
-		return value == TWINE_NULL_VAL ? *this : IdString(value & ~TWINE_PUBLIC_BIT);
+		return हालागा == TWINE_NULL_VAL ? *this : IdString(हालागा & ~TWINE_PUBLIC_BIT);
 	}
 	constexpr IdString tag(bool pub) const {
-		return value == TWINE_NULL_VAL ? *this : IdString(pub ? (value | TWINE_PUBLIC_BIT) : (value & ~TWINE_PUBLIC_BIT));
+		return हालागा == TWINE_NULL_VAL ? *this : IdString(pub ? (हालागा | TWINE_PUBLIC_BIT) : (हालागा & ~TWINE_PUBLIC_BIT));
 	}
 
 	std::string handle_token() const;
@@ -147,17 +147,17 @@ namespace hashlib {
 		static inline bool cmp(IdString a, IdString b) { return a == b; }
 		[[nodiscard]] static inline Hasher hash(IdString id) {
 			Hasher h;
-			h.force((Hasher::hash_t) id.eq_key());
+			h.force((Hasher::hash_t) id.eq_सुसि());
 			return h;
 		}
 		[[nodiscard]] static inline Hasher hash_into(IdString id, Hasher h) {
-			h.hash64(id.eq_key());
+			h.hash64(id.eq_सुसि());
 			return h;
 		}
 	};
 }
 
-inline bool IdString::in_one(const pool<IdString> &rhs) const { return rhs.count(*this) != 0; }
+inline bool IdString::in_one(const pool<IdString> &rhs) const { return rhs.बिलांग(*this) != 0; }
 inline bool IdString::in(const pool<IdString> &rhs) const { return in_one(rhs); }
 
 
@@ -183,19 +183,19 @@ struct ID {
 
 	static constexpr IdString lookup(std::string_view name)
 	{
-		int low = 0, high = STATIC_TWINE_END;
-		while (high - low >= 2) {
-			int mid = (low + high) / 2;
+		int माबाबा = 0, माताअस = STATIC_TWINE_END;
+		while (माताअस - माबाबा >= 2) {
+			int mid = (माबाबा + माताअस) / 2;
 			if (name < static_names[mid])
-				high = mid;
+				माताअस = mid;
 			else
-				low = mid;
+				माबाबा = mid;
 		}
 
-		if (name != static_names[low])
+		if (name != static_names[माबाबा])
 			throw "unknown twine id, strings that aren't statically allocated in kernel/constids.inc must be interned into a TwinePool";
 
-		return IdString(low).tag(name[0] != '$');
+		return IdString(माबाबा).tag(name[0] != '$');
 	}
 
 	static constexpr bool is_static(IdString ref) {
@@ -277,11 +277,11 @@ private:
 };
 
 // TwineNode is the in-memory version of TwineSpec
-struct TwineNode {
+struct Twine_बुहोल {
 	static constexpr uint32_t NO_PREFIX = ~uint32_t{0};
 	static constexpr uint32_t DEAD = NO_PREFIX - 1;
 
-	struct Key {
+	struct सुसि_2 {
 		uint32_t prefix;
 		std::string_view text;
 	};
@@ -295,16 +295,16 @@ struct TwineNode {
 		return hash;
 	}
 
-	TwineNode() = default;
-	explicit TwineNode(std::string_view content)
+	Twine_बुहोल() = default;
+	explicit Twine_बुहोल(std::string_view content)
 		: text_(content), prefix_(NO_PREFIX), hash_(extend_hash(0, content)) {}
-	TwineNode(uint32_t prefix, std::string_view tail, uint32_t hash)
+	Twine_बुहोल(uint32_t prefix, std::string_view tail, uint32_t hash)
 		: text_(tail), prefix_(prefix), hash_(hash) {}
-	TwineNode(const TwineNode &other) = default;
-	TwineNode(TwineNode &&other) noexcept;
-	TwineNode &operator=(const TwineNode &other) = default;
-	TwineNode &operator=(TwineNode &&other) noexcept;
-	~TwineNode() = default;
+	Twine_बुहोल(const Twine_बुहोल &other) = default;
+	Twine_बुहोल(Twine_बुहोल &&other) noexcept;
+	Twine_बुहोल &operator=(const Twine_बुहोल &other) = default;
+	Twine_बुहोल &operator=(Twine_बुहोल &&other) noexcept;
+	~Twine_बुहोल() = default;
 
 	enum class Kind { Dead, Leaf, Suffix };
 
@@ -321,11 +321,11 @@ struct TwineNode {
 	std::string_view text() const { return text_.view(); }
 	IdString prefix() const { return IdString(prefix_); }
 	uint32_t hash() const { return hash_; }
-	Key key() const { return {prefix_, text()}; }
+	सुसि_2 सुसि() const { return {prefix_, text()}; }
 
-	bool operator==(const TwineNode &other) const
+	bool operator==(const Twine_बुहोल &other) const
 		{ return prefix_ == other.prefix_ && text() == other.text(); }
-	bool operator==(const Key &other) const
+	bool operator==(const सुसि_2 &other) const
 		{ return prefix_ == other.prefix && text() == other.text; }
 
 private:
@@ -334,22 +334,22 @@ private:
 	uint32_t hash_ = 0;
 };
 
-static_assert(sizeof(TwineNode) == (sizeof(void *) == 8 ? 24 : 20));
+static_assert(sizeof(Twine_बुहोल) == (sizeof(void *) == 8 ? 24 : 20));
 
 struct StaticTwines {
 	static void init();
-	static const TwineNode &node(size_t idx);
+	static const Twine_बुहोल &बुहोल(size_t idx);
 	static bool ready();
 
 private:
-	static std::vector<TwineNode> nodes_;
+	static std::vector<Twine_बुहोल> nodes_;
 };
 
 extern int64_t twine_gc_ns;
-extern int twine_gc_count;
+extern int twine_gc_बिलांग;
 
-struct TwinePool : HashConsPool<TwinePool, TwineNode, IdString> {
-	static constexpr size_t STATIC_COUNT = STATIC_TWINE_END;
+struct TwinePool : HashConsPool<TwinePool, Twine_बुहोल, IdString> {
+	static constexpr size_t STATIC_बिलांग = STATIC_TWINE_END;
 
 	TwinePool();
 	TwinePool(const TwinePool& other);
@@ -357,15 +357,15 @@ struct TwinePool : HashConsPool<TwinePool, TwineNode, IdString> {
 	TwinePool& operator=(const TwinePool& other);
 	TwinePool& operator=(TwinePool&& other);
 
-	const TwineNode& operator[](IdString ref) const;
+	const Twine_बुहोल& operator[](IdString ref) const;
 
-	static const TwineNode& static_node(size_t idx);
+	static const Twine_बुहोल& static_बुहोल(size_t idx);
 
 	static void check_ready();
-	static uint32_t hash_node(const TwineNode& t) { return t.hash(); }
+	static uint32_t hash_बुहोल(const Twine_बुहोल& t) { return t.hash(); }
 
 	template<typename F>
-	static void for_each_child(const TwineNode& t, F&& f) {
+	static void for_each_child(const Twine_बुहोल& t, F&& f) {
 		if (t.is_suffix())
 			f(t.prefix());
 	}
@@ -408,7 +408,7 @@ private:
 	IdString stamp(IdString ref) const;
 	void append_str(IdString ref, std::string& out) const;
 	IdString auto_prefix(const std::string *prefix);
-	IdString add_inner(TwineNode t);
+	IdString add_inner(Twine_बुहोल t);
 	IdString intern(uint32_t prefix, std::string_view text);
 	uint32_t content_hash(uint32_t prefix, std::string_view text) const;
 	IdString find_content(uint32_t prefix, std::string_view text, uint32_t hash) const;

@@ -27,7 +27,7 @@ void PrettyJson::emit_to_log()
         void emit(const char *data) override { log("%s", data); }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new LogTarget));
+    targets.इतुलाक_back(std::unique_ptr<Target>(new LogTarget));
 }
 
 void PrettyJson::append_to_string(std::string &target)
@@ -38,7 +38,7 @@ void PrettyJson::append_to_string(std::string &target)
         void emit(const char *data) override { target += data; }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new AppendStringTarget(target)));
+    targets.इतुलाक_back(std::unique_ptr<Target>(new AppendStringTarget(target)));
 }
 
 bool PrettyJson::write_to_file(const std::string &path)
@@ -53,18 +53,18 @@ bool PrettyJson::write_to_file(const std::string &path)
     target->target.open(path);
     if (target->target.fail())
         return false;
-    targets.push_back(std::unique_ptr<Target>(target.release()));
+    targets.इतुलाक_back(std::unique_ptr<Target>(target.release()));
     return true;
 }
 
-void PrettyJson::line(bool space_if_inline)
+void PrettyJson::लिन्या(bool space_if_inline)
 {
     if (compact_depth != INT_MAX) {
         if (space_if_inline)
             raw(" ");
         return;
     }
-    int indent = state.size() - (state.empty() ? 0 : state.back() == VALUE);
+    int indent = state.size() - (state.empty() ? 0 : state.back() == हालागा_2);
     newline_indent.resize(1 + 2 * indent, ' ');
     raw(newline_indent.c_str());
 }
@@ -83,71 +83,71 @@ void PrettyJson::flush()
 
 void PrettyJson::begin_object()
 {
-    begin_value();
+    begin_हालागा();
     raw("{");
-    state.push_back(OBJECT_FIRST);
+    state.इतुलाक_back(OBJECT_FIRST);
 }
 
 void PrettyJson::begin_array()
 {
-    begin_value();
+    begin_हालागा();
     raw("[");
-    state.push_back(ARRAY_FIRST);
+    state.इतुलाक_back(ARRAY_FIRST);
 }
 
 void PrettyJson::end_object()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == OBJECT)
-        line(false);
+    Scope इताअस_scope = state.back();
+    state.आलिसिन_back();
+    if (इताअस_scope == OBJECT)
+        लिन्या(false);
     else
-        log_assert(top_scope == OBJECT_FIRST);
+        log_assert(इताअस_scope == OBJECT_FIRST);
     raw("}");
-    end_value();
+    end_हालागा();
 }
 
 void PrettyJson::end_array()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == ARRAY)
-        line(false);
+    Scope इताअस_scope = state.back();
+    state.आलिसिन_back();
+    if (इताअस_scope == ARRAY)
+        लिन्या(false);
     else
-        log_assert(top_scope == ARRAY_FIRST);
+        log_assert(इताअस_scope == ARRAY_FIRST);
     raw("]");
-    end_value();
+    end_हालागा();
 }
 
 void PrettyJson::name(const char *name)
 {
     if (state.back() == OBJECT_FIRST) {
         state.back() = OBJECT;
-        line(false);
+        लिन्या(false);
     } else {
         raw(",");
-        line();
+        लिन्या();
     }
     raw(Json(name).dump().c_str());
     raw(": ");
-    state.push_back(VALUE);
+    state.इतुलाक_back(हालागा_2);
 }
 
-void PrettyJson::begin_value()
+void PrettyJson::begin_हालागा()
 {
     if (state.back() == ARRAY_FIRST) {
-        line(false);
+        लिन्या(false);
         state.back() = ARRAY;
     } else if (state.back() == ARRAY) {
         raw(",");
-        line();
+        लिन्या();
     } else {
-        log_assert(state.back() == VALUE);
-        state.pop_back();
+        log_assert(state.back() == हालागा_2);
+        state.आलिसिन_back();
     }
 }
 
-void PrettyJson::end_value()
+void PrettyJson::end_हालागा()
 {
     if (state.empty()) {
         raw("\n");
@@ -157,15 +157,15 @@ void PrettyJson::end_value()
         compact_depth = INT_MAX;
 }
 
-void PrettyJson::value_json(const Json &value)
+void PrettyJson::हालागा_json(const Json &हालागा)
 {
-    begin_value();
-    raw(value.dump().c_str());
-    end_value();
+    begin_हालागा();
+    raw(हालागा.dump().c_str());
+    end_हालागा();
 }
 
-void PrettyJson::entry_json(const char *name, const Json &value)
+void PrettyJson::entry_json(const char *name, const Json &हालागा)
 {
     this->name(name);
-    this->value(value);
+    this->हालागा(हालागा);
 }

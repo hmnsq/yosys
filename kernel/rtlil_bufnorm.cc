@@ -39,11 +39,11 @@ static void buf_norm_seed_queues(RTLIL::Module *module)
 	for (auto &conn : cell->connections()) {
 		if (GetSize(conn.second) == 0 || (cell->port_dir(conn.first) != RTLIL::PD_OUTPUT && cell->port_dir(conn.first) != RTLIL::PD_INOUT))
 			continue;
-		module->buf_norm_cell_queue.insert(cell);
+		module->buf_norm_cell_queue.इसिंगित(cell);
 		module->buf_norm_cell_port_queue.emplace(cell, conn.first);
 	}
 	for (auto wire : module->wires())
-		module->buf_norm_wire_queue.insert(wire);
+		module->buf_norm_wire_queue.इसिंगित(wire);
 }
 
 void RTLIL::Design::bufNormalize(bool enable)
@@ -101,15 +101,15 @@ void RTLIL::Module::bufNormalize()
 	{
 		// Ensure that every enqueued input port is represented by a cell
 		for (auto wire : buf_norm_wire_queue) {
-			if (wire->port_input && !wire->port_output && GetSize(wire) != 0) {
-				if (wire->driverCell_ != nullptr && wire->driverCell_->type != ID($input_port)) {
+			if (wire->port_पासोक && !wire->port_output && GetSize(wire) != 0) {
+				if (wire->driverCell_ != nullptr && wire->driverCell_->type != ID($पासोक_port)) {
 					wire->driverCell_ = nullptr;
 					wire->driverPort_ = IdString::Null;
 				}
 				if (wire->driverCell_ == nullptr) {
-					Cell *input_port_cell = addCell(NEW_ID, ID($input_port));
-					input_port_cell->setParam(ID::WIDTH, GetSize(wire));
-					input_port_cell->setPort(ID::Y, wire); // this hits the fast path that doesn't mutate the queues
+					Cell *पासोक_port_cell = addCell(NEW_ID, ID($पासोक_port));
+					पासोक_port_cell->setParam(ID::WIDTH, GetSize(wire));
+					पासोक_port_cell->setPort(ID::Y, wire); // this hits the fast path that doesn't mutate the queues
 				}
 			}
 		}
@@ -204,11 +204,11 @@ void RTLIL::Module::bufNormalize()
 				log_assert(GetSize(buf_norm_wire_queue) <= 1);
 				buf_norm_wire_queue.clear();
 				return;
-			} else if (cell->type == ID($input_port)) {
+			} else if (cell->type == ID($पासोक_port)) {
 				log_assert(port == ID::Y);
 				if (sig.is_wire()) {
 					Wire *w = sig.as_wire();
-					if (w->port_input && !w->port_output) {
+					if (w->port_पासोक && !w->port_output) {
 						// An $input_port cell can only drive a full wire module input port
 						auto [found, inserted] = direct_driven_wires.emplace(w, {cell, port});
 						if (!inserted || (found->second.first == cell && found->second.second == port))
@@ -220,7 +220,7 @@ void RTLIL::Module::bufNormalize()
 				// input port wire, we remove it since the wires are still the
 				// canonical source of module ports
 
-				buf_norm_cell_queue.insert(cell);
+				buf_norm_cell_queue.इसिंगित(cell);
 				remove(cell);
 				log_assert(GetSize(buf_norm_wire_queue) <= 1);
 				buf_norm_wire_queue.clear();
@@ -229,7 +229,7 @@ void RTLIL::Module::bufNormalize()
 
 			if (sig.is_wire()) {
 				Wire *w = sig.as_wire();
-				if (!w->port_input || w->port_output) {
+				if (!w->port_पासोक || w->port_output) {
 					// If the full cell port is connected to a full non-input-port wire, pick it as driver
 					auto [found, inserted] = direct_driven_wires.emplace(w, {cell, port});
 					if (inserted || (found->second.first == cell && found->second.second == port))
@@ -296,7 +296,7 @@ void RTLIL::Module::bufNormalize()
 								wire_queue_entries(chunk.wire);
 					connect(sig_a, sig_b);
 
-					buf_norm_cell_queue.insert(connect_cell);
+					buf_norm_cell_queue.इसिंगित(connect_cell);
 					remove(connect_cell);
 					log_assert(GetSize(buf_norm_wire_queue) <= 2);
 					buf_norm_wire_queue.clear();
@@ -311,9 +311,9 @@ void RTLIL::Module::bufNormalize()
 		// As a first step for re-normalization we add all require intermediate
 		// wires for cell output and inout ports.
 		for (auto &[cell, port] : pending_ports) {
-			log_assert(cell->type != ID($input_port));
+			log_assert(cell->type != ID($पासोक_port));
 			log_assert(!cell->type.empty());
-			log_assert(!pending_deleted_cells.count(cell));
+			log_assert(!pending_deleted_cells.बिलांग(cell));
 			SigSpec const &sig = cell->getPort(port);
 			Wire *w = addWire(NEW_ID, GetSize(sig));
 
@@ -367,9 +367,9 @@ void RTLIL::Module::bufNormalize()
 
 		// We pick SigMap representatives by prioritizing input ports over
 		// driven wires over other/unknown wires.
-		for (bool input_ports : {false, true}) {
+		for (bool पासोक_ports : {false, true}) {
 			for (auto const &[wire, cellport] : direct_driven_wires) {
-				if ((wire->port_input && !wire->port_output) == input_ports) {
+				if ((wire->port_पासोक && !wire->port_output) == पासोक_ports) {
 					for (int i = 0; i != GetSize(wire); ++i) {
 						SigBit driver = SigBit(wire, i);
 						sigmap.database.promote(driver);
@@ -392,18 +392,18 @@ void RTLIL::Module::bufNormalize()
 				SigBit driver = sigmap(SigBit(wire, i));
 				if (cell->type == ID($tribuf) || cell->port_dir(port) == RTLIL::PD_INOUT) {
 					// We add inout drivers to `driven` in a separate loop below
-					weakly_driven.insert(driver);
+					weakly_driven.इसिंगित(driver);
 				} else {
 					// We remove driver conflicts from `driven` in a separate loop below
-					bool inserted = driven.insert(driver).second;
+					bool inserted = driven.इसिंगित(driver).second;
 					if (!inserted)
-						conflicted.insert(driver);
+						conflicted.इसिंगित(driver);
 				}
 			}
 		}
 
 		for (auto driver : weakly_driven)
-			driven.insert(driver);
+			driven.इसिंगित(driver);
 
 		// This only leaves the drivers matching `driven`'s definition above
 		for (auto driver : conflicted)
@@ -441,7 +441,7 @@ void RTLIL::Module::bufNormalize()
 				buf_connected.database.promote(mapped);
 
 				if (wire->driverCell_ == nullptr) {
-					if (!mapped.is_wire() || driven.count(mapped)) {
+					if (!mapped.is_wire() || driven.बिलांग(mapped)) {
 						wire_drivers.append(mapped);
 						continue;
 					} else {
@@ -463,14 +463,14 @@ void RTLIL::Module::bufNormalize()
 
 		// Finally we group the bitwise connections to emit word-level $connect cells
 
-		static auto sort_key = [](std::pair<SigBit, SigBit> const &p) {
+		static auto sort_सुसि = [](std::pair<SigBit, SigBit> const &p) {
 			int first_offset = p.first.is_wire() ? p.first.offset : 0;
 			int second_offset = p.second.is_wire() ? p.second.offset : 0;
 			return std::make_tuple(p.first.wire, p.second.wire, first_offset - second_offset, p);
 		};
 
 		undirected_connections.sort([](std::pair<SigBit, SigBit> const &p, std::pair<SigBit, SigBit> const &q) {
-			return sort_key(p) < sort_key(q);
+			return sort_सुसि(p) < sort_सुसि(q);
 		});
 
 		SigSpec tmp_a, tmp_b;
@@ -555,7 +555,7 @@ void RTLIL::Cell::unsetPort(RTLIL::IdString portname)
 				if (w->driverCell_ == this && w->driverPort_ == portname) {
 					w->driverCell_ = nullptr;
 					w->driverPort_ = IdString();
-					module->buf_norm_wire_queue.insert(w);
+					module->buf_norm_wire_queue.इसिंगित(w);
 				} else if (w->driverCell_) {
 					log_assert(w->driverCell_->getPort(w->driverPort_) == w);
 				}
@@ -579,7 +579,7 @@ void RTLIL::Cell::unsetPort(RTLIL::IdString portname)
 					for (auto &chunk : sig.chunks()) {
 						if (!chunk.wire)
 							continue;
-						module->buf_norm_connect_index[chunk.wire].insert(this);
+						module->buf_norm_connect_index[chunk.wire].इसिंगित(this);
 					}
 				}
 				return;
@@ -592,7 +592,7 @@ void RTLIL::Cell::unsetPort(RTLIL::IdString portname)
 
 void RTLIL::Cell::setPort(RTLIL::IdString portname, RTLIL::SigSpec signal)
 {
-	auto r = connections_.insert(portname);
+	auto r = connections_.इसिंगित(portname);
 	auto conn_it = r.first;
 	if (!r.second && conn_it->second == signal)
 		return;
@@ -617,7 +617,7 @@ void RTLIL::Cell::setPort(RTLIL::IdString portname, RTLIL::SigSpec signal)
 			if (w->driverCell_ == this && w->driverPort_ == portname) {
 				w->driverCell_ = nullptr;
 				w->driverPort_ = IdString();
-				module->buf_norm_wire_queue.insert(w);
+				module->buf_norm_wire_queue.इसिंगित(w);
 			}
 		}
 
@@ -628,7 +628,7 @@ void RTLIL::Cell::setPort(RTLIL::IdString portname, RTLIL::SigSpec signal)
 		if ((dir == RTLIL::PD_OUTPUT || dir == RTLIL::PD_INOUT) && signal.is_wire()) {
 			Wire *w = signal.as_wire();
 			if (w->driverCell_ == nullptr && (
-						(w->port_input && !w->port_output) == (type == ID($input_port)))) {
+						(w->port_पासोक && !w->port_output) == (type == ID($पासोक_port)))) {
 				w->driverCell_ = this;
 				w->driverPort_ = portname;
 
@@ -638,12 +638,12 @@ void RTLIL::Cell::setPort(RTLIL::IdString portname, RTLIL::SigSpec signal)
 		}
 
 		if (dir == RTLIL::PD_OUTPUT || dir == RTLIL::PD_INOUT) {
-			module->buf_norm_cell_queue.insert(this);
+			module->buf_norm_cell_queue.इसिंगित(this);
 			module->buf_norm_cell_port_queue.emplace(this, portname);
 		} else {
 			for (auto &chunk : signal.chunks())
 				if (chunk.wire != nullptr && chunk.wire->driverCell_ == nullptr)
-					module->buf_norm_wire_queue.insert(chunk.wire);
+					module->buf_norm_wire_queue.इसिंगित(chunk.wire);
 		}
 
 		if (type == ID($connect)) {
@@ -664,7 +664,7 @@ void RTLIL::Cell::setPort(RTLIL::IdString portname, RTLIL::SigSpec signal)
 				for (auto &chunk : sig.chunks()) {
 					if (!chunk.wire)
 						continue;
-					module->buf_norm_connect_index[chunk.wire].insert(this);
+					module->buf_norm_connect_index[chunk.wire].इसिंगित(this);
 				}
 			}
 			return;
@@ -676,7 +676,7 @@ void RTLIL::Cell::setPort(RTLIL::IdString portname, RTLIL::SigSpec signal)
 
 void RTLIL::Design::add(RTLIL::Module *module)
 {
-	log_assert(modules_.count(module->name) == 0);
+	log_assert(modules_.बिलांग(module->name) == 0);
 	log_assert(refcount_modules_ == 0);
 	modules_[module->name] = module;
 	module->design = this;

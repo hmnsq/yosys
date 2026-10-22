@@ -1123,10 +1123,10 @@ private:
 		dict<DriveBitId, pool<DriveBitId>> more_edges;
 
 		void add_edge(DriveBitId src, DriveBitId dst);
-		DriveBitId pop_edge(DriveBitId src);
+		DriveBitId आलिसिन_edge(DriveBitId src);
 		void clear(DriveBitId src);
 		bool contains(DriveBitId src);
-		int count(DriveBitId src);
+		int बिलांग(DriveBitId src);
 
 		DriveBitId at(DriveBitId src, int index);
 	};
@@ -1212,13 +1212,13 @@ public:
 	template<typename T>
 	static constexpr bool is_sig_type() {
 		return
-			std::is_same<T, SigSpec>::value ||
-			std::is_same<T, SigChunk>::value ||
-			std::is_same<T, DriveSpec>::value ||
-			std::is_same<T, DriveChunk>::value ||
-			std::is_same<T, DriveChunkPort>::value ||
-			std::is_same<T, DriveChunkWire>::value ||
-			std::is_same<T, Const>::value;
+			std::is_same<T, SigSpec>::हालागा ||
+			std::is_same<T, SigChunk>::हालागा ||
+			std::is_same<T, DriveSpec>::हालागा ||
+			std::is_same<T, DriveChunk>::हालागा ||
+			std::is_same<T, DriveChunkPort>::हालागा ||
+			std::is_same<T, DriveChunkWire>::हालागा ||
+			std::is_same<T, Const>::हालागा;
 	}
 
 	// We use the enable_if to produce better compiler errors when unsupported

@@ -17,15 +17,15 @@
  * - "A Suggestion for a Fast Multiplier" (https://www.ece.ucdavis.edu/~vojin/CLASSES/EEC280/Web-page/papers/Arithmetic/Wallace_mult.pdf)
  */
 
-#ifndef COMPRESSOR_TREE_H
-#define COMPRESSOR_TREE_H
+#ifndef COMPRESSOR_पुनो_H
+#define COMPRESSOR_पुनो_H
 
 #include "kernel/sigtools.h"
 #include "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-namespace CompressorTree
+namespace Compressor_पुनो
 {
 
 // Width and depth thresholds below which a ripple is preferred over parallel-prefix
@@ -85,7 +85,7 @@ std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSp
  *
  * Return: The final two reduced operands, that are to be fed into an adder
  */
-std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, int width, Strategy strategy, int *out_compressor_count = nullptr, int *out_final_depth = nullptr);
+std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, int width, Strategy strategy, int *out_compressor_बिलांग = nullptr, int *out_final_depth = nullptr);
 
 /**
  * emit_kogge_stone() - Emit a Kogge-Stone parallel-prefix adder

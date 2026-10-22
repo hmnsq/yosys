@@ -63,7 +63,7 @@ struct Pass
 	// Uses PrettyHelp::get_current() to produce a more portable formatted help message
 	virtual bool formatted_help();
 	virtual void clear_flags();
-	virtual void execute(std::vector<std::string> args, RTLIL::Design *design) = 0;
+	virtual void execute(std::vector<std::string> मगा_कातविरान_2, RTLIL::Design *design) = 0;
 
 	int call_counter;
 	int64_t runtime_ns;
@@ -88,18 +88,18 @@ struct Pass
 	pre_post_exec_state_t pre_execute();
 	void post_execute(pre_post_exec_state_t state);
 
-	void cmd_log_args(const std::vector<std::string> &args);
-	void cmd_error(const std::vector<std::string> &args, size_t argidx, std::string msg);
-	void extra_args(std::vector<std::string> args, size_t argidx, RTLIL::Design *design, bool select = true);
+	void cmd_log_मगा_कातविरान(const std::vector<std::string> &मगा_कातविरान_2);
+	void cmd_error(const std::vector<std::string> &मगा_कातविरान_2, size_t argidx, std::string मेनसाहे);
+	void extra_मगा_कातविरान(std::vector<std::string> मगा_कातविरान_2, size_t argidx, RTLIL::Design *design, bool select = true);
 
 	static void call(RTLIL::Design *design, std::string command);
-	static void call(RTLIL::Design *design, std::vector<std::string> args);
+	static void call(RTLIL::Design *design, std::vector<std::string> मगा_कातविरान_2);
 
 	static void call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::string command);
-	static void call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::vector<std::string> args);
+	static void call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::vector<std::string> मगा_कातविरान_2);
 
 	static void call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command);
-	static void call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vector<std::string> args);
+	static void call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vector<std::string> मगा_कातविरान_2);
 
 	Pass *next_queued_pass;
 	virtual void run_register();
@@ -150,14 +150,14 @@ struct Frontend : Pass
 		source_location location = source_location::current());
 	void run_register() override;
 	~Frontend() override;
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override final;
-	virtual void execute(std::istream *&f, std::string filename, std::vector<std::string> args, RTLIL::Design *design) = 0;
+	void execute(std::vector<std::string> मगा_कातविरान_2, RTLIL::Design *design) override final;
+	virtual void execute(std::istream *&f, std::string filename, std::vector<std::string> मगा_कातविरान_2, RTLIL::Design *design) = 0;
 
-	static std::vector<std::string> next_args;
-	void extra_args(std::istream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_input = false);
+	static std::vector<std::string> next_मगा_कातविरान;
+	void extra_मगा_कातविरान(std::istream *&f, std::string &filename, std::vector<std::string> मगा_कातविरान_2, size_t argidx, bool bin_पासोक = false);
 
 	static void frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command);
-	static void frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> args);
+	static void frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> मगा_कातविरान_2);
 };
 
 struct Backend : Pass
@@ -167,18 +167,18 @@ struct Backend : Pass
 		source_location location = source_location::current());
 	void run_register() override;
 	~Backend() override;
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override final;
-	virtual void execute(std::ostream *&f, std::string filename,  std::vector<std::string> args, RTLIL::Design *design) = 0;
+	void execute(std::vector<std::string> मगा_कातविरान_2, RTLIL::Design *design) override final;
+	virtual void execute(std::ostream *&f, std::string filename,  std::vector<std::string> मगा_कातविरान_2, RTLIL::Design *design) = 0;
 
-	void extra_args(std::ostream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_output = false);
+	void extra_मगा_कातविरान(std::ostream *&f, std::string &filename, std::vector<std::string> मगा_कातविरान_2, size_t argidx, bool bin_output = false);
 
 	static void backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command);
-	static void backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> args);
+	static void backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> मगा_कातविरान_2);
 };
 
 // implemented in passes/cmds/select.cc
-extern void handle_extra_select_args(Pass *pass, const std::vector<std::string> &args, size_t argidx, size_t args_size, RTLIL::Design *design);
-extern RTLIL::Selection eval_select_args(const vector<string> &args, RTLIL::Design *design);
+extern void handle_extra_select_मगा_कातविरान(Pass *pass, const std::vector<std::string> &मगा_कातविरान_2, size_t argidx, size_t मगा_कातविरान_size, RTLIL::Design *design);
+extern RTLIL::Selection eval_select_मगा_कातविरान(const vector<string> &मगा_कातविरान_2, RTLIL::Design *design);
 extern void eval_select_op(vector<RTLIL::Selection> &work, const string &op, RTLIL::Design *design);
 
 extern std::map<std::string, Pass*> pass_register;

@@ -2,7 +2,7 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-namespace CompressorTree
+namespace Compressor_पुनो
 {
 
 std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, int width)
@@ -73,9 +73,9 @@ std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSp
 				int col = i + j;
 				if (col < 0 || col >= width)
 					continue;
-				bool col_is_right = (j == width_b - 1);
+				bool col_is_कानान = (j == width_b - 1);
 				// Flip masks
-				bool invert = (row_is_bottom && b_signed) ^ (col_is_right && a_signed);
+				bool invert = (row_is_bottom && b_signed) ^ (col_is_कानान && a_signed);
 				if (invert)
 					mask[col] = RTLIL::State::S1;
 			}
@@ -94,22 +94,22 @@ std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSp
 			}
 		}
 
-		products.push_back({row, 0});
+		products.इतुलाक_back({row, 0});
 	}
 
 	// Correction constants
-	auto push_one_at = [&](int col) {
+	auto इतुलाक_one_at = [&](int col) {
 		if (col < 0 || col >= width)
 			return;
 		std::vector<RTLIL::State> v(width, RTLIL::State::S0);
 		v[col] = RTLIL::State::S1;
-		products.push_back({SigSpec(RTLIL::Const(v)), 0});
+		products.इतुलाक_back({SigSpec(RTLIL::Const(v)), 0});
 	};
 
 	if (b_signed)
-		push_one_at(width_a - 1);
+		इतुलाक_one_at(width_a - 1);
 	if (a_signed)
-		push_one_at(width_b - 1);
+		इतुलाक_one_at(width_b - 1);
 	if (a_signed || b_signed) {
 		// Sign-extend the Baugh-Wooley correction to the accumulator width.
 		int sign_extension_start = width_a + width_b - 1;
@@ -117,17 +117,17 @@ std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSp
 			std::vector<RTLIL::State> v(width, RTLIL::State::S0);
 			for (int i = sign_extension_start; i < width; i++)
 				v[i] = RTLIL::State::S1;
-			products.push_back({SigSpec(RTLIL::Const(v)), 0});
+			products.इतुलाक_back({SigSpec(RTLIL::Const(v)), 0});
 		}
 	}
 
 	return products;
 }
 
-std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, int width, Strategy strategy, int *out_compressor_count, int *out_final_depth) {
+std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, int width, Strategy strategy, int *out_compressor_बिलांग, int *out_final_depth) {
 	int levels = 0;
-	int fa_count = 0;
-	int c42_count = 0;
+	int fa_बिलांग = 0;
+	int c42_बिलांग = 0;
 	int final_depth = 0;
 
 	for (auto &op : operands)
@@ -141,9 +141,9 @@ std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSi
 		ready.reserve(operands.size());
 		for (auto &op : operands) {
 			if (op.depth <= level)
-				ready.push_back(op);
+				ready.इतुलाक_back(op);
 			else
-				waiting.push_back(op);
+				waiting.इतुलाक_back(op);
 		}
 
 		if (ready.size() < 3) {
@@ -173,11 +173,11 @@ std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSi
 				auto [sum, carry] = emit_compressor_42(module, a.sig, b.sig, c.sig, d.sig, width);
 				int dmax = std::max({a.depth, b.depth, c.depth, d.depth});
 
-				compressed.push_back({sum, dmax + 2});
-				compressed.push_back({carry, dmax + 2});
+				compressed.इतुलाक_back({sum, dmax + 2});
+				compressed.इतुलाक_back({carry, dmax + 2});
 
-				fa_count += 2;
-				c42_count += 1;
+				fa_बिलांग += 2;
+				c42_बिलांग += 1;
 				i += 4;
 			} else if (remaining >= 3) {
 				DepthSig a = ready[i + 0];
@@ -187,29 +187,29 @@ std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSi
 				auto [sum, carry] = emit_compressor_32(module, a.sig, b.sig, c.sig, width);
 				int dmax = std::max({a.depth, b.depth, c.depth});
 
-				compressed.push_back({sum, dmax + 1});
-				compressed.push_back({carry, dmax + 1});
+				compressed.इतुलाक_back({sum, dmax + 1});
+				compressed.इतुलाक_back({carry, dmax + 1});
 
-				fa_count += 1;
+				fa_बिलांग += 1;
 				i += 3;
 			} else {
 				// Uncompressed operands pass through to next level
 				for (; i < ready.size(); i++)
-					compressed.push_back(ready[i]);
+					compressed.इतुलाक_back(ready[i]);
 				break;
 			}
 		}
 
 		// Merge compressed with waiting operands
 		for (auto &op : waiting)
-			compressed.push_back(op);
+			compressed.इतुलाक_back(op);
 
 		operands = std::move(compressed);
 		levels++;
 	}
 
-	if(out_compressor_count)
-		*out_compressor_count = fa_count;
+	if(out_compressor_बिलांग)
+		*out_compressor_बिलांग = fa_बिलांग;
 	if (operands.size() == 0) {
 		if (out_final_depth)
 			*out_final_depth = 0;
@@ -225,7 +225,7 @@ std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSi
 	if (out_final_depth)
 		*out_final_depth = final_depth;
 	log_assert(operands.size() == 2);
-	log("    CompressorTree::reduce_scheduled: %d levels, %d $fa (%d as 4:2), final depth %d\n", levels, fa_count, c42_count, final_depth);
+	log("    CompressorTree::reduce_scheduled: %d levels, %d $fa (%d as 4:2), final depth %d\n", levels, fa_बिलांग, c42_बिलांग, final_depth);
 	return {operands[0].sig, operands[1].sig};
 }
 
@@ -257,12 +257,12 @@ void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 	// Propagate (g, p) through ceil(log2 W) levels
 	std::vector<SigBit> g = g_pre;
 	std::vector<SigBit> p = p_pre;
-	int num_levels = 0;
+	int नुमेरो_levels = 0;
 
-	while ((1 << num_levels) < width)
-		num_levels++;
+	while ((1 << नुमेरो_levels) < width)
+		नुमेरो_levels++;
 
-	for (int k = 1; k <= num_levels; k++) {
+	for (int k = 1; k <= नुमेरो_levels; k++) {
 		int s = 1 << (k - 1);
 		std::vector<SigBit> g_next(width), p_next(width);
 		for (int i = 0; i < width; i++) {
@@ -279,7 +279,7 @@ void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 				g_next[i] = gnew;
 
 				// p_i^k = p_i & p_(i-s)
-				if (k < num_levels) {
+				if (k < नुमेरो_levels) {
 					SigBit pnew = module->addWire(NEW_ID);
 					module->addAndGate(NEW_ID, p[i], p[i - s], pnew);
 					p_next[i] = pnew;

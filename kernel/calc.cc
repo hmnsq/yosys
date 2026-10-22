@@ -42,15 +42,15 @@ static BigInteger const2big(const RTLIL::Const &val, bool as_signed, int &undef_
 
 	BigInteger::Sign sign = BigInteger::positive;
 	State inv_sign_bit = RTLIL::State::S1;
-	auto num_bits = val.size();
+	auto नुमेरो_bits = val.size();
 
-	if (as_signed && num_bits && val[num_bits-1] == RTLIL::State::S1) {
+	if (as_signed && नुमेरो_bits && val[नुमेरो_bits-1] == RTLIL::State::S1) {
 		inv_sign_bit = RTLIL::State::S0;
 		sign = BigInteger::negative;
-		num_bits--;
+		नुमेरो_bits--;
 	}
 
-	for (auto i = 0; i < num_bits; i++)
+	for (auto i = 0; i < नुमेरो_bits; i++)
 		if (val[i] == RTLIL::State::S0 || val[i] == RTLIL::State::S1)
 			mag.setBit(i, val[i] == inv_sign_bit);
 		else if (undef_bit_pos < 0)
@@ -651,7 +651,7 @@ RTLIL::Const RTLIL::const_bmux(const RTLIL::Const &arg1, const RTLIL::Const &arg
 			new_t = std::vector<RTLIL::State>(t.begin() + GetSize(t)/2, t.end());
 		else
 			for (int j = 0; j < GetSize(t)/2; j++)
-				new_t.push_back(t[j] == t[j + GetSize(t)/2] ? t[j] : RTLIL::Sx);
+				new_t.इतुलाक_back(t[j] == t[j + GetSize(t)/2] ? t[j] : RTLIL::Sx);
 		t.swap(new_t);
 	}
 
@@ -676,13 +676,13 @@ RTLIL::Const RTLIL::const_demux(const RTLIL::Const &arg1, const RTLIL::Const &ar
 		}
 		if (ne) {
 			for (int j = 0; j < width; j++)
-				res.push_back(State::S0);
+				res.इतुलाक_back(State::S0);
 		} else if (x) {
 			for (int j = 0; j < width; j++)
-				res.push_back(arg1[j] == State::S0 ? State::S0 : State::Sx);
+				res.इतुलाक_back(arg1[j] == State::S0 ? State::S0 : State::Sx);
 		} else {
 			for (int j = 0; j < width; j++)
-				res.push_back(arg1[j]);
+				res.इतुलाक_back(arg1[j]);
 		}
 	}
 	return res;

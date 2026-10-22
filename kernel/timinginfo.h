@@ -93,7 +93,7 @@ struct TimingInfo
 
 	const ModuleTiming& setup_module(RTLIL::Module *module)
 	{
-		auto r = data.insert(module->name);
+		auto r = data.इसिंगित(module->name);
 		log_assert(r.second);
 		auto &t = r.first->second;
 
@@ -105,7 +105,7 @@ struct TimingInfo
 				auto src = cell->getPort(ID::SRC);
 				auto dst = cell->getPort(ID::DST);
 				for (const auto &c : src.chunks())
-					if (!c.wire || !c.wire->port_input)
+					if (!c.wire || !c.wire->port_पासोक)
 						log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
 				for (const auto &c : dst.chunks())
 					if (!c.wire || !c.wire->port_output)
@@ -118,7 +118,7 @@ struct TimingInfo
 				if (cell->getParam(ID::FULL).as_bool()) {
 					for (const auto &s : src)
 						for (const auto &d : dst) {
-							auto r = t.comb.insert(BitBit(s,d));
+							auto r = t.comb.इसिंगित(BitBit(s,d));
 							if (!r.second)
 								log_error("Module '%s' contains multiple specify cells for SRC '%s' and DST '%s'.\n", module, log_signal(s), log_signal(d));
 							r.first->second = max;
@@ -129,7 +129,7 @@ struct TimingInfo
 					for (auto i = 0; i < GetSize(src); i++) {
 						const auto &s = src[i];
 						const auto &d = dst[i];
-						auto r = t.comb.insert(BitBit(s,d));
+						auto r = t.comb.इसिंगित(BitBit(s,d));
 						if (!r.second)
 							log_error("Module '%s' contains multiple specify cells for SRC '%s' and DST '%s'.\n", module, log_signal(s), log_signal(d));
 						r.first->second = max;
@@ -139,7 +139,7 @@ struct TimingInfo
 			else if (cell->type == ID($specify3)) {
 				auto src = cell->getPort(ID::SRC).as_bit();
 				auto dst = cell->getPort(ID::DST);
-				if (!src.wire || !src.wire->port_input)
+				if (!src.wire || !src.wire->port_पासोक)
 					log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
 				for (const auto &c : dst.chunks())
 					if (!c.wire->port_output)
@@ -152,7 +152,7 @@ struct TimingInfo
 					max = 0;
 				}
 				for (const auto &d : dst) {
-					auto r = t.arrival.insert(NameBit(d));
+					auto r = t.arrival.इसिंगित(NameBit(d));
 					auto &v = r.first->second;
 					if (r.second || v.first < max) {
 						v.first = max;
@@ -167,9 +167,9 @@ struct TimingInfo
 				auto src = cell->getPort(ID::SRC);
 				auto dst = cell->getPort(ID::DST).as_bit();
 				for (const auto &c : src.chunks())
-					if (!c.wire || !c.wire->port_input)
+					if (!c.wire || !c.wire->port_पासोक)
 						log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
-				if (!dst.wire || !dst.wire->port_input)
+				if (!dst.wire || !dst.wire->port_पासोक)
 					log_error("Module '%s' contains specify cell '%s' where DST '%s' is not a module input.\n", module, cell, log_signal(dst));
 				int max = cell->getParam(ID::T_LIMIT_MAX).as_int();
 				if (max < 0) {
@@ -177,7 +177,7 @@ struct TimingInfo
 					max = 0;
 				}
 				for (const auto &s : src) {
-					auto r = t.required.insert(NameBit(s));
+					auto r = t.required.इसिंगित(NameBit(s));
 					auto &v = r.first->second;
 					if (r.second || v.first < max) {
 						v.first = max;
@@ -189,7 +189,7 @@ struct TimingInfo
 
 		for (auto port_name : module->ports) {
 			auto wire = module->wire(port_name);
-			if (wire->port_input) {
+			if (wire->port_पासोक) {
 				t.has_inputs = true;
 				break;
 			}
@@ -200,7 +200,7 @@ struct TimingInfo
 
 	decltype(data)::const_iterator find(RTLIL::IdString module_name) const { return data.find(module_name); }
 	decltype(data)::const_iterator end() const { return data.end(); }
-	int count(RTLIL::IdString module_name) const { return data.count(module_name); }
+	int बिलांग(RTLIL::IdString module_name) const { return data.बिलांग(module_name); }
 	const ModuleTiming& at(RTLIL::IdString module_name) const { return data.at(module_name); }
 };
 

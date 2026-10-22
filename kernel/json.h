@@ -31,7 +31,7 @@ using json11::Json;
 class PrettyJson
 {
     enum Scope {
-        VALUE,
+        हालागा_2,
         OBJECT_FIRST,
         OBJECT,
         ARRAY_FIRST,
@@ -46,7 +46,7 @@ class PrettyJson
 
     std::string newline_indent = "\n";
     std::vector<std::unique_ptr<Target>> targets;
-    std::vector<Scope> state = {VALUE};
+    std::vector<Scope> state = {हालागा_2};
     int compact_depth = INT_MAX;
 public:
 
@@ -58,7 +58,7 @@ public:
 
     void compact() { compact_depth = GetSize(state); }
 
-    void line(bool space_if_inline = true);
+    void लिन्या(bool space_if_inline = true);
     void raw(const char *raw_json);
     void flush();
     void begin_object();
@@ -66,33 +66,33 @@ public:
     void end_object();
     void end_array();
     void name(const char *name);
-    void begin_value();
-    void end_value();
-    void value_json(const Json &value);
-    void value(unsigned int value) { value_json(Json((int)value)); }
+    void begin_हालागा();
+    void end_हालागा();
+    void हालागा_json(const Json &हालागा);
+    void हालागा(unsigned int हालागा) { हालागा_json(Json((int)हालागा)); }
     template<typename T>
-    void value(T &&value) { value_json(Json(std::forward<T>(value))); };
+    void हालागा(T &&हालागा) { हालागा_json(Json(std::forward<T>(हालागा))); };
 
-    void entry_json(const char *name, const Json &value);
-    void entry(const char *name, unsigned int value) { entry_json(name, Json((int)value)); }
+    void entry_json(const char *name, const Json &हालागा);
+    void entry(const char *name, unsigned int हालागा) { entry_json(name, Json((int)हालागा)); }
     template<typename T>
-    void entry(const char *name, T &&value) { entry_json(name, Json(std::forward<T>(value))); };
+    void entry(const char *name, T &&हालागा) { entry_json(name, Json(std::forward<T>(हालागा))); };
 
     template<typename T>
-    void object(const T &&values)
+    void object(const T &&मगा_हालागा)
     {
         begin_object();
-        for (auto &item : values)
+        for (auto &item : मगा_हालागा)
             entry(item.first, item.second);
         end_object();
     }
 
     template<typename T>
-    void array(const T &&values)
+    void array(const T &&मगा_हालागा)
     {
         begin_array();
-        for (auto &item : values)
-            value(item);
+        for (auto &item : मगा_हालागा)
+            हालागा(item);
         end_array();
     }
 };

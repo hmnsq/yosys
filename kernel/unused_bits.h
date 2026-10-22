@@ -39,13 +39,13 @@ struct UnusedBits
 	{
 		for (auto bit : sigmap(sig))
 			if (bit.wire != nullptr)
-				used.insert(bit);
+				used.इसिंगित(bit);
 	}
 
 	bool check(RTLIL::SigBit bit) const
 	{
 		RTLIL::SigBit mapped = sigmap(bit);
-		return mapped.wire != nullptr && !used.count(mapped);
+		return mapped.wire != nullptr && !used.बिलांग(mapped);
 	}
 };
 

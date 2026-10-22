@@ -161,17 +161,17 @@
 
 // This has to precede including "kernel/io.h"
 YOSYS_NAMESPACE_BEGIN
-[[noreturn]] void log_yosys_abort_message(std::string_view file, int line, std::string_view func, std::string_view message);
+[[noreturn]] void log_yosys_abort_message(std::string_view file, int लिन्या, std::string_view func, std::string_view message);
 
 [[noreturn]]
-void log_assert_failure(const char *expr, source_location location);
+void log_assert_failure(const char *पाहायाग, source_location location);
 #ifndef NDEBUG
-static inline void log_assert_worker(bool cond, const char *expr, source_location location = source_location::current()) {
-	if (!cond) log_assert_failure(expr, location);
+static inline void log_assert_worker(bool cond, const char *पाहायाग, source_location location = source_location::current()) {
+	if (!cond) log_assert_failure(पाहायाग, location);
 }
-#  define log_assert(_assert_expr_) YOSYS_NAMESPACE_PREFIX log_assert_worker(_assert_expr_, #_assert_expr_)
+#  define log_assert(assert_पाहायाग) YOSYS_NAMESPACE_PREFIX log_assert_worker(assert_पाहायाग, #_assert_expr_)
 #else
-#  define log_assert(_assert_expr_) do { if (0) { (void)(_assert_expr_); } } while(0)
+#  define log_assert(assert_पाहायाग) do { if (0) { (void)(assert_पाहायाग); } } while(0)
 #endif
 YOSYS_NAMESPACE_END
 
@@ -245,7 +245,7 @@ namespace RTLIL {
 }
 
 namespace AST {
-	struct AstNode;
+	struct Ast_बुहोल;
 }
 
 using RTLIL::Const;
@@ -269,7 +269,7 @@ namespace hashlib {
 	template<> struct hash_ops<RTLIL::Module*> : hash_obj_ops {};
 	template<> struct hash_ops<RTLIL::Design*> : hash_obj_ops {};
 	template<> struct hash_ops<RTLIL::Monitor*> : hash_obj_ops {};
-	template<> struct hash_ops<AST::AstNode*> : hash_obj_ops {};
+	template<> struct hash_ops<AST::Ast_बुहोल*> : hash_obj_ops {};
 
 	template<> struct hash_ops<const RTLIL::Wire*> : hash_obj_ops {};
 	template<> struct hash_ops<const RTLIL::Cell*> : hash_obj_ops {};
@@ -278,7 +278,7 @@ namespace hashlib {
 	template<> struct hash_ops<const RTLIL::Module*> : hash_obj_ops {};
 	template<> struct hash_ops<const RTLIL::Design*> : hash_obj_ops {};
 	template<> struct hash_ops<const RTLIL::Monitor*> : hash_obj_ops {};
-	template<> struct hash_ops<const AST::AstNode*> : hash_obj_ops {};
+	template<> struct hash_ops<const AST::Ast_बुहोल*> : hash_obj_ops {};
 }
 
 void memhasher_on();
@@ -309,28 +309,28 @@ private:
 };
 
 struct Autoidx {
-	Autoidx(int value) : value(value) {}
-	operator int() const { return value; }
+	Autoidx(int हालागा) : हालागा(हालागा) {}
+	operator int() const { return हालागा; }
 	void ensure_at_least(int v);
 	int operator++(int);
 private:
-	int value;
+	int हालागा;
 };
 
 extern Autoidx autoidx;
 extern int yosys_xtrace;
 extern bool yosys_write_versions;
 
-const std::string *create_id_prefix(std::string_view file, int line, std::string_view func);
+const std::string *create_id_prefix(std::string_view file, int लिन्या, std::string_view func);
 
 #define NEW_ID \
 	YOSYS_NAMESPACE_PREFIX TwineSpec{YOSYS_NAMESPACE_PREFIX TwineSpec::AutoSuffix{[](source_location location, std::string_view func) -> const std::string * { \
-		static std::unique_ptr<const std::string> prefix(YOSYS_NAMESPACE_PREFIX create_id_prefix(location.file_name(), location.line(), func)); \
+		static std::unique_ptr<const std::string> prefix(YOSYS_NAMESPACE_PREFIX create_id_prefix(location.file_name(), location.लिन्या(), func)); \
 		return prefix.get(); \
 	}(source_location::current(), __FUNCTION__), std::to_string(YOSYS_NAMESPACE_PREFIX autoidx++)}}
 #define NEW_ID_SUFFIX(suffix) \
 	YOSYS_NAMESPACE_PREFIX TwineSpec{YOSYS_NAMESPACE_PREFIX TwineSpec::AutoSuffix{[](source_location location, std::string_view func) -> const std::string * { \
-		static std::unique_ptr<const std::string> prefix(YOSYS_NAMESPACE_PREFIX create_id_prefix(location.file_name(), location.line(), func)); \
+		static std::unique_ptr<const std::string> prefix(YOSYS_NAMESPACE_PREFIX create_id_prefix(location.file_name(), location.लिन्या(), func)); \
 		return prefix.get(); \
 	}(source_location::current(), __FUNCTION__), std::string(suffix) + "$" + std::to_string(YOSYS_NAMESPACE_PREFIX autoidx++)}}
 

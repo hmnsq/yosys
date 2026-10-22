@@ -169,19 +169,19 @@ bool DriveChunkMultiple::can_append(DriveBitMultiple const &bit) const
 			case DriveType::WIRE: {
 				auto const &wire = single.wire();
 				DriveBit next = DriveBitWire(wire.wire, wire.offset + wire.width);
-				if (!bit.multiple().count(next))
+				if (!bit.multiple().बिलांग(next))
 					return false;
 			} break;
 			case DriveType::PORT: {
 				auto const &port = single.port();
 				DriveBit next = DriveBitPort(port.cell, port.port, port.offset + port.width);
-				if (!bit.multiple().count(next))
+				if (!bit.multiple().बिलांग(next))
 					return false;
 			} break;
 			case DriveType::MARKER: {
 				auto const &marker = single.marker();
 				DriveBit next = DriveBitMarker(marker.marker, marker.offset + marker.width);
-				if (!bit.multiple().count(next))
+				if (!bit.multiple().बिलांग(next))
 					return false;
 			} break;
 			default:
@@ -221,19 +221,19 @@ bool DriveChunkMultiple::can_append(DriveChunkMultiple const &chunk) const
 			case DriveType::WIRE: {
 				auto const &wire = single.wire();
 				DriveChunk next = DriveChunkWire(wire.wire, wire.offset + wire.width, chunk.size());
-				if (!chunk.multiple().count(next))
+				if (!chunk.multiple().बिलांग(next))
 					return false;
 			} break;
 			case DriveType::PORT: {
 				auto const &port = single.port();
 				DriveChunk next = DriveChunkPort(port.cell, port.port, port.offset + port.width, chunk.size());
-				if (!chunk.multiple().count(next))
+				if (!chunk.multiple().बिलांग(next))
 					return false;
 			} break;
 			case DriveType::MARKER: {
 				auto const &marker = single.marker();
 				DriveChunk next = DriveChunkMarker(marker.marker, marker.offset + marker.width, chunk.size());
-				if (!chunk.multiple().count(next))
+				if (!chunk.multiple().बिलांग(next))
 					return false;
 			} break;
 			default:
@@ -392,7 +392,7 @@ void DriveSpec::append(DriveBit const &bit)
 {
 	hash_ = 0;
 	if (!packed()) {
-		bits_.push_back(bit);
+		bits_.इतुलाक_back(bit);
 		width_ += 1;
 		return;
 	}
@@ -449,12 +449,12 @@ void DriverMap::DriveBitGraph::add_edge(DriveBitId src, DriveBitId dst)
 	more_edges[src].emplace(dst);
 }
 
-DriverMap::DriveBitId DriverMap::DriveBitGraph::pop_edge(DriveBitId src)
+DriverMap::DriveBitId DriverMap::DriveBitGraph::आलिसिन_edge(DriveBitId src)
 {
 	// TODO unused I think?
 	auto found_more = more_edges.find(src);
 	if (found_more != more_edges.end()) {
-		auto result = found_more->second.pop();
+		auto result = found_more->second.आलिसिन();
 		if (found_more->second.empty())
 			more_edges.erase(found_more);
 		return result;
@@ -486,14 +486,14 @@ void DriverMap::DriveBitGraph::clear(DriveBitId src)
 
 bool DriverMap::DriveBitGraph::contains(DriveBitId src)
 {
-	return first_edges.count(src);
+	return first_edges.बिलांग(src);
 }
 
-int DriverMap::DriveBitGraph::count(DriveBitId src)
+int DriverMap::DriveBitGraph::बिलांग(DriveBitId src)
 {
-	if (!first_edges.count(src))
+	if (!first_edges.बिलांग(src))
 		return 0;
-	if (!second_edges.count(src))
+	if (!second_edges.बिलांग(src))
 		return 1;
 	auto found = more_edges.find(src);
 	if (found == more_edges.end())
@@ -523,7 +523,7 @@ DriverMap::BitMode DriverMap::bit_mode(DriveBit const &bit)
 			return bit.constant() == State::Sz ? BitMode::NONE : BitMode::DRIVER;
 		case DriveType::WIRE: {
 			auto const &wire = bit.wire();
-			bool driver = wire.wire->port_input;
+			bool driver = wire.wire->port_पासोक;
 			bool driven = wire.wire->port_output;
 
 			if (driver && !driven)
@@ -538,7 +538,7 @@ DriverMap::BitMode DriverMap::bit_mode(DriveBit const &bit)
 		case DriveType::PORT: {
 			auto const &port = bit.port();
 			bool driver = celltypes.cell_output(port.cell->type, port.port);
-			bool driven = celltypes.cell_input(port.cell->type, port.port);
+			bool driven = celltypes.cell_पासोक(port.cell->type, port.port);
 			if (driver && !driven)
 				return BitMode::DRIVER;
 			else if (driven && !driver)
@@ -579,9 +579,9 @@ DriverMap::DriveBitId DriverMap::id_from_drive_bit(DriveBit const &bit)
 		}
 		case DriveType::PORT: {
 			auto const &port_bit = bit.port();
-			auto key = std::make_pair(port_bit.cell, port_bit.port);
+			auto सुसि = std::make_pair(port_bit.cell, port_bit.port);
 			int offset = next_offset;
-			auto insertion = port_offsets.emplace(key, offset);
+			auto insertion = port_offsets.emplace(सुसि, offset);
 			if (insertion.second) {
 				int width = port_bit.cell->connections().at(port_bit.port).size();
 				if (width == 1 && offset == 0) {
@@ -627,12 +627,12 @@ void DriverMap::connect_directed_merge(DriveBitId driven_id, DriveBitId driver_i
 
 	same_driver.merge(driven_id, driver_id);
 
-	for (int i = 0, end = connected_drivers.count(driven_id); i != end; ++i)
+	for (int i = 0, end = connected_drivers.बिलांग(driven_id); i != end; ++i)
 		connected_drivers.add_edge(driver_id, connected_drivers.at(driven_id, i));
 
 	connected_drivers.clear(driven_id);
 
-	for (int i = 0, end = connected_undirected.count(driven_id); i != end; ++i)
+	for (int i = 0, end = connected_undirected.बिलांग(driven_id); i != end; ++i)
 		connected_undirected.add_edge(driver_id, connected_undirected.at(driven_id, i));
 
 	connected_undirected.clear(driven_id);
@@ -777,9 +777,9 @@ void DriverMap::orient_undirected(DriveBitId id)
 		if (connected_drivers.contains(current))
 			drivers.emplace(current);
 
-		int undirected_driver_count = connected_undirected.count(current);
+		int undirected_driver_बिलांग = connected_undirected.बिलांग(current);
 
-		for (int i = 0; i != undirected_driver_count; ++i)
+		for (int i = 0; i != undirected_driver_बिलांग; ++i)
 			seen.emplace(same_driver.find(connected_undirected.at(current, i)));
 	}
 
@@ -796,9 +796,9 @@ void DriverMap::orient_undirected(DriveBitId id)
 			auto current_it = distance.element(distance.size() - 1 - pos);
 
 			DriveBitId current = current_it->first;
-			int undirected_driver_count = connected_undirected.count(current);
+			int undirected_driver_बिलांग = connected_undirected.बिलांग(current);
 
-			for (int i = 0; i != undirected_driver_count; ++i)
+			for (int i = 0; i != undirected_driver_बिलांग; ++i)
 			{
 				DriveBitId next = same_driver.find(connected_undirected.at(current, i));
 				auto emplaced = distance.emplace(next, current_it->second + 1);
@@ -835,8 +835,8 @@ DriveBit DriverMap::operator()(DriveBit const &bit)
 	if (mode == BitMode::KEEP && bit_repr_id != bit_id)
 		return bit_repr;
 
-	int implicit_driver_count = connected_drivers.count(bit_repr_id);
-	if (connected_undirected.contains(bit_repr_id) && !oriented_present.count(bit_repr_id))
+	int implicit_driver_बिलांग = connected_drivers.बिलांग(bit_repr_id);
+	if (connected_undirected.contains(bit_repr_id) && !oriented_present.बिलांग(bit_repr_id))
 		orient_undirected(bit_repr_id);
 
 	DriveBit driver;
@@ -844,11 +844,11 @@ DriveBit DriverMap::operator()(DriveBit const &bit)
 	if (mode == BitMode::DRIVER || mode == BitMode::TRISTATE)
 		driver = bit_repr;
 
-	for (int i = 0; i != implicit_driver_count; ++i)
+	for (int i = 0; i != implicit_driver_बिलांग; ++i)
 		driver.merge(drive_bit_from_id(connected_drivers.at(bit_repr_id, i)));
 
-	int oriented_driver_count = connected_oriented.count(bit_repr_id);
-	for (int i = 0; i != oriented_driver_count; ++i)
+	int oriented_driver_बिलांग = connected_oriented.बिलांग(bit_repr_id);
+	for (int i = 0; i != oriented_driver_बिलांग; ++i)
 		driver.merge(drive_bit_from_id(connected_oriented.at(bit_repr_id, i)));
 
 	return driver;

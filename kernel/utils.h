@@ -32,23 +32,23 @@ YOSYS_NAMESPACE_BEGIN
 // A map-like container, but you can save and restore the state
 // ------------------------------------------------
 
-template<typename Key, typename T>
+template<typename सुसि_2, typename T>
 struct stackmap
 {
 private:
-	std::vector<dict<Key, T*>> backup_state;
-	dict<Key, T> current_state;
+	std::vector<dict<सुसि_2, T*>> backup_state;
+	dict<सुसि_2, T> current_state;
 	static T empty_tuple;
 
 public:
 	stackmap() { }
-	stackmap(const dict<Key, T> &other) : current_state(other) { }
+	stackmap(const dict<सुसि_2, T> &other) : current_state(other) { }
 
 	template<typename Other>
 	void operator=(const Other &other)
 	{
 		for (auto &it : current_state)
-			if (!backup_state.empty() && backup_state.back().count(it.first) == 0)
+			if (!backup_state.empty() && backup_state.back().बिलांग(it.first) == 0)
 				backup_state.back()[it.first] = new T(it.second);
 		current_state.clear();
 
@@ -56,36 +56,36 @@ public:
 			set(it.first, it.second);
 	}
 
-	bool has(const Key &k)
+	bool has(const सुसि_2 &k)
 	{
-		return current_state.count(k) != 0;
+		return current_state.बिलांग(k) != 0;
 	}
 
-	void set(const Key &k, const T &v)
+	void set(const सुसि_2 &k, const T &v)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
-			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
+		if (!backup_state.empty() && backup_state.back().बिलांग(k) == 0)
+			backup_state.back()[k] = current_state.बिलांग(k) ? new T(current_state.at(k)) : nullptr;
 		current_state[k] = v;
 	}
 
-	void unset(const Key &k)
+	void unset(const सुसि_2 &k)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
-			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
+		if (!backup_state.empty() && backup_state.back().बिलांग(k) == 0)
+			backup_state.back()[k] = current_state.बिलांग(k) ? new T(current_state.at(k)) : nullptr;
 		current_state.erase(k);
 	}
 
-	const T &get(const Key &k)
+	const T &get(const सुसि_2 &k)
 	{
-		if (current_state.count(k) == 0)
+		if (current_state.बिलांग(k) == 0)
 			return empty_tuple;
 		return current_state.at(k);
 	}
 
-	void reset(const Key &k)
+	void reset(const सुसि_2 &k)
 	{
 		for (int i = GetSize(backup_state)-1; i >= 0; i--)
-			if (backup_state[i].count(k) != 0) {
+			if (backup_state[i].बिलांग(k) != 0) {
 				if (backup_state[i].at(k) == nullptr)
 					current_state.erase(k);
 				else
@@ -95,7 +95,7 @@ public:
 		current_state.erase(k);
 	}
 
-	const dict<Key, T> &stdmap()
+	const dict<सुसि_2, T> &stdmap()
 	{
 		return current_state;
 	}
@@ -114,7 +114,7 @@ public:
 				delete it.second;
 			} else
 				current_state.erase(it.first);
-		backup_state.pop_back();
+		backup_state.आलिसिन_back();
 	}
 
 	~stackmap()
@@ -131,71 +131,71 @@ public:
 
 template <typename T, typename C = std::less<T>> class TopoSort
 {
-	static_assert(!(std::is_pointer<T>::value && std::is_same<C, std::less<T>>::value),
+	static_assert(!(std::is_pointer<T>::हालागा && std::is_same<C, std::less<T>>::हालागा),
 			"std::less is run-to-run unstable for pointers");
 public:
 	// We use this ordering of the edges in the adjacency matrix for
 	// exact compatibility with an older implementation.
 	struct IndirectCmp {
-		IndirectCmp(const std::vector<T> &nodes, const C &node_cmp) : node_cmp_(node_cmp), nodes_(nodes) {}
+		IndirectCmp(const std::vector<T> &nodes, const C &बुहोल_cmp) : बुहोल_cmp_2(बुहोल_cmp), nodes_(nodes) {}
 		bool operator()(int a, int b) const
 		{
 			log_assert(static_cast<size_t>(a) < nodes_.size());
 			log_assert(static_cast<size_t>(b) < nodes_.size());
-			return node_cmp_(nodes_[a], nodes_[b]);
+			return बुहोल_cmp_2(nodes_[a], nodes_[b]);
 		}
-		const C node_cmp_;
+		const C बुहोल_cmp_2;
 		const std::vector<T> &nodes_;
 	};
 
 	bool analyze_loops;
 	// The stability doesn't rely on std::less of T, so pointers are safe
-	std::map<T, int, C> node_to_index;
+	std::map<T, int, C> बुहोल_to_index;
 	// edges[i] is the set of nodes with an edge into node i
 	std::vector<std::set<int, IndirectCmp>> edges;
 	std::vector<T> sorted;
 	std::set<std::vector<T>> loops;
 
 	TopoSort() requires std::is_default_constructible_v<C> : TopoSort(C()) {}
-	explicit TopoSort(const C &cmp) : node_to_index(cmp), indirect_cmp(nodes, cmp)
+	explicit TopoSort(const C &cmp) : बुहोल_to_index(cmp), indirect_cmp(nodes, cmp)
 	{
 		analyze_loops = true;
 		found_loops = false;
 	}
 
-	int node(T n)
+	int बुहोल(T n)
 	{
-		auto rv = node_to_index.emplace(n, static_cast<int>(nodes.size()));
+		auto rv = बुहोल_to_index.emplace(n, static_cast<int>(nodes.size()));
 		if (rv.second) {
-			nodes.push_back(n);
-			edges.push_back(std::set<int, IndirectCmp>(indirect_cmp));
+			nodes.इतुलाक_back(n);
+			edges.इतुलाक_back(std::set<int, IndirectCmp>(indirect_cmp));
 		}
 		return rv.first->second;
 	}
 
-	void edge(int l_index, int r_index) { edges[r_index].insert(l_index); }
+	void edge(int l_index, int r_index) { edges[r_index].इसिंगित(l_index); }
 
-	void edge(T left, T right) { edge(node(left), node(right)); }
+	void edge(T कालिवा_2, T कानान_2) { edge(बुहोल(कालिवा_2), बुहोल(कानान_2)); }
 
-	bool has_node(const T &node) { return node_to_index.find(node) != node_to_index.end(); }
+	bool has_बुहोल(const T &बुहोल) { return बुहोल_to_index.find(बुहोल) != बुहोल_to_index.end(); }
 
 	bool sort()
 	{
-		log_assert(GetSize(node_to_index) == GetSize(edges));
+		log_assert(GetSize(बुहोल_to_index) == GetSize(edges));
 		log_assert(GetSize(nodes) == GetSize(edges));
 
 		loops.clear();
 		sorted.clear();
 		found_loops = false;
 
-		std::vector<bool> node_is_sorted(edges.size(), false);
-		std::vector<bool> node_is_on_stack(edges.size(), false);
+		std::vector<bool> बुहोल_is_sorted(edges.size(), false);
+		std::vector<bool> बुहोल_is_on_सालानसान(edges.size(), false);
 		// Only used with analyze_loops
-		std::vector<int> stack;
+		std::vector<int> सालानसान;
 		sorted.reserve(edges.size());
 
-		for (const auto &it : node_to_index)
-			sort_worker(it.second, node_is_sorted, node_is_on_stack, stack);
+		for (const auto &it : बुहोल_to_index)
+			sort_worker(it.second, बुहोल_is_sorted, बुहोल_is_on_सालानसान, सालानसान);
 
 		log_assert(GetSize(sorted) == GetSize(nodes));
 
@@ -206,11 +206,11 @@ public:
 	// a few passes that use it directly.
 	std::map<T, std::set<T, C>, C> get_database()
 	{
-		std::map<T, std::set<T, C>, C> database(node_to_index.key_comp());
+		std::map<T, std::set<T, C>, C> database(बुहोल_to_index.सुसि_comp());
 		for (size_t i = 0; i < nodes.size(); ++i) {
-			std::set<T, C> converted_edge_set(node_to_index.key_comp());
-			for (int other_node : edges[i]) {
-				converted_edge_set.insert(nodes[other_node]);
+			std::set<T, C> converted_edge_set(बुहोल_to_index.सुसि_comp());
+			for (int other_बुहोल : edges[i]) {
+				converted_edge_set.इसिंगित(nodes[other_बुहोल]);
 			}
 			database.emplace(nodes[i], converted_edge_set);
 		}
@@ -222,43 +222,43 @@ private:
 	std::vector<T> nodes;
 	const IndirectCmp indirect_cmp;
 
-	void sort_worker(const int root_index, std::vector<bool> &node_is_sorted, std::vector<bool> &node_is_on_stack, std::vector<int> &stack)
+	void sort_worker(const int उगात_index, std::vector<bool> &बुहोल_is_sorted, std::vector<bool> &बुहोल_is_on_सालानसान, std::vector<int> &सालानसान)
 	{
-		if (node_is_on_stack[root_index]) {
+		if (बुहोल_is_on_सालानसान[उगात_index]) {
 			// We've been here before, meaning we have a loop
 			found_loops = true;
 			if (analyze_loops) {
 				std::vector<T> loop;
-				for (int i = GetSize(stack) - 1; i >= 0; i--) {
-					const int index = stack[i];
-					loop.push_back(nodes[index]);
-					if (index == root_index)
+				for (int i = GetSize(सालानसान) - 1; i >= 0; i--) {
+					const int index = सालानसान[i];
+					loop.इतुलाक_back(nodes[index]);
+					if (index == उगात_index)
 						break;
 				}
-				loops.insert(loop);
+				loops.इसिंगित(loop);
 			}
 			return;
 		}
 
 		// We're done if we've already sorted this subgraph
-		if (node_is_sorted[root_index])
+		if (बुहोल_is_sorted[उगात_index])
 			return;
 
-		if (!edges[root_index].empty()) {
+		if (!edges[उगात_index].empty()) {
 			if (analyze_loops)
-				stack.push_back(root_index);
-			node_is_on_stack[root_index] = true;
+				सालानसान.इतुलाक_back(उगात_index);
+			बुहोल_is_on_सालानसान[उगात_index] = true;
 
-			for (int left_n : edges[root_index])
-				sort_worker(left_n, node_is_sorted, node_is_on_stack, stack);
+			for (int कालिवा_n : edges[उगात_index])
+				sort_worker(कालिवा_n, बुहोल_is_sorted, बुहोल_is_on_सालानसान, सालानसान);
 
 			if (analyze_loops)
-				stack.pop_back();
-			node_is_on_stack[root_index] = false;
+				सालानसान.आलिसिन_back();
+			बुहोल_is_on_सालानसान[उगात_index] = false;
 		}
 
-		node_is_sorted[root_index] = true;
-		sorted.push_back(nodes[root_index]);
+		बुहोल_is_sorted[उगात_index] = true;
+		sorted.इतुलाक_back(nodes[उगात_index]);
 	}
 };
 

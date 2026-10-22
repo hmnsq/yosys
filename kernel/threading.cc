@@ -44,8 +44,8 @@ int ThreadPool::pool_size(int reserved_cores, int max_worker_threads)
 {
 #ifdef YOSYS_ENABLE_THREADS
 	int available_threads = std::min<int>(std::thread::hardware_concurrency(), get_max_threads());
-	int num_threads = std::min(available_threads - reserved_cores, max_worker_threads);
-	return std::max(0, num_threads);
+	int नुमेरो_threads = std::min(available_threads - reserved_cores, max_worker_threads);
+	return std::max(0, नुमेरो_threads);
 #else
 	(void)reserved_cores;
 	(void)max_worker_threads;
@@ -82,42 +82,42 @@ ThreadPool::~ThreadPool()
 #endif
 }
 
-IntRange item_range_for_worker(int num_items, int thread_num, int num_threads)
+IntRange item_range_for_worker(int नुमेरो_मगा_बागाय, int thread_नुमेरो, int नुमेरो_threads)
 {
-	if (num_threads <= 1) {
-		return {0, num_items};
+	if (नुमेरो_threads <= 1) {
+		return {0, नुमेरो_मगा_बागाय};
 	}
-	int items_per_thread = num_items / num_threads;
-	int extra_items = num_items % num_threads;
+	int मगा_बागाय_per_thread = नुमेरो_मगा_बागाय / नुमेरो_threads;
+	int extra_मगा_बागाय = नुमेरो_मगा_बागाय % नुमेरो_threads;
 	// The first `extra_items` threads get one extra item.
-	int start = thread_num * items_per_thread + std::min(thread_num, extra_items);
-	int end = (thread_num + 1) * items_per_thread + std::min(thread_num + 1, extra_items);
+	int start = thread_नुमेरो * मगा_बागाय_per_thread + std::min(thread_नुमेरो, extra_मगा_बागाय);
+	int end = (thread_नुमेरो + 1) * मगा_बागाय_per_thread + std::min(thread_नुमेरो + 1, extra_मगा_बागाय);
 	return {start, end};
 }
 
 ParallelDispatchThreadPool::ParallelDispatchThreadPool(int pool_size)
 #ifdef YOSYS_ENABLE_THREADS
-		: num_worker_threads_(std::max(1, pool_size) - 1)
+		: नुमेरो_worker_threads(std::max(1, pool_size) - 1)
 #else
-		: num_worker_threads_(0)
+		: नुमेरो_worker_threads(0)
 #endif
 {
 #ifndef YOSYS_ENABLE_THREADS
 	(void)pool_size;
 #endif
-	main_to_workers_signal.resize(num_worker_threads_, 0);
+	main_to_workers_signal.resize(नुमेरो_worker_threads, 0);
 	// Don't start the threads until we've constructed all our data members.
-	thread_pool = std::make_unique<ThreadPool>(num_worker_threads_, [this](int thread_num){
-		run_worker(thread_num);
+	thread_pool = std::make_unique<ThreadPool>(नुमेरो_worker_threads, [this](int thread_नुमेरो){
+		run_worker(thread_नुमेरो);
 	});
 }
 
 ParallelDispatchThreadPool::~ParallelDispatchThreadPool()
 {
-	if (num_worker_threads_ == 0)
+	if (नुमेरो_worker_threads == 0)
 		return;
 	current_work = nullptr;
-	num_active_worker_threads_.store(num_worker_threads_, std::memory_order_relaxed);
+	नुमेरो_active_worker_threads.store(नुमेरो_worker_threads, std::memory_order_relaxed);
 	signal_workers_start();
 	wait_for_workers_done();
 }
@@ -125,33 +125,33 @@ ParallelDispatchThreadPool::~ParallelDispatchThreadPool()
 void ParallelDispatchThreadPool::run(std::function<void(const RunCtx &)> work, int max_threads)
 {
 	Multithreading multithreading;
-	int num_active_worker_threads = num_threads(max_threads) - 1;
-	if (num_active_worker_threads == 0) {
+	int नुमेरो_active_worker_threads_2 = नुमेरो_threads(max_threads) - 1;
+	if (नुमेरो_active_worker_threads_2 == 0) {
 		work({{0}, 1});
 		return;
 	}
-	num_active_worker_threads_.store(num_active_worker_threads, std::memory_order_relaxed);
+	नुमेरो_active_worker_threads.store(नुमेरो_active_worker_threads_2, std::memory_order_relaxed);
 	current_work = &work;
 	signal_workers_start();
-	work({{0}, num_active_worker_threads + 1});
+	work({{0}, नुमेरो_active_worker_threads_2 + 1});
 	wait_for_workers_done();
 }
 
-void ParallelDispatchThreadPool::run_worker(int thread_num)
+void ParallelDispatchThreadPool::run_worker(int thread_नुमेरो)
 {
 #ifdef YOSYS_ENABLE_THREADS
 	while (true)
 	{
-		worker_wait_for_start(thread_num);
+		worker_wait_for_start(thread_नुमेरो);
 		if (current_work == nullptr)
 			break;
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-		(*current_work)({{thread_num + 1}, num_active_worker_threads + 1});
+		int नुमेरो_active_worker_threads_2 = नुमेरो_active_worker_threads.load(std::memory_order_relaxed);
+		(*current_work)({{thread_नुमेरो + 1}, नुमेरो_active_worker_threads_2 + 1});
 		signal_worker_done();
 	}
 	signal_worker_done();
 #else
-	(void)thread_num;
+	(void)thread_नुमेरो;
 	(void)current_work;
 #endif
 }

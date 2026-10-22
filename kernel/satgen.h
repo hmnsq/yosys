@@ -99,14 +99,14 @@ struct SatGen
 		for (auto &bit : sig)
 			if (bit.wire == NULL) {
 				if (model_undef && dup_undef && bit == RTLIL::State::Sx)
-					vec.push_back(ez->frozen_literal());
+					vec.इतुलाक_back(ez->frozen_literal());
 				else
-					vec.push_back(bit == (undef_mode ? RTLIL::State::Sx : RTLIL::State::S1) ? ez->CONST_TRUE : ez->CONST_FALSE);
+					vec.इतुलाक_back(bit == (undef_mode ? RTLIL::State::Sx : RTLIL::State::S1) ? ez->CONST_TRUE : ez->CONST_FALSE);
 			} else {
 				std::string wire_name = bit.wire->name.unescape();
 				std::string name = pf +
 					(bit.wire->width == 1 ? wire_name : stringf("%s [%d]", wire_name, bit.offset));
-				vec.push_back(ez->frozen_literal(name));
+				vec.इतुलाक_back(ez->frozen_literal(name));
 				imported_signals[pf][bit] = vec.back();
 			}
 		return vec;
@@ -158,7 +158,7 @@ struct SatGen
 	{
 		log_assert(timestep != 0);
 		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return imported_signals[pf].count(bit) != 0;
+		return imported_signals[pf].बिलांग(bit) != 0;
 	}
 
 	void getAsserts(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, int timestep = -1)
@@ -221,7 +221,7 @@ struct SatGen
 
 		std::vector<int> eq_bits;
 		for (int i = 0; i < lhs.size(); i++)
-			eq_bits.push_back(ez->AND(ez->IFF(undef_lhs.at(i), undef_rhs.at(i)),
+			eq_bits.इतुलाक_back(ez->AND(ez->IFF(undef_lhs.at(i), undef_rhs.at(i)),
 					ez->IFF(ez->OR(vec_lhs.at(i), undef_lhs.at(i)), ez->OR(vec_rhs.at(i), undef_rhs.at(i)))));
 		return ez->expression(ezSAT::OpAnd, eq_bits);
 	}
@@ -229,28 +229,28 @@ struct SatGen
 	void extendSignalWidth(std::vector<int> &vec_a, std::vector<int> &vec_b, RTLIL::Cell *cell, size_t y_width = 0, bool forced_signed = false)
 	{
 		bool is_signed = forced_signed;
-		if (!forced_signed && cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters.count(ID::B_SIGNED) > 0)
+		if (!forced_signed && cell->parameters.बिलांग(ID::A_SIGNED) > 0 && cell->parameters.बिलांग(ID::B_SIGNED) > 0)
 			is_signed = cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool();
 		while (vec_a.size() < vec_b.size() || vec_a.size() < y_width)
-			vec_a.push_back(is_signed && vec_a.size() > 0 ? vec_a.back() : ez->CONST_FALSE);
+			vec_a.इतुलाक_back(is_signed && vec_a.size() > 0 ? vec_a.back() : ez->CONST_FALSE);
 		while (vec_b.size() < vec_a.size() || vec_b.size() < y_width)
-			vec_b.push_back(is_signed && vec_b.size() > 0 ? vec_b.back() : ez->CONST_FALSE);
+			vec_b.इतुलाक_back(is_signed && vec_b.size() > 0 ? vec_b.back() : ez->CONST_FALSE);
 	}
 
 	void extendSignalWidth(std::vector<int> &vec_a, std::vector<int> &vec_b, std::vector<int> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
 	{
 		extendSignalWidth(vec_a, vec_b, cell, vec_y.size(), forced_signed);
 		while (vec_y.size() < vec_a.size())
-			vec_y.push_back(ez->literal());
+			vec_y.इतुलाक_back(ez->literal());
 	}
 
 	void extendSignalWidthUnary(std::vector<int> &vec_a, std::vector<int> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
 	{
-		bool is_signed = forced_signed || (cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool());
+		bool is_signed = forced_signed || (cell->parameters.बिलांग(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool());
 		while (vec_a.size() < vec_y.size())
-			vec_a.push_back(is_signed && vec_a.size() > 0 ? vec_a.back() : ez->CONST_FALSE);
+			vec_a.इतुलाक_back(is_signed && vec_a.size() > 0 ? vec_a.back() : ez->CONST_FALSE);
 		while (vec_y.size() < vec_a.size())
-			vec_y.push_back(ez->literal());
+			vec_y.इतुलाक_back(ez->literal());
 	}
 
 	void undefGating(std::vector<int> &vec_y, std::vector<int> &vec_yy, std::vector<int> &vec_undef)
@@ -286,9 +286,9 @@ struct SatGen
 
 	void setInitState(int timestep)
 	{
-		auto key = make_pair(prefix, timestep);
-		log_assert(initstates.count(key) == 0 || initstates.at(key) == true);
-		initstates[key] = true;
+		auto सुसि = make_pair(prefix, timestep);
+		log_assert(initstates.बिलांग(सुसि) == 0 || initstates.at(सुसि) == true);
+		initstates[सुसि] = true;
 	}
 
 	bool importCell(RTLIL::Cell *cell, int timestep = -1);

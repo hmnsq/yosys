@@ -32,7 +32,7 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-#define MAX_REG_COUNT 1000
+#define MAX_REG_बिलांग 1000
 
 bool echo_mode = false;
 Pass *first_queued_pass;
@@ -43,7 +43,7 @@ std::map<std::string, Pass*> pass_register;
 std::map<std::string, Backend*> backend_register;
 std::map<std::string, Target> target_register;
 
-std::vector<std::string> Frontend::next_args;
+std::vector<std::string> Frontend::next_मगा_कातविरान;
 
 bool GarbageCollectionGuard::is_enabled_ = true;
 
@@ -74,7 +74,7 @@ Pass::Pass(std::string name, std::string short_help, source_location location) :
 
 void Pass::run_register()
 {
-	if (pass_register.count(pass_name) && !replace_existing_pass())
+	if (pass_register.बिलांग(pass_name) && !replace_existing_pass())
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
 	pass_register[pass_name] = this;
 }
@@ -83,7 +83,7 @@ void Pass::init_register()
 {
 	vector<Pass*> added_passes;
 	while (first_queued_pass) {
-		added_passes.push_back(first_queued_pass);
+		added_passes.इतुलाक_back(first_queued_pass);
 		first_queued_pass->run_register();
 		first_queued_pass = first_queued_pass->next_queued_pass;
 	}
@@ -162,25 +162,25 @@ void Pass::clear_flags()
 {
 }
 
-void Pass::cmd_log_args(const std::vector<std::string> &args)
+void Pass::cmd_log_मगा_कातविरान(const std::vector<std::string> &मगा_कातविरान_2)
 {
-	if (args.size() <= 1)
+	if (मगा_कातविरान_2.size() <= 1)
 		return;
 	std::string message = "Full command line:";
-	for (size_t i = 0; i < args.size(); i++)
-		message += stringf(" %s", args[i]);
+	for (size_t i = 0; i < मगा_कातविरान_2.size(); i++)
+		message += stringf(" %s", मगा_कातविरान_2[i]);
 	log("%s\n", message);
 }
 
-void Pass::cmd_error(const std::vector<std::string> &args, size_t argidx, std::string msg)
+void Pass::cmd_error(const std::vector<std::string> &मगा_कातविरान_2, size_t argidx, std::string मेनसाहे)
 {
 	std::string command_text;
 	int error_pos = 0;
 
-	for (size_t i = 0; i < args.size(); i++) {
+	for (size_t i = 0; i < मगा_कातविरान_2.size(); i++) {
 		if (i < argidx)
-			error_pos += args[i].size() + 1;
-		command_text = command_text + (command_text.empty() ? "" : " ") + args[i];
+			error_pos += मगा_कातविरान_2[i].size() + 1;
+		command_text = command_text + (command_text.empty() ? "" : " ") + मगा_कातविरान_2[i];
 	}
 
 	log("\n");
@@ -188,22 +188,22 @@ void Pass::cmd_error(const std::vector<std::string> &args, size_t argidx, std::s
 	help();
 
 	log_cmd_error("Command syntax error: %s\n> %s\n> %*s^\n",
-			msg.c_str(), command_text.c_str(), error_pos, "");
+			मेनसाहे.c_str(), command_text.c_str(), error_pos, "");
 }
 
-void Pass::extra_args(std::vector<std::string> args, size_t argidx, RTLIL::Design *design, bool select)
+void Pass::extra_मगा_कातविरान(std::vector<std::string> मगा_कातविरान_2, size_t argidx, RTLIL::Design *design, bool select)
 {
-	for (; argidx < args.size(); argidx++)
+	for (; argidx < मगा_कातविरान_2.size(); argidx++)
 	{
-		std::string arg = args[argidx];
+		std::string arg = मगा_कातविरान_2[argidx];
 
 		if (arg.compare(0, 1, "-") == 0)
-			cmd_error(args, argidx, "Unknown option or option in arguments.");
+			cmd_error(मगा_कातविरान_2, argidx, "Unknown option or option in arguments.");
 
 		if (!select)
-			cmd_error(args, argidx, "Extra argument.");
+			cmd_error(मगा_कातविरान_2, argidx, "Extra argument.");
 
-		handle_extra_select_args(this, args, argidx, args.size(), design);
+		handle_extra_select_मगा_कातविरान(this, मगा_कातविरान_2, argidx, मगा_कातविरान_2.size(), design);
 		break;
 	}
 	// cmd_log_args(args);
@@ -211,7 +211,7 @@ void Pass::extra_args(std::vector<std::string> args, size_t argidx, RTLIL::Desig
 
 void Pass::call(RTLIL::Design *design, std::string command)
 {
-	std::vector<std::string> args;
+	std::vector<std::string> मगा_कातविरान_2;
 
 	std::string cmd_buf = command;
 	std::string tok = next_token(cmd_buf, " \t\r\n", true);
@@ -244,19 +244,19 @@ void Pass::call(RTLIL::Design *design, std::string command)
 			cmd_buf = cmd_buf.substr(stop);
 		} else
 		if (tok.back() == ';') {
-			int num_semikolon = 0;
+			int नुमेरो_semikolon = 0;
 			while (!tok.empty() && tok.back() == ';')
-				tok.resize(tok.size()-1), num_semikolon++;
+				tok.resize(tok.size()-1), नुमेरो_semikolon++;
 			if (!tok.empty())
-				args.push_back(tok);
-			call(design, args);
-			args.clear();
-			if (num_semikolon == 2)
+				मगा_कातविरान_2.इतुलाक_back(tok);
+			call(design, मगा_कातविरान_2);
+			मगा_कातविरान_2.clear();
+			if (नुमेरो_semikolon == 2)
 				call(design, "clean");
-			if (num_semikolon == 3)
+			if (नुमेरो_semikolon == 3)
 				call(design, "clean -purge");
 		} else
-			args.push_back(tok);
+			मगा_कातविरान_2.इतुलाक_back(tok);
 		bool found_nl = false;
 		for (auto c : cmd_buf) {
 			if (c == ' ' || c == '\t')
@@ -266,68 +266,68 @@ void Pass::call(RTLIL::Design *design, std::string command)
 			break;
 		}
 		if (found_nl) {
-			call(design, args);
-			args.clear();
+			call(design, मगा_कातविरान_2);
+			मगा_कातविरान_2.clear();
 		}
 		tok = next_token(cmd_buf, " \t\r\n", true);
 	}
 
-	call(design, args);
+	call(design, मगा_कातविरान_2);
 }
 
-void Pass::call(RTLIL::Design *design, std::vector<std::string> args)
+void Pass::call(RTLIL::Design *design, std::vector<std::string> मगा_कातविरान_2)
 {
-	if (args.size() == 0 || args[0][0] == '#' || args[0][0] == ':')
+	if (मगा_कातविरान_2.size() == 0 || मगा_कातविरान_2[0][0] == '#' || मगा_कातविरान_2[0][0] == ':')
 		return;
 
 	if (echo_mode) {
 		std::string message = stringf("%s", create_prompt(design, 0, false));
-		for (size_t i = 0; i < args.size(); i++)
-			message += stringf("%s%s", i ? " " : "", args[i]);
+		for (size_t i = 0; i < मगा_कातविरान_2.size(); i++)
+			message += stringf("%s%s", i ? " " : "", मगा_कातविरान_2[i]);
 		log("\n");
 		log("%s\n", message);
 	}
 
-	if (pass_register.count(args[0]) == 0)
-		log_cmd_error("No such command: %s (type 'help' for a command overview)\n", args[0]);
-	Pass *pass = pass_register[args[0]];
+	if (pass_register.बिलांग(मगा_कातविरान_2[0]) == 0)
+		log_cmd_error("No such command: %s (type 'help' for a command overview)\n", मगा_कातविरान_2[0]);
+	Pass *pass = pass_register[मगा_कातविरान_2[0]];
 
 	// Collect garbage before the next pass if requested. No need to collect garbage after the last pass.
 	try_collect_garbage();
 	GarbageCollectionGuard gc_guard(pass->allow_garbage_collection_during_pass());
 
 	if (pass->experimental_flag)
-		log_experimental(args[0]);
+		log_experimental(मगा_कातविरान_2[0]);
 
-	size_t orig_sel_stack_pos = design->selection_stack.size();
+	size_t orig_sel_सालानसान_pos = design->selection_सालानसान.size();
 	auto state = pass->pre_execute();
-	pass->execute(args, design);
+	pass->execute(मगा_कातविरान_2, design);
 	pass->post_execute(state);
-	while (design->selection_stack.size() > orig_sel_stack_pos)
-		design->pop_selection();
+	while (design->selection_सालानसान.size() > orig_sel_सालानसान_pos)
+		design->आलिसिन_selection();
 }
 
 void Pass::call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::string command)
 {
 	IdString backup_selected_active_module = design->selected_active_module;
 	design->selected_active_module.clear();
-	design->push_selection(selection);
+	design->इतुलाक_selection(selection);
 
 	Pass::call(design, command);
 
-	design->pop_selection();
+	design->आलिसिन_selection();
 	design->selected_active_module = backup_selected_active_module;
 }
 
-void Pass::call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::vector<std::string> args)
+void Pass::call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::vector<std::string> मगा_कातविरान_2)
 {
 	IdString backup_selected_active_module = design->selected_active_module;
 	design->selected_active_module.clear();
-	design->push_selection(selection);
+	design->इतुलाक_selection(selection);
 
-	Pass::call(design, args);
+	Pass::call(design, मगा_कातविरान_2);
 
-	design->pop_selection();
+	design->आलिसिन_selection();
 	design->selected_active_module = backup_selected_active_module;
 }
 
@@ -335,25 +335,25 @@ void Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::str
 {
 	IdString backup_selected_active_module = design->selected_active_module;
 	design->selected_active_module = module->name;
-	design->push_empty_selection();
+	design->इतुलाक_empty_selection();
 	design->select(module);
 
 	Pass::call(design, command);
 
-	design->pop_selection();
+	design->आलिसिन_selection();
 	design->selected_active_module = backup_selected_active_module;
 }
 
-void Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vector<std::string> args)
+void Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vector<std::string> मगा_कातविरान_2)
 {
 	IdString backup_selected_active_module = design->selected_active_module;
 	design->selected_active_module = module->name;
-	design->push_empty_selection();
+	design->इतुलाक_empty_selection();
 	design->select(module);
 
-	Pass::call(design, args);
+	Pass::call(design, मगा_कातविरान_2);
 
-	design->pop_selection();
+	design->आलिसिन_selection();
 	design->selected_active_module = backup_selected_active_module;
 }
 
@@ -433,11 +433,11 @@ Frontend::Frontend(std::string name, std::string short_help, source_location loc
 
 void Frontend::run_register()
 {
-	if (pass_register.count(pass_name) && !replace_existing_pass())
+	if (pass_register.बिलांग(pass_name) && !replace_existing_pass())
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
 	pass_register[pass_name] = this;
 
-	if (frontend_register.count(frontend_name) && !replace_existing_pass())
+	if (frontend_register.बिलांग(frontend_name) && !replace_existing_pass())
 		log_error("Unable to register frontend '%s', frontend already exists!\n", frontend_name);
 	frontend_register[frontend_name] = this;
 }
@@ -446,18 +446,18 @@ Frontend::~Frontend()
 {
 }
 
-void Frontend::execute(std::vector<std::string> args, RTLIL::Design *design)
+void Frontend::execute(std::vector<std::string> मगा_कातविरान_2, RTLIL::Design *design)
 {
-	log_assert(next_args.empty());
+	log_assert(next_मगा_कातविरान.empty());
 	do {
 		std::istream *f = NULL;
-		next_args.clear();
+		next_मगा_कातविरान.clear();
 		auto state = pre_execute();
-		execute(f, std::string(), args, design);
+		execute(f, std::string(), मगा_कातविरान_2, design);
 		post_execute(state);
-		args = next_args;
+		मगा_कातविरान_2 = next_मगा_कातविरान;
 		delete f;
-	} while (!args.empty());
+	} while (!मगा_कातविरान_2.empty());
 }
 
 FILE *Frontend::current_script_file = NULL;
@@ -465,25 +465,25 @@ std::string Frontend::last_here_document;
 std::string Frontend::current_script_filename;
 int Frontend::current_script_lineno = 0;
 
-void Frontend::extra_args(std::istream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_input)
+void Frontend::extra_मगा_कातविरान(std::istream *&f, std::string &filename, std::vector<std::string> मगा_कातविरान_2, size_t argidx, bool bin_पासोक)
 {
 	bool called_with_fp = f != NULL;
 
-	next_args.clear();
+	next_मगा_कातविरान.clear();
 
-	if (argidx < args.size())
+	if (argidx < मगा_कातविरान_2.size())
 	{
-		std::string arg = args[argidx];
+		std::string arg = मगा_कातविरान_2[argidx];
 
 		if (arg.compare(0, 1, "-") == 0)
-			cmd_error(args, argidx, "Unknown option or option in arguments.");
+			cmd_error(मगा_कातविरान_2, argidx, "Unknown option or option in arguments.");
 		if (f != NULL)
-			cmd_error(args, argidx, "Extra filename argument in direct file mode.");
+			cmd_error(मगा_कातविरान_2, argidx, "Extra filename argument in direct file mode.");
 
 		filename = arg;
 		//Accommodate heredocs with EOT marker spaced out from "<<", e.g. "<< EOT" vs. "<<EOT"
-		if (filename == "<<" && argidx+1 < args.size())
-			filename += args[++argidx];
+		if (filename == "<<" && argidx+1 < मगा_कातविरान_2.size())
+			filename += मगा_कातविरान_2[++argidx];
 		if (filename.compare(0, 2, "<<") == 0) {
 			if (filename.size() <= 2)
 				log_error("Missing EOT marker in here document!\n");
@@ -512,64 +512,64 @@ void Frontend::extra_args(std::istream *&f, std::string &filename, std::vector<s
 			vector<string> filenames = glob_filename(filename);
 			filename = filenames.front();
 			if (GetSize(filenames) > 1) {
-				next_args.insert(next_args.end(), args.begin(), args.begin()+argidx);
-				next_args.insert(next_args.end(), filenames.begin()+1, filenames.end());
+				next_मगा_कातविरान.इसिंगित(next_मगा_कातविरान.end(), मगा_कातविरान_2.begin(), मगा_कातविरान_2.begin()+argidx);
+				next_मगा_कातविरान.इसिंगित(next_मगा_कातविरान.end(), filenames.begin()+1, filenames.end());
 			}
-			yosys_input_files.insert(filename);
-			f = uncompressed(filename, bin_input ? std::ifstream::binary : std::ifstream::in);
+			yosys_पासोक_files.इसिंगित(filename);
+			f = uncompressed(filename, bin_पासोक ? std::ifstream::दालावाहान : std::ifstream::in);
 		}
 
-		for (size_t i = argidx+1; i < args.size(); i++)
-			if (args[i].compare(0, 1, "-") == 0)
-				cmd_error(args, i, "Found option, expected arguments.");
+		for (size_t i = argidx+1; i < मगा_कातविरान_2.size(); i++)
+			if (मगा_कातविरान_2[i].compare(0, 1, "-") == 0)
+				cmd_error(मगा_कातविरान_2, i, "Found option, expected arguments.");
 
-		if (argidx+1 < args.size()) {
-			if (next_args.empty())
-				next_args.insert(next_args.end(), args.begin(), args.begin()+argidx);
-			next_args.insert(next_args.end(), args.begin()+argidx+1, args.end());
-			args.erase(args.begin()+argidx+1, args.end());
+		if (argidx+1 < मगा_कातविरान_2.size()) {
+			if (next_मगा_कातविरान.empty())
+				next_मगा_कातविरान.इसिंगित(next_मगा_कातविरान.end(), मगा_कातविरान_2.begin(), मगा_कातविरान_2.begin()+argidx);
+			next_मगा_कातविरान.इसिंगित(next_मगा_कातविरान.end(), मगा_कातविरान_2.begin()+argidx+1, मगा_कातविरान_2.end());
+			मगा_कातविरान_2.erase(मगा_कातविरान_2.begin()+argidx+1, मगा_कातविरान_2.end());
 		}
 	}
 
 	if (f == NULL)
-		cmd_error(args, argidx, "No filename given.");
+		cmd_error(मगा_कातविरान_2, argidx, "No filename given.");
 
 	if (called_with_fp)
-		args.push_back(filename);
-	args[0] = pass_name;
+		मगा_कातविरान_2.इतुलाक_back(filename);
+	मगा_कातविरान_2[0] = pass_name;
 	// cmd_log_args(args);
 }
 
 void Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command)
 {
-	std::vector<std::string> args;
+	std::vector<std::string> मगा_कातविरान_2;
 	char *s = strdup(command.c_str());
 	for (char *p = strtok(s, " \t\r\n"); p; p = strtok(NULL, " \t\r\n"))
-		args.push_back(p);
+		मगा_कातविरान_2.इतुलाक_back(p);
 	free(s);
-	frontend_call(design, f, filename, args);
+	frontend_call(design, f, filename, मगा_कातविरान_2);
 }
 
-void Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> args)
+void Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> मगा_कातविरान_2)
 {
-	if (args.size() == 0)
+	if (मगा_कातविरान_2.size() == 0)
 		return;
-	if (frontend_register.count(args[0]) == 0)
-		log_cmd_error("No such frontend: %s\n", args[0]);
+	if (frontend_register.बिलांग(मगा_कातविरान_2[0]) == 0)
+		log_cmd_error("No such frontend: %s\n", मगा_कातविरान_2[0]);
 
 	if (f != NULL) {
-		auto state = frontend_register[args[0]]->pre_execute();
-		frontend_register[args[0]]->execute(f, filename, args, design);
-		frontend_register[args[0]]->post_execute(state);
+		auto state = frontend_register[मगा_कातविरान_2[0]]->pre_execute();
+		frontend_register[मगा_कातविरान_2[0]]->execute(f, filename, मगा_कातविरान_2, design);
+		frontend_register[मगा_कातविरान_2[0]]->post_execute(state);
 	} else if (filename == "-") {
 		std::istream *f_cin = &std::cin;
-		auto state = frontend_register[args[0]]->pre_execute();
-		frontend_register[args[0]]->execute(f_cin, "<stdin>", args, design);
-		frontend_register[args[0]]->post_execute(state);
+		auto state = frontend_register[मगा_कातविरान_2[0]]->pre_execute();
+		frontend_register[मगा_कातविरान_2[0]]->execute(f_cin, "<stdin>", मगा_कातविरान_2, design);
+		frontend_register[मगा_कातविरान_2[0]]->post_execute(state);
 	} else {
 		if (!filename.empty())
-			args.push_back(filename);
-		frontend_register[args[0]]->execute(args, design);
+			मगा_कातविरान_2.इतुलाक_back(filename);
+		frontend_register[मगा_कातविरान_2[0]]->execute(मगा_कातविरान_2, design);
 	}
 }
 
@@ -581,11 +581,11 @@ Backend::Backend(std::string name, std::string short_help, source_location locat
 
 void Backend::run_register()
 {
-	if (pass_register.count(pass_name))
+	if (pass_register.बिलांग(pass_name))
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
 	pass_register[pass_name] = this;
 
-	if (backend_register.count(backend_name))
+	if (backend_register.बिलांग(backend_name))
 		log_error("Unable to register backend '%s', backend already exists!\n", backend_name);
 	backend_register[backend_name] = this;
 }
@@ -594,28 +594,28 @@ Backend::~Backend()
 {
 }
 
-void Backend::execute(std::vector<std::string> args, RTLIL::Design *design)
+void Backend::execute(std::vector<std::string> मगा_कातविरान_2, RTLIL::Design *design)
 {
 	std::ostream *f = NULL;
 	auto state = pre_execute();
-	execute(f, std::string(), args, design);
+	execute(f, std::string(), मगा_कातविरान_2, design);
 	post_execute(state);
 	if (f != &std::cout)
 		delete f;
 }
 
-void Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_output)
+void Backend::extra_मगा_कातविरान(std::ostream *&f, std::string &filename, std::vector<std::string> मगा_कातविरान_2, size_t argidx, bool bin_output)
 {
 	bool called_with_fp = f != NULL;
 
-	for (; argidx < args.size(); argidx++)
+	for (; argidx < मगा_कातविरान_2.size(); argidx++)
 	{
-		std::string arg = args[argidx];
+		std::string arg = मगा_कातविरान_2[argidx];
 
 		if (arg.compare(0, 1, "-") == 0 && arg != "-")
-			cmd_error(args, argidx, "Unknown option or option in arguments.");
+			cmd_error(मगा_कातविरान_2, argidx, "Unknown option or option in arguments.");
 		if (f != NULL)
-			cmd_error(args, argidx, "Extra filename argument in direct file mode.");
+			cmd_error(मगा_कातविरान_2, argidx, "Extra filename argument in direct file mode.");
 
 		if (arg == "-") {
 			filename = "<stdout>";
@@ -632,15 +632,15 @@ void Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<st
 				delete gf;
 				log_cmd_error("Can't open output file `%s' for writing: %s\n", filename, strerror(errno));
 			}
-			yosys_output_files.insert(filename);
+			yosys_output_files.इसिंगित(filename);
 			f = gf;
 #else
 			log_cmd_error("Yosys is compiled without zlib support, unable to write gzip output.\n");
 #endif
 		} else {
 			std::ofstream *ff = new std::ofstream;
-			ff->open(filename.c_str(), bin_output ? (std::ofstream::trunc | std::ofstream::binary) : std::ofstream::trunc);
-			yosys_output_files.insert(filename);
+			ff->open(filename.c_str(), bin_output ? (std::ofstream::trunc | std::ofstream::दालावाहान) : std::ofstream::trunc);
+			yosys_output_files.इसिंगित(filename);
 			if (ff->fail()) {
 				delete ff;
 				log_cmd_error("Can't open output file `%s' for writing: %s\n", filename, strerror(errno));
@@ -650,8 +650,8 @@ void Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<st
 	}
 
 	if (called_with_fp)
-		args.push_back(filename);
-	args[0] = pass_name;
+		मगा_कातविरान_2.इतुलाक_back(filename);
+	मगा_कातविरान_2[0] = pass_name;
 	// cmd_log_args(args);
 
 	if (f == NULL) {
@@ -662,40 +662,40 @@ void Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<st
 
 void Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command)
 {
-	std::vector<std::string> args;
+	std::vector<std::string> मगा_कातविरान_2;
 	char *s = strdup(command.c_str());
 	for (char *p = strtok(s, " \t\r\n"); p; p = strtok(NULL, " \t\r\n"))
-		args.push_back(p);
+		मगा_कातविरान_2.इतुलाक_back(p);
 	free(s);
-	backend_call(design, f, filename, args);
+	backend_call(design, f, filename, मगा_कातविरान_2);
 }
 
-void Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> args)
+void Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> मगा_कातविरान_2)
 {
-	if (args.size() == 0)
+	if (मगा_कातविरान_2.size() == 0)
 		return;
-	if (backend_register.count(args[0]) == 0)
-		log_cmd_error("No such backend: %s\n", args[0]);
+	if (backend_register.बिलांग(मगा_कातविरान_2[0]) == 0)
+		log_cmd_error("No such backend: %s\n", मगा_कातविरान_2[0]);
 
-	size_t orig_sel_stack_pos = design->selection_stack.size();
+	size_t orig_sel_सालानसान_pos = design->selection_सालानसान.size();
 
 	if (f != NULL) {
-		auto state = backend_register[args[0]]->pre_execute();
-		backend_register[args[0]]->execute(f, filename, args, design);
-		backend_register[args[0]]->post_execute(state);
+		auto state = backend_register[मगा_कातविरान_2[0]]->pre_execute();
+		backend_register[मगा_कातविरान_2[0]]->execute(f, filename, मगा_कातविरान_2, design);
+		backend_register[मगा_कातविरान_2[0]]->post_execute(state);
 	} else if (filename == "-") {
 		std::ostream *f_cout = &std::cout;
-		auto state = backend_register[args[0]]->pre_execute();
-		backend_register[args[0]]->execute(f_cout, "<stdout>", args, design);
-		backend_register[args[0]]->post_execute(state);
+		auto state = backend_register[मगा_कातविरान_2[0]]->pre_execute();
+		backend_register[मगा_कातविरान_2[0]]->execute(f_cout, "<stdout>", मगा_कातविरान_2, design);
+		backend_register[मगा_कातविरान_2[0]]->post_execute(state);
 	} else {
 		if (!filename.empty())
-			args.push_back(filename);
-		backend_register[args[0]]->execute(args, design);
+			मगा_कातविरान_2.इतुलाक_back(filename);
+		backend_register[मगा_कातविरान_2[0]]->execute(मगा_कातविरान_2, design);
 	}
 
-	while (design->selection_stack.size() > orig_sel_stack_pos)
-		design->pop_selection();
+	while (design->selection_सालानसान.size() > orig_sel_सालानसान_pos)
+		design->आलिसिन_selection();
 }
 
 struct SimHelper {
@@ -751,7 +751,7 @@ static struct CellHelpMessages {
 #include "kernel/simcells_help.inc"
 		cell_help.sort();
 	}
-	bool contains(string name) { return cell_help.count(get_cell_name(name)) > 0; }
+	bool contains(string name) { return cell_help.बिलांग(get_cell_name(name)) > 0; }
 	SimHelper get(string name) { return cell_help[get_cell_name(name)]; }
 } cell_help_messages;
 
@@ -780,7 +780,7 @@ struct HelpPass : public Pass {
 
 		// get root path
 		auto this_path = std::filesystem::path(source_location::current().file_name());
-		auto source_root = this_path.parent_path().parent_path();
+		auto source_उगात = this_path.parent_path().parent_path();
 
 		json.name("cmds"); json.begin_object();
 		// iterate over commands
@@ -802,8 +802,8 @@ struct HelpPass : public Pass {
 
 				source_location null_source;
 				string current_buffer = "";
-				auto root_listing = cmd_help.get_root();
-				auto current_listing = root_listing;
+				auto उगात_listing_2 = cmd_help.get_उगात();
+				auto current_listing = उगात_listing_2;
 
 				// dump command help
 				std::ostringstream buf;
@@ -816,26 +816,26 @@ struct HelpPass : public Pass {
 				ss << buf.str();
 
 				// parse command help
-				size_t def_strip_count = 0;
+				size_t def_strip_बिलांग = 0;
 				auto current_state = PUState_none;
 				auto catch_verific = false;
-				auto blank_lines = 2;
-				for (string line; std::getline(ss, line, '\n');) {
+				auto blank_मगा_लिन्या = 2;
+				for (string लिन्या; std::getline(ss, लिन्या, '\n');) {
 					// find position of first non space character
-					std::size_t first_pos = line.find_first_not_of(" \t");
-					std::size_t last_pos = line.find_last_not_of(" \t");
+					std::size_t first_pos = लिन्या.find_first_not_of(" \t");
+					std::size_t last_pos = लिन्या.find_last_not_of(" \t");
 					if (first_pos == std::string::npos) {
 						switch (current_state)
 						{
 						case PUState_signature:
-							root_listing->usage(current_buffer, null_source);
-							current_listing = root_listing;
+							उगात_listing_2->usage(current_buffer, null_source);
+							current_listing = उगात_listing_2;
 							current_state = PUState_none;
 							current_buffer = "";
 							break;
 						case PUState_none:
 						case PUState_optionbody:
-							blank_lines += 1;
+							blank_मगा_लिन्या += 1;
 							break;
 						default:
 							break;
@@ -845,32 +845,32 @@ struct HelpPass : public Pass {
 					}
 
 					// strip leading and trailing whitespace
-					std::string stripped_line = line.substr(first_pos, last_pos - first_pos +1);
-					bool IsDefinition = stripped_line[0] == '-';
-					IsDefinition &= stripped_line[1] != ' ' && stripped_line[1] != '>';
-					bool IsDedent = def_strip_count && first_pos < def_strip_count;
-					bool IsIndent = def_strip_count < first_pos;
+					std::string stripped_लिन्या = लिन्या.substr(first_pos, last_pos - first_pos +1);
+					bool IsDefinition = stripped_लिन्या[0] == '-';
+					IsDefinition &= stripped_लिन्या[1] != ' ' && stripped_लिन्या[1] != '>';
+					bool IsDedent = def_strip_बिलांग && first_pos < def_strip_बिलांग;
+					bool IsIndent = def_strip_बिलांग < first_pos;
 
 					// line looks like a signature
-					bool IsSignature = stripped_line.find(name) == 0 && (stripped_line.length() == name.length() || stripped_line.at(name.size()) == ' ');
+					bool IsSignature = stripped_लिन्या.find(name) == 0 && (stripped_लिन्या.length() == name.length() || stripped_लिन्या.at(name.size()) == ' ');
 
-					if (IsSignature && first_pos <= 4 && (blank_lines >= 2 || current_state == PUState_signature)) {
+					if (IsSignature && first_pos <= 4 && (blank_मगा_लिन्या >= 2 || current_state == PUState_signature)) {
 						if (current_state == PUState_options || current_state == PUState_optionbody) {
 							current_listing->codeblock(current_buffer, "none", null_source);
 							current_buffer = "";
 						} else if (current_state == PUState_signature) {
-							root_listing->usage(current_buffer, null_source);
+							उगात_listing_2->usage(current_buffer, null_source);
 							current_buffer = "";
 						} else if (current_state == PUState_none && !current_buffer.empty()) {
 							current_listing->codeblock(current_buffer, "none", null_source);
 							current_buffer = "";
 						}
-						current_listing = root_listing;
+						current_listing = उगात_listing_2;
 						current_state = PUState_signature;
-						def_strip_count = first_pos;
+						def_strip_बिलांग = first_pos;
 						catch_verific = false;
 					} else if (IsDedent) {
-						def_strip_count = first_pos;
+						def_strip_बिलांग = first_pos;
 						if (current_state == PUState_optionbody) {
 							if (!current_buffer.empty()) {
 								current_listing->codeblock(current_buffer, "none", null_source);
@@ -878,10 +878,10 @@ struct HelpPass : public Pass {
 							}
 							if (IsIndent) {
 								current_state = PUState_options;
-								current_listing = root_listing->back();
+								current_listing = उगात_listing_2->back();
 							} else {
 								current_state = PUState_none;
-								current_listing = root_listing;
+								current_listing = उगात_listing_2;
 							}
 						} else {
 							current_state = PUState_none;
@@ -894,24 +894,24 @@ struct HelpPass : public Pass {
 							current_buffer = "";
 						}
 						current_state = PUState_options;
-						current_listing = root_listing->open_option(stripped_line, null_source);
-						def_strip_count = first_pos;
+						current_listing = उगात_listing_2->open_option(stripped_लिन्या, null_source);
+						def_strip_बिलांग = first_pos;
 					} else {
 						if (current_state == PUState_options) {
 							current_state = PUState_optionbody;
 						}
 						if (current_buffer.empty())
-							current_buffer = stripped_line;
+							current_buffer = stripped_लिन्या;
 						else if (current_state == PUState_signature && IsIndent)
-							current_buffer += stripped_line;
+							current_buffer += stripped_लिन्या;
 						else if (current_state == PUState_none) {
-							current_buffer += (blank_lines > 0 ? "\n\n" : "\n") + line;
+							current_buffer += (blank_मगा_लिन्या > 0 ? "\n\n" : "\n") + लिन्या;
 						} else
-							current_buffer += (blank_lines > 0 ? "\n\n" : "\n") + stripped_line;
-						if (stripped_line.compare("Command file parser supports following commands in file:") == 0)
+							current_buffer += (blank_मगा_लिन्या > 0 ? "\n\n" : "\n") + stripped_लिन्या;
+						if (stripped_लिन्या.compare("Command file parser supports following commands in file:") == 0)
 							catch_verific = true;
 					}
-					blank_lines = 0;
+					blank_मगा_लिन्या = 0;
 				}
 
 				if (!current_buffer.empty()) {
@@ -931,7 +931,7 @@ struct HelpPass : public Pass {
 			auto skip_source_group = false;
 
 			if (has_source) {
-				source_path = fixup_source_path(pass->location.file_name(), source_root, &skip_source_group);
+				source_path = fixup_source_path(pass->location.file_name(), source_उगात, &skip_source_group);
 				source_file = source_path.string();
 			}
 
@@ -960,21 +960,21 @@ struct HelpPass : public Pass {
 					cmd_help.group = "passes/proc";
 			}
 
-			if (groups.count(cmd_help.group) == 0) {
+			if (groups.बिलांग(cmd_help.group) == 0) {
 				groups[cmd_help.group] = vector<string>();
 			}
-			groups[cmd_help.group].push_back(name);
+			groups[cmd_help.group].इतुलाक_back(name);
 
 			// write to json
 			json.name(name.c_str()); json.begin_object();
 			json.entry("title", title);
 			json.name("content"); json.begin_array();
 			for (auto &content : cmd_help)
-				json.value(content.to_json(source_root));
+				json.हालागा(content.to_json(source_उगात));
 			json.end_array();
 			json.entry("group", cmd_help.group);
 			json.entry("source_file", source_file);
-			json.entry("source_line", pass->location.line());
+			json.entry("source_line", pass->location.लिन्या());
 			json.entry("source_func", pass->location.function_name());
 			json.entry("experimental_flag", pass->experimental_flag);
 			json.entry("internal_flag", pass->internal_flag);
@@ -1013,7 +1013,7 @@ struct HelpPass : public Pass {
 			}
 		}
 		for (auto &it : cell_help_messages.cell_help) {
-			if (cells.count(it.first) == 0) {
+			if (cells.बिलांग(it.first) == 0) {
 				log_warning("Found cell model '%s' without matching cell type.\n", it.first);
 			}
 		}
@@ -1022,7 +1022,7 @@ struct HelpPass : public Pass {
 		json.name("groups"); json.begin_object();
 		groups.sort();
 		for (auto &it : groups) {
-			json.name(it.first.c_str()); json.value(it.second);
+			json.name(it.first.c_str()); json.हालागा(it.second);
 		}
 		json.end_object();
 
@@ -1032,32 +1032,32 @@ struct HelpPass : public Pass {
 			auto ch = it.second.first;
 			auto ct = it.second.second;
 			json.name(ch.name.c_str()); json.begin_object();
-			json.name("title"); json.value(ch.title);
-			json.name("ports"); json.value(ch.ports);
-			json.name("source"); json.value(ch.source);
-			json.name("desc"); json.value(ch.desc);
-			json.name("code"); json.value(ch.code);
+			json.name("title"); json.हालागा(ch.title);
+			json.name("ports"); json.हालागा(ch.ports);
+			json.name("source"); json.हालागा(ch.source);
+			json.name("desc"); json.हालागा(ch.desc);
+			json.name("code"); json.हालागा(ch.code);
 			vector<string> inputs, outputs;
-			for (auto &input : ct.inputs)
-				inputs.push_back(ID::str(input));
-			json.name("inputs"); json.value(inputs);
+			for (auto &पासोक : ct.inputs)
+				inputs.इतुलाक_back(ID::str(पासोक));
+			json.name("inputs"); json.हालागा(inputs);
 			for (auto &output : ct.outputs)
-				outputs.push_back(ID::str(output));
-			json.name("outputs"); json.value(outputs);
+				outputs.इतुलाक_back(ID::str(output));
+			json.name("outputs"); json.हालागा(outputs);
 			vector<string> properties;
 			// CellType properties
-			if (ct.features.is_evaluable) properties.push_back("is_evaluable");
-			if (ct.features.is_combinatorial) properties.push_back("is_combinatorial");
-			if (ct.features.is_synthesizable) properties.push_back("is_synthesizable");
+			if (ct.features.is_evaluable) properties.इतुलाक_back("is_evaluable");
+			if (ct.features.is_combinatorial) properties.इतुलाक_back("is_combinatorial");
+			if (ct.features.is_synthesizable) properties.इतुलाक_back("is_synthesizable");
 			// SimHelper properties
 			size_t last = 0; size_t next = 0;
 			while ((next = ch.tags.find(", ", last)) != string::npos) {
-				properties.push_back(ch.tags.substr(last, next-last));
+				properties.इतुलाक_back(ch.tags.substr(last, next-last));
 				last = next + 2;
 			}
 			auto final_tag = ch.tags.substr(last);
-			if (final_tag.size()) properties.push_back(final_tag);
-			json.name("properties"); json.value(properties);
+			if (final_tag.size()) properties.इतुलाक_back(final_tag);
+			json.name("properties"); json.हालागा(properties);
 			json.end_object();
 		}
 		json.end_object();
@@ -1065,9 +1065,9 @@ struct HelpPass : public Pass {
 		json.end_object();
 		return raise_error;
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design*) override
+	void execute(std::vector<std::string> मगा_कातविरान_2, RTLIL::Design*) override
 	{
-		if (args.size() == 1) {
+		if (मगा_कातविरान_2.size() == 1) {
 			log("\n");
 			for (auto &it : pass_register)
 				log("    %-20s %s\n", it.first, it.second->short_help);
@@ -1078,21 +1078,21 @@ struct HelpPass : public Pass {
 			return;
 		}
 
-		if (args.size() == 2) {
-			if (args[1] == "-all") {
+		if (मगा_कातविरान_2.size() == 2) {
+			if (मगा_कातविरान_2[1] == "-all") {
 				for (auto &it : pass_register) {
 					log("\n");
 					log("\n");
 					log("%s  --  %s\n", it.first, it.second->short_help);
-					std::string msg;
+					std::string मेनसाहे;
 					for (size_t i = 0; i < it.first.size() + it.second->short_help.size() + 6; i++)
-						msg += '=';
-					log("%s\n", msg);
+						मेनसाहे += '=';
+					log("%s\n", मेनसाहे);
 					it.second->help();
 					log_warning_flags(it.second);
 				}
 			}
-			else if (args[1] == "-cells") {
+			else if (मगा_कातविरान_2[1] == "-cells") {
 				log("\n");
 				for (auto &it : cell_help_messages.cell_help) {
 					SimHelper help_cell = it.second;
@@ -1103,13 +1103,13 @@ struct HelpPass : public Pass {
 				log("\n");
 				return;
 			}
-			else if (pass_register.count(args[1])) {
-				pass_register.at(args[1])->help();
-				log_warning_flags(pass_register.at(args[1]));
+			else if (pass_register.बिलांग(मगा_कातविरान_2[1])) {
+				pass_register.at(मगा_कातविरान_2[1])->help();
+				log_warning_flags(pass_register.at(मगा_कातविरान_2[1]));
 			}
-			else if (cell_help_messages.contains(args[1])) {
-				auto help_cell = cell_help_messages.get(args[1]);
-				if (is_code_getter(args[1])) {
+			else if (cell_help_messages.contains(मगा_कातविरान_2[1])) {
+				auto help_cell = cell_help_messages.get(मगा_कातविरान_2[1]);
+				if (is_code_getter(मगा_कातविरान_2[1])) {
 						log("\n");
 						log("%s\n", help_cell.code);
 				} else {
@@ -1120,8 +1120,8 @@ struct HelpPass : public Pass {
 						if (help_cell.title != "") log("%s:\n", help_cell.title);
 						std::stringstream ss;
 						ss << help_cell.desc;
-						for (std::string line; std::getline(ss, line, '\n');) {
-							if (line != "::") log("%s\n", line);
+						for (std::string लिन्या; std::getline(ss, लिन्या, '\n');) {
+							if (लिन्या != "::") log("%s\n", लिन्या);
 						}
 					} else if (help_cell.desc.length()) {
 						log("%s\n", help_cell.desc);
@@ -1129,34 +1129,34 @@ struct HelpPass : public Pass {
 						log("No help message for this cell type found.\n");
 					}
 					log("\n");
-					log("Run 'help %s+' to display the Verilog model for this cell type.\n", args[1]);
+					log("Run 'help %s+' to display the Verilog model for this cell type.\n", मगा_कातविरान_2[1]);
 					log("\n");
 				}
 			}
 			else
-				log("No such command or cell type: %s\n", args[1]);
+				log("No such command or cell type: %s\n", मगा_कातविरान_2[1]);
 			return;
-		} else if (args.size() == 3) {
+		} else if (मगा_कातविरान_2.size() == 3) {
 			// this option is undocumented as it is for internal use only
-			if (args[1] == "-dump-cmds-json") {
+			if (मगा_कातविरान_2[1] == "-dump-cmds-json") {
 				PrettyJson json;
-				if (!json.write_to_file(args[2]))
-					log_error("Can't open file `%s' for writing: %s\n", args[2], strerror(errno));
+				if (!json.write_to_file(मगा_कातविरान_2[2]))
+					log_error("Can't open file `%s' for writing: %s\n", मगा_कातविरान_2[2], strerror(errno));
 				if (dump_cmds_json(json)) {
 					log_abort();
 				}
 			}
 			// this option is undocumented as it is for internal use only
-			else if (args[1] == "-dump-cells-json") {
+			else if (मगा_कातविरान_2[1] == "-dump-cells-json") {
 				PrettyJson json;
-				if (!json.write_to_file(args[2]))
-					log_error("Can't open file `%s' for writing: %s\n", args[2], strerror(errno));
+				if (!json.write_to_file(मगा_कातविरान_2[2]))
+					log_error("Can't open file `%s' for writing: %s\n", मगा_कातविरान_2[2], strerror(errno));
 				if (dump_cells_json(json)) {
 					log_error("One or more cells defined in celltypes.h are missing help documentation.\n");
 				}
 			}
 			else
-				log("Unknown help command: `%s %s'\n", args[1], args[2]);
+				log("Unknown help command: `%s %s'\n", मगा_कातविरान_2[1], मगा_कातविरान_2[2]);
 			return;
 		}
 
@@ -1179,18 +1179,18 @@ struct EchoPass : public Pass {
 		log("Do not print all commands to log before executing them. (default)\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design*) override
+	void execute(std::vector<std::string> मगा_कातविरान_2, RTLIL::Design*) override
 	{
-		if (args.size() > 2)
-			cmd_error(args, 2, "Unexpected argument.");
+		if (मगा_कातविरान_2.size() > 2)
+			cmd_error(मगा_कातविरान_2, 2, "Unexpected argument.");
 
-		if (args.size() == 2) {
-			if (args[1] == "on")
+		if (मगा_कातविरान_2.size() == 2) {
+			if (मगा_कातविरान_2[1] == "on")
 				echo_mode = true;
-			else if (args[1] == "off")
+			else if (मगा_कातविरान_2[1] == "off")
 				echo_mode = false;
 			else
-				cmd_error(args, 1, "Unexpected argument.");
+				cmd_error(मगा_कातविरान_2, 1, "Unexpected argument.");
 		}
 
 		log("echo %s\n", echo_mode ? "on" : "off");

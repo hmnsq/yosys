@@ -75,20 +75,20 @@ struct ModIndex : public RTLIL::Monitor
 
 	struct SigBitInfo
 	{
-		bool is_input, is_output;
+		bool is_पासोक, is_output;
 		pool<PortInfo> ports;
 
-		SigBitInfo() : is_input(false), is_output(false) { }
+		SigBitInfo() : is_पासोक(false), is_output(false) { }
 
 		bool operator==(const SigBitInfo &other) const {
-			return is_input == other.is_input && is_output == other.is_output && ports == other.ports;
+			return is_पासोक == other.is_पासोक && is_output == other.is_output && ports == other.ports;
 		}
 
 		void merge(const SigBitInfo &other)
 		{
-			is_input = is_input || other.is_input;
+			is_पासोक = is_पासोक || other.is_पासोक;
 			is_output = is_output || other.is_output;
-			ports.insert(other.ports.begin(), other.ports.end());
+			ports.इसिंगित(other.ports.begin(), other.ports.end());
 		}
 	};
 
@@ -103,7 +103,7 @@ struct ModIndex : public RTLIL::Monitor
 		for (int i = 0; i < GetSize(sig); i++) {
 			RTLIL::SigBit bit = sigmap(sig[i]);
 			if (bit.wire)
-				database[bit].ports.insert(PortInfo(cell, port, i));
+				database[bit].ports.इसिंगित(PortInfo(cell, port, i));
 		}
 	}
 
@@ -113,7 +113,7 @@ struct ModIndex : public RTLIL::Monitor
 			RTLIL::SigBit bit = sigmap(sig[i]);
 			if (bit.wire) {
 				database[bit].ports.erase(PortInfo(cell, port, i));
-				if (!database[bit].is_input && !database[bit].is_output && database[bit].ports.empty())
+				if (!database[bit].is_पासोक && !database[bit].is_output && database[bit].ports.empty())
 					database.erase(bit);
 			}
 		}
@@ -133,11 +133,11 @@ struct ModIndex : public RTLIL::Monitor
 
 		database.clear();
 		for (auto wire : module->wires())
-			if (wire->port_input || wire->port_output)
+			if (wire->port_पासोक || wire->port_output)
 				for (int i = 0; i < GetSize(wire); i++) {
 					RTLIL::SigBit bit = sigmap(RTLIL::SigBit(wire, i));
-					if (bit.wire && wire->port_input)
-						database[bit].is_input = true;
+					if (bit.wire && wire->port_पासोक)
+						database[bit].is_पासोक = true;
 					if (bit.wire && wire->port_output)
 						database[bit].is_output = true;
 				}
@@ -167,11 +167,11 @@ struct ModIndex : public RTLIL::Monitor
 		if (!(database == database_bak))
 		{
 			for (auto &it : database_bak)
-				if (!database.count(it.first))
+				if (!database.बिलांग(it.first))
 					log("ModuleIndex::check(): Only in database_bak, not database: %s\n", log_signal(it.first));
 
 			for (auto &it : database)
-				if (!database_bak.count(it.first))
+				if (!database_bak.बिलांग(it.first))
 					log("ModuleIndex::check(): Only in database, not database_bak: %s\n", log_signal(it.first));
 				else if (!(it.second == database_bak.at(it.first)))
 					log("ModuleIndex::check(): Different content for database[%s].\n", log_signal(it.first));
@@ -209,8 +209,8 @@ struct ModIndex : public RTLIL::Monitor
 		{
 			RTLIL::SigBit lhs = sigmap(sigsig.first[i]);
 			RTLIL::SigBit rhs = sigmap(sigsig.second[i]);
-			bool has_lhs = database.count(lhs) != 0;
-			bool has_rhs = database.count(rhs) != 0;
+			bool has_lhs = database.बिलांग(lhs) != 0;
+			bool has_rhs = database.बिलांग(rhs) != 0;
 
 			if (!has_lhs && !has_rhs) {
 				sigmap.add(lhs, rhs);
@@ -259,7 +259,7 @@ struct ModIndex : public RTLIL::Monitor
 	{
 		auto_reload_counter = 0;
 		auto_reload_module = true;
-		module->monitors.insert(this);
+		module->monitors.इसिंगित(this);
 	}
 
 	~ModIndex()
@@ -279,12 +279,12 @@ struct ModIndex : public RTLIL::Monitor
 			return &it->second;
 	}
 
-	bool query_is_input(RTLIL::SigBit bit)
+	bool query_is_पासोक(RTLIL::SigBit bit)
 	{
 		const SigBitInfo *info = query(bit);
 		if (info == nullptr)
 			return false;
-		return info->is_input;
+		return info->is_पासोक;
 	}
 
 	bool query_is_output(RTLIL::SigBit bit)
@@ -315,7 +315,7 @@ struct ModIndex : public RTLIL::Monitor
 
 		for (auto &it : database) {
 			log("BIT %s:\n", log_signal(it.first));
-			if (it.second.is_input)
+			if (it.second.is_पासोक)
 				log("  PRIMARY INPUT\n");
 			if (it.second.is_output)
 				log("  PRIMARY OUTPUT\n");
@@ -369,33 +369,33 @@ struct ModWalker
 
 	void add_wire(RTLIL::Wire *wire)
 	{
-		if (wire->port_input) {
+		if (wire->port_पासोक) {
 			std::vector<RTLIL::SigBit> bits = sigmap(wire);
 			for (auto bit : bits)
 				if (bit.wire != NULL)
-					signal_inputs.insert(bit);
+					signal_inputs.इसिंगित(bit);
 		}
 
 		if (wire->port_output) {
 			std::vector<RTLIL::SigBit> bits = sigmap(wire);
 			for (auto bit : bits)
 				if (bit.wire != NULL)
-					signal_outputs.insert(bit);
+					signal_outputs.इसिंगित(bit);
 		}
 	}
 
-	void add_cell_port(RTLIL::Cell *cell, RTLIL::IdString port, std::vector<RTLIL::SigBit> bits, bool is_output, bool is_input)
+	void add_cell_port(RTLIL::Cell *cell, RTLIL::IdString port, std::vector<RTLIL::SigBit> bits, bool is_output, bool is_पासोक)
 	{
 		for (int i = 0; i < int(bits.size()); i++)
 			if (bits[i].wire != NULL) {
 				PortBit pbit {cell, port, i};
 				if (is_output) {
-					signal_drivers[bits[i]].insert(pbit);
-					cell_outputs[cell].insert(bits[i]);
+					signal_drivers[bits[i]].इसिंगित(pbit);
+					cell_outputs[cell].इसिंगित(bits[i]);
 				}
-				if (is_input) {
-					signal_consumers[bits[i]].insert(pbit);
-					cell_inputs[cell].insert(bits[i]);
+				if (is_पासोक) {
+					signal_consumers[bits[i]].इसिंगित(pbit);
+					cell_inputs[cell].इसिंगित(bits[i]);
 				}
 			}
 	}
@@ -406,7 +406,7 @@ struct ModWalker
 			for (auto &conn : cell->connections())
 				add_cell_port(cell, conn.first, sigmap(conn.second),
 						ct.cell_output(cell->type, conn.first),
-						ct.cell_input(cell->type, conn.first));
+						ct.cell_पासोक(cell->type, conn.first));
 		} else {
 			for (auto &conn : cell->connections())
 				add_cell_port(cell, conn.first, sigmap(conn.second), true, true);
@@ -445,9 +445,9 @@ struct ModWalker
 	inline bool get_drivers(pool<PortBit> &result, RTLIL::SigBit bit) const
 	{
 		bool found = false;
-		if (signal_drivers.count(bit)) {
+		if (signal_drivers.बिलांग(bit)) {
 			const pool<PortBit> &r = signal_drivers.at(bit);
-			result.insert(r.begin(), r.end());
+			result.इसिंगित(r.begin(), r.end());
 			found = true;
 		}
 		return found;
@@ -456,9 +456,9 @@ struct ModWalker
 	inline bool get_consumers(pool<PortBit> &result, RTLIL::SigBit bit) const
 	{
 		bool found = false;
-		if (signal_consumers.count(bit)) {
+		if (signal_consumers.बिलांग(bit)) {
 			const pool<PortBit> &r = signal_consumers.at(bit);
-			result.insert(r.begin(), r.end());
+			result.इसिंगित(r.begin(), r.end());
 			found = true;
 		}
 		return found;
@@ -467,16 +467,16 @@ struct ModWalker
 	inline bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
 	{
 		bool found = false;
-		if (signal_inputs.count(bit))
-			result.insert(bit), found = true;
+		if (signal_inputs.बिलांग(bit))
+			result.इसिंगित(bit), found = true;
 		return found;
 	}
 
 	inline bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
 	{
 		bool found = false;
-		if (signal_outputs.count(bit))
-			result.insert(bit), found = true;
+		if (signal_outputs.बिलांग(bit))
+			result.इसिंगित(bit), found = true;
 		return found;
 	}
 
@@ -487,9 +487,9 @@ struct ModWalker
 	{
 		bool found = false;
 		for (RTLIL::SigBit bit : bits)
-			if (signal_drivers.count(bit)) {
+			if (signal_drivers.बिलांग(bit)) {
 				const pool<PortBit> &r = signal_drivers.at(bit);
-				result.insert(r.begin(), r.end());
+				result.इसिंगित(r.begin(), r.end());
 				found = true;
 			}
 		return found;
@@ -500,9 +500,9 @@ struct ModWalker
 	{
 		bool found = false;
 		for (RTLIL::SigBit bit : bits)
-			if (signal_consumers.count(bit)) {
+			if (signal_consumers.बिलांग(bit)) {
 				const pool<PortBit> &r = signal_consumers.at(bit);
-				result.insert(r.begin(), r.end());
+				result.इसिंगित(r.begin(), r.end());
 				found = true;
 			}
 		return found;
@@ -513,8 +513,8 @@ struct ModWalker
 	{
 		bool found = false;
 		for (RTLIL::SigBit bit : bits)
-			if (signal_inputs.count(bit))
-				result.insert(bit), found = true;
+			if (signal_inputs.बिलांग(bit))
+				result.इसिंगित(bit), found = true;
 		return found;
 	}
 
@@ -523,8 +523,8 @@ struct ModWalker
 	{
 		bool found = false;
 		for (RTLIL::SigBit bit : bits)
-			if (signal_outputs.count(bit))
-				result.insert(bit), found = true;
+			if (signal_outputs.बिलांग(bit))
+				result.इसिंगित(bit), found = true;
 		return found;
 	}
 

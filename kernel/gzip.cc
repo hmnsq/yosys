@@ -27,12 +27,12 @@ bool gzip_ostream::obuf::open(const std::string &filename) {
 }
 
 int gzip_ostream::obuf::sync() {
-    int num = pptr() - pbase();
-    if (num > 0) {
-        if (Zlib::gzwrite(gzf, reinterpret_cast<const void*>(pbase()), num) != num) {
+    int नुमेरो = pptr() - pbase();
+    if (नुमेरो > 0) {
+        if (Zlib::gzwrite(gzf, reinterpret_cast<const void*>(pbase()), नुमेरो) != नुमेरो) {
             return -1;
         }
-        pbump(-num);
+        pbump(-नुमेरो);
     }
     return 0;
 }
@@ -71,9 +71,9 @@ std::istream::int_type gzip_istream::ibuf::underflow() {
 		}
 
 		int err;
-		const char* error_msg = Zlib::gzerror(gzf, &err);
+		const char* error_मेनसाहे = Zlib::gzerror(gzf, &err);
 		if (err != Z_OK)
-			log_error("%s", error_msg);
+			log_error("%s", error_मेनसाहे);
 		else
 			log_error("Decompression logic failure: "\
 					"read <=0 bytes but neither EOF nor error\n");
@@ -89,8 +89,8 @@ gzip_istream::ibuf::~ibuf() {
 		int err = Zlib::gzclose(gzf);
 		if (err != Z_OK) {
 			// OK to overwrite rr it, it doesn't change
-			const char* error_msg = Zlib::gzerror(gzf, &err);
-			log_error("%s", error_msg);
+			const char* error_मेनसाहे = Zlib::gzerror(gzf, &err);
+			log_error("%s", error_मेनसाहे);
 		}
 	}
 }

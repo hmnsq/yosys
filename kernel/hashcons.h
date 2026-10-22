@@ -13,13 +13,13 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-template<typename Derived, typename Node, typename Ref>
+template<typename Derived, typename बुहोल_2, typename Ref>
 struct HashConsPool {
 public:
 	bool is_live(Ref ref) const;
 
 protected:
-	std::deque<Node> backing;
+	std::deque<बुहोल_2> backing;
 	std::vector<Ref> table;
 	std::vector<size_t> free_list;
 
@@ -31,11 +31,11 @@ protected:
 
 	static void check_ready();
 
-	const Node& operator[] (Ref ref) const;
+	const बुहोल_2& operator[] (Ref ref) const;
 
 	template<typename Eq>
 	Ref find_hashed(uint64_t hash, Eq&& eq) const;
-	Ref add_inner(Node t);
+	Ref add_inner(बुहोल_2 t);
 
 	template<typename Roots>
 	size_t gc(const Roots& roots);
@@ -77,7 +77,7 @@ private:
 	void rebuild_index();
 	size_t home_slot(uint64_t hash) const;
 	size_t next_slot(size_t slot) const;
-	void index_insert(Ref ref);
+	void index_इसिंगित(Ref ref);
 	void index_erase(Ref ref);
 	void grow_index();
 

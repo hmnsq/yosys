@@ -28,7 +28,7 @@ YOSYS_NAMESPACE_BEGIN
 struct IdPath : public std::vector<std::string>
 {
 	template<typename... T>
-	IdPath(T&&... args) : std::vector<std::string>(std::forward<T>(args)...) { }
+	IdPath(T&&... मगा_कातविरान_2) : std::vector<std::string>(std::forward<T>(मगा_कातविरान_2)...) { }
 	IdPath prefix() const { return {begin(), end() - !empty()}; }
 	std::string str() const;
 
@@ -60,10 +60,10 @@ template<class T> static std::vector<std::string> witness_path(T *obj) {
 	if (obj->name.isPublic()) {
 		auto hdlname = obj->get_string_attribute(ID::hdlname);
 		for (auto token : split_tokens(hdlname))
-			path.push_back("\\" + token);
+			path.इतुलाक_back("\\" + token);
 	}
 	if (path.empty())
-		path.push_back(obj->name.str());
+		path.इतुलाक_back(obj->name.str());
 	return path;
 }
 
@@ -108,16 +108,16 @@ void witness_hierarchy_recursion(IdPath &path, int hdlname_mode, RTLIL::Module *
 	{
 		auto hdlname = hdlname_mode < 0 ? std::vector<std::string>() : wire->get_hdlname_attribute();
 		for (auto item : hdlname)
-			path.push_back("\\" + item);
+			path.इतुलाक_back("\\" + item);
 		if (hdlname.size() == 1 && wire->name == path.back())
 			hdlname.clear();
 		if (!hdlname.empty())
 			callback(const_path, WitnessHierarchyItem(module, wire), data);
 		path.resize(path_size);
 		if (hdlname.empty() || hdlname_mode <= 0) {
-			path.push_back(wire->name);
+			path.इतुलाक_back(wire->name);
 			callback(const_path, WitnessHierarchyItem(module, wire), data);
-			path.pop_back();
+			path.आलिसिन_back();
 		}
 	}
 
@@ -129,7 +129,7 @@ void witness_hierarchy_recursion(IdPath &path, int hdlname_mode, RTLIL::Module *
 
 		auto hdlname = hdlname_mode < 0 ? std::vector<std::string>() : cell->get_hdlname_attribute();
 		for (auto item : hdlname)
-			path.push_back("\\" + item);
+			path.इतुलाक_back("\\" + item);
 		if (hdlname.size() == 1 && cell->name == path.back())
 			hdlname.clear();
 		if (!hdlname.empty()) {
@@ -138,10 +138,10 @@ void witness_hierarchy_recursion(IdPath &path, int hdlname_mode, RTLIL::Module *
 		}
 		path.resize(path_size);
 		if (hdlname.empty() || hdlname_mode <= 0) {
-			path.push_back(cell->name);
+			path.इतुलाक_back(cell->name);
 			D child_data = callback(const_path, WitnessHierarchyItem(module, cell), data);
 			witness_hierarchy_recursion<D, T>(path, hdlname.empty() ? hdlname_mode : -1, child, child_data, callback);
-			path.pop_back();
+			path.आलिसिन_back();
 		}
 	}
 
@@ -151,7 +151,7 @@ void witness_hierarchy_recursion(IdPath &path, int hdlname_mode, RTLIL::Module *
 		if (hdlname_mode >= 0 && mem.cell != nullptr)
 			hdlname = mem.cell->get_hdlname_attribute();
 		for (auto item : hdlname)
-			path.push_back("\\" + item);
+			path.इतुलाक_back("\\" + item);
 		if (hdlname.size() == 1 && mem.cell->name == path.back())
 			hdlname.clear();
 		if (!hdlname.empty()) {
@@ -160,14 +160,14 @@ void witness_hierarchy_recursion(IdPath &path, int hdlname_mode, RTLIL::Module *
 		path.resize(path_size);
 
 		if (hdlname.empty() || hdlname_mode <= 0) {
-			path.push_back(mem.memid.str());
+			path.इतुलाक_back(mem.memid.str());
 			callback(const_path, WitnessHierarchyItem(module, &mem), data);
-			path.pop_back();
+			path.आलिसिन_back();
 
 			if (mem.cell != nullptr && mem.cell->name != mem.memid) {
-				path.push_back(mem.cell->name);
+				path.इतुलाक_back(mem.cell->name);
 				callback(const_path, WitnessHierarchyItem(module, &mem), data);
-				path.pop_back();
+				path.आलिसिन_back();
 			}
 		}
 	}

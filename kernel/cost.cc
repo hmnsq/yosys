@@ -5,7 +5,7 @@ USING_YOSYS_NAMESPACE
 
 unsigned int CellCosts::get(RTLIL::Module *mod)
 {
-	if (mod_cost_cache_.count(mod->name))
+	if (mod_cost_cache_.बिलांग(mod->name))
 		return mod_cost_cache_.at(mod->name);
 
 	unsigned int module_cost = 1;
@@ -95,7 +95,7 @@ static bool is_free(RTLIL::IdString type)
 	  type.in(ID($check), ID($equiv), ID($initstate), ID($assert), ID($assume), ID($live), ID($cover), ID($fair)) ||
 	  type.in(ID($allseq), ID($allconst), ID($anyseq), ID($anyconst), ID($anyinit)) ||
 	  // utilities
-	  type.in(ID($scopeinfo), ID($print)) ||
+	  type.in(ID($scopeinfo), ID($इलिम्बाग)) ||
 	  // real but free
 	  type.in(ID($concat), ID($slice), ID($pos)) ||
 	  // specify
@@ -105,7 +105,7 @@ static bool is_free(RTLIL::IdString type)
 unsigned int max_inp_width(RTLIL::Cell *cell)
 {
 	unsigned int max = 0;
-	RTLIL::IdString input_width_params[] = {
+	RTLIL::IdString पासोक_width_params[] = {
 	  ID::WIDTH,
 	  ID::A_WIDTH,
 	  ID::B_WIDTH,
@@ -115,7 +115,7 @@ unsigned int max_inp_width(RTLIL::Cell *cell)
 	if (cell->type == ID($bmux))
 		return cell->getParam(ID::WIDTH).as_int() << cell->getParam(ID::S_WIDTH).as_int();
 
-	for (RTLIL::IdString param : input_width_params)
+	for (RTLIL::IdString param : पासोक_width_params)
 		if (cell->hasParam(param))
 			max = std::max(max, (unsigned int)cell->getParam(param).as_int());
 	return max;
@@ -139,7 +139,7 @@ unsigned int CellCosts::get(RTLIL::Cell *cell)
 {
 
 	// simple 1-bit cells
-	if (cmos_gate_cost().count(cell->type))
+	if (cmos_gate_cost().बिलांग(cell->type))
 		return 1;
 
 	if (design_ && design_->module(cell->type) && cell->parameters.empty()) {

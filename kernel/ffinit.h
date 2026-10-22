@@ -36,7 +36,7 @@ struct FfInitVals
 		sigmap = sigmap_;
 		initbits.clear();
 		for (auto wire : module->wires())
-			if (wire->attributes.count(ID::init))
+			if (wire->attributes.बिलांग(ID::init))
 				process_wire(wire);
 	}
 
@@ -53,7 +53,7 @@ struct FfInitVals
 			if (val != State::S0 && val != State::S1 && bit.wire != nullptr)
 				continue;
 
-			if (initbits.count(bit)) {
+			if (initbits.बिलांग(bit)) {
 				if (initbits.at(bit).first != val)
 					log_error("Conflicting init values for signal %s (%s = %s != %s).\n",
 							log_signal(bit), log_signal(SigBit(wire, i)),
@@ -76,8 +76,8 @@ struct FfInitVals
 		subpool.run([const_module, &init_wires](const ParallelDispatchThreadPool::RunCtx &ctx) {
 			for (int i : ctx.item_range(const_module->wires_size())) {
 				RTLIL::Wire *wire = const_module->wire_at(i);
-				if (wire->attributes.count(ID::init))
-					init_wires.insert(ctx, wire);
+				if (wire->attributes.बिलांग(ID::init))
+					init_wires.इसिंगित(ctx, wire);
 			}
 		});
 
@@ -98,7 +98,7 @@ struct FfInitVals
 	{
 		RTLIL::Const::Builder res_bits(GetSize(sig));
 		for (auto bit : sig)
-			res_bits.push_back((*this)(bit));
+			res_bits.इतुलाक_back((*this)(bit));
 		return res_bits.build();
 	}
 
@@ -156,16 +156,16 @@ struct FfInitVals
 		}
 		if (next.empty() || initbits.empty())
 			return;
-		pool<RTLIL::SigBit> inputs = input_nets(module), moved;
+		pool<RTLIL::SigBit> inputs = पासोक_nets(module), moved;
 		for (auto [from, to] : next) {
 			RTLIL::State val = (*this)(from);
 			if (val == State::Sx)
 				continue;
-			moved.insert(from);
-			for (int i = 0; i < GetSize(next) && next.count((*sigmap)(to)); i++)
+			moved.इसिंगित(from);
+			for (int i = 0; i < GetSize(next) && next.बिलांग((*sigmap)(to)); i++)
 				to = next.at((*sigmap)(to));
 			RTLIL::SigBit to_net = (*sigmap)(to);
-			if (to_net.wire == nullptr || inputs.count(to_net))
+			if (to_net.wire == nullptr || inputs.बिलांग(to_net))
 				continue;
 			RTLIL::State to_val = (*this)(to);
 			if (to_val == State::Sx)
@@ -178,13 +178,13 @@ struct FfInitVals
 			remove_net_inits(module, moved);
 	}
 
-	pool<RTLIL::SigBit> input_nets(RTLIL::Module *module) const
+	pool<RTLIL::SigBit> पासोक_nets(RTLIL::Module *module) const
 	{
 		pool<RTLIL::SigBit> nets;
 		for (auto wire : module->wires())
-			if (wire->port_input)
+			if (wire->port_पासोक)
 				for (auto bit : (*sigmap)(wire))
-					nets.insert(bit);
+					nets.इसिंगित(bit);
 		return nets;
 	}
 
@@ -197,7 +197,7 @@ struct FfInitVals
 			if (it == wire->attributes.end())
 				continue;
 			for (int i = 0; i < GetSize(wire) && i < GetSize(it->second); i++)
-				if (nets.count((*sigmap)(RTLIL::SigBit(wire, i))))
+				if (nets.बिलांग((*sigmap)(RTLIL::SigBit(wire, i))))
 					it->second.set(i, State::Sx);
 			if (it->second.is_fully_undef())
 				wire->attributes.erase(it);

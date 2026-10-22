@@ -94,11 +94,11 @@ bool IdPath::get_address(int &addr) const
 static std::vector<std::string> get_path(const json11::Json &json)
 {
 	std::vector<std::string> result;
-	for (auto &path_item : json.array_items()) {
-		auto const &path_item_str = path_item.string_value();
+	for (auto &path_item : json.array_मगा_बागाय()) {
+		auto const &path_item_str = path_item.string_हालागा();
 		if (path_item_str.empty())
 			return {};;
-		result.push_back(path_item_str);
+		result.इतुलाक_back(path_item_str);
 	}
 	return result;
 }
@@ -116,65 +116,65 @@ ReadWitness::ReadWitness(const std::string &filename) :
 	if (!err.empty())
 		log_error("Failed to parse `%s`: %s\n", filename, err);
 
-	std::string format = json["format"].string_value();
+	std::string format = json["format"].string_हालागा();
 
 	if (format.empty())
 		log_error("Failed to parse `%s`: Unknown format\n", filename);
 	if (format != "Yosys Witness Trace")
 		log_error("Failed to parse `%s`: Unsupported format `%s`\n", filename, format);
 
-	for (auto &clock_json : json["clocks"].array_items()) {
+	for (auto &clock_json : json["clocks"].array_मगा_बागाय()) {
 		Clock clock;
 		clock.path = get_path(clock_json["path"]);
 		if (clock.path.empty())
 			log_error("Failed to parse `%s`: Missing path for clock `%s`\n", filename, clock_json.dump());
 		auto edge_str = clock_json["edge"];
-		if (edge_str.string_value() == "posedge")
+		if (edge_str.string_हालागा() == "posedge")
 			clock.is_posedge = true;
-		else if (edge_str.string_value() == "negedge")
+		else if (edge_str.string_हालागा() == "negedge")
 			clock.is_negedge = true;
 		else
 			log_error("Failed to parse `%s`: Unknown edge type for clock `%s`\n", filename, clock_json.dump());
-		if (!clock_json["offset"].is_number())
+		if (!clock_json["offset"].is_नुमेरो())
 			log_error("Failed to parse `%s`: Unknown offset for clock `%s`\n", filename, clock_json.dump());
-		clock.offset = clock_json["offset"].int_value();
+		clock.offset = clock_json["offset"].int_हालागा();
 		if (clock.offset < 0)
 			log_error("Failed to parse `%s`: Invalid offset for clock `%s`\n", filename, clock_json.dump());
-		clocks.push_back(clock);
+		clocks.इतुलाक_back(clock);
 	}
 
 	int bits_offset = 0;
-	for (auto &signal_json : json["signals"].array_items()) {
+	for (auto &signal_json : json["signals"].array_मगा_बागाय()) {
 		Signal signal;
 		signal.bits_offset = bits_offset;
 		signal.path = get_path(signal_json["path"]);
 		if (signal.path.empty())
 			log_error("Failed to parse `%s`: Missing path for signal `%s`\n", filename, signal_json.dump());
-		if (!signal_json["width"].is_number())
+		if (!signal_json["width"].is_नुमेरो())
 			log_error("Failed to parse `%s`: Unknown width for signal `%s`\n", filename, signal_json.dump());
-		signal.width = signal_json["width"].int_value();
+		signal.width = signal_json["width"].int_हालागा();
 		if (signal.width < 0)
 			log_error("Failed to parse `%s`: Invalid width for signal `%s`\n", filename, signal_json.dump());
 		bits_offset += signal.width;
-		if (!signal_json["offset"].is_number())
+		if (!signal_json["offset"].is_नुमेरो())
 			log_error("Failed to parse `%s`: Unknown offset for signal `%s`\n", filename, signal_json.dump());
-		signal.offset = signal_json["offset"].int_value();
+		signal.offset = signal_json["offset"].int_हालागा();
 		if (signal.offset < 0)
 			log_error("Failed to parse `%s`: Invalid offset for signal `%s`\n", filename, signal_json.dump());
-		signal.init_only = signal_json["init_only"].bool_value();
-		signals.push_back(signal);
+		signal.init_only = signal_json["init_only"].bool_हालागा();
+		signals.इतुलाक_back(signal);
 	}
 
-	for (auto &step_json : json["steps"].array_items()) {
+	for (auto &step_json : json["steps"].array_मगा_बागाय()) {
 		Step step;
 		if (!step_json["bits"].is_string())
 			log_error("Failed to parse `%s`: Expected string as bits value for step %d\n", filename, GetSize(steps));
-		step.bits = step_json["bits"].string_value();
+		step.bits = step_json["bits"].string_हालागा();
 		for (char c : step.bits) {
 			if (c != '0' && c != '1' && c != 'x' && c != '?')
 				log_error("Failed to parse `%s`: Invalid bit '%c' value for step %d\n", filename, c, GetSize(steps));
 		}
-		steps.push_back(step);
+		steps.इतुलाक_back(step);
 	}
 }
 

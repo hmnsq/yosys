@@ -24,23 +24,23 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AigNode
+struct Aig_बुहोल
 {
 	IdString portname;
 	int portbit;
 	bool inverter;
-	int left_parent, right_parent;
+	int कालिवा_parent, कानान_parent;
 	vector<pair<IdString, int>> outports;
 
-	AigNode();
-	bool operator==(const AigNode &other) const;
+	Aig_बुहोल();
+	bool operator==(const Aig_बुहोल &other) const;
 	[[nodiscard]] Hasher hash_into(Hasher h) const;
 };
 
 struct Aig
 {
 	string name;
-	vector<AigNode> nodes;
+	vector<Aig_बुहोल> nodes;
 	Aig(Cell *cell);
 
 	bool operator==(const Aig &other) const;

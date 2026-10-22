@@ -2,7 +2,7 @@
 #define RTLIL_TWINE_COMPAT_IMPL_H
 
 #ifdef __GNUC__
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 #endif
 
@@ -44,7 +44,7 @@ inline PooledName::PooledName(const Module *module, IdString id)
 }
 
 #ifdef __GNUC__
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
 
 template<typename Derived>

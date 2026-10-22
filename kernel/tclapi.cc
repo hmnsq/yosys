@@ -42,25 +42,25 @@ static Tcl_Obj *json_to_tcl(Tcl_Interp *interp, const json11::Json &json)
 	if (json.is_null())
 		return Tcl_NewStringObj("null", 4);
 	else if (json.is_string()) {
-		auto string = json.string_value();
+		auto string = json.string_हालागा();
 		return Tcl_NewStringObj(string.data(), string.size());
-	} else if (json.is_number()) {
-		double value = json.number_value();
-		double round_val = std::nearbyint(value);
-		if (std::isfinite(round_val) && value == round_val && value >= LONG_MIN && value < -double(LONG_MIN))
+	} else if (json.is_नुमेरो()) {
+		double हालागा = json.नुमेरो_हालागा();
+		double round_val = std::nearbyint(हालागा);
+		if (std::isfinite(round_val) && हालागा == round_val && हालागा >= LONG_MIN && हालागा < -double(LONG_MIN))
 			return Tcl_NewLongObj((long)round_val);
 		else
-			return Tcl_NewDoubleObj(value);
+			return Tcl_NewDoubleObj(हालागा);
 	} else if (json.is_bool()) {
-		return Tcl_NewBooleanObj(json.bool_value());
+		return Tcl_NewBooleanObj(json.bool_हालागा());
 	} else if (json.is_array()) {
-		auto list = json.array_items();
+		auto list = json.array_मगा_बागाय();
 		Tcl_Obj *result = Tcl_NewListObj(list.size(), nullptr);
 		for (auto &item : list)
 			Tcl_ListObjAppendElement(interp, result, json_to_tcl(interp, item));
 		return result;
 	} else if (json.is_object()) {
-		auto map = json.object_items();
+		auto map = json.object_मगा_बागाय();
 		Tcl_Obj *result = Tcl_NewListObj(map.size() * 2, nullptr);
 		for (auto &item : map) {
 			Tcl_ListObjAppendElement(interp, result, Tcl_NewStringObj(item.first.data(), item.first.size()));
@@ -74,11 +74,11 @@ static Tcl_Obj *json_to_tcl(Tcl_Interp *interp, const json11::Json &json)
 
 static int tcl_yosys_cmd(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
 {
-	std::vector<std::string> args;
+	std::vector<std::string> मगा_कातविरान_2;
 	for (int i = 1; i < argc; i++)
-		args.push_back(argv[i]);
+		मगा_कातविरान_2.इतुलाक_back(argv[i]);
 
-	if (args.size() >= 1 && args[0] == "-import") {
+	if (मगा_कातविरान_2.size() >= 1 && मगा_कातविरान_2[0] == "-import") {
 		for (auto &it : pass_register) {
 			std::string tcl_command_name = it.first;
 			if (tcl_command_name == "proc")
@@ -102,17 +102,17 @@ static int tcl_yosys_cmd(ClientData, Tcl_Interp *interp, int argc, const char *a
 	bool in_repl = yosys_tcl_repl_active;
 	auto guard = logger().error_throw_scope();
 	try {
-		if (args.size() == 1) {
-			Pass::call(yosys_get_design(), args[0]);
+		if (मगा_कातविरान_2.size() == 1) {
+			Pass::call(yosys_get_design(), मगा_कातविरान_2[0]);
 		} else {
-			Pass::call(yosys_get_design(), args);
+			Pass::call(yosys_get_design(), मगा_कातविरान_2);
 		}
 	} catch (log_cmd_error_exception) {
 		if (in_repl) {
 			auto design = yosys_get_design();
-			while (design->selection_stack.size() > 1)
-				design->pop_selection();
-			log_reset_stack();
+			while (design->selection_सालानसान.size() > 1)
+				design->आलिसिन_selection();
+			log_reset_सालानसान();
 		}
 		Tcl_SetResult(interp, (char *)"Yosys command produced an error", TCL_STATIC);
 
@@ -212,17 +212,17 @@ bool mp_int_to_const(mp_int *a, Const &b, bool is_signed)
 	if (mp_to_unsigned_bin(a, buf.data()) != MP_OKAY)
 		return false;
 
-	Const::Builder b_bits(mp_count_bits(a) + is_signed);
-	for (int i = 0; i < mp_count_bits(a);) {
-		for (int j = 0; j < 8 && i < mp_count_bits(a); j++, i++) {
+	Const::Builder b_bits(mp_बिलांग_bits(a) + is_signed);
+	for (int i = 0; i < mp_बिलांग_bits(a);) {
+		for (int j = 0; j < 8 && i < mp_बिलांग_bits(a); j++, i++) {
 			bool bv = ((buf.back() & (1 << j)) != 0) ^ negative;
-			b_bits.push_back(bv ? RTLIL::S1 : RTLIL::S0);
+			b_bits.इतुलाक_back(bv ? RTLIL::S1 : RTLIL::S0);
 		}
-		buf.pop_back();
+		buf.आलिसिन_back();
 	}
 
 	if (is_signed) {
-		b_bits.push_back(negative ? RTLIL::S1 : RTLIL::S0);
+		b_bits.इतुलाक_back(negative ? RTLIL::S1 : RTLIL::S0);
 	}
 	b = b_bits.build();
 
@@ -285,12 +285,12 @@ static int tcl_get_attr(ClientData, Tcl_Interp *interp, int argc, const char *ar
 	} else if (int_flag || uint_flag || sint_flag) {
 		if (!obj->has_attribute(attr_twine))
 			ERROR("attribute missing (required for -int)");
-		RTLIL::Const &value = obj->attributes.at(attr_twine);
+		RTLIL::Const &हालागा = obj->attributes.at(attr_twine);
 
-		mp_int value_mp;
-		if (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
+		mp_int हालागा_mp;
+		if (!const_to_mp_int(हालागा, &हालागा_mp, sint_flag, uint_flag))
 			ERROR("bignum manipulation failed");
-		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&value_mp));
+		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&हालागा_mp));
 	} else if (bool_flag) {
 		Tcl_SetObjResult(interp, Tcl_NewBooleanObj(obj->get_bool_attribute(attr_twine)));
 	} else {
@@ -406,12 +406,12 @@ static int tcl_set_attr(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
 		obj->set_string_attribute(attr_twine, Tcl_GetString(objv[i++]));
 	} else if (sint_flag || uint_flag) {
 		RTLIL::Const const_;
-		mp_int value_mp;
+		mp_int हालागा_mp;
 
-		if (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
+		if (Tcl_TakeBignumFromObj(interp, objv[i++], &हालागा_mp))
 			ERROR("non-integral value")
 
-		if (!mp_int_to_const(&value_mp, const_, sint_flag))
+		if (!mp_int_to_const(&हालागा_mp, const_, sint_flag))
 			ERROR("bignum manipulation failed");
 
 		if (sint_flag) {
@@ -473,17 +473,17 @@ static int tcl_get_param(ClientData, Tcl_Interp *interp, int argc, const char *a
 	if (!cell->hasParam(param_twine))
 		ERROR("parameter missing")
 
-	const RTLIL::Const &value = cell->getParam(param_twine);
+	const RTLIL::Const &हालागा = cell->getParam(param_twine);
 
 	if (string_flag) {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(value.decode_string().c_str(), -1));
+		Tcl_SetObjResult(interp, Tcl_NewStringObj(हालागा.decode_string().c_str(), -1));
 	} else if (int_flag || uint_flag || sint_flag) {
-		mp_int value_mp;
-		if (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
+		mp_int हालागा_mp;
+		if (!const_to_mp_int(हालागा, &हालागा_mp, sint_flag, uint_flag))
 			ERROR("bignum manipulation failed");
-		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&value_mp));
+		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&हालागा_mp));
 	} else {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(value.as_string().c_str(), -1));
+		Tcl_SetObjResult(interp, Tcl_NewStringObj(हालागा.as_string().c_str(), -1));
 	}
 	return TCL_OK;
 }
@@ -524,12 +524,12 @@ static int tcl_set_param(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *cons
 		cell->setParam(param_twine, Const(std::string(Tcl_GetString(objv[i++]))));
 	} else if (sint_flag || uint_flag) {
 		RTLIL::Const const_;
-		mp_int value_mp;
+		mp_int हालागा_mp;
 
-		if (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
+		if (Tcl_TakeBignumFromObj(interp, objv[i++], &हालागा_mp))
 			ERROR("non-integral value")
 
-		if (!mp_int_to_const(&value_mp, const_, sint_flag))
+		if (!mp_int_to_const(&हालागा_mp, const_, sint_flag))
 			ERROR("bignum manipulation failed");
 
 		if (sint_flag) {
@@ -551,7 +551,7 @@ static int tcl_set_param(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *cons
 int yosys_tcl_interp_init(Tcl_Interp *interp)
 {
 	if (Tcl_Init(interp)!=TCL_OK)
-		log_warning("Tcl_Init() call failed - %s\n",Tcl_ErrnoMsg(Tcl_GetErrno()));
+		log_warning("Tcl_Init() call failed - %s\n",Tcl_Errno_मेनसाहे(Tcl_GetErrno()));
 	Tcl_CreateCommand(interp, "yosys", tcl_yosys_cmd, NULL, NULL);
 	Tcl_CreateCommand(interp, "rtlil::get_attr", tcl_get_attr, NULL, NULL);
 	Tcl_CreateCommand(interp, "rtlil::has_attr", tcl_has_attr, NULL, NULL);

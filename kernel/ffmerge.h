@@ -64,7 +64,7 @@ struct FfMergeHelper
 
 	dict<SigBit, std::pair<Cell*, int>> dff_driver;
 	dict<SigBit, pool<std::pair<Cell*, int>>> dff_sink;
-	dict<SigBit, int> sigbit_users_count;
+	dict<SigBit, int> sigbit_users_बिलांग;
 
 	// Returns true if all bits in sig are completely unused.
 	bool is_output_unused(RTLIL::SigSpec sig);
@@ -110,7 +110,7 @@ struct FfMergeHelper
 	// a constant-input FF bit (with matching initial value and reset value).
 	// However, this will not work if the input is all-constant — if the caller
 	// cares about this case, it needs to check for it explicitely.
-	bool find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits);
+	bool find_पासोक_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits);
 
 	// To be called on find_output_ff result that will be merged.  This
 	// marks the given FF bits as used up (and not to be considered for
@@ -123,7 +123,7 @@ struct FfMergeHelper
 	// marks the given FF bits as used, and disallows merging them as
 	// outputs.  They can, however, still be merged as inputs again
 	// (perhaps for another cell).
-	void mark_input_ff(const pool<std::pair<Cell *, int>> &bits);
+	void mark_पासोक_ff(const pool<std::pair<Cell *, int>> &bits);
 
 	void set(FfInitVals *initvals_, RTLIL::Module *module_);
 

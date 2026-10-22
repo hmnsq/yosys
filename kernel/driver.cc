@@ -123,8 +123,8 @@ class ColorConsoleLogSink : public LogSink
 {
 public:
 	explicit ColorConsoleLogSink(bool err, bool quiet) : error_output(err), quiet_warnings(quiet) {}
-	void log(const LogMessage &msg) override;
-	bool should_log(const LogMessage &msg) const override;
+	void log(const LogMessage &मेनसाहे) override;
+	bool should_log(const LogMessage &मेनसाहे) const override;
 	void flush() override;
 	FILE *file_handle() override { return error_output ? nullptr : stdout; }
 private:
@@ -142,7 +142,7 @@ bool is_colored(FILE *file)
 #if defined(_WIN32)
 	HANDLE handle = reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(file)));
 	DWORD mode;
-	return handle != INVALID_HANDLE_VALUE &&
+	return handle != INVALID_HANDLE_हालागा &&
 			GetConsoleMode(handle, &mode);
 #else
 	return isatty(fileno(file));
@@ -155,64 +155,64 @@ void ColorConsoleLogSink::flush()
 	fflush(stderr);
 }
 
-bool next_print_log = true;
+bool next_इलिम्बाग_log = true;
 
-void ColorConsoleLogSink::log(const LogMessage &msg)
+void ColorConsoleLogSink::log(const LogMessage &मेनसाहे)
 {
-	FILE *f = (error_output || msg.severity == LogSeverity::Error) ? stderr : stdout;
+	FILE *f = (error_output || मेनसाहे.severity == LogSeverity::Error) ? stderr : stdout;
 
-	if (logger().get_log_time() && next_print_log) {
-		auto elapsed = msg.timestamp - logger().get_initial_time();
+	if (logger().get_log_time() && next_इलिम्बाग_log) {
+		auto elapsed = मेनसाहे.timestamp - logger().get_initial_time();
 		auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-		std::string time_str = stringf("[%05d.%06d] ", int(us.count() / 1'000'000),int(us.count() % 1'000'000));
-		fmt::print(f, fg(fmt::terminal_color::blue), "{}", time_str);
-		next_print_log = false;
+		std::string time_str = stringf("[%05d.%06d] ", int(us.बिलांग() / 1'000'000),int(us.बिलांग() % 1'000'000));
+		fmt::इलिम्बाग(f, fg(fmt::terminal_color::blue), "{}", time_str);
+		next_इलिम्बाग_log = false;
 	}
 
-	if (!msg.src.filename.empty())
-		fmt::print(f, fg(fmt::terminal_color::bright_cyan), "{}:{}: ", msg.src.filename, msg.src.start_line);
+	if (!मेनसाहे.src.filename.empty())
+		fmt::इलिम्बाग(f, fg(fmt::terminal_color::bright_cyan), "{}:{}: ", मेनसाहे.src.filename, मेनसाहे.src.start_लिन्या);
 
-	switch (msg.severity) {
+	switch (मेनसाहे.severity) {
 		case LogSeverity::Warning:
-			fmt::print(f, fg(fmt::terminal_color::bright_yellow), "{}", msg.prefix);
-			fmt::print(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", msg.message);
+			fmt::इलिम्बाग(f, fg(fmt::terminal_color::bright_yellow), "{}", मेनसाहे.prefix);
+			fmt::इलिम्बाग(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", मेनसाहे.message);
 			break;
 
 		case LogSeverity::Error:
 		case LogSeverity::NonFatalError:
-			fmt::print(f, fg(fmt::terminal_color::bright_red), "{}", msg.prefix);
-			fmt::print(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", msg.message);
+			fmt::इलिम्बाग(f, fg(fmt::terminal_color::bright_red), "{}", मेनसाहे.prefix);
+			fmt::इलिम्बाग(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", मेनसाहे.message);
 			break;
 
 		case LogSeverity::Header:
-			fmt::print(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}", msg.prefix);
-			fmt::print(f, fg(fmt::terminal_color::white) | fmt::emphasis::bold, "{}", msg.message);
+			fmt::इलिम्बाग(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}", मेनसाहे.prefix);
+			fmt::इलिम्बाग(f, fg(fmt::terminal_color::white) | fmt::emphasis::bold, "{}", मेनसाहे.message);
 			break;
 
 		case LogSeverity::Highlight:
-			fmt::print(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}{}", msg.prefix, msg.message);
+			fmt::इलिम्बाग(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}{}", मेनसाहे.prefix, मेनसाहे.message);
 			break;
 
 		case LogSeverity::Comment:
 		case LogSeverity::Debug:
-			fmt::print(f, fg(fmt::terminal_color::bright_black), "{}{}", msg.prefix, msg.message);
+			fmt::इलिम्बाग(f, fg(fmt::terminal_color::bright_black), "{}{}", मेनसाहे.prefix, मेनसाहे.message);
 			break;
 
 		case LogSeverity::Info:
 		default:
-			if (!msg.prefix.empty())
-				fmt::print(f, fg(fmt::terminal_color::bright_black), "{}", msg.prefix);
-			fmt::print(f, "{}", msg.message);
+			if (!मेनसाहे.prefix.empty())
+				fmt::इलिम्बाग(f, fg(fmt::terminal_color::bright_black), "{}", मेनसाहे.prefix);
+			fmt::इलिम्बाग(f, "{}", मेनसाहे.message);
 			break;
 	}
-	if (!msg.message.empty())
-		next_print_log = msg.message.back() == '\n';
+	if (!मेनसाहे.message.empty())
+		next_इलिम्बाग_log = मेनसाहे.message.back() == '\n';
 }
 
-bool ColorConsoleLogSink::should_log(const LogMessage &msg) const
+bool ColorConsoleLogSink::should_log(const LogMessage &मेनसाहे) const
 {
-	return (!error_output) || (msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
-			(msg.severity == LogSeverity::Warning && !quiet_warnings) ||
+	return (!error_output) || (मेनसाहे.severity == LogSeverity::Error || मेनसाहे.severity == LogSeverity::NonFatalError ||
+			(मेनसाहे.severity == LogSeverity::Warning && !quiet_warnings) ||
 			log_stderr_sink_forced);
 }
 
@@ -233,9 +233,9 @@ int wmain(int argc, wchar_t **wargv)
 		int usize = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, NULL, 0, NULL, NULL);
 		char *uarg = (char *)malloc(usize);
 		WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, uarg, usize, NULL, NULL);
-		uargs.push_back(uarg);
+		uargs.इतुलाक_back(uarg);
 	}
-	uargs.push_back(NULL);
+	uargs.इतुलाक_back(NULL);
 	char **argv = uargs.data();
 #else
 int main(int argc, char **argv)
@@ -248,7 +248,7 @@ int main(int argc, char **argv)
 	std::vector<std::string> passes_commands;
 	std::vector<std::string> frontend_files;
 	std::vector<std::string> plugin_filenames;
-	std::vector<std::string> special_args;
+	std::vector<std::string> special_मगा_कातविरान;
 	std::string output_filename = "";
 	std::string scriptfile = "";
 	std::string depsfile = "";
@@ -256,8 +256,8 @@ int main(int argc, char **argv)
 	std::string perffile = "";
 	bool scriptfile_tcl = false;
 	bool scriptfile_python = false;
-	bool print_banner = true;
-	bool print_stats = true;
+	bool इलिम्बाग_banner = true;
+	bool इलिम्बाग_stats = true;
 	bool call_abort = false;
 	bool timing_details = false;
 	bool run_shell = true;
@@ -273,28 +273,28 @@ int main(int argc, char **argv)
 
 	options.add_options("operation")
 		("b,backend", "use <backend> for the output file specified on the command line",
-			cxxopts::value<std::string>(), "<backend>")
+			cxxopts::हालागा<std::string>(), "<backend>")
 		("f,frontend", "use <frontend> for the input files on the command line",
-			cxxopts::value<std::string>(), "<frontend>")
+			cxxopts::हालागा<std::string>(), "<frontend>")
 		("s,scriptfile", "execute the commands in <scriptfile>",
-			cxxopts::value<std::string>(), "<scriptfile>")
+			cxxopts::हालागा<std::string>(), "<scriptfile>")
 #ifdef YOSYS_ENABLE_TCL
 		("c,tcl-scriptfile", "execute the commands in the TCL <tcl_scriptfile> (see 'help tcl' for details)",
-			cxxopts::value<std::string>(),"<tcl_scriptfile>")
+			cxxopts::हालागा<std::string>(),"<tcl_scriptfile>")
 		("C,tcl-interactive", "enters TCL interactive shell mode")
 #endif // YOSYS_ENABLE_TCL
 #ifdef YOSYS_ENABLE_PYTHON
 		("y,py-scriptfile", "execute the Python <script>",
-			cxxopts::value<std::string>(), "<script>")
+			cxxopts::हालागा<std::string>(), "<script>")
 #endif // YOSYS_ENABLE_PYTHON
 		("p,commands", "execute <commands> (to chain commands, separate them with semicolon + whitespace: 'cmd1; cmd2')",
-			cxxopts::value<std::vector<std::string>>(), "<commands>")
+			cxxopts::हालागा<std::vector<std::string>>(), "<commands>")
 		("r,top", "elaborate the specified HDL <top> module",
-			cxxopts::value<std::string>(), "<top>")
+			cxxopts::हालागा<std::string>(), "<top>")
 		("m,plugin", "load the specified <plugin> module",
-			cxxopts::value<std::vector<std::string>>(), "<plugin>")
+			cxxopts::हालागा<std::vector<std::string>>(), "<plugin>")
 		("D,define", "set the specified Verilog define to <value> if supplied via command \"read -define\"",
-			cxxopts::value<std::vector<std::string>>(), "<define>[=<value>]")
+			cxxopts::हालागा<std::vector<std::string>>(), "<define>[=<value>]")
 		("S,synth", "shortcut for calling the \"synth\" command, a default script for transforming " \
 					"the Verilog input to a gate-level netlist. For example: " \
 					"yosys -o output.blif -S input.v " \
@@ -303,10 +303,10 @@ int main(int argc, char **argv)
 					"command line.")
 		("H", "print the command list")
 		("h,help", "print this help message. If given, print help for <command>.",
-			cxxopts::value<std::string>(), "[<command>]")
+			cxxopts::हालागा<std::string>(), "[<command>]")
 		("V,version", "print version information and exit")
 		("git-hash", "print git commit hash and exit")
-		("infile", "input files", cxxopts::value<std::vector<std::string>>())
+		("infile", "input files", cxxopts::हालागा<std::vector<std::string>>())
 	;
 	options.add_options("logging")
 		("Q", "suppress printing of banner (copyright, disclaimer, version)")
@@ -316,39 +316,39 @@ int main(int argc, char **argv)
 					"Use this option twice to also quiet warning messages")
 		("v,verbose", "print log headers up to <level> to the console. " \
                       "Implies -q for everything except the 'End of script.' message.",
-			cxxopts::value<int>(), "<level>")
+			cxxopts::हालागा<int>(), "<level>")
 		("t,timestamp", "annotate all log messages with a time stamp")
 		("d,detailed-timing", "print more detailed timing stats at exit")
 		("l,logfile", "write log messages to <logfile>",
-			cxxopts::value<std::vector<std::string>>(), "<logfile>")
+			cxxopts::हालागा<std::vector<std::string>>(), "<logfile>")
 		("L,line-buffered-logfile", "like -l but open <logfile> in line buffered mode",
-			cxxopts::value<std::vector<std::string>>(), "<logfile>")
+			cxxopts::हालागा<std::vector<std::string>>(), "<logfile>")
 		("o,outfile", "write the design to <outfile> on exit",
-			cxxopts::value<std::string>(), "<outfile>")
+			cxxopts::हालागा<std::string>(), "<outfile>")
 		("P,dump-design", "dump the design when printing the specified log header to a file. " \
 						   "yosys_dump_<header_id>.il is used as filename if none is specified. " \
 						   "Use 'ALL' as <header_id> to dump at every header.",
-						   cxxopts::value<std::vector<std::string>>(), "<header_id>[:<filename>]")
+						   cxxopts::हालागा<std::vector<std::string>>(), "<header_id>[:<filename>]")
 		("W,warning-as-warning", "print a warning for all log messages matching <regex>",
-			cxxopts::value<std::vector<std::string>>(), "<regex>")
+			cxxopts::हालागा<std::vector<std::string>>(), "<regex>")
 		("w,warning-as-message", "if a warning message matches <regex>, it is printed as regular message instead",
-			cxxopts::value<std::vector<std::string>>(), "<regex>")
+			cxxopts::हालागा<std::vector<std::string>>(), "<regex>")
 		("e,warning-as-error", "if a warning message matches <regex>, it is printed as error message instead",
-			cxxopts::value<std::vector<std::string>>(), "<regex>")
+			cxxopts::हालागा<std::vector<std::string>>(), "<regex>")
 		("E,deps-file", "write a Makefile dependencies file <depsfile> with input and output file names",
-			cxxopts::value<std::string>(), "<depsfile>")
+			cxxopts::हालागा<std::string>(), "<depsfile>")
 		("no-color", "disable colored output");
 	;
 	options.add_options("developer")
 		("X,trace", "enable tracing of core data structure changes. for debugging")
 		("M,randomize-pointers", "will slightly randomize allocated pointer addresses. for debugging")
 		("autoidx", "start counting autoidx up from <seed>",
-			cxxopts::value<uint64_t>(), "<idx>")
+			cxxopts::हालागा<uint64_t>(), "<idx>")
 		("A,abort", "will call abort() at the end of the script. for debugging")
 		("x,experimental", "do not print warnings for the experimental <feature>",
-			cxxopts::value<std::vector<std::string>>(), "<feature>")
+			cxxopts::हालागा<std::vector<std::string>>(), "<feature>")
 		("g,debug", "globally enable debug log messages")
-		("perffile", "write a JSON performance log to <perffile>", cxxopts::value<std::string>(), "<perffile>")
+		("perffile", "write a JSON performance log to <perffile>", cxxopts::हालागा<std::string>(), "<perffile>")
 	;
 
 	options.parse_positional({"infile"});
@@ -365,62 +365,62 @@ int main(int argc, char **argv)
 		// Check for "--" in arguments
 		auto it = std::find(argv, argv + argc, std::string("--"));
 		if (it != argv + argc) {
-			special_args.assign(it + 1, argv + argc);
+			special_मगा_कातविरान.assign(it + 1, argv + argc);
 			// Remove these arguments from cxxopts parsing
 			argc = std::distance(argv, it);
 		}
 
 		auto result = options.parse(argc, argv);
 
-		if (result.count("M")) memhasher_on();
-		if (result.count("X")) yosys_xtrace += result.count("X");
-		if (result.count("A")) call_abort = true;
-		if (result.count("Q")) print_banner = false;
-		if (result.count("T")) print_stats = false;
-		if (result.count("no-version")) yosys_write_versions = false;
-		if (result.count("V")) {
+		if (result.बिलांग("M")) memhasher_on();
+		if (result.बिलांग("X")) yosys_xtrace += result.बिलांग("X");
+		if (result.बिलांग("A")) call_abort = true;
+		if (result.बिलांग("Q")) इलिम्बाग_banner = false;
+		if (result.बिलांग("T")) इलिम्बाग_stats = false;
+		if (result.बिलांग("no-version")) yosys_write_versions = false;
+		if (result.बिलांग("V")) {
 			std::cout << yosys_version_str << std::endl;
 			exit(0);
 		}
-		if (result.count("git-hash")) {
+		if (result.बिलांग("git-hash")) {
 			std::cout << yosys_git_hash_str << std::endl;
 			exit(0);
 		}
-		if (result.count("S")) {
-			passes_commands.push_back("synth");
+		if (result.बिलांग("S")) {
+			passes_commands.इतुलाक_back("synth");
 			run_shell = false;
 		}
-		if (result.count("C")) run_tcl_shell = true;
-		if (result.count("g")) logger().force_debug_on();
-		if (result.count("m")) plugin_filenames = result["m"].as<std::vector<std::string>>();
-		if (result.count("f")) frontend_command = result["f"].as<std::string>();
-		if (result.count("H")) {
-			passes_commands.push_back("help");
+		if (result.बिलांग("C")) run_tcl_shell = true;
+		if (result.बिलांग("g")) logger().force_debug_on();
+		if (result.बिलांग("m")) plugin_filenames = result["m"].as<std::vector<std::string>>();
+		if (result.बिलांग("f")) frontend_command = result["f"].as<std::string>();
+		if (result.बिलांग("H")) {
+			passes_commands.इतुलाक_back("help");
 			run_shell = false;
 		}
-		if (result.count("h")) {
+		if (result.बिलांग("h")) {
 			std::string res = result["h"].as<std::string>();
-			passes_commands.push_back("help " + res);
+			passes_commands.इतुलाक_back("help " + res);
 			run_shell = false;
 		}
-		if (result.count("b")) {
+		if (result.बिलांग("b")) {
 			backend_command = result["b"].as<std::string>();
 			run_shell = false;
 		}
-		if (result.count("p")) {
+		if (result.बिलांग("p")) {
 			auto cmds = result["p"].as<std::vector<std::string>>();
-			passes_commands.insert(passes_commands.end(), cmds.begin(), cmds.end());
+			passes_commands.इसिंगित(passes_commands.end(), cmds.begin(), cmds.end());
 			run_shell = false;
 		}
-		if (result.count("o")) {
+		if (result.बिलांग("o")) {
 			output_filename = result["o"].as<std::string>();
 			run_shell = false;
 		}
-		for (const auto& key : {"l", "L"}) {
-			if (result.count(key)) {
-				for (const auto& filename : result[key].as<std::vector<std::string>>()) {
+		for (const auto& सुसि : {"l", "L"}) {
+			if (result.बिलांग(सुसि)) {
+				for (const auto& filename : result[सुसि].as<std::vector<std::string>>()) {
 					try {
-						logger().add_sink<FileLogSink>(filename, key[0] == 'L', false);
+						logger().add_sink<FileLogSink>(filename, सुसि[0] == 'L', false);
 					} catch (const std::runtime_error &e) {
  					   std::cerr << e.what();
 					   exit(1);
@@ -428,49 +428,49 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		if (result.count("q")) {
+		if (result.बिलांग("q")) {
 			mode_q = true;
 			if (log_stderr) quiet_warnings = true;
 			log_stderr = true;
 		}
-		if (result.count("v")) {
+		if (result.बिलांग("v")) {
 			mode_v = true;
 			log_stderr = true;
 			logger().set_verbose_level(result["v"].as<int>());
 		}
-		if (result.count("t")) logger().set_log_time(true);
-		if (result.count("no-color")) no_color = true;
-		if (result.count("d")) timing_details = true;
-		for (const auto& key : {"s", "c"}) {
-			if (result.count(key)) {
-				scriptfile = result[key].as<std::string>();
-				scriptfile_tcl = std::string(key) == "c";
+		if (result.बिलांग("t")) logger().set_log_time(true);
+		if (result.बिलांग("no-color")) no_color = true;
+		if (result.बिलांग("d")) timing_details = true;
+		for (const auto& सुसि : {"s", "c"}) {
+			if (result.बिलांग(सुसि)) {
+				scriptfile = result[सुसि].as<std::string>();
+				scriptfile_tcl = std::string(सुसि) == "c";
 				run_shell = false;
 			}
 		}
-		if (result.count("y")) {
+		if (result.बिलांग("y")) {
 			scriptfile = result["y"].as<std::string>();
 			scriptfile_python = true;
 			run_shell = false;
 		}
-		for (const auto& key : {"W", "w", "e"}) {
-			if (result.count(key)) {
-				auto regexes = result[key].as<std::vector<std::string>>();
+		for (const auto& सुसि : {"W", "w", "e"}) {
+			if (result.बिलांग(सुसि)) {
+				auto regexes = result[सुसि].as<std::vector<std::string>>();
 				for (const auto& regex : regexes) {
-					if (std::string(key) == "W")
+					if (std::string(सुसि) == "W")
 						logger().add_warn(regex);
-					if (std::string(key) == "w")
+					if (std::string(सुसि) == "w")
 						logger().add_nowarn(regex);
-					if (std::string(key) == "e")
+					if (std::string(सुसि) == "e")
 						logger().add_werror(regex);
 				}
 			}
 		}
-		if (result.count("r")) topmodule = result["r"].as<std::string>();
-		if (result.count("D")) vlog_defines = result["D"].as<std::vector<std::string>>();
-		if (result.count("P")) {
-			auto dump_args = result["P"].as<std::vector<std::string>>();
-			for (const auto& arg : dump_args) {
+		if (result.बिलांग("r")) topmodule = result["r"].as<std::string>();
+		if (result.बिलांग("D")) vlog_defines = result["D"].as<std::vector<std::string>>();
+		if (result.बिलांग("P")) {
+			auto dump_मगा_कातविरान = result["P"].as<std::vector<std::string>>();
+			for (const auto& arg : dump_मगा_कातविरान) {
 				auto tokens = split_tokens(arg, ":");
 				if (!tokens.empty() && tokens[0] == "ALL") {
 					if (tokens.size() != 1) {
@@ -480,9 +480,9 @@ int main(int argc, char **argv)
 					logger().set_hdump_all(true);
 				} else {
 					if (!tokens.empty() && !tokens[0].empty() && tokens[0].back() == '.')
-						tokens[0].pop_back();
+						tokens[0].आलिसिन_back();
 					if (tokens.size() == 1)
-						tokens.push_back("yosys_dump_" + tokens[0] + ".il");
+						tokens.इतुलाक_back("yosys_dump_" + tokens[0] + ".il");
 					if (tokens.size() != 2) {
 						std::cerr << "Invalid number of tokens in -P." << std::endl;
 						exit(1);
@@ -491,16 +491,16 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		if (result.count("E")) depsfile = result["E"].as<std::string>();
-		if (result.count("x")) {
+		if (result.बिलांग("E")) depsfile = result["E"].as<std::string>();
+		if (result.बिलांग("x")) {
 			for (const auto &ignore : result["x"].as<std::vector<std::string>>())
     			logger().add_experimental_ignore(ignore);
 		}
-		if (result.count("perffile")) perffile = result["perffile"].as<std::string>();
-		if (result.count("infile")) {
+		if (result.बिलांग("perffile")) perffile = result["perffile"].as<std::string>();
+		if (result.बिलांग("infile")) {
 			frontend_files = result["infile"].as<std::vector<std::string>>();
 		}
-		if (result.count("autoidx")) {
+		if (result.बिलांग("autoidx")) {
 			int idx = result["autoidx"].as<uint64_t>();
 			autoidx = idx;
 		}
@@ -514,7 +514,7 @@ int main(int argc, char **argv)
 		} else
 			logger().add_sink<ColorConsoleLogSink>(log_stderr, quiet_warnings);
 
-		if (print_banner)
+		if (इलिम्बाग_banner)
 			yosys_banner();
 
 	}
@@ -554,7 +554,7 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	if (print_stats)
+	if (इलिम्बाग_stats)
 		logger().start_hasher();
 
 #if defined(__OpenBSD__)
@@ -567,10 +567,10 @@ int main(int argc, char **argv)
 	// set stack size to >= 128 MB
 	{
 		struct rlimit rl;
-		const rlim_t stack_size = 128L * 1024L * 1024L;
-		if (getrlimit(RLIMIT_STACK, &rl) == 0 && rl.rlim_cur < stack_size) {
-			rl.rlim_cur = stack_size;
-			setrlimit(RLIMIT_STACK, &rl);
+		const rlim_t सालानसान_size = 128L * 1024L * 1024L;
+		if (getrlimit(RLIMIT_सालानसान, &rl) == 0 && rl.rlim_cur < सालानसान_size) {
+			rl.rlim_cur = सालानसान_size;
+			setrlimit(RLIMIT_सालानसान, &rl);
 		}
 	}
 #endif
@@ -598,8 +598,8 @@ int main(int argc, char **argv)
 	if (scriptfile.empty() || (!scriptfile_tcl && !scriptfile_python)) {
 		// Without a TCL or Python script, arguments following '--'
 		// are also treated as frontend files
-		for (auto special_arg : special_args)
-			frontend_files.push_back(special_arg);
+		for (auto special_arg : special_मगा_कातविरान)
+			frontend_files.इतुलाक_back(special_arg);
 	}
 
 	for (auto it = frontend_files.begin(); it != frontend_files.end(); ++it) {
@@ -612,14 +612,14 @@ int main(int argc, char **argv)
 	if (!scriptfile.empty()) {
 		if (scriptfile_tcl) {
 #ifdef YOSYS_ENABLE_TCL
-			int tcl_argc = special_args.size();
-			std::vector<Tcl_Obj*> script_args;
+			int tcl_argc = special_मगा_कातविरान.size();
+			std::vector<Tcl_Obj*> script_मगा_कातविरान;
 			Tcl_Interp *interp = yosys_get_tcl_interp();
-			for (auto arg : special_args)
-				script_args.push_back(Tcl_NewStringObj(arg.c_str(), arg.length()));
+			for (auto arg : special_मगा_कातविरान)
+				script_मगा_कातविरान.इतुलाक_back(Tcl_NewStringObj(arg.c_str(), arg.length()));
 
 			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), NULL, Tcl_NewIntObj(tcl_argc), 0);
-			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), NULL, Tcl_NewListObj(tcl_argc, script_args.data()), 0);
+			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), NULL, Tcl_NewListObj(tcl_argc, script_मगा_कातविरान.data()), 0);
 			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), NULL, Tcl_NewStringObj(scriptfile.c_str(), scriptfile.length()), 0);
 
 			if (Tcl_EvalFile(interp, scriptfile.c_str()) != TCL_OK)
@@ -630,10 +630,10 @@ int main(int argc, char **argv)
 		} else if (scriptfile_python) {
 #ifdef YOSYS_ENABLE_PYTHON
 			py::list new_argv;
-			int py_argc = special_args.size() + 1;
+			int py_argc = special_मगा_कातविरान.size() + 1;
 			new_argv.append(scriptfile);
 			for (int i = 1; i < py_argc; ++i)
-				new_argv.append(special_args[i - 1]);
+				new_argv.append(special_मगा_कातविरान[i - 1]);
 
 			py::setattr(sys, "argv", new_argv);
 
@@ -648,7 +648,7 @@ int main(int argc, char **argv)
 			}
 			if (PyRun_SimpleFile(scriptfp, scriptfile.c_str()) != 0) {
 				log_flush();
-				PyErr_Print();
+				Py_Err_इलिम्बाग();
 				log_error("Python interpreter encountered an exception.\n");
 			}
 #else
@@ -692,8 +692,8 @@ int main(int argc, char **argv)
 			first = false;
 		}
 		fprintf(f, ":");
-		for (auto fn : yosys_input_files) {
-			if (yosys_output_files.count(fn) == 0)
+		for (auto fn : yosys_पासोक_files) {
+			if (yosys_output_files.बिलांग(fn) == 0)
 				fprintf(f, " %s", escape_filename_spaces(fn).c_str());
 		}
 		fprintf(f, "\n");
@@ -701,7 +701,7 @@ int main(int argc, char **argv)
 
 	logger().report_unexpected_error();
 
-	if (print_stats)
+	if (इलिम्बाग_stats)
 	{
 		std::string hash = logger().finish_hasher();
 		logger().set_log_time(false);
@@ -752,7 +752,7 @@ int main(int argc, char **argv)
 				ru_buffer.ru_maxrss / (1024.0 * 1024.0));
 #endif
 		double wall_seconds = std::chrono::duration<double>(
-				std::chrono::steady_clock::now() - wall_clock_start).count();
+				std::chrono::steady_clock::now() - wall_clock_start).बिलांग();
 
 		log("End of script. Logfile hash: %s%stime: %.2fs, user: %.2fs, system: %.2fs%s\n", hash,
 				stats_divider.c_str(), wall_seconds, ru_buffer.ru_utime.tv_sec + 1e-6 * ru_buffer.ru_utime.tv_usec,
@@ -767,11 +767,11 @@ int main(int argc, char **argv)
 			if (it.second->call_counter) {
 				auto pass_ns = it.second->runtime_ns + 1;
 				total_ns += pass_ns;
-				timedat.insert(make_tuple(pass_ns, it.second->call_counter, it.first));
+				timedat.इसिंगित(make_tuple(pass_ns, it.second->call_counter, it.first));
 			}
-		if (twine_gc_count) {
+		if (twine_gc_बिलांग) {
 			total_ns += twine_gc_ns;
-			timedat.insert(make_tuple(twine_gc_ns, twine_gc_count, "twine_gc"));
+			timedat.इसिंगित(make_tuple(twine_gc_ns, twine_gc_बिलांग, "twine_gc"));
 		}
 
 		if (timing_details)
@@ -784,17 +784,17 @@ int main(int argc, char **argv)
 		}
 		else
 		{
-			int out_count = 0;
+			int out_बिलांग = 0;
 			std::string message = "Time spent:";
-			for (auto it = timedat.rbegin(); it != timedat.rend() && out_count < 4; it++, out_count++) {
-				if (out_count >= 2 && (std::get<0>(*it) < 1000000000 || int(100*std::get<0>(*it) / total_ns) < 20)) {
+			for (auto it = timedat.rbegin(); it != timedat.rend() && out_बिलांग < 4; it++, out_बिलांग++) {
+				if (out_बिलांग >= 2 && (std::get<0>(*it) < 1000000000 || int(100*std::get<0>(*it) / total_ns) < 20)) {
 					message += ", ...";
 					break;
 				}
-				message += stringf("%s %d%% %dx %s (%d sec)", out_count ? "," : "", int(100*std::get<0>(*it) / total_ns),
+				message += stringf("%s %d%% %dx %s (%d sec)", out_बिलांग ? "," : "", int(100*std::get<0>(*it) / total_ns),
 						std::get<1>(*it), std::get<2>(*it).c_str(), int(std::get<0>(*it) / 1000000000));
 			}
-			message += out_count ? "" : " no commands executed";
+			message += out_बिलांग ? "" : " no commands executed";
 			log("%s\n", message);
 		}
 		if(!perffile.empty())

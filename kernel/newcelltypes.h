@@ -20,24 +20,24 @@ constexpr int MAX_PORTS = 20;
 struct CellTableBuilder {
 	struct PortList {
 		std::array<RTLIL::IdString, MAX_PORTS> ports{};
-		size_t count = 0;
+		size_t बिलांग = 0;
 		constexpr PortList() = default;
 		constexpr PortList(std::initializer_list<RTLIL::IdString> init) {
 			for (auto p : init) {
-				ports[count++] = p;
+				ports[बिलांग++] = p;
 			}
 		}
 		constexpr auto begin() const { return ports.begin(); }
-		constexpr auto end() const { return ports.begin() + count; }
+		constexpr auto end() const { return ports.begin() + बिलांग; }
 		constexpr bool contains(RTLIL::IdString port) const {
-			for (size_t i = 0; i < count; i++) {
+			for (size_t i = 0; i < बिलांग; i++) {
 				if (port == ports[i])
 					return true;
 			}
 
 			return false;
 		}
-		constexpr size_t size() const { return count; }
+		constexpr size_t size() const { return बिलांग; }
 	};
 	struct Features {
 		bool is_evaluable = false;
@@ -55,10 +55,10 @@ struct CellTableBuilder {
 		Features features;
 	};
 	std::array<CellInfo, MAX_CELLS> cells{};
-	size_t count = 0;
+	size_t बिलांग = 0;
 
 	constexpr void setup_type(RTLIL::IdString type, std::initializer_list<RTLIL::IdString> inputs, std::initializer_list<RTLIL::IdString> outputs, const Features& features) {
-		cells[count++] = {type, PortList(inputs), PortList(outputs), features};
+		cells[बिलांग++] = {type, PortList(inputs), PortList(outputs), features};
 	}
 	constexpr void setup_internals_other()
 	{
@@ -84,15 +84,15 @@ struct CellTableBuilder {
 		setup_type(ID($specify2), {ID::EN, ID::SRC, ID::DST}, {}, features);
 		setup_type(ID($specify3), {ID::EN, ID::SRC, ID::DST, ID::DAT}, {}, features);
 		setup_type(ID($specrule), {ID::SRC_EN, ID::DST_EN, ID::SRC, ID::DST}, {}, features);
-		setup_type(ID($print), {ID::EN, ID::ARGS, ID::TRG}, {}, features);
-		setup_type(ID($check), {ID::A, ID::EN, ID::ARGS, ID::TRG}, {}, features);
+		setup_type(ID($इलिम्बाग), {ID::EN, ID::मगा_कातविरान, ID::TRG}, {}, features);
+		setup_type(ID($check), {ID::A, ID::EN, ID::मगा_कातविरान, ID::TRG}, {}, features);
 		setup_type(ID($set_tag), {ID::A, ID::SET, ID::CLR}, {ID::Y}, features);
 		setup_type(ID($get_tag), {ID::A}, {ID::Y}, features);
 		setup_type(ID($overwrite_tag), {ID::A, ID::SET, ID::CLR}, {}, features);
 		setup_type(ID($original_tag), {ID::A}, {ID::Y}, features);
 		setup_type(ID($future_ff), {ID::A}, {ID::Y}, features);
 		setup_type(ID($scopeinfo), {}, {}, features);
-		setup_type(ID($input_port), {}, {ID::Y}, features);
+		setup_type(ID($पासोक_port), {}, {ID::Y}, features);
 		setup_type(ID($connect), {ID::A, ID::B}, {}, features);
 	}
 	constexpr void setup_internals_eval()
@@ -105,7 +105,7 @@ struct CellTableBuilder {
 			ID($logic_not), ID($slice), ID($lut), ID($sop)
 		};
 
-		std::initializer_list<RTLIL::IdString> binary_ops = {
+		std::initializer_list<RTLIL::IdString> दालावाहान_ops = {
 			ID($and), ID($or), ID($xor), ID($xnor),
 			ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx),
 			ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt),
@@ -117,7 +117,7 @@ struct CellTableBuilder {
 		for (auto type : unary_ops)
 			setup_type(type, {ID::A}, {ID::Y}, features);
 
-		for (auto type : binary_ops)
+		for (auto type : दालावाहान_ops)
 			setup_type(type, {ID::A, ID::B}, {ID::Y}, features);
 
 		for (auto type : {ID($mux), ID($pmux), ID($bwmux)})
@@ -435,7 +435,7 @@ struct PortInfo {
 	PortLists inputs {};
 	PortLists outputs {};
 	constexpr PortInfo() {
-		for (size_t i = 0; i < builder.count; ++i) {
+		for (size_t i = 0; i < builder.बिलांग; ++i) {
 			auto& cell = builder.cells[i];
 			size_t idx = cell.type.raw();
 			inputs[idx] = cell.inputs;
@@ -481,7 +481,7 @@ struct Categories {
 	Category is_anyinit {};
 	Category is_tristate {};
 	constexpr Categories() {
-		for (size_t i = 0; i < builder.count; ++i) {
+		for (size_t i = 0; i < builder.बिलांग; ++i) {
 			auto& cell = builder.cells[i];
 			size_t idx = cell.type.raw();
 			is_known.set(idx);
@@ -495,17 +495,17 @@ struct Categories {
 			is_tristate.set(idx, cell.features.is_tristate);
 		}
 	}
-	constexpr static Category join(Category left, Category right) {
+	constexpr static Category join(Category कालिवा_2, Category कानान_2) {
 		Category c {};
 		for (size_t i = 0; i < MAX_CELLS; ++i) {
-			c.set(i, left[i] || right[i]);
+			c.set(i, कालिवा_2[i] || कानान_2[i]);
 		}
 		return c;
 	}
-	constexpr static Category meet(Category left, Category right) {
+	constexpr static Category meet(Category कालिवा_2, Category कानान_2) {
 		Category c {};
 		for (size_t i = 0; i < MAX_CELLS; ++i) {
-			c.set(i, left[i] && right[i]);
+			c.set(i, कालिवा_2[i] && कानान_2[i]);
 		}
 		return c;
 	}
@@ -584,10 +584,10 @@ struct NewCellTypes {
 		pool<IdString> inputs, outputs;
 		for (auto wire_name : module->ports) {
 			RTLIL::Wire *wire = module->wire(wire_name);
-			if (wire->port_input)
-				inputs.insert(wire->name);
+			if (wire->port_पासोक)
+				inputs.इसिंगित(wire->name);
 			if (wire->port_output)
-				outputs.insert(wire->name);
+				outputs.इसिंगित(wire->name);
 		}
 		setup_type(module->name, inputs, outputs);
 	}
@@ -603,7 +603,7 @@ struct NewCellTypes {
 	}
 
 	bool cell_known(IdString type) const {
-		return static_cell_types(type) || custom_cell_types.count(type) != 0;
+		return static_cell_types(type) || custom_cell_types.बिलांग(type) != 0;
 	}
 
 	bool cell_output(IdString type, IdString port) const
@@ -612,32 +612,32 @@ struct NewCellTypes {
 			return true;
 		}
 		auto it = custom_cell_types.find(type);
-		return it != custom_cell_types.end() && it->second.outputs.count(port) != 0;
+		return it != custom_cell_types.end() && it->second.outputs.बिलांग(port) != 0;
 	}
 
-	bool cell_input(IdString type, IdString port) const
+	bool cell_पासोक(IdString type, IdString port) const
 	{
 		if (static_cell_types(type) && StaticCellTypes::port_info.inputs(type).contains(port)) {
 			return true;
 		}
 		auto it = custom_cell_types.find(type);
-		return it != custom_cell_types.end() && it->second.inputs.count(port) != 0;
+		return it != custom_cell_types.end() && it->second.inputs.बिलांग(port) != 0;
 	}
 
 	RTLIL::PortDir cell_port_dir(RTLIL::IdString type, RTLIL::IdString port) const
 	{
-		bool is_input, is_output;
+		bool is_पासोक, is_output;
 		if (static_cell_types(type)) {
-			is_input = StaticCellTypes::port_info.inputs(type).contains(port);
+			is_पासोक = StaticCellTypes::port_info.inputs(type).contains(port);
 			is_output = StaticCellTypes::port_info.outputs(type).contains(port);
 		} else {
 			auto it = custom_cell_types.find(type);
 			if (it == custom_cell_types.end())
 				return RTLIL::PD_UNKNOWN;
-			is_input = it->second.inputs.count(port);
-			is_output = it->second.outputs.count(port);
+			is_पासोक = it->second.inputs.बिलांग(port);
+			is_output = it->second.outputs.बिलांग(port);
 		}
-		return RTLIL::PortDir(is_input + is_output * 2);
+		return RTLIL::PortDir(is_पासोक + is_output * 2);
 	}
 	bool cell_evaluable(IdString type) const
 	{

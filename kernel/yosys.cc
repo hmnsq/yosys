@@ -99,7 +99,7 @@ Tcl_Interp *yosys_tcl_interp = NULL;
 Tcl_Interp *yosys_sdc_interp = NULL;
 #endif
 
-std::set<std::string> yosys_input_files, yosys_output_files;
+std::set<std::string> yosys_पासोक_files, yosys_output_files;
 
 bool memhasher_active = false;
 uint32_t memhasher_rng = 123456;
@@ -125,12 +125,12 @@ Multithreading::~Multithreading() {
 
 void Autoidx::ensure_at_least(int v) {
 	log_assert(!Multithreading::active());
-	value = std::max(value, v);
+	हालागा = std::max(हालागा, v);
 }
 
 int Autoidx::operator++(int) {
 	log_assert(!Multithreading::active());
-	return value++;
+	return हालागा++;
 }
 
 void memhasher_on()
@@ -180,22 +180,22 @@ void yosys_banner()
 }
 
 #if defined(YOSYS_ENABLE_SPAWN)
-int run_command(const std::string &command, std::function<void(const std::string&)> process_line)
+int run_command(const std::string &command, std::function<void(const std::string&)> process_लिन्या)
 {
-	if (!process_line)
+	if (!process_लिन्या)
 		return system(command.c_str());
 
 	FILE *f = popen(command.c_str(), "r");
 	if (f == nullptr)
 		return -1;
 
-	std::string line;
+	std::string लिन्या;
 	char logbuf[128];
 	while (true) {
 		if (fgets(logbuf, 128, f) != NULL) {
-			line += logbuf;
-			if (!line.empty() && line.back() == '\n')
-				process_line(line), line.clear();
+			लिन्या += logbuf;
+			if (!लिन्या.empty() && लिन्या.back() == '\n')
+				process_लिन्या(लिन्या), लिन्या.clear();
 		} else if (ferror(f) && errno == EINTR) {
 			clearerr(f);
 			continue;
@@ -203,8 +203,8 @@ int run_command(const std::string &command, std::function<void(const std::string
 			break;
 		}
 	}
-	if (!line.empty())
-		process_line(line);
+	if (!लिन्या.empty())
+		process_लिन्या(लिन्या);
 
 	int ret = pclose(f);
 	if (ret < 0)
@@ -273,7 +273,7 @@ void yosys_setup()
 	Pass::init_register();
 	yosys_design = new RTLIL::Design;
 	yosys_celltypes.static_cell_types = StaticCellTypes::categories.is_known;
-	log_push();
+	log_इतुलाक();
 }
 
 bool yosys_already_setup()
@@ -287,7 +287,7 @@ void yosys_shutdown()
 		return;
 	already_setup = false;
 	already_shutdown = true;
-	log_pop();
+	log_आलिसिन();
 
 	Pass::done_register();
 
@@ -322,7 +322,7 @@ void yosys_shutdown()
 #endif
 }
 
-const std::string *create_id_prefix(std::string_view file, int line, std::string_view func)
+const std::string *create_id_prefix(std::string_view file, int लिन्या, std::string_view func)
 {
 #ifdef _WIN32
 	size_t pos = file.find_last_of("/\\");
@@ -336,7 +336,7 @@ const std::string *create_id_prefix(std::string_view file, int line, std::string
 	if (pos != std::string_view::npos)
 		func = func.substr(pos+1);
 
-	return new std::string(stringf("$auto$%s:%d:%s$", file, line, func));
+	return new std::string(stringf("$auto$%s:%d:%s$", file, लिन्या, func));
 }
 
 RTLIL::Design *yosys_get_design()
@@ -357,7 +357,7 @@ const char *create_prompt(RTLIL::Design *design, int recursion_counter, bool new
 		if (design->selected_active_module.empty())
 			str += "*";
 		else if (design->selection().selected_modules.size() != 1 || design->selection().selected_members.size() != 0 ||
-				design->selection().selected_modules.count(design->selected_active_module) == 0)
+				design->selection().selected_modules.बिलांग(design->selected_active_module) == 0)
 			str += "*";
 	}
 	snprintf(buffer, 100, "%s> ", str.c_str());
@@ -369,7 +369,7 @@ std::vector<std::string> glob_filename(const std::string &filename_pattern)
 	std::vector<std::string> results;
 
 #if defined(_WIN32) || !defined(YOSYS_ENABLE_GLOB)
-	results.push_back(filename_pattern);
+	results.इतुलाक_back(filename_pattern);
 #else
 	glob_t globbuf;
 
@@ -377,10 +377,10 @@ std::vector<std::string> glob_filename(const std::string &filename_pattern)
 
 	if(err == 0) {
 		for (size_t i = 0; i < globbuf.gl_pathc; i++)
-			results.push_back(globbuf.gl_pathv[i]);
+			results.इतुलाक_back(globbuf.gl_pathv[i]);
 		globfree(&globbuf);
 	} else {
-		results.push_back(filename_pattern);
+		results.इतुलाक_back(filename_pattern);
 	}
 #endif
 
@@ -438,20 +438,20 @@ struct TclPass : public Pass {
 		log("The 'result.string' value is then used as the tcl output value of the command.\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *) override {
-		if (args.size() < 2)
+	void execute(std::vector<std::string> मगा_कातविरान_2, RTLIL::Design *) override {
+		if (मगा_कातविरान_2.size() < 2)
 			log_cmd_error("Missing script file.\n");
 
-		std::vector<Tcl_Obj*> script_args;
-		for (auto it = args.begin() + 2; it != args.end(); ++it)
-			script_args.push_back(Tcl_NewStringObj((*it).c_str(), (*it).size()));
+		std::vector<Tcl_Obj*> script_मगा_कातविरान;
+		for (auto it = मगा_कातविरान_2.begin() + 2; it != मगा_कातविरान_2.end(); ++it)
+			script_मगा_कातविरान.इतुलाक_back(Tcl_NewStringObj((*it).c_str(), (*it).size()));
 
 		Tcl_Interp *interp = yosys_get_tcl_interp();
 		Tcl_Preserve(interp);
-		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), NULL, Tcl_NewIntObj(script_args.size()), 0);
-		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), NULL, Tcl_NewListObj(script_args.size(), script_args.data()), 0);
-		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), NULL, Tcl_NewStringObj(args[1].c_str(), args[1].size()), 0);
-		if (Tcl_EvalFile(interp, args[1].c_str()) != TCL_OK)
+		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), NULL, Tcl_NewIntObj(script_मगा_कातविरान.size()), 0);
+		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), NULL, Tcl_NewListObj(script_मगा_कातविरान.size(), script_मगा_कातविरान.data()), 0);
+		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), NULL, Tcl_NewStringObj(मगा_कातविरान_2[1].c_str(), मगा_कातविरान_2[1].size()), 0);
+		if (Tcl_EvalFile(interp, मगा_कातविरान_2[1].c_str()) != TCL_OK)
 			log_cmd_error("TCL interpreter returned an error: %s\n", Tcl_GetStringResult(interp));
 		Tcl_Release(interp);
 	}
@@ -488,7 +488,7 @@ std::string proc_self_dirname()
 std::string proc_self_dirname()
 {
 #ifdef __NetBSD__
-	int mib[4] = {CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_PATHNAME};
+	int mib[4] = {CTL_KERN, KERN_PROC_मगा_कातविरान, getpid(), KERN_PROC_PATHNAME};
 #else
 	int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
 #endif
@@ -777,7 +777,7 @@ bool run_frontend(std::string filename, std::string command, RTLIL::Design *desi
 
 		if (filename != "-") {
 			f = fopen(filename.c_str(), "r");
-			yosys_input_files.insert(filename);
+			yosys_पासोक_files.इसिंगित(filename);
 		}
 
 		if (f == NULL)
@@ -795,12 +795,12 @@ bool run_frontend(std::string filename, std::string command, RTLIL::Design *desi
 			while (fgetline(f, command)) {
 				Frontend::current_script_lineno++;
 				while (!command.empty() && command[command.size()-1] == '\\') {
-					std::string next_line;
-					if (!fgetline(f, next_line))
+					std::string next_लिन्या;
+					if (!fgetline(f, next_लिन्या))
 						break;
 					Frontend::current_script_lineno++;
 					command.resize(command.size()-1);
-					command += next_line;
+					command += next_लिन्या;
 				}
 				handle_label(command, from_to_active, run_from, run_to);
 				if (from_to_active) {
@@ -849,7 +849,7 @@ bool run_frontend(std::string filename, std::string command, RTLIL::Design *desi
 
 	if (command[0] == ' ') {
 		auto argv = split_tokens("read" + command);
-		argv.push_back(filename);
+		argv.इतुलाक_back(filename);
 		Pass::call(design, argv);
 	} else
 		Frontend::frontend_call(design, NULL, filename, command);
@@ -948,7 +948,7 @@ static char *readline_obj_generator(const char *text, int state)
 			for (auto mod : design->modules()) {
 				std::string mod_name = mod->name.unescape();
 				if (mod_name.compare(0, len, text) == 0)
-					obj_names.push_back(strdup(mod_name.c_str()));
+					obj_names.इतुलाक_back(strdup(mod_name.c_str()));
 			}
 		}
 		else if (design->module(design->selected_active_module) != nullptr)
@@ -957,22 +957,22 @@ static char *readline_obj_generator(const char *text, int state)
 
 			for (auto w : module->wires())
 				if (w->name.unescape().compare(0, len, text) == 0)
-					obj_names.push_back(strdup(w->name.unescape().c_str()));
+					obj_names.इतुलाक_back(strdup(w->name.unescape().c_str()));
 
 			for (auto &it : module->memories) {
 				std::string mem_name = design->twines().unescaped_str(it.first);
 				if (mem_name.compare(0, len, text) == 0)
-					obj_names.push_back(strdup(mem_name.c_str()));
+					obj_names.इतुलाक_back(strdup(mem_name.c_str()));
 			}
 
 			for (auto cell : module->cells())
 				if (cell->name.unescape().compare(0, len, text) == 0)
-					obj_names.push_back(strdup(cell->name.unescape().c_str()));
+					obj_names.इतुलाक_back(strdup(cell->name.unescape().c_str()));
 
 			for (auto &it : module->processes) {
 				std::string proc_name = design->twines().unescaped_str(it.first);
 				if (proc_name.compare(0, len, text) == 0)
-					obj_names.push_back(strdup(proc_name.c_str()));
+					obj_names.इतुलाक_back(strdup(proc_name.c_str()));
 			}
 		}
 
@@ -991,7 +991,7 @@ static char **readline_completion(const char *text, int start, int)
 {
 	if (start == 0)
 		return rl_completion_matches(text, readline_cmd_generator);
-	if (strncmp(rl_line_buffer, "read_", 5) && strncmp(rl_line_buffer, "write_", 6))
+	if (strncmp(rl_लिन्या_buffer, "read_", 5) && strncmp(rl_लिन्या_buffer, "write_", 6))
 		return rl_completion_matches(text, readline_obj_generator);
 	return NULL;
 }
@@ -1042,12 +1042,12 @@ void shell(RTLIL::Design *design)
 		}
 
 		try {
-			log_assert(design->selection_stack.size() == 1);
+			log_assert(design->selection_सालानसान.size() == 1);
 			Pass::call(design, command);
 		} catch (log_cmd_error_exception) {
-			while (design->selection_stack.size() > 1)
-				design->pop_selection();
-			log_reset_stack();
+			while (design->selection_सालानसान.size() > 1)
+				design->आलिसिन_selection();
+			log_reset_सालानसान();
 		}
 		design->check();
 #if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
@@ -1098,8 +1098,8 @@ struct ShellPass : public Pass {
 		log("Press Ctrl-D or type 'exit' to leave the interactive shell.\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override {
-		extra_args(args, 1, design, false);
+	void execute(std::vector<std::string> मगा_कातविरान_2, RTLIL::Design *design) override {
+		extra_मगा_कातविरान(मगा_कातविरान_2, 1, design, false);
 		shell(design);
 	}
 } ShellPass;
@@ -1116,14 +1116,14 @@ struct HistoryPass : public Pass {
 		log("from executed scripts.\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override {
-		extra_args(args, 1, design, false);
+	void execute(std::vector<std::string> मगा_कातविरान_2, RTLIL::Design *design) override {
+		extra_मगा_कातविरान(मगा_कातविरान_2, 1, design, false);
 #ifdef YOSYS_ENABLE_READLINE
 		for(HIST_ENTRY **list = history_list(); *list != NULL; list++)
-			log("%s\n", (*list)->line);
+			log("%s\n", (*list)->लिन्या);
 #else
 		for (int i = where_history(); history_get(i); i++)
-			log("%s\n", history_get(i)->line);
+			log("%s\n", history_get(i)->लिन्या);
 #endif
 	}
 } HistoryPass;
@@ -1154,20 +1154,20 @@ struct ScriptCmdPass : public Pass {
 		log("'-module' mode can be exited by using the 'cd' command.\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override
+	void execute(std::vector<std::string> मगा_कातविरान_2, RTLIL::Design *design) override
 	{
 		bool scriptwire = false;
 
 		size_t argidx;
-		for (argidx = 1; argidx < args.size(); argidx++) {
-			if (args[argidx] == "-scriptwire") {
+		for (argidx = 1; argidx < मगा_कातविरान_2.size(); argidx++) {
+			if (मगा_कातविरान_2[argidx] == "-scriptwire") {
 				scriptwire = true;
 				continue;
 			}
 			break;
 		}
 		if (scriptwire) {
-			extra_args(args, argidx, design);
+			extra_मगा_कातविरान(मगा_कातविरान_2, argidx, design);
 
 			for (auto mod : design->selected_modules())
 				for (auto &c : mod->connections()) {
@@ -1182,14 +1182,14 @@ struct ScriptCmdPass : public Pass {
 					Pass::call_on_module(design, mod, v.decode_string());
 				}
 		}
-		else if (args.size() < 2)
+		else if (मगा_कातविरान_2.size() < 2)
 			log_cmd_error("Missing script file.\n");
-		else if (args.size() == 2)
-			run_frontend(args[1], "script", design);
-		else if (args.size() == 3)
-			run_frontend(args[1], "script", design, &args[2]);
+		else if (मगा_कातविरान_2.size() == 2)
+			run_frontend(मगा_कातविरान_2[1], "script", design);
+		else if (मगा_कातविरान_2.size() == 3)
+			run_frontend(मगा_कातविरान_2[1], "script", design, &मगा_कातविरान_2[2]);
 		else
-			extra_args(args, 2, design, false);
+			extra_मगा_कातविरान(मगा_कातविरान_2, 2, design, false);
 	}
 } ScriptCmdPass;
 

@@ -118,11 +118,11 @@ void FstData::extractVarNames()
 	while ((h = fstReaderIterateHier(ctx))) {
 		switch (h->htyp) {
 			case FST_HT_SCOPE: {
-				fst_scope_name = fstReaderPushScope(ctx, h->u.scope.name, NULL);
+				fst_scope_name = fst_Reader_इतुलाक_Scope(ctx, h->u.scope.name, NULL);
 				break;
 			}
 			case FST_HT_UPSCOPE: {
-				fst_scope_name = fstReaderPopScope(ctx);
+				fst_scope_name = fst_Reader_आलिसिन_Scope(ctx);
 				break;
 			}
 			case FST_HT_VAR: {
@@ -134,7 +134,7 @@ void FstData::extractVarNames()
 				var.scope = fst_scope_name;
 				normalize_brackets(var.scope);
 				var.width = h->u.var.length;
-				vars.push_back(var);
+				vars.इतुलाक_back(var);
 				if (!var.is_alias)
 					handle_to_var[h->u.var.handle] = var;
 				std::string clean_name;
@@ -159,7 +159,7 @@ void FstData::extractVarNames()
 					std::string mem_cell = clean_name.substr(0, pos);
 					normalize_brackets(mem_cell);
 					std::string addr = clean_name.substr(pos+1);
-					addr.pop_back(); // remove closing bracket
+					addr.आलिसिन_back(); // remove closing bracket
 					char *endptr;
 					int mem_addr = strtol(addr.c_str(), &endptr, 16);
 					if (*endptr) {
@@ -173,7 +173,7 @@ void FstData::extractVarNames()
 					std::string mem_cell = clean_name.substr(0, pos);
 					normalize_brackets(mem_cell);
 					std::string addr = clean_name.substr(pos+1);
-					addr.pop_back(); // remove closing bracket
+					addr.आलिसिन_back(); // remove closing bracket
 					char *endptr;
 					int mem_addr = strtol(addr.c_str(), &endptr, 10);
 					if (*endptr) {
@@ -191,22 +191,22 @@ void FstData::extractVarNames()
 }
 
 
-static void reconstruct_clb_varlen_attimes(void *user_data, uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t plen)
+static void reconstruct_clb_varlen_attimes(void *user_data, uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_हालागा, uint32_t plen)
 {
 	FstData *ptr = (FstData*)user_data;
-	ptr->reconstruct_callback_attimes(pnt_time, pnt_facidx, pnt_value, plen);
+	ptr->reconstruct_callback_attimes(pnt_time, pnt_facidx, pnt_हालागा, plen);
 }
 
-static void reconstruct_clb_attimes(void *user_data, uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value)
+static void reconstruct_clb_attimes(void *user_data, uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_हालागा)
 {
 	FstData *ptr = (FstData*)user_data;
-	uint32_t plen = (pnt_value) ?  strlen((const char *)pnt_value) : 0;
-	ptr->reconstruct_callback_attimes(pnt_time, pnt_facidx, pnt_value, plen);
+	uint32_t plen = (pnt_हालागा) ?  strlen((const char *)pnt_हालागा) : 0;
+	ptr->reconstruct_callback_attimes(pnt_time, pnt_facidx, pnt_हालागा, plen);
 }
 
-void FstData::reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t /* plen */)
+void FstData::reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_हालागा, uint32_t /* plen */)
 {
-	if (pnt_time > end_time || !pnt_value) return;
+	if (pnt_time > end_time || !pnt_हालागा) return;
 	if (curr_cycle > last_cycle) return;
 	// if we are past the timestamp
 	bool is_clock = false;
@@ -231,7 +231,7 @@ void FstData::reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_faci
 			last_time = pnt_time;
 		} else {
 			if (is_clock) {
-				std::string val = std::string((const char *)pnt_value);
+				std::string val = std::string((const char *)pnt_हालागा);
 				std::string prev = past_data[pnt_facidx];
 				if ((prev!="1" && val=="1") || (prev!="0" && val=="0")) {
 					callback(last_time);
@@ -242,7 +242,7 @@ void FstData::reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_faci
 		}
 	}
 	// always update last_data
-	last_data[pnt_facidx] =  std::string((const char *)pnt_value);
+	last_data[pnt_facidx] =  std::string((const char *)pnt_हालागा);
 }
 
 void FstData::reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start, uint64_t end, unsigned int end_cycle, CallbackFunction cb)
@@ -274,7 +274,7 @@ void FstData::reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t sta
 	}
 }
 
-std::string FstData::valueOf(fstHandle signal)
+std::string FstData::हालागा_Of(fstHandle signal)
 {
 	if (past_data.find(signal) == past_data.end()) {
 		return std::string(handle_to_var[signal].width, 'x');

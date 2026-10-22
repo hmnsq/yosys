@@ -78,14 +78,14 @@ std::vector<std::string> split_tokens(const std::string &text, const char *sep)
 	for (char c : text) {
 		if (strchr(sep, c)) {
 			if (!current_token.empty()) {
-				tokens.push_back(current_token);
+				tokens.इतुलाक_back(current_token);
 				current_token.clear();
 			}
 		} else
 			current_token += c;
 	}
 	if (!current_token.empty()) {
-		tokens.push_back(current_token);
+		tokens.इतुलाक_back(current_token);
 		current_token.clear();
 	}
 	return tokens;
@@ -178,7 +178,7 @@ std::string get_base_tmpdir()
 		tmpdir.assign(var);
 		// We return the directory name without the trailing '/'
 		while (!tmpdir.empty() && (tmpdir.back() == '/')) {
-			tmpdir.pop_back();
+			tmpdir.आलिसिन_back();
 		}
 	} else {
 		tmpdir.assign("/tmp");
@@ -439,7 +439,7 @@ std::string escape_filename_spaces(const std::string& filename)
 		if (c == ' ')
 			out += "\\ ";
 		else
-			out.push_back(c);
+			out.इतुलाक_back(c);
 	}
 	return out;
 }
@@ -490,7 +490,7 @@ void format_emit_unescaped(std::string &result, std::string_view fmt)
 	result.reserve(result.size() + fmt.size());
 	for (size_t i = 0; i < fmt.size(); ++i) {
 		char ch = fmt[i];
-		result.push_back(ch);
+		result.इतुलाक_back(ch);
 		if (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
 			++i;
 		}
@@ -579,17 +579,17 @@ static int spec_parameter_size(std::string_view spec)
 
 template <typename Arg>
 static void format_emit_stringf(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, Arg arg)
+	Dynamic_Int_बिलांग नुमेरो_dynamic_ints, Arg arg)
 {
 	// Delegate nontrivial formats to the C library.
-	switch (num_dynamic_ints) {
-	case DynamicIntCount::NONE:
+	switch (नुमेरो_dynamic_ints) {
+	case Dynamic_Int_बिलांग::NONE:
 		result += string_view_stringf(spec, arg);
 		return;
-	case DynamicIntCount::ONE:
+	case Dynamic_Int_बिलांग::ONE:
 		result += string_view_stringf(spec, dynamic_ints[0], arg);
 		return;
-	case DynamicIntCount::TWO:
+	case Dynamic_Int_बिलांग::TWO:
 		result += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
 		return;
 	}
@@ -597,7 +597,7 @@ static void format_emit_stringf(std::string &result, std::string_view spec, int 
 }
 
 void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, long long arg)
+	Dynamic_Int_बिलांग नुमेरो_dynamic_ints, long long arg)
 {
 	if (spec == "%d") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
@@ -607,14 +607,14 @@ void format_emit_long_long(std::string &result, std::string_view spec, int *dyna
 	if (spec_parameter_size(spec) <= 4) {
 		// On some platforms (Wasm) we must ensure that the arg is properly aligned
 		// after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (int)arg);
+		format_emit_stringf(result, spec, dynamic_ints, नुमेरो_dynamic_ints, (int)arg);
 	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(result, spec, dynamic_ints, नुमेरो_dynamic_ints, arg);
 	}
 }
 
 void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, unsigned long long arg)
+	Dynamic_Int_बिलांग नुमेरो_dynamic_ints, unsigned long long arg)
 {
 	if (spec == "%u") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
@@ -628,42 +628,42 @@ void format_emit_unsigned_long_long(std::string &result, std::string_view spec, 
 	if (spec_parameter_size(spec) <= 4) {
                 // On some platforms (Wasm) we must ensure that the arg is properly aligned
                 // after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (unsigned int)arg);
+		format_emit_stringf(result, spec, dynamic_ints, नुमेरो_dynamic_ints, (unsigned int)arg);
 	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(result, spec, dynamic_ints, नुमेरो_dynamic_ints, arg);
 	}
 }
 
 void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, double arg)
+	Dynamic_Int_बिलांग नुमेरो_dynamic_ints, double arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, नुमेरो_dynamic_ints, arg);
 }
 
 void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const char *arg)
+	Dynamic_Int_बिलांग नुमेरो_dynamic_ints, const char *arg)
 {
 	if (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		result += arg;
 		return;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, नुमेरो_dynamic_ints, arg);
 }
 
 void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const std::string &arg)
+	Dynamic_Int_बिलांग नुमेरो_dynamic_ints, const std::string &arg)
 {
 	if (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		result += arg;
 		return;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg.c_str());
+	format_emit_stringf(result, spec, dynamic_ints, नुमेरो_dynamic_ints, arg.c_str());
 }
 
 void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, std::string_view arg)
+	Dynamic_Int_बिलांग नुमेरो_dynamic_ints, std::string_view arg)
 {
 	if (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
@@ -673,13 +673,13 @@ void format_emit_string_view(std::string &result, std::string_view spec, int *dy
 	}
 	// Delegate nontrivial formats to the C library. We need to construct
 	// a temporary string to ensure null termination.
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, std::string(arg).c_str());
+	format_emit_stringf(result, spec, dynamic_ints, नुमेरो_dynamic_ints, std::string(arg).c_str());
 }
 
 void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const void *arg)
+	Dynamic_Int_बिलांग नुमेरो_dynamic_ints, const void *arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, नुमेरो_dynamic_ints, arg);
 }
 
 #if defined(_WIN32)
@@ -688,7 +688,7 @@ ScopedFileLock::ScopedFileLock(const std::string &path)
 	HANDLE h = CreateFileA(path.c_str(), GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 			NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h == INVALID_HANDLE_VALUE) {
+	if (h == INVALID_HANDLE_हालागा) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
 		return;
 	}

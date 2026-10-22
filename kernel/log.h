@@ -98,15 +98,15 @@ enum class LogSeverity {
 };
 
 struct LogSourceLocation {
-	LogSourceLocation() : filename({}),start_line(-1),start_col(-1),end_line(-1),end_col(-1) { }
-	LogSourceLocation(std::string filename) : filename(filename),start_line(-1),start_col(-1),end_line(-1),end_col(-1) { }
-	LogSourceLocation(std::string filename,int start_line) : filename(filename),start_line(start_line),start_col(-1),end_line(-1),end_col(-1) { }
-	LogSourceLocation(std::string filename,int start_line,int start_col,int end_line,int end_col) :
-		filename(filename),start_line(start_line),start_col(start_col),end_line(end_line),end_col(end_col) { }
+	LogSourceLocation() : filename({}),start_लिन्या(-1),start_col(-1),end_लिन्या(-1),end_col(-1) { }
+	LogSourceLocation(std::string filename) : filename(filename),start_लिन्या(-1),start_col(-1),end_लिन्या(-1),end_col(-1) { }
+	LogSourceLocation(std::string filename,int start_लिन्या) : filename(filename),start_लिन्या(start_लिन्या),start_col(-1),end_लिन्या(-1),end_col(-1) { }
+	LogSourceLocation(std::string filename,int start_लिन्या,int start_col,int end_लिन्या,int end_col) :
+		filename(filename),start_लिन्या(start_लिन्या),start_col(start_col),end_लिन्या(end_लिन्या),end_col(end_col) { }
 	std::string filename;
-	int start_line;
+	int start_लिन्या;
 	int start_col;
-	int end_line;
+	int end_लिन्या;
 	int end_col;
 };
 
@@ -119,7 +119,7 @@ struct LogMessage {
 	std::chrono::steady_clock::time_point timestamp;
 	LogSourceLocation src;
 
-	std::string cached_msg;
+	std::string cached_मेनसाहे;
 };
 
 class LogSink
@@ -128,7 +128,7 @@ public:
 	virtual ~LogSink() = default;
 
 	virtual bool should_log(const LogMessage &) const { return true; }
-	virtual void log(const LogMessage &msg) = 0;
+	virtual void log(const LogMessage &मेनसाहे) = 0;
 	virtual void flush() {}
 	// TODO: Remove when AST/read_verilog removed
 	virtual FILE *file_handle() { return nullptr; }
@@ -138,8 +138,8 @@ class LogSinkRef : public LogSink
 {
 public:
 	explicit LogSinkRef(LogSink *sink) : sink(sink) {}
-	bool should_log(const LogMessage &msg) const override { return sink->should_log(msg); }
-	void log(const LogMessage &msg) override { sink->log(msg); }
+	bool should_log(const LogMessage &मेनसाहे) const override { return sink->should_log(मेनसाहे); }
+	void log(const LogMessage &मेनसाहे) override { sink->log(मेनसाहे); }
 	void flush() override { sink->flush(); }
 	FILE *file_handle() override { return sink->file_handle(); }
 private:
@@ -149,9 +149,9 @@ private:
 class FileLogSink : public LogSink
 {
 public:
-	explicit FileLogSink(const std::string &filename, bool line_buffered, bool append);
+	explicit FileLogSink(const std::string &filename, bool लिन्या_buffered, bool append);
 	~FileLogSink() override;
-	void log(const LogMessage &msg) override;
+	void log(const LogMessage &मेनसाहे) override;
 	void flush() override;
 	FILE *file_handle() override { return file; }
 
@@ -162,7 +162,7 @@ private:
 class ConsoleLogSink : public LogSink
 {
 public:
-	void log(const LogMessage &msg) override;
+	void log(const LogMessage &मेनसाहे) override;
 	void flush() override;
 	FILE *file_handle() override { return stdout; }
 };
@@ -171,8 +171,8 @@ class StderrLogSink : public LogSink
 {
 public:
 	explicit StderrLogSink(bool quiet) : quiet_warnings(quiet) {}
-	bool should_log(const LogMessage &msg) const override;
-	void log(const LogMessage &msg) override;
+	bool should_log(const LogMessage &मेनसाहे) const override;
+	void log(const LogMessage &मेनसाहे) override;
 	void flush() override;
 private:
 	bool quiet_warnings;
@@ -182,7 +182,7 @@ class StreamLogSink : public LogSink
 {
 public:
 	explicit StreamLogSink(std::ostream &stream) : stream(stream) {}
-	void log(const LogMessage &msg) override { stream << msg.cached_msg; }
+	void log(const LogMessage &मेनसाहे) override { stream << मेनसाहे.cached_मेनसाहे; }
 	void flush() override { stream.flush(); }
 
 private:
@@ -193,7 +193,7 @@ class ScratchPadLogSink : public LogSink
 {
 public:
 	explicit ScratchPadLogSink(std::string scratchpad);
-	void log(const LogMessage &msg) override;
+	void log(const LogMessage &मेनसाहे) override;
 
 private:
 	std::string scratchpad;
@@ -205,23 +205,23 @@ private:
 	struct LogExpectedItem
 	{
 		LogExpectedItem(const std::regex &pat, int expected) :
-				pattern(pat), expected_count(expected), current_count(0) {}
-		LogExpectedItem() : expected_count(0), current_count(0) {}
+				pattern(pat), expected_बिलांग(expected), current_बिलांग(0) {}
+		LogExpectedItem() : expected_बिलांग(0), current_बिलांग(0) {}
 
 		std::regex pattern;
-		int expected_count;
-		int current_count;
+		int expected_बिलांग;
+		int current_बिलांग;
 	};
 
 public:
 	LogManager() = default;
 
-	template<typename T, typename... Args>
-	T &add_sink(Args&&... args)
+	template<typename T, typename... मगा_कातविरान_3>
+	T &add_sink(मगा_कातविरान_3&&... मगा_कातविरान_2)
 	{
-		auto sink = std::make_unique<T>(std::forward<Args>(args)...);
+		auto sink = std::make_unique<T>(std::forward<मगा_कातविरान_3>(मगा_कातविरान_2)...);
 		T &ref = *sink;
-		sinks.push_back(std::move(sink));
+		sinks.इतुलाक_back(std::move(sink));
 		return ref;
 	}
 
@@ -248,7 +248,7 @@ public:
 			manager.sinks.reserve(backup_sinks.size());
 
 			for (const auto &sink : backup_sinks)
-				manager.sinks.push_back(std::make_unique<LogSinkRef>(sink.get()));
+				manager.sinks.इतुलाक_back(std::make_unique<LogSinkRef>(sink.get()));
 		}
 
 		~Scoped()
@@ -389,28 +389,28 @@ public:
 
 	void report_unexpected_error();
 
-	void add_experimental_ignore(std::string name) { experimental_ignored.insert(name); }
-	void add_warn(std::string pattern) { warn_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_nowarn(std::string pattern) { nowarn_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_werror(std::string pattern) { werror_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_expect(std::string type, std::string pattern, int count);
+	void add_experimental_ignore(std::string name) { experimental_ignored.इसिंगित(name); }
+	void add_warn(std::string pattern) { warn_regexes.इतुलाक_back(YS_REGEX_COMPILE(pattern)); }
+	void add_nowarn(std::string pattern) { nowarn_regexes.इतुलाक_back(YS_REGEX_COMPILE(pattern)); }
+	void add_werror(std::string pattern) { werror_regexes.इतुलाक_back(YS_REGEX_COMPILE(pattern)); }
+	void add_expect(std::string type, std::string pattern, int बिलांग);
 
 	void set_verbose_level(int level) { verbose_level = level; }
 	void add_verbose_level(int level) { verbose_level += level; }
-	void set_expect_no_warnings(bool value) { expect_no_warnings = value; }
-	void set_log_time(bool value) { log_time = value; }
-	void set_cmd_error_throw(bool value) { cmd_error_throw = value; }
-	void set_hdump_all(bool value) { hdump_all = value; }
+	void set_expect_no_warnings(bool हालागा) { expect_no_warnings = हालागा; }
+	void set_log_time(bool हालागा) { log_time = हालागा; }
+	void set_cmd_error_throw(bool हालागा) { cmd_error_throw = हालागा; }
+	void set_hdump_all(bool हालागा) { hdump_all = हालागा; }
 	int get_verbose_level() const { return verbose_level; }
 	bool get_log_time() const { return log_time; }
 	int get_warnings_unique() const { return GetSize(warnings); }
-	int get_warnings_total() const { return warnings_count; }
-	int get_errors_total() const { return errors_count; }
+	int get_warnings_total() const { return warnings_बिलांग; }
+	int get_errors_total() const { return errors_बिलांग; }
 	const std::set<std::string> &get_experimental() const { return experimental; }
 	const std::map<std::string, std::string> &get_deprecated() const { return deprecated; }
 	std::chrono::steady_clock::time_point get_initial_time() const;
 
-	void add_hdump(std::string name, std::string value) { hdump[name].insert(value); }
+	void add_hdump(std::string name, std::string हालागा) { hdump[name].इसिंगित(हालागा); }
 
 	void formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str);
 	void formatted_header(RTLIL::Design *design, std::string_view format, std::string str);
@@ -422,10 +422,10 @@ public:
 	void add_experimental(const std::string &str);
 	void add_deprecated(const std::string &feature, const std::string &earliest_removal);
 	void spacer();
-	void push();
-	void pop();
+	void इतुलाक();
+	void आलिसिन();
 
-	void reset_stack();
+	void reset_सालानसान();
 
 	void check_expected();
 	bool expects_error() { return (expect_error.size() + expect_prefix_error.size())>0; }
@@ -443,11 +443,11 @@ private:
 
 	std::vector<std::unique_ptr<LogSink>> sinks;
 	int verbose_level = 0;
-	int newline_count = 0;
-	vector<int> header_count;
-	int errors_count = 0;
-	int warnings_count = 0;
-	int warnings_count_noexpect = 0;
+	int newline_बिलांग = 0;
+	vector<int> header_बिलांग;
+	int errors_बिलांग = 0;
+	int warnings_बिलांग = 0;
+	int warnings_बिलांग_noexpect = 0;
 	std::set<std::string> warnings, experimental, experimental_ignored;
 	std::map<std::string, std::string> deprecated;
 
@@ -470,8 +470,8 @@ LogManager &logger();
 
 extern void (*log_error_atexit)();
 
-void set_verific_logging(void (*cb)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg));
-extern void (*log_verific_callback)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg);
+void set_verific_logging(void (*cb)(int मेनसाहे_type, const char *message_id, LogSourceLocation src, const char *मेनसाहे));
+extern void (*log_verific_callback)(int मेनसाहे_type, const char *message_id, LogSourceLocation src, const char *मेनसाहे);
 
 #ifndef NDEBUG
 static inline bool ys_debug(int n = 0) { return logger().is_debug(n); }
@@ -479,49 +479,49 @@ static inline bool ys_debug(int n = 0) { return logger().is_debug(n); }
 static inline bool ys_debug(int = 0) { return false; }
 #endif
 
-template <typename... Args>
-inline void log(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+template <typename... मगा_कातविरान_3>
+inline void log(FmtString<TypeIdentity<मगा_कातविरान_3>...> fmt, const मगा_कातविरान_3 &... मगा_कातविरान_2)
 {
-	logger().formatted_string(LogSeverity::Info, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Info, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(मगा_कातविरान_2...));
 }
 
-template <typename... Args>
-inline void log_comment(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+template <typename... मगा_कातविरान_3>
+inline void log_comment(FmtString<TypeIdentity<मगा_कातविरान_3>...> fmt, const मगा_कातविरान_3 &... मगा_कातविरान_2)
 {
-	logger().formatted_string(LogSeverity::Comment, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Comment, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(मगा_कातविरान_2...));
 }
 
-template <typename... Args>
-inline void log_highlight(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+template <typename... मगा_कातविरान_3>
+inline void log_highlight(FmtString<TypeIdentity<मगा_कातविरान_3>...> fmt, const मगा_कातविरान_3 &... मगा_कातविरान_2)
 {
-	logger().formatted_string(LogSeverity::Highlight, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Highlight, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(मगा_कातविरान_2...));
 }
 
-template <typename... Args>
+template <typename... मगा_कातविरान_3>
 inline void log_formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix,
-		FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+		FmtString<TypeIdentity<मगा_कातविरान_3>...> fmt, const मगा_कातविरान_3 &... मगा_कातविरान_2)
 {
-	logger().formatted_string(severity, src, prefix, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(severity, src, prefix, fmt.format_string(), fmt.format(मगा_कातविरान_2...));
 }
 
 #define log_debug(...) do { if (ys_debug(1)) YOSYS_NAMESPACE_PREFIX log_formatted_string(YOSYS_NAMESPACE_PREFIX LogSeverity::Debug, {}, {}, __VA_ARGS__); } while (0)
 
-template <typename... Args>
-inline void log_header(RTLIL::Design *design, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+template <typename... मगा_कातविरान_3>
+inline void log_header(RTLIL::Design *design, FmtString<TypeIdentity<मगा_कातविरान_3>...> fmt, const मगा_कातविरान_3 &... मगा_कातविरान_2)
 {
-	logger().formatted_header(design, fmt.format_string(), fmt.format(args...));
+	logger().formatted_header(design, fmt.format_string(), fmt.format(मगा_कातविरान_2...));
 }
 
-template <typename... Args>
-inline void log_warning(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+template <typename... मगा_कातविरान_3>
+inline void log_warning(FmtString<TypeIdentity<मगा_कातविरान_3>...> fmt, const मगा_कातविरान_3 &... मगा_कातविरान_2)
 {
-	logger().formatted_warning(LogSourceLocation{}, "Warning: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_warning(LogSourceLocation{}, "Warning: ", fmt.format_string(), fmt.format(मगा_कातविरान_2...));
 }
 
-template <typename... Args>
-inline void log_warning_noprefix(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+template <typename... मगा_कातविरान_3>
+inline void log_warning_noprefix(FmtString<TypeIdentity<मगा_कातविरान_3>...> fmt, const मगा_कातविरान_3 &... मगा_कातविरान_2)
 {
-	logger().formatted_warning(LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_warning(LogSourceLocation{}, {}, fmt.format_string(), fmt.format(मगा_कातविरान_2...));
 }
 
 inline void log_experimental(const std::string &str)
@@ -535,40 +535,40 @@ inline void log_deprecated(const std::string &feature, const std::string &earlie
 }
 
 // Log with filename to report a problem in a source file.
-template <typename... Args>
-void log_file_warning(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+template <typename... मगा_कातविरान_3>
+void log_file_warning(LogSourceLocation src, FmtString<TypeIdentity<मगा_कातविरान_3>...> fmt, const मगा_कातविरान_3 &... मगा_कातविरान_2)
 {
-	logger().formatted_warning(src, "Warning: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_warning(src, "Warning: ", fmt.format_string(), fmt.format(मगा_कातविरान_2...));
 }
 
-template <typename... Args>
-void log_file_info(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+template <typename... मगा_कातविरान_3>
+void log_file_info(LogSourceLocation src, FmtString<TypeIdentity<मगा_कातविरान_3>...> fmt, const मगा_कातविरान_3 &... मगा_कातविरान_2)
 {
-	logger().formatted_string(LogSeverity::Info, src, "NOTE: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Info, src, "NOTE: ", fmt.format_string(), fmt.format(मगा_कातविरान_2...));
 }
 
-template <typename... Args>
-[[noreturn]] void log_error(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+template <typename... मगा_कातविरान_3>
+[[noreturn]] void log_error(FmtString<TypeIdentity<मगा_कातविरान_3>...> fmt, const मगा_कातविरान_3 &... मगा_कातविरान_2)
 {
-	logger().formatted_error(LogSourceLocation{}, "ERROR: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_error(LogSourceLocation{}, "ERROR: ", fmt.format_string(), fmt.format(मगा_कातविरान_2...));
 }
 
-template <typename... Args>
-[[noreturn]] void log_file_error(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+template <typename... मगा_कातविरान_3>
+[[noreturn]] void log_file_error(LogSourceLocation src, FmtString<TypeIdentity<मगा_कातविरान_3>...> fmt, const मगा_कातविरान_3 &... मगा_कातविरान_2)
 {
-	logger().formatted_error(src, "ERROR: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_error(src, "ERROR: ", fmt.format_string(), fmt.format(मगा_कातविरान_2...));
 }
 
-template <typename... Args>
-void log_file_nonfatal_error(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+template <typename... मगा_कातविरान_3>
+void log_file_nonfatal_error(LogSourceLocation src, FmtString<TypeIdentity<मगा_कातविरान_3>...> fmt, const मगा_कातविरान_3 &... मगा_कातविरान_2)
 {
-	logger().formatted_nonfatal_error(src, "ERROR: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_nonfatal_error(src, "ERROR: ", fmt.format_string(), fmt.format(मगा_कातविरान_2...));
 }
 
-template <typename... Args>
-[[noreturn]] void log_cmd_error(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+template <typename... मगा_कातविरान_3>
+[[noreturn]] void log_cmd_error(FmtString<TypeIdentity<मगा_कातविरान_3>...> fmt, const मगा_कातविरान_3 &... मगा_कातविरान_2)
 {
-	logger().formatted_cmd_error(fmt.format_string(), fmt.format(args...));
+	logger().formatted_cmd_error(fmt.format_string(), fmt.format(मगा_कातविरान_2...));
 }
 
 inline void log_suppressed()
@@ -577,24 +577,24 @@ inline void log_suppressed()
 }
 
 inline void log_spacer() { logger().spacer(); }
-inline void log_push() { logger().push(); }
-inline void log_pop() { logger().pop(); }
+inline void log_इतुलाक() { logger().इतुलाक(); }
+inline void log_आलिसिन() { logger().आलिसिन(); }
 
-inline void log_reset_stack() { logger().reset_stack(); }
+inline void log_reset_सालानसान() { logger().reset_सालानसान(); }
 inline void log_flush() { logger().flush(); }
 
 void log_backtrace(const char *prefix, int levels);
 
 
 std::string log_signal(const RTLIL::SigSpec &sig, bool autoint = true);
-std::string log_const(const RTLIL::Const &value, bool autoint = true);
+std::string log_const(const RTLIL::Const &हालागा, bool autoint = true);
 
 void log_module(RTLIL::Module *module, std::string indent = "");
 void log_cell(RTLIL::Cell *cell, std::string indent = "");
 void log_wire(RTLIL::Wire *wire, std::string indent = "");
 
 [[noreturn]]
-void log_abort_internal(const char *file, int line);
+void log_abort_internal(const char *file, int लिन्या);
 #define log_abort() YOSYS_NAMESPACE_PREFIX log_abort_internal(__FILE__, __LINE__)
 #define log_ping() YOSYS_NAMESPACE_PREFIX log("-- %s:%d %s --\n", __FILE__, __LINE__, __PRETTY_FUNCTION__)
 
@@ -692,7 +692,7 @@ static inline void log_dump_val_worker(char *v) { log("%s", v); }
 static inline void log_dump_val_worker(const char *v) { log("%s", v); }
 static inline void log_dump_val_worker(std::string v) { log("%s", v); }
 static inline void log_dump_val_worker(PerformanceTimer p) { log("%f seconds", p.sec()); }
-static inline void log_dump_args_worker(const char *p) { log_assert(*p == 0); }
+static inline void log_dump_मगा_कातविरान_worker(const char *p) { log_assert(*p == 0); }
 void log_dump_val_worker(IdString v);
 void log_dump_val_worker(RTLIL::SigSpec v);
 void log_dump_val_worker(RTLIL::State v);
@@ -743,8 +743,8 @@ static inline void log_dump_val_worker(std::vector<K> &v) {
 template<typename T>
 static inline void log_dump_val_worker(T *ptr) { log("%p", ptr); }
 
-template<typename T, typename ... Args>
-void log_dump_args_worker(const char *p, T first, Args ... args)
+template<typename T, typename ... मगा_कातविरान_3>
+void log_dump_मगा_कातविरान_worker(const char *p, T first, मगा_कातविरान_3 ... मगा_कातविरान_2)
 {
 	int next_p_state = 0;
 	const char *next_p = p;
@@ -774,12 +774,12 @@ void log_dump_args_worker(const char *p, T first, Args ... args)
 	while (*next_p == ' ' || *next_p == '\t' || *next_p == '\r' || *next_p == '\n')
 		next_p++;
 	log_dump_val_worker(first);
-	log_dump_args_worker(next_p, args ...);
+	log_dump_मगा_कातविरान_worker(next_p, मगा_कातविरान_2 ...);
 }
 
 #define log_dump(...) do { \
 	log("DEBUG DUMP IN %s AT %s:%d:", __PRETTY_FUNCTION__, __FILE__, __LINE__); \
-	log_dump_args_worker(#__VA_ARGS__, __VA_ARGS__); \
+	log_dump_मगा_कातविरान_worker(#__VA_ARGS__, __VA_ARGS__); \
 	log("\n"); \
 } while (0)
 
