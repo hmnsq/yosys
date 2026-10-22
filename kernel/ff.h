@@ -17,12 +17,12 @@
  *
  */
 
-#ifndef FF_H
-#define FF_H
+#جے_بنا_تعریف FF_H
+#تعریف_کرو FF_H
 
-#include "kernel/yosys.h"
-#include "kernel/ffinit.h"
-#include "kernel/twine.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/ffinit.h"
+#ضمن "kernel/twine.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -79,9 +79,9 @@ YOSYS_NAMESPACE_BEGIN
 // - has_arst [does not correspond to a native cell, represented as dlatch with const D input]
 // - empty set [not a cell — will be emitted as a simple direct connection]
 
-struct FfTypeData {
-	FfTypeData(IdString type);
-	FfTypeData() {
+بنية Ff_Type_انکڑے {
+	Ff_Type_انکڑے(IdString type);
+	Ff_Type_انکڑے() {
 		has_clk = false;
 		has_gclk = false;
 		has_ce = false;
@@ -131,7 +131,7 @@ struct FfTypeData {
 	bool pol_arst;
 	bool pol_srst;
 	bool pol_clr;
-	bool pol_set;
+	bool pol_سیٹ;
 	// The value loaded by sig_arst.
 	// Zero length if unknowable from just type
 	Const val_arst;
@@ -140,7 +140,7 @@ struct FfTypeData {
 	Const val_srst;
 };
 
-struct FfData : FfTypeData {
+بنية Ff_انکڑے : Ff_Type_انکڑے {
 	Module *module;
 	FfInitVals *initvals;
 	Cell *cell;
@@ -164,52 +164,52 @@ struct FfData : FfTypeData {
 	// The async clear (per-lane), present if has_sr.
 	SigSpec sig_clr;
 	// The async set (per-lane), present if has_sr.
-	SigSpec sig_set;
+	SigSpec sig_سیٹ;
 	// The initial value at power-up.
 	Const val_init;
 	// The FF data width in bits.
-	int width;
-	dict<IdString, Const> attributes;
+	صحيح چوڑائی;
+	dict<IdString, Const> گن;
 
-	FfData(Module *module = nullptr, FfInitVals *initvals = nullptr, IdString name = IdString()) : module(module), initvals(initvals), cell(nullptr), name(name) {
-		width = 0;
+	Ff_انکڑے(Module *module = nullptr, FfInitVals *initvals = nullptr, IdString name = IdString()) : module(module), initvals(initvals), cell(nullptr), name(name) {
+		چوڑائی = 0;
 		pol_clk = false;
 		pol_aload = false;
 		pol_ce = false;
 		pol_arst = false;
 		pol_srst = false;
 		pol_clr = false;
-		pol_set = false;
+		pol_سیٹ = false;
 	}
 
-	FfData(Module *module, FfInitVals *initvals, TwineSpec &&name)
-			: FfData(module, initvals, module->twines().add(std::move(name))) {}
+	Ff_انکڑے(Module *module, FfInitVals *initvals, TwineSpec &&name)
+			: Ff_انکڑے(module, initvals, module->twines().جوڑو(std::move(name))) {}
 
-	FfData(FfInitVals *initvals, Cell *cell_);
+	Ff_انکڑے(FfInitVals *initvals, Cell *cell_);
 
 	// Returns a FF identical to this one, but only keeping bit indices from the argument.
-	FfData slice(const std::vector<int> &bits);
+	Ff_انکڑے ٹکڑا(ثابت std::سمتیہ<صحيح> &بٹ);
 
-	void add_dummy_ce();
-	void add_dummy_srst();
-	void add_dummy_arst();
-	void add_dummy_aload();
-	void add_dummy_sr();
-	void add_dummy_clk();
+	فراغ جوڑو_dummy_ce();
+	فراغ جوڑو_dummy_srst();
+	فراغ جوڑو_dummy_arst();
+	فراغ جوڑو_dummy_aload();
+	فراغ جوڑو_dummy_sr();
+	فراغ جوڑو_dummy_clk();
 
-	void arst_to_aload();
-	void arst_to_sr();
+	فراغ arst_منزل_aload();
+	فراغ arst_منزل_sr();
 
-	void aload_to_sr();
+	فراغ aload_منزل_sr();
 
 	// Given a FF with both has_ce and has_srst, sets ce_over_srst to the given value and
 	// fixes up control signals appropriately to preserve semantics.
-	void convert_ce_over_srst(bool val);
+	فراغ convert_ce_over_srst(bool val);
 
-	void unmap_ce();
-	void unmap_srst();
+	فراغ unmap_ce();
+	فراغ unmap_srst();
 
-	void unmap_ce_srst() {
+	فراغ unmap_ce_srst() {
 		unmap_ce();
 		unmap_srst();
 	}
@@ -218,21 +218,21 @@ struct FfData : FfTypeData {
 
 	// Removes init attribute from the Q output, but keeps val_init unchanged.
 	// It will be automatically reattached on emit.  Use this before changing sig_q.
-	void remove_init() {
-		if (initvals)
+	فراغ remove_init() {
+		إذا (initvals)
 			initvals->remove_init(sig_q);
 	}
 
-	void remove();
+	فراغ remove();
 
 	// Flip the sense of the given bit slices of the FF: insert inverters on data
 	// inputs and output, flip the corresponding init/reset bits, swap clr/set
 	// inputs with proper priority fix.
-	void flip_bits(const pool<int> &bits);
+	فراغ flip_بٹ(ثابت pool<صحيح> &بٹ);
 
-	void flip_rst_bits(const pool<int> &bits);
+	فراغ flip_rst_بٹ(ثابت pool<صحيح> &بٹ);
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_سرا
 
-#endif
+#جے_انت

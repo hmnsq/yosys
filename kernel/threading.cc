@@ -1,159 +1,159 @@
-#include "kernel/yosys_common.h"
-#include "kernel/threading.h"
+#ضمن "kernel/yosys_common.h"
+#ضمن "kernel/threading.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-static int init_max_threads()
+ساكن صحيح init_max_دھاگے()
 {
-	const char *v = getenv("YOSYS_MAX_THREADS");
-	if (v == nullptr)
-		return INT32_MAX;
-	return atoi(v);
+	ثابت حرف *v = getenv("YOSYS_MAX_THREADS");
+	إذا (v == خالی_سوچک)
+		أرجع INT32_MAX;
+	أرجع atoi(v);
 }
 
-static int get_max_threads()
+ساكن صحيح get_max_دھاگے()
 {
-	static int max_threads = init_max_threads();
-	return max_threads;
+	ساكن صحيح max_دھاگے = init_max_دھاگے();
+	أرجع max_دھاگے;
 }
 
-static int init_work_units_per_thread_override()
+ساكن صحيح init_work_units_فی_thread_override()
 {
-	const char *v = getenv("YOSYS_WORK_UNITS_PER_THREAD");
-	if (v == nullptr)
-		return 0;
-	return atoi(v);
+	ثابت حرف *v = getenv("YOSYS_WORK_UNITS_PER_THREAD");
+	إذا (v == خالی_سوچک)
+		أرجع 0;
+	أرجع atoi(v);
 }
 
-static int get_work_units_per_thread_override()
+ساكن صحيح get_work_units_فی_thread_override()
 {
-	static int work_units_per_thread = init_work_units_per_thread_override();
-	return work_units_per_thread;
+	ساكن صحيح work_units_فی_thread = init_work_units_فی_thread_override();
+	أرجع work_units_فی_thread;
 }
 
-void DeferredLogs::flush()
+فراغ DeferredLogs::flush()
 {
-	for (auto &m : logs)
-		if (m.error)
-			YOSYS_NAMESPACE_PREFIX log_error("%s", m.text.c_str());
-		else
-			YOSYS_NAMESPACE_PREFIX log("%s", m.text.c_str());
+	لكل (خودکار &m : logs)
+		إذا (m.error)
+			YOSYS_NAMESPACE_اگیتر log_error("%s", m.متن.c_str());
+		وإلا
+			YOSYS_NAMESPACE_اگیتر لوگارتھم("%s", m.متن.c_str());
 }
 
-int ThreadPool::pool_size(int reserved_cores, int max_worker_threads)
+صحيح ThreadPool::pool_ناپ(صحيح reserved_cores, صحيح max_کامہ_دھاگے)
 {
-#ifdef YOSYS_ENABLE_THREADS
-	int available_threads = std::min<int>(std::thread::hardware_concurrency(), get_max_threads());
-	int num_threads = std::min(available_threads - reserved_cores, max_worker_threads);
-	return std::max(0, num_threads);
-#else
-	(void)reserved_cores;
-	(void)max_worker_threads;
-	(void)get_max_threads();
-	return 0;
-#endif
+#جے_تعریف_شدہ YOSYS_ENABLE_دھاگے
+	صحيح دستیاب_دھاگے = std::min<صحيح>(std::thread::hardware_concurrency(), get_max_دھاگے());
+	صحيح عدد_دھاگے = std::min(دستیاب_دھاگے - reserved_cores, max_کامہ_دھاگے);
+	أرجع std::max(0, عدد_دھاگے);
+#وإلا
+	(فراغ)reserved_cores;
+	(فراغ)max_کامہ_دھاگے;
+	(فراغ)get_max_دھاگے();
+	أرجع 0;
+#جے_انت
 }
 
-int ThreadPool::work_pool_size(int reserved_cores, int work_units, int work_units_per_thread)
+صحيح ThreadPool::work_pool_ناپ(صحيح reserved_cores, صحيح work_units, صحيح work_units_فی_thread)
 {
-	int work_units_per_thread_override = get_work_units_per_thread_override();
-	if (work_units_per_thread_override > 0)
-		work_units_per_thread = work_units_per_thread_override;
-	return pool_size(reserved_cores, work_units / work_units_per_thread);
+	صحيح work_units_فی_thread_override = get_work_units_فی_thread_override();
+	إذا (work_units_فی_thread_override > 0)
+		work_units_فی_thread = work_units_فی_thread_override;
+	أرجع pool_ناپ(reserved_cores, work_units / work_units_فی_thread);
 }
 
-ThreadPool::ThreadPool(int pool_size, std::function<void(int)> b)
+ThreadPool::ThreadPool(صحيح pool_ناپ, std::function<فراغ(صحيح)> b)
 	: body(std::move(b))
 {
-#ifdef YOSYS_ENABLE_THREADS
-	threads.reserve(pool_size);
-	for (int i = 0; i < pool_size; i++)
-		threads.emplace_back([i, this]{ body(i); });
-#else
-	(void)pool_size;
-#endif
+#جے_تعریف_شدہ YOSYS_ENABLE_دھاگے
+	دھاگے.reserve(pool_ناپ);
+	لكل (صحيح i = 0; i < pool_ناپ; i++)
+		دھاگے.emplace_پٹھ([i, هذا]{ body(i); });
+#وإلا
+	(فراغ)pool_ناپ;
+#جے_انت
 }
 
 ThreadPool::~ThreadPool()
 {
-#ifdef YOSYS_ENABLE_THREADS
-	for (auto &t : threads)
+#جے_تعریف_شدہ YOSYS_ENABLE_دھاگے
+	لكل (خودکار &t : دھاگے)
 		t.join();
-#endif
+#جے_انت
 }
 
-IntRange item_range_for_worker(int num_items, int thread_num, int num_threads)
+IntRange شے_range_for_کامہ(صحيح عدد_اشیاء, صحيح thread_عدد, صحيح عدد_دھاگے)
 {
-	if (num_threads <= 1) {
-		return {0, num_items};
+	إذا (عدد_دھاگے <= 1) {
+		أرجع {0, عدد_اشیاء};
 	}
-	int items_per_thread = num_items / num_threads;
-	int extra_items = num_items % num_threads;
+	صحيح اشیاء_فی_thread = عدد_اشیاء / عدد_دھاگے;
+	صحيح extra_اشیاء = عدد_اشیاء % عدد_دھاگے;
 	// The first `extra_items` threads get one extra item.
-	int start = thread_num * items_per_thread + std::min(thread_num, extra_items);
-	int end = (thread_num + 1) * items_per_thread + std::min(thread_num + 1, extra_items);
-	return {start, end};
+	صحيح شروع = thread_عدد * اشیاء_فی_thread + std::min(thread_عدد, extra_اشیاء);
+	صحيح سرا = (thread_عدد + 1) * اشیاء_فی_thread + std::min(thread_عدد + 1, extra_اشیاء);
+	أرجع {شروع, سرا};
 }
 
-ParallelDispatchThreadPool::ParallelDispatchThreadPool(int pool_size)
-#ifdef YOSYS_ENABLE_THREADS
-		: num_worker_threads_(std::max(1, pool_size) - 1)
-#else
-		: num_worker_threads_(0)
-#endif
+ParallelDispatchThreadPool::ParallelDispatchThreadPool(صحيح pool_ناپ)
+#جے_تعریف_شدہ YOSYS_ENABLE_دھاگے
+		: عدد_کامہ_دھاگے(std::max(1, pool_ناپ) - 1)
+#وإلا
+		: عدد_کامہ_دھاگے(0)
+#جے_انت
 {
-#ifndef YOSYS_ENABLE_THREADS
-	(void)pool_size;
-#endif
-	main_to_workers_signal.resize(num_worker_threads_, 0);
+#جے_بنا_تعریف YOSYS_ENABLE_دھاگے
+	(فراغ)pool_ناپ;
+#جے_انت
+	main_منزل_workers_signal.resize(عدد_کامہ_دھاگے, 0);
 	// Don't start the threads until we've constructed all our data members.
-	thread_pool = std::make_unique<ThreadPool>(num_worker_threads_, [this](int thread_num){
-		run_worker(thread_num);
+	thread_pool = std::make_unique<ThreadPool>(عدد_کامہ_دھاگے, [هذا](صحيح thread_عدد){
+		لگاتار_کامہ(thread_عدد);
 	});
 }
 
 ParallelDispatchThreadPool::~ParallelDispatchThreadPool()
 {
-	if (num_worker_threads_ == 0)
-		return;
-	current_work = nullptr;
-	num_active_worker_threads_.store(num_worker_threads_, std::memory_order_relaxed);
-	signal_workers_start();
-	wait_for_workers_done();
+	إذا (عدد_کامہ_دھاگے == 0)
+		أرجع;
+	current_work = خالی_سوچک;
+	عدد_سرگرم_کامہ_دھاگے.store(عدد_کامہ_دھاگے, std::حافظہ_ترتیب_relaxed);
+	signal_workers_شروع();
+	wait_for_workers_پورا();
 }
 
-void ParallelDispatchThreadPool::run(std::function<void(const RunCtx &)> work, int max_threads)
+فراغ ParallelDispatchThreadPool::لگاتار(std::function<فراغ(ثابت لگاتار_Ctx &)> work, صحيح max_دھاگے)
 {
 	Multithreading multithreading;
-	int num_active_worker_threads = num_threads(max_threads) - 1;
-	if (num_active_worker_threads == 0) {
+	صحيح عدد_سرگرم_کامہ_دھاگے_2 = عدد_دھاگے(max_دھاگے) - 1;
+	إذا (عدد_سرگرم_کامہ_دھاگے_2 == 0) {
 		work({{0}, 1});
-		return;
+		أرجع;
 	}
-	num_active_worker_threads_.store(num_active_worker_threads, std::memory_order_relaxed);
+	عدد_سرگرم_کامہ_دھاگے.store(عدد_سرگرم_کامہ_دھاگے_2, std::حافظہ_ترتیب_relaxed);
 	current_work = &work;
-	signal_workers_start();
-	work({{0}, num_active_worker_threads + 1});
-	wait_for_workers_done();
+	signal_workers_شروع();
+	work({{0}, عدد_سرگرم_کامہ_دھاگے_2 + 1});
+	wait_for_workers_پورا();
 }
 
-void ParallelDispatchThreadPool::run_worker(int thread_num)
+فراغ ParallelDispatchThreadPool::لگاتار_کامہ(صحيح thread_عدد)
 {
-#ifdef YOSYS_ENABLE_THREADS
-	while (true)
+#جے_تعریف_شدہ YOSYS_ENABLE_دھاگے
+	طالما (سچ)
 	{
-		worker_wait_for_start(thread_num);
-		if (current_work == nullptr)
-			break;
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-		(*current_work)({{thread_num + 1}, num_active_worker_threads + 1});
-		signal_worker_done();
+		کامہ_wait_for_شروع(thread_عدد);
+		إذا (current_work == خالی_سوچک)
+			اكسر;
+		صحيح عدد_سرگرم_کامہ_دھاگے_2 = عدد_سرگرم_کامہ_دھاگے.لدو(std::حافظہ_ترتیب_relaxed);
+		(*current_work)({{thread_عدد + 1}, عدد_سرگرم_کامہ_دھاگے_2 + 1});
+		signal_کامہ_پورا();
 	}
-	signal_worker_done();
-#else
-	(void)thread_num;
-	(void)current_work;
-#endif
+	signal_کامہ_پورا();
+#وإلا
+	(فراغ)thread_عدد;
+	(فراغ)current_work;
+#جے_انت
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_سرا

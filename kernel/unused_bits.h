@@ -1,54 +1,54 @@
-#ifndef UNUSED_BITS_H
-#define UNUSED_BITS_H
+#جے_بنا_تعریف بن_ورتیا_بٹ_H
+#تعریف_کرو بن_ورتیا_بٹ_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/newcelltypes.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/sigtools.h"
+#ضمن "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct UnusedBits
+بنية بن_ورتیا_بٹ
 {
 	SigMap sigmap;
-	pool<RTLIL::SigBit> used;
+	pool<RTLIL::Sig_ثنائی_ہندسہ> ورتیا;
 
-	UnusedBits(RTLIL::Module *module) : sigmap(module)
+	بن_ورتیا_بٹ(RTLIL::Module *module) : sigmap(module)
 	{
 		NewCellTypes ct(module->design);
-		collect_used(module, ct);
+		collect_ورتیا(module, ct);
 	}
 
-	UnusedBits(RTLIL::Module *module, const NewCellTypes &ct) : sigmap(module)
+	بن_ورتیا_بٹ(RTLIL::Module *module, ثابت NewCellTypes &ct) : sigmap(module)
 	{
-		collect_used(module, ct);
+		collect_ورتیا(module, ct);
 	}
 
-	void collect_used(RTLIL::Module *module, const NewCellTypes &ct)
+	فراغ collect_ورتیا(RTLIL::Module *module, ثابت NewCellTypes &ct)
 	{
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				if (!ct.cell_output(cell->type, conn.first))
-					add_used(conn.second);
+		لكل (خودکار cell : module->cells())
+			لكل (خودکار &conn : cell->connections())
+				إذا (!ct.cell_output(cell->type, conn.پہلا))
+					جوڑو_ورتیا(conn.دوجا);
 
-		for (auto wire : module->wires())
-			if (wire->port_output)
-				add_used(wire);
+		لكل (خودکار wire : module->wires())
+			إذا (wire->پورٹ_output)
+				جوڑو_ورتیا(wire);
 	}
 
-	void add_used(const RTLIL::SigSpec &sig)
+	فراغ جوڑو_ورتیا(ثابت RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sigmap(sig))
-			if (bit.wire != nullptr)
-				used.insert(bit);
+		لكل (خودکار ثنائی_ہندسہ : sigmap(sig))
+			إذا (ثنائی_ہندسہ.wire != nullptr)
+				ورتیا.داخل_کرو(ثنائی_ہندسہ);
 	}
 
-	bool check(RTLIL::SigBit bit) const
+	bool check(RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ) ثابت
 	{
-		RTLIL::SigBit mapped = sigmap(bit);
-		return mapped.wire != nullptr && !used.count(mapped);
+		RTLIL::Sig_ثنائی_ہندسہ mapped = sigmap(ثنائی_ہندسہ);
+		أرجع mapped.wire != nullptr && !ورتیا.گنتی(mapped);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_سرا
 
-#endif
+#جے_انت

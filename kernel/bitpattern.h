@@ -17,11 +17,11 @@
  *
  */
 
-#ifndef BITPATTERN_H
-#define BITPATTERN_H
+#جے_بنا_تعریف BITPATTERN_H
+#تعریف_کرو BITPATTERN_H
 
-#include "kernel/log.h"
-#include "kernel/rtlil.h"
+#ضمن "kernel/log.h"
+#ضمن "kernel/rtlil.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -37,59 +37,59 @@ YOSYS_NAMESPACE_BEGIN
  * BitPatternPool does not permit adding new patterns, only removing.
  * Its intended use case is in analysing cases in case/match constructs in HDL.
  */
-struct BitPatternPool
+بنية ثنائی_ہندسہ_نمونہ_Pool
 {
-	int width;
-	struct bits_t {
-		std::vector<RTLIL::State> bitdata;
+	صحيح چوڑائی;
+	بنية بٹ_t {
+		std::سمتیہ<RTLIL::State> bitdata;
 		mutable Hasher::hash_t cached_hash;
-		bits_t(int width = 0) : bitdata(width), cached_hash(0) { }
-		RTLIL::State &operator[](int index) {
-			return bitdata[index];
+		بٹ_t(صحيح چوڑائی = 0) : bitdata(چوڑائی), cached_hash(0) { }
+		RTLIL::State &عامل[](صحيح اشاریہ) {
+			أرجع bitdata[اشاریہ];
 		}
-		const RTLIL::State &operator[](int index) const {
-			return bitdata[index];
+		ثابت RTLIL::State &عامل[](صحيح اشاریہ) ثابت {
+			أرجع bitdata[اشاریہ];
 		}
-		bool operator==(const bits_t &other) const {
-			if (run_hash(*this) != run_hash(other))
-				return false;
-			return bitdata == other.bitdata;
+		bool عامل==(ثابت بٹ_t &other) ثابت {
+			إذا (لگاتار_hash(*this) != لگاتار_hash(other))
+				أرجع false;
+			أرجع bitdata == other.bitdata;
 		}
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			if (!cached_hash)
-				cached_hash = run_hash(bitdata);
+		[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
+			إذا (!cached_hash)
+				cached_hash = لگاتار_hash(bitdata);
 			h.eat(cached_hash);
-			return h;
+			أرجع h;
 		}
 	};
-	pool<bits_t> database;
+	pool<بٹ_t> database;
 
-	BitPatternPool(RTLIL::SigSpec sig)
+	ثنائی_ہندسہ_نمونہ_Pool(RTLIL::SigSpec sig)
 	{
-		width = sig.size();
-		if (width > 0) {
-			bits_t pattern(width);
-			for (int i = 0; i < width; i++) {
-				if (sig[i].wire == NULL && sig[i].data <= RTLIL::State::S1)
-					pattern[i] = sig[i].data;
-				else
-					pattern[i] = RTLIL::State::Sa;
+		چوڑائی = sig.ناپ();
+		إذا (چوڑائی > 0) {
+			بٹ_t نمونہ(چوڑائی);
+			لكل (صحيح i = 0; i < چوڑائی; i++) {
+				إذا (sig[i].wire == عدم && sig[i].انکڑے <= RTLIL::State::S1)
+					نمونہ[i] = sig[i].انکڑے;
+				وإلا
+					نمونہ[i] = RTLIL::State::Sa;
 			}
-			database.insert(pattern);
+			database.داخل_کرو(نمونہ);
 		}
 	}
 
 	/**
 	 * Constructs a pool of all possible patterns (all don't-care bits)
 	 */
-	BitPatternPool(int width)
+	ثنائی_ہندسہ_نمونہ_Pool(صحيح چوڑائی)
 	{
-		this->width = width;
-		if (width > 0) {
-			bits_t pattern(width);
-			for (int i = 0; i < width; i++)
-				pattern[i] = RTLIL::State::Sa;
-			database.insert(pattern);
+		this->چوڑائی = چوڑائی;
+		إذا (چوڑائی > 0) {
+			بٹ_t نمونہ(چوڑائی);
+			لكل (صحيح i = 0; i < چوڑائی; i++)
+				نمونہ[i] = RTLIL::State::Sa;
+			database.داخل_کرو(نمونہ);
 		}
 	}
 
@@ -97,39 +97,39 @@ struct BitPatternPool
 	 * Convert a constant SigSpec to a pattern. Normalize Yosys many-valued
 	 * to three-valued logic.
 	 */
-	bits_t sig2bits(RTLIL::SigSpec sig)
+	بٹ_t sig2bits(RTLIL::SigSpec sig)
 	{
-		bits_t bits;
-		bits.bitdata = sig.as_const().to_bits();
-		for (auto &b : bits.bitdata)
-			if (b > RTLIL::State::S1)
+		بٹ_t بٹ;
+		بٹ.bitdata = sig.as_const().منزل_بٹ();
+		لكل (خودکار &b : بٹ.bitdata)
+			إذا (b > RTLIL::State::S1)
 				b = RTLIL::State::Sa;
-		return bits;
+		أرجع بٹ;
 	}
 
 	/**
 	 * A literal x/z bit can never match a 2-valued selector, so a pattern containing
 	 * one covers nothing.
 	 */
-	static bool covers_nothing(RTLIL::SigSpec sig)
+	ساكن bool covers_nothing(RTLIL::SigSpec sig)
 	{
-		for (auto bit : sig)
-			if (bit.wire == NULL && (bit.data == RTLIL::State::Sx || bit.data == RTLIL::State::Sz))
-				return true;
-		return false;
+		لكل (خودکار ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire == عدم && (ثنائی_ہندسہ.انکڑے == RTLIL::State::Sx || ثنائی_ہندسہ.انکڑے == RTLIL::State::Sz))
+				أرجع true;
+		أرجع false;
 	}
 
 	/**
 	 * Two cubes match if their intersection is non-empty.
 	 */
-	bool match(bits_t a, bits_t b)
+	bool میل(بٹ_t a, بٹ_t b)
 	{
-		log_assert(int(a.bitdata.size()) == width);
-		log_assert(int(b.bitdata.size()) == width);
-		for (int i = 0; i < width; i++)
-			if (a[i] <= RTLIL::State::S1 && b[i] <= RTLIL::State::S1 && a[i] != b[i])
-				return false;
-		return true;
+		log_assert(صحيح(a.bitdata.ناپ()) == چوڑائی);
+		log_assert(صحيح(b.bitdata.ناپ()) == چوڑائی);
+		لكل (صحيح i = 0; i < چوڑائی; i++)
+			إذا (a[i] <= RTLIL::State::S1 && b[i] <= RTLIL::State::S1 && a[i] != b[i])
+				أرجع false;
+		أرجع true;
 	}
 
 	/**
@@ -143,13 +143,13 @@ struct BitPatternPool
 	 */
 	bool has_any(RTLIL::SigSpec sig)
 	{
-		if (covers_nothing(sig))
-			return false;
-		bits_t bits = sig2bits(sig);
-		for (auto &it : database)
-			if (match(it, bits))
-				return true;
-		return false;
+		إذا (covers_nothing(sig))
+			أرجع false;
+		بٹ_t بٹ = sig2bits(sig);
+		لكل (خودکار &it : database)
+			إذا (میل(it, بٹ))
+				أرجع true;
+		أرجع false;
 	}
 
 	/**
@@ -163,18 +163,18 @@ struct BitPatternPool
 	 */
 	bool has_all(RTLIL::SigSpec sig)
 	{
-		if (covers_nothing(sig))
-			return true;
-		bits_t bits = sig2bits(sig);
-		for (auto &it : database)
-			if (match(it, bits)) {
-				for (int i = 0; i < width; i++)
-					if (bits[i] > RTLIL::State::S1 && it[i] <= RTLIL::State::S1)
-						goto next_database_entry;
-				return true;
-	next_database_entry:;
+		إذا (covers_nothing(sig))
+			أرجع true;
+		بٹ_t بٹ = sig2bits(sig);
+		لكل (خودکار &it : database)
+			إذا (میل(it, بٹ)) {
+				لكل (صحيح i = 0; i < چوڑائی; i++)
+					إذا (بٹ[i] > RTLIL::State::S1 && it[i] <= RTLIL::State::S1)
+						اذهب اگلا_database_اندراج;
+				أرجع true;
+	اگلا_database_اندراج:;
 			}
-		return false;
+		أرجع false;
 	}
 
 	/**
@@ -185,26 +185,26 @@ struct BitPatternPool
 	 */
 	bool take(RTLIL::SigSpec sig)
 	{
-		bool status = false;
-		if (covers_nothing(sig))
-			return false;
-		bits_t bits = sig2bits(sig);
-		for (auto it = database.begin(); it != database.end();)
-			if (match(*it, bits)) {
-				for (int i = 0; i < width; i++) {
-					if ((*it)[i] != RTLIL::State::Sa || bits[i] == RTLIL::State::Sa)
-						continue;
-					bits_t new_pattern;
-					new_pattern.bitdata = it->bitdata;
-					new_pattern[i] = bits[i] == RTLIL::State::S1 ? RTLIL::State::S0 : RTLIL::State::S1;
-					database.insert(new_pattern);
+		bool حالت = false;
+		إذا (covers_nothing(sig))
+			أرجع false;
+		بٹ_t بٹ = sig2bits(sig);
+		لكل (خودکار it = database.begin(); it != database.سرا();)
+			إذا (میل(*it, بٹ)) {
+				لكل (صحيح i = 0; i < چوڑائی; i++) {
+					إذا ((*it)[i] != RTLIL::State::Sa || بٹ[i] == RTLIL::State::Sa)
+						استمر;
+					بٹ_t new_نمونہ;
+					new_نمونہ.bitdata = it->bitdata;
+					new_نمونہ[i] = بٹ[i] == RTLIL::State::S1 ? RTLIL::State::S0 : RTLIL::State::S1;
+					database.داخل_کرو(new_نمونہ);
 				}
 				it = database.erase(it);
-				status = true;
-				continue;
-			} else
+				حالت = true;
+				استمر;
+			} وإلا
 				++it;
-		return status;
+		أرجع حالت;
 	}
 
 	/**
@@ -212,18 +212,18 @@ struct BitPatternPool
 	 */
 	bool take_all()
 	{
-		if (database.empty())
-			return false;
+		إذا (database.خالی_تھاواں())
+			أرجع false;
 		database.clear();
-		return true;
+		أرجع true;
 	}
 
-	bool empty()
+	bool خالی_تھاواں()
 	{
-		return database.empty();
+		أرجع database.خالی_تھاواں();
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_سرا
 
-#endif
+#جے_انت

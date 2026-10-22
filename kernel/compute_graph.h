@@ -17,387 +17,387 @@
  *
  */
 
-#ifndef COMPUTE_GRAPH_H
-#define COMPUTE_GRAPH_H
+#جے_بنا_تعریف COMPUTE_گراف_H
+#تعریف_کرو COMPUTE_گراف_H
 
-#include <tuple>
-#include "kernel/yosys.h"
+#ضمن <tuple>
+#ضمن "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template<
+سانچا<
     typename Fn, // Function type (deduplicated across whole graph)
     typename Attr = std::tuple<>, // Call attributes (present in every node)
     typename SparseAttr = std::tuple<>, // Sparse call attributes (optional per node)
-    typename Key = std::tuple<> // Stable keys to refer to nodes
+    typename کلید_2 = std::tuple<> // Stable keys to refer to nodes
 >
-struct ComputeGraph
+بنية Compute_گراف
 {
-    struct Ref;
-private:
+    بنية Ref;
+خاص:
 
     // Functions are deduplicated by assigning unique ids
     idict<Fn> functions;
 
-    struct Node {
-        int fn_index;
-        int arg_offset;
-        int arg_count;
+    بنية گرہ_2 {
+        صحيح fn_اشاریہ;
+        صحيح arg_وتھ;
+        صحيح arg_گنتی;
         Attr attr;
 
-        Node(int fn_index, Attr &&attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(std::move(attr)) {}
+        گرہ_2(صحيح fn_اشاریہ, Attr &&attr, صحيح arg_وتھ, صحيح arg_گنتی = 0)
+            : fn_اشاریہ(fn_اشاریہ), arg_وتھ(arg_وتھ), arg_گنتی(arg_گنتی), attr(std::move(attr)) {}
 
-        Node(int fn_index, Attr const &attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(attr) {}
+        گرہ_2(صحيح fn_اشاریہ, Attr ثابت &attr, صحيح arg_وتھ, صحيح arg_گنتی = 0)
+            : fn_اشاریہ(fn_اشاریہ), arg_وتھ(arg_وتھ), arg_گنتی(arg_گنتی), attr(attr) {}
     };
 
 
-    std::vector<Node> nodes;
-    std::vector<int> args;
-    dict<Key, int> keys_;
-    dict<int, SparseAttr> sparse_attrs;
+    std::سمتیہ<گرہ_2> nodes;
+    std::سمتیہ<صحيح> دلیلاں_2;
+    dict<کلید_2, صحيح> کلیدیں;
+    dict<صحيح, SparseAttr> sparse_attrs;
 
-public:
-    template<typename Graph>
-    struct BaseRef
+عام:
+    سانچا<typename گراف>
+    بنية ادھار_Ref
     {
-    protected:
-        friend struct ComputeGraph;
-        Graph *graph_;
-        int index_;
-        BaseRef(Graph *graph, int index) : graph_(graph), index_(index) {
-            log_assert(index_ >= 0);
+    محمي:
+        یار بنية Compute_گراف;
+        گراف *گراف_2;
+        صحيح اشاریہ_2;
+        ادھار_Ref(گراف *گراف_3, صحيح اشاریہ) : گراف_2(گراف_3), اشاریہ_2(اشاریہ) {
+            log_assert(اشاریہ_2 >= 0);
             check();
         }
 
-        void check() const { log_assert(index_ < graph_->size()); }
+        فراغ check() ثابت { log_assert(اشاریہ_2 < گراف_2->ناپ()); }
 
-        Node const &deref() const { check(); return graph_->nodes[index_]; }
+        گرہ_2 ثابت &deref() ثابت { check(); أرجع گراف_2->nodes[اشاریہ_2]; }
 
-    public:
-        ComputeGraph const &graph() const { return graph_; }
-        int index() const { return index_; }
+    عام:
+        Compute_گراف ثابت &گراف_3() ثابت { أرجع گراف_2; }
+        صحيح اشاریہ() ثابت { أرجع اشاریہ_2; }
 
-        int size() const { return deref().arg_count; }
+        صحيح ناپ() ثابت { أرجع deref().arg_گنتی; }
 
-        BaseRef arg(int n) const
+        ادھار_Ref arg(صحيح n) ثابت
         {
-            Node const &node = deref();
-            log_assert(n >= 0 && n < node.arg_count);
-            return BaseRef(graph_, graph_->args[node.arg_offset + n]);
+            گرہ_2 ثابت &گرہ = deref();
+            log_assert(n >= 0 && n < گرہ.arg_گنتی);
+            أرجع ادھار_Ref(گراف_2, گراف_2->دلیلاں_2[گرہ.arg_وتھ + n]);
         }
 
-        std::vector<int>::const_iterator arg_indices_cbegin() const
+        std::سمتیہ<صحيح>::const_iterator arg_indices_cbegin() ثابت
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset;
+            گرہ_2 ثابت &گرہ = deref();
+            أرجع گراف_2->دلیلاں_2.cbegin() + گرہ.arg_وتھ;
         }
 
-        std::vector<int>::const_iterator arg_indices_cend() const
+        std::سمتیہ<صحيح>::const_iterator arg_indices_cend() ثابت
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset + node.arg_count;
+            گرہ_2 ثابت &گرہ = deref();
+            أرجع گراف_2->دلیلاں_2.cbegin() + گرہ.arg_وتھ + گرہ.arg_گنتی;
         }
 
-        Fn const &function() const { return graph_->functions[deref().fn_index]; }
-        Attr const &attr() const { return deref().attr; }
+        Fn ثابت &function() ثابت { أرجع گراف_2->functions[deref().fn_اشاریہ]; }
+        Attr ثابت &attr() ثابت { أرجع deref().attr; }
 
-        bool has_sparse_attr() const { return graph_->sparse_attrs.count(index_); }
+        bool has_sparse_attr() ثابت { أرجع گراف_2->sparse_attrs.گنتی(اشاریہ_2); }
 
-        SparseAttr const &sparse_attr() const
+        SparseAttr ثابت &sparse_attr() ثابت
         {
-            auto found = graph_->sparse_attrs.find(index_);
-            log_assert(found != graph_->sparse_attrs.end());
-            return found->second;
+            خودکار لبھیا = گراف_2->sparse_attrs.لبھو(اشاریہ_2);
+            log_assert(لبھیا != گراف_2->sparse_attrs.سرا());
+            أرجع لبھیا->دوجا;
         }
     };
 
-    using ConstRef = BaseRef<ComputeGraph const>;
+    using ConstRef = ادھار_Ref<Compute_گراف ثابت>;
 
-    struct Ref : public BaseRef<ComputeGraph>
+    بنية Ref : عام ادھار_Ref<Compute_گراف>
     {
-    private:
-        friend struct ComputeGraph;
-        Ref(ComputeGraph *graph, int index) : BaseRef<ComputeGraph>(graph, index) {}
-        Node &deref() const { this->check(); return this->graph_->nodes[this->index_]; }
+    خاص:
+        یار بنية Compute_گراف;
+        Ref(Compute_گراف *گراف_3, صحيح اشاریہ) : ادھار_Ref<Compute_گراف>(گراف_3, اشاریہ) {}
+        گرہ_2 &deref() ثابت { this->check(); أرجع this->گراف_2->nodes[this->اشاریہ_2]; }
 
-    public:
-        Ref(BaseRef<ComputeGraph> ref) : Ref(ref.graph_, ref.index_) {}
+    عام:
+        Ref(ادھار_Ref<Compute_گراف> ref) : Ref(ref.گراف_2, ref.اشاریہ_2) {}
 
-        void set_function(Fn const &function) const
+        فراغ سیٹ_function(Fn ثابت &function) ثابت
         {
-            deref().fn_index = this->graph_->functions(function);
+            deref().fn_اشاریہ = this->گراف_2->functions(function);
         }
 
-        Attr &attr() const { return deref().attr; }
+        Attr &attr() ثابت { أرجع deref().attr; }
 
-        void append_arg(ConstRef arg) const
+        فراغ append_arg(ConstRef arg) ثابت
         {
-            log_assert(arg.graph_ == this->graph_);
-            append_arg(arg.index());
+            log_assert(arg.گراف_2 == this->گراف_2);
+            append_arg(arg.اشاریہ());
         }
 
-        void append_arg(int arg) const
+        فراغ append_arg(صحيح arg) ثابت
         {
-            log_assert(arg >= 0 && arg < this->graph_->size());
-            Node &node = deref();
-            if (node.arg_offset + node.arg_count != GetSize(this->graph_->args))
-                move_args(node);
-            this->graph_->args.push_back(arg);
-            node.arg_count++;
+            log_assert(arg >= 0 && arg < this->گراف_2->ناپ());
+            گرہ_2 &گرہ = deref();
+            إذا (گرہ.arg_وتھ + گرہ.arg_گنتی != Get_ناپ(this->گراف_2->دلیلاں_2))
+                move_دلیلاں(گرہ);
+            this->گراف_2->دلیلاں_2.ڈالو_پٹھ(arg);
+            گرہ.arg_گنتی++;
         }
 
-        operator ConstRef() const
+        عامل ConstRef() ثابت
         {
-            return ConstRef(this->graph_, this->index_);
+            أرجع ConstRef(this->گراف_2, this->اشاریہ_2);
         }
 
-        SparseAttr &sparse_attr() const
+        SparseAttr &sparse_attr() ثابت
         {
-            return this->graph_->sparse_attrs[this->index_];
+            أرجع this->گراف_2->sparse_attrs[this->اشاریہ_2];
         }
 
-        void clear_sparse_attr() const
+        فراغ clear_sparse_attr() ثابت
         {
-            this->graph_->sparse_attrs.erase(this->index_);
+            this->گراف_2->sparse_attrs.erase(this->اشاریہ_2);
         }
 
-        void assign_key(Key const &key) const
+        فراغ سونپو_کلید(کلید_2 ثابت &کلید) ثابت
         {
-            this->graph_->keys_.emplace(key, this->index_);
+            this->گراف_2->کلیدیں.emplace(کلید, this->اشاریہ_2);
         }
 
-    private:
-        void move_args(Node &node) const
+    خاص:
+        فراغ move_دلیلاں(گرہ_2 &گرہ) ثابت
         {
-            auto &args = this->graph_->args;
-            int old_offset = node.arg_offset;
-            node.arg_offset = GetSize(args);
-            for (int i = 0; i != node.arg_count; ++i)
-                args.push_back(args[old_offset + i]);
+            خودکار &دلیلاں_2 = this->گراف_2->دلیلاں_2;
+            صحيح old_وتھ = گرہ.arg_وتھ;
+            گرہ.arg_وتھ = Get_ناپ(دلیلاں_2);
+            لكل (صحيح i = 0; i != گرہ.arg_گنتی; ++i)
+                دلیلاں_2.ڈالو_پٹھ(دلیلاں_2[old_وتھ + i]);
         }
 
     };
 
-    bool has_key(Key const &key) const
+    bool has_کلید(کلید_2 ثابت &کلید) ثابت
     {
-        return keys_.count(key);
+        أرجع کلیدیں.گنتی(کلید);
     }
 
-    dict<Key, int> const &keys() const
+    dict<کلید_2, صحيح> ثابت &کلیدیں_2() ثابت
     {
-        return keys_;
+        أرجع کلیدیں;
     }
 
-    ConstRef operator()(Key const &key) const
+    ConstRef عامل()(کلید_2 ثابت &کلید) ثابت
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        خودکار it = کلیدیں.لبھو(کلید);
+        log_assert(it != کلیدیں.سرا());
+        أرجع (*this)[it->دوجا];
     }
 
-    Ref operator()(Key const &key)
+    Ref عامل()(کلید_2 ثابت &کلید)
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        خودکار it = کلیدیں.لبھو(کلید);
+        log_assert(it != کلیدیں.سرا());
+        أرجع (*this)[it->دوجا];
     }
 
-    int size() const { return GetSize(nodes); }
+    صحيح ناپ() ثابت { أرجع Get_ناپ(nodes); }
 
-    ConstRef operator[](int index) const { return ConstRef(this, index); }
-    Ref operator[](int index) { return Ref(this, index); }
+    ConstRef عامل[](صحيح اشاریہ) ثابت { أرجع ConstRef(this, اشاریہ); }
+    Ref عامل[](صحيح اشاریہ) { أرجع Ref(this, اشاریہ); }
 
-    Ref add(Fn const &function, Attr &&attr)
+    Ref جوڑو(Fn ثابت &function, Attr &&attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
-        nodes.emplace_back(fn_index, std::move(attr), GetSize(args));
-        return Ref(this, index);
+        صحيح اشاریہ = Get_ناپ(nodes);
+        صحيح fn_اشاریہ = functions(function);
+        nodes.emplace_پٹھ(fn_اشاریہ, std::move(attr), Get_ناپ(دلیلاں_2));
+        أرجع Ref(this, اشاریہ);
     }
 
-    Ref add(Fn const &function, Attr const &attr)
+    Ref جوڑو(Fn ثابت &function, Attr ثابت &attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
-        nodes.emplace_back(fn_index, attr,  GetSize(args));
-        return Ref(this, index);
+        صحيح اشاریہ = Get_ناپ(nodes);
+        صحيح fn_اشاریہ = functions(function);
+        nodes.emplace_پٹھ(fn_اشاریہ, attr,  Get_ناپ(دلیلاں_2));
+        أرجع Ref(this, اشاریہ);
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T &&args)
+    سانچا<typename T>
+    Ref جوڑو(Fn ثابت &function, Attr ثابت &attr, T &&دلیلاں_2)
     {
-        Ref added = add(function, attr);
-        for (auto arg : args)
+        Ref added = جوڑو(function, attr);
+        لكل (خودکار arg : دلیلاں_2)
             added.append_arg(arg);
-        return added;
+        أرجع added;
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr &&attr, T &&args)
+    سانچا<typename T>
+    Ref جوڑو(Fn ثابت &function, Attr &&attr, T &&دلیلاں_2)
     {
-        Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        Ref added = جوڑو(function, std::move(attr));
+        لكل (خودکار arg : دلیلاں_2)
             added.append_arg(arg);
-        return added;
+        أرجع added;
     }
 
-    Ref add(Fn const &function, Attr const &attr, std::initializer_list<Ref> args)
+    Ref جوڑو(Fn ثابت &function, Attr ثابت &attr, std::initializer_list<Ref> دلیلاں_2)
     {
-        Ref added = add(function, attr);
-        for (auto arg : args)
+        Ref added = جوڑو(function, attr);
+        لكل (خودکار arg : دلیلاں_2)
             added.append_arg(arg);
-        return added;
+        أرجع added;
     }
 
-    Ref add(Fn const &function, Attr &&attr, std::initializer_list<Ref> args)
+    Ref جوڑو(Fn ثابت &function, Attr &&attr, std::initializer_list<Ref> دلیلاں_2)
     {
-        Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        Ref added = جوڑو(function, std::move(attr));
+        لكل (خودکار arg : دلیلاں_2)
             added.append_arg(arg);
-        return added;
+        أرجع added;
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T begin, T end)
+    سانچا<typename T>
+    Ref جوڑو(Fn ثابت &function, Attr ثابت &attr, T begin, T سرا)
     {
-        Ref added = add(function, attr);
-        for (; begin != end; ++begin)
+        Ref added = جوڑو(function, attr);
+        لكل (; begin != سرا; ++begin)
             added.append_arg(*begin);
-        return added;
+        أرجع added;
     }
 
-    void compact_args()
+    فراغ compact_دلیلاں()
     {
-        std::vector<int> new_args;
-        for (auto &node : nodes)
+        std::سمتیہ<صحيح> new_دلیلاں;
+        لكل (خودکار &گرہ : nodes)
         {
-            int new_offset = GetSize(new_args);
-            for (int i = 0; i < node.arg_count; i++)
-                new_args.push_back(args[node.arg_offset + i]);
-            node.arg_offset = new_offset;
+            صحيح new_وتھ = Get_ناپ(new_دلیلاں);
+            لكل (صحيح i = 0; i < گرہ.arg_گنتی; i++)
+                new_دلیلاں.ڈالو_پٹھ(دلیلاں_2[گرہ.arg_وتھ + i]);
+            گرہ.arg_وتھ = new_وتھ;
         }
-        std::swap(args, new_args);
+        std::وٹاندرا(دلیلاں_2, new_دلیلاں);
     }
 
-    void permute(std::vector<int> const &perm)
+    فراغ ترتیب_بدلو(std::سمتیہ<صحيح> ثابت &perm)
     {
-        log_assert(perm.size() <= nodes.size());
-        std::vector<int> inv_perm;
-        inv_perm.resize(nodes.size(), -1);
-        for (int i = 0; i < GetSize(perm); ++i)
+        log_assert(perm.ناپ() <= nodes.ناپ());
+        std::سمتیہ<صحيح> inv_perm;
+        inv_perm.resize(nodes.ناپ(), -1);
+        لكل (صحيح i = 0; i < Get_ناپ(perm); ++i)
         {
-            int j = perm[i];
-            log_assert(j >= 0 && j < GetSize(nodes));
+            صحيح j = perm[i];
+            log_assert(j >= 0 && j < Get_ناپ(nodes));
             log_assert(inv_perm[j] == -1);
             inv_perm[j] = i;
         }
-        permute(perm, inv_perm);
+        ترتیب_بدلو(perm, inv_perm);
     }
 
-    void permute(std::vector<int> const &perm, std::vector<int> const &inv_perm)
+    فراغ ترتیب_بدلو(std::سمتیہ<صحيح> ثابت &perm, std::سمتیہ<صحيح> ثابت &inv_perm)
     {
-        log_assert(inv_perm.size() == nodes.size());
-        std::vector<Node> new_nodes;
-        new_nodes.reserve(perm.size());
-        dict<int, SparseAttr> new_sparse_attrs;
-        for (int i : perm)
+        log_assert(inv_perm.ناپ() == nodes.ناپ());
+        std::سمتیہ<گرہ_2> new_nodes;
+        new_nodes.reserve(perm.ناپ());
+        dict<صحيح, SparseAttr> new_sparse_attrs;
+        لكل (صحيح i : perm)
         {
-            int j = GetSize(new_nodes);
-            new_nodes.emplace_back(std::move(nodes[i]));
-            auto found = sparse_attrs.find(i);
-            if (found != sparse_attrs.end())
-                new_sparse_attrs.emplace(j, std::move(found->second));
+            صحيح j = Get_ناپ(new_nodes);
+            new_nodes.emplace_پٹھ(std::move(nodes[i]));
+            خودکار لبھیا = sparse_attrs.لبھو(i);
+            إذا (لبھیا != sparse_attrs.سرا())
+                new_sparse_attrs.emplace(j, std::move(لبھیا->دوجا));
         }
 
-        std::swap(nodes, new_nodes);
-        std::swap(sparse_attrs, new_sparse_attrs);
+        std::وٹاندرا(nodes, new_nodes);
+        std::وٹاندرا(sparse_attrs, new_sparse_attrs);
 
-        compact_args();
-        for (int &arg : args)
+        compact_دلیلاں();
+        لكل (صحيح &arg : دلیلاں_2)
         {
-            log_assert(arg < GetSize(inv_perm));
+            log_assert(arg < Get_ناپ(inv_perm));
             log_assert(inv_perm[arg] >= 0);
             arg = inv_perm[arg];
         }
 
-        for (auto &key : keys_)
+        لكل (خودکار &کلید : کلیدیں)
         {
-            log_assert(key.second < GetSize(inv_perm));
-            log_assert(inv_perm[key.second] >= 0);
-            key.second = inv_perm[key.second];
+            log_assert(کلید.دوجا < Get_ناپ(inv_perm));
+            log_assert(inv_perm[کلید.دوجا] >= 0);
+            کلید.دوجا = inv_perm[کلید.دوجا];
         }
     }
 
-    struct SccAdaptor
+    بنية SccAdaptor
     {
-    private:
-        ComputeGraph const &graph_;
-        std::vector<int> indices_;
-    public:
-        SccAdaptor(ComputeGraph const &graph) : graph_(graph)
+    خاص:
+        Compute_گراف ثابت &گراف_2;
+        std::سمتیہ<صحيح> indices_;
+    عام:
+        SccAdaptor(Compute_گراف ثابت &گراف_3) : گراف_2(گراف_3)
         {
-            indices_.resize(graph.size(), -1);
+            indices_.resize(گراف_3.ناپ(), -1);
         }
 
 
-        typedef int node_type;
+        تعريفنوع صحيح گرہ_type;
 
-        struct node_enumerator {
-        private:
-            friend struct SccAdaptor;
-            int current, end;
-            node_enumerator(int current, int end) : current(current), end(end) {}
+        بنية گرہ_enumerator {
+        خاص:
+            یار بنية SccAdaptor;
+            صحيح current, سرا;
+            گرہ_enumerator(صحيح current, صحيح سرا) : current(current), سرا(سرا) {}
 
-        public:
+        عام:
 
-            bool finished() const { return current == end; }
-            node_type next() {
-                log_assert(!finished());
-                node_type result = current;
+            bool مکمل() ثابت { أرجع current == سرا; }
+            گرہ_type اگلا() {
+                log_assert(!مکمل());
+                گرہ_type نتیجہ = current;
                 ++current;
-                return result;
+                أرجع نتیجہ;
             }
         };
 
-        node_enumerator enumerate_nodes() {
-            return node_enumerator(0, GetSize(indices_));
+        گرہ_enumerator enumerate_nodes() {
+            أرجع گرہ_enumerator(0, Get_ناپ(indices_));
         }
 
 
-        struct successor_enumerator {
-        private:
-            friend struct SccAdaptor;
-            std::vector<int>::const_iterator current, end;
-            successor_enumerator(std::vector<int>::const_iterator current, std::vector<int>::const_iterator end) :
-                current(current), end(end) {}
+        بنية successor_enumerator {
+        خاص:
+            یار بنية SccAdaptor;
+            std::سمتیہ<صحيح>::const_iterator current, سرا;
+            successor_enumerator(std::سمتیہ<صحيح>::const_iterator current, std::سمتیہ<صحيح>::const_iterator سرا) :
+                current(current), سرا(سرا) {}
 
-        public:
-            bool finished() const { return current == end; }
-            node_type next() {
-                log_assert(!finished());
-                node_type result = *current;
+        عام:
+            bool مکمل() ثابت { أرجع current == سرا; }
+            گرہ_type اگلا() {
+                log_assert(!مکمل());
+                گرہ_type نتیجہ = *current;
                 ++current;
-                return result;
+                أرجع نتیجہ;
             }
         };
 
-        successor_enumerator enumerate_successors(int index) const {
-            auto const &ref = graph_[index];
-            return successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
+        successor_enumerator enumerate_جانشین(صحيح اشاریہ) ثابت {
+            خودکار ثابت &ref = گراف_2[اشاریہ];
+            أرجع successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
         }
 
-        int &dfs_index(node_type const &node) { return indices_[node]; }
+        صحيح &dfs_اشاریہ(گرہ_type ثابت &گرہ) { أرجع indices_[گرہ]; }
 
-        std::vector<int> const &dfs_indices() { return indices_; }
+        std::سمتیہ<صحيح> ثابت &dfs_indices() { أرجع indices_; }
     };
 
 };
 
 
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_سرا
 
 
-#endif
+#جے_انت

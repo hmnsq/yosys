@@ -17,463 +17,463 @@
  *
  */
 
-#include "kernel/rtlil.h"
-#include "kernel/yosys.h"
-#include "kernel/macc.h"
-#include "kernel/newcelltypes.h"
-#include "kernel/sigtools.h"
-#include "kernel/threading.h"
-#include "frontends/verilog/verilog_frontend.h"
-#include "frontends/verilog/preproc.h"
-#include "backends/rtlil/rtlil_backend.h"
+#ضمن "kernel/rtlil.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/macc.h"
+#ضمن "kernel/newcelltypes.h"
+#ضمن "kernel/sigtools.h"
+#ضمن "kernel/threading.h"
+#ضمن "frontends/verilog/verilog_frontend.h"
+#ضمن "frontends/verilog/preproc.h"
+#ضمن "backends/rtlil/rtlil_backend.h"
 
-#include <string.h>
-#include <algorithm>
-#include <charconv>
-#include <optional>
-#include <string_view>
-#include <sstream>
+#ضمن <string.h>
+#ضمن <algorithm>
+#ضمن <charconv>
+#ضمن <optional>
+#ضمن <string_view>
+#ضمن <sstream>
 
 YOSYS_NAMESPACE_BEGIN
 
 dict<std::string, std::string> RTLIL::constpad;
 
-const pool<IdString> &RTLIL::builtin_ff_cell_types() {
-	static const pool<IdString> res = []() {
+ثابت pool<IdString> &RTLIL::builtin_ff_cell_types() {
+	ساكن ثابت pool<IdString> res = []() {
 		pool<IdString> r;
-		for (size_t i = 0; i < StaticCellTypes::builder.count; i++) {
-			auto &cell = StaticCellTypes::builder.cells[i];
-			if (cell.features.is_ff)
-				r.insert(cell.type);
+		لكل (ناپ_t i = 0; i < StaticCellTypes::builder.گنتی; i++) {
+			خودکار &cell = StaticCellTypes::builder.cells[i];
+			إذا (cell.features.is_ff)
+				r.داخل_کرو(cell.type);
 		}
-		return r;
+		أرجع r;
 	}();
-	return res;
+	أرجع res;
 }
 
-#define check(condition) log_assert(condition && "malformed Const union")
+#تعریف_کرو check(condition) log_assert(condition && "malformed Const union")
 
-const Const::bitvectype& Const::get_bits() const {
-	check(is_bits());
-	return *get_if_bits();
+ثابت Const::bitvectype& Const::get_بٹ() ثابت {
+	check(is_بٹ());
+	أرجع *get_if_بٹ();
 }
 
-const std::string& Const::get_str() const {
+ثابت std::string& Const::get_str() ثابت {
 	check(is_str());
-	return *get_if_str();
+	أرجع *get_if_str();
 }
 
-Const::bitvectype& Const::get_bits() {
-	check(is_bits());
-	return *get_if_bits();
+Const::bitvectype& Const::get_بٹ() {
+	check(is_بٹ());
+	أرجع *get_if_بٹ();
 }
 
 std::string& Const::get_str() {
 	check(is_str());
-	return *get_if_str();
+	أرجع *get_if_str();
 }
 
 RTLIL::Const::Const(std::string str)
 {
 	flags = RTLIL::CONST_FLAG_STRING;
-	new ((void*)&str_) std::string(std::move(str));
-	tag = backing_tag::string;
+	جديد ((فراغ*)&str_) std::string(std::move(str));
+	ٹیگ = backing_ٹیگ::string;
 }
 
-RTLIL::Const::Const(long long val) // default width 32
+RTLIL::Const::Const(لما لما val) // default width 32
 {
 	flags = RTLIL::CONST_FLAG_NONE;
-	char bytes[] = {
-		(char)(val >> 24), (char)(val >> 16), (char)(val >> 8), (char)val
+	حرف بائٹاں[] = {
+		(حرف)(val >> 24), (حرف)(val >> 16), (حرف)(val >> 8), (حرف)val
 	};
-	new ((void*)&str_) std::string(bytes, 4);
-	tag = backing_tag::string;
+	جديد ((فراغ*)&str_) std::string(بائٹاں, 4);
+	ٹیگ = backing_ٹیگ::string;
 }
 
-RTLIL::Const::Const(long long val, int width)
+RTLIL::Const::Const(لما لما val, صحيح چوڑائی)
 {
-	log_assert(width >= 0 && width < RTLIL::WIDTH_LIMIT);
+	log_assert(چوڑائی >= 0 && چوڑائی < RTLIL::چوڑائی_حد_بندی);
 	flags = RTLIL::CONST_FLAG_NONE;
-	if ((width & 7) == 0) {
-		new ((void*)&str_) std::string();
-		tag = backing_tag::string;
+	إذا ((چوڑائی & 7) == 0) {
+		جديد ((فراغ*)&str_) std::string();
+		ٹیگ = backing_ٹیگ::string;
 		std::string& str = get_str();
-		int bytes = width >> 3;
-		signed char sign_byte = val < 0 ? -1 : 0;
-		str.resize(bytes, sign_byte);
-		bytes = std::min<int>(bytes, sizeof(val));
-		for (int i = 0; i < bytes; i++) {
-			str[str.size() - 1 - i] = val;
+		صحيح بائٹاں = چوڑائی >> 3;
+		نشانیوالا حرف sign_byte = val < 0 ? -1 : 0;
+		str.resize(بائٹاں, sign_byte);
+		بائٹاں = std::min<صحيح>(بائٹاں, حجم(val));
+		لكل (صحيح i = 0; i < بائٹاں; i++) {
+			str[str.ناپ() - 1 - i] = val;
 			val = val >> 8;
 		}
-		return;
+		أرجع;
 	}
 
-	new ((void*)&bits_) bitvectype();
-	tag = backing_tag::bits;
-	bitvectype& bv = get_bits();
-	bv.reserve(width);
-	for (int i = 0; i < width; i++) {
-		bv.push_back((val & 1) != 0 ? State::S1 : State::S0);
+	جديد ((فراغ*)&بٹ_2) bitvectype();
+	ٹیگ = backing_ٹیگ::بٹ;
+	bitvectype& bv = get_بٹ();
+	bv.reserve(چوڑائی);
+	لكل (صحيح i = 0; i < چوڑائی; i++) {
+		bv.ڈالو_پٹھ((val & 1) != 0 ? State::S1 : State::S0);
 		val = val >> 1;
 	}
 }
 
-RTLIL::Const::Const(RTLIL::State bit, int width)
+RTLIL::Const::Const(RTLIL::State ثنائی_ہندسہ, صحيح چوڑائی)
 {
-	log_assert(width >= 0 && width < RTLIL::WIDTH_LIMIT);
+	log_assert(چوڑائی >= 0 && چوڑائی < RTLIL::چوڑائی_حد_بندی);
 	flags = RTLIL::CONST_FLAG_NONE;
-	new ((void*)&bits_) bitvectype();
-	tag = backing_tag::bits;
-	bitvectype& bv = get_bits();
-	bv.reserve(width);
-	for (int i = 0; i < width; i++)
-		bv.push_back(bit);
+	جديد ((فراغ*)&بٹ_2) bitvectype();
+	ٹیگ = backing_ٹیگ::بٹ;
+	bitvectype& bv = get_بٹ();
+	bv.reserve(چوڑائی);
+	لكل (صحيح i = 0; i < چوڑائی; i++)
+		bv.ڈالو_پٹھ(ثنائی_ہندسہ);
 }
 
-RTLIL::Const::Const(const std::vector<bool> &bits)
+RTLIL::Const::Const(ثابت std::سمتیہ<منطقي> &بٹ)
 {
 	flags = RTLIL::CONST_FLAG_NONE;
-	new ((void*)&bits_) bitvectype();
-	tag = backing_tag::bits;
-	bitvectype& bv = get_bits();
-	bv.reserve(bits.size());
-	for (const auto &b : bits)
-		bv.emplace_back(b ? State::S1 : State::S0);
+	جديد ((فراغ*)&بٹ_2) bitvectype();
+	ٹیگ = backing_ٹیگ::بٹ;
+	bitvectype& bv = get_بٹ();
+	bv.reserve(بٹ.ناپ());
+	لكل (ثابت خودکار &b : بٹ)
+		bv.emplace_پٹھ(b ? State::S1 : State::S0);
 }
 
-RTLIL::Const::Const(const RTLIL::Const &other) {
-	tag = other.tag;
+RTLIL::Const::Const(ثابت RTLIL::Const &other) {
+	ٹیگ = other.ٹیگ;
 	flags = other.flags;
-	if (is_str())
-		new ((void*)&str_) std::string(other.get_str());
-	else if (is_bits())
-		new ((void*)&bits_) bitvectype(other.get_bits());
-	else
-		check(false);
+	إذا (is_str())
+		جديد ((فراغ*)&str_) std::string(other.get_str());
+	وإلا إذا (is_بٹ())
+		جديد ((فراغ*)&بٹ_2) bitvectype(other.get_بٹ());
+	وإلا
+		check(خطأ);
 }
 
 RTLIL::Const::Const(RTLIL::Const &&other) {
-	tag = other.tag;
+	ٹیگ = other.ٹیگ;
 	flags = other.flags;
-	if (is_str())
-		new ((void*)&str_) std::string(std::move(other.get_str()));
-	else if (is_bits())
-		new ((void*)&bits_) bitvectype(std::move(other.get_bits()));
-	else
-		check(false);
+	إذا (is_str())
+		جديد ((فراغ*)&str_) std::string(std::move(other.get_str()));
+	وإلا إذا (is_بٹ())
+		جديد ((فراغ*)&بٹ_2) bitvectype(std::move(other.get_بٹ()));
+	وإلا
+		check(خطأ);
 }
 
-RTLIL::Const &RTLIL::Const::operator =(const RTLIL::Const &other) {
+RTLIL::Const &RTLIL::Const::عامل =(ثابت RTLIL::Const &other) {
 	flags = other.flags;
-	if (other.is_str()) {
-		if (!is_str()) {
+	إذا (other.is_str()) {
+		إذا (!is_str()) {
 			// sketchy zone
-			check(is_bits());
-			bits_.~bitvectype();
-			(void)new ((void*)&str_) std::string();
+			check(is_بٹ());
+			بٹ_2.~bitvectype();
+			(فراغ)جديد ((فراغ*)&str_) std::string();
 		}
-		tag = other.tag;
+		ٹیگ = other.ٹیگ;
 		get_str() = other.get_str();
-	} else if (other.is_bits()) {
-		if (!is_bits()) {
+	} وإلا إذا (other.is_بٹ()) {
+		إذا (!is_بٹ()) {
 			// sketchy zone
 			check(is_str());
 			str_.~string();
-			(void)new ((void*)&bits_) bitvectype();
+			(فراغ)جديد ((فراغ*)&بٹ_2) bitvectype();
 		}
-		tag = other.tag;
-		get_bits() = other.get_bits();
-	} else {
-		check(false);
+		ٹیگ = other.ٹیگ;
+		get_بٹ() = other.get_بٹ();
+	} وإلا {
+		check(خطأ);
 	}
-	return *this;
+	أرجع *هذا;
 }
 
 RTLIL::Const::~Const() {
-	if (is_bits())
-		bits_.~bitvectype();
-	else if (is_str())
+	إذا (is_بٹ())
+		بٹ_2.~bitvectype();
+	وإلا إذا (is_str())
 		str_.~string();
-	else
-		check(false);
+	وإلا
+		check(خطأ);
 }
 
-bool RTLIL::Const::operator<(const RTLIL::Const &other) const
+منطقي RTLIL::Const::عامل<(ثابت RTLIL::Const &other) ثابت
 {
-	if (size() != other.size())
-		return size() < other.size();
+	إذا (ناپ() != other.ناپ())
+		أرجع ناپ() < other.ناپ();
 
-	for (int i = 0; i < size(); i++)
-		if ((*this)[i] != other[i])
-			return (*this)[i] < other[i];
+	لكل (صحيح i = 0; i < ناپ(); i++)
+		إذا ((*هذا)[i] != other[i])
+			أرجع (*هذا)[i] < other[i];
 
-	return false;
+	أرجع خطأ;
 }
 
-bool RTLIL::Const::operator ==(const RTLIL::Const &other) const
+منطقي RTLIL::Const::عامل ==(ثابت RTLIL::Const &other) ثابت
 {
-	if (is_str() && other.is_str())
-		return get_str() == other.get_str();
-	if (is_bits() && other.is_bits())
-		return get_bits() == other.get_bits();
+	إذا (is_str() && other.is_str())
+		أرجع get_str() == other.get_str();
+	إذا (is_بٹ() && other.is_بٹ())
+		أرجع get_بٹ() == other.get_بٹ();
 
-	if (size() != other.size())
-		return false;
+	إذا (ناپ() != other.ناپ())
+		أرجع خطأ;
 
-	for (int i = 0; i < size(); i++)
-	if ((*this)[i] != other[i])
-		return false;
+	لكل (صحيح i = 0; i < ناپ(); i++)
+	إذا ((*هذا)[i] != other[i])
+		أرجع خطأ;
 
-	return true;
+	أرجع سچ;
 }
 
-bool RTLIL::Const::operator !=(const RTLIL::Const &other) const
+منطقي RTLIL::Const::عامل !=(ثابت RTLIL::Const &other) ثابت
 {
-	return !(*this == other);
+	أرجع !(*هذا == other);
 }
 
-std::vector<RTLIL::State>& RTLIL::Const::bits_internal()
+std::سمتیہ<RTLIL::State>& RTLIL::Const::بٹ_اندرونی()
 {
-	bitvectorize_internal();
-	return get_bits();
+	bitvectorize_اندرونی();
+	أرجع get_بٹ();
 }
 
-std::vector<RTLIL::State> RTLIL::Const::to_bits() const
+std::سمتیہ<RTLIL::State> RTLIL::Const::منزل_بٹ() ثابت
 {
-	std::vector<State> v;
-	for (auto bit : *this)
-		v.push_back(bit);
-	return v;
+	std::سمتیہ<State> v;
+	لكل (خودکار ثنائی_ہندسہ : *هذا)
+		v.ڈالو_پٹھ(ثنائی_ہندسہ);
+	أرجع v;
 }
 
-bool RTLIL::Const::as_bool() const
+منطقي RTLIL::Const::as_bool() ثابت
 {
-	if (is_str()) {
-		for (char ch : get_str())
-			if (ch != 0)
-				return true;
-		return false;
+	إذا (is_str()) {
+		لكل (حرف ch : get_str())
+			إذا (ch != 0)
+				أرجع سچ;
+		أرجع خطأ;
 	}
 
-	const bitvectype& bv = get_bits();
-	for (size_t i = 0; i < bv.size(); i++)
-		if (bv[i] == State::S1)
-			return true;
-	return false;
+	ثابت bitvectype& bv = get_بٹ();
+	لكل (ناپ_t i = 0; i < bv.ناپ(); i++)
+		إذا (bv[i] == State::S1)
+			أرجع سچ;
+	أرجع خطأ;
 }
 
-int RTLIL::Const::as_int(bool is_signed) const
+صحيح RTLIL::Const::as_int(منطقي is_signed) ثابت
 {
 	int32_t ret = 0;
-	if (const std::string *s = get_if_str()) {
-		int size = GetSize(*s);
+	إذا (ثابت std::string *s = get_if_str()) {
+		صحيح ناپ = Get_ناپ(*s);
 		// Ignore any bytes after the first 4 since bits beyond 32 are truncated.
-		for (int i = std::min(4, size); i > 0; i--)
-			ret |= static_cast<unsigned char>((*s)[size - i]) << ((i - 1) * 8);
+		لكل (صحيح i = std::min(4, ناپ); i > 0; i--)
+			ret |= static_cast<بنانشانی حرف>((*s)[ناپ - i]) << ((i - 1) * 8);
 		// If is_signed and the string is shorter than 4 bytes then apply sign extension.
-		if (is_signed && size > 0 && size < 4 && ((*s)[0] & 0x80))
-			ret |= UINT32_MAX << size*8;
-		return ret;
+		إذا (is_signed && ناپ > 0 && ناپ < 4 && ((*s)[0] & 0x80))
+			ret |= UINT32_MAX << ناپ*8;
+		أرجع ret;
 	}
 
-	const bitvectype& bv = get_bits();
-	int significant_bits = std::min(GetSize(bv), 32);
-	for (int i = 0; i < significant_bits; i++)
-		if (bv[i] == State::S1)
+	ثابت bitvectype& bv = get_بٹ();
+	صحيح significant_بٹ = std::min(Get_ناپ(bv), 32);
+	لكل (صحيح i = 0; i < significant_بٹ; i++)
+		إذا (bv[i] == State::S1)
 			ret |= 1 << i;
-	if (is_signed && significant_bits > 0 && significant_bits < 32 && bv.back() == State::S1 )
-		ret |= UINT32_MAX << significant_bits;
-	return ret;
+	إذا (is_signed && significant_بٹ > 0 && significant_بٹ < 32 && bv.پٹھ() == State::S1 )
+		ret |= UINT32_MAX << significant_بٹ;
+	أرجع ret;
 }
 
-bool RTLIL::Const::convertible_to_int(bool is_signed) const
+منطقي RTLIL::Const::convertible_منزل_int(منطقي is_signed) ثابت
 {
-	auto size = get_min_size(is_signed);
+	خودکار ناپ = get_min_ناپ(is_signed);
 
-	if (size < 0)
-		return false;
+	إذا (ناپ < 0)
+		أرجع خطأ;
 
 	// If it fits in 31 bits it is definitely convertible
-	if (size <= 31)
-		return true;
+	إذا (ناپ <= 31)
+		أرجع سچ;
 
 	// If it fits in 32 bits, it is convertible if signed or if unsigned and the
 	// leading bit is not 1
-	if (size == 32) {
-		if (is_signed)
-			return true;
-		return (*this)[size - 1] != State::S1;
+	إذا (ناپ == 32) {
+		إذا (is_signed)
+			أرجع سچ;
+		أرجع (*هذا)[ناپ - 1] != State::S1;
 	}
 
-	return false;
+	أرجع خطأ;
 }
 
-std::optional<int> RTLIL::Const::try_as_int(bool is_signed) const
+std::optional<صحيح> RTLIL::Const::try_as_int(منطقي is_signed) ثابت
 {
-	if (!convertible_to_int(is_signed))
-		return std::nullopt;
-	return as_int(is_signed);
+	إذا (!convertible_منزل_int(is_signed))
+		أرجع std::nullopt;
+	أرجع as_int(is_signed);
 }
 
-int RTLIL::Const::as_int_saturating(bool is_signed) const
+صحيح RTLIL::Const::as_int_saturating(منطقي is_signed) ثابت
 {
-	if (!convertible_to_int(is_signed)) {
-		if (!is_signed)
-			return std::numeric_limits<int>::max();
+	إذا (!convertible_منزل_int(is_signed)) {
+		إذا (!is_signed)
+			أرجع std::numeric_limits<صحيح>::max();
 
-		const auto min_size = get_min_size(is_signed);
-		log_assert(min_size > 0);
-		const auto neg = (*this)[min_size - 1];
-		return neg ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
+		ثابت خودکار min_ناپ = get_min_ناپ(is_signed);
+		log_assert(min_ناپ > 0);
+		ثابت خودکار neg = (*هذا)[min_ناپ - 1];
+		أرجع neg ? std::numeric_limits<صحيح>::min() : std::numeric_limits<صحيح>::max();
 	}
-	return as_int(is_signed);
+	أرجع as_int(is_signed);
 }
 
-void RTLIL::Const::tag_bare_integer_const(const std::string &value)
+فراغ RTLIL::Const::ٹیگ_bare_integer_const(ثابت std::string &قدر)
 {
-	if (value.empty() || value.find('\'') != std::string::npos)
-		return;
-	size_t start = (value[0] == '-' || value[0] == '+') ? 1 : 0;
-	if (start < value.size() && std::all_of(value.begin() + start, value.end(), ::isdigit))
+	إذا (قدر.خالی_تھاواں() || قدر.لبھو('\'') != std::string::npos)
+		أرجع;
+	ناپ_t شروع = (قدر[0] == '-' || قدر[0] == '+') ? 1 : 0;
+	إذا (شروع < قدر.ناپ() && std::all_دا(قدر.begin() + شروع, قدر.سرا(), ::ہندسہ_اے))
 		flags |= RTLIL::CONST_FLAG_SIGNED;
 }
 
-int RTLIL::Const::get_min_size(bool is_signed) const
+صحيح RTLIL::Const::get_min_ناپ(منطقي is_signed) ثابت
 {
-	if (empty()) return 0;
+	إذا (خالی_تھاواں()) أرجع 0;
 
 	// back to front (MSB to LSB)
-	RTLIL::State leading_bit;
-	if (is_signed)
-		leading_bit = (back() == RTLIL::State::Sx) ? RTLIL::State::S0 : back();
-	else
-		leading_bit = RTLIL::State::S0;
+	RTLIL::State leading_ثنائی_ہندسہ;
+	إذا (is_signed)
+		leading_ثنائی_ہندسہ = (پٹھ() == RTLIL::State::Sx) ? RTLIL::State::S0 : پٹھ();
+	وإلا
+		leading_ثنائی_ہندسہ = RTLIL::State::S0;
 
-	auto idx = size();
-	while (idx > 0 && (*this)[idx -1] == leading_bit) {
+	خودکار idx = ناپ();
+	طالما (idx > 0 && (*هذا)[idx -1] == leading_ثنائی_ہندسہ) {
 		idx--;
 	}
 
 	// signed needs one leading bit
-	if (is_signed && idx < size()) {
+	إذا (is_signed && idx < ناپ()) {
 		idx++;
 	}
 	// must be at least one bit
-	return (idx == 0) ? 1 : idx;
+	أرجع (idx == 0) ? 1 : idx;
 }
 
-void RTLIL::Const::compress(bool is_signed)
+فراغ RTLIL::Const::compress(منطقي is_signed)
 {
-	auto idx = get_min_size(is_signed);
+	خودکار idx = get_min_ناپ(is_signed);
 	resize(idx, RTLIL::State::S0);
 }
 
-std::optional<int> RTLIL::Const::as_int_compress(bool is_signed) const
+std::optional<صحيح> RTLIL::Const::as_int_compress(منطقي is_signed) ثابت
 {
-	return try_as_int(is_signed);
+	أرجع try_as_int(is_signed);
 }
 
-std::string RTLIL::Const::as_string(const char* any) const
+std::string RTLIL::Const::as_string(ثابت حرف* any) ثابت
 {
-	int sz = size();
+	صحيح sz = ناپ();
 	std::string ret;
 	ret.reserve(sz);
-	for (int i = sz - 1; i >= 0; --i)
-		switch ((*this)[i]) {
-			case S0: ret.push_back('0'); break;
-			case S1: ret.push_back('1'); break;
-			case Sx: ret.push_back('x'); break;
-			case Sz: ret.push_back('z'); break;
-			case Sa: ret += any; break;
-			case Sm: ret.push_back('m'); break;
+	لكل (صحيح i = sz - 1; i >= 0; --i)
+		بدل ((*هذا)[i]) {
+			حالة S0: ret.ڈالو_پٹھ('0'); اكسر;
+			حالة S1: ret.ڈالو_پٹھ('1'); اكسر;
+			حالة Sx: ret.ڈالو_پٹھ('x'); اكسر;
+			حالة Sz: ret.ڈالو_پٹھ('z'); اكسر;
+			حالة Sa: ret += any; اكسر;
+			حالة Sm: ret.ڈالو_پٹھ('m'); اكسر;
 		}
-	return ret;
+	أرجع ret;
 }
 
-RTLIL::Const RTLIL::Const::from_string(const std::string &str)
+RTLIL::Const RTLIL::Const::from_string(ثابت std::string &str)
 {
 	Const c;
-	bitvectype& bv = c.get_bits();
-	bv.reserve(str.size());
-	for (auto it = str.rbegin(); it != str.rend(); it++)
-		switch (*it) {
-			case '0': bv.push_back(State::S0); break;
-			case '1': bv.push_back(State::S1); break;
-			case 'x': bv.push_back(State::Sx); break;
-			case 'z': bv.push_back(State::Sz); break;
-			case 'm': bv.push_back(State::Sm); break;
-			default: bv.push_back(State::Sa);
+	bitvectype& bv = c.get_بٹ();
+	bv.reserve(str.ناپ());
+	لكل (خودکار it = str.rbegin(); it != str.rend(); it++)
+		بدل (*it) {
+			حالة '0': bv.ڈالو_پٹھ(State::S0); اكسر;
+			حالة '1': bv.ڈالو_پٹھ(State::S1); اكسر;
+			حالة 'x': bv.ڈالو_پٹھ(State::Sx); اكسر;
+			حالة 'z': bv.ڈالو_پٹھ(State::Sz); اكسر;
+			حالة 'm': bv.ڈالو_پٹھ(State::Sm); اكسر;
+			افتراضي: bv.ڈالو_پٹھ(State::Sa);
 		}
-	return c;
+	أرجع c;
 }
 
-std::string RTLIL::Const::decode_string() const
+std::string RTLIL::Const::decode_string() ثابت
 {
-	if (auto str = get_if_str())
-		return *str;
+	إذا (خودکار str = get_if_str())
+		أرجع *str;
 
-	const bitvectype& bv = get_bits();
-	const int n = GetSize(bv);
-	const int n_over_8 = n / 8;
+	ثابت bitvectype& bv = get_بٹ();
+	ثابت صحيح n = Get_ناپ(bv);
+	ثابت صحيح n_over_8 = n / 8;
 	std::string s;
 	s.reserve(n_over_8);
-	int i = n_over_8 * 8;
-	if (i < n) {
-		char ch = 0;
-		for (int j = 0; j < (n - i); j++) {
-			if (bv[i + j] == RTLIL::State::S1) {
+	صحيح i = n_over_8 * 8;
+	إذا (i < n) {
+		حرف ch = 0;
+		لكل (صحيح j = 0; j < (n - i); j++) {
+			إذا (bv[i + j] == RTLIL::State::S1) {
 				ch |= 1 << j;
 			}
 		}
-		if (ch != 0)
+		إذا (ch != 0)
 			s.append({ch});
 	}
 	i -= 8;
-	for (; i >= 0; i -= 8) {
-		char ch = 0;
-		for (int j = 0; j < 8; j++) {
-			if (bv[i + j] == RTLIL::State::S1) {
+	لكل (; i >= 0; i -= 8) {
+		حرف ch = 0;
+		لكل (صحيح j = 0; j < 8; j++) {
+			إذا (bv[i + j] == RTLIL::State::S1) {
 				ch |= 1 << j;
 			}
 		}
-		if (ch != 0)
+		إذا (ch != 0)
 			s.append({ch});
 	}
-	return s;
+	أرجع s;
 }
 
-int RTLIL::Const::size() const {
-	if (is_str())
-		return 8 * str_.size();
-	else {
-		check(is_bits());
-		return bits_.size();
+صحيح RTLIL::Const::ناپ() ثابت {
+	إذا (is_str())
+		أرجع 8 * str_.ناپ();
+	وإلا {
+		check(is_بٹ());
+		أرجع بٹ_2.ناپ();
 	}
 }
 
-bool RTLIL::Const::empty() const {
-	if (is_str())
-		return str_.empty();
-	else {
-		check(is_bits());
-		return bits_.empty();
+منطقي RTLIL::Const::خالی_تھاواں() ثابت {
+	إذا (is_str())
+		أرجع str_.خالی_تھاواں();
+	وإلا {
+		check(is_بٹ());
+		أرجع بٹ_2.خالی_تھاواں();
 	}
 }
 
-void RTLIL::Const::bitvectorize_internal() {
-	if (tag == backing_tag::bits)
-		return;
+فراغ RTLIL::Const::bitvectorize_اندرونی() {
+	إذا (ٹیگ == backing_ٹیگ::بٹ)
+		أرجع;
 
 	check(is_str());
 
-	bitvectype new_bits;
+	bitvectype new_بٹ;
 
-	new_bits.reserve(str_.size() * 8);
-	for (int i = str_.size() - 1; i >= 0; i--) {
-		unsigned char ch = str_[i];
-		for (int j = 0; j < 8; j++) {
-			new_bits.push_back((ch & 1) != 0 ? State::S1 : State::S0);
+	new_بٹ.reserve(str_.ناپ() * 8);
+	لكل (صحيح i = str_.ناپ() - 1; i >= 0; i--) {
+		بنانشانی حرف ch = str_[i];
+		لكل (صحيح j = 0; j < 8; j++) {
+			new_بٹ.ڈالو_پٹھ((ch & 1) != 0 ? State::S1 : State::S0);
 			ch = ch >> 1;
 		}
 	}
@@ -481,980 +481,980 @@ void RTLIL::Const::bitvectorize_internal() {
 	{
 		// sketchy zone
 		str_.~string();
-		(void)new ((void*)&bits_) bitvectype(std::move(new_bits));
-		tag = backing_tag::bits;
+		(فراغ)جديد ((فراغ*)&بٹ_2) bitvectype(std::move(new_بٹ));
+		ٹیگ = backing_ٹیگ::بٹ;
 	}
 }
 
-void RTLIL::Const::append(const RTLIL::Const &other) {
-	bitvectorize_internal();
-	bitvectype& bv = get_bits();
-	bv.insert(bv.end(), other.begin(), other.end());
+فراغ RTLIL::Const::append(ثابت RTLIL::Const &other) {
+	bitvectorize_اندرونی();
+	bitvectype& bv = get_بٹ();
+	bv.داخل_کرو(bv.سرا(), other.begin(), other.سرا());
 }
 
-RTLIL::State RTLIL::Const::const_iterator::operator*() const {
-	if (auto bv = parent->get_if_bits())
-		return (*bv)[idx];
+RTLIL::State RTLIL::Const::const_iterator::عامل*() ثابت {
+	إذا (خودکار bv = ماپا->get_if_بٹ())
+		أرجع (*bv)[idx];
 
-	int char_idx = parent->get_str().size() - idx / 8 - 1;
-	bool bit = (parent->get_str()[char_idx] & (1 << (idx % 8)));
-	return bit ? State::S1 : State::S0;
+	صحيح char_idx = ماپا->get_str().ناپ() - idx / 8 - 1;
+	منطقي ثنائی_ہندسہ = (ماپا->get_str()[char_idx] & (1 << (idx % 8)));
+	أرجع ثنائی_ہندسہ ? State::S1 : State::S0;
 }
 
-bool RTLIL::Const::is_fully_zero() const
+منطقي RTLIL::Const::is_fully_zero() ثابت
 {
-	if (auto str = get_if_str()) {
-		for (char ch : *str)
-			if (ch != 0)
-				return false;
-		return true;
+	إذا (خودکار str = get_if_str()) {
+		لكل (حرف ch : *str)
+			إذا (ch != 0)
+				أرجع خطأ;
+		أرجع سچ;
 	}
 
-	const bitvectype& bv = get_bits();
+	ثابت bitvectype& bv = get_بٹ();
 
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::S0)
-			return false;
+	لكل (ثابت خودکار &ثنائی_ہندسہ : bv)
+		إذا (ثنائی_ہندسہ != RTLIL::State::S0)
+			أرجع خطأ;
 
-	return true;
+	أرجع سچ;
 }
 
-bool RTLIL::Const::is_fully_ones() const
+منطقي RTLIL::Const::is_fully_ones() ثابت
 {
-	if (auto str = get_if_str()) {
-		for (char ch : *str)
-			if (ch != (char)0xff)
-				return false;
-		return true;
+	إذا (خودکار str = get_if_str()) {
+		لكل (حرف ch : *str)
+			إذا (ch != (حرف)0xff)
+				أرجع خطأ;
+		أرجع سچ;
 	}
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::S1)
-			return false;
+	ثابت bitvectype& bv = get_بٹ();
+	لكل (ثابت خودکار &ثنائی_ہندسہ : bv)
+		إذا (ثنائی_ہندسہ != RTLIL::State::S1)
+			أرجع خطأ;
 
-	return true;
+	أرجع سچ;
 }
 
-bool RTLIL::Const::is_fully_def() const
+منطقي RTLIL::Const::is_fully_def() ثابت
 {
-	if (is_str())
-		return true;
+	إذا (is_str())
+		أرجع سچ;
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::S0 && bit != RTLIL::State::S1)
-			return false;
+	ثابت bitvectype& bv = get_بٹ();
+	لكل (ثابت خودکار &ثنائی_ہندسہ : bv)
+		إذا (ثنائی_ہندسہ != RTLIL::State::S0 && ثنائی_ہندسہ != RTLIL::State::S1)
+			أرجع خطأ;
 
-	return true;
+	أرجع سچ;
 }
 
-bool RTLIL::Const::is_fully_undef() const
+منطقي RTLIL::Const::is_fully_undef() ثابت
 {
-	if (auto str = get_if_str())
-		return str->empty();
+	إذا (خودکار str = get_if_str())
+		أرجع str->خالی_تھاواں();
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::Sx && bit != RTLIL::State::Sz)
-			return false;
+	ثابت bitvectype& bv = get_بٹ();
+	لكل (ثابت خودکار &ثنائی_ہندسہ : bv)
+		إذا (ثنائی_ہندسہ != RTLIL::State::Sx && ثنائی_ہندسہ != RTLIL::State::Sz)
+			أرجع خطأ;
 
-	return true;
+	أرجع سچ;
 }
 
-bool RTLIL::Const::is_fully_undef_x_only() const
+منطقي RTLIL::Const::is_fully_undef_x_only() ثابت
 {
-	if (auto str = get_if_str())
-		return str->empty();
+	إذا (خودکار str = get_if_str())
+		أرجع str->خالی_تھاواں();
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::Sx)
-			return false;
+	ثابت bitvectype& bv = get_بٹ();
+	لكل (ثابت خودکار &ثنائی_ہندسہ : bv)
+		إذا (ثنائی_ہندسہ != RTLIL::State::Sx)
+			أرجع خطأ;
 
-	return true;
+	أرجع سچ;
 }
 
-bool RTLIL::Const::is_onehot(int *pos) const
+منطقي RTLIL::Const::is_onehot(صحيح *pos) ثابت
 {
-	bool found = false;
-	int size = GetSize(*this);
-	for (int i = 0; i < size; i++) {
-		State bit = (*this)[i];
-		if (bit != RTLIL::State::S0 && bit != RTLIL::State::S1)
-			return false;
-		if (bit == RTLIL::State::S1) {
-			if (found)
-				return false;
-			if (pos)
+	منطقي لبھیا = خطأ;
+	صحيح ناپ = Get_ناپ(*هذا);
+	لكل (صحيح i = 0; i < ناپ; i++) {
+		State ثنائی_ہندسہ = (*هذا)[i];
+		إذا (ثنائی_ہندسہ != RTLIL::State::S0 && ثنائی_ہندسہ != RTLIL::State::S1)
+			أرجع خطأ;
+		إذا (ثنائی_ہندسہ == RTLIL::State::S1) {
+			إذا (لبھیا)
+				أرجع خطأ;
+			إذا (pos)
 				*pos = i;
-			found = true;
+			لبھیا = سچ;
 		}
 	}
-	return found;
+	أرجع لبھیا;
 }
 
-Hasher RTLIL::Const::hash_into(Hasher h) const
+Hasher RTLIL::Const::hash_into(Hasher h) ثابت
 {
-	if (auto str = get_if_str())
-		return hashlib::hash_ops<std::string>::hash_into(*str, h);
+	إذا (خودکار str = get_if_str())
+		أرجع hashlib::hash_ops<std::string>::hash_into(*str, h);
 
 	// If the bits are all 0/1, hash packed bits using the string hash.
 	// Otherwise hash the leading packed bits with the rest of the bits individually.
-	const bitvectype &bv = get_bits();
-	int size = GetSize(bv);
+	ثابت bitvectype &bv = get_بٹ();
+	صحيح ناپ = Get_ناپ(bv);
 	std::string packed;
-	int packed_size = (size + 7) >> 3;
-	packed.resize(packed_size, 0);
-	for (int bi = 0; bi < packed_size; ++bi) {
-		char ch = 0;
-		int end = std::min((bi + 1)*8, size);
-		for (int i = bi*8; i < end; ++i) {
+	صحيح packed_ناپ = (ناپ + 7) >> 3;
+	packed.resize(packed_ناپ, 0);
+	لكل (صحيح bi = 0; bi < packed_ناپ; ++bi) {
+		حرف ch = 0;
+		صحيح سرا = std::min((bi + 1)*8, ناپ);
+		لكل (صحيح i = bi*8; i < سرا; ++i) {
 			RTLIL::State b = bv[i];
-			if (b > RTLIL::State::S1) {
+			إذا (b > RTLIL::State::S1) {
 				// Hash the packed bits we've seen so far, plus the remaining bits.
 				h = hashlib::hash_ops<std::string>::hash_into(packed, h);
-				h = hashlib::hash_ops<char>::hash_into(ch, h);
-				for (; i < size; ++i) {
+				h = hashlib::hash_ops<حرف>::hash_into(ch, h);
+				لكل (; i < ناپ; ++i) {
 					h = hashlib::hash_ops<RTLIL::State>::hash_into(bv[i], h);
 				}
-				h.eat(size);
-				return h;
+				h.eat(ناپ);
+				أرجع h;
 			}
-			ch |= static_cast<int>(b) << (i & 7);
+			ch |= static_cast<صحيح>(b) << (i & 7);
 		}
-		packed[packed_size - 1 - bi] = ch;
+		packed[packed_ناپ - 1 - bi] = ch;
 	}
-	return hashlib::hash_ops<std::string>::hash_into(packed, h);
+	أرجع hashlib::hash_ops<std::string>::hash_into(packed, h);
 }
 
-RTLIL::Const RTLIL::Const::extract(int offset, int len, RTLIL::State padding) const {
+RTLIL::Const RTLIL::Const::کڈھو(صحيح وتھ, صحيح len, RTLIL::State padding) ثابت {
 	bitvectype ret_bv;
 	ret_bv.reserve(len);
-	for (int i = offset; i < offset + len; i++)
-		ret_bv.push_back(i < GetSize(*this) ? (*this)[i] : padding);
-	return RTLIL::Const(ret_bv);
+	لكل (صحيح i = وتھ; i < وتھ + len; i++)
+		ret_bv.ڈالو_پٹھ(i < Get_ناپ(*هذا) ? (*هذا)[i] : padding);
+	أرجع RTLIL::Const(ret_bv);
 }
-#undef check /* check(condition) for Const */
+#تعریف_رد check /* check(condition) for Const */
 
-bool RTLIL::AttrObject::has_attribute(RTLIL::IdString id) const
+منطقي RTLIL::AttrObject::has_attribute(RTLIL::IdString id) ثابت
 {
-	return attributes.count(id);
+	أرجع گن.گنتی(id);
 }
 
-void RTLIL::AttrObject::set_bool_attribute(RTLIL::IdString id, bool value)
+فراغ RTLIL::AttrObject::سیٹ_bool_attribute(RTLIL::IdString id, منطقي قدر)
 {
-	if (value)
-		attributes[id] = RTLIL::Const(1);
-	else
-		attributes.erase(id);
+	إذا (قدر)
+		گن[id] = RTLIL::Const(1);
+	وإلا
+		گن.erase(id);
 }
 
-bool RTLIL::AttrObject::get_bool_attribute(RTLIL::IdString id) const
+منطقي RTLIL::AttrObject::get_bool_attribute(RTLIL::IdString id) ثابت
 {
-	const auto it = attributes.find(id);
-	if (it == attributes.end())
-		return false;
-	return it->second.as_bool();
+	ثابت خودکار it = گن.لبھو(id);
+	إذا (it == گن.سرا())
+		أرجع خطأ;
+	أرجع it->دوجا.as_bool();
 }
 
-void RTLIL::AttrObject::set_string_attribute(RTLIL::IdString id, string value)
+فراغ RTLIL::AttrObject::سیٹ_string_attribute(RTLIL::IdString id, string قدر)
 {
-	if (value.empty())
-		attributes.erase(id);
-	else
-		attributes[id] = value;
+	إذا (قدر.خالی_تھاواں())
+		گن.erase(id);
+	وإلا
+		گن[id] = قدر;
 }
 
-string RTLIL::AttrObject::get_string_attribute(RTLIL::IdString id) const
+string RTLIL::AttrObject::get_string_attribute(RTLIL::IdString id) ثابت
 {
-	std::string value;
-	const auto it = attributes.find(id);
-	if (it != attributes.end())
-		value = it->second.decode_string();
-	return value;
+	std::string قدر;
+	ثابت خودکار it = گن.لبھو(id);
+	إذا (it != گن.سرا())
+		قدر = it->دوجا.decode_string();
+	أرجع قدر;
 }
 
-void RTLIL::AttrObject::set_strpool_attribute(RTLIL::IdString id, const pool<string> &data)
+فراغ RTLIL::AttrObject::سیٹ_strpool_attribute(RTLIL::IdString id, ثابت pool<string> &انکڑے)
 {
 	string attrval;
-	for (const auto &s : data) {
-		if (!attrval.empty())
+	لكل (ثابت خودکار &s : انکڑے) {
+		إذا (!attrval.خالی_تھاواں())
 			attrval += "|";
 		attrval += s;
 	}
-	set_string_attribute(id, attrval);
+	سیٹ_string_attribute(id, attrval);
 }
 
-void RTLIL::AttrObject::add_strpool_attribute(RTLIL::IdString id, const pool<string> &data)
+فراغ RTLIL::AttrObject::جوڑو_strpool_attribute(RTLIL::IdString id, ثابت pool<string> &انکڑے)
 {
-	pool<string> union_data = get_strpool_attribute(id);
-	union_data.insert(data.begin(), data.end());
-	if (!union_data.empty())
-		set_strpool_attribute(id, union_data);
+	pool<string> union_انکڑے = get_strpool_attribute(id);
+	union_انکڑے.داخل_کرو(انکڑے.begin(), انکڑے.سرا());
+	إذا (!union_انکڑے.خالی_تھاواں())
+		سیٹ_strpool_attribute(id, union_انکڑے);
 }
 
-void RTLIL::Design::absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf)
+فراغ RTLIL::Design::absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf)
 {
-	obj->attributes = std::move(buf);
+	obj->گن = std::move(buf);
 }
 
-namespace {
-	template<typename F>
-	void walk_process_attr_objects(RTLIL::Process *process, F visit) {
-		visit(process);
-		std::vector<RTLIL::CaseRule*> case_stack{&process->root_case};
-		while (!case_stack.empty()) {
-			RTLIL::CaseRule *cs = case_stack.back();
-			case_stack.pop_back();
-			visit(cs);
-			for (auto *sw : cs->switches) {
-				visit(sw);
-				for (auto *case_ : sw->cases)
-					case_stack.push_back(case_);
+نطاق {
+	سانچا<قسم_ناں F>
+	فراغ walk_process_attr_objects(RTLIL::Process *process, F ویکھو) {
+		ویکھو(process);
+		std::سمتیہ<RTLIL::Case_قاعدہ*> case_ڈھیر{&process->جڑ_case};
+		طالما (!case_ڈھیر.خالی_تھاواں()) {
+			RTLIL::Case_قاعدہ *cs = case_ڈھیر.پٹھ();
+			case_ڈھیر.نکالو_پٹھ();
+			ویکھو(cs);
+			لكل (خودکار *sw : cs->switches) {
+				ویکھو(sw);
+				لكل (خودکار *case_ : sw->cases)
+					case_ڈھیر.ڈالو_پٹھ(case_);
 			}
 		}
-		for (auto *sync : process->syncs)
-			for (auto &mwa : sync->mem_write_actions)
-				visit(&mwa);
+		لكل (خودکار *متزامن : process->syncs)
+			لكل (خودکار &mwa : متزامن->mem_write_actions)
+				ویکھو(&mwa);
 	}
 
-	template<typename F>
-	void walk_attr_objects(RTLIL::Design *design, F visit) {
-		for (auto &[_, module] : design->modules_) {
-			visit(module);
-			for (auto &[_, wire] : module->wires_)
-				visit(wire);
-			for (auto &[_, mem] : module->memories)
-				visit(mem);
-			for (auto &[_, cell] : module->cells_)
-				visit(cell);
-			for (auto &[_, process] : module->processes)
-				walk_process_attr_objects(process, visit);
+	سانچا<قسم_ناں F>
+	فراغ walk_attr_objects(RTLIL::Design *design, F ویکھو) {
+		لكل (خودکار &[_, module] : design->modules_) {
+			ویکھو(module);
+			لكل (خودکار &[_, wire] : module->wires_)
+				ویکھو(wire);
+			لكل (خودکار &[_, mem] : module->memories)
+				ویکھو(mem);
+			لكل (خودکار &[_, cell] : module->cells_)
+				ویکھو(cell);
+			لكل (خودکار &[_, process] : module->processes)
+				walk_process_attr_objects(process, ویکھو);
 		}
 	}
 }
 
 
-size_t RTLIL::Design::gc_twines()
+ناپ_t RTLIL::Design::gc_twines()
 {
-	int64_t start = PerformanceTimer::query();
-	pool<IdString> live;
-	auto root = [&](IdString ref) {
-		if (ref != IdString::Null)
-			live.insert(ref);
+	int64_t شروع = PerformanceTimer::query();
+	pool<IdString> جیوندا;
+	خودکار جڑ = [&](IdString ref) {
+		إذا (ref != IdString::Null)
+			جیوندا.داخل_کرو(ref);
 	};
 
-	walk_attr_objects(this, [&](const RTLIL::AttrObject *obj) {
-		for (auto &attr : obj->attributes)
-			root(attr.first);
+	walk_attr_objects(هذا, [&](ثابت RTLIL::AttrObject *obj) {
+		لكل (خودکار &attr : obj->گن)
+			جڑ(attr.پہلا);
 	});
 
-	root(selected_active_module);
+	جڑ(selected_سرگرم_module);
 
-	for (auto &[name, module] : modules_) {
-		root(name);
-		for (IdString port : module->ports)
-			root(port);
-		for (IdString param : module->avail_parameters)
-			root(param);
-		for (auto &[param, _] : module->parameter_default_values)
-			root(param);
-		for (auto &[name, _] : module->memories)
-			root(name);
-		for (auto &[name, _] : module->processes)
-			root(name);
-		for (auto &[name, wire] : module->wires_) {
-			root(name);
-			if (wire->known_driver())
-				root(wire->driverPort());
+	لكل (خودکار &[name, module] : modules_) {
+		جڑ(name);
+		لكل (IdString پورٹ : module->ports)
+			جڑ(پورٹ);
+		لكل (IdString param : module->avail_parameters)
+			جڑ(param);
+		لكل (خودکار &[param, _] : module->parameter_default_اقدار)
+			جڑ(param);
+		لكل (خودکار &[name, _] : module->memories)
+			جڑ(name);
+		لكل (خودکار &[name, _] : module->processes)
+			جڑ(name);
+		لكل (خودکار &[name, wire] : module->wires_) {
+			جڑ(name);
+			إذا (wire->معلوم_driver())
+				جڑ(wire->driver_پورٹ());
 		}
-		for (auto &[name, cell] : module->cells_) {
-			root(name);
-			root(cell->type);
-			for (auto &conn : cell->connections())
-				root(conn.first);
-			for (auto &param : cell->parameters)
-				root(param.first);
+		لكل (خودکار &[name, cell] : module->cells_) {
+			جڑ(name);
+			جڑ(cell->type);
+			لكل (خودکار &conn : cell->connections())
+				جڑ(conn.پہلا);
+			لكل (خودکار &param : cell->parameters)
+				جڑ(param.پہلا);
 		}
-		for (auto &[_, process] : module->processes) {
-			std::vector<RTLIL::CaseRule*> case_stack{&process->root_case};
-			while (!case_stack.empty()) {
-				RTLIL::CaseRule *cs = case_stack.back();
-				case_stack.pop_back();
-				for (auto *sw : cs->switches) {
-					for (auto *case_ : sw->cases)
-						case_stack.push_back(case_);
+		لكل (خودکار &[_, process] : module->processes) {
+			std::سمتیہ<RTLIL::Case_قاعدہ*> case_ڈھیر{&process->جڑ_case};
+			طالما (!case_ڈھیر.خالی_تھاواں()) {
+				RTLIL::Case_قاعدہ *cs = case_ڈھیر.پٹھ();
+				case_ڈھیر.نکالو_پٹھ();
+				لكل (خودکار *sw : cs->switches) {
+					لكل (خودکار *case_ : sw->cases)
+						case_ڈھیر.ڈالو_پٹھ(case_);
 				}
 			}
-			for (auto *sync : process->syncs) {
-				for (auto &mwa : sync->mem_write_actions)
-					root(mwa.memid);
+			لكل (خودکار *متزامن : process->syncs) {
+				لكل (خودکار &mwa : متزامن->mem_write_actions)
+					جڑ(mwa.memid);
 			}
 		}
 	}
 
-	auto root_selection = [&](const RTLIL::Selection &sel) {
-		for (IdString m : sel.selected_modules)
-			root(m);
-		for (auto &[m, members] : sel.selected_members) {
-			root(m);
-			for (IdString member : members)
-				root(member);
+	خودکار جڑ_selection = [&](ثابت RTLIL::Selection &sel) {
+		لكل (IdString m : sel.selected_modules)
+			جڑ(m);
+		لكل (خودکار &[m, members] : sel.selected_members) {
+			جڑ(m);
+			لكل (IdString member : members)
+				جڑ(member);
 		}
 	};
 
-	for (auto &[name, sel] : selection_vars) {
-		root(name);
-		root_selection(sel);
+	لكل (خودکار &[name, sel] : selection_vars) {
+		جڑ(name);
+		جڑ_selection(sel);
 	}
 
-	for (auto &sel : selection_stack)
-		root_selection(sel);
+	لكل (خودکار &sel : selection_ڈھیر)
+		جڑ_selection(sel);
 
-	size_t erased = twines_.gc(live);
+	ناپ_t erased = twines_.gc(جیوندا);
 
-	int64_t time_ns = PerformanceTimer::query() - start;
-	Pass::subtract_from_current_runtime_ns(time_ns);
-	twine_gc_ns += time_ns;
-	++twine_gc_count;
-	return erased;
+	int64_t ویلا_ns = PerformanceTimer::query() - شروع;
+	Pass::گھٹاؤ_from_current_runtime_ns(ویلا_ns);
+	twine_gc_ns += ویلا_ns;
+	++twine_gc_گنتی;
+	أرجع erased;
 }
 
 
 
 
-pool<string> RTLIL::AttrObject::get_strpool_attribute(RTLIL::IdString id) const
+pool<string> RTLIL::AttrObject::get_strpool_attribute(RTLIL::IdString id) ثابت
 {
-	pool<string> data;
-	if (attributes.count(id) != 0)
-		for (auto s : split_tokens(get_string_attribute(id), "|"))
-			data.insert(s);
-	return data;
+	pool<string> انکڑے;
+	إذا (گن.گنتی(id) != 0)
+		لكل (خودکار s : ونڈو_ٹوکن(get_string_attribute(id), "|"))
+			انکڑے.داخل_کرو(s);
+	أرجع انکڑے;
 }
 
-void RTLIL::AttrObject::set_hdlname_attribute(const vector<string> &hierarchy)
+فراغ RTLIL::AttrObject::سیٹ_hdlname_attribute(ثابت سمتیہ<string> &hierarchy)
 {
 	string attrval;
-	for (const auto &ident : hierarchy) {
-		if (!attrval.empty())
+	لكل (ثابت خودکار &ident : hierarchy) {
+		إذا (!attrval.خالی_تھاواں())
 			attrval += " ";
 		attrval += ident;
 	}
-	set_string_attribute(ID::hdlname, attrval);
+	سیٹ_string_attribute(ID::hdlname, attrval);
 }
 
-vector<string> RTLIL::AttrObject::get_hdlname_attribute() const
+سمتیہ<string> RTLIL::AttrObject::get_hdlname_attribute() ثابت
 {
-	return split_tokens(get_string_attribute(ID::hdlname), " ");
+	أرجع ونڈو_ٹوکن(get_string_attribute(ID::hdlname), " ");
 }
 
-void RTLIL::AttrObject::set_intvec_attribute(RTLIL::IdString id, const vector<int> &data)
+فراغ RTLIL::AttrObject::سیٹ_intvec_attribute(RTLIL::IdString id, ثابت سمتیہ<صحيح> &انکڑے)
 {
 	std::stringstream attrval;
-	for (auto &i : data) {
-		if (attrval.tellp() > 0)
+	لكل (خودکار &i : انکڑے) {
+		إذا (attrval.tellp() > 0)
 			attrval << " ";
 		attrval << i;
 	}
-	attributes[id] = RTLIL::Const(attrval.str());
+	گن[id] = RTLIL::Const(attrval.str());
 }
 
-vector<int> RTLIL::AttrObject::get_intvec_attribute(RTLIL::IdString id) const
+سمتیہ<صحيح> RTLIL::AttrObject::get_intvec_attribute(RTLIL::IdString id) ثابت
 {
-	vector<int> data;
-	auto it = attributes.find(id);
-	if (it != attributes.end())
-		for (const auto &s : split_tokens(attributes.at(id).decode_string())) {
-			char *end = nullptr;
+	سمتیہ<صحيح> انکڑے;
+	خودکار it = گن.لبھو(id);
+	إذا (it != گن.سرا())
+		لكل (ثابت خودکار &s : ونڈو_ٹوکن(گن.at(id).decode_string())) {
+			حرف *سرا = خالی_سوچک;
 			errno = 0;
-			long value = strtol(s.c_str(), &end, 10);
-			if (end != s.c_str() + s.size())
+			لما قدر = strtol(s.c_str(), &سرا, 10);
+			إذا (سرا != s.c_str() + s.ناپ())
 				log_cmd_error("Literal for intvec attribute has invalid format\n");
-			if (errno == ERANGE || value < INT_MIN || value > INT_MAX)
+			إذا (errno == ERANGE || قدر < INT_MIN || قدر > ودھ_توں_ودھ_عدد)
 				log_cmd_error("Literal for intvec attribute is out of range\n");
-			data.push_back(value);
+			انکڑے.ڈالو_پٹھ(قدر);
 		}
-	return data;
+	أرجع انکڑے;
 }
 
-bool RTLIL::Selection::boxed_module(RTLIL::IdString mod_name) const
+منطقي RTLIL::Selection::boxed_module(RTLIL::IdString mod_name) ثابت
 {
-	if (current_design != nullptr) {
-		auto module = current_design->module(mod_name);
-		return module && module->get_blackbox_attribute();
-	} else {
+	إذا (current_design != خالی_سوچک) {
+		خودکار module = current_design->module(mod_name);
+		أرجع module && module->get_blackbox_attribute();
+	} وإلا {
 		log_warning("Unable to check if module is boxed for null design.\n");
-		return false;
+		أرجع خطأ;
 	}
 }
 
-bool RTLIL::Selection::selected_module(RTLIL::IdString mod_name) const
+منطقي RTLIL::Selection::selected_module(RTLIL::IdString mod_name) ثابت
 {
-	if (complete_selection)
-		return true;
-	if (!selects_boxes && boxed_module(mod_name))
-		return false;
-	if (full_selection)
-		return true;
-	if (selected_modules.count(mod_name) > 0)
-		return true;
-	if (selected_members.count(mod_name) > 0)
-		return true;
-	return false;
+	إذا (complete_selection)
+		أرجع سچ;
+	إذا (!selects_boxes && boxed_module(mod_name))
+		أرجع خطأ;
+	إذا (بھریا_selection)
+		أرجع سچ;
+	إذا (selected_modules.گنتی(mod_name) > 0)
+		أرجع سچ;
+	إذا (selected_members.گنتی(mod_name) > 0)
+		أرجع سچ;
+	أرجع خطأ;
 }
 
-bool RTLIL::Selection::selected_whole_module(RTLIL::IdString mod_name) const
+منطقي RTLIL::Selection::selected_سارا_module(RTLIL::IdString mod_name) ثابت
 {
-	if (complete_selection)
-		return true;
-	if (!selects_boxes && boxed_module(mod_name))
-		return false;
-	if (full_selection)
-		return true;
-	if (selected_modules.count(mod_name) > 0)
-		return true;
-	return false;
+	إذا (complete_selection)
+		أرجع سچ;
+	إذا (!selects_boxes && boxed_module(mod_name))
+		أرجع خطأ;
+	إذا (بھریا_selection)
+		أرجع سچ;
+	إذا (selected_modules.گنتی(mod_name) > 0)
+		أرجع سچ;
+	أرجع خطأ;
 }
 
-bool RTLIL::Selection::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) const
+منطقي RTLIL::Selection::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) ثابت
 {
-	if (complete_selection)
-		return true;
-	if (!selects_boxes && boxed_module(mod_name))
-		return false;
-	if (full_selection)
-		return true;
-	if (selected_modules.count(mod_name) > 0)
-		return true;
-	if (selected_members.count(mod_name) > 0)
-		if (selected_members.at(mod_name).count(memb_name) > 0)
-			return true;
-	return false;
+	إذا (complete_selection)
+		أرجع سچ;
+	إذا (!selects_boxes && boxed_module(mod_name))
+		أرجع خطأ;
+	إذا (بھریا_selection)
+		أرجع سچ;
+	إذا (selected_modules.گنتی(mod_name) > 0)
+		أرجع سچ;
+	إذا (selected_members.گنتی(mod_name) > 0)
+		إذا (selected_members.at(mod_name).گنتی(memb_name) > 0)
+			أرجع سچ;
+	أرجع خطأ;
 }
 
-void RTLIL::Selection::optimize(RTLIL::Design *design)
+فراغ RTLIL::Selection::optimize(RTLIL::Design *design)
 {
-	if (design != current_design) {
+	إذا (design != current_design) {
 		current_design = design;
 	}
 
-	if (selects_boxes && full_selection)
-		complete_selection = true;
-	if (complete_selection) {
-		full_selection = false;
-		selects_boxes = true;
+	إذا (selects_boxes && بھریا_selection)
+		complete_selection = سچ;
+	إذا (complete_selection) {
+		بھریا_selection = خطأ;
+		selects_boxes = سچ;
 	}
-	if (selects_all()) {
+	إذا (selects_all()) {
 		selected_modules.clear();
 		selected_members.clear();
-		return;
+		أرجع;
 	}
 
-	std::vector<RTLIL::IdString> del_list, add_list;
+	std::سمتیہ<RTLIL::IdString> del_list, جوڑو_list;
 
 	del_list.clear();
-	for (auto mod_name : selected_modules) {
-		if (current_design->module(mod_name) == nullptr || (!selects_boxes && boxed_module(mod_name)))
-			del_list.push_back(mod_name);
+	لكل (خودکار mod_name : selected_modules) {
+		إذا (current_design->module(mod_name) == خالی_سوچک || (!selects_boxes && boxed_module(mod_name)))
+			del_list.ڈالو_پٹھ(mod_name);
 		selected_members.erase(mod_name);
 	}
-	for (auto mod_name : del_list)
+	لكل (خودکار mod_name : del_list)
 		selected_modules.erase(mod_name);
 
 	del_list.clear();
-	for (auto &it : selected_members)
-		if (current_design->module(it.first) == nullptr || (!selects_boxes && boxed_module(it.first)))
-			del_list.push_back(it.first);
-	for (auto mod_name : del_list)
+	لكل (خودکار &it : selected_members)
+		إذا (current_design->module(it.پہلا) == خالی_سوچک || (!selects_boxes && boxed_module(it.پہلا)))
+			del_list.ڈالو_پٹھ(it.پہلا);
+	لكل (خودکار mod_name : del_list)
 		selected_members.erase(mod_name);
 
-	for (auto &it : selected_members) {
+	لكل (خودکار &it : selected_members) {
 		del_list.clear();
-		for (auto memb_name : it.second)
-			if (current_design->module(it.first)->count_id(memb_name) == 0)
-				del_list.push_back(memb_name);
-		for (auto memb_name : del_list)
-			it.second.erase(memb_name);
+		لكل (خودکار memb_name : it.دوجا)
+			إذا (current_design->module(it.پہلا)->گنتی_id(memb_name) == 0)
+				del_list.ڈالو_پٹھ(memb_name);
+		لكل (خودکار memb_name : del_list)
+			it.دوجا.erase(memb_name);
 	}
 
 	del_list.clear();
-	add_list.clear();
-	for (auto &it : selected_members)
-		if (it.second.size() == 0)
-			del_list.push_back(it.first);
-		else if (it.second.size() == current_design->module(it.first)->wires_.size() + current_design->module(it.first)->memories.size() +
-				current_design->module(it.first)->cells_.size() + current_design->module(it.first)->processes.size())
-			add_list.push_back(it.first);
-	for (auto mod_name : del_list)
+	جوڑو_list.clear();
+	لكل (خودکار &it : selected_members)
+		إذا (it.دوجا.ناپ() == 0)
+			del_list.ڈالو_پٹھ(it.پہلا);
+		وإلا إذا (it.دوجا.ناپ() == current_design->module(it.پہلا)->wires_.ناپ() + current_design->module(it.پہلا)->memories.ناپ() +
+				current_design->module(it.پہلا)->cells_.ناپ() + current_design->module(it.پہلا)->processes.ناپ())
+			جوڑو_list.ڈالو_پٹھ(it.پہلا);
+	لكل (خودکار mod_name : del_list)
 		selected_members.erase(mod_name);
-	for (auto mod_name : add_list) {
+	لكل (خودکار mod_name : جوڑو_list) {
 		selected_members.erase(mod_name);
-		selected_modules.insert(mod_name);
+		selected_modules.داخل_کرو(mod_name);
 	}
 
-	if (selected_modules.size() == current_design->modules_.size()) {
+	إذا (selected_modules.ناپ() == current_design->modules_.ناپ()) {
 		selected_modules.clear();
 		selected_members.clear();
-		if (selects_boxes)
-			complete_selection = true;
-		else
-			full_selection = true;
+		إذا (selects_boxes)
+			complete_selection = سچ;
+		وإلا
+			بھریا_selection = سچ;
 	}
 }
 
-void RTLIL::Selection::clear()
+فراغ RTLIL::Selection::clear()
 {
-	full_selection = false;
-	complete_selection = false;
+	بھریا_selection = خطأ;
+	complete_selection = خطأ;
 	selected_modules.clear();
 	selected_members.clear();
 }
 
 RTLIL::Design::Design()
-  : verilog_defines (new define_map_t)
+  : verilog_مقرر_کردا (جديد define_map_t)
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	ساكن بنانشانی صحيح hashidx_گنتی = 123456789;
+	hashidx_گنتی = mkhash_xorshift(hashidx_گنتی);
+	hashidx_ = hashidx_گنتی;
 
 	refcount_modules_ = 0;
-	selected_active_module.clear();
-	push_full_selection();
+	selected_سرگرم_module.clear();
+	ڈالو_بھریا_selection();
 
-	RTLIL::Design::get_all_designs()->insert(std::pair<unsigned int, RTLIL::Design*>(hashidx_, this));
+	RTLIL::Design::get_all_designs()->داخل_کرو(std::pair<بنانشانی صحيح, RTLIL::Design*>(hashidx_, هذا));
 }
 
 RTLIL::Design::~Design()
 {
-	for (auto &pr : modules_)
-		delete pr.second;
+	لكل (خودکار &pr : modules_)
+		مٹاؤ pr.دوجا;
 	RTLIL::Design::get_all_designs()->erase(hashidx_);
 }
 
-static std::map<unsigned int, RTLIL::Design*> all_designs;
-std::map<unsigned int, RTLIL::Design*> *RTLIL::Design::get_all_designs(void)
+ساكن std::map<بنانشانی صحيح, RTLIL::Design*> all_designs;
+std::map<بنانشانی صحيح, RTLIL::Design*> *RTLIL::Design::get_all_designs(فراغ)
 {
-	return &all_designs;
+	أرجع &all_designs;
 }
 
 RTLIL::ObjRange<RTLIL::Module*, IdString> RTLIL::Design::modules()
 {
-	return RTLIL::ObjRange<RTLIL::Module*, IdString>(&modules_, &refcount_modules_);
+	أرجع RTLIL::ObjRange<RTLIL::Module*, IdString>(&modules_, &refcount_modules_);
 }
 
-const RTLIL::Module *RTLIL::Design::module(IdString id) const {
+ثابت RTLIL::Module *RTLIL::Design::module(IdString id) ثابت {
 	twines_.check_owned(id);
-	return modules_.count(id) ? modules_.at(id) : NULL;
+	أرجع modules_.گنتی(id) ? modules_.at(id) : عدم;
 }
 RTLIL::Module *RTLIL::Design::module(IdString id) {
 	twines_.check_owned(id);
-	return modules_.count(id) ? modules_.at(id) : NULL;
+	أرجع modules_.گنتی(id) ? modules_.at(id) : عدم;
 }
 
-RTLIL::Module *RTLIL::Design::top_module() const
+RTLIL::Module *RTLIL::Design::چوٹی_module() ثابت
 {
-	RTLIL::Module *module = nullptr;
-	int module_count = 0;
+	RTLIL::Module *module = خالی_سوچک;
+	صحيح module_گنتی = 0;
 
-	for (auto mod : selected_modules()) {
-		if (mod->get_bool_attribute(ID::top))
-			return mod;
-		module_count++;
+	لكل (خودکار mod : selected_modules()) {
+		إذا (mod->get_bool_attribute(ID::چوٹی))
+			أرجع mod;
+		module_گنتی++;
 		module = mod;
 	}
 
-	return module_count == 1 ? module : nullptr;
+	أرجع module_گنتی == 1 ? module : خالی_سوچک;
 }
 
-RTLIL::Module *RTLIL::Design::addModule(RTLIL::IdString name)
+RTLIL::Module *RTLIL::Design::جوڑو_Module(RTLIL::IdString name)
 {
-	if (modules_.count(name) != 0)
+	إذا (modules_.گنتی(name) != 0)
 		log_error("Attempted to add new module named '%s', but a module by that name already exists\n", twines_.str(name));
 	log_assert(refcount_modules_ == 0);
 
-	RTLIL::Module *module = new RTLIL::Module;
+	RTLIL::Module *module = جديد RTLIL::Module;
 	modules_[name] = module;
-	module->design = this;
+	module->design = هذا;
 	module->name = name;
 
-	for (auto mon : monitors)
-		mon->notify_module_add(module);
+	لكل (خودکار mon : monitors)
+		mon->notify_module_جوڑو(module);
 
-	if (yosys_xtrace) {
-		log("#X# New Module: %s\n", twines_.str(name));
+	إذا (yosys_xtrace) {
+		لوگارتھم("#X# New Module: %s\n", twines_.str(name));
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
-	return module;
+	أرجع module;
 }
 
-void RTLIL::Design::scratchpad_unset(const std::string &varname)
+فراغ RTLIL::Design::scratchpad_unset(ثابت std::string &varname)
 {
 	scratchpad.erase(varname);
 }
 
-void RTLIL::Design::scratchpad_set_int(const std::string &varname, int value)
+فراغ RTLIL::Design::scratchpad_سیٹ_int(ثابت std::string &varname, صحيح قدر)
 {
-	scratchpad[varname] = stringf("%d", value);
+	scratchpad[varname] = stringf("%d", قدر);
 }
 
-void RTLIL::Design::scratchpad_set_bool(const std::string &varname, bool value)
+فراغ RTLIL::Design::scratchpad_سیٹ_bool(ثابت std::string &varname, منطقي قدر)
 {
-	scratchpad[varname] = value ? "true" : "false";
+	scratchpad[varname] = قدر ? "true" : "false";
 }
 
-void RTLIL::Design::scratchpad_set_string(const std::string &varname, std::string value)
+فراغ RTLIL::Design::scratchpad_سیٹ_string(ثابت std::string &varname, std::string قدر)
 {
-	scratchpad[varname] = std::move(value);
+	scratchpad[varname] = std::move(قدر);
 }
 
-int RTLIL::Design::scratchpad_get_int(const std::string &varname, int default_value) const
+صحيح RTLIL::Design::scratchpad_get_int(ثابت std::string &varname, صحيح default_قدر_2) ثابت
 {
-	auto it = scratchpad.find(varname);
-	if (it == scratchpad.end())
-		return default_value;
+	خودکار it = scratchpad.لبھو(varname);
+	إذا (it == scratchpad.سرا())
+		أرجع default_قدر_2;
 
-	const std::string &str = it->second;
+	ثابت std::string &str = it->دوجا;
 
-	if (str == "0" || str == "false")
-		return 0;
+	إذا (str == "0" || str == "false")
+		أرجع 0;
 
-	if (str == "1" || str == "true")
-		return 1;
+	إذا (str == "1" || str == "true")
+		أرجع 1;
 
-	char *endptr = nullptr;
-	long int parsed_value = strtol(str.c_str(), &endptr, 10);
-	return *endptr ? default_value : parsed_value;
+	حرف *endptr = خالی_سوچک;
+	لما صحيح parsed_قدر = strtol(str.c_str(), &endptr, 10);
+	أرجع *endptr ? default_قدر_2 : parsed_قدر;
 }
 
-bool RTLIL::Design::scratchpad_get_bool(const std::string &varname, bool default_value) const
+منطقي RTLIL::Design::scratchpad_get_bool(ثابت std::string &varname, منطقي default_قدر_2) ثابت
 {
-	auto it = scratchpad.find(varname);
-	if (it == scratchpad.end())
-		return default_value;
+	خودکار it = scratchpad.لبھو(varname);
+	إذا (it == scratchpad.سرا())
+		أرجع default_قدر_2;
 
-	const std::string &str = it->second;
+	ثابت std::string &str = it->دوجا;
 
-	if (str == "0" || str == "false")
-		return false;
+	إذا (str == "0" || str == "false")
+		أرجع خطأ;
 
-	if (str == "1" || str == "true")
-		return true;
+	إذا (str == "1" || str == "true")
+		أرجع سچ;
 
-	return default_value;
+	أرجع default_قدر_2;
 }
 
-std::string RTLIL::Design::scratchpad_get_string(const std::string &varname, const std::string &default_value) const
+std::string RTLIL::Design::scratchpad_get_string(ثابت std::string &varname, ثابت std::string &default_قدر_2) ثابت
 {
-	auto it = scratchpad.find(varname);
-	if (it == scratchpad.end())
-		return default_value;
+	خودکار it = scratchpad.لبھو(varname);
+	إذا (it == scratchpad.سرا())
+		أرجع default_قدر_2;
 
-	return it->second;
+	أرجع it->دوجا;
 }
 
-void RTLIL::Design::remove(RTLIL::Module *module)
+فراغ RTLIL::Design::remove(RTLIL::Module *module)
 {
-	for (auto mon : monitors)
+	لكل (خودکار mon : monitors)
 		mon->notify_module_del(module);
 
-	if (yosys_xtrace) {
-		log("#X# Remove Module: %s\n", module);
+	إذا (yosys_xtrace) {
+		لوگارتھم("#X# Remove Module: %s\n", module);
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
 	log_assert(modules_.at(module->name) == module);
 	log_assert(refcount_modules_ == 0);
 	modules_.erase(module->name);
-	delete module;
+	مٹاؤ module;
 }
 
-void RTLIL::Design::rename(RTLIL::Module *module, RTLIL::IdString new_name)
+فراغ RTLIL::Design::rename(RTLIL::Module *module, RTLIL::IdString new_name)
 {
 	modules_.erase(module->name);
 	module->name = new_name;
-	add(module);
+	جوڑو(module);
 }
 
-void RTLIL::Design::sort()
+فراغ RTLIL::Design::ترتیب_دیو()
 {
-	scratchpad.sort();
-	modules_.sort(sort_by_id_str(twines_));
-	for (auto &it : modules_)
-		it.second->sort();
+	scratchpad.ترتیب_دیو();
+	modules_.ترتیب_دیو(ترتیب_دیو_by_id_str(twines_));
+	لكل (خودکار &it : modules_)
+		it.دوجا->ترتیب_دیو();
 }
 
-void RTLIL::Design::sort_modules()
+فراغ RTLIL::Design::ترتیب_دیو_modules()
 {
-	scratchpad.sort();
-	modules_.sort(sort_by_id_str(twines_));
+	scratchpad.ترتیب_دیو();
+	modules_.ترتیب_دیو(ترتیب_دیو_by_id_str(twines_));
 }
 
-void check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool);
+فراغ check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool);
 
-void RTLIL::Design::check()
+فراغ RTLIL::Design::check()
 {
-#ifndef NDEBUG
-	log_assert(!selection_stack.empty());
-	int pool_size = 0;
-	for (auto &it : modules_)
-		pool_size = std::max(pool_size, ThreadPool::work_pool_size(0, it.second->cells_size(), 1000));
-	ParallelDispatchThreadPool thread_pool(pool_size);
-	for (auto &it : modules_) {
-		log_assert(this == it.second->design);
-		log_assert(it.first == it.second->name);
-		check_module(it.second, thread_pool);
+#جے_بنا_تعریف NDEBUG
+	log_assert(!selection_ڈھیر.خالی_تھاواں());
+	صحيح pool_ناپ = 0;
+	لكل (خودکار &it : modules_)
+		pool_ناپ = std::max(pool_ناپ, ThreadPool::work_pool_ناپ(0, it.دوجا->cells_ناپ(), 1000));
+	ParallelDispatchThreadPool thread_pool(pool_ناپ);
+	لكل (خودکار &it : modules_) {
+		log_assert(هذا == it.دوجا->design);
+		log_assert(it.پہلا == it.دوجا->name);
+		check_module(it.دوجا, thread_pool);
 	}
-#endif
+#جے_انت
 }
 
-void RTLIL::Design::optimize()
+فراغ RTLIL::Design::optimize()
 {
-	for (auto &it : modules_)
-		it.second->optimize();
-	for (auto &it : selection_stack)
-		it.optimize(this);
-	for (auto &it : selection_vars)
-		it.second.optimize(this);
+	لكل (خودکار &it : modules_)
+		it.دوجا->optimize();
+	لكل (خودکار &it : selection_ڈھیر)
+		it.optimize(هذا);
+	لكل (خودکار &it : selection_vars)
+		it.دوجا.optimize(هذا);
 }
 
-void RTLIL::Design::clone_into(RTLIL::Design *dst) const
+فراغ RTLIL::Design::clone_into(RTLIL::Design *dst) ثابت
 {
-	log_assert(dst->modules_.empty());
+	log_assert(dst->modules_.خالی_تھاواں());
 	dst->twines_ = twines_;
-	for (auto it = modules_.rbegin(); it != modules_.rend(); ++it)
-		it->second->clone(dst);
+	لكل (خودکار it = modules_.rbegin(); it != modules_.rend(); ++it)
+		it->دوجا->clone(dst);
 }
 
-bool RTLIL::Design::selected_module(IdString mod_name) const
+منطقي RTLIL::Design::selected_module(IdString mod_name) ثابت
 {
-	if (!selected_active_module.empty() && mod_name != selected_active_module)
-		return false;
-	return selection().selected_module(mod_name);
+	إذا (!selected_سرگرم_module.خالی_تھاواں() && mod_name != selected_سرگرم_module)
+		أرجع خطأ;
+	أرجع selection().selected_module(mod_name);
 }
 
-bool RTLIL::Design::selected_whole_module(RTLIL::IdString mod_name) const
+منطقي RTLIL::Design::selected_سارا_module(RTLIL::IdString mod_name) ثابت
 {
-	if (!selected_active_module.empty() && mod_name != selected_active_module)
-		return false;
-	return selection().selected_whole_module(mod_name);
+	إذا (!selected_سرگرم_module.خالی_تھاواں() && mod_name != selected_سرگرم_module)
+		أرجع خطأ;
+	أرجع selection().selected_سارا_module(mod_name);
 }
 
-bool RTLIL::Design::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) const
+منطقي RTLIL::Design::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) ثابت
 {
-	if (!selected_active_module.empty() && mod_name != selected_active_module)
-		return false;
-	return selection().selected_member(mod_name, memb_name);
+	إذا (!selected_سرگرم_module.خالی_تھاواں() && mod_name != selected_سرگرم_module)
+		أرجع خطأ;
+	أرجع selection().selected_member(mod_name, memb_name);
 }
 
-bool RTLIL::Design::selected_module(RTLIL::Module *mod) const
+منطقي RTLIL::Design::selected_module(RTLIL::Module *mod) ثابت
 {
-	return selected_module(mod->name);
+	أرجع selected_module(mod->name);
 }
 
-bool RTLIL::Design::selected_whole_module(RTLIL::Module *mod) const
+منطقي RTLIL::Design::selected_سارا_module(RTLIL::Module *mod) ثابت
 {
-	return selected_whole_module(mod->name);
+	أرجع selected_سارا_module(mod->name);
 }
 
-void RTLIL::Design::push_selection(RTLIL::Selection sel)
+فراغ RTLIL::Design::ڈالو_selection(RTLIL::Selection sel)
 {
-	sel.current_design = this;
-	selection_stack.push_back(sel);
+	sel.current_design = هذا;
+	selection_ڈھیر.ڈالو_پٹھ(sel);
 }
 
-void RTLIL::Design::push_empty_selection()
+فراغ RTLIL::Design::ڈالو_خالی_تھاواں_selection()
 {
-	push_selection(RTLIL::Selection::EmptySelection(this));
+	ڈالو_selection(RTLIL::Selection::خالی_تھاواں_Selection(هذا));
 }
 
-void RTLIL::Design::push_full_selection()
+فراغ RTLIL::Design::ڈالو_بھریا_selection()
 {
-	push_selection(RTLIL::Selection::FullSelection(this));
+	ڈالو_selection(RTLIL::Selection::بھریا_Selection(هذا));
 }
 
-void RTLIL::Design::push_complete_selection()
+فراغ RTLIL::Design::ڈالو_complete_selection()
 {
-	push_selection(RTLIL::Selection::CompleteSelection(this));
+	ڈالو_selection(RTLIL::Selection::CompleteSelection(هذا));
 }
 
-void RTLIL::Design::pop_selection()
+فراغ RTLIL::Design::نکالو_selection()
 {
-	selection_stack.pop_back();
+	selection_ڈھیر.نکالو_پٹھ();
 	// Default to a full_selection if we ran out of stack
-	if (selection_stack.empty())
-		push_full_selection();
+	إذا (selection_ڈھیر.خالی_تھاواں())
+		ڈالو_بھریا_selection();
 }
 
-std::string RTLIL::Design::to_rtlil_str(bool only_selected) const
+std::string RTLIL::Design::منزل_rtlil_str(منطقي only_selected) ثابت
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_design(f, const_cast<RTLIL::Design*>(this), only_selected, true, false, RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_design(f, const_cast<RTLIL::Design*>(هذا), only_selected, سچ, خطأ, RTLIL_BACKEND::Dump_منوال::Readable);
+	أرجع f.str();
 }
 
-std::vector<RTLIL::Module*> RTLIL::Design::selected_modules(RTLIL::SelectPartials partials, RTLIL::SelectBoxes boxes) const
+std::سمتیہ<RTLIL::Module*> RTLIL::Design::selected_modules(RTLIL::SelectPartials partials, RTLIL::SelectBoxes boxes) ثابت
 {
-	bool include_partials = partials == RTLIL::SELECT_ALL;
-	bool exclude_boxes = (boxes & RTLIL::SB_UNBOXED_ONLY) != 0;
-	bool ignore_wb = (boxes & RTLIL::SB_INCL_WB) != 0;
-	std::vector<RTLIL::Module*> result;
-	result.reserve(modules_.size());
-	for (auto &it : modules_) {
-		if (selected_whole_module(it.first) || (include_partials && selected_module(it.first))) {
-			if (!(exclude_boxes && it.second->get_blackbox_attribute(ignore_wb)))
-				result.push_back(it.second);
-			else
-				switch (boxes)
+	منطقي include_partials = partials == RTLIL::SELECT_ALL;
+	منطقي exclude_boxes = (boxes & RTLIL::SB_UNBOXED_ONLY) != 0;
+	منطقي ignore_wb = (boxes & RTLIL::SB_INCL_WB) != 0;
+	std::سمتیہ<RTLIL::Module*> نتیجہ;
+	نتیجہ.reserve(modules_.ناپ());
+	لكل (خودکار &it : modules_) {
+		إذا (selected_سارا_module(it.پہلا) || (include_partials && selected_module(it.پہلا))) {
+			إذا (!(exclude_boxes && it.دوجا->get_blackbox_attribute(ignore_wb)))
+				نتیجہ.ڈالو_پٹھ(it.دوجا);
+			وإلا
+				بدل (boxes)
 				{
-				case RTLIL::SB_UNBOXED_WARN:
-					log_warning("Ignoring boxed module %s.\n", it.second);
-					break;
-				case RTLIL::SB_EXCL_BB_WARN:
-					log_warning("Ignoring blackbox module %s.\n", it.second);
-					break;
-				case RTLIL::SB_UNBOXED_ERR:
-					log_error("Unsupported boxed module %s.\n", it.second);
-					break;
-				case RTLIL::SB_EXCL_BB_ERR:
-					log_error("Unsupported blackbox module %s.\n", it.second);
-					break;
-				case RTLIL::SB_UNBOXED_CMDERR:
-					log_cmd_error("Unsupported boxed module %s.\n", it.second);
-					break;
-				case RTLIL::SB_EXCL_BB_CMDERR:
-					log_cmd_error("Unsupported blackbox module %s.\n", it.second);
-					break;
-				default:
-					break;
+				حالة RTLIL::SB_UNBOXED_WARN:
+					log_warning("Ignoring boxed module %s.\n", it.دوجا);
+					اكسر;
+				حالة RTLIL::SB_EXCL_BB_WARN:
+					log_warning("Ignoring blackbox module %s.\n", it.دوجا);
+					اكسر;
+				حالة RTLIL::SB_UNBOXED_ERR:
+					log_error("Unsupported boxed module %s.\n", it.دوجا);
+					اكسر;
+				حالة RTLIL::SB_EXCL_BB_ERR:
+					log_error("Unsupported blackbox module %s.\n", it.دوجا);
+					اكسر;
+				حالة RTLIL::SB_UNBOXED_CMDERR:
+					log_cmd_error("Unsupported boxed module %s.\n", it.دوجا);
+					اكسر;
+				حالة RTLIL::SB_EXCL_BB_CMDERR:
+					log_cmd_error("Unsupported blackbox module %s.\n", it.دوجا);
+					اكسر;
+				افتراضي:
+					اكسر;
 				}
-		} else if (!include_partials && selected_module(it.first)) {
-			switch(partials)
+		} وإلا إذا (!include_partials && selected_module(it.پہلا)) {
+			بدل(partials)
 			{
-			case RTLIL::SELECT_WHOLE_WARN:
-				log_warning("Ignoring partially selected module %s.\n", it.second);
-				break;
-			case RTLIL::SELECT_WHOLE_ERR:
-				log_error("Unsupported partially selected module %s.\n", it.second);
-				break;
-			case RTLIL::SELECT_WHOLE_CMDERR:
-				log_cmd_error("Unsupported partially selected module %s.\n", it.second);
-				break;
-			default:
-				break;
+			حالة RTLIL::SELECT_سارا_WARN:
+				log_warning("Ignoring partially selected module %s.\n", it.دوجا);
+				اكسر;
+			حالة RTLIL::SELECT_سارا_ERR:
+				log_error("Unsupported partially selected module %s.\n", it.دوجا);
+				اكسر;
+			حالة RTLIL::SELECT_سارا_CMDERR:
+				log_cmd_error("Unsupported partially selected module %s.\n", it.دوجا);
+				اكسر;
+			افتراضي:
+				اكسر;
 			}
 		}
 	}
-	return result;
+	أرجع نتیجہ;
 }
 
 RTLIL::Module::Module()
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	ساكن بنانشانی صحيح hashidx_گنتی = 123456789;
+	hashidx_گنتی = mkhash_xorshift(hashidx_گنتی);
+	hashidx_ = hashidx_گنتی;
 
-	design = nullptr;
+	design = خالی_سوچک;
 	refcount_wires_ = 0;
 	refcount_cells_ = 0;
 
-#ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Module::get_all_modules()->insert(std::pair<unsigned int, RTLIL::Module*>(hashidx_, this));
-#endif
+#جے_تعریف_شدہ YOSYS_ENABLE_PYTHON
+	RTLIL::Module::get_all_modules()->داخل_کرو(std::pair<بنانشانی صحيح, RTLIL::Module*>(hashidx_, هذا));
+#جے_انت
 }
 
 RTLIL::Module::~Module()
 {
-	for (auto &pr : wires_)
-		delete pr.second;
-	for (auto &pr : memories)
-		delete pr.second;
-	for (auto &pr : cells_)
-		delete pr.second;
-	for (auto &pr : processes)
-		delete pr.second;
-#ifdef YOSYS_ENABLE_PYTHON
+	لكل (خودکار &pr : wires_)
+		مٹاؤ pr.دوجا;
+	لكل (خودکار &pr : memories)
+		مٹاؤ pr.دوجا;
+	لكل (خودکار &pr : cells_)
+		مٹاؤ pr.دوجا;
+	لكل (خودکار &pr : processes)
+		مٹاؤ pr.دوجا;
+#جے_تعریف_شدہ YOSYS_ENABLE_PYTHON
 	RTLIL::Module::get_all_modules()->erase(hashidx_);
-#endif
+#جے_انت
 }
 
-#ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Module*> all_modules;
-std::map<unsigned int, RTLIL::Module*> *RTLIL::Module::get_all_modules(void)
+#جے_تعریف_شدہ YOSYS_ENABLE_PYTHON
+ساكن std::map<بنانشانی صحيح, RTLIL::Module*> all_modules;
+std::map<بنانشانی صحيح, RTLIL::Module*> *RTLIL::Module::get_all_modules(فراغ)
 {
-	return &all_modules;
+	أرجع &all_modules;
 }
-#endif
+#جے_انت
 
-void RTLIL::Module::makeblackbox()
+فراغ RTLIL::Module::makeblackbox()
 {
 	pool<RTLIL::Wire*> delwires;
 
-	for (auto it = wires_.begin(); it != wires_.end(); ++it)
-		if (!it->second->port_input && !it->second->port_output)
-			delwires.insert(it->second);
+	لكل (خودکار it = wires_.begin(); it != wires_.سرا(); ++it)
+		إذا (!it->دوجا->پورٹ_داخلہ && !it->دوجا->پورٹ_output)
+			delwires.داخل_کرو(it->دوجا);
 
-	for (auto it = memories.begin(); it != memories.end(); ++it)
-		delete it->second;
+	لكل (خودکار it = memories.begin(); it != memories.سرا(); ++it)
+		مٹاؤ it->دوجا;
 	memories.clear();
 
-	for (auto it = cells_.begin(); it != cells_.end(); ++it)
-		delete it->second;
+	لكل (خودکار it = cells_.begin(); it != cells_.سرا(); ++it)
+		مٹاؤ it->دوجا;
 	cells_.clear();
 
-	for (auto it = processes.begin(); it != processes.end(); ++it)
-		delete it->second;
+	لكل (خودکار it = processes.begin(); it != processes.سرا(); ++it)
+		مٹاؤ it->دوجا;
 	processes.clear();
 
 	connections_.clear();
 
 	remove(delwires);
-	set_bool_attribute(ID::blackbox);
+	سیٹ_bool_attribute(ID::blackbox);
 }
 
-void RTLIL::Module::expand_interfaces(RTLIL::Design *, const dict<RTLIL::IdString, RTLIL::Module *> &)
+فراغ RTLIL::Module::expand_interfaces(RTLIL::Design *, ثابت dict<RTLIL::IdString, RTLIL::Module *> &)
 {
 	log_error("Class doesn't support expand_interfaces (module: `%s')!\n", name.unescape());
 }
 
-bool RTLIL::Module::reprocess_if_necessary(RTLIL::Design *)
+منطقي RTLIL::Module::reprocess_if_necessary(RTLIL::Design *)
 {
-	return false;
+	أرجع خطأ;
 }
 
-RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, const dict<RTLIL::IdString, RTLIL::Const> &, bool mayfail)
+RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, ثابت dict<RTLIL::IdString, RTLIL::Const> &, منطقي mayfail)
 {
-	if (mayfail)
-		return IdString::Null;
+	إذا (mayfail)
+		أرجع IdString::Null;
 	log_error("Module `%s' is used with parameters but is not parametric!\n", name.unescape());
 }
 
 
-RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, const dict<RTLIL::IdString, RTLIL::Const> &, const dict<RTLIL::IdString, RTLIL::Module*> &, const dict<RTLIL::IdString, RTLIL::IdString> &, bool mayfail)
+RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, ثابت dict<RTLIL::IdString, RTLIL::Const> &, ثابت dict<RTLIL::IdString, RTLIL::Module*> &, ثابت dict<RTLIL::IdString, RTLIL::IdString> &, منطقي mayfail)
 {
-	if (mayfail)
-		return IdString::Null;
+	إذا (mayfail)
+		أرجع IdString::Null;
 	log_error("Module `%s' is used with parameters but is not parametric!\n", name.unescape());
 }
 
-size_t RTLIL::Module::count_id(RTLIL::IdString id)
+ناپ_t RTLIL::Module::گنتی_id(RTLIL::IdString id)
 {
-	return wires_.count(id) + cells_.count(id) + memories.count(id) + processes.count(id);
+	أرجع wires_.گنتی(id) + cells_.گنتی(id) + memories.گنتی(id) + processes.گنتی(id);
 }
 
-#ifndef NDEBUG
-namespace {
-	struct InternalCellChecker
+#جے_بنا_تعریف NDEBUG
+نطاق {
+	بنية اندرونی_Cell_Checker
 	{
-		const RTLIL::Module *module;
+		ثابت RTLIL::Module *module;
 		RTLIL::Cell *cell;
 		pool<IdString> expected_params;
 		pool<IdString> expected_ports;
 
-		InternalCellChecker(const RTLIL::Module *module, RTLIL::Cell *cell) : module(module), cell(cell) { }
+		اندرونی_Cell_Checker(ثابت RTLIL::Module *module, RTLIL::Cell *cell) : module(module), cell(cell) { }
 
-		void error(int linenr, std::optional<std::string> error_msg = std::nullopt)
+		فراغ error(صحيح linenr, std::optional<std::string> error_پیغام = std::nullopt)
 		{
 			std::stringstream buf;
 			RTLIL_BACKEND::dump_cell(buf, "  ", cell, cell->module->design);
@@ -1464,725 +1464,725 @@ namespace {
 			std::string cell_loc = stringf("%s%s%s (%s) at %s:%d:\n%s", mod_name, module ? "." : "",
 							   cell_name, cell->type.str(), __FILE__, linenr, buf.str());
 
-			if (error_msg) {
-				log_error("%s in internal cell %s\n", *error_msg, cell_loc);
-			} else {
+			إذا (error_پیغام) {
+				log_error("%s in internal cell %s\n", *error_پیغام, cell_loc);
+			} وإلا {
 				log_error("Found error in internal cell %s\n", cell_loc);
 			}
 		}
 
-		int param(RTLIL::IdString name)
+		صحيح param(RTLIL::IdString name)
 		{
-			auto it = cell->parameters.find(name);
-			if (it == cell->parameters.end()) {
+			خودکار it = cell->parameters.لبھو(name);
+			إذا (it == cell->parameters.سرا()) {
 				std::string err = stringf("Expected to find parameter %s", cell->module->design->twines().str(name));
 				error(__LINE__, err);
 			}
-			expected_params.insert(name);
-			return it->second.as_int();
+			expected_params.داخل_کرو(name);
+			أرجع it->دوجا.as_int();
 		}
 
-		int param_bool(RTLIL::IdString name)
+		صحيح param_bool(RTLIL::IdString name)
 		{
-			int v = param(name);
-			if (GetSize(cell->parameters.at(name)) > 32)
+			صحيح v = param(name);
+			إذا (Get_ناپ(cell->parameters.at(name)) > 32)
 				error(__LINE__);
-			if (v != 0 && v != 1)
+			إذا (v != 0 && v != 1)
 				error(__LINE__);
-			return v;
+			أرجع v;
 		}
 
-		int param_bool(RTLIL::IdString name, bool expected)
+		صحيح param_bool(RTLIL::IdString name, منطقي expected)
 		{
-			int v = param_bool(name);
-			if (v != expected)
+			صحيح v = param_bool(name);
+			إذا (v != expected)
 				error(__LINE__);
-			return v;
+			أرجع v;
 		}
 
-		void param_bits(RTLIL::IdString name, int width)
+		فراغ param_بٹ(RTLIL::IdString name, صحيح چوڑائی)
 		{
 			param(name);
-			if (GetSize(cell->parameters.at(name)) != width)
+			إذا (Get_ناپ(cell->parameters.at(name)) != چوڑائی)
 				error(__LINE__);
 		}
 
 		std::string param_string(RTLIL::IdString name)
 		{
 			param(name);
-			return cell->parameters.at(name).decode_string();
+			أرجع cell->parameters.at(name).decode_string();
 		}
 
-		void port(RTLIL::IdString name, int width)
+		فراغ پورٹ(RTLIL::IdString name, صحيح چوڑائی)
 		{
-			auto it = cell->connections_.find(name);
-			if (it == cell->connections_.end()) {
+			خودکار it = cell->connections_.لبھو(name);
+			إذا (it == cell->connections_.سرا()) {
 				std::string err = stringf("Expected to find port %s", cell->module->design->twines().str(name));
 				error(__LINE__, err);
 			}
-			if (GetSize(it->second) != width) {
-				std::string err = stringf("Expected port to have width %d", width);
+			إذا (Get_ناپ(it->دوجا) != چوڑائی) {
+				std::string err = stringf("Expected port to have width %d", چوڑائی);
 				error(__LINE__, err);
 			}
-			expected_ports.insert(name);
+			expected_ports.داخل_کرو(name);
 		}
 
-		void check_expected(bool check_matched_sign = false)
+		فراغ check_expected(منطقي check_matched_sign = خطأ)
 		{
-			for (auto &para : cell->parameters)
-				if (expected_params.count(para.first) == 0)
+			لكل (خودکار &para : cell->parameters)
+				إذا (expected_params.گنتی(para.پہلا) == 0)
 					error(__LINE__);
-			for (auto &conn : cell->connections())
-				if (expected_ports.count(conn.first) == 0)
+			لكل (خودکار &conn : cell->connections())
+				إذا (expected_ports.گنتی(conn.پہلا) == 0)
 					error(__LINE__);
 
-			if (check_matched_sign) {
-				log_assert(expected_params.count(ID::A_SIGNED) != 0 && expected_params.count(ID::B_SIGNED) != 0);
-				bool a_is_signed = cell->parameters.at(ID::A_SIGNED).as_bool();
-				bool b_is_signed = cell->parameters.at(ID::B_SIGNED).as_bool();
-				if (a_is_signed != b_is_signed)
+			إذا (check_matched_sign) {
+				log_assert(expected_params.گنتی(ID::A_SIGNED) != 0 && expected_params.گنتی(ID::B_SIGNED) != 0);
+				منطقي a_is_signed = cell->parameters.at(ID::A_SIGNED).as_bool();
+				منطقي b_is_signed = cell->parameters.at(ID::B_SIGNED).as_bool();
+				إذا (a_is_signed != b_is_signed)
 					error(__LINE__);
 			}
 		}
 
-		void check()
+		فراغ check()
 		{
-			if (cell->type.isPublic() || cell->type.begins_with("$__") || cell->type.begins_with("$paramod") || cell->type.begins_with("$fmcombine") ||
+			إذا (cell->type.is_عوامی() || cell->type.begins_with("$__") || cell->type.begins_with("$paramod") || cell->type.begins_with("$fmcombine") ||
 					cell->type.begins_with("$verific$") || cell->type.begins_with("$array:") || cell->type.begins_with("$extern:"))
-				return;
+				أرجع;
 
-			if (cell->type.in(ID($buf), ID($barrier))) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			إذا (cell->type.وچ(ID($buf), ID($barrier))) {
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::Y, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type.in(ID($not), ID($pos), ID($neg))) {
+			إذا (cell->type.وچ(ID($not), ID($pos), ID($neg))) {
 				param_bool(ID::A_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
+				پورٹ(ID::A, param(ID::A_چوڑائی));
+				پورٹ(ID::Y, param(ID::Y_چوڑائی));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type.in(ID($and), ID($or), ID($xor), ID($xnor))) {
+			إذا (cell->type.وچ(ID($and), ID($or), ID($xor), ID($xnor))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(true);
-				return;
+				پورٹ(ID::A, param(ID::A_چوڑائی));
+				پورٹ(ID::B, param(ID::B_چوڑائی));
+				پورٹ(ID::Y, param(ID::Y_چوڑائی));
+				check_expected(سچ);
+				أرجع;
 			}
 
-			if (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool))) {
+			إذا (cell->type.وچ(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool))) {
 				param_bool(ID::A_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
+				پورٹ(ID::A, param(ID::A_چوڑائی));
+				پورٹ(ID::Y, param(ID::Y_چوڑائی));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr))) {
+			إذا (cell->type.وچ(ID($shl), ID($shr), ID($sshl), ID($sshr))) {
 				param_bool(ID::A_SIGNED);
-				param_bool(ID::B_SIGNED, /*expected=*/false);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(/*check_matched_sign=*/false);
-				return;
+				param_bool(ID::B_SIGNED, /*expected=*/خطأ);
+				پورٹ(ID::A, param(ID::A_چوڑائی));
+				پورٹ(ID::B, param(ID::B_چوڑائی));
+				پورٹ(ID::Y, param(ID::Y_چوڑائی));
+				check_expected(/*check_matched_sign=*/خطأ);
+				أرجع;
 			}
 
-			if (cell->type.in(ID($shift), ID($shiftx))) {
-				if (cell->type == ID($shiftx)) {
-					param_bool(ID::A_SIGNED, /*expected=*/false);
-				} else {
+			إذا (cell->type.وچ(ID($کھسکاؤ), ID($shiftx))) {
+				إذا (cell->type == ID($shiftx)) {
+					param_bool(ID::A_SIGNED, /*expected=*/خطأ);
+				} وإلا {
 					param_bool(ID::A_SIGNED);
 				}
 				param_bool(ID::B_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(/*check_matched_sign=*/false);
-				return;
+				پورٹ(ID::A, param(ID::A_چوڑائی));
+				پورٹ(ID::B, param(ID::B_چوڑائی));
+				پورٹ(ID::Y, param(ID::Y_چوڑائی));
+				check_expected(/*check_matched_sign=*/خطأ);
+				أرجع;
 			}
 
-			if (cell->type.in(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt))) {
+			إذا (cell->type.وچ(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(true);
-				return;
+				پورٹ(ID::A, param(ID::A_چوڑائی));
+				پورٹ(ID::B, param(ID::B_چوڑائی));
+				پورٹ(ID::Y, param(ID::Y_چوڑائی));
+				check_expected(سچ);
+				أرجع;
 			}
 
-			if (cell->type.in(ID($add), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow))) {
+			إذا (cell->type.وچ(ID($جوڑو), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($قوت))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(cell->type != ID($pow));
-				return;
+				پورٹ(ID::A, param(ID::A_چوڑائی));
+				پورٹ(ID::B, param(ID::B_چوڑائی));
+				پورٹ(ID::Y, param(ID::Y_چوڑائی));
+				check_expected(cell->type != ID($قوت));
+				أرجع;
 			}
 
-			if (cell->type == ID($fa)) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::B, param(ID::WIDTH));
-				port(ID::C, param(ID::WIDTH));
-				port(ID::X, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			إذا (cell->type == ID($fa)) {
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::B, param(ID::چوڑائی_2));
+				پورٹ(ID::C, param(ID::چوڑائی_2));
+				پورٹ(ID::X, param(ID::چوڑائی_2));
+				پورٹ(ID::Y, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($lcu)) {
-				port(ID::P, param(ID::WIDTH));
-				port(ID::G, param(ID::WIDTH));
-				port(ID::CI, 1);
-				port(ID::CO, param(ID::WIDTH));
+			إذا (cell->type == ID($lcu)) {
+				پورٹ(ID::P, param(ID::چوڑائی_2));
+				پورٹ(ID::G, param(ID::چوڑائی_2));
+				پورٹ(ID::CI, 1);
+				پورٹ(ID::CO, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($alu)) {
+			إذا (cell->type == ID($alu)) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::CI, 1);
-				port(ID::BI, 1);
-				port(ID::X, param(ID::Y_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				port(ID::CO, param(ID::Y_WIDTH));
-				check_expected(true);
-				return;
+				پورٹ(ID::A, param(ID::A_چوڑائی));
+				پورٹ(ID::B, param(ID::B_چوڑائی));
+				پورٹ(ID::CI, 1);
+				پورٹ(ID::BI, 1);
+				پورٹ(ID::X, param(ID::Y_چوڑائی));
+				پورٹ(ID::Y, param(ID::Y_چوڑائی));
+				پورٹ(ID::CO, param(ID::Y_چوڑائی));
+				check_expected(سچ);
+				أرجع;
 			}
 
-			if (cell->type == ID($macc)) {
+			إذا (cell->type == ID($macc)) {
 				param(ID::CONFIG);
-				param(ID::CONFIG_WIDTH);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
+				param(ID::CONFIG_چوڑائی);
+				پورٹ(ID::A, param(ID::A_چوڑائی));
+				پورٹ(ID::B, param(ID::B_چوڑائی));
+				پورٹ(ID::Y, param(ID::Y_چوڑائی));
 				check_expected();
 				Macc().from_cell(cell);
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($macc_v2)) {
-				if (param(ID::NPRODUCTS) < 0)
+			إذا (cell->type == ID($macc_v2)) {
+				إذا (param(ID::NPRODUCTS) < 0)
 					error(__LINE__);
-				if (param(ID::NADDENDS) < 0)
+				إذا (param(ID::NADDENDS) < 0)
 					error(__LINE__);
-				param_bits(ID::PRODUCT_NEGATED, max(param(ID::NPRODUCTS), 1));
-				param_bits(ID::ADDEND_NEGATED, max(param(ID::NADDENDS), 1));
-				param_bits(ID::A_SIGNED, max(param(ID::NPRODUCTS), 1));
-				param_bits(ID::B_SIGNED, max(param(ID::NPRODUCTS), 1));
-				param_bits(ID::C_SIGNED, max(param(ID::NADDENDS), 1));
-				if (cell->getParam(ID::A_SIGNED) != cell->getParam(ID::B_SIGNED))
+				param_بٹ(ID::ضرب_حاصل_NEGATED, max(param(ID::NPRODUCTS), 1));
+				param_بٹ(ID::ADDEND_NEGATED, max(param(ID::NADDENDS), 1));
+				param_بٹ(ID::A_SIGNED, max(param(ID::NPRODUCTS), 1));
+				param_بٹ(ID::B_SIGNED, max(param(ID::NPRODUCTS), 1));
+				param_بٹ(ID::C_SIGNED, max(param(ID::NADDENDS), 1));
+				إذا (cell->getParam(ID::A_SIGNED) != cell->getParam(ID::B_SIGNED))
 					error(__LINE__);
-				param_bits(ID::A_WIDTHS, max(param(ID::NPRODUCTS) * 16, 1));
-				param_bits(ID::B_WIDTHS, max(param(ID::NPRODUCTS) * 16, 1));
-				param_bits(ID::C_WIDTHS, max(param(ID::NADDENDS) * 16, 1));
-				const Const &a_width = cell->getParam(ID::A_WIDTHS);
-				const Const &b_width = cell->getParam(ID::B_WIDTHS);
-				const Const &c_width = cell->getParam(ID::C_WIDTHS);
-				int a_width_sum = 0, b_width_sum = 0, c_width_sum = 0;
-				for (int i = 0; i < param(ID::NPRODUCTS); i++) {
-					a_width_sum += a_width.extract(16 * i, 16).as_int(false);
-					b_width_sum += b_width.extract(16 * i, 16).as_int(false);
+				param_بٹ(ID::A_WIDTHS, max(param(ID::NPRODUCTS) * 16, 1));
+				param_بٹ(ID::B_WIDTHS, max(param(ID::NPRODUCTS) * 16, 1));
+				param_بٹ(ID::C_WIDTHS, max(param(ID::NADDENDS) * 16, 1));
+				ثابت Const &a_چوڑائی = cell->getParam(ID::A_WIDTHS);
+				ثابت Const &b_چوڑائی = cell->getParam(ID::B_WIDTHS);
+				ثابت Const &c_چوڑائی = cell->getParam(ID::C_WIDTHS);
+				صحيح a_چوڑائی_جوڑ = 0, b_چوڑائی_جوڑ = 0, c_چوڑائی_جوڑ = 0;
+				لكل (صحيح i = 0; i < param(ID::NPRODUCTS); i++) {
+					a_چوڑائی_جوڑ += a_چوڑائی.کڈھو(16 * i, 16).as_int(خطأ);
+					b_چوڑائی_جوڑ += b_چوڑائی.کڈھو(16 * i, 16).as_int(خطأ);
 				}
-				for (int i = 0; i < param(ID::NADDENDS); i++) {
-					c_width_sum += c_width.extract(16 * i, 16).as_int(false);
+				لكل (صحيح i = 0; i < param(ID::NADDENDS); i++) {
+					c_چوڑائی_جوڑ += c_چوڑائی.کڈھو(16 * i, 16).as_int(خطأ);
 				}
-				port(ID::A, a_width_sum);
-				port(ID::B, b_width_sum);
-				port(ID::C, c_width_sum);
-				port(ID::Y, param(ID::Y_WIDTH));
+				پورٹ(ID::A, a_چوڑائی_جوڑ);
+				پورٹ(ID::B, b_چوڑائی_جوڑ);
+				پورٹ(ID::C, c_چوڑائی_جوڑ);
+				پورٹ(ID::Y, param(ID::Y_چوڑائی));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($logic_not)) {
+			إذا (cell->type == ID($logic_not)) {
 				param_bool(ID::A_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
+				پورٹ(ID::A, param(ID::A_چوڑائی));
+				پورٹ(ID::Y, param(ID::Y_چوڑائی));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type.in(ID($logic_and), ID($logic_or))) {
+			إذا (cell->type.وچ(ID($logic_and), ID($logic_or))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(/*check_matched_sign=*/false);
-				return;
+				پورٹ(ID::A, param(ID::A_چوڑائی));
+				پورٹ(ID::B, param(ID::B_چوڑائی));
+				پورٹ(ID::Y, param(ID::Y_چوڑائی));
+				check_expected(/*check_matched_sign=*/خطأ);
+				أرجع;
 			}
 
-			if (cell->type == ID($slice)) {
-				param(ID::OFFSET);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				if (param(ID::OFFSET) + param(ID::Y_WIDTH) > param(ID::A_WIDTH))
+			إذا (cell->type == ID($ٹکڑا)) {
+				param(ID::وتھ_2);
+				پورٹ(ID::A, param(ID::A_چوڑائی));
+				پورٹ(ID::Y, param(ID::Y_چوڑائی));
+				إذا (param(ID::وتھ_2) + param(ID::Y_چوڑائی) > param(ID::A_چوڑائی))
 					error(__LINE__);
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($concat)) {
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::A_WIDTH) + param(ID::B_WIDTH));
+			إذا (cell->type == ID($concat)) {
+				پورٹ(ID::A, param(ID::A_چوڑائی));
+				پورٹ(ID::B, param(ID::B_چوڑائی));
+				پورٹ(ID::Y, param(ID::A_چوڑائی) + param(ID::B_چوڑائی));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($mux)) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::B, param(ID::WIDTH));
-				port(ID::S, 1);
-				port(ID::Y, param(ID::WIDTH));
+			إذا (cell->type == ID($mux)) {
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::B, param(ID::چوڑائی_2));
+				پورٹ(ID::S, 1);
+				پورٹ(ID::Y, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($pmux)) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::B, param(ID::WIDTH) * param(ID::S_WIDTH));
-				port(ID::S, param(ID::S_WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			إذا (cell->type == ID($pmux)) {
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::B, param(ID::چوڑائی_2) * param(ID::S_چوڑائی));
+				پورٹ(ID::S, param(ID::S_چوڑائی));
+				پورٹ(ID::Y, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($bmux)) {
-				port(ID::A, param(ID::WIDTH) << param(ID::S_WIDTH));
-				port(ID::S, param(ID::S_WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			إذا (cell->type == ID($bmux)) {
+				پورٹ(ID::A, param(ID::چوڑائی_2) << param(ID::S_چوڑائی));
+				پورٹ(ID::S, param(ID::S_چوڑائی));
+				پورٹ(ID::Y, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($demux)) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::S, param(ID::S_WIDTH));
-				port(ID::Y, param(ID::WIDTH) << param(ID::S_WIDTH));
+			إذا (cell->type == ID($demux)) {
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::S, param(ID::S_چوڑائی));
+				پورٹ(ID::Y, param(ID::چوڑائی_2) << param(ID::S_چوڑائی));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($lut)) {
+			إذا (cell->type == ID($lut)) {
 				param(ID::LUT);
-				port(ID::A, param(ID::WIDTH));
-				port(ID::Y, 1);
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::Y, 1);
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($sop)) {
-				param(ID::DEPTH);
-				param(ID::TABLE);
-				port(ID::A, param(ID::WIDTH));
-				port(ID::Y, 1);
+			إذا (cell->type == ID($sop)) {
+				param(ID::ڈونگھائی_2);
+				param(ID::جدول);
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::Y, 1);
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($sr)) {
-				param_bool(ID::SET_POLARITY);
+			إذا (cell->type == ID($sr)) {
+				param_bool(ID::سیٹ_POLARITY);
 				param_bool(ID::CLR_POLARITY);
-				port(ID::SET, param(ID::WIDTH));
-				port(ID::CLR, param(ID::WIDTH));
-				port(ID::Q,   param(ID::WIDTH));
+				پورٹ(ID::سیٹ_2, param(ID::چوڑائی_2));
+				پورٹ(ID::CLR, param(ID::چوڑائی_2));
+				پورٹ(ID::Q,   param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($ff)) {
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+			إذا (cell->type == ID($ff)) {
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($dff)) {
+			إذا (cell->type == ID($dff)) {
 				param_bool(ID::CLK_POLARITY);
-				port(ID::CLK, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($dffe)) {
+			إذا (cell->type == ID($dffe)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
-				port(ID::CLK, 1);
-				port(ID::EN, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::EN, 1);
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($dffsr)) {
+			إذا (cell->type == ID($dffsr)) {
 				param_bool(ID::CLK_POLARITY);
-				param_bool(ID::SET_POLARITY);
+				param_bool(ID::سیٹ_POLARITY);
 				param_bool(ID::CLR_POLARITY);
-				port(ID::CLK, 1);
-				port(ID::SET, param(ID::WIDTH));
-				port(ID::CLR, param(ID::WIDTH));
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::سیٹ_2, param(ID::چوڑائی_2));
+				پورٹ(ID::CLR, param(ID::چوڑائی_2));
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($dffsre)) {
+			إذا (cell->type == ID($dffsre)) {
 				param_bool(ID::CLK_POLARITY);
-				param_bool(ID::SET_POLARITY);
+				param_bool(ID::سیٹ_POLARITY);
 				param_bool(ID::CLR_POLARITY);
 				param_bool(ID::EN_POLARITY);
-				port(ID::CLK, 1);
-				port(ID::EN, 1);
-				port(ID::SET, param(ID::WIDTH));
-				port(ID::CLR, param(ID::WIDTH));
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::EN, 1);
+				پورٹ(ID::سیٹ_2, param(ID::چوڑائی_2));
+				پورٹ(ID::CLR, param(ID::چوڑائی_2));
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($adff)) {
+			إذا (cell->type == ID($adff)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::ARST_POLARITY);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
-				port(ID::CLK, 1);
-				port(ID::ARST, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				param_بٹ(ID::ARST_قدر, param(ID::چوڑائی_2));
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::ARST, 1);
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($sdff)) {
+			إذا (cell->type == ID($sdff)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::SRST_POLARITY);
-				param_bits(ID::SRST_VALUE, param(ID::WIDTH));
-				port(ID::CLK, 1);
-				port(ID::SRST, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				param_بٹ(ID::SRST_قدر, param(ID::چوڑائی_2));
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::SRST, 1);
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type.in(ID($sdffe), ID($sdffce))) {
+			إذا (cell->type.وچ(ID($sdffe), ID($sdffce))) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::SRST_POLARITY);
-				param_bits(ID::SRST_VALUE, param(ID::WIDTH));
-				port(ID::CLK, 1);
-				port(ID::EN, 1);
-				port(ID::SRST, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				param_بٹ(ID::SRST_قدر, param(ID::چوڑائی_2));
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::EN, 1);
+				پورٹ(ID::SRST, 1);
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($adffe)) {
+			إذا (cell->type == ID($adffe)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::ARST_POLARITY);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
-				port(ID::CLK, 1);
-				port(ID::EN, 1);
-				port(ID::ARST, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				param_بٹ(ID::ARST_قدر, param(ID::چوڑائی_2));
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::EN, 1);
+				پورٹ(ID::ARST, 1);
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($aldff)) {
+			إذا (cell->type == ID($aldff)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::ALOAD_POLARITY);
-				port(ID::CLK, 1);
-				port(ID::ALOAD, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::AD, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::ALOAD, 1);
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::AD, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($aldffe)) {
+			إذا (cell->type == ID($aldffe)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::ALOAD_POLARITY);
-				port(ID::CLK, 1);
-				port(ID::EN, 1);
-				port(ID::ALOAD, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::AD, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::EN, 1);
+				پورٹ(ID::ALOAD, 1);
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::AD, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($dlatch)) {
+			إذا (cell->type == ID($dlatch)) {
 				param_bool(ID::EN_POLARITY);
-				port(ID::EN, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				پورٹ(ID::EN, 1);
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($adlatch)) {
+			إذا (cell->type == ID($adlatch)) {
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::ARST_POLARITY);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
-				port(ID::EN, 1);
-				port(ID::ARST, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				param_بٹ(ID::ARST_قدر, param(ID::چوڑائی_2));
+				پورٹ(ID::EN, 1);
+				پورٹ(ID::ARST, 1);
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($dlatchsr)) {
+			إذا (cell->type == ID($dlatchsr)) {
 				param_bool(ID::EN_POLARITY);
-				param_bool(ID::SET_POLARITY);
+				param_bool(ID::سیٹ_POLARITY);
 				param_bool(ID::CLR_POLARITY);
-				port(ID::EN, 1);
-				port(ID::SET, param(ID::WIDTH));
-				port(ID::CLR, param(ID::WIDTH));
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				پورٹ(ID::EN, 1);
+				پورٹ(ID::سیٹ_2, param(ID::چوڑائی_2));
+				پورٹ(ID::CLR, param(ID::چوڑائی_2));
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($fsm)) {
+			إذا (cell->type == ID($fsm)) {
 				param(ID::NAME);
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::ARST_POLARITY);
-				param(ID::STATE_BITS);
-				param(ID::STATE_NUM);
-				param(ID::STATE_NUM_LOG2);
+				param(ID::STATE_بٹ);
+				param(ID::STATE_عدد);
+				param(ID::STATE_عدد_LOG2);
 				param(ID::STATE_RST);
-				param_bits(ID::STATE_TABLE, param(ID::STATE_BITS) * param(ID::STATE_NUM));
-				param(ID::TRANS_NUM);
-				param_bits(ID::TRANS_TABLE, param(ID::TRANS_NUM) * (2*param(ID::STATE_NUM_LOG2) + param(ID::CTRL_IN_WIDTH) + param(ID::CTRL_OUT_WIDTH)));
-				port(ID::CLK, 1);
-				port(ID::ARST, 1);
-				port(ID::CTRL_IN, param(ID::CTRL_IN_WIDTH));
-				port(ID::CTRL_OUT, param(ID::CTRL_OUT_WIDTH));
+				param_بٹ(ID::STATE_جدول, param(ID::STATE_بٹ) * param(ID::STATE_عدد));
+				param(ID::TRANS_عدد);
+				param_بٹ(ID::TRANS_جدول, param(ID::TRANS_عدد) * (2*param(ID::STATE_عدد_LOG2) + param(ID::CTRL_وچ_چوڑائی) + param(ID::CTRL_باہرلا_چوڑائی)));
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::ARST, 1);
+				پورٹ(ID::CTRL_وچ, param(ID::CTRL_وچ_چوڑائی));
+				پورٹ(ID::CTRL_باہرلا, param(ID::CTRL_باہرلا_چوڑائی));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($memrd)) {
+			إذا (cell->type == ID($memrd)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::TRANSPARENT);
-				port(ID::CLK, 1);
-				port(ID::EN, 1);
-				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH));
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::EN, 1);
+				پورٹ(ID::ADDR, param(ID::ABITS));
+				پورٹ(ID::انکڑے_2, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($memrd_v2)) {
+			إذا (cell->type == ID($memrd_v2)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
-				param(ID::TRANSPARENCY_MASK);
-				param(ID::COLLISION_X_MASK);
+				param(ID::TRANSPARENCY_نقاب);
+				param(ID::COLLISION_X_نقاب);
 				param_bool(ID::CE_OVER_SRST);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
-				param_bits(ID::SRST_VALUE, param(ID::WIDTH));
-				param_bits(ID::INIT_VALUE, param(ID::WIDTH));
-				port(ID::CLK, 1);
-				port(ID::EN, 1);
-				port(ID::ARST, 1);
-				port(ID::SRST, 1);
-				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH));
+				param_بٹ(ID::ARST_قدر, param(ID::چوڑائی_2));
+				param_بٹ(ID::SRST_قدر, param(ID::چوڑائی_2));
+				param_بٹ(ID::INIT_قدر, param(ID::چوڑائی_2));
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::EN, 1);
+				پورٹ(ID::ARST, 1);
+				پورٹ(ID::SRST, 1);
+				پورٹ(ID::ADDR, param(ID::ABITS));
+				پورٹ(ID::انکڑے_2, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($memwr)) {
+			إذا (cell->type == ID($memwr)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
-				param(ID::PRIORITY);
-				port(ID::CLK, 1);
-				port(ID::EN, param(ID::WIDTH));
-				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH));
+				param(ID::ترجیح);
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::EN, param(ID::چوڑائی_2));
+				پورٹ(ID::ADDR, param(ID::ABITS));
+				پورٹ(ID::انکڑے_2, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($memwr_v2)) {
+			إذا (cell->type == ID($memwr_v2)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
 				param(ID::PORTID);
-				param(ID::PRIORITY_MASK);
-				port(ID::CLK, 1);
-				port(ID::EN, param(ID::WIDTH));
-				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH));
+				param(ID::ترجیح_نقاب_2);
+				پورٹ(ID::CLK, 1);
+				پورٹ(ID::EN, param(ID::چوڑائی_2));
+				پورٹ(ID::ADDR, param(ID::ABITS));
+				پورٹ(ID::انکڑے_2, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($meminit)) {
+			إذا (cell->type == ID($meminit)) {
 				param(ID::MEMID);
-				param(ID::PRIORITY);
-				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH) * param(ID::WORDS));
+				param(ID::ترجیح);
+				پورٹ(ID::ADDR, param(ID::ABITS));
+				پورٹ(ID::انکڑے_2, param(ID::چوڑائی_2) * param(ID::الفاظ));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($meminit_v2)) {
+			إذا (cell->type == ID($meminit_v2)) {
 				param(ID::MEMID);
-				param(ID::PRIORITY);
-				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH) * param(ID::WORDS));
-				port(ID::EN, param(ID::WIDTH));
+				param(ID::ترجیح);
+				پورٹ(ID::ADDR, param(ID::ABITS));
+				پورٹ(ID::انکڑے_2, param(ID::چوڑائی_2) * param(ID::الفاظ));
+				پورٹ(ID::EN, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($mem)) {
+			إذا (cell->type == ID($mem)) {
 				param(ID::MEMID);
-				param(ID::SIZE);
-				param(ID::OFFSET);
+				param(ID::ناپ_2);
+				param(ID::وتھ_2);
 				param(ID::INIT);
-				param_bits(ID::RD_CLK_ENABLE, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::RD_CLK_POLARITY, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::RD_TRANSPARENT, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::WR_CLK_ENABLE, max(1, param(ID::WR_PORTS)));
-				param_bits(ID::WR_CLK_POLARITY, max(1, param(ID::WR_PORTS)));
-				port(ID::RD_CLK, param(ID::RD_PORTS));
-				port(ID::RD_EN, param(ID::RD_PORTS));
-				port(ID::RD_ADDR, param(ID::RD_PORTS) * param(ID::ABITS));
-				port(ID::RD_DATA, param(ID::RD_PORTS) * param(ID::WIDTH));
-				port(ID::WR_CLK, param(ID::WR_PORTS));
-				port(ID::WR_EN, param(ID::WR_PORTS) * param(ID::WIDTH));
-				port(ID::WR_ADDR, param(ID::WR_PORTS) * param(ID::ABITS));
-				port(ID::WR_DATA, param(ID::WR_PORTS) * param(ID::WIDTH));
+				param_بٹ(ID::RD_CLK_ENABLE, max(1, param(ID::RD_PORTS)));
+				param_بٹ(ID::RD_CLK_POLARITY, max(1, param(ID::RD_PORTS)));
+				param_بٹ(ID::RD_TRANSPARENT, max(1, param(ID::RD_PORTS)));
+				param_بٹ(ID::WR_CLK_ENABLE, max(1, param(ID::WR_PORTS)));
+				param_بٹ(ID::WR_CLK_POLARITY, max(1, param(ID::WR_PORTS)));
+				پورٹ(ID::RD_CLK, param(ID::RD_PORTS));
+				پورٹ(ID::RD_EN, param(ID::RD_PORTS));
+				پورٹ(ID::RD_ADDR, param(ID::RD_PORTS) * param(ID::ABITS));
+				پورٹ(ID::RD_انکڑے, param(ID::RD_PORTS) * param(ID::چوڑائی_2));
+				پورٹ(ID::WR_CLK, param(ID::WR_PORTS));
+				پورٹ(ID::WR_EN, param(ID::WR_PORTS) * param(ID::چوڑائی_2));
+				پورٹ(ID::WR_ADDR, param(ID::WR_PORTS) * param(ID::ABITS));
+				پورٹ(ID::WR_انکڑے, param(ID::WR_PORTS) * param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($mem_v2)) {
+			إذا (cell->type == ID($mem_v2)) {
 				param(ID::MEMID);
-				param(ID::SIZE);
-				param(ID::OFFSET);
+				param(ID::ناپ_2);
+				param(ID::وتھ_2);
 				param(ID::INIT);
-				param_bits(ID::RD_CLK_ENABLE, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::RD_CLK_POLARITY, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::RD_TRANSPARENCY_MASK, max(1, param(ID::RD_PORTS) * param(ID::WR_PORTS)));
-				param_bits(ID::RD_COLLISION_X_MASK, max(1, param(ID::RD_PORTS) * param(ID::WR_PORTS)));
-				param_bits(ID::RD_WIDE_CONTINUATION, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::RD_CE_OVER_SRST, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::RD_ARST_VALUE, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
-				param_bits(ID::RD_SRST_VALUE, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
-				param_bits(ID::RD_INIT_VALUE, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
-				param_bits(ID::WR_CLK_ENABLE, max(1, param(ID::WR_PORTS)));
-				param_bits(ID::WR_CLK_POLARITY, max(1, param(ID::WR_PORTS)));
-				param_bits(ID::WR_WIDE_CONTINUATION, max(1, param(ID::WR_PORTS)));
-				param_bits(ID::WR_PRIORITY_MASK, max(1, param(ID::WR_PORTS) * param(ID::WR_PORTS)));
-				port(ID::RD_CLK, param(ID::RD_PORTS));
-				port(ID::RD_EN, param(ID::RD_PORTS));
-				port(ID::RD_ARST, param(ID::RD_PORTS));
-				port(ID::RD_SRST, param(ID::RD_PORTS));
-				port(ID::RD_ADDR, param(ID::RD_PORTS) * param(ID::ABITS));
-				port(ID::RD_DATA, param(ID::RD_PORTS) * param(ID::WIDTH));
-				port(ID::WR_CLK, param(ID::WR_PORTS));
-				port(ID::WR_EN, param(ID::WR_PORTS) * param(ID::WIDTH));
-				port(ID::WR_ADDR, param(ID::WR_PORTS) * param(ID::ABITS));
-				port(ID::WR_DATA, param(ID::WR_PORTS) * param(ID::WIDTH));
+				param_بٹ(ID::RD_CLK_ENABLE, max(1, param(ID::RD_PORTS)));
+				param_بٹ(ID::RD_CLK_POLARITY, max(1, param(ID::RD_PORTS)));
+				param_بٹ(ID::RD_TRANSPARENCY_نقاب, max(1, param(ID::RD_PORTS) * param(ID::WR_PORTS)));
+				param_بٹ(ID::RD_COLLISION_X_نقاب, max(1, param(ID::RD_PORTS) * param(ID::WR_PORTS)));
+				param_بٹ(ID::RD_WIDE_CONTINUATION, max(1, param(ID::RD_PORTS)));
+				param_بٹ(ID::RD_CE_OVER_SRST, max(1, param(ID::RD_PORTS)));
+				param_بٹ(ID::RD_ARST_قدر, max(1, param(ID::RD_PORTS) * param(ID::چوڑائی_2)));
+				param_بٹ(ID::RD_SRST_قدر, max(1, param(ID::RD_PORTS) * param(ID::چوڑائی_2)));
+				param_بٹ(ID::RD_INIT_قدر, max(1, param(ID::RD_PORTS) * param(ID::چوڑائی_2)));
+				param_بٹ(ID::WR_CLK_ENABLE, max(1, param(ID::WR_PORTS)));
+				param_بٹ(ID::WR_CLK_POLARITY, max(1, param(ID::WR_PORTS)));
+				param_بٹ(ID::WR_WIDE_CONTINUATION, max(1, param(ID::WR_PORTS)));
+				param_بٹ(ID::WR_ترجیح_نقاب, max(1, param(ID::WR_PORTS) * param(ID::WR_PORTS)));
+				پورٹ(ID::RD_CLK, param(ID::RD_PORTS));
+				پورٹ(ID::RD_EN, param(ID::RD_PORTS));
+				پورٹ(ID::RD_ARST, param(ID::RD_PORTS));
+				پورٹ(ID::RD_SRST, param(ID::RD_PORTS));
+				پورٹ(ID::RD_ADDR, param(ID::RD_PORTS) * param(ID::ABITS));
+				پورٹ(ID::RD_انکڑے, param(ID::RD_PORTS) * param(ID::چوڑائی_2));
+				پورٹ(ID::WR_CLK, param(ID::WR_PORTS));
+				پورٹ(ID::WR_EN, param(ID::WR_PORTS) * param(ID::چوڑائی_2));
+				پورٹ(ID::WR_ADDR, param(ID::WR_PORTS) * param(ID::ABITS));
+				پورٹ(ID::WR_انکڑے, param(ID::WR_PORTS) * param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($tribuf)) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
-				port(ID::EN, 1);
+			إذا (cell->type == ID($tribuf)) {
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::Y, param(ID::چوڑائی_2));
+				پورٹ(ID::EN, 1);
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($bweqx)) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::B, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			إذا (cell->type == ID($bweqx)) {
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::B, param(ID::چوڑائی_2));
+				پورٹ(ID::Y, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($bwmux)) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::B, param(ID::WIDTH));
-				port(ID::S, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			إذا (cell->type == ID($bwmux)) {
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::B, param(ID::چوڑائی_2));
+				پورٹ(ID::S, param(ID::چوڑائی_2));
+				پورٹ(ID::Y, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover))) {
-				port(ID::A, 1);
-				port(ID::EN, 1);
+			إذا (cell->type.وچ(ID($أكد), ID($assume), ID($جیوندا), ID($fair), ID($cover))) {
+				پورٹ(ID::A, 1);
+				پورٹ(ID::EN, 1);
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($initstate)) {
-				port(ID::Y, 1);
+			إذا (cell->type == ID($initstate)) {
+				پورٹ(ID::Y, 1);
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type.in(ID($anyconst), ID($anyseq), ID($allconst), ID($allseq))) {
-				port(ID::Y, param(ID::WIDTH));
+			إذا (cell->type.وچ(ID($anyconst), ID($anyseq), ID($allconst), ID($allseq))) {
+				پورٹ(ID::Y, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type.in(ID($anyinit))) {
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+			إذا (cell->type.وچ(ID($anyinit))) {
+				پورٹ(ID::D, param(ID::چوڑائی_2));
+				پورٹ(ID::Q, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($equiv)) {
-				port(ID::A, 1);
-				port(ID::B, 1);
-				port(ID::Y, 1);
+			إذا (cell->type == ID($equiv)) {
+				پورٹ(ID::A, 1);
+				پورٹ(ID::B, 1);
+				پورٹ(ID::Y, 1);
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type.in(ID($specify2), ID($specify3))) {
-				param_bool(ID::FULL);
+			إذا (cell->type.وچ(ID($specify2), ID($specify3))) {
+				param_bool(ID::بھریا);
 				param_bool(ID::SRC_DST_PEN);
 				param_bool(ID::SRC_DST_POL);
 				param(ID::T_RISE_MIN);
@@ -2191,150 +2191,150 @@ namespace {
 				param(ID::T_FALL_MIN);
 				param(ID::T_FALL_TYP);
 				param(ID::T_FALL_MAX);
-				port(ID::EN, 1);
-				port(ID::SRC, param(ID::SRC_WIDTH));
-				port(ID::DST, param(ID::DST_WIDTH));
-				if (cell->type == ID($specify3)) {
-					param_bool(ID::EDGE_EN);
-					param_bool(ID::EDGE_POL);
+				پورٹ(ID::EN, 1);
+				پورٹ(ID::SRC, param(ID::SRC_چوڑائی));
+				پورٹ(ID::DST, param(ID::DST_چوڑائی));
+				إذا (cell->type == ID($specify3)) {
+					param_bool(ID::کنارا_EN);
+					param_bool(ID::کنارا_POL);
 					param_bool(ID::DAT_DST_PEN);
 					param_bool(ID::DAT_DST_POL);
-					port(ID::DAT, param(ID::DST_WIDTH));
+					پورٹ(ID::DAT, param(ID::DST_چوڑائی));
 				}
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($specrule)) {
+			إذا (cell->type == ID($specrule)) {
 				param(ID::TYPE);
 				param_bool(ID::SRC_PEN);
 				param_bool(ID::SRC_POL);
 				param_bool(ID::DST_PEN);
 				param_bool(ID::DST_POL);
-				param(ID::T_LIMIT_MIN);
-				param(ID::T_LIMIT_TYP);
-				param(ID::T_LIMIT_MAX);
+				param(ID::T_حد_بندی_MIN);
+				param(ID::T_حد_بندی_TYP);
+				param(ID::T_حد_بندی_MAX);
 				param(ID::T_LIMIT2_MIN);
 				param(ID::T_LIMIT2_TYP);
 				param(ID::T_LIMIT2_MAX);
-				port(ID::SRC_EN, 1);
-				port(ID::DST_EN, 1);
-				port(ID::SRC, param(ID::SRC_WIDTH));
-				port(ID::DST, param(ID::DST_WIDTH));
+				پورٹ(ID::SRC_EN, 1);
+				پورٹ(ID::DST_EN, 1);
+				پورٹ(ID::SRC, param(ID::SRC_چوڑائی));
+				پورٹ(ID::DST, param(ID::DST_چوڑائی));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($print)) {
+			إذا (cell->type == ID($print)) {
 				param(ID(FORMAT));
 				param_bool(ID::TRG_ENABLE);
 				param(ID::TRG_POLARITY);
-				param(ID::PRIORITY);
-				port(ID::EN, 1);
-				port(ID::TRG, param(ID::TRG_WIDTH));
-				port(ID::ARGS, param(ID::ARGS_WIDTH));
+				param(ID::ترجیح);
+				پورٹ(ID::EN, 1);
+				پورٹ(ID::TRG, param(ID::TRG_چوڑائی));
+				پورٹ(ID::دلیلاں, param(ID::دلیلاں_چوڑائی));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($check)) {
+			إذا (cell->type == ID($check)) {
 				std::string flavor = param_string(ID(FLAVOR));
-				if (!(flavor == "assert" || flavor == "assume" || flavor == "live" || flavor == "fair" || flavor == "cover"))
+				إذا (!(flavor == "assert" || flavor == "assume" || flavor == "live" || flavor == "fair" || flavor == "cover"))
 					error(__LINE__);
 				param(ID(FORMAT));
 				param_bool(ID::TRG_ENABLE);
 				param(ID::TRG_POLARITY);
-				param(ID::PRIORITY);
-				port(ID::A, 1);
-				port(ID::EN, 1);
-				port(ID::TRG, param(ID::TRG_WIDTH));
-				port(ID::ARGS, param(ID::ARGS_WIDTH));
+				param(ID::ترجیح);
+				پورٹ(ID::A, 1);
+				پورٹ(ID::EN, 1);
+				پورٹ(ID::TRG, param(ID::TRG_چوڑائی));
+				پورٹ(ID::دلیلاں, param(ID::دلیلاں_چوڑائی));
 				check_expected();
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($scopeinfo)) {
+			إذا (cell->type == ID($scopeinfo)) {
 				param(ID::TYPE);
 				check_expected();
 				std::string scope_type = cell->getParam(ID::TYPE).decode_string();
-				if (scope_type != "module" && scope_type != "struct" && scope_type != "blackbox")
+				إذا (scope_type != "module" && scope_type != "struct" && scope_type != "blackbox")
 					error(__LINE__);
-				return;
+				أرجع;
 			}
 
-			if (cell->type == ID($_BUF_))    { port(ID::A,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NOT_))    { port(ID::A,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_AND_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NAND_))   { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_OR_))     { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NOR_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_XOR_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_XNOR_))   { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_ANDNOT_)) { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_ORNOT_))  { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_MUX_))    { port(ID::A,1); port(ID::B,1); port(ID::S,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NMUX_))   { port(ID::A,1); port(ID::B,1); port(ID::S,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_AOI3_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_OAI3_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_AOI4_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_OAI4_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::Y,1); check_expected(); return; }
+			إذا (cell->type == ID($_BUF_))    { پورٹ(ID::A,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_NOT_))    { پورٹ(ID::A,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_AND_))    { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_NAND_))   { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_OR_))     { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_NOR_))    { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_XOR_))    { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_XNOR_))   { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_ANDNOT_)) { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_ORNOT_))  { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_MUX_))    { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::S,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_NMUX_))   { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::S,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_AOI3_))   { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::C,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_OAI3_))   { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::C,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_AOI4_))   { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::C,1); پورٹ(ID::D,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_OAI4_))   { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::C,1); پورٹ(ID::D,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
 
-			if (cell->type == ID($_TBUF_))  { port(ID::A,1); port(ID::Y,1); port(ID::E,1); check_expected(); return; }
+			إذا (cell->type == ID($_TBUF_))  { پورٹ(ID::A,1); پورٹ(ID::Y,1); پورٹ(ID::E,1); check_expected(); أرجع; }
 
-			if (cell->type == ID($_MUX4_))  { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::S,1); port(ID::T,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_MUX8_))  { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::E,1); port(ID::F,1); port(ID::G,1); port(ID::H,1); port(ID::S,1); port(ID::T,1); port(ID::U,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_MUX16_)) { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::E,1); port(ID::F,1); port(ID::G,1); port(ID::H,1); port(ID::I,1); port(ID::J,1); port(ID::K,1); port(ID::L,1); port(ID::M,1); port(ID::N,1); port(ID::O,1); port(ID::P,1); port(ID::S,1); port(ID::T,1); port(ID::U,1); port(ID::V,1); port(ID::Y,1); check_expected(); return; }
+			إذا (cell->type == ID($_MUX4_))  { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::C,1); پورٹ(ID::D,1); پورٹ(ID::S,1); پورٹ(ID::T,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_MUX8_))  { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::C,1); پورٹ(ID::D,1); پورٹ(ID::E,1); پورٹ(ID::F,1); پورٹ(ID::G,1); پورٹ(ID::H,1); پورٹ(ID::S,1); پورٹ(ID::T,1); پورٹ(ID::U,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
+			إذا (cell->type == ID($_MUX16_)) { پورٹ(ID::A,1); پورٹ(ID::B,1); پورٹ(ID::C,1); پورٹ(ID::D,1); پورٹ(ID::E,1); پورٹ(ID::F,1); پورٹ(ID::G,1); پورٹ(ID::H,1); پورٹ(ID::I,1); پورٹ(ID::J,1); پورٹ(ID::K,1); پورٹ(ID::L,1); پورٹ(ID::M,1); پورٹ(ID::N,1); پورٹ(ID::O,1); پورٹ(ID::P,1); پورٹ(ID::S,1); پورٹ(ID::T,1); پورٹ(ID::U,1); پورٹ(ID::V,1); پورٹ(ID::Y,1); check_expected(); أرجع; }
 
-			if (cell->type.in(ID($_SR_NN_), ID($_SR_NP_), ID($_SR_PN_), ID($_SR_PP_)))
-				{ port(ID::S,1); port(ID::R,1); port(ID::Q,1); check_expected(); return; }
+			إذا (cell->type.وچ(ID($_SR_NN_), ID($_SR_NP_), ID($_SR_PN_), ID($_SR_PP_)))
+				{ پورٹ(ID::S,1); پورٹ(ID::R,1); پورٹ(ID::Q,1); check_expected(); أرجع; }
 
-			if (cell->type == ID($_FF_)) { port(ID::D,1); port(ID::Q,1); check_expected();  return; }
+			إذا (cell->type == ID($_FF_)) { پورٹ(ID::D,1); پورٹ(ID::Q,1); check_expected();  أرجع; }
 
-			if (cell->type.in(ID($_DFF_N_), ID($_DFF_P_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); check_expected(); return; }
+			إذا (cell->type.وچ(ID($_DFF_N_), ID($_DFF_P_)))
+				{ پورٹ(ID::D,1); پورٹ(ID::Q,1); پورٹ(ID::C,1); check_expected(); أرجع; }
 
-			if (cell->type.in(ID($_DFFE_NN_), ID($_DFFE_NP_), ID($_DFFE_PN_), ID($_DFFE_PP_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::E,1); check_expected(); return; }
+			إذا (cell->type.وچ(ID($_DFFE_NN_), ID($_DFFE_NP_), ID($_DFFE_PN_), ID($_DFFE_PP_)))
+				{ پورٹ(ID::D,1); پورٹ(ID::Q,1); پورٹ(ID::C,1); پورٹ(ID::E,1); check_expected(); أرجع; }
 
-			if (cell->type.in(
+			إذا (cell->type.وچ(
 					ID($_DFF_NN0_), ID($_DFF_NN1_), ID($_DFF_NP0_), ID($_DFF_NP1_),
 					ID($_DFF_PN0_), ID($_DFF_PN1_), ID($_DFF_PP0_), ID($_DFF_PP1_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); check_expected(); return; }
+				{ پورٹ(ID::D,1); پورٹ(ID::Q,1); پورٹ(ID::C,1); پورٹ(ID::R,1); check_expected(); أرجع; }
 
-			if (cell->type.in(
+			إذا (cell->type.وچ(
 					ID($_DFFE_NN0N_), ID($_DFFE_NN0P_), ID($_DFFE_NN1N_), ID($_DFFE_NN1P_),
 					ID($_DFFE_NP0N_), ID($_DFFE_NP0P_), ID($_DFFE_NP1N_), ID($_DFFE_NP1P_),
 					ID($_DFFE_PN0N_), ID($_DFFE_PN0P_), ID($_DFFE_PN1N_), ID($_DFFE_PN1P_),
 					ID($_DFFE_PP0N_), ID($_DFFE_PP0P_), ID($_DFFE_PP1N_), ID($_DFFE_PP1P_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); port(ID::E,1); check_expected(); return; }
+				{ پورٹ(ID::D,1); پورٹ(ID::Q,1); پورٹ(ID::C,1); پورٹ(ID::R,1); پورٹ(ID::E,1); check_expected(); أرجع; }
 
-			if (cell->type.in(
+			إذا (cell->type.وچ(
 					ID($_ALDFF_NN_), ID($_ALDFF_NP_), ID($_ALDFF_PN_), ID($_ALDFF_PP_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::L,1); port(ID::AD,1); check_expected(); return; }
+				{ پورٹ(ID::D,1); پورٹ(ID::Q,1); پورٹ(ID::C,1); پورٹ(ID::L,1); پورٹ(ID::AD,1); check_expected(); أرجع; }
 
-			if (cell->type.in(
+			إذا (cell->type.وچ(
 					ID($_ALDFFE_NNN_), ID($_ALDFFE_NNP_), ID($_ALDFFE_NPN_), ID($_ALDFFE_NPP_),
 					ID($_ALDFFE_PNN_), ID($_ALDFFE_PNP_), ID($_ALDFFE_PPN_), ID($_ALDFFE_PPP_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::L,1); port(ID::AD,1); port(ID::E,1); check_expected(); return; }
+				{ پورٹ(ID::D,1); پورٹ(ID::Q,1); پورٹ(ID::C,1); پورٹ(ID::L,1); پورٹ(ID::AD,1); پورٹ(ID::E,1); check_expected(); أرجع; }
 
-			if (cell->type.in(
+			إذا (cell->type.وچ(
 					ID($_DFFSR_NNN_), ID($_DFFSR_NNP_), ID($_DFFSR_NPN_), ID($_DFFSR_NPP_),
 					ID($_DFFSR_PNN_), ID($_DFFSR_PNP_), ID($_DFFSR_PPN_), ID($_DFFSR_PPP_)))
-				{ port(ID::C,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+				{ پورٹ(ID::C,1); پورٹ(ID::S,1); پورٹ(ID::R,1); پورٹ(ID::D,1); پورٹ(ID::Q,1); check_expected(); أرجع; }
 
-			if (cell->type.in(
+			إذا (cell->type.وچ(
 					ID($_DFFSRE_NNNN_), ID($_DFFSRE_NNNP_), ID($_DFFSRE_NNPN_), ID($_DFFSRE_NNPP_),
 					ID($_DFFSRE_NPNN_), ID($_DFFSRE_NPNP_), ID($_DFFSRE_NPPN_), ID($_DFFSRE_NPPP_),
 					ID($_DFFSRE_PNNN_), ID($_DFFSRE_PNNP_), ID($_DFFSRE_PNPN_), ID($_DFFSRE_PNPP_),
 					ID($_DFFSRE_PPNN_), ID($_DFFSRE_PPNP_), ID($_DFFSRE_PPPN_), ID($_DFFSRE_PPPP_)))
-				{ port(ID::C,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::E,1); port(ID::Q,1); check_expected(); return; }
+				{ پورٹ(ID::C,1); پورٹ(ID::S,1); پورٹ(ID::R,1); پورٹ(ID::D,1); پورٹ(ID::E,1); پورٹ(ID::Q,1); check_expected(); أرجع; }
 
-			if (cell->type.in(
+			إذا (cell->type.وچ(
 					ID($_SDFF_NN0_), ID($_SDFF_NN1_), ID($_SDFF_NP0_), ID($_SDFF_NP1_),
 					ID($_SDFF_PN0_), ID($_SDFF_PN1_), ID($_SDFF_PP0_), ID($_SDFF_PP1_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); check_expected(); return; }
+				{ پورٹ(ID::D,1); پورٹ(ID::Q,1); پورٹ(ID::C,1); پورٹ(ID::R,1); check_expected(); أرجع; }
 
-			if (cell->type.in(
+			إذا (cell->type.وچ(
 					ID($_SDFFE_NN0N_), ID($_SDFFE_NN0P_), ID($_SDFFE_NN1N_), ID($_SDFFE_NN1P_),
 					ID($_SDFFE_NP0N_), ID($_SDFFE_NP0P_), ID($_SDFFE_NP1N_), ID($_SDFFE_NP1P_),
 					ID($_SDFFE_PN0N_), ID($_SDFFE_PN0P_), ID($_SDFFE_PN1N_), ID($_SDFFE_PN1P_),
@@ -2343,67 +2343,67 @@ namespace {
 					ID($_SDFFCE_NP0N_), ID($_SDFFCE_NP0P_), ID($_SDFFCE_NP1N_), ID($_SDFFCE_NP1P_),
 					ID($_SDFFCE_PN0N_), ID($_SDFFCE_PN0P_), ID($_SDFFCE_PN1N_), ID($_SDFFCE_PN1P_),
 					ID($_SDFFCE_PP0N_), ID($_SDFFCE_PP0P_), ID($_SDFFCE_PP1N_), ID($_SDFFCE_PP1P_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); port(ID::E,1); check_expected(); return; }
+				{ پورٹ(ID::D,1); پورٹ(ID::Q,1); پورٹ(ID::C,1); پورٹ(ID::R,1); پورٹ(ID::E,1); check_expected(); أرجع; }
 
-			if (cell->type.in(ID($_DLATCH_N_), ID($_DLATCH_P_)))
-				{ port(ID::E,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+			إذا (cell->type.وچ(ID($_DLATCH_N_), ID($_DLATCH_P_)))
+				{ پورٹ(ID::E,1); پورٹ(ID::D,1); پورٹ(ID::Q,1); check_expected(); أرجع; }
 
-			if (cell->type.in(
+			إذا (cell->type.وچ(
 					ID($_DLATCH_NN0_), ID($_DLATCH_NN1_), ID($_DLATCH_NP0_), ID($_DLATCH_NP1_),
 					ID($_DLATCH_PN0_), ID($_DLATCH_PN1_), ID($_DLATCH_PP0_), ID($_DLATCH_PP1_)))
-				{ port(ID::E,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+				{ پورٹ(ID::E,1); پورٹ(ID::R,1); پورٹ(ID::D,1); پورٹ(ID::Q,1); check_expected(); أرجع; }
 
-			if (cell->type.in(
+			إذا (cell->type.وچ(
 					ID($_DLATCHSR_NNN_), ID($_DLATCHSR_NNP_), ID($_DLATCHSR_NPN_), ID($_DLATCHSR_NPP_),
 					ID($_DLATCHSR_PNN_), ID($_DLATCHSR_PNP_), ID($_DLATCHSR_PPN_), ID($_DLATCHSR_PPP_)))
-				{ port(ID::E,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+				{ پورٹ(ID::E,1); پورٹ(ID::S,1); پورٹ(ID::R,1); پورٹ(ID::D,1); پورٹ(ID::Q,1); check_expected(); أرجع; }
 
-			if (cell->type.in(ID($set_tag))) {
-				param(ID::WIDTH);
-				param(ID::TAG);
-				port(ID::A, param(ID::WIDTH));
-				port(ID::SET, param(ID::WIDTH));
-				port(ID::CLR, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			إذا (cell->type.وچ(ID($سیٹ_ٹیگ))) {
+				param(ID::چوڑائی_2);
+				param(ID::ٹیگ_2);
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::سیٹ_2, param(ID::چوڑائی_2));
+				پورٹ(ID::CLR, param(ID::چوڑائی_2));
+				پورٹ(ID::Y, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
-			if (cell->type.in(ID($get_tag),ID($original_tag))) {
-				param(ID::WIDTH);
-				param(ID::TAG);
-				port(ID::A, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			إذا (cell->type.وچ(ID($get_ٹیگ),ID($original_ٹیگ))) {
+				param(ID::چوڑائی_2);
+				param(ID::ٹیگ_2);
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::Y, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
-			if (cell->type.in(ID($overwrite_tag))) {
-				param(ID::WIDTH);
-				param(ID::TAG);
-				port(ID::A, param(ID::WIDTH));
-				port(ID::SET, param(ID::WIDTH));
-				port(ID::CLR, param(ID::WIDTH));
+			إذا (cell->type.وچ(ID($overwrite_ٹیگ))) {
+				param(ID::چوڑائی_2);
+				param(ID::ٹیگ_2);
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::سیٹ_2, param(ID::چوڑائی_2));
+				پورٹ(ID::CLR, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
-			if (cell->type.in(ID($future_ff))) {
-				param(ID::WIDTH);
-				port(ID::A, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			إذا (cell->type.وچ(ID($future_ff))) {
+				param(ID::چوڑائی_2);
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::Y, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
-			if (cell->type.in(ID($input_port))) {
-				param(ID::WIDTH);
-				port(ID::Y, param(ID::WIDTH));
+			إذا (cell->type.وچ(ID($داخلہ_پورٹ))) {
+				param(ID::چوڑائی_2);
+				پورٹ(ID::Y, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
-			if (cell->type.in(ID($connect))) {
-				param(ID::WIDTH);
-				port(ID::A, param(ID::WIDTH));
-				port(ID::B, param(ID::WIDTH));
+			إذا (cell->type.وچ(ID($connect))) {
+				param(ID::چوڑائی_2);
+				پورٹ(ID::A, param(ID::چوڑائی_2));
+				پورٹ(ID::B, param(ID::چوڑائی_2));
 				check_expected();
-				return;
+				أرجع;
 			}
 			/*
 			 * Checklist for adding internal cell types
@@ -2424,168 +2424,168 @@ namespace {
 		}
 	};
 }
-#endif
+#جے_انت
 
-void RTLIL::Module::sort()
+فراغ RTLIL::Module::ترتیب_دیو()
 {
-	wires_.sort(sort_by_id_str(design->twines()));
-	cells_.sort(sort_by_id_str(design->twines()));
-	parameter_default_values.sort(sort_by_id_str(design->twines()));
-	memories.sort(sort_by_id_str(design->twines()));
-	processes.sort(sort_by_id_str(design->twines()));
-	for (auto &it : cells_)
-		it.second->sort();
-	for (auto &it : wires_)
-		it.second->attributes.sort(sort_by_id_str(design->twines()));
-	for (auto &it : memories)
-		it.second->attributes.sort(sort_by_id_str(design->twines()));
+	wires_.ترتیب_دیو(ترتیب_دیو_by_id_str(design->twines()));
+	cells_.ترتیب_دیو(ترتیب_دیو_by_id_str(design->twines()));
+	parameter_default_اقدار.ترتیب_دیو(ترتیب_دیو_by_id_str(design->twines()));
+	memories.ترتیب_دیو(ترتیب_دیو_by_id_str(design->twines()));
+	processes.ترتیب_دیو(ترتیب_دیو_by_id_str(design->twines()));
+	لكل (خودکار &it : cells_)
+		it.دوجا->ترتیب_دیو();
+	لكل (خودکار &it : wires_)
+		it.دوجا->گن.ترتیب_دیو(ترتیب_دیو_by_id_str(design->twines()));
+	لكل (خودکار &it : memories)
+		it.دوجا->گن.ترتیب_دیو(ترتیب_دیو_by_id_str(design->twines()));
 }
 
-#ifndef NDEBUG
-static void check_id_keys(const dict<RTLIL::IdString, RTLIL::Const> &keyed)
+#جے_بنا_تعریف NDEBUG
+ساكن فراغ check_id_کلیدیں(ثابت dict<RTLIL::IdString, RTLIL::Const> &keyed)
 {
-	for (auto &it : keyed)
-		log_assert(!it.first.empty());
+	لكل (خودکار &it : keyed)
+		log_assert(!it.پہلا.خالی_تھاواں());
 }
-#endif
+#جے_انت
 
-void check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool)
+فراغ check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool)
 {
-#ifndef NDEBUG
-	ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_size(0, module->cells_size(), 1000));
-	const RTLIL::Module *const_module = module;
+#جے_بنا_تعریف NDEBUG
+	ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_ناپ(0, module->cells_ناپ(), 1000));
+	ثابت RTLIL::Module *const_module = module;
 
-	pool<std::string> memory_strings;
-	for (auto &it : module->memories) {
-		log_assert(it.first == it.second->name);
-		log_assert(it.first != IdString::Null);
-		log_assert(it.second->width >= 0);
-		log_assert(it.second->size >= 0);
-		check_id_keys(it.second->attributes);
-		memory_strings.insert(it.second->name.str());
+	pool<std::string> حافظہ_لڑیاں;
+	لكل (خودکار &it : module->memories) {
+		log_assert(it.پہلا == it.دوجا->name);
+		log_assert(it.پہلا != IdString::Null);
+		log_assert(it.دوجا->چوڑائی >= 0);
+		log_assert(it.دوجا->ناپ >= 0);
+		check_id_کلیدیں(it.دوجا->گن);
+		حافظہ_لڑیاں.داخل_کرو(it.دوجا->name.str());
 	}
 
-	std::vector<MonotonicFlag> ports_declared(GetSize(module->ports));
-	ShardedVector<std::string> memids(subpool);
-	subpool.run([const_module, &ports_declared, &memory_strings, &memids](const ParallelDispatchThreadPool::RunCtx &ctx) {
-		for (int i : ctx.item_range(const_module->cells_size())) {
-			auto it = *const_module->cells_.element(i);
-			log_assert(const_module == it.second->module);
-			log_assert(it.first == it.second->name);
-			log_assert(it.first != IdString::Null);
-			log_assert(!it.second->type.empty());
-			for (auto &it2 : it.second->connections()) {
-				log_assert(it2.first != IdString::Null);
-				it2.second.check(const_module);
+	std::سمتیہ<MonotonicFlag> ports_declared(Get_ناپ(module->ports));
+	Sharded_سمتیہ<std::string> memids(subpool);
+	subpool.لگاتار([const_module, &ports_declared, &حافظہ_لڑیاں, &memids](ثابت ParallelDispatchThreadPool::لگاتار_Ctx &ctx) {
+		لكل (صحيح i : ctx.شے_range(const_module->cells_ناپ())) {
+			خودکار it = *const_module->cells_.element(i);
+			log_assert(const_module == it.دوجا->module);
+			log_assert(it.پہلا == it.دوجا->name);
+			log_assert(it.پہلا != IdString::Null);
+			log_assert(!it.دوجا->type.خالی_تھاواں());
+			لكل (خودکار &it2 : it.دوجا->connections()) {
+				log_assert(it2.پہلا != IdString::Null);
+				it2.دوجا.check(const_module);
 			}
-			check_id_keys(it.second->attributes);
-			check_id_keys(it.second->parameters);
-			InternalCellChecker checker(const_module, it.second);
+			check_id_کلیدیں(it.دوجا->گن);
+			check_id_کلیدیں(it.دوجا->parameters);
+			اندرونی_Cell_Checker checker(const_module, it.دوجا);
 			checker.check();
-			if (it.second->has_memid()) {
-				log_assert(memory_strings.count(it.second->parameters.at(ID::MEMID).decode_string()));
-			} else if (it.second->is_mem_cell()) {
-				std::string memid = it.second->parameters.at(ID::MEMID).decode_string();
-				log_assert(!memory_strings.count(memid));
-				memids.insert(ctx, std::move(memid));
+			إذا (it.دوجا->has_memid()) {
+				log_assert(حافظہ_لڑیاں.گنتی(it.دوجا->parameters.at(ID::MEMID).decode_string()));
+			} وإلا إذا (it.دوجا->is_mem_cell()) {
+				std::string memid = it.دوجا->parameters.at(ID::MEMID).decode_string();
+				log_assert(!حافظہ_لڑیاں.گنتی(memid));
+				memids.داخل_کرو(ctx, std::move(memid));
 			}
-			auto cell_mod = const_module->design->module(it.second->name);
-			if (cell_mod != nullptr) {
+			خودکار cell_mod = const_module->design->module(it.دوجا->name);
+			إذا (cell_mod != خالی_سوچک) {
 				// assertion check below to make sure that there are no
 				// cases where a cell has a blackbox attribute since
 				// that is deprecated
-				#ifdef __GNUC__
-				#pragma GCC diagnostic push
-				#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-				#endif
-				log_assert(!it.second->get_blackbox_attribute());
-				#ifdef __GNUC__
-				#pragma GCC diagnostic pop
-				#endif
+				#جے_تعریف_شدہ __GNUC__
+				#ہدایت GCC diagnostic ڈالو
+				#ہدایت GCC diagnostic ignored "-Wdeprecated-declarations"
+				#جے_انت
+				log_assert(!it.دوجا->get_blackbox_attribute());
+				#جے_تعریف_شدہ __GNUC__
+				#ہدایت GCC diagnostic نکالو
+				#جے_انت
 			}
 		}
 
-		for (int i : ctx.item_range(const_module->wires_size())) {
-			auto it = *const_module->wires_.element(i);
-			log_assert(const_module == it.second->module);
-			log_assert(it.first == it.second->name);
-			log_assert(it.first != IdString::Null);
-			log_assert(it.second->width >= 0);
-			log_assert(it.second->port_id >= 0);
-			check_id_keys(it.second->attributes);
-			if (it.second->port_id) {
-				log_assert(GetSize(const_module->ports) >= it.second->port_id);
-				log_assert(const_module->ports.at(it.second->port_id-1) == it.second->name);
-				log_assert(it.second->port_input || it.second->port_output);
-				log_assert(it.second->port_id <= GetSize(ports_declared));
-				bool previously_declared = ports_declared[it.second->port_id-1].set_and_return_old();
-				log_assert(previously_declared == false);
-			} else
-				log_assert(!it.second->port_input && !it.second->port_output);
+		لكل (صحيح i : ctx.شے_range(const_module->wires_ناپ())) {
+			خودکار it = *const_module->wires_.element(i);
+			log_assert(const_module == it.دوجا->module);
+			log_assert(it.پہلا == it.دوجا->name);
+			log_assert(it.پہلا != IdString::Null);
+			log_assert(it.دوجا->چوڑائی >= 0);
+			log_assert(it.دوجا->پورٹ_id >= 0);
+			check_id_کلیدیں(it.دوجا->گن);
+			إذا (it.دوجا->پورٹ_id) {
+				log_assert(Get_ناپ(const_module->ports) >= it.دوجا->پورٹ_id);
+				log_assert(const_module->ports.at(it.دوجا->پورٹ_id-1) == it.دوجا->name);
+				log_assert(it.دوجا->پورٹ_داخلہ || it.دوجا->پورٹ_output);
+				log_assert(it.دوجا->پورٹ_id <= Get_ناپ(ports_declared));
+				منطقي previously_declared = ports_declared[it.دوجا->پورٹ_id-1].سیٹ_and_return_old();
+				log_assert(previously_declared == خطأ);
+			} وإلا
+				log_assert(!it.دوجا->پورٹ_داخلہ && !it.دوجا->پورٹ_output);
 		}
 	});
-	for (const MonotonicFlag &port_declared : ports_declared)
-		log_assert(port_declared.load() == true);
+	لكل (ثابت MonotonicFlag &پورٹ_declared : ports_declared)
+		log_assert(پورٹ_declared.لدو() == سچ);
 	pool<std::string> memids_pool;
-	for (std::string &memid : memids)
-		log_assert(memids_pool.insert(memid).second);
+	لكل (std::string &memid : memids)
+		log_assert(memids_pool.داخل_کرو(memid).دوجا);
 
-	for (auto &it : module->processes) {
-		log_assert(it.first == it.second->name);
-		log_assert(it.first != IdString::Null);
-		log_assert(it.second->root_case.compare.empty());
-		std::vector<RTLIL::CaseRule*> all_cases = {&it.second->root_case};
-		for (size_t i = 0; i < all_cases.size(); i++) {
-			for (auto &switch_it : all_cases[i]->switches) {
-				for (auto &case_it : switch_it->cases) {
-					for (auto &compare_it : case_it->compare) {
-						log_assert(switch_it->signal.size() == compare_it.size());
+	لكل (خودکار &it : module->processes) {
+		log_assert(it.پہلا == it.دوجا->name);
+		log_assert(it.پہلا != IdString::Null);
+		log_assert(it.دوجا->جڑ_case.compare.خالی_تھاواں());
+		std::سمتیہ<RTLIL::Case_قاعدہ*> all_cases = {&it.دوجا->جڑ_case};
+		لكل (ناپ_t i = 0; i < all_cases.ناپ(); i++) {
+			لكل (خودکار &switch_it : all_cases[i]->switches) {
+				لكل (خودکار &case_it : switch_it->cases) {
+					لكل (خودکار &compare_it : case_it->compare) {
+						log_assert(switch_it->إشارة.ناپ() == compare_it.ناپ());
 					}
-					all_cases.push_back(case_it);
+					all_cases.ڈالو_پٹھ(case_it);
 				}
 			}
 		}
-		for (auto &sync_it : it.second->syncs) {
-			switch (sync_it->type) {
-				case RTLIL::SyncType::ST0:
-				case RTLIL::SyncType::ST1:
-				case RTLIL::SyncType::STp:
-				case RTLIL::SyncType::STn:
-				case RTLIL::SyncType::STe:
-					log_assert(!sync_it->signal.empty());
-					break;
-				case RTLIL::SyncType::STa:
-				case RTLIL::SyncType::STg:
-				case RTLIL::SyncType::STi:
-					log_assert(sync_it->signal.empty());
-					break;
+		لكل (خودکار &sync_it : it.دوجا->syncs) {
+			بدل (sync_it->type) {
+				حالة RTLIL::SyncType::ST0:
+				حالة RTLIL::SyncType::ST1:
+				حالة RTLIL::SyncType::STp:
+				حالة RTLIL::SyncType::STn:
+				حالة RTLIL::SyncType::STe:
+					log_assert(!sync_it->إشارة.خالی_تھاواں());
+					اكسر;
+				حالة RTLIL::SyncType::STa:
+				حالة RTLIL::SyncType::STg:
+				حالة RTLIL::SyncType::STi:
+					log_assert(sync_it->إشارة.خالی_تھاواں());
+					اكسر;
 			}
 		}
 	}
 
-	for (auto &it : module->connections_) {
-		log_assert(it.first.size() == it.second.size());
-		log_assert(!it.first.has_const());
-		it.first.check(module);
-		it.second.check(module);
+	لكل (خودکار &it : module->connections_) {
+		log_assert(it.پہلا.ناپ() == it.دوجا.ناپ());
+		log_assert(!it.پہلا.has_const());
+		it.پہلا.check(module);
+		it.دوجا.check(module);
 	}
 
-	check_id_keys(module->attributes);
-#endif
+	check_id_کلیدیں(module->گن);
+#جے_انت
 }
 
-void RTLIL::Module::check()
+فراغ RTLIL::Module::check()
 {
-	int pool_size = ThreadPool::work_pool_size(0, cells_size(), 1000);
-	ParallelDispatchThreadPool thread_pool(pool_size);
-	check_module(this, thread_pool);
+	صحيح pool_ناپ = ThreadPool::work_pool_ناپ(0, cells_ناپ(), 1000);
+	ParallelDispatchThreadPool thread_pool(pool_ناپ);
+	check_module(هذا, thread_pool);
 }
 
-void RTLIL::Module::optimize()
+فراغ RTLIL::Module::optimize()
 {
 }
 
-void RTLIL::Module::cloneInto(RTLIL::Module *new_mod) const
+فراغ RTLIL::Module::cloneInto(RTLIL::Module *new_mod) ثابت
 {
 	log_assert(new_mod->refcount_wires_ == 0);
 	log_assert(new_mod->refcount_cells_ == 0);
@@ -2593,224 +2593,224 @@ void RTLIL::Module::cloneInto(RTLIL::Module *new_mod) const
 	TwinePool &dst_twines = new_mod->twines();
 
 	new_mod->avail_parameters.clear();
-	for (IdString param : avail_parameters)
+	لكل (IdString param : avail_parameters)
 		new_mod->avail_parameters(dst_twines.copy_from(design->twines(), param));
-	new_mod->parameter_default_values.clear();
-	for (auto &it : parameter_default_values)
-		new_mod->parameter_default_values[dst_twines.copy_from(design->twines(), it.first)] = it.second;
+	new_mod->parameter_default_اقدار.clear();
+	لكل (خودکار &it : parameter_default_اقدار)
+		new_mod->parameter_default_اقدار[dst_twines.copy_from(design->twines(), it.پہلا)] = it.دوجا;
 
-	for (auto &conn : connections())
+	لكل (خودکار &conn : connections())
 		new_mod->connect(conn);
 
-	RTLIL::copy_attr_dict(new_mod->attributes, attributes, design, new_mod->design);
+	RTLIL::copy_attr_dict(new_mod->گن, گن, design, new_mod->design);
 
 	dict<RTLIL::Wire*, RTLIL::Wire*> wire_map;
 
-	for (auto it = wires_.rbegin(); it != wires_.rend(); ++it) {
-		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
-		wire_map[it->second] = new_mod->addWire(dst_id, it->second);
+	لكل (خودکار it = wires_.rbegin(); it != wires_.rend(); ++it) {
+		IdString dst_id = dst_twines.copy_from(design->twines(), it->پہلا);
+		wire_map[it->دوجا] = new_mod->جوڑو_Wire(dst_id, it->دوجا);
 	}
 
-	for (auto it = memories.rbegin(); it != memories.rend(); ++it) {
-		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
-		new_mod->addMemory(dst_id, it->second);
+	لكل (خودکار it = memories.rbegin(); it != memories.rend(); ++it) {
+		IdString dst_id = dst_twines.copy_from(design->twines(), it->پہلا);
+		new_mod->جوڑو_حافظہ(dst_id, it->دوجا);
 	}
 
-	for (auto it = cells_.rbegin(); it != cells_.rend(); ++it) {
-		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
-		new_mod->addCell(dst_id, it->second);
+	لكل (خودکار it = cells_.rbegin(); it != cells_.rend(); ++it) {
+		IdString dst_id = dst_twines.copy_from(design->twines(), it->پہلا);
+		new_mod->جوڑو_Cell(dst_id, it->دوجا);
 	}
 
-	for (auto it = processes.rbegin(); it != processes.rend(); ++it) {
-		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
-		new_mod->addProcess(dst_id, it->second);
+	لكل (خودکار it = processes.rbegin(); it != processes.rend(); ++it) {
+		IdString dst_id = dst_twines.copy_from(design->twines(), it->پہلا);
+		new_mod->جوڑو_Process(dst_id, it->دوجا);
 	}
 
-	struct RewriteSigSpecWorker
+	بنية Rewrite_Sig_Spec_کامہ
 	{
-		const dict<RTLIL::Wire*, RTLIL::Wire*> &wire_map;
-		const RTLIL::Module *new_mod;
-		void operator()(RTLIL::SigSpec &sig)
+		ثابت dict<RTLIL::Wire*, RTLIL::Wire*> &wire_map;
+		ثابت RTLIL::Module *new_mod;
+		فراغ عامل()(RTLIL::SigSpec &sig)
 		{
-			sig.rewrite_wires([this](RTLIL::Wire *&wire) {
-				auto it = wire_map.find(wire);
-				if (it != wire_map.end())
-					wire = it->second;
-				else
+			sig.rewrite_wires([هذا](RTLIL::Wire *&wire) {
+				خودکار it = wire_map.لبھو(wire);
+				إذا (it != wire_map.سرا())
+					wire = it->دوجا;
+				وإلا
 					log_assert(wire->module == new_mod);
 			});
 		}
 	};
 
-	RewriteSigSpecWorker rewriteSigSpecWorker{wire_map, new_mod};
-	new_mod->rewrite_sigspecs(rewriteSigSpecWorker);
+	Rewrite_Sig_Spec_کامہ rewrite_Sig_Spec_کامہ{wire_map, new_mod};
+	new_mod->rewrite_sigspecs(rewrite_Sig_Spec_کامہ);
 	new_mod->fixup_ports();
 }
 
-RTLIL::Module *RTLIL::Module::clone() const
+RTLIL::Module *RTLIL::Module::clone() ثابت
 {
-	RTLIL::Module *new_mod = new RTLIL::Module;
+	RTLIL::Module *new_mod = جديد RTLIL::Module;
 	new_mod->design = design;
 	new_mod->name = name;
 	cloneInto(new_mod);
-	return new_mod;
+	أرجع new_mod;
 }
 
-RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst) const
+RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst) ثابت
 {
-	RTLIL::Module *new_mod = new RTLIL::Module;
+	RTLIL::Module *new_mod = جديد RTLIL::Module;
 	new_mod->design = dst;
 	new_mod->name = dst->twines().copy_from(design->twines(), name);
 	cloneInto(new_mod);
-	dst->add(new_mod);
-	return new_mod;
+	dst->جوڑو(new_mod);
+	أرجع new_mod;
 }
 
-RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst, IdString target_name) const
+RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst, IdString نشانہ_name) ثابت
 {
-	RTLIL::Module *new_mod = new RTLIL::Module;
+	RTLIL::Module *new_mod = جديد RTLIL::Module;
 	new_mod->design = dst;
-	new_mod->name = target_name;
+	new_mod->name = نشانہ_name;
 	cloneInto(new_mod);
-	dst->add(new_mod);
-	return new_mod;
+	dst->جوڑو(new_mod);
+	أرجع new_mod;
 }
 
-bool RTLIL::Module::has_memories() const
+منطقي RTLIL::Module::has_memories() ثابت
 {
-	return !memories.empty();
+	أرجع !memories.خالی_تھاواں();
 }
 
-bool RTLIL::Module::has_processes() const
+منطقي RTLIL::Module::has_processes() ثابت
 {
-	return !processes.empty();
+	أرجع !processes.خالی_تھاواں();
 }
 
-bool RTLIL::Module::has_memories_warn() const
+منطقي RTLIL::Module::has_memories_warn() ثابت
 {
-	if (!memories.empty())
-		log_warning("Ignoring module %s because it contains memories (run 'memory' command first).\n", this);
-	return !memories.empty();
+	إذا (!memories.خالی_تھاواں())
+		log_warning("Ignoring module %s because it contains memories (run 'memory' command first).\n", هذا);
+	أرجع !memories.خالی_تھاواں();
 }
 
-bool RTLIL::Module::has_processes_warn() const
+منطقي RTLIL::Module::has_processes_warn() ثابت
 {
-	if (!processes.empty())
-		log_warning("Ignoring module %s because it contains processes (run 'proc' command first).\n", this);
-	return !processes.empty();
+	إذا (!processes.خالی_تھاواں())
+		log_warning("Ignoring module %s because it contains processes (run 'proc' command first).\n", هذا);
+	أرجع !processes.خالی_تھاواں();
 }
 
-bool RTLIL::Module::is_selected() const
+منطقي RTLIL::Module::is_selected() ثابت
 {
-	return design->selected_module(this->name);
+	أرجع design->selected_module(هذا->name);
 }
 
-bool RTLIL::Module::is_selected_whole() const
+منطقي RTLIL::Module::is_selected_سارا() ثابت
 {
-	return design->selected_whole_module(this->name);
+	أرجع design->selected_سارا_module(هذا->name);
 }
 
-std::vector<RTLIL::Wire*> RTLIL::Module::selected_wires() const
+std::سمتیہ<RTLIL::Wire*> RTLIL::Module::selected_wires() ثابت
 {
-	std::vector<RTLIL::Wire*> result;
-	result.reserve(wires_.size());
-	for (auto &it : wires_)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	std::سمتیہ<RTLIL::Wire*> نتیجہ;
+	نتیجہ.reserve(wires_.ناپ());
+	لكل (خودکار &it : wires_)
+		إذا (design->selected(هذا, it.دوجا))
+			نتیجہ.ڈالو_پٹھ(it.دوجا);
+	أرجع نتیجہ;
 }
 
-std::vector<RTLIL::Cell*> RTLIL::Module::selected_cells() const
+std::سمتیہ<RTLIL::Cell*> RTLIL::Module::selected_cells() ثابت
 {
-	std::vector<RTLIL::Cell*> result;
-	result.reserve(cells_.size());
-	for (auto &it : cells_)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	std::سمتیہ<RTLIL::Cell*> نتیجہ;
+	نتیجہ.reserve(cells_.ناپ());
+	لكل (خودکار &it : cells_)
+		إذا (design->selected(هذا, it.دوجا))
+			نتیجہ.ڈالو_پٹھ(it.دوجا);
+	أرجع نتیجہ;
 }
 
-std::vector<RTLIL::Memory*> RTLIL::Module::selected_memories() const
+std::سمتیہ<RTLIL::حافظہ*> RTLIL::Module::selected_memories() ثابت
 {
-	std::vector<RTLIL::Memory*> result;
-	result.reserve(memories.size());
-	for (auto &it : memories)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	std::سمتیہ<RTLIL::حافظہ*> نتیجہ;
+	نتیجہ.reserve(memories.ناپ());
+	لكل (خودکار &it : memories)
+		إذا (design->selected(هذا, it.دوجا))
+			نتیجہ.ڈالو_پٹھ(it.دوجا);
+	أرجع نتیجہ;
 }
 
-std::vector<RTLIL::Process*> RTLIL::Module::selected_processes() const
+std::سمتیہ<RTLIL::Process*> RTLIL::Module::selected_processes() ثابت
 {
-	std::vector<RTLIL::Process*> result;
-	result.reserve(processes.size());
-	for (auto &it : processes)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	std::سمتیہ<RTLIL::Process*> نتیجہ;
+	نتیجہ.reserve(processes.ناپ());
+	لكل (خودکار &it : processes)
+		إذا (design->selected(هذا, it.دوجا))
+			نتیجہ.ڈالو_پٹھ(it.دوجا);
+	أرجع نتیجہ;
 }
 
-std::vector<RTLIL::SelectedMember> RTLIL::Module::selected_members() const
+std::سمتیہ<RTLIL::SelectedMember> RTLIL::Module::selected_members() ثابت
 {
-	std::vector<RTLIL::SelectedMember> result;
-	for (auto cell : selected_cells())
-		result.push_back({cell, cell->name});
-	for (auto memory : selected_memories())
-		result.push_back({memory, memory->name});
-	for (auto wire : selected_wires())
-		result.push_back({wire, wire->name});
-	for (auto process : selected_processes())
-		result.push_back({process, process->name});
-	return result;
+	std::سمتیہ<RTLIL::SelectedMember> نتیجہ;
+	لكل (خودکار cell : selected_cells())
+		نتیجہ.ڈالو_پٹھ({cell, cell->name});
+	لكل (خودکار حافظہ_3 : selected_memories())
+		نتیجہ.ڈالو_پٹھ({حافظہ_3, حافظہ_3->name});
+	لكل (خودکار wire : selected_wires())
+		نتیجہ.ڈالو_پٹھ({wire, wire->name});
+	لكل (خودکار process : selected_processes())
+		نتیجہ.ڈالو_پٹھ({process, process->name});
+	أرجع نتیجہ;
 }
 
-void RTLIL::Module::add(RTLIL::Wire *wire)
+فراغ RTLIL::Module::جوڑو(RTLIL::Wire *wire)
 {
 	log_assert(wire->name != IdString::Null);
 	IdString id = wire->name;
-	log_assert(count_id(id) == 0);
+	log_assert(گنتی_id(id) == 0);
 	log_assert(refcount_wires_ == 0);
 	wires_[id] = wire;
-	wire->module = this;
+	wire->module = هذا;
 }
 
-void RTLIL::Module::add(RTLIL::Cell *cell)
+فراغ RTLIL::Module::جوڑو(RTLIL::Cell *cell)
 {
 	log_assert(cell->name != IdString::Null);
 	IdString id = cell->name;
-	log_assert(count_id(id) == 0);
+	log_assert(گنتی_id(id) == 0);
 	log_assert(refcount_cells_ == 0);
 	cells_[id] = cell;
-	cell->module = this;
+	cell->module = هذا;
 }
 
-void RTLIL::Module::add(RTLIL::Process *process)
+فراغ RTLIL::Module::جوڑو(RTLIL::Process *process)
 {
 	log_assert(process->name != IdString::Null);
-	log_assert(count_id(process->name) == 0);
+	log_assert(گنتی_id(process->name) == 0);
 	processes[process->name] = process;
-	process->module = this;
+	process->module = هذا;
 }
 
-void RTLIL::Module::remove(const pool<RTLIL::Wire*> &wires)
+فراغ RTLIL::Module::remove(ثابت pool<RTLIL::Wire*> &wires)
 {
 	log_assert(refcount_wires_ == 0);
-	if (wires.empty())
-		return;
+	إذا (wires.خالی_تھاواں())
+		أرجع;
 
-	struct DeleteWireWorker
+	بنية Delete_Wire_کامہ
 	{
 		RTLIL::Module *module;
-		const pool<RTLIL::Wire*> *wires_p;
+		ثابت pool<RTLIL::Wire*> *wires_p;
 
-		void operator()(RTLIL::SigSpec &sig) {
-			sig.rewrite_wires([this](RTLIL::Wire *&wire) {
-				if (wires_p->count(wire))
-					wire = module->addWire(stringf("$delete_wire$%d", (int)autoidx++), wire->width);
+		فراغ عامل()(RTLIL::SigSpec &sig) {
+			sig.rewrite_wires([هذا](RTLIL::Wire *&wire) {
+				إذا (wires_p->گنتی(wire))
+					wire = module->جوڑو_Wire(stringf("$delete_wire$%d", (صحيح)autoidx++), wire->چوڑائی);
 			});
 		}
 
-		void operator()(RTLIL::SigSpec &lhs, RTLIL::SigSpec &rhs) {
+		فراغ عامل()(RTLIL::SigSpec &lhs, RTLIL::SigSpec &rhs) {
 			// If a deleted wire occurs on the lhs or rhs we just remove that part
 			// of the assignment
 			lhs.remove2(*wires_p, &rhs);
@@ -2818,59 +2818,59 @@ void RTLIL::Module::remove(const pool<RTLIL::Wire*> &wires)
 		}
 	};
 
-	DeleteWireWorker delete_wire_worker;
-	delete_wire_worker.module = this;
-	delete_wire_worker.wires_p = &wires;
-	rewrite_sigspecs2(delete_wire_worker);
+	Delete_Wire_کامہ delete_wire_کامہ;
+	delete_wire_کامہ.module = هذا;
+	delete_wire_کامہ.wires_p = &wires;
+	rewrite_sigspecs2(delete_wire_کامہ);
 
-	if (design->flagBufferedNormalized) {
-		for (auto wire : wires) {
-			buf_norm_wire_queue.erase(wire);
-			buf_norm_connect_index.erase(wire);
+	إذا (design->flagBufferedNormalized) {
+		لكل (خودکار wire : wires) {
+			buf_norm_wire_قطار.erase(wire);
+			buf_norm_connect_اشاریہ.erase(wire);
 		}
 	}
 
-	for (auto &it : wires) {
+	لكل (خودکار &it : wires) {
 		log_assert(it->name != IdString::Null);
 		IdString id = it->name;
-		log_assert(wires_.count(id) != 0);
+		log_assert(wires_.گنتی(id) != 0);
 		wires_.erase(id);
-		delete it;
+		مٹاؤ it;
 	}
 }
 
-void RTLIL::Module::remove(RTLIL::Cell *cell)
+فراغ RTLIL::Module::remove(RTLIL::Cell *cell)
 {
-	while (!cell->connections_.empty())
-		cell->unsetPort(cell->connections_.begin()->first);
+	طالما (!cell->connections_.خالی_تھاواں())
+		cell->unset_پورٹ(cell->connections_.begin()->پہلا);
 
-	log_assert(cells_.count(cell->name) != 0);
+	log_assert(cells_.گنتی(cell->name) != 0);
 	log_assert(refcount_cells_ == 0);
 	cells_.erase(cell->name);
-	if (design && design->flagBufferedNormalized && buf_norm_cell_queue.count(cell)) {
+	إذا (design && design->flagBufferedNormalized && buf_norm_cell_قطار.گنتی(cell)) {
 		cell->type = IdString::Null;
 		cell->name = IdString::Null;
-		pending_deleted_cells.insert(cell);
-	} else {
-		delete cell;
+		pending_deleted_cells.داخل_کرو(cell);
+	} وإلا {
+		مٹاؤ cell;
 	}
 }
 
-void RTLIL::Module::remove(RTLIL::Memory *memory)
+فراغ RTLIL::Module::remove(RTLIL::حافظہ *حافظہ_3)
 {
-	log_assert(memories.count(memory->name) != 0);
-	memories.erase(memory->name);
-	delete memory;
+	log_assert(memories.گنتی(حافظہ_3->name) != 0);
+	memories.erase(حافظہ_3->name);
+	مٹاؤ حافظہ_3;
 }
 
-void RTLIL::Module::remove(RTLIL::Process *process)
+فراغ RTLIL::Module::remove(RTLIL::Process *process)
 {
-	log_assert(processes.count(process->name) != 0);
+	log_assert(processes.گنتی(process->name) != 0);
 	processes.erase(process->name);
-	delete process;
+	مٹاؤ process;
 }
 
-void RTLIL::Module::rename(RTLIL::Wire *wire, RTLIL::IdString new_name)
+فراغ RTLIL::Module::rename(RTLIL::Wire *wire, RTLIL::IdString new_name)
 {
 	log_assert(wire->name != IdString::Null);
 	IdString old_id = wire->name;
@@ -2878,10 +2878,10 @@ void RTLIL::Module::rename(RTLIL::Wire *wire, RTLIL::IdString new_name)
 	log_assert(refcount_wires_ == 0);
 	wires_.erase(old_id);
 	wire->name = new_name;
-	add(wire);
+	جوڑو(wire);
 }
 
-void RTLIL::Module::rename(RTLIL::Cell *cell, RTLIL::IdString new_name)
+فراغ RTLIL::Module::rename(RTLIL::Cell *cell, RTLIL::IdString new_name)
 {
 	log_assert(cell->name != IdString::Null);
 	IdString old_id = cell->name;
@@ -2889,21 +2889,21 @@ void RTLIL::Module::rename(RTLIL::Cell *cell, RTLIL::IdString new_name)
 	log_assert(refcount_cells_ == 0);
 	cells_.erase(old_id);
 	cell->name = new_name;
-	add(cell);
+	جوڑو(cell);
 }
 
-void RTLIL::Module::rename(RTLIL::IdString old_name, RTLIL::IdString new_name)
+فراغ RTLIL::Module::rename(RTLIL::IdString old_name, RTLIL::IdString new_name)
 {
 	IdString old_id = old_name;
-	if (old_id != IdString::Null && wires_.count(old_id))
+	إذا (old_id != IdString::Null && wires_.گنتی(old_id))
 		rename(wires_.at(old_id), new_name);
-	else if (old_id != IdString::Null && cells_.count(old_id))
+	وإلا إذا (old_id != IdString::Null && cells_.گنتی(old_id))
 		rename(cells_.at(old_id), new_name);
-	else
+	وإلا
 		log_abort();
 }
 
-void RTLIL::Module::swap_names(RTLIL::Wire *w1, RTLIL::Wire *w2)
+فراغ RTLIL::Module::وٹاندرا_ناں(RTLIL::Wire *w1, RTLIL::Wire *w2)
 {
 	log_assert(w1->name != IdString::Null);
 	log_assert(w2->name != IdString::Null);
@@ -2915,10 +2915,10 @@ void RTLIL::Module::swap_names(RTLIL::Wire *w1, RTLIL::Wire *w2)
 
 	wires_[id1] = w2;
 	wires_[id2] = w1;
-	swap(w1->name, w2->name);
+	وٹاندرا(w1->name, w2->name);
 }
 
-void RTLIL::Module::swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2)
+فراغ RTLIL::Module::وٹاندرا_ناں(RTLIL::Cell *c1, RTLIL::Cell *c2)
 {
 	log_assert(c1->name != IdString::Null);
 	log_assert(c2->name != IdString::Null);
@@ -2930,2243 +2930,2243 @@ void RTLIL::Module::swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2)
 
 	cells_[id1] = c2;
 	cells_[id2] = c1;
-	swap(c1->name, c2->name);
+	وٹاندرا(c1->name, c2->name);
 }
 
 RTLIL::IdString RTLIL::Module::uniquify(RTLIL::IdString name)
 {
-	int index = 0;
-	return uniquify(name, index);
+	صحيح اشاریہ = 0;
+	أرجع uniquify(name, اشاریہ);
 }
 
-IdString RTLIL::Module::uniquify(IdString name, int &index)
+IdString RTLIL::Module::uniquify(IdString name, صحيح &اشاریہ)
 {
-	if (index == 0) {
-		if (count_id(name) == 0)
-			return name;
-		index++;
+	إذا (اشاریہ == 0) {
+		إذا (گنتی_id(name) == 0)
+			أرجع name;
+		اشاریہ++;
 	}
 
-	while (1) {
-		IdString new_name = design->twines().add(TwineSpec::Suffix{name, stringf("_%d", index)});
-		if (count_id(new_name) == 0)
-			return new_name;
-		index++;
+	طالما (1) {
+		IdString new_name = design->twines().جوڑو(TwineSpec::Suffix{name, stringf("_%d", اشاریہ)});
+		إذا (گنتی_id(new_name) == 0)
+			أرجع new_name;
+		اشاریہ++;
 	}
 }
 
-static bool fixup_ports_compare(const RTLIL::Wire *a, const RTLIL::Wire *b)
+ساكن منطقي fixup_ports_compare(ثابت RTLIL::Wire *a, ثابت RTLIL::Wire *b)
 {
-	if (a->port_id && !b->port_id)
-		return true;
-	if (!a->port_id && b->port_id)
-		return false;
+	إذا (a->پورٹ_id && !b->پورٹ_id)
+		أرجع سچ;
+	إذا (!a->پورٹ_id && b->پورٹ_id)
+		أرجع خطأ;
 
-	if (a->port_id == b->port_id)
-		return a->name < b->name;
-	return a->port_id < b->port_id;
+	إذا (a->پورٹ_id == b->پورٹ_id)
+		أرجع a->name < b->name;
+	أرجع a->پورٹ_id < b->پورٹ_id;
 }
 
-void RTLIL::Module::connect(const RTLIL::SigSig &conn)
+فراغ RTLIL::Module::connect(ثابت RTLIL::SigSig &conn)
 {
-	for (auto mon : monitors)
-		mon->notify_connect(this, conn);
+	لكل (خودکار mon : monitors)
+		mon->notify_connect(هذا, conn);
 
-	if (design)
-		for (auto mon : design->monitors)
-			mon->notify_connect(this, conn);
+	إذا (design)
+		لكل (خودکار mon : design->monitors)
+			mon->notify_connect(هذا, conn);
 
 	// ignore all attempts to assign constants to other constants
-	if (conn.first.has_const()) {
+	إذا (conn.پہلا.has_const()) {
 		RTLIL::SigSig new_conn;
-		for (int i = 0; i < GetSize(conn.first); i++)
-			if (conn.first[i].wire) {
-				new_conn.first.append(conn.first[i]);
-				new_conn.second.append(conn.second[i]);
+		لكل (صحيح i = 0; i < Get_ناپ(conn.پہلا); i++)
+			إذا (conn.پہلا[i].wire) {
+				new_conn.پہلا.append(conn.پہلا[i]);
+				new_conn.دوجا.append(conn.دوجا[i]);
 			}
-		if (GetSize(new_conn.first))
+		إذا (Get_ناپ(new_conn.پہلا))
 			connect(new_conn);
-		return;
+		أرجع;
 	}
 
-	if (yosys_xtrace) {
-		log("#X# Connect (SigSig) in %s: %s = %s (%d bits)\n", this, log_signal(conn.first), log_signal(conn.second), GetSize(conn.first));
+	إذا (yosys_xtrace) {
+		لوگارتھم("#X# Connect (SigSig) in %s: %s = %s (%d bits)\n", هذا, log_signal(conn.پہلا), log_signal(conn.دوجا), Get_ناپ(conn.پہلا));
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
-	log_assert(GetSize(conn.first) == GetSize(conn.second));
-	connections_.push_back(conn);
+	log_assert(Get_ناپ(conn.پہلا) == Get_ناپ(conn.دوجا));
+	connections_.ڈالو_پٹھ(conn);
 }
 
-void RTLIL::Module::connect(const RTLIL::SigSpec &lhs, const RTLIL::SigSpec &rhs)
+فراغ RTLIL::Module::connect(ثابت RTLIL::SigSpec &lhs, ثابت RTLIL::SigSpec &rhs)
 {
 	connect(RTLIL::SigSig(lhs, rhs));
 }
 
-void RTLIL::Module::new_connections(const std::vector<RTLIL::SigSig> &new_conn)
+فراغ RTLIL::Module::new_connections(ثابت std::سمتیہ<RTLIL::SigSig> &new_conn)
 {
-	for (auto mon : monitors)
-		mon->notify_connect(this, new_conn);
+	لكل (خودکار mon : monitors)
+		mon->notify_connect(هذا, new_conn);
 
-	if (design)
-		for (auto mon : design->monitors)
-			mon->notify_connect(this, new_conn);
+	إذا (design)
+		لكل (خودکار mon : design->monitors)
+			mon->notify_connect(هذا, new_conn);
 
-	if (yosys_xtrace) {
-		log("#X# New connections vector in %s:\n", this);
-		for (auto &conn: new_conn)
-			log("#X#    %s = %s (%d bits)\n", log_signal(conn.first), log_signal(conn.second), GetSize(conn.first));
+	إذا (yosys_xtrace) {
+		لوگارتھم("#X# New connections vector in %s:\n", هذا);
+		لكل (خودکار &conn: new_conn)
+			لوگارتھم("#X#    %s = %s (%d bits)\n", log_signal(conn.پہلا), log_signal(conn.دوجا), Get_ناپ(conn.پہلا));
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
 	connections_ = new_conn;
 }
 
-const std::vector<RTLIL::SigSig> &RTLIL::Module::connections() const
+ثابت std::سمتیہ<RTLIL::SigSig> &RTLIL::Module::connections() ثابت
 {
-	return connections_;
+	أرجع connections_;
 }
 
-void RTLIL::Module::fixup_ports()
+فراغ RTLIL::Module::fixup_ports()
 {
-	std::vector<RTLIL::Wire*> all_ports;
+	std::سمتیہ<RTLIL::Wire*> all_ports;
 
-	for (auto &w : wires_)
-		if (w.second->port_input || w.second->port_output)
-			all_ports.push_back(w.second);
-		else
-			w.second->port_id = 0;
+	لكل (خودکار &w : wires_)
+		إذا (w.دوجا->پورٹ_داخلہ || w.دوجا->پورٹ_output)
+			all_ports.ڈالو_پٹھ(w.دوجا);
+		وإلا
+			w.دوجا->پورٹ_id = 0;
 
-	std::sort(all_ports.begin(), all_ports.end(), fixup_ports_compare);
+	std::ترتیب_دیو(all_ports.begin(), all_ports.سرا(), fixup_ports_compare);
 
-	if (design && design->flagBufferedNormalized) {
-		for (auto &w : wires_)
-			if (w.second->driverCell_ && w.second->driverCell_->type == ID($input_port))
-				buf_norm_wire_queue.insert(w.second);
+	إذا (design && design->flagBufferedNormalized) {
+		لكل (خودکار &w : wires_)
+			إذا (w.دوجا->driverCell_ && w.دوجا->driverCell_->type == ID($داخلہ_پورٹ))
+				buf_norm_wire_قطار.داخل_کرو(w.دوجا);
 
-		buf_norm_wire_queue.insert(all_ports.begin(), all_ports.end());
+		buf_norm_wire_قطار.داخل_کرو(all_ports.begin(), all_ports.سرا());
 	}
 
 	ports.clear();
-	for (size_t i = 0; i < all_ports.size(); i++) {
-		ports.push_back(all_ports[i]->name);
-		all_ports[i]->port_id = i+1;
+	لكل (ناپ_t i = 0; i < all_ports.ناپ(); i++) {
+		ports.ڈالو_پٹھ(all_ports[i]->name);
+		all_ports[i]->پورٹ_id = i+1;
 	}
 }
 
-void RTLIL::copy_attr_dict(dict<IdString, RTLIL::Const> &dst,
-		const dict<IdString, RTLIL::Const> &src,
-		const RTLIL::Design *src_design, RTLIL::Design *dst_design)
+فراغ RTLIL::copy_attr_dict(dict<IdString, RTLIL::Const> &dst,
+		ثابت dict<IdString, RTLIL::Const> &src,
+		ثابت RTLIL::Design *src_design, RTLIL::Design *dst_design)
 {
-	if (!src_design || !dst_design || src_design == dst_design) {
+	إذا (!src_design || !dst_design || src_design == dst_design) {
 		dst = src;
-		return;
+		أرجع;
 	}
 	dst.clear();
-	for (int i = GetSize(src) - 1; i >= 0; i--) {
-		auto &it = *src.element(i);
-		dst[dst_design->twines().copy_from(src_design->twines(), it.first)] = it.second;
+	لكل (صحيح i = Get_ناپ(src) - 1; i >= 0; i--) {
+		خودکار &it = *src.element(i);
+		dst[dst_design->twines().copy_from(src_design->twines(), it.پہلا)] = it.دوجا;
 	}
 }
 
-RTLIL::Wire *RTLIL::Module::addWire(RTLIL::IdString name, int width)
+RTLIL::Wire *RTLIL::Module::جوڑو_Wire(RTLIL::IdString name, صحيح چوڑائی)
 {
 	log_assert(design);
-	log_assert(width >= 0 && width < RTLIL::WIDTH_LIMIT);
-	RTLIL::Wire *wire = new RTLIL::Wire;
-	wire->width = width;
+	log_assert(چوڑائی >= 0 && چوڑائی < RTLIL::چوڑائی_حد_بندی);
+	RTLIL::Wire *wire = جديد RTLIL::Wire;
+	wire->چوڑائی = چوڑائی;
 	wire->name = name;
-	add(wire);
-	return wire;
+	جوڑو(wire);
+	أرجع wire;
 }
 
-RTLIL::Wire *RTLIL::Module::addWire(IdString name, const RTLIL::Wire *other)
+RTLIL::Wire *RTLIL::Module::جوڑو_Wire(IdString name, ثابت RTLIL::Wire *other)
 {
-	RTLIL::Wire *wire = addWire(name);
-	wire->width = other->width;
-	wire->start_offset = other->start_offset;
-	wire->port_id = other->port_id;
-	wire->port_input = other->port_input;
-	wire->port_output = other->port_output;
+	RTLIL::Wire *wire = جوڑو_Wire(name);
+	wire->چوڑائی = other->چوڑائی;
+	wire->شروع_وتھ = other->شروع_وتھ;
+	wire->پورٹ_id = other->پورٹ_id;
+	wire->پورٹ_داخلہ = other->پورٹ_داخلہ;
+	wire->پورٹ_output = other->پورٹ_output;
 	wire->upto = other->upto;
 	wire->is_signed = other->is_signed;
 	{
-		const RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
-		RTLIL::copy_attr_dict(wire->attributes, other->attributes, src_design, this->design);
+		ثابت RTLIL::Design *src_design = other->module ? other->module->design : خالی_سوچک;
+		RTLIL::copy_attr_dict(wire->گن, other->گن, src_design, هذا->design);
 	}
-	return wire;
+	أرجع wire;
 }
 
-RTLIL::Cell *RTLIL::Module::addCell(IdString name, IdString type)
+RTLIL::Cell *RTLIL::Module::جوڑو_Cell(IdString name, IdString type)
 {
 	log_assert(design);
-	RTLIL::Cell *cell = new RTLIL::Cell;
+	RTLIL::Cell *cell = جديد RTLIL::Cell;
 	cell->type = type;
 	cell->name = name;
-	add(cell);
-	return cell;
+	جوڑو(cell);
+	أرجع cell;
 }
 
-RTLIL::Cell *RTLIL::Module::addCell(IdString name, const RTLIL::Cell *other)
+RTLIL::Cell *RTLIL::Module::جوڑو_Cell(IdString name, ثابت RTLIL::Cell *other)
 {
-	const RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
-	bool cross_pool = src_design && this->design && src_design != this->design;
+	ثابت RTLIL::Design *src_design = other->module ? other->module->design : خالی_سوچک;
+	منطقي cross_pool = src_design && هذا->design && src_design != هذا->design;
 
 	IdString type = other->type.ref();
-	if (cross_pool)
+	إذا (cross_pool)
 		type = twines().copy_from(src_design->twines(), other->type.ref());
 
-	RTLIL::Cell *cell = addCell(name, type);
-	RTLIL::copy_attr_dict(cell->parameters, other->parameters, src_design, this->design);
-	RTLIL::copy_attr_dict(cell->attributes, other->attributes, src_design, this->design);
+	RTLIL::Cell *cell = جوڑو_Cell(name, type);
+	RTLIL::copy_attr_dict(cell->parameters, other->parameters, src_design, هذا->design);
+	RTLIL::copy_attr_dict(cell->گن, other->گن, src_design, هذا->design);
 
-	if (!cross_pool)
+	إذا (!cross_pool)
 		cell->connections_ = other->connections_;
-	else
-		for (int i = GetSize(other->connections_) - 1; i >= 0; i--) {
-			auto &c = *other->connections_.element(i);
-			cell->connections_[twines().copy_from(src_design->twines(), c.first)] = c.second;
+	وإلا
+		لكل (صحيح i = Get_ناپ(other->connections_) - 1; i >= 0; i--) {
+			خودکار &c = *other->connections_.element(i);
+			cell->connections_[twines().copy_from(src_design->twines(), c.پہلا)] = c.دوجا;
 		}
-	return cell;
+	أرجع cell;
 }
 
-RTLIL::Memory *RTLIL::Module::addMemory(IdString name)
+RTLIL::حافظہ *RTLIL::Module::جوڑو_حافظہ(IdString name)
 {
 	log_assert(design);
-	RTLIL::Memory *mem = new RTLIL::Memory;
-	mem->module = this;
+	RTLIL::حافظہ *mem = جديد RTLIL::حافظہ;
+	mem->module = هذا;
 	mem->name = name;
 	memories[name] = mem;
-	return mem;
+	أرجع mem;
 }
 
-RTLIL::Memory *RTLIL::Module::addMemory(IdString name, const RTLIL::Memory *other)
+RTLIL::حافظہ *RTLIL::Module::جوڑو_حافظہ(IdString name, ثابت RTLIL::حافظہ *other)
 {
 	log_assert(design);
-	RTLIL::Memory *mem = new RTLIL::Memory;
-	mem->module = this;
+	RTLIL::حافظہ *mem = جديد RTLIL::حافظہ;
+	mem->module = هذا;
 	mem->name = name;
-	mem->width = other->width;
-	mem->start_offset = other->start_offset;
-	mem->size = other->size;
-	RTLIL::copy_attr_dict(mem->attributes, other->attributes,
-			other->module ? other->module->design : nullptr, design);
+	mem->چوڑائی = other->چوڑائی;
+	mem->شروع_وتھ = other->شروع_وتھ;
+	mem->ناپ = other->ناپ;
+	RTLIL::copy_attr_dict(mem->گن, other->گن,
+			other->module ? other->module->design : خالی_سوچک, design);
 	memories[name] = mem;
-	return mem;
+	أرجع mem;
 }
 
-RTLIL::Process *RTLIL::Module::addProcess(IdString name)
+RTLIL::Process *RTLIL::Module::جوڑو_Process(IdString name)
 {
 	log_assert(design);
-	RTLIL::Process *proc = new RTLIL::Process;
+	RTLIL::Process *proc = جديد RTLIL::Process;
 	proc->name = name;
-	add(proc);
-	return proc;
+	جوڑو(proc);
+	أرجع proc;
 }
 
-RTLIL::Process *RTLIL::Module::addProcess(RTLIL::IdString name, const RTLIL::Process *other)
+RTLIL::Process *RTLIL::Module::جوڑو_Process(RTLIL::IdString name, ثابت RTLIL::Process *other)
 {
 	log_assert(design);
 	RTLIL::Process *proc = other->clone();
 	proc->name = name;
-	const RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
-	if (src_design && src_design != design) {
+	ثابت RTLIL::Design *src_design = other->module ? other->module->design : خالی_سوچک;
+	إذا (src_design && src_design != design) {
 		walk_process_attr_objects(proc, [&](RTLIL::AttrObject *obj) {
-			dict<IdString, RTLIL::Const> attributes;
-			RTLIL::copy_attr_dict(attributes, obj->attributes, src_design, design);
-			obj->attributes = std::move(attributes);
+			dict<IdString, RTLIL::Const> گن;
+			RTLIL::copy_attr_dict(گن, obj->گن, src_design, design);
+			obj->گن = std::move(گن);
 		});
-		for (auto *sync : proc->syncs)
-			for (auto &mwa : sync->mem_write_actions)
+		لكل (خودکار *متزامن : proc->syncs)
+			لكل (خودکار &mwa : متزامن->mem_write_actions)
 				mwa.memid = design->twines().copy_from(src_design->twines(), mwa.memid);
 	}
-	add(proc);
-	return proc;
+	جوڑو(proc);
+	أرجع proc;
 }
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);           \
+#تعریف_کرو DEF_طریقہ(_func, y_ناپ, _type) \
+	RTLIL::Cell* RTLIL::Module::جوڑو ## _func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, منطقي is_signed, ثابت std::string &src) { \
+		RTLIL::Cell *cell = جوڑو_Cell(name, _type);           \
 		cell->parameters[ID::A_SIGNED] = is_signed;         \
-		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
-		cell->parameters[ID::Y_WIDTH] = sig_y.size();       \
-		cell->setPort(ID::A, sig_a);                        \
-		cell->setPort(ID::Y, sig_y);                        \
-		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		cell->parameters[ID::A_چوڑائی] = sig_a.ناپ();       \
+		cell->parameters[ID::Y_چوڑائی] = sig_y.ناپ();       \
+		cell->سیٹ_پورٹ(ID::A, sig_a);                        \
+		cell->سیٹ_پورٹ(ID::Y, sig_y);                        \
+		cell->سیٹ_src_attribute(src);                       \
+		أرجع cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);    \
-		add ## _func(name, sig_a, sig_y, is_signed, src);   \
-		return sig_y;                                       \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, منطقي is_signed, ثابت std::string &src) { \
+		RTLIL::SigSpec sig_y = جوڑو_Wire(NEW_ID, y_ناپ);    \
+		جوڑو ## _func(name, sig_a, sig_y, is_signed, src);   \
+		أرجع sig_y;                                       \
 	}
-DEF_METHOD(Not,        sig_a.size(), ID($not))
-DEF_METHOD(Pos,        sig_a.size(), ID($pos))
-DEF_METHOD(Neg,        sig_a.size(), ID($neg))
-DEF_METHOD(ReduceAnd,  1, ID($reduce_and))
-DEF_METHOD(ReduceOr,   1, ID($reduce_or))
-DEF_METHOD(ReduceXor,  1, ID($reduce_xor))
-DEF_METHOD(ReduceXnor, 1, ID($reduce_xnor))
-DEF_METHOD(ReduceBool, 1, ID($reduce_bool))
-DEF_METHOD(LogicNot,   1, ID($logic_not))
-#undef DEF_METHOD
+DEF_طریقہ(Not,        sig_a.ناپ(), ID($not))
+DEF_طریقہ(Pos,        sig_a.ناپ(), ID($pos))
+DEF_طریقہ(Neg,        sig_a.ناپ(), ID($neg))
+DEF_طریقہ(ReduceAnd,  1, ID($reduce_and))
+DEF_طریقہ(ReduceOr,   1, ID($reduce_or))
+DEF_طریقہ(ReduceXor,  1, ID($reduce_xor))
+DEF_طریقہ(ReduceXnor, 1, ID($reduce_xnor))
+DEF_طریقہ(ReduceBool, 1, ID($reduce_bool))
+DEF_طریقہ(LogicNot,   1, ID($logic_not))
+#تعریف_رد DEF_طریقہ
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool /* is_signed */, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);           \
-		cell->parameters[ID::WIDTH] = sig_a.size();         \
-		cell->setPort(ID::A, sig_a);                        \
-		cell->setPort(ID::Y, sig_y);                        \
-		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+#تعریف_کرو DEF_طریقہ(_func, y_ناپ, _type) \
+	RTLIL::Cell* RTLIL::Module::جوڑو ## _func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, منطقي /* is_signed */, ثابت std::string &src) { \
+		RTLIL::Cell *cell = جوڑو_Cell(name, _type);           \
+		cell->parameters[ID::چوڑائی_2] = sig_a.ناپ();         \
+		cell->سیٹ_پورٹ(ID::A, sig_a);                        \
+		cell->سیٹ_پورٹ(ID::Y, sig_y);                        \
+		cell->سیٹ_src_attribute(src);                       \
+		أرجع cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);    \
-		add ## _func(name, sig_a, sig_y, is_signed, src);   \
-		return sig_y;                                       \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, منطقي is_signed, ثابت std::string &src) { \
+		RTLIL::SigSpec sig_y = جوڑو_Wire(NEW_ID, y_ناپ);    \
+		جوڑو ## _func(name, sig_a, sig_y, is_signed, src);   \
+		أرجع sig_y;                                       \
 	}
-DEF_METHOD(Buf,     sig_a.size(), ID($buf))
-DEF_METHOD(Barrier, sig_a.size(), ID($barrier))
-#undef DEF_METHOD
+DEF_طریقہ(Buf,     sig_a.ناپ(), ID($buf))
+DEF_طریقہ(Barrier, sig_a.ناپ(), ID($barrier))
+#تعریف_رد DEF_طریقہ
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);           \
+#تعریف_کرو DEF_طریقہ(_func, y_ناپ, _type) \
+	RTLIL::Cell* RTLIL::Module::جوڑو ## _func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, منطقي is_signed, ثابت std::string &src) { \
+		RTLIL::Cell *cell = جوڑو_Cell(name, _type);           \
 		cell->parameters[ID::A_SIGNED] = is_signed;         \
 		cell->parameters[ID::B_SIGNED] = is_signed;         \
-		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
-		cell->parameters[ID::B_WIDTH] = sig_b.size();       \
-		cell->parameters[ID::Y_WIDTH] = sig_y.size();       \
-		cell->setPort(ID::A, sig_a);                        \
-		cell->setPort(ID::B, sig_b);                        \
-		cell->setPort(ID::Y, sig_y);                        \
-		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		cell->parameters[ID::A_چوڑائی] = sig_a.ناپ();       \
+		cell->parameters[ID::B_چوڑائی] = sig_b.ناپ();       \
+		cell->parameters[ID::Y_چوڑائی] = sig_y.ناپ();       \
+		cell->سیٹ_پورٹ(ID::A, sig_a);                        \
+		cell->سیٹ_پورٹ(ID::B, sig_b);                        \
+		cell->سیٹ_پورٹ(ID::Y, sig_y);                        \
+		cell->سیٹ_src_attribute(src);                       \
+		أرجع cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);         \
-		add ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
-		return sig_y;                                            \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, منطقي is_signed, ثابت std::string &src) { \
+		RTLIL::SigSpec sig_y = جوڑو_Wire(NEW_ID, y_ناپ);         \
+		جوڑو ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
+		أرجع sig_y;                                            \
 	}
-DEF_METHOD(And,      max(sig_a.size(), sig_b.size()), ID($and))
-DEF_METHOD(Or,       max(sig_a.size(), sig_b.size()), ID($or))
-DEF_METHOD(Xor,      max(sig_a.size(), sig_b.size()), ID($xor))
-DEF_METHOD(Xnor,     max(sig_a.size(), sig_b.size()), ID($xnor))
-DEF_METHOD(Shift,    sig_a.size(), ID($shift))
-DEF_METHOD(Lt,       1, ID($lt))
-DEF_METHOD(Le,       1, ID($le))
-DEF_METHOD(Eq,       1, ID($eq))
-DEF_METHOD(Ne,       1, ID($ne))
-DEF_METHOD(Eqx,      1, ID($eqx))
-DEF_METHOD(Nex,      1, ID($nex))
-DEF_METHOD(Ge,       1, ID($ge))
-DEF_METHOD(Gt,       1, ID($gt))
-DEF_METHOD(Add,      max(sig_a.size(), sig_b.size()), ID($add))
-DEF_METHOD(Sub,      max(sig_a.size(), sig_b.size()), ID($sub))
-DEF_METHOD(Mul,      max(sig_a.size(), sig_b.size()), ID($mul))
-DEF_METHOD(Div,      max(sig_a.size(), sig_b.size()), ID($div))
-DEF_METHOD(Mod,      max(sig_a.size(), sig_b.size()), ID($mod))
-DEF_METHOD(DivFloor, max(sig_a.size(), sig_b.size()), ID($divfloor))
-DEF_METHOD(ModFloor, max(sig_a.size(), sig_b.size()), ID($modfloor))
-DEF_METHOD(LogicAnd, 1, ID($logic_and))
-DEF_METHOD(LogicOr,  1, ID($logic_or))
-#undef DEF_METHOD
+DEF_طریقہ(And,      max(sig_a.ناپ(), sig_b.ناپ()), ID($and))
+DEF_طریقہ(Or,       max(sig_a.ناپ(), sig_b.ناپ()), ID($or))
+DEF_طریقہ(Xor,      max(sig_a.ناپ(), sig_b.ناپ()), ID($xor))
+DEF_طریقہ(Xnor,     max(sig_a.ناپ(), sig_b.ناپ()), ID($xnor))
+DEF_طریقہ(کھسکاؤ_2,    sig_a.ناپ(), ID($کھسکاؤ))
+DEF_طریقہ(Lt,       1, ID($lt))
+DEF_طریقہ(Le,       1, ID($le))
+DEF_طریقہ(Eq,       1, ID($eq))
+DEF_طریقہ(Ne,       1, ID($ne))
+DEF_طریقہ(Eqx,      1, ID($eqx))
+DEF_طریقہ(Nex,      1, ID($nex))
+DEF_طریقہ(Ge,       1, ID($ge))
+DEF_طریقہ(Gt,       1, ID($gt))
+DEF_طریقہ(جوڑو_2,      max(sig_a.ناپ(), sig_b.ناپ()), ID($جوڑو))
+DEF_طریقہ(Sub,      max(sig_a.ناپ(), sig_b.ناپ()), ID($sub))
+DEF_طریقہ(Mul,      max(sig_a.ناپ(), sig_b.ناپ()), ID($mul))
+DEF_طریقہ(Div,      max(sig_a.ناپ(), sig_b.ناپ()), ID($div))
+DEF_طریقہ(Mod,      max(sig_a.ناپ(), sig_b.ناپ()), ID($mod))
+DEF_طریقہ(DivFloor, max(sig_a.ناپ(), sig_b.ناپ()), ID($divfloor))
+DEF_طریقہ(ModFloor, max(sig_a.ناپ(), sig_b.ناپ()), ID($modfloor))
+DEF_طریقہ(LogicAnd, 1, ID($logic_and))
+DEF_طریقہ(LogicOr,  1, ID($logic_or))
+#تعریف_رد DEF_طریقہ
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);           \
+#تعریف_کرو DEF_طریقہ(_func, y_ناپ, _type) \
+	RTLIL::Cell* RTLIL::Module::جوڑو ## _func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, منطقي is_signed, ثابت std::string &src) { \
+		RTLIL::Cell *cell = جوڑو_Cell(name, _type);           \
 		cell->parameters[ID::A_SIGNED] = is_signed;         \
-		cell->parameters[ID::B_SIGNED] = false;             \
-		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
-		cell->parameters[ID::B_WIDTH] = sig_b.size();       \
-		cell->parameters[ID::Y_WIDTH] = sig_y.size();       \
-		cell->setPort(ID::A, sig_a);                        \
-		cell->setPort(ID::B, sig_b);                        \
-		cell->setPort(ID::Y, sig_y);                        \
-		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		cell->parameters[ID::B_SIGNED] = خطأ;             \
+		cell->parameters[ID::A_چوڑائی] = sig_a.ناپ();       \
+		cell->parameters[ID::B_چوڑائی] = sig_b.ناپ();       \
+		cell->parameters[ID::Y_چوڑائی] = sig_y.ناپ();       \
+		cell->سیٹ_پورٹ(ID::A, sig_a);                        \
+		cell->سیٹ_پورٹ(ID::B, sig_b);                        \
+		cell->سیٹ_پورٹ(ID::Y, sig_y);                        \
+		cell->سیٹ_src_attribute(src);                       \
+		أرجع cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);         \
-		add ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
-		return sig_y;                                            \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, منطقي is_signed, ثابت std::string &src) { \
+		RTLIL::SigSpec sig_y = جوڑو_Wire(NEW_ID, y_ناپ);         \
+		جوڑو ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
+		أرجع sig_y;                                            \
 	}
-DEF_METHOD(Shl,      sig_a.size(), ID($shl))
-DEF_METHOD(Shr,      sig_a.size(), ID($shr))
-DEF_METHOD(Sshl,     sig_a.size(), ID($sshl))
-DEF_METHOD(Sshr,     sig_a.size(), ID($sshr))
-#undef DEF_METHOD
+DEF_طریقہ(Shl,      sig_a.ناپ(), ID($shl))
+DEF_طریقہ(Shr,      sig_a.ناپ(), ID($shr))
+DEF_طریقہ(Sshl,     sig_a.ناپ(), ID($sshl))
+DEF_طریقہ(Sshr,     sig_a.ناپ(), ID($sshr))
+#تعریف_رد DEF_طریقہ
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);           \
-		cell->parameters[ID::A_SIGNED] = false;             \
+#تعریف_کرو DEF_طریقہ(_func, y_ناپ, _type) \
+	RTLIL::Cell* RTLIL::Module::جوڑو ## _func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, منطقي is_signed, ثابت std::string &src) { \
+		RTLIL::Cell *cell = جوڑو_Cell(name, _type);           \
+		cell->parameters[ID::A_SIGNED] = خطأ;             \
 		cell->parameters[ID::B_SIGNED] = is_signed;         \
-		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
-		cell->parameters[ID::B_WIDTH] = sig_b.size();       \
-		cell->parameters[ID::Y_WIDTH] = sig_y.size();       \
-		cell->setPort(ID::A, sig_a);                        \
-		cell->setPort(ID::B, sig_b);                        \
-		cell->setPort(ID::Y, sig_y);                        \
-		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		cell->parameters[ID::A_چوڑائی] = sig_a.ناپ();       \
+		cell->parameters[ID::B_چوڑائی] = sig_b.ناپ();       \
+		cell->parameters[ID::Y_چوڑائی] = sig_y.ناپ();       \
+		cell->سیٹ_پورٹ(ID::A, sig_a);                        \
+		cell->سیٹ_پورٹ(ID::B, sig_b);                        \
+		cell->سیٹ_پورٹ(ID::Y, sig_y);                        \
+		cell->سیٹ_src_attribute(src);                       \
+		أرجع cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);         \
-		add ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
-		return sig_y;                                            \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, منطقي is_signed, ثابت std::string &src) { \
+		RTLIL::SigSpec sig_y = جوڑو_Wire(NEW_ID, y_ناپ);         \
+		جوڑو ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
+		أرجع sig_y;                                            \
 	}
-DEF_METHOD(Shiftx,      sig_a.size(), ID($shiftx))
-#undef DEF_METHOD
+DEF_طریقہ(Shiftx,      sig_a.ناپ(), ID($shiftx))
+#تعریف_رد DEF_طریقہ
 
-#define DEF_METHOD(_func, _type, _pmux) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);                 \
-		cell->parameters[ID::WIDTH] = sig_a.size();               \
-		if (_pmux) cell->parameters[ID::S_WIDTH] = sig_s.size();  \
-		cell->setPort(ID::A, sig_a);                              \
-		cell->setPort(ID::B, sig_b);                              \
-		cell->setPort(ID::S, sig_s);                              \
-		cell->setPort(ID::Y, sig_y);                              \
-		cell->set_src_attribute(src);                             \
-		return cell;                                              \
+#تعریف_کرو DEF_طریقہ(_func, _type, _pmux) \
+	RTLIL::Cell* RTLIL::Module::جوڑو ## _func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_s, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src) { \
+		RTLIL::Cell *cell = جوڑو_Cell(name, _type);                 \
+		cell->parameters[ID::چوڑائی_2] = sig_a.ناپ();               \
+		إذا (_pmux) cell->parameters[ID::S_چوڑائی] = sig_s.ناپ();  \
+		cell->سیٹ_پورٹ(ID::A, sig_a);                              \
+		cell->سیٹ_پورٹ(ID::B, sig_b);                              \
+		cell->سیٹ_پورٹ(ID::S, sig_s);                              \
+		cell->سیٹ_پورٹ(ID::Y, sig_y);                              \
+		cell->سیٹ_src_attribute(src);                             \
+		أرجع cell;                                              \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, sig_a.size());     \
-		add ## _func(name, sig_a, sig_b, sig_s, sig_y, src);      \
-		return sig_y;                                             \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_s, ثابت std::string &src) { \
+		RTLIL::SigSpec sig_y = جوڑو_Wire(NEW_ID, sig_a.ناپ());     \
+		جوڑو ## _func(name, sig_a, sig_b, sig_s, sig_y, src);      \
+		أرجع sig_y;                                             \
 	}
-DEF_METHOD(Mux,      ID($mux),        0)
-DEF_METHOD(Bwmux,    ID($bwmux),      0)
-DEF_METHOD(Pmux,     ID($pmux),       1)
-#undef DEF_METHOD
+DEF_طریقہ(Mux,      ID($mux),        0)
+DEF_طریقہ(Bwmux,    ID($bwmux),      0)
+DEF_طریقہ(Pmux,     ID($pmux),       1)
+#تعریف_رد DEF_طریقہ
 
-#define DEF_METHOD(_func, _type, _demux) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);                 \
-		cell->parameters[ID::WIDTH] = _demux ? sig_a.size() : sig_y.size(); \
-		cell->parameters[ID::S_WIDTH] = sig_s.size();             \
-		cell->setPort(ID::A, sig_a);                              \
-		cell->setPort(ID::S, sig_s);                              \
-		cell->setPort(ID::Y, sig_y);                              \
-		cell->set_src_attribute(src);                             \
-		return cell;                                              \
+#تعریف_کرو DEF_طریقہ(_func, _type, _demux) \
+	RTLIL::Cell* RTLIL::Module::جوڑو ## _func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_s, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src) { \
+		RTLIL::Cell *cell = جوڑو_Cell(name, _type);                 \
+		cell->parameters[ID::چوڑائی_2] = _demux ? sig_a.ناپ() : sig_y.ناپ(); \
+		cell->parameters[ID::S_چوڑائی] = sig_s.ناپ();             \
+		cell->سیٹ_پورٹ(ID::A, sig_a);                              \
+		cell->سیٹ_پورٹ(ID::S, sig_s);                              \
+		cell->سیٹ_پورٹ(ID::Y, sig_y);                              \
+		cell->سیٹ_src_attribute(src);                             \
+		أرجع cell;                                              \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _demux ? sig_a.size() << sig_s.size() : sig_a.size() >> sig_s.size()); \
-		add ## _func(name, sig_a, sig_s, sig_y, src);             \
-		return sig_y;                                             \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_s, ثابت std::string &src) { \
+		RTLIL::SigSpec sig_y = جوڑو_Wire(NEW_ID, _demux ? sig_a.ناپ() << sig_s.ناپ() : sig_a.ناپ() >> sig_s.ناپ()); \
+		جوڑو ## _func(name, sig_a, sig_s, sig_y, src);             \
+		أرجع sig_y;                                             \
 	}
-DEF_METHOD(Bmux,     ID($bmux),       0)
-DEF_METHOD(Demux,    ID($demux),      1)
-#undef DEF_METHOD
+DEF_طریقہ(Bmux,     ID($bmux),       0)
+DEF_طریقہ(Demux,    ID($demux),      1)
+#تعریف_رد DEF_طریقہ
 
-#define DEF_METHOD(_func, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);                 \
-		cell->parameters[ID::WIDTH] = sig_a.size();               \
-		cell->setPort(ID::A, sig_a);                              \
-		cell->setPort(ID::B, sig_b);                              \
-		cell->setPort(ID::Y, sig_y);                              \
-		cell->set_src_attribute(src);                             \
-		return cell;                                              \
+#تعریف_کرو DEF_طریقہ(_func, _type) \
+	RTLIL::Cell* RTLIL::Module::جوڑو ## _func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src) { \
+		RTLIL::Cell *cell = جوڑو_Cell(name, _type);                 \
+		cell->parameters[ID::چوڑائی_2] = sig_a.ناپ();               \
+		cell->سیٹ_پورٹ(ID::A, sig_a);                              \
+		cell->سیٹ_پورٹ(ID::B, sig_b);                              \
+		cell->سیٹ_پورٹ(ID::Y, sig_y);                              \
+		cell->سیٹ_src_attribute(src);                             \
+		أرجع cell;                                              \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, sig_a.size());     \
-		add ## _func(name, sig_a, sig_s, sig_y, src);             \
-		return sig_y;                                             \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_s, ثابت std::string &src) { \
+		RTLIL::SigSpec sig_y = جوڑو_Wire(NEW_ID, sig_a.ناپ());     \
+		جوڑو ## _func(name, sig_a, sig_s, sig_y, src);             \
+		أرجع sig_y;                                             \
 	}
-DEF_METHOD(Bweqx,    ID($bweqx))
-#undef DEF_METHOD
+DEF_طریقہ(Bweqx,    ID($bweqx))
+#تعریف_رد DEF_طریقہ
 
-#define DEF_METHOD_2(_func, _type, _P1, _P2) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);         \
-		cell->setPort("\\" #_P1, sig1);                   \
-		cell->setPort("\\" #_P2, sig2);                   \
-		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+#تعریف_کرو DEF_طریقہ_2(_func, _type, _P1, _P2) \
+	RTLIL::Cell* RTLIL::Module::جوڑو ## _func(RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig1, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig2, ثابت std::string &src) { \
+		RTLIL::Cell *cell = جوڑو_Cell(name, _type);         \
+		cell->سیٹ_پورٹ("\\" #_P1, sig1);                   \
+		cell->سیٹ_پورٹ("\\" #_P2, sig2);                   \
+		cell->سیٹ_src_attribute(src);                     \
+		أرجع cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const std::string &src) { \
-		RTLIL::SigBit sig2 = addWire(NEW_ID);             \
-		add ## _func(name, sig1, sig2, src);              \
-		return sig2;                                      \
+	RTLIL::Sig_ثنائی_ہندسہ RTLIL::Module::_func(RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig1, ثابت std::string &src) { \
+		RTLIL::Sig_ثنائی_ہندسہ sig2 = جوڑو_Wire(NEW_ID);             \
+		جوڑو ## _func(name, sig1, sig2, src);              \
+		أرجع sig2;                                      \
 	}
-#define DEF_METHOD_3(_func, _type, _P1, _P2, _P3) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);         \
-		cell->setPort("\\" #_P1, sig1);                   \
-		cell->setPort("\\" #_P2, sig2);                   \
-		cell->setPort("\\" #_P3, sig3);                   \
-		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+#تعریف_کرو DEF_طریقہ_3(_func, _type, _P1, _P2, _P3) \
+	RTLIL::Cell* RTLIL::Module::جوڑو ## _func(RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig1, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig2, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig3, ثابت std::string &src) { \
+		RTLIL::Cell *cell = جوڑو_Cell(name, _type);         \
+		cell->سیٹ_پورٹ("\\" #_P1, sig1);                   \
+		cell->سیٹ_پورٹ("\\" #_P2, sig2);                   \
+		cell->سیٹ_پورٹ("\\" #_P3, sig3);                   \
+		cell->سیٹ_src_attribute(src);                     \
+		أرجع cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const std::string &src) { \
-		RTLIL::SigBit sig3 = addWire(NEW_ID);             \
-		add ## _func(name, sig1, sig2, sig3, src);        \
-		return sig3;                                      \
+	RTLIL::Sig_ثنائی_ہندسہ RTLIL::Module::_func(RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig1, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig2, ثابت std::string &src) { \
+		RTLIL::Sig_ثنائی_ہندسہ sig3 = جوڑو_Wire(NEW_ID);             \
+		جوڑو ## _func(name, sig1, sig2, sig3, src);        \
+		أرجع sig3;                                      \
 	}
-#define DEF_METHOD_4(_func, _type, _P1, _P2, _P3, _P4) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const RTLIL::SigBit &sig4, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);         \
-		cell->setPort("\\" #_P1, sig1);                   \
-		cell->setPort("\\" #_P2, sig2);                   \
-		cell->setPort("\\" #_P3, sig3);                   \
-		cell->setPort("\\" #_P4, sig4);                   \
-		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+#تعریف_کرو DEF_طریقہ_4(_func, _type, _P1, _P2, _P3, _P4) \
+	RTLIL::Cell* RTLIL::Module::جوڑو ## _func(RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig1, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig2, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig3, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig4, ثابت std::string &src) { \
+		RTLIL::Cell *cell = جوڑو_Cell(name, _type);         \
+		cell->سیٹ_پورٹ("\\" #_P1, sig1);                   \
+		cell->سیٹ_پورٹ("\\" #_P2, sig2);                   \
+		cell->سیٹ_پورٹ("\\" #_P3, sig3);                   \
+		cell->سیٹ_پورٹ("\\" #_P4, sig4);                   \
+		cell->سیٹ_src_attribute(src);                     \
+		أرجع cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const std::string &src) { \
-		RTLIL::SigBit sig4 = addWire(NEW_ID);             \
-		add ## _func(name, sig1, sig2, sig3, sig4, src);  \
-		return sig4;                                      \
+	RTLIL::Sig_ثنائی_ہندسہ RTLIL::Module::_func(RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig1, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig2, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig3, ثابت std::string &src) { \
+		RTLIL::Sig_ثنائی_ہندسہ sig4 = جوڑو_Wire(NEW_ID);             \
+		جوڑو ## _func(name, sig1, sig2, sig3, sig4, src);  \
+		أرجع sig4;                                      \
 	}
-#define DEF_METHOD_5(_func, _type, _P1, _P2, _P3, _P4, _P5) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const RTLIL::SigBit &sig4, const RTLIL::SigBit &sig5, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);         \
-		cell->setPort("\\" #_P1, sig1);                   \
-		cell->setPort("\\" #_P2, sig2);                   \
-		cell->setPort("\\" #_P3, sig3);                   \
-		cell->setPort("\\" #_P4, sig4);                   \
-		cell->setPort("\\" #_P5, sig5);                   \
-		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+#تعریف_کرو DEF_طریقہ_5(_func, _type, _P1, _P2, _P3, _P4, _P5) \
+	RTLIL::Cell* RTLIL::Module::جوڑو ## _func(RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig1, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig2, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig3, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig4, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig5, ثابت std::string &src) { \
+		RTLIL::Cell *cell = جوڑو_Cell(name, _type);         \
+		cell->سیٹ_پورٹ("\\" #_P1, sig1);                   \
+		cell->سیٹ_پورٹ("\\" #_P2, sig2);                   \
+		cell->سیٹ_پورٹ("\\" #_P3, sig3);                   \
+		cell->سیٹ_پورٹ("\\" #_P4, sig4);                   \
+		cell->سیٹ_پورٹ("\\" #_P5, sig5);                   \
+		cell->سیٹ_src_attribute(src);                     \
+		أرجع cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const RTLIL::SigBit &sig4, const std::string &src) { \
-		RTLIL::SigBit sig5 = addWire(NEW_ID);                  \
-		add ## _func(name, sig1, sig2, sig3, sig4, sig5, src); \
-		return sig5;                                           \
+	RTLIL::Sig_ثنائی_ہندسہ RTLIL::Module::_func(RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig1, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig2, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig3, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig4, ثابت std::string &src) { \
+		RTLIL::Sig_ثنائی_ہندسہ sig5 = جوڑو_Wire(NEW_ID);                  \
+		جوڑو ## _func(name, sig1, sig2, sig3, sig4, sig5, src); \
+		أرجع sig5;                                           \
 	}
-DEF_METHOD_2(BufGate,    ID($_BUF_),    A, Y)
-DEF_METHOD_2(NotGate,    ID($_NOT_),    A, Y)
-DEF_METHOD_3(AndGate,    ID($_AND_),    A, B, Y)
-DEF_METHOD_3(NandGate,   ID($_NAND_),   A, B, Y)
-DEF_METHOD_3(OrGate,     ID($_OR_),     A, B, Y)
-DEF_METHOD_3(NorGate,    ID($_NOR_),    A, B, Y)
-DEF_METHOD_3(XorGate,    ID($_XOR_),    A, B, Y)
-DEF_METHOD_3(XnorGate,   ID($_XNOR_),   A, B, Y)
-DEF_METHOD_3(AndnotGate, ID($_ANDNOT_), A, B, Y)
-DEF_METHOD_3(OrnotGate,  ID($_ORNOT_),  A, B, Y)
-DEF_METHOD_4(MuxGate,    ID($_MUX_),    A, B, S, Y)
-DEF_METHOD_4(NmuxGate,   ID($_NMUX_),   A, B, S, Y)
-DEF_METHOD_4(Aoi3Gate,   ID($_AOI3_),   A, B, C, Y)
-DEF_METHOD_4(Oai3Gate,   ID($_OAI3_),   A, B, C, Y)
-DEF_METHOD_5(Aoi4Gate,   ID($_AOI4_),   A, B, C, D, Y)
-DEF_METHOD_5(Oai4Gate,   ID($_OAI4_),   A, B, C, D, Y)
-#undef DEF_METHOD_2
-#undef DEF_METHOD_3
-#undef DEF_METHOD_4
-#undef DEF_METHOD_5
+DEF_طریقہ_2(BufGate,    ID($_BUF_),    A, Y)
+DEF_طریقہ_2(NotGate,    ID($_NOT_),    A, Y)
+DEF_طریقہ_3(AndGate,    ID($_AND_),    A, B, Y)
+DEF_طریقہ_3(NandGate,   ID($_NAND_),   A, B, Y)
+DEF_طریقہ_3(OrGate,     ID($_OR_),     A, B, Y)
+DEF_طریقہ_3(NorGate,    ID($_NOR_),    A, B, Y)
+DEF_طریقہ_3(XorGate,    ID($_XOR_),    A, B, Y)
+DEF_طریقہ_3(XnorGate,   ID($_XNOR_),   A, B, Y)
+DEF_طریقہ_3(AndnotGate, ID($_ANDNOT_), A, B, Y)
+DEF_طریقہ_3(OrnotGate,  ID($_ORNOT_),  A, B, Y)
+DEF_طریقہ_4(MuxGate,    ID($_MUX_),    A, B, S, Y)
+DEF_طریقہ_4(NmuxGate,   ID($_NMUX_),   A, B, S, Y)
+DEF_طریقہ_4(Aoi3Gate,   ID($_AOI3_),   A, B, C, Y)
+DEF_طریقہ_4(Oai3Gate,   ID($_OAI3_),   A, B, C, Y)
+DEF_طریقہ_5(Aoi4Gate,   ID($_AOI4_),   A, B, C, D, Y)
+DEF_طریقہ_5(Oai4Gate,   ID($_OAI4_),   A, B, C, D, Y)
+#تعریف_رد DEF_طریقہ_2
+#تعریف_رد DEF_طریقہ_3
+#تعریف_رد DEF_طریقہ_4
+#تعریف_رد DEF_طریقہ_5
 
-RTLIL::Cell* RTLIL::Module::addPow(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool a_signed, bool b_signed, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Pow(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, منطقي a_signed, منطقي b_signed, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($pow));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($قوت));
 	cell->parameters[ID::A_SIGNED] = a_signed;
 	cell->parameters[ID::B_SIGNED] = b_signed;
-	cell->parameters[ID::A_WIDTH] = sig_a.size();
-	cell->parameters[ID::B_WIDTH] = sig_b.size();
-	cell->parameters[ID::Y_WIDTH] = sig_y.size();
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::B, sig_b);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::A_چوڑائی] = sig_a.ناپ();
+	cell->parameters[ID::B_چوڑائی] = sig_b.ناپ();
+	cell->parameters[ID::Y_چوڑائی] = sig_y.ناپ();
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::B, sig_b);
+	cell->سیٹ_پورٹ(ID::Y, sig_y);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFa(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_c, const RTLIL::SigSpec &sig_x, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Fa(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_c, ثابت RTLIL::SigSpec &sig_x, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($fa));
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::B, sig_b);
-	cell->setPort(ID::C, sig_c);
-	cell->setPort(ID::X, sig_x);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($fa));
+	cell->parameters[ID::چوڑائی_2] = sig_a.ناپ();
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::B, sig_b);
+	cell->سیٹ_پورٹ(ID::C, sig_c);
+	cell->سیٹ_پورٹ(ID::X, sig_x);
+	cell->سیٹ_پورٹ(ID::Y, sig_y);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSlice(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, RTLIL::Const offset, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_ٹکڑا(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, RTLIL::Const وتھ, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($slice));
-	cell->parameters[ID::A_WIDTH] = sig_a.size();
-	cell->parameters[ID::Y_WIDTH] = sig_y.size();
-	cell->parameters[ID::OFFSET] = offset;
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($ٹکڑا));
+	cell->parameters[ID::A_چوڑائی] = sig_a.ناپ();
+	cell->parameters[ID::Y_چوڑائی] = sig_y.ناپ();
+	cell->parameters[ID::وتھ_2] = وتھ;
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::Y, sig_y);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addConcat(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Concat(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($concat));
-	cell->parameters[ID::A_WIDTH] = sig_a.size();
-	cell->parameters[ID::B_WIDTH] = sig_b.size();
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::B, sig_b);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($concat));
+	cell->parameters[ID::A_چوڑائی] = sig_a.ناپ();
+	cell->parameters[ID::B_چوڑائی] = sig_b.ناپ();
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::B, sig_b);
+	cell->سیٹ_پورٹ(ID::Y, sig_y);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addLut(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, RTLIL::Const lut, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Lut(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, RTLIL::Const lut, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($lut));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($lut));
 	cell->parameters[ID::LUT] = lut;
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::چوڑائی_2] = sig_a.ناپ();
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::Y, sig_y);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addTribuf(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Tribuf(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($tribuf));
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($tribuf));
+	cell->parameters[ID::چوڑائی_2] = sig_a.ناپ();
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_پورٹ(ID::Y, sig_y);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAssert(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Assert(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_en, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($assert));
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::EN, sig_en);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($أكد));
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAssume(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Assume(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_en, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($assume));
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::EN, sig_en);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($assume));
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addLive(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_جیوندا(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_en, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($live));
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::EN, sig_en);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($جیوندا));
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFair(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Fair(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_en, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($fair));
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::EN, sig_en);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($fair));
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addCover(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Cover(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_en, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($cover));
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::EN, sig_en);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($cover));
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addEquiv(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Equiv(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($equiv));
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::B, sig_b);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($equiv));
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::B, sig_b);
+	cell->سیٹ_پورٹ(ID::Y, sig_y);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSr(RTLIL::IdString name, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, const RTLIL::SigSpec &sig_q, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Sr(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr, ثابت RTLIL::SigSpec &sig_q, منطقي سیٹ_polarity, منطقي clr_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($sr));
-	cell->parameters[ID::SET_POLARITY] = set_polarity;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($sr));
+	cell->parameters[ID::سیٹ_POLARITY] = سیٹ_polarity;
 	cell->parameters[ID::CLR_POLARITY] = clr_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::SET, sig_set);
-	cell->setPort(ID::CLR, sig_clr);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::سیٹ_2, sig_سیٹ);
+	cell->سیٹ_پورٹ(ID::CLR, sig_clr);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFf(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Ff(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($ff));
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($ff));
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Dff(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, منطقي clk_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($dff));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($dff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::CLK, sig_clk);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Dffe(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, منطقي clk_polarity, منطقي en_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($dffe));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($dffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::CLK, sig_clk);
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsr(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Dffsr(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, ثابت RTLIL::SigSpec &sig_q, منطقي clk_polarity, منطقي سیٹ_polarity, منطقي clr_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($dffsr));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($dffsr));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
-	cell->parameters[ID::SET_POLARITY] = set_polarity;
+	cell->parameters[ID::سیٹ_POLARITY] = سیٹ_polarity;
 	cell->parameters[ID::CLR_POLARITY] = clr_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::SET, sig_set);
-	cell->setPort(ID::CLR, sig_clr);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::CLK, sig_clk);
+	cell->سیٹ_پورٹ(ID::سیٹ_2, sig_سیٹ);
+	cell->سیٹ_پورٹ(ID::CLR, sig_clr);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsre(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Dffsre(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, ثابت RTLIL::SigSpec &sig_q, منطقي clk_polarity, منطقي en_polarity, منطقي سیٹ_polarity, منطقي clr_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($dffsre));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($dffsre));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
-	cell->parameters[ID::SET_POLARITY] = set_polarity;
+	cell->parameters[ID::سیٹ_POLARITY] = سیٹ_polarity;
 	cell->parameters[ID::CLR_POLARITY] = clr_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::SET, sig_set);
-	cell->setPort(ID::CLR, sig_clr);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::CLK, sig_clk);
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_پورٹ(ID::سیٹ_2, sig_سیٹ);
+	cell->سیٹ_پورٹ(ID::CLR, sig_clr);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const arst_value, bool clk_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Adff(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_arst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		RTLIL::Const arst_قدر, منطقي clk_polarity, منطقي arst_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($adff));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($adff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::ARST_POLARITY] = arst_polarity;
-	cell->parameters[ID::ARST_VALUE] = arst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::ARST, sig_arst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::ARST_قدر] = arst_قدر;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::CLK, sig_clk);
+	cell->سیٹ_پورٹ(ID::ARST, sig_arst);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const arst_value, bool clk_polarity, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Adffe(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_arst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		RTLIL::Const arst_قدر, منطقي clk_polarity, منطقي en_polarity, منطقي arst_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($adffe));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($adffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::ARST_POLARITY] = arst_polarity;
-	cell->parameters[ID::ARST_VALUE] = arst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::ARST, sig_arst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::ARST_قدر] = arst_قدر;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::CLK, sig_clk);
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_پورٹ(ID::ARST, sig_arst);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Aldff(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_aload, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		ثابت RTLIL::SigSpec &sig_ad, منطقي clk_polarity, منطقي aload_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($aldff));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($aldff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::ALOAD_POLARITY] = aload_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::ALOAD, sig_aload);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::AD, sig_ad);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::CLK, sig_clk);
+	cell->سیٹ_پورٹ(ID::ALOAD, sig_aload);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::AD, sig_ad);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool en_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Aldffe(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_aload, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		ثابت RTLIL::SigSpec &sig_ad, منطقي clk_polarity, منطقي en_polarity, منطقي aload_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($aldffe));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($aldffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::ALOAD_POLARITY] = aload_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::ALOAD, sig_aload);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::AD, sig_ad);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::CLK, sig_clk);
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_پورٹ(ID::ALOAD, sig_aload);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::AD, sig_ad);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const srst_value, bool clk_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Sdff(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_srst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		RTLIL::Const srst_قدر, منطقي clk_polarity, منطقي srst_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($sdff));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($sdff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::SRST_POLARITY] = srst_polarity;
-	cell->parameters[ID::SRST_VALUE] = srst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::SRST, sig_srst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::SRST_قدر] = srst_قدر;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::CLK, sig_clk);
+	cell->سیٹ_پورٹ(ID::SRST, sig_srst);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Sdffe(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_srst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		RTLIL::Const srst_قدر, منطقي clk_polarity, منطقي en_polarity, منطقي srst_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($sdffe));
-	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
-	cell->parameters[ID::EN_POLARITY] = en_polarity;
-	cell->parameters[ID::SRST_POLARITY] = srst_polarity;
-	cell->parameters[ID::SRST_VALUE] = srst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::SRST, sig_srst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
-}
-
-RTLIL::Cell* RTLIL::Module::addSdffce(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
-{
-	RTLIL::Cell *cell = addCell(name, ID($sdffce));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($sdffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::SRST_POLARITY] = srst_polarity;
-	cell->parameters[ID::SRST_VALUE] = srst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::SRST, sig_srst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::SRST_قدر] = srst_قدر;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::CLK, sig_clk);
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_پورٹ(ID::SRST, sig_srst);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatch(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Sdffce(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_srst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		RTLIL::Const srst_قدر, منطقي clk_polarity, منطقي en_polarity, منطقي srst_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($dlatch));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($sdffce));
+	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::SRST_POLARITY] = srst_polarity;
+	cell->parameters[ID::SRST_قدر] = srst_قدر;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::CLK, sig_clk);
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_پورٹ(ID::SRST, sig_srst);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdlatch(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const arst_value, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Dlatch(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, منطقي en_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($adlatch));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($dlatch));
+	cell->parameters[ID::EN_POLARITY] = en_polarity;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
+}
+
+RTLIL::Cell* RTLIL::Module::جوڑو_Adlatch(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_arst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		RTLIL::Const arst_قدر, منطقي en_polarity, منطقي arst_polarity, ثابت std::string &src)
+{
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($adlatch));
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::ARST_POLARITY] = arst_polarity;
-	cell->parameters[ID::ARST_VALUE] = arst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::ARST, sig_arst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::ARST_قدر] = arst_قدر;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_پورٹ(ID::ARST, sig_arst);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatchsr(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Dlatchsr(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, ثابت RTLIL::SigSpec &sig_q, منطقي en_polarity, منطقي سیٹ_polarity, منطقي clr_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($dlatchsr));
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($dlatchsr));
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
-	cell->parameters[ID::SET_POLARITY] = set_polarity;
+	cell->parameters[ID::سیٹ_POLARITY] = سیٹ_polarity;
 	cell->parameters[ID::CLR_POLARITY] = clr_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::SET, sig_set);
-	cell->setPort(ID::CLR, sig_clr);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::EN, sig_en);
+	cell->سیٹ_پورٹ(ID::سیٹ_2, sig_سیٹ);
+	cell->سیٹ_پورٹ(ID::CLR, sig_clr);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSrGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		const RTLIL::SigSpec &sig_q, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Sr_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr,
+		ثابت RTLIL::SigSpec &sig_q, منطقي سیٹ_polarity, منطقي clr_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_SR_%c%c_", set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
-	cell->setPort(ID::S, sig_set);
-	cell->setPort(ID::R, sig_clr);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_SR_%c%c_", سیٹ_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
+	cell->سیٹ_پورٹ(ID::S, sig_سیٹ);
+	cell->سیٹ_پورٹ(ID::R, sig_clr);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFfGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Ff_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($_FF_));
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($_FF_));
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Dff_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, منطقي clk_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFF_%c_", clk_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_DFF_%c_", clk_polarity ? 'P' : 'N'));
+	cell->سیٹ_پورٹ(ID::C, sig_clk);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Dffe_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, منطقي clk_polarity, منطقي en_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFFE_%c%c_", clk_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_DFFE_%c%c_", clk_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
+	cell->سیٹ_پورٹ(ID::C, sig_clk);
+	cell->سیٹ_پورٹ(ID::E, sig_en);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsrGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Dffsr_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, ثابت RTLIL::SigSpec &sig_q, منطقي clk_polarity, منطقي سیٹ_polarity, منطقي clr_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFFSR_%c%c%c_", clk_polarity ? 'P' : 'N', set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::S, sig_set);
-	cell->setPort(ID::R, sig_clr);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_DFFSR_%c%c%c_", clk_polarity ? 'P' : 'N', سیٹ_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
+	cell->سیٹ_پورٹ(ID::C, sig_clk);
+	cell->سیٹ_پورٹ(ID::S, sig_سیٹ);
+	cell->سیٹ_پورٹ(ID::R, sig_clr);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsreGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Dffsre_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, ثابت RTLIL::SigSpec &sig_q, منطقي clk_polarity, منطقي en_polarity, منطقي سیٹ_polarity, منطقي clr_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFFSRE_%c%c%c%c_", clk_polarity ? 'P' : 'N', set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::S, sig_set);
-	cell->setPort(ID::R, sig_clr);
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_DFFSRE_%c%c%c%c_", clk_polarity ? 'P' : 'N', سیٹ_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
+	cell->سیٹ_پورٹ(ID::C, sig_clk);
+	cell->سیٹ_پورٹ(ID::S, sig_سیٹ);
+	cell->سیٹ_پورٹ(ID::R, sig_clr);
+	cell->سیٹ_پورٹ(ID::E, sig_en);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool arst_value, bool clk_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Adff_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_arst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		منطقي arst_قدر, منطقي clk_polarity, منطقي arst_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFF_%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_value ? '1' : '0'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::R, sig_arst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_DFF_%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_قدر ? '1' : '0'));
+	cell->سیٹ_پورٹ(ID::C, sig_clk);
+	cell->سیٹ_پورٹ(ID::R, sig_arst);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool arst_value, bool clk_polarity, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Adffe_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_arst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		منطقي arst_قدر, منطقي clk_polarity, منطقي en_polarity, منطقي arst_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_value ? '1' : '0', en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::R, sig_arst);
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_DFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_قدر ? '1' : '0', en_polarity ? 'P' : 'N'));
+	cell->سیٹ_پورٹ(ID::C, sig_clk);
+	cell->سیٹ_پورٹ(ID::R, sig_arst);
+	cell->سیٹ_پورٹ(ID::E, sig_en);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Aldff_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_aload, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		ثابت RTLIL::SigSpec &sig_ad, منطقي clk_polarity, منطقي aload_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_ALDFF_%c%c_", clk_polarity ? 'P' : 'N', aload_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::L, sig_aload);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::AD, sig_ad);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_ALDFF_%c%c_", clk_polarity ? 'P' : 'N', aload_polarity ? 'P' : 'N'));
+	cell->سیٹ_پورٹ(ID::C, sig_clk);
+	cell->سیٹ_پورٹ(ID::L, sig_aload);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::AD, sig_ad);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool en_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Aldffe_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_aload, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		ثابت RTLIL::SigSpec &sig_ad, منطقي clk_polarity, منطقي en_polarity, منطقي aload_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_ALDFFE_%c%c%c_", clk_polarity ? 'P' : 'N', aload_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::L, sig_aload);
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::AD, sig_ad);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_ALDFFE_%c%c%c_", clk_polarity ? 'P' : 'N', aload_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
+	cell->سیٹ_پورٹ(ID::C, sig_clk);
+	cell->سیٹ_پورٹ(ID::L, sig_aload);
+	cell->سیٹ_پورٹ(ID::E, sig_en);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::AD, sig_ad);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool srst_value, bool clk_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Sdff_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_srst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		منطقي srst_قدر, منطقي clk_polarity, منطقي srst_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_SDFF_%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_value ? '1' : '0'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::R, sig_srst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_SDFF_%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_قدر ? '1' : '0'));
+	cell->سیٹ_پورٹ(ID::C, sig_clk);
+	cell->سیٹ_پورٹ(ID::R, sig_srst);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Sdffe_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_srst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		منطقي srst_قدر, منطقي clk_polarity, منطقي en_polarity, منطقي srst_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_SDFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_value ? '1' : '0', en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::R, sig_srst);
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_SDFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_قدر ? '1' : '0', en_polarity ? 'P' : 'N'));
+	cell->سیٹ_پورٹ(ID::C, sig_clk);
+	cell->سیٹ_پورٹ(ID::R, sig_srst);
+	cell->سیٹ_پورٹ(ID::E, sig_en);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffceGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Sdffce_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_srst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		منطقي srst_قدر, منطقي clk_polarity, منطقي en_polarity, منطقي srst_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_SDFFCE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_value ? '1' : '0', en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::R, sig_srst);
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_SDFFCE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_قدر ? '1' : '0', en_polarity ? 'P' : 'N'));
+	cell->سیٹ_پورٹ(ID::C, sig_clk);
+	cell->سیٹ_پورٹ(ID::R, sig_srst);
+	cell->سیٹ_پورٹ(ID::E, sig_en);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatchGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Dlatch_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, منطقي en_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DLATCH_%c_", en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_DLATCH_%c_", en_polarity ? 'P' : 'N'));
+	cell->سیٹ_پورٹ(ID::E, sig_en);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdlatchGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool arst_value, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Adlatch_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_arst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+		منطقي arst_قدر, منطقي en_polarity, منطقي arst_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DLATCH_%c%c%c_", en_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_value ? '1' : '0'));
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::R, sig_arst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_DLATCH_%c%c%c_", en_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_قدر ? '1' : '0'));
+	cell->سیٹ_پورٹ(ID::E, sig_en);
+	cell->سیٹ_پورٹ(ID::R, sig_arst);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatchsrGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Dlatchsr_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, ثابت RTLIL::SigSpec &sig_q, منطقي en_polarity, منطقي سیٹ_polarity, منطقي clr_polarity, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DLATCHSR_%c%c%c_", en_polarity ? 'P' : 'N', set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::S, sig_set);
-	cell->setPort(ID::R, sig_clr);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, stringf("$_DLATCHSR_%c%c%c_", en_polarity ? 'P' : 'N', سیٹ_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
+	cell->سیٹ_پورٹ(ID::E, sig_en);
+	cell->سیٹ_پورٹ(ID::S, sig_سیٹ);
+	cell->سیٹ_پورٹ(ID::R, sig_clr);
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAnyinit(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Anyinit(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($anyinit));
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($anyinit));
+	cell->parameters[ID::چوڑائی_2] = sig_q.ناپ();
+	cell->سیٹ_پورٹ(ID::D, sig_d);
+	cell->سیٹ_پورٹ(ID::Q, sig_q);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::SigSpec RTLIL::Module::Anyconst(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Anyconst(RTLIL::IdString name, صحيح چوڑائی, ثابت std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, width);
-	Cell *cell = addCell(name, ID($anyconst));
-	cell->setParam(ID::WIDTH, width);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = جوڑو_Wire(NEW_ID, چوڑائی);
+	Cell *cell = جوڑو_Cell(name, ID($anyconst));
+	cell->سیٹ_Param(ID::چوڑائی_2, چوڑائی);
+	cell->سیٹ_پورٹ(ID::Y, sig);
+	cell->سیٹ_src_attribute(src);
+	أرجع sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Anyseq(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Anyseq(RTLIL::IdString name, صحيح چوڑائی, ثابت std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, width);
-	Cell *cell = addCell(name, ID($anyseq));
-	cell->setParam(ID::WIDTH, width);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = جوڑو_Wire(NEW_ID, چوڑائی);
+	Cell *cell = جوڑو_Cell(name, ID($anyseq));
+	cell->سیٹ_Param(ID::چوڑائی_2, چوڑائی);
+	cell->سیٹ_پورٹ(ID::Y, sig);
+	cell->سیٹ_src_attribute(src);
+	أرجع sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Allconst(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Allconst(RTLIL::IdString name, صحيح چوڑائی, ثابت std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, width);
-	Cell *cell = addCell(name, ID($allconst));
-	cell->setParam(ID::WIDTH, width);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = جوڑو_Wire(NEW_ID, چوڑائی);
+	Cell *cell = جوڑو_Cell(name, ID($allconst));
+	cell->سیٹ_Param(ID::چوڑائی_2, چوڑائی);
+	cell->سیٹ_پورٹ(ID::Y, sig);
+	cell->سیٹ_src_attribute(src);
+	أرجع sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Allseq(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Allseq(RTLIL::IdString name, صحيح چوڑائی, ثابت std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, width);
-	Cell *cell = addCell(name, ID($allseq));
-	cell->setParam(ID::WIDTH, width);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = جوڑو_Wire(NEW_ID, چوڑائی);
+	Cell *cell = جوڑو_Cell(name, ID($allseq));
+	cell->سیٹ_Param(ID::چوڑائی_2, چوڑائی);
+	cell->سیٹ_پورٹ(ID::Y, sig);
+	cell->سیٹ_src_attribute(src);
+	أرجع sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Initstate(RTLIL::IdString name, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Initstate(RTLIL::IdString name, ثابت std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID);
-	Cell *cell = addCell(name, ID($initstate));
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = جوڑو_Wire(NEW_ID);
+	Cell *cell = جوڑو_Cell(name, ID($initstate));
+	cell->سیٹ_پورٹ(ID::Y, sig);
+	cell->سیٹ_src_attribute(src);
+	أرجع sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::SetTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::سیٹ_ٹیگ_2(RTLIL::IdString name, ثابت std::string &ٹیگ, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_s, ثابت RTLIL::SigSpec &sig_c, ثابت std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.size());
-	Cell *cell = addCell(name, ID($set_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->parameters[ID::TAG] = tag;
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::SET, sig_s);
-	cell->setPort(ID::CLR, sig_c);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = جوڑو_Wire(NEW_ID, sig_a.ناپ());
+	Cell *cell = جوڑو_Cell(name, ID($سیٹ_ٹیگ));
+	cell->parameters[ID::چوڑائی_2] = sig_a.ناپ();
+	cell->parameters[ID::ٹیگ_2] = ٹیگ;
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::سیٹ_2, sig_s);
+	cell->سیٹ_پورٹ(ID::CLR, sig_c);
+	cell->سیٹ_پورٹ(ID::Y, sig);
+	cell->سیٹ_src_attribute(src);
+	أرجع sig;
 }
 
-RTLIL::Cell* RTLIL::Module::addSetTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_سیٹ_ٹیگ(RTLIL::IdString name, ثابت std::string &ٹیگ, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_s, ثابت RTLIL::SigSpec &sig_c, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src)
 {
-	Cell *cell = addCell(name, ID($set_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->parameters[ID::TAG] = tag;
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::SET, sig_s);
-	cell->setPort(ID::CLR, sig_c);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	Cell *cell = جوڑو_Cell(name, ID($سیٹ_ٹیگ));
+	cell->parameters[ID::چوڑائی_2] = sig_a.ناپ();
+	cell->parameters[ID::ٹیگ_2] = ٹیگ;
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::سیٹ_2, sig_s);
+	cell->سیٹ_پورٹ(ID::CLR, sig_c);
+	cell->سیٹ_پورٹ(ID::Y, sig_y);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::SigSpec RTLIL::Module::GetTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Get_ٹیگ(RTLIL::IdString name, ثابت std::string &ٹیگ, ثابت RTLIL::SigSpec &sig_a, ثابت std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.size());
-	Cell *cell = addCell(name, ID($get_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->parameters[ID::TAG] = tag;
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = جوڑو_Wire(NEW_ID, sig_a.ناپ());
+	Cell *cell = جوڑو_Cell(name, ID($get_ٹیگ));
+	cell->parameters[ID::چوڑائی_2] = sig_a.ناپ();
+	cell->parameters[ID::ٹیگ_2] = ٹیگ;
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::Y, sig);
+	cell->سیٹ_src_attribute(src);
+	أرجع sig;
 }
 
-RTLIL::Cell* RTLIL::Module::addOverwriteTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src)
+RTLIL::Cell* RTLIL::Module::جوڑو_Overwrite_ٹیگ(RTLIL::IdString name, ثابت std::string &ٹیگ, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_s, ثابت RTLIL::SigSpec &sig_c, ثابت std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($overwrite_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->parameters[ID::TAG] = tag;
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::SET, sig_s);
-	cell->setPort(ID::CLR, sig_c);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = جوڑو_Cell(name, ID($overwrite_ٹیگ));
+	cell->parameters[ID::چوڑائی_2] = sig_a.ناپ();
+	cell->parameters[ID::ٹیگ_2] = ٹیگ;
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::سیٹ_2, sig_s);
+	cell->سیٹ_پورٹ(ID::CLR, sig_c);
+	cell->سیٹ_src_attribute(src);
+	أرجع cell;
 }
 
-RTLIL::SigSpec RTLIL::Module::OriginalTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Original_ٹیگ(RTLIL::IdString name, ثابت std::string &ٹیگ, ثابت RTLIL::SigSpec &sig_a, ثابت std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.size());
-	Cell *cell = addCell(name, ID($original_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->parameters[ID::TAG] = tag;
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = جوڑو_Wire(NEW_ID, sig_a.ناپ());
+	Cell *cell = جوڑو_Cell(name, ID($original_ٹیگ));
+	cell->parameters[ID::چوڑائی_2] = sig_a.ناپ();
+	cell->parameters[ID::ٹیگ_2] = ٹیگ;
+	cell->سیٹ_پورٹ(ID::A, sig_a);
+	cell->سیٹ_پورٹ(ID::Y, sig);
+	cell->سیٹ_src_attribute(src);
+	أرجع sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::FutureFF(RTLIL::IdString name, const RTLIL::SigSpec &sig_e, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::FutureFF(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_e, ثابت std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, sig_e.size());
-	Cell *cell = addCell(name, ID($future_ff));
-	cell->parameters[ID::WIDTH] = sig_e.size();
-	cell->setPort(ID::A, sig_e);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = جوڑو_Wire(NEW_ID, sig_e.ناپ());
+	Cell *cell = جوڑو_Cell(name, ID($future_ff));
+	cell->parameters[ID::چوڑائی_2] = sig_e.ناپ();
+	cell->سیٹ_پورٹ(ID::A, sig_e);
+	cell->سیٹ_پورٹ(ID::Y, sig);
+	cell->سیٹ_src_attribute(src);
+	أرجع sig;
 }
 
-std::string RTLIL::Module::to_rtlil_str() const
+std::string RTLIL::Module::منزل_rtlil_str() ثابت
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_module(f, "", const_cast<RTLIL::Module*>(this), design, false, true, false, RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_module(f, "", const_cast<RTLIL::Module*>(هذا), design, خطأ, سچ, خطأ, RTLIL_BACKEND::Dump_منوال::Readable);
+	أرجع f.str();
 }
 
 RTLIL::Wire::Wire()
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	ساكن بنانشانی صحيح hashidx_گنتی = 123456789;
+	hashidx_گنتی = mkhash_xorshift(hashidx_گنتی);
+	hashidx_ = hashidx_گنتی;
 
-	module = nullptr;
-	width = 1;
-	start_offset = 0;
-	port_id = 0;
-	port_input = false;
-	port_output = false;
-	upto = false;
-	is_signed = false;
+	module = خالی_سوچک;
+	چوڑائی = 1;
+	شروع_وتھ = 0;
+	پورٹ_id = 0;
+	پورٹ_داخلہ = خطأ;
+	پورٹ_output = خطأ;
+	upto = خطأ;
+	is_signed = خطأ;
 
-#ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Wire::get_all_wires()->insert(std::pair<unsigned int, RTLIL::Wire*>(hashidx_, this));
-#endif
+#جے_تعریف_شدہ YOSYS_ENABLE_PYTHON
+	RTLIL::Wire::get_all_wires()->داخل_کرو(std::pair<بنانشانی صحيح, RTLIL::Wire*>(hashidx_, هذا));
+#جے_انت
 }
 
 RTLIL::Wire::~Wire()
 {
-#ifdef YOSYS_ENABLE_PYTHON
+#جے_تعریف_شدہ YOSYS_ENABLE_PYTHON
 	RTLIL::Wire::get_all_wires()->erase(hashidx_);
-#endif
+#جے_انت
 }
 
-std::string RTLIL::Wire::to_rtlil_str() const
+std::string RTLIL::Wire::منزل_rtlil_str() ثابت
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_wire(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_wire(f, "", هذا, design(), RTLIL_BACKEND::Dump_منوال::Readable);
+	أرجع f.str();
 }
 
-#ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Wire*> all_wires;
-std::map<unsigned int, RTLIL::Wire*> *RTLIL::Wire::get_all_wires(void)
+#جے_تعریف_شدہ YOSYS_ENABLE_PYTHON
+ساكن std::map<بنانشانی صحيح, RTLIL::Wire*> all_wires;
+std::map<بنانشانی صحيح, RTLIL::Wire*> *RTLIL::Wire::get_all_wires(فراغ)
 {
-	return &all_wires;
+	أرجع &all_wires;
 }
-#endif
+#جے_انت
 
-RTLIL::Memory::Memory()
+RTLIL::حافظہ::حافظہ()
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	ساكن بنانشانی صحيح hashidx_گنتی = 123456789;
+	hashidx_گنتی = mkhash_xorshift(hashidx_گنتی);
+	hashidx_ = hashidx_گنتی;
 
-	width = 1;
-	start_offset = 0;
-	size = 0;
-#ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Memory::get_all_memorys()->insert(std::pair<unsigned int, RTLIL::Memory*>(hashidx_, this));
-#endif
+	چوڑائی = 1;
+	شروع_وتھ = 0;
+	ناپ = 0;
+#جے_تعریف_شدہ YOSYS_ENABLE_PYTHON
+	RTLIL::حافظہ::get_all_memorys()->داخل_کرو(std::pair<بنانشانی صحيح, RTLIL::حافظہ*>(hashidx_, هذا));
+#جے_انت
 }
 
-std::string RTLIL::Memory::to_rtlil_str() const
-{
-	std::ostringstream f;
-	RTLIL_BACKEND::dump_memory(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
-}
-
-RTLIL::Process::Process() : module(nullptr)
-{
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
-}
-
-std::string RTLIL::Process::to_rtlil_str() const
+std::string RTLIL::حافظہ::منزل_rtlil_str() ثابت
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_proc(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_حافظہ(f, "", هذا, design(), RTLIL_BACKEND::Dump_منوال::Readable);
+	أرجع f.str();
 }
 
-RTLIL::Cell::Cell() : module(nullptr)
+RTLIL::Process::Process() : module(خالی_سوچک)
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	ساكن بنانشانی صحيح hashidx_گنتی = 123456789;
+	hashidx_گنتی = mkhash_xorshift(hashidx_گنتی);
+	hashidx_ = hashidx_گنتی;
+}
+
+std::string RTLIL::Process::منزل_rtlil_str() ثابت
+{
+	std::ostringstream f;
+	RTLIL_BACKEND::dump_proc(f, "", هذا, design(), RTLIL_BACKEND::Dump_منوال::Readable);
+	أرجع f.str();
+}
+
+RTLIL::Cell::Cell() : module(خالی_سوچک)
+{
+	ساكن بنانشانی صحيح hashidx_گنتی = 123456789;
+	hashidx_گنتی = mkhash_xorshift(hashidx_گنتی);
+	hashidx_ = hashidx_گنتی;
 
 	// log("#memtrace# %p\n", this);
 	memhasher();
 
-#ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Cell::get_all_cells()->insert(std::pair<unsigned int, RTLIL::Cell*>(hashidx_, this));
-#endif
+#جے_تعریف_شدہ YOSYS_ENABLE_PYTHON
+	RTLIL::Cell::get_all_cells()->داخل_کرو(std::pair<بنانشانی صحيح, RTLIL::Cell*>(hashidx_, هذا));
+#جے_انت
 }
 
 RTLIL::Cell::~Cell()
 {
-#ifdef YOSYS_ENABLE_PYTHON
+#جے_تعریف_شدہ YOSYS_ENABLE_PYTHON
 	RTLIL::Cell::get_all_cells()->erase(hashidx_);
-#endif
+#جے_انت
 }
 
-std::string RTLIL::Cell::to_rtlil_str() const
+std::string RTLIL::Cell::منزل_rtlil_str() ثابت
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_cell(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_cell(f, "", هذا, design(), RTLIL_BACKEND::Dump_منوال::Readable);
+	أرجع f.str();
 }
 
-#ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Cell*> all_cells;
-std::map<unsigned int, RTLIL::Cell*> *RTLIL::Cell::get_all_cells(void)
+#جے_تعریف_شدہ YOSYS_ENABLE_PYTHON
+ساكن std::map<بنانشانی صحيح, RTLIL::Cell*> all_cells;
+std::map<بنانشانی صحيح, RTLIL::Cell*> *RTLIL::Cell::get_all_cells(فراغ)
 {
-	return &all_cells;
+	أرجع &all_cells;
 }
-#endif
+#جے_انت
 
-bool RTLIL::Cell::hasPort(RTLIL::IdString portname) const
+منطقي RTLIL::Cell::has_پورٹ(RTLIL::IdString portname) ثابت
 {
-	return connections_.count(portname) != 0;
+	أرجع connections_.گنتی(portname) != 0;
 }
 
 // bufnorm
 
-const RTLIL::SigSpec &RTLIL::Cell::getPort(RTLIL::IdString portname) const
+ثابت RTLIL::SigSpec &RTLIL::Cell::get_پورٹ(RTLIL::IdString portname) ثابت
 {
-	return connections_.at(portname);
+	أرجع connections_.at(portname);
 }
 
-const dict<RTLIL::IdString, RTLIL::SigSpec> &RTLIL::Cell::connections() const
+ثابت dict<RTLIL::IdString, RTLIL::SigSpec> &RTLIL::Cell::connections() ثابت
 {
-	return connections_;
+	أرجع connections_;
 }
 
-bool RTLIL::Cell::known() const
+منطقي RTLIL::Cell::معلوم() ثابت
 {
-	if (yosys_celltypes.cell_known(type))
-		return true;
-	if (module && module->design && module->design->module(type))
-		return true;
-	return false;
+	إذا (yosys_celltypes.cell_معلوم(type))
+		أرجع سچ;
+	إذا (module && module->design && module->design->module(type))
+		أرجع سچ;
+	أرجع خطأ;
 }
 
-bool RTLIL::Cell::input(IdString portname) const
+منطقي RTLIL::Cell::داخلہ(IdString portname) ثابت
 {
-	if (yosys_celltypes.cell_known(type))
-		return yosys_celltypes.cell_input(type.ref(), portname);
-	if (module && module->design) {
+	إذا (yosys_celltypes.cell_معلوم(type))
+		أرجع yosys_celltypes.cell_داخلہ(type.ref(), portname);
+	إذا (module && module->design) {
 		RTLIL::Module *m = module->design->module(type.ref());
-		RTLIL::Wire *w = m ? m->wire(portname) : nullptr;
-		return w && w->port_input;
+		RTLIL::Wire *w = m ? m->wire(portname) : خالی_سوچک;
+		أرجع w && w->پورٹ_داخلہ;
 	}
-	return false;
+	أرجع خطأ;
 }
 
-bool RTLIL::Cell::output(RTLIL::IdString portname) const
+منطقي RTLIL::Cell::output(RTLIL::IdString portname) ثابت
 {
-	if (yosys_celltypes.cell_known(type))
-		return yosys_celltypes.cell_output(type, portname);
-	if (module && module->design) {
+	إذا (yosys_celltypes.cell_معلوم(type))
+		أرجع yosys_celltypes.cell_output(type, portname);
+	إذا (module && module->design) {
 		RTLIL::Module *m = module->design->module(type.ref());
-		RTLIL::Wire *w = m ? m->wire(portname) : nullptr;
-		return w && w->port_output;
+		RTLIL::Wire *w = m ? m->wire(portname) : خالی_سوچک;
+		أرجع w && w->پورٹ_output;
 	}
-	return false;
+	أرجع خطأ;
 }
 
-RTLIL::PortDir RTLIL::Cell::port_dir(RTLIL::IdString portname) const
+RTLIL::پورٹ_Dir RTLIL::Cell::پورٹ_dir(RTLIL::IdString portname) ثابت
 {
-	if (yosys_celltypes.cell_known(type.ref()))
-		return yosys_celltypes.cell_port_dir(type, portname);
-	if (module && module->design) {
+	إذا (yosys_celltypes.cell_معلوم(type.ref()))
+		أرجع yosys_celltypes.cell_پورٹ_dir(type, portname);
+	إذا (module && module->design) {
 		RTLIL::Module *m = module->design->module(type.ref());
-		if (m == nullptr)
-			return PortDir::PD_UNKNOWN;
+		إذا (m == خالی_سوچک)
+			أرجع پورٹ_Dir::PD_UNKNOWN;
 		RTLIL::Wire *w = m->wire(portname);
-		if (w == nullptr)
-			return PortDir::PD_UNKNOWN;
-		return PortDir(w->port_input + w->port_output * 2);
+		إذا (w == خالی_سوچک)
+			أرجع پورٹ_Dir::PD_UNKNOWN;
+		أرجع پورٹ_Dir(w->پورٹ_داخلہ + w->پورٹ_output * 2);
 	}
-	return PortDir::PD_UNKNOWN;
+	أرجع پورٹ_Dir::PD_UNKNOWN;
 }
 
-bool RTLIL::Cell::hasParam(RTLIL::IdString paramname) const
+منطقي RTLIL::Cell::hasParam(RTLIL::IdString paramname) ثابت
 {
-	return parameters.count(paramname) != 0;
+	أرجع parameters.گنتی(paramname) != 0;
 }
 
-void RTLIL::Cell::unsetParam(RTLIL::IdString paramname)
+فراغ RTLIL::Cell::unsetParam(RTLIL::IdString paramname)
 {
 	parameters.erase(paramname);
 }
 
-void RTLIL::Cell::setParam(RTLIL::IdString paramname, RTLIL::Const value)
+فراغ RTLIL::Cell::سیٹ_Param(RTLIL::IdString paramname, RTLIL::Const قدر)
 {
-	parameters[paramname] = std::move(value);
+	parameters[paramname] = std::move(قدر);
 }
 
-const RTLIL::Const &RTLIL::Cell::getParam(RTLIL::IdString paramname) const
+ثابت RTLIL::Const &RTLIL::Cell::getParam(RTLIL::IdString paramname) ثابت
 {
-	const auto &it = parameters.find(paramname);
-	if (it != parameters.end())
-		return it->second;
-	if (module && module->design) {
+	ثابت خودکار &it = parameters.لبھو(paramname);
+	إذا (it != parameters.سرا())
+		أرجع it->دوجا;
+	إذا (module && module->design) {
 		RTLIL::Module *m = module->design->module(type);
-		if (m)
-			return m->parameter_default_values.at(paramname);
+		إذا (m)
+			أرجع m->parameter_default_اقدار.at(paramname);
 	}
-	throw std::out_of_range("Cell::getParam()");
+	ارم std::باہرلا_دا_range("Cell::getParam()");
 }
 
-void RTLIL::Cell::sort()
+فراغ RTLIL::Cell::ترتیب_دیو()
 {
-	connections_.sort(sort_by_id_str(module->twines()));
-	parameters.sort(sort_by_id_str(module->twines()));
-	attributes.sort(sort_by_id_str(module->twines()));
+	connections_.ترتیب_دیو(ترتیب_دیو_by_id_str(module->twines()));
+	parameters.ترتیب_دیو(ترتیب_دیو_by_id_str(module->twines()));
+	گن.ترتیب_دیو(ترتیب_دیو_by_id_str(module->twines()));
 }
 
-void RTLIL::Cell::check()
+فراغ RTLIL::Cell::check()
 {
-#ifndef NDEBUG
-	InternalCellChecker checker(NULL, this);
+#جے_بنا_تعریف NDEBUG
+	اندرونی_Cell_Checker checker(عدم, هذا);
 	checker.check();
-#endif
+#جے_انت
 }
 
-void RTLIL::Cell::fixup_parameters(bool set_a_signed, bool set_b_signed)
+فراغ RTLIL::Cell::fixup_parameters(منطقي سیٹ_a_signed, منطقي سیٹ_b_signed)
 {
-	if (type.isPublic() || type.begins_with("$_") || type.begins_with("$paramod") || type.begins_with("$fmcombine") ||
+	إذا (type.is_عوامی() || type.begins_with("$_") || type.begins_with("$paramod") || type.begins_with("$fmcombine") ||
 			type.begins_with("$verific$") || type.begins_with("$array:") || type.begins_with("$extern:"))
-		return;
+		أرجع;
 
-	if (type == ID($buf) || type == ID($barrier) || type == ID($mux) || type == ID($pmux) || type == ID($bmux) || type == ID($bwmux) || type == ID($bweqx)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::Y]);
-		if (type.in(ID($pmux), ID($bmux)))
-			parameters[ID::S_WIDTH] = GetSize(connections_[ID::S]);
+	إذا (type == ID($buf) || type == ID($barrier) || type == ID($mux) || type == ID($pmux) || type == ID($bmux) || type == ID($bwmux) || type == ID($bweqx)) {
+		parameters[ID::چوڑائی_2] = Get_ناپ(connections_[ID::Y]);
+		إذا (type.وچ(ID($pmux), ID($bmux)))
+			parameters[ID::S_چوڑائی] = Get_ناپ(connections_[ID::S]);
 		check();
-		return;
+		أرجع;
 	}
 
-	if (type == ID($demux)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::A]);
-		parameters[ID::S_WIDTH] = GetSize(connections_[ID::S]);
+	إذا (type == ID($demux)) {
+		parameters[ID::چوڑائی_2] = Get_ناپ(connections_[ID::A]);
+		parameters[ID::S_چوڑائی] = Get_ناپ(connections_[ID::S]);
 		check();
-		return;
+		أرجع;
 	}
 
-	if (type == ID($lut) || type == ID($sop)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::A]);
-		return;
+	إذا (type == ID($lut) || type == ID($sop)) {
+		parameters[ID::چوڑائی_2] = Get_ناپ(connections_[ID::A]);
+		أرجع;
 	}
 
-	if (type == ID($fa)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::Y]);
-		return;
+	إذا (type == ID($fa)) {
+		parameters[ID::چوڑائی_2] = Get_ناپ(connections_[ID::Y]);
+		أرجع;
 	}
 
-	if (type == ID($lcu)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::CO]);
-		return;
+	إذا (type == ID($lcu)) {
+		parameters[ID::چوڑائی_2] = Get_ناپ(connections_[ID::CO]);
+		أرجع;
 	}
 
-	if (type == ID($macc_v2)) {
-		parameters[ID::Y_WIDTH] = GetSize(connections_[ID::Y]);
-		return;
+	إذا (type == ID($macc_v2)) {
+		parameters[ID::Y_چوڑائی] = Get_ناپ(connections_[ID::Y]);
+		أرجع;
 	}
 
-	bool signedness_ab = !type.in(ID($slice), ID($concat), ID($macc));
+	منطقي signedness_ab = !type.وچ(ID($ٹکڑا), ID($concat), ID($macc));
 
-	if (connections_.count(ID::A)) {
-		if (signedness_ab) {
-			if (set_a_signed)
-				parameters[ID::A_SIGNED] = true;
-			else if (parameters.count(ID::A_SIGNED) == 0)
-				parameters[ID::A_SIGNED] = false;
+	إذا (connections_.گنتی(ID::A)) {
+		إذا (signedness_ab) {
+			إذا (سیٹ_a_signed)
+				parameters[ID::A_SIGNED] = سچ;
+			وإلا إذا (parameters.گنتی(ID::A_SIGNED) == 0)
+				parameters[ID::A_SIGNED] = خطأ;
 		}
-		parameters[ID::A_WIDTH] = GetSize(connections_[ID::A]);
+		parameters[ID::A_چوڑائی] = Get_ناپ(connections_[ID::A]);
 	}
 
-	if (connections_.count(ID::B)) {
-		if (signedness_ab) {
-			if (set_b_signed)
-				parameters[ID::B_SIGNED] = true;
-			else if (parameters.count(ID::B_SIGNED) == 0)
-				parameters[ID::B_SIGNED] = false;
+	إذا (connections_.گنتی(ID::B)) {
+		إذا (signedness_ab) {
+			إذا (سیٹ_b_signed)
+				parameters[ID::B_SIGNED] = سچ;
+			وإلا إذا (parameters.گنتی(ID::B_SIGNED) == 0)
+				parameters[ID::B_SIGNED] = خطأ;
 		}
-		parameters[ID::B_WIDTH] = GetSize(connections_[ID::B]);
+		parameters[ID::B_چوڑائی] = Get_ناپ(connections_[ID::B]);
 	}
 
-	if (connections_.count(ID::Y) && type != ID($concat))
-		parameters[ID::Y_WIDTH] = GetSize(connections_[ID::Y]);
+	إذا (connections_.گنتی(ID::Y) && type != ID($concat))
+		parameters[ID::Y_چوڑائی] = Get_ناپ(connections_[ID::Y]);
 
-	if (connections_.count(ID::Q))
-		parameters[ID::WIDTH] = GetSize(connections_[ID::Q]);
+	إذا (connections_.گنتی(ID::Q))
+		parameters[ID::چوڑائی_2] = Get_ناپ(connections_[ID::Q]);
 
 	check();
 }
 
-bool RTLIL::Cell::has_keep_attr() const {
-	return get_bool_attribute(ID::keep) || (module && module->design && module->design->module(type.ref()) &&
+منطقي RTLIL::Cell::has_keep_attr() ثابت {
+	أرجع get_bool_attribute(ID::keep) || (module && module->design && module->design->module(type.ref()) &&
 			module->design->module(type.ref())->get_bool_attribute(ID::keep));
 }
 
-bool RTLIL::Cell::has_memid() const
+منطقي RTLIL::Cell::has_memid() ثابت
 {
-	return type.in(ID($memwr), ID($memwr_v2), ID($memrd), ID($memrd_v2), ID($meminit), ID($meminit_v2));
+	أرجع type.وچ(ID($memwr), ID($memwr_v2), ID($memrd), ID($memrd_v2), ID($meminit), ID($meminit_v2));
 }
 
-bool RTLIL::Cell::is_mem_cell() const
+منطقي RTLIL::Cell::is_mem_cell() ثابت
 {
-	return type.in(ID($mem), ID($mem_v2)) || has_memid();
+	أرجع type.وچ(ID($mem), ID($mem_v2)) || has_memid();
 }
 
-bool RTLIL::Cell::is_builtin_ff() const {
-	return StaticCellTypes::categories.is_ff(type);
+منطقي RTLIL::Cell::is_builtin_ff() ثابت {
+	أرجع StaticCellTypes::categories.is_ff(type);
 }
 
-RTLIL::SigChunk::SigChunk(const RTLIL::SigBit &bit)
+RTLIL::SigChunk::SigChunk(ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ)
 {
-	wire = bit.wire;
-	offset = 0;
-	if (wire == NULL)
-		data = {bit.data};
-	else
-		offset = bit.offset;
-	width = 1;
+	wire = ثنائی_ہندسہ.wire;
+	وتھ = 0;
+	إذا (wire == عدم)
+		انکڑے = {ثنائی_ہندسہ.انکڑے};
+	وإلا
+		وتھ = ثنائی_ہندسہ.وتھ;
+	چوڑائی = 1;
 }
 
-RTLIL::SigChunk RTLIL::SigChunk::extract(int offset, int length) const
+RTLIL::SigChunk RTLIL::SigChunk::کڈھو(صحيح وتھ, صحيح لمائی) ثابت
 {
-	log_assert(offset >= 0);
-	log_assert(length >= 0);
-	log_assert(offset + length <= width);
+	log_assert(وتھ >= 0);
+	log_assert(لمائی >= 0);
+	log_assert(وتھ + لمائی <= چوڑائی);
 	RTLIL::SigChunk ret;
-	if (wire) {
+	إذا (wire) {
 		ret.wire = wire;
-		ret.offset = this->offset + offset;
-		ret.width = length;
-	} else {
-		for (int i = 0; i < length; i++)
-			ret.data.push_back(data[offset+i]);
-		ret.width = length;
+		ret.وتھ = هذا->وتھ + وتھ;
+		ret.چوڑائی = لمائی;
+	} وإلا {
+		لكل (صحيح i = 0; i < لمائی; i++)
+			ret.انکڑے.ڈالو_پٹھ(انکڑے[وتھ+i]);
+		ret.چوڑائی = لمائی;
 	}
-	return ret;
+	أرجع ret;
 }
 
-RTLIL::SigBit RTLIL::SigChunk::operator[](int offset) const
+RTLIL::Sig_ثنائی_ہندسہ RTLIL::SigChunk::عامل[](صحيح وتھ) ثابت
 {
-	log_assert(offset >= 0);
-	log_assert(offset < width);
-	RTLIL::SigBit ret;
-	if (wire) {
+	log_assert(وتھ >= 0);
+	log_assert(وتھ < چوڑائی);
+	RTLIL::Sig_ثنائی_ہندسہ ret;
+	إذا (wire) {
 		ret.wire = wire;
-		ret.offset = this->offset + offset;
-	} else {
-		ret.data = data[offset];
+		ret.وتھ = هذا->وتھ + وتھ;
+	} وإلا {
+		ret.انکڑے = انکڑے[وتھ];
 	}
-	return ret;
+	أرجع ret;
 }
 
-bool RTLIL::SigChunk::operator <(const RTLIL::SigChunk &other) const
+منطقي RTLIL::SigChunk::عامل <(ثابت RTLIL::SigChunk &other) ثابت
 {
-	if (wire && other.wire)
-		if (wire->name != other.wire->name)
-			return wire->name < other.wire->name;
+	إذا (wire && other.wire)
+		إذا (wire->name != other.wire->name)
+			أرجع wire->name < other.wire->name;
 
-	if (wire != other.wire)
-		return wire < other.wire;
+	إذا (wire != other.wire)
+		أرجع wire < other.wire;
 
-	if (offset != other.offset)
-		return offset < other.offset;
+	إذا (وتھ != other.وتھ)
+		أرجع وتھ < other.وتھ;
 
-	if (width != other.width)
-		return width < other.width;
+	إذا (چوڑائی != other.چوڑائی)
+		أرجع چوڑائی < other.چوڑائی;
 
-	return data < other.data;
+	أرجع انکڑے < other.انکڑے;
 }
 
-bool RTLIL::SigChunk::operator ==(const RTLIL::SigChunk &other) const
+منطقي RTLIL::SigChunk::عامل ==(ثابت RTLIL::SigChunk &other) ثابت
 {
-	return wire == other.wire && width == other.width && offset == other.offset && data == other.data;
+	أرجع wire == other.wire && چوڑائی == other.چوڑائی && وتھ == other.وتھ && انکڑے == other.انکڑے;
 }
 
-bool RTLIL::SigChunk::operator !=(const RTLIL::SigChunk &other) const
+منطقي RTLIL::SigChunk::عامل !=(ثابت RTLIL::SigChunk &other) ثابت
 {
-	if (*this == other)
-		return false;
-	return true;
+	إذا (*هذا == other)
+		أرجع خطأ;
+	أرجع سچ;
 }
 
 RTLIL::SigSpec::SigSpec(std::initializer_list<RTLIL::SigSpec> parts)
 {
-	init_empty_bits();
-	log_assert(parts.size() > 0);
-	auto ie = parts.begin();
-	auto it = ie + parts.size() - 1;
-	while (it >= ie)
+	init_خالی_تھاواں_بٹ();
+	log_assert(parts.ناپ() > 0);
+	خودکار ie = parts.begin();
+	خودکار it = ie + parts.ناپ() - 1;
+	طالما (it >= ie)
 		append(*it--);
 }
 
-RTLIL::SigSpec::SigSpec(const RTLIL::Const &value)
+RTLIL::SigSpec::SigSpec(ثابت RTLIL::Const &قدر)
 {
-	if (GetSize(value) != 0) {
+	إذا (Get_ناپ(قدر) != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(value);
-	} else {
-		init_empty_bits();
+		جديد (&chunk_) RTLIL::SigChunk(قدر);
+	} وإلا {
+		init_خالی_تھاواں_بٹ();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(RTLIL::Const &&value)
+RTLIL::SigSpec::SigSpec(RTLIL::Const &&قدر)
 {
-	if (GetSize(value) != 0) {
+	إذا (Get_ناپ(قدر) != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(value);
-	} else {
-		init_empty_bits();
+		جديد (&chunk_) RTLIL::SigChunk(قدر);
+	} وإلا {
+		init_خالی_تھاواں_بٹ();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const RTLIL::SigChunk &chunk)
+RTLIL::SigSpec::SigSpec(ثابت RTLIL::SigChunk &chunk)
 {
-	if (chunk.width != 0) {
+	إذا (chunk.چوڑائی != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(chunk);
-	} else {
-		init_empty_bits();
+		جديد (&chunk_) RTLIL::SigChunk(chunk);
+	} وإلا {
+		init_خالی_تھاواں_بٹ();
 	}
 	check();
 }
 
 RTLIL::SigSpec::SigSpec(RTLIL::SigChunk &&chunk)
 {
-	if (chunk.width != 0) {
+	إذا (chunk.چوڑائی != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(chunk);
-	} else {
-		init_empty_bits();
+		جديد (&chunk_) RTLIL::SigChunk(chunk);
+	} وإلا {
+		init_خالی_تھاواں_بٹ();
 	}
 	check();
 }
 
 RTLIL::SigSpec::SigSpec(RTLIL::Wire *wire)
 {
-	if (wire->width != 0) {
+	إذا (wire->چوڑائی != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(wire);
-	} else {
-		init_empty_bits();
+		جديد (&chunk_) RTLIL::SigChunk(wire);
+	} وإلا {
+		init_خالی_تھاواں_بٹ();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(RTLIL::Wire *wire, int offset, int width)
+RTLIL::SigSpec::SigSpec(RTLIL::Wire *wire, صحيح وتھ, صحيح چوڑائی)
 {
-	if (width != 0) {
+	إذا (چوڑائی != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(wire, offset, width);
-	} else {
-		init_empty_bits();
+		جديد (&chunk_) RTLIL::SigChunk(wire, وتھ, چوڑائی);
+	} وإلا {
+		init_خالی_تھاواں_بٹ();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::string &str)
+RTLIL::SigSpec::SigSpec(ثابت std::string &str)
 {
-	if (str.size() != 0) {
+	إذا (str.ناپ() != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(str);
-	} else {
-		init_empty_bits();
+		جديد (&chunk_) RTLIL::SigChunk(str);
+	} وإلا {
+		init_خالی_تھاواں_بٹ();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(int val, int width)
+RTLIL::SigSpec::SigSpec(صحيح val, صحيح چوڑائی)
 {
-	if (width != 0) {
+	إذا (چوڑائی != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(val, width);
-	} else
-		init_empty_bits();
+		جديد (&chunk_) RTLIL::SigChunk(val, چوڑائی);
+	} وإلا
+		init_خالی_تھاواں_بٹ();
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(RTLIL::State bit, int width)
+RTLIL::SigSpec::SigSpec(RTLIL::State ثنائی_ہندسہ, صحيح چوڑائی)
 {
-	if (width != 0) {
+	إذا (چوڑائی != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(bit, width);
-	} else
-		init_empty_bits();
+		جديد (&chunk_) RTLIL::SigChunk(ثنائی_ہندسہ, چوڑائی);
+	} وإلا
+		init_خالی_تھاواں_بٹ();
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const RTLIL::SigBit &bit, int width)
+RTLIL::SigSpec::SigSpec(ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ, صحيح چوڑائی)
 {
-	if (width != 0) {
-		if (bit.wire == NULL) {
+	إذا (چوڑائی != 0) {
+		إذا (ثنائی_ہندسہ.wire == عدم) {
 			rep_ = CHUNK;
-			new (&chunk_) RTLIL::SigChunk(bit.data, width);
-		} else if (width == 1) {
+			جديد (&chunk_) RTLIL::SigChunk(ثنائی_ہندسہ.انکڑے, چوڑائی);
+		} وإلا إذا (چوڑائی == 1) {
 			rep_ = CHUNK;
-			new (&chunk_) RTLIL::SigChunk(bit);
-		} else {
-			init_empty_bits();
-			bits_.reserve(width);
-			for (int i = 0; i < width; i++)
-				bits_.push_back(bit);
+			جديد (&chunk_) RTLIL::SigChunk(ثنائی_ہندسہ);
+		} وإلا {
+			init_خالی_تھاواں_بٹ();
+			بٹ_2.reserve(چوڑائی);
+			لكل (صحيح i = 0; i < چوڑائی; i++)
+				بٹ_2.ڈالو_پٹھ(ثنائی_ہندسہ);
 		}
-	} else
-		init_empty_bits();
+	} وإلا
+		init_خالی_تھاواں_بٹ();
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::vector<RTLIL::SigChunk> &chunks)
+RTLIL::SigSpec::SigSpec(ثابت std::سمتیہ<RTLIL::SigChunk> &chunks)
 {
-	init_empty_bits();
-	for (const auto &c : chunks)
+	init_خالی_تھاواں_بٹ();
+	لكل (ثابت خودکار &c : chunks)
 		append(c);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::vector<RTLIL::SigBit> &bits)
+RTLIL::SigSpec::SigSpec(ثابت std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> &بٹ)
 {
-	init_empty_bits();
-	for (const auto &bit : bits)
-		append(bit);
+	init_خالی_تھاواں_بٹ();
+	لكل (ثابت خودکار &ثنائی_ہندسہ : بٹ)
+		append(ثنائی_ہندسہ);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const pool<RTLIL::SigBit> &bits)
+RTLIL::SigSpec::SigSpec(ثابت pool<RTLIL::Sig_ثنائی_ہندسہ> &بٹ)
 {
-	init_empty_bits();
-	for (const auto &bit : bits)
-		append(bit);
+	init_خالی_تھاواں_بٹ();
+	لكل (ثابت خودکار &ثنائی_ہندسہ : بٹ)
+		append(ثنائی_ہندسہ);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::set<RTLIL::SigBit> &bits)
+RTLIL::SigSpec::SigSpec(ثابت std::سیٹ<RTLIL::Sig_ثنائی_ہندسہ> &بٹ)
 {
-	init_empty_bits();
-	for (const auto &bit : bits)
-		append(bit);
+	init_خالی_تھاواں_بٹ();
+	لكل (ثابت خودکار &ثنائی_ہندسہ : بٹ)
+		append(ثنائی_ہندسہ);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(bool bit)
+RTLIL::SigSpec::SigSpec(منطقي ثنائی_ہندسہ)
 {
 	rep_ = CHUNK;
-	new (&chunk_) RTLIL::SigChunk(bit ? RTLIL::S1 : RTLIL::S0);
+	جديد (&chunk_) RTLIL::SigChunk(ثنائی_ہندسہ ? RTLIL::S1 : RTLIL::S0);
 	check();
 }
 
-void RTLIL::SigSpec::Chunks::const_iterator::next_chunk_bits()
+فراغ RTLIL::SigSpec::Chunks::const_iterator::اگلا_chunk_بٹ()
 {
-	int bits_size = GetSize(spec.bits_);
-	if (bit_index >= bits_size)
-		return;
-	int i = bit_index;
-	const SigBit &bit = spec.bits_[i++];
-	chunk.wire = bit.wire;
-	chunk.data.clear();
-	if (bit.is_wire()) {
-		chunk.offset = bit.offset;
-		while (i < bits_size && spec.bits_[i].wire == bit.wire &&
-			spec.bits_[i].offset == bit.offset + i - bit_index)
+	صحيح بٹ_ناپ = Get_ناپ(spec.بٹ_2);
+	إذا (ثنائی_ہندسہ_اشاریہ >= بٹ_ناپ)
+		أرجع;
+	صحيح i = ثنائی_ہندسہ_اشاریہ;
+	ثابت Sig_ثنائی_ہندسہ &ثنائی_ہندسہ = spec.بٹ_2[i++];
+	chunk.wire = ثنائی_ہندسہ.wire;
+	chunk.انکڑے.clear();
+	إذا (ثنائی_ہندسہ.is_wire()) {
+		chunk.وتھ = ثنائی_ہندسہ.وتھ;
+		طالما (i < بٹ_ناپ && spec.بٹ_2[i].wire == ثنائی_ہندسہ.wire &&
+			spec.بٹ_2[i].وتھ == ثنائی_ہندسہ.وتھ + i - ثنائی_ہندسہ_اشاریہ)
 			++i;
-	} else {
-		chunk.offset = 0;
-		chunk.data.push_back(bit.data);
-		while (i < bits_size && !spec.bits_[i].is_wire()) {
-			chunk.data.push_back(spec.bits_[i].data);
+	} وإلا {
+		chunk.وتھ = 0;
+		chunk.انکڑے.ڈالو_پٹھ(ثنائی_ہندسہ.انکڑے);
+		طالما (i < بٹ_ناپ && !spec.بٹ_2[i].is_wire()) {
+			chunk.انکڑے.ڈالو_پٹھ(spec.بٹ_2[i].انکڑے);
 			++i;
 		}
 	}
-	chunk.width = i - bit_index;
+	chunk.چوڑائی = i - ثنائی_ہندسہ_اشاریہ;
 }
 
-void RTLIL::SigSpec::unpack()
+فراغ RTLIL::SigSpec::unpack()
 {
-	if (rep_ == BITS)
-		return;
+	إذا (rep_ == بٹ_3)
+		أرجع;
 
-	std::vector<RTLIL::SigBit> bits;
-	bits.reserve(chunk_.width);
-	for (int i = 0; i < chunk_.width; i++)
-		bits.emplace_back(chunk_, i);
+	std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> بٹ;
+	بٹ.reserve(chunk_.چوڑائی);
+	لكل (صحيح i = 0; i < chunk_.چوڑائی; i++)
+		بٹ.emplace_پٹھ(chunk_, i);
 
 	chunk_.~SigChunk();
-	rep_ = BITS;
-	new (&bits_) std::vector<RTLIL::SigBit>(std::move(bits));
+	rep_ = بٹ_3;
+	جديد (&بٹ_2) std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ>(std::move(بٹ));
 }
 
-void RTLIL::SigSpec::try_repack()
+فراغ RTLIL::SigSpec::try_repack()
 {
-	if (rep_ != BITS)
-		return;
+	إذا (rep_ != بٹ_3)
+		أرجع;
 
-	int bits_size = GetSize(bits_);
-	if (bits_size == 0)
-		return;
-	if (bits_[0].is_wire()) {
-		for (int i = 1; i < bits_size; i++)
-			if (bits_[0].wire != bits_[i].wire || bits_[0].offset + i != bits_[i].offset)
-				return;
-		SigChunk chunk(bits_[0].wire, bits_[0].offset, bits_size);
-		bits_.~vector();
+	صحيح بٹ_ناپ = Get_ناپ(بٹ_2);
+	إذا (بٹ_ناپ == 0)
+		أرجع;
+	إذا (بٹ_2[0].is_wire()) {
+		لكل (صحيح i = 1; i < بٹ_ناپ; i++)
+			إذا (بٹ_2[0].wire != بٹ_2[i].wire || بٹ_2[0].وتھ + i != بٹ_2[i].وتھ)
+				أرجع;
+		SigChunk chunk(بٹ_2[0].wire, بٹ_2[0].وتھ, بٹ_ناپ);
+		بٹ_2.~سمتیہ();
 		rep_ = CHUNK;
-		new (&chunk_) SigChunk(std::move(chunk));
-		return;
+		جديد (&chunk_) SigChunk(std::move(chunk));
+		أرجع;
 	}
-	std::vector<RTLIL::State> bits;
-	bits.reserve(bits_size);
-	bits.push_back(bits_[0].data);
-	for (int i = 1; i < bits_size; i++) {
-		if (bits_[i].is_wire())
-			return;
-		bits.push_back(bits_[i].data);
+	std::سمتیہ<RTLIL::State> بٹ;
+	بٹ.reserve(بٹ_ناپ);
+	بٹ.ڈالو_پٹھ(بٹ_2[0].انکڑے);
+	لكل (صحيح i = 1; i < بٹ_ناپ; i++) {
+		إذا (بٹ_2[i].is_wire())
+			أرجع;
+		بٹ.ڈالو_پٹھ(بٹ_2[i].انکڑے);
 	}
-	bits_.~vector();
+	بٹ_2.~سمتیہ();
 	rep_ = CHUNK;
-	new (&chunk_) SigChunk(std::move(bits));
+	جديد (&chunk_) SigChunk(std::move(بٹ));
 }
 
-Hasher::hash_t RTLIL::SigSpec::updhash() const
+Hasher::hash_t RTLIL::SigSpec::updhash() ثابت
 {
 	Hasher h;
-	for (auto &c : chunks())
-		if (c.wire == NULL) {
-			for (auto &v : c.data)
+	لكل (خودکار &c : chunks())
+		إذا (c.wire == عدم) {
+			لكل (خودکار &v : c.انکڑے)
 				h.eat(v);
-		} else {
+		} وإلا {
 			h.eat(c.wire->name.ref());
-			h.eat(c.offset);
-			h.eat(c.width);
+			h.eat(c.وتھ);
+			h.eat(c.چوڑائی);
 		}
-	Hasher::hash_t result = h.yield();
-	if (result == 0)
-		result = 1;
-	hash_.set(result);
-	return result;
+	Hasher::hash_t نتیجہ = h.yield();
+	إذا (نتیجہ == 0)
+		نتیجہ = 1;
+	hash_.سیٹ(نتیجہ);
+	أرجع نتیجہ;
 }
 
-void RTLIL::SigSpec::sort()
+فراغ RTLIL::SigSpec::ترتیب_دیو()
 {
 	unpack();
-	std::sort(bits_.begin(), bits_.end());
+	std::ترتیب_دیو(بٹ_2.begin(), بٹ_2.سرا());
 	hash_.clear();
 	try_repack();
 }
 
-void RTLIL::SigSpec::sort_and_unify()
+فراغ RTLIL::SigSpec::ترتیب_دیو_and_unify()
 {
 	unpack();
 	// A copy of the bits vector is used to prevent duplicating the logic from
 	// SigSpec::SigSpec(std::vector<SigBit>).  This incurrs an extra copy but
 	// that isn't showing up as significant in profiles.
-	std::vector<SigBit> unique_bits = bits_;
-	std::sort(unique_bits.begin(), unique_bits.end());
-	auto last = std::unique(unique_bits.begin(), unique_bits.end());
-	unique_bits.erase(last, unique_bits.end());
+	std::سمتیہ<Sig_ثنائی_ہندسہ> unique_بٹ = بٹ_2;
+	std::ترتیب_دیو(unique_بٹ.begin(), unique_بٹ.سرا());
+	خودکار آخری = std::unique(unique_بٹ.begin(), unique_بٹ.سرا());
+	unique_بٹ.erase(آخری, unique_بٹ.سرا());
 
-	*this = unique_bits;
+	*هذا = unique_بٹ;
 	hash_.clear();
 	try_repack();
 }
 
-void RTLIL::SigSpec::replace(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec &with)
+فراغ RTLIL::SigSpec::replace(ثابت RTLIL::SigSpec &نمونہ, ثابت RTLIL::SigSpec &with)
 {
-	replace(pattern, with, this);
+	replace(نمونہ, with, هذا);
 }
 
-void RTLIL::SigSpec::replace(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec &with, RTLIL::SigSpec *other) const
+فراغ RTLIL::SigSpec::replace(ثابت RTLIL::SigSpec &نمونہ, ثابت RTLIL::SigSpec &with, RTLIL::SigSpec *other) ثابت
 {
-	log_assert(other != NULL);
-	log_assert(size() == other->size());
-	log_assert(pattern.size() == with.size());
+	log_assert(other != عدم);
+	log_assert(ناپ() == other->ناپ());
+	log_assert(نمونہ.ناپ() == with.ناپ());
 
-	dict<RTLIL::SigBit, int> pattern_to_with;
-	int pattern_size = pattern.size();
-	for (int i = 0; i < pattern_size; i++) {
-		SigBit pattern_bit = pattern[i];
-		if (pattern_bit.wire != NULL) {
-			pattern_to_with.emplace(pattern_bit, i);
+	dict<RTLIL::Sig_ثنائی_ہندسہ, صحيح> نمونہ_منزل_with;
+	صحيح نمونہ_ناپ = نمونہ.ناپ();
+	لكل (صحيح i = 0; i < نمونہ_ناپ; i++) {
+		Sig_ثنائی_ہندسہ نمونہ_ثنائی_ہندسہ = نمونہ[i];
+		إذا (نمونہ_ثنائی_ہندسہ.wire != عدم) {
+			نمونہ_منزل_with.emplace(نمونہ_ثنائی_ہندسہ, i);
 		}
 	}
 
-	int this_size = size();
-	bool other_modified = false;
-	for (int j = 0; j < this_size; j++) {
-		auto it = pattern_to_with.find((*this)[j]);
-		if (it != pattern_to_with.end()) {
-			other_modified = true;
-			(*other)[j] = with[it->second];
+	صحيح this_ناپ = ناپ();
+	منطقي other_modified = خطأ;
+	لكل (صحيح j = 0; j < this_ناپ; j++) {
+		خودکار it = نمونہ_منزل_with.لبھو((*هذا)[j]);
+		إذا (it != نمونہ_منزل_with.سرا()) {
+			other_modified = سچ;
+			(*other)[j] = with[it->دوجا];
 		}
 	}
 
-	if (other_modified)
+	إذا (other_modified)
 		other->try_repack();
 	other->check();
 }
 
-void RTLIL::SigSpec::replace(const dict<RTLIL::SigBit, RTLIL::SigBit> &rules)
+فراغ RTLIL::SigSpec::replace(ثابت dict<RTLIL::Sig_ثنائی_ہندسہ, RTLIL::Sig_ثنائی_ہندسہ> &قاعدے)
 {
-	replace(rules, this);
+	replace(قاعدے, هذا);
 }
 
-void RTLIL::SigSpec::replace(const dict<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const
+فراغ RTLIL::SigSpec::replace(ثابت dict<RTLIL::Sig_ثنائی_ہندسہ, RTLIL::Sig_ثنائی_ہندسہ> &قاعدے, RTLIL::SigSpec *other) ثابت
 {
-	log_assert(other != NULL);
-	log_assert(size() == other->size());
+	log_assert(other != عدم);
+	log_assert(ناپ() == other->ناپ());
 
-	if (rules.empty()) return;
+	إذا (قاعدے.خالی_تھاواں()) أرجع;
 
-	int this_size = size();
-	bool other_modified = false;
-	for (int i = 0; i < this_size; i++) {
-		auto it = rules.find((*this)[i]);
-		if (it != rules.end()) {
-			other_modified = true;
-			(*other)[i] = it->second;
+	صحيح this_ناپ = ناپ();
+	منطقي other_modified = خطأ;
+	لكل (صحيح i = 0; i < this_ناپ; i++) {
+		خودکار it = قاعدے.لبھو((*هذا)[i]);
+		إذا (it != قاعدے.سرا()) {
+			other_modified = سچ;
+			(*other)[i] = it->دوجا;
 		}
 	}
 
-	if (other_modified)
+	إذا (other_modified)
 		other->try_repack();
 	other->check();
 }
 
-void RTLIL::SigSpec::replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules)
+فراغ RTLIL::SigSpec::replace(ثابت std::map<RTLIL::Sig_ثنائی_ہندسہ, RTLIL::Sig_ثنائی_ہندسہ> &قاعدے)
 {
-	replace(rules, this);
+	replace(قاعدے, هذا);
 }
 
-void RTLIL::SigSpec::replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const
+فراغ RTLIL::SigSpec::replace(ثابت std::map<RTLIL::Sig_ثنائی_ہندسہ, RTLIL::Sig_ثنائی_ہندسہ> &قاعدے, RTLIL::SigSpec *other) ثابت
 {
-	log_assert(other != NULL);
-	log_assert(size() == other->size());
+	log_assert(other != عدم);
+	log_assert(ناپ() == other->ناپ());
 
-	if (rules.empty()) return;
+	إذا (قاعدے.خالی_تھاواں()) أرجع;
 
-	int this_size = size();
-	bool other_modified = false;
-	for (int i = 0; i < this_size; i++) {
-		auto it = rules.find((*this)[i]);
-		if (it != rules.end()) {
-			other_modified = true;
-			(*other)[i] = it->second;
+	صحيح this_ناپ = ناپ();
+	منطقي other_modified = خطأ;
+	لكل (صحيح i = 0; i < this_ناپ; i++) {
+		خودکار it = قاعدے.لبھو((*هذا)[i]);
+		إذا (it != قاعدے.سرا()) {
+			other_modified = سچ;
+			(*other)[i] = it->دوجا;
 		}
 	}
 
-	if (other_modified)
+	إذا (other_modified)
 		other->try_repack();
 	other->check();
 }
 
-void RTLIL::SigSpec::remove(const RTLIL::SigSpec &pattern)
+فراغ RTLIL::SigSpec::remove(ثابت RTLIL::SigSpec &نمونہ)
 {
-	remove2(pattern, NULL);
+	remove2(نمونہ, عدم);
 }
 
-void RTLIL::SigSpec::remove(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other) const
+فراغ RTLIL::SigSpec::remove(ثابت RTLIL::SigSpec &نمونہ, RTLIL::SigSpec *other) ثابت
 {
-	RTLIL::SigSpec tmp = *this;
-	tmp.remove2(pattern, other);
+	RTLIL::SigSpec tmp = *هذا;
+	tmp.remove2(نمونہ, other);
 }
 
-void RTLIL::SigSpec::remove2(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other)
+فراغ RTLIL::SigSpec::remove2(ثابت RTLIL::SigSpec &نمونہ, RTLIL::SigSpec *other)
 {
 	unpack();
-	if (other != NULL) {
-		log_assert(size() == other->size());
+	إذا (other != عدم) {
+		log_assert(ناپ() == other->ناپ());
 		other->unpack();
 	}
 
 	//  Convert pattern to pool for O(1) lookup, avoiding O(n*m) chunk iteration
-	pool<SigBit> pattern_bits;
-	pattern_bits.reserve(pattern.size());
-	for (auto &bit : pattern)
-		if (bit.wire != NULL)
-			pattern_bits.insert(bit);
+	pool<Sig_ثنائی_ہندسہ> نمونہ_بٹ;
+	نمونہ_بٹ.reserve(نمونہ.ناپ());
+	لكل (خودکار &ثنائی_ہندسہ : نمونہ)
+		إذا (ثنائی_ہندسہ.wire != عدم)
+			نمونہ_بٹ.داخل_کرو(ثنائی_ہندسہ);
 
 	// Compact in-place to avoid O(n^2) erase operations
-	size_t write_idx = 0;
-	for (size_t read_idx = 0; read_idx < bits_.size(); read_idx++)
+	ناپ_t write_idx = 0;
+	لكل (ناپ_t read_idx = 0; read_idx < بٹ_2.ناپ(); read_idx++)
 	{
-		if (!(bits_[read_idx].wire != NULL && pattern_bits.count(bits_[read_idx]))) {
-			if (write_idx != read_idx) {
-				bits_[write_idx] = bits_[read_idx];
-				if (other != NULL)
-					other->bits_[write_idx] = other->bits_[read_idx];
+		إذا (!(بٹ_2[read_idx].wire != عدم && نمونہ_بٹ.گنتی(بٹ_2[read_idx]))) {
+			إذا (write_idx != read_idx) {
+				بٹ_2[write_idx] = بٹ_2[read_idx];
+				إذا (other != عدم)
+					other->بٹ_2[write_idx] = other->بٹ_2[read_idx];
 			}
 			write_idx++;
 		}
 	}
 
-	bool modified = (write_idx < bits_.size());
-	if (modified) {
-		bits_.resize(write_idx);
+	منطقي modified = (write_idx < بٹ_2.ناپ());
+	إذا (modified) {
+		بٹ_2.resize(write_idx);
 		hash_.clear();
 		try_repack();
 	}
-	if (other != NULL && modified) {
-		other->bits_.resize(write_idx);
+	إذا (other != عدم && modified) {
+		other->بٹ_2.resize(write_idx);
 		other->hash_.clear();
 		other->try_repack();
 	}
 	check();
 }
 
-void RTLIL::SigSpec::remove(const pool<RTLIL::SigBit> &pattern)
+فراغ RTLIL::SigSpec::remove(ثابت pool<RTLIL::Sig_ثنائی_ہندسہ> &نمونہ)
 {
-	remove2(pattern, NULL);
+	remove2(نمونہ, عدم);
 }
 
-void RTLIL::SigSpec::remove(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other) const
+فراغ RTLIL::SigSpec::remove(ثابت pool<RTLIL::Sig_ثنائی_ہندسہ> &نمونہ, RTLIL::SigSpec *other) ثابت
 {
-	RTLIL::SigSpec tmp = *this;
-	tmp.remove2(pattern, other);
+	RTLIL::SigSpec tmp = *هذا;
+	tmp.remove2(نمونہ, other);
 }
 
-void RTLIL::SigSpec::remove2(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other)
+فراغ RTLIL::SigSpec::remove2(ثابت pool<RTLIL::Sig_ثنائی_ہندسہ> &نمونہ, RTLIL::SigSpec *other)
 {
 	unpack();
 
-	if (other != NULL) {
-		log_assert(size() == other->size());
+	إذا (other != عدم) {
+		log_assert(ناپ() == other->ناپ());
 		other->unpack();
 	}
 
 	// Avoid O(n^2) complexity by compacting in-place
-	size_t write_idx = 0;
-	for (size_t read_idx = 0; read_idx < bits_.size(); read_idx++) {
-		if (!(bits_[read_idx].wire != NULL && pattern.count(bits_[read_idx]))) {
-			if (write_idx != read_idx) {
-				bits_[write_idx] = bits_[read_idx];
-				if (other != NULL)
-					other->bits_[write_idx] = other->bits_[read_idx];
+	ناپ_t write_idx = 0;
+	لكل (ناپ_t read_idx = 0; read_idx < بٹ_2.ناپ(); read_idx++) {
+		إذا (!(بٹ_2[read_idx].wire != عدم && نمونہ.گنتی(بٹ_2[read_idx]))) {
+			إذا (write_idx != read_idx) {
+				بٹ_2[write_idx] = بٹ_2[read_idx];
+				إذا (other != عدم)
+					other->بٹ_2[write_idx] = other->بٹ_2[read_idx];
 			}
 			write_idx++;
 		}
 	}
 
-	bool modified = (write_idx < bits_.size());
-	if (modified) {
-		bits_.resize(write_idx);
+	منطقي modified = (write_idx < بٹ_2.ناپ());
+	إذا (modified) {
+		بٹ_2.resize(write_idx);
 		hash_.clear();
 		try_repack();
 	}
-	if (other != NULL && modified) {
-		other->bits_.resize(write_idx);
+	إذا (other != عدم && modified) {
+		other->بٹ_2.resize(write_idx);
 		other->hash_.clear();
 		other->try_repack();
 	}
 	check();
 }
 
-void RTLIL::SigSpec::remove2(const std::set<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other)
+فراغ RTLIL::SigSpec::remove2(ثابت std::سیٹ<RTLIL::Sig_ثنائی_ہندسہ> &نمونہ, RTLIL::SigSpec *other)
 {
 	unpack();
 
-	if (other != NULL) {
-		log_assert(size() == other->size());
+	إذا (other != عدم) {
+		log_assert(ناپ() == other->ناپ());
 		other->unpack();
 	}
 
 	// Avoid O(n^2) complexity by compacting in-place
-	size_t write_idx = 0;
-	for (size_t read_idx = 0; read_idx < bits_.size(); read_idx++) {
-		if (!(bits_[read_idx].wire != NULL && pattern.count(bits_[read_idx]))) {
-			if (write_idx != read_idx) {
-				bits_[write_idx] = bits_[read_idx];
-				if (other != NULL)
-					other->bits_[write_idx] = other->bits_[read_idx];
+	ناپ_t write_idx = 0;
+	لكل (ناپ_t read_idx = 0; read_idx < بٹ_2.ناپ(); read_idx++) {
+		إذا (!(بٹ_2[read_idx].wire != عدم && نمونہ.گنتی(بٹ_2[read_idx]))) {
+			إذا (write_idx != read_idx) {
+				بٹ_2[write_idx] = بٹ_2[read_idx];
+				إذا (other != عدم)
+					other->بٹ_2[write_idx] = other->بٹ_2[read_idx];
 			}
 			write_idx++;
 		}
 	}
 
-	bool modified = (write_idx < bits_.size());
-	if (modified) {
-		bits_.resize(write_idx);
+	منطقي modified = (write_idx < بٹ_2.ناپ());
+	إذا (modified) {
+		بٹ_2.resize(write_idx);
 		hash_.clear();
 		try_repack();
 	}
-	if (other != NULL && modified) {
-		other->bits_.resize(write_idx);
+	إذا (other != عدم && modified) {
+		other->بٹ_2.resize(write_idx);
 		other->hash_.clear();
 		other->try_repack();
 	}
 	check();
 }
 
-void RTLIL::SigSpec::remove2(const pool<RTLIL::Wire*> &pattern, RTLIL::SigSpec *other)
+فراغ RTLIL::SigSpec::remove2(ثابت pool<RTLIL::Wire*> &نمونہ, RTLIL::SigSpec *other)
 {
 	unpack();
 
-	if (other != NULL) {
-		log_assert(size() == other->size());
+	إذا (other != عدم) {
+		log_assert(ناپ() == other->ناپ());
 		other->unpack();
 	}
 
-	bool modified = false;
-	bool other_modified = false;
-	for (int i = GetSize(bits_) - 1; i >= 0; i--) {
-		if (bits_[i].wire != NULL && pattern.count(bits_[i].wire)) {
-			modified = true;
-			bits_.erase(bits_.begin() + i);
-			if (other != NULL) {
-				other_modified = true;
-				other->bits_.erase(other->bits_.begin() + i);
+	منطقي modified = خطأ;
+	منطقي other_modified = خطأ;
+	لكل (صحيح i = Get_ناپ(بٹ_2) - 1; i >= 0; i--) {
+		إذا (بٹ_2[i].wire != عدم && نمونہ.گنتی(بٹ_2[i].wire)) {
+			modified = سچ;
+			بٹ_2.erase(بٹ_2.begin() + i);
+			إذا (other != عدم) {
+				other_modified = سچ;
+				other->بٹ_2.erase(other->بٹ_2.begin() + i);
 			}
 		}
 	}
 
-	if (modified) {
+	إذا (modified) {
 		hash_.clear();
 		try_repack();
 	}
-	if (other_modified) {
+	إذا (other_modified) {
 		other->hash_.clear();
 		other->try_repack();
 	}
 	check();
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::extract(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec *other) const
+RTLIL::SigSpec RTLIL::SigSpec::کڈھو(ثابت RTLIL::SigSpec &نمونہ, ثابت RTLIL::SigSpec *other) ثابت
 {
-	log_assert(other == NULL || size() == other->size());
+	log_assert(other == عدم || ناپ() == other->ناپ());
 
 	RTLIL::SigSpec ret;
-	std::vector<RTLIL::SigBit> bits_match = to_sigbit_vector();
+	std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> بٹ_میل = منزل_sigbit_سمتیہ();
 
-	for (auto& pattern_chunk : pattern.chunks()) {
-		if (other) {
-			std::vector<RTLIL::SigBit> bits_other = other->to_sigbit_vector();
-			int i = 0;
-			for (const RTLIL::SigBit &bit : bits_match) {
-				if (bit.wire &&
-					bit.wire == pattern_chunk.wire &&
-					bit.offset >= pattern_chunk.offset &&
-					bit.offset < pattern_chunk.offset + pattern_chunk.width)
-					ret.append(bits_other[i]);
+	لكل (خودکار& نمونہ_chunk : نمونہ.chunks()) {
+		إذا (other) {
+			std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> بٹ_other = other->منزل_sigbit_سمتیہ();
+			صحيح i = 0;
+			لكل (ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ : بٹ_میل) {
+				إذا (ثنائی_ہندسہ.wire &&
+					ثنائی_ہندسہ.wire == نمونہ_chunk.wire &&
+					ثنائی_ہندسہ.وتھ >= نمونہ_chunk.وتھ &&
+					ثنائی_ہندسہ.وتھ < نمونہ_chunk.وتھ + نمونہ_chunk.چوڑائی)
+					ret.append(بٹ_other[i]);
 				++i;
 			}
-		} else {
-			for (const RTLIL::SigBit &bit : bits_match)
-				if (bit.wire &&
-					bit.wire == pattern_chunk.wire &&
-					bit.offset >= pattern_chunk.offset &&
-					bit.offset < pattern_chunk.offset + pattern_chunk.width)
-					ret.append(bit);
+		} وإلا {
+			لكل (ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ : بٹ_میل)
+				إذا (ثنائی_ہندسہ.wire &&
+					ثنائی_ہندسہ.wire == نمونہ_chunk.wire &&
+					ثنائی_ہندسہ.وتھ >= نمونہ_chunk.وتھ &&
+					ثنائی_ہندسہ.وتھ < نمونہ_chunk.وتھ + نمونہ_chunk.چوڑائی)
+					ret.append(ثنائی_ہندسہ);
 		}
 	}
 
 	ret.check();
-	return ret;
+	أرجع ret;
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::extract(const pool<RTLIL::SigBit> &pattern, const RTLIL::SigSpec *other) const
+RTLIL::SigSpec RTLIL::SigSpec::کڈھو(ثابت pool<RTLIL::Sig_ثنائی_ہندسہ> &نمونہ, ثابت RTLIL::SigSpec *other) ثابت
 {
-	log_assert(other == NULL || size() == other->size());
+	log_assert(other == عدم || ناپ() == other->ناپ());
 
-	std::vector<RTLIL::SigBit> bits_match = to_sigbit_vector();
+	std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> بٹ_میل = منزل_sigbit_سمتیہ();
 	RTLIL::SigSpec ret;
 
-	if (other) {
-		std::vector<RTLIL::SigBit> bits_other = other->to_sigbit_vector();
-		int i = 0;
-		for (const RTLIL::SigBit &bit : bits_match) {
-			if (bit.wire && pattern.count(bit))
-				ret.append(bits_other[i]);
+	إذا (other) {
+		std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> بٹ_other = other->منزل_sigbit_سمتیہ();
+		صحيح i = 0;
+		لكل (ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ : بٹ_میل) {
+			إذا (ثنائی_ہندسہ.wire && نمونہ.گنتی(ثنائی_ہندسہ))
+				ret.append(بٹ_other[i]);
 			++i;
 		}
-	} else {
-		for (const RTLIL::SigBit &bit : bits_match)
-			if (bit.wire && pattern.count(bit))
-				ret.append(bit);
+	} وإلا {
+		لكل (ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ : بٹ_میل)
+			إذا (ثنائی_ہندسہ.wire && نمونہ.گنتی(ثنائی_ہندسہ))
+				ret.append(ثنائی_ہندسہ);
 	}
 
 	ret.check();
-	return ret;
+	أرجع ret;
 }
 
-void RTLIL::SigSpec::replace(int offset, const RTLIL::SigSpec &with)
+فراغ RTLIL::SigSpec::replace(صحيح وتھ, ثابت RTLIL::SigSpec &with)
 {
-	if (with.size() == 0)
-		return;
+	إذا (with.ناپ() == 0)
+		أرجع;
 
 	unpack();
 
-	log_assert(offset >= 0);
-	log_assert(with.size() >= 0);
-	log_assert(offset+with.size() <= size());
+	log_assert(وتھ >= 0);
+	log_assert(with.ناپ() >= 0);
+	log_assert(وتھ+with.ناپ() <= ناپ());
 
-	int i = 0;
-	for (const RTLIL::SigBit &bit : with.bits()) {
-		bits_.at(offset + i) = bit;
+	صحيح i = 0;
+	لكل (ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ : with.بٹ()) {
+		بٹ_2.at(وتھ + i) = ثنائی_ہندسہ;
 		++i;
 	}
 	hash_.clear();
@@ -5175,25 +5175,25 @@ void RTLIL::SigSpec::replace(int offset, const RTLIL::SigSpec &with)
 	check();
 }
 
-void RTLIL::SigSpec::remove_const()
+فراغ RTLIL::SigSpec::remove_const()
 {
-	if (rep_ == CHUNK)
+	إذا (rep_ == CHUNK)
 	{
-		if (chunk_.wire == NULL) {
+		إذا (chunk_.wire == عدم) {
 			chunk_.~SigChunk();
-			init_empty_bits();
+			init_خالی_تھاواں_بٹ();
 			hash_.clear();
 		}
 	}
-	else
+	وإلا
 	{
-		std::vector<RTLIL::SigBit> new_bits;
-		new_bits.reserve(bits_.size());
-		for (auto &bit : bits_)
-			if (bit.wire != NULL)
-				new_bits.push_back(bit);
-		if (GetSize(new_bits) != GetSize(bits_)) {
-			bits_.swap(new_bits);
+		std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> new_بٹ;
+		new_بٹ.reserve(بٹ_2.ناپ());
+		لكل (خودکار &ثنائی_ہندسہ : بٹ_2)
+			إذا (ثنائی_ہندسہ.wire != عدم)
+				new_بٹ.ڈالو_پٹھ(ثنائی_ہندسہ);
+		إذا (Get_ناپ(new_بٹ) != Get_ناپ(بٹ_2)) {
+			بٹ_2.وٹاندرا(new_بٹ);
 			hash_.clear();
 			try_repack();
 		}
@@ -5202,575 +5202,575 @@ void RTLIL::SigSpec::remove_const()
 	check();
 }
 
-void RTLIL::SigSpec::remove(int offset, int length)
+فراغ RTLIL::SigSpec::remove(صحيح وتھ, صحيح لمائی)
 {
-	if (length == 0)
-		return;
+	إذا (لمائی == 0)
+		أرجع;
 
 	unpack();
 
-	log_assert(offset >= 0);
-	log_assert(length >= 0);
-	log_assert(offset + length <= size());
+	log_assert(وتھ >= 0);
+	log_assert(لمائی >= 0);
+	log_assert(وتھ + لمائی <= ناپ());
 
-	bits_.erase(bits_.begin() + offset, bits_.begin() + offset + length);
+	بٹ_2.erase(بٹ_2.begin() + وتھ, بٹ_2.begin() + وتھ + لمائی);
 
 	hash_.clear();
 	try_repack();
 	check();
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::extract(int offset, int length) const
+RTLIL::SigSpec RTLIL::SigSpec::کڈھو(صحيح وتھ, صحيح لمائی) ثابت
 {
-	log_assert(offset >= 0);
-	log_assert(length >= 0);
-	log_assert(offset + length <= size());
+	log_assert(وتھ >= 0);
+	log_assert(لمائی >= 0);
+	log_assert(وتھ + لمائی <= ناپ());
 
-	std::vector<SigBit> extracted;
-	SigBit first;
-	bool is_packing = true;
-	for (int i = offset; i < offset + length; i++) {
-		bool was_packing_before = is_packing;
-		SigBit bit = (*this)[i];
-		if (i == offset) {
-			first = bit;
-			if (!bit.wire)
-				is_packing = false;
-		} else {
-			if (bit.wire != first.wire)
-				is_packing = false;
-			if (bit.wire)
-				if (bit.offset != first.offset + (i - offset))
-					is_packing = false;
+	std::سمتیہ<Sig_ثنائی_ہندسہ> extracted;
+	Sig_ثنائی_ہندسہ پہلا;
+	منطقي is_packing = سچ;
+	لكل (صحيح i = وتھ; i < وتھ + لمائی; i++) {
+		منطقي was_packing_before = is_packing;
+		Sig_ثنائی_ہندسہ ثنائی_ہندسہ = (*هذا)[i];
+		إذا (i == وتھ) {
+			پہلا = ثنائی_ہندسہ;
+			إذا (!ثنائی_ہندسہ.wire)
+				is_packing = خطأ;
+		} وإلا {
+			إذا (ثنائی_ہندسہ.wire != پہلا.wire)
+				is_packing = خطأ;
+			إذا (ثنائی_ہندسہ.wire)
+				إذا (ثنائی_ہندسہ.وتھ != پہلا.وتھ + (i - وتھ))
+					is_packing = خطأ;
 		}
-		if (was_packing_before && !is_packing)
-			for (int j = offset; j < i; j++)
-				extracted.push_back((*this)[j]);
-		if (!is_packing)
-			extracted.push_back((*this)[i]);
+		إذا (was_packing_before && !is_packing)
+			لكل (صحيح j = وتھ; j < i; j++)
+				extracted.ڈالو_پٹھ((*هذا)[j]);
+		إذا (!is_packing)
+			extracted.ڈالو_پٹھ((*هذا)[i]);
 	}
-	if (is_packing)
-		return SigChunk(first.wire, first.offset, length);
+	إذا (is_packing)
+		أرجع SigChunk(پہلا.wire, پہلا.وتھ, لمائی);
 
-	return extracted;
+	أرجع extracted;
 }
 
-void RTLIL::SigSpec::rewrite_wires(std::function<void(RTLIL::Wire*& wire)> rewrite)
+فراغ RTLIL::SigSpec::rewrite_wires(std::function<فراغ(RTLIL::Wire*& wire)> rewrite)
 {
-	if (rep_ == CHUNK) {
-		if (chunk_.wire != nullptr)
+	إذا (rep_ == CHUNK) {
+		إذا (chunk_.wire != خالی_سوچک)
 			rewrite(chunk_.wire);
-		return;
+		أرجع;
 	}
 
-	std::vector<RTLIL::SigBit> new_bits;
-	for (const RTLIL::SigChunk &chunk : chunks()) {
+	std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> new_بٹ;
+	لكل (ثابت RTLIL::SigChunk &chunk : chunks()) {
 		RTLIL::SigChunk c = chunk;
-		if (c.wire != nullptr)
+		إذا (c.wire != خالی_سوچک)
 			rewrite(c.wire);
-		for (int i = 0; i < c.width; i++)
-			new_bits.emplace_back(c, i);
+		لكل (صحيح i = 0; i < c.چوڑائی; i++)
+			new_بٹ.emplace_پٹھ(c, i);
 	}
-	bits_ = std::move(new_bits);
+	بٹ_2 = std::move(new_بٹ);
 	hash_.clear();
 }
 
-void RTLIL::SigSpec::append(const RTLIL::SigSpec &signal)
+فراغ RTLIL::SigSpec::append(ثابت RTLIL::SigSpec &إشارة)
 {
-	if (signal.size() == 0)
-		return;
+	إذا (إشارة.ناپ() == 0)
+		أرجع;
 
-	if (size() == 0) {
-		*this = signal;
-		return;
+	إذا (ناپ() == 0) {
+		*هذا = إشارة;
+		أرجع;
 	}
 
 	hash_.clear();
-	if (rep_ == CHUNK && signal.rep_ == CHUNK && chunk_.wire == signal.chunk_.wire) {
-		if (chunk_.wire == NULL) {
-			chunk_.data.insert(chunk_.data.end(), signal.chunk_.data.begin(), signal.chunk_.data.end());
-			chunk_.width = GetSize(chunk_.data);
-			return;
+	إذا (rep_ == CHUNK && إشارة.rep_ == CHUNK && chunk_.wire == إشارة.chunk_.wire) {
+		إذا (chunk_.wire == عدم) {
+			chunk_.انکڑے.داخل_کرو(chunk_.انکڑے.سرا(), إشارة.chunk_.انکڑے.begin(), إشارة.chunk_.انکڑے.سرا());
+			chunk_.چوڑائی = Get_ناپ(chunk_.انکڑے);
+			أرجع;
 		}
-		if (chunk_.offset + chunk_.width == signal.chunk_.offset) {
-			chunk_.width += signal.chunk_.width;
-			return;
+		إذا (chunk_.وتھ + chunk_.چوڑائی == إشارة.chunk_.وتھ) {
+			chunk_.چوڑائی += إشارة.chunk_.چوڑائی;
+			أرجع;
 		}
 	}
 
 	unpack();
-	for (const SigBit &bit : signal.bits())
-		bits_.push_back(bit);
+	لكل (ثابت Sig_ثنائی_ہندسہ &ثنائی_ہندسہ : إشارة.بٹ())
+		بٹ_2.ڈالو_پٹھ(ثنائی_ہندسہ);
 	check();
 }
 
-void RTLIL::SigSpec::append(const RTLIL::SigBit &bit)
+فراغ RTLIL::SigSpec::append(ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ)
 {
 	hash_.clear();
 
-	if (size() == 0) {
+	إذا (ناپ() == 0) {
 		destroy();
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(bit);
-		return;
+		جديد (&chunk_) RTLIL::SigChunk(ثنائی_ہندسہ);
+		أرجع;
 	}
 
-	if (rep_ == CHUNK && chunk_.wire == bit.wire) {
-		if (chunk_.wire == NULL) {
-			chunk_.data.push_back(bit.data);
-			chunk_.width++;
-			return;
+	إذا (rep_ == CHUNK && chunk_.wire == ثنائی_ہندسہ.wire) {
+		إذا (chunk_.wire == عدم) {
+			chunk_.انکڑے.ڈالو_پٹھ(ثنائی_ہندسہ.انکڑے);
+			chunk_.چوڑائی++;
+			أرجع;
 		}
-		if (chunk_.offset + chunk_.width == bit.offset) {
-			chunk_.width++;
-			return;
+		إذا (chunk_.وتھ + chunk_.چوڑائی == ثنائی_ہندسہ.وتھ) {
+			chunk_.چوڑائی++;
+			أرجع;
 		}
 	}
 
 	unpack();
 
-	bits_.push_back(bit);
+	بٹ_2.ڈالو_پٹھ(ثنائی_ہندسہ);
 	check();
 }
 
-void RTLIL::SigSpec::extend_u0(int width, bool is_signed)
+فراغ RTLIL::SigSpec::extend_u0(صحيح چوڑائی, منطقي is_signed)
 {
-	if (size() > width)
-		remove(width, size() - width);
+	إذا (ناپ() > چوڑائی)
+		remove(چوڑائی, ناپ() - چوڑائی);
 
-	if (size() < width) {
-		RTLIL::SigBit padding = size() > 0 ? (*this)[size() - 1] : RTLIL::State::Sx;
-		if (!is_signed)
+	إذا (ناپ() < چوڑائی) {
+		RTLIL::Sig_ثنائی_ہندسہ padding = ناپ() > 0 ? (*هذا)[ناپ() - 1] : RTLIL::State::Sx;
+		إذا (!is_signed)
 			padding = RTLIL::State::S0;
-		while (size() < width)
+		طالما (ناپ() < چوڑائی)
 			append(padding);
 	}
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::repeat(int num) const
+RTLIL::SigSpec RTLIL::SigSpec::repeat(صحيح عدد) ثابت
 {
 	RTLIL::SigSpec sig;
-	for (int i = 0; i < num; i++)
-		sig.append(*this);
-	return sig;
+	لكل (صحيح i = 0; i < عدد; i++)
+		sig.append(*هذا);
+	أرجع sig;
 }
 
-#ifndef NDEBUG
-void RTLIL::SigSpec::check(const Module *mod) const
+#جے_بنا_تعریف NDEBUG
+فراغ RTLIL::SigSpec::check(ثابت Module *mod) ثابت
 {
-	if (rep_ == CHUNK)
+	إذا (rep_ == CHUNK)
 	{
-		log_assert(chunk_.width != 0);
-		if (chunk_.wire == NULL) {
-			log_assert(chunk_.offset == 0);
-			log_assert(chunk_.data.size() == (size_t)chunk_.width);
-		} else {
-			log_assert(chunk_.offset >= 0);
-			log_assert(chunk_.width >= 0);
-			log_assert(chunk_.offset + chunk_.width <= chunk_.wire->width);
-			log_assert(chunk_.data.size() == 0);
-			if (mod != nullptr)
+		log_assert(chunk_.چوڑائی != 0);
+		إذا (chunk_.wire == عدم) {
+			log_assert(chunk_.وتھ == 0);
+			log_assert(chunk_.انکڑے.ناپ() == (ناپ_t)chunk_.چوڑائی);
+		} وإلا {
+			log_assert(chunk_.وتھ >= 0);
+			log_assert(chunk_.چوڑائی >= 0);
+			log_assert(chunk_.وتھ + chunk_.چوڑائی <= chunk_.wire->چوڑائی);
+			log_assert(chunk_.انکڑے.ناپ() == 0);
+			إذا (mod != خالی_سوچک)
 				log_assert(chunk_.wire->module == mod);
 		}
 	}
-	else if (size() <= 64)
+	وإلا إذا (ناپ() <= 64)
 	{
-		if (mod != nullptr) {
-			for (const RTLIL::SigBit &bit : bits_)
-				if (bit.wire != nullptr)
-					log_assert(bit.wire->module == mod);
+		إذا (mod != خالی_سوچک) {
+			لكل (ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ : بٹ_2)
+				إذا (ثنائی_ہندسہ.wire != خالی_سوچک)
+					log_assert(ثنائی_ہندسہ.wire->module == mod);
 		}
 	}
 }
-#endif
+#جے_انت
 
-bool RTLIL::SigSpec::operator <(const RTLIL::SigSpec &other) const
+منطقي RTLIL::SigSpec::عامل <(ثابت RTLIL::SigSpec &other) ثابت
 {
-	if (this == &other)
-		return false;
+	إذا (هذا == &other)
+		أرجع خطأ;
 
-	if (size() != other.size())
-		return size() < other.size();
+	إذا (ناپ() != other.ناپ())
+		أرجع ناپ() < other.ناپ();
 
-	auto other_it = other.chunks().begin();
-	for (const SigChunk &c : chunks()) {
-		if (c != *other_it)
-			return c < *other_it;
+	خودکار other_it = other.chunks().begin();
+	لكل (ثابت SigChunk &c : chunks()) {
+		إذا (c != *other_it)
+			أرجع c < *other_it;
 		++other_it;
 	}
 
-	return false;
+	أرجع خطأ;
 }
 
-bool RTLIL::SigSpec::operator ==(const RTLIL::SigSpec &other) const
+منطقي RTLIL::SigSpec::عامل ==(ثابت RTLIL::SigSpec &other) ثابت
 {
-	if (this == &other)
-		return true;
+	إذا (هذا == &other)
+		أرجع سچ;
 
-	if (size() != other.size())
-		return false;
+	إذا (ناپ() != other.ناپ())
+		أرجع خطأ;
 
-	auto other_it = other.chunks().begin();
-	for (const SigChunk &c : chunks()) {
-		if (c != *other_it)
-			return false;
+	خودکار other_it = other.chunks().begin();
+	لكل (ثابت SigChunk &c : chunks()) {
+		إذا (c != *other_it)
+			أرجع خطأ;
 		++other_it;
 	}
 
-	return true;
+	أرجع سچ;
 }
 
-bool RTLIL::SigSpec::is_wire() const
+منطقي RTLIL::SigSpec::is_wire() ثابت
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
-	if (it == cs.end())
-		return false;
-	const RTLIL::SigChunk &chunk = *it;
-	return chunk.wire && chunk.wire->width == size() && ++it == cs.end();
+	خودکار it = cs.begin();
+	إذا (it == cs.سرا())
+		أرجع خطأ;
+	ثابت RTLIL::SigChunk &chunk = *it;
+	أرجع chunk.wire && chunk.wire->چوڑائی == ناپ() && ++it == cs.سرا();
 }
 
-bool RTLIL::SigSpec::is_chunk() const
+منطقي RTLIL::SigSpec::is_chunk() ثابت
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
-	if (it == cs.end())
-		return false;
-	return ++it == cs.end();
+	خودکار it = cs.begin();
+	إذا (it == cs.سرا())
+		أرجع خطأ;
+	أرجع ++it == cs.سرا();
 }
 
-bool RTLIL::SigSpec::known_driver() const
+منطقي RTLIL::SigSpec::معلوم_driver() ثابت
 {
-	for (auto &chunk : chunks())
-		if (chunk.is_wire() && !chunk.wire->known_driver())
-			return false;
-	return true;
+	لكل (خودکار &chunk : chunks())
+		إذا (chunk.is_wire() && !chunk.wire->معلوم_driver())
+			أرجع خطأ;
+	أرجع سچ;
 }
 
-bool RTLIL::SigSpec::is_fully_const() const
+منطقي RTLIL::SigSpec::is_fully_const() ثابت
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-	return true;
+	لكل (خودکار &chunk : chunks())
+		إذا (chunk.چوڑائی > 0 && chunk.wire != عدم)
+			أرجع خطأ;
+	أرجع سچ;
 }
 
-bool RTLIL::SigSpec::is_fully_zero() const
+منطقي RTLIL::SigSpec::is_fully_zero() ثابت
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::S0)
-				return false;
+	لكل (خودکار &chunk : chunks()) {
+		إذا (chunk.چوڑائی > 0 && chunk.wire != عدم)
+			أرجع خطأ;
+		لكل (RTLIL::State d : chunk.انکڑے)
+			إذا (d != RTLIL::State::S0)
+				أرجع خطأ;
 	}
-	return true;
+	أرجع سچ;
 }
 
-bool RTLIL::SigSpec::is_fully_ones() const
+منطقي RTLIL::SigSpec::is_fully_ones() ثابت
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::S1)
-				return false;
+	لكل (خودکار &chunk : chunks()) {
+		إذا (chunk.چوڑائی > 0 && chunk.wire != عدم)
+			أرجع خطأ;
+		لكل (RTLIL::State d : chunk.انکڑے)
+			إذا (d != RTLIL::State::S1)
+				أرجع خطأ;
 	}
-	return true;
+	أرجع سچ;
 }
 
-bool RTLIL::SigSpec::is_fully_def() const
+منطقي RTLIL::SigSpec::is_fully_def() ثابت
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::S0 && d != RTLIL::State::S1)
-				return false;
+	لكل (خودکار &chunk : chunks()) {
+		إذا (chunk.چوڑائی > 0 && chunk.wire != عدم)
+			أرجع خطأ;
+		لكل (RTLIL::State d : chunk.انکڑے)
+			إذا (d != RTLIL::State::S0 && d != RTLIL::State::S1)
+				أرجع خطأ;
 	}
-	return true;
+	أرجع سچ;
 }
 
-bool RTLIL::SigSpec::is_fully_undef() const
+منطقي RTLIL::SigSpec::is_fully_undef() ثابت
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::Sx && d != RTLIL::State::Sz)
-				return false;
+	لكل (خودکار &chunk : chunks()) {
+		إذا (chunk.چوڑائی > 0 && chunk.wire != عدم)
+			أرجع خطأ;
+		لكل (RTLIL::State d : chunk.انکڑے)
+			إذا (d != RTLIL::State::Sx && d != RTLIL::State::Sz)
+				أرجع خطأ;
 	}
-	return true;
+	أرجع سچ;
 }
 
-bool RTLIL::SigSpec::has_const() const
+منطقي RTLIL::SigSpec::has_const() ثابت
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire == NULL)
-			return true;
-	return false;
+	لكل (خودکار &chunk : chunks())
+		إذا (chunk.چوڑائی > 0 && chunk.wire == عدم)
+			أرجع سچ;
+	أرجع خطأ;
 }
 
-bool RTLIL::SigSpec::has_const(State state) const
+منطقي RTLIL::SigSpec::has_const(State state) ثابت
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire == NULL && std::find(chunk.data.begin(), chunk.data.end(), state) != chunk.data.end())
-			return true;
-	return false;
+	لكل (خودکار &chunk : chunks())
+		إذا (chunk.چوڑائی > 0 && chunk.wire == عدم && std::لبھو(chunk.انکڑے.begin(), chunk.انکڑے.سرا(), state) != chunk.انکڑے.سرا())
+			أرجع سچ;
+	أرجع خطأ;
 }
 
 
-bool RTLIL::SigSpec::has_marked_bits() const
+منطقي RTLIL::SigSpec::has_marked_بٹ() ثابت
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire == NULL) {
-			for (RTLIL::State d : chunk.data)
-				if (d == RTLIL::State::Sm)
-					return true;
+	لكل (خودکار &chunk : chunks())
+		إذا (chunk.چوڑائی > 0 && chunk.wire == عدم) {
+			لكل (RTLIL::State d : chunk.انکڑے)
+				إذا (d == RTLIL::State::Sm)
+					أرجع سچ;
 		}
-	return false;
+	أرجع خطأ;
 }
 
-bool RTLIL::SigSpec::is_onehot(int *pos) const
+منطقي RTLIL::SigSpec::is_onehot(صحيح *pos) ثابت
 {
-	if (std::optional<RTLIL::Const> c = try_as_const())
-		return c->is_onehot(pos);
-	return false;
+	إذا (std::optional<RTLIL::Const> c = try_as_const())
+		أرجع c->is_onehot(pos);
+	أرجع خطأ;
 }
 
-bool RTLIL::SigSpec::as_bool() const
-{
-	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return c->as_bool();
-}
-
-int RTLIL::SigSpec::as_int(bool is_signed) const
+منطقي RTLIL::SigSpec::as_bool() ثابت
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return c->as_int(is_signed);
+	log_assert(c.has_قدر());
+	أرجع c->as_bool();
 }
 
-bool RTLIL::SigSpec::convertible_to_int(bool is_signed) const
+صحيح RTLIL::SigSpec::as_int(منطقي is_signed) ثابت
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	if (!c.has_value())
-		return false;
-	return c->convertible_to_int(is_signed);
+	log_assert(c.has_قدر());
+	أرجع c->as_int(is_signed);
 }
 
-std::optional<int> RTLIL::SigSpec::try_as_int(bool is_signed) const
+منطقي RTLIL::SigSpec::convertible_منزل_int(منطقي is_signed) ثابت
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	if (!c.has_value())
-		return std::nullopt;
-	return c->try_as_int(is_signed);
+	إذا (!c.has_قدر())
+		أرجع خطأ;
+	أرجع c->convertible_منزل_int(is_signed);
 }
 
-int RTLIL::SigSpec::as_int_saturating(bool is_signed) const
+std::optional<صحيح> RTLIL::SigSpec::try_as_int(منطقي is_signed) ثابت
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return c->as_int_saturating(is_signed);
+	إذا (!c.has_قدر())
+		أرجع std::nullopt;
+	أرجع c->try_as_int(is_signed);
 }
 
-std::string RTLIL::SigSpec::as_string() const
+صحيح RTLIL::SigSpec::as_int_saturating(منطقي is_signed) ثابت
+{
+	std::optional<RTLIL::Const> c = try_as_const();
+	log_assert(c.has_قدر());
+	أرجع c->as_int_saturating(is_signed);
+}
+
+std::string RTLIL::SigSpec::as_string() ثابت
 {
 	std::string str;
-	str.reserve(size());
-	std::vector<RTLIL::SigChunk> chunks = *this;
-	for (size_t i = chunks.size(); i > 0; i--) {
-		const RTLIL::SigChunk &chunk = chunks[i-1];
-		if (chunk.wire != NULL)
-			str.append(chunk.width, '?');
-		else
-			str += RTLIL::Const(chunk.data).as_string();
+	str.reserve(ناپ());
+	std::سمتیہ<RTLIL::SigChunk> chunks = *هذا;
+	لكل (ناپ_t i = chunks.ناپ(); i > 0; i--) {
+		ثابت RTLIL::SigChunk &chunk = chunks[i-1];
+		إذا (chunk.wire != عدم)
+			str.append(chunk.چوڑائی, '?');
+		وإلا
+			str += RTLIL::Const(chunk.انکڑے).as_string();
 	}
-	return str;
+	أرجع str;
 }
 
-std::optional<RTLIL::Const> RTLIL::SigSpec::try_as_const() const
+std::optional<RTLIL::Const> RTLIL::SigSpec::try_as_const() ثابت
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
-	if (it == cs.end())
-		return RTLIL::Const();
+	خودکار it = cs.begin();
+	إذا (it == cs.سرا())
+		أرجع RTLIL::Const();
 	SigChunk chunk = *it;
-	if (chunk.wire != NULL || ++it != cs.end())
-		return std::nullopt;
-	return RTLIL::Const(std::move(chunk.data));
+	إذا (chunk.wire != عدم || ++it != cs.سرا())
+		أرجع std::nullopt;
+	أرجع RTLIL::Const(std::move(chunk.انکڑے));
 }
 
-RTLIL::Const RTLIL::SigSpec::as_const() const
+RTLIL::Const RTLIL::SigSpec::as_const() ثابت
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return *c;
+	log_assert(c.has_قدر());
+	أرجع *c;
 }
 
-RTLIL::Wire *RTLIL::SigSpec::as_wire() const
+RTLIL::Wire *RTLIL::SigSpec::as_wire() ثابت
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
-	log_assert(it != cs.end());
+	خودکار it = cs.begin();
+	log_assert(it != cs.سرا());
 	RTLIL::SigChunk chunk = *it;
-	log_assert(++it == cs.end() && chunk.wire && chunk.wire->width == size());
-	return chunk.wire;
+	log_assert(++it == cs.سرا() && chunk.wire && chunk.wire->چوڑائی == ناپ());
+	أرجع chunk.wire;
 }
 
-RTLIL::SigChunk RTLIL::SigSpec::as_chunk() const
+RTLIL::SigChunk RTLIL::SigSpec::as_chunk() ثابت
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
-	log_assert(it != cs.end());
+	خودکار it = cs.begin();
+	log_assert(it != cs.سرا());
 	RTLIL::SigChunk chunk = *it;
-	log_assert(++it == cs.end());
-	return chunk;
+	log_assert(++it == cs.سرا());
+	أرجع chunk;
 }
 
-RTLIL::SigBit RTLIL::SigSpec::as_bit() const
+RTLIL::Sig_ثنائی_ہندسہ RTLIL::SigSpec::as_ثنائی_ہندسہ() ثابت
 {
-	return RTLIL::SigBit(*this);
+	أرجع RTLIL::Sig_ثنائی_ہندسہ(*هذا);
 }
 
-bool RTLIL::SigSpec::match(const char* pattern) const
+منطقي RTLIL::SigSpec::میل(ثابت حرف* نمونہ) ثابت
 {
-	int pattern_len = strlen(pattern);
-	log_assert(pattern_len == size());
+	صحيح نمونہ_len = لڑی_لمبائی(نمونہ);
+	log_assert(نمونہ_len == ناپ());
 
-	for (int i = 0; i < pattern_len; ++i) {
-		char ch = pattern[i];
-		if (ch == ' ')
-			continue;
-		RTLIL::SigBit bit = (*this)[pattern_len - 1 - i];
-		if (ch == '*') {
-			if (bit != State::Sz && bit != State::Sx)
-				return false;
-			continue;
+	لكل (صحيح i = 0; i < نمونہ_len; ++i) {
+		حرف ch = نمونہ[i];
+		إذا (ch == ' ')
+			استمر;
+		RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ = (*هذا)[نمونہ_len - 1 - i];
+		إذا (ch == '*') {
+			إذا (ثنائی_ہندسہ != State::Sz && ثنائی_ہندسہ != State::Sx)
+				أرجع خطأ;
+			استمر;
 		}
-		if (ch == '0') {
-			if (bit != State::S0)
-				return false;
-		} else
-		if (ch == '1') {
-			if (bit != State::S1)
-				return false;
-		} else
+		إذا (ch == '0') {
+			إذا (ثنائی_ہندسہ != State::S0)
+				أرجع خطأ;
+		} وإلا
+		إذا (ch == '1') {
+			إذا (ثنائی_ہندسہ != State::S1)
+				أرجع خطأ;
+		} وإلا
 			log_abort();
 	}
 
-	return true;
+	أرجع سچ;
 }
 
-std::set<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_set() const
+std::سیٹ<RTLIL::Sig_ثنائی_ہندسہ> RTLIL::SigSpec::منزل_sigbit_سیٹ() ثابت
 {
-	std::set<RTLIL::SigBit> sigbits;
-	for (auto &c : chunks())
-		for (int i = 0; i < c.width; i++)
-			sigbits.insert(RTLIL::SigBit(c, i));
-	return sigbits;
+	std::سیٹ<RTLIL::Sig_ثنائی_ہندسہ> sigbits;
+	لكل (خودکار &c : chunks())
+		لكل (صحيح i = 0; i < c.چوڑائی; i++)
+			sigbits.داخل_کرو(RTLIL::Sig_ثنائی_ہندسہ(c, i));
+	أرجع sigbits;
 }
 
-pool<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_pool() const
+pool<RTLIL::Sig_ثنائی_ہندسہ> RTLIL::SigSpec::منزل_sigbit_pool() ثابت
 {
-	pool<RTLIL::SigBit> sigbits;
-	sigbits.reserve(size());
-	for (auto &c : chunks())
-		for (int i = 0; i < c.width; i++)
-			sigbits.insert(RTLIL::SigBit(c, i));
-	return sigbits;
+	pool<RTLIL::Sig_ثنائی_ہندسہ> sigbits;
+	sigbits.reserve(ناپ());
+	لكل (خودکار &c : chunks())
+		لكل (صحيح i = 0; i < c.چوڑائی; i++)
+			sigbits.داخل_کرو(RTLIL::Sig_ثنائی_ہندسہ(c, i));
+	أرجع sigbits;
 }
 
-std::vector<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_vector() const
+std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> RTLIL::SigSpec::منزل_sigbit_سمتیہ() ثابت
 {
-	std::vector<RTLIL::SigBit> result;
-	result.reserve(size());
-	for (SigBit bit : *this)
-		result.push_back(bit);
-	return result;
+	std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> نتیجہ;
+	نتیجہ.reserve(ناپ());
+	لكل (Sig_ثنائی_ہندسہ ثنائی_ہندسہ : *هذا)
+		نتیجہ.ڈالو_پٹھ(ثنائی_ہندسہ);
+	أرجع نتیجہ;
 }
 
-std::map<RTLIL::SigBit, RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_map(const RTLIL::SigSpec &other) const
+std::map<RTLIL::Sig_ثنائی_ہندسہ, RTLIL::Sig_ثنائی_ہندسہ> RTLIL::SigSpec::منزل_sigbit_map(ثابت RTLIL::SigSpec &other) ثابت
 {
-	int this_size = size();
-	log_assert(this_size == other.size());
+	صحيح this_ناپ = ناپ();
+	log_assert(this_ناپ == other.ناپ());
 
-	std::map<RTLIL::SigBit, RTLIL::SigBit> new_map;
-	for (int i = 0; i < this_size; i++)
-		new_map[(*this)[i]] = other[i];
+	std::map<RTLIL::Sig_ثنائی_ہندسہ, RTLIL::Sig_ثنائی_ہندسہ> new_map;
+	لكل (صحيح i = 0; i < this_ناپ; i++)
+		new_map[(*هذا)[i]] = other[i];
 
-	return new_map;
+	أرجع new_map;
 }
 
-dict<RTLIL::SigBit, RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_dict(const RTLIL::SigSpec &other) const
+dict<RTLIL::Sig_ثنائی_ہندسہ, RTLIL::Sig_ثنائی_ہندسہ> RTLIL::SigSpec::منزل_sigbit_dict(ثابت RTLIL::SigSpec &other) ثابت
 {
-	int this_size = size();
-	log_assert(this_size == other.size());
+	صحيح this_ناپ = ناپ();
+	log_assert(this_ناپ == other.ناپ());
 
-	dict<RTLIL::SigBit, RTLIL::SigBit> new_map;
-	new_map.reserve(this_size);
-	for (int i = 0; i < this_size; i++)
-		new_map[(*this)[i]] = other[i];
+	dict<RTLIL::Sig_ثنائی_ہندسہ, RTLIL::Sig_ثنائی_ہندسہ> new_map;
+	new_map.reserve(this_ناپ);
+	لكل (صحيح i = 0; i < this_ناپ; i++)
+		new_map[(*هذا)[i]] = other[i];
 
-	return new_map;
+	أرجع new_map;
 }
 
-static void sigspec_parse_split(std::vector<std::string> &tokens, const std::string &text, char sep)
+ساكن فراغ sigspec_parse_ونڈو(std::سمتیہ<std::string> &ٹوکن, ثابت std::string &متن, حرف sep)
 {
-	size_t start = 0, end = 0;
-	while ((end = text.find(sep, start)) != std::string::npos) {
-		tokens.push_back(text.substr(start, end - start));
-		start = end + 1;
+	ناپ_t شروع = 0, سرا = 0;
+	طالما ((سرا = متن.لبھو(sep, شروع)) != std::string::npos) {
+		ٹوکن.ڈالو_پٹھ(متن.substr(شروع, سرا - شروع));
+		شروع = سرا + 1;
 	}
-	tokens.push_back(text.substr(start));
+	ٹوکن.ڈالو_پٹھ(متن.substr(شروع));
 }
 
-static RTLIL::Wire *sigspec_parse_wire(RTLIL::Module *module, const std::string &netname)
+ساكن RTLIL::Wire *sigspec_parse_wire(RTLIL::Module *module, ثابت std::string &netname)
 {
-	return module->wire(netname);
+	أرجع module->wire(netname);
 }
 
-bool RTLIL::SigSpec::parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
+منطقي RTLIL::SigSpec::parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
 {
-	std::vector<std::string> tokens;
-	sigspec_parse_split(tokens, str, ',');
+	std::سمتیہ<std::string> ٹوکن;
+	sigspec_parse_ونڈو(ٹوکن, str, ',');
 
 	sig = RTLIL::SigSpec();
-	for (int tokidx = int(tokens.size())-1; tokidx >= 0; tokidx--)
+	لكل (صحيح tokidx = صحيح(ٹوکن.ناپ())-1; tokidx >= 0; tokidx--)
 	{
-		std::string netname = tokens[tokidx];
+		std::string netname = ٹوکن[tokidx];
 		std::string indices;
 
-		if (netname.size() == 0)
-			continue;
+		إذا (netname.ناپ() == 0)
+			استمر;
 
-		if (('0' <= netname[0] && netname[0] <= '9') || netname[0] == '\'') {
+		إذا (('0' <= netname[0] && netname[0] <= '9') || netname[0] == '\'') {
 			VERILOG_FRONTEND::ConstParser p{Location()};
-			auto ast = p.const2ast(netname);
-			if (ast == nullptr)
-				return false;
-			sig.append(RTLIL::Const(ast->bits));
-			continue;
+			خودکار ast = p.const2ast(netname);
+			إذا (ast == خالی_سوچک)
+				أرجع خطأ;
+			sig.append(RTLIL::Const(ast->بٹ));
+			استمر;
 		}
 
-		if (module == NULL)
-			return false;
+		إذا (module == عدم)
+			أرجع خطأ;
 
-		if (netname[0] != '$' && netname[0] != '\\')
+		إذا (netname[0] != '$' && netname[0] != '\\')
 			netname = "\\" + netname;
 
-		if (sigspec_parse_wire(module, netname) == nullptr) {
-			size_t indices_pos = netname.size()-1;
-			if (indices_pos > 2 && netname[indices_pos] == ']')
+		إذا (sigspec_parse_wire(module, netname) == خالی_سوچک) {
+			ناپ_t indices_pos = netname.ناپ()-1;
+			إذا (indices_pos > 2 && netname[indices_pos] == ']')
 			{
 				indices_pos--;
-				while (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
-				if (indices_pos > 0 && netname[indices_pos] == ':') {
+				طالما (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
+				إذا (indices_pos > 0 && netname[indices_pos] == ':') {
 					indices_pos--;
-					while (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
+					طالما (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
 				}
-				if (indices_pos > 0 && netname[indices_pos] == '[') {
+				إذا (indices_pos > 0 && netname[indices_pos] == '[') {
 					indices = netname.substr(indices_pos);
 					netname = netname.substr(0, indices_pos);
 				}
@@ -5778,180 +5778,180 @@ bool RTLIL::SigSpec::parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::stri
 		}
 
 		RTLIL::Wire *wire = sigspec_parse_wire(module, netname);
-		if (wire == nullptr)
-			return false;
+		إذا (wire == خالی_سوچک)
+			أرجع خطأ;
 
-		if (!indices.empty()) {
-			std::vector<std::string> index_tokens;
-			sigspec_parse_split(index_tokens, indices.substr(1, indices.size()-2), ':');
-			if (index_tokens.size() == 1) {
-				int a = atoi(index_tokens.at(0).c_str());
-				if (a < 0 || a >= wire->width)
-					return false;
+		إذا (!indices.خالی_تھاواں()) {
+			std::سمتیہ<std::string> اشاریہ_ٹوکن;
+			sigspec_parse_ونڈو(اشاریہ_ٹوکن, indices.substr(1, indices.ناپ()-2), ':');
+			إذا (اشاریہ_ٹوکن.ناپ() == 1) {
+				صحيح a = atoi(اشاریہ_ٹوکن.at(0).c_str());
+				إذا (a < 0 || a >= wire->چوڑائی)
+					أرجع خطأ;
 				sig.append(RTLIL::SigSpec(wire, a));
-			} else {
-				int a = atoi(index_tokens.at(0).c_str());
-				int b = atoi(index_tokens.at(1).c_str());
-				if (a > b) {
-					int tmp = a;
+			} وإلا {
+				صحيح a = atoi(اشاریہ_ٹوکن.at(0).c_str());
+				صحيح b = atoi(اشاریہ_ٹوکن.at(1).c_str());
+				إذا (a > b) {
+					صحيح tmp = a;
 					a = b, b = tmp;
 				}
-				if (a < 0 || a >= wire->width)
-					return false;
-				if (b < 0 || b >= wire->width)
-					return false;
+				إذا (a < 0 || a >= wire->چوڑائی)
+					أرجع خطأ;
+				إذا (b < 0 || b >= wire->چوڑائی)
+					أرجع خطأ;
 				sig.append(RTLIL::SigSpec(wire, a, b-a+1));
 			}
-		} else
+		} وإلا
 			sig.append(wire);
 	}
 
-	return true;
+	أرجع سچ;
 }
 
-bool RTLIL::SigSpec::parse_sel(RTLIL::SigSpec &sig, RTLIL::Design *design, RTLIL::Module *module, std::string str)
+منطقي RTLIL::SigSpec::parse_sel(RTLIL::SigSpec &sig, RTLIL::Design *design, RTLIL::Module *module, std::string str)
 {
-	if (str.empty() || str[0] != '@')
-		return parse(sig, module, str);
+	إذا (str.خالی_تھاواں() || str[0] != '@')
+		أرجع parse(sig, module, str);
 
-	IdString sel_name = design->twines().find(RTLIL::escape_id(str.substr(1)));
-	if (sel_name == IdString::Null || design->selection_vars.count(sel_name) == 0)
-		return false;
+	IdString sel_name = design->twines().لبھو(RTLIL::escape_id(str.substr(1)));
+	إذا (sel_name == IdString::Null || design->selection_vars.گنتی(sel_name) == 0)
+		أرجع خطأ;
 
 	sig = RTLIL::SigSpec();
 	RTLIL::Selection &sel = design->selection_vars.at(sel_name);
-	for (auto &it : module->wires_)
-		if (sel.selected_member(module->name, it.second->name))
-			sig.append(it.second);
+	لكل (خودکار &it : module->wires_)
+		إذا (sel.selected_member(module->name, it.دوجا->name))
+			sig.append(it.دوجا);
 
-	return true;
+	أرجع سچ;
 }
 
-bool RTLIL::SigSpec::parse_rhs(const RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
+منطقي RTLIL::SigSpec::parse_rhs(ثابت RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
 {
-	if (str == "0") {
-		sig = RTLIL::SigSpec(RTLIL::State::S0, lhs.size());
-		return true;
+	إذا (str == "0") {
+		sig = RTLIL::SigSpec(RTLIL::State::S0, lhs.ناپ());
+		أرجع سچ;
 	}
 
-	if (str == "~0") {
-		sig = RTLIL::SigSpec(RTLIL::State::S1, lhs.size());
-		return true;
+	إذا (str == "~0") {
+		sig = RTLIL::SigSpec(RTLIL::State::S1, lhs.ناپ());
+		أرجع سچ;
 	}
 
-	if (lhs.is_chunk()) {
-		char *p = (char*)str.c_str(), *endptr;
-		long int val = strtol(p, &endptr, 10);
-		if (endptr && endptr != p && *endptr == 0) {
-			sig = RTLIL::SigSpec(val, lhs.size());
-			return true;
+	إذا (lhs.is_chunk()) {
+		حرف *p = (حرف*)str.c_str(), *endptr;
+		لما صحيح val = strtol(p, &endptr, 10);
+		إذا (endptr && endptr != p && *endptr == 0) {
+			sig = RTLIL::SigSpec(val, lhs.ناپ());
+			أرجع سچ;
 		}
 	}
 
-	if (!parse(sig, module, str))
-		return false;
-	if (sig.size() > lhs.size())
-		sig.remove(lhs.size(), sig.size() - lhs.size());
-	return true;
+	إذا (!parse(sig, module, str))
+		أرجع خطأ;
+	إذا (sig.ناپ() > lhs.ناپ())
+		sig.remove(lhs.ناپ(), sig.ناپ() - lhs.ناپ());
+	أرجع سچ;
 }
 
-RTLIL::SigSpec::operator std::vector<RTLIL::SigChunk>() const
+RTLIL::SigSpec::عامل std::سمتیہ<RTLIL::SigChunk>() ثابت
 {
-	std::vector<RTLIL::SigChunk> result;
-	for (const RTLIL::SigChunk &c : chunks())
-		result.push_back(c);
-	return result;
+	std::سمتیہ<RTLIL::SigChunk> نتیجہ;
+	لكل (ثابت RTLIL::SigChunk &c : chunks())
+		نتیجہ.ڈالو_پٹھ(c);
+	أرجع نتیجہ;
 }
 
-RTLIL::CaseRule::~CaseRule()
+RTLIL::Case_قاعدہ::~Case_قاعدہ()
 {
-	for (auto it = switches.begin(); it != switches.end(); it++)
-		delete *it;
+	لكل (خودکار it = switches.begin(); it != switches.سرا(); it++)
+		مٹاؤ *it;
 }
 
-bool RTLIL::CaseRule::empty() const
+منطقي RTLIL::Case_قاعدہ::خالی_تھاواں() ثابت
 {
-	return actions.empty() && switches.empty();
+	أرجع actions.خالی_تھاواں() && switches.خالی_تھاواں();
 }
 
-RTLIL::CaseRule *RTLIL::CaseRule::clone() const
+RTLIL::Case_قاعدہ *RTLIL::Case_قاعدہ::clone() ثابت
 {
-	RTLIL::CaseRule *new_caserule = new RTLIL::CaseRule;
+	RTLIL::Case_قاعدہ *new_caserule = جديد RTLIL::Case_قاعدہ;
 	new_caserule->compare = compare;
 	new_caserule->actions = actions;
-	new_caserule->attributes = attributes;
-	for (auto &it : switches)
-		new_caserule->switches.push_back(it->clone());
-	return new_caserule;
+	new_caserule->گن = گن;
+	لكل (خودکار &it : switches)
+		new_caserule->switches.ڈالو_پٹھ(it->clone());
+	أرجع new_caserule;
 }
 
-RTLIL::SwitchRule::~SwitchRule()
+RTLIL::Switch_قاعدہ::~Switch_قاعدہ()
 {
-	for (auto it = cases.begin(); it != cases.end(); it++)
-		delete *it;
+	لكل (خودکار it = cases.begin(); it != cases.سرا(); it++)
+		مٹاؤ *it;
 }
 
-bool RTLIL::SwitchRule::empty() const
+منطقي RTLIL::Switch_قاعدہ::خالی_تھاواں() ثابت
 {
-	return cases.empty();
+	أرجع cases.خالی_تھاواں();
 }
 
-RTLIL::SwitchRule *RTLIL::SwitchRule::clone() const
+RTLIL::Switch_قاعدہ *RTLIL::Switch_قاعدہ::clone() ثابت
 {
-	RTLIL::SwitchRule *new_switchrule = new RTLIL::SwitchRule;
-	new_switchrule->signal = signal;
-	new_switchrule->attributes = attributes;
-	for (auto &it : cases)
-		new_switchrule->cases.push_back(it->clone());
-	return new_switchrule;
+	RTLIL::Switch_قاعدہ *new_switchrule = جديد RTLIL::Switch_قاعدہ;
+	new_switchrule->إشارة = إشارة;
+	new_switchrule->گن = گن;
+	لكل (خودکار &it : cases)
+		new_switchrule->cases.ڈالو_پٹھ(it->clone());
+	أرجع new_switchrule;
 
 }
 
-RTLIL::SyncRule *RTLIL::SyncRule::clone() const
+RTLIL::Sync_قاعدہ *RTLIL::Sync_قاعدہ::clone() ثابت
 {
-	RTLIL::SyncRule *new_syncrule = new RTLIL::SyncRule;
+	RTLIL::Sync_قاعدہ *new_syncrule = جديد RTLIL::Sync_قاعدہ;
 	new_syncrule->type = type;
-	new_syncrule->signal = signal;
+	new_syncrule->إشارة = إشارة;
 	new_syncrule->actions = actions;
 	new_syncrule->mem_write_actions = mem_write_actions;
-	return new_syncrule;
+	أرجع new_syncrule;
 }
 
 RTLIL::Process::~Process()
 {
-	for (auto it = syncs.begin(); it != syncs.end(); it++)
-		delete *it;
+	لكل (خودکار it = syncs.begin(); it != syncs.سرا(); it++)
+		مٹاؤ *it;
 }
 
-RTLIL::Process *RTLIL::Process::clone() const
+RTLIL::Process *RTLIL::Process::clone() ثابت
 {
-	RTLIL::Process *new_proc = new RTLIL::Process;
+	RTLIL::Process *new_proc = جديد RTLIL::Process;
 
-	new_proc->attributes = attributes;
+	new_proc->گن = گن;
 
-	RTLIL::CaseRule *rc_ptr = root_case.clone();
-	new_proc->root_case = *rc_ptr;
+	RTLIL::Case_قاعدہ *rc_ptr = جڑ_case.clone();
+	new_proc->جڑ_case = *rc_ptr;
 	rc_ptr->switches.clear();
-	delete rc_ptr;
+	مٹاؤ rc_ptr;
 
-	for (auto &it : syncs)
-		new_proc->syncs.push_back(it->clone());
+	لكل (خودکار &it : syncs)
+		new_proc->syncs.ڈالو_پٹھ(it->clone());
 
-	return new_proc;
+	أرجع new_proc;
 }
 
-RTLIL::Memory::~Memory()
+RTLIL::حافظہ::~حافظہ()
 {
-#ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Memory::get_all_memorys()->erase(hashidx_);
-#endif
+#جے_تعریف_شدہ YOSYS_ENABLE_PYTHON
+	RTLIL::حافظہ::get_all_memorys()->erase(hashidx_);
+#جے_انت
 }
 
-#ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Memory*> all_memorys;
-std::map<unsigned int, RTLIL::Memory*> *RTLIL::Memory::get_all_memorys(void)
+#جے_تعریف_شدہ YOSYS_ENABLE_PYTHON
+ساكن std::map<بنانشانی صحيح, RTLIL::حافظہ*> all_memorys;
+std::map<بنانشانی صحيح, RTLIL::حافظہ*> *RTLIL::حافظہ::get_all_memorys(فراغ)
 {
-	return &all_memorys;
+	أرجع &all_memorys;
 }
-#endif
-YOSYS_NAMESPACE_END
+#جے_انت
+YOSYS_NAMESPACE_سرا

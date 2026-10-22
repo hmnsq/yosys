@@ -17,259 +17,259 @@
  *
  */
 
-#ifndef SIGTOOLS_H
-#define SIGTOOLS_H
+#جے_بنا_تعریف SIGTOOLS_H
+#تعریف_کرو SIGTOOLS_H
 
-#include "kernel/yosys.h"
+#ضمن "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct SigPool
+بنية SigPool
 {
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			h.eat(first->name);
-			h.eat(second);
-			return h;
+	بنية ثنائی_ہندسہ_Def_t : عام std::pair<RTLIL::Wire*, صحيح> {
+		ثنائی_ہندسہ_Def_t() : std::pair<RTLIL::Wire*, صحيح>(عدم, 0) { }
+		ثنائی_ہندسہ_Def_t(ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ) : std::pair<RTLIL::Wire*, صحيح>(ثنائی_ہندسہ.wire, ثنائی_ہندسہ.وتھ) { }
+		[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
+			h.eat(پہلا->name);
+			h.eat(دوجا);
+			أرجع h;
 		}
 	};
 
-	pool<bitDef_t> bits;
+	pool<ثنائی_ہندسہ_Def_t> بٹ;
 
-	void clear()
+	فراغ clear()
 	{
-		bits.clear();
+		بٹ.clear();
 	}
 
-	void add(const RTLIL::SigSpec &sig)
+	فراغ جوڑو(ثابت RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
-				bits.insert(bit);
+		لكل (خودکار &ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire != عدم)
+				بٹ.داخل_کرو(ثنائی_ہندسہ);
 	}
 
-	void add(const SigPool &other)
+	فراغ جوڑو(ثابت SigPool &other)
 	{
-		for (auto &bit : other.bits)
-			bits.insert(bit);
+		لكل (خودکار &ثنائی_ہندسہ : other.بٹ)
+			بٹ.داخل_کرو(ثنائی_ہندسہ);
 	}
 
-	void del(const RTLIL::SigSpec &sig)
+	فراغ del(ثابت RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
-				bits.erase(bit);
+		لكل (خودکار &ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire != عدم)
+				بٹ.erase(ثنائی_ہندسہ);
 	}
 
-	void del(const SigPool &other)
+	فراغ del(ثابت SigPool &other)
 	{
-		for (auto &bit : other.bits)
-			bits.erase(bit);
+		لكل (خودکار &ثنائی_ہندسہ : other.بٹ)
+			بٹ.erase(ثنائی_ہندسہ);
 	}
 
-	void expand(const RTLIL::SigSpec &from, const RTLIL::SigSpec &to)
+	فراغ expand(ثابت RTLIL::SigSpec &from, ثابت RTLIL::SigSpec &منزل)
 	{
-		log_assert(GetSize(from) == GetSize(to));
-		for (int i = 0; i < GetSize(from); i++) {
-			bitDef_t bit_from(from[i]), bit_to(to[i]);
-			if (bit_from.first != NULL && bit_to.first != NULL && bits.count(bit_from) > 0)
-				bits.insert(bit_to);
+		log_assert(Get_ناپ(from) == Get_ناپ(منزل));
+		لكل (صحيح i = 0; i < Get_ناپ(from); i++) {
+			ثنائی_ہندسہ_Def_t ثنائی_ہندسہ_from(from[i]), ثنائی_ہندسہ_منزل(منزل[i]);
+			إذا (ثنائی_ہندسہ_from.پہلا != عدم && ثنائی_ہندسہ_منزل.پہلا != عدم && بٹ.گنتی(ثنائی_ہندسہ_from) > 0)
+				بٹ.داخل_کرو(ثنائی_ہندسہ_منزل);
 		}
 	}
 
-	RTLIL::SigSpec extract(const RTLIL::SigSpec &sig) const
+	RTLIL::SigSpec کڈھو(ثابت RTLIL::SigSpec &sig) ثابت
 	{
-		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				result.append(bit);
-		return result;
+		RTLIL::SigSpec نتیجہ;
+		لكل (خودکار &ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire != عدم && بٹ.گنتی(ثنائی_ہندسہ))
+				نتیجہ.append(ثنائی_ہندسہ);
+		أرجع نتیجہ;
 	}
 
-	RTLIL::SigSpec remove(const RTLIL::SigSpec &sig) const
+	RTLIL::SigSpec remove(ثابت RTLIL::SigSpec &sig) ثابت
 	{
-		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
-				result.append(bit);
-		return result;
+		RTLIL::SigSpec نتیجہ;
+		لكل (خودکار &ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire != عدم && بٹ.گنتی(ثنائی_ہندسہ) == 0)
+				نتیجہ.append(ثنائی_ہندسہ);
+		أرجع نتیجہ;
 	}
 
-	bool check(const RTLIL::SigBit &bit) const
+	bool check(ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ) ثابت
 	{
-		return bit.wire != NULL && bits.count(bit);
+		أرجع ثنائی_ہندسہ.wire != عدم && بٹ.گنتی(ثنائی_ہندسہ);
 	}
 
-	bool check_any(const RTLIL::SigSpec &sig) const
+	bool check_any(ثابت RTLIL::SigSpec &sig) ثابت
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		لكل (خودکار &ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire != عدم && بٹ.گنتی(ثنائی_ہندسہ))
+				أرجع true;
+		أرجع false;
 	}
 
-	bool check_all(const RTLIL::SigSpec &sig) const
+	bool check_all(ثابت RTLIL::SigSpec &sig) ثابت
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
-				return false;
-		return true;
+		لكل (خودکار &ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire != عدم && بٹ.گنتی(ثنائی_ہندسہ) == 0)
+				أرجع false;
+		أرجع true;
 	}
 
-	RTLIL::SigSpec export_one() const
+	RTLIL::SigSpec export_one() ثابت
 	{
-		for (auto &bit : bits)
-			return RTLIL::SigSpec(bit.first, bit.second);
-		return RTLIL::SigSpec();
+		لكل (خودکار &ثنائی_ہندسہ : بٹ)
+			أرجع RTLIL::SigSpec(ثنائی_ہندسہ.پہلا, ثنائی_ہندسہ.دوجا);
+		أرجع RTLIL::SigSpec();
 	}
 
-	RTLIL::SigSpec export_all() const
+	RTLIL::SigSpec export_all() ثابت
 	{
-		pool<RTLIL::SigBit> sig;
-		for (auto &bit : bits)
-			sig.insert(RTLIL::SigBit(bit.first, bit.second));
-		return sig;
+		pool<RTLIL::Sig_ثنائی_ہندسہ> sig;
+		لكل (خودکار &ثنائی_ہندسہ : بٹ)
+			sig.داخل_کرو(RTLIL::Sig_ثنائی_ہندسہ(ثنائی_ہندسہ.پہلا, ثنائی_ہندسہ.دوجا));
+		أرجع sig;
 	}
 
-	size_t size() const
+	ناپ_t ناپ() ثابت
 	{
-		return bits.size();
+		أرجع بٹ.ناپ();
 	}
 };
 
-template <typename T, class Compare = void>
-struct SigSet
+سانچا <typename T, class Compare = فراغ>
+بنية Sig_سیٹ
 {
-	static_assert(!std::is_same<Compare,void>::value, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
+	static_assert(!std::is_same<Compare,فراغ>::قدر, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
 
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			h.eat(first->name);
-			h.eat(second);
-			return h;
+	بنية ثنائی_ہندسہ_Def_t : عام std::pair<RTLIL::Wire*, صحيح> {
+		ثنائی_ہندسہ_Def_t() : std::pair<RTLIL::Wire*, صحيح>(عدم, 0) { }
+		ثنائی_ہندسہ_Def_t(ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ) : std::pair<RTLIL::Wire*, صحيح>(ثنائی_ہندسہ.wire, ثنائی_ہندسہ.وتھ) { }
+		[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
+			h.eat(پہلا->name);
+			h.eat(دوجا);
+			أرجع h;
 		}
 	};
 
-	dict<bitDef_t, std::set<T, Compare>> bits;
+	dict<ثنائی_ہندسہ_Def_t, std::سیٹ<T, Compare>> بٹ;
 
-	void clear()
+	فراغ clear()
 	{
-		bits.clear();
+		بٹ.clear();
 	}
 
-	void insert(const RTLIL::SigSpec &sig, T data)
+	فراغ داخل_کرو(ثابت RTLIL::SigSpec &sig, T انکڑے)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].insert(data);
+		لكل (ثابت خودکار &ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire != عدم)
+				بٹ[ثنائی_ہندسہ].داخل_کرو(انکڑے);
 	}
 
-	void insert(const RTLIL::SigSpec& sig, const std::set<T> &data)
+	فراغ داخل_کرو(ثابت RTLIL::SigSpec& sig, ثابت std::سیٹ<T> &انکڑے)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].insert(data.begin(), data.end());
+		لكل (ثابت خودکار &ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire != عدم)
+				بٹ[ثنائی_ہندسہ].داخل_کرو(انکڑے.begin(), انکڑے.سرا());
 	}
 
-	void erase(const RTLIL::SigSpec& sig)
+	فراغ erase(ثابت RTLIL::SigSpec& sig)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].clear();
+		لكل (ثابت خودکار &ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire != عدم)
+				بٹ[ثنائی_ہندسہ].clear();
 	}
 
-	void erase(const RTLIL::SigSpec &sig, T data)
+	فراغ erase(ثابت RTLIL::SigSpec &sig, T انکڑے)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].erase(data);
+		لكل (ثابت خودکار &ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire != عدم)
+				بٹ[ثنائی_ہندسہ].erase(انکڑے);
 	}
 
-	void erase(const RTLIL::SigSpec &sig, const std::set<T> &data)
+	فراغ erase(ثابت RTLIL::SigSpec &sig, ثابت std::سیٹ<T> &انکڑے)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].erase(data.begin(), data.end());
+		لكل (ثابت خودکار &ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire != عدم)
+				بٹ[ثنائی_ہندسہ].erase(انکڑے.begin(), انکڑے.سرا());
 	}
 
-	void find(const RTLIL::SigSpec &sig, std::set<T> &result)
+	فراغ لبھو(ثابت RTLIL::SigSpec &sig, std::سیٹ<T> &نتیجہ)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
-				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+		لكل (ثابت خودکار &ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire != عدم) {
+				خودکار &انکڑے = بٹ[ثنائی_ہندسہ];
+				نتیجہ.داخل_کرو(انکڑے.begin(), انکڑے.سرا());
 			}
 	}
 
-	void find(const RTLIL::SigSpec &sig, pool<T> &result)
+	فراغ لبھو(ثابت RTLIL::SigSpec &sig, pool<T> &نتیجہ)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
-				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+		لكل (ثابت خودکار &ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire != عدم) {
+				خودکار &انکڑے = بٹ[ثنائی_ہندسہ];
+				نتیجہ.داخل_کرو(انکڑے.begin(), انکڑے.سرا());
 			}
 	}
 
-	std::set<T> find(const RTLIL::SigSpec &sig)
+	std::سیٹ<T> لبھو(ثابت RTLIL::SigSpec &sig)
 	{
-		std::set<T> result;
-		find(sig, result);
-		return result;
+		std::سیٹ<T> نتیجہ;
+		لبھو(sig, نتیجہ);
+		أرجع نتیجہ;
 	}
 
-	bool has(const RTLIL::SigSpec &sig)
+	bool has(ثابت RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		لكل (خودکار &ثنائی_ہندسہ : sig)
+			إذا (ثنائی_ہندسہ.wire != عدم && بٹ.گنتی(ثنائی_ہندسہ))
+				أرجع true;
+		أرجع false;
 	}
 };
 
-template<typename T>
-class SigSet<T, typename std::enable_if<!std::is_pointer<T>::value>::type> : public SigSet<T, std::less<T>> {};
-template<typename T>
-using sort_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::value>::type;
-template<typename T>
-class SigSet<T, sort_by_name_id_guard<T>> : public SigSet<T, RTLIL::sort_by_name_id<typename std::remove_pointer<T>::type>> {};
+سانچا<typename T>
+class Sig_سیٹ<T, typename std::enable_if<!std::is_اشارہ_گر<T>::قدر>::type> : عام Sig_سیٹ<T, std::less<T>> {};
+سانچا<typename T>
+using ترتیب_دیو_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::قدر>::type;
+سانچا<typename T>
+class Sig_سیٹ<T, ترتیب_دیو_by_name_id_guard<T>> : عام Sig_سیٹ<T, RTLIL::ترتیب_دیو_by_name_id<typename std::remove_اشارہ_گر<T>::type>> {};
 
-struct SigMapView
+بنية SigMapView
 {
-	mfp<SigBit> database;
+	mfp<Sig_ثنائی_ہندسہ> database;
 
 	// Modify bit to its representative
-	void apply(RTLIL::SigBit &bit) const
+	فراغ apply(RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ) ثابت
 	{
-		bit = database.find(bit);
+		ثنائی_ہندسہ = database.لبھو(ثنائی_ہندسہ);
 	}
 
-	void apply(RTLIL::SigSpec &sig) const
+	فراغ apply(RTLIL::SigSpec &sig) ثابت
 	{
-		for (auto &bit : sig)
-			apply(bit);
+		لكل (خودکار &ثنائی_ہندسہ : sig)
+			apply(ثنائی_ہندسہ);
 	}
 
-	RTLIL::SigBit operator()(RTLIL::SigBit bit) const
+	RTLIL::Sig_ثنائی_ہندسہ عامل()(RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ) ثابت
 	{
-		apply(bit);
-		return bit;
+		apply(ثنائی_ہندسہ);
+		أرجع ثنائی_ہندسہ;
 	}
 
-	RTLIL::SigSpec operator()(RTLIL::SigSpec sig) const
+	RTLIL::SigSpec عامل()(RTLIL::SigSpec sig) ثابت
 	{
 		apply(sig);
-		return sig;
+		أرجع sig;
 	}
 
-	RTLIL::SigSpec operator()(RTLIL::Wire *wire) const
+	RTLIL::SigSpec عامل()(RTLIL::Wire *wire) ثابت
 	{
 		SigSpec sig(wire);
 		apply(sig);
-		return sig;
+		أرجع sig;
 	}
 };
 
@@ -280,88 +280,88 @@ struct SigMapView
  * If a SigBit has a const state (impl: bit.wire is nullptr),
  * it's promoted to a representative.
  */
-struct SigMap final : public SigMapView
+بنية SigMap final : عام SigMapView
 {
-	SigMap(RTLIL::Module *module = NULL)
+	SigMap(RTLIL::Module *module = عدم)
 	{
-		if (module != NULL)
-			set(module);
+		إذا (module != عدم)
+			سیٹ(module);
 	}
 
-	void swap(SigMap &other)
+	فراغ وٹاندرا(SigMap &other)
 	{
-		database.swap(other.database);
+		database.وٹاندرا(other.database);
 	}
 
-	void clear()
+	فراغ clear()
 	{
 		database.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
-	void set(RTLIL::Module *module)
+	فراغ سیٹ(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
-			bitcount += it.first.size();
+		صحيح bitcount = 0;
+		لكل (خودکار &it : module->connections())
+			bitcount += it.پہلا.ناپ();
 
 		database.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
-			add(it.first, it.second);
+		لكل (خودکار &it : module->connections())
+			جوڑو(it.پہلا, it.دوجا);
 	}
 
 	// Add connections from "from" to "to", bit-by-bit
-	void add(const RTLIL::SigSpec& from, const RTLIL::SigSpec& to)
+	فراغ جوڑو(ثابت RTLIL::SigSpec& from, ثابت RTLIL::SigSpec& منزل)
 	{
-		log_assert(GetSize(from) == GetSize(to));
+		log_assert(Get_ناپ(from) == Get_ناپ(منزل));
 
-		for (int i = 0; i < GetSize(from); i++)
+		لكل (صحيح i = 0; i < Get_ناپ(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
+			صحيح bfi = database.lookup(from[i]);
+			صحيح bti = database.lookup(منزل[i]);
 
-			const RTLIL::SigBit &bf = database[bfi];
-			const RTLIL::SigBit &bt = database[bti];
+			ثابت RTLIL::Sig_ثنائی_ہندسہ &bf = database[bfi];
+			ثابت RTLIL::Sig_ثنائی_ہندسہ &bt = database[bti];
 
-			if (bf.wire || bt.wire)
+			إذا (bf.wire || bt.wire)
 			{
 				database.imerge(bfi, bti);
 
-				if (bf.wire == nullptr)
+				إذا (bf.wire == nullptr)
 					database.ipromote(bfi);
 
-				if (bt.wire == nullptr)
+				إذا (bt.wire == nullptr)
 					database.ipromote(bti);
 			}
 		}
 	}
 
 	// Add sig as disconnected from anything
-	void add(const RTLIL::SigBit &bit)
+	فراغ جوڑو(ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ)
 	{
-		const auto &b = database.find(bit);
-		if (b.wire != nullptr)
-			database.promote(bit);
+		ثابت خودکار &b = database.لبھو(ثنائی_ہندسہ);
+		إذا (b.wire != nullptr)
+			database.promote(ثنائی_ہندسہ);
 	}
 
-	void add(const RTLIL::SigSpec &sig)
+	فراغ جوڑو(ثابت RTLIL::SigSpec &sig)
 	{
-		for (const auto &bit : sig)
-			add(bit);
+		لكل (ثابت خودکار &ثنائی_ہندسہ : sig)
+			جوڑو(ثنائی_ہندسہ);
 	}
 
-	inline void add(Wire *wire) { return add(RTLIL::SigSpec(wire)); }
+	مضمن فراغ جوڑو(Wire *wire) { أرجع جوڑو(RTLIL::SigSpec(wire)); }
 
 	// All non-const bits
-	RTLIL::SigSpec allbits() const
+	RTLIL::SigSpec allbits() ثابت
 	{
 		RTLIL::SigSpec sig;
-		for (const auto &bit : database)
-			if (bit.wire != nullptr)
-				sig.append(bit);
-		return sig;
+		لكل (ثابت خودکار &ثنائی_ہندسہ : database)
+			إذا (ثنائی_ہندسہ.wire != nullptr)
+				sig.append(ثنائی_ہندسہ);
+		أرجع sig;
 	}
 };
 
@@ -374,98 +374,98 @@ struct SigMap final : public SigMapView
  * the associated value is the "sum" of all the values associated with the contributing bits.
  * If any of the SigBits in a set are a constant, the canonical SigBit is a constant.
  */
-template <class Val>
-struct SigValMap final : public SigMapView
+سانچا <class Val>
+بنية SigValMap final : عام SigMapView
 {
-	dict<SigBit, Val> values;
+	dict<Sig_ثنائی_ہندسہ, Val> اقدار;
 
-	void swap(SigValMap<Val> &other)
+	فراغ وٹاندرا(SigValMap<Val> &other)
 	{
-		database.swap(other.database);
-		values.swap(other.values);
+		database.وٹاندرا(other.database);
+		اقدار.وٹاندرا(other.اقدار);
 	}
 
-	void clear()
+	فراغ clear()
 	{
 		database.clear();
-		values.clear();
+		اقدار.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
-	void set(RTLIL::Module *module)
+	فراغ سیٹ(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
-			bitcount += it.first.size();
+		صحيح bitcount = 0;
+		لكل (خودکار &it : module->connections())
+			bitcount += it.پہلا.ناپ();
 
 		database.clear();
-		values.clear();
+		اقدار.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
-			add(it.first, it.second);
+		لكل (خودکار &it : module->connections())
+			جوڑو(it.پہلا, it.دوجا);
 	}
 
 	// Add connections from "from" to "to", bit-by-bit.
-	void add(const RTLIL::SigSpec& from, const RTLIL::SigSpec& to)
+	فراغ جوڑو(ثابت RTLIL::SigSpec& from, ثابت RTLIL::SigSpec& منزل)
 	{
-		log_assert(GetSize(from) == GetSize(to));
+		log_assert(Get_ناپ(from) == Get_ناپ(منزل));
 
-		for (int i = 0; i < GetSize(from); i++)
+		لكل (صحيح i = 0; i < Get_ناپ(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
-			if (bfi == bti) {
-				continue;
+			صحيح bfi = database.lookup(from[i]);
+			صحيح bti = database.lookup(منزل[i]);
+			إذا (bfi == bti) {
+				استمر;
 			}
 
-			const RTLIL::SigBit &bf = database[bfi];
-			const RTLIL::SigBit &bt = database[bti];
-			if (bf.wire == nullptr) {
+			ثابت RTLIL::Sig_ثنائی_ہندسہ &bf = database[bfi];
+			ثابت RTLIL::Sig_ثنائی_ہندسہ &bt = database[bti];
+			إذا (bf.wire == nullptr) {
 				// bf is constant so make it the canonical representative.
 				database.imerge(bti, bfi);
-				merge_value(bt, bf);
-			} else {
+				ملاؤ_قدر(bt, bf);
+			} وإلا {
 				// Make bt the canonical representative.
 				database.imerge(bfi, bti);
-				merge_value(bf, bt);
+				ملاؤ_قدر(bf, bt);
 			}
 		}
 	}
 
-	void addVal(const RTLIL::SigBit &bit, const Val &val)
+	فراغ جوڑو_Val(ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ, ثابت Val &val)
 	{
-		values[database.find(bit)] |= val;
+		اقدار[database.لبھو(ثنائی_ہندسہ)] |= val;
 	}
 
-	void addVal(const RTLIL::SigSpec &sig, const Val &val)
+	فراغ جوڑو_Val(ثابت RTLIL::SigSpec &sig, ثابت Val &val)
 	{
-		for (const auto &bit : sig)
-			addVal(bit, val);
+		لكل (ثابت خودکار &ثنائی_ہندسہ : sig)
+			جوڑو_Val(ثنائی_ہندسہ, val);
 	}
 
-	Val apply_and_get_value(RTLIL::SigBit &bit) const
+	Val apply_and_get_قدر(RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ) ثابت
 	{
-		bit = database.find(bit);
-		auto it = values.find(bit);
-		return it == values.end() ? Val() : it->second;
+		ثنائی_ہندسہ = database.لبھو(ثنائی_ہندسہ);
+		خودکار it = اقدار.لبھو(ثنائی_ہندسہ);
+		أرجع it == اقدار.سرا() ? Val() : it->دوجا;
 	}
 
-private:
-	void merge_value(const RTLIL::SigBit &from, const RTLIL::SigBit &to)
+خاص:
+	فراغ ملاؤ_قدر(ثابت RTLIL::Sig_ثنائی_ہندسہ &from, ثابت RTLIL::Sig_ثنائی_ہندسہ &منزل)
 	{
-		auto it = values.find(from);
-		if (it == values.end()) {
-			return;
+		خودکار it = اقدار.لبھو(from);
+		إذا (it == اقدار.سرا()) {
+			أرجع;
 		}
 		// values[to] could resize the underlying `entries` so
 		// finish using `it` first.
-		Val v = it->second;
-		values.erase(it);
-		values[to] |= v;
+		Val v = it->دوجا;
+		اقدار.erase(it);
+		اقدار[منزل] |= v;
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_سرا
 
-#endif /* SIGTOOLS_H */
+#جے_انت /* SIGTOOLS_H */

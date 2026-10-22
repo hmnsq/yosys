@@ -17,435 +17,435 @@
  *
  */
 
-#ifndef SCOPEINFO_H
-#define SCOPEINFO_H
+#جے_بنا_تعریف SCOPEINFO_H
+#تعریف_کرو SCOPEINFO_H
 
-#include <vector>
-#include <algorithm>
+#ضمن <vector>
+#ضمن <algorithm>
 
-#include "kernel/yosys.h"
-#include "kernel/celltypes.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/celltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template<typename T>
-class IdTree
+سانچا<typename T>
+class Id_درخت
 {
-public:
-	struct Cursor;
+عام:
+	بنية Cursor;
 
-protected:
-	IdTree *parent = nullptr;
+محمي:
+	Id_درخت *ماپا = nullptr;
 	IdString scope_name;
-	int depth = 0;
+	صحيح ڈونگھائی = 0;
 
-	pool<IdString> names;
+	pool<IdString> ناں;
 	dict<IdString, T> entries;
-public: // XXX
-	dict<IdString, std::unique_ptr<IdTree>> subtrees;
+عام: // XXX
+	dict<IdString, std::unique_ptr<Id_درخت>> subtrees;
 
-	template<typename P, typename T_ref>
-	static Cursor do_insert(IdTree *tree, P begin, P end, T_ref &&value)
+	سانچا<typename P, typename T_ref>
+	ساكن Cursor do_داخل_کرو(Id_درخت *درخت, P begin, P سرا, T_ref &&قدر)
 	{
-		log_assert(begin != end && "path must be non-empty");
-		while (true) {
+		log_assert(begin != سرا && "path must be non-empty");
+		طالما (true) {
 			IdString name = *begin;
 			++begin;
-			log_assert(!name.empty());
-			tree->names.insert(name);
-			if (begin == end) {
-				tree->entries.emplace(name, std::forward<T_ref>(value));
-				return Cursor(tree, name);
+			log_assert(!name.خالی_تھاواں());
+			درخت->ناں.داخل_کرو(name);
+			إذا (begin == سرا) {
+				درخت->entries.emplace(name, std::forward<T_ref>(قدر));
+				أرجع Cursor(درخت, name);
 			}
-			auto &unique = tree->subtrees[name];
-			if (!unique) {
-				unique.reset(new IdTree);
+			خودکار &unique = درخت->subtrees[name];
+			إذا (!unique) {
+				unique.reset(new Id_درخت);
 				unique->scope_name = name;
-				unique->parent = tree;
-				unique->depth = tree->depth + 1;
+				unique->ماپا = درخت;
+				unique->ڈونگھائی = درخت->ڈونگھائی + 1;
 			}
-			tree = unique.get();
+			درخت = unique.get();
 		}
 	}
 
-public:
-	IdTree() = default;
-	IdTree(const IdTree &) = delete;
-	IdTree(IdTree &&) = delete;
+عام:
+	Id_درخت() = افتراضي;
+	Id_درخت(ثابت Id_درخت &) = delete;
+	Id_درخت(Id_درخت &&) = delete;
 
 	// A cursor remains valid as long as the (sub-)IdTree it points at is alive
-	struct Cursor
+	بنية Cursor
 	{
-		friend class IdTree;
-	protected:
-	public:
-		IdTree *target;
+		یار class Id_درخت;
+	محمي:
+	عام:
+		Id_درخت *نشانہ_2;
 		IdString scope_name;
 
-		Cursor() : target(nullptr) {}
-		Cursor(IdTree *target, IdString scope_name) : target(target), scope_name(scope_name) {
-			if (scope_name.empty())
-				log_assert(target->parent == nullptr);
+		Cursor() : نشانہ_2(nullptr) {}
+		Cursor(Id_درخت *نشانہ_2, IdString scope_name) : نشانہ_2(نشانہ_2), scope_name(scope_name) {
+			إذا (scope_name.خالی_تھاواں())
+				log_assert(نشانہ_2->ماپا == nullptr);
 		}
 
-		Cursor do_first_child() {
-			IdTree *tree = nullptr;
-			if (scope_name.empty()) {
-				tree = target;
-			} else {
-				auto found = target->subtrees.find(scope_name);
-				if (found != target->subtrees.end()) {
-					tree = found->second.get();
-				} else {
-					return Cursor();
+		Cursor do_پہلا_بچہ() {
+			Id_درخت *درخت = nullptr;
+			إذا (scope_name.خالی_تھاواں()) {
+				درخت = نشانہ_2;
+			} وإلا {
+				خودکار لبھیا = نشانہ_2->subtrees.لبھو(scope_name);
+				إذا (لبھیا != نشانہ_2->subtrees.سرا()) {
+					درخت = لبھیا->دوجا.get();
+				} وإلا {
+					أرجع Cursor();
 				}
 			}
-			if (tree->names.empty()) {
-				return Cursor();
+			إذا (درخت->ناں.خالی_تھاواں()) {
+				أرجع Cursor();
 			}
-			return Cursor(tree, *tree->names.begin());
+			أرجع Cursor(درخت, *درخت->ناں.begin());
 		}
 
-		Cursor do_next_sibling() {
-			if (scope_name.empty())
-				return Cursor();
-			auto found = target->names.find(scope_name);
-			if (found == target->names.end())
-				return Cursor();
-			++found;
-			if (found == target->names.end())
-				return Cursor();
-			return Cursor(target, *found);
+		Cursor do_اگلا_sibling() {
+			إذا (scope_name.خالی_تھاواں())
+				أرجع Cursor();
+			خودکار لبھیا = نشانہ_2->ناں.لبھو(scope_name);
+			إذا (لبھیا == نشانہ_2->ناں.سرا())
+				أرجع Cursor();
+			++لبھیا;
+			إذا (لبھیا == نشانہ_2->ناں.سرا())
+				أرجع Cursor();
+			أرجع Cursor(نشانہ_2, *لبھیا);
 		}
 
-		Cursor do_parent() {
-			if (scope_name.empty())
-				return Cursor();
-			if (target->parent != nullptr)
-				return Cursor(target->parent, target->scope_name);
-			return Cursor(target, IdString());
+		Cursor do_ماپا() {
+			إذا (scope_name.خالی_تھاواں())
+				أرجع Cursor();
+			إذا (نشانہ_2->ماپا != nullptr)
+				أرجع Cursor(نشانہ_2->ماپا, نشانہ_2->scope_name);
+			أرجع Cursor(نشانہ_2, IdString());
 		}
 
-		Cursor do_next_preorder() {
+		Cursor do_اگلا_پہلا_ترتیب() {
 			Cursor current = *this;
-			Cursor next = current.do_first_child();
-			if (next.valid())
-				return next;
-			while (current.valid()) {
-				if (next.valid())
-					return next;
-				next = current.do_next_sibling();
-				if (next.valid())
-					return next;
-				current = current.do_parent();
+			Cursor اگلا = current.do_پہلا_بچہ();
+			إذا (اگلا.valid())
+				أرجع اگلا;
+			طالما (current.valid()) {
+				إذا (اگلا.valid())
+					أرجع اگلا;
+				اگلا = current.do_اگلا_sibling();
+				إذا (اگلا.valid())
+					أرجع اگلا;
+				current = current.do_ماپا();
 			}
-			return current;
+			أرجع current;
 		}
 
-		Cursor do_child(IdString name) {
-			IdTree *tree = nullptr;
-			if (scope_name.empty()) {
-				tree = target;
-			} else {
-				auto found = target->subtrees.find(scope_name);
-				if (found != target->subtrees.end()) {
-					tree = found->second.get();
-				} else {
-					return Cursor();
+		Cursor do_بچہ(IdString name) {
+			Id_درخت *درخت = nullptr;
+			إذا (scope_name.خالی_تھاواں()) {
+				درخت = نشانہ_2;
+			} وإلا {
+				خودکار لبھیا = نشانہ_2->subtrees.لبھو(scope_name);
+				إذا (لبھیا != نشانہ_2->subtrees.سرا()) {
+					درخت = لبھیا->دوجا.get();
+				} وإلا {
+					أرجع Cursor();
 				}
 			}
-			auto found = tree->names.find(name);
-			if (found == tree->names.end()) {
-				return Cursor();
+			خودکار لبھیا = درخت->ناں.لبھو(name);
+			إذا (لبھیا == درخت->ناں.سرا()) {
+				أرجع Cursor();
 			}
-			return Cursor(tree, *found);
+			أرجع Cursor(درخت, *لبھیا);
 		}
 
-	public:
-		bool operator==(const Cursor &other) const {
-			return target == other.target && scope_name == other.scope_name;
+	عام:
+		bool عامل==(ثابت Cursor &other) ثابت {
+			أرجع نشانہ_2 == other.نشانہ_2 && scope_name == other.scope_name;
 		}
-		bool operator!=(const Cursor &other) const {
-			return !(*this == other);
+		bool عامل!=(ثابت Cursor &other) ثابت {
+			أرجع !(*this == other);
 		}
 
-		[[nodiscard]] Hasher hash_into(Hasher h) const
+		[[nodiscard]] Hasher hash_into(Hasher h) ثابت
 		{
 			h.eat(scope_name);
-			h.eat(target);
-			return h;
+			h.eat(نشانہ_2);
+			أرجع h;
 		}
 
-		bool valid() const {
-			return target != nullptr;
+		bool valid() ثابت {
+			أرجع نشانہ_2 != nullptr;
 		}
 
-		int depth() const {
+		صحيح ڈونگھائی() ثابت {
 			log_assert(valid());
-			return target->depth + !scope_name.empty();
+			أرجع نشانہ_2->ڈونگھائی + !scope_name.خالی_تھاواں();
 		}
 
-		bool is_root() const {
-			return target != nullptr && scope_name.empty();
+		bool is_جڑ() ثابت {
+			أرجع نشانہ_2 != nullptr && scope_name.خالی_تھاواں();
 		}
 
-		bool has_entry() const {
+		bool has_اندراج() ثابت {
 			log_assert(valid());
-			return !scope_name.empty() && target->entries.count(scope_name);
+			أرجع !scope_name.خالی_تھاواں() && نشانہ_2->entries.گنتی(scope_name);
 		}
 
-		T &entry() {
-			log_assert(!scope_name.empty());
-			return target->entries.at(scope_name);
+		T &اندراج() {
+			log_assert(!scope_name.خالی_تھاواں());
+			أرجع نشانہ_2->entries.at(scope_name);
 		}
 
-		void assign_path_to(std::vector<IdString> &out_path) {
+		فراغ سونپو_رستہ_منزل(std::سمتیہ<IdString> &باہرلا_رستہ) {
 			log_assert(valid());
-			out_path.clear();
-			if (scope_name.empty())
-				return;
-			out_path.push_back(scope_name);
-			IdTree *current = target;
-			while (current->parent) {
-				out_path.push_back(current->scope_name);
-				current = current->parent;
+			باہرلا_رستہ.clear();
+			إذا (scope_name.خالی_تھاواں())
+				أرجع;
+			باہرلا_رستہ.ڈالو_پٹھ(scope_name);
+			Id_درخت *current = نشانہ_2;
+			طالما (current->ماپا) {
+				باہرلا_رستہ.ڈالو_پٹھ(current->scope_name);
+				current = current->ماپا;
 			}
-			std::reverse(out_path.begin(), out_path.end());
+			std::الٹ(باہرلا_رستہ.begin(), باہرلا_رستہ.سرا());
 		}
 
-		std::vector<IdString> path() {
-			std::vector<IdString> result;
-			assign_path_to(result);
-			return result;
+		std::سمتیہ<IdString> رستہ_2() {
+			std::سمتیہ<IdString> نتیجہ;
+			سونپو_رستہ_منزل(نتیجہ);
+			أرجع نتیجہ;
 		}
 
-		std::string path_str(const RTLIL::Design *design) {
-			std::string result;
-			for (const auto &item : path()) {
-				if (!result.empty())
-					result.push_back(' ');
-				result += design->twines().unescaped_str(item);
+		std::string رستہ_str(ثابت RTLIL::Design *design) {
+			std::string نتیجہ;
+			لكل (ثابت خودکار &شے : رستہ_2()) {
+				إذا (!نتیجہ.خالی_تھاواں())
+					نتیجہ.ڈالو_پٹھ(' ');
+				نتیجہ += design->twines().unescaped_str(شے);
 			}
-			return result;
+			أرجع نتیجہ;
 		}
 
-		Cursor first_child() {
+		Cursor پہلا_بچہ() {
 			log_assert(valid());
-			return do_first_child();
+			أرجع do_پہلا_بچہ();
 		}
 
-		Cursor next_preorder() {
+		Cursor اگلا_پہلا_ترتیب() {
 			log_assert(valid());
-			return do_next_preorder();
+			أرجع do_اگلا_پہلا_ترتیب();
 		}
 
-		Cursor parent() {
+		Cursor ماپا() {
 			log_assert(valid());
-			return do_parent();
+			أرجع do_ماپا();
 		}
 
-		Cursor child(IdString name) {
+		Cursor بچہ(IdString name) {
 			log_assert(valid());
-			return do_child(name);
+			أرجع do_بچہ(name);
 		}
 
 		Cursor common_ancestor(Cursor other) {
 			Cursor current = *this;
 
-			while (current != other) {
-				if (!current.valid() || !other.valid())
-					return Cursor();
-				int delta = current.depth() - other.depth();
-				if (delta >= 0)
-					current = current.do_parent();
-				if (delta <= 0)
-					other = other.do_parent();
+			طالما (current != other) {
+				إذا (!current.valid() || !other.valid())
+					أرجع Cursor();
+				صحيح delta = current.ڈونگھائی() - other.ڈونگھائی();
+				إذا (delta >= 0)
+					current = current.do_ماپا();
+				إذا (delta <= 0)
+					other = other.do_ماپا();
 			}
-			return current;
+			أرجع current;
 		}
 	};
 
-	template<typename P>
-	Cursor insert(P begin, P end, const T &value) {
-		return do_insert(this, begin, end, value);
+	سانچا<typename P>
+	Cursor داخل_کرو(P begin, P سرا, ثابت T &قدر) {
+		أرجع do_داخل_کرو(this, begin, سرا, قدر);
 	}
 
-	template<typename P>
-	Cursor insert(P begin, P end, T &&value) {
-		return do_insert(this, begin, end, std::move(value));
+	سانچا<typename P>
+	Cursor داخل_کرو(P begin, P سرا, T &&قدر) {
+		أرجع do_داخل_کرو(this, begin, سرا, std::move(قدر));
 	}
 
-	template<typename P>
-	Cursor insert(const P &path, const T &value) {
-		return do_insert(this, path.begin(), path.end(), value);
+	سانچا<typename P>
+	Cursor داخل_کرو(ثابت P &رستہ_2, ثابت T &قدر) {
+		أرجع do_داخل_کرو(this, رستہ_2.begin(), رستہ_2.سرا(), قدر);
 	}
 
-	template<typename P>
-	Cursor insert(const P &path, T &&value) {
-		return do_insert(this, path.begin(), path.end(), std::move(value));
+	سانچا<typename P>
+	Cursor داخل_کرو(ثابت P &رستہ_2, T &&قدر) {
+		أرجع do_داخل_کرو(this, رستہ_2.begin(), رستہ_2.سرا(), std::move(قدر));
 	}
 
 	Cursor cursor() {
-		return parent ? Cursor(this->parent, this->scope_name) : Cursor(this, IdString());
+		أرجع ماپا ? Cursor(this->ماپا, this->scope_name) : Cursor(this, IdString());
 	}
 
-	template<typename P>
-	Cursor cursor(P begin, P end) {
+	سانچا<typename P>
+	Cursor cursor(P begin, P سرا) {
 		Cursor current = cursor();
-		for (; begin != end; ++begin) {
-			current = current.do_child(*begin);
-			if (!current.valid())
-				break;
+		لكل (; begin != سرا; ++begin) {
+			current = current.do_بچہ(*begin);
+			إذا (!current.valid())
+				اكسر;
 		}
-		return current;
+		أرجع current;
 	}
 
-	template<typename P>
-	Cursor cursor(const P &path) {
-		return cursor(path.begin(), path.end());
+	سانچا<typename P>
+	Cursor cursor(ثابت P &رستہ_2) {
+		أرجع cursor(رستہ_2.begin(), رستہ_2.سرا());
 	}
 };
 
 
-struct ModuleItem {
-	enum class Type {
+بنية Module_شے {
+	تعداد class Type {
 		Wire,
 		Cell,
 	};
 	Type type;
-	void *ptr;
+	فراغ *ptr;
 
-	ModuleItem(Wire *wire) : type(Type::Wire), ptr(wire) {}
-	ModuleItem(Cell *cell) : type(Type::Cell), ptr(cell) {}
+	Module_شے(Wire *wire) : type(Type::Wire), ptr(wire) {}
+	Module_شے(Cell *cell) : type(Type::Cell), ptr(cell) {}
 
-	bool is_wire() const { return type == Type::Wire; }
-	bool is_cell() const { return type == Type::Cell; }
+	bool is_wire() ثابت { أرجع type == Type::Wire; }
+	bool is_cell() ثابت { أرجع type == Type::Cell; }
 
-	Wire *wire() const { return type == Type::Wire ? static_cast<Wire *>(ptr) : nullptr; }
-	Cell *cell() const { return type == Type::Cell ? static_cast<Cell *>(ptr) : nullptr; }
+	Wire *wire() ثابت { أرجع type == Type::Wire ? static_cast<Wire *>(ptr) : nullptr; }
+	Cell *cell() ثابت { أرجع type == Type::Cell ? static_cast<Cell *>(ptr) : nullptr; }
 
-	bool operator==(const ModuleItem &other) const { return ptr == other.ptr && type == other.type; }
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(ptr); return h; }
+	bool عامل==(ثابت Module_شے &other) ثابت { أرجع ptr == other.ptr && type == other.type; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت { h.eat(ptr); أرجع h; }
 };
 
-static inline void log_dump_val_worker(typename IdTree<ModuleItem>::Cursor cursor ) { log("%p ", cursor.target); log_dump_val_worker(cursor.scope_name); }
+ساكن مضمن فراغ log_dump_val_کامہ(typename Id_درخت<Module_شے>::Cursor cursor ) { لوگارتھم("%p ", cursor.نشانہ_2); log_dump_val_کامہ(cursor.scope_name); }
 
-template<typename T>
-static inline void log_dump_val_worker(const typename std::unique_ptr<T> &cursor ) { log("unique %p", cursor.get()); }
+سانچا<typename T>
+ساكن مضمن فراغ log_dump_val_کامہ(ثابت typename std::unique_ptr<T> &cursor ) { لوگارتھم("unique %p", cursor.get()); }
 
-template<typename O>
-std::vector<IdString> parse_hdlname(const O* object)
+سانچا<typename O>
+std::سمتیہ<IdString> parse_hdlname(ثابت O* object)
 {
 	TwinePool &twines = object->design()->twines();
 	IdString name = object->name;
-	std::vector<IdString> path;
-	for (auto const &item : object->get_hdlname_attribute())
-		path.push_back(twines.add("\\" + item));
-	bool synthetic = !name.isPublic() && !object->name.begins_with("$paramod")
+	std::سمتیہ<IdString> رستہ_2;
+	لكل (خودکار ثابت &شے : object->get_hdlname_attribute())
+		رستہ_2.ڈالو_پٹھ(twines.جوڑو("\\" + شے));
+	bool synthetic = !name.is_عوامی() && !object->name.begins_with("$paramod")
 			&& !object->name.begins_with("$abstract");
-	if (path.empty() && name.isPublic())
-		path.push_back(name);
-	if (!path.empty() && synthetic) {
-		path.pop_back();
-		path.push_back(name);
+	إذا (رستہ_2.خالی_تھاواں() && name.is_عوامی())
+		رستہ_2.ڈالو_پٹھ(name);
+	إذا (!رستہ_2.خالی_تھاواں() && synthetic) {
+		رستہ_2.نکالو_پٹھ();
+		رستہ_2.ڈالو_پٹھ(name);
 	}
-	return path;
+	أرجع رستہ_2;
 }
 
-template<typename O>
-std::pair<std::vector<IdString>, IdString> parse_scopename(const O* object)
+سانچا<typename O>
+std::pair<std::سمتیہ<IdString>, IdString> parse_scopename(ثابت O* object)
 {
 	TwinePool &twines = object->design()->twines();
-	std::vector<IdString> path;
+	std::سمتیہ<IdString> رستہ_2;
 	IdString trailing = object->name;
-	if (trailing.isPublic() || object->name.begins_with("$paramod") || object->name.begins_with("$abstract")) {
-		for (auto const &item : object->get_hdlname_attribute())
-			path.push_back(twines.add("\\" + item));
-		if (!path.empty()) {
-			trailing = path.back();
-			path.pop_back();
+	إذا (trailing.is_عوامی() || object->name.begins_with("$paramod") || object->name.begins_with("$abstract")) {
+		لكل (خودکار ثابت &شے : object->get_hdlname_attribute())
+			رستہ_2.ڈالو_پٹھ(twines.جوڑو("\\" + شے));
+		إذا (!رستہ_2.خالی_تھاواں()) {
+			trailing = رستہ_2.پٹھ();
+			رستہ_2.نکالو_پٹھ();
 		}
-	} else if (object->has_attribute(ID::hdlname)) {
-		for (auto const &item : object->get_hdlname_attribute())
-			path.push_back(twines.add("\\" + item));
-		if (!path.empty()) {
-			path.pop_back();
+	} وإلا إذا (object->has_attribute(ID::hdlname)) {
+		لكل (خودکار ثابت &شے : object->get_hdlname_attribute())
+			رستہ_2.ڈالو_پٹھ(twines.جوڑو("\\" + شے));
+		إذا (!رستہ_2.خالی_تھاواں()) {
+			رستہ_2.نکالو_پٹھ();
 		}
-	} else {
-		for (auto const &item : split_tokens(object->get_string_attribute(ID(scopename)), " "))
-			path.push_back(twines.add("\\" + item));
+	} وإلا {
+		لكل (خودکار ثابت &شے : ونڈو_ٹوکن(object->get_string_attribute(ID(scopename)), " "))
+			رستہ_2.ڈالو_پٹھ(twines.جوڑو("\\" + شے));
 	}
-	return {path, trailing};
+	أرجع {رستہ_2, trailing};
 }
 
-struct ModuleHdlnameIndex {
-	typedef IdTree<ModuleItem>::Cursor Cursor;
+بنية Module_Hdlname_اشاریہ {
+	تعريفنوع Id_درخت<Module_شے>::Cursor Cursor;
 
 	RTLIL::Module *module;
-	IdTree<ModuleItem> tree;
-	dict<ModuleItem, Cursor> lookup;
+	Id_درخت<Module_شے> درخت;
+	dict<Module_شے, Cursor> lookup;
 
-	ModuleHdlnameIndex(RTLIL::Module *module) : module(module) {}
+	Module_Hdlname_اشاریہ(RTLIL::Module *module) : module(module) {}
 
-private:
-	template<typename I, typename Filter>
-	void index_items(I begin, I end, Filter filter);
+خاص:
+	سانچا<typename I, typename Filter>
+	فراغ اشاریہ_اشیاء(I begin, I سرا, Filter filter);
 
-public:
+عام:
 	// Index all wires and cells of the module
-	void index();
+	فراغ اشاریہ();
 
 	// Index all wires of the module
-	void index_wires();
+	فراغ اشاریہ_wires();
 
 	// Index all cells of the module
-	void index_cells();
+	فراغ اشاریہ_cells();
 
 	// Index only the $scopeinfo cells of the module.
 	// This is sufficient when using `containing_scope`.
-	void index_scopeinfo_cells();
+	فراغ اشاریہ_scopeinfo_cells();
 
 
 	// Return the cursor for the containing scope of some RTLIL object (Wire/Cell/...)
-	template<typename O>
+	سانچا<typename O>
 	std::pair<Cursor, IdString> containing_scope(O *object) {
-		auto pair = parse_scopename(object);
-		return {tree.cursor(pair.first), pair.second};
+		خودکار pair = parse_scopename(object);
+		أرجع {درخت.cursor(pair.پہلا), pair.دوجا};
 	}
 
 	// Return a vector of source locations starting from the indexed module to
 	// the scope represented by the cursor. The vector alternates module and
 	// module item source locations, using empty strings for missing src
 	// attributes.
-	std::vector<std::string> scope_sources(Cursor cursor);
+	std::سمتیہ<std::string> scope_sources(Cursor cursor);
 
 	// Return a vector of source locations starting from the indexed module to
 	// the passed RTLIL object (Wire/Cell/...). The vector alternates module
 	// and module item source locations, using empty strings for missing src
 	// attributes.
-	template<typename O>
-	std::vector<std::string> sources(O *object) {
-		auto pair = parse_scopename(object);
-		std::vector<std::string> result = scope_sources(tree.cursor(pair.first));
-		result.push_back(object->get_src_attribute());
-		return result;
+	سانچا<typename O>
+	std::سمتیہ<std::string> sources(O *object) {
+		خودکار pair = parse_scopename(object);
+		std::سمتیہ<std::string> نتیجہ = scope_sources(درخت.cursor(pair.پہلا));
+		نتیجہ.ڈالو_پٹھ(object->get_src_attribute());
+		أرجع نتیجہ;
 	}
 };
 
-enum class ScopeinfoAttrs {
+تعداد class ScopeinfoAttrs {
 	Module,
 	Cell,
 };
 
 // Check whether the flattened module or flattened cell corresponding to a $scopeinfo cell had a specific attribute.
-bool scopeinfo_has_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
+bool scopeinfo_has_attribute(ثابت RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
 
 // Get a specific attribute from the flattened module or flattened cell corresponding to a $scopeinfo cell.
-RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
+RTLIL::Const scopeinfo_get_attribute(ثابت RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
 
 // Get all attribute from the flattened module or flattened cell corresponding to a $scopeinfo cell.
-dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs);
+dict<RTLIL::IdString, RTLIL::Const> scopeinfo_گن(ثابت RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs);
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_سرا
 
-#endif
+#جے_انت

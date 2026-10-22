@@ -17,70 +17,70 @@
  *
  */
 
-#ifndef FSTDATA_H
-#define FSTDATA_H
+#جے_بنا_تعریف FSTDATA_H
+#تعریف_کرو FSTDATA_H
 
-#include "kernel/yosys.h"
-#include "libs/fst/fstapi.h"
+#ضمن "kernel/yosys.h"
+#ضمن "libs/fst/fstapi.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-typedef std::function<void(uint64_t)> CallbackFunction;
-struct fst_end_of_data_exception { };
+تعريفنوع std::function<فراغ(uint64_t)> CallbackFunction;
+بنية fst_سرا_دا_انکڑے_exception { };
 
-struct FstVar
+بنية FstVar
 {
 	fstHandle id;
 	std::string name;
 	bool is_alias;
 	bool is_reg;
 	std::string scope;
-	int width;
+	صحيح چوڑائی;
 };
 
-class FstData
+class Fst_انکڑے
 {
-	public:
-	FstData(std::string filename);
-	~FstData();
+	عام:
+	Fst_انکڑے(std::string filename);
+	~Fst_انکڑے();
 
-	uint64_t getStartTime();
-	uint64_t getEndTime();
+	uint64_t get_شروع_ویلا();
+	uint64_t get_سرا_ویلا();
 
-	std::vector<FstVar>& getVars() { return vars; };
+	std::سمتیہ<FstVar>& getVars() { أرجع vars; };
 
-	void reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t plen);
-	void reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start_time, uint64_t end_time, unsigned int end_cycle, CallbackFunction cb);
+	فراغ reconstruct_callback_attimes(uint64_t pnt_ویلا, fstHandle pnt_facidx, ثابت بنانشانی حرف *pnt_قدر, uint32_t plen);
+	فراغ reconstructAllAtTimes(std::سمتیہ<fstHandle> &إشارة, uint64_t شروع_ویلا, uint64_t سرا_ویلا, بنانشانی صحيح سرا_چکر, CallbackFunction cb);
 
-	std::string valueOf(fstHandle signal);
+	std::string قدر_دا(fstHandle إشارة);
 	fstHandle getHandle(std::string name);
-	dict<int,fstHandle> getMemoryHandles(std::string name);
-	int getScale() { return scale; }
-	const char *getTimescaleString() { return timescale_str.c_str(); }
-private:
-	void extractVarNames();
+	dict<صحيح,fstHandle> get_حافظہ_Handles(std::string name);
+	صحيح getScale() { أرجع scale; }
+	ثابت حرف *getTimescaleString() { أرجع timescale_str.c_str(); }
+خاص:
+	فراغ کڈھو_Var_ناں();
 
-	struct fstReaderContext *ctx;
-	std::vector<FstVar> vars;
-	std::map<fstHandle, FstVar> handle_to_var;
-	std::map<std::string, fstHandle> name_to_handle;
-	std::map<std::string, dict<int, fstHandle>> memory_to_handle;
-	std::map<fstHandle, std::string> last_data;
-	uint64_t last_time;
-	std::map<fstHandle, std::string> past_data;
-	uint64_t past_time;
-	int scale; // exponent of 10, e.g. -6 = us, -9 = ns
+	بنية fstReaderContext *ctx;
+	std::سمتیہ<FstVar> vars;
+	std::map<fstHandle, FstVar> handle_منزل_var;
+	std::map<std::string, fstHandle> name_منزل_handle;
+	std::map<std::string, dict<صحيح, fstHandle>> حافظہ_منزل_handle;
+	std::map<fstHandle, std::string> آخری_انکڑے;
+	uint64_t آخری_ویلا;
+	std::map<fstHandle, std::string> past_انکڑے;
+	uint64_t past_ویلا;
+	صحيح scale; // exponent of 10, e.g. -6 = us, -9 = ns
 	std::string timescale_str;
-	uint64_t start_time;
-	uint64_t end_time;
-	unsigned int last_cycle;
-	unsigned int curr_cycle;
+	uint64_t شروع_ویلا;
+	uint64_t سرا_ویلا;
+	بنانشانی صحيح آخری_چکر;
+	بنانشانی صحيح curr_چکر;
 	CallbackFunction callback;
-	std::vector<fstHandle> clk_signals;
+	std::سمتیہ<fstHandle> clk_اشارے;
 	bool all_samples;
 	std::string tmp_file;
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_سرا
 
-#endif
+#جے_انت
