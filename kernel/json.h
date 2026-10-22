@@ -20,9 +20,9 @@
 #ifndef JSON_H
 #define JSON_H
 
-#include "kernel/yosys.h"
-#include "libs/json11/json11.hpp"
-#include <functional>
+#ضمن "kernel/yosys.h"
+#ضمن "libs/json11/json11.hpp"
+#ضمن <functional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -30,69 +30,69 @@ using json11::Json;
 
 class PrettyJson
 {
-    enum Scope {
-        VALUE,
+    تعداد Scope {
+        بەها_2,
         OBJECT_FIRST,
         OBJECT,
         ARRAY_FIRST,
         ARRAY,
     };
 
-    struct Target {
-        virtual void emit(const char *data) = 0;
-        virtual void flush() {};
+    بنية Target {
+        virtual فراغ emit(ثابت حرف *data) = 0;
+        virtual فراغ flush() {};
         virtual ~Target() {};
     };
 
     std::string newline_indent = "\n";
     std::vector<std::unique_ptr<Target>> targets;
-    std::vector<Scope> state = {VALUE};
-    int compact_depth = INT_MAX;
-public:
+    std::vector<Scope> state = {بەها_2};
+    صحيح compact_depth = INT_MAX;
+عام:
 
-    void emit_to_log();
-    void append_to_string(std::string &target);
-    bool write_to_file(const std::string &path);
+    فراغ emit_to_log();
+    فراغ append_to_string(std::string &target);
+    bool write_to_file(ثابت std::string &path);
 
-    bool active() { return !targets.empty(); }
+    bool active() { أرجع !targets.empty(); }
 
-    void compact() { compact_depth = GetSize(state); }
+    فراغ compact() { compact_depth = GetSize(state); }
 
-    void line(bool space_if_inline = true);
-    void raw(const char *raw_json);
-    void flush();
-    void begin_object();
-    void begin_array();
-    void end_object();
-    void end_array();
-    void name(const char *name);
-    void begin_value();
-    void end_value();
-    void value_json(const Json &value);
-    void value(unsigned int value) { value_json(Json((int)value)); }
+    فراغ هێڵ(bool space_if_inline = true);
+    فراغ raw(ثابت حرف *raw_json);
+    فراغ flush();
+    فراغ begin_object();
+    فراغ begin_array();
+    فراغ end_object();
+    فراغ end_array();
+    فراغ name(ثابت حرف *name);
+    فراغ begin_بەها();
+    فراغ end_بەها();
+    فراغ بەها_json(ثابت Json &بەها);
+    فراغ بەها(unsigned صحيح بەها) { بەها_json(Json((صحيح)بەها)); }
     template<typename T>
-    void value(T &&value) { value_json(Json(std::forward<T>(value))); };
+    فراغ بەها(T &&بەها) { بەها_json(Json(std::forward<T>(بەها))); };
 
-    void entry_json(const char *name, const Json &value);
-    void entry(const char *name, unsigned int value) { entry_json(name, Json((int)value)); }
+    فراغ entry_json(ثابت حرف *name, ثابت Json &بەها);
+    فراغ entry(ثابت حرف *name, unsigned صحيح بەها) { entry_json(name, Json((صحيح)بەها)); }
     template<typename T>
-    void entry(const char *name, T &&value) { entry_json(name, Json(std::forward<T>(value))); };
+    فراغ entry(ثابت حرف *name, T &&بەها) { entry_json(name, Json(std::forward<T>(بەها))); };
 
     template<typename T>
-    void object(const T &&values)
+    فراغ object(ثابت T &&بەهاکان)
     {
         begin_object();
-        for (auto &item : values)
+        لكل (auto &item : بەهاکان)
             entry(item.first, item.second);
         end_object();
     }
 
     template<typename T>
-    void array(const T &&values)
+    فراغ array(ثابت T &&بەهاکان)
     {
         begin_array();
-        for (auto &item : values)
-            value(item);
+        لكل (auto &item : بەهاکان)
+            بەها(item);
         end_array();
     }
 };
