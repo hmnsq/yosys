@@ -20,133 +20,133 @@
 #ifndef MODTOOLS_H
 #define MODTOOLS_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/celltypes.h"
-#include "kernel/newcelltypes.h"
+#अन्तर्भाव "kernel/yosys.h"
+#अन्तर्भाव "kernel/sigtools.h"
+#अन्तर्भाव "kernel/celltypes.h"
+#अन्तर्भाव "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct ModIndex : public RTLIL::Monitor
+संरचना ModIndex : सार्वजनिक RTLIL::Monitor
 {
-	struct PointerOrderedSigBit : public RTLIL::SigBit {
+	संरचना PointerOrderedSigBit : सार्वजनिक RTLIL::SigBit {
 		PointerOrderedSigBit(SigBit s) {
 			wire = s.wire;
-			if (wire)
+			यदि (wire)
 				offset = s.offset;
-			else
+			अन्यथा
 				data = s.data;
 		}
-		inline bool operator<(const RTLIL::SigBit &other) const {
-			if (wire == other.wire)
-				return wire ? (offset < other.offset) : (data < other.data);
-			if (wire != nullptr && other.wire != nullptr)
-				return wire < other.wire; // look here
-			return (wire != nullptr) < (other.wire != nullptr);
+		अन्तःस्थ bool operator<(ध्रुव RTLIL::SigBit &other) ध्रुव {
+			यदि (wire == other.wire)
+				प्रत्यागम wire ? (offset < other.offset) : (data < other.data);
+			यदि (wire != nullptr && other.wire != nullptr)
+				प्रत्यागम wire < other.wire; // look here
+			प्रत्यागम (wire != nullptr) < (other.wire != nullptr);
 		}
 	};
-	struct PortInfo {
+	संरचना PortInfo {
 		RTLIL::Cell* cell;
 		RTLIL::IdString port;
-		int offset;
+		पूर्णाङ्क offset;
 
 		PortInfo() : cell(), port(), offset() { }
-		PortInfo(RTLIL::Cell* _c, RTLIL::IdString _p, int _o) : cell(_c), port(_p), offset(_o) { }
+		PortInfo(RTLIL::Cell* _c, RTLIL::IdString _p, पूर्णाङ्क _o) : cell(_c), port(_p), offset(_o) { }
 
-		bool operator<(const PortInfo &other) const {
-			if (cell != other.cell)
-				return cell < other.cell;
-			if (offset != other.offset)
-				return offset < other.offset;
-			return port < other.port;
+		bool operator<(ध्रुव PortInfo &other) ध्रुव {
+			यदि (cell != other.cell)
+				प्रत्यागम cell < other.cell;
+			यदि (offset != other.offset)
+				प्रत्यागम offset < other.offset;
+			प्रत्यागम port < other.port;
 		}
 
-		bool operator==(const PortInfo &other) const {
-			return cell == other.cell && port == other.port && offset == other.offset;
+		bool operator==(ध्रुव PortInfo &other) ध्रुव {
+			प्रत्यागम cell == other.cell && port == other.port && offset == other.offset;
 		}
 
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव {
 			h.eat(cell->name);
 			h.eat(port);
 			h.eat(offset);
-			return h;
+			प्रत्यागम h;
 		}
 	};
 
-	struct SigBitInfo
+	संरचना SigBitInfo
 	{
-		bool is_input, is_output;
+		bool is_निवेश, is_output;
 		pool<PortInfo> ports;
 
-		SigBitInfo() : is_input(false), is_output(false) { }
+		SigBitInfo() : is_निवेश(false), is_output(false) { }
 
-		bool operator==(const SigBitInfo &other) const {
-			return is_input == other.is_input && is_output == other.is_output && ports == other.ports;
+		bool operator==(ध्रुव SigBitInfo &other) ध्रुव {
+			प्रत्यागम is_निवेश == other.is_निवेश && is_output == other.is_output && ports == other.ports;
 		}
 
-		void merge(const SigBitInfo &other)
+		शून्य merge(ध्रुव SigBitInfo &other)
 		{
-			is_input = is_input || other.is_input;
+			is_निवेश = is_निवेश || other.is_निवेश;
 			is_output = is_output || other.is_output;
-			ports.insert(other.ports.begin(), other.ports.end());
+			ports.जोड़ो(other.ports.begin(), other.ports.end());
 		}
 	};
 
 	SigMap sigmap;
 	RTLIL::Module *module;
 	std::map<PointerOrderedSigBit, SigBitInfo> database;
-	int auto_reload_counter;
+	पूर्णाङ्क auto_reload_counter;
 	bool auto_reload_module;
 
-	void port_add(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &sig)
+	शून्य port_add(RTLIL::Cell *cell, RTLIL::IdString port, ध्रुव RTLIL::SigSpec &sig)
 	{
-		for (int i = 0; i < GetSize(sig); i++) {
+		प्रति (पूर्णाङ्क i = 0; i < GetSize(sig); i++) {
 			RTLIL::SigBit bit = sigmap(sig[i]);
-			if (bit.wire)
-				database[bit].ports.insert(PortInfo(cell, port, i));
+			यदि (bit.wire)
+				database[bit].ports.जोड़ो(PortInfo(cell, port, i));
 		}
 	}
 
-	void port_del(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &sig)
+	शून्य port_del(RTLIL::Cell *cell, RTLIL::IdString port, ध्रुव RTLIL::SigSpec &sig)
 	{
-		for (int i = 0; i < GetSize(sig); i++) {
+		प्रति (पूर्णाङ्क i = 0; i < GetSize(sig); i++) {
 			RTLIL::SigBit bit = sigmap(sig[i]);
-			if (bit.wire) {
+			यदि (bit.wire) {
 				database[bit].ports.erase(PortInfo(cell, port, i));
-				if (!database[bit].is_input && !database[bit].is_output && database[bit].ports.empty())
+				यदि (!database[bit].is_निवेश && !database[bit].is_output && database[bit].ports.empty())
 					database.erase(bit);
 			}
 		}
 	}
 
-	const SigBitInfo &info(RTLIL::SigBit bit)
+	ध्रुव SigBitInfo &info(RTLIL::SigBit bit)
 	{
-		return database[sigmap(bit)];
+		प्रत्यागम database[sigmap(bit)];
 	}
 
-	void reload_module(bool reset_sigmap = true)
+	शून्य reload_module(bool reset_sigmap = true)
 	{
-		if (reset_sigmap) {
+		यदि (reset_sigmap) {
 			sigmap.clear();
 			sigmap.set(module);
 		}
 
 		database.clear();
-		for (auto wire : module->wires())
-			if (wire->port_input || wire->port_output)
-				for (int i = 0; i < GetSize(wire); i++) {
+		प्रति (auto wire : module->wires())
+			यदि (wire->port_निवेश || wire->port_output)
+				प्रति (पूर्णाङ्क i = 0; i < GetSize(wire); i++) {
 					RTLIL::SigBit bit = sigmap(RTLIL::SigBit(wire, i));
-					if (bit.wire && wire->port_input)
-						database[bit].is_input = true;
-					if (bit.wire && wire->port_output)
+					यदि (bit.wire && wire->port_निवेश)
+						database[bit].is_निवेश = true;
+					यदि (bit.wire && wire->port_output)
 						database[bit].is_output = true;
 				}
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
+		प्रति (auto cell : module->cells())
+			प्रति (auto &conn : cell->connections())
 				port_add(cell, conn.first, conn.second);
 
-		if (auto_reload_module) {
-			if (++auto_reload_counter > 2)
+		यदि (auto_reload_module) {
+			यदि (++auto_reload_counter > 2)
 				log_warning("Auto-reload in ModIndex -- possible performance bug!\n");
 			auto_reload_module = false;
 		}
@@ -155,101 +155,101 @@ struct ModIndex : public RTLIL::Monitor
 	bool ok()
 	{
 #ifndef NDEBUG
-		if (auto_reload_module)
-			return true;
+		यदि (auto_reload_module)
+			प्रत्यागम true;
 
-		for (auto it : database)
+		प्रति (auto it : database)
 			log_assert(it.first == sigmap(it.first));
 
 		auto database_bak = std::move(database);
 		reload_module(false);
 
-		if (!(database == database_bak))
+		यदि (!(database == database_bak))
 		{
-			for (auto &it : database_bak)
-				if (!database.count(it.first))
+			प्रति (auto &it : database_bak)
+				यदि (!database.गिनती(it.first))
 					log("ModuleIndex::check(): Only in database_bak, not database: %s\n", log_signal(it.first));
 
-			for (auto &it : database)
-				if (!database_bak.count(it.first))
+			प्रति (auto &it : database)
+				यदि (!database_bak.गिनती(it.first))
 					log("ModuleIndex::check(): Only in database, not database_bak: %s\n", log_signal(it.first));
-				else if (!(it.second == database_bak.at(it.first)))
+				अन्यथा यदि (!(it.second == database_bak.at(it.first)))
 					log("ModuleIndex::check(): Different content for database[%s].\n", log_signal(it.first));
 
-			return false;
+			प्रत्यागम false;
 		}
 #endif
-		return true;
+		प्रत्यागम true;
 	}
 
-	void check()
+	शून्य check()
 	{
 		log_assert(ok());
 	}
 
-	void notify_connect(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &old_sig, const RTLIL::SigSpec &sig) override
+	शून्य notify_connect(RTLIL::Cell *cell, RTLIL::IdString port, ध्रुव RTLIL::SigSpec &old_sig, ध्रुव RTLIL::SigSpec &sig) override
 	{
 		log_assert(module == cell->module);
 
-		if (auto_reload_module)
-			return;
+		यदि (auto_reload_module)
+			प्रत्यागम;
 
 		port_del(cell, port, old_sig);
 		port_add(cell, port, sig);
 	}
 
-	void notify_connect(RTLIL::Module *mod, const RTLIL::SigSig &sigsig) override
+	शून्य notify_connect(RTLIL::Module *mod, ध्रुव RTLIL::SigSig &sigsig) override
 	{
 		log_assert(module == mod);
 
-		if (auto_reload_module)
-			return;
+		यदि (auto_reload_module)
+			प्रत्यागम;
 
-		for (int i = 0; i < GetSize(sigsig.first); i++)
+		प्रति (पूर्णाङ्क i = 0; i < GetSize(sigsig.first); i++)
 		{
 			RTLIL::SigBit lhs = sigmap(sigsig.first[i]);
 			RTLIL::SigBit rhs = sigmap(sigsig.second[i]);
-			bool has_lhs = database.count(lhs) != 0;
-			bool has_rhs = database.count(rhs) != 0;
+			bool has_lhs = database.गिनती(lhs) != 0;
+			bool has_rhs = database.गिनती(rhs) != 0;
 
-			if (!has_lhs && !has_rhs) {
+			यदि (!has_lhs && !has_rhs) {
 				sigmap.add(lhs, rhs);
-			} else
-			if (!has_rhs) {
+			} अन्यथा
+			यदि (!has_rhs) {
 				SigBitInfo new_info = database.at(lhs);
 				database.erase(lhs);
 				sigmap.add(lhs, rhs);
 				lhs = sigmap(lhs);
-				if (lhs.wire)
+				यदि (lhs.wire)
 					database[lhs] = new_info;
-			} else
-			if (!has_lhs) {
+			} अन्यथा
+			यदि (!has_lhs) {
 				SigBitInfo new_info = database.at(rhs);
 				database.erase(rhs);
 				sigmap.add(lhs, rhs);
 				rhs = sigmap(rhs);
-				if (rhs.wire)
+				यदि (rhs.wire)
 					database[rhs] = new_info;
-			} else {
+			} अन्यथा {
 				SigBitInfo new_info = database.at(lhs);
 				new_info.merge(database.at(rhs));
 				database.erase(lhs);
 				database.erase(rhs);
 				sigmap.add(lhs, rhs);
 				rhs = sigmap(rhs);
-				if (rhs.wire)
+				यदि (rhs.wire)
 					database[rhs] = new_info;
 			}
 		}
 	}
 
-	void notify_connect(RTLIL::Module *mod, const std::vector<RTLIL::SigSig>&) override
+	शून्य notify_connect(RTLIL::Module *mod, ध्रुव std::vector<RTLIL::SigSig>&) override
 	{
 		log_assert(module == mod);
 		auto_reload_module = true;
 	}
 
-	void notify_blackout(RTLIL::Module *mod) override
+	शून्य notify_blackout(RTLIL::Module *mod) override
 	{
 		log_assert(module == mod);
 		auto_reload_module = true;
@@ -259,7 +259,7 @@ struct ModIndex : public RTLIL::Monitor
 	{
 		auto_reload_counter = 0;
 		auto_reload_module = true;
-		module->monitors.insert(this);
+		module->monitors.जोड़ो(this);
 	}
 
 	~ModIndex()
@@ -269,89 +269,89 @@ struct ModIndex : public RTLIL::Monitor
 
 	SigBitInfo *query(RTLIL::SigBit bit)
 	{
-		if (auto_reload_module)
+		यदि (auto_reload_module)
 			reload_module();
 
 		auto it = database.find(sigmap(bit));
-		if (it == database.end())
-			return nullptr;
-		else
-			return &it->second;
+		यदि (it == database.end())
+			प्रत्यागम nullptr;
+		अन्यथा
+			प्रत्यागम &it->second;
 	}
 
-	bool query_is_input(RTLIL::SigBit bit)
+	bool query_is_निवेश(RTLIL::SigBit bit)
 	{
-		const SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return false;
-		return info->is_input;
+		ध्रुव SigBitInfo *info = query(bit);
+		यदि (info == nullptr)
+			प्रत्यागम false;
+		प्रत्यागम info->is_निवेश;
 	}
 
 	bool query_is_output(RTLIL::SigBit bit)
 	{
-		const SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return false;
-		return info->is_output;
+		ध्रुव SigBitInfo *info = query(bit);
+		यदि (info == nullptr)
+			प्रत्यागम false;
+		प्रत्यागम info->is_output;
 	}
 
 	pool<PortInfo> &query_ports(RTLIL::SigBit bit)
 	{
-		static pool<PortInfo> empty_result_set;
+		स्थिर pool<PortInfo> empty_result_set;
 		SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return empty_result_set;
-		return info->ports;
+		यदि (info == nullptr)
+			प्रत्यागम empty_result_set;
+		प्रत्यागम info->ports;
 	}
 
-	void dump_db()
+	शून्य dump_db()
 	{
 		log("--- ModIndex Dump ---\n");
 
-		if (auto_reload_module) {
+		यदि (auto_reload_module) {
 			log("AUTO-RELOAD\n");
 			reload_module();
 		}
 
-		for (auto &it : database) {
+		प्रति (auto &it : database) {
 			log("BIT %s:\n", log_signal(it.first));
-			if (it.second.is_input)
+			यदि (it.second.is_निवेश)
 				log("  PRIMARY INPUT\n");
-			if (it.second.is_output)
+			यदि (it.second.is_output)
 				log("  PRIMARY OUTPUT\n");
-			for (auto &port : it.second.ports)
+			प्रति (auto &port : it.second.ports)
 				log("  PORT: %s.%s[%d] (%s)\n", port.cell,
 						PooledName(module, port.port).unescape(), port.offset, port.cell->type.unescape());
 		}
 	}
 };
 
-struct ModWalker
+संरचना ModWalker
 {
-	struct PortBit
+	संरचना PortBit
 	{
 		RTLIL::Cell *cell;
 		RTLIL::IdString port;
-		int offset;
-		PortBit(Cell* c, IdString p, int o) : cell(c), port(p), offset(o) {}
+		पूर्णाङ्क offset;
+		PortBit(Cell* c, IdString p, पूर्णाङ्क o) : cell(c), port(p), offset(o) {}
 
-		bool operator<(const PortBit &other) const {
-			if (cell != other.cell)
-				return cell < other.cell;
-			if (port != other.port)
-				return port < other.port;
-			return offset < other.offset;
+		bool operator<(ध्रुव PortBit &other) ध्रुव {
+			यदि (cell != other.cell)
+				प्रत्यागम cell < other.cell;
+			यदि (port != other.port)
+				प्रत्यागम port < other.port;
+			प्रत्यागम offset < other.offset;
 		}
 
-		bool operator==(const PortBit &other) const {
-			return cell == other.cell && port == other.port && offset == other.offset;
+		bool operator==(ध्रुव PortBit &other) ध्रुव {
+			प्रत्यागम cell == other.cell && port == other.port && offset == other.offset;
 		}
 
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव {
 			h.eat(cell->name);
 			h.eat(port);
 			h.eat(offset);
-			return h;
+			प्रत्यागम h;
 		}
 	};
 
@@ -367,60 +367,60 @@ struct ModWalker
 
 	dict<RTLIL::Cell*, pool<RTLIL::SigBit>> cell_outputs, cell_inputs;
 
-	void add_wire(RTLIL::Wire *wire)
+	शून्य add_wire(RTLIL::Wire *wire)
 	{
-		if (wire->port_input) {
+		यदि (wire->port_निवेश) {
 			std::vector<RTLIL::SigBit> bits = sigmap(wire);
-			for (auto bit : bits)
-				if (bit.wire != NULL)
-					signal_inputs.insert(bit);
+			प्रति (auto bit : bits)
+				यदि (bit.wire != रिक्त)
+					signal_inputs.जोड़ो(bit);
 		}
 
-		if (wire->port_output) {
+		यदि (wire->port_output) {
 			std::vector<RTLIL::SigBit> bits = sigmap(wire);
-			for (auto bit : bits)
-				if (bit.wire != NULL)
-					signal_outputs.insert(bit);
+			प्रति (auto bit : bits)
+				यदि (bit.wire != रिक्त)
+					signal_outputs.जोड़ो(bit);
 		}
 	}
 
-	void add_cell_port(RTLIL::Cell *cell, RTLIL::IdString port, std::vector<RTLIL::SigBit> bits, bool is_output, bool is_input)
+	शून्य add_cell_port(RTLIL::Cell *cell, RTLIL::IdString port, std::vector<RTLIL::SigBit> bits, bool is_output, bool is_निवेश)
 	{
-		for (int i = 0; i < int(bits.size()); i++)
-			if (bits[i].wire != NULL) {
+		प्रति (पूर्णाङ्क i = 0; i < पूर्णाङ्क(bits.size()); i++)
+			यदि (bits[i].wire != रिक्त) {
 				PortBit pbit {cell, port, i};
-				if (is_output) {
-					signal_drivers[bits[i]].insert(pbit);
-					cell_outputs[cell].insert(bits[i]);
+				यदि (is_output) {
+					signal_drivers[bits[i]].जोड़ो(pbit);
+					cell_outputs[cell].जोड़ो(bits[i]);
 				}
-				if (is_input) {
-					signal_consumers[bits[i]].insert(pbit);
-					cell_inputs[cell].insert(bits[i]);
+				यदि (is_निवेश) {
+					signal_consumers[bits[i]].जोड़ो(pbit);
+					cell_inputs[cell].जोड़ो(bits[i]);
 				}
 			}
 	}
 
-	void add_cell(RTLIL::Cell *cell)
+	शून्य add_cell(RTLIL::Cell *cell)
 	{
-		if (ct.cell_known(cell->type)) {
-			for (auto &conn : cell->connections())
+		यदि (ct.cell_known(cell->type)) {
+			प्रति (auto &conn : cell->connections())
 				add_cell_port(cell, conn.first, sigmap(conn.second),
 						ct.cell_output(cell->type, conn.first),
-						ct.cell_input(cell->type, conn.first));
-		} else {
-			for (auto &conn : cell->connections())
+						ct.cell_निवेश(cell->type, conn.first));
+		} अन्यथा {
+			प्रति (auto &conn : cell->connections())
 				add_cell_port(cell, conn.first, sigmap(conn.second), true, true);
 		}
 	}
 
-	ModWalker(RTLIL::Design *design, RTLIL::Module *module = nullptr) : design(design), module(NULL)
+	ModWalker(RTLIL::Design *design, RTLIL::Module *module = nullptr) : design(design), module(रिक्त)
 	{
 		ct.setup(design);
-		if (module)
+		यदि (module)
 			setup(module);
 	}
 
-	void setup(RTLIL::Module *module, CellTypes *filter_ct = NULL)
+	शून्य setup(RTLIL::Module *module, CellTypes *filter_ct = रिक्त)
 	{
 		this->module = module;
 
@@ -433,173 +433,173 @@ struct ModWalker
 		cell_inputs.clear();
 		cell_outputs.clear();
 
-		for (auto &it : module->wires_)
+		प्रति (auto &it : module->wires_)
 			add_wire(it.second);
-		for (auto &it : module->cells_)
-			if (filter_ct == NULL || filter_ct->cell_known(it.second->type))
+		प्रति (auto &it : module->cells_)
+			यदि (filter_ct == रिक्त || filter_ct->cell_known(it.second->type))
 				add_cell(it.second);
 	}
 
 	// get_* methods -- single RTLIL::SigBit
 
-	inline bool get_drivers(pool<PortBit> &result, RTLIL::SigBit bit) const
+	अन्तःस्थ bool get_drivers(pool<PortBit> &result, RTLIL::SigBit bit) ध्रुव
 	{
 		bool found = false;
-		if (signal_drivers.count(bit)) {
-			const pool<PortBit> &r = signal_drivers.at(bit);
-			result.insert(r.begin(), r.end());
+		यदि (signal_drivers.गिनती(bit)) {
+			ध्रुव pool<PortBit> &r = signal_drivers.at(bit);
+			result.जोड़ो(r.begin(), r.end());
 			found = true;
 		}
-		return found;
+		प्रत्यागम found;
 	}
 
-	inline bool get_consumers(pool<PortBit> &result, RTLIL::SigBit bit) const
+	अन्तःस्थ bool get_consumers(pool<PortBit> &result, RTLIL::SigBit bit) ध्रुव
 	{
 		bool found = false;
-		if (signal_consumers.count(bit)) {
-			const pool<PortBit> &r = signal_consumers.at(bit);
-			result.insert(r.begin(), r.end());
+		यदि (signal_consumers.गिनती(bit)) {
+			ध्रुव pool<PortBit> &r = signal_consumers.at(bit);
+			result.जोड़ो(r.begin(), r.end());
 			found = true;
 		}
-		return found;
+		प्रत्यागम found;
 	}
 
-	inline bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
+	अन्तःस्थ bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) ध्रुव
 	{
 		bool found = false;
-		if (signal_inputs.count(bit))
-			result.insert(bit), found = true;
-		return found;
+		यदि (signal_inputs.गिनती(bit))
+			result.जोड़ो(bit), found = true;
+		प्रत्यागम found;
 	}
 
-	inline bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
+	अन्तःस्थ bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) ध्रुव
 	{
 		bool found = false;
-		if (signal_outputs.count(bit))
-			result.insert(bit), found = true;
-		return found;
+		यदि (signal_outputs.गिनती(bit))
+			result.जोड़ो(bit), found = true;
+		प्रत्यागम found;
 	}
 
 	// get_* methods -- container of RTLIL::SigBit's (always by reference)
 
 	template<typename T>
-	inline bool get_drivers(pool<PortBit> &result, const T &bits) const
+	अन्तःस्थ bool get_drivers(pool<PortBit> &result, ध्रुव T &bits) ध्रुव
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_drivers.count(bit)) {
-				const pool<PortBit> &r = signal_drivers.at(bit);
-				result.insert(r.begin(), r.end());
+		प्रति (RTLIL::SigBit bit : bits)
+			यदि (signal_drivers.गिनती(bit)) {
+				ध्रुव pool<PortBit> &r = signal_drivers.at(bit);
+				result.जोड़ो(r.begin(), r.end());
 				found = true;
 			}
-		return found;
+		प्रत्यागम found;
 	}
 
 	template<typename T>
-	inline bool get_consumers(pool<PortBit> &result, const T &bits) const
+	अन्तःस्थ bool get_consumers(pool<PortBit> &result, ध्रुव T &bits) ध्रुव
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_consumers.count(bit)) {
-				const pool<PortBit> &r = signal_consumers.at(bit);
-				result.insert(r.begin(), r.end());
+		प्रति (RTLIL::SigBit bit : bits)
+			यदि (signal_consumers.गिनती(bit)) {
+				ध्रुव pool<PortBit> &r = signal_consumers.at(bit);
+				result.जोड़ो(r.begin(), r.end());
 				found = true;
 			}
-		return found;
+		प्रत्यागम found;
 	}
 
 	template<typename T>
-	inline bool get_inputs(pool<RTLIL::SigBit> &result, const T &bits) const
+	अन्तःस्थ bool get_inputs(pool<RTLIL::SigBit> &result, ध्रुव T &bits) ध्रुव
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_inputs.count(bit))
-				result.insert(bit), found = true;
-		return found;
+		प्रति (RTLIL::SigBit bit : bits)
+			यदि (signal_inputs.गिनती(bit))
+				result.जोड़ो(bit), found = true;
+		प्रत्यागम found;
 	}
 
 	template<typename T>
-	inline bool get_outputs(pool<RTLIL::SigBit> &result, const T &bits) const
+	अन्तःस्थ bool get_outputs(pool<RTLIL::SigBit> &result, ध्रुव T &bits) ध्रुव
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_outputs.count(bit))
-				result.insert(bit), found = true;
-		return found;
+		प्रति (RTLIL::SigBit bit : bits)
+			यदि (signal_outputs.गिनती(bit))
+				result.जोड़ो(bit), found = true;
+		प्रत्यागम found;
 	}
 
 	// get_* methods -- call by RTLIL::SigSpec (always by value)
 
-	bool get_drivers(pool<PortBit> &result, RTLIL::SigSpec signal) const
+	bool get_drivers(pool<PortBit> &result, RTLIL::SigSpec सङ्केत) ध्रुव
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_drivers(result, bits);
+		std::vector<RTLIL::SigBit> bits = sigmap(सङ्केत);
+		प्रत्यागम get_drivers(result, bits);
 	}
 
-	bool get_consumers(pool<PortBit> &result, RTLIL::SigSpec signal) const
+	bool get_consumers(pool<PortBit> &result, RTLIL::SigSpec सङ्केत) ध्रुव
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_consumers(result, bits);
+		std::vector<RTLIL::SigBit> bits = sigmap(सङ्केत);
+		प्रत्यागम get_consumers(result, bits);
 	}
 
-	bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
+	bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec सङ्केत) ध्रुव
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_inputs(result, bits);
+		std::vector<RTLIL::SigBit> bits = sigmap(सङ्केत);
+		प्रत्यागम get_inputs(result, bits);
 	}
 
-	bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
+	bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec सङ्केत) ध्रुव
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_outputs(result, bits);
+		std::vector<RTLIL::SigBit> bits = sigmap(सङ्केत);
+		प्रत्यागम get_outputs(result, bits);
 	}
 
 	// has_* methods -- call by reference
 
 	template<typename T>
-	inline bool has_drivers(const T &sig) const {
+	अन्तःस्थ bool has_drivers(ध्रुव T &sig) ध्रुव {
 		pool<PortBit> result;
-		return get_drivers(result, sig);
+		प्रत्यागम get_drivers(result, sig);
 	}
 
 	template<typename T>
-	inline bool has_consumers(const T &sig) const {
+	अन्तःस्थ bool has_consumers(ध्रुव T &sig) ध्रुव {
 		pool<PortBit> result;
-		return get_consumers(result, sig);
+		प्रत्यागम get_consumers(result, sig);
 	}
 
 	template<typename T>
-	inline bool has_inputs(const T &sig) const {
+	अन्तःस्थ bool has_inputs(ध्रुव T &sig) ध्रुव {
 		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+		प्रत्यागम get_inputs(result, sig);
 	}
 
 	template<typename T>
-	inline bool has_outputs(const T &sig) const {
+	अन्तःस्थ bool has_outputs(ध्रुव T &sig) ध्रुव {
 		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+		प्रत्यागम get_outputs(result, sig);
 	}
 
 	// has_* methods -- call by value
 
-	inline bool has_drivers(RTLIL::SigSpec sig) const {
+	अन्तःस्थ bool has_drivers(RTLIL::SigSpec sig) ध्रुव {
 		pool<PortBit> result;
-		return get_drivers(result, sig);
+		प्रत्यागम get_drivers(result, sig);
 	}
 
-	inline bool has_consumers(RTLIL::SigSpec sig) const {
+	अन्तःस्थ bool has_consumers(RTLIL::SigSpec sig) ध्रुव {
 		pool<PortBit> result;
-		return get_consumers(result, sig);
+		प्रत्यागम get_consumers(result, sig);
 	}
 
-	inline bool has_inputs(RTLIL::SigSpec sig) const {
+	अन्तःस्थ bool has_inputs(RTLIL::SigSpec sig) ध्रुव {
 		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+		प्रत्यागम get_inputs(result, sig);
 	}
 
-	inline bool has_outputs(RTLIL::SigSpec sig) const {
+	अन्तःस्थ bool has_outputs(RTLIL::SigSpec sig) ध्रुव {
 		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+		प्रत्यागम get_outputs(result, sig);
 	}
 };
 
