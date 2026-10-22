@@ -17,108 +17,108 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/rtlil.h"
-#include "libs/json11/json11.hpp"
+#अन्तर्भाव "kernel/yosys.h"
+#अन्तर्भाव "kernel/rtlil.h"
+#अन्तर्भाव "libs/json11/json11.hpp"
 
 #ifdef YOSYS_ENABLE_TCL
-#include <tcl.h>
-#include <tclTomMath.h>
-#include <tclTomMathDecls.h>
+#अन्तर्भाव <tcl.h>
+#अन्तर्भाव <tclTomMath.h>
+#अन्तर्भाव <tclTomMathDecls.h>
 #endif
 
 YOSYS_NAMESPACE_BEGIN
 
 #ifdef YOSYS_ENABLE_TCL
-bool yosys_tcl_repl_active = false;
+तार्किक yosys_tcl_repl_active = मिच्छा;
 
-void yosys_tcl_activate_repl()
+शून्य yosys_tcl_activate_repl()
 {
-	yosys_tcl_repl_active = true;
+	yosys_tcl_repl_active = सच्च;
 }
 
-static Tcl_Obj *json_to_tcl(Tcl_Interp *interp, const json11::Json &json)
+स्थिर Tcl_Obj *json_to_tcl(Tcl_Interp *interp, ध्रुव json11::Json &json)
 {
-	if (json.is_null())
-		return Tcl_NewStringObj("null", 4);
-	else if (json.is_string()) {
-		auto string = json.string_value();
-		return Tcl_NewStringObj(string.data(), string.size());
-	} else if (json.is_number()) {
-		double value = json.number_value();
-		double round_val = std::nearbyint(value);
-		if (std::isfinite(round_val) && value == round_val && value >= LONG_MIN && value < -double(LONG_MIN))
-			return Tcl_NewLongObj((long)round_val);
-		else
-			return Tcl_NewDoubleObj(value);
-	} else if (json.is_bool()) {
-		return Tcl_NewBooleanObj(json.bool_value());
-	} else if (json.is_array()) {
-		auto list = json.array_items();
+	सचे (json.is_null())
+		पटिनिवत्त Tcl_NewStringObj("null", 4);
+	अञ्ञथा सचे (json.is_string()) {
+		auto string = json.string_मानम्();
+		पटिनिवत्त Tcl_NewStringObj(string.data(), string.size());
+	} अञ्ञथा सचे (json.is_सङ्ख्या()) {
+		द्विगुण मानम् = json.सङ्ख्या_मानम्();
+		द्विगुण round_val = std::nearbyint(मानम्);
+		सचे (std::isfinite(round_val) && मानम् == round_val && मानम् >= LONG_MIN && मानम् < -द्विगुण(LONG_MIN))
+			पटिनिवत्त Tcl_NewLongObj((long)round_val);
+		अञ्ञथा
+			पटिनिवत्त Tcl_NewDoubleObj(मानम्);
+	} अञ्ञथा सचे (json.is_bool()) {
+		पटिनिवत्त Tcl_NewBooleanObj(json.bool_मानम्());
+	} अञ्ञथा सचे (json.is_array()) {
+		auto list = json.array_वस्तूनि();
 		Tcl_Obj *result = Tcl_NewListObj(list.size(), nullptr);
-		for (auto &item : list)
+		अत्थाय (auto &item : list)
 			Tcl_ListObjAppendElement(interp, result, json_to_tcl(interp, item));
-		return result;
-	} else if (json.is_object()) {
-		auto map = json.object_items();
+		पटिनिवत्त result;
+	} अञ्ञथा सचे (json.is_object()) {
+		auto map = json.object_वस्तूनि();
 		Tcl_Obj *result = Tcl_NewListObj(map.size() * 2, nullptr);
-		for (auto &item : map) {
+		अत्थाय (auto &item : map) {
 			Tcl_ListObjAppendElement(interp, result, Tcl_NewStringObj(item.first.data(), item.first.size()));
 			Tcl_ListObjAppendElement(interp, result, json_to_tcl(interp, item.second));
 		}
-		return result;
-	} else {
+		पटिनिवत्त result;
+	} अञ्ञथा {
 		log_abort();
 	}
 }
 
-static int tcl_yosys_cmd(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+स्थिर पूर्णाङ्क tcl_yosys_cmd(ClientData, Tcl_Interp *interp, पूर्णाङ्क argc, ध्रुव वर्ण *argv[])
 {
 	std::vector<std::string> args;
-	for (int i = 1; i < argc; i++)
-		args.push_back(argv[i]);
+	अत्थाय (पूर्णाङ्क i = 1; i < argc; i++)
+		args.प्रक्षिप_back(argv[i]);
 
-	if (args.size() >= 1 && args[0] == "-import") {
-		for (auto &it : pass_register) {
+	सचे (args.size() >= 1 && args[0] == "-import") {
+		अत्थाय (auto &it : pass_register) {
 			std::string tcl_command_name = it.first;
-			if (tcl_command_name == "proc")
+			सचे (tcl_command_name == "proc")
 				tcl_command_name = "procs";
-			else if (tcl_command_name == "rename")
+			अञ्ञथा सचे (tcl_command_name == "rename")
 				tcl_command_name = "renames";
 			Tcl_CmdInfo info;
-			if (Tcl_GetCommandInfo(interp, tcl_command_name.c_str(), &info) != 0) {
+			सचे (Tcl_GetCommandInfo(interp, tcl_command_name.c_str(), &info) != 0) {
 				log("[TCL: yosys -import] Command name collision: found pre-existing command `%s' -> skip.\n", it.first);
-			} else {
+			} अञ्ञथा {
 				std::string tcl_script = stringf("proc %s args { yosys %s {*}$args }", tcl_command_name, it.first);
 				Tcl_Eval(interp, tcl_script.c_str());
 			}
 		}
-		return TCL_OK;
+		पटिनिवत्त TCL_OK;
 	}
 
 	yosys_get_design()->scratchpad_unset("result.json");
 	yosys_get_design()->scratchpad_unset("result.string");
 
-	bool in_repl = yosys_tcl_repl_active;
+	तार्किक in_repl = yosys_tcl_repl_active;
 	auto guard = logger().error_throw_scope();
-	try {
-		if (args.size() == 1) {
+	यत्न {
+		सचे (args.size() == 1) {
 			Pass::call(yosys_get_design(), args[0]);
-		} else {
+		} अञ्ञथा {
 			Pass::call(yosys_get_design(), args);
 		}
-	} catch (log_cmd_error_exception) {
-		if (in_repl) {
+	} गृहाण (log_cmd_error_exception) {
+		सचे (in_repl) {
 			auto design = yosys_get_design();
-			while (design->selection_stack.size() > 1)
-				design->pop_selection();
-			log_reset_stack();
+			याव (design->selection_राशिः.size() > 1)
+				design->निष्कासय_selection();
+			log_reset_राशिः();
 		}
-		Tcl_SetResult(interp, (char *)"Yosys command produced an error", TCL_STATIC);
+		Tcl_SetResult(interp, (वर्ण *)"Yosys command produced an error", TCL_STATIC);
 
 		yosys_tcl_repl_active = in_repl;
-		return TCL_ERROR;
-	} catch (...) {
+		पटिनिवत्त TCL_ERROR;
+	} गृहाण (...) {
 		log_error("uncaught exception during Yosys command invoked from TCL\n");
 	}
 
@@ -126,125 +126,125 @@ static int tcl_yosys_cmd(ClientData, Tcl_Interp *interp, int argc, const char *a
 
 	auto &scratchpad = yosys_get_design()->scratchpad;
 	auto result = scratchpad.find("result.json");
-	if (result != scratchpad.end()) {
+	सचे (result != scratchpad.end()) {
 		std::string err;
 		auto json = json11::Json::parse(result->second, err);
-		if (err.empty()) {
+		सचे (err.empty()) {
 			Tcl_SetObjResult(interp, json_to_tcl(interp, json));
-		} else
+		} अञ्ञथा
 			log_warning("Ignoring result.json scratchpad value due to parse error: %s\n", err);
-	} else if ((result = scratchpad.find("result.string")) != scratchpad.end()) {
+	} अञ्ञथा सचे ((result = scratchpad.find("result.string")) != scratchpad.end()) {
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(result->second.data(), result->second.size()));
 	}
 
-	return TCL_OK;
+	पटिनिवत्त TCL_OK;
 }
 
 #define FLAG(name) \
-	if (!strcmp(argv[i], "-" #name)) { \
-		name##_flag = true; \
-		continue; \
+	सचे (!strcmp(argv[i], "-" #name)) { \
+		name##_flag = सच्च; \
+		अनुवर्त; \
 	} \
 
 #define FLAG2(name) \
-	if (!strcmp(Tcl_GetString(objv[i]), "-" #name)) { \
-		name##_flag = true; \
-		continue; \
+	सचे (!strcmp(Tcl_GetString(objv[i]), "-" #name)) { \
+		name##_flag = सच्च; \
+		अनुवर्त; \
 	} \
 
 #define ERROR(str) \
 	{ \
-		Tcl_SetResult(interp, (char *)(str), TCL_STATIC); \
-		return TCL_ERROR; \
+		Tcl_SetResult(interp, (वर्ण *)(str), TCL_STATIC); \
+		पटिनिवत्त TCL_ERROR; \
 	}
 
-bool const_to_mp_int(const Const &a, mp_int *b, bool force_signed, bool force_unsigned)
+तार्किक const_to_mp_int(ध्रुव Const &a, mp_int *b, तार्किक force_signed, तार्किक force_unsigned)
 {
-	if (!a.is_fully_def())
-		return false;
+	सचे (!a.is_fully_def())
+		पटिनिवत्त मिच्छा;
 
-	if (mp_init(b))
-		return false;
+	सचे (mp_init(b))
+		पटिनिवत्त मिच्छा;
 
-	bool negative = ((a.flags & RTLIL::CONST_FLAG_SIGNED) || force_signed) &&
+	तार्किक negative = ((a.flags & RTLIL::CONST_FLAG_SIGNED) || force_signed) &&
 					!force_unsigned &&
 					!a.empty() && (a.back() == RTLIL::S1);
 
-	for (int i = a.size() - 1; i >= 0; i--) {
-		if (mp_mul_2d(b, 1, b)) {
+	अत्थाय (पूर्णाङ्क i = a.size() - 1; i >= 0; i--) {
+		सचे (mp_mul_2d(b, 1, b)) {
 			mp_clear(b);
-			return false;
+			पटिनिवत्त मिच्छा;
 		}
 
-		if ((a[i] == RTLIL::S1) ^ negative) {
-			if (mp_add_d(b, 1, b)) {
+		सचे ((a[i] == RTLIL::S1) ^ negative) {
+			सचे (mp_add_d(b, 1, b)) {
 				mp_clear(b);
-				return false;
+				पटिनिवत्त मिच्छा;
 			}
 		}
 	}
 
-	if (negative) {
-		if (mp_add_d(b, 1, b) || mp_neg(b, b)) {
+	सचे (negative) {
+		सचे (mp_add_d(b, 1, b) || mp_neg(b, b)) {
 			mp_clear(b);
-			return false;
+			पटिनिवत्त मिच्छा;
 		}
 	}
 
-	return true;
+	पटिनिवत्त सच्च;
 }
 
-bool mp_int_to_const(mp_int *a, Const &b, bool is_signed)
+तार्किक mp_int_to_const(mp_int *a, Const &b, तार्किक is_signed)
 {
-	bool negative = (mp_cmp_d(a, 0) == MP_LT);
-	if (negative && !is_signed)
-		return false;
+	तार्किक negative = (mp_cmp_d(a, 0) == MP_LT);
+	सचे (negative && !is_signed)
+		पटिनिवत्त मिच्छा;
 
-	if (negative) {
-		if (mp_neg(a, a) != MP_OKAY)
-			return false;
-		if (mp_sub_d(a, 1, a) != MP_OKAY)
-			return false;
+	सचे (negative) {
+		सचे (mp_neg(a, a) != MP_OKAY)
+			पटिनिवत्त मिच्छा;
+		सचे (mp_sub_d(a, 1, a) != MP_OKAY)
+			पटिनिवत्त मिच्छा;
 	}
 
-	std::vector<unsigned char> buf;
+	std::vector<unsigned वर्ण> buf;
 	buf.resize(mp_unsigned_bin_size(a));
-	if (mp_to_unsigned_bin(a, buf.data()) != MP_OKAY)
-		return false;
+	सचे (mp_to_unsigned_bin(a, buf.data()) != MP_OKAY)
+		पटिनिवत्त मिच्छा;
 
-	Const::Builder b_bits(mp_count_bits(a) + is_signed);
-	for (int i = 0; i < mp_count_bits(a);) {
-		for (int j = 0; j < 8 && i < mp_count_bits(a); j++, i++) {
-			bool bv = ((buf.back() & (1 << j)) != 0) ^ negative;
-			b_bits.push_back(bv ? RTLIL::S1 : RTLIL::S0);
+	Const::Builder b_bits(mp_गणनम्_bits(a) + is_signed);
+	अत्थाय (पूर्णाङ्क i = 0; i < mp_गणनम्_bits(a);) {
+		अत्थाय (पूर्णाङ्क j = 0; j < 8 && i < mp_गणनम्_bits(a); j++, i++) {
+			तार्किक bv = ((buf.back() & (1 << j)) != 0) ^ negative;
+			b_bits.प्रक्षिप_back(bv ? RTLIL::S1 : RTLIL::S0);
 		}
-		buf.pop_back();
+		buf.निष्कासय_back();
 	}
 
-	if (is_signed) {
-		b_bits.push_back(negative ? RTLIL::S1 : RTLIL::S0);
+	सचे (is_signed) {
+		b_bits.प्रक्षिप_back(negative ? RTLIL::S1 : RTLIL::S0);
 	}
 	b = b_bits.build();
 
-	return true;
+	पटिनिवत्त सच्च;
 }
 
-static int tcl_get_attr(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+स्थिर पूर्णाङ्क tcl_get_attr(ClientData, Tcl_Interp *interp, पूर्णाङ्क argc, ध्रुव वर्ण *argv[])
 {
-	int i;
-	bool mod_flag = false, string_flag = false, bool_flag = false;
-	bool int_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < argc; i++) {
+	पूर्णाङ्क i;
+	तार्किक mod_flag = मिच्छा, string_flag = मिच्छा, bool_flag = मिच्छा;
+	तार्किक int_flag = मिच्छा, sint_flag = मिच्छा, uint_flag = मिच्छा;
+	अत्थाय (i = 1; i < argc; i++) {
 		FLAG(mod)
 		FLAG(string)
-		FLAG(int)
+		FLAG(पूर्णाङ्क)
 		FLAG(sint)
 		FLAG(uint)
-		FLAG(bool)
-		break;
+		FLAG(तार्किक)
+		भङ्ग;
 	}
 
-	if ((mod_flag && i != argc - 2) ||
+	सचे ((mod_flag && i != argc - 2) ||
 			(!mod_flag && i != argc - 3) ||
 			(string_flag + int_flag + sint_flag + uint_flag + bool_flag > 1))
 		ERROR("bad usage: expected \"get_attr -mod [-string|-int|-sint|-uint|-bool] <module> <attrname>\""
@@ -252,120 +252,120 @@ static int tcl_get_attr(ClientData, Tcl_Interp *interp, int argc, const char *ar
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(argv[i++]);
-	if (!mod_flag)
+	सचे (!mod_flag)
 		obj_id = RTLIL::escape_id(argv[i++]);
 	attr_id = RTLIL::escape_id(argv[i++]);
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	सचे (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	सचे (mod_flag) {
 		obj = mod;
-	} else {
+	} अञ्ञथा {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		सचे (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		सचे (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		सचे (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	सचे (!obj)
 		ERROR("object not found")
 
 	IdString attr_twine = yosys_design->twines().find(attr_id);
 
-	if (string_flag) {
+	सचे (string_flag) {
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(obj->get_string_attribute(attr_twine).c_str(), -1));
-	} else if (int_flag || uint_flag || sint_flag) {
-		if (!obj->has_attribute(attr_twine))
+	} अञ्ञथा सचे (int_flag || uint_flag || sint_flag) {
+		सचे (!obj->has_attribute(attr_twine))
 			ERROR("attribute missing (required for -int)");
-		RTLIL::Const &value = obj->attributes.at(attr_twine);
+		RTLIL::Const &मानम् = obj->attributes.at(attr_twine);
 
-		mp_int value_mp;
-		if (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
+		mp_int मानम्_mp;
+		सचे (!const_to_mp_int(मानम्, &मानम्_mp, sint_flag, uint_flag))
 			ERROR("bignum manipulation failed");
-		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&value_mp));
-	} else if (bool_flag) {
+		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&मानम्_mp));
+	} अञ्ञथा सचे (bool_flag) {
 		Tcl_SetObjResult(interp, Tcl_NewBooleanObj(obj->get_bool_attribute(attr_twine)));
-	} else {
-		if (!obj->has_attribute(attr_twine))
+	} अञ्ञथा {
+		सचे (!obj->has_attribute(attr_twine))
 			ERROR("attribute missing (required unless -bool or -string)")
 
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(obj->attributes.at(attr_twine).as_string().c_str(), -1));
 	}
 
-	return TCL_OK;
+	पटिनिवत्त TCL_OK;
 }
 
-static int tcl_has_attr(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+स्थिर पूर्णाङ्क tcl_has_attr(ClientData, Tcl_Interp *interp, पूर्णाङ्क argc, ध्रुव वर्ण *argv[])
 {
-	int i;
-	bool mod_flag = false;
-	for (i = 1; i < argc; i++) {
+	पूर्णाङ्क i;
+	तार्किक mod_flag = मिच्छा;
+	अत्थाय (i = 1; i < argc; i++) {
 		FLAG(mod)
-		break;
+		भङ्ग;
 	}
 
-	if ((mod_flag && i != argc - 2) ||
+	सचे ((mod_flag && i != argc - 2) ||
 			(!mod_flag && i != argc - 3))
 		ERROR("bad usage: expected \"has_attr -mod <module> <attrname>\""
 			  " or \"has_attr <module> <identifier> <attrname>\"")
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(argv[i++]);
-	if (!mod_flag)
+	सचे (!mod_flag)
 		obj_id = RTLIL::escape_id(argv[i++]);
 	attr_id = RTLIL::escape_id(argv[i++]);
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	सचे (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	सचे (mod_flag) {
 		obj = mod;
-	} else {
+	} अञ्ञथा {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		सचे (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		सचे (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		सचे (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	सचे (!obj)
 		ERROR("object not found")
 
 	Tcl_SetObjResult(interp, Tcl_NewStringObj(std::to_string(obj->has_attribute(yosys_design->twines().find(attr_id))).c_str(), -1));
-	return TCL_OK;
+	पटिनिवत्त TCL_OK;
 }
 
-static int tcl_set_attr(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+स्थिर पूर्णाङ्क tcl_set_attr(ClientData, Tcl_Interp *interp, पूर्णाङ्क objc, Tcl_Obj *ध्रुव objv[])
 {
-	int i;
-	bool mod_flag = false, string_flag = false, bool_flag = false;
-	bool true_flag = false, false_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < objc; i++) {
+	पूर्णाङ्क i;
+	तार्किक mod_flag = मिच्छा, string_flag = मिच्छा, bool_flag = मिच्छा;
+	तार्किक true_flag = मिच्छा, false_flag = मिच्छा, sint_flag = मिच्छा, uint_flag = मिच्छा;
+	अत्थाय (i = 1; i < objc; i++) {
 		FLAG2(mod)
 		FLAG2(string)
-		FLAG2(true)
-		FLAG2(false)
+		FLAG2(सच्च)
+		FLAG2(मिच्छा)
 		FLAG2(sint)
 		FLAG2(uint)
-		FLAG2(bool)
-		break;
+		FLAG2(तार्किक)
+		भङ्ग;
 	}
 
-	if ((i != objc - (2 + !mod_flag + !(true_flag || false_flag))) ||
+	सचे ((i != objc - (2 + !mod_flag + !(true_flag || false_flag))) ||
 			(string_flag + sint_flag + uint_flag + bool_flag + true_flag + false_flag > 1))
 		ERROR("bad usage: expected \"set_attr -mod [-string|-sint|-uint|-bool] <module> <attrname> <value>\""
 			  " or \"set_attr [-string|-sint|-uint|-bool] <module> <identifier> <attrname> <value>\""
@@ -374,83 +374,83 @@ static int tcl_set_attr(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
-	if (!mod_flag)
+	सचे (!mod_flag)
 		obj_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
 	attr_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	सचे (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	सचे (mod_flag) {
 		obj = mod;
-	} else {
+	} अञ्ञथा {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		सचे (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		सचे (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		सचे (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	सचे (!obj)
 		ERROR("object not found")
 
 	IdString attr_twine = yosys_design->twines().add(attr_id);
 
-	if (string_flag) {
+	सचे (string_flag) {
 		obj->set_string_attribute(attr_twine, Tcl_GetString(objv[i++]));
-	} else if (sint_flag || uint_flag) {
+	} अञ्ञथा सचे (sint_flag || uint_flag) {
 		RTLIL::Const const_;
-		mp_int value_mp;
+		mp_int मानम्_mp;
 
-		if (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
+		सचे (Tcl_TakeBignumFromObj(interp, objv[i++], &मानम्_mp))
 			ERROR("non-integral value")
 
-		if (!mp_int_to_const(&value_mp, const_, sint_flag))
+		सचे (!mp_int_to_const(&मानम्_mp, const_, sint_flag))
 			ERROR("bignum manipulation failed");
 
-		if (sint_flag) {
+		सचे (sint_flag) {
 			const_.flags |= RTLIL::CONST_FLAG_SIGNED;
-			if (const_.size() < 32)
+			सचे (const_.size() < 32)
 				const_.exts(32);
-		} else {
-			if (const_.size() < 32)
+		} अञ्ञथा {
+			सचे (const_.size() < 32)
 				const_.extu(32);
 		}
 
 		obj->attributes[attr_twine] = const_;
-	} else if (bool_flag) {
+	} अञ्ञथा सचे (bool_flag) {
 		obj->set_bool_attribute(attr_twine, atoi(Tcl_GetString(objv[i++])) != 0);
-	} else if (true_flag) {
-		obj->set_bool_attribute(attr_twine, true);
-	} else if (false_flag) {
-		obj->set_bool_attribute(attr_twine, false);
-	} else {
+	} अञ्ञथा सचे (true_flag) {
+		obj->set_bool_attribute(attr_twine, सच्च);
+	} अञ्ञथा सचे (false_flag) {
+		obj->set_bool_attribute(attr_twine, मिच्छा);
+	} अञ्ञथा {
 		obj->attributes[attr_twine] = Const::from_string(std::string(Tcl_GetString(objv[i++])));
 	}
 
-	return TCL_OK;
+	पटिनिवत्त TCL_OK;
 }
 
-static int tcl_get_param(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+स्थिर पूर्णाङ्क tcl_get_param(ClientData, Tcl_Interp *interp, पूर्णाङ्क argc, ध्रुव वर्ण *argv[])
 {
-	int i;
-	bool string_flag = false;
-	bool int_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < argc; i++) {
+	पूर्णाङ्क i;
+	तार्किक string_flag = मिच्छा;
+	तार्किक int_flag = मिच्छा, sint_flag = मिच्छा, uint_flag = मिच्छा;
+	अत्थाय (i = 1; i < argc; i++) {
 		FLAG(string)
-		FLAG(int)
+		FLAG(पूर्णाङ्क)
 		FLAG(sint)
 		FLAG(uint)
-		break;
+		भङ्ग;
 	}
 
-	if ((i != argc - 3) ||
+	सचे ((i != argc - 3) ||
 			(string_flag + int_flag > 1))
 		ERROR("bad usage: expected \"get_param [-string|-int|-sint|-uint] <module> <cellid> <paramname>")
 
@@ -461,45 +461,45 @@ static int tcl_get_param(ClientData, Tcl_Interp *interp, int argc, const char *a
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	सचे (!mod)
 		ERROR("module not found")
 
 	auto cell_twine = yosys_design->twines().find(cell_id);
 	Cell* cell = mod->cell(cell_twine);
-	if (!cell)
+	सचे (!cell)
 		ERROR("object not found")
 
 	IdString param_twine = yosys_design->twines().find(param_id);
-	if (!cell->hasParam(param_twine))
+	सचे (!cell->hasParam(param_twine))
 		ERROR("parameter missing")
 
-	const RTLIL::Const &value = cell->getParam(param_twine);
+	ध्रुव RTLIL::Const &मानम् = cell->getParam(param_twine);
 
-	if (string_flag) {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(value.decode_string().c_str(), -1));
-	} else if (int_flag || uint_flag || sint_flag) {
-		mp_int value_mp;
-		if (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
+	सचे (string_flag) {
+		Tcl_SetObjResult(interp, Tcl_NewStringObj(मानम्.decode_string().c_str(), -1));
+	} अञ्ञथा सचे (int_flag || uint_flag || sint_flag) {
+		mp_int मानम्_mp;
+		सचे (!const_to_mp_int(मानम्, &मानम्_mp, sint_flag, uint_flag))
 			ERROR("bignum manipulation failed");
-		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&value_mp));
-	} else {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(value.as_string().c_str(), -1));
+		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&मानम्_mp));
+	} अञ्ञथा {
+		Tcl_SetObjResult(interp, Tcl_NewStringObj(मानम्.as_string().c_str(), -1));
 	}
-	return TCL_OK;
+	पटिनिवत्त TCL_OK;
 }
 
-static int tcl_set_param(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+स्थिर पूर्णाङ्क tcl_set_param(ClientData, Tcl_Interp *interp, पूर्णाङ्क objc, Tcl_Obj *ध्रुव objv[])
 {
-	int i;
-	bool string_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < objc; i++) {
+	पूर्णाङ्क i;
+	तार्किक string_flag = मिच्छा, sint_flag = मिच्छा, uint_flag = मिच्छा;
+	अत्थाय (i = 1; i < objc; i++) {
 		FLAG2(string)
 		FLAG2(sint)
 		FLAG2(uint)
-		break;
+		भङ्ग;
 	}
 
-	if ((i != objc - 4) ||
+	सचे ((i != objc - 4) ||
 			(string_flag + sint_flag + uint_flag > 1))
 		ERROR("bad usage: expected \"set_param [-string|-sint|-uint] <module> <cellid> <paramname> <value>")
 
@@ -510,54 +510,54 @@ static int tcl_set_param(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *cons
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	सचे (!mod)
 		ERROR("module not found")
 
 	auto cell_twine = yosys_design->twines().find(cell_id);
 	RTLIL::Cell *cell = mod->cell(cell_twine);
-	if (!cell)
+	सचे (!cell)
 		ERROR("object not found")
 
 	IdString param_twine = yosys_design->twines().add(param_id);
 
-	if (string_flag) {
+	सचे (string_flag) {
 		cell->setParam(param_twine, Const(std::string(Tcl_GetString(objv[i++]))));
-	} else if (sint_flag || uint_flag) {
+	} अञ्ञथा सचे (sint_flag || uint_flag) {
 		RTLIL::Const const_;
-		mp_int value_mp;
+		mp_int मानम्_mp;
 
-		if (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
+		सचे (Tcl_TakeBignumFromObj(interp, objv[i++], &मानम्_mp))
 			ERROR("non-integral value")
 
-		if (!mp_int_to_const(&value_mp, const_, sint_flag))
+		सचे (!mp_int_to_const(&मानम्_mp, const_, sint_flag))
 			ERROR("bignum manipulation failed");
 
-		if (sint_flag) {
+		सचे (sint_flag) {
 			const_.flags |= RTLIL::CONST_FLAG_SIGNED;
-			if (const_.size() < 32)
+			सचे (const_.size() < 32)
 				const_.exts(32);
-		} else {
-			if (const_.size() < 32)
+		} अञ्ञथा {
+			सचे (const_.size() < 32)
 				const_.extu(32);
 		}
 
 		cell->setParam(param_twine, const_);
-	} else {
+	} अञ्ञथा {
 		cell->setParam(param_twine, Const::from_string(std::string(Tcl_GetString(objv[i++]))));
 	}
-	return TCL_OK;
+	पटिनिवत्त TCL_OK;
 }
 
-int yosys_tcl_interp_init(Tcl_Interp *interp)
+पूर्णाङ्क yosys_tcl_interp_init(Tcl_Interp *interp)
 {
-	if (Tcl_Init(interp)!=TCL_OK)
-		log_warning("Tcl_Init() call failed - %s\n",Tcl_ErrnoMsg(Tcl_GetErrno()));
-	Tcl_CreateCommand(interp, "yosys", tcl_yosys_cmd, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::get_attr", tcl_get_attr, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::has_attr", tcl_has_attr, NULL, NULL);
-	Tcl_CreateObjCommand(interp, "rtlil::set_attr", tcl_set_attr, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::get_param", tcl_get_param, NULL, NULL);
-	Tcl_CreateObjCommand(interp, "rtlil::set_param", tcl_set_param, NULL, NULL);
+	सचे (Tcl_Init(interp)!=TCL_OK)
+		log_warning("Tcl_Init() call failed - %s\n",Tcl_Errno_सन्देशः(Tcl_GetErrno()));
+	Tcl_CreateCommand(interp, "yosys", tcl_yosys_cmd, रिक्त, रिक्त);
+	Tcl_CreateCommand(interp, "rtlil::get_attr", tcl_get_attr, रिक्त, रिक्त);
+	Tcl_CreateCommand(interp, "rtlil::has_attr", tcl_has_attr, रिक्त, रिक्त);
+	Tcl_CreateObjCommand(interp, "rtlil::set_attr", tcl_set_attr, रिक्त, रिक्त);
+	Tcl_CreateCommand(interp, "rtlil::get_param", tcl_get_param, रिक्त, रिक्त);
+	Tcl_CreateObjCommand(interp, "rtlil::set_param", tcl_set_param, रिक्त, रिक्त);
 
 	// TODO:
 	//
@@ -583,7 +583,7 @@ int yosys_tcl_interp_init(Tcl_Interp *interp)
 	// verilog identifier before adding any tcl API that returns IdString values
 	// to avoid -option injection
 
-	return TCL_OK ;
+	पटिनिवत्त TCL_OK ;
 }
 #endif
 

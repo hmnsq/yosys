@@ -1,94 +1,94 @@
-#include "kernel/yosys_common.h"
-#include "kernel/log.h"
-#include <iostream>
-#include <string>
-#include <filesystem>
-#include <system_error>
+#अन्तर्भाव "kernel/yosys_common.h"
+#अन्तर्भाव "kernel/log.h"
+#अन्तर्भाव <iostream>
+#अन्तर्भाव <string>
+#अन्तर्भाव <filesystem>
+#अन्तर्भाव <system_error>
 
-#if !defined(WIN32)
-#include <dirent.h>
-#include <unistd.h>
-#else
-#include <io.h>
+#सचे !defined(WIN32)
+#अन्तर्भाव <dirent.h>
+#अन्तर्भाव <unistd.h>
+#अञ्ञथा
+#अन्तर्भाव <io.h>
 #endif
 
-#if !defined(_WIN32) && !defined(__wasi__)
-#include <sys/file.h>
-#include <fcntl.h>
-#include <cerrno>
+#सचे !defined(_WIN32) && !defined(__wasi__)
+#अन्तर्भाव <sys/file.h>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <cerrno>
 #endif
 
 YOSYS_NAMESPACE_BEGIN
 
 // Set of utilities for handling files
 
-int readsome(std::istream &f, char *s, int n)
+पूर्णाङ्क readsome(std::istream &f, वर्ण *s, पूर्णाङ्क n)
 {
-	int rc = int(f.readsome(s, n));
+	पूर्णाङ्क rc = पूर्णाङ्क(f.readsome(s, n));
 
 	// f.readsome() sometimes returns 0 on a non-empty stream..
-	if (rc == 0) {
-		int c = f.get();
-		if (c != EOF) {
+	सचे (rc == 0) {
+		पूर्णाङ्क c = f.get();
+		सचे (c != EOF) {
 			*s = c;
 			rc = 1;
 		}
 	}
 
-	return rc;
+	पटिनिवत्त rc;
 }
 
-std::string next_token(std::string &text, const char *sep, bool long_strings)
+std::string next_token(std::string &text, ध्रुव वर्ण *sep, तार्किक long_strings)
 {
 	size_t pos_begin = text.find_first_not_of(sep);
 
-	if (pos_begin == std::string::npos)
+	सचे (pos_begin == std::string::npos)
 		pos_begin = text.size();
 
-	if (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
+	सचे (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
 		std::string sep_string = sep;
-		for (size_t i = pos_begin+1; i < text.size(); i++) {
-			if (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
+		अत्थाय (size_t i = pos_begin+1; i < text.size(); i++) {
+			सचे (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
 				std::string token = text.substr(pos_begin, i-pos_begin+1);
 				text = text.substr(i+1);
-				return token;
+				पटिनिवत्त token;
 			}
-			if (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
+			सचे (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
 				std::string token = text.substr(pos_begin, i-pos_begin+1);
 				text = text.substr(i+2);
-				return token + ";";
+				पटिनिवत्त token + ";";
 			}
 		}
 	}
 
 	size_t pos_end = text.find_first_of(sep, pos_begin);
 
-	if (pos_end == std::string::npos)
+	सचे (pos_end == std::string::npos)
 		pos_end = text.size();
 
 	std::string token = text.substr(pos_begin, pos_end-pos_begin);
 	text = text.substr(pos_end);
-	return token;
+	पटिनिवत्त token;
 }
 
-std::vector<std::string> split_tokens(const std::string &text, const char *sep)
+std::vector<std::string> split_tokens(ध्रुव std::string &text, ध्रुव वर्ण *sep)
 {
 	std::vector<std::string> tokens;
 	std::string current_token;
-	for (char c : text) {
-		if (strchr(sep, c)) {
-			if (!current_token.empty()) {
-				tokens.push_back(current_token);
+	अत्थाय (वर्ण c : text) {
+		सचे (strchr(sep, c)) {
+			सचे (!current_token.empty()) {
+				tokens.प्रक्षिप_back(current_token);
 				current_token.clear();
 			}
-		} else
+		} अञ्ञथा
 			current_token += c;
 	}
-	if (!current_token.empty()) {
-		tokens.push_back(current_token);
+	सचे (!current_token.empty()) {
+		tokens.प्रक्षिप_back(current_token);
 		current_token.clear();
 	}
-	return tokens;
+	पटिनिवत्त tokens;
 }
 
 // this is very similar to fnmatch(). the exact rules used by this
@@ -102,349 +102,349 @@ std::vector<std::string> split_tokens(const std::string &text, const char *sep)
 // a backslash may be used to escape the next characters in the
 // pattern. each special character can also simply match itself.
 //
-bool patmatch(const char *pattern, const char *string)
+तार्किक patmatch(ध्रुव वर्ण *pattern, ध्रुव वर्ण *string)
 {
-	if (*pattern == 0)
-		return *string == 0;
+	सचे (*pattern == 0)
+		पटिनिवत्त *string == 0;
 
-	if (*pattern == '\\') {
-		if (pattern[1] == string[0] && patmatch(pattern+2, string+1))
-			return true;
+	सचे (*pattern == '\\') {
+		सचे (pattern[1] == string[0] && patmatch(pattern+2, string+1))
+			पटिनिवत्त सच्च;
 	}
 
-	if (*pattern == '?') {
-		if (*string == 0)
-			return false;
-		return patmatch(pattern+1, string+1);
+	सचे (*pattern == '?') {
+		सचे (*string == 0)
+			पटिनिवत्त मिच्छा;
+		पटिनिवत्त patmatch(pattern+1, string+1);
 	}
 
-	if (*pattern == '*') {
-		while (*string) {
-			if (patmatch(pattern+1, string++))
-				return true;
+	सचे (*pattern == '*') {
+		याव (*string) {
+			सचे (patmatch(pattern+1, string++))
+				पटिनिवत्त सच्च;
 		}
-		return pattern[1] == 0;
+		पटिनिवत्त pattern[1] == 0;
 	}
 
-	if (*pattern == '[') {
-		bool found_match = false;
-		bool inverted_list = pattern[1] == '!';
-		const char *p = pattern + (inverted_list ? 1 : 0);
+	सचे (*pattern == '[') {
+		तार्किक found_match = मिच्छा;
+		तार्किक inverted_list = pattern[1] == '!';
+		ध्रुव वर्ण *p = pattern + (inverted_list ? 1 : 0);
 
-		while (*++p) {
-			if (*p == ']') {
-				if (found_match != inverted_list && patmatch(p+1, string+1))
-					return true;
-				break;
+		याव (*++p) {
+			सचे (*p == ']') {
+				सचे (found_match != inverted_list && patmatch(p+1, string+1))
+					पटिनिवत्त सच्च;
+				भङ्ग;
 			}
 
-			if (*p == '\\') {
-				if (*++p == *string)
-					found_match = true;
-			} else
-			if (*p == *string)
-				found_match = true;
+			सचे (*p == '\\') {
+				सचे (*++p == *string)
+					found_match = सच्च;
+			} अञ्ञथा
+			सचे (*p == *string)
+				found_match = सच्च;
 		}
 	}
 
-	if (*pattern == *string)
-		return patmatch(pattern+1, string+1);
+	सचे (*pattern == *string)
+		पटिनिवत्त patmatch(pattern+1, string+1);
 
-	return false;
+	पटिनिवत्त मिच्छा;
 }
 
 std::string get_base_tmpdir()
 {
-	static std::string tmpdir;
+	स्थिर std::string tmpdir;
 
-	if (!tmpdir.empty()) {
-		return tmpdir;
+	सचे (!tmpdir.empty()) {
+		पटिनिवत्त tmpdir;
 	}
 
-#if defined(_WIN32)
+#सचे defined(_WIN32)
 	std::wstring wtmppath(4096, L'\0');
 	// typically returns a 8.3 path, but this can be disabled via registry
-	if (!GetTempPathW(wtmppath.size(), wtmppath.data()))
+	सचे (!GetTempPathW(wtmppath.size(), wtmppath.data()))
 		log_error("GetTempPathW() failed.\n");
 	wtmppath.resize(wtmppath.find(L'\0'));
 	std::string utmppath;
-	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), NULL, NULL) == 0)
+	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), रिक्त, 0, रिक्त, रिक्त));
+	सचे (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), रिक्त, रिक्त) == 0)
 		log_error("WideCharToMultiByte() failed.\n");
 	tmpdir += utmppath;
-#else
-	char * var = std::getenv("TMPDIR");
-	if (var && strlen(var)!=0) {
+#अञ्ञथा
+	वर्ण * var = std::getenv("TMPDIR");
+	सचे (var && strlen(var)!=0) {
 		tmpdir.assign(var);
 		// We return the directory name without the trailing '/'
-		while (!tmpdir.empty() && (tmpdir.back() == '/')) {
-			tmpdir.pop_back();
+		याव (!tmpdir.empty() && (tmpdir.back() == '/')) {
+			tmpdir.निष्कासय_back();
 		}
-	} else {
+	} अञ्ञथा {
 		tmpdir.assign("/tmp");
 	}
 #endif
-	return tmpdir;
+	पटिनिवत्त tmpdir;
 }
 
 std::string make_temp_file(std::string template_str)
 {
 	size_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
-#if defined(__wasm)
-	static size_t index = 0;
+#सचे defined(__wasm)
+	स्थिर size_t index = 0;
 	template_str.replace(pos, 6, stringf("%06zu", index++));
-#elif defined(_WIN32)
+#नोचेद्यदि defined(_WIN32)
 #ifndef YOSYS_WIN32_UNIX_DIR
 	std::replace(template_str.begin(), template_str.end(), '/', '\\');
 #endif
-	while (1) {
-		for (int i = 0; i < 6; i++) {
-			static std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-			static uint32_t x = 314159265 ^ uint32_t(time(NULL));
+	याव (1) {
+		अत्थाय (पूर्णाङ्क i = 0; i < 6; i++) {
+			स्थिर std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			स्थिर uint32_t x = 314159265 ^ uint32_t(time(रिक्त));
 			x ^= x << 13, x ^= x >> 17, x ^= x << 5;
 			template_str[pos+i] = y[x % y.size()];
 		}
-		if (_access(template_str.c_str(), 0) != 0)
-			break;
+		सचे (_access(template_str.c_str(), 0) != 0)
+			भङ्ग;
 	}
-#else
-	int suffixlen = template_str.size() - pos - 6;
+#अञ्ञथा
+	पूर्णाङ्क suffixlen = template_str.size() - pos - 6;
 
-	char *p = strdup(template_str.c_str());
+	वर्ण *p = strdup(template_str.c_str());
 	close(mkstemps(p, suffixlen));
 	template_str = p;
-	free(p);
+	मुक्त(p);
 #endif
 
-	return template_str;
+	पटिनिवत्त template_str;
 }
 
 std::string make_temp_dir(std::string template_str)
 {
-#if defined(_WIN32)
+#सचे defined(_WIN32)
 	template_str = make_temp_file(template_str);
 	mkdir(template_str.c_str());
-	return template_str;
-#elif defined(__wasm)
+	पटिनिवत्त template_str;
+#नोचेद्यदि defined(__wasm)
 	template_str = make_temp_file(template_str);
 	mkdir(template_str.c_str(), 0777);
-	return template_str;
-#else
+	पटिनिवत्त template_str;
+#अञ्ञथा
 #  ifndef NDEBUG
 	size_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
 
-	int suffixlen = template_str.size() - pos - 6;
+	पूर्णाङ्क suffixlen = template_str.size() - pos - 6;
 	log_assert(suffixlen == 0);
 #  endif
 
-	char *p = strdup(template_str.c_str());
+	वर्ण *p = strdup(template_str.c_str());
 	log_assert(p);
-	char *res = mkdtemp(p);
-	if (!res)
+	वर्ण *res = mkdtemp(p);
+	सचे (!res)
 		log_error("mkdtemp failed for '%s': %s [Error %d]\n",
 			p, strerror(errno), errno);
 	template_str = p;
-	free(p);
+	मुक्त(p);
 
-	return template_str;
+	पटिनिवत्त template_str;
 #endif
 }
 
-bool check_is_directory(const std::string& dirname)
+तार्किक check_is_directory(ध्रुव std::string& dirname)
 {
-#if defined(_WIN32)
-	struct _stat info;
+#सचे defined(_WIN32)
+	संरचना _stat info;
 	auto dirname_ = dirname;
 
 	/* On old versions of Visual Studio and current versions on MinGW,
 	   _stat will fail if the path ends with a trailing slash. */
-	if (dirname.back() == '/' || dirname.back() == '\\') {
+	सचे (dirname.back() == '/' || dirname.back() == '\\') {
 		dirname_ = dirname.substr(0, dirname.length() - 1);
 	}
 
-	if (_stat(dirname_.c_str(), &info) != 0)
+	सचे (_stat(dirname_.c_str(), &info) != 0)
 	{
-		return false;
+		पटिनिवत्त मिच्छा;
 	}
-	return (info.st_mode & _S_IFDIR) != 0;
-#else
-	struct stat info;
-	if (stat(dirname.c_str(), &info) != 0)
+	पटिनिवत्त (info.st_mode & _S_IFDIR) != 0;
+#अञ्ञथा
+	संरचना stat info;
+	सचे (stat(dirname.c_str(), &info) != 0)
 	{
-		return false;
+		पटिनिवत्त मिच्छा;
 	}
-	return (info.st_mode & S_IFDIR) != 0;
+	पटिनिवत्त (info.st_mode & S_IFDIR) != 0;
 #endif
 }
 
 #ifdef _WIN32
-bool check_accessible(const std::string& filename, bool)
+तार्किक check_accessible(ध्रुव std::string& filename, तार्किक)
 {
-	return _access(filename.c_str(), 0) == 0;
+	पटिनिवत्त _access(filename.c_str(), 0) == 0;
 }
-#else
-bool check_accessible(const std::string& filename, bool is_exec)
+#अञ्ञथा
+तार्किक check_accessible(ध्रुव std::string& filename, तार्किक is_exec)
 {
-	return access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
+	पटिनिवत्त access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
 }
 #endif
 
-bool check_file_exists(const std::string& filename, bool is_exec)
+तार्किक check_file_exists(ध्रुव std::string& filename, तार्किक is_exec)
 {
-	return check_accessible(filename, is_exec) && !check_is_directory(filename);
+	पटिनिवत्त check_accessible(filename, is_exec) && !check_is_directory(filename);
 }
-bool check_directory_exists(const std::string& filename, bool is_exec)
+तार्किक check_directory_exists(ध्रुव std::string& filename, तार्किक is_exec)
 {
-	return check_accessible(filename, is_exec) && check_is_directory(filename);
+	पटिनिवत्त check_accessible(filename, is_exec) && check_is_directory(filename);
 }
 
-bool is_absolute_path(std::string filename)
+तार्किक is_absolute_path(std::string filename)
 {
 #ifdef _WIN32
-	return filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
-#else
-	return filename[0] == '/';
+	पटिनिवत्त filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
+#अञ्ञथा
+	पटिनिवत्त filename[0] == '/';
 #endif
 }
 
-void remove_directory(std::string dirname)
+शून्य remove_directory(std::string dirname)
 {
 #ifdef _WIN32
 	run_command(stringf("rmdir /s /q \"%s\"", dirname));
-#else
-	struct stat stbuf;
-	struct dirent **namelist;
-	int n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
+#अञ्ञथा
+	संरचना stat stbuf;
+	संरचना dirent **namelist;
+	पूर्णाङ्क n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
 	log_assert(n >= 0);
-	for (int i = 0; i < n; i++) {
-		if (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
+	अत्थाय (पूर्णाङ्क i = 0; i < n; i++) {
+		सचे (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
 			std::string buffer = stringf("%s/%s", dirname, namelist[i]->d_name);
-			if (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
+			सचे (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
 				remove(buffer.c_str());
-			} else
+			} अञ्ञथा
 				remove_directory(buffer);
 		}
-		free(namelist[i]);
+		मुक्त(namelist[i]);
 	}
-	free(namelist);
+	मुक्त(namelist);
 	rmdir(dirname.c_str());
 #endif
 }
 
-bool create_directory(const std::string& dirname)
+तार्किक create_directory(ध्रुव std::string& dirname)
 {
-#if defined(_WIN32)
-	int ret = _mkdir(dirname.c_str());
-#else
+#सचे defined(_WIN32)
+	पूर्णाङ्क ret = _mkdir(dirname.c_str());
+#अञ्ञथा
 	mode_t mode = 0755;
-	int ret = mkdir(dirname.c_str(), mode);
+	पूर्णाङ्क ret = mkdir(dirname.c_str(), mode);
 #endif
-	if (ret == 0)
-		return true;
+	सचे (ret == 0)
+		पटिनिवत्त सच्च;
 
-	switch (errno)
+	विकल्प (errno)
 	{
-	case ENOENT:
+	पक्ष ENOENT:
 		// parent didn't exist, try to create it
 		{
 			std::string::size_type pos = dirname.find_last_of('/');
-			if (pos == std::string::npos)
-#if defined(_WIN32)
+			सचे (pos == std::string::npos)
+#सचे defined(_WIN32)
 				pos = dirname.find_last_of('\\');
-			if (pos == std::string::npos)
+			सचे (pos == std::string::npos)
 #endif
-				return false;
-			if (!create_directory( dirname.substr(0, pos) ))
-				return false;
+				पटिनिवत्त मिच्छा;
+			सचे (!create_directory( dirname.substr(0, pos) ))
+				पटिनिवत्त मिच्छा;
 		}
 		// now, try to create again
-#if defined(_WIN32)
-		return 0 == _mkdir(dirname.c_str());
-#else
-		return 0 == mkdir(dirname.c_str(), mode);
+#सचे defined(_WIN32)
+		पटिनिवत्त 0 == _mkdir(dirname.c_str());
+#अञ्ञथा
+		पटिनिवत्त 0 == mkdir(dirname.c_str(), mode);
 #endif
 
-	case EEXIST:
+	पक्ष EEXIST:
 		// done!
-		return check_directory_exists(dirname);
+		पटिनिवत्त check_directory_exists(dirname);
 
-	default:
-		return false;
+	स्वभाव:
+		पटिनिवत्त मिच्छा;
 	}
 }
 
-bool make_private_directory(const std::string& dirname)
+तार्किक make_private_directory(ध्रुव std::string& dirname)
 {
-#if defined(_WIN32) || defined(__wasi__)
-	if (!create_directory(dirname)) {
+#सचे defined(_WIN32) || defined(__wasi__)
+	सचे (!create_directory(dirname)) {
 		log_warning("Cannot create the directory %s\n", dirname.c_str());
-		return false;
+		पटिनिवत्त मिच्छा;
 	}
-	return true;
-#else
-	if (mkdir(dirname.c_str(), 0700) == 0)
-		return true;
+	पटिनिवत्त सच्च;
+#अञ्ञथा
+	सचे (mkdir(dirname.c_str(), 0700) == 0)
+		पटिनिवत्त सच्च;
 
 	// Keep the errno of each mkdir(), create_directory() below makes its own calls
-	int err = errno;
+	पूर्णाङ्क err = errno;
 	std::string parent = std::filesystem::path(dirname).parent_path().string();
 
-	if (err == ENOENT && !parent.empty() && create_directory(parent)) {
-		if (mkdir(dirname.c_str(), 0700) == 0)
-			return true;
+	सचे (err == ENOENT && !parent.empty() && create_directory(parent)) {
+		सचे (mkdir(dirname.c_str(), 0700) == 0)
+			पटिनिवत्त सच्च;
 		err = errno;
 	}
 
-	if (err != EEXIST) {
+	सचे (err != EEXIST) {
 		log_warning("Cannot create the directory %s: %s\n", dirname.c_str(), strerror(err));
-		return false;
+		पटिनिवत्त मिच्छा;
 	}
 
 	// Do not use a leftover that isn't ours
-	struct stat st;
-	if (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
+	संरचना stat st;
+	सचे (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
 		log_warning("%s is not a directory of this user\n", dirname.c_str());
-		return false;
+		पटिनिवत्त मिच्छा;
 	}
 	// Repair the mode if something changed it
 	mode_t mode = st.st_mode & 0777;
-	if (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
+	सचे (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
 		log_warning("Cannot make the directory %s private: %s\n", dirname.c_str(), strerror(errno));
-		return false;
+		पटिनिवत्त मिच्छा;
 	}
 
-	return true;
+	पटिनिवत्त सच्च;
 #endif
 }
 
-std::string make_user_tmpdir(const std::string& name)
+std::string make_user_tmpdir(ध्रुव std::string& name)
 {
 	log_assert(!name.empty() && name.find('/') == std::string::npos);
-#if defined(_WIN32) || defined(__wasi__)
+#सचे defined(_WIN32) || defined(__wasi__)
 	std::string dirname = get_base_tmpdir() + "/" + name;
-#else
+#अञ्ञथा
 	std::string dirname = stringf("%s/%s-%u", get_base_tmpdir().c_str(), name.c_str(), (unsigned)geteuid());
 #endif
-	return make_private_directory(dirname) ? dirname : "";
+	पटिनिवत्त make_private_directory(dirname) ? dirname : "";
 }
 
-std::string escape_filename_spaces(const std::string& filename)
+std::string escape_filename_spaces(ध्रुव std::string& filename)
 {
 	std::string out;
 	out.reserve(filename.size());
-	for (auto c : filename)
+	अत्थाय (auto c : filename)
 	{
-		if (c == ' ')
+		सचे (c == ' ')
 			out += "\\ ";
-		else
-			out.push_back(c);
+		अञ्ञथा
+			out.प्रक्षिप_back(c);
 	}
-	return out;
+	पटिनिवत्त out;
 }
 
-void append_globbed(std::vector<std::string>& paths, std::string pattern)
+शून्य append_globbed(std::vector<std::string>& paths, std::string pattern)
 {
 	rewrite_filename(pattern);
 	std::vector<std::string> globbed = glob_filename(pattern);
@@ -452,46 +452,46 @@ void append_globbed(std::vector<std::string>& paths, std::string pattern)
 }
 
 std::string name_from_file_path(std::string path) {
-	return std::filesystem::path(path).filename().string();
+	पटिनिवत्त std::filesystem::path(path).filename().string();
 }
 
-std::string absolute_path(const std::string& path)
+std::string absolute_path(ध्रुव std::string& path)
 {
 	std::error_code ec;
 	std::filesystem::path result = std::filesystem::absolute(path, ec);
 
-	if (ec)
-		return "";
+	सचे (ec)
+		पटिनिवत्त "";
 
 	result = std::filesystem::weakly_canonical(result, ec);
 
-	if (ec)
-		return "";
+	सचे (ec)
+		पटिनिवत्त "";
 
-	return result.string();
+	पटिनिवत्त result.string();
 }
 
 // Includes OS_PATH_SEP at the end if present
 std::string parent_from_file_path(std::string path) {
 	auto parent = std::filesystem::path(path).parent_path();
-	if (parent.empty()) {
-		return "";
+	सचे (parent.empty()) {
+		पटिनिवत्त "";
 	}
 	// Add trailing separator to match original behavior
 	std::string result = parent.string();
-	if (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
+	सचे (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
 		result += std::filesystem::path::preferred_separator;
 	}
-	return result;
+	पटिनिवत्त result;
 }
 
-void format_emit_unescaped(std::string &result, std::string_view fmt)
+शून्य format_emit_unescaped(std::string &result, std::string_view fmt)
 {
 	result.reserve(result.size() + fmt.size());
-	for (size_t i = 0; i < fmt.size(); ++i) {
-		char ch = fmt[i];
-		result.push_back(ch);
-		if (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
+	अत्थाय (size_t i = 0; i < fmt.size(); ++i) {
+		वर्ण ch = fmt[i];
+		result.प्रक्षिप_back(ch);
+		सचे (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
 			++i;
 		}
 	}
@@ -501,248 +501,248 @@ std::string unescape_format_string(std::string_view fmt)
 {
 	std::string result;
 	format_emit_unescaped(result, fmt);
-	return result;
+	पटिनिवत्त result;
 }
 
-static std::string string_view_stringf(std::string_view spec, ...)
+स्थिर std::string string_view_stringf(std::string_view spec, ...)
 {
 	va_list ap;
 	va_start(ap, spec);
 	std::string result = vstringf(std::string(spec).c_str(), ap);
 	va_end(ap);
-	return result;
+	पटिनिवत्त result;
 }
 
-static int spec_parameter_size(std::string_view spec)
+स्थिर पूर्णाङ्क spec_parameter_size(std::string_view spec)
 {
 	// Every valid spec starts with '%' which means the code below
 	// won't look before the spec start.
-	switch (spec[spec.size() - 1]) {
-	case 'd':
-	case 'i':
-	case 'o':
-	case 'u':
-	case 'x':
-	case 'X':
-		switch (spec[spec.size() - 2]) {
-		case 'h':
-			if (spec[spec.size() - 3] == 'h')
-				return sizeof(char);
-			return sizeof(short);
-		case 'l':
-			if (spec[spec.size() - 3] == 'l')
-				return sizeof(long long);
-			return sizeof(long);
-		case 'L':
-		case 'q':
-			return sizeof(long long);
-		case 'j':
-			return sizeof(intmax_t);
-		case 'z':
-		case 'Z':
-			return sizeof(size_t);
-		case 't':
-			return sizeof(ptrdiff_t);
+	विकल्प (spec[spec.size() - 1]) {
+	पक्ष 'd':
+	पक्ष 'i':
+	पक्ष 'o':
+	पक्ष 'u':
+	पक्ष 'x':
+	पक्ष 'X':
+		विकल्प (spec[spec.size() - 2]) {
+		पक्ष 'h':
+			सचे (spec[spec.size() - 3] == 'h')
+				पटिनिवत्त परिमाण(वर्ण);
+			पटिनिवत्त परिमाण(short);
+		पक्ष 'l':
+			सचे (spec[spec.size() - 3] == 'l')
+				पटिनिवत्त परिमाण(long long);
+			पटिनिवत्त परिमाण(long);
+		पक्ष 'L':
+		पक्ष 'q':
+			पटिनिवत्त परिमाण(long long);
+		पक्ष 'j':
+			पटिनिवत्त परिमाण(intmax_t);
+		पक्ष 'z':
+		पक्ष 'Z':
+			पटिनिवत्त परिमाण(size_t);
+		पक्ष 't':
+			पटिनिवत्त परिमाण(ptrdiff_t);
 		}
-		return sizeof(int);
-	case 'e':
-	case 'E':
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-	case 'a':
-	case 'A':
-		if (spec[spec.size() - 2] == 'L')
-			return sizeof(long double);
-		if (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
-			return sizeof(long double);
-		return sizeof(double);
-	case 'c':
-		if (spec[spec.size() - 2] == 'l') {
-			return sizeof(wchar_t);
+		पटिनिवत्त परिमाण(पूर्णाङ्क);
+	पक्ष 'e':
+	पक्ष 'E':
+	पक्ष 'f':
+	पक्ष 'F':
+	पक्ष 'g':
+	पक्ष 'G':
+	पक्ष 'a':
+	पक्ष 'A':
+		सचे (spec[spec.size() - 2] == 'L')
+			पटिनिवत्त परिमाण(long द्विगुण);
+		सचे (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
+			पटिनिवत्त परिमाण(long द्विगुण);
+		पटिनिवत्त परिमाण(द्विगुण);
+	पक्ष 'c':
+		सचे (spec[spec.size() - 2] == 'l') {
+			पटिनिवत्त परिमाण(wchar_t);
 		}
-		return sizeof(unsigned char);
-	case 'C':
-		return sizeof(wchar_t);
-	case 's':
-	case 'p':
-	case 'S':
-	case 'n':
-		return sizeof(void *);
-	case 'm':
-		return sizeof(int);
-	default:
-		return -1;
+		पटिनिवत्त परिमाण(unsigned वर्ण);
+	पक्ष 'C':
+		पटिनिवत्त परिमाण(wchar_t);
+	पक्ष 's':
+	पक्ष 'p':
+	पक्ष 'S':
+	पक्ष 'n':
+		पटिनिवत्त परिमाण(शून्य *);
+	पक्ष 'm':
+		पटिनिवत्त परिमाण(पूर्णाङ्क);
+	स्वभाव:
+		पटिनिवत्त -1;
 	}
 }
 
 template <typename Arg>
-static void format_emit_stringf(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, Arg arg)
+स्थिर शून्य format_emit_stringf(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, Arg arg)
 {
 	// Delegate nontrivial formats to the C library.
-	switch (num_dynamic_ints) {
-	case DynamicIntCount::NONE:
+	विकल्प (अङ्कः_dynamic_ints) {
+	पक्ष Dynamic_Int_गणनम्::NONE:
 		result += string_view_stringf(spec, arg);
-		return;
-	case DynamicIntCount::ONE:
+		पटिनिवत्त;
+	पक्ष Dynamic_Int_गणनम्::ONE:
 		result += string_view_stringf(spec, dynamic_ints[0], arg);
-		return;
-	case DynamicIntCount::TWO:
+		पटिनिवत्त;
+	पक्ष Dynamic_Int_गणनम्::TWO:
 		result += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
-		return;
+		पटिनिवत्त;
 	}
 	YOSYS_ABORT("Internal error");
 }
 
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, long long arg)
+शून्य format_emit_long_long(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, long long arg)
 {
-	if (spec == "%d") {
+	सचे (spec == "%d") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<int>(arg));
-		return;
+		result += std::to_string(static_cast<पूर्णाङ्क>(arg));
+		पटिनिवत्त;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	सचे (spec_parameter_size(spec) <= 4) {
 		// On some platforms (Wasm) we must ensure that the arg is properly aligned
 		// after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(result, spec, dynamic_ints, अङ्कः_dynamic_ints, (पूर्णाङ्क)arg);
+	} अञ्ञथा {
+		format_emit_stringf(result, spec, dynamic_ints, अङ्कः_dynamic_ints, arg);
 	}
 }
 
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, unsigned long long arg)
+शून्य format_emit_unsigned_long_long(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, unsigned long long arg)
 {
-	if (spec == "%u") {
+	सचे (spec == "%u") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<unsigned int>(arg));
-		return;
+		result += std::to_string(static_cast<unsigned पूर्णाङ्क>(arg));
+		पटिनिवत्त;
 	}
-	if (spec == "%c") {
-		result += static_cast<char>(arg);
-		return;
+	सचे (spec == "%c") {
+		result += static_cast<वर्ण>(arg);
+		पटिनिवत्त;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	सचे (spec_parameter_size(spec) <= 4) {
                 // On some platforms (Wasm) we must ensure that the arg is properly aligned
                 // after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (unsigned int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(result, spec, dynamic_ints, अङ्कः_dynamic_ints, (unsigned पूर्णाङ्क)arg);
+	} अञ्ञथा {
+		format_emit_stringf(result, spec, dynamic_ints, अङ्कः_dynamic_ints, arg);
 	}
 }
 
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, double arg)
+शून्य format_emit_double(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, द्विगुण arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, अङ्कः_dynamic_ints, arg);
 }
 
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const char *arg)
+शून्य format_emit_char_ptr(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, ध्रुव वर्ण *arg)
 {
-	if (spec == "%s") {
+	सचे (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		result += arg;
-		return;
+		पटिनिवत्त;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, अङ्कः_dynamic_ints, arg);
 }
 
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const std::string &arg)
+शून्य format_emit_string(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, ध्रुव std::string &arg)
 {
-	if (spec == "%s") {
+	सचे (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		result += arg;
-		return;
+		पटिनिवत्त;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg.c_str());
+	format_emit_stringf(result, spec, dynamic_ints, अङ्कः_dynamic_ints, arg.c_str());
 }
 
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, std::string_view arg)
+शून्य format_emit_string_view(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, std::string_view arg)
 {
-	if (spec == "%s") {
+	सचे (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		// We can output the string without creating a temporary copy.
 		result += arg;
-		return;
+		पटिनिवत्त;
 	}
 	// Delegate nontrivial formats to the C library. We need to construct
 	// a temporary string to ensure null termination.
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, std::string(arg).c_str());
+	format_emit_stringf(result, spec, dynamic_ints, अङ्कः_dynamic_ints, std::string(arg).c_str());
 }
 
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const void *arg)
+शून्य format_emit_void_ptr(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, ध्रुव शून्य *arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, अङ्कः_dynamic_ints, arg);
 }
 
-#if defined(_WIN32)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#सचे defined(_WIN32)
+ScopedFileLock::ScopedFileLock(ध्रुव std::string &path)
 {
 	HANDLE h = CreateFileA(path.c_str(), GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-			NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h == INVALID_HANDLE_VALUE) {
+			रिक्त, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, रिक्त);
+	सचे (h == INVALID_HANDLE_मानम्) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+		पटिनिवत्त;
 	}
 	OVERLAPPED ov = {};
-	if (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
+	सचे (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
 		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
 		CloseHandle(h);
-		return;
+		पटिनिवत्त;
 	}
 	handle = h;
 }
 
 ScopedFileLock::~ScopedFileLock()
 {
-	if (handle != nullptr) {
+	सचे (handle != nullptr) {
 		OVERLAPPED ov = {};
 		UnlockFileEx(handle, 0, MAXDWORD, MAXDWORD, &ov);
 		CloseHandle(handle);
 	}
 }
-#elif !defined(__wasi__)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#नोचेद्यदि !defined(__wasi__)
+ScopedFileLock::ScopedFileLock(ध्रुव std::string &path)
 {
 	fd = open(path.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0666);
-	if (fd < 0)
+	सचे (fd < 0)
 		fd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
-	if (fd < 0) {
+	सचे (fd < 0) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+		पटिनिवत्त;
 	}
-	int ret;
-	while ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
-	if (ret != 0)
+	पूर्णाङ्क ret;
+	याव ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
+	सचे (ret != 0)
 		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
 }
 
 ScopedFileLock::~ScopedFileLock()
 {
-	if (fd >= 0)
+	सचे (fd >= 0)
 		close(fd); // releases the flock
 }
-#else
-ScopedFileLock::ScopedFileLock(const std::string &) {}
+#अञ्ञथा
+ScopedFileLock::ScopedFileLock(ध्रुव std::string &) {}
 ScopedFileLock::~ScopedFileLock() {}
 #endif
 
 unsigned get_process_id()
 {
-#if defined(_WIN32)
-	return GetCurrentProcessId();
-#elif defined(__wasi__)
-	return 0;
-#else
-	return getpid();
+#सचे defined(_WIN32)
+	पटिनिवत्त GetCurrentProcessId();
+#नोचेद्यदि defined(__wasi__)
+	पटिनिवत्त 0;
+#अञ्ञथा
+	पटिनिवत्त getpid();
 #endif
 }
 
