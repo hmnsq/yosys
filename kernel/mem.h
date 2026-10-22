@@ -20,18 +20,18 @@
 #ifndef MEM_H
 #define MEM_H
 
-#include "kernel/yosys.h"
-#include "kernel/ffinit.h"
-#include "kernel/utils.h"
+#अन्तर्भाव "kernel/yosys.h"
+#अन्तर्भाव "kernel/ffinit.h"
+#अन्तर्भाव "kernel/utils.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct MemRd : RTLIL::AttrObject {
+संरचना MemRd : RTLIL::AttrObject {
 	bool removed;
 	Cell *cell;
-	int wide_log2;
+	पूर्णाङ्क wide_log2;
 	bool clk_enable, clk_polarity, ce_over_srst;
-	Const arst_value, srst_value, init_value;
+	Const arst_मूल्य, srst_मूल्य, init_मूल्य;
 	// One bit for every write port, true iff simultanous read on this
 	// port and write on the other port will bypass the written data
 	// to this port's output (default behavior is to read old value).
@@ -50,18 +50,18 @@ struct MemRd : RTLIL::AttrObject {
 	MemRd() : removed(false), cell(nullptr), wide_log2(0), clk_enable(false), clk_polarity(true), ce_over_srst(false), clk(State::Sx), en(State::S1), arst(State::S0), srst(State::S0) {}
 
 	// Returns the address of given subword index accessed by this port.
-	SigSpec sub_addr(int sub) {
+	SigSpec sub_addr(पूर्णाङ्क sub) {
 		SigSpec res = addr;
-		for (int i = 0; i < wide_log2; i++)
+		प्रति (पूर्णाङ्क i = 0; i < wide_log2; i++)
 			res[i] = State(sub >> i & 1);
-		return res;
+		प्रत्यागम res;
 	}
 };
 
-struct MemWr : RTLIL::AttrObject {
+संरचना MemWr : RTLIL::AttrObject {
 	bool removed;
 	Cell *cell;
-	int wide_log2;
+	पूर्णाङ्क wide_log2;
 	bool clk_enable, clk_polarity;
 	std::vector<bool> priority_mask;
 	SigSpec clk, en, addr, data;
@@ -69,18 +69,18 @@ struct MemWr : RTLIL::AttrObject {
 	MemWr() : removed(false), cell(nullptr) {}
 
 	// Returns the address of given subword index accessed by this port.
-	SigSpec sub_addr(int sub) {
+	SigSpec sub_addr(पूर्णाङ्क sub) {
 		SigSpec res = addr;
-		for (int i = 0; i < wide_log2; i++)
+		प्रति (पूर्णाङ्क i = 0; i < wide_log2; i++)
 			res[i] = State(sub >> i & 1);
-		return res;
+		प्रत्यागम res;
 	}
 
-	std::pair<SigSpec, std::vector<int>> compress_en();
-	SigSpec decompress_en(const std::vector<int> &swizzle, SigSpec sig);
+	std::pair<SigSpec, std::vector<पूर्णाङ्क>> compress_en();
+	SigSpec decompress_en(ध्रुव std::vector<पूर्णाङ्क> &swizzle, SigSpec sig);
 };
 
-struct MemInit : RTLIL::AttrObject {
+संरचना MemInit : RTLIL::AttrObject {
 	bool removed;
 	Cell *cell;
 	Const addr;
@@ -89,30 +89,30 @@ struct MemInit : RTLIL::AttrObject {
 	MemInit() : removed(false), cell(nullptr) {}
 };
 
-struct Mem : RTLIL::AttrObject {
+संरचना Mem : RTLIL::AttrObject {
 	Module *module;
 	PooledName memid;
 	bool packed;
 	RTLIL::Memory *mem;
 	Cell *cell;
-	int width, start_offset, size;
+	पूर्णाङ्क width, start_offset, size;
 	std::vector<MemInit> inits;
 	std::vector<MemRd> rd_ports;
 	std::vector<MemWr> wr_ports;
 
 	// Removes this memory from the module.  The data in helper structures
 	// is unaffected except for the cell/mem fields.
-	void remove();
+	शून्य हटाओ();
 
 	// Commits all changes in helper structures into the module — ports and
 	// inits marked as removed are actually removed, new ports/inits create
 	// new cells, modified port/inits are commited into their existing
 	// cells.  Note that this reindexes the ports and inits array (actually
 	// removing the ports/inits marked as removed).
-	void emit();
+	शून्य emit();
 
 	// Marks all inits as removed.
-	void clear_inits();
+	शून्य clear_inits();
 
 	// Coalesces inits: whenever two inits have overlapping or touching
 	// address ranges, they are combined into one, with the higher-priority
@@ -120,23 +120,23 @@ struct Mem : RTLIL::AttrObject {
 	// an inits list equivalent to the original, in which all entries
 	// cover disjoint (and non-touching) address ranges, and all enable
 	// masks are all-1.
-	void coalesce_inits();
+	शून्य coalesce_inits();
 
 	// Checks consistency of this memory and all its ports/inits, using
 	// log_assert.
-	void check();
+	शून्य check();
 
 	// Gathers all initialization data into a single big const covering
 	// the whole memory.  For all non-initialized bits, Sx will be returned.
-	Const get_init_data() const;
+	Const get_init_data() ध्रुव;
 
 	// Constructs and returns the helper structures for all memories
 	// in a module.
-	static std::vector<Mem> get_all_memories(Module *module);
+	स्थिर std::vector<Mem> get_all_memories(Module *module);
 
 	// Constructs and returns the helper structures for all selected
 	// memories in a module.
-	static std::vector<Mem> get_selected_memories(Module *module);
+	स्थिर std::vector<Mem> get_selected_memories(Module *module);
 
 	// Converts a synchronous read port into an asynchronous one by
 	// extracting the data (or, in some rare cases, address) register
@@ -145,12 +145,12 @@ struct Mem : RTLIL::AttrObject {
 	// register cell, if any.  Note that in some rare cases this function
 	// may succeed and perform a conversion without creating a new
 	// register — a nullptr result doesn't imply nothing was done.
-	Cell *extract_rdff(int idx, FfInitVals *initvals);
+	Cell *extract_rdff(पूर्णाङ्क idx, FfInitVals *initvals);
 
 	// Splits all wide ports in this memory into equivalent narrow ones.
 	// This function performs no modifications at all to the actual
 	// netlist unless and until emit() is called.
-	void narrow();
+	शून्य narrow();
 
 	// If write port idx2 currently has priority over write port idx1,
 	// inserts extra logic on idx1's enable signal to disable writes
@@ -158,7 +158,7 @@ struct Mem : RTLIL::AttrObject {
 	// from the priority mask.  If there is a memory port that is
 	// transparent with idx1, but not with idx2, that port is converted
 	// to use soft transparency logic.
-	void emulate_priority(int idx1, int idx2, FfInitVals *initvals);
+	शून्य emulate_priority(पूर्णाङ्क idx1, पूर्णाङ्क idx2, FfInitVals *initvals);
 
 	// Creates soft-transparency logic on read port ridx, bypassing the
 	// data from write port widx.  Should only be called when ridx is
@@ -166,7 +166,7 @@ struct Mem : RTLIL::AttrObject {
 	// transparency_mask bit will be cleared, and the collision_x_mask
 	// bit will be set instead (since whatever value is read will be
 	// replaced by the soft transparency logic).
-	void emulate_transparency(int widx, int ridx, FfInitVals *initvals);
+	शून्य emulate_transparency(पूर्णाङ्क widx, पूर्णाङ्क ridx, FfInitVals *initvals);
 
 	// Prepares for merging write port idx2 into idx1 (where idx1 < idx2).
 	// Specifically, takes care of priority masks: any priority relations
@@ -175,43 +175,43 @@ struct Mem : RTLIL::AttrObject {
 	// is called.  Likewise, ensures transparency and undefined collision
 	// masks of all read ports have the same values for both ports,
 	// calling emulate_transparency if necessary.
-	void prepare_wr_merge(int idx1, int idx2, FfInitVals *initvals);
+	शून्य prepare_wr_merge(पूर्णाङ्क idx1, पूर्णाङ्क idx2, FfInitVals *initvals);
 
 	// Prepares for merging read port idx2 into idx1.
 	// Specifically, makes sure the transparency and undefined collision
 	// masks of both ports are equal, by changing undefined behavior
 	// of one port to the other's defined behavior, or by calling
 	// emulate_transparency if necessary.
-	void prepare_rd_merge(int idx1, int idx2, FfInitVals *initvals);
+	शून्य prepare_rd_merge(पूर्णाङ्क idx1, पूर्णाङ्क idx2, FfInitVals *initvals);
 
 	// Prepares the memory for widening a port to a given width.  This
 	// involves ensuring that start_offset and size are aligned to the
 	// target width.
-	void widen_prep(int wide_log2);
+	शून्य widen_prep(पूर्णाङ्क wide_log2);
 
 	// Widens a write port up to a given width.  The newly port is
 	// equivalent to the original, made by replicating enable/data bits
 	// and masking enable bits with decoders on the low part of the
 	// original address.
-	void widen_wr_port(int idx, int wide_log2);
+	शून्य widen_wr_port(पूर्णाङ्क idx, पूर्णाङ्क wide_log2);
 
 	// Emulates a sync read port's enable functionality in soft logic,
 	// changing the actual read port's enable to be always-on.
-	void emulate_rden(int idx, FfInitVals *initvals);
+	शून्य emulate_rden(पूर्णाङ्क idx, FfInitVals *initvals);
 
 	// Emulates a sync read port's initial/reset value functionality in
 	// soft logic, removing it from the actual read port.
-	void emulate_reset(int idx, bool emu_init, bool emu_arst, bool emu_srst, FfInitVals *initvals);
+	शून्य emulate_reset(पूर्णाङ्क idx, bool emu_init, bool emu_arst, bool emu_srst, FfInitVals *initvals);
 
 	// Given a read port with ce_over_srst set, converts it to a port
 	// with ce_over_srst unset without changing its behavior by adding
 	// emulation logic.
-	void emulate_rd_ce_over_srst(int idx);
+	शून्य emulate_rd_ce_over_srst(पूर्णाङ्क idx);
 
 	// Given a read port with ce_over_srst unset, converts it to a port
 	// with ce_over_srst set without changing its behavior by adding
 	// emulation logic.
-	void emulate_rd_srst_over_ce(int idx);
+	शून्य emulate_rd_srst_over_ce(पूर्णाङ्क idx);
 
 	// Returns true iff emulate_read_first makes sense to call.
 	bool emulate_read_first_ok();
@@ -220,121 +220,121 @@ struct Mem : RTLIL::AttrObject {
 	// all-transparent ports, by delaying all write ports by one cycle.
 	// This can only be used when all read ports and all write ports are
 	// in the same clock domain.
-	void emulate_read_first(FfInitVals *initvals);
+	शून्य emulate_read_first(FfInitVals *initvals);
 
-	Mem(Module *module, IdString memid, int width, int start_offset, int size) : module(module), memid(module->design, memid), packed(false), mem(nullptr), cell(nullptr), width(width), start_offset(start_offset), size(size) {}
-	Mem(Module *module, TwineSpec &&memid, int width, int start_offset, int size)
+	Mem(Module *module, IdString memid, पूर्णाङ्क width, पूर्णाङ्क start_offset, पूर्णाङ्क size) : module(module), memid(module->design, memid), packed(false), mem(nullptr), cell(nullptr), width(width), start_offset(start_offset), size(size) {}
+	Mem(Module *module, TwineSpec &&memid, पूर्णाङ्क width, पूर्णाङ्क start_offset, पूर्णाङ्क size)
 			: Mem(module, module->twines().add(std::move(memid)), width, start_offset, size) {}
 };
 
 // MemContents efficiently represents the contents of a potentially sparse memory by storing only those segments that are actually defined
 class MemContents {
-public:
+सार्वजनिक:
 	class range; class iterator;
 	using addr_t = uint32_t;
-private:
+गुप्त:
 	// we ban _addr_width == sizeof(addr_t) * 8 because it adds too many cornercases
-	int _addr_width;
-	int _data_width;
-	RTLIL::Const _default_value;
+	पूर्णाङ्क _addr_width;
+	पूर्णाङ्क _data_width;
+	RTLIL::Const default_मूल्य;
 	// for each range, store the concatenation of the words at the start address
 	// invariants:
 	// - no overlapping or adjacent ranges
 	// - no empty ranges
 	// - all Consts are a multiple of the word size
-	std::map<addr_t, RTLIL::Const> _values;
+	std::map<addr_t, RTLIL::Const> मूल्यावली_2;
 	// returns an iterator to the range containing addr, if it exists, or the first range past addr
-	std::map<addr_t, RTLIL::Const>::iterator _range_at(addr_t addr) const;
-	addr_t _range_size(std::map<addr_t, RTLIL::Const>::iterator it) const { return it->second.size() / _data_width; }
-	addr_t _range_begin(std::map<addr_t, RTLIL::Const>::iterator it) const { return it->first; }
-	addr_t _range_end(std::map<addr_t, RTLIL::Const>::iterator it) const { return _range_begin(it) + _range_size(it); }
+	std::map<addr_t, RTLIL::Const>::iterator _range_at(addr_t addr) ध्रुव;
+	addr_t _range_size(std::map<addr_t, RTLIL::Const>::iterator it) ध्रुव { प्रत्यागम it->second.size() / _data_width; }
+	addr_t _range_begin(std::map<addr_t, RTLIL::Const>::iterator it) ध्रुव { प्रत्यागम it->first; }
+	addr_t _range_end(std::map<addr_t, RTLIL::Const>::iterator it) ध्रुव { प्रत्यागम _range_begin(it) + _range_size(it); }
 	// check if the iterator points to a range containing addr
-	bool _range_contains(std::map<addr_t, RTLIL::Const>::iterator it, addr_t addr) const;
+	bool _range_contains(std::map<addr_t, RTLIL::Const>::iterator it, addr_t addr) ध्रुव;
 	// check if the iterator points to a range containing [begin_addr, end_addr). assumes end_addr >= begin_addr.
-	bool _range_contains(std::map<addr_t, RTLIL::Const>::iterator it, addr_t begin_addr, addr_t end_addr) const;
+	bool _range_contains(std::map<addr_t, RTLIL::Const>::iterator it, addr_t begin_addr, addr_t end_addr) ध्रुव;
 	// check if the iterator points to a range overlapping with [begin_addr, end_addr)
-	bool _range_overlaps(std::map<addr_t, RTLIL::Const>::iterator it, addr_t begin_addr, addr_t end_addr) const;
+	bool _range_overlaps(std::map<addr_t, RTLIL::Const>::iterator it, addr_t begin_addr, addr_t end_addr) ध्रुव;
 	// return the offset the addr would have in the range at `it`
-	size_t _range_offset(std::map<addr_t, RTLIL::Const>::iterator it, addr_t addr) const { return (addr - it->first) * _data_width; }
+	माप_प्रकार _range_offset(std::map<addr_t, RTLIL::Const>::iterator it, addr_t addr) ध्रुव { प्रत्यागम (addr - it->first) * _data_width; }
 	// assuming _range_contains(it, addr), return an iterator pointing to the data at addr
 	RTLIL::Const::iterator _range_data(std::map<addr_t, RTLIL::Const>::iterator it, addr_t addr) {
-		return RTLIL::Const::iterator(it->second, _range_offset(it, addr));
+		प्रत्यागम RTLIL::Const::iterator(it->second, _range_offset(it, addr));
 	}
 	// internal version of reserve_range that returns an iterator to the range
 	std::map<addr_t, RTLIL::Const>::iterator _reserve_range(addr_t begin_addr, addr_t end_addr);
 	// write a single word at addr, return iterator to next word
-	RTLIL::Const::iterator _range_write(RTLIL::Const::iterator it, RTLIL::Const const &data);
-public:
+	RTLIL::Const::iterator _range_write(RTLIL::Const::iterator it, RTLIL::Const ध्रुव &data);
+सार्वजनिक:
 	class range {
-		int _data_width;
+		पूर्णाङ्क _data_width;
 		addr_t _base;
-		RTLIL::Const const &_values;
-		friend class iterator;
-		range(int data_width, addr_t base, RTLIL::Const const &values)
-		: _data_width(data_width), _base(base), _values(values) {}
-	public:
-		addr_t base() const { return _base; }
-		addr_t size() const { return ((addr_t) _values.size()) / _data_width; }
-		addr_t limit() const { return _base + size(); }
-		RTLIL::Const const &concatenated() const { return _values; }
-		RTLIL::Const operator[](addr_t addr) const {
+		RTLIL::Const ध्रुव &मूल्यावली_2;
+		मित्र class iterator;
+		range(पूर्णाङ्क data_width, addr_t base, RTLIL::Const ध्रुव &मूल्यावली)
+		: _data_width(data_width), _base(base), मूल्यावली_2(मूल्यावली) {}
+	सार्वजनिक:
+		addr_t base() ध्रुव { प्रत्यागम _base; }
+		addr_t size() ध्रुव { प्रत्यागम ((addr_t) मूल्यावली_2.size()) / _data_width; }
+		addr_t limit() ध्रुव { प्रत्यागम _base + size(); }
+		RTLIL::Const ध्रुव &concatenated() ध्रुव { प्रत्यागम मूल्यावली_2; }
+		RTLIL::Const चालक[](addr_t addr) ध्रुव {
 			log_assert(addr - _base < size());
-			return _values.extract((addr - _base) * _data_width, _data_width);
+			प्रत्यागम मूल्यावली_2.extract((addr - _base) * _data_width, _data_width);
 		}
-		RTLIL::Const at_offset(addr_t offset) const { return (*this)[_base + offset]; }
+		RTLIL::Const at_offset(addr_t offset) ध्रुव { प्रत्यागम (*this)[_base + offset]; }
 	};
 	class iterator {
-		MemContents const *_memory;
+		MemContents ध्रुव *_memory;
 		// storing addr instead of an iterator gives more well-defined behaviour under insertions/deletions
 		// use ~0 for end so that all end iterators compare the same
 		addr_t _addr;
-		friend class MemContents;
-		iterator(MemContents const *memory, addr_t addr) : _memory(memory), _addr(addr) {}
-	public:
-		using iterator_category = std::input_iterator_tag;
-		using value_type = range;
+		मित्र class MemContents;
+		iterator(MemContents ध्रुव *memory, addr_t addr) : _memory(memory), _addr(addr) {}
+	सार्वजनिक:
+		using iterator_category = std::निवेश_iterator_tag;
+		using मूल्य_type = range;
 		using pointer = arrow_proxy<range>;
 		using reference = range;
 		using difference_type = addr_t;
-		reference operator *() const { return range(_memory->_data_width, _addr, _memory->_values.at(_addr)); }
-		pointer operator->() const { return arrow_proxy<range>(**this); }
-		bool operator !=(iterator const &other) const { return _memory != other._memory || _addr != other._addr; }
-		bool operator ==(iterator const &other) const { return !(*this != other); }
-		iterator &operator++();
+		reference चालक *() ध्रुव { प्रत्यागम range(_memory->_data_width, _addr, _memory->मूल्यावली_2.at(_addr)); }
+		pointer चालक->() ध्रुव { प्रत्यागम arrow_proxy<range>(**this); }
+		bool चालक !=(iterator ध्रुव &other) ध्रुव { प्रत्यागम _memory != other._memory || _addr != other._addr; }
+		bool चालक ==(iterator ध्रुव &other) ध्रुव { प्रत्यागम !(*this != other); }
+		iterator &चालक++();
 	};
-	MemContents(int addr_width, int data_width, RTLIL::Const default_value)
+	MemContents(पूर्णाङ्क addr_width, पूर्णाङ्क data_width, RTLIL::Const default_मूल्य_2)
 		: _addr_width(addr_width), _data_width(data_width)
-		, _default_value((default_value.extu(data_width), std::move(default_value)))
-	{ log_assert(_addr_width > 0 && _addr_width < (int)sizeof(addr_t) * 8); log_assert(_data_width > 0); }
-	MemContents(int addr_width, int data_width) : MemContents(addr_width, data_width, RTLIL::Const(State::Sx, data_width)) {}
+		, default_मूल्य((default_मूल्य_2.extu(data_width), std::move(default_मूल्य_2)))
+	{ log_assert(_addr_width > 0 && _addr_width < (पूर्णाङ्क)परिमाण(addr_t) * 8); log_assert(_data_width > 0); }
+	MemContents(पूर्णाङ्क addr_width, पूर्णाङ्क data_width) : MemContents(addr_width, data_width, RTLIL::Const(State::Sx, data_width)) {}
 	explicit MemContents(Mem *mem);
-	int addr_width() const { return _addr_width; }
-	int data_width() const { return _data_width; }
-	RTLIL::Const const &default_value() const { return _default_value; }
+	पूर्णाङ्क addr_width() ध्रुव { प्रत्यागम _addr_width; }
+	पूर्णाङ्क data_width() ध्रुव { प्रत्यागम _data_width; }
+	RTLIL::Const ध्रुव &default_मूल्य_2() ध्रुव { प्रत्यागम default_मूल्य; }
 	// return the value at the address if it exists, the default_value of the memory otherwise. address must not exceed 2**addr_width.
-	RTLIL::Const operator [](addr_t addr) const;
+	RTLIL::Const चालक [](addr_t addr) ध्रुव;
 	// return the number of defined words in the range [begin_addr, end_addr)
-	addr_t count_range(addr_t begin_addr, addr_t end_addr) const;
+	addr_t गिनती_range(addr_t begin_addr, addr_t end_addr) ध्रुव;
 	// allocate memory for the range [begin_addr, end_addr), but leave the contents undefined.
-	void reserve_range(addr_t begin_addr, addr_t end_addr) { _reserve_range(begin_addr, end_addr); }
+	शून्य reserve_range(addr_t begin_addr, addr_t end_addr) { _reserve_range(begin_addr, end_addr); }
 	// insert multiple words (provided as a single concatenated RTLIL::Const) at the given address, overriding any previous assignment.
-	void insert_concatenated(addr_t addr, RTLIL::Const const &values);
+	शून्य जोड़ो_concatenated(addr_t addr, RTLIL::Const ध्रुव &मूल्यावली);
 	// insert multiple words at the given address, overriding any previous assignment.
-	template<typename Iterator> void insert_range(addr_t addr, Iterator begin, Iterator end) {
-		auto words = end - begin;
-		log_assert(addr < (addr_t)(1<<_addr_width)); log_assert(words <= (addr_t)(1<<_addr_width) - addr);
-		auto range = _reserve_range(addr, addr + words);
-		auto it = _range_data(range, addr);
-		for(; begin != end; ++begin)
+	ढाँचा<typename Iterator> शून्य जोड़ो_range(addr_t addr, Iterator begin, Iterator end) {
+		स्वतः शब्दगण_2 = end - begin;
+		log_assert(addr < (addr_t)(1<<_addr_width)); log_assert(शब्दगण_2 <= (addr_t)(1<<_addr_width) - addr);
+		स्वतः range = _reserve_range(addr, addr + शब्दगण_2);
+		स्वतः it = _range_data(range, addr);
+		प्रति(; begin != end; ++begin)
 			it = _range_write(it, *begin);
 	}
 	// undefine all words in the range [begin_addr, end_addr)
-	void clear_range(addr_t begin_addr, addr_t end_addr);
+	शून्य clear_range(addr_t begin_addr, addr_t end_addr);
 	// check invariants, abort if invariants failed
-	void check();
-	iterator end() const { return iterator(nullptr, ~(addr_t) 0); }
-	iterator begin() const { return _values.empty() ? end() : iterator(this, _values.begin()->first); }
-	bool empty() const { return _values.empty(); }
+	शून्य check();
+	iterator end() ध्रुव { प्रत्यागम iterator(nullptr, ~(addr_t) 0); }
+	iterator begin() ध्रुव { प्रत्यागम मूल्यावली_2.empty() ? end() : iterator(this, मूल्यावली_2.begin()->first); }
+	bool empty() ध्रुव { प्रत्यागम मूल्यावली_2.empty(); }
 };
 
 YOSYS_NAMESPACE_END
