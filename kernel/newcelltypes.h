@@ -1,8 +1,8 @@
 #ifndef NEWCELLTYPES_H
 #define NEWCELLTYPES_H
 
-#include "kernel/rtlil.h"
-#include "kernel/yosys.h"
+#ضمن "kernel/rtlil.h"
+#ضمن "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -14,32 +14,32 @@ YOSYS_NAMESPACE_BEGIN
 namespace StaticCellTypes {
 
 // Given by last internal cell type IdString constids.inc, compilation error if too low
-constexpr int MAX_CELLS = 300;
+constexpr صحيح MAX_CELLS = 300;
 // Currently given by _MUX16_, compilation error if too low
-constexpr int MAX_PORTS = 20;
-struct CellTableBuilder {
-	struct PortList {
+constexpr صحيح MAX_PORTS = 20;
+بنية CellTableBuilder {
+	بنية PortList {
 		std::array<RTLIL::IdString, MAX_PORTS> ports{};
 		size_t count = 0;
-		constexpr PortList() = default;
+		constexpr PortList() = افتراضي;
 		constexpr PortList(std::initializer_list<RTLIL::IdString> init) {
-			for (auto p : init) {
+			لكل (auto p : init) {
 				ports[count++] = p;
 			}
 		}
-		constexpr auto begin() const { return ports.begin(); }
-		constexpr auto end() const { return ports.begin() + count; }
-		constexpr bool contains(RTLIL::IdString port) const {
-			for (size_t i = 0; i < count; i++) {
-				if (port == ports[i])
-					return true;
+		constexpr auto begin() ثابت { ܦܢܐ ports.begin(); }
+		constexpr auto end() ثابت { ܦܢܐ ports.begin() + count; }
+		constexpr bool contains(RTLIL::IdString port) ثابت {
+			لكل (size_t i = 0; i < count; i++) {
+				ܐܢ (port == ports[i])
+					ܦܢܐ true;
 			}
 
-			return false;
+			ܦܢܐ false;
 		}
-		constexpr size_t size() const { return count; }
+		constexpr size_t size() ثابت { ܦܢܐ count; }
 	};
-	struct Features {
+	بنية Features {
 		bool is_evaluable = false;
 		bool is_combinatorial = false;
 		bool is_synthesizable = false;
@@ -49,7 +49,7 @@ struct CellTableBuilder {
 		bool is_anyinit = false;
 		bool is_tristate = false;
 	};
-	struct CellInfo {
+	بنية CellInfo {
 		RTLIL::IdString type;
 		PortList inputs, outputs;
 		Features features;
@@ -57,10 +57,10 @@ struct CellTableBuilder {
 	std::array<CellInfo, MAX_CELLS> cells{};
 	size_t count = 0;
 
-	constexpr void setup_type(RTLIL::IdString type, std::initializer_list<RTLIL::IdString> inputs, std::initializer_list<RTLIL::IdString> outputs, const Features& features) {
+	constexpr فراغ setup_type(RTLIL::IdString type, std::initializer_list<RTLIL::IdString> inputs, std::initializer_list<RTLIL::IdString> outputs, ثابت Features& features) {
 		cells[count++] = {type, PortList(inputs), PortList(outputs), features};
 	}
-	constexpr void setup_internals_other()
+	constexpr فراغ setup_internals_other()
 	{
 		Features features {};
 		features.is_tristate = true;
@@ -70,7 +70,7 @@ struct CellTableBuilder {
 		setup_type(ID($barrier), {ID::A}, {ID::Y}, features);
 
 		features = {};
-		setup_type(ID($assert), {ID::A, ID::EN}, {}, features);
+		setup_type(ID($أكد), {ID::A, ID::EN}, {}, features);
 		setup_type(ID($assume), {ID::A, ID::EN}, {}, features);
 		setup_type(ID($live), {ID::A, ID::EN}, {}, features);
 		setup_type(ID($fair), {ID::A, ID::EN}, {}, features);
@@ -95,7 +95,7 @@ struct CellTableBuilder {
 		setup_type(ID($input_port), {}, {ID::Y}, features);
 		setup_type(ID($connect), {ID::A, ID::B}, {}, features);
 	}
-	constexpr void setup_internals_eval()
+	constexpr فراغ setup_internals_eval()
 	{
 		Features features {};
 		features.is_evaluable = true;
@@ -114,16 +114,16 @@ struct CellTableBuilder {
 			ID($bweqx)
 		};
 
-		for (auto type : unary_ops)
+		لكل (auto type : unary_ops)
 			setup_type(type, {ID::A}, {ID::Y}, features);
 
-		for (auto type : binary_ops)
+		لكل (auto type : binary_ops)
 			setup_type(type, {ID::A, ID::B}, {ID::Y}, features);
 
-		for (auto type : {ID($mux), ID($pmux), ID($bwmux)})
+		لكل (auto type : {ID($mux), ID($pmux), ID($bwmux)})
 			setup_type(type, {ID::A, ID::B, ID::S}, {ID::Y}, features);
 
-		for (auto type : {ID($bmux), ID($demux)})
+		لكل (auto type : {ID($bmux), ID($demux)})
 			setup_type(type, {ID::A, ID::S}, {ID::Y}, features);
 
 		setup_type(ID($lcu), {ID::P, ID::G, ID::CI}, {ID::CO}, features);
@@ -131,7 +131,7 @@ struct CellTableBuilder {
 		setup_type(ID($macc_v2), {ID::A, ID::B, ID::C}, {ID::Y}, features);
 		setup_type(ID($fa), {ID::A, ID::B, ID::C}, {ID::X, ID::Y}, features);
 	}
-	constexpr void setup_internals_ff()
+	constexpr فراغ setup_internals_ff()
 	{
 		Features features {};
 		features.is_ff = true;
@@ -152,13 +152,13 @@ struct CellTableBuilder {
 		setup_type(ID($adlatch), {ID::EN, ID::D, ID::ARST}, {ID::Q}, features);
 		setup_type(ID($dlatchsr), {ID::EN, ID::SET, ID::CLR, ID::D}, {ID::Q}, features);
 	}
-	constexpr void setup_internals_anyinit()
+	constexpr فراغ setup_internals_anyinit()
 	{
 		Features features {};
 		features.is_anyinit = true;
 		setup_type(ID($anyinit), {ID::D}, {ID::Q}, features);
 	}
-	constexpr void setup_internals_mem_noff()
+	constexpr فراغ setup_internals_mem_noff()
 	{
 		Features features {};
 		features.is_mem_noff = true;
@@ -176,7 +176,7 @@ struct CellTableBuilder {
 		// What?
 		setup_type(ID($fsm), {ID::CLK, ID::ARST, ID::CTRL_IN}, {ID::CTRL_OUT}, features);
 	}
-	constexpr void setup_stdcells_tristate()
+	constexpr فراغ setup_stdcells_tristate()
 	{
 		Features features {};
 		features.is_stdcell = true;
@@ -184,7 +184,7 @@ struct CellTableBuilder {
 		setup_type(ID($_TBUF_), {ID::A, ID::E}, {ID::Y}, features);
 	}
 
-	constexpr void setup_stdcells_eval()
+	constexpr فراغ setup_stdcells_eval()
 	{
 		Features features {};
 		features.is_stdcell = true;
@@ -210,7 +210,7 @@ struct CellTableBuilder {
 		setup_type(ID($_OAI4_), {ID::A, ID::B, ID::C, ID::D}, {ID::Y}, features);
 	}
 
-	constexpr void setup_stdcells_ff() {
+	constexpr فراغ setup_stdcells_ff() {
 		Features features {};
 		features.is_stdcell = true;
 		features.is_ff = true;
@@ -421,21 +421,21 @@ struct CellTableBuilder {
 
 constexpr CellTableBuilder builder {};
 
-struct PortInfo {
-	struct PortLists {
+بنية PortInfo {
+	بنية PortLists {
 		std::array<CellTableBuilder::PortList, MAX_CELLS> data{};
-		constexpr CellTableBuilder::PortList operator()(IdString type) const {
-			return data[type.raw()];
+		constexpr CellTableBuilder::PortList operator()(IdString type) ثابت {
+			ܦܢܐ data[type.raw()];
 		}
 		constexpr CellTableBuilder::PortList& operator[](size_t idx) {
-			return data[idx];
+			ܦܢܐ data[idx];
 		}
-		constexpr size_t size() const { return data.size(); }
+		constexpr size_t size() ثابت { ܦܢܐ data.size(); }
 	};
 	PortLists inputs {};
 	PortLists outputs {};
 	constexpr PortInfo() {
-		for (size_t i = 0; i < builder.count; ++i) {
+		لكل (size_t i = 0; i < builder.count; ++i) {
 			auto& cell = builder.cells[i];
 			size_t idx = cell.type.raw();
 			inputs[idx] = cell.inputs;
@@ -444,31 +444,31 @@ struct PortInfo {
 	}
 };
 
-struct Categories {
-	struct Category {
+بنية Categories {
+	بنية Category {
 		std::array<bool, MAX_CELLS> data{};
-		constexpr bool operator()(IdString type) const {
+		constexpr bool operator()(IdString type) ثابت {
 			size_t idx = type.raw();
-			if (idx >= MAX_CELLS)
-				return false;
-			return data[idx];
+			ܐܢ (idx >= MAX_CELLS)
+				ܦܢܐ false;
+			ܦܢܐ data[idx];
 		}
 		constexpr bool operator[](size_t idx) {
-			return data[idx];
+			ܦܢܐ data[idx];
 		}
-		constexpr void set_id(IdString type, bool val = true) {
+		constexpr فراغ set_id(IdString type, bool val = true) {
 			size_t idx = type.raw();
-			if (idx >= MAX_CELLS) {
-				if (std::is_constant_evaluated())
+			ܐܢ (idx >= MAX_CELLS) {
+				ܐܢ (std::is_constant_evaluated())
 					throw "cell type index out of range";
 				log_abort();
 			}
 			data[idx] = val;
 		}
-		constexpr void set(size_t idx, bool val = true) {
+		constexpr فراغ set(size_t idx, bool val = true) {
 			data[idx] = val;
 		}
-		constexpr size_t size() const { return data.size(); }
+		constexpr size_t size() ثابت { ܦܢܐ data.size(); }
 	};
 	Category empty {};
 	Category is_known {};
@@ -481,7 +481,7 @@ struct Categories {
 	Category is_anyinit {};
 	Category is_tristate {};
 	constexpr Categories() {
-		for (size_t i = 0; i < builder.count; ++i) {
+		لكل (size_t i = 0; i < builder.count; ++i) {
 			auto& cell = builder.cells[i];
 			size_t idx = cell.type.raw();
 			is_known.set(idx);
@@ -495,47 +495,47 @@ struct Categories {
 			is_tristate.set(idx, cell.features.is_tristate);
 		}
 	}
-	constexpr static Category join(Category left, Category right) {
+	constexpr ساكن Category join(Category left, Category right) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
+		لكل (size_t i = 0; i < MAX_CELLS; ++i) {
 			c.set(i, left[i] || right[i]);
 		}
-		return c;
+		ܦܢܐ c;
 	}
-	constexpr static Category meet(Category left, Category right) {
+	constexpr ساكن Category meet(Category left, Category right) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
+		لكل (size_t i = 0; i < MAX_CELLS; ++i) {
 			c.set(i, left[i] && right[i]);
 		}
-		return c;
+		ܦܢܐ c;
 	}
 	// Sketchy! Make sure to always meet with only the known universe.
 	// In other words, no modus tollens allowed
-	constexpr static Category complement(Category arg) {
+	constexpr ساكن Category complement(Category arg) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
+		لكل (size_t i = 0; i < MAX_CELLS; ++i) {
 			c.set(i, !arg[i]);
 		}
-		return c;
+		ܦܢܐ c;
 	}
 };
 
 // Pure
-static constexpr PortInfo port_info;
-static constexpr Categories categories;
+ساكن constexpr PortInfo port_info;
+ساكن constexpr Categories categories;
 
 // Legacy
 namespace Compat {
-	static constexpr auto internals_all = Categories::meet(categories.is_known, Categories::complement(categories.is_stdcell));
-	static constexpr auto mem_ff = Categories::join(categories.is_ff, categories.is_mem_noff);
+	ساكن constexpr auto internals_all = Categories::meet(categories.is_known, Categories::complement(categories.is_stdcell));
+	ساكن constexpr auto mem_ff = Categories::join(categories.is_ff, categories.is_mem_noff);
 	// old setup_internals + setup_stdcells
-	static constexpr auto nomem_noff = Categories::meet(categories.is_known, Categories::complement(mem_ff));
-	static constexpr auto internals_mem_ff = Categories::meet(internals_all, mem_ff);
+	ساكن constexpr auto nomem_noff = Categories::meet(categories.is_known, Categories::complement(mem_ff));
+	ساكن constexpr auto internals_mem_ff = Categories::meet(internals_all, mem_ff);
 	// old setup_internals
-	static constexpr auto internals_nomem_noff = Categories::meet(internals_all, nomem_noff);
+	ساكن constexpr auto internals_nomem_noff = Categories::meet(internals_all, nomem_noff);
 	// old setup_stdcells
-	static constexpr auto stdcells_nomem_noff = Categories::meet(categories.is_stdcell, nomem_noff);
-	static constexpr auto stdcells_mem = Categories::meet(categories.is_stdcell, categories.is_mem_noff);
+	ساكن constexpr auto stdcells_nomem_noff = Categories::meet(categories.is_stdcell, nomem_noff);
+	ساكن constexpr auto stdcells_mem = Categories::meet(categories.is_stdcell, categories.is_mem_noff);
 	// old setup_internals_eval
 	// static constexpr auto internals_eval = Categories::meet(internals_all, categories.is_evaluable);
 };
@@ -550,7 +550,7 @@ namespace {
 
 };
 
-struct NewCellType {
+بنية NewCellType {
 	RTLIL::IdString type;
 	pool<RTLIL::IdString> inputs, outputs;
 	bool is_evaluable;
@@ -558,7 +558,7 @@ struct NewCellType {
 	bool is_synthesizable;
 };
 
-struct NewCellTypes {
+بنية NewCellTypes {
 	StaticCellTypes::Categories::Category static_cell_types = StaticCellTypes::categories.empty;
 	dict<IdString, NewCellType> custom_cell_types {};
 
@@ -570,82 +570,82 @@ struct NewCellTypes {
 		static_cell_types = StaticCellTypes::categories.empty;
 		setup(design);
 	}
-	void setup(RTLIL::Design *design = NULL) {
-		if (design)
+	فراغ setup(RTLIL::Design *design = عدم) {
+		ܐܢ (design)
 			setup_design(design);
 		static_cell_types = StaticCellTypes::categories.is_known;
 	}
-	void setup_design(RTLIL::Design *design) {
-		for (auto module : design->modules())
+	فراغ setup_design(RTLIL::Design *design) {
+		لكل (auto module : design->modules())
 			setup_module(module);
 	}
 
-	void setup_module(RTLIL::Module *module) {
+	فراغ setup_module(RTLIL::Module *module) {
 		pool<IdString> inputs, outputs;
-		for (auto wire_name : module->ports) {
+		لكل (auto wire_name : module->ports) {
 			RTLIL::Wire *wire = module->wire(wire_name);
-			if (wire->port_input)
+			ܐܢ (wire->port_input)
 				inputs.insert(wire->name);
-			if (wire->port_output)
+			ܐܢ (wire->port_output)
 				outputs.insert(wire->name);
 		}
 		setup_type(module->name, inputs, outputs);
 	}
 
-	void setup_type(RTLIL::IdString type, const pool<RTLIL::IdString> &inputs, const pool<RTLIL::IdString> &outputs, bool is_evaluable = false, bool is_combinatorial = false, bool is_synthesizable = false) {
+	فراغ setup_type(RTLIL::IdString type, ثابت pool<RTLIL::IdString> &inputs, ثابت pool<RTLIL::IdString> &outputs, bool is_evaluable = false, bool is_combinatorial = false, bool is_synthesizable = false) {
 		NewCellType ct = {type, inputs, outputs, is_evaluable, is_combinatorial, is_synthesizable};
 		custom_cell_types[ct.type] = ct;
 	}
 
-	void clear() {
+	فراغ clear() {
 		custom_cell_types.clear();
 		static_cell_types = StaticCellTypes::categories.empty;
 	}
 
-	bool cell_known(IdString type) const {
-		return static_cell_types(type) || custom_cell_types.count(type) != 0;
+	bool cell_known(IdString type) ثابت {
+		ܦܢܐ static_cell_types(type) || custom_cell_types.count(type) != 0;
 	}
 
-	bool cell_output(IdString type, IdString port) const
+	bool cell_output(IdString type, IdString port) ثابت
 	{
-		if (static_cell_types(type) && StaticCellTypes::port_info.outputs(type).contains(port)) {
-			return true;
+		ܐܢ (static_cell_types(type) && StaticCellTypes::port_info.outputs(type).contains(port)) {
+			ܦܢܐ true;
 		}
 		auto it = custom_cell_types.find(type);
-		return it != custom_cell_types.end() && it->second.outputs.count(port) != 0;
+		ܦܢܐ it != custom_cell_types.end() && it->second.outputs.count(port) != 0;
 	}
 
-	bool cell_input(IdString type, IdString port) const
+	bool cell_input(IdString type, IdString port) ثابت
 	{
-		if (static_cell_types(type) && StaticCellTypes::port_info.inputs(type).contains(port)) {
-			return true;
+		ܐܢ (static_cell_types(type) && StaticCellTypes::port_info.inputs(type).contains(port)) {
+			ܦܢܐ true;
 		}
 		auto it = custom_cell_types.find(type);
-		return it != custom_cell_types.end() && it->second.inputs.count(port) != 0;
+		ܦܢܐ it != custom_cell_types.end() && it->second.inputs.count(port) != 0;
 	}
 
-	RTLIL::PortDir cell_port_dir(RTLIL::IdString type, RTLIL::IdString port) const
+	RTLIL::PortDir cell_port_dir(RTLIL::IdString type, RTLIL::IdString port) ثابت
 	{
 		bool is_input, is_output;
-		if (static_cell_types(type)) {
+		ܐܢ (static_cell_types(type)) {
 			is_input = StaticCellTypes::port_info.inputs(type).contains(port);
 			is_output = StaticCellTypes::port_info.outputs(type).contains(port);
-		} else {
+		} ܐܚܪܢܐ {
 			auto it = custom_cell_types.find(type);
-			if (it == custom_cell_types.end())
-				return RTLIL::PD_UNKNOWN;
+			ܐܢ (it == custom_cell_types.end())
+				ܦܢܐ RTLIL::PD_UNKNOWN;
 			is_input = it->second.inputs.count(port);
 			is_output = it->second.outputs.count(port);
 		}
-		return RTLIL::PortDir(is_input + is_output * 2);
+		ܦܢܐ RTLIL::PortDir(is_input + is_output * 2);
 	}
-	bool cell_evaluable(IdString type) const
+	bool cell_evaluable(IdString type) ثابت
 	{
-		return static_cell_types(type) && StaticCellTypes::categories.is_evaluable(type);
+		ܦܢܐ static_cell_types(type) && StaticCellTypes::categories.is_evaluable(type);
 	}
 };
 
-extern NewCellTypes yosys_celltypes;
+خارجي NewCellTypes yosys_celltypes;
 
 YOSYS_NAMESPACE_END
 

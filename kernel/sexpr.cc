@@ -17,50 +17,50 @@
  *
  */
 
-#include "sexpr.h"
+#ضمن "sexpr.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-std::ostream &operator<<(std::ostream &os, SExpr const &sexpr) {
-    if(sexpr.is_atom())
+std::ostream &operator<<(std::ostream &os, SExpr ثابت &sexpr) {
+    ܐܢ(sexpr.is_atom())
         os << sexpr.atom();
-    else if(sexpr.is_list()){
+    ܐܚܪܢܐ ܐܢ(sexpr.is_list()){
         os << "(";
         auto l = sexpr.list();
-        for(size_t i = 0; i < l.size(); i++) {
-            if(i > 0) os << " ";
+        لكل(size_t i = 0; i < l.size(); i++) {
+            ܐܢ(i > 0) os << " ";
             os << l[i];
         }
         os << ")";
-    }else
+    }ܐܚܪܢܐ
         os << "<invalid>";
-    return os;
+    ܦܢܐ os;
 }
 
- std::string SExpr::to_string() const {
+ std::string SExpr::to_string() ثابت {
     std::stringstream ss;
-    ss << *this;
-    return ss.str();
+    ss << *هذا;
+    ܦܢܐ ss.str();
 }
 
-void SExprWriter::nl_if_pending() {
-    if(_pending_nl) {
+فراغ SExprWriter::nl_if_pending() {
+    ܐܢ(_pending_nl) {
         os << '\n';
         _pos = 0;
-        _pending_nl = false;
+        _pending_nl = ܕܓܠܐ;
     }
 }
 
-void SExprWriter::puts(std::string_view s) {
-    if(s.empty()) return;
+فراغ SExprWriter::puts(std::string_view s) {
+    ܐܢ(s.empty()) ܦܢܐ;
     nl_if_pending();
-    for(auto c : s) {
-        if(c == '\n') {
+    لكل(auto c : s) {
+        ܐܢ(c == '\n') {
             os << c;
             _pos = 0;
-        } else {
-            if(_pos == 0) {
-                for(int i = 0; i < _indent; i++)
+        } ܐܚܪܢܐ {
+            ܐܢ(_pos == 0) {
+                لكل(صحيح i = 0; i < _indent; i++)
                     os << "  ";
                 _pos = 2 * _indent;
             }
@@ -78,83 +78,83 @@ void SExprWriter::puts(std::string_view s) {
 // but I can't figure out how to store the widths. As an alternative,
 // we bail out of the calculation as soon as we can tell the expression
 // doesn't fit in the available space.)
-int SExprWriter::check_fit(SExpr const &sexpr, int space) {
-    if(sexpr.is_atom())
-        return space - sexpr.atom().size();
-    else if(sexpr.is_list()) {
+صحيح SExprWriter::check_fit(SExpr ثابت &sexpr, صحيح space) {
+    ܐܢ(sexpr.is_atom())
+        ܦܢܐ space - sexpr.atom().size();
+    ܐܚܪܢܐ ܐܢ(sexpr.is_list()) {
         space -= 2;
-        if(sexpr.list().size() > 1)
+        ܐܢ(sexpr.list().size() > 1)
             space -= sexpr.list().size() - 1;
-        for(auto arg : sexpr.list()) {
-            if(space < 0) break;
+        لكل(auto arg : sexpr.list()) {
+            ܐܢ(space < 0) اكسر;
             space = check_fit(arg, space);
         }
-        return space;
-    } else
-        return -1;
+        ܦܢܐ space;
+    } ܐܚܪܢܐ
+        ܦܢܐ -1;
 }
 
-void SExprWriter::print(SExpr const &sexpr, bool close, bool indent_rest) {
-    if(sexpr.is_atom())
+فراغ SExprWriter::print(SExpr ثابت &sexpr, منطقي close, منطقي indent_rest) {
+    ܐܢ(sexpr.is_atom())
         puts(sexpr.atom());
-    else if(sexpr.is_list()) {
+    ܐܚܪܢܐ ܐܢ(sexpr.is_list()) {
         auto args = sexpr.list();
         puts("(");
         // Expressions are printed horizontally if they fit on the line.
         // We do the check *after* puts("(") to make sure that _pos is accurate.
         // (Otherwise there could be a pending newline + indentation)
-        bool vertical = args.size() > 1 && check_fit(sexpr, _max_line_width - _pos + 1) < 0;
-        if(vertical) _indent++;
-        for(size_t i = 0; i < args.size(); i++) {
-            if(i > 0) puts(vertical ? "\n" : " ");
+        منطقي vertical = args.size() > 1 && check_fit(sexpr, _max_line_width - _pos + 1) < 0;
+        ܐܢ(vertical) _indent++;
+        لكل(size_t i = 0; i < args.size(); i++) {
+            ܐܢ(i > 0) puts(vertical ? "\n" : " ");
             print(args[i]);
         }
         // Any remaining arguments are currently always printed vertically,
         // but are not indented if indent_rest = false.
         _indent += (!close && indent_rest) - vertical;
-        if(close)
+        ܐܢ(close)
             puts(")");
-        else {
+        ܐܚܪܢܐ {
             _unclosed.push_back(indent_rest);
-            _pending_nl = true;
+            _pending_nl = ܫܪܪܐ;
         }
-    }else
+    }ܐܚܪܢܐ
         log_error("shouldn't happen: SExpr '%s' is neither an atom nor a list\n", sexpr.to_string());
 }
 
-void SExprWriter::close(size_t n) {
+فراغ SExprWriter::close(size_t n) {
     log_assert(_unclosed.size() - (_unclosed_stack.empty() ? 0 : _unclosed_stack.back()) >= n);
-    while(n-- > 0) {
-        bool indented = _unclosed[_unclosed.size() - 1];
+    ܟܡܐ(n-- > 0) {
+        منطقي indented = _unclosed[_unclosed.size() - 1];
         _unclosed.pop_back();
         // Only print ) on the same line if it fits.
         _pending_nl = _pos >= _max_line_width;
-        if(indented)
+        ܐܢ(indented)
             _indent--;
         puts(")");
-        _pending_nl = true;
+        _pending_nl = ܫܪܪܐ;
     }
 }
 
-void SExprWriter::comment(std::string const &str, bool hanging) {
-    if(hanging) {
-        if(_pending_nl) {
-            _pending_nl = false;
+فراغ SExprWriter::comment(std::string ثابت &str, منطقي hanging) {
+    ܐܢ(hanging) {
+        ܐܢ(_pending_nl) {
+            _pending_nl = ܕܓܠܐ;
             puts(" ");
         }
     }
     size_t i = 0, e;
-    do{
+    ܥܒܕ{
         e = str.find('\n', i);
         puts("; ");
         puts(std::string_view(str).substr(i, e - i));
         puts("\n");
         i = e + 1;
-    }while(e != std::string::npos);
+    }ܟܡܐ(e != std::string::npos);
 }
 
 SExprWriter::~SExprWriter() {
-    while(!_unclosed_stack.empty())
+    ܟܡܐ(!_unclosed_stack.empty())
         pop();
     close(_unclosed.size());
     nl_if_pending();

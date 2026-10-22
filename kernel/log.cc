@@ -17,98 +17,98 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "libs/sha1/sha1.h"
-#include "backends/rtlil/rtlil_backend.h"
+#ضمن "kernel/yosys.h"
+#ضمن "libs/sha1/sha1.h"
+#ضمن "backends/rtlil/rtlil_backend.h"
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#ܐܢ !defined(_WIN32) || defined(__MINGW32__)
 #  include <sys/time.h>
 #endif
 
-#if defined(YOSYS_ENABLE_DLOPEN)
+#ܐܢ defined(YOSYS_ENABLE_DLOPEN)
 #  include <dlfcn.h>
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-#include <vector>
-#include <list>
+#ضمن <stdlib.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
+#ضمن <stdarg.h>
+#ضمن <vector>
+#ضمن <list>
 
 YOSYS_NAMESPACE_BEGIN
 
-bool log_stderr_sink_forced = false;
+منطقي log_stderr_sink_forced = ܕܓܠܐ;
 
 LogManager &logger()
 {
-	static LogManager instance;
-	return instance;
+	ساكن LogManager instance;
+	ܦܢܐ instance;
 }
 
-std::chrono::steady_clock::time_point LogManager::get_initial_time() const
+std::chrono::steady_clock::time_point LogManager::get_initial_time() ثابت
 {
-	static const auto initial_time = std::chrono::steady_clock::now();
-	return initial_time;
+	ساكن ثابت auto initial_time = std::chrono::steady_clock::now();
+	ܦܢܐ initial_time;
 }
 
-void (*log_error_atexit)() = nullptr;
-void (*log_verific_callback)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg) = nullptr;
+فراغ (*log_error_atexit)() = nullptr;
+فراغ (*log_verific_callback)(صحيح msg_type, ثابت حرف *message_id, LogSourceLocation src, ثابت حرف *msg) = nullptr;
 
-static bool next_print_log = true;
+ساكن منطقي next_print_log = ܫܪܪܐ;
 
-FileLogSink::FileLogSink(const std::string &filename, bool line_buffered, bool append)
+FileLogSink::FileLogSink(ثابت std::string &filename, منطقي line_buffered, منطقي append)
 	: file(fopen(filename.c_str(), append ? "at" : "wt"))
 {
-	if (!file)
-		throw std::runtime_error("Can't open log file `" + filename + "' for writing!\n");
+	ܐܢ (!file)
+		ارم std::runtime_error("Can't open log file `" + filename + "' for writing!\n");
 
-	if (line_buffered)
+	ܐܢ (line_buffered)
 		setvbuf(file, nullptr, _IOLBF, 0);
 }
 
 FileLogSink::~FileLogSink()
 {
 	flush();
-	if (file)
+	ܐܢ (file)
 		fclose(file);
 }
 
-void FileLogSink::log(const LogMessage &msg)
+فراغ FileLogSink::log(ثابت LogMessage &msg)
 {
 	fputs(msg.cached_msg.c_str(), file);
 }
 
-void FileLogSink::flush()
+فراغ FileLogSink::flush()
 {
 	fflush(file);
 }
 
-void ConsoleLogSink::log(const LogMessage &msg)
+فراغ ConsoleLogSink::log(ثابت LogMessage &msg)
 {
 	FILE *file = (msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError) ? stderr : stdout;
 	fputs(msg.cached_msg.c_str(), file);
 }
 
-void ConsoleLogSink::flush()
+فراغ ConsoleLogSink::flush()
 {
 	fflush(stdout);
 	fflush(stderr);
 }
 
-bool StderrLogSink::should_log(const LogMessage &msg) const
+منطقي StderrLogSink::should_log(ثابت LogMessage &msg) ثابت
 {
-	return msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
+	ܦܢܐ msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
 			(msg.severity == LogSeverity::Warning && !quiet_warnings) ||
 			log_stderr_sink_forced;
 }
 
-void StderrLogSink::log(const LogMessage &msg)
+فراغ StderrLogSink::log(ثابت LogMessage &msg)
 {
 	fputs(msg.cached_msg.c_str(), stderr);
 }
 
-void StderrLogSink::flush()
+فراغ StderrLogSink::flush()
 {
 	fflush(stderr);
 }
@@ -118,11 +118,11 @@ ScratchPadLogSink::ScratchPadLogSink(std::string scratchpad)
 {
 }
 
-void ScratchPadLogSink::log(const LogMessage &msg)
+فراغ ScratchPadLogSink::log(ثابت LogMessage &msg)
 {
 	RTLIL::Design *design = yosys_get_design();
-	if (!design)
-		return;
+	ܐܢ (!design)
+		ܦܢܐ;
 
 	design->scratchpad[scratchpad].append(msg.cached_msg);
 }
@@ -136,205 +136,205 @@ LogMessage::LogMessage(LogSeverity severity, LogSourceLocation src, std::string_
 	src(src)
 {
 	std::string time_str;
-	if (logger().get_log_time())
+	ܐܢ (logger().get_log_time())
 	{
-		if (next_print_log) {
-			next_print_log = false;
+		ܐܢ (next_print_log) {
+			next_print_log = ܕܓܠܐ;
 			auto elapsed = std::chrono::steady_clock::now() - logger().get_initial_time();
 			auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-			time_str += stringf("[%05d.%06d] ", int(us.count() / 1'000'000),int(us.count() % 1'000'000));
+			time_str += stringf("[%05d.%06d] ", صحيح(us.count() / 1'000'000),صحيح(us.count() % 1'000'000));
 		}
 
-		if (!format.empty() && format.back() == '\n')
-			next_print_log = true;
+		ܐܢ (!format.empty() && format.back() == '\n')
+			next_print_log = ܫܪܪܐ;
 
 		// Special case to detect newlines in Python log output, since
 		// the binding always calls `log("%s", payload)` and the newline
 		// is then in the first formatted argument
-		if (format == "%s" && !message.empty() && message.back() == '\n')
-			next_print_log = true;
+		ܐܢ (format == "%s" && !message.empty() && message.back() == '\n')
+			next_print_log = ܫܪܪܐ;
 	}
 	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
 	cached_msg = stringf("%s%s%s%s", time_str, loc, prefix, message);
 }
 
-void LogManager::logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in) {
+فراغ LogManager::logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in) {
 	size_t remove_leading = 0;
-	while (format.size() > 1 && format[0] == '\n') {
+	ܟܡܐ (format.size() > 1 && format[0] == '\n') {
 		logv_string(severity, src, prefix, "\n", "\n");
 		format = format.substr(1);
 		++remove_leading;
 	}
-	if (remove_leading > 0) {
+	ܐܢ (remove_leading > 0) {
 		str_in = str_in.substr(remove_leading);
 	}
 
 	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
 	std::string str = stringf("%s%s%s",loc,prefix,str_in);
 
-	if (str.empty())
-		return;
+	ܐܢ (str.empty())
+		ܦܢܐ;
 
 	size_t nnl_pos = str.find_last_not_of('\n');
-	if (nnl_pos == std::string::npos)
+	ܐܢ (nnl_pos == std::string::npos)
 		newline_count += GetSize(str);
-	else
+	ܐܚܪܢܐ
 		newline_count = GetSize(str) - nnl_pos - 1;
 
-	if (hasher)
+	ܐܢ (hasher)
 		hasher->update(str);
 
 	auto msg = LogMessage(severity, src, prefix, format, str_in);
-	for (auto &sink : sinks) {
-		if (sink->should_log(msg))
+	لكل (auto &sink : sinks) {
+		ܐܢ (sink->should_log(msg))
 			sink->log(msg);
 	}
 
-	if (severity == LogSeverity::Header)
+	ܐܢ (severity == LogSeverity::Header)
 		str = str_in;
 
-	static std::string linebuffer;
-	static bool warn_regex_recusion_guard = false;
+	ساكن std::string linebuffer;
+	ساكن منطقي warn_regex_recusion_guard = ܕܓܠܐ;
 
-	if (!warn_regex_recusion_guard)
+	ܐܢ (!warn_regex_recusion_guard)
 	{
-		warn_regex_recusion_guard = true;
+		warn_regex_recusion_guard = ܫܪܪܐ;
 
-		if (warn_regexes.empty() && expect_log.empty() && expect_prefix_log.empty())
+		ܐܢ (warn_regexes.empty() && expect_log.empty() && expect_prefix_log.empty())
 		{
 			linebuffer.clear();
 		}
-		else
+		ܐܚܪܢܐ
 		{
 			linebuffer += str;
 
-			if (!linebuffer.empty() && linebuffer.back() == '\n') {
-				for (auto &re : warn_regexes)
-					if (std::regex_search(linebuffer, re))
+			ܐܢ (!linebuffer.empty() && linebuffer.back() == '\n') {
+				لكل (auto &re : warn_regexes)
+					ܐܢ (std::regex_search(linebuffer, re))
 						log_warning("Found log message matching -W regex:\n%s", str);
 
-				for (auto &[_, item] : expect_log)
-					if (std::regex_search(linebuffer, item.pattern))
+				لكل (auto &[_, item] : expect_log)
+					ܐܢ (std::regex_search(linebuffer, item.pattern))
 						item.current_count++;
 
 				linebuffer.clear();
 			}
 		}
 
-		warn_regex_recusion_guard = false;
+		warn_regex_recusion_guard = ܕܓܠܐ;
 	}
 }
 
-void LogManager::formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str)
+فراغ LogManager::formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str)
 {
 	log_assert(!Multithreading::active());
 
-	if (make_debug && !is_debug(1))
-		return;
+	ܐܢ (make_debug && !is_debug(1))
+		ܦܢܐ;
 	logv_string(severity, src, prefix, format, std::move(str));
 }
 
-void LogManager::formatted_header(RTLIL::Design *design, std::string_view format, std::string str)
+فراغ LogManager::formatted_header(RTLIL::Design *design, std::string_view format, std::string str)
 {
 	log_assert(!Multithreading::active());
 
 	spacer();
-	if (header_count.size() > 0)
+	ܐܢ (header_count.size() > 0)
 		header_count.back()++;
 
-	if (int(header_count.size()) <= verbose_level) {
-		log_stderr_sink_forced = true;
+	ܐܢ (صحيح(header_count.size()) <= verbose_level) {
+		log_stderr_sink_forced = ܫܪܪܐ;
 	}
 
 	std::string header_id;
 
-	for (int c : header_count)
+	لكل (صحيح c : header_count)
 		header_id += stringf("%s%d", header_id.empty() ? "" : ".", c);
 
 	formatted_string(LogSeverity::Header, LogSourceLocation{}, stringf("%s. ", header_id), format, std::move(str));
 	flush();
 
-	if (hdump_all)
+	ܐܢ (hdump_all)
 		hdump[header_id].insert("yosys_dump_" + header_id + ".il");
 
-	if (hdump.count(header_id) && design != nullptr)
-		for (auto &filename : hdump.at(header_id)) {
+	ܐܢ (hdump.count(header_id) && design != nullptr)
+		لكل (auto &filename : hdump.at(header_id)) {
 			log("Dumping current design to '%s'.\n", filename);
 			Pass::call(design, {"dump", "-o", filename});
 		}
-	log_stderr_sink_forced = false;
+	log_stderr_sink_forced = ܕܓܠܐ;
 }
 
-void LogManager::formatted_warning(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+فراغ LogManager::formatted_warning(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
 {
 	log_assert(!Multithreading::active());
 
-	bool suppressed = false;
+	منطقي suppressed = ܕܓܠܐ;
 
-	for (auto &re : nowarn_regexes)
-		if (std::regex_search(message, re))
-			suppressed = true;
+	لكل (auto &re : nowarn_regexes)
+		ܐܢ (std::regex_search(message, re))
+			suppressed = ܫܪܪܐ;
 
 	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	if (suppressed)
+	ܐܢ (suppressed)
 	{
 		log("Suppressed %s%s%s", loc, prefix, message);
 	}
-	else
+	ܐܚܪܢܐ
 	{
-		int bak_make_debug = make_debug;
+		صحيح bak_make_debug = make_debug;
 		make_debug = 0;
 
-		for (auto &re : werror_regexes)
-			if (std::regex_search(message, re))
+		لكل (auto &re : werror_regexes)
+			ܐܢ (std::regex_search(message, re))
 				formatted_error(src, "ERROR: ", format, message);
 
-		bool warning_match = false;
-		for (auto &[_, item] : expect_warning)
-			if (std::regex_search(message, item.pattern)) {
+		منطقي warning_match = ܕܓܠܐ;
+		لكل (auto &[_, item] : expect_warning)
+			ܐܢ (std::regex_search(message, item.pattern)) {
 				item.current_count++;
-				warning_match = true;
+				warning_match = ܫܪܪܐ;
 			}
 
 		std::string pattern = loc + string(prefix) + message;
-		for (auto &[_, item] : expect_prefix_warning)
-			if (std::regex_search(pattern, item.pattern)) {
+		لكل (auto &[_, item] : expect_prefix_warning)
+			ܐܢ (std::regex_search(pattern, item.pattern)) {
 				item.current_count++;
-				warning_match = true;
+				warning_match = ܫܪܪܐ;
 			}
 
-		if (warnings.count(message))
+		ܐܢ (warnings.count(message))
 		{
 			formatted_string(LogSeverity::Info, src, prefix, format, message);
 			flush();
 		}
-		else
+		ܐܚܪܢܐ
 		{
 			formatted_string(LogSeverity::Warning, src, prefix, format, message);
 			flush();
 			warnings.insert(message);
 		}
 
-		if (!warning_match)
+		ܐܢ (!warning_match)
 			warnings_count_noexpect++;
 		warnings_count++;
 		make_debug = bak_make_debug;
 	}
 }
 
-void LogManager::suppressed() {
-	if (debug_suppressed && !make_debug) {
-		constexpr const char* format = "<suppressed ~%d debug messages>\n";
+فراغ LogManager::suppressed() {
+	ܐܢ (debug_suppressed && !make_debug) {
+		constexpr ثابت حرف* format = "<suppressed ~%d debug messages>\n";
 		logv_string(LogSeverity::Info, LogSourceLocation{}, {}, format, stringf(format, debug_suppressed));
 		debug_suppressed = 0;
 	}
 }
 
-void LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+فراغ LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
 {
-	int bak_make_debug = make_debug;
+	صحيح bak_make_debug = make_debug;
 	make_debug = 0;
-	if (severity == LogSeverity::Error)
+	ܐܢ (severity == LogSeverity::Error)
 		suppressed();
 
 	logv_string(severity, src, prefix, format, message);
@@ -342,274 +342,274 @@ void LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, 
 
 	make_debug = bak_make_debug;
 
-	for (auto &[_, item] : expect_error)
-		if (std::regex_search(message, item.pattern))
+	لكل (auto &[_, item] : expect_error)
+		ܐܢ (std::regex_search(message, item.pattern))
 			item.current_count++;
 
 	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
 	std::string pattern = loc + string(prefix) + message;
-	for (auto &[_, item] : expect_prefix_error)
-		if (std::regex_search(pattern, item.pattern))
+	لكل (auto &[_, item] : expect_prefix_error)
+		ܐܢ (std::regex_search(pattern, item.pattern))
 			item.current_count++;
 
 	errors_count++;
 }
 
 [[noreturn]]
-void LogManager::formatted_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+فراغ LogManager::formatted_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
 {
 	error_with_prefix(LogSeverity::Error, src, prefix, format, message);
 
 	check_expected();
 
-	if (log_error_atexit)
+	ܐܢ (log_error_atexit)
 		log_error_atexit();
 
 	YS_DEBUGTRAP_IF_DEBUGGING;
-	const char *e = getenv("YOSYS_ABORT_ON_LOG_ERROR");
-	if (e && atoi(e))
+	ثابت حرف *e = getenv("YOSYS_ABORT_ON_LOG_ERROR");
+	ܐܢ (e && atoi(e))
 		abort();
 
-#if defined(_MSC_VER)
+#ܐܢ defined(_MSC_VER)
 	_exit(1);
-#else
+#ܐܚܪܢܐ
 	_Exit(1);
 #endif
 }
 
-void LogManager::formatted_nonfatal_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+فراغ LogManager::formatted_nonfatal_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
 {
 	error_with_prefix(LogSeverity::NonFatalError, src, prefix, format, message);
 }
 
-void LogManager::add_experimental(const std::string &str)
+فراغ LogManager::add_experimental(ثابت std::string &str)
 {
-	if (experimental_ignored.count(str) == 0 && experimental.count(str) == 0) {
+	ܐܢ (experimental_ignored.count(str) == 0 && experimental.count(str) == 0) {
 		log_warning("Feature '%s' is experimental.\n", str);
 		experimental.insert(str);
 	}
 }
 
-void LogManager::add_deprecated(const std::string &feature, const std::string &earliest_removal)
+فراغ LogManager::add_deprecated(ثابت std::string &feature, ثابت std::string &earliest_removal)
 {
-	if (deprecated.count(feature) == 0) {
-		if (earliest_removal.empty())
+	ܐܢ (deprecated.count(feature) == 0) {
+		ܐܢ (earliest_removal.empty())
 			log_warning("Feature '%s' is deprecated.\n", feature);
-		else
+		ܐܚܪܢܐ
 			log_warning("Feature '%s' is deprecated and may be removed as soon as Yosys %s.\n", feature, earliest_removal);
 		deprecated[feature] = earliest_removal;
 	}
 }
 
-void log_assert_failure(const char *expr, source_location location)
+فراغ log_assert_failure(ثابت حرف *expr, source_location location)
 {
 	log_error("Assert `%s' failed in %s:%d.\n", expr, location.file_name(), location.line());
 }
 
-void log_abort_internal(const char *file, int line)
+فراغ log_abort_internal(ثابت حرف *file, صحيح line)
 {
 	log_error("Abort in %s:%d.\n", file, line);
 }
 
-void log_yosys_abort_message(std::string_view file, int line, std::string_view func, std::string_view message)
+فراغ log_yosys_abort_message(std::string_view file, صحيح line, std::string_view func, std::string_view message)
 {
 	log_error("Abort in %s:%d (%s): %s\n", file, line, func, message);
 }
 
-void LogManager::formatted_cmd_error(std::string_view format, std::string message)
+فراغ LogManager::formatted_cmd_error(std::string_view format, std::string message)
 {
-	if (cmd_error_throw) {
+	ܐܢ (cmd_error_throw) {
 		formatted_string(LogSeverity::Error, LogSourceLocation{}, "ERROR: ", format, message);
 		flush();
 
-		throw log_cmd_error_exception();
+		ارم log_cmd_error_exception();
 	}
 
 	formatted_error(LogSourceLocation{}, "ERROR: ", format, message);
 }
 
-void LogManager::spacer()
+فراغ LogManager::spacer()
 {
-	if (newline_count < 2) log("\n");
-	if (newline_count < 2) log("\n");
+	ܐܢ (newline_count < 2) log("\n");
+	ܐܢ (newline_count < 2) log("\n");
 }
 
-void LogManager::clear_original()
+فراغ LogManager::clear_original()
 {
-	std::erase_if(sinks, [](const auto &sink) { return dynamic_cast<LogSinkRef *>(sink.get()) != nullptr; });
+	std::erase_if(sinks, [](ثابت auto &sink) { ܦܢܐ dynamic_cast<LogSinkRef *>(sink.get()) != nullptr; });
 }
 
-void LogManager::push()
+فراغ LogManager::push()
 {
 	header_count.push_back(0);
 }
 
-void LogManager::pop()
+فراغ LogManager::pop()
 {
 	header_count.pop_back();
 	flush();
 }
 
-#if defined(YOSYS_ENABLE_DLOPEN)
-void log_backtrace(const char *prefix, int levels)
+#ܐܢ defined(YOSYS_ENABLE_DLOPEN)
+فراغ log_backtrace(ثابت حرف *prefix, صحيح levels)
 {
-	if (levels <= 0) return;
+	ܐܢ (levels <= 0) ܦܢܐ;
 
 	Dl_info dli;
-	void *p;
+	فراغ *p;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(0))) && dladdr(p, &dli)) {
+	ܐܢ ((p = __builtin_extract_return_addr(__builtin_return_address(0))) && dladdr(p, &dli)) {
 		log("%sframe #1: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ܐܚܪܢܐ {
 		log("%sframe #1: ---\n", prefix);
-		return;
+		ܦܢܐ;
 	}
 
-	if (levels <= 1) return;
+	ܐܢ (levels <= 1) ܦܢܐ;
 
 #ifndef DEBUG
 	log("%sframe #2: [build Yosys with ENABLE_DEBUG for deeper backtraces]\n", prefix);
-#else
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(1))) && dladdr(p, &dli)) {
+#ܐܚܪܢܐ
+	ܐܢ ((p = __builtin_extract_return_addr(__builtin_return_address(1))) && dladdr(p, &dli)) {
 		log("%sframe #2: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ܐܚܪܢܐ {
 		log("%sframe #2: ---\n", prefix);
-		return;
+		ܦܢܐ;
 	}
 
-	if (levels <= 2) return;
+	ܐܢ (levels <= 2) ܦܢܐ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(2))) && dladdr(p, &dli)) {
+	ܐܢ ((p = __builtin_extract_return_addr(__builtin_return_address(2))) && dladdr(p, &dli)) {
 		log("%sframe #3: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ܐܚܪܢܐ {
 		log("%sframe #3: ---\n", prefix);
-		return;
+		ܦܢܐ;
 	}
 
-	if (levels <= 3) return;
+	ܐܢ (levels <= 3) ܦܢܐ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(3))) && dladdr(p, &dli)) {
+	ܐܢ ((p = __builtin_extract_return_addr(__builtin_return_address(3))) && dladdr(p, &dli)) {
 		log("%sframe #4: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ܐܚܪܢܐ {
 		log("%sframe #4: ---\n", prefix);
-		return;
+		ܦܢܐ;
 	}
 
-	if (levels <= 4) return;
+	ܐܢ (levels <= 4) ܦܢܐ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(4))) && dladdr(p, &dli)) {
+	ܐܢ ((p = __builtin_extract_return_addr(__builtin_return_address(4))) && dladdr(p, &dli)) {
 		log("%sframe #5: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ܐܚܪܢܐ {
 		log("%sframe #5: ---\n", prefix);
-		return;
+		ܦܢܐ;
 	}
 
-	if (levels <= 5) return;
+	ܐܢ (levels <= 5) ܦܢܐ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(5))) && dladdr(p, &dli)) {
+	ܐܢ ((p = __builtin_extract_return_addr(__builtin_return_address(5))) && dladdr(p, &dli)) {
 		log("%sframe #6: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ܐܚܪܢܐ {
 		log("%sframe #6: ---\n", prefix);
-		return;
+		ܦܢܐ;
 	}
 
-	if (levels <= 6) return;
+	ܐܢ (levels <= 6) ܦܢܐ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(6))) && dladdr(p, &dli)) {
+	ܐܢ ((p = __builtin_extract_return_addr(__builtin_return_address(6))) && dladdr(p, &dli)) {
 		log("%sframe #7: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ܐܚܪܢܐ {
 		log("%sframe #7: ---\n", prefix);
-		return;
+		ܦܢܐ;
 	}
 
-	if (levels <= 7) return;
+	ܐܢ (levels <= 7) ܦܢܐ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(7))) && dladdr(p, &dli)) {
+	ܐܢ ((p = __builtin_extract_return_addr(__builtin_return_address(7))) && dladdr(p, &dli)) {
 		log("%sframe #8: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ܐܚܪܢܐ {
 		log("%sframe #8: ---\n", prefix);
-		return;
+		ܦܢܐ;
 	}
 
-	if (levels <= 8) return;
+	ܐܢ (levels <= 8) ܦܢܐ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(8))) && dladdr(p, &dli)) {
+	ܐܢ ((p = __builtin_extract_return_addr(__builtin_return_address(8))) && dladdr(p, &dli)) {
 		log("%sframe #9: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} ܐܚܪܢܐ {
 		log("%sframe #9: ---\n", prefix);
-		return;
+		ܦܢܐ;
 	}
 
-	if (levels <= 9) return;
+	ܐܢ (levels <= 9) ܦܢܐ;
 #endif
 }
-#else
-void log_backtrace(const char*, int) { }
+#ܐܚܪܢܐ
+فراغ log_backtrace(ثابت حرف*, صحيح) { }
 #endif
 
-void LogManager::reset_stack()
+فراغ LogManager::reset_stack()
 {
-	while (header_count.size() > 1)
+	ܟܡܐ (header_count.size() > 1)
 		header_count.pop_back();
 	flush();
 }
 
-void log_dump_val_worker(RTLIL::IdString v) {
-	if (v == IdString::Null)
+فراغ log_dump_val_worker(RTLIL::IdString v) {
+	ܐܢ (v == IdString::Null)
 		log("(null)");
-	else if (ID::is_static(v))
+	ܐܚܪܢܐ ܐܢ (ID::is_static(v))
 		log("%s", ID::unescaped_str(v));
-	else if (yosys_design && yosys_design->twines().is_live(v))
+	ܐܚܪܢܐ ܐܢ (yosys_design && yosys_design->twines().is_live(v))
 		log("%s", yosys_design->twines().unescaped_str(v));
-	else
+	ܐܚܪܢܐ
 		log("%s", v.handle_token());
 }
 
-void log_dump_val_worker(RTLIL::SigSpec v) {
+فراغ log_dump_val_worker(RTLIL::SigSpec v) {
 	log("%s", log_signal(v));
 }
 
-void log_dump_val_worker(RTLIL::State v) {
+فراغ log_dump_val_worker(RTLIL::State v) {
 	log("%s", log_signal(v));
 }
 
-std::string log_signal(const RTLIL::SigSpec &sig, bool autoint)
+std::string log_signal(ثابت RTLIL::SigSpec &sig, منطقي autoint)
 {
 	std::stringstream buf;
 	RTLIL_BACKEND::dump_sigspec(buf, sig, autoint, RTLIL_BACKEND::DumpMode::Readable);
-	return buf.str();
+	ܦܢܐ buf.str();
 }
 
-std::string log_const(const RTLIL::Const &value, bool autoint)
+std::string log_const(ثابت RTLIL::Const &value, منطقي autoint)
 {
-	if ((value.flags & RTLIL::CONST_FLAG_STRING) == 0)
-		return log_signal(value, autoint);
+	ܐܢ ((value.flags & RTLIL::CONST_FLAG_STRING) == 0)
+		ܦܢܐ log_signal(value, autoint);
 
-	return "\"" + value.decode_string() + "\"";
+	ܦܢܐ "\"" + value.decode_string() + "\"";
 }
 
-void log_module(RTLIL::Module *module, std::string indent)
+فراغ log_module(RTLIL::Module *module, std::string indent)
 {
 	std::stringstream buf;
-	RTLIL_BACKEND::dump_module(buf, indent, module, module->design, false, true, false, RTLIL_BACKEND::DumpMode::Readable);
+	RTLIL_BACKEND::dump_module(buf, indent, module, module->design, ܕܓܠܐ, ܫܪܪܐ, ܕܓܠܐ, RTLIL_BACKEND::DumpMode::Readable);
 	log("%s", buf.str());
 }
 
-void log_cell(RTLIL::Cell *cell, std::string indent)
+فراغ log_cell(RTLIL::Cell *cell, std::string indent)
 {
 	std::stringstream buf;
 	RTLIL_BACKEND::dump_cell(buf, indent, cell, cell->module ? cell->module->design : nullptr, RTLIL_BACKEND::DumpMode::Readable);
 	log("%s", buf.str());
 }
 
-void log_wire(RTLIL::Wire *wire, std::string indent)
+فراغ log_wire(RTLIL::Wire *wire, std::string indent)
 {
 	std::stringstream buf;
 	RTLIL_BACKEND::dump_wire(buf, indent, wire, wire->module ? wire->module->design : nullptr, RTLIL_BACKEND::DumpMode::Readable);
 	log("%s", buf.str());
 }
 
-void LogManager::check_expected()
+فراغ LogManager::check_expected()
 {
 	// copy out all of the expected logs so that they cannot be re-checked
 	// or match against themselves
@@ -622,85 +622,85 @@ void LogManager::check_expected()
 	std::swap(expect_prefix_log_copy, expect_prefix_log);
 	std::swap(expect_prefix_error_copy, expect_prefix_error);
 
-	auto check = [&](const std::string kind, std::string pattern, LogExpectedItem item) {
-		if (item.current_count == 0) {
+	auto check = [&](ثابت std::string kind, std::string pattern, LogExpectedItem item) {
+		ܐܢ (item.current_count == 0) {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' not found !\n", kind, pattern);
 		}
-		if (item.current_count != item.expected_count) {
+		ܐܢ (item.current_count != item.expected_count) {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' found %d time(s), instead of %d time(s) !\n",
 				kind.c_str(), pattern.c_str(), item.current_count, item.expected_count);
 		}
 	};
 
-	for (auto &[pattern, item] : expect_warning_copy)
+	لكل (auto &[pattern, item] : expect_warning_copy)
 		check("warning", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_warning_copy)
+	لكل (auto &[pattern, item] : expect_prefix_warning_copy)
 		check("prefixed warning", pattern, item);
-	for (auto &[pattern, item] : expect_log_copy)
+	لكل (auto &[pattern, item] : expect_log_copy)
 		check("log", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_log_copy)
+	لكل (auto &[pattern, item] : expect_prefix_log_copy)
 		check("prefixed log", pattern, item);
 
-	auto check_err = [&](const std::string kind, std::string pattern, LogExpectedItem item) {
-		if (item.current_count == item.expected_count) {
+	auto check_err = [&](ثابت std::string kind, std::string pattern, LogExpectedItem item) {
+		ܐܢ (item.current_count == item.expected_count) {
 			warn_regexes.clear();
 			log("Expected %s pattern '%s' found !!!\n", kind, pattern);
 			yosys_shutdown();
-			#if defined(_MSC_VER)
+			#ܐܢ defined(_MSC_VER)
 				_exit(0);
-			#else
+			#ܐܚܪܢܐ
 				_Exit(0);
 			#endif
-		} else {
+		} ܐܚܪܢܐ {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' not found !\n", kind, pattern);
 		}
 	};
-	for (auto &[pattern, item] : expect_error_copy)
+	لكل (auto &[pattern, item] : expect_error_copy)
 		check_err("error", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_error_copy)
+	لكل (auto &[pattern, item] : expect_prefix_error_copy)
 		check_err("prefixed error", pattern, item);
 }
 
-void LogManager::report_unexpected_error()
+فراغ LogManager::report_unexpected_error()
 {
-	if (expect_no_warnings && warnings_count_noexpect)
+	ܐܢ (expect_no_warnings && warnings_count_noexpect)
 		log_error("Unexpected warnings found: %d unique messages, %d total, %d expected\n", GetSize(warnings),
 					warnings_count, warnings_count - warnings_count_noexpect);
 }
 
-void LogManager::add_expect(std::string type, std::string pattern, int count)
+فراغ LogManager::add_expect(std::string type, std::string pattern, صحيح count)
 {
-	if (type == "error")
+	ܐܢ (type == "error")
 		expect_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-error")
+	ܐܚܪܢܐ ܐܢ (type == "prefix-error")
 		expect_prefix_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "warning")
+	ܐܚܪܢܐ ܐܢ (type == "warning")
 		expect_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-warning")
+	ܐܚܪܢܐ ܐܢ (type == "prefix-warning")
 		expect_prefix_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "log")
+	ܐܚܪܢܐ ܐܢ (type == "log")
 		expect_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-log")
+	ܐܚܪܢܐ ܐܢ (type == "prefix-log")
 		expect_prefix_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else log_abort();
+	ܐܚܪܢܐ log_abort();
 }
 
-void LogManager::start_hasher()
+فراغ LogManager::start_hasher()
 {
 	hasher = std::make_unique<SHA1>();
 }
 
 std::string LogManager::finish_hasher()
 {
-	if (!hasher)
-		return {};
+	ܐܢ (!hasher)
+		ܦܢܐ {};
 
 	std::string hash = hasher->final().substr(0, 10);
 	hasher.reset();
-	return hash;
+	ܦܢܐ hash;
 }
 
 YOSYS_NAMESPACE_END

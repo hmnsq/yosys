@@ -20,58 +20,58 @@
 #ifndef MACC_H
 #define MACC_H
 
-#include "kernel/yosys.h"
+#ضمن "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct Macc
+بنية Macc
 {
-	struct term_t {
+	بنية term_t {
 		RTLIL::SigSpec in_a, in_b;
 		bool is_signed, do_subtract;
 	};
 	std::vector<term_t> terms;
 
-	void optimize(int width)
+	فراغ optimize(صحيح width)
 	{
 		std::vector<term_t> new_terms;
 		RTLIL::Const off(0, width);
 
-		for (auto &port : terms)
+		لكل (auto &port : terms)
 		{
-			if (GetSize(port.in_a) == 0 && GetSize(port.in_b) == 0)
-				continue;
+			ܐܢ (GetSize(port.in_a) == 0 && GetSize(port.in_b) == 0)
+				استمر;
 
-			if (GetSize(port.in_a) < GetSize(port.in_b))
+			ܐܢ (GetSize(port.in_a) < GetSize(port.in_b))
 				std::swap(port.in_a, port.in_b);
 
-			if (port.in_a.is_fully_const() && port.in_b.is_fully_const()) {
+			ܐܢ (port.in_a.is_fully_const() && port.in_b.is_fully_const()) {
 				RTLIL::Const v = port.in_a.as_const();
-				if (GetSize(port.in_b))
+				ܐܢ (GetSize(port.in_b))
 					v = const_mul(v, port.in_b.as_const(), port.is_signed, port.is_signed, width);
-				if (port.do_subtract)
+				ܐܢ (port.do_subtract)
 					off = const_sub(off, v, port.is_signed, port.is_signed, width);
-				else
+				ܐܚܪܢܐ
 					off = const_add(off, v, port.is_signed, port.is_signed, width);
-				continue;
+				استمر;
 			}
 
-			if (port.is_signed) {
-				while (GetSize(port.in_a) > 1 && port.in_a[GetSize(port.in_a)-1] == port.in_a[GetSize(port.in_a)-2])
+			ܐܢ (port.is_signed) {
+				ܟܡܐ (GetSize(port.in_a) > 1 && port.in_a[GetSize(port.in_a)-1] == port.in_a[GetSize(port.in_a)-2])
 					port.in_a.remove(GetSize(port.in_a)-1);
-				while (GetSize(port.in_b) > 1 && port.in_b[GetSize(port.in_b)-1] == port.in_b[GetSize(port.in_b)-2])
+				ܟܡܐ (GetSize(port.in_b) > 1 && port.in_b[GetSize(port.in_b)-1] == port.in_b[GetSize(port.in_b)-2])
 					port.in_b.remove(GetSize(port.in_b)-1);
-			} else {
-				while (GetSize(port.in_a) > 1 && port.in_a[GetSize(port.in_a)-1] == State::S0)
+			} ܐܚܪܢܐ {
+				ܟܡܐ (GetSize(port.in_a) > 1 && port.in_a[GetSize(port.in_a)-1] == State::S0)
 					port.in_a.remove(GetSize(port.in_a)-1);
-				while (GetSize(port.in_b) > 1 && port.in_b[GetSize(port.in_b)-1] == State::S0)
+				ܟܡܐ (GetSize(port.in_b) > 1 && port.in_b[GetSize(port.in_b)-1] == State::S0)
 					port.in_b.remove(GetSize(port.in_b)-1);
 			}
 
 			new_terms.push_back(port);
 		}
 
-		if (off.as_bool()) {
+		ܐܢ (off.as_bool()) {
 			term_t port;
 			port.in_a = off;
 			port.is_signed = false;
@@ -82,26 +82,26 @@ struct Macc
 		new_terms.swap(terms);
 	}
 
-	void from_cell_v1(RTLIL::Cell *cell)
+	فراغ from_cell_v1(RTLIL::Cell *cell)
 	{
 		RTLIL::SigSpec port_a = cell->getPort(ID::A);
 
 		terms.clear();
 
 		auto config_bits = cell->getParam(ID::CONFIG);
-		int config_cursor = 0;
+		صحيح config_cursor = 0;
 
-		int config_width = cell->getParam(ID::CONFIG_WIDTH).as_int();
+		صحيح config_width = cell->getParam(ID::CONFIG_WIDTH).as_int();
 		log_assert(GetSize(config_bits) >= config_width);
 
-		int num_bits = 0;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 1;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 2;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 4;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 8;
+		صحيح num_bits = 0;
+		ܐܢ (config_bits[config_cursor++] == State::S1) num_bits |= 1;
+		ܐܢ (config_bits[config_cursor++] == State::S1) num_bits |= 2;
+		ܐܢ (config_bits[config_cursor++] == State::S1) num_bits |= 4;
+		ܐܢ (config_bits[config_cursor++] == State::S1) num_bits |= 8;
 
-		int port_a_cursor = 0;
-		while (port_a_cursor < GetSize(port_a))
+		صحيح port_a_cursor = 0;
+		ܟܡܐ (port_a_cursor < GetSize(port_a))
 		{
 			log_assert(config_cursor + 2 + 2*num_bits <= config_width);
 
@@ -109,38 +109,38 @@ struct Macc
 			this_port.is_signed = config_bits[config_cursor++] == State::S1;
 			this_port.do_subtract = config_bits[config_cursor++] == State::S1;
 
-			int size_a = 0;
-			for (int i = 0; i < num_bits; i++)
-				if (config_bits[config_cursor++] == State::S1)
+			صحيح size_a = 0;
+			لكل (صحيح i = 0; i < num_bits; i++)
+				ܐܢ (config_bits[config_cursor++] == State::S1)
 					size_a |= 1 << i;
 
 			this_port.in_a = port_a.extract(port_a_cursor, size_a);
 			port_a_cursor += size_a;
 
-			int size_b = 0;
-			for (int i = 0; i < num_bits; i++)
-				if (config_bits[config_cursor++] == State::S1)
+			صحيح size_b = 0;
+			لكل (صحيح i = 0; i < num_bits; i++)
+				ܐܢ (config_bits[config_cursor++] == State::S1)
 					size_b |= 1 << i;
 
 			this_port.in_b = port_a.extract(port_a_cursor, size_b);
 			port_a_cursor += size_b;
 
-			if (size_a || size_b)
+			ܐܢ (size_a || size_b)
 				terms.push_back(this_port);
 		}
 
-		for (auto bit : cell->getPort(ID::B))
+		لكل (auto bit : cell->getPort(ID::B))
 			terms.push_back(term_t{{bit}, {}, false, false});
 
 		log_assert(config_cursor == config_width);
 		log_assert(port_a_cursor == GetSize(port_a));
 	}
 
-	void from_cell(RTLIL::Cell *cell)
+	فراغ from_cell(RTLIL::Cell *cell)
 	{
-		if (cell->type == ID($macc)) {
+		ܐܢ (cell->type == ID($macc)) {
 			from_cell_v1(cell);
-			return;
+			ܦܢܐ;
 		}
 		log_assert(cell->type == ID($macc_v2));
 
@@ -150,20 +150,20 @@ struct Macc
 
 		terms.clear();
 
-		int nproducts = cell->getParam(ID::NPRODUCTS).as_int();
-		const Const &product_neg = cell->getParam(ID::PRODUCT_NEGATED);
-		const Const &a_widths = cell->getParam(ID::A_WIDTHS);
-		const Const &b_widths = cell->getParam(ID::B_WIDTHS);
-		const Const &a_signed = cell->getParam(ID::A_SIGNED);
-		const Const &b_signed = cell->getParam(ID::B_SIGNED);
-		int ai = 0, bi = 0;
-		for (int i = 0; i < nproducts; i++) {
+		صحيح nproducts = cell->getParam(ID::NPRODUCTS).as_int();
+		ثابت Const &product_neg = cell->getParam(ID::PRODUCT_NEGATED);
+		ثابت Const &a_widths = cell->getParam(ID::A_WIDTHS);
+		ثابت Const &b_widths = cell->getParam(ID::B_WIDTHS);
+		ثابت Const &a_signed = cell->getParam(ID::A_SIGNED);
+		ثابت Const &b_signed = cell->getParam(ID::B_SIGNED);
+		صحيح ai = 0, bi = 0;
+		لكل (صحيح i = 0; i < nproducts; i++) {
 			term_t term;
 
 			log_assert(a_signed[i] == b_signed[i]);
 			term.is_signed = (a_signed[i] == State::S1);
-			int a_width = a_widths.extract(16 * i, 16).as_int(false);
-			int b_width = b_widths.extract(16 * i, 16).as_int(false);
+			صحيح a_width = a_widths.extract(16 * i, 16).as_int(false);
+			صحيح b_width = b_widths.extract(16 * i, 16).as_int(false);
 
 			term.in_a = port_a.extract(ai, a_width);
 			ai += a_width;
@@ -176,16 +176,16 @@ struct Macc
 		log_assert(port_a.size() == ai);
 		log_assert(port_b.size() == bi);
 
-		int naddends = cell->getParam(ID::NADDENDS).as_int();
-		const Const &addend_neg = cell->getParam(ID::ADDEND_NEGATED);
-		const Const &c_widths = cell->getParam(ID::C_WIDTHS);
-		const Const &c_signed = cell->getParam(ID::C_SIGNED);
-		int ci = 0;
-		for (int i = 0; i < naddends; i++) {
+		صحيح naddends = cell->getParam(ID::NADDENDS).as_int();
+		ثابت Const &addend_neg = cell->getParam(ID::ADDEND_NEGATED);
+		ثابت Const &c_widths = cell->getParam(ID::C_WIDTHS);
+		ثابت Const &c_signed = cell->getParam(ID::C_SIGNED);
+		صحيح ci = 0;
+		لكل (صحيح i = 0; i < naddends; i++) {
 			term_t term;
 
 			term.is_signed = (c_signed[i] == State::S1);
-			int c_width = c_widths.extract(16 * i, 16).as_int(false);
+			صحيح c_width = c_widths.extract(16 * i, 16).as_int(false);
 
 			term.in_a = port_c.extract(ci, c_width);
 			ci += c_width;
@@ -196,26 +196,26 @@ struct Macc
 		log_assert(port_c.size() == ci);
 	}
 
-	void to_cell(RTLIL::Cell *cell)
+	فراغ to_cell(RTLIL::Cell *cell)
 	{
 		cell->type = ID($macc_v2);
 
-		int nproducts = 0, naddends = 0;
+		صحيح nproducts = 0, naddends = 0;
 		Const a_signed, b_signed, a_widths, b_widths, product_negated;
 		Const c_signed, c_widths, addend_negated;
 		SigSpec a, b, c;
 
-		for (int i = 0; i < (int) terms.size(); i++) {
+		لكل (صحيح i = 0; i < (صحيح) terms.size(); i++) {
 			SigSpec term_a = terms[i].in_a, term_b = terms[i].in_b;
 
-			if (term_b.empty()) {
+			ܐܢ (term_b.empty()) {
 				// addend
 				c_widths.append(Const(term_a.size(), 16));
 				c_signed.append(terms[i].is_signed ? RTLIL::S1 : RTLIL::S0);
 				addend_negated.append(terms[i].do_subtract ? RTLIL::S1 : RTLIL::S0);
 				c.append(term_a);
 				naddends++;
-			} else {
+			} ܐܚܪܢܐ {
 				// product
 				a_widths.append(Const(term_a.size(), 16));
 				b_widths.append(Const(term_b.size(), 16));
@@ -228,21 +228,21 @@ struct Macc
 			}
 		}
 
-		if (a_signed.empty())
+		ܐܢ (a_signed.empty())
 			a_signed = {RTLIL::Sx};
-		if (b_signed.empty())
+		ܐܢ (b_signed.empty())
 			b_signed = {RTLIL::Sx};
-		if (c_signed.empty())
+		ܐܢ (c_signed.empty())
 			c_signed = {RTLIL::Sx};
-		if (a_widths.empty())
+		ܐܢ (a_widths.empty())
 			a_widths = {RTLIL::Sx};
-		if (b_widths.empty())
+		ܐܢ (b_widths.empty())
 			b_widths = {RTLIL::Sx};
-		if (c_widths.empty())
+		ܐܢ (c_widths.empty())
 			c_widths = {RTLIL::Sx};
-		if (product_negated.empty())
+		ܐܢ (product_negated.empty())
 			product_negated = {RTLIL::Sx};
-		if (addend_negated.empty())
+		ܐܢ (addend_negated.empty())
 			addend_negated = {RTLIL::Sx};
 
 		cell->setParam(ID::NPRODUCTS, nproducts);
@@ -260,41 +260,41 @@ struct Macc
 		cell->setPort(ID::C, c);
 	}
 
-	bool eval(RTLIL::Const &result) const
+	bool eval(RTLIL::Const &result) ثابت
 	{
-		for (auto bit : result)
+		لكل (auto bit : result)
 			bit = State::S0;
 
-		for (auto &port : terms)
+		لكل (auto &port : terms)
 		{
-			if (!port.in_a.is_fully_const() || !port.in_b.is_fully_const())
-				return false;
+			ܐܢ (!port.in_a.is_fully_const() || !port.in_b.is_fully_const())
+				ܦܢܐ false;
 
 			RTLIL::Const summand;
-			if (GetSize(port.in_b) == 0)
+			ܐܢ (GetSize(port.in_b) == 0)
 				summand = const_pos(port.in_a.as_const(), port.in_b.as_const(), port.is_signed, port.is_signed, GetSize(result));
-			else
+			ܐܚܪܢܐ
 				summand = const_mul(port.in_a.as_const(), port.in_b.as_const(), port.is_signed, port.is_signed, GetSize(result));
 
-			if (port.do_subtract)
+			ܐܢ (port.do_subtract)
 				result = const_sub(result, summand, port.is_signed, port.is_signed, GetSize(result));
-			else
+			ܐܚܪܢܐ
 				result = const_add(result, summand, port.is_signed, port.is_signed, GetSize(result));
 		}
 
-		return true;
+		ܦܢܐ true;
 	}
 
 	bool is_simple_product()
 	{
-		return terms.size() == 1 &&
+		ܦܢܐ terms.size() == 1 &&
 				!terms[0].in_b.empty() &&
 				!terms[0].do_subtract;
 	}
 
 	Macc(RTLIL::Cell *cell = nullptr)
 	{
-		if (cell != nullptr)
+		ܐܢ (cell != nullptr)
 			from_cell(cell);
 	}
 };

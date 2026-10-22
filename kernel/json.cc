@@ -17,114 +17,114 @@
  *
  */
 
-#include "kernel/json.h"
+#ضمن "kernel/json.h"
 
 USING_YOSYS_NAMESPACE
 
-void PrettyJson::emit_to_log()
+فراغ PrettyJson::emit_to_log()
 {
-    struct LogTarget : public Target {
-        void emit(const char *data) override { log("%s", data); }
+    بنية LogTarget : عام Target {
+        فراغ emit(ثابت حرف *data) override { log("%s", data); }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new LogTarget));
+    targets.push_back(std::unique_ptr<Target>(جديد LogTarget));
 }
 
-void PrettyJson::append_to_string(std::string &target)
+فراغ PrettyJson::append_to_string(std::string &target)
 {
-    struct AppendStringTarget : public Target {
+    بنية AppendStringTarget : عام Target {
         std::string &target;
         AppendStringTarget(std::string &target) : target(target) {}
-        void emit(const char *data) override { target += data; }
+        فراغ emit(ثابت حرف *data) override { target += data; }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new AppendStringTarget(target)));
+    targets.push_back(std::unique_ptr<Target>(جديد AppendStringTarget(target)));
 }
 
-bool PrettyJson::write_to_file(const std::string &path)
+منطقي PrettyJson::write_to_file(ثابت std::string &path)
 {
-    struct WriteFileTarget : public Target {
+    بنية WriteFileTarget : عام Target {
         std::ofstream target;
-        void emit(const char *data) override { target << data; }
-        void flush() override { target.flush(); }
+        فراغ emit(ثابت حرف *data) override { target << data; }
+        فراغ flush() override { target.flush(); }
     };
 
-    auto target = std::unique_ptr<WriteFileTarget>(new WriteFileTarget);
+    auto target = std::unique_ptr<WriteFileTarget>(جديد WriteFileTarget);
     target->target.open(path);
-    if (target->target.fail())
-        return false;
+    ܐܢ (target->target.fail())
+        ܦܢܐ ܕܓܠܐ;
     targets.push_back(std::unique_ptr<Target>(target.release()));
-    return true;
+    ܦܢܐ ܫܪܪܐ;
 }
 
-void PrettyJson::line(bool space_if_inline)
+فراغ PrettyJson::line(منطقي space_if_inline)
 {
-    if (compact_depth != INT_MAX) {
-        if (space_if_inline)
+    ܐܢ (compact_depth != INT_MAX) {
+        ܐܢ (space_if_inline)
             raw(" ");
-        return;
+        ܦܢܐ;
     }
-    int indent = state.size() - (state.empty() ? 0 : state.back() == VALUE);
+    صحيح indent = state.size() - (state.empty() ? 0 : state.back() == VALUE);
     newline_indent.resize(1 + 2 * indent, ' ');
     raw(newline_indent.c_str());
 }
 
-void PrettyJson::raw(const char *raw_json)
+فراغ PrettyJson::raw(ثابت حرف *raw_json)
 {
-    for (auto &target : targets)
+    لكل (auto &target : targets)
         target->emit(raw_json);
 }
 
-void PrettyJson::flush()
+فراغ PrettyJson::flush()
 {
-    for (auto &target : targets)
+    لكل (auto &target : targets)
         target->flush();
 }
 
-void PrettyJson::begin_object()
+فراغ PrettyJson::begin_object()
 {
     begin_value();
     raw("{");
     state.push_back(OBJECT_FIRST);
 }
 
-void PrettyJson::begin_array()
+فراغ PrettyJson::begin_array()
 {
     begin_value();
     raw("[");
     state.push_back(ARRAY_FIRST);
 }
 
-void PrettyJson::end_object()
+فراغ PrettyJson::end_object()
 {
     Scope top_scope = state.back();
     state.pop_back();
-    if (top_scope == OBJECT)
-        line(false);
-    else
+    ܐܢ (top_scope == OBJECT)
+        line(ܕܓܠܐ);
+    ܐܚܪܢܐ
         log_assert(top_scope == OBJECT_FIRST);
     raw("}");
     end_value();
 }
 
-void PrettyJson::end_array()
+فراغ PrettyJson::end_array()
 {
     Scope top_scope = state.back();
     state.pop_back();
-    if (top_scope == ARRAY)
-        line(false);
-    else
+    ܐܢ (top_scope == ARRAY)
+        line(ܕܓܠܐ);
+    ܐܚܪܢܐ
         log_assert(top_scope == ARRAY_FIRST);
     raw("]");
     end_value();
 }
 
-void PrettyJson::name(const char *name)
+فراغ PrettyJson::name(ثابت حرف *name)
 {
-    if (state.back() == OBJECT_FIRST) {
+    ܐܢ (state.back() == OBJECT_FIRST) {
         state.back() = OBJECT;
-        line(false);
-    } else {
+        line(ܕܓܠܐ);
+    } ܐܚܪܢܐ {
         raw(",");
         line();
     }
@@ -133,39 +133,39 @@ void PrettyJson::name(const char *name)
     state.push_back(VALUE);
 }
 
-void PrettyJson::begin_value()
+فراغ PrettyJson::begin_value()
 {
-    if (state.back() == ARRAY_FIRST) {
-        line(false);
+    ܐܢ (state.back() == ARRAY_FIRST) {
+        line(ܕܓܠܐ);
         state.back() = ARRAY;
-    } else if (state.back() == ARRAY) {
+    } ܐܚܪܢܐ ܐܢ (state.back() == ARRAY) {
         raw(",");
         line();
-    } else {
+    } ܐܚܪܢܐ {
         log_assert(state.back() == VALUE);
         state.pop_back();
     }
 }
 
-void PrettyJson::end_value()
+فراغ PrettyJson::end_value()
 {
-    if (state.empty()) {
+    ܐܢ (state.empty()) {
         raw("\n");
         flush();
     }
-    if (GetSize(state) < compact_depth)
+    ܐܢ (GetSize(state) < compact_depth)
         compact_depth = INT_MAX;
 }
 
-void PrettyJson::value_json(const Json &value)
+فراغ PrettyJson::value_json(ثابت Json &value)
 {
     begin_value();
     raw(value.dump().c_str());
     end_value();
 }
 
-void PrettyJson::entry_json(const char *name, const Json &value)
+فراغ PrettyJson::entry_json(ثابت حرف *name, ثابت Json &value)
 {
-    this->name(name);
-    this->value(value);
+    هذا->name(name);
+    هذا->value(value);
 }
