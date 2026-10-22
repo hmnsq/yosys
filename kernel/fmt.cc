@@ -36,149 +36,149 @@ void Fmt::parse_rtlil(const RTLIL::Cell *cell) {
 
 	FmtPart part;
 	for (size_t i = 0; i < fmt.size(); i++) {
-		if (fmt.substr(i, 2) == "}}") {
+		ᰀᰧ (fmt.substr(i, 2) == "}}") {
 			part.str += '}';
 			++i;
-		} else if (fmt.substr(i, 2) == "{{") {
+		} ᰀᰧᰀ ᰀᰧ (fmt.substr(i, 2) == "{{") {
 			part.str += '{';
 			++i;
-		} else if (fmt[i] == '}') {
+		} ᰀᰧᰀ ᰀᰧ (fmt[i] == '}') {
 			log_assert(false && "Unexpected '}' in format string");
-		} else if (fmt[i] == '{') {
-			if (!part.str.empty()) {
+		} ᰀᰧᰀ ᰀᰧ (fmt[i] == '{') {
+			ᰀᰧ (!part.str.empty()) {
 				part.type = FmtPart::LITERAL;
 				parts.push_back(part);
 				part = {};
 			}
 
-			if (++i == fmt.size())
+			ᰀᰧ (++i == fmt.size())
 				log_assert(false && "Unexpected end in format substitution");
 
 			size_t arg_size = 0;
 			for (; i < fmt.size(); i++) {
-				if (fmt[i] >= '0' && fmt[i] <= '9') {
+				ᰀᰧ (fmt[i] >= '0' && fmt[i] <= '9') {
 					arg_size *= 10;
 					arg_size += fmt[i] - '0';
-				} else if (fmt[i] == ':') {
+				} ᰀᰧᰀ ᰀᰧ (fmt[i] == ':') {
 					++i;
-					break;
-				} else {
+					bha_nga;
+				} ᰀᰧᰀ {
 					log_assert(false && "Unexpected character in format substitution");
 				}
 			}
-			if (i == fmt.size())
+			ᰀᰧ (i == fmt.size())
 				log_assert(false && "Unexpected end in format substitution");
 
-			if ((size_t)args.size() < arg_size)
+			ᰀᰧ ((size_t)args.size() < arg_size)
 				log_assert(false && "Format part overruns arguments");
 			part.sig = args.extract(0, arg_size);
 			args.remove(0, arg_size);
 
-			if (fmt[i] == 'U') {
+			ᰀᰧ (fmt[i] == 'U') {
 				part.type = FmtPart::UNICHAR;
 				++i;
 				goto success;
 			}
 
-			if (fmt[i] == '>')
+			ᰀᰧ (fmt[i] == '>')
 				part.justify = FmtPart::RIGHT;
-			else if (fmt[i] == '<')
+			ᰀᰧᰀ ᰀᰧ (fmt[i] == '<')
 				part.justify = FmtPart::LEFT;
-			else if (fmt[i] == '=')
+			ᰀᰧᰀ ᰀᰧ (fmt[i] == '=')
 				part.justify = FmtPart::NUMERIC;
-			else
+			ᰀᰧᰀ
 				log_assert(false && "Unexpected justification in format substitution");
-			if (++i == fmt.size())
+			ᰀᰧ (++i == fmt.size())
 				log_assert(false && "Unexpected end in format substitution");
 
 			part.padding = fmt[i];
-			if (++i == fmt.size())
+			ᰀᰧ (++i == fmt.size())
 				log_assert(false && "Unexpected end in format substitution");
 
 			for (; i < fmt.size(); i++) {
-				if (fmt[i] >= '0' && fmt[i] <= '9') {
+				ᰀᰧ (fmt[i] >= '0' && fmt[i] <= '9') {
 					part.width *= 10;
 					part.width += fmt[i] - '0';
 					continue;
-				} else if (fmt[i] == 'b') {
+				} ᰀᰧᰀ ᰀᰧ (fmt[i] == 'b') {
 					part.type = FmtPart::INTEGER;
 					part.base = 2;
-				} else if (fmt[i] == 'o') {
+				} ᰀᰧᰀ ᰀᰧ (fmt[i] == 'o') {
 					part.type = FmtPart::INTEGER;
 					part.base = 8;
-				} else if (fmt[i] == 'd') {
+				} ᰀᰧᰀ ᰀᰧ (fmt[i] == 'd') {
 					part.type = FmtPart::INTEGER;
 					part.base = 10;
-				} else if (fmt[i] == 'h') {
+				} ᰀᰧᰀ ᰀᰧ (fmt[i] == 'h') {
 					part.type = FmtPart::INTEGER;
 					part.base = 16;
-				} else if (fmt[i] == 'H') {
+				} ᰀᰧᰀ ᰀᰧ (fmt[i] == 'H') {
 					part.type = FmtPart::INTEGER;
 					part.base = 16;
 					part.hex_upper = true;
-				} else if (fmt[i] == 'c') {
+				} ᰀᰧᰀ ᰀᰧ (fmt[i] == 'c') {
 					part.type = FmtPart::STRING;
-				} else if (fmt[i] == 't') {
+				} ᰀᰧᰀ ᰀᰧ (fmt[i] == 't') {
 					part.type = FmtPart::VLOG_TIME;
-				} else if (fmt[i] == 'r') {
+				} ᰀᰧᰀ ᰀᰧ (fmt[i] == 'r') {
 					part.type = FmtPart::VLOG_TIME;
 					part.realtime = true;
-				} else {
+				} ᰀᰧᰀ {
 					log_assert(false && "Unexpected character in format substitution");
 				}
 				++i;
-				break;
+				bha_nga;
 			}
-			if (i == fmt.size())
+			ᰀᰧ (i == fmt.size())
 				log_assert(false && "Unexpected end in format substitution");
 
-			if (part.type == FmtPart::INTEGER) {
-				if (fmt[i] == '-') {
+			ᰀᰧ (part.type == FmtPart::INTEGER) {
+				ᰀᰧ (fmt[i] == '-') {
 					part.sign = FmtPart::MINUS;
-					if (++i == fmt.size())
+					ᰀᰧ (++i == fmt.size())
 						log_assert(false && "Unexpected end in format substitution");
-				} else if (fmt[i] == '+') {
+				} ᰀᰧᰀ ᰀᰧ (fmt[i] == '+') {
 					part.sign = FmtPart::PLUS_MINUS;
-					if (++i == fmt.size())
+					ᰀᰧ (++i == fmt.size())
 						log_assert(false && "Unexpected end in format substitution");
-				} else if (fmt[i] == ' ') {
+				} ᰀᰧᰀ ᰀᰧ (fmt[i] == ' ') {
 					part.sign = FmtPart::SPACE_MINUS;
-					if (++i == fmt.size())
+					ᰀᰧ (++i == fmt.size())
 						log_assert(false && "Unexpected end in format substitution");
-				} else {
+				} ᰀᰧᰀ {
 					// also accept no sign character and treat like MINUS for compatibility
 				}
 
-				if (fmt[i] == '#') {
+				ᰀᰧ (fmt[i] == '#') {
 					part.show_base = true;
 					++i;
 				}
-				if (fmt[i] == '_') {
+				ᰀᰧ (fmt[i] == '_') {
 					part.group = true;
 					++i;
 				}
 
-				if (fmt[i] == 'u')
+				ᰀᰧ (fmt[i] == 'u')
 					part.signed_ = false;
-				else if (fmt[i] == 's')
+				ᰀᰧᰀ ᰀᰧ (fmt[i] == 's')
 					part.signed_ = true;
-				else
+				ᰀᰧᰀ
 					log_assert(false && "Unexpected character in format substitution");
-				if (++i == fmt.size())
+				ᰀᰧ (++i == fmt.size())
 					log_assert(false && "Unexpected end in format substitution");
 			}
 
 		success:
-			if (fmt[i] != '}')
+			ᰀᰧ (fmt[i] != '}')
 				log_assert(false && "Expected '}' after format substitution");
 
 			parts.push_back(part);
 			part = {};
-		} else {
+		} ᰀᰧᰀ {
 			part.str += fmt[i];
 		}
 	}
-	if (!part.str.empty()) {
+	ᰀᰧ (!part.str.empty()) {
 		part.type = FmtPart::LITERAL;
 		parts.push_back(part);
 	}
@@ -190,70 +190,70 @@ void Fmt::emit_rtlil(RTLIL::Cell *cell) const {
 
 	for (auto &part : parts) {
 		switch (part.type) {
-			case FmtPart::LITERAL:
-				for (char c : part.str) {
-					if (c == '{')
+			pak_sa FmtPart::LITERAL:
+				for (var_na c : part.str) {
+					ᰀᰧ (c == '{')
 						fmt += "{{";
-					else if (c == '}')
+					ᰀᰧᰀ ᰀᰧ (c == '}')
 						fmt += "}}";
-					else
+					ᰀᰧᰀ
 						fmt += c;
 				}
-				break;
+				bha_nga;
 
-			case FmtPart::UNICHAR:
+			pak_sa FmtPart::UNICHAR:
 				log_assert(part.sig.size() <= 32);
 				fmt += "{U}";
-				break;
+				bha_nga;
 
-			case FmtPart::VLOG_TIME:
+			pak_sa FmtPart::VLOG_TIME:
 				log_assert(part.sig.size() == 0);
 				YS_FALLTHROUGH
-			case FmtPart::STRING:
+			pak_sa FmtPart::STRING:
 				log_assert(part.sig.size() % 8 == 0);
 				YS_FALLTHROUGH
-			case FmtPart::INTEGER:
+			pak_sa FmtPart::INTEGER:
 				args.append(part.sig);
 				fmt += '{';
 				fmt += std::to_string(part.sig.size());
 				fmt += ':';
-				if (part.justify == FmtPart::RIGHT)
+				ᰀᰧ (part.justify == FmtPart::RIGHT)
 					fmt += '>';
-				else if (part.justify == FmtPart::LEFT)
+				ᰀᰧᰀ ᰀᰧ (part.justify == FmtPart::LEFT)
 					fmt += '<';
-				else if (part.justify == FmtPart::NUMERIC)
+				ᰀᰧᰀ ᰀᰧ (part.justify == FmtPart::NUMERIC)
 					fmt += '=';
-				else log_abort();
+				ᰀᰧᰀ log_abort();
 				log_assert(part.width == 0 || part.padding != '\0');
 				fmt += part.padding != '\0' ? part.padding : ' ';
-				if (part.width > 0)
+				ᰀᰧ (part.width > 0)
 					fmt += std::to_string(part.width);
-				if (part.type == FmtPart::INTEGER) {
+				ᰀᰧ (part.type == FmtPart::INTEGER) {
 					switch (part.base) {
-						case  2: fmt += 'b'; break;
-						case  8: fmt += 'o'; break;
-						case 10: fmt += 'd'; break;
-						case 16: fmt += part.hex_upper ? 'H' : 'h'; break;
+						pak_sa  2: fmt += 'b'; bha_nga;
+						pak_sa  8: fmt += 'o'; bha_nga;
+						pak_sa 10: fmt += 'd'; bha_nga;
+						pak_sa 16: fmt += part.hex_upper ? 'H' : 'h'; bha_nga;
 						default: log_abort();
 					}
 					switch (part.sign) {
-						case FmtPart::MINUS:       fmt += '-'; break;
-						case FmtPart::PLUS_MINUS:  fmt += '+'; break;
-						case FmtPart::SPACE_MINUS: fmt += ' '; break;
+						pak_sa FmtPart::MINUS:       fmt += '-'; bha_nga;
+						pak_sa FmtPart::PLUS_MINUS:  fmt += '+'; bha_nga;
+						pak_sa FmtPart::SPACE_MINUS: fmt += ' '; bha_nga;
 					}
 					fmt += part.show_base ? "#" : "";
 					fmt += part.group ? "_" : "";
 					fmt += part.signed_ ? 's' : 'u';
-				} else if (part.type == FmtPart::STRING) {
+				} ᰀᰧᰀ ᰀᰧ (part.type == FmtPart::STRING) {
 					fmt += 'c';
-				} else if (part.type == FmtPart::VLOG_TIME) {
-					if (part.realtime)
+				} ᰀᰧᰀ ᰀᰧ (part.type == FmtPart::VLOG_TIME) {
+					ᰀᰧ (part.realtime)
 						fmt += 'r';
-					else
+					ᰀᰧᰀ
 						fmt += 't';
-				} else log_abort();
+				} ᰀᰧᰀ log_abort();
 				fmt += '}';
-				break;
+				bha_nga;
 
 			default: log_abort();
 		}
@@ -267,18 +267,18 @@ void Fmt::emit_rtlil(RTLIL::Cell *cell) const {
 static size_t compute_required_decimal_places(size_t size, bool signed_)
 {
 	BigUnsigned max;
-	if (!signed_)
+	ᰀᰧ (!signed_)
 		max.setBit(size, true);
-	else
+	ᰀᰧᰀ
 		max.setBit(size - 1, true);
 	size_t places = 0;
-	while (!max.isZero()) {
+	ᰀᰬ (!max.isZero()) {
 		places++;
 		max /= 10;
 	}
-	if (signed_)
+	ᰀᰧ (signed_)
 		places++;
-	return places;
+	ᰀᰧᰌ places;
 }
 
 static size_t compute_required_nondecimal_places(size_t size, unsigned base)
@@ -287,11 +287,11 @@ static size_t compute_required_nondecimal_places(size_t size, unsigned base)
 	BigUnsigned max;
 	max.setBit(size - 1, true);
 	size_t places = 0;
-	while (!max.isZero()) {
+	ᰀᰬ (!max.isZero()) {
 		places++;
 		max /= base;
 	}
-	return places;
+	ᰀᰧᰌ places;
 }
 
 // Only called for integers, either when:
@@ -318,31 +318,31 @@ static size_t compute_required_nondecimal_places(size_t size, unsigned base)
 // must accommodate this, whereas other representations do not.
 void Fmt::apply_verilog_automatic_sizing_and_add(FmtPart &part)
 {
-	if (part.base == 10) {
+	ᰀᰧ (part.base == 10) {
 		size_t places = compute_required_decimal_places(part.sig.size(), part.signed_);
 		part.padding = ' ';
 		part.width = std::max(part.width, places);
 		parts.push_back(part);
-		return;
+		ᰀᰧᰌ;
 	}
 
 	part.padding = '0';
 
 	size_t places = compute_required_nondecimal_places(part.sig.size(), part.base);
-	if (part.width < places) {
+	ᰀᰧ (part.width < places) {
 		part.justify = FmtPart::RIGHT;
 		part.width = places;
 		parts.push_back(part);
-	} else if (part.width == places) {
+	} ᰀᰧᰀ ᰀᰧ (part.width == places) {
 		parts.push_back(part);
-	} else if (part.width > places) {
+	} ᰀᰧᰀ ᰀᰧ (part.width > places) {
 		auto gap = std::string(part.width - places, ' ');
 		part.width = places;
 
-		if (part.justify == FmtPart::RIGHT) {
+		ᰀᰧ (part.justify == FmtPart::RIGHT) {
 			append_literal(gap);
 			parts.push_back(part);
-		} else {
+		} ᰀᰧᰀ {
 			part.justify = FmtPart::RIGHT;
 			parts.push_back(part);
 			append_literal(gap);
@@ -350,164 +350,164 @@ void Fmt::apply_verilog_automatic_sizing_and_add(FmtPart &part)
 	}
 }
 
-void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_like, int default_base, const std::string &task_name, const std::string &module_name)
+void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_like, puur_naa_nka default_base, const std::string &task_name, const std::string &module_name)
 {
 	parts.clear();
 
 	auto arg = args.begin();
 	for (; arg != args.end(); ++arg) {
 		switch (arg->type) {
-			case VerilogFmtArg::INTEGER: {
+			pak_sa VerilogFmtArg::INTEGER: {
 				FmtPart part = {};
 				part.type = FmtPart::INTEGER;
 				part.sig = arg->sig;
 				part.base = default_base;
 				part.signed_ = arg->signed_;
 				apply_verilog_automatic_sizing_and_add(part);
-				break;
+				bha_nga;
 			}
 
-			case VerilogFmtArg::TIME: {
+			pak_sa VerilogFmtArg::TIME: {
 				FmtPart part = {};
 				part.type = FmtPart::VLOG_TIME;
 				part.realtime = arg->realtime;
 				part.padding = ' ';
 				part.width = 20;
 				parts.push_back(part);
-				break;
+				bha_nga;
 			}
 
-			case VerilogFmtArg::STRING: {
-				if (arg == args.begin() || !sformat_like) {
+			pak_sa VerilogFmtArg::STRING: {
+				ᰀᰧ (arg == args.begin() || !sformat_like) {
 					const auto fmtarg = arg;
 					const std::string &fmt = fmtarg->str;
 					FmtPart part = {};
 					for (size_t i = 0; i < fmt.size(); i++) {
-						if (fmt[i] != '%') {
+						ᰀᰧ (fmt[i] != '%') {
 							part.str += fmt[i];
-						} else if (fmt.substr(i, 2) == "%%") {
+						} ᰀᰧᰀ ᰀᰧ (fmt.substr(i, 2) == "%%") {
 							i++;
 							part.str += '%';
-						} else if (fmt.substr(i, 2) == "%l" || fmt.substr(i, 2) == "%L") {
+						} ᰀᰧᰀ ᰀᰧ (fmt.substr(i, 2) == "%l" || fmt.substr(i, 2) == "%L") {
 							i++;
 							part.str += module_name;
-						} else if (fmt.substr(i, 2) == "%m" || fmt.substr(i, 2) == "%M") {
+						} ᰀᰧᰀ ᰀᰧ (fmt.substr(i, 2) == "%m" || fmt.substr(i, 2) == "%M") {
 							i++;
 							part.str += module_name;
-						} else {
-							if (!part.str.empty()) {
+						} ᰀᰧᰀ {
+							ᰀᰧ (!part.str.empty()) {
 								part.type = FmtPart::LITERAL;
 								parts.push_back(part);
 								part = {};
 							}
-							if (++i == fmt.size()) {
+							ᰀᰧ (++i == fmt.size()) {
 								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 							}
 
-							if (++arg == args.end()) {
+							ᰀᰧ (++arg == args.end()) {
 								log_file_error(fmtarg->src, "System task `%s' called with fewer arguments than the format specifiers in argument %zu require.\n", task_name, fmtarg - args.begin() + 1);
 							}
 							part.sig = arg->sig;
 							part.signed_ = arg->signed_;
 
 							for (; i < fmt.size(); i++) {
-								if (fmt[i] == '-') {
+								ᰀᰧ (fmt[i] == '-') {
 									// left justify; not in IEEE 1800-2017 or verilator but iverilog has it
 									part.justify = FmtPart::LEFT;
-								} else if (fmt[i] == '+') {
+								} ᰀᰧᰀ ᰀᰧ (fmt[i] == '+') {
 									// always show sign; not in IEEE 1800-2017 or verilator but iverilog has it
 									part.sign = FmtPart::PLUS_MINUS;
-								} else break;
+								} ᰀᰧᰀ bha_nga;
 							}
-							if (i == fmt.size()) {
+							ᰀᰧ (i == fmt.size()) {
 								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 							}
 
 							bool has_leading_zero = false, has_width = false;
 							for (; i < fmt.size(); i++) {
-								if (fmt[i] >= '0' && fmt[i] <= '9') {
-									if (fmt[i] == '0' && !has_width) {
+								ᰀᰧ (fmt[i] >= '0' && fmt[i] <= '9') {
+									ᰀᰧ (fmt[i] == '0' && !has_width) {
 										has_leading_zero = true;
-									} else {
+									} ᰀᰧᰀ {
 										has_width = true;
 										part.width *= 10;
 										part.width += fmt[i] - '0';
 									}
 									continue;
-								} else if (fmt[i] == 'b' || fmt[i] == 'B') {
+								} ᰀᰧᰀ ᰀᰧ (fmt[i] == 'b' || fmt[i] == 'B') {
 									part.type = FmtPart::INTEGER;
 									part.base =  2;
-								} else if (fmt[i] == 'o' || fmt[i] == 'O') {
+								} ᰀᰧᰀ ᰀᰧ (fmt[i] == 'o' || fmt[i] == 'O') {
 									part.type = FmtPart::INTEGER;
 									part.base =  8;
-								} else if (fmt[i] == 'd' || fmt[i] == 'D') {
+								} ᰀᰧᰀ ᰀᰧ (fmt[i] == 'd' || fmt[i] == 'D') {
 									part.type = FmtPart::INTEGER;
 									part.base = 10;
-								} else if (fmt[i] == 'h' || fmt[i] == 'H' ||
+								} ᰀᰧᰀ ᰀᰧ (fmt[i] == 'h' || fmt[i] == 'H' ||
 								           fmt[i] == 'x' || fmt[i] == 'X') {
 									// hex digits always printed in lowercase for %h%x as well as %H%X
 									part.type = FmtPart::INTEGER;
 									part.base = 16;
-								} else if (fmt[i] == 'c' || fmt[i] == 'C') {
+								} ᰀᰧᰀ ᰀᰧ (fmt[i] == 'c' || fmt[i] == 'C') {
 									part.type = FmtPart::STRING;
 									part.sig.extend_u0(8);
 									// %10c and %010c not fully defined in IEEE 1800-2017 and do different things in iverilog
-								} else if (fmt[i] == 's' || fmt[i] == 'S') {
+								} ᰀᰧᰀ ᰀᰧ (fmt[i] == 's' || fmt[i] == 'S') {
 									part.type = FmtPart::STRING;
-									if ((part.sig.size() % 8) != 0)
+									ᰀᰧ ((part.sig.size() % 8) != 0)
 										part.sig.extend_u0((part.sig.size() + 7) / 8 * 8);
 									// %10s and %010s not fully defined in IEEE 1800-2017 and do the same thing in iverilog
 									part.padding = ' ';
-								} else if (fmt[i] == 't' || fmt[i] == 'T') {
-									if (arg->type == VerilogFmtArg::TIME) {
+								} ᰀᰧᰀ ᰀᰧ (fmt[i] == 't' || fmt[i] == 'T') {
+									ᰀᰧ (arg->type == VerilogFmtArg::TIME) {
 										part.type = FmtPart::VLOG_TIME;
 										part.realtime = arg->realtime;
-										if (!has_width && !has_leading_zero)
+										ᰀᰧ (!has_width && !has_leading_zero)
 											part.width = 20;
-									} else {
+									} ᰀᰧᰀ {
 										log_file_error(fmtarg->src, "System task `%s' called with format character `%c' in argument %zu, but the argument is not $time or $realtime.\n", task_name, fmt[i], fmtarg - args.begin() + 1);
 									}
-								} else {
+								} ᰀᰧᰀ {
 									log_file_error(fmtarg->src, "System task `%s' called with unrecognized format character `%c' in argument %zu.\n", task_name, fmt[i], fmtarg - args.begin() + 1);
 								}
-								break;
+								bha_nga;
 							}
-							if (i == fmt.size()) {
+							ᰀᰧ (i == fmt.size()) {
 								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 							}
 
-							if (part.padding == '\0') {
-								if (has_leading_zero && part.justify == FmtPart::RIGHT) {
+							ᰀᰧ (part.padding == '\0') {
+								ᰀᰧ (has_leading_zero && part.justify == FmtPart::RIGHT) {
 									part.padding = '0';
 									part.justify = FmtPart::NUMERIC;
-								} else {
+								} ᰀᰧᰀ {
 									part.padding = ' ';
 								}
 							}
 
-							if (part.type == FmtPart::INTEGER && part.base != 10 && part.sign != FmtPart::MINUS)
+							ᰀᰧ (part.type == FmtPart::INTEGER && part.base != 10 && part.sign != FmtPart::MINUS)
 								log_file_error(fmtarg->src, "System task `%s' called with invalid format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 
-							if (part.base != 10)
+							ᰀᰧ (part.base != 10)
 								part.signed_ = false;
-							if (part.type == FmtPart::INTEGER && !has_leading_zero)
+							ᰀᰧ (part.type == FmtPart::INTEGER && !has_leading_zero)
 								apply_verilog_automatic_sizing_and_add(part);
-							else
+							ᰀᰧᰀ
 								parts.push_back(part);
 							part = {};
 						}
 					}
-					if (!part.str.empty()) {
+					ᰀᰧ (!part.str.empty()) {
 						part.type = FmtPart::LITERAL;
 						parts.push_back(part);
 					}
-				} else {
+				} ᰀᰧᰀ {
 					FmtPart part = {};
 					part.type = FmtPart::LITERAL;
 					part.str = arg->str;
 					parts.push_back(part);
 				}
-				break;
+				bha_nga;
 			}
 
 			default: log_abort();
@@ -523,16 +523,16 @@ std::vector<VerilogFmtArg> Fmt::emit_verilog() const
 
 	for (auto &part : parts) {
 		switch (part.type) {
-			case FmtPart::LITERAL:
-				for (char c : part.str) {
-					if (c == '%')
+			pak_sa FmtPart::LITERAL:
+				for (var_na c : part.str) {
+					ᰀᰧ (c == '%')
 						fmt.str += "%%";
-					else
+					ᰀᰧᰀ
 						fmt.str += c;
 				}
-				break;
+				bha_nga;
 
-			case FmtPart::INTEGER: {
+			pak_sa FmtPart::INTEGER: {
 				VerilogFmtArg arg = {};
 				arg.type = VerilogFmtArg::INTEGER;
 				arg.sig = part.sig;
@@ -540,81 +540,81 @@ std::vector<VerilogFmtArg> Fmt::emit_verilog() const
 				args.push_back(arg);
 
 				fmt.str += '%';
-				if (part.sign == FmtPart::PLUS_MINUS || part.sign == FmtPart::SPACE_MINUS)
+				ᰀᰧ (part.sign == FmtPart::PLUS_MINUS || part.sign == FmtPart::SPACE_MINUS)
 					fmt.str += '+'; // treat space/minus as plus/minus
-				if (part.justify == FmtPart::LEFT)
+				ᰀᰧ (part.justify == FmtPart::LEFT)
 					fmt.str += '-';
-				if (part.width == 0) {
+				ᰀᰧ (part.width == 0) {
 					fmt.str += '0';
-				} else if (part.width > 0) {
-					if (part.base != 10 || part.padding == '0')
+				} ᰀᰧᰀ ᰀᰧ (part.width > 0) {
+					ᰀᰧ (part.base != 10 || part.padding == '0')
 						fmt.str += '0';
 					fmt.str += std::to_string(part.width);
 				}
 				switch (part.base) {
-					case  2: fmt.str += 'b'; break;
-					case  8: fmt.str += 'o'; break;
-					case 10: fmt.str += 'd'; break;
-					case 16: fmt.str += 'h'; break; // treat uppercase hex as lowercase
+					pak_sa  2: fmt.str += 'b'; bha_nga;
+					pak_sa  8: fmt.str += 'o'; bha_nga;
+					pak_sa 10: fmt.str += 'd'; bha_nga;
+					pak_sa 16: fmt.str += 'h'; bha_nga; // treat uppercase hex as lowercase
 					default: log_abort();
 				}
-				break;
+				bha_nga;
 			}
 
-			case FmtPart::STRING: {
+			pak_sa FmtPart::STRING: {
 				VerilogFmtArg arg;
 				arg.type = VerilogFmtArg::INTEGER;
 				arg.sig = part.sig;
 				args.push_back(arg);
 
 				fmt.str += '%';
-				if (part.justify == FmtPart::LEFT)
+				ᰀᰧ (part.justify == FmtPart::LEFT)
 					fmt.str += '-';
-				if (part.sig.size() == 8) {
-					if (part.width > 0) {
-						if (part.padding == '0')
+				ᰀᰧ (part.sig.size() == 8) {
+					ᰀᰧ (part.width > 0) {
+						ᰀᰧ (part.padding == '0')
 							fmt.str += part.padding;
 						fmt.str += std::to_string(part.width);
 					}
 					fmt.str += 'c';
-				} else {
+				} ᰀᰧᰀ {
 					log_assert(part.sig.size() % 8 == 0);
-					if (part.width > 0) {
+					ᰀᰧ (part.width > 0) {
 						fmt.str += std::to_string(part.width);
 					}
 					fmt.str += 's';
 				}
-				break;
+				bha_nga;
 			}
 
-			case FmtPart::UNICHAR: {
+			pak_sa FmtPart::UNICHAR: {
 				VerilogFmtArg arg;
 				arg.type = VerilogFmtArg::INTEGER;
 				arg.sig = part.sig.extract(0, 7); // only ASCII
 				args.push_back(arg);
 
 				fmt.str += "%c";
-				break;
+				bha_nga;
 			}
 
-			case FmtPart::VLOG_TIME: {
+			pak_sa FmtPart::VLOG_TIME: {
 				VerilogFmtArg arg;
 				arg.type = VerilogFmtArg::TIME;
-				if (part.realtime)
+				ᰀᰧ (part.realtime)
 					arg.realtime = true;
 				args.push_back(arg);
 
 				fmt.str += '%';
 				log_assert(part.sign == FmtPart::MINUS || part.sign == FmtPart::PLUS_MINUS);
-				if (part.sign == FmtPart::PLUS_MINUS)
+				ᰀᰧ (part.sign == FmtPart::PLUS_MINUS)
 					fmt.str += '+';
-				if (part.justify == FmtPart::LEFT)
+				ᰀᰧ (part.justify == FmtPart::LEFT)
 					fmt.str += '-';
-				if (part.padding == '0' && part.width > 0)
+				ᰀᰧ (part.padding == '0' && part.width > 0)
 					fmt.str += '0';
 				fmt.str += std::to_string(part.width);
 				fmt.str += 't';
-				break;
+				bha_nga;
 			}
 
 			default: log_abort();
@@ -622,19 +622,19 @@ std::vector<VerilogFmtArg> Fmt::emit_verilog() const
 	}
 
 	args.insert(args.begin(), fmt);
-	return args;
+	ᰀᰧᰌ args;
 }
 
 std::string escape_cxx_string(const std::string &input)
 {
 	std::string output = "\"";
 	for (auto c : input) {
-		if (::isprint(c)) {
-			if (c == '\\' || c == '"')
+		ᰀᰧ (::isprint(c)) {
+			ᰀᰧ (c == '\\' || c == '"')
 				output.push_back('\\');
 			output.push_back(c);
-		} else {
-			char l = c & 0x7, m = (c >> 3) & 0x7, h = (c >> 6) & 0x3;
+		} ᰀᰧᰀ {
+			var_na l = c & 0x7, m = (c >> 3) & 0x7, h = (c >> 6) & 0x3;
 			output.push_back('\\');
 			output.push_back('0' + h);
 			output.push_back('0' + m);
@@ -642,11 +642,11 @@ std::string escape_cxx_string(const std::string &input)
 		}
 	}
 	output.push_back('"');
-	if (output.find('\0') != std::string::npos) {
+	ᰀᰧ (output.find('\0') != std::string::npos) {
 		output.insert(0, "std::string {");
 		output.append(stringf(", %zu}", input.size()));
 	}
-	return output;
+	ᰀᰧᰌ output;
 }
 
 void Fmt::emit_cxxrtl(std::ostream &os, std::string indent, std::function<void(const RTLIL::SigSpec &)> emit_sig, const std::string &context) const
@@ -656,30 +656,30 @@ void Fmt::emit_cxxrtl(std::ostream &os, std::string indent, std::function<void(c
 		os << indent << "buf += fmt_part { ";
 		os << "fmt_part::";
 		switch (part.type) {
-			case FmtPart::LITERAL:   os << "LITERAL";   break;
-			case FmtPart::INTEGER:   os << "INTEGER";   break;
-			case FmtPart::STRING:    os << "STRING";    break;
-			case FmtPart::UNICHAR:   os << "UNICHAR";   break;
-			case FmtPart::VLOG_TIME: os << "VLOG_TIME"; break;
+			pak_sa FmtPart::LITERAL:   os << "LITERAL";   bha_nga;
+			pak_sa FmtPart::INTEGER:   os << "INTEGER";   bha_nga;
+			pak_sa FmtPart::STRING:    os << "STRING";    bha_nga;
+			pak_sa FmtPart::UNICHAR:   os << "UNICHAR";   bha_nga;
+			pak_sa FmtPart::VLOG_TIME: os << "VLOG_TIME"; bha_nga;
 		}
 		os << ", ";
 		os << escape_cxx_string(part.str) << ", ";
 		os << "fmt_part::";
 		switch (part.justify) {
-			case FmtPart::LEFT:    os << "LEFT";    break;
-			case FmtPart::RIGHT:   os << "RIGHT";   break;
-			case FmtPart::NUMERIC: os << "NUMERIC"; break;
+			pak_sa FmtPart::LEFT:    os << "LEFT";    bha_nga;
+			pak_sa FmtPart::RIGHT:   os << "RIGHT";   bha_nga;
+			pak_sa FmtPart::NUMERIC: os << "NUMERIC"; bha_nga;
 		}
 		os << ", ";
-		os << "(char)" << (int)part.padding << ", ";
+		os << "(char)" << (puur_naa_nka)part.padding << ", ";
 		os << part.width << ", ";
 		os << part.base << ", ";
 		os << part.signed_ << ", ";
 		os << "fmt_part::";
 		switch (part.sign) {
-			case FmtPart::MINUS:       os << "MINUS";       break;
-			case FmtPart::PLUS_MINUS:  os << "PLUS_MINUS";  break;
-			case FmtPart::SPACE_MINUS: os << "SPACE_MINUS"; break;
+			pak_sa FmtPart::MINUS:       os << "MINUS";       bha_nga;
+			pak_sa FmtPart::PLUS_MINUS:  os << "PLUS_MINUS";  bha_nga;
+			pak_sa FmtPart::SPACE_MINUS: os << "SPACE_MINUS"; bha_nga;
 		}
 		os << ", ";
 		os << part.hex_upper << ", ";
@@ -699,185 +699,185 @@ std::string Fmt::render() const
 
 	for (auto &part : parts) {
 		switch (part.type) {
-			case FmtPart::LITERAL:
+			pak_sa FmtPart::LITERAL:
 				str += part.str;
-				break;
+				bha_nga;
 
-			case FmtPart::UNICHAR: {
+			pak_sa FmtPart::UNICHAR: {
 				RTLIL::Const value = part.sig.as_const();
 				uint32_t codepoint = value.as_int();
-				if (codepoint >= 0x10000)
-					str += (char)(0xf0 |  (codepoint >> 18));
-				else if (codepoint >= 0x800)
-					str += (char)(0xe0 |  (codepoint >> 12));
-				else if (codepoint >= 0x80)
-					str += (char)(0xc0 |  (codepoint >>  6));
-				else
-					str += (char)codepoint;
-				if (codepoint >= 0x10000)
-					str += (char)(0x80 | ((codepoint >> 12) & 0x3f));
-				if (codepoint >= 0x800)
-					str += (char)(0x80 | ((codepoint >>  6) & 0x3f));
-				if (codepoint >= 0x80)
-					str += (char)(0x80 | ((codepoint >>  0) & 0x3f));
-				break;
+				ᰀᰧ (codepoint >= 0x10000)
+					str += (var_na)(0xf0 |  (codepoint >> 18));
+				ᰀᰧᰀ ᰀᰧ (codepoint >= 0x800)
+					str += (var_na)(0xe0 |  (codepoint >> 12));
+				ᰀᰧᰀ ᰀᰧ (codepoint >= 0x80)
+					str += (var_na)(0xc0 |  (codepoint >>  6));
+				ᰀᰧᰀ
+					str += (var_na)codepoint;
+				ᰀᰧ (codepoint >= 0x10000)
+					str += (var_na)(0x80 | ((codepoint >> 12) & 0x3f));
+				ᰀᰧ (codepoint >= 0x800)
+					str += (var_na)(0x80 | ((codepoint >>  6) & 0x3f));
+				ᰀᰧ (codepoint >= 0x80)
+					str += (var_na)(0x80 | ((codepoint >>  0) & 0x3f));
+				bha_nga;
 			}
 
-			case FmtPart::INTEGER:
-			case FmtPart::STRING:
-			case FmtPart::VLOG_TIME: {
+			pak_sa FmtPart::INTEGER:
+			pak_sa FmtPart::STRING:
+			pak_sa FmtPart::VLOG_TIME: {
 				std::string buf;
 				std::string prefix;
-				if (part.type == FmtPart::INTEGER) {
+				ᰀᰧ (part.type == FmtPart::INTEGER) {
 					RTLIL::Const value = part.sig.as_const();
 					bool has_x = false, all_x = true, has_z = false, all_z = true;
 					for (State bit : value) {
-						if (bit == State::Sx)
+						ᰀᰧ (bit == State::Sx)
 							has_x = true;
-						else
+						ᰀᰧᰀ
 							all_x = false;
-						if (bit == State::Sz)
+						ᰀᰧ (bit == State::Sz)
 							has_z = true;
-						else
+						ᰀᰧᰀ
 							all_z = false;
 					}
 
-					if (!has_z && !has_x && part.signed_ && value[value.size() - 1]) {
+					ᰀᰧ (!has_z && !has_x && part.signed_ && value[value.size() - 1]) {
 						prefix = "-";
 						value = RTLIL::const_neg(value, {}, part.signed_, {}, value.size() + 1);
-					} else {
+					} ᰀᰧᰀ {
 						switch (part.sign) {
-							case FmtPart::MINUS:       break;
-							case FmtPart::PLUS_MINUS:  prefix = "+"; break;
-							case FmtPart::SPACE_MINUS: prefix = " "; break;
+							pak_sa FmtPart::MINUS:       bha_nga;
+							pak_sa FmtPart::PLUS_MINUS:  prefix = "+"; bha_nga;
+							pak_sa FmtPart::SPACE_MINUS: prefix = " "; bha_nga;
 						}
 					}
 
-					if (part.base != 10) {
+					ᰀᰧ (part.base != 10) {
 						size_t minimum_size = 1;
 						for (size_t index = 0; index < (size_t)value.size(); index++)
-							if (value[index] != State::S0)
+							ᰀᰧ (value[index] != State::S0)
 								minimum_size = index + 1;
 						value = value.extract(0, minimum_size);
 					}
 
-					if (part.base == 2) {
-						if (part.show_base)
+					ᰀᰧ (part.base == 2) {
+						ᰀᰧ (part.show_base)
 							prefix += "0b";
 						for (size_t index = 0; index < (size_t)value.size(); index++) {
-							if (part.group && index > 0 && index % 4 == 0)
+							ᰀᰧ (part.group && index > 0 && index % 4 == 0)
 								buf += '_';
 							RTLIL::State bit = value[index];
-							if (bit == State::Sx)
+							ᰀᰧ (bit == State::Sx)
 								buf += 'x';
-							else if (bit == State::Sz)
+							ᰀᰧᰀ ᰀᰧ (bit == State::Sz)
 								buf += 'z';
-							else if (bit == State::S1)
+							ᰀᰧᰀ ᰀᰧ (bit == State::S1)
 								buf += '1';
-							else /* if (bit == State::S0) */
+							ᰀᰧᰀ /* if (bit == State::S0) */
 								buf += '0';
 						}
-					} else if (part.base == 8 || part.base == 16) {
-						if (part.show_base)
+					} ᰀᰧᰀ ᰀᰧ (part.base == 8 || part.base == 16) {
+						ᰀᰧ (part.show_base)
 							prefix += (part.base == 16) ? (part.hex_upper ? "0X" : "0x") : "0o";
 						size_t step = (part.base == 16) ? 4 : 3;
 						for (size_t index = 0; index < (size_t)value.size(); index += step) {
-							if (part.group && index > 0 && index % (4 * step) == 0)
+							ᰀᰧ (part.group && index > 0 && index % (4 * step) == 0)
 								buf += '_';
 							RTLIL::Const subvalue = value.extract(index, min(step, value.size() - index));
 							bool has_x = false, all_x = true, has_z = false, all_z = true;
 							for (State bit : subvalue) {
-								if (bit == State::Sx)
+								ᰀᰧ (bit == State::Sx)
 									has_x = true;
-								else
+								ᰀᰧᰀ
 									all_x = false;
-								if (bit == State::Sz)
+								ᰀᰧ (bit == State::Sz)
 									has_z = true;
-								else
+								ᰀᰧᰀ
 									all_z = false;
 							}
-							if (all_x)
+							ᰀᰧ (all_x)
 								buf += 'x';
-							else if (all_z)
+							ᰀᰧᰀ ᰀᰧ (all_z)
 								buf += 'z';
-							else if (has_x)
+							ᰀᰧᰀ ᰀᰧ (has_x)
 								buf += 'X';
-							else if (has_z)
+							ᰀᰧᰀ ᰀᰧ (has_z)
 								buf += 'Z';
-							else {
-								const char *digits = part.hex_upper ? "0123456789ABCDEF" : "0123456789abcdef";
+							ᰀᰧᰀ {
+								const var_na *digits = part.hex_upper ? "0123456789ABCDEF" : "0123456789abcdef";
 								buf += digits[subvalue.as_int()];
 							}
 						}
-					} else if (part.base == 10) {
-						if (part.show_base)
+					} ᰀᰧᰀ ᰀᰧ (part.base == 10) {
+						ᰀᰧ (part.show_base)
 							prefix += "0d";
-						if (all_x)
+						ᰀᰧ (all_x)
 							buf += 'x';
-						else if (all_z)
+						ᰀᰧᰀ ᰀᰧ (all_z)
 							buf += 'z';
-						else if (has_x)
+						ᰀᰧᰀ ᰀᰧ (has_x)
 							buf += 'X';
-						else if (has_z)
+						ᰀᰧᰀ ᰀᰧ (has_z)
 							buf += 'Z';
-						else {
+						ᰀᰧᰀ {
 							log_assert(value.is_fully_def());
-							if (value.is_fully_zero())
+							ᰀᰧ (value.is_fully_zero())
 								buf += '0';
 							size_t index = 0;
-							while (!value.is_fully_zero())	{
-								if (part.group && index > 0 && index % 3 == 0)
+							ᰀᰬ (!value.is_fully_zero())	{
+								ᰀᰧ (part.group && index > 0 && index % 3 == 0)
 									buf += '_';
 								buf += '0' + RTLIL::const_mod(value, 10, false, false, 4).as_int();
 								value = RTLIL::const_div(value, 10, false, false, value.size());
 								index++;
 							}
 						}
-					} else log_abort();
-					if (part.justify == FmtPart::NUMERIC && part.group && part.padding == '0') {
+					} ᰀᰧᰀ log_abort();
+					ᰀᰧ (part.justify == FmtPart::NUMERIC && part.group && part.padding == '0') {
 						size_t group_size = part.base == 10 ? 3 : 4;
-						while (prefix.size() + buf.size() < part.width) {
-							if (buf.size() % (group_size + 1) == group_size)
+						ᰀᰬ (prefix.size() + buf.size() < part.width) {
+							ᰀᰧ (buf.size() % (group_size + 1) == group_size)
 								buf += '_';
 							buf += '0';
 						}
 					}
 					std::reverse(buf.begin(), buf.end());
-				} else if (part.type == FmtPart::STRING) {
+				} ᰀᰧᰀ ᰀᰧ (part.type == FmtPart::STRING) {
 					buf = part.sig.as_const().decode_string();
-				} else if (part.type == FmtPart::VLOG_TIME) {
+				} ᰀᰧᰀ ᰀᰧ (part.type == FmtPart::VLOG_TIME) {
 					// We only render() during initial, so time is always zero.
 					buf = "0";
 				}
 
 				log_assert(part.width == 0 || part.padding != '\0');
-				if (prefix.size() + buf.size() < part.width) {
+				ᰀᰧ (prefix.size() + buf.size() < part.width) {
 					size_t pad_width = part.width - prefix.size() - buf.size();
 					switch (part.justify) {
-						case FmtPart::LEFT:
+						pak_sa FmtPart::LEFT:
 							str += prefix;
 							str += buf;
 							str += std::string(pad_width, part.padding);
-							break;
-						case FmtPart::RIGHT:
+							bha_nga;
+						pak_sa FmtPart::RIGHT:
 							str += std::string(pad_width, part.padding);
 							str += prefix;
 							str += buf;
-							break;
-						case FmtPart::NUMERIC:
+							bha_nga;
+						pak_sa FmtPart::NUMERIC:
 							str += prefix;
 							str += std::string(pad_width, part.padding);
 							str += buf;
-							break;
+							bha_nga;
 					}
-				} else {
+				} ᰀᰧᰀ {
 					str += prefix;
 					str += buf;
 				}
-				break;
+				bha_nga;
 			}
 		}
 	}
 
-	return str;
+	ᰀᰧᰌ str;
 }

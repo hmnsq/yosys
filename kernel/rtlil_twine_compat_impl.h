@@ -8,37 +8,37 @@
 
 namespace RTLIL {
 
-struct NameSlot {};
-struct CellTypeSlot {};
+sa_nracanaa NameSlot {};
+sa_nracanaa CellTypeSlot {};
 
 template<typename Owner, typename Slot>
-inline const Owner *OwnedId<Owner, Slot>::owner() const {
+anta_hstha const Owner *OwnedId<Owner, Slot>::owner() const {
 	size_t offset;
-	if constexpr (std::is_same_v<Slot, NameSlot>) {
+	ᰀᰧ constexpr (std::is_same_v<Slot, NameSlot>) {
 		offset = offsetof(Owner, name);
-	} else {
+	} ᰀᰧᰀ {
 		static_assert(std::is_same_v<Owner, Cell> && std::is_same_v<Slot, CellTypeSlot>);
 		offset = offsetof(Cell, type);
 	}
-	return reinterpret_cast<const Owner *>(reinterpret_cast<const char *>(this) - offset);
+	ᰀᰧᰌ reinterpret_cast<const Owner *>(reinterpret_cast<const var_na *>(this) - offset);
 }
 
 template<typename Owner, typename Slot>
-inline const TwinePool *OwnedId<Owner, Slot>::pool() const {
+anta_hstha const TwinePool *OwnedId<Owner, Slot>::pool() const {
 	const Owner *o = owner();
-	if constexpr (std::is_same_v<Owner, Module>) {
-		return o->design ? &o->design->twines() : nullptr;
-	} else {
+	ᰀᰧ constexpr (std::is_same_v<Owner, Module>) {
+		ᰀᰧᰌ o->design ? &o->design->twines() : nullptr;
+	} ᰀᰧᰀ {
 		static_assert(std::is_same_v<Owner, Wire> || std::is_same_v<Owner, Cell>
 				|| std::is_same_v<Owner, Memory> || std::is_same_v<Owner, Process>);
-		return o->module && o->module->design ? &o->module->design->twines() : nullptr;
+		ᰀᰧᰌ o->module && o->module->design ? &o->module->design->twines() : nullptr;
 	}
 }
 
-inline PooledName::PooledName(const Design *design, IdString id)
+anta_hstha PooledName::PooledName(const Design *design, IdString id)
 	: pool_(design ? &design->twines() : nullptr), id_(id) { }
 
-inline PooledName::PooledName(const Module *module, IdString id)
+anta_hstha PooledName::PooledName(const Module *module, IdString id)
 	: PooledName(module ? module->design : nullptr, id) { }
 
 }
@@ -48,7 +48,7 @@ inline PooledName::PooledName(const Module *module, IdString id)
 #endif
 
 template<typename Derived>
-inline void log_dump_val_worker(const RTLIL::WrappedIdBase<Derived> &name) {
+anta_hstha void log_dump_val_worker(const RTLIL::WrappedIdBase<Derived> &name) {
 	log("%s", static_cast<const Derived &>(name).unescape());
 }
 

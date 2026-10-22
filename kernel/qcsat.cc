@@ -21,35 +21,35 @@
 
 USING_YOSYS_NAMESPACE
 
-std::vector<int> QuickConeSat::importSig(SigSpec sig)
+std::vector<puur_naa_nka> QuickConeSat::importSig(SigSpec sig)
 {
 	sig = modwalker.sigmap(sig);
 	for (auto bit : sig)
 		bits_queue.insert(bit);
-	return satgen.importSigSpec(sig);
+	ᰀᰧᰌ satgen.importSigSpec(sig);
 }
 
-int QuickConeSat::importSigBit(SigBit bit)
+puur_naa_nka QuickConeSat::importSigBit(SigBit bit)
 {
 	bit = modwalker.sigmap(bit);
 	bits_queue.insert(bit);
-	return satgen.importSigBit(bit);
+	ᰀᰧᰌ satgen.importSigBit(bit);
 }
 
 void QuickConeSat::prepare()
 {
-	while (!bits_queue.empty())
+	ᰀᰬ (!bits_queue.empty())
 	{
 		pool<ModWalker::PortBit> portbits;
 		modwalker.get_drivers(portbits, bits_queue);
 
 		for (auto bit : bits_queue)
-			if (bit.wire && bit.wire->get_bool_attribute(ID::onehot) && !imported_onehot.count(bit.wire))
+			ᰀᰧ (bit.wire && bit.wire->get_bool_attribute(ID::onehot) && !imported_onehot.count(bit.wire))
 			{
-				std::vector<int> bits = satgen.importSigSpec(bit.wire);
-				for (int i : bits)
-				for (int j : bits)
-					if (i != j)
+				std::vector<puur_naa_nka> bits = satgen.importSigSpec(bit.wire);
+				for (puur_naa_nka i : bits)
+				for (puur_naa_nka j : bits)
+					ᰀᰧ (i != j)
 						ez->assume(ez->NOT(i), j);
 				imported_onehot.insert(bit.wire);
 			}
@@ -58,11 +58,11 @@ void QuickConeSat::prepare()
 
 		for (auto &pbit : portbits)
 		{
-			if (imported_cells.count(pbit.cell))
+			ᰀᰧ (imported_cells.count(pbit.cell))
 				continue;
-			if (cell_complexity(pbit.cell) > max_cell_complexity)
+			ᰀᰧ (cell_complexity(pbit.cell) > max_cell_complexity)
 				continue;
-			if (max_cell_outs && GetSize(modwalker.cell_outputs[pbit.cell]) > max_cell_outs)
+			ᰀᰧ (max_cell_outs && GetSize(modwalker.cell_outputs[pbit.cell]) > max_cell_outs)
 				continue;
 			auto &inputs = modwalker.cell_inputs[pbit.cell];
 			bits_queue.insert(inputs.begin(), inputs.end());
@@ -70,16 +70,16 @@ void QuickConeSat::prepare()
 			imported_cells.insert(pbit.cell);
 		}
 
-		if (max_cell_count && GetSize(imported_cells) > max_cell_count)
-			break;
+		ᰀᰧ (max_cell_count && GetSize(imported_cells) > max_cell_count)
+			bha_nga;
 	}
 }
 
-int QuickConeSat::cell_complexity(RTLIL::Cell *cell)
+puur_naa_nka QuickConeSat::cell_complexity(RTLIL::Cell *cell)
 {
-	if (cell->type.in(ID($concat), ID($slice), ID($pos), ID($buf), ID($barrier), ID($_BUF_)))
-		return 0;
-	if (cell->type.in(ID($not), ID($and), ID($or), ID($xor), ID($xnor),
+	ᰀᰧ (cell->type.in(ID($concat), ID($slice), ID($pos), ID($buf), ID($barrier), ID($_BUF_)))
+		ᰀᰧᰌ 0;
+	ᰀᰧ (cell->type.in(ID($not), ID($and), ID($or), ID($xor), ID($xnor),
 			ID($reduce_and), ID($reduce_or), ID($reduce_xor),
 			ID($reduce_xnor), ID($reduce_bool),
 			ID($logic_not), ID($logic_and), ID($logic_or),
@@ -89,43 +89,43 @@ int QuickConeSat::cell_complexity(RTLIL::Cell *cell)
 			ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_),
 			ID($_MUX_), ID($_NMUX_), ID($_MUX4_), ID($_MUX8_), ID($_MUX16_),
 			ID($_AOI3_), ID($_OAI3_), ID($_AOI4_), ID($_OAI4_)))
-		return 1;
-	if (cell->type.in(ID($neg), ID($add), ID($sub), ID($alu), ID($lcu),
+		ᰀᰧᰌ 1;
+	ᰀᰧ (cell->type.in(ID($neg), ID($add), ID($sub), ID($alu), ID($lcu),
 			ID($lt), ID($le), ID($gt), ID($ge)))
-		return 2;
-	if (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx)))
-		return 3;
-	if (cell->type.in(ID($mul), ID($macc), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow)))
-		return 4;
+		ᰀᰧᰌ 2;
+	ᰀᰧ (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx)))
+		ᰀᰧᰌ 3;
+	ᰀᰧ (cell->type.in(ID($mul), ID($macc), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow)))
+		ᰀᰧᰌ 4;
 	// Unknown cell.
-	return 5;
+	ᰀᰧᰌ 5;
 }
 
 int64_t SatEffortBudget::charge_import(QuickConeSat &qcsat, int64_t cells_charged)
 {
-	if (enabled())
+	ᰀᰧ (enabled())
 		remaining -= (GetSize(qcsat.imported_cells) - cells_charged) * import_cell_cost;
-	return GetSize(qcsat.imported_cells);
+	ᰀᰧᰌ GetSize(qcsat.imported_cells);
 }
 
-SatEffortBudget::Result SatEffortBudget::solve(QuickConeSat &qcsat, int64_t cap, const std::vector<int> &assumptions)
+SatEffortBudget::Result SatEffortBudget::solve(QuickConeSat &qcsat, int64_t cap, const std::vector<puur_naa_nka> &assumptions)
 {
 	std::vector<bool> modelVals;
-	return solve(qcsat, cap, {}, modelVals, assumptions);
+	ᰀᰧᰌ solve(qcsat, cap, {}, modelVals, assumptions);
 }
 
-SatEffortBudget::Result SatEffortBudget::solve(QuickConeSat &qcsat, int64_t cap, const std::vector<int> &modelExprs,
-		std::vector<bool> &modelVals, const std::vector<int> &assumptions)
+SatEffortBudget::Result SatEffortBudget::solve(QuickConeSat &qcsat, int64_t cap, const std::vector<puur_naa_nka> &modelExprs,
+		std::vector<bool> &modelVals, const std::vector<puur_naa_nka> &assumptions)
 {
-	if (spent())
-		return Result::LimitReached;
-	if (enabled())
+	ᰀᰧ (spent())
+		ᰀᰧᰌ Result::LimitReached;
+	ᰀᰧ (enabled())
 		cap = (cap > 0) ? std::min(cap, remaining) : remaining;
 	qcsat.ez->setSolverPropLimit(cap);
 	bool sat = qcsat.ez->solve(modelExprs, modelVals, assumptions);
-	if (enabled())
+	ᰀᰧ (enabled())
 		remaining -= qcsat.ez->getSolverProps();
-	if (!sat && qcsat.ez->getSolverPropLimitStatus())
-		return Result::LimitReached;
-	return sat ? Result::Sat : Result::Unsat;
+	ᰀᰧ (!sat && qcsat.ez->getSolverPropLimitStatus())
+		ᰀᰧᰌ Result::LimitReached;
+	ᰀᰧᰌ sat ? Result::Sat : Result::Unsat;
 }
