@@ -1,94 +1,94 @@
-#include "kernel/yosys_common.h"
-#include "kernel/log.h"
-#include <iostream>
-#include <string>
-#include <filesystem>
-#include <system_error>
+#అన్తర్భావ "kernel/yosys_common.h"
+#అన్తర్భావ "kernel/log.h"
+#అన్తర్భావ <iostream>
+#అన్తర్భావ <string>
+#అన్తర్భావ <filesystem>
+#అన్తర్భావ <system_error>
 
-#if !defined(WIN32)
-#include <dirent.h>
-#include <unistd.h>
-#else
-#include <io.h>
-#endif
+#ఒకవేళ !defined(WIN32)
+#అన్తర్భావ <dirent.h>
+#అన్తర్భావ <unistd.h>
+#లేకపోతే
+#అన్తర్భావ <io.h>
+#అయితే_ముగింపు
 
-#if !defined(_WIN32) && !defined(__wasi__)
-#include <sys/file.h>
-#include <fcntl.h>
-#include <cerrno>
-#endif
+#ఒకవేళ !defined(_WIN32) && !defined(__wasi__)
+#అన్తర్భావ <sys/file.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <cerrno>
+#అయితే_ముగింపు
 
 YOSYS_NAMESPACE_BEGIN
 
 // Set of utilities for handling files
 
-int readsome(std::istream &f, char *s, int n)
+పూర్ణాంకం readsome(std::istream &f, అక్షరం *s, పూర్ణాంకం n)
 {
-	int rc = int(f.readsome(s, n));
+	పూర్ణాంకం rc = పూర్ణాంకం(f.readsome(s, n));
 
 	// f.readsome() sometimes returns 0 on a non-empty stream..
-	if (rc == 0) {
-		int c = f.get();
-		if (c != EOF) {
+	ఒకవేళ (rc == 0) {
+		పూర్ణాంకం c = f.get();
+		ఒకవేళ (c != EOF) {
 			*s = c;
 			rc = 1;
 		}
 	}
 
-	return rc;
+	తిరిగి rc;
 }
 
-std::string next_token(std::string &text, const char *sep, bool long_strings)
+std::string తదుపరి_token(std::string &పాఠ్యం, స్థిరరాశి అక్షరం *sep, తార్కిక long_అక్షరశ్రేణులు)
 {
-	size_t pos_begin = text.find_first_not_of(sep);
+	కొలత_t pos_begin = పాఠ్యం.కనుగొను_మొదటి_not_యొక్క(sep);
 
-	if (pos_begin == std::string::npos)
-		pos_begin = text.size();
+	ఒకవేళ (pos_begin == std::string::npos)
+		pos_begin = పాఠ్యం.కొలత();
 
-	if (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
+	ఒకవేళ (long_అక్షరశ్రేణులు && pos_begin != పాఠ్యం.కొలత() && పాఠ్యం[pos_begin] == '"') {
 		std::string sep_string = sep;
-		for (size_t i = pos_begin+1; i < text.size(); i++) {
-			if (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
-				std::string token = text.substr(pos_begin, i-pos_begin+1);
-				text = text.substr(i+1);
-				return token;
+		కొరకు (కొలత_t i = pos_begin+1; i < పాఠ్యం.కొలత(); i++) {
+			ఒకవేళ (పాఠ్యం[i] == '"' && (i+1 == పాఠ్యం.కొలత() || sep_string.కనుగొను(పాఠ్యం[i+1]) != std::string::npos)) {
+				std::string token = పాఠ్యం.substr(pos_begin, i-pos_begin+1);
+				పాఠ్యం = పాఠ్యం.substr(i+1);
+				తిరిగి token;
 			}
-			if (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
-				std::string token = text.substr(pos_begin, i-pos_begin+1);
-				text = text.substr(i+2);
-				return token + ";";
+			ఒకవేళ (i+1 < పాఠ్యం.కొలత() && పాఠ్యం[i] == '"' && పాఠ్యం[i+1] == ';' && (i+2 == పాఠ్యం.కొలత() || sep_string.కనుగొను(పాఠ్యం[i+2]) != std::string::npos)) {
+				std::string token = పాఠ్యం.substr(pos_begin, i-pos_begin+1);
+				పాఠ్యం = పాఠ్యం.substr(i+2);
+				తిరిగి token + ";";
 			}
 		}
 	}
 
-	size_t pos_end = text.find_first_of(sep, pos_begin);
+	కొలత_t pos_చివర = పాఠ్యం.కనుగొను_మొదటి_యొక్క(sep, pos_begin);
 
-	if (pos_end == std::string::npos)
-		pos_end = text.size();
+	ఒకవేళ (pos_చివర == std::string::npos)
+		pos_చివర = పాఠ్యం.కొలత();
 
-	std::string token = text.substr(pos_begin, pos_end-pos_begin);
-	text = text.substr(pos_end);
-	return token;
+	std::string token = పాఠ్యం.substr(pos_begin, pos_చివర-pos_begin);
+	పాఠ్యం = పాఠ్యం.substr(pos_చివర);
+	తిరిగి token;
 }
 
-std::vector<std::string> split_tokens(const std::string &text, const char *sep)
+std::సదిశ<std::string> విభజించు_టోకెన్లు(స్థిరరాశి std::string &పాఠ్యం, స్థిరరాశి అక్షరం *sep)
 {
-	std::vector<std::string> tokens;
+	std::సదిశ<std::string> టోకెన్లు;
 	std::string current_token;
-	for (char c : text) {
-		if (strchr(sep, c)) {
-			if (!current_token.empty()) {
-				tokens.push_back(current_token);
+	కొరకు (అక్షరం c : పాఠ్యం) {
+		ఒకవేళ (strchr(sep, c)) {
+			ఒకవేళ (!current_token.ఖాళీలు()) {
+				టోకెన్లు.నెట్టు_వెనుక(current_token);
 				current_token.clear();
 			}
-		} else
+		} లేకపోతే
 			current_token += c;
 	}
-	if (!current_token.empty()) {
-		tokens.push_back(current_token);
+	ఒకవేళ (!current_token.ఖాళీలు()) {
+		టోకెన్లు.నెట్టు_వెనుక(current_token);
 		current_token.clear();
 	}
-	return tokens;
+	తిరిగి టోకెన్లు;
 }
 
 // this is very similar to fnmatch(). the exact rules used by this
@@ -102,396 +102,396 @@ std::vector<std::string> split_tokens(const std::string &text, const char *sep)
 // a backslash may be used to escape the next characters in the
 // pattern. each special character can also simply match itself.
 //
-bool patmatch(const char *pattern, const char *string)
+తార్కిక patmatch(స్థిరరాశి అక్షరం *నమూనా, స్థిరరాశి అక్షరం *string)
 {
-	if (*pattern == 0)
-		return *string == 0;
+	ఒకవేళ (*నమూనా == 0)
+		తిరిగి *string == 0;
 
-	if (*pattern == '\\') {
-		if (pattern[1] == string[0] && patmatch(pattern+2, string+1))
-			return true;
+	ఒకవేళ (*నమూనా == '\\') {
+		ఒకవేళ (నమూనా[1] == string[0] && patmatch(నమూనా+2, string+1))
+			తిరిగి నిజం;
 	}
 
-	if (*pattern == '?') {
-		if (*string == 0)
-			return false;
-		return patmatch(pattern+1, string+1);
+	ఒకవేళ (*నమూనా == '?') {
+		ఒకవేళ (*string == 0)
+			తిరిగి అబద్ధం;
+		తిరిగి patmatch(నమూనా+1, string+1);
 	}
 
-	if (*pattern == '*') {
-		while (*string) {
-			if (patmatch(pattern+1, string++))
-				return true;
+	ఒకవేళ (*నమూనా == '*') {
+		అయితే (*string) {
+			ఒకవేళ (patmatch(నమూనా+1, string++))
+				తిరిగి నిజం;
 		}
-		return pattern[1] == 0;
+		తిరిగి నమూనా[1] == 0;
 	}
 
-	if (*pattern == '[') {
-		bool found_match = false;
-		bool inverted_list = pattern[1] == '!';
-		const char *p = pattern + (inverted_list ? 1 : 0);
+	ఒకవేళ (*నమూనా == '[') {
+		తార్కిక దొరికింది_సరిపోలిక = అబద్ధం;
+		తార్కిక inverted_list = నమూనా[1] == '!';
+		స్థిరరాశి అక్షరం *p = నమూనా + (inverted_list ? 1 : 0);
 
-		while (*++p) {
-			if (*p == ']') {
-				if (found_match != inverted_list && patmatch(p+1, string+1))
-					return true;
-				break;
+		అయితే (*++p) {
+			ఒకవేళ (*p == ']') {
+				ఒకవేళ (దొరికింది_సరిపోలిక != inverted_list && patmatch(p+1, string+1))
+					తిరిగి నిజం;
+				ఆపు;
 			}
 
-			if (*p == '\\') {
-				if (*++p == *string)
-					found_match = true;
-			} else
-			if (*p == *string)
-				found_match = true;
+			ఒకవేళ (*p == '\\') {
+				ఒకవేళ (*++p == *string)
+					దొరికింది_సరిపోలిక = నిజం;
+			} లేకపోతే
+			ఒకవేళ (*p == *string)
+				దొరికింది_సరిపోలిక = నిజం;
 		}
 	}
 
-	if (*pattern == *string)
-		return patmatch(pattern+1, string+1);
+	ఒకవేళ (*నమూనా == *string)
+		తిరిగి patmatch(నమూనా+1, string+1);
 
-	return false;
+	తిరిగి అబద్ధం;
 }
 
-std::string get_base_tmpdir()
+std::string get_పునాది_tmpdir()
 {
-	static std::string tmpdir;
+	స్థిర std::string tmpdir;
 
-	if (!tmpdir.empty()) {
-		return tmpdir;
+	ఒకవేళ (!tmpdir.ఖాళీలు()) {
+		తిరిగి tmpdir;
 	}
 
-#if defined(_WIN32)
+#ఒకవేళ defined(_WIN32)
 	std::wstring wtmppath(4096, L'\0');
 	// typically returns a 8.3 path, but this can be disabled via registry
-	if (!GetTempPathW(wtmppath.size(), wtmppath.data()))
+	ఒకవేళ (!Get_తాత్కాలిక_మార్గం_W(wtmppath.కొలత(), wtmppath.దత్తాంశం()))
 		log_error("GetTempPathW() failed.\n");
-	wtmppath.resize(wtmppath.find(L'\0'));
+	wtmppath.resize(wtmppath.కనుగొను(L'\0'));
 	std::string utmppath;
-	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), NULL, NULL) == 0)
+	utmppath.resize(Wide_Char_గమ్యం_Multi_Byte(CP_UTF8, 0, wtmppath.దత్తాంశం(), wtmppath.కొలత(), ఖాళీ, 0, ఖాళీ, ఖాళీ));
+	ఒకవేళ (Wide_Char_గమ్యం_Multi_Byte(CP_UTF8, 0, wtmppath.దత్తాంశం(), wtmppath.కొలత(), utmppath.దత్తాంశం(), utmppath.కొలత(), ఖాళీ, ఖాళీ) == 0)
 		log_error("WideCharToMultiByte() failed.\n");
 	tmpdir += utmppath;
-#else
-	char * var = std::getenv("TMPDIR");
-	if (var && strlen(var)!=0) {
-		tmpdir.assign(var);
+#లేకపోతే
+	అక్షరం * var = std::getenv("TMPDIR");
+	ఒకవేళ (var && అక్షరశ్రేణి_పొడవు(var)!=0) {
+		tmpdir.కేటాయించు(var);
 		// We return the directory name without the trailing '/'
-		while (!tmpdir.empty() && (tmpdir.back() == '/')) {
-			tmpdir.pop_back();
+		అయితే (!tmpdir.ఖాళీలు() && (tmpdir.వెనుక() == '/')) {
+			tmpdir.తీయి_వెనుక();
 		}
-	} else {
-		tmpdir.assign("/tmp");
+	} లేకపోతే {
+		tmpdir.కేటాయించు("/tmp");
 	}
-#endif
-	return tmpdir;
+#అయితే_ముగింపు
+	తిరిగి tmpdir;
 }
 
-std::string make_temp_file(std::string template_str)
+std::string make_తాత్కాలిక_file(std::string template_str)
 {
-	size_t pos = template_str.rfind("XXXXXX");
+	కొలత_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
-#if defined(__wasm)
-	static size_t index = 0;
-	template_str.replace(pos, 6, stringf("%06zu", index++));
-#elif defined(_WIN32)
-#ifndef YOSYS_WIN32_UNIX_DIR
-	std::replace(template_str.begin(), template_str.end(), '/', '\\');
-#endif
-	while (1) {
-		for (int i = 0; i < 6; i++) {
-			static std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-			static uint32_t x = 314159265 ^ uint32_t(time(NULL));
+#ఒకవేళ defined(__wasm)
+	స్థిర కొలత_t సూచీ = 0;
+	template_str.replace(pos, 6, stringf("%06zu", సూచీ++));
+#లేదావేళ defined(_WIN32)
+#నిర్వచితం_కాకపోతే YOSYS_WIN32_UNIX_DIR
+	std::replace(template_str.begin(), template_str.చివర(), '/', '\\');
+#అయితే_ముగింపు
+	అయితే (1) {
+		కొరకు (పూర్ణాంకం i = 0; i < 6; i++) {
+			స్థిర std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			స్థిర uint32_t x = 314159265 ^ uint32_t(సమయం_2(ఖాళీ));
 			x ^= x << 13, x ^= x >> 17, x ^= x << 5;
-			template_str[pos+i] = y[x % y.size()];
+			template_str[pos+i] = y[x % y.కొలత()];
 		}
-		if (_access(template_str.c_str(), 0) != 0)
-			break;
+		ఒకవేళ (_access(template_str.c_str(), 0) != 0)
+			ఆపు;
 	}
-#else
-	int suffixlen = template_str.size() - pos - 6;
+#లేకపోతే
+	పూర్ణాంకం suffixlen = template_str.కొలత() - pos - 6;
 
-	char *p = strdup(template_str.c_str());
+	అక్షరం *p = strdup(template_str.c_str());
 	close(mkstemps(p, suffixlen));
 	template_str = p;
-	free(p);
-#endif
+	విడుదల(p);
+#అయితే_ముగింపు
 
-	return template_str;
+	తిరిగి template_str;
 }
 
-std::string make_temp_dir(std::string template_str)
+std::string make_తాత్కాలిక_dir(std::string template_str)
 {
-#if defined(_WIN32)
-	template_str = make_temp_file(template_str);
+#ఒకవేళ defined(_WIN32)
+	template_str = make_తాత్కాలిక_file(template_str);
 	mkdir(template_str.c_str());
-	return template_str;
-#elif defined(__wasm)
-	template_str = make_temp_file(template_str);
+	తిరిగి template_str;
+#లేదావేళ defined(__wasm)
+	template_str = make_తాత్కాలిక_file(template_str);
 	mkdir(template_str.c_str(), 0777);
-	return template_str;
-#else
+	తిరిగి template_str;
+#లేకపోతే
 #  ifndef NDEBUG
-	size_t pos = template_str.rfind("XXXXXX");
+	కొలత_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
 
-	int suffixlen = template_str.size() - pos - 6;
+	పూర్ణాంకం suffixlen = template_str.కొలత() - pos - 6;
 	log_assert(suffixlen == 0);
 #  endif
 
-	char *p = strdup(template_str.c_str());
+	అక్షరం *p = strdup(template_str.c_str());
 	log_assert(p);
-	char *res = mkdtemp(p);
-	if (!res)
+	అక్షరం *res = mkdtemp(p);
+	ఒకవేళ (!res)
 		log_error("mkdtemp failed for '%s': %s [Error %d]\n",
 			p, strerror(errno), errno);
 	template_str = p;
-	free(p);
+	విడుదల(p);
 
-	return template_str;
-#endif
+	తిరిగి template_str;
+#అయితే_ముగింపు
 }
 
-bool check_is_directory(const std::string& dirname)
+తార్కిక check_is_directory(స్థిరరాశి std::string& dirname)
 {
-#if defined(_WIN32)
-	struct _stat info;
-	auto dirname_ = dirname;
+#ఒకవేళ defined(_WIN32)
+	నిర్మాణం _stat info;
+	స్వయంచాలక dirname_ = dirname;
 
 	/* On old versions of Visual Studio and current versions on MinGW,
 	   _stat will fail if the path ends with a trailing slash. */
-	if (dirname.back() == '/' || dirname.back() == '\\') {
-		dirname_ = dirname.substr(0, dirname.length() - 1);
+	ఒకవేళ (dirname.వెనుక() == '/' || dirname.వెనుక() == '\\') {
+		dirname_ = dirname.substr(0, dirname.నిడివి() - 1);
 	}
 
-	if (_stat(dirname_.c_str(), &info) != 0)
+	ఒకవేళ (_stat(dirname_.c_str(), &info) != 0)
 	{
-		return false;
+		తిరిగి అబద్ధం;
 	}
-	return (info.st_mode & _S_IFDIR) != 0;
-#else
-	struct stat info;
-	if (stat(dirname.c_str(), &info) != 0)
+	తిరిగి (info.st_బహుళకం & _S_IFDIR) != 0;
+#లేకపోతే
+	నిర్మాణం stat info;
+	ఒకవేళ (stat(dirname.c_str(), &info) != 0)
 	{
-		return false;
+		తిరిగి అబద్ధం;
 	}
-	return (info.st_mode & S_IFDIR) != 0;
-#endif
+	తిరిగి (info.st_బహుళకం & S_IFDIR) != 0;
+#అయితే_ముగింపు
 }
 
-#ifdef _WIN32
-bool check_accessible(const std::string& filename, bool)
+#నిర్వచితమైతే _WIN32
+తార్కిక check_accessible(స్థిరరాశి std::string& filename, తార్కిక)
 {
-	return _access(filename.c_str(), 0) == 0;
+	తిరిగి _access(filename.c_str(), 0) == 0;
 }
-#else
-bool check_accessible(const std::string& filename, bool is_exec)
+#లేకపోతే
+తార్కిక check_accessible(స్థిరరాశి std::string& filename, తార్కిక is_exec)
 {
-	return access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
+	తిరిగి access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
 }
-#endif
+#అయితే_ముగింపు
 
-bool check_file_exists(const std::string& filename, bool is_exec)
+తార్కిక check_file_exists(స్థిరరాశి std::string& filename, తార్కిక is_exec)
 {
-	return check_accessible(filename, is_exec) && !check_is_directory(filename);
+	తిరిగి check_accessible(filename, is_exec) && !check_is_directory(filename);
 }
-bool check_directory_exists(const std::string& filename, bool is_exec)
+తార్కిక check_directory_exists(స్థిరరాశి std::string& filename, తార్కిక is_exec)
 {
-	return check_accessible(filename, is_exec) && check_is_directory(filename);
-}
-
-bool is_absolute_path(std::string filename)
-{
-#ifdef _WIN32
-	return filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
-#else
-	return filename[0] == '/';
-#endif
+	తిరిగి check_accessible(filename, is_exec) && check_is_directory(filename);
 }
 
-void remove_directory(std::string dirname)
+తార్కిక is_absolute_మార్గం(std::string filename)
 {
-#ifdef _WIN32
-	run_command(stringf("rmdir /s /q \"%s\"", dirname));
-#else
-	struct stat stbuf;
-	struct dirent **namelist;
-	int n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
+#నిర్వచితమైతే _WIN32
+	తిరిగి filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
+#లేకపోతే
+	తిరిగి filename[0] == '/';
+#అయితే_ముగింపు
+}
+
+శూన్య remove_directory(std::string dirname)
+{
+#నిర్వచితమైతే _WIN32
+	నిరంతరం_command(stringf("rmdir /s /q \"%s\"", dirname));
+#లేకపోతే
+	నిర్మాణం stat stbuf;
+	నిర్మాణం dirent **namelist;
+	పూర్ణాంకం n = scandir(dirname.c_str(), &namelist, శూన్యసూచిక, alphasort);
 	log_assert(n >= 0);
-	for (int i = 0; i < n; i++) {
-		if (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
-			std::string buffer = stringf("%s/%s", dirname, namelist[i]->d_name);
-			if (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
-				remove(buffer.c_str());
-			} else
-				remove_directory(buffer);
+	కొరకు (పూర్ణాంకం i = 0; i < n; i++) {
+		ఒకవేళ (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
+			std::string బఫరు = stringf("%s/%s", dirname, namelist[i]->d_name);
+			ఒకవేళ (!stat(బఫరు.c_str(), &stbuf) && S_ISREG(stbuf.st_బహుళకం)) {
+				remove(బఫరు.c_str());
+			} లేకపోతే
+				remove_directory(బఫరు);
 		}
-		free(namelist[i]);
+		విడుదల(namelist[i]);
 	}
-	free(namelist);
+	విడుదల(namelist);
 	rmdir(dirname.c_str());
-#endif
+#అయితే_ముగింపు
 }
 
-bool create_directory(const std::string& dirname)
+తార్కిక create_directory(స్థిరరాశి std::string& dirname)
 {
-#if defined(_WIN32)
-	int ret = _mkdir(dirname.c_str());
-#else
-	mode_t mode = 0755;
-	int ret = mkdir(dirname.c_str(), mode);
-#endif
-	if (ret == 0)
-		return true;
+#ఒకవేళ defined(_WIN32)
+	పూర్ణాంకం ret = _mkdir(dirname.c_str());
+#లేకపోతే
+	బహుళకం_t బహుళకం = 0755;
+	పూర్ణాంకం ret = mkdir(dirname.c_str(), బహుళకం);
+#అయితే_ముగింపు
+	ఒకవేళ (ret == 0)
+		తిరిగి నిజం;
 
-	switch (errno)
+	ఎంపిక (errno)
 	{
-	case ENOENT:
+	స్థితి ENOENT:
 		// parent didn't exist, try to create it
 		{
-			std::string::size_type pos = dirname.find_last_of('/');
-			if (pos == std::string::npos)
-#if defined(_WIN32)
-				pos = dirname.find_last_of('\\');
-			if (pos == std::string::npos)
-#endif
-				return false;
-			if (!create_directory( dirname.substr(0, pos) ))
-				return false;
+			std::string::కొలత_type pos = dirname.కనుగొను_చివరి_యొక్క('/');
+			ఒకవేళ (pos == std::string::npos)
+#ఒకవేళ defined(_WIN32)
+				pos = dirname.కనుగొను_చివరి_యొక్క('\\');
+			ఒకవేళ (pos == std::string::npos)
+#అయితే_ముగింపు
+				తిరిగి అబద్ధం;
+			ఒకవేళ (!create_directory( dirname.substr(0, pos) ))
+				తిరిగి అబద్ధం;
 		}
 		// now, try to create again
-#if defined(_WIN32)
-		return 0 == _mkdir(dirname.c_str());
-#else
-		return 0 == mkdir(dirname.c_str(), mode);
-#endif
+#ఒకవేళ defined(_WIN32)
+		తిరిగి 0 == _mkdir(dirname.c_str());
+#లేకపోతే
+		తిరిగి 0 == mkdir(dirname.c_str(), బహుళకం);
+#అయితే_ముగింపు
 
-	case EEXIST:
+	స్థితి EEXIST:
 		// done!
-		return check_directory_exists(dirname);
+		తిరిగి check_directory_exists(dirname);
 
-	default:
-		return false;
+	అప్రమేయ:
+		తిరిగి అబద్ధం;
 	}
 }
 
-bool make_private_directory(const std::string& dirname)
+తార్కిక make_వ్యక్తిగత_directory(స్థిరరాశి std::string& dirname)
 {
-#if defined(_WIN32) || defined(__wasi__)
-	if (!create_directory(dirname)) {
+#ఒకవేళ defined(_WIN32) || defined(__wasi__)
+	ఒకవేళ (!create_directory(dirname)) {
 		log_warning("Cannot create the directory %s\n", dirname.c_str());
-		return false;
+		తిరిగి అబద్ధం;
 	}
-	return true;
-#else
-	if (mkdir(dirname.c_str(), 0700) == 0)
-		return true;
+	తిరిగి నిజం;
+#లేకపోతే
+	ఒకవేళ (mkdir(dirname.c_str(), 0700) == 0)
+		తిరిగి నిజం;
 
 	// Keep the errno of each mkdir(), create_directory() below makes its own calls
-	int err = errno;
-	std::string parent = std::filesystem::path(dirname).parent_path().string();
+	పూర్ణాంకం err = errno;
+	std::string మాతృ = std::filesystem::మార్గం_2(dirname).మాతృ_మార్గం().string();
 
-	if (err == ENOENT && !parent.empty() && create_directory(parent)) {
-		if (mkdir(dirname.c_str(), 0700) == 0)
-			return true;
+	ఒకవేళ (err == ENOENT && !మాతృ.ఖాళీలు() && create_directory(మాతృ)) {
+		ఒకవేళ (mkdir(dirname.c_str(), 0700) == 0)
+			తిరిగి నిజం;
 		err = errno;
 	}
 
-	if (err != EEXIST) {
+	ఒకవేళ (err != EEXIST) {
 		log_warning("Cannot create the directory %s: %s\n", dirname.c_str(), strerror(err));
-		return false;
+		తిరిగి అబద్ధం;
 	}
 
 	// Do not use a leftover that isn't ours
-	struct stat st;
-	if (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
+	నిర్మాణం stat st;
+	ఒకవేళ (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_బహుళకం) || st.st_uid != geteuid()) {
 		log_warning("%s is not a directory of this user\n", dirname.c_str());
-		return false;
+		తిరిగి అబద్ధం;
 	}
 	// Repair the mode if something changed it
-	mode_t mode = st.st_mode & 0777;
-	if (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
+	బహుళకం_t బహుళకం = st.st_బహుళకం & 0777;
+	ఒకవేళ (((బహుళకం & S_IRWXU) != S_IRWXU || (బహుళకం & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
 		log_warning("Cannot make the directory %s private: %s\n", dirname.c_str(), strerror(errno));
-		return false;
+		తిరిగి అబద్ధం;
 	}
 
-	return true;
-#endif
+	తిరిగి నిజం;
+#అయితే_ముగింపు
 }
 
-std::string make_user_tmpdir(const std::string& name)
+std::string make_user_tmpdir(స్థిరరాశి std::string& name)
 {
-	log_assert(!name.empty() && name.find('/') == std::string::npos);
-#if defined(_WIN32) || defined(__wasi__)
-	std::string dirname = get_base_tmpdir() + "/" + name;
-#else
-	std::string dirname = stringf("%s/%s-%u", get_base_tmpdir().c_str(), name.c_str(), (unsigned)geteuid());
-#endif
-	return make_private_directory(dirname) ? dirname : "";
+	log_assert(!name.ఖాళీలు() && name.కనుగొను('/') == std::string::npos);
+#ఒకవేళ defined(_WIN32) || defined(__wasi__)
+	std::string dirname = get_పునాది_tmpdir() + "/" + name;
+#లేకపోతే
+	std::string dirname = stringf("%s/%s-%u", get_పునాది_tmpdir().c_str(), name.c_str(), (గుర్తులేని)geteuid());
+#అయితే_ముగింపు
+	తిరిగి make_వ్యక్తిగత_directory(dirname) ? dirname : "";
 }
 
-std::string escape_filename_spaces(const std::string& filename)
+std::string escape_filename_spaces(స్థిరరాశి std::string& filename)
 {
-	std::string out;
-	out.reserve(filename.size());
-	for (auto c : filename)
+	std::string బహిర్గతం;
+	బహిర్గతం.reserve(filename.కొలత());
+	కొరకు (స్వయంచాలక c : filename)
 	{
-		if (c == ' ')
-			out += "\\ ";
-		else
-			out.push_back(c);
+		ఒకవేళ (c == ' ')
+			బహిర్గతం += "\\ ";
+		లేకపోతే
+			బహిర్గతం.నెట్టు_వెనుక(c);
 	}
-	return out;
+	తిరిగి బహిర్గతం;
 }
 
-void append_globbed(std::vector<std::string>& paths, std::string pattern)
+శూన్య append_globbed(std::సదిశ<std::string>& paths, std::string నమూనా)
 {
-	rewrite_filename(pattern);
-	std::vector<std::string> globbed = glob_filename(pattern);
-	copy(globbed.begin(), globbed.end(), back_inserter(paths));
+	rewrite_filename(నమూనా);
+	std::సదిశ<std::string> globbed = glob_filename(నమూనా);
+	copy(globbed.begin(), globbed.చివర(), వెనుక_inserter(paths));
 }
 
-std::string name_from_file_path(std::string path) {
-	return std::filesystem::path(path).filename().string();
+std::string name_from_file_మార్గం(std::string మార్గం_2) {
+	తిరిగి std::filesystem::మార్గం_2(మార్గం_2).filename().string();
 }
 
-std::string absolute_path(const std::string& path)
+std::string absolute_మార్గం(స్థిరరాశి std::string& మార్గం_2)
 {
-	std::error_code ec;
-	std::filesystem::path result = std::filesystem::absolute(path, ec);
+	std::error_సంకేతం ec;
+	std::filesystem::మార్గం_2 ఫలితం = std::filesystem::absolute(మార్గం_2, ec);
 
-	if (ec)
-		return "";
+	ఒకవేళ (ec)
+		తిరిగి "";
 
-	result = std::filesystem::weakly_canonical(result, ec);
+	ఫలితం = std::filesystem::weakly_canonical(ఫలితం, ec);
 
-	if (ec)
-		return "";
+	ఒకవేళ (ec)
+		తిరిగి "";
 
-	return result.string();
+	తిరిగి ఫలితం.string();
 }
 
 // Includes OS_PATH_SEP at the end if present
-std::string parent_from_file_path(std::string path) {
-	auto parent = std::filesystem::path(path).parent_path();
-	if (parent.empty()) {
-		return "";
+std::string మాతృ_from_file_మార్గం(std::string మార్గం_2) {
+	స్వయంచాలక మాతృ = std::filesystem::మార్గం_2(మార్గం_2).మాతృ_మార్గం();
+	ఒకవేళ (మాతృ.ఖాళీలు()) {
+		తిరిగి "";
 	}
 	// Add trailing separator to match original behavior
-	std::string result = parent.string();
-	if (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
-		result += std::filesystem::path::preferred_separator;
+	std::string ఫలితం = మాతృ.string();
+	ఒకవేళ (!ఫలితం.ఖాళీలు() && ఫలితం.వెనుక() != std::filesystem::మార్గం_2::preferred_separator) {
+		ఫలితం += std::filesystem::మార్గం_2::preferred_separator;
 	}
-	return result;
+	తిరిగి ఫలితం;
 }
 
-void format_emit_unescaped(std::string &result, std::string_view fmt)
+శూన్య format_emit_unescaped(std::string &ఫలితం, std::string_view fmt)
 {
-	result.reserve(result.size() + fmt.size());
-	for (size_t i = 0; i < fmt.size(); ++i) {
-		char ch = fmt[i];
-		result.push_back(ch);
-		if (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
+	ఫలితం.reserve(ఫలితం.కొలత() + fmt.కొలత());
+	కొరకు (కొలత_t i = 0; i < fmt.కొలత(); ++i) {
+		అక్షరం ch = fmt[i];
+		ఫలితం.నెట్టు_వెనుక(ch);
+		ఒకవేళ (ch == '%' && i + 1 < fmt.కొలత() && fmt[i + 1] == '%') {
 			++i;
 		}
 	}
@@ -499,251 +499,251 @@ void format_emit_unescaped(std::string &result, std::string_view fmt)
 
 std::string unescape_format_string(std::string_view fmt)
 {
-	std::string result;
-	format_emit_unescaped(result, fmt);
-	return result;
+	std::string ఫలితం;
+	format_emit_unescaped(ఫలితం, fmt);
+	తిరిగి ఫలితం;
 }
 
-static std::string string_view_stringf(std::string_view spec, ...)
+స్థిర std::string string_view_stringf(std::string_view spec, ...)
 {
 	va_list ap;
 	va_start(ap, spec);
-	std::string result = vstringf(std::string(spec).c_str(), ap);
+	std::string ఫలితం = vstringf(std::string(spec).c_str(), ap);
 	va_end(ap);
-	return result;
+	తిరిగి ఫలితం;
 }
 
-static int spec_parameter_size(std::string_view spec)
+స్థిర పూర్ణాంకం spec_parameter_కొలత(std::string_view spec)
 {
 	// Every valid spec starts with '%' which means the code below
 	// won't look before the spec start.
-	switch (spec[spec.size() - 1]) {
-	case 'd':
-	case 'i':
-	case 'o':
-	case 'u':
-	case 'x':
-	case 'X':
-		switch (spec[spec.size() - 2]) {
-		case 'h':
-			if (spec[spec.size() - 3] == 'h')
-				return sizeof(char);
-			return sizeof(short);
-		case 'l':
-			if (spec[spec.size() - 3] == 'l')
-				return sizeof(long long);
-			return sizeof(long);
-		case 'L':
-		case 'q':
-			return sizeof(long long);
-		case 'j':
-			return sizeof(intmax_t);
-		case 'z':
-		case 'Z':
-			return sizeof(size_t);
-		case 't':
-			return sizeof(ptrdiff_t);
+	ఎంపిక (spec[spec.కొలత() - 1]) {
+	స్థితి 'd':
+	స్థితి 'i':
+	స్థితి 'o':
+	స్థితి 'u':
+	స్థితి 'x':
+	స్థితి 'X':
+		ఎంపిక (spec[spec.కొలత() - 2]) {
+		స్థితి 'h':
+			ఒకవేళ (spec[spec.కొలత() - 3] == 'h')
+				తిరిగి పరిమాణం(అక్షరం);
+			తిరిగి పరిమాణం(పొట్టి);
+		స్థితి 'l':
+			ఒకవేళ (spec[spec.కొలత() - 3] == 'l')
+				తిరిగి పరిమాణం(దీర్ఘ దీర్ఘ);
+			తిరిగి పరిమాణం(దీర్ఘ);
+		స్థితి 'L':
+		స్థితి 'q':
+			తిరిగి పరిమాణం(దీర్ఘ దీర్ఘ);
+		స్థితి 'j':
+			తిరిగి పరిమాణం(intmax_t);
+		స్థితి 'z':
+		స్థితి 'Z':
+			తిరిగి పరిమాణం(కొలత_t);
+		స్థితి 't':
+			తిరిగి పరిమాణం(ptrdiff_t);
 		}
-		return sizeof(int);
-	case 'e':
-	case 'E':
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-	case 'a':
-	case 'A':
-		if (spec[spec.size() - 2] == 'L')
-			return sizeof(long double);
-		if (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
-			return sizeof(long double);
-		return sizeof(double);
-	case 'c':
-		if (spec[spec.size() - 2] == 'l') {
-			return sizeof(wchar_t);
+		తిరిగి పరిమాణం(పూర్ణాంకం);
+	స్థితి 'e':
+	స్థితి 'E':
+	స్థితి 'f':
+	స్థితి 'F':
+	స్థితి 'g':
+	స్థితి 'G':
+	స్థితి 'a':
+	స్థితి 'A':
+		ఒకవేళ (spec[spec.కొలత() - 2] == 'L')
+			తిరిగి పరిమాణం(దీర్ఘ ద్విగుణ);
+		ఒకవేళ (spec[spec.కొలత() - 2] == 'l' && spec[spec.కొలత() - 3] == 'l')
+			తిరిగి పరిమాణం(దీర్ఘ ద్విగుణ);
+		తిరిగి పరిమాణం(ద్విగుణ);
+	స్థితి 'c':
+		ఒకవేళ (spec[spec.కొలత() - 2] == 'l') {
+			తిరిగి పరిమాణం(wchar_t);
 		}
-		return sizeof(unsigned char);
-	case 'C':
-		return sizeof(wchar_t);
-	case 's':
-	case 'p':
-	case 'S':
-	case 'n':
-		return sizeof(void *);
-	case 'm':
-		return sizeof(int);
-	default:
-		return -1;
+		తిరిగి పరిమాణం(గుర్తులేని అక్షరం);
+	స్థితి 'C':
+		తిరిగి పరిమాణం(wchar_t);
+	స్థితి 's':
+	స్థితి 'p':
+	స్థితి 'S':
+	స్థితి 'n':
+		తిరిగి పరిమాణం(శూన్య *);
+	స్థితి 'm':
+		తిరిగి పరిమాణం(పూర్ణాంకం);
+	అప్రమేయ:
+		తిరిగి -1;
 	}
 }
 
-template <typename Arg>
-static void format_emit_stringf(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, Arg arg)
+మూస <రకం_పేరు Arg>
+స్థిర శూన్య format_emit_stringf(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, Arg arg)
 {
 	// Delegate nontrivial formats to the C library.
-	switch (num_dynamic_ints) {
-	case DynamicIntCount::NONE:
-		result += string_view_stringf(spec, arg);
-		return;
-	case DynamicIntCount::ONE:
-		result += string_view_stringf(spec, dynamic_ints[0], arg);
-		return;
-	case DynamicIntCount::TWO:
-		result += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
-		return;
+	ఎంపిక (అంకె_dynamic_ints) {
+	స్థితి Dynamic_Int_లెక్క::NONE:
+		ఫలితం += string_view_stringf(spec, arg);
+		తిరిగి;
+	స్థితి Dynamic_Int_లెక్క::ONE:
+		ఫలితం += string_view_stringf(spec, dynamic_ints[0], arg);
+		తిరిగి;
+	స్థితి Dynamic_Int_లెక్క::TWO:
+		ఫలితం += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
+		తిరిగి;
 	}
 	YOSYS_ABORT("Internal error");
 }
 
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, long long arg)
+శూన్య format_emit_long_long(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, దీర్ఘ దీర్ఘ arg)
 {
-	if (spec == "%d") {
+	ఒకవేళ (spec == "%d") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<int>(arg));
-		return;
+		ఫలితం += std::గమ్యం_string(static_cast<పూర్ణాంకం>(arg));
+		తిరిగి;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	ఒకవేళ (spec_parameter_కొలత(spec) <= 4) {
 		// On some platforms (Wasm) we must ensure that the arg is properly aligned
 		// after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, (పూర్ణాంకం)arg);
+	} లేకపోతే {
+		format_emit_stringf(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, arg);
 	}
 }
 
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, unsigned long long arg)
+శూన్య format_emit_unsigned_long_long(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, గుర్తులేని దీర్ఘ దీర్ఘ arg)
 {
-	if (spec == "%u") {
+	ఒకవేళ (spec == "%u") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<unsigned int>(arg));
-		return;
+		ఫలితం += std::గమ్యం_string(static_cast<గుర్తులేని పూర్ణాంకం>(arg));
+		తిరిగి;
 	}
-	if (spec == "%c") {
-		result += static_cast<char>(arg);
-		return;
+	ఒకవేళ (spec == "%c") {
+		ఫలితం += static_cast<అక్షరం>(arg);
+		తిరిగి;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	ఒకవేళ (spec_parameter_కొలత(spec) <= 4) {
                 // On some platforms (Wasm) we must ensure that the arg is properly aligned
                 // after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (unsigned int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, (గుర్తులేని పూర్ణాంకం)arg);
+	} లేకపోతే {
+		format_emit_stringf(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, arg);
 	}
 }
 
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, double arg)
+శూన్య format_emit_double(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, ద్విగుణ arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, arg);
 }
 
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const char *arg)
+శూన్య format_emit_char_ptr(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, స్థిరరాశి అక్షరం *arg)
 {
-	if (spec == "%s") {
+	ఒకవేళ (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += arg;
-		return;
+		ఫలితం += arg;
+		తిరిగి;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, arg);
 }
 
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const std::string &arg)
+శూన్య format_emit_string(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, స్థిరరాశి std::string &arg)
 {
-	if (spec == "%s") {
+	ఒకవేళ (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += arg;
-		return;
+		ఫలితం += arg;
+		తిరిగి;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg.c_str());
+	format_emit_stringf(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, arg.c_str());
 }
 
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, std::string_view arg)
+శూన్య format_emit_string_view(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, std::string_view arg)
 {
-	if (spec == "%s") {
+	ఒకవేళ (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		// We can output the string without creating a temporary copy.
-		result += arg;
-		return;
+		ఫలితం += arg;
+		తిరిగి;
 	}
 	// Delegate nontrivial formats to the C library. We need to construct
 	// a temporary string to ensure null termination.
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, std::string(arg).c_str());
+	format_emit_stringf(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, std::string(arg).c_str());
 }
 
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const void *arg)
+శూన్య format_emit_void_ptr(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, స్థిరరాశి శూన్య *arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, arg);
 }
 
-#if defined(_WIN32)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#ఒకవేళ defined(_WIN32)
+Scoped_File_తాళం::Scoped_File_తాళం(స్థిరరాశి std::string &మార్గం_2)
 {
-	HANDLE h = CreateFileA(path.c_str(), GENERIC_READ | GENERIC_WRITE,
+	HANDLE h = CreateFileA(మార్గం_2.c_str(), GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-			NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h == INVALID_HANDLE_VALUE) {
-		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+			ఖాళీ, OPEN_ALWAYS, FILE_ATTRIBUTE_సాధారణ, ఖాళీ);
+	ఒకవేళ (h == INVALID_HANDLE_విలువ) {
+		log_warning("Cannot open lock file %s, proceeding without lock\n", మార్గం_2.c_str());
+		తిరిగి;
 	}
 	OVERLAPPED ov = {};
-	if (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
-		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
+	ఒకవేళ (!తాళం_File_Ex(h, LOCKFILE_EXCLUSIVE_తాళం, 0, MAXDWORD, MAXDWORD, &ov)) {
+		log_warning("Cannot lock %s, proceeding without lock\n", మార్గం_2.c_str());
 		CloseHandle(h);
-		return;
+		తిరిగి;
 	}
 	handle = h;
 }
 
-ScopedFileLock::~ScopedFileLock()
+Scoped_File_తాళం::~Scoped_File_తాళం()
 {
-	if (handle != nullptr) {
+	ఒకవేళ (handle != శూన్యసూచిక) {
 		OVERLAPPED ov = {};
 		UnlockFileEx(handle, 0, MAXDWORD, MAXDWORD, &ov);
 		CloseHandle(handle);
 	}
 }
-#elif !defined(__wasi__)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#లేదావేళ !defined(__wasi__)
+Scoped_File_తాళం::Scoped_File_తాళం(స్థిరరాశి std::string &మార్గం_2)
 {
-	fd = open(path.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0666);
-	if (fd < 0)
-		fd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
-	if (fd < 0) {
-		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+	fd = open(మార్గం_2.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0666);
+	ఒకవేళ (fd < 0)
+		fd = open(మార్గం_2.c_str(), O_RDONLY | O_CLOEXEC);
+	ఒకవేళ (fd < 0) {
+		log_warning("Cannot open lock file %s, proceeding without lock\n", మార్గం_2.c_str());
+		తిరిగి;
 	}
-	int ret;
-	while ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
-	if (ret != 0)
-		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
+	పూర్ణాంకం ret;
+	అయితే ((ret = flock(fd, తాళం_EX)) != 0 && errno == EINTR);
+	ఒకవేళ (ret != 0)
+		log_warning("Cannot lock %s, proceeding without lock\n", మార్గం_2.c_str());
 }
 
-ScopedFileLock::~ScopedFileLock()
+Scoped_File_తాళం::~Scoped_File_తాళం()
 {
-	if (fd >= 0)
+	ఒకవేళ (fd >= 0)
 		close(fd); // releases the flock
 }
-#else
-ScopedFileLock::ScopedFileLock(const std::string &) {}
-ScopedFileLock::~ScopedFileLock() {}
-#endif
+#లేకపోతే
+Scoped_File_తాళం::Scoped_File_తాళం(స్థిరరాశి std::string &) {}
+Scoped_File_తాళం::~Scoped_File_తాళం() {}
+#అయితే_ముగింపు
 
-unsigned get_process_id()
+గుర్తులేని get_process_id()
 {
-#if defined(_WIN32)
-	return GetCurrentProcessId();
-#elif defined(__wasi__)
-	return 0;
-#else
-	return getpid();
-#endif
+#ఒకవేళ defined(_WIN32)
+	తిరిగి GetCurrentProcessId();
+#లేదావేళ defined(__wasi__)
+	తిరిగి 0;
+#లేకపోతే
+	తిరిగి getpid();
+#అయితే_ముగింపు
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర

@@ -18,60 +18,60 @@
  *
  */
 
-#ifndef TIMINGINFO_H
-#define TIMINGINFO_H
+#నిర్వచితం_కాకపోతే TIMINGINFO_H
+#నిర్వచించు TIMINGINFO_H
 
-#include "kernel/yosys.h"
+#అన్తర్భావ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct TimingInfo
+నిర్మాణం TimingInfo
 {
-	struct NameBit
+	నిర్మాణం Name_బిట్టు
 	{
 		RTLIL::IdString name;
-		int offset;
-		NameBit() : offset(0) {}
-		NameBit(IdString name, int offset) : name(name), offset(offset) {}
-		explicit NameBit(const RTLIL::SigBit &b) : name(b.wire->name), offset(b.offset) {}
-		bool operator==(const NameBit& nb) const { return nb.name == name && nb.offset == offset; }
-		bool operator!=(const NameBit& nb) const { return !operator==(nb); }
-		std::optional<SigBit> get_connection(RTLIL::Cell *cell) {
-			IdString port_name = name;
-			if (!cell->hasPort(port_name))
-				return {};
-			auto &port = cell->getPort(port_name);
-			if (offset >= port.size())
-				return {};
-			return port[offset];
+		పూర్ణాంకం స్థానభ్రంశం;
+		Name_బిట్టు() : స్థానభ్రంశం(0) {}
+		Name_బిట్టు(IdString name, పూర్ణాంకం స్థానభ్రంశం) : name(name), స్థానభ్రంశం(స్థానభ్రంశం) {}
+		explicit Name_బిట్టు(స్థిరరాశి RTLIL::Sig_బిట్టు &b) : name(b.wire->name), స్థానభ్రంశం(b.స్థానభ్రంశం) {}
+		bool క్రియాకారకం==(స్థిరరాశి Name_బిట్టు& nb) స్థిరరాశి { తిరిగి nb.name == name && nb.స్థానభ్రంశం == స్థానభ్రంశం; }
+		bool క్రియాకారకం!=(స్థిరరాశి Name_బిట్టు& nb) స్థిరరాశి { తిరిగి !క్రియాకారకం==(nb); }
+		std::optional<Sig_బిట్టు> get_connection(RTLIL::Cell *cell) {
+			IdString పోర్టు_name = name;
+			ఒకవేళ (!cell->has_పోర్టు(పోర్టు_name))
+				తిరిగి {};
+			స్వయంచాలక &పోర్టు = cell->get_పోర్టు(పోర్టు_name);
+			ఒకవేళ (స్థానభ్రంశం >= పోర్టు.కొలత())
+				తిరిగి {};
+			తిరిగి పోర్టు[స్థానభ్రంశం];
 		}
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి {
 			h.eat(name);
-			h.eat(offset);
-			return h;
+			h.eat(స్థానభ్రంశం);
+			తిరిగి h;
 		}
 	};
-	struct BitBit
+	నిర్మాణం బిట్టు_బిట్టు
 	{
-		NameBit first, second;
-		BitBit(const NameBit &first, const NameBit &second) : first(first), second(second) {}
-		BitBit(const SigBit &first, const SigBit &second) : first(first), second(second) {}
-		bool operator==(const BitBit& bb) const { return bb.first == first && bb.second == second; }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			h.eat(first);
-			h.eat(second);
-			return h;
+		Name_బిట్టు మొదటి, రెండవ;
+		బిట్టు_బిట్టు(స్థిరరాశి Name_బిట్టు &మొదటి, స్థిరరాశి Name_బిట్టు &రెండవ) : మొదటి(మొదటి), రెండవ(రెండవ) {}
+		బిట్టు_బిట్టు(స్థిరరాశి Sig_బిట్టు &మొదటి, స్థిరరాశి Sig_బిట్టు &రెండవ) : మొదటి(మొదటి), రెండవ(రెండవ) {}
+		bool క్రియాకారకం==(స్థిరరాశి బిట్టు_బిట్టు& bb) స్థిరరాశి { తిరిగి bb.మొదటి == మొదటి && bb.రెండవ == రెండవ; }
+		[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి {
+			h.eat(మొదటి);
+			h.eat(రెండవ);
+			తిరిగి h;
 		}
 	};
 
-	struct ModuleTiming
+	నిర్మాణం ModuleTiming
 	{
-		dict<BitBit, int> comb;
-		dict<NameBit, std::pair<int,NameBit>> arrival, required;
+		dict<బిట్టు_బిట్టు, పూర్ణాంకం> comb;
+		dict<Name_బిట్టు, std::pair<పూర్ణాంకం,Name_బిట్టు>> రాక, required;
 		bool has_inputs;
 	};
 
-	dict<RTLIL::IdString, ModuleTiming> data;
+	dict<RTLIL::IdString, ModuleTiming> దత్తాంశం;
 
 	TimingInfo()
 	{
@@ -79,131 +79,131 @@ struct TimingInfo
 
 	TimingInfo(RTLIL::Design *design)
 	{
-		setup(design);
+		అమరిక(design);
 	}
 
-	void setup(RTLIL::Design *design)
+	శూన్య అమరిక(RTLIL::Design *design)
 	{
-		for (auto module : design->modules()) {
-			if (!module->get_blackbox_attribute())
-				continue;
-			setup_module(module);
+		కొరకు (స్వయంచాలక module : design->modules()) {
+			ఒకవేళ (!module->get_blackbox_attribute())
+				కొనసాగు;
+			అమరిక_module(module);
 		}
 	}
 
-	const ModuleTiming& setup_module(RTLIL::Module *module)
+	స్థిరరాశి ModuleTiming& అమరిక_module(RTLIL::Module *module)
 	{
-		auto r = data.insert(module->name);
-		log_assert(r.second);
-		auto &t = r.first->second;
+		స్వయంచాలక r = దత్తాంశం.చొప్పించు(module->name);
+		log_assert(r.రెండవ);
+		స్వయంచాలక &t = r.మొదటి->రెండవ;
 
-		for (auto cell : module->cells()) {
-			if (cell->type == ID($specify2)) {
-				auto en = cell->getPort(ID::EN);
-				if (en.is_fully_const() && !en.as_bool())
-					continue;
-				auto src = cell->getPort(ID::SRC);
-				auto dst = cell->getPort(ID::DST);
-				for (const auto &c : src.chunks())
-					if (!c.wire || !c.wire->port_input)
+		కొరకు (స్వయంచాలక cell : module->cells()) {
+			ఒకవేళ (cell->type == ID($specify2)) {
+				స్వయంచాలక en = cell->get_పోర్టు(ID::EN);
+				ఒకవేళ (en.is_fully_const() && !en.as_bool())
+					కొనసాగు;
+				స్వయంచాలక src = cell->get_పోర్టు(ID::SRC);
+				స్వయంచాలక dst = cell->get_పోర్టు(ID::DST);
+				కొరకు (స్థిరరాశి స్వయంచాలక &c : src.chunks())
+					ఒకవేళ (!c.wire || !c.wire->పోర్టు_ఆదానం)
 						log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
-				for (const auto &c : dst.chunks())
-					if (!c.wire || !c.wire->port_output)
+				కొరకు (స్థిరరాశి స్వయంచాలక &c : dst.chunks())
+					ఒకవేళ (!c.wire || !c.wire->పోర్టు_output)
 						log_error("Module '%s' contains specify cell '%s' where DST '%s' is not a module output.\n", module, cell, log_signal(dst));
-				int rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
-				int fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
-				int max = std::max(rise_max,fall_max);
-				if (max < 0)
+				పూర్ణాంకం rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
+				పూర్ణాంకం fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
+				పూర్ణాంకం max = std::max(rise_max,fall_max);
+				ఒకవేళ (max < 0)
 					log_error("Module '%s' contains specify cell '%s' with T_{RISE,FALL}_MAX < 0.\n", module, cell);
-				if (cell->getParam(ID::FULL).as_bool()) {
-					for (const auto &s : src)
-						for (const auto &d : dst) {
-							auto r = t.comb.insert(BitBit(s,d));
-							if (!r.second)
+				ఒకవేళ (cell->getParam(ID::నిండిన).as_bool()) {
+					కొరకు (స్థిరరాశి స్వయంచాలక &s : src)
+						కొరకు (స్థిరరాశి స్వయంచాలక &d : dst) {
+							స్వయంచాలక r = t.comb.చొప్పించు(బిట్టు_బిట్టు(s,d));
+							ఒకవేళ (!r.రెండవ)
 								log_error("Module '%s' contains multiple specify cells for SRC '%s' and DST '%s'.\n", module, log_signal(s), log_signal(d));
-							r.first->second = max;
+							r.మొదటి->రెండవ = max;
 						}
 				}
-				else {
-					log_assert(GetSize(src) == GetSize(dst));
-					for (auto i = 0; i < GetSize(src); i++) {
-						const auto &s = src[i];
-						const auto &d = dst[i];
-						auto r = t.comb.insert(BitBit(s,d));
-						if (!r.second)
+				లేకపోతే {
+					log_assert(Get_కొలత(src) == Get_కొలత(dst));
+					కొరకు (స్వయంచాలక i = 0; i < Get_కొలత(src); i++) {
+						స్థిరరాశి స్వయంచాలక &s = src[i];
+						స్థిరరాశి స్వయంచాలక &d = dst[i];
+						స్వయంచాలక r = t.comb.చొప్పించు(బిట్టు_బిట్టు(s,d));
+						ఒకవేళ (!r.రెండవ)
 							log_error("Module '%s' contains multiple specify cells for SRC '%s' and DST '%s'.\n", module, log_signal(s), log_signal(d));
-						r.first->second = max;
+						r.మొదటి->రెండవ = max;
 					}
 				}
 			}
-			else if (cell->type == ID($specify3)) {
-				auto src = cell->getPort(ID::SRC).as_bit();
-				auto dst = cell->getPort(ID::DST);
-				if (!src.wire || !src.wire->port_input)
+			లేకపోతే ఒకవేళ (cell->type == ID($specify3)) {
+				స్వయంచాలక src = cell->get_పోర్టు(ID::SRC).as_బిట్టు();
+				స్వయంచాలక dst = cell->get_పోర్టు(ID::DST);
+				ఒకవేళ (!src.wire || !src.wire->పోర్టు_ఆదానం)
 					log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
-				for (const auto &c : dst.chunks())
-					if (!c.wire->port_output)
+				కొరకు (స్థిరరాశి స్వయంచాలక &c : dst.chunks())
+					ఒకవేళ (!c.wire->పోర్టు_output)
 						log_error("Module '%s' contains specify cell '%s' where DST '%s' is not a module output.\n", module, cell, log_signal(dst));
-				int rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
-				int fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
-				int max = std::max(rise_max,fall_max);
-				if (max < 0) {
+				పూర్ణాంకం rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
+				పూర్ణాంకం fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
+				పూర్ణాంకం max = std::max(rise_max,fall_max);
+				ఒకవేళ (max < 0) {
 					log_warning("Module '%s' contains specify cell '%s' with T_{RISE,FALL}_MAX < 0 which is currently unsupported. Clamping to 0.\n", module, cell);
 					max = 0;
 				}
-				for (const auto &d : dst) {
-					auto r = t.arrival.insert(NameBit(d));
-					auto &v = r.first->second;
-					if (r.second || v.first < max) {
-						v.first = max;
-						v.second = NameBit(src);
+				కొరకు (స్థిరరాశి స్వయంచాలక &d : dst) {
+					స్వయంచాలక r = t.రాక.చొప్పించు(Name_బిట్టు(d));
+					స్వయంచాలక &v = r.మొదటి->రెండవ;
+					ఒకవేళ (r.రెండవ || v.మొదటి < max) {
+						v.మొదటి = max;
+						v.రెండవ = Name_బిట్టు(src);
 					}
 				}
 			}
-			else if (cell->type == ID($specrule)) {
+			లేకపోతే ఒకవేళ (cell->type == ID($specrule)) {
 				std::string type = cell->getParam(ID::TYPE).decode_string();
-				if (type != "$setup" && type != "$setuphold")
-					continue;
-				auto src = cell->getPort(ID::SRC);
-				auto dst = cell->getPort(ID::DST).as_bit();
-				for (const auto &c : src.chunks())
-					if (!c.wire || !c.wire->port_input)
+				ఒకవేళ (type != "$setup" && type != "$setuphold")
+					కొనసాగు;
+				స్వయంచాలక src = cell->get_పోర్టు(ID::SRC);
+				స్వయంచాలక dst = cell->get_పోర్టు(ID::DST).as_బిట్టు();
+				కొరకు (స్థిరరాశి స్వయంచాలక &c : src.chunks())
+					ఒకవేళ (!c.wire || !c.wire->పోర్టు_ఆదానం)
 						log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
-				if (!dst.wire || !dst.wire->port_input)
+				ఒకవేళ (!dst.wire || !dst.wire->పోర్టు_ఆదానం)
 					log_error("Module '%s' contains specify cell '%s' where DST '%s' is not a module input.\n", module, cell, log_signal(dst));
-				int max = cell->getParam(ID::T_LIMIT_MAX).as_int();
-				if (max < 0) {
+				పూర్ణాంకం max = cell->getParam(ID::T_హద్దు_MAX).as_int();
+				ఒకవేళ (max < 0) {
 					log_warning("Module '%s' contains specify cell '%s' with T_LIMIT_MAX < 0 which is currently unsupported. Clamping to 0.\n", module, cell);
 					max = 0;
 				}
-				for (const auto &s : src) {
-					auto r = t.required.insert(NameBit(s));
-					auto &v = r.first->second;
-					if (r.second || v.first < max) {
-						v.first = max;
-						v.second = NameBit(dst);
+				కొరకు (స్థిరరాశి స్వయంచాలక &s : src) {
+					స్వయంచాలక r = t.required.చొప్పించు(Name_బిట్టు(s));
+					స్వయంచాలక &v = r.మొదటి->రెండవ;
+					ఒకవేళ (r.రెండవ || v.మొదటి < max) {
+						v.మొదటి = max;
+						v.రెండవ = Name_బిట్టు(dst);
 					}
 				}
 			}
 		}
 
-		for (auto port_name : module->ports) {
-			auto wire = module->wire(port_name);
-			if (wire->port_input) {
+		కొరకు (స్వయంచాలక పోర్టు_name : module->ports) {
+			స్వయంచాలక wire = module->wire(పోర్టు_name);
+			ఒకవేళ (wire->పోర్టు_ఆదానం) {
 				t.has_inputs = true;
-				break;
+				ఆపు;
 			}
 		}
 
-		return t;
+		తిరిగి t;
 	}
 
-	decltype(data)::const_iterator find(RTLIL::IdString module_name) const { return data.find(module_name); }
-	decltype(data)::const_iterator end() const { return data.end(); }
-	int count(RTLIL::IdString module_name) const { return data.count(module_name); }
-	const ModuleTiming& at(RTLIL::IdString module_name) const { return data.at(module_name); }
+	decltype(దత్తాంశం)::const_iterator కనుగొను(RTLIL::IdString module_name) స్థిరరాశి { తిరిగి దత్తాంశం.కనుగొను(module_name); }
+	decltype(దత్తాంశం)::const_iterator చివర() స్థిరరాశి { తిరిగి దత్తాంశం.చివర(); }
+	పూర్ణాంకం లెక్క(RTLIL::IdString module_name) స్థిరరాశి { తిరిగి దత్తాంశం.లెక్క(module_name); }
+	స్థిరరాశి ModuleTiming& at(RTLIL::IdString module_name) స్థిరరాశి { తిరిగి దత్తాంశం.at(module_name); }
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

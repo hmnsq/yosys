@@ -17,288 +17,288 @@
  *
  */
 
-#ifndef MACC_H
-#define MACC_H
+#నిర్వచితం_కాకపోతే MACC_H
+#నిర్వచించు MACC_H
 
-#include "kernel/yosys.h"
+#అన్తర్భావ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct Macc
+నిర్మాణం Macc
 {
-	struct term_t {
-		RTLIL::SigSpec in_a, in_b;
-		bool is_signed, do_subtract;
+	నిర్మాణం పదం_t {
+		RTLIL::SigSpec లోపల_a, లోపల_b;
+		bool is_signed, do_వ్యవకలనం;
 	};
-	std::vector<term_t> terms;
+	std::సదిశ<పదం_t> terms;
 
-	void optimize(int width)
+	శూన్య optimize(పూర్ణాంకం వెడల్పు)
 	{
-		std::vector<term_t> new_terms;
-		RTLIL::Const off(0, width);
+		std::సదిశ<పదం_t> new_terms;
+		RTLIL::Const off(0, వెడల్పు);
 
-		for (auto &port : terms)
+		కొరకు (స్వయంచాలక &పోర్టు : terms)
 		{
-			if (GetSize(port.in_a) == 0 && GetSize(port.in_b) == 0)
-				continue;
+			ఒకవేళ (Get_కొలత(పోర్టు.లోపల_a) == 0 && Get_కొలత(పోర్టు.లోపల_b) == 0)
+				కొనసాగు;
 
-			if (GetSize(port.in_a) < GetSize(port.in_b))
-				std::swap(port.in_a, port.in_b);
+			ఒకవేళ (Get_కొలత(పోర్టు.లోపల_a) < Get_కొలత(పోర్టు.లోపల_b))
+				std::మార్పిడి(పోర్టు.లోపల_a, పోర్టు.లోపల_b);
 
-			if (port.in_a.is_fully_const() && port.in_b.is_fully_const()) {
-				RTLIL::Const v = port.in_a.as_const();
-				if (GetSize(port.in_b))
-					v = const_mul(v, port.in_b.as_const(), port.is_signed, port.is_signed, width);
-				if (port.do_subtract)
-					off = const_sub(off, v, port.is_signed, port.is_signed, width);
-				else
-					off = const_add(off, v, port.is_signed, port.is_signed, width);
-				continue;
+			ఒకవేళ (పోర్టు.లోపల_a.is_fully_const() && పోర్టు.లోపల_b.is_fully_const()) {
+				RTLIL::Const v = పోర్టు.లోపల_a.as_const();
+				ఒకవేళ (Get_కొలత(పోర్టు.లోపల_b))
+					v = const_mul(v, పోర్టు.లోపల_b.as_const(), పోర్టు.is_signed, పోర్టు.is_signed, వెడల్పు);
+				ఒకవేళ (పోర్టు.do_వ్యవకలనం)
+					off = const_sub(off, v, పోర్టు.is_signed, పోర్టు.is_signed, వెడల్పు);
+				లేకపోతే
+					off = const_కూడు(off, v, పోర్టు.is_signed, పోర్టు.is_signed, వెడల్పు);
+				కొనసాగు;
 			}
 
-			if (port.is_signed) {
-				while (GetSize(port.in_a) > 1 && port.in_a[GetSize(port.in_a)-1] == port.in_a[GetSize(port.in_a)-2])
-					port.in_a.remove(GetSize(port.in_a)-1);
-				while (GetSize(port.in_b) > 1 && port.in_b[GetSize(port.in_b)-1] == port.in_b[GetSize(port.in_b)-2])
-					port.in_b.remove(GetSize(port.in_b)-1);
-			} else {
-				while (GetSize(port.in_a) > 1 && port.in_a[GetSize(port.in_a)-1] == State::S0)
-					port.in_a.remove(GetSize(port.in_a)-1);
-				while (GetSize(port.in_b) > 1 && port.in_b[GetSize(port.in_b)-1] == State::S0)
-					port.in_b.remove(GetSize(port.in_b)-1);
+			ఒకవేళ (పోర్టు.is_signed) {
+				అయితే (Get_కొలత(పోర్టు.లోపల_a) > 1 && పోర్టు.లోపల_a[Get_కొలత(పోర్టు.లోపల_a)-1] == పోర్టు.లోపల_a[Get_కొలత(పోర్టు.లోపల_a)-2])
+					పోర్టు.లోపల_a.remove(Get_కొలత(పోర్టు.లోపల_a)-1);
+				అయితే (Get_కొలత(పోర్టు.లోపల_b) > 1 && పోర్టు.లోపల_b[Get_కొలత(పోర్టు.లోపల_b)-1] == పోర్టు.లోపల_b[Get_కొలత(పోర్టు.లోపల_b)-2])
+					పోర్టు.లోపల_b.remove(Get_కొలత(పోర్టు.లోపల_b)-1);
+			} లేకపోతే {
+				అయితే (Get_కొలత(పోర్టు.లోపల_a) > 1 && పోర్టు.లోపల_a[Get_కొలత(పోర్టు.లోపల_a)-1] == State::S0)
+					పోర్టు.లోపల_a.remove(Get_కొలత(పోర్టు.లోపల_a)-1);
+				అయితే (Get_కొలత(పోర్టు.లోపల_b) > 1 && పోర్టు.లోపల_b[Get_కొలత(పోర్టు.లోపల_b)-1] == State::S0)
+					పోర్టు.లోపల_b.remove(Get_కొలత(పోర్టు.లోపల_b)-1);
 			}
 
-			new_terms.push_back(port);
+			new_terms.నెట్టు_వెనుక(పోర్టు);
 		}
 
-		if (off.as_bool()) {
-			term_t port;
-			port.in_a = off;
-			port.is_signed = false;
-			port.do_subtract = false;
-			new_terms.push_back(port);
+		ఒకవేళ (off.as_bool()) {
+			పదం_t పోర్టు;
+			పోర్టు.లోపల_a = off;
+			పోర్టు.is_signed = false;
+			పోర్టు.do_వ్యవకలనం = false;
+			new_terms.నెట్టు_వెనుక(పోర్టు);
 		}
 
-		new_terms.swap(terms);
+		new_terms.మార్పిడి(terms);
 	}
 
-	void from_cell_v1(RTLIL::Cell *cell)
+	శూన్య from_cell_v1(RTLIL::Cell *cell)
 	{
-		RTLIL::SigSpec port_a = cell->getPort(ID::A);
+		RTLIL::SigSpec పోర్టు_a = cell->get_పోర్టు(ID::A);
 
 		terms.clear();
 
-		auto config_bits = cell->getParam(ID::CONFIG);
-		int config_cursor = 0;
+		స్వయంచాలక config_బిట్లు = cell->getParam(ID::CONFIG);
+		పూర్ణాంకం config_cursor = 0;
 
-		int config_width = cell->getParam(ID::CONFIG_WIDTH).as_int();
-		log_assert(GetSize(config_bits) >= config_width);
+		పూర్ణాంకం config_వెడల్పు = cell->getParam(ID::CONFIG_వెడల్పు).as_int();
+		log_assert(Get_కొలత(config_బిట్లు) >= config_వెడల్పు);
 
-		int num_bits = 0;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 1;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 2;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 4;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 8;
+		పూర్ణాంకం అంకె_బిట్లు = 0;
+		ఒకవేళ (config_బిట్లు[config_cursor++] == State::S1) అంకె_బిట్లు |= 1;
+		ఒకవేళ (config_బిట్లు[config_cursor++] == State::S1) అంకె_బిట్లు |= 2;
+		ఒకవేళ (config_బిట్లు[config_cursor++] == State::S1) అంకె_బిట్లు |= 4;
+		ఒకవేళ (config_బిట్లు[config_cursor++] == State::S1) అంకె_బిట్లు |= 8;
 
-		int port_a_cursor = 0;
-		while (port_a_cursor < GetSize(port_a))
+		పూర్ణాంకం పోర్టు_a_cursor = 0;
+		అయితే (పోర్టు_a_cursor < Get_కొలత(పోర్టు_a))
 		{
-			log_assert(config_cursor + 2 + 2*num_bits <= config_width);
+			log_assert(config_cursor + 2 + 2*అంకె_బిట్లు <= config_వెడల్పు);
 
-			term_t this_port;
-			this_port.is_signed = config_bits[config_cursor++] == State::S1;
-			this_port.do_subtract = config_bits[config_cursor++] == State::S1;
+			పదం_t this_పోర్టు;
+			this_పోర్టు.is_signed = config_బిట్లు[config_cursor++] == State::S1;
+			this_పోర్టు.do_వ్యవకలనం = config_బిట్లు[config_cursor++] == State::S1;
 
-			int size_a = 0;
-			for (int i = 0; i < num_bits; i++)
-				if (config_bits[config_cursor++] == State::S1)
-					size_a |= 1 << i;
+			పూర్ణాంకం కొలత_a = 0;
+			కొరకు (పూర్ణాంకం i = 0; i < అంకె_బిట్లు; i++)
+				ఒకవేళ (config_బిట్లు[config_cursor++] == State::S1)
+					కొలత_a |= 1 << i;
 
-			this_port.in_a = port_a.extract(port_a_cursor, size_a);
-			port_a_cursor += size_a;
+			this_పోర్టు.లోపల_a = పోర్టు_a.వెలికితీయి(పోర్టు_a_cursor, కొలత_a);
+			పోర్టు_a_cursor += కొలత_a;
 
-			int size_b = 0;
-			for (int i = 0; i < num_bits; i++)
-				if (config_bits[config_cursor++] == State::S1)
-					size_b |= 1 << i;
+			పూర్ణాంకం కొలత_b = 0;
+			కొరకు (పూర్ణాంకం i = 0; i < అంకె_బిట్లు; i++)
+				ఒకవేళ (config_బిట్లు[config_cursor++] == State::S1)
+					కొలత_b |= 1 << i;
 
-			this_port.in_b = port_a.extract(port_a_cursor, size_b);
-			port_a_cursor += size_b;
+			this_పోర్టు.లోపల_b = పోర్టు_a.వెలికితీయి(పోర్టు_a_cursor, కొలత_b);
+			పోర్టు_a_cursor += కొలత_b;
 
-			if (size_a || size_b)
-				terms.push_back(this_port);
+			ఒకవేళ (కొలత_a || కొలత_b)
+				terms.నెట్టు_వెనుక(this_పోర్టు);
 		}
 
-		for (auto bit : cell->getPort(ID::B))
-			terms.push_back(term_t{{bit}, {}, false, false});
+		కొరకు (స్వయంచాలక బిట్టు : cell->get_పోర్టు(ID::B))
+			terms.నెట్టు_వెనుక(పదం_t{{బిట్టు}, {}, false, false});
 
-		log_assert(config_cursor == config_width);
-		log_assert(port_a_cursor == GetSize(port_a));
+		log_assert(config_cursor == config_వెడల్పు);
+		log_assert(పోర్టు_a_cursor == Get_కొలత(పోర్టు_a));
 	}
 
-	void from_cell(RTLIL::Cell *cell)
+	శూన్య from_cell(RTLIL::Cell *cell)
 	{
-		if (cell->type == ID($macc)) {
+		ఒకవేళ (cell->type == ID($macc)) {
 			from_cell_v1(cell);
-			return;
+			తిరిగి;
 		}
 		log_assert(cell->type == ID($macc_v2));
 
-		RTLIL::SigSpec port_a = cell->getPort(ID::A);
-		RTLIL::SigSpec port_b = cell->getPort(ID::B);
-		RTLIL::SigSpec port_c = cell->getPort(ID::C);
+		RTLIL::SigSpec పోర్టు_a = cell->get_పోర్టు(ID::A);
+		RTLIL::SigSpec పోర్టు_b = cell->get_పోర్టు(ID::B);
+		RTLIL::SigSpec పోర్టు_c = cell->get_పోర్టు(ID::C);
 
 		terms.clear();
 
-		int nproducts = cell->getParam(ID::NPRODUCTS).as_int();
-		const Const &product_neg = cell->getParam(ID::PRODUCT_NEGATED);
-		const Const &a_widths = cell->getParam(ID::A_WIDTHS);
-		const Const &b_widths = cell->getParam(ID::B_WIDTHS);
-		const Const &a_signed = cell->getParam(ID::A_SIGNED);
-		const Const &b_signed = cell->getParam(ID::B_SIGNED);
-		int ai = 0, bi = 0;
-		for (int i = 0; i < nproducts; i++) {
-			term_t term;
+		పూర్ణాంకం nproducts = cell->getParam(ID::NPRODUCTS).as_int();
+		స్థిరరాశి Const &లబ్ధం_neg = cell->getParam(ID::లబ్ధం_NEGATED);
+		స్థిరరాశి Const &a_widths = cell->getParam(ID::A_WIDTHS);
+		స్థిరరాశి Const &b_widths = cell->getParam(ID::B_WIDTHS);
+		స్థిరరాశి Const &a_signed = cell->getParam(ID::A_SIGNED);
+		స్థిరరాశి Const &b_signed = cell->getParam(ID::B_SIGNED);
+		పూర్ణాంకం ai = 0, bi = 0;
+		కొరకు (పూర్ణాంకం i = 0; i < nproducts; i++) {
+			పదం_t పదం;
 
 			log_assert(a_signed[i] == b_signed[i]);
-			term.is_signed = (a_signed[i] == State::S1);
-			int a_width = a_widths.extract(16 * i, 16).as_int(false);
-			int b_width = b_widths.extract(16 * i, 16).as_int(false);
+			పదం.is_signed = (a_signed[i] == State::S1);
+			పూర్ణాంకం a_వెడల్పు = a_widths.వెలికితీయి(16 * i, 16).as_int(false);
+			పూర్ణాంకం b_వెడల్పు = b_widths.వెలికితీయి(16 * i, 16).as_int(false);
 
-			term.in_a = port_a.extract(ai, a_width);
-			ai += a_width;
-			term.in_b = port_b.extract(bi, b_width);
-			bi += b_width;
-			term.do_subtract = (product_neg[i] == State::S1);
+			పదం.లోపల_a = పోర్టు_a.వెలికితీయి(ai, a_వెడల్పు);
+			ai += a_వెడల్పు;
+			పదం.లోపల_b = పోర్టు_b.వెలికితీయి(bi, b_వెడల్పు);
+			bi += b_వెడల్పు;
+			పదం.do_వ్యవకలనం = (లబ్ధం_neg[i] == State::S1);
 
-			terms.push_back(term);
+			terms.నెట్టు_వెనుక(పదం);
 		}
-		log_assert(port_a.size() == ai);
-		log_assert(port_b.size() == bi);
+		log_assert(పోర్టు_a.కొలత() == ai);
+		log_assert(పోర్టు_b.కొలత() == bi);
 
-		int naddends = cell->getParam(ID::NADDENDS).as_int();
-		const Const &addend_neg = cell->getParam(ID::ADDEND_NEGATED);
-		const Const &c_widths = cell->getParam(ID::C_WIDTHS);
-		const Const &c_signed = cell->getParam(ID::C_SIGNED);
-		int ci = 0;
-		for (int i = 0; i < naddends; i++) {
-			term_t term;
+		పూర్ణాంకం naddends = cell->getParam(ID::NADDENDS).as_int();
+		స్థిరరాశి Const &addend_neg = cell->getParam(ID::ADDEND_NEGATED);
+		స్థిరరాశి Const &c_widths = cell->getParam(ID::C_WIDTHS);
+		స్థిరరాశి Const &c_signed = cell->getParam(ID::C_SIGNED);
+		పూర్ణాంకం ci = 0;
+		కొరకు (పూర్ణాంకం i = 0; i < naddends; i++) {
+			పదం_t పదం;
 
-			term.is_signed = (c_signed[i] == State::S1);
-			int c_width = c_widths.extract(16 * i, 16).as_int(false);
+			పదం.is_signed = (c_signed[i] == State::S1);
+			పూర్ణాంకం c_వెడల్పు = c_widths.వెలికితీయి(16 * i, 16).as_int(false);
 
-			term.in_a = port_c.extract(ci, c_width);
-			ci += c_width;
-			term.do_subtract = (addend_neg[i] == State::S1);
+			పదం.లోపల_a = పోర్టు_c.వెలికితీయి(ci, c_వెడల్పు);
+			ci += c_వెడల్పు;
+			పదం.do_వ్యవకలనం = (addend_neg[i] == State::S1);
 
-			terms.push_back(term);
+			terms.నెట్టు_వెనుక(పదం);
 		}
-		log_assert(port_c.size() == ci);
+		log_assert(పోర్టు_c.కొలత() == ci);
 	}
 
-	void to_cell(RTLIL::Cell *cell)
+	శూన్య గమ్యం_cell(RTLIL::Cell *cell)
 	{
 		cell->type = ID($macc_v2);
 
-		int nproducts = 0, naddends = 0;
-		Const a_signed, b_signed, a_widths, b_widths, product_negated;
+		పూర్ణాంకం nproducts = 0, naddends = 0;
+		Const a_signed, b_signed, a_widths, b_widths, లబ్ధం_negated;
 		Const c_signed, c_widths, addend_negated;
 		SigSpec a, b, c;
 
-		for (int i = 0; i < (int) terms.size(); i++) {
-			SigSpec term_a = terms[i].in_a, term_b = terms[i].in_b;
+		కొరకు (పూర్ణాంకం i = 0; i < (పూర్ణాంకం) terms.కొలత(); i++) {
+			SigSpec పదం_a = terms[i].లోపల_a, పదం_b = terms[i].లోపల_b;
 
-			if (term_b.empty()) {
+			ఒకవేళ (పదం_b.ఖాళీలు()) {
 				// addend
-				c_widths.append(Const(term_a.size(), 16));
+				c_widths.append(Const(పదం_a.కొలత(), 16));
 				c_signed.append(terms[i].is_signed ? RTLIL::S1 : RTLIL::S0);
-				addend_negated.append(terms[i].do_subtract ? RTLIL::S1 : RTLIL::S0);
-				c.append(term_a);
+				addend_negated.append(terms[i].do_వ్యవకలనం ? RTLIL::S1 : RTLIL::S0);
+				c.append(పదం_a);
 				naddends++;
-			} else {
-				// product
-				a_widths.append(Const(term_a.size(), 16));
-				b_widths.append(Const(term_b.size(), 16));
+			} లేకపోతే {
+				//లబ్ధం
+				a_widths.append(Const(పదం_a.కొలత(), 16));
+				b_widths.append(Const(పదం_b.కొలత(), 16));
 				a_signed.append(terms[i].is_signed ? RTLIL::S1 : RTLIL::S0);
 				b_signed.append(terms[i].is_signed ? RTLIL::S1 : RTLIL::S0);
-				product_negated.append(terms[i].do_subtract ? RTLIL::S1 : RTLIL::S0);
-				a.append(term_a);
-				b.append(term_b);
+				లబ్ధం_negated.append(terms[i].do_వ్యవకలనం ? RTLIL::S1 : RTLIL::S0);
+				a.append(పదం_a);
+				b.append(పదం_b);
 				nproducts++;
 			}
 		}
 
-		if (a_signed.empty())
+		ఒకవేళ (a_signed.ఖాళీలు())
 			a_signed = {RTLIL::Sx};
-		if (b_signed.empty())
+		ఒకవేళ (b_signed.ఖాళీలు())
 			b_signed = {RTLIL::Sx};
-		if (c_signed.empty())
+		ఒకవేళ (c_signed.ఖాళీలు())
 			c_signed = {RTLIL::Sx};
-		if (a_widths.empty())
+		ఒకవేళ (a_widths.ఖాళీలు())
 			a_widths = {RTLIL::Sx};
-		if (b_widths.empty())
+		ఒకవేళ (b_widths.ఖాళీలు())
 			b_widths = {RTLIL::Sx};
-		if (c_widths.empty())
+		ఒకవేళ (c_widths.ఖాళీలు())
 			c_widths = {RTLIL::Sx};
-		if (product_negated.empty())
-			product_negated = {RTLIL::Sx};
-		if (addend_negated.empty())
+		ఒకవేళ (లబ్ధం_negated.ఖాళీలు())
+			లబ్ధం_negated = {RTLIL::Sx};
+		ఒకవేళ (addend_negated.ఖాళీలు())
 			addend_negated = {RTLIL::Sx};
 
-		cell->setParam(ID::NPRODUCTS, nproducts);
-		cell->setParam(ID::PRODUCT_NEGATED, product_negated);
-		cell->setParam(ID::NADDENDS, naddends);
-		cell->setParam(ID::ADDEND_NEGATED, addend_negated);
-		cell->setParam(ID::A_SIGNED, a_signed);
-		cell->setParam(ID::B_SIGNED, b_signed);
-		cell->setParam(ID::C_SIGNED, c_signed);
-		cell->setParam(ID::A_WIDTHS, a_widths);
-		cell->setParam(ID::B_WIDTHS, b_widths);
-		cell->setParam(ID::C_WIDTHS, c_widths);
-		cell->setPort(ID::A, a);
-		cell->setPort(ID::B, b);
-		cell->setPort(ID::C, c);
+		cell->సమితి_Param(ID::NPRODUCTS, nproducts);
+		cell->సమితి_Param(ID::లబ్ధం_NEGATED, లబ్ధం_negated);
+		cell->సమితి_Param(ID::NADDENDS, naddends);
+		cell->సమితి_Param(ID::ADDEND_NEGATED, addend_negated);
+		cell->సమితి_Param(ID::A_SIGNED, a_signed);
+		cell->సమితి_Param(ID::B_SIGNED, b_signed);
+		cell->సమితి_Param(ID::C_SIGNED, c_signed);
+		cell->సమితి_Param(ID::A_WIDTHS, a_widths);
+		cell->సమితి_Param(ID::B_WIDTHS, b_widths);
+		cell->సమితి_Param(ID::C_WIDTHS, c_widths);
+		cell->సమితి_పోర్టు(ID::A, a);
+		cell->సమితి_పోర్టు(ID::B, b);
+		cell->సమితి_పోర్టు(ID::C, c);
 	}
 
-	bool eval(RTLIL::Const &result) const
+	bool eval(RTLIL::Const &ఫలితం) స్థిరరాశి
 	{
-		for (auto bit : result)
-			bit = State::S0;
+		కొరకు (స్వయంచాలక బిట్టు : ఫలితం)
+			బిట్టు = State::S0;
 
-		for (auto &port : terms)
+		కొరకు (స్వయంచాలక &పోర్టు : terms)
 		{
-			if (!port.in_a.is_fully_const() || !port.in_b.is_fully_const())
-				return false;
+			ఒకవేళ (!పోర్టు.లోపల_a.is_fully_const() || !పోర్టు.లోపల_b.is_fully_const())
+				తిరిగి false;
 
 			RTLIL::Const summand;
-			if (GetSize(port.in_b) == 0)
-				summand = const_pos(port.in_a.as_const(), port.in_b.as_const(), port.is_signed, port.is_signed, GetSize(result));
-			else
-				summand = const_mul(port.in_a.as_const(), port.in_b.as_const(), port.is_signed, port.is_signed, GetSize(result));
+			ఒకవేళ (Get_కొలత(పోర్టు.లోపల_b) == 0)
+				summand = const_pos(పోర్టు.లోపల_a.as_const(), పోర్టు.లోపల_b.as_const(), పోర్టు.is_signed, పోర్టు.is_signed, Get_కొలత(ఫలితం));
+			లేకపోతే
+				summand = const_mul(పోర్టు.లోపల_a.as_const(), పోర్టు.లోపల_b.as_const(), పోర్టు.is_signed, పోర్టు.is_signed, Get_కొలత(ఫలితం));
 
-			if (port.do_subtract)
-				result = const_sub(result, summand, port.is_signed, port.is_signed, GetSize(result));
-			else
-				result = const_add(result, summand, port.is_signed, port.is_signed, GetSize(result));
+			ఒకవేళ (పోర్టు.do_వ్యవకలనం)
+				ఫలితం = const_sub(ఫలితం, summand, పోర్టు.is_signed, పోర్టు.is_signed, Get_కొలత(ఫలితం));
+			లేకపోతే
+				ఫలితం = const_కూడు(ఫలితం, summand, పోర్టు.is_signed, పోర్టు.is_signed, Get_కొలత(ఫలితం));
 		}
 
-		return true;
+		తిరిగి true;
 	}
 
-	bool is_simple_product()
+	bool is_simple_లబ్ధం()
 	{
-		return terms.size() == 1 &&
-				!terms[0].in_b.empty() &&
-				!terms[0].do_subtract;
+		తిరిగి terms.కొలత() == 1 &&
+				!terms[0].లోపల_b.ఖాళీలు() &&
+				!terms[0].do_వ్యవకలనం;
 	}
 
 	Macc(RTLIL::Cell *cell = nullptr)
 	{
-		if (cell != nullptr)
+		ఒకవేళ (cell != nullptr)
 			from_cell(cell);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

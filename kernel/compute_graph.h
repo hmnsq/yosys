@@ -17,387 +17,387 @@
  *
  */
 
-#ifndef COMPUTE_GRAPH_H
-#define COMPUTE_GRAPH_H
+#నిర్వచితం_కాకపోతే COMPUTE_లేఖాచిత్రం_H
+#నిర్వచించు COMPUTE_లేఖాచిత్రం_H
 
-#include <tuple>
-#include "kernel/yosys.h"
+#అన్తర్భావ <tuple>
+#అన్తర్భావ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template<
+మూస<
     typename Fn, // Function type (deduplicated across whole graph)
     typename Attr = std::tuple<>, // Call attributes (present in every node)
     typename SparseAttr = std::tuple<>, // Sparse call attributes (optional per node)
-    typename Key = std::tuple<> // Stable keys to refer to nodes
+    typename కీలకం_2 = std::tuple<> // Stable keys to refer to nodes
 >
-struct ComputeGraph
+నిర్మాణం Compute_లేఖాచిత్రం
 {
-    struct Ref;
-private:
+    నిర్మాణం Ref;
+అంతరంగ:
 
     // Functions are deduplicated by assigning unique ids
     idict<Fn> functions;
 
-    struct Node {
-        int fn_index;
-        int arg_offset;
-        int arg_count;
+    నిర్మాణం కణుపు_2 {
+        పూర్ణాంకం fn_సూచీ;
+        పూర్ణాంకం arg_స్థానభ్రంశం;
+        పూర్ణాంకం arg_లెక్క;
         Attr attr;
 
-        Node(int fn_index, Attr &&attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(std::move(attr)) {}
+        కణుపు_2(పూర్ణాంకం fn_సూచీ, Attr &&attr, పూర్ణాంకం arg_స్థానభ్రంశం, పూర్ణాంకం arg_లెక్క = 0)
+            : fn_సూచీ(fn_సూచీ), arg_స్థానభ్రంశం(arg_స్థానభ్రంశం), arg_లెక్క(arg_లెక్క), attr(std::move(attr)) {}
 
-        Node(int fn_index, Attr const &attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(attr) {}
+        కణుపు_2(పూర్ణాంకం fn_సూచీ, Attr స్థిరరాశి &attr, పూర్ణాంకం arg_స్థానభ్రంశం, పూర్ణాంకం arg_లెక్క = 0)
+            : fn_సూచీ(fn_సూచీ), arg_స్థానభ్రంశం(arg_స్థానభ్రంశం), arg_లెక్క(arg_లెక్క), attr(attr) {}
     };
 
 
-    std::vector<Node> nodes;
-    std::vector<int> args;
-    dict<Key, int> keys_;
-    dict<int, SparseAttr> sparse_attrs;
+    std::సదిశ<కణుపు_2> nodes;
+    std::సదిశ<పూర్ణాంకం> వాదనలు_2;
+    dict<కీలకం_2, పూర్ణాంకం> కీలకాలు;
+    dict<పూర్ణాంకం, SparseAttr> sparse_attrs;
 
-public:
-    template<typename Graph>
-    struct BaseRef
+బహిరంగ:
+    మూస<typename లేఖాచిత్రం>
+    నిర్మాణం పునాది_Ref
     {
-    protected:
-        friend struct ComputeGraph;
-        Graph *graph_;
-        int index_;
-        BaseRef(Graph *graph, int index) : graph_(graph), index_(index) {
-            log_assert(index_ >= 0);
+    రక్షిత:
+        మిత్ర నిర్మాణం Compute_లేఖాచిత్రం;
+        లేఖాచిత్రం *లేఖాచిత్రం_2;
+        పూర్ణాంకం సూచీ_2;
+        పునాది_Ref(లేఖాచిత్రం *లేఖాచిత్రం_3, పూర్ణాంకం సూచీ) : లేఖాచిత్రం_2(లేఖాచిత్రం_3), సూచీ_2(సూచీ) {
+            log_assert(సూచీ_2 >= 0);
             check();
         }
 
-        void check() const { log_assert(index_ < graph_->size()); }
+        శూన్య check() స్థిరరాశి { log_assert(సూచీ_2 < లేఖాచిత్రం_2->కొలత()); }
 
-        Node const &deref() const { check(); return graph_->nodes[index_]; }
+        కణుపు_2 స్థిరరాశి &deref() స్థిరరాశి { check(); తిరిగి లేఖాచిత్రం_2->nodes[సూచీ_2]; }
 
-    public:
-        ComputeGraph const &graph() const { return graph_; }
-        int index() const { return index_; }
+    బహిరంగ:
+        Compute_లేఖాచిత్రం స్థిరరాశి &లేఖాచిత్రం_3() స్థిరరాశి { తిరిగి లేఖాచిత్రం_2; }
+        పూర్ణాంకం సూచీ() స్థిరరాశి { తిరిగి సూచీ_2; }
 
-        int size() const { return deref().arg_count; }
+        పూర్ణాంకం కొలత() స్థిరరాశి { తిరిగి deref().arg_లెక్క; }
 
-        BaseRef arg(int n) const
+        పునాది_Ref arg(పూర్ణాంకం n) స్థిరరాశి
         {
-            Node const &node = deref();
-            log_assert(n >= 0 && n < node.arg_count);
-            return BaseRef(graph_, graph_->args[node.arg_offset + n]);
+            కణుపు_2 స్థిరరాశి &కణుపు = deref();
+            log_assert(n >= 0 && n < కణుపు.arg_లెక్క);
+            తిరిగి పునాది_Ref(లేఖాచిత్రం_2, లేఖాచిత్రం_2->వాదనలు_2[కణుపు.arg_స్థానభ్రంశం + n]);
         }
 
-        std::vector<int>::const_iterator arg_indices_cbegin() const
+        std::సదిశ<పూర్ణాంకం>::const_iterator arg_indices_cbegin() స్థిరరాశి
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset;
+            కణుపు_2 స్థిరరాశి &కణుపు = deref();
+            తిరిగి లేఖాచిత్రం_2->వాదనలు_2.cbegin() + కణుపు.arg_స్థానభ్రంశం;
         }
 
-        std::vector<int>::const_iterator arg_indices_cend() const
+        std::సదిశ<పూర్ణాంకం>::const_iterator arg_indices_cend() స్థిరరాశి
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset + node.arg_count;
+            కణుపు_2 స్థిరరాశి &కణుపు = deref();
+            తిరిగి లేఖాచిత్రం_2->వాదనలు_2.cbegin() + కణుపు.arg_స్థానభ్రంశం + కణుపు.arg_లెక్క;
         }
 
-        Fn const &function() const { return graph_->functions[deref().fn_index]; }
-        Attr const &attr() const { return deref().attr; }
+        Fn స్థిరరాశి &function() స్థిరరాశి { తిరిగి లేఖాచిత్రం_2->functions[deref().fn_సూచీ]; }
+        Attr స్థిరరాశి &attr() స్థిరరాశి { తిరిగి deref().attr; }
 
-        bool has_sparse_attr() const { return graph_->sparse_attrs.count(index_); }
+        bool has_sparse_attr() స్థిరరాశి { తిరిగి లేఖాచిత్రం_2->sparse_attrs.లెక్క(సూచీ_2); }
 
-        SparseAttr const &sparse_attr() const
+        SparseAttr స్థిరరాశి &sparse_attr() స్థిరరాశి
         {
-            auto found = graph_->sparse_attrs.find(index_);
-            log_assert(found != graph_->sparse_attrs.end());
-            return found->second;
+            స్వయంచాలక దొరికింది = లేఖాచిత్రం_2->sparse_attrs.కనుగొను(సూచీ_2);
+            log_assert(దొరికింది != లేఖాచిత్రం_2->sparse_attrs.చివర());
+            తిరిగి దొరికింది->రెండవ;
         }
     };
 
-    using ConstRef = BaseRef<ComputeGraph const>;
+    using ConstRef = పునాది_Ref<Compute_లేఖాచిత్రం స్థిరరాశి>;
 
-    struct Ref : public BaseRef<ComputeGraph>
+    నిర్మాణం Ref : బహిరంగ పునాది_Ref<Compute_లేఖాచిత్రం>
     {
-    private:
-        friend struct ComputeGraph;
-        Ref(ComputeGraph *graph, int index) : BaseRef<ComputeGraph>(graph, index) {}
-        Node &deref() const { this->check(); return this->graph_->nodes[this->index_]; }
+    అంతరంగ:
+        మిత్ర నిర్మాణం Compute_లేఖాచిత్రం;
+        Ref(Compute_లేఖాచిత్రం *లేఖాచిత్రం_3, పూర్ణాంకం సూచీ) : పునాది_Ref<Compute_లేఖాచిత్రం>(లేఖాచిత్రం_3, సూచీ) {}
+        కణుపు_2 &deref() స్థిరరాశి { this->check(); తిరిగి this->లేఖాచిత్రం_2->nodes[this->సూచీ_2]; }
 
-    public:
-        Ref(BaseRef<ComputeGraph> ref) : Ref(ref.graph_, ref.index_) {}
+    బహిరంగ:
+        Ref(పునాది_Ref<Compute_లేఖాచిత్రం> ref) : Ref(ref.లేఖాచిత్రం_2, ref.సూచీ_2) {}
 
-        void set_function(Fn const &function) const
+        శూన్య సమితి_function(Fn స్థిరరాశి &function) స్థిరరాశి
         {
-            deref().fn_index = this->graph_->functions(function);
+            deref().fn_సూచీ = this->లేఖాచిత్రం_2->functions(function);
         }
 
-        Attr &attr() const { return deref().attr; }
+        Attr &attr() స్థిరరాశి { తిరిగి deref().attr; }
 
-        void append_arg(ConstRef arg) const
+        శూన్య append_arg(ConstRef arg) స్థిరరాశి
         {
-            log_assert(arg.graph_ == this->graph_);
-            append_arg(arg.index());
+            log_assert(arg.లేఖాచిత్రం_2 == this->లేఖాచిత్రం_2);
+            append_arg(arg.సూచీ());
         }
 
-        void append_arg(int arg) const
+        శూన్య append_arg(పూర్ణాంకం arg) స్థిరరాశి
         {
-            log_assert(arg >= 0 && arg < this->graph_->size());
-            Node &node = deref();
-            if (node.arg_offset + node.arg_count != GetSize(this->graph_->args))
-                move_args(node);
-            this->graph_->args.push_back(arg);
-            node.arg_count++;
+            log_assert(arg >= 0 && arg < this->లేఖాచిత్రం_2->కొలత());
+            కణుపు_2 &కణుపు = deref();
+            ఒకవేళ (కణుపు.arg_స్థానభ్రంశం + కణుపు.arg_లెక్క != Get_కొలత(this->లేఖాచిత్రం_2->వాదనలు_2))
+                move_వాదనలు(కణుపు);
+            this->లేఖాచిత్రం_2->వాదనలు_2.నెట్టు_వెనుక(arg);
+            కణుపు.arg_లెక్క++;
         }
 
-        operator ConstRef() const
+        క్రియాకారకం ConstRef() స్థిరరాశి
         {
-            return ConstRef(this->graph_, this->index_);
+            తిరిగి ConstRef(this->లేఖాచిత్రం_2, this->సూచీ_2);
         }
 
-        SparseAttr &sparse_attr() const
+        SparseAttr &sparse_attr() స్థిరరాశి
         {
-            return this->graph_->sparse_attrs[this->index_];
+            తిరిగి this->లేఖాచిత్రం_2->sparse_attrs[this->సూచీ_2];
         }
 
-        void clear_sparse_attr() const
+        శూన్య clear_sparse_attr() స్థిరరాశి
         {
-            this->graph_->sparse_attrs.erase(this->index_);
+            this->లేఖాచిత్రం_2->sparse_attrs.erase(this->సూచీ_2);
         }
 
-        void assign_key(Key const &key) const
+        శూన్య కేటాయించు_కీలకం(కీలకం_2 స్థిరరాశి &కీలకం) స్థిరరాశి
         {
-            this->graph_->keys_.emplace(key, this->index_);
+            this->లేఖాచిత్రం_2->కీలకాలు.emplace(కీలకం, this->సూచీ_2);
         }
 
-    private:
-        void move_args(Node &node) const
+    అంతరంగ:
+        శూన్య move_వాదనలు(కణుపు_2 &కణుపు) స్థిరరాశి
         {
-            auto &args = this->graph_->args;
-            int old_offset = node.arg_offset;
-            node.arg_offset = GetSize(args);
-            for (int i = 0; i != node.arg_count; ++i)
-                args.push_back(args[old_offset + i]);
+            స్వయంచాలక &వాదనలు_2 = this->లేఖాచిత్రం_2->వాదనలు_2;
+            పూర్ణాంకం old_స్థానభ్రంశం = కణుపు.arg_స్థానభ్రంశం;
+            కణుపు.arg_స్థానభ్రంశం = Get_కొలత(వాదనలు_2);
+            కొరకు (పూర్ణాంకం i = 0; i != కణుపు.arg_లెక్క; ++i)
+                వాదనలు_2.నెట్టు_వెనుక(వాదనలు_2[old_స్థానభ్రంశం + i]);
         }
 
     };
 
-    bool has_key(Key const &key) const
+    bool has_కీలకం(కీలకం_2 స్థిరరాశి &కీలకం) స్థిరరాశి
     {
-        return keys_.count(key);
+        తిరిగి కీలకాలు.లెక్క(కీలకం);
     }
 
-    dict<Key, int> const &keys() const
+    dict<కీలకం_2, పూర్ణాంకం> స్థిరరాశి &కీలకాలు_2() స్థిరరాశి
     {
-        return keys_;
+        తిరిగి కీలకాలు;
     }
 
-    ConstRef operator()(Key const &key) const
+    ConstRef క్రియాకారకం()(కీలకం_2 స్థిరరాశి &కీలకం) స్థిరరాశి
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        స్వయంచాలక it = కీలకాలు.కనుగొను(కీలకం);
+        log_assert(it != కీలకాలు.చివర());
+        తిరిగి (*this)[it->రెండవ];
     }
 
-    Ref operator()(Key const &key)
+    Ref క్రియాకారకం()(కీలకం_2 స్థిరరాశి &కీలకం)
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        స్వయంచాలక it = కీలకాలు.కనుగొను(కీలకం);
+        log_assert(it != కీలకాలు.చివర());
+        తిరిగి (*this)[it->రెండవ];
     }
 
-    int size() const { return GetSize(nodes); }
+    పూర్ణాంకం కొలత() స్థిరరాశి { తిరిగి Get_కొలత(nodes); }
 
-    ConstRef operator[](int index) const { return ConstRef(this, index); }
-    Ref operator[](int index) { return Ref(this, index); }
+    ConstRef క్రియాకారకం[](పూర్ణాంకం సూచీ) స్థిరరాశి { తిరిగి ConstRef(this, సూచీ); }
+    Ref క్రియాకారకం[](పూర్ణాంకం సూచీ) { తిరిగి Ref(this, సూచీ); }
 
-    Ref add(Fn const &function, Attr &&attr)
+    Ref కూడు(Fn స్థిరరాశి &function, Attr &&attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
-        nodes.emplace_back(fn_index, std::move(attr), GetSize(args));
-        return Ref(this, index);
+        పూర్ణాంకం సూచీ = Get_కొలత(nodes);
+        పూర్ణాంకం fn_సూచీ = functions(function);
+        nodes.emplace_వెనుక(fn_సూచీ, std::move(attr), Get_కొలత(వాదనలు_2));
+        తిరిగి Ref(this, సూచీ);
     }
 
-    Ref add(Fn const &function, Attr const &attr)
+    Ref కూడు(Fn స్థిరరాశి &function, Attr స్థిరరాశి &attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
-        nodes.emplace_back(fn_index, attr,  GetSize(args));
-        return Ref(this, index);
+        పూర్ణాంకం సూచీ = Get_కొలత(nodes);
+        పూర్ణాంకం fn_సూచీ = functions(function);
+        nodes.emplace_వెనుక(fn_సూచీ, attr,  Get_కొలత(వాదనలు_2));
+        తిరిగి Ref(this, సూచీ);
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T &&args)
+    మూస<typename T>
+    Ref కూడు(Fn స్థిరరాశి &function, Attr స్థిరరాశి &attr, T &&వాదనలు_2)
     {
-        Ref added = add(function, attr);
-        for (auto arg : args)
+        Ref added = కూడు(function, attr);
+        కొరకు (స్వయంచాలక arg : వాదనలు_2)
             added.append_arg(arg);
-        return added;
+        తిరిగి added;
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr &&attr, T &&args)
+    మూస<typename T>
+    Ref కూడు(Fn స్థిరరాశి &function, Attr &&attr, T &&వాదనలు_2)
     {
-        Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        Ref added = కూడు(function, std::move(attr));
+        కొరకు (స్వయంచాలక arg : వాదనలు_2)
             added.append_arg(arg);
-        return added;
+        తిరిగి added;
     }
 
-    Ref add(Fn const &function, Attr const &attr, std::initializer_list<Ref> args)
+    Ref కూడు(Fn స్థిరరాశి &function, Attr స్థిరరాశి &attr, std::initializer_list<Ref> వాదనలు_2)
     {
-        Ref added = add(function, attr);
-        for (auto arg : args)
+        Ref added = కూడు(function, attr);
+        కొరకు (స్వయంచాలక arg : వాదనలు_2)
             added.append_arg(arg);
-        return added;
+        తిరిగి added;
     }
 
-    Ref add(Fn const &function, Attr &&attr, std::initializer_list<Ref> args)
+    Ref కూడు(Fn స్థిరరాశి &function, Attr &&attr, std::initializer_list<Ref> వాదనలు_2)
     {
-        Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        Ref added = కూడు(function, std::move(attr));
+        కొరకు (స్వయంచాలక arg : వాదనలు_2)
             added.append_arg(arg);
-        return added;
+        తిరిగి added;
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T begin, T end)
+    మూస<typename T>
+    Ref కూడు(Fn స్థిరరాశి &function, Attr స్థిరరాశి &attr, T begin, T చివర)
     {
-        Ref added = add(function, attr);
-        for (; begin != end; ++begin)
+        Ref added = కూడు(function, attr);
+        కొరకు (; begin != చివర; ++begin)
             added.append_arg(*begin);
-        return added;
+        తిరిగి added;
     }
 
-    void compact_args()
+    శూన్య compact_వాదనలు()
     {
-        std::vector<int> new_args;
-        for (auto &node : nodes)
+        std::సదిశ<పూర్ణాంకం> new_వాదనలు;
+        కొరకు (స్వయంచాలక &కణుపు : nodes)
         {
-            int new_offset = GetSize(new_args);
-            for (int i = 0; i < node.arg_count; i++)
-                new_args.push_back(args[node.arg_offset + i]);
-            node.arg_offset = new_offset;
+            పూర్ణాంకం new_స్థానభ్రంశం = Get_కొలత(new_వాదనలు);
+            కొరకు (పూర్ణాంకం i = 0; i < కణుపు.arg_లెక్క; i++)
+                new_వాదనలు.నెట్టు_వెనుక(వాదనలు_2[కణుపు.arg_స్థానభ్రంశం + i]);
+            కణుపు.arg_స్థానభ్రంశం = new_స్థానభ్రంశం;
         }
-        std::swap(args, new_args);
+        std::మార్పిడి(వాదనలు_2, new_వాదనలు);
     }
 
-    void permute(std::vector<int> const &perm)
+    శూన్య క్రమమార్పు(std::సదిశ<పూర్ణాంకం> స్థిరరాశి &perm)
     {
-        log_assert(perm.size() <= nodes.size());
-        std::vector<int> inv_perm;
-        inv_perm.resize(nodes.size(), -1);
-        for (int i = 0; i < GetSize(perm); ++i)
+        log_assert(perm.కొలత() <= nodes.కొలత());
+        std::సదిశ<పూర్ణాంకం> inv_perm;
+        inv_perm.resize(nodes.కొలత(), -1);
+        కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(perm); ++i)
         {
-            int j = perm[i];
-            log_assert(j >= 0 && j < GetSize(nodes));
+            పూర్ణాంకం j = perm[i];
+            log_assert(j >= 0 && j < Get_కొలత(nodes));
             log_assert(inv_perm[j] == -1);
             inv_perm[j] = i;
         }
-        permute(perm, inv_perm);
+        క్రమమార్పు(perm, inv_perm);
     }
 
-    void permute(std::vector<int> const &perm, std::vector<int> const &inv_perm)
+    శూన్య క్రమమార్పు(std::సదిశ<పూర్ణాంకం> స్థిరరాశి &perm, std::సదిశ<పూర్ణాంకం> స్థిరరాశి &inv_perm)
     {
-        log_assert(inv_perm.size() == nodes.size());
-        std::vector<Node> new_nodes;
-        new_nodes.reserve(perm.size());
-        dict<int, SparseAttr> new_sparse_attrs;
-        for (int i : perm)
+        log_assert(inv_perm.కొలత() == nodes.కొలత());
+        std::సదిశ<కణుపు_2> new_nodes;
+        new_nodes.reserve(perm.కొలత());
+        dict<పూర్ణాంకం, SparseAttr> new_sparse_attrs;
+        కొరకు (పూర్ణాంకం i : perm)
         {
-            int j = GetSize(new_nodes);
-            new_nodes.emplace_back(std::move(nodes[i]));
-            auto found = sparse_attrs.find(i);
-            if (found != sparse_attrs.end())
-                new_sparse_attrs.emplace(j, std::move(found->second));
+            పూర్ణాంకం j = Get_కొలత(new_nodes);
+            new_nodes.emplace_వెనుక(std::move(nodes[i]));
+            స్వయంచాలక దొరికింది = sparse_attrs.కనుగొను(i);
+            ఒకవేళ (దొరికింది != sparse_attrs.చివర())
+                new_sparse_attrs.emplace(j, std::move(దొరికింది->రెండవ));
         }
 
-        std::swap(nodes, new_nodes);
-        std::swap(sparse_attrs, new_sparse_attrs);
+        std::మార్పిడి(nodes, new_nodes);
+        std::మార్పిడి(sparse_attrs, new_sparse_attrs);
 
-        compact_args();
-        for (int &arg : args)
+        compact_వాదనలు();
+        కొరకు (పూర్ణాంకం &arg : వాదనలు_2)
         {
-            log_assert(arg < GetSize(inv_perm));
+            log_assert(arg < Get_కొలత(inv_perm));
             log_assert(inv_perm[arg] >= 0);
             arg = inv_perm[arg];
         }
 
-        for (auto &key : keys_)
+        కొరకు (స్వయంచాలక &కీలకం : కీలకాలు)
         {
-            log_assert(key.second < GetSize(inv_perm));
-            log_assert(inv_perm[key.second] >= 0);
-            key.second = inv_perm[key.second];
+            log_assert(కీలకం.రెండవ < Get_కొలత(inv_perm));
+            log_assert(inv_perm[కీలకం.రెండవ] >= 0);
+            కీలకం.రెండవ = inv_perm[కీలకం.రెండవ];
         }
     }
 
-    struct SccAdaptor
+    నిర్మాణం SccAdaptor
     {
-    private:
-        ComputeGraph const &graph_;
-        std::vector<int> indices_;
-    public:
-        SccAdaptor(ComputeGraph const &graph) : graph_(graph)
+    అంతరంగ:
+        Compute_లేఖాచిత్రం స్థిరరాశి &లేఖాచిత్రం_2;
+        std::సదిశ<పూర్ణాంకం> indices_;
+    బహిరంగ:
+        SccAdaptor(Compute_లేఖాచిత్రం స్థిరరాశి &లేఖాచిత్రం_3) : లేఖాచిత్రం_2(లేఖాచిత్రం_3)
         {
-            indices_.resize(graph.size(), -1);
+            indices_.resize(లేఖాచిత్రం_3.కొలత(), -1);
         }
 
 
-        typedef int node_type;
+        రకనిర్వచనం పూర్ణాంకం కణుపు_type;
 
-        struct node_enumerator {
-        private:
-            friend struct SccAdaptor;
-            int current, end;
-            node_enumerator(int current, int end) : current(current), end(end) {}
+        నిర్మాణం కణుపు_enumerator {
+        అంతరంగ:
+            మిత్ర నిర్మాణం SccAdaptor;
+            పూర్ణాంకం current, చివర;
+            కణుపు_enumerator(పూర్ణాంకం current, పూర్ణాంకం చివర) : current(current), చివర(చివర) {}
 
-        public:
+        బహిరంగ:
 
-            bool finished() const { return current == end; }
-            node_type next() {
-                log_assert(!finished());
-                node_type result = current;
+            bool ముగిసిన() స్థిరరాశి { తిరిగి current == చివర; }
+            కణుపు_type తదుపరి() {
+                log_assert(!ముగిసిన());
+                కణుపు_type ఫలితం = current;
                 ++current;
-                return result;
+                తిరిగి ఫలితం;
             }
         };
 
-        node_enumerator enumerate_nodes() {
-            return node_enumerator(0, GetSize(indices_));
+        కణుపు_enumerator enumerate_nodes() {
+            తిరిగి కణుపు_enumerator(0, Get_కొలత(indices_));
         }
 
 
-        struct successor_enumerator {
-        private:
-            friend struct SccAdaptor;
-            std::vector<int>::const_iterator current, end;
-            successor_enumerator(std::vector<int>::const_iterator current, std::vector<int>::const_iterator end) :
-                current(current), end(end) {}
+        నిర్మాణం successor_enumerator {
+        అంతరంగ:
+            మిత్ర నిర్మాణం SccAdaptor;
+            std::సదిశ<పూర్ణాంకం>::const_iterator current, చివర;
+            successor_enumerator(std::సదిశ<పూర్ణాంకం>::const_iterator current, std::సదిశ<పూర్ణాంకం>::const_iterator చివర) :
+                current(current), చివర(చివర) {}
 
-        public:
-            bool finished() const { return current == end; }
-            node_type next() {
-                log_assert(!finished());
-                node_type result = *current;
+        బహిరంగ:
+            bool ముగిసిన() స్థిరరాశి { తిరిగి current == చివర; }
+            కణుపు_type తదుపరి() {
+                log_assert(!ముగిసిన());
+                కణుపు_type ఫలితం = *current;
                 ++current;
-                return result;
+                తిరిగి ఫలితం;
             }
         };
 
-        successor_enumerator enumerate_successors(int index) const {
-            auto const &ref = graph_[index];
-            return successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
+        successor_enumerator enumerate_వారసులు(పూర్ణాంకం సూచీ) స్థిరరాశి {
+            స్వయంచాలక స్థిరరాశి &ref = లేఖాచిత్రం_2[సూచీ];
+            తిరిగి successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
         }
 
-        int &dfs_index(node_type const &node) { return indices_[node]; }
+        పూర్ణాంకం &dfs_సూచీ(కణుపు_type స్థిరరాశి &కణుపు) { తిరిగి indices_[కణుపు]; }
 
-        std::vector<int> const &dfs_indices() { return indices_; }
+        std::సదిశ<పూర్ణాంకం> స్థిరరాశి &dfs_indices() { తిరిగి indices_; }
     };
 
 };
 
 
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
 
-#endif
+#అయితే_ముగింపు

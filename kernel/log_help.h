@@ -17,118 +17,118 @@
  *
  */
 
-#ifndef LOG_HELP_H
-#define LOG_HELP_H
+#నిర్వచితం_కాకపోతే LOG_HELP_H
+#నిర్వచించు LOG_HELP_H
 
-#include "kernel/yosys_common.h"
-#include "kernel/json.h"
-#include <filesystem>
-#include <string_view>
+#అన్తర్భావ "kernel/yosys_common.h"
+#అన్తర్భావ "kernel/json.h"
+#అన్తర్భావ <filesystem>
+#అన్తర్భావ <string_view>
 
 YOSYS_NAMESPACE_BEGIN
 
-std::filesystem::path fixup_source_path (const char* source_file,
-	const std::filesystem::path &source_root, bool* skip_source_group = nullptr);
+std::filesystem::మార్గం_2 fixup_ఆధారం_మార్గం (స్థిరరాశి అక్షరం* ఆధారం_file,
+	స్థిరరాశి std::filesystem::మార్గం_2 &ఆధారం_మూలం, bool* skip_ఆధారం_సమూహం = nullptr);
 
 class ContentListing {
-	vector<ContentListing> _content;
-public:
+	సదిశ<ContentListing> _content;
+బహిరంగ:
 	string type;
 	string body;
-	const char* source_file;
-	int source_line;
+	స్థిరరాశి అక్షరం* ఆధారం_file;
+	పూర్ణాంకం ఆధారం_పంక్తి;
 	std::map<string, string> options;
 
 	ContentListing(
 		string type = "root", string body = "",
-		const char* source_file = "unknown", int source_line = 0
-	) : type(type), body(body), source_file(source_file), source_line(source_line) {
+		స్థిరరాశి అక్షరం* ఆధారం_file = "unknown", పూర్ణాంకం ఆధారం_పంక్తి = 0
+	) : type(type), body(body), ఆధారం_file(ఆధారం_file), ఆధారం_పంక్తి(ఆధారం_పంక్తి) {
 		_content = {};
 		options = {};
 	}
 
-	ContentListing(string type, string body, source_location location) :
-		ContentListing(type, body, location.file_name(), location.line()) { }
+	ContentListing(string type, string body, ఆధారం_location location) :
+		ContentListing(type, body, location.file_name(), location.పంక్తి()) { }
 
-	void add_content(string type, string body, source_location location) {
-		_content.push_back({type, body, location});
+	శూన్య కూడు_content(string type, string body, ఆధారం_location location) {
+		_content.నెట్టు_వెనుక({type, body, location});
 	}
 
-	bool has_source() const { return strlen(source_file) && strcmp(source_file, "unknown") != 0; }
-	bool has_content() const { return _content.size() != 0; }
+	bool has_ఆధారం() స్థిరరాశి { తిరిగి అక్షరశ్రేణి_పొడవు(ఆధారం_file) && strcmp(ఆధారం_file, "unknown") != 0; }
+	bool has_content() స్థిరరాశి { తిరిగి _content.కొలత() != 0; }
 
-	vector<ContentListing>::const_iterator begin() const { return _content.cbegin(); }
-	vector<ContentListing>::const_iterator end() const { return _content.cend(); }
+	సదిశ<ContentListing>::const_iterator begin() స్థిరరాశి { తిరిగి _content.cbegin(); }
+	సదిశ<ContentListing>::const_iterator చివర() స్థిరరాశి { తిరిగి _content.cend(); }
 
-	ContentListing* back() {
-		return &_content.back();
+	ContentListing* వెనుక() {
+		తిరిగి &_content.వెనుక();
 	}
 
-	void set_option(string key, string val = "") {
-		options[key] = val;
+	శూన్య సమితి_option(string కీలకం, string val = "") {
+		options[కీలకం] = val;
 	}
 
-	void usage(
-		const string &text,
-		const source_location location = source_location::current()
+	శూన్య usage(
+		స్థిరరాశి string &పాఠ్యం,
+		స్థిరరాశి ఆధారం_location location = ఆధారం_location::current()
 	);
-	void option(
-		const string &text,
-		const string &description = "",
-		const source_location location = source_location::current()
+	శూన్య option(
+		స్థిరరాశి string &పాఠ్యం,
+		స్థిరరాశి string &description = "",
+		స్థిరరాశి ఆధారం_location location = ఆధారం_location::current()
 	);
-	void codeblock(
-		const string &code,
-		const string &language = "none",
-		const source_location location = source_location::current()
+	శూన్య codeblock(
+		స్థిరరాశి string &సంకేతం_2,
+		స్థిరరాశి string &language = "none",
+		స్థిరరాశి ఆధారం_location location = ఆధారం_location::current()
 	);
-	void paragraph(
-		const string &text,
-		const source_location location = source_location::current()
+	శూన్య paragraph(
+		స్థిరరాశి string &పాఠ్యం,
+		స్థిరరాశి ఆధారం_location location = ఆధారం_location::current()
 	);
 
 	ContentListing* open_usage(
-		const string &text,
-		const source_location location = source_location::current()
+		స్థిరరాశి string &పాఠ్యం,
+		స్థిరరాశి ఆధారం_location location = ఆధారం_location::current()
 	);
 	ContentListing* open_option(
-		const string &text,
-		const source_location location = source_location::current()
+		స్థిరరాశి string &పాఠ్యం,
+		స్థిరరాశి ఆధారం_location location = ఆధారం_location::current()
 	);
 
-	Json to_json(const std::filesystem::path &source_root) const;
+	Json గమ్యం_json(స్థిరరాశి std::filesystem::మార్గం_2 &ఆధారం_మూలం) స్థిరరాశి;
 };
 
 class PrettyHelp
 {
-public:
-	string group = "unknown";
+బహిరంగ:
+	string సమూహం = "unknown";
 
-private:
-	PrettyHelp *_prior;
-	ContentListing _root_listing;
+అంతరంగ:
+	PrettyHelp *పూర్వ;
+	ContentListing మూలం_listing;
 
-public:
+బహిరంగ:
 	PrettyHelp();
 	~PrettyHelp();
 
-	static PrettyHelp *get_current();
+	స్థిర PrettyHelp *get_current();
 
-	bool has_content() const { return _root_listing.has_content(); }
+	bool has_content() స్థిరరాశి { తిరిగి మూలం_listing.has_content(); }
 
-	vector<ContentListing>::const_iterator begin() const { return _root_listing.begin(); }
-	vector<ContentListing>::const_iterator end() const { return _root_listing.end(); }
+	సదిశ<ContentListing>::const_iterator begin() స్థిరరాశి { తిరిగి మూలం_listing.begin(); }
+	సదిశ<ContentListing>::const_iterator చివర() స్థిరరాశి { తిరిగి మూలం_listing.చివర(); }
 
-	ContentListing* get_root() {
-		return &_root_listing;
+	ContentListing* get_మూలం() {
+		తిరిగి &మూలం_listing;
 	}
 
-	void set_group(const string g) { group = g; }
-	bool has_group() const { return group.compare("unknown") != 0; }
+	శూన్య సమితి_సమూహం(స్థిరరాశి string g) { సమూహం = g; }
+	bool has_సమూహం() స్థిరరాశి { తిరిగి సమూహం.compare("unknown") != 0; }
 
-	void log_help() const;
+	శూన్య log_help() స్థిరరాశి;
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

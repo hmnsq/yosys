@@ -1,159 +1,159 @@
-#include "kernel/yosys_common.h"
-#include "kernel/threading.h"
+#అన్తర్భావ "kernel/yosys_common.h"
+#అన్తర్భావ "kernel/threading.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-static int init_max_threads()
+స్థిర పూర్ణాంకం init_max_దారాలు()
 {
-	const char *v = getenv("YOSYS_MAX_THREADS");
-	if (v == nullptr)
-		return INT32_MAX;
-	return atoi(v);
+	స్థిరరాశి అక్షరం *v = getenv("YOSYS_MAX_THREADS");
+	ఒకవేళ (v == శూన్యసూచిక)
+		తిరిగి INT32_MAX;
+	తిరిగి atoi(v);
 }
 
-static int get_max_threads()
+స్థిర పూర్ణాంకం get_max_దారాలు()
 {
-	static int max_threads = init_max_threads();
-	return max_threads;
+	స్థిర పూర్ణాంకం max_దారాలు = init_max_దారాలు();
+	తిరిగి max_దారాలు;
 }
 
-static int init_work_units_per_thread_override()
+స్థిర పూర్ణాంకం init_work_units_చొప్పున_thread_override()
 {
-	const char *v = getenv("YOSYS_WORK_UNITS_PER_THREAD");
-	if (v == nullptr)
-		return 0;
-	return atoi(v);
+	స్థిరరాశి అక్షరం *v = getenv("YOSYS_WORK_UNITS_PER_THREAD");
+	ఒకవేళ (v == శూన్యసూచిక)
+		తిరిగి 0;
+	తిరిగి atoi(v);
 }
 
-static int get_work_units_per_thread_override()
+స్థిర పూర్ణాంకం get_work_units_చొప్పున_thread_override()
 {
-	static int work_units_per_thread = init_work_units_per_thread_override();
-	return work_units_per_thread;
+	స్థిర పూర్ణాంకం work_units_చొప్పున_thread = init_work_units_చొప్పున_thread_override();
+	తిరిగి work_units_చొప్పున_thread;
 }
 
-void DeferredLogs::flush()
+శూన్య DeferredLogs::flush()
 {
-	for (auto &m : logs)
-		if (m.error)
-			YOSYS_NAMESPACE_PREFIX log_error("%s", m.text.c_str());
-		else
-			YOSYS_NAMESPACE_PREFIX log("%s", m.text.c_str());
+	కొరకు (స్వయంచాలక &m : logs)
+		ఒకవేళ (m.error)
+			YOSYS_NAMESPACE_ఉపసర్గ log_error("%s", m.పాఠ్యం.c_str());
+		లేకపోతే
+			YOSYS_NAMESPACE_ఉపసర్గ సంవర్గమానం("%s", m.పాఠ్యం.c_str());
 }
 
-int ThreadPool::pool_size(int reserved_cores, int max_worker_threads)
+పూర్ణాంకం ThreadPool::pool_కొలత(పూర్ణాంకం reserved_cores, పూర్ణాంకం max_కార్మికుడు_దారాలు)
 {
-#ifdef YOSYS_ENABLE_THREADS
-	int available_threads = std::min<int>(std::thread::hardware_concurrency(), get_max_threads());
-	int num_threads = std::min(available_threads - reserved_cores, max_worker_threads);
-	return std::max(0, num_threads);
-#else
-	(void)reserved_cores;
-	(void)max_worker_threads;
-	(void)get_max_threads();
-	return 0;
-#endif
+#నిర్వచితమైతే YOSYS_ENABLE_దారాలు
+	పూర్ణాంకం అందుబాటు_దారాలు = std::min<పూర్ణాంకం>(std::thread::hardware_concurrency(), get_max_దారాలు());
+	పూర్ణాంకం అంకె_దారాలు = std::min(అందుబాటు_దారాలు - reserved_cores, max_కార్మికుడు_దారాలు);
+	తిరిగి std::max(0, అంకె_దారాలు);
+#లేకపోతే
+	(శూన్య)reserved_cores;
+	(శూన్య)max_కార్మికుడు_దారాలు;
+	(శూన్య)get_max_దారాలు();
+	తిరిగి 0;
+#అయితే_ముగింపు
 }
 
-int ThreadPool::work_pool_size(int reserved_cores, int work_units, int work_units_per_thread)
+పూర్ణాంకం ThreadPool::work_pool_కొలత(పూర్ణాంకం reserved_cores, పూర్ణాంకం work_units, పూర్ణాంకం work_units_చొప్పున_thread)
 {
-	int work_units_per_thread_override = get_work_units_per_thread_override();
-	if (work_units_per_thread_override > 0)
-		work_units_per_thread = work_units_per_thread_override;
-	return pool_size(reserved_cores, work_units / work_units_per_thread);
+	పూర్ణాంకం work_units_చొప్పున_thread_override = get_work_units_చొప్పున_thread_override();
+	ఒకవేళ (work_units_చొప్పున_thread_override > 0)
+		work_units_చొప్పున_thread = work_units_చొప్పున_thread_override;
+	తిరిగి pool_కొలత(reserved_cores, work_units / work_units_చొప్పున_thread);
 }
 
-ThreadPool::ThreadPool(int pool_size, std::function<void(int)> b)
+ThreadPool::ThreadPool(పూర్ణాంకం pool_కొలత, std::function<శూన్య(పూర్ణాంకం)> b)
 	: body(std::move(b))
 {
-#ifdef YOSYS_ENABLE_THREADS
-	threads.reserve(pool_size);
-	for (int i = 0; i < pool_size; i++)
-		threads.emplace_back([i, this]{ body(i); });
-#else
-	(void)pool_size;
-#endif
+#నిర్వచితమైతే YOSYS_ENABLE_దారాలు
+	దారాలు.reserve(pool_కొలత);
+	కొరకు (పూర్ణాంకం i = 0; i < pool_కొలత; i++)
+		దారాలు.emplace_వెనుక([i, ఇది]{ body(i); });
+#లేకపోతే
+	(శూన్య)pool_కొలత;
+#అయితే_ముగింపు
 }
 
 ThreadPool::~ThreadPool()
 {
-#ifdef YOSYS_ENABLE_THREADS
-	for (auto &t : threads)
+#నిర్వచితమైతే YOSYS_ENABLE_దారాలు
+	కొరకు (స్వయంచాలక &t : దారాలు)
 		t.join();
-#endif
+#అయితే_ముగింపు
 }
 
-IntRange item_range_for_worker(int num_items, int thread_num, int num_threads)
+IntRange అంశం_range_for_కార్మికుడు(పూర్ణాంకం అంకె_వస్తువులు, పూర్ణాంకం thread_అంకె, పూర్ణాంకం అంకె_దారాలు)
 {
-	if (num_threads <= 1) {
-		return {0, num_items};
+	ఒకవేళ (అంకె_దారాలు <= 1) {
+		తిరిగి {0, అంకె_వస్తువులు};
 	}
-	int items_per_thread = num_items / num_threads;
-	int extra_items = num_items % num_threads;
+	పూర్ణాంకం వస్తువులు_చొప్పున_thread = అంకె_వస్తువులు / అంకె_దారాలు;
+	పూర్ణాంకం extra_వస్తువులు = అంకె_వస్తువులు % అంకె_దారాలు;
 	// The first `extra_items` threads get one extra item.
-	int start = thread_num * items_per_thread + std::min(thread_num, extra_items);
-	int end = (thread_num + 1) * items_per_thread + std::min(thread_num + 1, extra_items);
-	return {start, end};
+	పూర్ణాంకం ప్రారంభం = thread_అంకె * వస్తువులు_చొప్పున_thread + std::min(thread_అంకె, extra_వస్తువులు);
+	పూర్ణాంకం చివర = (thread_అంకె + 1) * వస్తువులు_చొప్పున_thread + std::min(thread_అంకె + 1, extra_వస్తువులు);
+	తిరిగి {ప్రారంభం, చివర};
 }
 
-ParallelDispatchThreadPool::ParallelDispatchThreadPool(int pool_size)
-#ifdef YOSYS_ENABLE_THREADS
-		: num_worker_threads_(std::max(1, pool_size) - 1)
-#else
-		: num_worker_threads_(0)
-#endif
+ParallelDispatchThreadPool::ParallelDispatchThreadPool(పూర్ణాంకం pool_కొలత)
+#నిర్వచితమైతే YOSYS_ENABLE_దారాలు
+		: అంకె_కార్మికుడు_దారాలు(std::max(1, pool_కొలత) - 1)
+#లేకపోతే
+		: అంకె_కార్మికుడు_దారాలు(0)
+#అయితే_ముగింపు
 {
-#ifndef YOSYS_ENABLE_THREADS
-	(void)pool_size;
-#endif
-	main_to_workers_signal.resize(num_worker_threads_, 0);
+#నిర్వచితం_కాకపోతే YOSYS_ENABLE_దారాలు
+	(శూన్య)pool_కొలత;
+#అయితే_ముగింపు
+	main_గమ్యం_workers_signal.resize(అంకె_కార్మికుడు_దారాలు, 0);
 	// Don't start the threads until we've constructed all our data members.
-	thread_pool = std::make_unique<ThreadPool>(num_worker_threads_, [this](int thread_num){
-		run_worker(thread_num);
+	thread_pool = std::make_unique<ThreadPool>(అంకె_కార్మికుడు_దారాలు, [ఇది](పూర్ణాంకం thread_అంకె){
+		నిరంతరం_కార్మికుడు(thread_అంకె);
 	});
 }
 
 ParallelDispatchThreadPool::~ParallelDispatchThreadPool()
 {
-	if (num_worker_threads_ == 0)
-		return;
-	current_work = nullptr;
-	num_active_worker_threads_.store(num_worker_threads_, std::memory_order_relaxed);
-	signal_workers_start();
-	wait_for_workers_done();
+	ఒకవేళ (అంకె_కార్మికుడు_దారాలు == 0)
+		తిరిగి;
+	current_work = శూన్యసూచిక;
+	అంకె_చురుకైన_కార్మికుడు_దారాలు.store(అంకె_కార్మికుడు_దారాలు, std::జ్ఞాపకం_క్రమం_relaxed);
+	signal_workers_ప్రారంభం();
+	wait_for_workers_పూర్తి();
 }
 
-void ParallelDispatchThreadPool::run(std::function<void(const RunCtx &)> work, int max_threads)
+శూన్య ParallelDispatchThreadPool::నిరంతరం(std::function<శూన్య(స్థిరరాశి నిరంతరం_Ctx &)> work, పూర్ణాంకం max_దారాలు)
 {
 	Multithreading multithreading;
-	int num_active_worker_threads = num_threads(max_threads) - 1;
-	if (num_active_worker_threads == 0) {
+	పూర్ణాంకం అంకె_చురుకైన_కార్మికుడు_దారాలు_2 = అంకె_దారాలు(max_దారాలు) - 1;
+	ఒకవేళ (అంకె_చురుకైన_కార్మికుడు_దారాలు_2 == 0) {
 		work({{0}, 1});
-		return;
+		తిరిగి;
 	}
-	num_active_worker_threads_.store(num_active_worker_threads, std::memory_order_relaxed);
+	అంకె_చురుకైన_కార్మికుడు_దారాలు.store(అంకె_చురుకైన_కార్మికుడు_దారాలు_2, std::జ్ఞాపకం_క్రమం_relaxed);
 	current_work = &work;
-	signal_workers_start();
-	work({{0}, num_active_worker_threads + 1});
-	wait_for_workers_done();
+	signal_workers_ప్రారంభం();
+	work({{0}, అంకె_చురుకైన_కార్మికుడు_దారాలు_2 + 1});
+	wait_for_workers_పూర్తి();
 }
 
-void ParallelDispatchThreadPool::run_worker(int thread_num)
+శూన్య ParallelDispatchThreadPool::నిరంతరం_కార్మికుడు(పూర్ణాంకం thread_అంకె)
 {
-#ifdef YOSYS_ENABLE_THREADS
-	while (true)
+#నిర్వచితమైతే YOSYS_ENABLE_దారాలు
+	అయితే (నిజం)
 	{
-		worker_wait_for_start(thread_num);
-		if (current_work == nullptr)
-			break;
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-		(*current_work)({{thread_num + 1}, num_active_worker_threads + 1});
-		signal_worker_done();
+		కార్మికుడు_wait_for_ప్రారంభం(thread_అంకె);
+		ఒకవేళ (current_work == శూన్యసూచిక)
+			ఆపు;
+		పూర్ణాంకం అంకె_చురుకైన_కార్మికుడు_దారాలు_2 = అంకె_చురుకైన_కార్మికుడు_దారాలు.ఎక్కించు(std::జ్ఞాపకం_క్రమం_relaxed);
+		(*current_work)({{thread_అంకె + 1}, అంకె_చురుకైన_కార్మికుడు_దారాలు_2 + 1});
+		signal_కార్మికుడు_పూర్తి();
 	}
-	signal_worker_done();
-#else
-	(void)thread_num;
-	(void)current_work;
-#endif
+	signal_కార్మికుడు_పూర్తి();
+#లేకపోతే
+	(శూన్య)thread_అంకె;
+	(శూన్య)current_work;
+#అయితే_ముగింపు
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర

@@ -20,11 +20,11 @@
 // This file contains various c++ utility routines and helper classes that
 // do not depend on any other components of yosys (except stuff like log_*).
 
-#include "kernel/yosys.h"
-#include <iterator>
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ <iterator>
 
-#ifndef UTILS_H
-#define UTILS_H
+#నిర్వచితం_కాకపోతే UTILS_H
+#నిర్వచించు UTILS_H
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -32,94 +32,94 @@ YOSYS_NAMESPACE_BEGIN
 // A map-like container, but you can save and restore the state
 // ------------------------------------------------
 
-template<typename Key, typename T>
-struct stackmap
+మూస<typename కీలకం_2, typename T>
+నిర్మాణం stackmap
 {
-private:
-	std::vector<dict<Key, T*>> backup_state;
-	dict<Key, T> current_state;
-	static T empty_tuple;
+అంతరంగ:
+	std::సదిశ<dict<కీలకం_2, T*>> backup_state;
+	dict<కీలకం_2, T> current_state;
+	స్థిర T ఖాళీలు_tuple;
 
-public:
+బహిరంగ:
 	stackmap() { }
-	stackmap(const dict<Key, T> &other) : current_state(other) { }
+	stackmap(స్థిరరాశి dict<కీలకం_2, T> &other) : current_state(other) { }
 
-	template<typename Other>
-	void operator=(const Other &other)
+	మూస<typename Other>
+	శూన్య క్రియాకారకం=(స్థిరరాశి Other &other)
 	{
-		for (auto &it : current_state)
-			if (!backup_state.empty() && backup_state.back().count(it.first) == 0)
-				backup_state.back()[it.first] = new T(it.second);
+		కొరకు (స్వయంచాలక &it : current_state)
+			ఒకవేళ (!backup_state.ఖాళీలు() && backup_state.వెనుక().లెక్క(it.మొదటి) == 0)
+				backup_state.వెనుక()[it.మొదటి] = new T(it.రెండవ);
 		current_state.clear();
 
-		for (auto &it : other)
-			set(it.first, it.second);
+		కొరకు (స్వయంచాలక &it : other)
+			సమితి(it.మొదటి, it.రెండవ);
 	}
 
-	bool has(const Key &k)
+	bool has(స్థిరరాశి కీలకం_2 &k)
 	{
-		return current_state.count(k) != 0;
+		తిరిగి current_state.లెక్క(k) != 0;
 	}
 
-	void set(const Key &k, const T &v)
+	శూన్య సమితి(స్థిరరాశి కీలకం_2 &k, స్థిరరాశి T &v)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
-			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
+		ఒకవేళ (!backup_state.ఖాళీలు() && backup_state.వెనుక().లెక్క(k) == 0)
+			backup_state.వెనుక()[k] = current_state.లెక్క(k) ? new T(current_state.at(k)) : nullptr;
 		current_state[k] = v;
 	}
 
-	void unset(const Key &k)
+	శూన్య unset(స్థిరరాశి కీలకం_2 &k)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
-			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
+		ఒకవేళ (!backup_state.ఖాళీలు() && backup_state.వెనుక().లెక్క(k) == 0)
+			backup_state.వెనుక()[k] = current_state.లెక్క(k) ? new T(current_state.at(k)) : nullptr;
 		current_state.erase(k);
 	}
 
-	const T &get(const Key &k)
+	స్థిరరాశి T &get(స్థిరరాశి కీలకం_2 &k)
 	{
-		if (current_state.count(k) == 0)
-			return empty_tuple;
-		return current_state.at(k);
+		ఒకవేళ (current_state.లెక్క(k) == 0)
+			తిరిగి ఖాళీలు_tuple;
+		తిరిగి current_state.at(k);
 	}
 
-	void reset(const Key &k)
+	శూన్య reset(స్థిరరాశి కీలకం_2 &k)
 	{
-		for (int i = GetSize(backup_state)-1; i >= 0; i--)
-			if (backup_state[i].count(k) != 0) {
-				if (backup_state[i].at(k) == nullptr)
+		కొరకు (పూర్ణాంకం i = Get_కొలత(backup_state)-1; i >= 0; i--)
+			ఒకవేళ (backup_state[i].లెక్క(k) != 0) {
+				ఒకవేళ (backup_state[i].at(k) == nullptr)
 					current_state.erase(k);
-				else
+				లేకపోతే
 					current_state[k] = *backup_state[i].at(k);
-				return;
+				తిరిగి;
 			}
 		current_state.erase(k);
 	}
 
-	const dict<Key, T> &stdmap()
+	స్థిరరాశి dict<కీలకం_2, T> &stdmap()
 	{
-		return current_state;
+		తిరిగి current_state;
 	}
 
-	void save()
+	శూన్య save()
 	{
-		backup_state.resize(backup_state.size()+1);
+		backup_state.resize(backup_state.కొలత()+1);
 	}
 
-	void restore()
+	శూన్య restore()
 	{
-		log_assert(!backup_state.empty());
-		for (auto &it : backup_state.back())
-			if (it.second != nullptr) {
-				current_state[it.first] = *it.second;
-				delete it.second;
-			} else
-				current_state.erase(it.first);
-		backup_state.pop_back();
+		log_assert(!backup_state.ఖాళీలు());
+		కొరకు (స్వయంచాలక &it : backup_state.వెనుక())
+			ఒకవేళ (it.రెండవ != nullptr) {
+				current_state[it.మొదటి] = *it.రెండవ;
+				delete it.రెండవ;
+			} లేకపోతే
+				current_state.erase(it.మొదటి);
+		backup_state.తీయి_వెనుక();
 	}
 
 	~stackmap()
 	{
-		while (!backup_state.empty())
+		అయితే (!backup_state.ఖాళీలు())
 			restore();
 	}
 };
@@ -129,202 +129,202 @@ public:
 // Best-effort topological sorting with loop detection
 // ---------------------------------------------------
 
-template <typename T, typename C = std::less<T>> class TopoSort
+మూస <typename T, typename C = std::less<T>> class Topo_క్రమీకరించు
 {
-	static_assert(!(std::is_pointer<T>::value && std::is_same<C, std::less<T>>::value),
+	static_assert(!(std::is_సూచిక<T>::విలువ && std::is_same<C, std::less<T>>::విలువ),
 			"std::less is run-to-run unstable for pointers");
-public:
+బహిరంగ:
 	// We use this ordering of the edges in the adjacency matrix for
 	// exact compatibility with an older implementation.
-	struct IndirectCmp {
-		IndirectCmp(const std::vector<T> &nodes, const C &node_cmp) : node_cmp_(node_cmp), nodes_(nodes) {}
-		bool operator()(int a, int b) const
+	నిర్మాణం పరోక్ష_Cmp {
+		పరోక్ష_Cmp(స్థిరరాశి std::సదిశ<T> &nodes, స్థిరరాశి C &కణుపు_cmp) : కణుపు_cmp_2(కణుపు_cmp), nodes_(nodes) {}
+		bool క్రియాకారకం()(పూర్ణాంకం a, పూర్ణాంకం b) స్థిరరాశి
 		{
-			log_assert(static_cast<size_t>(a) < nodes_.size());
-			log_assert(static_cast<size_t>(b) < nodes_.size());
-			return node_cmp_(nodes_[a], nodes_[b]);
+			log_assert(static_cast<కొలత_t>(a) < nodes_.కొలత());
+			log_assert(static_cast<కొలత_t>(b) < nodes_.కొలత());
+			తిరిగి కణుపు_cmp_2(nodes_[a], nodes_[b]);
 		}
-		const C node_cmp_;
-		const std::vector<T> &nodes_;
+		స్థిరరాశి C కణుపు_cmp_2;
+		స్థిరరాశి std::సదిశ<T> &nodes_;
 	};
 
 	bool analyze_loops;
 	// The stability doesn't rely on std::less of T, so pointers are safe
-	std::map<T, int, C> node_to_index;
+	std::map<T, పూర్ణాంకం, C> కణుపు_గమ్యం_సూచీ;
 	// edges[i] is the set of nodes with an edge into node i
-	std::vector<std::set<int, IndirectCmp>> edges;
-	std::vector<T> sorted;
-	std::set<std::vector<T>> loops;
+	std::సదిశ<std::సమితి<పూర్ణాంకం, పరోక్ష_Cmp>> అంచులు;
+	std::సదిశ<T> sorted;
+	std::సమితి<std::సదిశ<T>> loops;
 
-	TopoSort() requires std::is_default_constructible_v<C> : TopoSort(C()) {}
-	explicit TopoSort(const C &cmp) : node_to_index(cmp), indirect_cmp(nodes, cmp)
+	Topo_క్రమీకరించు() requires std::is_default_constructible_v<C> : Topo_క్రమీకరించు(C()) {}
+	explicit Topo_క్రమీకరించు(స్థిరరాశి C &cmp) : కణుపు_గమ్యం_సూచీ(cmp), పరోక్ష_cmp(nodes, cmp)
 	{
 		analyze_loops = true;
-		found_loops = false;
+		దొరికింది_loops = false;
 	}
 
-	int node(T n)
+	పూర్ణాంకం కణుపు(T n)
 	{
-		auto rv = node_to_index.emplace(n, static_cast<int>(nodes.size()));
-		if (rv.second) {
-			nodes.push_back(n);
-			edges.push_back(std::set<int, IndirectCmp>(indirect_cmp));
+		స్వయంచాలక rv = కణుపు_గమ్యం_సూచీ.emplace(n, static_cast<పూర్ణాంకం>(nodes.కొలత()));
+		ఒకవేళ (rv.రెండవ) {
+			nodes.నెట్టు_వెనుక(n);
+			అంచులు.నెట్టు_వెనుక(std::సమితి<పూర్ణాంకం, పరోక్ష_Cmp>(పరోక్ష_cmp));
 		}
-		return rv.first->second;
+		తిరిగి rv.మొదటి->రెండవ;
 	}
 
-	void edge(int l_index, int r_index) { edges[r_index].insert(l_index); }
+	శూన్య అంచు(పూర్ణాంకం l_సూచీ, పూర్ణాంకం r_సూచీ) { అంచులు[r_సూచీ].చొప్పించు(l_సూచీ); }
 
-	void edge(T left, T right) { edge(node(left), node(right)); }
+	శూన్య అంచు(T ఎడమ_3, T కుడి_3) { అంచు(కణుపు(ఎడమ_3), కణుపు(కుడి_3)); }
 
-	bool has_node(const T &node) { return node_to_index.find(node) != node_to_index.end(); }
+	bool has_కణుపు(స్థిరరాశి T &కణుపు) { తిరిగి కణుపు_గమ్యం_సూచీ.కనుగొను(కణుపు) != కణుపు_గమ్యం_సూచీ.చివర(); }
 
-	bool sort()
+	bool క్రమీకరించు()
 	{
-		log_assert(GetSize(node_to_index) == GetSize(edges));
-		log_assert(GetSize(nodes) == GetSize(edges));
+		log_assert(Get_కొలత(కణుపు_గమ్యం_సూచీ) == Get_కొలత(అంచులు));
+		log_assert(Get_కొలత(nodes) == Get_కొలత(అంచులు));
 
 		loops.clear();
 		sorted.clear();
-		found_loops = false;
+		దొరికింది_loops = false;
 
-		std::vector<bool> node_is_sorted(edges.size(), false);
-		std::vector<bool> node_is_on_stack(edges.size(), false);
+		std::సదిశ<bool> కణుపు_is_sorted(అంచులు.కొలత(), false);
+		std::సదిశ<bool> కణుపు_is_on_దొంతర(అంచులు.కొలత(), false);
 		// Only used with analyze_loops
-		std::vector<int> stack;
-		sorted.reserve(edges.size());
+		std::సదిశ<పూర్ణాంకం> దొంతర;
+		sorted.reserve(అంచులు.కొలత());
 
-		for (const auto &it : node_to_index)
-			sort_worker(it.second, node_is_sorted, node_is_on_stack, stack);
+		కొరకు (స్థిరరాశి స్వయంచాలక &it : కణుపు_గమ్యం_సూచీ)
+			క్రమీకరించు_కార్మికుడు(it.రెండవ, కణుపు_is_sorted, కణుపు_is_on_దొంతర, దొంతర);
 
-		log_assert(GetSize(sorted) == GetSize(nodes));
+		log_assert(Get_కొలత(sorted) == Get_కొలత(nodes));
 
-		return !found_loops;
+		తిరిగి !దొరికింది_loops;
 	}
 
 	// Build the more expensive representation of edges for
 	// a few passes that use it directly.
-	std::map<T, std::set<T, C>, C> get_database()
+	std::map<T, std::సమితి<T, C>, C> get_database()
 	{
-		std::map<T, std::set<T, C>, C> database(node_to_index.key_comp());
-		for (size_t i = 0; i < nodes.size(); ++i) {
-			std::set<T, C> converted_edge_set(node_to_index.key_comp());
-			for (int other_node : edges[i]) {
-				converted_edge_set.insert(nodes[other_node]);
+		std::map<T, std::సమితి<T, C>, C> database(కణుపు_గమ్యం_సూచీ.కీలకం_comp());
+		కొరకు (కొలత_t i = 0; i < nodes.కొలత(); ++i) {
+			std::సమితి<T, C> converted_అంచు_సమితి(కణుపు_గమ్యం_సూచీ.కీలకం_comp());
+			కొరకు (పూర్ణాంకం other_కణుపు : అంచులు[i]) {
+				converted_అంచు_సమితి.చొప్పించు(nodes[other_కణుపు]);
 			}
-			database.emplace(nodes[i], converted_edge_set);
+			database.emplace(nodes[i], converted_అంచు_సమితి);
 		}
-		return database;
+		తిరిగి database;
 	}
 
-private:
-	bool found_loops;
-	std::vector<T> nodes;
-	const IndirectCmp indirect_cmp;
+అంతరంగ:
+	bool దొరికింది_loops;
+	std::సదిశ<T> nodes;
+	స్థిరరాశి పరోక్ష_Cmp పరోక్ష_cmp;
 
-	void sort_worker(const int root_index, std::vector<bool> &node_is_sorted, std::vector<bool> &node_is_on_stack, std::vector<int> &stack)
+	శూన్య క్రమీకరించు_కార్మికుడు(స్థిరరాశి పూర్ణాంకం మూలం_సూచీ, std::సదిశ<bool> &కణుపు_is_sorted, std::సదిశ<bool> &కణుపు_is_on_దొంతర, std::సదిశ<పూర్ణాంకం> &దొంతర)
 	{
-		if (node_is_on_stack[root_index]) {
+		ఒకవేళ (కణుపు_is_on_దొంతర[మూలం_సూచీ]) {
 			// We've been here before, meaning we have a loop
-			found_loops = true;
-			if (analyze_loops) {
-				std::vector<T> loop;
-				for (int i = GetSize(stack) - 1; i >= 0; i--) {
-					const int index = stack[i];
-					loop.push_back(nodes[index]);
-					if (index == root_index)
-						break;
+			దొరికింది_loops = true;
+			ఒకవేళ (analyze_loops) {
+				std::సదిశ<T> loop;
+				కొరకు (పూర్ణాంకం i = Get_కొలత(దొంతర) - 1; i >= 0; i--) {
+					స్థిరరాశి పూర్ణాంకం సూచీ = దొంతర[i];
+					loop.నెట్టు_వెనుక(nodes[సూచీ]);
+					ఒకవేళ (సూచీ == మూలం_సూచీ)
+						ఆపు;
 				}
-				loops.insert(loop);
+				loops.చొప్పించు(loop);
 			}
-			return;
+			తిరిగి;
 		}
 
 		// We're done if we've already sorted this subgraph
-		if (node_is_sorted[root_index])
-			return;
+		ఒకవేళ (కణుపు_is_sorted[మూలం_సూచీ])
+			తిరిగి;
 
-		if (!edges[root_index].empty()) {
-			if (analyze_loops)
-				stack.push_back(root_index);
-			node_is_on_stack[root_index] = true;
+		ఒకవేళ (!అంచులు[మూలం_సూచీ].ఖాళీలు()) {
+			ఒకవేళ (analyze_loops)
+				దొంతర.నెట్టు_వెనుక(మూలం_సూచీ);
+			కణుపు_is_on_దొంతర[మూలం_సూచీ] = true;
 
-			for (int left_n : edges[root_index])
-				sort_worker(left_n, node_is_sorted, node_is_on_stack, stack);
+			కొరకు (పూర్ణాంకం ఎడమ_n : అంచులు[మూలం_సూచీ])
+				క్రమీకరించు_కార్మికుడు(ఎడమ_n, కణుపు_is_sorted, కణుపు_is_on_దొంతర, దొంతర);
 
-			if (analyze_loops)
-				stack.pop_back();
-			node_is_on_stack[root_index] = false;
+			ఒకవేళ (analyze_loops)
+				దొంతర.తీయి_వెనుక();
+			కణుపు_is_on_దొంతర[మూలం_సూచీ] = false;
 		}
 
-		node_is_sorted[root_index] = true;
-		sorted.push_back(nodes[root_index]);
+		కణుపు_is_sorted[మూలం_సూచీ] = true;
+		sorted.నెట్టు_వెనుక(nodes[మూలం_సూచీ]);
 	}
 };
 
 // this class is used for implementing operator-> on iterators that return values rather than references
 // it's necessary because in C++ operator-> is called recursively until a raw pointer is obtained
-template<class T>
-struct arrow_proxy {
+మూస<class T>
+నిర్మాణం arrow_proxy {
 	T v;
-	explicit arrow_proxy(T const & v) : v(v) {}
-	T* operator->() { return &v; }
+	explicit arrow_proxy(T స్థిరరాశి & v) : v(v) {}
+	T* క్రియాకారకం->() { తిరిగి &v; }
 };
 
-inline int ceil_log2(int x)
+అంతఃవరుస పూర్ణాంకం ceil_log2(పూర్ణాంకం x)
 {
-#if defined(__GNUC__)
-        return x > 1 ? (8*sizeof(int)) - __builtin_clz(x-1) : 0;
-#else
-	if (x <= 0)
-		return 0;
-	for (int i = 0; i < 32; i++)
-		if (((x-1) >> i) == 0)
-			return i;
+#ఒకవేళ defined(__GNUC__)
+        తిరిగి x > 1 ? (8*పరిమాణం(పూర్ణాంకం)) - __builtin_clz(x-1) : 0;
+#లేకపోతే
+	ఒకవేళ (x <= 0)
+		తిరిగి 0;
+	కొరకు (పూర్ణాంకం i = 0; i < 32; i++)
+		ఒకవేళ (((x-1) >> i) == 0)
+			తిరిగి i;
 	log_abort();
-#endif
+#అయితే_ముగింపు
 }
 
-template <typename T>
-auto reversed(T& container) {
-	struct reverse_view {
-		reverse_view(T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
+మూస <typename T>
+స్వయంచాలక reversed(T& container) {
+	నిర్మాణం తిరగేయి_view {
+		తిరగేయి_view(T& container) : container(container) {}
+		స్వయంచాలక begin() స్థిరరాశి { తిరిగి container.rbegin(); }
+		స్వయంచాలక చివర() స్థిరరాశి { తిరిగి container.rend(); }
 		T& container;
 	};
-	return reverse_view{container};
+	తిరిగి తిరగేయి_view{container};
 }
 
-template <typename T>
-auto reversed(const T& container) {
-	struct reverse_view {
-		reverse_view(const T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
-		const T& container;
+మూస <typename T>
+స్వయంచాలక reversed(స్థిరరాశి T& container) {
+	నిర్మాణం తిరగేయి_view {
+		తిరగేయి_view(స్థిరరాశి T& container) : container(container) {}
+		స్వయంచాలక begin() స్థిరరాశి { తిరిగి container.rbegin(); }
+		స్వయంచాలక చివర() స్థిరరాశి { తిరిగి container.rend(); }
+		స్థిరరాశి T& container;
 	};
-	return reverse_view{container};
+	తిరిగి తిరగేయి_view{container};
 }
 
 // A range of integers [start_, end_) that can be iterated over with a
 // C++ range-based for loop.
-struct IntRange {
-	int start_;
-	int end_;
-	struct Int {
-		int v;
-		int operator*() const { return v; }
-		Int &operator++() { ++v; return *this; }
-		bool operator!=(const Int &other) const { return v != other.v; }
+నిర్మాణం IntRange {
+	పూర్ణాంకం ప్రారంభం_2;
+	పూర్ణాంకం చివర_4;
+	నిర్మాణం Int {
+		పూర్ణాంకం v;
+		పూర్ణాంకం క్రియాకారకం*() స్థిరరాశి { తిరిగి v; }
+		Int &క్రియాకారకం++() { ++v; తిరిగి *this; }
+		bool క్రియాకారకం!=(స్థిరరాశి Int &other) స్థిరరాశి { తిరిగి v != other.v; }
 	};
-	Int begin() const { return {start_}; }
-	Int end() const { return {end_}; }
+	Int begin() స్థిరరాశి { తిరిగి {ప్రారంభం_2}; }
+	Int చివర() స్థిరరాశి { తిరిగి {చివర_4}; }
 
-	bool operator==(const IntRange &other) const { return start_ == other.start_ && end_ == other.end_; }
-	bool operator!=(const IntRange &other) const { return !(*this == other); }
+	bool క్రియాకారకం==(స్థిరరాశి IntRange &other) స్థిరరాశి { తిరిగి ప్రారంభం_2 == other.ప్రారంభం_2 && చివర_4 == other.చివర_4; }
+	bool క్రియాకారకం!=(స్థిరరాశి IntRange &other) స్థిరరాశి { తిరిగి !(*this == other); }
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

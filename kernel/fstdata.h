@@ -17,70 +17,70 @@
  *
  */
 
-#ifndef FSTDATA_H
-#define FSTDATA_H
+#నిర్వచితం_కాకపోతే FSTDATA_H
+#నిర్వచించు FSTDATA_H
 
-#include "kernel/yosys.h"
-#include "libs/fst/fstapi.h"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "libs/fst/fstapi.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-typedef std::function<void(uint64_t)> CallbackFunction;
-struct fst_end_of_data_exception { };
+రకనిర్వచనం std::function<శూన్య(uint64_t)> CallbackFunction;
+నిర్మాణం fst_చివర_యొక్క_దత్తాంశం_exception { };
 
-struct FstVar
+నిర్మాణం FstVar
 {
 	fstHandle id;
 	std::string name;
 	bool is_alias;
 	bool is_reg;
 	std::string scope;
-	int width;
+	పూర్ణాంకం వెడల్పు;
 };
 
-class FstData
+class Fst_దత్తాంశం
 {
-	public:
-	FstData(std::string filename);
-	~FstData();
+	బహిరంగ:
+	Fst_దత్తాంశం(std::string filename);
+	~Fst_దత్తాంశం();
 
-	uint64_t getStartTime();
-	uint64_t getEndTime();
+	uint64_t get_ప్రారంభం_సమయం();
+	uint64_t get_చివర_సమయం();
 
-	std::vector<FstVar>& getVars() { return vars; };
+	std::సదిశ<FstVar>& getVars() { తిరిగి vars; };
 
-	void reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t plen);
-	void reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start_time, uint64_t end_time, unsigned int end_cycle, CallbackFunction cb);
+	శూన్య reconstruct_callback_attimes(uint64_t pnt_సమయం, fstHandle pnt_facidx, స్థిరరాశి గుర్తులేని అక్షరం *pnt_విలువ, uint32_t plen);
+	శూన్య reconstructAllAtTimes(std::సదిశ<fstHandle> &సంకేతం, uint64_t ప్రారంభం_సమయం, uint64_t చివర_సమయం, గుర్తులేని పూర్ణాంకం చివర_చక్రం, CallbackFunction cb);
 
-	std::string valueOf(fstHandle signal);
+	std::string విలువ_యొక్క(fstHandle సంకేతం);
 	fstHandle getHandle(std::string name);
-	dict<int,fstHandle> getMemoryHandles(std::string name);
-	int getScale() { return scale; }
-	const char *getTimescaleString() { return timescale_str.c_str(); }
-private:
-	void extractVarNames();
+	dict<పూర్ణాంకం,fstHandle> get_జ్ఞాపకం_Handles(std::string name);
+	పూర్ణాంకం getScale() { తిరిగి scale; }
+	స్థిరరాశి అక్షరం *getTimescaleString() { తిరిగి timescale_str.c_str(); }
+అంతరంగ:
+	శూన్య వెలికితీయి_Var_పేర్లు();
 
-	struct fstReaderContext *ctx;
-	std::vector<FstVar> vars;
-	std::map<fstHandle, FstVar> handle_to_var;
-	std::map<std::string, fstHandle> name_to_handle;
-	std::map<std::string, dict<int, fstHandle>> memory_to_handle;
-	std::map<fstHandle, std::string> last_data;
-	uint64_t last_time;
-	std::map<fstHandle, std::string> past_data;
-	uint64_t past_time;
-	int scale; // exponent of 10, e.g. -6 = us, -9 = ns
+	నిర్మాణం fstReaderContext *ctx;
+	std::సదిశ<FstVar> vars;
+	std::map<fstHandle, FstVar> handle_గమ్యం_var;
+	std::map<std::string, fstHandle> name_గమ్యం_handle;
+	std::map<std::string, dict<పూర్ణాంకం, fstHandle>> జ్ఞాపకం_గమ్యం_handle;
+	std::map<fstHandle, std::string> చివరి_దత్తాంశం;
+	uint64_t చివరి_సమయం;
+	std::map<fstHandle, std::string> past_దత్తాంశం;
+	uint64_t past_సమయం;
+	పూర్ణాంకం scale; // exponent of 10, e.g. -6 = us, -9 = ns
 	std::string timescale_str;
-	uint64_t start_time;
-	uint64_t end_time;
-	unsigned int last_cycle;
-	unsigned int curr_cycle;
+	uint64_t ప్రారంభం_సమయం;
+	uint64_t చివర_సమయం;
+	గుర్తులేని పూర్ణాంకం చివరి_చక్రం;
+	గుర్తులేని పూర్ణాంకం curr_చక్రం;
 	CallbackFunction callback;
-	std::vector<fstHandle> clk_signals;
+	std::సదిశ<fstHandle> clk_సంకేతాలు;
 	bool all_samples;
 	std::string tmp_file;
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

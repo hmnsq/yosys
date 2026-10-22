@@ -17,36 +17,36 @@
  *
  */
 
-#ifndef CELLAIGS_H
-#define CELLAIGS_H
+#నిర్వచితం_కాకపోతే CELLAIGS_H
+#నిర్వచించు CELLAIGS_H
 
-#include "kernel/yosys.h"
+#అన్తర్భావ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AigNode
+నిర్మాణం Aig_కణుపు
 {
 	IdString portname;
-	int portbit;
+	పూర్ణాంకం portbit;
 	bool inverter;
-	int left_parent, right_parent;
-	vector<pair<IdString, int>> outports;
+	పూర్ణాంకం ఎడమ_మాతృ, కుడి_మాతృ;
+	సదిశ<pair<IdString, పూర్ణాంకం>> outports;
 
-	AigNode();
-	bool operator==(const AigNode &other) const;
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	Aig_కణుపు();
+	bool క్రియాకారకం==(స్థిరరాశి Aig_కణుపు &other) స్థిరరాశి;
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి;
 };
 
-struct Aig
+నిర్మాణం Aig
 {
 	string name;
-	vector<AigNode> nodes;
+	సదిశ<Aig_కణుపు> nodes;
 	Aig(Cell *cell);
 
-	bool operator==(const Aig &other) const;
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	bool క్రియాకారకం==(స్థిరరాశి Aig &other) స్థిరరాశి;
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి;
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

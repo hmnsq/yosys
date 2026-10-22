@@ -17,11 +17,11 @@
  *
  */
 
-#ifndef REGISTER_H
-#define REGISTER_H
+#నిర్వచితం_కాకపోతే రిజిస్టరు_H
+#నిర్వచించు రిజిస్టరు_H
 
-#include "kernel/yosys_common.h"
-#include "kernel/yosys.h"
+#అన్తర్భావ "kernel/yosys_common.h"
+#అన్తర్భావ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -32,173 +32,173 @@ YOSYS_NAMESPACE_BEGIN
 class GarbageCollectionGuard
 {
 	bool was_enabled;
-	static bool is_enabled_;
-public:
+	స్థిర bool is_enabled_;
+బహిరంగ:
 	GarbageCollectionGuard(bool allow) : was_enabled(is_enabled_) {
 		is_enabled_ &= allow;
 	}
 	~GarbageCollectionGuard() {
 		is_enabled_ = was_enabled;
 	}
-	static bool is_enabled() { return is_enabled_; }
+	స్థిర bool is_enabled() { తిరిగి is_enabled_; }
 };
 
 // Call from anywhere to request GC at the next safe point.
-void request_garbage_collection();
+శూన్య request_garbage_collection();
 
 // GC the active design if GarbageCollectionGuard::is_enabled() and GC was requested.
-void try_collect_garbage();
+శూన్య try_collect_garbage();
 
-struct Pass
+నిర్మాణం Pass
 {
 	std::string pass_name, short_help;
-	source_location location;
+	ఆధారం_location location;
 	Pass(std::string name, std::string short_help = "** document me **",
-		source_location location = source_location::current());
+		ఆధారం_location location = ఆధారం_location::current());
 	// Prefer overriding 'Pass::on_shutdown()' if possible
-	virtual ~Pass();
+	మాయా ~Pass();
 
 	// Makes calls to log() to generate help message
-	virtual void help();
+	మాయా శూన్య help();
 	// Uses PrettyHelp::get_current() to produce a more portable formatted help message
-	virtual bool formatted_help();
-	virtual void clear_flags();
-	virtual void execute(std::vector<std::string> args, RTLIL::Design *design) = 0;
+	మాయా bool formatted_help();
+	మాయా శూన్య clear_flags();
+	మాయా శూన్య execute(std::సదిశ<std::string> వాదనలు_2, RTLIL::Design *design) = 0;
 
-	int call_counter;
+	పూర్ణాంకం call_counter;
 	int64_t runtime_ns;
 	bool experimental_flag = false;
-	bool internal_flag = false;
+	bool అంతర్గత_flag = false;
 
-	static void subtract_from_current_runtime_ns(int64_t time_ns);
+	స్థిర శూన్య వ్యవకలనం_from_current_runtime_ns(int64_t సమయం_ns);
 
-	void experimental() {
+	శూన్య experimental() {
 		experimental_flag = true;
 	}
 
-	void internal() {
-		internal_flag = true;
+	శూన్య అంతర్గత() {
+		అంతర్గత_flag = true;
 	}
 
-	struct pre_post_exec_state_t {
-		Pass *parent_pass;
+	నిర్మాణం pre_post_exec_state_t {
+		Pass *మాతృ_pass;
 		int64_t begin_ns;
 	};
 
 	pre_post_exec_state_t pre_execute();
-	void post_execute(pre_post_exec_state_t state);
+	శూన్య post_execute(pre_post_exec_state_t state);
 
-	void cmd_log_args(const std::vector<std::string> &args);
-	void cmd_error(const std::vector<std::string> &args, size_t argidx, std::string msg);
-	void extra_args(std::vector<std::string> args, size_t argidx, RTLIL::Design *design, bool select = true);
+	శూన్య cmd_log_వాదనలు(స్థిరరాశి std::సదిశ<std::string> &వాదనలు_2);
+	శూన్య cmd_error(స్థిరరాశి std::సదిశ<std::string> &వాదనలు_2, కొలత_t argidx, std::string సందేశం);
+	శూన్య extra_వాదనలు(std::సదిశ<std::string> వాదనలు_2, కొలత_t argidx, RTLIL::Design *design, bool select = true);
 
-	static void call(RTLIL::Design *design, std::string command);
-	static void call(RTLIL::Design *design, std::vector<std::string> args);
+	స్థిర శూన్య call(RTLIL::Design *design, std::string command);
+	స్థిర శూన్య call(RTLIL::Design *design, std::సదిశ<std::string> వాదనలు_2);
 
-	static void call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::string command);
-	static void call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::vector<std::string> args);
+	స్థిర శూన్య call_on_selection(RTLIL::Design *design, స్థిరరాశి RTLIL::Selection &selection, std::string command);
+	స్థిర శూన్య call_on_selection(RTLIL::Design *design, స్థిరరాశి RTLIL::Selection &selection, std::సదిశ<std::string> వాదనలు_2);
 
-	static void call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command);
-	static void call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vector<std::string> args);
+	స్థిర శూన్య call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command);
+	స్థిర శూన్య call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::సదిశ<std::string> వాదనలు_2);
 
-	Pass *next_queued_pass;
-	virtual void run_register();
-	static void init_register();
-	static void done_register();
+	Pass *తదుపరి_queued_pass;
+	మాయా శూన్య నిరంతరం_రిజిస్టరు();
+	స్థిర శూన్య init_రిజిస్టరు();
+	స్థిర శూన్య పూర్తి_రిజిస్టరు();
 
-	virtual void on_register();
-	virtual void on_shutdown();
-	virtual bool replace_existing_pass() const { return false; }
+	మాయా శూన్య on_రిజిస్టరు();
+	మాయా శూన్య on_shutdown();
+	మాయా bool replace_existing_pass() స్థిరరాశి { తిరిగి false; }
 
 	// This should return false if the pass holds onto RTLIL objects outside a Design while it
 	// calls nested passes. For safety, we default to assuming the worst.
-	virtual bool allow_garbage_collection_during_pass() const { return false; }
+	మాయా bool allow_garbage_collection_during_pass() స్థిరరాశి { తిరిగి false; }
 };
 
-struct ScriptPass : Pass
+నిర్మాణం ScriptPass : Pass
 {
-	bool block_active, help_mode;
-	RTLIL::Design *active_design;
-	std::string active_run_from, active_run_to;
+	bool ఖండం_చురుకైన, help_బహుళకం;
+	RTLIL::Design *చురుకైన_design;
+	std::string చురుకైన_నిరంతరం_from, చురుకైన_నిరంతరం_గమ్యం;
 
-	ScriptPass(std::string name, std::string short_help = "** document me **", source_location location = source_location::current()) :
+	ScriptPass(std::string name, std::string short_help = "** document me **", ఆధారం_location location = ఆధారం_location::current()) :
 		Pass(name, short_help, location) { }
 
-	virtual void script() = 0;
+	మాయా శూన్య script() = 0;
 
 	bool check_label(std::string label, std::string info = std::string());
-	void run(std::string command, std::string info = std::string());
-	void run_nocheck(std::string command, std::string info = std::string());
-	void run_script(RTLIL::Design *design, std::string run_from = std::string(), std::string run_to = std::string());
-	void help_script();
+	శూన్య నిరంతరం(std::string command, std::string info = std::string());
+	శూన్య నిరంతరం_nocheck(std::string command, std::string info = std::string());
+	శూన్య నిరంతరం_script(RTLIL::Design *design, std::string నిరంతరం_from = std::string(), std::string నిరంతరం_గమ్యం = std::string());
+	శూన్య help_script();
 
-	bool allow_garbage_collection_during_pass() const override { return true; }
+	bool allow_garbage_collection_during_pass() స్థిరరాశి override { తిరిగి true; }
 };
 
-struct Frontend : Pass
+నిర్మాణం Frontend : Pass
 {
 	// for reading of here documents
-	static FILE *current_script_file;
-	static std::string last_here_document;
+	స్థిర FILE *current_script_file;
+	స్థిర std::string చివరి_ఇక్కడ_document;
 
 	// script file and last line read from it
-	static std::string current_script_filename;
-	static int current_script_lineno;
+	స్థిర std::string current_script_filename;
+	స్థిర పూర్ణాంకం current_script_lineno;
 
 	std::string frontend_name;
 	Frontend(std::string name, std::string short_help = "** document me **",
-		source_location location = source_location::current());
-	void run_register() override;
+		ఆధారం_location location = ఆధారం_location::current());
+	శూన్య నిరంతరం_రిజిస్టరు() override;
 	~Frontend() override;
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override final;
-	virtual void execute(std::istream *&f, std::string filename, std::vector<std::string> args, RTLIL::Design *design) = 0;
+	శూన్య execute(std::సదిశ<std::string> వాదనలు_2, RTLIL::Design *design) override final;
+	మాయా శూన్య execute(std::istream *&f, std::string filename, std::సదిశ<std::string> వాదనలు_2, RTLIL::Design *design) = 0;
 
-	static std::vector<std::string> next_args;
-	void extra_args(std::istream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_input = false);
+	స్థిర std::సదిశ<std::string> తదుపరి_వాదనలు;
+	శూన్య extra_వాదనలు(std::istream *&f, std::string &filename, std::సదిశ<std::string> వాదనలు_2, కొలత_t argidx, bool bin_ఆదానం = false);
 
-	static void frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command);
-	static void frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> args);
+	స్థిర శూన్య frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command);
+	స్థిర శూన్య frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::సదిశ<std::string> వాదనలు_2);
 };
 
-struct Backend : Pass
+నిర్మాణం Backend : Pass
 {
 	std::string backend_name;
 	Backend(std::string name, std::string short_help = "** document me **",
-		source_location location = source_location::current());
-	void run_register() override;
+		ఆధారం_location location = ఆధారం_location::current());
+	శూన్య నిరంతరం_రిజిస్టరు() override;
 	~Backend() override;
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override final;
-	virtual void execute(std::ostream *&f, std::string filename,  std::vector<std::string> args, RTLIL::Design *design) = 0;
+	శూన్య execute(std::సదిశ<std::string> వాదనలు_2, RTLIL::Design *design) override final;
+	మాయా శూన్య execute(std::ostream *&f, std::string filename,  std::సదిశ<std::string> వాదనలు_2, RTLIL::Design *design) = 0;
 
-	void extra_args(std::ostream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_output = false);
+	శూన్య extra_వాదనలు(std::ostream *&f, std::string &filename, std::సదిశ<std::string> వాదనలు_2, కొలత_t argidx, bool bin_output = false);
 
-	static void backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command);
-	static void backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> args);
+	స్థిర శూన్య backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command);
+	స్థిర శూన్య backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::సదిశ<std::string> వాదనలు_2);
 };
 
 // implemented in passes/cmds/select.cc
-extern void handle_extra_select_args(Pass *pass, const std::vector<std::string> &args, size_t argidx, size_t args_size, RTLIL::Design *design);
-extern RTLIL::Selection eval_select_args(const vector<string> &args, RTLIL::Design *design);
-extern void eval_select_op(vector<RTLIL::Selection> &work, const string &op, RTLIL::Design *design);
+బాహ్య శూన్య handle_extra_select_వాదనలు(Pass *pass, స్థిరరాశి std::సదిశ<std::string> &వాదనలు_2, కొలత_t argidx, కొలత_t వాదనలు_కొలత, RTLIL::Design *design);
+బాహ్య RTLIL::Selection eval_select_వాదనలు(స్థిరరాశి సదిశ<string> &వాదనలు_2, RTLIL::Design *design);
+బాహ్య శూన్య eval_select_op(సదిశ<RTLIL::Selection> &work, స్థిరరాశి string &op, RTLIL::Design *design);
 
-extern std::map<std::string, Pass*> pass_register;
-extern std::map<std::string, Frontend*> frontend_register;
-extern std::map<std::string, Backend*> backend_register;
+బాహ్య std::map<std::string, Pass*> pass_రిజిస్టరు;
+బాహ్య std::map<std::string, Frontend*> frontend_రిజిస్టరు;
+బాహ్య std::map<std::string, Backend*> backend_రిజిస్టరు;
 
-struct TargetFamily {
+నిర్మాణం లక్ష్యం_Family {
 	std::string description;
-	std::vector<std::string> files;
+	std::సదిశ<std::string> files;
 };
 
-struct Target {
+నిర్మాణం లక్ష్యం {
 	std::string description;
-	std::map<std::string, TargetFamily> families;
+	std::map<std::string, లక్ష్యం_Family> families;
 };
 
-extern std::map<std::string, Target> target_register;
+బాహ్య std::map<std::string, లక్ష్యం> లక్ష్యం_రిజిస్టరు;
 
-#define YOSYS_HAS_TARGET_REGISTER 1
+#నిర్వచించు YOSYS_HAS_లక్ష్యం_రిజిస్టరు 1
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

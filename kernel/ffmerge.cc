@@ -17,58 +17,58 @@
  *
  */
 
-#include "kernel/ffmerge.h"
+#అన్తర్భావ "kernel/ffmerge.h"
 
 USING_YOSYS_NAMESPACE
 
-bool FfMergeHelper::is_output_unused(RTLIL::SigSpec sig) {
-	for (auto bit : (*sigmap)(sig))
-		if (sigbit_users_count[bit] != 0)
-			return false;
-	return true;
+తార్కిక Ff_విలీనం_Helper::is_output_వాడని(RTLIL::SigSpec sig) {
+	కొరకు (స్వయంచాలక బిట్టు : (*sigmap)(sig))
+		ఒకవేళ (sigbit_users_లెక్క[బిట్టు] != 0)
+			తిరిగి అబద్ధం;
+	తిరిగి నిజం;
 }
 
-bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
-	ff = FfData(module, initvals, module->twines().add(NEW_ID));
+తార్కిక Ff_విలీనం_Helper::కనుగొను_output_ff(RTLIL::SigSpec sig, Ff_దత్తాంశం &ff, pool<std::pair<Cell *, పూర్ణాంకం>> &బిట్లు) {
+	ff = Ff_దత్తాంశం(module, initvals, module->twines().కూడు(NEW_ID));
 	sigmap->apply(sig);
 
-	bool found = false;
+	తార్కిక దొరికింది = అబద్ధం;
 
-	for (auto bit : sig)
+	కొరకు (స్వయంచాలక బిట్టు : sig)
 	{
-		if (bit.wire == NULL || sigbit_users_count[bit] == 0) {
-			ff.width++;
-			ff.sig_q.append(bit);
-			ff.sig_d.append(bit);
+		ఒకవేళ (బిట్టు.wire == ఖాళీ || sigbit_users_లెక్క[బిట్టు] == 0) {
+			ff.వెడల్పు++;
+			ff.sig_q.append(బిట్టు);
+			ff.sig_d.append(బిట్టు);
 			ff.sig_clr.append(State::Sx);
-			ff.sig_set.append(State::Sx);
+			ff.sig_సమితి.append(State::Sx);
 			ff.val_init.append(RTLIL::Const(State::Sx));
 			ff.val_srst.append(RTLIL::Const(State::Sx));
 			ff.val_arst.append(RTLIL::Const(State::Sx));
-			continue;
+			కొనసాగు;
 		}
 
-		if (sigbit_users_count[bit] != 1)
-			return false;
+		ఒకవేళ (sigbit_users_లెక్క[బిట్టు] != 1)
+			తిరిగి అబద్ధం;
 
-		auto &sinks = dff_sink[bit];
-		if (sinks.size() != 1)
-			return false;
+		స్వయంచాలక &sinks = dff_sink[బిట్టు];
+		ఒకవేళ (sinks.కొలత() != 1)
+			తిరిగి అబద్ధం;
 
 		Cell *cell;
-		int idx;
+		పూర్ణాంకం idx;
 		std::tie(cell, idx) = *sinks.begin();
-		bits.insert(std::make_pair(cell, idx));
+		బిట్లు.చొప్పించు(std::make_pair(cell, idx));
 
-		FfData cur_ff(initvals, cell);
+		Ff_దత్తాంశం cur_ff(initvals, cell);
 
 		// Reject latches and $ff.
-		if (!cur_ff.has_clk)
-			return false;
+		ఒకవేళ (!cur_ff.has_clk)
+			తిరిగి అబద్ధం;
 
-		log_assert((*sigmap)(cur_ff.sig_d[idx]) == bit);
+		log_assert((*sigmap)(cur_ff.sig_d[idx]) == బిట్టు);
 
-		if (!found) {
+		ఒకవేళ (!దొరికింది) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -87,112 +87,112 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			ff.pol_arst = cur_ff.pol_arst;
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
-			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+			ff.pol_సమితి = cur_ff.pol_సమితి;
+		} లేకపోతే {
+			ఒకవేళ (ff.has_clk != cur_ff.has_clk)
+				తిరిగి అబద్ధం;
+			ఒకవేళ (ff.has_ce != cur_ff.has_ce)
+				తిరిగి అబద్ధం;
+			ఒకవేళ (ff.has_aload != cur_ff.has_aload)
+				తిరిగి అబద్ధం;
+			ఒకవేళ (ff.has_srst != cur_ff.has_srst)
+				తిరిగి అబద్ధం;
+			ఒకవేళ (ff.has_arst != cur_ff.has_arst)
+				తిరిగి అబద్ధం;
+			ఒకవేళ (ff.has_sr != cur_ff.has_sr)
+				తిరిగి అబద్ధం;
+			ఒకవేళ (ff.has_clk) {
+				ఒకవేళ (ff.sig_clk != cur_ff.sig_clk)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (ff.pol_clk != cur_ff.pol_clk)
+					తిరిగి అబద్ధం;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			ఒకవేళ (ff.has_ce) {
+				ఒకవేళ (ff.sig_ce != cur_ff.sig_ce)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (ff.pol_ce != cur_ff.pol_ce)
+					తిరిగి అబద్ధం;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			ఒకవేళ (ff.has_aload) {
+				ఒకవేళ (ff.sig_aload != cur_ff.sig_aload)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (ff.pol_aload != cur_ff.pol_aload)
+					తిరిగి అబద్ధం;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			ఒకవేళ (ff.has_srst) {
+				ఒకవేళ (ff.sig_srst != cur_ff.sig_srst)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (ff.pol_srst != cur_ff.pol_srst)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					తిరిగి అబద్ధం;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			ఒకవేళ (ff.has_arst) {
+				ఒకవేళ (ff.sig_arst != cur_ff.sig_arst)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (ff.pol_arst != cur_ff.pol_arst)
+					తిరిగి అబద్ధం;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			ఒకవేళ (ff.has_sr) {
+				ఒకవేళ (ff.pol_clr != cur_ff.pol_clr)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (ff.pol_సమితి != cur_ff.pol_సమితి)
+					తిరిగి అబద్ధం;
 			}
 		}
 
-		ff.width++;
+		ff.వెడల్పు++;
 		ff.sig_d.append(cur_ff.sig_d[idx]);
 		ff.sig_ad.append(ff.has_aload ? cur_ff.sig_ad[idx] : State::Sx);
 		ff.sig_q.append(cur_ff.sig_q[idx]);
 		ff.sig_clr.append(ff.has_sr ? cur_ff.sig_clr[idx] : State::S0);
-		ff.sig_set.append(ff.has_sr ? cur_ff.sig_set[idx] : State::S0);
+		ff.sig_సమితి.append(ff.has_sr ? cur_ff.sig_సమితి[idx] : State::S0);
 		ff.val_arst.append(RTLIL::Const(ff.has_arst ? cur_ff.val_arst[idx] : State::Sx));
 		ff.val_srst.append(RTLIL::Const(ff.has_srst ? cur_ff.val_srst[idx] : State::Sx));
 		ff.val_init.append(RTLIL::Const(cur_ff.val_init[idx]));
-		found = true;
+		దొరికింది = నిజం;
 	}
 
-	return found;
+	తిరిగి దొరికింది;
 }
 
-bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
-	ff = FfData(module, initvals, module->twines().add(NEW_ID));
+తార్కిక Ff_విలీనం_Helper::కనుగొను_ఆదానం_ff(RTLIL::SigSpec sig, Ff_దత్తాంశం &ff, pool<std::pair<Cell *, పూర్ణాంకం>> &బిట్లు) {
+	ff = Ff_దత్తాంశం(module, initvals, module->twines().కూడు(NEW_ID));
 	sigmap->apply(sig);
 
-	bool found = false;
+	తార్కిక దొరికింది = అబద్ధం;
 
-	pool<int> const_bits;
+	pool<పూర్ణాంకం> const_బిట్లు;
 
-	for (auto bit : sig)
+	కొరకు (స్వయంచాలక బిట్టు : sig)
 	{
-		if (bit.wire == NULL) {
-			const_bits.insert(ff.width);
-			ff.width++;
-			ff.sig_q.append(bit);
-			ff.sig_d.append(bit);
+		ఒకవేళ (బిట్టు.wire == ఖాళీ) {
+			const_బిట్లు.చొప్పించు(ff.వెడల్పు);
+			ff.వెడల్పు++;
+			ff.sig_q.append(బిట్టు);
+			ff.sig_d.append(బిట్టు);
 			// These two will be fixed up later.
 			ff.sig_clr.append(State::Sx);
-			ff.sig_set.append(State::Sx);
-			ff.val_init.append(RTLIL::Const(bit.data));
-			ff.val_srst.append(RTLIL::Const(bit.data));
-			ff.val_arst.append(RTLIL::Const(bit.data));
-			continue;
+			ff.sig_సమితి.append(State::Sx);
+			ff.val_init.append(RTLIL::Const(బిట్టు.దత్తాంశం));
+			ff.val_srst.append(RTLIL::Const(బిట్టు.దత్తాంశం));
+			ff.val_arst.append(RTLIL::Const(బిట్టు.దత్తాంశం));
+			కొనసాగు;
 		}
 
-		if (!dff_driver.count(bit))
-			return false;
+		ఒకవేళ (!dff_driver.లెక్క(బిట్టు))
+			తిరిగి అబద్ధం;
 
 		Cell *cell;
-		int idx;
-		std::tie(cell, idx) = dff_driver[bit];
-		bits.insert(std::make_pair(cell, idx));
+		పూర్ణాంకం idx;
+		std::tie(cell, idx) = dff_driver[బిట్టు];
+		బిట్లు.చొప్పించు(std::make_pair(cell, idx));
 
-		FfData cur_ff(initvals, cell);
+		Ff_దత్తాంశం cur_ff(initvals, cell);
 
-		log_assert((*sigmap)(cur_ff.sig_q[idx]) == bit);
+		log_assert((*sigmap)(cur_ff.sig_q[idx]) == బిట్టు);
 
-		if (!found) {
+		ఒకవేళ (!దొరికింది) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -212,149 +212,149 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			ff.pol_arst = cur_ff.pol_arst;
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
-			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_gclk != cur_ff.has_gclk)
-				return false;
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+			ff.pol_సమితి = cur_ff.pol_సమితి;
+		} లేకపోతే {
+			ఒకవేళ (ff.has_gclk != cur_ff.has_gclk)
+				తిరిగి అబద్ధం;
+			ఒకవేళ (ff.has_clk != cur_ff.has_clk)
+				తిరిగి అబద్ధం;
+			ఒకవేళ (ff.has_ce != cur_ff.has_ce)
+				తిరిగి అబద్ధం;
+			ఒకవేళ (ff.has_aload != cur_ff.has_aload)
+				తిరిగి అబద్ధం;
+			ఒకవేళ (ff.has_srst != cur_ff.has_srst)
+				తిరిగి అబద్ధం;
+			ఒకవేళ (ff.has_arst != cur_ff.has_arst)
+				తిరిగి అబద్ధం;
+			ఒకవేళ (ff.has_sr != cur_ff.has_sr)
+				తిరిగి అబద్ధం;
+			ఒకవేళ (ff.has_clk) {
+				ఒకవేళ (ff.sig_clk != cur_ff.sig_clk)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (ff.pol_clk != cur_ff.pol_clk)
+					తిరిగి అబద్ధం;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			ఒకవేళ (ff.has_ce) {
+				ఒకవేళ (ff.sig_ce != cur_ff.sig_ce)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (ff.pol_ce != cur_ff.pol_ce)
+					తిరిగి అబద్ధం;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			ఒకవేళ (ff.has_aload) {
+				ఒకవేళ (ff.sig_aload != cur_ff.sig_aload)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (ff.pol_aload != cur_ff.pol_aload)
+					తిరిగి అబద్ధం;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			ఒకవేళ (ff.has_srst) {
+				ఒకవేళ (ff.sig_srst != cur_ff.sig_srst)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (ff.pol_srst != cur_ff.pol_srst)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					తిరిగి అబద్ధం;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			ఒకవేళ (ff.has_arst) {
+				ఒకవేళ (ff.sig_arst != cur_ff.sig_arst)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (ff.pol_arst != cur_ff.pol_arst)
+					తిరిగి అబద్ధం;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			ఒకవేళ (ff.has_sr) {
+				ఒకవేళ (ff.pol_clr != cur_ff.pol_clr)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (ff.pol_సమితి != cur_ff.pol_సమితి)
+					తిరిగి అబద్ధం;
 			}
 		}
 
-		ff.width++;
+		ff.వెడల్పు++;
 		ff.sig_d.append((ff.has_clk || ff.has_gclk) ? cur_ff.sig_d[idx] : State::Sx);
 		ff.sig_ad.append(ff.has_aload ? cur_ff.sig_ad[idx] : State::Sx);
 		ff.sig_q.append(cur_ff.sig_q[idx]);
 		ff.sig_clr.append(ff.has_sr ? cur_ff.sig_clr[idx] : State::S0);
-		ff.sig_set.append(ff.has_sr ? cur_ff.sig_set[idx] : State::S0);
+		ff.sig_సమితి.append(ff.has_sr ? cur_ff.sig_సమితి[idx] : State::S0);
 		ff.val_arst.append(RTLIL::Const(ff.has_arst ? cur_ff.val_arst[idx] : State::Sx));
 		ff.val_srst.append(RTLIL::Const(ff.has_srst ? cur_ff.val_srst[idx] : State::Sx));
 		ff.val_init.append(RTLIL::Const(cur_ff.val_init[idx]));
-		found = true;
+		దొరికింది = నిజం;
 	}
 
-	if (found && ff.has_sr) {
-		for (auto i: const_bits) {
-			if (ff.sig_d[i] == State::S0) {
-				ff.sig_set[i] = ff.pol_set ? State::S0 : State::S1;
-			} else if (ff.sig_d[i] == State::S1) {
+	ఒకవేళ (దొరికింది && ff.has_sr) {
+		కొరకు (స్వయంచాలక i: const_బిట్లు) {
+			ఒకవేళ (ff.sig_d[i] == State::S0) {
+				ff.sig_సమితి[i] = ff.pol_సమితి ? State::S0 : State::S1;
+			} లేకపోతే ఒకవేళ (ff.sig_d[i] == State::S1) {
 				ff.sig_clr[i] = ff.pol_clr ? State::S0 : State::S1;
 			}
 		}
 	}
 
-	return found;
+	తిరిగి దొరికింది;
 }
 
 
-void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
-		Cell *cell = it.first;
-		int idx = it.second;
-		SigSpec q = cell->getPort(ID::Q);
+శూన్య Ff_విలీనం_Helper::remove_output_ff(స్థిరరాశి pool<std::pair<Cell *, పూర్ణాంకం>> &బిట్లు) {
+	కొరకు (స్వయంచాలక &it : బిట్లు) {
+		Cell *cell = it.మొదటి;
+		పూర్ణాంకం idx = it.రెండవ;
+		SigSpec q = cell->get_పోర్టు(ID::Q);
 		initvals->remove_init(q[idx]);
 		dff_driver.erase((*sigmap)(q[idx]));
-		q[idx] = module->addWire(stringf("$ffmerge_disconnected$%d", autoidx++));
-		cell->setPort(ID::Q, q);
-		initvals->set_init(cell->getPort(ID::Q), (*initvals)(q));
+		q[idx] = module->కూడు_Wire(stringf("$ffmerge_disconnected$%d", autoidx++));
+		cell->సమితి_పోర్టు(ID::Q, q);
+		initvals->సమితి_init(cell->get_పోర్టు(ID::Q), (*initvals)(q));
 	}
 }
 
-void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
-		Cell *cell = it.first;
-		int idx = it.second;
-		if (cell->hasPort(ID::D)) {
-			SigSpec d = cell->getPort(ID::D);
+శూన్య Ff_విలీనం_Helper::mark_ఆదానం_ff(స్థిరరాశి pool<std::pair<Cell *, పూర్ణాంకం>> &బిట్లు) {
+	కొరకు (స్వయంచాలక &it : బిట్లు) {
+		Cell *cell = it.మొదటి;
+		పూర్ణాంకం idx = it.రెండవ;
+		ఒకవేళ (cell->has_పోర్టు(ID::D)) {
+			SigSpec d = cell->get_పోర్టు(ID::D);
 			// The user count was already at least 1
 			// (for the D port).  Bump it as it is now connected
 			// to the merged-to cell as well.  This suffices for
 			// it to not be considered for output merging.
-			sigbit_users_count[d[idx]]++;
+			sigbit_users_లెక్క[d[idx]]++;
 		}
 	}
 }
 
-void FfMergeHelper::set(FfInitVals *initvals_, RTLIL::Module *module_)
+శూన్య Ff_విలీనం_Helper::సమితి(FfInitVals *initvals_, RTLIL::Module *module_)
 {
 	clear();
 	initvals = initvals_;
 	sigmap = initvals->sigmap;
 	module = module_;
 
-	for (auto wire : module->wires()) {
-		if (wire->port_output)
-			for (auto bit : (*sigmap)(wire))
-				sigbit_users_count[bit]++;
+	కొరకు (స్వయంచాలక wire : module->wires()) {
+		ఒకవేళ (wire->పోర్టు_output)
+			కొరకు (స్వయంచాలక బిట్టు : (*sigmap)(wire))
+				sigbit_users_లెక్క[బిట్టు]++;
 	}
 
-	for (auto cell : module->cells()) {
-		if (cell->is_builtin_ff()) {
-			if (cell->hasPort(ID::D)) {
-				SigSpec d = (*sigmap)(cell->getPort(ID::D));
-				for (int i = 0; i < GetSize(d); i++)
-					dff_sink[d[i]].insert(std::make_pair(cell, i));
+	కొరకు (స్వయంచాలక cell : module->cells()) {
+		ఒకవేళ (cell->is_builtin_ff()) {
+			ఒకవేళ (cell->has_పోర్టు(ID::D)) {
+				SigSpec d = (*sigmap)(cell->get_పోర్టు(ID::D));
+				కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(d); i++)
+					dff_sink[d[i]].చొప్పించు(std::make_pair(cell, i));
 			}
-			SigSpec q = (*sigmap)(cell->getPort(ID::Q));
-			for (int i = 0; i < GetSize(q); i++)
+			SigSpec q = (*sigmap)(cell->get_పోర్టు(ID::Q));
+			కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(q); i++)
 				dff_driver[q[i]] = std::make_pair(cell, i);
 		}
-		for (auto &conn : cell->connections())
-			if (!cell->known() || cell->input(conn.first))
-				for (auto bit : (*sigmap)(conn.second))
-					sigbit_users_count[bit]++;
+		కొరకు (స్వయంచాలక &conn : cell->connections())
+			ఒకవేళ (!cell->తెలిసిన() || cell->ఆదానం(conn.మొదటి))
+				కొరకు (స్వయంచాలక బిట్టు : (*sigmap)(conn.రెండవ))
+					sigbit_users_లెక్క[బిట్టు]++;
 	}
 }
 
-void FfMergeHelper::clear() {
+శూన్య Ff_విలీనం_Helper::clear() {
 	dff_driver.clear();
 	dff_sink.clear();
-	sigbit_users_count.clear();
+	sigbit_users_లెక్క.clear();
 }

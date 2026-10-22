@@ -18,14 +18,14 @@
  *
  */
 
-#ifndef FUNCTIONAL_H
-#define FUNCTIONAL_H
+#నిర్వచితం_కాకపోతే FUNCTIONAL_H
+#నిర్వచించు FUNCTIONAL_H
 
-#include "kernel/yosys.h"
-#include "kernel/compute_graph.h"
-#include "kernel/drivertools.h"
-#include "kernel/mem.h"
-#include "kernel/utils.h"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "kernel/compute_graph.h"
+#అన్తర్భావ "kernel/drivertools.h"
+#అన్తర్భావ "kernel/mem.h"
+#అన్తర్భావ "kernel/utils.h"
 
 USING_YOSYS_NAMESPACE
 YOSYS_NAMESPACE_BEGIN
@@ -49,7 +49,7 @@ namespace Functional {
 	// additionally, they can carry a constant of sort int, Const[N] or IdString
 	// each node has a 'sort' field that stores the sort of the node
 	// slice, zero_extend, sign_extend use the sort field to store out_width
-	enum class Fn {
+	గణన class Fn {
 		// invalid() = known-invalid/shouldn't happen value
 		// TODO: maybe remove this and use e.g. std::optional instead?
 		invalid,
@@ -60,7 +60,7 @@ namespace Functional {
 		buf,
 		// slice(a: bit[in_width], offset: int, out_width: int): bit[out_width] = a[offset +: out_width]
 		// required: offset + out_width <= in_width
-		slice,
+		ముక్క,
 		// zero_extend(a: unsigned bit[in_width], out_width: int): unsigned bit[out_width] = a (zero extended)
 		// required: out_width > in_width
 		zero_extend,
@@ -71,7 +71,7 @@ namespace Functional {
 		// concatenates two bitvectors, with a in the least significant position and b in the more significant position
 		concat,
 		// add(a: bit[N], b: bit[N]): bit[N] = a + b
-		add,
+		కూడు,
 		// sub(a: bit[N], b: bit[N]): bit[N] = a - b
 		sub,
 		// mul(a: bit[N], b: bit[N]): bit[N] = a * b
@@ -110,535 +110,535 @@ namespace Functional {
 		unsigned_greater_equal,
 		// logical_shift_left(a: bit[N], b: unsigned bit[M]): bit[N] = a << b
 		// required: M == clog2(N)
-		logical_shift_left,
+		logical_జరుపు_ఎడమ,
 		// logical_shift_right(a: unsigned bit[N], b: unsigned bit[M]): unsigned bit[N] = a >> b
 		// required: M == clog2(N)
-		logical_shift_right,
+		logical_జరుపు_కుడి,
 		// arithmetic_shift_right(a: signed bit[N], b: unsigned bit[M]): signed bit[N] = a >> b
 		// required: M == clog2(N)
-		arithmetic_shift_right,
+		arithmetic_జరుపు_కుడి,
 		// mux(a: bit[N], b: bit[N], s: bit[1]): bit[N] = s ? b : a
 		mux,
 		// constant(a: Const[N]): bit[N] = a
 		constant,
 		// input(a: IdString): any
 		// returns the current value of the input with the specified name
-		input,
+		ఆదానం,
 		// state(a: IdString): any
 		// returns the current value of the state variable with the specified name
 		state,
 		// memory_read(memory: memory[addr_width, data_width], addr: bit[addr_width]): bit[data_width] = memory[addr]
-		memory_read,
+		జ్ఞాపకం_read,
 		// memory_write(memory: memory[addr_width, data_width], addr: bit[addr_width], data: bit[data_width]): memory[addr_width, data_width]
 		// returns a copy of `memory` but with the value at `addr` changed to `data`
-		memory_write
+		జ్ఞాపకం_write
 	};
 	// returns the name of a Fn value, as a string literal
-	const char *fn_to_string(Fn);
+	స్థిరరాశి అక్షరం *fn_గమ్యం_string(Fn);
 	// Sort represents the sort or type of a node
 	// currently the only two sorts are signal/bit and memory
-	class Sort {
-		std::variant<int, std::pair<int, int>> _v;
-	public:
-		explicit Sort(int width) : _v(width) { }
-		Sort(int addr_width, int data_width) : _v(std::make_pair(addr_width, data_width)) { }
-		bool is_signal() const { return _v.index() == 0; }
-		bool is_memory() const { return _v.index() == 1; }
+	class క్రమీకరించు_2 {
+		std::variant<పూర్ణాంకం, std::pair<పూర్ణాంకం, పూర్ణాంకం>> _v;
+	బహిరంగ:
+		explicit క్రమీకరించు_2(పూర్ణాంకం వెడల్పు) : _v(వెడల్పు) { }
+		క్రమీకరించు_2(పూర్ణాంకం addr_వెడల్పు, పూర్ణాంకం దత్తాంశం_వెడల్పు) : _v(std::make_pair(addr_వెడల్పు, దత్తాంశం_వెడల్పు)) { }
+		bool is_signal() స్థిరరాశి { తిరిగి _v.సూచీ() == 0; }
+		bool is_జ్ఞాపకం() స్థిరరాశి { తిరిగి _v.సూచీ() == 1; }
 		// returns the width of a bitvector sort, errors out for other sorts
-		int width() const { return std::get<0>(_v); }
+		పూర్ణాంకం వెడల్పు() స్థిరరాశి { తిరిగి std::get<0>(_v); }
 		// returns the address width of a bitvector sort, errors out for other sorts
-		int addr_width() const { return std::get<1>(_v).first; }
+		పూర్ణాంకం addr_వెడల్పు() స్థిరరాశి { తిరిగి std::get<1>(_v).మొదటి; }
 		// returns the data width of a bitvector sort, errors out for other sorts
-		int data_width() const { return std::get<1>(_v).second; }
-		bool operator==(Sort const& other) const { return _v == other._v; }
-		[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(_v); return h; }
+		పూర్ణాంకం దత్తాంశం_వెడల్పు() స్థిరరాశి { తిరిగి std::get<1>(_v).రెండవ; }
+		bool క్రియాకారకం==(క్రమీకరించు_2 స్థిరరాశి& other) స్థిరరాశి { తిరిగి _v == other._v; }
+		[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి { h.eat(_v); తిరిగి h; }
 	};
 	class IR;
 	class Factory;
-	class Node;
+	class కణుపు_2;
 	class IRInput {
-		friend class Factory;
-	public:
+		మిత్ర class Factory;
+	బహిరంగ:
 		PooledName name;
-		PooledName kind;
-		Sort sort;
-	private:
-		IRInput(IR &ir, IdString name, IdString kind, Sort sort);
+		PooledName రకం;
+		క్రమీకరించు_2 క్రమీకరించు;
+	అంతరంగ:
+		IRInput(IR &ir, IdString name, IdString రకం, క్రమీకరించు_2 క్రమీకరించు);
 	};
 	class IROutput {
-		friend class Factory;
+		మిత్ర class Factory;
 		IR &_ir;
-	public:
+	బహిరంగ:
 		PooledName name;
-		PooledName kind;
-		Sort sort;
-	private:
-		IROutput(IR &ir, IdString name, IdString kind, Sort sort);
-	public:
-		Node value() const;
-		bool has_value() const;
-		void set_value(Node value);
+		PooledName రకం;
+		క్రమీకరించు_2 క్రమీకరించు;
+	అంతరంగ:
+		IROutput(IR &ir, IdString name, IdString రకం, క్రమీకరించు_2 క్రమీకరించు);
+	బహిరంగ:
+		కణుపు_2 విలువ() స్థిరరాశి;
+		bool has_విలువ() స్థిరరాశి;
+		శూన్య సమితి_విలువ(కణుపు_2 విలువ);
 	};
 	class IRState {
-		friend class Factory;
+		మిత్ర class Factory;
 		IR &_ir;
-	public:
+	బహిరంగ:
 		PooledName name;
-		PooledName kind;
-		Sort sort;
-	private:
+		PooledName రకం;
+		క్రమీకరించు_2 క్రమీకరించు;
+	అంతరంగ:
 		std::variant<RTLIL::Const, MemContents> _initial;
-		IRState(IR &ir, IdString name, IdString kind, Sort sort);
-	public:
-		Node next_value() const;
-		bool has_next_value() const;
-		RTLIL::Const const& initial_value_signal() const { return std::get<RTLIL::Const>(_initial); }
-		MemContents const& initial_value_memory() const { return std::get<MemContents>(_initial); }
-		void set_next_value(Node value);
-		void set_initial_value(RTLIL::Const value) { value.extu(sort.width()); _initial = std::move(value); }
-		void set_initial_value(MemContents value) { log_assert(Sort(value.addr_width(), value.data_width()) == sort); _initial = std::move(value); }
+		IRState(IR &ir, IdString name, IdString రకం, క్రమీకరించు_2 క్రమీకరించు);
+	బహిరంగ:
+		కణుపు_2 తదుపరి_విలువ() స్థిరరాశి;
+		bool has_తదుపరి_విలువ() స్థిరరాశి;
+		RTLIL::Const స్థిరరాశి& initial_విలువ_signal() స్థిరరాశి { తిరిగి std::get<RTLIL::Const>(_initial); }
+		MemContents స్థిరరాశి& initial_విలువ_జ్ఞాపకం() స్థిరరాశి { తిరిగి std::get<MemContents>(_initial); }
+		శూన్య సమితి_తదుపరి_విలువ(కణుపు_2 విలువ);
+		శూన్య సమితి_initial_విలువ(RTLIL::Const విలువ) { విలువ.extu(క్రమీకరించు.వెడల్పు()); _initial = std::move(విలువ); }
+		శూన్య సమితి_initial_విలువ(MemContents విలువ) { log_assert(క్రమీకరించు_2(విలువ.addr_వెడల్పు(), విలువ.దత్తాంశం_వెడల్పు()) == క్రమీకరించు); _initial = std::move(విలువ); }
 	};
 	class IR {
-		friend class Factory;
-		friend class Node;
-		friend class IRInput;
-		friend class IROutput;
-		friend class IRState;
+		మిత్ర class Factory;
+		మిత్ర class కణుపు_2;
+		మిత్ర class IRInput;
+		మిత్ర class IROutput;
+		మిత్ర class IRState;
 		// one NodeData is stored per Node, containing the function and non-node arguments
 		// note that NodeData is deduplicated by ComputeGraph
-		class NodeData {
+		class కణుపు_దత్తాంశం {
 			Fn _fn;
 			std::variant<
 				std::monostate,
 				RTLIL::Const,
 				std::pair<IdString, IdString>,
-				int
+				పూర్ణాంకం
 			> _extra;
-		public:
-			NodeData() : _fn(Fn::invalid) {}
-			NodeData(Fn fn) : _fn(fn) {}
-			template<class T> NodeData(Fn fn, T &&extra) : _fn(fn), _extra(std::forward<T>(extra)) {}
-			Fn fn() const { return _fn; }
-			const RTLIL::Const &as_const() const { return std::get<RTLIL::Const>(_extra); }
-			std::pair<IdString, IdString> as_idstring_pair() const { return std::get<std::pair<IdString, IdString>>(_extra); }
-			int as_int() const { return std::get<int>(_extra); }
-			[[nodiscard]] Hasher hash_into(Hasher h) const {
-				h.eat((unsigned int) _fn);
+		బహిరంగ:
+			కణుపు_దత్తాంశం() : _fn(Fn::invalid) {}
+			కణుపు_దత్తాంశం(Fn fn) : _fn(fn) {}
+			మూస<class T> కణుపు_దత్తాంశం(Fn fn, T &&extra) : _fn(fn), _extra(std::forward<T>(extra)) {}
+			Fn fn() స్థిరరాశి { తిరిగి _fn; }
+			స్థిరరాశి RTLIL::Const &as_const() స్థిరరాశి { తిరిగి std::get<RTLIL::Const>(_extra); }
+			std::pair<IdString, IdString> as_idstring_pair() స్థిరరాశి { తిరిగి std::get<std::pair<IdString, IdString>>(_extra); }
+			పూర్ణాంకం as_int() స్థిరరాశి { తిరిగి std::get<పూర్ణాంకం>(_extra); }
+			[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి {
+				h.eat((గుర్తులేని పూర్ణాంకం) _fn);
 				h.eat(_extra);
-				return h;
+				తిరిగి h;
 			}
-			bool operator==(NodeData const &other) const {
-				return _fn == other._fn && _extra == other._extra;
+			bool క్రియాకారకం==(కణుపు_దత్తాంశం స్థిరరాశి &other) స్థిరరాశి {
+				తిరిగి _fn == other._fn && _extra == other._extra;
 			}
 		};
 		// Attr contains all the information about a note that should not be deduplicated
-		struct Attr {
-			Sort sort;
+		నిర్మాణం Attr {
+			క్రమీకరించు_2 క్రమీకరించు;
 		};
 		// our specialised version of ComputeGraph
 		// the sparse_attr IdString stores a naming suggestion, retrieved with name()
 		// the key is currently used to identify the nodes that represent output and next state values
 		// the bool is true for next state values
-		using Graph = ComputeGraph<NodeData, Attr, IdString, std::tuple<IdString, IdString, bool>>;
-		Graph _graph;
+		using లేఖాచిత్రం = Compute_లేఖాచిత్రం<కణుపు_దత్తాంశం, Attr, IdString, std::tuple<IdString, IdString, bool>>;
+		లేఖాచిత్రం లేఖాచిత్రం_4;
 		dict<std::pair<IdString, IdString>, IRInput> _inputs;
 		dict<std::pair<IdString, IdString>, IROutput> _outputs;
-		dict<std::pair<IdString, IdString>, IRState> _states;
-		IR::Graph::Ref mutate(Node n);
-	public:
+		dict<std::pair<IdString, IdString>, IRState> స్థితులు_2;
+		IR::లేఖాచిత్రం::Ref mutate(కణుపు_2 n);
+	బహిరంగ:
 		Design *design = nullptr;
-		static IR from_module(Module *module);
+		స్థిర IR from_module(Module *module);
 		Factory factory();
-		int size() const { return _graph.size(); }
-		Node operator[](int i);
-		void topological_sort();
-		void forward_buf();
-		IRInput const& input(IdString name, IdString kind) const { return _inputs.at({name, kind}); }
-		IRInput const& input(IdString name) const { return input(name, ID($input)); }
-		IROutput const& output(IdString name, IdString kind) const { return _outputs.at({name, kind}); }
-		IROutput const& output(IdString name) const { return output(name, ID($output)); }
-		IRState const& state(IdString name, IdString kind) const { return _states.at({name, kind}); }
-		IRState const& state(IdString name) const { return state(name, ID($state)); }
-		bool has_input(IdString name, IdString kind) const { return _inputs.count({name, kind}); }
-		bool has_output(IdString name, IdString kind) const { return _outputs.count({name, kind}); }
-		bool has_state(IdString name, IdString kind) const { return _states.count({name, kind}); }
-		vector<IRInput const*> inputs(IdString kind) const;
-		vector<IRInput const*> inputs() const { return inputs(ID($input)); }
-		vector<IROutput const*> outputs(IdString kind) const;
-		vector<IROutput const*> outputs() const { return outputs(ID($output)); }
-		vector<IRState const*> states(IdString kind) const;
-		vector<IRState const*> states() const { return states(ID($state)); }
-		vector<IRInput const*> all_inputs() const;
-		vector<IROutput const*> all_outputs() const;
-		vector<IRState const*> all_states() const;
+		పూర్ణాంకం కొలత() స్థిరరాశి { తిరిగి లేఖాచిత్రం_4.కొలత(); }
+		కణుపు_2 క్రియాకారకం[](పూర్ణాంకం i);
+		శూన్య topological_క్రమీకరించు();
+		శూన్య forward_buf();
+		IRInput స్థిరరాశి& ఆదానం(IdString name, IdString రకం) స్థిరరాశి { తిరిగి _inputs.at({name, రకం}); }
+		IRInput స్థిరరాశి& ఆదానం(IdString name) స్థిరరాశి { తిరిగి ఆదానం(name, ID($ఆదానం)); }
+		IROutput స్థిరరాశి& output(IdString name, IdString రకం) స్థిరరాశి { తిరిగి _outputs.at({name, రకం}); }
+		IROutput స్థిరరాశి& output(IdString name) స్థిరరాశి { తిరిగి output(name, ID($output)); }
+		IRState స్థిరరాశి& state(IdString name, IdString రకం) స్థిరరాశి { తిరిగి స్థితులు_2.at({name, రకం}); }
+		IRState స్థిరరాశి& state(IdString name) స్థిరరాశి { తిరిగి state(name, ID($state)); }
+		bool has_ఆదానం(IdString name, IdString రకం) స్థిరరాశి { తిరిగి _inputs.లెక్క({name, రకం}); }
+		bool has_output(IdString name, IdString రకం) స్థిరరాశి { తిరిగి _outputs.లెక్క({name, రకం}); }
+		bool has_state(IdString name, IdString రకం) స్థిరరాశి { తిరిగి స్థితులు_2.లెక్క({name, రకం}); }
+		సదిశ<IRInput స్థిరరాశి*> inputs(IdString రకం) స్థిరరాశి;
+		సదిశ<IRInput స్థిరరాశి*> inputs() స్థిరరాశి { తిరిగి inputs(ID($ఆదానం)); }
+		సదిశ<IROutput స్థిరరాశి*> outputs(IdString రకం) స్థిరరాశి;
+		సదిశ<IROutput స్థిరరాశి*> outputs() స్థిరరాశి { తిరిగి outputs(ID($output)); }
+		సదిశ<IRState స్థిరరాశి*> స్థితులు(IdString రకం) స్థిరరాశి;
+		సదిశ<IRState స్థిరరాశి*> స్థితులు() స్థిరరాశి { తిరిగి స్థితులు(ID($state)); }
+		సదిశ<IRInput స్థిరరాశి*> all_inputs() స్థిరరాశి;
+		సదిశ<IROutput స్థిరరాశి*> all_outputs() స్థిరరాశి;
+		సదిశ<IRState స్థిరరాశి*> all_స్థితులు() స్థిరరాశి;
 		class iterator {
-			friend class IR;
+			మిత్ర class IR;
 			IR *_ir;
-			int _index;
-			iterator(IR *ir, int index) : _ir(ir), _index(index) {}
-		public:
-			using iterator_category = std::input_iterator_tag;
-			using value_type = Node;
-			using pointer = arrow_proxy<Node>;
-			using reference = Node;
+			పూర్ణాంకం సూచీ_3;
+			iterator(IR *ir, పూర్ణాంకం సూచీ) : _ir(ir), సూచీ_3(సూచీ) {}
+		బహిరంగ:
+			using iterator_category = std::ఆదానం_iterator_ట్యాగ్;
+			using విలువ_type = కణుపు_2;
+			using సూచిక = arrow_proxy<కణుపు_2>;
+			using reference = కణుపు_2;
 			using difference_type = ptrdiff_t;
-			Node operator*();
-			iterator &operator++() { _index++; return *this; }
-			bool operator!=(iterator const &other) const { return _ir != other._ir || _index != other._index; }
-			bool operator==(iterator const &other) const { return !(*this != other); }
-			pointer operator->();
+			కణుపు_2 క్రియాకారకం*();
+			iterator &క్రియాకారకం++() { సూచీ_3++; తిరిగి *this; }
+			bool క్రియాకారకం!=(iterator స్థిరరాశి &other) స్థిరరాశి { తిరిగి _ir != other._ir || సూచీ_3 != other.సూచీ_3; }
+			bool క్రియాకారకం==(iterator స్థిరరాశి &other) స్థిరరాశి { తిరిగి !(*this != other); }
+			సూచిక క్రియాకారకం->();
 		};
-		iterator begin() { return iterator(this, 0); }
-		iterator end() { return iterator(this, _graph.size()); }
+		iterator begin() { తిరిగి iterator(this, 0); }
+		iterator చివర() { తిరిగి iterator(this, లేఖాచిత్రం_4.కొలత()); }
 	};
 	// Node is an immutable reference to a FunctionalIR node
-	class Node {
-		friend class Factory;
-		friend class IR;
-		friend class IRInput;
-		friend class IROutput;
-		friend class IRState;
-		IR::Graph::ConstRef _ref;
-		Node(IR::Graph::ConstRef ref, Design *design) : _ref(ref), design(design) { }
-		explicit operator IR::Graph::ConstRef() { return _ref; }
-	public:
+	class కణుపు_2 {
+		మిత్ర class Factory;
+		మిత్ర class IR;
+		మిత్ర class IRInput;
+		మిత్ర class IROutput;
+		మిత్ర class IRState;
+		IR::లేఖాచిత్రం::ConstRef _ref;
+		కణుపు_2(IR::లేఖాచిత్రం::ConstRef ref, Design *design) : _ref(ref), design(design) { }
+		explicit క్రియాకారకం IR::లేఖాచిత్రం::ConstRef() { తిరిగి _ref; }
+	బహిరంగ:
 		Design *design = nullptr;
 		// the node's index. may change if nodes are added or removed
-		int id() const { return _ref.index(); }
+		పూర్ణాంకం id() స్థిరరాశి { తిరిగి _ref.సూచీ(); }
 		// a name suggestion for the node, which need not be unique
-		PooledName name() const {
-			if(_ref.has_sparse_attr())
-				return {design, _ref.sparse_attr()};
-			else
-				return {design, design->twines().add(std::string("\\n") + std::to_string(id()))};
+		PooledName name() స్థిరరాశి {
+			ఒకవేళ(_ref.has_sparse_attr())
+				తిరిగి {design, _ref.sparse_attr()};
+			లేకపోతే
+				తిరిగి {design, design->twines().కూడు(std::string("\\n") + std::గమ్యం_string(id()))};
 		}
-		Fn fn() const { return _ref.function().fn(); }
-		Sort sort() const { return _ref.attr().sort; }
+		Fn fn() స్థిరరాశి { తిరిగి _ref.function().fn(); }
+		క్రమీకరించు_2 క్రమీకరించు() స్థిరరాశి { తిరిగి _ref.attr().క్రమీకరించు; }
 		// returns the width of a bitvector node, errors out for other nodes
-		int width() const { return sort().width(); }
-		size_t arg_count() const { return _ref.size(); }
-		Node arg(int n) const { return Node(_ref.arg(n), design); }
+		పూర్ణాంకం వెడల్పు() స్థిరరాశి { తిరిగి క్రమీకరించు().వెడల్పు(); }
+		కొలత_t arg_లెక్క() స్థిరరాశి { తిరిగి _ref.కొలత(); }
+		కణుపు_2 arg(పూర్ణాంకం n) స్థిరరాశి { తిరిగి కణుపు_2(_ref.arg(n), design); }
 		// visit calls the appropriate visitor method depending on the type of the node
-		template<class Visitor> auto visit(Visitor v) const
+		మూస<class Visitor> స్వయంచాలక సందర్శించు(Visitor v) స్థిరరాశి
 		{
 			// currently templated but could be switched to AbstractVisitor &
-			switch(_ref.function().fn()) {
-			case Fn::invalid: log_error("invalid node in visit\n"); break;
-			case Fn::buf: return v.buf(*this, arg(0)); break;
-			case Fn::slice: return v.slice(*this, arg(0), _ref.function().as_int(), sort().width()); break;
-			case Fn::zero_extend: return v.zero_extend(*this, arg(0), width()); break;
-			case Fn::sign_extend: return v.sign_extend(*this, arg(0), width()); break;
-			case Fn::concat: return v.concat(*this, arg(0), arg(1)); break;
-			case Fn::add: return v.add(*this, arg(0), arg(1)); break;
-			case Fn::sub: return v.sub(*this, arg(0), arg(1)); break;
-			case Fn::mul: return v.mul(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_div: return v.unsigned_div(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_mod: return v.unsigned_mod(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_and: return v.bitwise_and(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_or: return v.bitwise_or(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_xor: return v.bitwise_xor(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_not: return v.bitwise_not(*this, arg(0)); break;
-			case Fn::unary_minus: return v.unary_minus(*this, arg(0)); break;
-			case Fn::reduce_and: return v.reduce_and(*this, arg(0)); break;
-			case Fn::reduce_or: return v.reduce_or(*this, arg(0)); break;
-			case Fn::reduce_xor: return v.reduce_xor(*this, arg(0)); break;
-			case Fn::equal: return v.equal(*this, arg(0), arg(1)); break;
-			case Fn::not_equal: return v.not_equal(*this, arg(0), arg(1)); break;
-			case Fn::signed_greater_than: return v.signed_greater_than(*this, arg(0), arg(1)); break;
-			case Fn::signed_greater_equal: return v.signed_greater_equal(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_greater_than: return v.unsigned_greater_than(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_greater_equal: return v.unsigned_greater_equal(*this, arg(0), arg(1)); break;
-			case Fn::logical_shift_left: return v.logical_shift_left(*this, arg(0), arg(1)); break;
-			case Fn::logical_shift_right: return v.logical_shift_right(*this, arg(0), arg(1)); break;
-			case Fn::arithmetic_shift_right: return v.arithmetic_shift_right(*this, arg(0), arg(1)); break;
-			case Fn::mux: return v.mux(*this, arg(0), arg(1), arg(2)); break;
-			case Fn::constant: return v.constant(*this, _ref.function().as_const()); break;
-			case Fn::input: return v.input(*this, _ref.function().as_idstring_pair().first, _ref.function().as_idstring_pair().second); break;
-			case Fn::state: return v.state(*this, _ref.function().as_idstring_pair().first, _ref.function().as_idstring_pair().second); break;
-			case Fn::memory_read: return v.memory_read(*this, arg(0), arg(1)); break;
-			case Fn::memory_write: return v.memory_write(*this, arg(0), arg(1), arg(2)); break;
+			ఎంపిక(_ref.function().fn()) {
+			స్థితి Fn::invalid: log_error("invalid node in visit\n"); ఆపు;
+			స్థితి Fn::buf: తిరిగి v.buf(*this, arg(0)); ఆపు;
+			స్థితి Fn::ముక్క: తిరిగి v.ముక్క(*this, arg(0), _ref.function().as_int(), క్రమీకరించు().వెడల్పు()); ఆపు;
+			స్థితి Fn::zero_extend: తిరిగి v.zero_extend(*this, arg(0), వెడల్పు()); ఆపు;
+			స్థితి Fn::sign_extend: తిరిగి v.sign_extend(*this, arg(0), వెడల్పు()); ఆపు;
+			స్థితి Fn::concat: తిరిగి v.concat(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::కూడు: తిరిగి v.కూడు(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::sub: తిరిగి v.sub(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::mul: తిరిగి v.mul(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::unsigned_div: తిరిగి v.unsigned_div(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::unsigned_mod: తిరిగి v.unsigned_mod(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::bitwise_and: తిరిగి v.bitwise_and(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::bitwise_or: తిరిగి v.bitwise_or(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::bitwise_xor: తిరిగి v.bitwise_xor(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::bitwise_not: తిరిగి v.bitwise_not(*this, arg(0)); ఆపు;
+			స్థితి Fn::unary_minus: తిరిగి v.unary_minus(*this, arg(0)); ఆపు;
+			స్థితి Fn::reduce_and: తిరిగి v.reduce_and(*this, arg(0)); ఆపు;
+			స్థితి Fn::reduce_or: తిరిగి v.reduce_or(*this, arg(0)); ఆపు;
+			స్థితి Fn::reduce_xor: తిరిగి v.reduce_xor(*this, arg(0)); ఆపు;
+			స్థితి Fn::equal: తిరిగి v.equal(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::not_equal: తిరిగి v.not_equal(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::signed_greater_than: తిరిగి v.signed_greater_than(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::signed_greater_equal: తిరిగి v.signed_greater_equal(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::unsigned_greater_than: తిరిగి v.unsigned_greater_than(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::unsigned_greater_equal: తిరిగి v.unsigned_greater_equal(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::logical_జరుపు_ఎడమ: తిరిగి v.logical_జరుపు_ఎడమ(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::logical_జరుపు_కుడి: తిరిగి v.logical_జరుపు_కుడి(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::arithmetic_జరుపు_కుడి: తిరిగి v.arithmetic_జరుపు_కుడి(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::mux: తిరిగి v.mux(*this, arg(0), arg(1), arg(2)); ఆపు;
+			స్థితి Fn::constant: తిరిగి v.constant(*this, _ref.function().as_const()); ఆపు;
+			స్థితి Fn::ఆదానం: తిరిగి v.ఆదానం(*this, _ref.function().as_idstring_pair().మొదటి, _ref.function().as_idstring_pair().రెండవ); ఆపు;
+			స్థితి Fn::state: తిరిగి v.state(*this, _ref.function().as_idstring_pair().మొదటి, _ref.function().as_idstring_pair().రెండవ); ఆపు;
+			స్థితి Fn::జ్ఞాపకం_read: తిరిగి v.జ్ఞాపకం_read(*this, arg(0), arg(1)); ఆపు;
+			స్థితి Fn::జ్ఞాపకం_write: తిరిగి v.జ్ఞాపకం_write(*this, arg(0), arg(1), arg(2)); ఆపు;
 			}
 			log_abort();
 		}
-		std::string to_string();
-		std::string to_string(std::function<std::string(Node)>);
+		std::string గమ్యం_string();
+		std::string గమ్యం_string(std::function<std::string(కణుపు_2)>);
 	};
-	inline IRInput::IRInput(IR &ir, IdString name, IdString kind, Sort sort)
-		: name(ir.design, name), kind(ir.design, kind), sort(std::move(sort)) {}
-	inline IROutput::IROutput(IR &ir, IdString name, IdString kind, Sort sort)
-		: _ir(ir), name(ir.design, name), kind(ir.design, kind), sort(std::move(sort)) {}
-	inline IRState::IRState(IR &ir, IdString name, IdString kind, Sort sort)
-		: _ir(ir), name(ir.design, name), kind(ir.design, kind), sort(std::move(sort)) {}
-	inline IR::Graph::Ref IR::mutate(Node n) { return _graph[n._ref.index()]; }
-	inline Node IR::operator[](int i) { return Node(_graph[i], design); }
-	inline Node IROutput::value() const { return Node(_ir._graph({name, kind, false}), _ir.design); }
-	inline bool IROutput::has_value() const { return _ir._graph.has_key({name, kind, false}); }
-	inline void IROutput::set_value(Node value) { log_assert(sort == value.sort()); _ir.mutate(value).assign_key({name, kind, false}); }
-	inline Node IRState::next_value() const { return Node(_ir._graph({name, kind, true}), _ir.design); }
-	inline bool IRState::has_next_value() const { return _ir._graph.has_key({name, kind, true}); }
-	inline void IRState::set_next_value(Node value) { log_assert(sort == value.sort()); _ir.mutate(value).assign_key({name, kind, true}); }
-	inline Node IR::iterator::operator*() { return Node(_ir->_graph[_index], _ir->design); }
-	inline arrow_proxy<Node> IR::iterator::operator->() { return arrow_proxy<Node>(**this); }
+	అంతఃవరుస IRInput::IRInput(IR &ir, IdString name, IdString రకం, క్రమీకరించు_2 క్రమీకరించు)
+		: name(ir.design, name), రకం(ir.design, రకం), క్రమీకరించు(std::move(క్రమీకరించు)) {}
+	అంతఃవరుస IROutput::IROutput(IR &ir, IdString name, IdString రకం, క్రమీకరించు_2 క్రమీకరించు)
+		: _ir(ir), name(ir.design, name), రకం(ir.design, రకం), క్రమీకరించు(std::move(క్రమీకరించు)) {}
+	అంతఃవరుస IRState::IRState(IR &ir, IdString name, IdString రకం, క్రమీకరించు_2 క్రమీకరించు)
+		: _ir(ir), name(ir.design, name), రకం(ir.design, రకం), క్రమీకరించు(std::move(క్రమీకరించు)) {}
+	అంతఃవరుస IR::లేఖాచిత్రం::Ref IR::mutate(కణుపు_2 n) { తిరిగి లేఖాచిత్రం_4[n._ref.సూచీ()]; }
+	అంతఃవరుస కణుపు_2 IR::క్రియాకారకం[](పూర్ణాంకం i) { తిరిగి కణుపు_2(లేఖాచిత్రం_4[i], design); }
+	అంతఃవరుస కణుపు_2 IROutput::విలువ() స్థిరరాశి { తిరిగి కణుపు_2(_ir.లేఖాచిత్రం_4({name, రకం, false}), _ir.design); }
+	అంతఃవరుస bool IROutput::has_విలువ() స్థిరరాశి { తిరిగి _ir.లేఖాచిత్రం_4.has_కీలకం({name, రకం, false}); }
+	అంతఃవరుస శూన్య IROutput::సమితి_విలువ(కణుపు_2 విలువ) { log_assert(క్రమీకరించు == విలువ.క్రమీకరించు()); _ir.mutate(విలువ).కేటాయించు_కీలకం({name, రకం, false}); }
+	అంతఃవరుస కణుపు_2 IRState::తదుపరి_విలువ() స్థిరరాశి { తిరిగి కణుపు_2(_ir.లేఖాచిత్రం_4({name, రకం, true}), _ir.design); }
+	అంతఃవరుస bool IRState::has_తదుపరి_విలువ() స్థిరరాశి { తిరిగి _ir.లేఖాచిత్రం_4.has_కీలకం({name, రకం, true}); }
+	అంతఃవరుస శూన్య IRState::సమితి_తదుపరి_విలువ(కణుపు_2 విలువ) { log_assert(క్రమీకరించు == విలువ.క్రమీకరించు()); _ir.mutate(విలువ).కేటాయించు_కీలకం({name, రకం, true}); }
+	అంతఃవరుస కణుపు_2 IR::iterator::క్రియాకారకం*() { తిరిగి కణుపు_2(_ir->లేఖాచిత్రం_4[సూచీ_3], _ir->design); }
+	అంతఃవరుస arrow_proxy<కణుపు_2> IR::iterator::క్రియాకారకం->() { తిరిగి arrow_proxy<కణుపు_2>(**this); }
 	// AbstractVisitor provides an abstract base class for visitors
-	template<class T> struct AbstractVisitor {
-		virtual T buf(Node self, Node n) = 0;
-		virtual T slice(Node self, Node a, int offset, int out_width) = 0;
-		virtual T zero_extend(Node self, Node a, int out_width) = 0;
-		virtual T sign_extend(Node self, Node a, int out_width) = 0;
-		virtual T concat(Node self, Node a, Node b) = 0;
-		virtual T add(Node self, Node a, Node b) = 0;
-		virtual T sub(Node self, Node a, Node b) = 0;
-		virtual T mul(Node self, Node a, Node b) = 0;
-		virtual T unsigned_div(Node self, Node a, Node b) = 0;
-		virtual T unsigned_mod(Node self, Node a, Node b) = 0;
-		virtual T bitwise_and(Node self, Node a, Node b) = 0;
-		virtual T bitwise_or(Node self, Node a, Node b) = 0;
-		virtual T bitwise_xor(Node self, Node a, Node b) = 0;
-		virtual T bitwise_not(Node self, Node a) = 0;
-		virtual T unary_minus(Node self, Node a) = 0;
-		virtual T reduce_and(Node self, Node a) = 0;
-		virtual T reduce_or(Node self, Node a) = 0;
-		virtual T reduce_xor(Node self, Node a) = 0;
-		virtual T equal(Node self, Node a, Node b) = 0;
-		virtual T not_equal(Node self, Node a, Node b) = 0;
-		virtual T signed_greater_than(Node self, Node a, Node b) = 0;
-		virtual T signed_greater_equal(Node self, Node a, Node b) = 0;
-		virtual T unsigned_greater_than(Node self, Node a, Node b) = 0;
-		virtual T unsigned_greater_equal(Node self, Node a, Node b) = 0;
-		virtual T logical_shift_left(Node self, Node a, Node b) = 0;
-		virtual T logical_shift_right(Node self, Node a, Node b) = 0;
-		virtual T arithmetic_shift_right(Node self, Node a, Node b) = 0;
-		virtual T mux(Node self, Node a, Node b, Node s) = 0;
-		virtual T constant(Node self, RTLIL::Const const & value) = 0;
-		virtual T input(Node self, IdString name, IdString kind) = 0;
-		virtual T state(Node self, IdString name, IdString kind) = 0;
-		virtual T memory_read(Node self, Node mem, Node addr) = 0;
-		virtual T memory_write(Node self, Node mem, Node addr, Node data) = 0;
+	మూస<class T> నిర్మాణం AbstractVisitor {
+		మాయా T buf(కణుపు_2 self, కణుపు_2 n) = 0;
+		మాయా T ముక్క(కణుపు_2 self, కణుపు_2 a, పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం బహిర్గతం_వెడల్పు) = 0;
+		మాయా T zero_extend(కణుపు_2 self, కణుపు_2 a, పూర్ణాంకం బహిర్గతం_వెడల్పు) = 0;
+		మాయా T sign_extend(కణుపు_2 self, కణుపు_2 a, పూర్ణాంకం బహిర్గతం_వెడల్పు) = 0;
+		మాయా T concat(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T కూడు(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T sub(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T mul(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T unsigned_div(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T unsigned_mod(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T bitwise_and(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T bitwise_or(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T bitwise_xor(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T bitwise_not(కణుపు_2 self, కణుపు_2 a) = 0;
+		మాయా T unary_minus(కణుపు_2 self, కణుపు_2 a) = 0;
+		మాయా T reduce_and(కణుపు_2 self, కణుపు_2 a) = 0;
+		మాయా T reduce_or(కణుపు_2 self, కణుపు_2 a) = 0;
+		మాయా T reduce_xor(కణుపు_2 self, కణుపు_2 a) = 0;
+		మాయా T equal(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T not_equal(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T signed_greater_than(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T signed_greater_equal(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T unsigned_greater_than(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T unsigned_greater_equal(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T logical_జరుపు_ఎడమ(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T logical_జరుపు_కుడి(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T arithmetic_జరుపు_కుడి(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b) = 0;
+		మాయా T mux(కణుపు_2 self, కణుపు_2 a, కణుపు_2 b, కణుపు_2 s) = 0;
+		మాయా T constant(కణుపు_2 self, RTLIL::Const స్థిరరాశి & విలువ) = 0;
+		మాయా T ఆదానం(కణుపు_2 self, IdString name, IdString రకం) = 0;
+		మాయా T state(కణుపు_2 self, IdString name, IdString రకం) = 0;
+		మాయా T జ్ఞాపకం_read(కణుపు_2 self, కణుపు_2 mem, కణుపు_2 addr) = 0;
+		మాయా T జ్ఞాపకం_write(కణుపు_2 self, కణుపు_2 mem, కణుపు_2 addr, కణుపు_2 దత్తాంశం) = 0;
 	};
 	// DefaultVisitor provides defaults for all visitor methods which just calls default_handler
-	template<class T> struct DefaultVisitor : public AbstractVisitor<T> {
-		virtual T default_handler(Node self) = 0;
-		T buf(Node self, Node) override { return default_handler(self); }
-		T slice(Node self, Node, int, int) override { return default_handler(self); }
-		T zero_extend(Node self, Node, int) override { return default_handler(self); }
-		T sign_extend(Node self, Node, int) override { return default_handler(self); }
-		T concat(Node self, Node, Node) override { return default_handler(self); }
-		T add(Node self, Node, Node) override { return default_handler(self); }
-		T sub(Node self, Node, Node) override { return default_handler(self); }
-		T mul(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_div(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_mod(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_and(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_or(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_xor(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_not(Node self, Node) override { return default_handler(self); }
-		T unary_minus(Node self, Node) override { return default_handler(self); }
-		T reduce_and(Node self, Node) override { return default_handler(self); }
-		T reduce_or(Node self, Node) override { return default_handler(self); }
-		T reduce_xor(Node self, Node) override { return default_handler(self); }
-		T equal(Node self, Node, Node) override { return default_handler(self); }
-		T not_equal(Node self, Node, Node) override { return default_handler(self); }
-		T signed_greater_than(Node self, Node, Node) override { return default_handler(self); }
-		T signed_greater_equal(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_greater_than(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_greater_equal(Node self, Node, Node) override { return default_handler(self); }
-		T logical_shift_left(Node self, Node, Node) override { return default_handler(self); }
-		T logical_shift_right(Node self, Node, Node) override { return default_handler(self); }
-		T arithmetic_shift_right(Node self, Node, Node) override { return default_handler(self); }
-		T mux(Node self, Node, Node, Node) override { return default_handler(self); }
-		T constant(Node self, RTLIL::Const const &) override { return default_handler(self); }
-		T input(Node self, IdString, IdString) override { return default_handler(self); }
-		T state(Node self, IdString, IdString) override { return default_handler(self); }
-		T memory_read(Node self, Node, Node) override { return default_handler(self); }
-		T memory_write(Node self, Node, Node, Node) override { return default_handler(self); }
+	మూస<class T> నిర్మాణం DefaultVisitor : బహిరంగ AbstractVisitor<T> {
+		మాయా T default_handler(కణుపు_2 self) = 0;
+		T buf(కణుపు_2 self, కణుపు_2) override { తిరిగి default_handler(self); }
+		T ముక్క(కణుపు_2 self, కణుపు_2, పూర్ణాంకం, పూర్ణాంకం) override { తిరిగి default_handler(self); }
+		T zero_extend(కణుపు_2 self, కణుపు_2, పూర్ణాంకం) override { తిరిగి default_handler(self); }
+		T sign_extend(కణుపు_2 self, కణుపు_2, పూర్ణాంకం) override { తిరిగి default_handler(self); }
+		T concat(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T కూడు(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T sub(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T mul(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T unsigned_div(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T unsigned_mod(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T bitwise_and(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T bitwise_or(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T bitwise_xor(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T bitwise_not(కణుపు_2 self, కణుపు_2) override { తిరిగి default_handler(self); }
+		T unary_minus(కణుపు_2 self, కణుపు_2) override { తిరిగి default_handler(self); }
+		T reduce_and(కణుపు_2 self, కణుపు_2) override { తిరిగి default_handler(self); }
+		T reduce_or(కణుపు_2 self, కణుపు_2) override { తిరిగి default_handler(self); }
+		T reduce_xor(కణుపు_2 self, కణుపు_2) override { తిరిగి default_handler(self); }
+		T equal(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T not_equal(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T signed_greater_than(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T signed_greater_equal(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T unsigned_greater_than(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T unsigned_greater_equal(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T logical_జరుపు_ఎడమ(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T logical_జరుపు_కుడి(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T arithmetic_జరుపు_కుడి(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T mux(కణుపు_2 self, కణుపు_2, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T constant(కణుపు_2 self, RTLIL::Const స్థిరరాశి &) override { తిరిగి default_handler(self); }
+		T ఆదానం(కణుపు_2 self, IdString, IdString) override { తిరిగి default_handler(self); }
+		T state(కణుపు_2 self, IdString, IdString) override { తిరిగి default_handler(self); }
+		T జ్ఞాపకం_read(కణుపు_2 self, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
+		T జ్ఞాపకం_write(కణుపు_2 self, కణుపు_2, కణుపు_2, కణుపు_2) override { తిరిగి default_handler(self); }
 	};
 	// a factory is used to modify a FunctionalIR. it creates new nodes and allows for some modification of existing nodes.
 	class Factory {
-		friend class IR;
+		మిత్ర class IR;
 		IR &_ir;
 		explicit Factory(IR &ir) : _ir(ir) {}
-		Node add(IR::NodeData &&fn, Sort const &sort, std::initializer_list<Node> args) {
-			log_assert(!sort.is_signal() || sort.width() > 0);
-			log_assert(!sort.is_memory() || (sort.addr_width() > 0 && sort.data_width() > 0));
-			IR::Graph::Ref ref = _ir._graph.add(std::move(fn), {std::move(sort)});
-			for (auto arg : args)
-				ref.append_arg(IR::Graph::ConstRef(arg));
-			return Node(ref, _ir.design);
+		కణుపు_2 కూడు(IR::కణుపు_దత్తాంశం &&fn, క్రమీకరించు_2 స్థిరరాశి &క్రమీకరించు, std::initializer_list<కణుపు_2> వాదనలు_2) {
+			log_assert(!క్రమీకరించు.is_signal() || క్రమీకరించు.వెడల్పు() > 0);
+			log_assert(!క్రమీకరించు.is_జ్ఞాపకం() || (క్రమీకరించు.addr_వెడల్పు() > 0 && క్రమీకరించు.దత్తాంశం_వెడల్పు() > 0));
+			IR::లేఖాచిత్రం::Ref ref = _ir.లేఖాచిత్రం_4.కూడు(std::move(fn), {std::move(క్రమీకరించు)});
+			కొరకు (స్వయంచాలక arg : వాదనలు_2)
+				ref.append_arg(IR::లేఖాచిత్రం::ConstRef(arg));
+			తిరిగి కణుపు_2(ref, _ir.design);
 		}
-		void check_basic_binary(Node const &a, Node const &b) { log_assert(a.sort().is_signal() && a.sort() == b.sort()); }
-		void check_shift(Node const &a, Node const &b) { log_assert(a.sort().is_signal() && b.sort().is_signal() && b.width() == ceil_log2(a.width())); }
-		void check_unary(Node const &a) { log_assert(a.sort().is_signal()); }
-	public:
-		IR &ir() { return _ir; }
-		Node slice(Node a, int offset, int out_width) {
-			log_assert(a.sort().is_signal() && offset + out_width <= a.sort().width());
-			if(offset == 0 && out_width == a.width())
-				return a;
-			return add(IR::NodeData(Fn::slice, offset), Sort(out_width), {a});
+		శూన్య check_basic_ద్విమాన(కణుపు_2 స్థిరరాశి &a, కణుపు_2 స్థిరరాశి &b) { log_assert(a.క్రమీకరించు().is_signal() && a.క్రమీకరించు() == b.క్రమీకరించు()); }
+		శూన్య check_జరుపు(కణుపు_2 స్థిరరాశి &a, కణుపు_2 స్థిరరాశి &b) { log_assert(a.క్రమీకరించు().is_signal() && b.క్రమీకరించు().is_signal() && b.వెడల్పు() == ceil_log2(a.వెడల్పు())); }
+		శూన్య check_unary(కణుపు_2 స్థిరరాశి &a) { log_assert(a.క్రమీకరించు().is_signal()); }
+	బహిరంగ:
+		IR &ir() { తిరిగి _ir; }
+		కణుపు_2 ముక్క(కణుపు_2 a, పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం బహిర్గతం_వెడల్పు) {
+			log_assert(a.క్రమీకరించు().is_signal() && స్థానభ్రంశం + బహిర్గతం_వెడల్పు <= a.క్రమీకరించు().వెడల్పు());
+			ఒకవేళ(స్థానభ్రంశం == 0 && బహిర్గతం_వెడల్పు == a.వెడల్పు())
+				తిరిగి a;
+			తిరిగి కూడు(IR::కణుపు_దత్తాంశం(Fn::ముక్క, స్థానభ్రంశం), క్రమీకరించు_2(బహిర్గతం_వెడల్పు), {a});
 		}
 		// extend will either extend or truncate the provided value to reach the desired width
-		Node extend(Node a, int out_width, bool is_signed) {
-			int in_width = a.sort().width();
-			log_assert(a.sort().is_signal());
-			if(in_width == out_width)
-				return a;
-			if(in_width > out_width)
-				return slice(a, 0, out_width);
-			if(is_signed)
-				return add(Fn::sign_extend, Sort(out_width), {a});
-			else
-				return add(Fn::zero_extend, Sort(out_width), {a});
+		కణుపు_2 extend(కణుపు_2 a, పూర్ణాంకం బహిర్గతం_వెడల్పు, bool is_signed) {
+			పూర్ణాంకం లోపల_వెడల్పు = a.క్రమీకరించు().వెడల్పు();
+			log_assert(a.క్రమీకరించు().is_signal());
+			ఒకవేళ(లోపల_వెడల్పు == బహిర్గతం_వెడల్పు)
+				తిరిగి a;
+			ఒకవేళ(లోపల_వెడల్పు > బహిర్గతం_వెడల్పు)
+				తిరిగి ముక్క(a, 0, బహిర్గతం_వెడల్పు);
+			ఒకవేళ(is_signed)
+				తిరిగి కూడు(Fn::sign_extend, క్రమీకరించు_2(బహిర్గతం_వెడల్పు), {a});
+			లేకపోతే
+				తిరిగి కూడు(Fn::zero_extend, క్రమీకరించు_2(బహిర్గతం_వెడల్పు), {a});
 		}
-		Node concat(Node a, Node b) {
-			log_assert(a.sort().is_signal() && b.sort().is_signal());
-			return add(Fn::concat, Sort(a.sort().width() + b.sort().width()), {a, b});
+		కణుపు_2 concat(కణుపు_2 a, కణుపు_2 b) {
+			log_assert(a.క్రమీకరించు().is_signal() && b.క్రమీకరించు().is_signal());
+			తిరిగి కూడు(Fn::concat, క్రమీకరించు_2(a.క్రమీకరించు().వెడల్పు() + b.క్రమీకరించు().వెడల్పు()), {a, b});
 		}
-		Node add(Node a, Node b) { check_basic_binary(a, b); return add(Fn::add, a.sort(), {a, b}); }
-		Node sub(Node a, Node b) { check_basic_binary(a, b); return add(Fn::sub, a.sort(), {a, b}); }
-		Node mul(Node a, Node b) { check_basic_binary(a, b); return add(Fn::mul, a.sort(), {a, b}); }
-		Node unsigned_div(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_div, a.sort(), {a, b}); }
-		Node unsigned_mod(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_mod, a.sort(), {a, b}); }
-		Node bitwise_and(Node a, Node b) { check_basic_binary(a, b); return add(Fn::bitwise_and, a.sort(), {a, b}); }
-		Node bitwise_or(Node a, Node b) { check_basic_binary(a, b); return add(Fn::bitwise_or, a.sort(), {a, b}); }
-		Node bitwise_xor(Node a, Node b) { check_basic_binary(a, b); return add(Fn::bitwise_xor, a.sort(), {a, b}); }
-		Node bitwise_not(Node a) { check_unary(a); return add(Fn::bitwise_not, a.sort(), {a}); }
-		Node unary_minus(Node a) { check_unary(a); return add(Fn::unary_minus, a.sort(), {a}); }
-		Node reduce_and(Node a) {
+		కణుపు_2 కూడు(కణుపు_2 a, కణుపు_2 b) { check_basic_ద్విమాన(a, b); తిరిగి కూడు(Fn::కూడు, a.క్రమీకరించు(), {a, b}); }
+		కణుపు_2 sub(కణుపు_2 a, కణుపు_2 b) { check_basic_ద్విమాన(a, b); తిరిగి కూడు(Fn::sub, a.క్రమీకరించు(), {a, b}); }
+		కణుపు_2 mul(కణుపు_2 a, కణుపు_2 b) { check_basic_ద్విమాన(a, b); తిరిగి కూడు(Fn::mul, a.క్రమీకరించు(), {a, b}); }
+		కణుపు_2 unsigned_div(కణుపు_2 a, కణుపు_2 b) { check_basic_ద్విమాన(a, b); తిరిగి కూడు(Fn::unsigned_div, a.క్రమీకరించు(), {a, b}); }
+		కణుపు_2 unsigned_mod(కణుపు_2 a, కణుపు_2 b) { check_basic_ద్విమాన(a, b); తిరిగి కూడు(Fn::unsigned_mod, a.క్రమీకరించు(), {a, b}); }
+		కణుపు_2 bitwise_and(కణుపు_2 a, కణుపు_2 b) { check_basic_ద్విమాన(a, b); తిరిగి కూడు(Fn::bitwise_and, a.క్రమీకరించు(), {a, b}); }
+		కణుపు_2 bitwise_or(కణుపు_2 a, కణుపు_2 b) { check_basic_ద్విమాన(a, b); తిరిగి కూడు(Fn::bitwise_or, a.క్రమీకరించు(), {a, b}); }
+		కణుపు_2 bitwise_xor(కణుపు_2 a, కణుపు_2 b) { check_basic_ద్విమాన(a, b); తిరిగి కూడు(Fn::bitwise_xor, a.క్రమీకరించు(), {a, b}); }
+		కణుపు_2 bitwise_not(కణుపు_2 a) { check_unary(a); తిరిగి కూడు(Fn::bitwise_not, a.క్రమీకరించు(), {a}); }
+		కణుపు_2 unary_minus(కణుపు_2 a) { check_unary(a); తిరిగి కూడు(Fn::unary_minus, a.క్రమీకరించు(), {a}); }
+		కణుపు_2 reduce_and(కణుపు_2 a) {
 			check_unary(a);
-			if(a.width() == 1)
-				return a;
-			return add(Fn::reduce_and, Sort(1), {a});
+			ఒకవేళ(a.వెడల్పు() == 1)
+				తిరిగి a;
+			తిరిగి కూడు(Fn::reduce_and, క్రమీకరించు_2(1), {a});
 		}
-		Node reduce_or(Node a) {
+		కణుపు_2 reduce_or(కణుపు_2 a) {
 			check_unary(a);
-			if(a.width() == 1)
-				return a;
-			return add(Fn::reduce_or, Sort(1), {a});
+			ఒకవేళ(a.వెడల్పు() == 1)
+				తిరిగి a;
+			తిరిగి కూడు(Fn::reduce_or, క్రమీకరించు_2(1), {a});
 		}
-		Node reduce_xor(Node a) {
+		కణుపు_2 reduce_xor(కణుపు_2 a) {
 			check_unary(a);
-			if(a.width() == 1)
-				return a;
-			return add(Fn::reduce_xor, Sort(1), {a});
+			ఒకవేళ(a.వెడల్పు() == 1)
+				తిరిగి a;
+			తిరిగి కూడు(Fn::reduce_xor, క్రమీకరించు_2(1), {a});
 		}
-		Node equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::equal, Sort(1), {a, b}); }
-		Node not_equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::not_equal, Sort(1), {a, b}); }
-		Node signed_greater_than(Node a, Node b) { check_basic_binary(a, b); return add(Fn::signed_greater_than, Sort(1), {a, b}); }
-		Node signed_greater_equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::signed_greater_equal, Sort(1), {a, b}); }
-		Node unsigned_greater_than(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_greater_than, Sort(1), {a, b}); }
-		Node unsigned_greater_equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_greater_equal, Sort(1), {a, b}); }
-		Node logical_shift_left(Node a, Node b) { check_shift(a, b); return add(Fn::logical_shift_left, a.sort(), {a, b}); }
-		Node logical_shift_right(Node a, Node b) { check_shift(a, b); return add(Fn::logical_shift_right, a.sort(), {a, b}); }
-		Node arithmetic_shift_right(Node a, Node b) { check_shift(a, b); return add(Fn::arithmetic_shift_right, a.sort(), {a, b}); }
-		Node mux(Node a, Node b, Node s) {
-			log_assert(a.sort().is_signal() && a.sort() == b.sort() && s.sort() == Sort(1));
-			return add(Fn::mux, a.sort(), {a, b, s});
+		కణుపు_2 equal(కణుపు_2 a, కణుపు_2 b) { check_basic_ద్విమాన(a, b); తిరిగి కూడు(Fn::equal, క్రమీకరించు_2(1), {a, b}); }
+		కణుపు_2 not_equal(కణుపు_2 a, కణుపు_2 b) { check_basic_ద్విమాన(a, b); తిరిగి కూడు(Fn::not_equal, క్రమీకరించు_2(1), {a, b}); }
+		కణుపు_2 signed_greater_than(కణుపు_2 a, కణుపు_2 b) { check_basic_ద్విమాన(a, b); తిరిగి కూడు(Fn::signed_greater_than, క్రమీకరించు_2(1), {a, b}); }
+		కణుపు_2 signed_greater_equal(కణుపు_2 a, కణుపు_2 b) { check_basic_ద్విమాన(a, b); తిరిగి కూడు(Fn::signed_greater_equal, క్రమీకరించు_2(1), {a, b}); }
+		కణుపు_2 unsigned_greater_than(కణుపు_2 a, కణుపు_2 b) { check_basic_ద్విమాన(a, b); తిరిగి కూడు(Fn::unsigned_greater_than, క్రమీకరించు_2(1), {a, b}); }
+		కణుపు_2 unsigned_greater_equal(కణుపు_2 a, కణుపు_2 b) { check_basic_ద్విమాన(a, b); తిరిగి కూడు(Fn::unsigned_greater_equal, క్రమీకరించు_2(1), {a, b}); }
+		కణుపు_2 logical_జరుపు_ఎడమ(కణుపు_2 a, కణుపు_2 b) { check_జరుపు(a, b); తిరిగి కూడు(Fn::logical_జరుపు_ఎడమ, a.క్రమీకరించు(), {a, b}); }
+		కణుపు_2 logical_జరుపు_కుడి(కణుపు_2 a, కణుపు_2 b) { check_జరుపు(a, b); తిరిగి కూడు(Fn::logical_జరుపు_కుడి, a.క్రమీకరించు(), {a, b}); }
+		కణుపు_2 arithmetic_జరుపు_కుడి(కణుపు_2 a, కణుపు_2 b) { check_జరుపు(a, b); తిరిగి కూడు(Fn::arithmetic_జరుపు_కుడి, a.క్రమీకరించు(), {a, b}); }
+		కణుపు_2 mux(కణుపు_2 a, కణుపు_2 b, కణుపు_2 s) {
+			log_assert(a.క్రమీకరించు().is_signal() && a.క్రమీకరించు() == b.క్రమీకరించు() && s.క్రమీకరించు() == క్రమీకరించు_2(1));
+			తిరిగి కూడు(Fn::mux, a.క్రమీకరించు(), {a, b, s});
 		}
-		Node memory_read(Node mem, Node addr) {
-			log_assert(mem.sort().is_memory() && addr.sort().is_signal() && mem.sort().addr_width() == addr.sort().width());
-			return add(Fn::memory_read, Sort(mem.sort().data_width()), {mem, addr});
+		కణుపు_2 జ్ఞాపకం_read(కణుపు_2 mem, కణుపు_2 addr) {
+			log_assert(mem.క్రమీకరించు().is_జ్ఞాపకం() && addr.క్రమీకరించు().is_signal() && mem.క్రమీకరించు().addr_వెడల్పు() == addr.క్రమీకరించు().వెడల్పు());
+			తిరిగి కూడు(Fn::జ్ఞాపకం_read, క్రమీకరించు_2(mem.క్రమీకరించు().దత్తాంశం_వెడల్పు()), {mem, addr});
 		}
-		Node memory_write(Node mem, Node addr, Node data) {
-			log_assert(mem.sort().is_memory() && addr.sort().is_signal() && data.sort().is_signal() &&
-				mem.sort().addr_width() == addr.sort().width() && mem.sort().data_width() == data.sort().width());
-			return add(Fn::memory_write, mem.sort(), {mem, addr, data});
+		కణుపు_2 జ్ఞాపకం_write(కణుపు_2 mem, కణుపు_2 addr, కణుపు_2 దత్తాంశం) {
+			log_assert(mem.క్రమీకరించు().is_జ్ఞాపకం() && addr.క్రమీకరించు().is_signal() && దత్తాంశం.క్రమీకరించు().is_signal() &&
+				mem.క్రమీకరించు().addr_వెడల్పు() == addr.క్రమీకరించు().వెడల్పు() && mem.క్రమీకరించు().దత్తాంశం_వెడల్పు() == దత్తాంశం.క్రమీకరించు().వెడల్పు());
+			తిరిగి కూడు(Fn::జ్ఞాపకం_write, mem.క్రమీకరించు(), {mem, addr, దత్తాంశం});
 		}
-		Node constant(RTLIL::Const value) {
-			int s = value.size();
-			return add(IR::NodeData(Fn::constant, std::move(value)), Sort(s), {});
+		కణుపు_2 constant(RTLIL::Const విలువ) {
+			పూర్ణాంకం s = విలువ.కొలత();
+			తిరిగి కూడు(IR::కణుపు_దత్తాంశం(Fn::constant, std::move(విలువ)), క్రమీకరించు_2(s), {});
 		}
-		Node create_pending(int width) {
-			return add(Fn::buf, Sort(width), {});
+		కణుపు_2 create_pending(పూర్ణాంకం వెడల్పు) {
+			తిరిగి కూడు(Fn::buf, క్రమీకరించు_2(వెడల్పు), {});
 		}
-		void update_pending(Node node, Node value) {
-			log_assert(node._ref.function() == Fn::buf && node._ref.size() == 0);
-			log_assert(node.sort() == value.sort());
-			_ir.mutate(node).append_arg(value._ref);
+		శూన్య update_pending(కణుపు_2 కణుపు, కణుపు_2 విలువ) {
+			log_assert(కణుపు._ref.function() == Fn::buf && కణుపు._ref.కొలత() == 0);
+			log_assert(కణుపు.క్రమీకరించు() == విలువ.క్రమీకరించు());
+			_ir.mutate(కణుపు).append_arg(విలువ._ref);
 		}
-		IRInput &add_input(IdString name, IdString kind, Sort sort) {
-			auto [it, inserted] = _ir._inputs.emplace({name, kind}, IRInput(_ir, name, kind, std::move(sort)));
-			if (!inserted) log_error("input `%s` was re-defined\n", _ir.design->twines().str(name));
-			return it->second;
+		IRInput &కూడు_ఆదానం(IdString name, IdString రకం, క్రమీకరించు_2 క్రమీకరించు) {
+			స్వయంచాలక [it, inserted] = _ir._inputs.emplace({name, రకం}, IRInput(_ir, name, రకం, std::move(క్రమీకరించు)));
+			ఒకవేళ (!inserted) log_error("input `%s` was re-defined\n", _ir.design->twines().str(name));
+			తిరిగి it->రెండవ;
 		}
-		IROutput &add_output(IdString name, IdString kind, Sort sort) {
-			auto [it, inserted] = _ir._outputs.emplace({name, kind}, IROutput(_ir, name, kind, std::move(sort)));
-			if (!inserted) log_error("output `%s` was re-defined\n", _ir.design->twines().str(name));
-			return it->second;
+		IROutput &కూడు_output(IdString name, IdString రకం, క్రమీకరించు_2 క్రమీకరించు) {
+			స్వయంచాలక [it, inserted] = _ir._outputs.emplace({name, రకం}, IROutput(_ir, name, రకం, std::move(క్రమీకరించు)));
+			ఒకవేళ (!inserted) log_error("output `%s` was re-defined\n", _ir.design->twines().str(name));
+			తిరిగి it->రెండవ;
 		}
-		IRState &add_state(IdString name, IdString kind, Sort sort) {
-			auto [it, inserted] = _ir._states.emplace({name, kind}, IRState(_ir, name, kind, std::move(sort)));
-			if (!inserted) log_error("state `%s` was re-defined\n", _ir.design->twines().str(name));
-			return it->second;
+		IRState &కూడు_state(IdString name, IdString రకం, క్రమీకరించు_2 క్రమీకరించు) {
+			స్వయంచాలక [it, inserted] = _ir.స్థితులు_2.emplace({name, రకం}, IRState(_ir, name, రకం, std::move(క్రమీకరించు)));
+			ఒకవేళ (!inserted) log_error("state `%s` was re-defined\n", _ir.design->twines().str(name));
+			తిరిగి it->రెండవ;
 		}
-		Node value(IRInput const& input) {
-			return add(IR::NodeData(Fn::input, std::pair(input.name, input.kind)), input.sort, {});
+		కణుపు_2 విలువ(IRInput స్థిరరాశి& ఆదానం) {
+			తిరిగి కూడు(IR::కణుపు_దత్తాంశం(Fn::ఆదానం, std::pair(ఆదానం.name, ఆదానం.రకం)), ఆదానం.క్రమీకరించు, {});
 		}
-		Node value(IRState const& state) {
-			return add(IR::NodeData(Fn::state, std::pair(state.name, state.kind)), state.sort, {});
+		కణుపు_2 విలువ(IRState స్థిరరాశి& state) {
+			తిరిగి కూడు(IR::కణుపు_దత్తాంశం(Fn::state, std::pair(state.name, state.రకం)), state.క్రమీకరించు, {});
 		}
-		void suggest_name(Node node, IdString name) {
-			_ir.mutate(node).sparse_attr() = name;
+		శూన్య suggest_name(కణుపు_2 కణుపు, IdString name) {
+			_ir.mutate(కణుపు).sparse_attr() = name;
 		}
 		YS_NAME_FWD_2ND_POOL(suggest_name, _ir.design->twines())
 	};
-	inline Factory IR::factory() { return Factory(*this); }
-	template<class Id> class Scope {
-	protected:
-		char substitution_character = '_';
-		virtual bool is_character_legal(char, int) = 0;
-	private:
-		pool<std::string> _used_names;
+	అంతఃవరుస Factory IR::factory() { తిరిగి Factory(*this); }
+	మూస<class Id> class Scope {
+	రక్షిత:
+		అక్షరం substitution_character = '_';
+		మాయా bool is_character_legal(అక్షరం, పూర్ణాంకం) = 0;
+	అంతరంగ:
+		pool<std::string> వాడిన_పేర్లు;
 		dict<Id, std::string> _by_id;
-	public:
-		void reserve(std::string name) {
-			_used_names.insert(std::move(name));
+	బహిరంగ:
+		శూన్య reserve(std::string name) {
+			వాడిన_పేర్లు.చొప్పించు(std::move(name));
 		}
-		template<typename N> std::string unique_name(const N &suggestion) {
+		మూస<typename N> std::string unique_name(స్థిరరాశి N &suggestion) {
 			std::string str = RTLIL::unescape_id(suggestion);
-			for(size_t i = 0; i < str.size(); i++)
-				if(!is_character_legal(str[i], i))
+			కొరకు(కొలత_t i = 0; i < str.కొలత(); i++)
+				ఒకవేళ(!is_character_legal(str[i], i))
 					str[i] = substitution_character;
-			if(_used_names.count(str) == 0) {
-				_used_names.insert(str);
-				return str;
+			ఒకవేళ(వాడిన_పేర్లు.లెక్క(str) == 0) {
+				వాడిన_పేర్లు.చొప్పించు(str);
+				తిరిగి str;
 			}
-			for (int idx = 0 ; ; idx++){
-				std::string suffixed = str + "_" + std::to_string(idx);
-				if(_used_names.count(suffixed) == 0) {
-					_used_names.insert(suffixed);
-					return suffixed;
+			కొరకు (పూర్ణాంకం idx = 0 ; ; idx++){
+				std::string suffixed = str + "_" + std::గమ్యం_string(idx);
+				ఒకవేళ(వాడిన_పేర్లు.లెక్క(suffixed) == 0) {
+					వాడిన_పేర్లు.చొప్పించు(suffixed);
+					తిరిగి suffixed;
 				}
 			}
 		}
-		template<typename N> std::string operator()(Id id, const N &suggestion) {
-			auto it = _by_id.find(id);
-			if(it != _by_id.end())
-				return it->second;
+		మూస<typename N> std::string క్రియాకారకం()(Id id, స్థిరరాశి N &suggestion) {
+			స్వయంచాలక it = _by_id.కనుగొను(id);
+			ఒకవేళ(it != _by_id.చివర())
+				తిరిగి it->రెండవ;
 			std::string str = unique_name(suggestion);
-			_by_id.insert({id, str});
-			return str;
+			_by_id.చొప్పించు({id, str});
+			తిరిగి str;
 		}
 	};
 	class Writer {
 		std::ostream *os;
-		void print_impl(const char *fmt, vector<std::function<void()>>& fns);
-	public:
+		శూన్య print_impl(స్థిరరాశి అక్షరం *fmt, సదిశ<std::function<శూన్య()>>& fns);
+	బహిరంగ:
 		Writer(std::ostream &os) : os(&os) {}
-		template<class T> Writer& operator <<(T&& arg) { *os << std::forward<T>(arg); return *this; }
-		template<typename... Args>
-		void print(const char *fmt, Args&&... args)
+		మూస<class T> Writer& క్రియాకారకం <<(T&& arg) { *os << std::forward<T>(arg); తిరిగి *this; }
+		మూస<typename... వాదనలు_3>
+		శూన్య print(స్థిరరాశి అక్షరం *fmt, వాదనలు_3&&... వాదనలు_2)
 		{
-			vector<std::function<void()>> fns { [&]() { *this << args; }... };
+			సదిశ<std::function<శూన్య()>> fns { [&]() { *this << వాదనలు_2; }... };
 			print_impl(fmt, fns);
 		}
-		template<typename Fn, typename... Args>
-		void print_with(Fn fn, const char *fmt, Args&&... args)
+		మూస<typename Fn, typename... వాదనలు_3>
+		శూన్య print_with(Fn fn, స్థిరరాశి అక్షరం *fmt, వాదనలు_3&&... వాదనలు_2)
 		{
-			vector<std::function<void()>> fns { [&]() {
-				if constexpr (std::is_invocable_v<Fn, Args>)
-					*this << fn(args);
-				else
-					*this << args; }...
+			సదిశ<std::function<శూన్య()>> fns { [&]() {
+				ఒకవేళ constexpr (std::is_invocable_v<Fn, వాదనలు_3>)
+					*this << fn(వాదనలు_2);
+				లేకపోతే
+					*this << వాదనలు_2; }...
 			};
 			print_impl(fmt, fns);
 		}
@@ -646,6 +646,6 @@ namespace Functional {
 
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

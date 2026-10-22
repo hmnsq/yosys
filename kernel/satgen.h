@@ -17,285 +17,285 @@
  *
  */
 
-#ifndef SATGEN_H
-#define SATGEN_H
+#నిర్వచితం_కాకపోతే SATGEN_H
+#నిర్వచించు SATGEN_H
 
-#include "kernel/rtlil.h"
-#include "kernel/sigtools.h"
-#include "kernel/celltypes.h"
-#include "kernel/macc.h"
+#అన్తర్భావ "kernel/rtlil.h"
+#అన్తర్భావ "kernel/sigtools.h"
+#అన్తర్భావ "kernel/celltypes.h"
+#అన్తర్భావ "kernel/macc.h"
 
-#include "libs/ezsat/ezminisat.h"
+#అన్తర్భావ "libs/ezsat/ezminisat.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // defined in kernel/register.cc
-extern struct SatSolver *yosys_satsolver_list;
-extern struct SatSolver *yosys_satsolver;
+బాహ్య నిర్మాణం SatSolver *yosys_satsolver_list;
+బాహ్య నిర్మాణం SatSolver *yosys_satsolver;
 
-struct SatSolver
+నిర్మాణం SatSolver
 {
 	string name;
-	SatSolver *next;
-	virtual ezSAT *create() = 0;
+	SatSolver *తదుపరి;
+	మాయా ezSAT *create() = 0;
 
 	SatSolver(string name) : name(name) {
-		next = yosys_satsolver_list;
+		తదుపరి = yosys_satsolver_list;
 		yosys_satsolver_list = this;
 	}
 
-	virtual ~SatSolver() {
-		auto p = &yosys_satsolver_list;
-		while (*p) {
-			if (*p == this)
-				*p = next;
-			else
-				p = &(*p)->next;
+	మాయా ~SatSolver() {
+		స్వయంచాలక p = &yosys_satsolver_list;
+		అయితే (*p) {
+			ఒకవేళ (*p == this)
+				*p = తదుపరి;
+			లేకపోతే
+				p = &(*p)->తదుపరి;
 		}
-		if (yosys_satsolver == this)
+		ఒకవేళ (yosys_satsolver == this)
 			yosys_satsolver = yosys_satsolver_list;
 	}
 };
 
-struct ezSatPtr : public std::unique_ptr<ezSAT> {
+నిర్మాణం ezSatPtr : బహిరంగ std::unique_ptr<ezSAT> {
 	ezSatPtr() : unique_ptr<ezSAT>(yosys_satsolver->create()) { }
 	explicit ezSatPtr(SatSolver *solver) : unique_ptr<ezSAT>((solver ? solver : yosys_satsolver)->create()) { }
 };
 
-struct SatGen
+నిర్మాణం SatGen
 {
 	ezSAT *ez;
-	const SigMap *sigmap;
-	std::string prefix;
+	స్థిరరాశి SigMap *sigmap;
+	std::string ఉపసర్గ_2;
 	SigPool initial_state;
 	std::map<std::string, RTLIL::SigSpec> asserts_a, asserts_en;
 	std::map<std::string, RTLIL::SigSpec> assumes_a, assumes_en;
-	std::map<std::string, std::map<RTLIL::SigBit, int>> imported_signals;
-	std::map<std::pair<std::string, int>, bool> initstates;
+	std::map<std::string, std::map<RTLIL::Sig_బిట్టు, పూర్ణాంకం>> imported_సంకేతాలు;
+	std::map<std::pair<std::string, పూర్ణాంకం>, bool> initstates;
 	bool ignore_div_by_zero;
 	bool model_undef;
 	bool def_formal = false;
 	bool model_barriers = false;
 
-	SatGen(ezSAT *ez, const SigMap *sigmap, std::string prefix = std::string()) :
-			ez(ez), sigmap(sigmap), prefix(prefix), ignore_div_by_zero(false), model_undef(false)
+	SatGen(ezSAT *ez, స్థిరరాశి SigMap *sigmap, std::string ఉపసర్గ_2 = std::string()) :
+			ez(ez), sigmap(sigmap), ఉపసర్గ_2(ఉపసర్గ_2), ignore_div_by_zero(false), model_undef(false)
 	{
 	}
 
-	void setContext(const SigMap *sigmap, std::string prefix = std::string())
+	శూన్య సమితి_Context(స్థిరరాశి SigMap *sigmap, std::string ఉపసర్గ_2 = std::string())
 	{
 		this->sigmap = sigmap;
-		this->prefix = prefix;
+		this->ఉపసర్గ_2 = ఉపసర్గ_2;
 	}
 
-	std::vector<int> importSigSpecWorker(RTLIL::SigSpec sig, std::string &pf, bool undef_mode, bool dup_undef)
+	std::సదిశ<పూర్ణాంకం> import_Sig_Spec_కార్మికుడు(RTLIL::SigSpec sig, std::string &pf, bool undef_బహుళకం, bool dup_undef)
 	{
-		log_assert(!undef_mode || model_undef);
+		log_assert(!undef_బహుళకం || model_undef);
 		sigmap->apply(sig);
 
-		std::vector<int> vec;
-		vec.reserve(GetSize(sig));
+		std::సదిశ<పూర్ణాంకం> vec;
+		vec.reserve(Get_కొలత(sig));
 
-		for (auto &bit : sig)
-			if (bit.wire == NULL) {
-				if (model_undef && dup_undef && bit == RTLIL::State::Sx)
-					vec.push_back(ez->frozen_literal());
-				else
-					vec.push_back(bit == (undef_mode ? RTLIL::State::Sx : RTLIL::State::S1) ? ez->CONST_TRUE : ez->CONST_FALSE);
-			} else {
-				std::string wire_name = bit.wire->name.unescape();
+		కొరకు (స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire == ఖాళీ) {
+				ఒకవేళ (model_undef && dup_undef && బిట్టు == RTLIL::State::Sx)
+					vec.నెట్టు_వెనుక(ez->frozen_literal());
+				లేకపోతే
+					vec.నెట్టు_వెనుక(బిట్టు == (undef_బహుళకం ? RTLIL::State::Sx : RTLIL::State::S1) ? ez->CONST_TRUE : ez->CONST_FALSE);
+			} లేకపోతే {
+				std::string wire_name = బిట్టు.wire->name.unescape();
 				std::string name = pf +
-					(bit.wire->width == 1 ? wire_name : stringf("%s [%d]", wire_name, bit.offset));
-				vec.push_back(ez->frozen_literal(name));
-				imported_signals[pf][bit] = vec.back();
+					(బిట్టు.wire->వెడల్పు == 1 ? wire_name : stringf("%s [%d]", wire_name, బిట్టు.స్థానభ్రంశం));
+				vec.నెట్టు_వెనుక(ez->frozen_literal(name));
+				imported_సంకేతాలు[pf][బిట్టు] = vec.వెనుక();
 			}
-		return vec;
+		తిరిగి vec;
 	}
 
-	std::vector<int> importSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::సదిశ<పూర్ణాంకం> importSigSpec(RTLIL::SigSpec sig, పూర్ణాంకం timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, false, false);
+		std::string pf = ఉపసర్గ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		తిరిగి import_Sig_Spec_కార్మికుడు(sig, pf, false, false);
 	}
 
-	std::vector<int> importDefSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::సదిశ<పూర్ణాంకం> importDefSigSpec(RTLIL::SigSpec sig, పూర్ణాంకం timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, false, true);
+		std::string pf = ఉపసర్గ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		తిరిగి import_Sig_Spec_కార్మికుడు(sig, pf, false, true);
 	}
 
-	std::vector<int> importUndefSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::సదిశ<పూర్ణాంకం> importUndefSigSpec(RTLIL::SigSpec sig, పూర్ణాంకం timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = "undef:" + prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, true, false);
+		std::string pf = "undef:" + ఉపసర్గ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		తిరిగి import_Sig_Spec_కార్మికుడు(sig, pf, true, false);
 	}
 
-	int importSigBit(RTLIL::SigBit bit, int timestep = -1)
+	పూర్ణాంకం import_Sig_బిట్టు(RTLIL::Sig_బిట్టు బిట్టు, పూర్ణాంకం timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, false, false).front();
+		std::string pf = ఉపసర్గ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		తిరిగి import_Sig_Spec_కార్మికుడు(బిట్టు, pf, false, false).front();
 	}
 
-	int importDefSigBit(RTLIL::SigBit bit, int timestep = -1)
+	పూర్ణాంకం import_Def_Sig_బిట్టు(RTLIL::Sig_బిట్టు బిట్టు, పూర్ణాంకం timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, false, true).front();
+		std::string pf = ఉపసర్గ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		తిరిగి import_Sig_Spec_కార్మికుడు(బిట్టు, pf, false, true).front();
 	}
 
-	int importUndefSigBit(RTLIL::SigBit bit, int timestep = -1)
+	పూర్ణాంకం import_Undef_Sig_బిట్టు(RTLIL::Sig_బిట్టు బిట్టు, పూర్ణాంకం timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = "undef:" + prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, true, false).front();
+		std::string pf = "undef:" + ఉపసర్గ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		తిరిగి import_Sig_Spec_కార్మికుడు(బిట్టు, pf, true, false).front();
 	}
 
-	bool importedSigBit(RTLIL::SigBit bit, int timestep = -1)
+	bool imported_Sig_బిట్టు(RTLIL::Sig_బిట్టు బిట్టు, పూర్ణాంకం timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return imported_signals[pf].count(bit) != 0;
+		std::string pf = ఉపసర్గ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		తిరిగి imported_సంకేతాలు[pf].లెక్క(బిట్టు) != 0;
 	}
 
-	void getAsserts(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, int timestep = -1)
+	శూన్య getAsserts(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, పూర్ణాంకం timestep = -1)
 	{
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		std::string pf = ఉపసర్గ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
 		sig_a = asserts_a[pf];
 		sig_en = asserts_en[pf];
 	}
 
-	void getAssumes(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, int timestep = -1)
+	శూన్య getAssumes(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, పూర్ణాంకం timestep = -1)
 	{
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		std::string pf = ఉపసర్గ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
 		sig_a = assumes_a[pf];
 		sig_en = assumes_en[pf];
 	}
 
-	int importAsserts(int timestep = -1)
+	పూర్ణాంకం importAsserts(పూర్ణాంకం timestep = -1)
 	{
-		std::vector<int> check_bits, enable_bits;
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		if (model_undef) {
-			check_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_a[pf], timestep)), importDefSigSpec(asserts_a[pf], timestep));
-			enable_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_en[pf], timestep)), importDefSigSpec(asserts_en[pf], timestep));
-		} else {
-			check_bits = importDefSigSpec(asserts_a[pf], timestep);
-			enable_bits = importDefSigSpec(asserts_en[pf], timestep);
+		std::సదిశ<పూర్ణాంకం> check_బిట్లు, enable_బిట్లు;
+		std::string pf = ఉపసర్గ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ఒకవేళ (model_undef) {
+			check_బిట్లు = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_a[pf], timestep)), importDefSigSpec(asserts_a[pf], timestep));
+			enable_బిట్లు = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_en[pf], timestep)), importDefSigSpec(asserts_en[pf], timestep));
+		} లేకపోతే {
+			check_బిట్లు = importDefSigSpec(asserts_a[pf], timestep);
+			enable_బిట్లు = importDefSigSpec(asserts_en[pf], timestep);
 		}
-		return ez->vec_reduce_and(ez->vec_or(check_bits, ez->vec_not(enable_bits)));
+		తిరిగి ez->vec_reduce_and(ez->vec_or(check_బిట్లు, ez->vec_not(enable_బిట్లు)));
 	}
 
-	int importAssumes(int timestep = -1)
+	పూర్ణాంకం importAssumes(పూర్ణాంకం timestep = -1)
 	{
-		std::vector<int> check_bits, enable_bits;
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		if (model_undef) {
-			check_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_a[pf], timestep)), importDefSigSpec(assumes_a[pf], timestep));
-			enable_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_en[pf], timestep)), importDefSigSpec(assumes_en[pf], timestep));
-		} else {
-			check_bits = importDefSigSpec(assumes_a[pf], timestep);
-			enable_bits = importDefSigSpec(assumes_en[pf], timestep);
+		std::సదిశ<పూర్ణాంకం> check_బిట్లు, enable_బిట్లు;
+		std::string pf = ఉపసర్గ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ఒకవేళ (model_undef) {
+			check_బిట్లు = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_a[pf], timestep)), importDefSigSpec(assumes_a[pf], timestep));
+			enable_బిట్లు = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_en[pf], timestep)), importDefSigSpec(assumes_en[pf], timestep));
+		} లేకపోతే {
+			check_బిట్లు = importDefSigSpec(assumes_a[pf], timestep);
+			enable_బిట్లు = importDefSigSpec(assumes_en[pf], timestep);
 		}
-		return ez->vec_reduce_and(ez->vec_or(check_bits, ez->vec_not(enable_bits)));
+		తిరిగి ez->vec_reduce_and(ez->vec_or(check_బిట్లు, ez->vec_not(enable_బిట్లు)));
 	}
 
-	int signals_eq(RTLIL::SigSpec lhs, RTLIL::SigSpec rhs, int timestep_lhs = -1, int timestep_rhs = -1)
+	పూర్ణాంకం సంకేతాలు_eq(RTLIL::SigSpec lhs, RTLIL::SigSpec rhs, పూర్ణాంకం timestep_lhs = -1, పూర్ణాంకం timestep_rhs = -1)
 	{
-		if (timestep_rhs < 0)
+		ఒకవేళ (timestep_rhs < 0)
 			timestep_rhs = timestep_lhs;
 
-		log_assert(lhs.size() == rhs.size());
+		log_assert(lhs.కొలత() == rhs.కొలత());
 
-		std::vector<int> vec_lhs = importSigSpec(lhs, timestep_lhs);
-		std::vector<int> vec_rhs = importSigSpec(rhs, timestep_rhs);
+		std::సదిశ<పూర్ణాంకం> vec_lhs = importSigSpec(lhs, timestep_lhs);
+		std::సదిశ<పూర్ణాంకం> vec_rhs = importSigSpec(rhs, timestep_rhs);
 
-		if (!model_undef)
-			return ez->vec_eq(vec_lhs, vec_rhs);
+		ఒకవేళ (!model_undef)
+			తిరిగి ez->vec_eq(vec_lhs, vec_rhs);
 
-		std::vector<int> undef_lhs = importUndefSigSpec(lhs, timestep_lhs);
-		std::vector<int> undef_rhs = importUndefSigSpec(rhs, timestep_rhs);
+		std::సదిశ<పూర్ణాంకం> undef_lhs = importUndefSigSpec(lhs, timestep_lhs);
+		std::సదిశ<పూర్ణాంకం> undef_rhs = importUndefSigSpec(rhs, timestep_rhs);
 
-		std::vector<int> eq_bits;
-		for (int i = 0; i < lhs.size(); i++)
-			eq_bits.push_back(ez->AND(ez->IFF(undef_lhs.at(i), undef_rhs.at(i)),
+		std::సదిశ<పూర్ణాంకం> eq_బిట్లు;
+		కొరకు (పూర్ణాంకం i = 0; i < lhs.కొలత(); i++)
+			eq_బిట్లు.నెట్టు_వెనుక(ez->AND(ez->IFF(undef_lhs.at(i), undef_rhs.at(i)),
 					ez->IFF(ez->OR(vec_lhs.at(i), undef_lhs.at(i)), ez->OR(vec_rhs.at(i), undef_rhs.at(i)))));
-		return ez->expression(ezSAT::OpAnd, eq_bits);
+		తిరిగి ez->వ్యక్తీకరణ(ezSAT::OpAnd, eq_బిట్లు);
 	}
 
-	void extendSignalWidth(std::vector<int> &vec_a, std::vector<int> &vec_b, RTLIL::Cell *cell, size_t y_width = 0, bool forced_signed = false)
+	శూన్య extend_Signal_వెడల్పు(std::సదిశ<పూర్ణాంకం> &vec_a, std::సదిశ<పూర్ణాంకం> &vec_b, RTLIL::Cell *cell, కొలత_t y_వెడల్పు = 0, bool forced_signed = false)
 	{
 		bool is_signed = forced_signed;
-		if (!forced_signed && cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters.count(ID::B_SIGNED) > 0)
+		ఒకవేళ (!forced_signed && cell->parameters.లెక్క(ID::A_SIGNED) > 0 && cell->parameters.లెక్క(ID::B_SIGNED) > 0)
 			is_signed = cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool();
-		while (vec_a.size() < vec_b.size() || vec_a.size() < y_width)
-			vec_a.push_back(is_signed && vec_a.size() > 0 ? vec_a.back() : ez->CONST_FALSE);
-		while (vec_b.size() < vec_a.size() || vec_b.size() < y_width)
-			vec_b.push_back(is_signed && vec_b.size() > 0 ? vec_b.back() : ez->CONST_FALSE);
+		అయితే (vec_a.కొలత() < vec_b.కొలత() || vec_a.కొలత() < y_వెడల్పు)
+			vec_a.నెట్టు_వెనుక(is_signed && vec_a.కొలత() > 0 ? vec_a.వెనుక() : ez->CONST_FALSE);
+		అయితే (vec_b.కొలత() < vec_a.కొలత() || vec_b.కొలత() < y_వెడల్పు)
+			vec_b.నెట్టు_వెనుక(is_signed && vec_b.కొలత() > 0 ? vec_b.వెనుక() : ez->CONST_FALSE);
 	}
 
-	void extendSignalWidth(std::vector<int> &vec_a, std::vector<int> &vec_b, std::vector<int> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
+	శూన్య extend_Signal_వెడల్పు(std::సదిశ<పూర్ణాంకం> &vec_a, std::సదిశ<పూర్ణాంకం> &vec_b, std::సదిశ<పూర్ణాంకం> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
 	{
-		extendSignalWidth(vec_a, vec_b, cell, vec_y.size(), forced_signed);
-		while (vec_y.size() < vec_a.size())
-			vec_y.push_back(ez->literal());
+		extend_Signal_వెడల్పు(vec_a, vec_b, cell, vec_y.కొలత(), forced_signed);
+		అయితే (vec_y.కొలత() < vec_a.కొలత())
+			vec_y.నెట్టు_వెనుక(ez->literal());
 	}
 
-	void extendSignalWidthUnary(std::vector<int> &vec_a, std::vector<int> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
+	శూన్య extend_Signal_వెడల్పు_Unary(std::సదిశ<పూర్ణాంకం> &vec_a, std::సదిశ<పూర్ణాంకం> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
 	{
-		bool is_signed = forced_signed || (cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool());
-		while (vec_a.size() < vec_y.size())
-			vec_a.push_back(is_signed && vec_a.size() > 0 ? vec_a.back() : ez->CONST_FALSE);
-		while (vec_y.size() < vec_a.size())
-			vec_y.push_back(ez->literal());
+		bool is_signed = forced_signed || (cell->parameters.లెక్క(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool());
+		అయితే (vec_a.కొలత() < vec_y.కొలత())
+			vec_a.నెట్టు_వెనుక(is_signed && vec_a.కొలత() > 0 ? vec_a.వెనుక() : ez->CONST_FALSE);
+		అయితే (vec_y.కొలత() < vec_a.కొలత())
+			vec_y.నెట్టు_వెనుక(ez->literal());
 	}
 
-	void undefGating(std::vector<int> &vec_y, std::vector<int> &vec_yy, std::vector<int> &vec_undef)
+	శూన్య undefGating(std::సదిశ<పూర్ణాంకం> &vec_y, std::సదిశ<పూర్ణాంకం> &vec_yy, std::సదిశ<పూర్ణాంకం> &vec_undef)
 	{
 		log_assert(model_undef);
-		log_assert(vec_y.size() == vec_yy.size());
-		if (vec_y.size() > vec_undef.size()) {
-			std::vector<int> trunc_y(vec_y.begin(), vec_y.begin() + vec_undef.size());
-			std::vector<int> trunc_yy(vec_yy.begin(), vec_yy.begin() + vec_undef.size());
-			ez->assume(ez->expression(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(trunc_y, trunc_yy))));
-		} else {
-			log_assert(vec_y.size() == vec_undef.size());
-			ez->assume(ez->expression(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(vec_y, vec_yy))));
+		log_assert(vec_y.కొలత() == vec_yy.కొలత());
+		ఒకవేళ (vec_y.కొలత() > vec_undef.కొలత()) {
+			std::సదిశ<పూర్ణాంకం> trunc_y(vec_y.begin(), vec_y.begin() + vec_undef.కొలత());
+			std::సదిశ<పూర్ణాంకం> trunc_yy(vec_yy.begin(), vec_yy.begin() + vec_undef.కొలత());
+			ez->assume(ez->వ్యక్తీకరణ(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(trunc_y, trunc_yy))));
+		} లేకపోతే {
+			log_assert(vec_y.కొలత() == vec_undef.కొలత());
+			ez->assume(ez->వ్యక్తీకరణ(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(vec_y, vec_yy))));
 		}
 	}
 
-	std::pair<std::vector<int>, std::vector<int>> mux(int s, int undef_s, const std::vector<int> &a, const std::vector<int> &undef_a, const std::vector<int> &b, const std::vector<int> &undef_b) {
-		std::vector<int> res;
-		std::vector<int> undef_res;
+	std::pair<std::సదిశ<పూర్ణాంకం>, std::సదిశ<పూర్ణాంకం>> mux(పూర్ణాంకం s, పూర్ణాంకం undef_s, స్థిరరాశి std::సదిశ<పూర్ణాంకం> &a, స్థిరరాశి std::సదిశ<పూర్ణాంకం> &undef_a, స్థిరరాశి std::సదిశ<పూర్ణాంకం> &b, స్థిరరాశి std::సదిశ<పూర్ణాంకం> &undef_b) {
+		std::సదిశ<పూర్ణాంకం> res;
+		std::సదిశ<పూర్ణాంకం> undef_res;
 		res = ez->vec_ite(s, b, a);
-		if (model_undef) {
-			std::vector<int> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
-			std::vector<int> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
+		ఒకవేళ (model_undef) {
+			std::సదిశ<పూర్ణాంకం> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
+			std::సదిశ<పూర్ణాంకం> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
 			undef_res = ez->vec_ite(undef_s, undef_ab, ez->vec_ite(s, undef_b, undef_a));
 		}
-		return std::make_pair(res, undef_res);
+		తిరిగి std::make_pair(res, undef_res);
 	}
 
-	void undefGating(int y, int yy, int undef)
+	శూన్య undefGating(పూర్ణాంకం y, పూర్ణాంకం yy, పూర్ణాంకం undef)
 	{
 		ez->assume(ez->OR(undef, ez->IFF(y, yy)));
 	}
 
-	void setInitState(int timestep)
+	శూన్య సమితి_Init_State(పూర్ణాంకం timestep)
 	{
-		auto key = make_pair(prefix, timestep);
-		log_assert(initstates.count(key) == 0 || initstates.at(key) == true);
-		initstates[key] = true;
+		స్వయంచాలక కీలకం = make_pair(ఉపసర్గ_2, timestep);
+		log_assert(initstates.లెక్క(కీలకం) == 0 || initstates.at(కీలకం) == true);
+		initstates[కీలకం] = true;
 	}
 
-	bool importCell(RTLIL::Cell *cell, int timestep = -1);
+	bool importCell(RTLIL::Cell *cell, పూర్ణాంకం timestep = -1);
 };
 
-void report_missing_model(bool warn_only, RTLIL::Cell* cell);
+శూన్య report_missing_model(bool warn_only, RTLIL::Cell* cell);
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

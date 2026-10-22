@@ -17,99 +17,99 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/modtools.h"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "kernel/sigtools.h"
+#అన్తర్భావ "kernel/modtools.h"
 
-#include <string.h>
-#include <algorithm>
-#include <optional>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <optional>
 
 YOSYS_NAMESPACE_BEGIN
 
 
-static void buf_norm_seed_queues(RTLIL::Module *module)
+స్థిర శూన్య buf_norm_విత్తనం_queues(RTLIL::Module *module)
 {
 	// When entering buf normalized mode, we need the first module-level bufNormalize
 	// call to know about all drivers, about all module ports (whether represented by
 	// a cell or not) and about all used but undriven wires (whether represented by a
 	// cell or not). We ensure this by enqueing all cell output ports and all wires.
 
-	for (auto cell : module->cells())
-	for (auto &conn : cell->connections()) {
-		if (GetSize(conn.second) == 0 || (cell->port_dir(conn.first) != RTLIL::PD_OUTPUT && cell->port_dir(conn.first) != RTLIL::PD_INOUT))
-			continue;
-		module->buf_norm_cell_queue.insert(cell);
-		module->buf_norm_cell_port_queue.emplace(cell, conn.first);
+	కొరకు (స్వయంచాలక cell : module->cells())
+	కొరకు (స్వయంచాలక &conn : cell->connections()) {
+		ఒకవేళ (Get_కొలత(conn.రెండవ) == 0 || (cell->పోర్టు_dir(conn.మొదటి) != RTLIL::PD_OUTPUT && cell->పోర్టు_dir(conn.మొదటి) != RTLIL::PD_INOUT))
+			కొనసాగు;
+		module->buf_norm_cell_వరుస.చొప్పించు(cell);
+		module->buf_norm_cell_పోర్టు_వరుస.emplace(cell, conn.మొదటి);
 	}
-	for (auto wire : module->wires())
-		module->buf_norm_wire_queue.insert(wire);
+	కొరకు (స్వయంచాలక wire : module->wires())
+		module->buf_norm_wire_వరుస.చొప్పించు(wire);
 }
 
-void RTLIL::Design::bufNormalize(bool enable)
+శూన్య RTLIL::Design::bufNormalize(తార్కిక enable)
 {
-	if (!enable)
+	ఒకవేళ (!enable)
 	{
-		if (!flagBufferedNormalized)
-			return;
+		ఒకవేళ (!flagBufferedNormalized)
+			తిరిగి;
 
-		for (auto module : modules()) {
-			module->buf_norm_cell_queue.clear();
-			module->buf_norm_wire_queue.clear();
-			module->buf_norm_cell_port_queue.clear();
-			for (auto wire : module->wires()) {
-				wire->driverCell_ = nullptr;
-				wire->driverPort_ = IdString();
+		కొరకు (స్వయంచాలక module : modules()) {
+			module->buf_norm_cell_వరుస.clear();
+			module->buf_norm_wire_వరుస.clear();
+			module->buf_norm_cell_పోర్టు_వరుస.clear();
+			కొరకు (స్వయంచాలక wire : module->wires()) {
+				wire->driverCell_ = శూన్యసూచిక;
+				wire->driver_పోర్టు_2 = IdString();
 			}
-			module->buf_norm_connect_index.clear();
+			module->buf_norm_connect_సూచీ.clear();
 		}
 
-		flagBufferedNormalized = false;
-		return;
+		flagBufferedNormalized = అబద్ధం;
+		తిరిగి;
 	}
 
-	if (!flagBufferedNormalized)
+	ఒకవేళ (!flagBufferedNormalized)
 	{
-		for (auto module : modules())
-			buf_norm_seed_queues(module);
+		కొరకు (స్వయంచాలక module : modules())
+			buf_norm_విత్తనం_queues(module);
 
-		flagBufferedNormalized = true;
+		flagBufferedNormalized = నిజం;
 	}
 
-	for (auto module : modules())
+	కొరకు (స్వయంచాలక module : modules())
 		module->bufNormalize();
 }
 
-struct bit_drive_data_t {
-	int drivers = 0;
-	int inout = 0;
-	int users = 0;
+నిర్మాణం బిట్టు_drive_దత్తాంశం_t {
+	పూర్ణాంకం drivers = 0;
+	పూర్ణాంకం inout = 0;
+	పూర్ణాంకం users = 0;
 };
 
-typedef ModWalker::PortBit PortBit;
+రకనిర్వచనం ModWalker::పోర్టు_బిట్టు_2 పోర్టు_బిట్టు_2;
 
-void RTLIL::Module::bufNormalize()
+శూన్య RTLIL::Module::bufNormalize()
 {
 	// Since this is kernel code, we only log with yosys_xtrace set to not get
 	// in the way when using `debug` to debug specific passes.q
-#define xlog(...) do { if (yosys_xtrace) log("#X [bufnorm] " __VA_ARGS__); } while (0)
+#నిర్వచించు xlog(...) చేయి { ఒకవేళ (yosys_xtrace) సంవర్గమానం("#X [bufnorm] " __VA_ARGS__); } అయితే (0)
 
-	if (!design->flagBufferedNormalized)
-		return;
+	ఒకవేళ (!design->flagBufferedNormalized)
+		తిరిగి;
 
-	if (!buf_norm_cell_queue.empty() || !buf_norm_wire_queue.empty() || !connections_.empty())
+	ఒకవేళ (!buf_norm_cell_వరుస.ఖాళీలు() || !buf_norm_wire_వరుస.ఖాళీలు() || !connections_.ఖాళీలు())
 	{
 		// Ensure that every enqueued input port is represented by a cell
-		for (auto wire : buf_norm_wire_queue) {
-			if (wire->port_input && !wire->port_output && GetSize(wire) != 0) {
-				if (wire->driverCell_ != nullptr && wire->driverCell_->type != ID($input_port)) {
-					wire->driverCell_ = nullptr;
-					wire->driverPort_ = IdString::Null;
+		కొరకు (స్వయంచాలక wire : buf_norm_wire_వరుస) {
+			ఒకవేళ (wire->పోర్టు_ఆదానం && !wire->పోర్టు_output && Get_కొలత(wire) != 0) {
+				ఒకవేళ (wire->driverCell_ != శూన్యసూచిక && wire->driverCell_->type != ID($ఆదానం_పోర్టు)) {
+					wire->driverCell_ = శూన్యసూచిక;
+					wire->driver_పోర్టు_2 = IdString::Null;
 				}
-				if (wire->driverCell_ == nullptr) {
-					Cell *input_port_cell = addCell(NEW_ID, ID($input_port));
-					input_port_cell->setParam(ID::WIDTH, GetSize(wire));
-					input_port_cell->setPort(ID::Y, wire); // this hits the fast path that doesn't mutate the queues
+				ఒకవేళ (wire->driverCell_ == శూన్యసూచిక) {
+					Cell *ఆదానం_పోర్టు_cell = కూడు_Cell(NEW_ID, ID($ఆదానం_పోర్టు));
+					ఆదానం_పోర్టు_cell->సమితి_Param(ID::వెడల్పు_2, Get_కొలత(wire));
+					ఆదానం_పోర్టు_cell->సమితి_పోర్టు(ID::Y, wire); // this hits the fast path that doesn't mutate the queues
 				}
 			}
 		}
@@ -126,8 +126,8 @@ void RTLIL::Module::bufNormalize()
 		// connected to the port) and which cell ports will need to be
 		// reconnected to a fresh intermediate wire to re-normalize the module.
 
-		idict<Wire *> wire_queue_entries; // Ordered queue of wires to process
-		int wire_queue_pos = 0; // Index up to which we processed the wires
+		idict<Wire *> wire_వరుస_entries; // Ordered queue of wires to process
+		పూర్ణాంకం wire_వరుస_pos = 0; // Index up to which we processed the wires
 
 		// Wires with their unique driving cell port. We pick the first driver
 		// we encounter, with the exception that we ensure that a module input
@@ -136,7 +136,7 @@ void RTLIL::Module::bufNormalize()
 		// because it's not driving an input port or because there already is
 		// another $input_port driver for the same port, we also delete that
 		// $input_port cell.
-		dict<Wire *, std::pair<Cell *, IdString>> direct_driven_wires;
+		dict<Wire *, std::pair<Cell *, IdString>> ప్రత్యక్ష_driven_wires;
 
 		// Set of cell ports that need a fresh intermediate wire. These are all
 		// cell ports that drive non-full-wire sigspecs, cell ports driving
@@ -147,23 +147,23 @@ void RTLIL::Module::bufNormalize()
 		// This helper will be called for every output/inout cell port that is
 		// already enqueued or becomes reachable when denormalizing $buf or
 		// $connect cells.
-		auto enqueue_cell_port = [&](Cell *cell, IdString port) {
-			xlog("processing cell port %s.%s\n", cell, design->twines().unescaped_str(port));
+		స్వయంచాలక వరుసలో_చేర్చు_cell_పోర్టు = [&](Cell *cell, IdString పోర్టు) {
+			xlog("processing cell port %s.%s\n", cell, design->twines().unescaped_str(పోర్టు));
 
 			// An empty cell type means the cell got removed
-			if (cell->type.empty())
-				return;
+			ఒకవేళ (cell->type.ఖాళీలు())
+				తిరిగి;
 
 
-			SigSpec const &sig = cell->getPort(port);
+			SigSpec స్థిరరాశి &sig = cell->get_పోర్టు(పోర్టు);
 
 			// Make sure all wires of the cell port are enqueued, ensuring we
 			// detect other connected drivers (output and inout).
-			for (auto chunk : sig.chunks())
-				if (chunk.is_wire())
-					wire_queue_entries(chunk.wire);
+			కొరకు (స్వయంచాలక chunk : sig.chunks())
+				ఒకవేళ (chunk.is_wire())
+					wire_వరుస_entries(chunk.wire);
 
-			if (cell->type == ID($buf) && cell->attributes.empty() && !cell->name.isPublic()) {
+			ఒకవేళ (cell->type == ID($buf) && cell->లక్షణాలు.ఖాళీలు() && !cell->name.is_ప్రజా()) {
 				// For a plain `$buf` cell, we enqueue all wires on its input
 				// side, bypass it using module level connections (skipping 'z
 				// bits) and then remove the cell. Eventually the module level
@@ -175,22 +175,22 @@ void RTLIL::Module::bufNormalize()
 				// TODO: We could defer removing the $buf cells here, and
 				// re-use them in case we would create a new identical cell
 				// later.
-				log_assert(port == ID::Y);
-				SigSpec sig_a = cell->getPort(ID::A);
+				log_assert(పోర్టు == ID::Y);
+				SigSpec sig_a = cell->get_పోర్టు(ID::A);
 				SigSpec sig_y = sig;
 
-				for (auto const &s : {sig_a, sig})
-					for (auto const &chunk : s.chunks())
-						if (chunk.wire)
-							wire_queue_entries(chunk.wire);
+				కొరకు (స్వయంచాలక స్థిరరాశి &s : {sig_a, sig})
+					కొరకు (స్వయంచాలక స్థిరరాశి &chunk : s.chunks())
+						ఒకవేళ (chunk.wire)
+							wire_వరుస_entries(chunk.wire);
 
-				if (sig_a.has_const(State::Sz)) {
+				ఒకవేళ (sig_a.has_const(State::Sz)) {
 					SigSpec new_a;
 					SigSpec new_y;
-					for (int i = 0; i < GetSize(sig_a); ++i) {
-						SigBit b = sig_a[i];
-						if (b == State::Sz)
-							continue;
+					కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(sig_a); ++i) {
+						Sig_బిట్టు b = sig_a[i];
+						ఒకవేళ (b == State::Sz)
+							కొనసాగు;
 						new_a.append(b);
 						new_y.append(sig_y[i]);
 					}
@@ -198,21 +198,21 @@ void RTLIL::Module::bufNormalize()
 					sig_y = std::move(new_y);
 				}
 
-				if (!sig_y.empty())
+				ఒకవేళ (!sig_y.ఖాళీలు())
 					connect(sig_y, sig_a);
 				remove(cell);
-				log_assert(GetSize(buf_norm_wire_queue) <= 1);
-				buf_norm_wire_queue.clear();
-				return;
-			} else if (cell->type == ID($input_port)) {
-				log_assert(port == ID::Y);
-				if (sig.is_wire()) {
+				log_assert(Get_కొలత(buf_norm_wire_వరుస) <= 1);
+				buf_norm_wire_వరుస.clear();
+				తిరిగి;
+			} లేకపోతే ఒకవేళ (cell->type == ID($ఆదానం_పోర్టు)) {
+				log_assert(పోర్టు == ID::Y);
+				ఒకవేళ (sig.is_wire()) {
 					Wire *w = sig.as_wire();
-					if (w->port_input && !w->port_output) {
+					ఒకవేళ (w->పోర్టు_ఆదానం && !w->పోర్టు_output) {
 						// An $input_port cell can only drive a full wire module input port
-						auto [found, inserted] = direct_driven_wires.emplace(w, {cell, port});
-						if (!inserted || (found->second.first == cell && found->second.second == port))
-							return;
+						స్వయంచాలక [దొరికింది, inserted] = ప్రత్యక్ష_driven_wires.emplace(w, {cell, పోర్టు});
+						ఒకవేళ (!inserted || (దొరికింది->రెండవ.మొదటి == cell && దొరికింది->రెండవ.రెండవ == పోర్టు))
+							తిరిగి;
 					}
 				}
 
@@ -220,33 +220,33 @@ void RTLIL::Module::bufNormalize()
 				// input port wire, we remove it since the wires are still the
 				// canonical source of module ports
 
-				buf_norm_cell_queue.insert(cell);
+				buf_norm_cell_వరుస.చొప్పించు(cell);
 				remove(cell);
-				log_assert(GetSize(buf_norm_wire_queue) <= 1);
-				buf_norm_wire_queue.clear();
-				return;
+				log_assert(Get_కొలత(buf_norm_wire_వరుస) <= 1);
+				buf_norm_wire_వరుస.clear();
+				తిరిగి;
 			}
 
-			if (sig.is_wire()) {
+			ఒకవేళ (sig.is_wire()) {
 				Wire *w = sig.as_wire();
-				if (!w->port_input || w->port_output) {
+				ఒకవేళ (!w->పోర్టు_ఆదానం || w->పోర్టు_output) {
 					// If the full cell port is connected to a full non-input-port wire, pick it as driver
-					auto [found, inserted] = direct_driven_wires.emplace(w, {cell, port});
-					if (inserted || (found->second.first == cell && found->second.second == port))
-						return;
+					స్వయంచాలక [దొరికింది, inserted] = ప్రత్యక్ష_driven_wires.emplace(w, {cell, పోర్టు});
+					ఒకవేళ (inserted || (దొరికింది->రెండవ.మొదటి == cell && దొరికింది->రెండవ.రెండవ == పోర్టు))
+						తిరిగి;
 				}
 			}
 
 			// Adds this port to the ports that need a fresh intermediate wire.
 			// For full wires uniquely driven by a full output port, this isn't
 			// reached due to the `return` above.
-			pending_ports.emplace(cell, port);
+			pending_ports.emplace(cell, పోర్టు);
 		};
 
 		// We enqueue all enqueued wires for `$buf`/`$connect` processing (clearing the module level queue).
-		for (auto wire : buf_norm_wire_queue)
-			wire_queue_entries(wire);
-		buf_norm_wire_queue.clear();
+		కొరకు (స్వయంచాలక wire : buf_norm_wire_వరుస)
+			wire_వరుస_entries(wire);
+		buf_norm_wire_వరుస.clear();
 
 		// Only after clearing the `buf_norm_wire_queue` are we allowed to call
 		// enqueue_cell_port, since we're using assertions to check against
@@ -255,51 +255,51 @@ void RTLIL::Module::bufNormalize()
 		// pass.
 
 		// We process all explicitly enqueued cell ports (clearing the module level queue).
-		for (auto const &[cell, port_name] : buf_norm_cell_port_queue)
-			enqueue_cell_port(cell, port_name);
-		buf_norm_cell_port_queue.clear();
+		కొరకు (స్వయంచాలక స్థిరరాశి &[cell, పోర్టు_name] : buf_norm_cell_పోర్టు_వరుస)
+			వరుసలో_చేర్చు_cell_పోర్టు(cell, పోర్టు_name);
+		buf_norm_cell_పోర్టు_వరుస.clear();
 
 		// We also enqueue all wires that saw newly added module level connections.
-		for (auto &[a, b] : connections_)
-			for (auto &sig : {a, b})
-				for (auto const &chunk : sig.chunks())
-					if (chunk.wire)
-						wire_queue_entries(chunk.wire);
+		కొరకు (స్వయంచాలక &[a, b] : connections_)
+			కొరకు (స్వయంచాలక &sig : {a, b})
+				కొరకు (స్వయంచాలక స్థిరరాశి &chunk : sig.chunks())
+					ఒకవేళ (chunk.wire)
+						wire_వరుస_entries(chunk.wire);
 
 		// We then process all wires by processing known driving cell ports
 		// (previously buf normalized) and following all `$connect` cells (that
 		// have a dedicated module level index while the design is in buf
 		// normalized mode).
-		while (wire_queue_pos < GetSize(wire_queue_entries)) {
-			auto wire = wire_queue_entries[wire_queue_pos++];
+		అయితే (wire_వరుస_pos < Get_కొలత(wire_వరుస_entries)) {
+			స్వయంచాలక wire = wire_వరుస_entries[wire_వరుస_pos++];
 			xlog("processing wire %s\n", wire);
 
-			if (wire->driverCell_) {
+			ఒకవేళ (wire->driverCell_) {
 				Cell *cell = wire->driverCell_;
-				IdString port = wire->driverPort_;
-				enqueue_cell_port(cell, port);
+				IdString పోర్టు = wire->driver_పోర్టు_2;
+				వరుసలో_చేర్చు_cell_పోర్టు(cell, పోర్టు);
 			}
 
-			while (true) {
-				auto found = buf_norm_connect_index.find(wire);
-				if (found == buf_norm_connect_index.end())
-					break;
-				while (!found->second.empty()) {
-					Cell *connect_cell = *found->second.begin();
+			అయితే (నిజం) {
+				స్వయంచాలక దొరికింది = buf_norm_connect_సూచీ.కనుగొను(wire);
+				ఒకవేళ (దొరికింది == buf_norm_connect_సూచీ.చివర())
+					ఆపు;
+				అయితే (!దొరికింది->రెండవ.ఖాళీలు()) {
+					Cell *connect_cell = *దొరికింది->రెండవ.begin();
 					log_assert(connect_cell->type == ID($connect));
-					SigSpec const &sig_a = connect_cell->getPort(ID::A);
-					SigSpec const &sig_b = connect_cell->getPort(ID::B);
+					SigSpec స్థిరరాశి &sig_a = connect_cell->get_పోర్టు(ID::A);
+					SigSpec స్థిరరాశి &sig_b = connect_cell->get_పోర్టు(ID::B);
 					xlog("found $connect cell %s: %s <-> %s\n", connect_cell, log_signal(sig_a), log_signal(sig_b));
-					for (auto &side : {sig_a, sig_b})
-						for (auto chunk : side.chunks())
-							if (chunk.wire)
-								wire_queue_entries(chunk.wire);
+					కొరకు (స్వయంచాలక &side : {sig_a, sig_b})
+						కొరకు (స్వయంచాలక chunk : side.chunks())
+							ఒకవేళ (chunk.wire)
+								wire_వరుస_entries(chunk.wire);
 					connect(sig_a, sig_b);
 
-					buf_norm_cell_queue.insert(connect_cell);
+					buf_norm_cell_వరుస.చొప్పించు(connect_cell);
 					remove(connect_cell);
-					log_assert(GetSize(buf_norm_wire_queue) <= 2);
-					buf_norm_wire_queue.clear();
+					log_assert(Get_కొలత(buf_norm_wire_వరుస) <= 2);
+					buf_norm_wire_వరుస.clear();
 				}
 			}
 		}
@@ -310,21 +310,21 @@ void RTLIL::Module::bufNormalize()
 
 		// As a first step for re-normalization we add all require intermediate
 		// wires for cell output and inout ports.
-		for (auto &[cell, port] : pending_ports) {
-			log_assert(cell->type != ID($input_port));
-			log_assert(!cell->type.empty());
-			log_assert(!pending_deleted_cells.count(cell));
-			SigSpec const &sig = cell->getPort(port);
-			Wire *w = addWire(NEW_ID, GetSize(sig));
+		కొరకు (స్వయంచాలక &[cell, పోర్టు] : pending_ports) {
+			log_assert(cell->type != ID($ఆదానం_పోర్టు));
+			log_assert(!cell->type.ఖాళీలు());
+			log_assert(!pending_deleted_cells.లెక్క(cell));
+			SigSpec స్థిరరాశి &sig = cell->get_పోర్టు(పోర్టు);
+			Wire *w = కూడు_Wire(NEW_ID, Get_కొలత(sig));
 
 			// We update the module level connections, `direct_driven_wires`
 			// and `direct_driven_wires_conflicts` in such a way that they
 			// correspond to what you would get if the intermediate wires had
 			// been in place from the beginning.
 			connect(sig, w);
-			direct_driven_wires.emplace(w, {cell, port});
-			cell->setPort(port, w); // Hits the fast path that doesn't enqueue w
-			wire_queue_entries(w); // Needed so we pick up the sig <-> w connection
+			ప్రత్యక్ష_driven_wires.emplace(w, {cell, పోర్టు});
+			cell->సమితి_పోర్టు(పోర్టు, w); // Hits the fast path that doesn't enqueue w
+			wire_వరుస_entries(w); // Needed so we pick up the sig <-> w connection
 		}
 
 		// At this point we're done with creating wires and know which ones are
@@ -333,17 +333,17 @@ void RTLIL::Module::bufNormalize()
 		// First we clear the bufnorm data for all processed wires, all of
 		// these will be reassigned later, but we use `driverCell_ == nullptr`
 		// to keep track of the wires that we still have to update.
-		for (auto wire : wire_queue_entries) {
-			wire->driverCell_ = nullptr;
-			wire->driverPort_ = IdString::Null;
+		కొరకు (స్వయంచాలక wire : wire_వరుస_entries) {
+			wire->driverCell_ = శూన్యసూచిక;
+			wire->driver_పోర్టు_2 = IdString::Null;
 		}
 
 		// For the unique driving cell ports fully connected to a full wire, we
 		// can update the bufnorm data right away. For all other wires we will
 		// have to create new `$buf` cells.
-		for (auto const &[wire, cellport] : direct_driven_wires) {
-			wire->driverCell_ = cellport.first;
-			wire->driverPort_ = cellport.second;
+		కొరకు (స్వయంచాలక స్థిరరాశి &[wire, cellport] : ప్రత్యక్ష_driven_wires) {
+			wire->driverCell_ = cellport.మొదటి;
+			wire->driver_పోర్టు_2 = cellport.రెండవ;
 		}
 
 
@@ -353,8 +353,8 @@ void RTLIL::Module::bufNormalize()
 		// any `$connect` cells to represent bidirectional inout connections
 		// (or driver conflicts).
 
-		if (yosys_xtrace)
-			for (auto const &[lhs, rhs] : connections_)
+		ఒకవేళ (yosys_xtrace)
+			కొరకు (స్వయంచాలక స్థిరరాశి &[lhs, rhs] : connections_)
 				xlog("connection %s <-> %s\n", log_signal(lhs), log_signal(rhs));
 
 
@@ -362,16 +362,16 @@ void RTLIL::Module::bufNormalize()
 		// level connections. This forgets about the structure of module level
 		// connections, but bufnorm only guarantees that the connectivity as
 		// maintained by a `SigMap` is preserved.
-		SigMap sigmap(this);
+		SigMap sigmap(ఇది);
 		new_connections({});
 
 		// We pick SigMap representatives by prioritizing input ports over
 		// driven wires over other/unknown wires.
-		for (bool input_ports : {false, true}) {
-			for (auto const &[wire, cellport] : direct_driven_wires) {
-				if ((wire->port_input && !wire->port_output) == input_ports) {
-					for (int i = 0; i != GetSize(wire); ++i) {
-						SigBit driver = SigBit(wire, i);
+		కొరకు (తార్కిక ఆదానం_ports : {అబద్ధం, నిజం}) {
+			కొరకు (స్వయంచాలక స్థిరరాశి &[wire, cellport] : ప్రత్యక్ష_driven_wires) {
+				ఒకవేళ ((wire->పోర్టు_ఆదానం && !wire->పోర్టు_output) == ఆదానం_ports) {
+					కొరకు (పూర్ణాంకం i = 0; i != Get_కొలత(wire); ++i) {
+						Sig_బిట్టు driver = Sig_బిట్టు(wire, i);
 						sigmap.database.promote(driver);
 					}
 				}
@@ -380,33 +380,33 @@ void RTLIL::Module::bufNormalize()
 
 		// All three pool<SigBit> below are in terms of sigmapped bits
 		// Bits that are known to have a unique driver that is an unconditional driver or one or more inout drivers
-		pool<SigBit> driven;
+		pool<Sig_బిట్టు> driven;
 		// Bits that have multiple unconditional drivers, this forces the use of `$connect`
-		pool<SigBit> conflicted;
+		pool<Sig_బిట్టు> conflicted;
 		// Bits that are driven by an inout driver
-		pool<SigBit> weakly_driven;
+		pool<Sig_బిట్టు> weakly_driven;
 
-		for (auto const &[wire, cellport] : direct_driven_wires) {
-			auto const &[cell, port] = cellport;
-			for (int i = 0; i != GetSize(wire); ++i) {
-				SigBit driver = sigmap(SigBit(wire, i));
-				if (cell->type == ID($tribuf) || cell->port_dir(port) == RTLIL::PD_INOUT) {
+		కొరకు (స్వయంచాలక స్థిరరాశి &[wire, cellport] : ప్రత్యక్ష_driven_wires) {
+			స్వయంచాలక స్థిరరాశి &[cell, పోర్టు] = cellport;
+			కొరకు (పూర్ణాంకం i = 0; i != Get_కొలత(wire); ++i) {
+				Sig_బిట్టు driver = sigmap(Sig_బిట్టు(wire, i));
+				ఒకవేళ (cell->type == ID($tribuf) || cell->పోర్టు_dir(పోర్టు) == RTLIL::PD_INOUT) {
 					// We add inout drivers to `driven` in a separate loop below
-					weakly_driven.insert(driver);
-				} else {
+					weakly_driven.చొప్పించు(driver);
+				} లేకపోతే {
 					// We remove driver conflicts from `driven` in a separate loop below
-					bool inserted = driven.insert(driver).second;
-					if (!inserted)
-						conflicted.insert(driver);
+					తార్కిక inserted = driven.చొప్పించు(driver).రెండవ;
+					ఒకవేళ (!inserted)
+						conflicted.చొప్పించు(driver);
 				}
 			}
 		}
 
-		for (auto driver : weakly_driven)
-			driven.insert(driver);
+		కొరకు (స్వయంచాలక driver : weakly_driven)
+			driven.చొప్పించు(driver);
 
 		// This only leaves the drivers matching `driven`'s definition above
-		for (auto driver : conflicted)
+		కొరకు (స్వయంచాలక driver : conflicted)
 			driven.erase(driver);
 
 		// Having picked representatives and checked whether they are unique
@@ -414,7 +414,7 @@ void RTLIL::Module::bufNormalize()
 		// and $connect cells.
 
 		// Module level bitwise connections not representable by `$buf` cells
-		pool<pair<SigBit, SigBit>> undirected_connections;
+		pool<pair<Sig_బిట్టు, Sig_బిట్టు>> undirected_connections;
 
 		// Starts out empty but is updated with the connectivity realized by freshly added `$buf` cells
 		SigMap buf_connected;
@@ -424,60 +424,60 @@ void RTLIL::Module::bufNormalize()
 		// that with `Sz`. If there are multiple drivers for a net, they become
 		// connected via `$connect` cells but every wire of the net has the
 		// corresponding bit still driven by a buffered `Sz`.
-		for (auto wire : wire_queue_entries) {
+		కొరకు (స్వయంచాలక wire : wire_వరుస_entries) {
 			// A zero-width wire carries no bits and needs no driver
-			if (GetSize(wire) == 0)
-				continue;
+			ఒకవేళ (Get_కొలత(wire) == 0)
+				కొనసాగు;
 
 			SigSpec wire_drivers;
-			for (int i = 0; i < GetSize(wire); ++i) {
-				SigBit bit(wire, i);
-				SigBit mapped = sigmap(bit);
-				xlog("bit %s -> mapped %s\n", log_signal(bit), log_signal(mapped));
+			కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(wire); ++i) {
+				Sig_బిట్టు బిట్టు(wire, i);
+				Sig_బిట్టు mapped = sigmap(బిట్టు);
+				xlog("bit %s -> mapped %s\n", log_signal(బిట్టు), log_signal(mapped));
 
 
-				buf_connected.apply(bit);
-				buf_connected.add(bit, mapped);
+				buf_connected.apply(బిట్టు);
+				buf_connected.కూడు(బిట్టు, mapped);
 				buf_connected.database.promote(mapped);
 
-				if (wire->driverCell_ == nullptr) {
-					if (!mapped.is_wire() || driven.count(mapped)) {
+				ఒకవేళ (wire->driverCell_ == శూన్యసూచిక) {
+					ఒకవేళ (!mapped.is_wire() || driven.లెక్క(mapped)) {
 						wire_drivers.append(mapped);
-						continue;
-					} else {
+						కొనసాగు;
+					} లేకపోతే {
 						wire_drivers.append(State::Sz);
 					}
 				}
 
-				if (bit < mapped)
-					undirected_connections.emplace(bit, mapped);
-				else if (mapped < bit)
-					undirected_connections.emplace(mapped, bit);
+				ఒకవేళ (బిట్టు < mapped)
+					undirected_connections.emplace(బిట్టు, mapped);
+				లేకపోతే ఒకవేళ (mapped < బిట్టు)
+					undirected_connections.emplace(mapped, బిట్టు);
 			}
 
-			if (wire->driverCell_ == nullptr) {
+			ఒకవేళ (wire->driverCell_ == శూన్యసూచిక) {
 				xlog("wire %s drivers %s\n", wire, log_signal(wire_drivers));
-				addBuf(NEW_ID, wire_drivers, wire);
+				కూడు_Buf(NEW_ID, wire_drivers, wire);
 			}
 		}
 
 		// Finally we group the bitwise connections to emit word-level $connect cells
 
-		static auto sort_key = [](std::pair<SigBit, SigBit> const &p) {
-			int first_offset = p.first.is_wire() ? p.first.offset : 0;
-			int second_offset = p.second.is_wire() ? p.second.offset : 0;
-			return std::make_tuple(p.first.wire, p.second.wire, first_offset - second_offset, p);
+		స్థిర స్వయంచాలక క్రమీకరించు_కీలకం = [](std::pair<Sig_బిట్టు, Sig_బిట్టు> స్థిరరాశి &p) {
+			పూర్ణాంకం మొదటి_స్థానభ్రంశం = p.మొదటి.is_wire() ? p.మొదటి.స్థానభ్రంశం : 0;
+			పూర్ణాంకం రెండవ_స్థానభ్రంశం = p.రెండవ.is_wire() ? p.రెండవ.స్థానభ్రంశం : 0;
+			తిరిగి std::make_tuple(p.మొదటి.wire, p.రెండవ.wire, మొదటి_స్థానభ్రంశం - రెండవ_స్థానభ్రంశం, p);
 		};
 
-		undirected_connections.sort([](std::pair<SigBit, SigBit> const &p, std::pair<SigBit, SigBit> const &q) {
-			return sort_key(p) < sort_key(q);
+		undirected_connections.క్రమీకరించు([](std::pair<Sig_బిట్టు, Sig_బిట్టు> స్థిరరాశి &p, std::pair<Sig_బిట్టు, Sig_బిట్టు> స్థిరరాశి &q) {
+			తిరిగి క్రమీకరించు_కీలకం(p) < క్రమీకరించు_కీలకం(q);
 		});
 
 		SigSpec tmp_a, tmp_b;
 
-		for (auto &[bit_a, bit_b] : undirected_connections) {
-			tmp_a.append(bit_a);
-			tmp_b.append(bit_b);
+		కొరకు (స్వయంచాలక &[బిట్టు_a, బిట్టు_b] : undirected_connections) {
+			tmp_a.append(బిట్టు_a);
+			tmp_b.append(బిట్టు_b);
 		}
 
 		xlog("LHS: %s\n", log_signal(tmp_a));
@@ -485,104 +485,104 @@ void RTLIL::Module::bufNormalize()
 
 
 		SigSpec sig_a, sig_b;
-		SigBit next_a, next_b;
+		Sig_బిట్టు తదుపరి_a, తదుపరి_b;
 
-		auto emit_connect_cell = [&]() {
-			if (sig_a.empty())
-				return;
+		స్వయంచాలక emit_connect_cell = [&]() {
+			ఒకవేళ (sig_a.ఖాళీలు())
+				తిరిగి;
 			xlog("connect %s <-> %s\n", log_signal(sig_a), log_signal(sig_b));
-			Cell *connect_cell = addCell(NEW_ID, ID($connect));
-			connect_cell->setParam(ID::WIDTH, GetSize(sig_a));
-			connect_cell->setPort(ID::A, sig_a);
-			connect_cell->setPort(ID::B, sig_b);
+			Cell *connect_cell = కూడు_Cell(NEW_ID, ID($connect));
+			connect_cell->సమితి_Param(ID::వెడల్పు_2, Get_కొలత(sig_a));
+			connect_cell->సమితి_పోర్టు(ID::A, sig_a);
+			connect_cell->సమితి_పోర్టు(ID::B, sig_b);
 			sig_a = SigSpec();
 			sig_b = SigSpec();
 		};
 
-		for (auto &[bit_a, bit_b] : undirected_connections) {
-			if (bit_a == bit_b)
-				continue;
-			if (bit_a != next_a || bit_b != next_b)
+		కొరకు (స్వయంచాలక &[బిట్టు_a, బిట్టు_b] : undirected_connections) {
+			ఒకవేళ (బిట్టు_a == బిట్టు_b)
+				కొనసాగు;
+			ఒకవేళ (బిట్టు_a != తదుపరి_a || బిట్టు_b != తదుపరి_b)
 				emit_connect_cell();
 
-			sig_a.append(bit_a);
-			sig_b.append(bit_b);
-			next_a = bit_a;
-			next_b = bit_b;
-			if (next_a.is_wire())
-				next_a.offset++;
-			if (next_b.is_wire())
-				next_b.offset++;
+			sig_a.append(బిట్టు_a);
+			sig_b.append(బిట్టు_b);
+			తదుపరి_a = బిట్టు_a;
+			తదుపరి_b = బిట్టు_b;
+			ఒకవేళ (తదుపరి_a.is_wire())
+				తదుపరి_a.స్థానభ్రంశం++;
+			ఒకవేళ (తదుపరి_b.is_wire())
+				తదుపరి_b.స్థానభ్రంశం++;
 
 		}
 		emit_connect_cell();
 
-		buf_norm_cell_queue.clear();
+		buf_norm_cell_వరుస.clear();
 
-		log_assert(buf_norm_cell_port_queue.empty());
-		log_assert(buf_norm_wire_queue.empty());
-		log_assert(connections_.empty());
+		log_assert(buf_norm_cell_పోర్టు_వరుస.ఖాళీలు());
+		log_assert(buf_norm_wire_వరుస.ఖాళీలు());
+		log_assert(connections_.ఖాళీలు());
 	}
 
-	for (auto cell : pending_deleted_cells) {
-		delete cell;
+	కొరకు (స్వయంచాలక cell : pending_deleted_cells) {
+		తొలగించు cell;
 	}
 	pending_deleted_cells.clear();
 }
 
-void RTLIL::Cell::unsetPort(RTLIL::IdString portname)
+శూన్య RTLIL::Cell::unset_పోర్టు(RTLIL::IdString portname)
 {
-	RTLIL::SigSpec signal;
-	auto conn_it = connections_.find(portname);
+	RTLIL::SigSpec సంకేతం;
+	స్వయంచాలక conn_it = connections_.కనుగొను(portname);
 
-	if (conn_it != connections_.end())
+	ఒకవేళ (conn_it != connections_.చివర())
 	{
-		for (auto mon : module->monitors)
-			mon->notify_connect(this, conn_it->first, conn_it->second, signal);
+		కొరకు (స్వయంచాలక mon : module->monitors)
+			mon->notify_connect(ఇది, conn_it->మొదటి, conn_it->రెండవ, సంకేతం);
 
-		if (module->design)
-			for (auto mon : module->design->monitors)
-				mon->notify_connect(this, conn_it->first, conn_it->second, signal);
+		ఒకవేళ (module->design)
+			కొరకు (స్వయంచాలక mon : module->design->monitors)
+				mon->notify_connect(ఇది, conn_it->మొదటి, conn_it->రెండవ, సంకేతం);
 
-		if (yosys_xtrace) {
-			log("#X# Unconnect %s.%s.%s\n", this->module, this, PooledName(module, portname).unescape());
+		ఒకవేళ (yosys_xtrace) {
+			సంవర్గమానం("#X# Unconnect %s.%s.%s\n", ఇది->module, ఇది, PooledName(module, portname).unescape());
 			log_backtrace("-X- ", yosys_xtrace-1);
 		}
 
-		if (module->design && module->design->flagBufferedNormalized) {
-			if (conn_it->second.is_wire()) {
-				Wire *w = conn_it->second.as_wire();
-				if (w->driverCell_ == this && w->driverPort_ == portname) {
-					w->driverCell_ = nullptr;
-					w->driverPort_ = IdString();
-					module->buf_norm_wire_queue.insert(w);
-				} else if (w->driverCell_) {
-					log_assert(w->driverCell_->getPort(w->driverPort_) == w);
+		ఒకవేళ (module->design && module->design->flagBufferedNormalized) {
+			ఒకవేళ (conn_it->రెండవ.is_wire()) {
+				Wire *w = conn_it->రెండవ.as_wire();
+				ఒకవేళ (w->driverCell_ == ఇది && w->driver_పోర్టు_2 == portname) {
+					w->driverCell_ = శూన్యసూచిక;
+					w->driver_పోర్టు_2 = IdString();
+					module->buf_norm_wire_వరుస.చొప్పించు(w);
+				} లేకపోతే ఒకవేళ (w->driverCell_) {
+					log_assert(w->driverCell_->get_పోర్టు(w->driver_పోర్టు_2) == w);
 				}
 			}
 
-			if (type == ID($connect)) {
-				for (auto &[port, sig] : connections_) {
-					for (auto &chunk : sig.chunks()) {
-						if (!chunk.wire)
-							continue;
-						auto it = module->buf_norm_connect_index.find(chunk.wire);
-						if (it == module->buf_norm_connect_index.end())
-							continue;
-						it->second.erase(this);
-						if (it->second.empty())
-							module->buf_norm_connect_index.erase(it);
+			ఒకవేళ (type == ID($connect)) {
+				కొరకు (స్వయంచాలక &[పోర్టు, sig] : connections_) {
+					కొరకు (స్వయంచాలక &chunk : sig.chunks()) {
+						ఒకవేళ (!chunk.wire)
+							కొనసాగు;
+						స్వయంచాలక it = module->buf_norm_connect_సూచీ.కనుగొను(chunk.wire);
+						ఒకవేళ (it == module->buf_norm_connect_సూచీ.చివర())
+							కొనసాగు;
+						it->రెండవ.erase(ఇది);
+						ఒకవేళ (it->రెండవ.ఖాళీలు())
+							module->buf_norm_connect_సూచీ.erase(it);
 					}
 				}
 				connections_.erase(conn_it);
-				for (auto &[port, sig] : connections_) {
-					for (auto &chunk : sig.chunks()) {
-						if (!chunk.wire)
-							continue;
-						module->buf_norm_connect_index[chunk.wire].insert(this);
+				కొరకు (స్వయంచాలక &[పోర్టు, sig] : connections_) {
+					కొరకు (స్వయంచాలక &chunk : sig.chunks()) {
+						ఒకవేళ (!chunk.wire)
+							కొనసాగు;
+						module->buf_norm_connect_సూచీ[chunk.wire].చొప్పించు(ఇది);
 					}
 				}
-				return;
+				తిరిగి;
 			}
 		}
 
@@ -590,109 +590,109 @@ void RTLIL::Cell::unsetPort(RTLIL::IdString portname)
 	}
 }
 
-void RTLIL::Cell::setPort(RTLIL::IdString portname, RTLIL::SigSpec signal)
+శూన్య RTLIL::Cell::సమితి_పోర్టు(RTLIL::IdString portname, RTLIL::SigSpec సంకేతం)
 {
-	auto r = connections_.insert(portname);
-	auto conn_it = r.first;
-	if (!r.second && conn_it->second == signal)
-		return;
+	స్వయంచాలక r = connections_.చొప్పించు(portname);
+	స్వయంచాలక conn_it = r.మొదటి;
+	ఒకవేళ (!r.రెండవ && conn_it->రెండవ == సంకేతం)
+		తిరిగి;
 
-	for (auto mon : module->monitors)
-		mon->notify_connect(this, conn_it->first, conn_it->second, signal);
+	కొరకు (స్వయంచాలక mon : module->monitors)
+		mon->notify_connect(ఇది, conn_it->మొదటి, conn_it->రెండవ, సంకేతం);
 
-	if (module->design)
-		for (auto mon : module->design->monitors)
-			mon->notify_connect(this, conn_it->first, conn_it->second, signal);
+	ఒకవేళ (module->design)
+		కొరకు (స్వయంచాలక mon : module->design->monitors)
+			mon->notify_connect(ఇది, conn_it->మొదటి, conn_it->రెండవ, సంకేతం);
 
-	if (yosys_xtrace) {
-		log("#X# Connect %s.%s.%s = %s (%d)\n", this->module, this, PooledName(module, portname).unescape(), log_signal(signal), GetSize(signal));
+	ఒకవేళ (yosys_xtrace) {
+		సంవర్గమానం("#X# Connect %s.%s.%s = %s (%d)\n", ఇది->module, ఇది, PooledName(module, portname).unescape(), log_signal(సంకేతం), Get_కొలత(సంకేతం));
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
-	if (module->design && module->design->flagBufferedNormalized)
+	ఒకవేళ (module->design && module->design->flagBufferedNormalized)
 	{
 		// We eagerly clear a driver that got disconnected by changing this port connection
-		if (conn_it->second.is_wire()) {
-			Wire *w = conn_it->second.as_wire();
-			if (w->driverCell_ == this && w->driverPort_ == portname) {
-				w->driverCell_ = nullptr;
-				w->driverPort_ = IdString();
-				module->buf_norm_wire_queue.insert(w);
+		ఒకవేళ (conn_it->రెండవ.is_wire()) {
+			Wire *w = conn_it->రెండవ.as_wire();
+			ఒకవేళ (w->driverCell_ == ఇది && w->driver_పోర్టు_2 == portname) {
+				w->driverCell_ = శూన్యసూచిక;
+				w->driver_పోర్టు_2 = IdString();
+				module->buf_norm_wire_వరుస.చొప్పించు(w);
 			}
 		}
 
-		auto dir = port_dir(portname);
+		స్వయంచాలక dir = పోర్టు_dir(portname);
 		// This is a fast path that handles connecting a full driverless wire to an output port,
 		// everything else is goes through the bufnorm queues and is handled during the next
 		// bufNormalize call
-		if ((dir == RTLIL::PD_OUTPUT || dir == RTLIL::PD_INOUT) && signal.is_wire()) {
-			Wire *w = signal.as_wire();
-			if (w->driverCell_ == nullptr && (
-						(w->port_input && !w->port_output) == (type == ID($input_port)))) {
-				w->driverCell_ = this;
-				w->driverPort_ = portname;
+		ఒకవేళ ((dir == RTLIL::PD_OUTPUT || dir == RTLIL::PD_INOUT) && సంకేతం.is_wire()) {
+			Wire *w = సంకేతం.as_wire();
+			ఒకవేళ (w->driverCell_ == శూన్యసూచిక && (
+						(w->పోర్టు_ఆదానం && !w->పోర్టు_output) == (type == ID($ఆదానం_పోర్టు)))) {
+				w->driverCell_ = ఇది;
+				w->driver_పోర్టు_2 = portname;
 
-				conn_it->second = std::move(signal);
-				return;
+				conn_it->రెండవ = std::move(సంకేతం);
+				తిరిగి;
 			}
 		}
 
-		if (dir == RTLIL::PD_OUTPUT || dir == RTLIL::PD_INOUT) {
-			module->buf_norm_cell_queue.insert(this);
-			module->buf_norm_cell_port_queue.emplace(this, portname);
-		} else {
-			for (auto &chunk : signal.chunks())
-				if (chunk.wire != nullptr && chunk.wire->driverCell_ == nullptr)
-					module->buf_norm_wire_queue.insert(chunk.wire);
+		ఒకవేళ (dir == RTLIL::PD_OUTPUT || dir == RTLIL::PD_INOUT) {
+			module->buf_norm_cell_వరుస.చొప్పించు(ఇది);
+			module->buf_norm_cell_పోర్టు_వరుస.emplace(ఇది, portname);
+		} లేకపోతే {
+			కొరకు (స్వయంచాలక &chunk : సంకేతం.chunks())
+				ఒకవేళ (chunk.wire != శూన్యసూచిక && chunk.wire->driverCell_ == శూన్యసూచిక)
+					module->buf_norm_wire_వరుస.చొప్పించు(chunk.wire);
 		}
 
-		if (type == ID($connect)) {
-			for (auto &[port, sig] : connections_) {
-				for (auto &chunk : sig.chunks()) {
-					if (!chunk.wire)
-						continue;
-					auto it = module->buf_norm_connect_index.find(chunk.wire);
-					if (it == module->buf_norm_connect_index.end())
-						continue;
-					it->second.erase(this);
-					if (it->second.empty())
-						module->buf_norm_connect_index.erase(it);
+		ఒకవేళ (type == ID($connect)) {
+			కొరకు (స్వయంచాలక &[పోర్టు, sig] : connections_) {
+				కొరకు (స్వయంచాలక &chunk : sig.chunks()) {
+					ఒకవేళ (!chunk.wire)
+						కొనసాగు;
+					స్వయంచాలక it = module->buf_norm_connect_సూచీ.కనుగొను(chunk.wire);
+					ఒకవేళ (it == module->buf_norm_connect_సూచీ.చివర())
+						కొనసాగు;
+					it->రెండవ.erase(ఇది);
+					ఒకవేళ (it->రెండవ.ఖాళీలు())
+						module->buf_norm_connect_సూచీ.erase(it);
 				}
 			}
-			conn_it->second = std::move(signal);
-			for (auto &[port, sig] : connections_) {
-				for (auto &chunk : sig.chunks()) {
-					if (!chunk.wire)
-						continue;
-					module->buf_norm_connect_index[chunk.wire].insert(this);
+			conn_it->రెండవ = std::move(సంకేతం);
+			కొరకు (స్వయంచాలక &[పోర్టు, sig] : connections_) {
+				కొరకు (స్వయంచాలక &chunk : sig.chunks()) {
+					ఒకవేళ (!chunk.wire)
+						కొనసాగు;
+					module->buf_norm_connect_సూచీ[chunk.wire].చొప్పించు(ఇది);
 				}
 			}
-			return;
+			తిరిగి;
 		}
 	}
-	conn_it->second = std::move(signal);
+	conn_it->రెండవ = std::move(సంకేతం);
 
 }
 
-void RTLIL::Design::add(RTLIL::Module *module)
+శూన్య RTLIL::Design::కూడు(RTLIL::Module *module)
 {
-	log_assert(modules_.count(module->name) == 0);
+	log_assert(modules_.లెక్క(module->name) == 0);
 	log_assert(refcount_modules_ == 0);
 	modules_[module->name] = module;
-	module->design = this;
+	module->design = ఇది;
 
-	for (auto mon : monitors)
-		mon->notify_module_add(module);
+	కొరకు (స్వయంచాలక mon : monitors)
+		mon->notify_module_కూడు(module);
 
-	if (yosys_xtrace) {
-		log("#X# New Module: %s\n", module);
+	ఒకవేళ (yosys_xtrace) {
+		సంవర్గమానం("#X# New Module: %s\n", module);
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
-	if (flagBufferedNormalized) {
-		buf_norm_seed_queues(module);
+	ఒకవేళ (flagBufferedNormalized) {
+		buf_norm_విత్తనం_queues(module);
 		module->bufNormalize();
 	}
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర

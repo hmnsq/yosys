@@ -17,207 +17,207 @@
  *
  */
 
-#ifndef FFINIT_H
-#define FFINIT_H
+#నిర్వచితం_కాకపోతే FFINIT_H
+#నిర్వచించు FFINIT_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/threading.h"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "kernel/sigtools.h"
+#అన్తర్భావ "kernel/threading.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct FfInitVals
+నిర్మాణం FfInitVals
 {
-	const SigMapView *sigmap;
-	dict<SigBit, std::pair<State,SigBit>> initbits;
+	స్థిరరాశి SigMapView *sigmap;
+	dict<Sig_బిట్టు, std::pair<State,Sig_బిట్టు>> initbits;
 
-	void set(const SigMapView *sigmap_, RTLIL::Module *module)
+	శూన్య సమితి(స్థిరరాశి SigMapView *sigmap_, RTLIL::Module *module)
 	{
 		sigmap = sigmap_;
 		initbits.clear();
-		for (auto wire : module->wires())
-			if (wire->attributes.count(ID::init))
+		కొరకు (స్వయంచాలక wire : module->wires())
+			ఒకవేళ (wire->లక్షణాలు.లెక్క(ID::init))
 				process_wire(wire);
 	}
 
-	void process_wire(RTLIL::Wire *wire)
+	శూన్య process_wire(RTLIL::Wire *wire)
 	{
 		SigSpec wirebits = (*sigmap)(wire);
-		Const initval = wire->attributes.at(ID::init);
+		Const initval = wire->లక్షణాలు.at(ID::init);
 
-		for (int i = 0; i < GetSize(wirebits) && i < GetSize(initval); i++)
+		కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(wirebits) && i < Get_కొలత(initval); i++)
 		{
-			SigBit bit = wirebits[i];
+			Sig_బిట్టు బిట్టు = wirebits[i];
 			State val = initval[i];
 
-			if (val != State::S0 && val != State::S1 && bit.wire != nullptr)
-				continue;
+			ఒకవేళ (val != State::S0 && val != State::S1 && బిట్టు.wire != nullptr)
+				కొనసాగు;
 
-			if (initbits.count(bit)) {
-				if (initbits.at(bit).first != val)
+			ఒకవేళ (initbits.లెక్క(బిట్టు)) {
+				ఒకవేళ (initbits.at(బిట్టు).మొదటి != val)
 					log_error("Conflicting init values for signal %s (%s = %s != %s).\n",
-							log_signal(bit), log_signal(SigBit(wire, i)),
-							log_signal(val), log_signal(initbits.at(bit).first));
-				continue;
+							log_signal(బిట్టు), log_signal(Sig_బిట్టు(wire, i)),
+							log_signal(val), log_signal(initbits.at(బిట్టు).మొదటి));
+				కొనసాగు;
 			}
 
-			initbits[bit] = std::make_pair(val,SigBit(wire,i));
+			initbits[బిట్టు] = std::make_pair(val,Sig_బిట్టు(wire,i));
 		}
 	}
 
-	void set_parallel(const SigMapView *sigmap_, ParallelDispatchThreadPool &thread_pool, RTLIL::Module *module)
+	శూన్య సమితి_parallel(స్థిరరాశి SigMapView *sigmap_, ParallelDispatchThreadPool &thread_pool, RTLIL::Module *module)
 	{
 		sigmap = sigmap_;
 		initbits.clear();
 
-		const RTLIL::Module *const_module = module;
-		ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_size(0, module->wires_size(), 1000));
-		ShardedVector<RTLIL::Wire*> init_wires(subpool);
-		subpool.run([const_module, &init_wires](const ParallelDispatchThreadPool::RunCtx &ctx) {
-			for (int i : ctx.item_range(const_module->wires_size())) {
+		స్థిరరాశి RTLIL::Module *const_module = module;
+		ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_కొలత(0, module->wires_కొలత(), 1000));
+		Sharded_సదిశ<RTLIL::Wire*> init_wires(subpool);
+		subpool.నిరంతరం([const_module, &init_wires](స్థిరరాశి ParallelDispatchThreadPool::నిరంతరం_Ctx &ctx) {
+			కొరకు (పూర్ణాంకం i : ctx.అంశం_range(const_module->wires_కొలత())) {
 				RTLIL::Wire *wire = const_module->wire_at(i);
-				if (wire->attributes.count(ID::init))
-					init_wires.insert(ctx, wire);
+				ఒకవేళ (wire->లక్షణాలు.లెక్క(ID::init))
+					init_wires.చొప్పించు(ctx, wire);
 			}
 		});
 
-		for (RTLIL::Wire *wire : init_wires)
+		కొరకు (RTLIL::Wire *wire : init_wires)
 			process_wire(wire);
 	}
 
-	RTLIL::State operator()(RTLIL::SigBit bit) const
+	RTLIL::State క్రియాకారకం()(RTLIL::Sig_బిట్టు బిట్టు) స్థిరరాశి
 	{
-		auto it = initbits.find((*sigmap)(bit));
-		if (it != initbits.end())
-			return it->second.first;
-		else
-			return State::Sx;
+		స్వయంచాలక it = initbits.కనుగొను((*sigmap)(బిట్టు));
+		ఒకవేళ (it != initbits.చివర())
+			తిరిగి it->రెండవ.మొదటి;
+		లేకపోతే
+			తిరిగి State::Sx;
 	}
 
-	RTLIL::Const operator()(const RTLIL::SigSpec &sig) const
+	RTLIL::Const క్రియాకారకం()(స్థిరరాశి RTLIL::SigSpec &sig) స్థిరరాశి
 	{
-		RTLIL::Const::Builder res_bits(GetSize(sig));
-		for (auto bit : sig)
-			res_bits.push_back((*this)(bit));
-		return res_bits.build();
+		RTLIL::Const::Builder res_బిట్లు(Get_కొలత(sig));
+		కొరకు (స్వయంచాలక బిట్టు : sig)
+			res_బిట్లు.నెట్టు_వెనుక((*this)(బిట్టు));
+		తిరిగి res_బిట్లు.build();
 	}
 
-	void set_init(RTLIL::SigBit bit, RTLIL::State val)
+	శూన్య సమితి_init(RTLIL::Sig_బిట్టు బిట్టు, RTLIL::State val)
 	{
-		SigBit mbit = (*sigmap)(bit);
-		SigBit abit = bit;
-		auto it = initbits.find(mbit);
-		if (it != initbits.end())
-			abit = it->second.second;
-		else if (val == State::Sx)
-			return;
+		Sig_బిట్టు mbit = (*sigmap)(బిట్టు);
+		Sig_బిట్టు abit = బిట్టు;
+		స్వయంచాలక it = initbits.కనుగొను(mbit);
+		ఒకవేళ (it != initbits.చివర())
+			abit = it->రెండవ.రెండవ;
+		లేకపోతే ఒకవేళ (val == State::Sx)
+			తిరిగి;
 		log_assert(abit.wire);
 		initbits[mbit] = std::make_pair(val,abit);
-		auto it2 = abit.wire->attributes.find(ID::init);
-		if (it2 != abit.wire->attributes.end()) {
-			it2->second.set(abit.offset, val);
-			if (it2->second.is_fully_undef())
-				abit.wire->attributes.erase(it2);
-		} else if (val != State::Sx) {
-			Const cval(State::Sx, GetSize(abit.wire));
-			cval.set(abit.offset, val);
-			abit.wire->attributes[ID::init] = cval;
+		స్వయంచాలక it2 = abit.wire->లక్షణాలు.కనుగొను(ID::init);
+		ఒకవేళ (it2 != abit.wire->లక్షణాలు.చివర()) {
+			it2->రెండవ.సమితి(abit.స్థానభ్రంశం, val);
+			ఒకవేళ (it2->రెండవ.is_fully_undef())
+				abit.wire->లక్షణాలు.erase(it2);
+		} లేకపోతే ఒకవేళ (val != State::Sx) {
+			Const cval(State::Sx, Get_కొలత(abit.wire));
+			cval.సమితి(abit.స్థానభ్రంశం, val);
+			abit.wire->లక్షణాలు[ID::init] = cval;
 		}
 	}
 
-	void set_init(const RTLIL::SigSpec &sig, RTLIL::Const val)
+	శూన్య సమితి_init(స్థిరరాశి RTLIL::SigSpec &sig, RTLIL::Const val)
 	{
-		log_assert(GetSize(sig) == GetSize(val));
-		for (int i = 0; i < GetSize(sig); i++)
-			set_init(sig[i], val[i]);
+		log_assert(Get_కొలత(sig) == Get_కొలత(val));
+		కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(sig); i++)
+			సమితి_init(sig[i], val[i]);
 	}
 
-	void remove_init(RTLIL::SigBit bit)
+	శూన్య remove_init(RTLIL::Sig_బిట్టు బిట్టు)
 	{
-		set_init(bit, State::Sx);
+		సమితి_init(బిట్టు, State::Sx);
 	}
 
-	void remove_init(const RTLIL::SigSpec &sig)
+	శూన్య remove_init(స్థిరరాశి RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sig)
-			remove_init(bit);
+		కొరకు (స్వయంచాలక బిట్టు : sig)
+			remove_init(బిట్టు);
 	}
 
 	// Move $barrier output init value to it's input
-	void move_barrier_inits(RTLIL::Module *module)
+	శూన్య move_barrier_inits(RTLIL::Module *module)
 	{
-		dict<RTLIL::SigBit, RTLIL::SigBit> next;
-		for (auto cell : module->cells()) {
-			if (cell->type != ID($barrier))
-				continue;
-			RTLIL::SigSpec sig_y = (*sigmap)(cell->getPort(ID::Y)), sig_a = cell->getPort(ID::A);
-			for (int i = 0; i < GetSize(sig_y); i++)
-				next[sig_y[i]] = sig_a[i];
+		dict<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> తదుపరి;
+		కొరకు (స్వయంచాలక cell : module->cells()) {
+			ఒకవేళ (cell->type != ID($barrier))
+				కొనసాగు;
+			RTLIL::SigSpec sig_y = (*sigmap)(cell->get_పోర్టు(ID::Y)), sig_a = cell->get_పోర్టు(ID::A);
+			కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(sig_y); i++)
+				తదుపరి[sig_y[i]] = sig_a[i];
 		}
-		if (next.empty() || initbits.empty())
-			return;
-		pool<RTLIL::SigBit> inputs = input_nets(module), moved;
-		for (auto [from, to] : next) {
+		ఒకవేళ (తదుపరి.ఖాళీలు() || initbits.ఖాళీలు())
+			తిరిగి;
+		pool<RTLIL::Sig_బిట్టు> inputs = ఆదానం_nets(module), moved;
+		కొరకు (స్వయంచాలక [from, గమ్యం] : తదుపరి) {
 			RTLIL::State val = (*this)(from);
-			if (val == State::Sx)
-				continue;
-			moved.insert(from);
-			for (int i = 0; i < GetSize(next) && next.count((*sigmap)(to)); i++)
-				to = next.at((*sigmap)(to));
-			RTLIL::SigBit to_net = (*sigmap)(to);
-			if (to_net.wire == nullptr || inputs.count(to_net))
-				continue;
-			RTLIL::State to_val = (*this)(to);
-			if (to_val == State::Sx)
-				set_init(to, val);
-			else if (to_val != val)
+			ఒకవేళ (val == State::Sx)
+				కొనసాగు;
+			moved.చొప్పించు(from);
+			కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(తదుపరి) && తదుపరి.లెక్క((*sigmap)(గమ్యం)); i++)
+				గమ్యం = తదుపరి.at((*sigmap)(గమ్యం));
+			RTLIL::Sig_బిట్టు గమ్యం_net = (*sigmap)(గమ్యం);
+			ఒకవేళ (గమ్యం_net.wire == nullptr || inputs.లెక్క(గమ్యం_net))
+				కొనసాగు;
+			RTLIL::State గమ్యం_val = (*this)(గమ్యం);
+			ఒకవేళ (గమ్యం_val == State::Sx)
+				సమితి_init(గమ్యం, val);
+			లేకపోతే ఒకవేళ (గమ్యం_val != val)
 				log_error("Conflicting init values for signal %s (%s = %s != %s).\n",
-						log_signal(to), log_signal(from), log_signal(val), log_signal(to_val));
+						log_signal(గమ్యం), log_signal(from), log_signal(val), log_signal(గమ్యం_val));
 		}
-		if (!moved.empty())
+		ఒకవేళ (!moved.ఖాళీలు())
 			remove_net_inits(module, moved);
 	}
 
-	pool<RTLIL::SigBit> input_nets(RTLIL::Module *module) const
+	pool<RTLIL::Sig_బిట్టు> ఆదానం_nets(RTLIL::Module *module) స్థిరరాశి
 	{
-		pool<RTLIL::SigBit> nets;
-		for (auto wire : module->wires())
-			if (wire->port_input)
-				for (auto bit : (*sigmap)(wire))
-					nets.insert(bit);
-		return nets;
+		pool<RTLIL::Sig_బిట్టు> nets;
+		కొరకు (స్వయంచాలక wire : module->wires())
+			ఒకవేళ (wire->పోర్టు_ఆదానం)
+				కొరకు (స్వయంచాలక బిట్టు : (*sigmap)(wire))
+					nets.చొప్పించు(బిట్టు);
+		తిరిగి nets;
 	}
 
-	void remove_net_inits(RTLIL::Module *module, const pool<RTLIL::SigBit> &nets)
+	శూన్య remove_net_inits(RTLIL::Module *module, స్థిరరాశి pool<RTLIL::Sig_బిట్టు> &nets)
 	{
-		for (auto bit : nets)
-			initbits.erase(bit);
-		for (auto wire : module->wires()) {
-			auto it = wire->attributes.find(ID::init);
-			if (it == wire->attributes.end())
-				continue;
-			for (int i = 0; i < GetSize(wire) && i < GetSize(it->second); i++)
-				if (nets.count((*sigmap)(RTLIL::SigBit(wire, i))))
-					it->second.set(i, State::Sx);
-			if (it->second.is_fully_undef())
-				wire->attributes.erase(it);
+		కొరకు (స్వయంచాలక బిట్టు : nets)
+			initbits.erase(బిట్టు);
+		కొరకు (స్వయంచాలక wire : module->wires()) {
+			స్వయంచాలక it = wire->లక్షణాలు.కనుగొను(ID::init);
+			ఒకవేళ (it == wire->లక్షణాలు.చివర())
+				కొనసాగు;
+			కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(wire) && i < Get_కొలత(it->రెండవ); i++)
+				ఒకవేళ (nets.లెక్క((*sigmap)(RTLIL::Sig_బిట్టు(wire, i))))
+					it->రెండవ.సమితి(i, State::Sx);
+			ఒకవేళ (it->రెండవ.is_fully_undef())
+				wire->లక్షణాలు.erase(it);
 		}
 	}
 
-	void clear()
+	శూన్య clear()
 	{
 		initbits.clear();
 	}
 
-	FfInitVals (const SigMapView *sigmap, RTLIL::Module *module)
+	FfInitVals (స్థిరరాశి SigMapView *sigmap, RTLIL::Module *module)
 	{
-		set(sigmap, module);
+		సమితి(sigmap, module);
 	}
 
 	FfInitVals () {}
 };
 
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

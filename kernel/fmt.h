@@ -17,24 +17,24 @@
  *
  */
 
-#ifndef FMT_H
-#define FMT_H
+#నిర్వచితం_కాకపోతే FMT_H
+#నిర్వచించు FMT_H
 
-#include "kernel/yosys.h"
+#అన్తర్భావ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // Verilog format argument, such as the arguments in:
 //   $display("foo %d bar %01x", 4'b0, $signed(2'b11))
-struct VerilogFmtArg {
-	enum {
+నిర్మాణం VerilogFmtArg {
+	గణన {
 		STRING  = 0,
 		INTEGER = 1,
-		TIME    = 2,
+		సమయం    = 2,
 	} type;
 
 	// All types
-	LogSourceLocation src;
+	Log_ఆధారం_Location src;
 
 	// STRING type
 	std::string str;
@@ -50,13 +50,13 @@ struct VerilogFmtArg {
 // RTLIL format part, such as the substitutions in:
 //   "foo {4:> 4du} bar {2:<01hs}"
 // Must be kept in sync with `struct fmt_part` in backends/cxxrtl/runtime/cxxrtl/cxxrtl.h!
-struct FmtPart {
-	enum {
+నిర్మాణం FmtPart {
+	గణన {
 		LITERAL  	= 0,
 		INTEGER 	= 1,
 		STRING    = 2,
 		UNICHAR   = 3,
-		VLOG_TIME = 4,
+		VLOG_సమయం = 4,
 	} type;
 
 	// LITERAL type
@@ -66,50 +66,50 @@ struct FmtPart {
 	RTLIL::SigSpec sig;
 
 	// INTEGER/STRING/VLOG_TIME types
-	enum {
-		RIGHT	= 0,
-		LEFT	= 1,
+	గణన {
+		కుడి_2	= 0,
+		ఎడమ_2	= 1,
 		NUMERIC	= 2,
-	} justify = RIGHT;
-	char padding = '\0';
-	size_t width = 0;
+	} justify = కుడి_2;
+	అక్షరం padding = '\0';
+	కొలత_t వెడల్పు = 0;
 
 	// INTEGER type
-	unsigned base = 10;
+	గుర్తులేని పునాది = 10;
 	bool signed_ = false;
-	enum {
+	గణన {
 		MINUS		= 0,
 		PLUS_MINUS	= 1,
 		SPACE_MINUS	= 2,
 	} sign = MINUS;
-	bool hex_upper = false;
-	bool show_base = false;
-	bool group = false;
+	bool hex_పై = false;
+	bool show_పునాది = false;
+	bool సమూహం = false;
 
 	// VLOG_TIME type
 	bool realtime = false;
 };
 
-struct Fmt {
-public:
-	std::vector<FmtPart> parts;
+నిర్మాణం Fmt {
+బహిరంగ:
+	std::సదిశ<FmtPart> parts;
 
-	void append_literal(const std::string &str);
+	శూన్య append_literal(స్థిరరాశి std::string &str);
 
-	void parse_rtlil(const RTLIL::Cell *cell);
-	void emit_rtlil(RTLIL::Cell *cell) const;
+	శూన్య parse_rtlil(స్థిరరాశి RTLIL::Cell *cell);
+	శూన్య emit_rtlil(RTLIL::Cell *cell) స్థిరరాశి;
 
-	void parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_like, int default_base, const std::string &task_name, const std::string &module_name);
-	std::vector<VerilogFmtArg> emit_verilog() const;
+	శూన్య parse_verilog(స్థిరరాశి std::సదిశ<VerilogFmtArg> &వాదనలు_2, bool sformat_like, పూర్ణాంకం default_పునాది, స్థిరరాశి std::string &task_name, స్థిరరాశి std::string &module_name);
+	std::సదిశ<VerilogFmtArg> emit_verilog() స్థిరరాశి;
 
-	void emit_cxxrtl(std::ostream &os, std::string indent, std::function<void(const RTLIL::SigSpec &)> emit_sig, const std::string &context) const;
+	శూన్య emit_cxxrtl(std::ostream &os, std::string indent, std::function<శూన్య(స్థిరరాశి RTLIL::SigSpec &)> emit_sig, స్థిరరాశి std::string &context) స్థిరరాశి;
 
-	std::string render() const;
+	std::string render() స్థిరరాశి;
 
-private:
-	void apply_verilog_automatic_sizing_and_add(FmtPart &part);
+అంతరంగ:
+	శూన్య apply_verilog_automatic_sizing_and_కూడు(FmtPart &part);
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

@@ -1,371 +1,371 @@
-#include "kernel/twine.h"
-#include "kernel/hashcons_impl.h"
-#include "kernel/log.h"
+#అన్తర్భావ "kernel/twine.h"
+#అన్తర్భావ "kernel/hashcons_impl.h"
+#అన్తర్భావ "kernel/log.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template struct HashConsPool<TwinePool, TwineNode, IdString>;
+మూస నిర్మాణం HashConsPool<TwinePool, Twine_కణుపు, IdString>;
 
-std::vector<TwineNode> StaticTwines::nodes_;
+std::సదిశ<Twine_కణుపు> StaticTwines::nodes_;
 
-void StaticTwines::init() {
-	if (ready())
-		return;
-	log_assert(nodes_.empty());
-	nodes_.reserve(STATIC_TWINE_END);
-	for (const char *name : ID::static_names)
-		nodes_.emplace_back(std::string_view(name));
+శూన్య StaticTwines::init() {
+	ఒకవేళ (ready())
+		తిరిగి;
+	log_assert(nodes_.ఖాళీలు());
+	nodes_.reserve(STATIC_TWINE_చివర);
+	కొరకు (స్థిరరాశి అక్షరం *name : ID::static_పేర్లు)
+		nodes_.emplace_వెనుక(std::string_view(name));
 }
 
-const TwineNode &StaticTwines::node(size_t idx) { return nodes_[idx]; }
-bool StaticTwines::ready() { return nodes_.size() == STATIC_TWINE_END; }
+స్థిరరాశి Twine_కణుపు &StaticTwines::కణుపు(కొలత_t idx) { తిరిగి nodes_[idx]; }
+తార్కిక StaticTwines::ready() { తిరిగి nodes_.కొలత() == STATIC_TWINE_చివర; }
 
 int64_t twine_gc_ns;
-int twine_gc_count;
+పూర్ణాంకం twine_gc_లెక్క;
 
-std::string IdString::handle_token() const {
-	return stringf("%s@%zu", isPublic() ? "$pub" : "$priv", untag().raw());
+std::string IdString::handle_token() స్థిరరాశి {
+	తిరిగి stringf("%s@%zu", is_ప్రజా() ? "$pub" : "$priv", untag().raw());
 }
 
-size_t IdString::handle_token_prefix(std::string_view token, bool &is_public) {
-	if (token.substr(0, 5) == "$pub@") {
-		is_public = true;
-		return 5;
+కొలత_t IdString::handle_token_ఉపసర్గ(std::string_view token, తార్కిక &is_ప్రజా_2) {
+	ఒకవేళ (token.substr(0, 5) == "$pub@") {
+		is_ప్రజా_2 = నిజం;
+		తిరిగి 5;
 	}
-	if (token.substr(0, 6) == "$priv@") {
-		is_public = false;
-		return 6;
+	ఒకవేళ (token.substr(0, 6) == "$priv@") {
+		is_ప్రజా_2 = అబద్ధం;
+		తిరిగి 6;
 	}
-	return 0;
+	తిరిగి 0;
 }
 
 std::string ID::str(IdString ref) {
 	IdString idx = ref.untag();
-	log_assert(idx.raw() < STATIC_TWINE_END);
-	std::string result = ref.isPublic() ? "\\" : "";
-	result += static_names[idx.raw()];
-	return result;
+	log_assert(idx.raw() < STATIC_TWINE_చివర);
+	std::string ఫలితం = ref.is_ప్రజా() ? "\\" : "";
+	ఫలితం += static_పేర్లు[idx.raw()];
+	తిరిగి ఫలితం;
 }
 
 std::string ID::unescaped_str(IdString ref) {
 	IdString idx = ref.untag();
-	log_assert(idx.raw() < STATIC_TWINE_END);
-	return static_names[idx.raw()];
+	log_assert(idx.raw() < STATIC_TWINE_చివర);
+	తిరిగి static_పేర్లు[idx.raw()];
 }
 
-TwineSpec::TwineSpec(Leaf v) : data(std::move(v)) {}
-TwineSpec::TwineSpec(Suffix v) : data(std::move(v)) {}
-TwineSpec::TwineSpec(AutoSuffix v) : data(std::move(v)) {}
+TwineSpec::TwineSpec(ఆకు v) : దత్తాంశం(std::move(v)) {}
+TwineSpec::TwineSpec(Suffix v) : దత్తాంశం(std::move(v)) {}
+TwineSpec::TwineSpec(AutoSuffix v) : దత్తాంశం(std::move(v)) {}
 
-void SmallString::store(std::string_view content)
+శూన్య SmallString::store(std::string_view content)
 {
-	log_assert(content.size() <= MAX_LEN);
+	log_assert(content.కొలత() <= MAX_LEN);
 	release();
-	len_ = content.size();
-	if (len_ > INLINE_CAP) {
-		ptr_ = new char[len_];
-		memcpy(ptr_, content.data(), len_);
-	} else {
-		memcpy(inl_, content.data(), len_);
+	len_ = content.కొలత();
+	ఒకవేళ (len_ > INLINE_CAP) {
+		ptr_ = కొత్త అక్షరం[len_];
+		జ్ఞాపకం_నకలు(ptr_, content.దత్తాంశం(), len_);
+	} లేకపోతే {
+		జ్ఞాపకం_నకలు(inl_, content.దత్తాంశం(), len_);
 	}
 }
 
-void SmallString::release()
+శూన్య SmallString::release()
 {
-	if (len_ > INLINE_CAP)
-		delete[] ptr_;
+	ఒకవేళ (len_ > INLINE_CAP)
+		తొలగించు[] ptr_;
 	len_ = 0;
 }
 
 SmallString::SmallString(std::string_view content) { store(content); }
 
-SmallString::SmallString(const SmallString &other) { store(other.view()); }
+SmallString::SmallString(స్థిరరాశి SmallString &other) { store(other.view()); }
 
 SmallString::SmallString(SmallString &&other) noexcept : len_(other.len_)
 {
-	memcpy(inl_, other.inl_, INLINE_CAP);
+	జ్ఞాపకం_నకలు(inl_, other.inl_, INLINE_CAP);
 	other.len_ = 0;
 }
 
-SmallString &SmallString::operator=(const SmallString &other)
+SmallString &SmallString::క్రియాకారకం=(స్థిరరాశి SmallString &other)
 {
-	if (this != &other)
+	ఒకవేళ (ఇది != &other)
 		store(other.view());
-	return *this;
+	తిరిగి *ఇది;
 }
 
-SmallString &SmallString::operator=(SmallString &&other) noexcept
+SmallString &SmallString::క్రియాకారకం=(SmallString &&other) noexcept
 {
-	if (this == &other)
-		return *this;
+	ఒకవేళ (ఇది == &other)
+		తిరిగి *ఇది;
 	release();
-	memcpy(inl_, other.inl_, INLINE_CAP);
+	జ్ఞాపకం_నకలు(inl_, other.inl_, INLINE_CAP);
 	len_ = other.len_;
 	other.len_ = 0;
-	return *this;
+	తిరిగి *ఇది;
 }
 
 SmallString::~SmallString() { release(); }
 
-TwineNode::TwineNode(TwineNode &&other) noexcept
-	: text_(std::move(other.text_)), prefix_(other.prefix_), hash_(other.hash_)
+Twine_కణుపు::Twine_కణుపు(Twine_కణుపు &&other) noexcept
+	: పాఠ్యం_2(std::move(other.పాఠ్యం_2)), ఉపసర్గ_3(other.ఉపసర్గ_3), hash_(other.hash_)
 {
-	other.prefix_ = DEAD;
+	other.ఉపసర్గ_3 = DEAD;
 }
 
-TwineNode &TwineNode::operator=(TwineNode &&other) noexcept
+Twine_కణుపు &Twine_కణుపు::క్రియాకారకం=(Twine_కణుపు &&other) noexcept
 {
-	if (this == &other)
-		return *this;
-	text_ = std::move(other.text_);
-	prefix_ = other.prefix_;
+	ఒకవేళ (ఇది == &other)
+		తిరిగి *ఇది;
+	పాఠ్యం_2 = std::move(other.పాఠ్యం_2);
+	ఉపసర్గ_3 = other.ఉపసర్గ_3;
 	hash_ = other.hash_;
-	other.prefix_ = DEAD;
-	return *this;
+	other.ఉపసర్గ_3 = DEAD;
+	తిరిగి *ఇది;
 }
 
-std::string TwineSpec::content_str() const {
-	if (auto *leaf = std::get_if<Leaf>(&data))
-		return leaf->s;
-	auto &autosfx = std::get<AutoSuffix>(data);
-	return *autosfx.prefix + autosfx.tail;
+std::string TwineSpec::content_str() స్థిరరాశి {
+	ఒకవేళ (స్వయంచాలక *ఆకు_2 = std::get_if<ఆకు>(&దత్తాంశం))
+		తిరిగి ఆకు_2->s;
+	స్వయంచాలక &autosfx = std::get<AutoSuffix>(దత్తాంశం);
+	తిరిగి *autosfx.ఉపసర్గ_2 + autosfx.తోక;
 }
 
-static std::pair<std::string_view, bool> unescape_name(std::string_view name) {
-	if (!name.empty() && name[0] == '\\')
-		return {name.substr(1), true};
-	return {name, false};
+స్థిర std::pair<std::string_view, తార్కిక> unescape_name(std::string_view name) {
+	ఒకవేళ (!name.ఖాళీలు() && name[0] == '\\')
+		తిరిగి {name.substr(1), నిజం};
+	తిరిగి {name, అబద్ధం};
 }
 
-static void check_name(std::string_view name) {
+స్థిర శూన్య check_name(std::string_view name) {
 	log_assert(name[0] == '$' || name[0] == '\\');
-	for (char ch : name)
-		if ((unsigned)ch <= (unsigned)' ')
+	కొరకు (అక్షరం ch : name)
+		ఒకవేళ ((గుర్తులేని)ch <= (గుర్తులేని)' ')
 			log_error("Found control character or space (0x%02x) in string '%s' which is not allowed in RTLIL identifiers\n", ch, std::string(name));
 }
 
-TwinePool::TwinePool() : serial_(next_serial()) {}
-TwinePool::TwinePool(const TwinePool& other)
-	: HashConsPool(other), auto_prefixes(other.auto_prefixes), serial_(next_serial()) {}
+TwinePool::TwinePool() : serial_(తదుపరి_serial()) {}
+TwinePool::TwinePool(స్థిరరాశి TwinePool& other)
+	: HashConsPool(other), auto_prefixes(other.auto_prefixes), serial_(తదుపరి_serial()) {}
 TwinePool::TwinePool(TwinePool&& other)
-	: HashConsPool(std::move(other)), auto_prefixes(std::move(other.auto_prefixes)), serial_(next_serial()) {}
+	: HashConsPool(std::move(other)), auto_prefixes(std::move(other.auto_prefixes)), serial_(తదుపరి_serial()) {}
 
-TwinePool& TwinePool::operator=(const TwinePool& other) {
-	if (this == &other)
-		return *this;
-	HashConsPool::operator=(other);
+TwinePool& TwinePool::క్రియాకారకం=(స్థిరరాశి TwinePool& other) {
+	ఒకవేళ (ఇది == &other)
+		తిరిగి *ఇది;
+	HashConsPool::క్రియాకారకం=(other);
 	auto_prefixes = other.auto_prefixes;
-	serial_ = next_serial();
-	return *this;
+	serial_ = తదుపరి_serial();
+	తిరిగి *ఇది;
 }
 
-TwinePool& TwinePool::operator=(TwinePool&& other) {
-	if (this == &other)
-		return *this;
-	HashConsPool::operator=(std::move(other));
+TwinePool& TwinePool::క్రియాకారకం=(TwinePool&& other) {
+	ఒకవేళ (ఇది == &other)
+		తిరిగి *ఇది;
+	HashConsPool::క్రియాకారకం=(std::move(other));
 	auto_prefixes = std::move(other.auto_prefixes);
-	serial_ = next_serial();
-	return *this;
+	serial_ = తదుపరి_serial();
+	తిరిగి *ఇది;
 }
 
-bool TwinePool::owns(IdString ref) const {
-	return ref.serial() == 0 || ref.serial() == serial_;
+తార్కిక TwinePool::owns(IdString ref) స్థిరరాశి {
+	తిరిగి ref.serial() == 0 || ref.serial() == serial_;
 }
 
-IdString TwinePool::stamp(IdString ref) const {
-	if (ref == IdString::Null || ID::is_static(ref))
-		return ref;
-	return ref.stamped(serial_);
+IdString TwinePool::stamp(IdString ref) స్థిరరాశి {
+	ఒకవేళ (ref == IdString::Null || ID::is_static(ref))
+		తిరిగి ref;
+	తిరిగి ref.stamped(serial_);
 }
 
-void TwinePool::check_owned(IdString ref) const {
-	if constexpr (IdString::MAX_SERIAL != 0)
+శూన్య TwinePool::check_owned(IdString ref) స్థిరరాశి {
+	ఒకవేళ constexpr (IdString::MAX_SERIAL != 0)
 		log_assert(owns(ref));
 }
 
-const TwineNode& TwinePool::operator[](IdString ref) const {
+స్థిరరాశి Twine_కణుపు& TwinePool::క్రియాకారకం[](IdString ref) స్థిరరాశి {
 	check_owned(ref);
-	return HashConsPool::operator[](ref);
+	తిరిగి HashConsPool::క్రియాకారకం[](ref);
 }
 
-size_t TwinePool::gc(pool<IdString>& roots) {
-	for (auto &it : auto_prefixes)
-		roots.insert(it.second);
-	return HashConsPool::gc(roots);
+కొలత_t TwinePool::gc(pool<IdString>& roots) {
+	కొరకు (స్వయంచాలక &it : auto_prefixes)
+		roots.చొప్పించు(it.రెండవ);
+	తిరిగి HashConsPool::gc(roots);
 }
 
-const TwineNode& TwinePool::static_node(size_t idx) { return StaticTwines::node(idx); }
-void TwinePool::check_ready() { log_assert(StaticTwines::ready()); }
+స్థిరరాశి Twine_కణుపు& TwinePool::static_కణుపు(కొలత_t idx) { తిరిగి StaticTwines::కణుపు(idx); }
+శూన్య TwinePool::check_ready() { log_assert(StaticTwines::ready()); }
 
-size_t TwinePool::next_serial() {
-	static size_t counter = 0;
-	size_t serial = ++counter;
-	if constexpr (IdString::MAX_SERIAL == 0)
-		return serial;
-	else
-		return serial > IdString::MAX_SERIAL ? (serial % IdString::MAX_SERIAL) + 1 : serial;
+కొలత_t TwinePool::తదుపరి_serial() {
+	స్థిర కొలత_t counter = 0;
+	కొలత_t serial = ++counter;
+	ఒకవేళ constexpr (IdString::MAX_SERIAL == 0)
+		తిరిగి serial;
+	లేకపోతే
+		తిరిగి serial > IdString::MAX_SERIAL ? (serial % IdString::MAX_SERIAL) + 1 : serial;
 }
 
-IdString TwinePool::add_inner(TwineNode t) {
-	if (free_list.empty() && STATIC_COUNT + backing.size() > IdString::MAX_INDEX)
+IdString TwinePool::కూడు_inner(Twine_కణుపు t) {
+	ఒకవేళ (free_list.ఖాళీలు() && STATIC_లెక్క + backing.కొలత() > IdString::MAX_సూచీ)
 		log_error("Out of twine handles: a design may name at most %zu distinct twines.\n",
-				IdString::MAX_INDEX - STATIC_COUNT);
-	return HashConsPool::add_inner(std::move(t));
+				IdString::MAX_సూచీ - STATIC_లెక్క);
+	తిరిగి HashConsPool::కూడు_inner(std::move(t));
 }
 
-void TwinePool::dump(IdString ref, std::ostream& os) const {
-	const TwineNode& twine = (*this)[ref];
-	switch (twine.kind()) {
-	case TwineNode::Kind::Dead:
+శూన్య TwinePool::dump(IdString ref, std::ostream& os) స్థిరరాశి {
+	స్థిరరాశి Twine_కణుపు& twine = (*ఇది)[ref];
+	ఎంపిక (twine.రకం()) {
+	స్థితి Twine_కణుపు::రకం_2::Dead:
 		os << "Dead()";
-		break;
-	case TwineNode::Kind::Leaf:
-		os << "Leaf(\"" << twine.text() << "\")";
-		break;
-	case TwineNode::Kind::Suffix:
+		ఆపు;
+	స్థితి Twine_కణుపు::రకం_2::ఆకు:
+		os << "Leaf(\"" << twine.పాఠ్యం() << "\")";
+		ఆపు;
+	స్థితి Twine_కణుపు::రకం_2::Suffix:
 		os << "Suffix(prefix: ";
-		dump(twine.prefix(), os);
-		os << ", tail: \"" << twine.text() << "\")";
-		break;
+		dump(twine.ఉపసర్గ_2(), os);
+		os << ", tail: \"" << twine.పాఠ్యం() << "\")";
+		ఆపు;
 	}
-	if (ref.isPublic())
+	ఒకవేళ (ref.is_ప్రజా())
 		os << " pub";
 }
 
-void TwinePool::append_str(IdString ref, std::string& out) const {
-	if (ref == IdString::Null)
-		return;
-	if (ref.isPublic())
-		out += '\\';
-	const TwineNode& twine = (*this)[ref];
-	switch (twine.kind()) {
-	case TwineNode::Kind::Dead:
-		break;
-	case TwineNode::Kind::Suffix:
-		append_str(twine.prefix(), out);
+శూన్య TwinePool::append_str(IdString ref, std::string& బహిర్గతం) స్థిరరాశి {
+	ఒకవేళ (ref == IdString::Null)
+		తిరిగి;
+	ఒకవేళ (ref.is_ప్రజా())
+		బహిర్గతం += '\\';
+	స్థిరరాశి Twine_కణుపు& twine = (*ఇది)[ref];
+	ఎంపిక (twine.రకం()) {
+	స్థితి Twine_కణుపు::రకం_2::Dead:
+		ఆపు;
+	స్థితి Twine_కణుపు::రకం_2::Suffix:
+		append_str(twine.ఉపసర్గ_2(), బహిర్గతం);
 		[[fallthrough]];
-	case TwineNode::Kind::Leaf:
-		out += twine.text();
-		break;
+	స్థితి Twine_కణుపు::రకం_2::ఆకు:
+		బహిర్గతం += twine.పాఠ్యం();
+		ఆపు;
 	}
 }
 
-std::string TwinePool::str(IdString ref) const {
-	std::string out;
-	append_str(ref, out);
-	return out;
+std::string TwinePool::str(IdString ref) స్థిరరాశి {
+	std::string బహిర్గతం;
+	append_str(ref, బహిర్గతం);
+	తిరిగి బహిర్గతం;
 }
 
-std::string TwinePool::unescaped_str(IdString ref) const {
-	return str(ref.untag());
+std::string TwinePool::unescaped_str(IdString ref) స్థిరరాశి {
+	తిరిగి str(ref.untag());
 }
 
-uint32_t TwinePool::content_hash(uint32_t prefix, std::string_view text) const {
-	uint32_t hash = prefix == TwineNode::NO_PREFIX ? 0 : (*this)[IdString(prefix)].hash();
-	return TwineNode::extend_hash(hash, text);
+uint32_t TwinePool::content_hash(uint32_t ఉపసర్గ_2, std::string_view పాఠ్యం) స్థిరరాశి {
+	uint32_t hash = ఉపసర్గ_2 == Twine_కణుపు::NO_ఉపసర్గ ? 0 : (*ఇది)[IdString(ఉపసర్గ_2)].hash();
+	తిరిగి Twine_కణుపు::extend_hash(hash, పాఠ్యం);
 }
 
-IdString TwinePool::find_content(uint32_t prefix, std::string_view text) const {
-	return find_content(prefix, text, content_hash(prefix, text));
+IdString TwinePool::కనుగొను_content(uint32_t ఉపసర్గ_2, std::string_view పాఠ్యం) స్థిరరాశి {
+	తిరిగి కనుగొను_content(ఉపసర్గ_2, పాఠ్యం, content_hash(ఉపసర్గ_2, పాఠ్యం));
 }
 
-IdString TwinePool::intern(uint32_t prefix, std::string_view text) {
-	log_assert(!Multithreading::active());
-	uint32_t hash = content_hash(prefix, text);
-	IdString ref = find_content(prefix, text, hash);
-	if (ref != IdString::Null)
-		return ref;
-	return add_inner(TwineNode{prefix, text, hash});
+IdString TwinePool::intern(uint32_t ఉపసర్గ_2, std::string_view పాఠ్యం) {
+	log_assert(!Multithreading::చురుకైన());
+	uint32_t hash = content_hash(ఉపసర్గ_2, పాఠ్యం);
+	IdString ref = కనుగొను_content(ఉపసర్గ_2, పాఠ్యం, hash);
+	ఒకవేళ (ref != IdString::Null)
+		తిరిగి ref;
+	తిరిగి కూడు_inner(Twine_కణుపు{ఉపసర్గ_2, పాఠ్యం, hash});
 }
 
-IdString TwinePool::find(std::string_view name) const {
-	if (name.empty())
-		return IdString::Null;
+IdString TwinePool::కనుగొను(std::string_view name) స్థిరరాశి {
+	ఒకవేళ (name.ఖాళీలు())
+		తిరిగి IdString::Null;
 	check_name(name);
-	auto [content, is_public] = unescape_name(name);
-	return stamp(find_content(TwineNode::NO_PREFIX, content).tag(is_public));
+	స్వయంచాలక [content, is_ప్రజా_2] = unescape_name(name);
+	తిరిగి stamp(కనుగొను_content(Twine_కణుపు::NO_ఉపసర్గ, content).ట్యాగ్(is_ప్రజా_2));
 }
 
-IdString TwinePool::find(TwineSpec t) const {
-	if (std::holds_alternative<TwineSpec::AutoSuffix>(t.data))
-		return stamp(find_content(TwineNode::NO_PREFIX, t.content_str()));
-	if (auto *leaf = std::get_if<TwineSpec::Leaf>(&t.data))
-		return stamp(find_content(TwineNode::NO_PREFIX, leaf->s));
-	const TwineSpec::Suffix &sfx = std::get<TwineSpec::Suffix>(t.data);
-	return stamp(find_content((uint32_t)sfx.prefix.untag().raw(), sfx.tail).tag(sfx.prefix.isPublic()));
+IdString TwinePool::కనుగొను(TwineSpec t) స్థిరరాశి {
+	ఒకవేళ (std::holds_alternative<TwineSpec::AutoSuffix>(t.దత్తాంశం))
+		తిరిగి stamp(కనుగొను_content(Twine_కణుపు::NO_ఉపసర్గ, t.content_str()));
+	ఒకవేళ (స్వయంచాలక *ఆకు_2 = std::get_if<TwineSpec::ఆకు>(&t.దత్తాంశం))
+		తిరిగి stamp(కనుగొను_content(Twine_కణుపు::NO_ఉపసర్గ, ఆకు_2->s));
+	స్థిరరాశి TwineSpec::Suffix &sfx = std::get<TwineSpec::Suffix>(t.దత్తాంశం);
+	తిరిగి stamp(కనుగొను_content((uint32_t)sfx.ఉపసర్గ_2.untag().raw(), sfx.తోక).ట్యాగ్(sfx.ఉపసర్గ_2.is_ప్రజా()));
 }
 
-IdString TwinePool::add(TwineSpec t) {
-	if (auto *ap = std::get_if<TwineSpec::AutoSuffix>(&t.data))
-		return add(auto_prefix(ap->prefix), ap->tail);
-	if (auto *leaf = std::get_if<TwineSpec::Leaf>(&t.data))
-		return stamp(intern(TwineNode::NO_PREFIX, leaf->s));
-	const TwineSpec::Suffix &sfx = std::get<TwineSpec::Suffix>(t.data);
-	return add(sfx.prefix, sfx.tail);
+IdString TwinePool::కూడు(TwineSpec t) {
+	ఒకవేళ (స్వయంచాలక *ap = std::get_if<TwineSpec::AutoSuffix>(&t.దత్తాంశం))
+		తిరిగి కూడు(auto_ఉపసర్గ(ap->ఉపసర్గ_2), ap->తోక);
+	ఒకవేళ (స్వయంచాలక *ఆకు_2 = std::get_if<TwineSpec::ఆకు>(&t.దత్తాంశం))
+		తిరిగి stamp(intern(Twine_కణుపు::NO_ఉపసర్గ, ఆకు_2->s));
+	స్థిరరాశి TwineSpec::Suffix &sfx = std::get<TwineSpec::Suffix>(t.దత్తాంశం);
+	తిరిగి కూడు(sfx.ఉపసర్గ_2, sfx.తోక);
 }
 
-IdString TwinePool::auto_prefix(const std::string *prefix) {
-	auto it = auto_prefixes.find(prefix);
-	if (it != auto_prefixes.end())
-		return it->second;
-	IdString ref = intern(TwineNode::NO_PREFIX, *prefix);
-	auto_prefixes[prefix] = ref;
-	return ref;
+IdString TwinePool::auto_ఉపసర్గ(స్థిరరాశి std::string *ఉపసర్గ_2) {
+	స్వయంచాలక it = auto_prefixes.కనుగొను(ఉపసర్గ_2);
+	ఒకవేళ (it != auto_prefixes.చివర())
+		తిరిగి it->రెండవ;
+	IdString ref = intern(Twine_కణుపు::NO_ఉపసర్గ, *ఉపసర్గ_2);
+	auto_prefixes[ఉపసర్గ_2] = ref;
+	తిరిగి ref;
 }
 
-IdString TwinePool::add(IdString prefix, std::string_view tail) {
-	return stamp(intern((uint32_t)prefix.untag().raw(), tail).tag(prefix.isPublic()));
+IdString TwinePool::కూడు(IdString ఉపసర్గ_2, std::string_view తోక) {
+	తిరిగి stamp(intern((uint32_t)ఉపసర్గ_2.untag().raw(), తోక).ట్యాగ్(ఉపసర్గ_2.is_ప్రజా()));
 }
 
-IdString TwinePool::add(std::string_view s) {
-	if (s.empty())
-		return IdString::Null;
+IdString TwinePool::కూడు(std::string_view s) {
+	ఒకవేళ (s.ఖాళీలు())
+		తిరిగి IdString::Null;
 	check_name(s);
-	auto [content, is_public] = unescape_name(s);
-	return stamp(intern(TwineNode::NO_PREFIX, content).tag(is_public));
+	స్వయంచాలక [content, is_ప్రజా_2] = unescape_name(s);
+	తిరిగి stamp(intern(Twine_కణుపు::NO_ఉపసర్గ, content).ట్యాగ్(is_ప్రజా_2));
 }
 
-IdString TwinePool::copy_from(const TwinePool& src, IdString ref) {
-	IdString found = find_from(src, ref);
-	if (found != IdString::Null || ref == IdString::Null)
-		return found;
-	const TwineNode& t = src[ref.untag()];
-	if (t.is_dead())
-		return IdString::Null;
-	uint32_t prefix = TwineNode::NO_PREFIX;
-	if (t.is_suffix())
-		prefix = (uint32_t)copy_from(src, t.prefix()).untag().raw();
-	return stamp(intern(prefix, t.text()).tag(ref.isPublic()));
+IdString TwinePool::copy_from(స్థిరరాశి TwinePool& src, IdString ref) {
+	IdString దొరికింది = కనుగొను_from(src, ref);
+	ఒకవేళ (దొరికింది != IdString::Null || ref == IdString::Null)
+		తిరిగి దొరికింది;
+	స్థిరరాశి Twine_కణుపు& t = src[ref.untag()];
+	ఒకవేళ (t.is_dead())
+		తిరిగి IdString::Null;
+	uint32_t ఉపసర్గ_2 = Twine_కణుపు::NO_ఉపసర్గ;
+	ఒకవేళ (t.is_suffix())
+		ఉపసర్గ_2 = (uint32_t)copy_from(src, t.ఉపసర్గ_2()).untag().raw();
+	తిరిగి stamp(intern(ఉపసర్గ_2, t.పాఠ్యం()).ట్యాగ్(ref.is_ప్రజా()));
 }
 
-std::string TwinePool::ref_token(IdString ref) const {
-	return "#" + std::to_string((uint64_t)serial_) + ":"
-		+ std::to_string((uint64_t)stamp(ref).bits());
+std::string TwinePool::ref_token(IdString ref) స్థిరరాశి {
+	తిరిగి "#" + std::గమ్యం_string((uint64_t)serial_) + ":"
+		+ std::గమ్యం_string((uint64_t)stamp(ref).బిట్లు());
 }
 
-IdString TwinePool::ref_from_token(std::string_view token) const {
-	if (token.size() < 2 || token[0] != '#')
-		return IdString::Null;
-	size_t sep = token.find(':');
-	if (sep == std::string_view::npos)
-		return IdString::Null;
-	size_t fields[2] = {0, 0};
+IdString TwinePool::ref_from_token(std::string_view token) స్థిరరాశి {
+	ఒకవేళ (token.కొలత() < 2 || token[0] != '#')
+		తిరిగి IdString::Null;
+	కొలత_t sep = token.కనుగొను(':');
+	ఒకవేళ (sep == std::string_view::npos)
+		తిరిగి IdString::Null;
+	కొలత_t fields[2] = {0, 0};
 	std::string_view parts[2] = {token.substr(1, sep - 1), token.substr(sep + 1)};
-	for (int i = 0; i < 2; i++) {
-		if (parts[i].empty())
-			return IdString::Null;
-		for (char c : parts[i]) {
-			if (c < '0' || c > '9')
-				return IdString::Null;
+	కొరకు (పూర్ణాంకం i = 0; i < 2; i++) {
+		ఒకవేళ (parts[i].ఖాళీలు())
+			తిరిగి IdString::Null;
+		కొరకు (అక్షరం c : parts[i]) {
+			ఒకవేళ (c < '0' || c > '9')
+				తిరిగి IdString::Null;
 			fields[i] = fields[i] * 10 + (c - '0');
 		}
 	}
-	if (fields[0] != serial_)
-		return IdString::Null;
+	ఒకవేళ (fields[0] != serial_)
+		తిరిగి IdString::Null;
 	IdString ref(fields[1]);
-	if (ref == IdString::Null)
-		return IdString::Null;
-	return is_live(ref) ? ref : IdString::Null;
+	ఒకవేళ (ref == IdString::Null)
+		తిరిగి IdString::Null;
+	తిరిగి is_సజీవ(ref) ? ref : IdString::Null;
 }
 
 /**
@@ -375,183 +375,183 @@ IdString TwinePool::ref_from_token(std::string_view token) const {
  * so that IdStrings with few segments fit into the `inline_segs` field,
  * and anything beyond that is in `spill`.
  */
-struct TwineSegments {
-	static constexpr size_t SEGMENT_INLINE_DEPTH = 8;
-	TwineSegments(const TwinePool &pool, IdString ref);
-	TwineSegments(const TwinePool &pool, IdString head, std::string_view tail);
+నిర్మాణం TwineSegments {
+	స్థిర constexpr కొలత_t SEGMENT_INLINE_లోతు = 8;
+	TwineSegments(స్థిరరాశి TwinePool &pool, IdString ref);
+	TwineSegments(స్థిరరాశి TwinePool &pool, IdString తల, std::string_view తోక);
 	std::string_view peek();
-	void advance(size_t n);
-	size_t total_size() const;
-private:
-	void push(std::string_view seg);
+	శూన్య advance(కొలత_t n);
+	కొలత_t మొత్తం_కొలత() స్థిరరాశి;
+అంతరంగ:
+	శూన్య నెట్టు(std::string_view seg);
 	std::string_view *segs();
-	const std::string_view *segs() const;
-	std::string_view inline_segs[SEGMENT_INLINE_DEPTH];
-	std::vector<std::string_view> spill;
-	size_t count = 0;
-	size_t pos = 0;
-	size_t off = 0;
+	స్థిరరాశి std::string_view *segs() స్థిరరాశి;
+	std::string_view inline_segs[SEGMENT_INLINE_లోతు];
+	std::సదిశ<std::string_view> spill;
+	కొలత_t లెక్క = 0;
+	కొలత_t pos = 0;
+	కొలత_t off = 0;
 };
 
-TwineSegments::TwineSegments(const TwinePool &pool, IdString ref)
+TwineSegments::TwineSegments(స్థిరరాశి TwinePool &pool, IdString ref)
 {
-	if (ref == IdString::Null)
-		return;
-	for (IdString cur = ref.untag(); ;) {
-		const TwineNode &t = pool[cur];
-		switch (t.kind()) {
-		case TwineNode::Kind::Suffix:
-			push(t.text());
-			cur = t.prefix();
-			continue;
-		case TwineNode::Kind::Leaf:
-			push(t.text());
-			break;
-		case TwineNode::Kind::Dead:
-			break;
+	ఒకవేళ (ref == IdString::Null)
+		తిరిగి;
+	కొరకు (IdString cur = ref.untag(); ;) {
+		స్థిరరాశి Twine_కణుపు &t = pool[cur];
+		ఎంపిక (t.రకం()) {
+		స్థితి Twine_కణుపు::రకం_2::Suffix:
+			నెట్టు(t.పాఠ్యం());
+			cur = t.ఉపసర్గ_2();
+			కొనసాగు;
+		స్థితి Twine_కణుపు::రకం_2::ఆకు:
+			నెట్టు(t.పాఠ్యం());
+			ఆపు;
+		స్థితి Twine_కణుపు::రకం_2::Dead:
+			ఆపు;
 		}
-		break;
+		ఆపు;
 	}
-	if (ref.isPublic())
-		push("\\");
-	std::reverse(segs(), segs() + count);
+	ఒకవేళ (ref.is_ప్రజా())
+		నెట్టు("\\");
+	std::తిరగేయి(segs(), segs() + లెక్క);
 }
 
-TwineSegments::TwineSegments(const TwinePool &pool, IdString head, std::string_view tail)
-	: TwineSegments(pool, head)
+TwineSegments::TwineSegments(స్థిరరాశి TwinePool &pool, IdString తల, std::string_view తోక)
+	: TwineSegments(pool, తల)
 {
-	push(tail);
+	నెట్టు(తోక);
 }
 
 std::string_view TwineSegments::peek()
 {
-	while (pos < count) {
+	అయితే (pos < లెక్క) {
 		std::string_view seg = segs()[pos];
-		if (off < seg.size())
-			return seg.substr(off);
+		ఒకవేళ (off < seg.కొలత())
+			తిరిగి seg.substr(off);
 		pos++;
 		off = 0;
 	}
-	return {};
+	తిరిగి {};
 }
 
-void TwineSegments::advance(size_t n) { off += n; }
+శూన్య TwineSegments::advance(కొలత_t n) { off += n; }
 
-size_t TwineSegments::total_size() const
+కొలత_t TwineSegments::మొత్తం_కొలత() స్థిరరాశి
 {
-	size_t total = 0;
-	for (size_t i = 0; i < count; i++)
-		total += segs()[i].size();
-	return total;
+	కొలత_t మొత్తం = 0;
+	కొరకు (కొలత_t i = 0; i < లెక్క; i++)
+		మొత్తం += segs()[i].కొలత();
+	తిరిగి మొత్తం;
 }
 
-void TwineSegments::push(std::string_view seg)
+శూన్య TwineSegments::నెట్టు(std::string_view seg)
 {
-	if (spill.empty() && count < SEGMENT_INLINE_DEPTH) {
-		inline_segs[count++] = seg;
-		return;
+	ఒకవేళ (spill.ఖాళీలు() && లెక్క < SEGMENT_INLINE_లోతు) {
+		inline_segs[లెక్క++] = seg;
+		తిరిగి;
 	}
-	if (spill.empty())
-		spill.assign(inline_segs, inline_segs + count);
-	spill.push_back(seg);
-	count++;
+	ఒకవేళ (spill.ఖాళీలు())
+		spill.కేటాయించు(inline_segs, inline_segs + లెక్క);
+	spill.నెట్టు_వెనుక(seg);
+	లెక్క++;
 }
 
-std::string_view *TwineSegments::segs() { return spill.empty() ? inline_segs : spill.data(); }
-const std::string_view *TwineSegments::segs() const { return spill.empty() ? inline_segs : spill.data(); }
+std::string_view *TwineSegments::segs() { తిరిగి spill.ఖాళీలు() ? inline_segs : spill.దత్తాంశం(); }
+స్థిరరాశి std::string_view *TwineSegments::segs() స్థిరరాశి { తిరిగి spill.ఖాళీలు() ? inline_segs : spill.దత్తాంశం(); }
 
-size_t TwinePool::str_size(IdString ref) const
+కొలత_t TwinePool::str_కొలత(IdString ref) స్థిరరాశి
 {
-	return TwineSegments(*this, ref).total_size();
+	తిరిగి TwineSegments(*ఇది, ref).మొత్తం_కొలత();
 }
 
-bool TwinePool::begins_with(IdString ref, std::string_view prefix) const
+తార్కిక TwinePool::begins_with(IdString ref, std::string_view ఉపసర్గ_2) స్థిరరాశి
 {
-	TwineSegments segs(*this, ref);
-	while (!prefix.empty()) {
+	TwineSegments segs(*ఇది, ref);
+	అయితే (!ఉపసర్గ_2.ఖాళీలు()) {
 		std::string_view seg = segs.peek();
-		if (seg.empty())
-			return false;
-		size_t n = std::min(seg.size(), prefix.size());
-		if (std::memcmp(seg.data(), prefix.data(), n) != 0)
-			return false;
+		ఒకవేళ (seg.ఖాళీలు())
+			తిరిగి అబద్ధం;
+		కొలత_t n = std::min(seg.కొలత(), ఉపసర్గ_2.కొలత());
+		ఒకవేళ (std::memcmp(seg.దత్తాంశం(), ఉపసర్గ_2.దత్తాంశం(), n) != 0)
+			తిరిగి అబద్ధం;
 		segs.advance(n);
-		prefix.remove_prefix(n);
+		ఉపసర్గ_2.remove_ఉపసర్గ(n);
 	}
-	return true;
+	తిరిగి నిజం;
 }
 
-bool TwinePool::name_equal(IdString ref, std::string_view name) const
+తార్కిక TwinePool::name_equal(IdString ref, std::string_view name) స్థిరరాశి
 {
-	return str_size(ref) == name.size() && begins_with(ref, name);
+	తిరిగి str_కొలత(ref) == name.కొలత() && begins_with(ref, name);
 }
 
-static int compare_segments(TwineSegments &sa, TwineSegments &sb)
+స్థిర పూర్ణాంకం compare_segments(TwineSegments &sa, TwineSegments &sb)
 {
-	while (true) {
+	అయితే (నిజం) {
 		std::string_view x = sa.peek(), y = sb.peek();
-		if (x.empty() || y.empty())
-			return x.empty() ? (y.empty() ? 0 : -1) : 1;
-		size_t n = std::min(x.size(), y.size());
-		if (int diff = std::memcmp(x.data(), y.data(), n); diff != 0)
-			return diff;
+		ఒకవేళ (x.ఖాళీలు() || y.ఖాళీలు())
+			తిరిగి x.ఖాళీలు() ? (y.ఖాళీలు() ? 0 : -1) : 1;
+		కొలత_t n = std::min(x.కొలత(), y.కొలత());
+		ఒకవేళ (పూర్ణాంకం diff = std::memcmp(x.దత్తాంశం(), y.దత్తాంశం(), n); diff != 0)
+			తిరిగి diff;
 		sa.advance(n);
 		sb.advance(n);
 	}
 }
 
-IdString TwinePool::find_content(uint32_t prefix, std::string_view text, uint32_t hash) const {
-	return find_hashed(hash, [&](IdString ref) {
-		const TwineNode &t = (*this)[ref];
-		if (t == TwineNode::Key{prefix, text})
-			return true;
-		IdString head = prefix == TwineNode::NO_PREFIX ? IdString::Null : IdString(prefix);
-		TwineSegments sa(*this, ref), sb(*this, head, text);
-		return compare_segments(sa, sb) == 0;
+IdString TwinePool::కనుగొను_content(uint32_t ఉపసర్గ_2, std::string_view పాఠ్యం, uint32_t hash) స్థిరరాశి {
+	తిరిగి కనుగొను_hashed(hash, [&](IdString ref) {
+		స్థిరరాశి Twine_కణుపు &t = (*ఇది)[ref];
+		ఒకవేళ (t == Twine_కణుపు::కీలకం_2{ఉపసర్గ_2, పాఠ్యం})
+			తిరిగి నిజం;
+		IdString తల = ఉపసర్గ_2 == Twine_కణుపు::NO_ఉపసర్గ ? IdString::Null : IdString(ఉపసర్గ_2);
+		TwineSegments sa(*ఇది, ref), sb(*ఇది, తల, పాఠ్యం);
+		తిరిగి compare_segments(sa, sb) == 0;
 	});
 }
 
-IdString TwinePool::find_from(const TwinePool& src, IdString ref) const {
-	if (ref == IdString::Null || ID::is_static(ref))
-		return ref;
+IdString TwinePool::కనుగొను_from(స్థిరరాశి TwinePool& src, IdString ref) స్థిరరాశి {
+	ఒకవేళ (ref == IdString::Null || ID::is_static(ref))
+		తిరిగి ref;
 	IdString idx = ref.untag();
-	const TwineNode& t = src[idx];
-	if (t.is_dead())
-		return IdString::Null;
-	IdString found = find_hashed(t.hash(), [&](IdString cand) {
-		TwineSegments sa(*this, cand), sb(src, idx);
-		return compare_segments(sa, sb) == 0;
+	స్థిరరాశి Twine_కణుపు& t = src[idx];
+	ఒకవేళ (t.is_dead())
+		తిరిగి IdString::Null;
+	IdString దొరికింది = కనుగొను_hashed(t.hash(), [&](IdString cand) {
+		TwineSegments sa(*ఇది, cand), sb(src, idx);
+		తిరిగి compare_segments(sa, sb) == 0;
 	});
-	return stamp(found.tag(ref.isPublic()));
+	తిరిగి stamp(దొరికింది.ట్యాగ్(ref.is_ప్రజా()));
 }
 
-IdString TwinePool::prefix_of(IdString ref) const {
-	const TwineNode &t = (*this)[ref];
-	if (!t.is_suffix())
-		return IdString::Null;
-	return stamp(t.prefix().tag(ref.isPublic()));
+IdString TwinePool::ఉపసర్గ_యొక్క(IdString ref) స్థిరరాశి {
+	స్థిరరాశి Twine_కణుపు &t = (*ఇది)[ref];
+	ఒకవేళ (!t.is_suffix())
+		తిరిగి IdString::Null;
+	తిరిగి stamp(t.ఉపసర్గ_2().ట్యాగ్(ref.is_ప్రజా()));
 }
 
-int TwinePool::compare_by_name(IdString a, IdString b) const
+పూర్ణాంకం TwinePool::compare_by_name(IdString a, IdString b) స్థిరరాశి
 {
-	if (a == b)
-		return 0;
-	if (a == IdString::Null)
-		return -1;
-	if (b == IdString::Null)
-		return 1;
+	ఒకవేళ (a == b)
+		తిరిగి 0;
+	ఒకవేళ (a == IdString::Null)
+		తిరిగి -1;
+	ఒకవేళ (b == IdString::Null)
+		తిరిగి 1;
 
-	if (a.isPublic() == b.isPublic()) {
-		const TwineNode &ta = (*this)[a.untag()];
-		const TwineNode &tb = (*this)[b.untag()];
-		if (ta.is_leaf() && tb.is_leaf())
-			return ta.text().compare(tb.text());
-		if (ta.is_suffix() && tb.is_suffix() && ta.prefix() == tb.prefix())
-			return ta.text().compare(tb.text());
+	ఒకవేళ (a.is_ప్రజా() == b.is_ప్రజా()) {
+		స్థిరరాశి Twine_కణుపు &ta = (*ఇది)[a.untag()];
+		స్థిరరాశి Twine_కణుపు &tb = (*ఇది)[b.untag()];
+		ఒకవేళ (ta.is_ఆకు() && tb.is_ఆకు())
+			తిరిగి ta.పాఠ్యం().compare(tb.పాఠ్యం());
+		ఒకవేళ (ta.is_suffix() && tb.is_suffix() && ta.ఉపసర్గ_2() == tb.ఉపసర్గ_2())
+			తిరిగి ta.పాఠ్యం().compare(tb.పాఠ్యం());
 	}
 
-	TwineSegments sa(*this, a), sb(*this, b);
-	return compare_segments(sa, sb);
+	TwineSegments sa(*ఇది, a), sb(*ఇది, b);
+	తిరిగి compare_segments(sa, sb);
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర

@@ -1,242 +1,242 @@
-#ifndef YOSYS_HASHCONS_IMPL_H
-#define YOSYS_HASHCONS_IMPL_H
+#నిర్వచితం_కాకపోతే YOSYS_HASHCONS_IMPL_H
+#నిర్వచించు YOSYS_HASHCONS_IMPL_H
 
-#include "kernel/hashcons.h"
+#అన్తర్భావ "kernel/hashcons.h"
 
-#include <algorithm>
+#అన్తర్భావ <algorithm>
 
 YOSYS_NAMESPACE_BEGIN
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::is_live(Ref ref) const {
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+bool HashConsPool<Derived, కణుపు_2, Ref>::is_సజీవ(Ref ref) స్థిరరాశి {
 	Ref idx = ref.untag();
-	if (is_static(idx))
-		return true;
-	size_t slot = idx.raw() - Derived::STATIC_COUNT;
-	return slot < backing.size() && !backing[slot].is_dead();
+	ఒకవేళ (is_static(idx))
+		తిరిగి true;
+	కొలత_t స్థానం = idx.raw() - Derived::STATIC_లెక్క;
+	తిరిగి స్థానం < backing.కొలత() && !backing[స్థానం].is_dead();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::check_ready() {}
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+శూన్య HashConsPool<Derived, కణుపు_2, Ref>::check_ready() {}
 
-template<typename Derived, typename Node, typename Ref>
-const Node& HashConsPool<Derived, Node, Ref>::operator[] (Ref ref) const {
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+స్థిరరాశి కణుపు_2& HashConsPool<Derived, కణుపు_2, Ref>::క్రియాకారకం[] (Ref ref) స్థిరరాశి {
 	Ref idx = ref.untag();
-	if constexpr (Derived::STATIC_COUNT != 0) {
-		if (is_static(idx))
-			return Derived::static_node(idx.raw());
+	ఒకవేళ constexpr (Derived::STATIC_లెక్క != 0) {
+		ఒకవేళ (is_static(idx))
+			తిరిగి Derived::static_కణుపు(idx.raw());
 	}
-	return backing[idx.raw() - Derived::STATIC_COUNT];
+	తిరిగి backing[idx.raw() - Derived::STATIC_లెక్క];
 }
 
-template<typename Derived, typename Node, typename Ref>
-Derived* HashConsPool<Derived, Node, Ref>::self() { return static_cast<Derived*>(this); }
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+Derived* HashConsPool<Derived, కణుపు_2, Ref>::self() { తిరిగి static_cast<Derived*>(this); }
 
-template<typename Derived, typename Node, typename Ref>
-const Derived* HashConsPool<Derived, Node, Ref>::self() const { return static_cast<const Derived*>(this); }
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+స్థిరరాశి Derived* HashConsPool<Derived, కణుపు_2, Ref>::self() స్థిరరాశి { తిరిగి static_cast<స్థిరరాశి Derived*>(this); }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::is_static(Ref ref) {
-	if constexpr (Derived::STATIC_COUNT == 0)
-		return false;
-	else
-		return ref.raw() < Derived::STATIC_COUNT;
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+bool HashConsPool<Derived, కణుపు_2, Ref>::is_static(Ref ref) {
+	ఒకవేళ constexpr (Derived::STATIC_లెక్క == 0)
+		తిరిగి false;
+	లేకపోతే
+		తిరిగి ref.raw() < Derived::STATIC_లెక్క;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::RefIterator::settle() {
-	while (skip_dead && idx < stop && !pool->slot_live(idx))
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+శూన్య HashConsPool<Derived, కణుపు_2, Ref>::RefIterator::settle() {
+	అయితే (skip_dead && idx < stop && !pool->స్థానం_సజీవ(idx))
 		idx++;
 }
 
-template<typename Derived, typename Node, typename Ref>
-Ref HashConsPool<Derived, Node, Ref>::RefIterator::operator*() const { return Ref(idx); }
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+Ref HashConsPool<Derived, కణుపు_2, Ref>::RefIterator::క్రియాకారకం*() స్థిరరాశి { తిరిగి Ref(idx); }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefIterator::operator++() -> RefIterator& { idx++; settle(); return *this; }
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+స్వయంచాలక HashConsPool<Derived, కణుపు_2, Ref>::RefIterator::క్రియాకారకం++() -> RefIterator& { idx++; settle(); తిరిగి *this; }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::RefIterator::operator!=(const RefIterator& other) const { return idx != other.idx; }
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+bool HashConsPool<Derived, కణుపు_2, Ref>::RefIterator::క్రియాకారకం!=(స్థిరరాశి RefIterator& other) స్థిరరాశి { తిరిగి idx != other.idx; }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefRange::begin() const -> RefIterator {
-	RefIterator it{pool, first, stop, skip_dead};
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+స్వయంచాలక HashConsPool<Derived, కణుపు_2, Ref>::RefRange::begin() స్థిరరాశి -> RefIterator {
+	RefIterator it{pool, మొదటి, stop, skip_dead};
 	it.settle();
-	return it;
+	తిరిగి it;
 }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefRange::end() const -> RefIterator { return RefIterator{pool, stop, stop, skip_dead}; }
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+స్వయంచాలక HashConsPool<Derived, కణుపు_2, Ref>::RefRange::చివర() స్థిరరాశి -> RefIterator { తిరిగి RefIterator{pool, stop, stop, skip_dead}; }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::refs(bool include_statics) const -> RefRange {
-	return RefRange{this, include_statics ? 0 : Derived::STATIC_COUNT,
-			Derived::STATIC_COUNT + backing.size(), true};
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+స్వయంచాలక HashConsPool<Derived, కణుపు_2, Ref>::refs(bool include_statics) స్థిరరాశి -> RefRange {
+	తిరిగి RefRange{this, include_statics ? 0 : Derived::STATIC_లెక్క,
+			Derived::STATIC_లెక్క + backing.కొలత(), true};
 }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::slots() const -> RefRange {
-	return RefRange{this, Derived::STATIC_COUNT,
-			Derived::STATIC_COUNT + backing.size(), false};
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+స్వయంచాలక HashConsPool<Derived, కణుపు_2, Ref>::slots() స్థిరరాశి -> RefRange {
+	తిరిగి RefRange{this, Derived::STATIC_లెక్క,
+			Derived::STATIC_లెక్క + backing.కొలత(), false};
 }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::home_slot(uint64_t hash) const {
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+కొలత_t HashConsPool<Derived, కణుపు_2, Ref>::home_స్థానం(uint64_t hash) స్థిరరాశి {
 	// Knuth's Fibonacci hashing saves us from how bad DJB2 is
-	return (hash * 0x9e3779b97f4a7c15ull) >> (64 - std::countr_zero(table.size()));
+	తిరిగి (hash * 0x9e3779b97f4a7c15ull) >> (64 - std::countr_zero(పట్టిక_2.కొలత()));
 }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::next_slot(size_t slot) const { return (slot + 1) & (table.size() - 1); }
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+కొలత_t HashConsPool<Derived, కణుపు_2, Ref>::తదుపరి_స్థానం(కొలత_t స్థానం) స్థిరరాశి { తిరిగి (స్థానం + 1) & (పట్టిక_2.కొలత() - 1); }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::size() const { return backing.size() - free_list.size(); }
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+కొలత_t HashConsPool<Derived, కణుపు_2, Ref>::కొలత() స్థిరరాశి { తిరిగి backing.కొలత() - free_list.కొలత(); }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::slot_live(size_t abs) const {
-	if (abs < Derived::STATIC_COUNT)
-		return true;
-	return !backing[abs - Derived::STATIC_COUNT].is_dead();
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+bool HashConsPool<Derived, కణుపు_2, Ref>::స్థానం_సజీవ(కొలత_t నిరపేక్ష) స్థిరరాశి {
+	ఒకవేళ (నిరపేక్ష < Derived::STATIC_లెక్క)
+		తిరిగి true;
+	తిరిగి !backing[నిరపేక్ష - Derived::STATIC_లెక్క].is_dead();
 }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>::HashConsPool() { rebuild_index(); }
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+HashConsPool<Derived, కణుపు_2, Ref>::HashConsPool() { rebuild_సూచీ(); }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>::HashConsPool(HashConsPool&& other)
-	: backing(std::move(other.backing)), table(std::move(other.table)), free_list(std::move(other.free_list)) {
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+HashConsPool<Derived, కణుపు_2, Ref>::HashConsPool(HashConsPool&& other)
+	: backing(std::move(other.backing)), పట్టిక_2(std::move(other.పట్టిక_2)), free_list(std::move(other.free_list)) {
 	other.reset();
 }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>& HashConsPool<Derived, Node, Ref>::operator=(HashConsPool&& other) {
-	if (this != &other) {
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+HashConsPool<Derived, కణుపు_2, Ref>& HashConsPool<Derived, కణుపు_2, Ref>::క్రియాకారకం=(HashConsPool&& other) {
+	ఒకవేళ (this != &other) {
 		backing = std::move(other.backing);
-		table = std::move(other.table);
+		పట్టిక_2 = std::move(other.పట్టిక_2);
 		free_list = std::move(other.free_list);
 		other.reset();
 	}
-	return *this;
+	తిరిగి *this;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::reset() {
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+శూన్య HashConsPool<Derived, కణుపు_2, Ref>::reset() {
 	backing.clear();
 	free_list.clear();
-	rebuild_index();
+	rebuild_సూచీ();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::rebuild_index() {
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+శూన్య HashConsPool<Derived, కణుపు_2, Ref>::rebuild_సూచీ() {
 	Derived::check_ready();
 	free_list.clear();
-	for (size_t idx = 0; idx < backing.size(); ++idx)
-		if (backing[idx].is_dead())
-			free_list.push_back(idx);
-	std::sort(free_list.begin(), free_list.end(), std::greater<size_t>());
-	table.assign(std::bit_ceil((Derived::STATIC_COUNT + size()) * 2 + 2), Ref());
-	for (Ref ref : refs())
-		index_insert(ref);
+	కొరకు (కొలత_t idx = 0; idx < backing.కొలత(); ++idx)
+		ఒకవేళ (backing[idx].is_dead())
+			free_list.నెట్టు_వెనుక(idx);
+	std::క్రమీకరించు(free_list.begin(), free_list.చివర(), std::greater<కొలత_t>());
+	పట్టిక_2.కేటాయించు(std::బిట్టు_ceil((Derived::STATIC_లెక్క + కొలత()) * 2 + 2), Ref());
+	కొరకు (Ref ref : refs())
+		సూచీ_చొప్పించు(ref);
 }
 
-template<typename Derived, typename Node, typename Ref>
-template<typename Eq>
-Ref HashConsPool<Derived, Node, Ref>::find_hashed(uint64_t hash, Eq&& eq) const {
-	for (size_t slot = home_slot(hash); table[slot] != Ref(); slot = next_slot(slot)) {
-		Ref ref = table[slot];
-		if (Derived::hash_node((*this)[ref]) == hash && eq(ref))
-			return ref;
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+మూస<typename Eq>
+Ref HashConsPool<Derived, కణుపు_2, Ref>::కనుగొను_hashed(uint64_t hash, Eq&& eq) స్థిరరాశి {
+	కొరకు (కొలత_t స్థానం = home_స్థానం(hash); పట్టిక_2[స్థానం] != Ref(); స్థానం = తదుపరి_స్థానం(స్థానం)) {
+		Ref ref = పట్టిక_2[స్థానం];
+		ఒకవేళ (Derived::hash_కణుపు((*this)[ref]) == hash && eq(ref))
+			తిరిగి ref;
 	}
-	return Ref();
+	తిరిగి Ref();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::index_insert(Ref ref) {
-	size_t slot = home_slot(Derived::hash_node((*this)[ref]));
-	while (table[slot] != Ref())
-		slot = next_slot(slot);
-	table[slot] = ref;
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+శూన్య HashConsPool<Derived, కణుపు_2, Ref>::సూచీ_చొప్పించు(Ref ref) {
+	కొలత_t స్థానం = home_స్థానం(Derived::hash_కణుపు((*this)[ref]));
+	అయితే (పట్టిక_2[స్థానం] != Ref())
+		స్థానం = తదుపరి_స్థానం(స్థానం);
+	పట్టిక_2[స్థానం] = ref;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::index_erase(Ref ref) {
-	size_t hole = home_slot(Derived::hash_node((*this)[ref]));
-	while (table[hole] != ref)
-		hole = next_slot(hole);
-	size_t mask = table.size() - 1;
-	for (size_t slot = next_slot(hole); table[slot] != Ref(); slot = next_slot(slot)) {
-		size_t home = home_slot(Derived::hash_node((*this)[table[slot]]));
-		if (((slot - home) & mask) >= ((slot - hole) & mask)) {
-			table[hole] = table[slot];
-			hole = slot;
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+శూన్య HashConsPool<Derived, కణుపు_2, Ref>::సూచీ_erase(Ref ref) {
+	కొలత_t hole = home_స్థానం(Derived::hash_కణుపు((*this)[ref]));
+	అయితే (పట్టిక_2[hole] != ref)
+		hole = తదుపరి_స్థానం(hole);
+	కొలత_t ముసుగు = పట్టిక_2.కొలత() - 1;
+	కొరకు (కొలత_t స్థానం = తదుపరి_స్థానం(hole); పట్టిక_2[స్థానం] != Ref(); స్థానం = తదుపరి_స్థానం(స్థానం)) {
+		కొలత_t home = home_స్థానం(Derived::hash_కణుపు((*this)[పట్టిక_2[స్థానం]]));
+		ఒకవేళ (((స్థానం - home) & ముసుగు) >= ((స్థానం - hole) & ముసుగు)) {
+			పట్టిక_2[hole] = పట్టిక_2[స్థానం];
+			hole = స్థానం;
 		}
 	}
-	table[hole] = Ref();
+	పట్టిక_2[hole] = Ref();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::grow_index() {
-	std::vector<Ref> old(table.size() * 2, Ref());
-	std::swap(old, table);
-	for (Ref ref : old)
-		if (ref != Ref())
-			index_insert(ref);
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+శూన్య HashConsPool<Derived, కణుపు_2, Ref>::grow_సూచీ() {
+	std::సదిశ<Ref> old(పట్టిక_2.కొలత() * 2, Ref());
+	std::మార్పిడి(old, పట్టిక_2);
+	కొరకు (Ref ref : old)
+		ఒకవేళ (ref != Ref())
+			సూచీ_చొప్పించు(ref);
 }
 
-template<typename Derived, typename Node, typename Ref>
-Ref HashConsPool<Derived, Node, Ref>::add_inner(Node t) {
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+Ref HashConsPool<Derived, కణుపు_2, Ref>::కూడు_inner(కణుపు_2 t) {
 	Ref ref;
-	if (!free_list.empty()) {
-		size_t idx = free_list.back();
-		free_list.pop_back();
+	ఒకవేళ (!free_list.ఖాళీలు()) {
+		కొలత_t idx = free_list.వెనుక();
+		free_list.తీయి_వెనుక();
 		backing[idx] = std::move(t);
-		ref = Ref(Derived::STATIC_COUNT + idx);
-	} else {
-		ref = Ref(Derived::STATIC_COUNT + backing.size());
-		backing.push_back(std::move(t));
+		ref = Ref(Derived::STATIC_లెక్క + idx);
+	} లేకపోతే {
+		ref = Ref(Derived::STATIC_లెక్క + backing.కొలత());
+		backing.నెట్టు_వెనుక(std::move(t));
 	}
-	if ((Derived::STATIC_COUNT + size()) * 3 > table.size() * 2)
-		grow_index();
-	index_insert(ref);
-	if (yosys_xtrace) {
+	ఒకవేళ ((Derived::STATIC_లెక్క + కొలత()) * 3 > పట్టిక_2.కొలత() * 2)
+		grow_సూచీ();
+	సూచీ_చొప్పించు(ref);
+	ఒకవేళ (yosys_xtrace) {
 		std::cout << "#X# add_inner added ";
 		self()->dump(ref);
 		std::cout << "\n";
 		std::cout << "#X# as integer " << ref.raw() << "\n";
 	}
-	return ref;
+	తిరిగి ref;
 }
 
-template<typename Derived, typename Node, typename Ref>
-template<typename Roots>
-size_t HashConsPool<Derived, Node, Ref>::gc(const Roots& roots) {
-	pool<Ref> live;
-	for (Ref ref : roots)
-		mark_live(ref, live);
-	size_t erased = 0;
-	for (size_t idx = 0; idx < backing.size(); ++idx) {
-		if (backing[idx].is_dead())
-			continue;
-		if (!live.count(Ref(Derived::STATIC_COUNT + idx))) {
-			index_erase(Ref(Derived::STATIC_COUNT + idx));
-			free_list.push_back(idx);
-			backing[idx] = Node{};
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+మూస<typename Roots>
+కొలత_t HashConsPool<Derived, కణుపు_2, Ref>::gc(స్థిరరాశి Roots& roots) {
+	pool<Ref> సజీవ;
+	కొరకు (Ref ref : roots)
+		mark_సజీవ(ref, సజీవ);
+	కొలత_t erased = 0;
+	కొరకు (కొలత_t idx = 0; idx < backing.కొలత(); ++idx) {
+		ఒకవేళ (backing[idx].is_dead())
+			కొనసాగు;
+		ఒకవేళ (!సజీవ.లెక్క(Ref(Derived::STATIC_లెక్క + idx))) {
+			సూచీ_erase(Ref(Derived::STATIC_లెక్క + idx));
+			free_list.నెట్టు_వెనుక(idx);
+			backing[idx] = కణుపు_2{};
 			erased++;
 		}
 	}
 	// TODO something like YOSYS_SORT_ID_FREE_LIST to make it optional?
-	std::sort(free_list.begin(), free_list.end(), std::greater<size_t>());
-	return erased;
+	std::క్రమీకరించు(free_list.begin(), free_list.చివర(), std::greater<కొలత_t>());
+	తిరిగి erased;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::mark_live(Ref ref, pool<Ref>& live) const {
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+శూన్య HashConsPool<Derived, కణుపు_2, Ref>::mark_సజీవ(Ref ref, pool<Ref>& సజీవ) స్థిరరాశి {
 	ref = ref.untag();
-	if (ref == Ref() || is_static(ref) || !live.insert(ref).second)
-		return;
-	Derived::for_each_child((*this)[ref], [&](Ref child) { mark_live(child, live); });
+	ఒకవేళ (ref == Ref() || is_static(ref) || !సజీవ.చొప్పించు(ref).రెండవ)
+		తిరిగి;
+	Derived::for_each_బిడ్డ((*this)[ref], [&](Ref బిడ్డ) { mark_సజీవ(బిడ్డ, సజీవ); });
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

@@ -17,98 +17,98 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "libs/sha1/sha1.h"
-#include "backends/rtlil/rtlil_backend.h"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "libs/sha1/sha1.h"
+#అన్తర్భావ "backends/rtlil/rtlil_backend.h"
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#ఒకవేళ !defined(_WIN32) || defined(__MINGW32__)
 #  include <sys/time.h>
-#endif
+#అయితే_ముగింపు
 
-#if defined(YOSYS_ENABLE_DLOPEN)
+#ఒకవేళ defined(YOSYS_ENABLE_DLOPEN)
 #  include <dlfcn.h>
-#endif
+#అయితే_ముగింపు
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-#include <vector>
-#include <list>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <stdarg.h>
+#అన్తర్భావ <vector>
+#అన్తర్భావ <list>
 
 YOSYS_NAMESPACE_BEGIN
 
-bool log_stderr_sink_forced = false;
+తార్కిక log_stderr_sink_forced = అబద్ధం;
 
 LogManager &logger()
 {
-	static LogManager instance;
-	return instance;
+	స్థిర LogManager instance;
+	తిరిగి instance;
 }
 
-std::chrono::steady_clock::time_point LogManager::get_initial_time() const
+std::chrono::steady_clock::సమయం_బిందువు LogManager::get_initial_సమయం() స్థిరరాశి
 {
-	static const auto initial_time = std::chrono::steady_clock::now();
-	return initial_time;
+	స్థిర స్థిరరాశి స్వయంచాలక initial_సమయం = std::chrono::steady_clock::now();
+	తిరిగి initial_సమయం;
 }
 
-void (*log_error_atexit)() = nullptr;
-void (*log_verific_callback)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg) = nullptr;
+శూన్య (*log_error_atexit)() = శూన్యసూచిక;
+శూన్య (*log_verific_callback)(పూర్ణాంకం సందేశం_type, స్థిరరాశి అక్షరం *సందేశం_id, Log_ఆధారం_Location src, స్థిరరాశి అక్షరం *సందేశం) = శూన్యసూచిక;
 
-static bool next_print_log = true;
+స్థిర తార్కిక తదుపరి_print_log = నిజం;
 
-FileLogSink::FileLogSink(const std::string &filename, bool line_buffered, bool append)
+FileLogSink::FileLogSink(స్థిరరాశి std::string &filename, తార్కిక పంక్తి_buffered, తార్కిక append)
 	: file(fopen(filename.c_str(), append ? "at" : "wt"))
 {
-	if (!file)
-		throw std::runtime_error("Can't open log file `" + filename + "' for writing!\n");
+	ఒకవేళ (!file)
+		విసురు std::runtime_error("Can't open log file `" + filename + "' for writing!\n");
 
-	if (line_buffered)
-		setvbuf(file, nullptr, _IOLBF, 0);
+	ఒకవేళ (పంక్తి_buffered)
+		setvbuf(file, శూన్యసూచిక, _IOLBF, 0);
 }
 
 FileLogSink::~FileLogSink()
 {
 	flush();
-	if (file)
+	ఒకవేళ (file)
 		fclose(file);
 }
 
-void FileLogSink::log(const LogMessage &msg)
+శూన్య FileLogSink::సంవర్గమానం(స్థిరరాశి Log_సందేశం &సందేశం)
 {
-	fputs(msg.cached_msg.c_str(), file);
+	fputs(సందేశం.cached_సందేశం.c_str(), file);
 }
 
-void FileLogSink::flush()
+శూన్య FileLogSink::flush()
 {
 	fflush(file);
 }
 
-void ConsoleLogSink::log(const LogMessage &msg)
+శూన్య ConsoleLogSink::సంవర్గమానం(స్థిరరాశి Log_సందేశం &సందేశం)
 {
-	FILE *file = (msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError) ? stderr : stdout;
-	fputs(msg.cached_msg.c_str(), file);
+	FILE *file = (సందేశం.severity == LogSeverity::Error || సందేశం.severity == LogSeverity::NonFatalError) ? stderr : stdout;
+	fputs(సందేశం.cached_సందేశం.c_str(), file);
 }
 
-void ConsoleLogSink::flush()
+శూన్య ConsoleLogSink::flush()
 {
 	fflush(stdout);
 	fflush(stderr);
 }
 
-bool StderrLogSink::should_log(const LogMessage &msg) const
+తార్కిక StderrLogSink::should_log(స్థిరరాశి Log_సందేశం &సందేశం) స్థిరరాశి
 {
-	return msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
-			(msg.severity == LogSeverity::Warning && !quiet_warnings) ||
+	తిరిగి సందేశం.severity == LogSeverity::Error || సందేశం.severity == LogSeverity::NonFatalError ||
+			(సందేశం.severity == LogSeverity::Warning && !quiet_warnings) ||
 			log_stderr_sink_forced;
 }
 
-void StderrLogSink::log(const LogMessage &msg)
+శూన్య StderrLogSink::సంవర్గమానం(స్థిరరాశి Log_సందేశం &సందేశం)
 {
-	fputs(msg.cached_msg.c_str(), stderr);
+	fputs(సందేశం.cached_సందేశం.c_str(), stderr);
 }
 
-void StderrLogSink::flush()
+శూన్య StderrLogSink::flush()
 {
 	fflush(stderr);
 }
@@ -118,589 +118,589 @@ ScratchPadLogSink::ScratchPadLogSink(std::string scratchpad)
 {
 }
 
-void ScratchPadLogSink::log(const LogMessage &msg)
+శూన్య ScratchPadLogSink::సంవర్గమానం(స్థిరరాశి Log_సందేశం &సందేశం)
 {
 	RTLIL::Design *design = yosys_get_design();
-	if (!design)
-		return;
+	ఒకవేళ (!design)
+		తిరిగి;
 
-	design->scratchpad[scratchpad].append(msg.cached_msg);
+	design->scratchpad[scratchpad].append(సందేశం.cached_సందేశం);
 }
 
-LogMessage::LogMessage(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string_view message) :
+Log_సందేశం::Log_సందేశం(LogSeverity severity, Log_ఆధారం_Location src, std::string_view ఉపసర్గ_2, std::string_view format, std::string_view సందేశం_2) :
 	severity(severity),
-	prefix(prefix),
+	ఉపసర్గ_2(ఉపసర్గ_2),
 	format(format),
-	message(message),
+	సందేశం_2(సందేశం_2),
 	timestamp(std::chrono::steady_clock::now()),
 	src(src)
 {
-	std::string time_str;
-	if (logger().get_log_time())
+	std::string సమయం_str;
+	ఒకవేళ (logger().get_log_సమయం())
 	{
-		if (next_print_log) {
-			next_print_log = false;
-			auto elapsed = std::chrono::steady_clock::now() - logger().get_initial_time();
-			auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-			time_str += stringf("[%05d.%06d] ", int(us.count() / 1'000'000),int(us.count() % 1'000'000));
+		ఒకవేళ (తదుపరి_print_log) {
+			తదుపరి_print_log = అబద్ధం;
+			స్వయంచాలక elapsed = std::chrono::steady_clock::now() - logger().get_initial_సమయం();
+			స్వయంచాలక us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
+			సమయం_str += stringf("[%05d.%06d] ", పూర్ణాంకం(us.లెక్క() / 1'000'000),పూర్ణాంకం(us.లెక్క() % 1'000'000));
 		}
 
-		if (!format.empty() && format.back() == '\n')
-			next_print_log = true;
+		ఒకవేళ (!format.ఖాళీలు() && format.వెనుక() == '\n')
+			తదుపరి_print_log = నిజం;
 
 		// Special case to detect newlines in Python log output, since
 		// the binding always calls `log("%s", payload)` and the newline
 		// is then in the first formatted argument
-		if (format == "%s" && !message.empty() && message.back() == '\n')
-			next_print_log = true;
+		ఒకవేళ (format == "%s" && !సందేశం_2.ఖాళీలు() && సందేశం_2.వెనుక() == '\n')
+			తదుపరి_print_log = నిజం;
 	}
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	cached_msg = stringf("%s%s%s%s", time_str, loc, prefix, message);
+	std::string loc = !src.filename.ఖాళీలు() ? stringf("%s:%d: ", src.filename, src.ప్రారంభం_పంక్తి) : "";
+	cached_సందేశం = stringf("%s%s%s%s", సమయం_str, loc, ఉపసర్గ_2, సందేశం_2);
 }
 
-void LogManager::logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in) {
-	size_t remove_leading = 0;
-	while (format.size() > 1 && format[0] == '\n') {
-		logv_string(severity, src, prefix, "\n", "\n");
+శూన్య LogManager::logv_string(LogSeverity severity, Log_ఆధారం_Location src, std::string_view ఉపసర్గ_2, std::string_view format, std::string str_లోపల) {
+	కొలత_t remove_leading = 0;
+	అయితే (format.కొలత() > 1 && format[0] == '\n') {
+		logv_string(severity, src, ఉపసర్గ_2, "\n", "\n");
 		format = format.substr(1);
 		++remove_leading;
 	}
-	if (remove_leading > 0) {
-		str_in = str_in.substr(remove_leading);
+	ఒకవేళ (remove_leading > 0) {
+		str_లోపల = str_లోపల.substr(remove_leading);
 	}
 
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	std::string str = stringf("%s%s%s",loc,prefix,str_in);
+	std::string loc = !src.filename.ఖాళీలు() ? stringf("%s:%d: ", src.filename, src.ప్రారంభం_పంక్తి) : "";
+	std::string str = stringf("%s%s%s",loc,ఉపసర్గ_2,str_లోపల);
 
-	if (str.empty())
-		return;
+	ఒకవేళ (str.ఖాళీలు())
+		తిరిగి;
 
-	size_t nnl_pos = str.find_last_not_of('\n');
-	if (nnl_pos == std::string::npos)
-		newline_count += GetSize(str);
-	else
-		newline_count = GetSize(str) - nnl_pos - 1;
+	కొలత_t nnl_pos = str.కనుగొను_చివరి_not_యొక్క('\n');
+	ఒకవేళ (nnl_pos == std::string::npos)
+		newline_లెక్క += Get_కొలత(str);
+	లేకపోతే
+		newline_లెక్క = Get_కొలత(str) - nnl_pos - 1;
 
-	if (hasher)
+	ఒకవేళ (hasher)
 		hasher->update(str);
 
-	auto msg = LogMessage(severity, src, prefix, format, str_in);
-	for (auto &sink : sinks) {
-		if (sink->should_log(msg))
-			sink->log(msg);
+	స్వయంచాలక సందేశం = Log_సందేశం(severity, src, ఉపసర్గ_2, format, str_లోపల);
+	కొరకు (స్వయంచాలక &sink : sinks) {
+		ఒకవేళ (sink->should_log(సందేశం))
+			sink->సంవర్గమానం(సందేశం);
 	}
 
-	if (severity == LogSeverity::Header)
-		str = str_in;
+	ఒకవేళ (severity == LogSeverity::శీర్షిక)
+		str = str_లోపల;
 
-	static std::string linebuffer;
-	static bool warn_regex_recusion_guard = false;
+	స్థిర std::string linebuffer;
+	స్థిర తార్కిక warn_regex_recusion_guard = అబద్ధం;
 
-	if (!warn_regex_recusion_guard)
+	ఒకవేళ (!warn_regex_recusion_guard)
 	{
-		warn_regex_recusion_guard = true;
+		warn_regex_recusion_guard = నిజం;
 
-		if (warn_regexes.empty() && expect_log.empty() && expect_prefix_log.empty())
+		ఒకవేళ (warn_regexes.ఖాళీలు() && expect_log.ఖాళీలు() && expect_ఉపసర్గ_log.ఖాళీలు())
 		{
 			linebuffer.clear();
 		}
-		else
+		లేకపోతే
 		{
 			linebuffer += str;
 
-			if (!linebuffer.empty() && linebuffer.back() == '\n') {
-				for (auto &re : warn_regexes)
-					if (std::regex_search(linebuffer, re))
+			ఒకవేళ (!linebuffer.ఖాళీలు() && linebuffer.వెనుక() == '\n') {
+				కొరకు (స్వయంచాలక &re : warn_regexes)
+					ఒకవేళ (std::regex_శోధన(linebuffer, re))
 						log_warning("Found log message matching -W regex:\n%s", str);
 
-				for (auto &[_, item] : expect_log)
-					if (std::regex_search(linebuffer, item.pattern))
-						item.current_count++;
+				కొరకు (స్వయంచాలక &[_, అంశం] : expect_log)
+					ఒకవేళ (std::regex_శోధన(linebuffer, అంశం.నమూనా))
+						అంశం.current_లెక్క++;
 
 				linebuffer.clear();
 			}
 		}
 
-		warn_regex_recusion_guard = false;
+		warn_regex_recusion_guard = అబద్ధం;
 	}
 }
 
-void LogManager::formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str)
+శూన్య LogManager::formatted_string(LogSeverity severity, Log_ఆధారం_Location src, std::string_view ఉపసర్గ_2, std::string_view format, std::string str)
 {
-	log_assert(!Multithreading::active());
+	log_assert(!Multithreading::చురుకైన());
 
-	if (make_debug && !is_debug(1))
-		return;
-	logv_string(severity, src, prefix, format, std::move(str));
+	ఒకవేళ (make_debug && !is_debug(1))
+		తిరిగి;
+	logv_string(severity, src, ఉపసర్గ_2, format, std::move(str));
 }
 
-void LogManager::formatted_header(RTLIL::Design *design, std::string_view format, std::string str)
+శూన్య LogManager::formatted_శీర్షిక(RTLIL::Design *design, std::string_view format, std::string str)
 {
-	log_assert(!Multithreading::active());
+	log_assert(!Multithreading::చురుకైన());
 
 	spacer();
-	if (header_count.size() > 0)
-		header_count.back()++;
+	ఒకవేళ (శీర్షిక_లెక్క.కొలత() > 0)
+		శీర్షిక_లెక్క.వెనుక()++;
 
-	if (int(header_count.size()) <= verbose_level) {
-		log_stderr_sink_forced = true;
+	ఒకవేళ (పూర్ణాంకం(శీర్షిక_లెక్క.కొలత()) <= verbose_level) {
+		log_stderr_sink_forced = నిజం;
 	}
 
-	std::string header_id;
+	std::string శీర్షిక_id;
 
-	for (int c : header_count)
-		header_id += stringf("%s%d", header_id.empty() ? "" : ".", c);
+	కొరకు (పూర్ణాంకం c : శీర్షిక_లెక్క)
+		శీర్షిక_id += stringf("%s%d", శీర్షిక_id.ఖాళీలు() ? "" : ".", c);
 
-	formatted_string(LogSeverity::Header, LogSourceLocation{}, stringf("%s. ", header_id), format, std::move(str));
+	formatted_string(LogSeverity::శీర్షిక, Log_ఆధారం_Location{}, stringf("%s. ", శీర్షిక_id), format, std::move(str));
 	flush();
 
-	if (hdump_all)
-		hdump[header_id].insert("yosys_dump_" + header_id + ".il");
+	ఒకవేళ (hdump_all)
+		hdump[శీర్షిక_id].చొప్పించు("yosys_dump_" + శీర్షిక_id + ".il");
 
-	if (hdump.count(header_id) && design != nullptr)
-		for (auto &filename : hdump.at(header_id)) {
-			log("Dumping current design to '%s'.\n", filename);
+	ఒకవేళ (hdump.లెక్క(శీర్షిక_id) && design != శూన్యసూచిక)
+		కొరకు (స్వయంచాలక &filename : hdump.at(శీర్షిక_id)) {
+			సంవర్గమానం("Dumping current design to '%s'.\n", filename);
 			Pass::call(design, {"dump", "-o", filename});
 		}
-	log_stderr_sink_forced = false;
+	log_stderr_sink_forced = అబద్ధం;
 }
 
-void LogManager::formatted_warning(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+శూన్య LogManager::formatted_warning(Log_ఆధారం_Location src, std::string_view ఉపసర్గ_2, std::string_view format, std::string సందేశం_2)
 {
-	log_assert(!Multithreading::active());
+	log_assert(!Multithreading::చురుకైన());
 
-	bool suppressed = false;
+	తార్కిక suppressed = అబద్ధం;
 
-	for (auto &re : nowarn_regexes)
-		if (std::regex_search(message, re))
-			suppressed = true;
+	కొరకు (స్వయంచాలక &re : nowarn_regexes)
+		ఒకవేళ (std::regex_శోధన(సందేశం_2, re))
+			suppressed = నిజం;
 
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	if (suppressed)
+	std::string loc = !src.filename.ఖాళీలు() ? stringf("%s:%d: ", src.filename, src.ప్రారంభం_పంక్తి) : "";
+	ఒకవేళ (suppressed)
 	{
-		log("Suppressed %s%s%s", loc, prefix, message);
+		సంవర్గమానం("Suppressed %s%s%s", loc, ఉపసర్గ_2, సందేశం_2);
 	}
-	else
+	లేకపోతే
 	{
-		int bak_make_debug = make_debug;
+		పూర్ణాంకం bak_make_debug = make_debug;
 		make_debug = 0;
 
-		for (auto &re : werror_regexes)
-			if (std::regex_search(message, re))
-				formatted_error(src, "ERROR: ", format, message);
+		కొరకు (స్వయంచాలక &re : werror_regexes)
+			ఒకవేళ (std::regex_శోధన(సందేశం_2, re))
+				formatted_error(src, "ERROR: ", format, సందేశం_2);
 
-		bool warning_match = false;
-		for (auto &[_, item] : expect_warning)
-			if (std::regex_search(message, item.pattern)) {
-				item.current_count++;
-				warning_match = true;
+		తార్కిక warning_సరిపోలిక = అబద్ధం;
+		కొరకు (స్వయంచాలక &[_, అంశం] : expect_warning)
+			ఒకవేళ (std::regex_శోధన(సందేశం_2, అంశం.నమూనా)) {
+				అంశం.current_లెక్క++;
+				warning_సరిపోలిక = నిజం;
 			}
 
-		std::string pattern = loc + string(prefix) + message;
-		for (auto &[_, item] : expect_prefix_warning)
-			if (std::regex_search(pattern, item.pattern)) {
-				item.current_count++;
-				warning_match = true;
+		std::string నమూనా = loc + string(ఉపసర్గ_2) + సందేశం_2;
+		కొరకు (స్వయంచాలక &[_, అంశం] : expect_ఉపసర్గ_warning)
+			ఒకవేళ (std::regex_శోధన(నమూనా, అంశం.నమూనా)) {
+				అంశం.current_లెక్క++;
+				warning_సరిపోలిక = నిజం;
 			}
 
-		if (warnings.count(message))
+		ఒకవేళ (warnings.లెక్క(సందేశం_2))
 		{
-			formatted_string(LogSeverity::Info, src, prefix, format, message);
+			formatted_string(LogSeverity::Info, src, ఉపసర్గ_2, format, సందేశం_2);
 			flush();
 		}
-		else
+		లేకపోతే
 		{
-			formatted_string(LogSeverity::Warning, src, prefix, format, message);
+			formatted_string(LogSeverity::Warning, src, ఉపసర్గ_2, format, సందేశం_2);
 			flush();
-			warnings.insert(message);
+			warnings.చొప్పించు(సందేశం_2);
 		}
 
-		if (!warning_match)
-			warnings_count_noexpect++;
-		warnings_count++;
+		ఒకవేళ (!warning_సరిపోలిక)
+			warnings_లెక్క_noexpect++;
+		warnings_లెక్క++;
 		make_debug = bak_make_debug;
 	}
 }
 
-void LogManager::suppressed() {
-	if (debug_suppressed && !make_debug) {
-		constexpr const char* format = "<suppressed ~%d debug messages>\n";
-		logv_string(LogSeverity::Info, LogSourceLocation{}, {}, format, stringf(format, debug_suppressed));
+శూన్య LogManager::suppressed() {
+	ఒకవేళ (debug_suppressed && !make_debug) {
+		constexpr స్థిరరాశి అక్షరం* format = "<suppressed ~%d debug messages>\n";
+		logv_string(LogSeverity::Info, Log_ఆధారం_Location{}, {}, format, stringf(format, debug_suppressed));
 		debug_suppressed = 0;
 	}
 }
 
-void LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+శూన్య LogManager::error_with_ఉపసర్గ(LogSeverity severity, Log_ఆధారం_Location src, std::string_view ఉపసర్గ_2, std::string_view format, std::string సందేశం_2)
 {
-	int bak_make_debug = make_debug;
+	పూర్ణాంకం bak_make_debug = make_debug;
 	make_debug = 0;
-	if (severity == LogSeverity::Error)
+	ఒకవేళ (severity == LogSeverity::Error)
 		suppressed();
 
-	logv_string(severity, src, prefix, format, message);
+	logv_string(severity, src, ఉపసర్గ_2, format, సందేశం_2);
 	flush();
 
 	make_debug = bak_make_debug;
 
-	for (auto &[_, item] : expect_error)
-		if (std::regex_search(message, item.pattern))
-			item.current_count++;
+	కొరకు (స్వయంచాలక &[_, అంశం] : expect_error)
+		ఒకవేళ (std::regex_శోధన(సందేశం_2, అంశం.నమూనా))
+			అంశం.current_లెక్క++;
 
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	std::string pattern = loc + string(prefix) + message;
-	for (auto &[_, item] : expect_prefix_error)
-		if (std::regex_search(pattern, item.pattern))
-			item.current_count++;
+	std::string loc = !src.filename.ఖాళీలు() ? stringf("%s:%d: ", src.filename, src.ప్రారంభం_పంక్తి) : "";
+	std::string నమూనా = loc + string(ఉపసర్గ_2) + సందేశం_2;
+	కొరకు (స్వయంచాలక &[_, అంశం] : expect_ఉపసర్గ_error)
+		ఒకవేళ (std::regex_శోధన(నమూనా, అంశం.నమూనా))
+			అంశం.current_లెక్క++;
 
-	errors_count++;
+	errors_లెక్క++;
 }
 
 [[noreturn]]
-void LogManager::formatted_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+శూన్య LogManager::formatted_error(Log_ఆధారం_Location src, std::string_view ఉపసర్గ_2, std::string_view format, std::string సందేశం_2)
 {
-	error_with_prefix(LogSeverity::Error, src, prefix, format, message);
+	error_with_ఉపసర్గ(LogSeverity::Error, src, ఉపసర్గ_2, format, సందేశం_2);
 
 	check_expected();
 
-	if (log_error_atexit)
+	ఒకవేళ (log_error_atexit)
 		log_error_atexit();
 
 	YS_DEBUGTRAP_IF_DEBUGGING;
-	const char *e = getenv("YOSYS_ABORT_ON_LOG_ERROR");
-	if (e && atoi(e))
+	స్థిరరాశి అక్షరం *e = getenv("YOSYS_ABORT_ON_LOG_ERROR");
+	ఒకవేళ (e && atoi(e))
 		abort();
 
-#if defined(_MSC_VER)
+#ఒకవేళ defined(_MSC_VER)
 	_exit(1);
-#else
+#లేకపోతే
 	_Exit(1);
-#endif
+#అయితే_ముగింపు
 }
 
-void LogManager::formatted_nonfatal_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+శూన్య LogManager::formatted_nonfatal_error(Log_ఆధారం_Location src, std::string_view ఉపసర్గ_2, std::string_view format, std::string సందేశం_2)
 {
-	error_with_prefix(LogSeverity::NonFatalError, src, prefix, format, message);
+	error_with_ఉపసర్గ(LogSeverity::NonFatalError, src, ఉపసర్గ_2, format, సందేశం_2);
 }
 
-void LogManager::add_experimental(const std::string &str)
+శూన్య LogManager::కూడు_experimental(స్థిరరాశి std::string &str)
 {
-	if (experimental_ignored.count(str) == 0 && experimental.count(str) == 0) {
+	ఒకవేళ (experimental_ignored.లెక్క(str) == 0 && experimental.లెక్క(str) == 0) {
 		log_warning("Feature '%s' is experimental.\n", str);
-		experimental.insert(str);
+		experimental.చొప్పించు(str);
 	}
 }
 
-void LogManager::add_deprecated(const std::string &feature, const std::string &earliest_removal)
+శూన్య LogManager::కూడు_deprecated(స్థిరరాశి std::string &feature, స్థిరరాశి std::string &earliest_removal)
 {
-	if (deprecated.count(feature) == 0) {
-		if (earliest_removal.empty())
+	ఒకవేళ (deprecated.లెక్క(feature) == 0) {
+		ఒకవేళ (earliest_removal.ఖాళీలు())
 			log_warning("Feature '%s' is deprecated.\n", feature);
-		else
+		లేకపోతే
 			log_warning("Feature '%s' is deprecated and may be removed as soon as Yosys %s.\n", feature, earliest_removal);
 		deprecated[feature] = earliest_removal;
 	}
 }
 
-void log_assert_failure(const char *expr, source_location location)
+శూన్య log_assert_failure(స్థిరరాశి అక్షరం *సమాసం, ఆధారం_location location)
 {
-	log_error("Assert `%s' failed in %s:%d.\n", expr, location.file_name(), location.line());
+	log_error("Assert `%s' failed in %s:%d.\n", సమాసం, location.file_name(), location.పంక్తి());
 }
 
-void log_abort_internal(const char *file, int line)
+శూన్య log_abort_అంతర్గత(స్థిరరాశి అక్షరం *file, పూర్ణాంకం పంక్తి)
 {
-	log_error("Abort in %s:%d.\n", file, line);
+	log_error("Abort in %s:%d.\n", file, పంక్తి);
 }
 
-void log_yosys_abort_message(std::string_view file, int line, std::string_view func, std::string_view message)
+శూన్య log_yosys_abort_సందేశం(std::string_view file, పూర్ణాంకం పంక్తి, std::string_view func, std::string_view సందేశం_2)
 {
-	log_error("Abort in %s:%d (%s): %s\n", file, line, func, message);
+	log_error("Abort in %s:%d (%s): %s\n", file, పంక్తి, func, సందేశం_2);
 }
 
-void LogManager::formatted_cmd_error(std::string_view format, std::string message)
+శూన్య LogManager::formatted_cmd_error(std::string_view format, std::string సందేశం_2)
 {
-	if (cmd_error_throw) {
-		formatted_string(LogSeverity::Error, LogSourceLocation{}, "ERROR: ", format, message);
+	ఒకవేళ (cmd_error_throw) {
+		formatted_string(LogSeverity::Error, Log_ఆధారం_Location{}, "ERROR: ", format, సందేశం_2);
 		flush();
 
-		throw log_cmd_error_exception();
+		విసురు log_cmd_error_exception();
 	}
 
-	formatted_error(LogSourceLocation{}, "ERROR: ", format, message);
+	formatted_error(Log_ఆధారం_Location{}, "ERROR: ", format, సందేశం_2);
 }
 
-void LogManager::spacer()
+శూన్య LogManager::spacer()
 {
-	if (newline_count < 2) log("\n");
-	if (newline_count < 2) log("\n");
+	ఒకవేళ (newline_లెక్క < 2) సంవర్గమానం("\n");
+	ఒకవేళ (newline_లెక్క < 2) సంవర్గమానం("\n");
 }
 
-void LogManager::clear_original()
+శూన్య LogManager::clear_original()
 {
-	std::erase_if(sinks, [](const auto &sink) { return dynamic_cast<LogSinkRef *>(sink.get()) != nullptr; });
+	std::erase_if(sinks, [](స్థిరరాశి స్వయంచాలక &sink) { తిరిగి dynamic_cast<LogSinkRef *>(sink.get()) != శూన్యసూచిక; });
 }
 
-void LogManager::push()
+శూన్య LogManager::నెట్టు()
 {
-	header_count.push_back(0);
+	శీర్షిక_లెక్క.నెట్టు_వెనుక(0);
 }
 
-void LogManager::pop()
+శూన్య LogManager::తీయి()
 {
-	header_count.pop_back();
+	శీర్షిక_లెక్క.తీయి_వెనుక();
 	flush();
 }
 
-#if defined(YOSYS_ENABLE_DLOPEN)
-void log_backtrace(const char *prefix, int levels)
+#ఒకవేళ defined(YOSYS_ENABLE_DLOPEN)
+శూన్య log_backtrace(స్థిరరాశి అక్షరం *ఉపసర్గ_2, పూర్ణాంకం స్థాయిలు)
 {
-	if (levels <= 0) return;
+	ఒకవేళ (స్థాయిలు <= 0) తిరిగి;
 
 	Dl_info dli;
-	void *p;
+	శూన్య *p;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(0))) && dladdr(p, &dli)) {
-		log("%sframe #1: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #1: ---\n", prefix);
-		return;
+	ఒకవేళ ((p = __builtin_extract_return_addr(__builtin_return_address(0))) && dladdr(p, &dli)) {
+		సంవర్గమానం("%sframe #1: %p %s(%p) %s(%p)\n", ఉపసర్గ_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} లేకపోతే {
+		సంవర్గమానం("%sframe #1: ---\n", ఉపసర్గ_2);
+		తిరిగి;
 	}
 
-	if (levels <= 1) return;
+	ఒకవేళ (స్థాయిలు <= 1) తిరిగి;
 
-#ifndef DEBUG
-	log("%sframe #2: [build Yosys with ENABLE_DEBUG for deeper backtraces]\n", prefix);
-#else
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(1))) && dladdr(p, &dli)) {
-		log("%sframe #2: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #2: ---\n", prefix);
-		return;
+#నిర్వచితం_కాకపోతే DEBUG
+	సంవర్గమానం("%sframe #2: [build Yosys with ENABLE_DEBUG for deeper backtraces]\n", ఉపసర్గ_2);
+#లేకపోతే
+	ఒకవేళ ((p = __builtin_extract_return_addr(__builtin_return_address(1))) && dladdr(p, &dli)) {
+		సంవర్గమానం("%sframe #2: %p %s(%p) %s(%p)\n", ఉపసర్గ_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} లేకపోతే {
+		సంవర్గమానం("%sframe #2: ---\n", ఉపసర్గ_2);
+		తిరిగి;
 	}
 
-	if (levels <= 2) return;
+	ఒకవేళ (స్థాయిలు <= 2) తిరిగి;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(2))) && dladdr(p, &dli)) {
-		log("%sframe #3: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #3: ---\n", prefix);
-		return;
+	ఒకవేళ ((p = __builtin_extract_return_addr(__builtin_return_address(2))) && dladdr(p, &dli)) {
+		సంవర్గమానం("%sframe #3: %p %s(%p) %s(%p)\n", ఉపసర్గ_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} లేకపోతే {
+		సంవర్గమానం("%sframe #3: ---\n", ఉపసర్గ_2);
+		తిరిగి;
 	}
 
-	if (levels <= 3) return;
+	ఒకవేళ (స్థాయిలు <= 3) తిరిగి;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(3))) && dladdr(p, &dli)) {
-		log("%sframe #4: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #4: ---\n", prefix);
-		return;
+	ఒకవేళ ((p = __builtin_extract_return_addr(__builtin_return_address(3))) && dladdr(p, &dli)) {
+		సంవర్గమానం("%sframe #4: %p %s(%p) %s(%p)\n", ఉపసర్గ_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} లేకపోతే {
+		సంవర్గమానం("%sframe #4: ---\n", ఉపసర్గ_2);
+		తిరిగి;
 	}
 
-	if (levels <= 4) return;
+	ఒకవేళ (స్థాయిలు <= 4) తిరిగి;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(4))) && dladdr(p, &dli)) {
-		log("%sframe #5: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #5: ---\n", prefix);
-		return;
+	ఒకవేళ ((p = __builtin_extract_return_addr(__builtin_return_address(4))) && dladdr(p, &dli)) {
+		సంవర్గమానం("%sframe #5: %p %s(%p) %s(%p)\n", ఉపసర్గ_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} లేకపోతే {
+		సంవర్గమానం("%sframe #5: ---\n", ఉపసర్గ_2);
+		తిరిగి;
 	}
 
-	if (levels <= 5) return;
+	ఒకవేళ (స్థాయిలు <= 5) తిరిగి;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(5))) && dladdr(p, &dli)) {
-		log("%sframe #6: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #6: ---\n", prefix);
-		return;
+	ఒకవేళ ((p = __builtin_extract_return_addr(__builtin_return_address(5))) && dladdr(p, &dli)) {
+		సంవర్గమానం("%sframe #6: %p %s(%p) %s(%p)\n", ఉపసర్గ_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} లేకపోతే {
+		సంవర్గమానం("%sframe #6: ---\n", ఉపసర్గ_2);
+		తిరిగి;
 	}
 
-	if (levels <= 6) return;
+	ఒకవేళ (స్థాయిలు <= 6) తిరిగి;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(6))) && dladdr(p, &dli)) {
-		log("%sframe #7: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #7: ---\n", prefix);
-		return;
+	ఒకవేళ ((p = __builtin_extract_return_addr(__builtin_return_address(6))) && dladdr(p, &dli)) {
+		సంవర్గమానం("%sframe #7: %p %s(%p) %s(%p)\n", ఉపసర్గ_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} లేకపోతే {
+		సంవర్గమానం("%sframe #7: ---\n", ఉపసర్గ_2);
+		తిరిగి;
 	}
 
-	if (levels <= 7) return;
+	ఒకవేళ (స్థాయిలు <= 7) తిరిగి;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(7))) && dladdr(p, &dli)) {
-		log("%sframe #8: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #8: ---\n", prefix);
-		return;
+	ఒకవేళ ((p = __builtin_extract_return_addr(__builtin_return_address(7))) && dladdr(p, &dli)) {
+		సంవర్గమానం("%sframe #8: %p %s(%p) %s(%p)\n", ఉపసర్గ_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} లేకపోతే {
+		సంవర్గమానం("%sframe #8: ---\n", ఉపసర్గ_2);
+		తిరిగి;
 	}
 
-	if (levels <= 8) return;
+	ఒకవేళ (స్థాయిలు <= 8) తిరిగి;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(8))) && dladdr(p, &dli)) {
-		log("%sframe #9: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #9: ---\n", prefix);
-		return;
+	ఒకవేళ ((p = __builtin_extract_return_addr(__builtin_return_address(8))) && dladdr(p, &dli)) {
+		సంవర్గమానం("%sframe #9: %p %s(%p) %s(%p)\n", ఉపసర్గ_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} లేకపోతే {
+		సంవర్గమానం("%sframe #9: ---\n", ఉపసర్గ_2);
+		తిరిగి;
 	}
 
-	if (levels <= 9) return;
-#endif
+	ఒకవేళ (స్థాయిలు <= 9) తిరిగి;
+#అయితే_ముగింపు
 }
-#else
-void log_backtrace(const char*, int) { }
-#endif
+#లేకపోతే
+శూన్య log_backtrace(స్థిరరాశి అక్షరం*, పూర్ణాంకం) { }
+#అయితే_ముగింపు
 
-void LogManager::reset_stack()
+శూన్య LogManager::reset_దొంతర()
 {
-	while (header_count.size() > 1)
-		header_count.pop_back();
+	అయితే (శీర్షిక_లెక్క.కొలత() > 1)
+		శీర్షిక_లెక్క.తీయి_వెనుక();
 	flush();
 }
 
-void log_dump_val_worker(RTLIL::IdString v) {
-	if (v == IdString::Null)
-		log("(null)");
-	else if (ID::is_static(v))
-		log("%s", ID::unescaped_str(v));
-	else if (yosys_design && yosys_design->twines().is_live(v))
-		log("%s", yosys_design->twines().unescaped_str(v));
-	else
-		log("%s", v.handle_token());
+శూన్య log_dump_val_కార్మికుడు(RTLIL::IdString v) {
+	ఒకవేళ (v == IdString::Null)
+		సంవర్గమానం("(null)");
+	లేకపోతే ఒకవేళ (ID::is_static(v))
+		సంవర్గమానం("%s", ID::unescaped_str(v));
+	లేకపోతే ఒకవేళ (yosys_design && yosys_design->twines().is_సజీవ(v))
+		సంవర్గమానం("%s", yosys_design->twines().unescaped_str(v));
+	లేకపోతే
+		సంవర్గమానం("%s", v.handle_token());
 }
 
-void log_dump_val_worker(RTLIL::SigSpec v) {
-	log("%s", log_signal(v));
+శూన్య log_dump_val_కార్మికుడు(RTLIL::SigSpec v) {
+	సంవర్గమానం("%s", log_signal(v));
 }
 
-void log_dump_val_worker(RTLIL::State v) {
-	log("%s", log_signal(v));
+శూన్య log_dump_val_కార్మికుడు(RTLIL::State v) {
+	సంవర్గమానం("%s", log_signal(v));
 }
 
-std::string log_signal(const RTLIL::SigSpec &sig, bool autoint)
+std::string log_signal(స్థిరరాశి RTLIL::SigSpec &sig, తార్కిక autoint)
 {
 	std::stringstream buf;
-	RTLIL_BACKEND::dump_sigspec(buf, sig, autoint, RTLIL_BACKEND::DumpMode::Readable);
-	return buf.str();
+	RTLIL_BACKEND::dump_sigspec(buf, sig, autoint, RTLIL_BACKEND::Dump_బహుళకం::Readable);
+	తిరిగి buf.str();
 }
 
-std::string log_const(const RTLIL::Const &value, bool autoint)
+std::string log_const(స్థిరరాశి RTLIL::Const &విలువ, తార్కిక autoint)
 {
-	if ((value.flags & RTLIL::CONST_FLAG_STRING) == 0)
-		return log_signal(value, autoint);
+	ఒకవేళ ((విలువ.flags & RTLIL::CONST_FLAG_STRING) == 0)
+		తిరిగి log_signal(విలువ, autoint);
 
-	return "\"" + value.decode_string() + "\"";
+	తిరిగి "\"" + విలువ.decode_string() + "\"";
 }
 
-void log_module(RTLIL::Module *module, std::string indent)
-{
-	std::stringstream buf;
-	RTLIL_BACKEND::dump_module(buf, indent, module, module->design, false, true, false, RTLIL_BACKEND::DumpMode::Readable);
-	log("%s", buf.str());
-}
-
-void log_cell(RTLIL::Cell *cell, std::string indent)
+శూన్య log_module(RTLIL::Module *module, std::string indent)
 {
 	std::stringstream buf;
-	RTLIL_BACKEND::dump_cell(buf, indent, cell, cell->module ? cell->module->design : nullptr, RTLIL_BACKEND::DumpMode::Readable);
-	log("%s", buf.str());
+	RTLIL_BACKEND::dump_module(buf, indent, module, module->design, అబద్ధం, నిజం, అబద్ధం, RTLIL_BACKEND::Dump_బహుళకం::Readable);
+	సంవర్గమానం("%s", buf.str());
 }
 
-void log_wire(RTLIL::Wire *wire, std::string indent)
+శూన్య log_cell(RTLIL::Cell *cell, std::string indent)
 {
 	std::stringstream buf;
-	RTLIL_BACKEND::dump_wire(buf, indent, wire, wire->module ? wire->module->design : nullptr, RTLIL_BACKEND::DumpMode::Readable);
-	log("%s", buf.str());
+	RTLIL_BACKEND::dump_cell(buf, indent, cell, cell->module ? cell->module->design : శూన్యసూచిక, RTLIL_BACKEND::Dump_బహుళకం::Readable);
+	సంవర్గమానం("%s", buf.str());
 }
 
-void LogManager::check_expected()
+శూన్య log_wire(RTLIL::Wire *wire, std::string indent)
+{
+	std::stringstream buf;
+	RTLIL_BACKEND::dump_wire(buf, indent, wire, wire->module ? wire->module->design : శూన్యసూచిక, RTLIL_BACKEND::Dump_బహుళకం::Readable);
+	సంవర్గమానం("%s", buf.str());
+}
+
+శూన్య LogManager::check_expected()
 {
 	// copy out all of the expected logs so that they cannot be re-checked
 	// or match against themselves
-	dict<std::string, LogExpectedItem> expect_log_copy, expect_warning_copy, expect_error_copy;
-	dict<std::string, LogExpectedItem> expect_prefix_log_copy, expect_prefix_warning_copy, expect_prefix_error_copy;
-	std::swap(expect_warning_copy, expect_warning);
-	std::swap(expect_log_copy, expect_log);
-	std::swap(expect_error_copy, expect_error);
-	std::swap(expect_prefix_warning_copy, expect_prefix_warning);
-	std::swap(expect_prefix_log_copy, expect_prefix_log);
-	std::swap(expect_prefix_error_copy, expect_prefix_error);
+	dict<std::string, Log_Expected_అంశం> expect_log_copy, expect_warning_copy, expect_error_copy;
+	dict<std::string, Log_Expected_అంశం> expect_ఉపసర్గ_log_copy, expect_ఉపసర్గ_warning_copy, expect_ఉపసర్గ_error_copy;
+	std::మార్పిడి(expect_warning_copy, expect_warning);
+	std::మార్పిడి(expect_log_copy, expect_log);
+	std::మార్పిడి(expect_error_copy, expect_error);
+	std::మార్పిడి(expect_ఉపసర్గ_warning_copy, expect_ఉపసర్గ_warning);
+	std::మార్పిడి(expect_ఉపసర్గ_log_copy, expect_ఉపసర్గ_log);
+	std::మార్పిడి(expect_ఉపసర్గ_error_copy, expect_ఉపసర్గ_error);
 
-	auto check = [&](const std::string kind, std::string pattern, LogExpectedItem item) {
-		if (item.current_count == 0) {
+	స్వయంచాలక check = [&](స్థిరరాశి std::string రకం, std::string నమూనా, Log_Expected_అంశం అంశం) {
+		ఒకవేళ (అంశం.current_లెక్క == 0) {
 			warn_regexes.clear();
-			log_error("Expected %s pattern '%s' not found !\n", kind, pattern);
+			log_error("Expected %s pattern '%s' not found !\n", రకం, నమూనా);
 		}
-		if (item.current_count != item.expected_count) {
+		ఒకవేళ (అంశం.current_లెక్క != అంశం.expected_లెక్క) {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' found %d time(s), instead of %d time(s) !\n",
-				kind.c_str(), pattern.c_str(), item.current_count, item.expected_count);
+				రకం.c_str(), నమూనా.c_str(), అంశం.current_లెక్క, అంశం.expected_లెక్క);
 		}
 	};
 
-	for (auto &[pattern, item] : expect_warning_copy)
-		check("warning", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_warning_copy)
-		check("prefixed warning", pattern, item);
-	for (auto &[pattern, item] : expect_log_copy)
-		check("log", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_log_copy)
-		check("prefixed log", pattern, item);
+	కొరకు (స్వయంచాలక &[నమూనా, అంశం] : expect_warning_copy)
+		check("warning", నమూనా, అంశం);
+	కొరకు (స్వయంచాలక &[నమూనా, అంశం] : expect_ఉపసర్గ_warning_copy)
+		check("prefixed warning", నమూనా, అంశం);
+	కొరకు (స్వయంచాలక &[నమూనా, అంశం] : expect_log_copy)
+		check("log", నమూనా, అంశం);
+	కొరకు (స్వయంచాలక &[నమూనా, అంశం] : expect_ఉపసర్గ_log_copy)
+		check("prefixed log", నమూనా, అంశం);
 
-	auto check_err = [&](const std::string kind, std::string pattern, LogExpectedItem item) {
-		if (item.current_count == item.expected_count) {
+	స్వయంచాలక check_err = [&](స్థిరరాశి std::string రకం, std::string నమూనా, Log_Expected_అంశం అంశం) {
+		ఒకవేళ (అంశం.current_లెక్క == అంశం.expected_లెక్క) {
 			warn_regexes.clear();
-			log("Expected %s pattern '%s' found !!!\n", kind, pattern);
+			సంవర్గమానం("Expected %s pattern '%s' found !!!\n", రకం, నమూనా);
 			yosys_shutdown();
-			#if defined(_MSC_VER)
+			#ఒకవేళ defined(_MSC_VER)
 				_exit(0);
-			#else
+			#లేకపోతే
 				_Exit(0);
-			#endif
-		} else {
+			#అయితే_ముగింపు
+		} లేకపోతే {
 			warn_regexes.clear();
-			log_error("Expected %s pattern '%s' not found !\n", kind, pattern);
+			log_error("Expected %s pattern '%s' not found !\n", రకం, నమూనా);
 		}
 	};
-	for (auto &[pattern, item] : expect_error_copy)
-		check_err("error", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_error_copy)
-		check_err("prefixed error", pattern, item);
+	కొరకు (స్వయంచాలక &[నమూనా, అంశం] : expect_error_copy)
+		check_err("error", నమూనా, అంశం);
+	కొరకు (స్వయంచాలక &[నమూనా, అంశం] : expect_ఉపసర్గ_error_copy)
+		check_err("prefixed error", నమూనా, అంశం);
 }
 
-void LogManager::report_unexpected_error()
+శూన్య LogManager::report_unexpected_error()
 {
-	if (expect_no_warnings && warnings_count_noexpect)
-		log_error("Unexpected warnings found: %d unique messages, %d total, %d expected\n", GetSize(warnings),
-					warnings_count, warnings_count - warnings_count_noexpect);
+	ఒకవేళ (expect_no_warnings && warnings_లెక్క_noexpect)
+		log_error("Unexpected warnings found: %d unique messages, %d total, %d expected\n", Get_కొలత(warnings),
+					warnings_లెక్క, warnings_లెక్క - warnings_లెక్క_noexpect);
 }
 
-void LogManager::add_expect(std::string type, std::string pattern, int count)
+శూన్య LogManager::కూడు_expect(std::string type, std::string నమూనా, పూర్ణాంకం లెక్క)
 {
-	if (type == "error")
-		expect_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-error")
-		expect_prefix_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "warning")
-		expect_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-warning")
-		expect_prefix_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "log")
-		expect_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-log")
-		expect_prefix_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else log_abort();
+	ఒకవేళ (type == "error")
+		expect_error[నమూనా] = Log_Expected_అంశం(YS_REGEX_COMPILE(నమూనా), లెక్క);
+	లేకపోతే ఒకవేళ (type == "prefix-error")
+		expect_ఉపసర్గ_error[నమూనా] = Log_Expected_అంశం(YS_REGEX_COMPILE(నమూనా), లెక్క);
+	లేకపోతే ఒకవేళ (type == "warning")
+		expect_warning[నమూనా] = Log_Expected_అంశం(YS_REGEX_COMPILE(నమూనా), లెక్క);
+	లేకపోతే ఒకవేళ (type == "prefix-warning")
+		expect_ఉపసర్గ_warning[నమూనా] = Log_Expected_అంశం(YS_REGEX_COMPILE(నమూనా), లెక్క);
+	లేకపోతే ఒకవేళ (type == "log")
+		expect_log[నమూనా] = Log_Expected_అంశం(YS_REGEX_COMPILE(నమూనా), లెక్క);
+	లేకపోతే ఒకవేళ (type == "prefix-log")
+		expect_ఉపసర్గ_log[నమూనా] = Log_Expected_అంశం(YS_REGEX_COMPILE(నమూనా), లెక్క);
+	లేకపోతే log_abort();
 }
 
-void LogManager::start_hasher()
+శూన్య LogManager::ప్రారంభం_hasher()
 {
 	hasher = std::make_unique<SHA1>();
 }
 
-std::string LogManager::finish_hasher()
+std::string LogManager::ముగింపు_hasher()
 {
-	if (!hasher)
-		return {};
+	ఒకవేళ (!hasher)
+		తిరిగి {};
 
 	std::string hash = hasher->final().substr(0, 10);
 	hasher.reset();
-	return hash;
+	తిరిగి hash;
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర

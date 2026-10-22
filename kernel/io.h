@@ -1,59 +1,59 @@
-#include <string>
-#include <stdarg.h>
-#include <type_traits>
-#include "kernel/yosys_common.h"
+#అన్తర్భావ <string>
+#అన్తర్భావ <stdarg.h>
+#అన్తర్భావ <type_traits>
+#అన్తర్భావ "kernel/yosys_common.h"
 
-#ifndef YOSYS_IO_H
-#define YOSYS_IO_H
+#నిర్వచితం_కాకపోతే YOSYS_IO_H
+#నిర్వచించు YOSYS_IO_H
 
 YOSYS_NAMESPACE_BEGIN
 
-struct IdString;
+నిర్మాణం IdString;
 
-inline std::string vstringf(const char *fmt, va_list ap)
+అంతఃవరుస std::string vstringf(స్థిరరాశి అక్షరం *fmt, va_list ap)
 {
 	// For the common case of strings shorter than 128, save a heap
 	// allocation by using a stack allocated buffer.
-	const int kBufSize = 128;
-	char buf[kBufSize];
+	స్థిరరాశి పూర్ణాంకం k_Buf_కొలత = 128;
+	అక్షరం buf[k_Buf_కొలత];
 	buf[0] = '\0';
 	va_list apc;
 	va_copy(apc, ap);
-	int n = vsnprintf(buf, kBufSize, fmt, apc);
-	va_end(apc);
-	if (n < kBufSize)
-		return std::string(buf);
+	పూర్ణాంకం n = vsnprintf(buf, k_Buf_కొలత, fmt, apc);
+	va_చివర(apc);
+	ఒకవేళ (n < k_Buf_కొలత)
+		తిరిగి std::string(buf);
 
 	std::string string;
-	char *str = NULL;
-#if defined(_WIN32) || defined(__CYGWIN__)
-	int sz = 2 * kBufSize, rc;
-	while (1) {
+	అక్షరం *str = ఖాళీ;
+#ఒకవేళ defined(_WIN32) || defined(__CYGWIN__)
+	పూర్ణాంకం sz = 2 * k_Buf_కొలత, rc;
+	అయితే (1) {
 		va_copy(apc, ap);
-		str = (char *)realloc(str, sz);
+		str = (అక్షరం *)realloc(str, sz);
 		rc = vsnprintf(str, sz, fmt, apc);
-		va_end(apc);
-		if (rc >= 0 && rc < sz)
-			break;
+		va_చివర(apc);
+		ఒకవేళ (rc >= 0 && rc < sz)
+			ఆపు;
 		sz *= 2;
 	}
-	if (str != NULL) {
+	ఒకవేళ (str != ఖాళీ) {
 		string = str;
-		free(str);
+		విడుదల(str);
 	}
-	return string;
-#else
-	if (vasprintf(&str, fmt, ap) < 0)
-		str = NULL;
-	if (str != NULL) {
+	తిరిగి string;
+#లేకపోతే
+	ఒకవేళ (vasprintf(&str, fmt, ap) < 0)
+		str = ఖాళీ;
+	ఒకవేళ (str != ఖాళీ) {
 		string = str;
-		free(str);
+		విడుదల(str);
 	}
-	return string;
-#endif
+	తిరిగి string;
+#అయితే_ముగింపు
 }
 
-enum ConversionSpecifier : uint8_t
+గణన ConversionSpecifier : uint8_t
 {
 	CONVSPEC_NONE,
 	// Specifier not understood/supported
@@ -70,453 +70,453 @@ enum ConversionSpecifier : uint8_t
 	CONVSPEC_VOID_PTR,
 };
 
-constexpr ConversionSpecifier parse_conversion_specifier(char ch, char prev_ch)
+constexpr ConversionSpecifier parse_conversion_specifier(అక్షరం ch, అక్షరం prev_ch)
 {
-	switch (ch) {
-	case 'd':
-	case 'i':
-		return CONVSPEC_SIGNED_INT;
-	case 'o':
-	case 'u':
-	case 'x':
-	case 'X':
-	case 'm':
-		return CONVSPEC_UNSIGNED_INT;
-	case 'c':
-		if (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
+	ఎంపిక (ch) {
+	స్థితి 'd':
+	స్థితి 'i':
+		తిరిగి CONVSPEC_SIGNED_INT;
+	స్థితి 'o':
+	స్థితి 'u':
+	స్థితి 'x':
+	స్థితి 'X':
+	స్థితి 'm':
+		తిరిగి CONVSPEC_UNSIGNED_INT;
+	స్థితి 'c':
+		ఒకవేళ (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
 			// wchar not supported
-			return CONVSPEC_ERROR;
+			తిరిగి CONVSPEC_ERROR;
 		}
-		return CONVSPEC_UNSIGNED_INT;
-	case 'e':
-	case 'E':
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-	case 'a':
-	case 'A':
-		return CONVSPEC_DOUBLE;
-	case 's':
-		if (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
+		తిరిగి CONVSPEC_UNSIGNED_INT;
+	స్థితి 'e':
+	స్థితి 'E':
+	స్థితి 'f':
+	స్థితి 'F':
+	స్థితి 'g':
+	స్థితి 'G':
+	స్థితి 'a':
+	స్థితి 'A':
+		తిరిగి CONVSPEC_DOUBLE;
+	స్థితి 's':
+		ఒకవేళ (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
 			// wchar not supported
-			return CONVSPEC_ERROR;
+			తిరిగి CONVSPEC_ERROR;
 		}
-		return CONVSPEC_CHAR_PTR;
-	case 'p':
-		return CONVSPEC_VOID_PTR;
-	case '$': // positional parameters
-	case 'n':
-	case 'S':
-		return CONVSPEC_ERROR;
-	default:
-		return CONVSPEC_NONE;
+		తిరిగి CONVSPEC_CHAR_PTR;
+	స్థితి 'p':
+		తిరిగి CONVSPEC_VOID_PTR;
+	స్థితి '$': // positional parameters
+	స్థితి 'n':
+	స్థితి 'S':
+		తిరిగి CONVSPEC_ERROR;
+	అప్రమేయ:
+		తిరిగి CONVSPEC_NONE;
 	}
 }
 
-enum class DynamicIntCount : uint8_t {
+గణన class Dynamic_Int_లెక్క : uint8_t {
 	NONE = 0,
 	ONE = 1,
 	TWO = 2,
 };
 
 // Describes a printf-style format conversion specifier found in a format string.
-struct FoundFormatSpec
+నిర్మాణం దొరికింది_Format_Spec
 {
 	// The start offset of the conversion spec in the format string.
-	int start;
+	పూర్ణాంకం ప్రారంభం;
 	// The end offset of the conversion spec in the format string.
-	int end;
+	పూర్ణాంకం చివర;
 	ConversionSpecifier spec;
 	// Number of int args consumed by '*' dynamic width/precision args.
-	DynamicIntCount num_dynamic_ints;
+	Dynamic_Int_లెక్క అంకె_dynamic_ints;
 };
 
 // Ensure there is no format spec.
-constexpr void ensure_no_format_spec(std::string_view fmt, int index, bool *has_escapes)
+constexpr శూన్య ensure_no_format_spec(std::string_view fmt, పూర్ణాంకం సూచీ, bool *has_escapes)
 {
-	int fmt_size = static_cast<int>(fmt.size());
+	పూర్ణాంకం fmt_కొలత = static_cast<పూర్ణాంకం>(fmt.కొలత());
 	// A trailing '%' is not a format spec.
-	while (index + 1 < fmt_size) {
-		if (fmt[index] != '%') {
-			++index;
-			continue;
+	అయితే (సూచీ + 1 < fmt_కొలత) {
+		ఒకవేళ (fmt[సూచీ] != '%') {
+			++సూచీ;
+			కొనసాగు;
 		}
-		if (fmt[index + 1] != '%') {
+		ఒకవేళ (fmt[సూచీ + 1] != '%') {
 			YOSYS_ABORT("More format conversion specifiers than arguments");
 		}
 		*has_escapes = true;
-		index += 2;
+		సూచీ += 2;
 	}
 }
 
 // Returns the next format conversion specifier (starting with '%').
 // Returns CONVSPEC_NONE if there isn't a format conversion specifier.
-constexpr FoundFormatSpec find_next_format_spec(std::string_view fmt, int fmt_start, bool *has_escapes)
+constexpr దొరికింది_Format_Spec కనుగొను_తదుపరి_format_spec(std::string_view fmt, పూర్ణాంకం fmt_ప్రారంభం, bool *has_escapes)
 {
-	int index = fmt_start;
-	int fmt_size = static_cast<int>(fmt.size());
-	while (index < fmt_size) {
-		if (fmt[index] != '%') {
-			++index;
-			continue;
+	పూర్ణాంకం సూచీ = fmt_ప్రారంభం;
+	పూర్ణాంకం fmt_కొలత = static_cast<పూర్ణాంకం>(fmt.కొలత());
+	అయితే (సూచీ < fmt_కొలత) {
+		ఒకవేళ (fmt[సూచీ] != '%') {
+			++సూచీ;
+			కొనసాగు;
 		}
-		int p = index + 1;
-		uint8_t num_dynamic_ints = 0;
-		while (true) {
-			if (p == fmt_size) {
-				return {0, 0, CONVSPEC_NONE, DynamicIntCount::NONE};
+		పూర్ణాంకం p = సూచీ + 1;
+		uint8_t అంకె_dynamic_ints = 0;
+		అయితే (true) {
+			ఒకవేళ (p == fmt_కొలత) {
+				తిరిగి {0, 0, CONVSPEC_NONE, Dynamic_Int_లెక్క::NONE};
 			}
-			if (fmt[p] == '%') {
+			ఒకవేళ (fmt[p] == '%') {
 				*has_escapes = true;
-				index = p + 1;
-				break;
+				సూచీ = p + 1;
+				ఆపు;
 			}
-			if (fmt[p] == '*') {
-				if (num_dynamic_ints >= 2) {
-					return {0, 0, CONVSPEC_ERROR, DynamicIntCount::NONE};
+			ఒకవేళ (fmt[p] == '*') {
+				ఒకవేళ (అంకె_dynamic_ints >= 2) {
+					తిరిగి {0, 0, CONVSPEC_ERROR, Dynamic_Int_లెక్క::NONE};
 				}
-				++num_dynamic_ints;
+				++అంకె_dynamic_ints;
 			}
 			ConversionSpecifier spec = parse_conversion_specifier(fmt[p], fmt[p - 1]);
-			if (spec != CONVSPEC_NONE) {
-				return {index, p + 1, spec, static_cast<DynamicIntCount>(num_dynamic_ints)};
+			ఒకవేళ (spec != CONVSPEC_NONE) {
+				తిరిగి {సూచీ, p + 1, spec, static_cast<Dynamic_Int_లెక్క>(అంకె_dynamic_ints)};
 			}
 			++p;
 		}
 	}
-	return {0, 0, CONVSPEC_NONE, DynamicIntCount::NONE};
+	తిరిగి {0, 0, CONVSPEC_NONE, Dynamic_Int_లెక్క::NONE};
 }
 
-template <typename... Args>
-constexpr typename std::enable_if<sizeof...(Args) == 0>::type
-check_format(std::string_view fmt, int fmt_start, bool *has_escapes, FoundFormatSpec*, DynamicIntCount)
+మూస <typename... వాదనలు_3>
+constexpr typename std::enable_if<పరిమాణం...(వాదనలు_3) == 0>::type
+check_format(std::string_view fmt, పూర్ణాంకం fmt_ప్రారంభం, bool *has_escapes, దొరికింది_Format_Spec*, Dynamic_Int_లెక్క)
 {
-	ensure_no_format_spec(fmt, fmt_start, has_escapes);
+	ensure_no_format_spec(fmt, fmt_ప్రారంభం, has_escapes);
 }
 
-template <class T>
-static auto has_name_member_imp(int)
-	-> decltype(static_cast<const IdString>(std::declval<T>().name), std::true_type{});
+మూస <class T>
+స్థిర స్వయంచాలక has_name_member_imp(పూర్ణాంకం)
+	-> decltype(static_cast<స్థిరరాశి IdString>(std::declval<T>().name), std::true_type{});
 
-template <class T>
-static auto has_name_member_imp(long)
+మూస <class T>
+స్థిర స్వయంచాలక has_name_member_imp(దీర్ఘ)
 	-> std::false_type;
 
-template <class T>
-struct has_name_member : decltype(has_name_member_imp<T>(0)){};
+మూస <class T>
+నిర్మాణం has_name_member : decltype(has_name_member_imp<T>(0)){};
 
-template <class T>
-static auto ptr_has_name_member_imp(int)
-	-> decltype(static_cast<const IdString>(std::declval<T>()->name), std::true_type{});
+మూస <class T>
+స్థిర స్వయంచాలక ptr_has_name_member_imp(పూర్ణాంకం)
+	-> decltype(static_cast<స్థిరరాశి IdString>(std::declval<T>()->name), std::true_type{});
 
-template <class T>
-static auto ptr_has_name_member_imp(long)
+మూస <class T>
+స్థిర స్వయంచాలక ptr_has_name_member_imp(దీర్ఘ)
 	-> std::false_type;
 
-template <class T>
-struct ptr_has_name_member : decltype(ptr_has_name_member_imp<T>(0)){};
+మూస <class T>
+నిర్మాణం ptr_has_name_member : decltype(ptr_has_name_member_imp<T>(0)){};
 
 // Check that the format string `fmt.substr(fmt_start)` is valid for the given type arguments.
 // Fills `specs` with the FoundFormatSpecs found in the format string.
 // `int_args_consumed` is the number of int arguments already consumed to satisfy the
 // dynamic width/precision args for the next format conversion specifier.
-template <typename Arg, typename... Args>
-constexpr void check_format(std::string_view fmt, int fmt_start, bool *has_escapes, FoundFormatSpec* specs,
-        DynamicIntCount int_args_consumed)
+మూస <typename Arg, typename... వాదనలు_3>
+constexpr శూన్య check_format(std::string_view fmt, పూర్ణాంకం fmt_ప్రారంభం, bool *has_escapes, దొరికింది_Format_Spec* specs,
+        Dynamic_Int_లెక్క int_వాదనలు_consumed)
 {
-	FoundFormatSpec found = find_next_format_spec(fmt, fmt_start, has_escapes);
-	if (found.num_dynamic_ints > int_args_consumed) {
+	దొరికింది_Format_Spec దొరికింది = కనుగొను_తదుపరి_format_spec(fmt, fmt_ప్రారంభం, has_escapes);
+	ఒకవేళ (దొరికింది.అంకె_dynamic_ints > int_వాదనలు_consumed) {
 		// We need to consume at least one more int for the dynamic
 		// width/precision of this format conversion specifier.
-		if constexpr (!std::is_convertible_v<Arg, int>) {
+		ఒకవేళ constexpr (!std::is_convertible_v<Arg, పూర్ణాంకం>) {
 			YOSYS_ABORT("Expected dynamic int argument");
 		}
-		check_format<Args...>(fmt, fmt_start, has_escapes, specs,
-			static_cast<DynamicIntCount>(static_cast<uint8_t>(int_args_consumed) + 1));
-		return;
+		check_format<వాదనలు_3...>(fmt, fmt_ప్రారంభం, has_escapes, specs,
+			static_cast<Dynamic_Int_లెక్క>(static_cast<uint8_t>(int_వాదనలు_consumed) + 1));
+		తిరిగి;
 	}
-	switch (found.spec) {
-	case CONVSPEC_NONE:
+	ఎంపిక (దొరికింది.spec) {
+	స్థితి CONVSPEC_NONE:
 		YOSYS_ABORT("Expected format conversion specifier for argument");
-		break;
-	case CONVSPEC_ERROR:
+		ఆపు;
+	స్థితి CONVSPEC_ERROR:
 		YOSYS_ABORT("Found unsupported format conversion specifier");
-		break;
-	case CONVSPEC_SIGNED_INT:
-		if constexpr (!std::is_convertible_v<Arg, long long>) {
+		ఆపు;
+	స్థితి CONVSPEC_SIGNED_INT:
+		ఒకవేళ constexpr (!std::is_convertible_v<Arg, దీర్ఘ దీర్ఘ>) {
 			YOSYS_ABORT("Expected type convertible to signed integer");
 		}
-		*specs = found;
-		break;
-	case CONVSPEC_UNSIGNED_INT:
-		if constexpr (!std::is_convertible_v<Arg, unsigned long long>) {
+		*specs = దొరికింది;
+		ఆపు;
+	స్థితి CONVSPEC_UNSIGNED_INT:
+		ఒకవేళ constexpr (!std::is_convertible_v<Arg, గుర్తులేని దీర్ఘ దీర్ఘ>) {
 			YOSYS_ABORT("Expected type convertible to unsigned integer");
 		}
-		*specs = found;
-		break;
-	case CONVSPEC_DOUBLE:
-		if constexpr (!std::is_convertible_v<Arg, double>) {
+		*specs = దొరికింది;
+		ఆపు;
+	స్థితి CONVSPEC_DOUBLE:
+		ఒకవేళ constexpr (!std::is_convertible_v<Arg, ద్విగుణ>) {
 			YOSYS_ABORT("Expected type convertible to double");
 		}
-		*specs = found;
-		break;
-	case CONVSPEC_CHAR_PTR:
-		if constexpr (!std::is_convertible_v<Arg, const char *> &&
-		        !std::is_convertible_v<Arg, const std::string &> &&
-			!std::is_convertible_v<Arg, const std::string_view &> &&
+		*specs = దొరికింది;
+		ఆపు;
+	స్థితి CONVSPEC_CHAR_PTR:
+		ఒకవేళ constexpr (!std::is_convertible_v<Arg, స్థిరరాశి అక్షరం *> &&
+		        !std::is_convertible_v<Arg, స్థిరరాశి std::string &> &&
+			!std::is_convertible_v<Arg, స్థిరరాశి std::string_view &> &&
 			!has_name_member<Arg>() &&
 			!ptr_has_name_member<Arg>()) {
 			YOSYS_ABORT("Expected type convertible to char *");
 		}
-		*specs = found;
-		break;
-	case CONVSPEC_VOID_PTR:
-		if constexpr (!std::is_convertible_v<Arg, const void *>) {
+		*specs = దొరికింది;
+		ఆపు;
+	స్థితి CONVSPEC_VOID_PTR:
+		ఒకవేళ constexpr (!std::is_convertible_v<Arg, స్థిరరాశి శూన్య *>) {
 			YOSYS_ABORT("Expected pointer type");
 		}
-		*specs = found;
-		break;
+		*specs = దొరికింది;
+		ఆపు;
 	}
-	check_format<Args...>(fmt, found.end, has_escapes, specs + 1, DynamicIntCount::NONE);
+	check_format<వాదనలు_3...>(fmt, దొరికింది.చివర, has_escapes, specs + 1, Dynamic_Int_లెక్క::NONE);
 }
 
 // Emit the string representation of `arg` that has been converted to a `long long'.
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, long long arg);
+శూన్య format_emit_long_long(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, దీర్ఘ దీర్ఘ arg);
 
 // Emit the string representation of `arg` that has been converted to a `unsigned long long'.
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, unsigned long long arg);
+శూన్య format_emit_unsigned_long_long(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, గుర్తులేని దీర్ఘ దీర్ఘ arg);
 
 // Emit the string representation of `arg` that has been converted to a `double'.
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, double arg);
+శూన్య format_emit_double(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, ద్విగుణ arg);
 
 // Emit the string representation of `arg` that has been converted to a `const char*'.
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const char *arg);
+శూన్య format_emit_char_ptr(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, స్థిరరాశి అక్షరం *arg);
 
 // Emit the string representation of `arg` that has been converted to a `std::string'.
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const std::string &arg);
+శూన్య format_emit_string(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, స్థిరరాశి std::string &arg);
 
 // Emit the string representation of `arg` that has been converted to a `std::string_view'.
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, std::string_view arg);
+శూన్య format_emit_string_view(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, std::string_view arg);
 
 // Emit the string representation of `arg` that has been converted to a `double'.
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const void *arg);
+శూన్య format_emit_void_ptr(std::string &ఫలితం, std::string_view spec, పూర్ణాంకం *dynamic_ints,
+	Dynamic_Int_లెక్క అంకె_dynamic_ints, స్థిరరాశి శూన్య *arg);
 
 // Emit the string representation of `arg` according to the given `FoundFormatSpec`,
 // appending it to `result`.
-template <typename Arg>
-inline void format_emit_one(std::string &result, std::string_view fmt, const FoundFormatSpec &ffspec,
-	int *dynamic_ints, const Arg& arg)
+మూస <typename Arg>
+అంతఃవరుస శూన్య format_emit_one(std::string &ఫలితం, std::string_view fmt, స్థిరరాశి దొరికింది_Format_Spec &ffspec,
+	పూర్ణాంకం *dynamic_ints, స్థిరరాశి Arg& arg)
 {
-	std::string_view spec = fmt.substr(ffspec.start, ffspec.end - ffspec.start);
-	DynamicIntCount num_dynamic_ints = ffspec.num_dynamic_ints;
-	switch (ffspec.spec) {
-	case CONVSPEC_SIGNED_INT:
-		if constexpr (std::is_convertible_v<Arg, long long>) {
-			long long s = arg;
-			format_emit_long_long(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+	std::string_view spec = fmt.substr(ffspec.ప్రారంభం, ffspec.చివర - ffspec.ప్రారంభం);
+	Dynamic_Int_లెక్క అంకె_dynamic_ints = ffspec.అంకె_dynamic_ints;
+	ఎంపిక (ffspec.spec) {
+	స్థితి CONVSPEC_SIGNED_INT:
+		ఒకవేళ constexpr (std::is_convertible_v<Arg, దీర్ఘ దీర్ఘ>) {
+			దీర్ఘ దీర్ఘ s = arg;
+			format_emit_long_long(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, s);
+			తిరిగి;
 		}
-		break;
-	case CONVSPEC_UNSIGNED_INT:
-		if constexpr (std::is_convertible_v<Arg, unsigned long long>) {
-			unsigned long long s = arg;
-			format_emit_unsigned_long_long(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		ఆపు;
+	స్థితి CONVSPEC_UNSIGNED_INT:
+		ఒకవేళ constexpr (std::is_convertible_v<Arg, గుర్తులేని దీర్ఘ దీర్ఘ>) {
+			గుర్తులేని దీర్ఘ దీర్ఘ s = arg;
+			format_emit_unsigned_long_long(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, s);
+			తిరిగి;
 		}
-		break;
-	case CONVSPEC_DOUBLE:
-		if constexpr (std::is_convertible_v<Arg, double>) {
-			double s = arg;
-			format_emit_double(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		ఆపు;
+	స్థితి CONVSPEC_DOUBLE:
+		ఒకవేళ constexpr (std::is_convertible_v<Arg, ద్విగుణ>) {
+			ద్విగుణ s = arg;
+			format_emit_double(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, s);
+			తిరిగి;
 		}
-		break;
-	case CONVSPEC_CHAR_PTR:
-		if constexpr (std::is_convertible_v<Arg, const char *>) {
-			const char *s = arg;
-			format_emit_char_ptr(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		ఆపు;
+	స్థితి CONVSPEC_CHAR_PTR:
+		ఒకవేళ constexpr (std::is_convertible_v<Arg, స్థిరరాశి అక్షరం *>) {
+			స్థిరరాశి అక్షరం *s = arg;
+			format_emit_char_ptr(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, s);
+			తిరిగి;
 		}
-		if constexpr (std::is_convertible_v<Arg, const std::string &>) {
-			const std::string &s = arg;
-			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		ఒకవేళ constexpr (std::is_convertible_v<Arg, స్థిరరాశి std::string &>) {
+			స్థిరరాశి std::string &s = arg;
+			format_emit_string(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, s);
+			తిరిగి;
 		}
-		if constexpr (std::is_convertible_v<Arg, const std::string_view &>) {
-			const std::string_view &s = arg;
-			format_emit_string_view(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		ఒకవేళ constexpr (std::is_convertible_v<Arg, స్థిరరాశి std::string_view &>) {
+			స్థిరరాశి std::string_view &s = arg;
+			format_emit_string_view(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, s);
+			తిరిగి;
 		}
-		if constexpr (has_name_member<Arg>()) {
-			const std::string &s = arg.name.unescape();
-			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		ఒకవేళ constexpr (has_name_member<Arg>()) {
+			స్థిరరాశి std::string &s = arg.name.unescape();
+			format_emit_string(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, s);
+			తిరిగి;
 		}
-		if constexpr (ptr_has_name_member<Arg>()) {
-			const std::string &s = arg->name.unescape();
-			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		ఒకవేళ constexpr (ptr_has_name_member<Arg>()) {
+			స్థిరరాశి std::string &s = arg->name.unescape();
+			format_emit_string(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, s);
+			తిరిగి;
 		}
-		break;
-	case CONVSPEC_VOID_PTR:
-		if constexpr (std::is_convertible_v<Arg, const void *>) {
-			const void *s = arg;
-			format_emit_void_ptr(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		ఆపు;
+	స్థితి CONVSPEC_VOID_PTR:
+		ఒకవేళ constexpr (std::is_convertible_v<Arg, స్థిరరాశి శూన్య *>) {
+			స్థిరరాశి శూన్య *s = arg;
+			format_emit_void_ptr(ఫలితం, spec, dynamic_ints, అంకె_dynamic_ints, s);
+			తిరిగి;
 		}
-		break;
-	default:
-		break;
+		ఆపు;
+	అప్రమేయ:
+		ఆపు;
 	}
 	YOSYS_ABORT("Internal error");
 }
 
 // Append the format string `fmt` to `result`, assuming there are no format conversion
 // specifiers other than "%%" and therefore no arguments. Unescape "%%".
-void format_emit_unescaped(std::string &result, std::string_view fmt);
+శూన్య format_emit_unescaped(std::string &ఫలితం, std::string_view fmt);
 std::string unescape_format_string(std::string_view fmt);
 
-inline void format_emit(std::string &result, std::string_view fmt, int fmt_start,
-	bool has_escapes, const FoundFormatSpec*, int*, DynamicIntCount)
+అంతఃవరుస శూన్య format_emit(std::string &ఫలితం, std::string_view fmt, పూర్ణాంకం fmt_ప్రారంభం,
+	bool has_escapes, స్థిరరాశి దొరికింది_Format_Spec*, పూర్ణాంకం*, Dynamic_Int_లెక్క)
 {
-	fmt = fmt.substr(fmt_start);
-	if (has_escapes) {
-		format_emit_unescaped(result, fmt);
-	} else {
-		result += fmt;
+	fmt = fmt.substr(fmt_ప్రారంభం);
+	ఒకవేళ (has_escapes) {
+		format_emit_unescaped(ఫలితం, fmt);
+	} లేకపోతే {
+		ఫలితం += fmt;
 	}
 }
 // Format `args` according to `fmt` (starting at `fmt_start`) and `specs` and append to `result`.
 // `num_dynamic_ints` in `dynamic_ints[]` have already been collected to provide as
 // dynamic width/precision args for the next format conversion specifier.
-template <typename Arg, typename... Args>
-inline void format_emit(std::string &result, std::string_view fmt, int fmt_start, bool has_escapes,
-	const FoundFormatSpec* specs, int *dynamic_ints, DynamicIntCount num_dynamic_ints,
-	const Arg &arg, const Args &... args)
+మూస <typename Arg, typename... వాదనలు_3>
+అంతఃవరుస శూన్య format_emit(std::string &ఫలితం, std::string_view fmt, పూర్ణాంకం fmt_ప్రారంభం, bool has_escapes,
+	స్థిరరాశి దొరికింది_Format_Spec* specs, పూర్ణాంకం *dynamic_ints, Dynamic_Int_లెక్క అంకె_dynamic_ints,
+	స్థిరరాశి Arg &arg, స్థిరరాశి వాదనలు_3 &... వాదనలు_2)
 {
-	if (specs->num_dynamic_ints > num_dynamic_ints) {
+	ఒకవేళ (specs->అంకె_dynamic_ints > అంకె_dynamic_ints) {
 		// Collect another int for the dynamic width precision/args
 		// for the next format conversion specifier.
-		if constexpr (std::is_convertible_v<Arg, int>) {
-			dynamic_ints[static_cast<uint8_t>(num_dynamic_ints)] = arg;
-		} else {
+		ఒకవేళ constexpr (std::is_convertible_v<Arg, పూర్ణాంకం>) {
+			dynamic_ints[static_cast<uint8_t>(అంకె_dynamic_ints)] = arg;
+		} లేకపోతే {
 			YOSYS_ABORT("Internal error");
 		}
-		format_emit(result, fmt, fmt_start, has_escapes, specs, dynamic_ints,
-		            static_cast<DynamicIntCount>(static_cast<uint8_t>(num_dynamic_ints) + 1), args...);
-		return;
+		format_emit(ఫలితం, fmt, fmt_ప్రారంభం, has_escapes, specs, dynamic_ints,
+		            static_cast<Dynamic_Int_లెక్క>(static_cast<uint8_t>(అంకె_dynamic_ints) + 1), వాదనలు_2...);
+		తిరిగి;
 	}
-	std::string_view str = fmt.substr(fmt_start, specs->start - fmt_start);
-	if (has_escapes) {
-		format_emit_unescaped(result, str);
-	} else {
-		result += str;
+	std::string_view str = fmt.substr(fmt_ప్రారంభం, specs->ప్రారంభం - fmt_ప్రారంభం);
+	ఒకవేళ (has_escapes) {
+		format_emit_unescaped(ఫలితం, str);
+	} లేకపోతే {
+		ఫలితం += str;
 	}
-	format_emit_one(result, fmt, *specs, dynamic_ints, arg);
-	format_emit(result, fmt, specs->end, has_escapes, specs + 1, dynamic_ints, DynamicIntCount::NONE, args...);
+	format_emit_one(ఫలితం, fmt, *specs, dynamic_ints, arg);
+	format_emit(ఫలితం, fmt, specs->చివర, has_escapes, specs + 1, dynamic_ints, Dynamic_Int_లెక్క::NONE, వాదనలు_2...);
 }
 
-template <typename... Args>
-inline std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, const FoundFormatSpec* specs, const Args &... args)
+మూస <typename... వాదనలు_3>
+అంతఃవరుస std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, స్థిరరాశి దొరికింది_Format_Spec* specs, స్థిరరాశి వాదనలు_3 &... వాదనలు_2)
 {
-	std::string result;
-	int dynamic_ints[2] = { 0, 0 };
-	format_emit(result, fmt, 0, has_escapes, specs, dynamic_ints, DynamicIntCount::NONE, args...);
-	return result;
+	std::string ఫలితం;
+	పూర్ణాంకం dynamic_ints[2] = { 0, 0 };
+	format_emit(ఫలితం, fmt, 0, has_escapes, specs, dynamic_ints, Dynamic_Int_లెక్క::NONE, వాదనలు_2...);
+	తిరిగి ఫలితం;
 }
-template <>
-inline std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, const FoundFormatSpec*)
+మూస <>
+అంతఃవరుస std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, స్థిరరాశి దొరికింది_Format_Spec*)
 {
-	if (!has_escapes) {
-		return std::string(fmt);
+	ఒకవేళ (!has_escapes) {
+		తిరిగి std::string(fmt);
 	}
-	return unescape_format_string(fmt);
+	తిరిగి unescape_format_string(fmt);
 }
 
 // This class parses format strings to build a list of `FoundFormatSpecs` in `specs`.
 // When the compiler supports `consteval` (C++20), this parsing happens at compile time and
 // type errors will be reported at compile time. Otherwise the parsing happens at
 // runtime and type errors will trigger an `abort()` at runtime.
-template <typename... Args>
+మూస <typename... వాదనలు_3>
 class FmtString
 {
-public:
+బహిరంగ:
 	// Implicit conversion from const char * means that users can pass
 	// C string constants which are automatically parsed.
-	YOSYS_CONSTEVAL FmtString(const char *p) : fmt(p)
+	YOSYS_CONSTEVAL FmtString(స్థిరరాశి అక్షరం *p) : fmt(p)
 	{
-		check_format<Args...>(fmt, 0, &has_escapes, specs, DynamicIntCount::NONE);
+		check_format<వాదనలు_3...>(fmt, 0, &has_escapes, specs, Dynamic_Int_లెక్క::NONE);
 	}
-	std::string format(const Args &... args)
+	std::string format(స్థిరరాశి వాదనలు_3 &... వాదనలు_2)
 	{
-		return format_emit_toplevel(fmt, has_escapes, specs, args...);
+		తిరిగి format_emit_toplevel(fmt, has_escapes, specs, వాదనలు_2...);
 	}
-	std::string_view format_string() const { return fmt; }
-private:
+	std::string_view format_string() స్థిరరాశి { తిరిగి fmt; }
+అంతరంగ:
 	std::string_view fmt;
 	bool has_escapes = false;
 	// Making array at least size of one to make MSVC happy and strict to standards
-	FoundFormatSpec specs[sizeof...(Args) ? sizeof...(Args) : 1] = {};
+	దొరికింది_Format_Spec specs[పరిమాణం...(వాదనలు_3) ? పరిమాణం...(వాదనలు_3) : 1] = {};
 };
 
-template <typename T> struct WrapType { using type = T; };
-template <typename T> using TypeIdentity = typename WrapType<T>::type;
+మూస <typename T> నిర్మాణం WrapType { using type = T; };
+మూస <typename T> using Type_తటస్థం = typename WrapType<T>::type;
 
-template <typename... Args>
-inline std::string stringf(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+మూస <typename... వాదనలు_3>
+అంతఃవరుస std::string stringf(FmtString<Type_తటస్థం<వాదనలు_3>...> fmt, స్థిరరాశి వాదనలు_3 &... వాదనలు_2)
 {
-	return fmt.format(args...);
+	తిరిగి fmt.format(వాదనలు_2...);
 }
 
-int readsome(std::istream &f, char *s, int n);
-std::string next_token(std::string &text, const char *sep = " \t\r\n", bool long_strings = false);
-std::vector<std::string> split_tokens(const std::string &text, const char *sep = " \t\r\n");
-bool patmatch(const char *pattern, const char *string);
-#if !defined(YOSYS_DISABLE_SPAWN)
-int run_command(const std::string &command, std::function<void(const std::string&)> process_line = std::function<void(const std::string&)>());
-#endif
-std::string get_base_tmpdir();
-std::string make_temp_file(std::string template_str = get_base_tmpdir() + "/yosys_XXXXXX");
-std::string make_temp_dir(std::string template_str = get_base_tmpdir() + "/yosys_XXXXXX");
-bool check_file_exists(const std::string& filename, bool is_exec = false);
-bool check_directory_exists(const std::string& dirname, bool is_exec = false);
-bool is_absolute_path(std::string filename);
-void remove_directory(std::string dirname);
-bool create_directory(const std::string& dirname);
-bool make_private_directory(const std::string& dirname);
-std::string make_user_tmpdir(const std::string& name);
-std::string escape_filename_spaces(const std::string& filename);
-void append_globbed(std::vector<std::string>& paths, std::string pattern);
-std::string name_from_file_path(std::string path);
-std::string absolute_path(const std::string& path);
-std::string parent_from_file_path(std::string path);
+పూర్ణాంకం readsome(std::istream &f, అక్షరం *s, పూర్ణాంకం n);
+std::string తదుపరి_token(std::string &పాఠ్యం, స్థిరరాశి అక్షరం *sep = " \t\r\n", bool long_అక్షరశ్రేణులు = false);
+std::సదిశ<std::string> విభజించు_టోకెన్లు(స్థిరరాశి std::string &పాఠ్యం, స్థిరరాశి అక్షరం *sep = " \t\r\n");
+bool patmatch(స్థిరరాశి అక్షరం *నమూనా, స్థిరరాశి అక్షరం *string);
+#ఒకవేళ !defined(YOSYS_DISABLE_SPAWN)
+పూర్ణాంకం నిరంతరం_command(స్థిరరాశి std::string &command, std::function<శూన్య(స్థిరరాశి std::string&)> process_పంక్తి = std::function<శూన్య(స్థిరరాశి std::string&)>());
+#అయితే_ముగింపు
+std::string get_పునాది_tmpdir();
+std::string make_తాత్కాలిక_file(std::string template_str = get_పునాది_tmpdir() + "/yosys_XXXXXX");
+std::string make_తాత్కాలిక_dir(std::string template_str = get_పునాది_tmpdir() + "/yosys_XXXXXX");
+bool check_file_exists(స్థిరరాశి std::string& filename, bool is_exec = false);
+bool check_directory_exists(స్థిరరాశి std::string& dirname, bool is_exec = false);
+bool is_absolute_మార్గం(std::string filename);
+శూన్య remove_directory(std::string dirname);
+bool create_directory(స్థిరరాశి std::string& dirname);
+bool make_వ్యక్తిగత_directory(స్థిరరాశి std::string& dirname);
+std::string make_user_tmpdir(స్థిరరాశి std::string& name);
+std::string escape_filename_spaces(స్థిరరాశి std::string& filename);
+శూన్య append_globbed(std::సదిశ<std::string>& paths, std::string నమూనా);
+std::string name_from_file_మార్గం(std::string మార్గం_2);
+std::string absolute_మార్గం(స్థిరరాశి std::string& మార్గం_2);
+std::string మాతృ_from_file_మార్గం(std::string మార్గం_2);
 
 // Exclusive inter-process file lock (flock/LockFileEx, no-op on WASI),
 // released on destruction. Never unlinks the lock file: that would reopen the race.
-struct ScopedFileLock {
-	ScopedFileLock(const std::string &path);
-	~ScopedFileLock();
-	ScopedFileLock(const ScopedFileLock &) = delete;
-	ScopedFileLock &operator=(const ScopedFileLock &) = delete;
-private:
-#if defined(_WIN32)
-	void *handle = nullptr;
-#elif !defined(__wasi__)
-	int fd = -1;
-#endif
+నిర్మాణం Scoped_File_తాళం {
+	Scoped_File_తాళం(స్థిరరాశి std::string &మార్గం_2);
+	~Scoped_File_తాళం();
+	Scoped_File_తాళం(స్థిరరాశి Scoped_File_తాళం &) = delete;
+	Scoped_File_తాళం &క్రియాకారకం=(స్థిరరాశి Scoped_File_తాళం &) = delete;
+అంతరంగ:
+#ఒకవేళ defined(_WIN32)
+	శూన్య *handle = nullptr;
+#లేదావేళ !defined(__wasi__)
+	పూర్ణాంకం fd = -1;
+#అయితే_ముగింపు
 };
 
 // Current process id (0 on WASI).
-unsigned get_process_id();
+గుర్తులేని get_process_id();
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif // YOSYS_IO_H
+#అయితే_ముగింపు // YOSYS_IO_H

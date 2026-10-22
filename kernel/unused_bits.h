@@ -1,54 +1,54 @@
-#ifndef UNUSED_BITS_H
-#define UNUSED_BITS_H
+#నిర్వచితం_కాకపోతే వాడని_బిట్లు_H
+#నిర్వచించు వాడని_బిట్లు_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/newcelltypes.h"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "kernel/sigtools.h"
+#అన్తర్భావ "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct UnusedBits
+నిర్మాణం వాడని_బిట్లు
 {
 	SigMap sigmap;
-	pool<RTLIL::SigBit> used;
+	pool<RTLIL::Sig_బిట్టు> వాడిన;
 
-	UnusedBits(RTLIL::Module *module) : sigmap(module)
+	వాడని_బిట్లు(RTLIL::Module *module) : sigmap(module)
 	{
 		NewCellTypes ct(module->design);
-		collect_used(module, ct);
+		collect_వాడిన(module, ct);
 	}
 
-	UnusedBits(RTLIL::Module *module, const NewCellTypes &ct) : sigmap(module)
+	వాడని_బిట్లు(RTLIL::Module *module, స్థిరరాశి NewCellTypes &ct) : sigmap(module)
 	{
-		collect_used(module, ct);
+		collect_వాడిన(module, ct);
 	}
 
-	void collect_used(RTLIL::Module *module, const NewCellTypes &ct)
+	శూన్య collect_వాడిన(RTLIL::Module *module, స్థిరరాశి NewCellTypes &ct)
 	{
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				if (!ct.cell_output(cell->type, conn.first))
-					add_used(conn.second);
+		కొరకు (స్వయంచాలక cell : module->cells())
+			కొరకు (స్వయంచాలక &conn : cell->connections())
+				ఒకవేళ (!ct.cell_output(cell->type, conn.మొదటి))
+					కూడు_వాడిన(conn.రెండవ);
 
-		for (auto wire : module->wires())
-			if (wire->port_output)
-				add_used(wire);
+		కొరకు (స్వయంచాలక wire : module->wires())
+			ఒకవేళ (wire->పోర్టు_output)
+				కూడు_వాడిన(wire);
 	}
 
-	void add_used(const RTLIL::SigSpec &sig)
+	శూన్య కూడు_వాడిన(స్థిరరాశి RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sigmap(sig))
-			if (bit.wire != nullptr)
-				used.insert(bit);
+		కొరకు (స్వయంచాలక బిట్టు : sigmap(sig))
+			ఒకవేళ (బిట్టు.wire != nullptr)
+				వాడిన.చొప్పించు(బిట్టు);
 	}
 
-	bool check(RTLIL::SigBit bit) const
+	bool check(RTLIL::Sig_బిట్టు బిట్టు) స్థిరరాశి
 	{
-		RTLIL::SigBit mapped = sigmap(bit);
-		return mapped.wire != nullptr && !used.count(mapped);
+		RTLIL::Sig_బిట్టు mapped = sigmap(బిట్టు);
+		తిరిగి mapped.wire != nullptr && !వాడిన.లెక్క(mapped);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

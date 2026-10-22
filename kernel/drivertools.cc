@@ -17,924 +17,924 @@
  *
  */
 
-#include "kernel/drivertools.h"
+#అన్తర్భావ "kernel/drivertools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-DriveBit::DriveBit(SigBit const &bit)
+Drive_బిట్టు::Drive_బిట్టు(Sig_బిట్టు స్థిరరాశి &బిట్టు)
 {
-	if (bit.is_wire())
-		*this = DriveBitWire(bit.wire, bit.offset);
-	else
-		*this = bit.data;
+	ఒకవేళ (బిట్టు.is_wire())
+		*ఇది = Drive_బిట్టు_Wire(బిట్టు.wire, బిట్టు.స్థానభ్రంశం);
+	లేకపోతే
+		*ఇది = బిట్టు.దత్తాంశం;
 }
 
-void DriveBit::merge(DriveBit const &other)
+శూన్య Drive_బిట్టు::విలీనం(Drive_బిట్టు స్థిరరాశి &other)
 {
-	if (other.type_ == DriveType::NONE)
-		return;
-	if (type_ == DriveType::NONE) {
-		*this = other;
-		return;
+	ఒకవేళ (other.type_ == DriveType::NONE)
+		తిరిగి;
+	ఒకవేళ (type_ == DriveType::NONE) {
+		*ఇది = other;
+		తిరిగి;
 	}
-	if (type_ != DriveType::MULTIPLE) {
-		DriveBitMultiple multi(std::move(*this));
-		*this = std::move(multi);
+	ఒకవేళ (type_ != DriveType::గుణిజం) {
+		Drive_బిట్టు_గుణిజం multi(std::move(*ఇది));
+		*ఇది = std::move(multi);
 	}
-	multiple().merge(other);
+	గుణిజం_2().విలీనం(other);
 }
 
 
-void DriveBitMultiple::merge(DriveBit const &single)
+శూన్య Drive_బిట్టు_గుణిజం::విలీనం(Drive_బిట్టు స్థిరరాశి &single)
 {
-	if (single.type() == DriveType::NONE)
-		return;
-	if (single.type() == DriveType::MULTIPLE) {
-		merge(single.multiple());
-		return;
+	ఒకవేళ (single.type() == DriveType::NONE)
+		తిరిగి;
+	ఒకవేళ (single.type() == DriveType::గుణిజం) {
+		విలీనం(single.గుణిజం_2());
+		తిరిగి;
 	}
-	multiple_.emplace(single);
+	గుణిజం_3.emplace(single);
 }
 
-void DriveBitMultiple::merge(DriveBit &&single)
+శూన్య Drive_బిట్టు_గుణిజం::విలీనం(Drive_బిట్టు &&single)
 {
-	if (single.type() == DriveType::NONE)
-		return;
-	if (single.type() == DriveType::MULTIPLE) {
-		merge(std::move(single.multiple()));
-		return;
+	ఒకవేళ (single.type() == DriveType::NONE)
+		తిరిగి;
+	ఒకవేళ (single.type() == DriveType::గుణిజం) {
+		విలీనం(std::move(single.గుణిజం_2()));
+		తిరిగి;
 	}
-	multiple_.emplace(std::move(single));
+	గుణిజం_3.emplace(std::move(single));
 }
 
-DriveBitMultiple DriveChunkMultiple::operator[](int i) const
+Drive_బిట్టు_గుణిజం Drive_Chunk_గుణిజం::క్రియాకారకం[](పూర్ణాంకం i) స్థిరరాశి
 {
-	DriveBitMultiple result;
-	for (auto const &single : multiple_)
-		result.merge(single[i]);
-	return result;
-}
-
-
-bool DriveChunkWire::can_append(DriveBitWire const &bit) const
-{
-	return bit.wire == wire && bit.offset == offset + width;
-}
-
-bool DriveChunkWire::try_append(DriveBitWire const &bit)
-{
-	if (!can_append(bit))
-		return false;
-	width += 1;
-	return true;
-}
-
-bool DriveChunkWire::try_append(DriveChunkWire const &chunk)
-{
-	if (chunk.wire != wire || chunk.offset != offset + width)
-		return false;
-	width += chunk.width;
-	return true;
-}
-
-bool DriveChunkPort::can_append(DriveBitPort const &bit) const
-{
-	return bit.cell == cell && bit.port == port && bit.offset == offset + width;
-}
-
-bool DriveChunkPort::try_append(DriveBitPort const &bit)
-{
-	if (!can_append(bit))
-		return false;
-	width += 1;
-	return true;
-}
-
-bool DriveChunkPort::try_append(DriveChunkPort const &chunk)
-{
-	if (chunk.cell != cell || chunk.port != port || chunk.offset != offset + width)
-		return false;
-	width += chunk.width;
-	return true;
-}
-
-bool DriveChunkMarker::can_append(DriveBitMarker const &bit) const
-{
-	return bit.marker == marker && bit.offset == offset + width;
-}
-
-bool DriveChunkMarker::try_append(DriveBitMarker const &bit)
-{
-	if (!can_append(bit))
-		return false;
-	width += 1;
-	return true;
-}
-
-bool DriveChunkMarker::try_append(DriveChunkMarker const &chunk)
-{
-	if (chunk.marker != marker || chunk.offset != offset + width)
-		return false;
-	width += chunk.width;
-	return true;
+	Drive_బిట్టు_గుణిజం ఫలితం;
+	కొరకు (స్వయంచాలక స్థిరరాశి &single : గుణిజం_3)
+		ఫలితం.విలీనం(single[i]);
+	తిరిగి ఫలితం;
 }
 
 
-bool DriveChunkMultiple::can_append(DriveBitMultiple const &bit) const
+తార్కిక DriveChunkWire::can_append(Drive_బిట్టు_Wire స్థిరరాశి &బిట్టు) స్థిరరాశి
 {
-	if (bit.multiple().size() != multiple_.size())
-		return false;
+	తిరిగి బిట్టు.wire == wire && బిట్టు.స్థానభ్రంశం == స్థానభ్రంశం + వెడల్పు;
+}
 
-	int const_drivers = 0;
-	for (DriveChunk const &single : multiple_)
-		if (single.is_constant())
+తార్కిక DriveChunkWire::try_append(Drive_బిట్టు_Wire స్థిరరాశి &బిట్టు)
+{
+	ఒకవేళ (!can_append(బిట్టు))
+		తిరిగి అబద్ధం;
+	వెడల్పు += 1;
+	తిరిగి నిజం;
+}
+
+తార్కిక DriveChunkWire::try_append(DriveChunkWire స్థిరరాశి &chunk)
+{
+	ఒకవేళ (chunk.wire != wire || chunk.స్థానభ్రంశం != స్థానభ్రంశం + వెడల్పు)
+		తిరిగి అబద్ధం;
+	వెడల్పు += chunk.వెడల్పు;
+	తిరిగి నిజం;
+}
+
+తార్కిక Drive_Chunk_పోర్టు::can_append(Drive_బిట్టు_పోర్టు స్థిరరాశి &బిట్టు) స్థిరరాశి
+{
+	తిరిగి బిట్టు.cell == cell && బిట్టు.పోర్టు == పోర్టు && బిట్టు.స్థానభ్రంశం == స్థానభ్రంశం + వెడల్పు;
+}
+
+తార్కిక Drive_Chunk_పోర్టు::try_append(Drive_బిట్టు_పోర్టు స్థిరరాశి &బిట్టు)
+{
+	ఒకవేళ (!can_append(బిట్టు))
+		తిరిగి అబద్ధం;
+	వెడల్పు += 1;
+	తిరిగి నిజం;
+}
+
+తార్కిక Drive_Chunk_పోర్టు::try_append(Drive_Chunk_పోర్టు స్థిరరాశి &chunk)
+{
+	ఒకవేళ (chunk.cell != cell || chunk.పోర్టు != పోర్టు || chunk.స్థానభ్రంశం != స్థానభ్రంశం + వెడల్పు)
+		తిరిగి అబద్ధం;
+	వెడల్పు += chunk.వెడల్పు;
+	తిరిగి నిజం;
+}
+
+తార్కిక DriveChunkMarker::can_append(Drive_బిట్టు_Marker స్థిరరాశి &బిట్టు) స్థిరరాశి
+{
+	తిరిగి బిట్టు.marker == marker && బిట్టు.స్థానభ్రంశం == స్థానభ్రంశం + వెడల్పు;
+}
+
+తార్కిక DriveChunkMarker::try_append(Drive_బిట్టు_Marker స్థిరరాశి &బిట్టు)
+{
+	ఒకవేళ (!can_append(బిట్టు))
+		తిరిగి అబద్ధం;
+	వెడల్పు += 1;
+	తిరిగి నిజం;
+}
+
+తార్కిక DriveChunkMarker::try_append(DriveChunkMarker స్థిరరాశి &chunk)
+{
+	ఒకవేళ (chunk.marker != marker || chunk.స్థానభ్రంశం != స్థానభ్రంశం + వెడల్పు)
+		తిరిగి అబద్ధం;
+	వెడల్పు += chunk.వెడల్పు;
+	తిరిగి నిజం;
+}
+
+
+తార్కిక Drive_Chunk_గుణిజం::can_append(Drive_బిట్టు_గుణిజం స్థిరరాశి &బిట్టు) స్థిరరాశి
+{
+	ఒకవేళ (బిట్టు.గుణిజం_2().కొలత() != గుణిజం_3.కొలత())
+		తిరిగి అబద్ధం;
+
+	పూర్ణాంకం const_drivers = 0;
+	కొరకు (DriveChunk స్థిరరాశి &single : గుణిజం_3)
+		ఒకవేళ (single.is_constant())
 			const_drivers += 1;
 
-	if (const_drivers > 1)
-		return false;
+	ఒకవేళ (const_drivers > 1)
+		తిరిగి అబద్ధం;
 
-	for (DriveBit const &single : bit.multiple())
-		if (single.is_constant())
+	కొరకు (Drive_బిట్టు స్థిరరాశి &single : బిట్టు.గుణిజం_2())
+		ఒకవేళ (single.is_constant())
 			const_drivers -= 1;
 
-	if (const_drivers != 0)
-		return false;
+	ఒకవేళ (const_drivers != 0)
+		తిరిగి అబద్ధం;
 
-	for (DriveChunk const &single : multiple_)
+	కొరకు (DriveChunk స్థిరరాశి &single : గుణిజం_3)
 	{
-		switch (single.type())
+		ఎంపిక (single.type())
 		{
-			case DriveType::CONSTANT: {
-			} break;
-			case DriveType::WIRE: {
-				auto const &wire = single.wire();
-				DriveBit next = DriveBitWire(wire.wire, wire.offset + wire.width);
-				if (!bit.multiple().count(next))
-					return false;
-			} break;
-			case DriveType::PORT: {
-				auto const &port = single.port();
-				DriveBit next = DriveBitPort(port.cell, port.port, port.offset + port.width);
-				if (!bit.multiple().count(next))
-					return false;
-			} break;
-			case DriveType::MARKER: {
-				auto const &marker = single.marker();
-				DriveBit next = DriveBitMarker(marker.marker, marker.offset + marker.width);
-				if (!bit.multiple().count(next))
-					return false;
-			} break;
-			default:
-				return false;
+			స్థితి DriveType::CONSTANT: {
+			} ఆపు;
+			స్థితి DriveType::WIRE: {
+				స్వయంచాలక స్థిరరాశి &wire = single.wire();
+				Drive_బిట్టు తదుపరి = Drive_బిట్టు_Wire(wire.wire, wire.స్థానభ్రంశం + wire.వెడల్పు);
+				ఒకవేళ (!బిట్టు.గుణిజం_2().లెక్క(తదుపరి))
+					తిరిగి అబద్ధం;
+			} ఆపు;
+			స్థితి DriveType::పోర్టు_2: {
+				స్వయంచాలక స్థిరరాశి &పోర్టు = single.పోర్టు();
+				Drive_బిట్టు తదుపరి = Drive_బిట్టు_పోర్టు(పోర్టు.cell, పోర్టు.పోర్టు, పోర్టు.స్థానభ్రంశం + పోర్టు.వెడల్పు);
+				ఒకవేళ (!బిట్టు.గుణిజం_2().లెక్క(తదుపరి))
+					తిరిగి అబద్ధం;
+			} ఆపు;
+			స్థితి DriveType::MARKER: {
+				స్వయంచాలక స్థిరరాశి &marker = single.marker();
+				Drive_బిట్టు తదుపరి = Drive_బిట్టు_Marker(marker.marker, marker.స్థానభ్రంశం + marker.వెడల్పు);
+				ఒకవేళ (!బిట్టు.గుణిజం_2().లెక్క(తదుపరి))
+					తిరిగి అబద్ధం;
+			} ఆపు;
+			అప్రమేయ:
+				తిరిగి అబద్ధం;
 		}
 	}
 
-	return true;
+	తిరిగి నిజం;
 }
 
-bool DriveChunkMultiple::can_append(DriveChunkMultiple const &chunk) const
+తార్కిక Drive_Chunk_గుణిజం::can_append(Drive_Chunk_గుణిజం స్థిరరాశి &chunk) స్థిరరాశి
 {
-	if (chunk.multiple().size() != multiple_.size())
-		return false;
+	ఒకవేళ (chunk.గుణిజం_2().కొలత() != గుణిజం_3.కొలత())
+		తిరిగి అబద్ధం;
 
-	int const_drivers = 0;
-	for (DriveChunk const &single : multiple_)
-		if (single.is_constant())
+	పూర్ణాంకం const_drivers = 0;
+	కొరకు (DriveChunk స్థిరరాశి &single : గుణిజం_3)
+		ఒకవేళ (single.is_constant())
 			const_drivers += 1;
 
-	if (const_drivers > 1)
-		return false;
+	ఒకవేళ (const_drivers > 1)
+		తిరిగి అబద్ధం;
 
-	for (DriveChunk const &single : chunk.multiple())
-		if (single.is_constant())
+	కొరకు (DriveChunk స్థిరరాశి &single : chunk.గుణిజం_2())
+		ఒకవేళ (single.is_constant())
 			const_drivers -= 1;
 
-	if (const_drivers != 0)
-		return false;
+	ఒకవేళ (const_drivers != 0)
+		తిరిగి అబద్ధం;
 
-	for (DriveChunk const &single : multiple_)
+	కొరకు (DriveChunk స్థిరరాశి &single : గుణిజం_3)
 	{
-		switch (single.type())
+		ఎంపిక (single.type())
 		{
-			case DriveType::CONSTANT: {
-			} break;
-			case DriveType::WIRE: {
-				auto const &wire = single.wire();
-				DriveChunk next = DriveChunkWire(wire.wire, wire.offset + wire.width, chunk.size());
-				if (!chunk.multiple().count(next))
-					return false;
-			} break;
-			case DriveType::PORT: {
-				auto const &port = single.port();
-				DriveChunk next = DriveChunkPort(port.cell, port.port, port.offset + port.width, chunk.size());
-				if (!chunk.multiple().count(next))
-					return false;
-			} break;
-			case DriveType::MARKER: {
-				auto const &marker = single.marker();
-				DriveChunk next = DriveChunkMarker(marker.marker, marker.offset + marker.width, chunk.size());
-				if (!chunk.multiple().count(next))
-					return false;
-			} break;
-			default:
-				return false;
+			స్థితి DriveType::CONSTANT: {
+			} ఆపు;
+			స్థితి DriveType::WIRE: {
+				స్వయంచాలక స్థిరరాశి &wire = single.wire();
+				DriveChunk తదుపరి = DriveChunkWire(wire.wire, wire.స్థానభ్రంశం + wire.వెడల్పు, chunk.కొలత());
+				ఒకవేళ (!chunk.గుణిజం_2().లెక్క(తదుపరి))
+					తిరిగి అబద్ధం;
+			} ఆపు;
+			స్థితి DriveType::పోర్టు_2: {
+				స్వయంచాలక స్థిరరాశి &పోర్టు = single.పోర్టు();
+				DriveChunk తదుపరి = Drive_Chunk_పోర్టు(పోర్టు.cell, పోర్టు.పోర్టు, పోర్టు.స్థానభ్రంశం + పోర్టు.వెడల్పు, chunk.కొలత());
+				ఒకవేళ (!chunk.గుణిజం_2().లెక్క(తదుపరి))
+					తిరిగి అబద్ధం;
+			} ఆపు;
+			స్థితి DriveType::MARKER: {
+				స్వయంచాలక స్థిరరాశి &marker = single.marker();
+				DriveChunk తదుపరి = DriveChunkMarker(marker.marker, marker.స్థానభ్రంశం + marker.వెడల్పు, chunk.కొలత());
+				ఒకవేళ (!chunk.గుణిజం_2().లెక్క(తదుపరి))
+					తిరిగి అబద్ధం;
+			} ఆపు;
+			అప్రమేయ:
+				తిరిగి అబద్ధం;
 		}
 	}
 
-	return true;
+	తిరిగి నిజం;
 }
 
-bool DriveChunkMultiple::try_append(DriveBitMultiple const &bit)
+తార్కిక Drive_Chunk_గుణిజం::try_append(Drive_బిట్టు_గుణిజం స్థిరరాశి &బిట్టు)
 {
-	if (!can_append(bit))
-		return false;
-	width_ += 1;
+	ఒకవేళ (!can_append(బిట్టు))
+		తిరిగి అబద్ధం;
+	వెడల్పు_3 += 1;
 	State constant;
 
-	for (DriveBit const &single : bit.multiple())
-		if (single.is_constant())
+	కొరకు (Drive_బిట్టు స్థిరరాశి &single : బిట్టు.గుణిజం_2())
+		ఒకవేళ (single.is_constant())
 			constant = single.constant();
 
-	for (DriveChunk &single : multiple_)
+	కొరకు (DriveChunk &single : గుణిజం_3)
 	{
-		switch (single.type())
+		ఎంపిక (single.type())
 		{
-			case DriveType::CONSTANT: {
+			స్థితి DriveType::CONSTANT: {
 				single.constant().append(RTLIL::Const(constant));
-			} break;
-			case DriveType::WIRE: {
-				single.wire().width += 1;
-			} break;
-			case DriveType::PORT: {
-				single.port().width += 1;
-			} break;
-			case DriveType::MARKER: {
-				single.marker().width += 1;
-			} break;
-			default:
+			} ఆపు;
+			స్థితి DriveType::WIRE: {
+				single.wire().వెడల్పు += 1;
+			} ఆపు;
+			స్థితి DriveType::పోర్టు_2: {
+				single.పోర్టు().వెడల్పు += 1;
+			} ఆపు;
+			స్థితి DriveType::MARKER: {
+				single.marker().వెడల్పు += 1;
+			} ఆపు;
+			అప్రమేయ:
 				log_abort();
 		}
 	}
-	return true;
+	తిరిగి నిజం;
 }
 
-bool DriveChunkMultiple::try_append(DriveChunkMultiple const &chunk)
+తార్కిక Drive_Chunk_గుణిజం::try_append(Drive_Chunk_గుణిజం స్థిరరాశి &chunk)
 {
-	if (!can_append(chunk))
-		return false;
-	int width = chunk.size();
-	width_ += width;
+	ఒకవేళ (!can_append(chunk))
+		తిరిగి అబద్ధం;
+	పూర్ణాంకం వెడల్పు = chunk.కొలత();
+	వెడల్పు_3 += వెడల్పు;
 	Const constant;
 
-	for (DriveChunk const &single : chunk.multiple())
-		if (single.is_constant())
+	కొరకు (DriveChunk స్థిరరాశి &single : chunk.గుణిజం_2())
+		ఒకవేళ (single.is_constant())
 			constant = single.constant();
 
-	for (DriveChunk &single : multiple_)
+	కొరకు (DriveChunk &single : గుణిజం_3)
 	{
-		switch (single.type())
+		ఎంపిక (single.type())
 		{
-			case DriveType::CONSTANT: {
+			స్థితి DriveType::CONSTANT: {
 				single.constant().append(constant);
-			} break;
-			case DriveType::WIRE: {
-				single.wire().width += width;
-			} break;
-			case DriveType::PORT: {
-				single.port().width += width;
-			} break;
-			case DriveType::MARKER: {
-				single.marker().width += width;
-			} break;
-			default:
+			} ఆపు;
+			స్థితి DriveType::WIRE: {
+				single.wire().వెడల్పు += వెడల్పు;
+			} ఆపు;
+			స్థితి DriveType::పోర్టు_2: {
+				single.పోర్టు().వెడల్పు += వెడల్పు;
+			} ఆపు;
+			స్థితి DriveType::MARKER: {
+				single.marker().వెడల్పు += వెడల్పు;
+			} ఆపు;
+			అప్రమేయ:
 				log_abort();
 		}
 	}
-	return true;
+	తిరిగి నిజం;
 }
 
-bool DriveChunk::can_append(DriveBit const &bit) const
+తార్కిక DriveChunk::can_append(Drive_బిట్టు స్థిరరాశి &బిట్టు) స్థిరరాశి
 {
-	if (size() == 0)
-		return true;
-	if (bit.type() != type_)
-		return false;
-	switch (type_)
+	ఒకవేళ (కొలత() == 0)
+		తిరిగి నిజం;
+	ఒకవేళ (బిట్టు.type() != type_)
+		తిరిగి అబద్ధం;
+	ఎంపిక (type_)
 	{
-		case DriveType::NONE:
-			return true;
-		case DriveType::CONSTANT:
-			return true;
-		case DriveType::WIRE:
-			return wire_.can_append(bit.wire());
-		case DriveType::PORT:
-			return port_.can_append(bit.port());
-		case DriveType::MULTIPLE:
-			return multiple_.can_append(bit.multiple());
-		default:
+		స్థితి DriveType::NONE:
+			తిరిగి నిజం;
+		స్థితి DriveType::CONSTANT:
+			తిరిగి నిజం;
+		స్థితి DriveType::WIRE:
+			తిరిగి wire_.can_append(బిట్టు.wire());
+		స్థితి DriveType::పోర్టు_2:
+			తిరిగి పోర్టు_3.can_append(బిట్టు.పోర్టు());
+		స్థితి DriveType::గుణిజం:
+			తిరిగి గుణిజం_3.can_append(బిట్టు.గుణిజం_2());
+		అప్రమేయ:
 			log_abort();
 	}
 }
 
-bool DriveChunk::try_append(DriveBit const &bit)
+తార్కిక DriveChunk::try_append(Drive_బిట్టు స్థిరరాశి &బిట్టు)
 {
-	if (size() == 0)
-		*this = bit;
-	if (bit.type() != type_)
-		return false;
-	switch (type_)
+	ఒకవేళ (కొలత() == 0)
+		*ఇది = బిట్టు;
+	ఒకవేళ (బిట్టు.type() != type_)
+		తిరిగి అబద్ధం;
+	ఎంపిక (type_)
 	{
-		case DriveType::NONE:
+		స్థితి DriveType::NONE:
 			none_ += 1;
-			return true;
-		case DriveType::CONSTANT:
-			constant_.append(RTLIL::Const(bit.constant()));
-			return true;
-		case DriveType::WIRE:
-			return wire_.try_append(bit.wire());
-		case DriveType::PORT:
-			return port_.try_append(bit.port());
-		case DriveType::MULTIPLE:
-			return multiple_.try_append(bit.multiple());
-		default:
+			తిరిగి నిజం;
+		స్థితి DriveType::CONSTANT:
+			constant_.append(RTLIL::Const(బిట్టు.constant()));
+			తిరిగి నిజం;
+		స్థితి DriveType::WIRE:
+			తిరిగి wire_.try_append(బిట్టు.wire());
+		స్థితి DriveType::పోర్టు_2:
+			తిరిగి పోర్టు_3.try_append(బిట్టు.పోర్టు());
+		స్థితి DriveType::గుణిజం:
+			తిరిగి గుణిజం_3.try_append(బిట్టు.గుణిజం_2());
+		అప్రమేయ:
 			log_abort();
 	}
 }
 
 
-bool DriveChunk::try_append(DriveChunk const &chunk)
+తార్కిక DriveChunk::try_append(DriveChunk స్థిరరాశి &chunk)
 {
-	if (size() == 0)
-		*this = chunk;
-	if (chunk.type_ != type_)
-		return false;
-	switch (type_)
+	ఒకవేళ (కొలత() == 0)
+		*ఇది = chunk;
+	ఒకవేళ (chunk.type_ != type_)
+		తిరిగి అబద్ధం;
+	ఎంపిక (type_)
 	{
-		case DriveType::NONE:
+		స్థితి DriveType::NONE:
 			none_ += chunk.none_;
-			return true;
-		case DriveType::CONSTANT:
+			తిరిగి నిజం;
+		స్థితి DriveType::CONSTANT:
 			constant_.append(chunk.constant_);
-			return true;
-		case DriveType::WIRE:
-			return wire_.try_append(chunk.wire());
-		case DriveType::PORT:
-			return port_.try_append(chunk.port());
-		case DriveType::MARKER:
-			return marker_.try_append(chunk.marker());
-		case DriveType::MULTIPLE:
-			return multiple_.try_append(chunk.multiple());
+			తిరిగి నిజం;
+		స్థితి DriveType::WIRE:
+			తిరిగి wire_.try_append(chunk.wire());
+		స్థితి DriveType::పోర్టు_2:
+			తిరిగి పోర్టు_3.try_append(chunk.పోర్టు());
+		స్థితి DriveType::MARKER:
+			తిరిగి marker_.try_append(chunk.marker());
+		స్థితి DriveType::గుణిజం:
+			తిరిగి గుణిజం_3.try_append(chunk.గుణిజం_2());
 	}
 	log_abort();
 }
 
-void DriveSpec::append(DriveBit const &bit)
+శూన్య DriveSpec::append(Drive_బిట్టు స్థిరరాశి &బిట్టు)
 {
 	hash_ = 0;
-	if (!packed()) {
-		bits_.push_back(bit);
-		width_ += 1;
-		return;
+	ఒకవేళ (!packed()) {
+		బిట్లు_2.నెట్టు_వెనుక(బిట్టు);
+		వెడల్పు_3 += 1;
+		తిరిగి;
 	}
 
-	if (chunks_.empty() || !chunks_.back().try_append(bit))
-		chunks_.emplace_back(bit);
-	width_ += 1;
+	ఒకవేళ (chunks_.ఖాళీలు() || !chunks_.వెనుక().try_append(బిట్టు))
+		chunks_.emplace_వెనుక(బిట్టు);
+	వెడల్పు_3 += 1;
 }
 
-void DriveSpec::append(DriveChunk const &chunk)
+శూన్య DriveSpec::append(DriveChunk స్థిరరాశి &chunk)
 {
 	hash_ = 0;
 	pack();
-	if (chunks_.empty() || !chunks_.back().try_append(chunk))
-		chunks_.emplace_back(chunk);
-	width_ += chunk.size();
+	ఒకవేళ (chunks_.ఖాళీలు() || !chunks_.వెనుక().try_append(chunk))
+		chunks_.emplace_వెనుక(chunk);
+	వెడల్పు_3 += chunk.కొలత();
 }
 
-void DriveSpec::pack() const {
-	if (bits_.empty())
-		return;
-	std::vector<DriveBit> bits(std::move(bits_));
-	for (auto &bit : bits)
-		if (chunks_.empty() || !chunks_.back().try_append(bit))
-			chunks_.emplace_back(std::move(bit));
+శూన్య DriveSpec::pack() స్థిరరాశి {
+	ఒకవేళ (బిట్లు_2.ఖాళీలు())
+		తిరిగి;
+	std::సదిశ<Drive_బిట్టు> బిట్లు(std::move(బిట్లు_2));
+	కొరకు (స్వయంచాలక &బిట్టు : బిట్లు)
+		ఒకవేళ (chunks_.ఖాళీలు() || !chunks_.వెనుక().try_append(బిట్టు))
+			chunks_.emplace_వెనుక(std::move(బిట్టు));
 }
 
-void DriveSpec::unpack() const {
-	if (chunks_.empty())
-		return;
-	for (auto &chunk : chunks_)
+శూన్య DriveSpec::unpack() స్థిరరాశి {
+	ఒకవేళ (chunks_.ఖాళీలు())
+		తిరిగి;
+	కొరకు (స్వయంచాలక &chunk : chunks_)
 	{
-		for (int i = 0, width = chunk.size(); i != width; ++i)
+		కొరకు (పూర్ణాంకం i = 0, వెడల్పు = chunk.కొలత(); i != వెడల్పు; ++i)
 		{
-			bits_.emplace_back(chunk[i]);
+			బిట్లు_2.emplace_వెనుక(chunk[i]);
 		}
 	}
 	chunks_.clear();
 }
 
-void DriveSpec::compute_width()
+శూన్య DriveSpec::compute_వెడల్పు()
 {
-	width_ = 0;
-	for (auto const &chunk : chunks_)
-		width_ += chunk.size();
+	వెడల్పు_3 = 0;
+	కొరకు (స్వయంచాలక స్థిరరాశి &chunk : chunks_)
+		వెడల్పు_3 += chunk.కొలత();
 }
 
-void DriverMap::DriveBitGraph::add_edge(DriveBitId src, DriveBitId dst)
+శూన్య DriverMap::Drive_బిట్టు_లేఖాచిత్రం::కూడు_అంచు(Drive_బిట్టు_Id src, Drive_బిట్టు_Id dst)
 {
-	if (first_edges.emplace(src, dst).first->second == dst)
-		return;
-	if (second_edges.emplace(src, dst).first->second == dst)
-		return;
-	more_edges[src].emplace(dst);
+	ఒకవేళ (మొదటి_అంచులు.emplace(src, dst).మొదటి->రెండవ == dst)
+		తిరిగి;
+	ఒకవేళ (రెండవ_అంచులు.emplace(src, dst).మొదటి->రెండవ == dst)
+		తిరిగి;
+	మరిన్ని_అంచులు[src].emplace(dst);
 }
 
-DriverMap::DriveBitId DriverMap::DriveBitGraph::pop_edge(DriveBitId src)
+DriverMap::Drive_బిట్టు_Id DriverMap::Drive_బిట్టు_లేఖాచిత్రం::తీయి_అంచు(Drive_బిట్టు_Id src)
 {
 	// TODO unused I think?
-	auto found_more = more_edges.find(src);
-	if (found_more != more_edges.end()) {
-		auto result = found_more->second.pop();
-		if (found_more->second.empty())
-			more_edges.erase(found_more);
-		return result;
+	స్వయంచాలక దొరికింది_మరిన్ని = మరిన్ని_అంచులు.కనుగొను(src);
+	ఒకవేళ (దొరికింది_మరిన్ని != మరిన్ని_అంచులు.చివర()) {
+		స్వయంచాలక ఫలితం = దొరికింది_మరిన్ని->రెండవ.తీయి();
+		ఒకవేళ (దొరికింది_మరిన్ని->రెండవ.ఖాళీలు())
+			మరిన్ని_అంచులు.erase(దొరికింది_మరిన్ని);
+		తిరిగి ఫలితం;
 	}
 
-	auto found_second = second_edges.find(src);
-	if (found_second != second_edges.end()) {
-		auto result = found_second->second;
-		second_edges.erase(found_second);
-		return result;
+	స్వయంచాలక దొరికింది_రెండవ = రెండవ_అంచులు.కనుగొను(src);
+	ఒకవేళ (దొరికింది_రెండవ != రెండవ_అంచులు.చివర()) {
+		స్వయంచాలక ఫలితం = దొరికింది_రెండవ->రెండవ;
+		రెండవ_అంచులు.erase(దొరికింది_రెండవ);
+		తిరిగి ఫలితం;
 	}
 
-	auto found_first = first_edges.find(src);
-	if (found_first != first_edges.end()) {
-		auto result = found_first->second;
-		first_edges.erase(found_first);
-		return result;
+	స్వయంచాలక దొరికింది_మొదటి = మొదటి_అంచులు.కనుగొను(src);
+	ఒకవేళ (దొరికింది_మొదటి != మొదటి_అంచులు.చివర()) {
+		స్వయంచాలక ఫలితం = దొరికింది_మొదటి->రెండవ;
+		మొదటి_అంచులు.erase(దొరికింది_మొదటి);
+		తిరిగి ఫలితం;
 	}
 
-	return DriveBitId();
+	తిరిగి Drive_బిట్టు_Id();
 }
 
-void DriverMap::DriveBitGraph::clear(DriveBitId src)
+శూన్య DriverMap::Drive_బిట్టు_లేఖాచిత్రం::clear(Drive_బిట్టు_Id src)
 {
-	first_edges.erase(src);
-	second_edges.erase(src);
-	more_edges.erase(src);
+	మొదటి_అంచులు.erase(src);
+	రెండవ_అంచులు.erase(src);
+	మరిన్ని_అంచులు.erase(src);
 }
 
-bool DriverMap::DriveBitGraph::contains(DriveBitId src)
+తార్కిక DriverMap::Drive_బిట్టు_లేఖాచిత్రం::కలిగియుంది(Drive_బిట్టు_Id src)
 {
-	return first_edges.count(src);
+	తిరిగి మొదటి_అంచులు.లెక్క(src);
 }
 
-int DriverMap::DriveBitGraph::count(DriveBitId src)
+పూర్ణాంకం DriverMap::Drive_బిట్టు_లేఖాచిత్రం::లెక్క(Drive_బిట్టు_Id src)
 {
-	if (!first_edges.count(src))
-		return 0;
-	if (!second_edges.count(src))
-		return 1;
-	auto found = more_edges.find(src);
-	if (found == more_edges.end())
-		return 2;
-	return GetSize(found->second) + 2;
+	ఒకవేళ (!మొదటి_అంచులు.లెక్క(src))
+		తిరిగి 0;
+	ఒకవేళ (!రెండవ_అంచులు.లెక్క(src))
+		తిరిగి 1;
+	స్వయంచాలక దొరికింది = మరిన్ని_అంచులు.కనుగొను(src);
+	ఒకవేళ (దొరికింది == మరిన్ని_అంచులు.చివర())
+		తిరిగి 2;
+	తిరిగి Get_కొలత(దొరికింది->రెండవ) + 2;
 }
 
-DriverMap::DriveBitId DriverMap::DriveBitGraph::at(DriveBitId src, int index)
+DriverMap::Drive_బిట్టు_Id DriverMap::Drive_బిట్టు_లేఖాచిత్రం::at(Drive_బిట్టు_Id src, పూర్ణాంకం సూచీ)
 {
-	if (index == 0)
-		return first_edges.at(src);
-	else if (index == 1)
-		return second_edges.at(src);
-	else
-		return *more_edges.at(src).element(index - 2);
+	ఒకవేళ (సూచీ == 0)
+		తిరిగి మొదటి_అంచులు.at(src);
+	లేకపోతే ఒకవేళ (సూచీ == 1)
+		తిరిగి రెండవ_అంచులు.at(src);
+	లేకపోతే
+		తిరిగి *మరిన్ని_అంచులు.at(src).element(సూచీ - 2);
 }
 
 
-DriverMap::BitMode DriverMap::bit_mode(DriveBit const &bit)
+DriverMap::బిట్టు_బహుళకం DriverMap::బిట్టు_బహుళకం_2(Drive_బిట్టు స్థిరరాశి &బిట్టు)
 {
-	switch (bit.type())
+	ఎంపిక (బిట్టు.type())
 	{
-		case DriveType::NONE:
-			return BitMode::NONE;
-		case DriveType::CONSTANT:
+		స్థితి DriveType::NONE:
+			తిరిగి బిట్టు_బహుళకం::NONE;
+		స్థితి DriveType::CONSTANT:
 			// TODO how to handle Sx here?
-			return bit.constant() == State::Sz ? BitMode::NONE : BitMode::DRIVER;
-		case DriveType::WIRE: {
-			auto const &wire = bit.wire();
-			bool driver = wire.wire->port_input;
-			bool driven = wire.wire->port_output;
+			తిరిగి బిట్టు.constant() == State::Sz ? బిట్టు_బహుళకం::NONE : బిట్టు_బహుళకం::DRIVER;
+		స్థితి DriveType::WIRE: {
+			స్వయంచాలక స్థిరరాశి &wire = బిట్టు.wire();
+			తార్కిక driver = wire.wire->పోర్టు_ఆదానం;
+			తార్కిక driven = wire.wire->పోర్టు_output;
 
-			if (driver && !driven)
-				return BitMode::DRIVER;
-			else if (driven && !driver)
-				return BitMode::DRIVEN;
-			else if (driver && driven)
-				return BitMode::TRISTATE;
-			else
-				return keep_wire(bit.wire().wire) ? BitMode::KEEP : BitMode::NONE;
+			ఒకవేళ (driver && !driven)
+				తిరిగి బిట్టు_బహుళకం::DRIVER;
+			లేకపోతే ఒకవేళ (driven && !driver)
+				తిరిగి బిట్టు_బహుళకం::DRIVEN;
+			లేకపోతే ఒకవేళ (driver && driven)
+				తిరిగి బిట్టు_బహుళకం::TRISTATE;
+			లేకపోతే
+				తిరిగి keep_wire(బిట్టు.wire().wire) ? బిట్టు_బహుళకం::KEEP : బిట్టు_బహుళకం::NONE;
 		}
-		case DriveType::PORT: {
-			auto const &port = bit.port();
-			bool driver = celltypes.cell_output(port.cell->type, port.port);
-			bool driven = celltypes.cell_input(port.cell->type, port.port);
-			if (driver && !driven)
-				return BitMode::DRIVER;
-			else if (driven && !driver)
-				return BitMode::DRIVEN_UNIQUE;
-			else
-				return BitMode::TRISTATE;
+		స్థితి DriveType::పోర్టు_2: {
+			స్వయంచాలక స్థిరరాశి &పోర్టు = బిట్టు.పోర్టు();
+			తార్కిక driver = celltypes.cell_output(పోర్టు.cell->type, పోర్టు.పోర్టు);
+			తార్కిక driven = celltypes.cell_ఆదానం(పోర్టు.cell->type, పోర్టు.పోర్టు);
+			ఒకవేళ (driver && !driven)
+				తిరిగి బిట్టు_బహుళకం::DRIVER;
+			లేకపోతే ఒకవేళ (driven && !driver)
+				తిరిగి బిట్టు_బహుళకం::DRIVEN_UNIQUE;
+			లేకపోతే
+				తిరిగి బిట్టు_బహుళకం::TRISTATE;
 		}
-		case DriveType::MARKER: {
+		స్థితి DriveType::MARKER: {
 			// TODO user supplied classification
 			log_abort();
 		}
-		default:
+		అప్రమేయ:
 			log_abort();
 	}
 }
 
-DriverMap::DriveBitId DriverMap::id_from_drive_bit(DriveBit const &bit)
+DriverMap::Drive_బిట్టు_Id DriverMap::id_from_drive_బిట్టు(Drive_బిట్టు స్థిరరాశి &బిట్టు)
 {
-	switch (bit.type())
+	ఎంపిక (బిట్టు.type())
 	{
-		case DriveType::NONE:
-			return -1;
-		case DriveType::CONSTANT:
-			return (int)bit.constant();
-		case DriveType::WIRE: {
-			auto const &wire_bit = bit.wire();
-			int offset = next_offset;
-			auto insertion = wire_offsets.emplace(wire_bit.wire, offset);
-			if (insertion.second) {
-				if (wire_bit.wire->width == 1) {
-					log_assert(wire_bit.offset == 0);
-					isolated_drive_bits.emplace(offset, bit);
-				} else
-					drive_bits.emplace(offset, DriveBitWire(wire_bit.wire, 0));
-				next_offset += wire_bit.wire->width;
+		స్థితి DriveType::NONE:
+			తిరిగి -1;
+		స్థితి DriveType::CONSTANT:
+			తిరిగి (పూర్ణాంకం)బిట్టు.constant();
+		స్థితి DriveType::WIRE: {
+			స్వయంచాలక స్థిరరాశి &wire_బిట్టు = బిట్టు.wire();
+			పూర్ణాంకం స్థానభ్రంశం = తదుపరి_స్థానభ్రంశం;
+			స్వయంచాలక insertion = wire_offsets.emplace(wire_బిట్టు.wire, స్థానభ్రంశం);
+			ఒకవేళ (insertion.రెండవ) {
+				ఒకవేళ (wire_బిట్టు.wire->వెడల్పు == 1) {
+					log_assert(wire_బిట్టు.స్థానభ్రంశం == 0);
+					isolated_drive_బిట్లు.emplace(స్థానభ్రంశం, బిట్టు);
+				} లేకపోతే
+					drive_బిట్లు.emplace(స్థానభ్రంశం, Drive_బిట్టు_Wire(wire_బిట్టు.wire, 0));
+				తదుపరి_స్థానభ్రంశం += wire_బిట్టు.wire->వెడల్పు;
 			}
-			return insertion.first->second.id + wire_bit.offset;
+			తిరిగి insertion.మొదటి->రెండవ.id + wire_బిట్టు.స్థానభ్రంశం;
 		}
-		case DriveType::PORT: {
-			auto const &port_bit = bit.port();
-			auto key = std::make_pair(port_bit.cell, port_bit.port);
-			int offset = next_offset;
-			auto insertion = port_offsets.emplace(key, offset);
-			if (insertion.second) {
-				int width = port_bit.cell->connections().at(port_bit.port).size();
-				if (width == 1 && offset == 0) {
-					log_assert(port_bit.offset == 0);
-					isolated_drive_bits.emplace(offset, bit);
-				} else
-					drive_bits.emplace(offset, DriveBitPort(port_bit.cell, port_bit.port, 0));
-				next_offset += width;
+		స్థితి DriveType::పోర్టు_2: {
+			స్వయంచాలక స్థిరరాశి &పోర్టు_బిట్టు = బిట్టు.పోర్టు();
+			స్వయంచాలక కీలకం = std::make_pair(పోర్టు_బిట్టు.cell, పోర్టు_బిట్టు.పోర్టు);
+			పూర్ణాంకం స్థానభ్రంశం = తదుపరి_స్థానభ్రంశం;
+			స్వయంచాలక insertion = పోర్టు_offsets.emplace(కీలకం, స్థానభ్రంశం);
+			ఒకవేళ (insertion.రెండవ) {
+				పూర్ణాంకం వెడల్పు = పోర్టు_బిట్టు.cell->connections().at(పోర్టు_బిట్టు.పోర్టు).కొలత();
+				ఒకవేళ (వెడల్పు == 1 && స్థానభ్రంశం == 0) {
+					log_assert(పోర్టు_బిట్టు.స్థానభ్రంశం == 0);
+					isolated_drive_బిట్లు.emplace(స్థానభ్రంశం, బిట్టు);
+				} లేకపోతే
+					drive_బిట్లు.emplace(స్థానభ్రంశం, Drive_బిట్టు_పోర్టు(పోర్టు_బిట్టు.cell, పోర్టు_బిట్టు.పోర్టు, 0));
+				తదుపరి_స్థానభ్రంశం += వెడల్పు;
 			}
-			return insertion.first->second.id + port_bit.offset;
+			తిరిగి insertion.మొదటి->రెండవ.id + పోర్టు_బిట్టు.స్థానభ్రంశం;
 		}
-		default:
-			log_assert(false && "unsupported DriveType in DriverMap");
+		అప్రమేయ:
+			log_assert(అబద్ధం && "unsupported DriveType in DriverMap");
 	}
 	log_abort();
 }
 
-DriveBit DriverMap::drive_bit_from_id(DriveBitId id)
+Drive_బిట్టు DriverMap::drive_బిట్టు_from_id(Drive_బిట్టు_Id id)
 {
-	auto found_isolated = isolated_drive_bits.find(id);
-	if (found_isolated != isolated_drive_bits.end())
-		return found_isolated->second;
+	స్వయంచాలక దొరికింది_isolated = isolated_drive_బిట్లు.కనుగొను(id);
+	ఒకవేళ (దొరికింది_isolated != isolated_drive_బిట్లు.చివర())
+		తిరిగి దొరికింది_isolated->రెండవ;
 
-	auto found = drive_bits.upper_bound(id);
-	if (found == drive_bits.begin()) {
-		return id < 0 ? DriveBit() : DriveBit((State) id.id);
+	స్వయంచాలక దొరికింది = drive_బిట్లు.పై_bound(id);
+	ఒకవేళ (దొరికింది == drive_బిట్లు.begin()) {
+		తిరిగి id < 0 ? Drive_బిట్టు() : Drive_బిట్టు((State) id.id);
 	}
-	--found;
-	DriveBit result = found->second;
-	if (result.is_wire()) {
-		result.wire().offset += id.id - found->first.id;
-	} else {
-		log_assert(result.is_port());
-		result.port().offset += id.id - found->first.id;
+	--దొరికింది;
+	Drive_బిట్టు ఫలితం = దొరికింది->రెండవ;
+	ఒకవేళ (ఫలితం.is_wire()) {
+		ఫలితం.wire().స్థానభ్రంశం += id.id - దొరికింది->మొదటి.id;
+	} లేకపోతే {
+		log_assert(ఫలితం.is_పోర్టు());
+		ఫలితం.పోర్టు().స్థానభ్రంశం += id.id - దొరికింది->మొదటి.id;
 	}
-	return result;
+	తిరిగి ఫలితం;
 }
 
-void DriverMap::connect_directed_merge(DriveBitId driven_id, DriveBitId driver_id)
+శూన్య DriverMap::connect_directed_విలీనం(Drive_బిట్టు_Id driven_id, Drive_బిట్టు_Id driver_id)
 {
-	if (driven_id == driver_id)
-		return;
+	ఒకవేళ (driven_id == driver_id)
+		తిరిగి;
 
-	same_driver.merge(driven_id, driver_id);
+	same_driver.విలీనం(driven_id, driver_id);
 
-	for (int i = 0, end = connected_drivers.count(driven_id); i != end; ++i)
-		connected_drivers.add_edge(driver_id, connected_drivers.at(driven_id, i));
+	కొరకు (పూర్ణాంకం i = 0, చివర = connected_drivers.లెక్క(driven_id); i != చివర; ++i)
+		connected_drivers.కూడు_అంచు(driver_id, connected_drivers.at(driven_id, i));
 
 	connected_drivers.clear(driven_id);
 
-	for (int i = 0, end = connected_undirected.count(driven_id); i != end; ++i)
-		connected_undirected.add_edge(driver_id, connected_undirected.at(driven_id, i));
+	కొరకు (పూర్ణాంకం i = 0, చివర = connected_undirected.లెక్క(driven_id); i != చివర; ++i)
+		connected_undirected.కూడు_అంచు(driver_id, connected_undirected.at(driven_id, i));
 
 	connected_undirected.clear(driven_id);
 }
 
-void DriverMap::connect_directed_buffer(DriveBitId driven_id, DriveBitId driver_id)
+శూన్య DriverMap::connect_directed_బఫరు(Drive_బిట్టు_Id driven_id, Drive_బిట్టు_Id driver_id)
 {
-	connected_drivers.add_edge(driven_id, driver_id);
+	connected_drivers.కూడు_అంచు(driven_id, driver_id);
 }
 
-void DriverMap::connect_undirected(DriveBitId a_id, DriveBitId b_id)
+శూన్య DriverMap::connect_undirected(Drive_బిట్టు_Id a_id, Drive_బిట్టు_Id b_id)
 {
-	connected_undirected.add_edge(a_id, b_id);
-	connected_undirected.add_edge(b_id, a_id);
+	connected_undirected.కూడు_అంచు(a_id, b_id);
+	connected_undirected.కూడు_అంచు(b_id, a_id);
 }
 
-void DriverMap::add(Module *module)
+శూన్య DriverMap::కూడు(Module *module)
 {
-	for (auto const &conn : module->connections())
-		add(conn.first, conn.second);
+	కొరకు (స్వయంచాలక స్థిరరాశి &conn : module->connections())
+		కూడు(conn.మొదటి, conn.రెండవ);
 
-	for (auto cell : module->cells())
-		for (auto const &conn : cell->connections())
-			add_port(cell, conn.first, conn.second);
+	కొరకు (స్వయంచాలక cell : module->cells())
+		కొరకు (స్వయంచాలక స్థిరరాశి &conn : cell->connections())
+			కూడు_పోర్టు(cell, conn.మొదటి, conn.రెండవ);
 }
 
 // Add a single bit connection to the driver map.
-void DriverMap::add(DriveBit const &a, DriveBit const &b)
+శూన్య DriverMap::కూడు(Drive_బిట్టు స్థిరరాశి &a, Drive_బిట్టు స్థిరరాశి &b)
 {
-	DriveBitId a_id = id_from_drive_bit(a);
-	DriveBitId b_id = id_from_drive_bit(b);
+	Drive_బిట్టు_Id a_id = id_from_drive_బిట్టు(a);
+	Drive_బిట్టు_Id b_id = id_from_drive_బిట్టు(b);
 
-	DriveBitId orig_a_id = a_id;
-	DriveBitId orig_b_id = b_id;
+	Drive_బిట్టు_Id orig_a_id = a_id;
+	Drive_బిట్టు_Id orig_b_id = b_id;
 
-	a_id = same_driver.find(a_id);
-	b_id = same_driver.find(b_id);
+	a_id = same_driver.కనుగొను(a_id);
+	b_id = same_driver.కనుగొను(b_id);
 
-	if (a_id == b_id)
-		return;
+	ఒకవేళ (a_id == b_id)
+		తిరిగి;
 
-	BitMode a_mode = bit_mode(orig_a_id == a_id ? a : drive_bit_from_id(a_id));
-	BitMode b_mode = bit_mode(orig_b_id == b_id ? b : drive_bit_from_id(b_id));
+	బిట్టు_బహుళకం a_బహుళకం = బిట్టు_బహుళకం_2(orig_a_id == a_id ? a : drive_బిట్టు_from_id(a_id));
+	బిట్టు_బహుళకం b_బహుళకం = బిట్టు_బహుళకం_2(orig_b_id == b_id ? b : drive_బిట్టు_from_id(b_id));
 
 	// If either bit is just a wire that we don't need to keep, merge and
 	// use the other end as representative bit.
-	if (a_mode == BitMode::NONE && !(b_mode == BitMode::DRIVEN_UNIQUE || b_mode == BitMode::DRIVEN))
-		connect_directed_merge(a_id, b_id);
-	else if (b_mode == BitMode::NONE && !(a_mode == BitMode::DRIVEN_UNIQUE || a_mode == BitMode::DRIVEN))
-		connect_directed_merge(b_id, a_id);
+	ఒకవేళ (a_బహుళకం == బిట్టు_బహుళకం::NONE && !(b_బహుళకం == బిట్టు_బహుళకం::DRIVEN_UNIQUE || b_బహుళకం == బిట్టు_బహుళకం::DRIVEN))
+		connect_directed_విలీనం(a_id, b_id);
+	లేకపోతే ఒకవేళ (b_బహుళకం == బిట్టు_బహుళకం::NONE && !(a_బహుళకం == బిట్టు_బహుళకం::DRIVEN_UNIQUE || a_బహుళకం == బిట్టు_బహుళకం::DRIVEN))
+		connect_directed_విలీనం(b_id, a_id);
 	// If either bit requires a driven value and has a unique driver, merge
 	// and use the other end as representative bit.
-	else if (a_mode == BitMode::DRIVEN_UNIQUE && !(b_mode == BitMode::DRIVEN_UNIQUE || b_mode == BitMode::DRIVEN))
-		connect_directed_buffer(a_id, b_id);
-	else if (b_mode == BitMode::DRIVEN_UNIQUE && !(a_mode == BitMode::DRIVEN_UNIQUE || a_mode == BitMode::DRIVEN))
-		connect_directed_buffer(b_id, a_id);
+	లేకపోతే ఒకవేళ (a_బహుళకం == బిట్టు_బహుళకం::DRIVEN_UNIQUE && !(b_బహుళకం == బిట్టు_బహుళకం::DRIVEN_UNIQUE || b_బహుళకం == బిట్టు_బహుళకం::DRIVEN))
+		connect_directed_బఫరు(a_id, b_id);
+	లేకపోతే ఒకవేళ (b_బహుళకం == బిట్టు_బహుళకం::DRIVEN_UNIQUE && !(a_బహుళకం == బిట్టు_బహుళకం::DRIVEN_UNIQUE || a_బహుళకం == బిట్టు_బహుళకం::DRIVEN))
+		connect_directed_బఫరు(b_id, a_id);
 	// If either bit only drives a value, store a directed connection from
 	// it to the other bit.
-	else if (a_mode == BitMode::DRIVER)
-		connect_directed_buffer(b_id, a_id);
-	else if (b_mode == BitMode::DRIVER)
-		connect_directed_buffer(a_id, b_id);
+	లేకపోతే ఒకవేళ (a_బహుళకం == బిట్టు_బహుళకం::DRIVER)
+		connect_directed_బఫరు(b_id, a_id);
+	లేకపోతే ఒకవేళ (b_బహుళకం == బిట్టు_బహుళకం::DRIVER)
+		connect_directed_బఫరు(a_id, b_id);
 	// Otherwise we store an undirected connection which we will resolve
 	// during querying.
-	else
+	లేకపోతే
 		connect_undirected(a_id, b_id);
 
-	return;
+	తిరిగి;
 }
 
 // Specialized version that avoids unpacking
-void DriverMap::add(SigSpec const &a, SigSpec const &b)
+శూన్య DriverMap::కూడు(SigSpec స్థిరరాశి &a, SigSpec స్థిరరాశి &b)
 {
-	log_assert(a.size() == b.size());
-	auto const &a_chunks = a.chunks();
-	auto const &b_chunks = b.chunks();
+	log_assert(a.కొలత() == b.కొలత());
+	స్వయంచాలక స్థిరరాశి &a_chunks = a.chunks();
+	స్వయంచాలక స్థిరరాశి &b_chunks = b.chunks();
 
-	auto a_chunk = a_chunks.begin();
-	auto a_end = a_chunks.end();
-	int a_offset = 0;
+	స్వయంచాలక a_chunk = a_chunks.begin();
+	స్వయంచాలక a_చివర = a_chunks.చివర();
+	పూర్ణాంకం a_స్థానభ్రంశం = 0;
 
-	auto b_chunk = b_chunks.begin();
-	int b_offset = 0;
+	స్వయంచాలక b_chunk = b_chunks.begin();
+	పూర్ణాంకం b_స్థానభ్రంశం = 0;
 
 	SigChunk tmp_a, tmp_b;
-	while (a_chunk != a_end) {
-		int a_width = a_chunk->width - a_offset;
-		if (a_width == 0) {
-			a_offset = 0;
+	అయితే (a_chunk != a_చివర) {
+		పూర్ణాంకం a_వెడల్పు = a_chunk->వెడల్పు - a_స్థానభ్రంశం;
+		ఒకవేళ (a_వెడల్పు == 0) {
+			a_స్థానభ్రంశం = 0;
 			++a_chunk;
-			continue;
+			కొనసాగు;
 		}
-		int b_width = b_chunk->width - b_offset;
-		if (b_width == 0) {
-			b_offset = 0;
+		పూర్ణాంకం b_వెడల్పు = b_chunk->వెడల్పు - b_స్థానభ్రంశం;
+		ఒకవేళ (b_వెడల్పు == 0) {
+			b_స్థానభ్రంశం = 0;
 			++b_chunk;
-			continue;
+			కొనసాగు;
 		}
-		int width = std::min(a_width, b_width);
-		log_assert(width > 0);
+		పూర్ణాంకం వెడల్పు = std::min(a_వెడల్పు, b_వెడల్పు);
+		log_assert(వెడల్పు > 0);
 
-		SigChunk const &a_subchunk =
-			a_offset == 0 && a_width == width ? *a_chunk : a_chunk->extract(a_offset, width);
-		SigChunk const &b_subchunk =
-			b_offset == 0 && b_width == width ? *b_chunk : b_chunk->extract(b_offset, width);
+		SigChunk స్థిరరాశి &a_subchunk =
+			a_స్థానభ్రంశం == 0 && a_వెడల్పు == వెడల్పు ? *a_chunk : a_chunk->వెలికితీయి(a_స్థానభ్రంశం, వెడల్పు);
+		SigChunk స్థిరరాశి &b_subchunk =
+			b_స్థానభ్రంశం == 0 && b_వెడల్పు == వెడల్పు ? *b_chunk : b_chunk->వెలికితీయి(b_స్థానభ్రంశం, వెడల్పు);
 
-		add(a_subchunk, b_subchunk);
+		కూడు(a_subchunk, b_subchunk);
 
-		a_offset += width;
-		b_offset += width;
+		a_స్థానభ్రంశం += వెడల్పు;
+		b_స్థానభ్రంశం += వెడల్పు;
 	}
 }
 
-void DriverMap::add_port(Cell *cell, IdString port, SigSpec const &b)
+శూన్య DriverMap::కూడు_పోర్టు(Cell *cell, IdString పోర్టు, SigSpec స్థిరరాశి &b)
 {
-	int offset = 0;
-	for (auto const &chunk : b.chunks()) {
-		add(chunk, DriveChunkPort(cell, port, offset, chunk.width));
-		offset += chunk.size();
+	పూర్ణాంకం స్థానభ్రంశం = 0;
+	కొరకు (స్వయంచాలక స్థిరరాశి &chunk : b.chunks()) {
+		కూడు(chunk, Drive_Chunk_పోర్టు(cell, పోర్టు, స్థానభ్రంశం, chunk.వెడల్పు));
+		స్థానభ్రంశం += chunk.కొలత();
 	}
 }
 
-void DriverMap::orient_undirected(DriveBitId id)
+శూన్య DriverMap::orient_undirected(Drive_బిట్టు_Id id)
 {
-	pool<DriveBitId> &seen = orient_undirected_seen;
-	pool<DriveBitId> &drivers = orient_undirected_drivers;
-	dict<DriveBitId, int> &distance = orient_undirected_distance;
-	seen.clear();
+	pool<Drive_బిట్టు_Id> &చూసిన = orient_undirected_చూసిన;
+	pool<Drive_బిట్టు_Id> &drivers = orient_undirected_drivers;
+	dict<Drive_బిట్టు_Id, పూర్ణాంకం> &దూరం = orient_undirected_దూరం;
+	చూసిన.clear();
 	drivers.clear();
 
-	seen.emplace(id);
+	చూసిన.emplace(id);
 
-	for (int pos = 0; pos < GetSize(seen); ++pos) {
-		DriveBitId current = *seen.element(seen.size() - 1 - pos);
-		DriveBit bit = drive_bit_from_id(current);
+	కొరకు (పూర్ణాంకం pos = 0; pos < Get_కొలత(చూసిన); ++pos) {
+		Drive_బిట్టు_Id current = *చూసిన.element(చూసిన.కొలత() - 1 - pos);
+		Drive_బిట్టు బిట్టు = drive_బిట్టు_from_id(current);
 
-		BitMode mode = bit_mode(bit);
+		బిట్టు_బహుళకం బహుళకం = బిట్టు_బహుళకం_2(బిట్టు);
 
-		if (mode == BitMode::DRIVER || mode == BitMode::TRISTATE)
+		ఒకవేళ (బహుళకం == బిట్టు_బహుళకం::DRIVER || బహుళకం == బిట్టు_బహుళకం::TRISTATE)
 			drivers.emplace(current);
 
-		if (connected_drivers.contains(current))
+		ఒకవేళ (connected_drivers.కలిగియుంది(current))
 			drivers.emplace(current);
 
-		int undirected_driver_count = connected_undirected.count(current);
+		పూర్ణాంకం undirected_driver_లెక్క = connected_undirected.లెక్క(current);
 
-		for (int i = 0; i != undirected_driver_count; ++i)
-			seen.emplace(same_driver.find(connected_undirected.at(current, i)));
+		కొరకు (పూర్ణాంకం i = 0; i != undirected_driver_లెక్క; ++i)
+			చూసిన.emplace(same_driver.కనుగొను(connected_undirected.at(current, i)));
 	}
 
-	if (drivers.empty())
-		for (auto seen_id : seen)
-			drivers.emplace(seen_id);
+	ఒకవేళ (drivers.ఖాళీలు())
+		కొరకు (స్వయంచాలక చూసిన_id : చూసిన)
+			drivers.emplace(చూసిన_id);
 
-	for (auto driver : drivers)
+	కొరకు (స్వయంచాలక driver : drivers)
 	{
-		distance.clear();
-		distance.emplace(driver, 0);
+		దూరం.clear();
+		దూరం.emplace(driver, 0);
 
-		for (int pos = 0; pos < GetSize(distance); ++pos) {
-			auto current_it = distance.element(distance.size() - 1 - pos);
+		కొరకు (పూర్ణాంకం pos = 0; pos < Get_కొలత(దూరం); ++pos) {
+			స్వయంచాలక current_it = దూరం.element(దూరం.కొలత() - 1 - pos);
 
-			DriveBitId current = current_it->first;
-			int undirected_driver_count = connected_undirected.count(current);
+			Drive_బిట్టు_Id current = current_it->మొదటి;
+			పూర్ణాంకం undirected_driver_లెక్క = connected_undirected.లెక్క(current);
 
-			for (int i = 0; i != undirected_driver_count; ++i)
+			కొరకు (పూర్ణాంకం i = 0; i != undirected_driver_లెక్క; ++i)
 			{
-				DriveBitId next = same_driver.find(connected_undirected.at(current, i));
-				auto emplaced = distance.emplace(next, current_it->second + 1);
-				if (emplaced.first->second == current_it->second + 1)
-					connected_oriented.add_edge(next, current);
+				Drive_బిట్టు_Id తదుపరి = same_driver.కనుగొను(connected_undirected.at(current, i));
+				స్వయంచాలక emplaced = దూరం.emplace(తదుపరి, current_it->రెండవ + 1);
+				ఒకవేళ (emplaced.మొదటి->రెండవ == current_it->రెండవ + 1)
+					connected_oriented.కూడు_అంచు(తదుపరి, current);
 			}
 		}
 	}
 
-	for (auto seen_id : seen)
-		oriented_present.emplace(seen_id);
+	కొరకు (స్వయంచాలక చూసిన_id : చూసిన)
+		oriented_present.emplace(చూసిన_id);
 }
 
-DriveBit DriverMap::operator()(DriveBit const &bit)
+Drive_బిట్టు DriverMap::క్రియాకారకం()(Drive_బిట్టు స్థిరరాశి &బిట్టు)
 {
-	if (bit.type() == DriveType::MARKER || bit.type() == DriveType::NONE)
-		return bit;
-	if (bit.type() == DriveType::MULTIPLE)
+	ఒకవేళ (బిట్టు.type() == DriveType::MARKER || బిట్టు.type() == DriveType::NONE)
+		తిరిగి బిట్టు;
+	ఒకవేళ (బిట్టు.type() == DriveType::గుణిజం)
 	{
-		DriveBit result;
-		for (auto const &inner : bit.multiple().multiple())
-			result.merge((*this)(inner));
-		return result;
+		Drive_బిట్టు ఫలితం;
+		కొరకు (స్వయంచాలక స్థిరరాశి &inner : బిట్టు.గుణిజం_2().గుణిజం_2())
+			ఫలితం.విలీనం((*ఇది)(inner));
+		తిరిగి ఫలితం;
 	}
 
-	DriveBitId bit_id = id_from_drive_bit(bit);
+	Drive_బిట్టు_Id బిట్టు_id = id_from_drive_బిట్టు(బిట్టు);
 
-	DriveBitId bit_repr_id = same_driver.find(bit_id);
+	Drive_బిట్టు_Id బిట్టు_repr_id = same_driver.కనుగొను(బిట్టు_id);
 
-	DriveBit bit_repr = drive_bit_from_id(bit_repr_id);
+	Drive_బిట్టు బిట్టు_repr = drive_బిట్టు_from_id(బిట్టు_repr_id);
 
-	BitMode mode = bit_mode(bit_repr);
+	బిట్టు_బహుళకం బహుళకం = బిట్టు_బహుళకం_2(బిట్టు_repr);
 
-	if (mode == BitMode::KEEP && bit_repr_id != bit_id)
-		return bit_repr;
+	ఒకవేళ (బహుళకం == బిట్టు_బహుళకం::KEEP && బిట్టు_repr_id != బిట్టు_id)
+		తిరిగి బిట్టు_repr;
 
-	int implicit_driver_count = connected_drivers.count(bit_repr_id);
-	if (connected_undirected.contains(bit_repr_id) && !oriented_present.count(bit_repr_id))
-		orient_undirected(bit_repr_id);
+	పూర్ణాంకం implicit_driver_లెక్క = connected_drivers.లెక్క(బిట్టు_repr_id);
+	ఒకవేళ (connected_undirected.కలిగియుంది(బిట్టు_repr_id) && !oriented_present.లెక్క(బిట్టు_repr_id))
+		orient_undirected(బిట్టు_repr_id);
 
-	DriveBit driver;
+	Drive_బిట్టు driver;
 
-	if (mode == BitMode::DRIVER || mode == BitMode::TRISTATE)
-		driver = bit_repr;
+	ఒకవేళ (బహుళకం == బిట్టు_బహుళకం::DRIVER || బహుళకం == బిట్టు_బహుళకం::TRISTATE)
+		driver = బిట్టు_repr;
 
-	for (int i = 0; i != implicit_driver_count; ++i)
-		driver.merge(drive_bit_from_id(connected_drivers.at(bit_repr_id, i)));
+	కొరకు (పూర్ణాంకం i = 0; i != implicit_driver_లెక్క; ++i)
+		driver.విలీనం(drive_బిట్టు_from_id(connected_drivers.at(బిట్టు_repr_id, i)));
 
-	int oriented_driver_count = connected_oriented.count(bit_repr_id);
-	for (int i = 0; i != oriented_driver_count; ++i)
-		driver.merge(drive_bit_from_id(connected_oriented.at(bit_repr_id, i)));
+	పూర్ణాంకం oriented_driver_లెక్క = connected_oriented.లెక్క(బిట్టు_repr_id);
+	కొరకు (పూర్ణాంకం i = 0; i != oriented_driver_లెక్క; ++i)
+		driver.విలీనం(drive_బిట్టు_from_id(connected_oriented.at(బిట్టు_repr_id, i)));
 
-	return driver;
+	తిరిగి driver;
 }
 
-DriveSpec DriverMap::operator()(DriveSpec spec)
+DriveSpec DriverMap::క్రియాకారకం()(DriveSpec spec)
 {
-	DriveSpec result;
+	DriveSpec ఫలితం;
 
-	for (int i = 0, width = spec.size(); i != width; ++i)
-		result.append((*this)(spec[i]));
+	కొరకు (పూర్ణాంకం i = 0, వెడల్పు = spec.కొలత(); i != వెడల్పు; ++i)
+		ఫలితం.append((*ఇది)(spec[i]));
 
-	return result;
+	తిరిగి ఫలితం;
 }
 
-std::string log_signal(DriveChunkWire const &chunk)
+std::string log_signal(DriveChunkWire స్థిరరాశి &chunk)
 {
 	std::string id = chunk.wire->name.unescape();
-	if (chunk.is_whole())
-		return id;
-	if (chunk.width == 1)
-		return stringf("%s [%d]", id, chunk.offset);
-	return stringf("%s [%d:%d]", id, chunk.offset + chunk.width - 1, chunk.offset);
+	ఒకవేళ (chunk.is_సంపూర్ణ())
+		తిరిగి id;
+	ఒకవేళ (chunk.వెడల్పు == 1)
+		తిరిగి stringf("%s [%d]", id, chunk.స్థానభ్రంశం);
+	తిరిగి stringf("%s [%d:%d]", id, chunk.స్థానభ్రంశం + chunk.వెడల్పు - 1, chunk.స్థానభ్రంశం);
 }
 
 
-std::string log_signal(DriveChunkPort const &chunk)
+std::string log_signal(Drive_Chunk_పోర్టు స్థిరరాశి &chunk)
 {
 	std::string cell_id = chunk.cell->name.unescape();
-	std::string port_id = chunk.cell->twines().unescaped_str(chunk.port);
-	if (chunk.is_whole())
-		return stringf("%s <%s>", cell_id, port_id);
-	if (chunk.width == 1)
-		return stringf("%s <%s> [%d]", cell_id, port_id, chunk.offset);
-	return stringf("%s <%s> [%d:%d]", cell_id, port_id, chunk.offset + chunk.width - 1, chunk.offset);
+	std::string పోర్టు_id = chunk.cell->twines().unescaped_str(chunk.పోర్టు);
+	ఒకవేళ (chunk.is_సంపూర్ణ())
+		తిరిగి stringf("%s <%s>", cell_id, పోర్టు_id);
+	ఒకవేళ (chunk.వెడల్పు == 1)
+		తిరిగి stringf("%s <%s> [%d]", cell_id, పోర్టు_id, chunk.స్థానభ్రంశం);
+	తిరిగి stringf("%s <%s> [%d:%d]", cell_id, పోర్టు_id, chunk.స్థానభ్రంశం + chunk.వెడల్పు - 1, chunk.స్థానభ్రంశం);
 }
 
-std::string log_signal(DriveChunkMarker const &chunk)
+std::string log_signal(DriveChunkMarker స్థిరరాశి &chunk)
 {
-	if (chunk.width == 1)
-		return stringf("<marker %d> [%d]", chunk.marker, chunk.offset);
-	return stringf("<marker %d> [%d:%d]", chunk.marker, chunk.offset + chunk.width - 1, chunk.offset);
+	ఒకవేళ (chunk.వెడల్పు == 1)
+		తిరిగి stringf("<marker %d> [%d]", chunk.marker, chunk.స్థానభ్రంశం);
+	తిరిగి stringf("<marker %d> [%d:%d]", chunk.marker, chunk.స్థానభ్రంశం + chunk.వెడల్పు - 1, chunk.స్థానభ్రంశం);
 }
 
-std::string log_signal(DriveChunk const &chunk)
+std::string log_signal(DriveChunk స్థిరరాశి &chunk)
 {
-	switch (chunk.type())
+	ఎంపిక (chunk.type())
 	{
-		case DriveType::NONE:
-			return stringf("<none x%d>", chunk.size());
-		case DriveType::CONSTANT:
-			return log_const(chunk.constant());
-		case DriveType::WIRE:
-			return log_signal(chunk.wire());
-		case DriveType::PORT:
-			return log_signal(chunk.port());
-		case DriveType::MARKER:
-			return log_signal(chunk.marker());
-		case DriveType::MULTIPLE: {
+		స్థితి DriveType::NONE:
+			తిరిగి stringf("<none x%d>", chunk.కొలత());
+		స్థితి DriveType::CONSTANT:
+			తిరిగి log_const(chunk.constant());
+		స్థితి DriveType::WIRE:
+			తిరిగి log_signal(chunk.wire());
+		స్థితి DriveType::పోర్టు_2:
+			తిరిగి log_signal(chunk.పోర్టు());
+		స్థితి DriveType::MARKER:
+			తిరిగి log_signal(chunk.marker());
+		స్థితి DriveType::గుణిజం: {
 			std::string str = "<multiple";
-			const char *sep = " ";
-			for (auto const &single : chunk.multiple().multiple()) {
+			స్థిరరాశి అక్షరం *sep = " ";
+			కొరకు (స్వయంచాలక స్థిరరాశి &single : chunk.గుణిజం_2().గుణిజం_2()) {
 				str += sep;
 				sep = ", ";
 				str += log_signal(single);
 			}
 			str += ">";
-			return str;
+			తిరిగి str;
 		}
-		default:
+		అప్రమేయ:
 			log_abort();
 	}
 }
 
-std::string log_signal(DriveSpec const &spec)
+std::string log_signal(DriveSpec స్థిరరాశి &spec)
 {
-	auto &chunks = spec.chunks();
-	if (chunks.empty())
-		return "{}";
-	if (chunks.size() == 1)
-		return log_signal(chunks[0]);
+	స్వయంచాలక &chunks = spec.chunks();
+	ఒకవేళ (chunks.ఖాళీలు())
+		తిరిగి "{}";
+	ఒకవేళ (chunks.కొలత() == 1)
+		తిరిగి log_signal(chunks[0]);
 
 	std::string str;
-	const char *sep = "{ ";
+	స్థిరరాశి అక్షరం *sep = "{ ";
 
-	for (auto i = chunks.rbegin(), end = chunks.rend(); i != end; ++i)
+	కొరకు (స్వయంచాలక i = chunks.rbegin(), చివర = chunks.rend(); i != చివర; ++i)
 	{
 		str += sep;
 		sep = " ";
@@ -942,7 +942,7 @@ std::string log_signal(DriveSpec const &spec)
 	}
 	str += " }";
 
-	return str;
+	తిరిగి str;
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర

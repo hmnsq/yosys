@@ -17,234 +17,234 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/rtlil.h"
-#include "libs/json11/json11.hpp"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "kernel/rtlil.h"
+#అన్తర్భావ "libs/json11/json11.hpp"
 
-#ifdef YOSYS_ENABLE_TCL
-#include <tcl.h>
-#include <tclTomMath.h>
-#include <tclTomMathDecls.h>
-#endif
+#నిర్వచితమైతే YOSYS_ENABLE_TCL
+#అన్తర్భావ <tcl.h>
+#అన్తర్భావ <tclTomMath.h>
+#అన్తర్భావ <tclTomMathDecls.h>
+#అయితే_ముగింపు
 
 YOSYS_NAMESPACE_BEGIN
 
-#ifdef YOSYS_ENABLE_TCL
-bool yosys_tcl_repl_active = false;
+#నిర్వచితమైతే YOSYS_ENABLE_TCL
+తార్కిక yosys_tcl_repl_చురుకైన = అబద్ధం;
 
-void yosys_tcl_activate_repl()
+శూన్య yosys_tcl_activate_repl()
 {
-	yosys_tcl_repl_active = true;
+	yosys_tcl_repl_చురుకైన = నిజం;
 }
 
-static Tcl_Obj *json_to_tcl(Tcl_Interp *interp, const json11::Json &json)
+స్థిర Tcl_Obj *json_గమ్యం_tcl(Tcl_Interp *interp, స్థిరరాశి json11::Json &json)
 {
-	if (json.is_null())
-		return Tcl_NewStringObj("null", 4);
-	else if (json.is_string()) {
-		auto string = json.string_value();
-		return Tcl_NewStringObj(string.data(), string.size());
-	} else if (json.is_number()) {
-		double value = json.number_value();
-		double round_val = std::nearbyint(value);
-		if (std::isfinite(round_val) && value == round_val && value >= LONG_MIN && value < -double(LONG_MIN))
-			return Tcl_NewLongObj((long)round_val);
-		else
-			return Tcl_NewDoubleObj(value);
-	} else if (json.is_bool()) {
-		return Tcl_NewBooleanObj(json.bool_value());
-	} else if (json.is_array()) {
-		auto list = json.array_items();
-		Tcl_Obj *result = Tcl_NewListObj(list.size(), nullptr);
-		for (auto &item : list)
-			Tcl_ListObjAppendElement(interp, result, json_to_tcl(interp, item));
-		return result;
-	} else if (json.is_object()) {
-		auto map = json.object_items();
-		Tcl_Obj *result = Tcl_NewListObj(map.size() * 2, nullptr);
-		for (auto &item : map) {
-			Tcl_ListObjAppendElement(interp, result, Tcl_NewStringObj(item.first.data(), item.first.size()));
-			Tcl_ListObjAppendElement(interp, result, json_to_tcl(interp, item.second));
+	ఒకవేళ (json.is_null())
+		తిరిగి Tcl_NewStringObj("null", 4);
+	లేకపోతే ఒకవేళ (json.is_string()) {
+		స్వయంచాలక string = json.string_విలువ();
+		తిరిగి Tcl_NewStringObj(string.దత్తాంశం(), string.కొలత());
+	} లేకపోతే ఒకవేళ (json.is_సంఖ్య()) {
+		ద్విగుణ విలువ = json.సంఖ్య_విలువ();
+		ద్విగుణ విడత_val = std::nearbyint(విలువ);
+		ఒకవేళ (std::isfinite(విడత_val) && విలువ == విడత_val && విలువ >= LONG_MIN && విలువ < -ద్విగుణ(LONG_MIN))
+			తిరిగి Tcl_NewLongObj((దీర్ఘ)విడత_val);
+		లేకపోతే
+			తిరిగి Tcl_NewDoubleObj(విలువ);
+	} లేకపోతే ఒకవేళ (json.is_bool()) {
+		తిరిగి Tcl_NewBooleanObj(json.bool_విలువ());
+	} లేకపోతే ఒకవేళ (json.is_array()) {
+		స్వయంచాలక list = json.array_వస్తువులు();
+		Tcl_Obj *ఫలితం = Tcl_NewListObj(list.కొలత(), శూన్యసూచిక);
+		కొరకు (స్వయంచాలక &అంశం : list)
+			Tcl_ListObjAppendElement(interp, ఫలితం, json_గమ్యం_tcl(interp, అంశం));
+		తిరిగి ఫలితం;
+	} లేకపోతే ఒకవేళ (json.is_object()) {
+		స్వయంచాలక map = json.object_వస్తువులు();
+		Tcl_Obj *ఫలితం = Tcl_NewListObj(map.కొలత() * 2, శూన్యసూచిక);
+		కొరకు (స్వయంచాలక &అంశం : map) {
+			Tcl_ListObjAppendElement(interp, ఫలితం, Tcl_NewStringObj(అంశం.మొదటి.దత్తాంశం(), అంశం.మొదటి.కొలత()));
+			Tcl_ListObjAppendElement(interp, ఫలితం, json_గమ్యం_tcl(interp, అంశం.రెండవ));
 		}
-		return result;
-	} else {
+		తిరిగి ఫలితం;
+	} లేకపోతే {
 		log_abort();
 	}
 }
 
-static int tcl_yosys_cmd(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+స్థిర పూర్ణాంకం tcl_yosys_cmd(Client_దత్తాంశం, Tcl_Interp *interp, పూర్ణాంకం argc, స్థిరరాశి అక్షరం *argv[])
 {
-	std::vector<std::string> args;
-	for (int i = 1; i < argc; i++)
-		args.push_back(argv[i]);
+	std::సదిశ<std::string> వాదనలు_2;
+	కొరకు (పూర్ణాంకం i = 1; i < argc; i++)
+		వాదనలు_2.నెట్టు_వెనుక(argv[i]);
 
-	if (args.size() >= 1 && args[0] == "-import") {
-		for (auto &it : pass_register) {
-			std::string tcl_command_name = it.first;
-			if (tcl_command_name == "proc")
+	ఒకవేళ (వాదనలు_2.కొలత() >= 1 && వాదనలు_2[0] == "-import") {
+		కొరకు (స్వయంచాలక &it : pass_రిజిస్టరు) {
+			std::string tcl_command_name = it.మొదటి;
+			ఒకవేళ (tcl_command_name == "proc")
 				tcl_command_name = "procs";
-			else if (tcl_command_name == "rename")
+			లేకపోతే ఒకవేళ (tcl_command_name == "rename")
 				tcl_command_name = "renames";
 			Tcl_CmdInfo info;
-			if (Tcl_GetCommandInfo(interp, tcl_command_name.c_str(), &info) != 0) {
-				log("[TCL: yosys -import] Command name collision: found pre-existing command `%s' -> skip.\n", it.first);
-			} else {
-				std::string tcl_script = stringf("proc %s args { yosys %s {*}$args }", tcl_command_name, it.first);
+			ఒకవేళ (Tcl_GetCommandInfo(interp, tcl_command_name.c_str(), &info) != 0) {
+				సంవర్గమానం("[TCL: yosys -import] Command name collision: found pre-existing command `%s' -> skip.\n", it.మొదటి);
+			} లేకపోతే {
+				std::string tcl_script = stringf("proc %s args { yosys %s {*}$args }", tcl_command_name, it.మొదటి);
 				Tcl_Eval(interp, tcl_script.c_str());
 			}
 		}
-		return TCL_OK;
+		తిరిగి TCL_OK;
 	}
 
 	yosys_get_design()->scratchpad_unset("result.json");
 	yosys_get_design()->scratchpad_unset("result.string");
 
-	bool in_repl = yosys_tcl_repl_active;
-	auto guard = logger().error_throw_scope();
-	try {
-		if (args.size() == 1) {
-			Pass::call(yosys_get_design(), args[0]);
-		} else {
-			Pass::call(yosys_get_design(), args);
+	తార్కిక లోపల_repl = yosys_tcl_repl_చురుకైన;
+	స్వయంచాలక guard = logger().error_throw_scope();
+	ప్రయత్నించు {
+		ఒకవేళ (వాదనలు_2.కొలత() == 1) {
+			Pass::call(yosys_get_design(), వాదనలు_2[0]);
+		} లేకపోతే {
+			Pass::call(yosys_get_design(), వాదనలు_2);
 		}
-	} catch (log_cmd_error_exception) {
-		if (in_repl) {
-			auto design = yosys_get_design();
-			while (design->selection_stack.size() > 1)
-				design->pop_selection();
-			log_reset_stack();
+	} పట్టుకో (log_cmd_error_exception) {
+		ఒకవేళ (లోపల_repl) {
+			స్వయంచాలక design = yosys_get_design();
+			అయితే (design->selection_దొంతర.కొలత() > 1)
+				design->తీయి_selection();
+			log_reset_దొంతర();
 		}
-		Tcl_SetResult(interp, (char *)"Yosys command produced an error", TCL_STATIC);
+		Tcl_సమితి_ఫలితం(interp, (అక్షరం *)"Yosys command produced an error", TCL_STATIC);
 
-		yosys_tcl_repl_active = in_repl;
-		return TCL_ERROR;
-	} catch (...) {
+		yosys_tcl_repl_చురుకైన = లోపల_repl;
+		తిరిగి TCL_ERROR;
+	} పట్టుకో (...) {
 		log_error("uncaught exception during Yosys command invoked from TCL\n");
 	}
 
-	yosys_tcl_repl_active = in_repl;
+	yosys_tcl_repl_చురుకైన = లోపల_repl;
 
-	auto &scratchpad = yosys_get_design()->scratchpad;
-	auto result = scratchpad.find("result.json");
-	if (result != scratchpad.end()) {
+	స్వయంచాలక &scratchpad = yosys_get_design()->scratchpad;
+	స్వయంచాలక ఫలితం = scratchpad.కనుగొను("result.json");
+	ఒకవేళ (ఫలితం != scratchpad.చివర()) {
 		std::string err;
-		auto json = json11::Json::parse(result->second, err);
-		if (err.empty()) {
-			Tcl_SetObjResult(interp, json_to_tcl(interp, json));
-		} else
+		స్వయంచాలక json = json11::Json::parse(ఫలితం->రెండవ, err);
+		ఒకవేళ (err.ఖాళీలు()) {
+			Tcl_సమితి_Obj_ఫలితం(interp, json_గమ్యం_tcl(interp, json));
+		} లేకపోతే
 			log_warning("Ignoring result.json scratchpad value due to parse error: %s\n", err);
-	} else if ((result = scratchpad.find("result.string")) != scratchpad.end()) {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(result->second.data(), result->second.size()));
+	} లేకపోతే ఒకవేళ ((ఫలితం = scratchpad.కనుగొను("result.string")) != scratchpad.చివర()) {
+		Tcl_సమితి_Obj_ఫలితం(interp, Tcl_NewStringObj(ఫలితం->రెండవ.దత్తాంశం(), ఫలితం->రెండవ.కొలత()));
 	}
 
-	return TCL_OK;
+	తిరిగి TCL_OK;
 }
 
-#define FLAG(name) \
-	if (!strcmp(argv[i], "-" #name)) { \
-		name##_flag = true; \
-		continue; \
+#నిర్వచించు FLAG(name) \
+	ఒకవేళ (!strcmp(argv[i], "-" #name)) { \
+		name##_flag = నిజం; \
+		కొనసాగు; \
 	} \
 
-#define FLAG2(name) \
-	if (!strcmp(Tcl_GetString(objv[i]), "-" #name)) { \
-		name##_flag = true; \
-		continue; \
+#నిర్వచించు FLAG2(name) \
+	ఒకవేళ (!strcmp(Tcl_GetString(objv[i]), "-" #name)) { \
+		name##_flag = నిజం; \
+		కొనసాగు; \
 	} \
 
-#define ERROR(str) \
+#నిర్వచించు ERROR(str) \
 	{ \
-		Tcl_SetResult(interp, (char *)(str), TCL_STATIC); \
-		return TCL_ERROR; \
+		Tcl_సమితి_ఫలితం(interp, (అక్షరం *)(str), TCL_STATIC); \
+		తిరిగి TCL_ERROR; \
 	}
 
-bool const_to_mp_int(const Const &a, mp_int *b, bool force_signed, bool force_unsigned)
+తార్కిక const_గమ్యం_mp_int(స్థిరరాశి Const &a, mp_int *b, తార్కిక force_signed, తార్కిక force_unsigned)
 {
-	if (!a.is_fully_def())
-		return false;
+	ఒకవేళ (!a.is_fully_def())
+		తిరిగి అబద్ధం;
 
-	if (mp_init(b))
-		return false;
+	ఒకవేళ (mp_init(b))
+		తిరిగి అబద్ధం;
 
-	bool negative = ((a.flags & RTLIL::CONST_FLAG_SIGNED) || force_signed) &&
+	తార్కిక negative = ((a.flags & RTLIL::CONST_FLAG_SIGNED) || force_signed) &&
 					!force_unsigned &&
-					!a.empty() && (a.back() == RTLIL::S1);
+					!a.ఖాళీలు() && (a.వెనుక() == RTLIL::S1);
 
-	for (int i = a.size() - 1; i >= 0; i--) {
-		if (mp_mul_2d(b, 1, b)) {
+	కొరకు (పూర్ణాంకం i = a.కొలత() - 1; i >= 0; i--) {
+		ఒకవేళ (mp_mul_2d(b, 1, b)) {
 			mp_clear(b);
-			return false;
+			తిరిగి అబద్ధం;
 		}
 
-		if ((a[i] == RTLIL::S1) ^ negative) {
-			if (mp_add_d(b, 1, b)) {
+		ఒకవేళ ((a[i] == RTLIL::S1) ^ negative) {
+			ఒకవేళ (mp_కూడు_d(b, 1, b)) {
 				mp_clear(b);
-				return false;
+				తిరిగి అబద్ధం;
 			}
 		}
 	}
 
-	if (negative) {
-		if (mp_add_d(b, 1, b) || mp_neg(b, b)) {
+	ఒకవేళ (negative) {
+		ఒకవేళ (mp_కూడు_d(b, 1, b) || mp_neg(b, b)) {
 			mp_clear(b);
-			return false;
+			తిరిగి అబద్ధం;
 		}
 	}
 
-	return true;
+	తిరిగి నిజం;
 }
 
-bool mp_int_to_const(mp_int *a, Const &b, bool is_signed)
+తార్కిక mp_int_గమ్యం_const(mp_int *a, Const &b, తార్కిక is_signed)
 {
-	bool negative = (mp_cmp_d(a, 0) == MP_LT);
-	if (negative && !is_signed)
-		return false;
+	తార్కిక negative = (mp_cmp_d(a, 0) == MP_LT);
+	ఒకవేళ (negative && !is_signed)
+		తిరిగి అబద్ధం;
 
-	if (negative) {
-		if (mp_neg(a, a) != MP_OKAY)
-			return false;
-		if (mp_sub_d(a, 1, a) != MP_OKAY)
-			return false;
+	ఒకవేళ (negative) {
+		ఒకవేళ (mp_neg(a, a) != MP_OKAY)
+			తిరిగి అబద్ధం;
+		ఒకవేళ (mp_sub_d(a, 1, a) != MP_OKAY)
+			తిరిగి అబద్ధం;
 	}
 
-	std::vector<unsigned char> buf;
-	buf.resize(mp_unsigned_bin_size(a));
-	if (mp_to_unsigned_bin(a, buf.data()) != MP_OKAY)
-		return false;
+	std::సదిశ<గుర్తులేని అక్షరం> buf;
+	buf.resize(mp_unsigned_bin_కొలత(a));
+	ఒకవేళ (mp_గమ్యం_unsigned_bin(a, buf.దత్తాంశం()) != MP_OKAY)
+		తిరిగి అబద్ధం;
 
-	Const::Builder b_bits(mp_count_bits(a) + is_signed);
-	for (int i = 0; i < mp_count_bits(a);) {
-		for (int j = 0; j < 8 && i < mp_count_bits(a); j++, i++) {
-			bool bv = ((buf.back() & (1 << j)) != 0) ^ negative;
-			b_bits.push_back(bv ? RTLIL::S1 : RTLIL::S0);
+	Const::Builder b_బిట్లు(mp_లెక్క_బిట్లు(a) + is_signed);
+	కొరకు (పూర్ణాంకం i = 0; i < mp_లెక్క_బిట్లు(a);) {
+		కొరకు (పూర్ణాంకం j = 0; j < 8 && i < mp_లెక్క_బిట్లు(a); j++, i++) {
+			తార్కిక bv = ((buf.వెనుక() & (1 << j)) != 0) ^ negative;
+			b_బిట్లు.నెట్టు_వెనుక(bv ? RTLIL::S1 : RTLIL::S0);
 		}
-		buf.pop_back();
+		buf.తీయి_వెనుక();
 	}
 
-	if (is_signed) {
-		b_bits.push_back(negative ? RTLIL::S1 : RTLIL::S0);
+	ఒకవేళ (is_signed) {
+		b_బిట్లు.నెట్టు_వెనుక(negative ? RTLIL::S1 : RTLIL::S0);
 	}
-	b = b_bits.build();
+	b = b_బిట్లు.build();
 
-	return true;
+	తిరిగి నిజం;
 }
 
-static int tcl_get_attr(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+స్థిర పూర్ణాంకం tcl_get_attr(Client_దత్తాంశం, Tcl_Interp *interp, పూర్ణాంకం argc, స్థిరరాశి అక్షరం *argv[])
 {
-	int i;
-	bool mod_flag = false, string_flag = false, bool_flag = false;
-	bool int_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < argc; i++) {
+	పూర్ణాంకం i;
+	తార్కిక mod_flag = అబద్ధం, string_flag = అబద్ధం, bool_flag = అబద్ధం;
+	తార్కిక int_flag = అబద్ధం, sint_flag = అబద్ధం, uint_flag = అబద్ధం;
+	కొరకు (i = 1; i < argc; i++) {
 		FLAG(mod)
 		FLAG(string)
-		FLAG(int)
+		FLAG(పూర్ణాంకం)
 		FLAG(sint)
 		FLAG(uint)
-		FLAG(bool)
-		break;
+		FLAG(తార్కిక)
+		ఆపు;
 	}
 
-	if ((mod_flag && i != argc - 2) ||
+	ఒకవేళ ((mod_flag && i != argc - 2) ||
 			(!mod_flag && i != argc - 3) ||
 			(string_flag + int_flag + sint_flag + uint_flag + bool_flag > 1))
 		ERROR("bad usage: expected \"get_attr -mod [-string|-int|-sint|-uint|-bool] <module> <attrname>\""
@@ -252,120 +252,120 @@ static int tcl_get_attr(ClientData, Tcl_Interp *interp, int argc, const char *ar
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(argv[i++]);
-	if (!mod_flag)
+	ఒకవేళ (!mod_flag)
 		obj_id = RTLIL::escape_id(argv[i++]);
 	attr_id = RTLIL::escape_id(argv[i++]);
 
-	auto mod_twine = yosys_design->twines().find(mod_id);
+	స్వయంచాలక mod_twine = yosys_design->twines().కనుగొను(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	ఒకవేళ (!mod)
 		ERROR("module not found")
 
-	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	RTLIL::AttrObject *obj = శూన్యసూచిక;
+	ఒకవేళ (mod_flag) {
 		obj = mod;
-	} else {
-		auto obj_twine = yosys_design->twines().find(obj_id);
+	} లేకపోతే {
+		స్వయంచాలక obj_twine = yosys_design->twines().కనుగొను(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
-			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		ఒకవేళ (!obj)
+			obj = mod->memories.at(obj_twine, శూన్యసూచిక);
+		ఒకవేళ (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
-			obj = mod->processes.at(obj_twine, nullptr);
+		ఒకవేళ (!obj)
+			obj = mod->processes.at(obj_twine, శూన్యసూచిక);
 	}
 
-	if (!obj)
+	ఒకవేళ (!obj)
 		ERROR("object not found")
 
-	IdString attr_twine = yosys_design->twines().find(attr_id);
+	IdString attr_twine = yosys_design->twines().కనుగొను(attr_id);
 
-	if (string_flag) {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(obj->get_string_attribute(attr_twine).c_str(), -1));
-	} else if (int_flag || uint_flag || sint_flag) {
-		if (!obj->has_attribute(attr_twine))
+	ఒకవేళ (string_flag) {
+		Tcl_సమితి_Obj_ఫలితం(interp, Tcl_NewStringObj(obj->get_string_attribute(attr_twine).c_str(), -1));
+	} లేకపోతే ఒకవేళ (int_flag || uint_flag || sint_flag) {
+		ఒకవేళ (!obj->has_attribute(attr_twine))
 			ERROR("attribute missing (required for -int)");
-		RTLIL::Const &value = obj->attributes.at(attr_twine);
+		RTLIL::Const &విలువ = obj->లక్షణాలు.at(attr_twine);
 
-		mp_int value_mp;
-		if (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
+		mp_int విలువ_mp;
+		ఒకవేళ (!const_గమ్యం_mp_int(విలువ, &విలువ_mp, sint_flag, uint_flag))
 			ERROR("bignum manipulation failed");
-		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&value_mp));
-	} else if (bool_flag) {
-		Tcl_SetObjResult(interp, Tcl_NewBooleanObj(obj->get_bool_attribute(attr_twine)));
-	} else {
-		if (!obj->has_attribute(attr_twine))
+		Tcl_సమితి_Obj_ఫలితం(interp, Tcl_NewBignumObj(&విలువ_mp));
+	} లేకపోతే ఒకవేళ (bool_flag) {
+		Tcl_సమితి_Obj_ఫలితం(interp, Tcl_NewBooleanObj(obj->get_bool_attribute(attr_twine)));
+	} లేకపోతే {
+		ఒకవేళ (!obj->has_attribute(attr_twine))
 			ERROR("attribute missing (required unless -bool or -string)")
 
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(obj->attributes.at(attr_twine).as_string().c_str(), -1));
+		Tcl_సమితి_Obj_ఫలితం(interp, Tcl_NewStringObj(obj->లక్షణాలు.at(attr_twine).as_string().c_str(), -1));
 	}
 
-	return TCL_OK;
+	తిరిగి TCL_OK;
 }
 
-static int tcl_has_attr(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+స్థిర పూర్ణాంకం tcl_has_attr(Client_దత్తాంశం, Tcl_Interp *interp, పూర్ణాంకం argc, స్థిరరాశి అక్షరం *argv[])
 {
-	int i;
-	bool mod_flag = false;
-	for (i = 1; i < argc; i++) {
+	పూర్ణాంకం i;
+	తార్కిక mod_flag = అబద్ధం;
+	కొరకు (i = 1; i < argc; i++) {
 		FLAG(mod)
-		break;
+		ఆపు;
 	}
 
-	if ((mod_flag && i != argc - 2) ||
+	ఒకవేళ ((mod_flag && i != argc - 2) ||
 			(!mod_flag && i != argc - 3))
 		ERROR("bad usage: expected \"has_attr -mod <module> <attrname>\""
 			  " or \"has_attr <module> <identifier> <attrname>\"")
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(argv[i++]);
-	if (!mod_flag)
+	ఒకవేళ (!mod_flag)
 		obj_id = RTLIL::escape_id(argv[i++]);
 	attr_id = RTLIL::escape_id(argv[i++]);
 
-	auto mod_twine = yosys_design->twines().find(mod_id);
+	స్వయంచాలక mod_twine = yosys_design->twines().కనుగొను(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	ఒకవేళ (!mod)
 		ERROR("module not found")
 
-	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	RTLIL::AttrObject *obj = శూన్యసూచిక;
+	ఒకవేళ (mod_flag) {
 		obj = mod;
-	} else {
-		auto obj_twine = yosys_design->twines().find(obj_id);
+	} లేకపోతే {
+		స్వయంచాలక obj_twine = yosys_design->twines().కనుగొను(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
-			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		ఒకవేళ (!obj)
+			obj = mod->memories.at(obj_twine, శూన్యసూచిక);
+		ఒకవేళ (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
-			obj = mod->processes.at(obj_twine, nullptr);
+		ఒకవేళ (!obj)
+			obj = mod->processes.at(obj_twine, శూన్యసూచిక);
 	}
 
-	if (!obj)
+	ఒకవేళ (!obj)
 		ERROR("object not found")
 
-	Tcl_SetObjResult(interp, Tcl_NewStringObj(std::to_string(obj->has_attribute(yosys_design->twines().find(attr_id))).c_str(), -1));
-	return TCL_OK;
+	Tcl_సమితి_Obj_ఫలితం(interp, Tcl_NewStringObj(std::గమ్యం_string(obj->has_attribute(yosys_design->twines().కనుగొను(attr_id))).c_str(), -1));
+	తిరిగి TCL_OK;
 }
 
-static int tcl_set_attr(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+స్థిర పూర్ణాంకం tcl_సమితి_attr(Client_దత్తాంశం, Tcl_Interp *interp, పూర్ణాంకం objc, Tcl_Obj *స్థిరరాశి objv[])
 {
-	int i;
-	bool mod_flag = false, string_flag = false, bool_flag = false;
-	bool true_flag = false, false_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < objc; i++) {
+	పూర్ణాంకం i;
+	తార్కిక mod_flag = అబద్ధం, string_flag = అబద్ధం, bool_flag = అబద్ధం;
+	తార్కిక true_flag = అబద్ధం, false_flag = అబద్ధం, sint_flag = అబద్ధం, uint_flag = అబద్ధం;
+	కొరకు (i = 1; i < objc; i++) {
 		FLAG2(mod)
 		FLAG2(string)
-		FLAG2(true)
-		FLAG2(false)
+		FLAG2(నిజం)
+		FLAG2(అబద్ధం)
 		FLAG2(sint)
 		FLAG2(uint)
-		FLAG2(bool)
-		break;
+		FLAG2(తార్కిక)
+		ఆపు;
 	}
 
-	if ((i != objc - (2 + !mod_flag + !(true_flag || false_flag))) ||
+	ఒకవేళ ((i != objc - (2 + !mod_flag + !(true_flag || false_flag))) ||
 			(string_flag + sint_flag + uint_flag + bool_flag + true_flag + false_flag > 1))
 		ERROR("bad usage: expected \"set_attr -mod [-string|-sint|-uint|-bool] <module> <attrname> <value>\""
 			  " or \"set_attr [-string|-sint|-uint|-bool] <module> <identifier> <attrname> <value>\""
@@ -374,83 +374,83 @@ static int tcl_set_attr(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
-	if (!mod_flag)
+	ఒకవేళ (!mod_flag)
 		obj_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
 	attr_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
 
-	auto mod_twine = yosys_design->twines().find(mod_id);
+	స్వయంచాలక mod_twine = yosys_design->twines().కనుగొను(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	ఒకవేళ (!mod)
 		ERROR("module not found")
 
-	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	RTLIL::AttrObject *obj = శూన్యసూచిక;
+	ఒకవేళ (mod_flag) {
 		obj = mod;
-	} else {
-		auto obj_twine = yosys_design->twines().find(obj_id);
+	} లేకపోతే {
+		స్వయంచాలక obj_twine = yosys_design->twines().కనుగొను(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
-			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		ఒకవేళ (!obj)
+			obj = mod->memories.at(obj_twine, శూన్యసూచిక);
+		ఒకవేళ (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
-			obj = mod->processes.at(obj_twine, nullptr);
+		ఒకవేళ (!obj)
+			obj = mod->processes.at(obj_twine, శూన్యసూచిక);
 	}
 
-	if (!obj)
+	ఒకవేళ (!obj)
 		ERROR("object not found")
 
-	IdString attr_twine = yosys_design->twines().add(attr_id);
+	IdString attr_twine = yosys_design->twines().కూడు(attr_id);
 
-	if (string_flag) {
-		obj->set_string_attribute(attr_twine, Tcl_GetString(objv[i++]));
-	} else if (sint_flag || uint_flag) {
+	ఒకవేళ (string_flag) {
+		obj->సమితి_string_attribute(attr_twine, Tcl_GetString(objv[i++]));
+	} లేకపోతే ఒకవేళ (sint_flag || uint_flag) {
 		RTLIL::Const const_;
-		mp_int value_mp;
+		mp_int విలువ_mp;
 
-		if (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
+		ఒకవేళ (Tcl_TakeBignumFromObj(interp, objv[i++], &విలువ_mp))
 			ERROR("non-integral value")
 
-		if (!mp_int_to_const(&value_mp, const_, sint_flag))
+		ఒకవేళ (!mp_int_గమ్యం_const(&విలువ_mp, const_, sint_flag))
 			ERROR("bignum manipulation failed");
 
-		if (sint_flag) {
+		ఒకవేళ (sint_flag) {
 			const_.flags |= RTLIL::CONST_FLAG_SIGNED;
-			if (const_.size() < 32)
+			ఒకవేళ (const_.కొలత() < 32)
 				const_.exts(32);
-		} else {
-			if (const_.size() < 32)
+		} లేకపోతే {
+			ఒకవేళ (const_.కొలత() < 32)
 				const_.extu(32);
 		}
 
-		obj->attributes[attr_twine] = const_;
-	} else if (bool_flag) {
-		obj->set_bool_attribute(attr_twine, atoi(Tcl_GetString(objv[i++])) != 0);
-	} else if (true_flag) {
-		obj->set_bool_attribute(attr_twine, true);
-	} else if (false_flag) {
-		obj->set_bool_attribute(attr_twine, false);
-	} else {
-		obj->attributes[attr_twine] = Const::from_string(std::string(Tcl_GetString(objv[i++])));
+		obj->లక్షణాలు[attr_twine] = const_;
+	} లేకపోతే ఒకవేళ (bool_flag) {
+		obj->సమితి_bool_attribute(attr_twine, atoi(Tcl_GetString(objv[i++])) != 0);
+	} లేకపోతే ఒకవేళ (true_flag) {
+		obj->సమితి_bool_attribute(attr_twine, నిజం);
+	} లేకపోతే ఒకవేళ (false_flag) {
+		obj->సమితి_bool_attribute(attr_twine, అబద్ధం);
+	} లేకపోతే {
+		obj->లక్షణాలు[attr_twine] = Const::from_string(std::string(Tcl_GetString(objv[i++])));
 	}
 
-	return TCL_OK;
+	తిరిగి TCL_OK;
 }
 
-static int tcl_get_param(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+స్థిర పూర్ణాంకం tcl_get_param(Client_దత్తాంశం, Tcl_Interp *interp, పూర్ణాంకం argc, స్థిరరాశి అక్షరం *argv[])
 {
-	int i;
-	bool string_flag = false;
-	bool int_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < argc; i++) {
+	పూర్ణాంకం i;
+	తార్కిక string_flag = అబద్ధం;
+	తార్కిక int_flag = అబద్ధం, sint_flag = అబద్ధం, uint_flag = అబద్ధం;
+	కొరకు (i = 1; i < argc; i++) {
 		FLAG(string)
-		FLAG(int)
+		FLAG(పూర్ణాంకం)
 		FLAG(sint)
 		FLAG(uint)
-		break;
+		ఆపు;
 	}
 
-	if ((i != argc - 3) ||
+	ఒకవేళ ((i != argc - 3) ||
 			(string_flag + int_flag > 1))
 		ERROR("bad usage: expected \"get_param [-string|-int|-sint|-uint] <module> <cellid> <paramname>")
 
@@ -459,47 +459,47 @@ static int tcl_get_param(ClientData, Tcl_Interp *interp, int argc, const char *a
 	cell_id = RTLIL::escape_id(argv[i++]);
 	param_id = RTLIL::escape_id(argv[i++]);
 
-	auto mod_twine = yosys_design->twines().find(mod_id);
+	స్వయంచాలక mod_twine = yosys_design->twines().కనుగొను(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	ఒకవేళ (!mod)
 		ERROR("module not found")
 
-	auto cell_twine = yosys_design->twines().find(cell_id);
+	స్వయంచాలక cell_twine = yosys_design->twines().కనుగొను(cell_id);
 	Cell* cell = mod->cell(cell_twine);
-	if (!cell)
+	ఒకవేళ (!cell)
 		ERROR("object not found")
 
-	IdString param_twine = yosys_design->twines().find(param_id);
-	if (!cell->hasParam(param_twine))
+	IdString param_twine = yosys_design->twines().కనుగొను(param_id);
+	ఒకవేళ (!cell->hasParam(param_twine))
 		ERROR("parameter missing")
 
-	const RTLIL::Const &value = cell->getParam(param_twine);
+	స్థిరరాశి RTLIL::Const &విలువ = cell->getParam(param_twine);
 
-	if (string_flag) {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(value.decode_string().c_str(), -1));
-	} else if (int_flag || uint_flag || sint_flag) {
-		mp_int value_mp;
-		if (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
+	ఒకవేళ (string_flag) {
+		Tcl_సమితి_Obj_ఫలితం(interp, Tcl_NewStringObj(విలువ.decode_string().c_str(), -1));
+	} లేకపోతే ఒకవేళ (int_flag || uint_flag || sint_flag) {
+		mp_int విలువ_mp;
+		ఒకవేళ (!const_గమ్యం_mp_int(విలువ, &విలువ_mp, sint_flag, uint_flag))
 			ERROR("bignum manipulation failed");
-		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&value_mp));
-	} else {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(value.as_string().c_str(), -1));
+		Tcl_సమితి_Obj_ఫలితం(interp, Tcl_NewBignumObj(&విలువ_mp));
+	} లేకపోతే {
+		Tcl_సమితి_Obj_ఫలితం(interp, Tcl_NewStringObj(విలువ.as_string().c_str(), -1));
 	}
-	return TCL_OK;
+	తిరిగి TCL_OK;
 }
 
-static int tcl_set_param(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+స్థిర పూర్ణాంకం tcl_సమితి_param(Client_దత్తాంశం, Tcl_Interp *interp, పూర్ణాంకం objc, Tcl_Obj *స్థిరరాశి objv[])
 {
-	int i;
-	bool string_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < objc; i++) {
+	పూర్ణాంకం i;
+	తార్కిక string_flag = అబద్ధం, sint_flag = అబద్ధం, uint_flag = అబద్ధం;
+	కొరకు (i = 1; i < objc; i++) {
 		FLAG2(string)
 		FLAG2(sint)
 		FLAG2(uint)
-		break;
+		ఆపు;
 	}
 
-	if ((i != objc - 4) ||
+	ఒకవేళ ((i != objc - 4) ||
 			(string_flag + sint_flag + uint_flag > 1))
 		ERROR("bad usage: expected \"set_param [-string|-sint|-uint] <module> <cellid> <paramname> <value>")
 
@@ -508,56 +508,56 @@ static int tcl_set_param(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *cons
 	cell_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
 	param_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
 
-	auto mod_twine = yosys_design->twines().find(mod_id);
+	స్వయంచాలక mod_twine = yosys_design->twines().కనుగొను(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	ఒకవేళ (!mod)
 		ERROR("module not found")
 
-	auto cell_twine = yosys_design->twines().find(cell_id);
+	స్వయంచాలక cell_twine = yosys_design->twines().కనుగొను(cell_id);
 	RTLIL::Cell *cell = mod->cell(cell_twine);
-	if (!cell)
+	ఒకవేళ (!cell)
 		ERROR("object not found")
 
-	IdString param_twine = yosys_design->twines().add(param_id);
+	IdString param_twine = yosys_design->twines().కూడు(param_id);
 
-	if (string_flag) {
-		cell->setParam(param_twine, Const(std::string(Tcl_GetString(objv[i++]))));
-	} else if (sint_flag || uint_flag) {
+	ఒకవేళ (string_flag) {
+		cell->సమితి_Param(param_twine, Const(std::string(Tcl_GetString(objv[i++]))));
+	} లేకపోతే ఒకవేళ (sint_flag || uint_flag) {
 		RTLIL::Const const_;
-		mp_int value_mp;
+		mp_int విలువ_mp;
 
-		if (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
+		ఒకవేళ (Tcl_TakeBignumFromObj(interp, objv[i++], &విలువ_mp))
 			ERROR("non-integral value")
 
-		if (!mp_int_to_const(&value_mp, const_, sint_flag))
+		ఒకవేళ (!mp_int_గమ్యం_const(&విలువ_mp, const_, sint_flag))
 			ERROR("bignum manipulation failed");
 
-		if (sint_flag) {
+		ఒకవేళ (sint_flag) {
 			const_.flags |= RTLIL::CONST_FLAG_SIGNED;
-			if (const_.size() < 32)
+			ఒకవేళ (const_.కొలత() < 32)
 				const_.exts(32);
-		} else {
-			if (const_.size() < 32)
+		} లేకపోతే {
+			ఒకవేళ (const_.కొలత() < 32)
 				const_.extu(32);
 		}
 
-		cell->setParam(param_twine, const_);
-	} else {
-		cell->setParam(param_twine, Const::from_string(std::string(Tcl_GetString(objv[i++]))));
+		cell->సమితి_Param(param_twine, const_);
+	} లేకపోతే {
+		cell->సమితి_Param(param_twine, Const::from_string(std::string(Tcl_GetString(objv[i++]))));
 	}
-	return TCL_OK;
+	తిరిగి TCL_OK;
 }
 
-int yosys_tcl_interp_init(Tcl_Interp *interp)
+పూర్ణాంకం yosys_tcl_interp_init(Tcl_Interp *interp)
 {
-	if (Tcl_Init(interp)!=TCL_OK)
-		log_warning("Tcl_Init() call failed - %s\n",Tcl_ErrnoMsg(Tcl_GetErrno()));
-	Tcl_CreateCommand(interp, "yosys", tcl_yosys_cmd, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::get_attr", tcl_get_attr, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::has_attr", tcl_has_attr, NULL, NULL);
-	Tcl_CreateObjCommand(interp, "rtlil::set_attr", tcl_set_attr, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::get_param", tcl_get_param, NULL, NULL);
-	Tcl_CreateObjCommand(interp, "rtlil::set_param", tcl_set_param, NULL, NULL);
+	ఒకవేళ (Tcl_Init(interp)!=TCL_OK)
+		log_warning("Tcl_Init() call failed - %s\n",Tcl_Errno_సందేశం(Tcl_GetErrno()));
+	Tcl_CreateCommand(interp, "yosys", tcl_yosys_cmd, ఖాళీ, ఖాళీ);
+	Tcl_CreateCommand(interp, "rtlil::get_attr", tcl_get_attr, ఖాళీ, ఖాళీ);
+	Tcl_CreateCommand(interp, "rtlil::has_attr", tcl_has_attr, ఖాళీ, ఖాళీ);
+	Tcl_CreateObjCommand(interp, "rtlil::set_attr", tcl_సమితి_attr, ఖాళీ, ఖాళీ);
+	Tcl_CreateCommand(interp, "rtlil::get_param", tcl_get_param, ఖాళీ, ఖాళీ);
+	Tcl_CreateObjCommand(interp, "rtlil::set_param", tcl_సమితి_param, ఖాళీ, ఖాళీ);
 
 	// TODO:
 	//
@@ -583,8 +583,8 @@ int yosys_tcl_interp_init(Tcl_Interp *interp)
 	// verilog identifier before adding any tcl API that returns IdString values
 	// to avoid -option injection
 
-	return TCL_OK ;
+	తిరిగి TCL_OK ;
 }
-#endif
+#అయితే_ముగింపు
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర

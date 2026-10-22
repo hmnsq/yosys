@@ -1,8 +1,8 @@
-#ifndef NEWCELLTYPES_H
-#define NEWCELLTYPES_H
+#నిర్వచితం_కాకపోతే NEWCELLTYPES_H
+#నిర్వచించు NEWCELLTYPES_H
 
-#include "kernel/rtlil.h"
-#include "kernel/yosys.h"
+#అన్తర్భావ "kernel/rtlil.h"
+#అన్తర్భావ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -14,32 +14,32 @@ YOSYS_NAMESPACE_BEGIN
 namespace StaticCellTypes {
 
 // Given by last internal cell type IdString constids.inc, compilation error if too low
-constexpr int MAX_CELLS = 300;
+constexpr పూర్ణాంకం MAX_CELLS = 300;
 // Currently given by _MUX16_, compilation error if too low
-constexpr int MAX_PORTS = 20;
-struct CellTableBuilder {
-	struct PortList {
+constexpr పూర్ణాంకం MAX_PORTS = 20;
+నిర్మాణం Cell_పట్టిక_Builder {
+	నిర్మాణం పోర్టు_List {
 		std::array<RTLIL::IdString, MAX_PORTS> ports{};
-		size_t count = 0;
-		constexpr PortList() = default;
-		constexpr PortList(std::initializer_list<RTLIL::IdString> init) {
-			for (auto p : init) {
-				ports[count++] = p;
+		కొలత_t లెక్క = 0;
+		constexpr పోర్టు_List() = అప్రమేయ;
+		constexpr పోర్టు_List(std::initializer_list<RTLIL::IdString> init) {
+			కొరకు (స్వయంచాలక p : init) {
+				ports[లెక్క++] = p;
 			}
 		}
-		constexpr auto begin() const { return ports.begin(); }
-		constexpr auto end() const { return ports.begin() + count; }
-		constexpr bool contains(RTLIL::IdString port) const {
-			for (size_t i = 0; i < count; i++) {
-				if (port == ports[i])
-					return true;
+		constexpr స్వయంచాలక begin() స్థిరరాశి { తిరిగి ports.begin(); }
+		constexpr స్వయంచాలక చివర() స్థిరరాశి { తిరిగి ports.begin() + లెక్క; }
+		constexpr bool కలిగియుంది(RTLIL::IdString పోర్టు) స్థిరరాశి {
+			కొరకు (కొలత_t i = 0; i < లెక్క; i++) {
+				ఒకవేళ (పోర్టు == ports[i])
+					తిరిగి true;
 			}
 
-			return false;
+			తిరిగి false;
 		}
-		constexpr size_t size() const { return count; }
+		constexpr కొలత_t కొలత() స్థిరరాశి { తిరిగి లెక్క; }
 	};
-	struct Features {
+	నిర్మాణం Features {
 		bool is_evaluable = false;
 		bool is_combinatorial = false;
 		bool is_synthesizable = false;
@@ -49,168 +49,168 @@ struct CellTableBuilder {
 		bool is_anyinit = false;
 		bool is_tristate = false;
 	};
-	struct CellInfo {
+	నిర్మాణం CellInfo {
 		RTLIL::IdString type;
-		PortList inputs, outputs;
+		పోర్టు_List inputs, outputs;
 		Features features;
 	};
 	std::array<CellInfo, MAX_CELLS> cells{};
-	size_t count = 0;
+	కొలత_t లెక్క = 0;
 
-	constexpr void setup_type(RTLIL::IdString type, std::initializer_list<RTLIL::IdString> inputs, std::initializer_list<RTLIL::IdString> outputs, const Features& features) {
-		cells[count++] = {type, PortList(inputs), PortList(outputs), features};
+	constexpr శూన్య అమరిక_type(RTLIL::IdString type, std::initializer_list<RTLIL::IdString> inputs, std::initializer_list<RTLIL::IdString> outputs, స్థిరరాశి Features& features) {
+		cells[లెక్క++] = {type, పోర్టు_List(inputs), పోర్టు_List(outputs), features};
 	}
-	constexpr void setup_internals_other()
+	constexpr శూన్య అమరిక_internals_other()
 	{
 		Features features {};
 		features.is_tristate = true;
-		setup_type(ID($tribuf), {ID::A, ID::EN}, {ID::Y}, features);
+		అమరిక_type(ID($tribuf), {ID::A, ID::EN}, {ID::Y}, features);
 
 		features = {};
-		setup_type(ID($barrier), {ID::A}, {ID::Y}, features);
+		అమరిక_type(ID($barrier), {ID::A}, {ID::Y}, features);
 
 		features = {};
-		setup_type(ID($assert), {ID::A, ID::EN}, {}, features);
-		setup_type(ID($assume), {ID::A, ID::EN}, {}, features);
-		setup_type(ID($live), {ID::A, ID::EN}, {}, features);
-		setup_type(ID($fair), {ID::A, ID::EN}, {}, features);
-		setup_type(ID($cover), {ID::A, ID::EN}, {}, features);
-		setup_type(ID($initstate), {}, {ID::Y}, features);
-		setup_type(ID($anyconst), {}, {ID::Y}, features);
-		setup_type(ID($anyseq), {}, {ID::Y}, features);
-		setup_type(ID($allconst), {}, {ID::Y}, features);
-		setup_type(ID($allseq), {}, {ID::Y}, features);
-		setup_type(ID($equiv), {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($specify2), {ID::EN, ID::SRC, ID::DST}, {}, features);
-		setup_type(ID($specify3), {ID::EN, ID::SRC, ID::DST, ID::DAT}, {}, features);
-		setup_type(ID($specrule), {ID::SRC_EN, ID::DST_EN, ID::SRC, ID::DST}, {}, features);
-		setup_type(ID($print), {ID::EN, ID::ARGS, ID::TRG}, {}, features);
-		setup_type(ID($check), {ID::A, ID::EN, ID::ARGS, ID::TRG}, {}, features);
-		setup_type(ID($set_tag), {ID::A, ID::SET, ID::CLR}, {ID::Y}, features);
-		setup_type(ID($get_tag), {ID::A}, {ID::Y}, features);
-		setup_type(ID($overwrite_tag), {ID::A, ID::SET, ID::CLR}, {}, features);
-		setup_type(ID($original_tag), {ID::A}, {ID::Y}, features);
-		setup_type(ID($future_ff), {ID::A}, {ID::Y}, features);
-		setup_type(ID($scopeinfo), {}, {}, features);
-		setup_type(ID($input_port), {}, {ID::Y}, features);
-		setup_type(ID($connect), {ID::A, ID::B}, {}, features);
+		అమరిక_type(ID($ప్రతిజ్ఞా), {ID::A, ID::EN}, {}, features);
+		అమరిక_type(ID($assume), {ID::A, ID::EN}, {}, features);
+		అమరిక_type(ID($సజీవ), {ID::A, ID::EN}, {}, features);
+		అమరిక_type(ID($fair), {ID::A, ID::EN}, {}, features);
+		అమరిక_type(ID($cover), {ID::A, ID::EN}, {}, features);
+		అమరిక_type(ID($initstate), {}, {ID::Y}, features);
+		అమరిక_type(ID($anyconst), {}, {ID::Y}, features);
+		అమరిక_type(ID($anyseq), {}, {ID::Y}, features);
+		అమరిక_type(ID($allconst), {}, {ID::Y}, features);
+		అమరిక_type(ID($allseq), {}, {ID::Y}, features);
+		అమరిక_type(ID($equiv), {ID::A, ID::B}, {ID::Y}, features);
+		అమరిక_type(ID($specify2), {ID::EN, ID::SRC, ID::DST}, {}, features);
+		అమరిక_type(ID($specify3), {ID::EN, ID::SRC, ID::DST, ID::DAT}, {}, features);
+		అమరిక_type(ID($specrule), {ID::SRC_EN, ID::DST_EN, ID::SRC, ID::DST}, {}, features);
+		అమరిక_type(ID($print), {ID::EN, ID::వాదనలు, ID::TRG}, {}, features);
+		అమరిక_type(ID($check), {ID::A, ID::EN, ID::వాదనలు, ID::TRG}, {}, features);
+		అమరిక_type(ID($సమితి_ట్యాగ్), {ID::A, ID::సమితి_2, ID::CLR}, {ID::Y}, features);
+		అమరిక_type(ID($get_ట్యాగ్), {ID::A}, {ID::Y}, features);
+		అమరిక_type(ID($overwrite_ట్యాగ్), {ID::A, ID::సమితి_2, ID::CLR}, {}, features);
+		అమరిక_type(ID($original_ట్యాగ్), {ID::A}, {ID::Y}, features);
+		అమరిక_type(ID($future_ff), {ID::A}, {ID::Y}, features);
+		అమరిక_type(ID($scopeinfo), {}, {}, features);
+		అమరిక_type(ID($ఆదానం_పోర్టు), {}, {ID::Y}, features);
+		అమరిక_type(ID($connect), {ID::A, ID::B}, {}, features);
 	}
-	constexpr void setup_internals_eval()
+	constexpr శూన్య అమరిక_internals_eval()
 	{
 		Features features {};
 		features.is_evaluable = true;
 		std::initializer_list<RTLIL::IdString> unary_ops = {
 			ID($not), ID($pos), ID($buf), ID($neg),
 			ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool),
-			ID($logic_not), ID($slice), ID($lut), ID($sop)
+			ID($logic_not), ID($ముక్క), ID($lut), ID($sop)
 		};
 
-		std::initializer_list<RTLIL::IdString> binary_ops = {
+		std::initializer_list<RTLIL::IdString> ద్విమాన_ops = {
 			ID($and), ID($or), ID($xor), ID($xnor),
-			ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx),
+			ID($shl), ID($shr), ID($sshl), ID($sshr), ID($జరుపు), ID($shiftx),
 			ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt),
-			ID($add), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow),
+			ID($కూడు), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($ఘాతం),
 			ID($logic_and), ID($logic_or), ID($concat), ID($macc),
 			ID($bweqx)
 		};
 
-		for (auto type : unary_ops)
-			setup_type(type, {ID::A}, {ID::Y}, features);
+		కొరకు (స్వయంచాలక type : unary_ops)
+			అమరిక_type(type, {ID::A}, {ID::Y}, features);
 
-		for (auto type : binary_ops)
-			setup_type(type, {ID::A, ID::B}, {ID::Y}, features);
+		కొరకు (స్వయంచాలక type : ద్విమాన_ops)
+			అమరిక_type(type, {ID::A, ID::B}, {ID::Y}, features);
 
-		for (auto type : {ID($mux), ID($pmux), ID($bwmux)})
-			setup_type(type, {ID::A, ID::B, ID::S}, {ID::Y}, features);
+		కొరకు (స్వయంచాలక type : {ID($mux), ID($pmux), ID($bwmux)})
+			అమరిక_type(type, {ID::A, ID::B, ID::S}, {ID::Y}, features);
 
-		for (auto type : {ID($bmux), ID($demux)})
-			setup_type(type, {ID::A, ID::S}, {ID::Y}, features);
+		కొరకు (స్వయంచాలక type : {ID($bmux), ID($demux)})
+			అమరిక_type(type, {ID::A, ID::S}, {ID::Y}, features);
 
-		setup_type(ID($lcu), {ID::P, ID::G, ID::CI}, {ID::CO}, features);
-		setup_type(ID($alu), {ID::A, ID::B, ID::CI, ID::BI}, {ID::X, ID::Y, ID::CO}, features);
-		setup_type(ID($macc_v2), {ID::A, ID::B, ID::C}, {ID::Y}, features);
-		setup_type(ID($fa), {ID::A, ID::B, ID::C}, {ID::X, ID::Y}, features);
+		అమరిక_type(ID($lcu), {ID::P, ID::G, ID::CI}, {ID::CO}, features);
+		అమరిక_type(ID($alu), {ID::A, ID::B, ID::CI, ID::BI}, {ID::X, ID::Y, ID::CO}, features);
+		అమరిక_type(ID($macc_v2), {ID::A, ID::B, ID::C}, {ID::Y}, features);
+		అమరిక_type(ID($fa), {ID::A, ID::B, ID::C}, {ID::X, ID::Y}, features);
 	}
-	constexpr void setup_internals_ff()
+	constexpr శూన్య అమరిక_internals_ff()
 	{
 		Features features {};
 		features.is_ff = true;
-		setup_type(ID($sr), {ID::SET, ID::CLR}, {ID::Q}, features);
-		setup_type(ID($ff), {ID::D}, {ID::Q}, features);
-		setup_type(ID($dff), {ID::CLK, ID::D}, {ID::Q}, features);
-		setup_type(ID($dffe), {ID::CLK, ID::EN, ID::D}, {ID::Q}, features);
-		setup_type(ID($dffsr), {ID::CLK, ID::SET, ID::CLR, ID::D}, {ID::Q}, features);
-		setup_type(ID($dffsre), {ID::CLK, ID::SET, ID::CLR, ID::D, ID::EN}, {ID::Q}, features);
-		setup_type(ID($adff), {ID::CLK, ID::ARST, ID::D}, {ID::Q}, features);
-		setup_type(ID($adffe), {ID::CLK, ID::ARST, ID::D, ID::EN}, {ID::Q}, features);
-		setup_type(ID($aldff), {ID::CLK, ID::ALOAD, ID::AD, ID::D}, {ID::Q}, features);
-		setup_type(ID($aldffe), {ID::CLK, ID::ALOAD, ID::AD, ID::D, ID::EN}, {ID::Q}, features);
-		setup_type(ID($sdff), {ID::CLK, ID::SRST, ID::D}, {ID::Q}, features);
-		setup_type(ID($sdffe), {ID::CLK, ID::SRST, ID::D, ID::EN}, {ID::Q}, features);
-		setup_type(ID($sdffce), {ID::CLK, ID::SRST, ID::D, ID::EN}, {ID::Q}, features);
-		setup_type(ID($dlatch), {ID::EN, ID::D}, {ID::Q}, features);
-		setup_type(ID($adlatch), {ID::EN, ID::D, ID::ARST}, {ID::Q}, features);
-		setup_type(ID($dlatchsr), {ID::EN, ID::SET, ID::CLR, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($sr), {ID::సమితి_2, ID::CLR}, {ID::Q}, features);
+		అమరిక_type(ID($ff), {ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($dff), {ID::CLK, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($dffe), {ID::CLK, ID::EN, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($dffsr), {ID::CLK, ID::సమితి_2, ID::CLR, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($dffsre), {ID::CLK, ID::సమితి_2, ID::CLR, ID::D, ID::EN}, {ID::Q}, features);
+		అమరిక_type(ID($adff), {ID::CLK, ID::ARST, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($adffe), {ID::CLK, ID::ARST, ID::D, ID::EN}, {ID::Q}, features);
+		అమరిక_type(ID($aldff), {ID::CLK, ID::ALOAD, ID::AD, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($aldffe), {ID::CLK, ID::ALOAD, ID::AD, ID::D, ID::EN}, {ID::Q}, features);
+		అమరిక_type(ID($sdff), {ID::CLK, ID::SRST, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($sdffe), {ID::CLK, ID::SRST, ID::D, ID::EN}, {ID::Q}, features);
+		అమరిక_type(ID($sdffce), {ID::CLK, ID::SRST, ID::D, ID::EN}, {ID::Q}, features);
+		అమరిక_type(ID($dlatch), {ID::EN, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($adlatch), {ID::EN, ID::D, ID::ARST}, {ID::Q}, features);
+		అమరిక_type(ID($dlatchsr), {ID::EN, ID::సమితి_2, ID::CLR, ID::D}, {ID::Q}, features);
 	}
-	constexpr void setup_internals_anyinit()
+	constexpr శూన్య అమరిక_internals_anyinit()
 	{
 		Features features {};
 		features.is_anyinit = true;
-		setup_type(ID($anyinit), {ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($anyinit), {ID::D}, {ID::Q}, features);
 	}
-	constexpr void setup_internals_mem_noff()
+	constexpr శూన్య అమరిక_internals_mem_noff()
 	{
 		Features features {};
 		features.is_mem_noff = true;
 		// NOT setup_internals_ff()
 
-		setup_type(ID($memrd), {ID::CLK, ID::EN, ID::ADDR}, {ID::DATA}, features);
-		setup_type(ID($memrd_v2), {ID::CLK, ID::EN, ID::ARST, ID::SRST, ID::ADDR}, {ID::DATA}, features);
-		setup_type(ID($memwr), {ID::CLK, ID::EN, ID::ADDR, ID::DATA}, {}, features);
-		setup_type(ID($memwr_v2), {ID::CLK, ID::EN, ID::ADDR, ID::DATA}, {}, features);
-		setup_type(ID($meminit), {ID::ADDR, ID::DATA}, {}, features);
-		setup_type(ID($meminit_v2), {ID::ADDR, ID::DATA, ID::EN}, {}, features);
-		setup_type(ID($mem), {ID::RD_CLK, ID::RD_EN, ID::RD_ADDR, ID::WR_CLK, ID::WR_EN, ID::WR_ADDR, ID::WR_DATA}, {ID::RD_DATA}, features);
-		setup_type(ID($mem_v2), {ID::RD_CLK, ID::RD_EN, ID::RD_ARST, ID::RD_SRST, ID::RD_ADDR, ID::WR_CLK, ID::WR_EN, ID::WR_ADDR, ID::WR_DATA}, {ID::RD_DATA}, features);
+		అమరిక_type(ID($memrd), {ID::CLK, ID::EN, ID::ADDR}, {ID::దత్తాంశం_2}, features);
+		అమరిక_type(ID($memrd_v2), {ID::CLK, ID::EN, ID::ARST, ID::SRST, ID::ADDR}, {ID::దత్తాంశం_2}, features);
+		అమరిక_type(ID($memwr), {ID::CLK, ID::EN, ID::ADDR, ID::దత్తాంశం_2}, {}, features);
+		అమరిక_type(ID($memwr_v2), {ID::CLK, ID::EN, ID::ADDR, ID::దత్తాంశం_2}, {}, features);
+		అమరిక_type(ID($meminit), {ID::ADDR, ID::దత్తాంశం_2}, {}, features);
+		అమరిక_type(ID($meminit_v2), {ID::ADDR, ID::దత్తాంశం_2, ID::EN}, {}, features);
+		అమరిక_type(ID($mem), {ID::RD_CLK, ID::RD_EN, ID::RD_ADDR, ID::WR_CLK, ID::WR_EN, ID::WR_ADDR, ID::WR_దత్తాంశం}, {ID::RD_దత్తాంశం}, features);
+		అమరిక_type(ID($mem_v2), {ID::RD_CLK, ID::RD_EN, ID::RD_ARST, ID::RD_SRST, ID::RD_ADDR, ID::WR_CLK, ID::WR_EN, ID::WR_ADDR, ID::WR_దత్తాంశం}, {ID::RD_దత్తాంశం}, features);
 
 		// What?
-		setup_type(ID($fsm), {ID::CLK, ID::ARST, ID::CTRL_IN}, {ID::CTRL_OUT}, features);
+		అమరిక_type(ID($fsm), {ID::CLK, ID::ARST, ID::CTRL_లోపల}, {ID::CTRL_బహిర్గతం}, features);
 	}
-	constexpr void setup_stdcells_tristate()
+	constexpr శూన్య అమరిక_stdcells_tristate()
 	{
 		Features features {};
 		features.is_stdcell = true;
 		features.is_tristate = true;
-		setup_type(ID($_TBUF_), {ID::A, ID::E}, {ID::Y}, features);
+		అమరిక_type(ID($_TBUF_), {ID::A, ID::E}, {ID::Y}, features);
 	}
 
-	constexpr void setup_stdcells_eval()
+	constexpr శూన్య అమరిక_stdcells_eval()
 	{
 		Features features {};
 		features.is_stdcell = true;
 		features.is_evaluable = true;
-		setup_type(ID($_BUF_), {ID::A}, {ID::Y}, features);
-		setup_type(ID($_NOT_), {ID::A}, {ID::Y}, features);
-		setup_type(ID($_AND_), {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_NAND_), {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_OR_),  {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_NOR_),  {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_XOR_), {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_XNOR_), {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_ANDNOT_), {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_ORNOT_), {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_MUX_), {ID::A, ID::B, ID::S}, {ID::Y}, features);
-		setup_type(ID($_NMUX_), {ID::A, ID::B, ID::S}, {ID::Y}, features);
-		setup_type(ID($_MUX4_), {ID::A, ID::B, ID::C, ID::D, ID::S, ID::T}, {ID::Y}, features);
-		setup_type(ID($_MUX8_), {ID::A, ID::B, ID::C, ID::D, ID::E, ID::F, ID::G, ID::H, ID::S, ID::T, ID::U}, {ID::Y}, features);
-		setup_type(ID($_MUX16_), {ID::A, ID::B, ID::C, ID::D, ID::E, ID::F, ID::G, ID::H, ID::I, ID::J, ID::K, ID::L, ID::M, ID::N, ID::O, ID::P, ID::S, ID::T, ID::U, ID::V}, {ID::Y}, features);
-		setup_type(ID($_AOI3_), {ID::A, ID::B, ID::C}, {ID::Y}, features);
-		setup_type(ID($_OAI3_), {ID::A, ID::B, ID::C}, {ID::Y}, features);
-		setup_type(ID($_AOI4_), {ID::A, ID::B, ID::C, ID::D}, {ID::Y}, features);
-		setup_type(ID($_OAI4_), {ID::A, ID::B, ID::C, ID::D}, {ID::Y}, features);
+		అమరిక_type(ID($_BUF_), {ID::A}, {ID::Y}, features);
+		అమరిక_type(ID($_NOT_), {ID::A}, {ID::Y}, features);
+		అమరిక_type(ID($_AND_), {ID::A, ID::B}, {ID::Y}, features);
+		అమరిక_type(ID($_NAND_), {ID::A, ID::B}, {ID::Y}, features);
+		అమరిక_type(ID($_OR_),  {ID::A, ID::B}, {ID::Y}, features);
+		అమరిక_type(ID($_NOR_),  {ID::A, ID::B}, {ID::Y}, features);
+		అమరిక_type(ID($_XOR_), {ID::A, ID::B}, {ID::Y}, features);
+		అమరిక_type(ID($_XNOR_), {ID::A, ID::B}, {ID::Y}, features);
+		అమరిక_type(ID($_ANDNOT_), {ID::A, ID::B}, {ID::Y}, features);
+		అమరిక_type(ID($_ORNOT_), {ID::A, ID::B}, {ID::Y}, features);
+		అమరిక_type(ID($_MUX_), {ID::A, ID::B, ID::S}, {ID::Y}, features);
+		అమరిక_type(ID($_NMUX_), {ID::A, ID::B, ID::S}, {ID::Y}, features);
+		అమరిక_type(ID($_MUX4_), {ID::A, ID::B, ID::C, ID::D, ID::S, ID::T}, {ID::Y}, features);
+		అమరిక_type(ID($_MUX8_), {ID::A, ID::B, ID::C, ID::D, ID::E, ID::F, ID::G, ID::H, ID::S, ID::T, ID::U}, {ID::Y}, features);
+		అమరిక_type(ID($_MUX16_), {ID::A, ID::B, ID::C, ID::D, ID::E, ID::F, ID::G, ID::H, ID::I, ID::J, ID::K, ID::L, ID::M, ID::N, ID::O, ID::P, ID::S, ID::T, ID::U, ID::V}, {ID::Y}, features);
+		అమరిక_type(ID($_AOI3_), {ID::A, ID::B, ID::C}, {ID::Y}, features);
+		అమరిక_type(ID($_OAI3_), {ID::A, ID::B, ID::C}, {ID::Y}, features);
+		అమరిక_type(ID($_AOI4_), {ID::A, ID::B, ID::C, ID::D}, {ID::Y}, features);
+		అమరిక_type(ID($_OAI4_), {ID::A, ID::B, ID::C, ID::D}, {ID::Y}, features);
 	}
 
-	constexpr void setup_stdcells_ff() {
+	constexpr శూన్య అమరిక_stdcells_ff() {
 		Features features {};
 		features.is_stdcell = true;
 		features.is_ff = true;
@@ -218,260 +218,260 @@ struct CellTableBuilder {
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// 	setup_type(std::string("$_SR_") + c1 + c2 + "_", {ID::S, ID::R}, {ID::Q}, features);
-		setup_type(ID($_SR_NN_), {ID::S, ID::R}, {ID::Q}, features);
-		setup_type(ID($_SR_NP_), {ID::S, ID::R}, {ID::Q}, features);
-		setup_type(ID($_SR_PN_), {ID::S, ID::R}, {ID::Q}, features);
-		setup_type(ID($_SR_PP_), {ID::S, ID::R}, {ID::Q}, features);
+		అమరిక_type(ID($_SR_NN_), {ID::S, ID::R}, {ID::Q}, features);
+		అమరిక_type(ID($_SR_NP_), {ID::S, ID::R}, {ID::Q}, features);
+		అమరిక_type(ID($_SR_PN_), {ID::S, ID::R}, {ID::Q}, features);
+		అమరిక_type(ID($_SR_PP_), {ID::S, ID::R}, {ID::Q}, features);
 
-		setup_type(ID($_FF_), {ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_FF_), {ID::D}, {ID::Q}, features);
 
 		// for (auto c1 : list_np)
 		// 	setup_type(std::string("$_DFF_") + c1 + "_", {ID::C, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_N_), {ID::C, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_P_), {ID::C, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFF_N_), {ID::C, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFF_P_), {ID::C, ID::D}, {ID::Q}, features);
 
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// 	setup_type(std::string("$_DFFE_") + c1 + c2 + "_", {ID::C, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NN_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NP_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PN_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PP_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_NN_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_NP_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_PN_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_PP_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_01)
 		// 	setup_type(std::string("$_DFF_") + c1 + c2 + c3 + "_", {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_NN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_NN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_NP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_NP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_PN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_PN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_PP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_PP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFF_NN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFF_NN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFF_NP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFF_NP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFF_PN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFF_PN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFF_PP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFF_PP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_01)
 		// for (auto c4 : list_np)
 		// 	setup_type(std::string("$_DFFE_") + c1 + c2 + c3 + c4 + "_", {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_NN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_NN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_NN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_NN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_NP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_NP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_NP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_NP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_PN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_PN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_PN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_PN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_PP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_PP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_PP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFE_PP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// 	setup_type(std::string("$_ALDFF_") + c1 + c2 + "_", {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
-		setup_type(ID($_ALDFF_NN_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
-		setup_type(ID($_ALDFF_NP_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
-		setup_type(ID($_ALDFF_PN_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
-		setup_type(ID($_ALDFF_PP_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_ALDFF_NN_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_ALDFF_NP_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_ALDFF_PN_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_ALDFF_PP_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_np)
 		// 	setup_type(std::string("$_ALDFFE_") + c1 + c2 + c3 + "_", {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_NNN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_NNP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_NPN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_NPP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_PNN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_PNP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_PPN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_PPP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_ALDFFE_NNN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_ALDFFE_NNP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_ALDFFE_NPN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_ALDFFE_NPP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_ALDFFE_PNN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_ALDFFE_PNP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_ALDFFE_PPN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_ALDFFE_PPP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_np)
 		// 	setup_type(std::string("$_DFFSR_") + c1 + c2 + c3 + "_", {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_NNN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_NNP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_NPN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_NPP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_PNN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_PNP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_PPN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_PPP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSR_NNN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSR_NNP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSR_NPN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSR_NPP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSR_PNN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSR_PNP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSR_PPN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSR_PPP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_np)
 		// for (auto c4 : list_np)
 		// 	setup_type(std::string("$_DFFSRE_") + c1 + c2 + c3 + c4 + "_", {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NNNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NNNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NNPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NNPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NPNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NPNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NPPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NPPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PNNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PNNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PNPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PNPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PPNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PPNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PPPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PPPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_NNNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_NNNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_NNPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_NNPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_NPNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_NPNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_NPPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_NPPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_PNNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_PNNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_PNPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_PNPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_PPNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_PPNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_PPPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_DFFSRE_PPPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_01)
 		// 	setup_type(std::string("$_SDFF_") + c1 + c2 + c3 + "_", {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_NN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_NN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_NP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_NP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_PN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_PN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_PP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_PP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFF_NN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFF_NN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFF_NP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFF_NP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFF_PN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFF_PN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFF_PP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFF_PP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_01)
 		// for (auto c4 : list_np)
 		// 	setup_type(std::string("$_SDFFE_") + c1 + c2 + c3 + c4 + "_", {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_NN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_NN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_NN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_NN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_NP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_NP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_NP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_NP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_PN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_PN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_PN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_PN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_PP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_PP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_PP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFE_PP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_01)
 		// for (auto c4 : list_np)
 		// 	setup_type(std::string("$_SDFFCE_") + c1 + c2 + c3 + c4 + "_", {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_NN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_NN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_NN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_NN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_NP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_NP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_NP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_NP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_PN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_PN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_PN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_PN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_PP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_PP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_PP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		అమరిక_type(ID($_SDFFCE_PP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// 	setup_type(std::string("$_DLATCH_") + c1 + "_", {ID::E, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_N_), {ID::E, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_P_), {ID::E, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCH_N_), {ID::E, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCH_P_), {ID::E, ID::D}, {ID::Q}, features);
 
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_01)
 		// 	setup_type(std::string("$_DLATCH_") + c1 + c2 + c3 + "_", {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_NN0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_NN1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_NP0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_NP1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_PN0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_PN1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_PP0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_PP1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCH_NN0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCH_NN1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCH_NP0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCH_NP1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCH_PN0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCH_PN1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCH_PP0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCH_PP1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_np)
 		// 	setup_type(std::string("$_DLATCHSR_") + c1 + c2 + c3 + "_", {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_NNN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_NNP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_NPN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_NPP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_PNN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_PNP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_PPN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_PPP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCHSR_NNN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCHSR_NNP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCHSR_NPN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCHSR_NPP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCHSR_PNN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCHSR_PNP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCHSR_PPN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		అమరిక_type(ID($_DLATCHSR_PPP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
 	}
-	constexpr CellTableBuilder() {
-		setup_internals_other();
-		setup_internals_eval();
-		setup_internals_ff();
-		setup_internals_anyinit();
-		setup_internals_mem_noff();
-		setup_stdcells_tristate();
-		setup_stdcells_eval();
-		setup_stdcells_ff();
+	constexpr Cell_పట్టిక_Builder() {
+		అమరిక_internals_other();
+		అమరిక_internals_eval();
+		అమరిక_internals_ff();
+		అమరిక_internals_anyinit();
+		అమరిక_internals_mem_noff();
+		అమరిక_stdcells_tristate();
+		అమరిక_stdcells_eval();
+		అమరిక_stdcells_ff();
 	}
 
 };
 
-constexpr CellTableBuilder builder {};
+constexpr Cell_పట్టిక_Builder builder {};
 
-struct PortInfo {
-	struct PortLists {
-		std::array<CellTableBuilder::PortList, MAX_CELLS> data{};
-		constexpr CellTableBuilder::PortList operator()(IdString type) const {
-			return data[type.raw()];
+నిర్మాణం పోర్టు_Info {
+	నిర్మాణం పోర్టు_Lists {
+		std::array<Cell_పట్టిక_Builder::పోర్టు_List, MAX_CELLS> దత్తాంశం{};
+		constexpr Cell_పట్టిక_Builder::పోర్టు_List క్రియాకారకం()(IdString type) స్థిరరాశి {
+			తిరిగి దత్తాంశం[type.raw()];
 		}
-		constexpr CellTableBuilder::PortList& operator[](size_t idx) {
-			return data[idx];
+		constexpr Cell_పట్టిక_Builder::పోర్టు_List& క్రియాకారకం[](కొలత_t idx) {
+			తిరిగి దత్తాంశం[idx];
 		}
-		constexpr size_t size() const { return data.size(); }
+		constexpr కొలత_t కొలత() స్థిరరాశి { తిరిగి దత్తాంశం.కొలత(); }
 	};
-	PortLists inputs {};
-	PortLists outputs {};
-	constexpr PortInfo() {
-		for (size_t i = 0; i < builder.count; ++i) {
-			auto& cell = builder.cells[i];
-			size_t idx = cell.type.raw();
+	పోర్టు_Lists inputs {};
+	పోర్టు_Lists outputs {};
+	constexpr పోర్టు_Info() {
+		కొరకు (కొలత_t i = 0; i < builder.లెక్క; ++i) {
+			స్వయంచాలక& cell = builder.cells[i];
+			కొలత_t idx = cell.type.raw();
 			inputs[idx] = cell.inputs;
 			outputs[idx] = cell.outputs;
 		}
 	}
 };
 
-struct Categories {
-	struct Category {
-		std::array<bool, MAX_CELLS> data{};
-		constexpr bool operator()(IdString type) const {
-			size_t idx = type.raw();
-			if (idx >= MAX_CELLS)
-				return false;
-			return data[idx];
+నిర్మాణం Categories {
+	నిర్మాణం Category {
+		std::array<bool, MAX_CELLS> దత్తాంశం{};
+		constexpr bool క్రియాకారకం()(IdString type) స్థిరరాశి {
+			కొలత_t idx = type.raw();
+			ఒకవేళ (idx >= MAX_CELLS)
+				తిరిగి false;
+			తిరిగి దత్తాంశం[idx];
 		}
-		constexpr bool operator[](size_t idx) {
-			return data[idx];
+		constexpr bool క్రియాకారకం[](కొలత_t idx) {
+			తిరిగి దత్తాంశం[idx];
 		}
-		constexpr void set_id(IdString type, bool val = true) {
-			size_t idx = type.raw();
-			if (idx >= MAX_CELLS) {
-				if (std::is_constant_evaluated())
+		constexpr శూన్య సమితి_id(IdString type, bool val = true) {
+			కొలత_t idx = type.raw();
+			ఒకవేళ (idx >= MAX_CELLS) {
+				ఒకవేళ (std::is_constant_evaluated())
 					throw "cell type index out of range";
 				log_abort();
 			}
-			data[idx] = val;
+			దత్తాంశం[idx] = val;
 		}
-		constexpr void set(size_t idx, bool val = true) {
-			data[idx] = val;
+		constexpr శూన్య సమితి(కొలత_t idx, bool val = true) {
+			దత్తాంశం[idx] = val;
 		}
-		constexpr size_t size() const { return data.size(); }
+		constexpr కొలత_t కొలత() స్థిరరాశి { తిరిగి దత్తాంశం.కొలత(); }
 	};
-	Category empty {};
-	Category is_known {};
+	Category ఖాళీలు {};
+	Category is_తెలిసిన {};
 	Category is_evaluable {};
 	Category is_combinatorial {};
 	Category is_synthesizable {};
@@ -481,61 +481,61 @@ struct Categories {
 	Category is_anyinit {};
 	Category is_tristate {};
 	constexpr Categories() {
-		for (size_t i = 0; i < builder.count; ++i) {
-			auto& cell = builder.cells[i];
-			size_t idx = cell.type.raw();
-			is_known.set(idx);
-			is_evaluable.set(idx, cell.features.is_evaluable);
-			is_combinatorial.set(idx, cell.features.is_combinatorial);
-			is_synthesizable.set(idx, cell.features.is_synthesizable);
-			is_stdcell.set(idx, cell.features.is_stdcell);
-			is_ff.set(idx, cell.features.is_ff);
-			is_mem_noff.set(idx, cell.features.is_mem_noff);
-			is_anyinit.set(idx, cell.features.is_anyinit);
-			is_tristate.set(idx, cell.features.is_tristate);
+		కొరకు (కొలత_t i = 0; i < builder.లెక్క; ++i) {
+			స్వయంచాలక& cell = builder.cells[i];
+			కొలత_t idx = cell.type.raw();
+			is_తెలిసిన.సమితి(idx);
+			is_evaluable.సమితి(idx, cell.features.is_evaluable);
+			is_combinatorial.సమితి(idx, cell.features.is_combinatorial);
+			is_synthesizable.సమితి(idx, cell.features.is_synthesizable);
+			is_stdcell.సమితి(idx, cell.features.is_stdcell);
+			is_ff.సమితి(idx, cell.features.is_ff);
+			is_mem_noff.సమితి(idx, cell.features.is_mem_noff);
+			is_anyinit.సమితి(idx, cell.features.is_anyinit);
+			is_tristate.సమితి(idx, cell.features.is_tristate);
 		}
 	}
-	constexpr static Category join(Category left, Category right) {
+	constexpr స్థిర Category join(Category ఎడమ_3, Category కుడి_3) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
-			c.set(i, left[i] || right[i]);
+		కొరకు (కొలత_t i = 0; i < MAX_CELLS; ++i) {
+			c.సమితి(i, ఎడమ_3[i] || కుడి_3[i]);
 		}
-		return c;
+		తిరిగి c;
 	}
-	constexpr static Category meet(Category left, Category right) {
+	constexpr స్థిర Category meet(Category ఎడమ_3, Category కుడి_3) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
-			c.set(i, left[i] && right[i]);
+		కొరకు (కొలత_t i = 0; i < MAX_CELLS; ++i) {
+			c.సమితి(i, ఎడమ_3[i] && కుడి_3[i]);
 		}
-		return c;
+		తిరిగి c;
 	}
 	// Sketchy! Make sure to always meet with only the known universe.
 	// In other words, no modus tollens allowed
-	constexpr static Category complement(Category arg) {
+	constexpr స్థిర Category complement(Category arg) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
-			c.set(i, !arg[i]);
+		కొరకు (కొలత_t i = 0; i < MAX_CELLS; ++i) {
+			c.సమితి(i, !arg[i]);
 		}
-		return c;
+		తిరిగి c;
 	}
 };
 
-// Pure
-static constexpr PortInfo port_info;
-static constexpr Categories categories;
+//శుద్ధ
+స్థిర constexpr పోర్టు_Info పోర్టు_info;
+స్థిర constexpr Categories categories;
 
 // Legacy
 namespace Compat {
-	static constexpr auto internals_all = Categories::meet(categories.is_known, Categories::complement(categories.is_stdcell));
-	static constexpr auto mem_ff = Categories::join(categories.is_ff, categories.is_mem_noff);
+	స్థిర constexpr స్వయంచాలక internals_all = Categories::meet(categories.is_తెలిసిన, Categories::complement(categories.is_stdcell));
+	స్థిర constexpr స్వయంచాలక mem_ff = Categories::join(categories.is_ff, categories.is_mem_noff);
 	// old setup_internals + setup_stdcells
-	static constexpr auto nomem_noff = Categories::meet(categories.is_known, Categories::complement(mem_ff));
-	static constexpr auto internals_mem_ff = Categories::meet(internals_all, mem_ff);
+	స్థిర constexpr స్వయంచాలక nomem_noff = Categories::meet(categories.is_తెలిసిన, Categories::complement(mem_ff));
+	స్థిర constexpr స్వయంచాలక internals_mem_ff = Categories::meet(internals_all, mem_ff);
 	// old setup_internals
-	static constexpr auto internals_nomem_noff = Categories::meet(internals_all, nomem_noff);
+	స్థిర constexpr స్వయంచాలక internals_nomem_noff = Categories::meet(internals_all, nomem_noff);
 	// old setup_stdcells
-	static constexpr auto stdcells_nomem_noff = Categories::meet(categories.is_stdcell, nomem_noff);
-	static constexpr auto stdcells_mem = Categories::meet(categories.is_stdcell, categories.is_mem_noff);
+	స్థిర constexpr స్వయంచాలక stdcells_nomem_noff = Categories::meet(categories.is_stdcell, nomem_noff);
+	స్థిర constexpr స్వయంచాలక stdcells_mem = Categories::meet(categories.is_stdcell, categories.is_mem_noff);
 	// old setup_internals_eval
 	// static constexpr auto internals_eval = Categories::meet(internals_all, categories.is_evaluable);
 };
@@ -550,7 +550,7 @@ namespace {
 
 };
 
-struct NewCellType {
+నిర్మాణం NewCellType {
 	RTLIL::IdString type;
 	pool<RTLIL::IdString> inputs, outputs;
 	bool is_evaluable;
@@ -558,95 +558,95 @@ struct NewCellType {
 	bool is_synthesizable;
 };
 
-struct NewCellTypes {
-	StaticCellTypes::Categories::Category static_cell_types = StaticCellTypes::categories.empty;
+నిర్మాణం NewCellTypes {
+	StaticCellTypes::Categories::Category static_cell_types = StaticCellTypes::categories.ఖాళీలు;
 	dict<IdString, NewCellType> custom_cell_types {};
 
 	NewCellTypes() {
-		static_cell_types = StaticCellTypes::categories.empty;
+		static_cell_types = StaticCellTypes::categories.ఖాళీలు;
 	}
 
 	NewCellTypes(RTLIL::Design *design) {
-		static_cell_types = StaticCellTypes::categories.empty;
-		setup(design);
+		static_cell_types = StaticCellTypes::categories.ఖాళీలు;
+		అమరిక(design);
 	}
-	void setup(RTLIL::Design *design = NULL) {
-		if (design)
-			setup_design(design);
-		static_cell_types = StaticCellTypes::categories.is_known;
+	శూన్య అమరిక(RTLIL::Design *design = ఖాళీ) {
+		ఒకవేళ (design)
+			అమరిక_design(design);
+		static_cell_types = StaticCellTypes::categories.is_తెలిసిన;
 	}
-	void setup_design(RTLIL::Design *design) {
-		for (auto module : design->modules())
-			setup_module(module);
+	శూన్య అమరిక_design(RTLIL::Design *design) {
+		కొరకు (స్వయంచాలక module : design->modules())
+			అమరిక_module(module);
 	}
 
-	void setup_module(RTLIL::Module *module) {
+	శూన్య అమరిక_module(RTLIL::Module *module) {
 		pool<IdString> inputs, outputs;
-		for (auto wire_name : module->ports) {
+		కొరకు (స్వయంచాలక wire_name : module->ports) {
 			RTLIL::Wire *wire = module->wire(wire_name);
-			if (wire->port_input)
-				inputs.insert(wire->name);
-			if (wire->port_output)
-				outputs.insert(wire->name);
+			ఒకవేళ (wire->పోర్టు_ఆదానం)
+				inputs.చొప్పించు(wire->name);
+			ఒకవేళ (wire->పోర్టు_output)
+				outputs.చొప్పించు(wire->name);
 		}
-		setup_type(module->name, inputs, outputs);
+		అమరిక_type(module->name, inputs, outputs);
 	}
 
-	void setup_type(RTLIL::IdString type, const pool<RTLIL::IdString> &inputs, const pool<RTLIL::IdString> &outputs, bool is_evaluable = false, bool is_combinatorial = false, bool is_synthesizable = false) {
+	శూన్య అమరిక_type(RTLIL::IdString type, స్థిరరాశి pool<RTLIL::IdString> &inputs, స్థిరరాశి pool<RTLIL::IdString> &outputs, bool is_evaluable = false, bool is_combinatorial = false, bool is_synthesizable = false) {
 		NewCellType ct = {type, inputs, outputs, is_evaluable, is_combinatorial, is_synthesizable};
 		custom_cell_types[ct.type] = ct;
 	}
 
-	void clear() {
+	శూన్య clear() {
 		custom_cell_types.clear();
-		static_cell_types = StaticCellTypes::categories.empty;
+		static_cell_types = StaticCellTypes::categories.ఖాళీలు;
 	}
 
-	bool cell_known(IdString type) const {
-		return static_cell_types(type) || custom_cell_types.count(type) != 0;
+	bool cell_తెలిసిన(IdString type) స్థిరరాశి {
+		తిరిగి static_cell_types(type) || custom_cell_types.లెక్క(type) != 0;
 	}
 
-	bool cell_output(IdString type, IdString port) const
+	bool cell_output(IdString type, IdString పోర్టు) స్థిరరాశి
 	{
-		if (static_cell_types(type) && StaticCellTypes::port_info.outputs(type).contains(port)) {
-			return true;
+		ఒకవేళ (static_cell_types(type) && StaticCellTypes::పోర్టు_info.outputs(type).కలిగియుంది(పోర్టు)) {
+			తిరిగి true;
 		}
-		auto it = custom_cell_types.find(type);
-		return it != custom_cell_types.end() && it->second.outputs.count(port) != 0;
+		స్వయంచాలక it = custom_cell_types.కనుగొను(type);
+		తిరిగి it != custom_cell_types.చివర() && it->రెండవ.outputs.లెక్క(పోర్టు) != 0;
 	}
 
-	bool cell_input(IdString type, IdString port) const
+	bool cell_ఆదానం(IdString type, IdString పోర్టు) స్థిరరాశి
 	{
-		if (static_cell_types(type) && StaticCellTypes::port_info.inputs(type).contains(port)) {
-			return true;
+		ఒకవేళ (static_cell_types(type) && StaticCellTypes::పోర్టు_info.inputs(type).కలిగియుంది(పోర్టు)) {
+			తిరిగి true;
 		}
-		auto it = custom_cell_types.find(type);
-		return it != custom_cell_types.end() && it->second.inputs.count(port) != 0;
+		స్వయంచాలక it = custom_cell_types.కనుగొను(type);
+		తిరిగి it != custom_cell_types.చివర() && it->రెండవ.inputs.లెక్క(పోర్టు) != 0;
 	}
 
-	RTLIL::PortDir cell_port_dir(RTLIL::IdString type, RTLIL::IdString port) const
+	RTLIL::పోర్టు_Dir cell_పోర్టు_dir(RTLIL::IdString type, RTLIL::IdString పోర్టు) స్థిరరాశి
 	{
-		bool is_input, is_output;
-		if (static_cell_types(type)) {
-			is_input = StaticCellTypes::port_info.inputs(type).contains(port);
-			is_output = StaticCellTypes::port_info.outputs(type).contains(port);
-		} else {
-			auto it = custom_cell_types.find(type);
-			if (it == custom_cell_types.end())
-				return RTLIL::PD_UNKNOWN;
-			is_input = it->second.inputs.count(port);
-			is_output = it->second.outputs.count(port);
+		bool is_ఆదానం, is_output;
+		ఒకవేళ (static_cell_types(type)) {
+			is_ఆదానం = StaticCellTypes::పోర్టు_info.inputs(type).కలిగియుంది(పోర్టు);
+			is_output = StaticCellTypes::పోర్టు_info.outputs(type).కలిగియుంది(పోర్టు);
+		} లేకపోతే {
+			స్వయంచాలక it = custom_cell_types.కనుగొను(type);
+			ఒకవేళ (it == custom_cell_types.చివర())
+				తిరిగి RTLIL::PD_UNKNOWN;
+			is_ఆదానం = it->రెండవ.inputs.లెక్క(పోర్టు);
+			is_output = it->రెండవ.outputs.లెక్క(పోర్టు);
 		}
-		return RTLIL::PortDir(is_input + is_output * 2);
+		తిరిగి RTLIL::పోర్టు_Dir(is_ఆదానం + is_output * 2);
 	}
-	bool cell_evaluable(IdString type) const
+	bool cell_evaluable(IdString type) స్థిరరాశి
 	{
-		return static_cell_types(type) && StaticCellTypes::categories.is_evaluable(type);
+		తిరిగి static_cell_types(type) && StaticCellTypes::categories.is_evaluable(type);
 	}
 };
 
-extern NewCellTypes yosys_celltypes;
+బాహ్య NewCellTypes yosys_celltypes;
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

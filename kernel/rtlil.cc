@@ -17,463 +17,463 @@
  *
  */
 
-#include "kernel/rtlil.h"
-#include "kernel/yosys.h"
-#include "kernel/macc.h"
-#include "kernel/newcelltypes.h"
-#include "kernel/sigtools.h"
-#include "kernel/threading.h"
-#include "frontends/verilog/verilog_frontend.h"
-#include "frontends/verilog/preproc.h"
-#include "backends/rtlil/rtlil_backend.h"
+#అన్తర్భావ "kernel/rtlil.h"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "kernel/macc.h"
+#అన్తర్భావ "kernel/newcelltypes.h"
+#అన్తర్భావ "kernel/sigtools.h"
+#అన్తర్భావ "kernel/threading.h"
+#అన్తర్భావ "frontends/verilog/verilog_frontend.h"
+#అన్తర్భావ "frontends/verilog/preproc.h"
+#అన్తర్భావ "backends/rtlil/rtlil_backend.h"
 
-#include <string.h>
-#include <algorithm>
-#include <charconv>
-#include <optional>
-#include <string_view>
-#include <sstream>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <charconv>
+#అన్తర్భావ <optional>
+#అన్తర్భావ <string_view>
+#అన్తర్భావ <sstream>
 
 YOSYS_NAMESPACE_BEGIN
 
 dict<std::string, std::string> RTLIL::constpad;
 
-const pool<IdString> &RTLIL::builtin_ff_cell_types() {
-	static const pool<IdString> res = []() {
+స్థిరరాశి pool<IdString> &RTLIL::builtin_ff_cell_types() {
+	స్థిర స్థిరరాశి pool<IdString> res = []() {
 		pool<IdString> r;
-		for (size_t i = 0; i < StaticCellTypes::builder.count; i++) {
-			auto &cell = StaticCellTypes::builder.cells[i];
-			if (cell.features.is_ff)
-				r.insert(cell.type);
+		కొరకు (కొలత_t i = 0; i < StaticCellTypes::builder.లెక్క; i++) {
+			స్వయంచాలక &cell = StaticCellTypes::builder.cells[i];
+			ఒకవేళ (cell.features.is_ff)
+				r.చొప్పించు(cell.type);
 		}
-		return r;
+		తిరిగి r;
 	}();
-	return res;
+	తిరిగి res;
 }
 
-#define check(condition) log_assert(condition && "malformed Const union")
+#నిర్వచించు check(condition) log_assert(condition && "malformed Const union")
 
-const Const::bitvectype& Const::get_bits() const {
-	check(is_bits());
-	return *get_if_bits();
+స్థిరరాశి Const::bitvectype& Const::get_బిట్లు() స్థిరరాశి {
+	check(is_బిట్లు());
+	తిరిగి *get_if_బిట్లు();
 }
 
-const std::string& Const::get_str() const {
+స్థిరరాశి std::string& Const::get_str() స్థిరరాశి {
 	check(is_str());
-	return *get_if_str();
+	తిరిగి *get_if_str();
 }
 
-Const::bitvectype& Const::get_bits() {
-	check(is_bits());
-	return *get_if_bits();
+Const::bitvectype& Const::get_బిట్లు() {
+	check(is_బిట్లు());
+	తిరిగి *get_if_బిట్లు();
 }
 
 std::string& Const::get_str() {
 	check(is_str());
-	return *get_if_str();
+	తిరిగి *get_if_str();
 }
 
 RTLIL::Const::Const(std::string str)
 {
 	flags = RTLIL::CONST_FLAG_STRING;
-	new ((void*)&str_) std::string(std::move(str));
-	tag = backing_tag::string;
+	కొత్త ((శూన్య*)&str_) std::string(std::move(str));
+	ట్యాగ్ = backing_ట్యాగ్::string;
 }
 
-RTLIL::Const::Const(long long val) // default width 32
+RTLIL::Const::Const(దీర్ఘ దీర్ఘ val) // default width 32
 {
 	flags = RTLIL::CONST_FLAG_NONE;
-	char bytes[] = {
-		(char)(val >> 24), (char)(val >> 16), (char)(val >> 8), (char)val
+	అక్షరం బైట్లు[] = {
+		(అక్షరం)(val >> 24), (అక్షరం)(val >> 16), (అక్షరం)(val >> 8), (అక్షరం)val
 	};
-	new ((void*)&str_) std::string(bytes, 4);
-	tag = backing_tag::string;
+	కొత్త ((శూన్య*)&str_) std::string(బైట్లు, 4);
+	ట్యాగ్ = backing_ట్యాగ్::string;
 }
 
-RTLIL::Const::Const(long long val, int width)
+RTLIL::Const::Const(దీర్ఘ దీర్ఘ val, పూర్ణాంకం వెడల్పు)
 {
-	log_assert(width >= 0 && width < RTLIL::WIDTH_LIMIT);
+	log_assert(వెడల్పు >= 0 && వెడల్పు < RTLIL::వెడల్పు_హద్దు);
 	flags = RTLIL::CONST_FLAG_NONE;
-	if ((width & 7) == 0) {
-		new ((void*)&str_) std::string();
-		tag = backing_tag::string;
+	ఒకవేళ ((వెడల్పు & 7) == 0) {
+		కొత్త ((శూన్య*)&str_) std::string();
+		ట్యాగ్ = backing_ట్యాగ్::string;
 		std::string& str = get_str();
-		int bytes = width >> 3;
-		signed char sign_byte = val < 0 ? -1 : 0;
-		str.resize(bytes, sign_byte);
-		bytes = std::min<int>(bytes, sizeof(val));
-		for (int i = 0; i < bytes; i++) {
-			str[str.size() - 1 - i] = val;
+		పూర్ణాంకం బైట్లు = వెడల్పు >> 3;
+		గుర్తుగల అక్షరం sign_byte = val < 0 ? -1 : 0;
+		str.resize(బైట్లు, sign_byte);
+		బైట్లు = std::min<పూర్ణాంకం>(బైట్లు, పరిమాణం(val));
+		కొరకు (పూర్ణాంకం i = 0; i < బైట్లు; i++) {
+			str[str.కొలత() - 1 - i] = val;
 			val = val >> 8;
 		}
-		return;
+		తిరిగి;
 	}
 
-	new ((void*)&bits_) bitvectype();
-	tag = backing_tag::bits;
-	bitvectype& bv = get_bits();
-	bv.reserve(width);
-	for (int i = 0; i < width; i++) {
-		bv.push_back((val & 1) != 0 ? State::S1 : State::S0);
+	కొత్త ((శూన్య*)&బిట్లు_2) bitvectype();
+	ట్యాగ్ = backing_ట్యాగ్::బిట్లు;
+	bitvectype& bv = get_బిట్లు();
+	bv.reserve(వెడల్పు);
+	కొరకు (పూర్ణాంకం i = 0; i < వెడల్పు; i++) {
+		bv.నెట్టు_వెనుక((val & 1) != 0 ? State::S1 : State::S0);
 		val = val >> 1;
 	}
 }
 
-RTLIL::Const::Const(RTLIL::State bit, int width)
+RTLIL::Const::Const(RTLIL::State బిట్టు, పూర్ణాంకం వెడల్పు)
 {
-	log_assert(width >= 0 && width < RTLIL::WIDTH_LIMIT);
+	log_assert(వెడల్పు >= 0 && వెడల్పు < RTLIL::వెడల్పు_హద్దు);
 	flags = RTLIL::CONST_FLAG_NONE;
-	new ((void*)&bits_) bitvectype();
-	tag = backing_tag::bits;
-	bitvectype& bv = get_bits();
-	bv.reserve(width);
-	for (int i = 0; i < width; i++)
-		bv.push_back(bit);
+	కొత్త ((శూన్య*)&బిట్లు_2) bitvectype();
+	ట్యాగ్ = backing_ట్యాగ్::బిట్లు;
+	bitvectype& bv = get_బిట్లు();
+	bv.reserve(వెడల్పు);
+	కొరకు (పూర్ణాంకం i = 0; i < వెడల్పు; i++)
+		bv.నెట్టు_వెనుక(బిట్టు);
 }
 
-RTLIL::Const::Const(const std::vector<bool> &bits)
+RTLIL::Const::Const(స్థిరరాశి std::సదిశ<తార్కిక> &బిట్లు)
 {
 	flags = RTLIL::CONST_FLAG_NONE;
-	new ((void*)&bits_) bitvectype();
-	tag = backing_tag::bits;
-	bitvectype& bv = get_bits();
-	bv.reserve(bits.size());
-	for (const auto &b : bits)
-		bv.emplace_back(b ? State::S1 : State::S0);
+	కొత్త ((శూన్య*)&బిట్లు_2) bitvectype();
+	ట్యాగ్ = backing_ట్యాగ్::బిట్లు;
+	bitvectype& bv = get_బిట్లు();
+	bv.reserve(బిట్లు.కొలత());
+	కొరకు (స్థిరరాశి స్వయంచాలక &b : బిట్లు)
+		bv.emplace_వెనుక(b ? State::S1 : State::S0);
 }
 
-RTLIL::Const::Const(const RTLIL::Const &other) {
-	tag = other.tag;
+RTLIL::Const::Const(స్థిరరాశి RTLIL::Const &other) {
+	ట్యాగ్ = other.ట్యాగ్;
 	flags = other.flags;
-	if (is_str())
-		new ((void*)&str_) std::string(other.get_str());
-	else if (is_bits())
-		new ((void*)&bits_) bitvectype(other.get_bits());
-	else
-		check(false);
+	ఒకవేళ (is_str())
+		కొత్త ((శూన్య*)&str_) std::string(other.get_str());
+	లేకపోతే ఒకవేళ (is_బిట్లు())
+		కొత్త ((శూన్య*)&బిట్లు_2) bitvectype(other.get_బిట్లు());
+	లేకపోతే
+		check(అబద్ధం);
 }
 
 RTLIL::Const::Const(RTLIL::Const &&other) {
-	tag = other.tag;
+	ట్యాగ్ = other.ట్యాగ్;
 	flags = other.flags;
-	if (is_str())
-		new ((void*)&str_) std::string(std::move(other.get_str()));
-	else if (is_bits())
-		new ((void*)&bits_) bitvectype(std::move(other.get_bits()));
-	else
-		check(false);
+	ఒకవేళ (is_str())
+		కొత్త ((శూన్య*)&str_) std::string(std::move(other.get_str()));
+	లేకపోతే ఒకవేళ (is_బిట్లు())
+		కొత్త ((శూన్య*)&బిట్లు_2) bitvectype(std::move(other.get_బిట్లు()));
+	లేకపోతే
+		check(అబద్ధం);
 }
 
-RTLIL::Const &RTLIL::Const::operator =(const RTLIL::Const &other) {
+RTLIL::Const &RTLIL::Const::క్రియాకారకం =(స్థిరరాశి RTLIL::Const &other) {
 	flags = other.flags;
-	if (other.is_str()) {
-		if (!is_str()) {
+	ఒకవేళ (other.is_str()) {
+		ఒకవేళ (!is_str()) {
 			// sketchy zone
-			check(is_bits());
-			bits_.~bitvectype();
-			(void)new ((void*)&str_) std::string();
+			check(is_బిట్లు());
+			బిట్లు_2.~bitvectype();
+			(శూన్య)కొత్త ((శూన్య*)&str_) std::string();
 		}
-		tag = other.tag;
+		ట్యాగ్ = other.ట్యాగ్;
 		get_str() = other.get_str();
-	} else if (other.is_bits()) {
-		if (!is_bits()) {
+	} లేకపోతే ఒకవేళ (other.is_బిట్లు()) {
+		ఒకవేళ (!is_బిట్లు()) {
 			// sketchy zone
 			check(is_str());
 			str_.~string();
-			(void)new ((void*)&bits_) bitvectype();
+			(శూన్య)కొత్త ((శూన్య*)&బిట్లు_2) bitvectype();
 		}
-		tag = other.tag;
-		get_bits() = other.get_bits();
-	} else {
-		check(false);
+		ట్యాగ్ = other.ట్యాగ్;
+		get_బిట్లు() = other.get_బిట్లు();
+	} లేకపోతే {
+		check(అబద్ధం);
 	}
-	return *this;
+	తిరిగి *ఇది;
 }
 
 RTLIL::Const::~Const() {
-	if (is_bits())
-		bits_.~bitvectype();
-	else if (is_str())
+	ఒకవేళ (is_బిట్లు())
+		బిట్లు_2.~bitvectype();
+	లేకపోతే ఒకవేళ (is_str())
 		str_.~string();
-	else
-		check(false);
+	లేకపోతే
+		check(అబద్ధం);
 }
 
-bool RTLIL::Const::operator<(const RTLIL::Const &other) const
+తార్కిక RTLIL::Const::క్రియాకారకం<(స్థిరరాశి RTLIL::Const &other) స్థిరరాశి
 {
-	if (size() != other.size())
-		return size() < other.size();
+	ఒకవేళ (కొలత() != other.కొలత())
+		తిరిగి కొలత() < other.కొలత();
 
-	for (int i = 0; i < size(); i++)
-		if ((*this)[i] != other[i])
-			return (*this)[i] < other[i];
+	కొరకు (పూర్ణాంకం i = 0; i < కొలత(); i++)
+		ఒకవేళ ((*ఇది)[i] != other[i])
+			తిరిగి (*ఇది)[i] < other[i];
 
-	return false;
+	తిరిగి అబద్ధం;
 }
 
-bool RTLIL::Const::operator ==(const RTLIL::Const &other) const
+తార్కిక RTLIL::Const::క్రియాకారకం ==(స్థిరరాశి RTLIL::Const &other) స్థిరరాశి
 {
-	if (is_str() && other.is_str())
-		return get_str() == other.get_str();
-	if (is_bits() && other.is_bits())
-		return get_bits() == other.get_bits();
+	ఒకవేళ (is_str() && other.is_str())
+		తిరిగి get_str() == other.get_str();
+	ఒకవేళ (is_బిట్లు() && other.is_బిట్లు())
+		తిరిగి get_బిట్లు() == other.get_బిట్లు();
 
-	if (size() != other.size())
-		return false;
+	ఒకవేళ (కొలత() != other.కొలత())
+		తిరిగి అబద్ధం;
 
-	for (int i = 0; i < size(); i++)
-	if ((*this)[i] != other[i])
-		return false;
+	కొరకు (పూర్ణాంకం i = 0; i < కొలత(); i++)
+	ఒకవేళ ((*ఇది)[i] != other[i])
+		తిరిగి అబద్ధం;
 
-	return true;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::Const::operator !=(const RTLIL::Const &other) const
+తార్కిక RTLIL::Const::క్రియాకారకం !=(స్థిరరాశి RTLIL::Const &other) స్థిరరాశి
 {
-	return !(*this == other);
+	తిరిగి !(*ఇది == other);
 }
 
-std::vector<RTLIL::State>& RTLIL::Const::bits_internal()
+std::సదిశ<RTLIL::State>& RTLIL::Const::బిట్లు_అంతర్గత()
 {
-	bitvectorize_internal();
-	return get_bits();
+	bitvectorize_అంతర్గత();
+	తిరిగి get_బిట్లు();
 }
 
-std::vector<RTLIL::State> RTLIL::Const::to_bits() const
+std::సదిశ<RTLIL::State> RTLIL::Const::గమ్యం_బిట్లు() స్థిరరాశి
 {
-	std::vector<State> v;
-	for (auto bit : *this)
-		v.push_back(bit);
-	return v;
+	std::సదిశ<State> v;
+	కొరకు (స్వయంచాలక బిట్టు : *ఇది)
+		v.నెట్టు_వెనుక(బిట్టు);
+	తిరిగి v;
 }
 
-bool RTLIL::Const::as_bool() const
+తార్కిక RTLIL::Const::as_bool() స్థిరరాశి
 {
-	if (is_str()) {
-		for (char ch : get_str())
-			if (ch != 0)
-				return true;
-		return false;
+	ఒకవేళ (is_str()) {
+		కొరకు (అక్షరం ch : get_str())
+			ఒకవేళ (ch != 0)
+				తిరిగి నిజం;
+		తిరిగి అబద్ధం;
 	}
 
-	const bitvectype& bv = get_bits();
-	for (size_t i = 0; i < bv.size(); i++)
-		if (bv[i] == State::S1)
-			return true;
-	return false;
+	స్థిరరాశి bitvectype& bv = get_బిట్లు();
+	కొరకు (కొలత_t i = 0; i < bv.కొలత(); i++)
+		ఒకవేళ (bv[i] == State::S1)
+			తిరిగి నిజం;
+	తిరిగి అబద్ధం;
 }
 
-int RTLIL::Const::as_int(bool is_signed) const
+పూర్ణాంకం RTLIL::Const::as_int(తార్కిక is_signed) స్థిరరాశి
 {
 	int32_t ret = 0;
-	if (const std::string *s = get_if_str()) {
-		int size = GetSize(*s);
+	ఒకవేళ (స్థిరరాశి std::string *s = get_if_str()) {
+		పూర్ణాంకం కొలత = Get_కొలత(*s);
 		// Ignore any bytes after the first 4 since bits beyond 32 are truncated.
-		for (int i = std::min(4, size); i > 0; i--)
-			ret |= static_cast<unsigned char>((*s)[size - i]) << ((i - 1) * 8);
+		కొరకు (పూర్ణాంకం i = std::min(4, కొలత); i > 0; i--)
+			ret |= static_cast<గుర్తులేని అక్షరం>((*s)[కొలత - i]) << ((i - 1) * 8);
 		// If is_signed and the string is shorter than 4 bytes then apply sign extension.
-		if (is_signed && size > 0 && size < 4 && ((*s)[0] & 0x80))
-			ret |= UINT32_MAX << size*8;
-		return ret;
+		ఒకవేళ (is_signed && కొలత > 0 && కొలత < 4 && ((*s)[0] & 0x80))
+			ret |= UINT32_MAX << కొలత*8;
+		తిరిగి ret;
 	}
 
-	const bitvectype& bv = get_bits();
-	int significant_bits = std::min(GetSize(bv), 32);
-	for (int i = 0; i < significant_bits; i++)
-		if (bv[i] == State::S1)
+	స్థిరరాశి bitvectype& bv = get_బిట్లు();
+	పూర్ణాంకం significant_బిట్లు = std::min(Get_కొలత(bv), 32);
+	కొరకు (పూర్ణాంకం i = 0; i < significant_బిట్లు; i++)
+		ఒకవేళ (bv[i] == State::S1)
 			ret |= 1 << i;
-	if (is_signed && significant_bits > 0 && significant_bits < 32 && bv.back() == State::S1 )
-		ret |= UINT32_MAX << significant_bits;
-	return ret;
+	ఒకవేళ (is_signed && significant_బిట్లు > 0 && significant_బిట్లు < 32 && bv.వెనుక() == State::S1 )
+		ret |= UINT32_MAX << significant_బిట్లు;
+	తిరిగి ret;
 }
 
-bool RTLIL::Const::convertible_to_int(bool is_signed) const
+తార్కిక RTLIL::Const::convertible_గమ్యం_int(తార్కిక is_signed) స్థిరరాశి
 {
-	auto size = get_min_size(is_signed);
+	స్వయంచాలక కొలత = get_min_కొలత(is_signed);
 
-	if (size < 0)
-		return false;
+	ఒకవేళ (కొలత < 0)
+		తిరిగి అబద్ధం;
 
 	// If it fits in 31 bits it is definitely convertible
-	if (size <= 31)
-		return true;
+	ఒకవేళ (కొలత <= 31)
+		తిరిగి నిజం;
 
 	// If it fits in 32 bits, it is convertible if signed or if unsigned and the
 	// leading bit is not 1
-	if (size == 32) {
-		if (is_signed)
-			return true;
-		return (*this)[size - 1] != State::S1;
+	ఒకవేళ (కొలత == 32) {
+		ఒకవేళ (is_signed)
+			తిరిగి నిజం;
+		తిరిగి (*ఇది)[కొలత - 1] != State::S1;
 	}
 
-	return false;
+	తిరిగి అబద్ధం;
 }
 
-std::optional<int> RTLIL::Const::try_as_int(bool is_signed) const
+std::optional<పూర్ణాంకం> RTLIL::Const::try_as_int(తార్కిక is_signed) స్థిరరాశి
 {
-	if (!convertible_to_int(is_signed))
-		return std::nullopt;
-	return as_int(is_signed);
+	ఒకవేళ (!convertible_గమ్యం_int(is_signed))
+		తిరిగి std::nullopt;
+	తిరిగి as_int(is_signed);
 }
 
-int RTLIL::Const::as_int_saturating(bool is_signed) const
+పూర్ణాంకం RTLIL::Const::as_int_saturating(తార్కిక is_signed) స్థిరరాశి
 {
-	if (!convertible_to_int(is_signed)) {
-		if (!is_signed)
-			return std::numeric_limits<int>::max();
+	ఒకవేళ (!convertible_గమ్యం_int(is_signed)) {
+		ఒకవేళ (!is_signed)
+			తిరిగి std::numeric_limits<పూర్ణాంకం>::max();
 
-		const auto min_size = get_min_size(is_signed);
-		log_assert(min_size > 0);
-		const auto neg = (*this)[min_size - 1];
-		return neg ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
+		స్థిరరాశి స్వయంచాలక min_కొలత = get_min_కొలత(is_signed);
+		log_assert(min_కొలత > 0);
+		స్థిరరాశి స్వయంచాలక neg = (*ఇది)[min_కొలత - 1];
+		తిరిగి neg ? std::numeric_limits<పూర్ణాంకం>::min() : std::numeric_limits<పూర్ణాంకం>::max();
 	}
-	return as_int(is_signed);
+	తిరిగి as_int(is_signed);
 }
 
-void RTLIL::Const::tag_bare_integer_const(const std::string &value)
+శూన్య RTLIL::Const::ట్యాగ్_bare_integer_const(స్థిరరాశి std::string &విలువ)
 {
-	if (value.empty() || value.find('\'') != std::string::npos)
-		return;
-	size_t start = (value[0] == '-' || value[0] == '+') ? 1 : 0;
-	if (start < value.size() && std::all_of(value.begin() + start, value.end(), ::isdigit))
+	ఒకవేళ (విలువ.ఖాళీలు() || విలువ.కనుగొను('\'') != std::string::npos)
+		తిరిగి;
+	కొలత_t ప్రారంభం = (విలువ[0] == '-' || విలువ[0] == '+') ? 1 : 0;
+	ఒకవేళ (ప్రారంభం < విలువ.కొలత() && std::all_యొక్క(విలువ.begin() + ప్రారంభం, విలువ.చివర(), ::అంకెనా))
 		flags |= RTLIL::CONST_FLAG_SIGNED;
 }
 
-int RTLIL::Const::get_min_size(bool is_signed) const
+పూర్ణాంకం RTLIL::Const::get_min_కొలత(తార్కిక is_signed) స్థిరరాశి
 {
-	if (empty()) return 0;
+	ఒకవేళ (ఖాళీలు()) తిరిగి 0;
 
 	// back to front (MSB to LSB)
-	RTLIL::State leading_bit;
-	if (is_signed)
-		leading_bit = (back() == RTLIL::State::Sx) ? RTLIL::State::S0 : back();
-	else
-		leading_bit = RTLIL::State::S0;
+	RTLIL::State leading_బిట్టు;
+	ఒకవేళ (is_signed)
+		leading_బిట్టు = (వెనుక() == RTLIL::State::Sx) ? RTLIL::State::S0 : వెనుక();
+	లేకపోతే
+		leading_బిట్టు = RTLIL::State::S0;
 
-	auto idx = size();
-	while (idx > 0 && (*this)[idx -1] == leading_bit) {
+	స్వయంచాలక idx = కొలత();
+	అయితే (idx > 0 && (*ఇది)[idx -1] == leading_బిట్టు) {
 		idx--;
 	}
 
 	// signed needs one leading bit
-	if (is_signed && idx < size()) {
+	ఒకవేళ (is_signed && idx < కొలత()) {
 		idx++;
 	}
 	// must be at least one bit
-	return (idx == 0) ? 1 : idx;
+	తిరిగి (idx == 0) ? 1 : idx;
 }
 
-void RTLIL::Const::compress(bool is_signed)
+శూన్య RTLIL::Const::compress(తార్కిక is_signed)
 {
-	auto idx = get_min_size(is_signed);
+	స్వయంచాలక idx = get_min_కొలత(is_signed);
 	resize(idx, RTLIL::State::S0);
 }
 
-std::optional<int> RTLIL::Const::as_int_compress(bool is_signed) const
+std::optional<పూర్ణాంకం> RTLIL::Const::as_int_compress(తార్కిక is_signed) స్థిరరాశి
 {
-	return try_as_int(is_signed);
+	తిరిగి try_as_int(is_signed);
 }
 
-std::string RTLIL::Const::as_string(const char* any) const
+std::string RTLIL::Const::as_string(స్థిరరాశి అక్షరం* any) స్థిరరాశి
 {
-	int sz = size();
+	పూర్ణాంకం sz = కొలత();
 	std::string ret;
 	ret.reserve(sz);
-	for (int i = sz - 1; i >= 0; --i)
-		switch ((*this)[i]) {
-			case S0: ret.push_back('0'); break;
-			case S1: ret.push_back('1'); break;
-			case Sx: ret.push_back('x'); break;
-			case Sz: ret.push_back('z'); break;
-			case Sa: ret += any; break;
-			case Sm: ret.push_back('m'); break;
+	కొరకు (పూర్ణాంకం i = sz - 1; i >= 0; --i)
+		ఎంపిక ((*ఇది)[i]) {
+			స్థితి S0: ret.నెట్టు_వెనుక('0'); ఆపు;
+			స్థితి S1: ret.నెట్టు_వెనుక('1'); ఆపు;
+			స్థితి Sx: ret.నెట్టు_వెనుక('x'); ఆపు;
+			స్థితి Sz: ret.నెట్టు_వెనుక('z'); ఆపు;
+			స్థితి Sa: ret += any; ఆపు;
+			స్థితి Sm: ret.నెట్టు_వెనుక('m'); ఆపు;
 		}
-	return ret;
+	తిరిగి ret;
 }
 
-RTLIL::Const RTLIL::Const::from_string(const std::string &str)
+RTLIL::Const RTLIL::Const::from_string(స్థిరరాశి std::string &str)
 {
 	Const c;
-	bitvectype& bv = c.get_bits();
-	bv.reserve(str.size());
-	for (auto it = str.rbegin(); it != str.rend(); it++)
-		switch (*it) {
-			case '0': bv.push_back(State::S0); break;
-			case '1': bv.push_back(State::S1); break;
-			case 'x': bv.push_back(State::Sx); break;
-			case 'z': bv.push_back(State::Sz); break;
-			case 'm': bv.push_back(State::Sm); break;
-			default: bv.push_back(State::Sa);
+	bitvectype& bv = c.get_బిట్లు();
+	bv.reserve(str.కొలత());
+	కొరకు (స్వయంచాలక it = str.rbegin(); it != str.rend(); it++)
+		ఎంపిక (*it) {
+			స్థితి '0': bv.నెట్టు_వెనుక(State::S0); ఆపు;
+			స్థితి '1': bv.నెట్టు_వెనుక(State::S1); ఆపు;
+			స్థితి 'x': bv.నెట్టు_వెనుక(State::Sx); ఆపు;
+			స్థితి 'z': bv.నెట్టు_వెనుక(State::Sz); ఆపు;
+			స్థితి 'm': bv.నెట్టు_వెనుక(State::Sm); ఆపు;
+			అప్రమేయ: bv.నెట్టు_వెనుక(State::Sa);
 		}
-	return c;
+	తిరిగి c;
 }
 
-std::string RTLIL::Const::decode_string() const
+std::string RTLIL::Const::decode_string() స్థిరరాశి
 {
-	if (auto str = get_if_str())
-		return *str;
+	ఒకవేళ (స్వయంచాలక str = get_if_str())
+		తిరిగి *str;
 
-	const bitvectype& bv = get_bits();
-	const int n = GetSize(bv);
-	const int n_over_8 = n / 8;
+	స్థిరరాశి bitvectype& bv = get_బిట్లు();
+	స్థిరరాశి పూర్ణాంకం n = Get_కొలత(bv);
+	స్థిరరాశి పూర్ణాంకం n_over_8 = n / 8;
 	std::string s;
 	s.reserve(n_over_8);
-	int i = n_over_8 * 8;
-	if (i < n) {
-		char ch = 0;
-		for (int j = 0; j < (n - i); j++) {
-			if (bv[i + j] == RTLIL::State::S1) {
+	పూర్ణాంకం i = n_over_8 * 8;
+	ఒకవేళ (i < n) {
+		అక్షరం ch = 0;
+		కొరకు (పూర్ణాంకం j = 0; j < (n - i); j++) {
+			ఒకవేళ (bv[i + j] == RTLIL::State::S1) {
 				ch |= 1 << j;
 			}
 		}
-		if (ch != 0)
+		ఒకవేళ (ch != 0)
 			s.append({ch});
 	}
 	i -= 8;
-	for (; i >= 0; i -= 8) {
-		char ch = 0;
-		for (int j = 0; j < 8; j++) {
-			if (bv[i + j] == RTLIL::State::S1) {
+	కొరకు (; i >= 0; i -= 8) {
+		అక్షరం ch = 0;
+		కొరకు (పూర్ణాంకం j = 0; j < 8; j++) {
+			ఒకవేళ (bv[i + j] == RTLIL::State::S1) {
 				ch |= 1 << j;
 			}
 		}
-		if (ch != 0)
+		ఒకవేళ (ch != 0)
 			s.append({ch});
 	}
-	return s;
+	తిరిగి s;
 }
 
-int RTLIL::Const::size() const {
-	if (is_str())
-		return 8 * str_.size();
-	else {
-		check(is_bits());
-		return bits_.size();
+పూర్ణాంకం RTLIL::Const::కొలత() స్థిరరాశి {
+	ఒకవేళ (is_str())
+		తిరిగి 8 * str_.కొలత();
+	లేకపోతే {
+		check(is_బిట్లు());
+		తిరిగి బిట్లు_2.కొలత();
 	}
 }
 
-bool RTLIL::Const::empty() const {
-	if (is_str())
-		return str_.empty();
-	else {
-		check(is_bits());
-		return bits_.empty();
+తార్కిక RTLIL::Const::ఖాళీలు() స్థిరరాశి {
+	ఒకవేళ (is_str())
+		తిరిగి str_.ఖాళీలు();
+	లేకపోతే {
+		check(is_బిట్లు());
+		తిరిగి బిట్లు_2.ఖాళీలు();
 	}
 }
 
-void RTLIL::Const::bitvectorize_internal() {
-	if (tag == backing_tag::bits)
-		return;
+శూన్య RTLIL::Const::bitvectorize_అంతర్గత() {
+	ఒకవేళ (ట్యాగ్ == backing_ట్యాగ్::బిట్లు)
+		తిరిగి;
 
 	check(is_str());
 
-	bitvectype new_bits;
+	bitvectype new_బిట్లు;
 
-	new_bits.reserve(str_.size() * 8);
-	for (int i = str_.size() - 1; i >= 0; i--) {
-		unsigned char ch = str_[i];
-		for (int j = 0; j < 8; j++) {
-			new_bits.push_back((ch & 1) != 0 ? State::S1 : State::S0);
+	new_బిట్లు.reserve(str_.కొలత() * 8);
+	కొరకు (పూర్ణాంకం i = str_.కొలత() - 1; i >= 0; i--) {
+		గుర్తులేని అక్షరం ch = str_[i];
+		కొరకు (పూర్ణాంకం j = 0; j < 8; j++) {
+			new_బిట్లు.నెట్టు_వెనుక((ch & 1) != 0 ? State::S1 : State::S0);
 			ch = ch >> 1;
 		}
 	}
@@ -481,980 +481,980 @@ void RTLIL::Const::bitvectorize_internal() {
 	{
 		// sketchy zone
 		str_.~string();
-		(void)new ((void*)&bits_) bitvectype(std::move(new_bits));
-		tag = backing_tag::bits;
+		(శూన్య)కొత్త ((శూన్య*)&బిట్లు_2) bitvectype(std::move(new_బిట్లు));
+		ట్యాగ్ = backing_ట్యాగ్::బిట్లు;
 	}
 }
 
-void RTLIL::Const::append(const RTLIL::Const &other) {
-	bitvectorize_internal();
-	bitvectype& bv = get_bits();
-	bv.insert(bv.end(), other.begin(), other.end());
+శూన్య RTLIL::Const::append(స్థిరరాశి RTLIL::Const &other) {
+	bitvectorize_అంతర్గత();
+	bitvectype& bv = get_బిట్లు();
+	bv.చొప్పించు(bv.చివర(), other.begin(), other.చివర());
 }
 
-RTLIL::State RTLIL::Const::const_iterator::operator*() const {
-	if (auto bv = parent->get_if_bits())
-		return (*bv)[idx];
+RTLIL::State RTLIL::Const::const_iterator::క్రియాకారకం*() స్థిరరాశి {
+	ఒకవేళ (స్వయంచాలక bv = మాతృ->get_if_బిట్లు())
+		తిరిగి (*bv)[idx];
 
-	int char_idx = parent->get_str().size() - idx / 8 - 1;
-	bool bit = (parent->get_str()[char_idx] & (1 << (idx % 8)));
-	return bit ? State::S1 : State::S0;
+	పూర్ణాంకం char_idx = మాతృ->get_str().కొలత() - idx / 8 - 1;
+	తార్కిక బిట్టు = (మాతృ->get_str()[char_idx] & (1 << (idx % 8)));
+	తిరిగి బిట్టు ? State::S1 : State::S0;
 }
 
-bool RTLIL::Const::is_fully_zero() const
+తార్కిక RTLIL::Const::is_fully_zero() స్థిరరాశి
 {
-	if (auto str = get_if_str()) {
-		for (char ch : *str)
-			if (ch != 0)
-				return false;
-		return true;
+	ఒకవేళ (స్వయంచాలక str = get_if_str()) {
+		కొరకు (అక్షరం ch : *str)
+			ఒకవేళ (ch != 0)
+				తిరిగి అబద్ధం;
+		తిరిగి నిజం;
 	}
 
-	const bitvectype& bv = get_bits();
+	స్థిరరాశి bitvectype& bv = get_బిట్లు();
 
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::S0)
-			return false;
+	కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : bv)
+		ఒకవేళ (బిట్టు != RTLIL::State::S0)
+			తిరిగి అబద్ధం;
 
-	return true;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::Const::is_fully_ones() const
+తార్కిక RTLIL::Const::is_fully_ones() స్థిరరాశి
 {
-	if (auto str = get_if_str()) {
-		for (char ch : *str)
-			if (ch != (char)0xff)
-				return false;
-		return true;
+	ఒకవేళ (స్వయంచాలక str = get_if_str()) {
+		కొరకు (అక్షరం ch : *str)
+			ఒకవేళ (ch != (అక్షరం)0xff)
+				తిరిగి అబద్ధం;
+		తిరిగి నిజం;
 	}
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::S1)
-			return false;
+	స్థిరరాశి bitvectype& bv = get_బిట్లు();
+	కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : bv)
+		ఒకవేళ (బిట్టు != RTLIL::State::S1)
+			తిరిగి అబద్ధం;
 
-	return true;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::Const::is_fully_def() const
+తార్కిక RTLIL::Const::is_fully_def() స్థిరరాశి
 {
-	if (is_str())
-		return true;
+	ఒకవేళ (is_str())
+		తిరిగి నిజం;
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::S0 && bit != RTLIL::State::S1)
-			return false;
+	స్థిరరాశి bitvectype& bv = get_బిట్లు();
+	కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : bv)
+		ఒకవేళ (బిట్టు != RTLIL::State::S0 && బిట్టు != RTLIL::State::S1)
+			తిరిగి అబద్ధం;
 
-	return true;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::Const::is_fully_undef() const
+తార్కిక RTLIL::Const::is_fully_undef() స్థిరరాశి
 {
-	if (auto str = get_if_str())
-		return str->empty();
+	ఒకవేళ (స్వయంచాలక str = get_if_str())
+		తిరిగి str->ఖాళీలు();
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::Sx && bit != RTLIL::State::Sz)
-			return false;
+	స్థిరరాశి bitvectype& bv = get_బిట్లు();
+	కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : bv)
+		ఒకవేళ (బిట్టు != RTLIL::State::Sx && బిట్టు != RTLIL::State::Sz)
+			తిరిగి అబద్ధం;
 
-	return true;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::Const::is_fully_undef_x_only() const
+తార్కిక RTLIL::Const::is_fully_undef_x_only() స్థిరరాశి
 {
-	if (auto str = get_if_str())
-		return str->empty();
+	ఒకవేళ (స్వయంచాలక str = get_if_str())
+		తిరిగి str->ఖాళీలు();
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::Sx)
-			return false;
+	స్థిరరాశి bitvectype& bv = get_బిట్లు();
+	కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : bv)
+		ఒకవేళ (బిట్టు != RTLIL::State::Sx)
+			తిరిగి అబద్ధం;
 
-	return true;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::Const::is_onehot(int *pos) const
+తార్కిక RTLIL::Const::is_onehot(పూర్ణాంకం *pos) స్థిరరాశి
 {
-	bool found = false;
-	int size = GetSize(*this);
-	for (int i = 0; i < size; i++) {
-		State bit = (*this)[i];
-		if (bit != RTLIL::State::S0 && bit != RTLIL::State::S1)
-			return false;
-		if (bit == RTLIL::State::S1) {
-			if (found)
-				return false;
-			if (pos)
+	తార్కిక దొరికింది = అబద్ధం;
+	పూర్ణాంకం కొలత = Get_కొలత(*ఇది);
+	కొరకు (పూర్ణాంకం i = 0; i < కొలత; i++) {
+		State బిట్టు = (*ఇది)[i];
+		ఒకవేళ (బిట్టు != RTLIL::State::S0 && బిట్టు != RTLIL::State::S1)
+			తిరిగి అబద్ధం;
+		ఒకవేళ (బిట్టు == RTLIL::State::S1) {
+			ఒకవేళ (దొరికింది)
+				తిరిగి అబద్ధం;
+			ఒకవేళ (pos)
 				*pos = i;
-			found = true;
+			దొరికింది = నిజం;
 		}
 	}
-	return found;
+	తిరిగి దొరికింది;
 }
 
-Hasher RTLIL::Const::hash_into(Hasher h) const
+Hasher RTLIL::Const::hash_into(Hasher h) స్థిరరాశి
 {
-	if (auto str = get_if_str())
-		return hashlib::hash_ops<std::string>::hash_into(*str, h);
+	ఒకవేళ (స్వయంచాలక str = get_if_str())
+		తిరిగి hashlib::hash_ops<std::string>::hash_into(*str, h);
 
 	// If the bits are all 0/1, hash packed bits using the string hash.
 	// Otherwise hash the leading packed bits with the rest of the bits individually.
-	const bitvectype &bv = get_bits();
-	int size = GetSize(bv);
+	స్థిరరాశి bitvectype &bv = get_బిట్లు();
+	పూర్ణాంకం కొలత = Get_కొలత(bv);
 	std::string packed;
-	int packed_size = (size + 7) >> 3;
-	packed.resize(packed_size, 0);
-	for (int bi = 0; bi < packed_size; ++bi) {
-		char ch = 0;
-		int end = std::min((bi + 1)*8, size);
-		for (int i = bi*8; i < end; ++i) {
+	పూర్ణాంకం packed_కొలత = (కొలత + 7) >> 3;
+	packed.resize(packed_కొలత, 0);
+	కొరకు (పూర్ణాంకం bi = 0; bi < packed_కొలత; ++bi) {
+		అక్షరం ch = 0;
+		పూర్ణాంకం చివర = std::min((bi + 1)*8, కొలత);
+		కొరకు (పూర్ణాంకం i = bi*8; i < చివర; ++i) {
 			RTLIL::State b = bv[i];
-			if (b > RTLIL::State::S1) {
+			ఒకవేళ (b > RTLIL::State::S1) {
 				// Hash the packed bits we've seen so far, plus the remaining bits.
 				h = hashlib::hash_ops<std::string>::hash_into(packed, h);
-				h = hashlib::hash_ops<char>::hash_into(ch, h);
-				for (; i < size; ++i) {
+				h = hashlib::hash_ops<అక్షరం>::hash_into(ch, h);
+				కొరకు (; i < కొలత; ++i) {
 					h = hashlib::hash_ops<RTLIL::State>::hash_into(bv[i], h);
 				}
-				h.eat(size);
-				return h;
+				h.eat(కొలత);
+				తిరిగి h;
 			}
-			ch |= static_cast<int>(b) << (i & 7);
+			ch |= static_cast<పూర్ణాంకం>(b) << (i & 7);
 		}
-		packed[packed_size - 1 - bi] = ch;
+		packed[packed_కొలత - 1 - bi] = ch;
 	}
-	return hashlib::hash_ops<std::string>::hash_into(packed, h);
+	తిరిగి hashlib::hash_ops<std::string>::hash_into(packed, h);
 }
 
-RTLIL::Const RTLIL::Const::extract(int offset, int len, RTLIL::State padding) const {
+RTLIL::Const RTLIL::Const::వెలికితీయి(పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం len, RTLIL::State padding) స్థిరరాశి {
 	bitvectype ret_bv;
 	ret_bv.reserve(len);
-	for (int i = offset; i < offset + len; i++)
-		ret_bv.push_back(i < GetSize(*this) ? (*this)[i] : padding);
-	return RTLIL::Const(ret_bv);
+	కొరకు (పూర్ణాంకం i = స్థానభ్రంశం; i < స్థానభ్రంశం + len; i++)
+		ret_bv.నెట్టు_వెనుక(i < Get_కొలత(*ఇది) ? (*ఇది)[i] : padding);
+	తిరిగి RTLIL::Const(ret_bv);
 }
-#undef check /* check(condition) for Const */
+#నిర్వచనం_రద్దు check /* check(condition) for Const */
 
-bool RTLIL::AttrObject::has_attribute(RTLIL::IdString id) const
+తార్కిక RTLIL::AttrObject::has_attribute(RTLIL::IdString id) స్థిరరాశి
 {
-	return attributes.count(id);
+	తిరిగి లక్షణాలు.లెక్క(id);
 }
 
-void RTLIL::AttrObject::set_bool_attribute(RTLIL::IdString id, bool value)
+శూన్య RTLIL::AttrObject::సమితి_bool_attribute(RTLIL::IdString id, తార్కిక విలువ)
 {
-	if (value)
-		attributes[id] = RTLIL::Const(1);
-	else
-		attributes.erase(id);
+	ఒకవేళ (విలువ)
+		లక్షణాలు[id] = RTLIL::Const(1);
+	లేకపోతే
+		లక్షణాలు.erase(id);
 }
 
-bool RTLIL::AttrObject::get_bool_attribute(RTLIL::IdString id) const
+తార్కిక RTLIL::AttrObject::get_bool_attribute(RTLIL::IdString id) స్థిరరాశి
 {
-	const auto it = attributes.find(id);
-	if (it == attributes.end())
-		return false;
-	return it->second.as_bool();
+	స్థిరరాశి స్వయంచాలక it = లక్షణాలు.కనుగొను(id);
+	ఒకవేళ (it == లక్షణాలు.చివర())
+		తిరిగి అబద్ధం;
+	తిరిగి it->రెండవ.as_bool();
 }
 
-void RTLIL::AttrObject::set_string_attribute(RTLIL::IdString id, string value)
+శూన్య RTLIL::AttrObject::సమితి_string_attribute(RTLIL::IdString id, string విలువ)
 {
-	if (value.empty())
-		attributes.erase(id);
-	else
-		attributes[id] = value;
+	ఒకవేళ (విలువ.ఖాళీలు())
+		లక్షణాలు.erase(id);
+	లేకపోతే
+		లక్షణాలు[id] = విలువ;
 }
 
-string RTLIL::AttrObject::get_string_attribute(RTLIL::IdString id) const
+string RTLIL::AttrObject::get_string_attribute(RTLIL::IdString id) స్థిరరాశి
 {
-	std::string value;
-	const auto it = attributes.find(id);
-	if (it != attributes.end())
-		value = it->second.decode_string();
-	return value;
+	std::string విలువ;
+	స్థిరరాశి స్వయంచాలక it = లక్షణాలు.కనుగొను(id);
+	ఒకవేళ (it != లక్షణాలు.చివర())
+		విలువ = it->రెండవ.decode_string();
+	తిరిగి విలువ;
 }
 
-void RTLIL::AttrObject::set_strpool_attribute(RTLIL::IdString id, const pool<string> &data)
+శూన్య RTLIL::AttrObject::సమితి_strpool_attribute(RTLIL::IdString id, స్థిరరాశి pool<string> &దత్తాంశం)
 {
 	string attrval;
-	for (const auto &s : data) {
-		if (!attrval.empty())
+	కొరకు (స్థిరరాశి స్వయంచాలక &s : దత్తాంశం) {
+		ఒకవేళ (!attrval.ఖాళీలు())
 			attrval += "|";
 		attrval += s;
 	}
-	set_string_attribute(id, attrval);
+	సమితి_string_attribute(id, attrval);
 }
 
-void RTLIL::AttrObject::add_strpool_attribute(RTLIL::IdString id, const pool<string> &data)
+శూన్య RTLIL::AttrObject::కూడు_strpool_attribute(RTLIL::IdString id, స్థిరరాశి pool<string> &దత్తాంశం)
 {
-	pool<string> union_data = get_strpool_attribute(id);
-	union_data.insert(data.begin(), data.end());
-	if (!union_data.empty())
-		set_strpool_attribute(id, union_data);
+	pool<string> union_దత్తాంశం = get_strpool_attribute(id);
+	union_దత్తాంశం.చొప్పించు(దత్తాంశం.begin(), దత్తాంశం.చివర());
+	ఒకవేళ (!union_దత్తాంశం.ఖాళీలు())
+		సమితి_strpool_attribute(id, union_దత్తాంశం);
 }
 
-void RTLIL::Design::absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf)
+శూన్య RTLIL::Design::absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf)
 {
-	obj->attributes = std::move(buf);
+	obj->లక్షణాలు = std::move(buf);
 }
 
-namespace {
-	template<typename F>
-	void walk_process_attr_objects(RTLIL::Process *process, F visit) {
-		visit(process);
-		std::vector<RTLIL::CaseRule*> case_stack{&process->root_case};
-		while (!case_stack.empty()) {
-			RTLIL::CaseRule *cs = case_stack.back();
-			case_stack.pop_back();
-			visit(cs);
-			for (auto *sw : cs->switches) {
-				visit(sw);
-				for (auto *case_ : sw->cases)
-					case_stack.push_back(case_);
+నామాకాశ {
+	మూస<రకం_పేరు F>
+	శూన్య walk_process_attr_objects(RTLIL::Process *process, F సందర్శించు) {
+		సందర్శించు(process);
+		std::సదిశ<RTLIL::Case_నియమం*> case_దొంతర{&process->మూలం_case};
+		అయితే (!case_దొంతర.ఖాళీలు()) {
+			RTLIL::Case_నియమం *cs = case_దొంతర.వెనుక();
+			case_దొంతర.తీయి_వెనుక();
+			సందర్శించు(cs);
+			కొరకు (స్వయంచాలక *sw : cs->switches) {
+				సందర్శించు(sw);
+				కొరకు (స్వయంచాలక *case_ : sw->cases)
+					case_దొంతర.నెట్టు_వెనుక(case_);
 			}
 		}
-		for (auto *sync : process->syncs)
-			for (auto &mwa : sync->mem_write_actions)
-				visit(&mwa);
+		కొరకు (స్వయంచాలక *సమకాలీకరణ : process->syncs)
+			కొరకు (స్వయంచాలక &mwa : సమకాలీకరణ->mem_write_actions)
+				సందర్శించు(&mwa);
 	}
 
-	template<typename F>
-	void walk_attr_objects(RTLIL::Design *design, F visit) {
-		for (auto &[_, module] : design->modules_) {
-			visit(module);
-			for (auto &[_, wire] : module->wires_)
-				visit(wire);
-			for (auto &[_, mem] : module->memories)
-				visit(mem);
-			for (auto &[_, cell] : module->cells_)
-				visit(cell);
-			for (auto &[_, process] : module->processes)
-				walk_process_attr_objects(process, visit);
+	మూస<రకం_పేరు F>
+	శూన్య walk_attr_objects(RTLIL::Design *design, F సందర్శించు) {
+		కొరకు (స్వయంచాలక &[_, module] : design->modules_) {
+			సందర్శించు(module);
+			కొరకు (స్వయంచాలక &[_, wire] : module->wires_)
+				సందర్శించు(wire);
+			కొరకు (స్వయంచాలక &[_, mem] : module->memories)
+				సందర్శించు(mem);
+			కొరకు (స్వయంచాలక &[_, cell] : module->cells_)
+				సందర్శించు(cell);
+			కొరకు (స్వయంచాలక &[_, process] : module->processes)
+				walk_process_attr_objects(process, సందర్శించు);
 		}
 	}
 }
 
 
-size_t RTLIL::Design::gc_twines()
+కొలత_t RTLIL::Design::gc_twines()
 {
-	int64_t start = PerformanceTimer::query();
-	pool<IdString> live;
-	auto root = [&](IdString ref) {
-		if (ref != IdString::Null)
-			live.insert(ref);
+	int64_t ప్రారంభం = PerformanceTimer::query();
+	pool<IdString> సజీవ;
+	స్వయంచాలక మూలం = [&](IdString ref) {
+		ఒకవేళ (ref != IdString::Null)
+			సజీవ.చొప్పించు(ref);
 	};
 
-	walk_attr_objects(this, [&](const RTLIL::AttrObject *obj) {
-		for (auto &attr : obj->attributes)
-			root(attr.first);
+	walk_attr_objects(ఇది, [&](స్థిరరాశి RTLIL::AttrObject *obj) {
+		కొరకు (స్వయంచాలక &attr : obj->లక్షణాలు)
+			మూలం(attr.మొదటి);
 	});
 
-	root(selected_active_module);
+	మూలం(selected_చురుకైన_module);
 
-	for (auto &[name, module] : modules_) {
-		root(name);
-		for (IdString port : module->ports)
-			root(port);
-		for (IdString param : module->avail_parameters)
-			root(param);
-		for (auto &[param, _] : module->parameter_default_values)
-			root(param);
-		for (auto &[name, _] : module->memories)
-			root(name);
-		for (auto &[name, _] : module->processes)
-			root(name);
-		for (auto &[name, wire] : module->wires_) {
-			root(name);
-			if (wire->known_driver())
-				root(wire->driverPort());
+	కొరకు (స్వయంచాలక &[name, module] : modules_) {
+		మూలం(name);
+		కొరకు (IdString పోర్టు : module->ports)
+			మూలం(పోర్టు);
+		కొరకు (IdString param : module->avail_parameters)
+			మూలం(param);
+		కొరకు (స్వయంచాలక &[param, _] : module->parameter_default_విలువలు)
+			మూలం(param);
+		కొరకు (స్వయంచాలక &[name, _] : module->memories)
+			మూలం(name);
+		కొరకు (స్వయంచాలక &[name, _] : module->processes)
+			మూలం(name);
+		కొరకు (స్వయంచాలక &[name, wire] : module->wires_) {
+			మూలం(name);
+			ఒకవేళ (wire->తెలిసిన_driver())
+				మూలం(wire->driver_పోర్టు());
 		}
-		for (auto &[name, cell] : module->cells_) {
-			root(name);
-			root(cell->type);
-			for (auto &conn : cell->connections())
-				root(conn.first);
-			for (auto &param : cell->parameters)
-				root(param.first);
+		కొరకు (స్వయంచాలక &[name, cell] : module->cells_) {
+			మూలం(name);
+			మూలం(cell->type);
+			కొరకు (స్వయంచాలక &conn : cell->connections())
+				మూలం(conn.మొదటి);
+			కొరకు (స్వయంచాలక &param : cell->parameters)
+				మూలం(param.మొదటి);
 		}
-		for (auto &[_, process] : module->processes) {
-			std::vector<RTLIL::CaseRule*> case_stack{&process->root_case};
-			while (!case_stack.empty()) {
-				RTLIL::CaseRule *cs = case_stack.back();
-				case_stack.pop_back();
-				for (auto *sw : cs->switches) {
-					for (auto *case_ : sw->cases)
-						case_stack.push_back(case_);
+		కొరకు (స్వయంచాలక &[_, process] : module->processes) {
+			std::సదిశ<RTLIL::Case_నియమం*> case_దొంతర{&process->మూలం_case};
+			అయితే (!case_దొంతర.ఖాళీలు()) {
+				RTLIL::Case_నియమం *cs = case_దొంతర.వెనుక();
+				case_దొంతర.తీయి_వెనుక();
+				కొరకు (స్వయంచాలక *sw : cs->switches) {
+					కొరకు (స్వయంచాలక *case_ : sw->cases)
+						case_దొంతర.నెట్టు_వెనుక(case_);
 				}
 			}
-			for (auto *sync : process->syncs) {
-				for (auto &mwa : sync->mem_write_actions)
-					root(mwa.memid);
+			కొరకు (స్వయంచాలక *సమకాలీకరణ : process->syncs) {
+				కొరకు (స్వయంచాలక &mwa : సమకాలీకరణ->mem_write_actions)
+					మూలం(mwa.memid);
 			}
 		}
 	}
 
-	auto root_selection = [&](const RTLIL::Selection &sel) {
-		for (IdString m : sel.selected_modules)
-			root(m);
-		for (auto &[m, members] : sel.selected_members) {
-			root(m);
-			for (IdString member : members)
-				root(member);
+	స్వయంచాలక మూలం_selection = [&](స్థిరరాశి RTLIL::Selection &sel) {
+		కొరకు (IdString m : sel.selected_modules)
+			మూలం(m);
+		కొరకు (స్వయంచాలక &[m, members] : sel.selected_members) {
+			మూలం(m);
+			కొరకు (IdString member : members)
+				మూలం(member);
 		}
 	};
 
-	for (auto &[name, sel] : selection_vars) {
-		root(name);
-		root_selection(sel);
+	కొరకు (స్వయంచాలక &[name, sel] : selection_vars) {
+		మూలం(name);
+		మూలం_selection(sel);
 	}
 
-	for (auto &sel : selection_stack)
-		root_selection(sel);
+	కొరకు (స్వయంచాలక &sel : selection_దొంతర)
+		మూలం_selection(sel);
 
-	size_t erased = twines_.gc(live);
+	కొలత_t erased = twines_.gc(సజీవ);
 
-	int64_t time_ns = PerformanceTimer::query() - start;
-	Pass::subtract_from_current_runtime_ns(time_ns);
-	twine_gc_ns += time_ns;
-	++twine_gc_count;
-	return erased;
+	int64_t సమయం_ns = PerformanceTimer::query() - ప్రారంభం;
+	Pass::వ్యవకలనం_from_current_runtime_ns(సమయం_ns);
+	twine_gc_ns += సమయం_ns;
+	++twine_gc_లెక్క;
+	తిరిగి erased;
 }
 
 
 
 
-pool<string> RTLIL::AttrObject::get_strpool_attribute(RTLIL::IdString id) const
+pool<string> RTLIL::AttrObject::get_strpool_attribute(RTLIL::IdString id) స్థిరరాశి
 {
-	pool<string> data;
-	if (attributes.count(id) != 0)
-		for (auto s : split_tokens(get_string_attribute(id), "|"))
-			data.insert(s);
-	return data;
+	pool<string> దత్తాంశం;
+	ఒకవేళ (లక్షణాలు.లెక్క(id) != 0)
+		కొరకు (స్వయంచాలక s : విభజించు_టోకెన్లు(get_string_attribute(id), "|"))
+			దత్తాంశం.చొప్పించు(s);
+	తిరిగి దత్తాంశం;
 }
 
-void RTLIL::AttrObject::set_hdlname_attribute(const vector<string> &hierarchy)
+శూన్య RTLIL::AttrObject::సమితి_hdlname_attribute(స్థిరరాశి సదిశ<string> &hierarchy)
 {
 	string attrval;
-	for (const auto &ident : hierarchy) {
-		if (!attrval.empty())
+	కొరకు (స్థిరరాశి స్వయంచాలక &ident : hierarchy) {
+		ఒకవేళ (!attrval.ఖాళీలు())
 			attrval += " ";
 		attrval += ident;
 	}
-	set_string_attribute(ID::hdlname, attrval);
+	సమితి_string_attribute(ID::hdlname, attrval);
 }
 
-vector<string> RTLIL::AttrObject::get_hdlname_attribute() const
+సదిశ<string> RTLIL::AttrObject::get_hdlname_attribute() స్థిరరాశి
 {
-	return split_tokens(get_string_attribute(ID::hdlname), " ");
+	తిరిగి విభజించు_టోకెన్లు(get_string_attribute(ID::hdlname), " ");
 }
 
-void RTLIL::AttrObject::set_intvec_attribute(RTLIL::IdString id, const vector<int> &data)
+శూన్య RTLIL::AttrObject::సమితి_intvec_attribute(RTLIL::IdString id, స్థిరరాశి సదిశ<పూర్ణాంకం> &దత్తాంశం)
 {
 	std::stringstream attrval;
-	for (auto &i : data) {
-		if (attrval.tellp() > 0)
+	కొరకు (స్వయంచాలక &i : దత్తాంశం) {
+		ఒకవేళ (attrval.tellp() > 0)
 			attrval << " ";
 		attrval << i;
 	}
-	attributes[id] = RTLIL::Const(attrval.str());
+	లక్షణాలు[id] = RTLIL::Const(attrval.str());
 }
 
-vector<int> RTLIL::AttrObject::get_intvec_attribute(RTLIL::IdString id) const
+సదిశ<పూర్ణాంకం> RTLIL::AttrObject::get_intvec_attribute(RTLIL::IdString id) స్థిరరాశి
 {
-	vector<int> data;
-	auto it = attributes.find(id);
-	if (it != attributes.end())
-		for (const auto &s : split_tokens(attributes.at(id).decode_string())) {
-			char *end = nullptr;
+	సదిశ<పూర్ణాంకం> దత్తాంశం;
+	స్వయంచాలక it = లక్షణాలు.కనుగొను(id);
+	ఒకవేళ (it != లక్షణాలు.చివర())
+		కొరకు (స్థిరరాశి స్వయంచాలక &s : విభజించు_టోకెన్లు(లక్షణాలు.at(id).decode_string())) {
+			అక్షరం *చివర = శూన్యసూచిక;
 			errno = 0;
-			long value = strtol(s.c_str(), &end, 10);
-			if (end != s.c_str() + s.size())
+			దీర్ఘ విలువ = strtol(s.c_str(), &చివర, 10);
+			ఒకవేళ (చివర != s.c_str() + s.కొలత())
 				log_cmd_error("Literal for intvec attribute has invalid format\n");
-			if (errno == ERANGE || value < INT_MIN || value > INT_MAX)
+			ఒకవేళ (errno == ERANGE || విలువ < INT_MIN || విలువ > గరిష్ఠ_పూర్ణాంకం)
 				log_cmd_error("Literal for intvec attribute is out of range\n");
-			data.push_back(value);
+			దత్తాంశం.నెట్టు_వెనుక(విలువ);
 		}
-	return data;
+	తిరిగి దత్తాంశం;
 }
 
-bool RTLIL::Selection::boxed_module(RTLIL::IdString mod_name) const
+తార్కిక RTLIL::Selection::boxed_module(RTLIL::IdString mod_name) స్థిరరాశి
 {
-	if (current_design != nullptr) {
-		auto module = current_design->module(mod_name);
-		return module && module->get_blackbox_attribute();
-	} else {
+	ఒకవేళ (current_design != శూన్యసూచిక) {
+		స్వయంచాలక module = current_design->module(mod_name);
+		తిరిగి module && module->get_blackbox_attribute();
+	} లేకపోతే {
 		log_warning("Unable to check if module is boxed for null design.\n");
-		return false;
+		తిరిగి అబద్ధం;
 	}
 }
 
-bool RTLIL::Selection::selected_module(RTLIL::IdString mod_name) const
+తార్కిక RTLIL::Selection::selected_module(RTLIL::IdString mod_name) స్థిరరాశి
 {
-	if (complete_selection)
-		return true;
-	if (!selects_boxes && boxed_module(mod_name))
-		return false;
-	if (full_selection)
-		return true;
-	if (selected_modules.count(mod_name) > 0)
-		return true;
-	if (selected_members.count(mod_name) > 0)
-		return true;
-	return false;
+	ఒకవేళ (complete_selection)
+		తిరిగి నిజం;
+	ఒకవేళ (!selects_boxes && boxed_module(mod_name))
+		తిరిగి అబద్ధం;
+	ఒకవేళ (నిండిన_selection)
+		తిరిగి నిజం;
+	ఒకవేళ (selected_modules.లెక్క(mod_name) > 0)
+		తిరిగి నిజం;
+	ఒకవేళ (selected_members.లెక్క(mod_name) > 0)
+		తిరిగి నిజం;
+	తిరిగి అబద్ధం;
 }
 
-bool RTLIL::Selection::selected_whole_module(RTLIL::IdString mod_name) const
+తార్కిక RTLIL::Selection::selected_సంపూర్ణ_module(RTLIL::IdString mod_name) స్థిరరాశి
 {
-	if (complete_selection)
-		return true;
-	if (!selects_boxes && boxed_module(mod_name))
-		return false;
-	if (full_selection)
-		return true;
-	if (selected_modules.count(mod_name) > 0)
-		return true;
-	return false;
+	ఒకవేళ (complete_selection)
+		తిరిగి నిజం;
+	ఒకవేళ (!selects_boxes && boxed_module(mod_name))
+		తిరిగి అబద్ధం;
+	ఒకవేళ (నిండిన_selection)
+		తిరిగి నిజం;
+	ఒకవేళ (selected_modules.లెక్క(mod_name) > 0)
+		తిరిగి నిజం;
+	తిరిగి అబద్ధం;
 }
 
-bool RTLIL::Selection::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) const
+తార్కిక RTLIL::Selection::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) స్థిరరాశి
 {
-	if (complete_selection)
-		return true;
-	if (!selects_boxes && boxed_module(mod_name))
-		return false;
-	if (full_selection)
-		return true;
-	if (selected_modules.count(mod_name) > 0)
-		return true;
-	if (selected_members.count(mod_name) > 0)
-		if (selected_members.at(mod_name).count(memb_name) > 0)
-			return true;
-	return false;
+	ఒకవేళ (complete_selection)
+		తిరిగి నిజం;
+	ఒకవేళ (!selects_boxes && boxed_module(mod_name))
+		తిరిగి అబద్ధం;
+	ఒకవేళ (నిండిన_selection)
+		తిరిగి నిజం;
+	ఒకవేళ (selected_modules.లెక్క(mod_name) > 0)
+		తిరిగి నిజం;
+	ఒకవేళ (selected_members.లెక్క(mod_name) > 0)
+		ఒకవేళ (selected_members.at(mod_name).లెక్క(memb_name) > 0)
+			తిరిగి నిజం;
+	తిరిగి అబద్ధం;
 }
 
-void RTLIL::Selection::optimize(RTLIL::Design *design)
+శూన్య RTLIL::Selection::optimize(RTLIL::Design *design)
 {
-	if (design != current_design) {
+	ఒకవేళ (design != current_design) {
 		current_design = design;
 	}
 
-	if (selects_boxes && full_selection)
-		complete_selection = true;
-	if (complete_selection) {
-		full_selection = false;
-		selects_boxes = true;
+	ఒకవేళ (selects_boxes && నిండిన_selection)
+		complete_selection = నిజం;
+	ఒకవేళ (complete_selection) {
+		నిండిన_selection = అబద్ధం;
+		selects_boxes = నిజం;
 	}
-	if (selects_all()) {
+	ఒకవేళ (selects_all()) {
 		selected_modules.clear();
 		selected_members.clear();
-		return;
+		తిరిగి;
 	}
 
-	std::vector<RTLIL::IdString> del_list, add_list;
+	std::సదిశ<RTLIL::IdString> del_list, కూడు_list;
 
 	del_list.clear();
-	for (auto mod_name : selected_modules) {
-		if (current_design->module(mod_name) == nullptr || (!selects_boxes && boxed_module(mod_name)))
-			del_list.push_back(mod_name);
+	కొరకు (స్వయంచాలక mod_name : selected_modules) {
+		ఒకవేళ (current_design->module(mod_name) == శూన్యసూచిక || (!selects_boxes && boxed_module(mod_name)))
+			del_list.నెట్టు_వెనుక(mod_name);
 		selected_members.erase(mod_name);
 	}
-	for (auto mod_name : del_list)
+	కొరకు (స్వయంచాలక mod_name : del_list)
 		selected_modules.erase(mod_name);
 
 	del_list.clear();
-	for (auto &it : selected_members)
-		if (current_design->module(it.first) == nullptr || (!selects_boxes && boxed_module(it.first)))
-			del_list.push_back(it.first);
-	for (auto mod_name : del_list)
+	కొరకు (స్వయంచాలక &it : selected_members)
+		ఒకవేళ (current_design->module(it.మొదటి) == శూన్యసూచిక || (!selects_boxes && boxed_module(it.మొదటి)))
+			del_list.నెట్టు_వెనుక(it.మొదటి);
+	కొరకు (స్వయంచాలక mod_name : del_list)
 		selected_members.erase(mod_name);
 
-	for (auto &it : selected_members) {
+	కొరకు (స్వయంచాలక &it : selected_members) {
 		del_list.clear();
-		for (auto memb_name : it.second)
-			if (current_design->module(it.first)->count_id(memb_name) == 0)
-				del_list.push_back(memb_name);
-		for (auto memb_name : del_list)
-			it.second.erase(memb_name);
+		కొరకు (స్వయంచాలక memb_name : it.రెండవ)
+			ఒకవేళ (current_design->module(it.మొదటి)->లెక్క_id(memb_name) == 0)
+				del_list.నెట్టు_వెనుక(memb_name);
+		కొరకు (స్వయంచాలక memb_name : del_list)
+			it.రెండవ.erase(memb_name);
 	}
 
 	del_list.clear();
-	add_list.clear();
-	for (auto &it : selected_members)
-		if (it.second.size() == 0)
-			del_list.push_back(it.first);
-		else if (it.second.size() == current_design->module(it.first)->wires_.size() + current_design->module(it.first)->memories.size() +
-				current_design->module(it.first)->cells_.size() + current_design->module(it.first)->processes.size())
-			add_list.push_back(it.first);
-	for (auto mod_name : del_list)
+	కూడు_list.clear();
+	కొరకు (స్వయంచాలక &it : selected_members)
+		ఒకవేళ (it.రెండవ.కొలత() == 0)
+			del_list.నెట్టు_వెనుక(it.మొదటి);
+		లేకపోతే ఒకవేళ (it.రెండవ.కొలత() == current_design->module(it.మొదటి)->wires_.కొలత() + current_design->module(it.మొదటి)->memories.కొలత() +
+				current_design->module(it.మొదటి)->cells_.కొలత() + current_design->module(it.మొదటి)->processes.కొలత())
+			కూడు_list.నెట్టు_వెనుక(it.మొదటి);
+	కొరకు (స్వయంచాలక mod_name : del_list)
 		selected_members.erase(mod_name);
-	for (auto mod_name : add_list) {
+	కొరకు (స్వయంచాలక mod_name : కూడు_list) {
 		selected_members.erase(mod_name);
-		selected_modules.insert(mod_name);
+		selected_modules.చొప్పించు(mod_name);
 	}
 
-	if (selected_modules.size() == current_design->modules_.size()) {
+	ఒకవేళ (selected_modules.కొలత() == current_design->modules_.కొలత()) {
 		selected_modules.clear();
 		selected_members.clear();
-		if (selects_boxes)
-			complete_selection = true;
-		else
-			full_selection = true;
+		ఒకవేళ (selects_boxes)
+			complete_selection = నిజం;
+		లేకపోతే
+			నిండిన_selection = నిజం;
 	}
 }
 
-void RTLIL::Selection::clear()
+శూన్య RTLIL::Selection::clear()
 {
-	full_selection = false;
-	complete_selection = false;
+	నిండిన_selection = అబద్ధం;
+	complete_selection = అబద్ధం;
 	selected_modules.clear();
 	selected_members.clear();
 }
 
 RTLIL::Design::Design()
-  : verilog_defines (new define_map_t)
+  : verilog_నిర్వచిస్తుంది (కొత్త define_map_t)
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	స్థిర గుర్తులేని పూర్ణాంకం hashidx_లెక్క = 123456789;
+	hashidx_లెక్క = mkhash_xorshift(hashidx_లెక్క);
+	hashidx_ = hashidx_లెక్క;
 
 	refcount_modules_ = 0;
-	selected_active_module.clear();
-	push_full_selection();
+	selected_చురుకైన_module.clear();
+	నెట్టు_నిండిన_selection();
 
-	RTLIL::Design::get_all_designs()->insert(std::pair<unsigned int, RTLIL::Design*>(hashidx_, this));
+	RTLIL::Design::get_all_designs()->చొప్పించు(std::pair<గుర్తులేని పూర్ణాంకం, RTLIL::Design*>(hashidx_, ఇది));
 }
 
 RTLIL::Design::~Design()
 {
-	for (auto &pr : modules_)
-		delete pr.second;
+	కొరకు (స్వయంచాలక &pr : modules_)
+		తొలగించు pr.రెండవ;
 	RTLIL::Design::get_all_designs()->erase(hashidx_);
 }
 
-static std::map<unsigned int, RTLIL::Design*> all_designs;
-std::map<unsigned int, RTLIL::Design*> *RTLIL::Design::get_all_designs(void)
+స్థిర std::map<గుర్తులేని పూర్ణాంకం, RTLIL::Design*> all_designs;
+std::map<గుర్తులేని పూర్ణాంకం, RTLIL::Design*> *RTLIL::Design::get_all_designs(శూన్య)
 {
-	return &all_designs;
+	తిరిగి &all_designs;
 }
 
 RTLIL::ObjRange<RTLIL::Module*, IdString> RTLIL::Design::modules()
 {
-	return RTLIL::ObjRange<RTLIL::Module*, IdString>(&modules_, &refcount_modules_);
+	తిరిగి RTLIL::ObjRange<RTLIL::Module*, IdString>(&modules_, &refcount_modules_);
 }
 
-const RTLIL::Module *RTLIL::Design::module(IdString id) const {
+స్థిరరాశి RTLIL::Module *RTLIL::Design::module(IdString id) స్థిరరాశి {
 	twines_.check_owned(id);
-	return modules_.count(id) ? modules_.at(id) : NULL;
+	తిరిగి modules_.లెక్క(id) ? modules_.at(id) : ఖాళీ;
 }
 RTLIL::Module *RTLIL::Design::module(IdString id) {
 	twines_.check_owned(id);
-	return modules_.count(id) ? modules_.at(id) : NULL;
+	తిరిగి modules_.లెక్క(id) ? modules_.at(id) : ఖాళీ;
 }
 
-RTLIL::Module *RTLIL::Design::top_module() const
+RTLIL::Module *RTLIL::Design::శిఖరం_module() స్థిరరాశి
 {
-	RTLIL::Module *module = nullptr;
-	int module_count = 0;
+	RTLIL::Module *module = శూన్యసూచిక;
+	పూర్ణాంకం module_లెక్క = 0;
 
-	for (auto mod : selected_modules()) {
-		if (mod->get_bool_attribute(ID::top))
-			return mod;
-		module_count++;
+	కొరకు (స్వయంచాలక mod : selected_modules()) {
+		ఒకవేళ (mod->get_bool_attribute(ID::శిఖరం))
+			తిరిగి mod;
+		module_లెక్క++;
 		module = mod;
 	}
 
-	return module_count == 1 ? module : nullptr;
+	తిరిగి module_లెక్క == 1 ? module : శూన్యసూచిక;
 }
 
-RTLIL::Module *RTLIL::Design::addModule(RTLIL::IdString name)
+RTLIL::Module *RTLIL::Design::కూడు_Module(RTLIL::IdString name)
 {
-	if (modules_.count(name) != 0)
+	ఒకవేళ (modules_.లెక్క(name) != 0)
 		log_error("Attempted to add new module named '%s', but a module by that name already exists\n", twines_.str(name));
 	log_assert(refcount_modules_ == 0);
 
-	RTLIL::Module *module = new RTLIL::Module;
+	RTLIL::Module *module = కొత్త RTLIL::Module;
 	modules_[name] = module;
-	module->design = this;
+	module->design = ఇది;
 	module->name = name;
 
-	for (auto mon : monitors)
-		mon->notify_module_add(module);
+	కొరకు (స్వయంచాలక mon : monitors)
+		mon->notify_module_కూడు(module);
 
-	if (yosys_xtrace) {
-		log("#X# New Module: %s\n", twines_.str(name));
+	ఒకవేళ (yosys_xtrace) {
+		సంవర్గమానం("#X# New Module: %s\n", twines_.str(name));
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
-	return module;
+	తిరిగి module;
 }
 
-void RTLIL::Design::scratchpad_unset(const std::string &varname)
+శూన్య RTLIL::Design::scratchpad_unset(స్థిరరాశి std::string &varname)
 {
 	scratchpad.erase(varname);
 }
 
-void RTLIL::Design::scratchpad_set_int(const std::string &varname, int value)
+శూన్య RTLIL::Design::scratchpad_సమితి_int(స్థిరరాశి std::string &varname, పూర్ణాంకం విలువ)
 {
-	scratchpad[varname] = stringf("%d", value);
+	scratchpad[varname] = stringf("%d", విలువ);
 }
 
-void RTLIL::Design::scratchpad_set_bool(const std::string &varname, bool value)
+శూన్య RTLIL::Design::scratchpad_సమితి_bool(స్థిరరాశి std::string &varname, తార్కిక విలువ)
 {
-	scratchpad[varname] = value ? "true" : "false";
+	scratchpad[varname] = విలువ ? "true" : "false";
 }
 
-void RTLIL::Design::scratchpad_set_string(const std::string &varname, std::string value)
+శూన్య RTLIL::Design::scratchpad_సమితి_string(స్థిరరాశి std::string &varname, std::string విలువ)
 {
-	scratchpad[varname] = std::move(value);
+	scratchpad[varname] = std::move(విలువ);
 }
 
-int RTLIL::Design::scratchpad_get_int(const std::string &varname, int default_value) const
+పూర్ణాంకం RTLIL::Design::scratchpad_get_int(స్థిరరాశి std::string &varname, పూర్ణాంకం default_విలువ_2) స్థిరరాశి
 {
-	auto it = scratchpad.find(varname);
-	if (it == scratchpad.end())
-		return default_value;
+	స్వయంచాలక it = scratchpad.కనుగొను(varname);
+	ఒకవేళ (it == scratchpad.చివర())
+		తిరిగి default_విలువ_2;
 
-	const std::string &str = it->second;
+	స్థిరరాశి std::string &str = it->రెండవ;
 
-	if (str == "0" || str == "false")
-		return 0;
+	ఒకవేళ (str == "0" || str == "false")
+		తిరిగి 0;
 
-	if (str == "1" || str == "true")
-		return 1;
+	ఒకవేళ (str == "1" || str == "true")
+		తిరిగి 1;
 
-	char *endptr = nullptr;
-	long int parsed_value = strtol(str.c_str(), &endptr, 10);
-	return *endptr ? default_value : parsed_value;
+	అక్షరం *endptr = శూన్యసూచిక;
+	దీర్ఘ పూర్ణాంకం parsed_విలువ = strtol(str.c_str(), &endptr, 10);
+	తిరిగి *endptr ? default_విలువ_2 : parsed_విలువ;
 }
 
-bool RTLIL::Design::scratchpad_get_bool(const std::string &varname, bool default_value) const
+తార్కిక RTLIL::Design::scratchpad_get_bool(స్థిరరాశి std::string &varname, తార్కిక default_విలువ_2) స్థిరరాశి
 {
-	auto it = scratchpad.find(varname);
-	if (it == scratchpad.end())
-		return default_value;
+	స్వయంచాలక it = scratchpad.కనుగొను(varname);
+	ఒకవేళ (it == scratchpad.చివర())
+		తిరిగి default_విలువ_2;
 
-	const std::string &str = it->second;
+	స్థిరరాశి std::string &str = it->రెండవ;
 
-	if (str == "0" || str == "false")
-		return false;
+	ఒకవేళ (str == "0" || str == "false")
+		తిరిగి అబద్ధం;
 
-	if (str == "1" || str == "true")
-		return true;
+	ఒకవేళ (str == "1" || str == "true")
+		తిరిగి నిజం;
 
-	return default_value;
+	తిరిగి default_విలువ_2;
 }
 
-std::string RTLIL::Design::scratchpad_get_string(const std::string &varname, const std::string &default_value) const
+std::string RTLIL::Design::scratchpad_get_string(స్థిరరాశి std::string &varname, స్థిరరాశి std::string &default_విలువ_2) స్థిరరాశి
 {
-	auto it = scratchpad.find(varname);
-	if (it == scratchpad.end())
-		return default_value;
+	స్వయంచాలక it = scratchpad.కనుగొను(varname);
+	ఒకవేళ (it == scratchpad.చివర())
+		తిరిగి default_విలువ_2;
 
-	return it->second;
+	తిరిగి it->రెండవ;
 }
 
-void RTLIL::Design::remove(RTLIL::Module *module)
+శూన్య RTLIL::Design::remove(RTLIL::Module *module)
 {
-	for (auto mon : monitors)
+	కొరకు (స్వయంచాలక mon : monitors)
 		mon->notify_module_del(module);
 
-	if (yosys_xtrace) {
-		log("#X# Remove Module: %s\n", module);
+	ఒకవేళ (yosys_xtrace) {
+		సంవర్గమానం("#X# Remove Module: %s\n", module);
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
 	log_assert(modules_.at(module->name) == module);
 	log_assert(refcount_modules_ == 0);
 	modules_.erase(module->name);
-	delete module;
+	తొలగించు module;
 }
 
-void RTLIL::Design::rename(RTLIL::Module *module, RTLIL::IdString new_name)
+శూన్య RTLIL::Design::rename(RTLIL::Module *module, RTLIL::IdString new_name)
 {
 	modules_.erase(module->name);
 	module->name = new_name;
-	add(module);
+	కూడు(module);
 }
 
-void RTLIL::Design::sort()
+శూన్య RTLIL::Design::క్రమీకరించు()
 {
-	scratchpad.sort();
-	modules_.sort(sort_by_id_str(twines_));
-	for (auto &it : modules_)
-		it.second->sort();
+	scratchpad.క్రమీకరించు();
+	modules_.క్రమీకరించు(క్రమీకరించు_by_id_str(twines_));
+	కొరకు (స్వయంచాలక &it : modules_)
+		it.రెండవ->క్రమీకరించు();
 }
 
-void RTLIL::Design::sort_modules()
+శూన్య RTLIL::Design::క్రమీకరించు_modules()
 {
-	scratchpad.sort();
-	modules_.sort(sort_by_id_str(twines_));
+	scratchpad.క్రమీకరించు();
+	modules_.క్రమీకరించు(క్రమీకరించు_by_id_str(twines_));
 }
 
-void check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool);
+శూన్య check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool);
 
-void RTLIL::Design::check()
+శూన్య RTLIL::Design::check()
 {
-#ifndef NDEBUG
-	log_assert(!selection_stack.empty());
-	int pool_size = 0;
-	for (auto &it : modules_)
-		pool_size = std::max(pool_size, ThreadPool::work_pool_size(0, it.second->cells_size(), 1000));
-	ParallelDispatchThreadPool thread_pool(pool_size);
-	for (auto &it : modules_) {
-		log_assert(this == it.second->design);
-		log_assert(it.first == it.second->name);
-		check_module(it.second, thread_pool);
+#నిర్వచితం_కాకపోతే NDEBUG
+	log_assert(!selection_దొంతర.ఖాళీలు());
+	పూర్ణాంకం pool_కొలత = 0;
+	కొరకు (స్వయంచాలక &it : modules_)
+		pool_కొలత = std::max(pool_కొలత, ThreadPool::work_pool_కొలత(0, it.రెండవ->cells_కొలత(), 1000));
+	ParallelDispatchThreadPool thread_pool(pool_కొలత);
+	కొరకు (స్వయంచాలక &it : modules_) {
+		log_assert(ఇది == it.రెండవ->design);
+		log_assert(it.మొదటి == it.రెండవ->name);
+		check_module(it.రెండవ, thread_pool);
 	}
-#endif
+#అయితే_ముగింపు
 }
 
-void RTLIL::Design::optimize()
+శూన్య RTLIL::Design::optimize()
 {
-	for (auto &it : modules_)
-		it.second->optimize();
-	for (auto &it : selection_stack)
-		it.optimize(this);
-	for (auto &it : selection_vars)
-		it.second.optimize(this);
+	కొరకు (స్వయంచాలక &it : modules_)
+		it.రెండవ->optimize();
+	కొరకు (స్వయంచాలక &it : selection_దొంతర)
+		it.optimize(ఇది);
+	కొరకు (స్వయంచాలక &it : selection_vars)
+		it.రెండవ.optimize(ఇది);
 }
 
-void RTLIL::Design::clone_into(RTLIL::Design *dst) const
+శూన్య RTLIL::Design::clone_into(RTLIL::Design *dst) స్థిరరాశి
 {
-	log_assert(dst->modules_.empty());
+	log_assert(dst->modules_.ఖాళీలు());
 	dst->twines_ = twines_;
-	for (auto it = modules_.rbegin(); it != modules_.rend(); ++it)
-		it->second->clone(dst);
+	కొరకు (స్వయంచాలక it = modules_.rbegin(); it != modules_.rend(); ++it)
+		it->రెండవ->clone(dst);
 }
 
-bool RTLIL::Design::selected_module(IdString mod_name) const
+తార్కిక RTLIL::Design::selected_module(IdString mod_name) స్థిరరాశి
 {
-	if (!selected_active_module.empty() && mod_name != selected_active_module)
-		return false;
-	return selection().selected_module(mod_name);
+	ఒకవేళ (!selected_చురుకైన_module.ఖాళీలు() && mod_name != selected_చురుకైన_module)
+		తిరిగి అబద్ధం;
+	తిరిగి selection().selected_module(mod_name);
 }
 
-bool RTLIL::Design::selected_whole_module(RTLIL::IdString mod_name) const
+తార్కిక RTLIL::Design::selected_సంపూర్ణ_module(RTLIL::IdString mod_name) స్థిరరాశి
 {
-	if (!selected_active_module.empty() && mod_name != selected_active_module)
-		return false;
-	return selection().selected_whole_module(mod_name);
+	ఒకవేళ (!selected_చురుకైన_module.ఖాళీలు() && mod_name != selected_చురుకైన_module)
+		తిరిగి అబద్ధం;
+	తిరిగి selection().selected_సంపూర్ణ_module(mod_name);
 }
 
-bool RTLIL::Design::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) const
+తార్కిక RTLIL::Design::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) స్థిరరాశి
 {
-	if (!selected_active_module.empty() && mod_name != selected_active_module)
-		return false;
-	return selection().selected_member(mod_name, memb_name);
+	ఒకవేళ (!selected_చురుకైన_module.ఖాళీలు() && mod_name != selected_చురుకైన_module)
+		తిరిగి అబద్ధం;
+	తిరిగి selection().selected_member(mod_name, memb_name);
 }
 
-bool RTLIL::Design::selected_module(RTLIL::Module *mod) const
+తార్కిక RTLIL::Design::selected_module(RTLIL::Module *mod) స్థిరరాశి
 {
-	return selected_module(mod->name);
+	తిరిగి selected_module(mod->name);
 }
 
-bool RTLIL::Design::selected_whole_module(RTLIL::Module *mod) const
+తార్కిక RTLIL::Design::selected_సంపూర్ణ_module(RTLIL::Module *mod) స్థిరరాశి
 {
-	return selected_whole_module(mod->name);
+	తిరిగి selected_సంపూర్ణ_module(mod->name);
 }
 
-void RTLIL::Design::push_selection(RTLIL::Selection sel)
+శూన్య RTLIL::Design::నెట్టు_selection(RTLIL::Selection sel)
 {
-	sel.current_design = this;
-	selection_stack.push_back(sel);
+	sel.current_design = ఇది;
+	selection_దొంతర.నెట్టు_వెనుక(sel);
 }
 
-void RTLIL::Design::push_empty_selection()
+శూన్య RTLIL::Design::నెట్టు_ఖాళీలు_selection()
 {
-	push_selection(RTLIL::Selection::EmptySelection(this));
+	నెట్టు_selection(RTLIL::Selection::ఖాళీలు_Selection(ఇది));
 }
 
-void RTLIL::Design::push_full_selection()
+శూన్య RTLIL::Design::నెట్టు_నిండిన_selection()
 {
-	push_selection(RTLIL::Selection::FullSelection(this));
+	నెట్టు_selection(RTLIL::Selection::నిండిన_Selection(ఇది));
 }
 
-void RTLIL::Design::push_complete_selection()
+శూన్య RTLIL::Design::నెట్టు_complete_selection()
 {
-	push_selection(RTLIL::Selection::CompleteSelection(this));
+	నెట్టు_selection(RTLIL::Selection::CompleteSelection(ఇది));
 }
 
-void RTLIL::Design::pop_selection()
+శూన్య RTLIL::Design::తీయి_selection()
 {
-	selection_stack.pop_back();
+	selection_దొంతర.తీయి_వెనుక();
 	// Default to a full_selection if we ran out of stack
-	if (selection_stack.empty())
-		push_full_selection();
+	ఒకవేళ (selection_దొంతర.ఖాళీలు())
+		నెట్టు_నిండిన_selection();
 }
 
-std::string RTLIL::Design::to_rtlil_str(bool only_selected) const
+std::string RTLIL::Design::గమ్యం_rtlil_str(తార్కిక only_selected) స్థిరరాశి
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_design(f, const_cast<RTLIL::Design*>(this), only_selected, true, false, RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_design(f, const_cast<RTLIL::Design*>(ఇది), only_selected, నిజం, అబద్ధం, RTLIL_BACKEND::Dump_బహుళకం::Readable);
+	తిరిగి f.str();
 }
 
-std::vector<RTLIL::Module*> RTLIL::Design::selected_modules(RTLIL::SelectPartials partials, RTLIL::SelectBoxes boxes) const
+std::సదిశ<RTLIL::Module*> RTLIL::Design::selected_modules(RTLIL::SelectPartials partials, RTLIL::SelectBoxes boxes) స్థిరరాశి
 {
-	bool include_partials = partials == RTLIL::SELECT_ALL;
-	bool exclude_boxes = (boxes & RTLIL::SB_UNBOXED_ONLY) != 0;
-	bool ignore_wb = (boxes & RTLIL::SB_INCL_WB) != 0;
-	std::vector<RTLIL::Module*> result;
-	result.reserve(modules_.size());
-	for (auto &it : modules_) {
-		if (selected_whole_module(it.first) || (include_partials && selected_module(it.first))) {
-			if (!(exclude_boxes && it.second->get_blackbox_attribute(ignore_wb)))
-				result.push_back(it.second);
-			else
-				switch (boxes)
+	తార్కిక include_partials = partials == RTLIL::SELECT_ALL;
+	తార్కిక exclude_boxes = (boxes & RTLIL::SB_UNBOXED_ONLY) != 0;
+	తార్కిక ignore_wb = (boxes & RTLIL::SB_INCL_WB) != 0;
+	std::సదిశ<RTLIL::Module*> ఫలితం;
+	ఫలితం.reserve(modules_.కొలత());
+	కొరకు (స్వయంచాలక &it : modules_) {
+		ఒకవేళ (selected_సంపూర్ణ_module(it.మొదటి) || (include_partials && selected_module(it.మొదటి))) {
+			ఒకవేళ (!(exclude_boxes && it.రెండవ->get_blackbox_attribute(ignore_wb)))
+				ఫలితం.నెట్టు_వెనుక(it.రెండవ);
+			లేకపోతే
+				ఎంపిక (boxes)
 				{
-				case RTLIL::SB_UNBOXED_WARN:
-					log_warning("Ignoring boxed module %s.\n", it.second);
-					break;
-				case RTLIL::SB_EXCL_BB_WARN:
-					log_warning("Ignoring blackbox module %s.\n", it.second);
-					break;
-				case RTLIL::SB_UNBOXED_ERR:
-					log_error("Unsupported boxed module %s.\n", it.second);
-					break;
-				case RTLIL::SB_EXCL_BB_ERR:
-					log_error("Unsupported blackbox module %s.\n", it.second);
-					break;
-				case RTLIL::SB_UNBOXED_CMDERR:
-					log_cmd_error("Unsupported boxed module %s.\n", it.second);
-					break;
-				case RTLIL::SB_EXCL_BB_CMDERR:
-					log_cmd_error("Unsupported blackbox module %s.\n", it.second);
-					break;
-				default:
-					break;
+				స్థితి RTLIL::SB_UNBOXED_WARN:
+					log_warning("Ignoring boxed module %s.\n", it.రెండవ);
+					ఆపు;
+				స్థితి RTLIL::SB_EXCL_BB_WARN:
+					log_warning("Ignoring blackbox module %s.\n", it.రెండవ);
+					ఆపు;
+				స్థితి RTLIL::SB_UNBOXED_ERR:
+					log_error("Unsupported boxed module %s.\n", it.రెండవ);
+					ఆపు;
+				స్థితి RTLIL::SB_EXCL_BB_ERR:
+					log_error("Unsupported blackbox module %s.\n", it.రెండవ);
+					ఆపు;
+				స్థితి RTLIL::SB_UNBOXED_CMDERR:
+					log_cmd_error("Unsupported boxed module %s.\n", it.రెండవ);
+					ఆపు;
+				స్థితి RTLIL::SB_EXCL_BB_CMDERR:
+					log_cmd_error("Unsupported blackbox module %s.\n", it.రెండవ);
+					ఆపు;
+				అప్రమేయ:
+					ఆపు;
 				}
-		} else if (!include_partials && selected_module(it.first)) {
-			switch(partials)
+		} లేకపోతే ఒకవేళ (!include_partials && selected_module(it.మొదటి)) {
+			ఎంపిక(partials)
 			{
-			case RTLIL::SELECT_WHOLE_WARN:
-				log_warning("Ignoring partially selected module %s.\n", it.second);
-				break;
-			case RTLIL::SELECT_WHOLE_ERR:
-				log_error("Unsupported partially selected module %s.\n", it.second);
-				break;
-			case RTLIL::SELECT_WHOLE_CMDERR:
-				log_cmd_error("Unsupported partially selected module %s.\n", it.second);
-				break;
-			default:
-				break;
+			స్థితి RTLIL::SELECT_సంపూర్ణ_WARN:
+				log_warning("Ignoring partially selected module %s.\n", it.రెండవ);
+				ఆపు;
+			స్థితి RTLIL::SELECT_సంపూర్ణ_ERR:
+				log_error("Unsupported partially selected module %s.\n", it.రెండవ);
+				ఆపు;
+			స్థితి RTLIL::SELECT_సంపూర్ణ_CMDERR:
+				log_cmd_error("Unsupported partially selected module %s.\n", it.రెండవ);
+				ఆపు;
+			అప్రమేయ:
+				ఆపు;
 			}
 		}
 	}
-	return result;
+	తిరిగి ఫలితం;
 }
 
 RTLIL::Module::Module()
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	స్థిర గుర్తులేని పూర్ణాంకం hashidx_లెక్క = 123456789;
+	hashidx_లెక్క = mkhash_xorshift(hashidx_లెక్క);
+	hashidx_ = hashidx_లెక్క;
 
-	design = nullptr;
+	design = శూన్యసూచిక;
 	refcount_wires_ = 0;
 	refcount_cells_ = 0;
 
-#ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Module::get_all_modules()->insert(std::pair<unsigned int, RTLIL::Module*>(hashidx_, this));
-#endif
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
+	RTLIL::Module::get_all_modules()->చొప్పించు(std::pair<గుర్తులేని పూర్ణాంకం, RTLIL::Module*>(hashidx_, ఇది));
+#అయితే_ముగింపు
 }
 
 RTLIL::Module::~Module()
 {
-	for (auto &pr : wires_)
-		delete pr.second;
-	for (auto &pr : memories)
-		delete pr.second;
-	for (auto &pr : cells_)
-		delete pr.second;
-	for (auto &pr : processes)
-		delete pr.second;
-#ifdef YOSYS_ENABLE_PYTHON
+	కొరకు (స్వయంచాలక &pr : wires_)
+		తొలగించు pr.రెండవ;
+	కొరకు (స్వయంచాలక &pr : memories)
+		తొలగించు pr.రెండవ;
+	కొరకు (స్వయంచాలక &pr : cells_)
+		తొలగించు pr.రెండవ;
+	కొరకు (స్వయంచాలక &pr : processes)
+		తొలగించు pr.రెండవ;
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
 	RTLIL::Module::get_all_modules()->erase(hashidx_);
-#endif
+#అయితే_ముగింపు
 }
 
-#ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Module*> all_modules;
-std::map<unsigned int, RTLIL::Module*> *RTLIL::Module::get_all_modules(void)
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
+స్థిర std::map<గుర్తులేని పూర్ణాంకం, RTLIL::Module*> all_modules;
+std::map<గుర్తులేని పూర్ణాంకం, RTLIL::Module*> *RTLIL::Module::get_all_modules(శూన్య)
 {
-	return &all_modules;
+	తిరిగి &all_modules;
 }
-#endif
+#అయితే_ముగింపు
 
-void RTLIL::Module::makeblackbox()
+శూన్య RTLIL::Module::makeblackbox()
 {
 	pool<RTLIL::Wire*> delwires;
 
-	for (auto it = wires_.begin(); it != wires_.end(); ++it)
-		if (!it->second->port_input && !it->second->port_output)
-			delwires.insert(it->second);
+	కొరకు (స్వయంచాలక it = wires_.begin(); it != wires_.చివర(); ++it)
+		ఒకవేళ (!it->రెండవ->పోర్టు_ఆదానం && !it->రెండవ->పోర్టు_output)
+			delwires.చొప్పించు(it->రెండవ);
 
-	for (auto it = memories.begin(); it != memories.end(); ++it)
-		delete it->second;
+	కొరకు (స్వయంచాలక it = memories.begin(); it != memories.చివర(); ++it)
+		తొలగించు it->రెండవ;
 	memories.clear();
 
-	for (auto it = cells_.begin(); it != cells_.end(); ++it)
-		delete it->second;
+	కొరకు (స్వయంచాలక it = cells_.begin(); it != cells_.చివర(); ++it)
+		తొలగించు it->రెండవ;
 	cells_.clear();
 
-	for (auto it = processes.begin(); it != processes.end(); ++it)
-		delete it->second;
+	కొరకు (స్వయంచాలక it = processes.begin(); it != processes.చివర(); ++it)
+		తొలగించు it->రెండవ;
 	processes.clear();
 
 	connections_.clear();
 
 	remove(delwires);
-	set_bool_attribute(ID::blackbox);
+	సమితి_bool_attribute(ID::blackbox);
 }
 
-void RTLIL::Module::expand_interfaces(RTLIL::Design *, const dict<RTLIL::IdString, RTLIL::Module *> &)
+శూన్య RTLIL::Module::expand_interfaces(RTLIL::Design *, స్థిరరాశి dict<RTLIL::IdString, RTLIL::Module *> &)
 {
 	log_error("Class doesn't support expand_interfaces (module: `%s')!\n", name.unescape());
 }
 
-bool RTLIL::Module::reprocess_if_necessary(RTLIL::Design *)
+తార్కిక RTLIL::Module::reprocess_if_necessary(RTLIL::Design *)
 {
-	return false;
+	తిరిగి అబద్ధం;
 }
 
-RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, const dict<RTLIL::IdString, RTLIL::Const> &, bool mayfail)
+RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, స్థిరరాశి dict<RTLIL::IdString, RTLIL::Const> &, తార్కిక mayfail)
 {
-	if (mayfail)
-		return IdString::Null;
+	ఒకవేళ (mayfail)
+		తిరిగి IdString::Null;
 	log_error("Module `%s' is used with parameters but is not parametric!\n", name.unescape());
 }
 
 
-RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, const dict<RTLIL::IdString, RTLIL::Const> &, const dict<RTLIL::IdString, RTLIL::Module*> &, const dict<RTLIL::IdString, RTLIL::IdString> &, bool mayfail)
+RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, స్థిరరాశి dict<RTLIL::IdString, RTLIL::Const> &, స్థిరరాశి dict<RTLIL::IdString, RTLIL::Module*> &, స్థిరరాశి dict<RTLIL::IdString, RTLIL::IdString> &, తార్కిక mayfail)
 {
-	if (mayfail)
-		return IdString::Null;
+	ఒకవేళ (mayfail)
+		తిరిగి IdString::Null;
 	log_error("Module `%s' is used with parameters but is not parametric!\n", name.unescape());
 }
 
-size_t RTLIL::Module::count_id(RTLIL::IdString id)
+కొలత_t RTLIL::Module::లెక్క_id(RTLIL::IdString id)
 {
-	return wires_.count(id) + cells_.count(id) + memories.count(id) + processes.count(id);
+	తిరిగి wires_.లెక్క(id) + cells_.లెక్క(id) + memories.లెక్క(id) + processes.లెక్క(id);
 }
 
-#ifndef NDEBUG
-namespace {
-	struct InternalCellChecker
+#నిర్వచితం_కాకపోతే NDEBUG
+నామాకాశ {
+	నిర్మాణం అంతర్గత_Cell_Checker
 	{
-		const RTLIL::Module *module;
+		స్థిరరాశి RTLIL::Module *module;
 		RTLIL::Cell *cell;
 		pool<IdString> expected_params;
 		pool<IdString> expected_ports;
 
-		InternalCellChecker(const RTLIL::Module *module, RTLIL::Cell *cell) : module(module), cell(cell) { }
+		అంతర్గత_Cell_Checker(స్థిరరాశి RTLIL::Module *module, RTLIL::Cell *cell) : module(module), cell(cell) { }
 
-		void error(int linenr, std::optional<std::string> error_msg = std::nullopt)
+		శూన్య error(పూర్ణాంకం linenr, std::optional<std::string> error_సందేశం = std::nullopt)
 		{
 			std::stringstream buf;
 			RTLIL_BACKEND::dump_cell(buf, "  ", cell, cell->module->design);
@@ -1464,725 +1464,725 @@ namespace {
 			std::string cell_loc = stringf("%s%s%s (%s) at %s:%d:\n%s", mod_name, module ? "." : "",
 							   cell_name, cell->type.str(), __FILE__, linenr, buf.str());
 
-			if (error_msg) {
-				log_error("%s in internal cell %s\n", *error_msg, cell_loc);
-			} else {
+			ఒకవేళ (error_సందేశం) {
+				log_error("%s in internal cell %s\n", *error_సందేశం, cell_loc);
+			} లేకపోతే {
 				log_error("Found error in internal cell %s\n", cell_loc);
 			}
 		}
 
-		int param(RTLIL::IdString name)
+		పూర్ణాంకం param(RTLIL::IdString name)
 		{
-			auto it = cell->parameters.find(name);
-			if (it == cell->parameters.end()) {
+			స్వయంచాలక it = cell->parameters.కనుగొను(name);
+			ఒకవేళ (it == cell->parameters.చివర()) {
 				std::string err = stringf("Expected to find parameter %s", cell->module->design->twines().str(name));
 				error(__LINE__, err);
 			}
-			expected_params.insert(name);
-			return it->second.as_int();
+			expected_params.చొప్పించు(name);
+			తిరిగి it->రెండవ.as_int();
 		}
 
-		int param_bool(RTLIL::IdString name)
+		పూర్ణాంకం param_bool(RTLIL::IdString name)
 		{
-			int v = param(name);
-			if (GetSize(cell->parameters.at(name)) > 32)
+			పూర్ణాంకం v = param(name);
+			ఒకవేళ (Get_కొలత(cell->parameters.at(name)) > 32)
 				error(__LINE__);
-			if (v != 0 && v != 1)
+			ఒకవేళ (v != 0 && v != 1)
 				error(__LINE__);
-			return v;
+			తిరిగి v;
 		}
 
-		int param_bool(RTLIL::IdString name, bool expected)
+		పూర్ణాంకం param_bool(RTLIL::IdString name, తార్కిక expected)
 		{
-			int v = param_bool(name);
-			if (v != expected)
+			పూర్ణాంకం v = param_bool(name);
+			ఒకవేళ (v != expected)
 				error(__LINE__);
-			return v;
+			తిరిగి v;
 		}
 
-		void param_bits(RTLIL::IdString name, int width)
+		శూన్య param_బిట్లు(RTLIL::IdString name, పూర్ణాంకం వెడల్పు)
 		{
 			param(name);
-			if (GetSize(cell->parameters.at(name)) != width)
+			ఒకవేళ (Get_కొలత(cell->parameters.at(name)) != వెడల్పు)
 				error(__LINE__);
 		}
 
 		std::string param_string(RTLIL::IdString name)
 		{
 			param(name);
-			return cell->parameters.at(name).decode_string();
+			తిరిగి cell->parameters.at(name).decode_string();
 		}
 
-		void port(RTLIL::IdString name, int width)
+		శూన్య పోర్టు(RTLIL::IdString name, పూర్ణాంకం వెడల్పు)
 		{
-			auto it = cell->connections_.find(name);
-			if (it == cell->connections_.end()) {
+			స్వయంచాలక it = cell->connections_.కనుగొను(name);
+			ఒకవేళ (it == cell->connections_.చివర()) {
 				std::string err = stringf("Expected to find port %s", cell->module->design->twines().str(name));
 				error(__LINE__, err);
 			}
-			if (GetSize(it->second) != width) {
-				std::string err = stringf("Expected port to have width %d", width);
+			ఒకవేళ (Get_కొలత(it->రెండవ) != వెడల్పు) {
+				std::string err = stringf("Expected port to have width %d", వెడల్పు);
 				error(__LINE__, err);
 			}
-			expected_ports.insert(name);
+			expected_ports.చొప్పించు(name);
 		}
 
-		void check_expected(bool check_matched_sign = false)
+		శూన్య check_expected(తార్కిక check_matched_sign = అబద్ధం)
 		{
-			for (auto &para : cell->parameters)
-				if (expected_params.count(para.first) == 0)
+			కొరకు (స్వయంచాలక &para : cell->parameters)
+				ఒకవేళ (expected_params.లెక్క(para.మొదటి) == 0)
 					error(__LINE__);
-			for (auto &conn : cell->connections())
-				if (expected_ports.count(conn.first) == 0)
+			కొరకు (స్వయంచాలక &conn : cell->connections())
+				ఒకవేళ (expected_ports.లెక్క(conn.మొదటి) == 0)
 					error(__LINE__);
 
-			if (check_matched_sign) {
-				log_assert(expected_params.count(ID::A_SIGNED) != 0 && expected_params.count(ID::B_SIGNED) != 0);
-				bool a_is_signed = cell->parameters.at(ID::A_SIGNED).as_bool();
-				bool b_is_signed = cell->parameters.at(ID::B_SIGNED).as_bool();
-				if (a_is_signed != b_is_signed)
+			ఒకవేళ (check_matched_sign) {
+				log_assert(expected_params.లెక్క(ID::A_SIGNED) != 0 && expected_params.లెక్క(ID::B_SIGNED) != 0);
+				తార్కిక a_is_signed = cell->parameters.at(ID::A_SIGNED).as_bool();
+				తార్కిక b_is_signed = cell->parameters.at(ID::B_SIGNED).as_bool();
+				ఒకవేళ (a_is_signed != b_is_signed)
 					error(__LINE__);
 			}
 		}
 
-		void check()
+		శూన్య check()
 		{
-			if (cell->type.isPublic() || cell->type.begins_with("$__") || cell->type.begins_with("$paramod") || cell->type.begins_with("$fmcombine") ||
+			ఒకవేళ (cell->type.is_ప్రజా() || cell->type.begins_with("$__") || cell->type.begins_with("$paramod") || cell->type.begins_with("$fmcombine") ||
 					cell->type.begins_with("$verific$") || cell->type.begins_with("$array:") || cell->type.begins_with("$extern:"))
-				return;
+				తిరిగి;
 
-			if (cell->type.in(ID($buf), ID($barrier))) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			ఒకవేళ (cell->type.లోపల(ID($buf), ID($barrier))) {
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Y, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type.in(ID($not), ID($pos), ID($neg))) {
+			ఒకవేళ (cell->type.లోపల(ID($not), ID($pos), ID($neg))) {
 				param_bool(ID::A_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
+				పోర్టు(ID::A, param(ID::A_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::Y_వెడల్పు));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type.in(ID($and), ID($or), ID($xor), ID($xnor))) {
+			ఒకవేళ (cell->type.లోపల(ID($and), ID($or), ID($xor), ID($xnor))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(true);
-				return;
+				పోర్టు(ID::A, param(ID::A_వెడల్పు));
+				పోర్టు(ID::B, param(ID::B_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::Y_వెడల్పు));
+				check_expected(నిజం);
+				తిరిగి;
 			}
 
-			if (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool))) {
+			ఒకవేళ (cell->type.లోపల(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool))) {
 				param_bool(ID::A_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
+				పోర్టు(ID::A, param(ID::A_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::Y_వెడల్పు));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr))) {
+			ఒకవేళ (cell->type.లోపల(ID($shl), ID($shr), ID($sshl), ID($sshr))) {
 				param_bool(ID::A_SIGNED);
-				param_bool(ID::B_SIGNED, /*expected=*/false);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(/*check_matched_sign=*/false);
-				return;
+				param_bool(ID::B_SIGNED, /*expected=*/అబద్ధం);
+				పోర్టు(ID::A, param(ID::A_వెడల్పు));
+				పోర్టు(ID::B, param(ID::B_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::Y_వెడల్పు));
+				check_expected(/*check_matched_sign=*/అబద్ధం);
+				తిరిగి;
 			}
 
-			if (cell->type.in(ID($shift), ID($shiftx))) {
-				if (cell->type == ID($shiftx)) {
-					param_bool(ID::A_SIGNED, /*expected=*/false);
-				} else {
+			ఒకవేళ (cell->type.లోపల(ID($జరుపు), ID($shiftx))) {
+				ఒకవేళ (cell->type == ID($shiftx)) {
+					param_bool(ID::A_SIGNED, /*expected=*/అబద్ధం);
+				} లేకపోతే {
 					param_bool(ID::A_SIGNED);
 				}
 				param_bool(ID::B_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(/*check_matched_sign=*/false);
-				return;
+				పోర్టు(ID::A, param(ID::A_వెడల్పు));
+				పోర్టు(ID::B, param(ID::B_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::Y_వెడల్పు));
+				check_expected(/*check_matched_sign=*/అబద్ధం);
+				తిరిగి;
 			}
 
-			if (cell->type.in(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt))) {
+			ఒకవేళ (cell->type.లోపల(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(true);
-				return;
+				పోర్టు(ID::A, param(ID::A_వెడల్పు));
+				పోర్టు(ID::B, param(ID::B_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::Y_వెడల్పు));
+				check_expected(నిజం);
+				తిరిగి;
 			}
 
-			if (cell->type.in(ID($add), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow))) {
+			ఒకవేళ (cell->type.లోపల(ID($కూడు), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($ఘాతం))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(cell->type != ID($pow));
-				return;
+				పోర్టు(ID::A, param(ID::A_వెడల్పు));
+				పోర్టు(ID::B, param(ID::B_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::Y_వెడల్పు));
+				check_expected(cell->type != ID($ఘాతం));
+				తిరిగి;
 			}
 
-			if (cell->type == ID($fa)) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::B, param(ID::WIDTH));
-				port(ID::C, param(ID::WIDTH));
-				port(ID::X, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			ఒకవేళ (cell->type == ID($fa)) {
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::B, param(ID::వెడల్పు_2));
+				పోర్టు(ID::C, param(ID::వెడల్పు_2));
+				పోర్టు(ID::X, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Y, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($lcu)) {
-				port(ID::P, param(ID::WIDTH));
-				port(ID::G, param(ID::WIDTH));
-				port(ID::CI, 1);
-				port(ID::CO, param(ID::WIDTH));
+			ఒకవేళ (cell->type == ID($lcu)) {
+				పోర్టు(ID::P, param(ID::వెడల్పు_2));
+				పోర్టు(ID::G, param(ID::వెడల్పు_2));
+				పోర్టు(ID::CI, 1);
+				పోర్టు(ID::CO, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($alu)) {
+			ఒకవేళ (cell->type == ID($alu)) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::CI, 1);
-				port(ID::BI, 1);
-				port(ID::X, param(ID::Y_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				port(ID::CO, param(ID::Y_WIDTH));
-				check_expected(true);
-				return;
+				పోర్టు(ID::A, param(ID::A_వెడల్పు));
+				పోర్టు(ID::B, param(ID::B_వెడల్పు));
+				పోర్టు(ID::CI, 1);
+				పోర్టు(ID::BI, 1);
+				పోర్టు(ID::X, param(ID::Y_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::Y_వెడల్పు));
+				పోర్టు(ID::CO, param(ID::Y_వెడల్పు));
+				check_expected(నిజం);
+				తిరిగి;
 			}
 
-			if (cell->type == ID($macc)) {
+			ఒకవేళ (cell->type == ID($macc)) {
 				param(ID::CONFIG);
-				param(ID::CONFIG_WIDTH);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
+				param(ID::CONFIG_వెడల్పు);
+				పోర్టు(ID::A, param(ID::A_వెడల్పు));
+				పోర్టు(ID::B, param(ID::B_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::Y_వెడల్పు));
 				check_expected();
 				Macc().from_cell(cell);
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($macc_v2)) {
-				if (param(ID::NPRODUCTS) < 0)
+			ఒకవేళ (cell->type == ID($macc_v2)) {
+				ఒకవేళ (param(ID::NPRODUCTS) < 0)
 					error(__LINE__);
-				if (param(ID::NADDENDS) < 0)
+				ఒకవేళ (param(ID::NADDENDS) < 0)
 					error(__LINE__);
-				param_bits(ID::PRODUCT_NEGATED, max(param(ID::NPRODUCTS), 1));
-				param_bits(ID::ADDEND_NEGATED, max(param(ID::NADDENDS), 1));
-				param_bits(ID::A_SIGNED, max(param(ID::NPRODUCTS), 1));
-				param_bits(ID::B_SIGNED, max(param(ID::NPRODUCTS), 1));
-				param_bits(ID::C_SIGNED, max(param(ID::NADDENDS), 1));
-				if (cell->getParam(ID::A_SIGNED) != cell->getParam(ID::B_SIGNED))
+				param_బిట్లు(ID::లబ్ధం_NEGATED, max(param(ID::NPRODUCTS), 1));
+				param_బిట్లు(ID::ADDEND_NEGATED, max(param(ID::NADDENDS), 1));
+				param_బిట్లు(ID::A_SIGNED, max(param(ID::NPRODUCTS), 1));
+				param_బిట్లు(ID::B_SIGNED, max(param(ID::NPRODUCTS), 1));
+				param_బిట్లు(ID::C_SIGNED, max(param(ID::NADDENDS), 1));
+				ఒకవేళ (cell->getParam(ID::A_SIGNED) != cell->getParam(ID::B_SIGNED))
 					error(__LINE__);
-				param_bits(ID::A_WIDTHS, max(param(ID::NPRODUCTS) * 16, 1));
-				param_bits(ID::B_WIDTHS, max(param(ID::NPRODUCTS) * 16, 1));
-				param_bits(ID::C_WIDTHS, max(param(ID::NADDENDS) * 16, 1));
-				const Const &a_width = cell->getParam(ID::A_WIDTHS);
-				const Const &b_width = cell->getParam(ID::B_WIDTHS);
-				const Const &c_width = cell->getParam(ID::C_WIDTHS);
-				int a_width_sum = 0, b_width_sum = 0, c_width_sum = 0;
-				for (int i = 0; i < param(ID::NPRODUCTS); i++) {
-					a_width_sum += a_width.extract(16 * i, 16).as_int(false);
-					b_width_sum += b_width.extract(16 * i, 16).as_int(false);
+				param_బిట్లు(ID::A_WIDTHS, max(param(ID::NPRODUCTS) * 16, 1));
+				param_బిట్లు(ID::B_WIDTHS, max(param(ID::NPRODUCTS) * 16, 1));
+				param_బిట్లు(ID::C_WIDTHS, max(param(ID::NADDENDS) * 16, 1));
+				స్థిరరాశి Const &a_వెడల్పు = cell->getParam(ID::A_WIDTHS);
+				స్థిరరాశి Const &b_వెడల్పు = cell->getParam(ID::B_WIDTHS);
+				స్థిరరాశి Const &c_వెడల్పు = cell->getParam(ID::C_WIDTHS);
+				పూర్ణాంకం a_వెడల్పు_కూడిక = 0, b_వెడల్పు_కూడిక = 0, c_వెడల్పు_కూడిక = 0;
+				కొరకు (పూర్ణాంకం i = 0; i < param(ID::NPRODUCTS); i++) {
+					a_వెడల్పు_కూడిక += a_వెడల్పు.వెలికితీయి(16 * i, 16).as_int(అబద్ధం);
+					b_వెడల్పు_కూడిక += b_వెడల్పు.వెలికితీయి(16 * i, 16).as_int(అబద్ధం);
 				}
-				for (int i = 0; i < param(ID::NADDENDS); i++) {
-					c_width_sum += c_width.extract(16 * i, 16).as_int(false);
+				కొరకు (పూర్ణాంకం i = 0; i < param(ID::NADDENDS); i++) {
+					c_వెడల్పు_కూడిక += c_వెడల్పు.వెలికితీయి(16 * i, 16).as_int(అబద్ధం);
 				}
-				port(ID::A, a_width_sum);
-				port(ID::B, b_width_sum);
-				port(ID::C, c_width_sum);
-				port(ID::Y, param(ID::Y_WIDTH));
+				పోర్టు(ID::A, a_వెడల్పు_కూడిక);
+				పోర్టు(ID::B, b_వెడల్పు_కూడిక);
+				పోర్టు(ID::C, c_వెడల్పు_కూడిక);
+				పోర్టు(ID::Y, param(ID::Y_వెడల్పు));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($logic_not)) {
+			ఒకవేళ (cell->type == ID($logic_not)) {
 				param_bool(ID::A_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
+				పోర్టు(ID::A, param(ID::A_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::Y_వెడల్పు));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type.in(ID($logic_and), ID($logic_or))) {
+			ఒకవేళ (cell->type.లోపల(ID($logic_and), ID($logic_or))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(/*check_matched_sign=*/false);
-				return;
+				పోర్టు(ID::A, param(ID::A_వెడల్పు));
+				పోర్టు(ID::B, param(ID::B_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::Y_వెడల్పు));
+				check_expected(/*check_matched_sign=*/అబద్ధం);
+				తిరిగి;
 			}
 
-			if (cell->type == ID($slice)) {
-				param(ID::OFFSET);
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::Y, param(ID::Y_WIDTH));
-				if (param(ID::OFFSET) + param(ID::Y_WIDTH) > param(ID::A_WIDTH))
+			ఒకవేళ (cell->type == ID($ముక్క)) {
+				param(ID::స్థానభ్రంశం_2);
+				పోర్టు(ID::A, param(ID::A_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::Y_వెడల్పు));
+				ఒకవేళ (param(ID::స్థానభ్రంశం_2) + param(ID::Y_వెడల్పు) > param(ID::A_వెడల్పు))
 					error(__LINE__);
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($concat)) {
-				port(ID::A, param(ID::A_WIDTH));
-				port(ID::B, param(ID::B_WIDTH));
-				port(ID::Y, param(ID::A_WIDTH) + param(ID::B_WIDTH));
+			ఒకవేళ (cell->type == ID($concat)) {
+				పోర్టు(ID::A, param(ID::A_వెడల్పు));
+				పోర్టు(ID::B, param(ID::B_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::A_వెడల్పు) + param(ID::B_వెడల్పు));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($mux)) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::B, param(ID::WIDTH));
-				port(ID::S, 1);
-				port(ID::Y, param(ID::WIDTH));
+			ఒకవేళ (cell->type == ID($mux)) {
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::B, param(ID::వెడల్పు_2));
+				పోర్టు(ID::S, 1);
+				పోర్టు(ID::Y, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($pmux)) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::B, param(ID::WIDTH) * param(ID::S_WIDTH));
-				port(ID::S, param(ID::S_WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			ఒకవేళ (cell->type == ID($pmux)) {
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::B, param(ID::వెడల్పు_2) * param(ID::S_వెడల్పు));
+				పోర్టు(ID::S, param(ID::S_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($bmux)) {
-				port(ID::A, param(ID::WIDTH) << param(ID::S_WIDTH));
-				port(ID::S, param(ID::S_WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			ఒకవేళ (cell->type == ID($bmux)) {
+				పోర్టు(ID::A, param(ID::వెడల్పు_2) << param(ID::S_వెడల్పు));
+				పోర్టు(ID::S, param(ID::S_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($demux)) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::S, param(ID::S_WIDTH));
-				port(ID::Y, param(ID::WIDTH) << param(ID::S_WIDTH));
+			ఒకవేళ (cell->type == ID($demux)) {
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::S, param(ID::S_వెడల్పు));
+				పోర్టు(ID::Y, param(ID::వెడల్పు_2) << param(ID::S_వెడల్పు));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($lut)) {
+			ఒకవేళ (cell->type == ID($lut)) {
 				param(ID::LUT);
-				port(ID::A, param(ID::WIDTH));
-				port(ID::Y, 1);
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Y, 1);
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($sop)) {
-				param(ID::DEPTH);
-				param(ID::TABLE);
-				port(ID::A, param(ID::WIDTH));
-				port(ID::Y, 1);
+			ఒకవేళ (cell->type == ID($sop)) {
+				param(ID::లోతు_2);
+				param(ID::పట్టిక);
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Y, 1);
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($sr)) {
-				param_bool(ID::SET_POLARITY);
+			ఒకవేళ (cell->type == ID($sr)) {
+				param_bool(ID::సమితి_POLARITY);
 				param_bool(ID::CLR_POLARITY);
-				port(ID::SET, param(ID::WIDTH));
-				port(ID::CLR, param(ID::WIDTH));
-				port(ID::Q,   param(ID::WIDTH));
+				పోర్టు(ID::సమితి_2, param(ID::వెడల్పు_2));
+				పోర్టు(ID::CLR, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q,   param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($ff)) {
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+			ఒకవేళ (cell->type == ID($ff)) {
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($dff)) {
+			ఒకవేళ (cell->type == ID($dff)) {
 				param_bool(ID::CLK_POLARITY);
-				port(ID::CLK, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($dffe)) {
+			ఒకవేళ (cell->type == ID($dffe)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
-				port(ID::CLK, 1);
-				port(ID::EN, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::EN, 1);
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($dffsr)) {
+			ఒకవేళ (cell->type == ID($dffsr)) {
 				param_bool(ID::CLK_POLARITY);
-				param_bool(ID::SET_POLARITY);
+				param_bool(ID::సమితి_POLARITY);
 				param_bool(ID::CLR_POLARITY);
-				port(ID::CLK, 1);
-				port(ID::SET, param(ID::WIDTH));
-				port(ID::CLR, param(ID::WIDTH));
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::సమితి_2, param(ID::వెడల్పు_2));
+				పోర్టు(ID::CLR, param(ID::వెడల్పు_2));
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($dffsre)) {
+			ఒకవేళ (cell->type == ID($dffsre)) {
 				param_bool(ID::CLK_POLARITY);
-				param_bool(ID::SET_POLARITY);
+				param_bool(ID::సమితి_POLARITY);
 				param_bool(ID::CLR_POLARITY);
 				param_bool(ID::EN_POLARITY);
-				port(ID::CLK, 1);
-				port(ID::EN, 1);
-				port(ID::SET, param(ID::WIDTH));
-				port(ID::CLR, param(ID::WIDTH));
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::EN, 1);
+				పోర్టు(ID::సమితి_2, param(ID::వెడల్పు_2));
+				పోర్టు(ID::CLR, param(ID::వెడల్పు_2));
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($adff)) {
+			ఒకవేళ (cell->type == ID($adff)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::ARST_POLARITY);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
-				port(ID::CLK, 1);
-				port(ID::ARST, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				param_బిట్లు(ID::ARST_విలువ, param(ID::వెడల్పు_2));
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::ARST, 1);
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($sdff)) {
+			ఒకవేళ (cell->type == ID($sdff)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::SRST_POLARITY);
-				param_bits(ID::SRST_VALUE, param(ID::WIDTH));
-				port(ID::CLK, 1);
-				port(ID::SRST, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				param_బిట్లు(ID::SRST_విలువ, param(ID::వెడల్పు_2));
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::SRST, 1);
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type.in(ID($sdffe), ID($sdffce))) {
+			ఒకవేళ (cell->type.లోపల(ID($sdffe), ID($sdffce))) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::SRST_POLARITY);
-				param_bits(ID::SRST_VALUE, param(ID::WIDTH));
-				port(ID::CLK, 1);
-				port(ID::EN, 1);
-				port(ID::SRST, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				param_బిట్లు(ID::SRST_విలువ, param(ID::వెడల్పు_2));
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::EN, 1);
+				పోర్టు(ID::SRST, 1);
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($adffe)) {
+			ఒకవేళ (cell->type == ID($adffe)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::ARST_POLARITY);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
-				port(ID::CLK, 1);
-				port(ID::EN, 1);
-				port(ID::ARST, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				param_బిట్లు(ID::ARST_విలువ, param(ID::వెడల్పు_2));
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::EN, 1);
+				పోర్టు(ID::ARST, 1);
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($aldff)) {
+			ఒకవేళ (cell->type == ID($aldff)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::ALOAD_POLARITY);
-				port(ID::CLK, 1);
-				port(ID::ALOAD, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::AD, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::ALOAD, 1);
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::AD, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($aldffe)) {
+			ఒకవేళ (cell->type == ID($aldffe)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::ALOAD_POLARITY);
-				port(ID::CLK, 1);
-				port(ID::EN, 1);
-				port(ID::ALOAD, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::AD, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::EN, 1);
+				పోర్టు(ID::ALOAD, 1);
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::AD, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($dlatch)) {
+			ఒకవేళ (cell->type == ID($dlatch)) {
 				param_bool(ID::EN_POLARITY);
-				port(ID::EN, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				పోర్టు(ID::EN, 1);
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($adlatch)) {
+			ఒకవేళ (cell->type == ID($adlatch)) {
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::ARST_POLARITY);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
-				port(ID::EN, 1);
-				port(ID::ARST, 1);
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				param_బిట్లు(ID::ARST_విలువ, param(ID::వెడల్పు_2));
+				పోర్టు(ID::EN, 1);
+				పోర్టు(ID::ARST, 1);
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($dlatchsr)) {
+			ఒకవేళ (cell->type == ID($dlatchsr)) {
 				param_bool(ID::EN_POLARITY);
-				param_bool(ID::SET_POLARITY);
+				param_bool(ID::సమితి_POLARITY);
 				param_bool(ID::CLR_POLARITY);
-				port(ID::EN, 1);
-				port(ID::SET, param(ID::WIDTH));
-				port(ID::CLR, param(ID::WIDTH));
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+				పోర్టు(ID::EN, 1);
+				పోర్టు(ID::సమితి_2, param(ID::వెడల్పు_2));
+				పోర్టు(ID::CLR, param(ID::వెడల్పు_2));
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($fsm)) {
+			ఒకవేళ (cell->type == ID($fsm)) {
 				param(ID::NAME);
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::ARST_POLARITY);
-				param(ID::STATE_BITS);
-				param(ID::STATE_NUM);
-				param(ID::STATE_NUM_LOG2);
+				param(ID::STATE_బిట్లు);
+				param(ID::STATE_అంకె);
+				param(ID::STATE_అంకె_LOG2);
 				param(ID::STATE_RST);
-				param_bits(ID::STATE_TABLE, param(ID::STATE_BITS) * param(ID::STATE_NUM));
-				param(ID::TRANS_NUM);
-				param_bits(ID::TRANS_TABLE, param(ID::TRANS_NUM) * (2*param(ID::STATE_NUM_LOG2) + param(ID::CTRL_IN_WIDTH) + param(ID::CTRL_OUT_WIDTH)));
-				port(ID::CLK, 1);
-				port(ID::ARST, 1);
-				port(ID::CTRL_IN, param(ID::CTRL_IN_WIDTH));
-				port(ID::CTRL_OUT, param(ID::CTRL_OUT_WIDTH));
+				param_బిట్లు(ID::STATE_పట్టిక, param(ID::STATE_బిట్లు) * param(ID::STATE_అంకె));
+				param(ID::TRANS_అంకె);
+				param_బిట్లు(ID::TRANS_పట్టిక, param(ID::TRANS_అంకె) * (2*param(ID::STATE_అంకె_LOG2) + param(ID::CTRL_లోపల_వెడల్పు) + param(ID::CTRL_బహిర్గతం_వెడల్పు)));
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::ARST, 1);
+				పోర్టు(ID::CTRL_లోపల, param(ID::CTRL_లోపల_వెడల్పు));
+				పోర్టు(ID::CTRL_బహిర్గతం, param(ID::CTRL_బహిర్గతం_వెడల్పు));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($memrd)) {
+			ఒకవేళ (cell->type == ID($memrd)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::TRANSPARENT);
-				port(ID::CLK, 1);
-				port(ID::EN, 1);
-				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH));
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::EN, 1);
+				పోర్టు(ID::ADDR, param(ID::ABITS));
+				పోర్టు(ID::దత్తాంశం_2, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($memrd_v2)) {
+			ఒకవేళ (cell->type == ID($memrd_v2)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
-				param(ID::TRANSPARENCY_MASK);
-				param(ID::COLLISION_X_MASK);
+				param(ID::TRANSPARENCY_ముసుగు);
+				param(ID::COLLISION_X_ముసుగు);
 				param_bool(ID::CE_OVER_SRST);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
-				param_bits(ID::SRST_VALUE, param(ID::WIDTH));
-				param_bits(ID::INIT_VALUE, param(ID::WIDTH));
-				port(ID::CLK, 1);
-				port(ID::EN, 1);
-				port(ID::ARST, 1);
-				port(ID::SRST, 1);
-				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH));
+				param_బిట్లు(ID::ARST_విలువ, param(ID::వెడల్పు_2));
+				param_బిట్లు(ID::SRST_విలువ, param(ID::వెడల్పు_2));
+				param_బిట్లు(ID::INIT_విలువ, param(ID::వెడల్పు_2));
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::EN, 1);
+				పోర్టు(ID::ARST, 1);
+				పోర్టు(ID::SRST, 1);
+				పోర్టు(ID::ADDR, param(ID::ABITS));
+				పోర్టు(ID::దత్తాంశం_2, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($memwr)) {
+			ఒకవేళ (cell->type == ID($memwr)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
-				param(ID::PRIORITY);
-				port(ID::CLK, 1);
-				port(ID::EN, param(ID::WIDTH));
-				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH));
+				param(ID::ప్రాధాన్యత);
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::EN, param(ID::వెడల్పు_2));
+				పోర్టు(ID::ADDR, param(ID::ABITS));
+				పోర్టు(ID::దత్తాంశం_2, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($memwr_v2)) {
+			ఒకవేళ (cell->type == ID($memwr_v2)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
 				param(ID::PORTID);
-				param(ID::PRIORITY_MASK);
-				port(ID::CLK, 1);
-				port(ID::EN, param(ID::WIDTH));
-				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH));
+				param(ID::ప్రాధాన్యత_ముసుగు_2);
+				పోర్టు(ID::CLK, 1);
+				పోర్టు(ID::EN, param(ID::వెడల్పు_2));
+				పోర్టు(ID::ADDR, param(ID::ABITS));
+				పోర్టు(ID::దత్తాంశం_2, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($meminit)) {
+			ఒకవేళ (cell->type == ID($meminit)) {
 				param(ID::MEMID);
-				param(ID::PRIORITY);
-				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH) * param(ID::WORDS));
+				param(ID::ప్రాధాన్యత);
+				పోర్టు(ID::ADDR, param(ID::ABITS));
+				పోర్టు(ID::దత్తాంశం_2, param(ID::వెడల్పు_2) * param(ID::పదాలు));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($meminit_v2)) {
+			ఒకవేళ (cell->type == ID($meminit_v2)) {
 				param(ID::MEMID);
-				param(ID::PRIORITY);
-				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH) * param(ID::WORDS));
-				port(ID::EN, param(ID::WIDTH));
+				param(ID::ప్రాధాన్యత);
+				పోర్టు(ID::ADDR, param(ID::ABITS));
+				పోర్టు(ID::దత్తాంశం_2, param(ID::వెడల్పు_2) * param(ID::పదాలు));
+				పోర్టు(ID::EN, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($mem)) {
+			ఒకవేళ (cell->type == ID($mem)) {
 				param(ID::MEMID);
-				param(ID::SIZE);
-				param(ID::OFFSET);
+				param(ID::కొలత_2);
+				param(ID::స్థానభ్రంశం_2);
 				param(ID::INIT);
-				param_bits(ID::RD_CLK_ENABLE, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::RD_CLK_POLARITY, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::RD_TRANSPARENT, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::WR_CLK_ENABLE, max(1, param(ID::WR_PORTS)));
-				param_bits(ID::WR_CLK_POLARITY, max(1, param(ID::WR_PORTS)));
-				port(ID::RD_CLK, param(ID::RD_PORTS));
-				port(ID::RD_EN, param(ID::RD_PORTS));
-				port(ID::RD_ADDR, param(ID::RD_PORTS) * param(ID::ABITS));
-				port(ID::RD_DATA, param(ID::RD_PORTS) * param(ID::WIDTH));
-				port(ID::WR_CLK, param(ID::WR_PORTS));
-				port(ID::WR_EN, param(ID::WR_PORTS) * param(ID::WIDTH));
-				port(ID::WR_ADDR, param(ID::WR_PORTS) * param(ID::ABITS));
-				port(ID::WR_DATA, param(ID::WR_PORTS) * param(ID::WIDTH));
+				param_బిట్లు(ID::RD_CLK_ENABLE, max(1, param(ID::RD_PORTS)));
+				param_బిట్లు(ID::RD_CLK_POLARITY, max(1, param(ID::RD_PORTS)));
+				param_బిట్లు(ID::RD_TRANSPARENT, max(1, param(ID::RD_PORTS)));
+				param_బిట్లు(ID::WR_CLK_ENABLE, max(1, param(ID::WR_PORTS)));
+				param_బిట్లు(ID::WR_CLK_POLARITY, max(1, param(ID::WR_PORTS)));
+				పోర్టు(ID::RD_CLK, param(ID::RD_PORTS));
+				పోర్టు(ID::RD_EN, param(ID::RD_PORTS));
+				పోర్టు(ID::RD_ADDR, param(ID::RD_PORTS) * param(ID::ABITS));
+				పోర్టు(ID::RD_దత్తాంశం, param(ID::RD_PORTS) * param(ID::వెడల్పు_2));
+				పోర్టు(ID::WR_CLK, param(ID::WR_PORTS));
+				పోర్టు(ID::WR_EN, param(ID::WR_PORTS) * param(ID::వెడల్పు_2));
+				పోర్టు(ID::WR_ADDR, param(ID::WR_PORTS) * param(ID::ABITS));
+				పోర్టు(ID::WR_దత్తాంశం, param(ID::WR_PORTS) * param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($mem_v2)) {
+			ఒకవేళ (cell->type == ID($mem_v2)) {
 				param(ID::MEMID);
-				param(ID::SIZE);
-				param(ID::OFFSET);
+				param(ID::కొలత_2);
+				param(ID::స్థానభ్రంశం_2);
 				param(ID::INIT);
-				param_bits(ID::RD_CLK_ENABLE, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::RD_CLK_POLARITY, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::RD_TRANSPARENCY_MASK, max(1, param(ID::RD_PORTS) * param(ID::WR_PORTS)));
-				param_bits(ID::RD_COLLISION_X_MASK, max(1, param(ID::RD_PORTS) * param(ID::WR_PORTS)));
-				param_bits(ID::RD_WIDE_CONTINUATION, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::RD_CE_OVER_SRST, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::RD_ARST_VALUE, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
-				param_bits(ID::RD_SRST_VALUE, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
-				param_bits(ID::RD_INIT_VALUE, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
-				param_bits(ID::WR_CLK_ENABLE, max(1, param(ID::WR_PORTS)));
-				param_bits(ID::WR_CLK_POLARITY, max(1, param(ID::WR_PORTS)));
-				param_bits(ID::WR_WIDE_CONTINUATION, max(1, param(ID::WR_PORTS)));
-				param_bits(ID::WR_PRIORITY_MASK, max(1, param(ID::WR_PORTS) * param(ID::WR_PORTS)));
-				port(ID::RD_CLK, param(ID::RD_PORTS));
-				port(ID::RD_EN, param(ID::RD_PORTS));
-				port(ID::RD_ARST, param(ID::RD_PORTS));
-				port(ID::RD_SRST, param(ID::RD_PORTS));
-				port(ID::RD_ADDR, param(ID::RD_PORTS) * param(ID::ABITS));
-				port(ID::RD_DATA, param(ID::RD_PORTS) * param(ID::WIDTH));
-				port(ID::WR_CLK, param(ID::WR_PORTS));
-				port(ID::WR_EN, param(ID::WR_PORTS) * param(ID::WIDTH));
-				port(ID::WR_ADDR, param(ID::WR_PORTS) * param(ID::ABITS));
-				port(ID::WR_DATA, param(ID::WR_PORTS) * param(ID::WIDTH));
+				param_బిట్లు(ID::RD_CLK_ENABLE, max(1, param(ID::RD_PORTS)));
+				param_బిట్లు(ID::RD_CLK_POLARITY, max(1, param(ID::RD_PORTS)));
+				param_బిట్లు(ID::RD_TRANSPARENCY_ముసుగు, max(1, param(ID::RD_PORTS) * param(ID::WR_PORTS)));
+				param_బిట్లు(ID::RD_COLLISION_X_ముసుగు, max(1, param(ID::RD_PORTS) * param(ID::WR_PORTS)));
+				param_బిట్లు(ID::RD_WIDE_CONTINUATION, max(1, param(ID::RD_PORTS)));
+				param_బిట్లు(ID::RD_CE_OVER_SRST, max(1, param(ID::RD_PORTS)));
+				param_బిట్లు(ID::RD_ARST_విలువ, max(1, param(ID::RD_PORTS) * param(ID::వెడల్పు_2)));
+				param_బిట్లు(ID::RD_SRST_విలువ, max(1, param(ID::RD_PORTS) * param(ID::వెడల్పు_2)));
+				param_బిట్లు(ID::RD_INIT_విలువ, max(1, param(ID::RD_PORTS) * param(ID::వెడల్పు_2)));
+				param_బిట్లు(ID::WR_CLK_ENABLE, max(1, param(ID::WR_PORTS)));
+				param_బిట్లు(ID::WR_CLK_POLARITY, max(1, param(ID::WR_PORTS)));
+				param_బిట్లు(ID::WR_WIDE_CONTINUATION, max(1, param(ID::WR_PORTS)));
+				param_బిట్లు(ID::WR_ప్రాధాన్యత_ముసుగు, max(1, param(ID::WR_PORTS) * param(ID::WR_PORTS)));
+				పోర్టు(ID::RD_CLK, param(ID::RD_PORTS));
+				పోర్టు(ID::RD_EN, param(ID::RD_PORTS));
+				పోర్టు(ID::RD_ARST, param(ID::RD_PORTS));
+				పోర్టు(ID::RD_SRST, param(ID::RD_PORTS));
+				పోర్టు(ID::RD_ADDR, param(ID::RD_PORTS) * param(ID::ABITS));
+				పోర్టు(ID::RD_దత్తాంశం, param(ID::RD_PORTS) * param(ID::వెడల్పు_2));
+				పోర్టు(ID::WR_CLK, param(ID::WR_PORTS));
+				పోర్టు(ID::WR_EN, param(ID::WR_PORTS) * param(ID::వెడల్పు_2));
+				పోర్టు(ID::WR_ADDR, param(ID::WR_PORTS) * param(ID::ABITS));
+				పోర్టు(ID::WR_దత్తాంశం, param(ID::WR_PORTS) * param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($tribuf)) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
-				port(ID::EN, 1);
+			ఒకవేళ (cell->type == ID($tribuf)) {
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Y, param(ID::వెడల్పు_2));
+				పోర్టు(ID::EN, 1);
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($bweqx)) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::B, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			ఒకవేళ (cell->type == ID($bweqx)) {
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::B, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Y, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($bwmux)) {
-				port(ID::A, param(ID::WIDTH));
-				port(ID::B, param(ID::WIDTH));
-				port(ID::S, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			ఒకవేళ (cell->type == ID($bwmux)) {
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::B, param(ID::వెడల్పు_2));
+				పోర్టు(ID::S, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Y, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover))) {
-				port(ID::A, 1);
-				port(ID::EN, 1);
+			ఒకవేళ (cell->type.లోపల(ID($ప్రతిజ్ఞా), ID($assume), ID($సజీవ), ID($fair), ID($cover))) {
+				పోర్టు(ID::A, 1);
+				పోర్టు(ID::EN, 1);
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($initstate)) {
-				port(ID::Y, 1);
+			ఒకవేళ (cell->type == ID($initstate)) {
+				పోర్టు(ID::Y, 1);
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type.in(ID($anyconst), ID($anyseq), ID($allconst), ID($allseq))) {
-				port(ID::Y, param(ID::WIDTH));
+			ఒకవేళ (cell->type.లోపల(ID($anyconst), ID($anyseq), ID($allconst), ID($allseq))) {
+				పోర్టు(ID::Y, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type.in(ID($anyinit))) {
-				port(ID::D, param(ID::WIDTH));
-				port(ID::Q, param(ID::WIDTH));
+			ఒకవేళ (cell->type.లోపల(ID($anyinit))) {
+				పోర్టు(ID::D, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Q, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($equiv)) {
-				port(ID::A, 1);
-				port(ID::B, 1);
-				port(ID::Y, 1);
+			ఒకవేళ (cell->type == ID($equiv)) {
+				పోర్టు(ID::A, 1);
+				పోర్టు(ID::B, 1);
+				పోర్టు(ID::Y, 1);
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type.in(ID($specify2), ID($specify3))) {
-				param_bool(ID::FULL);
+			ఒకవేళ (cell->type.లోపల(ID($specify2), ID($specify3))) {
+				param_bool(ID::నిండిన);
 				param_bool(ID::SRC_DST_PEN);
 				param_bool(ID::SRC_DST_POL);
 				param(ID::T_RISE_MIN);
@@ -2191,150 +2191,150 @@ namespace {
 				param(ID::T_FALL_MIN);
 				param(ID::T_FALL_TYP);
 				param(ID::T_FALL_MAX);
-				port(ID::EN, 1);
-				port(ID::SRC, param(ID::SRC_WIDTH));
-				port(ID::DST, param(ID::DST_WIDTH));
-				if (cell->type == ID($specify3)) {
-					param_bool(ID::EDGE_EN);
-					param_bool(ID::EDGE_POL);
+				పోర్టు(ID::EN, 1);
+				పోర్టు(ID::SRC, param(ID::SRC_వెడల్పు));
+				పోర్టు(ID::DST, param(ID::DST_వెడల్పు));
+				ఒకవేళ (cell->type == ID($specify3)) {
+					param_bool(ID::అంచు_EN);
+					param_bool(ID::అంచు_POL);
 					param_bool(ID::DAT_DST_PEN);
 					param_bool(ID::DAT_DST_POL);
-					port(ID::DAT, param(ID::DST_WIDTH));
+					పోర్టు(ID::DAT, param(ID::DST_వెడల్పు));
 				}
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($specrule)) {
+			ఒకవేళ (cell->type == ID($specrule)) {
 				param(ID::TYPE);
 				param_bool(ID::SRC_PEN);
 				param_bool(ID::SRC_POL);
 				param_bool(ID::DST_PEN);
 				param_bool(ID::DST_POL);
-				param(ID::T_LIMIT_MIN);
-				param(ID::T_LIMIT_TYP);
-				param(ID::T_LIMIT_MAX);
+				param(ID::T_హద్దు_MIN);
+				param(ID::T_హద్దు_TYP);
+				param(ID::T_హద్దు_MAX);
 				param(ID::T_LIMIT2_MIN);
 				param(ID::T_LIMIT2_TYP);
 				param(ID::T_LIMIT2_MAX);
-				port(ID::SRC_EN, 1);
-				port(ID::DST_EN, 1);
-				port(ID::SRC, param(ID::SRC_WIDTH));
-				port(ID::DST, param(ID::DST_WIDTH));
+				పోర్టు(ID::SRC_EN, 1);
+				పోర్టు(ID::DST_EN, 1);
+				పోర్టు(ID::SRC, param(ID::SRC_వెడల్పు));
+				పోర్టు(ID::DST, param(ID::DST_వెడల్పు));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($print)) {
+			ఒకవేళ (cell->type == ID($print)) {
 				param(ID(FORMAT));
 				param_bool(ID::TRG_ENABLE);
 				param(ID::TRG_POLARITY);
-				param(ID::PRIORITY);
-				port(ID::EN, 1);
-				port(ID::TRG, param(ID::TRG_WIDTH));
-				port(ID::ARGS, param(ID::ARGS_WIDTH));
+				param(ID::ప్రాధాన్యత);
+				పోర్టు(ID::EN, 1);
+				పోర్టు(ID::TRG, param(ID::TRG_వెడల్పు));
+				పోర్టు(ID::వాదనలు, param(ID::వాదనలు_వెడల్పు));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($check)) {
+			ఒకవేళ (cell->type == ID($check)) {
 				std::string flavor = param_string(ID(FLAVOR));
-				if (!(flavor == "assert" || flavor == "assume" || flavor == "live" || flavor == "fair" || flavor == "cover"))
+				ఒకవేళ (!(flavor == "assert" || flavor == "assume" || flavor == "live" || flavor == "fair" || flavor == "cover"))
 					error(__LINE__);
 				param(ID(FORMAT));
 				param_bool(ID::TRG_ENABLE);
 				param(ID::TRG_POLARITY);
-				param(ID::PRIORITY);
-				port(ID::A, 1);
-				port(ID::EN, 1);
-				port(ID::TRG, param(ID::TRG_WIDTH));
-				port(ID::ARGS, param(ID::ARGS_WIDTH));
+				param(ID::ప్రాధాన్యత);
+				పోర్టు(ID::A, 1);
+				పోర్టు(ID::EN, 1);
+				పోర్టు(ID::TRG, param(ID::TRG_వెడల్పు));
+				పోర్టు(ID::వాదనలు, param(ID::వాదనలు_వెడల్పు));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($scopeinfo)) {
+			ఒకవేళ (cell->type == ID($scopeinfo)) {
 				param(ID::TYPE);
 				check_expected();
 				std::string scope_type = cell->getParam(ID::TYPE).decode_string();
-				if (scope_type != "module" && scope_type != "struct" && scope_type != "blackbox")
+				ఒకవేళ (scope_type != "module" && scope_type != "struct" && scope_type != "blackbox")
 					error(__LINE__);
-				return;
+				తిరిగి;
 			}
 
-			if (cell->type == ID($_BUF_))    { port(ID::A,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NOT_))    { port(ID::A,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_AND_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NAND_))   { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_OR_))     { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NOR_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_XOR_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_XNOR_))   { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_ANDNOT_)) { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_ORNOT_))  { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_MUX_))    { port(ID::A,1); port(ID::B,1); port(ID::S,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NMUX_))   { port(ID::A,1); port(ID::B,1); port(ID::S,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_AOI3_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_OAI3_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_AOI4_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_OAI4_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::Y,1); check_expected(); return; }
+			ఒకవేళ (cell->type == ID($_BUF_))    { పోర్టు(ID::A,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_NOT_))    { పోర్టు(ID::A,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_AND_))    { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_NAND_))   { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_OR_))     { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_NOR_))    { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_XOR_))    { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_XNOR_))   { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_ANDNOT_)) { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_ORNOT_))  { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_MUX_))    { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::S,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_NMUX_))   { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::S,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_AOI3_))   { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::C,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_OAI3_))   { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::C,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_AOI4_))   { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::C,1); పోర్టు(ID::D,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_OAI4_))   { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::C,1); పోర్టు(ID::D,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
 
-			if (cell->type == ID($_TBUF_))  { port(ID::A,1); port(ID::Y,1); port(ID::E,1); check_expected(); return; }
+			ఒకవేళ (cell->type == ID($_TBUF_))  { పోర్టు(ID::A,1); పోర్టు(ID::Y,1); పోర్టు(ID::E,1); check_expected(); తిరిగి; }
 
-			if (cell->type == ID($_MUX4_))  { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::S,1); port(ID::T,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_MUX8_))  { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::E,1); port(ID::F,1); port(ID::G,1); port(ID::H,1); port(ID::S,1); port(ID::T,1); port(ID::U,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_MUX16_)) { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::E,1); port(ID::F,1); port(ID::G,1); port(ID::H,1); port(ID::I,1); port(ID::J,1); port(ID::K,1); port(ID::L,1); port(ID::M,1); port(ID::N,1); port(ID::O,1); port(ID::P,1); port(ID::S,1); port(ID::T,1); port(ID::U,1); port(ID::V,1); port(ID::Y,1); check_expected(); return; }
+			ఒకవేళ (cell->type == ID($_MUX4_))  { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::C,1); పోర్టు(ID::D,1); పోర్టు(ID::S,1); పోర్టు(ID::T,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_MUX8_))  { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::C,1); పోర్టు(ID::D,1); పోర్టు(ID::E,1); పోర్టు(ID::F,1); పోర్టు(ID::G,1); పోర్టు(ID::H,1); పోర్టు(ID::S,1); పోర్టు(ID::T,1); పోర్టు(ID::U,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
+			ఒకవేళ (cell->type == ID($_MUX16_)) { పోర్టు(ID::A,1); పోర్టు(ID::B,1); పోర్టు(ID::C,1); పోర్టు(ID::D,1); పోర్టు(ID::E,1); పోర్టు(ID::F,1); పోర్టు(ID::G,1); పోర్టు(ID::H,1); పోర్టు(ID::I,1); పోర్టు(ID::J,1); పోర్టు(ID::K,1); పోర్టు(ID::L,1); పోర్టు(ID::M,1); పోర్టు(ID::N,1); పోర్టు(ID::O,1); పోర్టు(ID::P,1); పోర్టు(ID::S,1); పోర్టు(ID::T,1); పోర్టు(ID::U,1); పోర్టు(ID::V,1); పోర్టు(ID::Y,1); check_expected(); తిరిగి; }
 
-			if (cell->type.in(ID($_SR_NN_), ID($_SR_NP_), ID($_SR_PN_), ID($_SR_PP_)))
-				{ port(ID::S,1); port(ID::R,1); port(ID::Q,1); check_expected(); return; }
+			ఒకవేళ (cell->type.లోపల(ID($_SR_NN_), ID($_SR_NP_), ID($_SR_PN_), ID($_SR_PP_)))
+				{ పోర్టు(ID::S,1); పోర్టు(ID::R,1); పోర్టు(ID::Q,1); check_expected(); తిరిగి; }
 
-			if (cell->type == ID($_FF_)) { port(ID::D,1); port(ID::Q,1); check_expected();  return; }
+			ఒకవేళ (cell->type == ID($_FF_)) { పోర్టు(ID::D,1); పోర్టు(ID::Q,1); check_expected();  తిరిగి; }
 
-			if (cell->type.in(ID($_DFF_N_), ID($_DFF_P_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); check_expected(); return; }
+			ఒకవేళ (cell->type.లోపల(ID($_DFF_N_), ID($_DFF_P_)))
+				{ పోర్టు(ID::D,1); పోర్టు(ID::Q,1); పోర్టు(ID::C,1); check_expected(); తిరిగి; }
 
-			if (cell->type.in(ID($_DFFE_NN_), ID($_DFFE_NP_), ID($_DFFE_PN_), ID($_DFFE_PP_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::E,1); check_expected(); return; }
+			ఒకవేళ (cell->type.లోపల(ID($_DFFE_NN_), ID($_DFFE_NP_), ID($_DFFE_PN_), ID($_DFFE_PP_)))
+				{ పోర్టు(ID::D,1); పోర్టు(ID::Q,1); పోర్టు(ID::C,1); పోర్టు(ID::E,1); check_expected(); తిరిగి; }
 
-			if (cell->type.in(
+			ఒకవేళ (cell->type.లోపల(
 					ID($_DFF_NN0_), ID($_DFF_NN1_), ID($_DFF_NP0_), ID($_DFF_NP1_),
 					ID($_DFF_PN0_), ID($_DFF_PN1_), ID($_DFF_PP0_), ID($_DFF_PP1_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); check_expected(); return; }
+				{ పోర్టు(ID::D,1); పోర్టు(ID::Q,1); పోర్టు(ID::C,1); పోర్టు(ID::R,1); check_expected(); తిరిగి; }
 
-			if (cell->type.in(
+			ఒకవేళ (cell->type.లోపల(
 					ID($_DFFE_NN0N_), ID($_DFFE_NN0P_), ID($_DFFE_NN1N_), ID($_DFFE_NN1P_),
 					ID($_DFFE_NP0N_), ID($_DFFE_NP0P_), ID($_DFFE_NP1N_), ID($_DFFE_NP1P_),
 					ID($_DFFE_PN0N_), ID($_DFFE_PN0P_), ID($_DFFE_PN1N_), ID($_DFFE_PN1P_),
 					ID($_DFFE_PP0N_), ID($_DFFE_PP0P_), ID($_DFFE_PP1N_), ID($_DFFE_PP1P_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); port(ID::E,1); check_expected(); return; }
+				{ పోర్టు(ID::D,1); పోర్టు(ID::Q,1); పోర్టు(ID::C,1); పోర్టు(ID::R,1); పోర్టు(ID::E,1); check_expected(); తిరిగి; }
 
-			if (cell->type.in(
+			ఒకవేళ (cell->type.లోపల(
 					ID($_ALDFF_NN_), ID($_ALDFF_NP_), ID($_ALDFF_PN_), ID($_ALDFF_PP_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::L,1); port(ID::AD,1); check_expected(); return; }
+				{ పోర్టు(ID::D,1); పోర్టు(ID::Q,1); పోర్టు(ID::C,1); పోర్టు(ID::L,1); పోర్టు(ID::AD,1); check_expected(); తిరిగి; }
 
-			if (cell->type.in(
+			ఒకవేళ (cell->type.లోపల(
 					ID($_ALDFFE_NNN_), ID($_ALDFFE_NNP_), ID($_ALDFFE_NPN_), ID($_ALDFFE_NPP_),
 					ID($_ALDFFE_PNN_), ID($_ALDFFE_PNP_), ID($_ALDFFE_PPN_), ID($_ALDFFE_PPP_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::L,1); port(ID::AD,1); port(ID::E,1); check_expected(); return; }
+				{ పోర్టు(ID::D,1); పోర్టు(ID::Q,1); పోర్టు(ID::C,1); పోర్టు(ID::L,1); పోర్టు(ID::AD,1); పోర్టు(ID::E,1); check_expected(); తిరిగి; }
 
-			if (cell->type.in(
+			ఒకవేళ (cell->type.లోపల(
 					ID($_DFFSR_NNN_), ID($_DFFSR_NNP_), ID($_DFFSR_NPN_), ID($_DFFSR_NPP_),
 					ID($_DFFSR_PNN_), ID($_DFFSR_PNP_), ID($_DFFSR_PPN_), ID($_DFFSR_PPP_)))
-				{ port(ID::C,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+				{ పోర్టు(ID::C,1); పోర్టు(ID::S,1); పోర్టు(ID::R,1); పోర్టు(ID::D,1); పోర్టు(ID::Q,1); check_expected(); తిరిగి; }
 
-			if (cell->type.in(
+			ఒకవేళ (cell->type.లోపల(
 					ID($_DFFSRE_NNNN_), ID($_DFFSRE_NNNP_), ID($_DFFSRE_NNPN_), ID($_DFFSRE_NNPP_),
 					ID($_DFFSRE_NPNN_), ID($_DFFSRE_NPNP_), ID($_DFFSRE_NPPN_), ID($_DFFSRE_NPPP_),
 					ID($_DFFSRE_PNNN_), ID($_DFFSRE_PNNP_), ID($_DFFSRE_PNPN_), ID($_DFFSRE_PNPP_),
 					ID($_DFFSRE_PPNN_), ID($_DFFSRE_PPNP_), ID($_DFFSRE_PPPN_), ID($_DFFSRE_PPPP_)))
-				{ port(ID::C,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::E,1); port(ID::Q,1); check_expected(); return; }
+				{ పోర్టు(ID::C,1); పోర్టు(ID::S,1); పోర్టు(ID::R,1); పోర్టు(ID::D,1); పోర్టు(ID::E,1); పోర్టు(ID::Q,1); check_expected(); తిరిగి; }
 
-			if (cell->type.in(
+			ఒకవేళ (cell->type.లోపల(
 					ID($_SDFF_NN0_), ID($_SDFF_NN1_), ID($_SDFF_NP0_), ID($_SDFF_NP1_),
 					ID($_SDFF_PN0_), ID($_SDFF_PN1_), ID($_SDFF_PP0_), ID($_SDFF_PP1_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); check_expected(); return; }
+				{ పోర్టు(ID::D,1); పోర్టు(ID::Q,1); పోర్టు(ID::C,1); పోర్టు(ID::R,1); check_expected(); తిరిగి; }
 
-			if (cell->type.in(
+			ఒకవేళ (cell->type.లోపల(
 					ID($_SDFFE_NN0N_), ID($_SDFFE_NN0P_), ID($_SDFFE_NN1N_), ID($_SDFFE_NN1P_),
 					ID($_SDFFE_NP0N_), ID($_SDFFE_NP0P_), ID($_SDFFE_NP1N_), ID($_SDFFE_NP1P_),
 					ID($_SDFFE_PN0N_), ID($_SDFFE_PN0P_), ID($_SDFFE_PN1N_), ID($_SDFFE_PN1P_),
@@ -2343,67 +2343,67 @@ namespace {
 					ID($_SDFFCE_NP0N_), ID($_SDFFCE_NP0P_), ID($_SDFFCE_NP1N_), ID($_SDFFCE_NP1P_),
 					ID($_SDFFCE_PN0N_), ID($_SDFFCE_PN0P_), ID($_SDFFCE_PN1N_), ID($_SDFFCE_PN1P_),
 					ID($_SDFFCE_PP0N_), ID($_SDFFCE_PP0P_), ID($_SDFFCE_PP1N_), ID($_SDFFCE_PP1P_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); port(ID::E,1); check_expected(); return; }
+				{ పోర్టు(ID::D,1); పోర్టు(ID::Q,1); పోర్టు(ID::C,1); పోర్టు(ID::R,1); పోర్టు(ID::E,1); check_expected(); తిరిగి; }
 
-			if (cell->type.in(ID($_DLATCH_N_), ID($_DLATCH_P_)))
-				{ port(ID::E,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+			ఒకవేళ (cell->type.లోపల(ID($_DLATCH_N_), ID($_DLATCH_P_)))
+				{ పోర్టు(ID::E,1); పోర్టు(ID::D,1); పోర్టు(ID::Q,1); check_expected(); తిరిగి; }
 
-			if (cell->type.in(
+			ఒకవేళ (cell->type.లోపల(
 					ID($_DLATCH_NN0_), ID($_DLATCH_NN1_), ID($_DLATCH_NP0_), ID($_DLATCH_NP1_),
 					ID($_DLATCH_PN0_), ID($_DLATCH_PN1_), ID($_DLATCH_PP0_), ID($_DLATCH_PP1_)))
-				{ port(ID::E,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+				{ పోర్టు(ID::E,1); పోర్టు(ID::R,1); పోర్టు(ID::D,1); పోర్టు(ID::Q,1); check_expected(); తిరిగి; }
 
-			if (cell->type.in(
+			ఒకవేళ (cell->type.లోపల(
 					ID($_DLATCHSR_NNN_), ID($_DLATCHSR_NNP_), ID($_DLATCHSR_NPN_), ID($_DLATCHSR_NPP_),
 					ID($_DLATCHSR_PNN_), ID($_DLATCHSR_PNP_), ID($_DLATCHSR_PPN_), ID($_DLATCHSR_PPP_)))
-				{ port(ID::E,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+				{ పోర్టు(ID::E,1); పోర్టు(ID::S,1); పోర్టు(ID::R,1); పోర్టు(ID::D,1); పోర్టు(ID::Q,1); check_expected(); తిరిగి; }
 
-			if (cell->type.in(ID($set_tag))) {
-				param(ID::WIDTH);
-				param(ID::TAG);
-				port(ID::A, param(ID::WIDTH));
-				port(ID::SET, param(ID::WIDTH));
-				port(ID::CLR, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			ఒకవేళ (cell->type.లోపల(ID($సమితి_ట్యాగ్))) {
+				param(ID::వెడల్పు_2);
+				param(ID::ట్యాగ్_2);
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::సమితి_2, param(ID::వెడల్పు_2));
+				పోర్టు(ID::CLR, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Y, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
-			if (cell->type.in(ID($get_tag),ID($original_tag))) {
-				param(ID::WIDTH);
-				param(ID::TAG);
-				port(ID::A, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			ఒకవేళ (cell->type.లోపల(ID($get_ట్యాగ్),ID($original_ట్యాగ్))) {
+				param(ID::వెడల్పు_2);
+				param(ID::ట్యాగ్_2);
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Y, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
-			if (cell->type.in(ID($overwrite_tag))) {
-				param(ID::WIDTH);
-				param(ID::TAG);
-				port(ID::A, param(ID::WIDTH));
-				port(ID::SET, param(ID::WIDTH));
-				port(ID::CLR, param(ID::WIDTH));
+			ఒకవేళ (cell->type.లోపల(ID($overwrite_ట్యాగ్))) {
+				param(ID::వెడల్పు_2);
+				param(ID::ట్యాగ్_2);
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::సమితి_2, param(ID::వెడల్పు_2));
+				పోర్టు(ID::CLR, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
-			if (cell->type.in(ID($future_ff))) {
-				param(ID::WIDTH);
-				port(ID::A, param(ID::WIDTH));
-				port(ID::Y, param(ID::WIDTH));
+			ఒకవేళ (cell->type.లోపల(ID($future_ff))) {
+				param(ID::వెడల్పు_2);
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::Y, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
-			if (cell->type.in(ID($input_port))) {
-				param(ID::WIDTH);
-				port(ID::Y, param(ID::WIDTH));
+			ఒకవేళ (cell->type.లోపల(ID($ఆదానం_పోర్టు))) {
+				param(ID::వెడల్పు_2);
+				పోర్టు(ID::Y, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
-			if (cell->type.in(ID($connect))) {
-				param(ID::WIDTH);
-				port(ID::A, param(ID::WIDTH));
-				port(ID::B, param(ID::WIDTH));
+			ఒకవేళ (cell->type.లోపల(ID($connect))) {
+				param(ID::వెడల్పు_2);
+				పోర్టు(ID::A, param(ID::వెడల్పు_2));
+				పోర్టు(ID::B, param(ID::వెడల్పు_2));
 				check_expected();
-				return;
+				తిరిగి;
 			}
 			/*
 			 * Checklist for adding internal cell types
@@ -2424,168 +2424,168 @@ namespace {
 		}
 	};
 }
-#endif
+#అయితే_ముగింపు
 
-void RTLIL::Module::sort()
+శూన్య RTLIL::Module::క్రమీకరించు()
 {
-	wires_.sort(sort_by_id_str(design->twines()));
-	cells_.sort(sort_by_id_str(design->twines()));
-	parameter_default_values.sort(sort_by_id_str(design->twines()));
-	memories.sort(sort_by_id_str(design->twines()));
-	processes.sort(sort_by_id_str(design->twines()));
-	for (auto &it : cells_)
-		it.second->sort();
-	for (auto &it : wires_)
-		it.second->attributes.sort(sort_by_id_str(design->twines()));
-	for (auto &it : memories)
-		it.second->attributes.sort(sort_by_id_str(design->twines()));
+	wires_.క్రమీకరించు(క్రమీకరించు_by_id_str(design->twines()));
+	cells_.క్రమీకరించు(క్రమీకరించు_by_id_str(design->twines()));
+	parameter_default_విలువలు.క్రమీకరించు(క్రమీకరించు_by_id_str(design->twines()));
+	memories.క్రమీకరించు(క్రమీకరించు_by_id_str(design->twines()));
+	processes.క్రమీకరించు(క్రమీకరించు_by_id_str(design->twines()));
+	కొరకు (స్వయంచాలక &it : cells_)
+		it.రెండవ->క్రమీకరించు();
+	కొరకు (స్వయంచాలక &it : wires_)
+		it.రెండవ->లక్షణాలు.క్రమీకరించు(క్రమీకరించు_by_id_str(design->twines()));
+	కొరకు (స్వయంచాలక &it : memories)
+		it.రెండవ->లక్షణాలు.క్రమీకరించు(క్రమీకరించు_by_id_str(design->twines()));
 }
 
-#ifndef NDEBUG
-static void check_id_keys(const dict<RTLIL::IdString, RTLIL::Const> &keyed)
+#నిర్వచితం_కాకపోతే NDEBUG
+స్థిర శూన్య check_id_కీలకాలు(స్థిరరాశి dict<RTLIL::IdString, RTLIL::Const> &keyed)
 {
-	for (auto &it : keyed)
-		log_assert(!it.first.empty());
+	కొరకు (స్వయంచాలక &it : keyed)
+		log_assert(!it.మొదటి.ఖాళీలు());
 }
-#endif
+#అయితే_ముగింపు
 
-void check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool)
+శూన్య check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool)
 {
-#ifndef NDEBUG
-	ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_size(0, module->cells_size(), 1000));
-	const RTLIL::Module *const_module = module;
+#నిర్వచితం_కాకపోతే NDEBUG
+	ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_కొలత(0, module->cells_కొలత(), 1000));
+	స్థిరరాశి RTLIL::Module *const_module = module;
 
-	pool<std::string> memory_strings;
-	for (auto &it : module->memories) {
-		log_assert(it.first == it.second->name);
-		log_assert(it.first != IdString::Null);
-		log_assert(it.second->width >= 0);
-		log_assert(it.second->size >= 0);
-		check_id_keys(it.second->attributes);
-		memory_strings.insert(it.second->name.str());
+	pool<std::string> జ్ఞాపకం_అక్షరశ్రేణులు;
+	కొరకు (స్వయంచాలక &it : module->memories) {
+		log_assert(it.మొదటి == it.రెండవ->name);
+		log_assert(it.మొదటి != IdString::Null);
+		log_assert(it.రెండవ->వెడల్పు >= 0);
+		log_assert(it.రెండవ->కొలత >= 0);
+		check_id_కీలకాలు(it.రెండవ->లక్షణాలు);
+		జ్ఞాపకం_అక్షరశ్రేణులు.చొప్పించు(it.రెండవ->name.str());
 	}
 
-	std::vector<MonotonicFlag> ports_declared(GetSize(module->ports));
-	ShardedVector<std::string> memids(subpool);
-	subpool.run([const_module, &ports_declared, &memory_strings, &memids](const ParallelDispatchThreadPool::RunCtx &ctx) {
-		for (int i : ctx.item_range(const_module->cells_size())) {
-			auto it = *const_module->cells_.element(i);
-			log_assert(const_module == it.second->module);
-			log_assert(it.first == it.second->name);
-			log_assert(it.first != IdString::Null);
-			log_assert(!it.second->type.empty());
-			for (auto &it2 : it.second->connections()) {
-				log_assert(it2.first != IdString::Null);
-				it2.second.check(const_module);
+	std::సదిశ<MonotonicFlag> ports_declared(Get_కొలత(module->ports));
+	Sharded_సదిశ<std::string> memids(subpool);
+	subpool.నిరంతరం([const_module, &ports_declared, &జ్ఞాపకం_అక్షరశ్రేణులు, &memids](స్థిరరాశి ParallelDispatchThreadPool::నిరంతరం_Ctx &ctx) {
+		కొరకు (పూర్ణాంకం i : ctx.అంశం_range(const_module->cells_కొలత())) {
+			స్వయంచాలక it = *const_module->cells_.element(i);
+			log_assert(const_module == it.రెండవ->module);
+			log_assert(it.మొదటి == it.రెండవ->name);
+			log_assert(it.మొదటి != IdString::Null);
+			log_assert(!it.రెండవ->type.ఖాళీలు());
+			కొరకు (స్వయంచాలక &it2 : it.రెండవ->connections()) {
+				log_assert(it2.మొదటి != IdString::Null);
+				it2.రెండవ.check(const_module);
 			}
-			check_id_keys(it.second->attributes);
-			check_id_keys(it.second->parameters);
-			InternalCellChecker checker(const_module, it.second);
+			check_id_కీలకాలు(it.రెండవ->లక్షణాలు);
+			check_id_కీలకాలు(it.రెండవ->parameters);
+			అంతర్గత_Cell_Checker checker(const_module, it.రెండవ);
 			checker.check();
-			if (it.second->has_memid()) {
-				log_assert(memory_strings.count(it.second->parameters.at(ID::MEMID).decode_string()));
-			} else if (it.second->is_mem_cell()) {
-				std::string memid = it.second->parameters.at(ID::MEMID).decode_string();
-				log_assert(!memory_strings.count(memid));
-				memids.insert(ctx, std::move(memid));
+			ఒకవేళ (it.రెండవ->has_memid()) {
+				log_assert(జ్ఞాపకం_అక్షరశ్రేణులు.లెక్క(it.రెండవ->parameters.at(ID::MEMID).decode_string()));
+			} లేకపోతే ఒకవేళ (it.రెండవ->is_mem_cell()) {
+				std::string memid = it.రెండవ->parameters.at(ID::MEMID).decode_string();
+				log_assert(!జ్ఞాపకం_అక్షరశ్రేణులు.లెక్క(memid));
+				memids.చొప్పించు(ctx, std::move(memid));
 			}
-			auto cell_mod = const_module->design->module(it.second->name);
-			if (cell_mod != nullptr) {
+			స్వయంచాలక cell_mod = const_module->design->module(it.రెండవ->name);
+			ఒకవేళ (cell_mod != శూన్యసూచిక) {
 				// assertion check below to make sure that there are no
 				// cases where a cell has a blackbox attribute since
 				// that is deprecated
-				#ifdef __GNUC__
-				#pragma GCC diagnostic push
-				#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-				#endif
-				log_assert(!it.second->get_blackbox_attribute());
-				#ifdef __GNUC__
-				#pragma GCC diagnostic pop
-				#endif
+				#నిర్వచితమైతే __GNUC__
+				#సూచన GCC diagnostic నెట్టు
+				#సూచన GCC diagnostic ignored "-Wdeprecated-declarations"
+				#అయితే_ముగింపు
+				log_assert(!it.రెండవ->get_blackbox_attribute());
+				#నిర్వచితమైతే __GNUC__
+				#సూచన GCC diagnostic తీయి
+				#అయితే_ముగింపు
 			}
 		}
 
-		for (int i : ctx.item_range(const_module->wires_size())) {
-			auto it = *const_module->wires_.element(i);
-			log_assert(const_module == it.second->module);
-			log_assert(it.first == it.second->name);
-			log_assert(it.first != IdString::Null);
-			log_assert(it.second->width >= 0);
-			log_assert(it.second->port_id >= 0);
-			check_id_keys(it.second->attributes);
-			if (it.second->port_id) {
-				log_assert(GetSize(const_module->ports) >= it.second->port_id);
-				log_assert(const_module->ports.at(it.second->port_id-1) == it.second->name);
-				log_assert(it.second->port_input || it.second->port_output);
-				log_assert(it.second->port_id <= GetSize(ports_declared));
-				bool previously_declared = ports_declared[it.second->port_id-1].set_and_return_old();
-				log_assert(previously_declared == false);
-			} else
-				log_assert(!it.second->port_input && !it.second->port_output);
+		కొరకు (పూర్ణాంకం i : ctx.అంశం_range(const_module->wires_కొలత())) {
+			స్వయంచాలక it = *const_module->wires_.element(i);
+			log_assert(const_module == it.రెండవ->module);
+			log_assert(it.మొదటి == it.రెండవ->name);
+			log_assert(it.మొదటి != IdString::Null);
+			log_assert(it.రెండవ->వెడల్పు >= 0);
+			log_assert(it.రెండవ->పోర్టు_id >= 0);
+			check_id_కీలకాలు(it.రెండవ->లక్షణాలు);
+			ఒకవేళ (it.రెండవ->పోర్టు_id) {
+				log_assert(Get_కొలత(const_module->ports) >= it.రెండవ->పోర్టు_id);
+				log_assert(const_module->ports.at(it.రెండవ->పోర్టు_id-1) == it.రెండవ->name);
+				log_assert(it.రెండవ->పోర్టు_ఆదానం || it.రెండవ->పోర్టు_output);
+				log_assert(it.రెండవ->పోర్టు_id <= Get_కొలత(ports_declared));
+				తార్కిక previously_declared = ports_declared[it.రెండవ->పోర్టు_id-1].సమితి_and_return_old();
+				log_assert(previously_declared == అబద్ధం);
+			} లేకపోతే
+				log_assert(!it.రెండవ->పోర్టు_ఆదానం && !it.రెండవ->పోర్టు_output);
 		}
 	});
-	for (const MonotonicFlag &port_declared : ports_declared)
-		log_assert(port_declared.load() == true);
+	కొరకు (స్థిరరాశి MonotonicFlag &పోర్టు_declared : ports_declared)
+		log_assert(పోర్టు_declared.ఎక్కించు() == నిజం);
 	pool<std::string> memids_pool;
-	for (std::string &memid : memids)
-		log_assert(memids_pool.insert(memid).second);
+	కొరకు (std::string &memid : memids)
+		log_assert(memids_pool.చొప్పించు(memid).రెండవ);
 
-	for (auto &it : module->processes) {
-		log_assert(it.first == it.second->name);
-		log_assert(it.first != IdString::Null);
-		log_assert(it.second->root_case.compare.empty());
-		std::vector<RTLIL::CaseRule*> all_cases = {&it.second->root_case};
-		for (size_t i = 0; i < all_cases.size(); i++) {
-			for (auto &switch_it : all_cases[i]->switches) {
-				for (auto &case_it : switch_it->cases) {
-					for (auto &compare_it : case_it->compare) {
-						log_assert(switch_it->signal.size() == compare_it.size());
+	కొరకు (స్వయంచాలక &it : module->processes) {
+		log_assert(it.మొదటి == it.రెండవ->name);
+		log_assert(it.మొదటి != IdString::Null);
+		log_assert(it.రెండవ->మూలం_case.compare.ఖాళీలు());
+		std::సదిశ<RTLIL::Case_నియమం*> all_cases = {&it.రెండవ->మూలం_case};
+		కొరకు (కొలత_t i = 0; i < all_cases.కొలత(); i++) {
+			కొరకు (స్వయంచాలక &switch_it : all_cases[i]->switches) {
+				కొరకు (స్వయంచాలక &case_it : switch_it->cases) {
+					కొరకు (స్వయంచాలక &compare_it : case_it->compare) {
+						log_assert(switch_it->సంకేతం.కొలత() == compare_it.కొలత());
 					}
-					all_cases.push_back(case_it);
+					all_cases.నెట్టు_వెనుక(case_it);
 				}
 			}
 		}
-		for (auto &sync_it : it.second->syncs) {
-			switch (sync_it->type) {
-				case RTLIL::SyncType::ST0:
-				case RTLIL::SyncType::ST1:
-				case RTLIL::SyncType::STp:
-				case RTLIL::SyncType::STn:
-				case RTLIL::SyncType::STe:
-					log_assert(!sync_it->signal.empty());
-					break;
-				case RTLIL::SyncType::STa:
-				case RTLIL::SyncType::STg:
-				case RTLIL::SyncType::STi:
-					log_assert(sync_it->signal.empty());
-					break;
+		కొరకు (స్వయంచాలక &sync_it : it.రెండవ->syncs) {
+			ఎంపిక (sync_it->type) {
+				స్థితి RTLIL::SyncType::ST0:
+				స్థితి RTLIL::SyncType::ST1:
+				స్థితి RTLIL::SyncType::STp:
+				స్థితి RTLIL::SyncType::STn:
+				స్థితి RTLIL::SyncType::STe:
+					log_assert(!sync_it->సంకేతం.ఖాళీలు());
+					ఆపు;
+				స్థితి RTLIL::SyncType::STa:
+				స్థితి RTLIL::SyncType::STg:
+				స్థితి RTLIL::SyncType::STi:
+					log_assert(sync_it->సంకేతం.ఖాళీలు());
+					ఆపు;
 			}
 		}
 	}
 
-	for (auto &it : module->connections_) {
-		log_assert(it.first.size() == it.second.size());
-		log_assert(!it.first.has_const());
-		it.first.check(module);
-		it.second.check(module);
+	కొరకు (స్వయంచాలక &it : module->connections_) {
+		log_assert(it.మొదటి.కొలత() == it.రెండవ.కొలత());
+		log_assert(!it.మొదటి.has_const());
+		it.మొదటి.check(module);
+		it.రెండవ.check(module);
 	}
 
-	check_id_keys(module->attributes);
-#endif
+	check_id_కీలకాలు(module->లక్షణాలు);
+#అయితే_ముగింపు
 }
 
-void RTLIL::Module::check()
+శూన్య RTLIL::Module::check()
 {
-	int pool_size = ThreadPool::work_pool_size(0, cells_size(), 1000);
-	ParallelDispatchThreadPool thread_pool(pool_size);
-	check_module(this, thread_pool);
+	పూర్ణాంకం pool_కొలత = ThreadPool::work_pool_కొలత(0, cells_కొలత(), 1000);
+	ParallelDispatchThreadPool thread_pool(pool_కొలత);
+	check_module(ఇది, thread_pool);
 }
 
-void RTLIL::Module::optimize()
+శూన్య RTLIL::Module::optimize()
 {
 }
 
-void RTLIL::Module::cloneInto(RTLIL::Module *new_mod) const
+శూన్య RTLIL::Module::cloneInto(RTLIL::Module *new_mod) స్థిరరాశి
 {
 	log_assert(new_mod->refcount_wires_ == 0);
 	log_assert(new_mod->refcount_cells_ == 0);
@@ -2593,224 +2593,224 @@ void RTLIL::Module::cloneInto(RTLIL::Module *new_mod) const
 	TwinePool &dst_twines = new_mod->twines();
 
 	new_mod->avail_parameters.clear();
-	for (IdString param : avail_parameters)
+	కొరకు (IdString param : avail_parameters)
 		new_mod->avail_parameters(dst_twines.copy_from(design->twines(), param));
-	new_mod->parameter_default_values.clear();
-	for (auto &it : parameter_default_values)
-		new_mod->parameter_default_values[dst_twines.copy_from(design->twines(), it.first)] = it.second;
+	new_mod->parameter_default_విలువలు.clear();
+	కొరకు (స్వయంచాలక &it : parameter_default_విలువలు)
+		new_mod->parameter_default_విలువలు[dst_twines.copy_from(design->twines(), it.మొదటి)] = it.రెండవ;
 
-	for (auto &conn : connections())
+	కొరకు (స్వయంచాలక &conn : connections())
 		new_mod->connect(conn);
 
-	RTLIL::copy_attr_dict(new_mod->attributes, attributes, design, new_mod->design);
+	RTLIL::copy_attr_dict(new_mod->లక్షణాలు, లక్షణాలు, design, new_mod->design);
 
 	dict<RTLIL::Wire*, RTLIL::Wire*> wire_map;
 
-	for (auto it = wires_.rbegin(); it != wires_.rend(); ++it) {
-		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
-		wire_map[it->second] = new_mod->addWire(dst_id, it->second);
+	కొరకు (స్వయంచాలక it = wires_.rbegin(); it != wires_.rend(); ++it) {
+		IdString dst_id = dst_twines.copy_from(design->twines(), it->మొదటి);
+		wire_map[it->రెండవ] = new_mod->కూడు_Wire(dst_id, it->రెండవ);
 	}
 
-	for (auto it = memories.rbegin(); it != memories.rend(); ++it) {
-		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
-		new_mod->addMemory(dst_id, it->second);
+	కొరకు (స్వయంచాలక it = memories.rbegin(); it != memories.rend(); ++it) {
+		IdString dst_id = dst_twines.copy_from(design->twines(), it->మొదటి);
+		new_mod->కూడు_జ్ఞాపకం(dst_id, it->రెండవ);
 	}
 
-	for (auto it = cells_.rbegin(); it != cells_.rend(); ++it) {
-		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
-		new_mod->addCell(dst_id, it->second);
+	కొరకు (స్వయంచాలక it = cells_.rbegin(); it != cells_.rend(); ++it) {
+		IdString dst_id = dst_twines.copy_from(design->twines(), it->మొదటి);
+		new_mod->కూడు_Cell(dst_id, it->రెండవ);
 	}
 
-	for (auto it = processes.rbegin(); it != processes.rend(); ++it) {
-		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
-		new_mod->addProcess(dst_id, it->second);
+	కొరకు (స్వయంచాలక it = processes.rbegin(); it != processes.rend(); ++it) {
+		IdString dst_id = dst_twines.copy_from(design->twines(), it->మొదటి);
+		new_mod->కూడు_Process(dst_id, it->రెండవ);
 	}
 
-	struct RewriteSigSpecWorker
+	నిర్మాణం Rewrite_Sig_Spec_కార్మికుడు
 	{
-		const dict<RTLIL::Wire*, RTLIL::Wire*> &wire_map;
-		const RTLIL::Module *new_mod;
-		void operator()(RTLIL::SigSpec &sig)
+		స్థిరరాశి dict<RTLIL::Wire*, RTLIL::Wire*> &wire_map;
+		స్థిరరాశి RTLIL::Module *new_mod;
+		శూన్య క్రియాకారకం()(RTLIL::SigSpec &sig)
 		{
-			sig.rewrite_wires([this](RTLIL::Wire *&wire) {
-				auto it = wire_map.find(wire);
-				if (it != wire_map.end())
-					wire = it->second;
-				else
+			sig.rewrite_wires([ఇది](RTLIL::Wire *&wire) {
+				స్వయంచాలక it = wire_map.కనుగొను(wire);
+				ఒకవేళ (it != wire_map.చివర())
+					wire = it->రెండవ;
+				లేకపోతే
 					log_assert(wire->module == new_mod);
 			});
 		}
 	};
 
-	RewriteSigSpecWorker rewriteSigSpecWorker{wire_map, new_mod};
-	new_mod->rewrite_sigspecs(rewriteSigSpecWorker);
+	Rewrite_Sig_Spec_కార్మికుడు rewrite_Sig_Spec_కార్మికుడు{wire_map, new_mod};
+	new_mod->rewrite_sigspecs(rewrite_Sig_Spec_కార్మికుడు);
 	new_mod->fixup_ports();
 }
 
-RTLIL::Module *RTLIL::Module::clone() const
+RTLIL::Module *RTLIL::Module::clone() స్థిరరాశి
 {
-	RTLIL::Module *new_mod = new RTLIL::Module;
+	RTLIL::Module *new_mod = కొత్త RTLIL::Module;
 	new_mod->design = design;
 	new_mod->name = name;
 	cloneInto(new_mod);
-	return new_mod;
+	తిరిగి new_mod;
 }
 
-RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst) const
+RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst) స్థిరరాశి
 {
-	RTLIL::Module *new_mod = new RTLIL::Module;
+	RTLIL::Module *new_mod = కొత్త RTLIL::Module;
 	new_mod->design = dst;
 	new_mod->name = dst->twines().copy_from(design->twines(), name);
 	cloneInto(new_mod);
-	dst->add(new_mod);
-	return new_mod;
+	dst->కూడు(new_mod);
+	తిరిగి new_mod;
 }
 
-RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst, IdString target_name) const
+RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst, IdString లక్ష్యం_name) స్థిరరాశి
 {
-	RTLIL::Module *new_mod = new RTLIL::Module;
+	RTLIL::Module *new_mod = కొత్త RTLIL::Module;
 	new_mod->design = dst;
-	new_mod->name = target_name;
+	new_mod->name = లక్ష్యం_name;
 	cloneInto(new_mod);
-	dst->add(new_mod);
-	return new_mod;
+	dst->కూడు(new_mod);
+	తిరిగి new_mod;
 }
 
-bool RTLIL::Module::has_memories() const
+తార్కిక RTLIL::Module::has_memories() స్థిరరాశి
 {
-	return !memories.empty();
+	తిరిగి !memories.ఖాళీలు();
 }
 
-bool RTLIL::Module::has_processes() const
+తార్కిక RTLIL::Module::has_processes() స్థిరరాశి
 {
-	return !processes.empty();
+	తిరిగి !processes.ఖాళీలు();
 }
 
-bool RTLIL::Module::has_memories_warn() const
+తార్కిక RTLIL::Module::has_memories_warn() స్థిరరాశి
 {
-	if (!memories.empty())
-		log_warning("Ignoring module %s because it contains memories (run 'memory' command first).\n", this);
-	return !memories.empty();
+	ఒకవేళ (!memories.ఖాళీలు())
+		log_warning("Ignoring module %s because it contains memories (run 'memory' command first).\n", ఇది);
+	తిరిగి !memories.ఖాళీలు();
 }
 
-bool RTLIL::Module::has_processes_warn() const
+తార్కిక RTLIL::Module::has_processes_warn() స్థిరరాశి
 {
-	if (!processes.empty())
-		log_warning("Ignoring module %s because it contains processes (run 'proc' command first).\n", this);
-	return !processes.empty();
+	ఒకవేళ (!processes.ఖాళీలు())
+		log_warning("Ignoring module %s because it contains processes (run 'proc' command first).\n", ఇది);
+	తిరిగి !processes.ఖాళీలు();
 }
 
-bool RTLIL::Module::is_selected() const
+తార్కిక RTLIL::Module::is_selected() స్థిరరాశి
 {
-	return design->selected_module(this->name);
+	తిరిగి design->selected_module(ఇది->name);
 }
 
-bool RTLIL::Module::is_selected_whole() const
+తార్కిక RTLIL::Module::is_selected_సంపూర్ణ() స్థిరరాశి
 {
-	return design->selected_whole_module(this->name);
+	తిరిగి design->selected_సంపూర్ణ_module(ఇది->name);
 }
 
-std::vector<RTLIL::Wire*> RTLIL::Module::selected_wires() const
+std::సదిశ<RTLIL::Wire*> RTLIL::Module::selected_wires() స్థిరరాశి
 {
-	std::vector<RTLIL::Wire*> result;
-	result.reserve(wires_.size());
-	for (auto &it : wires_)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	std::సదిశ<RTLIL::Wire*> ఫలితం;
+	ఫలితం.reserve(wires_.కొలత());
+	కొరకు (స్వయంచాలక &it : wires_)
+		ఒకవేళ (design->selected(ఇది, it.రెండవ))
+			ఫలితం.నెట్టు_వెనుక(it.రెండవ);
+	తిరిగి ఫలితం;
 }
 
-std::vector<RTLIL::Cell*> RTLIL::Module::selected_cells() const
+std::సదిశ<RTLIL::Cell*> RTLIL::Module::selected_cells() స్థిరరాశి
 {
-	std::vector<RTLIL::Cell*> result;
-	result.reserve(cells_.size());
-	for (auto &it : cells_)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	std::సదిశ<RTLIL::Cell*> ఫలితం;
+	ఫలితం.reserve(cells_.కొలత());
+	కొరకు (స్వయంచాలక &it : cells_)
+		ఒకవేళ (design->selected(ఇది, it.రెండవ))
+			ఫలితం.నెట్టు_వెనుక(it.రెండవ);
+	తిరిగి ఫలితం;
 }
 
-std::vector<RTLIL::Memory*> RTLIL::Module::selected_memories() const
+std::సదిశ<RTLIL::జ్ఞాపకం*> RTLIL::Module::selected_memories() స్థిరరాశి
 {
-	std::vector<RTLIL::Memory*> result;
-	result.reserve(memories.size());
-	for (auto &it : memories)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	std::సదిశ<RTLIL::జ్ఞాపకం*> ఫలితం;
+	ఫలితం.reserve(memories.కొలత());
+	కొరకు (స్వయంచాలక &it : memories)
+		ఒకవేళ (design->selected(ఇది, it.రెండవ))
+			ఫలితం.నెట్టు_వెనుక(it.రెండవ);
+	తిరిగి ఫలితం;
 }
 
-std::vector<RTLIL::Process*> RTLIL::Module::selected_processes() const
+std::సదిశ<RTLIL::Process*> RTLIL::Module::selected_processes() స్థిరరాశి
 {
-	std::vector<RTLIL::Process*> result;
-	result.reserve(processes.size());
-	for (auto &it : processes)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	std::సదిశ<RTLIL::Process*> ఫలితం;
+	ఫలితం.reserve(processes.కొలత());
+	కొరకు (స్వయంచాలక &it : processes)
+		ఒకవేళ (design->selected(ఇది, it.రెండవ))
+			ఫలితం.నెట్టు_వెనుక(it.రెండవ);
+	తిరిగి ఫలితం;
 }
 
-std::vector<RTLIL::SelectedMember> RTLIL::Module::selected_members() const
+std::సదిశ<RTLIL::SelectedMember> RTLIL::Module::selected_members() స్థిరరాశి
 {
-	std::vector<RTLIL::SelectedMember> result;
-	for (auto cell : selected_cells())
-		result.push_back({cell, cell->name});
-	for (auto memory : selected_memories())
-		result.push_back({memory, memory->name});
-	for (auto wire : selected_wires())
-		result.push_back({wire, wire->name});
-	for (auto process : selected_processes())
-		result.push_back({process, process->name});
-	return result;
+	std::సదిశ<RTLIL::SelectedMember> ఫలితం;
+	కొరకు (స్వయంచాలక cell : selected_cells())
+		ఫలితం.నెట్టు_వెనుక({cell, cell->name});
+	కొరకు (స్వయంచాలక జ్ఞాపకం_3 : selected_memories())
+		ఫలితం.నెట్టు_వెనుక({జ్ఞాపకం_3, జ్ఞాపకం_3->name});
+	కొరకు (స్వయంచాలక wire : selected_wires())
+		ఫలితం.నెట్టు_వెనుక({wire, wire->name});
+	కొరకు (స్వయంచాలక process : selected_processes())
+		ఫలితం.నెట్టు_వెనుక({process, process->name});
+	తిరిగి ఫలితం;
 }
 
-void RTLIL::Module::add(RTLIL::Wire *wire)
+శూన్య RTLIL::Module::కూడు(RTLIL::Wire *wire)
 {
 	log_assert(wire->name != IdString::Null);
 	IdString id = wire->name;
-	log_assert(count_id(id) == 0);
+	log_assert(లెక్క_id(id) == 0);
 	log_assert(refcount_wires_ == 0);
 	wires_[id] = wire;
-	wire->module = this;
+	wire->module = ఇది;
 }
 
-void RTLIL::Module::add(RTLIL::Cell *cell)
+శూన్య RTLIL::Module::కూడు(RTLIL::Cell *cell)
 {
 	log_assert(cell->name != IdString::Null);
 	IdString id = cell->name;
-	log_assert(count_id(id) == 0);
+	log_assert(లెక్క_id(id) == 0);
 	log_assert(refcount_cells_ == 0);
 	cells_[id] = cell;
-	cell->module = this;
+	cell->module = ఇది;
 }
 
-void RTLIL::Module::add(RTLIL::Process *process)
+శూన్య RTLIL::Module::కూడు(RTLIL::Process *process)
 {
 	log_assert(process->name != IdString::Null);
-	log_assert(count_id(process->name) == 0);
+	log_assert(లెక్క_id(process->name) == 0);
 	processes[process->name] = process;
-	process->module = this;
+	process->module = ఇది;
 }
 
-void RTLIL::Module::remove(const pool<RTLIL::Wire*> &wires)
+శూన్య RTLIL::Module::remove(స్థిరరాశి pool<RTLIL::Wire*> &wires)
 {
 	log_assert(refcount_wires_ == 0);
-	if (wires.empty())
-		return;
+	ఒకవేళ (wires.ఖాళీలు())
+		తిరిగి;
 
-	struct DeleteWireWorker
+	నిర్మాణం Delete_Wire_కార్మికుడు
 	{
 		RTLIL::Module *module;
-		const pool<RTLIL::Wire*> *wires_p;
+		స్థిరరాశి pool<RTLIL::Wire*> *wires_p;
 
-		void operator()(RTLIL::SigSpec &sig) {
-			sig.rewrite_wires([this](RTLIL::Wire *&wire) {
-				if (wires_p->count(wire))
-					wire = module->addWire(stringf("$delete_wire$%d", (int)autoidx++), wire->width);
+		శూన్య క్రియాకారకం()(RTLIL::SigSpec &sig) {
+			sig.rewrite_wires([ఇది](RTLIL::Wire *&wire) {
+				ఒకవేళ (wires_p->లెక్క(wire))
+					wire = module->కూడు_Wire(stringf("$delete_wire$%d", (పూర్ణాంకం)autoidx++), wire->వెడల్పు);
 			});
 		}
 
-		void operator()(RTLIL::SigSpec &lhs, RTLIL::SigSpec &rhs) {
+		శూన్య క్రియాకారకం()(RTLIL::SigSpec &lhs, RTLIL::SigSpec &rhs) {
 			// If a deleted wire occurs on the lhs or rhs we just remove that part
 			// of the assignment
 			lhs.remove2(*wires_p, &rhs);
@@ -2818,59 +2818,59 @@ void RTLIL::Module::remove(const pool<RTLIL::Wire*> &wires)
 		}
 	};
 
-	DeleteWireWorker delete_wire_worker;
-	delete_wire_worker.module = this;
-	delete_wire_worker.wires_p = &wires;
-	rewrite_sigspecs2(delete_wire_worker);
+	Delete_Wire_కార్మికుడు delete_wire_కార్మికుడు;
+	delete_wire_కార్మికుడు.module = ఇది;
+	delete_wire_కార్మికుడు.wires_p = &wires;
+	rewrite_sigspecs2(delete_wire_కార్మికుడు);
 
-	if (design->flagBufferedNormalized) {
-		for (auto wire : wires) {
-			buf_norm_wire_queue.erase(wire);
-			buf_norm_connect_index.erase(wire);
+	ఒకవేళ (design->flagBufferedNormalized) {
+		కొరకు (స్వయంచాలక wire : wires) {
+			buf_norm_wire_వరుస.erase(wire);
+			buf_norm_connect_సూచీ.erase(wire);
 		}
 	}
 
-	for (auto &it : wires) {
+	కొరకు (స్వయంచాలక &it : wires) {
 		log_assert(it->name != IdString::Null);
 		IdString id = it->name;
-		log_assert(wires_.count(id) != 0);
+		log_assert(wires_.లెక్క(id) != 0);
 		wires_.erase(id);
-		delete it;
+		తొలగించు it;
 	}
 }
 
-void RTLIL::Module::remove(RTLIL::Cell *cell)
+శూన్య RTLIL::Module::remove(RTLIL::Cell *cell)
 {
-	while (!cell->connections_.empty())
-		cell->unsetPort(cell->connections_.begin()->first);
+	అయితే (!cell->connections_.ఖాళీలు())
+		cell->unset_పోర్టు(cell->connections_.begin()->మొదటి);
 
-	log_assert(cells_.count(cell->name) != 0);
+	log_assert(cells_.లెక్క(cell->name) != 0);
 	log_assert(refcount_cells_ == 0);
 	cells_.erase(cell->name);
-	if (design && design->flagBufferedNormalized && buf_norm_cell_queue.count(cell)) {
+	ఒకవేళ (design && design->flagBufferedNormalized && buf_norm_cell_వరుస.లెక్క(cell)) {
 		cell->type = IdString::Null;
 		cell->name = IdString::Null;
-		pending_deleted_cells.insert(cell);
-	} else {
-		delete cell;
+		pending_deleted_cells.చొప్పించు(cell);
+	} లేకపోతే {
+		తొలగించు cell;
 	}
 }
 
-void RTLIL::Module::remove(RTLIL::Memory *memory)
+శూన్య RTLIL::Module::remove(RTLIL::జ్ఞాపకం *జ్ఞాపకం_3)
 {
-	log_assert(memories.count(memory->name) != 0);
-	memories.erase(memory->name);
-	delete memory;
+	log_assert(memories.లెక్క(జ్ఞాపకం_3->name) != 0);
+	memories.erase(జ్ఞాపకం_3->name);
+	తొలగించు జ్ఞాపకం_3;
 }
 
-void RTLIL::Module::remove(RTLIL::Process *process)
+శూన్య RTLIL::Module::remove(RTLIL::Process *process)
 {
-	log_assert(processes.count(process->name) != 0);
+	log_assert(processes.లెక్క(process->name) != 0);
 	processes.erase(process->name);
-	delete process;
+	తొలగించు process;
 }
 
-void RTLIL::Module::rename(RTLIL::Wire *wire, RTLIL::IdString new_name)
+శూన్య RTLIL::Module::rename(RTLIL::Wire *wire, RTLIL::IdString new_name)
 {
 	log_assert(wire->name != IdString::Null);
 	IdString old_id = wire->name;
@@ -2878,10 +2878,10 @@ void RTLIL::Module::rename(RTLIL::Wire *wire, RTLIL::IdString new_name)
 	log_assert(refcount_wires_ == 0);
 	wires_.erase(old_id);
 	wire->name = new_name;
-	add(wire);
+	కూడు(wire);
 }
 
-void RTLIL::Module::rename(RTLIL::Cell *cell, RTLIL::IdString new_name)
+శూన్య RTLIL::Module::rename(RTLIL::Cell *cell, RTLIL::IdString new_name)
 {
 	log_assert(cell->name != IdString::Null);
 	IdString old_id = cell->name;
@@ -2889,21 +2889,21 @@ void RTLIL::Module::rename(RTLIL::Cell *cell, RTLIL::IdString new_name)
 	log_assert(refcount_cells_ == 0);
 	cells_.erase(old_id);
 	cell->name = new_name;
-	add(cell);
+	కూడు(cell);
 }
 
-void RTLIL::Module::rename(RTLIL::IdString old_name, RTLIL::IdString new_name)
+శూన్య RTLIL::Module::rename(RTLIL::IdString old_name, RTLIL::IdString new_name)
 {
 	IdString old_id = old_name;
-	if (old_id != IdString::Null && wires_.count(old_id))
+	ఒకవేళ (old_id != IdString::Null && wires_.లెక్క(old_id))
 		rename(wires_.at(old_id), new_name);
-	else if (old_id != IdString::Null && cells_.count(old_id))
+	లేకపోతే ఒకవేళ (old_id != IdString::Null && cells_.లెక్క(old_id))
 		rename(cells_.at(old_id), new_name);
-	else
+	లేకపోతే
 		log_abort();
 }
 
-void RTLIL::Module::swap_names(RTLIL::Wire *w1, RTLIL::Wire *w2)
+శూన్య RTLIL::Module::మార్పిడి_పేర్లు(RTLIL::Wire *w1, RTLIL::Wire *w2)
 {
 	log_assert(w1->name != IdString::Null);
 	log_assert(w2->name != IdString::Null);
@@ -2915,10 +2915,10 @@ void RTLIL::Module::swap_names(RTLIL::Wire *w1, RTLIL::Wire *w2)
 
 	wires_[id1] = w2;
 	wires_[id2] = w1;
-	swap(w1->name, w2->name);
+	మార్పిడి(w1->name, w2->name);
 }
 
-void RTLIL::Module::swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2)
+శూన్య RTLIL::Module::మార్పిడి_పేర్లు(RTLIL::Cell *c1, RTLIL::Cell *c2)
 {
 	log_assert(c1->name != IdString::Null);
 	log_assert(c2->name != IdString::Null);
@@ -2930,2243 +2930,2243 @@ void RTLIL::Module::swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2)
 
 	cells_[id1] = c2;
 	cells_[id2] = c1;
-	swap(c1->name, c2->name);
+	మార్పిడి(c1->name, c2->name);
 }
 
 RTLIL::IdString RTLIL::Module::uniquify(RTLIL::IdString name)
 {
-	int index = 0;
-	return uniquify(name, index);
+	పూర్ణాంకం సూచీ = 0;
+	తిరిగి uniquify(name, సూచీ);
 }
 
-IdString RTLIL::Module::uniquify(IdString name, int &index)
+IdString RTLIL::Module::uniquify(IdString name, పూర్ణాంకం &సూచీ)
 {
-	if (index == 0) {
-		if (count_id(name) == 0)
-			return name;
-		index++;
+	ఒకవేళ (సూచీ == 0) {
+		ఒకవేళ (లెక్క_id(name) == 0)
+			తిరిగి name;
+		సూచీ++;
 	}
 
-	while (1) {
-		IdString new_name = design->twines().add(TwineSpec::Suffix{name, stringf("_%d", index)});
-		if (count_id(new_name) == 0)
-			return new_name;
-		index++;
+	అయితే (1) {
+		IdString new_name = design->twines().కూడు(TwineSpec::Suffix{name, stringf("_%d", సూచీ)});
+		ఒకవేళ (లెక్క_id(new_name) == 0)
+			తిరిగి new_name;
+		సూచీ++;
 	}
 }
 
-static bool fixup_ports_compare(const RTLIL::Wire *a, const RTLIL::Wire *b)
+స్థిర తార్కిక fixup_ports_compare(స్థిరరాశి RTLIL::Wire *a, స్థిరరాశి RTLIL::Wire *b)
 {
-	if (a->port_id && !b->port_id)
-		return true;
-	if (!a->port_id && b->port_id)
-		return false;
+	ఒకవేళ (a->పోర్టు_id && !b->పోర్టు_id)
+		తిరిగి నిజం;
+	ఒకవేళ (!a->పోర్టు_id && b->పోర్టు_id)
+		తిరిగి అబద్ధం;
 
-	if (a->port_id == b->port_id)
-		return a->name < b->name;
-	return a->port_id < b->port_id;
+	ఒకవేళ (a->పోర్టు_id == b->పోర్టు_id)
+		తిరిగి a->name < b->name;
+	తిరిగి a->పోర్టు_id < b->పోర్టు_id;
 }
 
-void RTLIL::Module::connect(const RTLIL::SigSig &conn)
+శూన్య RTLIL::Module::connect(స్థిరరాశి RTLIL::SigSig &conn)
 {
-	for (auto mon : monitors)
-		mon->notify_connect(this, conn);
+	కొరకు (స్వయంచాలక mon : monitors)
+		mon->notify_connect(ఇది, conn);
 
-	if (design)
-		for (auto mon : design->monitors)
-			mon->notify_connect(this, conn);
+	ఒకవేళ (design)
+		కొరకు (స్వయంచాలక mon : design->monitors)
+			mon->notify_connect(ఇది, conn);
 
 	// ignore all attempts to assign constants to other constants
-	if (conn.first.has_const()) {
+	ఒకవేళ (conn.మొదటి.has_const()) {
 		RTLIL::SigSig new_conn;
-		for (int i = 0; i < GetSize(conn.first); i++)
-			if (conn.first[i].wire) {
-				new_conn.first.append(conn.first[i]);
-				new_conn.second.append(conn.second[i]);
+		కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(conn.మొదటి); i++)
+			ఒకవేళ (conn.మొదటి[i].wire) {
+				new_conn.మొదటి.append(conn.మొదటి[i]);
+				new_conn.రెండవ.append(conn.రెండవ[i]);
 			}
-		if (GetSize(new_conn.first))
+		ఒకవేళ (Get_కొలత(new_conn.మొదటి))
 			connect(new_conn);
-		return;
+		తిరిగి;
 	}
 
-	if (yosys_xtrace) {
-		log("#X# Connect (SigSig) in %s: %s = %s (%d bits)\n", this, log_signal(conn.first), log_signal(conn.second), GetSize(conn.first));
+	ఒకవేళ (yosys_xtrace) {
+		సంవర్గమానం("#X# Connect (SigSig) in %s: %s = %s (%d bits)\n", ఇది, log_signal(conn.మొదటి), log_signal(conn.రెండవ), Get_కొలత(conn.మొదటి));
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
-	log_assert(GetSize(conn.first) == GetSize(conn.second));
-	connections_.push_back(conn);
+	log_assert(Get_కొలత(conn.మొదటి) == Get_కొలత(conn.రెండవ));
+	connections_.నెట్టు_వెనుక(conn);
 }
 
-void RTLIL::Module::connect(const RTLIL::SigSpec &lhs, const RTLIL::SigSpec &rhs)
+శూన్య RTLIL::Module::connect(స్థిరరాశి RTLIL::SigSpec &lhs, స్థిరరాశి RTLIL::SigSpec &rhs)
 {
 	connect(RTLIL::SigSig(lhs, rhs));
 }
 
-void RTLIL::Module::new_connections(const std::vector<RTLIL::SigSig> &new_conn)
+శూన్య RTLIL::Module::new_connections(స్థిరరాశి std::సదిశ<RTLIL::SigSig> &new_conn)
 {
-	for (auto mon : monitors)
-		mon->notify_connect(this, new_conn);
+	కొరకు (స్వయంచాలక mon : monitors)
+		mon->notify_connect(ఇది, new_conn);
 
-	if (design)
-		for (auto mon : design->monitors)
-			mon->notify_connect(this, new_conn);
+	ఒకవేళ (design)
+		కొరకు (స్వయంచాలక mon : design->monitors)
+			mon->notify_connect(ఇది, new_conn);
 
-	if (yosys_xtrace) {
-		log("#X# New connections vector in %s:\n", this);
-		for (auto &conn: new_conn)
-			log("#X#    %s = %s (%d bits)\n", log_signal(conn.first), log_signal(conn.second), GetSize(conn.first));
+	ఒకవేళ (yosys_xtrace) {
+		సంవర్గమానం("#X# New connections vector in %s:\n", ఇది);
+		కొరకు (స్వయంచాలక &conn: new_conn)
+			సంవర్గమానం("#X#    %s = %s (%d bits)\n", log_signal(conn.మొదటి), log_signal(conn.రెండవ), Get_కొలత(conn.మొదటి));
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
 	connections_ = new_conn;
 }
 
-const std::vector<RTLIL::SigSig> &RTLIL::Module::connections() const
+స్థిరరాశి std::సదిశ<RTLIL::SigSig> &RTLIL::Module::connections() స్థిరరాశి
 {
-	return connections_;
+	తిరిగి connections_;
 }
 
-void RTLIL::Module::fixup_ports()
+శూన్య RTLIL::Module::fixup_ports()
 {
-	std::vector<RTLIL::Wire*> all_ports;
+	std::సదిశ<RTLIL::Wire*> all_ports;
 
-	for (auto &w : wires_)
-		if (w.second->port_input || w.second->port_output)
-			all_ports.push_back(w.second);
-		else
-			w.second->port_id = 0;
+	కొరకు (స్వయంచాలక &w : wires_)
+		ఒకవేళ (w.రెండవ->పోర్టు_ఆదానం || w.రెండవ->పోర్టు_output)
+			all_ports.నెట్టు_వెనుక(w.రెండవ);
+		లేకపోతే
+			w.రెండవ->పోర్టు_id = 0;
 
-	std::sort(all_ports.begin(), all_ports.end(), fixup_ports_compare);
+	std::క్రమీకరించు(all_ports.begin(), all_ports.చివర(), fixup_ports_compare);
 
-	if (design && design->flagBufferedNormalized) {
-		for (auto &w : wires_)
-			if (w.second->driverCell_ && w.second->driverCell_->type == ID($input_port))
-				buf_norm_wire_queue.insert(w.second);
+	ఒకవేళ (design && design->flagBufferedNormalized) {
+		కొరకు (స్వయంచాలక &w : wires_)
+			ఒకవేళ (w.రెండవ->driverCell_ && w.రెండవ->driverCell_->type == ID($ఆదానం_పోర్టు))
+				buf_norm_wire_వరుస.చొప్పించు(w.రెండవ);
 
-		buf_norm_wire_queue.insert(all_ports.begin(), all_ports.end());
+		buf_norm_wire_వరుస.చొప్పించు(all_ports.begin(), all_ports.చివర());
 	}
 
 	ports.clear();
-	for (size_t i = 0; i < all_ports.size(); i++) {
-		ports.push_back(all_ports[i]->name);
-		all_ports[i]->port_id = i+1;
+	కొరకు (కొలత_t i = 0; i < all_ports.కొలత(); i++) {
+		ports.నెట్టు_వెనుక(all_ports[i]->name);
+		all_ports[i]->పోర్టు_id = i+1;
 	}
 }
 
-void RTLIL::copy_attr_dict(dict<IdString, RTLIL::Const> &dst,
-		const dict<IdString, RTLIL::Const> &src,
-		const RTLIL::Design *src_design, RTLIL::Design *dst_design)
+శూన్య RTLIL::copy_attr_dict(dict<IdString, RTLIL::Const> &dst,
+		స్థిరరాశి dict<IdString, RTLIL::Const> &src,
+		స్థిరరాశి RTLIL::Design *src_design, RTLIL::Design *dst_design)
 {
-	if (!src_design || !dst_design || src_design == dst_design) {
+	ఒకవేళ (!src_design || !dst_design || src_design == dst_design) {
 		dst = src;
-		return;
+		తిరిగి;
 	}
 	dst.clear();
-	for (int i = GetSize(src) - 1; i >= 0; i--) {
-		auto &it = *src.element(i);
-		dst[dst_design->twines().copy_from(src_design->twines(), it.first)] = it.second;
+	కొరకు (పూర్ణాంకం i = Get_కొలత(src) - 1; i >= 0; i--) {
+		స్వయంచాలక &it = *src.element(i);
+		dst[dst_design->twines().copy_from(src_design->twines(), it.మొదటి)] = it.రెండవ;
 	}
 }
 
-RTLIL::Wire *RTLIL::Module::addWire(RTLIL::IdString name, int width)
+RTLIL::Wire *RTLIL::Module::కూడు_Wire(RTLIL::IdString name, పూర్ణాంకం వెడల్పు)
 {
 	log_assert(design);
-	log_assert(width >= 0 && width < RTLIL::WIDTH_LIMIT);
-	RTLIL::Wire *wire = new RTLIL::Wire;
-	wire->width = width;
+	log_assert(వెడల్పు >= 0 && వెడల్పు < RTLIL::వెడల్పు_హద్దు);
+	RTLIL::Wire *wire = కొత్త RTLIL::Wire;
+	wire->వెడల్పు = వెడల్పు;
 	wire->name = name;
-	add(wire);
-	return wire;
+	కూడు(wire);
+	తిరిగి wire;
 }
 
-RTLIL::Wire *RTLIL::Module::addWire(IdString name, const RTLIL::Wire *other)
+RTLIL::Wire *RTLIL::Module::కూడు_Wire(IdString name, స్థిరరాశి RTLIL::Wire *other)
 {
-	RTLIL::Wire *wire = addWire(name);
-	wire->width = other->width;
-	wire->start_offset = other->start_offset;
-	wire->port_id = other->port_id;
-	wire->port_input = other->port_input;
-	wire->port_output = other->port_output;
+	RTLIL::Wire *wire = కూడు_Wire(name);
+	wire->వెడల్పు = other->వెడల్పు;
+	wire->ప్రారంభం_స్థానభ్రంశం = other->ప్రారంభం_స్థానభ్రంశం;
+	wire->పోర్టు_id = other->పోర్టు_id;
+	wire->పోర్టు_ఆదానం = other->పోర్టు_ఆదానం;
+	wire->పోర్టు_output = other->పోర్టు_output;
 	wire->upto = other->upto;
 	wire->is_signed = other->is_signed;
 	{
-		const RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
-		RTLIL::copy_attr_dict(wire->attributes, other->attributes, src_design, this->design);
+		స్థిరరాశి RTLIL::Design *src_design = other->module ? other->module->design : శూన్యసూచిక;
+		RTLIL::copy_attr_dict(wire->లక్షణాలు, other->లక్షణాలు, src_design, ఇది->design);
 	}
-	return wire;
+	తిరిగి wire;
 }
 
-RTLIL::Cell *RTLIL::Module::addCell(IdString name, IdString type)
+RTLIL::Cell *RTLIL::Module::కూడు_Cell(IdString name, IdString type)
 {
 	log_assert(design);
-	RTLIL::Cell *cell = new RTLIL::Cell;
+	RTLIL::Cell *cell = కొత్త RTLIL::Cell;
 	cell->type = type;
 	cell->name = name;
-	add(cell);
-	return cell;
+	కూడు(cell);
+	తిరిగి cell;
 }
 
-RTLIL::Cell *RTLIL::Module::addCell(IdString name, const RTLIL::Cell *other)
+RTLIL::Cell *RTLIL::Module::కూడు_Cell(IdString name, స్థిరరాశి RTLIL::Cell *other)
 {
-	const RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
-	bool cross_pool = src_design && this->design && src_design != this->design;
+	స్థిరరాశి RTLIL::Design *src_design = other->module ? other->module->design : శూన్యసూచిక;
+	తార్కిక cross_pool = src_design && ఇది->design && src_design != ఇది->design;
 
 	IdString type = other->type.ref();
-	if (cross_pool)
+	ఒకవేళ (cross_pool)
 		type = twines().copy_from(src_design->twines(), other->type.ref());
 
-	RTLIL::Cell *cell = addCell(name, type);
-	RTLIL::copy_attr_dict(cell->parameters, other->parameters, src_design, this->design);
-	RTLIL::copy_attr_dict(cell->attributes, other->attributes, src_design, this->design);
+	RTLIL::Cell *cell = కూడు_Cell(name, type);
+	RTLIL::copy_attr_dict(cell->parameters, other->parameters, src_design, ఇది->design);
+	RTLIL::copy_attr_dict(cell->లక్షణాలు, other->లక్షణాలు, src_design, ఇది->design);
 
-	if (!cross_pool)
+	ఒకవేళ (!cross_pool)
 		cell->connections_ = other->connections_;
-	else
-		for (int i = GetSize(other->connections_) - 1; i >= 0; i--) {
-			auto &c = *other->connections_.element(i);
-			cell->connections_[twines().copy_from(src_design->twines(), c.first)] = c.second;
+	లేకపోతే
+		కొరకు (పూర్ణాంకం i = Get_కొలత(other->connections_) - 1; i >= 0; i--) {
+			స్వయంచాలక &c = *other->connections_.element(i);
+			cell->connections_[twines().copy_from(src_design->twines(), c.మొదటి)] = c.రెండవ;
 		}
-	return cell;
+	తిరిగి cell;
 }
 
-RTLIL::Memory *RTLIL::Module::addMemory(IdString name)
+RTLIL::జ్ఞాపకం *RTLIL::Module::కూడు_జ్ఞాపకం(IdString name)
 {
 	log_assert(design);
-	RTLIL::Memory *mem = new RTLIL::Memory;
-	mem->module = this;
+	RTLIL::జ్ఞాపకం *mem = కొత్త RTLIL::జ్ఞాపకం;
+	mem->module = ఇది;
 	mem->name = name;
 	memories[name] = mem;
-	return mem;
+	తిరిగి mem;
 }
 
-RTLIL::Memory *RTLIL::Module::addMemory(IdString name, const RTLIL::Memory *other)
+RTLIL::జ్ఞాపకం *RTLIL::Module::కూడు_జ్ఞాపకం(IdString name, స్థిరరాశి RTLIL::జ్ఞాపకం *other)
 {
 	log_assert(design);
-	RTLIL::Memory *mem = new RTLIL::Memory;
-	mem->module = this;
+	RTLIL::జ్ఞాపకం *mem = కొత్త RTLIL::జ్ఞాపకం;
+	mem->module = ఇది;
 	mem->name = name;
-	mem->width = other->width;
-	mem->start_offset = other->start_offset;
-	mem->size = other->size;
-	RTLIL::copy_attr_dict(mem->attributes, other->attributes,
-			other->module ? other->module->design : nullptr, design);
+	mem->వెడల్పు = other->వెడల్పు;
+	mem->ప్రారంభం_స్థానభ్రంశం = other->ప్రారంభం_స్థానభ్రంశం;
+	mem->కొలత = other->కొలత;
+	RTLIL::copy_attr_dict(mem->లక్షణాలు, other->లక్షణాలు,
+			other->module ? other->module->design : శూన్యసూచిక, design);
 	memories[name] = mem;
-	return mem;
+	తిరిగి mem;
 }
 
-RTLIL::Process *RTLIL::Module::addProcess(IdString name)
+RTLIL::Process *RTLIL::Module::కూడు_Process(IdString name)
 {
 	log_assert(design);
-	RTLIL::Process *proc = new RTLIL::Process;
+	RTLIL::Process *proc = కొత్త RTLIL::Process;
 	proc->name = name;
-	add(proc);
-	return proc;
+	కూడు(proc);
+	తిరిగి proc;
 }
 
-RTLIL::Process *RTLIL::Module::addProcess(RTLIL::IdString name, const RTLIL::Process *other)
+RTLIL::Process *RTLIL::Module::కూడు_Process(RTLIL::IdString name, స్థిరరాశి RTLIL::Process *other)
 {
 	log_assert(design);
 	RTLIL::Process *proc = other->clone();
 	proc->name = name;
-	const RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
-	if (src_design && src_design != design) {
+	స్థిరరాశి RTLIL::Design *src_design = other->module ? other->module->design : శూన్యసూచిక;
+	ఒకవేళ (src_design && src_design != design) {
 		walk_process_attr_objects(proc, [&](RTLIL::AttrObject *obj) {
-			dict<IdString, RTLIL::Const> attributes;
-			RTLIL::copy_attr_dict(attributes, obj->attributes, src_design, design);
-			obj->attributes = std::move(attributes);
+			dict<IdString, RTLIL::Const> లక్షణాలు;
+			RTLIL::copy_attr_dict(లక్షణాలు, obj->లక్షణాలు, src_design, design);
+			obj->లక్షణాలు = std::move(లక్షణాలు);
 		});
-		for (auto *sync : proc->syncs)
-			for (auto &mwa : sync->mem_write_actions)
+		కొరకు (స్వయంచాలక *సమకాలీకరణ : proc->syncs)
+			కొరకు (స్వయంచాలక &mwa : సమకాలీకరణ->mem_write_actions)
 				mwa.memid = design->twines().copy_from(src_design->twines(), mwa.memid);
 	}
-	add(proc);
-	return proc;
+	కూడు(proc);
+	తిరిగి proc;
 }
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);           \
+#నిర్వచించు DEF_పద్ధతి(_func, y_కొలత, _type) \
+	RTLIL::Cell* RTLIL::Module::కూడు ## _func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, తార్కిక is_signed, స్థిరరాశి std::string &src) { \
+		RTLIL::Cell *cell = కూడు_Cell(name, _type);           \
 		cell->parameters[ID::A_SIGNED] = is_signed;         \
-		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
-		cell->parameters[ID::Y_WIDTH] = sig_y.size();       \
-		cell->setPort(ID::A, sig_a);                        \
-		cell->setPort(ID::Y, sig_y);                        \
-		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		cell->parameters[ID::A_వెడల్పు] = sig_a.కొలత();       \
+		cell->parameters[ID::Y_వెడల్పు] = sig_y.కొలత();       \
+		cell->సమితి_పోర్టు(ID::A, sig_a);                        \
+		cell->సమితి_పోర్టు(ID::Y, sig_y);                        \
+		cell->సమితి_src_attribute(src);                       \
+		తిరిగి cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);    \
-		add ## _func(name, sig_a, sig_y, is_signed, src);   \
-		return sig_y;                                       \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, తార్కిక is_signed, స్థిరరాశి std::string &src) { \
+		RTLIL::SigSpec sig_y = కూడు_Wire(NEW_ID, y_కొలత);    \
+		కూడు ## _func(name, sig_a, sig_y, is_signed, src);   \
+		తిరిగి sig_y;                                       \
 	}
-DEF_METHOD(Not,        sig_a.size(), ID($not))
-DEF_METHOD(Pos,        sig_a.size(), ID($pos))
-DEF_METHOD(Neg,        sig_a.size(), ID($neg))
-DEF_METHOD(ReduceAnd,  1, ID($reduce_and))
-DEF_METHOD(ReduceOr,   1, ID($reduce_or))
-DEF_METHOD(ReduceXor,  1, ID($reduce_xor))
-DEF_METHOD(ReduceXnor, 1, ID($reduce_xnor))
-DEF_METHOD(ReduceBool, 1, ID($reduce_bool))
-DEF_METHOD(LogicNot,   1, ID($logic_not))
-#undef DEF_METHOD
+DEF_పద్ధతి(Not,        sig_a.కొలత(), ID($not))
+DEF_పద్ధతి(Pos,        sig_a.కొలత(), ID($pos))
+DEF_పద్ధతి(Neg,        sig_a.కొలత(), ID($neg))
+DEF_పద్ధతి(ReduceAnd,  1, ID($reduce_and))
+DEF_పద్ధతి(ReduceOr,   1, ID($reduce_or))
+DEF_పద్ధతి(ReduceXor,  1, ID($reduce_xor))
+DEF_పద్ధతి(ReduceXnor, 1, ID($reduce_xnor))
+DEF_పద్ధతి(ReduceBool, 1, ID($reduce_bool))
+DEF_పద్ధతి(LogicNot,   1, ID($logic_not))
+#నిర్వచనం_రద్దు DEF_పద్ధతి
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool /* is_signed */, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);           \
-		cell->parameters[ID::WIDTH] = sig_a.size();         \
-		cell->setPort(ID::A, sig_a);                        \
-		cell->setPort(ID::Y, sig_y);                        \
-		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+#నిర్వచించు DEF_పద్ధతి(_func, y_కొలత, _type) \
+	RTLIL::Cell* RTLIL::Module::కూడు ## _func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, తార్కిక /* is_signed */, స్థిరరాశి std::string &src) { \
+		RTLIL::Cell *cell = కూడు_Cell(name, _type);           \
+		cell->parameters[ID::వెడల్పు_2] = sig_a.కొలత();         \
+		cell->సమితి_పోర్టు(ID::A, sig_a);                        \
+		cell->సమితి_పోర్టు(ID::Y, sig_y);                        \
+		cell->సమితి_src_attribute(src);                       \
+		తిరిగి cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);    \
-		add ## _func(name, sig_a, sig_y, is_signed, src);   \
-		return sig_y;                                       \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, తార్కిక is_signed, స్థిరరాశి std::string &src) { \
+		RTLIL::SigSpec sig_y = కూడు_Wire(NEW_ID, y_కొలత);    \
+		కూడు ## _func(name, sig_a, sig_y, is_signed, src);   \
+		తిరిగి sig_y;                                       \
 	}
-DEF_METHOD(Buf,     sig_a.size(), ID($buf))
-DEF_METHOD(Barrier, sig_a.size(), ID($barrier))
-#undef DEF_METHOD
+DEF_పద్ధతి(Buf,     sig_a.కొలత(), ID($buf))
+DEF_పద్ధతి(Barrier, sig_a.కొలత(), ID($barrier))
+#నిర్వచనం_రద్దు DEF_పద్ధతి
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);           \
+#నిర్వచించు DEF_పద్ధతి(_func, y_కొలత, _type) \
+	RTLIL::Cell* RTLIL::Module::కూడు ## _func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, తార్కిక is_signed, స్థిరరాశి std::string &src) { \
+		RTLIL::Cell *cell = కూడు_Cell(name, _type);           \
 		cell->parameters[ID::A_SIGNED] = is_signed;         \
 		cell->parameters[ID::B_SIGNED] = is_signed;         \
-		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
-		cell->parameters[ID::B_WIDTH] = sig_b.size();       \
-		cell->parameters[ID::Y_WIDTH] = sig_y.size();       \
-		cell->setPort(ID::A, sig_a);                        \
-		cell->setPort(ID::B, sig_b);                        \
-		cell->setPort(ID::Y, sig_y);                        \
-		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		cell->parameters[ID::A_వెడల్పు] = sig_a.కొలత();       \
+		cell->parameters[ID::B_వెడల్పు] = sig_b.కొలత();       \
+		cell->parameters[ID::Y_వెడల్పు] = sig_y.కొలత();       \
+		cell->సమితి_పోర్టు(ID::A, sig_a);                        \
+		cell->సమితి_పోర్టు(ID::B, sig_b);                        \
+		cell->సమితి_పోర్టు(ID::Y, sig_y);                        \
+		cell->సమితి_src_attribute(src);                       \
+		తిరిగి cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);         \
-		add ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
-		return sig_y;                                            \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, తార్కిక is_signed, స్థిరరాశి std::string &src) { \
+		RTLIL::SigSpec sig_y = కూడు_Wire(NEW_ID, y_కొలత);         \
+		కూడు ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
+		తిరిగి sig_y;                                            \
 	}
-DEF_METHOD(And,      max(sig_a.size(), sig_b.size()), ID($and))
-DEF_METHOD(Or,       max(sig_a.size(), sig_b.size()), ID($or))
-DEF_METHOD(Xor,      max(sig_a.size(), sig_b.size()), ID($xor))
-DEF_METHOD(Xnor,     max(sig_a.size(), sig_b.size()), ID($xnor))
-DEF_METHOD(Shift,    sig_a.size(), ID($shift))
-DEF_METHOD(Lt,       1, ID($lt))
-DEF_METHOD(Le,       1, ID($le))
-DEF_METHOD(Eq,       1, ID($eq))
-DEF_METHOD(Ne,       1, ID($ne))
-DEF_METHOD(Eqx,      1, ID($eqx))
-DEF_METHOD(Nex,      1, ID($nex))
-DEF_METHOD(Ge,       1, ID($ge))
-DEF_METHOD(Gt,       1, ID($gt))
-DEF_METHOD(Add,      max(sig_a.size(), sig_b.size()), ID($add))
-DEF_METHOD(Sub,      max(sig_a.size(), sig_b.size()), ID($sub))
-DEF_METHOD(Mul,      max(sig_a.size(), sig_b.size()), ID($mul))
-DEF_METHOD(Div,      max(sig_a.size(), sig_b.size()), ID($div))
-DEF_METHOD(Mod,      max(sig_a.size(), sig_b.size()), ID($mod))
-DEF_METHOD(DivFloor, max(sig_a.size(), sig_b.size()), ID($divfloor))
-DEF_METHOD(ModFloor, max(sig_a.size(), sig_b.size()), ID($modfloor))
-DEF_METHOD(LogicAnd, 1, ID($logic_and))
-DEF_METHOD(LogicOr,  1, ID($logic_or))
-#undef DEF_METHOD
+DEF_పద్ధతి(And,      max(sig_a.కొలత(), sig_b.కొలత()), ID($and))
+DEF_పద్ధతి(Or,       max(sig_a.కొలత(), sig_b.కొలత()), ID($or))
+DEF_పద్ధతి(Xor,      max(sig_a.కొలత(), sig_b.కొలత()), ID($xor))
+DEF_పద్ధతి(Xnor,     max(sig_a.కొలత(), sig_b.కొలత()), ID($xnor))
+DEF_పద్ధతి(జరుపు_2,    sig_a.కొలత(), ID($జరుపు))
+DEF_పద్ధతి(Lt,       1, ID($lt))
+DEF_పద్ధతి(Le,       1, ID($le))
+DEF_పద్ధతి(Eq,       1, ID($eq))
+DEF_పద్ధతి(Ne,       1, ID($ne))
+DEF_పద్ధతి(Eqx,      1, ID($eqx))
+DEF_పద్ధతి(Nex,      1, ID($nex))
+DEF_పద్ధతి(Ge,       1, ID($ge))
+DEF_పద్ధతి(Gt,       1, ID($gt))
+DEF_పద్ధతి(కూడు_2,      max(sig_a.కొలత(), sig_b.కొలత()), ID($కూడు))
+DEF_పద్ధతి(Sub,      max(sig_a.కొలత(), sig_b.కొలత()), ID($sub))
+DEF_పద్ధతి(Mul,      max(sig_a.కొలత(), sig_b.కొలత()), ID($mul))
+DEF_పద్ధతి(Div,      max(sig_a.కొలత(), sig_b.కొలత()), ID($div))
+DEF_పద్ధతి(Mod,      max(sig_a.కొలత(), sig_b.కొలత()), ID($mod))
+DEF_పద్ధతి(DivFloor, max(sig_a.కొలత(), sig_b.కొలత()), ID($divfloor))
+DEF_పద్ధతి(ModFloor, max(sig_a.కొలత(), sig_b.కొలత()), ID($modfloor))
+DEF_పద్ధతి(LogicAnd, 1, ID($logic_and))
+DEF_పద్ధతి(LogicOr,  1, ID($logic_or))
+#నిర్వచనం_రద్దు DEF_పద్ధతి
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);           \
+#నిర్వచించు DEF_పద్ధతి(_func, y_కొలత, _type) \
+	RTLIL::Cell* RTLIL::Module::కూడు ## _func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, తార్కిక is_signed, స్థిరరాశి std::string &src) { \
+		RTLIL::Cell *cell = కూడు_Cell(name, _type);           \
 		cell->parameters[ID::A_SIGNED] = is_signed;         \
-		cell->parameters[ID::B_SIGNED] = false;             \
-		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
-		cell->parameters[ID::B_WIDTH] = sig_b.size();       \
-		cell->parameters[ID::Y_WIDTH] = sig_y.size();       \
-		cell->setPort(ID::A, sig_a);                        \
-		cell->setPort(ID::B, sig_b);                        \
-		cell->setPort(ID::Y, sig_y);                        \
-		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		cell->parameters[ID::B_SIGNED] = అబద్ధం;             \
+		cell->parameters[ID::A_వెడల్పు] = sig_a.కొలత();       \
+		cell->parameters[ID::B_వెడల్పు] = sig_b.కొలత();       \
+		cell->parameters[ID::Y_వెడల్పు] = sig_y.కొలత();       \
+		cell->సమితి_పోర్టు(ID::A, sig_a);                        \
+		cell->సమితి_పోర్టు(ID::B, sig_b);                        \
+		cell->సమితి_పోర్టు(ID::Y, sig_y);                        \
+		cell->సమితి_src_attribute(src);                       \
+		తిరిగి cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);         \
-		add ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
-		return sig_y;                                            \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, తార్కిక is_signed, స్థిరరాశి std::string &src) { \
+		RTLIL::SigSpec sig_y = కూడు_Wire(NEW_ID, y_కొలత);         \
+		కూడు ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
+		తిరిగి sig_y;                                            \
 	}
-DEF_METHOD(Shl,      sig_a.size(), ID($shl))
-DEF_METHOD(Shr,      sig_a.size(), ID($shr))
-DEF_METHOD(Sshl,     sig_a.size(), ID($sshl))
-DEF_METHOD(Sshr,     sig_a.size(), ID($sshr))
-#undef DEF_METHOD
+DEF_పద్ధతి(Shl,      sig_a.కొలత(), ID($shl))
+DEF_పద్ధతి(Shr,      sig_a.కొలత(), ID($shr))
+DEF_పద్ధతి(Sshl,     sig_a.కొలత(), ID($sshl))
+DEF_పద్ధతి(Sshr,     sig_a.కొలత(), ID($sshr))
+#నిర్వచనం_రద్దు DEF_పద్ధతి
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);           \
-		cell->parameters[ID::A_SIGNED] = false;             \
+#నిర్వచించు DEF_పద్ధతి(_func, y_కొలత, _type) \
+	RTLIL::Cell* RTLIL::Module::కూడు ## _func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, తార్కిక is_signed, స్థిరరాశి std::string &src) { \
+		RTLIL::Cell *cell = కూడు_Cell(name, _type);           \
+		cell->parameters[ID::A_SIGNED] = అబద్ధం;             \
 		cell->parameters[ID::B_SIGNED] = is_signed;         \
-		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
-		cell->parameters[ID::B_WIDTH] = sig_b.size();       \
-		cell->parameters[ID::Y_WIDTH] = sig_y.size();       \
-		cell->setPort(ID::A, sig_a);                        \
-		cell->setPort(ID::B, sig_b);                        \
-		cell->setPort(ID::Y, sig_y);                        \
-		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		cell->parameters[ID::A_వెడల్పు] = sig_a.కొలత();       \
+		cell->parameters[ID::B_వెడల్పు] = sig_b.కొలత();       \
+		cell->parameters[ID::Y_వెడల్పు] = sig_y.కొలత();       \
+		cell->సమితి_పోర్టు(ID::A, sig_a);                        \
+		cell->సమితి_పోర్టు(ID::B, sig_b);                        \
+		cell->సమితి_పోర్టు(ID::Y, sig_y);                        \
+		cell->సమితి_src_attribute(src);                       \
+		తిరిగి cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);         \
-		add ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
-		return sig_y;                                            \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, తార్కిక is_signed, స్థిరరాశి std::string &src) { \
+		RTLIL::SigSpec sig_y = కూడు_Wire(NEW_ID, y_కొలత);         \
+		కూడు ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
+		తిరిగి sig_y;                                            \
 	}
-DEF_METHOD(Shiftx,      sig_a.size(), ID($shiftx))
-#undef DEF_METHOD
+DEF_పద్ధతి(Shiftx,      sig_a.కొలత(), ID($shiftx))
+#నిర్వచనం_రద్దు DEF_పద్ధతి
 
-#define DEF_METHOD(_func, _type, _pmux) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);                 \
-		cell->parameters[ID::WIDTH] = sig_a.size();               \
-		if (_pmux) cell->parameters[ID::S_WIDTH] = sig_s.size();  \
-		cell->setPort(ID::A, sig_a);                              \
-		cell->setPort(ID::B, sig_b);                              \
-		cell->setPort(ID::S, sig_s);                              \
-		cell->setPort(ID::Y, sig_y);                              \
-		cell->set_src_attribute(src);                             \
-		return cell;                                              \
+#నిర్వచించు DEF_పద్ధతి(_func, _type, _pmux) \
+	RTLIL::Cell* RTLIL::Module::కూడు ## _func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src) { \
+		RTLIL::Cell *cell = కూడు_Cell(name, _type);                 \
+		cell->parameters[ID::వెడల్పు_2] = sig_a.కొలత();               \
+		ఒకవేళ (_pmux) cell->parameters[ID::S_వెడల్పు] = sig_s.కొలత();  \
+		cell->సమితి_పోర్టు(ID::A, sig_a);                              \
+		cell->సమితి_పోర్టు(ID::B, sig_b);                              \
+		cell->సమితి_పోర్టు(ID::S, sig_s);                              \
+		cell->సమితి_పోర్టు(ID::Y, sig_y);                              \
+		cell->సమితి_src_attribute(src);                             \
+		తిరిగి cell;                                              \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, sig_a.size());     \
-		add ## _func(name, sig_a, sig_b, sig_s, sig_y, src);      \
-		return sig_y;                                             \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి std::string &src) { \
+		RTLIL::SigSpec sig_y = కూడు_Wire(NEW_ID, sig_a.కొలత());     \
+		కూడు ## _func(name, sig_a, sig_b, sig_s, sig_y, src);      \
+		తిరిగి sig_y;                                             \
 	}
-DEF_METHOD(Mux,      ID($mux),        0)
-DEF_METHOD(Bwmux,    ID($bwmux),      0)
-DEF_METHOD(Pmux,     ID($pmux),       1)
-#undef DEF_METHOD
+DEF_పద్ధతి(Mux,      ID($mux),        0)
+DEF_పద్ధతి(Bwmux,    ID($bwmux),      0)
+DEF_పద్ధతి(Pmux,     ID($pmux),       1)
+#నిర్వచనం_రద్దు DEF_పద్ధతి
 
-#define DEF_METHOD(_func, _type, _demux) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);                 \
-		cell->parameters[ID::WIDTH] = _demux ? sig_a.size() : sig_y.size(); \
-		cell->parameters[ID::S_WIDTH] = sig_s.size();             \
-		cell->setPort(ID::A, sig_a);                              \
-		cell->setPort(ID::S, sig_s);                              \
-		cell->setPort(ID::Y, sig_y);                              \
-		cell->set_src_attribute(src);                             \
-		return cell;                                              \
+#నిర్వచించు DEF_పద్ధతి(_func, _type, _demux) \
+	RTLIL::Cell* RTLIL::Module::కూడు ## _func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src) { \
+		RTLIL::Cell *cell = కూడు_Cell(name, _type);                 \
+		cell->parameters[ID::వెడల్పు_2] = _demux ? sig_a.కొలత() : sig_y.కొలత(); \
+		cell->parameters[ID::S_వెడల్పు] = sig_s.కొలత();             \
+		cell->సమితి_పోర్టు(ID::A, sig_a);                              \
+		cell->సమితి_పోర్టు(ID::S, sig_s);                              \
+		cell->సమితి_పోర్టు(ID::Y, sig_y);                              \
+		cell->సమితి_src_attribute(src);                             \
+		తిరిగి cell;                                              \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _demux ? sig_a.size() << sig_s.size() : sig_a.size() >> sig_s.size()); \
-		add ## _func(name, sig_a, sig_s, sig_y, src);             \
-		return sig_y;                                             \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి std::string &src) { \
+		RTLIL::SigSpec sig_y = కూడు_Wire(NEW_ID, _demux ? sig_a.కొలత() << sig_s.కొలత() : sig_a.కొలత() >> sig_s.కొలత()); \
+		కూడు ## _func(name, sig_a, sig_s, sig_y, src);             \
+		తిరిగి sig_y;                                             \
 	}
-DEF_METHOD(Bmux,     ID($bmux),       0)
-DEF_METHOD(Demux,    ID($demux),      1)
-#undef DEF_METHOD
+DEF_పద్ధతి(Bmux,     ID($bmux),       0)
+DEF_పద్ధతి(Demux,    ID($demux),      1)
+#నిర్వచనం_రద్దు DEF_పద్ధతి
 
-#define DEF_METHOD(_func, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);                 \
-		cell->parameters[ID::WIDTH] = sig_a.size();               \
-		cell->setPort(ID::A, sig_a);                              \
-		cell->setPort(ID::B, sig_b);                              \
-		cell->setPort(ID::Y, sig_y);                              \
-		cell->set_src_attribute(src);                             \
-		return cell;                                              \
+#నిర్వచించు DEF_పద్ధతి(_func, _type) \
+	RTLIL::Cell* RTLIL::Module::కూడు ## _func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src) { \
+		RTLIL::Cell *cell = కూడు_Cell(name, _type);                 \
+		cell->parameters[ID::వెడల్పు_2] = sig_a.కొలత();               \
+		cell->సమితి_పోర్టు(ID::A, sig_a);                              \
+		cell->సమితి_పోర్టు(ID::B, sig_b);                              \
+		cell->సమితి_పోర్టు(ID::Y, sig_y);                              \
+		cell->సమితి_src_attribute(src);                             \
+		తిరిగి cell;                                              \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, sig_a.size());     \
-		add ## _func(name, sig_a, sig_s, sig_y, src);             \
-		return sig_y;                                             \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి std::string &src) { \
+		RTLIL::SigSpec sig_y = కూడు_Wire(NEW_ID, sig_a.కొలత());     \
+		కూడు ## _func(name, sig_a, sig_s, sig_y, src);             \
+		తిరిగి sig_y;                                             \
 	}
-DEF_METHOD(Bweqx,    ID($bweqx))
-#undef DEF_METHOD
+DEF_పద్ధతి(Bweqx,    ID($bweqx))
+#నిర్వచనం_రద్దు DEF_పద్ధతి
 
-#define DEF_METHOD_2(_func, _type, _P1, _P2) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);         \
-		cell->setPort("\\" #_P1, sig1);                   \
-		cell->setPort("\\" #_P2, sig2);                   \
-		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+#నిర్వచించు DEF_పద్ధతి_2(_func, _type, _P1, _P2) \
+	RTLIL::Cell* RTLIL::Module::కూడు ## _func(RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig1, స్థిరరాశి RTLIL::Sig_బిట్టు &sig2, స్థిరరాశి std::string &src) { \
+		RTLIL::Cell *cell = కూడు_Cell(name, _type);         \
+		cell->సమితి_పోర్టు("\\" #_P1, sig1);                   \
+		cell->సమితి_పోర్టు("\\" #_P2, sig2);                   \
+		cell->సమితి_src_attribute(src);                     \
+		తిరిగి cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const std::string &src) { \
-		RTLIL::SigBit sig2 = addWire(NEW_ID);             \
-		add ## _func(name, sig1, sig2, src);              \
-		return sig2;                                      \
+	RTLIL::Sig_బిట్టు RTLIL::Module::_func(RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig1, స్థిరరాశి std::string &src) { \
+		RTLIL::Sig_బిట్టు sig2 = కూడు_Wire(NEW_ID);             \
+		కూడు ## _func(name, sig1, sig2, src);              \
+		తిరిగి sig2;                                      \
 	}
-#define DEF_METHOD_3(_func, _type, _P1, _P2, _P3) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);         \
-		cell->setPort("\\" #_P1, sig1);                   \
-		cell->setPort("\\" #_P2, sig2);                   \
-		cell->setPort("\\" #_P3, sig3);                   \
-		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+#నిర్వచించు DEF_పద్ధతి_3(_func, _type, _P1, _P2, _P3) \
+	RTLIL::Cell* RTLIL::Module::కూడు ## _func(RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig1, స్థిరరాశి RTLIL::Sig_బిట్టు &sig2, స్థిరరాశి RTLIL::Sig_బిట్టు &sig3, స్థిరరాశి std::string &src) { \
+		RTLIL::Cell *cell = కూడు_Cell(name, _type);         \
+		cell->సమితి_పోర్టు("\\" #_P1, sig1);                   \
+		cell->సమితి_పోర్టు("\\" #_P2, sig2);                   \
+		cell->సమితి_పోర్టు("\\" #_P3, sig3);                   \
+		cell->సమితి_src_attribute(src);                     \
+		తిరిగి cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const std::string &src) { \
-		RTLIL::SigBit sig3 = addWire(NEW_ID);             \
-		add ## _func(name, sig1, sig2, sig3, src);        \
-		return sig3;                                      \
+	RTLIL::Sig_బిట్టు RTLIL::Module::_func(RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig1, స్థిరరాశి RTLIL::Sig_బిట్టు &sig2, స్థిరరాశి std::string &src) { \
+		RTLIL::Sig_బిట్టు sig3 = కూడు_Wire(NEW_ID);             \
+		కూడు ## _func(name, sig1, sig2, sig3, src);        \
+		తిరిగి sig3;                                      \
 	}
-#define DEF_METHOD_4(_func, _type, _P1, _P2, _P3, _P4) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const RTLIL::SigBit &sig4, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);         \
-		cell->setPort("\\" #_P1, sig1);                   \
-		cell->setPort("\\" #_P2, sig2);                   \
-		cell->setPort("\\" #_P3, sig3);                   \
-		cell->setPort("\\" #_P4, sig4);                   \
-		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+#నిర్వచించు DEF_పద్ధతి_4(_func, _type, _P1, _P2, _P3, _P4) \
+	RTLIL::Cell* RTLIL::Module::కూడు ## _func(RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig1, స్థిరరాశి RTLIL::Sig_బిట్టు &sig2, స్థిరరాశి RTLIL::Sig_బిట్టు &sig3, స్థిరరాశి RTLIL::Sig_బిట్టు &sig4, స్థిరరాశి std::string &src) { \
+		RTLIL::Cell *cell = కూడు_Cell(name, _type);         \
+		cell->సమితి_పోర్టు("\\" #_P1, sig1);                   \
+		cell->సమితి_పోర్టు("\\" #_P2, sig2);                   \
+		cell->సమితి_పోర్టు("\\" #_P3, sig3);                   \
+		cell->సమితి_పోర్టు("\\" #_P4, sig4);                   \
+		cell->సమితి_src_attribute(src);                     \
+		తిరిగి cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const std::string &src) { \
-		RTLIL::SigBit sig4 = addWire(NEW_ID);             \
-		add ## _func(name, sig1, sig2, sig3, sig4, src);  \
-		return sig4;                                      \
+	RTLIL::Sig_బిట్టు RTLIL::Module::_func(RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig1, స్థిరరాశి RTLIL::Sig_బిట్టు &sig2, స్థిరరాశి RTLIL::Sig_బిట్టు &sig3, స్థిరరాశి std::string &src) { \
+		RTLIL::Sig_బిట్టు sig4 = కూడు_Wire(NEW_ID);             \
+		కూడు ## _func(name, sig1, sig2, sig3, sig4, src);  \
+		తిరిగి sig4;                                      \
 	}
-#define DEF_METHOD_5(_func, _type, _P1, _P2, _P3, _P4, _P5) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const RTLIL::SigBit &sig4, const RTLIL::SigBit &sig5, const std::string &src) { \
-		RTLIL::Cell *cell = addCell(name, _type);         \
-		cell->setPort("\\" #_P1, sig1);                   \
-		cell->setPort("\\" #_P2, sig2);                   \
-		cell->setPort("\\" #_P3, sig3);                   \
-		cell->setPort("\\" #_P4, sig4);                   \
-		cell->setPort("\\" #_P5, sig5);                   \
-		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+#నిర్వచించు DEF_పద్ధతి_5(_func, _type, _P1, _P2, _P3, _P4, _P5) \
+	RTLIL::Cell* RTLIL::Module::కూడు ## _func(RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig1, స్థిరరాశి RTLIL::Sig_బిట్టు &sig2, స్థిరరాశి RTLIL::Sig_బిట్టు &sig3, స్థిరరాశి RTLIL::Sig_బిట్టు &sig4, స్థిరరాశి RTLIL::Sig_బిట్టు &sig5, స్థిరరాశి std::string &src) { \
+		RTLIL::Cell *cell = కూడు_Cell(name, _type);         \
+		cell->సమితి_పోర్టు("\\" #_P1, sig1);                   \
+		cell->సమితి_పోర్టు("\\" #_P2, sig2);                   \
+		cell->సమితి_పోర్టు("\\" #_P3, sig3);                   \
+		cell->సమితి_పోర్టు("\\" #_P4, sig4);                   \
+		cell->సమితి_పోర్టు("\\" #_P5, sig5);                   \
+		cell->సమితి_src_attribute(src);                     \
+		తిరిగి cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const RTLIL::SigBit &sig4, const std::string &src) { \
-		RTLIL::SigBit sig5 = addWire(NEW_ID);                  \
-		add ## _func(name, sig1, sig2, sig3, sig4, sig5, src); \
-		return sig5;                                           \
+	RTLIL::Sig_బిట్టు RTLIL::Module::_func(RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig1, స్థిరరాశి RTLIL::Sig_బిట్టు &sig2, స్థిరరాశి RTLIL::Sig_బిట్టు &sig3, స్థిరరాశి RTLIL::Sig_బిట్టు &sig4, స్థిరరాశి std::string &src) { \
+		RTLIL::Sig_బిట్టు sig5 = కూడు_Wire(NEW_ID);                  \
+		కూడు ## _func(name, sig1, sig2, sig3, sig4, sig5, src); \
+		తిరిగి sig5;                                           \
 	}
-DEF_METHOD_2(BufGate,    ID($_BUF_),    A, Y)
-DEF_METHOD_2(NotGate,    ID($_NOT_),    A, Y)
-DEF_METHOD_3(AndGate,    ID($_AND_),    A, B, Y)
-DEF_METHOD_3(NandGate,   ID($_NAND_),   A, B, Y)
-DEF_METHOD_3(OrGate,     ID($_OR_),     A, B, Y)
-DEF_METHOD_3(NorGate,    ID($_NOR_),    A, B, Y)
-DEF_METHOD_3(XorGate,    ID($_XOR_),    A, B, Y)
-DEF_METHOD_3(XnorGate,   ID($_XNOR_),   A, B, Y)
-DEF_METHOD_3(AndnotGate, ID($_ANDNOT_), A, B, Y)
-DEF_METHOD_3(OrnotGate,  ID($_ORNOT_),  A, B, Y)
-DEF_METHOD_4(MuxGate,    ID($_MUX_),    A, B, S, Y)
-DEF_METHOD_4(NmuxGate,   ID($_NMUX_),   A, B, S, Y)
-DEF_METHOD_4(Aoi3Gate,   ID($_AOI3_),   A, B, C, Y)
-DEF_METHOD_4(Oai3Gate,   ID($_OAI3_),   A, B, C, Y)
-DEF_METHOD_5(Aoi4Gate,   ID($_AOI4_),   A, B, C, D, Y)
-DEF_METHOD_5(Oai4Gate,   ID($_OAI4_),   A, B, C, D, Y)
-#undef DEF_METHOD_2
-#undef DEF_METHOD_3
-#undef DEF_METHOD_4
-#undef DEF_METHOD_5
+DEF_పద్ధతి_2(BufGate,    ID($_BUF_),    A, Y)
+DEF_పద్ధతి_2(NotGate,    ID($_NOT_),    A, Y)
+DEF_పద్ధతి_3(AndGate,    ID($_AND_),    A, B, Y)
+DEF_పద్ధతి_3(NandGate,   ID($_NAND_),   A, B, Y)
+DEF_పద్ధతి_3(OrGate,     ID($_OR_),     A, B, Y)
+DEF_పద్ధతి_3(NorGate,    ID($_NOR_),    A, B, Y)
+DEF_పద్ధతి_3(XorGate,    ID($_XOR_),    A, B, Y)
+DEF_పద్ధతి_3(XnorGate,   ID($_XNOR_),   A, B, Y)
+DEF_పద్ధతి_3(AndnotGate, ID($_ANDNOT_), A, B, Y)
+DEF_పద్ధతి_3(OrnotGate,  ID($_ORNOT_),  A, B, Y)
+DEF_పద్ధతి_4(MuxGate,    ID($_MUX_),    A, B, S, Y)
+DEF_పద్ధతి_4(NmuxGate,   ID($_NMUX_),   A, B, S, Y)
+DEF_పద్ధతి_4(Aoi3Gate,   ID($_AOI3_),   A, B, C, Y)
+DEF_పద్ధతి_4(Oai3Gate,   ID($_OAI3_),   A, B, C, Y)
+DEF_పద్ధతి_5(Aoi4Gate,   ID($_AOI4_),   A, B, C, D, Y)
+DEF_పద్ధతి_5(Oai4Gate,   ID($_OAI4_),   A, B, C, D, Y)
+#నిర్వచనం_రద్దు DEF_పద్ధతి_2
+#నిర్వచనం_రద్దు DEF_పద్ధతి_3
+#నిర్వచనం_రద్దు DEF_పద్ధతి_4
+#నిర్వచనం_రద్దు DEF_పద్ధతి_5
 
-RTLIL::Cell* RTLIL::Module::addPow(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool a_signed, bool b_signed, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Pow(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, తార్కిక a_signed, తార్కిక b_signed, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($pow));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($ఘాతం));
 	cell->parameters[ID::A_SIGNED] = a_signed;
 	cell->parameters[ID::B_SIGNED] = b_signed;
-	cell->parameters[ID::A_WIDTH] = sig_a.size();
-	cell->parameters[ID::B_WIDTH] = sig_b.size();
-	cell->parameters[ID::Y_WIDTH] = sig_y.size();
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::B, sig_b);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::A_వెడల్పు] = sig_a.కొలత();
+	cell->parameters[ID::B_వెడల్పు] = sig_b.కొలత();
+	cell->parameters[ID::Y_వెడల్పు] = sig_y.కొలత();
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::B, sig_b);
+	cell->సమితి_పోర్టు(ID::Y, sig_y);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFa(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_c, const RTLIL::SigSpec &sig_x, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Fa(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_c, స్థిరరాశి RTLIL::SigSpec &sig_x, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($fa));
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::B, sig_b);
-	cell->setPort(ID::C, sig_c);
-	cell->setPort(ID::X, sig_x);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($fa));
+	cell->parameters[ID::వెడల్పు_2] = sig_a.కొలత();
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::B, sig_b);
+	cell->సమితి_పోర్టు(ID::C, sig_c);
+	cell->సమితి_పోర్టు(ID::X, sig_x);
+	cell->సమితి_పోర్టు(ID::Y, sig_y);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSlice(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, RTLIL::Const offset, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_ముక్క(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, RTLIL::Const స్థానభ్రంశం, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($slice));
-	cell->parameters[ID::A_WIDTH] = sig_a.size();
-	cell->parameters[ID::Y_WIDTH] = sig_y.size();
-	cell->parameters[ID::OFFSET] = offset;
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($ముక్క));
+	cell->parameters[ID::A_వెడల్పు] = sig_a.కొలత();
+	cell->parameters[ID::Y_వెడల్పు] = sig_y.కొలత();
+	cell->parameters[ID::స్థానభ్రంశం_2] = స్థానభ్రంశం;
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::Y, sig_y);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addConcat(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Concat(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($concat));
-	cell->parameters[ID::A_WIDTH] = sig_a.size();
-	cell->parameters[ID::B_WIDTH] = sig_b.size();
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::B, sig_b);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($concat));
+	cell->parameters[ID::A_వెడల్పు] = sig_a.కొలత();
+	cell->parameters[ID::B_వెడల్పు] = sig_b.కొలత();
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::B, sig_b);
+	cell->సమితి_పోర్టు(ID::Y, sig_y);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addLut(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, RTLIL::Const lut, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Lut(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, RTLIL::Const lut, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($lut));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($lut));
 	cell->parameters[ID::LUT] = lut;
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::వెడల్పు_2] = sig_a.కొలత();
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::Y, sig_y);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addTribuf(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Tribuf(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($tribuf));
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($tribuf));
+	cell->parameters[ID::వెడల్పు_2] = sig_a.కొలత();
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_పోర్టు(ID::Y, sig_y);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAssert(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Assert(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($assert));
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::EN, sig_en);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($ప్రతిజ్ఞా));
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAssume(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Assume(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($assume));
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::EN, sig_en);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($assume));
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addLive(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_సజీవ(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($live));
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::EN, sig_en);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($సజీవ));
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFair(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Fair(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($fair));
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::EN, sig_en);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($fair));
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addCover(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Cover(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($cover));
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::EN, sig_en);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($cover));
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addEquiv(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Equiv(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($equiv));
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::B, sig_b);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($equiv));
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::B, sig_b);
+	cell->సమితి_పోర్టు(ID::Y, sig_y);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSr(RTLIL::IdString name, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, const RTLIL::SigSpec &sig_q, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Sr(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr, స్థిరరాశి RTLIL::SigSpec &sig_q, తార్కిక సమితి_polarity, తార్కిక clr_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($sr));
-	cell->parameters[ID::SET_POLARITY] = set_polarity;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($sr));
+	cell->parameters[ID::సమితి_POLARITY] = సమితి_polarity;
 	cell->parameters[ID::CLR_POLARITY] = clr_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::SET, sig_set);
-	cell->setPort(ID::CLR, sig_clr);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::సమితి_2, sig_సమితి);
+	cell->సమితి_పోర్టు(ID::CLR, sig_clr);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFf(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Ff(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($ff));
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($ff));
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Dff(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, తార్కిక clk_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($dff));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($dff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::CLK, sig_clk);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Dffe(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, తార్కిక clk_polarity, తార్కిక en_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($dffe));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($dffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::CLK, sig_clk);
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsr(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Dffsr(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, తార్కిక clk_polarity, తార్కిక సమితి_polarity, తార్కిక clr_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($dffsr));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($dffsr));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
-	cell->parameters[ID::SET_POLARITY] = set_polarity;
+	cell->parameters[ID::సమితి_POLARITY] = సమితి_polarity;
 	cell->parameters[ID::CLR_POLARITY] = clr_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::SET, sig_set);
-	cell->setPort(ID::CLR, sig_clr);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::CLK, sig_clk);
+	cell->సమితి_పోర్టు(ID::సమితి_2, sig_సమితి);
+	cell->సమితి_పోర్టు(ID::CLR, sig_clr);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsre(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Dffsre(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, తార్కిక clk_polarity, తార్కిక en_polarity, తార్కిక సమితి_polarity, తార్కిక clr_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($dffsre));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($dffsre));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
-	cell->parameters[ID::SET_POLARITY] = set_polarity;
+	cell->parameters[ID::సమితి_POLARITY] = సమితి_polarity;
 	cell->parameters[ID::CLR_POLARITY] = clr_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::SET, sig_set);
-	cell->setPort(ID::CLR, sig_clr);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::CLK, sig_clk);
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_పోర్టు(ID::సమితి_2, sig_సమితి);
+	cell->సమితి_పోర్టు(ID::CLR, sig_clr);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const arst_value, bool clk_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Adff(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_arst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		RTLIL::Const arst_విలువ, తార్కిక clk_polarity, తార్కిక arst_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($adff));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($adff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::ARST_POLARITY] = arst_polarity;
-	cell->parameters[ID::ARST_VALUE] = arst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::ARST, sig_arst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::ARST_విలువ] = arst_విలువ;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::CLK, sig_clk);
+	cell->సమితి_పోర్టు(ID::ARST, sig_arst);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const arst_value, bool clk_polarity, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Adffe(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_arst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		RTLIL::Const arst_విలువ, తార్కిక clk_polarity, తార్కిక en_polarity, తార్కిక arst_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($adffe));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($adffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::ARST_POLARITY] = arst_polarity;
-	cell->parameters[ID::ARST_VALUE] = arst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::ARST, sig_arst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::ARST_విలువ] = arst_విలువ;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::CLK, sig_clk);
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_పోర్టు(ID::ARST, sig_arst);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Aldff(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_aload, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		స్థిరరాశి RTLIL::SigSpec &sig_ad, తార్కిక clk_polarity, తార్కిక aload_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($aldff));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($aldff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::ALOAD_POLARITY] = aload_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::ALOAD, sig_aload);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::AD, sig_ad);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::CLK, sig_clk);
+	cell->సమితి_పోర్టు(ID::ALOAD, sig_aload);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::AD, sig_ad);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool en_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Aldffe(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_aload, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		స్థిరరాశి RTLIL::SigSpec &sig_ad, తార్కిక clk_polarity, తార్కిక en_polarity, తార్కిక aload_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($aldffe));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($aldffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::ALOAD_POLARITY] = aload_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::ALOAD, sig_aload);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::AD, sig_ad);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::CLK, sig_clk);
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_పోర్టు(ID::ALOAD, sig_aload);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::AD, sig_ad);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const srst_value, bool clk_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Sdff(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_srst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		RTLIL::Const srst_విలువ, తార్కిక clk_polarity, తార్కిక srst_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($sdff));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($sdff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::SRST_POLARITY] = srst_polarity;
-	cell->parameters[ID::SRST_VALUE] = srst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::SRST, sig_srst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::SRST_విలువ] = srst_విలువ;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::CLK, sig_clk);
+	cell->సమితి_పోర్టు(ID::SRST, sig_srst);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Sdffe(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_srst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		RTLIL::Const srst_విలువ, తార్కిక clk_polarity, తార్కిక en_polarity, తార్కిక srst_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($sdffe));
-	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
-	cell->parameters[ID::EN_POLARITY] = en_polarity;
-	cell->parameters[ID::SRST_POLARITY] = srst_polarity;
-	cell->parameters[ID::SRST_VALUE] = srst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::SRST, sig_srst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
-}
-
-RTLIL::Cell* RTLIL::Module::addSdffce(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
-{
-	RTLIL::Cell *cell = addCell(name, ID($sdffce));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($sdffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::SRST_POLARITY] = srst_polarity;
-	cell->parameters[ID::SRST_VALUE] = srst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::CLK, sig_clk);
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::SRST, sig_srst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::SRST_విలువ] = srst_విలువ;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::CLK, sig_clk);
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_పోర్టు(ID::SRST, sig_srst);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatch(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Sdffce(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_srst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		RTLIL::Const srst_విలువ, తార్కిక clk_polarity, తార్కిక en_polarity, తార్కిక srst_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($dlatch));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($sdffce));
+	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::SRST_POLARITY] = srst_polarity;
+	cell->parameters[ID::SRST_విలువ] = srst_విలువ;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::CLK, sig_clk);
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_పోర్టు(ID::SRST, sig_srst);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdlatch(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const arst_value, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Dlatch(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, తార్కిక en_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($adlatch));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($dlatch));
+	cell->parameters[ID::EN_POLARITY] = en_polarity;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
+}
+
+RTLIL::Cell* RTLIL::Module::కూడు_Adlatch(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_arst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		RTLIL::Const arst_విలువ, తార్కిక en_polarity, తార్కిక arst_polarity, స్థిరరాశి std::string &src)
+{
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($adlatch));
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::ARST_POLARITY] = arst_polarity;
-	cell->parameters[ID::ARST_VALUE] = arst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::ARST, sig_arst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::ARST_విలువ] = arst_విలువ;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_పోర్టు(ID::ARST, sig_arst);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatchsr(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Dlatchsr(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, తార్కిక en_polarity, తార్కిక సమితి_polarity, తార్కిక clr_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($dlatchsr));
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($dlatchsr));
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
-	cell->parameters[ID::SET_POLARITY] = set_polarity;
+	cell->parameters[ID::సమితి_POLARITY] = సమితి_polarity;
 	cell->parameters[ID::CLR_POLARITY] = clr_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::EN, sig_en);
-	cell->setPort(ID::SET, sig_set);
-	cell->setPort(ID::CLR, sig_clr);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::EN, sig_en);
+	cell->సమితి_పోర్టు(ID::సమితి_2, sig_సమితి);
+	cell->సమితి_పోర్టు(ID::CLR, sig_clr);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSrGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		const RTLIL::SigSpec &sig_q, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Sr_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr,
+		స్థిరరాశి RTLIL::SigSpec &sig_q, తార్కిక సమితి_polarity, తార్కిక clr_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_SR_%c%c_", set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
-	cell->setPort(ID::S, sig_set);
-	cell->setPort(ID::R, sig_clr);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_SR_%c%c_", సమితి_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
+	cell->సమితి_పోర్టు(ID::S, sig_సమితి);
+	cell->సమితి_పోర్టు(ID::R, sig_clr);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFfGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Ff_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($_FF_));
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($_FF_));
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Dff_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, తార్కిక clk_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFF_%c_", clk_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_DFF_%c_", clk_polarity ? 'P' : 'N'));
+	cell->సమితి_పోర్టు(ID::C, sig_clk);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Dffe_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, తార్కిక clk_polarity, తార్కిక en_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFFE_%c%c_", clk_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_DFFE_%c%c_", clk_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
+	cell->సమితి_పోర్టు(ID::C, sig_clk);
+	cell->సమితి_పోర్టు(ID::E, sig_en);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsrGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Dffsr_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, తార్కిక clk_polarity, తార్కిక సమితి_polarity, తార్కిక clr_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFFSR_%c%c%c_", clk_polarity ? 'P' : 'N', set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::S, sig_set);
-	cell->setPort(ID::R, sig_clr);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_DFFSR_%c%c%c_", clk_polarity ? 'P' : 'N', సమితి_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
+	cell->సమితి_పోర్టు(ID::C, sig_clk);
+	cell->సమితి_పోర్టు(ID::S, sig_సమితి);
+	cell->సమితి_పోర్టు(ID::R, sig_clr);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsreGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Dffsre_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, తార్కిక clk_polarity, తార్కిక en_polarity, తార్కిక సమితి_polarity, తార్కిక clr_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFFSRE_%c%c%c%c_", clk_polarity ? 'P' : 'N', set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::S, sig_set);
-	cell->setPort(ID::R, sig_clr);
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_DFFSRE_%c%c%c%c_", clk_polarity ? 'P' : 'N', సమితి_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
+	cell->సమితి_పోర్టు(ID::C, sig_clk);
+	cell->సమితి_పోర్టు(ID::S, sig_సమితి);
+	cell->సమితి_పోర్టు(ID::R, sig_clr);
+	cell->సమితి_పోర్టు(ID::E, sig_en);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool arst_value, bool clk_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Adff_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_arst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		తార్కిక arst_విలువ, తార్కిక clk_polarity, తార్కిక arst_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFF_%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_value ? '1' : '0'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::R, sig_arst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_DFF_%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_విలువ ? '1' : '0'));
+	cell->సమితి_పోర్టు(ID::C, sig_clk);
+	cell->సమితి_పోర్టు(ID::R, sig_arst);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool arst_value, bool clk_polarity, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Adffe_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_arst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		తార్కిక arst_విలువ, తార్కిక clk_polarity, తార్కిక en_polarity, తార్కిక arst_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_value ? '1' : '0', en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::R, sig_arst);
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_DFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_విలువ ? '1' : '0', en_polarity ? 'P' : 'N'));
+	cell->సమితి_పోర్టు(ID::C, sig_clk);
+	cell->సమితి_పోర్టు(ID::R, sig_arst);
+	cell->సమితి_పోర్టు(ID::E, sig_en);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Aldff_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_aload, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		స్థిరరాశి RTLIL::SigSpec &sig_ad, తార్కిక clk_polarity, తార్కిక aload_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_ALDFF_%c%c_", clk_polarity ? 'P' : 'N', aload_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::L, sig_aload);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::AD, sig_ad);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_ALDFF_%c%c_", clk_polarity ? 'P' : 'N', aload_polarity ? 'P' : 'N'));
+	cell->సమితి_పోర్టు(ID::C, sig_clk);
+	cell->సమితి_పోర్టు(ID::L, sig_aload);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::AD, sig_ad);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool en_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Aldffe_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_aload, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		స్థిరరాశి RTLIL::SigSpec &sig_ad, తార్కిక clk_polarity, తార్కిక en_polarity, తార్కిక aload_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_ALDFFE_%c%c%c_", clk_polarity ? 'P' : 'N', aload_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::L, sig_aload);
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::AD, sig_ad);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_ALDFFE_%c%c%c_", clk_polarity ? 'P' : 'N', aload_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
+	cell->సమితి_పోర్టు(ID::C, sig_clk);
+	cell->సమితి_పోర్టు(ID::L, sig_aload);
+	cell->సమితి_పోర్టు(ID::E, sig_en);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::AD, sig_ad);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool srst_value, bool clk_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Sdff_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_srst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		తార్కిక srst_విలువ, తార్కిక clk_polarity, తార్కిక srst_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_SDFF_%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_value ? '1' : '0'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::R, sig_srst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_SDFF_%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_విలువ ? '1' : '0'));
+	cell->సమితి_పోర్టు(ID::C, sig_clk);
+	cell->సమితి_పోర్టు(ID::R, sig_srst);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Sdffe_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_srst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		తార్కిక srst_విలువ, తార్కిక clk_polarity, తార్కిక en_polarity, తార్కిక srst_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_SDFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_value ? '1' : '0', en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::R, sig_srst);
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_SDFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_విలువ ? '1' : '0', en_polarity ? 'P' : 'N'));
+	cell->సమితి_పోర్టు(ID::C, sig_clk);
+	cell->సమితి_పోర్టు(ID::R, sig_srst);
+	cell->సమితి_పోర్టు(ID::E, sig_en);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffceGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Sdffce_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_srst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		తార్కిక srst_విలువ, తార్కిక clk_polarity, తార్కిక en_polarity, తార్కిక srst_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_SDFFCE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_value ? '1' : '0', en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::R, sig_srst);
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_SDFFCE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_విలువ ? '1' : '0', en_polarity ? 'P' : 'N'));
+	cell->సమితి_పోర్టు(ID::C, sig_clk);
+	cell->సమితి_పోర్టు(ID::R, sig_srst);
+	cell->సమితి_పోర్టు(ID::E, sig_en);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatchGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Dlatch_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, తార్కిక en_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DLATCH_%c_", en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_DLATCH_%c_", en_polarity ? 'P' : 'N'));
+	cell->సమితి_పోర్టు(ID::E, sig_en);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdlatchGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool arst_value, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Adlatch_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_arst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+		తార్కిక arst_విలువ, తార్కిక en_polarity, తార్కిక arst_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DLATCH_%c%c%c_", en_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_value ? '1' : '0'));
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::R, sig_arst);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_DLATCH_%c%c%c_", en_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_విలువ ? '1' : '0'));
+	cell->సమితి_పోర్టు(ID::E, sig_en);
+	cell->సమితి_పోర్టు(ID::R, sig_arst);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatchsrGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Dlatchsr_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, తార్కిక en_polarity, తార్కిక సమితి_polarity, తార్కిక clr_polarity, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DLATCHSR_%c%c%c_", en_polarity ? 'P' : 'N', set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::S, sig_set);
-	cell->setPort(ID::R, sig_clr);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, stringf("$_DLATCHSR_%c%c%c_", en_polarity ? 'P' : 'N', సమితి_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
+	cell->సమితి_పోర్టు(ID::E, sig_en);
+	cell->సమితి_పోర్టు(ID::S, sig_సమితి);
+	cell->సమితి_పోర్టు(ID::R, sig_clr);
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAnyinit(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Anyinit(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($anyinit));
-	cell->parameters[ID::WIDTH] = sig_q.size();
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($anyinit));
+	cell->parameters[ID::వెడల్పు_2] = sig_q.కొలత();
+	cell->సమితి_పోర్టు(ID::D, sig_d);
+	cell->సమితి_పోర్టు(ID::Q, sig_q);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::SigSpec RTLIL::Module::Anyconst(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Anyconst(RTLIL::IdString name, పూర్ణాంకం వెడల్పు, స్థిరరాశి std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, width);
-	Cell *cell = addCell(name, ID($anyconst));
-	cell->setParam(ID::WIDTH, width);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = కూడు_Wire(NEW_ID, వెడల్పు);
+	Cell *cell = కూడు_Cell(name, ID($anyconst));
+	cell->సమితి_Param(ID::వెడల్పు_2, వెడల్పు);
+	cell->సమితి_పోర్టు(ID::Y, sig);
+	cell->సమితి_src_attribute(src);
+	తిరిగి sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Anyseq(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Anyseq(RTLIL::IdString name, పూర్ణాంకం వెడల్పు, స్థిరరాశి std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, width);
-	Cell *cell = addCell(name, ID($anyseq));
-	cell->setParam(ID::WIDTH, width);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = కూడు_Wire(NEW_ID, వెడల్పు);
+	Cell *cell = కూడు_Cell(name, ID($anyseq));
+	cell->సమితి_Param(ID::వెడల్పు_2, వెడల్పు);
+	cell->సమితి_పోర్టు(ID::Y, sig);
+	cell->సమితి_src_attribute(src);
+	తిరిగి sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Allconst(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Allconst(RTLIL::IdString name, పూర్ణాంకం వెడల్పు, స్థిరరాశి std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, width);
-	Cell *cell = addCell(name, ID($allconst));
-	cell->setParam(ID::WIDTH, width);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = కూడు_Wire(NEW_ID, వెడల్పు);
+	Cell *cell = కూడు_Cell(name, ID($allconst));
+	cell->సమితి_Param(ID::వెడల్పు_2, వెడల్పు);
+	cell->సమితి_పోర్టు(ID::Y, sig);
+	cell->సమితి_src_attribute(src);
+	తిరిగి sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Allseq(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Allseq(RTLIL::IdString name, పూర్ణాంకం వెడల్పు, స్థిరరాశి std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, width);
-	Cell *cell = addCell(name, ID($allseq));
-	cell->setParam(ID::WIDTH, width);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = కూడు_Wire(NEW_ID, వెడల్పు);
+	Cell *cell = కూడు_Cell(name, ID($allseq));
+	cell->సమితి_Param(ID::వెడల్పు_2, వెడల్పు);
+	cell->సమితి_పోర్టు(ID::Y, sig);
+	cell->సమితి_src_attribute(src);
+	తిరిగి sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Initstate(RTLIL::IdString name, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Initstate(RTLIL::IdString name, స్థిరరాశి std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID);
-	Cell *cell = addCell(name, ID($initstate));
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = కూడు_Wire(NEW_ID);
+	Cell *cell = కూడు_Cell(name, ID($initstate));
+	cell->సమితి_పోర్టు(ID::Y, sig);
+	cell->సమితి_src_attribute(src);
+	తిరిగి sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::SetTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::సమితి_ట్యాగ్_2(RTLIL::IdString name, స్థిరరాశి std::string &ట్యాగ్, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి RTLIL::SigSpec &sig_c, స్థిరరాశి std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.size());
-	Cell *cell = addCell(name, ID($set_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->parameters[ID::TAG] = tag;
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::SET, sig_s);
-	cell->setPort(ID::CLR, sig_c);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = కూడు_Wire(NEW_ID, sig_a.కొలత());
+	Cell *cell = కూడు_Cell(name, ID($సమితి_ట్యాగ్));
+	cell->parameters[ID::వెడల్పు_2] = sig_a.కొలత();
+	cell->parameters[ID::ట్యాగ్_2] = ట్యాగ్;
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::సమితి_2, sig_s);
+	cell->సమితి_పోర్టు(ID::CLR, sig_c);
+	cell->సమితి_పోర్టు(ID::Y, sig);
+	cell->సమితి_src_attribute(src);
+	తిరిగి sig;
 }
 
-RTLIL::Cell* RTLIL::Module::addSetTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_సమితి_ట్యాగ్(RTLIL::IdString name, స్థిరరాశి std::string &ట్యాగ్, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి RTLIL::SigSpec &sig_c, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src)
 {
-	Cell *cell = addCell(name, ID($set_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->parameters[ID::TAG] = tag;
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::SET, sig_s);
-	cell->setPort(ID::CLR, sig_c);
-	cell->setPort(ID::Y, sig_y);
-	cell->set_src_attribute(src);
-	return cell;
+	Cell *cell = కూడు_Cell(name, ID($సమితి_ట్యాగ్));
+	cell->parameters[ID::వెడల్పు_2] = sig_a.కొలత();
+	cell->parameters[ID::ట్యాగ్_2] = ట్యాగ్;
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::సమితి_2, sig_s);
+	cell->సమితి_పోర్టు(ID::CLR, sig_c);
+	cell->సమితి_పోర్టు(ID::Y, sig_y);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::SigSpec RTLIL::Module::GetTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Get_ట్యాగ్(RTLIL::IdString name, స్థిరరాశి std::string &ట్యాగ్, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.size());
-	Cell *cell = addCell(name, ID($get_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->parameters[ID::TAG] = tag;
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = కూడు_Wire(NEW_ID, sig_a.కొలత());
+	Cell *cell = కూడు_Cell(name, ID($get_ట్యాగ్));
+	cell->parameters[ID::వెడల్పు_2] = sig_a.కొలత();
+	cell->parameters[ID::ట్యాగ్_2] = ట్యాగ్;
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::Y, sig);
+	cell->సమితి_src_attribute(src);
+	తిరిగి sig;
 }
 
-RTLIL::Cell* RTLIL::Module::addOverwriteTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src)
+RTLIL::Cell* RTLIL::Module::కూడు_Overwrite_ట్యాగ్(RTLIL::IdString name, స్థిరరాశి std::string &ట్యాగ్, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి RTLIL::SigSpec &sig_c, స్థిరరాశి std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($overwrite_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->parameters[ID::TAG] = tag;
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::SET, sig_s);
-	cell->setPort(ID::CLR, sig_c);
-	cell->set_src_attribute(src);
-	return cell;
+	RTLIL::Cell *cell = కూడు_Cell(name, ID($overwrite_ట్యాగ్));
+	cell->parameters[ID::వెడల్పు_2] = sig_a.కొలత();
+	cell->parameters[ID::ట్యాగ్_2] = ట్యాగ్;
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::సమితి_2, sig_s);
+	cell->సమితి_పోర్టు(ID::CLR, sig_c);
+	cell->సమితి_src_attribute(src);
+	తిరిగి cell;
 }
 
-RTLIL::SigSpec RTLIL::Module::OriginalTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Original_ట్యాగ్(RTLIL::IdString name, స్థిరరాశి std::string &ట్యాగ్, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.size());
-	Cell *cell = addCell(name, ID($original_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
-	cell->parameters[ID::TAG] = tag;
-	cell->setPort(ID::A, sig_a);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = కూడు_Wire(NEW_ID, sig_a.కొలత());
+	Cell *cell = కూడు_Cell(name, ID($original_ట్యాగ్));
+	cell->parameters[ID::వెడల్పు_2] = sig_a.కొలత();
+	cell->parameters[ID::ట్యాగ్_2] = ట్యాగ్;
+	cell->సమితి_పోర్టు(ID::A, sig_a);
+	cell->సమితి_పోర్టు(ID::Y, sig);
+	cell->సమితి_src_attribute(src);
+	తిరిగి sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::FutureFF(RTLIL::IdString name, const RTLIL::SigSpec &sig_e, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::FutureFF(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_e, స్థిరరాశి std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, sig_e.size());
-	Cell *cell = addCell(name, ID($future_ff));
-	cell->parameters[ID::WIDTH] = sig_e.size();
-	cell->setPort(ID::A, sig_e);
-	cell->setPort(ID::Y, sig);
-	cell->set_src_attribute(src);
-	return sig;
+	RTLIL::SigSpec sig = కూడు_Wire(NEW_ID, sig_e.కొలత());
+	Cell *cell = కూడు_Cell(name, ID($future_ff));
+	cell->parameters[ID::వెడల్పు_2] = sig_e.కొలత();
+	cell->సమితి_పోర్టు(ID::A, sig_e);
+	cell->సమితి_పోర్టు(ID::Y, sig);
+	cell->సమితి_src_attribute(src);
+	తిరిగి sig;
 }
 
-std::string RTLIL::Module::to_rtlil_str() const
+std::string RTLIL::Module::గమ్యం_rtlil_str() స్థిరరాశి
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_module(f, "", const_cast<RTLIL::Module*>(this), design, false, true, false, RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_module(f, "", const_cast<RTLIL::Module*>(ఇది), design, అబద్ధం, నిజం, అబద్ధం, RTLIL_BACKEND::Dump_బహుళకం::Readable);
+	తిరిగి f.str();
 }
 
 RTLIL::Wire::Wire()
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	స్థిర గుర్తులేని పూర్ణాంకం hashidx_లెక్క = 123456789;
+	hashidx_లెక్క = mkhash_xorshift(hashidx_లెక్క);
+	hashidx_ = hashidx_లెక్క;
 
-	module = nullptr;
-	width = 1;
-	start_offset = 0;
-	port_id = 0;
-	port_input = false;
-	port_output = false;
-	upto = false;
-	is_signed = false;
+	module = శూన్యసూచిక;
+	వెడల్పు = 1;
+	ప్రారంభం_స్థానభ్రంశం = 0;
+	పోర్టు_id = 0;
+	పోర్టు_ఆదానం = అబద్ధం;
+	పోర్టు_output = అబద్ధం;
+	upto = అబద్ధం;
+	is_signed = అబద్ధం;
 
-#ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Wire::get_all_wires()->insert(std::pair<unsigned int, RTLIL::Wire*>(hashidx_, this));
-#endif
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
+	RTLIL::Wire::get_all_wires()->చొప్పించు(std::pair<గుర్తులేని పూర్ణాంకం, RTLIL::Wire*>(hashidx_, ఇది));
+#అయితే_ముగింపు
 }
 
 RTLIL::Wire::~Wire()
 {
-#ifdef YOSYS_ENABLE_PYTHON
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
 	RTLIL::Wire::get_all_wires()->erase(hashidx_);
-#endif
+#అయితే_ముగింపు
 }
 
-std::string RTLIL::Wire::to_rtlil_str() const
+std::string RTLIL::Wire::గమ్యం_rtlil_str() స్థిరరాశి
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_wire(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_wire(f, "", ఇది, design(), RTLIL_BACKEND::Dump_బహుళకం::Readable);
+	తిరిగి f.str();
 }
 
-#ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Wire*> all_wires;
-std::map<unsigned int, RTLIL::Wire*> *RTLIL::Wire::get_all_wires(void)
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
+స్థిర std::map<గుర్తులేని పూర్ణాంకం, RTLIL::Wire*> all_wires;
+std::map<గుర్తులేని పూర్ణాంకం, RTLIL::Wire*> *RTLIL::Wire::get_all_wires(శూన్య)
 {
-	return &all_wires;
+	తిరిగి &all_wires;
 }
-#endif
+#అయితే_ముగింపు
 
-RTLIL::Memory::Memory()
+RTLIL::జ్ఞాపకం::జ్ఞాపకం()
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	స్థిర గుర్తులేని పూర్ణాంకం hashidx_లెక్క = 123456789;
+	hashidx_లెక్క = mkhash_xorshift(hashidx_లెక్క);
+	hashidx_ = hashidx_లెక్క;
 
-	width = 1;
-	start_offset = 0;
-	size = 0;
-#ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Memory::get_all_memorys()->insert(std::pair<unsigned int, RTLIL::Memory*>(hashidx_, this));
-#endif
+	వెడల్పు = 1;
+	ప్రారంభం_స్థానభ్రంశం = 0;
+	కొలత = 0;
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
+	RTLIL::జ్ఞాపకం::get_all_memorys()->చొప్పించు(std::pair<గుర్తులేని పూర్ణాంకం, RTLIL::జ్ఞాపకం*>(hashidx_, ఇది));
+#అయితే_ముగింపు
 }
 
-std::string RTLIL::Memory::to_rtlil_str() const
-{
-	std::ostringstream f;
-	RTLIL_BACKEND::dump_memory(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
-}
-
-RTLIL::Process::Process() : module(nullptr)
-{
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
-}
-
-std::string RTLIL::Process::to_rtlil_str() const
+std::string RTLIL::జ్ఞాపకం::గమ్యం_rtlil_str() స్థిరరాశి
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_proc(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_జ్ఞాపకం(f, "", ఇది, design(), RTLIL_BACKEND::Dump_బహుళకం::Readable);
+	తిరిగి f.str();
 }
 
-RTLIL::Cell::Cell() : module(nullptr)
+RTLIL::Process::Process() : module(శూన్యసూచిక)
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	స్థిర గుర్తులేని పూర్ణాంకం hashidx_లెక్క = 123456789;
+	hashidx_లెక్క = mkhash_xorshift(hashidx_లెక్క);
+	hashidx_ = hashidx_లెక్క;
+}
+
+std::string RTLIL::Process::గమ్యం_rtlil_str() స్థిరరాశి
+{
+	std::ostringstream f;
+	RTLIL_BACKEND::dump_proc(f, "", ఇది, design(), RTLIL_BACKEND::Dump_బహుళకం::Readable);
+	తిరిగి f.str();
+}
+
+RTLIL::Cell::Cell() : module(శూన్యసూచిక)
+{
+	స్థిర గుర్తులేని పూర్ణాంకం hashidx_లెక్క = 123456789;
+	hashidx_లెక్క = mkhash_xorshift(hashidx_లెక్క);
+	hashidx_ = hashidx_లెక్క;
 
 	// log("#memtrace# %p\n", this);
 	memhasher();
 
-#ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Cell::get_all_cells()->insert(std::pair<unsigned int, RTLIL::Cell*>(hashidx_, this));
-#endif
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
+	RTLIL::Cell::get_all_cells()->చొప్పించు(std::pair<గుర్తులేని పూర్ణాంకం, RTLIL::Cell*>(hashidx_, ఇది));
+#అయితే_ముగింపు
 }
 
 RTLIL::Cell::~Cell()
 {
-#ifdef YOSYS_ENABLE_PYTHON
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
 	RTLIL::Cell::get_all_cells()->erase(hashidx_);
-#endif
+#అయితే_ముగింపు
 }
 
-std::string RTLIL::Cell::to_rtlil_str() const
+std::string RTLIL::Cell::గమ్యం_rtlil_str() స్థిరరాశి
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_cell(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_cell(f, "", ఇది, design(), RTLIL_BACKEND::Dump_బహుళకం::Readable);
+	తిరిగి f.str();
 }
 
-#ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Cell*> all_cells;
-std::map<unsigned int, RTLIL::Cell*> *RTLIL::Cell::get_all_cells(void)
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
+స్థిర std::map<గుర్తులేని పూర్ణాంకం, RTLIL::Cell*> all_cells;
+std::map<గుర్తులేని పూర్ణాంకం, RTLIL::Cell*> *RTLIL::Cell::get_all_cells(శూన్య)
 {
-	return &all_cells;
+	తిరిగి &all_cells;
 }
-#endif
+#అయితే_ముగింపు
 
-bool RTLIL::Cell::hasPort(RTLIL::IdString portname) const
+తార్కిక RTLIL::Cell::has_పోర్టు(RTLIL::IdString portname) స్థిరరాశి
 {
-	return connections_.count(portname) != 0;
+	తిరిగి connections_.లెక్క(portname) != 0;
 }
 
 // bufnorm
 
-const RTLIL::SigSpec &RTLIL::Cell::getPort(RTLIL::IdString portname) const
+స్థిరరాశి RTLIL::SigSpec &RTLIL::Cell::get_పోర్టు(RTLIL::IdString portname) స్థిరరాశి
 {
-	return connections_.at(portname);
+	తిరిగి connections_.at(portname);
 }
 
-const dict<RTLIL::IdString, RTLIL::SigSpec> &RTLIL::Cell::connections() const
+స్థిరరాశి dict<RTLIL::IdString, RTLIL::SigSpec> &RTLIL::Cell::connections() స్థిరరాశి
 {
-	return connections_;
+	తిరిగి connections_;
 }
 
-bool RTLIL::Cell::known() const
+తార్కిక RTLIL::Cell::తెలిసిన() స్థిరరాశి
 {
-	if (yosys_celltypes.cell_known(type))
-		return true;
-	if (module && module->design && module->design->module(type))
-		return true;
-	return false;
+	ఒకవేళ (yosys_celltypes.cell_తెలిసిన(type))
+		తిరిగి నిజం;
+	ఒకవేళ (module && module->design && module->design->module(type))
+		తిరిగి నిజం;
+	తిరిగి అబద్ధం;
 }
 
-bool RTLIL::Cell::input(IdString portname) const
+తార్కిక RTLIL::Cell::ఆదానం(IdString portname) స్థిరరాశి
 {
-	if (yosys_celltypes.cell_known(type))
-		return yosys_celltypes.cell_input(type.ref(), portname);
-	if (module && module->design) {
+	ఒకవేళ (yosys_celltypes.cell_తెలిసిన(type))
+		తిరిగి yosys_celltypes.cell_ఆదానం(type.ref(), portname);
+	ఒకవేళ (module && module->design) {
 		RTLIL::Module *m = module->design->module(type.ref());
-		RTLIL::Wire *w = m ? m->wire(portname) : nullptr;
-		return w && w->port_input;
+		RTLIL::Wire *w = m ? m->wire(portname) : శూన్యసూచిక;
+		తిరిగి w && w->పోర్టు_ఆదానం;
 	}
-	return false;
+	తిరిగి అబద్ధం;
 }
 
-bool RTLIL::Cell::output(RTLIL::IdString portname) const
+తార్కిక RTLIL::Cell::output(RTLIL::IdString portname) స్థిరరాశి
 {
-	if (yosys_celltypes.cell_known(type))
-		return yosys_celltypes.cell_output(type, portname);
-	if (module && module->design) {
+	ఒకవేళ (yosys_celltypes.cell_తెలిసిన(type))
+		తిరిగి yosys_celltypes.cell_output(type, portname);
+	ఒకవేళ (module && module->design) {
 		RTLIL::Module *m = module->design->module(type.ref());
-		RTLIL::Wire *w = m ? m->wire(portname) : nullptr;
-		return w && w->port_output;
+		RTLIL::Wire *w = m ? m->wire(portname) : శూన్యసూచిక;
+		తిరిగి w && w->పోర్టు_output;
 	}
-	return false;
+	తిరిగి అబద్ధం;
 }
 
-RTLIL::PortDir RTLIL::Cell::port_dir(RTLIL::IdString portname) const
+RTLIL::పోర్టు_Dir RTLIL::Cell::పోర్టు_dir(RTLIL::IdString portname) స్థిరరాశి
 {
-	if (yosys_celltypes.cell_known(type.ref()))
-		return yosys_celltypes.cell_port_dir(type, portname);
-	if (module && module->design) {
+	ఒకవేళ (yosys_celltypes.cell_తెలిసిన(type.ref()))
+		తిరిగి yosys_celltypes.cell_పోర్టు_dir(type, portname);
+	ఒకవేళ (module && module->design) {
 		RTLIL::Module *m = module->design->module(type.ref());
-		if (m == nullptr)
-			return PortDir::PD_UNKNOWN;
+		ఒకవేళ (m == శూన్యసూచిక)
+			తిరిగి పోర్టు_Dir::PD_UNKNOWN;
 		RTLIL::Wire *w = m->wire(portname);
-		if (w == nullptr)
-			return PortDir::PD_UNKNOWN;
-		return PortDir(w->port_input + w->port_output * 2);
+		ఒకవేళ (w == శూన్యసూచిక)
+			తిరిగి పోర్టు_Dir::PD_UNKNOWN;
+		తిరిగి పోర్టు_Dir(w->పోర్టు_ఆదానం + w->పోర్టు_output * 2);
 	}
-	return PortDir::PD_UNKNOWN;
+	తిరిగి పోర్టు_Dir::PD_UNKNOWN;
 }
 
-bool RTLIL::Cell::hasParam(RTLIL::IdString paramname) const
+తార్కిక RTLIL::Cell::hasParam(RTLIL::IdString paramname) స్థిరరాశి
 {
-	return parameters.count(paramname) != 0;
+	తిరిగి parameters.లెక్క(paramname) != 0;
 }
 
-void RTLIL::Cell::unsetParam(RTLIL::IdString paramname)
+శూన్య RTLIL::Cell::unsetParam(RTLIL::IdString paramname)
 {
 	parameters.erase(paramname);
 }
 
-void RTLIL::Cell::setParam(RTLIL::IdString paramname, RTLIL::Const value)
+శూన్య RTLIL::Cell::సమితి_Param(RTLIL::IdString paramname, RTLIL::Const విలువ)
 {
-	parameters[paramname] = std::move(value);
+	parameters[paramname] = std::move(విలువ);
 }
 
-const RTLIL::Const &RTLIL::Cell::getParam(RTLIL::IdString paramname) const
+స్థిరరాశి RTLIL::Const &RTLIL::Cell::getParam(RTLIL::IdString paramname) స్థిరరాశి
 {
-	const auto &it = parameters.find(paramname);
-	if (it != parameters.end())
-		return it->second;
-	if (module && module->design) {
+	స్థిరరాశి స్వయంచాలక &it = parameters.కనుగొను(paramname);
+	ఒకవేళ (it != parameters.చివర())
+		తిరిగి it->రెండవ;
+	ఒకవేళ (module && module->design) {
 		RTLIL::Module *m = module->design->module(type);
-		if (m)
-			return m->parameter_default_values.at(paramname);
+		ఒకవేళ (m)
+			తిరిగి m->parameter_default_విలువలు.at(paramname);
 	}
-	throw std::out_of_range("Cell::getParam()");
+	విసురు std::బహిర్గతం_యొక్క_range("Cell::getParam()");
 }
 
-void RTLIL::Cell::sort()
+శూన్య RTLIL::Cell::క్రమీకరించు()
 {
-	connections_.sort(sort_by_id_str(module->twines()));
-	parameters.sort(sort_by_id_str(module->twines()));
-	attributes.sort(sort_by_id_str(module->twines()));
+	connections_.క్రమీకరించు(క్రమీకరించు_by_id_str(module->twines()));
+	parameters.క్రమీకరించు(క్రమీకరించు_by_id_str(module->twines()));
+	లక్షణాలు.క్రమీకరించు(క్రమీకరించు_by_id_str(module->twines()));
 }
 
-void RTLIL::Cell::check()
+శూన్య RTLIL::Cell::check()
 {
-#ifndef NDEBUG
-	InternalCellChecker checker(NULL, this);
+#నిర్వచితం_కాకపోతే NDEBUG
+	అంతర్గత_Cell_Checker checker(ఖాళీ, ఇది);
 	checker.check();
-#endif
+#అయితే_ముగింపు
 }
 
-void RTLIL::Cell::fixup_parameters(bool set_a_signed, bool set_b_signed)
+శూన్య RTLIL::Cell::fixup_parameters(తార్కిక సమితి_a_signed, తార్కిక సమితి_b_signed)
 {
-	if (type.isPublic() || type.begins_with("$_") || type.begins_with("$paramod") || type.begins_with("$fmcombine") ||
+	ఒకవేళ (type.is_ప్రజా() || type.begins_with("$_") || type.begins_with("$paramod") || type.begins_with("$fmcombine") ||
 			type.begins_with("$verific$") || type.begins_with("$array:") || type.begins_with("$extern:"))
-		return;
+		తిరిగి;
 
-	if (type == ID($buf) || type == ID($barrier) || type == ID($mux) || type == ID($pmux) || type == ID($bmux) || type == ID($bwmux) || type == ID($bweqx)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::Y]);
-		if (type.in(ID($pmux), ID($bmux)))
-			parameters[ID::S_WIDTH] = GetSize(connections_[ID::S]);
+	ఒకవేళ (type == ID($buf) || type == ID($barrier) || type == ID($mux) || type == ID($pmux) || type == ID($bmux) || type == ID($bwmux) || type == ID($bweqx)) {
+		parameters[ID::వెడల్పు_2] = Get_కొలత(connections_[ID::Y]);
+		ఒకవేళ (type.లోపల(ID($pmux), ID($bmux)))
+			parameters[ID::S_వెడల్పు] = Get_కొలత(connections_[ID::S]);
 		check();
-		return;
+		తిరిగి;
 	}
 
-	if (type == ID($demux)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::A]);
-		parameters[ID::S_WIDTH] = GetSize(connections_[ID::S]);
+	ఒకవేళ (type == ID($demux)) {
+		parameters[ID::వెడల్పు_2] = Get_కొలత(connections_[ID::A]);
+		parameters[ID::S_వెడల్పు] = Get_కొలత(connections_[ID::S]);
 		check();
-		return;
+		తిరిగి;
 	}
 
-	if (type == ID($lut) || type == ID($sop)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::A]);
-		return;
+	ఒకవేళ (type == ID($lut) || type == ID($sop)) {
+		parameters[ID::వెడల్పు_2] = Get_కొలత(connections_[ID::A]);
+		తిరిగి;
 	}
 
-	if (type == ID($fa)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::Y]);
-		return;
+	ఒకవేళ (type == ID($fa)) {
+		parameters[ID::వెడల్పు_2] = Get_కొలత(connections_[ID::Y]);
+		తిరిగి;
 	}
 
-	if (type == ID($lcu)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::CO]);
-		return;
+	ఒకవేళ (type == ID($lcu)) {
+		parameters[ID::వెడల్పు_2] = Get_కొలత(connections_[ID::CO]);
+		తిరిగి;
 	}
 
-	if (type == ID($macc_v2)) {
-		parameters[ID::Y_WIDTH] = GetSize(connections_[ID::Y]);
-		return;
+	ఒకవేళ (type == ID($macc_v2)) {
+		parameters[ID::Y_వెడల్పు] = Get_కొలత(connections_[ID::Y]);
+		తిరిగి;
 	}
 
-	bool signedness_ab = !type.in(ID($slice), ID($concat), ID($macc));
+	తార్కిక signedness_ab = !type.లోపల(ID($ముక్క), ID($concat), ID($macc));
 
-	if (connections_.count(ID::A)) {
-		if (signedness_ab) {
-			if (set_a_signed)
-				parameters[ID::A_SIGNED] = true;
-			else if (parameters.count(ID::A_SIGNED) == 0)
-				parameters[ID::A_SIGNED] = false;
+	ఒకవేళ (connections_.లెక్క(ID::A)) {
+		ఒకవేళ (signedness_ab) {
+			ఒకవేళ (సమితి_a_signed)
+				parameters[ID::A_SIGNED] = నిజం;
+			లేకపోతే ఒకవేళ (parameters.లెక్క(ID::A_SIGNED) == 0)
+				parameters[ID::A_SIGNED] = అబద్ధం;
 		}
-		parameters[ID::A_WIDTH] = GetSize(connections_[ID::A]);
+		parameters[ID::A_వెడల్పు] = Get_కొలత(connections_[ID::A]);
 	}
 
-	if (connections_.count(ID::B)) {
-		if (signedness_ab) {
-			if (set_b_signed)
-				parameters[ID::B_SIGNED] = true;
-			else if (parameters.count(ID::B_SIGNED) == 0)
-				parameters[ID::B_SIGNED] = false;
+	ఒకవేళ (connections_.లెక్క(ID::B)) {
+		ఒకవేళ (signedness_ab) {
+			ఒకవేళ (సమితి_b_signed)
+				parameters[ID::B_SIGNED] = నిజం;
+			లేకపోతే ఒకవేళ (parameters.లెక్క(ID::B_SIGNED) == 0)
+				parameters[ID::B_SIGNED] = అబద్ధం;
 		}
-		parameters[ID::B_WIDTH] = GetSize(connections_[ID::B]);
+		parameters[ID::B_వెడల్పు] = Get_కొలత(connections_[ID::B]);
 	}
 
-	if (connections_.count(ID::Y) && type != ID($concat))
-		parameters[ID::Y_WIDTH] = GetSize(connections_[ID::Y]);
+	ఒకవేళ (connections_.లెక్క(ID::Y) && type != ID($concat))
+		parameters[ID::Y_వెడల్పు] = Get_కొలత(connections_[ID::Y]);
 
-	if (connections_.count(ID::Q))
-		parameters[ID::WIDTH] = GetSize(connections_[ID::Q]);
+	ఒకవేళ (connections_.లెక్క(ID::Q))
+		parameters[ID::వెడల్పు_2] = Get_కొలత(connections_[ID::Q]);
 
 	check();
 }
 
-bool RTLIL::Cell::has_keep_attr() const {
-	return get_bool_attribute(ID::keep) || (module && module->design && module->design->module(type.ref()) &&
+తార్కిక RTLIL::Cell::has_keep_attr() స్థిరరాశి {
+	తిరిగి get_bool_attribute(ID::keep) || (module && module->design && module->design->module(type.ref()) &&
 			module->design->module(type.ref())->get_bool_attribute(ID::keep));
 }
 
-bool RTLIL::Cell::has_memid() const
+తార్కిక RTLIL::Cell::has_memid() స్థిరరాశి
 {
-	return type.in(ID($memwr), ID($memwr_v2), ID($memrd), ID($memrd_v2), ID($meminit), ID($meminit_v2));
+	తిరిగి type.లోపల(ID($memwr), ID($memwr_v2), ID($memrd), ID($memrd_v2), ID($meminit), ID($meminit_v2));
 }
 
-bool RTLIL::Cell::is_mem_cell() const
+తార్కిక RTLIL::Cell::is_mem_cell() స్థిరరాశి
 {
-	return type.in(ID($mem), ID($mem_v2)) || has_memid();
+	తిరిగి type.లోపల(ID($mem), ID($mem_v2)) || has_memid();
 }
 
-bool RTLIL::Cell::is_builtin_ff() const {
-	return StaticCellTypes::categories.is_ff(type);
+తార్కిక RTLIL::Cell::is_builtin_ff() స్థిరరాశి {
+	తిరిగి StaticCellTypes::categories.is_ff(type);
 }
 
-RTLIL::SigChunk::SigChunk(const RTLIL::SigBit &bit)
+RTLIL::SigChunk::SigChunk(స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు)
 {
-	wire = bit.wire;
-	offset = 0;
-	if (wire == NULL)
-		data = {bit.data};
-	else
-		offset = bit.offset;
-	width = 1;
+	wire = బిట్టు.wire;
+	స్థానభ్రంశం = 0;
+	ఒకవేళ (wire == ఖాళీ)
+		దత్తాంశం = {బిట్టు.దత్తాంశం};
+	లేకపోతే
+		స్థానభ్రంశం = బిట్టు.స్థానభ్రంశం;
+	వెడల్పు = 1;
 }
 
-RTLIL::SigChunk RTLIL::SigChunk::extract(int offset, int length) const
+RTLIL::SigChunk RTLIL::SigChunk::వెలికితీయి(పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం నిడివి) స్థిరరాశి
 {
-	log_assert(offset >= 0);
-	log_assert(length >= 0);
-	log_assert(offset + length <= width);
+	log_assert(స్థానభ్రంశం >= 0);
+	log_assert(నిడివి >= 0);
+	log_assert(స్థానభ్రంశం + నిడివి <= వెడల్పు);
 	RTLIL::SigChunk ret;
-	if (wire) {
+	ఒకవేళ (wire) {
 		ret.wire = wire;
-		ret.offset = this->offset + offset;
-		ret.width = length;
-	} else {
-		for (int i = 0; i < length; i++)
-			ret.data.push_back(data[offset+i]);
-		ret.width = length;
+		ret.స్థానభ్రంశం = ఇది->స్థానభ్రంశం + స్థానభ్రంశం;
+		ret.వెడల్పు = నిడివి;
+	} లేకపోతే {
+		కొరకు (పూర్ణాంకం i = 0; i < నిడివి; i++)
+			ret.దత్తాంశం.నెట్టు_వెనుక(దత్తాంశం[స్థానభ్రంశం+i]);
+		ret.వెడల్పు = నిడివి;
 	}
-	return ret;
+	తిరిగి ret;
 }
 
-RTLIL::SigBit RTLIL::SigChunk::operator[](int offset) const
+RTLIL::Sig_బిట్టు RTLIL::SigChunk::క్రియాకారకం[](పూర్ణాంకం స్థానభ్రంశం) స్థిరరాశి
 {
-	log_assert(offset >= 0);
-	log_assert(offset < width);
-	RTLIL::SigBit ret;
-	if (wire) {
+	log_assert(స్థానభ్రంశం >= 0);
+	log_assert(స్థానభ్రంశం < వెడల్పు);
+	RTLIL::Sig_బిట్టు ret;
+	ఒకవేళ (wire) {
 		ret.wire = wire;
-		ret.offset = this->offset + offset;
-	} else {
-		ret.data = data[offset];
+		ret.స్థానభ్రంశం = ఇది->స్థానభ్రంశం + స్థానభ్రంశం;
+	} లేకపోతే {
+		ret.దత్తాంశం = దత్తాంశం[స్థానభ్రంశం];
 	}
-	return ret;
+	తిరిగి ret;
 }
 
-bool RTLIL::SigChunk::operator <(const RTLIL::SigChunk &other) const
+తార్కిక RTLIL::SigChunk::క్రియాకారకం <(స్థిరరాశి RTLIL::SigChunk &other) స్థిరరాశి
 {
-	if (wire && other.wire)
-		if (wire->name != other.wire->name)
-			return wire->name < other.wire->name;
+	ఒకవేళ (wire && other.wire)
+		ఒకవేళ (wire->name != other.wire->name)
+			తిరిగి wire->name < other.wire->name;
 
-	if (wire != other.wire)
-		return wire < other.wire;
+	ఒకవేళ (wire != other.wire)
+		తిరిగి wire < other.wire;
 
-	if (offset != other.offset)
-		return offset < other.offset;
+	ఒకవేళ (స్థానభ్రంశం != other.స్థానభ్రంశం)
+		తిరిగి స్థానభ్రంశం < other.స్థానభ్రంశం;
 
-	if (width != other.width)
-		return width < other.width;
+	ఒకవేళ (వెడల్పు != other.వెడల్పు)
+		తిరిగి వెడల్పు < other.వెడల్పు;
 
-	return data < other.data;
+	తిరిగి దత్తాంశం < other.దత్తాంశం;
 }
 
-bool RTLIL::SigChunk::operator ==(const RTLIL::SigChunk &other) const
+తార్కిక RTLIL::SigChunk::క్రియాకారకం ==(స్థిరరాశి RTLIL::SigChunk &other) స్థిరరాశి
 {
-	return wire == other.wire && width == other.width && offset == other.offset && data == other.data;
+	తిరిగి wire == other.wire && వెడల్పు == other.వెడల్పు && స్థానభ్రంశం == other.స్థానభ్రంశం && దత్తాంశం == other.దత్తాంశం;
 }
 
-bool RTLIL::SigChunk::operator !=(const RTLIL::SigChunk &other) const
+తార్కిక RTLIL::SigChunk::క్రియాకారకం !=(స్థిరరాశి RTLIL::SigChunk &other) స్థిరరాశి
 {
-	if (*this == other)
-		return false;
-	return true;
+	ఒకవేళ (*ఇది == other)
+		తిరిగి అబద్ధం;
+	తిరిగి నిజం;
 }
 
 RTLIL::SigSpec::SigSpec(std::initializer_list<RTLIL::SigSpec> parts)
 {
-	init_empty_bits();
-	log_assert(parts.size() > 0);
-	auto ie = parts.begin();
-	auto it = ie + parts.size() - 1;
-	while (it >= ie)
+	init_ఖాళీలు_బిట్లు();
+	log_assert(parts.కొలత() > 0);
+	స్వయంచాలక ie = parts.begin();
+	స్వయంచాలక it = ie + parts.కొలత() - 1;
+	అయితే (it >= ie)
 		append(*it--);
 }
 
-RTLIL::SigSpec::SigSpec(const RTLIL::Const &value)
+RTLIL::SigSpec::SigSpec(స్థిరరాశి RTLIL::Const &విలువ)
 {
-	if (GetSize(value) != 0) {
+	ఒకవేళ (Get_కొలత(విలువ) != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(value);
-	} else {
-		init_empty_bits();
+		కొత్త (&chunk_) RTLIL::SigChunk(విలువ);
+	} లేకపోతే {
+		init_ఖాళీలు_బిట్లు();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(RTLIL::Const &&value)
+RTLIL::SigSpec::SigSpec(RTLIL::Const &&విలువ)
 {
-	if (GetSize(value) != 0) {
+	ఒకవేళ (Get_కొలత(విలువ) != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(value);
-	} else {
-		init_empty_bits();
+		కొత్త (&chunk_) RTLIL::SigChunk(విలువ);
+	} లేకపోతే {
+		init_ఖాళీలు_బిట్లు();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const RTLIL::SigChunk &chunk)
+RTLIL::SigSpec::SigSpec(స్థిరరాశి RTLIL::SigChunk &chunk)
 {
-	if (chunk.width != 0) {
+	ఒకవేళ (chunk.వెడల్పు != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(chunk);
-	} else {
-		init_empty_bits();
+		కొత్త (&chunk_) RTLIL::SigChunk(chunk);
+	} లేకపోతే {
+		init_ఖాళీలు_బిట్లు();
 	}
 	check();
 }
 
 RTLIL::SigSpec::SigSpec(RTLIL::SigChunk &&chunk)
 {
-	if (chunk.width != 0) {
+	ఒకవేళ (chunk.వెడల్పు != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(chunk);
-	} else {
-		init_empty_bits();
+		కొత్త (&chunk_) RTLIL::SigChunk(chunk);
+	} లేకపోతే {
+		init_ఖాళీలు_బిట్లు();
 	}
 	check();
 }
 
 RTLIL::SigSpec::SigSpec(RTLIL::Wire *wire)
 {
-	if (wire->width != 0) {
+	ఒకవేళ (wire->వెడల్పు != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(wire);
-	} else {
-		init_empty_bits();
+		కొత్త (&chunk_) RTLIL::SigChunk(wire);
+	} లేకపోతే {
+		init_ఖాళీలు_బిట్లు();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(RTLIL::Wire *wire, int offset, int width)
+RTLIL::SigSpec::SigSpec(RTLIL::Wire *wire, పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం వెడల్పు)
 {
-	if (width != 0) {
+	ఒకవేళ (వెడల్పు != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(wire, offset, width);
-	} else {
-		init_empty_bits();
+		కొత్త (&chunk_) RTLIL::SigChunk(wire, స్థానభ్రంశం, వెడల్పు);
+	} లేకపోతే {
+		init_ఖాళీలు_బిట్లు();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::string &str)
+RTLIL::SigSpec::SigSpec(స్థిరరాశి std::string &str)
 {
-	if (str.size() != 0) {
+	ఒకవేళ (str.కొలత() != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(str);
-	} else {
-		init_empty_bits();
+		కొత్త (&chunk_) RTLIL::SigChunk(str);
+	} లేకపోతే {
+		init_ఖాళీలు_బిట్లు();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(int val, int width)
+RTLIL::SigSpec::SigSpec(పూర్ణాంకం val, పూర్ణాంకం వెడల్పు)
 {
-	if (width != 0) {
+	ఒకవేళ (వెడల్పు != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(val, width);
-	} else
-		init_empty_bits();
+		కొత్త (&chunk_) RTLIL::SigChunk(val, వెడల్పు);
+	} లేకపోతే
+		init_ఖాళీలు_బిట్లు();
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(RTLIL::State bit, int width)
+RTLIL::SigSpec::SigSpec(RTLIL::State బిట్టు, పూర్ణాంకం వెడల్పు)
 {
-	if (width != 0) {
+	ఒకవేళ (వెడల్పు != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(bit, width);
-	} else
-		init_empty_bits();
+		కొత్త (&chunk_) RTLIL::SigChunk(బిట్టు, వెడల్పు);
+	} లేకపోతే
+		init_ఖాళీలు_బిట్లు();
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const RTLIL::SigBit &bit, int width)
+RTLIL::SigSpec::SigSpec(స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు, పూర్ణాంకం వెడల్పు)
 {
-	if (width != 0) {
-		if (bit.wire == NULL) {
+	ఒకవేళ (వెడల్పు != 0) {
+		ఒకవేళ (బిట్టు.wire == ఖాళీ) {
 			rep_ = CHUNK;
-			new (&chunk_) RTLIL::SigChunk(bit.data, width);
-		} else if (width == 1) {
+			కొత్త (&chunk_) RTLIL::SigChunk(బిట్టు.దత్తాంశం, వెడల్పు);
+		} లేకపోతే ఒకవేళ (వెడల్పు == 1) {
 			rep_ = CHUNK;
-			new (&chunk_) RTLIL::SigChunk(bit);
-		} else {
-			init_empty_bits();
-			bits_.reserve(width);
-			for (int i = 0; i < width; i++)
-				bits_.push_back(bit);
+			కొత్త (&chunk_) RTLIL::SigChunk(బిట్టు);
+		} లేకపోతే {
+			init_ఖాళీలు_బిట్లు();
+			బిట్లు_2.reserve(వెడల్పు);
+			కొరకు (పూర్ణాంకం i = 0; i < వెడల్పు; i++)
+				బిట్లు_2.నెట్టు_వెనుక(బిట్టు);
 		}
-	} else
-		init_empty_bits();
+	} లేకపోతే
+		init_ఖాళీలు_బిట్లు();
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::vector<RTLIL::SigChunk> &chunks)
+RTLIL::SigSpec::SigSpec(స్థిరరాశి std::సదిశ<RTLIL::SigChunk> &chunks)
 {
-	init_empty_bits();
-	for (const auto &c : chunks)
+	init_ఖాళీలు_బిట్లు();
+	కొరకు (స్థిరరాశి స్వయంచాలక &c : chunks)
 		append(c);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::vector<RTLIL::SigBit> &bits)
+RTLIL::SigSpec::SigSpec(స్థిరరాశి std::సదిశ<RTLIL::Sig_బిట్టు> &బిట్లు)
 {
-	init_empty_bits();
-	for (const auto &bit : bits)
-		append(bit);
+	init_ఖాళీలు_బిట్లు();
+	కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : బిట్లు)
+		append(బిట్టు);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const pool<RTLIL::SigBit> &bits)
+RTLIL::SigSpec::SigSpec(స్థిరరాశి pool<RTLIL::Sig_బిట్టు> &బిట్లు)
 {
-	init_empty_bits();
-	for (const auto &bit : bits)
-		append(bit);
+	init_ఖాళీలు_బిట్లు();
+	కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : బిట్లు)
+		append(బిట్టు);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::set<RTLIL::SigBit> &bits)
+RTLIL::SigSpec::SigSpec(స్థిరరాశి std::సమితి<RTLIL::Sig_బిట్టు> &బిట్లు)
 {
-	init_empty_bits();
-	for (const auto &bit : bits)
-		append(bit);
+	init_ఖాళీలు_బిట్లు();
+	కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : బిట్లు)
+		append(బిట్టు);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(bool bit)
+RTLIL::SigSpec::SigSpec(తార్కిక బిట్టు)
 {
 	rep_ = CHUNK;
-	new (&chunk_) RTLIL::SigChunk(bit ? RTLIL::S1 : RTLIL::S0);
+	కొత్త (&chunk_) RTLIL::SigChunk(బిట్టు ? RTLIL::S1 : RTLIL::S0);
 	check();
 }
 
-void RTLIL::SigSpec::Chunks::const_iterator::next_chunk_bits()
+శూన్య RTLIL::SigSpec::Chunks::const_iterator::తదుపరి_chunk_బిట్లు()
 {
-	int bits_size = GetSize(spec.bits_);
-	if (bit_index >= bits_size)
-		return;
-	int i = bit_index;
-	const SigBit &bit = spec.bits_[i++];
-	chunk.wire = bit.wire;
-	chunk.data.clear();
-	if (bit.is_wire()) {
-		chunk.offset = bit.offset;
-		while (i < bits_size && spec.bits_[i].wire == bit.wire &&
-			spec.bits_[i].offset == bit.offset + i - bit_index)
+	పూర్ణాంకం బిట్లు_కొలత = Get_కొలత(spec.బిట్లు_2);
+	ఒకవేళ (బిట్టు_సూచీ >= బిట్లు_కొలత)
+		తిరిగి;
+	పూర్ణాంకం i = బిట్టు_సూచీ;
+	స్థిరరాశి Sig_బిట్టు &బిట్టు = spec.బిట్లు_2[i++];
+	chunk.wire = బిట్టు.wire;
+	chunk.దత్తాంశం.clear();
+	ఒకవేళ (బిట్టు.is_wire()) {
+		chunk.స్థానభ్రంశం = బిట్టు.స్థానభ్రంశం;
+		అయితే (i < బిట్లు_కొలత && spec.బిట్లు_2[i].wire == బిట్టు.wire &&
+			spec.బిట్లు_2[i].స్థానభ్రంశం == బిట్టు.స్థానభ్రంశం + i - బిట్టు_సూచీ)
 			++i;
-	} else {
-		chunk.offset = 0;
-		chunk.data.push_back(bit.data);
-		while (i < bits_size && !spec.bits_[i].is_wire()) {
-			chunk.data.push_back(spec.bits_[i].data);
+	} లేకపోతే {
+		chunk.స్థానభ్రంశం = 0;
+		chunk.దత్తాంశం.నెట్టు_వెనుక(బిట్టు.దత్తాంశం);
+		అయితే (i < బిట్లు_కొలత && !spec.బిట్లు_2[i].is_wire()) {
+			chunk.దత్తాంశం.నెట్టు_వెనుక(spec.బిట్లు_2[i].దత్తాంశం);
 			++i;
 		}
 	}
-	chunk.width = i - bit_index;
+	chunk.వెడల్పు = i - బిట్టు_సూచీ;
 }
 
-void RTLIL::SigSpec::unpack()
+శూన్య RTLIL::SigSpec::unpack()
 {
-	if (rep_ == BITS)
-		return;
+	ఒకవేళ (rep_ == బిట్లు_3)
+		తిరిగి;
 
-	std::vector<RTLIL::SigBit> bits;
-	bits.reserve(chunk_.width);
-	for (int i = 0; i < chunk_.width; i++)
-		bits.emplace_back(chunk_, i);
+	std::సదిశ<RTLIL::Sig_బిట్టు> బిట్లు;
+	బిట్లు.reserve(chunk_.వెడల్పు);
+	కొరకు (పూర్ణాంకం i = 0; i < chunk_.వెడల్పు; i++)
+		బిట్లు.emplace_వెనుక(chunk_, i);
 
 	chunk_.~SigChunk();
-	rep_ = BITS;
-	new (&bits_) std::vector<RTLIL::SigBit>(std::move(bits));
+	rep_ = బిట్లు_3;
+	కొత్త (&బిట్లు_2) std::సదిశ<RTLIL::Sig_బిట్టు>(std::move(బిట్లు));
 }
 
-void RTLIL::SigSpec::try_repack()
+శూన్య RTLIL::SigSpec::try_repack()
 {
-	if (rep_ != BITS)
-		return;
+	ఒకవేళ (rep_ != బిట్లు_3)
+		తిరిగి;
 
-	int bits_size = GetSize(bits_);
-	if (bits_size == 0)
-		return;
-	if (bits_[0].is_wire()) {
-		for (int i = 1; i < bits_size; i++)
-			if (bits_[0].wire != bits_[i].wire || bits_[0].offset + i != bits_[i].offset)
-				return;
-		SigChunk chunk(bits_[0].wire, bits_[0].offset, bits_size);
-		bits_.~vector();
+	పూర్ణాంకం బిట్లు_కొలత = Get_కొలత(బిట్లు_2);
+	ఒకవేళ (బిట్లు_కొలత == 0)
+		తిరిగి;
+	ఒకవేళ (బిట్లు_2[0].is_wire()) {
+		కొరకు (పూర్ణాంకం i = 1; i < బిట్లు_కొలత; i++)
+			ఒకవేళ (బిట్లు_2[0].wire != బిట్లు_2[i].wire || బిట్లు_2[0].స్థానభ్రంశం + i != బిట్లు_2[i].స్థానభ్రంశం)
+				తిరిగి;
+		SigChunk chunk(బిట్లు_2[0].wire, బిట్లు_2[0].స్థానభ్రంశం, బిట్లు_కొలత);
+		బిట్లు_2.~సదిశ();
 		rep_ = CHUNK;
-		new (&chunk_) SigChunk(std::move(chunk));
-		return;
+		కొత్త (&chunk_) SigChunk(std::move(chunk));
+		తిరిగి;
 	}
-	std::vector<RTLIL::State> bits;
-	bits.reserve(bits_size);
-	bits.push_back(bits_[0].data);
-	for (int i = 1; i < bits_size; i++) {
-		if (bits_[i].is_wire())
-			return;
-		bits.push_back(bits_[i].data);
+	std::సదిశ<RTLIL::State> బిట్లు;
+	బిట్లు.reserve(బిట్లు_కొలత);
+	బిట్లు.నెట్టు_వెనుక(బిట్లు_2[0].దత్తాంశం);
+	కొరకు (పూర్ణాంకం i = 1; i < బిట్లు_కొలత; i++) {
+		ఒకవేళ (బిట్లు_2[i].is_wire())
+			తిరిగి;
+		బిట్లు.నెట్టు_వెనుక(బిట్లు_2[i].దత్తాంశం);
 	}
-	bits_.~vector();
+	బిట్లు_2.~సదిశ();
 	rep_ = CHUNK;
-	new (&chunk_) SigChunk(std::move(bits));
+	కొత్త (&chunk_) SigChunk(std::move(బిట్లు));
 }
 
-Hasher::hash_t RTLIL::SigSpec::updhash() const
+Hasher::hash_t RTLIL::SigSpec::updhash() స్థిరరాశి
 {
 	Hasher h;
-	for (auto &c : chunks())
-		if (c.wire == NULL) {
-			for (auto &v : c.data)
+	కొరకు (స్వయంచాలక &c : chunks())
+		ఒకవేళ (c.wire == ఖాళీ) {
+			కొరకు (స్వయంచాలక &v : c.దత్తాంశం)
 				h.eat(v);
-		} else {
+		} లేకపోతే {
 			h.eat(c.wire->name.ref());
-			h.eat(c.offset);
-			h.eat(c.width);
+			h.eat(c.స్థానభ్రంశం);
+			h.eat(c.వెడల్పు);
 		}
-	Hasher::hash_t result = h.yield();
-	if (result == 0)
-		result = 1;
-	hash_.set(result);
-	return result;
+	Hasher::hash_t ఫలితం = h.yield();
+	ఒకవేళ (ఫలితం == 0)
+		ఫలితం = 1;
+	hash_.సమితి(ఫలితం);
+	తిరిగి ఫలితం;
 }
 
-void RTLIL::SigSpec::sort()
+శూన్య RTLIL::SigSpec::క్రమీకరించు()
 {
 	unpack();
-	std::sort(bits_.begin(), bits_.end());
+	std::క్రమీకరించు(బిట్లు_2.begin(), బిట్లు_2.చివర());
 	hash_.clear();
 	try_repack();
 }
 
-void RTLIL::SigSpec::sort_and_unify()
+శూన్య RTLIL::SigSpec::క్రమీకరించు_and_unify()
 {
 	unpack();
 	// A copy of the bits vector is used to prevent duplicating the logic from
 	// SigSpec::SigSpec(std::vector<SigBit>).  This incurrs an extra copy but
 	// that isn't showing up as significant in profiles.
-	std::vector<SigBit> unique_bits = bits_;
-	std::sort(unique_bits.begin(), unique_bits.end());
-	auto last = std::unique(unique_bits.begin(), unique_bits.end());
-	unique_bits.erase(last, unique_bits.end());
+	std::సదిశ<Sig_బిట్టు> unique_బిట్లు = బిట్లు_2;
+	std::క్రమీకరించు(unique_బిట్లు.begin(), unique_బిట్లు.చివర());
+	స్వయంచాలక చివరి = std::unique(unique_బిట్లు.begin(), unique_బిట్లు.చివర());
+	unique_బిట్లు.erase(చివరి, unique_బిట్లు.చివర());
 
-	*this = unique_bits;
+	*ఇది = unique_బిట్లు;
 	hash_.clear();
 	try_repack();
 }
 
-void RTLIL::SigSpec::replace(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec &with)
+శూన్య RTLIL::SigSpec::replace(స్థిరరాశి RTLIL::SigSpec &నమూనా, స్థిరరాశి RTLIL::SigSpec &with)
 {
-	replace(pattern, with, this);
+	replace(నమూనా, with, ఇది);
 }
 
-void RTLIL::SigSpec::replace(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec &with, RTLIL::SigSpec *other) const
+శూన్య RTLIL::SigSpec::replace(స్థిరరాశి RTLIL::SigSpec &నమూనా, స్థిరరాశి RTLIL::SigSpec &with, RTLIL::SigSpec *other) స్థిరరాశి
 {
-	log_assert(other != NULL);
-	log_assert(size() == other->size());
-	log_assert(pattern.size() == with.size());
+	log_assert(other != ఖాళీ);
+	log_assert(కొలత() == other->కొలత());
+	log_assert(నమూనా.కొలత() == with.కొలత());
 
-	dict<RTLIL::SigBit, int> pattern_to_with;
-	int pattern_size = pattern.size();
-	for (int i = 0; i < pattern_size; i++) {
-		SigBit pattern_bit = pattern[i];
-		if (pattern_bit.wire != NULL) {
-			pattern_to_with.emplace(pattern_bit, i);
+	dict<RTLIL::Sig_బిట్టు, పూర్ణాంకం> నమూనా_గమ్యం_with;
+	పూర్ణాంకం నమూనా_కొలత = నమూనా.కొలత();
+	కొరకు (పూర్ణాంకం i = 0; i < నమూనా_కొలత; i++) {
+		Sig_బిట్టు నమూనా_బిట్టు = నమూనా[i];
+		ఒకవేళ (నమూనా_బిట్టు.wire != ఖాళీ) {
+			నమూనా_గమ్యం_with.emplace(నమూనా_బిట్టు, i);
 		}
 	}
 
-	int this_size = size();
-	bool other_modified = false;
-	for (int j = 0; j < this_size; j++) {
-		auto it = pattern_to_with.find((*this)[j]);
-		if (it != pattern_to_with.end()) {
-			other_modified = true;
-			(*other)[j] = with[it->second];
+	పూర్ణాంకం this_కొలత = కొలత();
+	తార్కిక other_modified = అబద్ధం;
+	కొరకు (పూర్ణాంకం j = 0; j < this_కొలత; j++) {
+		స్వయంచాలక it = నమూనా_గమ్యం_with.కనుగొను((*ఇది)[j]);
+		ఒకవేళ (it != నమూనా_గమ్యం_with.చివర()) {
+			other_modified = నిజం;
+			(*other)[j] = with[it->రెండవ];
 		}
 	}
 
-	if (other_modified)
+	ఒకవేళ (other_modified)
 		other->try_repack();
 	other->check();
 }
 
-void RTLIL::SigSpec::replace(const dict<RTLIL::SigBit, RTLIL::SigBit> &rules)
+శూన్య RTLIL::SigSpec::replace(స్థిరరాశి dict<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> &నియమాలు)
 {
-	replace(rules, this);
+	replace(నియమాలు, ఇది);
 }
 
-void RTLIL::SigSpec::replace(const dict<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const
+శూన్య RTLIL::SigSpec::replace(స్థిరరాశి dict<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> &నియమాలు, RTLIL::SigSpec *other) స్థిరరాశి
 {
-	log_assert(other != NULL);
-	log_assert(size() == other->size());
+	log_assert(other != ఖాళీ);
+	log_assert(కొలత() == other->కొలత());
 
-	if (rules.empty()) return;
+	ఒకవేళ (నియమాలు.ఖాళీలు()) తిరిగి;
 
-	int this_size = size();
-	bool other_modified = false;
-	for (int i = 0; i < this_size; i++) {
-		auto it = rules.find((*this)[i]);
-		if (it != rules.end()) {
-			other_modified = true;
-			(*other)[i] = it->second;
+	పూర్ణాంకం this_కొలత = కొలత();
+	తార్కిక other_modified = అబద్ధం;
+	కొరకు (పూర్ణాంకం i = 0; i < this_కొలత; i++) {
+		స్వయంచాలక it = నియమాలు.కనుగొను((*ఇది)[i]);
+		ఒకవేళ (it != నియమాలు.చివర()) {
+			other_modified = నిజం;
+			(*other)[i] = it->రెండవ;
 		}
 	}
 
-	if (other_modified)
+	ఒకవేళ (other_modified)
 		other->try_repack();
 	other->check();
 }
 
-void RTLIL::SigSpec::replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules)
+శూన్య RTLIL::SigSpec::replace(స్థిరరాశి std::map<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> &నియమాలు)
 {
-	replace(rules, this);
+	replace(నియమాలు, ఇది);
 }
 
-void RTLIL::SigSpec::replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const
+శూన్య RTLIL::SigSpec::replace(స్థిరరాశి std::map<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> &నియమాలు, RTLIL::SigSpec *other) స్థిరరాశి
 {
-	log_assert(other != NULL);
-	log_assert(size() == other->size());
+	log_assert(other != ఖాళీ);
+	log_assert(కొలత() == other->కొలత());
 
-	if (rules.empty()) return;
+	ఒకవేళ (నియమాలు.ఖాళీలు()) తిరిగి;
 
-	int this_size = size();
-	bool other_modified = false;
-	for (int i = 0; i < this_size; i++) {
-		auto it = rules.find((*this)[i]);
-		if (it != rules.end()) {
-			other_modified = true;
-			(*other)[i] = it->second;
+	పూర్ణాంకం this_కొలత = కొలత();
+	తార్కిక other_modified = అబద్ధం;
+	కొరకు (పూర్ణాంకం i = 0; i < this_కొలత; i++) {
+		స్వయంచాలక it = నియమాలు.కనుగొను((*ఇది)[i]);
+		ఒకవేళ (it != నియమాలు.చివర()) {
+			other_modified = నిజం;
+			(*other)[i] = it->రెండవ;
 		}
 	}
 
-	if (other_modified)
+	ఒకవేళ (other_modified)
 		other->try_repack();
 	other->check();
 }
 
-void RTLIL::SigSpec::remove(const RTLIL::SigSpec &pattern)
+శూన్య RTLIL::SigSpec::remove(స్థిరరాశి RTLIL::SigSpec &నమూనా)
 {
-	remove2(pattern, NULL);
+	remove2(నమూనా, ఖాళీ);
 }
 
-void RTLIL::SigSpec::remove(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other) const
+శూన్య RTLIL::SigSpec::remove(స్థిరరాశి RTLIL::SigSpec &నమూనా, RTLIL::SigSpec *other) స్థిరరాశి
 {
-	RTLIL::SigSpec tmp = *this;
-	tmp.remove2(pattern, other);
+	RTLIL::SigSpec tmp = *ఇది;
+	tmp.remove2(నమూనా, other);
 }
 
-void RTLIL::SigSpec::remove2(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other)
+శూన్య RTLIL::SigSpec::remove2(స్థిరరాశి RTLIL::SigSpec &నమూనా, RTLIL::SigSpec *other)
 {
 	unpack();
-	if (other != NULL) {
-		log_assert(size() == other->size());
+	ఒకవేళ (other != ఖాళీ) {
+		log_assert(కొలత() == other->కొలత());
 		other->unpack();
 	}
 
 	//  Convert pattern to pool for O(1) lookup, avoiding O(n*m) chunk iteration
-	pool<SigBit> pattern_bits;
-	pattern_bits.reserve(pattern.size());
-	for (auto &bit : pattern)
-		if (bit.wire != NULL)
-			pattern_bits.insert(bit);
+	pool<Sig_బిట్టు> నమూనా_బిట్లు;
+	నమూనా_బిట్లు.reserve(నమూనా.కొలత());
+	కొరకు (స్వయంచాలక &బిట్టు : నమూనా)
+		ఒకవేళ (బిట్టు.wire != ఖాళీ)
+			నమూనా_బిట్లు.చొప్పించు(బిట్టు);
 
 	// Compact in-place to avoid O(n^2) erase operations
-	size_t write_idx = 0;
-	for (size_t read_idx = 0; read_idx < bits_.size(); read_idx++)
+	కొలత_t write_idx = 0;
+	కొరకు (కొలత_t read_idx = 0; read_idx < బిట్లు_2.కొలత(); read_idx++)
 	{
-		if (!(bits_[read_idx].wire != NULL && pattern_bits.count(bits_[read_idx]))) {
-			if (write_idx != read_idx) {
-				bits_[write_idx] = bits_[read_idx];
-				if (other != NULL)
-					other->bits_[write_idx] = other->bits_[read_idx];
+		ఒకవేళ (!(బిట్లు_2[read_idx].wire != ఖాళీ && నమూనా_బిట్లు.లెక్క(బిట్లు_2[read_idx]))) {
+			ఒకవేళ (write_idx != read_idx) {
+				బిట్లు_2[write_idx] = బిట్లు_2[read_idx];
+				ఒకవేళ (other != ఖాళీ)
+					other->బిట్లు_2[write_idx] = other->బిట్లు_2[read_idx];
 			}
 			write_idx++;
 		}
 	}
 
-	bool modified = (write_idx < bits_.size());
-	if (modified) {
-		bits_.resize(write_idx);
+	తార్కిక modified = (write_idx < బిట్లు_2.కొలత());
+	ఒకవేళ (modified) {
+		బిట్లు_2.resize(write_idx);
 		hash_.clear();
 		try_repack();
 	}
-	if (other != NULL && modified) {
-		other->bits_.resize(write_idx);
+	ఒకవేళ (other != ఖాళీ && modified) {
+		other->బిట్లు_2.resize(write_idx);
 		other->hash_.clear();
 		other->try_repack();
 	}
 	check();
 }
 
-void RTLIL::SigSpec::remove(const pool<RTLIL::SigBit> &pattern)
+శూన్య RTLIL::SigSpec::remove(స్థిరరాశి pool<RTLIL::Sig_బిట్టు> &నమూనా)
 {
-	remove2(pattern, NULL);
+	remove2(నమూనా, ఖాళీ);
 }
 
-void RTLIL::SigSpec::remove(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other) const
+శూన్య RTLIL::SigSpec::remove(స్థిరరాశి pool<RTLIL::Sig_బిట్టు> &నమూనా, RTLIL::SigSpec *other) స్థిరరాశి
 {
-	RTLIL::SigSpec tmp = *this;
-	tmp.remove2(pattern, other);
+	RTLIL::SigSpec tmp = *ఇది;
+	tmp.remove2(నమూనా, other);
 }
 
-void RTLIL::SigSpec::remove2(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other)
+శూన్య RTLIL::SigSpec::remove2(స్థిరరాశి pool<RTLIL::Sig_బిట్టు> &నమూనా, RTLIL::SigSpec *other)
 {
 	unpack();
 
-	if (other != NULL) {
-		log_assert(size() == other->size());
+	ఒకవేళ (other != ఖాళీ) {
+		log_assert(కొలత() == other->కొలత());
 		other->unpack();
 	}
 
 	// Avoid O(n^2) complexity by compacting in-place
-	size_t write_idx = 0;
-	for (size_t read_idx = 0; read_idx < bits_.size(); read_idx++) {
-		if (!(bits_[read_idx].wire != NULL && pattern.count(bits_[read_idx]))) {
-			if (write_idx != read_idx) {
-				bits_[write_idx] = bits_[read_idx];
-				if (other != NULL)
-					other->bits_[write_idx] = other->bits_[read_idx];
+	కొలత_t write_idx = 0;
+	కొరకు (కొలత_t read_idx = 0; read_idx < బిట్లు_2.కొలత(); read_idx++) {
+		ఒకవేళ (!(బిట్లు_2[read_idx].wire != ఖాళీ && నమూనా.లెక్క(బిట్లు_2[read_idx]))) {
+			ఒకవేళ (write_idx != read_idx) {
+				బిట్లు_2[write_idx] = బిట్లు_2[read_idx];
+				ఒకవేళ (other != ఖాళీ)
+					other->బిట్లు_2[write_idx] = other->బిట్లు_2[read_idx];
 			}
 			write_idx++;
 		}
 	}
 
-	bool modified = (write_idx < bits_.size());
-	if (modified) {
-		bits_.resize(write_idx);
+	తార్కిక modified = (write_idx < బిట్లు_2.కొలత());
+	ఒకవేళ (modified) {
+		బిట్లు_2.resize(write_idx);
 		hash_.clear();
 		try_repack();
 	}
-	if (other != NULL && modified) {
-		other->bits_.resize(write_idx);
+	ఒకవేళ (other != ఖాళీ && modified) {
+		other->బిట్లు_2.resize(write_idx);
 		other->hash_.clear();
 		other->try_repack();
 	}
 	check();
 }
 
-void RTLIL::SigSpec::remove2(const std::set<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other)
+శూన్య RTLIL::SigSpec::remove2(స్థిరరాశి std::సమితి<RTLIL::Sig_బిట్టు> &నమూనా, RTLIL::SigSpec *other)
 {
 	unpack();
 
-	if (other != NULL) {
-		log_assert(size() == other->size());
+	ఒకవేళ (other != ఖాళీ) {
+		log_assert(కొలత() == other->కొలత());
 		other->unpack();
 	}
 
 	// Avoid O(n^2) complexity by compacting in-place
-	size_t write_idx = 0;
-	for (size_t read_idx = 0; read_idx < bits_.size(); read_idx++) {
-		if (!(bits_[read_idx].wire != NULL && pattern.count(bits_[read_idx]))) {
-			if (write_idx != read_idx) {
-				bits_[write_idx] = bits_[read_idx];
-				if (other != NULL)
-					other->bits_[write_idx] = other->bits_[read_idx];
+	కొలత_t write_idx = 0;
+	కొరకు (కొలత_t read_idx = 0; read_idx < బిట్లు_2.కొలత(); read_idx++) {
+		ఒకవేళ (!(బిట్లు_2[read_idx].wire != ఖాళీ && నమూనా.లెక్క(బిట్లు_2[read_idx]))) {
+			ఒకవేళ (write_idx != read_idx) {
+				బిట్లు_2[write_idx] = బిట్లు_2[read_idx];
+				ఒకవేళ (other != ఖాళీ)
+					other->బిట్లు_2[write_idx] = other->బిట్లు_2[read_idx];
 			}
 			write_idx++;
 		}
 	}
 
-	bool modified = (write_idx < bits_.size());
-	if (modified) {
-		bits_.resize(write_idx);
+	తార్కిక modified = (write_idx < బిట్లు_2.కొలత());
+	ఒకవేళ (modified) {
+		బిట్లు_2.resize(write_idx);
 		hash_.clear();
 		try_repack();
 	}
-	if (other != NULL && modified) {
-		other->bits_.resize(write_idx);
+	ఒకవేళ (other != ఖాళీ && modified) {
+		other->బిట్లు_2.resize(write_idx);
 		other->hash_.clear();
 		other->try_repack();
 	}
 	check();
 }
 
-void RTLIL::SigSpec::remove2(const pool<RTLIL::Wire*> &pattern, RTLIL::SigSpec *other)
+శూన్య RTLIL::SigSpec::remove2(స్థిరరాశి pool<RTLIL::Wire*> &నమూనా, RTLIL::SigSpec *other)
 {
 	unpack();
 
-	if (other != NULL) {
-		log_assert(size() == other->size());
+	ఒకవేళ (other != ఖాళీ) {
+		log_assert(కొలత() == other->కొలత());
 		other->unpack();
 	}
 
-	bool modified = false;
-	bool other_modified = false;
-	for (int i = GetSize(bits_) - 1; i >= 0; i--) {
-		if (bits_[i].wire != NULL && pattern.count(bits_[i].wire)) {
-			modified = true;
-			bits_.erase(bits_.begin() + i);
-			if (other != NULL) {
-				other_modified = true;
-				other->bits_.erase(other->bits_.begin() + i);
+	తార్కిక modified = అబద్ధం;
+	తార్కిక other_modified = అబద్ధం;
+	కొరకు (పూర్ణాంకం i = Get_కొలత(బిట్లు_2) - 1; i >= 0; i--) {
+		ఒకవేళ (బిట్లు_2[i].wire != ఖాళీ && నమూనా.లెక్క(బిట్లు_2[i].wire)) {
+			modified = నిజం;
+			బిట్లు_2.erase(బిట్లు_2.begin() + i);
+			ఒకవేళ (other != ఖాళీ) {
+				other_modified = నిజం;
+				other->బిట్లు_2.erase(other->బిట్లు_2.begin() + i);
 			}
 		}
 	}
 
-	if (modified) {
+	ఒకవేళ (modified) {
 		hash_.clear();
 		try_repack();
 	}
-	if (other_modified) {
+	ఒకవేళ (other_modified) {
 		other->hash_.clear();
 		other->try_repack();
 	}
 	check();
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::extract(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec *other) const
+RTLIL::SigSpec RTLIL::SigSpec::వెలికితీయి(స్థిరరాశి RTLIL::SigSpec &నమూనా, స్థిరరాశి RTLIL::SigSpec *other) స్థిరరాశి
 {
-	log_assert(other == NULL || size() == other->size());
+	log_assert(other == ఖాళీ || కొలత() == other->కొలత());
 
 	RTLIL::SigSpec ret;
-	std::vector<RTLIL::SigBit> bits_match = to_sigbit_vector();
+	std::సదిశ<RTLIL::Sig_బిట్టు> బిట్లు_సరిపోలిక = గమ్యం_sigbit_సదిశ();
 
-	for (auto& pattern_chunk : pattern.chunks()) {
-		if (other) {
-			std::vector<RTLIL::SigBit> bits_other = other->to_sigbit_vector();
-			int i = 0;
-			for (const RTLIL::SigBit &bit : bits_match) {
-				if (bit.wire &&
-					bit.wire == pattern_chunk.wire &&
-					bit.offset >= pattern_chunk.offset &&
-					bit.offset < pattern_chunk.offset + pattern_chunk.width)
-					ret.append(bits_other[i]);
+	కొరకు (స్వయంచాలక& నమూనా_chunk : నమూనా.chunks()) {
+		ఒకవేళ (other) {
+			std::సదిశ<RTLIL::Sig_బిట్టు> బిట్లు_other = other->గమ్యం_sigbit_సదిశ();
+			పూర్ణాంకం i = 0;
+			కొరకు (స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు : బిట్లు_సరిపోలిక) {
+				ఒకవేళ (బిట్టు.wire &&
+					బిట్టు.wire == నమూనా_chunk.wire &&
+					బిట్టు.స్థానభ్రంశం >= నమూనా_chunk.స్థానభ్రంశం &&
+					బిట్టు.స్థానభ్రంశం < నమూనా_chunk.స్థానభ్రంశం + నమూనా_chunk.వెడల్పు)
+					ret.append(బిట్లు_other[i]);
 				++i;
 			}
-		} else {
-			for (const RTLIL::SigBit &bit : bits_match)
-				if (bit.wire &&
-					bit.wire == pattern_chunk.wire &&
-					bit.offset >= pattern_chunk.offset &&
-					bit.offset < pattern_chunk.offset + pattern_chunk.width)
-					ret.append(bit);
+		} లేకపోతే {
+			కొరకు (స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు : బిట్లు_సరిపోలిక)
+				ఒకవేళ (బిట్టు.wire &&
+					బిట్టు.wire == నమూనా_chunk.wire &&
+					బిట్టు.స్థానభ్రంశం >= నమూనా_chunk.స్థానభ్రంశం &&
+					బిట్టు.స్థానభ్రంశం < నమూనా_chunk.స్థానభ్రంశం + నమూనా_chunk.వెడల్పు)
+					ret.append(బిట్టు);
 		}
 	}
 
 	ret.check();
-	return ret;
+	తిరిగి ret;
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::extract(const pool<RTLIL::SigBit> &pattern, const RTLIL::SigSpec *other) const
+RTLIL::SigSpec RTLIL::SigSpec::వెలికితీయి(స్థిరరాశి pool<RTLIL::Sig_బిట్టు> &నమూనా, స్థిరరాశి RTLIL::SigSpec *other) స్థిరరాశి
 {
-	log_assert(other == NULL || size() == other->size());
+	log_assert(other == ఖాళీ || కొలత() == other->కొలత());
 
-	std::vector<RTLIL::SigBit> bits_match = to_sigbit_vector();
+	std::సదిశ<RTLIL::Sig_బిట్టు> బిట్లు_సరిపోలిక = గమ్యం_sigbit_సదిశ();
 	RTLIL::SigSpec ret;
 
-	if (other) {
-		std::vector<RTLIL::SigBit> bits_other = other->to_sigbit_vector();
-		int i = 0;
-		for (const RTLIL::SigBit &bit : bits_match) {
-			if (bit.wire && pattern.count(bit))
-				ret.append(bits_other[i]);
+	ఒకవేళ (other) {
+		std::సదిశ<RTLIL::Sig_బిట్టు> బిట్లు_other = other->గమ్యం_sigbit_సదిశ();
+		పూర్ణాంకం i = 0;
+		కొరకు (స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు : బిట్లు_సరిపోలిక) {
+			ఒకవేళ (బిట్టు.wire && నమూనా.లెక్క(బిట్టు))
+				ret.append(బిట్లు_other[i]);
 			++i;
 		}
-	} else {
-		for (const RTLIL::SigBit &bit : bits_match)
-			if (bit.wire && pattern.count(bit))
-				ret.append(bit);
+	} లేకపోతే {
+		కొరకు (స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు : బిట్లు_సరిపోలిక)
+			ఒకవేళ (బిట్టు.wire && నమూనా.లెక్క(బిట్టు))
+				ret.append(బిట్టు);
 	}
 
 	ret.check();
-	return ret;
+	తిరిగి ret;
 }
 
-void RTLIL::SigSpec::replace(int offset, const RTLIL::SigSpec &with)
+శూన్య RTLIL::SigSpec::replace(పూర్ణాంకం స్థానభ్రంశం, స్థిరరాశి RTLIL::SigSpec &with)
 {
-	if (with.size() == 0)
-		return;
+	ఒకవేళ (with.కొలత() == 0)
+		తిరిగి;
 
 	unpack();
 
-	log_assert(offset >= 0);
-	log_assert(with.size() >= 0);
-	log_assert(offset+with.size() <= size());
+	log_assert(స్థానభ్రంశం >= 0);
+	log_assert(with.కొలత() >= 0);
+	log_assert(స్థానభ్రంశం+with.కొలత() <= కొలత());
 
-	int i = 0;
-	for (const RTLIL::SigBit &bit : with.bits()) {
-		bits_.at(offset + i) = bit;
+	పూర్ణాంకం i = 0;
+	కొరకు (స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు : with.బిట్లు()) {
+		బిట్లు_2.at(స్థానభ్రంశం + i) = బిట్టు;
 		++i;
 	}
 	hash_.clear();
@@ -5175,25 +5175,25 @@ void RTLIL::SigSpec::replace(int offset, const RTLIL::SigSpec &with)
 	check();
 }
 
-void RTLIL::SigSpec::remove_const()
+శూన్య RTLIL::SigSpec::remove_const()
 {
-	if (rep_ == CHUNK)
+	ఒకవేళ (rep_ == CHUNK)
 	{
-		if (chunk_.wire == NULL) {
+		ఒకవేళ (chunk_.wire == ఖాళీ) {
 			chunk_.~SigChunk();
-			init_empty_bits();
+			init_ఖాళీలు_బిట్లు();
 			hash_.clear();
 		}
 	}
-	else
+	లేకపోతే
 	{
-		std::vector<RTLIL::SigBit> new_bits;
-		new_bits.reserve(bits_.size());
-		for (auto &bit : bits_)
-			if (bit.wire != NULL)
-				new_bits.push_back(bit);
-		if (GetSize(new_bits) != GetSize(bits_)) {
-			bits_.swap(new_bits);
+		std::సదిశ<RTLIL::Sig_బిట్టు> new_బిట్లు;
+		new_బిట్లు.reserve(బిట్లు_2.కొలత());
+		కొరకు (స్వయంచాలక &బిట్టు : బిట్లు_2)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ)
+				new_బిట్లు.నెట్టు_వెనుక(బిట్టు);
+		ఒకవేళ (Get_కొలత(new_బిట్లు) != Get_కొలత(బిట్లు_2)) {
+			బిట్లు_2.మార్పిడి(new_బిట్లు);
 			hash_.clear();
 			try_repack();
 		}
@@ -5202,575 +5202,575 @@ void RTLIL::SigSpec::remove_const()
 	check();
 }
 
-void RTLIL::SigSpec::remove(int offset, int length)
+శూన్య RTLIL::SigSpec::remove(పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం నిడివి)
 {
-	if (length == 0)
-		return;
+	ఒకవేళ (నిడివి == 0)
+		తిరిగి;
 
 	unpack();
 
-	log_assert(offset >= 0);
-	log_assert(length >= 0);
-	log_assert(offset + length <= size());
+	log_assert(స్థానభ్రంశం >= 0);
+	log_assert(నిడివి >= 0);
+	log_assert(స్థానభ్రంశం + నిడివి <= కొలత());
 
-	bits_.erase(bits_.begin() + offset, bits_.begin() + offset + length);
+	బిట్లు_2.erase(బిట్లు_2.begin() + స్థానభ్రంశం, బిట్లు_2.begin() + స్థానభ్రంశం + నిడివి);
 
 	hash_.clear();
 	try_repack();
 	check();
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::extract(int offset, int length) const
+RTLIL::SigSpec RTLIL::SigSpec::వెలికితీయి(పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం నిడివి) స్థిరరాశి
 {
-	log_assert(offset >= 0);
-	log_assert(length >= 0);
-	log_assert(offset + length <= size());
+	log_assert(స్థానభ్రంశం >= 0);
+	log_assert(నిడివి >= 0);
+	log_assert(స్థానభ్రంశం + నిడివి <= కొలత());
 
-	std::vector<SigBit> extracted;
-	SigBit first;
-	bool is_packing = true;
-	for (int i = offset; i < offset + length; i++) {
-		bool was_packing_before = is_packing;
-		SigBit bit = (*this)[i];
-		if (i == offset) {
-			first = bit;
-			if (!bit.wire)
-				is_packing = false;
-		} else {
-			if (bit.wire != first.wire)
-				is_packing = false;
-			if (bit.wire)
-				if (bit.offset != first.offset + (i - offset))
-					is_packing = false;
+	std::సదిశ<Sig_బిట్టు> extracted;
+	Sig_బిట్టు మొదటి;
+	తార్కిక is_packing = నిజం;
+	కొరకు (పూర్ణాంకం i = స్థానభ్రంశం; i < స్థానభ్రంశం + నిడివి; i++) {
+		తార్కిక was_packing_before = is_packing;
+		Sig_బిట్టు బిట్టు = (*ఇది)[i];
+		ఒకవేళ (i == స్థానభ్రంశం) {
+			మొదటి = బిట్టు;
+			ఒకవేళ (!బిట్టు.wire)
+				is_packing = అబద్ధం;
+		} లేకపోతే {
+			ఒకవేళ (బిట్టు.wire != మొదటి.wire)
+				is_packing = అబద్ధం;
+			ఒకవేళ (బిట్టు.wire)
+				ఒకవేళ (బిట్టు.స్థానభ్రంశం != మొదటి.స్థానభ్రంశం + (i - స్థానభ్రంశం))
+					is_packing = అబద్ధం;
 		}
-		if (was_packing_before && !is_packing)
-			for (int j = offset; j < i; j++)
-				extracted.push_back((*this)[j]);
-		if (!is_packing)
-			extracted.push_back((*this)[i]);
+		ఒకవేళ (was_packing_before && !is_packing)
+			కొరకు (పూర్ణాంకం j = స్థానభ్రంశం; j < i; j++)
+				extracted.నెట్టు_వెనుక((*ఇది)[j]);
+		ఒకవేళ (!is_packing)
+			extracted.నెట్టు_వెనుక((*ఇది)[i]);
 	}
-	if (is_packing)
-		return SigChunk(first.wire, first.offset, length);
+	ఒకవేళ (is_packing)
+		తిరిగి SigChunk(మొదటి.wire, మొదటి.స్థానభ్రంశం, నిడివి);
 
-	return extracted;
+	తిరిగి extracted;
 }
 
-void RTLIL::SigSpec::rewrite_wires(std::function<void(RTLIL::Wire*& wire)> rewrite)
+శూన్య RTLIL::SigSpec::rewrite_wires(std::function<శూన్య(RTLIL::Wire*& wire)> rewrite)
 {
-	if (rep_ == CHUNK) {
-		if (chunk_.wire != nullptr)
+	ఒకవేళ (rep_ == CHUNK) {
+		ఒకవేళ (chunk_.wire != శూన్యసూచిక)
 			rewrite(chunk_.wire);
-		return;
+		తిరిగి;
 	}
 
-	std::vector<RTLIL::SigBit> new_bits;
-	for (const RTLIL::SigChunk &chunk : chunks()) {
+	std::సదిశ<RTLIL::Sig_బిట్టు> new_బిట్లు;
+	కొరకు (స్థిరరాశి RTLIL::SigChunk &chunk : chunks()) {
 		RTLIL::SigChunk c = chunk;
-		if (c.wire != nullptr)
+		ఒకవేళ (c.wire != శూన్యసూచిక)
 			rewrite(c.wire);
-		for (int i = 0; i < c.width; i++)
-			new_bits.emplace_back(c, i);
+		కొరకు (పూర్ణాంకం i = 0; i < c.వెడల్పు; i++)
+			new_బిట్లు.emplace_వెనుక(c, i);
 	}
-	bits_ = std::move(new_bits);
+	బిట్లు_2 = std::move(new_బిట్లు);
 	hash_.clear();
 }
 
-void RTLIL::SigSpec::append(const RTLIL::SigSpec &signal)
+శూన్య RTLIL::SigSpec::append(స్థిరరాశి RTLIL::SigSpec &సంకేతం)
 {
-	if (signal.size() == 0)
-		return;
+	ఒకవేళ (సంకేతం.కొలత() == 0)
+		తిరిగి;
 
-	if (size() == 0) {
-		*this = signal;
-		return;
+	ఒకవేళ (కొలత() == 0) {
+		*ఇది = సంకేతం;
+		తిరిగి;
 	}
 
 	hash_.clear();
-	if (rep_ == CHUNK && signal.rep_ == CHUNK && chunk_.wire == signal.chunk_.wire) {
-		if (chunk_.wire == NULL) {
-			chunk_.data.insert(chunk_.data.end(), signal.chunk_.data.begin(), signal.chunk_.data.end());
-			chunk_.width = GetSize(chunk_.data);
-			return;
+	ఒకవేళ (rep_ == CHUNK && సంకేతం.rep_ == CHUNK && chunk_.wire == సంకేతం.chunk_.wire) {
+		ఒకవేళ (chunk_.wire == ఖాళీ) {
+			chunk_.దత్తాంశం.చొప్పించు(chunk_.దత్తాంశం.చివర(), సంకేతం.chunk_.దత్తాంశం.begin(), సంకేతం.chunk_.దత్తాంశం.చివర());
+			chunk_.వెడల్పు = Get_కొలత(chunk_.దత్తాంశం);
+			తిరిగి;
 		}
-		if (chunk_.offset + chunk_.width == signal.chunk_.offset) {
-			chunk_.width += signal.chunk_.width;
-			return;
+		ఒకవేళ (chunk_.స్థానభ్రంశం + chunk_.వెడల్పు == సంకేతం.chunk_.స్థానభ్రంశం) {
+			chunk_.వెడల్పు += సంకేతం.chunk_.వెడల్పు;
+			తిరిగి;
 		}
 	}
 
 	unpack();
-	for (const SigBit &bit : signal.bits())
-		bits_.push_back(bit);
+	కొరకు (స్థిరరాశి Sig_బిట్టు &బిట్టు : సంకేతం.బిట్లు())
+		బిట్లు_2.నెట్టు_వెనుక(బిట్టు);
 	check();
 }
 
-void RTLIL::SigSpec::append(const RTLIL::SigBit &bit)
+శూన్య RTLIL::SigSpec::append(స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు)
 {
 	hash_.clear();
 
-	if (size() == 0) {
+	ఒకవేళ (కొలత() == 0) {
 		destroy();
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(bit);
-		return;
+		కొత్త (&chunk_) RTLIL::SigChunk(బిట్టు);
+		తిరిగి;
 	}
 
-	if (rep_ == CHUNK && chunk_.wire == bit.wire) {
-		if (chunk_.wire == NULL) {
-			chunk_.data.push_back(bit.data);
-			chunk_.width++;
-			return;
+	ఒకవేళ (rep_ == CHUNK && chunk_.wire == బిట్టు.wire) {
+		ఒకవేళ (chunk_.wire == ఖాళీ) {
+			chunk_.దత్తాంశం.నెట్టు_వెనుక(బిట్టు.దత్తాంశం);
+			chunk_.వెడల్పు++;
+			తిరిగి;
 		}
-		if (chunk_.offset + chunk_.width == bit.offset) {
-			chunk_.width++;
-			return;
+		ఒకవేళ (chunk_.స్థానభ్రంశం + chunk_.వెడల్పు == బిట్టు.స్థానభ్రంశం) {
+			chunk_.వెడల్పు++;
+			తిరిగి;
 		}
 	}
 
 	unpack();
 
-	bits_.push_back(bit);
+	బిట్లు_2.నెట్టు_వెనుక(బిట్టు);
 	check();
 }
 
-void RTLIL::SigSpec::extend_u0(int width, bool is_signed)
+శూన్య RTLIL::SigSpec::extend_u0(పూర్ణాంకం వెడల్పు, తార్కిక is_signed)
 {
-	if (size() > width)
-		remove(width, size() - width);
+	ఒకవేళ (కొలత() > వెడల్పు)
+		remove(వెడల్పు, కొలత() - వెడల్పు);
 
-	if (size() < width) {
-		RTLIL::SigBit padding = size() > 0 ? (*this)[size() - 1] : RTLIL::State::Sx;
-		if (!is_signed)
+	ఒకవేళ (కొలత() < వెడల్పు) {
+		RTLIL::Sig_బిట్టు padding = కొలత() > 0 ? (*ఇది)[కొలత() - 1] : RTLIL::State::Sx;
+		ఒకవేళ (!is_signed)
 			padding = RTLIL::State::S0;
-		while (size() < width)
+		అయితే (కొలత() < వెడల్పు)
 			append(padding);
 	}
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::repeat(int num) const
+RTLIL::SigSpec RTLIL::SigSpec::repeat(పూర్ణాంకం అంకె) స్థిరరాశి
 {
 	RTLIL::SigSpec sig;
-	for (int i = 0; i < num; i++)
-		sig.append(*this);
-	return sig;
+	కొరకు (పూర్ణాంకం i = 0; i < అంకె; i++)
+		sig.append(*ఇది);
+	తిరిగి sig;
 }
 
-#ifndef NDEBUG
-void RTLIL::SigSpec::check(const Module *mod) const
+#నిర్వచితం_కాకపోతే NDEBUG
+శూన్య RTLIL::SigSpec::check(స్థిరరాశి Module *mod) స్థిరరాశి
 {
-	if (rep_ == CHUNK)
+	ఒకవేళ (rep_ == CHUNK)
 	{
-		log_assert(chunk_.width != 0);
-		if (chunk_.wire == NULL) {
-			log_assert(chunk_.offset == 0);
-			log_assert(chunk_.data.size() == (size_t)chunk_.width);
-		} else {
-			log_assert(chunk_.offset >= 0);
-			log_assert(chunk_.width >= 0);
-			log_assert(chunk_.offset + chunk_.width <= chunk_.wire->width);
-			log_assert(chunk_.data.size() == 0);
-			if (mod != nullptr)
+		log_assert(chunk_.వెడల్పు != 0);
+		ఒకవేళ (chunk_.wire == ఖాళీ) {
+			log_assert(chunk_.స్థానభ్రంశం == 0);
+			log_assert(chunk_.దత్తాంశం.కొలత() == (కొలత_t)chunk_.వెడల్పు);
+		} లేకపోతే {
+			log_assert(chunk_.స్థానభ్రంశం >= 0);
+			log_assert(chunk_.వెడల్పు >= 0);
+			log_assert(chunk_.స్థానభ్రంశం + chunk_.వెడల్పు <= chunk_.wire->వెడల్పు);
+			log_assert(chunk_.దత్తాంశం.కొలత() == 0);
+			ఒకవేళ (mod != శూన్యసూచిక)
 				log_assert(chunk_.wire->module == mod);
 		}
 	}
-	else if (size() <= 64)
+	లేకపోతే ఒకవేళ (కొలత() <= 64)
 	{
-		if (mod != nullptr) {
-			for (const RTLIL::SigBit &bit : bits_)
-				if (bit.wire != nullptr)
-					log_assert(bit.wire->module == mod);
+		ఒకవేళ (mod != శూన్యసూచిక) {
+			కొరకు (స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు : బిట్లు_2)
+				ఒకవేళ (బిట్టు.wire != శూన్యసూచిక)
+					log_assert(బిట్టు.wire->module == mod);
 		}
 	}
 }
-#endif
+#అయితే_ముగింపు
 
-bool RTLIL::SigSpec::operator <(const RTLIL::SigSpec &other) const
+తార్కిక RTLIL::SigSpec::క్రియాకారకం <(స్థిరరాశి RTLIL::SigSpec &other) స్థిరరాశి
 {
-	if (this == &other)
-		return false;
+	ఒకవేళ (ఇది == &other)
+		తిరిగి అబద్ధం;
 
-	if (size() != other.size())
-		return size() < other.size();
+	ఒకవేళ (కొలత() != other.కొలత())
+		తిరిగి కొలత() < other.కొలత();
 
-	auto other_it = other.chunks().begin();
-	for (const SigChunk &c : chunks()) {
-		if (c != *other_it)
-			return c < *other_it;
+	స్వయంచాలక other_it = other.chunks().begin();
+	కొరకు (స్థిరరాశి SigChunk &c : chunks()) {
+		ఒకవేళ (c != *other_it)
+			తిరిగి c < *other_it;
 		++other_it;
 	}
 
-	return false;
+	తిరిగి అబద్ధం;
 }
 
-bool RTLIL::SigSpec::operator ==(const RTLIL::SigSpec &other) const
+తార్కిక RTLIL::SigSpec::క్రియాకారకం ==(స్థిరరాశి RTLIL::SigSpec &other) స్థిరరాశి
 {
-	if (this == &other)
-		return true;
+	ఒకవేళ (ఇది == &other)
+		తిరిగి నిజం;
 
-	if (size() != other.size())
-		return false;
+	ఒకవేళ (కొలత() != other.కొలత())
+		తిరిగి అబద్ధం;
 
-	auto other_it = other.chunks().begin();
-	for (const SigChunk &c : chunks()) {
-		if (c != *other_it)
-			return false;
+	స్వయంచాలక other_it = other.chunks().begin();
+	కొరకు (స్థిరరాశి SigChunk &c : chunks()) {
+		ఒకవేళ (c != *other_it)
+			తిరిగి అబద్ధం;
 		++other_it;
 	}
 
-	return true;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::SigSpec::is_wire() const
+తార్కిక RTLIL::SigSpec::is_wire() స్థిరరాశి
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
-	if (it == cs.end())
-		return false;
-	const RTLIL::SigChunk &chunk = *it;
-	return chunk.wire && chunk.wire->width == size() && ++it == cs.end();
+	స్వయంచాలక it = cs.begin();
+	ఒకవేళ (it == cs.చివర())
+		తిరిగి అబద్ధం;
+	స్థిరరాశి RTLIL::SigChunk &chunk = *it;
+	తిరిగి chunk.wire && chunk.wire->వెడల్పు == కొలత() && ++it == cs.చివర();
 }
 
-bool RTLIL::SigSpec::is_chunk() const
+తార్కిక RTLIL::SigSpec::is_chunk() స్థిరరాశి
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
-	if (it == cs.end())
-		return false;
-	return ++it == cs.end();
+	స్వయంచాలక it = cs.begin();
+	ఒకవేళ (it == cs.చివర())
+		తిరిగి అబద్ధం;
+	తిరిగి ++it == cs.చివర();
 }
 
-bool RTLIL::SigSpec::known_driver() const
+తార్కిక RTLIL::SigSpec::తెలిసిన_driver() స్థిరరాశి
 {
-	for (auto &chunk : chunks())
-		if (chunk.is_wire() && !chunk.wire->known_driver())
-			return false;
-	return true;
+	కొరకు (స్వయంచాలక &chunk : chunks())
+		ఒకవేళ (chunk.is_wire() && !chunk.wire->తెలిసిన_driver())
+			తిరిగి అబద్ధం;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::SigSpec::is_fully_const() const
+తార్కిక RTLIL::SigSpec::is_fully_const() స్థిరరాశి
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-	return true;
+	కొరకు (స్వయంచాలక &chunk : chunks())
+		ఒకవేళ (chunk.వెడల్పు > 0 && chunk.wire != ఖాళీ)
+			తిరిగి అబద్ధం;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::SigSpec::is_fully_zero() const
+తార్కిక RTLIL::SigSpec::is_fully_zero() స్థిరరాశి
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::S0)
-				return false;
+	కొరకు (స్వయంచాలక &chunk : chunks()) {
+		ఒకవేళ (chunk.వెడల్పు > 0 && chunk.wire != ఖాళీ)
+			తిరిగి అబద్ధం;
+		కొరకు (RTLIL::State d : chunk.దత్తాంశం)
+			ఒకవేళ (d != RTLIL::State::S0)
+				తిరిగి అబద్ధం;
 	}
-	return true;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::SigSpec::is_fully_ones() const
+తార్కిక RTLIL::SigSpec::is_fully_ones() స్థిరరాశి
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::S1)
-				return false;
+	కొరకు (స్వయంచాలక &chunk : chunks()) {
+		ఒకవేళ (chunk.వెడల్పు > 0 && chunk.wire != ఖాళీ)
+			తిరిగి అబద్ధం;
+		కొరకు (RTLIL::State d : chunk.దత్తాంశం)
+			ఒకవేళ (d != RTLIL::State::S1)
+				తిరిగి అబద్ధం;
 	}
-	return true;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::SigSpec::is_fully_def() const
+తార్కిక RTLIL::SigSpec::is_fully_def() స్థిరరాశి
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::S0 && d != RTLIL::State::S1)
-				return false;
+	కొరకు (స్వయంచాలక &chunk : chunks()) {
+		ఒకవేళ (chunk.వెడల్పు > 0 && chunk.wire != ఖాళీ)
+			తిరిగి అబద్ధం;
+		కొరకు (RTLIL::State d : chunk.దత్తాంశం)
+			ఒకవేళ (d != RTLIL::State::S0 && d != RTLIL::State::S1)
+				తిరిగి అబద్ధం;
 	}
-	return true;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::SigSpec::is_fully_undef() const
+తార్కిక RTLIL::SigSpec::is_fully_undef() స్థిరరాశి
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::Sx && d != RTLIL::State::Sz)
-				return false;
+	కొరకు (స్వయంచాలక &chunk : chunks()) {
+		ఒకవేళ (chunk.వెడల్పు > 0 && chunk.wire != ఖాళీ)
+			తిరిగి అబద్ధం;
+		కొరకు (RTLIL::State d : chunk.దత్తాంశం)
+			ఒకవేళ (d != RTLIL::State::Sx && d != RTLIL::State::Sz)
+				తిరిగి అబద్ధం;
 	}
-	return true;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::SigSpec::has_const() const
+తార్కిక RTLIL::SigSpec::has_const() స్థిరరాశి
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire == NULL)
-			return true;
-	return false;
+	కొరకు (స్వయంచాలక &chunk : chunks())
+		ఒకవేళ (chunk.వెడల్పు > 0 && chunk.wire == ఖాళీ)
+			తిరిగి నిజం;
+	తిరిగి అబద్ధం;
 }
 
-bool RTLIL::SigSpec::has_const(State state) const
+తార్కిక RTLIL::SigSpec::has_const(State state) స్థిరరాశి
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire == NULL && std::find(chunk.data.begin(), chunk.data.end(), state) != chunk.data.end())
-			return true;
-	return false;
+	కొరకు (స్వయంచాలక &chunk : chunks())
+		ఒకవేళ (chunk.వెడల్పు > 0 && chunk.wire == ఖాళీ && std::కనుగొను(chunk.దత్తాంశం.begin(), chunk.దత్తాంశం.చివర(), state) != chunk.దత్తాంశం.చివర())
+			తిరిగి నిజం;
+	తిరిగి అబద్ధం;
 }
 
 
-bool RTLIL::SigSpec::has_marked_bits() const
+తార్కిక RTLIL::SigSpec::has_marked_బిట్లు() స్థిరరాశి
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire == NULL) {
-			for (RTLIL::State d : chunk.data)
-				if (d == RTLIL::State::Sm)
-					return true;
+	కొరకు (స్వయంచాలక &chunk : chunks())
+		ఒకవేళ (chunk.వెడల్పు > 0 && chunk.wire == ఖాళీ) {
+			కొరకు (RTLIL::State d : chunk.దత్తాంశం)
+				ఒకవేళ (d == RTLIL::State::Sm)
+					తిరిగి నిజం;
 		}
-	return false;
+	తిరిగి అబద్ధం;
 }
 
-bool RTLIL::SigSpec::is_onehot(int *pos) const
+తార్కిక RTLIL::SigSpec::is_onehot(పూర్ణాంకం *pos) స్థిరరాశి
 {
-	if (std::optional<RTLIL::Const> c = try_as_const())
-		return c->is_onehot(pos);
-	return false;
+	ఒకవేళ (std::optional<RTLIL::Const> c = try_as_const())
+		తిరిగి c->is_onehot(pos);
+	తిరిగి అబద్ధం;
 }
 
-bool RTLIL::SigSpec::as_bool() const
-{
-	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return c->as_bool();
-}
-
-int RTLIL::SigSpec::as_int(bool is_signed) const
+తార్కిక RTLIL::SigSpec::as_bool() స్థిరరాశి
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return c->as_int(is_signed);
+	log_assert(c.has_విలువ());
+	తిరిగి c->as_bool();
 }
 
-bool RTLIL::SigSpec::convertible_to_int(bool is_signed) const
+పూర్ణాంకం RTLIL::SigSpec::as_int(తార్కిక is_signed) స్థిరరాశి
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	if (!c.has_value())
-		return false;
-	return c->convertible_to_int(is_signed);
+	log_assert(c.has_విలువ());
+	తిరిగి c->as_int(is_signed);
 }
 
-std::optional<int> RTLIL::SigSpec::try_as_int(bool is_signed) const
+తార్కిక RTLIL::SigSpec::convertible_గమ్యం_int(తార్కిక is_signed) స్థిరరాశి
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	if (!c.has_value())
-		return std::nullopt;
-	return c->try_as_int(is_signed);
+	ఒకవేళ (!c.has_విలువ())
+		తిరిగి అబద్ధం;
+	తిరిగి c->convertible_గమ్యం_int(is_signed);
 }
 
-int RTLIL::SigSpec::as_int_saturating(bool is_signed) const
+std::optional<పూర్ణాంకం> RTLIL::SigSpec::try_as_int(తార్కిక is_signed) స్థిరరాశి
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return c->as_int_saturating(is_signed);
+	ఒకవేళ (!c.has_విలువ())
+		తిరిగి std::nullopt;
+	తిరిగి c->try_as_int(is_signed);
 }
 
-std::string RTLIL::SigSpec::as_string() const
+పూర్ణాంకం RTLIL::SigSpec::as_int_saturating(తార్కిక is_signed) స్థిరరాశి
+{
+	std::optional<RTLIL::Const> c = try_as_const();
+	log_assert(c.has_విలువ());
+	తిరిగి c->as_int_saturating(is_signed);
+}
+
+std::string RTLIL::SigSpec::as_string() స్థిరరాశి
 {
 	std::string str;
-	str.reserve(size());
-	std::vector<RTLIL::SigChunk> chunks = *this;
-	for (size_t i = chunks.size(); i > 0; i--) {
-		const RTLIL::SigChunk &chunk = chunks[i-1];
-		if (chunk.wire != NULL)
-			str.append(chunk.width, '?');
-		else
-			str += RTLIL::Const(chunk.data).as_string();
+	str.reserve(కొలత());
+	std::సదిశ<RTLIL::SigChunk> chunks = *ఇది;
+	కొరకు (కొలత_t i = chunks.కొలత(); i > 0; i--) {
+		స్థిరరాశి RTLIL::SigChunk &chunk = chunks[i-1];
+		ఒకవేళ (chunk.wire != ఖాళీ)
+			str.append(chunk.వెడల్పు, '?');
+		లేకపోతే
+			str += RTLIL::Const(chunk.దత్తాంశం).as_string();
 	}
-	return str;
+	తిరిగి str;
 }
 
-std::optional<RTLIL::Const> RTLIL::SigSpec::try_as_const() const
+std::optional<RTLIL::Const> RTLIL::SigSpec::try_as_const() స్థిరరాశి
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
-	if (it == cs.end())
-		return RTLIL::Const();
+	స్వయంచాలక it = cs.begin();
+	ఒకవేళ (it == cs.చివర())
+		తిరిగి RTLIL::Const();
 	SigChunk chunk = *it;
-	if (chunk.wire != NULL || ++it != cs.end())
-		return std::nullopt;
-	return RTLIL::Const(std::move(chunk.data));
+	ఒకవేళ (chunk.wire != ఖాళీ || ++it != cs.చివర())
+		తిరిగి std::nullopt;
+	తిరిగి RTLIL::Const(std::move(chunk.దత్తాంశం));
 }
 
-RTLIL::Const RTLIL::SigSpec::as_const() const
+RTLIL::Const RTLIL::SigSpec::as_const() స్థిరరాశి
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return *c;
+	log_assert(c.has_విలువ());
+	తిరిగి *c;
 }
 
-RTLIL::Wire *RTLIL::SigSpec::as_wire() const
+RTLIL::Wire *RTLIL::SigSpec::as_wire() స్థిరరాశి
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
-	log_assert(it != cs.end());
+	స్వయంచాలక it = cs.begin();
+	log_assert(it != cs.చివర());
 	RTLIL::SigChunk chunk = *it;
-	log_assert(++it == cs.end() && chunk.wire && chunk.wire->width == size());
-	return chunk.wire;
+	log_assert(++it == cs.చివర() && chunk.wire && chunk.wire->వెడల్పు == కొలత());
+	తిరిగి chunk.wire;
 }
 
-RTLIL::SigChunk RTLIL::SigSpec::as_chunk() const
+RTLIL::SigChunk RTLIL::SigSpec::as_chunk() స్థిరరాశి
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
-	log_assert(it != cs.end());
+	స్వయంచాలక it = cs.begin();
+	log_assert(it != cs.చివర());
 	RTLIL::SigChunk chunk = *it;
-	log_assert(++it == cs.end());
-	return chunk;
+	log_assert(++it == cs.చివర());
+	తిరిగి chunk;
 }
 
-RTLIL::SigBit RTLIL::SigSpec::as_bit() const
+RTLIL::Sig_బిట్టు RTLIL::SigSpec::as_బిట్టు() స్థిరరాశి
 {
-	return RTLIL::SigBit(*this);
+	తిరిగి RTLIL::Sig_బిట్టు(*ఇది);
 }
 
-bool RTLIL::SigSpec::match(const char* pattern) const
+తార్కిక RTLIL::SigSpec::సరిపోలిక(స్థిరరాశి అక్షరం* నమూనా) స్థిరరాశి
 {
-	int pattern_len = strlen(pattern);
-	log_assert(pattern_len == size());
+	పూర్ణాంకం నమూనా_len = అక్షరశ్రేణి_పొడవు(నమూనా);
+	log_assert(నమూనా_len == కొలత());
 
-	for (int i = 0; i < pattern_len; ++i) {
-		char ch = pattern[i];
-		if (ch == ' ')
-			continue;
-		RTLIL::SigBit bit = (*this)[pattern_len - 1 - i];
-		if (ch == '*') {
-			if (bit != State::Sz && bit != State::Sx)
-				return false;
-			continue;
+	కొరకు (పూర్ణాంకం i = 0; i < నమూనా_len; ++i) {
+		అక్షరం ch = నమూనా[i];
+		ఒకవేళ (ch == ' ')
+			కొనసాగు;
+		RTLIL::Sig_బిట్టు బిట్టు = (*ఇది)[నమూనా_len - 1 - i];
+		ఒకవేళ (ch == '*') {
+			ఒకవేళ (బిట్టు != State::Sz && బిట్టు != State::Sx)
+				తిరిగి అబద్ధం;
+			కొనసాగు;
 		}
-		if (ch == '0') {
-			if (bit != State::S0)
-				return false;
-		} else
-		if (ch == '1') {
-			if (bit != State::S1)
-				return false;
-		} else
+		ఒకవేళ (ch == '0') {
+			ఒకవేళ (బిట్టు != State::S0)
+				తిరిగి అబద్ధం;
+		} లేకపోతే
+		ఒకవేళ (ch == '1') {
+			ఒకవేళ (బిట్టు != State::S1)
+				తిరిగి అబద్ధం;
+		} లేకపోతే
 			log_abort();
 	}
 
-	return true;
+	తిరిగి నిజం;
 }
 
-std::set<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_set() const
+std::సమితి<RTLIL::Sig_బిట్టు> RTLIL::SigSpec::గమ్యం_sigbit_సమితి() స్థిరరాశి
 {
-	std::set<RTLIL::SigBit> sigbits;
-	for (auto &c : chunks())
-		for (int i = 0; i < c.width; i++)
-			sigbits.insert(RTLIL::SigBit(c, i));
-	return sigbits;
+	std::సమితి<RTLIL::Sig_బిట్టు> sigbits;
+	కొరకు (స్వయంచాలక &c : chunks())
+		కొరకు (పూర్ణాంకం i = 0; i < c.వెడల్పు; i++)
+			sigbits.చొప్పించు(RTLIL::Sig_బిట్టు(c, i));
+	తిరిగి sigbits;
 }
 
-pool<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_pool() const
+pool<RTLIL::Sig_బిట్టు> RTLIL::SigSpec::గమ్యం_sigbit_pool() స్థిరరాశి
 {
-	pool<RTLIL::SigBit> sigbits;
-	sigbits.reserve(size());
-	for (auto &c : chunks())
-		for (int i = 0; i < c.width; i++)
-			sigbits.insert(RTLIL::SigBit(c, i));
-	return sigbits;
+	pool<RTLIL::Sig_బిట్టు> sigbits;
+	sigbits.reserve(కొలత());
+	కొరకు (స్వయంచాలక &c : chunks())
+		కొరకు (పూర్ణాంకం i = 0; i < c.వెడల్పు; i++)
+			sigbits.చొప్పించు(RTLIL::Sig_బిట్టు(c, i));
+	తిరిగి sigbits;
 }
 
-std::vector<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_vector() const
+std::సదిశ<RTLIL::Sig_బిట్టు> RTLIL::SigSpec::గమ్యం_sigbit_సదిశ() స్థిరరాశి
 {
-	std::vector<RTLIL::SigBit> result;
-	result.reserve(size());
-	for (SigBit bit : *this)
-		result.push_back(bit);
-	return result;
+	std::సదిశ<RTLIL::Sig_బిట్టు> ఫలితం;
+	ఫలితం.reserve(కొలత());
+	కొరకు (Sig_బిట్టు బిట్టు : *ఇది)
+		ఫలితం.నెట్టు_వెనుక(బిట్టు);
+	తిరిగి ఫలితం;
 }
 
-std::map<RTLIL::SigBit, RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_map(const RTLIL::SigSpec &other) const
+std::map<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> RTLIL::SigSpec::గమ్యం_sigbit_map(స్థిరరాశి RTLIL::SigSpec &other) స్థిరరాశి
 {
-	int this_size = size();
-	log_assert(this_size == other.size());
+	పూర్ణాంకం this_కొలత = కొలత();
+	log_assert(this_కొలత == other.కొలత());
 
-	std::map<RTLIL::SigBit, RTLIL::SigBit> new_map;
-	for (int i = 0; i < this_size; i++)
-		new_map[(*this)[i]] = other[i];
+	std::map<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> new_map;
+	కొరకు (పూర్ణాంకం i = 0; i < this_కొలత; i++)
+		new_map[(*ఇది)[i]] = other[i];
 
-	return new_map;
+	తిరిగి new_map;
 }
 
-dict<RTLIL::SigBit, RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_dict(const RTLIL::SigSpec &other) const
+dict<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> RTLIL::SigSpec::గమ్యం_sigbit_dict(స్థిరరాశి RTLIL::SigSpec &other) స్థిరరాశి
 {
-	int this_size = size();
-	log_assert(this_size == other.size());
+	పూర్ణాంకం this_కొలత = కొలత();
+	log_assert(this_కొలత == other.కొలత());
 
-	dict<RTLIL::SigBit, RTLIL::SigBit> new_map;
-	new_map.reserve(this_size);
-	for (int i = 0; i < this_size; i++)
-		new_map[(*this)[i]] = other[i];
+	dict<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> new_map;
+	new_map.reserve(this_కొలత);
+	కొరకు (పూర్ణాంకం i = 0; i < this_కొలత; i++)
+		new_map[(*ఇది)[i]] = other[i];
 
-	return new_map;
+	తిరిగి new_map;
 }
 
-static void sigspec_parse_split(std::vector<std::string> &tokens, const std::string &text, char sep)
+స్థిర శూన్య sigspec_parse_విభజించు(std::సదిశ<std::string> &టోకెన్లు, స్థిరరాశి std::string &పాఠ్యం, అక్షరం sep)
 {
-	size_t start = 0, end = 0;
-	while ((end = text.find(sep, start)) != std::string::npos) {
-		tokens.push_back(text.substr(start, end - start));
-		start = end + 1;
+	కొలత_t ప్రారంభం = 0, చివర = 0;
+	అయితే ((చివర = పాఠ్యం.కనుగొను(sep, ప్రారంభం)) != std::string::npos) {
+		టోకెన్లు.నెట్టు_వెనుక(పాఠ్యం.substr(ప్రారంభం, చివర - ప్రారంభం));
+		ప్రారంభం = చివర + 1;
 	}
-	tokens.push_back(text.substr(start));
+	టోకెన్లు.నెట్టు_వెనుక(పాఠ్యం.substr(ప్రారంభం));
 }
 
-static RTLIL::Wire *sigspec_parse_wire(RTLIL::Module *module, const std::string &netname)
+స్థిర RTLIL::Wire *sigspec_parse_wire(RTLIL::Module *module, స్థిరరాశి std::string &netname)
 {
-	return module->wire(netname);
+	తిరిగి module->wire(netname);
 }
 
-bool RTLIL::SigSpec::parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
+తార్కిక RTLIL::SigSpec::parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
 {
-	std::vector<std::string> tokens;
-	sigspec_parse_split(tokens, str, ',');
+	std::సదిశ<std::string> టోకెన్లు;
+	sigspec_parse_విభజించు(టోకెన్లు, str, ',');
 
 	sig = RTLIL::SigSpec();
-	for (int tokidx = int(tokens.size())-1; tokidx >= 0; tokidx--)
+	కొరకు (పూర్ణాంకం tokidx = పూర్ణాంకం(టోకెన్లు.కొలత())-1; tokidx >= 0; tokidx--)
 	{
-		std::string netname = tokens[tokidx];
+		std::string netname = టోకెన్లు[tokidx];
 		std::string indices;
 
-		if (netname.size() == 0)
-			continue;
+		ఒకవేళ (netname.కొలత() == 0)
+			కొనసాగు;
 
-		if (('0' <= netname[0] && netname[0] <= '9') || netname[0] == '\'') {
+		ఒకవేళ (('0' <= netname[0] && netname[0] <= '9') || netname[0] == '\'') {
 			VERILOG_FRONTEND::ConstParser p{Location()};
-			auto ast = p.const2ast(netname);
-			if (ast == nullptr)
-				return false;
-			sig.append(RTLIL::Const(ast->bits));
-			continue;
+			స్వయంచాలక ast = p.const2ast(netname);
+			ఒకవేళ (ast == శూన్యసూచిక)
+				తిరిగి అబద్ధం;
+			sig.append(RTLIL::Const(ast->బిట్లు));
+			కొనసాగు;
 		}
 
-		if (module == NULL)
-			return false;
+		ఒకవేళ (module == ఖాళీ)
+			తిరిగి అబద్ధం;
 
-		if (netname[0] != '$' && netname[0] != '\\')
+		ఒకవేళ (netname[0] != '$' && netname[0] != '\\')
 			netname = "\\" + netname;
 
-		if (sigspec_parse_wire(module, netname) == nullptr) {
-			size_t indices_pos = netname.size()-1;
-			if (indices_pos > 2 && netname[indices_pos] == ']')
+		ఒకవేళ (sigspec_parse_wire(module, netname) == శూన్యసూచిక) {
+			కొలత_t indices_pos = netname.కొలత()-1;
+			ఒకవేళ (indices_pos > 2 && netname[indices_pos] == ']')
 			{
 				indices_pos--;
-				while (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
-				if (indices_pos > 0 && netname[indices_pos] == ':') {
+				అయితే (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
+				ఒకవేళ (indices_pos > 0 && netname[indices_pos] == ':') {
 					indices_pos--;
-					while (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
+					అయితే (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
 				}
-				if (indices_pos > 0 && netname[indices_pos] == '[') {
+				ఒకవేళ (indices_pos > 0 && netname[indices_pos] == '[') {
 					indices = netname.substr(indices_pos);
 					netname = netname.substr(0, indices_pos);
 				}
@@ -5778,180 +5778,180 @@ bool RTLIL::SigSpec::parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::stri
 		}
 
 		RTLIL::Wire *wire = sigspec_parse_wire(module, netname);
-		if (wire == nullptr)
-			return false;
+		ఒకవేళ (wire == శూన్యసూచిక)
+			తిరిగి అబద్ధం;
 
-		if (!indices.empty()) {
-			std::vector<std::string> index_tokens;
-			sigspec_parse_split(index_tokens, indices.substr(1, indices.size()-2), ':');
-			if (index_tokens.size() == 1) {
-				int a = atoi(index_tokens.at(0).c_str());
-				if (a < 0 || a >= wire->width)
-					return false;
+		ఒకవేళ (!indices.ఖాళీలు()) {
+			std::సదిశ<std::string> సూచీ_టోకెన్లు;
+			sigspec_parse_విభజించు(సూచీ_టోకెన్లు, indices.substr(1, indices.కొలత()-2), ':');
+			ఒకవేళ (సూచీ_టోకెన్లు.కొలత() == 1) {
+				పూర్ణాంకం a = atoi(సూచీ_టోకెన్లు.at(0).c_str());
+				ఒకవేళ (a < 0 || a >= wire->వెడల్పు)
+					తిరిగి అబద్ధం;
 				sig.append(RTLIL::SigSpec(wire, a));
-			} else {
-				int a = atoi(index_tokens.at(0).c_str());
-				int b = atoi(index_tokens.at(1).c_str());
-				if (a > b) {
-					int tmp = a;
+			} లేకపోతే {
+				పూర్ణాంకం a = atoi(సూచీ_టోకెన్లు.at(0).c_str());
+				పూర్ణాంకం b = atoi(సూచీ_టోకెన్లు.at(1).c_str());
+				ఒకవేళ (a > b) {
+					పూర్ణాంకం tmp = a;
 					a = b, b = tmp;
 				}
-				if (a < 0 || a >= wire->width)
-					return false;
-				if (b < 0 || b >= wire->width)
-					return false;
+				ఒకవేళ (a < 0 || a >= wire->వెడల్పు)
+					తిరిగి అబద్ధం;
+				ఒకవేళ (b < 0 || b >= wire->వెడల్పు)
+					తిరిగి అబద్ధం;
 				sig.append(RTLIL::SigSpec(wire, a, b-a+1));
 			}
-		} else
+		} లేకపోతే
 			sig.append(wire);
 	}
 
-	return true;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::SigSpec::parse_sel(RTLIL::SigSpec &sig, RTLIL::Design *design, RTLIL::Module *module, std::string str)
+తార్కిక RTLIL::SigSpec::parse_sel(RTLIL::SigSpec &sig, RTLIL::Design *design, RTLIL::Module *module, std::string str)
 {
-	if (str.empty() || str[0] != '@')
-		return parse(sig, module, str);
+	ఒకవేళ (str.ఖాళీలు() || str[0] != '@')
+		తిరిగి parse(sig, module, str);
 
-	IdString sel_name = design->twines().find(RTLIL::escape_id(str.substr(1)));
-	if (sel_name == IdString::Null || design->selection_vars.count(sel_name) == 0)
-		return false;
+	IdString sel_name = design->twines().కనుగొను(RTLIL::escape_id(str.substr(1)));
+	ఒకవేళ (sel_name == IdString::Null || design->selection_vars.లెక్క(sel_name) == 0)
+		తిరిగి అబద్ధం;
 
 	sig = RTLIL::SigSpec();
 	RTLIL::Selection &sel = design->selection_vars.at(sel_name);
-	for (auto &it : module->wires_)
-		if (sel.selected_member(module->name, it.second->name))
-			sig.append(it.second);
+	కొరకు (స్వయంచాలక &it : module->wires_)
+		ఒకవేళ (sel.selected_member(module->name, it.రెండవ->name))
+			sig.append(it.రెండవ);
 
-	return true;
+	తిరిగి నిజం;
 }
 
-bool RTLIL::SigSpec::parse_rhs(const RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
+తార్కిక RTLIL::SigSpec::parse_rhs(స్థిరరాశి RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
 {
-	if (str == "0") {
-		sig = RTLIL::SigSpec(RTLIL::State::S0, lhs.size());
-		return true;
+	ఒకవేళ (str == "0") {
+		sig = RTLIL::SigSpec(RTLIL::State::S0, lhs.కొలత());
+		తిరిగి నిజం;
 	}
 
-	if (str == "~0") {
-		sig = RTLIL::SigSpec(RTLIL::State::S1, lhs.size());
-		return true;
+	ఒకవేళ (str == "~0") {
+		sig = RTLIL::SigSpec(RTLIL::State::S1, lhs.కొలత());
+		తిరిగి నిజం;
 	}
 
-	if (lhs.is_chunk()) {
-		char *p = (char*)str.c_str(), *endptr;
-		long int val = strtol(p, &endptr, 10);
-		if (endptr && endptr != p && *endptr == 0) {
-			sig = RTLIL::SigSpec(val, lhs.size());
-			return true;
+	ఒకవేళ (lhs.is_chunk()) {
+		అక్షరం *p = (అక్షరం*)str.c_str(), *endptr;
+		దీర్ఘ పూర్ణాంకం val = strtol(p, &endptr, 10);
+		ఒకవేళ (endptr && endptr != p && *endptr == 0) {
+			sig = RTLIL::SigSpec(val, lhs.కొలత());
+			తిరిగి నిజం;
 		}
 	}
 
-	if (!parse(sig, module, str))
-		return false;
-	if (sig.size() > lhs.size())
-		sig.remove(lhs.size(), sig.size() - lhs.size());
-	return true;
+	ఒకవేళ (!parse(sig, module, str))
+		తిరిగి అబద్ధం;
+	ఒకవేళ (sig.కొలత() > lhs.కొలత())
+		sig.remove(lhs.కొలత(), sig.కొలత() - lhs.కొలత());
+	తిరిగి నిజం;
 }
 
-RTLIL::SigSpec::operator std::vector<RTLIL::SigChunk>() const
+RTLIL::SigSpec::క్రియాకారకం std::సదిశ<RTLIL::SigChunk>() స్థిరరాశి
 {
-	std::vector<RTLIL::SigChunk> result;
-	for (const RTLIL::SigChunk &c : chunks())
-		result.push_back(c);
-	return result;
+	std::సదిశ<RTLIL::SigChunk> ఫలితం;
+	కొరకు (స్థిరరాశి RTLIL::SigChunk &c : chunks())
+		ఫలితం.నెట్టు_వెనుక(c);
+	తిరిగి ఫలితం;
 }
 
-RTLIL::CaseRule::~CaseRule()
+RTLIL::Case_నియమం::~Case_నియమం()
 {
-	for (auto it = switches.begin(); it != switches.end(); it++)
-		delete *it;
+	కొరకు (స్వయంచాలక it = switches.begin(); it != switches.చివర(); it++)
+		తొలగించు *it;
 }
 
-bool RTLIL::CaseRule::empty() const
+తార్కిక RTLIL::Case_నియమం::ఖాళీలు() స్థిరరాశి
 {
-	return actions.empty() && switches.empty();
+	తిరిగి actions.ఖాళీలు() && switches.ఖాళీలు();
 }
 
-RTLIL::CaseRule *RTLIL::CaseRule::clone() const
+RTLIL::Case_నియమం *RTLIL::Case_నియమం::clone() స్థిరరాశి
 {
-	RTLIL::CaseRule *new_caserule = new RTLIL::CaseRule;
+	RTLIL::Case_నియమం *new_caserule = కొత్త RTLIL::Case_నియమం;
 	new_caserule->compare = compare;
 	new_caserule->actions = actions;
-	new_caserule->attributes = attributes;
-	for (auto &it : switches)
-		new_caserule->switches.push_back(it->clone());
-	return new_caserule;
+	new_caserule->లక్షణాలు = లక్షణాలు;
+	కొరకు (స్వయంచాలక &it : switches)
+		new_caserule->switches.నెట్టు_వెనుక(it->clone());
+	తిరిగి new_caserule;
 }
 
-RTLIL::SwitchRule::~SwitchRule()
+RTLIL::Switch_నియమం::~Switch_నియమం()
 {
-	for (auto it = cases.begin(); it != cases.end(); it++)
-		delete *it;
+	కొరకు (స్వయంచాలక it = cases.begin(); it != cases.చివర(); it++)
+		తొలగించు *it;
 }
 
-bool RTLIL::SwitchRule::empty() const
+తార్కిక RTLIL::Switch_నియమం::ఖాళీలు() స్థిరరాశి
 {
-	return cases.empty();
+	తిరిగి cases.ఖాళీలు();
 }
 
-RTLIL::SwitchRule *RTLIL::SwitchRule::clone() const
+RTLIL::Switch_నియమం *RTLIL::Switch_నియమం::clone() స్థిరరాశి
 {
-	RTLIL::SwitchRule *new_switchrule = new RTLIL::SwitchRule;
-	new_switchrule->signal = signal;
-	new_switchrule->attributes = attributes;
-	for (auto &it : cases)
-		new_switchrule->cases.push_back(it->clone());
-	return new_switchrule;
+	RTLIL::Switch_నియమం *new_switchrule = కొత్త RTLIL::Switch_నియమం;
+	new_switchrule->సంకేతం = సంకేతం;
+	new_switchrule->లక్షణాలు = లక్షణాలు;
+	కొరకు (స్వయంచాలక &it : cases)
+		new_switchrule->cases.నెట్టు_వెనుక(it->clone());
+	తిరిగి new_switchrule;
 
 }
 
-RTLIL::SyncRule *RTLIL::SyncRule::clone() const
+RTLIL::Sync_నియమం *RTLIL::Sync_నియమం::clone() స్థిరరాశి
 {
-	RTLIL::SyncRule *new_syncrule = new RTLIL::SyncRule;
+	RTLIL::Sync_నియమం *new_syncrule = కొత్త RTLIL::Sync_నియమం;
 	new_syncrule->type = type;
-	new_syncrule->signal = signal;
+	new_syncrule->సంకేతం = సంకేతం;
 	new_syncrule->actions = actions;
 	new_syncrule->mem_write_actions = mem_write_actions;
-	return new_syncrule;
+	తిరిగి new_syncrule;
 }
 
 RTLIL::Process::~Process()
 {
-	for (auto it = syncs.begin(); it != syncs.end(); it++)
-		delete *it;
+	కొరకు (స్వయంచాలక it = syncs.begin(); it != syncs.చివర(); it++)
+		తొలగించు *it;
 }
 
-RTLIL::Process *RTLIL::Process::clone() const
+RTLIL::Process *RTLIL::Process::clone() స్థిరరాశి
 {
-	RTLIL::Process *new_proc = new RTLIL::Process;
+	RTLIL::Process *new_proc = కొత్త RTLIL::Process;
 
-	new_proc->attributes = attributes;
+	new_proc->లక్షణాలు = లక్షణాలు;
 
-	RTLIL::CaseRule *rc_ptr = root_case.clone();
-	new_proc->root_case = *rc_ptr;
+	RTLIL::Case_నియమం *rc_ptr = మూలం_case.clone();
+	new_proc->మూలం_case = *rc_ptr;
 	rc_ptr->switches.clear();
-	delete rc_ptr;
+	తొలగించు rc_ptr;
 
-	for (auto &it : syncs)
-		new_proc->syncs.push_back(it->clone());
+	కొరకు (స్వయంచాలక &it : syncs)
+		new_proc->syncs.నెట్టు_వెనుక(it->clone());
 
-	return new_proc;
+	తిరిగి new_proc;
 }
 
-RTLIL::Memory::~Memory()
+RTLIL::జ్ఞాపకం::~జ్ఞాపకం()
 {
-#ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Memory::get_all_memorys()->erase(hashidx_);
-#endif
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
+	RTLIL::జ్ఞాపకం::get_all_memorys()->erase(hashidx_);
+#అయితే_ముగింపు
 }
 
-#ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Memory*> all_memorys;
-std::map<unsigned int, RTLIL::Memory*> *RTLIL::Memory::get_all_memorys(void)
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
+స్థిర std::map<గుర్తులేని పూర్ణాంకం, RTLIL::జ్ఞాపకం*> all_memorys;
+std::map<గుర్తులేని పూర్ణాంకం, RTLIL::జ్ఞాపకం*> *RTLIL::జ్ఞాపకం::get_all_memorys(శూన్య)
 {
-	return &all_memorys;
+	తిరిగి &all_memorys;
 }
-#endif
-YOSYS_NAMESPACE_END
+#అయితే_ముగింపు
+YOSYS_NAMESPACE_చివర

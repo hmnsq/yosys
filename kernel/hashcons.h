@@ -1,11 +1,11 @@
-#ifndef YOSYS_HASHCONS_H
-#define YOSYS_HASHCONS_H
+#నిర్వచితం_కాకపోతే YOSYS_HASHCONS_H
+#నిర్వచించు YOSYS_HASHCONS_H
 
-#include "kernel/yosys_common.h"
+#అన్తర్భావ "kernel/yosys_common.h"
 
-#include <bit>
-#include <deque>
-#include <vector>
+#అన్తర్భావ <bit>
+#అన్తర్భావ <deque>
+#అన్తర్భావ <vector>
 
 /**
  * Implements deduplicating backing storage indexed by content hash
@@ -13,79 +13,79 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-template<typename Derived, typename Node, typename Ref>
-struct HashConsPool {
-public:
-	bool is_live(Ref ref) const;
+మూస<typename Derived, typename కణుపు_2, typename Ref>
+నిర్మాణం HashConsPool {
+బహిరంగ:
+	bool is_సజీవ(Ref ref) స్థిరరాశి;
 
-protected:
-	std::deque<Node> backing;
-	std::vector<Ref> table;
-	std::vector<size_t> free_list;
+రక్షిత:
+	std::deque<కణుపు_2> backing;
+	std::సదిశ<Ref> పట్టిక_2;
+	std::సదిశ<కొలత_t> free_list;
 
 	HashConsPool();
-	HashConsPool(const HashConsPool& other) = default;
+	HashConsPool(స్థిరరాశి HashConsPool& other) = అప్రమేయ;
 	HashConsPool(HashConsPool&& other);
-	HashConsPool& operator=(const HashConsPool& other) = default;
-	HashConsPool& operator=(HashConsPool&& other);
+	HashConsPool& క్రియాకారకం=(స్థిరరాశి HashConsPool& other) = అప్రమేయ;
+	HashConsPool& క్రియాకారకం=(HashConsPool&& other);
 
-	static void check_ready();
+	స్థిర శూన్య check_ready();
 
-	const Node& operator[] (Ref ref) const;
+	స్థిరరాశి కణుపు_2& క్రియాకారకం[] (Ref ref) స్థిరరాశి;
 
-	template<typename Eq>
-	Ref find_hashed(uint64_t hash, Eq&& eq) const;
-	Ref add_inner(Node t);
+	మూస<typename Eq>
+	Ref కనుగొను_hashed(uint64_t hash, Eq&& eq) స్థిరరాశి;
+	Ref కూడు_inner(కణుపు_2 t);
 
-	template<typename Roots>
-	size_t gc(const Roots& roots);
+	మూస<typename Roots>
+	కొలత_t gc(స్థిరరాశి Roots& roots);
 
-private:
+అంతరంగ:
 	Derived* self();
-	const Derived* self() const;
+	స్థిరరాశి Derived* self() స్థిరరాశి;
 
-	void reset();
+	శూన్య reset();
 
-	static bool is_static(Ref ref);
+	స్థిర bool is_static(Ref ref);
 
-	struct RefIterator {
-		const HashConsPool* pool;
-		size_t idx;
-		size_t stop;
+	నిర్మాణం RefIterator {
+		స్థిరరాశి HashConsPool* pool;
+		కొలత_t idx;
+		కొలత_t stop;
 		bool skip_dead;
 
-		void settle();
-		Ref operator*() const;
-		RefIterator& operator++();
-		bool operator!=(const RefIterator& other) const;
+		శూన్య settle();
+		Ref క్రియాకారకం*() స్థిరరాశి;
+		RefIterator& క్రియాకారకం++();
+		bool క్రియాకారకం!=(స్థిరరాశి RefIterator& other) స్థిరరాశి;
 	};
 
-	struct RefRange {
-		const HashConsPool* pool;
-		size_t first;
-		size_t stop;
+	నిర్మాణం RefRange {
+		స్థిరరాశి HashConsPool* pool;
+		కొలత_t మొదటి;
+		కొలత_t stop;
 		bool skip_dead;
 
-		RefIterator begin() const;
-		RefIterator end() const;
+		RefIterator begin() స్థిరరాశి;
+		RefIterator చివర() స్థిరరాశి;
 	};
 
-	RefRange refs(bool include_statics = true) const;
+	RefRange refs(bool include_statics = true) స్థిరరాశి;
 	// Includes the dead
-	RefRange slots() const;
+	RefRange slots() స్థిరరాశి;
 
-	void rebuild_index();
-	size_t home_slot(uint64_t hash) const;
-	size_t next_slot(size_t slot) const;
-	void index_insert(Ref ref);
-	void index_erase(Ref ref);
-	void grow_index();
+	శూన్య rebuild_సూచీ();
+	కొలత_t home_స్థానం(uint64_t hash) స్థిరరాశి;
+	కొలత_t తదుపరి_స్థానం(కొలత_t స్థానం) స్థిరరాశి;
+	శూన్య సూచీ_చొప్పించు(Ref ref);
+	శూన్య సూచీ_erase(Ref ref);
+	శూన్య grow_సూచీ();
 
-	size_t size() const;
-	bool slot_live(size_t abs) const;
-	void mark_live(Ref ref, pool<Ref>& live) const;
+	కొలత_t కొలత() స్థిరరాశి;
+	bool స్థానం_సజీవ(కొలత_t నిరపేక్ష) స్థిరరాశి;
+	శూన్య mark_సజీవ(Ref ref, pool<Ref>& సజీవ) స్థిరరాశి;
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

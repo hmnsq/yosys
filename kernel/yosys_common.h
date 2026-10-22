@@ -17,64 +17,64 @@
  *
  */
 
-#ifndef YOSYS_COMMON_H
-#define YOSYS_COMMON_H
+#నిర్వచితం_కాకపోతే YOSYS_COMMON_H
+#నిర్వచించు YOSYS_COMMON_H
 
-#include <array>
-#include <atomic>
-#include <map>
-#include <set>
-#include <tuple>
-#include <vector>
-#include <string>
-#include <algorithm>
-#include <functional>
-#include <unordered_map>
-#include <unordered_set>
-#include <initializer_list>
-#include <variant>
-#include <optional>
-#include <stdexcept>
-#include <memory>
-#include <cmath>
-#include <cstddef>
+#అన్తర్భావ <array>
+#అన్తర్భావ <atomic>
+#అన్తర్భావ <map>
+#అన్తర్భావ <set>
+#అన్తర్భావ <tuple>
+#అన్తర్భావ <vector>
+#అన్తర్భావ <string>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <functional>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <unordered_set>
+#అన్తర్భావ <initializer_list>
+#అన్తర్భావ <variant>
+#అన్తర్భావ <optional>
+#అన్తర్భావ <stdexcept>
+#అన్తర్భావ <memory>
+#అన్తర్భావ <cmath>
+#అన్తర్భావ <cstddef>
 
-#include <sstream>
-#include <fstream>
-#include <istream>
-#include <ostream>
-#include <iostream>
+#అన్తర్భావ <sstream>
+#అన్తర్భావ <fstream>
+#అన్తర్భావ <istream>
+#అన్తర్భావ <ostream>
+#అన్తర్భావ <iostream>
 
-#include <version>
-#if __cpp_lib_source_location >= 201907L
-	#include <source_location>
-	using std::source_location;
-#else
-	#include <experimental/source_location>
-	using std::experimental::source_location;
-#endif
+#అన్తర్భావ <version>
+#ఒకవేళ __cpp_lib_source_location >= 201907L
+	#అన్తర్భావ <source_location>
+	using std::ఆధారం_location;
+#లేకపోతే
+	#అన్తర్భావ <experimental/source_location>
+	using std::experimental::ఆధారం_location;
+#అయితే_ముగింపు
 
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <limits.h>
-#include <sys/stat.h>
-#include <errno.h>
+#అన్తర్భావ <stdarg.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <stdint.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <limits.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <errno.h>
 
-#ifndef _YOSYS_
-#  error It looks like you are trying to build Yosys without the config defines set. \
-         When building Yosys with a custom make system, make sure you set all the \
-         defines the Yosys Makefile would set for your build configuration.
-#endif
+#నిర్వచితం_కాకపోతే _YOSYS_
+#  error It looks like you are trying గమ్యం build Yosys without the config నిర్వచిస్తుంది సమితి. \
+         When building Yosys with a custom make system, make sure you సమితి all the \
+         నిర్వచిస్తుంది the Yosys Makefile would సమితి కొరకు your build configuration.
+#అయితే_ముగింపు
 
-#include "kernel/yosys_config.h"
+#అన్తర్భావ "kernel/yosys_config.h"
 
-#define FRIEND_TEST(test_case_name, test_name) \
-  friend class test_case_name##_##test_name##_Test
+#నిర్వచించు FRIEND_TEST(test_case_name, test_name) \
+  మిత్ర class test_case_name##_##test_name##_Test
 
-#ifdef _WIN32
+#నిర్వచితమైతే _WIN32
 #  undef NOMINMAX
 #  define NOMINMAX 1
 #  undef YY_NO_UNISTD_H
@@ -92,7 +92,7 @@
 #  define pclose _pclose
 
 #  ifndef __MINGW32__
-#    define PATH_MAX MAX_PATH
+#    define మార్గం_MAX MAX_మార్గం
 #    define isatty _isatty
 #    define fileno _fileno
 #  endif
@@ -103,93 +103,93 @@
 #  undef TRANSPARENT
 // `wingdi.h` defines an ERROR macro that conflicts with `ERROR()` macro in kernel/tclapi.cc
 #  undef ERROR
-#endif
+#అయితే_ముగింపు
 
-#ifndef PATH_MAX
-#  define PATH_MAX 4096
-#endif
+#నిర్వచితం_కాకపోతే మార్గం_MAX
+#  define మార్గం_MAX 4096
+#అయితే_ముగింపు
 
 
-#define YOSYS_NAMESPACE          Yosys
-#define PRIVATE_NAMESPACE_BEGIN  namespace {
-#define PRIVATE_NAMESPACE_END    }
-#define YOSYS_NAMESPACE_BEGIN    namespace Yosys {
-#define YOSYS_NAMESPACE_END      }
-#define YOSYS_NAMESPACE_PREFIX   Yosys::
-#define USING_YOSYS_NAMESPACE    using namespace Yosys;
+#నిర్వచించు YOSYS_NAMESPACE          Yosys
+#నిర్వచించు వ్యక్తిగత_NAMESPACE_BEGIN  namespace {
+#నిర్వచించు వ్యక్తిగత_NAMESPACE_చివర    }
+#నిర్వచించు YOSYS_NAMESPACE_BEGIN    namespace Yosys {
+#నిర్వచించు YOSYS_NAMESPACE_చివర      }
+#నిర్వచించు YOSYS_NAMESPACE_ఉపసర్గ   Yosys::
+#నిర్వచించు USING_YOSYS_NAMESPACE    using namespace Yosys;
 
-#if defined(__GNUC__) || defined(__clang__)
+#ఒకవేళ defined(__GNUC__) || defined(__clang__)
 #  define YS_ATTRIBUTE(...) __attribute__((__VA_ARGS__))
-#elif defined(_MSC_VER)
+#లేదావేళ defined(_MSC_VER)
 #  define YS_ATTRIBUTE(...)
-#else
+#లేకపోతే
 #  define YS_ATTRIBUTE(...)
-#endif
+#అయితే_ముగింపు
 
-#if defined(__GNUC__) || defined(__clang__)
-#  define YS_MAYBE_UNUSED __attribute__((__unused__))
-#else
-#  define YS_MAYBE_UNUSED
-#endif
+#ఒకవేళ defined(__GNUC__) || defined(__clang__)
+#  define YS_MAYBE_వాడని __attribute__((__unused__))
+#లేకపోతే
+#  define YS_MAYBE_వాడని
+#అయితే_ముగింపు
 
-#if defined(_MSC_VER)
-#  define YS_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
-#else
-#  define YS_NO_UNIQUE_ADDRESS [[no_unique_address]]
-#endif
+#ఒకవేళ defined(_MSC_VER)
+#  define YS_NO_UNIQUE_చిరునామా [[msvc::no_unique_చిరునామా]]
+#లేకపోతే
+#  define YS_NO_UNIQUE_చిరునామా [[no_unique_చిరునామా]]
+#అయితే_ముగింపు
 
-#if __cplusplus >= 202002L
+#ఒకవేళ __cplusplus >= 202002L
 #  define YS_FALLTHROUGH [[fallthrough]];
-#else
+#లేకపోతే
 #  error "C++20 or later compatible compiler is required"
-#endif
+#అయితే_ముగింపు
 
-#if defined(__has_cpp_attribute) && __has_cpp_attribute(gnu::cold)
+#ఒకవేళ defined(__has_cpp_attribute) && __has_cpp_attribute(gnu::cold)
 #  define YS_COLD [[gnu::cold]]
-#else
+#లేకపోతే
 #  define YS_COLD
-#endif
+#అయితే_ముగింపు
 
-#ifdef __cpp_consteval
-#define YOSYS_CONSTEVAL consteval
-#else
+#నిర్వచితమైతే __cpp_consteval
+#నిర్వచించు YOSYS_CONSTEVAL consteval
+#లేకపోతే
 // If we can't use consteval we can at least make it constexpr.
-#define YOSYS_CONSTEVAL constexpr
-#endif
+#నిర్వచించు YOSYS_CONSTEVAL constexpr
+#అయితే_ముగింపు
 
-#define YOSYS_ABORT(s) YOSYS_NAMESPACE_PREFIX log_yosys_abort_message(__FILE__, __LINE__, __FUNCTION__, s)
+#నిర్వచించు YOSYS_ABORT(s) YOSYS_NAMESPACE_ఉపసర్గ log_yosys_abort_సందేశం(__FILE__, __LINE__, __FUNCTION__, s)
 
 // This has to precede including "kernel/io.h"
 YOSYS_NAMESPACE_BEGIN
-[[noreturn]] void log_yosys_abort_message(std::string_view file, int line, std::string_view func, std::string_view message);
+[[noreturn]] శూన్య log_yosys_abort_సందేశం(std::string_view file, పూర్ణాంకం పంక్తి, std::string_view func, std::string_view సందేశం_2);
 
 [[noreturn]]
-void log_assert_failure(const char *expr, source_location location);
-#ifndef NDEBUG
-static inline void log_assert_worker(bool cond, const char *expr, source_location location = source_location::current()) {
-	if (!cond) log_assert_failure(expr, location);
+శూన్య log_assert_failure(స్థిరరాశి అక్షరం *సమాసం, ఆధారం_location location);
+#నిర్వచితం_కాకపోతే NDEBUG
+స్థిర అంతఃవరుస శూన్య log_assert_కార్మికుడు(bool cond, స్థిరరాశి అక్షరం *సమాసం, ఆధారం_location location = ఆధారం_location::current()) {
+	ఒకవేళ (!cond) log_assert_failure(సమాసం, location);
 }
-#  define log_assert(_assert_expr_) YOSYS_NAMESPACE_PREFIX log_assert_worker(_assert_expr_, #_assert_expr_)
-#else
-#  define log_assert(_assert_expr_) do { if (0) { (void)(_assert_expr_); } } while(0)
-#endif
-YOSYS_NAMESPACE_END
+#  define log_assert(assert_సమాసం) YOSYS_NAMESPACE_ఉపసర్గ log_assert_కార్మికుడు(assert_సమాసం, #_assert_expr_)
+#లేకపోతే
+#  define log_assert(assert_సమాసం) చేయి { ఒకవేళ (0) { (శూన్య)(assert_సమాసం); } } అయితే(0)
+#అయితే_ముగింపు
+YOSYS_NAMESPACE_చివర
 
-#include "kernel/io.h"
+#అన్తర్భావ "kernel/io.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // Note: All headers included in hashlib.h must be included
 // outside of YOSYS_NAMESPACE before this or bad things will happen.
-#ifdef HASHLIB_H
+#నిర్వచితమైతే HASHLIB_H
 #  error "You've probably included hashlib.h under two namespace paths. Bad idea."
-#else
+#లేకపోతే
 #  include "kernel/hashlib.h"
 #  undef HASHLIB_H
-#endif
+#అయితే_ముగింపు
 
 
-using std::vector;
+using std::సదిశ;
 using std::string;
 using std::tuple;
 using std::pair;
@@ -201,7 +201,7 @@ using std::min;
 using std::max;
 
 using hashlib::Hasher;
-using hashlib::run_hash;
+using hashlib::నిరంతరం_hash;
 using hashlib::hash_ops;
 using hashlib::mkhash_xorshift;
 using hashlib::dict;
@@ -211,45 +211,45 @@ using hashlib::mfp;
 
 // A primitive shared string implementation that does not
 // move its .c_str() when the object is copied or moved.
-struct shared_str {
+నిర్మాణం shared_str {
 	std::shared_ptr<string> content;
 	shared_str() { }
 	shared_str(string s) { content = std::shared_ptr<string>(new string(s)); }
-	shared_str(const char *s) { content = std::shared_ptr<string>(new string(s)); }
-	const char *c_str() const { return content->c_str(); }
-	const string &str() const { return *content; }
-	bool operator==(const shared_str &other) const { return *content == *other.content; }
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
+	shared_str(స్థిరరాశి అక్షరం *s) { content = std::shared_ptr<string>(new string(s)); }
+	స్థిరరాశి అక్షరం *c_str() స్థిరరాశి { తిరిగి content->c_str(); }
+	స్థిరరాశి string &str() స్థిరరాశి { తిరిగి *content; }
+	bool క్రియాకారకం==(స్థిరరాశి shared_str &other) స్థిరరాశి { తిరిగి *content == *other.content; }
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి {
 		h.eat(*content);
-		return h;
+		తిరిగి h;
 	}
 };
 
 namespace RTLIL {
-	struct Const;
-	struct SigBit;
-	struct SigSpec;
-	struct Wire;
-	struct Cell;
-	struct Memory;
-	struct Process;
-	struct Module;
-	struct Design;
-	struct Monitor;
-	struct Selection;
-	struct SigChunk;
-	struct PooledName;
-	enum State : unsigned char;
+	నిర్మాణం Const;
+	నిర్మాణం Sig_బిట్టు;
+	నిర్మాణం SigSpec;
+	నిర్మాణం Wire;
+	నిర్మాణం Cell;
+	నిర్మాణం జ్ఞాపకం;
+	నిర్మాణం Process;
+	నిర్మాణం Module;
+	నిర్మాణం Design;
+	నిర్మాణం Monitor;
+	నిర్మాణం Selection;
+	నిర్మాణం SigChunk;
+	నిర్మాణం PooledName;
+	గణన State : గుర్తులేని అక్షరం;
 
-	typedef std::pair<SigSpec, SigSpec> SigSig;
+	రకనిర్వచనం std::pair<SigSpec, SigSpec> SigSig;
 }
 
 namespace AST {
-	struct AstNode;
+	నిర్మాణం Ast_కణుపు;
 }
 
 using RTLIL::Const;
-using RTLIL::SigBit;
+using RTLIL::Sig_బిట్టు;
 using RTLIL::SigSpec;
 using RTLIL::Wire;
 using RTLIL::Cell;
@@ -262,78 +262,78 @@ using RTLIL::SigSig;
 using RTLIL::PooledName;
 
 namespace hashlib {
-	template<> struct hash_ops<RTLIL::Wire*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Cell*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Memory*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Process*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Module*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Design*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Monitor*> : hash_obj_ops {};
-	template<> struct hash_ops<AST::AstNode*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<RTLIL::Wire*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<RTLIL::Cell*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<RTLIL::జ్ఞాపకం*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<RTLIL::Process*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<RTLIL::Module*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<RTLIL::Design*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<RTLIL::Monitor*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<AST::Ast_కణుపు*> : hash_obj_ops {};
 
-	template<> struct hash_ops<const RTLIL::Wire*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Cell*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Memory*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Process*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Module*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Design*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Monitor*> : hash_obj_ops {};
-	template<> struct hash_ops<const AST::AstNode*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<స్థిరరాశి RTLIL::Wire*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<స్థిరరాశి RTLIL::Cell*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<స్థిరరాశి RTLIL::జ్ఞాపకం*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<స్థిరరాశి RTLIL::Process*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<స్థిరరాశి RTLIL::Module*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<స్థిరరాశి RTLIL::Design*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<స్థిరరాశి RTLIL::Monitor*> : hash_obj_ops {};
+	మూస<> నిర్మాణం hash_ops<స్థిరరాశి AST::Ast_కణుపు*> : hash_obj_ops {};
 }
 
-void memhasher_on();
-void memhasher_off();
-void memhasher_do();
+శూన్య memhasher_on();
+శూన్య memhasher_off();
+శూన్య memhasher_do();
 
-extern bool memhasher_active;
-inline void memhasher() { if (memhasher_active) memhasher_do(); }
+బాహ్య bool memhasher_చురుకైన;
+అంతఃవరుస శూన్య memhasher() { ఒకవేళ (memhasher_చురుకైన) memhasher_do(); }
 
-void yosys_banner();
-int ceil_log2(int x) YS_ATTRIBUTE(const);
+శూన్య yosys_banner();
+పూర్ణాంకం ceil_log2(పూర్ణాంకం x) YS_ATTRIBUTE(స్థిరరాశి);
 
-template<typename T> int GetSize(const T &obj) { return obj.size(); }
-inline int GetSize(RTLIL::Wire *wire);
+మూస<typename T> పూర్ణాంకం Get_కొలత(స్థిరరాశి T &obj) { తిరిగి obj.కొలత(); }
+అంతఃవరుస పూర్ణాంకం Get_కొలత(RTLIL::Wire *wire);
 
 // When multiple threads are accessing RTLIL, one of these guard objects
 // must exist.
-struct Multithreading
+నిర్మాణం Multithreading
 {
 	Multithreading();
 	~Multithreading();
 	// Returns true when multiple threads are accessing RTLIL.
 	// autoidx cannot be used during such times.
 	// IdStrings cannot be created during such times.
-	static bool active() { return active_; }
-private:
-	static bool active_;
+	స్థిర bool చురుకైన() { తిరిగి చురుకైన_2; }
+అంతరంగ:
+	స్థిర bool చురుకైన_2;
 };
 
-struct Autoidx {
-	Autoidx(int value) : value(value) {}
-	operator int() const { return value; }
-	void ensure_at_least(int v);
-	int operator++(int);
-private:
-	int value;
+నిర్మాణం Autoidx {
+	Autoidx(పూర్ణాంకం విలువ) : విలువ(విలువ) {}
+	క్రియాకారకం పూర్ణాంకం() స్థిరరాశి { తిరిగి విలువ; }
+	శూన్య ensure_at_కనిష్ఠ(పూర్ణాంకం v);
+	పూర్ణాంకం క్రియాకారకం++(పూర్ణాంకం);
+అంతరంగ:
+	పూర్ణాంకం విలువ;
 };
 
-extern Autoidx autoidx;
-extern int yosys_xtrace;
-extern bool yosys_write_versions;
+బాహ్య Autoidx autoidx;
+బాహ్య పూర్ణాంకం yosys_xtrace;
+బాహ్య bool yosys_write_versions;
 
-const std::string *create_id_prefix(std::string_view file, int line, std::string_view func);
+స్థిరరాశి std::string *create_id_ఉపసర్గ(std::string_view file, పూర్ణాంకం పంక్తి, std::string_view func);
 
-#define NEW_ID \
-	YOSYS_NAMESPACE_PREFIX TwineSpec{YOSYS_NAMESPACE_PREFIX TwineSpec::AutoSuffix{[](source_location location, std::string_view func) -> const std::string * { \
-		static std::unique_ptr<const std::string> prefix(YOSYS_NAMESPACE_PREFIX create_id_prefix(location.file_name(), location.line(), func)); \
-		return prefix.get(); \
-	}(source_location::current(), __FUNCTION__), std::to_string(YOSYS_NAMESPACE_PREFIX autoidx++)}}
-#define NEW_ID_SUFFIX(suffix) \
-	YOSYS_NAMESPACE_PREFIX TwineSpec{YOSYS_NAMESPACE_PREFIX TwineSpec::AutoSuffix{[](source_location location, std::string_view func) -> const std::string * { \
-		static std::unique_ptr<const std::string> prefix(YOSYS_NAMESPACE_PREFIX create_id_prefix(location.file_name(), location.line(), func)); \
-		return prefix.get(); \
-	}(source_location::current(), __FUNCTION__), std::string(suffix) + "$" + std::to_string(YOSYS_NAMESPACE_PREFIX autoidx++)}}
+#నిర్వచించు NEW_ID \
+	YOSYS_NAMESPACE_ఉపసర్గ TwineSpec{YOSYS_NAMESPACE_ఉపసర్గ TwineSpec::AutoSuffix{[](ఆధారం_location location, std::string_view func) -> స్థిరరాశి std::string * { \
+		స్థిర std::unique_ptr<స్థిరరాశి std::string> ఉపసర్గ_2(YOSYS_NAMESPACE_ఉపసర్గ create_id_ఉపసర్గ(location.file_name(), location.పంక్తి(), func)); \
+		తిరిగి ఉపసర్గ_2.get(); \
+	}(ఆధారం_location::current(), __FUNCTION__), std::గమ్యం_string(YOSYS_NAMESPACE_ఉపసర్గ autoidx++)}}
+#నిర్వచించు NEW_ID_SUFFIX(suffix) \
+	YOSYS_NAMESPACE_ఉపసర్గ TwineSpec{YOSYS_NAMESPACE_ఉపసర్గ TwineSpec::AutoSuffix{[](ఆధారం_location location, std::string_view func) -> స్థిరరాశి std::string * { \
+		స్థిర std::unique_ptr<స్థిరరాశి std::string> ఉపసర్గ_2(YOSYS_NAMESPACE_ఉపసర్గ create_id_ఉపసర్గ(location.file_name(), location.పంక్తి(), func)); \
+		తిరిగి ఉపసర్గ_2.get(); \
+	}(ఆధారం_location::current(), __FUNCTION__), std::string(suffix) + "$" + std::గమ్యం_string(YOSYS_NAMESPACE_ఉపసర్గ autoidx++)}}
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

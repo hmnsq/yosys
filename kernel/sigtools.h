@@ -17,259 +17,259 @@
  *
  */
 
-#ifndef SIGTOOLS_H
-#define SIGTOOLS_H
+#నిర్వచితం_కాకపోతే SIGTOOLS_H
+#నిర్వచించు SIGTOOLS_H
 
-#include "kernel/yosys.h"
+#అన్తర్భావ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct SigPool
+నిర్మాణం SigPool
 {
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			h.eat(first->name);
-			h.eat(second);
-			return h;
+	నిర్మాణం బిట్టు_Def_t : బహిరంగ std::pair<RTLIL::Wire*, పూర్ణాంకం> {
+		బిట్టు_Def_t() : std::pair<RTLIL::Wire*, పూర్ణాంకం>(ఖాళీ, 0) { }
+		బిట్టు_Def_t(స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు) : std::pair<RTLIL::Wire*, పూర్ణాంకం>(బిట్టు.wire, బిట్టు.స్థానభ్రంశం) { }
+		[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి {
+			h.eat(మొదటి->name);
+			h.eat(రెండవ);
+			తిరిగి h;
 		}
 	};
 
-	pool<bitDef_t> bits;
+	pool<బిట్టు_Def_t> బిట్లు;
 
-	void clear()
+	శూన్య clear()
 	{
-		bits.clear();
+		బిట్లు.clear();
 	}
 
-	void add(const RTLIL::SigSpec &sig)
+	శూన్య కూడు(స్థిరరాశి RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
-				bits.insert(bit);
+		కొరకు (స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ)
+				బిట్లు.చొప్పించు(బిట్టు);
 	}
 
-	void add(const SigPool &other)
+	శూన్య కూడు(స్థిరరాశి SigPool &other)
 	{
-		for (auto &bit : other.bits)
-			bits.insert(bit);
+		కొరకు (స్వయంచాలక &బిట్టు : other.బిట్లు)
+			బిట్లు.చొప్పించు(బిట్టు);
 	}
 
-	void del(const RTLIL::SigSpec &sig)
+	శూన్య del(స్థిరరాశి RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
-				bits.erase(bit);
+		కొరకు (స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ)
+				బిట్లు.erase(బిట్టు);
 	}
 
-	void del(const SigPool &other)
+	శూన్య del(స్థిరరాశి SigPool &other)
 	{
-		for (auto &bit : other.bits)
-			bits.erase(bit);
+		కొరకు (స్వయంచాలక &బిట్టు : other.బిట్లు)
+			బిట్లు.erase(బిట్టు);
 	}
 
-	void expand(const RTLIL::SigSpec &from, const RTLIL::SigSpec &to)
+	శూన్య expand(స్థిరరాశి RTLIL::SigSpec &from, స్థిరరాశి RTLIL::SigSpec &గమ్యం)
 	{
-		log_assert(GetSize(from) == GetSize(to));
-		for (int i = 0; i < GetSize(from); i++) {
-			bitDef_t bit_from(from[i]), bit_to(to[i]);
-			if (bit_from.first != NULL && bit_to.first != NULL && bits.count(bit_from) > 0)
-				bits.insert(bit_to);
+		log_assert(Get_కొలత(from) == Get_కొలత(గమ్యం));
+		కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(from); i++) {
+			బిట్టు_Def_t బిట్టు_from(from[i]), బిట్టు_గమ్యం(గమ్యం[i]);
+			ఒకవేళ (బిట్టు_from.మొదటి != ఖాళీ && బిట్టు_గమ్యం.మొదటి != ఖాళీ && బిట్లు.లెక్క(బిట్టు_from) > 0)
+				బిట్లు.చొప్పించు(బిట్టు_గమ్యం);
 		}
 	}
 
-	RTLIL::SigSpec extract(const RTLIL::SigSpec &sig) const
+	RTLIL::SigSpec వెలికితీయి(స్థిరరాశి RTLIL::SigSpec &sig) స్థిరరాశి
 	{
-		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				result.append(bit);
-		return result;
+		RTLIL::SigSpec ఫలితం;
+		కొరకు (స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ && బిట్లు.లెక్క(బిట్టు))
+				ఫలితం.append(బిట్టు);
+		తిరిగి ఫలితం;
 	}
 
-	RTLIL::SigSpec remove(const RTLIL::SigSpec &sig) const
+	RTLIL::SigSpec remove(స్థిరరాశి RTLIL::SigSpec &sig) స్థిరరాశి
 	{
-		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
-				result.append(bit);
-		return result;
+		RTLIL::SigSpec ఫలితం;
+		కొరకు (స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ && బిట్లు.లెక్క(బిట్టు) == 0)
+				ఫలితం.append(బిట్టు);
+		తిరిగి ఫలితం;
 	}
 
-	bool check(const RTLIL::SigBit &bit) const
+	bool check(స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు) స్థిరరాశి
 	{
-		return bit.wire != NULL && bits.count(bit);
+		తిరిగి బిట్టు.wire != ఖాళీ && బిట్లు.లెక్క(బిట్టు);
 	}
 
-	bool check_any(const RTLIL::SigSpec &sig) const
+	bool check_any(స్థిరరాశి RTLIL::SigSpec &sig) స్థిరరాశి
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		కొరకు (స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ && బిట్లు.లెక్క(బిట్టు))
+				తిరిగి true;
+		తిరిగి false;
 	}
 
-	bool check_all(const RTLIL::SigSpec &sig) const
+	bool check_all(స్థిరరాశి RTLIL::SigSpec &sig) స్థిరరాశి
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
-				return false;
-		return true;
+		కొరకు (స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ && బిట్లు.లెక్క(బిట్టు) == 0)
+				తిరిగి false;
+		తిరిగి true;
 	}
 
-	RTLIL::SigSpec export_one() const
+	RTLIL::SigSpec export_one() స్థిరరాశి
 	{
-		for (auto &bit : bits)
-			return RTLIL::SigSpec(bit.first, bit.second);
-		return RTLIL::SigSpec();
+		కొరకు (స్వయంచాలక &బిట్టు : బిట్లు)
+			తిరిగి RTLIL::SigSpec(బిట్టు.మొదటి, బిట్టు.రెండవ);
+		తిరిగి RTLIL::SigSpec();
 	}
 
-	RTLIL::SigSpec export_all() const
+	RTLIL::SigSpec export_all() స్థిరరాశి
 	{
-		pool<RTLIL::SigBit> sig;
-		for (auto &bit : bits)
-			sig.insert(RTLIL::SigBit(bit.first, bit.second));
-		return sig;
+		pool<RTLIL::Sig_బిట్టు> sig;
+		కొరకు (స్వయంచాలక &బిట్టు : బిట్లు)
+			sig.చొప్పించు(RTLIL::Sig_బిట్టు(బిట్టు.మొదటి, బిట్టు.రెండవ));
+		తిరిగి sig;
 	}
 
-	size_t size() const
+	కొలత_t కొలత() స్థిరరాశి
 	{
-		return bits.size();
+		తిరిగి బిట్లు.కొలత();
 	}
 };
 
-template <typename T, class Compare = void>
-struct SigSet
+మూస <typename T, class Compare = శూన్య>
+నిర్మాణం Sig_సమితి
 {
-	static_assert(!std::is_same<Compare,void>::value, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
+	static_assert(!std::is_same<Compare,శూన్య>::విలువ, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
 
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			h.eat(first->name);
-			h.eat(second);
-			return h;
+	నిర్మాణం బిట్టు_Def_t : బహిరంగ std::pair<RTLIL::Wire*, పూర్ణాంకం> {
+		బిట్టు_Def_t() : std::pair<RTLIL::Wire*, పూర్ణాంకం>(ఖాళీ, 0) { }
+		బిట్టు_Def_t(స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు) : std::pair<RTLIL::Wire*, పూర్ణాంకం>(బిట్టు.wire, బిట్టు.స్థానభ్రంశం) { }
+		[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి {
+			h.eat(మొదటి->name);
+			h.eat(రెండవ);
+			తిరిగి h;
 		}
 	};
 
-	dict<bitDef_t, std::set<T, Compare>> bits;
+	dict<బిట్టు_Def_t, std::సమితి<T, Compare>> బిట్లు;
 
-	void clear()
+	శూన్య clear()
 	{
-		bits.clear();
+		బిట్లు.clear();
 	}
 
-	void insert(const RTLIL::SigSpec &sig, T data)
+	శూన్య చొప్పించు(స్థిరరాశి RTLIL::SigSpec &sig, T దత్తాంశం)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].insert(data);
+		కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ)
+				బిట్లు[బిట్టు].చొప్పించు(దత్తాంశం);
 	}
 
-	void insert(const RTLIL::SigSpec& sig, const std::set<T> &data)
+	శూన్య చొప్పించు(స్థిరరాశి RTLIL::SigSpec& sig, స్థిరరాశి std::సమితి<T> &దత్తాంశం)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].insert(data.begin(), data.end());
+		కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ)
+				బిట్లు[బిట్టు].చొప్పించు(దత్తాంశం.begin(), దత్తాంశం.చివర());
 	}
 
-	void erase(const RTLIL::SigSpec& sig)
+	శూన్య erase(స్థిరరాశి RTLIL::SigSpec& sig)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].clear();
+		కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ)
+				బిట్లు[బిట్టు].clear();
 	}
 
-	void erase(const RTLIL::SigSpec &sig, T data)
+	శూన్య erase(స్థిరరాశి RTLIL::SigSpec &sig, T దత్తాంశం)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].erase(data);
+		కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ)
+				బిట్లు[బిట్టు].erase(దత్తాంశం);
 	}
 
-	void erase(const RTLIL::SigSpec &sig, const std::set<T> &data)
+	శూన్య erase(స్థిరరాశి RTLIL::SigSpec &sig, స్థిరరాశి std::సమితి<T> &దత్తాంశం)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].erase(data.begin(), data.end());
+		కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ)
+				బిట్లు[బిట్టు].erase(దత్తాంశం.begin(), దత్తాంశం.చివర());
 	}
 
-	void find(const RTLIL::SigSpec &sig, std::set<T> &result)
+	శూన్య కనుగొను(స్థిరరాశి RTLIL::SigSpec &sig, std::సమితి<T> &ఫలితం)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
-				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+		కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ) {
+				స్వయంచాలక &దత్తాంశం = బిట్లు[బిట్టు];
+				ఫలితం.చొప్పించు(దత్తాంశం.begin(), దత్తాంశం.చివర());
 			}
 	}
 
-	void find(const RTLIL::SigSpec &sig, pool<T> &result)
+	శూన్య కనుగొను(స్థిరరాశి RTLIL::SigSpec &sig, pool<T> &ఫలితం)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
-				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+		కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ) {
+				స్వయంచాలక &దత్తాంశం = బిట్లు[బిట్టు];
+				ఫలితం.చొప్పించు(దత్తాంశం.begin(), దత్తాంశం.చివర());
 			}
 	}
 
-	std::set<T> find(const RTLIL::SigSpec &sig)
+	std::సమితి<T> కనుగొను(స్థిరరాశి RTLIL::SigSpec &sig)
 	{
-		std::set<T> result;
-		find(sig, result);
-		return result;
+		std::సమితి<T> ఫలితం;
+		కనుగొను(sig, ఫలితం);
+		తిరిగి ఫలితం;
 	}
 
-	bool has(const RTLIL::SigSpec &sig)
+	bool has(స్థిరరాశి RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		కొరకు (స్వయంచాలక &బిట్టు : sig)
+			ఒకవేళ (బిట్టు.wire != ఖాళీ && బిట్లు.లెక్క(బిట్టు))
+				తిరిగి true;
+		తిరిగి false;
 	}
 };
 
-template<typename T>
-class SigSet<T, typename std::enable_if<!std::is_pointer<T>::value>::type> : public SigSet<T, std::less<T>> {};
-template<typename T>
-using sort_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::value>::type;
-template<typename T>
-class SigSet<T, sort_by_name_id_guard<T>> : public SigSet<T, RTLIL::sort_by_name_id<typename std::remove_pointer<T>::type>> {};
+మూస<typename T>
+class Sig_సమితి<T, typename std::enable_if<!std::is_సూచిక<T>::విలువ>::type> : బహిరంగ Sig_సమితి<T, std::less<T>> {};
+మూస<typename T>
+using క్రమీకరించు_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::విలువ>::type;
+మూస<typename T>
+class Sig_సమితి<T, క్రమీకరించు_by_name_id_guard<T>> : బహిరంగ Sig_సమితి<T, RTLIL::క్రమీకరించు_by_name_id<typename std::remove_సూచిక<T>::type>> {};
 
-struct SigMapView
+నిర్మాణం SigMapView
 {
-	mfp<SigBit> database;
+	mfp<Sig_బిట్టు> database;
 
 	// Modify bit to its representative
-	void apply(RTLIL::SigBit &bit) const
+	శూన్య apply(RTLIL::Sig_బిట్టు &బిట్టు) స్థిరరాశి
 	{
-		bit = database.find(bit);
+		బిట్టు = database.కనుగొను(బిట్టు);
 	}
 
-	void apply(RTLIL::SigSpec &sig) const
+	శూన్య apply(RTLIL::SigSpec &sig) స్థిరరాశి
 	{
-		for (auto &bit : sig)
-			apply(bit);
+		కొరకు (స్వయంచాలక &బిట్టు : sig)
+			apply(బిట్టు);
 	}
 
-	RTLIL::SigBit operator()(RTLIL::SigBit bit) const
+	RTLIL::Sig_బిట్టు క్రియాకారకం()(RTLIL::Sig_బిట్టు బిట్టు) స్థిరరాశి
 	{
-		apply(bit);
-		return bit;
+		apply(బిట్టు);
+		తిరిగి బిట్టు;
 	}
 
-	RTLIL::SigSpec operator()(RTLIL::SigSpec sig) const
+	RTLIL::SigSpec క్రియాకారకం()(RTLIL::SigSpec sig) స్థిరరాశి
 	{
 		apply(sig);
-		return sig;
+		తిరిగి sig;
 	}
 
-	RTLIL::SigSpec operator()(RTLIL::Wire *wire) const
+	RTLIL::SigSpec క్రియాకారకం()(RTLIL::Wire *wire) స్థిరరాశి
 	{
 		SigSpec sig(wire);
 		apply(sig);
-		return sig;
+		తిరిగి sig;
 	}
 };
 
@@ -280,88 +280,88 @@ struct SigMapView
  * If a SigBit has a const state (impl: bit.wire is nullptr),
  * it's promoted to a representative.
  */
-struct SigMap final : public SigMapView
+నిర్మాణం SigMap final : బహిరంగ SigMapView
 {
-	SigMap(RTLIL::Module *module = NULL)
+	SigMap(RTLIL::Module *module = ఖాళీ)
 	{
-		if (module != NULL)
-			set(module);
+		ఒకవేళ (module != ఖాళీ)
+			సమితి(module);
 	}
 
-	void swap(SigMap &other)
+	శూన్య మార్పిడి(SigMap &other)
 	{
-		database.swap(other.database);
+		database.మార్పిడి(other.database);
 	}
 
-	void clear()
+	శూన్య clear()
 	{
 		database.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
-	void set(RTLIL::Module *module)
+	శూన్య సమితి(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
-			bitcount += it.first.size();
+		పూర్ణాంకం bitcount = 0;
+		కొరకు (స్వయంచాలక &it : module->connections())
+			bitcount += it.మొదటి.కొలత();
 
 		database.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
-			add(it.first, it.second);
+		కొరకు (స్వయంచాలక &it : module->connections())
+			కూడు(it.మొదటి, it.రెండవ);
 	}
 
 	// Add connections from "from" to "to", bit-by-bit
-	void add(const RTLIL::SigSpec& from, const RTLIL::SigSpec& to)
+	శూన్య కూడు(స్థిరరాశి RTLIL::SigSpec& from, స్థిరరాశి RTLIL::SigSpec& గమ్యం)
 	{
-		log_assert(GetSize(from) == GetSize(to));
+		log_assert(Get_కొలత(from) == Get_కొలత(గమ్యం));
 
-		for (int i = 0; i < GetSize(from); i++)
+		కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
+			పూర్ణాంకం bfi = database.lookup(from[i]);
+			పూర్ణాంకం bti = database.lookup(గమ్యం[i]);
 
-			const RTLIL::SigBit &bf = database[bfi];
-			const RTLIL::SigBit &bt = database[bti];
+			స్థిరరాశి RTLIL::Sig_బిట్టు &bf = database[bfi];
+			స్థిరరాశి RTLIL::Sig_బిట్టు &bt = database[bti];
 
-			if (bf.wire || bt.wire)
+			ఒకవేళ (bf.wire || bt.wire)
 			{
 				database.imerge(bfi, bti);
 
-				if (bf.wire == nullptr)
+				ఒకవేళ (bf.wire == nullptr)
 					database.ipromote(bfi);
 
-				if (bt.wire == nullptr)
+				ఒకవేళ (bt.wire == nullptr)
 					database.ipromote(bti);
 			}
 		}
 	}
 
 	// Add sig as disconnected from anything
-	void add(const RTLIL::SigBit &bit)
+	శూన్య కూడు(స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు)
 	{
-		const auto &b = database.find(bit);
-		if (b.wire != nullptr)
-			database.promote(bit);
+		స్థిరరాశి స్వయంచాలక &b = database.కనుగొను(బిట్టు);
+		ఒకవేళ (b.wire != nullptr)
+			database.promote(బిట్టు);
 	}
 
-	void add(const RTLIL::SigSpec &sig)
+	శూన్య కూడు(స్థిరరాశి RTLIL::SigSpec &sig)
 	{
-		for (const auto &bit : sig)
-			add(bit);
+		కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : sig)
+			కూడు(బిట్టు);
 	}
 
-	inline void add(Wire *wire) { return add(RTLIL::SigSpec(wire)); }
+	అంతఃవరుస శూన్య కూడు(Wire *wire) { తిరిగి కూడు(RTLIL::SigSpec(wire)); }
 
 	// All non-const bits
-	RTLIL::SigSpec allbits() const
+	RTLIL::SigSpec allbits() స్థిరరాశి
 	{
 		RTLIL::SigSpec sig;
-		for (const auto &bit : database)
-			if (bit.wire != nullptr)
-				sig.append(bit);
-		return sig;
+		కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : database)
+			ఒకవేళ (బిట్టు.wire != nullptr)
+				sig.append(బిట్టు);
+		తిరిగి sig;
 	}
 };
 
@@ -374,98 +374,98 @@ struct SigMap final : public SigMapView
  * the associated value is the "sum" of all the values associated with the contributing bits.
  * If any of the SigBits in a set are a constant, the canonical SigBit is a constant.
  */
-template <class Val>
-struct SigValMap final : public SigMapView
+మూస <class Val>
+నిర్మాణం SigValMap final : బహిరంగ SigMapView
 {
-	dict<SigBit, Val> values;
+	dict<Sig_బిట్టు, Val> విలువలు;
 
-	void swap(SigValMap<Val> &other)
+	శూన్య మార్పిడి(SigValMap<Val> &other)
 	{
-		database.swap(other.database);
-		values.swap(other.values);
+		database.మార్పిడి(other.database);
+		విలువలు.మార్పిడి(other.విలువలు);
 	}
 
-	void clear()
+	శూన్య clear()
 	{
 		database.clear();
-		values.clear();
+		విలువలు.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
-	void set(RTLIL::Module *module)
+	శూన్య సమితి(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
-			bitcount += it.first.size();
+		పూర్ణాంకం bitcount = 0;
+		కొరకు (స్వయంచాలక &it : module->connections())
+			bitcount += it.మొదటి.కొలత();
 
 		database.clear();
-		values.clear();
+		విలువలు.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
-			add(it.first, it.second);
+		కొరకు (స్వయంచాలక &it : module->connections())
+			కూడు(it.మొదటి, it.రెండవ);
 	}
 
 	// Add connections from "from" to "to", bit-by-bit.
-	void add(const RTLIL::SigSpec& from, const RTLIL::SigSpec& to)
+	శూన్య కూడు(స్థిరరాశి RTLIL::SigSpec& from, స్థిరరాశి RTLIL::SigSpec& గమ్యం)
 	{
-		log_assert(GetSize(from) == GetSize(to));
+		log_assert(Get_కొలత(from) == Get_కొలత(గమ్యం));
 
-		for (int i = 0; i < GetSize(from); i++)
+		కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
-			if (bfi == bti) {
-				continue;
+			పూర్ణాంకం bfi = database.lookup(from[i]);
+			పూర్ణాంకం bti = database.lookup(గమ్యం[i]);
+			ఒకవేళ (bfi == bti) {
+				కొనసాగు;
 			}
 
-			const RTLIL::SigBit &bf = database[bfi];
-			const RTLIL::SigBit &bt = database[bti];
-			if (bf.wire == nullptr) {
+			స్థిరరాశి RTLIL::Sig_బిట్టు &bf = database[bfi];
+			స్థిరరాశి RTLIL::Sig_బిట్టు &bt = database[bti];
+			ఒకవేళ (bf.wire == nullptr) {
 				// bf is constant so make it the canonical representative.
 				database.imerge(bti, bfi);
-				merge_value(bt, bf);
-			} else {
+				విలీనం_విలువ(bt, bf);
+			} లేకపోతే {
 				// Make bt the canonical representative.
 				database.imerge(bfi, bti);
-				merge_value(bf, bt);
+				విలీనం_విలువ(bf, bt);
 			}
 		}
 	}
 
-	void addVal(const RTLIL::SigBit &bit, const Val &val)
+	శూన్య కూడు_Val(స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు, స్థిరరాశి Val &val)
 	{
-		values[database.find(bit)] |= val;
+		విలువలు[database.కనుగొను(బిట్టు)] |= val;
 	}
 
-	void addVal(const RTLIL::SigSpec &sig, const Val &val)
+	శూన్య కూడు_Val(స్థిరరాశి RTLIL::SigSpec &sig, స్థిరరాశి Val &val)
 	{
-		for (const auto &bit : sig)
-			addVal(bit, val);
+		కొరకు (స్థిరరాశి స్వయంచాలక &బిట్టు : sig)
+			కూడు_Val(బిట్టు, val);
 	}
 
-	Val apply_and_get_value(RTLIL::SigBit &bit) const
+	Val apply_and_get_విలువ(RTLIL::Sig_బిట్టు &బిట్టు) స్థిరరాశి
 	{
-		bit = database.find(bit);
-		auto it = values.find(bit);
-		return it == values.end() ? Val() : it->second;
+		బిట్టు = database.కనుగొను(బిట్టు);
+		స్వయంచాలక it = విలువలు.కనుగొను(బిట్టు);
+		తిరిగి it == విలువలు.చివర() ? Val() : it->రెండవ;
 	}
 
-private:
-	void merge_value(const RTLIL::SigBit &from, const RTLIL::SigBit &to)
+అంతరంగ:
+	శూన్య విలీనం_విలువ(స్థిరరాశి RTLIL::Sig_బిట్టు &from, స్థిరరాశి RTLIL::Sig_బిట్టు &గమ్యం)
 	{
-		auto it = values.find(from);
-		if (it == values.end()) {
-			return;
+		స్వయంచాలక it = విలువలు.కనుగొను(from);
+		ఒకవేళ (it == విలువలు.చివర()) {
+			తిరిగి;
 		}
 		// values[to] could resize the underlying `entries` so
 		// finish using `it` first.
-		Val v = it->second;
-		values.erase(it);
-		values[to] |= v;
+		Val v = it->రెండవ;
+		విలువలు.erase(it);
+		విలువలు[గమ్యం] |= v;
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif /* SIGTOOLS_H */
+#అయితే_ముగింపు /* SIGTOOLS_H */

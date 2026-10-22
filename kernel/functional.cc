@@ -18,545 +18,545 @@
  *
  */
 
-#include "kernel/functional.h"
-#include "kernel/topo_scc.h"
-#include "ff.h"
-#include "ffinit.h"
-#include <deque>
+#అన్తర్భావ "kernel/functional.h"
+#అన్తర్భావ "kernel/topo_scc.h"
+#అన్తర్భావ "ff.h"
+#అన్తర్భావ "ffinit.h"
+#అన్తర్భావ <deque>
 
 YOSYS_NAMESPACE_BEGIN
-namespace Functional {
+నామాకాశ Functional {
 
-const char *fn_to_string(Fn fn) {
-	switch(fn) {
-	case Fn::invalid: return "invalid";
-	case Fn::buf: return "buf";
-	case Fn::slice: return "slice";
-	case Fn::zero_extend: return "zero_extend";
-	case Fn::sign_extend: return "sign_extend";
-	case Fn::concat: return "concat";
-	case Fn::add: return "add";
-	case Fn::sub: return "sub";
-	case Fn::mul: return "mul";
-	case Fn::unsigned_div: return "unsigned_div";
-	case Fn::unsigned_mod: return "unsigned_mod";
-	case Fn::bitwise_and: return "bitwise_and";
-	case Fn::bitwise_or: return "bitwise_or";
-	case Fn::bitwise_xor: return "bitwise_xor";
-	case Fn::bitwise_not: return "bitwise_not";
-	case Fn::reduce_and: return "reduce_and";
-	case Fn::reduce_or: return "reduce_or";
-	case Fn::reduce_xor: return "reduce_xor";
-	case Fn::unary_minus: return "unary_minus";
-	case Fn::equal: return "equal";
-	case Fn::not_equal: return "not_equal";
-	case Fn::signed_greater_than: return "signed_greater_than";
-	case Fn::signed_greater_equal: return "signed_greater_equal";
-	case Fn::unsigned_greater_than: return "unsigned_greater_than";
-	case Fn::unsigned_greater_equal: return "unsigned_greater_equal";
-	case Fn::logical_shift_left: return "logical_shift_left";
-	case Fn::logical_shift_right: return "logical_shift_right";
-	case Fn::arithmetic_shift_right: return "arithmetic_shift_right";
-	case Fn::mux: return "mux";
-	case Fn::constant: return "constant";
-	case Fn::input: return "input";
-	case Fn::state: return "state";
-	case Fn::memory_read: return "memory_read";
-	case Fn::memory_write: return "memory_write";
+స్థిరరాశి అక్షరం *fn_గమ్యం_string(Fn fn) {
+	ఎంపిక(fn) {
+	స్థితి Fn::invalid: తిరిగి "invalid";
+	స్థితి Fn::buf: తిరిగి "buf";
+	స్థితి Fn::ముక్క: తిరిగి "slice";
+	స్థితి Fn::zero_extend: తిరిగి "zero_extend";
+	స్థితి Fn::sign_extend: తిరిగి "sign_extend";
+	స్థితి Fn::concat: తిరిగి "concat";
+	స్థితి Fn::కూడు: తిరిగి "add";
+	స్థితి Fn::sub: తిరిగి "sub";
+	స్థితి Fn::mul: తిరిగి "mul";
+	స్థితి Fn::unsigned_div: తిరిగి "unsigned_div";
+	స్థితి Fn::unsigned_mod: తిరిగి "unsigned_mod";
+	స్థితి Fn::bitwise_and: తిరిగి "bitwise_and";
+	స్థితి Fn::bitwise_or: తిరిగి "bitwise_or";
+	స్థితి Fn::bitwise_xor: తిరిగి "bitwise_xor";
+	స్థితి Fn::bitwise_not: తిరిగి "bitwise_not";
+	స్థితి Fn::reduce_and: తిరిగి "reduce_and";
+	స్థితి Fn::reduce_or: తిరిగి "reduce_or";
+	స్థితి Fn::reduce_xor: తిరిగి "reduce_xor";
+	స్థితి Fn::unary_minus: తిరిగి "unary_minus";
+	స్థితి Fn::equal: తిరిగి "equal";
+	స్థితి Fn::not_equal: తిరిగి "not_equal";
+	స్థితి Fn::signed_greater_than: తిరిగి "signed_greater_than";
+	స్థితి Fn::signed_greater_equal: తిరిగి "signed_greater_equal";
+	స్థితి Fn::unsigned_greater_than: తిరిగి "unsigned_greater_than";
+	స్థితి Fn::unsigned_greater_equal: తిరిగి "unsigned_greater_equal";
+	స్థితి Fn::logical_జరుపు_ఎడమ: తిరిగి "logical_shift_left";
+	స్థితి Fn::logical_జరుపు_కుడి: తిరిగి "logical_shift_right";
+	స్థితి Fn::arithmetic_జరుపు_కుడి: తిరిగి "arithmetic_shift_right";
+	స్థితి Fn::mux: తిరిగి "mux";
+	స్థితి Fn::constant: తిరిగి "constant";
+	స్థితి Fn::ఆదానం: తిరిగి "input";
+	స్థితి Fn::state: తిరిగి "state";
+	స్థితి Fn::జ్ఞాపకం_read: తిరిగి "memory_read";
+	స్థితి Fn::జ్ఞాపకం_write: తిరిగి "memory_write";
 	}
-	log_error("fn_to_string: unknown Functional::Fn value %d\n", (int)fn);
+	log_error("fn_to_string: unknown Functional::Fn value %d\n", (పూర్ణాంకం)fn);
 }
 
-vector<IRInput const*> IR::inputs(IdString kind) const {
-	vector<IRInput const*> ret;
-	for (const auto &[name, input] : _inputs)
-		if(input.kind == kind)
-			ret.push_back(&input);
-	return ret;
+సదిశ<IRInput స్థిరరాశి*> IR::inputs(IdString రకం) స్థిరరాశి {
+	సదిశ<IRInput స్థిరరాశి*> ret;
+	కొరకు (స్థిరరాశి స్వయంచాలక &[name, ఆదానం] : _inputs)
+		ఒకవేళ(ఆదానం.రకం == రకం)
+			ret.నెట్టు_వెనుక(&ఆదానం);
+	తిరిగి ret;
 }
 
-vector<IROutput const*> IR::outputs(IdString kind) const {
-	vector<IROutput const*> ret;
-	for (const auto &[name, output] : _outputs)
-		if(output.kind == kind)
-			ret.push_back(&output);
-	return ret;
+సదిశ<IROutput స్థిరరాశి*> IR::outputs(IdString రకం) స్థిరరాశి {
+	సదిశ<IROutput స్థిరరాశి*> ret;
+	కొరకు (స్థిరరాశి స్వయంచాలక &[name, output] : _outputs)
+		ఒకవేళ(output.రకం == రకం)
+			ret.నెట్టు_వెనుక(&output);
+	తిరిగి ret;
 }
 
-vector<IRState const*> IR::states(IdString kind) const {
-	vector<IRState const*> ret;
-	for (const auto &[name, state] : _states)
-		if(state.kind == kind)
-			ret.push_back(&state);
-	return ret;
+సదిశ<IRState స్థిరరాశి*> IR::స్థితులు(IdString రకం) స్థిరరాశి {
+	సదిశ<IRState స్థిరరాశి*> ret;
+	కొరకు (స్థిరరాశి స్వయంచాలక &[name, state] : స్థితులు_2)
+		ఒకవేళ(state.రకం == రకం)
+			ret.నెట్టు_వెనుక(&state);
+	తిరిగి ret;
 }
 
-vector<IRInput const*> IR::all_inputs() const {
-	vector<IRInput const*> ret;
-	for (const auto &[name, input] : _inputs)
-		ret.push_back(&input);
-	return ret;
+సదిశ<IRInput స్థిరరాశి*> IR::all_inputs() స్థిరరాశి {
+	సదిశ<IRInput స్థిరరాశి*> ret;
+	కొరకు (స్థిరరాశి స్వయంచాలక &[name, ఆదానం] : _inputs)
+		ret.నెట్టు_వెనుక(&ఆదానం);
+	తిరిగి ret;
 }
 
-vector<IROutput const*> IR::all_outputs() const {
-	vector<IROutput const*> ret;
-	for (const auto &[name, output] : _outputs)
-		ret.push_back(&output);
-	return ret;
+సదిశ<IROutput స్థిరరాశి*> IR::all_outputs() స్థిరరాశి {
+	సదిశ<IROutput స్థిరరాశి*> ret;
+	కొరకు (స్థిరరాశి స్వయంచాలక &[name, output] : _outputs)
+		ret.నెట్టు_వెనుక(&output);
+	తిరిగి ret;
 }
 
-vector<IRState const*> IR::all_states() const {
-	vector<IRState const*> ret;
-	for (const auto &[name, state] : _states)
-		ret.push_back(&state);
-	return ret;
+సదిశ<IRState స్థిరరాశి*> IR::all_స్థితులు() స్థిరరాశి {
+	సదిశ<IRState స్థిరరాశి*> ret;
+	కొరకు (స్థిరరాశి స్వయంచాలక &[name, state] : స్థితులు_2)
+		ret.నెట్టు_వెనుక(&state);
+	తిరిగి ret;
 }
 
-struct PrintVisitor : DefaultVisitor<std::string> {
-	std::function<std::string(Node)> np;
-	PrintVisitor(std::function<std::string(Node)> np) : np(np) { }
+నిర్మాణం PrintVisitor : DefaultVisitor<std::string> {
+	std::function<std::string(కణుపు_2)> np;
+	PrintVisitor(std::function<std::string(కణుపు_2)> np) : np(np) { }
 	// as a general rule the default handler is good enough iff the only arguments are of type Node
-	std::string slice(Node, Node a, int offset, int out_width) override { return "slice(" + np(a) + ", " + std::to_string(offset) + ", " + std::to_string(out_width) + ")"; }
-	std::string zero_extend(Node, Node a, int out_width) override { return "zero_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
-	std::string sign_extend(Node, Node a, int out_width) override { return "sign_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
-	std::string constant(Node, RTLIL::Const const& value) override { return "constant(" + value.as_string() + ")"; }
-	std::string input(Node self, IdString name, IdString kind) override { return "input(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
-	std::string state(Node self, IdString name, IdString kind) override { return "state(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
-	std::string default_handler(Node self) override {
-		std::string ret = fn_to_string(self.fn());
+	std::string ముక్క(కణుపు_2, కణుపు_2 a, పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం బహిర్గతం_వెడల్పు) override { తిరిగి "slice(" + np(a) + ", " + std::గమ్యం_string(స్థానభ్రంశం) + ", " + std::గమ్యం_string(బహిర్గతం_వెడల్పు) + ")"; }
+	std::string zero_extend(కణుపు_2, కణుపు_2 a, పూర్ణాంకం బహిర్గతం_వెడల్పు) override { తిరిగి "zero_extend(" + np(a) + ", " + std::గమ్యం_string(బహిర్గతం_వెడల్పు) + ")"; }
+	std::string sign_extend(కణుపు_2, కణుపు_2 a, పూర్ణాంకం బహిర్గతం_వెడల్పు) override { తిరిగి "sign_extend(" + np(a) + ", " + std::గమ్యం_string(బహిర్గతం_వెడల్పు) + ")"; }
+	std::string constant(కణుపు_2, RTLIL::Const స్థిరరాశి& విలువ) override { తిరిగి "constant(" + విలువ.as_string() + ")"; }
+	std::string ఆదానం(కణుపు_2 self, IdString name, IdString రకం) override { తిరిగి "input(" + self.design->twines().str(name) + ", " + self.design->twines().str(రకం) + ")"; }
+	std::string state(కణుపు_2 self, IdString name, IdString రకం) override { తిరిగి "state(" + self.design->twines().str(name) + ", " + self.design->twines().str(రకం) + ")"; }
+	std::string default_handler(కణుపు_2 self) override {
+		std::string ret = fn_గమ్యం_string(self.fn());
 		ret += "(";
-		for(size_t i = 0; i < self.arg_count(); i++) {
-			if(i > 0) ret += ", ";
+		కొరకు(కొలత_t i = 0; i < self.arg_లెక్క(); i++) {
+			ఒకవేళ(i > 0) ret += ", ";
 			ret += np(self.arg(i));
 		}
 		ret += ")";
-		return ret;
+		తిరిగి ret;
 	}
 };
 
-std::string Node::to_string()
+std::string కణుపు_2::గమ్యం_string()
 {
-	return to_string([](Node n) { return n.name().unescape(); });
+	తిరిగి గమ్యం_string([](కణుపు_2 n) { తిరిగి n.name().unescape(); });
 }
 
-std::string Node::to_string(std::function<std::string(Node)> np)
+std::string కణుపు_2::గమ్యం_string(std::function<std::string(కణుపు_2)> np)
 {
-	return visit(PrintVisitor(np));
+	తిరిగి సందర్శించు(PrintVisitor(np));
 }
 
-class CellSimplifier {
+తరగతి CellSimplifier {
 	Factory &factory;
-	Node sign(Node a) {
-		return factory.slice(a, a.width() - 1, 1);
+	కణుపు_2 sign(కణుపు_2 a) {
+		తిరిగి factory.ముక్క(a, a.వెడల్పు() - 1, 1);
 	}
-	Node neg_if(Node a, Node s) {
-		return factory.mux(a, factory.unary_minus(a), s);
+	కణుపు_2 neg_if(కణుపు_2 a, కణుపు_2 s) {
+		తిరిగి factory.mux(a, factory.unary_minus(a), s);
 	}
-	Node abs(Node a) {
-		return neg_if(a, sign(a));
+	కణుపు_2 నిరపేక్ష(కణుపు_2 a) {
+		తిరిగి neg_if(a, sign(a));
 	}
-	Node handle_shift(Node a, Node b, bool is_right, bool is_signed) {
+	కణుపు_2 handle_జరుపు(కణుపు_2 a, కణుపు_2 b, తార్కిక is_కుడి, తార్కిక is_signed) {
 		// to prevent new_width == 0, we handle this case separately
-		if(a.width() == 1) {
-			if(!is_signed)
-				return factory.bitwise_and(a, factory.bitwise_not(factory.reduce_or(b)));
-			else
-				return a;
+		ఒకవేళ(a.వెడల్పు() == 1) {
+			ఒకవేళ(!is_signed)
+				తిరిగి factory.bitwise_and(a, factory.bitwise_not(factory.reduce_or(b)));
+			లేకపోతే
+				తిరిగి a;
 		}
-		int new_width = ceil_log2(a.width());
-		Node b_truncated = factory.extend(b, new_width, false);
-		Node y =
-			!is_right ? factory.logical_shift_left(a, b_truncated) :
-			!is_signed ? factory.logical_shift_right(a, b_truncated) :
-			factory.arithmetic_shift_right(a, b_truncated);
-		if(b.width() <= new_width)
-			return y;
-		Node overflow = factory.unsigned_greater_equal(b, factory.constant(RTLIL::Const(a.width(), b.width())));
-		Node y_if_overflow = is_signed ? factory.extend(sign(a), a.width(), true) : factory.constant(RTLIL::Const(State::S0, a.width()));
-		return factory.mux(y, y_if_overflow, overflow);
+		పూర్ణాంకం new_వెడల్పు = ceil_log2(a.వెడల్పు());
+		కణుపు_2 b_truncated = factory.extend(b, new_వెడల్పు, అబద్ధం);
+		కణుపు_2 y =
+			!is_కుడి ? factory.logical_జరుపు_ఎడమ(a, b_truncated) :
+			!is_signed ? factory.logical_జరుపు_కుడి(a, b_truncated) :
+			factory.arithmetic_జరుపు_కుడి(a, b_truncated);
+		ఒకవేళ(b.వెడల్పు() <= new_వెడల్పు)
+			తిరిగి y;
+		కణుపు_2 అధికప్రవాహం = factory.unsigned_greater_equal(b, factory.constant(RTLIL::Const(a.వెడల్పు(), b.వెడల్పు())));
+		కణుపు_2 y_if_అధికప్రవాహం = is_signed ? factory.extend(sign(a), a.వెడల్పు(), నిజం) : factory.constant(RTLIL::Const(State::S0, a.వెడల్పు()));
+		తిరిగి factory.mux(y, y_if_అధికప్రవాహం, అధికప్రవాహం);
 	}
-public:
-	Node logical_shift_left(Node a, Node b) { return handle_shift(a, b, false, false); }
-	Node logical_shift_right(Node a, Node b) { return handle_shift(a, b, true, false); }
-	Node arithmetic_shift_right(Node a, Node b) { return handle_shift(a, b, true, true); }
-	Node bitwise_mux(Node a, Node b, Node s) {
-		Node aa = factory.bitwise_and(a, factory.bitwise_not(s));
-		Node bb = factory.bitwise_and(b, s);
-		return factory.bitwise_or(aa, bb);
+బహిరంగ:
+	కణుపు_2 logical_జరుపు_ఎడమ(కణుపు_2 a, కణుపు_2 b) { తిరిగి handle_జరుపు(a, b, అబద్ధం, అబద్ధం); }
+	కణుపు_2 logical_జరుపు_కుడి(కణుపు_2 a, కణుపు_2 b) { తిరిగి handle_జరుపు(a, b, నిజం, అబద్ధం); }
+	కణుపు_2 arithmetic_జరుపు_కుడి(కణుపు_2 a, కణుపు_2 b) { తిరిగి handle_జరుపు(a, b, నిజం, నిజం); }
+	కణుపు_2 bitwise_mux(కణుపు_2 a, కణుపు_2 b, కణుపు_2 s) {
+		కణుపు_2 aa = factory.bitwise_and(a, factory.bitwise_not(s));
+		కణుపు_2 bb = factory.bitwise_and(b, s);
+		తిరిగి factory.bitwise_or(aa, bb);
 	}
 	CellSimplifier(Factory &f) : factory(f) {}
-private:
-	Node handle_pow(Node a0, Node b, int y_width, bool is_signed) {
-		Node a = factory.extend(a0, y_width, is_signed);
-		Node r = factory.constant(Const(1, y_width));
-		for(int i = 0; i < b.width(); i++) {
-			Node b_bit = factory.slice(b, i, 1);
-			r = factory.mux(r, factory.mul(r, a), b_bit);
+అంతరంగ:
+	కణుపు_2 handle_pow(కణుపు_2 a0, కణుపు_2 b, పూర్ణాంకం y_వెడల్పు, తార్కిక is_signed) {
+		కణుపు_2 a = factory.extend(a0, y_వెడల్పు, is_signed);
+		కణుపు_2 r = factory.constant(Const(1, y_వెడల్పు));
+		కొరకు(పూర్ణాంకం i = 0; i < b.వెడల్పు(); i++) {
+			కణుపు_2 b_బిట్టు = factory.ముక్క(b, i, 1);
+			r = factory.mux(r, factory.mul(r, a), b_బిట్టు);
 			a = factory.mul(a, a);
 		}
-		if (is_signed) {
-			Node a_ge_1 = factory.unsigned_greater_than(abs(a0), factory.constant(Const(1, a0.width())));
-			Node zero_result = factory.bitwise_and(a_ge_1, sign(b));
-			r = factory.mux(r, factory.constant(Const(0, y_width)), zero_result);
+		ఒకవేళ (is_signed) {
+			కణుపు_2 a_ge_1 = factory.unsigned_greater_than(నిరపేక్ష(a0), factory.constant(Const(1, a0.వెడల్పు())));
+			కణుపు_2 zero_ఫలితం = factory.bitwise_and(a_ge_1, sign(b));
+			r = factory.mux(r, factory.constant(Const(0, y_వెడల్పు)), zero_ఫలితం);
 		}
-		return r;
+		తిరిగి r;
 	}
-	Node handle_bmux(Node a, Node s, int a_offset, int width, int sn) {
-		if(sn < 1)
-			return factory.slice(a, a_offset, width);
-		else {
-			Node y0 = handle_bmux(a, s, a_offset, width, sn - 1);
-			Node y1 = handle_bmux(a, s, a_offset + (width << (sn - 1)), width, sn - 1);
-			return factory.mux(y0, y1, factory.slice(s, sn - 1, 1));
+	కణుపు_2 handle_bmux(కణుపు_2 a, కణుపు_2 s, పూర్ణాంకం a_స్థానభ్రంశం, పూర్ణాంకం వెడల్పు, పూర్ణాంకం sn) {
+		ఒకవేళ(sn < 1)
+			తిరిగి factory.ముక్క(a, a_స్థానభ్రంశం, వెడల్పు);
+		లేకపోతే {
+			కణుపు_2 y0 = handle_bmux(a, s, a_స్థానభ్రంశం, వెడల్పు, sn - 1);
+			కణుపు_2 y1 = handle_bmux(a, s, a_స్థానభ్రంశం + (వెడల్పు << (sn - 1)), వెడల్పు, sn - 1);
+			తిరిగి factory.mux(y0, y1, factory.ముక్క(s, sn - 1, 1));
 		}
 	}
-	Node handle_pmux(Node a, Node b, Node s) {
+	కణుపు_2 handle_pmux(కణుపు_2 a, కణుపు_2 b, కణుపు_2 s) {
 		// TODO : what to do about multiple b bits set ?
-		log_assert(b.width() == a.width() * s.width());
-		Node y = a;
-		for(int i = 0; i < s.width(); i++)
-			y = factory.mux(y, factory.slice(b, a.width() * i, a.width()), factory.slice(s, i, 1));
-		return y;
+		log_assert(b.వెడల్పు() == a.వెడల్పు() * s.వెడల్పు());
+		కణుపు_2 y = a;
+		కొరకు(పూర్ణాంకం i = 0; i < s.వెడల్పు(); i++)
+			y = factory.mux(y, factory.ముక్క(b, a.వెడల్పు() * i, a.వెడల్పు()), factory.ముక్క(s, i, 1));
+		తిరిగి y;
 	}
-	dict<IdString, Node> handle_fa(Node a, Node b, Node c) {
-		Node t1 = factory.bitwise_xor(a, b);
-		Node t2 = factory.bitwise_and(a, b);
-		Node t3 = factory.bitwise_and(c, t1);
-		Node y = factory.bitwise_xor(c, t1);
-		Node x = factory.bitwise_or(t2, t3);
-		return {{ID(X), x}, {ID(Y), y}};
+	dict<IdString, కణుపు_2> handle_fa(కణుపు_2 a, కణుపు_2 b, కణుపు_2 c) {
+		కణుపు_2 t1 = factory.bitwise_xor(a, b);
+		కణుపు_2 t2 = factory.bitwise_and(a, b);
+		కణుపు_2 t3 = factory.bitwise_and(c, t1);
+		కణుపు_2 y = factory.bitwise_xor(c, t1);
+		కణుపు_2 x = factory.bitwise_or(t2, t3);
+		తిరిగి {{ID(X), x}, {ID(Y), y}};
 	}
-	dict<IdString, Node> handle_alu(Node a_in, Node b_in, int y_width, bool is_signed, Node ci, Node bi) {
-		Node a = factory.extend(a_in, y_width, is_signed);
-		Node b_uninverted = factory.extend(b_in, y_width, is_signed);
-		Node b = factory.mux(b_uninverted, factory.bitwise_not(b_uninverted), bi);
-		Node x = factory.bitwise_xor(a, b);
+	dict<IdString, కణుపు_2> handle_alu(కణుపు_2 a_లోపల, కణుపు_2 b_లోపల, పూర్ణాంకం y_వెడల్పు, తార్కిక is_signed, కణుపు_2 ci, కణుపు_2 bi) {
+		కణుపు_2 a = factory.extend(a_లోపల, y_వెడల్పు, is_signed);
+		కణుపు_2 b_uninverted = factory.extend(b_లోపల, y_వెడల్పు, is_signed);
+		కణుపు_2 b = factory.mux(b_uninverted, factory.bitwise_not(b_uninverted), bi);
+		కణుపు_2 x = factory.bitwise_xor(a, b);
 		// we can compute the carry into each bit using (a+b+c)^a^b. since we want the carry out,
 		// i.e. the carry into the next bit, we have to add an extra bit to a and b, and
 		// then slice off the bottom bit of the result.
-		Node a_extra = factory.extend(a, y_width + 1, false);
-		Node b_extra = factory.extend(b, y_width + 1, false);
-		Node y_extra = factory.add(factory.add(a_extra, b_extra), factory.extend(ci, a.width() + 1, false));
-		Node y = factory.slice(y_extra, 0, y_width);
-		Node carries = factory.bitwise_xor(y_extra, factory.bitwise_xor(a_extra, b_extra));
-		Node co = factory.slice(carries, 1, y_width);
-		return {{ID(X), x}, {ID(Y), y}, {ID(CO), co}};
+		కణుపు_2 a_extra = factory.extend(a, y_వెడల్పు + 1, అబద్ధం);
+		కణుపు_2 b_extra = factory.extend(b, y_వెడల్పు + 1, అబద్ధం);
+		కణుపు_2 y_extra = factory.కూడు(factory.కూడు(a_extra, b_extra), factory.extend(ci, a.వెడల్పు() + 1, అబద్ధం));
+		కణుపు_2 y = factory.ముక్క(y_extra, 0, y_వెడల్పు);
+		కణుపు_2 carries = factory.bitwise_xor(y_extra, factory.bitwise_xor(a_extra, b_extra));
+		కణుపు_2 co = factory.ముక్క(carries, 1, y_వెడల్పు);
+		తిరిగి {{ID(X), x}, {ID(Y), y}, {ID(CO), co}};
 	}
-	Node handle_lcu(Node p, Node g, Node ci) {
-		return handle_alu(g, factory.bitwise_or(p, g), g.width(), false, ci, factory.constant(Const(State::S0, 1))).at(ID(CO));
+	కణుపు_2 handle_lcu(కణుపు_2 p, కణుపు_2 g, కణుపు_2 ci) {
+		తిరిగి handle_alu(g, factory.bitwise_or(p, g), g.వెడల్పు(), అబద్ధం, ci, factory.constant(Const(State::S0, 1))).at(ID(CO));
 	}
-public:
-	std::variant<dict<IdString, Node>, Node> handle(IdString cellName, IdString cellType, dict<IdString, Const> parameters, dict<IdString, Node> inputs)
+బహిరంగ:
+	std::variant<dict<IdString, కణుపు_2>, కణుపు_2> handle(IdString cellName, IdString cellType, dict<IdString, Const> parameters, dict<IdString, కణుపు_2> inputs)
 	{
-		int a_width = parameters.at(ID(A_WIDTH), Const(-1)).as_int();
-		int b_width = parameters.at(ID(B_WIDTH), Const(-1)).as_int();
-		int y_width = parameters.at(ID(Y_WIDTH), Const(-1)).as_int();
-		bool a_signed = parameters.at(ID(A_SIGNED), Const(0)).as_bool();
-		bool b_signed = parameters.at(ID(B_SIGNED), Const(0)).as_bool();
-		if(cellType.in(ID($add), ID($sub), ID($and), ID($or), ID($xor), ID($xnor), ID($mul))){
-			bool is_signed = a_signed && b_signed;
-			Node a = factory.extend(inputs.at(ID(A)), y_width, is_signed);
-			Node b = factory.extend(inputs.at(ID(B)), y_width, is_signed);
-			if(cellType == ID($add))
-				return factory.add(a, b);
-			else if(cellType == ID($sub))
-				return factory.sub(a, b);
-			else if(cellType == ID($mul))
-				return factory.mul(a, b);
-			else if(cellType == ID($and))
-				return factory.bitwise_and(a, b);
-			else if(cellType == ID($or))
-				return factory.bitwise_or(a, b);
-			else if(cellType == ID($xor))
-				return factory.bitwise_xor(a, b);
-			else if(cellType == ID($xnor))
-				return factory.bitwise_not(factory.bitwise_xor(a, b));
-			else
+		పూర్ణాంకం a_వెడల్పు = parameters.at(ID(A_వెడల్పు), Const(-1)).as_int();
+		పూర్ణాంకం b_వెడల్పు = parameters.at(ID(B_వెడల్పు), Const(-1)).as_int();
+		పూర్ణాంకం y_వెడల్పు = parameters.at(ID(Y_వెడల్పు), Const(-1)).as_int();
+		తార్కిక a_signed = parameters.at(ID(A_SIGNED), Const(0)).as_bool();
+		తార్కిక b_signed = parameters.at(ID(B_SIGNED), Const(0)).as_bool();
+		ఒకవేళ(cellType.లోపల(ID($కూడు), ID($sub), ID($and), ID($or), ID($xor), ID($xnor), ID($mul))){
+			తార్కిక is_signed = a_signed && b_signed;
+			కణుపు_2 a = factory.extend(inputs.at(ID(A)), y_వెడల్పు, is_signed);
+			కణుపు_2 b = factory.extend(inputs.at(ID(B)), y_వెడల్పు, is_signed);
+			ఒకవేళ(cellType == ID($కూడు))
+				తిరిగి factory.కూడు(a, b);
+			లేకపోతే ఒకవేళ(cellType == ID($sub))
+				తిరిగి factory.sub(a, b);
+			లేకపోతే ఒకవేళ(cellType == ID($mul))
+				తిరిగి factory.mul(a, b);
+			లేకపోతే ఒకవేళ(cellType == ID($and))
+				తిరిగి factory.bitwise_and(a, b);
+			లేకపోతే ఒకవేళ(cellType == ID($or))
+				తిరిగి factory.bitwise_or(a, b);
+			లేకపోతే ఒకవేళ(cellType == ID($xor))
+				తిరిగి factory.bitwise_xor(a, b);
+			లేకపోతే ఒకవేళ(cellType == ID($xnor))
+				తిరిగి factory.bitwise_not(factory.bitwise_xor(a, b));
+			లేకపోతే
 				log_abort();
-		}else if(cellType.in(ID($eq), ID($ne), ID($eqx), ID($nex), ID($le), ID($lt), ID($ge), ID($gt))){
-			bool is_signed = a_signed && b_signed;
-			int width = max(a_width, b_width);
-			Node a = factory.extend(inputs.at(ID(A)), width, is_signed);
-			Node b = factory.extend(inputs.at(ID(B)), width, is_signed);
-			if(cellType.in(ID($eq), ID($eqx)))
-				return factory.extend(factory.equal(a, b), y_width, false);
-			else if(cellType.in(ID($ne), ID($nex)))
-				return factory.extend(factory.not_equal(a, b), y_width, false);
-			else if(cellType == ID($lt))
-				return factory.extend(is_signed ? factory.signed_greater_than(b, a) : factory.unsigned_greater_than(b, a), y_width, false);
-			else if(cellType == ID($le))
-				return factory.extend(is_signed ? factory.signed_greater_equal(b, a) : factory.unsigned_greater_equal(b, a), y_width, false);
-			else if(cellType == ID($gt))
-				return factory.extend(is_signed ? factory.signed_greater_than(a, b) : factory.unsigned_greater_than(a, b), y_width, false);
-			else if(cellType == ID($ge))
-				return factory.extend(is_signed ? factory.signed_greater_equal(a, b) : factory.unsigned_greater_equal(a, b), y_width, false);
-			else
+		}లేకపోతే ఒకవేళ(cellType.లోపల(ID($eq), ID($ne), ID($eqx), ID($nex), ID($le), ID($lt), ID($ge), ID($gt))){
+			తార్కిక is_signed = a_signed && b_signed;
+			పూర్ణాంకం వెడల్పు = max(a_వెడల్పు, b_వెడల్పు);
+			కణుపు_2 a = factory.extend(inputs.at(ID(A)), వెడల్పు, is_signed);
+			కణుపు_2 b = factory.extend(inputs.at(ID(B)), వెడల్పు, is_signed);
+			ఒకవేళ(cellType.లోపల(ID($eq), ID($eqx)))
+				తిరిగి factory.extend(factory.equal(a, b), y_వెడల్పు, అబద్ధం);
+			లేకపోతే ఒకవేళ(cellType.లోపల(ID($ne), ID($nex)))
+				తిరిగి factory.extend(factory.not_equal(a, b), y_వెడల్పు, అబద్ధం);
+			లేకపోతే ఒకవేళ(cellType == ID($lt))
+				తిరిగి factory.extend(is_signed ? factory.signed_greater_than(b, a) : factory.unsigned_greater_than(b, a), y_వెడల్పు, అబద్ధం);
+			లేకపోతే ఒకవేళ(cellType == ID($le))
+				తిరిగి factory.extend(is_signed ? factory.signed_greater_equal(b, a) : factory.unsigned_greater_equal(b, a), y_వెడల్పు, అబద్ధం);
+			లేకపోతే ఒకవేళ(cellType == ID($gt))
+				తిరిగి factory.extend(is_signed ? factory.signed_greater_than(a, b) : factory.unsigned_greater_than(a, b), y_వెడల్పు, అబద్ధం);
+			లేకపోతే ఒకవేళ(cellType == ID($ge))
+				తిరిగి factory.extend(is_signed ? factory.signed_greater_equal(a, b) : factory.unsigned_greater_equal(a, b), y_వెడల్పు, అబద్ధం);
+			లేకపోతే
 				log_abort();
-		}else if(cellType.in(ID($logic_or), ID($logic_and))){
-			Node a = factory.reduce_or(inputs.at(ID(A)));
-			Node b = factory.reduce_or(inputs.at(ID(B)));
-			Node y = cellType == ID($logic_and) ? factory.bitwise_and(a, b) : factory.bitwise_or(a, b);
-			return factory.extend(y, y_width, false);
-		}else if(cellType == ID($not)){
-			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			return factory.bitwise_not(a);
-		}else if(cellType == ID($pos)){
-			return factory.extend(inputs.at(ID(A)), y_width, a_signed);
-		}else if(cellType == ID($barrier)){
-			return inputs.at(ID(A));
-		}else if(cellType == ID($neg)){
-			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			return factory.unary_minus(a);
-		}else if(cellType == ID($logic_not)){
-			Node a = factory.reduce_or(inputs.at(ID(A)));
-			Node y = factory.bitwise_not(a);
-			return factory.extend(y, y_width, false);
-		}else if(cellType.in(ID($reduce_or), ID($reduce_bool))){
-			Node a = factory.reduce_or(inputs.at(ID(A)));
-			return factory.extend(a, y_width, false);
-		}else if(cellType == ID($reduce_and)){
-			Node a = factory.reduce_and(inputs.at(ID(A)));
-			return factory.extend(a, y_width, false);
-		}else if(cellType.in(ID($reduce_xor), ID($reduce_xnor))){
-			Node a = factory.reduce_xor(inputs.at(ID(A)));
-			Node y = cellType == ID($reduce_xnor) ? factory.bitwise_not(a) : a;
-			return factory.extend(y, y_width, false);
-		}else if(cellType == ID($shl) || cellType == ID($sshl)){
-			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			Node b = inputs.at(ID(B));
-			return logical_shift_left(a, b);
-		}else if(cellType == ID($shr) || cellType == ID($sshr)){
-			int width = max(a_width, y_width);
-			Node a = factory.extend(inputs.at(ID(A)), width, a_signed);
-			Node b = inputs.at(ID(B));
-			Node y = a_signed && cellType == ID($sshr) ?
-				arithmetic_shift_right(a, b) :
-				logical_shift_right(a, b);
-			return factory.extend(y, y_width, a_signed);
-		}else if(cellType == ID($shiftx) || cellType == ID($shift)){
-			int width = max(a_width, y_width);
-			Node a = factory.extend(inputs.at(ID(A)), width, cellType == ID($shift) && a_signed);
-			Node b = inputs.at(ID(B));
-			Node shr = logical_shift_right(a, b);
-			if(b_signed) {
-				Node shl = logical_shift_left(a, factory.unary_minus(b));
-				Node y = factory.mux(shr, shl, sign(b));
-				return factory.extend(y, y_width, false);
-			} else {
-				return factory.extend(shr, y_width, false);
+		}లేకపోతే ఒకవేళ(cellType.లోపల(ID($logic_or), ID($logic_and))){
+			కణుపు_2 a = factory.reduce_or(inputs.at(ID(A)));
+			కణుపు_2 b = factory.reduce_or(inputs.at(ID(B)));
+			కణుపు_2 y = cellType == ID($logic_and) ? factory.bitwise_and(a, b) : factory.bitwise_or(a, b);
+			తిరిగి factory.extend(y, y_వెడల్పు, అబద్ధం);
+		}లేకపోతే ఒకవేళ(cellType == ID($not)){
+			కణుపు_2 a = factory.extend(inputs.at(ID(A)), y_వెడల్పు, a_signed);
+			తిరిగి factory.bitwise_not(a);
+		}లేకపోతే ఒకవేళ(cellType == ID($pos)){
+			తిరిగి factory.extend(inputs.at(ID(A)), y_వెడల్పు, a_signed);
+		}లేకపోతే ఒకవేళ(cellType == ID($barrier)){
+			తిరిగి inputs.at(ID(A));
+		}లేకపోతే ఒకవేళ(cellType == ID($neg)){
+			కణుపు_2 a = factory.extend(inputs.at(ID(A)), y_వెడల్పు, a_signed);
+			తిరిగి factory.unary_minus(a);
+		}లేకపోతే ఒకవేళ(cellType == ID($logic_not)){
+			కణుపు_2 a = factory.reduce_or(inputs.at(ID(A)));
+			కణుపు_2 y = factory.bitwise_not(a);
+			తిరిగి factory.extend(y, y_వెడల్పు, అబద్ధం);
+		}లేకపోతే ఒకవేళ(cellType.లోపల(ID($reduce_or), ID($reduce_bool))){
+			కణుపు_2 a = factory.reduce_or(inputs.at(ID(A)));
+			తిరిగి factory.extend(a, y_వెడల్పు, అబద్ధం);
+		}లేకపోతే ఒకవేళ(cellType == ID($reduce_and)){
+			కణుపు_2 a = factory.reduce_and(inputs.at(ID(A)));
+			తిరిగి factory.extend(a, y_వెడల్పు, అబద్ధం);
+		}లేకపోతే ఒకవేళ(cellType.లోపల(ID($reduce_xor), ID($reduce_xnor))){
+			కణుపు_2 a = factory.reduce_xor(inputs.at(ID(A)));
+			కణుపు_2 y = cellType == ID($reduce_xnor) ? factory.bitwise_not(a) : a;
+			తిరిగి factory.extend(y, y_వెడల్పు, అబద్ధం);
+		}లేకపోతే ఒకవేళ(cellType == ID($shl) || cellType == ID($sshl)){
+			కణుపు_2 a = factory.extend(inputs.at(ID(A)), y_వెడల్పు, a_signed);
+			కణుపు_2 b = inputs.at(ID(B));
+			తిరిగి logical_జరుపు_ఎడమ(a, b);
+		}లేకపోతే ఒకవేళ(cellType == ID($shr) || cellType == ID($sshr)){
+			పూర్ణాంకం వెడల్పు = max(a_వెడల్పు, y_వెడల్పు);
+			కణుపు_2 a = factory.extend(inputs.at(ID(A)), వెడల్పు, a_signed);
+			కణుపు_2 b = inputs.at(ID(B));
+			కణుపు_2 y = a_signed && cellType == ID($sshr) ?
+				arithmetic_జరుపు_కుడి(a, b) :
+				logical_జరుపు_కుడి(a, b);
+			తిరిగి factory.extend(y, y_వెడల్పు, a_signed);
+		}లేకపోతే ఒకవేళ(cellType == ID($shiftx) || cellType == ID($జరుపు)){
+			పూర్ణాంకం వెడల్పు = max(a_వెడల్పు, y_వెడల్పు);
+			కణుపు_2 a = factory.extend(inputs.at(ID(A)), వెడల్పు, cellType == ID($జరుపు) && a_signed);
+			కణుపు_2 b = inputs.at(ID(B));
+			కణుపు_2 shr = logical_జరుపు_కుడి(a, b);
+			ఒకవేళ(b_signed) {
+				కణుపు_2 shl = logical_జరుపు_ఎడమ(a, factory.unary_minus(b));
+				కణుపు_2 y = factory.mux(shr, shl, sign(b));
+				తిరిగి factory.extend(y, y_వెడల్పు, అబద్ధం);
+			} లేకపోతే {
+				తిరిగి factory.extend(shr, y_వెడల్పు, అబద్ధం);
 			}
-		}else if(cellType == ID($mux)){
-			return factory.mux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
-		}else if(cellType == ID($pmux)){
-			return handle_pmux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
-		}else if(cellType == ID($concat)){
-			Node a = inputs.at(ID(A));
-			Node b = inputs.at(ID(B));
-			return factory.concat(a, b);
-		}else if(cellType == ID($slice)){
-			int offset = parameters.at(ID(OFFSET)).as_int();
-			Node a = inputs.at(ID(A));
-			return factory.slice(a, offset, y_width);
-		}else if(cellType.in(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
-			int width = max(a_width, b_width);
-			bool is_signed = a_signed && b_signed;
-			Node a = factory.extend(inputs.at(ID(A)), width, is_signed);
-			Node b = factory.extend(inputs.at(ID(B)), width, is_signed);
-			if(is_signed) {
-				if(cellType == ID($div)) {
+		}లేకపోతే ఒకవేళ(cellType == ID($mux)){
+			తిరిగి factory.mux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
+		}లేకపోతే ఒకవేళ(cellType == ID($pmux)){
+			తిరిగి handle_pmux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
+		}లేకపోతే ఒకవేళ(cellType == ID($concat)){
+			కణుపు_2 a = inputs.at(ID(A));
+			కణుపు_2 b = inputs.at(ID(B));
+			తిరిగి factory.concat(a, b);
+		}లేకపోతే ఒకవేళ(cellType == ID($ముక్క)){
+			పూర్ణాంకం స్థానభ్రంశం = parameters.at(ID(స్థానభ్రంశం_2)).as_int();
+			కణుపు_2 a = inputs.at(ID(A));
+			తిరిగి factory.ముక్క(a, స్థానభ్రంశం, y_వెడల్పు);
+		}లేకపోతే ఒకవేళ(cellType.లోపల(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
+			పూర్ణాంకం వెడల్పు = max(a_వెడల్పు, b_వెడల్పు);
+			తార్కిక is_signed = a_signed && b_signed;
+			కణుపు_2 a = factory.extend(inputs.at(ID(A)), వెడల్పు, is_signed);
+			కణుపు_2 b = factory.extend(inputs.at(ID(B)), వెడల్పు, is_signed);
+			ఒకవేళ(is_signed) {
+				ఒకవేళ(cellType == ID($div)) {
 					// divide absolute values, then flip the sign if input signs differ
 					// but extend the width first, to handle the case (most negative value) / (-1)
-					Node abs_y = factory.unsigned_div(abs(a), abs(b));
-					Node out_sign = factory.not_equal(sign(a), sign(b));
-					return neg_if(factory.extend(abs_y, y_width, false), out_sign);
-				} else if(cellType == ID($mod)) {
+					కణుపు_2 abs_y = factory.unsigned_div(నిరపేక్ష(a), నిరపేక్ష(b));
+					కణుపు_2 బహిర్గతం_sign = factory.not_equal(sign(a), sign(b));
+					తిరిగి neg_if(factory.extend(abs_y, y_వెడల్పు, అబద్ధం), బహిర్గతం_sign);
+				} లేకపోతే ఒకవేళ(cellType == ID($mod)) {
 					// similar to division but output sign == divisor sign
-					Node abs_y = factory.unsigned_mod(abs(a), abs(b));
-					return neg_if(factory.extend(abs_y, y_width, false), sign(a));
-				} else if(cellType == ID($divfloor)) {
+					కణుపు_2 abs_y = factory.unsigned_mod(నిరపేక్ష(a), నిరపేక్ష(b));
+					తిరిగి neg_if(factory.extend(abs_y, y_వెడల్పు, అబద్ధం), sign(a));
+				} లేకపోతే ఒకవేళ(cellType == ID($divfloor)) {
 					// if b is negative, flip both signs so that b is positive
-					Node b_sign = sign(b);
-					Node a1 = neg_if(a, b_sign);
-					Node b1 = neg_if(b, b_sign);
+					కణుపు_2 b_sign = sign(b);
+					కణుపు_2 a1 = neg_if(a, b_sign);
+					కణుపు_2 b1 = neg_if(b, b_sign);
 					// if a is now negative, calculate ~((~a) / b) = -((-a - 1) / b + 1)
 					// which equals the negative of (-a) / b with rounding up rather than down
 					// note that to handle the case where a = most negative value properly,
 					// we have to calculate a1_sign from the original values rather than using sign(a1)
-					Node a1_sign = factory.bitwise_and(factory.not_equal(sign(a), sign(b)), factory.reduce_or(a));
-					Node a2 = factory.mux(a1, factory.bitwise_not(a1), a1_sign);
-					Node y1 = factory.unsigned_div(a2, b1);
-					Node y2 = factory.extend(y1, y_width, false);
-					return factory.mux(y2, factory.bitwise_not(y2), a1_sign);
-				} else if(cellType == ID($modfloor)) {
+					కణుపు_2 a1_sign = factory.bitwise_and(factory.not_equal(sign(a), sign(b)), factory.reduce_or(a));
+					కణుపు_2 a2 = factory.mux(a1, factory.bitwise_not(a1), a1_sign);
+					కణుపు_2 y1 = factory.unsigned_div(a2, b1);
+					కణుపు_2 y2 = factory.extend(y1, y_వెడల్పు, అబద్ధం);
+					తిరిగి factory.mux(y2, factory.bitwise_not(y2), a1_sign);
+				} లేకపోతే ఒకవేళ(cellType == ID($modfloor)) {
 					// calculate |a| % |b| and then subtract from |b| if input signs differ and the remainder is non-zero
-					Node abs_b = abs(b);
-					Node abs_y = factory.unsigned_mod(abs(a), abs_b);
-					Node flip_y = factory.bitwise_and(factory.bitwise_xor(sign(a), sign(b)), factory.reduce_or(abs_y));
-					Node y_flipped = factory.mux(abs_y, factory.sub(abs_b, abs_y), flip_y);
+					కణుపు_2 abs_b = నిరపేక్ష(b);
+					కణుపు_2 abs_y = factory.unsigned_mod(నిరపేక్ష(a), abs_b);
+					కణుపు_2 flip_y = factory.bitwise_and(factory.bitwise_xor(sign(a), sign(b)), factory.reduce_or(abs_y));
+					కణుపు_2 y_flipped = factory.mux(abs_y, factory.sub(abs_b, abs_y), flip_y);
 					// since y_flipped is strictly less than |b|, the top bit is always 0 and we can just sign extend the flipped result
-					Node y = neg_if(y_flipped, sign(b));
-					return factory.extend(y, y_width, true);
-				} else
+					కణుపు_2 y = neg_if(y_flipped, sign(b));
+					తిరిగి factory.extend(y, y_వెడల్పు, నిజం);
+				} లేకపోతే
 					log_error("unhandled cell in CellSimplifier %s\n", factory.ir().design->twines().str(cellType));
-			} else {
-				if(cellType.in(ID($mod), ID($modfloor)))
-					return factory.extend(factory.unsigned_mod(a, b), y_width, false);
-				else
-					return factory.extend(factory.unsigned_div(a, b), y_width, false);
+			} లేకపోతే {
+				ఒకవేళ(cellType.లోపల(ID($mod), ID($modfloor)))
+					తిరిగి factory.extend(factory.unsigned_mod(a, b), y_వెడల్పు, అబద్ధం);
+				లేకపోతే
+					తిరిగి factory.extend(factory.unsigned_div(a, b), y_వెడల్పు, అబద్ధం);
 			}
-		} else if(cellType == ID($pow)) {
-			return handle_pow(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed);
-		} else if (cellType == ID($lut)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			Const lut_table = parameters.at(ID(LUT));
-			lut_table.extu(1 << width);
-			return handle_bmux(factory.constant(lut_table), inputs.at(ID(A)), 0, 1, width);
-		} else if (cellType == ID($bwmux)) {
-			Node a = inputs.at(ID(A));
-			Node b = inputs.at(ID(B));
-			Node s = inputs.at(ID(S));
-			return factory.bitwise_or(
+		} లేకపోతే ఒకవేళ(cellType == ID($ఘాతం)) {
+			తిరిగి handle_pow(inputs.at(ID(A)), inputs.at(ID(B)), y_వెడల్పు, a_signed && b_signed);
+		} లేకపోతే ఒకవేళ (cellType == ID($lut)) {
+			పూర్ణాంకం వెడల్పు = parameters.at(ID(వెడల్పు_2)).as_int();
+			Const lut_పట్టిక = parameters.at(ID(LUT));
+			lut_పట్టిక.extu(1 << వెడల్పు);
+			తిరిగి handle_bmux(factory.constant(lut_పట్టిక), inputs.at(ID(A)), 0, 1, వెడల్పు);
+		} లేకపోతే ఒకవేళ (cellType == ID($bwmux)) {
+			కణుపు_2 a = inputs.at(ID(A));
+			కణుపు_2 b = inputs.at(ID(B));
+			కణుపు_2 s = inputs.at(ID(S));
+			తిరిగి factory.bitwise_or(
 				factory.bitwise_and(a, factory.bitwise_not(s)),
 				factory.bitwise_and(b, s));
-		} else if (cellType == ID($bweqx)) {
-			Node a = inputs.at(ID(A));
-			Node b = inputs.at(ID(B));
-			return factory.bitwise_not(factory.bitwise_xor(a, b));
-		} else if(cellType == ID($bmux)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			int s_width = parameters.at(ID(S_WIDTH)).as_int();
-			return handle_bmux(inputs.at(ID(A)), inputs.at(ID(S)), 0, width, s_width);
-		} else if(cellType == ID($demux)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			int s_width = parameters.at(ID(S_WIDTH)).as_int();
-			int y_width = width << s_width;
-			int b_width = ceil_log2(y_width);
-			Node a = factory.extend(inputs.at(ID(A)), y_width, false);
-			Node s = factory.extend(inputs.at(ID(S)), b_width, false);
-			Node b = factory.mul(s, factory.constant(Const(width, b_width)));
-			return factory.logical_shift_left(a, b);
-		} else if(cellType == ID($fa)) {
-			return handle_fa(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(C)));
-		} else if(cellType == ID($lcu)) {
-			return handle_lcu(inputs.at(ID(P)), inputs.at(ID(G)), inputs.at(ID(CI)));
-		} else if(cellType == ID($alu)) {
-			return handle_alu(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed, inputs.at(ID(CI)), inputs.at(ID(BI)));
-		} else if(cellType.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover))) {
-			Node a = factory.mux(factory.constant(Const(State::S1, 1)), inputs.at(ID(A)), inputs.at(ID(EN)));
-			auto &output = factory.add_output(cellName, cellType, Sort(1));
-			output.set_value(a);
-			return {};
-		} else if(cellType.in(ID($anyconst), ID($allconst), ID($anyseq), ID($allseq))) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			auto &input = factory.add_input(cellName, cellType, Sort(width));
-			return factory.value(input);
-		} else if(cellType == ID($initstate)) {
-			if(factory.ir().has_state(ID($initstate), ID($state)))
-				return factory.value(factory.ir().state(ID($initstate)));
-			else {
-				auto &state = factory.add_state(ID($initstate), ID($state), Sort(1));
-				state.set_initial_value(RTLIL::Const(State::S1, 1));
-				state.set_next_value(factory.constant(RTLIL::Const(State::S0, 1)));
-				return factory.value(state);
+		} లేకపోతే ఒకవేళ (cellType == ID($bweqx)) {
+			కణుపు_2 a = inputs.at(ID(A));
+			కణుపు_2 b = inputs.at(ID(B));
+			తిరిగి factory.bitwise_not(factory.bitwise_xor(a, b));
+		} లేకపోతే ఒకవేళ(cellType == ID($bmux)) {
+			పూర్ణాంకం వెడల్పు = parameters.at(ID(వెడల్పు_2)).as_int();
+			పూర్ణాంకం s_వెడల్పు = parameters.at(ID(S_వెడల్పు)).as_int();
+			తిరిగి handle_bmux(inputs.at(ID(A)), inputs.at(ID(S)), 0, వెడల్పు, s_వెడల్పు);
+		} లేకపోతే ఒకవేళ(cellType == ID($demux)) {
+			పూర్ణాంకం వెడల్పు = parameters.at(ID(వెడల్పు_2)).as_int();
+			పూర్ణాంకం s_వెడల్పు = parameters.at(ID(S_వెడల్పు)).as_int();
+			పూర్ణాంకం y_వెడల్పు = వెడల్పు << s_వెడల్పు;
+			పూర్ణాంకం b_వెడల్పు = ceil_log2(y_వెడల్పు);
+			కణుపు_2 a = factory.extend(inputs.at(ID(A)), y_వెడల్పు, అబద్ధం);
+			కణుపు_2 s = factory.extend(inputs.at(ID(S)), b_వెడల్పు, అబద్ధం);
+			కణుపు_2 b = factory.mul(s, factory.constant(Const(వెడల్పు, b_వెడల్పు)));
+			తిరిగి factory.logical_జరుపు_ఎడమ(a, b);
+		} లేకపోతే ఒకవేళ(cellType == ID($fa)) {
+			తిరిగి handle_fa(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(C)));
+		} లేకపోతే ఒకవేళ(cellType == ID($lcu)) {
+			తిరిగి handle_lcu(inputs.at(ID(P)), inputs.at(ID(G)), inputs.at(ID(CI)));
+		} లేకపోతే ఒకవేళ(cellType == ID($alu)) {
+			తిరిగి handle_alu(inputs.at(ID(A)), inputs.at(ID(B)), y_వెడల్పు, a_signed && b_signed, inputs.at(ID(CI)), inputs.at(ID(BI)));
+		} లేకపోతే ఒకవేళ(cellType.లోపల(ID($ప్రతిజ్ఞా), ID($assume), ID($సజీవ), ID($fair), ID($cover))) {
+			కణుపు_2 a = factory.mux(factory.constant(Const(State::S1, 1)), inputs.at(ID(A)), inputs.at(ID(EN)));
+			స్వయంచాలక &output = factory.కూడు_output(cellName, cellType, క్రమీకరించు_2(1));
+			output.సమితి_విలువ(a);
+			తిరిగి {};
+		} లేకపోతే ఒకవేళ(cellType.లోపల(ID($anyconst), ID($allconst), ID($anyseq), ID($allseq))) {
+			పూర్ణాంకం వెడల్పు = parameters.at(ID(వెడల్పు_2)).as_int();
+			స్వయంచాలక &ఆదానం = factory.కూడు_ఆదానం(cellName, cellType, క్రమీకరించు_2(వెడల్పు));
+			తిరిగి factory.విలువ(ఆదానం);
+		} లేకపోతే ఒకవేళ(cellType == ID($initstate)) {
+			ఒకవేళ(factory.ir().has_state(ID($initstate), ID($state)))
+				తిరిగి factory.విలువ(factory.ir().state(ID($initstate)));
+			లేకపోతే {
+				స్వయంచాలక &state = factory.కూడు_state(ID($initstate), ID($state), క్రమీకరించు_2(1));
+				state.సమితి_initial_విలువ(RTLIL::Const(State::S1, 1));
+				state.సమితి_తదుపరి_విలువ(factory.constant(RTLIL::Const(State::S0, 1)));
+				తిరిగి factory.విలువ(state);
 			}
-		} else if(cellType == ID($check)) {
+		} లేకపోతే ఒకవేళ(cellType == ID($check)) {
 			log_error("The design contains a $check cell `%s'. This is not supported by the functional backend. Call `chformal -lower' to avoid this error.\n", factory.ir().design->twines().str(cellName));
-		} else {
+		} లేకపోతే {
 			log_error("`%s' cells are not supported by the functional backend\n", factory.ir().design->twines().str(cellType));
 		}
 	}
 };
 
-class FunctionalIRConstruction {
-	std::deque<std::variant<DriveSpec, Cell *>> queue;
-	dict<DriveSpec, Node> graph_nodes;
-	dict<std::pair<Cell *, IdString>, Node> cell_outputs;
+తరగతి FunctionalIRConstruction {
+	std::deque<std::variant<DriveSpec, Cell *>> వరుస;
+	dict<DriveSpec, కణుపు_2> లేఖాచిత్రం_nodes;
+	dict<std::pair<Cell *, IdString>, కణుపు_2> cell_outputs;
 	DriverMap driver_map;
 	Factory& factory;
 	CellSimplifier simplifier;
-	vector<Mem> memories_vector;
+	సదిశ<Mem> memories_సదిశ;
 	dict<Cell*, Mem*> memories;
 	SigMap sig_map; // TODO: this is only for FfInitVals, remove this once FfInitVals supports DriverMap
 	FfInitVals ff_initvals;
 
-	Node enqueue(DriveSpec const &spec)
+	కణుపు_2 వరుసలో_చేర్చు(DriveSpec స్థిరరాశి &spec)
 	{
-		auto it = graph_nodes.find(spec);
-		if(it == graph_nodes.end()){
-			auto node = factory.create_pending(spec.size());
-			graph_nodes.insert({spec, node});
-			queue.emplace_back(spec);
-			return node;
-		}else
-			return it->second;
+		స్వయంచాలక it = లేఖాచిత్రం_nodes.కనుగొను(spec);
+		ఒకవేళ(it == లేఖాచిత్రం_nodes.చివర()){
+			స్వయంచాలక కణుపు = factory.create_pending(spec.కొలత());
+			లేఖాచిత్రం_nodes.చొప్పించు({spec, కణుపు});
+			వరుస.emplace_వెనుక(spec);
+			తిరిగి కణుపు;
+		}లేకపోతే
+			తిరిగి it->రెండవ;
 	}
-	Node enqueue_cell(Cell *cell, IdString port_name)
+	కణుపు_2 వరుసలో_చేర్చు_cell(Cell *cell, IdString పోర్టు_name)
 	{
-		auto it = cell_outputs.find({cell, port_name});
-		if(it == cell_outputs.end()) {
-			queue.emplace_back(cell);
-			std::optional<Node> rv;
-			for(auto const &[name, sigspec] : cell->connections())
-				if(driver_map.celltypes.cell_output(cell->type, name)) {
-					auto node = factory.create_pending(sigspec.size());
-					factory.suggest_name(node, cell->name.str() + "$" + PooledName(cell->module, name).str());
-					cell_outputs.emplace({cell, name}, node);
-					if(name == port_name)
-						rv = node;
+		స్వయంచాలక it = cell_outputs.కనుగొను({cell, పోర్టు_name});
+		ఒకవేళ(it == cell_outputs.చివర()) {
+			వరుస.emplace_వెనుక(cell);
+			std::optional<కణుపు_2> rv;
+			కొరకు(స్వయంచాలక స్థిరరాశి &[name, sigspec] : cell->connections())
+				ఒకవేళ(driver_map.celltypes.cell_output(cell->type, name)) {
+					స్వయంచాలక కణుపు = factory.create_pending(sigspec.కొలత());
+					factory.suggest_name(కణుపు, cell->name.str() + "$" + PooledName(cell->module, name).str());
+					cell_outputs.emplace({cell, name}, కణుపు);
+					ఒకవేళ(name == పోర్టు_name)
+						rv = కణుపు;
 				}
-			return *rv;
-		} else
-			return it->second;
+			తిరిగి *rv;
+		} లేకపోతే
+			తిరిగి it->రెండవ;
 	}
-public:
+బహిరంగ:
 	FunctionalIRConstruction(Module *module, Factory &f)
 		: factory(f)
 		, simplifier(f)
 		, sig_map(module)
 		, ff_initvals(&sig_map, module)
 	{
-		driver_map.add(module);
-		for (auto cell : module->cells()) {
-			if (cell->type.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover), ID($check)))
-				queue.emplace_back(cell);
+		driver_map.కూడు(module);
+		కొరకు (స్వయంచాలక cell : module->cells()) {
+			ఒకవేళ (cell->type.లోపల(ID($ప్రతిజ్ఞా), ID($assume), ID($సజీవ), ID($fair), ID($cover), ID($check)))
+				వరుస.emplace_వెనుక(cell);
 		}
 		// we are relying here on unsorted pools iterating last-in-first-out
-		for (auto riter = module->ports.rbegin(); riter != module->ports.rend(); ++riter) {
-			auto *wire = module->wire(*riter);
-			if (wire && wire->port_input) {
-				factory.add_input(wire->name, ID($input), Sort(wire->width));
+		కొరకు (స్వయంచాలక riter = module->ports.rbegin(); riter != module->ports.rend(); ++riter) {
+			స్వయంచాలక *wire = module->wire(*riter);
+			ఒకవేళ (wire && wire->పోర్టు_ఆదానం) {
+				factory.కూడు_ఆదానం(wire->name, ID($ఆదానం), క్రమీకరించు_2(wire->వెడల్పు));
 			}
-			if (wire && wire->port_output) {
-				auto &output = factory.add_output(wire->name, ID($output), Sort(wire->width));
-				output.set_value(enqueue(DriveChunk(DriveChunkWire(wire, 0, wire->width))));
+			ఒకవేళ (wire && wire->పోర్టు_output) {
+				స్వయంచాలక &output = factory.కూడు_output(wire->name, ID($output), క్రమీకరించు_2(wire->వెడల్పు));
+				output.సమితి_విలువ(వరుసలో_చేర్చు(DriveChunk(DriveChunkWire(wire, 0, wire->వెడల్పు))));
 			}
 		}
-		memories_vector = Mem::get_all_memories(module);
-		for (auto &mem : memories_vector) {
-			if (mem.cell != nullptr)
+		memories_సదిశ = Mem::get_all_memories(module);
+		కొరకు (స్వయంచాలక &mem : memories_సదిశ) {
+			ఒకవేళ (mem.cell != శూన్యసూచిక)
 				memories[mem.cell] = &mem;
 		}
 	}
-private:
-	Node concatenate_read_results(Mem *mem, vector<Node> results)
+అంతరంగ:
+	కణుపు_2 concatenate_read_results(Mem *mem, సదిశ<కణుపు_2> results)
 	{
 		// sanity check: all read ports concatenated should equal to the RD_DATA port
-		const SigSpec &rd_data = mem->cell->connections().at(ID(RD_DATA));
-		int current = 0;
-		for(size_t i = 0; i < mem->rd_ports.size(); i++) {
-			int width = mem->width << mem->rd_ports[i].wide_log2;
-			log_assert (results[i].width() == width);
-			log_assert (mem->rd_ports[i].data == rd_data.extract(current, width));
-			current += width;
+		స్థిరరాశి SigSpec &rd_దత్తాంశం = mem->cell->connections().at(ID(RD_దత్తాంశం));
+		పూర్ణాంకం current = 0;
+		కొరకు(కొలత_t i = 0; i < mem->rd_ports.కొలత(); i++) {
+			పూర్ణాంకం వెడల్పు = mem->వెడల్పు << mem->rd_ports[i].wide_log2;
+			log_assert (results[i].వెడల్పు() == వెడల్పు);
+			log_assert (mem->rd_ports[i].దత్తాంశం == rd_దత్తాంశం.వెలికితీయి(current, వెడల్పు));
+			current += వెడల్పు;
 		}
-		log_assert (current == rd_data.size());
-		log_assert (!results.empty());
-		Node node = results[0];
-		for(size_t i = 1; i < results.size(); i++)
-			node = factory.concat(node, results[i]);
-		return node;
+		log_assert (current == rd_దత్తాంశం.కొలత());
+		log_assert (!results.ఖాళీలు());
+		కణుపు_2 కణుపు = results[0];
+		కొరకు(కొలత_t i = 1; i < results.కొలత(); i++)
+			కణుపు = factory.concat(కణుపు, results[i]);
+		తిరిగి కణుపు;
 	}
-	Node handle_memory(Mem *mem)
+	కణుపు_2 handle_జ్ఞాపకం(Mem *mem)
 	{
 		// To simplify memory handling, the functional backend makes the following assumptions:
 		// - Since async2sync or clk2fflogic must be run to use the functional backend,
@@ -566,159 +566,159 @@ private:
 		// - We ignore collision_x_mask because x is a dont care value for us anyway.
 		// - Since wr port j can only have priority over wr port i if j > i, if we do writes in
 		//   ascending index order the result will obey the priorty relation.
-		vector<Node> read_results;
-		auto &state = factory.add_state(mem->cell->name, ID($state), Sort(ceil_log2(mem->size), mem->width));
-		state.set_initial_value(MemContents(mem));
-		Node node = factory.value(state);
-		for (size_t i = 0; i < mem->wr_ports.size(); i++) {
-			const auto &wr = mem->wr_ports[i];
-			if (wr.clk_enable)
+		సదిశ<కణుపు_2> read_results;
+		స్వయంచాలక &state = factory.కూడు_state(mem->cell->name, ID($state), క్రమీకరించు_2(ceil_log2(mem->కొలత), mem->వెడల్పు));
+		state.సమితి_initial_విలువ(MemContents(mem));
+		కణుపు_2 కణుపు = factory.విలువ(state);
+		కొరకు (కొలత_t i = 0; i < mem->wr_ports.కొలత(); i++) {
+			స్థిరరాశి స్వయంచాలక &wr = mem->wr_ports[i];
+			ఒకవేళ (wr.clk_enable)
 				log_error("Write port %zd of memory %s.%s is clocked. This is not supported by the functional backend. "
 					"Call async2sync or clk2fflogic to avoid this error.\n", i, mem->module, PooledName(mem->module, mem->memid).unescape());
-			Node en = enqueue(driver_map(DriveSpec(wr.en)));
-			Node addr = enqueue(driver_map(DriveSpec(wr.addr)));
-			Node new_data = enqueue(driver_map(DriveSpec(wr.data)));
-			Node old_data = factory.memory_read(node, addr);
-			Node wr_data = simplifier.bitwise_mux(old_data, new_data, en);
-			node = factory.memory_write(node, addr, wr_data);
+			కణుపు_2 en = వరుసలో_చేర్చు(driver_map(DriveSpec(wr.en)));
+			కణుపు_2 addr = వరుసలో_చేర్చు(driver_map(DriveSpec(wr.addr)));
+			కణుపు_2 new_దత్తాంశం = వరుసలో_చేర్చు(driver_map(DriveSpec(wr.దత్తాంశం)));
+			కణుపు_2 old_దత్తాంశం = factory.జ్ఞాపకం_read(కణుపు, addr);
+			కణుపు_2 wr_దత్తాంశం = simplifier.bitwise_mux(old_దత్తాంశం, new_దత్తాంశం, en);
+			కణుపు = factory.జ్ఞాపకం_write(కణుపు, addr, wr_దత్తాంశం);
 		}
-		if (mem->rd_ports.empty())
+		ఒకవేళ (mem->rd_ports.ఖాళీలు())
 			log_error("Memory %s.%s has no read ports. This is not supported by the functional backend. "
 				"Call opt_clean to remove it.", mem->module, PooledName(mem->module, mem->memid).unescape());
-		for (size_t i = 0; i < mem->rd_ports.size(); i++) {
-			const auto &rd = mem->rd_ports[i];
-			if (rd.clk_enable)
+		కొరకు (కొలత_t i = 0; i < mem->rd_ports.కొలత(); i++) {
+			స్థిరరాశి స్వయంచాలక &rd = mem->rd_ports[i];
+			ఒకవేళ (rd.clk_enable)
 				log_error("Read port %zd of memory %s.%s is clocked. This is not supported by the functional backend. "
 					"Call memory_nordff to avoid this error.\n", i, mem->module, PooledName(mem->module, mem->memid).unescape());
-			Node addr = enqueue(driver_map(DriveSpec(rd.addr)));
-			read_results.push_back(factory.memory_read(node, addr));
+			కణుపు_2 addr = వరుసలో_చేర్చు(driver_map(DriveSpec(rd.addr)));
+			read_results.నెట్టు_వెనుక(factory.జ్ఞాపకం_read(కణుపు, addr));
 		}
-		state.set_next_value(node);
-		return concatenate_read_results(mem, read_results);
+		state.సమితి_తదుపరి_విలువ(కణుపు);
+		తిరిగి concatenate_read_results(mem, read_results);
 	}
-	void process_cell(Cell *cell)
+	శూన్య process_cell(Cell *cell)
 	{
-		if (cell->is_mem_cell()) {
-			Mem *mem = memories.at(cell, nullptr);
-			if (mem == nullptr) {
+		ఒకవేళ (cell->is_mem_cell()) {
+			Mem *mem = memories.at(cell, శూన్యసూచిక);
+			ఒకవేళ (mem == శూన్యసూచిక) {
 				log_assert(cell->has_memid());
 				log_error("The design contains an unpacked memory at %s. This is not supported by the functional backend. "
 					"Call memory_collect to avoid this error.\n", log_const(cell->parameters.at(ID(MEMID))));
 			}
-			Node node = handle_memory(mem);
-			factory.update_pending(cell_outputs.at({cell, ID(RD_DATA)}), node);
-		} else if (cell->is_builtin_ff()) {
-			FfData ff(&ff_initvals, cell);
-			if (!ff.has_gclk)
+			కణుపు_2 కణుపు = handle_జ్ఞాపకం(mem);
+			factory.update_pending(cell_outputs.at({cell, ID(RD_దత్తాంశం)}), కణుపు);
+		} లేకపోతే ఒకవేళ (cell->is_builtin_ff()) {
+			Ff_దత్తాంశం ff(&ff_initvals, cell);
+			ఒకవేళ (!ff.has_gclk)
 				log_error("The design contains a %s flip-flop at %s. This is not supported by the functional backend. "
 					"Call async2sync or clk2fflogic to avoid this error.\n", cell->type.unescape(), cell);
-			auto &state = factory.add_state(ff.name, ID($state), Sort(ff.width));
-			Node q_value = factory.value(state);
-			factory.suggest_name(q_value, ff.name);
-			factory.update_pending(cell_outputs.at({cell, ID(Q)}), q_value);
-			state.set_next_value(enqueue(ff.sig_d));
-			state.set_initial_value(ff.val_init);
-		} else {
-			dict<IdString, Node> connections;
+			స్వయంచాలక &state = factory.కూడు_state(ff.name, ID($state), క్రమీకరించు_2(ff.వెడల్పు));
+			కణుపు_2 q_విలువ = factory.విలువ(state);
+			factory.suggest_name(q_విలువ, ff.name);
+			factory.update_pending(cell_outputs.at({cell, ID(Q)}), q_విలువ);
+			state.సమితి_తదుపరి_విలువ(వరుసలో_చేర్చు(ff.sig_d));
+			state.సమితి_initial_విలువ(ff.val_init);
+		} లేకపోతే {
+			dict<IdString, కణుపు_2> connections;
 			IdString output_name; // for the single output case
-			int n_outputs = 0;
-			for(auto const &[name, sigspec] : cell->connections()) {
-				if(driver_map.celltypes.cell_input(cell->type, name) && sigspec.size() > 0)
-					connections.insert({ name, enqueue(DriveChunkPort(cell, {name, sigspec})) });
-				if(driver_map.celltypes.cell_output(cell->type, name)) {
+			పూర్ణాంకం n_outputs = 0;
+			కొరకు(స్వయంచాలక స్థిరరాశి &[name, sigspec] : cell->connections()) {
+				ఒకవేళ(driver_map.celltypes.cell_ఆదానం(cell->type, name) && sigspec.కొలత() > 0)
+					connections.చొప్పించు({ name, వరుసలో_చేర్చు(Drive_Chunk_పోర్టు(cell, {name, sigspec})) });
+				ఒకవేళ(driver_map.celltypes.cell_output(cell->type, name)) {
 					output_name = name;
 					n_outputs++;
 				}
 			}
-			std::variant<dict<IdString, Node>, Node> outputs = simplifier.handle(cell->name, cell->type, cell->parameters, connections);
-			if(auto *nodep = std::get_if<Node>(&outputs); nodep != nullptr) {
+			std::variant<dict<IdString, కణుపు_2>, కణుపు_2> outputs = simplifier.handle(cell->name, cell->type, cell->parameters, connections);
+			ఒకవేళ(స్వయంచాలక *nodep = std::get_if<కణుపు_2>(&outputs); nodep != శూన్యసూచిక) {
 				log_assert(n_outputs == 1);
 				factory.update_pending(cell_outputs.at({cell, output_name}), *nodep);
-			} else {
-				for(auto [name, node] : std::get<dict<IdString, Node>>(outputs))
-					factory.update_pending(cell_outputs.at({cell, name}), node);
+			} లేకపోతే {
+				కొరకు(స్వయంచాలక [name, కణుపు] : std::get<dict<IdString, కణుపు_2>>(outputs))
+					factory.update_pending(cell_outputs.at({cell, name}), కణుపు);
 			}
 		}
 	}
-	void undriven(const std::string& name) {
+	శూన్య undriven(స్థిరరాశి std::string& name) {
 		log_error("The design contains an undriven signal %s. This is not supported by the functional backend. "
 			"Call setundef with appropriate options to avoid this error.\n", name);
 	}
 	// we perform this check separately to give better error messages that include the wire or port name
-	void check_undriven(DriveSpec const& spec, std::string const& name) {
-		for(auto const &chunk : spec.chunks())
-			if(chunk.is_none())
+	శూన్య check_undriven(DriveSpec స్థిరరాశి& spec, std::string స్థిరరాశి& name) {
+		కొరకు(స్వయంచాలక స్థిరరాశి &chunk : spec.chunks())
+			ఒకవేళ(chunk.is_none())
 				undriven(name);
 	}
-public:
-	void process_queue()
+బహిరంగ:
+	శూన్య process_వరుస()
 	{
-		for (; !queue.empty(); queue.pop_front()) {
-			if(auto p = std::get_if<Cell *>(&queue.front()); p != nullptr) {
+		కొరకు (; !వరుస.ఖాళీలు(); వరుస.తీయి_front()) {
+			ఒకవేళ(స్వయంచాలక p = std::get_if<Cell *>(&వరుస.front()); p != శూన్యసూచిక) {
 				process_cell(*p);
-				continue;
+				కొనసాగు;
 			}
 
-			DriveSpec spec = std::get<DriveSpec>(queue.front());
-			Node pending = graph_nodes.at(spec);
+			DriveSpec spec = std::get<DriveSpec>(వరుస.front());
+			కణుపు_2 pending = లేఖాచిత్రం_nodes.at(spec);
 
-			if (spec.chunks().size() > 1) {
-				auto chunks = spec.chunks();
-				Node node = enqueue(chunks[0]);
-				for(size_t i = 1; i < chunks.size(); i++)
-					node = factory.concat(node, enqueue(chunks[i]));
-				factory.update_pending(pending, node);
-			} else if (spec.chunks().size() == 1) {
+			ఒకవేళ (spec.chunks().కొలత() > 1) {
+				స్వయంచాలక chunks = spec.chunks();
+				కణుపు_2 కణుపు = వరుసలో_చేర్చు(chunks[0]);
+				కొరకు(కొలత_t i = 1; i < chunks.కొలత(); i++)
+					కణుపు = factory.concat(కణుపు, వరుసలో_చేర్చు(chunks[i]));
+				factory.update_pending(pending, కణుపు);
+			} లేకపోతే ఒకవేళ (spec.chunks().కొలత() == 1) {
 				DriveChunk chunk = spec.chunks()[0];
-				if (chunk.is_wire()) {
+				ఒకవేళ (chunk.is_wire()) {
 					DriveChunkWire wire_chunk = chunk.wire();
-					if (wire_chunk.is_whole()) {
-						if (wire_chunk.wire->port_input) {
-							Node node = factory.value(factory.ir().input(wire_chunk.wire->name));
-							factory.suggest_name(node, wire_chunk.wire->name);
-							factory.update_pending(pending, node);
-						} else {
+					ఒకవేళ (wire_chunk.is_సంపూర్ణ()) {
+						ఒకవేళ (wire_chunk.wire->పోర్టు_ఆదానం) {
+							కణుపు_2 కణుపు = factory.విలువ(factory.ir().ఆదానం(wire_chunk.wire->name));
+							factory.suggest_name(కణుపు, wire_chunk.wire->name);
+							factory.update_pending(pending, కణుపు);
+						} లేకపోతే {
 							DriveSpec driver = driver_map(DriveSpec(wire_chunk));
 							check_undriven(driver, wire_chunk.wire->name.unescape());
-							Node node = enqueue(driver);
-							factory.suggest_name(node, wire_chunk.wire->name);
-							factory.update_pending(pending, node);
+							కణుపు_2 కణుపు = వరుసలో_చేర్చు(driver);
+							factory.suggest_name(కణుపు, wire_chunk.wire->name);
+							factory.update_pending(pending, కణుపు);
 						}
-					} else {
-						DriveChunkWire whole_wire(wire_chunk.wire, 0, wire_chunk.wire->width);
-						Node node = factory.slice(enqueue(whole_wire), wire_chunk.offset, wire_chunk.width);
-						factory.update_pending(pending, node);
+					} లేకపోతే {
+						DriveChunkWire సంపూర్ణ_wire(wire_chunk.wire, 0, wire_chunk.wire->వెడల్పు);
+						కణుపు_2 కణుపు = factory.ముక్క(వరుసలో_చేర్చు(సంపూర్ణ_wire), wire_chunk.స్థానభ్రంశం, wire_chunk.వెడల్పు);
+						factory.update_pending(pending, కణుపు);
 					}
-				} else if (chunk.is_port()) {
-					DriveChunkPort port_chunk = chunk.port();
-					if (port_chunk.is_whole()) {
-						if (driver_map.celltypes.cell_output(port_chunk.cell->type, port_chunk.port)) {
-							Node node = enqueue_cell(port_chunk.cell, port_chunk.port);
-							factory.update_pending(pending, node);
-						} else {
-							DriveSpec driver = driver_map(DriveSpec(port_chunk));
-							check_undriven(driver, port_chunk.cell->name.unescape() + " port " + PooledName(port_chunk.cell->module, port_chunk.port).unescape());
-							factory.update_pending(pending, enqueue(driver));
+				} లేకపోతే ఒకవేళ (chunk.is_పోర్టు()) {
+					Drive_Chunk_పోర్టు పోర్టు_chunk = chunk.పోర్టు();
+					ఒకవేళ (పోర్టు_chunk.is_సంపూర్ణ()) {
+						ఒకవేళ (driver_map.celltypes.cell_output(పోర్టు_chunk.cell->type, పోర్టు_chunk.పోర్టు)) {
+							కణుపు_2 కణుపు = వరుసలో_చేర్చు_cell(పోర్టు_chunk.cell, పోర్టు_chunk.పోర్టు);
+							factory.update_pending(pending, కణుపు);
+						} లేకపోతే {
+							DriveSpec driver = driver_map(DriveSpec(పోర్టు_chunk));
+							check_undriven(driver, పోర్టు_chunk.cell->name.unescape() + " port " + PooledName(పోర్టు_chunk.cell->module, పోర్టు_chunk.పోర్టు).unescape());
+							factory.update_pending(pending, వరుసలో_చేర్చు(driver));
 						}
-					} else {
-						DriveChunkPort whole_port(port_chunk.cell, port_chunk.port, 0, GetSize(port_chunk.cell->connections().at(port_chunk.port)));
-						Node node = factory.slice(enqueue(whole_port), port_chunk.offset, port_chunk.width);
-						factory.update_pending(pending, node);
+					} లేకపోతే {
+						Drive_Chunk_పోర్టు సంపూర్ణ_పోర్టు(పోర్టు_chunk.cell, పోర్టు_chunk.పోర్టు, 0, Get_కొలత(పోర్టు_chunk.cell->connections().at(పోర్టు_chunk.పోర్టు)));
+						కణుపు_2 కణుపు = factory.ముక్క(వరుసలో_చేర్చు(సంపూర్ణ_పోర్టు), పోర్టు_chunk.స్థానభ్రంశం, పోర్టు_chunk.వెడల్పు);
+						factory.update_pending(pending, కణుపు);
 					}
-				} else if (chunk.is_constant()) {
-					Node node = factory.constant(chunk.constant());
-					factory.suggest_name(node, "$const" + std::to_string(chunk.size()) + "b" + chunk.constant().as_string());
-					factory.update_pending(pending, node);
-				} else if (chunk.is_multiple()) {
+				} లేకపోతే ఒకవేళ (chunk.is_constant()) {
+					కణుపు_2 కణుపు = factory.constant(chunk.constant());
+					factory.suggest_name(కణుపు, "$const" + std::గమ్యం_string(chunk.కొలత()) + "b" + chunk.constant().as_string());
+					factory.update_pending(pending, కణుపు);
+				} లేకపోతే ఒకవేళ (chunk.is_గుణిజం()) {
 					log_error("Signal %s has multiple drivers. This is not supported by the functional backend. "
 						"If tristate drivers are used, call tristate -formal to avoid this error.\n", log_signal(chunk));
-				} else if (chunk.is_none()) {
+				} లేకపోతే ఒకవేళ (chunk.is_none()) {
 					undriven(log_signal(chunk));
-				} else {
+				} లేకపోతే {
 					log_error("unhandled drivespec: %s\n", log_signal(chunk));
 					log_abort();
 				}
-			} else {
+			} లేకపోతే {
 				log_abort();
 			}
 		}
@@ -728,132 +728,132 @@ public:
 IR IR::from_module(Module *module) {
 	IR ir;
     ir.design = module->design;
-    auto factory = ir.factory();
+    స్వయంచాలక factory = ir.factory();
     FunctionalIRConstruction ctor(module, factory);
-    ctor.process_queue();
-    ir.topological_sort();
+    ctor.process_వరుస();
+    ir.topological_క్రమీకరించు();
     ir.forward_buf();
-    return ir;
+    తిరిగి ir;
 }
 
-void IR::topological_sort() {
-    Graph::SccAdaptor compute_graph_scc(_graph);
-    bool scc = false;
-    std::vector<int> perm;
-    TopoSortedSccs toposort(compute_graph_scc, [&](int *begin, int *end) {
-        perm.insert(perm.end(), begin, end);
-        if (end > begin + 1)
+శూన్య IR::topological_క్రమీకరించు() {
+    లేఖాచిత్రం::SccAdaptor compute_లేఖాచిత్రం_scc(లేఖాచిత్రం_4);
+    తార్కిక scc = అబద్ధం;
+    std::సదిశ<పూర్ణాంకం> perm;
+    TopoSortedSccs toposort(compute_లేఖాచిత్రం_scc, [&](పూర్ణాంకం *begin, పూర్ణాంకం *చివర) {
+        perm.చొప్పించు(perm.చివర(), begin, చివర);
+        ఒకవేళ (చివర > begin + 1)
         {
             log_warning("Combinational loop:\n");
-            for (int *i = begin; i != end; ++i) {
-				Node node(_graph[*i], design);
-                log("- %s = %s\n", node.name().unescape(), node.to_string());
+            కొరకు (పూర్ణాంకం *i = begin; i != చివర; ++i) {
+				కణుపు_2 కణుపు(లేఖాచిత్రం_4[*i], design);
+                సంవర్గమానం("- %s = %s\n", కణుపు.name().unescape(), కణుపు.గమ్యం_string());
 			}
-            log("\n");
-            scc = true;
+            సంవర్గమానం("\n");
+            scc = నిజం;
         }
     });
-	for(const auto &[name, state]: _states)
-		if(state.has_next_value())
-			toposort.process(state.next_value().id());
-	for(const auto &[name, output]: _outputs)
-		if(output.has_value())
-			toposort.process(output.value().id());
+	కొరకు(స్థిరరాశి స్వయంచాలక &[name, state]: స్థితులు_2)
+		ఒకవేళ(state.has_తదుపరి_విలువ())
+			toposort.process(state.తదుపరి_విలువ().id());
+	కొరకు(స్థిరరాశి స్వయంచాలక &[name, output]: _outputs)
+		ఒకవేళ(output.has_విలువ())
+			toposort.process(output.విలువ().id());
 	// any nodes untouched by this point are dead code and will be removed by permute
-    _graph.permute(perm);
-    if(scc) log_error("The design contains combinational loops. This is not supported by the functional backend. "
+    లేఖాచిత్రం_4.క్రమమార్పు(perm);
+    ఒకవేళ(scc) log_error("The design contains combinational loops. This is not supported by the functional backend. "
 		"Try `scc -select; simplemap; select -clear` to avoid this error.\n");
 }
 
-static IdString merge_name(IdString a, IdString b) {
-	if(!a.isPublic() && b.isPublic())
-		return b;
-	else
-		return a;
+స్థిర IdString విలీనం_name(IdString a, IdString b) {
+	ఒకవేళ(!a.is_ప్రజా() && b.is_ప్రజా())
+		తిరిగి b;
+	లేకపోతే
+		తిరిగి a;
 }
 
-void IR::forward_buf() {
-    std::vector<int> perm, alias;
+శూన్య IR::forward_buf() {
+    std::సదిశ<పూర్ణాంకం> perm, alias;
     perm.clear();
 
-    for (int i = 0; i < _graph.size(); ++i)
+    కొరకు (పూర్ణాంకం i = 0; i < లేఖాచిత్రం_4.కొలత(); ++i)
     {
-        auto node = _graph[i];
-        if (node.function().fn() == Fn::buf && node.arg(0).index() < i)
+        స్వయంచాలక కణుపు = లేఖాచిత్రం_4[i];
+        ఒకవేళ (కణుపు.function().fn() == Fn::buf && కణుపు.arg(0).సూచీ() < i)
         {
-            int target_index = alias[node.arg(0).index()];
-            auto target_node = _graph[perm[target_index]];
-			if(node.has_sparse_attr()) {
-				if(target_node.has_sparse_attr()) {
-					IdString id = merge_name(node.sparse_attr(), target_node.sparse_attr());
-					target_node.sparse_attr() = id;
-				} else {
-					IdString id = node.sparse_attr();
-					target_node.sparse_attr() = id;
+            పూర్ణాంకం లక్ష్యం_సూచీ = alias[కణుపు.arg(0).సూచీ()];
+            స్వయంచాలక లక్ష్యం_కణుపు = లేఖాచిత్రం_4[perm[లక్ష్యం_సూచీ]];
+			ఒకవేళ(కణుపు.has_sparse_attr()) {
+				ఒకవేళ(లక్ష్యం_కణుపు.has_sparse_attr()) {
+					IdString id = విలీనం_name(కణుపు.sparse_attr(), లక్ష్యం_కణుపు.sparse_attr());
+					లక్ష్యం_కణుపు.sparse_attr() = id;
+				} లేకపోతే {
+					IdString id = కణుపు.sparse_attr();
+					లక్ష్యం_కణుపు.sparse_attr() = id;
 				}
 			}
-            alias.push_back(target_index);
+            alias.నెట్టు_వెనుక(లక్ష్యం_సూచీ);
         }
-        else
+        లేకపోతే
         {
-            alias.push_back(GetSize(perm));
-            perm.push_back(i);
+            alias.నెట్టు_వెనుక(Get_కొలత(perm));
+            perm.నెట్టు_వెనుక(i);
         }
     }
-    _graph.permute(perm, alias);
+    లేఖాచిత్రం_4.క్రమమార్పు(perm, alias);
 }
 
 // Quoting routine to make error messages nicer
-static std::string quote_fmt(const char *fmt)
+స్థిర std::string quote_fmt(స్థిరరాశి అక్షరం *fmt)
 {
 	std::string r;
-	for(const char *p = fmt; *p != 0; p++) {
-		switch(*p) {
-		case '\n': r += "\\n"; break;
-		case '\t': r += "\\t"; break;
-		case '"': r += "\\\""; break;
-		case '\\': r += "\\\\"; break;
-		default: r += *p; break;
+	కొరకు(స్థిరరాశి అక్షరం *p = fmt; *p != 0; p++) {
+		ఎంపిక(*p) {
+		స్థితి '\n': r += "\\n"; ఆపు;
+		స్థితి '\t': r += "\\t"; ఆపు;
+		స్థితి '"': r += "\\\""; ఆపు;
+		స్థితి '\\': r += "\\\\"; ఆపు;
+		అప్రమేయ: r += *p; ఆపు;
 		}
 	}
-	return r;
+	తిరిగి r;
 }
 
-void Writer::print_impl(const char *fmt, vector<std::function<void()>> &fns)
+శూన్య Writer::print_impl(స్థిరరాశి అక్షరం *fmt, సదిశ<std::function<శూన్య()>> &fns)
 {
-	size_t next_index = 0;
-	for(const char *p = fmt; *p != 0; p++)
-		switch(*p) {
-		case '{':
-			if(*++p == '{') {
+	కొలత_t తదుపరి_సూచీ = 0;
+	కొరకు(స్థిరరాశి అక్షరం *p = fmt; *p != 0; p++)
+		ఎంపిక(*p) {
+		స్థితి '{':
+			ఒకవేళ(*++p == '{') {
 				*os << '{';
-			} else {
-				char *pe;
-				size_t index = strtoul(p, &pe, 10);
-				if(*pe != '}')
+			} లేకపోతే {
+				అక్షరం *pe;
+				కొలత_t సూచీ = strtoul(p, &pe, 10);
+				ఒకవేళ(*pe != '}')
 					log_error("invalid format string: expected {<number>}, {} or {{, got \"%s\": \"%s\"\n",
 						quote_fmt(std::string(p - 1, pe - p + 2).c_str()).c_str(),
 						quote_fmt(fmt).c_str());
-				if(p == pe)
-					index = next_index;
-				else
+				ఒకవేళ(p == pe)
+					సూచీ = తదుపరి_సూచీ;
+				లేకపోతే
 					p = pe;
-				if(index >= fns.size())
-					log_error("invalid format string: index %zu out of bounds (%zu): \"%s\"\n", index, fns.size(), quote_fmt(fmt));
-				fns[index]();
-				next_index = index + 1;
+				ఒకవేళ(సూచీ >= fns.కొలత())
+					log_error("invalid format string: index %zu out of bounds (%zu): \"%s\"\n", సూచీ, fns.కొలత(), quote_fmt(fmt));
+				fns[సూచీ]();
+				తదుపరి_సూచీ = సూచీ + 1;
 			}
-			break;
-		case '}':
+			ఆపు;
+		స్థితి '}':
 			p++;
-			if(*p != '}')
+			ఒకవేళ(*p != '}')
 				log_error("invalid format string: unescaped }: \"%s\"\n", quote_fmt(fmt));
 			*os << '}';
-			break;
-		default:
+			ఆపు;
+		అప్రమేయ:
 			*os << *p;
 		}
 }
 
 }
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర

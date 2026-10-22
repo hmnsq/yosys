@@ -17,169 +17,169 @@
  *
  */
 
-#ifndef YW_H
-#define YW_H
+#నిర్వచితం_కాకపోతే YW_H
+#నిర్వచించు YW_H
 
-#include "kernel/yosys.h"
-#include "kernel/mem.h"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "kernel/mem.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct IdPath : public std::vector<std::string>
+నిర్మాణం Id_మార్గం : బహిరంగ std::సదిశ<std::string>
 {
-	template<typename... T>
-	IdPath(T&&... args) : std::vector<std::string>(std::forward<T>(args)...) { }
-	IdPath prefix() const { return {begin(), end() - !empty()}; }
-	std::string str() const;
+	మూస<typename... T>
+	Id_మార్గం(T&&... వాదనలు_2) : std::సదిశ<std::string>(std::forward<T>(వాదనలు_2)...) { }
+	Id_మార్గం ఉపసర్గ_2() స్థిరరాశి { తిరిగి {begin(), చివర() - !ఖాళీలు()}; }
+	std::string str() స్థిరరాశి;
 
-	bool has_address() const { int tmp; return get_address(tmp); };
-	bool get_address(int &addr) const;
+	bool has_చిరునామా() స్థిరరాశి { పూర్ణాంకం tmp; తిరిగి get_చిరునామా(tmp); };
+	bool get_చిరునామా(పూర్ణాంకం &addr) స్థిరరాశి;
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
-		h.eat(static_cast<const std::vector<std::string>&&>(*this));
-		return h;
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి {
+		h.eat(static_cast<స్థిరరాశి std::సదిశ<std::string>&&>(*this));
+		తిరిగి h;
 	}
 };
 
-struct WitnessHierarchyItem {
+నిర్మాణం Witness_Hierarchy_అంశం {
 	RTLIL::Module *module;
 	RTLIL::Wire *wire = nullptr;
 	RTLIL::Cell *cell = nullptr;
 	Mem *mem = nullptr;
 
-	WitnessHierarchyItem(RTLIL::Module *module, RTLIL::Wire *wire) : module(module), wire(wire) {}
-	WitnessHierarchyItem(RTLIL::Module *module, RTLIL::Cell *cell) : module(module), cell(cell) {}
-	WitnessHierarchyItem(RTLIL::Module *module, Mem *mem) : module(module), mem(mem) {}
+	Witness_Hierarchy_అంశం(RTLIL::Module *module, RTLIL::Wire *wire) : module(module), wire(wire) {}
+	Witness_Hierarchy_అంశం(RTLIL::Module *module, RTLIL::Cell *cell) : module(module), cell(cell) {}
+	Witness_Hierarchy_అంశం(RTLIL::Module *module, Mem *mem) : module(module), mem(mem) {}
 };
 
-template<typename D, typename T>
-void witness_hierarchy(RTLIL::Module *module, D data, T callback);
+మూస<typename D, typename T>
+శూన్య witness_hierarchy(RTLIL::Module *module, D దత్తాంశం, T callback);
 
-template<class T> static std::vector<std::string> witness_path(T *obj) {
-	std::vector<std::string> path;
-	if (obj->name.isPublic()) {
-		auto hdlname = obj->get_string_attribute(ID::hdlname);
-		for (auto token : split_tokens(hdlname))
-			path.push_back("\\" + token);
+మూస<class T> స్థిర std::సదిశ<std::string> witness_మార్గం(T *obj) {
+	std::సదిశ<std::string> మార్గం_2;
+	ఒకవేళ (obj->name.is_ప్రజా()) {
+		స్వయంచాలక hdlname = obj->get_string_attribute(ID::hdlname);
+		కొరకు (స్వయంచాలక token : విభజించు_టోకెన్లు(hdlname))
+			మార్గం_2.నెట్టు_వెనుక("\\" + token);
 	}
-	if (path.empty())
-		path.push_back(obj->name.str());
-	return path;
+	ఒకవేళ (మార్గం_2.ఖాళీలు())
+		మార్గం_2.నెట్టు_వెనుక(obj->name.str());
+	తిరిగి మార్గం_2;
 }
 
-struct ReadWitness
+నిర్మాణం ReadWitness
 {
-	struct Clock {
-		IdPath path;
-		int offset;
+	నిర్మాణం Clock {
+		Id_మార్గం మార్గం_2;
+		పూర్ణాంకం స్థానభ్రంశం;
 		bool is_posedge = false;
 		bool is_negedge = false;
 	};
 
-	struct Signal {
-		IdPath path;
-		int offset;
-		int width;
+	నిర్మాణం Signal {
+		Id_మార్గం మార్గం_2;
+		పూర్ణాంకం స్థానభ్రంశం;
+		పూర్ణాంకం వెడల్పు;
 		bool init_only;
 
-		int bits_offset;
+		పూర్ణాంకం బిట్లు_స్థానభ్రంశం;
 	};
 
-	struct Step {
-		std::string bits;
+	నిర్మాణం అడుగు_2 {
+		std::string బిట్లు;
 	};
 
 	std::string filename;
-	std::vector<Clock> clocks;
-	std::vector<Signal> signals;
-	std::vector<Step> steps;
+	std::సదిశ<Clock> clocks;
+	std::సదిశ<Signal> సంకేతాలు;
+	std::సదిశ<అడుగు_2> అడుగులు;
 
-	ReadWitness(const std::string &filename);
+	ReadWitness(స్థిరరాశి std::string &filename);
 
-	RTLIL::Const get_bits(int t, int bits_offset, int width) const;
+	RTLIL::Const get_బిట్లు(పూర్ణాంకం t, పూర్ణాంకం బిట్లు_స్థానభ్రంశం, పూర్ణాంకం వెడల్పు) స్థిరరాశి;
 };
 
-template<typename D, typename T>
-void witness_hierarchy_recursion(IdPath &path, int hdlname_mode, RTLIL::Module *module, D data, T &callback)
+మూస<typename D, typename T>
+శూన్య witness_hierarchy_recursion(Id_మార్గం &మార్గం_2, పూర్ణాంకం hdlname_బహుళకం, RTLIL::Module *module, D దత్తాంశం, T &callback)
 {
-	auto const &const_path = path;
-	size_t path_size = path.size();
-	for (auto wire : module->wires())
+	స్వయంచాలక స్థిరరాశి &const_మార్గం = మార్గం_2;
+	కొలత_t మార్గం_కొలత = మార్గం_2.కొలత();
+	కొరకు (స్వయంచాలక wire : module->wires())
 	{
-		auto hdlname = hdlname_mode < 0 ? std::vector<std::string>() : wire->get_hdlname_attribute();
-		for (auto item : hdlname)
-			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && wire->name == path.back())
+		స్వయంచాలక hdlname = hdlname_బహుళకం < 0 ? std::సదిశ<std::string>() : wire->get_hdlname_attribute();
+		కొరకు (స్వయంచాలక అంశం : hdlname)
+			మార్గం_2.నెట్టు_వెనుక("\\" + అంశం);
+		ఒకవేళ (hdlname.కొలత() == 1 && wire->name == మార్గం_2.వెనుక())
 			hdlname.clear();
-		if (!hdlname.empty())
-			callback(const_path, WitnessHierarchyItem(module, wire), data);
-		path.resize(path_size);
-		if (hdlname.empty() || hdlname_mode <= 0) {
-			path.push_back(wire->name);
-			callback(const_path, WitnessHierarchyItem(module, wire), data);
-			path.pop_back();
+		ఒకవేళ (!hdlname.ఖాళీలు())
+			callback(const_మార్గం, Witness_Hierarchy_అంశం(module, wire), దత్తాంశం);
+		మార్గం_2.resize(మార్గం_కొలత);
+		ఒకవేళ (hdlname.ఖాళీలు() || hdlname_బహుళకం <= 0) {
+			మార్గం_2.నెట్టు_వెనుక(wire->name);
+			callback(const_మార్గం, Witness_Hierarchy_అంశం(module, wire), దత్తాంశం);
+			మార్గం_2.తీయి_వెనుక();
 		}
 	}
 
-	for (auto cell : module->cells())
+	కొరకు (స్వయంచాలక cell : module->cells())
 	{
-		Module *child = module->design->module(cell->type);
-		if (child == nullptr)
-			continue;
+		Module *బిడ్డ = module->design->module(cell->type);
+		ఒకవేళ (బిడ్డ == nullptr)
+			కొనసాగు;
 
-		auto hdlname = hdlname_mode < 0 ? std::vector<std::string>() : cell->get_hdlname_attribute();
-		for (auto item : hdlname)
-			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && cell->name == path.back())
+		స్వయంచాలక hdlname = hdlname_బహుళకం < 0 ? std::సదిశ<std::string>() : cell->get_hdlname_attribute();
+		కొరకు (స్వయంచాలక అంశం : hdlname)
+			మార్గం_2.నెట్టు_వెనుక("\\" + అంశం);
+		ఒకవేళ (hdlname.కొలత() == 1 && cell->name == మార్గం_2.వెనుక())
 			hdlname.clear();
-		if (!hdlname.empty()) {
-			D child_data = callback(const_path, WitnessHierarchyItem(module, cell), data);
-			witness_hierarchy_recursion<D, T>(path, 1, child, child_data, callback);
+		ఒకవేళ (!hdlname.ఖాళీలు()) {
+			D బిడ్డ_దత్తాంశం = callback(const_మార్గం, Witness_Hierarchy_అంశం(module, cell), దత్తాంశం);
+			witness_hierarchy_recursion<D, T>(మార్గం_2, 1, బిడ్డ, బిడ్డ_దత్తాంశం, callback);
 		}
-		path.resize(path_size);
-		if (hdlname.empty() || hdlname_mode <= 0) {
-			path.push_back(cell->name);
-			D child_data = callback(const_path, WitnessHierarchyItem(module, cell), data);
-			witness_hierarchy_recursion<D, T>(path, hdlname.empty() ? hdlname_mode : -1, child, child_data, callback);
-			path.pop_back();
+		మార్గం_2.resize(మార్గం_కొలత);
+		ఒకవేళ (hdlname.ఖాళీలు() || hdlname_బహుళకం <= 0) {
+			మార్గం_2.నెట్టు_వెనుక(cell->name);
+			D బిడ్డ_దత్తాంశం = callback(const_మార్గం, Witness_Hierarchy_అంశం(module, cell), దత్తాంశం);
+			witness_hierarchy_recursion<D, T>(మార్గం_2, hdlname.ఖాళీలు() ? hdlname_బహుళకం : -1, బిడ్డ, బిడ్డ_దత్తాంశం, callback);
+			మార్గం_2.తీయి_వెనుక();
 		}
 	}
 
-	for (auto mem : Mem::get_all_memories(module)) {
-		std::vector<std::string> hdlname;
+	కొరకు (స్వయంచాలక mem : Mem::get_all_memories(module)) {
+		std::సదిశ<std::string> hdlname;
 
-		if (hdlname_mode >= 0 && mem.cell != nullptr)
+		ఒకవేళ (hdlname_బహుళకం >= 0 && mem.cell != nullptr)
 			hdlname = mem.cell->get_hdlname_attribute();
-		for (auto item : hdlname)
-			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && mem.cell->name == path.back())
+		కొరకు (స్వయంచాలక అంశం : hdlname)
+			మార్గం_2.నెట్టు_వెనుక("\\" + అంశం);
+		ఒకవేళ (hdlname.కొలత() == 1 && mem.cell->name == మార్గం_2.వెనుక())
 			hdlname.clear();
-		if (!hdlname.empty()) {
-			callback(const_path, WitnessHierarchyItem(module, &mem), data);
+		ఒకవేళ (!hdlname.ఖాళీలు()) {
+			callback(const_మార్గం, Witness_Hierarchy_అంశం(module, &mem), దత్తాంశం);
 		}
-		path.resize(path_size);
+		మార్గం_2.resize(మార్గం_కొలత);
 
-		if (hdlname.empty() || hdlname_mode <= 0) {
-			path.push_back(mem.memid.str());
-			callback(const_path, WitnessHierarchyItem(module, &mem), data);
-			path.pop_back();
+		ఒకవేళ (hdlname.ఖాళీలు() || hdlname_బహుళకం <= 0) {
+			మార్గం_2.నెట్టు_వెనుక(mem.memid.str());
+			callback(const_మార్గం, Witness_Hierarchy_అంశం(module, &mem), దత్తాంశం);
+			మార్గం_2.తీయి_వెనుక();
 
-			if (mem.cell != nullptr && mem.cell->name != mem.memid) {
-				path.push_back(mem.cell->name);
-				callback(const_path, WitnessHierarchyItem(module, &mem), data);
-				path.pop_back();
+			ఒకవేళ (mem.cell != nullptr && mem.cell->name != mem.memid) {
+				మార్గం_2.నెట్టు_వెనుక(mem.cell->name);
+				callback(const_మార్గం, Witness_Hierarchy_అంశం(module, &mem), దత్తాంశం);
+				మార్గం_2.తీయి_వెనుక();
 			}
 		}
 	}
 }
 
-template<typename D, typename T>
-void witness_hierarchy(RTLIL::Module *module, D data, T callback)
+మూస<typename D, typename T>
+శూన్య witness_hierarchy(RTLIL::Module *module, D దత్తాంశం, T callback)
 {
-	IdPath path;
-	witness_hierarchy_recursion<D, T>(path, 0, module, data, callback);
+	Id_మార్గం మార్గం_2;
+	witness_hierarchy_recursion<D, T>(మార్గం_2, 0, module, దత్తాంశం, callback);
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

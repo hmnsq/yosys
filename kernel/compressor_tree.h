@@ -17,48 +17,48 @@
  * - "A Suggestion for a Fast Multiplier" (https://www.ece.ucdavis.edu/~vojin/CLASSES/EEC280/Web-page/papers/Arithmetic/Wallace_mult.pdf)
  */
 
-#ifndef COMPRESSOR_TREE_H
-#define COMPRESSOR_TREE_H
+#నిర్వచితం_కాకపోతే COMPRESSOR_వృక్షం_H
+#నిర్వచించు COMPRESSOR_వృక్షం_H
 
-#include "kernel/sigtools.h"
-#include "kernel/yosys.h"
+#అన్తర్భావ "kernel/sigtools.h"
+#అన్తర్భావ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-namespace CompressorTree
+namespace Compressor_వృక్షం
 {
 
 // Width and depth thresholds below which a ripple is preferred over parallel-prefix
 // NOTE: Based on "Binary Adder Architectures for Cell-Based VLSI and their Synthesis" (Tables 4.7, 4.9) - the threshold
 //       should be the point where Kogge-Stone isn't strictly less efficient than RCA
-constexpr int RIPPLE_PREFIX_WIDTH_THRESHOLD = 16;
-constexpr int RIPPLE_PREFIX_DEPTH_THRESHOLD = 5;
+constexpr పూర్ణాంకం RIPPLE_ఉపసర్గ_వెడల్పు_పరిమితి = 16;
+constexpr పూర్ణాంకం RIPPLE_ఉపసర్గ_లోతు_పరిమితి = 5;
 
-enum class Strategy {
+గణన class Strategy {
 	FA_ONLY,   // 3:2 compressors
 	PREFER_42, // Prefer 4:2 grouping when >=4 operands ready
 	DADDA,     // Defer compression until column counts exceed
 };
 
-struct DepthSig {
+నిర్మాణం లోతు_Sig {
 	SigSpec sig;
-	int depth;
+	పూర్ణాంకం లోతు;
 };
 
-enum class FinalAdder {
+గణన class FinalAdder {
 	DEFAULT,         // emit $add and let downstream techmap pick
 	RIPPLE,          // emit $add with explicit narrow hint
-	PARALLEL_PREFIX, // emit $add with PARALLEL_PREFIX
+	PARALLEL_ఉపసర్గ, // emit $add with PARALLEL_PREFIX
 };
 
-enum class FinalMode {
+గణన class Final_బహుళకం {
 	AUTO,
 	RIPPLE,
-	PREFIX,
+	ఉపసర్గ,
 };
 
-std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, int width);
-std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, int width);
+std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, పూర్ణాంకం వెడల్పు);
+std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, పూర్ణాంకం వెడల్పు);
 
 /**
  * generate_partial_products() - Generate partial products for FMA concat
@@ -71,7 +71,7 @@ std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpe
  *
  * Return: Partial-product matrix as a set of depth-0 vectors
  */
-std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSpec b, bool a_signed, bool b_signed, int width);
+std::సదిశ<లోతు_Sig> generate_partial_products(Module *module, SigSpec a, SigSpec b, bool a_signed, bool b_signed, పూర్ణాంకం వెడల్పు);
 
 /**
  * reduce_scheduled() - Reduce multiple operands to two using a compressor tree
@@ -85,7 +85,7 @@ std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSp
  *
  * Return: The final two reduced operands, that are to be fed into an adder
  */
-std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, int width, Strategy strategy, int *out_compressor_count = nullptr, int *out_final_depth = nullptr);
+std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::సదిశ<లోతు_Sig> operands, పూర్ణాంకం వెడల్పు, Strategy strategy, పూర్ణాంకం *బహిర్గతం_compressor_లెక్క = nullptr, పూర్ణాంకం *బహిర్గతం_final_లోతు = nullptr);
 
 /**
  * emit_kogge_stone() - Emit a Kogge-Stone parallel-prefix adder
@@ -94,7 +94,7 @@ std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSi
  * @b: Signal B
  * @y: Signal Y = (A + B) mod 2^W
  */
-void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y);
+శూన్య emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y);
 
 /**
  * emit_final_adder() - Emit the final carry-propagate addition between the two reduced vectors
@@ -108,10 +108,10 @@ void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y);
  */
 Cell *emit_final_adder(Module *module, SigSpec a, SigSpec b, SigSpec y, FinalAdder choice);
 
-FinalAdder pick_final_adder(int width, int final_depth, FinalMode mode);
+FinalAdder pick_final_adder(పూర్ణాంకం వెడల్పు, పూర్ణాంకం final_లోతు, Final_బహుళకం బహుళకం);
 
 } // namespace CompressorTree
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif // COMPRESSOR_TREE_H
+#అయితే_ముగింపు // COMPRESSOR_TREE_H

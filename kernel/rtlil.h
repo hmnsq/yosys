@@ -17,22 +17,22 @@
  *
  */
 
-#ifndef RTLIL_H
-#define RTLIL_H
+#నిర్వచితం_కాకపోతే RTLIL_H
+#నిర్వచించు RTLIL_H
 
-#include "kernel/yosys_common.h"
-#include "kernel/yosys.h"
-#include "kernel/twine.h"
+#అన్తర్భావ "kernel/yosys_common.h"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "kernel/twine.h"
 
-#include <deque>
-#include <string_view>
-#include <unordered_map>
+#అన్తర్భావ <deque>
+#అన్తర్భావ <string_view>
+#అన్తర్భావ <unordered_map>
 
 YOSYS_NAMESPACE_BEGIN
 
 namespace RTLIL
 {
-	enum State : unsigned char {
+	గణన State : గుర్తులేని అక్షరం {
 		S0 = 0,
 		S1 = 1,
 		Sx = 2, // undefined value or conflict
@@ -41,7 +41,7 @@ namespace RTLIL
 		Sm = 5  // marker (used internally by some passes)
 	};
 
-	enum SyncType : unsigned char {
+	గణన SyncType : గుర్తులేని అక్షరం {
 		ST0 = 0, // level sensitive: 0
 		ST1 = 1, // level sensitive: 1
 		STp = 2, // edge sensitive: posedge
@@ -54,7 +54,7 @@ namespace RTLIL
 
 	// Semantic metadata - how can this constant be interpreted?
 	// Values may be generally non-exclusive
-	enum ConstFlags : unsigned char {
+	గణన ConstFlags : గుర్తులేని అక్షరం {
 		CONST_FLAG_NONE    = 0,
 		CONST_FLAG_STRING  = 1,
 		CONST_FLAG_SIGNED  = 2,  // only used for parameters
@@ -62,15 +62,15 @@ namespace RTLIL
 		CONST_FLAG_UNSIZED = 8,  // only used for parameters
 	};
 
-	enum SelectPartials : unsigned char {
+	గణన SelectPartials : గుర్తులేని అక్షరం {
 		SELECT_ALL = 0,          // include partial modules
-		SELECT_WHOLE_ONLY = 1,   // ignore partial modules
-		SELECT_WHOLE_WARN = 2,   // call log_warning on partial module
-		SELECT_WHOLE_ERR = 3,    // call log_error on partial module
-		SELECT_WHOLE_CMDERR = 4  // call log_cmd_error on partial module
+		SELECT_సంపూర్ణ_ONLY = 1,   // ignore partial modules
+		SELECT_సంపూర్ణ_WARN = 2,   // call log_warning on partial module
+		SELECT_సంపూర్ణ_ERR = 3,    // call log_error on partial module
+		SELECT_సంపూర్ణ_CMDERR = 4  // call log_cmd_error on partial module
 	};
 
-	enum SelectBoxes : unsigned char {
+	గణన SelectBoxes : గుర్తులేని అక్షరం {
 		SB_ALL = 0,            // include boxed modules
 		SB_WARN = 1,           // helper for log_warning (not for direct use)
 		SB_ERR = 2,            // helper for log_error (not for direct use)
@@ -86,733 +86,733 @@ namespace RTLIL
 		SB_EXCL_BB_CMDERR = 15 // call log_cmd_error on black boxed module
 	};
 
-	enum PortDir : unsigned char  {
+	గణన పోర్టు_Dir : గుర్తులేని అక్షరం  {
 		PD_UNKNOWN = 0,
-		PD_INPUT = 1,
+		PD_ఆదానం = 1,
 		PD_OUTPUT = 2,
 		PD_INOUT = 3
 	};
 
 	// Maximum width in bits of RTLIL::Wire or RTLIL::Const
-	constexpr int WIDTH_LIMIT = 1 << 30;
+	constexpr పూర్ణాంకం వెడల్పు_హద్దు = 1 << 30;
 
-	struct Const;
-	struct AttrObject;
-	struct SelectedMember;
-	struct Selection;
-	struct Monitor;
-	struct Design;
-	struct Module;
-	struct Wire;
-	struct Memory;
-	struct Cell;
-	struct SigChunk;
-	struct SigBit;
-	struct SigSpecIterator;
-	struct SigSpecConstIterator;
-	struct SigSpec;
-	struct CaseRule;
-	struct SwitchRule;
-	struct MemWriteAction;
-	struct SyncRule;
-	struct Process;
+	నిర్మాణం Const;
+	నిర్మాణం AttrObject;
+	నిర్మాణం SelectedMember;
+	నిర్మాణం Selection;
+	నిర్మాణం Monitor;
+	నిర్మాణం Design;
+	నిర్మాణం Module;
+	నిర్మాణం Wire;
+	నిర్మాణం జ్ఞాపకం;
+	నిర్మాణం Cell;
+	నిర్మాణం SigChunk;
+	నిర్మాణం Sig_బిట్టు;
+	నిర్మాణం SigSpecIterator;
+	నిర్మాణం SigSpecConstIterator;
+	నిర్మాణం SigSpec;
+	నిర్మాణం Case_నియమం;
+	నిర్మాణం Switch_నియమం;
+	నిర్మాణం MemWriteAction;
+	నిర్మాణం Sync_నియమం;
+	నిర్మాణం Process;
 
-	typedef std::pair<SigSpec, SigSpec> SigSig;
+	రకనిర్వచనం std::pair<SigSpec, SigSpec> SigSig;
 };
 
-struct SigMap;
+నిర్మాణం SigMap;
 
 
-namespace RTLIL { using YOSYS_NAMESPACE_PREFIX ID; }
-namespace RTLIL { using YOSYS_NAMESPACE_PREFIX IdString; }
+namespace RTLIL { using YOSYS_NAMESPACE_ఉపసర్గ ID; }
+namespace RTLIL { using YOSYS_NAMESPACE_ఉపసర్గ IdString; }
 
 namespace RTLIL {
-	void copy_attr_dict(dict<IdString, RTLIL::Const> &dst,
-			const dict<IdString, RTLIL::Const> &src,
-			const RTLIL::Design *src_design, RTLIL::Design *dst_design);
+	శూన్య copy_attr_dict(dict<IdString, RTLIL::Const> &dst,
+			స్థిరరాశి dict<IdString, RTLIL::Const> &src,
+			స్థిరరాశి RTLIL::Design *src_design, RTLIL::Design *dst_design);
 
-	extern dict<std::string, std::string> constpad;
+	బాహ్య dict<std::string, std::string> constpad;
 
 	[[deprecated("use StaticCellTypes::categories.is_ff() instead")]]
-	const pool<IdString> &builtin_ff_cell_types();
+	స్థిరరాశి pool<IdString> &builtin_ff_cell_types();
 
-	static inline std::string escape_id(const std::string &str) {
-		if (str.size() > 0 && str[0] != '\\' && str[0] != '$')
-			return "\\" + str;
-		return str;
+	స్థిర అంతఃవరుస std::string escape_id(స్థిరరాశి std::string &str) {
+		ఒకవేళ (str.కొలత() > 0 && str[0] != '\\' && str[0] != '$')
+			తిరిగి "\\" + str;
+		తిరిగి str;
 	}
 
-	static inline std::string unescape_id(const std::string &str) {
-		if (str.size() < 2)
-			return str;
-		if (str[0] != '\\')
-			return str;
-		if (str[1] == '$' || str[1] == '\\')
-			return str;
-		if (str[1] >= '0' && str[1] <= '9')
-			return str;
-		return str.substr(1);
+	స్థిర అంతఃవరుస std::string unescape_id(స్థిరరాశి std::string &str) {
+		ఒకవేళ (str.కొలత() < 2)
+			తిరిగి str;
+		ఒకవేళ (str[0] != '\\')
+			తిరిగి str;
+		ఒకవేళ (str[1] == '$' || str[1] == '\\')
+			తిరిగి str;
+		ఒకవేళ (str[1] >= '0' && str[1] <= '9')
+			తిరిగి str;
+		తిరిగి str.substr(1);
 	}
 
-	template <typename T> using sort_by_name_id = IdString::compare_ptr_by_name<T>;
+	మూస <typename T> using క్రమీకరించు_by_name_id = IdString::compare_ptr_by_name<T>;
 
-	template <typename T> struct sort_by_name_str {
-		bool operator()(T *a, T *b) const {
-			return a->name.lt_by_name(b->name);
+	మూస <typename T> నిర్మాణం క్రమీకరించు_by_name_str {
+		bool క్రియాకారకం()(T *a, T *b) స్థిరరాశి {
+			తిరిగి a->name.lt_by_name(b->name);
 		}
 	};
 
-	struct sort_by_id_str {
-		const TwinePool& pool;
-		explicit sort_by_id_str(const TwinePool& pool) : pool(pool) {}
-		bool operator()(RTLIL::IdString a, RTLIL::IdString b) const {
-			return pool.compare_by_name(a, b) < 0;
+	నిర్మాణం క్రమీకరించు_by_id_str {
+		స్థిరరాశి TwinePool& pool;
+		explicit క్రమీకరించు_by_id_str(స్థిరరాశి TwinePool& pool) : pool(pool) {}
+		bool క్రియాకారకం()(RTLIL::IdString a, RTLIL::IdString b) స్థిరరాశి {
+			తిరిగి pool.compare_by_name(a, b) < 0;
 		}
 	};
 
-	static inline std::string encode_filename(const std::string &filename)
+	స్థిర అంతఃవరుస std::string encode_filename(స్థిరరాశి std::string &filename)
 	{
 		std::stringstream val;
-		if (!std::any_of(filename.begin(), filename.end(), [](char c) {
-			return static_cast<unsigned char>(c) < 33 || static_cast<unsigned char>(c) > 126;
-		})) return filename;
-		for (unsigned char const c : filename) {
-			if (c < 33 || c > 126)
+		ఒకవేళ (!std::any_యొక్క(filename.begin(), filename.చివర(), [](అక్షరం c) {
+			తిరిగి static_cast<గుర్తులేని అక్షరం>(c) < 33 || static_cast<గుర్తులేని అక్షరం>(c) > 126;
+		})) తిరిగి filename;
+		కొరకు (గుర్తులేని అక్షరం స్థిరరాశి c : filename) {
+			ఒకవేళ (c < 33 || c > 126)
 				val << stringf("$%02x", c);
-			else
+			లేకపోతే
 				val << c;
 		}
-		return val.str();
+		తిరిగి val.str();
 	}
 
 	// see calc.cc for the implementation of this functions
-	RTLIL::Const const_not         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_and         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_or          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_xor         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_xnor        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_not         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_and         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_or          (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_xor         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_xnor        (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
 
-	RTLIL::Const const_reduce_and  (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_or   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_xor  (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_xnor (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_bool (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_reduce_and  (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_reduce_or   (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_reduce_xor  (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_reduce_xnor (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_reduce_bool (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
 
-	RTLIL::Const const_logic_not   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_logic_and   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_logic_or    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_logic_not   (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_logic_and   (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_logic_or    (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
 
-	RTLIL::Const const_shl         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shr         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sshl        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sshr        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shift       (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shiftx      (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_shl         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_shr         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_sshl        (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_sshr        (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_జరుపు       (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_shiftx      (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
 
-	RTLIL::Const const_lt          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_le          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_eq          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_ne          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_eqx         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_nex         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_ge          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_gt          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_lt          (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_le          (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_eq          (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_ne          (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_eqx         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_nex         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_ge          (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_gt          (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
 
-	RTLIL::Const const_add         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sub         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_mul         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_div         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_divfloor    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_modfloor    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_mod         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_pow         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_కూడు         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_sub         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_mul         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_div         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_divfloor    (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_modfloor    (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_mod         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_pow         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
 
-	RTLIL::Const const_pos         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_buf         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_neg         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_pos         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_buf         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
+	RTLIL::Const const_neg         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, bool signed1, bool signed2, పూర్ణాంకం ఫలితం_len);
 
-	RTLIL::Const const_mux         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3);
-	RTLIL::Const const_pmux        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3);
-	RTLIL::Const const_bmux        (const RTLIL::Const &arg1, const RTLIL::Const &arg2);
-	RTLIL::Const const_demux       (const RTLIL::Const &arg1, const RTLIL::Const &arg2);
+	RTLIL::Const const_mux         (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, స్థిరరాశి RTLIL::Const &arg3);
+	RTLIL::Const const_pmux        (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, స్థిరరాశి RTLIL::Const &arg3);
+	RTLIL::Const const_bmux        (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2);
+	RTLIL::Const const_demux       (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2);
 
-	RTLIL::Const const_bweqx       (const RTLIL::Const &arg1, const RTLIL::Const &arg2);
-	RTLIL::Const const_bwmux       (const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3);
+	RTLIL::Const const_bweqx       (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2);
+	RTLIL::Const const_bwmux       (స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, స్థిరరాశి RTLIL::Const &arg3);
 
 
 	// This iterator-range-pair is used for Design::modules(), Module::wires() and Module::cells().
 	// It maintains a reference counter that is used to make sure that the container is not modified while being iterated over.
 
-	template<typename T, typename Key = IdString>
-	struct ObjIterator {
-		using iterator_category = std::forward_iterator_tag;
-		using value_type = T;
+	మూస<typename T, typename కీలకం_2 = IdString>
+	నిర్మాణం ObjIterator {
+		using iterator_category = std::forward_iterator_ట్యాగ్;
+		using విలువ_type = T;
 		using difference_type = ptrdiff_t;
-		using pointer = T*;
+		using సూచిక = T*;
 		using reference = T&;
-		typename dict<Key, T>::iterator it;
-		dict<Key, T> *list_p;
-		int *refcount_p;
+		typename dict<కీలకం_2, T>::iterator it;
+		dict<కీలకం_2, T> *list_p;
+		పూర్ణాంకం *refcount_p;
 
 		ObjIterator() : list_p(nullptr), refcount_p(nullptr) {
 		}
 
-		ObjIterator(decltype(list_p) list_p, int *refcount_p) : list_p(list_p), refcount_p(refcount_p) {
-			if (list_p->empty()) {
+		ObjIterator(decltype(list_p) list_p, పూర్ణాంకం *refcount_p) : list_p(list_p), refcount_p(refcount_p) {
+			ఒకవేళ (list_p->ఖాళీలు()) {
 				this->list_p = nullptr;
 				this->refcount_p = nullptr;
-			} else {
+			} లేకపోతే {
 				it = list_p->begin();
 				(*refcount_p)++;
 			}
 		}
 
-		ObjIterator(const RTLIL::ObjIterator<T, Key> &other) {
+		ObjIterator(స్థిరరాశి RTLIL::ObjIterator<T, కీలకం_2> &other) {
 			it = other.it;
 			list_p = other.list_p;
 			refcount_p = other.refcount_p;
-			if (refcount_p)
+			ఒకవేళ (refcount_p)
 				(*refcount_p)++;
 		}
 
-		ObjIterator &operator=(const RTLIL::ObjIterator<T, Key> &other) {
-			if (refcount_p)
+		ObjIterator &క్రియాకారకం=(స్థిరరాశి RTLIL::ObjIterator<T, కీలకం_2> &other) {
+			ఒకవేళ (refcount_p)
 				(*refcount_p)--;
 			it = other.it;
 			list_p = other.list_p;
 			refcount_p = other.refcount_p;
-			if (refcount_p)
+			ఒకవేళ (refcount_p)
 				(*refcount_p)++;
-			return *this;
+			తిరిగి *this;
 		}
 
 		~ObjIterator() {
-			if (refcount_p)
+			ఒకవేళ (refcount_p)
 				(*refcount_p)--;
 		}
 
-		inline T operator*() const {
+		అంతఃవరుస T క్రియాకారకం*() స్థిరరాశి {
 			log_assert(list_p != nullptr);
-			return it->second;
+			తిరిగి it->రెండవ;
 		}
 
-		inline bool operator!=(const RTLIL::ObjIterator<T, Key> &other) const {
-			if (list_p == nullptr || other.list_p == nullptr)
-				return list_p != other.list_p;
-			return it != other.it;
+		అంతఃవరుస bool క్రియాకారకం!=(స్థిరరాశి RTLIL::ObjIterator<T, కీలకం_2> &other) స్థిరరాశి {
+			ఒకవేళ (list_p == nullptr || other.list_p == nullptr)
+				తిరిగి list_p != other.list_p;
+			తిరిగి it != other.it;
 		}
 
 
-		inline bool operator==(const RTLIL::ObjIterator<T, Key> &other) const {
-			return !(*this != other);
+		అంతఃవరుస bool క్రియాకారకం==(స్థిరరాశి RTLIL::ObjIterator<T, కీలకం_2> &other) స్థిరరాశి {
+			తిరిగి !(*this != other);
 		}
 
-		inline ObjIterator<T, Key>& operator++() {
+		అంతఃవరుస ObjIterator<T, కీలకం_2>& క్రియాకారకం++() {
 			log_assert(list_p != nullptr);
-			if (++it == list_p->end()) {
+			ఒకవేళ (++it == list_p->చివర()) {
 				(*refcount_p)--;
 				list_p = nullptr;
 				refcount_p = nullptr;
 			}
-			return *this;
+			తిరిగి *this;
 		}
 
-		inline ObjIterator<T, Key>& operator+=(int amt) {
+		అంతఃవరుస ObjIterator<T, కీలకం_2>& క్రియాకారకం+=(పూర్ణాంకం amt) {
 			log_assert(list_p != nullptr);
 			it += amt;
-			if (it == list_p->end()) {
+			ఒకవేళ (it == list_p->చివర()) {
 				(*refcount_p)--;
 				list_p = nullptr;
 				refcount_p = nullptr;
 			}
-			return *this;
+			తిరిగి *this;
 		}
 
-		inline ObjIterator<T, Key> operator+(int amt) {
+		అంతఃవరుస ObjIterator<T, కీలకం_2> క్రియాకారకం+(పూర్ణాంకం amt) {
 			log_assert(list_p != nullptr);
-			ObjIterator<T, Key> new_obj(*this);
+			ObjIterator<T, కీలకం_2> new_obj(*this);
 			new_obj.it += amt;
-			if (new_obj.it == list_p->end()) {
+			ఒకవేళ (new_obj.it == list_p->చివర()) {
 				(*(new_obj.refcount_p))--;
 				new_obj.list_p = nullptr;
 				new_obj.refcount_p = nullptr;
 			}
-			return new_obj;
+			తిరిగి new_obj;
 		}
 
-		inline const ObjIterator<T, Key> operator++(int) {
-			ObjIterator<T, Key> result(*this);
+		అంతఃవరుస స్థిరరాశి ObjIterator<T, కీలకం_2> క్రియాకారకం++(పూర్ణాంకం) {
+			ObjIterator<T, కీలకం_2> ఫలితం(*this);
 			++(*this);
-			return result;
+			తిరిగి ఫలితం;
 		}
 	};
 
-	template<typename T, typename Key = IdString>
-	struct ObjRange
+	మూస<typename T, typename కీలకం_2 = IdString>
+	నిర్మాణం ObjRange
 	{
-		dict<Key, T> *list_p;
-		int *refcount_p;
+		dict<కీలకం_2, T> *list_p;
+		పూర్ణాంకం *refcount_p;
 
-		ObjRange(decltype(list_p) list_p, int *refcount_p) : list_p(list_p), refcount_p(refcount_p) { }
-		RTLIL::ObjIterator<T, Key> begin() { return RTLIL::ObjIterator<T, Key>(list_p, refcount_p); }
-		RTLIL::ObjIterator<T, Key> end() { return RTLIL::ObjIterator<T, Key>(); }
+		ObjRange(decltype(list_p) list_p, పూర్ణాంకం *refcount_p) : list_p(list_p), refcount_p(refcount_p) { }
+		RTLIL::ObjIterator<T, కీలకం_2> begin() { తిరిగి RTLIL::ObjIterator<T, కీలకం_2>(list_p, refcount_p); }
+		RTLIL::ObjIterator<T, కీలకం_2> చివర() { తిరిగి RTLIL::ObjIterator<T, కీలకం_2>(); }
 
-		size_t size() const {
-			return list_p->size();
+		కొలత_t కొలత() స్థిరరాశి {
+			తిరిగి list_p->కొలత();
 		}
 
-		operator pool<T>() const {
-			pool<T> result;
-			for (auto &it : *list_p)
-				result.insert(it.second);
-			return result;
+		క్రియాకారకం pool<T>() స్థిరరాశి {
+			pool<T> ఫలితం;
+			కొరకు (స్వయంచాలక &it : *list_p)
+				ఫలితం.చొప్పించు(it.రెండవ);
+			తిరిగి ఫలితం;
 		}
 
-		operator std::vector<T>() const {
-			std::vector<T> result;
-			result.reserve(list_p->size());
-			for (auto &it : *list_p)
-				result.push_back(it.second);
-			return result;
+		క్రియాకారకం std::సదిశ<T>() స్థిరరాశి {
+			std::సదిశ<T> ఫలితం;
+			ఫలితం.reserve(list_p->కొలత());
+			కొరకు (స్వయంచాలక &it : *list_p)
+				ఫలితం.నెట్టు_వెనుక(it.రెండవ);
+			తిరిగి ఫలితం;
 		}
 
-		pool<T> to_pool() const { return *this; }
-		std::vector<T> to_vector() const { return *this; }
+		pool<T> గమ్యం_pool() స్థిరరాశి { తిరిగి *this; }
+		std::సదిశ<T> గమ్యం_సదిశ() స్థిరరాశి { తిరిగి *this; }
 	};
 };
 
-struct RTLIL::Const
+నిర్మాణం RTLIL::Const
 {
-	short int flags;
-private:
-	friend class KernelRtlilTest;
+	పొట్టి పూర్ణాంకం flags;
+అంతరంగ:
+	మిత్ర class KernelRtlilTest;
 	FRIEND_TEST(KernelRtlilTest, ConstStr);
-	using bitvectype = std::vector<RTLIL::State>;
-	enum class backing_tag: bool { bits, string };
+	using bitvectype = std::సదిశ<RTLIL::State>;
+	గణన class backing_ట్యాగ్: bool { బిట్లు, string };
 	// Do not access the union or tag even in Const methods unless necessary
-	backing_tag tag;
-	union {
-		bitvectype bits_;
+	backing_ట్యాగ్ ట్యాగ్;
+	సంఘం {
+		bitvectype బిట్లు_2;
 		std::string str_;
 	};
 
 	// Use these private utilities instead
-	bool is_bits() const { return tag == backing_tag::bits; }
-	bool is_str() const { return tag == backing_tag::string; }
+	bool is_బిట్లు() స్థిరరాశి { తిరిగి ట్యాగ్ == backing_ట్యాగ్::బిట్లు; }
+	bool is_str() స్థిరరాశి { తిరిగి ట్యాగ్ == backing_ట్యాగ్::string; }
 
-	bitvectype* get_if_bits() { return is_bits() ? &bits_ : NULL; }
-	std::string* get_if_str() { return is_str() ? &str_ : NULL; }
-	const bitvectype* get_if_bits() const { return is_bits() ? &bits_ : NULL; }
-	const std::string* get_if_str() const { return is_str() ? &str_ : NULL; }
+	bitvectype* get_if_బిట్లు() { తిరిగి is_బిట్లు() ? &బిట్లు_2 : ఖాళీ; }
+	std::string* get_if_str() { తిరిగి is_str() ? &str_ : ఖాళీ; }
+	స్థిరరాశి bitvectype* get_if_బిట్లు() స్థిరరాశి { తిరిగి is_బిట్లు() ? &బిట్లు_2 : ఖాళీ; }
+	స్థిరరాశి std::string* get_if_str() స్థిరరాశి { తిరిగి is_str() ? &str_ : ఖాళీ; }
 
-	bitvectype& get_bits();
+	bitvectype& get_బిట్లు();
 	std::string& get_str();
-	const bitvectype& get_bits() const;
-	const std::string& get_str() const;
-	std::vector<RTLIL::State>& bits_internal();
-	void bitvectorize_internal();
+	స్థిరరాశి bitvectype& get_బిట్లు() స్థిరరాశి;
+	స్థిరరాశి std::string& get_str() స్థిరరాశి;
+	std::సదిశ<RTLIL::State>& బిట్లు_అంతర్గత();
+	శూన్య bitvectorize_అంతర్గత();
 
-public:
-	Const() : flags(RTLIL::CONST_FLAG_NONE), tag(backing_tag::bits), bits_(std::vector<RTLIL::State>()) {}
+బహిరంగ:
+	Const() : flags(RTLIL::CONST_FLAG_NONE), ట్యాగ్(backing_ట్యాగ్::బిట్లు), బిట్లు_2(std::సదిశ<RTLIL::State>()) {}
 	Const(std::string str);
-	Const(long long val); // default width is 32
-	Const(long long val, int width);
-	Const(RTLIL::State bit, int width = 1);
-	Const(std::vector<RTLIL::State> bits) : flags(RTLIL::CONST_FLAG_NONE), tag(backing_tag::bits), bits_(std::move(bits)) {}
-	Const(const std::vector<bool> &bits);
-	Const(const RTLIL::Const &other);
+	Const(దీర్ఘ దీర్ఘ val); // default width is 32
+	Const(దీర్ఘ దీర్ఘ val, పూర్ణాంకం వెడల్పు);
+	Const(RTLIL::State బిట్టు, పూర్ణాంకం వెడల్పు = 1);
+	Const(std::సదిశ<RTLIL::State> బిట్లు) : flags(RTLIL::CONST_FLAG_NONE), ట్యాగ్(backing_ట్యాగ్::బిట్లు), బిట్లు_2(std::move(బిట్లు)) {}
+	Const(స్థిరరాశి std::సదిశ<bool> &బిట్లు);
+	Const(స్థిరరాశి RTLIL::Const &other);
 	Const(RTLIL::Const &&other);
-	RTLIL::Const &operator =(const RTLIL::Const &other);
+	RTLIL::Const &క్రియాకారకం =(స్థిరరాశి RTLIL::Const &other);
 	~Const();
 
-	struct Builder
+	నిర్మాణం Builder
 	{
 		Builder() {}
-		Builder(int expected_width) { bits.reserve(expected_width); }
-		void push_back(RTLIL::State b) { bits.push_back(b); }
-		int size() const { return static_cast<int>(bits.size()); }
-		Const build() { return Const(std::move(bits)); }
-	private:
-		std::vector<RTLIL::State> bits;
+		Builder(పూర్ణాంకం expected_వెడల్పు) { బిట్లు.reserve(expected_వెడల్పు); }
+		శూన్య నెట్టు_వెనుక(RTLIL::State b) { బిట్లు.నెట్టు_వెనుక(b); }
+		పూర్ణాంకం కొలత() స్థిరరాశి { తిరిగి static_cast<పూర్ణాంకం>(బిట్లు.కొలత()); }
+		Const build() { తిరిగి Const(std::move(బిట్లు)); }
+	అంతరంగ:
+		std::సదిశ<RTLIL::State> బిట్లు;
 	};
 
-	bool operator <(const RTLIL::Const &other) const;
-	bool operator ==(const RTLIL::Const &other) const;
-	bool operator !=(const RTLIL::Const &other) const;
+	bool క్రియాకారకం <(స్థిరరాశి RTLIL::Const &other) స్థిరరాశి;
+	bool క్రియాకారకం ==(స్థిరరాశి RTLIL::Const &other) స్థిరరాశి;
+	bool క్రియాకారకం !=(స్థిరరాశి RTLIL::Const &other) స్థిరరాశి;
 
 	[[deprecated("Don't use direct access to the internal std::vector<State>, that's an implementation detail.")]]
-	std::vector<RTLIL::State>& bits() { return bits_internal(); }
+	std::సదిశ<RTLIL::State>& బిట్లు() { తిరిగి బిట్లు_అంతర్గత(); }
 	[[deprecated("Don't call bitvectorize() directly, it's an implementation detail.")]]
-	void bitvectorize() const { const_cast<Const*>(this)->bitvectorize_internal(); }
+	శూన్య bitvectorize() స్థిరరాశి { const_cast<Const*>(this)->bitvectorize_అంతర్గత(); }
 
-	bool as_bool() const;
+	bool as_bool() స్థిరరాశి;
 
 	// Convert the constant value to a C++ int.
 	// NOTE: If the constant is too wide to fit in int (32 bits) this will
 	// truncate any higher bits, potentially over/underflowing. Consider using
 	// try_as_int, as_int_saturating, or guarding behind convertible_to_int
 	// instead.
-	int as_int(bool is_signed = false) const;
+	పూర్ణాంకం as_int(bool is_signed = false) స్థిరరాశి;
 
 	// Returns true iff the constant can be converted to an int without
 	// over/underflow.
-	bool convertible_to_int(bool is_signed = false) const;
+	bool convertible_గమ్యం_int(bool is_signed = false) స్థిరరాశి;
 
 	// Returns the constant's value as an int if it can be represented without
 	// over/underflow, or std::nullopt otherwise.
-	std::optional<int> try_as_int(bool is_signed = false) const;
+	std::optional<పూర్ణాంకం> try_as_int(bool is_signed = false) స్థిరరాశి;
 
 	// Returns the constant's value as an int if it can be represented without
 	// over/underflow, otherwise the max/min value for int depending on the sign.
-	int as_int_saturating(bool is_signed = false) const;
+	పూర్ణాంకం as_int_saturating(bool is_signed = false) స్థిరరాశి;
 
-	void tag_bare_integer_const(const std::string &value);
+	శూన్య ట్యాగ్_bare_integer_const(స్థిరరాశి std::string &విలువ);
 
-	std::string as_string(const char* any = "-") const;
-	static Const from_string(const std::string &str);
-	std::vector<RTLIL::State> to_bits() const;
+	std::string as_string(స్థిరరాశి అక్షరం* any = "-") స్థిరరాశి;
+	స్థిర Const from_string(స్థిరరాశి std::string &str);
+	std::సదిశ<RTLIL::State> గమ్యం_బిట్లు() స్థిరరాశి;
 
-	std::string decode_string() const;
-	int size() const;
-	bool empty() const;
+	std::string decode_string() స్థిరరాశి;
+	పూర్ణాంకం కొలత() స్థిరరాశి;
+	bool ఖాళీలు() స్థిరరాశి;
 
-	void append(const RTLIL::Const &other);
-	void set(int i, RTLIL::State state) {
-		bits_internal()[i] = state;
+	శూన్య append(స్థిరరాశి RTLIL::Const &other);
+	శూన్య సమితి(పూర్ణాంకం i, RTLIL::State state) {
+		బిట్లు_అంతర్గత()[i] = state;
 	}
-	void resize(int size, RTLIL::State fill) {
-    log_assert(size >= 0 && size < RTLIL::WIDTH_LIMIT);
-		bits_internal().resize(size, fill);
+	శూన్య resize(పూర్ణాంకం కొలత, RTLIL::State fill) {
+    log_assert(కొలత >= 0 && కొలత < RTLIL::వెడల్పు_హద్దు);
+		బిట్లు_అంతర్గత().resize(కొలత, fill);
 	}
 
 	class const_iterator {
-	private:
-		const Const* parent;
-		size_t idx;
+	అంతరంగ:
+		స్థిరరాశి Const* మాతృ;
+		కొలత_t idx;
 
-	public:
-		using iterator_category = std::bidirectional_iterator_tag;
-		using value_type = State;
+	బహిరంగ:
+		using iterator_category = std::bidirectional_iterator_ట్యాగ్;
+		using విలువ_type = State;
 		using difference_type = std::ptrdiff_t;
-		using pointer = const State*;
-		using reference = const State&;
+		using సూచిక = స్థిరరాశి State*;
+		using reference = స్థిరరాశి State&;
 
-		const_iterator(const Const& c, size_t i) : parent(&c), idx(i) {}
+		const_iterator(స్థిరరాశి Const& c, కొలత_t i) : మాతృ(&c), idx(i) {}
 
-		State operator*() const;
+		State క్రియాకారకం*() స్థిరరాశి;
 
-		const_iterator& operator++() { ++idx; return *this; }
-		const_iterator& operator--() { --idx; return *this; }
-		const_iterator operator++(int) { const_iterator result(*this); ++idx; return result; }
-		const_iterator operator--(int) { const_iterator result(*this); --idx; return result; }
-		const_iterator& operator+=(int i) { idx += i; return *this; }
+		const_iterator& క్రియాకారకం++() { ++idx; తిరిగి *this; }
+		const_iterator& క్రియాకారకం--() { --idx; తిరిగి *this; }
+		const_iterator క్రియాకారకం++(పూర్ణాంకం) { const_iterator ఫలితం(*this); ++idx; తిరిగి ఫలితం; }
+		const_iterator క్రియాకారకం--(పూర్ణాంకం) { const_iterator ఫలితం(*this); --idx; తిరిగి ఫలితం; }
+		const_iterator& క్రియాకారకం+=(పూర్ణాంకం i) { idx += i; తిరిగి *this; }
 
-		const_iterator operator+(int add) {
-			return const_iterator(*parent, idx + add);
+		const_iterator క్రియాకారకం+(పూర్ణాంకం కూడు) {
+			తిరిగి const_iterator(*మాతృ, idx + కూడు);
 		}
-		const_iterator operator-(int sub) {
-			return const_iterator(*parent, idx - sub);
+		const_iterator క్రియాకారకం-(పూర్ణాంకం sub) {
+			తిరిగి const_iterator(*మాతృ, idx - sub);
 		}
-		int operator-(const const_iterator& other) {
-			return idx - other.idx;
-		}
-
-		bool operator==(const const_iterator& other) const {
-			return idx == other.idx;
+		పూర్ణాంకం క్రియాకారకం-(స్థిరరాశి const_iterator& other) {
+			తిరిగి idx - other.idx;
 		}
 
-		bool operator!=(const const_iterator& other) const {
-			return !(*this == other);
+		bool క్రియాకారకం==(స్థిరరాశి const_iterator& other) స్థిరరాశి {
+			తిరిగి idx == other.idx;
+		}
+
+		bool క్రియాకారకం!=(స్థిరరాశి const_iterator& other) స్థిరరాశి {
+			తిరిగి !(*this == other);
 		}
 	};
 
 	class iterator {
-	private:
-		Const* parent;
-		size_t idx;
+	అంతరంగ:
+		Const* మాతృ;
+		కొలత_t idx;
 
-	public:
+	బహిరంగ:
 		class proxy {
-		private:
-			Const* parent;
-			size_t idx;
-		public:
-			proxy(Const* parent, size_t idx) : parent(parent), idx(idx) {}
-			operator State() const { return (*parent)[idx]; }
-			proxy& operator=(State s) { parent->set(idx, s); return *this; }
-			proxy& operator=(const proxy& other) { parent->set(idx, (*other.parent)[other.idx]); return *this; }
+		అంతరంగ:
+			Const* మాతృ;
+			కొలత_t idx;
+		బహిరంగ:
+			proxy(Const* మాతృ, కొలత_t idx) : మాతృ(మాతృ), idx(idx) {}
+			క్రియాకారకం State() స్థిరరాశి { తిరిగి (*మాతృ)[idx]; }
+			proxy& క్రియాకారకం=(State s) { మాతృ->సమితి(idx, s); తిరిగి *this; }
+			proxy& క్రియాకారకం=(స్థిరరాశి proxy& other) { మాతృ->సమితి(idx, (*other.మాతృ)[other.idx]); తిరిగి *this; }
 		};
 
-		using iterator_category = std::bidirectional_iterator_tag;
-		using value_type = State;
+		using iterator_category = std::bidirectional_iterator_ట్యాగ్;
+		using విలువ_type = State;
 		using difference_type = std::ptrdiff_t;
-		using pointer = proxy*;
+		using సూచిక = proxy*;
 		using reference = proxy;
 
-		iterator(Const& c, size_t i) : parent(&c), idx(i) {}
+		iterator(Const& c, కొలత_t i) : మాతృ(&c), idx(i) {}
 
-		proxy operator*() const { return proxy(parent, idx); }
-		iterator& operator++() { ++idx; return *this; }
-		iterator& operator--() { --idx; return *this; }
-		iterator operator++(int) { iterator result(*this); ++idx; return result; }
-		iterator operator--(int) { iterator result(*this); --idx; return result; }
-		iterator& operator+=(int i) { idx += i; return *this; }
+		proxy క్రియాకారకం*() స్థిరరాశి { తిరిగి proxy(మాతృ, idx); }
+		iterator& క్రియాకారకం++() { ++idx; తిరిగి *this; }
+		iterator& క్రియాకారకం--() { --idx; తిరిగి *this; }
+		iterator క్రియాకారకం++(పూర్ణాంకం) { iterator ఫలితం(*this); ++idx; తిరిగి ఫలితం; }
+		iterator క్రియాకారకం--(పూర్ణాంకం) { iterator ఫలితం(*this); --idx; తిరిగి ఫలితం; }
+		iterator& క్రియాకారకం+=(పూర్ణాంకం i) { idx += i; తిరిగి *this; }
 
-		iterator operator+(int add) {
-			return iterator(*parent, idx + add);
+		iterator క్రియాకారకం+(పూర్ణాంకం కూడు) {
+			తిరిగి iterator(*మాతృ, idx + కూడు);
 		}
-		iterator operator-(int sub) {
-			return iterator(*parent, idx - sub);
+		iterator క్రియాకారకం-(పూర్ణాంకం sub) {
+			తిరిగి iterator(*మాతృ, idx - sub);
 		}
-		int operator-(const iterator& other) {
-			return idx - other.idx;
-		}
-
-		bool operator==(const iterator& other) const {
-			return idx == other.idx;
+		పూర్ణాంకం క్రియాకారకం-(స్థిరరాశి iterator& other) {
+			తిరిగి idx - other.idx;
 		}
 
-		bool operator!=(const iterator& other) const {
-			return !(*this == other);
+		bool క్రియాకారకం==(స్థిరరాశి iterator& other) స్థిరరాశి {
+			తిరిగి idx == other.idx;
+		}
+
+		bool క్రియాకారకం!=(స్థిరరాశి iterator& other) స్థిరరాశి {
+			తిరిగి !(*this == other);
 		}
 	};
 
-	const_iterator begin() const {
-		return const_iterator(*this, 0);
+	const_iterator begin() స్థిరరాశి {
+		తిరిగి const_iterator(*this, 0);
 	}
-	const_iterator end() const {
-		return const_iterator(*this, size());
+	const_iterator చివర() స్థిరరాశి {
+		తిరిగి const_iterator(*this, కొలత());
 	}
 	iterator begin() {
-		return iterator(*this, 0);
+		తిరిగి iterator(*this, 0);
 	}
-	iterator end() {
-		return iterator(*this, size());
+	iterator చివర() {
+		తిరిగి iterator(*this, కొలత());
 	}
-	State back() const {
-		return *(end() - 1);
+	State వెనుక() స్థిరరాశి {
+		తిరిగి *(చివర() - 1);
 	}
-	State front() const {
-		return *begin();
+	State front() స్థిరరాశి {
+		తిరిగి *begin();
 	}
-	State at(size_t i) const {
-		return *const_iterator(*this, i);
+	State at(కొలత_t i) స్థిరరాశి {
+		తిరిగి *const_iterator(*this, i);
 	}
-	State operator[](size_t i) const {
-		return *const_iterator(*this, i);
+	State క్రియాకారకం[](కొలత_t i) స్థిరరాశి {
+		తిరిగి *const_iterator(*this, i);
 	}
 
-	bool is_fully_zero() const;
-	bool is_fully_ones() const;
-	bool is_fully_def() const;
-	bool is_fully_undef() const;
-	bool is_fully_undef_x_only() const;
-	bool is_onehot(int *pos = nullptr) const;
+	bool is_fully_zero() స్థిరరాశి;
+	bool is_fully_ones() స్థిరరాశి;
+	bool is_fully_def() స్థిరరాశి;
+	bool is_fully_undef() స్థిరరాశి;
+	bool is_fully_undef_x_only() స్థిరరాశి;
+	bool is_onehot(పూర్ణాంకం *pos = nullptr) స్థిరరాశి;
 
-	RTLIL::Const extract(int offset, int len = 1, RTLIL::State padding = RTLIL::State::S0) const;
+	RTLIL::Const వెలికితీయి(పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం len = 1, RTLIL::State padding = RTLIL::State::S0) స్థిరరాశి;
 
 	// find the MSB without redundant leading bits
-	int get_min_size(bool is_signed) const;
+	పూర్ణాంకం get_min_కొలత(bool is_signed) స్థిరరాశి;
 
 	// compress representation to the minimum required bits
-	void compress(bool is_signed = false);
+	శూన్య compress(bool is_signed = false);
 
-	std::optional<int> as_int_compress(bool is_signed) const;
+	std::optional<పూర్ణాంకం> as_int_compress(bool is_signed) స్థిరరాశి;
 
-	void extu(int width) {
-		resize(width, RTLIL::State::S0);
+	శూన్య extu(పూర్ణాంకం వెడల్పు) {
+		resize(వెడల్పు, RTLIL::State::S0);
 	}
 
-	void exts(int width) {
-		resize(width, empty() ? RTLIL::State::Sx : back());
+	శూన్య exts(పూర్ణాంకం వెడల్పు) {
+		resize(వెడల్పు, ఖాళీలు() ? RTLIL::State::Sx : వెనుక());
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి;
 };
 
-struct RTLIL::AttrObject
+నిర్మాణం RTLIL::AttrObject
 {
-	dict<RTLIL::IdString, RTLIL::Const> attributes;
+	dict<RTLIL::IdString, RTLIL::Const> లక్షణాలు;
 
-	bool has_attribute(RTLIL::IdString id) const;
+	bool has_attribute(RTLIL::IdString id) స్థిరరాశి;
 
-	void set_bool_attribute(RTLIL::IdString id, bool value=true);
-	bool get_bool_attribute(RTLIL::IdString id) const;
+	శూన్య సమితి_bool_attribute(RTLIL::IdString id, bool విలువ=true);
+	bool get_bool_attribute(RTLIL::IdString id) స్థిరరాశి;
 
 	[[deprecated("Use Module::get_blackbox_attribute() instead.")]]
-	bool get_blackbox_attribute(bool ignore_wb=false) const {
-		return get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
+	bool get_blackbox_attribute(bool ignore_wb=false) స్థిరరాశి {
+		తిరిగి get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
 	}
 
-	void set_string_attribute(RTLIL::IdString id, string value);
-	string get_string_attribute(RTLIL::IdString id) const;
+	శూన్య సమితి_string_attribute(RTLIL::IdString id, string విలువ);
+	string get_string_attribute(RTLIL::IdString id) స్థిరరాశి;
 
-	void set_strpool_attribute(RTLIL::IdString id, const pool<string> &data);
-	void add_strpool_attribute(RTLIL::IdString id, const pool<string> &data);
-	pool<string> get_strpool_attribute(RTLIL::IdString id) const;
+	శూన్య సమితి_strpool_attribute(RTLIL::IdString id, స్థిరరాశి pool<string> &దత్తాంశం);
+	శూన్య కూడు_strpool_attribute(RTLIL::IdString id, స్థిరరాశి pool<string> &దత్తాంశం);
+	pool<string> get_strpool_attribute(RTLIL::IdString id) స్థిరరాశి;
 
-	void set_src_attribute(const std::string &src) {
-		set_string_attribute(ID::src, src);
+	శూన్య సమితి_src_attribute(స్థిరరాశి std::string &src) {
+		సమితి_string_attribute(ID::src, src);
 	}
-	std::string get_src_attribute() const {
-		return get_string_attribute(ID::src);
+	std::string get_src_attribute() స్థిరరాశి {
+		తిరిగి get_string_attribute(ID::src);
 	}
 
-	void set_hdlname_attribute(const vector<string> &hierarchy);
-	vector<string> get_hdlname_attribute() const;
+	శూన్య సమితి_hdlname_attribute(స్థిరరాశి సదిశ<string> &hierarchy);
+	సదిశ<string> get_hdlname_attribute() స్థిరరాశి;
 
-	void set_intvec_attribute(RTLIL::IdString id, const vector<int> &data);
-	vector<int> get_intvec_attribute(RTLIL::IdString id) const;
+	శూన్య సమితి_intvec_attribute(RTLIL::IdString id, స్థిరరాశి సదిశ<పూర్ణాంకం> &దత్తాంశం);
+	సదిశ<పూర్ణాంకం> get_intvec_attribute(RTLIL::IdString id) స్థిరరాశి;
 };
 
-#include "kernel/rtlil_twine_compat.h"
+#అన్తర్భావ "kernel/rtlil_twine_compat.h"
 
-struct RTLIL::SelectedMember
+నిర్మాణం RTLIL::SelectedMember
 {
 	RTLIL::AttrObject *obj;
 	RTLIL::PooledName name;
 };
 
-struct RTLIL::SigChunk
+నిర్మాణం RTLIL::SigChunk
 {
 	RTLIL::Wire *wire;
-	std::vector<RTLIL::State> data; // only used if wire == NULL, LSB at index 0
-	int width, offset;
+	std::సదిశ<RTLIL::State> దత్తాంశం; // only used if wire == NULL, LSB at index 0
+	పూర్ణాంకం వెడల్పు, స్థానభ్రంశం;
 
-	SigChunk() : wire(nullptr), width(0), offset(0) {}
-	SigChunk(const RTLIL::Const &value) : wire(nullptr), data(value.to_bits()), width(GetSize(data)), offset(0) {}
-	SigChunk(RTLIL::Const &&value) : wire(nullptr), data(value.to_bits()), width(GetSize(data)), offset(0) {}
-	SigChunk(RTLIL::Wire *wire) : wire(wire), width(GetSize(wire)), offset(0) {}
-	SigChunk(RTLIL::Wire *wire, int offset, int width = 1) : wire(wire), width(width), offset(offset) {}
-	SigChunk(const std::string &str) : SigChunk(RTLIL::Const(str)) {}
-	SigChunk(int val) /*default width 32*/ : SigChunk(RTLIL::Const(val)) {}
-	SigChunk(int val, int width) : SigChunk(RTLIL::Const(val, width)) {}
-	SigChunk(RTLIL::State bit, int width = 1) : SigChunk(RTLIL::Const(bit, width)) {}
-	SigChunk(const RTLIL::SigBit &bit);
+	SigChunk() : wire(nullptr), వెడల్పు(0), స్థానభ్రంశం(0) {}
+	SigChunk(స్థిరరాశి RTLIL::Const &విలువ) : wire(nullptr), దత్తాంశం(విలువ.గమ్యం_బిట్లు()), వెడల్పు(Get_కొలత(దత్తాంశం)), స్థానభ్రంశం(0) {}
+	SigChunk(RTLIL::Const &&విలువ) : wire(nullptr), దత్తాంశం(విలువ.గమ్యం_బిట్లు()), వెడల్పు(Get_కొలత(దత్తాంశం)), స్థానభ్రంశం(0) {}
+	SigChunk(RTLIL::Wire *wire) : wire(wire), వెడల్పు(Get_కొలత(wire)), స్థానభ్రంశం(0) {}
+	SigChunk(RTLIL::Wire *wire, పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం వెడల్పు = 1) : wire(wire), వెడల్పు(వెడల్పు), స్థానభ్రంశం(స్థానభ్రంశం) {}
+	SigChunk(స్థిరరాశి std::string &str) : SigChunk(RTLIL::Const(str)) {}
+	SigChunk(పూర్ణాంకం val) /*default width 32*/ : SigChunk(RTLIL::Const(val)) {}
+	SigChunk(పూర్ణాంకం val, పూర్ణాంకం వెడల్పు) : SigChunk(RTLIL::Const(val, వెడల్పు)) {}
+	SigChunk(RTLIL::State బిట్టు, పూర్ణాంకం వెడల్పు = 1) : SigChunk(RTLIL::Const(బిట్టు, వెడల్పు)) {}
+	SigChunk(స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు);
 
-	RTLIL::SigChunk extract(int offset, int length) const;
-	RTLIL::SigBit operator[](int offset) const;
-	inline int size() const { return width; }
-	inline bool is_wire() const { return wire != NULL; }
+	RTLIL::SigChunk వెలికితీయి(పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం నిడివి) స్థిరరాశి;
+	RTLIL::Sig_బిట్టు క్రియాకారకం[](పూర్ణాంకం స్థానభ్రంశం) స్థిరరాశి;
+	అంతఃవరుస పూర్ణాంకం కొలత() స్థిరరాశి { తిరిగి వెడల్పు; }
+	అంతఃవరుస bool is_wire() స్థిరరాశి { తిరిగి wire != ఖాళీ; }
 
-	bool operator <(const RTLIL::SigChunk &other) const;
-	bool operator ==(const RTLIL::SigChunk &other) const;
-	bool operator !=(const RTLIL::SigChunk &other) const;
+	bool క్రియాకారకం <(స్థిరరాశి RTLIL::SigChunk &other) స్థిరరాశి;
+	bool క్రియాకారకం ==(స్థిరరాశి RTLIL::SigChunk &other) స్థిరరాశి;
+	bool క్రియాకారకం !=(స్థిరరాశి RTLIL::SigChunk &other) స్థిరరాశి;
 };
 
-struct RTLIL::SigBit
+నిర్మాణం RTLIL::Sig_బిట్టు
 {
 	RTLIL::Wire *wire;
-	union {
-		RTLIL::State data; // used if wire == NULL
-		int offset;        // used if wire != NULL
+	సంఘం {
+		RTLIL::State దత్తాంశం; // used if wire == NULL
+		పూర్ణాంకం స్థానభ్రంశం;        // used if wire != NULL
 	};
 
-	SigBit();
-	SigBit(RTLIL::State bit);
-	explicit SigBit(bool bit);
-	SigBit(RTLIL::Wire *wire);
-	SigBit(RTLIL::Wire *wire, int offset);
-	SigBit(const RTLIL::SigChunk &chunk);
-	SigBit(const RTLIL::SigChunk &chunk, int index);
-	SigBit(const RTLIL::SigSpec &sig);
-	SigBit(const RTLIL::SigBit &sigbit) = default;
-	RTLIL::SigBit &operator =(const RTLIL::SigBit &other) = default;
+	Sig_బిట్టు();
+	Sig_బిట్టు(RTLIL::State బిట్టు);
+	explicit Sig_బిట్టు(bool బిట్టు);
+	Sig_బిట్టు(RTLIL::Wire *wire);
+	Sig_బిట్టు(RTLIL::Wire *wire, పూర్ణాంకం స్థానభ్రంశం);
+	Sig_బిట్టు(స్థిరరాశి RTLIL::SigChunk &chunk);
+	Sig_బిట్టు(స్థిరరాశి RTLIL::SigChunk &chunk, పూర్ణాంకం సూచీ);
+	Sig_బిట్టు(స్థిరరాశి RTLIL::SigSpec &sig);
+	Sig_బిట్టు(స్థిరరాశి RTLIL::Sig_బిట్టు &sigbit) = అప్రమేయ;
+	RTLIL::Sig_బిట్టు &క్రియాకారకం =(స్థిరరాశి RTLIL::Sig_బిట్టు &other) = అప్రమేయ;
 
-	inline bool is_wire() const { return wire != NULL; }
+	అంతఃవరుస bool is_wire() స్థిరరాశి { తిరిగి wire != ఖాళీ; }
 
-	bool operator <(const RTLIL::SigBit &other) const;
-	bool operator ==(const RTLIL::SigBit &other) const;
-	bool operator !=(const RTLIL::SigBit &other) const;
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
-	[[nodiscard]] Hasher hash_top() const;
+	bool క్రియాకారకం <(స్థిరరాశి RTLIL::Sig_బిట్టు &other) స్థిరరాశి;
+	bool క్రియాకారకం ==(స్థిరరాశి RTLIL::Sig_బిట్టు &other) స్థిరరాశి;
+	bool క్రియాకారకం !=(స్థిరరాశి RTLIL::Sig_బిట్టు &other) స్థిరరాశి;
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి;
+	[[nodiscard]] Hasher hash_శిఖరం() స్థిరరాశి;
 };
 
 namespace hashlib {
-	template <>
-	struct hash_ops<RTLIL::SigBit> {
-		static inline bool cmp(const RTLIL::SigBit &a, const RTLIL::SigBit &b) {
-			return a == b;
+	మూస <>
+	నిర్మాణం hash_ops<RTLIL::Sig_బిట్టు> {
+		స్థిర అంతఃవరుస bool cmp(స్థిరరాశి RTLIL::Sig_బిట్టు &a, స్థిరరాశి RTLIL::Sig_బిట్టు &b) {
+			తిరిగి a == b;
 		}
-		[[nodiscard]] static inline Hasher hash(const RTLIL::SigBit sb) {
-			return sb.hash_top();
+		[[nodiscard]] స్థిర అంతఃవరుస Hasher hash(స్థిరరాశి RTLIL::Sig_బిట్టు sb) {
+			తిరిగి sb.hash_శిఖరం();
 		}
-		[[nodiscard]] static inline Hasher hash_into(const RTLIL::SigBit sb, Hasher h) {
-			return sb.hash_into(h);
+		[[nodiscard]] స్థిర అంతఃవరుస Hasher hash_into(స్థిరరాశి RTLIL::Sig_బిట్టు sb, Hasher h) {
+			తిరిగి sb.hash_into(h);
 		}
 	};
 };
 
-struct RTLIL::SigSpecIterator
+నిర్మాణం RTLIL::SigSpecIterator
 {
-	typedef std::input_iterator_tag iterator_category;
-	typedef RTLIL::SigBit value_type;
-	typedef ptrdiff_t difference_type;
-	typedef RTLIL::SigBit* pointer;
-	typedef RTLIL::SigBit& reference;
+	రకనిర్వచనం std::ఆదానం_iterator_ట్యాగ్ iterator_category;
+	రకనిర్వచనం RTLIL::Sig_బిట్టు విలువ_type;
+	రకనిర్వచనం ptrdiff_t difference_type;
+	రకనిర్వచనం RTLIL::Sig_బిట్టు* సూచిక;
+	రకనిర్వచనం RTLIL::Sig_బిట్టు& reference;
 
 	RTLIL::SigSpec *sig_p;
-	int index;
+	పూర్ణాంకం సూచీ;
 
-	inline RTLIL::SigBit &operator*() const;
-	inline bool operator!=(const RTLIL::SigSpecIterator &other) const { return index != other.index; }
-	inline bool operator==(const RTLIL::SigSpecIterator &other) const { return index == other.index; }
-	inline void operator++() { index++; }
+	అంతఃవరుస RTLIL::Sig_బిట్టు &క్రియాకారకం*() స్థిరరాశి;
+	అంతఃవరుస bool క్రియాకారకం!=(స్థిరరాశి RTLIL::SigSpecIterator &other) స్థిరరాశి { తిరిగి సూచీ != other.సూచీ; }
+	అంతఃవరుస bool క్రియాకారకం==(స్థిరరాశి RTLIL::SigSpecIterator &other) స్థిరరాశి { తిరిగి సూచీ == other.సూచీ; }
+	అంతఃవరుస శూన్య క్రియాకారకం++() { సూచీ++; }
 };
 
-struct RTLIL::SigSpecConstIterator
+నిర్మాణం RTLIL::SigSpecConstIterator
 {
-	typedef std::input_iterator_tag iterator_category;
-	typedef RTLIL::SigBit value_type;
-	typedef ptrdiff_t difference_type;
-	typedef RTLIL::SigBit* pointer;
-	typedef RTLIL::SigBit& reference;
+	రకనిర్వచనం std::ఆదానం_iterator_ట్యాగ్ iterator_category;
+	రకనిర్వచనం RTLIL::Sig_బిట్టు విలువ_type;
+	రకనిర్వచనం ptrdiff_t difference_type;
+	రకనిర్వచనం RTLIL::Sig_బిట్టు* సూచిక;
+	రకనిర్వచనం RTLIL::Sig_బిట్టు& reference;
 
-	const RTLIL::SigSpec *sig_p;
-	RTLIL::SigBit bit;
-	int index;
+	స్థిరరాశి RTLIL::SigSpec *sig_p;
+	RTLIL::Sig_బిట్టు బిట్టు;
+	పూర్ణాంకం సూచీ;
 
-	inline const RTLIL::SigBit &operator*();
-	inline bool operator!=(const RTLIL::SigSpecConstIterator &other) const { return index != other.index; }
-	inline bool operator==(const RTLIL::SigSpecIterator &other) const { return index == other.index; }
-	inline void operator++() { index++; }
+	అంతఃవరుస స్థిరరాశి RTLIL::Sig_బిట్టు &క్రియాకారకం*();
+	అంతఃవరుస bool క్రియాకారకం!=(స్థిరరాశి RTLIL::SigSpecConstIterator &other) స్థిరరాశి { తిరిగి సూచీ != other.సూచీ; }
+	అంతఃవరుస bool క్రియాకారకం==(స్థిరరాశి RTLIL::SigSpecIterator &other) స్థిరరాశి { తిరిగి సూచీ == other.సూచీ; }
+	అంతఃవరుస శూన్య క్రియాకారకం++() { సూచీ++; }
 };
 
-struct RTLIL::SigSpec
+నిర్మాణం RTLIL::SigSpec
 {
-private:
-	friend class SigSpecRepTest;
-	FRIEND_TEST(SigSpecRepTest, Extract);
-	enum Representation : char {
+అంతరంగ:
+	మిత్ర class SigSpecRepTest;
+	FRIEND_TEST(SigSpecRepTest, వెలికితీయి_2);
+	గణన Representation : అక్షరం {
 		CHUNK,
-		BITS,
+		బిట్లు_3,
 	};
 	// An AtomicHash is either clear or a nonzero integer.
-	struct AtomicHash {
+	నిర్మాణం AtomicHash {
 		// Create an initially clear value.
 		AtomicHash() : atomic_(0) {}
-		AtomicHash(const AtomicHash &rhs) : atomic_(rhs.load()) {}
-		AtomicHash &operator=(const AtomicHash &rhs) { store(rhs.load()); return *this; }
+		AtomicHash(స్థిరరాశి AtomicHash &rhs) : atomic_(rhs.ఎక్కించు()) {}
+		AtomicHash &క్రియాకారకం=(స్థిరరాశి AtomicHash &rhs) { store(rhs.ఎక్కించు()); తిరిగి *this; }
 		// Read the hash. Returns nullopt if the hash is clear.
-		std::optional<Hasher::hash_t> read() const {
-			Hasher::hash_t value = load();
-			if (value == 0)
-				return std::nullopt;
-			return value;
+		std::optional<Hasher::hash_t> పఠ() స్థిరరాశి {
+			Hasher::hash_t విలువ = ఎక్కించు();
+			ఒకవేళ (విలువ == 0)
+				తిరిగి std::nullopt;
+			తిరిగి విలువ;
 		}
 		// Set the hash. If the value is already set, then the new value must
 		// equal the current value.
-		void set(Hasher::hash_t value) const {
-			log_assert(value != 0);
+		శూన్య సమితి(Hasher::hash_t విలువ) స్థిరరాశి {
+			log_assert(విలువ != 0);
 			Hasher::hash_t old = const_cast<std::atomic<Hasher::hash_t>&>(atomic_)
-					.exchange(value, std::memory_order_relaxed);
-			log_assert(old == 0 || old == value);
+					.exchange(విలువ, std::జ్ఞాపకం_క్రమం_relaxed);
+			log_assert(old == 0 || old == విలువ);
 		}
-		void clear() { store(0); }
-	private:
-		int load() const { return atomic_.load(std::memory_order_relaxed); }
-		void store(Hasher::hash_t value) const {
-			const_cast<std::atomic<Hasher::hash_t>&>(atomic_).store(value, std::memory_order_relaxed);
+		శూన్య clear() { store(0); }
+	అంతరంగ:
+		పూర్ణాంకం ఎక్కించు() స్థిరరాశి { తిరిగి atomic_.ఎక్కించు(std::జ్ఞాపకం_క్రమం_relaxed); }
+		శూన్య store(Hasher::hash_t విలువ) స్థిరరాశి {
+			const_cast<std::atomic<Hasher::hash_t>&>(atomic_).store(విలువ, std::జ్ఞాపకం_క్రమం_relaxed);
 		}
 
 		std::atomic<Hasher::hash_t> atomic_;
@@ -820,343 +820,343 @@ private:
 
 	Representation rep_;
 	AtomicHash hash_;
-	union {
+	సంఘం {
 		RTLIL::SigChunk chunk_;
-		std::vector<RTLIL::SigBit> bits_; // LSB at index 0
+		std::సదిశ<RTLIL::Sig_బిట్టు> బిట్లు_2; // LSB at index 0
 	};
 
-	void init_empty_bits() {
-		rep_ = BITS;
-		new (&bits_) std::vector<RTLIL::SigBit>;
+	శూన్య init_ఖాళీలు_బిట్లు() {
+		rep_ = బిట్లు_3;
+		new (&బిట్లు_2) std::సదిశ<RTLIL::Sig_బిట్టు>;
 	}
 
-	void unpack();
-	inline void inline_unpack() {
-		if (rep_ == CHUNK)
+	శూన్య unpack();
+	అంతఃవరుస శూన్య inline_unpack() {
+		ఒకవేళ (rep_ == CHUNK)
 			unpack();
 	}
-	void try_repack();
+	శూన్య try_repack();
 
-	Hasher::hash_t updhash() const;
-	void destroy() {
-		if (rep_ == CHUNK)
+	Hasher::hash_t updhash() స్థిరరాశి;
+	శూన్య destroy() {
+		ఒకవేళ (rep_ == CHUNK)
 			chunk_.~SigChunk();
-		else
-			bits_.~vector();
+		లేకపోతే
+			బిట్లు_2.~సదిశ();
 	}
-	friend struct Chunks;
+	మిత్ర నిర్మాణం Chunks;
 
-public:
-	SigSpec() { init_empty_bits(); }
+బహిరంగ:
+	SigSpec() { init_ఖాళీలు_బిట్లు(); }
 	SigSpec(std::initializer_list<RTLIL::SigSpec> parts);
-	SigSpec(const SigSpec &value) : rep_(value.rep_), hash_(value.hash_) {
-		if (value.rep_ == CHUNK)
-			new (&chunk_) RTLIL::SigChunk(value.chunk_);
-		else
-			new (&bits_) std::vector<RTLIL::SigBit>(value.bits_);
+	SigSpec(స్థిరరాశి SigSpec &విలువ) : rep_(విలువ.rep_), hash_(విలువ.hash_) {
+		ఒకవేళ (విలువ.rep_ == CHUNK)
+			new (&chunk_) RTLIL::SigChunk(విలువ.chunk_);
+		లేకపోతే
+			new (&బిట్లు_2) std::సదిశ<RTLIL::Sig_బిట్టు>(విలువ.బిట్లు_2);
 	}
-	SigSpec(SigSpec &&value) : rep_(value.rep_), hash_(value.hash_) {
-		if (value.rep_ == CHUNK)
-			new (&chunk_) RTLIL::SigChunk(std::move(value.chunk_));
-		else
-			new (&bits_) std::vector<RTLIL::SigBit>(std::move(value.bits_));
+	SigSpec(SigSpec &&విలువ) : rep_(విలువ.rep_), hash_(విలువ.hash_) {
+		ఒకవేళ (విలువ.rep_ == CHUNK)
+			new (&chunk_) RTLIL::SigChunk(std::move(విలువ.chunk_));
+		లేకపోతే
+			new (&బిట్లు_2) std::సదిశ<RTLIL::Sig_బిట్టు>(std::move(విలువ.బిట్లు_2));
 	}
-	SigSpec(const RTLIL::Const &value);
-	SigSpec(RTLIL::Const &&value);
-	SigSpec(const RTLIL::SigChunk &chunk);
+	SigSpec(స్థిరరాశి RTLIL::Const &విలువ);
+	SigSpec(RTLIL::Const &&విలువ);
+	SigSpec(స్థిరరాశి RTLIL::SigChunk &chunk);
 	SigSpec(RTLIL::SigChunk &&chunk);
 	SigSpec(RTLIL::Wire *wire);
-	SigSpec(RTLIL::Wire *wire, int offset, int width = 1);
-	SigSpec(const std::string &str);
-	SigSpec(int val, int width = 32);
-	SigSpec(RTLIL::State bit, int width = 1);
-	SigSpec(const RTLIL::SigBit &bit, int width = 1);
-	SigSpec(const std::vector<RTLIL::SigChunk> &chunks);
-	SigSpec(const std::vector<RTLIL::SigBit> &bits);
-	SigSpec(const pool<RTLIL::SigBit> &bits);
-	SigSpec(const std::set<RTLIL::SigBit> &bits);
-	explicit SigSpec(bool bit);
+	SigSpec(RTLIL::Wire *wire, పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం వెడల్పు = 1);
+	SigSpec(స్థిరరాశి std::string &str);
+	SigSpec(పూర్ణాంకం val, పూర్ణాంకం వెడల్పు = 32);
+	SigSpec(RTLIL::State బిట్టు, పూర్ణాంకం వెడల్పు = 1);
+	SigSpec(స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు, పూర్ణాంకం వెడల్పు = 1);
+	SigSpec(స్థిరరాశి std::సదిశ<RTLIL::SigChunk> &chunks);
+	SigSpec(స్థిరరాశి std::సదిశ<RTLIL::Sig_బిట్టు> &బిట్లు);
+	SigSpec(స్థిరరాశి pool<RTLIL::Sig_బిట్టు> &బిట్లు);
+	SigSpec(స్థిరరాశి std::సమితి<RTLIL::Sig_బిట్టు> &బిట్లు);
+	explicit SigSpec(bool బిట్టు);
 	~SigSpec() {
 		destroy();
 	}
 
-	SigSpec &operator=(const SigSpec &rhs) {
+	SigSpec &క్రియాకారకం=(స్థిరరాశి SigSpec &rhs) {
 		destroy();
 		rep_ = rhs.rep_;
 		hash_ = rhs.hash_;
-		if (rep_ == CHUNK)
+		ఒకవేళ (rep_ == CHUNK)
 			new (&chunk_) RTLIL::SigChunk(rhs.chunk_);
-		else
-			new (&bits_) std::vector<RTLIL::SigBit>(rhs.bits_);
-		return *this;
+		లేకపోతే
+			new (&బిట్లు_2) std::సదిశ<RTLIL::Sig_బిట్టు>(rhs.బిట్లు_2);
+		తిరిగి *this;
 	}
-	SigSpec &operator=(SigSpec &&rhs) {
+	SigSpec &క్రియాకారకం=(SigSpec &&rhs) {
 		destroy();
 		rep_ = rhs.rep_;
 		hash_ = rhs.hash_;
-		if (rep_ == CHUNK)
+		ఒకవేళ (rep_ == CHUNK)
 			new (&chunk_) RTLIL::SigChunk(std::move(rhs.chunk_));
-		else
-			new (&bits_) std::vector<RTLIL::SigBit>(std::move(rhs.bits_));
-		return *this;
+		లేకపోతే
+			new (&బిట్లు_2) std::సదిశ<RTLIL::Sig_బిట్టు>(std::move(rhs.బిట్లు_2));
+		తిరిగి *this;
 	}
 
 	// SigSpec::Chunks holds one reconstructed chunk at a time
 	// to provide the SigSpec::chunks() read-only chunks view
 	// since vector<SigChunk> SigSpec::chunks_ has been removed
-	struct Chunks {
-		Chunks(const SigSpec &spec) : spec(spec) {}
-		struct const_iterator {
-			using iterator_category = std::forward_iterator_tag;
-			using value_type = const SigChunk &;
+	నిర్మాణం Chunks {
+		Chunks(స్థిరరాశి SigSpec &spec) : spec(spec) {}
+		నిర్మాణం const_iterator {
+			using iterator_category = std::forward_iterator_ట్యాగ్;
+			using విలువ_type = స్థిరరాశి SigChunk &;
 			using difference_type = std::ptrdiff_t;
-			using pointer = const SigChunk *;
-			using reference = const SigChunk &;
+			using సూచిక = స్థిరరాశి SigChunk *;
+			using reference = స్థిరరాశి SigChunk &;
 
-			const SigSpec &spec;
-			int bit_index;
+			స్థిరరాశి SigSpec &spec;
+			పూర్ణాంకం బిట్టు_సూచీ;
 			SigChunk chunk;
 
-			const_iterator(const SigSpec &spec) : spec(spec) {
-				bit_index = 0;
-				if (spec.rep_ == BITS)
-					next_chunk_bits();
+			const_iterator(స్థిరరాశి SigSpec &spec) : spec(spec) {
+				బిట్టు_సూచీ = 0;
+				ఒకవేళ (spec.rep_ == బిట్లు_3)
+					తదుపరి_chunk_బిట్లు();
 			}
-			enum End { END };
-			const_iterator(const SigSpec &spec, End) : spec(spec) {
-				bit_index = spec.size();
+			గణన చివర_2 { చివర_3 };
+			const_iterator(స్థిరరాశి SigSpec &spec, చివర_2) : spec(spec) {
+				బిట్టు_సూచీ = spec.కొలత();
 			}
-			void next_chunk_bits();
+			శూన్య తదుపరి_chunk_బిట్లు();
 
-			const SigChunk &operator*() {
-				if (spec.rep_ == CHUNK)
-					return spec.chunk_;
-				return chunk;
+			స్థిరరాశి SigChunk &క్రియాకారకం*() {
+				ఒకవేళ (spec.rep_ == CHUNK)
+					తిరిగి spec.chunk_;
+				తిరిగి chunk;
 			};
-			const SigChunk *operator->() { return &**this; }
-			const_iterator &operator++() {
-				bit_index += (**this).width;
-				if (spec.rep_ == BITS)
-					next_chunk_bits();
-				return *this;
+			స్థిరరాశి SigChunk *క్రియాకారకం->() { తిరిగి &**this; }
+			const_iterator &క్రియాకారకం++() {
+				బిట్టు_సూచీ += (**this).వెడల్పు;
+				ఒకవేళ (spec.rep_ == బిట్లు_3)
+					తదుపరి_chunk_బిట్లు();
+				తిరిగి *this;
 			}
-			bool operator==(const const_iterator &rhs) const { return bit_index == rhs.bit_index; }
-			bool operator!=(const const_iterator &rhs) const { return !(*this == rhs); }
+			bool క్రియాకారకం==(స్థిరరాశి const_iterator &rhs) స్థిరరాశి { తిరిగి బిట్టు_సూచీ == rhs.బిట్టు_సూచీ; }
+			bool క్రియాకారకం!=(స్థిరరాశి const_iterator &rhs) స్థిరరాశి { తిరిగి !(*this == rhs); }
 		};
-		const_iterator begin() const { return const_iterator(spec); }
-		const_iterator end() const {
-			const_iterator it(spec, const_iterator::END);
-			return it;
+		const_iterator begin() స్థిరరాశి { తిరిగి const_iterator(spec); }
+		const_iterator చివర() స్థిరరాశి {
+			const_iterator it(spec, const_iterator::చివర_3);
+			తిరిగి it;
 		}
 		// Later we should deprecate these and remove their in-tree calls,
 		// so we can eventually remove chunk_vector.
-		std::vector<RTLIL::SigChunk>::const_reverse_iterator rbegin() {
-			ensure_chunk_vector();
-			return chunk_vector.rbegin();
+		std::సదిశ<RTLIL::SigChunk>::const_తిరగేయి_iterator rbegin() {
+			ensure_chunk_సదిశ();
+			తిరిగి chunk_సదిశ.rbegin();
 		}
-		std::vector<RTLIL::SigChunk>::const_reverse_iterator rend() {
-			ensure_chunk_vector();
-			return chunk_vector.rend();
+		std::సదిశ<RTLIL::SigChunk>::const_తిరగేయి_iterator rend() {
+			ensure_chunk_సదిశ();
+			తిరిగి chunk_సదిశ.rend();
 		}
-		int size() {
-			ensure_chunk_vector();
-			return chunk_vector.size();
+		పూర్ణాంకం కొలత() {
+			ensure_chunk_సదిశ();
+			తిరిగి chunk_సదిశ.కొలత();
 		}
-		int size() const {
-			return std::distance(begin(), end());
+		పూర్ణాంకం కొలత() స్థిరరాశి {
+			తిరిగి std::దూరం(begin(), చివర());
 		}
-		const SigChunk &at(int index) {
-			ensure_chunk_vector();
-			return chunk_vector.at(index);
+		స్థిరరాశి SigChunk &at(పూర్ణాంకం సూచీ) {
+			ensure_chunk_సదిశ();
+			తిరిగి chunk_సదిశ.at(సూచీ);
 		}
-		operator const std::vector<RTLIL::SigChunk>&() {
-			ensure_chunk_vector();
-			return chunk_vector;
+		క్రియాకారకం స్థిరరాశి std::సదిశ<RTLIL::SigChunk>&() {
+			ensure_chunk_సదిశ();
+			తిరిగి chunk_సదిశ;
 		}
-	private:
-		void ensure_chunk_vector() {
-			if (spec.size() > 0 && chunk_vector.empty()) {
-				for (const RTLIL::SigChunk &c : *this)
-					chunk_vector.push_back(c);
+	అంతరంగ:
+		శూన్య ensure_chunk_సదిశ() {
+			ఒకవేళ (spec.కొలత() > 0 && chunk_సదిశ.ఖాళీలు()) {
+				కొరకు (స్థిరరాశి RTLIL::SigChunk &c : *this)
+					chunk_సదిశ.నెట్టు_వెనుక(c);
 			}
 		}
-		const SigSpec &spec;
-		std::vector<RTLIL::SigChunk> chunk_vector;
+		స్థిరరాశి SigSpec &spec;
+		std::సదిశ<RTLIL::SigChunk> chunk_సదిశ;
 	};
-	friend struct Chunks::const_iterator;
+	మిత్ర నిర్మాణం Chunks::const_iterator;
 
-	inline Chunks chunks() const { return {*this}; }
-	inline const SigSpec &bits() const { return *this; }
+	అంతఃవరుస Chunks chunks() స్థిరరాశి { తిరిగి {*this}; }
+	అంతఃవరుస స్థిరరాశి SigSpec &బిట్లు() స్థిరరాశి { తిరిగి *this; }
 
-	inline int size() const { return rep_ == CHUNK ? chunk_.width : GetSize(bits_); }
-	inline bool empty() const { return size() == 0; };
+	అంతఃవరుస పూర్ణాంకం కొలత() స్థిరరాశి { తిరిగి rep_ == CHUNK ? chunk_.వెడల్పు : Get_కొలత(బిట్లు_2); }
+	అంతఃవరుస bool ఖాళీలు() స్థిరరాశి { తిరిగి కొలత() == 0; };
 
-	inline RTLIL::SigBit &operator[](int index) { inline_unpack(); hash_.clear(); return bits_.at(index); }
-	inline RTLIL::SigBit operator[](int index) const {
-		if (rep_ == CHUNK) {
-			if (index < 0 || index >= chunk_.width)
-				throw std::out_of_range("SigSpec::operator[]");
-			if (chunk_.wire)
-				return RTLIL::SigBit(chunk_.wire, chunk_.offset + index);
-			return RTLIL::SigBit(chunk_.data[index]);
+	అంతఃవరుస RTLIL::Sig_బిట్టు &క్రియాకారకం[](పూర్ణాంకం సూచీ) { inline_unpack(); hash_.clear(); తిరిగి బిట్లు_2.at(సూచీ); }
+	అంతఃవరుస RTLIL::Sig_బిట్టు క్రియాకారకం[](పూర్ణాంకం సూచీ) స్థిరరాశి {
+		ఒకవేళ (rep_ == CHUNK) {
+			ఒకవేళ (సూచీ < 0 || సూచీ >= chunk_.వెడల్పు)
+				throw std::బహిర్గతం_యొక్క_range("SigSpec::operator[]");
+			ఒకవేళ (chunk_.wire)
+				తిరిగి RTLIL::Sig_బిట్టు(chunk_.wire, chunk_.స్థానభ్రంశం + సూచీ);
+			తిరిగి RTLIL::Sig_బిట్టు(chunk_.దత్తాంశం[సూచీ]);
 		}
-		return bits_.at(index);
+		తిరిగి బిట్లు_2.at(సూచీ);
 	}
 
-	inline RTLIL::SigSpecIterator begin() { RTLIL::SigSpecIterator it; it.sig_p = this; it.index = 0; return it; }
-	inline RTLIL::SigSpecIterator end() { RTLIL::SigSpecIterator it; it.sig_p = this; it.index = size(); return it; }
+	అంతఃవరుస RTLIL::SigSpecIterator begin() { RTLIL::SigSpecIterator it; it.sig_p = this; it.సూచీ = 0; తిరిగి it; }
+	అంతఃవరుస RTLIL::SigSpecIterator చివర() { RTLIL::SigSpecIterator it; it.sig_p = this; it.సూచీ = కొలత(); తిరిగి it; }
 
-	inline RTLIL::SigSpecConstIterator begin() const { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.index = 0; return it; }
-	inline RTLIL::SigSpecConstIterator end() const { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.index = size(); return it; }
+	అంతఃవరుస RTLIL::SigSpecConstIterator begin() స్థిరరాశి { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.సూచీ = 0; తిరిగి it; }
+	అంతఃవరుస RTLIL::SigSpecConstIterator చివర() స్థిరరాశి { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.సూచీ = కొలత(); తిరిగి it; }
 
-	void sort();
-	void sort_and_unify();
+	శూన్య క్రమీకరించు();
+	శూన్య క్రమీకరించు_and_unify();
 
-	void replace(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec &with);
-	void replace(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec &with, RTLIL::SigSpec *other) const;
+	శూన్య replace(స్థిరరాశి RTLIL::SigSpec &నమూనా, స్థిరరాశి RTLIL::SigSpec &with);
+	శూన్య replace(స్థిరరాశి RTLIL::SigSpec &నమూనా, స్థిరరాశి RTLIL::SigSpec &with, RTLIL::SigSpec *other) స్థిరరాశి;
 
-	void replace(const dict<RTLIL::SigBit, RTLIL::SigBit> &rules);
-	void replace(const dict<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const;
+	శూన్య replace(స్థిరరాశి dict<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> &నియమాలు);
+	శూన్య replace(స్థిరరాశి dict<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> &నియమాలు, RTLIL::SigSpec *other) స్థిరరాశి;
 
-	void replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules);
-	void replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const;
+	శూన్య replace(స్థిరరాశి std::map<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> &నియమాలు);
+	శూన్య replace(స్థిరరాశి std::map<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> &నియమాలు, RTLIL::SigSpec *other) స్థిరరాశి;
 
-	void replace(int offset, const RTLIL::SigSpec &with);
+	శూన్య replace(పూర్ణాంకం స్థానభ్రంశం, స్థిరరాశి RTLIL::SigSpec &with);
 
-	void remove(const RTLIL::SigSpec &pattern);
-	void remove(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other) const;
-	void remove2(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other);
+	శూన్య remove(స్థిరరాశి RTLIL::SigSpec &నమూనా);
+	శూన్య remove(స్థిరరాశి RTLIL::SigSpec &నమూనా, RTLIL::SigSpec *other) స్థిరరాశి;
+	శూన్య remove2(స్థిరరాశి RTLIL::SigSpec &నమూనా, RTLIL::SigSpec *other);
 
-	void remove(const pool<RTLIL::SigBit> &pattern);
-	void remove(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other) const;
-	void remove2(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other);
-	void remove2(const std::set<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other);
-	void remove2(const pool<RTLIL::Wire*> &pattern, RTLIL::SigSpec *other);
+	శూన్య remove(స్థిరరాశి pool<RTLIL::Sig_బిట్టు> &నమూనా);
+	శూన్య remove(స్థిరరాశి pool<RTLIL::Sig_బిట్టు> &నమూనా, RTLIL::SigSpec *other) స్థిరరాశి;
+	శూన్య remove2(స్థిరరాశి pool<RTLIL::Sig_బిట్టు> &నమూనా, RTLIL::SigSpec *other);
+	శూన్య remove2(స్థిరరాశి std::సమితి<RTLIL::Sig_బిట్టు> &నమూనా, RTLIL::SigSpec *other);
+	శూన్య remove2(స్థిరరాశి pool<RTLIL::Wire*> &నమూనా, RTLIL::SigSpec *other);
 
-	void remove(int offset, int length = 1);
-	void remove_const();
+	శూన్య remove(పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం నిడివి = 1);
+	శూన్య remove_const();
 
-	RTLIL::SigSpec extract(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec *other = NULL) const;
-	RTLIL::SigSpec extract(const pool<RTLIL::SigBit> &pattern, const RTLIL::SigSpec *other = NULL) const;
-	RTLIL::SigSpec extract(int offset, int length = 1) const;
-	RTLIL::SigSpec extract_end(int offset) const { return extract(offset, size() - offset); }
+	RTLIL::SigSpec వెలికితీయి(స్థిరరాశి RTLIL::SigSpec &నమూనా, స్థిరరాశి RTLIL::SigSpec *other = ఖాళీ) స్థిరరాశి;
+	RTLIL::SigSpec వెలికితీయి(స్థిరరాశి pool<RTLIL::Sig_బిట్టు> &నమూనా, స్థిరరాశి RTLIL::SigSpec *other = ఖాళీ) స్థిరరాశి;
+	RTLIL::SigSpec వెలికితీయి(పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం నిడివి = 1) స్థిరరాశి;
+	RTLIL::SigSpec వెలికితీయి_చివర(పూర్ణాంకం స్థానభ్రంశం) స్థిరరాశి { తిరిగి వెలికితీయి(స్థానభ్రంశం, కొలత() - స్థానభ్రంశం); }
 
-	void rewrite_wires(std::function<void(RTLIL::Wire*& wire)> rewrite);
+	శూన్య rewrite_wires(std::function<శూన్య(RTLIL::Wire*& wire)> rewrite);
 
-	RTLIL::SigBit lsb() const { log_assert(size()); return (*this)[0]; };
-	RTLIL::SigBit msb() const { log_assert(size()); return (*this)[size() - 1]; };
-	RTLIL::SigBit front() const { return (*this)[0]; }
-	RTLIL::SigBit back() const { return (*this)[size() - 1]; }
+	RTLIL::Sig_బిట్టు lsb() స్థిరరాశి { log_assert(కొలత()); తిరిగి (*this)[0]; };
+	RTLIL::Sig_బిట్టు msb() స్థిరరాశి { log_assert(కొలత()); తిరిగి (*this)[కొలత() - 1]; };
+	RTLIL::Sig_బిట్టు front() స్థిరరాశి { తిరిగి (*this)[0]; }
+	RTLIL::Sig_బిట్టు వెనుక() స్థిరరాశి { తిరిగి (*this)[కొలత() - 1]; }
 
-	void append(const RTLIL::SigSpec &signal);
-	inline void append(Wire *wire) { append(RTLIL::SigSpec(wire)); }
-	inline void append(const RTLIL::SigChunk &chunk) { append(RTLIL::SigSpec(chunk)); }
-	inline void append(const RTLIL::Const &const_) { append(RTLIL::SigSpec(const_)); }
+	శూన్య append(స్థిరరాశి RTLIL::SigSpec &సంకేతం);
+	అంతఃవరుస శూన్య append(Wire *wire) { append(RTLIL::SigSpec(wire)); }
+	అంతఃవరుస శూన్య append(స్థిరరాశి RTLIL::SigChunk &chunk) { append(RTLIL::SigSpec(chunk)); }
+	అంతఃవరుస శూన్య append(స్థిరరాశి RTLIL::Const &const_) { append(RTLIL::SigSpec(const_)); }
 
-	void append(const RTLIL::SigBit &bit);
-	inline void append(RTLIL::State state) { append(RTLIL::SigBit(state)); }
-	inline void append(bool bool_) { append(RTLIL::SigBit(bool_)); }
+	శూన్య append(స్థిరరాశి RTLIL::Sig_బిట్టు &బిట్టు);
+	అంతఃవరుస శూన్య append(RTLIL::State state) { append(RTLIL::Sig_బిట్టు(state)); }
+	అంతఃవరుస శూన్య append(bool bool_) { append(RTLIL::Sig_బిట్టు(bool_)); }
 
-	void extend_u0(int width, bool is_signed = false);
+	శూన్య extend_u0(పూర్ణాంకం వెడల్పు, bool is_signed = false);
 
-	RTLIL::SigSpec repeat(int num) const;
+	RTLIL::SigSpec repeat(పూర్ణాంకం అంకె) స్థిరరాశి;
 
-	void reverse() { inline_unpack(); std::reverse(bits_.begin(), bits_.end()); }
+	శూన్య తిరగేయి() { inline_unpack(); std::తిరగేయి(బిట్లు_2.begin(), బిట్లు_2.చివర()); }
 
-	bool operator <(const RTLIL::SigSpec &other) const;
-	bool operator ==(const RTLIL::SigSpec &other) const;
-	inline bool operator !=(const RTLIL::SigSpec &other) const { return !(*this == other); }
+	bool క్రియాకారకం <(స్థిరరాశి RTLIL::SigSpec &other) స్థిరరాశి;
+	bool క్రియాకారకం ==(స్థిరరాశి RTLIL::SigSpec &other) స్థిరరాశి;
+	అంతఃవరుస bool క్రియాకారకం !=(స్థిరరాశి RTLIL::SigSpec &other) స్థిరరాశి { తిరిగి !(*this == other); }
 
-	bool is_wire() const;
-	bool is_chunk() const;
-	inline bool is_bit() const { return size() == 1; }
+	bool is_wire() స్థిరరాశి;
+	bool is_chunk() స్థిరరాశి;
+	అంతఃవరుస bool is_బిట్టు() స్థిరరాశి { తిరిగి కొలత() == 1; }
 
-	bool known_driver() const;
+	bool తెలిసిన_driver() స్థిరరాశి;
 
-	bool is_fully_const() const;
-	bool is_fully_zero() const;
-	bool is_fully_ones() const;
-	bool is_fully_def() const;
-	bool is_fully_undef() const;
-	bool has_const() const;
-	bool has_const(State state) const;
-	bool has_marked_bits() const;
-	bool is_onehot(int *pos = nullptr) const;
+	bool is_fully_const() స్థిరరాశి;
+	bool is_fully_zero() స్థిరరాశి;
+	bool is_fully_ones() స్థిరరాశి;
+	bool is_fully_def() స్థిరరాశి;
+	bool is_fully_undef() స్థిరరాశి;
+	bool has_const() స్థిరరాశి;
+	bool has_const(State state) స్థిరరాశి;
+	bool has_marked_బిట్లు() స్థిరరాశి;
+	bool is_onehot(పూర్ణాంకం *pos = nullptr) స్థిరరాశి;
 
-	bool as_bool() const;
+	bool as_bool() స్థిరరాశి;
 
 	// Convert the SigSpec to a C++ int, assuming all bits are constant.
 	// NOTE: If the value is too wide to fit in int (32 bits) this will
 	// truncate any higher bits, potentially over/underflowing. Consider using
 	// try_as_int, as_int_saturating, or guarding behind convertible_to_int
 	// instead.
-	int as_int(bool is_signed = false) const;
+	పూర్ణాంకం as_int(bool is_signed = false) స్థిరరాశి;
 
 	// Returns true iff the SigSpec is constant and can be converted to an int
 	// without over/underflow.
-	bool convertible_to_int(bool is_signed = false) const;
+	bool convertible_గమ్యం_int(bool is_signed = false) స్థిరరాశి;
 
 	// Returns the SigSpec's value as an int if it is a constant and can be
 	// represented without over/underflow, or std::nullopt otherwise.
-	std::optional<int> try_as_int(bool is_signed = false) const;
+	std::optional<పూర్ణాంకం> try_as_int(bool is_signed = false) స్థిరరాశి;
 
 	// Returns an all constant SigSpec's value as an int if it can be represented
 	// without over/underflow, otherwise the max/min value for int depending on
 	// the sign.
-	int as_int_saturating(bool is_signed = false) const;
+	పూర్ణాంకం as_int_saturating(bool is_signed = false) స్థిరరాశి;
 
-	std::string as_string() const;
+	std::string as_string() స్థిరరాశి;
 	// Returns std::nullopt if there are any non-constant bits. Returns an empty
 	// Const if this has zero width.
-	std::optional<RTLIL::Const> try_as_const() const;
-	RTLIL::Const as_const() const;
-	RTLIL::Wire *as_wire() const;
-	RTLIL::SigChunk as_chunk() const;
-	RTLIL::SigBit as_bit() const;
+	std::optional<RTLIL::Const> try_as_const() స్థిరరాశి;
+	RTLIL::Const as_const() స్థిరరాశి;
+	RTLIL::Wire *as_wire() స్థిరరాశి;
+	RTLIL::SigChunk as_chunk() స్థిరరాశి;
+	RTLIL::Sig_బిట్టు as_బిట్టు() స్థిరరాశి;
 
-	bool match(const char* pattern) const;
+	bool సరిపోలిక(స్థిరరాశి అక్షరం* నమూనా) స్థిరరాశి;
 
-	std::set<RTLIL::SigBit> to_sigbit_set() const;
-	pool<RTLIL::SigBit> to_sigbit_pool() const;
-	std::vector<RTLIL::SigBit> to_sigbit_vector() const;
-	std::map<RTLIL::SigBit, RTLIL::SigBit> to_sigbit_map(const RTLIL::SigSpec &other) const;
-	dict<RTLIL::SigBit, RTLIL::SigBit> to_sigbit_dict(const RTLIL::SigSpec &other) const;
+	std::సమితి<RTLIL::Sig_బిట్టు> గమ్యం_sigbit_సమితి() స్థిరరాశి;
+	pool<RTLIL::Sig_బిట్టు> గమ్యం_sigbit_pool() స్థిరరాశి;
+	std::సదిశ<RTLIL::Sig_బిట్టు> గమ్యం_sigbit_సదిశ() స్థిరరాశి;
+	std::map<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> గమ్యం_sigbit_map(స్థిరరాశి RTLIL::SigSpec &other) స్థిరరాశి;
+	dict<RTLIL::Sig_బిట్టు, RTLIL::Sig_బిట్టు> గమ్యం_sigbit_dict(స్థిరరాశి RTLIL::SigSpec &other) స్థిరరాశి;
 
-	static bool parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str);
-	static bool parse_sel(RTLIL::SigSpec &sig, RTLIL::Design *design, RTLIL::Module *module, std::string str);
-	static bool parse_rhs(const RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str);
+	స్థిర bool parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str);
+	స్థిర bool parse_sel(RTLIL::SigSpec &sig, RTLIL::Design *design, RTLIL::Module *module, std::string str);
+	స్థిర bool parse_rhs(స్థిరరాశి RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str);
 
-	operator std::vector<RTLIL::SigChunk>() const;
-	operator std::vector<RTLIL::SigBit>() const { return to_sigbit_vector(); }
-	const RTLIL::SigBit &at(int offset, const RTLIL::SigBit &defval) { return offset < size() ? (*this)[offset] : defval; }
-	RTLIL::SigBit& at(int offset) { return (*this)[offset]; }
-	RTLIL::SigBit at(int offset) const { return (*this)[offset]; }
+	క్రియాకారకం std::సదిశ<RTLIL::SigChunk>() స్థిరరాశి;
+	క్రియాకారకం std::సదిశ<RTLIL::Sig_బిట్టు>() స్థిరరాశి { తిరిగి గమ్యం_sigbit_సదిశ(); }
+	స్థిరరాశి RTLIL::Sig_బిట్టు &at(పూర్ణాంకం స్థానభ్రంశం, స్థిరరాశి RTLIL::Sig_బిట్టు &defval) { తిరిగి స్థానభ్రంశం < కొలత() ? (*this)[స్థానభ్రంశం] : defval; }
+	RTLIL::Sig_బిట్టు& at(పూర్ణాంకం స్థానభ్రంశం) { తిరిగి (*this)[స్థానభ్రంశం]; }
+	RTLIL::Sig_బిట్టు at(పూర్ణాంకం స్థానభ్రంశం) స్థిరరాశి { తిరిగి (*this)[స్థానభ్రంశం]; }
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి {
 		Hasher::hash_t val;
-		if (std::optional<Hasher::hash_t> current = hash_.read())
+		ఒకవేళ (std::optional<Hasher::hash_t> current = hash_.పఠ())
 			val = *current;
-		else
+		లేకపోతే
 			val = updhash();
 		h.eat(val);
-		return h;
+		తిరిగి h;
 	}
 
-#ifndef NDEBUG
-	void check(const Module *mod = nullptr) const;
-#else
-	void check(const Module *mod = nullptr) const { (void)mod; }
-#endif
+#నిర్వచితం_కాకపోతే NDEBUG
+	శూన్య check(స్థిరరాశి Module *mod = nullptr) స్థిరరాశి;
+#లేకపోతే
+	శూన్య check(స్థిరరాశి Module *mod = nullptr) స్థిరరాశి { (శూన్య)mod; }
+#అయితే_ముగింపు
 };
 
-struct RTLIL::Selection
+నిర్మాణం RTLIL::Selection
 {
 	// selection includes boxed modules
 	bool selects_boxes;
 	// selection covers full design, including boxed modules
 	bool complete_selection;
 	// selection covers full design, not including boxed modules
-	bool full_selection;
+	bool నిండిన_selection;
 	pool<RTLIL::IdString> selected_modules;
 	dict<RTLIL::IdString, pool<RTLIL::IdString>> selected_members;
 	RTLIL::Design *current_design;
@@ -1164,28 +1164,28 @@ struct RTLIL::Selection
 	// create a new selection
 	Selection(
 		// should the selection cover the full design
-		bool full = true,
+		bool నిండిన_2 = true,
 		// should the selection include boxed modules
 		bool boxes = false,
 		// the design to select from
 		RTLIL::Design *design = nullptr
 	) :
-		selects_boxes(boxes), complete_selection(full && boxes), full_selection(full && !boxes), current_design(design) { }
+		selects_boxes(boxes), complete_selection(నిండిన_2 && boxes), నిండిన_selection(నిండిన_2 && !boxes), current_design(design) { }
 
 	// checks if the given module exists in the current design and is a
 	// boxed module, warning the user if the current design is not set
-	bool boxed_module(RTLIL::IdString mod_name) const;
+	bool boxed_module(RTLIL::IdString mod_name) స్థిరరాశి;
 
 	// checks if the given module is included in this selection
-	bool selected_module(RTLIL::IdString mod_name) const;
+	bool selected_module(RTLIL::IdString mod_name) స్థిరరాశి;
 
 	// checks if the given module is wholly included in this selection,
 	// i.e. not partially selected
-	bool selected_whole_module(RTLIL::IdString mod_name) const;
+	bool selected_సంపూర్ణ_module(RTLIL::IdString mod_name) స్థిరరాశి;
 
 	// checks if the given member from the given module is included in this
 	// selection
-	bool selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) const;
+	bool selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) స్థిరరాశి;
 
 	// optimizes this selection for the given design by:
 	// - removing non-existent modules and members, any boxed modules and
@@ -1196,731 +1196,731 @@ struct RTLIL::Selection
 	// - marking selection as a complete_selection if all modules in the
 	//   given design are selected, or a full_selection if it does not
 	//   include boxes.
-	void optimize(RTLIL::Design *design);
+	శూన్య optimize(RTLIL::Design *design);
 
 	// checks if selection covers full design (may or may not include
 	// boxed-modules)
-	bool selects_all() const {
-		return full_selection || complete_selection;
+	bool selects_all() స్థిరరాశి {
+		తిరిగి నిండిన_selection || complete_selection;
 	}
 
 	// add whole module to this selection
-	template<typename T1> void select(T1 *module) {
-		if (!selects_all() && selected_modules.count(module->name) == 0) {
+	మూస<typename T1> శూన్య select(T1 *module) {
+		ఒకవేళ (!selects_all() && selected_modules.లెక్క(module->name) == 0) {
 			IdString name = module->name;
-			selected_modules.insert(name);
+			selected_modules.చొప్పించు(name);
 			selected_members.erase(name);
-			if (module->get_blackbox_attribute())
+			ఒకవేళ (module->get_blackbox_attribute())
 				selects_boxes = true;
 		}
 	}
 
 	// add member of module to this selection
-	template<typename T1, typename T2> void select(T1 *module, T2 *member) {
+	మూస<typename T1, typename T2> శూన్య select(T1 *module, T2 *member) {
 		select(module, member->name.ref());
 	}
 
-	template<typename T1> void select(T1 *module, RTLIL::IdString member) {
-		if (!selects_all() && selected_modules.count(module->name.ref()) == 0) {
-			selected_members[module->name.ref()].insert(member);
-			if (module->get_blackbox_attribute())
+	మూస<typename T1> శూన్య select(T1 *module, RTLIL::IdString member) {
+		ఒకవేళ (!selects_all() && selected_modules.లెక్క(module->name.ref()) == 0) {
+			selected_members[module->name.ref()].చొప్పించు(member);
+			ఒకవేళ (module->get_blackbox_attribute())
 				selects_boxes = true;
 		}
 	}
 
 	// checks if selection is empty
-	bool empty() const {
-		return !selects_all() && selected_modules.empty() && selected_members.empty();
+	bool ఖాళీలు() స్థిరరాశి {
+		తిరిగి !selects_all() && selected_modules.ఖాళీలు() && selected_members.ఖాళీలు();
 	}
 
 	// clear this selection, leaving it empty
-	void clear();
+	శూన్య clear();
 
 	// create a new selection which is empty
-	static Selection EmptySelection(RTLIL::Design *design = nullptr) { return Selection(false, false, design); };
+	స్థిర Selection ఖాళీలు_Selection(RTLIL::Design *design = nullptr) { తిరిగి Selection(false, false, design); };
 
 	// create a new selection with all non-boxed modules
-	static Selection FullSelection(RTLIL::Design *design = nullptr) { return Selection(true, false, design); };
+	స్థిర Selection నిండిన_Selection(RTLIL::Design *design = nullptr) { తిరిగి Selection(true, false, design); };
 
 	// create a new selection with all modules, including boxes
-	static Selection CompleteSelection(RTLIL::Design *design = nullptr) { return Selection(true, true, design); };
+	స్థిర Selection CompleteSelection(RTLIL::Design *design = nullptr) { తిరిగి Selection(true, true, design); };
 };
 
-struct RTLIL::Monitor
+నిర్మాణం RTLIL::Monitor
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి { h.eat(hashidx_); తిరిగి h; }
 
 	Monitor() {
-		static unsigned int hashidx_count = 123456789;
-		hashidx_count = mkhash_xorshift(hashidx_count);
-		hashidx_ = hashidx_count;
+		స్థిర గుర్తులేని పూర్ణాంకం hashidx_లెక్క = 123456789;
+		hashidx_లెక్క = mkhash_xorshift(hashidx_లెక్క);
+		hashidx_ = hashidx_లెక్క;
 	}
 
-	virtual ~Monitor() { }
-	virtual void notify_module_add(RTLIL::Module*) { }
-	virtual void notify_module_del(RTLIL::Module*) { }
-	virtual void notify_connect(RTLIL::Cell*, RTLIL::IdString, const RTLIL::SigSpec&, const RTLIL::SigSpec&) { }
-	virtual void notify_connect(RTLIL::Module*, const RTLIL::SigSig&) { }
-	virtual void notify_connect(RTLIL::Module*, const std::vector<RTLIL::SigSig>&) { }
-	virtual void notify_blackout(RTLIL::Module*) { }
+	మాయా ~Monitor() { }
+	మాయా శూన్య notify_module_కూడు(RTLIL::Module*) { }
+	మాయా శూన్య notify_module_del(RTLIL::Module*) { }
+	మాయా శూన్య notify_connect(RTLIL::Cell*, RTLIL::IdString, స్థిరరాశి RTLIL::SigSpec&, స్థిరరాశి RTLIL::SigSpec&) { }
+	మాయా శూన్య notify_connect(RTLIL::Module*, స్థిరరాశి RTLIL::SigSig&) { }
+	మాయా శూన్య notify_connect(RTLIL::Module*, స్థిరరాశి std::సదిశ<RTLIL::SigSig>&) { }
+	మాయా శూన్య notify_blackout(RTLIL::Module*) { }
 };
 
 // Forward declaration; defined in preproc.h.
-struct define_map_t;
+నిర్మాణం define_map_t;
 
-template<typename N>
-inline constexpr bool is_unpooled_name_v =
-	std::is_same_v<std::decay_t<N>, TwineSpec> || std::is_same_v<std::decay_t<N>, TwineSpec::Leaf> ||
+మూస<typename N>
+అంతఃవరుస constexpr bool is_unpooled_name_v =
+	std::is_same_v<std::decay_t<N>, TwineSpec> || std::is_same_v<std::decay_t<N>, TwineSpec::ఆకు> ||
 	std::is_same_v<std::decay_t<N>, TwineSpec::Suffix> || std::is_same_v<std::decay_t<N>, TwineSpec::AutoSuffix> ||
 	std::is_same_v<std::decay_t<N>, std::string> || std::is_same_v<std::decay_t<N>, std::string_view> ||
-	std::is_same_v<std::decay_t<N>, const char*> || std::is_same_v<std::decay_t<N>, char*>;
+	std::is_same_v<std::decay_t<N>, స్థిరరాశి అక్షరం*> || std::is_same_v<std::decay_t<N>, అక్షరం*>;
 
-#define YS_UNPOOLED_NAME(N) std::enable_if_t<is_unpooled_name_v<N>, int> = 0
+#నిర్వచించు YS_UNPOOLED_NAME(N) std::enable_if_t<is_unpooled_name_v<N>, పూర్ణాంకం> = 0
 
-template<typename N>
-inline constexpr bool is_name_string_v =
+మూస<typename N>
+అంతఃవరుస constexpr bool is_name_string_v =
 	std::is_same_v<std::decay_t<N>, std::string> || std::is_same_v<std::decay_t<N>, std::string_view> ||
-	std::is_same_v<std::decay_t<N>, const char *> || std::is_same_v<std::decay_t<N>, char *>;
+	std::is_same_v<std::decay_t<N>, స్థిరరాశి అక్షరం *> || std::is_same_v<std::decay_t<N>, అక్షరం *>;
 
-#define YS_NAME_STRING(N) std::enable_if_t<is_name_string_v<N>, int> = 0
+#నిర్వచించు YS_NAME_STRING(N) std::enable_if_t<is_name_string_v<N>, పూర్ణాంకం> = 0
 
 // Forwarders from various string-representing types into a canonical IdString method
 
 // Forwards _func(name, arg1...)
-#define YS_NAME_FWD_POOL(_func, _pool) \
-	template<typename N, typename... Rest, YS_UNPOOLED_NAME(N)> \
-	decltype(auto) _func(N name, Rest&&... rest) \
-		{ return _func(_pool.add(std::move(name)), std::forward<Rest>(rest)...); }
+#నిర్వచించు YS_NAME_FWD_POOL(_func, _pool) \
+	మూస<typename N, typename... Rest, YS_UNPOOLED_NAME(N)> \
+	decltype(స్వయంచాలక) _func(N name, Rest&&... rest) \
+		{ తిరిగి _func(_pool.కూడు(std::move(name)), std::forward<Rest>(rest)...); }
 
 // Forwards _func(arg0, name, arg2...)
-#define YS_NAME_FWD_2ND_POOL(_func, _pool) \
-	template<typename T, typename N, YS_UNPOOLED_NAME(N)> \
-	decltype(auto) _func(T &&first, N name) \
-		{ return _func(std::forward<T>(first), _pool.add(std::move(name))); }
+#నిర్వచించు YS_NAME_FWD_2ND_POOL(_func, _pool) \
+	మూస<typename T, typename N, YS_UNPOOLED_NAME(N)> \
+	decltype(స్వయంచాలక) _func(T &&మొదటి, N name) \
+		{ తిరిగి _func(std::forward<T>(మొదటి), _pool.కూడు(std::move(name))); }
 
-#define YS_NAME_FWD(_func) YS_NAME_FWD_POOL(_func, design->twines())
-#define YS_NAME_FWD_2ND(_func) YS_NAME_FWD_2ND_POOL(_func, design->twines())
+#నిర్వచించు YS_NAME_FWD(_func) YS_NAME_FWD_POOL(_func, design->twines())
+#నిర్వచించు YS_NAME_FWD_2ND(_func) YS_NAME_FWD_2ND_POOL(_func, design->twines())
 
-struct RTLIL::Design
+నిర్మాణం RTLIL::Design
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి { h.eat(hashidx_); తిరిగి h; }
 
 	pool<RTLIL::Monitor*> monitors;
 	dict<std::string, std::string> scratchpad;
 
 	bool flagBufferedNormalized = false;
-	void bufNormalize(bool enable=true);
+	శూన్య bufNormalize(bool enable=true);
 
-	int refcount_modules_;
+	పూర్ణాంకం refcount_modules_;
 	dict<RTLIL::IdString, RTLIL::Module*> modules_;
 
-private:
+అంతరంగ:
 	TwinePool twines_;
 
-public:
-	TwinePool &twines() { return twines_; }
-	const TwinePool &twines() const { return twines_; }
+బహిరంగ:
+	TwinePool &twines() { తిరిగి twines_; }
+	స్థిరరాశి TwinePool &twines() స్థిరరాశి { తిరిగి twines_; }
 
-	void absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf);
+	శూన్య absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf);
 
-	size_t gc_twines();
+	కొలత_t gc_twines();
 
-	std::vector<std::unique_ptr<AST::AstNode>> verilog_packages, verilog_globals;
-	std::unique_ptr<define_map_t> verilog_defines;
+	std::సదిశ<std::unique_ptr<AST::Ast_కణుపు>> verilog_packages, verilog_globals;
+	std::unique_ptr<define_map_t> verilog_నిర్వచిస్తుంది;
 
-	std::vector<RTLIL::Selection> selection_stack;
+	std::సదిశ<RTLIL::Selection> selection_దొంతర;
 	dict<RTLIL::IdString, RTLIL::Selection> selection_vars;
-	IdString selected_active_module;
+	IdString selected_చురుకైన_module;
 
 	Design();
 	~Design();
 
 	RTLIL::ObjRange<RTLIL::Module*, IdString> modules();
 	RTLIL::Module *module(RTLIL::IdString name);
-	const RTLIL::Module *module(RTLIL::IdString name) const;
-	template<typename N, YS_NAME_STRING(N)> RTLIL::Module *module(N name)
-		{ return module(twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> const RTLIL::Module *module(N name) const
-		{ return module(twines().find(std::string_view(name))); }
-	RTLIL::Module *top_module() const;
+	స్థిరరాశి RTLIL::Module *module(RTLIL::IdString name) స్థిరరాశి;
+	మూస<typename N, YS_NAME_STRING(N)> RTLIL::Module *module(N name)
+		{ తిరిగి module(twines().కనుగొను(std::string_view(name))); }
+	మూస<typename N, YS_NAME_STRING(N)> స్థిరరాశి RTLIL::Module *module(N name) స్థిరరాశి
+		{ తిరిగి module(twines().కనుగొను(std::string_view(name))); }
+	RTLIL::Module *శిఖరం_module() స్థిరరాశి;
 
-	bool has(RTLIL::IdString id) const {
+	bool has(RTLIL::IdString id) స్థిరరాశి {
 		twines_.check_owned(id);
-		return modules_.count(id) != 0;
+		తిరిగి modules_.లెక్క(id) != 0;
 	}
-	template<typename N, YS_NAME_STRING(N)> bool has(N name) const
-		{ return has(twines().find(std::string_view(name))); }
+	మూస<typename N, YS_NAME_STRING(N)> bool has(N name) స్థిరరాశి
+		{ తిరిగి has(twines().కనుగొను(std::string_view(name))); }
 
-	void add(RTLIL::Module *module);
+	శూన్య కూడు(RTLIL::Module *module);
 
-	RTLIL::Module *addModule(RTLIL::IdString name);
-	YS_NAME_FWD_POOL(addModule, twines())
-	void remove(RTLIL::Module *module);
-	void rename(RTLIL::Module *module, RTLIL::IdString new_name);
+	RTLIL::Module *కూడు_Module(RTLIL::IdString name);
+	YS_NAME_FWD_POOL(కూడు_Module, twines())
+	శూన్య remove(RTLIL::Module *module);
+	శూన్య rename(RTLIL::Module *module, RTLIL::IdString new_name);
 	YS_NAME_FWD_2ND_POOL(rename, twines())
 
-	void scratchpad_unset(const std::string &varname);
+	శూన్య scratchpad_unset(స్థిరరాశి std::string &varname);
 
-	void scratchpad_set_int(const std::string &varname, int value);
-	void scratchpad_set_bool(const std::string &varname, bool value);
-	void scratchpad_set_string(const std::string &varname, std::string value);
+	శూన్య scratchpad_సమితి_int(స్థిరరాశి std::string &varname, పూర్ణాంకం విలువ);
+	శూన్య scratchpad_సమితి_bool(స్థిరరాశి std::string &varname, bool విలువ);
+	శూన్య scratchpad_సమితి_string(స్థిరరాశి std::string &varname, std::string విలువ);
 
-	int scratchpad_get_int(const std::string &varname, int default_value = 0) const;
-	bool scratchpad_get_bool(const std::string &varname, bool default_value = false) const;
-	std::string scratchpad_get_string(const std::string &varname, const std::string &default_value = std::string()) const;
+	పూర్ణాంకం scratchpad_get_int(స్థిరరాశి std::string &varname, పూర్ణాంకం default_విలువ_2 = 0) స్థిరరాశి;
+	bool scratchpad_get_bool(స్థిరరాశి std::string &varname, bool default_విలువ_2 = false) స్థిరరాశి;
+	std::string scratchpad_get_string(స్థిరరాశి std::string &varname, స్థిరరాశి std::string &default_విలువ_2 = std::string()) స్థిరరాశి;
 
-	void sort();
-	void sort_modules();
-	void check();
-	void optimize();
+	శూన్య క్రమీకరించు();
+	శూన్య క్రమీకరించు_modules();
+	శూన్య check();
+	శూన్య optimize();
 
-	void clone_into(RTLIL::Design *dst) const;
+	శూన్య clone_into(RTLIL::Design *dst) స్థిరరాశి;
 
 	// checks if the given module is included in the current selection
-	bool selected_module(RTLIL::IdString mod_name) const;
+	bool selected_module(RTLIL::IdString mod_name) స్థిరరాశి;
 
 	// checks if the given module is wholly included in the current
 	// selection, i.e. not partially selected
-	bool selected_whole_module(RTLIL::IdString mod_name) const;
+	bool selected_సంపూర్ణ_module(RTLIL::IdString mod_name) స్థిరరాశి;
 
 	// checks if the given member from the given module is included in the
 	// current selection
-	bool selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) const;
+	bool selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) స్థిరరాశి;
 
 	// checks if the given module is included in the current selection
-	bool selected_module(RTLIL::Module *mod) const;
+	bool selected_module(RTLIL::Module *mod) స్థిరరాశి;
 
 	// checks if the given module is wholly included in the current
 	// selection, i.e. not partially selected
-	bool selected_whole_module(RTLIL::Module *mod) const;
+	bool selected_సంపూర్ణ_module(RTLIL::Module *mod) స్థిరరాశి;
 
 	// push the given selection to the selection stack
-	void push_selection(RTLIL::Selection sel);
+	శూన్య నెట్టు_selection(RTLIL::Selection sel);
 	// push a new selection to the selection stack, with nothing selected
-	void push_empty_selection();
+	శూన్య నెట్టు_ఖాళీలు_selection();
 	// push a new selection to the selection stack, with all non-boxed
 	// modules selected
-	void push_full_selection();
+	శూన్య నెట్టు_నిండిన_selection();
 	// push a new selection to the selection stack, with all modules
 	// selected including boxes
-	void push_complete_selection();
+	శూన్య నెట్టు_complete_selection();
 	// pop the current selection from the stack, returning to a full
 	// selection (no boxes) if the stack is empty
-	void pop_selection();
+	శూన్య తీయి_selection();
 
 	// get the current selection
 	RTLIL::Selection &selection() {
-		return selection_stack.back();
+		తిరిగి selection_దొంతర.వెనుక();
 	}
 
 	// get the current selection
-	const RTLIL::Selection &selection() const {
-		return selection_stack.back();
+	స్థిరరాశి RTLIL::Selection &selection() స్థిరరాశి {
+		తిరిగి selection_దొంతర.వెనుక();
 	}
 
 	// is the current selection a full selection (no boxes)
-	bool full_selection() const {
-		return selection().full_selection;
+	bool నిండిన_selection() స్థిరరాశి {
+		తిరిగి selection().నిండిన_selection;
 	}
 
 	// is the given module in the current selection
-	template<typename T1> bool selected(T1 *module) const {
-		return selected_module(module->name);
+	మూస<typename T1> bool selected(T1 *module) స్థిరరాశి {
+		తిరిగి selected_module(module->name);
 	}
 
 	// is the given member of the given module in the current selection
-	template<typename T1, typename T2> bool selected(T1 *module, T2 *member) const {
-		return selected_member(module->name, member->name);
+	మూస<typename T1, typename T2> bool selected(T1 *module, T2 *member) స్థిరరాశి {
+		తిరిగి selected_member(module->name, member->name);
 	}
 
 	// add whole module to the current selection
-	template<typename T1> void select(T1 *module) {
+	మూస<typename T1> శూన్య select(T1 *module) {
 		RTLIL::Selection &sel = selection();
 		sel.select(module);
 	}
 
 	// add member of module to the current selection
-	template<typename T1, typename T2> void select(T1 *module, T2 *member) {
+	మూస<typename T1, typename T2> శూన్య select(T1 *module, T2 *member) {
 		RTLIL::Selection &sel = selection();
 		sel.select(module, member);
 	}
 
 
 	// returns all selected modules
-	std::vector<RTLIL::Module*> selected_modules(
+	std::సదిశ<RTLIL::Module*> selected_modules(
 		// controls if partially selected modules are included
 		RTLIL::SelectPartials partials = SELECT_ALL,
 		// controls if boxed modules are included
 		RTLIL::SelectBoxes boxes = SB_UNBOXED_WARN
-	) const;
+	) స్థిరరాశి;
 
 	// returns all selected modules, and may include boxes
-	std::vector<RTLIL::Module*> all_selected_modules() const { return selected_modules(SELECT_ALL, SB_ALL); }
+	std::సదిశ<RTLIL::Module*> all_selected_modules() స్థిరరాశి { తిరిగి selected_modules(SELECT_ALL, SB_ALL); }
 	// returns all selected unboxed modules, silently ignoring any boxed
 	// modules in the selection
-	std::vector<RTLIL::Module*> selected_unboxed_modules() const { return selected_modules(SELECT_ALL, SB_UNBOXED_ONLY); }
+	std::సదిశ<RTLIL::Module*> selected_unboxed_modules() స్థిరరాశి { తిరిగి selected_modules(SELECT_ALL, SB_UNBOXED_ONLY); }
 	// returns all selected unboxed modules, warning the user if any boxed
 	// modules have been ignored
-	std::vector<RTLIL::Module*> selected_unboxed_modules_warn() const { return selected_modules(SELECT_ALL, SB_UNBOXED_WARN); }
+	std::సదిశ<RTLIL::Module*> selected_unboxed_modules_warn() స్థిరరాశి { తిరిగి selected_modules(SELECT_ALL, SB_UNBOXED_WARN); }
 
 	[[deprecated("Use select_unboxed_whole_modules() to maintain prior behaviour, or consider one of the other selected whole module helpers.")]]
-	std::vector<RTLIL::Module*> selected_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_UNBOXED_WARN); }
+	std::సదిశ<RTLIL::Module*> selected_సంపూర్ణ_modules() స్థిరరాశి { తిరిగి selected_modules(SELECT_సంపూర్ణ_ONLY, SB_UNBOXED_WARN); }
 	// returns all selected whole modules, silently ignoring partially
 	// selected modules, and may include boxes
-	std::vector<RTLIL::Module*> all_selected_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_ALL); }
+	std::సదిశ<RTLIL::Module*> all_selected_సంపూర్ణ_modules() స్థిరరాశి { తిరిగి selected_modules(SELECT_సంపూర్ణ_ONLY, SB_ALL); }
 	// returns all selected whole modules, warning the user if any partially
 	// selected or boxed modules have been ignored; optionally includes
 	// selected whole modules with the 'whitebox' attribute
-	std::vector<RTLIL::Module*> selected_whole_modules_warn(
+	std::సదిశ<RTLIL::Module*> selected_సంపూర్ణ_modules_warn(
 		// should whole modules with the 'whitebox' attribute be
 		// included
 		bool include_wb = false
-	) const { return selected_modules(SELECT_WHOLE_WARN, include_wb ? SB_EXCL_BB_WARN : SB_UNBOXED_WARN); }
+	) స్థిరరాశి { తిరిగి selected_modules(SELECT_సంపూర్ణ_WARN, include_wb ? SB_EXCL_BB_WARN : SB_UNBOXED_WARN); }
 	// returns all selected unboxed whole modules, silently ignoring
 	// partially selected or boxed modules
-	std::vector<RTLIL::Module*> selected_unboxed_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_UNBOXED_ONLY); }
+	std::సదిశ<RTLIL::Module*> selected_unboxed_సంపూర్ణ_modules() స్థిరరాశి { తిరిగి selected_modules(SELECT_సంపూర్ణ_ONLY, SB_UNBOXED_ONLY); }
 	// returns all selected unboxed whole modules, warning the user if any
 	// partially selected or boxed modules have been ignored
-	std::vector<RTLIL::Module*> selected_unboxed_whole_modules_warn() const { return selected_modules(SELECT_WHOLE_WARN, SB_UNBOXED_WARN); }
+	std::సదిశ<RTLIL::Module*> selected_unboxed_సంపూర్ణ_modules_warn() స్థిరరాశి { తిరిగి selected_modules(SELECT_సంపూర్ణ_WARN, SB_UNBOXED_WARN); }
 
-	static std::map<unsigned int, RTLIL::Design*> *get_all_designs(void);
+	స్థిర std::map<గుర్తులేని పూర్ణాంకం, RTLIL::Design*> *get_all_designs(శూన్య);
 
-	std::string to_rtlil_str(bool only_selected = true) const;
+	std::string గమ్యం_rtlil_str(bool only_selected = true) స్థిరరాశి;
 };
 
-struct RTLIL::Module : public RTLIL::AttrObject
+నిర్మాణం RTLIL::Module : బహిరంగ RTLIL::AttrObject
 {
-	friend struct RTLIL::Cell;
-	friend struct RTLIL::Design;
+	మిత్ర నిర్మాణం RTLIL::Cell;
+	మిత్ర నిర్మాణం RTLIL::Design;
 
 	RTLIL::ModuleNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి { h.eat(hashidx_); తిరిగి h; }
 
-protected:
-	void add(RTLIL::Wire *wire);
-	void add(RTLIL::Cell *cell);
-	void add(RTLIL::Process *process);
+రక్షిత:
+	శూన్య కూడు(RTLIL::Wire *wire);
+	శూన్య కూడు(RTLIL::Cell *cell);
+	శూన్య కూడు(RTLIL::Process *process);
 
-public:
+బహిరంగ:
 	RTLIL::Design *design;
 	pool<RTLIL::Monitor*> monitors;
 
-	TwinePool &twines() const { return design->twines(); }
+	TwinePool &twines() స్థిరరాశి { తిరిగి design->twines(); }
 
-	int refcount_wires_;
-	int refcount_cells_;
+	పూర్ణాంకం refcount_wires_;
+	పూర్ణాంకం refcount_cells_;
 
 	dict<RTLIL::IdString, RTLIL::Wire*> wires_;
 	dict<RTLIL::IdString, RTLIL::Cell*> cells_;
 
-	std::vector<RTLIL::SigSig>   connections_;
+	std::సదిశ<RTLIL::SigSig>   connections_;
 
 	idict<RTLIL::IdString> avail_parameters;
-	dict<RTLIL::IdString, RTLIL::Const> parameter_default_values;
-	dict<RTLIL::IdString, RTLIL::Memory*> memories;
+	dict<RTLIL::IdString, RTLIL::Const> parameter_default_విలువలు;
+	dict<RTLIL::IdString, RTLIL::జ్ఞాపకం*> memories;
 	dict<RTLIL::IdString, RTLIL::Process*> processes;
 
 	Module();
-	virtual ~Module();
-	virtual RTLIL::IdString derive(RTLIL::Design *design, const dict<RTLIL::IdString, RTLIL::Const> &parameters, bool mayfail = false);
-	virtual RTLIL::IdString derive(RTLIL::Design *design, const dict<RTLIL::IdString, RTLIL::Const> &parameters, const dict<RTLIL::IdString, RTLIL::Module*> &interfaces, const dict<RTLIL::IdString, RTLIL::IdString> &modports, bool mayfail = false);
-	virtual size_t count_id(RTLIL::IdString id);
-	virtual void expand_interfaces(RTLIL::Design *design, const dict<RTLIL::IdString, RTLIL::Module *> &local_interfaces);
-	virtual bool reprocess_if_necessary(RTLIL::Design *design);
+	మాయా ~Module();
+	మాయా RTLIL::IdString derive(RTLIL::Design *design, స్థిరరాశి dict<RTLIL::IdString, RTLIL::Const> &parameters, bool mayfail = false);
+	మాయా RTLIL::IdString derive(RTLIL::Design *design, స్థిరరాశి dict<RTLIL::IdString, RTLIL::Const> &parameters, స్థిరరాశి dict<RTLIL::IdString, RTLIL::Module*> &interfaces, స్థిరరాశి dict<RTLIL::IdString, RTLIL::IdString> &modports, bool mayfail = false);
+	మాయా కొలత_t లెక్క_id(RTLIL::IdString id);
+	మాయా శూన్య expand_interfaces(RTLIL::Design *design, స్థిరరాశి dict<RTLIL::IdString, RTLIL::Module *> &local_interfaces);
+	మాయా bool reprocess_if_necessary(RTLIL::Design *design);
 
-	virtual void sort();
-	virtual void check();
-	virtual void optimize();
-	virtual void makeblackbox();
+	మాయా శూన్య క్రమీకరించు();
+	మాయా శూన్య check();
+	మాయా శూన్య optimize();
+	మాయా శూన్య makeblackbox();
 
-	bool get_blackbox_attribute(bool ignore_wb=false) const {
-		return get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
+	bool get_blackbox_attribute(bool ignore_wb=false) స్థిరరాశి {
+		తిరిగి get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
 	}
 
-	void connect(const RTLIL::SigSig &conn);
-	void connect(const RTLIL::SigSpec &lhs, const RTLIL::SigSpec &rhs);
-	void new_connections(const std::vector<RTLIL::SigSig> &new_conn);
-	const std::vector<RTLIL::SigSig> &connections() const;
+	శూన్య connect(స్థిరరాశి RTLIL::SigSig &conn);
+	శూన్య connect(స్థిరరాశి RTLIL::SigSpec &lhs, స్థిరరాశి RTLIL::SigSpec &rhs);
+	శూన్య new_connections(స్థిరరాశి std::సదిశ<RTLIL::SigSig> &new_conn);
+	స్థిరరాశి std::సదిశ<RTLIL::SigSig> &connections() స్థిరరాశి;
 
-	std::vector<RTLIL::IdString> ports;
-	void fixup_ports();
+	std::సదిశ<RTLIL::IdString> ports;
+	శూన్య fixup_ports();
 
-	pool<RTLIL::Cell *> buf_norm_cell_queue;
-	pool<pair<RTLIL::Cell *, RTLIL::IdString>> buf_norm_cell_port_queue;
-	pool<RTLIL::Wire *> buf_norm_wire_queue;
+	pool<RTLIL::Cell *> buf_norm_cell_వరుస;
+	pool<pair<RTLIL::Cell *, RTLIL::IdString>> buf_norm_cell_పోర్టు_వరుస;
+	pool<RTLIL::Wire *> buf_norm_wire_వరుస;
 	pool<RTLIL::Cell *> pending_deleted_cells;
-	dict<RTLIL::Wire *, pool<RTLIL::Cell *>> buf_norm_connect_index;
-	void bufNormalize();
+	dict<RTLIL::Wire *, pool<RTLIL::Cell *>> buf_norm_connect_సూచీ;
+	శూన్య bufNormalize();
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	void cloneInto(RTLIL::Module *new_mod) const;
-	virtual RTLIL::Module *clone() const;
-	virtual RTLIL::Module *clone(RTLIL::Design *dst) const;
-	virtual RTLIL::Module *clone(RTLIL::Design *dst, IdString target_name) const;
+	మూస<typename T> శూన్య rewrite_sigspecs(T &functor);
+	మూస<typename T> శూన్య rewrite_sigspecs2(T &functor);
+	శూన్య cloneInto(RTLIL::Module *new_mod) స్థిరరాశి;
+	మాయా RTLIL::Module *clone() స్థిరరాశి;
+	మాయా RTLIL::Module *clone(RTLIL::Design *dst) స్థిరరాశి;
+	మాయా RTLIL::Module *clone(RTLIL::Design *dst, IdString లక్ష్యం_name) స్థిరరాశి;
 
-	bool has_memories() const;
-	bool has_processes() const;
+	bool has_memories() స్థిరరాశి;
+	bool has_processes() స్థిరరాశి;
 
-	bool has_memories_warn() const;
-	bool has_processes_warn() const;
+	bool has_memories_warn() స్థిరరాశి;
+	bool has_processes_warn() స్థిరరాశి;
 
-	bool is_selected() const;
-	bool is_selected_whole() const;
+	bool is_selected() స్థిరరాశి;
+	bool is_selected_సంపూర్ణ() స్థిరరాశి;
 
-	std::vector<RTLIL::Wire*> selected_wires() const;
-	std::vector<RTLIL::Cell*> selected_cells() const;
-	std::vector<RTLIL::Memory*> selected_memories() const;
-	std::vector<RTLIL::Process*> selected_processes() const;
-	std::vector<RTLIL::SelectedMember> selected_members() const;
+	std::సదిశ<RTLIL::Wire*> selected_wires() స్థిరరాశి;
+	std::సదిశ<RTLIL::Cell*> selected_cells() స్థిరరాశి;
+	std::సదిశ<RTLIL::జ్ఞాపకం*> selected_memories() స్థిరరాశి;
+	std::సదిశ<RTLIL::Process*> selected_processes() స్థిరరాశి;
+	std::సదిశ<RTLIL::SelectedMember> selected_members() స్థిరరాశి;
 
-	template<typename T> bool selected(T *member) const {
-		return design->selected_member(name.ref(), member->name.ref());
+	మూస<typename T> bool selected(T *member) స్థిరరాశి {
+		తిరిగి design->selected_member(name.ref(), member->name.ref());
 	}
 
 	RTLIL::Wire* wire(RTLIL::IdString id) {
-		if (design)
+		ఒకవేళ (design)
 			design->twines().check_owned(id);
-		auto it = wires_.find(id);
-		return it == wires_.end() ? nullptr : it->second;
+		స్వయంచాలక it = wires_.కనుగొను(id);
+		తిరిగి it == wires_.చివర() ? nullptr : it->రెండవ;
 	}
 	RTLIL::Cell* cell(RTLIL::IdString id) {
-		if (design)
+		ఒకవేళ (design)
 			design->twines().check_owned(id);
-		auto it = cells_.find(id);
-		return it == cells_.end() ? nullptr : it->second;
+		స్వయంచాలక it = cells_.కనుగొను(id);
+		తిరిగి it == cells_.చివర() ? nullptr : it->రెండవ;
 	}
 
-	const RTLIL::Wire* wire(RTLIL::IdString id) const{
-		if (design)
+	స్థిరరాశి RTLIL::Wire* wire(RTLIL::IdString id) స్థిరరాశి{
+		ఒకవేళ (design)
 			design->twines().check_owned(id);
-		auto it = wires_.find(id);
-		return it == wires_.end() ? nullptr : it->second;
+		స్వయంచాలక it = wires_.కనుగొను(id);
+		తిరిగి it == wires_.చివర() ? nullptr : it->రెండవ;
 	}
-	const RTLIL::Cell* cell(RTLIL::IdString id) const {
-		if (design)
+	స్థిరరాశి RTLIL::Cell* cell(RTLIL::IdString id) స్థిరరాశి {
+		ఒకవేళ (design)
 			design->twines().check_owned(id);
-		auto it = cells_.find(id);
-		return it == cells_.end() ? nullptr : it->second;
+		స్వయంచాలక it = cells_.కనుగొను(id);
+		తిరిగి it == cells_.చివర() ? nullptr : it->రెండవ;
 	}
 
-	template<typename N, YS_NAME_STRING(N)> RTLIL::Wire *wire(N name)
-		{ return wire(twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> RTLIL::Cell *cell(N name)
-		{ return cell(twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> const RTLIL::Wire *wire(N name) const
-		{ return wire(twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> const RTLIL::Cell *cell(N name) const
-		{ return cell(twines().find(std::string_view(name))); }
+	మూస<typename N, YS_NAME_STRING(N)> RTLIL::Wire *wire(N name)
+		{ తిరిగి wire(twines().కనుగొను(std::string_view(name))); }
+	మూస<typename N, YS_NAME_STRING(N)> RTLIL::Cell *cell(N name)
+		{ తిరిగి cell(twines().కనుగొను(std::string_view(name))); }
+	మూస<typename N, YS_NAME_STRING(N)> స్థిరరాశి RTLIL::Wire *wire(N name) స్థిరరాశి
+		{ తిరిగి wire(twines().కనుగొను(std::string_view(name))); }
+	మూస<typename N, YS_NAME_STRING(N)> స్థిరరాశి RTLIL::Cell *cell(N name) స్థిరరాశి
+		{ తిరిగి cell(twines().కనుగొను(std::string_view(name))); }
 
-	RTLIL::ObjRange<RTLIL::Wire*> wires() { return RTLIL::ObjRange<RTLIL::Wire*>(&wires_, &refcount_wires_); }
-	int wires_size() const { return wires_.size(); }
-	RTLIL::Wire* wire_at(int index) const { return wires_.element(index)->second; }
-	RTLIL::ObjRange<RTLIL::Cell*> cells() { return RTLIL::ObjRange<RTLIL::Cell*>(&cells_, &refcount_cells_); }
-	int cells_size() const { return cells_.size(); }
-	RTLIL::Cell* cell_at(int index) const { return cells_.element(index)->second; }
+	RTLIL::ObjRange<RTLIL::Wire*> wires() { తిరిగి RTLIL::ObjRange<RTLIL::Wire*>(&wires_, &refcount_wires_); }
+	పూర్ణాంకం wires_కొలత() స్థిరరాశి { తిరిగి wires_.కొలత(); }
+	RTLIL::Wire* wire_at(పూర్ణాంకం సూచీ) స్థిరరాశి { తిరిగి wires_.element(సూచీ)->రెండవ; }
+	RTLIL::ObjRange<RTLIL::Cell*> cells() { తిరిగి RTLIL::ObjRange<RTLIL::Cell*>(&cells_, &refcount_cells_); }
+	పూర్ణాంకం cells_కొలత() స్థిరరాశి { తిరిగి cells_.కొలత(); }
+	RTLIL::Cell* cell_at(పూర్ణాంకం సూచీ) స్థిరరాశి { తిరిగి cells_.element(సూచీ)->రెండవ; }
 
 	// Removing wires is expensive. If you have to remove wires, remove them all at once.
-	void remove(const pool<RTLIL::Wire*> &wires);
-	void remove(RTLIL::Cell *cell);
-	void remove(RTLIL::Memory *memory);
-	void remove(RTLIL::Process *process);
+	శూన్య remove(స్థిరరాశి pool<RTLIL::Wire*> &wires);
+	శూన్య remove(RTLIL::Cell *cell);
+	శూన్య remove(RTLIL::జ్ఞాపకం *జ్ఞాపకం_3);
+	శూన్య remove(RTLIL::Process *process);
 
-	void rename(RTLIL::Wire *wire, RTLIL::IdString new_name);
-	void rename(RTLIL::Cell *cell, RTLIL::IdString new_name);
-	void rename(RTLIL::IdString old_name, RTLIL::IdString new_name);
+	శూన్య rename(RTLIL::Wire *wire, RTLIL::IdString new_name);
+	శూన్య rename(RTLIL::Cell *cell, RTLIL::IdString new_name);
+	శూన్య rename(RTLIL::IdString old_name, RTLIL::IdString new_name);
 	YS_NAME_FWD_2ND(rename)
 
-	void swap_names(RTLIL::Wire *w1, RTLIL::Wire *w2);
-	void swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2);
+	శూన్య మార్పిడి_పేర్లు(RTLIL::Wire *w1, RTLIL::Wire *w2);
+	శూన్య మార్పిడి_పేర్లు(RTLIL::Cell *c1, RTLIL::Cell *c2);
 
 	RTLIL::IdString uniquify(RTLIL::IdString name);
-	RTLIL::IdString uniquify(RTLIL::IdString name, int &index);
+	RTLIL::IdString uniquify(RTLIL::IdString name, పూర్ణాంకం &సూచీ);
 	YS_NAME_FWD(uniquify)
 
-	RTLIL::Wire *addWire(RTLIL::IdString name, int width = 1);
-	RTLIL::Wire *addWire(RTLIL::IdString name, const RTLIL::Wire *other);
-	YS_NAME_FWD(addWire)
+	RTLIL::Wire *కూడు_Wire(RTLIL::IdString name, పూర్ణాంకం వెడల్పు = 1);
+	RTLIL::Wire *కూడు_Wire(RTLIL::IdString name, స్థిరరాశి RTLIL::Wire *other);
+	YS_NAME_FWD(కూడు_Wire)
 
-	RTLIL::Cell *addCell(RTLIL::IdString name, RTLIL::IdString type);
-	RTLIL::Cell *addCell(RTLIL::IdString name, const RTLIL::Cell *other);
-	YS_NAME_FWD(addCell)
-	template<typename T, YS_UNPOOLED_NAME(T)>
-	RTLIL::Cell *addCell(RTLIL::IdString name, T type) { return addCell(name, design->twines().add(std::move(type))); }
+	RTLIL::Cell *కూడు_Cell(RTLIL::IdString name, RTLIL::IdString type);
+	RTLIL::Cell *కూడు_Cell(RTLIL::IdString name, స్థిరరాశి RTLIL::Cell *other);
+	YS_NAME_FWD(కూడు_Cell)
+	మూస<typename T, YS_UNPOOLED_NAME(T)>
+	RTLIL::Cell *కూడు_Cell(RTLIL::IdString name, T type) { తిరిగి కూడు_Cell(name, design->twines().కూడు(std::move(type))); }
 
-	RTLIL::Memory *addMemory(RTLIL::IdString name);
-	YS_NAME_FWD(addMemory)
-	RTLIL::Memory *addMemory(RTLIL::IdString name, const RTLIL::Memory *other);
+	RTLIL::జ్ఞాపకం *కూడు_జ్ఞాపకం(RTLIL::IdString name);
+	YS_NAME_FWD(కూడు_జ్ఞాపకం)
+	RTLIL::జ్ఞాపకం *కూడు_జ్ఞాపకం(RTLIL::IdString name, స్థిరరాశి RTLIL::జ్ఞాపకం *other);
 
-	RTLIL::Process *addProcess(RTLIL::IdString name);
-	YS_NAME_FWD(addProcess)
-	RTLIL::Process *addProcess(RTLIL::IdString name, const RTLIL::Process *other);
+	RTLIL::Process *కూడు_Process(RTLIL::IdString name);
+	YS_NAME_FWD(కూడు_Process)
+	RTLIL::Process *కూడు_Process(RTLIL::IdString name, స్థిరరాశి RTLIL::Process *other);
 
 	// The add* methods create a cell and return the created cell. All signals must exist in advance.
 
-	RTLIL::Cell* addNot     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addPos     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addBuf     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addBarrier (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addNeg     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* కూడు_Not     (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Pos     (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Buf     (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Barrier (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Neg     (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
 
-	RTLIL::Cell* addAnd  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addOr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addXor  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addXnor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* కూడు_And  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Or   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Xor  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Xnor (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
 
-	RTLIL::Cell* addReduceAnd  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addReduceOr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addReduceXor  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addReduceXnor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addReduceBool (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* కూడు_Reduce_And  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Reduce_Or   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Reduce_Xor  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Reduce_Xnor (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Reduce_Bool (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
 
-	RTLIL::Cell* addShl    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addShr    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addSshl   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addSshr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addShift  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addShiftx (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* కూడు_Shl    (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Shr    (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Sshl   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Sshr   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_జరుపు  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Shiftx (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
 
-	RTLIL::Cell* addLt  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addLe  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addEq  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addNe  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addEqx (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addNex (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addGe  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addGt  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* కూడు_Lt  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Le  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Eq  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Ne  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Eqx (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Nex (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Ge  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Gt  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
 
-	RTLIL::Cell* addAdd (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addSub (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addMul (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* కూడు_కూడు (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Sub (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Mul (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
 	// truncating division
-	RTLIL::Cell* addDiv (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* కూడు_Div (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
 	// truncating modulo
-	RTLIL::Cell* addMod (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addDivFloor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addModFloor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addPow (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool a_signed = false, bool b_signed = false, const std::string &src = "");
+	RTLIL::Cell* కూడు_Mod (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Div_Floor (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Mod_Floor (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Pow (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool a_signed = false, bool b_signed = false, స్థిరరాశి std::string &src = "");
 
-	RTLIL::Cell* addFa (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_c, const RTLIL::SigSpec &sig_x, const RTLIL::SigSpec &sig_y, const std::string &src = "");
+	RTLIL::Cell* కూడు_Fa (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_c, స్థిరరాశి RTLIL::SigSpec &sig_x, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src = "");
 
-	RTLIL::Cell* addLogicNot (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addLogicAnd (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addLogicOr  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* కూడు_Logic_Not (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Logic_And (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Logic_Or  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, bool is_signed = false, స్థిరరాశి std::string &src = "");
 
-	RTLIL::Cell* addMux  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addPmux (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addBmux (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addDemux (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
+	RTLIL::Cell* కూడు_Mux  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Pmux (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Bmux (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Demux (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src = "");
 
-	RTLIL::Cell* addBweqx  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addBwmux  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
+	RTLIL::Cell* కూడు_Bweqx  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Bwmux  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src = "");
 
-	RTLIL::Cell* addSlice  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, RTLIL::Const offset, const std::string &src = "");
-	RTLIL::Cell* addConcat (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addLut    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, RTLIL::Const lut, const std::string &src = "");
-	RTLIL::Cell* addTribuf (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAssert (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addAssume (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addLive   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addFair   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addCover  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addEquiv  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src = "");
+	RTLIL::Cell* కూడు_ముక్క  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, RTLIL::Const స్థానభ్రంశం, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Concat (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Lut    (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_y, RTLIL::Const lut, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Tribuf (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Assert (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Assume (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_సజీవ   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Fair   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Cover  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Equiv  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src = "");
 
-	RTLIL::Cell* addSr    (RTLIL::IdString name, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, const RTLIL::SigSpec &sig_q, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addFf    (RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src = "");
-	RTLIL::Cell* addDff   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_d,   const RTLIL::SigSpec &sig_q, bool clk_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffe  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en,  const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffsr (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffsre (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdff (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const arst_value, bool clk_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdffe (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst,  const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const arst_value, bool clk_polarity = true, bool en_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAldff (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool aload_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAldffe (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_aload,  const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool en_polarity = true, bool aload_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdff (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const srst_value, bool clk_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffe (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst,  const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const srst_value, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffce (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const srst_value, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDlatch (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdlatch (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const arst_value, bool en_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDlatchsr (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
+	RTLIL::Cell* కూడు_Sr    (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr, స్థిరరాశి RTLIL::SigSpec &sig_q, bool సమితి_polarity = true, bool clr_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Ff    (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Dff   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_d,   స్థిరరాశి RTLIL::SigSpec &sig_q, bool clk_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Dffe  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en,  స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Dffsr (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool సమితి_polarity = true, bool clr_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Dffsre (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, bool సమితి_polarity = true, bool clr_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Adff (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_arst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, RTLIL::Const arst_విలువ, bool clk_polarity = true, bool arst_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Adffe (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_arst,  స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, RTLIL::Const arst_విలువ, bool clk_polarity = true, bool en_polarity = true, bool arst_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Aldff (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_aload, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, స్థిరరాశి RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool aload_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Aldffe (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_aload,  స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, స్థిరరాశి RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool en_polarity = true, bool aload_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Sdff (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_srst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, RTLIL::Const srst_విలువ, bool clk_polarity = true, bool srst_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Sdffe (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_srst,  స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, RTLIL::Const srst_విలువ, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Sdffce (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_srst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, RTLIL::Const srst_విలువ, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Dlatch (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, bool en_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Adlatch (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_arst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, RTLIL::Const arst_విలువ, bool en_polarity = true, bool arst_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Dlatchsr (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, bool en_polarity = true, bool సమితి_polarity = true, bool clr_polarity = true, స్థిరరాశి std::string &src = "");
 
-	RTLIL::Cell* addBufGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addNotGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAndGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addNandGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addOrGate     (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addNorGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addXorGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addXnorGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAndnotGate (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addOrnotGate  (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addMuxGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_s, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addNmuxGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_s, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAoi3Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addOai3Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAoi4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addOai4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const RTLIL::SigBit &sig_y, const std::string &src = "");
+	RTLIL::Cell* కూడు_Buf_Gate    (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Not_Gate    (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_And_Gate    (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Nand_Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Or_Gate     (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Nor_Gate    (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Xor_Gate    (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Xnor_Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Andnot_Gate (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Ornot_Gate  (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Mux_Gate    (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_s, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Nmux_Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_s, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Aoi3_Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_c, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Oai3_Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_c, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Aoi4_Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_c, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_d, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Oai4_Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_c, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_d, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_y, స్థిరరాశి std::string &src = "");
 
-	RTLIL::Cell* addSrGate     (RTLIL::IdString name, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-			const RTLIL::SigSpec &sig_q, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addFfGate     (RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src = "");
-	RTLIL::Cell* addDffGate    (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffeGate   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffsrGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-			RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffsreGate (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-			RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdffGate   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool arst_value = false, bool clk_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdffeGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool arst_value = false, bool clk_polarity = true, bool en_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAldffGate   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			const RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool aload_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAldffeGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			const RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool en_polarity = true, bool aload_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffGate   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool srst_value = false, bool clk_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffeGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool srst_value = false, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffceGate (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool srst_value = false, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDlatchGate (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdlatchGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool arst_value = false, bool en_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDlatchsrGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-			RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
+	RTLIL::Cell* కూడు_Sr_Gate     (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr,
+			స్థిరరాశి RTLIL::SigSpec &sig_q, bool సమితి_polarity = true, bool clr_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Ff_Gate     (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Dff_Gate    (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, bool clk_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Dffe_Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Dffsr_Gate  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr,
+			RTLIL::SigSpec sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool సమితి_polarity = true, bool clr_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Dffsre_Gate (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr,
+			RTLIL::SigSpec sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, bool సమితి_polarity = true, bool clr_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Adff_Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_arst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+			bool arst_విలువ = false, bool clk_polarity = true, bool arst_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Adffe_Gate  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_arst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+			bool arst_విలువ = false, bool clk_polarity = true, bool en_polarity = true, bool arst_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Aldff_Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_aload, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+			స్థిరరాశి RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool aload_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Aldffe_Gate  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_aload, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+			స్థిరరాశి RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool en_polarity = true, bool aload_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Sdff_Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_srst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+			bool srst_విలువ = false, bool clk_polarity = true, bool srst_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Sdffe_Gate  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_srst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+			bool srst_విలువ = false, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Sdffce_Gate (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_clk, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_srst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+			bool srst_విలువ = false, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Dlatch_Gate (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, bool en_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Adlatch_Gate(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_arst, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q,
+			bool arst_విలువ = false, bool en_polarity = true, bool arst_polarity = true, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell* కూడు_Dlatchsr_Gate  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_en, స్థిరరాశి RTLIL::SigSpec &sig_సమితి, స్థిరరాశి RTLIL::SigSpec &sig_clr,
+			RTLIL::SigSpec sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, bool en_polarity = true, bool సమితి_polarity = true, bool clr_polarity = true, స్థిరరాశి std::string &src = "");
 
-	RTLIL::Cell* addAnyinit(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src = "");
+	RTLIL::Cell* కూడు_Anyinit(RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_d, స్థిరరాశి RTLIL::SigSpec &sig_q, స్థిరరాశి std::string &src = "");
 
 	// The methods without the add* prefix create a cell and an output signal. They return the newly created output signal.
 
-	RTLIL::SigSpec Not     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Pos     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Buf     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Barrier (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Neg     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Not     (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Pos     (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Buf     (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Barrier (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Neg     (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, bool is_signed = false, స్థిరరాశి std::string &src = "");
 
-	RTLIL::SigSpec And  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Or   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Xor  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Xnor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec And  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Or   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Xor  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Xnor (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
 
-	RTLIL::SigSpec ReduceAnd  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ReduceOr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ReduceXor  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ReduceXnor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ReduceBool (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec ReduceAnd  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec ReduceOr   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec ReduceXor  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec ReduceXnor (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec ReduceBool (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, bool is_signed = false, స్థిరరాశి std::string &src = "");
 
-	RTLIL::SigSpec Shl    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Shr    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Sshl   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Sshr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Shift  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Shiftx (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Shl    (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Shr    (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Sshl   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Sshr   (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec జరుపు_2  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Shiftx (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
 
-	RTLIL::SigSpec Lt  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Le  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Eq  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Ne  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Eqx (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Nex (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Ge  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Gt  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Lt  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Le  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Eq  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Ne  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Eqx (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Nex (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Ge  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Gt  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
 
-	RTLIL::SigSpec Add (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Sub (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Mul (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec కూడు_2 (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Sub (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Mul (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
 	// truncating division
-	RTLIL::SigSpec Div (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Div (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
 	// truncating modulo
-	RTLIL::SigSpec Mod (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec DivFloor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ModFloor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Pow (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool a_signed = false, bool b_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Mod (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec DivFloor (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec ModFloor (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Pow (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool a_signed = false, bool b_signed = false, స్థిరరాశి std::string &src = "");
 
-	RTLIL::SigSpec LogicNot (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec LogicAnd (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec LogicOr  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec LogicNot (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec LogicAnd (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec LogicOr  (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, bool is_signed = false, స్థిరరాశి std::string &src = "");
 
-	RTLIL::SigSpec Mux      (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const std::string &src = "");
-	RTLIL::SigSpec Pmux     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const std::string &src = "");
-	RTLIL::SigSpec Bmux     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const std::string &src = "");
-	RTLIL::SigSpec Demux     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const std::string &src = "");
+	RTLIL::SigSpec Mux      (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Pmux     (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Bmux     (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Demux     (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి std::string &src = "");
 
-	RTLIL::SigSpec Bweqx      (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const std::string &src = "");
-	RTLIL::SigSpec Bwmux      (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const std::string &src = "");
+	RTLIL::SigSpec Bweqx      (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Bwmux      (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_b, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి std::string &src = "");
 
-	RTLIL::SigBit BufGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const std::string &src = "");
-	RTLIL::SigBit NotGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const std::string &src = "");
-	RTLIL::SigBit AndGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit NandGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit OrGate     (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit NorGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit XorGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit XnorGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit AndnotGate (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit OrnotGate  (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit MuxGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_s, const std::string &src = "");
-	RTLIL::SigBit NmuxGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_s, const std::string &src = "");
-	RTLIL::SigBit Aoi3Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const std::string &src = "");
-	RTLIL::SigBit Oai3Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const std::string &src = "");
-	RTLIL::SigBit Aoi4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const std::string &src = "");
-	RTLIL::SigBit Oai4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const std::string &src = "");
+	RTLIL::Sig_బిట్టు BufGate    (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు NotGate    (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు AndGate    (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు NandGate   (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు OrGate     (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు NorGate    (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు XorGate    (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు XnorGate   (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు AndnotGate (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు OrnotGate  (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు MuxGate    (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_s, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు NmuxGate   (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_s, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు Aoi3Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_c, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు Oai3Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_c, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు Aoi4Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_c, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_d, స్థిరరాశి std::string &src = "");
+	RTLIL::Sig_బిట్టు Oai4Gate   (RTLIL::IdString name, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_a, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_b, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_c, స్థిరరాశి RTLIL::Sig_బిట్టు &sig_d, స్థిరరాశి std::string &src = "");
 
-	RTLIL::SigSpec Anyconst  (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Anyseq    (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Allconst  (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Allseq    (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Initstate (RTLIL::IdString name, const std::string &src = "");
+	RTLIL::SigSpec Anyconst  (RTLIL::IdString name, పూర్ణాంకం వెడల్పు = 1, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Anyseq    (RTLIL::IdString name, పూర్ణాంకం వెడల్పు = 1, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Allconst  (RTLIL::IdString name, పూర్ణాంకం వెడల్పు = 1, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Allseq    (RTLIL::IdString name, పూర్ణాంకం వెడల్పు = 1, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Initstate (RTLIL::IdString name, స్థిరరాశి std::string &src = "");
 
-	RTLIL::SigSpec SetTag          (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src = "");
-	RTLIL::Cell*   addSetTag       (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::SigSpec GetTag          (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const std::string &src = "");
-	RTLIL::Cell*   addOverwriteTag (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src = "");
-	RTLIL::SigSpec OriginalTag     (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const std::string &src = "");
-	RTLIL::SigSpec FutureFF        (RTLIL::IdString name, const RTLIL::SigSpec &sig_e, const std::string &src = "");
-	YS_NAME_FWD(addAnyinit)
+	RTLIL::SigSpec సమితి_ట్యాగ్_2          (RTLIL::IdString name, స్థిరరాశి std::string &ట్యాగ్, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి RTLIL::SigSpec &sig_c, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell*   కూడు_సమితి_ట్యాగ్       (RTLIL::IdString name, స్థిరరాశి std::string &ట్యాగ్, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి RTLIL::SigSpec &sig_c, స్థిరరాశి RTLIL::SigSpec &sig_y, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Get_ట్యాగ్          (RTLIL::IdString name, స్థిరరాశి std::string &ట్యాగ్, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి std::string &src = "");
+	RTLIL::Cell*   కూడు_Overwrite_ట్యాగ్ (RTLIL::IdString name, స్థిరరాశి std::string &ట్యాగ్, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి RTLIL::SigSpec &sig_s, స్థిరరాశి RTLIL::SigSpec &sig_c, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec Original_ట్యాగ్     (RTLIL::IdString name, స్థిరరాశి std::string &ట్యాగ్, స్థిరరాశి RTLIL::SigSpec &sig_a, స్థిరరాశి std::string &src = "");
+	RTLIL::SigSpec FutureFF        (RTLIL::IdString name, స్థిరరాశి RTLIL::SigSpec &sig_e, స్థిరరాశి std::string &src = "");
+	YS_NAME_FWD(కూడు_Anyinit)
 	YS_NAME_FWD(Anyconst) YS_NAME_FWD(Anyseq) YS_NAME_FWD(Allconst) YS_NAME_FWD(Allseq)
 	YS_NAME_FWD(Initstate)
-	YS_NAME_FWD(SetTag) YS_NAME_FWD(addSetTag) YS_NAME_FWD(GetTag)
-	YS_NAME_FWD(addOverwriteTag) YS_NAME_FWD(OriginalTag) YS_NAME_FWD(FutureFF)
-	YS_NAME_FWD(addNot) YS_NAME_FWD(addPos) YS_NAME_FWD(addBuf) YS_NAME_FWD(addBarrier) YS_NAME_FWD(addNeg)
-	YS_NAME_FWD(addAnd) YS_NAME_FWD(addOr) YS_NAME_FWD(addXor) YS_NAME_FWD(addXnor)
-	YS_NAME_FWD(addReduceAnd) YS_NAME_FWD(addReduceOr) YS_NAME_FWD(addReduceXor) YS_NAME_FWD(addReduceXnor)
-	YS_NAME_FWD(addReduceBool) YS_NAME_FWD(addShl) YS_NAME_FWD(addShr) YS_NAME_FWD(addSshl)
-	YS_NAME_FWD(addSshr) YS_NAME_FWD(addShift) YS_NAME_FWD(addShiftx) YS_NAME_FWD(addLt)
-	YS_NAME_FWD(addLe) YS_NAME_FWD(addEq) YS_NAME_FWD(addNe) YS_NAME_FWD(addEqx)
-	YS_NAME_FWD(addNex) YS_NAME_FWD(addGe) YS_NAME_FWD(addGt) YS_NAME_FWD(addAdd)
-	YS_NAME_FWD(addSub) YS_NAME_FWD(addMul) YS_NAME_FWD(addDiv) YS_NAME_FWD(addMod)
-	YS_NAME_FWD(addDivFloor) YS_NAME_FWD(addModFloor) YS_NAME_FWD(addPow) YS_NAME_FWD(addFa)
-	YS_NAME_FWD(addLogicNot) YS_NAME_FWD(addLogicAnd) YS_NAME_FWD(addLogicOr) YS_NAME_FWD(addMux)
-	YS_NAME_FWD(addPmux) YS_NAME_FWD(addBmux) YS_NAME_FWD(addDemux) YS_NAME_FWD(addBweqx)
-	YS_NAME_FWD(addBwmux) YS_NAME_FWD(addSlice) YS_NAME_FWD(addConcat) YS_NAME_FWD(addLut)
-	YS_NAME_FWD(addTribuf) YS_NAME_FWD(addAssert) YS_NAME_FWD(addAssume) YS_NAME_FWD(addLive)
-	YS_NAME_FWD(addFair) YS_NAME_FWD(addCover) YS_NAME_FWD(addEquiv) YS_NAME_FWD(addSr)
-	YS_NAME_FWD(addFf) YS_NAME_FWD(addDff) YS_NAME_FWD(addDffe) YS_NAME_FWD(addDffsr)
-	YS_NAME_FWD(addDffsre) YS_NAME_FWD(addAdff) YS_NAME_FWD(addAdffe) YS_NAME_FWD(addAldff)
-	YS_NAME_FWD(addAldffe) YS_NAME_FWD(addSdff) YS_NAME_FWD(addSdffe) YS_NAME_FWD(addSdffce)
-	YS_NAME_FWD(addDlatch) YS_NAME_FWD(addAdlatch) YS_NAME_FWD(addDlatchsr) YS_NAME_FWD(addBufGate)
-	YS_NAME_FWD(addNotGate) YS_NAME_FWD(addAndGate) YS_NAME_FWD(addNandGate) YS_NAME_FWD(addOrGate)
-	YS_NAME_FWD(addNorGate) YS_NAME_FWD(addXorGate) YS_NAME_FWD(addXnorGate) YS_NAME_FWD(addAndnotGate)
-	YS_NAME_FWD(addOrnotGate) YS_NAME_FWD(addMuxGate) YS_NAME_FWD(addNmuxGate) YS_NAME_FWD(addAoi3Gate)
-	YS_NAME_FWD(addOai3Gate) YS_NAME_FWD(addAoi4Gate) YS_NAME_FWD(addOai4Gate) YS_NAME_FWD(addSrGate)
-	YS_NAME_FWD(addFfGate) YS_NAME_FWD(addDffGate) YS_NAME_FWD(addDffeGate) YS_NAME_FWD(addDffsrGate)
-	YS_NAME_FWD(addDffsreGate) YS_NAME_FWD(addAdffGate) YS_NAME_FWD(addAdffeGate) YS_NAME_FWD(addAldffGate)
-	YS_NAME_FWD(addAldffeGate) YS_NAME_FWD(addSdffGate) YS_NAME_FWD(addSdffeGate) YS_NAME_FWD(addSdffceGate)
-	YS_NAME_FWD(addDlatchGate) YS_NAME_FWD(addAdlatchGate) YS_NAME_FWD(addDlatchsrGate) YS_NAME_FWD(Not)
+	YS_NAME_FWD(సమితి_ట్యాగ్_2) YS_NAME_FWD(కూడు_సమితి_ట్యాగ్) YS_NAME_FWD(Get_ట్యాగ్)
+	YS_NAME_FWD(కూడు_Overwrite_ట్యాగ్) YS_NAME_FWD(Original_ట్యాగ్) YS_NAME_FWD(FutureFF)
+	YS_NAME_FWD(కూడు_Not) YS_NAME_FWD(కూడు_Pos) YS_NAME_FWD(కూడు_Buf) YS_NAME_FWD(కూడు_Barrier) YS_NAME_FWD(కూడు_Neg)
+	YS_NAME_FWD(కూడు_And) YS_NAME_FWD(కూడు_Or) YS_NAME_FWD(కూడు_Xor) YS_NAME_FWD(కూడు_Xnor)
+	YS_NAME_FWD(కూడు_Reduce_And) YS_NAME_FWD(కూడు_Reduce_Or) YS_NAME_FWD(కూడు_Reduce_Xor) YS_NAME_FWD(కూడు_Reduce_Xnor)
+	YS_NAME_FWD(కూడు_Reduce_Bool) YS_NAME_FWD(కూడు_Shl) YS_NAME_FWD(కూడు_Shr) YS_NAME_FWD(కూడు_Sshl)
+	YS_NAME_FWD(కూడు_Sshr) YS_NAME_FWD(కూడు_జరుపు) YS_NAME_FWD(కూడు_Shiftx) YS_NAME_FWD(కూడు_Lt)
+	YS_NAME_FWD(కూడు_Le) YS_NAME_FWD(కూడు_Eq) YS_NAME_FWD(కూడు_Ne) YS_NAME_FWD(కూడు_Eqx)
+	YS_NAME_FWD(కూడు_Nex) YS_NAME_FWD(కూడు_Ge) YS_NAME_FWD(కూడు_Gt) YS_NAME_FWD(కూడు_కూడు)
+	YS_NAME_FWD(కూడు_Sub) YS_NAME_FWD(కూడు_Mul) YS_NAME_FWD(కూడు_Div) YS_NAME_FWD(కూడు_Mod)
+	YS_NAME_FWD(కూడు_Div_Floor) YS_NAME_FWD(కూడు_Mod_Floor) YS_NAME_FWD(కూడు_Pow) YS_NAME_FWD(కూడు_Fa)
+	YS_NAME_FWD(కూడు_Logic_Not) YS_NAME_FWD(కూడు_Logic_And) YS_NAME_FWD(కూడు_Logic_Or) YS_NAME_FWD(కూడు_Mux)
+	YS_NAME_FWD(కూడు_Pmux) YS_NAME_FWD(కూడు_Bmux) YS_NAME_FWD(కూడు_Demux) YS_NAME_FWD(కూడు_Bweqx)
+	YS_NAME_FWD(కూడు_Bwmux) YS_NAME_FWD(కూడు_ముక్క) YS_NAME_FWD(కూడు_Concat) YS_NAME_FWD(కూడు_Lut)
+	YS_NAME_FWD(కూడు_Tribuf) YS_NAME_FWD(కూడు_Assert) YS_NAME_FWD(కూడు_Assume) YS_NAME_FWD(కూడు_సజీవ)
+	YS_NAME_FWD(కూడు_Fair) YS_NAME_FWD(కూడు_Cover) YS_NAME_FWD(కూడు_Equiv) YS_NAME_FWD(కూడు_Sr)
+	YS_NAME_FWD(కూడు_Ff) YS_NAME_FWD(కూడు_Dff) YS_NAME_FWD(కూడు_Dffe) YS_NAME_FWD(కూడు_Dffsr)
+	YS_NAME_FWD(కూడు_Dffsre) YS_NAME_FWD(కూడు_Adff) YS_NAME_FWD(కూడు_Adffe) YS_NAME_FWD(కూడు_Aldff)
+	YS_NAME_FWD(కూడు_Aldffe) YS_NAME_FWD(కూడు_Sdff) YS_NAME_FWD(కూడు_Sdffe) YS_NAME_FWD(కూడు_Sdffce)
+	YS_NAME_FWD(కూడు_Dlatch) YS_NAME_FWD(కూడు_Adlatch) YS_NAME_FWD(కూడు_Dlatchsr) YS_NAME_FWD(కూడు_Buf_Gate)
+	YS_NAME_FWD(కూడు_Not_Gate) YS_NAME_FWD(కూడు_And_Gate) YS_NAME_FWD(కూడు_Nand_Gate) YS_NAME_FWD(కూడు_Or_Gate)
+	YS_NAME_FWD(కూడు_Nor_Gate) YS_NAME_FWD(కూడు_Xor_Gate) YS_NAME_FWD(కూడు_Xnor_Gate) YS_NAME_FWD(కూడు_Andnot_Gate)
+	YS_NAME_FWD(కూడు_Ornot_Gate) YS_NAME_FWD(కూడు_Mux_Gate) YS_NAME_FWD(కూడు_Nmux_Gate) YS_NAME_FWD(కూడు_Aoi3_Gate)
+	YS_NAME_FWD(కూడు_Oai3_Gate) YS_NAME_FWD(కూడు_Aoi4_Gate) YS_NAME_FWD(కూడు_Oai4_Gate) YS_NAME_FWD(కూడు_Sr_Gate)
+	YS_NAME_FWD(కూడు_Ff_Gate) YS_NAME_FWD(కూడు_Dff_Gate) YS_NAME_FWD(కూడు_Dffe_Gate) YS_NAME_FWD(కూడు_Dffsr_Gate)
+	YS_NAME_FWD(కూడు_Dffsre_Gate) YS_NAME_FWD(కూడు_Adff_Gate) YS_NAME_FWD(కూడు_Adffe_Gate) YS_NAME_FWD(కూడు_Aldff_Gate)
+	YS_NAME_FWD(కూడు_Aldffe_Gate) YS_NAME_FWD(కూడు_Sdff_Gate) YS_NAME_FWD(కూడు_Sdffe_Gate) YS_NAME_FWD(కూడు_Sdffce_Gate)
+	YS_NAME_FWD(కూడు_Dlatch_Gate) YS_NAME_FWD(కూడు_Adlatch_Gate) YS_NAME_FWD(కూడు_Dlatchsr_Gate) YS_NAME_FWD(Not)
 	YS_NAME_FWD(Pos) YS_NAME_FWD(Buf) YS_NAME_FWD(Barrier) YS_NAME_FWD(Neg) YS_NAME_FWD(And)
 	YS_NAME_FWD(Or) YS_NAME_FWD(Xor) YS_NAME_FWD(Xnor) YS_NAME_FWD(ReduceAnd)
 	YS_NAME_FWD(ReduceOr) YS_NAME_FWD(ReduceXor) YS_NAME_FWD(ReduceXnor) YS_NAME_FWD(ReduceBool)
 	YS_NAME_FWD(Shl) YS_NAME_FWD(Shr) YS_NAME_FWD(Sshl) YS_NAME_FWD(Sshr)
-	YS_NAME_FWD(Shift) YS_NAME_FWD(Shiftx) YS_NAME_FWD(Lt) YS_NAME_FWD(Le)
+	YS_NAME_FWD(జరుపు_2) YS_NAME_FWD(Shiftx) YS_NAME_FWD(Lt) YS_NAME_FWD(Le)
 	YS_NAME_FWD(Eq) YS_NAME_FWD(Ne) YS_NAME_FWD(Eqx) YS_NAME_FWD(Nex)
-	YS_NAME_FWD(Ge) YS_NAME_FWD(Gt) YS_NAME_FWD(Add) YS_NAME_FWD(Sub)
+	YS_NAME_FWD(Ge) YS_NAME_FWD(Gt) YS_NAME_FWD(కూడు_2) YS_NAME_FWD(Sub)
 	YS_NAME_FWD(Mul) YS_NAME_FWD(Div) YS_NAME_FWD(Mod) YS_NAME_FWD(DivFloor)
 	YS_NAME_FWD(ModFloor) YS_NAME_FWD(Pow) YS_NAME_FWD(LogicNot) YS_NAME_FWD(LogicAnd)
 	YS_NAME_FWD(LogicOr) YS_NAME_FWD(Mux) YS_NAME_FWD(Pmux) YS_NAME_FWD(Bmux)
@@ -1930,436 +1930,436 @@ public:
 	YS_NAME_FWD(OrnotGate) YS_NAME_FWD(MuxGate) YS_NAME_FWD(NmuxGate) YS_NAME_FWD(Aoi3Gate)
 	YS_NAME_FWD(Oai3Gate) YS_NAME_FWD(Aoi4Gate) YS_NAME_FWD(Oai4Gate)
 
-	std::string to_rtlil_str() const;
-#ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Module*> *get_all_modules(void);
-#endif
+	std::string గమ్యం_rtlil_str() స్థిరరాశి;
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
+	స్థిర std::map<గుర్తులేని పూర్ణాంకం, RTLIL::Module*> *get_all_modules(శూన్య);
+#అయితే_ముగింపు
 };
 
-struct RTLIL::Wire : public RTLIL::AttrObject
+నిర్మాణం RTLIL::Wire : బహిరంగ RTLIL::AttrObject
 {
 	RTLIL::WireNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి { h.eat(hashidx_); తిరిగి h; }
 
-protected:
+రక్షిత:
 	// use module->addWire() and module->remove() to create or destroy wires
-	friend struct RTLIL::Module;
+	మిత్ర నిర్మాణం RTLIL::Module;
 	Wire();
 	~Wire();
 
-	friend struct RTLIL::Design;
-	friend struct RTLIL::Cell;
+	మిత్ర నిర్మాణం RTLIL::Design;
+	మిత్ర నిర్మాణం RTLIL::Cell;
 	RTLIL::Cell *driverCell_ = nullptr;
-	RTLIL::IdString driverPort_;
+	RTLIL::IdString driver_పోర్టు_2;
 
-public:
+బహిరంగ:
 	// do not simply copy wires
 	Wire(RTLIL::Wire &other) = delete;
-	void operator=(RTLIL::Wire &other) = delete;
+	శూన్య క్రియాకారకం=(RTLIL::Wire &other) = delete;
 
 	RTLIL::Module *module;
-	int width, start_offset, port_id;
-	bool port_input, port_output, upto, is_signed;
+	పూర్ణాంకం వెడల్పు, ప్రారంభం_స్థానభ్రంశం, పోర్టు_id;
+	bool పోర్టు_ఆదానం, పోర్టు_output, upto, is_signed;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() స్థిరరాశి { తిరిగి module ? module->design : nullptr; }
+	TwinePool &twines() స్థిరరాశి { తిరిగి module->twines(); }
 
-	bool known_driver() const { return driverCell_ != nullptr; }
+	bool తెలిసిన_driver() స్థిరరాశి { తిరిగి driverCell_ != nullptr; }
 
-	RTLIL::Cell *driverCell() const    { log_assert(driverCell_); return driverCell_; };
-	RTLIL::IdString driverPort() const { log_assert(driverCell_); return driverPort_; };
+	RTLIL::Cell *driverCell() స్థిరరాశి    { log_assert(driverCell_); తిరిగి driverCell_; };
+	RTLIL::IdString driver_పోర్టు() స్థిరరాశి { log_assert(driverCell_); తిరిగి driver_పోర్టు_2; };
 
-	int from_hdl_index(int hdl_index) {
-		int zero_index = hdl_index - start_offset;
-		int rtlil_index = upto ? width - 1 - zero_index : zero_index;
-		return rtlil_index >= 0 && rtlil_index < width ? rtlil_index : INT_MIN;
+	పూర్ణాంకం from_hdl_సూచీ(పూర్ణాంకం hdl_సూచీ) {
+		పూర్ణాంకం zero_సూచీ = hdl_సూచీ - ప్రారంభం_స్థానభ్రంశం;
+		పూర్ణాంకం rtlil_సూచీ = upto ? వెడల్పు - 1 - zero_సూచీ : zero_సూచీ;
+		తిరిగి rtlil_సూచీ >= 0 && rtlil_సూచీ < వెడల్పు ? rtlil_సూచీ : INT_MIN;
 	}
 
-	int to_hdl_index(int rtlil_index) {
-		if (rtlil_index < 0 || rtlil_index >= width)
-			return INT_MIN;
-		int zero_index = upto ? width - 1 - rtlil_index : rtlil_index;
-		return zero_index + start_offset;
+	పూర్ణాంకం గమ్యం_hdl_సూచీ(పూర్ణాంకం rtlil_సూచీ) {
+		ఒకవేళ (rtlil_సూచీ < 0 || rtlil_సూచీ >= వెడల్పు)
+			తిరిగి INT_MIN;
+		పూర్ణాంకం zero_సూచీ = upto ? వెడల్పు - 1 - rtlil_సూచీ : rtlil_సూచీ;
+		తిరిగి zero_సూచీ + ప్రారంభం_స్థానభ్రంశం;
 	}
 
-	std::string to_rtlil_str() const;
+	std::string గమ్యం_rtlil_str() స్థిరరాశి;
 
-#ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Wire*> *get_all_wires(void);
-#endif
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
+	స్థిర std::map<గుర్తులేని పూర్ణాంకం, RTLIL::Wire*> *get_all_wires(శూన్య);
+#అయితే_ముగింపు
 };
 
-inline int GetSize(RTLIL::Wire *wire) {
-	return wire->width;
+అంతఃవరుస పూర్ణాంకం Get_కొలత(RTLIL::Wire *wire) {
+	తిరిగి wire->వెడల్పు;
 }
 
-struct RTLIL::Memory : public RTLIL::AttrObject
+నిర్మాణం RTLIL::జ్ఞాపకం : బహిరంగ RTLIL::AttrObject
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి { h.eat(hashidx_); తిరిగి h; }
 
-	Memory();
-	~Memory();
+	జ్ఞాపకం();
+	~జ్ఞాపకం();
 
 	RTLIL::Module *module = nullptr;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() స్థిరరాశి { తిరిగి module ? module->design : nullptr; }
+	TwinePool &twines() స్థిరరాశి { తిరిగి module->twines(); }
 
-	RTLIL::MemoryNameId name;
+	RTLIL::జ్ఞాపకం_Name_Id name;
 
-	int width, start_offset, size;
-#ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Memory*> *get_all_memorys(void);
-#endif
+	పూర్ణాంకం వెడల్పు, ప్రారంభం_స్థానభ్రంశం, కొలత;
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
+	స్థిర std::map<గుర్తులేని పూర్ణాంకం, RTLIL::జ్ఞాపకం*> *get_all_memorys(శూన్య);
+#అయితే_ముగింపు
 
-	std::string to_rtlil_str() const;
+	std::string గమ్యం_rtlil_str() స్థిరరాశి;
 };
 
-struct RTLIL::Cell : public RTLIL::AttrObject
+నిర్మాణం RTLIL::Cell : బహిరంగ RTLIL::AttrObject
 {
-private:
-	void initIndex();
+అంతరంగ:
+	శూన్య init_సూచీ();
 
-	bool bufnorm_handle_setPort(IdString portname, RTLIL::SigSpec &signal, dict<IdString, RTLIL::SigSpec>::iterator conn_it);
-public:
+	bool bufnorm_handle_సమితి_పోర్టు(IdString portname, RTLIL::SigSpec &సంకేతం, dict<IdString, RTLIL::SigSpec>::iterator conn_it);
+బహిరంగ:
 	RTLIL::CellNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి { h.eat(hashidx_); తిరిగి h; }
 
-protected:
+రక్షిత:
 	// use module->addCell() and module->remove() to create or destroy cells
-	friend struct RTLIL::Module;
+	మిత్ర నిర్మాణం RTLIL::Module;
 	Cell();
 	~Cell();
 
-public:
+బహిరంగ:
 	// do not simply copy cells
 	Cell(RTLIL::Cell &other) = delete;
-	void operator=(RTLIL::Cell &other) = delete;
+	శూన్య క్రియాకారకం=(RTLIL::Cell &other) = delete;
 
 	RTLIL::Module *module;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() స్థిరరాశి { తిరిగి module ? module->design : nullptr; }
+	TwinePool &twines() స్థిరరాశి { తిరిగి module->twines(); }
 
 	RTLIL::CellTypeId type;
 	dict<RTLIL::IdString, RTLIL::SigSpec> connections_;
 	dict<RTLIL::IdString, RTLIL::Const> parameters;
 
 	// access cell ports
-	bool hasPort(RTLIL::IdString portname) const;
-	void unsetPort(RTLIL::IdString portname);
-	void setPort(RTLIL::IdString portname, RTLIL::SigSpec signal);
-	template<typename N, YS_NAME_STRING(N)> void setPort(N portname, RTLIL::SigSpec signal)
-		{ setPort(module->twines().add(std::move(portname)), std::move(signal)); }
-	const RTLIL::SigSpec &getPort(RTLIL::IdString portname) const;
-	const dict<RTLIL::IdString, RTLIL::SigSpec> &connections() const;
+	bool has_పోర్టు(RTLIL::IdString portname) స్థిరరాశి;
+	శూన్య unset_పోర్టు(RTLIL::IdString portname);
+	శూన్య సమితి_పోర్టు(RTLIL::IdString portname, RTLIL::SigSpec సంకేతం);
+	మూస<typename N, YS_NAME_STRING(N)> శూన్య సమితి_పోర్టు(N portname, RTLIL::SigSpec సంకేతం)
+		{ సమితి_పోర్టు(module->twines().కూడు(std::move(portname)), std::move(సంకేతం)); }
+	స్థిరరాశి RTLIL::SigSpec &get_పోర్టు(RTLIL::IdString portname) స్థిరరాశి;
+	స్థిరరాశి dict<RTLIL::IdString, RTLIL::SigSpec> &connections() స్థిరరాశి;
 
-	bool known() const;
-	bool input(RTLIL::IdString portname) const;
-	bool output(RTLIL::IdString portname) const;
-	PortDir port_dir(RTLIL::IdString portname) const;
+	bool తెలిసిన() స్థిరరాశి;
+	bool ఆదానం(RTLIL::IdString portname) స్థిరరాశి;
+	bool output(RTLIL::IdString portname) స్థిరరాశి;
+	పోర్టు_Dir పోర్టు_dir(RTLIL::IdString portname) స్థిరరాశి;
 
-	bool hasParam(RTLIL::IdString paramname) const;
-	void unsetParam(RTLIL::IdString paramname);
-	void setParam(RTLIL::IdString paramname, RTLIL::Const value);
-	const RTLIL::Const &getParam(RTLIL::IdString paramname) const;
+	bool hasParam(RTLIL::IdString paramname) స్థిరరాశి;
+	శూన్య unsetParam(RTLIL::IdString paramname);
+	శూన్య సమితి_Param(RTLIL::IdString paramname, RTLIL::Const విలువ);
+	స్థిరరాశి RTLIL::Const &getParam(RTLIL::IdString paramname) స్థిరరాశి;
 
-	template<typename N, YS_NAME_STRING(N)> bool hasParam(N name) const
-		{ return hasParam(module->twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> void unsetParam(N name)
-		{ unsetParam(module->twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> void setParam(N name, RTLIL::Const value)
-		{ setParam(module->twines().add(std::move(name)), std::move(value)); }
-	template<typename N, YS_NAME_STRING(N)> const RTLIL::Const &getParam(N name) const
-		{ return getParam(module->twines().find(std::string_view(name))); }
+	మూస<typename N, YS_NAME_STRING(N)> bool hasParam(N name) స్థిరరాశి
+		{ తిరిగి hasParam(module->twines().కనుగొను(std::string_view(name))); }
+	మూస<typename N, YS_NAME_STRING(N)> శూన్య unsetParam(N name)
+		{ unsetParam(module->twines().కనుగొను(std::string_view(name))); }
+	మూస<typename N, YS_NAME_STRING(N)> శూన్య సమితి_Param(N name, RTLIL::Const విలువ)
+		{ సమితి_Param(module->twines().కూడు(std::move(name)), std::move(విలువ)); }
+	మూస<typename N, YS_NAME_STRING(N)> స్థిరరాశి RTLIL::Const &getParam(N name) స్థిరరాశి
+		{ తిరిగి getParam(module->twines().కనుగొను(std::string_view(name))); }
 
-	void sort();
-	void check();
-	void fixup_parameters(bool set_a_signed = false, bool set_b_signed = false);
+	శూన్య క్రమీకరించు();
+	శూన్య check();
+	శూన్య fixup_parameters(bool సమితి_a_signed = false, bool సమితి_b_signed = false);
 
-	bool has_keep_attr() const;
+	bool has_keep_attr() స్థిరరాశి;
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
+	మూస<typename T> శూన్య rewrite_sigspecs(T &functor);
+	మూస<typename T> శూన్య rewrite_sigspecs2(T &functor);
 
-#ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Cell*> *get_all_cells(void);
-#endif
+#నిర్వచితమైతే YOSYS_ENABLE_PYTHON
+	స్థిర std::map<గుర్తులేని పూర్ణాంకం, RTLIL::Cell*> *get_all_cells(శూన్య);
+#అయితే_ముగింపు
 
-	bool has_memid() const;
-	bool is_mem_cell() const;
-	bool is_builtin_ff() const;
+	bool has_memid() స్థిరరాశి;
+	bool is_mem_cell() స్థిరరాశి;
+	bool is_builtin_ff() స్థిరరాశి;
 
-	std::string to_rtlil_str() const;
+	std::string గమ్యం_rtlil_str() స్థిరరాశి;
 };
 
-struct RTLIL::CaseRule : public RTLIL::AttrObject
+నిర్మాణం RTLIL::Case_నియమం : బహిరంగ RTLIL::AttrObject
 {
-	std::vector<RTLIL::SigSpec> compare;
-	std::vector<RTLIL::SigSig> actions;
-	std::vector<RTLIL::SwitchRule*> switches;
+	std::సదిశ<RTLIL::SigSpec> compare;
+	std::సదిశ<RTLIL::SigSig> actions;
+	std::సదిశ<RTLIL::Switch_నియమం*> switches;
 
-	~CaseRule();
+	~Case_నియమం();
 
-	bool empty() const;
+	bool ఖాళీలు() స్థిరరాశి;
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	RTLIL::CaseRule *clone() const;
+	మూస<typename T> శూన్య rewrite_sigspecs(T &functor);
+	మూస<typename T> శూన్య rewrite_sigspecs2(T &functor);
+	RTLIL::Case_నియమం *clone() స్థిరరాశి;
 };
 
-struct RTLIL::SwitchRule : public RTLIL::AttrObject
+నిర్మాణం RTLIL::Switch_నియమం : బహిరంగ RTLIL::AttrObject
 {
-	RTLIL::SigSpec signal;
-	std::vector<RTLIL::CaseRule*> cases;
+	RTLIL::SigSpec సంకేతం;
+	std::సదిశ<RTLIL::Case_నియమం*> cases;
 
-	~SwitchRule();
+	~Switch_నియమం();
 
-	bool empty() const;
+	bool ఖాళీలు() స్థిరరాశి;
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	RTLIL::SwitchRule *clone() const;
+	మూస<typename T> శూన్య rewrite_sigspecs(T &functor);
+	మూస<typename T> శూన్య rewrite_sigspecs2(T &functor);
+	RTLIL::Switch_నియమం *clone() స్థిరరాశి;
 };
 
-struct RTLIL::MemWriteAction : RTLIL::AttrObject
+నిర్మాణం RTLIL::MemWriteAction : RTLIL::AttrObject
 {
 	RTLIL::IdString memid;
-	RTLIL::SigSpec address;
-	RTLIL::SigSpec data;
+	RTLIL::SigSpec చిరునామా;
+	RTLIL::SigSpec దత్తాంశం;
 	RTLIL::SigSpec enable;
-	RTLIL::Const priority_mask;
+	RTLIL::Const ప్రాధాన్యత_ముసుగు;
 };
 
-struct RTLIL::SyncRule
+నిర్మాణం RTLIL::Sync_నియమం
 {
 	RTLIL::SyncType type;
-	RTLIL::SigSpec signal;
-	std::vector<RTLIL::SigSig> actions;
-	std::vector<RTLIL::MemWriteAction> mem_write_actions;
+	RTLIL::SigSpec సంకేతం;
+	std::సదిశ<RTLIL::SigSig> actions;
+	std::సదిశ<RTLIL::MemWriteAction> mem_write_actions;
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	RTLIL::SyncRule *clone() const;
+	మూస<typename T> శూన్య rewrite_sigspecs(T &functor);
+	మూస<typename T> శూన్య rewrite_sigspecs2(T &functor);
+	RTLIL::Sync_నియమం *clone() స్థిరరాశి;
 };
 
-struct RTLIL::Process : public RTLIL::AttrObject
+నిర్మాణం RTLIL::Process : బహిరంగ RTLIL::AttrObject
 {
 	Hasher::hash_t hashidx_;
 	RTLIL::ProcessNameId name;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి { h.eat(hashidx_); తిరిగి h; }
 
-protected:
+రక్షిత:
 	// use module->addProcess() and module->remove() to create or destroy processes
-	friend struct RTLIL::Module;
+	మిత్ర నిర్మాణం RTLIL::Module;
 	Process();
 	~Process();
 
-public:
+బహిరంగ:
 	RTLIL::Module *module;
-	RTLIL::CaseRule root_case;
-	std::vector<RTLIL::SyncRule*> syncs;
+	RTLIL::Case_నియమం మూలం_case;
+	std::సదిశ<RTLIL::Sync_నియమం*> syncs;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() స్థిరరాశి { తిరిగి module ? module->design : nullptr; }
+	TwinePool &twines() స్థిరరాశి { తిరిగి module->twines(); }
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	RTLIL::Process *clone() const;
+	మూస<typename T> శూన్య rewrite_sigspecs(T &functor);
+	మూస<typename T> శూన్య rewrite_sigspecs2(T &functor);
+	RTLIL::Process *clone() స్థిరరాశి;
 
-	std::string to_rtlil_str() const;
+	std::string గమ్యం_rtlil_str() స్థిరరాశి;
 };
 
-inline RTLIL::SigBit::SigBit() : wire(NULL), data(RTLIL::State::S0) { }
-inline RTLIL::SigBit::SigBit(RTLIL::State bit) : wire(NULL), data(bit) { }
-inline RTLIL::SigBit::SigBit(bool bit) : wire(NULL), data(bit ? State::S1 : State::S0) { }
-inline RTLIL::SigBit::SigBit(RTLIL::Wire *wire) : wire(wire), offset(0) { log_assert(wire && wire->width == 1); }
-inline RTLIL::SigBit::SigBit(RTLIL::Wire *wire, int offset) : wire(wire), offset(offset) { log_assert(wire != nullptr); }
-inline RTLIL::SigBit::SigBit(const RTLIL::SigChunk &chunk) : wire(chunk.wire) { log_assert(chunk.width == 1); if (wire) offset = chunk.offset; else data = chunk.data[0]; }
-inline RTLIL::SigBit::SigBit(const RTLIL::SigChunk &chunk, int index) : wire(chunk.wire) { if (wire) offset = chunk.offset + index; else data = chunk.data[index]; }
+అంతఃవరుస RTLIL::Sig_బిట్టు::Sig_బిట్టు() : wire(ఖాళీ), దత్తాంశం(RTLIL::State::S0) { }
+అంతఃవరుస RTLIL::Sig_బిట్టు::Sig_బిట్టు(RTLIL::State బిట్టు) : wire(ఖాళీ), దత్తాంశం(బిట్టు) { }
+అంతఃవరుస RTLIL::Sig_బిట్టు::Sig_బిట్టు(bool బిట్టు) : wire(ఖాళీ), దత్తాంశం(బిట్టు ? State::S1 : State::S0) { }
+అంతఃవరుస RTLIL::Sig_బిట్టు::Sig_బిట్టు(RTLIL::Wire *wire) : wire(wire), స్థానభ్రంశం(0) { log_assert(wire && wire->వెడల్పు == 1); }
+అంతఃవరుస RTLIL::Sig_బిట్టు::Sig_బిట్టు(RTLIL::Wire *wire, పూర్ణాంకం స్థానభ్రంశం) : wire(wire), స్థానభ్రంశం(స్థానభ్రంశం) { log_assert(wire != nullptr); }
+అంతఃవరుస RTLIL::Sig_బిట్టు::Sig_బిట్టు(స్థిరరాశి RTLIL::SigChunk &chunk) : wire(chunk.wire) { log_assert(chunk.వెడల్పు == 1); ఒకవేళ (wire) స్థానభ్రంశం = chunk.స్థానభ్రంశం; లేకపోతే దత్తాంశం = chunk.దత్తాంశం[0]; }
+అంతఃవరుస RTLIL::Sig_బిట్టు::Sig_బిట్టు(స్థిరరాశి RTLIL::SigChunk &chunk, పూర్ణాంకం సూచీ) : wire(chunk.wire) { ఒకవేళ (wire) స్థానభ్రంశం = chunk.స్థానభ్రంశం + సూచీ; లేకపోతే దత్తాంశం = chunk.దత్తాంశం[సూచీ]; }
 
-inline bool RTLIL::SigBit::operator<(const RTLIL::SigBit &other) const {
-	if (wire == other.wire)
-		return wire ? (offset < other.offset) : (data < other.data);
-	if (wire != nullptr && other.wire != nullptr)
-		return wire->name < other.wire->name;
-	return (wire != nullptr) < (other.wire != nullptr);
+అంతఃవరుస bool RTLIL::Sig_బిట్టు::క్రియాకారకం<(స్థిరరాశి RTLIL::Sig_బిట్టు &other) స్థిరరాశి {
+	ఒకవేళ (wire == other.wire)
+		తిరిగి wire ? (స్థానభ్రంశం < other.స్థానభ్రంశం) : (దత్తాంశం < other.దత్తాంశం);
+	ఒకవేళ (wire != nullptr && other.wire != nullptr)
+		తిరిగి wire->name < other.wire->name;
+	తిరిగి (wire != nullptr) < (other.wire != nullptr);
 }
 
-inline bool RTLIL::SigBit::operator==(const RTLIL::SigBit &other) const {
-	return (wire == other.wire) && (wire ? (offset == other.offset) : (data == other.data));
+అంతఃవరుస bool RTLIL::Sig_బిట్టు::క్రియాకారకం==(స్థిరరాశి RTLIL::Sig_బిట్టు &other) స్థిరరాశి {
+	తిరిగి (wire == other.wire) && (wire ? (స్థానభ్రంశం == other.స్థానభ్రంశం) : (దత్తాంశం == other.దత్తాంశం));
 }
 
-inline bool RTLIL::SigBit::operator!=(const RTLIL::SigBit &other) const {
-	return (wire != other.wire) || (wire ? (offset != other.offset) : (data != other.data));
+అంతఃవరుస bool RTLIL::Sig_బిట్టు::క్రియాకారకం!=(స్థిరరాశి RTLIL::Sig_బిట్టు &other) స్థిరరాశి {
+	తిరిగి (wire != other.wire) || (wire ? (స్థానభ్రంశం != other.స్థానభ్రంశం) : (దత్తాంశం != other.దత్తాంశం));
 }
 
-inline Hasher RTLIL::SigBit::hash_into(Hasher h) const {
-	if (wire) {
-		h.eat(offset);
+అంతఃవరుస Hasher RTLIL::Sig_బిట్టు::hash_into(Hasher h) స్థిరరాశి {
+	ఒకవేళ (wire) {
+		h.eat(స్థానభ్రంశం);
 		h.eat(wire->name);
-		return h;
+		తిరిగి h;
 	}
-	h.eat(data);
-	return h;
+	h.eat(దత్తాంశం);
+	తిరిగి h;
 }
 
 
-inline Hasher RTLIL::SigBit::hash_top() const {
+అంతఃవరుస Hasher RTLIL::Sig_బిట్టు::hash_శిఖరం() స్థిరరాశి {
 	Hasher h;
-	if (wire) {
+	ఒకవేళ (wire) {
 		IdString name = wire->name.ref();
-		uint32_t n = (uint32_t)name.bits();
-		h.force(hashlib::legacy::djb2_add(n, offset));
-		return h;
+		uint32_t n = (uint32_t)name.బిట్లు();
+		h.force(hashlib::legacy::djb2_కూడు(n, స్థానభ్రంశం));
+		తిరిగి h;
 	}
-	h.force(data);
-	return h;
+	h.force(దత్తాంశం);
+	తిరిగి h;
 }
 
-inline RTLIL::SigBit &RTLIL::SigSpecIterator::operator*() const {
-	return (*sig_p)[index];
+అంతఃవరుస RTLIL::Sig_బిట్టు &RTLIL::SigSpecIterator::క్రియాకారకం*() స్థిరరాశి {
+	తిరిగి (*sig_p)[సూచీ];
 }
 
-inline const RTLIL::SigBit &RTLIL::SigSpecConstIterator::operator*() {
-	bit = (*sig_p)[index];
-	return bit;
+అంతఃవరుస స్థిరరాశి RTLIL::Sig_బిట్టు &RTLIL::SigSpecConstIterator::క్రియాకారకం*() {
+	బిట్టు = (*sig_p)[సూచీ];
+	తిరిగి బిట్టు;
 }
 
-inline RTLIL::SigBit::SigBit(const RTLIL::SigSpec &sig) {
-	log_assert(sig.size() == 1);
-	auto it = sig.chunks().begin();
-	*this = SigBit(*it);
+అంతఃవరుస RTLIL::Sig_బిట్టు::Sig_బిట్టు(స్థిరరాశి RTLIL::SigSpec &sig) {
+	log_assert(sig.కొలత() == 1);
+	స్వయంచాలక it = sig.chunks().begin();
+	*this = Sig_బిట్టు(*it);
 }
 
-template<typename T>
-void RTLIL::Module::rewrite_sigspecs(T &functor)
+మూస<typename T>
+శూన్య RTLIL::Module::rewrite_sigspecs(T &functor)
 {
-	for (auto &it : cells_)
-		it.second->rewrite_sigspecs(functor);
-	for (auto &it : processes)
-		it.second->rewrite_sigspecs(functor);
-	for (auto &it : connections_) {
-		functor(it.first);
-		functor(it.second);
+	కొరకు (స్వయంచాలక &it : cells_)
+		it.రెండవ->rewrite_sigspecs(functor);
+	కొరకు (స్వయంచాలక &it : processes)
+		it.రెండవ->rewrite_sigspecs(functor);
+	కొరకు (స్వయంచాలక &it : connections_) {
+		functor(it.మొదటి);
+		functor(it.రెండవ);
 	}
 }
 
-template<typename T>
-void RTLIL::Module::rewrite_sigspecs2(T &functor)
+మూస<typename T>
+శూన్య RTLIL::Module::rewrite_sigspecs2(T &functor)
 {
-	for (auto &it : cells_)
-		it.second->rewrite_sigspecs2(functor);
-	for (auto &it : processes)
-		it.second->rewrite_sigspecs2(functor);
-	for (auto &it : connections_) {
-		functor(it.first, it.second);
+	కొరకు (స్వయంచాలక &it : cells_)
+		it.రెండవ->rewrite_sigspecs2(functor);
+	కొరకు (స్వయంచాలక &it : processes)
+		it.రెండవ->rewrite_sigspecs2(functor);
+	కొరకు (స్వయంచాలక &it : connections_) {
+		functor(it.మొదటి, it.రెండవ);
 	}
 }
 
-template<typename T>
-void RTLIL::Cell::rewrite_sigspecs(T &functor) {
-	for (auto &it : connections_)
-		functor(it.second);
+మూస<typename T>
+శూన్య RTLIL::Cell::rewrite_sigspecs(T &functor) {
+	కొరకు (స్వయంచాలక &it : connections_)
+		functor(it.రెండవ);
 }
 
-template<typename T>
-void RTLIL::Cell::rewrite_sigspecs2(T &functor) {
-	for (auto &it : connections_)
-		functor(it.second);
+మూస<typename T>
+శూన్య RTLIL::Cell::rewrite_sigspecs2(T &functor) {
+	కొరకు (స్వయంచాలక &it : connections_)
+		functor(it.రెండవ);
 }
 
-template<typename T>
-void RTLIL::CaseRule::rewrite_sigspecs(T &functor) {
-	for (auto &it : compare)
+మూస<typename T>
+శూన్య RTLIL::Case_నియమం::rewrite_sigspecs(T &functor) {
+	కొరకు (స్వయంచాలక &it : compare)
 		functor(it);
-	for (auto &it : actions) {
-		functor(it.first);
-		functor(it.second);
+	కొరకు (స్వయంచాలక &it : actions) {
+		functor(it.మొదటి);
+		functor(it.రెండవ);
 	}
-	for (auto it : switches)
+	కొరకు (స్వయంచాలక it : switches)
 		it->rewrite_sigspecs(functor);
 }
 
-template<typename T>
-void RTLIL::CaseRule::rewrite_sigspecs2(T &functor) {
-	for (auto &it : compare)
+మూస<typename T>
+శూన్య RTLIL::Case_నియమం::rewrite_sigspecs2(T &functor) {
+	కొరకు (స్వయంచాలక &it : compare)
 		functor(it);
-	for (auto &it : actions) {
-		functor(it.first, it.second);
+	కొరకు (స్వయంచాలక &it : actions) {
+		functor(it.మొదటి, it.రెండవ);
 	}
-	for (auto it : switches)
+	కొరకు (స్వయంచాలక it : switches)
 		it->rewrite_sigspecs2(functor);
 }
 
-template<typename T>
-void RTLIL::SwitchRule::rewrite_sigspecs(T &functor)
+మూస<typename T>
+శూన్య RTLIL::Switch_నియమం::rewrite_sigspecs(T &functor)
 {
-	functor(signal);
-	for (auto it : cases)
+	functor(సంకేతం);
+	కొరకు (స్వయంచాలక it : cases)
 		it->rewrite_sigspecs(functor);
 }
 
-template<typename T>
-void RTLIL::SwitchRule::rewrite_sigspecs2(T &functor)
+మూస<typename T>
+శూన్య RTLIL::Switch_నియమం::rewrite_sigspecs2(T &functor)
 {
-	functor(signal);
-	for (auto it : cases)
+	functor(సంకేతం);
+	కొరకు (స్వయంచాలక it : cases)
 		it->rewrite_sigspecs2(functor);
 }
 
-template<typename T>
-void RTLIL::SyncRule::rewrite_sigspecs(T &functor)
+మూస<typename T>
+శూన్య RTLIL::Sync_నియమం::rewrite_sigspecs(T &functor)
 {
-	functor(signal);
-	for (auto &it : actions) {
-		functor(it.first);
-		functor(it.second);
+	functor(సంకేతం);
+	కొరకు (స్వయంచాలక &it : actions) {
+		functor(it.మొదటి);
+		functor(it.రెండవ);
 	}
-	for (auto &it : mem_write_actions) {
-		functor(it.address);
-		functor(it.data);
+	కొరకు (స్వయంచాలక &it : mem_write_actions) {
+		functor(it.చిరునామా);
+		functor(it.దత్తాంశం);
 		functor(it.enable);
 	}
 }
 
-template<typename T>
-void RTLIL::SyncRule::rewrite_sigspecs2(T &functor)
+మూస<typename T>
+శూన్య RTLIL::Sync_నియమం::rewrite_sigspecs2(T &functor)
 {
-	functor(signal);
-	for (auto &it : actions) {
-		functor(it.first, it.second);
+	functor(సంకేతం);
+	కొరకు (స్వయంచాలక &it : actions) {
+		functor(it.మొదటి, it.రెండవ);
 	}
-	for (auto &it : mem_write_actions) {
-		functor(it.address);
-		functor(it.data);
+	కొరకు (స్వయంచాలక &it : mem_write_actions) {
+		functor(it.చిరునామా);
+		functor(it.దత్తాంశం);
 		functor(it.enable);
 	}
 }
 
-template<typename T>
-void RTLIL::Process::rewrite_sigspecs(T &functor)
+మూస<typename T>
+శూన్య RTLIL::Process::rewrite_sigspecs(T &functor)
 {
-	root_case.rewrite_sigspecs(functor);
-	for (auto it : syncs)
+	మూలం_case.rewrite_sigspecs(functor);
+	కొరకు (స్వయంచాలక it : syncs)
 		it->rewrite_sigspecs(functor);
 }
 
-template<typename T>
-void RTLIL::Process::rewrite_sigspecs2(T &functor)
+మూస<typename T>
+శూన్య RTLIL::Process::rewrite_sigspecs2(T &functor)
 {
-	root_case.rewrite_sigspecs2(functor);
-	for (auto it : syncs)
+	మూలం_case.rewrite_sigspecs2(functor);
+	కొరకు (స్వయంచాలక it : syncs)
 		it->rewrite_sigspecs2(functor);
 }
 
-#include "kernel/rtlil_twine_compat_impl.h"
+#అన్తర్భావ "kernel/rtlil_twine_compat_impl.h"
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

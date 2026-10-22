@@ -1,9 +1,9 @@
-#ifndef OPT_DFF_COMP_H
-#define OPT_DFF_COMP_H
+#నిర్వచితం_కాకపోతే OPT_DFF_COMP_H
+#నిర్వచించు OPT_DFF_COMP_H
 
-#include "kernel/rtlil.h"
-#include <map>
-#include <optional>
+#అన్తర్భావ "kernel/rtlil.h"
+#అన్తర్భావ <map>
+#అన్తర్భావ <optional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -21,82 +21,82 @@ YOSYS_NAMESPACE_BEGIN
 
 // Pattern matching for clock enable
 // A pattern maps control signals to their required values for a MUX path
-typedef std::map<RTLIL::SigBit, bool> pattern_t; // Set of control signals that must ALL match required vals
-typedef std::set<pattern_t> patterns_t;          // Alternative patterns (OR)
-typedef std::pair<RTLIL::SigBit, bool> ctrl_t;   // Control signal
-typedef std::set<ctrl_t> ctrls_t;                // Set of control signals that must ALL be active
+రకనిర్వచనం std::map<RTLIL::Sig_బిట్టు, bool> నమూనా_t; // Set of control signals that must ALL match required vals
+రకనిర్వచనం std::సమితి<నమూనా_t> patterns_t;          // Alternative patterns (OR)
+రకనిర్వచనం std::pair<RTLIL::Sig_బిట్టు, bool> ctrl_t;   // Control signal
+రకనిర్వచనం std::సమితి<ctrl_t> ctrls_t;                // Set of control signals that must ALL be active
 
 /**
  * Find if two patterns differ in exactly one variable.
  * Example: {A=1,B=1} vs {A=1,B=0} returns B, allows simplification: (A&B) | (A&!B) => A
  */
-inline std::optional<RTLIL::SigBit> find_complementary_pattern_var(
-	const pattern_t& left,
-	const pattern_t& right
+అంతఃవరుస std::optional<RTLIL::Sig_బిట్టు> కనుగొను_complementary_నమూనా_var(
+	స్థిరరాశి నమూనా_t& ఎడమ_3,
+	స్థిరరాశి నమూనా_t& కుడి_3
 ) {
-	std::optional<RTLIL::SigBit> ret;
-	for (const auto &pt : left) {
+	std::optional<RTLIL::Sig_బిట్టు> ret;
+	కొరకు (స్థిరరాశి స్వయంచాలక &pt : ఎడమ_3) {
 		// Left requires signal that right doesn't constrain - incompatible domains
-		if (right.count(pt.first) == 0)
-			return std::nullopt;
+		ఒకవేళ (కుడి_3.లెక్క(pt.మొదటి) == 0)
+			తిరిగి std::nullopt;
 		// Signal has same required value in both - not the complement variable
-		if (right.at(pt.first) == pt.second)
-			continue;
+		ఒకవేళ (కుడి_3.at(pt.మొదటి) == pt.రెండవ)
+			కొనసాగు;
 		// Already found one differing signal, now found another - not simplifiable
-		if (ret)
-			return std::nullopt;
+		ఒకవేళ (ret)
+			తిరిగి std::nullopt;
 		// First differing signal - candidate complement variable
-		ret = pt.first;
+		ret = pt.మొదటి;
 	}
-	return ret;
+	తిరిగి ret;
 }
 
 /**
  * Simplify a sum-of-products by merging complementary patterns: (A&B) | (A&!B) => A,
  * and removing redundant patterns: A | (A&B) => A
  */
-inline void simplify_patterns(patterns_t& patterns) {
-	auto new_patterns = patterns;
+అంతఃవరుస శూన్య simplify_patterns(patterns_t& patterns) {
+	స్వయంచాలక new_patterns = patterns;
 
 	// Merge complementary patterns
 	bool optimized;
-	do {
+	చేయి {
 		optimized = false;
-		for (auto i = patterns.begin(); i != patterns.end(); i++) {
-			for (auto j = std::next(i, 1); j != patterns.end(); j++) {
-				const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
-				auto right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
-				const auto complementary_var = find_complementary_pattern_var(left, right);
+		కొరకు (స్వయంచాలక i = patterns.begin(); i != patterns.చివర(); i++) {
+			కొరకు (స్వయంచాలక j = std::తదుపరి(i, 1); j != patterns.చివర(); j++) {
+				స్థిరరాశి స్వయంచాలక& ఎడమ_3 = (Get_కొలత(*j) <= Get_కొలత(*i)) ? *j : *i;
+				స్వయంచాలక కుడి_3 = (Get_కొలత(*i) < Get_కొలత(*j)) ? *j : *i;
+				స్థిరరాశి స్వయంచాలక complementary_var = కనుగొను_complementary_నమూనా_var(ఎడమ_3, కుడి_3);
 
-				if (complementary_var && new_patterns.count(right)) {
-					new_patterns.erase(right);
-					right.erase(complementary_var.value());
-					new_patterns.insert(right);
+				ఒకవేళ (complementary_var && new_patterns.లెక్క(కుడి_3)) {
+					new_patterns.erase(కుడి_3);
+					కుడి_3.erase(complementary_var.విలువ());
+					new_patterns.చొప్పించు(కుడి_3);
 					optimized = true;
 				}
 			}
 		}
 		patterns = new_patterns;
-	} while(optimized);
+	} అయితే(optimized);
 
 	// Remove redundant patterns
-	for (auto i = patterns.begin(); i != patterns.end(); ++i) {
-		for (auto j = std::next(i, 1); j != patterns.end(); ++j) {
-			const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
-			const auto& right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
+	కొరకు (స్వయంచాలక i = patterns.begin(); i != patterns.చివర(); ++i) {
+		కొరకు (స్వయంచాలక j = std::తదుపరి(i, 1); j != patterns.చివర(); ++j) {
+			స్థిరరాశి స్వయంచాలక& ఎడమ_3 = (Get_కొలత(*j) <= Get_కొలత(*i)) ? *j : *i;
+			స్థిరరాశి స్వయంచాలక& కుడి_3 = (Get_కొలత(*i) < Get_కొలత(*j)) ? *j : *i;
 			bool redundant = true;
 
-			for (const auto& pt : left)
-				if (right.count(pt.first) == 0 || right.at(pt.first) != pt.second)
+			కొరకు (స్థిరరాశి స్వయంచాలక& pt : ఎడమ_3)
+				ఒకవేళ (కుడి_3.లెక్క(pt.మొదటి) == 0 || కుడి_3.at(pt.మొదటి) != pt.రెండవ)
 					redundant = false;
-			if (redundant)
-				new_patterns.erase(right);
+			ఒకవేళ (redundant)
+				new_patterns.erase(కుడి_3);
 		}
 	}
 
 	patterns = std::move(new_patterns);
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

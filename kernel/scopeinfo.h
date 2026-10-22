@@ -17,435 +17,435 @@
  *
  */
 
-#ifndef SCOPEINFO_H
-#define SCOPEINFO_H
+#నిర్వచితం_కాకపోతే SCOPEINFO_H
+#నిర్వచించు SCOPEINFO_H
 
-#include <vector>
-#include <algorithm>
+#అన్తర్భావ <vector>
+#అన్తర్భావ <algorithm>
 
-#include "kernel/yosys.h"
-#include "kernel/celltypes.h"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "kernel/celltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template<typename T>
-class IdTree
+మూస<typename T>
+class Id_వృక్షం
 {
-public:
-	struct Cursor;
+బహిరంగ:
+	నిర్మాణం Cursor;
 
-protected:
-	IdTree *parent = nullptr;
+రక్షిత:
+	Id_వృక్షం *మాతృ = nullptr;
 	IdString scope_name;
-	int depth = 0;
+	పూర్ణాంకం లోతు = 0;
 
-	pool<IdString> names;
+	pool<IdString> పేర్లు;
 	dict<IdString, T> entries;
-public: // XXX
-	dict<IdString, std::unique_ptr<IdTree>> subtrees;
+బహిరంగ: // XXX
+	dict<IdString, std::unique_ptr<Id_వృక్షం>> subtrees;
 
-	template<typename P, typename T_ref>
-	static Cursor do_insert(IdTree *tree, P begin, P end, T_ref &&value)
+	మూస<typename P, typename T_ref>
+	స్థిర Cursor do_చొప్పించు(Id_వృక్షం *వృక్షం, P begin, P చివర, T_ref &&విలువ)
 	{
-		log_assert(begin != end && "path must be non-empty");
-		while (true) {
+		log_assert(begin != చివర && "path must be non-empty");
+		అయితే (true) {
 			IdString name = *begin;
 			++begin;
-			log_assert(!name.empty());
-			tree->names.insert(name);
-			if (begin == end) {
-				tree->entries.emplace(name, std::forward<T_ref>(value));
-				return Cursor(tree, name);
+			log_assert(!name.ఖాళీలు());
+			వృక్షం->పేర్లు.చొప్పించు(name);
+			ఒకవేళ (begin == చివర) {
+				వృక్షం->entries.emplace(name, std::forward<T_ref>(విలువ));
+				తిరిగి Cursor(వృక్షం, name);
 			}
-			auto &unique = tree->subtrees[name];
-			if (!unique) {
-				unique.reset(new IdTree);
+			స్వయంచాలక &unique = వృక్షం->subtrees[name];
+			ఒకవేళ (!unique) {
+				unique.reset(new Id_వృక్షం);
 				unique->scope_name = name;
-				unique->parent = tree;
-				unique->depth = tree->depth + 1;
+				unique->మాతృ = వృక్షం;
+				unique->లోతు = వృక్షం->లోతు + 1;
 			}
-			tree = unique.get();
+			వృక్షం = unique.get();
 		}
 	}
 
-public:
-	IdTree() = default;
-	IdTree(const IdTree &) = delete;
-	IdTree(IdTree &&) = delete;
+బహిరంగ:
+	Id_వృక్షం() = అప్రమేయ;
+	Id_వృక్షం(స్థిరరాశి Id_వృక్షం &) = delete;
+	Id_వృక్షం(Id_వృక్షం &&) = delete;
 
 	// A cursor remains valid as long as the (sub-)IdTree it points at is alive
-	struct Cursor
+	నిర్మాణం Cursor
 	{
-		friend class IdTree;
-	protected:
-	public:
-		IdTree *target;
+		మిత్ర class Id_వృక్షం;
+	రక్షిత:
+	బహిరంగ:
+		Id_వృక్షం *లక్ష్యం_2;
 		IdString scope_name;
 
-		Cursor() : target(nullptr) {}
-		Cursor(IdTree *target, IdString scope_name) : target(target), scope_name(scope_name) {
-			if (scope_name.empty())
-				log_assert(target->parent == nullptr);
+		Cursor() : లక్ష్యం_2(nullptr) {}
+		Cursor(Id_వృక్షం *లక్ష్యం_2, IdString scope_name) : లక్ష్యం_2(లక్ష్యం_2), scope_name(scope_name) {
+			ఒకవేళ (scope_name.ఖాళీలు())
+				log_assert(లక్ష్యం_2->మాతృ == nullptr);
 		}
 
-		Cursor do_first_child() {
-			IdTree *tree = nullptr;
-			if (scope_name.empty()) {
-				tree = target;
-			} else {
-				auto found = target->subtrees.find(scope_name);
-				if (found != target->subtrees.end()) {
-					tree = found->second.get();
-				} else {
-					return Cursor();
+		Cursor do_మొదటి_బిడ్డ() {
+			Id_వృక్షం *వృక్షం = nullptr;
+			ఒకవేళ (scope_name.ఖాళీలు()) {
+				వృక్షం = లక్ష్యం_2;
+			} లేకపోతే {
+				స్వయంచాలక దొరికింది = లక్ష్యం_2->subtrees.కనుగొను(scope_name);
+				ఒకవేళ (దొరికింది != లక్ష్యం_2->subtrees.చివర()) {
+					వృక్షం = దొరికింది->రెండవ.get();
+				} లేకపోతే {
+					తిరిగి Cursor();
 				}
 			}
-			if (tree->names.empty()) {
-				return Cursor();
+			ఒకవేళ (వృక్షం->పేర్లు.ఖాళీలు()) {
+				తిరిగి Cursor();
 			}
-			return Cursor(tree, *tree->names.begin());
+			తిరిగి Cursor(వృక్షం, *వృక్షం->పేర్లు.begin());
 		}
 
-		Cursor do_next_sibling() {
-			if (scope_name.empty())
-				return Cursor();
-			auto found = target->names.find(scope_name);
-			if (found == target->names.end())
-				return Cursor();
-			++found;
-			if (found == target->names.end())
-				return Cursor();
-			return Cursor(target, *found);
+		Cursor do_తదుపరి_sibling() {
+			ఒకవేళ (scope_name.ఖాళీలు())
+				తిరిగి Cursor();
+			స్వయంచాలక దొరికింది = లక్ష్యం_2->పేర్లు.కనుగొను(scope_name);
+			ఒకవేళ (దొరికింది == లక్ష్యం_2->పేర్లు.చివర())
+				తిరిగి Cursor();
+			++దొరికింది;
+			ఒకవేళ (దొరికింది == లక్ష్యం_2->పేర్లు.చివర())
+				తిరిగి Cursor();
+			తిరిగి Cursor(లక్ష్యం_2, *దొరికింది);
 		}
 
-		Cursor do_parent() {
-			if (scope_name.empty())
-				return Cursor();
-			if (target->parent != nullptr)
-				return Cursor(target->parent, target->scope_name);
-			return Cursor(target, IdString());
+		Cursor do_మాతృ() {
+			ఒకవేళ (scope_name.ఖాళీలు())
+				తిరిగి Cursor();
+			ఒకవేళ (లక్ష్యం_2->మాతృ != nullptr)
+				తిరిగి Cursor(లక్ష్యం_2->మాతృ, లక్ష్యం_2->scope_name);
+			తిరిగి Cursor(లక్ష్యం_2, IdString());
 		}
 
-		Cursor do_next_preorder() {
+		Cursor do_తదుపరి_పూర్వక్రమం() {
 			Cursor current = *this;
-			Cursor next = current.do_first_child();
-			if (next.valid())
-				return next;
-			while (current.valid()) {
-				if (next.valid())
-					return next;
-				next = current.do_next_sibling();
-				if (next.valid())
-					return next;
-				current = current.do_parent();
+			Cursor తదుపరి = current.do_మొదటి_బిడ్డ();
+			ఒకవేళ (తదుపరి.valid())
+				తిరిగి తదుపరి;
+			అయితే (current.valid()) {
+				ఒకవేళ (తదుపరి.valid())
+					తిరిగి తదుపరి;
+				తదుపరి = current.do_తదుపరి_sibling();
+				ఒకవేళ (తదుపరి.valid())
+					తిరిగి తదుపరి;
+				current = current.do_మాతృ();
 			}
-			return current;
+			తిరిగి current;
 		}
 
-		Cursor do_child(IdString name) {
-			IdTree *tree = nullptr;
-			if (scope_name.empty()) {
-				tree = target;
-			} else {
-				auto found = target->subtrees.find(scope_name);
-				if (found != target->subtrees.end()) {
-					tree = found->second.get();
-				} else {
-					return Cursor();
+		Cursor do_బిడ్డ(IdString name) {
+			Id_వృక్షం *వృక్షం = nullptr;
+			ఒకవేళ (scope_name.ఖాళీలు()) {
+				వృక్షం = లక్ష్యం_2;
+			} లేకపోతే {
+				స్వయంచాలక దొరికింది = లక్ష్యం_2->subtrees.కనుగొను(scope_name);
+				ఒకవేళ (దొరికింది != లక్ష్యం_2->subtrees.చివర()) {
+					వృక్షం = దొరికింది->రెండవ.get();
+				} లేకపోతే {
+					తిరిగి Cursor();
 				}
 			}
-			auto found = tree->names.find(name);
-			if (found == tree->names.end()) {
-				return Cursor();
+			స్వయంచాలక దొరికింది = వృక్షం->పేర్లు.కనుగొను(name);
+			ఒకవేళ (దొరికింది == వృక్షం->పేర్లు.చివర()) {
+				తిరిగి Cursor();
 			}
-			return Cursor(tree, *found);
+			తిరిగి Cursor(వృక్షం, *దొరికింది);
 		}
 
-	public:
-		bool operator==(const Cursor &other) const {
-			return target == other.target && scope_name == other.scope_name;
+	బహిరంగ:
+		bool క్రియాకారకం==(స్థిరరాశి Cursor &other) స్థిరరాశి {
+			తిరిగి లక్ష్యం_2 == other.లక్ష్యం_2 && scope_name == other.scope_name;
 		}
-		bool operator!=(const Cursor &other) const {
-			return !(*this == other);
+		bool క్రియాకారకం!=(స్థిరరాశి Cursor &other) స్థిరరాశి {
+			తిరిగి !(*this == other);
 		}
 
-		[[nodiscard]] Hasher hash_into(Hasher h) const
+		[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి
 		{
 			h.eat(scope_name);
-			h.eat(target);
-			return h;
+			h.eat(లక్ష్యం_2);
+			తిరిగి h;
 		}
 
-		bool valid() const {
-			return target != nullptr;
+		bool valid() స్థిరరాశి {
+			తిరిగి లక్ష్యం_2 != nullptr;
 		}
 
-		int depth() const {
+		పూర్ణాంకం లోతు() స్థిరరాశి {
 			log_assert(valid());
-			return target->depth + !scope_name.empty();
+			తిరిగి లక్ష్యం_2->లోతు + !scope_name.ఖాళీలు();
 		}
 
-		bool is_root() const {
-			return target != nullptr && scope_name.empty();
+		bool is_మూలం() స్థిరరాశి {
+			తిరిగి లక్ష్యం_2 != nullptr && scope_name.ఖాళీలు();
 		}
 
-		bool has_entry() const {
+		bool has_నమోదు() స్థిరరాశి {
 			log_assert(valid());
-			return !scope_name.empty() && target->entries.count(scope_name);
+			తిరిగి !scope_name.ఖాళీలు() && లక్ష్యం_2->entries.లెక్క(scope_name);
 		}
 
-		T &entry() {
-			log_assert(!scope_name.empty());
-			return target->entries.at(scope_name);
+		T &నమోదు_2() {
+			log_assert(!scope_name.ఖాళీలు());
+			తిరిగి లక్ష్యం_2->entries.at(scope_name);
 		}
 
-		void assign_path_to(std::vector<IdString> &out_path) {
+		శూన్య కేటాయించు_మార్గం_గమ్యం(std::సదిశ<IdString> &బహిర్గతం_మార్గం) {
 			log_assert(valid());
-			out_path.clear();
-			if (scope_name.empty())
-				return;
-			out_path.push_back(scope_name);
-			IdTree *current = target;
-			while (current->parent) {
-				out_path.push_back(current->scope_name);
-				current = current->parent;
+			బహిర్గతం_మార్గం.clear();
+			ఒకవేళ (scope_name.ఖాళీలు())
+				తిరిగి;
+			బహిర్గతం_మార్గం.నెట్టు_వెనుక(scope_name);
+			Id_వృక్షం *current = లక్ష్యం_2;
+			అయితే (current->మాతృ) {
+				బహిర్గతం_మార్గం.నెట్టు_వెనుక(current->scope_name);
+				current = current->మాతృ;
 			}
-			std::reverse(out_path.begin(), out_path.end());
+			std::తిరగేయి(బహిర్గతం_మార్గం.begin(), బహిర్గతం_మార్గం.చివర());
 		}
 
-		std::vector<IdString> path() {
-			std::vector<IdString> result;
-			assign_path_to(result);
-			return result;
+		std::సదిశ<IdString> మార్గం_2() {
+			std::సదిశ<IdString> ఫలితం;
+			కేటాయించు_మార్గం_గమ్యం(ఫలితం);
+			తిరిగి ఫలితం;
 		}
 
-		std::string path_str(const RTLIL::Design *design) {
-			std::string result;
-			for (const auto &item : path()) {
-				if (!result.empty())
-					result.push_back(' ');
-				result += design->twines().unescaped_str(item);
+		std::string మార్గం_str(స్థిరరాశి RTLIL::Design *design) {
+			std::string ఫలితం;
+			కొరకు (స్థిరరాశి స్వయంచాలక &అంశం : మార్గం_2()) {
+				ఒకవేళ (!ఫలితం.ఖాళీలు())
+					ఫలితం.నెట్టు_వెనుక(' ');
+				ఫలితం += design->twines().unescaped_str(అంశం);
 			}
-			return result;
+			తిరిగి ఫలితం;
 		}
 
-		Cursor first_child() {
+		Cursor మొదటి_బిడ్డ() {
 			log_assert(valid());
-			return do_first_child();
+			తిరిగి do_మొదటి_బిడ్డ();
 		}
 
-		Cursor next_preorder() {
+		Cursor తదుపరి_పూర్వక్రమం() {
 			log_assert(valid());
-			return do_next_preorder();
+			తిరిగి do_తదుపరి_పూర్వక్రమం();
 		}
 
-		Cursor parent() {
+		Cursor మాతృ() {
 			log_assert(valid());
-			return do_parent();
+			తిరిగి do_మాతృ();
 		}
 
-		Cursor child(IdString name) {
+		Cursor బిడ్డ(IdString name) {
 			log_assert(valid());
-			return do_child(name);
+			తిరిగి do_బిడ్డ(name);
 		}
 
 		Cursor common_ancestor(Cursor other) {
 			Cursor current = *this;
 
-			while (current != other) {
-				if (!current.valid() || !other.valid())
-					return Cursor();
-				int delta = current.depth() - other.depth();
-				if (delta >= 0)
-					current = current.do_parent();
-				if (delta <= 0)
-					other = other.do_parent();
+			అయితే (current != other) {
+				ఒకవేళ (!current.valid() || !other.valid())
+					తిరిగి Cursor();
+				పూర్ణాంకం delta = current.లోతు() - other.లోతు();
+				ఒకవేళ (delta >= 0)
+					current = current.do_మాతృ();
+				ఒకవేళ (delta <= 0)
+					other = other.do_మాతృ();
 			}
-			return current;
+			తిరిగి current;
 		}
 	};
 
-	template<typename P>
-	Cursor insert(P begin, P end, const T &value) {
-		return do_insert(this, begin, end, value);
+	మూస<typename P>
+	Cursor చొప్పించు(P begin, P చివర, స్థిరరాశి T &విలువ) {
+		తిరిగి do_చొప్పించు(this, begin, చివర, విలువ);
 	}
 
-	template<typename P>
-	Cursor insert(P begin, P end, T &&value) {
-		return do_insert(this, begin, end, std::move(value));
+	మూస<typename P>
+	Cursor చొప్పించు(P begin, P చివర, T &&విలువ) {
+		తిరిగి do_చొప్పించు(this, begin, చివర, std::move(విలువ));
 	}
 
-	template<typename P>
-	Cursor insert(const P &path, const T &value) {
-		return do_insert(this, path.begin(), path.end(), value);
+	మూస<typename P>
+	Cursor చొప్పించు(స్థిరరాశి P &మార్గం_2, స్థిరరాశి T &విలువ) {
+		తిరిగి do_చొప్పించు(this, మార్గం_2.begin(), మార్గం_2.చివర(), విలువ);
 	}
 
-	template<typename P>
-	Cursor insert(const P &path, T &&value) {
-		return do_insert(this, path.begin(), path.end(), std::move(value));
+	మూస<typename P>
+	Cursor చొప్పించు(స్థిరరాశి P &మార్గం_2, T &&విలువ) {
+		తిరిగి do_చొప్పించు(this, మార్గం_2.begin(), మార్గం_2.చివర(), std::move(విలువ));
 	}
 
 	Cursor cursor() {
-		return parent ? Cursor(this->parent, this->scope_name) : Cursor(this, IdString());
+		తిరిగి మాతృ ? Cursor(this->మాతృ, this->scope_name) : Cursor(this, IdString());
 	}
 
-	template<typename P>
-	Cursor cursor(P begin, P end) {
+	మూస<typename P>
+	Cursor cursor(P begin, P చివర) {
 		Cursor current = cursor();
-		for (; begin != end; ++begin) {
-			current = current.do_child(*begin);
-			if (!current.valid())
-				break;
+		కొరకు (; begin != చివర; ++begin) {
+			current = current.do_బిడ్డ(*begin);
+			ఒకవేళ (!current.valid())
+				ఆపు;
 		}
-		return current;
+		తిరిగి current;
 	}
 
-	template<typename P>
-	Cursor cursor(const P &path) {
-		return cursor(path.begin(), path.end());
+	మూస<typename P>
+	Cursor cursor(స్థిరరాశి P &మార్గం_2) {
+		తిరిగి cursor(మార్గం_2.begin(), మార్గం_2.చివర());
 	}
 };
 
 
-struct ModuleItem {
-	enum class Type {
+నిర్మాణం Module_అంశం {
+	గణన class Type {
 		Wire,
 		Cell,
 	};
 	Type type;
-	void *ptr;
+	శూన్య *ptr;
 
-	ModuleItem(Wire *wire) : type(Type::Wire), ptr(wire) {}
-	ModuleItem(Cell *cell) : type(Type::Cell), ptr(cell) {}
+	Module_అంశం(Wire *wire) : type(Type::Wire), ptr(wire) {}
+	Module_అంశం(Cell *cell) : type(Type::Cell), ptr(cell) {}
 
-	bool is_wire() const { return type == Type::Wire; }
-	bool is_cell() const { return type == Type::Cell; }
+	bool is_wire() స్థిరరాశి { తిరిగి type == Type::Wire; }
+	bool is_cell() స్థిరరాశి { తిరిగి type == Type::Cell; }
 
-	Wire *wire() const { return type == Type::Wire ? static_cast<Wire *>(ptr) : nullptr; }
-	Cell *cell() const { return type == Type::Cell ? static_cast<Cell *>(ptr) : nullptr; }
+	Wire *wire() స్థిరరాశి { తిరిగి type == Type::Wire ? static_cast<Wire *>(ptr) : nullptr; }
+	Cell *cell() స్థిరరాశి { తిరిగి type == Type::Cell ? static_cast<Cell *>(ptr) : nullptr; }
 
-	bool operator==(const ModuleItem &other) const { return ptr == other.ptr && type == other.type; }
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(ptr); return h; }
+	bool క్రియాకారకం==(స్థిరరాశి Module_అంశం &other) స్థిరరాశి { తిరిగి ptr == other.ptr && type == other.type; }
+	[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి { h.eat(ptr); తిరిగి h; }
 };
 
-static inline void log_dump_val_worker(typename IdTree<ModuleItem>::Cursor cursor ) { log("%p ", cursor.target); log_dump_val_worker(cursor.scope_name); }
+స్థిర అంతఃవరుస శూన్య log_dump_val_కార్మికుడు(typename Id_వృక్షం<Module_అంశం>::Cursor cursor ) { సంవర్గమానం("%p ", cursor.లక్ష్యం_2); log_dump_val_కార్మికుడు(cursor.scope_name); }
 
-template<typename T>
-static inline void log_dump_val_worker(const typename std::unique_ptr<T> &cursor ) { log("unique %p", cursor.get()); }
+మూస<typename T>
+స్థిర అంతఃవరుస శూన్య log_dump_val_కార్మికుడు(స్థిరరాశి typename std::unique_ptr<T> &cursor ) { సంవర్గమానం("unique %p", cursor.get()); }
 
-template<typename O>
-std::vector<IdString> parse_hdlname(const O* object)
+మూస<typename O>
+std::సదిశ<IdString> parse_hdlname(స్థిరరాశి O* object)
 {
 	TwinePool &twines = object->design()->twines();
 	IdString name = object->name;
-	std::vector<IdString> path;
-	for (auto const &item : object->get_hdlname_attribute())
-		path.push_back(twines.add("\\" + item));
-	bool synthetic = !name.isPublic() && !object->name.begins_with("$paramod")
+	std::సదిశ<IdString> మార్గం_2;
+	కొరకు (స్వయంచాలక స్థిరరాశి &అంశం : object->get_hdlname_attribute())
+		మార్గం_2.నెట్టు_వెనుక(twines.కూడు("\\" + అంశం));
+	bool synthetic = !name.is_ప్రజా() && !object->name.begins_with("$paramod")
 			&& !object->name.begins_with("$abstract");
-	if (path.empty() && name.isPublic())
-		path.push_back(name);
-	if (!path.empty() && synthetic) {
-		path.pop_back();
-		path.push_back(name);
+	ఒకవేళ (మార్గం_2.ఖాళీలు() && name.is_ప్రజా())
+		మార్గం_2.నెట్టు_వెనుక(name);
+	ఒకవేళ (!మార్గం_2.ఖాళీలు() && synthetic) {
+		మార్గం_2.తీయి_వెనుక();
+		మార్గం_2.నెట్టు_వెనుక(name);
 	}
-	return path;
+	తిరిగి మార్గం_2;
 }
 
-template<typename O>
-std::pair<std::vector<IdString>, IdString> parse_scopename(const O* object)
+మూస<typename O>
+std::pair<std::సదిశ<IdString>, IdString> parse_scopename(స్థిరరాశి O* object)
 {
 	TwinePool &twines = object->design()->twines();
-	std::vector<IdString> path;
+	std::సదిశ<IdString> మార్గం_2;
 	IdString trailing = object->name;
-	if (trailing.isPublic() || object->name.begins_with("$paramod") || object->name.begins_with("$abstract")) {
-		for (auto const &item : object->get_hdlname_attribute())
-			path.push_back(twines.add("\\" + item));
-		if (!path.empty()) {
-			trailing = path.back();
-			path.pop_back();
+	ఒకవేళ (trailing.is_ప్రజా() || object->name.begins_with("$paramod") || object->name.begins_with("$abstract")) {
+		కొరకు (స్వయంచాలక స్థిరరాశి &అంశం : object->get_hdlname_attribute())
+			మార్గం_2.నెట్టు_వెనుక(twines.కూడు("\\" + అంశం));
+		ఒకవేళ (!మార్గం_2.ఖాళీలు()) {
+			trailing = మార్గం_2.వెనుక();
+			మార్గం_2.తీయి_వెనుక();
 		}
-	} else if (object->has_attribute(ID::hdlname)) {
-		for (auto const &item : object->get_hdlname_attribute())
-			path.push_back(twines.add("\\" + item));
-		if (!path.empty()) {
-			path.pop_back();
+	} లేకపోతే ఒకవేళ (object->has_attribute(ID::hdlname)) {
+		కొరకు (స్వయంచాలక స్థిరరాశి &అంశం : object->get_hdlname_attribute())
+			మార్గం_2.నెట్టు_వెనుక(twines.కూడు("\\" + అంశం));
+		ఒకవేళ (!మార్గం_2.ఖాళీలు()) {
+			మార్గం_2.తీయి_వెనుక();
 		}
-	} else {
-		for (auto const &item : split_tokens(object->get_string_attribute(ID(scopename)), " "))
-			path.push_back(twines.add("\\" + item));
+	} లేకపోతే {
+		కొరకు (స్వయంచాలక స్థిరరాశి &అంశం : విభజించు_టోకెన్లు(object->get_string_attribute(ID(scopename)), " "))
+			మార్గం_2.నెట్టు_వెనుక(twines.కూడు("\\" + అంశం));
 	}
-	return {path, trailing};
+	తిరిగి {మార్గం_2, trailing};
 }
 
-struct ModuleHdlnameIndex {
-	typedef IdTree<ModuleItem>::Cursor Cursor;
+నిర్మాణం Module_Hdlname_సూచీ {
+	రకనిర్వచనం Id_వృక్షం<Module_అంశం>::Cursor Cursor;
 
 	RTLIL::Module *module;
-	IdTree<ModuleItem> tree;
-	dict<ModuleItem, Cursor> lookup;
+	Id_వృక్షం<Module_అంశం> వృక్షం;
+	dict<Module_అంశం, Cursor> lookup;
 
-	ModuleHdlnameIndex(RTLIL::Module *module) : module(module) {}
+	Module_Hdlname_సూచీ(RTLIL::Module *module) : module(module) {}
 
-private:
-	template<typename I, typename Filter>
-	void index_items(I begin, I end, Filter filter);
+అంతరంగ:
+	మూస<typename I, typename Filter>
+	శూన్య సూచీ_వస్తువులు(I begin, I చివర, Filter filter);
 
-public:
+బహిరంగ:
 	// Index all wires and cells of the module
-	void index();
+	శూన్య సూచీ();
 
 	// Index all wires of the module
-	void index_wires();
+	శూన్య సూచీ_wires();
 
 	// Index all cells of the module
-	void index_cells();
+	శూన్య సూచీ_cells();
 
 	// Index only the $scopeinfo cells of the module.
 	// This is sufficient when using `containing_scope`.
-	void index_scopeinfo_cells();
+	శూన్య సూచీ_scopeinfo_cells();
 
 
 	// Return the cursor for the containing scope of some RTLIL object (Wire/Cell/...)
-	template<typename O>
+	మూస<typename O>
 	std::pair<Cursor, IdString> containing_scope(O *object) {
-		auto pair = parse_scopename(object);
-		return {tree.cursor(pair.first), pair.second};
+		స్వయంచాలక pair = parse_scopename(object);
+		తిరిగి {వృక్షం.cursor(pair.మొదటి), pair.రెండవ};
 	}
 
 	// Return a vector of source locations starting from the indexed module to
 	// the scope represented by the cursor. The vector alternates module and
 	// module item source locations, using empty strings for missing src
 	// attributes.
-	std::vector<std::string> scope_sources(Cursor cursor);
+	std::సదిశ<std::string> scope_sources(Cursor cursor);
 
 	// Return a vector of source locations starting from the indexed module to
 	// the passed RTLIL object (Wire/Cell/...). The vector alternates module
 	// and module item source locations, using empty strings for missing src
 	// attributes.
-	template<typename O>
-	std::vector<std::string> sources(O *object) {
-		auto pair = parse_scopename(object);
-		std::vector<std::string> result = scope_sources(tree.cursor(pair.first));
-		result.push_back(object->get_src_attribute());
-		return result;
+	మూస<typename O>
+	std::సదిశ<std::string> sources(O *object) {
+		స్వయంచాలక pair = parse_scopename(object);
+		std::సదిశ<std::string> ఫలితం = scope_sources(వృక్షం.cursor(pair.మొదటి));
+		ఫలితం.నెట్టు_వెనుక(object->get_src_attribute());
+		తిరిగి ఫలితం;
 	}
 };
 
-enum class ScopeinfoAttrs {
+గణన class ScopeinfoAttrs {
 	Module,
 	Cell,
 };
 
 // Check whether the flattened module or flattened cell corresponding to a $scopeinfo cell had a specific attribute.
-bool scopeinfo_has_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
+bool scopeinfo_has_attribute(స్థిరరాశి RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
 
 // Get a specific attribute from the flattened module or flattened cell corresponding to a $scopeinfo cell.
-RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
+RTLIL::Const scopeinfo_get_attribute(స్థిరరాశి RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
 
 // Get all attribute from the flattened module or flattened cell corresponding to a $scopeinfo cell.
-dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs);
+dict<RTLIL::IdString, RTLIL::Const> scopeinfo_లక్షణాలు(స్థిరరాశి RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs);
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

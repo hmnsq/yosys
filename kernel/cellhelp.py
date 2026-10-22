@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 
-from __future__ import annotations
-import fileinput
-import json
-from pathlib import Path
+తః __future__ దిగుమతి annotations
+దిగుమతి fileinput
+దిగుమతి json
+తః pathlib దిగుమతి మార్గం
 
-class SimHelper:
+తరగతి SimHelper:
     name: str = ""
     title: str = ""
     ports: str = ""
-    source: str = ""
+    ఆధారం: str = ""
     desc: list[str]
-    code: list[str]
-    group: str = ""
+    సంకేతం_2: list[str]
+    సమూహం: str = ""
     ver: str = "1"
-    tags: list[str]
+    ట్యాగులు: list[str]
 
-    def __init__(self) -> None:
+    నిర్వచనం __init__(self) -> ఏమీలేదు:
         self.desc = []
-        self.tags = []
+        self.ట్యాగులు = []
 
-    def __str__(self) -> str:
+    నిర్వచనం __str__(self) -> str:
         printed_fields = [
             "name", "title", "ports", "source", "desc", "code", "group", "ver",
             "tags",
@@ -28,28 +28,28 @@ class SimHelper:
         # generate C++ struct
         val = f"cell_help[{json.dumps(self.name)}] = "
         val += "{\n"
-        for field in printed_fields:
-            field_val = getattr(self, field)
-            if isinstance(field_val, list):
-                field_val = "\n".join(field_val)
-            field_val = field_val.strip()
+        కొరకు క్షేత్రం లో printed_fields:
+            క్షేత్రం_val = getattr(self, క్షేత్రం)
+            ఒకవేళ isinstance(క్షేత్రం_val, list):
+                క్షేత్రం_val = "\n".join(క్షేత్రం_val)
+            క్షేత్రం_val = క్షేత్రం_val.strip()
             val += f'  {json.dumps(field_val)},\n'
         val += "};\n"
-        return val
+        తిరిగి val
 
-def simcells_reparse(cell: SimHelper):
+నిర్వచనం simcells_reparse(cell: SimHelper):
     # cut manual signature
     cell.desc = cell.desc[3:]
 
     # code-block truth table
     new_desc = []
     indent = ""
-    for line in cell.desc:
-        if line.startswith("Truth table:"):
+    కొరకు పంక్తి లో cell.desc:
+        ఒకవేళ పంక్తి.startswith("Truth table:"):
             indent = "   "
-            new_desc.pop()
+            new_desc.తీయి()
             new_desc.extend(["::", ""])
-        new_desc.append(indent + line)
+        new_desc.append(indent + పంక్తి)
     cell.desc = new_desc
 
     # set version
@@ -57,43 +57,43 @@ def simcells_reparse(cell: SimHelper):
 
 simHelper = SimHelper()
 
-for line in fileinput.input():
-    line = line.rstrip()
+కొరకు పంక్తి లో fileinput.ఆదానం():
+    పంక్తి = పంక్తి.rstrip()
     # special comments
-    if line.startswith("//-"):
-        simHelper.desc.append(line[4:] if len(line) > 4 else "")
-    elif line.startswith("//* "):
-        _, key, val = line.split(maxsplit=2)
-        setattr(simHelper, key, val)
+    ఒకవేళ పంక్తి.startswith("//-"):
+        simHelper.desc.append(పంక్తి[4:] ఒకవేళ పొడవు(పంక్తి) > 4 లేకపోతే "")
+    లేదావేళ పంక్తి.startswith("//* "):
+        _, కీలకం, val = పంక్తి.విభజించు(maxsplit=2)
+        setattr(simHelper, కీలకం, val)
 
     # code parsing
-    if line.startswith("module "):
-        clean_line = line[7:].replace("\\", "").replace(";", "")
-        simHelper.name, simHelper.ports = clean_line.split(maxsplit=1)
-        simHelper.code = []
-        short_filename = Path(fileinput.filename()).name
-        simHelper.source = f'{short_filename}:{fileinput.filelineno()}'
-    elif not line.startswith("endmodule"):
-        line = "    " + line
-    try:
-        simHelper.code.append(line.replace("\t", "    "))
-    except AttributeError:
+    ఒకవేళ పంక్తి.startswith("module "):
+        clean_పంక్తి = పంక్తి[7:].replace("\\", "").replace(";", "")
+        simHelper.name, simHelper.ports = clean_పంక్తి.విభజించు(maxsplit=1)
+        simHelper.సంకేతం_2 = []
+        short_filename = మార్గం(fileinput.filename()).name
+        simHelper.ఆధారం = f'{short_filename}:{fileinput.filelineno()}'
+    లేదావేళ కాదు పంక్తి.startswith("endmodule"):
+        పంక్తి = "    " + పంక్తి
+    ప్రయత్నించు:
+        simHelper.సంకేతం_2.append(పంక్తి.replace("\t", "    "))
+    మినహాయింపు AttributeError:
         # no module definition, ignore line
-        pass
-    if line.startswith("endmodule"):
-        short_filename = Path(fileinput.filename()).name
-        if simHelper.ver == "1" and short_filename == "simcells.v":
+        దాటు
+    ఒకవేళ పంక్తి.startswith("endmodule"):
+        short_filename = మార్గం(fileinput.filename()).name
+        ఒకవేళ simHelper.ver == "1" మరియు short_filename == "simcells.v":
             # default simcells parsing
             simcells_reparse(simHelper)
 
         # check help
-        if simHelper.desc and simHelper.ver == "1" and short_filename == "simlib.v" and simHelper.desc[1].startswith('    '):
-            simHelper.desc.pop(1)
+        ఒకవేళ simHelper.desc మరియు simHelper.ver == "1" మరియు short_filename == "simlib.v" మరియు simHelper.desc[1].startswith('    '):
+            simHelper.desc.తీయి(1)
 
         # check group
-        assert simHelper.group, f"techlibs/common/{simHelper.source}: {simHelper.name} cell missing group"
+        ప్రతిజ్ఞా simHelper.సమూహం, f"techlibs/common/{simHelper.source}: {simHelper.name} cell missing group"
 
         # dump
-        print(simHelper)
+        ముద్రించు(simHelper)
         # new
         simHelper = SimHelper()

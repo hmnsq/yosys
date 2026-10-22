@@ -17,69 +17,69 @@
  *
  */
 
-#include "kernel/qcsat.h"
+#అన్తర్భావ "kernel/qcsat.h"
 
 USING_YOSYS_NAMESPACE
 
-std::vector<int> QuickConeSat::importSig(SigSpec sig)
+std::సదిశ<పూర్ణాంకం> శీఘ్ర_Cone_Sat::importSig(SigSpec sig)
 {
 	sig = modwalker.sigmap(sig);
-	for (auto bit : sig)
-		bits_queue.insert(bit);
-	return satgen.importSigSpec(sig);
+	కొరకు (స్వయంచాలక బిట్టు : sig)
+		బిట్లు_వరుస.చొప్పించు(బిట్టు);
+	తిరిగి satgen.importSigSpec(sig);
 }
 
-int QuickConeSat::importSigBit(SigBit bit)
+పూర్ణాంకం శీఘ్ర_Cone_Sat::import_Sig_బిట్టు(Sig_బిట్టు బిట్టు)
 {
-	bit = modwalker.sigmap(bit);
-	bits_queue.insert(bit);
-	return satgen.importSigBit(bit);
+	బిట్టు = modwalker.sigmap(బిట్టు);
+	బిట్లు_వరుస.చొప్పించు(బిట్టు);
+	తిరిగి satgen.import_Sig_బిట్టు(బిట్టు);
 }
 
-void QuickConeSat::prepare()
+శూన్య శీఘ్ర_Cone_Sat::prepare()
 {
-	while (!bits_queue.empty())
+	అయితే (!బిట్లు_వరుస.ఖాళీలు())
 	{
-		pool<ModWalker::PortBit> portbits;
-		modwalker.get_drivers(portbits, bits_queue);
+		pool<ModWalker::పోర్టు_బిట్టు_2> portbits;
+		modwalker.get_drivers(portbits, బిట్లు_వరుస);
 
-		for (auto bit : bits_queue)
-			if (bit.wire && bit.wire->get_bool_attribute(ID::onehot) && !imported_onehot.count(bit.wire))
+		కొరకు (స్వయంచాలక బిట్టు : బిట్లు_వరుస)
+			ఒకవేళ (బిట్టు.wire && బిట్టు.wire->get_bool_attribute(ID::onehot) && !imported_onehot.లెక్క(బిట్టు.wire))
 			{
-				std::vector<int> bits = satgen.importSigSpec(bit.wire);
-				for (int i : bits)
-				for (int j : bits)
-					if (i != j)
+				std::సదిశ<పూర్ణాంకం> బిట్లు = satgen.importSigSpec(బిట్టు.wire);
+				కొరకు (పూర్ణాంకం i : బిట్లు)
+				కొరకు (పూర్ణాంకం j : బిట్లు)
+					ఒకవేళ (i != j)
 						ez->assume(ez->NOT(i), j);
-				imported_onehot.insert(bit.wire);
+				imported_onehot.చొప్పించు(బిట్టు.wire);
 			}
 
-		bits_queue.clear();
+		బిట్లు_వరుస.clear();
 
-		for (auto &pbit : portbits)
+		కొరకు (స్వయంచాలక &pbit : portbits)
 		{
-			if (imported_cells.count(pbit.cell))
-				continue;
-			if (cell_complexity(pbit.cell) > max_cell_complexity)
-				continue;
-			if (max_cell_outs && GetSize(modwalker.cell_outputs[pbit.cell]) > max_cell_outs)
-				continue;
-			auto &inputs = modwalker.cell_inputs[pbit.cell];
-			bits_queue.insert(inputs.begin(), inputs.end());
+			ఒకవేళ (imported_cells.లెక్క(pbit.cell))
+				కొనసాగు;
+			ఒకవేళ (cell_complexity(pbit.cell) > max_cell_complexity)
+				కొనసాగు;
+			ఒకవేళ (max_cell_outs && Get_కొలత(modwalker.cell_outputs[pbit.cell]) > max_cell_outs)
+				కొనసాగు;
+			స్వయంచాలక &inputs = modwalker.cell_inputs[pbit.cell];
+			బిట్లు_వరుస.చొప్పించు(inputs.begin(), inputs.చివర());
 			satgen.importCell(pbit.cell);
-			imported_cells.insert(pbit.cell);
+			imported_cells.చొప్పించు(pbit.cell);
 		}
 
-		if (max_cell_count && GetSize(imported_cells) > max_cell_count)
-			break;
+		ఒకవేళ (max_cell_లెక్క && Get_కొలత(imported_cells) > max_cell_లెక్క)
+			ఆపు;
 	}
 }
 
-int QuickConeSat::cell_complexity(RTLIL::Cell *cell)
+పూర్ణాంకం శీఘ్ర_Cone_Sat::cell_complexity(RTLIL::Cell *cell)
 {
-	if (cell->type.in(ID($concat), ID($slice), ID($pos), ID($buf), ID($barrier), ID($_BUF_)))
-		return 0;
-	if (cell->type.in(ID($not), ID($and), ID($or), ID($xor), ID($xnor),
+	ఒకవేళ (cell->type.లోపల(ID($concat), ID($ముక్క), ID($pos), ID($buf), ID($barrier), ID($_BUF_)))
+		తిరిగి 0;
+	ఒకవేళ (cell->type.లోపల(ID($not), ID($and), ID($or), ID($xor), ID($xnor),
 			ID($reduce_and), ID($reduce_or), ID($reduce_xor),
 			ID($reduce_xnor), ID($reduce_bool),
 			ID($logic_not), ID($logic_and), ID($logic_or),
@@ -89,43 +89,43 @@ int QuickConeSat::cell_complexity(RTLIL::Cell *cell)
 			ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_),
 			ID($_MUX_), ID($_NMUX_), ID($_MUX4_), ID($_MUX8_), ID($_MUX16_),
 			ID($_AOI3_), ID($_OAI3_), ID($_AOI4_), ID($_OAI4_)))
-		return 1;
-	if (cell->type.in(ID($neg), ID($add), ID($sub), ID($alu), ID($lcu),
+		తిరిగి 1;
+	ఒకవేళ (cell->type.లోపల(ID($neg), ID($కూడు), ID($sub), ID($alu), ID($lcu),
 			ID($lt), ID($le), ID($gt), ID($ge)))
-		return 2;
-	if (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx)))
-		return 3;
-	if (cell->type.in(ID($mul), ID($macc), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow)))
-		return 4;
+		తిరిగి 2;
+	ఒకవేళ (cell->type.లోపల(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($జరుపు), ID($shiftx)))
+		తిరిగి 3;
+	ఒకవేళ (cell->type.లోపల(ID($mul), ID($macc), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($ఘాతం)))
+		తిరిగి 4;
 	// Unknown cell.
-	return 5;
+	తిరిగి 5;
 }
 
-int64_t SatEffortBudget::charge_import(QuickConeSat &qcsat, int64_t cells_charged)
+int64_t SatEffortBudget::charge_import(శీఘ్ర_Cone_Sat &qcsat, int64_t cells_charged)
 {
-	if (enabled())
-		remaining -= (GetSize(qcsat.imported_cells) - cells_charged) * import_cell_cost;
-	return GetSize(qcsat.imported_cells);
+	ఒకవేళ (enabled())
+		మిగిలిన -= (Get_కొలత(qcsat.imported_cells) - cells_charged) * import_cell_ఖర్చు;
+	తిరిగి Get_కొలత(qcsat.imported_cells);
 }
 
-SatEffortBudget::Result SatEffortBudget::solve(QuickConeSat &qcsat, int64_t cap, const std::vector<int> &assumptions)
+SatEffortBudget::ఫలితం_2 SatEffortBudget::solve(శీఘ్ర_Cone_Sat &qcsat, int64_t cap, స్థిరరాశి std::సదిశ<పూర్ణాంకం> &assumptions)
 {
-	std::vector<bool> modelVals;
-	return solve(qcsat, cap, {}, modelVals, assumptions);
+	std::సదిశ<తార్కిక> modelVals;
+	తిరిగి solve(qcsat, cap, {}, modelVals, assumptions);
 }
 
-SatEffortBudget::Result SatEffortBudget::solve(QuickConeSat &qcsat, int64_t cap, const std::vector<int> &modelExprs,
-		std::vector<bool> &modelVals, const std::vector<int> &assumptions)
+SatEffortBudget::ఫలితం_2 SatEffortBudget::solve(శీఘ్ర_Cone_Sat &qcsat, int64_t cap, స్థిరరాశి std::సదిశ<పూర్ణాంకం> &modelExprs,
+		std::సదిశ<తార్కిక> &modelVals, స్థిరరాశి std::సదిశ<పూర్ణాంకం> &assumptions)
 {
-	if (spent())
-		return Result::LimitReached;
-	if (enabled())
-		cap = (cap > 0) ? std::min(cap, remaining) : remaining;
-	qcsat.ez->setSolverPropLimit(cap);
-	bool sat = qcsat.ez->solve(modelExprs, modelVals, assumptions);
-	if (enabled())
-		remaining -= qcsat.ez->getSolverProps();
-	if (!sat && qcsat.ez->getSolverPropLimitStatus())
-		return Result::LimitReached;
-	return sat ? Result::Sat : Result::Unsat;
+	ఒకవేళ (spent())
+		తిరిగి ఫలితం_2::హద్దు_Reached;
+	ఒకవేళ (enabled())
+		cap = (cap > 0) ? std::min(cap, మిగిలిన) : మిగిలిన;
+	qcsat.ez->సమితి_Solver_Prop_హద్దు(cap);
+	తార్కిక sat = qcsat.ez->solve(modelExprs, modelVals, assumptions);
+	ఒకవేళ (enabled())
+		మిగిలిన -= qcsat.ez->getSolverProps();
+	ఒకవేళ (!sat && qcsat.ez->get_Solver_Prop_హద్దు_స్థితి())
+		తిరిగి ఫలితం_2::హద్దు_Reached;
+	తిరిగి sat ? ఫలితం_2::Sat : ఫలితం_2::Unsat;
 }

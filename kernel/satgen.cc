@@ -17,184 +17,184 @@
  *
  */
 
-#include "kernel/satgen.h"
-#include "kernel/ff.h"
-#include "kernel/yosys_common.h"
+#అన్తర్భావ "kernel/satgen.h"
+#అన్తర్భావ "kernel/ff.h"
+#అన్తర్భావ "kernel/yosys_common.h"
 
 USING_YOSYS_NAMESPACE
 
-bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
+తార్కిక SatGen::importCell(RTLIL::Cell *cell, పూర్ణాంకం timestep)
 {
-	bool arith_undef_handled = false;
-	bool is_arith_compare = cell->type.in(ID($lt), ID($le), ID($ge), ID($gt));
+	తార్కిక arith_undef_handled = అబద్ధం;
+	తార్కిక is_arith_compare = cell->type.లోపల(ID($lt), ID($le), ID($ge), ID($gt));
 
-	if (model_undef && (cell->type.in(ID($add), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor)) || is_arith_compare))
+	ఒకవేళ (model_undef && (cell->type.లోపల(ID($కూడు), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor)) || is_arith_compare))
 	{
-		std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-		if (is_arith_compare)
-			extendSignalWidth(undef_a, undef_b, cell, true);
-		else
-			extendSignalWidth(undef_a, undef_b, undef_y, cell, true);
+		std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> undef_b = importUndefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+		std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+		ఒకవేళ (is_arith_compare)
+			extend_Signal_వెడల్పు(undef_a, undef_b, cell, నిజం);
+		లేకపోతే
+			extend_Signal_వెడల్పు(undef_a, undef_b, undef_y, cell, నిజం);
 
-		int undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
-		int undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
-		int undef_y_bit = ez->OR(undef_any_a, undef_any_b);
+		పూర్ణాంకం undef_any_a = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_a);
+		పూర్ణాంకం undef_any_b = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_b);
+		పూర్ణాంకం undef_y_బిట్టు = ez->OR(undef_any_a, undef_any_b);
 
-		if (cell->type.in(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
-			std::vector<int> b = importSigSpec(cell->getPort(ID::B), timestep);
-			undef_y_bit = ez->OR(undef_y_bit, ez->NOT(ez->expression(ezSAT::OpOr, b)));
+		ఒకవేళ (cell->type.లోపల(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
+			std::సదిశ<పూర్ణాంకం> b = importSigSpec(cell->get_పోర్టు(ID::B), timestep);
+			undef_y_బిట్టు = ez->OR(undef_y_బిట్టు, ez->NOT(ez->వ్యక్తీకరణ(ezSAT::OpOr, b)));
 		}
 
-		if (is_arith_compare) {
-			for (size_t i = 1; i < undef_y.size(); i++)
-				ez->SET(ez->CONST_FALSE, undef_y.at(i));
-			ez->SET(undef_y_bit, undef_y.at(0));
-		} else {
-			std::vector<int> undef_y_bits(undef_y.size(), undef_y_bit);
-			ez->assume(ez->vec_eq(undef_y_bits, undef_y));
+		ఒకవేళ (is_arith_compare) {
+			కొరకు (కొలత_t i = 1; i < undef_y.కొలత(); i++)
+				ez->సమితి_2(ez->CONST_FALSE, undef_y.at(i));
+			ez->సమితి_2(undef_y_బిట్టు, undef_y.at(0));
+		} లేకపోతే {
+			std::సదిశ<పూర్ణాంకం> undef_y_బిట్లు(undef_y.కొలత(), undef_y_బిట్టు);
+			ez->assume(ez->vec_eq(undef_y_బిట్లు, undef_y));
 		}
 
-		arith_undef_handled = true;
+		arith_undef_handled = నిజం;
 	}
 
-	if (cell->type.in(ID($_AND_), ID($_NAND_), ID($_OR_), ID($_NOR_), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_),
-			ID($and), ID($or), ID($xor), ID($xnor), ID($add), ID($sub)))
+	ఒకవేళ (cell->type.లోపల(ID($_AND_), ID($_NAND_), ID($_OR_), ID($_NOR_), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_),
+			ID($and), ID($or), ID($xor), ID($xnor), ID($కూడు), ID($sub)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		extendSignalWidth(a, b, y, cell);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> b = importDefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+		extend_Signal_వెడల్పు(a, b, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(y.కొలత()) : y;
 
-		if (cell->type.in(ID($and), ID($_AND_)))
+		ఒకవేళ (cell->type.లోపల(ID($and), ID($_AND_)))
 			ez->assume(ez->vec_eq(ez->vec_and(a, b), yy));
-		if (cell->type == ID($_NAND_))
+		ఒకవేళ (cell->type == ID($_NAND_))
 			ez->assume(ez->vec_eq(ez->vec_not(ez->vec_and(a, b)), yy));
-		if (cell->type.in(ID($or), ID($_OR_)))
+		ఒకవేళ (cell->type.లోపల(ID($or), ID($_OR_)))
 			ez->assume(ez->vec_eq(ez->vec_or(a, b), yy));
-		if (cell->type == ID($_NOR_))
+		ఒకవేళ (cell->type == ID($_NOR_))
 			ez->assume(ez->vec_eq(ez->vec_not(ez->vec_or(a, b)), yy));
-		if (cell->type.in(ID($xor), ID($_XOR_)))
+		ఒకవేళ (cell->type.లోపల(ID($xor), ID($_XOR_)))
 			ez->assume(ez->vec_eq(ez->vec_xor(a, b), yy));
-		if (cell->type.in(ID($xnor), ID($_XNOR_)))
+		ఒకవేళ (cell->type.లోపల(ID($xnor), ID($_XNOR_)))
 			ez->assume(ez->vec_eq(ez->vec_not(ez->vec_xor(a, b)), yy));
-		if (cell->type == ID($_ANDNOT_))
+		ఒకవేళ (cell->type == ID($_ANDNOT_))
 			ez->assume(ez->vec_eq(ez->vec_and(a, ez->vec_not(b)), yy));
-		if (cell->type == ID($_ORNOT_))
+		ఒకవేళ (cell->type == ID($_ORNOT_))
 			ez->assume(ez->vec_eq(ez->vec_or(a, ez->vec_not(b)), yy));
-		if (cell->type == ID($add))
-			ez->assume(ez->vec_eq(ez->vec_add(a, b), yy));
-		if (cell->type == ID($sub))
+		ఒకవేళ (cell->type == ID($కూడు))
+			ez->assume(ez->vec_eq(ez->vec_కూడు(a, b), yy));
+		ఒకవేళ (cell->type == ID($sub))
 			ez->assume(ez->vec_eq(ez->vec_sub(a, b), yy));
 
-		if (model_undef && !arith_undef_handled)
+		ఒకవేళ (model_undef && !arith_undef_handled)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidth(undef_a, undef_b, undef_y, cell, false);
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_b = importUndefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+			extend_Signal_వెడల్పు(undef_a, undef_b, undef_y, cell, అబద్ధం);
 
-			if (cell->type.in(ID($and), ID($_AND_), ID($_NAND_))) {
-				std::vector<int> a0 = ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a));
-				std::vector<int> b0 = ez->vec_and(ez->vec_not(b), ez->vec_not(undef_b));
-				std::vector<int> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a0, b0)));
+			ఒకవేళ (cell->type.లోపల(ID($and), ID($_AND_), ID($_NAND_))) {
+				std::సదిశ<పూర్ణాంకం> a0 = ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a));
+				std::సదిశ<పూర్ణాంకం> b0 = ez->vec_and(ez->vec_not(b), ez->vec_not(undef_b));
+				std::సదిశ<పూర్ణాంకం> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a0, b0)));
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
-			else if (cell->type.in(ID($or), ID($_OR_), ID($_NOR_))) {
-				std::vector<int> a1 = ez->vec_and(a, ez->vec_not(undef_a));
-				std::vector<int> b1 = ez->vec_and(b, ez->vec_not(undef_b));
-				std::vector<int> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a1, b1)));
+			లేకపోతే ఒకవేళ (cell->type.లోపల(ID($or), ID($_OR_), ID($_NOR_))) {
+				std::సదిశ<పూర్ణాంకం> a1 = ez->vec_and(a, ez->vec_not(undef_a));
+				std::సదిశ<పూర్ణాంకం> b1 = ez->vec_and(b, ez->vec_not(undef_b));
+				std::సదిశ<పూర్ణాంకం> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a1, b1)));
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
-			else if (cell->type.in(ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_))) {
-				std::vector<int> yX = ez->vec_or(undef_a, undef_b);
+			లేకపోతే ఒకవేళ (cell->type.లోపల(ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_))) {
+				std::సదిశ<పూర్ణాంకం> yX = ez->vec_or(undef_a, undef_b);
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
-			else if (cell->type == ID($_ANDNOT_)) {
-				std::vector<int> a0 = ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a));
-				std::vector<int> b1 = ez->vec_and(b, ez->vec_not(undef_b));
-				std::vector<int> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a0, b1)));
+			లేకపోతే ఒకవేళ (cell->type == ID($_ANDNOT_)) {
+				std::సదిశ<పూర్ణాంకం> a0 = ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a));
+				std::సదిశ<పూర్ణాంకం> b1 = ez->vec_and(b, ez->vec_not(undef_b));
+				std::సదిశ<పూర్ణాంకం> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a0, b1)));
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
 
-			else if (cell->type == ID($_ORNOT_)) {
-				std::vector<int> a1 = ez->vec_and(a, ez->vec_not(undef_a));
-				std::vector<int> b0 = ez->vec_and(ez->vec_not(b), ez->vec_not(undef_b));
-				std::vector<int> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a1, b0)));
+			లేకపోతే ఒకవేళ (cell->type == ID($_ORNOT_)) {
+				std::సదిశ<పూర్ణాంకం> a1 = ez->vec_and(a, ez->vec_not(undef_a));
+				std::సదిశ<పూర్ణాంకం> b0 = ez->vec_and(ez->vec_not(b), ez->vec_not(undef_b));
+				std::సదిశ<పూర్ణాంకం> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a1, b0)));
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
-			else
+			లేకపోతే
 				log_abort();
 
 			undefGating(y, yy, undef_y);
 		}
-		else if (model_undef)
+		లేకపోతే ఒకవేళ (model_undef)
 		{
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type.in(ID($_AOI3_), ID($_OAI3_), ID($_AOI4_), ID($_OAI4_)))
+	ఒకవేళ (cell->type.లోపల(ID($_AOI3_), ID($_OAI3_), ID($_AOI4_), ID($_OAI4_)))
 	{
-		bool aoi_mode = cell->type.in(ID($_AOI3_), ID($_AOI4_));
-		bool three_mode = cell->type.in(ID($_AOI3_), ID($_OAI3_));
+		తార్కిక aoi_బహుళకం = cell->type.లోపల(ID($_AOI3_), ID($_AOI4_));
+		తార్కిక three_బహుళకం = cell->type.లోపల(ID($_AOI3_), ID($_OAI3_));
 
-		int a = importDefSigSpec(cell->getPort(ID::A), timestep).at(0);
-		int b = importDefSigSpec(cell->getPort(ID::B), timestep).at(0);
-		int c = importDefSigSpec(cell->getPort(ID::C), timestep).at(0);
-		int d = three_mode ? (aoi_mode ? ez->CONST_TRUE : ez->CONST_FALSE) : importDefSigSpec(cell->getPort(ID::D), timestep).at(0);
-		int y = importDefSigSpec(cell->getPort(ID::Y), timestep).at(0);
-		int yy = model_undef ? ez->literal() : y;
+		పూర్ణాంకం a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep).at(0);
+		పూర్ణాంకం b = importDefSigSpec(cell->get_పోర్టు(ID::B), timestep).at(0);
+		పూర్ణాంకం c = importDefSigSpec(cell->get_పోర్టు(ID::C), timestep).at(0);
+		పూర్ణాంకం d = three_బహుళకం ? (aoi_బహుళకం ? ez->CONST_TRUE : ez->CONST_FALSE) : importDefSigSpec(cell->get_పోర్టు(ID::D), timestep).at(0);
+		పూర్ణాంకం y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep).at(0);
+		పూర్ణాంకం yy = model_undef ? ez->literal() : y;
 
-		if (cell->type.in(ID($_AOI3_), ID($_AOI4_)))
+		ఒకవేళ (cell->type.లోపల(ID($_AOI3_), ID($_AOI4_)))
 			ez->assume(ez->IFF(ez->NOT(ez->OR(ez->AND(a, b), ez->AND(c, d))), yy));
-		else
+		లేకపోతే
 			ez->assume(ez->IFF(ez->NOT(ez->AND(ez->OR(a, b), ez->OR(c, d))), yy));
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			int undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep).at(0);
-			int undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep).at(0);
-			int undef_c = importUndefSigSpec(cell->getPort(ID::C), timestep).at(0);
-			int undef_d = three_mode ? ez->CONST_FALSE : importUndefSigSpec(cell->getPort(ID::D), timestep).at(0);
-			int undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep).at(0);
+			పూర్ణాంకం undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep).at(0);
+			పూర్ణాంకం undef_b = importUndefSigSpec(cell->get_పోర్టు(ID::B), timestep).at(0);
+			పూర్ణాంకం undef_c = importUndefSigSpec(cell->get_పోర్టు(ID::C), timestep).at(0);
+			పూర్ణాంకం undef_d = three_బహుళకం ? ez->CONST_FALSE : importUndefSigSpec(cell->get_పోర్టు(ID::D), timestep).at(0);
+			పూర్ణాంకం undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep).at(0);
 
-			if (aoi_mode)
+			ఒకవేళ (aoi_బహుళకం)
 			{
-				int a0 = ez->AND(ez->NOT(a), ez->NOT(undef_a));
-				int b0 = ez->AND(ez->NOT(b), ez->NOT(undef_b));
-				int c0 = ez->AND(ez->NOT(c), ez->NOT(undef_c));
-				int d0 = ez->AND(ez->NOT(d), ez->NOT(undef_d));
+				పూర్ణాంకం a0 = ez->AND(ez->NOT(a), ez->NOT(undef_a));
+				పూర్ణాంకం b0 = ez->AND(ez->NOT(b), ez->NOT(undef_b));
+				పూర్ణాంకం c0 = ez->AND(ez->NOT(c), ez->NOT(undef_c));
+				పూర్ణాంకం d0 = ez->AND(ez->NOT(d), ez->NOT(undef_d));
 
-				int ab = ez->AND(a, b), cd = ez->AND(c, d);
-				int undef_ab = ez->AND(ez->OR(undef_a, undef_b), ez->NOT(ez->OR(a0, b0)));
-				int undef_cd = ez->AND(ez->OR(undef_c, undef_d), ez->NOT(ez->OR(c0, d0)));
+				పూర్ణాంకం ab = ez->AND(a, b), cd = ez->AND(c, d);
+				పూర్ణాంకం undef_ab = ez->AND(ez->OR(undef_a, undef_b), ez->NOT(ez->OR(a0, b0)));
+				పూర్ణాంకం undef_cd = ez->AND(ez->OR(undef_c, undef_d), ez->NOT(ez->OR(c0, d0)));
 
-				int ab1 = ez->AND(ab, ez->NOT(undef_ab));
-				int cd1 = ez->AND(cd, ez->NOT(undef_cd));
-				int yX = ez->AND(ez->OR(undef_ab, undef_cd), ez->NOT(ez->OR(ab1, cd1)));
+				పూర్ణాంకం ab1 = ez->AND(ab, ez->NOT(undef_ab));
+				పూర్ణాంకం cd1 = ez->AND(cd, ez->NOT(undef_cd));
+				పూర్ణాంకం yX = ez->AND(ez->OR(undef_ab, undef_cd), ez->NOT(ez->OR(ab1, cd1)));
 
 				ez->assume(ez->IFF(yX, undef_y));
 			}
-			else
+			లేకపోతే
 			{
-				int a1 = ez->AND(a, ez->NOT(undef_a));
-				int b1 = ez->AND(b, ez->NOT(undef_b));
-				int c1 = ez->AND(c, ez->NOT(undef_c));
-				int d1 = ez->AND(d, ez->NOT(undef_d));
+				పూర్ణాంకం a1 = ez->AND(a, ez->NOT(undef_a));
+				పూర్ణాంకం b1 = ez->AND(b, ez->NOT(undef_b));
+				పూర్ణాంకం c1 = ez->AND(c, ez->NOT(undef_c));
+				పూర్ణాంకం d1 = ez->AND(d, ez->NOT(undef_d));
 
-				int ab = ez->OR(a, b), cd = ez->OR(c, d);
-				int undef_ab = ez->AND(ez->OR(undef_a, undef_b), ez->NOT(ez->OR(a1, b1)));
-				int undef_cd = ez->AND(ez->OR(undef_c, undef_d), ez->NOT(ez->OR(c1, d1)));
+				పూర్ణాంకం ab = ez->OR(a, b), cd = ez->OR(c, d);
+				పూర్ణాంకం undef_ab = ez->AND(ez->OR(undef_a, undef_b), ez->NOT(ez->OR(a1, b1)));
+				పూర్ణాంకం undef_cd = ez->AND(ez->OR(undef_c, undef_d), ez->NOT(ez->OR(c1, d1)));
 
-				int ab0 = ez->AND(ez->NOT(ab), ez->NOT(undef_ab));
-				int cd0 = ez->AND(ez->NOT(cd), ez->NOT(undef_cd));
-				int yX = ez->AND(ez->OR(undef_ab, undef_cd), ez->NOT(ez->OR(ab0, cd0)));
+				పూర్ణాంకం ab0 = ez->AND(ez->NOT(ab), ez->NOT(undef_ab));
+				పూర్ణాంకం cd0 = ez->AND(ez->NOT(cd), ez->NOT(undef_cd));
+				పూర్ణాంకం yX = ez->AND(ez->OR(undef_ab, undef_cd), ez->NOT(ez->OR(ab0, cd0)));
 
 				ez->assume(ez->IFF(yX, undef_y));
 			}
@@ -202,878 +202,878 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 			undefGating(y, yy, undef_y);
 		}
 
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type.in(ID($_NOT_), ID($not)))
+	ఒకవేళ (cell->type.లోపల(ID($_NOT_), ID($not)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		extendSignalWidthUnary(a, y, cell);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+		extend_Signal_వెడల్పు_Unary(a, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(y.కొలత()) : y;
 		ez->assume(ez->vec_eq(ez->vec_not(a), yy));
 
-		if (model_undef) {
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidthUnary(undef_a, undef_y, cell, false);
+		ఒకవేళ (model_undef) {
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+			extend_Signal_వెడల్పు_Unary(undef_a, undef_y, cell, అబద్ధం);
 			ez->assume(ez->vec_eq(undef_a, undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($bweqx))
+	ఒకవేళ (cell->type == ID($bweqx))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> b = importDefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 
-		std::vector<int> bweqx = ez->vec_not(ez->vec_xor(a, b));
+		std::సదిశ<పూర్ణాంకం> bweqx = ez->vec_not(ez->vec_xor(a, b));
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_b = importUndefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 
-			std::vector<int> both_undef = ez->vec_and(undef_a, undef_b);
-			std::vector<int> both_def = ez->vec_and(ez->vec_not(undef_a), ez->vec_not(undef_b));
+			std::సదిశ<పూర్ణాంకం> both_undef = ez->vec_and(undef_a, undef_b);
+			std::సదిశ<పూర్ణాంకం> both_def = ez->vec_and(ez->vec_not(undef_a), ez->vec_not(undef_b));
 
 			bweqx = ez->vec_or(both_undef, ez->vec_and(both_def, bweqx));
 
-			for (int yx : undef_y)
+			కొరకు (పూర్ణాంకం yx : undef_y)
 				ez->assume(ez->NOT(yx));
 		}
 		ez->assume(ez->vec_eq(bweqx, y));
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type.in(ID($_MUX_), ID($mux), ID($_NMUX_), ID($bwmux)))
+	ఒకవేళ (cell->type.లోపల(ID($_MUX_), ID($mux), ID($_NMUX_), ID($bwmux)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> s = importDefSigSpec(cell->getPort(ID::S), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> b = importDefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+		std::సదిశ<పూర్ణాంకం> s = importDefSigSpec(cell->get_పోర్టు(ID::S), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
-		if (cell->type == ID($_NMUX_))
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(y.కొలత()) : y;
+		ఒకవేళ (cell->type == ID($_NMUX_))
 			ez->assume(ez->vec_eq(ez->vec_not(ez->vec_ite(s.at(0), b, a)), yy));
-		else if (cell->type == ID($bwmux))
+		లేకపోతే ఒకవేళ (cell->type == ID($bwmux))
 			ez->assume(ez->vec_eq(ez->vec_ite(s, b, a), yy));
-		else
+		లేకపోతే
 			ez->assume(ez->vec_eq(ez->vec_ite(s.at(0), b, a), yy));
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_s = importUndefSigSpec(cell->getPort(ID::S), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_b = importUndefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_s = importUndefSigSpec(cell->get_పోర్టు(ID::S), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 
-			std::vector<int> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
-			std::vector<int> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
-			std::vector<int> yX;
-			if (cell->type == ID($bwmux))
+			std::సదిశ<పూర్ణాంకం> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
+			std::సదిశ<పూర్ణాంకం> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
+			std::సదిశ<పూర్ణాంకం> yX;
+			ఒకవేళ (cell->type == ID($bwmux))
 				yX = ez->vec_ite(undef_s, undef_ab, ez->vec_ite(s, undef_b, undef_a));
-			else
+			లేకపోతే
 				yX = ez->vec_ite(undef_s.at(0), undef_ab, ez->vec_ite(s.at(0), undef_b, undef_a));
 			ez->assume(ez->vec_eq(yX, undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($bmux))
+	ఒకవేళ (cell->type == ID($bmux))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> s = importDefSigSpec(cell->getPort(ID::S), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		std::vector<int> undef_a, undef_s, undef_y;
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> s = importDefSigSpec(cell->get_పోర్టు(ID::S), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+		std::సదిశ<పూర్ణాంకం> undef_a, undef_s, undef_y;
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			undef_s = importUndefSigSpec(cell->getPort(ID::S), timestep);
-			undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			undef_s = importUndefSigSpec(cell->get_పోర్టు(ID::S), timestep);
+			undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 		}
 
-		if (GetSize(s) == 0) {
-			ez->vec_set(a, y);
-			if (model_undef)
-				ez->vec_set(undef_a, undef_y);
-		} else {
-			for (int i = GetSize(s)-1; i >= 0; i--)
+		ఒకవేళ (Get_కొలత(s) == 0) {
+			ez->vec_సమితి(a, y);
+			ఒకవేళ (model_undef)
+				ez->vec_సమితి(undef_a, undef_y);
+		} లేకపోతే {
+			కొరకు (పూర్ణాంకం i = Get_కొలత(s)-1; i >= 0; i--)
 			{
-				std::vector<int> out = (i == 0) ? y : ez->vec_var(a.size() / 2);
-				std::vector<int> yy = model_undef ? ez->vec_var(out.size()) : out;
+				std::సదిశ<పూర్ణాంకం> బహిర్గతం = (i == 0) ? y : ez->vec_var(a.కొలత() / 2);
+				std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(బహిర్గతం.కొలత()) : బహిర్గతం;
 
-				std::vector<int> a0(a.begin(), a.begin() + a.size() / 2);
-				std::vector<int> a1(a.begin() + a.size() / 2, a.end());
+				std::సదిశ<పూర్ణాంకం> a0(a.begin(), a.begin() + a.కొలత() / 2);
+				std::సదిశ<పూర్ణాంకం> a1(a.begin() + a.కొలత() / 2, a.చివర());
 				ez->assume(ez->vec_eq(ez->vec_ite(s.at(i), a1, a0), yy));
 
-				if (model_undef)
+				ఒకవేళ (model_undef)
 				{
-					std::vector<int> undef_out = (i == 0) ? undef_y : ez->vec_var(a.size() / 2);
-					std::vector<int> undef_a0(undef_a.begin(), undef_a.begin() + a.size() / 2);
-					std::vector<int> undef_a1(undef_a.begin() + a.size() / 2, undef_a.end());
-					std::vector<int> unequal_ab = ez->vec_not(ez->vec_iff(a0, a1));
-					std::vector<int> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a0, undef_a1));
-					std::vector<int> yX = ez->vec_ite(undef_s.at(i), undef_ab, ez->vec_ite(s.at(i), undef_a1, undef_a0));
-					ez->assume(ez->vec_eq(yX, undef_out));
-					undefGating(out, yy, undef_out);
+					std::సదిశ<పూర్ణాంకం> undef_బహిర్గతం = (i == 0) ? undef_y : ez->vec_var(a.కొలత() / 2);
+					std::సదిశ<పూర్ణాంకం> undef_a0(undef_a.begin(), undef_a.begin() + a.కొలత() / 2);
+					std::సదిశ<పూర్ణాంకం> undef_a1(undef_a.begin() + a.కొలత() / 2, undef_a.చివర());
+					std::సదిశ<పూర్ణాంకం> unequal_ab = ez->vec_not(ez->vec_iff(a0, a1));
+					std::సదిశ<పూర్ణాంకం> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a0, undef_a1));
+					std::సదిశ<పూర్ణాంకం> yX = ez->vec_ite(undef_s.at(i), undef_ab, ez->vec_ite(s.at(i), undef_a1, undef_a0));
+					ez->assume(ez->vec_eq(yX, undef_బహిర్గతం));
+					undefGating(బహిర్గతం, yy, undef_బహిర్గతం);
 
-					undef_a = undef_out;
+					undef_a = undef_బహిర్గతం;
 				}
 
-				a = out;
+				a = బహిర్గతం;
 			}
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($demux))
+	ఒకవేళ (cell->type == ID($demux))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> s = importDefSigSpec(cell->getPort(ID::S), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
-		std::vector<int> undef_a, undef_s, undef_y;
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> s = importDefSigSpec(cell->get_పోర్టు(ID::S), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(y.కొలత()) : y;
+		std::సదిశ<పూర్ణాంకం> undef_a, undef_s, undef_y;
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			undef_s = importUndefSigSpec(cell->getPort(ID::S), timestep);
-			undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			undef_s = importUndefSigSpec(cell->get_పోర్టు(ID::S), timestep);
+			undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 		}
 
-		if (GetSize(s) == 0) {
-			ez->vec_set(a, y);
-			if (model_undef)
-				ez->vec_set(undef_a, undef_y);
-		} else {
-			for (int i = 0; i < (1 << GetSize(s)); i++)
+		ఒకవేళ (Get_కొలత(s) == 0) {
+			ez->vec_సమితి(a, y);
+			ఒకవేళ (model_undef)
+				ez->vec_సమితి(undef_a, undef_y);
+		} లేకపోతే {
+			కొరకు (పూర్ణాంకం i = 0; i < (1 << Get_కొలత(s)); i++)
 			{
-				std::vector<int> ss;
-				for (int j = 0; j < GetSize(s); j++) {
-					if (i & 1 << j)
-						ss.push_back(s[j]);
-					else
-						ss.push_back(ez->NOT(s[j]));
+				std::సదిశ<పూర్ణాంకం> ss;
+				కొరకు (పూర్ణాంకం j = 0; j < Get_కొలత(s); j++) {
+					ఒకవేళ (i & 1 << j)
+						ss.నెట్టు_వెనుక(s[j]);
+					లేకపోతే
+						ss.నెట్టు_వెనుక(ez->NOT(s[j]));
 				}
-				int sss = ez->expression(ezSAT::OpAnd, ss);
+				పూర్ణాంకం sss = ez->వ్యక్తీకరణ(ezSAT::OpAnd, ss);
 
-				for (int j = 0; j < GetSize(a); j++) {
-					ez->SET(ez->AND(sss, a[j]), yy.at(i * GetSize(a) + j));
+				కొరకు (పూర్ణాంకం j = 0; j < Get_కొలత(a); j++) {
+					ez->సమితి_2(ez->AND(sss, a[j]), yy.at(i * Get_కొలత(a) + j));
 				}
 
-				if (model_undef)
+				ఒకవేళ (model_undef)
 				{
-					int s0 = ez->expression(ezSAT::OpOr, ez->vec_and(ez->vec_not(ss), ez->vec_not(undef_s)));
-					int us = ez->AND(ez->NOT(s0), ez->expression(ezSAT::OpOr, undef_s));
-					for (int j = 0; j < GetSize(a); j++) {
-						int a0 = ez->AND(ez->NOT(a[j]), ez->NOT(undef_a[j]));
-						int yX = ez->AND(ez->OR(us, undef_a[j]), ez->NOT(ez->OR(s0, a0)));
-						ez->SET(yX, undef_y.at(i * GetSize(a) + j));
+					పూర్ణాంకం s0 = ez->వ్యక్తీకరణ(ezSAT::OpOr, ez->vec_and(ez->vec_not(ss), ez->vec_not(undef_s)));
+					పూర్ణాంకం us = ez->AND(ez->NOT(s0), ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_s));
+					కొరకు (పూర్ణాంకం j = 0; j < Get_కొలత(a); j++) {
+						పూర్ణాంకం a0 = ez->AND(ez->NOT(a[j]), ez->NOT(undef_a[j]));
+						పూర్ణాంకం yX = ez->AND(ez->OR(us, undef_a[j]), ez->NOT(ez->OR(s0, a0)));
+						ez->సమితి_2(yX, undef_y.at(i * Get_కొలత(a) + j));
 					}
 				}
 			}
-			if (model_undef)
+			ఒకవేళ (model_undef)
 				undefGating(y, yy, undef_y);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($pmux))
+	ఒకవేళ (cell->type == ID($pmux))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> s = importDefSigSpec(cell->getPort(ID::S), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> b = importDefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+		std::సదిశ<పూర్ణాంకం> s = importDefSigSpec(cell->get_పోర్టు(ID::S), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(y.కొలత()) : y;
 
-		std::vector<int> tmp = a;
-		for (size_t i = 0; i < s.size(); i++) {
-			std::vector<int> part_of_b(b.begin()+i*a.size(), b.begin()+(i+1)*a.size());
-			tmp = ez->vec_ite(s.at(i), part_of_b, tmp);
+		std::సదిశ<పూర్ణాంకం> tmp = a;
+		కొరకు (కొలత_t i = 0; i < s.కొలత(); i++) {
+			std::సదిశ<పూర్ణాంకం> part_యొక్క_b(b.begin()+i*a.కొలత(), b.begin()+(i+1)*a.కొలత());
+			tmp = ez->vec_ite(s.at(i), part_యొక్క_b, tmp);
 		}
 		ez->assume(ez->vec_eq(tmp, yy));
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_s = importUndefSigSpec(cell->getPort(ID::S), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_b = importUndefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_s = importUndefSigSpec(cell->get_పోర్టు(ID::S), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 
-			int all_undef = ez->CONST_FALSE;
-			int found_active = ez->CONST_FALSE;
+			పూర్ణాంకం all_undef = ez->CONST_FALSE;
+			పూర్ణాంకం దొరికింది_చురుకైన = ez->CONST_FALSE;
 
-			std::vector<int> undef_tmp = undef_a;
+			std::సదిశ<పూర్ణాంకం> undef_tmp = undef_a;
 
-			for (size_t i = 0; i < s.size(); i++)
+			కొరకు (కొలత_t i = 0; i < s.కొలత(); i++)
 			{
-				std::vector<int> part_of_undef_b(undef_b.begin()+i*a.size(), undef_b.begin()+(i+1)*a.size());
+				std::సదిశ<పూర్ణాంకం> part_యొక్క_undef_b(undef_b.begin()+i*a.కొలత(), undef_b.begin()+(i+1)*a.కొలత());
 
-				undef_tmp = ez->vec_ite(s.at(i), part_of_undef_b, undef_tmp);
+				undef_tmp = ez->vec_ite(s.at(i), part_యొక్క_undef_b, undef_tmp);
 				all_undef = ez->OR(all_undef, undef_s.at(i));
-				all_undef = ez->OR(all_undef, ez->AND(s.at(i), found_active));
-				found_active = ez->OR(found_active, s.at(i));
+				all_undef = ez->OR(all_undef, ez->AND(s.at(i), దొరికింది_చురుకైన));
+				దొరికింది_చురుకైన = ez->OR(దొరికింది_చురుకైన, s.at(i));
 			}
 
-			undef_tmp = ez->vec_or(undef_tmp, std::vector<int>(a.size(), all_undef));
+			undef_tmp = ez->vec_or(undef_tmp, std::సదిశ<పూర్ణాంకం>(a.కొలత(), all_undef));
 
 			ez->assume(ez->vec_eq(undef_tmp, undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type.in(ID($pos), ID($buf), ID($neg)))
+	ఒకవేళ (cell->type.లోపల(ID($pos), ID($buf), ID($neg)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		extendSignalWidthUnary(a, y, cell);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+		extend_Signal_వెడల్పు_Unary(a, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(y.కొలత()) : y;
 
-		if (cell->type.in(ID($pos), ID($buf))) {
+		ఒకవేళ (cell->type.లోపల(ID($pos), ID($buf))) {
 			ez->assume(ez->vec_eq(a, yy));
-		} else {
-			std::vector<int> zero(a.size(), ez->CONST_FALSE);
+		} లేకపోతే {
+			std::సదిశ<పూర్ణాంకం> zero(a.కొలత(), ez->CONST_FALSE);
 			ez->assume(ez->vec_eq(ez->vec_sub(zero, a), yy));
 		}
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidthUnary(undef_a, undef_y, cell);
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+			extend_Signal_వెడల్పు_Unary(undef_a, undef_y, cell);
 
-			if (cell->type.in(ID($pos), ID($buf))) {
+			ఒకవేళ (cell->type.లోపల(ID($pos), ID($buf))) {
 				ez->assume(ez->vec_eq(undef_a, undef_y));
-			} else {
-				int undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
-				std::vector<int> undef_y_bits(undef_y.size(), undef_any_a);
-				ez->assume(ez->vec_eq(undef_y_bits, undef_y));
+			} లేకపోతే {
+				పూర్ణాంకం undef_any_a = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_a);
+				std::సదిశ<పూర్ణాంకం> undef_y_బిట్లు(undef_y.కొలత(), undef_any_a);
+				ez->assume(ez->vec_eq(undef_y_బిట్లు, undef_y));
 			}
 
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool), ID($logic_not)))
+	ఒకవేళ (cell->type.లోపల(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool), ID($logic_not)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(y.కొలత()) : y;
 
-		if (cell->type == ID($reduce_and))
-			ez->SET(ez->expression(ez->OpAnd, a), yy.at(0));
-		if (cell->type.in(ID($reduce_or), ID($reduce_bool)))
-			ez->SET(ez->expression(ez->OpOr, a), yy.at(0));
-		if (cell->type == ID($reduce_xor))
-			ez->SET(ez->expression(ez->OpXor, a), yy.at(0));
-		if (cell->type == ID($reduce_xnor))
-			ez->SET(ez->NOT(ez->expression(ez->OpXor, a)), yy.at(0));
-		if (cell->type == ID($logic_not))
-			ez->SET(ez->NOT(ez->expression(ez->OpOr, a)), yy.at(0));
-		for (size_t i = 1; i < y.size(); i++)
-			ez->SET(ez->CONST_FALSE, yy.at(i));
+		ఒకవేళ (cell->type == ID($reduce_and))
+			ez->సమితి_2(ez->వ్యక్తీకరణ(ez->OpAnd, a), yy.at(0));
+		ఒకవేళ (cell->type.లోపల(ID($reduce_or), ID($reduce_bool)))
+			ez->సమితి_2(ez->వ్యక్తీకరణ(ez->OpOr, a), yy.at(0));
+		ఒకవేళ (cell->type == ID($reduce_xor))
+			ez->సమితి_2(ez->వ్యక్తీకరణ(ez->OpXor, a), yy.at(0));
+		ఒకవేళ (cell->type == ID($reduce_xnor))
+			ez->సమితి_2(ez->NOT(ez->వ్యక్తీకరణ(ez->OpXor, a)), yy.at(0));
+		ఒకవేళ (cell->type == ID($logic_not))
+			ez->సమితి_2(ez->NOT(ez->వ్యక్తీకరణ(ez->OpOr, a)), yy.at(0));
+		కొరకు (కొలత_t i = 1; i < y.కొలత(); i++)
+			ez->సమితి_2(ez->CONST_FALSE, yy.at(i));
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			int aX = ez->expression(ezSAT::OpOr, undef_a);
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+			పూర్ణాంకం aX = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_a);
 
-			if (cell->type == ID($reduce_and)) {
-				int a0 = ez->expression(ezSAT::OpOr, ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a)));
+			ఒకవేళ (cell->type == ID($reduce_and)) {
+				పూర్ణాంకం a0 = ez->వ్యక్తీకరణ(ezSAT::OpOr, ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a)));
 				ez->assume(ez->IFF(ez->AND(ez->NOT(a0), aX), undef_y.at(0)));
 			}
-			else if (cell->type.in(ID($reduce_or), ID($reduce_bool), ID($logic_not))) {
-				int a1 = ez->expression(ezSAT::OpOr, ez->vec_and(a, ez->vec_not(undef_a)));
+			లేకపోతే ఒకవేళ (cell->type.లోపల(ID($reduce_or), ID($reduce_bool), ID($logic_not))) {
+				పూర్ణాంకం a1 = ez->వ్యక్తీకరణ(ezSAT::OpOr, ez->vec_and(a, ez->vec_not(undef_a)));
 				ez->assume(ez->IFF(ez->AND(ez->NOT(a1), aX), undef_y.at(0)));
 			}
-			else if (cell->type.in(ID($reduce_xor), ID($reduce_xnor))) {
+			లేకపోతే ఒకవేళ (cell->type.లోపల(ID($reduce_xor), ID($reduce_xnor))) {
 				ez->assume(ez->IFF(aX, undef_y.at(0)));
-			} else
+			} లేకపోతే
 				log_abort();
 
-			for (size_t i = 1; i < undef_y.size(); i++)
-				ez->SET(ez->CONST_FALSE, undef_y.at(i));
+			కొరకు (కొలత_t i = 1; i < undef_y.కొలత(); i++)
+				ez->సమితి_2(ez->CONST_FALSE, undef_y.at(i));
 
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type.in(ID($logic_and), ID($logic_or)))
+	ఒకవేళ (cell->type.లోపల(ID($logic_and), ID($logic_or)))
 	{
-		std::vector<int> vec_a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> vec_b = importDefSigSpec(cell->getPort(ID::B), timestep);
+		std::సదిశ<పూర్ణాంకం> vec_a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> vec_b = importDefSigSpec(cell->get_పోర్టు(ID::B), timestep);
 
-		int a = ez->expression(ez->OpOr, vec_a);
-		int b = ez->expression(ez->OpOr, vec_b);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		పూర్ణాంకం a = ez->వ్యక్తీకరణ(ez->OpOr, vec_a);
+		పూర్ణాంకం b = ez->వ్యక్తీకరణ(ez->OpOr, vec_b);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(y.కొలత()) : y;
 
-		if (cell->type == ID($logic_and))
-			ez->SET(ez->expression(ez->OpAnd, a, b), yy.at(0));
-		else
-			ez->SET(ez->expression(ez->OpOr, a, b), yy.at(0));
-		for (size_t i = 1; i < y.size(); i++)
-			ez->SET(ez->CONST_FALSE, yy.at(i));
+		ఒకవేళ (cell->type == ID($logic_and))
+			ez->సమితి_2(ez->వ్యక్తీకరణ(ez->OpAnd, a, b), yy.at(0));
+		లేకపోతే
+			ez->సమితి_2(ez->వ్యక్తీకరణ(ez->OpOr, a, b), yy.at(0));
+		కొరకు (కొలత_t i = 1; i < y.కొలత(); i++)
+			ez->సమితి_2(ez->CONST_FALSE, yy.at(i));
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_b = importUndefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 
-			int a0 = ez->NOT(ez->OR(ez->expression(ezSAT::OpOr, vec_a), ez->expression(ezSAT::OpOr, undef_a)));
-			int b0 = ez->NOT(ez->OR(ez->expression(ezSAT::OpOr, vec_b), ez->expression(ezSAT::OpOr, undef_b)));
-			int a1 = ez->expression(ezSAT::OpOr, ez->vec_and(vec_a, ez->vec_not(undef_a)));
-			int b1 = ez->expression(ezSAT::OpOr, ez->vec_and(vec_b, ez->vec_not(undef_b)));
-			int aX = ez->expression(ezSAT::OpOr, undef_a);
-			int bX = ez->expression(ezSAT::OpOr, undef_b);
+			పూర్ణాంకం a0 = ez->NOT(ez->OR(ez->వ్యక్తీకరణ(ezSAT::OpOr, vec_a), ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_a)));
+			పూర్ణాంకం b0 = ez->NOT(ez->OR(ez->వ్యక్తీకరణ(ezSAT::OpOr, vec_b), ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_b)));
+			పూర్ణాంకం a1 = ez->వ్యక్తీకరణ(ezSAT::OpOr, ez->vec_and(vec_a, ez->vec_not(undef_a)));
+			పూర్ణాంకం b1 = ez->వ్యక్తీకరణ(ezSAT::OpOr, ez->vec_and(vec_b, ez->vec_not(undef_b)));
+			పూర్ణాంకం aX = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_a);
+			పూర్ణాంకం bX = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_b);
 
-			if (cell->type == ID($logic_and))
-				ez->SET(ez->AND(ez->OR(aX, bX), ez->NOT(ez->AND(a1, b1)), ez->NOT(a0), ez->NOT(b0)), undef_y.at(0));
-			else if (cell->type == ID($logic_or))
-				ez->SET(ez->AND(ez->OR(aX, bX), ez->NOT(ez->AND(a0, b0)), ez->NOT(a1), ez->NOT(b1)), undef_y.at(0));
-			else
+			ఒకవేళ (cell->type == ID($logic_and))
+				ez->సమితి_2(ez->AND(ez->OR(aX, bX), ez->NOT(ez->AND(a1, b1)), ez->NOT(a0), ez->NOT(b0)), undef_y.at(0));
+			లేకపోతే ఒకవేళ (cell->type == ID($logic_or))
+				ez->సమితి_2(ez->AND(ez->OR(aX, bX), ez->NOT(ez->AND(a0, b0)), ez->NOT(a1), ez->NOT(b1)), undef_y.at(0));
+			లేకపోతే
 				log_abort();
 
-			for (size_t i = 1; i < undef_y.size(); i++)
-				ez->SET(ez->CONST_FALSE, undef_y.at(i));
+			కొరకు (కొలత_t i = 1; i < undef_y.కొలత(); i++)
+				ez->సమితి_2(ez->CONST_FALSE, undef_y.at(i));
 
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type.in(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt)))
+	ఒకవేళ (cell->type.లోపల(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt)))
 	{
-		bool is_signed = cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool();
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		extendSignalWidth(a, b, cell);
+		తార్కిక is_signed = cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool();
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> b = importDefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+		extend_Signal_వెడల్పు(a, b, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(y.కొలత()) : y;
 
-		if (model_undef && cell->type.in(ID($eqx), ID($nex))) {
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			extendSignalWidth(undef_a, undef_b, cell, true);
+		ఒకవేళ (model_undef && cell->type.లోపల(ID($eqx), ID($nex))) {
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_b = importUndefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+			extend_Signal_వెడల్పు(undef_a, undef_b, cell, నిజం);
 			a = ez->vec_or(a, undef_a);
 			b = ez->vec_or(b, undef_b);
 		}
 
-		if (cell->type == ID($lt))
-			ez->SET(is_signed ? ez->vec_lt_signed(a, b) : ez->vec_lt_unsigned(a, b), yy.at(0));
-		if (cell->type == ID($le))
-			ez->SET(is_signed ? ez->vec_le_signed(a, b) : ez->vec_le_unsigned(a, b), yy.at(0));
-		if (cell->type.in(ID($eq), ID($eqx)))
-			ez->SET(ez->vec_eq(a, b), yy.at(0));
-		if (cell->type.in(ID($ne), ID($nex)))
-			ez->SET(ez->vec_ne(a, b), yy.at(0));
-		if (cell->type == ID($ge))
-			ez->SET(is_signed ? ez->vec_ge_signed(a, b) : ez->vec_ge_unsigned(a, b), yy.at(0));
-		if (cell->type == ID($gt))
-			ez->SET(is_signed ? ez->vec_gt_signed(a, b) : ez->vec_gt_unsigned(a, b), yy.at(0));
-		for (size_t i = 1; i < y.size(); i++)
-			ez->SET(ez->CONST_FALSE, yy.at(i));
+		ఒకవేళ (cell->type == ID($lt))
+			ez->సమితి_2(is_signed ? ez->vec_lt_signed(a, b) : ez->vec_lt_unsigned(a, b), yy.at(0));
+		ఒకవేళ (cell->type == ID($le))
+			ez->సమితి_2(is_signed ? ez->vec_le_signed(a, b) : ez->vec_le_unsigned(a, b), yy.at(0));
+		ఒకవేళ (cell->type.లోపల(ID($eq), ID($eqx)))
+			ez->సమితి_2(ez->vec_eq(a, b), yy.at(0));
+		ఒకవేళ (cell->type.లోపల(ID($ne), ID($nex)))
+			ez->సమితి_2(ez->vec_ne(a, b), yy.at(0));
+		ఒకవేళ (cell->type == ID($ge))
+			ez->సమితి_2(is_signed ? ez->vec_ge_signed(a, b) : ez->vec_ge_unsigned(a, b), yy.at(0));
+		ఒకవేళ (cell->type == ID($gt))
+			ez->సమితి_2(is_signed ? ez->vec_gt_signed(a, b) : ez->vec_gt_unsigned(a, b), yy.at(0));
+		కొరకు (కొలత_t i = 1; i < y.కొలత(); i++)
+			ez->సమితి_2(ez->CONST_FALSE, yy.at(i));
 
-		if (model_undef && cell->type.in(ID($eqx), ID($nex)))
+		ఒకవేళ (model_undef && cell->type.లోపల(ID($eqx), ID($nex)))
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidth(undef_a, undef_b, cell, true);
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_b = importUndefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+			extend_Signal_వెడల్పు(undef_a, undef_b, cell, నిజం);
 
-			if (cell->type == ID($eqx))
+			ఒకవేళ (cell->type == ID($eqx))
 				yy.at(0) = ez->AND(yy.at(0), ez->vec_eq(undef_a, undef_b));
-			else
+			లేకపోతే
 				yy.at(0) = ez->OR(yy.at(0), ez->vec_ne(undef_a, undef_b));
 
-			for (size_t i = 0; i < y.size(); i++)
-				ez->SET(ez->CONST_FALSE, undef_y.at(i));
+			కొరకు (కొలత_t i = 0; i < y.కొలత(); i++)
+				ez->సమితి_2(ez->CONST_FALSE, undef_y.at(i));
 
 			ez->assume(ez->vec_eq(y, yy));
 		}
-		else if (model_undef && cell->type.in(ID($eq), ID($ne)))
+		లేకపోతే ఒకవేళ (model_undef && cell->type.లోపల(ID($eq), ID($ne)))
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidth(undef_a, undef_b, cell, true);
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_b = importUndefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+			extend_Signal_వెడల్పు(undef_a, undef_b, cell, నిజం);
 
-			int undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
-			int undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
-			int undef_any = ez->OR(undef_any_a, undef_any_b);
+			పూర్ణాంకం undef_any_a = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_a);
+			పూర్ణాంకం undef_any_b = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_b);
+			పూర్ణాంకం undef_any = ez->OR(undef_any_a, undef_any_b);
 
-			std::vector<int> masked_a_bits = ez->vec_or(a, ez->vec_or(undef_a, undef_b));
-			std::vector<int> masked_b_bits = ez->vec_or(b, ez->vec_or(undef_a, undef_b));
+			std::సదిశ<పూర్ణాంకం> masked_a_బిట్లు = ez->vec_or(a, ez->vec_or(undef_a, undef_b));
+			std::సదిశ<పూర్ణాంకం> masked_b_బిట్లు = ez->vec_or(b, ez->vec_or(undef_a, undef_b));
 
-			int masked_ne = ez->vec_ne(masked_a_bits, masked_b_bits);
-			int undef_y_bit = ez->AND(undef_any, ez->NOT(masked_ne));
+			పూర్ణాంకం masked_ne = ez->vec_ne(masked_a_బిట్లు, masked_b_బిట్లు);
+			పూర్ణాంకం undef_y_బిట్టు = ez->AND(undef_any, ez->NOT(masked_ne));
 
-			for (size_t i = 1; i < undef_y.size(); i++)
-				ez->SET(ez->CONST_FALSE, undef_y.at(i));
-			ez->SET(undef_y_bit, undef_y.at(0));
+			కొరకు (కొలత_t i = 1; i < undef_y.కొలత(); i++)
+				ez->సమితి_2(ez->CONST_FALSE, undef_y.at(i));
+			ez->సమితి_2(undef_y_బిట్టు, undef_y.at(0));
 
 			undefGating(y, yy, undef_y);
 		}
-		else
+		లేకపోతే
 		{
-			if (model_undef) {
-				std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			ఒకవేళ (model_undef) {
+				std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 				undefGating(y, yy, undef_y);
 			}
 			log_assert(!model_undef || arith_undef_handled);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx)))
+	ఒకవేళ (cell->type.లోపల(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($జరుపు), ID($shiftx)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> b = importDefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 
-		int extend_bit = ez->CONST_FALSE;
+		పూర్ణాంకం extend_బిట్టు = ez->CONST_FALSE;
 
-		if (cell->parameters[ID::A_SIGNED].as_bool())
-			extend_bit = a.back();
+		ఒకవేళ (cell->parameters[ID::A_SIGNED].as_bool())
+			extend_బిట్టు = a.వెనుక();
 
-		while (y.size() < a.size())
-			y.push_back(ez->literal());
-		while (y.size() > a.size())
-			a.push_back(extend_bit);
+		అయితే (y.కొలత() < a.కొలత())
+			y.నెట్టు_వెనుక(ez->literal());
+		అయితే (y.కొలత() > a.కొలత())
+			a.నెట్టు_వెనుక(extend_బిట్టు);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
-		std::vector<int> shifted_a;
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(y.కొలత()) : y;
+		std::సదిశ<పూర్ణాంకం> shifted_a;
 
-		if (cell->type.in( ID($shl), ID($sshl)))
-			shifted_a = ez->vec_shift_left(a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+		ఒకవేళ (cell->type.లోపల( ID($shl), ID($sshl)))
+			shifted_a = ez->vec_జరుపు_ఎడమ(a, b, అబద్ధం, ez->CONST_FALSE, ez->CONST_FALSE);
 
-		if (cell->type == ID($shr))
-			shifted_a = ez->vec_shift_right(a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+		ఒకవేళ (cell->type == ID($shr))
+			shifted_a = ez->vec_జరుపు_కుడి(a, b, అబద్ధం, ez->CONST_FALSE, ez->CONST_FALSE);
 
-		if (cell->type == ID($sshr))
-			shifted_a = ez->vec_shift_right(a, b, false, cell->parameters[ID::A_SIGNED].as_bool() ? a.back() : ez->CONST_FALSE, ez->CONST_FALSE);
+		ఒకవేళ (cell->type == ID($sshr))
+			shifted_a = ez->vec_జరుపు_కుడి(a, b, అబద్ధం, cell->parameters[ID::A_SIGNED].as_bool() ? a.వెనుక() : ez->CONST_FALSE, ez->CONST_FALSE);
 
-		if (cell->type.in(ID($shift), ID($shiftx)))
-			shifted_a = ez->vec_shift_right(a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
+		ఒకవేళ (cell->type.లోపల(ID($జరుపు), ID($shiftx)))
+			shifted_a = ez->vec_జరుపు_కుడి(a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
 
 		ez->assume(ez->vec_eq(shifted_a, yy));
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			std::vector<int> undef_a_shifted;
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_b = importUndefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_a_shifted;
 
-			extend_bit = cell->type == ID($shiftx) ? ez->CONST_TRUE : ez->CONST_FALSE;
-			if (cell->parameters[ID::A_SIGNED].as_bool())
-				extend_bit = undef_a.back();
+			extend_బిట్టు = cell->type == ID($shiftx) ? ez->CONST_TRUE : ez->CONST_FALSE;
+			ఒకవేళ (cell->parameters[ID::A_SIGNED].as_bool())
+				extend_బిట్టు = undef_a.వెనుక();
 
-			while (undef_y.size() < undef_a.size())
-				undef_y.push_back(ez->literal());
-			while (undef_y.size() > undef_a.size())
-				undef_a.push_back(extend_bit);
+			అయితే (undef_y.కొలత() < undef_a.కొలత())
+				undef_y.నెట్టు_వెనుక(ez->literal());
+			అయితే (undef_y.కొలత() > undef_a.కొలత())
+				undef_a.నెట్టు_వెనుక(extend_బిట్టు);
 
-			if (cell->type.in(ID($shl), ID($sshl)))
-				undef_a_shifted = ez->vec_shift_left(undef_a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+			ఒకవేళ (cell->type.లోపల(ID($shl), ID($sshl)))
+				undef_a_shifted = ez->vec_జరుపు_ఎడమ(undef_a, b, అబద్ధం, ez->CONST_FALSE, ez->CONST_FALSE);
 
-			if (cell->type == ID($shr))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+			ఒకవేళ (cell->type == ID($shr))
+				undef_a_shifted = ez->vec_జరుపు_కుడి(undef_a, b, అబద్ధం, ez->CONST_FALSE, ez->CONST_FALSE);
 
-			if (cell->type == ID($sshr))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, false, cell->parameters[ID::A_SIGNED].as_bool() ? undef_a.back() : ez->CONST_FALSE, ez->CONST_FALSE);
+			ఒకవేళ (cell->type == ID($sshr))
+				undef_a_shifted = ez->vec_జరుపు_కుడి(undef_a, b, అబద్ధం, cell->parameters[ID::A_SIGNED].as_bool() ? undef_a.వెనుక() : ez->CONST_FALSE, ez->CONST_FALSE);
 
-			if (cell->type == ID($shift))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
+			ఒకవేళ (cell->type == ID($జరుపు))
+				undef_a_shifted = ez->vec_జరుపు_కుడి(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
 
-			if (cell->type == ID($shiftx))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_TRUE, ez->CONST_TRUE);
+			ఒకవేళ (cell->type == ID($shiftx))
+				undef_a_shifted = ez->vec_జరుపు_కుడి(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_TRUE, ez->CONST_TRUE);
 
-			int undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
-			std::vector<int> undef_all_y_bits(undef_y.size(), undef_any_b);
-			ez->assume(ez->vec_eq(ez->vec_or(undef_a_shifted, undef_all_y_bits), undef_y));
+			పూర్ణాంకం undef_any_b = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_b);
+			std::సదిశ<పూర్ణాంకం> undef_all_y_బిట్లు(undef_y.కొలత(), undef_any_b);
+			ez->assume(ez->vec_eq(ez->vec_or(undef_a_shifted, undef_all_y_బిట్లు), undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($mul))
+	ఒకవేళ (cell->type == ID($mul))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		extendSignalWidth(a, b, y, cell);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> b = importDefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+		extend_Signal_వెడల్పు(a, b, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(y.కొలత()) : y;
 
-		std::vector<int> tmp(a.size(), ez->CONST_FALSE);
-		for (int i = 0; i < int(a.size()); i++)
+		std::సదిశ<పూర్ణాంకం> tmp(a.కొలత(), ez->CONST_FALSE);
+		కొరకు (పూర్ణాంకం i = 0; i < పూర్ణాంకం(a.కొలత()); i++)
 		{
-			std::vector<int> shifted_a(a.size(), ez->CONST_FALSE);
-			for (int j = i; j < int(a.size()); j++)
+			std::సదిశ<పూర్ణాంకం> shifted_a(a.కొలత(), ez->CONST_FALSE);
+			కొరకు (పూర్ణాంకం j = i; j < పూర్ణాంకం(a.కొలత()); j++)
 				shifted_a.at(j) = a.at(j-i);
-			tmp = ez->vec_ite(b.at(i), ez->vec_add(tmp, shifted_a), tmp);
+			tmp = ez->vec_ite(b.at(i), ez->vec_కూడు(tmp, shifted_a), tmp);
 		}
 		ez->assume(ez->vec_eq(tmp, yy));
 
-		if (model_undef) {
+		ఒకవేళ (model_undef) {
 			log_assert(arith_undef_handled);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type.in(ID($macc), ID($macc_v2)))
+	ఒకవేళ (cell->type.లోపల(ID($macc), ID($macc_v2)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 
 		Macc macc;
 		macc.from_cell(cell);
 
-		std::vector<int> tmp(GetSize(y), ez->CONST_FALSE);
+		std::సదిశ<పూర్ణాంకం> tmp(Get_కొలత(y), ez->CONST_FALSE);
 
-		for (auto &port : macc.terms)
+		కొరకు (స్వయంచాలక &పోర్టు : macc.terms)
 		{
-			std::vector<int> in_a = importDefSigSpec(port.in_a, timestep);
-			std::vector<int> in_b = importDefSigSpec(port.in_b, timestep);
+			std::సదిశ<పూర్ణాంకం> లోపల_a = importDefSigSpec(పోర్టు.లోపల_a, timestep);
+			std::సదిశ<పూర్ణాంకం> లోపల_b = importDefSigSpec(పోర్టు.లోపల_b, timestep);
 
-			while (GetSize(in_a) < GetSize(y))
-				in_a.push_back(port.is_signed && !in_a.empty() ? in_a.back() : ez->CONST_FALSE);
-			in_a.resize(GetSize(y));
+			అయితే (Get_కొలత(లోపల_a) < Get_కొలత(y))
+				లోపల_a.నెట్టు_వెనుక(పోర్టు.is_signed && !లోపల_a.ఖాళీలు() ? లోపల_a.వెనుక() : ez->CONST_FALSE);
+			లోపల_a.resize(Get_కొలత(y));
 
-			if (GetSize(in_b))
+			ఒకవేళ (Get_కొలత(లోపల_b))
 			{
-				while (GetSize(in_b) < GetSize(y))
-					in_b.push_back(port.is_signed && !in_b.empty() ? in_b.back() : ez->CONST_FALSE);
-				in_b.resize(GetSize(y));
+				అయితే (Get_కొలత(లోపల_b) < Get_కొలత(y))
+					లోపల_b.నెట్టు_వెనుక(పోర్టు.is_signed && !లోపల_b.ఖాళీలు() ? లోపల_b.వెనుక() : ez->CONST_FALSE);
+				లోపల_b.resize(Get_కొలత(y));
 
-				for (int i = 0; i < GetSize(in_b); i++) {
-					std::vector<int> shifted_a(in_a.size(), ez->CONST_FALSE);
-					for (int j = i; j < int(in_a.size()); j++)
-						shifted_a.at(j) = in_a.at(j-i);
-					if (port.do_subtract)
-						tmp = ez->vec_ite(in_b.at(i), ez->vec_sub(tmp, shifted_a), tmp);
-					else
-						tmp = ez->vec_ite(in_b.at(i), ez->vec_add(tmp, shifted_a), tmp);
+				కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(లోపల_b); i++) {
+					std::సదిశ<పూర్ణాంకం> shifted_a(లోపల_a.కొలత(), ez->CONST_FALSE);
+					కొరకు (పూర్ణాంకం j = i; j < పూర్ణాంకం(లోపల_a.కొలత()); j++)
+						shifted_a.at(j) = లోపల_a.at(j-i);
+					ఒకవేళ (పోర్టు.do_వ్యవకలనం)
+						tmp = ez->vec_ite(లోపల_b.at(i), ez->vec_sub(tmp, shifted_a), tmp);
+					లేకపోతే
+						tmp = ez->vec_ite(లోపల_b.at(i), ez->vec_కూడు(tmp, shifted_a), tmp);
 				}
 			}
-			else
+			లేకపోతే
 			{
-				if (port.do_subtract)
-					tmp = ez->vec_sub(tmp, in_a);
-				else
-					tmp = ez->vec_add(tmp, in_a);
+				ఒకవేళ (పోర్టు.do_వ్యవకలనం)
+					tmp = ez->vec_sub(tmp, లోపల_a);
+				లేకపోతే
+					tmp = ez->vec_కూడు(tmp, లోపల_a);
 			}
 		}
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_c;
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_b = importUndefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_c;
 
-			if (cell->type == ID($macc_v2))
-				undef_c = importUndefSigSpec(cell->getPort(ID::C), timestep);
+			ఒకవేళ (cell->type == ID($macc_v2))
+				undef_c = importUndefSigSpec(cell->get_పోర్టు(ID::C), timestep);
 
-			int undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
-			int undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
-			int undef_any_c = ez->expression(ezSAT::OpOr, undef_c);
-			int undef_any = ez->OR(undef_any_a, ez->OR(undef_any_b, undef_any_c));
+			పూర్ణాంకం undef_any_a = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_a);
+			పూర్ణాంకం undef_any_b = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_b);
+			పూర్ణాంకం undef_any_c = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_c);
+			పూర్ణాంకం undef_any = ez->OR(undef_any_a, ez->OR(undef_any_b, undef_any_c));
 
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			ez->assume(ez->vec_eq(undef_y, std::vector<int>(GetSize(y), undef_any)));
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+			ez->assume(ez->vec_eq(undef_y, std::సదిశ<పూర్ణాంకం>(Get_కొలత(y), undef_any)));
 
 			undefGating(y, tmp, undef_y);
 		}
-		else
+		లేకపోతే
 			ez->assume(ez->vec_eq(y, tmp));
 
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type.in(ID($div), ID($mod), ID($divfloor), ID($modfloor)))
+	ఒకవేళ (cell->type.లోపల(ID($div), ID($mod), ID($divfloor), ID($modfloor)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		extendSignalWidth(a, b, y, cell);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> b = importDefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+		extend_Signal_వెడల్పు(a, b, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(y.కొలత()) : y;
 
-		std::vector<int> a_u, b_u;
-		if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
-			a_u = ez->vec_ite(a.back(), ez->vec_neg(a), a);
-			b_u = ez->vec_ite(b.back(), ez->vec_neg(b), b);
-		} else {
+		std::సదిశ<పూర్ణాంకం> a_u, b_u;
+		ఒకవేళ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
+			a_u = ez->vec_ite(a.వెనుక(), ez->vec_neg(a), a);
+			b_u = ez->vec_ite(b.వెనుక(), ez->vec_neg(b), b);
+		} లేకపోతే {
 			a_u = a;
 			b_u = b;
 		}
 
-		std::vector<int> chain_buf = a_u;
-		std::vector<int> y_u(a_u.size(), ez->CONST_FALSE);
-		for (int i = int(a.size())-1; i >= 0; i--)
+		std::సదిశ<పూర్ణాంకం> chain_buf = a_u;
+		std::సదిశ<పూర్ణాంకం> y_u(a_u.కొలత(), ez->CONST_FALSE);
+		కొరకు (పూర్ణాంకం i = పూర్ణాంకం(a.కొలత())-1; i >= 0; i--)
 		{
-			chain_buf.insert(chain_buf.end(), chain_buf.size(), ez->CONST_FALSE);
+			chain_buf.చొప్పించు(chain_buf.చివర(), chain_buf.కొలత(), ez->CONST_FALSE);
 
-			std::vector<int> b_shl(i, ez->CONST_FALSE);
-			b_shl.insert(b_shl.end(), b_u.begin(), b_u.end());
-			b_shl.insert(b_shl.end(), chain_buf.size()-b_shl.size(), ez->CONST_FALSE);
+			std::సదిశ<పూర్ణాంకం> b_shl(i, ez->CONST_FALSE);
+			b_shl.చొప్పించు(b_shl.చివర(), b_u.begin(), b_u.చివర());
+			b_shl.చొప్పించు(b_shl.చివర(), chain_buf.కొలత()-b_shl.కొలత(), ez->CONST_FALSE);
 
 			y_u.at(i) = ez->vec_ge_unsigned(chain_buf, b_shl);
 			chain_buf = ez->vec_ite(y_u.at(i), ez->vec_sub(chain_buf, b_shl), chain_buf);
 
-			chain_buf.erase(chain_buf.begin() + a_u.size(), chain_buf.end());
+			chain_buf.erase(chain_buf.begin() + a_u.కొలత(), chain_buf.చివర());
 		}
 
-		std::vector<int> y_tmp = ignore_div_by_zero ? yy : ez->vec_var(y.size());
+		std::సదిశ<పూర్ణాంకం> y_tmp = ignore_div_by_zero ? yy : ez->vec_var(y.కొలత());
 
 		// modulo calculation
-		std::vector<int> modulo_trunc;
-		int floored_eq_trunc;
-		if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
-			modulo_trunc = ez->vec_ite(a.back(), ez->vec_neg(chain_buf), chain_buf);
+		std::సదిశ<పూర్ణాంకం> modulo_trunc;
+		పూర్ణాంకం floored_eq_trunc;
+		ఒకవేళ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
+			modulo_trunc = ez->vec_ite(a.వెనుక(), ez->vec_neg(chain_buf), chain_buf);
 			// floor == trunc when sgn(a) == sgn(b) or trunc == 0
-			floored_eq_trunc = ez->OR(ez->IFF(a.back(), b.back()), ez->NOT(ez->expression(ezSAT::OpOr, modulo_trunc)));
-		} else {
+			floored_eq_trunc = ez->OR(ez->IFF(a.వెనుక(), b.వెనుక()), ez->NOT(ez->వ్యక్తీకరణ(ezSAT::OpOr, modulo_trunc)));
+		} లేకపోతే {
 			modulo_trunc = chain_buf;
 			floored_eq_trunc = ez->CONST_TRUE;
 		}
 
-		if (cell->type == ID($div)) {
-			if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
-				ez->assume(ez->vec_eq(y_tmp, ez->vec_ite(ez->XOR(a.back(), b.back()), ez->vec_neg(y_u), y_u)));
-			else
+		ఒకవేళ (cell->type == ID($div)) {
+			ఒకవేళ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
+				ez->assume(ez->vec_eq(y_tmp, ez->vec_ite(ez->XOR(a.వెనుక(), b.వెనుక()), ez->vec_neg(y_u), y_u)));
+			లేకపోతే
 				ez->assume(ez->vec_eq(y_tmp, y_u));
-		} else if (cell->type == ID($mod)) {
+		} లేకపోతే ఒకవేళ (cell->type == ID($mod)) {
 			ez->assume(ez->vec_eq(y_tmp, modulo_trunc));
-		} else if (cell->type == ID($divfloor)) {
-			if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
+		} లేకపోతే ఒకవేళ (cell->type == ID($divfloor)) {
+			ఒకవేళ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
 				ez->assume(ez->vec_eq(y_tmp, ez->vec_ite(
-					ez->XOR(a.back(), b.back()),
+					ez->XOR(a.వెనుక(), b.వెనుక()),
 					ez->vec_neg(ez->vec_ite(
 						ez->vec_reduce_or(modulo_trunc),
-						ez->vec_add(y_u, ez->vec_const_unsigned(1, y_u.size())),
+						ez->vec_కూడు(y_u, ez->vec_const_unsigned(1, y_u.కొలత())),
 						y_u
 					)),
 					y_u
 				)));
-			else
+			లేకపోతే
 				ez->assume(ez->vec_eq(y_tmp, y_u));
-		} else if (cell->type == ID($modfloor)) {
-			ez->assume(ez->vec_eq(y_tmp, ez->vec_ite(floored_eq_trunc, modulo_trunc, ez->vec_add(modulo_trunc, b))));
+		} లేకపోతే ఒకవేళ (cell->type == ID($modfloor)) {
+			ez->assume(ez->vec_eq(y_tmp, ez->vec_ite(floored_eq_trunc, modulo_trunc, ez->vec_కూడు(modulo_trunc, b))));
 		}
 
-		if (ignore_div_by_zero) {
-			ez->assume(ez->expression(ezSAT::OpOr, b));
-		} else {
-			std::vector<int> div_zero_result;
-			if (cell->type.in(ID($div), ID($divfloor))) {
-				if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
-					std::vector<int> all_ones(y.size(), ez->CONST_TRUE);
-					std::vector<int> only_first_one(y.size(), ez->CONST_FALSE);
-					only_first_one.at(0) = ez->CONST_TRUE;
-					div_zero_result = ez->vec_ite(a.back(), only_first_one, all_ones);
-				} else {
-					div_zero_result.insert(div_zero_result.end(), cell->getPort(ID::A).size(), ez->CONST_TRUE);
-					div_zero_result.insert(div_zero_result.end(), y.size() - div_zero_result.size(), ez->CONST_FALSE);
+		ఒకవేళ (ignore_div_by_zero) {
+			ez->assume(ez->వ్యక్తీకరణ(ezSAT::OpOr, b));
+		} లేకపోతే {
+			std::సదిశ<పూర్ణాంకం> div_zero_ఫలితం;
+			ఒకవేళ (cell->type.లోపల(ID($div), ID($divfloor))) {
+				ఒకవేళ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
+					std::సదిశ<పూర్ణాంకం> all_ones(y.కొలత(), ez->CONST_TRUE);
+					std::సదిశ<పూర్ణాంకం> only_మొదటి_one(y.కొలత(), ez->CONST_FALSE);
+					only_మొదటి_one.at(0) = ez->CONST_TRUE;
+					div_zero_ఫలితం = ez->vec_ite(a.వెనుక(), only_మొదటి_one, all_ones);
+				} లేకపోతే {
+					div_zero_ఫలితం.చొప్పించు(div_zero_ఫలితం.చివర(), cell->get_పోర్టు(ID::A).కొలత(), ez->CONST_TRUE);
+					div_zero_ఫలితం.చొప్పించు(div_zero_ఫలితం.చివర(), y.కొలత() - div_zero_ఫలితం.కొలత(), ez->CONST_FALSE);
 				}
-			} else if (cell->type.in(ID($mod), ID($modfloor))) {
+			} లేకపోతే ఒకవేళ (cell->type.లోపల(ID($mod), ID($modfloor))) {
 				// a mod 0 = a
-				int copy_a_bits = min(cell->getPort(ID::A).size(), cell->getPort(ID::B).size());
-				div_zero_result.insert(div_zero_result.end(), a.begin(), a.begin() + copy_a_bits);
-				if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
-					div_zero_result.insert(div_zero_result.end(), y.size() - div_zero_result.size(), div_zero_result.back());
-				else
-					div_zero_result.insert(div_zero_result.end(), y.size() - div_zero_result.size(), ez->CONST_FALSE);
+				పూర్ణాంకం copy_a_బిట్లు = min(cell->get_పోర్టు(ID::A).కొలత(), cell->get_పోర్టు(ID::B).కొలత());
+				div_zero_ఫలితం.చొప్పించు(div_zero_ఫలితం.చివర(), a.begin(), a.begin() + copy_a_బిట్లు);
+				ఒకవేళ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
+					div_zero_ఫలితం.చొప్పించు(div_zero_ఫలితం.చివర(), y.కొలత() - div_zero_ఫలితం.కొలత(), div_zero_ఫలితం.వెనుక());
+				లేకపోతే
+					div_zero_ఫలితం.చొప్పించు(div_zero_ఫలితం.చివర(), y.కొలత() - div_zero_ఫలితం.కొలత(), ez->CONST_FALSE);
 			}
-			ez->assume(ez->vec_eq(yy, ez->vec_ite(ez->expression(ezSAT::OpOr, b), y_tmp, div_zero_result)));
+			ez->assume(ez->vec_eq(yy, ez->vec_ite(ez->వ్యక్తీకరణ(ezSAT::OpOr, b), y_tmp, div_zero_ఫలితం)));
 		}
 
-		if (model_undef) {
+		ఒకవేళ (model_undef) {
 			log_assert(arith_undef_handled);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($lut))
+	ఒకవేళ (cell->type == ID($lut))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 
-		std::vector<int> lut;
-		for (auto bit : cell->getParam(ID::LUT))
-			lut.push_back(bit == State::S1 ? ez->CONST_TRUE : ez->CONST_FALSE);
-		while (GetSize(lut) < (1 << GetSize(a)))
-			lut.push_back(ez->CONST_FALSE);
-		lut.resize(1 << GetSize(a));
+		std::సదిశ<పూర్ణాంకం> lut;
+		కొరకు (స్వయంచాలక బిట్టు : cell->getParam(ID::LUT))
+			lut.నెట్టు_వెనుక(బిట్టు == State::S1 ? ez->CONST_TRUE : ez->CONST_FALSE);
+		అయితే (Get_కొలత(lut) < (1 << Get_కొలత(a)))
+			lut.నెట్టు_వెనుక(ez->CONST_FALSE);
+		lut.resize(1 << Get_కొలత(a));
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> t(lut), u(GetSize(t), ez->CONST_FALSE);
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> t(lut), u(Get_కొలత(t), ez->CONST_FALSE);
 
-			for (int i = GetSize(a)-1; i >= 0; i--)
+			కొరకు (పూర్ణాంకం i = Get_కొలత(a)-1; i >= 0; i--)
 			{
-				std::vector<int> t0(t.begin(), t.begin() + GetSize(t)/2);
-				std::vector<int> t1(t.begin() + GetSize(t)/2, t.end());
+				std::సదిశ<పూర్ణాంకం> t0(t.begin(), t.begin() + Get_కొలత(t)/2);
+				std::సదిశ<పూర్ణాంకం> t1(t.begin() + Get_కొలత(t)/2, t.చివర());
 
-				std::vector<int> u0(u.begin(), u.begin() + GetSize(u)/2);
-				std::vector<int> u1(u.begin() + GetSize(u)/2, u.end());
+				std::సదిశ<పూర్ణాంకం> u0(u.begin(), u.begin() + Get_కొలత(u)/2);
+				std::సదిశ<పూర్ణాంకం> u1(u.begin() + Get_కొలత(u)/2, u.చివర());
 
 				t = ez->vec_ite(a[i], t1, t0);
 				u = ez->vec_ite(undef_a[i], ez->vec_or(ez->vec_xor(t0, t1), ez->vec_or(u0, u1)), ez->vec_ite(a[i], u1, u0));
 			}
 
-			log_assert(GetSize(t) == 1);
-			log_assert(GetSize(u) == 1);
+			log_assert(Get_కొలత(t) == 1);
+			log_assert(Get_కొలత(u) == 1);
 			undefGating(y, t, u);
-			ez->assume(ez->vec_eq(importUndefSigSpec(cell->getPort(ID::Y), timestep), u));
+			ez->assume(ez->vec_eq(importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep), u));
 		}
-		else
+		లేకపోతే
 		{
-			std::vector<int> t = lut;
-			for (int i = GetSize(a)-1; i >= 0; i--)
+			std::సదిశ<పూర్ణాంకం> t = lut;
+			కొరకు (పూర్ణాంకం i = Get_కొలత(a)-1; i >= 0; i--)
 			{
-				std::vector<int> t0(t.begin(), t.begin() + GetSize(t)/2);
-				std::vector<int> t1(t.begin() + GetSize(t)/2, t.end());
+				std::సదిశ<పూర్ణాంకం> t0(t.begin(), t.begin() + Get_కొలత(t)/2);
+				std::సదిశ<పూర్ణాంకం> t1(t.begin() + Get_కొలత(t)/2, t.చివర());
 				t = ez->vec_ite(a[i], t1, t0);
 			}
 
-			log_assert(GetSize(t) == 1);
+			log_assert(Get_కొలత(t) == 1);
 			ez->assume(ez->vec_eq(y, t));
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($sop))
+	ఒకవేళ (cell->type == ID($sop))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		int y = importDefSigSpec(cell->getPort(ID::Y), timestep).at(0);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		పూర్ణాంకం y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep).at(0);
 
-		int width = cell->getParam(ID::WIDTH).as_int();
-		int depth = cell->getParam(ID::DEPTH).as_int();
+		పూర్ణాంకం వెడల్పు = cell->getParam(ID::వెడల్పు_2).as_int();
+		పూర్ణాంకం లోతు = cell->getParam(ID::లోతు_2).as_int();
 
-		vector<State> table_raw = cell->getParam(ID::TABLE).to_bits();
-		while (GetSize(table_raw) < 2*width*depth)
-			table_raw.push_back(State::S0);
+		సదిశ<State> పట్టిక_raw = cell->getParam(ID::పట్టిక).గమ్యం_బిట్లు();
+		అయితే (Get_కొలత(పట్టిక_raw) < 2*వెడల్పు*లోతు)
+			పట్టిక_raw.నెట్టు_వెనుక(State::S0);
 
-		vector<vector<int>> table(depth);
+		సదిశ<సదిశ<పూర్ణాంకం>> పట్టిక_2(లోతు);
 
-		for (int i = 0; i < depth; i++)
-		for (int j = 0; j < width; j++)
+		కొరకు (పూర్ణాంకం i = 0; i < లోతు; i++)
+		కొరకు (పూర్ణాంకం j = 0; j < వెడల్పు; j++)
 		{
-			bool pat0 = (table_raw[2*width*i + 2*j + 0] == State::S1);
-			bool pat1 = (table_raw[2*width*i + 2*j + 1] == State::S1);
+			తార్కిక pat0 = (పట్టిక_raw[2*వెడల్పు*i + 2*j + 0] == State::S1);
+			తార్కిక pat1 = (పట్టిక_raw[2*వెడల్పు*i + 2*j + 1] == State::S1);
 
-			if (pat0 && !pat1)
-				table.at(i).push_back(0);
-			else if (!pat0 && pat1)
-				table.at(i).push_back(1);
-			else
-				table.at(i).push_back(-1);
+			ఒకవేళ (pat0 && !pat1)
+				పట్టిక_2.at(i).నెట్టు_వెనుక(0);
+			లేకపోతే ఒకవేళ (!pat0 && pat1)
+				పట్టిక_2.at(i).నెట్టు_వెనుక(1);
+			లేకపోతే
+				పట్టిక_2.at(i).నెట్టు_వెనుక(-1);
 		}
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			std::vector<int> products, undef_products;
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			int undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep).at(0);
+			std::సదిశ<పూర్ణాంకం> products, undef_products;
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			పూర్ణాంకం undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep).at(0);
 
-			for (int i = 0; i < depth; i++)
+			కొరకు (పూర్ణాంకం i = 0; i < లోతు; i++)
 			{
-				std::vector<int> cmp_a, cmp_ua, cmp_b;
+				std::సదిశ<పూర్ణాంకం> cmp_a, cmp_ua, cmp_b;
 
-				for (int j = 0; j < width; j++)
-					if (table.at(i).at(j) >= 0) {
-						cmp_a.push_back(a.at(j));
-						cmp_ua.push_back(undef_a.at(j));
-						cmp_b.push_back(table.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
+				కొరకు (పూర్ణాంకం j = 0; j < వెడల్పు; j++)
+					ఒకవేళ (పట్టిక_2.at(i).at(j) >= 0) {
+						cmp_a.నెట్టు_వెనుక(a.at(j));
+						cmp_ua.నెట్టు_వెనుక(undef_a.at(j));
+						cmp_b.నెట్టు_వెనుక(పట్టిక_2.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
 					}
 
-				std::vector<int> masked_a = ez->vec_or(cmp_a, cmp_ua);
-				std::vector<int> masked_b = ez->vec_or(cmp_b, cmp_ua);
+				std::సదిశ<పూర్ణాంకం> masked_a = ez->vec_or(cmp_a, cmp_ua);
+				std::సదిశ<పూర్ణాంకం> masked_b = ez->vec_or(cmp_b, cmp_ua);
 
-				int masked_eq = ez->vec_eq(masked_a, masked_b);
-				int any_undef = ez->expression(ezSAT::OpOr, cmp_ua);
+				పూర్ణాంకం masked_eq = ez->vec_eq(masked_a, masked_b);
+				పూర్ణాంకం any_undef = ez->వ్యక్తీకరణ(ezSAT::OpOr, cmp_ua);
 
-				undef_products.push_back(ez->AND(any_undef, masked_eq));
-				products.push_back(ez->AND(ez->NOT(any_undef), masked_eq));
+				undef_products.నెట్టు_వెనుక(ez->AND(any_undef, masked_eq));
+				products.నెట్టు_వెనుక(ez->AND(ez->NOT(any_undef), masked_eq));
 			}
 
-			int yy = ez->expression(ezSAT::OpOr, products);
-			ez->SET(undef_y, ez->AND(ez->NOT(yy), ez->expression(ezSAT::OpOr, undef_products)));
+			పూర్ణాంకం yy = ez->వ్యక్తీకరణ(ezSAT::OpOr, products);
+			ez->సమితి_2(undef_y, ez->AND(ez->NOT(yy), ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_products)));
 			undefGating(y, yy, undef_y);
 		}
-		else
+		లేకపోతే
 		{
-			std::vector<int> products;
+			std::సదిశ<పూర్ణాంకం> products;
 
-			for (int i = 0; i < depth; i++)
+			కొరకు (పూర్ణాంకం i = 0; i < లోతు; i++)
 			{
-				std::vector<int> cmp_a, cmp_b;
+				std::సదిశ<పూర్ణాంకం> cmp_a, cmp_b;
 
-				for (int j = 0; j < width; j++)
-					if (table.at(i).at(j) >= 0) {
-						cmp_a.push_back(a.at(j));
-						cmp_b.push_back(table.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
+				కొరకు (పూర్ణాంకం j = 0; j < వెడల్పు; j++)
+					ఒకవేళ (పట్టిక_2.at(i).at(j) >= 0) {
+						cmp_a.నెట్టు_వెనుక(a.at(j));
+						cmp_b.నెట్టు_వెనుక(పట్టిక_2.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
 					}
 
-				products.push_back(ez->vec_eq(cmp_a, cmp_b));
+				products.నెట్టు_వెనుక(ez->vec_eq(cmp_a, cmp_b));
 			}
 
-			ez->SET(y, ez->expression(ezSAT::OpOr, products));
+			ez->సమితి_2(y, ez->వ్యక్తీకరణ(ezSAT::OpOr, products));
 		}
 
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($fa))
+	ఒకవేళ (cell->type == ID($fa))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> c = importDefSigSpec(cell->getPort(ID::C), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		std::vector<int> x = importDefSigSpec(cell->getPort(ID::X), timestep);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> b = importDefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+		std::సదిశ<పూర్ణాంకం> c = importDefSigSpec(cell->get_పోర్టు(ID::C), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+		std::సదిశ<పూర్ణాంకం> x = importDefSigSpec(cell->get_పోర్టు(ID::X), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
-		std::vector<int> xx = model_undef ? ez->vec_var(x.size()) : x;
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(y.కొలత()) : y;
+		std::సదిశ<పూర్ణాంకం> xx = model_undef ? ez->vec_var(x.కొలత()) : x;
 
-		std::vector<int> t1 = ez->vec_xor(a, b);
+		std::సదిశ<పూర్ణాంకం> t1 = ez->vec_xor(a, b);
 		ez->assume(ez->vec_eq(yy, ez->vec_xor(t1, c)));
 
-		std::vector<int> t2 = ez->vec_and(a, b);
-		std::vector<int> t3 = ez->vec_and(c, t1);
+		std::సదిశ<పూర్ణాంకం> t2 = ez->vec_and(a, b);
+		std::సదిశ<పూర్ణాంకం> t3 = ez->vec_and(c, t1);
 		ez->assume(ez->vec_eq(xx, ez->vec_or(t2, t3)));
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_c = importUndefSigSpec(cell->getPort(ID::C), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_b = importUndefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_c = importUndefSigSpec(cell->get_పోర్టు(ID::C), timestep);
 
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			std::vector<int> undef_x = importUndefSigSpec(cell->getPort(ID::X), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_x = importUndefSigSpec(cell->get_పోర్టు(ID::X), timestep);
 
 			ez->assume(ez->vec_eq(undef_y, ez->vec_or(ez->vec_or(undef_a, undef_b), undef_c)));
 			ez->assume(ez->vec_eq(undef_x, undef_y));
@@ -1081,330 +1081,330 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 			undefGating(y, yy, undef_y);
 			undefGating(x, xx, undef_x);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($lcu))
+	ఒకవేళ (cell->type == ID($lcu))
 	{
-		std::vector<int> p = importDefSigSpec(cell->getPort(ID::P), timestep);
-		std::vector<int> g = importDefSigSpec(cell->getPort(ID::G), timestep);
-		std::vector<int> ci = importDefSigSpec(cell->getPort(ID::CI), timestep);
-		std::vector<int> co = importDefSigSpec(cell->getPort(ID::CO), timestep);
+		std::సదిశ<పూర్ణాంకం> p = importDefSigSpec(cell->get_పోర్టు(ID::P), timestep);
+		std::సదిశ<పూర్ణాంకం> g = importDefSigSpec(cell->get_పోర్టు(ID::G), timestep);
+		std::సదిశ<పూర్ణాంకం> ci = importDefSigSpec(cell->get_పోర్టు(ID::CI), timestep);
+		std::సదిశ<పూర్ణాంకం> co = importDefSigSpec(cell->get_పోర్టు(ID::CO), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(co.size()) : co;
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(co.కొలత()) : co;
 
-		for (int i = 0; i < GetSize(co); i++)
-			ez->SET(yy[i], ez->OR(g[i], ez->AND(p[i], i ? yy[i-1] : ci[0])));
+		కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(co); i++)
+			ez->సమితి_2(yy[i], ez->OR(g[i], ez->AND(p[i], i ? yy[i-1] : ci[0])));
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			std::vector<int> undef_p = importUndefSigSpec(cell->getPort(ID::P), timestep);
-			std::vector<int> undef_g = importUndefSigSpec(cell->getPort(ID::G), timestep);
-			std::vector<int> undef_ci = importUndefSigSpec(cell->getPort(ID::CI), timestep);
-			std::vector<int> undef_co = importUndefSigSpec(cell->getPort(ID::CO), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_p = importUndefSigSpec(cell->get_పోర్టు(ID::P), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_g = importUndefSigSpec(cell->get_పోర్టు(ID::G), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_ci = importUndefSigSpec(cell->get_పోర్టు(ID::CI), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_co = importUndefSigSpec(cell->get_పోర్టు(ID::CO), timestep);
 
-			int undef_any_p = ez->expression(ezSAT::OpOr, undef_p);
-			int undef_any_g = ez->expression(ezSAT::OpOr, undef_g);
-			int undef_any_ci = ez->expression(ezSAT::OpOr, undef_ci);
-			int undef_co_bit = ez->OR(undef_any_p, undef_any_g, undef_any_ci);
+			పూర్ణాంకం undef_any_p = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_p);
+			పూర్ణాంకం undef_any_g = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_g);
+			పూర్ణాంకం undef_any_ci = ez->వ్యక్తీకరణ(ezSAT::OpOr, undef_ci);
+			పూర్ణాంకం undef_co_బిట్టు = ez->OR(undef_any_p, undef_any_g, undef_any_ci);
 
-			std::vector<int> undef_co_bits(undef_co.size(), undef_co_bit);
-			ez->assume(ez->vec_eq(undef_co_bits, undef_co));
+			std::సదిశ<పూర్ణాంకం> undef_co_బిట్లు(undef_co.కొలత(), undef_co_బిట్టు);
+			ez->assume(ez->vec_eq(undef_co_బిట్లు, undef_co));
 
 			undefGating(co, yy, undef_co);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($alu))
+	ఒకవేళ (cell->type == ID($alu))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		std::vector<int> x = importDefSigSpec(cell->getPort(ID::X), timestep);
-		std::vector<int> ci = importDefSigSpec(cell->getPort(ID::CI), timestep);
-		std::vector<int> bi = importDefSigSpec(cell->getPort(ID::BI), timestep);
-		std::vector<int> co = importDefSigSpec(cell->getPort(ID::CO), timestep);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> b = importDefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+		std::సదిశ<పూర్ణాంకం> x = importDefSigSpec(cell->get_పోర్టు(ID::X), timestep);
+		std::సదిశ<పూర్ణాంకం> ci = importDefSigSpec(cell->get_పోర్టు(ID::CI), timestep);
+		std::సదిశ<పూర్ణాంకం> bi = importDefSigSpec(cell->get_పోర్టు(ID::BI), timestep);
+		std::సదిశ<పూర్ణాంకం> co = importDefSigSpec(cell->get_పోర్టు(ID::CO), timestep);
 
-		extendSignalWidth(a, b, y, cell);
-		extendSignalWidth(a, b, x, cell);
-		extendSignalWidth(a, b, co, cell);
+		extend_Signal_వెడల్పు(a, b, y, cell);
+		extend_Signal_వెడల్పు(a, b, x, cell);
+		extend_Signal_వెడల్పు(a, b, co, cell);
 
-		std::vector<int> def_y = model_undef ? ez->vec_var(y.size()) : y;
-		std::vector<int> def_x = model_undef ? ez->vec_var(x.size()) : x;
-		std::vector<int> def_co = model_undef ? ez->vec_var(co.size()) : co;
+		std::సదిశ<పూర్ణాంకం> def_y = model_undef ? ez->vec_var(y.కొలత()) : y;
+		std::సదిశ<పూర్ణాంకం> def_x = model_undef ? ez->vec_var(x.కొలత()) : x;
+		std::సదిశ<పూర్ణాంకం> def_co = model_undef ? ez->vec_var(co.కొలత()) : co;
 
-		log_assert(GetSize(y) == GetSize(x));
-		log_assert(GetSize(y) == GetSize(co));
-		log_assert(GetSize(ci) == 1);
-		log_assert(GetSize(bi) == 1);
+		log_assert(Get_కొలత(y) == Get_కొలత(x));
+		log_assert(Get_కొలత(y) == Get_కొలత(co));
+		log_assert(Get_కొలత(ci) == 1);
+		log_assert(Get_కొలత(bi) == 1);
 
-		for (int i = 0; i < GetSize(y); i++)
+		కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(y); i++)
 		{
-			int s1 = a.at(i), s2 = ez->XOR(b.at(i), bi.at(0)), s3 = i ? co.at(i-1) : ci.at(0);
-			ez->SET(def_x.at(i), ez->XOR(s1, s2));
-			ez->SET(def_y.at(i), ez->XOR(def_x.at(i), s3));
-			ez->SET(def_co.at(i), ez->OR(ez->AND(s1, s2), ez->AND(s1, s3), ez->AND(s2, s3)));
+			పూర్ణాంకం s1 = a.at(i), s2 = ez->XOR(b.at(i), bi.at(0)), s3 = i ? co.at(i-1) : ci.at(0);
+			ez->సమితి_2(def_x.at(i), ez->XOR(s1, s2));
+			ez->సమితి_2(def_y.at(i), ez->XOR(def_x.at(i), s3));
+			ez->సమితి_2(def_co.at(i), ez->OR(ez->AND(s1, s2), ez->AND(s1, s3), ez->AND(s2, s3)));
 		}
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_ci = importUndefSigSpec(cell->getPort(ID::CI), timestep);
-			std::vector<int> undef_bi = importUndefSigSpec(cell->getPort(ID::BI), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_b = importUndefSigSpec(cell->get_పోర్టు(ID::B), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_ci = importUndefSigSpec(cell->get_పోర్టు(ID::CI), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_bi = importUndefSigSpec(cell->get_పోర్టు(ID::BI), timestep);
 
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			std::vector<int> undef_x = importUndefSigSpec(cell->getPort(ID::X), timestep);
-			std::vector<int> undef_co = importUndefSigSpec(cell->getPort(ID::CO), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_x = importUndefSigSpec(cell->get_పోర్టు(ID::X), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_co = importUndefSigSpec(cell->get_పోర్టు(ID::CO), timestep);
 
-			extendSignalWidth(undef_a, undef_b, undef_y, cell);
-			extendSignalWidth(undef_a, undef_b, undef_x, cell);
-			extendSignalWidth(undef_a, undef_b, undef_co, cell);
+			extend_Signal_వెడల్పు(undef_a, undef_b, undef_y, cell);
+			extend_Signal_వెడల్పు(undef_a, undef_b, undef_x, cell);
+			extend_Signal_వెడల్పు(undef_a, undef_b, undef_co, cell);
 
-			std::vector<int> all_inputs_undef;
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_a.begin(), undef_a.end());
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_b.begin(), undef_b.end());
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_ci.begin(), undef_ci.end());
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_bi.begin(), undef_bi.end());
-			int undef_any = ez->expression(ezSAT::OpOr, all_inputs_undef);
+			std::సదిశ<పూర్ణాంకం> all_inputs_undef;
+			all_inputs_undef.చొప్పించు(all_inputs_undef.చివర(), undef_a.begin(), undef_a.చివర());
+			all_inputs_undef.చొప్పించు(all_inputs_undef.చివర(), undef_b.begin(), undef_b.చివర());
+			all_inputs_undef.చొప్పించు(all_inputs_undef.చివర(), undef_ci.begin(), undef_ci.చివర());
+			all_inputs_undef.చొప్పించు(all_inputs_undef.చివర(), undef_bi.begin(), undef_bi.చివర());
+			పూర్ణాంకం undef_any = ez->వ్యక్తీకరణ(ezSAT::OpOr, all_inputs_undef);
 
-			for (int i = 0; i < GetSize(undef_y); i++) {
-				ez->SET(undef_y.at(i), undef_any);
-				ez->SET(undef_x.at(i), ez->OR(undef_a.at(i), undef_b.at(i), undef_bi.at(0)));
-				ez->SET(undef_co.at(i), undef_any);
+			కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(undef_y); i++) {
+				ez->సమితి_2(undef_y.at(i), undef_any);
+				ez->సమితి_2(undef_x.at(i), ez->OR(undef_a.at(i), undef_b.at(i), undef_bi.at(0)));
+				ez->సమితి_2(undef_co.at(i), undef_any);
 			}
 
 			undefGating(y, def_y, undef_y);
 			undefGating(x, def_x, undef_x);
 			undefGating(co, def_co, undef_co);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($slice))
+	ఒకవేళ (cell->type == ID($ముక్క))
 	{
-		RTLIL::SigSpec a = cell->getPort(ID::A);
-		RTLIL::SigSpec y = cell->getPort(ID::Y);
-		ez->assume(signals_eq(a.extract(cell->parameters.at(ID::OFFSET).as_int(), y.size()), y, timestep));
-		return true;
+		RTLIL::SigSpec a = cell->get_పోర్టు(ID::A);
+		RTLIL::SigSpec y = cell->get_పోర్టు(ID::Y);
+		ez->assume(సంకేతాలు_eq(a.వెలికితీయి(cell->parameters.at(ID::స్థానభ్రంశం_2).as_int(), y.కొలత()), y, timestep));
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($concat))
+	ఒకవేళ (cell->type == ID($concat))
 	{
-		RTLIL::SigSpec a = cell->getPort(ID::A);
-		RTLIL::SigSpec b = cell->getPort(ID::B);
-		RTLIL::SigSpec y = cell->getPort(ID::Y);
+		RTLIL::SigSpec a = cell->get_పోర్టు(ID::A);
+		RTLIL::SigSpec b = cell->get_పోర్టు(ID::B);
+		RTLIL::SigSpec y = cell->get_పోర్టు(ID::Y);
 
 		RTLIL::SigSpec ab = a;
 		ab.append(b);
 
-		ez->assume(signals_eq(ab, y, timestep));
-		return true;
+		ez->assume(సంకేతాలు_eq(ab, y, timestep));
+		తిరిగి నిజం;
 	}
 
-	if (timestep > 0 && (cell->is_builtin_ff() || cell->type == ID($anyinit)))
+	ఒకవేళ (timestep > 0 && (cell->is_builtin_ff() || cell->type == ID($anyinit)))
 	{
-		FfData ff(nullptr, cell);
+		Ff_దత్తాంశం ff(శూన్యసూచిక, cell);
 
 		// Latches and FFs with async inputs are not supported — use clk2fflogic or async2sync first.
-		if (ff.has_aload || ff.has_arst || ff.has_sr)
-			return false;
+		ఒకవేళ (ff.has_aload || ff.has_arst || ff.has_sr)
+			తిరిగి అబద్ధం;
 
-		if (timestep == 1)
+		ఒకవేళ (timestep == 1)
 		{
-			initial_state.add((*sigmap)(cell->getPort(ID::Q)));
-			if (model_undef && def_formal) {
-				std::vector<int> undef_q = importUndefSigSpec(cell->getPort(ID::Q), timestep);
+			initial_state.కూడు((*sigmap)(cell->get_పోర్టు(ID::Q)));
+			ఒకవేళ (model_undef && def_formal) {
+				std::సదిశ<పూర్ణాంకం> undef_q = importUndefSigSpec(cell->get_పోర్టు(ID::Q), timestep);
 				ez->assume(ez->NOT(ez->vec_reduce_or(undef_q)));
 			}
 		}
-		else
+		లేకపోతే
 		{
-			std::vector<int> d = importDefSigSpec(cell->getPort(ID::D), timestep-1);
-			std::vector<int> undef_d;
-			if (model_undef)
-				undef_d = importUndefSigSpec(cell->getPort(ID::D), timestep-1);
-			if (ff.has_srst && ff.has_ce && ff.ce_over_srst) {
-				int srst = importDefSigSpec(ff.sig_srst, timestep-1).at(0);
-				std::vector<int> rval = importDefSigSpec(ff.val_srst, timestep-1);
-				int undef_srst = -1;
-				std::vector<int> undef_rval;
-				if (model_undef) {
+			std::సదిశ<పూర్ణాంకం> d = importDefSigSpec(cell->get_పోర్టు(ID::D), timestep-1);
+			std::సదిశ<పూర్ణాంకం> undef_d;
+			ఒకవేళ (model_undef)
+				undef_d = importUndefSigSpec(cell->get_పోర్టు(ID::D), timestep-1);
+			ఒకవేళ (ff.has_srst && ff.has_ce && ff.ce_over_srst) {
+				పూర్ణాంకం srst = importDefSigSpec(ff.sig_srst, timestep-1).at(0);
+				std::సదిశ<పూర్ణాంకం> rval = importDefSigSpec(ff.val_srst, timestep-1);
+				పూర్ణాంకం undef_srst = -1;
+				std::సదిశ<పూర్ణాంకం> undef_rval;
+				ఒకవేళ (model_undef) {
 					undef_srst = importUndefSigSpec(ff.sig_srst, timestep-1).at(0);
 					undef_rval = importUndefSigSpec(ff.val_srst, timestep-1);
 				}
-				if (ff.pol_srst)
+				ఒకవేళ (ff.pol_srst)
 					std::tie(d, undef_d) = mux(srst, undef_srst, d, undef_d, rval, undef_rval);
-				else
+				లేకపోతే
 					std::tie(d, undef_d) = mux(srst, undef_srst, rval, undef_rval, d, undef_d);
 			}
-			if (ff.has_ce) {
-				int ce = importDefSigSpec(ff.sig_ce, timestep-1).at(0);
-				std::vector<int> old_q = importDefSigSpec(ff.sig_q, timestep-1);
-				int undef_ce = -1;
-				std::vector<int> undef_old_q;
-				if (model_undef) {
+			ఒకవేళ (ff.has_ce) {
+				పూర్ణాంకం ce = importDefSigSpec(ff.sig_ce, timestep-1).at(0);
+				std::సదిశ<పూర్ణాంకం> old_q = importDefSigSpec(ff.sig_q, timestep-1);
+				పూర్ణాంకం undef_ce = -1;
+				std::సదిశ<పూర్ణాంకం> undef_old_q;
+				ఒకవేళ (model_undef) {
 					undef_ce = importUndefSigSpec(ff.sig_ce, timestep-1).at(0);
 					undef_old_q = importUndefSigSpec(ff.sig_q, timestep-1);
 				}
-				if (ff.pol_ce)
+				ఒకవేళ (ff.pol_ce)
 					std::tie(d, undef_d) = mux(ce, undef_ce, old_q, undef_old_q, d, undef_d);
-				else
+				లేకపోతే
 					std::tie(d, undef_d) = mux(ce, undef_ce, d, undef_d, old_q, undef_old_q);
 			}
-			if (ff.has_srst && !(ff.has_ce && ff.ce_over_srst)) {
-				int srst = importDefSigSpec(ff.sig_srst, timestep-1).at(0);
-				std::vector<int> rval = importDefSigSpec(ff.val_srst, timestep-1);
-				int undef_srst = -1;
-				std::vector<int> undef_rval;
-				if (model_undef) {
+			ఒకవేళ (ff.has_srst && !(ff.has_ce && ff.ce_over_srst)) {
+				పూర్ణాంకం srst = importDefSigSpec(ff.sig_srst, timestep-1).at(0);
+				std::సదిశ<పూర్ణాంకం> rval = importDefSigSpec(ff.val_srst, timestep-1);
+				పూర్ణాంకం undef_srst = -1;
+				std::సదిశ<పూర్ణాంకం> undef_rval;
+				ఒకవేళ (model_undef) {
 					undef_srst = importUndefSigSpec(ff.sig_srst, timestep-1).at(0);
 					undef_rval = importUndefSigSpec(ff.val_srst, timestep-1);
 				}
-				if (ff.pol_srst)
+				ఒకవేళ (ff.pol_srst)
 					std::tie(d, undef_d) = mux(srst, undef_srst, d, undef_d, rval, undef_rval);
-				else
+				లేకపోతే
 					std::tie(d, undef_d) = mux(srst, undef_srst, rval, undef_rval, d, undef_d);
 			}
-			std::vector<int> q = importDefSigSpec(cell->getPort(ID::Q), timestep);
+			std::సదిశ<పూర్ణాంకం> q = importDefSigSpec(cell->get_పోర్టు(ID::Q), timestep);
 
-			std::vector<int> qq = model_undef ? ez->vec_var(q.size()) : q;
+			std::సదిశ<పూర్ణాంకం> qq = model_undef ? ez->vec_var(q.కొలత()) : q;
 			ez->assume(ez->vec_eq(d, qq));
 
-			if (model_undef)
+			ఒకవేళ (model_undef)
 			{
-				std::vector<int> undef_q = importUndefSigSpec(cell->getPort(ID::Q), timestep);
+				std::సదిశ<పూర్ణాంకం> undef_q = importUndefSigSpec(cell->get_పోర్టు(ID::Q), timestep);
 
 				ez->assume(ez->vec_eq(undef_d, undef_q));
 				undefGating(q, qq, undef_q);
 			}
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($anyconst))
+	ఒకవేళ (cell->type == ID($anyconst))
 	{
-		if (timestep < 2) {
-			if (model_undef && def_formal) {
-				std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+		ఒకవేళ (timestep < 2) {
+			ఒకవేళ (model_undef && def_formal) {
+				std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 				ez->assume(ez->NOT(ez->vec_reduce_or(undef_y)));
 			}
-			return true;
+			తిరిగి నిజం;
 		}
 
-		std::vector<int> d = importDefSigSpec(cell->getPort(ID::Y), timestep-1);
-		std::vector<int> q = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::సదిశ<పూర్ణాంకం> d = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep-1);
+		std::సదిశ<పూర్ణాంకం> q = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 
-		std::vector<int> qq = (model_undef && !def_formal) ? ez->vec_var(q.size()) : q;
+		std::సదిశ<పూర్ణాంకం> qq = (model_undef && !def_formal) ? ez->vec_var(q.కొలత()) : q;
 		ez->assume(ez->vec_eq(d, qq));
 
-		if (model_undef)
+		ఒకవేళ (model_undef)
 		{
-			std::vector<int> undef_d = importUndefSigSpec(cell->getPort(ID::Y), timestep-1);
-			std::vector<int> undef_q = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_d = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep-1);
+			std::సదిశ<పూర్ణాంకం> undef_q = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
 
-			if (def_formal) {
-				for (auto &undef_q_bit : undef_q)
-					ez->SET(ez->CONST_FALSE, undef_q_bit);
-			} else {
+			ఒకవేళ (def_formal) {
+				కొరకు (స్వయంచాలక &undef_q_బిట్టు : undef_q)
+					ez->సమితి_2(ez->CONST_FALSE, undef_q_బిట్టు);
+			} లేకపోతే {
 				ez->assume(ez->vec_eq(undef_d, undef_q));
 				undefGating(q, qq, undef_q);
 			}
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($anyseq))
+	ఒకవేళ (cell->type == ID($anyseq))
 	{
-		if (model_undef && def_formal) {
-			std::vector<int> undef_q = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			for (auto &undef_q_bit : undef_q)
-				ez->SET(ez->CONST_FALSE, undef_q_bit);
+		ఒకవేళ (model_undef && def_formal) {
+			std::సదిశ<పూర్ణాంకం> undef_q = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+			కొరకు (స్వయంచాలక &undef_q_బిట్టు : undef_q)
+				ez->సమితి_2(ez->CONST_FALSE, undef_q_బిట్టు);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($barrier) && !model_barriers)
-		return true;
+	ఒకవేళ (cell->type == ID($barrier) && !model_barriers)
+		తిరిగి నిజం;
 
-	if (cell->type.in(ID($_BUF_), ID($equiv), ID($barrier)))
+	ఒకవేళ (cell->type.లోపల(ID($_BUF_), ID($equiv), ID($barrier)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		extendSignalWidthUnary(a, y, cell);
+		std::సదిశ<పూర్ణాంకం> a = importDefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+		extend_Signal_వెడల్పు_Unary(a, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::సదిశ<పూర్ణాంకం> yy = model_undef ? ez->vec_var(y.కొలత()) : y;
 		ez->assume(ez->vec_eq(a, yy));
 
-		if (model_undef) {
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidthUnary(undef_a, undef_y, cell, false);
+		ఒకవేళ (model_undef) {
+			std::సదిశ<పూర్ణాంకం> undef_a = importUndefSigSpec(cell->get_పోర్టు(ID::A), timestep);
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+			extend_Signal_వెడల్పు_Unary(undef_a, undef_y, cell, అబద్ధం);
 			ez->assume(ez->vec_eq(undef_a, undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($initstate))
+	ఒకవేళ (cell->type == ID($initstate))
 	{
-		auto key = make_pair(prefix, timestep);
-		if (initstates.count(key) == 0)
-			initstates[key] = false;
+		స్వయంచాలక కీలకం = make_pair(ఉపసర్గ_2, timestep);
+		ఒకవేళ (initstates.లెక్క(కీలకం) == 0)
+			initstates[కీలకం] = అబద్ధం;
 
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		log_assert(GetSize(y) == 1);
-		ez->SET(y[0], initstates[key] ? ez->CONST_TRUE : ez->CONST_FALSE);
+		std::సదిశ<పూర్ణాంకం> y = importDefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+		log_assert(Get_కొలత(y) == 1);
+		ez->సమితి_2(y[0], initstates[కీలకం] ? ez->CONST_TRUE : ez->CONST_FALSE);
 
-		if (model_undef) {
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			log_assert(GetSize(undef_y) == 1);
-			ez->SET(undef_y[0], ez->CONST_FALSE);
+		ఒకవేళ (model_undef) {
+			std::సదిశ<పూర్ణాంకం> undef_y = importUndefSigSpec(cell->get_పోర్టు(ID::Y), timestep);
+			log_assert(Get_కొలత(undef_y) == 1);
+			ez->సమితి_2(undef_y[0], ez->CONST_FALSE);
 		}
 
-		return true;
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($assert))
+	ఒకవేళ (cell->type == ID($ప్రతిజ్ఞా))
 	{
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		asserts_a[pf].append((*sigmap)(cell->getPort(ID::A)));
-		asserts_en[pf].append((*sigmap)(cell->getPort(ID::EN)));
-		return true;
+		std::string pf = ఉపసర్గ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		asserts_a[pf].append((*sigmap)(cell->get_పోర్టు(ID::A)));
+		asserts_en[pf].append((*sigmap)(cell->get_పోర్టు(ID::EN)));
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($assume))
+	ఒకవేళ (cell->type == ID($assume))
 	{
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		assumes_a[pf].append((*sigmap)(cell->getPort(ID::A)));
-		assumes_en[pf].append((*sigmap)(cell->getPort(ID::EN)));
-		return true;
+		std::string pf = ఉపసర్గ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		assumes_a[pf].append((*sigmap)(cell->get_పోర్టు(ID::A)));
+		assumes_en[pf].append((*sigmap)(cell->get_పోర్టు(ID::EN)));
+		తిరిగి నిజం;
 	}
 
-	if (cell->type == ID($scopeinfo) || cell->type == ID($input_port))
+	ఒకవేళ (cell->type == ID($scopeinfo) || cell->type == ID($ఆదానం_పోర్టు))
 	{
-		return true;
+		తిరిగి నిజం;
 	}
 
 	// Unsupported internal cell types: $pow $fsm $mem*
 	// .. and all sequential cells with asynchronous inputs
-	return false;
+	తిరిగి అబద్ధం;
 }
 
-namespace Yosys {
+నామాకాశ Yosys {
 
-void report_missing_model(bool warn_only, RTLIL::Cell* cell)
+శూన్య report_missing_model(తార్కిక warn_only, RTLIL::Cell* cell)
 {
 	std::string s;
-	if (cell->is_builtin_ff())
+	ఒకవేళ (cell->is_builtin_ff())
 		s = stringf("No SAT model available for async FF cell %s (%s).  Consider running `async2sync` or `clk2fflogic` first.", cell, cell->type.unescape());
-	else
+	లేకపోతే
 		s = stringf("No SAT model available for cell %s (%s).", cell, cell->type.unescape());
 
-	if (warn_only) {
+	ఒకవేళ (warn_only) {
 		log_warning_noprefix("%s\n", s);
-	} else {
+	} లేకపోతే {
 		log_error("%s\n", s);
 	}
 }

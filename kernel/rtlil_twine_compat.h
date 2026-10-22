@@ -1,149 +1,149 @@
-#ifndef RTLIL_TWINE_COMPAT_H
-#define RTLIL_TWINE_COMPAT_H
+#నిర్వచితం_కాకపోతే RTLIL_TWINE_COMPAT_H
+#నిర్వచించు RTLIL_TWINE_COMPAT_H
 
 namespace RTLIL {
 
-template<typename Derived> struct WrappedIdBase;
-struct NameSlot;
-struct CellTypeSlot;
-template<typename Owner, typename Slot = NameSlot> struct OwnedId;
-struct PooledName;
+మూస<typename Derived> నిర్మాణం Wrapped_Id_పునాది;
+నిర్మాణం Name_స్థానం;
+నిర్మాణం Cell_Type_స్థానం;
+మూస<typename Owner, typename స్థానం_2 = Name_స్థానం> నిర్మాణం OwnedId;
+నిర్మాణం PooledName;
 
 using ModuleNameId = OwnedId<Module>;
 using WireNameId = OwnedId<Wire>;
 using CellNameId = OwnedId<Cell>;
-using MemoryNameId = OwnedId<Memory>;
+using జ్ఞాపకం_Name_Id = OwnedId<జ్ఞాపకం>;
 using ProcessNameId = OwnedId<Process>;
-using CellTypeId = OwnedId<Cell, CellTypeSlot>;
+using CellTypeId = OwnedId<Cell, Cell_Type_స్థానం>;
 
 namespace wrapped_idstring_detail {
 
-inline std::string render_escaped(const TwinePool *pool, IdString id) {
-	if (id == IdString::Null)
-		return std::string();
-	return pool ? pool->str(id) : ID::str(id);
+అంతఃవరుస std::string render_escaped(స్థిరరాశి TwinePool *pool, IdString id) {
+	ఒకవేళ (id == IdString::Null)
+		తిరిగి std::string();
+	తిరిగి pool ? pool->str(id) : ID::str(id);
 }
 
-inline std::string render_unescaped(const TwinePool *pool, IdString id) {
-	if (id == IdString::Null)
-		return std::string();
-	return pool ? pool->unescaped_str(id) : ID::unescaped_str(id);
+అంతఃవరుస std::string render_unescaped(స్థిరరాశి TwinePool *pool, IdString id) {
+	ఒకవేళ (id == IdString::Null)
+		తిరిగి std::string();
+	తిరిగి pool ? pool->unescaped_str(id) : ID::unescaped_str(id);
 }
 
 }
 
-template<typename Derived>
-struct WrappedIdBase {
-	operator IdString() const { return self().ref(); }
-	operator std::string() const { return self().escaped(); }
-	std::string escaped() const { return wrapped_idstring_detail::render_escaped(self().pool(), self().ref()); }
-	std::string unescape() const { return wrapped_idstring_detail::render_unescaped(self().pool(), self().ref()); }
-	bool isPublic() const { return self().ref().isPublic(); }
-	bool empty() const { return self().ref() == IdString::Null; }
-	std::string str() const { return self().escaped(); }
-	bool begins_with(const char *s) const {
-		const TwinePool *pool = self().pool();
-		return pool ? pool->begins_with(self().ref(), s) : str().starts_with(s);
+మూస<typename Derived>
+నిర్మాణం Wrapped_Id_పునాది {
+	క్రియాకారకం IdString() స్థిరరాశి { తిరిగి self().ref(); }
+	క్రియాకారకం std::string() స్థిరరాశి { తిరిగి self().escaped(); }
+	std::string escaped() స్థిరరాశి { తిరిగి wrapped_idstring_detail::render_escaped(self().pool(), self().ref()); }
+	std::string unescape() స్థిరరాశి { తిరిగి wrapped_idstring_detail::render_unescaped(self().pool(), self().ref()); }
+	bool is_ప్రజా() స్థిరరాశి { తిరిగి self().ref().is_ప్రజా(); }
+	bool ఖాళీలు() స్థిరరాశి { తిరిగి self().ref() == IdString::Null; }
+	std::string str() స్థిరరాశి { తిరిగి self().escaped(); }
+	bool begins_with(స్థిరరాశి అక్షరం *s) స్థిరరాశి {
+		స్థిరరాశి TwinePool *pool = self().pool();
+		తిరిగి pool ? pool->begins_with(self().ref(), s) : str().starts_with(s);
 	}
-	bool ends_with(const char *s) const { return str().ends_with(s); }
-	template<typename... Ts> bool in(Ts &&...args) const {
-		return self().ref().in(std::forward<Ts>(args)...);
+	bool చివర్లు_with(స్థిరరాశి అక్షరం *s) స్థిరరాశి { తిరిగి str().చివర్లు_with(s); }
+	మూస<typename... Ts> bool లోపల(Ts &&...వాదనలు_2) స్థిరరాశి {
+		తిరిగి self().ref().లోపల(std::forward<Ts>(వాదనలు_2)...);
 	}
-	bool in(const pool<IdString> &rhs) const { return self().ref().in(rhs); }
-	std::string substr(size_t pos = 0, size_t len = std::string::npos) const {
-		return self().escaped().substr(pos, len);
+	bool లోపల(స్థిరరాశి pool<IdString> &rhs) స్థిరరాశి { తిరిగి self().ref().లోపల(rhs); }
+	std::string substr(కొలత_t pos = 0, కొలత_t len = std::string::npos) స్థిరరాశి {
+		తిరిగి self().escaped().substr(pos, len);
 	}
-	size_t size() const {
-		const TwinePool *pool = self().pool();
-		return pool ? pool->str_size(self().ref()) : self().escaped().size();
+	కొలత_t కొలత() స్థిరరాశి {
+		స్థిరరాశి TwinePool *pool = self().pool();
+		తిరిగి pool ? pool->str_కొలత(self().ref()) : self().escaped().కొలత();
 	}
-	bool contains(const char *p) const { return self().escaped().find(p) != std::string::npos; }
-	char operator[](int n) const { return self().escaped()[n]; }
-	bool lt_by_name(const Derived &rhs) const {
-		const TwinePool *pool = self().pool();
-		if (pool == nullptr)
-			return self().escaped() < rhs.escaped();
-		return pool->compare_by_name(self().ref(), rhs.ref()) < 0;
+	bool కలిగియుంది(స్థిరరాశి అక్షరం *p) స్థిరరాశి { తిరిగి self().escaped().కనుగొను(p) != std::string::npos; }
+	అక్షరం క్రియాకారకం[](పూర్ణాంకం n) స్థిరరాశి { తిరిగి self().escaped()[n]; }
+	bool lt_by_name(స్థిరరాశి Derived &rhs) స్థిరరాశి {
+		స్థిరరాశి TwinePool *pool = self().pool();
+		ఒకవేళ (pool == nullptr)
+			తిరిగి self().escaped() < rhs.escaped();
+		తిరిగి pool->compare_by_name(self().ref(), rhs.ref()) < 0;
 	}
-	friend bool operator==(const Derived &lhs, const Derived &rhs) { return lhs.ref() == rhs.ref(); }
-	friend bool operator==(const Derived &lhs, IdString rhs) { return lhs.ref() == rhs; }
-	friend bool operator==(const Derived &lhs, NullIdString) { return lhs.ref() == IdString::Null; }
-	friend bool operator==(const Derived &lhs, const std::string &rhs) {
-		const TwinePool *pool = lhs.pool();
-		return pool ? pool->name_equal(lhs.ref(), rhs) : lhs.escaped() == rhs;
+	మిత్ర bool క్రియాకారకం==(స్థిరరాశి Derived &lhs, స్థిరరాశి Derived &rhs) { తిరిగి lhs.ref() == rhs.ref(); }
+	మిత్ర bool క్రియాకారకం==(స్థిరరాశి Derived &lhs, IdString rhs) { తిరిగి lhs.ref() == rhs; }
+	మిత్ర bool క్రియాకారకం==(స్థిరరాశి Derived &lhs, NullIdString) { తిరిగి lhs.ref() == IdString::Null; }
+	మిత్ర bool క్రియాకారకం==(స్థిరరాశి Derived &lhs, స్థిరరాశి std::string &rhs) {
+		స్థిరరాశి TwinePool *pool = lhs.pool();
+		తిరిగి pool ? pool->name_equal(lhs.ref(), rhs) : lhs.escaped() == rhs;
 	}
-	friend bool operator<(const Derived &lhs, const Derived &rhs) { return lhs.ref() < rhs.ref(); }
-private:
-	const Derived &self() const { return *static_cast<const Derived *>(this); }
+	మిత్ర bool క్రియాకారకం<(స్థిరరాశి Derived &lhs, స్థిరరాశి Derived &rhs) { తిరిగి lhs.ref() < rhs.ref(); }
+అంతరంగ:
+	స్థిరరాశి Derived &self() స్థిరరాశి { తిరిగి *static_cast<స్థిరరాశి Derived *>(this); }
 };
 
-template<typename T>
-concept IsWrappedId = std::is_base_of_v<WrappedIdBase<std::decay_t<T>>, std::decay_t<T>>;
+మూస<typename T>
+concept IsWrappedId = std::is_పునాది_యొక్క_v<Wrapped_Id_పునాది<std::decay_t<T>>, std::decay_t<T>>;
 
 // Two wrapped IdStrings can be compared for equality by comparing .ref()
-template<IsWrappedId A, IsWrappedId B>
+మూస<IsWrappedId A, IsWrappedId B>
 requires (!std::is_same_v<A, B>)
-inline bool operator==(const A &lhs, const B &rhs) { return lhs.ref() == rhs.ref(); }
+అంతఃవరుస bool క్రియాకారకం==(స్థిరరాశి A &lhs, స్థిరరాశి B &rhs) { తిరిగి lhs.ref() == rhs.ref(); }
 
 // A pair can be created from wrapped IdStrings by unwrapping them to IdString
 // otherwise, you'd try to copy an OwnedId into the arguments of std::make_pair
 // which would error out as its copy constructor is deleted
-template<IsWrappedId A, typename B>
-auto make_pair(A &&a, B &&b) { return std::make_pair(a.ref(), std::forward<B>(b)); }
-template<typename A, IsWrappedId B>
-auto make_pair(A &&a, B &&b) { return std::make_pair(std::forward<A>(a), b.ref()); }
-template<IsWrappedId A, IsWrappedId B>
-auto make_pair(A &&a, B &&b) { return std::make_pair(a.ref(), b.ref()); }
+మూస<IsWrappedId A, typename B>
+స్వయంచాలక make_pair(A &&a, B &&b) { తిరిగి std::make_pair(a.ref(), std::forward<B>(b)); }
+మూస<typename A, IsWrappedId B>
+స్వయంచాలక make_pair(A &&a, B &&b) { తిరిగి std::make_pair(std::forward<A>(a), b.ref()); }
+మూస<IsWrappedId A, IsWrappedId B>
+స్వయంచాలక make_pair(A &&a, B &&b) { తిరిగి std::make_pair(a.ref(), b.ref()); }
 
-template<typename Owner, typename Slot>
-struct OwnedId : WrappedIdBase<OwnedId<Owner, Slot>> {
-	OwnedId() = default;
-	OwnedId(const OwnedId &) = delete;
+మూస<typename Owner, typename స్థానం_2>
+నిర్మాణం OwnedId : Wrapped_Id_పునాది<OwnedId<Owner, స్థానం_2>> {
+	OwnedId() = అప్రమేయ;
+	OwnedId(స్థిరరాశి OwnedId &) = delete;
 	OwnedId(OwnedId &&) = delete;
-	IdString ref() const { return id_; }
-	const TwinePool *pool() const;
-	OwnedId &operator=(IdString id) { id_ = id; return *this; }
-	OwnedId &operator=(const OwnedId &other) { return *this = other.ref(); }
-	OwnedId &operator=(OwnedId &&other) { return *this = other.ref(); }
-	friend void swap(OwnedId &a, OwnedId &b) { std::swap(a.id_, b.id_); }
-private:
-	const Owner *owner() const;
+	IdString ref() స్థిరరాశి { తిరిగి id_; }
+	స్థిరరాశి TwinePool *pool() స్థిరరాశి;
+	OwnedId &క్రియాకారకం=(IdString id) { id_ = id; తిరిగి *this; }
+	OwnedId &క్రియాకారకం=(స్థిరరాశి OwnedId &other) { తిరిగి *this = other.ref(); }
+	OwnedId &క్రియాకారకం=(OwnedId &&other) { తిరిగి *this = other.ref(); }
+	మిత్ర శూన్య మార్పిడి(OwnedId &a, OwnedId &b) { std::మార్పిడి(a.id_, b.id_); }
+అంతరంగ:
+	స్థిరరాశి Owner *owner() స్థిరరాశి;
 	IdString id_;
 };
 
-struct PooledName : WrappedIdBase<PooledName> {
-	PooledName() = default;
+నిర్మాణం PooledName : Wrapped_Id_పునాది<PooledName> {
+	PooledName() = అప్రమేయ;
 	explicit PooledName(IdString id) : id_(id) {}
-	PooledName(const TwinePool *pool, IdString id) : pool_(pool), id_(id) {}
-	PooledName(const Design *design, IdString id);
-	PooledName(const Module *module, IdString id);
-	template<typename D> PooledName(const WrappedIdBase<D> &masq)
-		: pool_(static_cast<const D &>(masq).pool()),
-		  id_(static_cast<const D &>(masq).ref()) {}
-	IdString ref() const { return id_; }
-	const TwinePool *pool() const { return pool_; }
-private:
-	const TwinePool *pool_ = nullptr;
+	PooledName(స్థిరరాశి TwinePool *pool, IdString id) : pool_(pool), id_(id) {}
+	PooledName(స్థిరరాశి Design *design, IdString id);
+	PooledName(స్థిరరాశి Module *module, IdString id);
+	మూస<typename D> PooledName(స్థిరరాశి Wrapped_Id_పునాది<D> &masq)
+		: pool_(static_cast<స్థిరరాశి D &>(masq).pool()),
+		  id_(static_cast<స్థిరరాశి D &>(masq).ref()) {}
+	IdString ref() స్థిరరాశి { తిరిగి id_; }
+	స్థిరరాశి TwinePool *pool() స్థిరరాశి { తిరిగి pool_; }
+అంతరంగ:
+	స్థిరరాశి TwinePool *pool_ = nullptr;
 	IdString id_;
 };
 
 }
 
 namespace hashlib {
-	template<typename T>
-	struct masq_hash_ops {
-		static inline bool cmp(const T &a, const T &b) { return a == b; }
-		[[nodiscard]] static inline Hasher hash(const T &a) {
-			return hash_ops<IdString>::hash(a.ref());
+	మూస<typename T>
+	నిర్మాణం masq_hash_ops {
+		స్థిర అంతఃవరుస bool cmp(స్థిరరాశి T &a, స్థిరరాశి T &b) { తిరిగి a == b; }
+		[[nodiscard]] స్థిర అంతఃవరుస Hasher hash(స్థిరరాశి T &a) {
+			తిరిగి hash_ops<IdString>::hash(a.ref());
 		}
-		[[nodiscard]] static inline Hasher hash_into(const T &a, Hasher h) {
-			return hash_ops<IdString>::hash_into(a.ref(), h);
+		[[nodiscard]] స్థిర అంతఃవరుస Hasher hash_into(స్థిరరాశి T &a, Hasher h) {
+			తిరిగి hash_ops<IdString>::hash_into(a.ref(), h);
 		}
 	};
 
-	template<typename Owner, typename Slot>
-	struct hash_ops<RTLIL::OwnedId<Owner, Slot>> : masq_hash_ops<RTLIL::OwnedId<Owner, Slot>> {};
-	template<> struct hash_ops<RTLIL::PooledName> : masq_hash_ops<RTLIL::PooledName> {};
+	మూస<typename Owner, typename స్థానం_2>
+	నిర్మాణం hash_ops<RTLIL::OwnedId<Owner, స్థానం_2>> : masq_hash_ops<RTLIL::OwnedId<Owner, స్థానం_2>> {};
+	మూస<> నిర్మాణం hash_ops<RTLIL::PooledName> : masq_hash_ops<RTLIL::PooledName> {};
 }
 
-#endif
+#అయితే_ముగింపు

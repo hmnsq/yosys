@@ -17,47 +17,47 @@
  *
  */
 
-#ifndef CELLEDGES_H
-#define CELLEDGES_H
+#నిర్వచితం_కాకపోతే CELLEDGES_H
+#నిర్వచించు CELLEDGES_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "kernel/sigtools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AbstractCellEdgesDatabase
+నిర్మాణం Abstract_Cell_అంచులు_Database
 {
-	virtual ~AbstractCellEdgesDatabase() { }
-	virtual void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int delay) = 0;
-	bool add_edges_from_cell(RTLIL::Cell *cell);
+	మాయా ~Abstract_Cell_అంచులు_Database() { }
+	మాయా శూన్య కూడు_అంచు(RTLIL::Cell *cell, RTLIL::IdString from_పోర్టు, పూర్ణాంకం from_బిట్టు, RTLIL::IdString గమ్యం_పోర్టు, పూర్ణాంకం గమ్యం_బిట్టు, పూర్ణాంకం delay) = 0;
+	bool కూడు_అంచులు_from_cell(RTLIL::Cell *cell);
 };
 
-struct FwdCellEdgesDatabase : AbstractCellEdgesDatabase
+నిర్మాణం Fwd_Cell_అంచులు_Database : Abstract_Cell_అంచులు_Database
 {
 	SigMap &sigmap;
-	dict<SigBit, pool<SigBit>> db;
-	FwdCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
+	dict<Sig_బిట్టు, pool<Sig_బిట్టు>> db;
+	Fwd_Cell_అంచులు_Database(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
-		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
-		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[from_sigbit].insert(to_sigbit);
+	శూన్య కూడు_అంచు(RTLIL::Cell *cell, RTLIL::IdString from_పోర్టు, పూర్ణాంకం from_బిట్టు, RTLIL::IdString గమ్యం_పోర్టు, పూర్ణాంకం గమ్యం_బిట్టు, పూర్ణాంకం) override {
+		Sig_బిట్టు from_sigbit = sigmap(cell->get_పోర్టు(from_పోర్టు)[from_బిట్టు]);
+		Sig_బిట్టు గమ్యం_sigbit = sigmap(cell->get_పోర్టు(గమ్యం_పోర్టు)[గమ్యం_బిట్టు]);
+		db[from_sigbit].చొప్పించు(గమ్యం_sigbit);
 	}
 };
 
-struct RevCellEdgesDatabase : AbstractCellEdgesDatabase
+నిర్మాణం Rev_Cell_అంచులు_Database : Abstract_Cell_అంచులు_Database
 {
 	SigMap &sigmap;
-	dict<SigBit, pool<SigBit>> db;
-	RevCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
+	dict<Sig_బిట్టు, pool<Sig_బిట్టు>> db;
+	Rev_Cell_అంచులు_Database(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
-		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
-		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[to_sigbit].insert(from_sigbit);
+	శూన్య కూడు_అంచు(RTLIL::Cell *cell, RTLIL::IdString from_పోర్టు, పూర్ణాంకం from_బిట్టు, RTLIL::IdString గమ్యం_పోర్టు, పూర్ణాంకం గమ్యం_బిట్టు, పూర్ణాంకం) override {
+		Sig_బిట్టు from_sigbit = sigmap(cell->get_పోర్టు(from_పోర్టు)[from_బిట్టు]);
+		Sig_బిట్టు గమ్యం_sigbit = sigmap(cell->get_పోర్టు(గమ్యం_పోర్టు)[గమ్యం_బిట్టు]);
+		db[గమ్యం_sigbit].చొప్పించు(from_sigbit);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

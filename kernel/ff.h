@@ -17,12 +17,12 @@
  *
  */
 
-#ifndef FF_H
-#define FF_H
+#నిర్వచితం_కాకపోతే FF_H
+#నిర్వచించు FF_H
 
-#include "kernel/yosys.h"
-#include "kernel/ffinit.h"
-#include "kernel/twine.h"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "kernel/ffinit.h"
+#అన్తర్భావ "kernel/twine.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -79,9 +79,9 @@ YOSYS_NAMESPACE_BEGIN
 // - has_arst [does not correspond to a native cell, represented as dlatch with const D input]
 // - empty set [not a cell — will be emitted as a simple direct connection]
 
-struct FfTypeData {
-	FfTypeData(IdString type);
-	FfTypeData() {
+నిర్మాణం Ff_Type_దత్తాంశం {
+	Ff_Type_దత్తాంశం(IdString type);
+	Ff_Type_దత్తాంశం() {
 		has_clk = false;
 		has_gclk = false;
 		has_ce = false;
@@ -131,7 +131,7 @@ struct FfTypeData {
 	bool pol_arst;
 	bool pol_srst;
 	bool pol_clr;
-	bool pol_set;
+	bool pol_సమితి;
 	// The value loaded by sig_arst.
 	// Zero length if unknowable from just type
 	Const val_arst;
@@ -140,7 +140,7 @@ struct FfTypeData {
 	Const val_srst;
 };
 
-struct FfData : FfTypeData {
+నిర్మాణం Ff_దత్తాంశం : Ff_Type_దత్తాంశం {
 	Module *module;
 	FfInitVals *initvals;
 	Cell *cell;
@@ -164,52 +164,52 @@ struct FfData : FfTypeData {
 	// The async clear (per-lane), present if has_sr.
 	SigSpec sig_clr;
 	// The async set (per-lane), present if has_sr.
-	SigSpec sig_set;
+	SigSpec sig_సమితి;
 	// The initial value at power-up.
 	Const val_init;
 	// The FF data width in bits.
-	int width;
-	dict<IdString, Const> attributes;
+	పూర్ణాంకం వెడల్పు;
+	dict<IdString, Const> లక్షణాలు;
 
-	FfData(Module *module = nullptr, FfInitVals *initvals = nullptr, IdString name = IdString()) : module(module), initvals(initvals), cell(nullptr), name(name) {
-		width = 0;
+	Ff_దత్తాంశం(Module *module = nullptr, FfInitVals *initvals = nullptr, IdString name = IdString()) : module(module), initvals(initvals), cell(nullptr), name(name) {
+		వెడల్పు = 0;
 		pol_clk = false;
 		pol_aload = false;
 		pol_ce = false;
 		pol_arst = false;
 		pol_srst = false;
 		pol_clr = false;
-		pol_set = false;
+		pol_సమితి = false;
 	}
 
-	FfData(Module *module, FfInitVals *initvals, TwineSpec &&name)
-			: FfData(module, initvals, module->twines().add(std::move(name))) {}
+	Ff_దత్తాంశం(Module *module, FfInitVals *initvals, TwineSpec &&name)
+			: Ff_దత్తాంశం(module, initvals, module->twines().కూడు(std::move(name))) {}
 
-	FfData(FfInitVals *initvals, Cell *cell_);
+	Ff_దత్తాంశం(FfInitVals *initvals, Cell *cell_);
 
 	// Returns a FF identical to this one, but only keeping bit indices from the argument.
-	FfData slice(const std::vector<int> &bits);
+	Ff_దత్తాంశం ముక్క(స్థిరరాశి std::సదిశ<పూర్ణాంకం> &బిట్లు);
 
-	void add_dummy_ce();
-	void add_dummy_srst();
-	void add_dummy_arst();
-	void add_dummy_aload();
-	void add_dummy_sr();
-	void add_dummy_clk();
+	శూన్య కూడు_dummy_ce();
+	శూన్య కూడు_dummy_srst();
+	శూన్య కూడు_dummy_arst();
+	శూన్య కూడు_dummy_aload();
+	శూన్య కూడు_dummy_sr();
+	శూన్య కూడు_dummy_clk();
 
-	void arst_to_aload();
-	void arst_to_sr();
+	శూన్య arst_గమ్యం_aload();
+	శూన్య arst_గమ్యం_sr();
 
-	void aload_to_sr();
+	శూన్య aload_గమ్యం_sr();
 
 	// Given a FF with both has_ce and has_srst, sets ce_over_srst to the given value and
 	// fixes up control signals appropriately to preserve semantics.
-	void convert_ce_over_srst(bool val);
+	శూన్య convert_ce_over_srst(bool val);
 
-	void unmap_ce();
-	void unmap_srst();
+	శూన్య unmap_ce();
+	శూన్య unmap_srst();
 
-	void unmap_ce_srst() {
+	శూన్య unmap_ce_srst() {
 		unmap_ce();
 		unmap_srst();
 	}
@@ -218,21 +218,21 @@ struct FfData : FfTypeData {
 
 	// Removes init attribute from the Q output, but keeps val_init unchanged.
 	// It will be automatically reattached on emit.  Use this before changing sig_q.
-	void remove_init() {
-		if (initvals)
+	శూన్య remove_init() {
+		ఒకవేళ (initvals)
 			initvals->remove_init(sig_q);
 	}
 
-	void remove();
+	శూన్య remove();
 
 	// Flip the sense of the given bit slices of the FF: insert inverters on data
 	// inputs and output, flip the corresponding init/reset bits, swap clr/set
 	// inputs with proper priority fix.
-	void flip_bits(const pool<int> &bits);
+	శూన్య flip_బిట్లు(స్థిరరాశి pool<పూర్ణాంకం> &బిట్లు);
 
-	void flip_rst_bits(const pool<int> &bits);
+	శూన్య flip_rst_బిట్లు(స్థిరరాశి pool<పూర్ణాంకం> &బిట్లు);
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు

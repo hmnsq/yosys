@@ -21,252 +21,252 @@
 // Schneier, Bruce (1996). Applied Cryptography: Protocols, Algorithms, and Source Code in C,
 // Second Edition (2nd ed.). Wiley. ISBN 978-0-471-11709-4, page 244
 
-#include "kernel/yosys.h"
-#include "libs/bigint/BigIntegerLibrary.hh"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "libs/bigint/BigIntegerLibrary.hh"
 
 YOSYS_NAMESPACE_BEGIN
 
-static void extend_u0(RTLIL::Const &arg, int width, bool is_signed)
+స్థిర శూన్య extend_u0(RTLIL::Const &arg, పూర్ణాంకం వెడల్పు, తార్కిక is_signed)
 {
 	RTLIL::State padding = RTLIL::State::S0;
 
-	if (arg.size() > 0 && is_signed)
-		padding = arg.back();
+	ఒకవేళ (arg.కొలత() > 0 && is_signed)
+		padding = arg.వెనుక();
 
-	arg.resize(width, padding);
+	arg.resize(వెడల్పు, padding);
 }
 
-static BigInteger const2big(const RTLIL::Const &val, bool as_signed, int &undef_bit_pos)
+స్థిర BigInteger const2big(స్థిరరాశి RTLIL::Const &val, తార్కిక as_signed, పూర్ణాంకం &undef_బిట్టు_pos)
 {
 	BigUnsigned mag;
 
-	BigInteger::Sign sign = BigInteger::positive;
-	State inv_sign_bit = RTLIL::State::S1;
-	auto num_bits = val.size();
+	BigInteger::Sign sign = BigInteger::ధనాత్మక;
+	State inv_sign_బిట్టు = RTLIL::State::S1;
+	స్వయంచాలక అంకె_బిట్లు = val.కొలత();
 
-	if (as_signed && num_bits && val[num_bits-1] == RTLIL::State::S1) {
-		inv_sign_bit = RTLIL::State::S0;
+	ఒకవేళ (as_signed && అంకె_బిట్లు && val[అంకె_బిట్లు-1] == RTLIL::State::S1) {
+		inv_sign_బిట్టు = RTLIL::State::S0;
 		sign = BigInteger::negative;
-		num_bits--;
+		అంకె_బిట్లు--;
 	}
 
-	for (auto i = 0; i < num_bits; i++)
-		if (val[i] == RTLIL::State::S0 || val[i] == RTLIL::State::S1)
-			mag.setBit(i, val[i] == inv_sign_bit);
-		else if (undef_bit_pos < 0)
-			undef_bit_pos = i;
+	కొరకు (స్వయంచాలక i = 0; i < అంకె_బిట్లు; i++)
+		ఒకవేళ (val[i] == RTLIL::State::S0 || val[i] == RTLIL::State::S1)
+			mag.సమితి_బిట్టు(i, val[i] == inv_sign_బిట్టు);
+		లేకపోతే ఒకవేళ (undef_బిట్టు_pos < 0)
+			undef_బిట్టు_pos = i;
 
-	if (sign == BigInteger::negative)
+	ఒకవేళ (sign == BigInteger::negative)
 		mag += 1;
 
-	return BigInteger(mag, sign);
+	తిరిగి BigInteger(mag, sign);
 }
 
-static RTLIL::Const big2const(const BigInteger &val, int result_len, int undef_bit_pos)
+స్థిర RTLIL::Const big2const(స్థిరరాశి BigInteger &val, పూర్ణాంకం ఫలితం_len, పూర్ణాంకం undef_బిట్టు_pos)
 {
-	if (undef_bit_pos >= 0)
-		return RTLIL::Const(RTLIL::State::Sx, result_len);
+	ఒకవేళ (undef_బిట్టు_pos >= 0)
+		తిరిగి RTLIL::Const(RTLIL::State::Sx, ఫలితం_len);
 
 	BigUnsigned mag = val.getMagnitude();
-	RTLIL::Const result(0, result_len);
+	RTLIL::Const ఫలితం(0, ఫలితం_len);
 
-	if (!mag.isZero())
+	ఒకవేళ (!mag.isZero())
 	{
-		if (val.getSign() < 0)
+		ఒకవేళ (val.getSign() < 0)
 		{
 			mag--;
-			for (auto i = 0; i < result_len; i++)
-				result.set(i, mag.getBit(i) ? RTLIL::State::S0 : RTLIL::State::S1);
+			కొరకు (స్వయంచాలక i = 0; i < ఫలితం_len; i++)
+				ఫలితం.సమితి(i, mag.get_బిట్టు(i) ? RTLIL::State::S0 : RTLIL::State::S1);
 		}
-		else
+		లేకపోతే
 		{
-			for (auto i = 0; i < result_len; i++)
-				result.set(i, mag.getBit(i) ? RTLIL::State::S1 : RTLIL::State::S0);
+			కొరకు (స్వయంచాలక i = 0; i < ఫలితం_len; i++)
+				ఫలితం.సమితి(i, mag.get_బిట్టు(i) ? RTLIL::State::S1 : RTLIL::State::S0);
 		}
 	}
 
-#if 0
-	if (undef_bit_pos >= 0)
-		for (int i = undef_bit_pos; i < result_len; i++)
-			result[i] = RTLIL::State::Sx;
-#endif
+#ఒకవేళ 0
+	ఒకవేళ (undef_బిట్టు_pos >= 0)
+		కొరకు (పూర్ణాంకం i = undef_బిట్టు_pos; i < ఫలితం_len; i++)
+			ఫలితం[i] = RTLIL::State::Sx;
+#అయితే_ముగింపు
 
-	return result;
+	తిరిగి ఫలితం;
 }
 
-static RTLIL::State logic_and(RTLIL::State a, RTLIL::State b)
+స్థిర RTLIL::State logic_and(RTLIL::State a, RTLIL::State b)
 {
-	if (a == RTLIL::State::S0) return RTLIL::State::S0;
-	if (b == RTLIL::State::S0) return RTLIL::State::S0;
-	if (a != RTLIL::State::S1) return RTLIL::State::Sx;
-	if (b != RTLIL::State::S1) return RTLIL::State::Sx;
-	return RTLIL::State::S1;
+	ఒకవేళ (a == RTLIL::State::S0) తిరిగి RTLIL::State::S0;
+	ఒకవేళ (b == RTLIL::State::S0) తిరిగి RTLIL::State::S0;
+	ఒకవేళ (a != RTLIL::State::S1) తిరిగి RTLIL::State::Sx;
+	ఒకవేళ (b != RTLIL::State::S1) తిరిగి RTLIL::State::Sx;
+	తిరిగి RTLIL::State::S1;
 }
 
-static RTLIL::State logic_or(RTLIL::State a, RTLIL::State b)
+స్థిర RTLIL::State logic_or(RTLIL::State a, RTLIL::State b)
 {
-	if (a == RTLIL::State::S1) return RTLIL::State::S1;
-	if (b == RTLIL::State::S1) return RTLIL::State::S1;
-	if (a != RTLIL::State::S0) return RTLIL::State::Sx;
-	if (b != RTLIL::State::S0) return RTLIL::State::Sx;
-	return RTLIL::State::S0;
+	ఒకవేళ (a == RTLIL::State::S1) తిరిగి RTLIL::State::S1;
+	ఒకవేళ (b == RTLIL::State::S1) తిరిగి RTLIL::State::S1;
+	ఒకవేళ (a != RTLIL::State::S0) తిరిగి RTLIL::State::Sx;
+	ఒకవేళ (b != RTLIL::State::S0) తిరిగి RTLIL::State::Sx;
+	తిరిగి RTLIL::State::S0;
 }
 
-static RTLIL::State logic_xor(RTLIL::State a, RTLIL::State b)
+స్థిర RTLIL::State logic_xor(RTLIL::State a, RTLIL::State b)
 {
-	if (a != RTLIL::State::S0 && a != RTLIL::State::S1) return RTLIL::State::Sx;
-	if (b != RTLIL::State::S0 && b != RTLIL::State::S1) return RTLIL::State::Sx;
-	return a != b ? RTLIL::State::S1 : RTLIL::State::S0;
+	ఒకవేళ (a != RTLIL::State::S0 && a != RTLIL::State::S1) తిరిగి RTLIL::State::Sx;
+	ఒకవేళ (b != RTLIL::State::S0 && b != RTLIL::State::S1) తిరిగి RTLIL::State::Sx;
+	తిరిగి a != b ? RTLIL::State::S1 : RTLIL::State::S0;
 }
 
-static RTLIL::State logic_xnor(RTLIL::State a, RTLIL::State b)
+స్థిర RTLIL::State logic_xnor(RTLIL::State a, RTLIL::State b)
 {
-	if (a != RTLIL::State::S0 && a != RTLIL::State::S1) return RTLIL::State::Sx;
-	if (b != RTLIL::State::S0 && b != RTLIL::State::S1) return RTLIL::State::Sx;
-	return a == b ? RTLIL::State::S1 : RTLIL::State::S0;
+	ఒకవేళ (a != RTLIL::State::S0 && a != RTLIL::State::S1) తిరిగి RTLIL::State::Sx;
+	ఒకవేళ (b != RTLIL::State::S0 && b != RTLIL::State::S1) తిరిగి RTLIL::State::Sx;
+	తిరిగి a == b ? RTLIL::State::S1 : RTLIL::State::S0;
 }
 
-RTLIL::Const RTLIL::const_not(const RTLIL::Const &arg1, const RTLIL::Const&, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_not(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const&, తార్కిక signed1, తార్కిక, పూర్ణాంకం ఫలితం_len)
 {
-	if (result_len < 0)
-		result_len = GetSize(arg1);
+	ఒకవేళ (ఫలితం_len < 0)
+		ఫలితం_len = Get_కొలత(arg1);
 
 	RTLIL::Const arg1_ext = arg1;
-	extend_u0(arg1_ext, result_len, signed1);
+	extend_u0(arg1_ext, ఫలితం_len, signed1);
 
-	RTLIL::Const result(RTLIL::State::Sx, result_len);
-	for (auto i = 0; i < result_len; i++) {
-		if (i >= GetSize(arg1_ext))
-			result.set(i, RTLIL::State::S0);
-		else if (arg1_ext[i] == RTLIL::State::S0)
-			result.set(i, RTLIL::State::S1);
-		else if (arg1_ext[i] == RTLIL::State::S1)
-			result.set(i, RTLIL::State::S0);
+	RTLIL::Const ఫలితం(RTLIL::State::Sx, ఫలితం_len);
+	కొరకు (స్వయంచాలక i = 0; i < ఫలితం_len; i++) {
+		ఒకవేళ (i >= Get_కొలత(arg1_ext))
+			ఫలితం.సమితి(i, RTLIL::State::S0);
+		లేకపోతే ఒకవేళ (arg1_ext[i] == RTLIL::State::S0)
+			ఫలితం.సమితి(i, RTLIL::State::S1);
+		లేకపోతే ఒకవేళ (arg1_ext[i] == RTLIL::State::S1)
+			ఫలితం.సమితి(i, RTLIL::State::S0);
 	}
 
-	return result;
+	తిరిగి ఫలితం;
 }
 
-static RTLIL::Const logic_wrapper(RTLIL::State(*logic_func)(RTLIL::State, RTLIL::State),
-		RTLIL::Const arg1, RTLIL::Const arg2, bool signed1, bool signed2, int result_len = -1)
+స్థిర RTLIL::Const logic_wrapper(RTLIL::State(*logic_func)(RTLIL::State, RTLIL::State),
+		RTLIL::Const arg1, RTLIL::Const arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len = -1)
 {
-	if (result_len < 0)
-		result_len = max(GetSize(arg1), GetSize(arg2));
+	ఒకవేళ (ఫలితం_len < 0)
+		ఫలితం_len = max(Get_కొలత(arg1), Get_కొలత(arg2));
 
-	extend_u0(arg1, result_len, signed1);
-	extend_u0(arg2, result_len, signed2);
+	extend_u0(arg1, ఫలితం_len, signed1);
+	extend_u0(arg2, ఫలితం_len, signed2);
 
-	RTLIL::Const result(RTLIL::State::Sx, result_len);
-	for (auto i = 0; i < result_len; i++) {
-		RTLIL::State a = i < GetSize(arg1) ? arg1[i] : RTLIL::State::S0;
-		RTLIL::State b = i < GetSize(arg2) ? arg2[i] : RTLIL::State::S0;
-		result.set(i, logic_func(a, b));
+	RTLIL::Const ఫలితం(RTLIL::State::Sx, ఫలితం_len);
+	కొరకు (స్వయంచాలక i = 0; i < ఫలితం_len; i++) {
+		RTLIL::State a = i < Get_కొలత(arg1) ? arg1[i] : RTLIL::State::S0;
+		RTLIL::State b = i < Get_కొలత(arg2) ? arg2[i] : RTLIL::State::S0;
+		ఫలితం.సమితి(i, logic_func(a, b));
 	}
 
-	return result;
+	తిరిగి ఫలితం;
 }
 
-RTLIL::Const RTLIL::const_and(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_and(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	return logic_wrapper(logic_and, arg1, arg2, signed1, signed2, result_len);
+	తిరిగి logic_wrapper(logic_and, arg1, arg2, signed1, signed2, ఫలితం_len);
 }
 
-RTLIL::Const RTLIL::const_or(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_or(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	return logic_wrapper(logic_or, arg1, arg2, signed1, signed2, result_len);
+	తిరిగి logic_wrapper(logic_or, arg1, arg2, signed1, signed2, ఫలితం_len);
 }
 
-RTLIL::Const RTLIL::const_xor(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_xor(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	return logic_wrapper(logic_xor, arg1, arg2, signed1, signed2, result_len);
+	తిరిగి logic_wrapper(logic_xor, arg1, arg2, signed1, signed2, ఫలితం_len);
 }
 
-RTLIL::Const RTLIL::const_xnor(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_xnor(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	return logic_wrapper(logic_xnor, arg1, arg2, signed1, signed2, result_len);
+	తిరిగి logic_wrapper(logic_xnor, arg1, arg2, signed1, signed2, ఫలితం_len);
 }
 
-static RTLIL::Const logic_reduce_wrapper(RTLIL::State initial, RTLIL::State(*logic_func)(RTLIL::State, RTLIL::State), const RTLIL::Const &arg1, int result_len)
+స్థిర RTLIL::Const logic_reduce_wrapper(RTLIL::State initial, RTLIL::State(*logic_func)(RTLIL::State, RTLIL::State), స్థిరరాశి RTLIL::Const &arg1, పూర్ణాంకం ఫలితం_len)
 {
-	RTLIL::State temp = initial;
+	RTLIL::State తాత్కాలిక = initial;
 
-	for (auto i = 0; i < arg1.size(); i++)
-		temp = logic_func(temp, arg1[i]);
+	కొరకు (స్వయంచాలక i = 0; i < arg1.కొలత(); i++)
+		తాత్కాలిక = logic_func(తాత్కాలిక, arg1[i]);
 
-	RTLIL::Const result(temp);
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	RTLIL::Const ఫలితం(తాత్కాలిక);
+	ఒకవేళ (Get_కొలత(ఫలితం) < ఫలితం_len)
+		ఫలితం.resize(ఫలితం_len, RTLIL::State::S0);
+	తిరిగి ఫలితం;
 }
 
-RTLIL::Const RTLIL::const_reduce_and(const RTLIL::Const &arg1, const RTLIL::Const&, bool, bool, int result_len)
+RTLIL::Const RTLIL::const_reduce_and(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const&, తార్కిక, తార్కిక, పూర్ణాంకం ఫలితం_len)
 {
-	return logic_reduce_wrapper(RTLIL::State::S1, logic_and, arg1, result_len);
+	తిరిగి logic_reduce_wrapper(RTLIL::State::S1, logic_and, arg1, ఫలితం_len);
 }
 
-RTLIL::Const RTLIL::const_reduce_or(const RTLIL::Const &arg1, const RTLIL::Const&, bool, bool, int result_len)
+RTLIL::Const RTLIL::const_reduce_or(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const&, తార్కిక, తార్కిక, పూర్ణాంకం ఫలితం_len)
 {
-	return logic_reduce_wrapper(RTLIL::State::S0, logic_or, arg1, result_len);
+	తిరిగి logic_reduce_wrapper(RTLIL::State::S0, logic_or, arg1, ఫలితం_len);
 }
 
-RTLIL::Const RTLIL::const_reduce_xor(const RTLIL::Const &arg1, const RTLIL::Const&, bool, bool, int result_len)
+RTLIL::Const RTLIL::const_reduce_xor(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const&, తార్కిక, తార్కిక, పూర్ణాంకం ఫలితం_len)
 {
-	return logic_reduce_wrapper(RTLIL::State::S0, logic_xor, arg1, result_len);
+	తిరిగి logic_reduce_wrapper(RTLIL::State::S0, logic_xor, arg1, ఫలితం_len);
 }
 
-RTLIL::Const RTLIL::const_reduce_xnor(const RTLIL::Const &arg1, const RTLIL::Const&, bool, bool, int result_len)
+RTLIL::Const RTLIL::const_reduce_xnor(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const&, తార్కిక, తార్కిక, పూర్ణాంకం ఫలితం_len)
 {
-	RTLIL::Const buffer = logic_reduce_wrapper(RTLIL::State::S0, logic_xor, arg1, result_len);
-	if (!buffer.empty()) {
-		if (buffer.front() == RTLIL::State::S0)
-			buffer.set(0, RTLIL::State::S1);
-		else if (buffer.front() == RTLIL::State::S1)
-			buffer.set(0, RTLIL::State::S0);
+	RTLIL::Const బఫరు = logic_reduce_wrapper(RTLIL::State::S0, logic_xor, arg1, ఫలితం_len);
+	ఒకవేళ (!బఫరు.ఖాళీలు()) {
+		ఒకవేళ (బఫరు.front() == RTLIL::State::S0)
+			బఫరు.సమితి(0, RTLIL::State::S1);
+		లేకపోతే ఒకవేళ (బఫరు.front() == RTLIL::State::S1)
+			బఫరు.సమితి(0, RTLIL::State::S0);
 	}
-	return buffer;
+	తిరిగి బఫరు;
 }
 
-RTLIL::Const RTLIL::const_reduce_bool(const RTLIL::Const &arg1, const RTLIL::Const&, bool, bool, int result_len)
+RTLIL::Const RTLIL::const_reduce_bool(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const&, తార్కిక, తార్కిక, పూర్ణాంకం ఫలితం_len)
 {
-	return logic_reduce_wrapper(RTLIL::State::S0, logic_or, arg1, result_len);
+	తిరిగి logic_reduce_wrapper(RTLIL::State::S0, logic_or, arg1, ఫలితం_len);
 }
 
-RTLIL::Const RTLIL::const_logic_not(const RTLIL::Const &arg1, const RTLIL::Const&, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_logic_not(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const&, తార్కిక signed1, తార్కిక, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos_a = -1;
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos_a);
-	RTLIL::Const result(a.isZero() ? undef_bit_pos_a >= 0 ? RTLIL::State::Sx : RTLIL::State::S1 : RTLIL::State::S0);
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	పూర్ణాంకం undef_బిట్టు_pos_a = -1;
+	BigInteger a = const2big(arg1, signed1, undef_బిట్టు_pos_a);
+	RTLIL::Const ఫలితం(a.isZero() ? undef_బిట్టు_pos_a >= 0 ? RTLIL::State::Sx : RTLIL::State::S1 : RTLIL::State::S0);
+	ఒకవేళ (Get_కొలత(ఫలితం) < ఫలితం_len)
+		ఫలితం.resize(ఫలితం_len, RTLIL::State::S0);
+	తిరిగి ఫలితం;
 }
 
-RTLIL::Const RTLIL::const_logic_and(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_logic_and(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos_a = -1, undef_bit_pos_b = -1;
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos_a);
-	BigInteger b = const2big(arg2, signed2, undef_bit_pos_b);
+	పూర్ణాంకం undef_బిట్టు_pos_a = -1, undef_బిట్టు_pos_b = -1;
+	BigInteger a = const2big(arg1, signed1, undef_బిట్టు_pos_a);
+	BigInteger b = const2big(arg2, signed2, undef_బిట్టు_pos_b);
 
-	RTLIL::State bit_a = a.isZero() ? undef_bit_pos_a >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
-	RTLIL::State bit_b = b.isZero() ? undef_bit_pos_b >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
-	RTLIL::Const result(logic_and(bit_a, bit_b));
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	RTLIL::State బిట్టు_a = a.isZero() ? undef_బిట్టు_pos_a >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
+	RTLIL::State బిట్టు_b = b.isZero() ? undef_బిట్టు_pos_b >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
+	RTLIL::Const ఫలితం(logic_and(బిట్టు_a, బిట్టు_b));
+	ఒకవేళ (Get_కొలత(ఫలితం) < ఫలితం_len)
+		ఫలితం.resize(ఫలితం_len, RTLIL::State::S0);
+	తిరిగి ఫలితం;
 }
 
-RTLIL::Const RTLIL::const_logic_or(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_logic_or(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos_a = -1, undef_bit_pos_b = -1;
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos_a);
-	BigInteger b = const2big(arg2, signed2, undef_bit_pos_b);
+	పూర్ణాంకం undef_బిట్టు_pos_a = -1, undef_బిట్టు_pos_b = -1;
+	BigInteger a = const2big(arg1, signed1, undef_బిట్టు_pos_a);
+	BigInteger b = const2big(arg2, signed2, undef_బిట్టు_pos_b);
 
-	RTLIL::State bit_a = a.isZero() ? undef_bit_pos_a >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
-	RTLIL::State bit_b = b.isZero() ? undef_bit_pos_b >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
-	RTLIL::Const result(logic_or(bit_a, bit_b));
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	RTLIL::State బిట్టు_a = a.isZero() ? undef_బిట్టు_pos_a >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
+	RTLIL::State బిట్టు_b = b.isZero() ? undef_బిట్టు_pos_b >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
+	RTLIL::Const ఫలితం(logic_or(బిట్టు_a, బిట్టు_b));
+	ఒకవేళ (Get_కొలత(ఫలితం) < ఫలితం_len)
+		ఫలితం.resize(ఫలితం_len, RTLIL::State::S0);
+	తిరిగి ఫలితం;
 }
 
 // Shift `arg1` by `arg2` bits.
@@ -274,248 +274,248 @@ RTLIL::Const RTLIL::const_logic_or(const RTLIL::Const &arg1, const RTLIL::Const 
 // If `signed2` is true, `arg2` is interpreted as a signed integer; a negative `arg2` will cause a shift in the opposite direction.
 // Any required bits outside the bounds of `arg1` are padded with `vacant_bits` unless `sign_ext` is true, in which case any bits outside the left
 // bounds are filled with the leftmost bit of `arg1` (arithmetic shift).
-static RTLIL::Const const_shift_worker(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool sign_ext, bool signed2, int direction, int result_len, RTLIL::State vacant_bits = RTLIL::State::S0)
+స్థిర RTLIL::Const const_జరుపు_కార్మికుడు(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక sign_ext, తార్కిక signed2, పూర్ణాంకం direction, పూర్ణాంకం ఫలితం_len, RTLIL::State vacant_బిట్లు = RTLIL::State::S0)
 {
-	int undef_bit_pos = -1;
-	BigInteger offset = const2big(arg2, signed2, undef_bit_pos) * direction;
+	పూర్ణాంకం undef_బిట్టు_pos = -1;
+	BigInteger స్థానభ్రంశం = const2big(arg2, signed2, undef_బిట్టు_pos) * direction;
 
-	if (result_len < 0)
-		result_len = GetSize(arg1);
+	ఒకవేళ (ఫలితం_len < 0)
+		ఫలితం_len = Get_కొలత(arg1);
 
-	RTLIL::Const result(RTLIL::State::Sx, result_len);
-	if (undef_bit_pos >= 0)
-		return result;
+	RTLIL::Const ఫలితం(RTLIL::State::Sx, ఫలితం_len);
+	ఒకవేళ (undef_బిట్టు_pos >= 0)
+		తిరిగి ఫలితం;
 
-	for (int i = 0; i < result_len; i++) {
-		BigInteger pos = BigInteger(i) + offset;
-		if (pos < 0)
-			result.set(i, vacant_bits);
-		else if (pos >= BigInteger(GetSize(arg1)))
-			result.set(i, sign_ext && !arg1.empty() ? arg1.back() : vacant_bits);
-		else
-			result.set(i, arg1[pos.toInt()]);
+	కొరకు (పూర్ణాంకం i = 0; i < ఫలితం_len; i++) {
+		BigInteger pos = BigInteger(i) + స్థానభ్రంశం;
+		ఒకవేళ (pos < 0)
+			ఫలితం.సమితి(i, vacant_బిట్లు);
+		లేకపోతే ఒకవేళ (pos >= BigInteger(Get_కొలత(arg1)))
+			ఫలితం.సమితి(i, sign_ext && !arg1.ఖాళీలు() ? arg1.వెనుక() : vacant_బిట్లు);
+		లేకపోతే
+			ఫలితం.సమితి(i, arg1[pos.గమ్యం_Int()]);
 	}
 
-	return result;
+	తిరిగి ఫలితం;
 }
 
-RTLIL::Const RTLIL::const_shl(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_shl(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక, పూర్ణాంకం ఫలితం_len)
 {
 	RTLIL::Const arg1_ext = arg1;
-	extend_u0(arg1_ext, result_len, signed1);
-	return const_shift_worker(arg1_ext, arg2, false, false, -1, result_len);
+	extend_u0(arg1_ext, ఫలితం_len, signed1);
+	తిరిగి const_జరుపు_కార్మికుడు(arg1_ext, arg2, అబద్ధం, అబద్ధం, -1, ఫలితం_len);
 }
 
-RTLIL::Const RTLIL::const_shr(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_shr(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక, పూర్ణాంకం ఫలితం_len)
 {
 	RTLIL::Const arg1_ext = arg1;
-	extend_u0(arg1_ext, max(result_len, GetSize(arg1)), signed1);
-	return const_shift_worker(arg1_ext, arg2, false, false, +1, result_len);
+	extend_u0(arg1_ext, max(ఫలితం_len, Get_కొలత(arg1)), signed1);
+	తిరిగి const_జరుపు_కార్మికుడు(arg1_ext, arg2, అబద్ధం, అబద్ధం, +1, ఫలితం_len);
 }
 
-RTLIL::Const RTLIL::const_sshl(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_sshl(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక, పూర్ణాంకం ఫలితం_len)
 {
-	return const_shift_worker(arg1, arg2, signed1, false, -1, result_len);
+	తిరిగి const_జరుపు_కార్మికుడు(arg1, arg2, signed1, అబద్ధం, -1, ఫలితం_len);
 }
 
-RTLIL::Const RTLIL::const_sshr(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_sshr(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక, పూర్ణాంకం ఫలితం_len)
 {
-	return const_shift_worker(arg1, arg2, signed1, false, +1, result_len);
+	తిరిగి const_జరుపు_కార్మికుడు(arg1, arg2, signed1, అబద్ధం, +1, ఫలితం_len);
 }
 
-RTLIL::Const RTLIL::const_shift(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_జరుపు(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
 	RTLIL::Const arg1_ext = arg1;
-	extend_u0(arg1_ext, max(result_len, GetSize(arg1)), signed1);
-	return const_shift_worker(arg1_ext, arg2, false, signed2, +1, result_len);
+	extend_u0(arg1_ext, max(ఫలితం_len, Get_కొలత(arg1)), signed1);
+	తిరిగి const_జరుపు_కార్మికుడు(arg1_ext, arg2, అబద్ధం, signed2, +1, ఫలితం_len);
 }
 
-RTLIL::Const RTLIL::const_shiftx(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_shiftx(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	return const_shift_worker(arg1, arg2, false, signed2, +1, result_len, RTLIL::State::Sx);
+	తిరిగి const_జరుపు_కార్మికుడు(arg1, arg2, అబద్ధం, signed2, +1, ఫలితం_len, RTLIL::State::Sx);
 }
 
-RTLIL::Const RTLIL::const_lt(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_lt(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos = -1;
-	bool y = const2big(arg1, signed1, undef_bit_pos) < const2big(arg2, signed2, undef_bit_pos);
-	RTLIL::Const result(undef_bit_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	పూర్ణాంకం undef_బిట్టు_pos = -1;
+	తార్కిక y = const2big(arg1, signed1, undef_బిట్టు_pos) < const2big(arg2, signed2, undef_బిట్టు_pos);
+	RTLIL::Const ఫలితం(undef_బిట్టు_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
+	ఒకవేళ (Get_కొలత(ఫలితం) < ఫలితం_len)
+		ఫలితం.resize(ఫలితం_len, RTLIL::State::S0);
+	తిరిగి ఫలితం;
 }
 
-RTLIL::Const RTLIL::const_le(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_le(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos = -1;
-	bool y = const2big(arg1, signed1, undef_bit_pos) <= const2big(arg2, signed2, undef_bit_pos);
-	RTLIL::Const result(undef_bit_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	పూర్ణాంకం undef_బిట్టు_pos = -1;
+	తార్కిక y = const2big(arg1, signed1, undef_బిట్టు_pos) <= const2big(arg2, signed2, undef_బిట్టు_pos);
+	RTLIL::Const ఫలితం(undef_బిట్టు_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
+	ఒకవేళ (Get_కొలత(ఫలితం) < ఫలితం_len)
+		ఫలితం.resize(ఫలితం_len, RTLIL::State::S0);
+	తిరిగి ఫలితం;
 }
 
-RTLIL::Const RTLIL::const_eq(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_eq(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
 	RTLIL::Const arg1_ext = arg1;
 	RTLIL::Const arg2_ext = arg2;
-	RTLIL::Const result(RTLIL::State::S0, result_len);
+	RTLIL::Const ఫలితం(RTLIL::State::S0, ఫలితం_len);
 
-	int width = max(GetSize(arg1_ext), GetSize(arg2_ext));
-	extend_u0(arg1_ext, width, signed1 && signed2);
-	extend_u0(arg2_ext, width, signed1 && signed2);
+	పూర్ణాంకం వెడల్పు = max(Get_కొలత(arg1_ext), Get_కొలత(arg2_ext));
+	extend_u0(arg1_ext, వెడల్పు, signed1 && signed2);
+	extend_u0(arg2_ext, వెడల్పు, signed1 && signed2);
 
-	RTLIL::State matched_status = RTLIL::State::S1;
-	for (auto i = 0; i < arg1_ext.size(); i++) {
-		if (arg1_ext.at(i) == RTLIL::State::S0 && arg2_ext.at(i) == RTLIL::State::S1)
-			return result;
-		if (arg1_ext.at(i) == RTLIL::State::S1 && arg2_ext.at(i) == RTLIL::State::S0)
-			return result;
-		if (arg1_ext.at(i) > RTLIL::State::S1 || arg2_ext.at(i) > RTLIL::State::S1)
-			matched_status = RTLIL::State::Sx;
+	RTLIL::State matched_స్థితి = RTLIL::State::S1;
+	కొరకు (స్వయంచాలక i = 0; i < arg1_ext.కొలత(); i++) {
+		ఒకవేళ (arg1_ext.at(i) == RTLIL::State::S0 && arg2_ext.at(i) == RTLIL::State::S1)
+			తిరిగి ఫలితం;
+		ఒకవేళ (arg1_ext.at(i) == RTLIL::State::S1 && arg2_ext.at(i) == RTLIL::State::S0)
+			తిరిగి ఫలితం;
+		ఒకవేళ (arg1_ext.at(i) > RTLIL::State::S1 || arg2_ext.at(i) > RTLIL::State::S1)
+			matched_స్థితి = RTLIL::State::Sx;
 	}
 
-	result.set(0, matched_status);
-	return result;
+	ఫలితం.సమితి(0, matched_స్థితి);
+	తిరిగి ఫలితం;
 }
 
-RTLIL::Const RTLIL::const_ne(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_ne(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	RTLIL::Const result = RTLIL::const_eq(arg1, arg2, signed1, signed2, result_len);
-	if (result.front() == RTLIL::State::S0)
-		result.set(0, RTLIL::State::S1);
-	else if (result.front() == RTLIL::State::S1)
-		result.set(0, RTLIL::State::S0);
-	return result;
+	RTLIL::Const ఫలితం = RTLIL::const_eq(arg1, arg2, signed1, signed2, ఫలితం_len);
+	ఒకవేళ (ఫలితం.front() == RTLIL::State::S0)
+		ఫలితం.సమితి(0, RTLIL::State::S1);
+	లేకపోతే ఒకవేళ (ఫలితం.front() == RTLIL::State::S1)
+		ఫలితం.సమితి(0, RTLIL::State::S0);
+	తిరిగి ఫలితం;
 }
 
-RTLIL::Const RTLIL::const_eqx(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_eqx(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
 	RTLIL::Const arg1_ext = arg1;
 	RTLIL::Const arg2_ext = arg2;
-	RTLIL::Const result(RTLIL::State::S0, result_len);
+	RTLIL::Const ఫలితం(RTLIL::State::S0, ఫలితం_len);
 
-	int width = max(GetSize(arg1_ext), GetSize(arg2_ext));
-	extend_u0(arg1_ext, width, signed1 && signed2);
-	extend_u0(arg2_ext, width, signed1 && signed2);
+	పూర్ణాంకం వెడల్పు = max(Get_కొలత(arg1_ext), Get_కొలత(arg2_ext));
+	extend_u0(arg1_ext, వెడల్పు, signed1 && signed2);
+	extend_u0(arg2_ext, వెడల్పు, signed1 && signed2);
 
-	for (auto i = 0; i < arg1_ext.size(); i++) {
-		if (arg1_ext.at(i) != arg2_ext.at(i))
-			return result;
+	కొరకు (స్వయంచాలక i = 0; i < arg1_ext.కొలత(); i++) {
+		ఒకవేళ (arg1_ext.at(i) != arg2_ext.at(i))
+			తిరిగి ఫలితం;
 	}
 
-	result.set(0, RTLIL::State::S1);
-	return result;
+	ఫలితం.సమితి(0, RTLIL::State::S1);
+	తిరిగి ఫలితం;
 }
 
-RTLIL::Const RTLIL::const_nex(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_nex(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	RTLIL::Const result = RTLIL::const_eqx(arg1, arg2, signed1, signed2, result_len);
-	if (result.front() == RTLIL::State::S0)
-		result.set(0, RTLIL::State::S1);
-	else if (result.front() == RTLIL::State::S1)
-		result.set(0, RTLIL::State::S0);
-	return result;
+	RTLIL::Const ఫలితం = RTLIL::const_eqx(arg1, arg2, signed1, signed2, ఫలితం_len);
+	ఒకవేళ (ఫలితం.front() == RTLIL::State::S0)
+		ఫలితం.సమితి(0, RTLIL::State::S1);
+	లేకపోతే ఒకవేళ (ఫలితం.front() == RTLIL::State::S1)
+		ఫలితం.సమితి(0, RTLIL::State::S0);
+	తిరిగి ఫలితం;
 }
 
-RTLIL::Const RTLIL::const_ge(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_ge(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos = -1;
-	bool y = const2big(arg1, signed1, undef_bit_pos) >= const2big(arg2, signed2, undef_bit_pos);
-	RTLIL::Const result(undef_bit_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	పూర్ణాంకం undef_బిట్టు_pos = -1;
+	తార్కిక y = const2big(arg1, signed1, undef_బిట్టు_pos) >= const2big(arg2, signed2, undef_బిట్టు_pos);
+	RTLIL::Const ఫలితం(undef_బిట్టు_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
+	ఒకవేళ (Get_కొలత(ఫలితం) < ఫలితం_len)
+		ఫలితం.resize(ఫలితం_len, RTLIL::State::S0);
+	తిరిగి ఫలితం;
 }
 
-RTLIL::Const RTLIL::const_gt(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_gt(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos = -1;
-	bool y = const2big(arg1, signed1, undef_bit_pos) > const2big(arg2, signed2, undef_bit_pos);
-	RTLIL::Const result(undef_bit_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	పూర్ణాంకం undef_బిట్టు_pos = -1;
+	తార్కిక y = const2big(arg1, signed1, undef_బిట్టు_pos) > const2big(arg2, signed2, undef_బిట్టు_pos);
+	RTLIL::Const ఫలితం(undef_బిట్టు_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
+	ఒకవేళ (Get_కొలత(ఫలితం) < ఫలితం_len)
+		ఫలితం.resize(ఫలితం_len, RTLIL::State::S0);
+	తిరిగి ఫలితం;
 }
 
-RTLIL::Const RTLIL::const_add(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_కూడు(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos = -1;
-	BigInteger y = const2big(arg1, signed1, undef_bit_pos) + const2big(arg2, signed2, undef_bit_pos);
-	return big2const(y, result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), undef_bit_pos);
+	పూర్ణాంకం undef_బిట్టు_pos = -1;
+	BigInteger y = const2big(arg1, signed1, undef_బిట్టు_pos) + const2big(arg2, signed2, undef_బిట్టు_pos);
+	తిరిగి big2const(y, ఫలితం_len >= 0 ? ఫలితం_len : max(Get_కొలత(arg1), Get_కొలత(arg2)), undef_బిట్టు_pos);
 }
 
-RTLIL::Const RTLIL::const_sub(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_sub(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos = -1;
-	BigInteger y = const2big(arg1, signed1, undef_bit_pos) - const2big(arg2, signed2, undef_bit_pos);
-	return big2const(y, result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), undef_bit_pos);
+	పూర్ణాంకం undef_బిట్టు_pos = -1;
+	BigInteger y = const2big(arg1, signed1, undef_బిట్టు_pos) - const2big(arg2, signed2, undef_బిట్టు_pos);
+	తిరిగి big2const(y, ఫలితం_len >= 0 ? ఫలితం_len : max(Get_కొలత(arg1), Get_కొలత(arg2)), undef_బిట్టు_pos);
 }
 
-RTLIL::Const RTLIL::const_mul(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_mul(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos = -1;
-	BigInteger y = const2big(arg1, signed1, undef_bit_pos) * const2big(arg2, signed2, undef_bit_pos);
-	return big2const(y, result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), min(undef_bit_pos, 0));
+	పూర్ణాంకం undef_బిట్టు_pos = -1;
+	BigInteger y = const2big(arg1, signed1, undef_బిట్టు_pos) * const2big(arg2, signed2, undef_బిట్టు_pos);
+	తిరిగి big2const(y, ఫలితం_len >= 0 ? ఫలితం_len : max(Get_కొలత(arg1), Get_కొలత(arg2)), min(undef_బిట్టు_pos, 0));
 }
 
 // truncating division
-RTLIL::Const RTLIL::const_div(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_div(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos = -1;
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos);
-	BigInteger b = const2big(arg2, signed2, undef_bit_pos);
-	if (b.isZero())
-		return RTLIL::Const(RTLIL::State::Sx, result_len);
-	bool result_neg = (a.getSign() == BigInteger::negative) != (b.getSign() == BigInteger::negative);
+	పూర్ణాంకం undef_బిట్టు_pos = -1;
+	BigInteger a = const2big(arg1, signed1, undef_బిట్టు_pos);
+	BigInteger b = const2big(arg2, signed2, undef_బిట్టు_pos);
+	ఒకవేళ (b.isZero())
+		తిరిగి RTLIL::Const(RTLIL::State::Sx, ఫలితం_len);
+	తార్కిక ఫలితం_neg = (a.getSign() == BigInteger::negative) != (b.getSign() == BigInteger::negative);
 	a = a.getSign() == BigInteger::negative ? -a : a;
 	b = b.getSign() == BigInteger::negative ? -b : b;
-	return big2const(result_neg ? -(a / b) : (a / b), result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), min(undef_bit_pos, 0));
+	తిరిగి big2const(ఫలితం_neg ? -(a / b) : (a / b), ఫలితం_len >= 0 ? ఫలితం_len : max(Get_కొలత(arg1), Get_కొలత(arg2)), min(undef_బిట్టు_pos, 0));
 }
 
 // truncating modulo
-RTLIL::Const RTLIL::const_mod(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_mod(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos = -1;
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos);
-	BigInteger b = const2big(arg2, signed2, undef_bit_pos);
-	if (b.isZero())
-		return RTLIL::Const(RTLIL::State::Sx, result_len);
-	bool result_neg = a.getSign() == BigInteger::negative;
+	పూర్ణాంకం undef_బిట్టు_pos = -1;
+	BigInteger a = const2big(arg1, signed1, undef_బిట్టు_pos);
+	BigInteger b = const2big(arg2, signed2, undef_బిట్టు_pos);
+	ఒకవేళ (b.isZero())
+		తిరిగి RTLIL::Const(RTLIL::State::Sx, ఫలితం_len);
+	తార్కిక ఫలితం_neg = a.getSign() == BigInteger::negative;
 	a = a.getSign() == BigInteger::negative ? -a : a;
 	b = b.getSign() == BigInteger::negative ? -b : b;
-	return big2const(result_neg ? -(a % b) : (a % b), result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), min(undef_bit_pos, 0));
+	తిరిగి big2const(ఫలితం_neg ? -(a % b) : (a % b), ఫలితం_len >= 0 ? ఫలితం_len : max(Get_కొలత(arg1), Get_కొలత(arg2)), min(undef_బిట్టు_pos, 0));
 }
 
-RTLIL::Const RTLIL::const_divfloor(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_divfloor(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos = -1;
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos);
-	BigInteger b = const2big(arg2, signed2, undef_bit_pos);
-	if (b.isZero())
-		return RTLIL::Const(RTLIL::State::Sx, result_len);
+	పూర్ణాంకం undef_బిట్టు_pos = -1;
+	BigInteger a = const2big(arg1, signed1, undef_బిట్టు_pos);
+	BigInteger b = const2big(arg2, signed2, undef_బిట్టు_pos);
+	ఒకవేళ (b.isZero())
+		తిరిగి RTLIL::Const(RTLIL::State::Sx, ఫలితం_len);
 
-	bool result_pos = (a.getSign() == BigInteger::negative) == (b.getSign() == BigInteger::negative);
+	తార్కిక ఫలితం_pos = (a.getSign() == BigInteger::negative) == (b.getSign() == BigInteger::negative);
 	a = a.getSign() == BigInteger::negative ? -a : a;
 	b = b.getSign() == BigInteger::negative ? -b : b;
-	BigInteger result;
+	BigInteger ఫలితం;
 
-	if (result_pos || a == 0) {
-		result = a / b;
-	} else {
+	ఒకవేళ (ఫలితం_pos || a == 0) {
+		ఫలితం = a / b;
+	} లేకపోతే {
 		// bigint division with negative numbers is wonky, make sure we only negate at the very end
-		result = -((a + b - 1) / b);
+		ఫలితం = -((a + b - 1) / b);
 	}
-	return big2const(result, result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), min(undef_bit_pos, 0));
+	తిరిగి big2const(ఫలితం, ఫలితం_len >= 0 ? ఫలితం_len : max(Get_కొలత(arg1), Get_కొలత(arg2)), min(undef_బిట్టు_pos, 0));
 }
 
-RTLIL::Const RTLIL::const_modfloor(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_modfloor(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos = -1;
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos);
-	BigInteger b = const2big(arg2, signed2, undef_bit_pos);
-	if (b.isZero())
-		return RTLIL::Const(RTLIL::State::Sx, result_len);
+	పూర్ణాంకం undef_బిట్టు_pos = -1;
+	BigInteger a = const2big(arg1, signed1, undef_బిట్టు_pos);
+	BigInteger b = const2big(arg2, signed2, undef_బిట్టు_pos);
+	ఒకవేళ (b.isZero())
+		తిరిగి RTLIL::Const(RTLIL::State::Sx, ఫలితం_len);
 
 	BigInteger::Sign a_sign = a.getSign();
 	BigInteger::Sign b_sign = b.getSign();
@@ -524,191 +524,191 @@ RTLIL::Const RTLIL::const_modfloor(const RTLIL::Const &arg1, const RTLIL::Const 
 	BigInteger truncated = a_sign == BigInteger::negative ? -(a % b) : (a % b);
 	BigInteger modulo;
 
-	if (truncated == 0 || (a_sign == b_sign)) {
+	ఒకవేళ (truncated == 0 || (a_sign == b_sign)) {
 		modulo = truncated;
-	} else {
+	} లేకపోతే {
 		modulo = b_sign == BigInteger::negative ? truncated - b : truncated + b;
 	}
-	return big2const(modulo, result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), min(undef_bit_pos, 0));
+	తిరిగి big2const(modulo, ఫలితం_len >= 0 ? ఫలితం_len : max(Get_కొలత(arg1), Get_కొలత(arg2)), min(undef_బిట్టు_pos, 0));
 }
 
-RTLIL::Const RTLIL::const_pow(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_pow(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, తార్కిక signed1, తార్కిక signed2, పూర్ణాంకం ఫలితం_len)
 {
-	int undef_bit_pos = -1;
+	పూర్ణాంకం undef_బిట్టు_pos = -1;
 
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos);
-	BigInteger b = const2big(arg2, signed2, undef_bit_pos);
+	BigInteger a = const2big(arg1, signed1, undef_బిట్టు_pos);
+	BigInteger b = const2big(arg2, signed2, undef_బిట్టు_pos);
 	BigInteger y = 1;
 
-	if (a == 0 && b < 0)
-		return RTLIL::Const(RTLIL::State::Sx, result_len);
+	ఒకవేళ (a == 0 && b < 0)
+		తిరిగి RTLIL::Const(RTLIL::State::Sx, ఫలితం_len);
 
-	if (a == 0 && b > 0)
-		return RTLIL::Const(RTLIL::State::S0, result_len);
+	ఒకవేళ (a == 0 && b > 0)
+		తిరిగి RTLIL::Const(RTLIL::State::S0, ఫలితం_len);
 
-	if (b < 0)
+	ఒకవేళ (b < 0)
 	{
-		if (a < -1 || a > 1)
+		ఒకవేళ (a < -1 || a > 1)
 			y = 0;
-		if (a == -1)
+		ఒకవేళ (a == -1)
 			y = (-b % 2) == 0 ? 1 : -1;
 	}
 
-	if (b > 0)
+	ఒకవేళ (b > 0)
 	{
 		// Power-modulo with 2^result_len as modulus
 		BigInteger modulus = 1;
-		int modulus_bits = (result_len >= 0 ? result_len : 1024);
-		for (int i = 0; i < modulus_bits; i++)
+		పూర్ణాంకం modulus_బిట్లు = (ఫలితం_len >= 0 ? ఫలితం_len : 1024);
+		కొరకు (పూర్ణాంకం i = 0; i < modulus_బిట్లు; i++)
 			modulus *= 2;
 
-		bool flip_result_sign = false;
-		if (a < 0) {
+		తార్కిక flip_ఫలితం_sign = అబద్ధం;
+		ఒకవేళ (a < 0) {
 			a *= -1;
-			if (b % 2 == 1)
-				flip_result_sign = true;
+			ఒకవేళ (b % 2 == 1)
+				flip_ఫలితం_sign = నిజం;
 		}
 
-		while (b > 0) {
-			if (b % 2 == 1)
+		అయితే (b > 0) {
+			ఒకవేళ (b % 2 == 1)
 				y = (y * a) % modulus;
 			b = b / 2;
 			a = (a * a) % modulus;
 		}
 
-		if (flip_result_sign)
+		ఒకవేళ (flip_ఫలితం_sign)
 			y *= -1;
 	}
 
-	return big2const(y, result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), min(undef_bit_pos, 0));
+	తిరిగి big2const(y, ఫలితం_len >= 0 ? ఫలితం_len : max(Get_కొలత(arg1), Get_కొలత(arg2)), min(undef_బిట్టు_pos, 0));
 }
 
-RTLIL::Const RTLIL::const_pos(const RTLIL::Const &arg1, const RTLIL::Const&, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_pos(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const&, తార్కిక signed1, తార్కిక, పూర్ణాంకం ఫలితం_len)
 {
 	RTLIL::Const arg1_ext = arg1;
-	extend_u0(arg1_ext, result_len, signed1);
+	extend_u0(arg1_ext, ఫలితం_len, signed1);
 
-	return arg1_ext;
+	తిరిగి arg1_ext;
 }
 
-RTLIL::Const RTLIL::const_buf(const RTLIL::Const &arg1, const RTLIL::Const&, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_buf(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const&, తార్కిక signed1, తార్కిక, పూర్ణాంకం ఫలితం_len)
 {
 	RTLIL::Const arg1_ext = arg1;
-	extend_u0(arg1_ext, result_len, signed1);
+	extend_u0(arg1_ext, ఫలితం_len, signed1);
 
-	return arg1_ext;
+	తిరిగి arg1_ext;
 }
 
-RTLIL::Const RTLIL::const_neg(const RTLIL::Const &arg1, const RTLIL::Const&, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_neg(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const&, తార్కిక signed1, తార్కిక, పూర్ణాంకం ఫలితం_len)
 {
 	RTLIL::Const arg1_ext = arg1;
 	RTLIL::Const zero(RTLIL::State::S0, 1);
 
-	return RTLIL::const_sub(zero, arg1_ext, true, signed1, result_len);
+	తిరిగి RTLIL::const_sub(zero, arg1_ext, నిజం, signed1, ఫలితం_len);
 }
 
-RTLIL::Const RTLIL::const_mux(const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3)
+RTLIL::Const RTLIL::const_mux(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, స్థిరరాశి RTLIL::Const &arg3)
 {
-	log_assert(arg2.size() == arg1.size());
-	if (arg3[0] == State::S0)
-		return arg1;
-	else if (arg3[0] == State::S1)
-		return arg2;
+	log_assert(arg2.కొలత() == arg1.కొలత());
+	ఒకవేళ (arg3[0] == State::S0)
+		తిరిగి arg1;
+	లేకపోతే ఒకవేళ (arg3[0] == State::S1)
+		తిరిగి arg2;
 
 	RTLIL::Const ret = arg1;
-	for (auto i = 0; i < ret.size(); i++)
-		if (ret[i] != arg2[i])
-			ret.set(i, State::Sx);
-	return ret;
+	కొరకు (స్వయంచాలక i = 0; i < ret.కొలత(); i++)
+		ఒకవేళ (ret[i] != arg2[i])
+			ret.సమితి(i, State::Sx);
+	తిరిగి ret;
 }
 
-RTLIL::Const RTLIL::const_pmux(const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3)
+RTLIL::Const RTLIL::const_pmux(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, స్థిరరాశి RTLIL::Const &arg3)
 {
-	if (arg3.is_fully_zero())
-		return arg1;
+	ఒకవేళ (arg3.is_fully_zero())
+		తిరిగి arg1;
 
-	if (!arg3.is_onehot())
-		return RTLIL::Const(State::Sx, arg1.size());
+	ఒకవేళ (!arg3.is_onehot())
+		తిరిగి RTLIL::Const(State::Sx, arg1.కొలత());
 
-	for (auto i = 0; i < arg3.size(); i++)
-		if (arg3[i] == State::S1)
-			return RTLIL::Const(std::vector<RTLIL::State>(arg2.begin() + i*arg1.size(), arg2.begin() + (i+1)*arg1.size()));
+	కొరకు (స్వయంచాలక i = 0; i < arg3.కొలత(); i++)
+		ఒకవేళ (arg3[i] == State::S1)
+			తిరిగి RTLIL::Const(std::సదిశ<RTLIL::State>(arg2.begin() + i*arg1.కొలత(), arg2.begin() + (i+1)*arg1.కొలత()));
 
 	log_abort(); // unreachable
 }
 
-RTLIL::Const RTLIL::const_bmux(const RTLIL::Const &arg1, const RTLIL::Const &arg2)
+RTLIL::Const RTLIL::const_bmux(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2)
 {
-	std::vector<State> t = arg1.to_bits();
+	std::సదిశ<State> t = arg1.గమ్యం_బిట్లు();
 
-	for (int i = GetSize(arg2)-1; i >= 0; i--)
+	కొరకు (పూర్ణాంకం i = Get_కొలత(arg2)-1; i >= 0; i--)
 	{
 		RTLIL::State sel = arg2.at(i);
-		std::vector<RTLIL::State> new_t;
-		if (sel == State::S0)
-			new_t = std::vector<RTLIL::State>(t.begin(), t.begin() + GetSize(t)/2);
-		else if (sel == State::S1)
-			new_t = std::vector<RTLIL::State>(t.begin() + GetSize(t)/2, t.end());
-		else
-			for (int j = 0; j < GetSize(t)/2; j++)
-				new_t.push_back(t[j] == t[j + GetSize(t)/2] ? t[j] : RTLIL::Sx);
-		t.swap(new_t);
+		std::సదిశ<RTLIL::State> new_t;
+		ఒకవేళ (sel == State::S0)
+			new_t = std::సదిశ<RTLIL::State>(t.begin(), t.begin() + Get_కొలత(t)/2);
+		లేకపోతే ఒకవేళ (sel == State::S1)
+			new_t = std::సదిశ<RTLIL::State>(t.begin() + Get_కొలత(t)/2, t.చివర());
+		లేకపోతే
+			కొరకు (పూర్ణాంకం j = 0; j < Get_కొలత(t)/2; j++)
+				new_t.నెట్టు_వెనుక(t[j] == t[j + Get_కొలత(t)/2] ? t[j] : RTLIL::Sx);
+		t.మార్పిడి(new_t);
 	}
 
-	return t;
+	తిరిగి t;
 }
 
-RTLIL::Const RTLIL::const_demux(const RTLIL::Const &arg1, const RTLIL::Const &arg2)
+RTLIL::Const RTLIL::const_demux(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2)
 {
-	int width = GetSize(arg1);
-	int s_width = GetSize(arg2);
-	std::vector<RTLIL::State> res;
-	for (int i = 0; i < (1 << s_width); i++)
+	పూర్ణాంకం వెడల్పు = Get_కొలత(arg1);
+	పూర్ణాంకం s_వెడల్పు = Get_కొలత(arg2);
+	std::సదిశ<RTLIL::State> res;
+	కొరకు (పూర్ణాంకం i = 0; i < (1 << s_వెడల్పు); i++)
 	{
-		bool ne = false;
-		bool x = false;
-		for (int j = 0; j < s_width; j++) {
-			bool bit = i & 1 << j;
-			if (arg2[j] == (bit ? RTLIL::S0 : RTLIL::S1))
-				ne = true;
-			else if (arg2[j] != RTLIL::S0 && arg2[j] != RTLIL::S1)
-				x = true;
+		తార్కిక ne = అబద్ధం;
+		తార్కిక x = అబద్ధం;
+		కొరకు (పూర్ణాంకం j = 0; j < s_వెడల్పు; j++) {
+			తార్కిక బిట్టు = i & 1 << j;
+			ఒకవేళ (arg2[j] == (బిట్టు ? RTLIL::S0 : RTLIL::S1))
+				ne = నిజం;
+			లేకపోతే ఒకవేళ (arg2[j] != RTLIL::S0 && arg2[j] != RTLIL::S1)
+				x = నిజం;
 		}
-		if (ne) {
-			for (int j = 0; j < width; j++)
-				res.push_back(State::S0);
-		} else if (x) {
-			for (int j = 0; j < width; j++)
-				res.push_back(arg1[j] == State::S0 ? State::S0 : State::Sx);
-		} else {
-			for (int j = 0; j < width; j++)
-				res.push_back(arg1[j]);
+		ఒకవేళ (ne) {
+			కొరకు (పూర్ణాంకం j = 0; j < వెడల్పు; j++)
+				res.నెట్టు_వెనుక(State::S0);
+		} లేకపోతే ఒకవేళ (x) {
+			కొరకు (పూర్ణాంకం j = 0; j < వెడల్పు; j++)
+				res.నెట్టు_వెనుక(arg1[j] == State::S0 ? State::S0 : State::Sx);
+		} లేకపోతే {
+			కొరకు (పూర్ణాంకం j = 0; j < వెడల్పు; j++)
+				res.నెట్టు_వెనుక(arg1[j]);
 		}
 	}
-	return res;
+	తిరిగి res;
 }
 
-RTLIL::Const RTLIL::const_bweqx(const RTLIL::Const &arg1, const RTLIL::Const &arg2)
+RTLIL::Const RTLIL::const_bweqx(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2)
 {
-	log_assert(arg2.size() == arg1.size());
-	RTLIL::Const result(RTLIL::State::S0, arg1.size());
-	for (auto i = 0; i < arg1.size(); i++)
-		result.set(i, arg1[i] == arg2[i] ? State::S1 : State::S0);
+	log_assert(arg2.కొలత() == arg1.కొలత());
+	RTLIL::Const ఫలితం(RTLIL::State::S0, arg1.కొలత());
+	కొరకు (స్వయంచాలక i = 0; i < arg1.కొలత(); i++)
+		ఫలితం.సమితి(i, arg1[i] == arg2[i] ? State::S1 : State::S0);
 
-	return result;
+	తిరిగి ఫలితం;
 }
 
-RTLIL::Const RTLIL::const_bwmux(const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3)
+RTLIL::Const RTLIL::const_bwmux(స్థిరరాశి RTLIL::Const &arg1, స్థిరరాశి RTLIL::Const &arg2, స్థిరరాశి RTLIL::Const &arg3)
 {
-	log_assert(arg2.size() == arg1.size());
-	log_assert(arg3.size() == arg1.size());
-	RTLIL::Const result(RTLIL::State::Sx, arg1.size());
-	for (auto i = 0; i < arg1.size(); i++) {
-		if (arg3[i] != State::Sx || arg1[i] == arg2[i])
-			result.set(i, arg3[i] == State::S1 ? arg2[i] : arg1[i]);
+	log_assert(arg2.కొలత() == arg1.కొలత());
+	log_assert(arg3.కొలత() == arg1.కొలత());
+	RTLIL::Const ఫలితం(RTLIL::State::Sx, arg1.కొలత());
+	కొరకు (స్వయంచాలక i = 0; i < arg1.కొలత(); i++) {
+		ఒకవేళ (arg3[i] != State::Sx || arg1[i] == arg2[i])
+			ఫలితం.సమితి(i, arg3[i] == State::S1 ? arg2[i] : arg1[i]);
 	}
 
-	return result;
+	తిరిగి ఫలితం;
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర

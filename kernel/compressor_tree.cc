@@ -1,297 +1,297 @@
-#include "compressor_tree.h"
+#అన్తర్భావ "compressor_tree.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-namespace CompressorTree
+నామాకాశ Compressor_వృక్షం
 {
 
-std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, int width)
+std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, పూర్ణాంకం వెడల్పు)
 {
-	SigSpec sum = module->addWire(NEW_ID, width);
-	SigSpec cout = module->addWire(NEW_ID, width);
-	module->addFa(NEW_ID, a, b, c, cout, sum);
+	SigSpec కూడిక = module->కూడు_Wire(NEW_ID, వెడల్పు);
+	SigSpec బయటకు = module->కూడు_Wire(NEW_ID, వెడల్పు);
+	module->కూడు_Fa(NEW_ID, a, b, c, బయటకు, కూడిక);
 
-	SigSpec carry;
-	carry.append(State::S0);
-	carry.append(cout.extract(0, width - 1));
-	return {sum, carry};
+	SigSpec వాహకం;
+	వాహకం.append(State::S0);
+	వాహకం.append(బయటకు.వెలికితీయి(0, వెడల్పు - 1));
+	తిరిగి {కూడిక, వాహకం};
 }
 
-std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, int width)
+std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, పూర్ణాంకం వెడల్పు)
 {
 	// First FA: a + b + c -> s0
-	SigSpec s0 = module->addWire(NEW_ID, width);
-	SigSpec cout_h_full = module->addWire(NEW_ID, width);
-	module->addFa(NEW_ID, a, b, c, cout_h_full, s0);
+	SigSpec s0 = module->కూడు_Wire(NEW_ID, వెడల్పు);
+	SigSpec cout_h_నిండిన = module->కూడు_Wire(NEW_ID, వెడల్పు);
+	module->కూడు_Fa(NEW_ID, a, b, c, cout_h_నిండిన, s0);
 
 	// cin[0] = 0, cin[i] = cout_h_full[i-1]
-	SigSpec cin;
-	cin.append(State::S0);
-	if (width > 1)
-		cin.append(cout_h_full.extract(0, width - 1));
+	SigSpec లోపలికి;
+	లోపలికి.append(State::S0);
+	ఒకవేళ (వెడల్పు > 1)
+		లోపలికి.append(cout_h_నిండిన.వెలికితీయి(0, వెడల్పు - 1));
 
 	// Second FA: s0 + d + cin -> sum
-	SigSpec sum = module->addWire(NEW_ID, width);
-	SigSpec carry_full = module->addWire(NEW_ID, width);
-	module->addFa(NEW_ID, s0, d, cin, carry_full, sum);
+	SigSpec కూడిక = module->కూడు_Wire(NEW_ID, వెడల్పు);
+	SigSpec వాహకం_నిండిన = module->కూడు_Wire(NEW_ID, వెడల్పు);
+	module->కూడు_Fa(NEW_ID, s0, d, లోపలికి, వాహకం_నిండిన, కూడిక);
 
-	SigSpec carry;
-	carry.append(State::S0);
-	if (width > 1)
-		carry.append(carry_full.extract(0, width - 1));
+	SigSpec వాహకం;
+	వాహకం.append(State::S0);
+	ఒకవేళ (వెడల్పు > 1)
+		వాహకం.append(వాహకం_నిండిన.వెలికితీయి(0, వెడల్పు - 1));
 
-	return {sum, carry};
+	తిరిగి {కూడిక, వాహకం};
 }
 
-std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSpec b, bool a_signed, bool b_signed, int width) {
-	int width_a = GetSize(a);
-	int width_b = GetSize(b);
-	std::vector<DepthSig> products;
-	products.reserve(width_a + 3);
+std::సదిశ<లోతు_Sig> generate_partial_products(Module *module, SigSpec a, SigSpec b, తార్కిక a_signed, తార్కిక b_signed, పూర్ణాంకం వెడల్పు) {
+	పూర్ణాంకం వెడల్పు_a = Get_కొలత(a);
+	పూర్ణాంకం వెడల్పు_b = Get_కొలత(b);
+	std::సదిశ<లోతు_Sig> products;
+	products.reserve(వెడల్పు_a + 3);
 
-	for (int i = 0; i < width_a; i++) {
-		SigBit ai = a[i];
+	కొరకు (పూర్ణాంకం i = 0; i < వెడల్పు_a; i++) {
+		Sig_బిట్టు ai = a[i];
 
 		// b_shifted = (0_i ## b)
 		SigSpec b_shifted = SigSpec(State::S0, i);
 		b_shifted.append(b);
-		b_shifted.extend_u0(width, false);
+		b_shifted.extend_u0(వెడల్పు, అబద్ధం);
 
 		// row = b_shifted & replicate(a[i], width)
-		SigSpec ai_rep = SigSpec(ai, width);
-		SigSpec row = module->addWire(NEW_ID, width);
-		module->addAnd(NEW_ID, b_shifted, ai_rep, row);
+		SigSpec ai_rep = SigSpec(ai, వెడల్పు);
+		SigSpec అడ్డువరుస = module->కూడు_Wire(NEW_ID, వెడల్పు);
+		module->కూడు_And(NEW_ID, b_shifted, ai_rep, అడ్డువరుస);
 
 		// Apply Modified Baugh-Wooley inversions for this row
-		bool row_is_bottom = (i == width_a - 1);
-		bool any_inversion = (row_is_bottom && b_signed) || a_signed;
+		తార్కిక అడ్డువరుస_is_bottom = (i == వెడల్పు_a - 1);
+		తార్కిక any_inversion = (అడ్డువరుస_is_bottom && b_signed) || a_signed;
 
-		if (any_inversion) {
-			std::vector<RTLIL::State> mask(width, RTLIL::State::S0);
+		ఒకవేళ (any_inversion) {
+			std::సదిశ<RTLIL::State> ముసుగు(వెడల్పు, RTLIL::State::S0);
 
-			for (int j = 0; j < width_b; j++) {
-				int col = i + j;
-				if (col < 0 || col >= width)
-					continue;
-				bool col_is_right = (j == width_b - 1);
+			కొరకు (పూర్ణాంకం j = 0; j < వెడల్పు_b; j++) {
+				పూర్ణాంకం నిలువు = i + j;
+				ఒకవేళ (నిలువు < 0 || నిలువు >= వెడల్పు)
+					కొనసాగు;
+				తార్కిక నిలువు_is_కుడి = (j == వెడల్పు_b - 1);
 				// Flip masks
-				bool invert = (row_is_bottom && b_signed) ^ (col_is_right && a_signed);
-				if (invert)
-					mask[col] = RTLIL::State::S1;
+				తార్కిక invert = (అడ్డువరుస_is_bottom && b_signed) ^ (నిలువు_is_కుడి && a_signed);
+				ఒకవేళ (invert)
+					ముసుగు[నిలువు] = RTLIL::State::S1;
 			}
 
 			// Skip the xor entirely if the mask is all zeroes
-			bool nonzero = false;
-			for (auto s : mask)
-				if (s == RTLIL::State::S1) {
-					nonzero = true;
-					break;
+			తార్కిక nonzero = అబద్ధం;
+			కొరకు (స్వయంచాలక s : ముసుగు)
+				ఒకవేళ (s == RTLIL::State::S1) {
+					nonzero = నిజం;
+					ఆపు;
 				}
-			if (nonzero) {
-				SigSpec inverted = module->addWire(NEW_ID, width);
-				module->addXor(NEW_ID, row, SigSpec(RTLIL::Const(mask)), inverted);
-				row = inverted;
+			ఒకవేళ (nonzero) {
+				SigSpec inverted = module->కూడు_Wire(NEW_ID, వెడల్పు);
+				module->కూడు_Xor(NEW_ID, అడ్డువరుస, SigSpec(RTLIL::Const(ముసుగు)), inverted);
+				అడ్డువరుస = inverted;
 			}
 		}
 
-		products.push_back({row, 0});
+		products.నెట్టు_వెనుక({అడ్డువరుస, 0});
 	}
 
 	// Correction constants
-	auto push_one_at = [&](int col) {
-		if (col < 0 || col >= width)
-			return;
-		std::vector<RTLIL::State> v(width, RTLIL::State::S0);
-		v[col] = RTLIL::State::S1;
-		products.push_back({SigSpec(RTLIL::Const(v)), 0});
+	స్వయంచాలక నెట్టు_one_at = [&](పూర్ణాంకం నిలువు) {
+		ఒకవేళ (నిలువు < 0 || నిలువు >= వెడల్పు)
+			తిరిగి;
+		std::సదిశ<RTLIL::State> v(వెడల్పు, RTLIL::State::S0);
+		v[నిలువు] = RTLIL::State::S1;
+		products.నెట్టు_వెనుక({SigSpec(RTLIL::Const(v)), 0});
 	};
 
-	if (b_signed)
-		push_one_at(width_a - 1);
-	if (a_signed)
-		push_one_at(width_b - 1);
-	if (a_signed || b_signed) {
+	ఒకవేళ (b_signed)
+		నెట్టు_one_at(వెడల్పు_a - 1);
+	ఒకవేళ (a_signed)
+		నెట్టు_one_at(వెడల్పు_b - 1);
+	ఒకవేళ (a_signed || b_signed) {
 		// Sign-extend the Baugh-Wooley correction to the accumulator width.
-		int sign_extension_start = width_a + width_b - 1;
-		if (sign_extension_start < width) {
-			std::vector<RTLIL::State> v(width, RTLIL::State::S0);
-			for (int i = sign_extension_start; i < width; i++)
+		పూర్ణాంకం sign_extension_ప్రారంభం = వెడల్పు_a + వెడల్పు_b - 1;
+		ఒకవేళ (sign_extension_ప్రారంభం < వెడల్పు) {
+			std::సదిశ<RTLIL::State> v(వెడల్పు, RTLIL::State::S0);
+			కొరకు (పూర్ణాంకం i = sign_extension_ప్రారంభం; i < వెడల్పు; i++)
 				v[i] = RTLIL::State::S1;
-			products.push_back({SigSpec(RTLIL::Const(v)), 0});
+			products.నెట్టు_వెనుక({SigSpec(RTLIL::Const(v)), 0});
 		}
 	}
 
-	return products;
+	తిరిగి products;
 }
 
-std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, int width, Strategy strategy, int *out_compressor_count, int *out_final_depth) {
-	int levels = 0;
-	int fa_count = 0;
-	int c42_count = 0;
-	int final_depth = 0;
+std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::సదిశ<లోతు_Sig> operands, పూర్ణాంకం వెడల్పు, Strategy strategy, పూర్ణాంకం *బహిర్గతం_compressor_లెక్క, పూర్ణాంకం *బహిర్గతం_final_లోతు) {
+	పూర్ణాంకం స్థాయిలు = 0;
+	పూర్ణాంకం fa_లెక్క = 0;
+	పూర్ణాంకం c42_లెక్క = 0;
+	పూర్ణాంకం final_లోతు = 0;
 
-	for (auto &op : operands)
-		op.sig.extend_u0(width);
+	కొరకు (స్వయంచాలక &op : operands)
+		op.sig.extend_u0(వెడల్పు);
 
 	// Only compress operands ready at current level
-	for (int level = 0; operands.size() > 2; level++) {
+	కొరకు (పూర్ణాంకం level = 0; operands.కొలత() > 2; level++) {
 		// Partition operands into ready and waiting
-		std::vector<DepthSig> ready;
-		std::vector<DepthSig> waiting;
-		ready.reserve(operands.size());
-		for (auto &op : operands) {
-			if (op.depth <= level)
-				ready.push_back(op);
-			else
-				waiting.push_back(op);
+		std::సదిశ<లోతు_Sig> ready;
+		std::సదిశ<లోతు_Sig> నిరీక్షణ;
+		ready.reserve(operands.కొలత());
+		కొరకు (స్వయంచాలక &op : operands) {
+			ఒకవేళ (op.లోతు <= level)
+				ready.నెట్టు_వెనుక(op);
+			లేకపోతే
+				నిరీక్షణ.నెట్టు_వెనుక(op);
 		}
 
-		if (ready.size() < 3) {
-			levels++;
-			continue;
+		ఒకవేళ (ready.కొలత() < 3) {
+			స్థాయిలు++;
+			కొనసాగు;
 		}
 
 		// Apply compressors to ready operands
-		std::vector<DepthSig> compressed;
-		compressed.reserve(ready.size());
-		size_t i = 0;
+		std::సదిశ<లోతు_Sig> compressed;
+		compressed.reserve(ready.కొలత());
+		కొలత_t i = 0;
 
 		// PREFER_42 attempts 4:2 grouping greedily (falls back to 3:2 for the residual)
 		// FA_ONLY skips
 		// DADDA = PREFER_42 (TODO: inspect column heights?)
-		bool try_42 = (strategy == Strategy::PREFER_42 || strategy == Strategy::DADDA);
+		తార్కిక try_42 = (strategy == Strategy::PREFER_42 || strategy == Strategy::DADDA);
 
-		while (i < ready.size()) {
-			size_t remaining = ready.size() - i;
+		అయితే (i < ready.కొలత()) {
+			కొలత_t మిగిలిన = ready.కొలత() - i;
 
-			if (try_42 && remaining >= 4) {
-				DepthSig a = ready[i + 0];
-				DepthSig b = ready[i + 1];
-				DepthSig c = ready[i + 2];
-				DepthSig d = ready[i + 3];
+			ఒకవేళ (try_42 && మిగిలిన >= 4) {
+				లోతు_Sig a = ready[i + 0];
+				లోతు_Sig b = ready[i + 1];
+				లోతు_Sig c = ready[i + 2];
+				లోతు_Sig d = ready[i + 3];
 
-				auto [sum, carry] = emit_compressor_42(module, a.sig, b.sig, c.sig, d.sig, width);
-				int dmax = std::max({a.depth, b.depth, c.depth, d.depth});
+				స్వయంచాలక [కూడిక, వాహకం] = emit_compressor_42(module, a.sig, b.sig, c.sig, d.sig, వెడల్పు);
+				పూర్ణాంకం dmax = std::max({a.లోతు, b.లోతు, c.లోతు, d.లోతు});
 
-				compressed.push_back({sum, dmax + 2});
-				compressed.push_back({carry, dmax + 2});
+				compressed.నెట్టు_వెనుక({కూడిక, dmax + 2});
+				compressed.నెట్టు_వెనుక({వాహకం, dmax + 2});
 
-				fa_count += 2;
-				c42_count += 1;
+				fa_లెక్క += 2;
+				c42_లెక్క += 1;
 				i += 4;
-			} else if (remaining >= 3) {
-				DepthSig a = ready[i + 0];
-				DepthSig b = ready[i + 1];
-				DepthSig c = ready[i + 2];
+			} లేకపోతే ఒకవేళ (మిగిలిన >= 3) {
+				లోతు_Sig a = ready[i + 0];
+				లోతు_Sig b = ready[i + 1];
+				లోతు_Sig c = ready[i + 2];
 
-				auto [sum, carry] = emit_compressor_32(module, a.sig, b.sig, c.sig, width);
-				int dmax = std::max({a.depth, b.depth, c.depth});
+				స్వయంచాలక [కూడిక, వాహకం] = emit_compressor_32(module, a.sig, b.sig, c.sig, వెడల్పు);
+				పూర్ణాంకం dmax = std::max({a.లోతు, b.లోతు, c.లోతు});
 
-				compressed.push_back({sum, dmax + 1});
-				compressed.push_back({carry, dmax + 1});
+				compressed.నెట్టు_వెనుక({కూడిక, dmax + 1});
+				compressed.నెట్టు_వెనుక({వాహకం, dmax + 1});
 
-				fa_count += 1;
+				fa_లెక్క += 1;
 				i += 3;
-			} else {
+			} లేకపోతే {
 				// Uncompressed operands pass through to next level
-				for (; i < ready.size(); i++)
-					compressed.push_back(ready[i]);
-				break;
+				కొరకు (; i < ready.కొలత(); i++)
+					compressed.నెట్టు_వెనుక(ready[i]);
+				ఆపు;
 			}
 		}
 
 		// Merge compressed with waiting operands
-		for (auto &op : waiting)
-			compressed.push_back(op);
+		కొరకు (స్వయంచాలక &op : నిరీక్షణ)
+			compressed.నెట్టు_వెనుక(op);
 
 		operands = std::move(compressed);
-		levels++;
+		స్థాయిలు++;
 	}
 
-	if(out_compressor_count)
-		*out_compressor_count = fa_count;
-	if (operands.size() == 0) {
-		if (out_final_depth)
-			*out_final_depth = 0;
-		return {SigSpec(State::S0, width), SigSpec(State::S0, width)};
+	ఒకవేళ(బహిర్గతం_compressor_లెక్క)
+		*బహిర్గతం_compressor_లెక్క = fa_లెక్క;
+	ఒకవేళ (operands.కొలత() == 0) {
+		ఒకవేళ (బహిర్గతం_final_లోతు)
+			*బహిర్గతం_final_లోతు = 0;
+		తిరిగి {SigSpec(State::S0, వెడల్పు), SigSpec(State::S0, వెడల్పు)};
 	}
-	if (operands.size() == 1) {
-		if (out_final_depth)
-			*out_final_depth = operands[0].depth;
-		return {operands[0].sig, SigSpec(State::S0, width)};
+	ఒకవేళ (operands.కొలత() == 1) {
+		ఒకవేళ (బహిర్గతం_final_లోతు)
+			*బహిర్గతం_final_లోతు = operands[0].లోతు;
+		తిరిగి {operands[0].sig, SigSpec(State::S0, వెడల్పు)};
 	}
 
-	final_depth = std::max(operands[0].depth, operands[1].depth);
-	if (out_final_depth)
-		*out_final_depth = final_depth;
-	log_assert(operands.size() == 2);
-	log("    CompressorTree::reduce_scheduled: %d levels, %d $fa (%d as 4:2), final depth %d\n", levels, fa_count, c42_count, final_depth);
-	return {operands[0].sig, operands[1].sig};
+	final_లోతు = std::max(operands[0].లోతు, operands[1].లోతు);
+	ఒకవేళ (బహిర్గతం_final_లోతు)
+		*బహిర్గతం_final_లోతు = final_లోతు;
+	log_assert(operands.కొలత() == 2);
+	సంవర్గమానం("    CompressorTree::reduce_scheduled: %d levels, %d $fa (%d as 4:2), final depth %d\n", స్థాయిలు, fa_లెక్క, c42_లెక్క, final_లోతు);
+	తిరిగి {operands[0].sig, operands[1].sig};
 }
 
-void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
+శూన్య emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 {
-	int width = GetSize(y);
-	log_assert(GetSize(a) == width);
-	log_assert(GetSize(b) == width);
+	పూర్ణాంకం వెడల్పు = Get_కొలత(y);
+	log_assert(Get_కొలత(a) == వెడల్పు);
+	log_assert(Get_కొలత(b) == వెడల్పు);
 
-	if (width == 0)
-		return;
+	ఒకవేళ (వెడల్పు == 0)
+		తిరిగి;
 
-	if (width == 1) {
-		module->addXorGate(NEW_ID, a[0], b[0], y[0]);
-		return;
+	ఒకవేళ (వెడల్పు == 1) {
+		module->కూడు_Xor_Gate(NEW_ID, a[0], b[0], y[0]);
+		తిరిగి;
 	}
 
 	// Bit level gen and prop
-	std::vector<SigBit> g_pre(width), p_pre(width);
-	for (int i = 0; i < width; i++) {
-		SigBit gi = module->addWire(NEW_ID);
-		SigBit pi = module->addWire(NEW_ID);
-		module->addAndGate(NEW_ID, a[i], b[i], gi);
-		module->addXorGate(NEW_ID, a[i], b[i], pi);
+	std::సదిశ<Sig_బిట్టు> g_pre(వెడల్పు), p_pre(వెడల్పు);
+	కొరకు (పూర్ణాంకం i = 0; i < వెడల్పు; i++) {
+		Sig_బిట్టు gi = module->కూడు_Wire(NEW_ID);
+		Sig_బిట్టు pi = module->కూడు_Wire(NEW_ID);
+		module->కూడు_And_Gate(NEW_ID, a[i], b[i], gi);
+		module->కూడు_Xor_Gate(NEW_ID, a[i], b[i], pi);
 		g_pre[i] = gi;
 		p_pre[i] = pi;
 	}
 
 	// Propagate (g, p) through ceil(log2 W) levels
-	std::vector<SigBit> g = g_pre;
-	std::vector<SigBit> p = p_pre;
-	int num_levels = 0;
+	std::సదిశ<Sig_బిట్టు> g = g_pre;
+	std::సదిశ<Sig_బిట్టు> p = p_pre;
+	పూర్ణాంకం అంకె_స్థాయిలు = 0;
 
-	while ((1 << num_levels) < width)
-		num_levels++;
+	అయితే ((1 << అంకె_స్థాయిలు) < వెడల్పు)
+		అంకె_స్థాయిలు++;
 
-	for (int k = 1; k <= num_levels; k++) {
-		int s = 1 << (k - 1);
-		std::vector<SigBit> g_next(width), p_next(width);
-		for (int i = 0; i < width; i++) {
-			if (i < s) {
+	కొరకు (పూర్ణాంకం k = 1; k <= అంకె_స్థాయిలు; k++) {
+		పూర్ణాంకం s = 1 << (k - 1);
+		std::సదిశ<Sig_బిట్టు> g_తదుపరి(వెడల్పు), p_తదుపరి(వెడల్పు);
+		కొరకు (పూర్ణాంకం i = 0; i < వెడల్పు; i++) {
+			ఒకవేళ (i < s) {
 				// Nothing to do
-				g_next[i] = g[i];
-				p_next[i] = p[i];
-			} else {
+				g_తదుపరి[i] = g[i];
+				p_తదుపరి[i] = p[i];
+			} లేకపోతే {
 				// g_i^k = g_i | (p_i & g_(i-s))
-				SigBit and_pg = module->addWire(NEW_ID);
-				module->addAndGate(NEW_ID, p[i], g[i - s], and_pg);
-				SigBit gnew = module->addWire(NEW_ID);
-				module->addOrGate(NEW_ID, g[i], and_pg, gnew);
-				g_next[i] = gnew;
+				Sig_బిట్టు and_pg = module->కూడు_Wire(NEW_ID);
+				module->కూడు_And_Gate(NEW_ID, p[i], g[i - s], and_pg);
+				Sig_బిట్టు gnew = module->కూడు_Wire(NEW_ID);
+				module->కూడు_Or_Gate(NEW_ID, g[i], and_pg, gnew);
+				g_తదుపరి[i] = gnew;
 
 				// p_i^k = p_i & p_(i-s)
-				if (k < num_levels) {
-					SigBit pnew = module->addWire(NEW_ID);
-					module->addAndGate(NEW_ID, p[i], p[i - s], pnew);
-					p_next[i] = pnew;
-				} else {
+				ఒకవేళ (k < అంకె_స్థాయిలు) {
+					Sig_బిట్టు pnew = module->కూడు_Wire(NEW_ID);
+					module->కూడు_And_Gate(NEW_ID, p[i], p[i - s], pnew);
+					p_తదుపరి[i] = pnew;
+				} లేకపోతే {
 					// Skip last level
-					p_next[i] = State::Sx;
+					p_తదుపరి[i] = State::Sx;
 				}
 			}
 		}
 
-		g = std::move(g_next);
-		p = std::move(p_next);
+		g = std::move(g_తదుపరి);
+		p = std::move(p_తదుపరి);
 	}
 
 	// Sum layer, g[i] is COUT of bit i
@@ -299,38 +299,38 @@ void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 	//   sum[0] = p_pre[0]
 	//   sum[i] = p_pre[i] ^ g[i-1] ...
 	module->connect(y[0], p_pre[0]);
-	for (int i = 1; i < width; i++)
-		module->addXorGate(NEW_ID, p_pre[i], g[i - 1], y[i]);
+	కొరకు (పూర్ణాంకం i = 1; i < వెడల్పు; i++)
+		module->కూడు_Xor_Gate(NEW_ID, p_pre[i], g[i - 1], y[i]);
 }
 
 Cell *emit_final_adder(Module *module, SigSpec a, SigSpec b, SigSpec y, FinalAdder choice) {
-	switch (choice) {
-		case FinalAdder::DEFAULT:
-		case FinalAdder::RIPPLE: {
-			return module->addAdd(NEW_ID, a, b, y, false);
+	ఎంపిక (choice) {
+		స్థితి FinalAdder::DEFAULT:
+		స్థితి FinalAdder::RIPPLE: {
+			తిరిగి module->కూడు_కూడు(NEW_ID, a, b, y, అబద్ధం);
 		}
-		case FinalAdder::PARALLEL_PREFIX: {
+		స్థితి FinalAdder::PARALLEL_ఉపసర్గ: {
 			emit_kogge_stone(module, a, b, y);
-			return nullptr;
+			తిరిగి శూన్యసూచిక;
 		}
 	}
-	log_assert(false && "CompressorTree::emit_final_adder: invalid choice");
-	return nullptr;
+	log_assert(అబద్ధం && "CompressorTree::emit_final_adder: invalid choice");
+	తిరిగి శూన్యసూచిక;
 }
 
-FinalAdder pick_final_adder(int width, int final_depth, FinalMode mode) {
-	switch (mode) {
-		case FinalMode::RIPPLE:  return FinalAdder::RIPPLE;
-		case FinalMode::PREFIX:  return FinalAdder::PARALLEL_PREFIX;
-		case FinalMode::AUTO:
-		default: {
-			bool wide = width >= RIPPLE_PREFIX_WIDTH_THRESHOLD;
-			bool deep = final_depth >= RIPPLE_PREFIX_DEPTH_THRESHOLD;
-			return (wide && deep) ? FinalAdder::PARALLEL_PREFIX : FinalAdder::DEFAULT;
+FinalAdder pick_final_adder(పూర్ణాంకం వెడల్పు, పూర్ణాంకం final_లోతు, Final_బహుళకం బహుళకం) {
+	ఎంపిక (బహుళకం) {
+		స్థితి Final_బహుళకం::RIPPLE:  తిరిగి FinalAdder::RIPPLE;
+		స్థితి Final_బహుళకం::ఉపసర్గ:  తిరిగి FinalAdder::PARALLEL_ఉపసర్గ;
+		స్థితి Final_బహుళకం::AUTO:
+		అప్రమేయ: {
+			తార్కిక wide = వెడల్పు >= RIPPLE_ఉపసర్గ_వెడల్పు_పరిమితి;
+			తార్కిక deep = final_లోతు >= RIPPLE_ఉపసర్గ_లోతు_పరిమితి;
+			తిరిగి (wide && deep) ? FinalAdder::PARALLEL_ఉపసర్గ : FinalAdder::DEFAULT;
 		}
 	}
 }
 
 } // namespace CompressorTree
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర

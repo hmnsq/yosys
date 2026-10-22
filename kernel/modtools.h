@@ -17,136 +17,136 @@
  *
  */
 
-#ifndef MODTOOLS_H
-#define MODTOOLS_H
+#నిర్వచితం_కాకపోతే MODTOOLS_H
+#నిర్వచించు MODTOOLS_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/celltypes.h"
-#include "kernel/newcelltypes.h"
+#అన్తర్భావ "kernel/yosys.h"
+#అన్తర్భావ "kernel/sigtools.h"
+#అన్తర్భావ "kernel/celltypes.h"
+#అన్తర్భావ "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct ModIndex : public RTLIL::Monitor
+నిర్మాణం Mod_సూచీ : బహిరంగ RTLIL::Monitor
 {
-	struct PointerOrderedSigBit : public RTLIL::SigBit {
-		PointerOrderedSigBit(SigBit s) {
+	నిర్మాణం సూచిక_Ordered_Sig_బిట్టు : బహిరంగ RTLIL::Sig_బిట్టు {
+		సూచిక_Ordered_Sig_బిట్టు(Sig_బిట్టు s) {
 			wire = s.wire;
-			if (wire)
-				offset = s.offset;
-			else
-				data = s.data;
+			ఒకవేళ (wire)
+				స్థానభ్రంశం = s.స్థానభ్రంశం;
+			లేకపోతే
+				దత్తాంశం = s.దత్తాంశం;
 		}
-		inline bool operator<(const RTLIL::SigBit &other) const {
-			if (wire == other.wire)
-				return wire ? (offset < other.offset) : (data < other.data);
-			if (wire != nullptr && other.wire != nullptr)
-				return wire < other.wire; // look here
-			return (wire != nullptr) < (other.wire != nullptr);
+		అంతఃవరుస bool క్రియాకారకం<(స్థిరరాశి RTLIL::Sig_బిట్టు &other) స్థిరరాశి {
+			ఒకవేళ (wire == other.wire)
+				తిరిగి wire ? (స్థానభ్రంశం < other.స్థానభ్రంశం) : (దత్తాంశం < other.దత్తాంశం);
+			ఒకవేళ (wire != nullptr && other.wire != nullptr)
+				తిరిగి wire < other.wire; // look here
+			తిరిగి (wire != nullptr) < (other.wire != nullptr);
 		}
 	};
-	struct PortInfo {
+	నిర్మాణం పోర్టు_Info {
 		RTLIL::Cell* cell;
-		RTLIL::IdString port;
-		int offset;
+		RTLIL::IdString పోర్టు;
+		పూర్ణాంకం స్థానభ్రంశం;
 
-		PortInfo() : cell(), port(), offset() { }
-		PortInfo(RTLIL::Cell* _c, RTLIL::IdString _p, int _o) : cell(_c), port(_p), offset(_o) { }
+		పోర్టు_Info() : cell(), పోర్టు(), స్థానభ్రంశం() { }
+		పోర్టు_Info(RTLIL::Cell* _c, RTLIL::IdString _p, పూర్ణాంకం _o) : cell(_c), పోర్టు(_p), స్థానభ్రంశం(_o) { }
 
-		bool operator<(const PortInfo &other) const {
-			if (cell != other.cell)
-				return cell < other.cell;
-			if (offset != other.offset)
-				return offset < other.offset;
-			return port < other.port;
+		bool క్రియాకారకం<(స్థిరరాశి పోర్టు_Info &other) స్థిరరాశి {
+			ఒకవేళ (cell != other.cell)
+				తిరిగి cell < other.cell;
+			ఒకవేళ (స్థానభ్రంశం != other.స్థానభ్రంశం)
+				తిరిగి స్థానభ్రంశం < other.స్థానభ్రంశం;
+			తిరిగి పోర్టు < other.పోర్టు;
 		}
 
-		bool operator==(const PortInfo &other) const {
-			return cell == other.cell && port == other.port && offset == other.offset;
+		bool క్రియాకారకం==(స్థిరరాశి పోర్టు_Info &other) స్థిరరాశి {
+			తిరిగి cell == other.cell && పోర్టు == other.పోర్టు && స్థానభ్రంశం == other.స్థానభ్రంశం;
 		}
 
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి {
 			h.eat(cell->name);
-			h.eat(port);
-			h.eat(offset);
-			return h;
+			h.eat(పోర్టు);
+			h.eat(స్థానభ్రంశం);
+			తిరిగి h;
 		}
 	};
 
-	struct SigBitInfo
+	నిర్మాణం Sig_బిట్టు_Info
 	{
-		bool is_input, is_output;
-		pool<PortInfo> ports;
+		bool is_ఆదానం, is_output;
+		pool<పోర్టు_Info> ports;
 
-		SigBitInfo() : is_input(false), is_output(false) { }
+		Sig_బిట్టు_Info() : is_ఆదానం(false), is_output(false) { }
 
-		bool operator==(const SigBitInfo &other) const {
-			return is_input == other.is_input && is_output == other.is_output && ports == other.ports;
+		bool క్రియాకారకం==(స్థిరరాశి Sig_బిట్టు_Info &other) స్థిరరాశి {
+			తిరిగి is_ఆదానం == other.is_ఆదానం && is_output == other.is_output && ports == other.ports;
 		}
 
-		void merge(const SigBitInfo &other)
+		శూన్య విలీనం(స్థిరరాశి Sig_బిట్టు_Info &other)
 		{
-			is_input = is_input || other.is_input;
+			is_ఆదానం = is_ఆదానం || other.is_ఆదానం;
 			is_output = is_output || other.is_output;
-			ports.insert(other.ports.begin(), other.ports.end());
+			ports.చొప్పించు(other.ports.begin(), other.ports.చివర());
 		}
 	};
 
 	SigMap sigmap;
 	RTLIL::Module *module;
-	std::map<PointerOrderedSigBit, SigBitInfo> database;
-	int auto_reload_counter;
+	std::map<సూచిక_Ordered_Sig_బిట్టు, Sig_బిట్టు_Info> database;
+	పూర్ణాంకం auto_reload_counter;
 	bool auto_reload_module;
 
-	void port_add(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &sig)
+	శూన్య పోర్టు_కూడు(RTLIL::Cell *cell, RTLIL::IdString పోర్టు, స్థిరరాశి RTLIL::SigSpec &sig)
 	{
-		for (int i = 0; i < GetSize(sig); i++) {
-			RTLIL::SigBit bit = sigmap(sig[i]);
-			if (bit.wire)
-				database[bit].ports.insert(PortInfo(cell, port, i));
+		కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(sig); i++) {
+			RTLIL::Sig_బిట్టు బిట్టు = sigmap(sig[i]);
+			ఒకవేళ (బిట్టు.wire)
+				database[బిట్టు].ports.చొప్పించు(పోర్టు_Info(cell, పోర్టు, i));
 		}
 	}
 
-	void port_del(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &sig)
+	శూన్య పోర్టు_del(RTLIL::Cell *cell, RTLIL::IdString పోర్టు, స్థిరరాశి RTLIL::SigSpec &sig)
 	{
-		for (int i = 0; i < GetSize(sig); i++) {
-			RTLIL::SigBit bit = sigmap(sig[i]);
-			if (bit.wire) {
-				database[bit].ports.erase(PortInfo(cell, port, i));
-				if (!database[bit].is_input && !database[bit].is_output && database[bit].ports.empty())
-					database.erase(bit);
+		కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(sig); i++) {
+			RTLIL::Sig_బిట్టు బిట్టు = sigmap(sig[i]);
+			ఒకవేళ (బిట్టు.wire) {
+				database[బిట్టు].ports.erase(పోర్టు_Info(cell, పోర్టు, i));
+				ఒకవేళ (!database[బిట్టు].is_ఆదానం && !database[బిట్టు].is_output && database[బిట్టు].ports.ఖాళీలు())
+					database.erase(బిట్టు);
 			}
 		}
 	}
 
-	const SigBitInfo &info(RTLIL::SigBit bit)
+	స్థిరరాశి Sig_బిట్టు_Info &info(RTLIL::Sig_బిట్టు బిట్టు)
 	{
-		return database[sigmap(bit)];
+		తిరిగి database[sigmap(బిట్టు)];
 	}
 
-	void reload_module(bool reset_sigmap = true)
+	శూన్య reload_module(bool reset_sigmap = true)
 	{
-		if (reset_sigmap) {
+		ఒకవేళ (reset_sigmap) {
 			sigmap.clear();
-			sigmap.set(module);
+			sigmap.సమితి(module);
 		}
 
 		database.clear();
-		for (auto wire : module->wires())
-			if (wire->port_input || wire->port_output)
-				for (int i = 0; i < GetSize(wire); i++) {
-					RTLIL::SigBit bit = sigmap(RTLIL::SigBit(wire, i));
-					if (bit.wire && wire->port_input)
-						database[bit].is_input = true;
-					if (bit.wire && wire->port_output)
-						database[bit].is_output = true;
+		కొరకు (స్వయంచాలక wire : module->wires())
+			ఒకవేళ (wire->పోర్టు_ఆదానం || wire->పోర్టు_output)
+				కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(wire); i++) {
+					RTLIL::Sig_బిట్టు బిట్టు = sigmap(RTLIL::Sig_బిట్టు(wire, i));
+					ఒకవేళ (బిట్టు.wire && wire->పోర్టు_ఆదానం)
+						database[బిట్టు].is_ఆదానం = true;
+					ఒకవేళ (బిట్టు.wire && wire->పోర్టు_output)
+						database[బిట్టు].is_output = true;
 				}
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				port_add(cell, conn.first, conn.second);
+		కొరకు (స్వయంచాలక cell : module->cells())
+			కొరకు (స్వయంచాలక &conn : cell->connections())
+				పోర్టు_కూడు(cell, conn.మొదటి, conn.రెండవ);
 
-		if (auto_reload_module) {
-			if (++auto_reload_counter > 2)
+		ఒకవేళ (auto_reload_module) {
+			ఒకవేళ (++auto_reload_counter > 2)
 				log_warning("Auto-reload in ModIndex -- possible performance bug!\n");
 			auto_reload_module = false;
 		}
@@ -154,204 +154,204 @@ struct ModIndex : public RTLIL::Monitor
 
 	bool ok()
 	{
-#ifndef NDEBUG
-		if (auto_reload_module)
-			return true;
+#నిర్వచితం_కాకపోతే NDEBUG
+		ఒకవేళ (auto_reload_module)
+			తిరిగి true;
 
-		for (auto it : database)
-			log_assert(it.first == sigmap(it.first));
+		కొరకు (స్వయంచాలక it : database)
+			log_assert(it.మొదటి == sigmap(it.మొదటి));
 
-		auto database_bak = std::move(database);
+		స్వయంచాలక database_bak = std::move(database);
 		reload_module(false);
 
-		if (!(database == database_bak))
+		ఒకవేళ (!(database == database_bak))
 		{
-			for (auto &it : database_bak)
-				if (!database.count(it.first))
-					log("ModuleIndex::check(): Only in database_bak, not database: %s\n", log_signal(it.first));
+			కొరకు (స్వయంచాలక &it : database_bak)
+				ఒకవేళ (!database.లెక్క(it.మొదటి))
+					సంవర్గమానం("ModuleIndex::check(): Only in database_bak, not database: %s\n", log_signal(it.మొదటి));
 
-			for (auto &it : database)
-				if (!database_bak.count(it.first))
-					log("ModuleIndex::check(): Only in database, not database_bak: %s\n", log_signal(it.first));
-				else if (!(it.second == database_bak.at(it.first)))
-					log("ModuleIndex::check(): Different content for database[%s].\n", log_signal(it.first));
+			కొరకు (స్వయంచాలక &it : database)
+				ఒకవేళ (!database_bak.లెక్క(it.మొదటి))
+					సంవర్గమానం("ModuleIndex::check(): Only in database, not database_bak: %s\n", log_signal(it.మొదటి));
+				లేకపోతే ఒకవేళ (!(it.రెండవ == database_bak.at(it.మొదటి)))
+					సంవర్గమానం("ModuleIndex::check(): Different content for database[%s].\n", log_signal(it.మొదటి));
 
-			return false;
+			తిరిగి false;
 		}
-#endif
-		return true;
+#అయితే_ముగింపు
+		తిరిగి true;
 	}
 
-	void check()
+	శూన్య check()
 	{
 		log_assert(ok());
 	}
 
-	void notify_connect(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &old_sig, const RTLIL::SigSpec &sig) override
+	శూన్య notify_connect(RTLIL::Cell *cell, RTLIL::IdString పోర్టు, స్థిరరాశి RTLIL::SigSpec &old_sig, స్థిరరాశి RTLIL::SigSpec &sig) override
 	{
 		log_assert(module == cell->module);
 
-		if (auto_reload_module)
-			return;
+		ఒకవేళ (auto_reload_module)
+			తిరిగి;
 
-		port_del(cell, port, old_sig);
-		port_add(cell, port, sig);
+		పోర్టు_del(cell, పోర్టు, old_sig);
+		పోర్టు_కూడు(cell, పోర్టు, sig);
 	}
 
-	void notify_connect(RTLIL::Module *mod, const RTLIL::SigSig &sigsig) override
+	శూన్య notify_connect(RTLIL::Module *mod, స్థిరరాశి RTLIL::SigSig &sigsig) override
 	{
 		log_assert(module == mod);
 
-		if (auto_reload_module)
-			return;
+		ఒకవేళ (auto_reload_module)
+			తిరిగి;
 
-		for (int i = 0; i < GetSize(sigsig.first); i++)
+		కొరకు (పూర్ణాంకం i = 0; i < Get_కొలత(sigsig.మొదటి); i++)
 		{
-			RTLIL::SigBit lhs = sigmap(sigsig.first[i]);
-			RTLIL::SigBit rhs = sigmap(sigsig.second[i]);
-			bool has_lhs = database.count(lhs) != 0;
-			bool has_rhs = database.count(rhs) != 0;
+			RTLIL::Sig_బిట్టు lhs = sigmap(sigsig.మొదటి[i]);
+			RTLIL::Sig_బిట్టు rhs = sigmap(sigsig.రెండవ[i]);
+			bool has_lhs = database.లెక్క(lhs) != 0;
+			bool has_rhs = database.లెక్క(rhs) != 0;
 
-			if (!has_lhs && !has_rhs) {
-				sigmap.add(lhs, rhs);
-			} else
-			if (!has_rhs) {
-				SigBitInfo new_info = database.at(lhs);
+			ఒకవేళ (!has_lhs && !has_rhs) {
+				sigmap.కూడు(lhs, rhs);
+			} లేకపోతే
+			ఒకవేళ (!has_rhs) {
+				Sig_బిట్టు_Info new_info = database.at(lhs);
 				database.erase(lhs);
-				sigmap.add(lhs, rhs);
+				sigmap.కూడు(lhs, rhs);
 				lhs = sigmap(lhs);
-				if (lhs.wire)
+				ఒకవేళ (lhs.wire)
 					database[lhs] = new_info;
-			} else
-			if (!has_lhs) {
-				SigBitInfo new_info = database.at(rhs);
+			} లేకపోతే
+			ఒకవేళ (!has_lhs) {
+				Sig_బిట్టు_Info new_info = database.at(rhs);
 				database.erase(rhs);
-				sigmap.add(lhs, rhs);
+				sigmap.కూడు(lhs, rhs);
 				rhs = sigmap(rhs);
-				if (rhs.wire)
+				ఒకవేళ (rhs.wire)
 					database[rhs] = new_info;
-			} else {
-				SigBitInfo new_info = database.at(lhs);
-				new_info.merge(database.at(rhs));
+			} లేకపోతే {
+				Sig_బిట్టు_Info new_info = database.at(lhs);
+				new_info.విలీనం(database.at(rhs));
 				database.erase(lhs);
 				database.erase(rhs);
-				sigmap.add(lhs, rhs);
+				sigmap.కూడు(lhs, rhs);
 				rhs = sigmap(rhs);
-				if (rhs.wire)
+				ఒకవేళ (rhs.wire)
 					database[rhs] = new_info;
 			}
 		}
 	}
 
-	void notify_connect(RTLIL::Module *mod, const std::vector<RTLIL::SigSig>&) override
+	శూన్య notify_connect(RTLIL::Module *mod, స్థిరరాశి std::సదిశ<RTLIL::SigSig>&) override
 	{
 		log_assert(module == mod);
 		auto_reload_module = true;
 	}
 
-	void notify_blackout(RTLIL::Module *mod) override
+	శూన్య notify_blackout(RTLIL::Module *mod) override
 	{
 		log_assert(module == mod);
 		auto_reload_module = true;
 	}
 
-	ModIndex(RTLIL::Module *_m) : sigmap(_m), module(_m)
+	Mod_సూచీ(RTLIL::Module *_m) : sigmap(_m), module(_m)
 	{
 		auto_reload_counter = 0;
 		auto_reload_module = true;
-		module->monitors.insert(this);
+		module->monitors.చొప్పించు(this);
 	}
 
-	~ModIndex()
+	~Mod_సూచీ()
 	{
 		module->monitors.erase(this);
 	}
 
-	SigBitInfo *query(RTLIL::SigBit bit)
+	Sig_బిట్టు_Info *query(RTLIL::Sig_బిట్టు బిట్టు)
 	{
-		if (auto_reload_module)
+		ఒకవేళ (auto_reload_module)
 			reload_module();
 
-		auto it = database.find(sigmap(bit));
-		if (it == database.end())
-			return nullptr;
-		else
-			return &it->second;
+		స్వయంచాలక it = database.కనుగొను(sigmap(బిట్టు));
+		ఒకవేళ (it == database.చివర())
+			తిరిగి nullptr;
+		లేకపోతే
+			తిరిగి &it->రెండవ;
 	}
 
-	bool query_is_input(RTLIL::SigBit bit)
+	bool query_is_ఆదానం(RTLIL::Sig_బిట్టు బిట్టు)
 	{
-		const SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return false;
-		return info->is_input;
+		స్థిరరాశి Sig_బిట్టు_Info *info = query(బిట్టు);
+		ఒకవేళ (info == nullptr)
+			తిరిగి false;
+		తిరిగి info->is_ఆదానం;
 	}
 
-	bool query_is_output(RTLIL::SigBit bit)
+	bool query_is_output(RTLIL::Sig_బిట్టు బిట్టు)
 	{
-		const SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return false;
-		return info->is_output;
+		స్థిరరాశి Sig_బిట్టు_Info *info = query(బిట్టు);
+		ఒకవేళ (info == nullptr)
+			తిరిగి false;
+		తిరిగి info->is_output;
 	}
 
-	pool<PortInfo> &query_ports(RTLIL::SigBit bit)
+	pool<పోర్టు_Info> &query_ports(RTLIL::Sig_బిట్టు బిట్టు)
 	{
-		static pool<PortInfo> empty_result_set;
-		SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return empty_result_set;
-		return info->ports;
+		స్థిర pool<పోర్టు_Info> ఖాళీలు_ఫలితం_సమితి;
+		Sig_బిట్టు_Info *info = query(బిట్టు);
+		ఒకవేళ (info == nullptr)
+			తిరిగి ఖాళీలు_ఫలితం_సమితి;
+		తిరిగి info->ports;
 	}
 
-	void dump_db()
+	శూన్య dump_db()
 	{
-		log("--- ModIndex Dump ---\n");
+		సంవర్గమానం("--- ModIndex Dump ---\n");
 
-		if (auto_reload_module) {
-			log("AUTO-RELOAD\n");
+		ఒకవేళ (auto_reload_module) {
+			సంవర్గమానం("AUTO-RELOAD\n");
 			reload_module();
 		}
 
-		for (auto &it : database) {
-			log("BIT %s:\n", log_signal(it.first));
-			if (it.second.is_input)
-				log("  PRIMARY INPUT\n");
-			if (it.second.is_output)
-				log("  PRIMARY OUTPUT\n");
-			for (auto &port : it.second.ports)
-				log("  PORT: %s.%s[%d] (%s)\n", port.cell,
-						PooledName(module, port.port).unescape(), port.offset, port.cell->type.unescape());
+		కొరకు (స్వయంచాలక &it : database) {
+			సంవర్గమానం("BIT %s:\n", log_signal(it.మొదటి));
+			ఒకవేళ (it.రెండవ.is_ఆదానం)
+				సంవర్గమానం("  PRIMARY INPUT\n");
+			ఒకవేళ (it.రెండవ.is_output)
+				సంవర్గమానం("  PRIMARY OUTPUT\n");
+			కొరకు (స్వయంచాలక &పోర్టు : it.రెండవ.ports)
+				సంవర్గమానం("  PORT: %s.%s[%d] (%s)\n", పోర్టు.cell,
+						PooledName(module, పోర్టు.పోర్టు).unescape(), పోర్టు.స్థానభ్రంశం, పోర్టు.cell->type.unescape());
 		}
 	}
 };
 
-struct ModWalker
+నిర్మాణం ModWalker
 {
-	struct PortBit
+	నిర్మాణం పోర్టు_బిట్టు_2
 	{
 		RTLIL::Cell *cell;
-		RTLIL::IdString port;
-		int offset;
-		PortBit(Cell* c, IdString p, int o) : cell(c), port(p), offset(o) {}
+		RTLIL::IdString పోర్టు;
+		పూర్ణాంకం స్థానభ్రంశం;
+		పోర్టు_బిట్టు_2(Cell* c, IdString p, పూర్ణాంకం o) : cell(c), పోర్టు(p), స్థానభ్రంశం(o) {}
 
-		bool operator<(const PortBit &other) const {
-			if (cell != other.cell)
-				return cell < other.cell;
-			if (port != other.port)
-				return port < other.port;
-			return offset < other.offset;
+		bool క్రియాకారకం<(స్థిరరాశి పోర్టు_బిట్టు_2 &other) స్థిరరాశి {
+			ఒకవేళ (cell != other.cell)
+				తిరిగి cell < other.cell;
+			ఒకవేళ (పోర్టు != other.పోర్టు)
+				తిరిగి పోర్టు < other.పోర్టు;
+			తిరిగి స్థానభ్రంశం < other.స్థానభ్రంశం;
 		}
 
-		bool operator==(const PortBit &other) const {
-			return cell == other.cell && port == other.port && offset == other.offset;
+		bool క్రియాకారకం==(స్థిరరాశి పోర్టు_బిట్టు_2 &other) స్థిరరాశి {
+			తిరిగి cell == other.cell && పోర్టు == other.పోర్టు && స్థానభ్రంశం == other.స్థానభ్రంశం;
 		}
 
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		[[nodiscard]] Hasher hash_into(Hasher h) స్థిరరాశి {
 			h.eat(cell->name);
-			h.eat(port);
-			h.eat(offset);
-			return h;
+			h.eat(పోర్టు);
+			h.eat(స్థానభ్రంశం);
+			తిరిగి h;
 		}
 	};
 
@@ -361,70 +361,70 @@ struct ModWalker
 	NewCellTypes ct;
 	SigMap sigmap;
 
-	dict<RTLIL::SigBit, pool<PortBit>> signal_drivers;
-	dict<RTLIL::SigBit, pool<PortBit>> signal_consumers;
-	pool<RTLIL::SigBit> signal_inputs, signal_outputs;
+	dict<RTLIL::Sig_బిట్టు, pool<పోర్టు_బిట్టు_2>> signal_drivers;
+	dict<RTLIL::Sig_బిట్టు, pool<పోర్టు_బిట్టు_2>> signal_consumers;
+	pool<RTLIL::Sig_బిట్టు> signal_inputs, signal_outputs;
 
-	dict<RTLIL::Cell*, pool<RTLIL::SigBit>> cell_outputs, cell_inputs;
+	dict<RTLIL::Cell*, pool<RTLIL::Sig_బిట్టు>> cell_outputs, cell_inputs;
 
-	void add_wire(RTLIL::Wire *wire)
+	శూన్య కూడు_wire(RTLIL::Wire *wire)
 	{
-		if (wire->port_input) {
-			std::vector<RTLIL::SigBit> bits = sigmap(wire);
-			for (auto bit : bits)
-				if (bit.wire != NULL)
-					signal_inputs.insert(bit);
+		ఒకవేళ (wire->పోర్టు_ఆదానం) {
+			std::సదిశ<RTLIL::Sig_బిట్టు> బిట్లు = sigmap(wire);
+			కొరకు (స్వయంచాలక బిట్టు : బిట్లు)
+				ఒకవేళ (బిట్టు.wire != ఖాళీ)
+					signal_inputs.చొప్పించు(బిట్టు);
 		}
 
-		if (wire->port_output) {
-			std::vector<RTLIL::SigBit> bits = sigmap(wire);
-			for (auto bit : bits)
-				if (bit.wire != NULL)
-					signal_outputs.insert(bit);
+		ఒకవేళ (wire->పోర్టు_output) {
+			std::సదిశ<RTLIL::Sig_బిట్టు> బిట్లు = sigmap(wire);
+			కొరకు (స్వయంచాలక బిట్టు : బిట్లు)
+				ఒకవేళ (బిట్టు.wire != ఖాళీ)
+					signal_outputs.చొప్పించు(బిట్టు);
 		}
 	}
 
-	void add_cell_port(RTLIL::Cell *cell, RTLIL::IdString port, std::vector<RTLIL::SigBit> bits, bool is_output, bool is_input)
+	శూన్య కూడు_cell_పోర్టు(RTLIL::Cell *cell, RTLIL::IdString పోర్టు, std::సదిశ<RTLIL::Sig_బిట్టు> బిట్లు, bool is_output, bool is_ఆదానం)
 	{
-		for (int i = 0; i < int(bits.size()); i++)
-			if (bits[i].wire != NULL) {
-				PortBit pbit {cell, port, i};
-				if (is_output) {
-					signal_drivers[bits[i]].insert(pbit);
-					cell_outputs[cell].insert(bits[i]);
+		కొరకు (పూర్ణాంకం i = 0; i < పూర్ణాంకం(బిట్లు.కొలత()); i++)
+			ఒకవేళ (బిట్లు[i].wire != ఖాళీ) {
+				పోర్టు_బిట్టు_2 pbit {cell, పోర్టు, i};
+				ఒకవేళ (is_output) {
+					signal_drivers[బిట్లు[i]].చొప్పించు(pbit);
+					cell_outputs[cell].చొప్పించు(బిట్లు[i]);
 				}
-				if (is_input) {
-					signal_consumers[bits[i]].insert(pbit);
-					cell_inputs[cell].insert(bits[i]);
+				ఒకవేళ (is_ఆదానం) {
+					signal_consumers[బిట్లు[i]].చొప్పించు(pbit);
+					cell_inputs[cell].చొప్పించు(బిట్లు[i]);
 				}
 			}
 	}
 
-	void add_cell(RTLIL::Cell *cell)
+	శూన్య కూడు_cell(RTLIL::Cell *cell)
 	{
-		if (ct.cell_known(cell->type)) {
-			for (auto &conn : cell->connections())
-				add_cell_port(cell, conn.first, sigmap(conn.second),
-						ct.cell_output(cell->type, conn.first),
-						ct.cell_input(cell->type, conn.first));
-		} else {
-			for (auto &conn : cell->connections())
-				add_cell_port(cell, conn.first, sigmap(conn.second), true, true);
+		ఒకవేళ (ct.cell_తెలిసిన(cell->type)) {
+			కొరకు (స్వయంచాలక &conn : cell->connections())
+				కూడు_cell_పోర్టు(cell, conn.మొదటి, sigmap(conn.రెండవ),
+						ct.cell_output(cell->type, conn.మొదటి),
+						ct.cell_ఆదానం(cell->type, conn.మొదటి));
+		} లేకపోతే {
+			కొరకు (స్వయంచాలక &conn : cell->connections())
+				కూడు_cell_పోర్టు(cell, conn.మొదటి, sigmap(conn.రెండవ), true, true);
 		}
 	}
 
-	ModWalker(RTLIL::Design *design, RTLIL::Module *module = nullptr) : design(design), module(NULL)
+	ModWalker(RTLIL::Design *design, RTLIL::Module *module = nullptr) : design(design), module(ఖాళీ)
 	{
-		ct.setup(design);
-		if (module)
-			setup(module);
+		ct.అమరిక(design);
+		ఒకవేళ (module)
+			అమరిక(module);
 	}
 
-	void setup(RTLIL::Module *module, CellTypes *filter_ct = NULL)
+	శూన్య అమరిక(RTLIL::Module *module, CellTypes *filter_ct = ఖాళీ)
 	{
 		this->module = module;
 
-		sigmap.set(module);
+		sigmap.సమితి(module);
 
 		signal_drivers.clear();
 		signal_consumers.clear();
@@ -433,176 +433,176 @@ struct ModWalker
 		cell_inputs.clear();
 		cell_outputs.clear();
 
-		for (auto &it : module->wires_)
-			add_wire(it.second);
-		for (auto &it : module->cells_)
-			if (filter_ct == NULL || filter_ct->cell_known(it.second->type))
-				add_cell(it.second);
+		కొరకు (స్వయంచాలక &it : module->wires_)
+			కూడు_wire(it.రెండవ);
+		కొరకు (స్వయంచాలక &it : module->cells_)
+			ఒకవేళ (filter_ct == ఖాళీ || filter_ct->cell_తెలిసిన(it.రెండవ->type))
+				కూడు_cell(it.రెండవ);
 	}
 
 	// get_* methods -- single RTLIL::SigBit
 
-	inline bool get_drivers(pool<PortBit> &result, RTLIL::SigBit bit) const
+	అంతఃవరుస bool get_drivers(pool<పోర్టు_బిట్టు_2> &ఫలితం, RTLIL::Sig_బిట్టు బిట్టు) స్థిరరాశి
 	{
-		bool found = false;
-		if (signal_drivers.count(bit)) {
-			const pool<PortBit> &r = signal_drivers.at(bit);
-			result.insert(r.begin(), r.end());
-			found = true;
+		bool దొరికింది = false;
+		ఒకవేళ (signal_drivers.లెక్క(బిట్టు)) {
+			స్థిరరాశి pool<పోర్టు_బిట్టు_2> &r = signal_drivers.at(బిట్టు);
+			ఫలితం.చొప్పించు(r.begin(), r.చివర());
+			దొరికింది = true;
 		}
-		return found;
+		తిరిగి దొరికింది;
 	}
 
-	inline bool get_consumers(pool<PortBit> &result, RTLIL::SigBit bit) const
+	అంతఃవరుస bool get_consumers(pool<పోర్టు_బిట్టు_2> &ఫలితం, RTLIL::Sig_బిట్టు బిట్టు) స్థిరరాశి
 	{
-		bool found = false;
-		if (signal_consumers.count(bit)) {
-			const pool<PortBit> &r = signal_consumers.at(bit);
-			result.insert(r.begin(), r.end());
-			found = true;
+		bool దొరికింది = false;
+		ఒకవేళ (signal_consumers.లెక్క(బిట్టు)) {
+			స్థిరరాశి pool<పోర్టు_బిట్టు_2> &r = signal_consumers.at(బిట్టు);
+			ఫలితం.చొప్పించు(r.begin(), r.చివర());
+			దొరికింది = true;
 		}
-		return found;
+		తిరిగి దొరికింది;
 	}
 
-	inline bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
+	అంతఃవరుస bool get_inputs(pool<RTLIL::Sig_బిట్టు> &ఫలితం, RTLIL::Sig_బిట్టు బిట్టు) స్థిరరాశి
 	{
-		bool found = false;
-		if (signal_inputs.count(bit))
-			result.insert(bit), found = true;
-		return found;
+		bool దొరికింది = false;
+		ఒకవేళ (signal_inputs.లెక్క(బిట్టు))
+			ఫలితం.చొప్పించు(బిట్టు), దొరికింది = true;
+		తిరిగి దొరికింది;
 	}
 
-	inline bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
+	అంతఃవరుస bool get_outputs(pool<RTLIL::Sig_బిట్టు> &ఫలితం, RTLIL::Sig_బిట్టు బిట్టు) స్థిరరాశి
 	{
-		bool found = false;
-		if (signal_outputs.count(bit))
-			result.insert(bit), found = true;
-		return found;
+		bool దొరికింది = false;
+		ఒకవేళ (signal_outputs.లెక్క(బిట్టు))
+			ఫలితం.చొప్పించు(బిట్టు), దొరికింది = true;
+		తిరిగి దొరికింది;
 	}
 
 	// get_* methods -- container of RTLIL::SigBit's (always by reference)
 
-	template<typename T>
-	inline bool get_drivers(pool<PortBit> &result, const T &bits) const
+	మూస<typename T>
+	అంతఃవరుస bool get_drivers(pool<పోర్టు_బిట్టు_2> &ఫలితం, స్థిరరాశి T &బిట్లు) స్థిరరాశి
 	{
-		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_drivers.count(bit)) {
-				const pool<PortBit> &r = signal_drivers.at(bit);
-				result.insert(r.begin(), r.end());
-				found = true;
+		bool దొరికింది = false;
+		కొరకు (RTLIL::Sig_బిట్టు బిట్టు : బిట్లు)
+			ఒకవేళ (signal_drivers.లెక్క(బిట్టు)) {
+				స్థిరరాశి pool<పోర్టు_బిట్టు_2> &r = signal_drivers.at(బిట్టు);
+				ఫలితం.చొప్పించు(r.begin(), r.చివర());
+				దొరికింది = true;
 			}
-		return found;
+		తిరిగి దొరికింది;
 	}
 
-	template<typename T>
-	inline bool get_consumers(pool<PortBit> &result, const T &bits) const
+	మూస<typename T>
+	అంతఃవరుస bool get_consumers(pool<పోర్టు_బిట్టు_2> &ఫలితం, స్థిరరాశి T &బిట్లు) స్థిరరాశి
 	{
-		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_consumers.count(bit)) {
-				const pool<PortBit> &r = signal_consumers.at(bit);
-				result.insert(r.begin(), r.end());
-				found = true;
+		bool దొరికింది = false;
+		కొరకు (RTLIL::Sig_బిట్టు బిట్టు : బిట్లు)
+			ఒకవేళ (signal_consumers.లెక్క(బిట్టు)) {
+				స్థిరరాశి pool<పోర్టు_బిట్టు_2> &r = signal_consumers.at(బిట్టు);
+				ఫలితం.చొప్పించు(r.begin(), r.చివర());
+				దొరికింది = true;
 			}
-		return found;
+		తిరిగి దొరికింది;
 	}
 
-	template<typename T>
-	inline bool get_inputs(pool<RTLIL::SigBit> &result, const T &bits) const
+	మూస<typename T>
+	అంతఃవరుస bool get_inputs(pool<RTLIL::Sig_బిట్టు> &ఫలితం, స్థిరరాశి T &బిట్లు) స్థిరరాశి
 	{
-		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_inputs.count(bit))
-				result.insert(bit), found = true;
-		return found;
+		bool దొరికింది = false;
+		కొరకు (RTLIL::Sig_బిట్టు బిట్టు : బిట్లు)
+			ఒకవేళ (signal_inputs.లెక్క(బిట్టు))
+				ఫలితం.చొప్పించు(బిట్టు), దొరికింది = true;
+		తిరిగి దొరికింది;
 	}
 
-	template<typename T>
-	inline bool get_outputs(pool<RTLIL::SigBit> &result, const T &bits) const
+	మూస<typename T>
+	అంతఃవరుస bool get_outputs(pool<RTLIL::Sig_బిట్టు> &ఫలితం, స్థిరరాశి T &బిట్లు) స్థిరరాశి
 	{
-		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_outputs.count(bit))
-				result.insert(bit), found = true;
-		return found;
+		bool దొరికింది = false;
+		కొరకు (RTLIL::Sig_బిట్టు బిట్టు : బిట్లు)
+			ఒకవేళ (signal_outputs.లెక్క(బిట్టు))
+				ఫలితం.చొప్పించు(బిట్టు), దొరికింది = true;
+		తిరిగి దొరికింది;
 	}
 
 	// get_* methods -- call by RTLIL::SigSpec (always by value)
 
-	bool get_drivers(pool<PortBit> &result, RTLIL::SigSpec signal) const
+	bool get_drivers(pool<పోర్టు_బిట్టు_2> &ఫలితం, RTLIL::SigSpec సంకేతం) స్థిరరాశి
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_drivers(result, bits);
+		std::సదిశ<RTLIL::Sig_బిట్టు> బిట్లు = sigmap(సంకేతం);
+		తిరిగి get_drivers(ఫలితం, బిట్లు);
 	}
 
-	bool get_consumers(pool<PortBit> &result, RTLIL::SigSpec signal) const
+	bool get_consumers(pool<పోర్టు_బిట్టు_2> &ఫలితం, RTLIL::SigSpec సంకేతం) స్థిరరాశి
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_consumers(result, bits);
+		std::సదిశ<RTLIL::Sig_బిట్టు> బిట్లు = sigmap(సంకేతం);
+		తిరిగి get_consumers(ఫలితం, బిట్లు);
 	}
 
-	bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
+	bool get_inputs(pool<RTLIL::Sig_బిట్టు> &ఫలితం, RTLIL::SigSpec సంకేతం) స్థిరరాశి
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_inputs(result, bits);
+		std::సదిశ<RTLIL::Sig_బిట్టు> బిట్లు = sigmap(సంకేతం);
+		తిరిగి get_inputs(ఫలితం, బిట్లు);
 	}
 
-	bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
+	bool get_outputs(pool<RTLIL::Sig_బిట్టు> &ఫలితం, RTLIL::SigSpec సంకేతం) స్థిరరాశి
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_outputs(result, bits);
+		std::సదిశ<RTLIL::Sig_బిట్టు> బిట్లు = sigmap(సంకేతం);
+		తిరిగి get_outputs(ఫలితం, బిట్లు);
 	}
 
 	// has_* methods -- call by reference
 
-	template<typename T>
-	inline bool has_drivers(const T &sig) const {
-		pool<PortBit> result;
-		return get_drivers(result, sig);
+	మూస<typename T>
+	అంతఃవరుస bool has_drivers(స్థిరరాశి T &sig) స్థిరరాశి {
+		pool<పోర్టు_బిట్టు_2> ఫలితం;
+		తిరిగి get_drivers(ఫలితం, sig);
 	}
 
-	template<typename T>
-	inline bool has_consumers(const T &sig) const {
-		pool<PortBit> result;
-		return get_consumers(result, sig);
+	మూస<typename T>
+	అంతఃవరుస bool has_consumers(స్థిరరాశి T &sig) స్థిరరాశి {
+		pool<పోర్టు_బిట్టు_2> ఫలితం;
+		తిరిగి get_consumers(ఫలితం, sig);
 	}
 
-	template<typename T>
-	inline bool has_inputs(const T &sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+	మూస<typename T>
+	అంతఃవరుస bool has_inputs(స్థిరరాశి T &sig) స్థిరరాశి {
+		pool<RTLIL::Sig_బిట్టు> ఫలితం;
+		తిరిగి get_inputs(ఫలితం, sig);
 	}
 
-	template<typename T>
-	inline bool has_outputs(const T &sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+	మూస<typename T>
+	అంతఃవరుస bool has_outputs(స్థిరరాశి T &sig) స్థిరరాశి {
+		pool<RTLIL::Sig_బిట్టు> ఫలితం;
+		తిరిగి get_outputs(ఫలితం, sig);
 	}
 
 	// has_* methods -- call by value
 
-	inline bool has_drivers(RTLIL::SigSpec sig) const {
-		pool<PortBit> result;
-		return get_drivers(result, sig);
+	అంతఃవరుస bool has_drivers(RTLIL::SigSpec sig) స్థిరరాశి {
+		pool<పోర్టు_బిట్టు_2> ఫలితం;
+		తిరిగి get_drivers(ఫలితం, sig);
 	}
 
-	inline bool has_consumers(RTLIL::SigSpec sig) const {
-		pool<PortBit> result;
-		return get_consumers(result, sig);
+	అంతఃవరుస bool has_consumers(RTLIL::SigSpec sig) స్థిరరాశి {
+		pool<పోర్టు_బిట్టు_2> ఫలితం;
+		తిరిగి get_consumers(ఫలితం, sig);
 	}
 
-	inline bool has_inputs(RTLIL::SigSpec sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+	అంతఃవరుస bool has_inputs(RTLIL::SigSpec sig) స్థిరరాశి {
+		pool<RTLIL::Sig_బిట్టు> ఫలితం;
+		తిరిగి get_inputs(ఫలితం, sig);
 	}
 
-	inline bool has_outputs(RTLIL::SigSpec sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+	అంతఃవరుస bool has_outputs(RTLIL::SigSpec sig) స్థిరరాశి {
+		pool<RTLIL::Sig_బిట్టు> ఫలితం;
+		తిరిగి get_outputs(ఫలితం, sig);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_చివర
 
-#endif
+#అయితే_ముగింపు
