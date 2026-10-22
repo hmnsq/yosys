@@ -17,118 +17,118 @@
  *
  */
 
-#include "kernel/log_help.h"
+#अन्तर्भाव "kernel/log_help.h"
 
 USING_YOSYS_NAMESPACE
 
-std::filesystem::path Yosys::fixup_source_path (const char* source_file,
-	const std::filesystem::path &source_root, bool* skip_source_group)
+std::filesystem::path Yosys::fixup_source_path (अचर वर्ण* source_file,
+	अचर std::filesystem::path &source_जरा, तार्किक* skip_source_group)
 {
 	std::filesystem::path source_path(source_file);
-	if (source_path.is_absolute()) {
+	यदि (source_path.is_absolute()) {
 		// using proximate instead of relative means that we
 		// still get the source path if they aren't relative
-		auto proximate_path = std::filesystem::proximate(source_path, source_root);
-		if (proximate_path == proximate_path.lexically_normal()) {
+		स्वतः proximate_path = std::filesystem::proximate(source_path, source_जरा);
+		यदि (proximate_path == proximate_path.lexically_normal()) {
 			// we're only interested if it's a subpath of our root dir
 			// if the normal form differs, then the proximate path includes ".."
-			return proximate_path;
-		} else if (skip_source_group != nullptr) {
+			फर्काऊ proximate_path;
+		} अन्यथा यदि (skip_source_group != nullptr) {
 			// don't try to group external paths
-			*skip_source_group = true;
+			*skip_source_group = सत्य;
 		}
 	}
-	return source_path;
+	फर्काऊ source_path;
 }
 
-Json ContentListing::to_json(const std::filesystem::path &source_root) const {
+Json ContentListing::to_json(अचर std::filesystem::path &source_जरा) अचर {
 	Json::object object;
 
 	object["type"] = type;
-	if (body.length())
+	यदि (body.length())
 		object["body"] = body;
 
-	if (has_source())
-		object["source_file"] = fixup_source_path(source_file, source_root).string();
-	if (source_line != 0)
-		object["source_line"] = source_line;
+	यदि (has_source())
+		object["source_file"] = fixup_source_path(source_file, source_जरा).string();
+	यदि (source_पङ्क्ति != 0)
+		object["source_line"] = source_पङ्क्ति;
 
 	object["options"] = Json(options);
 
 	Json::array content_array;
-	for (auto child : _content)
-		content_array.push_back(child.to_json(source_root));
+	लागि (स्वतः child : _content)
+		content_array.थप_back(child.to_json(source_जरा));
 	object["content"] = content_array;
 
-	return object;
+	फर्काऊ object;
 }
 
-void ContentListing::usage(const string &text,
-	const source_location location)
+शून्य ContentListing::usage(अचर string &text,
+	अचर source_location location)
 {
 	log_assert(type.compare("root") == 0);
 	add_content("usage", text, location);
 }
 
-void ContentListing::option(const string &text, const string &description,
-	const source_location location)
+शून्य ContentListing::option(अचर string &text, अचर string &description,
+	अचर source_location location)
 {
-	auto option = open_option(text, source_location());
-	if (description.length())
+	स्वतः option = open_option(text, source_location());
+	यदि (description.length())
 		option->add_content("text", description, location);
 }
 
-void ContentListing::codeblock(const string &code, const string &language,
-	const source_location location)
+शून्य ContentListing::codeblock(अचर string &code, अचर string &language,
+	अचर source_location location)
 {
 	add_content("code", code, location);
 	back()->set_option("language", language);
 }
 
-void ContentListing::paragraph(const string &text,
-	const source_location location)
+शून्य ContentListing::paragraph(अचर string &text,
+	अचर source_location location)
 {
 	add_content("text", text, location);
 }
 
-ContentListing* ContentListing::open_usage(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_usage(अचर string &text,
+	अचर source_location location)
 {
 	usage(text, location);
-	return back();
+	फर्काऊ back();
 }
 
-ContentListing* ContentListing::open_option(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_option(अचर string &text,
+	अचर source_location location)
 {
 	log_assert(type.compare("root") == 0 || type.compare("usage") == 0);
 	add_content("option", text, location);
-	return back();
+	फर्काऊ back();
 }
 
-#define MAX_LINE_LEN 80
-void log_body_str(const std::string &pass_str, std::string indent_str, bool leading_newline=false, bool is_formatted=false) {
-	if (pass_str.empty())
-		return;
+#define MAX_पङ्क्ति_LEN 80
+शून्य log_body_str(अचर std::string &pass_str, std::string indent_str, तार्किक leading_newline=असत्य, तार्किक is_formatted=असत्य) {
+	यदि (pass_str.empty())
+		फर्काऊ;
 	std::istringstream iss(pass_str);
-	if (leading_newline)
+	यदि (leading_newline)
 		log("\n");
-	for (std::string line; std::getline(iss, line);) {
+	लागि (std::string पङ्क्ति; std::getline(iss, पङ्क्ति);) {
 		std::string message = indent_str;
-		if (is_formatted) {
-			message += line;
-		} else {
-			auto curr_len = indent_str.length();
-			std::istringstream lss(line);
-			for (std::string word; std::getline(lss, word, ' ');) {
-				while (word[0] == '`' && word.back() == '`')
+		यदि (is_formatted) {
+			message += पङ्क्ति;
+		} अन्यथा {
+			स्वतः curr_len = indent_str.length();
+			std::istringstream lss(पङ्क्ति);
+			लागि (std::string word; std::getline(lss, word, ' ');) {
+				जबसम्म (word[0] == '`' && word.back() == '`')
 					word = word.substr(1, word.length()-2);
-				if (curr_len + word.length() >= MAX_LINE_LEN-1) {
+				यदि (curr_len + word.length() >= MAX_पङ्क्ति_LEN-1) {
 					curr_len = 0;
 					log("%s\n", message);
 					message = indent_str;
 				}
-				if (word.length()) {
+				यदि (word.length()) {
 					message += word + " ";
 					curr_len += word.length() + 1;
 				}
@@ -137,7 +137,7 @@ void log_body_str(const std::string &pass_str, std::string indent_str, bool lead
 		log("%s\n", message);
 	}
 }
-void log_body(const ContentListing &content, int indent=0, bool leading_newline=false) {
+शून्य log_body(अचर ContentListing &content, पूर्णाङ्क indent=0, तार्किक leading_newline=असत्य) {
 	std::string indent_str(indent*4, ' ');
 	log_body_str(content.body, indent_str, leading_newline, content.type.compare("code") == 0);
 }
@@ -147,9 +147,9 @@ PrettyHelp *current_help = nullptr;
 PrettyHelp::PrettyHelp()
 {
 	_prior = current_help;
-	_root_listing = ContentListing("root", "");
+	जरा_listing = ContentListing("root", "");
 
-	current_help = this;
+	current_help = एतत्;
 }
 
 PrettyHelp::~PrettyHelp()
@@ -159,24 +159,24 @@ PrettyHelp::~PrettyHelp()
 
 PrettyHelp *PrettyHelp::get_current()
 {
-	if (current_help == nullptr)
-		new PrettyHelp();
-	return current_help;
+	यदि (current_help == nullptr)
+		नूतन PrettyHelp();
+	फर्काऊ current_help;
 }
 
-void PrettyHelp::log_help() const
+शून्य PrettyHelp::log_help() अचर
 {
-	for (auto &content : _root_listing) {
-		if (content.type.compare("usage") == 0) {
-			log_body(content, 1, true);
+	लागि (स्वतः &content : जरा_listing) {
+		यदि (content.type.compare("usage") == 0) {
+			log_body(content, 1, सत्य);
 			log("\n");
-		} else if (content.type.compare("option") == 0) {
+		} अन्यथा यदि (content.type.compare("option") == 0) {
 			log_body(content, 1);
-			for (auto text : content) {
+			लागि (स्वतः text : content) {
 				log_body(text, 2);
 				log("\n");
 			}
-		} else {
+		} अन्यथा {
 			log_body(content, 0);
 			log("\n");
 		}
