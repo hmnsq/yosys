@@ -3,24 +3,24 @@
 
 USING_YOSYS_NAMESPACE
 
-unsigned int CellCosts::get(RTLIL::Module *mod)
+unsigned ကိန်းပြည့် CellCosts::get(RTLIL::Module *mod)
 {
-	if (mod_cost_cache_.count(mod->name))
-		return mod_cost_cache_.at(mod->name);
+	အကယ်၍ (mod_cost_cache_.count(mod->name))
+		ပြန်ပေး mod_cost_cache_.at(mod->name);
 
-	unsigned int module_cost = 1;
-	for (auto c : mod->cells()) {
-		unsigned int new_cost = module_cost + get(c);
+	unsigned ကိန်းပြည့် module_cost = 1;
+	အတွက် (auto c : mod->cells()) {
+		unsigned ကိန်းပြည့် new_cost = module_cost + get(c);
 		module_cost = new_cost >= module_cost ? new_cost : INT_MAX;
 	}
 
 	mod_cost_cache_[mod->name] = module_cost;
-	return module_cost;
+	ပြန်ပေး module_cost;
 }
 
-static unsigned int y_coef(RTLIL::IdString type)
+static unsigned ကိန်းပြည့် y_coef(RTLIL::IdString type)
 {
-	if (
+	အကယ်၍ (
 	  // equality
 	  type.in(ID($bweqx), ID($nex), ID($eqx)) ||
 	  // basic logic
@@ -29,66 +29,66 @@ static unsigned int y_coef(RTLIL::IdString type)
 	  type.in(ID($bwmux), ID($mux)) ||
 	  // others
 	  type == ID($tribuf)) {
-		return 1;
-	} else if (type == ID($neg)) {
-		return 4;
-	} else if (type == ID($demux)) {
-		return 2;
-	} else if (type == ID($fa)) {
-		return 5;
-	} else if (type.in(ID($add), ID($sub), ID($alu))) {
+		ပြန်ပေး 1;
+	} မဟုတ်ပါက အကယ်၍ (type == ID($neg)) {
+		ပြန်ပေး 4;
+	} မဟုတ်ပါက အကယ်၍ (type == ID($demux)) {
+		ပြန်ပေး 2;
+	} မဟုတ်ပါက အကယ်၍ (type == ID($fa)) {
+		ပြန်ပေး 5;
+	} မဟုတ်ပါက အကယ်၍ (type.in(ID($add), ID($sub), ID($alu))) {
 		// multi-bit adders
-		return 8;
-	} else if (type.in(ID($shl), ID($sshl))) {
+		ပြန်ပေး 8;
+	} မဟုတ်ပါက အကယ်၍ (type.in(ID($shl), ID($sshl))) {
 		// left shift
-		return 10;
+		ပြန်ပေး 10;
 	}
-	return 0;
+	ပြန်ပေး 0;
 }
 
-static unsigned int max_inp_coef(RTLIL::IdString type)
+static unsigned ကိန်းပြည့် max_inp_coef(RTLIL::IdString type)
 {
-	if (
+	အကယ်၍ (
 	  // binop reduce
 	  type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)) ||
 	  // others
 	  type.in(ID($logic_not), ID($pmux), ID($bmux))) {
-		return 1;
-	} else if (
+		ပြန်ပေး 1;
+	} မဟုတ်ပါက အကယ်၍ (
 	  // equality
 	  type.in(ID($eq), ID($ne)) ||
 	  // logic
 	  type.in(ID($logic_and), ID($logic_or))) {
-		return 2;
-	} else if (type == ID($lcu)) {
-		return 5;
-	} else if (type.in(ID($lt), ID($le), ID($ge), ID($gt))) {
+		ပြန်ပေး 2;
+	} မဟုတ်ပါက အကယ်၍ (type == ID($lcu)) {
+		ပြန်ပေး 5;
+	} မဟုတ်ပါက အကယ်၍ (type.in(ID($lt), ID($le), ID($ge), ID($gt))) {
 		// comparison
-		return 7;
+		ပြန်ပေး 7;
 	}
-	return 0;
+	ပြန်ပေး 0;
 }
 
-static unsigned int sum_coef(RTLIL::IdString type)
+static unsigned ကိန်းပြည့် sum_coef(RTLIL::IdString type)
 {
-	if (type.in(ID($shr), ID($sshr))) {
+	အကယ်၍ (type.in(ID($shr), ID($sshr))) {
 		// right shift
-		return 4;
-	} else if (type.in(ID($shift), ID($shiftx))) {
+		ပြန်ပေး 4;
+	} မဟုတ်ပါက အကယ်၍ (type.in(ID($shift), ID($shiftx))) {
 		// shift
-		return 8;
+		ပြန်ပေး 8;
 	}
-	return 0;
+	ပြန်ပေး 0;
 }
 
-static unsigned int is_div_mod(RTLIL::IdString type)
+static unsigned ကိန်းပြည့် is_div_mod(RTLIL::IdString type)
 {
-	return (type == ID($div) || type == ID($divfloor) || type == ID($mod) || type == ID($modfloor));
+	ပြန်ပေး (type == ID($div) || type == ID($divfloor) || type == ID($mod) || type == ID($modfloor));
 }
 
 static bool is_free(RTLIL::IdString type)
 {
-	return (
+	ပြန်ပေး (
 	  // tags
 	  type.in(ID($overwrite_tag), ID($set_tag), ID($original_tag), ID($get_tag)) ||
 	  // formal
@@ -102,9 +102,9 @@ static bool is_free(RTLIL::IdString type)
 	  type.in(ID($specrule), ID($specify2), ID($specify3)));
 }
 
-unsigned int max_inp_width(RTLIL::Cell *cell)
+unsigned ကိန်းပြည့် max_inp_width(RTLIL::Cell *cell)
 {
-	unsigned int max = 0;
+	unsigned ကိန်းပြည့် max = 0;
 	RTLIL::IdString input_width_params[] = {
 	  ID::WIDTH,
 	  ID::A_WIDTH,
@@ -112,104 +112,104 @@ unsigned int max_inp_width(RTLIL::Cell *cell)
 	  ID::S_WIDTH,
 	};
 
-	if (cell->type == ID($bmux))
-		return cell->getParam(ID::WIDTH).as_int() << cell->getParam(ID::S_WIDTH).as_int();
+	အကယ်၍ (cell->type == ID($bmux))
+		ပြန်ပေး cell->getParam(ID::WIDTH).as_int() << cell->getParam(ID::S_WIDTH).as_int();
 
-	for (RTLIL::IdString param : input_width_params)
-		if (cell->hasParam(param))
-			max = std::max(max, (unsigned int)cell->getParam(param).as_int());
-	return max;
+	အတွက် (RTLIL::IdString param : input_width_params)
+		အကယ်၍ (cell->hasParam(param))
+			max = std::max(max, (unsigned ကိန်းပြည့်)cell->getParam(param).as_int());
+	ပြန်ပေး max;
 }
 
-unsigned int port_width_sum(RTLIL::Cell *cell)
+unsigned ကိန်းပြည့် port_width_sum(RTLIL::Cell *cell)
 {
-	unsigned int sum = 0;
+	unsigned ကိန်းပြည့် sum = 0;
 	RTLIL::IdString port_width_params[] = {
 	  ID::WIDTH, ID::A_WIDTH, ID::B_WIDTH, ID::S_WIDTH, ID::Y_WIDTH,
 	};
 
-	for (auto param : port_width_params)
-		if (cell->hasParam(param))
+	အတွက် (auto param : port_width_params)
+		အကယ်၍ (cell->hasParam(param))
 			sum += cell->getParam(param).as_int();
 
-	return sum;
+	ပြန်ပေး sum;
 }
 
-unsigned int CellCosts::get(RTLIL::Cell *cell)
+unsigned ကိန်းပြည့် CellCosts::get(RTLIL::Cell *cell)
 {
 
 	// simple 1-bit cells
-	if (cmos_gate_cost().count(cell->type))
-		return 1;
+	အကယ်၍ (cmos_gate_cost().count(cell->type))
+		ပြန်ပေး 1;
 
-	if (design_ && design_->module(cell->type) && cell->parameters.empty()) {
+	အကယ်၍ (design_ && design_->module(cell->type) && cell->parameters.empty()) {
 		log_debug("%s is a module, recurse\n", cell->name);
-		return get(design_->module(cell->type));
-	} else if (cell->is_builtin_ff()) {
+		ပြန်ပေး get(design_->module(cell->type));
+	} မဟုတ်ပါက အကယ်၍ (cell->is_builtin_ff()) {
 		log_assert(cell->hasPort(ID::Q) && "Weird flip flop");
 		log_debug("%s is ff\n", cell->name);
-		return cell->getParam(ID::WIDTH).as_int();
-	} else if (cell->type.in(ID($mem), ID($mem_v2))) {
+		ပြန်ပေး cell->getParam(ID::WIDTH).as_int();
+	} မဟုတ်ပါက အကယ်၍ (cell->type.in(ID($mem), ID($mem_v2))) {
 		log_debug("%s is mem\n", cell->name);
-		return cell->getParam(ID::WIDTH).as_int() * cell->getParam(ID::SIZE).as_int();
-	} else if (y_coef(cell->type)) {
+		ပြန်ပေး cell->getParam(ID::WIDTH).as_int() * cell->getParam(ID::SIZE).as_int();
+	} မဟုတ်ပါက အကယ်၍ (y_coef(cell->type)) {
 		// linear with Y_WIDTH or WIDTH
 		log_assert((cell->hasParam(ID::Y_WIDTH) || cell->hasParam(ID::WIDTH)) && "Unknown width");
 		auto param = cell->hasParam(ID::Y_WIDTH) ? ID::Y_WIDTH : ID::WIDTH;
-		int width = cell->getParam(param).as_int();
-		if (cell->type == ID($demux))
+		ကိန်းပြည့် width = cell->getParam(param).as_int();
+		အကယ်၍ (cell->type == ID($demux))
 			width <<= cell->getParam(ID::S_WIDTH).as_int();
 		log_debug("%s Y*coef %d * %d\n", cell->name, width, y_coef(cell->type));
-		return width * y_coef(cell->type);
-	} else if (sum_coef(cell->type)) {
+		ပြန်ပေး width * y_coef(cell->type);
+	} မဟုတ်ပါက အကယ်၍ (sum_coef(cell->type)) {
 		// linear with sum of port widths
-		unsigned int sum = port_width_sum(cell);
+		unsigned ကိန်းပြည့် sum = port_width_sum(cell);
 		log_debug("%s sum*coef %d * %d\n", cell->name, sum, sum_coef(cell->type));
-		return sum * sum_coef(cell->type);
-	} else if (max_inp_coef(cell->type)) {
+		ပြန်ပေး sum * sum_coef(cell->type);
+	} မဟုတ်ပါက အကယ်၍ (max_inp_coef(cell->type)) {
 		// linear with largest input width
-		unsigned int max = max_inp_width(cell);
+		unsigned ကိန်းပြည့် max = max_inp_width(cell);
 		log_debug("%s max*coef %d * %d\n", cell->name, max, max_inp_coef(cell->type));
-		return max * max_inp_coef(cell->type);
-	} else if (is_div_mod(cell->type) || cell->type == ID($mul)) {
+		ပြန်ပေး max * max_inp_coef(cell->type);
+	} မဟုတ်ပါက အကယ်၍ (is_div_mod(cell->type) || cell->type == ID($mul)) {
 		// quadratic with sum of port widths
-		unsigned int sum = port_width_sum(cell);
-		unsigned int coef = cell->type == ID($mul) ? 3 : 5;
+		unsigned ကိန်းပြည့် sum = port_width_sum(cell);
+		unsigned ကိန်းပြည့် coef = cell->type == ID($mul) ? 3 : 5;
 		log_debug("%s coef*(sum**2) %d * %d\n", cell->name, coef, sum * sum);
-		return coef * sum * sum;
-	} else if (cell->type.in(ID($macc), ID($macc_v2))) {
+		ပြန်ပေး coef * sum * sum;
+	} မဟုတ်ပါက အကယ်၍ (cell->type.in(ID($macc), ID($macc_v2))) {
 		// quadratic per term
-		unsigned int cost_sum = 0;
+		unsigned ကိန်းပြည့် cost_sum = 0;
 		Macc macc;
 		macc.from_cell(cell);
-		unsigned int y_width = cell->getParam(ID::Y_WIDTH).as_int();
-		for (auto &term: macc.terms) {
-			if (term.in_b.empty()) {
+		unsigned ကိန်းပြည့် y_width = cell->getParam(ID::Y_WIDTH).as_int();
+		အတွက် (auto &term: macc.terms) {
+			အကယ်၍ (term.in_b.empty()) {
 				// neglect addends
 				continue;
 			}
 			unsigned a_width = term.in_a.size(), b_width = term.in_b.size();
-			unsigned int sum = a_width + b_width + std::min(y_width, a_width + b_width);
+			unsigned ကိန်းပြည့် sum = a_width + b_width + std::min(y_width, a_width + b_width);
 			cost_sum += 3 * sum * sum;
 		}
-		return cost_sum;
-	} else if (cell->type == ID($lut)) {
-		int width = cell->getParam(ID::WIDTH).as_int();
-		unsigned int cost = 1U << (unsigned int)width;
+		ပြန်ပေး cost_sum;
+	} မဟုတ်ပါက အကယ်၍ (cell->type == ID($lut)) {
+		ကိန်းပြည့် width = cell->getParam(ID::WIDTH).as_int();
+		unsigned ကိန်းပြည့် cost = 1U << (unsigned ကိန်းပြည့်)width;
 		log_debug("%s is 2**%d\n", cell->name, width);
-		return cost;
-	} else if (cell->type == ID($sop)) {
-		int width = cell->getParam(ID::WIDTH).as_int();
-		int depth = cell->getParam(ID::DEPTH).as_int();
+		ပြန်ပေး cost;
+	} မဟုတ်ပါက အကယ်၍ (cell->type == ID($sop)) {
+		ကိန်းပြည့် width = cell->getParam(ID::WIDTH).as_int();
+		ကိန်းပြည့် depth = cell->getParam(ID::DEPTH).as_int();
 		log_debug("%s is (2*%d + 1)*%d\n", cell->name, width, depth);
-		return (2 * width + 1) * depth;
-	} else if (is_free(cell->type)) {
+		ပြန်ပေး (2 * width + 1) * depth;
+	} မဟုတ်ပါက အကယ်၍ (is_free(cell->type)) {
 		log_debug("%s is free\n", cell->name);
-		return 0;
+		ပြန်ပေး 0;
 	}
 	// TODO: $fsm
 	// ignored: $pow $memrd $memwr $meminit (and v2 counterparts)
 
 	log_warning("Can't determine cost of %s cell (%d parameters).\n", cell->type.unescape(), GetSize(cell->parameters));
-	return 1;
+	ပြန်ပေး 1;
 }

@@ -32,7 +32,7 @@ YOSYS_NAMESPACE_BEGIN
 
 namespace RTLIL
 {
-	enum State : unsigned char {
+	ga_nanaa State : unsigned var_na {
 		S0 = 0,
 		S1 = 1,
 		Sx = 2, // undefined value or conflict
@@ -41,7 +41,7 @@ namespace RTLIL
 		Sm = 5  // marker (used internally by some passes)
 	};
 
-	enum SyncType : unsigned char {
+	ga_nanaa SyncType : unsigned var_na {
 		ST0 = 0, // level sensitive: 0
 		ST1 = 1, // level sensitive: 1
 		STp = 2, // edge sensitive: posedge
@@ -54,7 +54,7 @@ namespace RTLIL
 
 	// Semantic metadata - how can this constant be interpreted?
 	// Values may be generally non-exclusive
-	enum ConstFlags : unsigned char {
+	ga_nanaa ConstFlags : unsigned var_na {
 		CONST_FLAG_NONE    = 0,
 		CONST_FLAG_STRING  = 1,
 		CONST_FLAG_SIGNED  = 2,  // only used for parameters
@@ -62,7 +62,7 @@ namespace RTLIL
 		CONST_FLAG_UNSIZED = 8,  // only used for parameters
 	};
 
-	enum SelectPartials : unsigned char {
+	ga_nanaa SelectPartials : unsigned var_na {
 		SELECT_ALL = 0,          // include partial modules
 		SELECT_WHOLE_ONLY = 1,   // ignore partial modules
 		SELECT_WHOLE_WARN = 2,   // call log_warning on partial module
@@ -70,7 +70,7 @@ namespace RTLIL
 		SELECT_WHOLE_CMDERR = 4  // call log_cmd_error on partial module
 	};
 
-	enum SelectBoxes : unsigned char {
+	ga_nanaa SelectBoxes : unsigned var_na {
 		SB_ALL = 0,            // include boxed modules
 		SB_WARN = 1,           // helper for log_warning (not for direct use)
 		SB_ERR = 2,            // helper for log_error (not for direct use)
@@ -86,7 +86,7 @@ namespace RTLIL
 		SB_EXCL_BB_CMDERR = 15 // call log_cmd_error on black boxed module
 	};
 
-	enum PortDir : unsigned char  {
+	ga_nanaa PortDir : unsigned var_na  {
 		PD_UNKNOWN = 0,
 		PD_INPUT = 1,
 		PD_OUTPUT = 2,
@@ -94,33 +94,33 @@ namespace RTLIL
 	};
 
 	// Maximum width in bits of RTLIL::Wire or RTLIL::Const
-	constexpr int WIDTH_LIMIT = 1 << 30;
+	constexpr ကိန်းပြည့် WIDTH_LIMIT = 1 << 30;
 
-	struct Const;
-	struct AttrObject;
-	struct SelectedMember;
-	struct Selection;
-	struct Monitor;
-	struct Design;
-	struct Module;
-	struct Wire;
-	struct Memory;
-	struct Cell;
-	struct SigChunk;
-	struct SigBit;
-	struct SigSpecIterator;
-	struct SigSpecConstIterator;
-	struct SigSpec;
-	struct CaseRule;
-	struct SwitchRule;
-	struct MemWriteAction;
-	struct SyncRule;
-	struct Process;
+	sa_nracanaa Const;
+	sa_nracanaa AttrObject;
+	sa_nracanaa SelectedMember;
+	sa_nracanaa Selection;
+	sa_nracanaa Monitor;
+	sa_nracanaa Design;
+	sa_nracanaa Module;
+	sa_nracanaa Wire;
+	sa_nracanaa Memory;
+	sa_nracanaa Cell;
+	sa_nracanaa SigChunk;
+	sa_nracanaa SigBit;
+	sa_nracanaa SigSpecIterator;
+	sa_nracanaa SigSpecConstIterator;
+	sa_nracanaa SigSpec;
+	sa_nracanaa CaseRule;
+	sa_nracanaa SwitchRule;
+	sa_nracanaa MemWriteAction;
+	sa_nracanaa SyncRule;
+	sa_nracanaa Process;
 
 	typedef std::pair<SigSpec, SigSpec> SigSig;
 };
 
-struct SigMap;
+sa_nracanaa SigMap;
 
 
 namespace RTLIL { using YOSYS_NAMESPACE_PREFIX ID; }
@@ -136,100 +136,100 @@ namespace RTLIL {
 	[[deprecated("use StaticCellTypes::categories.is_ff() instead")]]
 	const pool<IdString> &builtin_ff_cell_types();
 
-	static inline std::string escape_id(const std::string &str) {
-		if (str.size() > 0 && str[0] != '\\' && str[0] != '$')
-			return "\\" + str;
-		return str;
+	static anta_hstha std::string escape_id(const std::string &str) {
+		အကယ်၍ (str.size() > 0 && str[0] != '\\' && str[0] != '$')
+			ပြန်ပေး "\\" + str;
+		ပြန်ပေး str;
 	}
 
-	static inline std::string unescape_id(const std::string &str) {
-		if (str.size() < 2)
-			return str;
-		if (str[0] != '\\')
-			return str;
-		if (str[1] == '$' || str[1] == '\\')
-			return str;
-		if (str[1] >= '0' && str[1] <= '9')
-			return str;
-		return str.substr(1);
+	static anta_hstha std::string unescape_id(const std::string &str) {
+		အကယ်၍ (str.size() < 2)
+			ပြန်ပေး str;
+		အကယ်၍ (str[0] != '\\')
+			ပြန်ပေး str;
+		အကယ်၍ (str[1] == '$' || str[1] == '\\')
+			ပြန်ပေး str;
+		အကယ်၍ (str[1] >= '0' && str[1] <= '9')
+			ပြန်ပေး str;
+		ပြန်ပေး str.substr(1);
 	}
 
 	template <typename T> using sort_by_name_id = IdString::compare_ptr_by_name<T>;
 
-	template <typename T> struct sort_by_name_str {
+	template <typename T> sa_nracanaa sort_by_name_str {
 		bool operator()(T *a, T *b) const {
-			return a->name.lt_by_name(b->name);
+			ပြန်ပေး a->name.lt_by_name(b->name);
 		}
 	};
 
-	struct sort_by_id_str {
+	sa_nracanaa sort_by_id_str {
 		const TwinePool& pool;
 		explicit sort_by_id_str(const TwinePool& pool) : pool(pool) {}
 		bool operator()(RTLIL::IdString a, RTLIL::IdString b) const {
-			return pool.compare_by_name(a, b) < 0;
+			ပြန်ပေး pool.compare_by_name(a, b) < 0;
 		}
 	};
 
-	static inline std::string encode_filename(const std::string &filename)
+	static anta_hstha std::string encode_filename(const std::string &filename)
 	{
 		std::stringstream val;
-		if (!std::any_of(filename.begin(), filename.end(), [](char c) {
-			return static_cast<unsigned char>(c) < 33 || static_cast<unsigned char>(c) > 126;
-		})) return filename;
-		for (unsigned char const c : filename) {
-			if (c < 33 || c > 126)
+		အကယ်၍ (!std::any_of(filename.begin(), filename.end(), [](var_na c) {
+			ပြန်ပေး static_cast<unsigned var_na>(c) < 33 || static_cast<unsigned var_na>(c) > 126;
+		})) ပြန်ပေး filename;
+		အတွက် (unsigned var_na const c : filename) {
+			အကယ်၍ (c < 33 || c > 126)
 				val << stringf("$%02x", c);
-			else
+			မဟုတ်ပါက
 				val << c;
 		}
-		return val.str();
+		ပြန်ပေး val.str();
 	}
 
 	// see calc.cc for the implementation of this functions
-	RTLIL::Const const_not         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_and         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_or          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_xor         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_xnor        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_not         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_and         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_or          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_xor         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_xnor        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
 
-	RTLIL::Const const_reduce_and  (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_or   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_xor  (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_xnor (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_bool (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_reduce_and  (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_reduce_or   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_reduce_xor  (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_reduce_xnor (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_reduce_bool (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
 
-	RTLIL::Const const_logic_not   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_logic_and   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_logic_or    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_logic_not   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_logic_and   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_logic_or    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
 
-	RTLIL::Const const_shl         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shr         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sshl        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sshr        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shift       (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shiftx      (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_shl         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_shr         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_sshl        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_sshr        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_shift       (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_shiftx      (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
 
-	RTLIL::Const const_lt          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_le          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_eq          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_ne          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_eqx         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_nex         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_ge          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_gt          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_lt          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_le          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_eq          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_ne          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_eqx         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_nex         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_ge          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_gt          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
 
-	RTLIL::Const const_add         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sub         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_mul         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_div         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_divfloor    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_modfloor    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_mod         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_pow         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_add         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_sub         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_mul         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_div         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_divfloor    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_modfloor    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_mod         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_pow         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
 
-	RTLIL::Const const_pos         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_buf         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_neg         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_pos         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_buf         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
+	RTLIL::Const const_neg         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ကိန်းပြည့် result_len);
 
 	RTLIL::Const const_mux         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3);
 	RTLIL::Const const_pmux        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3);
@@ -244,7 +244,7 @@ namespace RTLIL {
 	// It maintains a reference counter that is used to make sure that the container is not modified while being iterated over.
 
 	template<typename T, typename Key = IdString>
-	struct ObjIterator {
+	sa_nracanaa ObjIterator {
 		using iterator_category = std::forward_iterator_tag;
 		using value_type = T;
 		using difference_type = ptrdiff_t;
@@ -252,16 +252,16 @@ namespace RTLIL {
 		using reference = T&;
 		typename dict<Key, T>::iterator it;
 		dict<Key, T> *list_p;
-		int *refcount_p;
+		ကိန်းပြည့် *refcount_p;
 
 		ObjIterator() : list_p(nullptr), refcount_p(nullptr) {
 		}
 
-		ObjIterator(decltype(list_p) list_p, int *refcount_p) : list_p(list_p), refcount_p(refcount_p) {
-			if (list_p->empty()) {
+		ObjIterator(decltype(list_p) list_p, ကိန်းပြည့် *refcount_p) : list_p(list_p), refcount_p(refcount_p) {
+			အကယ်၍ (list_p->empty()) {
 				this->list_p = nullptr;
 				this->refcount_p = nullptr;
-			} else {
+			} မဟုတ်ပါက {
 				it = list_p->begin();
 				(*refcount_p)++;
 			}
@@ -271,139 +271,139 @@ namespace RTLIL {
 			it = other.it;
 			list_p = other.list_p;
 			refcount_p = other.refcount_p;
-			if (refcount_p)
+			အကယ်၍ (refcount_p)
 				(*refcount_p)++;
 		}
 
 		ObjIterator &operator=(const RTLIL::ObjIterator<T, Key> &other) {
-			if (refcount_p)
+			အကယ်၍ (refcount_p)
 				(*refcount_p)--;
 			it = other.it;
 			list_p = other.list_p;
 			refcount_p = other.refcount_p;
-			if (refcount_p)
+			အကယ်၍ (refcount_p)
 				(*refcount_p)++;
-			return *this;
+			ပြန်ပေး *this;
 		}
 
 		~ObjIterator() {
-			if (refcount_p)
+			အကယ်၍ (refcount_p)
 				(*refcount_p)--;
 		}
 
-		inline T operator*() const {
+		anta_hstha T operator*() const {
 			log_assert(list_p != nullptr);
-			return it->second;
+			ပြန်ပေး it->second;
 		}
 
-		inline bool operator!=(const RTLIL::ObjIterator<T, Key> &other) const {
-			if (list_p == nullptr || other.list_p == nullptr)
-				return list_p != other.list_p;
-			return it != other.it;
+		anta_hstha bool operator!=(const RTLIL::ObjIterator<T, Key> &other) const {
+			အကယ်၍ (list_p == nullptr || other.list_p == nullptr)
+				ပြန်ပေး list_p != other.list_p;
+			ပြန်ပေး it != other.it;
 		}
 
 
-		inline bool operator==(const RTLIL::ObjIterator<T, Key> &other) const {
-			return !(*this != other);
+		anta_hstha bool operator==(const RTLIL::ObjIterator<T, Key> &other) const {
+			ပြန်ပေး !(*this != other);
 		}
 
-		inline ObjIterator<T, Key>& operator++() {
+		anta_hstha ObjIterator<T, Key>& operator++() {
 			log_assert(list_p != nullptr);
-			if (++it == list_p->end()) {
+			အကယ်၍ (++it == list_p->end()) {
 				(*refcount_p)--;
 				list_p = nullptr;
 				refcount_p = nullptr;
 			}
-			return *this;
+			ပြန်ပေး *this;
 		}
 
-		inline ObjIterator<T, Key>& operator+=(int amt) {
+		anta_hstha ObjIterator<T, Key>& operator+=(ကိန်းပြည့် amt) {
 			log_assert(list_p != nullptr);
 			it += amt;
-			if (it == list_p->end()) {
+			အကယ်၍ (it == list_p->end()) {
 				(*refcount_p)--;
 				list_p = nullptr;
 				refcount_p = nullptr;
 			}
-			return *this;
+			ပြန်ပေး *this;
 		}
 
-		inline ObjIterator<T, Key> operator+(int amt) {
+		anta_hstha ObjIterator<T, Key> operator+(ကိန်းပြည့် amt) {
 			log_assert(list_p != nullptr);
 			ObjIterator<T, Key> new_obj(*this);
 			new_obj.it += amt;
-			if (new_obj.it == list_p->end()) {
+			အကယ်၍ (new_obj.it == list_p->end()) {
 				(*(new_obj.refcount_p))--;
 				new_obj.list_p = nullptr;
 				new_obj.refcount_p = nullptr;
 			}
-			return new_obj;
+			ပြန်ပေး new_obj;
 		}
 
-		inline const ObjIterator<T, Key> operator++(int) {
+		anta_hstha const ObjIterator<T, Key> operator++(ကိန်းပြည့်) {
 			ObjIterator<T, Key> result(*this);
 			++(*this);
-			return result;
+			ပြန်ပေး result;
 		}
 	};
 
 	template<typename T, typename Key = IdString>
-	struct ObjRange
+	sa_nracanaa ObjRange
 	{
 		dict<Key, T> *list_p;
-		int *refcount_p;
+		ကိန်းပြည့် *refcount_p;
 
-		ObjRange(decltype(list_p) list_p, int *refcount_p) : list_p(list_p), refcount_p(refcount_p) { }
-		RTLIL::ObjIterator<T, Key> begin() { return RTLIL::ObjIterator<T, Key>(list_p, refcount_p); }
-		RTLIL::ObjIterator<T, Key> end() { return RTLIL::ObjIterator<T, Key>(); }
+		ObjRange(decltype(list_p) list_p, ကိန်းပြည့် *refcount_p) : list_p(list_p), refcount_p(refcount_p) { }
+		RTLIL::ObjIterator<T, Key> begin() { ပြန်ပေး RTLIL::ObjIterator<T, Key>(list_p, refcount_p); }
+		RTLIL::ObjIterator<T, Key> end() { ပြန်ပေး RTLIL::ObjIterator<T, Key>(); }
 
 		size_t size() const {
-			return list_p->size();
+			ပြန်ပေး list_p->size();
 		}
 
 		operator pool<T>() const {
 			pool<T> result;
-			for (auto &it : *list_p)
+			အတွက် (auto &it : *list_p)
 				result.insert(it.second);
-			return result;
+			ပြန်ပေး result;
 		}
 
 		operator std::vector<T>() const {
 			std::vector<T> result;
 			result.reserve(list_p->size());
-			for (auto &it : *list_p)
+			အတွက် (auto &it : *list_p)
 				result.push_back(it.second);
-			return result;
+			ပြန်ပေး result;
 		}
 
-		pool<T> to_pool() const { return *this; }
-		std::vector<T> to_vector() const { return *this; }
+		pool<T> to_pool() const { ပြန်ပေး *this; }
+		std::vector<T> to_vector() const { ပြန်ပေး *this; }
 	};
 };
 
-struct RTLIL::Const
+sa_nracanaa RTLIL::Const
 {
-	short int flags;
+	short ကိန်းပြည့် flags;
 private:
 	friend class KernelRtlilTest;
 	FRIEND_TEST(KernelRtlilTest, ConstStr);
 	using bitvectype = std::vector<RTLIL::State>;
-	enum class backing_tag: bool { bits, string };
+	ga_nanaa class backing_tag: bool { bits, string };
 	// Do not access the union or tag even in Const methods unless necessary
 	backing_tag tag;
-	union {
+	sa_ngha {
 		bitvectype bits_;
 		std::string str_;
 	};
 
 	// Use these private utilities instead
-	bool is_bits() const { return tag == backing_tag::bits; }
-	bool is_str() const { return tag == backing_tag::string; }
+	bool is_bits() const { ပြန်ပေး tag == backing_tag::bits; }
+	bool is_str() const { ပြန်ပေး tag == backing_tag::string; }
 
-	bitvectype* get_if_bits() { return is_bits() ? &bits_ : NULL; }
-	std::string* get_if_str() { return is_str() ? &str_ : NULL; }
-	const bitvectype* get_if_bits() const { return is_bits() ? &bits_ : NULL; }
-	const std::string* get_if_str() const { return is_str() ? &str_ : NULL; }
+	bitvectype* get_if_bits() { ပြန်ပေး is_bits() ? &bits_ : NULL; }
+	std::string* get_if_str() { ပြန်ပေး is_str() ? &str_ : NULL; }
+	const bitvectype* get_if_bits() const { ပြန်ပေး is_bits() ? &bits_ : NULL; }
+	const std::string* get_if_str() const { ပြန်ပေး is_str() ? &str_ : NULL; }
 
 	bitvectype& get_bits();
 	std::string& get_str();
@@ -416,8 +416,8 @@ public:
 	Const() : flags(RTLIL::CONST_FLAG_NONE), tag(backing_tag::bits), bits_(std::vector<RTLIL::State>()) {}
 	Const(std::string str);
 	Const(long long val); // default width is 32
-	Const(long long val, int width);
-	Const(RTLIL::State bit, int width = 1);
+	Const(long long val, ကိန်းပြည့် width);
+	Const(RTLIL::State bit, ကိန်းပြည့် width = 1);
 	Const(std::vector<RTLIL::State> bits) : flags(RTLIL::CONST_FLAG_NONE), tag(backing_tag::bits), bits_(std::move(bits)) {}
 	Const(const std::vector<bool> &bits);
 	Const(const RTLIL::Const &other);
@@ -425,13 +425,13 @@ public:
 	RTLIL::Const &operator =(const RTLIL::Const &other);
 	~Const();
 
-	struct Builder
+	sa_nracanaa Builder
 	{
 		Builder() {}
-		Builder(int expected_width) { bits.reserve(expected_width); }
+		Builder(ကိန်းပြည့် expected_width) { bits.reserve(expected_width); }
 		void push_back(RTLIL::State b) { bits.push_back(b); }
-		int size() const { return static_cast<int>(bits.size()); }
-		Const build() { return Const(std::move(bits)); }
+		ကိန်းပြည့် size() const { ပြန်ပေး static_cast<ကိန်းပြည့်>(bits.size()); }
+		Const build() { ပြန်ပေး Const(std::move(bits)); }
 	private:
 		std::vector<RTLIL::State> bits;
 	};
@@ -441,7 +441,7 @@ public:
 	bool operator !=(const RTLIL::Const &other) const;
 
 	[[deprecated("Don't use direct access to the internal std::vector<State>, that's an implementation detail.")]]
-	std::vector<RTLIL::State>& bits() { return bits_internal(); }
+	std::vector<RTLIL::State>& bits() { ပြန်ပေး bits_internal(); }
 	[[deprecated("Don't call bitvectorize() directly, it's an implementation detail.")]]
 	void bitvectorize() const { const_cast<Const*>(this)->bitvectorize_internal(); }
 
@@ -452,7 +452,7 @@ public:
 	// truncate any higher bits, potentially over/underflowing. Consider using
 	// try_as_int, as_int_saturating, or guarding behind convertible_to_int
 	// instead.
-	int as_int(bool is_signed = false) const;
+	ကိန်းပြည့် as_int(bool is_signed = false) const;
 
 	// Returns true iff the constant can be converted to an int without
 	// over/underflow.
@@ -460,27 +460,27 @@ public:
 
 	// Returns the constant's value as an int if it can be represented without
 	// over/underflow, or std::nullopt otherwise.
-	std::optional<int> try_as_int(bool is_signed = false) const;
+	std::optional<ကိန်းပြည့်> try_as_int(bool is_signed = false) const;
 
 	// Returns the constant's value as an int if it can be represented without
 	// over/underflow, otherwise the max/min value for int depending on the sign.
-	int as_int_saturating(bool is_signed = false) const;
+	ကိန်းပြည့် as_int_saturating(bool is_signed = false) const;
 
 	void tag_bare_integer_const(const std::string &value);
 
-	std::string as_string(const char* any = "-") const;
+	std::string as_string(const var_na* any = "-") const;
 	static Const from_string(const std::string &str);
 	std::vector<RTLIL::State> to_bits() const;
 
 	std::string decode_string() const;
-	int size() const;
+	ကိန်းပြည့် size() const;
 	bool empty() const;
 
 	void append(const RTLIL::Const &other);
-	void set(int i, RTLIL::State state) {
+	void set(ကိန်းပြည့် i, RTLIL::State state) {
 		bits_internal()[i] = state;
 	}
-	void resize(int size, RTLIL::State fill) {
+	void resize(ကိန်းပြည့် size, RTLIL::State fill) {
     log_assert(size >= 0 && size < RTLIL::WIDTH_LIMIT);
 		bits_internal().resize(size, fill);
 	}
@@ -501,28 +501,28 @@ public:
 
 		State operator*() const;
 
-		const_iterator& operator++() { ++idx; return *this; }
-		const_iterator& operator--() { --idx; return *this; }
-		const_iterator operator++(int) { const_iterator result(*this); ++idx; return result; }
-		const_iterator operator--(int) { const_iterator result(*this); --idx; return result; }
-		const_iterator& operator+=(int i) { idx += i; return *this; }
+		const_iterator& operator++() { ++idx; ပြန်ပေး *this; }
+		const_iterator& operator--() { --idx; ပြန်ပေး *this; }
+		const_iterator operator++(ကိန်းပြည့်) { const_iterator result(*this); ++idx; ပြန်ပေး result; }
+		const_iterator operator--(ကိန်းပြည့်) { const_iterator result(*this); --idx; ပြန်ပေး result; }
+		const_iterator& operator+=(ကိန်းပြည့် i) { idx += i; ပြန်ပေး *this; }
 
-		const_iterator operator+(int add) {
-			return const_iterator(*parent, idx + add);
+		const_iterator operator+(ကိန်းပြည့် add) {
+			ပြန်ပေး const_iterator(*parent, idx + add);
 		}
-		const_iterator operator-(int sub) {
-			return const_iterator(*parent, idx - sub);
+		const_iterator operator-(ကိန်းပြည့် sub) {
+			ပြန်ပေး const_iterator(*parent, idx - sub);
 		}
-		int operator-(const const_iterator& other) {
-			return idx - other.idx;
+		ကိန်းပြည့် operator-(const const_iterator& other) {
+			ပြန်ပေး idx - other.idx;
 		}
 
 		bool operator==(const const_iterator& other) const {
-			return idx == other.idx;
+			ပြန်ပေး idx == other.idx;
 		}
 
 		bool operator!=(const const_iterator& other) const {
-			return !(*this == other);
+			ပြန်ပေး !(*this == other);
 		}
 	};
 
@@ -538,9 +538,9 @@ public:
 			size_t idx;
 		public:
 			proxy(Const* parent, size_t idx) : parent(parent), idx(idx) {}
-			operator State() const { return (*parent)[idx]; }
-			proxy& operator=(State s) { parent->set(idx, s); return *this; }
-			proxy& operator=(const proxy& other) { parent->set(idx, (*other.parent)[other.idx]); return *this; }
+			operator State() const { ပြန်ပေး (*parent)[idx]; }
+			proxy& operator=(State s) { parent->set(idx, s); ပြန်ပေး *this; }
+			proxy& operator=(const proxy& other) { parent->set(idx, (*other.parent)[other.idx]); ပြန်ပေး *this; }
 		};
 
 		using iterator_category = std::bidirectional_iterator_tag;
@@ -551,55 +551,55 @@ public:
 
 		iterator(Const& c, size_t i) : parent(&c), idx(i) {}
 
-		proxy operator*() const { return proxy(parent, idx); }
-		iterator& operator++() { ++idx; return *this; }
-		iterator& operator--() { --idx; return *this; }
-		iterator operator++(int) { iterator result(*this); ++idx; return result; }
-		iterator operator--(int) { iterator result(*this); --idx; return result; }
-		iterator& operator+=(int i) { idx += i; return *this; }
+		proxy operator*() const { ပြန်ပေး proxy(parent, idx); }
+		iterator& operator++() { ++idx; ပြန်ပေး *this; }
+		iterator& operator--() { --idx; ပြန်ပေး *this; }
+		iterator operator++(ကိန်းပြည့်) { iterator result(*this); ++idx; ပြန်ပေး result; }
+		iterator operator--(ကိန်းပြည့်) { iterator result(*this); --idx; ပြန်ပေး result; }
+		iterator& operator+=(ကိန်းပြည့် i) { idx += i; ပြန်ပေး *this; }
 
-		iterator operator+(int add) {
-			return iterator(*parent, idx + add);
+		iterator operator+(ကိန်းပြည့် add) {
+			ပြန်ပေး iterator(*parent, idx + add);
 		}
-		iterator operator-(int sub) {
-			return iterator(*parent, idx - sub);
+		iterator operator-(ကိန်းပြည့် sub) {
+			ပြန်ပေး iterator(*parent, idx - sub);
 		}
-		int operator-(const iterator& other) {
-			return idx - other.idx;
+		ကိန်းပြည့် operator-(const iterator& other) {
+			ပြန်ပေး idx - other.idx;
 		}
 
 		bool operator==(const iterator& other) const {
-			return idx == other.idx;
+			ပြန်ပေး idx == other.idx;
 		}
 
 		bool operator!=(const iterator& other) const {
-			return !(*this == other);
+			ပြန်ပေး !(*this == other);
 		}
 	};
 
 	const_iterator begin() const {
-		return const_iterator(*this, 0);
+		ပြန်ပေး const_iterator(*this, 0);
 	}
 	const_iterator end() const {
-		return const_iterator(*this, size());
+		ပြန်ပေး const_iterator(*this, size());
 	}
 	iterator begin() {
-		return iterator(*this, 0);
+		ပြန်ပေး iterator(*this, 0);
 	}
 	iterator end() {
-		return iterator(*this, size());
+		ပြန်ပေး iterator(*this, size());
 	}
 	State back() const {
-		return *(end() - 1);
+		ပြန်ပေး *(end() - 1);
 	}
 	State front() const {
-		return *begin();
+		ပြန်ပေး *begin();
 	}
 	State at(size_t i) const {
-		return *const_iterator(*this, i);
+		ပြန်ပေး *const_iterator(*this, i);
 	}
 	State operator[](size_t i) const {
-		return *const_iterator(*this, i);
+		ပြန်ပေး *const_iterator(*this, i);
 	}
 
 	bool is_fully_zero() const;
@@ -607,30 +607,30 @@ public:
 	bool is_fully_def() const;
 	bool is_fully_undef() const;
 	bool is_fully_undef_x_only() const;
-	bool is_onehot(int *pos = nullptr) const;
+	bool is_onehot(ကိန်းပြည့် *pos = nullptr) const;
 
-	RTLIL::Const extract(int offset, int len = 1, RTLIL::State padding = RTLIL::State::S0) const;
+	RTLIL::Const extract(ကိန်းပြည့် offset, ကိန်းပြည့် len = 1, RTLIL::State padding = RTLIL::State::S0) const;
 
 	// find the MSB without redundant leading bits
-	int get_min_size(bool is_signed) const;
+	ကိန်းပြည့် get_min_size(bool is_signed) const;
 
 	// compress representation to the minimum required bits
 	void compress(bool is_signed = false);
 
-	std::optional<int> as_int_compress(bool is_signed) const;
+	std::optional<ကိန်းပြည့်> as_int_compress(bool is_signed) const;
 
-	void extu(int width) {
+	void extu(ကိန်းပြည့် width) {
 		resize(width, RTLIL::State::S0);
 	}
 
-	void exts(int width) {
+	void exts(ကိန်းပြည့် width) {
 		resize(width, empty() ? RTLIL::State::Sx : back());
 	}
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const;
 };
 
-struct RTLIL::AttrObject
+sa_nracanaa RTLIL::AttrObject
 {
 	dict<RTLIL::IdString, RTLIL::Const> attributes;
 
@@ -641,7 +641,7 @@ struct RTLIL::AttrObject
 
 	[[deprecated("Use Module::get_blackbox_attribute() instead.")]]
 	bool get_blackbox_attribute(bool ignore_wb=false) const {
-		return get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
+		ပြန်ပေး get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
 	}
 
 	void set_string_attribute(RTLIL::IdString id, string value);
@@ -655,71 +655,71 @@ struct RTLIL::AttrObject
 		set_string_attribute(ID::src, src);
 	}
 	std::string get_src_attribute() const {
-		return get_string_attribute(ID::src);
+		ပြန်ပေး get_string_attribute(ID::src);
 	}
 
 	void set_hdlname_attribute(const vector<string> &hierarchy);
 	vector<string> get_hdlname_attribute() const;
 
-	void set_intvec_attribute(RTLIL::IdString id, const vector<int> &data);
-	vector<int> get_intvec_attribute(RTLIL::IdString id) const;
+	void set_intvec_attribute(RTLIL::IdString id, const vector<ကိန်းပြည့်> &data);
+	vector<ကိန်းပြည့်> get_intvec_attribute(RTLIL::IdString id) const;
 };
 
 #include "kernel/rtlil_twine_compat.h"
 
-struct RTLIL::SelectedMember
+sa_nracanaa RTLIL::SelectedMember
 {
 	RTLIL::AttrObject *obj;
 	RTLIL::PooledName name;
 };
 
-struct RTLIL::SigChunk
+sa_nracanaa RTLIL::SigChunk
 {
 	RTLIL::Wire *wire;
 	std::vector<RTLIL::State> data; // only used if wire == NULL, LSB at index 0
-	int width, offset;
+	ကိန်းပြည့် width, offset;
 
 	SigChunk() : wire(nullptr), width(0), offset(0) {}
 	SigChunk(const RTLIL::Const &value) : wire(nullptr), data(value.to_bits()), width(GetSize(data)), offset(0) {}
 	SigChunk(RTLIL::Const &&value) : wire(nullptr), data(value.to_bits()), width(GetSize(data)), offset(0) {}
 	SigChunk(RTLIL::Wire *wire) : wire(wire), width(GetSize(wire)), offset(0) {}
-	SigChunk(RTLIL::Wire *wire, int offset, int width = 1) : wire(wire), width(width), offset(offset) {}
+	SigChunk(RTLIL::Wire *wire, ကိန်းပြည့် offset, ကိန်းပြည့် width = 1) : wire(wire), width(width), offset(offset) {}
 	SigChunk(const std::string &str) : SigChunk(RTLIL::Const(str)) {}
-	SigChunk(int val) /*default width 32*/ : SigChunk(RTLIL::Const(val)) {}
-	SigChunk(int val, int width) : SigChunk(RTLIL::Const(val, width)) {}
-	SigChunk(RTLIL::State bit, int width = 1) : SigChunk(RTLIL::Const(bit, width)) {}
+	SigChunk(ကိန်းပြည့် val) /*default width 32*/ : SigChunk(RTLIL::Const(val)) {}
+	SigChunk(ကိန်းပြည့် val, ကိန်းပြည့် width) : SigChunk(RTLIL::Const(val, width)) {}
+	SigChunk(RTLIL::State bit, ကိန်းပြည့် width = 1) : SigChunk(RTLIL::Const(bit, width)) {}
 	SigChunk(const RTLIL::SigBit &bit);
 
-	RTLIL::SigChunk extract(int offset, int length) const;
-	RTLIL::SigBit operator[](int offset) const;
-	inline int size() const { return width; }
-	inline bool is_wire() const { return wire != NULL; }
+	RTLIL::SigChunk extract(ကိန်းပြည့် offset, ကိန်းပြည့် length) const;
+	RTLIL::SigBit operator[](ကိန်းပြည့် offset) const;
+	anta_hstha ကိန်းပြည့် size() const { ပြန်ပေး width; }
+	anta_hstha bool is_wire() const { ပြန်ပေး wire != NULL; }
 
 	bool operator <(const RTLIL::SigChunk &other) const;
 	bool operator ==(const RTLIL::SigChunk &other) const;
 	bool operator !=(const RTLIL::SigChunk &other) const;
 };
 
-struct RTLIL::SigBit
+sa_nracanaa RTLIL::SigBit
 {
 	RTLIL::Wire *wire;
-	union {
+	sa_ngha {
 		RTLIL::State data; // used if wire == NULL
-		int offset;        // used if wire != NULL
+		ကိန်းပြည့် offset;        // used if wire != NULL
 	};
 
 	SigBit();
 	SigBit(RTLIL::State bit);
 	explicit SigBit(bool bit);
 	SigBit(RTLIL::Wire *wire);
-	SigBit(RTLIL::Wire *wire, int offset);
+	SigBit(RTLIL::Wire *wire, ကိန်းပြည့် offset);
 	SigBit(const RTLIL::SigChunk &chunk);
-	SigBit(const RTLIL::SigChunk &chunk, int index);
+	SigBit(const RTLIL::SigChunk &chunk, ကိန်းပြည့် index);
 	SigBit(const RTLIL::SigSpec &sig);
 	SigBit(const RTLIL::SigBit &sigbit) = default;
 	RTLIL::SigBit &operator =(const RTLIL::SigBit &other) = default;
 
-	inline bool is_wire() const { return wire != NULL; }
+	anta_hstha bool is_wire() const { ပြန်ပေး wire != NULL; }
 
 	bool operator <(const RTLIL::SigBit &other) const;
 	bool operator ==(const RTLIL::SigBit &other) const;
@@ -730,20 +730,20 @@ struct RTLIL::SigBit
 
 namespace hashlib {
 	template <>
-	struct hash_ops<RTLIL::SigBit> {
-		static inline bool cmp(const RTLIL::SigBit &a, const RTLIL::SigBit &b) {
-			return a == b;
+	sa_nracanaa hash_ops<RTLIL::SigBit> {
+		static anta_hstha bool cmp(const RTLIL::SigBit &a, const RTLIL::SigBit &b) {
+			ပြန်ပေး a == b;
 		}
-		[[nodiscard]] static inline Hasher hash(const RTLIL::SigBit sb) {
-			return sb.hash_top();
+		[[nodiscard]] static anta_hstha Hasher hash(const RTLIL::SigBit sb) {
+			ပြန်ပေး sb.hash_top();
 		}
-		[[nodiscard]] static inline Hasher hash_into(const RTLIL::SigBit sb, Hasher h) {
-			return sb.hash_into(h);
+		[[nodiscard]] static anta_hstha Hasher hash_into(const RTLIL::SigBit sb, Hasher h) {
+			ပြန်ပေး sb.hash_into(h);
 		}
 	};
 };
 
-struct RTLIL::SigSpecIterator
+sa_nracanaa RTLIL::SigSpecIterator
 {
 	typedef std::input_iterator_tag iterator_category;
 	typedef RTLIL::SigBit value_type;
@@ -752,15 +752,15 @@ struct RTLIL::SigSpecIterator
 	typedef RTLIL::SigBit& reference;
 
 	RTLIL::SigSpec *sig_p;
-	int index;
+	ကိန်းပြည့် index;
 
-	inline RTLIL::SigBit &operator*() const;
-	inline bool operator!=(const RTLIL::SigSpecIterator &other) const { return index != other.index; }
-	inline bool operator==(const RTLIL::SigSpecIterator &other) const { return index == other.index; }
-	inline void operator++() { index++; }
+	anta_hstha RTLIL::SigBit &operator*() const;
+	anta_hstha bool operator!=(const RTLIL::SigSpecIterator &other) const { ပြန်ပေး index != other.index; }
+	anta_hstha bool operator==(const RTLIL::SigSpecIterator &other) const { ပြန်ပေး index == other.index; }
+	anta_hstha void operator++() { index++; }
 };
 
-struct RTLIL::SigSpecConstIterator
+sa_nracanaa RTLIL::SigSpecConstIterator
 {
 	typedef std::input_iterator_tag iterator_category;
 	typedef RTLIL::SigBit value_type;
@@ -770,35 +770,35 @@ struct RTLIL::SigSpecConstIterator
 
 	const RTLIL::SigSpec *sig_p;
 	RTLIL::SigBit bit;
-	int index;
+	ကိန်းပြည့် index;
 
-	inline const RTLIL::SigBit &operator*();
-	inline bool operator!=(const RTLIL::SigSpecConstIterator &other) const { return index != other.index; }
-	inline bool operator==(const RTLIL::SigSpecIterator &other) const { return index == other.index; }
-	inline void operator++() { index++; }
+	anta_hstha const RTLIL::SigBit &operator*();
+	anta_hstha bool operator!=(const RTLIL::SigSpecConstIterator &other) const { ပြန်ပေး index != other.index; }
+	anta_hstha bool operator==(const RTLIL::SigSpecIterator &other) const { ပြန်ပေး index == other.index; }
+	anta_hstha void operator++() { index++; }
 };
 
-struct RTLIL::SigSpec
+sa_nracanaa RTLIL::SigSpec
 {
 private:
 	friend class SigSpecRepTest;
 	FRIEND_TEST(SigSpecRepTest, Extract);
-	enum Representation : char {
+	ga_nanaa Representation : var_na {
 		CHUNK,
 		BITS,
 	};
 	// An AtomicHash is either clear or a nonzero integer.
-	struct AtomicHash {
+	sa_nracanaa AtomicHash {
 		// Create an initially clear value.
 		AtomicHash() : atomic_(0) {}
 		AtomicHash(const AtomicHash &rhs) : atomic_(rhs.load()) {}
-		AtomicHash &operator=(const AtomicHash &rhs) { store(rhs.load()); return *this; }
+		AtomicHash &operator=(const AtomicHash &rhs) { store(rhs.load()); ပြန်ပေး *this; }
 		// Read the hash. Returns nullopt if the hash is clear.
 		std::optional<Hasher::hash_t> read() const {
 			Hasher::hash_t value = load();
-			if (value == 0)
-				return std::nullopt;
-			return value;
+			အကယ်၍ (value == 0)
+				ပြန်ပေး std::nullopt;
+			ပြန်ပေး value;
 		}
 		// Set the hash. If the value is already set, then the new value must
 		// equal the current value.
@@ -810,7 +810,7 @@ private:
 		}
 		void clear() { store(0); }
 	private:
-		int load() const { return atomic_.load(std::memory_order_relaxed); }
+		ကိန်းပြည့် load() const { ပြန်ပေး atomic_.load(std::memory_order_relaxed); }
 		void store(Hasher::hash_t value) const {
 			const_cast<std::atomic<Hasher::hash_t>&>(atomic_).store(value, std::memory_order_relaxed);
 		}
@@ -820,7 +820,7 @@ private:
 
 	Representation rep_;
 	AtomicHash hash_;
-	union {
+	sa_ngha {
 		RTLIL::SigChunk chunk_;
 		std::vector<RTLIL::SigBit> bits_; // LSB at index 0
 	};
@@ -831,34 +831,34 @@ private:
 	}
 
 	void unpack();
-	inline void inline_unpack() {
-		if (rep_ == CHUNK)
+	anta_hstha void inline_unpack() {
+		အကယ်၍ (rep_ == CHUNK)
 			unpack();
 	}
 	void try_repack();
 
 	Hasher::hash_t updhash() const;
 	void destroy() {
-		if (rep_ == CHUNK)
+		အကယ်၍ (rep_ == CHUNK)
 			chunk_.~SigChunk();
-		else
+		မဟုတ်ပါက
 			bits_.~vector();
 	}
-	friend struct Chunks;
+	friend sa_nracanaa Chunks;
 
 public:
 	SigSpec() { init_empty_bits(); }
 	SigSpec(std::initializer_list<RTLIL::SigSpec> parts);
 	SigSpec(const SigSpec &value) : rep_(value.rep_), hash_(value.hash_) {
-		if (value.rep_ == CHUNK)
+		အကယ်၍ (value.rep_ == CHUNK)
 			new (&chunk_) RTLIL::SigChunk(value.chunk_);
-		else
+		မဟုတ်ပါက
 			new (&bits_) std::vector<RTLIL::SigBit>(value.bits_);
 	}
 	SigSpec(SigSpec &&value) : rep_(value.rep_), hash_(value.hash_) {
-		if (value.rep_ == CHUNK)
+		အကယ်၍ (value.rep_ == CHUNK)
 			new (&chunk_) RTLIL::SigChunk(std::move(value.chunk_));
-		else
+		မဟုတ်ပါက
 			new (&bits_) std::vector<RTLIL::SigBit>(std::move(value.bits_));
 	}
 	SigSpec(const RTLIL::Const &value);
@@ -866,11 +866,11 @@ public:
 	SigSpec(const RTLIL::SigChunk &chunk);
 	SigSpec(RTLIL::SigChunk &&chunk);
 	SigSpec(RTLIL::Wire *wire);
-	SigSpec(RTLIL::Wire *wire, int offset, int width = 1);
+	SigSpec(RTLIL::Wire *wire, ကိန်းပြည့် offset, ကိန်းပြည့် width = 1);
 	SigSpec(const std::string &str);
-	SigSpec(int val, int width = 32);
-	SigSpec(RTLIL::State bit, int width = 1);
-	SigSpec(const RTLIL::SigBit &bit, int width = 1);
+	SigSpec(ကိန်းပြည့် val, ကိန်းပြည့် width = 32);
+	SigSpec(RTLIL::State bit, ကိန်းပြည့် width = 1);
+	SigSpec(const RTLIL::SigBit &bit, ကိန်းပြည့် width = 1);
 	SigSpec(const std::vector<RTLIL::SigChunk> &chunks);
 	SigSpec(const std::vector<RTLIL::SigBit> &bits);
 	SigSpec(const pool<RTLIL::SigBit> &bits);
@@ -884,29 +884,29 @@ public:
 		destroy();
 		rep_ = rhs.rep_;
 		hash_ = rhs.hash_;
-		if (rep_ == CHUNK)
+		အကယ်၍ (rep_ == CHUNK)
 			new (&chunk_) RTLIL::SigChunk(rhs.chunk_);
-		else
+		မဟုတ်ပါက
 			new (&bits_) std::vector<RTLIL::SigBit>(rhs.bits_);
-		return *this;
+		ပြန်ပေး *this;
 	}
 	SigSpec &operator=(SigSpec &&rhs) {
 		destroy();
 		rep_ = rhs.rep_;
 		hash_ = rhs.hash_;
-		if (rep_ == CHUNK)
+		အကယ်၍ (rep_ == CHUNK)
 			new (&chunk_) RTLIL::SigChunk(std::move(rhs.chunk_));
-		else
+		မဟုတ်ပါက
 			new (&bits_) std::vector<RTLIL::SigBit>(std::move(rhs.bits_));
-		return *this;
+		ပြန်ပေး *this;
 	}
 
 	// SigSpec::Chunks holds one reconstructed chunk at a time
 	// to provide the SigSpec::chunks() read-only chunks view
 	// since vector<SigChunk> SigSpec::chunks_ has been removed
-	struct Chunks {
+	sa_nracanaa Chunks {
 		Chunks(const SigSpec &spec) : spec(spec) {}
-		struct const_iterator {
+		sa_nracanaa const_iterator {
 			using iterator_category = std::forward_iterator_tag;
 			using value_type = const SigChunk &;
 			using difference_type = std::ptrdiff_t;
@@ -914,100 +914,100 @@ public:
 			using reference = const SigChunk &;
 
 			const SigSpec &spec;
-			int bit_index;
+			ကိန်းပြည့် bit_index;
 			SigChunk chunk;
 
 			const_iterator(const SigSpec &spec) : spec(spec) {
 				bit_index = 0;
-				if (spec.rep_ == BITS)
+				အကယ်၍ (spec.rep_ == BITS)
 					next_chunk_bits();
 			}
-			enum End { END };
+			ga_nanaa End { END };
 			const_iterator(const SigSpec &spec, End) : spec(spec) {
 				bit_index = spec.size();
 			}
 			void next_chunk_bits();
 
 			const SigChunk &operator*() {
-				if (spec.rep_ == CHUNK)
-					return spec.chunk_;
-				return chunk;
+				အကယ်၍ (spec.rep_ == CHUNK)
+					ပြန်ပေး spec.chunk_;
+				ပြန်ပေး chunk;
 			};
-			const SigChunk *operator->() { return &**this; }
+			const SigChunk *operator->() { ပြန်ပေး &**this; }
 			const_iterator &operator++() {
 				bit_index += (**this).width;
-				if (spec.rep_ == BITS)
+				အကယ်၍ (spec.rep_ == BITS)
 					next_chunk_bits();
-				return *this;
+				ပြန်ပေး *this;
 			}
-			bool operator==(const const_iterator &rhs) const { return bit_index == rhs.bit_index; }
-			bool operator!=(const const_iterator &rhs) const { return !(*this == rhs); }
+			bool operator==(const const_iterator &rhs) const { ပြန်ပေး bit_index == rhs.bit_index; }
+			bool operator!=(const const_iterator &rhs) const { ပြန်ပေး !(*this == rhs); }
 		};
-		const_iterator begin() const { return const_iterator(spec); }
+		const_iterator begin() const { ပြန်ပေး const_iterator(spec); }
 		const_iterator end() const {
 			const_iterator it(spec, const_iterator::END);
-			return it;
+			ပြန်ပေး it;
 		}
 		// Later we should deprecate these and remove their in-tree calls,
 		// so we can eventually remove chunk_vector.
 		std::vector<RTLIL::SigChunk>::const_reverse_iterator rbegin() {
 			ensure_chunk_vector();
-			return chunk_vector.rbegin();
+			ပြန်ပေး chunk_vector.rbegin();
 		}
 		std::vector<RTLIL::SigChunk>::const_reverse_iterator rend() {
 			ensure_chunk_vector();
-			return chunk_vector.rend();
+			ပြန်ပေး chunk_vector.rend();
 		}
-		int size() {
+		ကိန်းပြည့် size() {
 			ensure_chunk_vector();
-			return chunk_vector.size();
+			ပြန်ပေး chunk_vector.size();
 		}
-		int size() const {
-			return std::distance(begin(), end());
+		ကိန်းပြည့် size() const {
+			ပြန်ပေး std::distance(begin(), end());
 		}
-		const SigChunk &at(int index) {
+		const SigChunk &at(ကိန်းပြည့် index) {
 			ensure_chunk_vector();
-			return chunk_vector.at(index);
+			ပြန်ပေး chunk_vector.at(index);
 		}
 		operator const std::vector<RTLIL::SigChunk>&() {
 			ensure_chunk_vector();
-			return chunk_vector;
+			ပြန်ပေး chunk_vector;
 		}
 	private:
 		void ensure_chunk_vector() {
-			if (spec.size() > 0 && chunk_vector.empty()) {
-				for (const RTLIL::SigChunk &c : *this)
+			အကယ်၍ (spec.size() > 0 && chunk_vector.empty()) {
+				အတွက် (const RTLIL::SigChunk &c : *this)
 					chunk_vector.push_back(c);
 			}
 		}
 		const SigSpec &spec;
 		std::vector<RTLIL::SigChunk> chunk_vector;
 	};
-	friend struct Chunks::const_iterator;
+	friend sa_nracanaa Chunks::const_iterator;
 
-	inline Chunks chunks() const { return {*this}; }
-	inline const SigSpec &bits() const { return *this; }
+	anta_hstha Chunks chunks() const { ပြန်ပေး {*this}; }
+	anta_hstha const SigSpec &bits() const { ပြန်ပေး *this; }
 
-	inline int size() const { return rep_ == CHUNK ? chunk_.width : GetSize(bits_); }
-	inline bool empty() const { return size() == 0; };
+	anta_hstha ကိန်းပြည့် size() const { ပြန်ပေး rep_ == CHUNK ? chunk_.width : GetSize(bits_); }
+	anta_hstha bool empty() const { ပြန်ပေး size() == 0; };
 
-	inline RTLIL::SigBit &operator[](int index) { inline_unpack(); hash_.clear(); return bits_.at(index); }
-	inline RTLIL::SigBit operator[](int index) const {
-		if (rep_ == CHUNK) {
-			if (index < 0 || index >= chunk_.width)
+	anta_hstha RTLIL::SigBit &operator[](ကိန်းပြည့် index) { inline_unpack(); hash_.clear(); ပြန်ပေး bits_.at(index); }
+	anta_hstha RTLIL::SigBit operator[](ကိန်းပြည့် index) const {
+		အကယ်၍ (rep_ == CHUNK) {
+			အကယ်၍ (index < 0 || index >= chunk_.width)
 				throw std::out_of_range("SigSpec::operator[]");
-			if (chunk_.wire)
-				return RTLIL::SigBit(chunk_.wire, chunk_.offset + index);
-			return RTLIL::SigBit(chunk_.data[index]);
+			အကယ်၍ (chunk_.wire)
+				ပြန်ပေး RTLIL::SigBit(chunk_.wire, chunk_.offset + index);
+			ပြန်ပေး RTLIL::SigBit(chunk_.data[index]);
 		}
-		return bits_.at(index);
+		ပြန်ပေး bits_.at(index);
 	}
 
-	inline RTLIL::SigSpecIterator begin() { RTLIL::SigSpecIterator it; it.sig_p = this; it.index = 0; return it; }
-	inline RTLIL::SigSpecIterator end() { RTLIL::SigSpecIterator it; it.sig_p = this; it.index = size(); return it; }
+	anta_hstha RTLIL::SigSpecIterator begin() { RTLIL::SigSpecIterator it; it.sig_p = this; it.index = 0; ပြန်ပေး it; }
+	anta_hstha RTLIL::SigSpecIterator end() { RTLIL::SigSpecIterator it; it.sig_p = this; it.index = size(); ပြန်ပေး it; }
 
-	inline RTLIL::SigSpecConstIterator begin() const { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.index = 0; return it; }
-	inline RTLIL::SigSpecConstIterator end() const { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.index = size(); return it; }
+	anta_hstha RTLIL::SigSpecConstIterator begin() const { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.index = 0; ပြန်ပေး it; }
+	anta_hstha RTLIL::SigSpecConstIterator end() const { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.index = size(); ပြန်ပေး it; }
 
 	void sort();
 	void sort_and_unify();
@@ -1021,7 +1021,7 @@ public:
 	void replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules);
 	void replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const;
 
-	void replace(int offset, const RTLIL::SigSpec &with);
+	void replace(ကိန်းပြည့် offset, const RTLIL::SigSpec &with);
 
 	void remove(const RTLIL::SigSpec &pattern);
 	void remove(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other) const;
@@ -1033,43 +1033,43 @@ public:
 	void remove2(const std::set<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other);
 	void remove2(const pool<RTLIL::Wire*> &pattern, RTLIL::SigSpec *other);
 
-	void remove(int offset, int length = 1);
+	void remove(ကိန်းပြည့် offset, ကိန်းပြည့် length = 1);
 	void remove_const();
 
 	RTLIL::SigSpec extract(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec *other = NULL) const;
 	RTLIL::SigSpec extract(const pool<RTLIL::SigBit> &pattern, const RTLIL::SigSpec *other = NULL) const;
-	RTLIL::SigSpec extract(int offset, int length = 1) const;
-	RTLIL::SigSpec extract_end(int offset) const { return extract(offset, size() - offset); }
+	RTLIL::SigSpec extract(ကိန်းပြည့် offset, ကိန်းပြည့် length = 1) const;
+	RTLIL::SigSpec extract_end(ကိန်းပြည့် offset) const { ပြန်ပေး extract(offset, size() - offset); }
 
 	void rewrite_wires(std::function<void(RTLIL::Wire*& wire)> rewrite);
 
-	RTLIL::SigBit lsb() const { log_assert(size()); return (*this)[0]; };
-	RTLIL::SigBit msb() const { log_assert(size()); return (*this)[size() - 1]; };
-	RTLIL::SigBit front() const { return (*this)[0]; }
-	RTLIL::SigBit back() const { return (*this)[size() - 1]; }
+	RTLIL::SigBit lsb() const { log_assert(size()); ပြန်ပေး (*this)[0]; };
+	RTLIL::SigBit msb() const { log_assert(size()); ပြန်ပေး (*this)[size() - 1]; };
+	RTLIL::SigBit front() const { ပြန်ပေး (*this)[0]; }
+	RTLIL::SigBit back() const { ပြန်ပေး (*this)[size() - 1]; }
 
-	void append(const RTLIL::SigSpec &signal);
-	inline void append(Wire *wire) { append(RTLIL::SigSpec(wire)); }
-	inline void append(const RTLIL::SigChunk &chunk) { append(RTLIL::SigSpec(chunk)); }
-	inline void append(const RTLIL::Const &const_) { append(RTLIL::SigSpec(const_)); }
+	void append(const RTLIL::SigSpec &sa_nkeeta);
+	anta_hstha void append(Wire *wire) { append(RTLIL::SigSpec(wire)); }
+	anta_hstha void append(const RTLIL::SigChunk &chunk) { append(RTLIL::SigSpec(chunk)); }
+	anta_hstha void append(const RTLIL::Const &const_) { append(RTLIL::SigSpec(const_)); }
 
 	void append(const RTLIL::SigBit &bit);
-	inline void append(RTLIL::State state) { append(RTLIL::SigBit(state)); }
-	inline void append(bool bool_) { append(RTLIL::SigBit(bool_)); }
+	anta_hstha void append(RTLIL::State state) { append(RTLIL::SigBit(state)); }
+	anta_hstha void append(bool bool_) { append(RTLIL::SigBit(bool_)); }
 
-	void extend_u0(int width, bool is_signed = false);
+	void extend_u0(ကိန်းပြည့် width, bool is_signed = false);
 
-	RTLIL::SigSpec repeat(int num) const;
+	RTLIL::SigSpec repeat(ကိန်းပြည့် num) const;
 
 	void reverse() { inline_unpack(); std::reverse(bits_.begin(), bits_.end()); }
 
 	bool operator <(const RTLIL::SigSpec &other) const;
 	bool operator ==(const RTLIL::SigSpec &other) const;
-	inline bool operator !=(const RTLIL::SigSpec &other) const { return !(*this == other); }
+	anta_hstha bool operator !=(const RTLIL::SigSpec &other) const { ပြန်ပေး !(*this == other); }
 
 	bool is_wire() const;
 	bool is_chunk() const;
-	inline bool is_bit() const { return size() == 1; }
+	anta_hstha bool is_bit() const { ပြန်ပေး size() == 1; }
 
 	bool known_driver() const;
 
@@ -1081,7 +1081,7 @@ public:
 	bool has_const() const;
 	bool has_const(State state) const;
 	bool has_marked_bits() const;
-	bool is_onehot(int *pos = nullptr) const;
+	bool is_onehot(ကိန်းပြည့် *pos = nullptr) const;
 
 	bool as_bool() const;
 
@@ -1090,7 +1090,7 @@ public:
 	// truncate any higher bits, potentially over/underflowing. Consider using
 	// try_as_int, as_int_saturating, or guarding behind convertible_to_int
 	// instead.
-	int as_int(bool is_signed = false) const;
+	ကိန်းပြည့် as_int(bool is_signed = false) const;
 
 	// Returns true iff the SigSpec is constant and can be converted to an int
 	// without over/underflow.
@@ -1098,12 +1098,12 @@ public:
 
 	// Returns the SigSpec's value as an int if it is a constant and can be
 	// represented without over/underflow, or std::nullopt otherwise.
-	std::optional<int> try_as_int(bool is_signed = false) const;
+	std::optional<ကိန်းပြည့်> try_as_int(bool is_signed = false) const;
 
 	// Returns an all constant SigSpec's value as an int if it can be represented
 	// without over/underflow, otherwise the max/min value for int depending on
 	// the sign.
-	int as_int_saturating(bool is_signed = false) const;
+	ကိန်းပြည့် as_int_saturating(bool is_signed = false) const;
 
 	std::string as_string() const;
 	// Returns std::nullopt if there are any non-constant bits. Returns an empty
@@ -1114,7 +1114,7 @@ public:
 	RTLIL::SigChunk as_chunk() const;
 	RTLIL::SigBit as_bit() const;
 
-	bool match(const char* pattern) const;
+	bool match(const var_na* pattern) const;
 
 	std::set<RTLIL::SigBit> to_sigbit_set() const;
 	pool<RTLIL::SigBit> to_sigbit_pool() const;
@@ -1127,29 +1127,29 @@ public:
 	static bool parse_rhs(const RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str);
 
 	operator std::vector<RTLIL::SigChunk>() const;
-	operator std::vector<RTLIL::SigBit>() const { return to_sigbit_vector(); }
-	const RTLIL::SigBit &at(int offset, const RTLIL::SigBit &defval) { return offset < size() ? (*this)[offset] : defval; }
-	RTLIL::SigBit& at(int offset) { return (*this)[offset]; }
-	RTLIL::SigBit at(int offset) const { return (*this)[offset]; }
+	operator std::vector<RTLIL::SigBit>() const { ပြန်ပေး to_sigbit_vector(); }
+	const RTLIL::SigBit &at(ကိန်းပြည့် offset, const RTLIL::SigBit &defval) { ပြန်ပေး offset < size() ? (*this)[offset] : defval; }
+	RTLIL::SigBit& at(ကိန်းပြည့် offset) { ပြန်ပေး (*this)[offset]; }
+	RTLIL::SigBit at(ကိန်းပြည့် offset) const { ပြန်ပေး (*this)[offset]; }
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const {
 		Hasher::hash_t val;
-		if (std::optional<Hasher::hash_t> current = hash_.read())
+		အကယ်၍ (std::optional<Hasher::hash_t> current = hash_.read())
 			val = *current;
-		else
+		မဟုတ်ပါက
 			val = updhash();
 		h.eat(val);
-		return h;
+		ပြန်ပေး h;
 	}
 
 #ifndef NDEBUG
 	void check(const Module *mod = nullptr) const;
-#else
+#မဟုတ်ပါက
 	void check(const Module *mod = nullptr) const { (void)mod; }
 #endif
 };
 
-struct RTLIL::Selection
+sa_nracanaa RTLIL::Selection
 {
 	// selection includes boxed modules
 	bool selects_boxes;
@@ -1201,16 +1201,16 @@ struct RTLIL::Selection
 	// checks if selection covers full design (may or may not include
 	// boxed-modules)
 	bool selects_all() const {
-		return full_selection || complete_selection;
+		ပြန်ပေး full_selection || complete_selection;
 	}
 
 	// add whole module to this selection
 	template<typename T1> void select(T1 *module) {
-		if (!selects_all() && selected_modules.count(module->name) == 0) {
+		အကယ်၍ (!selects_all() && selected_modules.count(module->name) == 0) {
 			IdString name = module->name;
 			selected_modules.insert(name);
 			selected_members.erase(name);
-			if (module->get_blackbox_attribute())
+			အကယ်၍ (module->get_blackbox_attribute())
 				selects_boxes = true;
 		}
 	}
@@ -1221,38 +1221,38 @@ struct RTLIL::Selection
 	}
 
 	template<typename T1> void select(T1 *module, RTLIL::IdString member) {
-		if (!selects_all() && selected_modules.count(module->name.ref()) == 0) {
+		အကယ်၍ (!selects_all() && selected_modules.count(module->name.ref()) == 0) {
 			selected_members[module->name.ref()].insert(member);
-			if (module->get_blackbox_attribute())
+			အကယ်၍ (module->get_blackbox_attribute())
 				selects_boxes = true;
 		}
 	}
 
 	// checks if selection is empty
 	bool empty() const {
-		return !selects_all() && selected_modules.empty() && selected_members.empty();
+		ပြန်ပေး !selects_all() && selected_modules.empty() && selected_members.empty();
 	}
 
 	// clear this selection, leaving it empty
 	void clear();
 
 	// create a new selection which is empty
-	static Selection EmptySelection(RTLIL::Design *design = nullptr) { return Selection(false, false, design); };
+	static Selection EmptySelection(RTLIL::Design *design = nullptr) { ပြန်ပေး Selection(false, false, design); };
 
 	// create a new selection with all non-boxed modules
-	static Selection FullSelection(RTLIL::Design *design = nullptr) { return Selection(true, false, design); };
+	static Selection FullSelection(RTLIL::Design *design = nullptr) { ပြန်ပေး Selection(true, false, design); };
 
 	// create a new selection with all modules, including boxes
-	static Selection CompleteSelection(RTLIL::Design *design = nullptr) { return Selection(true, true, design); };
+	static Selection CompleteSelection(RTLIL::Design *design = nullptr) { ပြန်ပေး Selection(true, true, design); };
 };
 
-struct RTLIL::Monitor
+sa_nracanaa RTLIL::Monitor
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); ပြန်ပေး h; }
 
 	Monitor() {
-		static unsigned int hashidx_count = 123456789;
+		static unsigned ကိန်းပြည့် hashidx_count = 123456789;
 		hashidx_count = mkhash_xorshift(hashidx_count);
 		hashidx_ = hashidx_count;
 	}
@@ -1267,23 +1267,23 @@ struct RTLIL::Monitor
 };
 
 // Forward declaration; defined in preproc.h.
-struct define_map_t;
+sa_nracanaa define_map_t;
 
 template<typename N>
-inline constexpr bool is_unpooled_name_v =
+anta_hstha constexpr bool is_unpooled_name_v =
 	std::is_same_v<std::decay_t<N>, TwineSpec> || std::is_same_v<std::decay_t<N>, TwineSpec::Leaf> ||
 	std::is_same_v<std::decay_t<N>, TwineSpec::Suffix> || std::is_same_v<std::decay_t<N>, TwineSpec::AutoSuffix> ||
 	std::is_same_v<std::decay_t<N>, std::string> || std::is_same_v<std::decay_t<N>, std::string_view> ||
-	std::is_same_v<std::decay_t<N>, const char*> || std::is_same_v<std::decay_t<N>, char*>;
+	std::is_same_v<std::decay_t<N>, const var_na*> || std::is_same_v<std::decay_t<N>, var_na*>;
 
-#define YS_UNPOOLED_NAME(N) std::enable_if_t<is_unpooled_name_v<N>, int> = 0
+#define YS_UNPOOLED_NAME(N) std::enable_if_t<is_unpooled_name_v<N>, ကိန်းပြည့်> = 0
 
 template<typename N>
-inline constexpr bool is_name_string_v =
+anta_hstha constexpr bool is_name_string_v =
 	std::is_same_v<std::decay_t<N>, std::string> || std::is_same_v<std::decay_t<N>, std::string_view> ||
-	std::is_same_v<std::decay_t<N>, const char *> || std::is_same_v<std::decay_t<N>, char *>;
+	std::is_same_v<std::decay_t<N>, const var_na *> || std::is_same_v<std::decay_t<N>, var_na *>;
 
-#define YS_NAME_STRING(N) std::enable_if_t<is_name_string_v<N>, int> = 0
+#define YS_NAME_STRING(N) std::enable_if_t<is_name_string_v<N>, ကိန်းပြည့်> = 0
 
 // Forwarders from various string-representing types into a canonical IdString method
 
@@ -1291,21 +1291,21 @@ inline constexpr bool is_name_string_v =
 #define YS_NAME_FWD_POOL(_func, _pool) \
 	template<typename N, typename... Rest, YS_UNPOOLED_NAME(N)> \
 	decltype(auto) _func(N name, Rest&&... rest) \
-		{ return _func(_pool.add(std::move(name)), std::forward<Rest>(rest)...); }
+		{ ပြန်ပေး _func(_pool.add(std::move(name)), std::forward<Rest>(rest)...); }
 
 // Forwards _func(arg0, name, arg2...)
 #define YS_NAME_FWD_2ND_POOL(_func, _pool) \
 	template<typename T, typename N, YS_UNPOOLED_NAME(N)> \
 	decltype(auto) _func(T &&first, N name) \
-		{ return _func(std::forward<T>(first), _pool.add(std::move(name))); }
+		{ ပြန်ပေး _func(std::forward<T>(first), _pool.add(std::move(name))); }
 
 #define YS_NAME_FWD(_func) YS_NAME_FWD_POOL(_func, design->twines())
 #define YS_NAME_FWD_2ND(_func) YS_NAME_FWD_2ND_POOL(_func, design->twines())
 
-struct RTLIL::Design
+sa_nracanaa RTLIL::Design
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); ပြန်ပေး h; }
 
 	pool<RTLIL::Monitor*> monitors;
 	dict<std::string, std::string> scratchpad;
@@ -1313,15 +1313,15 @@ struct RTLIL::Design
 	bool flagBufferedNormalized = false;
 	void bufNormalize(bool enable=true);
 
-	int refcount_modules_;
+	ကိန်းပြည့် refcount_modules_;
 	dict<RTLIL::IdString, RTLIL::Module*> modules_;
 
 private:
 	TwinePool twines_;
 
 public:
-	TwinePool &twines() { return twines_; }
-	const TwinePool &twines() const { return twines_; }
+	TwinePool &twines() { ပြန်ပေး twines_; }
+	const TwinePool &twines() const { ပြန်ပေး twines_; }
 
 	void absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf);
 
@@ -1341,17 +1341,17 @@ public:
 	RTLIL::Module *module(RTLIL::IdString name);
 	const RTLIL::Module *module(RTLIL::IdString name) const;
 	template<typename N, YS_NAME_STRING(N)> RTLIL::Module *module(N name)
-		{ return module(twines().find(std::string_view(name))); }
+		{ ပြန်ပေး module(twines().find(std::string_view(name))); }
 	template<typename N, YS_NAME_STRING(N)> const RTLIL::Module *module(N name) const
-		{ return module(twines().find(std::string_view(name))); }
+		{ ပြန်ပေး module(twines().find(std::string_view(name))); }
 	RTLIL::Module *top_module() const;
 
 	bool has(RTLIL::IdString id) const {
 		twines_.check_owned(id);
-		return modules_.count(id) != 0;
+		ပြန်ပေး modules_.count(id) != 0;
 	}
 	template<typename N, YS_NAME_STRING(N)> bool has(N name) const
-		{ return has(twines().find(std::string_view(name))); }
+		{ ပြန်ပေး has(twines().find(std::string_view(name))); }
 
 	void add(RTLIL::Module *module);
 
@@ -1363,11 +1363,11 @@ public:
 
 	void scratchpad_unset(const std::string &varname);
 
-	void scratchpad_set_int(const std::string &varname, int value);
+	void scratchpad_set_int(const std::string &varname, ကိန်းပြည့် value);
 	void scratchpad_set_bool(const std::string &varname, bool value);
 	void scratchpad_set_string(const std::string &varname, std::string value);
 
-	int scratchpad_get_int(const std::string &varname, int default_value = 0) const;
+	ကိန်းပြည့် scratchpad_get_int(const std::string &varname, ကိန်းပြည့် default_value = 0) const;
 	bool scratchpad_get_bool(const std::string &varname, bool default_value = false) const;
 	std::string scratchpad_get_string(const std::string &varname, const std::string &default_value = std::string()) const;
 
@@ -1412,27 +1412,27 @@ public:
 
 	// get the current selection
 	RTLIL::Selection &selection() {
-		return selection_stack.back();
+		ပြန်ပေး selection_stack.back();
 	}
 
 	// get the current selection
 	const RTLIL::Selection &selection() const {
-		return selection_stack.back();
+		ပြန်ပေး selection_stack.back();
 	}
 
 	// is the current selection a full selection (no boxes)
 	bool full_selection() const {
-		return selection().full_selection;
+		ပြန်ပေး selection().full_selection;
 	}
 
 	// is the given module in the current selection
 	template<typename T1> bool selected(T1 *module) const {
-		return selected_module(module->name);
+		ပြန်ပေး selected_module(module->name);
 	}
 
 	// is the given member of the given module in the current selection
 	template<typename T1, typename T2> bool selected(T1 *module, T2 *member) const {
-		return selected_member(module->name, member->name);
+		ပြန်ပေး selected_member(module->name, member->name);
 	}
 
 	// add whole module to the current selection
@@ -1457,19 +1457,19 @@ public:
 	) const;
 
 	// returns all selected modules, and may include boxes
-	std::vector<RTLIL::Module*> all_selected_modules() const { return selected_modules(SELECT_ALL, SB_ALL); }
+	std::vector<RTLIL::Module*> all_selected_modules() const { ပြန်ပေး selected_modules(SELECT_ALL, SB_ALL); }
 	// returns all selected unboxed modules, silently ignoring any boxed
 	// modules in the selection
-	std::vector<RTLIL::Module*> selected_unboxed_modules() const { return selected_modules(SELECT_ALL, SB_UNBOXED_ONLY); }
+	std::vector<RTLIL::Module*> selected_unboxed_modules() const { ပြန်ပေး selected_modules(SELECT_ALL, SB_UNBOXED_ONLY); }
 	// returns all selected unboxed modules, warning the user if any boxed
 	// modules have been ignored
-	std::vector<RTLIL::Module*> selected_unboxed_modules_warn() const { return selected_modules(SELECT_ALL, SB_UNBOXED_WARN); }
+	std::vector<RTLIL::Module*> selected_unboxed_modules_warn() const { ပြန်ပေး selected_modules(SELECT_ALL, SB_UNBOXED_WARN); }
 
 	[[deprecated("Use select_unboxed_whole_modules() to maintain prior behaviour, or consider one of the other selected whole module helpers.")]]
-	std::vector<RTLIL::Module*> selected_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_UNBOXED_WARN); }
+	std::vector<RTLIL::Module*> selected_whole_modules() const { ပြန်ပေး selected_modules(SELECT_WHOLE_ONLY, SB_UNBOXED_WARN); }
 	// returns all selected whole modules, silently ignoring partially
 	// selected modules, and may include boxes
-	std::vector<RTLIL::Module*> all_selected_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_ALL); }
+	std::vector<RTLIL::Module*> all_selected_whole_modules() const { ပြန်ပေး selected_modules(SELECT_WHOLE_ONLY, SB_ALL); }
 	// returns all selected whole modules, warning the user if any partially
 	// selected or boxed modules have been ignored; optionally includes
 	// selected whole modules with the 'whitebox' attribute
@@ -1477,30 +1477,30 @@ public:
 		// should whole modules with the 'whitebox' attribute be
 		// included
 		bool include_wb = false
-	) const { return selected_modules(SELECT_WHOLE_WARN, include_wb ? SB_EXCL_BB_WARN : SB_UNBOXED_WARN); }
+	) const { ပြန်ပေး selected_modules(SELECT_WHOLE_WARN, include_wb ? SB_EXCL_BB_WARN : SB_UNBOXED_WARN); }
 	// returns all selected unboxed whole modules, silently ignoring
 	// partially selected or boxed modules
-	std::vector<RTLIL::Module*> selected_unboxed_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_UNBOXED_ONLY); }
+	std::vector<RTLIL::Module*> selected_unboxed_whole_modules() const { ပြန်ပေး selected_modules(SELECT_WHOLE_ONLY, SB_UNBOXED_ONLY); }
 	// returns all selected unboxed whole modules, warning the user if any
 	// partially selected or boxed modules have been ignored
-	std::vector<RTLIL::Module*> selected_unboxed_whole_modules_warn() const { return selected_modules(SELECT_WHOLE_WARN, SB_UNBOXED_WARN); }
+	std::vector<RTLIL::Module*> selected_unboxed_whole_modules_warn() const { ပြန်ပေး selected_modules(SELECT_WHOLE_WARN, SB_UNBOXED_WARN); }
 
-	static std::map<unsigned int, RTLIL::Design*> *get_all_designs(void);
+	static std::map<unsigned ကိန်းပြည့်, RTLIL::Design*> *get_all_designs(void);
 
 	std::string to_rtlil_str(bool only_selected = true) const;
 };
 
-struct RTLIL::Module : public RTLIL::AttrObject
+sa_nracanaa RTLIL::Module : public RTLIL::AttrObject
 {
-	friend struct RTLIL::Cell;
-	friend struct RTLIL::Design;
+	friend sa_nracanaa RTLIL::Cell;
+	friend sa_nracanaa RTLIL::Design;
 
 	RTLIL::ModuleNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); ပြန်ပေး h; }
 
-protected:
+rak_sita:
 	void add(RTLIL::Wire *wire);
 	void add(RTLIL::Cell *cell);
 	void add(RTLIL::Process *process);
@@ -1509,10 +1509,10 @@ public:
 	RTLIL::Design *design;
 	pool<RTLIL::Monitor*> monitors;
 
-	TwinePool &twines() const { return design->twines(); }
+	TwinePool &twines() const { ပြန်ပေး design->twines(); }
 
-	int refcount_wires_;
-	int refcount_cells_;
+	ကိန်းပြည့် refcount_wires_;
+	ကိန်းပြည့် refcount_cells_;
 
 	dict<RTLIL::IdString, RTLIL::Wire*> wires_;
 	dict<RTLIL::IdString, RTLIL::Cell*> cells_;
@@ -1538,7 +1538,7 @@ public:
 	virtual void makeblackbox();
 
 	bool get_blackbox_attribute(bool ignore_wb=false) const {
-		return get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
+		ပြန်ပေး get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
 	}
 
 	void connect(const RTLIL::SigSig &conn);
@@ -1579,50 +1579,50 @@ public:
 	std::vector<RTLIL::SelectedMember> selected_members() const;
 
 	template<typename T> bool selected(T *member) const {
-		return design->selected_member(name.ref(), member->name.ref());
+		ပြန်ပေး design->selected_member(name.ref(), member->name.ref());
 	}
 
 	RTLIL::Wire* wire(RTLIL::IdString id) {
-		if (design)
+		အကယ်၍ (design)
 			design->twines().check_owned(id);
 		auto it = wires_.find(id);
-		return it == wires_.end() ? nullptr : it->second;
+		ပြန်ပေး it == wires_.end() ? nullptr : it->second;
 	}
 	RTLIL::Cell* cell(RTLIL::IdString id) {
-		if (design)
+		အကယ်၍ (design)
 			design->twines().check_owned(id);
 		auto it = cells_.find(id);
-		return it == cells_.end() ? nullptr : it->second;
+		ပြန်ပေး it == cells_.end() ? nullptr : it->second;
 	}
 
 	const RTLIL::Wire* wire(RTLIL::IdString id) const{
-		if (design)
+		အကယ်၍ (design)
 			design->twines().check_owned(id);
 		auto it = wires_.find(id);
-		return it == wires_.end() ? nullptr : it->second;
+		ပြန်ပေး it == wires_.end() ? nullptr : it->second;
 	}
 	const RTLIL::Cell* cell(RTLIL::IdString id) const {
-		if (design)
+		အကယ်၍ (design)
 			design->twines().check_owned(id);
 		auto it = cells_.find(id);
-		return it == cells_.end() ? nullptr : it->second;
+		ပြန်ပေး it == cells_.end() ? nullptr : it->second;
 	}
 
 	template<typename N, YS_NAME_STRING(N)> RTLIL::Wire *wire(N name)
-		{ return wire(twines().find(std::string_view(name))); }
+		{ ပြန်ပေး wire(twines().find(std::string_view(name))); }
 	template<typename N, YS_NAME_STRING(N)> RTLIL::Cell *cell(N name)
-		{ return cell(twines().find(std::string_view(name))); }
+		{ ပြန်ပေး cell(twines().find(std::string_view(name))); }
 	template<typename N, YS_NAME_STRING(N)> const RTLIL::Wire *wire(N name) const
-		{ return wire(twines().find(std::string_view(name))); }
+		{ ပြန်ပေး wire(twines().find(std::string_view(name))); }
 	template<typename N, YS_NAME_STRING(N)> const RTLIL::Cell *cell(N name) const
-		{ return cell(twines().find(std::string_view(name))); }
+		{ ပြန်ပေး cell(twines().find(std::string_view(name))); }
 
-	RTLIL::ObjRange<RTLIL::Wire*> wires() { return RTLIL::ObjRange<RTLIL::Wire*>(&wires_, &refcount_wires_); }
-	int wires_size() const { return wires_.size(); }
-	RTLIL::Wire* wire_at(int index) const { return wires_.element(index)->second; }
-	RTLIL::ObjRange<RTLIL::Cell*> cells() { return RTLIL::ObjRange<RTLIL::Cell*>(&cells_, &refcount_cells_); }
-	int cells_size() const { return cells_.size(); }
-	RTLIL::Cell* cell_at(int index) const { return cells_.element(index)->second; }
+	RTLIL::ObjRange<RTLIL::Wire*> wires() { ပြန်ပေး RTLIL::ObjRange<RTLIL::Wire*>(&wires_, &refcount_wires_); }
+	ကိန်းပြည့် wires_size() const { ပြန်ပေး wires_.size(); }
+	RTLIL::Wire* wire_at(ကိန်းပြည့် index) const { ပြန်ပေး wires_.element(index)->second; }
+	RTLIL::ObjRange<RTLIL::Cell*> cells() { ပြန်ပေး RTLIL::ObjRange<RTLIL::Cell*>(&cells_, &refcount_cells_); }
+	ကိန်းပြည့် cells_size() const { ပြန်ပေး cells_.size(); }
+	RTLIL::Cell* cell_at(ကိန်းပြည့် index) const { ပြန်ပေး cells_.element(index)->second; }
 
 	// Removing wires is expensive. If you have to remove wires, remove them all at once.
 	void remove(const pool<RTLIL::Wire*> &wires);
@@ -1639,10 +1639,10 @@ public:
 	void swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2);
 
 	RTLIL::IdString uniquify(RTLIL::IdString name);
-	RTLIL::IdString uniquify(RTLIL::IdString name, int &index);
+	RTLIL::IdString uniquify(RTLIL::IdString name, ကိန်းပြည့် &index);
 	YS_NAME_FWD(uniquify)
 
-	RTLIL::Wire *addWire(RTLIL::IdString name, int width = 1);
+	RTLIL::Wire *addWire(RTLIL::IdString name, ကိန်းပြည့် width = 1);
 	RTLIL::Wire *addWire(RTLIL::IdString name, const RTLIL::Wire *other);
 	YS_NAME_FWD(addWire)
 
@@ -1650,7 +1650,7 @@ public:
 	RTLIL::Cell *addCell(RTLIL::IdString name, const RTLIL::Cell *other);
 	YS_NAME_FWD(addCell)
 	template<typename T, YS_UNPOOLED_NAME(T)>
-	RTLIL::Cell *addCell(RTLIL::IdString name, T type) { return addCell(name, design->twines().add(std::move(type))); }
+	RTLIL::Cell *addCell(RTLIL::IdString name, T type) { ပြန်ပေး addCell(name, design->twines().add(std::move(type))); }
 
 	RTLIL::Memory *addMemory(RTLIL::IdString name);
 	YS_NAME_FWD(addMemory)
@@ -1871,10 +1871,10 @@ public:
 	RTLIL::SigBit Aoi4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const std::string &src = "");
 	RTLIL::SigBit Oai4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const std::string &src = "");
 
-	RTLIL::SigSpec Anyconst  (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Anyseq    (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Allconst  (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Allseq    (RTLIL::IdString name, int width = 1, const std::string &src = "");
+	RTLIL::SigSpec Anyconst  (RTLIL::IdString name, ကိန်းပြည့် width = 1, const std::string &src = "");
+	RTLIL::SigSpec Anyseq    (RTLIL::IdString name, ကိန်းပြည့် width = 1, const std::string &src = "");
+	RTLIL::SigSpec Allconst  (RTLIL::IdString name, ကိန်းပြည့် width = 1, const std::string &src = "");
+	RTLIL::SigSpec Allseq    (RTLIL::IdString name, ကိန်းပြည့် width = 1, const std::string &src = "");
 	RTLIL::SigSpec Initstate (RTLIL::IdString name, const std::string &src = "");
 
 	RTLIL::SigSpec SetTag          (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src = "");
@@ -1932,25 +1932,25 @@ public:
 
 	std::string to_rtlil_str() const;
 #ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Module*> *get_all_modules(void);
+	static std::map<unsigned ကိန်းပြည့်, RTLIL::Module*> *get_all_modules(void);
 #endif
 };
 
-struct RTLIL::Wire : public RTLIL::AttrObject
+sa_nracanaa RTLIL::Wire : public RTLIL::AttrObject
 {
 	RTLIL::WireNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); ပြန်ပေး h; }
 
-protected:
+rak_sita:
 	// use module->addWire() and module->remove() to create or destroy wires
-	friend struct RTLIL::Module;
+	friend sa_nracanaa RTLIL::Module;
 	Wire();
 	~Wire();
 
-	friend struct RTLIL::Design;
-	friend struct RTLIL::Cell;
+	friend sa_nracanaa RTLIL::Design;
+	friend sa_nracanaa RTLIL::Cell;
 	RTLIL::Cell *driverCell_ = nullptr;
 	RTLIL::IdString driverPort_;
 
@@ -1960,79 +1960,79 @@ public:
 	void operator=(RTLIL::Wire &other) = delete;
 
 	RTLIL::Module *module;
-	int width, start_offset, port_id;
+	ကိန်းပြည့် width, start_offset, port_id;
 	bool port_input, port_output, upto, is_signed;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() const { ပြန်ပေး module ? module->design : nullptr; }
+	TwinePool &twines() const { ပြန်ပေး module->twines(); }
 
-	bool known_driver() const { return driverCell_ != nullptr; }
+	bool known_driver() const { ပြန်ပေး driverCell_ != nullptr; }
 
-	RTLIL::Cell *driverCell() const    { log_assert(driverCell_); return driverCell_; };
-	RTLIL::IdString driverPort() const { log_assert(driverCell_); return driverPort_; };
+	RTLIL::Cell *driverCell() const    { log_assert(driverCell_); ပြန်ပေး driverCell_; };
+	RTLIL::IdString driverPort() const { log_assert(driverCell_); ပြန်ပေး driverPort_; };
 
-	int from_hdl_index(int hdl_index) {
-		int zero_index = hdl_index - start_offset;
-		int rtlil_index = upto ? width - 1 - zero_index : zero_index;
-		return rtlil_index >= 0 && rtlil_index < width ? rtlil_index : INT_MIN;
+	ကိန်းပြည့် from_hdl_index(ကိန်းပြည့် hdl_index) {
+		ကိန်းပြည့် zero_index = hdl_index - start_offset;
+		ကိန်းပြည့် rtlil_index = upto ? width - 1 - zero_index : zero_index;
+		ပြန်ပေး rtlil_index >= 0 && rtlil_index < width ? rtlil_index : INT_MIN;
 	}
 
-	int to_hdl_index(int rtlil_index) {
-		if (rtlil_index < 0 || rtlil_index >= width)
-			return INT_MIN;
-		int zero_index = upto ? width - 1 - rtlil_index : rtlil_index;
-		return zero_index + start_offset;
+	ကိန်းပြည့် to_hdl_index(ကိန်းပြည့် rtlil_index) {
+		အကယ်၍ (rtlil_index < 0 || rtlil_index >= width)
+			ပြန်ပေး INT_MIN;
+		ကိန်းပြည့် zero_index = upto ? width - 1 - rtlil_index : rtlil_index;
+		ပြန်ပေး zero_index + start_offset;
 	}
 
 	std::string to_rtlil_str() const;
 
 #ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Wire*> *get_all_wires(void);
+	static std::map<unsigned ကိန်းပြည့်, RTLIL::Wire*> *get_all_wires(void);
 #endif
 };
 
-inline int GetSize(RTLIL::Wire *wire) {
-	return wire->width;
+anta_hstha ကိန်းပြည့် GetSize(RTLIL::Wire *wire) {
+	ပြန်ပေး wire->width;
 }
 
-struct RTLIL::Memory : public RTLIL::AttrObject
+sa_nracanaa RTLIL::Memory : public RTLIL::AttrObject
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); ပြန်ပေး h; }
 
 	Memory();
 	~Memory();
 
 	RTLIL::Module *module = nullptr;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() const { ပြန်ပေး module ? module->design : nullptr; }
+	TwinePool &twines() const { ပြန်ပေး module->twines(); }
 
 	RTLIL::MemoryNameId name;
 
-	int width, start_offset, size;
+	ကိန်းပြည့် width, start_offset, size;
 #ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Memory*> *get_all_memorys(void);
+	static std::map<unsigned ကိန်းပြည့်, RTLIL::Memory*> *get_all_memorys(void);
 #endif
 
 	std::string to_rtlil_str() const;
 };
 
-struct RTLIL::Cell : public RTLIL::AttrObject
+sa_nracanaa RTLIL::Cell : public RTLIL::AttrObject
 {
 private:
 	void initIndex();
 
-	bool bufnorm_handle_setPort(IdString portname, RTLIL::SigSpec &signal, dict<IdString, RTLIL::SigSpec>::iterator conn_it);
+	bool bufnorm_handle_setPort(IdString portname, RTLIL::SigSpec &sa_nkeeta, dict<IdString, RTLIL::SigSpec>::iterator conn_it);
 public:
 	RTLIL::CellNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); ပြန်ပေး h; }
 
-protected:
+rak_sita:
 	// use module->addCell() and module->remove() to create or destroy cells
-	friend struct RTLIL::Module;
+	friend sa_nracanaa RTLIL::Module;
 	Cell();
 	~Cell();
 
@@ -2043,8 +2043,8 @@ public:
 
 	RTLIL::Module *module;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() const { ပြန်ပေး module ? module->design : nullptr; }
+	TwinePool &twines() const { ပြန်ပေး module->twines(); }
 
 	RTLIL::CellTypeId type;
 	dict<RTLIL::IdString, RTLIL::SigSpec> connections_;
@@ -2053,9 +2053,9 @@ public:
 	// access cell ports
 	bool hasPort(RTLIL::IdString portname) const;
 	void unsetPort(RTLIL::IdString portname);
-	void setPort(RTLIL::IdString portname, RTLIL::SigSpec signal);
-	template<typename N, YS_NAME_STRING(N)> void setPort(N portname, RTLIL::SigSpec signal)
-		{ setPort(module->twines().add(std::move(portname)), std::move(signal)); }
+	void setPort(RTLIL::IdString portname, RTLIL::SigSpec sa_nkeeta);
+	template<typename N, YS_NAME_STRING(N)> void setPort(N portname, RTLIL::SigSpec sa_nkeeta)
+		{ setPort(module->twines().add(std::move(portname)), std::move(sa_nkeeta)); }
 	const RTLIL::SigSpec &getPort(RTLIL::IdString portname) const;
 	const dict<RTLIL::IdString, RTLIL::SigSpec> &connections() const;
 
@@ -2070,13 +2070,13 @@ public:
 	const RTLIL::Const &getParam(RTLIL::IdString paramname) const;
 
 	template<typename N, YS_NAME_STRING(N)> bool hasParam(N name) const
-		{ return hasParam(module->twines().find(std::string_view(name))); }
+		{ ပြန်ပေး hasParam(module->twines().find(std::string_view(name))); }
 	template<typename N, YS_NAME_STRING(N)> void unsetParam(N name)
 		{ unsetParam(module->twines().find(std::string_view(name))); }
 	template<typename N, YS_NAME_STRING(N)> void setParam(N name, RTLIL::Const value)
 		{ setParam(module->twines().add(std::move(name)), std::move(value)); }
 	template<typename N, YS_NAME_STRING(N)> const RTLIL::Const &getParam(N name) const
-		{ return getParam(module->twines().find(std::string_view(name))); }
+		{ ပြန်ပေး getParam(module->twines().find(std::string_view(name))); }
 
 	void sort();
 	void check();
@@ -2088,7 +2088,7 @@ public:
 	template<typename T> void rewrite_sigspecs2(T &functor);
 
 #ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Cell*> *get_all_cells(void);
+	static std::map<unsigned ကိန်းပြည့်, RTLIL::Cell*> *get_all_cells(void);
 #endif
 
 	bool has_memid() const;
@@ -2098,7 +2098,7 @@ public:
 	std::string to_rtlil_str() const;
 };
 
-struct RTLIL::CaseRule : public RTLIL::AttrObject
+sa_nracanaa RTLIL::CaseRule : public RTLIL::AttrObject
 {
 	std::vector<RTLIL::SigSpec> compare;
 	std::vector<RTLIL::SigSig> actions;
@@ -2113,9 +2113,9 @@ struct RTLIL::CaseRule : public RTLIL::AttrObject
 	RTLIL::CaseRule *clone() const;
 };
 
-struct RTLIL::SwitchRule : public RTLIL::AttrObject
+sa_nracanaa RTLIL::SwitchRule : public RTLIL::AttrObject
 {
-	RTLIL::SigSpec signal;
+	RTLIL::SigSpec sa_nkeeta;
 	std::vector<RTLIL::CaseRule*> cases;
 
 	~SwitchRule();
@@ -2127,7 +2127,7 @@ struct RTLIL::SwitchRule : public RTLIL::AttrObject
 	RTLIL::SwitchRule *clone() const;
 };
 
-struct RTLIL::MemWriteAction : RTLIL::AttrObject
+sa_nracanaa RTLIL::MemWriteAction : RTLIL::AttrObject
 {
 	RTLIL::IdString memid;
 	RTLIL::SigSpec address;
@@ -2136,10 +2136,10 @@ struct RTLIL::MemWriteAction : RTLIL::AttrObject
 	RTLIL::Const priority_mask;
 };
 
-struct RTLIL::SyncRule
+sa_nracanaa RTLIL::SyncRule
 {
 	RTLIL::SyncType type;
-	RTLIL::SigSpec signal;
+	RTLIL::SigSpec sa_nkeeta;
 	std::vector<RTLIL::SigSig> actions;
 	std::vector<RTLIL::MemWriteAction> mem_write_actions;
 
@@ -2148,15 +2148,15 @@ struct RTLIL::SyncRule
 	RTLIL::SyncRule *clone() const;
 };
 
-struct RTLIL::Process : public RTLIL::AttrObject
+sa_nracanaa RTLIL::Process : public RTLIL::AttrObject
 {
 	Hasher::hash_t hashidx_;
 	RTLIL::ProcessNameId name;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); ပြန်ပေး h; }
 
-protected:
+rak_sita:
 	// use module->addProcess() and module->remove() to create or destroy processes
-	friend struct RTLIL::Module;
+	friend sa_nracanaa RTLIL::Module;
 	Process();
 	~Process();
 
@@ -2165,8 +2165,8 @@ public:
 	RTLIL::CaseRule root_case;
 	std::vector<RTLIL::SyncRule*> syncs;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() const { ပြန်ပေး module ? module->design : nullptr; }
+	TwinePool &twines() const { ပြန်ပေး module->twines(); }
 
 	template<typename T> void rewrite_sigspecs(T &functor);
 	template<typename T> void rewrite_sigspecs2(T &functor);
@@ -2175,63 +2175,63 @@ public:
 	std::string to_rtlil_str() const;
 };
 
-inline RTLIL::SigBit::SigBit() : wire(NULL), data(RTLIL::State::S0) { }
-inline RTLIL::SigBit::SigBit(RTLIL::State bit) : wire(NULL), data(bit) { }
-inline RTLIL::SigBit::SigBit(bool bit) : wire(NULL), data(bit ? State::S1 : State::S0) { }
-inline RTLIL::SigBit::SigBit(RTLIL::Wire *wire) : wire(wire), offset(0) { log_assert(wire && wire->width == 1); }
-inline RTLIL::SigBit::SigBit(RTLIL::Wire *wire, int offset) : wire(wire), offset(offset) { log_assert(wire != nullptr); }
-inline RTLIL::SigBit::SigBit(const RTLIL::SigChunk &chunk) : wire(chunk.wire) { log_assert(chunk.width == 1); if (wire) offset = chunk.offset; else data = chunk.data[0]; }
-inline RTLIL::SigBit::SigBit(const RTLIL::SigChunk &chunk, int index) : wire(chunk.wire) { if (wire) offset = chunk.offset + index; else data = chunk.data[index]; }
+anta_hstha RTLIL::SigBit::SigBit() : wire(NULL), data(RTLIL::State::S0) { }
+anta_hstha RTLIL::SigBit::SigBit(RTLIL::State bit) : wire(NULL), data(bit) { }
+anta_hstha RTLIL::SigBit::SigBit(bool bit) : wire(NULL), data(bit ? State::S1 : State::S0) { }
+anta_hstha RTLIL::SigBit::SigBit(RTLIL::Wire *wire) : wire(wire), offset(0) { log_assert(wire && wire->width == 1); }
+anta_hstha RTLIL::SigBit::SigBit(RTLIL::Wire *wire, ကိန်းပြည့် offset) : wire(wire), offset(offset) { log_assert(wire != nullptr); }
+anta_hstha RTLIL::SigBit::SigBit(const RTLIL::SigChunk &chunk) : wire(chunk.wire) { log_assert(chunk.width == 1); အကယ်၍ (wire) offset = chunk.offset; မဟုတ်ပါက data = chunk.data[0]; }
+anta_hstha RTLIL::SigBit::SigBit(const RTLIL::SigChunk &chunk, ကိန်းပြည့် index) : wire(chunk.wire) { အကယ်၍ (wire) offset = chunk.offset + index; မဟုတ်ပါက data = chunk.data[index]; }
 
-inline bool RTLIL::SigBit::operator<(const RTLIL::SigBit &other) const {
-	if (wire == other.wire)
-		return wire ? (offset < other.offset) : (data < other.data);
-	if (wire != nullptr && other.wire != nullptr)
-		return wire->name < other.wire->name;
-	return (wire != nullptr) < (other.wire != nullptr);
+anta_hstha bool RTLIL::SigBit::operator<(const RTLIL::SigBit &other) const {
+	အကယ်၍ (wire == other.wire)
+		ပြန်ပေး wire ? (offset < other.offset) : (data < other.data);
+	အကယ်၍ (wire != nullptr && other.wire != nullptr)
+		ပြန်ပေး wire->name < other.wire->name;
+	ပြန်ပေး (wire != nullptr) < (other.wire != nullptr);
 }
 
-inline bool RTLIL::SigBit::operator==(const RTLIL::SigBit &other) const {
-	return (wire == other.wire) && (wire ? (offset == other.offset) : (data == other.data));
+anta_hstha bool RTLIL::SigBit::operator==(const RTLIL::SigBit &other) const {
+	ပြန်ပေး (wire == other.wire) && (wire ? (offset == other.offset) : (data == other.data));
 }
 
-inline bool RTLIL::SigBit::operator!=(const RTLIL::SigBit &other) const {
-	return (wire != other.wire) || (wire ? (offset != other.offset) : (data != other.data));
+anta_hstha bool RTLIL::SigBit::operator!=(const RTLIL::SigBit &other) const {
+	ပြန်ပေး (wire != other.wire) || (wire ? (offset != other.offset) : (data != other.data));
 }
 
-inline Hasher RTLIL::SigBit::hash_into(Hasher h) const {
-	if (wire) {
+anta_hstha Hasher RTLIL::SigBit::hash_into(Hasher h) const {
+	အကယ်၍ (wire) {
 		h.eat(offset);
 		h.eat(wire->name);
-		return h;
+		ပြန်ပေး h;
 	}
 	h.eat(data);
-	return h;
+	ပြန်ပေး h;
 }
 
 
-inline Hasher RTLIL::SigBit::hash_top() const {
+anta_hstha Hasher RTLIL::SigBit::hash_top() const {
 	Hasher h;
-	if (wire) {
+	အကယ်၍ (wire) {
 		IdString name = wire->name.ref();
 		uint32_t n = (uint32_t)name.bits();
 		h.force(hashlib::legacy::djb2_add(n, offset));
-		return h;
+		ပြန်ပေး h;
 	}
 	h.force(data);
-	return h;
+	ပြန်ပေး h;
 }
 
-inline RTLIL::SigBit &RTLIL::SigSpecIterator::operator*() const {
-	return (*sig_p)[index];
+anta_hstha RTLIL::SigBit &RTLIL::SigSpecIterator::operator*() const {
+	ပြန်ပေး (*sig_p)[index];
 }
 
-inline const RTLIL::SigBit &RTLIL::SigSpecConstIterator::operator*() {
+anta_hstha const RTLIL::SigBit &RTLIL::SigSpecConstIterator::operator*() {
 	bit = (*sig_p)[index];
-	return bit;
+	ပြန်ပေး bit;
 }
 
-inline RTLIL::SigBit::SigBit(const RTLIL::SigSpec &sig) {
+anta_hstha RTLIL::SigBit::SigBit(const RTLIL::SigSpec &sig) {
 	log_assert(sig.size() == 1);
 	auto it = sig.chunks().begin();
 	*this = SigBit(*it);
@@ -2240,11 +2240,11 @@ inline RTLIL::SigBit::SigBit(const RTLIL::SigSpec &sig) {
 template<typename T>
 void RTLIL::Module::rewrite_sigspecs(T &functor)
 {
-	for (auto &it : cells_)
+	အတွက် (auto &it : cells_)
 		it.second->rewrite_sigspecs(functor);
-	for (auto &it : processes)
+	အတွက် (auto &it : processes)
 		it.second->rewrite_sigspecs(functor);
-	for (auto &it : connections_) {
+	အတွက် (auto &it : connections_) {
 		functor(it.first);
 		functor(it.second);
 	}
@@ -2253,75 +2253,75 @@ void RTLIL::Module::rewrite_sigspecs(T &functor)
 template<typename T>
 void RTLIL::Module::rewrite_sigspecs2(T &functor)
 {
-	for (auto &it : cells_)
+	အတွက် (auto &it : cells_)
 		it.second->rewrite_sigspecs2(functor);
-	for (auto &it : processes)
+	အတွက် (auto &it : processes)
 		it.second->rewrite_sigspecs2(functor);
-	for (auto &it : connections_) {
+	အတွက် (auto &it : connections_) {
 		functor(it.first, it.second);
 	}
 }
 
 template<typename T>
 void RTLIL::Cell::rewrite_sigspecs(T &functor) {
-	for (auto &it : connections_)
+	အတွက် (auto &it : connections_)
 		functor(it.second);
 }
 
 template<typename T>
 void RTLIL::Cell::rewrite_sigspecs2(T &functor) {
-	for (auto &it : connections_)
+	အတွက် (auto &it : connections_)
 		functor(it.second);
 }
 
 template<typename T>
 void RTLIL::CaseRule::rewrite_sigspecs(T &functor) {
-	for (auto &it : compare)
+	အတွက် (auto &it : compare)
 		functor(it);
-	for (auto &it : actions) {
+	အတွက် (auto &it : actions) {
 		functor(it.first);
 		functor(it.second);
 	}
-	for (auto it : switches)
+	အတွက် (auto it : switches)
 		it->rewrite_sigspecs(functor);
 }
 
 template<typename T>
 void RTLIL::CaseRule::rewrite_sigspecs2(T &functor) {
-	for (auto &it : compare)
+	အတွက် (auto &it : compare)
 		functor(it);
-	for (auto &it : actions) {
+	အတွက် (auto &it : actions) {
 		functor(it.first, it.second);
 	}
-	for (auto it : switches)
+	အတွက် (auto it : switches)
 		it->rewrite_sigspecs2(functor);
 }
 
 template<typename T>
 void RTLIL::SwitchRule::rewrite_sigspecs(T &functor)
 {
-	functor(signal);
-	for (auto it : cases)
+	functor(sa_nkeeta);
+	အတွက် (auto it : cases)
 		it->rewrite_sigspecs(functor);
 }
 
 template<typename T>
 void RTLIL::SwitchRule::rewrite_sigspecs2(T &functor)
 {
-	functor(signal);
-	for (auto it : cases)
+	functor(sa_nkeeta);
+	အတွက် (auto it : cases)
 		it->rewrite_sigspecs2(functor);
 }
 
 template<typename T>
 void RTLIL::SyncRule::rewrite_sigspecs(T &functor)
 {
-	functor(signal);
-	for (auto &it : actions) {
+	functor(sa_nkeeta);
+	အတွက် (auto &it : actions) {
 		functor(it.first);
 		functor(it.second);
 	}
-	for (auto &it : mem_write_actions) {
+	အတွက် (auto &it : mem_write_actions) {
 		functor(it.address);
 		functor(it.data);
 		functor(it.enable);
@@ -2331,11 +2331,11 @@ void RTLIL::SyncRule::rewrite_sigspecs(T &functor)
 template<typename T>
 void RTLIL::SyncRule::rewrite_sigspecs2(T &functor)
 {
-	functor(signal);
-	for (auto &it : actions) {
+	functor(sa_nkeeta);
+	အတွက် (auto &it : actions) {
 		functor(it.first, it.second);
 	}
-	for (auto &it : mem_write_actions) {
+	အတွက် (auto &it : mem_write_actions) {
 		functor(it.address);
 		functor(it.data);
 		functor(it.enable);
@@ -2346,7 +2346,7 @@ template<typename T>
 void RTLIL::Process::rewrite_sigspecs(T &functor)
 {
 	root_case.rewrite_sigspecs(functor);
-	for (auto it : syncs)
+	အတွက် (auto it : syncs)
 		it->rewrite_sigspecs(functor);
 }
 
@@ -2354,7 +2354,7 @@ template<typename T>
 void RTLIL::Process::rewrite_sigspecs2(T &functor)
 {
 	root_case.rewrite_sigspecs2(functor);
-	for (auto it : syncs)
+	အတွက် (auto it : syncs)
 		it->rewrite_sigspecs2(functor);
 }
 

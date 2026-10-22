@@ -24,20 +24,20 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AigNode
+sa_nracanaa AigNode
 {
 	IdString portname;
-	int portbit;
+	ကိန်းပြည့် portbit;
 	bool inverter;
-	int left_parent, right_parent;
-	vector<pair<IdString, int>> outports;
+	ကိန်းပြည့် left_parent, right_parent;
+	vector<pair<IdString, ကိန်းပြည့်>> outports;
 
 	AigNode();
 	bool operator==(const AigNode &other) const;
 	[[nodiscard]] Hasher hash_into(Hasher h) const;
 };
 
-struct Aig
+sa_nracanaa Aig
 {
 	string name;
 	vector<AigNode> nodes;

@@ -21,48 +21,48 @@
 
 USING_YOSYS_NAMESPACE
 
-std::vector<int> QuickConeSat::importSig(SigSpec sig)
+std::vector<ကိန်းပြည့်> QuickConeSat::importSig(SigSpec sig)
 {
 	sig = modwalker.sigmap(sig);
-	for (auto bit : sig)
+	အတွက် (auto bit : sig)
 		bits_queue.insert(bit);
-	return satgen.importSigSpec(sig);
+	ပြန်ပေး satgen.importSigSpec(sig);
 }
 
-int QuickConeSat::importSigBit(SigBit bit)
+ကိန်းပြည့် QuickConeSat::importSigBit(SigBit bit)
 {
 	bit = modwalker.sigmap(bit);
 	bits_queue.insert(bit);
-	return satgen.importSigBit(bit);
+	ပြန်ပေး satgen.importSigBit(bit);
 }
 
 void QuickConeSat::prepare()
 {
-	while (!bits_queue.empty())
+	နေစဉ် (!bits_queue.empty())
 	{
 		pool<ModWalker::PortBit> portbits;
 		modwalker.get_drivers(portbits, bits_queue);
 
-		for (auto bit : bits_queue)
-			if (bit.wire && bit.wire->get_bool_attribute(ID::onehot) && !imported_onehot.count(bit.wire))
+		အတွက် (auto bit : bits_queue)
+			အကယ်၍ (bit.wire && bit.wire->get_bool_attribute(ID::onehot) && !imported_onehot.count(bit.wire))
 			{
-				std::vector<int> bits = satgen.importSigSpec(bit.wire);
-				for (int i : bits)
-				for (int j : bits)
-					if (i != j)
+				std::vector<ကိန်းပြည့်> bits = satgen.importSigSpec(bit.wire);
+				အတွက် (ကိန်းပြည့် i : bits)
+				အတွက် (ကိန်းပြည့် j : bits)
+					အကယ်၍ (i != j)
 						ez->assume(ez->NOT(i), j);
 				imported_onehot.insert(bit.wire);
 			}
 
 		bits_queue.clear();
 
-		for (auto &pbit : portbits)
+		အတွက် (auto &pbit : portbits)
 		{
-			if (imported_cells.count(pbit.cell))
+			အကယ်၍ (imported_cells.count(pbit.cell))
 				continue;
-			if (cell_complexity(pbit.cell) > max_cell_complexity)
+			အကယ်၍ (cell_complexity(pbit.cell) > max_cell_complexity)
 				continue;
-			if (max_cell_outs && GetSize(modwalker.cell_outputs[pbit.cell]) > max_cell_outs)
+			အကယ်၍ (max_cell_outs && GetSize(modwalker.cell_outputs[pbit.cell]) > max_cell_outs)
 				continue;
 			auto &inputs = modwalker.cell_inputs[pbit.cell];
 			bits_queue.insert(inputs.begin(), inputs.end());
@@ -70,16 +70,16 @@ void QuickConeSat::prepare()
 			imported_cells.insert(pbit.cell);
 		}
 
-		if (max_cell_count && GetSize(imported_cells) > max_cell_count)
-			break;
+		အကယ်၍ (max_cell_count && GetSize(imported_cells) > max_cell_count)
+			bha_nga;
 	}
 }
 
-int QuickConeSat::cell_complexity(RTLIL::Cell *cell)
+ကိန်းပြည့် QuickConeSat::cell_complexity(RTLIL::Cell *cell)
 {
-	if (cell->type.in(ID($concat), ID($slice), ID($pos), ID($buf), ID($barrier), ID($_BUF_)))
-		return 0;
-	if (cell->type.in(ID($not), ID($and), ID($or), ID($xor), ID($xnor),
+	အကယ်၍ (cell->type.in(ID($concat), ID($slice), ID($pos), ID($buf), ID($barrier), ID($_BUF_)))
+		ပြန်ပေး 0;
+	အကယ်၍ (cell->type.in(ID($not), ID($and), ID($or), ID($xor), ID($xnor),
 			ID($reduce_and), ID($reduce_or), ID($reduce_xor),
 			ID($reduce_xnor), ID($reduce_bool),
 			ID($logic_not), ID($logic_and), ID($logic_or),
@@ -89,43 +89,43 @@ int QuickConeSat::cell_complexity(RTLIL::Cell *cell)
 			ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_),
 			ID($_MUX_), ID($_NMUX_), ID($_MUX4_), ID($_MUX8_), ID($_MUX16_),
 			ID($_AOI3_), ID($_OAI3_), ID($_AOI4_), ID($_OAI4_)))
-		return 1;
-	if (cell->type.in(ID($neg), ID($add), ID($sub), ID($alu), ID($lcu),
+		ပြန်ပေး 1;
+	အကယ်၍ (cell->type.in(ID($neg), ID($add), ID($sub), ID($alu), ID($lcu),
 			ID($lt), ID($le), ID($gt), ID($ge)))
-		return 2;
-	if (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx)))
-		return 3;
-	if (cell->type.in(ID($mul), ID($macc), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow)))
-		return 4;
+		ပြန်ပေး 2;
+	အကယ်၍ (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx)))
+		ပြန်ပေး 3;
+	အကယ်၍ (cell->type.in(ID($mul), ID($macc), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow)))
+		ပြန်ပေး 4;
 	// Unknown cell.
-	return 5;
+	ပြန်ပေး 5;
 }
 
 int64_t SatEffortBudget::charge_import(QuickConeSat &qcsat, int64_t cells_charged)
 {
-	if (enabled())
+	အကယ်၍ (enabled())
 		remaining -= (GetSize(qcsat.imported_cells) - cells_charged) * import_cell_cost;
-	return GetSize(qcsat.imported_cells);
+	ပြန်ပေး GetSize(qcsat.imported_cells);
 }
 
-SatEffortBudget::Result SatEffortBudget::solve(QuickConeSat &qcsat, int64_t cap, const std::vector<int> &assumptions)
+SatEffortBudget::Result SatEffortBudget::solve(QuickConeSat &qcsat, int64_t cap, const std::vector<ကိန်းပြည့်> &assumptions)
 {
 	std::vector<bool> modelVals;
-	return solve(qcsat, cap, {}, modelVals, assumptions);
+	ပြန်ပေး solve(qcsat, cap, {}, modelVals, assumptions);
 }
 
-SatEffortBudget::Result SatEffortBudget::solve(QuickConeSat &qcsat, int64_t cap, const std::vector<int> &modelExprs,
-		std::vector<bool> &modelVals, const std::vector<int> &assumptions)
+SatEffortBudget::Result SatEffortBudget::solve(QuickConeSat &qcsat, int64_t cap, const std::vector<ကိန်းပြည့်> &modelExprs,
+		std::vector<bool> &modelVals, const std::vector<ကိန်းပြည့်> &assumptions)
 {
-	if (spent())
-		return Result::LimitReached;
-	if (enabled())
+	အကယ်၍ (spent())
+		ပြန်ပေး Result::LimitReached;
+	အကယ်၍ (enabled())
 		cap = (cap > 0) ? std::min(cap, remaining) : remaining;
 	qcsat.ez->setSolverPropLimit(cap);
 	bool sat = qcsat.ez->solve(modelExprs, modelVals, assumptions);
-	if (enabled())
+	အကယ်၍ (enabled())
 		remaining -= qcsat.ez->getSolverProps();
-	if (!sat && qcsat.ez->getSolverPropLimitStatus())
-		return Result::LimitReached;
-	return sat ? Result::Sat : Result::Unsat;
+	အကယ်၍ (!sat && qcsat.ez->getSolverPropLimitStatus())
+		ပြန်ပေး Result::LimitReached;
+	ပြန်ပေး sat ? Result::Sat : Result::Unsat;
 }
