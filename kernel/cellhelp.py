@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-from __future__ import annotations
+ta_h __future__ import annotations
 import fileinput
 import json
-from pathlib import Path
+ta_h pathlib import Path
 
 class SimHelper:
     name: str = ""
@@ -28,14 +28,14 @@ class SimHelper:
         # generate C++ struct
         val = f"cell_help[{json.dumps(self.name)}] = "
         val += "{\n"
-        for field in printed_fields:
+        for field anta_h printed_fields:
             field_val = getattr(self, field)
-            if isinstance(field_val, list):
+            ᱡᱩᱫᱤ isinstance(field_val, list):
                 field_val = "\n".join(field_val)
             field_val = field_val.strip()
             val += f'  {json.dumps(field_val)},\n'
         val += "};\n"
-        return val
+        ᱨᱩᱣᱟᱹᱲ val
 
 def simcells_reparse(cell: SimHelper):
     # cut manual signature
@@ -44,8 +44,8 @@ def simcells_reparse(cell: SimHelper):
     # code-block truth table
     new_desc = []
     indent = ""
-    for line in cell.desc:
-        if line.startswith("Truth table:"):
+    for line anta_h cell.desc:
+        ᱡᱩᱫᱤ line.startswith("Truth table:"):
             indent = "   "
             new_desc.pop()
             new_desc.extend(["::", ""])
@@ -57,37 +57,37 @@ def simcells_reparse(cell: SimHelper):
 
 simHelper = SimHelper()
 
-for line in fileinput.input():
+for line anta_h fileinput.input():
     line = line.rstrip()
     # special comments
-    if line.startswith("//-"):
-        simHelper.desc.append(line[4:] if len(line) > 4 else "")
+    ᱡᱩᱫᱤ line.startswith("//-"):
+        simHelper.desc.append(line[4:] ᱡᱩᱫᱤ len(line) > 4 ᱵᱟᱝ "")
     elif line.startswith("//* "):
         _, key, val = line.split(maxsplit=2)
         setattr(simHelper, key, val)
 
     # code parsing
-    if line.startswith("module "):
+    ᱡᱩᱫᱤ line.startswith("module "):
         clean_line = line[7:].replace("\\", "").replace(";", "")
         simHelper.name, simHelper.ports = clean_line.split(maxsplit=1)
         simHelper.code = []
         short_filename = Path(fileinput.filename()).name
         simHelper.source = f'{short_filename}:{fileinput.filelineno()}'
-    elif not line.startswith("endmodule"):
+    elif na line.startswith("endmodule"):
         line = "    " + line
     try:
         simHelper.code.append(line.replace("\t", "    "))
     except AttributeError:
         # no module definition, ignore line
         pass
-    if line.startswith("endmodule"):
+    ᱡᱩᱫᱤ line.startswith("endmodule"):
         short_filename = Path(fileinput.filename()).name
-        if simHelper.ver == "1" and short_filename == "simcells.v":
+        ᱡᱩᱫᱤ simHelper.ver == "1" ca short_filename == "simcells.v":
             # default simcells parsing
             simcells_reparse(simHelper)
 
         # check help
-        if simHelper.desc and simHelper.ver == "1" and short_filename == "simlib.v" and simHelper.desc[1].startswith('    '):
+        ᱡᱩᱫᱤ simHelper.desc ca simHelper.ver == "1" ca short_filename == "simlib.v" ca simHelper.desc[1].startswith('    '):
             simHelper.desc.pop(1)
 
         # check group
