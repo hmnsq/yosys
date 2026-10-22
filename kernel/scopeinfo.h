@@ -32,12 +32,12 @@ template<typename T>
 class IdTree
 {
 public:
-	struct Cursor;
+	sa_nracanaa Cursor;
 
-protected:
+rak_sita:
 	IdTree *parent = nullptr;
 	IdString scope_name;
-	int depth = 0;
+	පූර්ණ_සංඛ්‍යා depth = 0;
 
 	pool<IdString> names;
 	dict<IdString, T> entries;
@@ -48,17 +48,17 @@ public: // XXX
 	static Cursor do_insert(IdTree *tree, P begin, P end, T_ref &&value)
 	{
 		log_assert(begin != end && "path must be non-empty");
-		while (true) {
+		අතරතුර (true) {
 			IdString name = *begin;
 			++begin;
 			log_assert(!name.empty());
 			tree->names.insert(name);
-			if (begin == end) {
+			නම් (begin == end) {
 				tree->entries.emplace(name, std::forward<T_ref>(value));
-				return Cursor(tree, name);
+				ආපසු Cursor(tree, name);
 			}
 			auto &unique = tree->subtrees[name];
-			if (!unique) {
+			නම් (!unique) {
 				unique.reset(new IdTree);
 				unique->scope_name = name;
 				unique->parent = tree;
@@ -74,139 +74,139 @@ public:
 	IdTree(IdTree &&) = delete;
 
 	// A cursor remains valid as long as the (sub-)IdTree it points at is alive
-	struct Cursor
+	sa_nracanaa Cursor
 	{
 		friend class IdTree;
-	protected:
+	rak_sita:
 	public:
 		IdTree *target;
 		IdString scope_name;
 
 		Cursor() : target(nullptr) {}
 		Cursor(IdTree *target, IdString scope_name) : target(target), scope_name(scope_name) {
-			if (scope_name.empty())
+			නම් (scope_name.empty())
 				log_assert(target->parent == nullptr);
 		}
 
 		Cursor do_first_child() {
 			IdTree *tree = nullptr;
-			if (scope_name.empty()) {
+			නම් (scope_name.empty()) {
 				tree = target;
-			} else {
+			} නැතහොත් {
 				auto found = target->subtrees.find(scope_name);
-				if (found != target->subtrees.end()) {
+				නම් (found != target->subtrees.end()) {
 					tree = found->second.get();
-				} else {
-					return Cursor();
+				} නැතහොත් {
+					ආපසු Cursor();
 				}
 			}
-			if (tree->names.empty()) {
-				return Cursor();
+			නම් (tree->names.empty()) {
+				ආපසු Cursor();
 			}
-			return Cursor(tree, *tree->names.begin());
+			ආපසු Cursor(tree, *tree->names.begin());
 		}
 
 		Cursor do_next_sibling() {
-			if (scope_name.empty())
-				return Cursor();
+			නම් (scope_name.empty())
+				ආපසු Cursor();
 			auto found = target->names.find(scope_name);
-			if (found == target->names.end())
-				return Cursor();
+			නම් (found == target->names.end())
+				ආපසු Cursor();
 			++found;
-			if (found == target->names.end())
-				return Cursor();
-			return Cursor(target, *found);
+			නම් (found == target->names.end())
+				ආපසු Cursor();
+			ආපසු Cursor(target, *found);
 		}
 
 		Cursor do_parent() {
-			if (scope_name.empty())
-				return Cursor();
-			if (target->parent != nullptr)
-				return Cursor(target->parent, target->scope_name);
-			return Cursor(target, IdString());
+			නම් (scope_name.empty())
+				ආපසු Cursor();
+			නම් (target->parent != nullptr)
+				ආපසු Cursor(target->parent, target->scope_name);
+			ආපසු Cursor(target, IdString());
 		}
 
 		Cursor do_next_preorder() {
 			Cursor current = *this;
 			Cursor next = current.do_first_child();
-			if (next.valid())
-				return next;
-			while (current.valid()) {
-				if (next.valid())
-					return next;
+			නම් (next.valid())
+				ආපසු next;
+			අතරතුර (current.valid()) {
+				නම් (next.valid())
+					ආපසු next;
 				next = current.do_next_sibling();
-				if (next.valid())
-					return next;
+				නම් (next.valid())
+					ආපසු next;
 				current = current.do_parent();
 			}
-			return current;
+			ආපසු current;
 		}
 
 		Cursor do_child(IdString name) {
 			IdTree *tree = nullptr;
-			if (scope_name.empty()) {
+			නම් (scope_name.empty()) {
 				tree = target;
-			} else {
+			} නැතහොත් {
 				auto found = target->subtrees.find(scope_name);
-				if (found != target->subtrees.end()) {
+				නම් (found != target->subtrees.end()) {
 					tree = found->second.get();
-				} else {
-					return Cursor();
+				} නැතහොත් {
+					ආපසු Cursor();
 				}
 			}
 			auto found = tree->names.find(name);
-			if (found == tree->names.end()) {
-				return Cursor();
+			නම් (found == tree->names.end()) {
+				ආපසු Cursor();
 			}
-			return Cursor(tree, *found);
+			ආපසු Cursor(tree, *found);
 		}
 
 	public:
 		bool operator==(const Cursor &other) const {
-			return target == other.target && scope_name == other.scope_name;
+			ආපසු target == other.target && scope_name == other.scope_name;
 		}
 		bool operator!=(const Cursor &other) const {
-			return !(*this == other);
+			ආපසු !(*this == other);
 		}
 
 		[[nodiscard]] Hasher hash_into(Hasher h) const
 		{
 			h.eat(scope_name);
 			h.eat(target);
-			return h;
+			ආපසු h;
 		}
 
 		bool valid() const {
-			return target != nullptr;
+			ආපසු target != nullptr;
 		}
 
-		int depth() const {
+		පූර්ණ_සංඛ්‍යා depth() const {
 			log_assert(valid());
-			return target->depth + !scope_name.empty();
+			ආපසු target->depth + !scope_name.empty();
 		}
 
 		bool is_root() const {
-			return target != nullptr && scope_name.empty();
+			ආපසු target != nullptr && scope_name.empty();
 		}
 
 		bool has_entry() const {
 			log_assert(valid());
-			return !scope_name.empty() && target->entries.count(scope_name);
+			ආපසු !scope_name.empty() && target->entries.count(scope_name);
 		}
 
 		T &entry() {
 			log_assert(!scope_name.empty());
-			return target->entries.at(scope_name);
+			ආපසු target->entries.at(scope_name);
 		}
 
 		void assign_path_to(std::vector<IdString> &out_path) {
 			log_assert(valid());
 			out_path.clear();
-			if (scope_name.empty())
-				return;
+			නම් (scope_name.empty())
+				ආපසු;
 			out_path.push_back(scope_name);
 			IdTree *current = target;
-			while (current->parent) {
+			අතරතුර (current->parent) {
 				out_path.push_back(current->scope_name);
 				current = current->parent;
 			}
@@ -216,99 +216,99 @@ public:
 		std::vector<IdString> path() {
 			std::vector<IdString> result;
 			assign_path_to(result);
-			return result;
+			ආපසු result;
 		}
 
 		std::string path_str(const RTLIL::Design *design) {
 			std::string result;
-			for (const auto &item : path()) {
-				if (!result.empty())
+			සඳහා (const auto &item : path()) {
+				නම් (!result.empty())
 					result.push_back(' ');
 				result += design->twines().unescaped_str(item);
 			}
-			return result;
+			ආපසු result;
 		}
 
 		Cursor first_child() {
 			log_assert(valid());
-			return do_first_child();
+			ආපසු do_first_child();
 		}
 
 		Cursor next_preorder() {
 			log_assert(valid());
-			return do_next_preorder();
+			ආපසු do_next_preorder();
 		}
 
 		Cursor parent() {
 			log_assert(valid());
-			return do_parent();
+			ආපසු do_parent();
 		}
 
 		Cursor child(IdString name) {
 			log_assert(valid());
-			return do_child(name);
+			ආපසු do_child(name);
 		}
 
 		Cursor common_ancestor(Cursor other) {
 			Cursor current = *this;
 
-			while (current != other) {
-				if (!current.valid() || !other.valid())
-					return Cursor();
-				int delta = current.depth() - other.depth();
-				if (delta >= 0)
+			අතරතුර (current != other) {
+				නම් (!current.valid() || !other.valid())
+					ආපසු Cursor();
+				පූර්ණ_සංඛ්‍යා delta = current.depth() - other.depth();
+				නම් (delta >= 0)
 					current = current.do_parent();
-				if (delta <= 0)
+				නම් (delta <= 0)
 					other = other.do_parent();
 			}
-			return current;
+			ආපසු current;
 		}
 	};
 
 	template<typename P>
 	Cursor insert(P begin, P end, const T &value) {
-		return do_insert(this, begin, end, value);
+		ආපසු do_insert(this, begin, end, value);
 	}
 
 	template<typename P>
 	Cursor insert(P begin, P end, T &&value) {
-		return do_insert(this, begin, end, std::move(value));
+		ආපසු do_insert(this, begin, end, std::move(value));
 	}
 
 	template<typename P>
 	Cursor insert(const P &path, const T &value) {
-		return do_insert(this, path.begin(), path.end(), value);
+		ආපසු do_insert(this, path.begin(), path.end(), value);
 	}
 
 	template<typename P>
 	Cursor insert(const P &path, T &&value) {
-		return do_insert(this, path.begin(), path.end(), std::move(value));
+		ආපසු do_insert(this, path.begin(), path.end(), std::move(value));
 	}
 
 	Cursor cursor() {
-		return parent ? Cursor(this->parent, this->scope_name) : Cursor(this, IdString());
+		ආපසු parent ? Cursor(this->parent, this->scope_name) : Cursor(this, IdString());
 	}
 
 	template<typename P>
 	Cursor cursor(P begin, P end) {
 		Cursor current = cursor();
-		for (; begin != end; ++begin) {
+		සඳහා (; begin != end; ++begin) {
 			current = current.do_child(*begin);
-			if (!current.valid())
-				break;
+			නම් (!current.valid())
+				bha_nga;
 		}
-		return current;
+		ආපසු current;
 	}
 
 	template<typename P>
 	Cursor cursor(const P &path) {
-		return cursor(path.begin(), path.end());
+		ආපසු cursor(path.begin(), path.end());
 	}
 };
 
 
-struct ModuleItem {
-	enum class Type {
+sa_nracanaa ModuleItem {
+	ga_nanaa class Type {
 		Wire,
 		Cell,
 	};
@@ -318,20 +318,20 @@ struct ModuleItem {
 	ModuleItem(Wire *wire) : type(Type::Wire), ptr(wire) {}
 	ModuleItem(Cell *cell) : type(Type::Cell), ptr(cell) {}
 
-	bool is_wire() const { return type == Type::Wire; }
-	bool is_cell() const { return type == Type::Cell; }
+	bool is_wire() const { ආපසු type == Type::Wire; }
+	bool is_cell() const { ආපසු type == Type::Cell; }
 
-	Wire *wire() const { return type == Type::Wire ? static_cast<Wire *>(ptr) : nullptr; }
-	Cell *cell() const { return type == Type::Cell ? static_cast<Cell *>(ptr) : nullptr; }
+	Wire *wire() const { ආපසු type == Type::Wire ? static_cast<Wire *>(ptr) : nullptr; }
+	Cell *cell() const { ආපසු type == Type::Cell ? static_cast<Cell *>(ptr) : nullptr; }
 
-	bool operator==(const ModuleItem &other) const { return ptr == other.ptr && type == other.type; }
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(ptr); return h; }
+	bool operator==(const ModuleItem &other) const { ආපසු ptr == other.ptr && type == other.type; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(ptr); ආපසු h; }
 };
 
-static inline void log_dump_val_worker(typename IdTree<ModuleItem>::Cursor cursor ) { log("%p ", cursor.target); log_dump_val_worker(cursor.scope_name); }
+static anta_hstha void log_dump_val_worker(typename IdTree<ModuleItem>::Cursor cursor ) { log("%p ", cursor.target); log_dump_val_worker(cursor.scope_name); }
 
 template<typename T>
-static inline void log_dump_val_worker(const typename std::unique_ptr<T> &cursor ) { log("unique %p", cursor.get()); }
+static anta_hstha void log_dump_val_worker(const typename std::unique_ptr<T> &cursor ) { log("unique %p", cursor.get()); }
 
 template<typename O>
 std::vector<IdString> parse_hdlname(const O* object)
@@ -339,17 +339,17 @@ std::vector<IdString> parse_hdlname(const O* object)
 	TwinePool &twines = object->design()->twines();
 	IdString name = object->name;
 	std::vector<IdString> path;
-	for (auto const &item : object->get_hdlname_attribute())
+	සඳහා (auto const &item : object->get_hdlname_attribute())
 		path.push_back(twines.add("\\" + item));
 	bool synthetic = !name.isPublic() && !object->name.begins_with("$paramod")
 			&& !object->name.begins_with("$abstract");
-	if (path.empty() && name.isPublic())
+	නම් (path.empty() && name.isPublic())
 		path.push_back(name);
-	if (!path.empty() && synthetic) {
+	නම් (!path.empty() && synthetic) {
 		path.pop_back();
 		path.push_back(name);
 	}
-	return path;
+	ආපසු path;
 }
 
 template<typename O>
@@ -358,27 +358,27 @@ std::pair<std::vector<IdString>, IdString> parse_scopename(const O* object)
 	TwinePool &twines = object->design()->twines();
 	std::vector<IdString> path;
 	IdString trailing = object->name;
-	if (trailing.isPublic() || object->name.begins_with("$paramod") || object->name.begins_with("$abstract")) {
-		for (auto const &item : object->get_hdlname_attribute())
+	නම් (trailing.isPublic() || object->name.begins_with("$paramod") || object->name.begins_with("$abstract")) {
+		සඳහා (auto const &item : object->get_hdlname_attribute())
 			path.push_back(twines.add("\\" + item));
-		if (!path.empty()) {
+		නම් (!path.empty()) {
 			trailing = path.back();
 			path.pop_back();
 		}
-	} else if (object->has_attribute(ID::hdlname)) {
-		for (auto const &item : object->get_hdlname_attribute())
+	} නැතහොත් නම් (object->has_attribute(ID::hdlname)) {
+		සඳහා (auto const &item : object->get_hdlname_attribute())
 			path.push_back(twines.add("\\" + item));
-		if (!path.empty()) {
+		නම් (!path.empty()) {
 			path.pop_back();
 		}
-	} else {
-		for (auto const &item : split_tokens(object->get_string_attribute(ID(scopename)), " "))
+	} නැතහොත් {
+		සඳහා (auto const &item : split_tokens(object->get_string_attribute(ID(scopename)), " "))
 			path.push_back(twines.add("\\" + item));
 	}
-	return {path, trailing};
+	ආපසු {path, trailing};
 }
 
-struct ModuleHdlnameIndex {
+sa_nracanaa ModuleHdlnameIndex {
 	typedef IdTree<ModuleItem>::Cursor Cursor;
 
 	RTLIL::Module *module;
@@ -410,7 +410,7 @@ public:
 	template<typename O>
 	std::pair<Cursor, IdString> containing_scope(O *object) {
 		auto pair = parse_scopename(object);
-		return {tree.cursor(pair.first), pair.second};
+		ආපසු {tree.cursor(pair.first), pair.second};
 	}
 
 	// Return a vector of source locations starting from the indexed module to
@@ -428,11 +428,11 @@ public:
 		auto pair = parse_scopename(object);
 		std::vector<std::string> result = scope_sources(tree.cursor(pair.first));
 		result.push_back(object->get_src_attribute());
-		return result;
+		ආපසු result;
 	}
 };
 
-enum class ScopeinfoAttrs {
+ga_nanaa class ScopeinfoAttrs {
 	Module,
 	Cell,
 };

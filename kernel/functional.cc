@@ -27,196 +27,196 @@
 YOSYS_NAMESPACE_BEGIN
 namespace Functional {
 
-const char *fn_to_string(Fn fn) {
+const var_na *fn_to_string(Fn fn) {
 	switch(fn) {
-	case Fn::invalid: return "invalid";
-	case Fn::buf: return "buf";
-	case Fn::slice: return "slice";
-	case Fn::zero_extend: return "zero_extend";
-	case Fn::sign_extend: return "sign_extend";
-	case Fn::concat: return "concat";
-	case Fn::add: return "add";
-	case Fn::sub: return "sub";
-	case Fn::mul: return "mul";
-	case Fn::unsigned_div: return "unsigned_div";
-	case Fn::unsigned_mod: return "unsigned_mod";
-	case Fn::bitwise_and: return "bitwise_and";
-	case Fn::bitwise_or: return "bitwise_or";
-	case Fn::bitwise_xor: return "bitwise_xor";
-	case Fn::bitwise_not: return "bitwise_not";
-	case Fn::reduce_and: return "reduce_and";
-	case Fn::reduce_or: return "reduce_or";
-	case Fn::reduce_xor: return "reduce_xor";
-	case Fn::unary_minus: return "unary_minus";
-	case Fn::equal: return "equal";
-	case Fn::not_equal: return "not_equal";
-	case Fn::signed_greater_than: return "signed_greater_than";
-	case Fn::signed_greater_equal: return "signed_greater_equal";
-	case Fn::unsigned_greater_than: return "unsigned_greater_than";
-	case Fn::unsigned_greater_equal: return "unsigned_greater_equal";
-	case Fn::logical_shift_left: return "logical_shift_left";
-	case Fn::logical_shift_right: return "logical_shift_right";
-	case Fn::arithmetic_shift_right: return "arithmetic_shift_right";
-	case Fn::mux: return "mux";
-	case Fn::constant: return "constant";
-	case Fn::input: return "input";
-	case Fn::state: return "state";
-	case Fn::memory_read: return "memory_read";
-	case Fn::memory_write: return "memory_write";
+	pak_sa Fn::invalid: ආපසු "invalid";
+	pak_sa Fn::buf: ආපසු "buf";
+	pak_sa Fn::slice: ආපසු "slice";
+	pak_sa Fn::zero_extend: ආපසු "zero_extend";
+	pak_sa Fn::sign_extend: ආපසු "sign_extend";
+	pak_sa Fn::concat: ආපසු "concat";
+	pak_sa Fn::add: ආපසු "add";
+	pak_sa Fn::sub: ආපසු "sub";
+	pak_sa Fn::mul: ආපසු "mul";
+	pak_sa Fn::unsigned_div: ආපසු "unsigned_div";
+	pak_sa Fn::unsigned_mod: ආපසු "unsigned_mod";
+	pak_sa Fn::bitwise_and: ආපසු "bitwise_and";
+	pak_sa Fn::bitwise_or: ආපසු "bitwise_or";
+	pak_sa Fn::bitwise_xor: ආපසු "bitwise_xor";
+	pak_sa Fn::bitwise_not: ආපසු "bitwise_not";
+	pak_sa Fn::reduce_and: ආපසු "reduce_and";
+	pak_sa Fn::reduce_or: ආපසු "reduce_or";
+	pak_sa Fn::reduce_xor: ආපසු "reduce_xor";
+	pak_sa Fn::unary_minus: ආපසු "unary_minus";
+	pak_sa Fn::equal: ආපසු "equal";
+	pak_sa Fn::not_equal: ආපසු "not_equal";
+	pak_sa Fn::signed_greater_than: ආපසු "signed_greater_than";
+	pak_sa Fn::signed_greater_equal: ආපසු "signed_greater_equal";
+	pak_sa Fn::unsigned_greater_than: ආපසු "unsigned_greater_than";
+	pak_sa Fn::unsigned_greater_equal: ආපසු "unsigned_greater_equal";
+	pak_sa Fn::logical_shift_left: ආපසු "logical_shift_left";
+	pak_sa Fn::logical_shift_right: ආපසු "logical_shift_right";
+	pak_sa Fn::arithmetic_shift_right: ආපසු "arithmetic_shift_right";
+	pak_sa Fn::mux: ආපසු "mux";
+	pak_sa Fn::constant: ආපසු "constant";
+	pak_sa Fn::input: ආපසු "input";
+	pak_sa Fn::state: ආපසු "state";
+	pak_sa Fn::memory_read: ආපසු "memory_read";
+	pak_sa Fn::memory_write: ආපසු "memory_write";
 	}
-	log_error("fn_to_string: unknown Functional::Fn value %d\n", (int)fn);
+	log_error("fn_to_string: unknown Functional::Fn value %d\n", (පූර්ණ_සංඛ්‍යා)fn);
 }
 
 vector<IRInput const*> IR::inputs(IdString kind) const {
 	vector<IRInput const*> ret;
-	for (const auto &[name, input] : _inputs)
-		if(input.kind == kind)
+	සඳහා (const auto &[name, input] : _inputs)
+		නම්(input.kind == kind)
 			ret.push_back(&input);
-	return ret;
+	ආපසු ret;
 }
 
 vector<IROutput const*> IR::outputs(IdString kind) const {
 	vector<IROutput const*> ret;
-	for (const auto &[name, output] : _outputs)
-		if(output.kind == kind)
+	සඳහා (const auto &[name, output] : _outputs)
+		නම්(output.kind == kind)
 			ret.push_back(&output);
-	return ret;
+	ආපසු ret;
 }
 
 vector<IRState const*> IR::states(IdString kind) const {
 	vector<IRState const*> ret;
-	for (const auto &[name, state] : _states)
-		if(state.kind == kind)
+	සඳහා (const auto &[name, state] : _states)
+		නම්(state.kind == kind)
 			ret.push_back(&state);
-	return ret;
+	ආපසු ret;
 }
 
 vector<IRInput const*> IR::all_inputs() const {
 	vector<IRInput const*> ret;
-	for (const auto &[name, input] : _inputs)
+	සඳහා (const auto &[name, input] : _inputs)
 		ret.push_back(&input);
-	return ret;
+	ආපසු ret;
 }
 
 vector<IROutput const*> IR::all_outputs() const {
 	vector<IROutput const*> ret;
-	for (const auto &[name, output] : _outputs)
+	සඳහා (const auto &[name, output] : _outputs)
 		ret.push_back(&output);
-	return ret;
+	ආපසු ret;
 }
 
 vector<IRState const*> IR::all_states() const {
 	vector<IRState const*> ret;
-	for (const auto &[name, state] : _states)
+	සඳහා (const auto &[name, state] : _states)
 		ret.push_back(&state);
-	return ret;
+	ආපසු ret;
 }
 
-struct PrintVisitor : DefaultVisitor<std::string> {
+sa_nracanaa PrintVisitor : DefaultVisitor<std::string> {
 	std::function<std::string(Node)> np;
 	PrintVisitor(std::function<std::string(Node)> np) : np(np) { }
 	// as a general rule the default handler is good enough iff the only arguments are of type Node
-	std::string slice(Node, Node a, int offset, int out_width) override { return "slice(" + np(a) + ", " + std::to_string(offset) + ", " + std::to_string(out_width) + ")"; }
-	std::string zero_extend(Node, Node a, int out_width) override { return "zero_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
-	std::string sign_extend(Node, Node a, int out_width) override { return "sign_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
-	std::string constant(Node, RTLIL::Const const& value) override { return "constant(" + value.as_string() + ")"; }
-	std::string input(Node self, IdString name, IdString kind) override { return "input(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
-	std::string state(Node self, IdString name, IdString kind) override { return "state(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
+	std::string slice(Node, Node a, පූර්ණ_සංඛ්‍යා offset, පූර්ණ_සංඛ්‍යා out_width) override { ආපසු "slice(" + np(a) + ", " + std::to_string(offset) + ", " + std::to_string(out_width) + ")"; }
+	std::string zero_extend(Node, Node a, පූර්ණ_සංඛ්‍යා out_width) override { ආපසු "zero_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
+	std::string sign_extend(Node, Node a, පූර්ණ_සංඛ්‍යා out_width) override { ආපසු "sign_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
+	std::string constant(Node, RTLIL::Const const& value) override { ආපසු "constant(" + value.as_string() + ")"; }
+	std::string input(Node self, IdString name, IdString kind) override { ආපසු "input(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
+	std::string state(Node self, IdString name, IdString kind) override { ආපසු "state(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
 	std::string default_handler(Node self) override {
 		std::string ret = fn_to_string(self.fn());
 		ret += "(";
-		for(size_t i = 0; i < self.arg_count(); i++) {
-			if(i > 0) ret += ", ";
+		සඳහා(size_t i = 0; i < self.arg_count(); i++) {
+			නම්(i > 0) ret += ", ";
 			ret += np(self.arg(i));
 		}
 		ret += ")";
-		return ret;
+		ආපසු ret;
 	}
 };
 
 std::string Node::to_string()
 {
-	return to_string([](Node n) { return n.name().unescape(); });
+	ආපසු to_string([](Node n) { ආපසු n.name().unescape(); });
 }
 
 std::string Node::to_string(std::function<std::string(Node)> np)
 {
-	return visit(PrintVisitor(np));
+	ආපසු visit(PrintVisitor(np));
 }
 
 class CellSimplifier {
 	Factory &factory;
 	Node sign(Node a) {
-		return factory.slice(a, a.width() - 1, 1);
+		ආපසු factory.slice(a, a.width() - 1, 1);
 	}
 	Node neg_if(Node a, Node s) {
-		return factory.mux(a, factory.unary_minus(a), s);
+		ආපසු factory.mux(a, factory.unary_minus(a), s);
 	}
 	Node abs(Node a) {
-		return neg_if(a, sign(a));
+		ආපසු neg_if(a, sign(a));
 	}
 	Node handle_shift(Node a, Node b, bool is_right, bool is_signed) {
 		// to prevent new_width == 0, we handle this case separately
-		if(a.width() == 1) {
-			if(!is_signed)
-				return factory.bitwise_and(a, factory.bitwise_not(factory.reduce_or(b)));
-			else
-				return a;
+		නම්(a.width() == 1) {
+			නම්(!is_signed)
+				ආපසු factory.bitwise_and(a, factory.bitwise_not(factory.reduce_or(b)));
+			නැතහොත්
+				ආපසු a;
 		}
-		int new_width = ceil_log2(a.width());
+		පූර්ණ_සංඛ්‍යා new_width = ceil_log2(a.width());
 		Node b_truncated = factory.extend(b, new_width, false);
 		Node y =
 			!is_right ? factory.logical_shift_left(a, b_truncated) :
 			!is_signed ? factory.logical_shift_right(a, b_truncated) :
 			factory.arithmetic_shift_right(a, b_truncated);
-		if(b.width() <= new_width)
-			return y;
+		නම්(b.width() <= new_width)
+			ආපසු y;
 		Node overflow = factory.unsigned_greater_equal(b, factory.constant(RTLIL::Const(a.width(), b.width())));
 		Node y_if_overflow = is_signed ? factory.extend(sign(a), a.width(), true) : factory.constant(RTLIL::Const(State::S0, a.width()));
-		return factory.mux(y, y_if_overflow, overflow);
+		ආපසු factory.mux(y, y_if_overflow, overflow);
 	}
 public:
-	Node logical_shift_left(Node a, Node b) { return handle_shift(a, b, false, false); }
-	Node logical_shift_right(Node a, Node b) { return handle_shift(a, b, true, false); }
-	Node arithmetic_shift_right(Node a, Node b) { return handle_shift(a, b, true, true); }
+	Node logical_shift_left(Node a, Node b) { ආපසු handle_shift(a, b, false, false); }
+	Node logical_shift_right(Node a, Node b) { ආපසු handle_shift(a, b, true, false); }
+	Node arithmetic_shift_right(Node a, Node b) { ආපසු handle_shift(a, b, true, true); }
 	Node bitwise_mux(Node a, Node b, Node s) {
 		Node aa = factory.bitwise_and(a, factory.bitwise_not(s));
 		Node bb = factory.bitwise_and(b, s);
-		return factory.bitwise_or(aa, bb);
+		ආපසු factory.bitwise_or(aa, bb);
 	}
 	CellSimplifier(Factory &f) : factory(f) {}
 private:
-	Node handle_pow(Node a0, Node b, int y_width, bool is_signed) {
+	Node handle_pow(Node a0, Node b, පූර්ණ_සංඛ්‍යා y_width, bool is_signed) {
 		Node a = factory.extend(a0, y_width, is_signed);
 		Node r = factory.constant(Const(1, y_width));
-		for(int i = 0; i < b.width(); i++) {
+		සඳහා(පූර්ණ_සංඛ්‍යා i = 0; i < b.width(); i++) {
 			Node b_bit = factory.slice(b, i, 1);
 			r = factory.mux(r, factory.mul(r, a), b_bit);
 			a = factory.mul(a, a);
 		}
-		if (is_signed) {
+		නම් (is_signed) {
 			Node a_ge_1 = factory.unsigned_greater_than(abs(a0), factory.constant(Const(1, a0.width())));
 			Node zero_result = factory.bitwise_and(a_ge_1, sign(b));
 			r = factory.mux(r, factory.constant(Const(0, y_width)), zero_result);
 		}
-		return r;
+		ආපසු r;
 	}
-	Node handle_bmux(Node a, Node s, int a_offset, int width, int sn) {
-		if(sn < 1)
-			return factory.slice(a, a_offset, width);
-		else {
+	Node handle_bmux(Node a, Node s, පූර්ණ_සංඛ්‍යා a_offset, පූර්ණ_සංඛ්‍යා width, පූර්ණ_සංඛ්‍යා sn) {
+		නම්(sn < 1)
+			ආපසු factory.slice(a, a_offset, width);
+		නැතහොත් {
 			Node y0 = handle_bmux(a, s, a_offset, width, sn - 1);
 			Node y1 = handle_bmux(a, s, a_offset + (width << (sn - 1)), width, sn - 1);
-			return factory.mux(y0, y1, factory.slice(s, sn - 1, 1));
+			ආපසු factory.mux(y0, y1, factory.slice(s, sn - 1, 1));
 		}
 	}
 	Node handle_pmux(Node a, Node b, Node s) {
 		// TODO : what to do about multiple b bits set ?
 		log_assert(b.width() == a.width() * s.width());
 		Node y = a;
-		for(int i = 0; i < s.width(); i++)
+		සඳහා(පූර්ණ_සංඛ්‍යා i = 0; i < s.width(); i++)
 			y = factory.mux(y, factory.slice(b, a.width() * i, a.width()), factory.slice(s, i, 1));
-		return y;
+		ආපසු y;
 	}
 	dict<IdString, Node> handle_fa(Node a, Node b, Node c) {
 		Node t1 = factory.bitwise_xor(a, b);
@@ -224,9 +224,9 @@ private:
 		Node t3 = factory.bitwise_and(c, t1);
 		Node y = factory.bitwise_xor(c, t1);
 		Node x = factory.bitwise_or(t2, t3);
-		return {{ID(X), x}, {ID(Y), y}};
+		ආපසු {{ID(X), x}, {ID(Y), y}};
 	}
-	dict<IdString, Node> handle_alu(Node a_in, Node b_in, int y_width, bool is_signed, Node ci, Node bi) {
+	dict<IdString, Node> handle_alu(Node a_in, Node b_in, පූර්ණ_සංඛ්‍යා y_width, bool is_signed, Node ci, Node bi) {
 		Node a = factory.extend(a_in, y_width, is_signed);
 		Node b_uninverted = factory.extend(b_in, y_width, is_signed);
 		Node b = factory.mux(b_uninverted, factory.bitwise_not(b_uninverted), bi);
@@ -240,140 +240,140 @@ private:
 		Node y = factory.slice(y_extra, 0, y_width);
 		Node carries = factory.bitwise_xor(y_extra, factory.bitwise_xor(a_extra, b_extra));
 		Node co = factory.slice(carries, 1, y_width);
-		return {{ID(X), x}, {ID(Y), y}, {ID(CO), co}};
+		ආපසු {{ID(X), x}, {ID(Y), y}, {ID(CO), co}};
 	}
 	Node handle_lcu(Node p, Node g, Node ci) {
-		return handle_alu(g, factory.bitwise_or(p, g), g.width(), false, ci, factory.constant(Const(State::S0, 1))).at(ID(CO));
+		ආපසු handle_alu(g, factory.bitwise_or(p, g), g.width(), false, ci, factory.constant(Const(State::S0, 1))).at(ID(CO));
 	}
 public:
 	std::variant<dict<IdString, Node>, Node> handle(IdString cellName, IdString cellType, dict<IdString, Const> parameters, dict<IdString, Node> inputs)
 	{
-		int a_width = parameters.at(ID(A_WIDTH), Const(-1)).as_int();
-		int b_width = parameters.at(ID(B_WIDTH), Const(-1)).as_int();
-		int y_width = parameters.at(ID(Y_WIDTH), Const(-1)).as_int();
+		පූර්ණ_සංඛ්‍යා a_width = parameters.at(ID(A_WIDTH), Const(-1)).as_int();
+		පූර්ණ_සංඛ්‍යා b_width = parameters.at(ID(B_WIDTH), Const(-1)).as_int();
+		පූර්ණ_සංඛ්‍යා y_width = parameters.at(ID(Y_WIDTH), Const(-1)).as_int();
 		bool a_signed = parameters.at(ID(A_SIGNED), Const(0)).as_bool();
 		bool b_signed = parameters.at(ID(B_SIGNED), Const(0)).as_bool();
-		if(cellType.in(ID($add), ID($sub), ID($and), ID($or), ID($xor), ID($xnor), ID($mul))){
+		නම්(cellType.in(ID($add), ID($sub), ID($and), ID($or), ID($xor), ID($xnor), ID($mul))){
 			bool is_signed = a_signed && b_signed;
 			Node a = factory.extend(inputs.at(ID(A)), y_width, is_signed);
 			Node b = factory.extend(inputs.at(ID(B)), y_width, is_signed);
-			if(cellType == ID($add))
-				return factory.add(a, b);
-			else if(cellType == ID($sub))
-				return factory.sub(a, b);
-			else if(cellType == ID($mul))
-				return factory.mul(a, b);
-			else if(cellType == ID($and))
-				return factory.bitwise_and(a, b);
-			else if(cellType == ID($or))
-				return factory.bitwise_or(a, b);
-			else if(cellType == ID($xor))
-				return factory.bitwise_xor(a, b);
-			else if(cellType == ID($xnor))
-				return factory.bitwise_not(factory.bitwise_xor(a, b));
-			else
+			නම්(cellType == ID($add))
+				ආපසු factory.add(a, b);
+			නැතහොත් නම්(cellType == ID($sub))
+				ආපසු factory.sub(a, b);
+			නැතහොත් නම්(cellType == ID($mul))
+				ආපසු factory.mul(a, b);
+			නැතහොත් නම්(cellType == ID($and))
+				ආපසු factory.bitwise_and(a, b);
+			නැතහොත් නම්(cellType == ID($or))
+				ආපසු factory.bitwise_or(a, b);
+			නැතහොත් නම්(cellType == ID($xor))
+				ආපසු factory.bitwise_xor(a, b);
+			නැතහොත් නම්(cellType == ID($xnor))
+				ආපසු factory.bitwise_not(factory.bitwise_xor(a, b));
+			නැතහොත්
 				log_abort();
-		}else if(cellType.in(ID($eq), ID($ne), ID($eqx), ID($nex), ID($le), ID($lt), ID($ge), ID($gt))){
+		}නැතහොත් නම්(cellType.in(ID($eq), ID($ne), ID($eqx), ID($nex), ID($le), ID($lt), ID($ge), ID($gt))){
 			bool is_signed = a_signed && b_signed;
-			int width = max(a_width, b_width);
+			පූර්ණ_සංඛ්‍යා width = max(a_width, b_width);
 			Node a = factory.extend(inputs.at(ID(A)), width, is_signed);
 			Node b = factory.extend(inputs.at(ID(B)), width, is_signed);
-			if(cellType.in(ID($eq), ID($eqx)))
-				return factory.extend(factory.equal(a, b), y_width, false);
-			else if(cellType.in(ID($ne), ID($nex)))
-				return factory.extend(factory.not_equal(a, b), y_width, false);
-			else if(cellType == ID($lt))
-				return factory.extend(is_signed ? factory.signed_greater_than(b, a) : factory.unsigned_greater_than(b, a), y_width, false);
-			else if(cellType == ID($le))
-				return factory.extend(is_signed ? factory.signed_greater_equal(b, a) : factory.unsigned_greater_equal(b, a), y_width, false);
-			else if(cellType == ID($gt))
-				return factory.extend(is_signed ? factory.signed_greater_than(a, b) : factory.unsigned_greater_than(a, b), y_width, false);
-			else if(cellType == ID($ge))
-				return factory.extend(is_signed ? factory.signed_greater_equal(a, b) : factory.unsigned_greater_equal(a, b), y_width, false);
-			else
+			නම්(cellType.in(ID($eq), ID($eqx)))
+				ආපසු factory.extend(factory.equal(a, b), y_width, false);
+			නැතහොත් නම්(cellType.in(ID($ne), ID($nex)))
+				ආපසු factory.extend(factory.not_equal(a, b), y_width, false);
+			නැතහොත් නම්(cellType == ID($lt))
+				ආපසු factory.extend(is_signed ? factory.signed_greater_than(b, a) : factory.unsigned_greater_than(b, a), y_width, false);
+			නැතහොත් නම්(cellType == ID($le))
+				ආපසු factory.extend(is_signed ? factory.signed_greater_equal(b, a) : factory.unsigned_greater_equal(b, a), y_width, false);
+			නැතහොත් නම්(cellType == ID($gt))
+				ආපසු factory.extend(is_signed ? factory.signed_greater_than(a, b) : factory.unsigned_greater_than(a, b), y_width, false);
+			නැතහොත් නම්(cellType == ID($ge))
+				ආපසු factory.extend(is_signed ? factory.signed_greater_equal(a, b) : factory.unsigned_greater_equal(a, b), y_width, false);
+			නැතහොත්
 				log_abort();
-		}else if(cellType.in(ID($logic_or), ID($logic_and))){
+		}නැතහොත් නම්(cellType.in(ID($logic_or), ID($logic_and))){
 			Node a = factory.reduce_or(inputs.at(ID(A)));
 			Node b = factory.reduce_or(inputs.at(ID(B)));
 			Node y = cellType == ID($logic_and) ? factory.bitwise_and(a, b) : factory.bitwise_or(a, b);
-			return factory.extend(y, y_width, false);
-		}else if(cellType == ID($not)){
+			ආපසු factory.extend(y, y_width, false);
+		}නැතහොත් නම්(cellType == ID($not)){
 			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			return factory.bitwise_not(a);
-		}else if(cellType == ID($pos)){
-			return factory.extend(inputs.at(ID(A)), y_width, a_signed);
-		}else if(cellType == ID($barrier)){
-			return inputs.at(ID(A));
-		}else if(cellType == ID($neg)){
+			ආපසු factory.bitwise_not(a);
+		}නැතහොත් නම්(cellType == ID($pos)){
+			ආපසු factory.extend(inputs.at(ID(A)), y_width, a_signed);
+		}නැතහොත් නම්(cellType == ID($barrier)){
+			ආපසු inputs.at(ID(A));
+		}නැතහොත් නම්(cellType == ID($neg)){
 			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			return factory.unary_minus(a);
-		}else if(cellType == ID($logic_not)){
+			ආපසු factory.unary_minus(a);
+		}නැතහොත් නම්(cellType == ID($logic_not)){
 			Node a = factory.reduce_or(inputs.at(ID(A)));
 			Node y = factory.bitwise_not(a);
-			return factory.extend(y, y_width, false);
-		}else if(cellType.in(ID($reduce_or), ID($reduce_bool))){
+			ආපසු factory.extend(y, y_width, false);
+		}නැතහොත් නම්(cellType.in(ID($reduce_or), ID($reduce_bool))){
 			Node a = factory.reduce_or(inputs.at(ID(A)));
-			return factory.extend(a, y_width, false);
-		}else if(cellType == ID($reduce_and)){
+			ආපසු factory.extend(a, y_width, false);
+		}නැතහොත් නම්(cellType == ID($reduce_and)){
 			Node a = factory.reduce_and(inputs.at(ID(A)));
-			return factory.extend(a, y_width, false);
-		}else if(cellType.in(ID($reduce_xor), ID($reduce_xnor))){
+			ආපසු factory.extend(a, y_width, false);
+		}නැතහොත් නම්(cellType.in(ID($reduce_xor), ID($reduce_xnor))){
 			Node a = factory.reduce_xor(inputs.at(ID(A)));
 			Node y = cellType == ID($reduce_xnor) ? factory.bitwise_not(a) : a;
-			return factory.extend(y, y_width, false);
-		}else if(cellType == ID($shl) || cellType == ID($sshl)){
+			ආපසු factory.extend(y, y_width, false);
+		}නැතහොත් නම්(cellType == ID($shl) || cellType == ID($sshl)){
 			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
 			Node b = inputs.at(ID(B));
-			return logical_shift_left(a, b);
-		}else if(cellType == ID($shr) || cellType == ID($sshr)){
-			int width = max(a_width, y_width);
+			ආපසු logical_shift_left(a, b);
+		}නැතහොත් නම්(cellType == ID($shr) || cellType == ID($sshr)){
+			පූර්ණ_සංඛ්‍යා width = max(a_width, y_width);
 			Node a = factory.extend(inputs.at(ID(A)), width, a_signed);
 			Node b = inputs.at(ID(B));
 			Node y = a_signed && cellType == ID($sshr) ?
 				arithmetic_shift_right(a, b) :
 				logical_shift_right(a, b);
-			return factory.extend(y, y_width, a_signed);
-		}else if(cellType == ID($shiftx) || cellType == ID($shift)){
-			int width = max(a_width, y_width);
+			ආපසු factory.extend(y, y_width, a_signed);
+		}නැතහොත් නම්(cellType == ID($shiftx) || cellType == ID($shift)){
+			පූර්ණ_සංඛ්‍යා width = max(a_width, y_width);
 			Node a = factory.extend(inputs.at(ID(A)), width, cellType == ID($shift) && a_signed);
 			Node b = inputs.at(ID(B));
 			Node shr = logical_shift_right(a, b);
-			if(b_signed) {
+			නම්(b_signed) {
 				Node shl = logical_shift_left(a, factory.unary_minus(b));
 				Node y = factory.mux(shr, shl, sign(b));
-				return factory.extend(y, y_width, false);
-			} else {
-				return factory.extend(shr, y_width, false);
+				ආපසු factory.extend(y, y_width, false);
+			} නැතහොත් {
+				ආපසු factory.extend(shr, y_width, false);
 			}
-		}else if(cellType == ID($mux)){
-			return factory.mux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
-		}else if(cellType == ID($pmux)){
-			return handle_pmux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
-		}else if(cellType == ID($concat)){
+		}නැතහොත් නම්(cellType == ID($mux)){
+			ආපසු factory.mux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
+		}නැතහොත් නම්(cellType == ID($pmux)){
+			ආපසු handle_pmux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
+		}නැතහොත් නම්(cellType == ID($concat)){
 			Node a = inputs.at(ID(A));
 			Node b = inputs.at(ID(B));
-			return factory.concat(a, b);
-		}else if(cellType == ID($slice)){
-			int offset = parameters.at(ID(OFFSET)).as_int();
+			ආපසු factory.concat(a, b);
+		}නැතහොත් නම්(cellType == ID($slice)){
+			පූර්ණ_සංඛ්‍යා offset = parameters.at(ID(OFFSET)).as_int();
 			Node a = inputs.at(ID(A));
-			return factory.slice(a, offset, y_width);
-		}else if(cellType.in(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
-			int width = max(a_width, b_width);
+			ආපසු factory.slice(a, offset, y_width);
+		}නැතහොත් නම්(cellType.in(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
+			පූර්ණ_සංඛ්‍යා width = max(a_width, b_width);
 			bool is_signed = a_signed && b_signed;
 			Node a = factory.extend(inputs.at(ID(A)), width, is_signed);
 			Node b = factory.extend(inputs.at(ID(B)), width, is_signed);
-			if(is_signed) {
-				if(cellType == ID($div)) {
+			නම්(is_signed) {
+				නම්(cellType == ID($div)) {
 					// divide absolute values, then flip the sign if input signs differ
 					// but extend the width first, to handle the case (most negative value) / (-1)
 					Node abs_y = factory.unsigned_div(abs(a), abs(b));
 					Node out_sign = factory.not_equal(sign(a), sign(b));
-					return neg_if(factory.extend(abs_y, y_width, false), out_sign);
-				} else if(cellType == ID($mod)) {
+					ආපසු neg_if(factory.extend(abs_y, y_width, false), out_sign);
+				} නැතහොත් නම්(cellType == ID($mod)) {
 					// similar to division but output sign == divisor sign
 					Node abs_y = factory.unsigned_mod(abs(a), abs(b));
-					return neg_if(factory.extend(abs_y, y_width, false), sign(a));
-				} else if(cellType == ID($divfloor)) {
+					ආපසු neg_if(factory.extend(abs_y, y_width, false), sign(a));
+				} නැතහොත් නම්(cellType == ID($divfloor)) {
 					// if b is negative, flip both signs so that b is positive
 					Node b_sign = sign(b);
 					Node a1 = neg_if(a, b_sign);
@@ -386,8 +386,8 @@ public:
 					Node a2 = factory.mux(a1, factory.bitwise_not(a1), a1_sign);
 					Node y1 = factory.unsigned_div(a2, b1);
 					Node y2 = factory.extend(y1, y_width, false);
-					return factory.mux(y2, factory.bitwise_not(y2), a1_sign);
-				} else if(cellType == ID($modfloor)) {
+					ආපසු factory.mux(y2, factory.bitwise_not(y2), a1_sign);
+				} නැතහොත් නම්(cellType == ID($modfloor)) {
 					// calculate |a| % |b| and then subtract from |b| if input signs differ and the remainder is non-zero
 					Node abs_b = abs(b);
 					Node abs_y = factory.unsigned_mod(abs(a), abs_b);
@@ -395,73 +395,73 @@ public:
 					Node y_flipped = factory.mux(abs_y, factory.sub(abs_b, abs_y), flip_y);
 					// since y_flipped is strictly less than |b|, the top bit is always 0 and we can just sign extend the flipped result
 					Node y = neg_if(y_flipped, sign(b));
-					return factory.extend(y, y_width, true);
-				} else
+					ආපසු factory.extend(y, y_width, true);
+				} නැතහොත්
 					log_error("unhandled cell in CellSimplifier %s\n", factory.ir().design->twines().str(cellType));
-			} else {
-				if(cellType.in(ID($mod), ID($modfloor)))
-					return factory.extend(factory.unsigned_mod(a, b), y_width, false);
-				else
-					return factory.extend(factory.unsigned_div(a, b), y_width, false);
+			} නැතහොත් {
+				නම්(cellType.in(ID($mod), ID($modfloor)))
+					ආපසු factory.extend(factory.unsigned_mod(a, b), y_width, false);
+				නැතහොත්
+					ආපසු factory.extend(factory.unsigned_div(a, b), y_width, false);
 			}
-		} else if(cellType == ID($pow)) {
-			return handle_pow(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed);
-		} else if (cellType == ID($lut)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
+		} නැතහොත් නම්(cellType == ID($pow)) {
+			ආපසු handle_pow(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed);
+		} නැතහොත් නම් (cellType == ID($lut)) {
+			පූර්ණ_සංඛ්‍යා width = parameters.at(ID(WIDTH)).as_int();
 			Const lut_table = parameters.at(ID(LUT));
 			lut_table.extu(1 << width);
-			return handle_bmux(factory.constant(lut_table), inputs.at(ID(A)), 0, 1, width);
-		} else if (cellType == ID($bwmux)) {
+			ආපසු handle_bmux(factory.constant(lut_table), inputs.at(ID(A)), 0, 1, width);
+		} නැතහොත් නම් (cellType == ID($bwmux)) {
 			Node a = inputs.at(ID(A));
 			Node b = inputs.at(ID(B));
 			Node s = inputs.at(ID(S));
-			return factory.bitwise_or(
+			ආපසු factory.bitwise_or(
 				factory.bitwise_and(a, factory.bitwise_not(s)),
 				factory.bitwise_and(b, s));
-		} else if (cellType == ID($bweqx)) {
+		} නැතහොත් නම් (cellType == ID($bweqx)) {
 			Node a = inputs.at(ID(A));
 			Node b = inputs.at(ID(B));
-			return factory.bitwise_not(factory.bitwise_xor(a, b));
-		} else if(cellType == ID($bmux)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			int s_width = parameters.at(ID(S_WIDTH)).as_int();
-			return handle_bmux(inputs.at(ID(A)), inputs.at(ID(S)), 0, width, s_width);
-		} else if(cellType == ID($demux)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			int s_width = parameters.at(ID(S_WIDTH)).as_int();
-			int y_width = width << s_width;
-			int b_width = ceil_log2(y_width);
+			ආපසු factory.bitwise_not(factory.bitwise_xor(a, b));
+		} නැතහොත් නම්(cellType == ID($bmux)) {
+			පූර්ණ_සංඛ්‍යා width = parameters.at(ID(WIDTH)).as_int();
+			පූර්ණ_සංඛ්‍යා s_width = parameters.at(ID(S_WIDTH)).as_int();
+			ආපසු handle_bmux(inputs.at(ID(A)), inputs.at(ID(S)), 0, width, s_width);
+		} නැතහොත් නම්(cellType == ID($demux)) {
+			පූර්ණ_සංඛ්‍යා width = parameters.at(ID(WIDTH)).as_int();
+			පූර්ණ_සංඛ්‍යා s_width = parameters.at(ID(S_WIDTH)).as_int();
+			පූර්ණ_සංඛ්‍යා y_width = width << s_width;
+			පූර්ණ_සංඛ්‍යා b_width = ceil_log2(y_width);
 			Node a = factory.extend(inputs.at(ID(A)), y_width, false);
 			Node s = factory.extend(inputs.at(ID(S)), b_width, false);
 			Node b = factory.mul(s, factory.constant(Const(width, b_width)));
-			return factory.logical_shift_left(a, b);
-		} else if(cellType == ID($fa)) {
-			return handle_fa(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(C)));
-		} else if(cellType == ID($lcu)) {
-			return handle_lcu(inputs.at(ID(P)), inputs.at(ID(G)), inputs.at(ID(CI)));
-		} else if(cellType == ID($alu)) {
-			return handle_alu(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed, inputs.at(ID(CI)), inputs.at(ID(BI)));
-		} else if(cellType.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover))) {
+			ආපසු factory.logical_shift_left(a, b);
+		} නැතහොත් නම්(cellType == ID($fa)) {
+			ආපසු handle_fa(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(C)));
+		} නැතහොත් නම්(cellType == ID($lcu)) {
+			ආපසු handle_lcu(inputs.at(ID(P)), inputs.at(ID(G)), inputs.at(ID(CI)));
+		} නැතහොත් නම්(cellType == ID($alu)) {
+			ආපසු handle_alu(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed, inputs.at(ID(CI)), inputs.at(ID(BI)));
+		} නැතහොත් නම්(cellType.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover))) {
 			Node a = factory.mux(factory.constant(Const(State::S1, 1)), inputs.at(ID(A)), inputs.at(ID(EN)));
 			auto &output = factory.add_output(cellName, cellType, Sort(1));
 			output.set_value(a);
-			return {};
-		} else if(cellType.in(ID($anyconst), ID($allconst), ID($anyseq), ID($allseq))) {
-			int width = parameters.at(ID(WIDTH)).as_int();
+			ආපසු {};
+		} නැතහොත් නම්(cellType.in(ID($anyconst), ID($allconst), ID($anyseq), ID($allseq))) {
+			පූර්ණ_සංඛ්‍යා width = parameters.at(ID(WIDTH)).as_int();
 			auto &input = factory.add_input(cellName, cellType, Sort(width));
-			return factory.value(input);
-		} else if(cellType == ID($initstate)) {
-			if(factory.ir().has_state(ID($initstate), ID($state)))
-				return factory.value(factory.ir().state(ID($initstate)));
-			else {
+			ආපසු factory.value(input);
+		} නැතහොත් නම්(cellType == ID($initstate)) {
+			නම්(factory.ir().has_state(ID($initstate), ID($state)))
+				ආපසු factory.value(factory.ir().state(ID($initstate)));
+			නැතහොත් {
 				auto &state = factory.add_state(ID($initstate), ID($state), Sort(1));
 				state.set_initial_value(RTLIL::Const(State::S1, 1));
 				state.set_next_value(factory.constant(RTLIL::Const(State::S0, 1)));
-				return factory.value(state);
+				ආපසු factory.value(state);
 			}
-		} else if(cellType == ID($check)) {
+		} නැතහොත් නම්(cellType == ID($check)) {
 			log_error("The design contains a $check cell `%s'. This is not supported by the functional backend. Call `chformal -lower' to avoid this error.\n", factory.ir().design->twines().str(cellName));
-		} else {
+		} නැතහොත් {
 			log_error("`%s' cells are not supported by the functional backend\n", factory.ir().design->twines().str(cellType));
 		}
 	}
@@ -482,31 +482,31 @@ class FunctionalIRConstruction {
 	Node enqueue(DriveSpec const &spec)
 	{
 		auto it = graph_nodes.find(spec);
-		if(it == graph_nodes.end()){
+		නම්(it == graph_nodes.end()){
 			auto node = factory.create_pending(spec.size());
 			graph_nodes.insert({spec, node});
 			queue.emplace_back(spec);
-			return node;
-		}else
-			return it->second;
+			ආපසු node;
+		}නැතහොත්
+			ආපසු it->second;
 	}
 	Node enqueue_cell(Cell *cell, IdString port_name)
 	{
 		auto it = cell_outputs.find({cell, port_name});
-		if(it == cell_outputs.end()) {
+		නම්(it == cell_outputs.end()) {
 			queue.emplace_back(cell);
 			std::optional<Node> rv;
-			for(auto const &[name, sigspec] : cell->connections())
-				if(driver_map.celltypes.cell_output(cell->type, name)) {
+			සඳහා(auto const &[name, sigspec] : cell->connections())
+				නම්(driver_map.celltypes.cell_output(cell->type, name)) {
 					auto node = factory.create_pending(sigspec.size());
 					factory.suggest_name(node, cell->name.str() + "$" + PooledName(cell->module, name).str());
 					cell_outputs.emplace({cell, name}, node);
-					if(name == port_name)
+					නම්(name == port_name)
 						rv = node;
 				}
-			return *rv;
-		} else
-			return it->second;
+			ආපසු *rv;
+		} නැතහොත්
+			ආපසු it->second;
 	}
 public:
 	FunctionalIRConstruction(Module *module, Factory &f)
@@ -516,24 +516,24 @@ public:
 		, ff_initvals(&sig_map, module)
 	{
 		driver_map.add(module);
-		for (auto cell : module->cells()) {
-			if (cell->type.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover), ID($check)))
+		සඳහා (auto cell : module->cells()) {
+			නම් (cell->type.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover), ID($check)))
 				queue.emplace_back(cell);
 		}
 		// we are relying here on unsorted pools iterating last-in-first-out
-		for (auto riter = module->ports.rbegin(); riter != module->ports.rend(); ++riter) {
+		සඳහා (auto riter = module->ports.rbegin(); riter != module->ports.rend(); ++riter) {
 			auto *wire = module->wire(*riter);
-			if (wire && wire->port_input) {
+			නම් (wire && wire->port_input) {
 				factory.add_input(wire->name, ID($input), Sort(wire->width));
 			}
-			if (wire && wire->port_output) {
+			නම් (wire && wire->port_output) {
 				auto &output = factory.add_output(wire->name, ID($output), Sort(wire->width));
 				output.set_value(enqueue(DriveChunk(DriveChunkWire(wire, 0, wire->width))));
 			}
 		}
 		memories_vector = Mem::get_all_memories(module);
-		for (auto &mem : memories_vector) {
-			if (mem.cell != nullptr)
+		සඳහා (auto &mem : memories_vector) {
+			නම් (mem.cell != nullptr)
 				memories[mem.cell] = &mem;
 		}
 	}
@@ -542,9 +542,9 @@ private:
 	{
 		// sanity check: all read ports concatenated should equal to the RD_DATA port
 		const SigSpec &rd_data = mem->cell->connections().at(ID(RD_DATA));
-		int current = 0;
-		for(size_t i = 0; i < mem->rd_ports.size(); i++) {
-			int width = mem->width << mem->rd_ports[i].wide_log2;
+		පූර්ණ_සංඛ්‍යා current = 0;
+		සඳහා(size_t i = 0; i < mem->rd_ports.size(); i++) {
+			පූර්ණ_සංඛ්‍යා width = mem->width << mem->rd_ports[i].wide_log2;
 			log_assert (results[i].width() == width);
 			log_assert (mem->rd_ports[i].data == rd_data.extract(current, width));
 			current += width;
@@ -552,9 +552,9 @@ private:
 		log_assert (current == rd_data.size());
 		log_assert (!results.empty());
 		Node node = results[0];
-		for(size_t i = 1; i < results.size(); i++)
+		සඳහා(size_t i = 1; i < results.size(); i++)
 			node = factory.concat(node, results[i]);
-		return node;
+		ආපසු node;
 	}
 	Node handle_memory(Mem *mem)
 	{
@@ -570,9 +570,9 @@ private:
 		auto &state = factory.add_state(mem->cell->name, ID($state), Sort(ceil_log2(mem->size), mem->width));
 		state.set_initial_value(MemContents(mem));
 		Node node = factory.value(state);
-		for (size_t i = 0; i < mem->wr_ports.size(); i++) {
+		සඳහා (size_t i = 0; i < mem->wr_ports.size(); i++) {
 			const auto &wr = mem->wr_ports[i];
-			if (wr.clk_enable)
+			නම් (wr.clk_enable)
 				log_error("Write port %zd of memory %s.%s is clocked. This is not supported by the functional backend. "
 					"Call async2sync or clk2fflogic to avoid this error.\n", i, mem->module, PooledName(mem->module, mem->memid).unescape());
 			Node en = enqueue(driver_map(DriveSpec(wr.en)));
@@ -582,34 +582,34 @@ private:
 			Node wr_data = simplifier.bitwise_mux(old_data, new_data, en);
 			node = factory.memory_write(node, addr, wr_data);
 		}
-		if (mem->rd_ports.empty())
+		නම් (mem->rd_ports.empty())
 			log_error("Memory %s.%s has no read ports. This is not supported by the functional backend. "
 				"Call opt_clean to remove it.", mem->module, PooledName(mem->module, mem->memid).unescape());
-		for (size_t i = 0; i < mem->rd_ports.size(); i++) {
+		සඳහා (size_t i = 0; i < mem->rd_ports.size(); i++) {
 			const auto &rd = mem->rd_ports[i];
-			if (rd.clk_enable)
+			නම් (rd.clk_enable)
 				log_error("Read port %zd of memory %s.%s is clocked. This is not supported by the functional backend. "
 					"Call memory_nordff to avoid this error.\n", i, mem->module, PooledName(mem->module, mem->memid).unescape());
 			Node addr = enqueue(driver_map(DriveSpec(rd.addr)));
 			read_results.push_back(factory.memory_read(node, addr));
 		}
 		state.set_next_value(node);
-		return concatenate_read_results(mem, read_results);
+		ආපසු concatenate_read_results(mem, read_results);
 	}
 	void process_cell(Cell *cell)
 	{
-		if (cell->is_mem_cell()) {
+		නම් (cell->is_mem_cell()) {
 			Mem *mem = memories.at(cell, nullptr);
-			if (mem == nullptr) {
+			නම් (mem == nullptr) {
 				log_assert(cell->has_memid());
 				log_error("The design contains an unpacked memory at %s. This is not supported by the functional backend. "
 					"Call memory_collect to avoid this error.\n", log_const(cell->parameters.at(ID(MEMID))));
 			}
 			Node node = handle_memory(mem);
 			factory.update_pending(cell_outputs.at({cell, ID(RD_DATA)}), node);
-		} else if (cell->is_builtin_ff()) {
+		} නැතහොත් නම් (cell->is_builtin_ff()) {
 			FfData ff(&ff_initvals, cell);
-			if (!ff.has_gclk)
+			නම් (!ff.has_gclk)
 				log_error("The design contains a %s flip-flop at %s. This is not supported by the functional backend. "
 					"Call async2sync or clk2fflogic to avoid this error.\n", cell->type.unescape(), cell);
 			auto &state = factory.add_state(ff.name, ID($state), Sort(ff.width));
@@ -618,24 +618,24 @@ private:
 			factory.update_pending(cell_outputs.at({cell, ID(Q)}), q_value);
 			state.set_next_value(enqueue(ff.sig_d));
 			state.set_initial_value(ff.val_init);
-		} else {
+		} නැතහොත් {
 			dict<IdString, Node> connections;
 			IdString output_name; // for the single output case
-			int n_outputs = 0;
-			for(auto const &[name, sigspec] : cell->connections()) {
-				if(driver_map.celltypes.cell_input(cell->type, name) && sigspec.size() > 0)
+			පූර්ණ_සංඛ්‍යා n_outputs = 0;
+			සඳහා(auto const &[name, sigspec] : cell->connections()) {
+				නම්(driver_map.celltypes.cell_input(cell->type, name) && sigspec.size() > 0)
 					connections.insert({ name, enqueue(DriveChunkPort(cell, {name, sigspec})) });
-				if(driver_map.celltypes.cell_output(cell->type, name)) {
+				නම්(driver_map.celltypes.cell_output(cell->type, name)) {
 					output_name = name;
 					n_outputs++;
 				}
 			}
 			std::variant<dict<IdString, Node>, Node> outputs = simplifier.handle(cell->name, cell->type, cell->parameters, connections);
-			if(auto *nodep = std::get_if<Node>(&outputs); nodep != nullptr) {
+			නම්(auto *nodep = std::get_if<Node>(&outputs); nodep != nullptr) {
 				log_assert(n_outputs == 1);
 				factory.update_pending(cell_outputs.at({cell, output_name}), *nodep);
-			} else {
-				for(auto [name, node] : std::get<dict<IdString, Node>>(outputs))
+			} නැතහොත් {
+				සඳහා(auto [name, node] : std::get<dict<IdString, Node>>(outputs))
 					factory.update_pending(cell_outputs.at({cell, name}), node);
 			}
 		}
@@ -646,15 +646,15 @@ private:
 	}
 	// we perform this check separately to give better error messages that include the wire or port name
 	void check_undriven(DriveSpec const& spec, std::string const& name) {
-		for(auto const &chunk : spec.chunks())
-			if(chunk.is_none())
+		සඳහා(auto const &chunk : spec.chunks())
+			නම්(chunk.is_none())
 				undriven(name);
 	}
 public:
 	void process_queue()
 	{
-		for (; !queue.empty(); queue.pop_front()) {
-			if(auto p = std::get_if<Cell *>(&queue.front()); p != nullptr) {
+		සඳහා (; !queue.empty(); queue.pop_front()) {
+			නම්(auto p = std::get_if<Cell *>(&queue.front()); p != nullptr) {
 				process_cell(*p);
 				continue;
 			}
@@ -662,63 +662,63 @@ public:
 			DriveSpec spec = std::get<DriveSpec>(queue.front());
 			Node pending = graph_nodes.at(spec);
 
-			if (spec.chunks().size() > 1) {
+			නම් (spec.chunks().size() > 1) {
 				auto chunks = spec.chunks();
 				Node node = enqueue(chunks[0]);
-				for(size_t i = 1; i < chunks.size(); i++)
+				සඳහා(size_t i = 1; i < chunks.size(); i++)
 					node = factory.concat(node, enqueue(chunks[i]));
 				factory.update_pending(pending, node);
-			} else if (spec.chunks().size() == 1) {
+			} නැතහොත් නම් (spec.chunks().size() == 1) {
 				DriveChunk chunk = spec.chunks()[0];
-				if (chunk.is_wire()) {
+				නම් (chunk.is_wire()) {
 					DriveChunkWire wire_chunk = chunk.wire();
-					if (wire_chunk.is_whole()) {
-						if (wire_chunk.wire->port_input) {
+					නම් (wire_chunk.is_whole()) {
+						නම් (wire_chunk.wire->port_input) {
 							Node node = factory.value(factory.ir().input(wire_chunk.wire->name));
 							factory.suggest_name(node, wire_chunk.wire->name);
 							factory.update_pending(pending, node);
-						} else {
+						} නැතහොත් {
 							DriveSpec driver = driver_map(DriveSpec(wire_chunk));
 							check_undriven(driver, wire_chunk.wire->name.unescape());
 							Node node = enqueue(driver);
 							factory.suggest_name(node, wire_chunk.wire->name);
 							factory.update_pending(pending, node);
 						}
-					} else {
+					} නැතහොත් {
 						DriveChunkWire whole_wire(wire_chunk.wire, 0, wire_chunk.wire->width);
 						Node node = factory.slice(enqueue(whole_wire), wire_chunk.offset, wire_chunk.width);
 						factory.update_pending(pending, node);
 					}
-				} else if (chunk.is_port()) {
+				} නැතහොත් නම් (chunk.is_port()) {
 					DriveChunkPort port_chunk = chunk.port();
-					if (port_chunk.is_whole()) {
-						if (driver_map.celltypes.cell_output(port_chunk.cell->type, port_chunk.port)) {
+					නම් (port_chunk.is_whole()) {
+						නම් (driver_map.celltypes.cell_output(port_chunk.cell->type, port_chunk.port)) {
 							Node node = enqueue_cell(port_chunk.cell, port_chunk.port);
 							factory.update_pending(pending, node);
-						} else {
+						} නැතහොත් {
 							DriveSpec driver = driver_map(DriveSpec(port_chunk));
 							check_undriven(driver, port_chunk.cell->name.unescape() + " port " + PooledName(port_chunk.cell->module, port_chunk.port).unescape());
 							factory.update_pending(pending, enqueue(driver));
 						}
-					} else {
+					} නැතහොත් {
 						DriveChunkPort whole_port(port_chunk.cell, port_chunk.port, 0, GetSize(port_chunk.cell->connections().at(port_chunk.port)));
 						Node node = factory.slice(enqueue(whole_port), port_chunk.offset, port_chunk.width);
 						factory.update_pending(pending, node);
 					}
-				} else if (chunk.is_constant()) {
+				} නැතහොත් නම් (chunk.is_constant()) {
 					Node node = factory.constant(chunk.constant());
 					factory.suggest_name(node, "$const" + std::to_string(chunk.size()) + "b" + chunk.constant().as_string());
 					factory.update_pending(pending, node);
-				} else if (chunk.is_multiple()) {
+				} නැතහොත් නම් (chunk.is_multiple()) {
 					log_error("Signal %s has multiple drivers. This is not supported by the functional backend. "
 						"If tristate drivers are used, call tristate -formal to avoid this error.\n", log_signal(chunk));
-				} else if (chunk.is_none()) {
+				} නැතහොත් නම් (chunk.is_none()) {
 					undriven(log_signal(chunk));
-				} else {
+				} නැතහොත් {
 					log_error("unhandled drivespec: %s\n", log_signal(chunk));
 					log_abort();
 				}
-			} else {
+			} නැතහොත් {
 				log_abort();
 			}
 		}
@@ -733,19 +733,19 @@ IR IR::from_module(Module *module) {
     ctor.process_queue();
     ir.topological_sort();
     ir.forward_buf();
-    return ir;
+    ආපසු ir;
 }
 
 void IR::topological_sort() {
     Graph::SccAdaptor compute_graph_scc(_graph);
     bool scc = false;
-    std::vector<int> perm;
-    TopoSortedSccs toposort(compute_graph_scc, [&](int *begin, int *end) {
+    std::vector<පූර්ණ_සංඛ්‍යා> perm;
+    TopoSortedSccs toposort(compute_graph_scc, [&](පූර්ණ_සංඛ්‍යා *begin, පූර්ණ_සංඛ්‍යා *end) {
         perm.insert(perm.end(), begin, end);
-        if (end > begin + 1)
+        නම් (end > begin + 1)
         {
             log_warning("Combinational loop:\n");
-            for (int *i = begin; i != end; ++i) {
+            සඳහා (පූර්ණ_සංඛ්‍යා *i = begin; i != end; ++i) {
 				Node node(_graph[*i], design);
                 log("- %s = %s\n", node.name().unescape(), node.to_string());
 			}
@@ -753,48 +753,48 @@ void IR::topological_sort() {
             scc = true;
         }
     });
-	for(const auto &[name, state]: _states)
-		if(state.has_next_value())
+	සඳහා(const auto &[name, state]: _states)
+		නම්(state.has_next_value())
 			toposort.process(state.next_value().id());
-	for(const auto &[name, output]: _outputs)
-		if(output.has_value())
+	සඳහා(const auto &[name, output]: _outputs)
+		නම්(output.has_value())
 			toposort.process(output.value().id());
 	// any nodes untouched by this point are dead code and will be removed by permute
     _graph.permute(perm);
-    if(scc) log_error("The design contains combinational loops. This is not supported by the functional backend. "
+    නම්(scc) log_error("The design contains combinational loops. This is not supported by the functional backend. "
 		"Try `scc -select; simplemap; select -clear` to avoid this error.\n");
 }
 
 static IdString merge_name(IdString a, IdString b) {
-	if(!a.isPublic() && b.isPublic())
-		return b;
-	else
-		return a;
+	නම්(!a.isPublic() && b.isPublic())
+		ආපසු b;
+	නැතහොත්
+		ආපසු a;
 }
 
 void IR::forward_buf() {
-    std::vector<int> perm, alias;
+    std::vector<පූර්ණ_සංඛ්‍යා> perm, alias;
     perm.clear();
 
-    for (int i = 0; i < _graph.size(); ++i)
+    සඳහා (පූර්ණ_සංඛ්‍යා i = 0; i < _graph.size(); ++i)
     {
         auto node = _graph[i];
-        if (node.function().fn() == Fn::buf && node.arg(0).index() < i)
+        නම් (node.function().fn() == Fn::buf && node.arg(0).index() < i)
         {
-            int target_index = alias[node.arg(0).index()];
+            පූර්ණ_සංඛ්‍යා target_index = alias[node.arg(0).index()];
             auto target_node = _graph[perm[target_index]];
-			if(node.has_sparse_attr()) {
-				if(target_node.has_sparse_attr()) {
+			නම්(node.has_sparse_attr()) {
+				නම්(target_node.has_sparse_attr()) {
 					IdString id = merge_name(node.sparse_attr(), target_node.sparse_attr());
 					target_node.sparse_attr() = id;
-				} else {
+				} නැතහොත් {
 					IdString id = node.sparse_attr();
 					target_node.sparse_attr() = id;
 				}
 			}
             alias.push_back(target_index);
         }
-        else
+        නැතහොත්
         {
             alias.push_back(GetSize(perm));
             perm.push_back(i);
@@ -804,52 +804,52 @@ void IR::forward_buf() {
 }
 
 // Quoting routine to make error messages nicer
-static std::string quote_fmt(const char *fmt)
+static std::string quote_fmt(const var_na *fmt)
 {
 	std::string r;
-	for(const char *p = fmt; *p != 0; p++) {
+	සඳහා(const var_na *p = fmt; *p != 0; p++) {
 		switch(*p) {
-		case '\n': r += "\\n"; break;
-		case '\t': r += "\\t"; break;
-		case '"': r += "\\\""; break;
-		case '\\': r += "\\\\"; break;
-		default: r += *p; break;
+		pak_sa '\n': r += "\\n"; bha_nga;
+		pak_sa '\t': r += "\\t"; bha_nga;
+		pak_sa '"': r += "\\\""; bha_nga;
+		pak_sa '\\': r += "\\\\"; bha_nga;
+		default: r += *p; bha_nga;
 		}
 	}
-	return r;
+	ආපසු r;
 }
 
-void Writer::print_impl(const char *fmt, vector<std::function<void()>> &fns)
+void Writer::print_impl(const var_na *fmt, vector<std::function<void()>> &fns)
 {
 	size_t next_index = 0;
-	for(const char *p = fmt; *p != 0; p++)
+	සඳහා(const var_na *p = fmt; *p != 0; p++)
 		switch(*p) {
-		case '{':
-			if(*++p == '{') {
+		pak_sa '{':
+			නම්(*++p == '{') {
 				*os << '{';
-			} else {
-				char *pe;
+			} නැතහොත් {
+				var_na *pe;
 				size_t index = strtoul(p, &pe, 10);
-				if(*pe != '}')
+				නම්(*pe != '}')
 					log_error("invalid format string: expected {<number>}, {} or {{, got \"%s\": \"%s\"\n",
 						quote_fmt(std::string(p - 1, pe - p + 2).c_str()).c_str(),
 						quote_fmt(fmt).c_str());
-				if(p == pe)
+				නම්(p == pe)
 					index = next_index;
-				else
+				නැතහොත්
 					p = pe;
-				if(index >= fns.size())
+				නම්(index >= fns.size())
 					log_error("invalid format string: index %zu out of bounds (%zu): \"%s\"\n", index, fns.size(), quote_fmt(fmt));
 				fns[index]();
 				next_index = index + 1;
 			}
-			break;
-		case '}':
+			bha_nga;
+		pak_sa '}':
 			p++;
-			if(*p != '}')
+			නම්(*p != '}')
 				log_error("invalid format string: unescaped }: \"%s\"\n", quote_fmt(fmt));
 			*os << '}';
-			break;
+			bha_nga;
 		default:
 			*os << *p;
 		}
