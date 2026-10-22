@@ -17,118 +17,118 @@
  *
  */
 
-#include "kernel/log_help.h"
+#அந்தர்பாவ "kernel/log_help.h"
 
 USING_YOSYS_NAMESPACE
 
-std::filesystem::path Yosys::fixup_source_path (const char* source_file,
-	const std::filesystem::path &source_root, bool* skip_source_group)
+std::filesystem::path Yosys::fixup_source_path (மாறிலி எழுத்து* source_file,
+	மாறிலி std::filesystem::path &source_வேர், தருக்க* skip_source_group)
 {
 	std::filesystem::path source_path(source_file);
-	if (source_path.is_absolute()) {
+	எனில் (source_path.is_absolute()) {
 		// using proximate instead of relative means that we
 		// still get the source path if they aren't relative
-		auto proximate_path = std::filesystem::proximate(source_path, source_root);
-		if (proximate_path == proximate_path.lexically_normal()) {
+		auto proximate_path = std::filesystem::proximate(source_path, source_வேர்);
+		எனில் (proximate_path == proximate_path.lexically_normal()) {
 			// we're only interested if it's a subpath of our root dir
 			// if the normal form differs, then the proximate path includes ".."
-			return proximate_path;
-		} else if (skip_source_group != nullptr) {
+			திரும்பு proximate_path;
+		} இல்லையெனில் எனில் (skip_source_group != nullptr) {
 			// don't try to group external paths
-			*skip_source_group = true;
+			*skip_source_group = உண்மை;
 		}
 	}
-	return source_path;
+	திரும்பு source_path;
 }
 
-Json ContentListing::to_json(const std::filesystem::path &source_root) const {
+Json ContentListing::to_json(மாறிலி std::filesystem::path &source_வேர்) மாறிலி {
 	Json::object object;
 
 	object["type"] = type;
-	if (body.length())
+	எனில் (body.length())
 		object["body"] = body;
 
-	if (has_source())
-		object["source_file"] = fixup_source_path(source_file, source_root).string();
-	if (source_line != 0)
-		object["source_line"] = source_line;
+	எனில் (has_source())
+		object["source_file"] = fixup_source_path(source_file, source_வேர்).string();
+	எனில் (source_வரி != 0)
+		object["source_line"] = source_வரி;
 
 	object["options"] = Json(options);
 
 	Json::array content_array;
-	for (auto child : _content)
-		content_array.push_back(child.to_json(source_root));
+	க்கு (auto child : _content)
+		content_array.தள்ளு_back(child.to_json(source_வேர்));
 	object["content"] = content_array;
 
-	return object;
+	திரும்பு object;
 }
 
-void ContentListing::usage(const string &text,
-	const source_location location)
+வெறுமை ContentListing::usage(மாறிலி string &text,
+	மாறிலி source_location location)
 {
 	log_assert(type.compare("root") == 0);
 	add_content("usage", text, location);
 }
 
-void ContentListing::option(const string &text, const string &description,
-	const source_location location)
+வெறுமை ContentListing::option(மாறிலி string &text, மாறிலி string &description,
+	மாறிலி source_location location)
 {
 	auto option = open_option(text, source_location());
-	if (description.length())
+	எனில் (description.length())
 		option->add_content("text", description, location);
 }
 
-void ContentListing::codeblock(const string &code, const string &language,
-	const source_location location)
+வெறுமை ContentListing::codeblock(மாறிலி string &code, மாறிலி string &language,
+	மாறிலி source_location location)
 {
 	add_content("code", code, location);
 	back()->set_option("language", language);
 }
 
-void ContentListing::paragraph(const string &text,
-	const source_location location)
+வெறுமை ContentListing::paragraph(மாறிலி string &text,
+	மாறிலி source_location location)
 {
 	add_content("text", text, location);
 }
 
-ContentListing* ContentListing::open_usage(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_usage(மாறிலி string &text,
+	மாறிலி source_location location)
 {
 	usage(text, location);
-	return back();
+	திரும்பு back();
 }
 
-ContentListing* ContentListing::open_option(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_option(மாறிலி string &text,
+	மாறிலி source_location location)
 {
 	log_assert(type.compare("root") == 0 || type.compare("usage") == 0);
 	add_content("option", text, location);
-	return back();
+	திரும்பு back();
 }
 
-#define MAX_LINE_LEN 80
-void log_body_str(const std::string &pass_str, std::string indent_str, bool leading_newline=false, bool is_formatted=false) {
-	if (pass_str.empty())
-		return;
+#define MAX_வரி_LEN 80
+வெறுமை log_body_str(மாறிலி std::string &pass_str, std::string indent_str, தருக்க leading_newline=பொய், தருக்க is_formatted=பொய்) {
+	எனில் (pass_str.empty())
+		திரும்பு;
 	std::istringstream iss(pass_str);
-	if (leading_newline)
+	எனில் (leading_newline)
 		log("\n");
-	for (std::string line; std::getline(iss, line);) {
+	க்கு (std::string வரி; std::getline(iss, வரி);) {
 		std::string message = indent_str;
-		if (is_formatted) {
-			message += line;
-		} else {
+		எனில் (is_formatted) {
+			message += வரி;
+		} இல்லையெனில் {
 			auto curr_len = indent_str.length();
-			std::istringstream lss(line);
-			for (std::string word; std::getline(lss, word, ' ');) {
-				while (word[0] == '`' && word.back() == '`')
+			std::istringstream lss(வரி);
+			க்கு (std::string word; std::getline(lss, word, ' ');) {
+				போது (word[0] == '`' && word.back() == '`')
 					word = word.substr(1, word.length()-2);
-				if (curr_len + word.length() >= MAX_LINE_LEN-1) {
+				எனில் (curr_len + word.length() >= MAX_வரி_LEN-1) {
 					curr_len = 0;
 					log("%s\n", message);
 					message = indent_str;
 				}
-				if (word.length()) {
+				எனில் (word.length()) {
 					message += word + " ";
 					curr_len += word.length() + 1;
 				}
@@ -137,7 +137,7 @@ void log_body_str(const std::string &pass_str, std::string indent_str, bool lead
 		log("%s\n", message);
 	}
 }
-void log_body(const ContentListing &content, int indent=0, bool leading_newline=false) {
+வெறுமை log_body(மாறிலி ContentListing &content, முழு indent=0, தருக்க leading_newline=பொய்) {
 	std::string indent_str(indent*4, ' ');
 	log_body_str(content.body, indent_str, leading_newline, content.type.compare("code") == 0);
 }
@@ -147,9 +147,9 @@ PrettyHelp *current_help = nullptr;
 PrettyHelp::PrettyHelp()
 {
 	_prior = current_help;
-	_root_listing = ContentListing("root", "");
+	வேர்_listing = ContentListing("root", "");
 
-	current_help = this;
+	current_help = இது;
 }
 
 PrettyHelp::~PrettyHelp()
@@ -159,24 +159,24 @@ PrettyHelp::~PrettyHelp()
 
 PrettyHelp *PrettyHelp::get_current()
 {
-	if (current_help == nullptr)
-		new PrettyHelp();
-	return current_help;
+	எனில் (current_help == nullptr)
+		புதிய PrettyHelp();
+	திரும்பு current_help;
 }
 
-void PrettyHelp::log_help() const
+வெறுமை PrettyHelp::log_help() மாறிலி
 {
-	for (auto &content : _root_listing) {
-		if (content.type.compare("usage") == 0) {
-			log_body(content, 1, true);
+	க்கு (auto &content : வேர்_listing) {
+		எனில் (content.type.compare("usage") == 0) {
+			log_body(content, 1, உண்மை);
 			log("\n");
-		} else if (content.type.compare("option") == 0) {
+		} இல்லையெனில் எனில் (content.type.compare("option") == 0) {
 			log_body(content, 1);
-			for (auto text : content) {
+			க்கு (auto text : content) {
 				log_body(text, 2);
 				log("\n");
 			}
-		} else {
+		} இல்லையெனில் {
 			log_body(content, 0);
 			log("\n");
 		}

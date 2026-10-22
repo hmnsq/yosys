@@ -17,26 +17,26 @@
  *
  */
 
-#include "kernel/ffmerge.h"
+#அந்தர்பாவ "kernel/ffmerge.h"
 
 USING_YOSYS_NAMESPACE
 
-bool FfMergeHelper::is_output_unused(RTLIL::SigSpec sig) {
-	for (auto bit : (*sigmap)(sig))
-		if (sigbit_users_count[bit] != 0)
-			return false;
-	return true;
+தருக்க FfMergeHelper::is_output_unused(RTLIL::SigSpec sig) {
+	க்கு (auto bit : (*sigmap)(sig))
+		எனில் (sigbit_users_மொத்தம்[bit] != 0)
+			திரும்பு பொய்;
+	திரும்பு உண்மை;
 }
 
-bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+தருக்க FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, முழு>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
-	bool found = false;
+	தருக்க found = பொய்;
 
-	for (auto bit : sig)
+	க்கு (auto bit : sig)
 	{
-		if (bit.wire == NULL || sigbit_users_count[bit] == 0) {
+		எனில் (bit.wire == வெற்று || sigbit_users_மொத்தம்[bit] == 0) {
 			ff.width++;
 			ff.sig_q.append(bit);
 			ff.sig_d.append(bit);
@@ -45,30 +45,30 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			ff.val_init.append(RTLIL::Const(State::Sx));
 			ff.val_srst.append(RTLIL::Const(State::Sx));
 			ff.val_arst.append(RTLIL::Const(State::Sx));
-			continue;
+			தொடர்;
 		}
 
-		if (sigbit_users_count[bit] != 1)
-			return false;
+		எனில் (sigbit_users_மொத்தம்[bit] != 1)
+			திரும்பு பொய்;
 
 		auto &sinks = dff_sink[bit];
-		if (sinks.size() != 1)
-			return false;
+		எனில் (sinks.size() != 1)
+			திரும்பு பொய்;
 
 		Cell *cell;
-		int idx;
+		முழு idx;
 		std::tie(cell, idx) = *sinks.begin();
-		bits.insert(std::make_pair(cell, idx));
+		bits.செருகு(std::make_pair(cell, idx));
 
 		FfData cur_ff(initvals, cell);
 
 		// Reject latches and $ff.
-		if (!cur_ff.has_clk)
-			return false;
+		எனில் (!cur_ff.has_clk)
+			திரும்பு பொய்;
 
 		log_assert((*sigmap)(cur_ff.sig_d[idx]) == bit);
 
-		if (!found) {
+		எனில் (!found) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -88,56 +88,56 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
 			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+		} இல்லையெனில் {
+			எனில் (ff.has_clk != cur_ff.has_clk)
+				திரும்பு பொய்;
+			எனில் (ff.has_ce != cur_ff.has_ce)
+				திரும்பு பொய்;
+			எனில் (ff.has_aload != cur_ff.has_aload)
+				திரும்பு பொய்;
+			எனில் (ff.has_srst != cur_ff.has_srst)
+				திரும்பு பொய்;
+			எனில் (ff.has_arst != cur_ff.has_arst)
+				திரும்பு பொய்;
+			எனில் (ff.has_sr != cur_ff.has_sr)
+				திரும்பு பொய்;
+			எனில் (ff.has_clk) {
+				எனில் (ff.sig_clk != cur_ff.sig_clk)
+					திரும்பு பொய்;
+				எனில் (ff.pol_clk != cur_ff.pol_clk)
+					திரும்பு பொய்;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			எனில் (ff.has_ce) {
+				எனில் (ff.sig_ce != cur_ff.sig_ce)
+					திரும்பு பொய்;
+				எனில் (ff.pol_ce != cur_ff.pol_ce)
+					திரும்பு பொய்;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			எனில் (ff.has_aload) {
+				எனில் (ff.sig_aload != cur_ff.sig_aload)
+					திரும்பு பொய்;
+				எனில் (ff.pol_aload != cur_ff.pol_aload)
+					திரும்பு பொய்;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			எனில் (ff.has_srst) {
+				எனில் (ff.sig_srst != cur_ff.sig_srst)
+					திரும்பு பொய்;
+				எனில் (ff.pol_srst != cur_ff.pol_srst)
+					திரும்பு பொய்;
+				எனில் (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					திரும்பு பொய்;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			எனில் (ff.has_arst) {
+				எனில் (ff.sig_arst != cur_ff.sig_arst)
+					திரும்பு பொய்;
+				எனில் (ff.pol_arst != cur_ff.pol_arst)
+					திரும்பு பொய்;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			எனில் (ff.has_sr) {
+				எனில் (ff.pol_clr != cur_ff.pol_clr)
+					திரும்பு பொய்;
+				எனில் (ff.pol_set != cur_ff.pol_set)
+					திரும்பு பொய்;
 			}
 		}
 
@@ -150,24 +150,24 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 		ff.val_arst.append(RTLIL::Const(ff.has_arst ? cur_ff.val_arst[idx] : State::Sx));
 		ff.val_srst.append(RTLIL::Const(ff.has_srst ? cur_ff.val_srst[idx] : State::Sx));
 		ff.val_init.append(RTLIL::Const(cur_ff.val_init[idx]));
-		found = true;
+		found = உண்மை;
 	}
 
-	return found;
+	திரும்பு found;
 }
 
-bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+தருக்க FfMergeHelper::find_உள்ளீடு_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, முழு>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
-	bool found = false;
+	தருக்க found = பொய்;
 
-	pool<int> const_bits;
+	pool<முழு> const_bits;
 
-	for (auto bit : sig)
+	க்கு (auto bit : sig)
 	{
-		if (bit.wire == NULL) {
-			const_bits.insert(ff.width);
+		எனில் (bit.wire == வெற்று) {
+			const_bits.செருகு(ff.width);
 			ff.width++;
 			ff.sig_q.append(bit);
 			ff.sig_d.append(bit);
@@ -177,22 +177,22 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			ff.val_init.append(RTLIL::Const(bit.data));
 			ff.val_srst.append(RTLIL::Const(bit.data));
 			ff.val_arst.append(RTLIL::Const(bit.data));
-			continue;
+			தொடர்;
 		}
 
-		if (!dff_driver.count(bit))
-			return false;
+		எனில் (!dff_driver.மொத்தம்(bit))
+			திரும்பு பொய்;
 
 		Cell *cell;
-		int idx;
+		முழு idx;
 		std::tie(cell, idx) = dff_driver[bit];
-		bits.insert(std::make_pair(cell, idx));
+		bits.செருகு(std::make_pair(cell, idx));
 
 		FfData cur_ff(initvals, cell);
 
 		log_assert((*sigmap)(cur_ff.sig_q[idx]) == bit);
 
-		if (!found) {
+		எனில் (!found) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -213,58 +213,58 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
 			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_gclk != cur_ff.has_gclk)
-				return false;
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+		} இல்லையெனில் {
+			எனில் (ff.has_gclk != cur_ff.has_gclk)
+				திரும்பு பொய்;
+			எனில் (ff.has_clk != cur_ff.has_clk)
+				திரும்பு பொய்;
+			எனில் (ff.has_ce != cur_ff.has_ce)
+				திரும்பு பொய்;
+			எனில் (ff.has_aload != cur_ff.has_aload)
+				திரும்பு பொய்;
+			எனில் (ff.has_srst != cur_ff.has_srst)
+				திரும்பு பொய்;
+			எனில் (ff.has_arst != cur_ff.has_arst)
+				திரும்பு பொய்;
+			எனில் (ff.has_sr != cur_ff.has_sr)
+				திரும்பு பொய்;
+			எனில் (ff.has_clk) {
+				எனில் (ff.sig_clk != cur_ff.sig_clk)
+					திரும்பு பொய்;
+				எனில் (ff.pol_clk != cur_ff.pol_clk)
+					திரும்பு பொய்;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			எனில் (ff.has_ce) {
+				எனில் (ff.sig_ce != cur_ff.sig_ce)
+					திரும்பு பொய்;
+				எனில் (ff.pol_ce != cur_ff.pol_ce)
+					திரும்பு பொய்;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			எனில் (ff.has_aload) {
+				எனில் (ff.sig_aload != cur_ff.sig_aload)
+					திரும்பு பொய்;
+				எனில் (ff.pol_aload != cur_ff.pol_aload)
+					திரும்பு பொய்;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			எனில் (ff.has_srst) {
+				எனில் (ff.sig_srst != cur_ff.sig_srst)
+					திரும்பு பொய்;
+				எனில் (ff.pol_srst != cur_ff.pol_srst)
+					திரும்பு பொய்;
+				எனில் (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					திரும்பு பொய்;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			எனில் (ff.has_arst) {
+				எனில் (ff.sig_arst != cur_ff.sig_arst)
+					திரும்பு பொய்;
+				எனில் (ff.pol_arst != cur_ff.pol_arst)
+					திரும்பு பொய்;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			எனில் (ff.has_sr) {
+				எனில் (ff.pol_clr != cur_ff.pol_clr)
+					திரும்பு பொய்;
+				எனில் (ff.pol_set != cur_ff.pol_set)
+					திரும்பு பொய்;
 			}
 		}
 
@@ -277,27 +277,27 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 		ff.val_arst.append(RTLIL::Const(ff.has_arst ? cur_ff.val_arst[idx] : State::Sx));
 		ff.val_srst.append(RTLIL::Const(ff.has_srst ? cur_ff.val_srst[idx] : State::Sx));
 		ff.val_init.append(RTLIL::Const(cur_ff.val_init[idx]));
-		found = true;
+		found = உண்மை;
 	}
 
-	if (found && ff.has_sr) {
-		for (auto i: const_bits) {
-			if (ff.sig_d[i] == State::S0) {
+	எனில் (found && ff.has_sr) {
+		க்கு (auto i: const_bits) {
+			எனில் (ff.sig_d[i] == State::S0) {
 				ff.sig_set[i] = ff.pol_set ? State::S0 : State::S1;
-			} else if (ff.sig_d[i] == State::S1) {
+			} இல்லையெனில் எனில் (ff.sig_d[i] == State::S1) {
 				ff.sig_clr[i] = ff.pol_clr ? State::S0 : State::S1;
 			}
 		}
 	}
 
-	return found;
+	திரும்பு found;
 }
 
 
-void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
+வெறுமை FfMergeHelper::remove_output_ff(மாறிலி pool<std::pair<Cell *, முழு>> &bits) {
+	க்கு (auto &it : bits) {
 		Cell *cell = it.first;
-		int idx = it.second;
+		முழு idx = it.second;
 		SigSpec q = cell->getPort(ID::Q);
 		initvals->remove_init(q[idx]);
 		dff_driver.erase((*sigmap)(q[idx]));
@@ -307,54 +307,54 @@ void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
 	}
 }
 
-void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
+வெறுமை FfMergeHelper::mark_உள்ளீடு_ff(மாறிலி pool<std::pair<Cell *, முழு>> &bits) {
+	க்கு (auto &it : bits) {
 		Cell *cell = it.first;
-		int idx = it.second;
-		if (cell->hasPort(ID::D)) {
+		முழு idx = it.second;
+		எனில் (cell->hasPort(ID::D)) {
 			SigSpec d = cell->getPort(ID::D);
 			// The user count was already at least 1
 			// (for the D port).  Bump it as it is now connected
 			// to the merged-to cell as well.  This suffices for
 			// it to not be considered for output merging.
-			sigbit_users_count[d[idx]]++;
+			sigbit_users_மொத்தம்[d[idx]]++;
 		}
 	}
 }
 
-void FfMergeHelper::set(FfInitVals *initvals_, RTLIL::Module *module_)
+வெறுமை FfMergeHelper::set(FfInitVals *initvals_, RTLIL::Module *module_)
 {
 	clear();
 	initvals = initvals_;
 	sigmap = initvals->sigmap;
 	module = module_;
 
-	for (auto wire : module->wires()) {
-		if (wire->port_output)
-			for (auto bit : (*sigmap)(wire))
-				sigbit_users_count[bit]++;
+	க்கு (auto wire : module->wires()) {
+		எனில் (wire->port_output)
+			க்கு (auto bit : (*sigmap)(wire))
+				sigbit_users_மொத்தம்[bit]++;
 	}
 
-	for (auto cell : module->cells()) {
-		if (cell->is_builtin_ff()) {
-			if (cell->hasPort(ID::D)) {
+	க்கு (auto cell : module->cells()) {
+		எனில் (cell->is_builtin_ff()) {
+			எனில் (cell->hasPort(ID::D)) {
 				SigSpec d = (*sigmap)(cell->getPort(ID::D));
-				for (int i = 0; i < GetSize(d); i++)
-					dff_sink[d[i]].insert(std::make_pair(cell, i));
+				க்கு (முழு i = 0; i < GetSize(d); i++)
+					dff_sink[d[i]].செருகு(std::make_pair(cell, i));
 			}
 			SigSpec q = (*sigmap)(cell->getPort(ID::Q));
-			for (int i = 0; i < GetSize(q); i++)
+			க்கு (முழு i = 0; i < GetSize(q); i++)
 				dff_driver[q[i]] = std::make_pair(cell, i);
 		}
-		for (auto &conn : cell->connections())
-			if (!cell->known() || cell->input(conn.first))
-				for (auto bit : (*sigmap)(conn.second))
-					sigbit_users_count[bit]++;
+		க்கு (auto &conn : cell->connections())
+			எனில் (!cell->known() || cell->உள்ளீடு(conn.first))
+				க்கு (auto bit : (*sigmap)(conn.second))
+					sigbit_users_மொத்தம்[bit]++;
 	}
 }
 
-void FfMergeHelper::clear() {
+வெறுமை FfMergeHelper::clear() {
 	dff_driver.clear();
 	dff_sink.clear();
-	sigbit_users_count.clear();
+	sigbit_users_மொத்தம்.clear();
 }

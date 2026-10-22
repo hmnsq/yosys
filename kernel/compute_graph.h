@@ -20,8 +20,8 @@
 #ifndef COMPUTE_GRAPH_H
 #define COMPUTE_GRAPH_H
 
-#include <tuple>
-#include "kernel/yosys.h"
+#அந்தர்பாவ <tuple>
+#அந்தர்பாவ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -29,266 +29,266 @@ template<
     typename Fn, // Function type (deduplicated across whole graph)
     typename Attr = std::tuple<>, // Call attributes (present in every node)
     typename SparseAttr = std::tuple<>, // Sparse call attributes (optional per node)
-    typename Key = std::tuple<> // Stable keys to refer to nodes
+    typename சாவி_2 = std::tuple<> // Stable keys to refer to nodes
 >
-struct ComputeGraph
+கட்டமைப்பு ComputeGraph
 {
-    struct Ref;
-private:
+    கட்டமைப்பு Ref;
+தனிப்பட்ட:
 
     // Functions are deduplicated by assigning unique ids
     idict<Fn> functions;
 
-    struct Node {
-        int fn_index;
-        int arg_offset;
-        int arg_count;
+    கட்டமைப்பு முனை_2 {
+        முழு fn_index;
+        முழு arg_offset;
+        முழு arg_மொத்தம்;
         Attr attr;
 
-        Node(int fn_index, Attr &&attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(std::move(attr)) {}
+        முனை_2(முழு fn_index, Attr &&attr, முழு arg_offset, முழு arg_மொத்தம் = 0)
+            : fn_index(fn_index), arg_offset(arg_offset), arg_மொத்தம்(arg_மொத்தம்), attr(std::move(attr)) {}
 
-        Node(int fn_index, Attr const &attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(attr) {}
+        முனை_2(முழு fn_index, Attr மாறிலி &attr, முழு arg_offset, முழு arg_மொத்தம் = 0)
+            : fn_index(fn_index), arg_offset(arg_offset), arg_மொத்தம்(arg_மொத்தம்), attr(attr) {}
     };
 
 
-    std::vector<Node> nodes;
-    std::vector<int> args;
-    dict<Key, int> keys_;
-    dict<int, SparseAttr> sparse_attrs;
+    std::vector<முனை_2> nodes;
+    std::vector<முழு> args;
+    dict<சாவி_2, முழு> சாவிகள்;
+    dict<முழு, SparseAttr> sparse_attrs;
 
-public:
+பொது:
     template<typename Graph>
-    struct BaseRef
+    கட்டமைப்பு BaseRef
     {
-    protected:
-        friend struct ComputeGraph;
+    பாதுகாக்கப்பட்ட:
+        friend கட்டமைப்பு ComputeGraph;
         Graph *graph_;
-        int index_;
-        BaseRef(Graph *graph, int index) : graph_(graph), index_(index) {
+        முழு index_;
+        BaseRef(Graph *graph, முழு index) : graph_(graph), index_(index) {
             log_assert(index_ >= 0);
             check();
         }
 
-        void check() const { log_assert(index_ < graph_->size()); }
+        வெறுமை check() மாறிலி { log_assert(index_ < graph_->size()); }
 
-        Node const &deref() const { check(); return graph_->nodes[index_]; }
+        முனை_2 மாறிலி &deref() மாறிலி { check(); திரும்பு graph_->nodes[index_]; }
 
-    public:
-        ComputeGraph const &graph() const { return graph_; }
-        int index() const { return index_; }
+    பொது:
+        ComputeGraph மாறிலி &graph() மாறிலி { திரும்பு graph_; }
+        முழு index() மாறிலி { திரும்பு index_; }
 
-        int size() const { return deref().arg_count; }
+        முழு size() மாறிலி { திரும்பு deref().arg_மொத்தம்; }
 
-        BaseRef arg(int n) const
+        BaseRef arg(முழு n) மாறிலி
         {
-            Node const &node = deref();
-            log_assert(n >= 0 && n < node.arg_count);
-            return BaseRef(graph_, graph_->args[node.arg_offset + n]);
+            முனை_2 மாறிலி &முனை = deref();
+            log_assert(n >= 0 && n < முனை.arg_மொத்தம்);
+            திரும்பு BaseRef(graph_, graph_->args[முனை.arg_offset + n]);
         }
 
-        std::vector<int>::const_iterator arg_indices_cbegin() const
+        std::vector<முழு>::const_iterator arg_indices_cbegin() மாறிலி
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset;
+            முனை_2 மாறிலி &முனை = deref();
+            திரும்பு graph_->args.cbegin() + முனை.arg_offset;
         }
 
-        std::vector<int>::const_iterator arg_indices_cend() const
+        std::vector<முழு>::const_iterator arg_indices_cend() மாறிலி
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset + node.arg_count;
+            முனை_2 மாறிலி &முனை = deref();
+            திரும்பு graph_->args.cbegin() + முனை.arg_offset + முனை.arg_மொத்தம்;
         }
 
-        Fn const &function() const { return graph_->functions[deref().fn_index]; }
-        Attr const &attr() const { return deref().attr; }
+        Fn மாறிலி &function() மாறிலி { திரும்பு graph_->functions[deref().fn_index]; }
+        Attr மாறிலி &attr() மாறிலி { திரும்பு deref().attr; }
 
-        bool has_sparse_attr() const { return graph_->sparse_attrs.count(index_); }
+        bool has_sparse_attr() மாறிலி { திரும்பு graph_->sparse_attrs.மொத்தம்(index_); }
 
-        SparseAttr const &sparse_attr() const
+        SparseAttr மாறிலி &sparse_attr() மாறிலி
         {
             auto found = graph_->sparse_attrs.find(index_);
             log_assert(found != graph_->sparse_attrs.end());
-            return found->second;
+            திரும்பு found->second;
         }
     };
 
-    using ConstRef = BaseRef<ComputeGraph const>;
+    using ConstRef = BaseRef<ComputeGraph மாறிலி>;
 
-    struct Ref : public BaseRef<ComputeGraph>
+    கட்டமைப்பு Ref : பொது BaseRef<ComputeGraph>
     {
-    private:
-        friend struct ComputeGraph;
-        Ref(ComputeGraph *graph, int index) : BaseRef<ComputeGraph>(graph, index) {}
-        Node &deref() const { this->check(); return this->graph_->nodes[this->index_]; }
+    தனிப்பட்ட:
+        friend கட்டமைப்பு ComputeGraph;
+        Ref(ComputeGraph *graph, முழு index) : BaseRef<ComputeGraph>(graph, index) {}
+        முனை_2 &deref() மாறிலி { this->check(); திரும்பு this->graph_->nodes[this->index_]; }
 
-    public:
+    பொது:
         Ref(BaseRef<ComputeGraph> ref) : Ref(ref.graph_, ref.index_) {}
 
-        void set_function(Fn const &function) const
+        வெறுமை set_function(Fn மாறிலி &function) மாறிலி
         {
             deref().fn_index = this->graph_->functions(function);
         }
 
-        Attr &attr() const { return deref().attr; }
+        Attr &attr() மாறிலி { திரும்பு deref().attr; }
 
-        void append_arg(ConstRef arg) const
+        வெறுமை append_arg(ConstRef arg) மாறிலி
         {
             log_assert(arg.graph_ == this->graph_);
             append_arg(arg.index());
         }
 
-        void append_arg(int arg) const
+        வெறுமை append_arg(முழு arg) மாறிலி
         {
             log_assert(arg >= 0 && arg < this->graph_->size());
-            Node &node = deref();
-            if (node.arg_offset + node.arg_count != GetSize(this->graph_->args))
-                move_args(node);
-            this->graph_->args.push_back(arg);
-            node.arg_count++;
+            முனை_2 &முனை = deref();
+            எனில் (முனை.arg_offset + முனை.arg_மொத்தம் != GetSize(this->graph_->args))
+                move_args(முனை);
+            this->graph_->args.தள்ளு_back(arg);
+            முனை.arg_மொத்தம்++;
         }
 
-        operator ConstRef() const
+        operator ConstRef() மாறிலி
         {
-            return ConstRef(this->graph_, this->index_);
+            திரும்பு ConstRef(this->graph_, this->index_);
         }
 
-        SparseAttr &sparse_attr() const
+        SparseAttr &sparse_attr() மாறிலி
         {
-            return this->graph_->sparse_attrs[this->index_];
+            திரும்பு this->graph_->sparse_attrs[this->index_];
         }
 
-        void clear_sparse_attr() const
+        வெறுமை clear_sparse_attr() மாறிலி
         {
             this->graph_->sparse_attrs.erase(this->index_);
         }
 
-        void assign_key(Key const &key) const
+        வெறுமை assign_சாவி(சாவி_2 மாறிலி &சாவி) மாறிலி
         {
-            this->graph_->keys_.emplace(key, this->index_);
+            this->graph_->சாவிகள்.emplace(சாவி, this->index_);
         }
 
-    private:
-        void move_args(Node &node) const
+    தனிப்பட்ட:
+        வெறுமை move_args(முனை_2 &முனை) மாறிலி
         {
             auto &args = this->graph_->args;
-            int old_offset = node.arg_offset;
-            node.arg_offset = GetSize(args);
-            for (int i = 0; i != node.arg_count; ++i)
-                args.push_back(args[old_offset + i]);
+            முழு old_offset = முனை.arg_offset;
+            முனை.arg_offset = GetSize(args);
+            க்கு (முழு i = 0; i != முனை.arg_மொத்தம்; ++i)
+                args.தள்ளு_back(args[old_offset + i]);
         }
 
     };
 
-    bool has_key(Key const &key) const
+    bool has_சாவி(சாவி_2 மாறிலி &சாவி) மாறிலி
     {
-        return keys_.count(key);
+        திரும்பு சாவிகள்.மொத்தம்(சாவி);
     }
 
-    dict<Key, int> const &keys() const
+    dict<சாவி_2, முழு> மாறிலி &சாவிகள்_2() மாறிலி
     {
-        return keys_;
+        திரும்பு சாவிகள்;
     }
 
-    ConstRef operator()(Key const &key) const
+    ConstRef operator()(சாவி_2 மாறிலி &சாவி) மாறிலி
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        auto it = சாவிகள்.find(சாவி);
+        log_assert(it != சாவிகள்.end());
+        திரும்பு (*this)[it->second];
     }
 
-    Ref operator()(Key const &key)
+    Ref operator()(சாவி_2 மாறிலி &சாவி)
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        auto it = சாவிகள்.find(சாவி);
+        log_assert(it != சாவிகள்.end());
+        திரும்பு (*this)[it->second];
     }
 
-    int size() const { return GetSize(nodes); }
+    முழு size() மாறிலி { திரும்பு GetSize(nodes); }
 
-    ConstRef operator[](int index) const { return ConstRef(this, index); }
-    Ref operator[](int index) { return Ref(this, index); }
+    ConstRef operator[](முழு index) மாறிலி { திரும்பு ConstRef(this, index); }
+    Ref operator[](முழு index) { திரும்பு Ref(this, index); }
 
-    Ref add(Fn const &function, Attr &&attr)
+    Ref add(Fn மாறிலி &function, Attr &&attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
+        முழு index = GetSize(nodes);
+        முழு fn_index = functions(function);
         nodes.emplace_back(fn_index, std::move(attr), GetSize(args));
-        return Ref(this, index);
+        திரும்பு Ref(this, index);
     }
 
-    Ref add(Fn const &function, Attr const &attr)
+    Ref add(Fn மாறிலி &function, Attr மாறிலி &attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
+        முழு index = GetSize(nodes);
+        முழு fn_index = functions(function);
         nodes.emplace_back(fn_index, attr,  GetSize(args));
-        return Ref(this, index);
+        திரும்பு Ref(this, index);
     }
 
     template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T &&args)
+    Ref add(Fn மாறிலி &function, Attr மாறிலி &attr, T &&args)
     {
         Ref added = add(function, attr);
-        for (auto arg : args)
+        க்கு (auto arg : args)
             added.append_arg(arg);
-        return added;
+        திரும்பு added;
     }
 
     template<typename T>
-    Ref add(Fn const &function, Attr &&attr, T &&args)
+    Ref add(Fn மாறிலி &function, Attr &&attr, T &&args)
     {
         Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        க்கு (auto arg : args)
             added.append_arg(arg);
-        return added;
+        திரும்பு added;
     }
 
-    Ref add(Fn const &function, Attr const &attr, std::initializer_list<Ref> args)
+    Ref add(Fn மாறிலி &function, Attr மாறிலி &attr, std::initializer_list<Ref> args)
     {
         Ref added = add(function, attr);
-        for (auto arg : args)
+        க்கு (auto arg : args)
             added.append_arg(arg);
-        return added;
+        திரும்பு added;
     }
 
-    Ref add(Fn const &function, Attr &&attr, std::initializer_list<Ref> args)
+    Ref add(Fn மாறிலி &function, Attr &&attr, std::initializer_list<Ref> args)
     {
         Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        க்கு (auto arg : args)
             added.append_arg(arg);
-        return added;
+        திரும்பு added;
     }
 
     template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T begin, T end)
+    Ref add(Fn மாறிலி &function, Attr மாறிலி &attr, T begin, T end)
     {
         Ref added = add(function, attr);
-        for (; begin != end; ++begin)
+        க்கு (; begin != end; ++begin)
             added.append_arg(*begin);
-        return added;
+        திரும்பு added;
     }
 
-    void compact_args()
+    வெறுமை compact_args()
     {
-        std::vector<int> new_args;
-        for (auto &node : nodes)
+        std::vector<முழு> new_args;
+        க்கு (auto &முனை : nodes)
         {
-            int new_offset = GetSize(new_args);
-            for (int i = 0; i < node.arg_count; i++)
-                new_args.push_back(args[node.arg_offset + i]);
-            node.arg_offset = new_offset;
+            முழு new_offset = GetSize(new_args);
+            க்கு (முழு i = 0; i < முனை.arg_மொத்தம்; i++)
+                new_args.தள்ளு_back(args[முனை.arg_offset + i]);
+            முனை.arg_offset = new_offset;
         }
         std::swap(args, new_args);
     }
 
-    void permute(std::vector<int> const &perm)
+    வெறுமை permute(std::vector<முழு> மாறிலி &perm)
     {
         log_assert(perm.size() <= nodes.size());
-        std::vector<int> inv_perm;
+        std::vector<முழு> inv_perm;
         inv_perm.resize(nodes.size(), -1);
-        for (int i = 0; i < GetSize(perm); ++i)
+        க்கு (முழு i = 0; i < GetSize(perm); ++i)
         {
-            int j = perm[i];
+            முழு j = perm[i];
             log_assert(j >= 0 && j < GetSize(nodes));
             log_assert(inv_perm[j] == -1);
             inv_perm[j] = i;
@@ -296,18 +296,18 @@ public:
         permute(perm, inv_perm);
     }
 
-    void permute(std::vector<int> const &perm, std::vector<int> const &inv_perm)
+    வெறுமை permute(std::vector<முழு> மாறிலி &perm, std::vector<முழு> மாறிலி &inv_perm)
     {
         log_assert(inv_perm.size() == nodes.size());
-        std::vector<Node> new_nodes;
+        std::vector<முனை_2> new_nodes;
         new_nodes.reserve(perm.size());
-        dict<int, SparseAttr> new_sparse_attrs;
-        for (int i : perm)
+        dict<முழு, SparseAttr> new_sparse_attrs;
+        க்கு (முழு i : perm)
         {
-            int j = GetSize(new_nodes);
+            முழு j = GetSize(new_nodes);
             new_nodes.emplace_back(std::move(nodes[i]));
             auto found = sparse_attrs.find(i);
-            if (found != sparse_attrs.end())
+            எனில் (found != sparse_attrs.end())
                 new_sparse_attrs.emplace(j, std::move(found->second));
         }
 
@@ -315,82 +315,82 @@ public:
         std::swap(sparse_attrs, new_sparse_attrs);
 
         compact_args();
-        for (int &arg : args)
+        க்கு (முழு &arg : args)
         {
             log_assert(arg < GetSize(inv_perm));
             log_assert(inv_perm[arg] >= 0);
             arg = inv_perm[arg];
         }
 
-        for (auto &key : keys_)
+        க்கு (auto &சாவி : சாவிகள்)
         {
-            log_assert(key.second < GetSize(inv_perm));
-            log_assert(inv_perm[key.second] >= 0);
-            key.second = inv_perm[key.second];
+            log_assert(சாவி.second < GetSize(inv_perm));
+            log_assert(inv_perm[சாவி.second] >= 0);
+            சாவி.second = inv_perm[சாவி.second];
         }
     }
 
-    struct SccAdaptor
+    கட்டமைப்பு SccAdaptor
     {
-    private:
-        ComputeGraph const &graph_;
-        std::vector<int> indices_;
-    public:
-        SccAdaptor(ComputeGraph const &graph) : graph_(graph)
+    தனிப்பட்ட:
+        ComputeGraph மாறிலி &graph_;
+        std::vector<முழு> indices_;
+    பொது:
+        SccAdaptor(ComputeGraph மாறிலி &graph) : graph_(graph)
         {
             indices_.resize(graph.size(), -1);
         }
 
 
-        typedef int node_type;
+        வகைவரை முழு முனை_type;
 
-        struct node_enumerator {
-        private:
-            friend struct SccAdaptor;
-            int current, end;
-            node_enumerator(int current, int end) : current(current), end(end) {}
+        கட்டமைப்பு முனை_enumerator {
+        தனிப்பட்ட:
+            friend கட்டமைப்பு SccAdaptor;
+            முழு current, end;
+            முனை_enumerator(முழு current, முழு end) : current(current), end(end) {}
 
-        public:
+        பொது:
 
-            bool finished() const { return current == end; }
-            node_type next() {
+            bool finished() மாறிலி { திரும்பு current == end; }
+            முனை_type next() {
                 log_assert(!finished());
-                node_type result = current;
+                முனை_type result = current;
                 ++current;
-                return result;
+                திரும்பு result;
             }
         };
 
-        node_enumerator enumerate_nodes() {
-            return node_enumerator(0, GetSize(indices_));
+        முனை_enumerator enumerate_nodes() {
+            திரும்பு முனை_enumerator(0, GetSize(indices_));
         }
 
 
-        struct successor_enumerator {
-        private:
-            friend struct SccAdaptor;
-            std::vector<int>::const_iterator current, end;
-            successor_enumerator(std::vector<int>::const_iterator current, std::vector<int>::const_iterator end) :
+        கட்டமைப்பு successor_enumerator {
+        தனிப்பட்ட:
+            friend கட்டமைப்பு SccAdaptor;
+            std::vector<முழு>::const_iterator current, end;
+            successor_enumerator(std::vector<முழு>::const_iterator current, std::vector<முழு>::const_iterator end) :
                 current(current), end(end) {}
 
-        public:
-            bool finished() const { return current == end; }
-            node_type next() {
+        பொது:
+            bool finished() மாறிலி { திரும்பு current == end; }
+            முனை_type next() {
                 log_assert(!finished());
-                node_type result = *current;
+                முனை_type result = *current;
                 ++current;
-                return result;
+                திரும்பு result;
             }
         };
 
-        successor_enumerator enumerate_successors(int index) const {
-            auto const &ref = graph_[index];
-            return successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
+        successor_enumerator enumerate_successors(முழு index) மாறிலி {
+            auto மாறிலி &ref = graph_[index];
+            திரும்பு successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
         }
 
-        int &dfs_index(node_type const &node) { return indices_[node]; }
+        முழு &dfs_index(முனை_type மாறிலி &முனை) { திரும்பு indices_[முனை]; }
 
-        std::vector<int> const &dfs_indices() { return indices_; }
+        std::vector<முழு> மாறிலி &dfs_indices() { திரும்பு indices_; }
     };
 
 };

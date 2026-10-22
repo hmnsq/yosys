@@ -20,9 +20,9 @@
 #ifndef JSON_H
 #define JSON_H
 
-#include "kernel/yosys.h"
-#include "libs/json11/json11.hpp"
-#include <functional>
+#அந்தர்பாவ "kernel/yosys.h"
+#அந்தர்பாவ "libs/json11/json11.hpp"
+#அந்தர்பாவ <functional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -30,69 +30,69 @@ using json11::Json;
 
 class PrettyJson
 {
-    enum Scope {
-        VALUE,
+    எண்ணிக்கை Scope {
+        மதிப்பு_2,
         OBJECT_FIRST,
         OBJECT,
         ARRAY_FIRST,
         ARRAY,
     };
 
-    struct Target {
-        virtual void emit(const char *data) = 0;
-        virtual void flush() {};
-        virtual ~Target() {};
+    கட்டமைப்பு Target {
+        மெய்நிகர் வெறுமை emit(மாறிலி எழுத்து *data) = 0;
+        மெய்நிகர் வெறுமை flush() {};
+        மெய்நிகர் ~Target() {};
     };
 
     std::string newline_indent = "\n";
     std::vector<std::unique_ptr<Target>> targets;
-    std::vector<Scope> state = {VALUE};
-    int compact_depth = INT_MAX;
-public:
+    std::vector<Scope> state = {மதிப்பு_2};
+    முழு compact_depth = INT_MAX;
+பொது:
 
-    void emit_to_log();
-    void append_to_string(std::string &target);
-    bool write_to_file(const std::string &path);
+    வெறுமை emit_to_log();
+    வெறுமை append_to_string(std::string &target);
+    bool write_to_file(மாறிலி std::string &path);
 
-    bool active() { return !targets.empty(); }
+    bool active() { திரும்பு !targets.empty(); }
 
-    void compact() { compact_depth = GetSize(state); }
+    வெறுமை compact() { compact_depth = GetSize(state); }
 
-    void line(bool space_if_inline = true);
-    void raw(const char *raw_json);
-    void flush();
-    void begin_object();
-    void begin_array();
-    void end_object();
-    void end_array();
-    void name(const char *name);
-    void begin_value();
-    void end_value();
-    void value_json(const Json &value);
-    void value(unsigned int value) { value_json(Json((int)value)); }
+    வெறுமை வரி(bool space_if_inline = true);
+    வெறுமை raw(மாறிலி எழுத்து *raw_json);
+    வெறுமை flush();
+    வெறுமை begin_object();
+    வெறுமை begin_array();
+    வெறுமை end_object();
+    வெறுமை end_array();
+    வெறுமை name(மாறிலி எழுத்து *name);
+    வெறுமை begin_மதிப்பு();
+    வெறுமை end_மதிப்பு();
+    வெறுமை மதிப்பு_json(மாறிலி Json &மதிப்பு);
+    வெறுமை மதிப்பு(unsigned முழு மதிப்பு) { மதிப்பு_json(Json((முழு)மதிப்பு)); }
     template<typename T>
-    void value(T &&value) { value_json(Json(std::forward<T>(value))); };
+    வெறுமை மதிப்பு(T &&மதிப்பு) { மதிப்பு_json(Json(std::forward<T>(மதிப்பு))); };
 
-    void entry_json(const char *name, const Json &value);
-    void entry(const char *name, unsigned int value) { entry_json(name, Json((int)value)); }
+    வெறுமை entry_json(மாறிலி எழுத்து *name, மாறிலி Json &மதிப்பு);
+    வெறுமை entry(மாறிலி எழுத்து *name, unsigned முழு மதிப்பு) { entry_json(name, Json((முழு)மதிப்பு)); }
     template<typename T>
-    void entry(const char *name, T &&value) { entry_json(name, Json(std::forward<T>(value))); };
+    வெறுமை entry(மாறிலி எழுத்து *name, T &&மதிப்பு) { entry_json(name, Json(std::forward<T>(மதிப்பு))); };
 
     template<typename T>
-    void object(const T &&values)
+    வெறுமை object(மாறிலி T &&மதிப்புகள்)
     {
         begin_object();
-        for (auto &item : values)
+        க்கு (auto &item : மதிப்புகள்)
             entry(item.first, item.second);
         end_object();
     }
 
     template<typename T>
-    void array(const T &&values)
+    வெறுமை array(மாறிலி T &&மதிப்புகள்)
     {
         begin_array();
-        for (auto &item : values)
-            value(item);
+        க்கு (auto &item : மதிப்புகள்)
+            மதிப்பு(item);
         end_array();
     }
 };

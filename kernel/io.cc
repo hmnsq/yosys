@@ -1,94 +1,94 @@
-#include "kernel/yosys_common.h"
-#include "kernel/log.h"
-#include <iostream>
-#include <string>
-#include <filesystem>
-#include <system_error>
+#அந்தர்பாவ "kernel/yosys_common.h"
+#அந்தர்பாவ "kernel/log.h"
+#அந்தர்பாவ <iostream>
+#அந்தர்பாவ <string>
+#அந்தர்பாவ <filesystem>
+#அந்தர்பாவ <system_error>
 
-#if !defined(WIN32)
-#include <dirent.h>
-#include <unistd.h>
-#else
-#include <io.h>
+#எனில் !defined(WIN32)
+#அந்தர்பாவ <dirent.h>
+#அந்தர்பாவ <unistd.h>
+#இல்லையெனில்
+#அந்தர்பாவ <io.h>
 #endif
 
-#if !defined(_WIN32) && !defined(__wasi__)
-#include <sys/file.h>
-#include <fcntl.h>
-#include <cerrno>
+#எனில் !defined(_WIN32) && !defined(__wasi__)
+#அந்தர்பாவ <sys/file.h>
+#அந்தர்பாவ <fcntl.h>
+#அந்தர்பாவ <cerrno>
 #endif
 
 YOSYS_NAMESPACE_BEGIN
 
 // Set of utilities for handling files
 
-int readsome(std::istream &f, char *s, int n)
+முழு readsome(std::istream &f, எழுத்து *s, முழு n)
 {
-	int rc = int(f.readsome(s, n));
+	முழு rc = முழு(f.readsome(s, n));
 
 	// f.readsome() sometimes returns 0 on a non-empty stream..
-	if (rc == 0) {
-		int c = f.get();
-		if (c != EOF) {
+	எனில் (rc == 0) {
+		முழு c = f.get();
+		எனில் (c != EOF) {
 			*s = c;
 			rc = 1;
 		}
 	}
 
-	return rc;
+	திரும்பு rc;
 }
 
-std::string next_token(std::string &text, const char *sep, bool long_strings)
+std::string next_token(std::string &text, மாறிலி எழுத்து *sep, தருக்க long_strings)
 {
 	size_t pos_begin = text.find_first_not_of(sep);
 
-	if (pos_begin == std::string::npos)
+	எனில் (pos_begin == std::string::npos)
 		pos_begin = text.size();
 
-	if (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
+	எனில் (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
 		std::string sep_string = sep;
-		for (size_t i = pos_begin+1; i < text.size(); i++) {
-			if (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
+		க்கு (size_t i = pos_begin+1; i < text.size(); i++) {
+			எனில் (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
 				std::string token = text.substr(pos_begin, i-pos_begin+1);
 				text = text.substr(i+1);
-				return token;
+				திரும்பு token;
 			}
-			if (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
+			எனில் (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
 				std::string token = text.substr(pos_begin, i-pos_begin+1);
 				text = text.substr(i+2);
-				return token + ";";
+				திரும்பு token + ";";
 			}
 		}
 	}
 
 	size_t pos_end = text.find_first_of(sep, pos_begin);
 
-	if (pos_end == std::string::npos)
+	எனில் (pos_end == std::string::npos)
 		pos_end = text.size();
 
 	std::string token = text.substr(pos_begin, pos_end-pos_begin);
 	text = text.substr(pos_end);
-	return token;
+	திரும்பு token;
 }
 
-std::vector<std::string> split_tokens(const std::string &text, const char *sep)
+std::vector<std::string> split_tokens(மாறிலி std::string &text, மாறிலி எழுத்து *sep)
 {
 	std::vector<std::string> tokens;
 	std::string current_token;
-	for (char c : text) {
-		if (strchr(sep, c)) {
-			if (!current_token.empty()) {
-				tokens.push_back(current_token);
+	க்கு (எழுத்து c : text) {
+		எனில் (strchr(sep, c)) {
+			எனில் (!current_token.empty()) {
+				tokens.தள்ளு_back(current_token);
 				current_token.clear();
 			}
-		} else
+		} இல்லையெனில்
 			current_token += c;
 	}
-	if (!current_token.empty()) {
-		tokens.push_back(current_token);
+	எனில் (!current_token.empty()) {
+		tokens.தள்ளு_back(current_token);
 		current_token.clear();
 	}
-	return tokens;
+	திரும்பு tokens;
 }
 
 // this is very similar to fnmatch(). the exact rules used by this
@@ -102,349 +102,349 @@ std::vector<std::string> split_tokens(const std::string &text, const char *sep)
 // a backslash may be used to escape the next characters in the
 // pattern. each special character can also simply match itself.
 //
-bool patmatch(const char *pattern, const char *string)
+தருக்க patmatch(மாறிலி எழுத்து *pattern, மாறிலி எழுத்து *string)
 {
-	if (*pattern == 0)
-		return *string == 0;
+	எனில் (*pattern == 0)
+		திரும்பு *string == 0;
 
-	if (*pattern == '\\') {
-		if (pattern[1] == string[0] && patmatch(pattern+2, string+1))
-			return true;
+	எனில் (*pattern == '\\') {
+		எனில் (pattern[1] == string[0] && patmatch(pattern+2, string+1))
+			திரும்பு உண்மை;
 	}
 
-	if (*pattern == '?') {
-		if (*string == 0)
-			return false;
-		return patmatch(pattern+1, string+1);
+	எனில் (*pattern == '?') {
+		எனில் (*string == 0)
+			திரும்பு பொய்;
+		திரும்பு patmatch(pattern+1, string+1);
 	}
 
-	if (*pattern == '*') {
-		while (*string) {
-			if (patmatch(pattern+1, string++))
-				return true;
+	எனில் (*pattern == '*') {
+		போது (*string) {
+			எனில் (patmatch(pattern+1, string++))
+				திரும்பு உண்மை;
 		}
-		return pattern[1] == 0;
+		திரும்பு pattern[1] == 0;
 	}
 
-	if (*pattern == '[') {
-		bool found_match = false;
-		bool inverted_list = pattern[1] == '!';
-		const char *p = pattern + (inverted_list ? 1 : 0);
+	எனில் (*pattern == '[') {
+		தருக்க found_match = பொய்;
+		தருக்க inverted_list = pattern[1] == '!';
+		மாறிலி எழுத்து *p = pattern + (inverted_list ? 1 : 0);
 
-		while (*++p) {
-			if (*p == ']') {
-				if (found_match != inverted_list && patmatch(p+1, string+1))
-					return true;
-				break;
+		போது (*++p) {
+			எனில் (*p == ']') {
+				எனில் (found_match != inverted_list && patmatch(p+1, string+1))
+					திரும்பு உண்மை;
+				நிறுத்து;
 			}
 
-			if (*p == '\\') {
-				if (*++p == *string)
-					found_match = true;
-			} else
-			if (*p == *string)
-				found_match = true;
+			எனில் (*p == '\\') {
+				எனில் (*++p == *string)
+					found_match = உண்மை;
+			} இல்லையெனில்
+			எனில் (*p == *string)
+				found_match = உண்மை;
 		}
 	}
 
-	if (*pattern == *string)
-		return patmatch(pattern+1, string+1);
+	எனில் (*pattern == *string)
+		திரும்பு patmatch(pattern+1, string+1);
 
-	return false;
+	திரும்பு பொய்;
 }
 
 std::string get_base_tmpdir()
 {
-	static std::string tmpdir;
+	நிலையான std::string tmpdir;
 
-	if (!tmpdir.empty()) {
-		return tmpdir;
+	எனில் (!tmpdir.empty()) {
+		திரும்பு tmpdir;
 	}
 
-#if defined(_WIN32)
+#எனில் defined(_WIN32)
 	std::wstring wtmppath(4096, L'\0');
 	// typically returns a 8.3 path, but this can be disabled via registry
-	if (!GetTempPathW(wtmppath.size(), wtmppath.data()))
+	எனில் (!GetTempPathW(wtmppath.size(), wtmppath.data()))
 		log_error("GetTempPathW() failed.\n");
 	wtmppath.resize(wtmppath.find(L'\0'));
 	std::string utmppath;
-	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), NULL, NULL) == 0)
+	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), வெற்று, 0, வெற்று, வெற்று));
+	எனில் (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), வெற்று, வெற்று) == 0)
 		log_error("WideCharToMultiByte() failed.\n");
 	tmpdir += utmppath;
-#else
-	char * var = std::getenv("TMPDIR");
-	if (var && strlen(var)!=0) {
+#இல்லையெனில்
+	எழுத்து * var = std::getenv("TMPDIR");
+	எனில் (var && strlen(var)!=0) {
 		tmpdir.assign(var);
 		// We return the directory name without the trailing '/'
-		while (!tmpdir.empty() && (tmpdir.back() == '/')) {
-			tmpdir.pop_back();
+		போது (!tmpdir.empty() && (tmpdir.back() == '/')) {
+			tmpdir.எடு_back();
 		}
-	} else {
+	} இல்லையெனில் {
 		tmpdir.assign("/tmp");
 	}
 #endif
-	return tmpdir;
+	திரும்பு tmpdir;
 }
 
 std::string make_temp_file(std::string template_str)
 {
 	size_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
-#if defined(__wasm)
-	static size_t index = 0;
+#எனில் defined(__wasm)
+	நிலையான size_t index = 0;
 	template_str.replace(pos, 6, stringf("%06zu", index++));
-#elif defined(_WIN32)
+#அல்லதெனில் defined(_WIN32)
 #ifndef YOSYS_WIN32_UNIX_DIR
 	std::replace(template_str.begin(), template_str.end(), '/', '\\');
 #endif
-	while (1) {
-		for (int i = 0; i < 6; i++) {
-			static std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-			static uint32_t x = 314159265 ^ uint32_t(time(NULL));
+	போது (1) {
+		க்கு (முழு i = 0; i < 6; i++) {
+			நிலையான std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			நிலையான uint32_t x = 314159265 ^ uint32_t(time(வெற்று));
 			x ^= x << 13, x ^= x >> 17, x ^= x << 5;
 			template_str[pos+i] = y[x % y.size()];
 		}
-		if (_access(template_str.c_str(), 0) != 0)
-			break;
+		எனில் (_access(template_str.c_str(), 0) != 0)
+			நிறுத்து;
 	}
-#else
-	int suffixlen = template_str.size() - pos - 6;
+#இல்லையெனில்
+	முழு suffixlen = template_str.size() - pos - 6;
 
-	char *p = strdup(template_str.c_str());
+	எழுத்து *p = strdup(template_str.c_str());
 	close(mkstemps(p, suffixlen));
 	template_str = p;
-	free(p);
+	விடுவி(p);
 #endif
 
-	return template_str;
+	திரும்பு template_str;
 }
 
 std::string make_temp_dir(std::string template_str)
 {
-#if defined(_WIN32)
+#எனில் defined(_WIN32)
 	template_str = make_temp_file(template_str);
 	mkdir(template_str.c_str());
-	return template_str;
-#elif defined(__wasm)
+	திரும்பு template_str;
+#அல்லதெனில் defined(__wasm)
 	template_str = make_temp_file(template_str);
 	mkdir(template_str.c_str(), 0777);
-	return template_str;
-#else
+	திரும்பு template_str;
+#இல்லையெனில்
 #  ifndef NDEBUG
 	size_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
 
-	int suffixlen = template_str.size() - pos - 6;
+	முழு suffixlen = template_str.size() - pos - 6;
 	log_assert(suffixlen == 0);
 #  endif
 
-	char *p = strdup(template_str.c_str());
+	எழுத்து *p = strdup(template_str.c_str());
 	log_assert(p);
-	char *res = mkdtemp(p);
-	if (!res)
+	எழுத்து *res = mkdtemp(p);
+	எனில் (!res)
 		log_error("mkdtemp failed for '%s': %s [Error %d]\n",
 			p, strerror(errno), errno);
 	template_str = p;
-	free(p);
+	விடுவி(p);
 
-	return template_str;
+	திரும்பு template_str;
 #endif
 }
 
-bool check_is_directory(const std::string& dirname)
+தருக்க check_is_directory(மாறிலி std::string& dirname)
 {
-#if defined(_WIN32)
-	struct _stat info;
+#எனில் defined(_WIN32)
+	கட்டமைப்பு _stat info;
 	auto dirname_ = dirname;
 
 	/* On old versions of Visual Studio and current versions on MinGW,
 	   _stat will fail if the path ends with a trailing slash. */
-	if (dirname.back() == '/' || dirname.back() == '\\') {
+	எனில் (dirname.back() == '/' || dirname.back() == '\\') {
 		dirname_ = dirname.substr(0, dirname.length() - 1);
 	}
 
-	if (_stat(dirname_.c_str(), &info) != 0)
+	எனில் (_stat(dirname_.c_str(), &info) != 0)
 	{
-		return false;
+		திரும்பு பொய்;
 	}
-	return (info.st_mode & _S_IFDIR) != 0;
-#else
-	struct stat info;
-	if (stat(dirname.c_str(), &info) != 0)
+	திரும்பு (info.st_mode & _S_IFDIR) != 0;
+#இல்லையெனில்
+	கட்டமைப்பு stat info;
+	எனில் (stat(dirname.c_str(), &info) != 0)
 	{
-		return false;
+		திரும்பு பொய்;
 	}
-	return (info.st_mode & S_IFDIR) != 0;
+	திரும்பு (info.st_mode & S_IFDIR) != 0;
 #endif
 }
 
 #ifdef _WIN32
-bool check_accessible(const std::string& filename, bool)
+தருக்க check_accessible(மாறிலி std::string& filename, தருக்க)
 {
-	return _access(filename.c_str(), 0) == 0;
+	திரும்பு _access(filename.c_str(), 0) == 0;
 }
-#else
-bool check_accessible(const std::string& filename, bool is_exec)
+#இல்லையெனில்
+தருக்க check_accessible(மாறிலி std::string& filename, தருக்க is_exec)
 {
-	return access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
+	திரும்பு access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
 }
 #endif
 
-bool check_file_exists(const std::string& filename, bool is_exec)
+தருக்க check_file_exists(மாறிலி std::string& filename, தருக்க is_exec)
 {
-	return check_accessible(filename, is_exec) && !check_is_directory(filename);
+	திரும்பு check_accessible(filename, is_exec) && !check_is_directory(filename);
 }
-bool check_directory_exists(const std::string& filename, bool is_exec)
+தருக்க check_directory_exists(மாறிலி std::string& filename, தருக்க is_exec)
 {
-	return check_accessible(filename, is_exec) && check_is_directory(filename);
+	திரும்பு check_accessible(filename, is_exec) && check_is_directory(filename);
 }
 
-bool is_absolute_path(std::string filename)
+தருக்க is_absolute_path(std::string filename)
 {
 #ifdef _WIN32
-	return filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
-#else
-	return filename[0] == '/';
+	திரும்பு filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
+#இல்லையெனில்
+	திரும்பு filename[0] == '/';
 #endif
 }
 
-void remove_directory(std::string dirname)
+வெறுமை remove_directory(std::string dirname)
 {
 #ifdef _WIN32
 	run_command(stringf("rmdir /s /q \"%s\"", dirname));
-#else
-	struct stat stbuf;
-	struct dirent **namelist;
-	int n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
+#இல்லையெனில்
+	கட்டமைப்பு stat stbuf;
+	கட்டமைப்பு dirent **namelist;
+	முழு n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
 	log_assert(n >= 0);
-	for (int i = 0; i < n; i++) {
-		if (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
+	க்கு (முழு i = 0; i < n; i++) {
+		எனில் (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
 			std::string buffer = stringf("%s/%s", dirname, namelist[i]->d_name);
-			if (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
+			எனில் (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
 				remove(buffer.c_str());
-			} else
+			} இல்லையெனில்
 				remove_directory(buffer);
 		}
-		free(namelist[i]);
+		விடுவி(namelist[i]);
 	}
-	free(namelist);
+	விடுவி(namelist);
 	rmdir(dirname.c_str());
 #endif
 }
 
-bool create_directory(const std::string& dirname)
+தருக்க create_directory(மாறிலி std::string& dirname)
 {
-#if defined(_WIN32)
-	int ret = _mkdir(dirname.c_str());
-#else
+#எனில் defined(_WIN32)
+	முழு ret = _mkdir(dirname.c_str());
+#இல்லையெனில்
 	mode_t mode = 0755;
-	int ret = mkdir(dirname.c_str(), mode);
+	முழு ret = mkdir(dirname.c_str(), mode);
 #endif
-	if (ret == 0)
-		return true;
+	எனில் (ret == 0)
+		திரும்பு உண்மை;
 
-	switch (errno)
+	தேர்வு (errno)
 	{
-	case ENOENT:
+	நிலை ENOENT:
 		// parent didn't exist, try to create it
 		{
 			std::string::size_type pos = dirname.find_last_of('/');
-			if (pos == std::string::npos)
-#if defined(_WIN32)
+			எனில் (pos == std::string::npos)
+#எனில் defined(_WIN32)
 				pos = dirname.find_last_of('\\');
-			if (pos == std::string::npos)
+			எனில் (pos == std::string::npos)
 #endif
-				return false;
-			if (!create_directory( dirname.substr(0, pos) ))
-				return false;
+				திரும்பு பொய்;
+			எனில் (!create_directory( dirname.substr(0, pos) ))
+				திரும்பு பொய்;
 		}
 		// now, try to create again
-#if defined(_WIN32)
-		return 0 == _mkdir(dirname.c_str());
-#else
-		return 0 == mkdir(dirname.c_str(), mode);
+#எனில் defined(_WIN32)
+		திரும்பு 0 == _mkdir(dirname.c_str());
+#இல்லையெனில்
+		திரும்பு 0 == mkdir(dirname.c_str(), mode);
 #endif
 
-	case EEXIST:
+	நிலை EEXIST:
 		// done!
-		return check_directory_exists(dirname);
+		திரும்பு check_directory_exists(dirname);
 
-	default:
-		return false;
+	இயல்பு:
+		திரும்பு பொய்;
 	}
 }
 
-bool make_private_directory(const std::string& dirname)
+தருக்க make_private_directory(மாறிலி std::string& dirname)
 {
-#if defined(_WIN32) || defined(__wasi__)
-	if (!create_directory(dirname)) {
+#எனில் defined(_WIN32) || defined(__wasi__)
+	எனில் (!create_directory(dirname)) {
 		log_warning("Cannot create the directory %s\n", dirname.c_str());
-		return false;
+		திரும்பு பொய்;
 	}
-	return true;
-#else
-	if (mkdir(dirname.c_str(), 0700) == 0)
-		return true;
+	திரும்பு உண்மை;
+#இல்லையெனில்
+	எனில் (mkdir(dirname.c_str(), 0700) == 0)
+		திரும்பு உண்மை;
 
 	// Keep the errno of each mkdir(), create_directory() below makes its own calls
-	int err = errno;
+	முழு err = errno;
 	std::string parent = std::filesystem::path(dirname).parent_path().string();
 
-	if (err == ENOENT && !parent.empty() && create_directory(parent)) {
-		if (mkdir(dirname.c_str(), 0700) == 0)
-			return true;
+	எனில் (err == ENOENT && !parent.empty() && create_directory(parent)) {
+		எனில் (mkdir(dirname.c_str(), 0700) == 0)
+			திரும்பு உண்மை;
 		err = errno;
 	}
 
-	if (err != EEXIST) {
+	எனில் (err != EEXIST) {
 		log_warning("Cannot create the directory %s: %s\n", dirname.c_str(), strerror(err));
-		return false;
+		திரும்பு பொய்;
 	}
 
 	// Do not use a leftover that isn't ours
-	struct stat st;
-	if (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
+	கட்டமைப்பு stat st;
+	எனில் (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
 		log_warning("%s is not a directory of this user\n", dirname.c_str());
-		return false;
+		திரும்பு பொய்;
 	}
 	// Repair the mode if something changed it
 	mode_t mode = st.st_mode & 0777;
-	if (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
+	எனில் (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
 		log_warning("Cannot make the directory %s private: %s\n", dirname.c_str(), strerror(errno));
-		return false;
+		திரும்பு பொய்;
 	}
 
-	return true;
+	திரும்பு உண்மை;
 #endif
 }
 
-std::string make_user_tmpdir(const std::string& name)
+std::string make_user_tmpdir(மாறிலி std::string& name)
 {
 	log_assert(!name.empty() && name.find('/') == std::string::npos);
-#if defined(_WIN32) || defined(__wasi__)
+#எனில் defined(_WIN32) || defined(__wasi__)
 	std::string dirname = get_base_tmpdir() + "/" + name;
-#else
+#இல்லையெனில்
 	std::string dirname = stringf("%s/%s-%u", get_base_tmpdir().c_str(), name.c_str(), (unsigned)geteuid());
 #endif
-	return make_private_directory(dirname) ? dirname : "";
+	திரும்பு make_private_directory(dirname) ? dirname : "";
 }
 
-std::string escape_filename_spaces(const std::string& filename)
+std::string escape_filename_spaces(மாறிலி std::string& filename)
 {
 	std::string out;
 	out.reserve(filename.size());
-	for (auto c : filename)
+	க்கு (auto c : filename)
 	{
-		if (c == ' ')
+		எனில் (c == ' ')
 			out += "\\ ";
-		else
-			out.push_back(c);
+		இல்லையெனில்
+			out.தள்ளு_back(c);
 	}
-	return out;
+	திரும்பு out;
 }
 
-void append_globbed(std::vector<std::string>& paths, std::string pattern)
+வெறுமை append_globbed(std::vector<std::string>& paths, std::string pattern)
 {
 	rewrite_filename(pattern);
 	std::vector<std::string> globbed = glob_filename(pattern);
@@ -452,46 +452,46 @@ void append_globbed(std::vector<std::string>& paths, std::string pattern)
 }
 
 std::string name_from_file_path(std::string path) {
-	return std::filesystem::path(path).filename().string();
+	திரும்பு std::filesystem::path(path).filename().string();
 }
 
-std::string absolute_path(const std::string& path)
+std::string absolute_path(மாறிலி std::string& path)
 {
 	std::error_code ec;
 	std::filesystem::path result = std::filesystem::absolute(path, ec);
 
-	if (ec)
-		return "";
+	எனில் (ec)
+		திரும்பு "";
 
 	result = std::filesystem::weakly_canonical(result, ec);
 
-	if (ec)
-		return "";
+	எனில் (ec)
+		திரும்பு "";
 
-	return result.string();
+	திரும்பு result.string();
 }
 
 // Includes OS_PATH_SEP at the end if present
 std::string parent_from_file_path(std::string path) {
 	auto parent = std::filesystem::path(path).parent_path();
-	if (parent.empty()) {
-		return "";
+	எனில் (parent.empty()) {
+		திரும்பு "";
 	}
 	// Add trailing separator to match original behavior
 	std::string result = parent.string();
-	if (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
+	எனில் (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
 		result += std::filesystem::path::preferred_separator;
 	}
-	return result;
+	திரும்பு result;
 }
 
-void format_emit_unescaped(std::string &result, std::string_view fmt)
+வெறுமை format_emit_unescaped(std::string &result, std::string_view fmt)
 {
 	result.reserve(result.size() + fmt.size());
-	for (size_t i = 0; i < fmt.size(); ++i) {
-		char ch = fmt[i];
-		result.push_back(ch);
-		if (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
+	க்கு (size_t i = 0; i < fmt.size(); ++i) {
+		எழுத்து ch = fmt[i];
+		result.தள்ளு_back(ch);
+		எனில் (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
 			++i;
 		}
 	}
@@ -501,248 +501,248 @@ std::string unescape_format_string(std::string_view fmt)
 {
 	std::string result;
 	format_emit_unescaped(result, fmt);
-	return result;
+	திரும்பு result;
 }
 
-static std::string string_view_stringf(std::string_view spec, ...)
+நிலையான std::string string_view_stringf(std::string_view spec, ...)
 {
 	va_list ap;
 	va_start(ap, spec);
 	std::string result = vstringf(std::string(spec).c_str(), ap);
 	va_end(ap);
-	return result;
+	திரும்பு result;
 }
 
-static int spec_parameter_size(std::string_view spec)
+நிலையான முழு spec_parameter_size(std::string_view spec)
 {
 	// Every valid spec starts with '%' which means the code below
 	// won't look before the spec start.
-	switch (spec[spec.size() - 1]) {
-	case 'd':
-	case 'i':
-	case 'o':
-	case 'u':
-	case 'x':
-	case 'X':
-		switch (spec[spec.size() - 2]) {
-		case 'h':
-			if (spec[spec.size() - 3] == 'h')
-				return sizeof(char);
-			return sizeof(short);
-		case 'l':
-			if (spec[spec.size() - 3] == 'l')
-				return sizeof(long long);
-			return sizeof(long);
-		case 'L':
-		case 'q':
-			return sizeof(long long);
-		case 'j':
-			return sizeof(intmax_t);
-		case 'z':
-		case 'Z':
-			return sizeof(size_t);
-		case 't':
-			return sizeof(ptrdiff_t);
+	தேர்வு (spec[spec.size() - 1]) {
+	நிலை 'd':
+	நிலை 'i':
+	நிலை 'o':
+	நிலை 'u':
+	நிலை 'x':
+	நிலை 'X':
+		தேர்வு (spec[spec.size() - 2]) {
+		நிலை 'h':
+			எனில் (spec[spec.size() - 3] == 'h')
+				திரும்பு அளவு(எழுத்து);
+			திரும்பு அளவு(short);
+		நிலை 'l':
+			எனில் (spec[spec.size() - 3] == 'l')
+				திரும்பு அளவு(long long);
+			திரும்பு அளவு(long);
+		நிலை 'L':
+		நிலை 'q':
+			திரும்பு அளவு(long long);
+		நிலை 'j':
+			திரும்பு அளவு(intmax_t);
+		நிலை 'z':
+		நிலை 'Z':
+			திரும்பு அளவு(size_t);
+		நிலை 't':
+			திரும்பு அளவு(ptrdiff_t);
 		}
-		return sizeof(int);
-	case 'e':
-	case 'E':
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-	case 'a':
-	case 'A':
-		if (spec[spec.size() - 2] == 'L')
-			return sizeof(long double);
-		if (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
-			return sizeof(long double);
-		return sizeof(double);
-	case 'c':
-		if (spec[spec.size() - 2] == 'l') {
-			return sizeof(wchar_t);
+		திரும்பு அளவு(முழு);
+	நிலை 'e':
+	நிலை 'E':
+	நிலை 'f':
+	நிலை 'F':
+	நிலை 'g':
+	நிலை 'G':
+	நிலை 'a':
+	நிலை 'A':
+		எனில் (spec[spec.size() - 2] == 'L')
+			திரும்பு அளவு(long இரட்டை);
+		எனில் (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
+			திரும்பு அளவு(long இரட்டை);
+		திரும்பு அளவு(இரட்டை);
+	நிலை 'c':
+		எனில் (spec[spec.size() - 2] == 'l') {
+			திரும்பு அளவு(wchar_t);
 		}
-		return sizeof(unsigned char);
-	case 'C':
-		return sizeof(wchar_t);
-	case 's':
-	case 'p':
-	case 'S':
-	case 'n':
-		return sizeof(void *);
-	case 'm':
-		return sizeof(int);
-	default:
-		return -1;
+		திரும்பு அளவு(unsigned எழுத்து);
+	நிலை 'C':
+		திரும்பு அளவு(wchar_t);
+	நிலை 's':
+	நிலை 'p':
+	நிலை 'S':
+	நிலை 'n':
+		திரும்பு அளவு(வெறுமை *);
+	நிலை 'm':
+		திரும்பு அளவு(முழு);
+	இயல்பு:
+		திரும்பு -1;
 	}
 }
 
 template <typename Arg>
-static void format_emit_stringf(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, Arg arg)
+நிலையான வெறுமை format_emit_stringf(std::string &result, std::string_view spec, முழு *dynamic_ints,
+	Dynamic_Int_மொத்தம் இலக்கம்_dynamic_ints, Arg arg)
 {
 	// Delegate nontrivial formats to the C library.
-	switch (num_dynamic_ints) {
-	case DynamicIntCount::NONE:
+	தேர்வு (இலக்கம்_dynamic_ints) {
+	நிலை Dynamic_Int_மொத்தம்::NONE:
 		result += string_view_stringf(spec, arg);
-		return;
-	case DynamicIntCount::ONE:
+		திரும்பு;
+	நிலை Dynamic_Int_மொத்தம்::ONE:
 		result += string_view_stringf(spec, dynamic_ints[0], arg);
-		return;
-	case DynamicIntCount::TWO:
+		திரும்பு;
+	நிலை Dynamic_Int_மொத்தம்::TWO:
 		result += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
-		return;
+		திரும்பு;
 	}
 	YOSYS_ABORT("Internal error");
 }
 
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, long long arg)
+வெறுமை format_emit_long_long(std::string &result, std::string_view spec, முழு *dynamic_ints,
+	Dynamic_Int_மொத்தம் இலக்கம்_dynamic_ints, long long arg)
 {
-	if (spec == "%d") {
+	எனில் (spec == "%d") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<int>(arg));
-		return;
+		result += std::to_string(static_cast<முழு>(arg));
+		திரும்பு;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	எனில் (spec_parameter_size(spec) <= 4) {
 		// On some platforms (Wasm) we must ensure that the arg is properly aligned
 		// after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(result, spec, dynamic_ints, இலக்கம்_dynamic_ints, (முழு)arg);
+	} இல்லையெனில் {
+		format_emit_stringf(result, spec, dynamic_ints, இலக்கம்_dynamic_ints, arg);
 	}
 }
 
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, unsigned long long arg)
+வெறுமை format_emit_unsigned_long_long(std::string &result, std::string_view spec, முழு *dynamic_ints,
+	Dynamic_Int_மொத்தம் இலக்கம்_dynamic_ints, unsigned long long arg)
 {
-	if (spec == "%u") {
+	எனில் (spec == "%u") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<unsigned int>(arg));
-		return;
+		result += std::to_string(static_cast<unsigned முழு>(arg));
+		திரும்பு;
 	}
-	if (spec == "%c") {
-		result += static_cast<char>(arg);
-		return;
+	எனில் (spec == "%c") {
+		result += static_cast<எழுத்து>(arg);
+		திரும்பு;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	எனில் (spec_parameter_size(spec) <= 4) {
                 // On some platforms (Wasm) we must ensure that the arg is properly aligned
                 // after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (unsigned int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(result, spec, dynamic_ints, இலக்கம்_dynamic_ints, (unsigned முழு)arg);
+	} இல்லையெனில் {
+		format_emit_stringf(result, spec, dynamic_ints, இலக்கம்_dynamic_ints, arg);
 	}
 }
 
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, double arg)
+வெறுமை format_emit_double(std::string &result, std::string_view spec, முழு *dynamic_ints,
+	Dynamic_Int_மொத்தம் இலக்கம்_dynamic_ints, இரட்டை arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, இலக்கம்_dynamic_ints, arg);
 }
 
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const char *arg)
+வெறுமை format_emit_char_ptr(std::string &result, std::string_view spec, முழு *dynamic_ints,
+	Dynamic_Int_மொத்தம் இலக்கம்_dynamic_ints, மாறிலி எழுத்து *arg)
 {
-	if (spec == "%s") {
+	எனில் (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		result += arg;
-		return;
+		திரும்பு;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, இலக்கம்_dynamic_ints, arg);
 }
 
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const std::string &arg)
+வெறுமை format_emit_string(std::string &result, std::string_view spec, முழு *dynamic_ints,
+	Dynamic_Int_மொத்தம் இலக்கம்_dynamic_ints, மாறிலி std::string &arg)
 {
-	if (spec == "%s") {
+	எனில் (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		result += arg;
-		return;
+		திரும்பு;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg.c_str());
+	format_emit_stringf(result, spec, dynamic_ints, இலக்கம்_dynamic_ints, arg.c_str());
 }
 
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, std::string_view arg)
+வெறுமை format_emit_string_view(std::string &result, std::string_view spec, முழு *dynamic_ints,
+	Dynamic_Int_மொத்தம் இலக்கம்_dynamic_ints, std::string_view arg)
 {
-	if (spec == "%s") {
+	எனில் (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		// We can output the string without creating a temporary copy.
 		result += arg;
-		return;
+		திரும்பு;
 	}
 	// Delegate nontrivial formats to the C library. We need to construct
 	// a temporary string to ensure null termination.
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, std::string(arg).c_str());
+	format_emit_stringf(result, spec, dynamic_ints, இலக்கம்_dynamic_ints, std::string(arg).c_str());
 }
 
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const void *arg)
+வெறுமை format_emit_void_ptr(std::string &result, std::string_view spec, முழு *dynamic_ints,
+	Dynamic_Int_மொத்தம் இலக்கம்_dynamic_ints, மாறிலி வெறுமை *arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, இலக்கம்_dynamic_ints, arg);
 }
 
-#if defined(_WIN32)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#எனில் defined(_WIN32)
+ScopedFileLock::ScopedFileLock(மாறிலி std::string &path)
 {
 	HANDLE h = CreateFileA(path.c_str(), GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-			NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h == INVALID_HANDLE_VALUE) {
+			வெற்று, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, வெற்று);
+	எனில் (h == INVALID_HANDLE_மதிப்பு) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+		திரும்பு;
 	}
 	OVERLAPPED ov = {};
-	if (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
+	எனில் (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
 		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
 		CloseHandle(h);
-		return;
+		திரும்பு;
 	}
 	handle = h;
 }
 
 ScopedFileLock::~ScopedFileLock()
 {
-	if (handle != nullptr) {
+	எனில் (handle != nullptr) {
 		OVERLAPPED ov = {};
 		UnlockFileEx(handle, 0, MAXDWORD, MAXDWORD, &ov);
 		CloseHandle(handle);
 	}
 }
-#elif !defined(__wasi__)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#அல்லதெனில் !defined(__wasi__)
+ScopedFileLock::ScopedFileLock(மாறிலி std::string &path)
 {
 	fd = open(path.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0666);
-	if (fd < 0)
+	எனில் (fd < 0)
 		fd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
-	if (fd < 0) {
+	எனில் (fd < 0) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+		திரும்பு;
 	}
-	int ret;
-	while ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
-	if (ret != 0)
+	முழு ret;
+	போது ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
+	எனில் (ret != 0)
 		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
 }
 
 ScopedFileLock::~ScopedFileLock()
 {
-	if (fd >= 0)
+	எனில் (fd >= 0)
 		close(fd); // releases the flock
 }
-#else
-ScopedFileLock::ScopedFileLock(const std::string &) {}
+#இல்லையெனில்
+ScopedFileLock::ScopedFileLock(மாறிலி std::string &) {}
 ScopedFileLock::~ScopedFileLock() {}
 #endif
 
 unsigned get_process_id()
 {
-#if defined(_WIN32)
-	return GetCurrentProcessId();
-#elif defined(__wasi__)
-	return 0;
-#else
-	return getpid();
+#எனில் defined(_WIN32)
+	திரும்பு GetCurrentProcessId();
+#அல்லதெனில் defined(__wasi__)
+	திரும்பு 0;
+#இல்லையெனில்
+	திரும்பு getpid();
 #endif
 }
 

@@ -20,31 +20,31 @@
 #ifndef CELLAIGS_H
 #define CELLAIGS_H
 
-#include "kernel/yosys.h"
+#அந்தர்பாவ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AigNode
+கட்டமைப்பு Aig_முனை
 {
 	IdString portname;
-	int portbit;
+	முழு portbit;
 	bool inverter;
-	int left_parent, right_parent;
-	vector<pair<IdString, int>> outports;
+	முழு இடது_parent, வலது_parent;
+	vector<pair<IdString, முழு>> outports;
 
-	AigNode();
-	bool operator==(const AigNode &other) const;
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	Aig_முனை();
+	bool operator==(மாறிலி Aig_முனை &other) மாறிலி;
+	[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி;
 };
 
-struct Aig
+கட்டமைப்பு Aig
 {
 	string name;
-	vector<AigNode> nodes;
+	vector<Aig_முனை> nodes;
 	Aig(Cell *cell);
 
-	bool operator==(const Aig &other) const;
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	bool operator==(மாறிலி Aig &other) மாறிலி;
+	[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி;
 };
 
 YOSYS_NAMESPACE_END

@@ -20,8 +20,8 @@
 #ifndef QCSAT_H
 #define QCSAT_H
 
-#include "kernel/satgen.h"
-#include "kernel/modtools.h"
+#அந்தர்பாவ "kernel/satgen.h"
+#அந்தர்பாவ "kernel/modtools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -33,7 +33,7 @@ YOSYS_NAMESPACE_BEGIN
 // skipped and the solver spuriously returns SAT with a solution that
 // cannot exist in reality due to skipped constraints (ie. only UNSAT results
 // from this class should be considered binding).
-struct QuickConeSat {
+கட்டமைப்பு QuickConeSat {
 	ModWalker &modwalker;
 	ezSatPtr ez;
 	SatGen satgen;
@@ -45,11 +45,11 @@ struct QuickConeSat {
 	// - 2: addition, subtraction, greater/less than comparisons, lcu
 	// - 3: shifts
 	// - 4: multiplication, division, power
-	int max_cell_complexity = 2;
+	முழு max_cell_complexity = 2;
 	// The maximum number of cells to import, or 0 for no limit.
-	int max_cell_count = 0;
+	முழு max_cell_மொத்தம் = 0;
 	// If non-0, skip importing cells with more than this number of output bits.
-	int max_cell_outs = 0;
+	முழு max_cell_outs = 0;
 
 	// Internal state.
 	pool<RTLIL::Cell*> imported_cells;
@@ -60,15 +60,15 @@ struct QuickConeSat {
 
 	// Imports a signal into the SAT solver, queues its input cone to be
 	// imported in the next prepare() call.
-	std::vector<int> importSig(SigSpec sig);
-	int importSigBit(SigBit bit);
+	std::vector<முழு> importSig(SigSpec sig);
+	முழு importSigBit(SigBit bit);
 
 	// Imports the input cones of all previously importSig'd signals into
 	// the SAT solver.
-	void prepare();
+	வெறுமை prepare();
 
 	// Returns the "complexity level" of a given cell.
-	static int cell_complexity(RTLIL::Cell *cell);
+	நிலையான முழு cell_complexity(RTLIL::Cell *cell);
 };
 
 // A deterministic effort budget for SAT-based optimizations, measured in solver
@@ -78,11 +78,11 @@ struct QuickConeSat {
 // spends from it in every batch, rather than resetting the budget per solver.
 // Spending the budget only skips optimizations, and it never affects correctness,
 // because a skipped proof just leaves a candidate un-optimized.
-struct SatEffortBudget {
-	enum class Result { Sat, Unsat, LimitReached };
+கட்டமைப்பு SatEffortBudget {
+	எண்ணிக்கை class Result { Sat, Unsat, LimitReached };
 
 	// Effort charged per imported cell
-	static constexpr int64_t import_cell_cost = 100;
+	நிலையான constexpr int64_t import_cell_cost = 100;
 
 	// starting budget (0 = unlimited)
 	int64_t total = 0;
@@ -91,20 +91,20 @@ struct SatEffortBudget {
 	SatEffortBudget() {}
 	explicit SatEffortBudget(int64_t total) : total(total), remaining(total) {}
 
-	bool enabled() const { return total > 0; }
+	bool enabled() மாறிலி { திரும்பு total > 0; }
 
 	// True once the budget is used up
-	bool spent() const { return enabled() && remaining <= 0; }
+	bool spent() மாறிலி { திரும்பு enabled() && remaining <= 0; }
 
 	// Charge for the cells imported into qcsat since the previous call (pricing the cells pulled in)
 	// cells_charged is how many of qcsat's imported cells are already paid for, returns the new count
 	int64_t charge_import(QuickConeSat &qcsat, int64_t cells_charged);
 
-	Result solve(QuickConeSat &qcsat, int64_t cap, const std::vector<int> &modelExprs,
-			std::vector<bool> &modelVals, const std::vector<int> &assumptions);
+	Result solve(QuickConeSat &qcsat, int64_t cap, மாறிலி std::vector<முழு> &modelExprs,
+			std::vector<bool> &modelVals, மாறிலி std::vector<முழு> &assumptions);
 
 	// Assumptions-only query without a model
-	Result solve(QuickConeSat &qcsat, int64_t cap, const std::vector<int> &assumptions);
+	Result solve(QuickConeSat &qcsat, int64_t cap, மாறிலி std::vector<முழு> &assumptions);
 };
 
 YOSYS_NAMESPACE_END

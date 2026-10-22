@@ -17,190 +17,190 @@
  *
  */
 
-#include "kernel/yw.h"
-#include "libs/json11/json11.hpp"
+#அந்தர்பாவ "kernel/yw.h"
+#அந்தர்பாவ "libs/json11/json11.hpp"
 
 USING_YOSYS_NAMESPACE
 
 // Use the same formatting as witness.py uses
-static const char *pretty_name(const std::string &id)
+நிலையான மாறிலி எழுத்து *pretty_name(மாறிலி std::string &id)
 {
-	const char *c_str = id.c_str();
-	const char *p = c_str;
+	மாறிலி எழுத்து *c_str = id.c_str();
+	மாறிலி எழுத்து *p = c_str;
 
-	if (*p != '\\')
-		return c_str;
+	எனில் (*p != '\\')
+		திரும்பு c_str;
 	p++;
 
-	if (*p == '[') {
+	எனில் (*p == '[') {
 		p++;
-		while (*p >= '0' && *p <= '9')
+		போது (*p >= '0' && *p <= '9')
 			p++;
-		if (p[0] != ']' || p[1] != 0)
-			return c_str;
-		return c_str + 1;
+		எனில் (p[0] != ']' || p[1] != 0)
+			திரும்பு c_str;
+		திரும்பு c_str + 1;
 	}
 
-	if (!(*p >= 'a' && *p <= 'z') && !(*p >= 'A' && *p <= 'Z') && *p != '_')
-		return c_str;
+	எனில் (!(*p >= 'a' && *p <= 'z') && !(*p >= 'A' && *p <= 'Z') && *p != '_')
+		திரும்பு c_str;
 	p++;
-	while ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
+	போது ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
 		p++;
 
-	if (*p != 0)
-		return c_str;
-	return c_str + 1;
+	எனில் (*p != 0)
+		திரும்பு c_str;
+	திரும்பு c_str + 1;
 }
 
-std::string IdPath::str() const
+std::string IdPath::str() மாறிலி
 {
 	std::string result;
 
-	for (auto &item : *this) {
-		const char *pretty = pretty_name(item);
-		if (pretty[0] == '[') {
+	க்கு (auto &item : *இது) {
+		மாறிலி எழுத்து *pretty = pretty_name(item);
+		எனில் (pretty[0] == '[') {
 			result += pretty;
-			continue;
+			தொடர்;
 		}
-		if (!result.empty())
+		எனில் (!result.empty())
 			result += '.';
 		result += pretty;
-		if (pretty[0] == '\\' || pretty[0] == '$')
+		எனில் (pretty[0] == '\\' || pretty[0] == '$')
 			result += ' ';
 	}
 
-	return result;
+	திரும்பு result;
 }
 
-bool IdPath::get_address(int &addr) const
+தருக்க IdPath::get_address(முழு &addr) மாறிலி
 {
-	if (empty())
-		return false;
+	எனில் (empty())
+		திரும்பு பொய்;
 	auto &last = back();
-	if (!last.starts_with("\\["))
-		return false;
-	if (last == "\\[0]") {
+	எனில் (!last.starts_with("\\["))
+		திரும்பு பொய்;
+	எனில் (last == "\\[0]") {
 		addr = 0;
-		return true;
+		திரும்பு உண்மை;
 	}
-	char first = last.c_str()[2];
-	if (first < '1' || first > '9')
-		return false;
-	char *endptr;
+	எழுத்து first = last.c_str()[2];
+	எனில் (first < '1' || first > '9')
+		திரும்பு பொய்;
+	எழுத்து *endptr;
 	addr = std::strtol(last.c_str() + 2, &endptr, 10);
-	return endptr[0] == ']' && endptr[1] == 0;
+	திரும்பு endptr[0] == ']' && endptr[1] == 0;
 }
 
-static std::vector<std::string> get_path(const json11::Json &json)
+நிலையான std::vector<std::string> get_path(மாறிலி json11::Json &json)
 {
 	std::vector<std::string> result;
-	for (auto &path_item : json.array_items()) {
-		auto const &path_item_str = path_item.string_value();
-		if (path_item_str.empty())
-			return {};;
-		result.push_back(path_item_str);
+	க்கு (auto &path_item : json.array_பொருட்கள்()) {
+		auto மாறிலி &path_item_str = path_item.string_மதிப்பு();
+		எனில் (path_item_str.empty())
+			திரும்பு {};;
+		result.தள்ளு_back(path_item_str);
 	}
-	return result;
+	திரும்பு result;
 }
 
-ReadWitness::ReadWitness(const std::string &filename) :
+ReadWitness::ReadWitness(மாறிலி std::string &filename) :
 	filename(filename)
 {
 	std::ifstream f(filename.c_str());
-	if (f.fail() || GetSize(filename) == 0)
+	எனில் (f.fail() || GetSize(filename) == 0)
 		log_error("Cannot open file `%s`\n", filename);
 	std::stringstream buf;
 	buf << f.rdbuf();
 	std::string err;
 	json11::Json json = json11::Json::parse(buf.str(), err);
-	if (!err.empty())
+	எனில் (!err.empty())
 		log_error("Failed to parse `%s`: %s\n", filename, err);
 
-	std::string format = json["format"].string_value();
+	std::string format = json["format"].string_மதிப்பு();
 
-	if (format.empty())
+	எனில் (format.empty())
 		log_error("Failed to parse `%s`: Unknown format\n", filename);
-	if (format != "Yosys Witness Trace")
+	எனில் (format != "Yosys Witness Trace")
 		log_error("Failed to parse `%s`: Unsupported format `%s`\n", filename, format);
 
-	for (auto &clock_json : json["clocks"].array_items()) {
+	க்கு (auto &clock_json : json["clocks"].array_பொருட்கள்()) {
 		Clock clock;
 		clock.path = get_path(clock_json["path"]);
-		if (clock.path.empty())
+		எனில் (clock.path.empty())
 			log_error("Failed to parse `%s`: Missing path for clock `%s`\n", filename, clock_json.dump());
 		auto edge_str = clock_json["edge"];
-		if (edge_str.string_value() == "posedge")
-			clock.is_posedge = true;
-		else if (edge_str.string_value() == "negedge")
-			clock.is_negedge = true;
-		else
+		எனில் (edge_str.string_மதிப்பு() == "posedge")
+			clock.is_posedge = உண்மை;
+		இல்லையெனில் எனில் (edge_str.string_மதிப்பு() == "negedge")
+			clock.is_negedge = உண்மை;
+		இல்லையெனில்
 			log_error("Failed to parse `%s`: Unknown edge type for clock `%s`\n", filename, clock_json.dump());
-		if (!clock_json["offset"].is_number())
+		எனில் (!clock_json["offset"].is_எண்())
 			log_error("Failed to parse `%s`: Unknown offset for clock `%s`\n", filename, clock_json.dump());
-		clock.offset = clock_json["offset"].int_value();
-		if (clock.offset < 0)
+		clock.offset = clock_json["offset"].int_மதிப்பு();
+		எனில் (clock.offset < 0)
 			log_error("Failed to parse `%s`: Invalid offset for clock `%s`\n", filename, clock_json.dump());
-		clocks.push_back(clock);
+		clocks.தள்ளு_back(clock);
 	}
 
-	int bits_offset = 0;
-	for (auto &signal_json : json["signals"].array_items()) {
-		Signal signal;
-		signal.bits_offset = bits_offset;
-		signal.path = get_path(signal_json["path"]);
-		if (signal.path.empty())
+	முழு bits_offset = 0;
+	க்கு (auto &signal_json : json["signals"].array_பொருட்கள்()) {
+		Signal சமிக்ஞை;
+		சமிக்ஞை.bits_offset = bits_offset;
+		சமிக்ஞை.path = get_path(signal_json["path"]);
+		எனில் (சமிக்ஞை.path.empty())
 			log_error("Failed to parse `%s`: Missing path for signal `%s`\n", filename, signal_json.dump());
-		if (!signal_json["width"].is_number())
+		எனில் (!signal_json["width"].is_எண்())
 			log_error("Failed to parse `%s`: Unknown width for signal `%s`\n", filename, signal_json.dump());
-		signal.width = signal_json["width"].int_value();
-		if (signal.width < 0)
+		சமிக்ஞை.width = signal_json["width"].int_மதிப்பு();
+		எனில் (சமிக்ஞை.width < 0)
 			log_error("Failed to parse `%s`: Invalid width for signal `%s`\n", filename, signal_json.dump());
-		bits_offset += signal.width;
-		if (!signal_json["offset"].is_number())
+		bits_offset += சமிக்ஞை.width;
+		எனில் (!signal_json["offset"].is_எண்())
 			log_error("Failed to parse `%s`: Unknown offset for signal `%s`\n", filename, signal_json.dump());
-		signal.offset = signal_json["offset"].int_value();
-		if (signal.offset < 0)
+		சமிக்ஞை.offset = signal_json["offset"].int_மதிப்பு();
+		எனில் (சமிக்ஞை.offset < 0)
 			log_error("Failed to parse `%s`: Invalid offset for signal `%s`\n", filename, signal_json.dump());
-		signal.init_only = signal_json["init_only"].bool_value();
-		signals.push_back(signal);
+		சமிக்ஞை.init_only = signal_json["init_only"].bool_மதிப்பு();
+		signals.தள்ளு_back(சமிக்ஞை);
 	}
 
-	for (auto &step_json : json["steps"].array_items()) {
+	க்கு (auto &step_json : json["steps"].array_பொருட்கள்()) {
 		Step step;
-		if (!step_json["bits"].is_string())
+		எனில் (!step_json["bits"].is_string())
 			log_error("Failed to parse `%s`: Expected string as bits value for step %d\n", filename, GetSize(steps));
-		step.bits = step_json["bits"].string_value();
-		for (char c : step.bits) {
-			if (c != '0' && c != '1' && c != 'x' && c != '?')
+		step.bits = step_json["bits"].string_மதிப்பு();
+		க்கு (எழுத்து c : step.bits) {
+			எனில் (c != '0' && c != '1' && c != 'x' && c != '?')
 				log_error("Failed to parse `%s`: Invalid bit '%c' value for step %d\n", filename, c, GetSize(steps));
 		}
-		steps.push_back(step);
+		steps.தள்ளு_back(step);
 	}
 }
 
-RTLIL::Const ReadWitness::get_bits(int t, int bits_offset, int width) const
+RTLIL::Const ReadWitness::get_bits(முழு t, முழு bits_offset, முழு width) மாறிலி
 {
 	log_assert(t >= 0 && t < GetSize(steps));
 
-	const std::string &bits = steps[t].bits;
+	மாறிலி std::string &bits = steps[t].bits;
 
 	RTLIL::Const result(State::Sa, width);
 
-	int read_begin = GetSize(bits) - 1 - bits_offset;
-	int read_end = max(-1, read_begin - width);
+	முழு read_begin = GetSize(bits) - 1 - bits_offset;
+	முழு read_end = max(-1, read_begin - width);
 
-	for (int i = read_begin, j = 0; i > read_end; i--, j++) {
+	க்கு (முழு i = read_begin, j = 0; i > read_end; i--, j++) {
 		RTLIL::State bit = State::Sa;
-		switch (bits[i]) {
-			case '0': bit = State::S0; break;
-			case '1': bit = State::S1; break;
-			case 'x': bit = State::Sx; break;
-			case '?': bit = State::Sa; break;
-			default:
+		தேர்வு (bits[i]) {
+			நிலை '0': bit = State::S0; நிறுத்து;
+			நிலை '1': bit = State::S1; நிறுத்து;
+			நிலை 'x': bit = State::Sx; நிறுத்து;
+			நிலை '?': bit = State::Sa; நிறுத்து;
+			இயல்பு:
 				log_abort();
 		}
 		result.set(j, bit);
 	}
 
-	return result;
+	திரும்பு result;
 }

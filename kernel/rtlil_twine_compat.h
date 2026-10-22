@@ -3,11 +3,11 @@
 
 namespace RTLIL {
 
-template<typename Derived> struct WrappedIdBase;
-struct NameSlot;
-struct CellTypeSlot;
-template<typename Owner, typename Slot = NameSlot> struct OwnedId;
-struct PooledName;
+template<typename Derived> கட்டமைப்பு WrappedIdBase;
+கட்டமைப்பு NameSlot;
+கட்டமைப்பு CellTypeSlot;
+template<typename Owner, typename Slot = NameSlot> கட்டமைப்பு OwnedId;
+கட்டமைப்பு PooledName;
 
 using ModuleNameId = OwnedId<Module>;
 using WireNameId = OwnedId<Wire>;
@@ -18,63 +18,63 @@ using CellTypeId = OwnedId<Cell, CellTypeSlot>;
 
 namespace wrapped_idstring_detail {
 
-inline std::string render_escaped(const TwinePool *pool, IdString id) {
-	if (id == IdString::Null)
-		return std::string();
-	return pool ? pool->str(id) : ID::str(id);
+உள்வரி std::string render_escaped(மாறிலி TwinePool *pool, IdString id) {
+	எனில் (id == IdString::Null)
+		திரும்பு std::string();
+	திரும்பு pool ? pool->str(id) : ID::str(id);
 }
 
-inline std::string render_unescaped(const TwinePool *pool, IdString id) {
-	if (id == IdString::Null)
-		return std::string();
-	return pool ? pool->unescaped_str(id) : ID::unescaped_str(id);
+உள்வரி std::string render_unescaped(மாறிலி TwinePool *pool, IdString id) {
+	எனில் (id == IdString::Null)
+		திரும்பு std::string();
+	திரும்பு pool ? pool->unescaped_str(id) : ID::unescaped_str(id);
 }
 
 }
 
 template<typename Derived>
-struct WrappedIdBase {
-	operator IdString() const { return self().ref(); }
-	operator std::string() const { return self().escaped(); }
-	std::string escaped() const { return wrapped_idstring_detail::render_escaped(self().pool(), self().ref()); }
-	std::string unescape() const { return wrapped_idstring_detail::render_unescaped(self().pool(), self().ref()); }
-	bool isPublic() const { return self().ref().isPublic(); }
-	bool empty() const { return self().ref() == IdString::Null; }
-	std::string str() const { return self().escaped(); }
-	bool begins_with(const char *s) const {
-		const TwinePool *pool = self().pool();
-		return pool ? pool->begins_with(self().ref(), s) : str().starts_with(s);
+கட்டமைப்பு WrappedIdBase {
+	operator IdString() மாறிலி { திரும்பு self().ref(); }
+	operator std::string() மாறிலி { திரும்பு self().escaped(); }
+	std::string escaped() மாறிலி { திரும்பு wrapped_idstring_detail::render_escaped(self().pool(), self().ref()); }
+	std::string unescape() மாறிலி { திரும்பு wrapped_idstring_detail::render_unescaped(self().pool(), self().ref()); }
+	bool isPublic() மாறிலி { திரும்பு self().ref().isPublic(); }
+	bool empty() மாறிலி { திரும்பு self().ref() == IdString::Null; }
+	std::string str() மாறிலி { திரும்பு self().escaped(); }
+	bool begins_with(மாறிலி எழுத்து *s) மாறிலி {
+		மாறிலி TwinePool *pool = self().pool();
+		திரும்பு pool ? pool->begins_with(self().ref(), s) : str().starts_with(s);
 	}
-	bool ends_with(const char *s) const { return str().ends_with(s); }
-	template<typename... Ts> bool in(Ts &&...args) const {
-		return self().ref().in(std::forward<Ts>(args)...);
+	bool ends_with(மாறிலி எழுத்து *s) மாறிலி { திரும்பு str().ends_with(s); }
+	template<typename... Ts> bool in(Ts &&...args) மாறிலி {
+		திரும்பு self().ref().in(std::forward<Ts>(args)...);
 	}
-	bool in(const pool<IdString> &rhs) const { return self().ref().in(rhs); }
-	std::string substr(size_t pos = 0, size_t len = std::string::npos) const {
-		return self().escaped().substr(pos, len);
+	bool in(மாறிலி pool<IdString> &rhs) மாறிலி { திரும்பு self().ref().in(rhs); }
+	std::string substr(size_t pos = 0, size_t len = std::string::npos) மாறிலி {
+		திரும்பு self().escaped().substr(pos, len);
 	}
-	size_t size() const {
-		const TwinePool *pool = self().pool();
-		return pool ? pool->str_size(self().ref()) : self().escaped().size();
+	size_t size() மாறிலி {
+		மாறிலி TwinePool *pool = self().pool();
+		திரும்பு pool ? pool->str_size(self().ref()) : self().escaped().size();
 	}
-	bool contains(const char *p) const { return self().escaped().find(p) != std::string::npos; }
-	char operator[](int n) const { return self().escaped()[n]; }
-	bool lt_by_name(const Derived &rhs) const {
-		const TwinePool *pool = self().pool();
-		if (pool == nullptr)
-			return self().escaped() < rhs.escaped();
-		return pool->compare_by_name(self().ref(), rhs.ref()) < 0;
+	bool contains(மாறிலி எழுத்து *p) மாறிலி { திரும்பு self().escaped().find(p) != std::string::npos; }
+	எழுத்து operator[](முழு n) மாறிலி { திரும்பு self().escaped()[n]; }
+	bool lt_by_name(மாறிலி Derived &rhs) மாறிலி {
+		மாறிலி TwinePool *pool = self().pool();
+		எனில் (pool == nullptr)
+			திரும்பு self().escaped() < rhs.escaped();
+		திரும்பு pool->compare_by_name(self().ref(), rhs.ref()) < 0;
 	}
-	friend bool operator==(const Derived &lhs, const Derived &rhs) { return lhs.ref() == rhs.ref(); }
-	friend bool operator==(const Derived &lhs, IdString rhs) { return lhs.ref() == rhs; }
-	friend bool operator==(const Derived &lhs, NullIdString) { return lhs.ref() == IdString::Null; }
-	friend bool operator==(const Derived &lhs, const std::string &rhs) {
-		const TwinePool *pool = lhs.pool();
-		return pool ? pool->name_equal(lhs.ref(), rhs) : lhs.escaped() == rhs;
+	friend bool operator==(மாறிலி Derived &lhs, மாறிலி Derived &rhs) { திரும்பு lhs.ref() == rhs.ref(); }
+	friend bool operator==(மாறிலி Derived &lhs, IdString rhs) { திரும்பு lhs.ref() == rhs; }
+	friend bool operator==(மாறிலி Derived &lhs, NullIdString) { திரும்பு lhs.ref() == IdString::Null; }
+	friend bool operator==(மாறிலி Derived &lhs, மாறிலி std::string &rhs) {
+		மாறிலி TwinePool *pool = lhs.pool();
+		திரும்பு pool ? pool->name_equal(lhs.ref(), rhs) : lhs.escaped() == rhs;
 	}
-	friend bool operator<(const Derived &lhs, const Derived &rhs) { return lhs.ref() < rhs.ref(); }
-private:
-	const Derived &self() const { return *static_cast<const Derived *>(this); }
+	friend bool operator<(மாறிலி Derived &lhs, மாறிலி Derived &rhs) { திரும்பு lhs.ref() < rhs.ref(); }
+தனிப்பட்ட:
+	மாறிலி Derived &self() மாறிலி { திரும்பு *static_cast<மாறிலி Derived *>(this); }
 };
 
 template<typename T>
@@ -83,47 +83,47 @@ concept IsWrappedId = std::is_base_of_v<WrappedIdBase<std::decay_t<T>>, std::dec
 // Two wrapped IdStrings can be compared for equality by comparing .ref()
 template<IsWrappedId A, IsWrappedId B>
 requires (!std::is_same_v<A, B>)
-inline bool operator==(const A &lhs, const B &rhs) { return lhs.ref() == rhs.ref(); }
+உள்வரி bool operator==(மாறிலி A &lhs, மாறிலி B &rhs) { திரும்பு lhs.ref() == rhs.ref(); }
 
 // A pair can be created from wrapped IdStrings by unwrapping them to IdString
 // otherwise, you'd try to copy an OwnedId into the arguments of std::make_pair
 // which would error out as its copy constructor is deleted
 template<IsWrappedId A, typename B>
-auto make_pair(A &&a, B &&b) { return std::make_pair(a.ref(), std::forward<B>(b)); }
+auto make_pair(A &&a, B &&b) { திரும்பு std::make_pair(a.ref(), std::forward<B>(b)); }
 template<typename A, IsWrappedId B>
-auto make_pair(A &&a, B &&b) { return std::make_pair(std::forward<A>(a), b.ref()); }
+auto make_pair(A &&a, B &&b) { திரும்பு std::make_pair(std::forward<A>(a), b.ref()); }
 template<IsWrappedId A, IsWrappedId B>
-auto make_pair(A &&a, B &&b) { return std::make_pair(a.ref(), b.ref()); }
+auto make_pair(A &&a, B &&b) { திரும்பு std::make_pair(a.ref(), b.ref()); }
 
 template<typename Owner, typename Slot>
-struct OwnedId : WrappedIdBase<OwnedId<Owner, Slot>> {
-	OwnedId() = default;
-	OwnedId(const OwnedId &) = delete;
+கட்டமைப்பு OwnedId : WrappedIdBase<OwnedId<Owner, Slot>> {
+	OwnedId() = இயல்பு;
+	OwnedId(மாறிலி OwnedId &) = delete;
 	OwnedId(OwnedId &&) = delete;
-	IdString ref() const { return id_; }
-	const TwinePool *pool() const;
-	OwnedId &operator=(IdString id) { id_ = id; return *this; }
-	OwnedId &operator=(const OwnedId &other) { return *this = other.ref(); }
-	OwnedId &operator=(OwnedId &&other) { return *this = other.ref(); }
-	friend void swap(OwnedId &a, OwnedId &b) { std::swap(a.id_, b.id_); }
-private:
-	const Owner *owner() const;
+	IdString ref() மாறிலி { திரும்பு id_; }
+	மாறிலி TwinePool *pool() மாறிலி;
+	OwnedId &operator=(IdString id) { id_ = id; திரும்பு *this; }
+	OwnedId &operator=(மாறிலி OwnedId &other) { திரும்பு *this = other.ref(); }
+	OwnedId &operator=(OwnedId &&other) { திரும்பு *this = other.ref(); }
+	friend வெறுமை swap(OwnedId &a, OwnedId &b) { std::swap(a.id_, b.id_); }
+தனிப்பட்ட:
+	மாறிலி Owner *owner() மாறிலி;
 	IdString id_;
 };
 
-struct PooledName : WrappedIdBase<PooledName> {
-	PooledName() = default;
+கட்டமைப்பு PooledName : WrappedIdBase<PooledName> {
+	PooledName() = இயல்பு;
 	explicit PooledName(IdString id) : id_(id) {}
-	PooledName(const TwinePool *pool, IdString id) : pool_(pool), id_(id) {}
-	PooledName(const Design *design, IdString id);
-	PooledName(const Module *module, IdString id);
-	template<typename D> PooledName(const WrappedIdBase<D> &masq)
-		: pool_(static_cast<const D &>(masq).pool()),
-		  id_(static_cast<const D &>(masq).ref()) {}
-	IdString ref() const { return id_; }
-	const TwinePool *pool() const { return pool_; }
-private:
-	const TwinePool *pool_ = nullptr;
+	PooledName(மாறிலி TwinePool *pool, IdString id) : pool_(pool), id_(id) {}
+	PooledName(மாறிலி Design *design, IdString id);
+	PooledName(மாறிலி Module *module, IdString id);
+	template<typename D> PooledName(மாறிலி WrappedIdBase<D> &masq)
+		: pool_(static_cast<மாறிலி D &>(masq).pool()),
+		  id_(static_cast<மாறிலி D &>(masq).ref()) {}
+	IdString ref() மாறிலி { திரும்பு id_; }
+	மாறிலி TwinePool *pool() மாறிலி { திரும்பு pool_; }
+தனிப்பட்ட:
+	மாறிலி TwinePool *pool_ = nullptr;
 	IdString id_;
 };
 
@@ -131,19 +131,19 @@ private:
 
 namespace hashlib {
 	template<typename T>
-	struct masq_hash_ops {
-		static inline bool cmp(const T &a, const T &b) { return a == b; }
-		[[nodiscard]] static inline Hasher hash(const T &a) {
-			return hash_ops<IdString>::hash(a.ref());
+	கட்டமைப்பு masq_hash_ops {
+		நிலையான உள்வரி bool cmp(மாறிலி T &a, மாறிலி T &b) { திரும்பு a == b; }
+		[[nodiscard]] நிலையான உள்வரி Hasher hash(மாறிலி T &a) {
+			திரும்பு hash_ops<IdString>::hash(a.ref());
 		}
-		[[nodiscard]] static inline Hasher hash_into(const T &a, Hasher h) {
-			return hash_ops<IdString>::hash_into(a.ref(), h);
+		[[nodiscard]] நிலையான உள்வரி Hasher hash_into(மாறிலி T &a, Hasher h) {
+			திரும்பு hash_ops<IdString>::hash_into(a.ref(), h);
 		}
 	};
 
 	template<typename Owner, typename Slot>
-	struct hash_ops<RTLIL::OwnedId<Owner, Slot>> : masq_hash_ops<RTLIL::OwnedId<Owner, Slot>> {};
-	template<> struct hash_ops<RTLIL::PooledName> : masq_hash_ops<RTLIL::PooledName> {};
+	கட்டமைப்பு hash_ops<RTLIL::OwnedId<Owner, Slot>> : masq_hash_ops<RTLIL::OwnedId<Owner, Slot>> {};
+	template<> கட்டமைப்பு hash_ops<RTLIL::PooledName> : masq_hash_ops<RTLIL::PooledName> {};
 }
 
 #endif

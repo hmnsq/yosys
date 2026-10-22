@@ -20,33 +20,33 @@
 #ifndef DRIVERTOOLS_H
 #define DRIVERTOOLS_H
 
-#include <string>
-#include <type_traits>
+#அந்தர்பாவ <string>
+#அந்தர்பாவ <type_traits>
 
-#include "kernel/rtlil.h"
-#include "kernel/sigtools.h"
-#include "kernel/newcelltypes.h"
+#அந்தர்பாவ "kernel/rtlil.h"
+#அந்தர்பாவ "kernel/sigtools.h"
+#அந்தர்பாவ "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // TODO move implementation into a .cc file
 
-struct DriveBit;
+கட்டமைப்பு DriveBit;
 
-struct DriveChunkWire;
-struct DriveChunkPort;
-struct DriveChunkMarker;
-struct DriveChunk;
+கட்டமைப்பு DriveChunkWire;
+கட்டமைப்பு DriveChunkPort;
+கட்டமைப்பு DriveChunkMarker;
+கட்டமைப்பு DriveChunk;
 
-struct DriveSpec;
+கட்டமைப்பு DriveSpec;
 
-std::string log_signal(DriveChunkWire const &chunk);
-std::string log_signal(DriveChunkPort const &chunk);
-std::string log_signal(DriveChunkMarker const &chunk);
-std::string log_signal(DriveChunk const &chunk);
-std::string log_signal(DriveSpec const &chunk);
+std::string log_signal(DriveChunkWire மாறிலி &chunk);
+std::string log_signal(DriveChunkPort மாறிலி &chunk);
+std::string log_signal(DriveChunkMarker மாறிலி &chunk);
+std::string log_signal(DriveChunk மாறிலி &chunk);
+std::string log_signal(DriveSpec மாறிலி &chunk);
 
-enum class DriveType : unsigned char
+எண்ணிக்கை class DriveType : unsigned எழுத்து
 {
 	NONE,
 	CONSTANT,
@@ -56,123 +56,123 @@ enum class DriveType : unsigned char
 	MARKER,
 };
 
-struct DriveBitWire
+கட்டமைப்பு DriveBitWire
 {
 	Wire *wire;
-	int offset;
+	முழு offset;
 
-	DriveBitWire(Wire *wire, int offset) : wire(wire), offset(offset) {}
+	DriveBitWire(Wire *wire, முழு offset) : wire(wire), offset(offset) {}
 
-	bool operator==(const DriveBitWire &other) const
+	bool operator==(மாறிலி DriveBitWire &other) மாறிலி
 	{
-		return wire == other.wire && offset == other.offset;
+		திரும்பு wire == other.wire && offset == other.offset;
 	}
 
-	bool operator<(const DriveBitWire &other) const
+	bool operator<(மாறிலி DriveBitWire &other) மாறிலி
 	{
-		if (wire != other.wire)
-			return wire->name < other.wire->name;
-		return offset < other.offset;
+		எனில் (wire != other.wire)
+			திரும்பு wire->name < other.wire->name;
+		திரும்பு offset < other.offset;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி;
 
 
-	operator SigBit() const
+	operator SigBit() மாறிலி
 	{
-		return SigBit(wire, offset);
+		திரும்பு SigBit(wire, offset);
 	}
 };
 
-struct DriveBitPort
+கட்டமைப்பு DriveBitPort
 {
 	Cell *cell;
 	IdString port;
-	int offset;
+	முழு offset;
 
-	DriveBitPort(Cell *cell, IdString port, int offset) : cell(cell), port(port), offset(offset) {}
+	DriveBitPort(Cell *cell, IdString port, முழு offset) : cell(cell), port(port), offset(offset) {}
 
-	bool operator==(const DriveBitPort &other) const
+	bool operator==(மாறிலி DriveBitPort &other) மாறிலி
 	{
-		return cell == other.cell && port == other.port && offset == other.offset;
+		திரும்பு cell == other.cell && port == other.port && offset == other.offset;
 	}
 
-	bool operator<(const DriveBitPort &other) const
+	bool operator<(மாறிலி DriveBitPort &other) மாறிலி
 	{
-		if (cell != other.cell)
-			return cell->name < other.cell->name;
-		if (port != other.port)
-			return port < other.port;
-		return offset < other.offset;
+		எனில் (cell != other.cell)
+			திரும்பு cell->name < other.cell->name;
+		எனில் (port != other.port)
+			திரும்பு port < other.port;
+		திரும்பு offset < other.offset;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி;
 
 };
 
 
-struct DriveBitMarker
+கட்டமைப்பு DriveBitMarker
 {
-	int marker;
-	int offset;
+	முழு marker;
+	முழு offset;
 
-	DriveBitMarker(int marker, int offset) : marker(marker), offset(offset) {}
+	DriveBitMarker(முழு marker, முழு offset) : marker(marker), offset(offset) {}
 
-	bool operator==(const DriveBitMarker &other) const
+	bool operator==(மாறிலி DriveBitMarker &other) மாறிலி
 	{
-		return marker == other.marker && offset == other.offset;
+		திரும்பு marker == other.marker && offset == other.offset;
 	}
 
-	bool operator<(const DriveBitMarker &other) const
+	bool operator<(மாறிலி DriveBitMarker &other) மாறிலி
 	{
-		if (marker != other.marker)
-			return marker < other.marker;
-		return offset < other.offset;
+		எனில் (marker != other.marker)
+			திரும்பு marker < other.marker;
+		திரும்பு offset < other.offset;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி;
 
 };
 
-struct DriveBitMultiple
+கட்டமைப்பு DriveBitMultiple
 {
-private:
+தனிப்பட்ட:
 	pool<DriveBit> multiple_;
 
-public:
+பொது:
 	DriveBitMultiple();
-	DriveBitMultiple(DriveBit const &single);
+	DriveBitMultiple(DriveBit மாறிலி &single);
 
-	pool<DriveBit> const &multiple() const { return multiple_; }
+	pool<DriveBit> மாறிலி &multiple() மாறிலி { திரும்பு multiple_; }
 
-	void merge(DriveBitMultiple const &other)
+	வெறுமை merge(DriveBitMultiple மாறிலி &other)
 	{
-		for (DriveBit const &single : other.multiple_)
+		க்கு (DriveBit மாறிலி &single : other.multiple_)
 			merge(single);
 	}
 
-	void merge(DriveBitMultiple &&other)
+	வெறுமை merge(DriveBitMultiple &&other)
 	{
-		for (DriveBit &single : other.multiple_)
+		க்கு (DriveBit &single : other.multiple_)
 			merge(std::move(single));
 	}
 
-	void merge(DriveBit const &single);
-	void merge(DriveBit &&single);
+	வெறுமை merge(DriveBit மாறிலி &single);
+	வெறுமை merge(DriveBit &&single);
 
-	bool operator==(const DriveBitMultiple &other) const
+	bool operator==(மாறிலி DriveBitMultiple &other) மாறிலி
 	{
-		return multiple_ == other.multiple_;
+		திரும்பு multiple_ == other.multiple_;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி;
 };
 
-struct DriveBit
+கட்டமைப்பு DriveBit
 {
-private:
+தனிப்பட்ட:
 	DriveType type_ = DriveType::NONE;
-	union
+	ஒன்றிப்பு
 	{
 		State constant_;
 		DriveBitWire wire_;
@@ -180,101 +180,101 @@ private:
 		DriveBitMarker marker_;
 		DriveBitMultiple multiple_;
 	};
-public:
+பொது:
 	DriveBit()  {}
 
-	DriveBit(SigBit const &bit);
+	DriveBit(SigBit மாறிலி &bit);
 
-	DriveBit(DriveBit const &other) { *this = other; }
+	DriveBit(DriveBit மாறிலி &other) { *this = other; }
 	DriveBit(DriveBit &&other) { *this = other; }
 
 
 	DriveBit(State constant) { *this = constant; }
-	DriveBit(DriveBitWire const &wire) { *this = wire; }
+	DriveBit(DriveBitWire மாறிலி &wire) { *this = wire; }
 	DriveBit(DriveBitWire &&wire) { *this = wire; }
-	DriveBit(DriveBitPort const &port) { *this = port; }
+	DriveBit(DriveBitPort மாறிலி &port) { *this = port; }
 	DriveBit(DriveBitPort &&port) { *this = port; }
-	DriveBit(DriveBitMarker const &marker) { *this = marker; }
+	DriveBit(DriveBitMarker மாறிலி &marker) { *this = marker; }
 	DriveBit(DriveBitMarker &&marker) { *this = marker; }
-	DriveBit(DriveBitMultiple const &multiple) { *this = multiple; }
+	DriveBit(DriveBitMultiple மாறிலி &multiple) { *this = multiple; }
 	DriveBit(DriveBitMultiple &&multiple) { *this = multiple; }
 
 	~DriveBit() { set_none(); }
 
-	void set_none()
+	வெறுமை set_none()
 	{
-		switch (type_)
+		தேர்வு (type_)
 		{
-			case DriveType::NONE:
-				break;
-			case DriveType::CONSTANT:
-				break;
-			case DriveType::WIRE:
+			நிலை DriveType::NONE:
+				நிறுத்து;
+			நிலை DriveType::CONSTANT:
+				நிறுத்து;
+			நிலை DriveType::WIRE:
 				wire_.~DriveBitWire();
-				break;
-			case DriveType::PORT:
+				நிறுத்து;
+			நிலை DriveType::PORT:
 				port_.~DriveBitPort();
-				break;
-			case DriveType::MARKER:
+				நிறுத்து;
+			நிலை DriveType::MARKER:
 				marker_.~DriveBitMarker();
-				break;
-			case DriveType::MULTIPLE:
+				நிறுத்து;
+			நிலை DriveType::MULTIPLE:
 				multiple_.~DriveBitMultiple();
-				break;
+				நிறுத்து;
 		}
 		type_ = DriveType::NONE;
 	}
 
-	DriveBit &operator=(DriveBit const &other)
+	DriveBit &operator=(DriveBit மாறிலி &other)
 	{
-		switch (other.type_)
+		தேர்வு (other.type_)
 		{
-			case DriveType::NONE:
+			நிலை DriveType::NONE:
 				set_none();
-				break;
-			case DriveType::CONSTANT:
+				நிறுத்து;
+			நிலை DriveType::CONSTANT:
 				*this = other.constant_;
-				break;
-			case DriveType::WIRE:
+				நிறுத்து;
+			நிலை DriveType::WIRE:
 				*this = other.wire_;
-				break;
-			case DriveType::PORT:
+				நிறுத்து;
+			நிலை DriveType::PORT:
 				*this = other.port_;
-				break;
-			case DriveType::MARKER:
+				நிறுத்து;
+			நிலை DriveType::MARKER:
 				*this = other.marker_;
-				break;
-			case DriveType::MULTIPLE:
+				நிறுத்து;
+			நிலை DriveType::MULTIPLE:
 				*this = other.multiple_;
-				break;
+				நிறுத்து;
 		}
-		return *this;
+		திரும்பு *this;
 	}
 
 	DriveBit &operator=(DriveBit &&other)
 	{
-		switch (other.type_)
+		தேர்வு (other.type_)
 		{
-			case DriveType::NONE:
+			நிலை DriveType::NONE:
 				set_none();
-				break;
-			case DriveType::CONSTANT:
+				நிறுத்து;
+			நிலை DriveType::CONSTANT:
 				*this = std::move(other.constant_);
-				break;
-			case DriveType::WIRE:
+				நிறுத்து;
+			நிலை DriveType::WIRE:
 				*this = std::move(other.wire_);
-				break;
-			case DriveType::PORT:
+				நிறுத்து;
+			நிலை DriveType::PORT:
 				*this = std::move(other.port_);
-				break;
-			case DriveType::MARKER:
+				நிறுத்து;
+			நிலை DriveType::MARKER:
 				*this = std::move(other.marker_);
-				break;
-			case DriveType::MULTIPLE:
+				நிறுத்து;
+			நிலை DriveType::MULTIPLE:
 				*this = std::move(other.multiple_);
-				break;
+				நிறுத்து;
 		}
-		return *this;
+		திரும்பு *this;
 	}
 
 	DriveBit &operator=(State constant)
@@ -282,15 +282,15 @@ public:
 		set_none();
 		constant_ = constant;
 		type_ = DriveType::CONSTANT;
-		return *this;
+		திரும்பு *this;
 	}
 
-	DriveBit &operator=(DriveBitWire const &wire)
+	DriveBit &operator=(DriveBitWire மாறிலி &wire)
 	{
 		set_none();
 		new (&wire_) DriveBitWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		திரும்பு *this;
 	}
 
 	DriveBit &operator=(DriveBitWire &&wire)
@@ -298,15 +298,15 @@ public:
 		set_none();
 		new (&wire_) DriveBitWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		திரும்பு *this;
 	}
 
-	DriveBit &operator=(DriveBitPort const &port)
+	DriveBit &operator=(DriveBitPort மாறிலி &port)
 	{
 		set_none();
 		new (&port_) DriveBitPort(port);
 		type_ = DriveType::PORT;
-		return *this;
+		திரும்பு *this;
 	}
 
 	DriveBit &operator=(DriveBitPort &&port)
@@ -314,15 +314,15 @@ public:
 		set_none();
 		new (&port_) DriveBitPort(port);
 		type_ = DriveType::PORT;
-		return *this;
+		திரும்பு *this;
 	}
 
-	DriveBit &operator=(DriveBitMarker const &marker)
+	DriveBit &operator=(DriveBitMarker மாறிலி &marker)
 	{
 		set_none();
 		new (&marker_) DriveBitMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		திரும்பு *this;
 	}
 
 	DriveBit &operator=(DriveBitMarker &&marker)
@@ -330,299 +330,299 @@ public:
 		set_none();
 		new (&marker_) DriveBitMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		திரும்பு *this;
 	}
 
-	DriveBit &operator=(DriveBitMultiple const &multiple)
+	DriveBit &operator=(DriveBitMultiple மாறிலி &multiple)
 	{
 		set_none();
-		if (multiple.multiple().empty())
-			return *this;
+		எனில் (multiple.multiple().empty())
+			திரும்பு *this;
 		new (&multiple_) DriveBitMultiple(multiple);
 		type_ = DriveType::MULTIPLE;
-		return *this;
+		திரும்பு *this;
 	}
 
 	DriveBit &operator=(DriveBitMultiple &&multiple)
 	{
 		set_none();
-		if (multiple.multiple().empty())
-			return *this;
+		எனில் (multiple.multiple().empty())
+			திரும்பு *this;
 		new (&multiple_) DriveBitMultiple(multiple);
 		type_ = DriveType::MULTIPLE;
-		return *this;
+		திரும்பு *this;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி;
 
-	bool operator==(const DriveBit &other) const
+	bool operator==(மாறிலி DriveBit &other) மாறிலி
 	{
-		if (type_ != other.type_)
-			return false;
+		எனில் (type_ != other.type_)
+			திரும்பு false;
 
-		switch (type_)
+		தேர்வு (type_)
 		{
-			case DriveType::NONE:
-				return true;
-			case DriveType::CONSTANT:
-				return constant_ == other.constant_;
-			case DriveType::WIRE:
-				return wire_ == other.wire_;
-			case DriveType::PORT:
-				return port_ == other.port_;
-			case DriveType::MARKER:
-				return marker_ == other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ == other.multiple_;
+			நிலை DriveType::NONE:
+				திரும்பு true;
+			நிலை DriveType::CONSTANT:
+				திரும்பு constant_ == other.constant_;
+			நிலை DriveType::WIRE:
+				திரும்பு wire_ == other.wire_;
+			நிலை DriveType::PORT:
+				திரும்பு port_ == other.port_;
+			நிலை DriveType::MARKER:
+				திரும்பு marker_ == other.marker_;
+			நிலை DriveType::MULTIPLE:
+				திரும்பு multiple_ == other.multiple_;
 		}
 		log_abort();
 	}
 
-	bool operator!=(const DriveBit &other) const
+	bool operator!=(மாறிலி DriveBit &other) மாறிலி
 	{
-		return !(*this == other);
+		திரும்பு !(*this == other);
 	}
 
-	bool operator<(const DriveBit &other) const
+	bool operator<(மாறிலி DriveBit &other) மாறிலி
 	{
-		if (type_ != other.type_)
-			return type_ < other.type_;
-		switch (type_)
+		எனில் (type_ != other.type_)
+			திரும்பு type_ < other.type_;
+		தேர்வு (type_)
 		{
-			case DriveType::NONE:
-				return false;
-			case DriveType::CONSTANT:
-				return constant_ < other.constant_;
-			case DriveType::WIRE:
-				return wire_ < other.wire_;
-			case DriveType::PORT:
-				return port_ < other.port_;
-			case DriveType::MARKER:
-				return marker_ < other.marker_;
-			case DriveType::MULTIPLE:
+			நிலை DriveType::NONE:
+				திரும்பு false;
+			நிலை DriveType::CONSTANT:
+				திரும்பு constant_ < other.constant_;
+			நிலை DriveType::WIRE:
+				திரும்பு wire_ < other.wire_;
+			நிலை DriveType::PORT:
+				திரும்பு port_ < other.port_;
+			நிலை DriveType::MARKER:
+				திரும்பு marker_ < other.marker_;
+			நிலை DriveType::MULTIPLE:
 				log_assert(!"TODO");
 		}
 		log_abort();
 	}
 
 
-	DriveType type() const { return type_; }
+	DriveType type() மாறிலி { திரும்பு type_; }
 
-	bool is_none() const { return type_ == DriveType::NONE; }
-	bool is_constant() const { return type_ == DriveType::CONSTANT; }
-	bool is_wire() const { return type_ == DriveType::WIRE; }
-	bool is_port() const { return type_ == DriveType::PORT; }
-	bool is_marker() const { return type_ == DriveType::MARKER; }
-	bool is_multiple() const { return type_ == DriveType::MULTIPLE; }
+	bool is_none() மாறிலி { திரும்பு type_ == DriveType::NONE; }
+	bool is_constant() மாறிலி { திரும்பு type_ == DriveType::CONSTANT; }
+	bool is_wire() மாறிலி { திரும்பு type_ == DriveType::WIRE; }
+	bool is_port() மாறிலி { திரும்பு type_ == DriveType::PORT; }
+	bool is_marker() மாறிலி { திரும்பு type_ == DriveType::MARKER; }
+	bool is_multiple() மாறிலி { திரும்பு type_ == DriveType::MULTIPLE; }
 
-	State &constant() { log_assert(is_constant()); return constant_; }
-	State const &constant() const { log_assert(is_constant()); return constant_; }
-	DriveBitWire &wire() { log_assert(is_wire()); return wire_; }
-	DriveBitWire const &wire() const { log_assert(is_wire()); return wire_; }
-	DriveBitPort &port() { log_assert(is_port()); return port_; }
-	DriveBitPort const &port() const { log_assert(is_port()); return port_; }
-	DriveBitMarker &marker() { log_assert(is_marker()); return marker_; }
-	DriveBitMarker const &marker() const { log_assert(is_marker()); return marker_; }
-	DriveBitMultiple &multiple() { log_assert(is_multiple()); return multiple_; }
-	DriveBitMultiple const &multiple() const { log_assert(is_multiple()); return multiple_; }
+	State &constant() { log_assert(is_constant()); திரும்பு constant_; }
+	State மாறிலி &constant() மாறிலி { log_assert(is_constant()); திரும்பு constant_; }
+	DriveBitWire &wire() { log_assert(is_wire()); திரும்பு wire_; }
+	DriveBitWire மாறிலி &wire() மாறிலி { log_assert(is_wire()); திரும்பு wire_; }
+	DriveBitPort &port() { log_assert(is_port()); திரும்பு port_; }
+	DriveBitPort மாறிலி &port() மாறிலி { log_assert(is_port()); திரும்பு port_; }
+	DriveBitMarker &marker() { log_assert(is_marker()); திரும்பு marker_; }
+	DriveBitMarker மாறிலி &marker() மாறிலி { log_assert(is_marker()); திரும்பு marker_; }
+	DriveBitMultiple &multiple() { log_assert(is_multiple()); திரும்பு multiple_; }
+	DriveBitMultiple மாறிலி &multiple() மாறிலி { log_assert(is_multiple()); திரும்பு multiple_; }
 
-	void merge(DriveBit const &other);
+	வெறுமை merge(DriveBit மாறிலி &other);
 
 };
 
-inline DriveBitMultiple::DriveBitMultiple() {}
-inline DriveBitMultiple::DriveBitMultiple(DriveBit const &single)
+உள்வரி DriveBitMultiple::DriveBitMultiple() {}
+உள்வரி DriveBitMultiple::DriveBitMultiple(DriveBit மாறிலி &single)
 {
 	multiple_.emplace(single);
 }
 
-struct DriveChunkWire
+கட்டமைப்பு DriveChunkWire
 {
 	Wire *wire;
-	int offset;
-	int width;
+	முழு offset;
+	முழு width;
 
-	DriveChunkWire(Wire *wire, int offset, int width) : wire(wire), offset(offset), width(width) {}
-	DriveChunkWire(DriveBitWire const &bit) : wire(bit.wire), offset(bit.offset), width(1) {}
+	DriveChunkWire(Wire *wire, முழு offset, முழு width) : wire(wire), offset(offset), width(width) {}
+	DriveChunkWire(DriveBitWire மாறிலி &bit) : wire(bit.wire), offset(bit.offset), width(1) {}
 
-	int size() const { return width; }
+	முழு size() மாறிலி { திரும்பு width; }
 
-	DriveBitWire operator[](int i) const
+	DriveBitWire operator[](முழு i) மாறிலி
 	{
 		log_assert(i >= 0 && i < width);
-		return DriveBitWire(wire, offset + i);
+		திரும்பு DriveBitWire(wire, offset + i);
 	}
 
-	bool can_append(DriveBitWire const &bit) const;
-	bool try_append(DriveBitWire const &bit);
-	bool try_append(DriveChunkWire const &chunk);
+	bool can_append(DriveBitWire மாறிலி &bit) மாறிலி;
+	bool try_append(DriveBitWire மாறிலி &bit);
+	bool try_append(DriveChunkWire மாறிலி &chunk);
 
 	// Whether this chunk is a whole wire
-	bool is_whole() const { return offset == 0 && width == wire->width; }
+	bool is_whole() மாறிலி { திரும்பு offset == 0 && width == wire->width; }
 
-	bool operator==(const DriveChunkWire &other) const
+	bool operator==(மாறிலி DriveChunkWire &other) மாறிலி
 	{
-		return wire == other.wire && offset == other.offset && width == other.width;
+		திரும்பு wire == other.wire && offset == other.offset && width == other.width;
 	}
 
-	bool operator<(const DriveChunkWire &other) const
+	bool operator<(மாறிலி DriveChunkWire &other) மாறிலி
 	{
-		if (wire != other.wire)
-			return wire->name < other.wire->name;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		எனில் (wire != other.wire)
+			திரும்பு wire->name < other.wire->name;
+		எனில் (width != other.width)
+			திரும்பு width < other.width;
+		திரும்பு offset < other.offset;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி;
 
-	explicit operator SigChunk() const
+	explicit operator SigChunk() மாறிலி
 	{
-		return SigChunk(wire, offset, width);
+		திரும்பு SigChunk(wire, offset, width);
 	}
 };
 
-struct DriveChunkPort
+கட்டமைப்பு DriveChunkPort
 {
 	Cell *cell;
 	IdString port;
-	int offset;
-	int width;
+	முழு offset;
+	முழு width;
 
-	DriveChunkPort(Cell *cell, IdString port, int offset, int width) :
+	DriveChunkPort(Cell *cell, IdString port, முழு offset, முழு width) :
 		cell(cell), port(port), offset(offset), width(width) { }
 	DriveChunkPort(Cell *cell, IdString port) :
 		cell(cell), port(port), offset(0), width(GetSize(cell->connections().at(port))) { }
-	DriveChunkPort(Cell *cell, std::pair<IdString, SigSpec> const &conn) :
+	DriveChunkPort(Cell *cell, std::pair<IdString, SigSpec> மாறிலி &conn) :
 		cell(cell), port(conn.first), offset(0), width(GetSize(conn.second)) { }
-	DriveChunkPort(DriveBitPort const &bit) :
+	DriveChunkPort(DriveBitPort மாறிலி &bit) :
 		cell(bit.cell), port(bit.port), offset(bit.offset), width(1) { }
 
-	int size() const { return width; }
+	முழு size() மாறிலி { திரும்பு width; }
 
-	DriveBitPort operator[](int i) const
+	DriveBitPort operator[](முழு i) மாறிலி
 	{
 		log_assert(i >= 0 && i < width);
-		return DriveBitPort(cell, port, offset + i);
+		திரும்பு DriveBitPort(cell, port, offset + i);
 	}
 
-	bool can_append(DriveBitPort const &bit) const;
-	bool try_append(DriveBitPort const &bit);
-	bool try_append(DriveChunkPort const &chunk);
+	bool can_append(DriveBitPort மாறிலி &bit) மாறிலி;
+	bool try_append(DriveBitPort மாறிலி &bit);
+	bool try_append(DriveChunkPort மாறிலி &chunk);
 
 	// Whether this chunk is a whole port
-	bool is_whole() const
+	bool is_whole() மாறிலி
 	{
-		return offset == 0 && width == cell->connections().at(port).size();
+		திரும்பு offset == 0 && width == cell->connections().at(port).size();
 	}
 
-	bool operator==(const DriveChunkPort &other) const
+	bool operator==(மாறிலி DriveChunkPort &other) மாறிலி
 	{
-		return cell == other.cell && port == other.port && offset == other.offset && width == other.width;
+		திரும்பு cell == other.cell && port == other.port && offset == other.offset && width == other.width;
 	}
 
-	bool operator<(const DriveChunkPort &other) const
+	bool operator<(மாறிலி DriveChunkPort &other) மாறிலி
 	{
-		if (cell != other.cell)
-			return cell->name < other.cell->name;
-		if (port != other.port)
-			return port < other.port;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		எனில் (cell != other.cell)
+			திரும்பு cell->name < other.cell->name;
+		எனில் (port != other.port)
+			திரும்பு port < other.port;
+		எனில் (width != other.width)
+			திரும்பு width < other.width;
+		திரும்பு offset < other.offset;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி;
 };
 
 
-struct DriveChunkMarker
+கட்டமைப்பு DriveChunkMarker
 {
-	int marker;
-	int offset;
-	int width;
+	முழு marker;
+	முழு offset;
+	முழு width;
 
-	DriveChunkMarker(int marker, int offset, int width) :
+	DriveChunkMarker(முழு marker, முழு offset, முழு width) :
 		marker(marker), offset(offset), width(width) {}
-	DriveChunkMarker(DriveBitMarker const &bit) :
+	DriveChunkMarker(DriveBitMarker மாறிலி &bit) :
 		marker(bit.marker), offset(bit.offset), width(1) {}
 
-	int size() const { return width; }
+	முழு size() மாறிலி { திரும்பு width; }
 
-	DriveBitMarker operator[](int i) const
+	DriveBitMarker operator[](முழு i) மாறிலி
 	{
 		log_assert(i >= 0 && i < width);
-		return DriveBitMarker(marker, offset + i);
+		திரும்பு DriveBitMarker(marker, offset + i);
 	}
 
-	bool can_append(DriveBitMarker const &bit) const;
-	bool try_append(DriveBitMarker const &bit);
-	bool try_append(DriveChunkMarker const &chunk);
+	bool can_append(DriveBitMarker மாறிலி &bit) மாறிலி;
+	bool try_append(DriveBitMarker மாறிலி &bit);
+	bool try_append(DriveChunkMarker மாறிலி &chunk);
 
-	bool operator==(const DriveChunkMarker &other) const
+	bool operator==(மாறிலி DriveChunkMarker &other) மாறிலி
 	{
-		return marker == other.marker && offset == other.offset && width == other.width;
+		திரும்பு marker == other.marker && offset == other.offset && width == other.width;
 	}
 
-	bool operator<(const DriveChunkMarker &other) const
+	bool operator<(மாறிலி DriveChunkMarker &other) மாறிலி
 	{
-		if (marker != other.marker)
-			return marker < other.marker;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		எனில் (marker != other.marker)
+			திரும்பு marker < other.marker;
+		எனில் (width != other.width)
+			திரும்பு width < other.width;
+		திரும்பு offset < other.offset;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி;
 };
 
-struct DriveChunkMultiple
+கட்டமைப்பு DriveChunkMultiple
 {
-private:
+தனிப்பட்ட:
 	mutable pool<DriveChunk> multiple_;
-	int width_;
+	முழு width_;
 
-public:
-	pool<DriveChunk> const &multiple() const { return multiple_; }
+பொது:
+	pool<DriveChunk> மாறிலி &multiple() மாறிலி { திரும்பு multiple_; }
 
-	DriveChunkMultiple(DriveBitMultiple const &bit);
+	DriveChunkMultiple(DriveBitMultiple மாறிலி &bit);
 
-	int size() const { return width_; }
+	முழு size() மாறிலி { திரும்பு width_; }
 
-	DriveBitMultiple operator[](int i) const;
+	DriveBitMultiple operator[](முழு i) மாறிலி;
 
-	bool can_append(DriveBitMultiple const &bit) const;
+	bool can_append(DriveBitMultiple மாறிலி &bit) மாறிலி;
 
-	bool try_append(DriveBitMultiple const &bit);
+	bool try_append(DriveBitMultiple மாறிலி &bit);
 
 
-	bool can_append(DriveChunkMultiple const &bit) const;
+	bool can_append(DriveChunkMultiple மாறிலி &bit) மாறிலி;
 
-	bool try_append(DriveChunkMultiple const &bit);
+	bool try_append(DriveChunkMultiple மாறிலி &bit);
 
-	bool operator==(const DriveChunkMultiple &other) const
+	bool operator==(மாறிலி DriveChunkMultiple &other) மாறிலி
 	{
-		return width_ == other.width_ && multiple_ == other.multiple_;
+		திரும்பு width_ == other.width_ && multiple_ == other.multiple_;
 	}
 
-	bool operator<(const DriveChunkMultiple &other) const
+	bool operator<(மாறிலி DriveChunkMultiple &other) மாறிலி
 	{
-		if (multiple_.size() < other.multiple_.size())
+		எனில் (multiple_.size() < other.multiple_.size())
 
 		multiple_.sort();
-		return false; // TODO implement, canonicalize order
+		திரும்பு false; // TODO implement, canonicalize order
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி;
 };
 
-struct DriveChunk
+கட்டமைப்பு DriveChunk
 {
-private:
+தனிப்பட்ட:
 	DriveType type_ = DriveType::NONE;
-	union
+	ஒன்றிப்பு
 	{
-		int none_;
+		முழு none_;
 		Const constant_;
 		DriveChunkWire wire_;
 		DriveChunkPort port_;
@@ -630,132 +630,132 @@ private:
 		DriveChunkMultiple multiple_;
 	};
 
-public:
+பொது:
 	DriveChunk() { set_none(); }
 
-	DriveChunk(DriveChunk const &other) { *this = other; }
+	DriveChunk(DriveChunk மாறிலி &other) { *this = other; }
 	DriveChunk(DriveChunk &&other) { *this = other; }
 
-	DriveChunk(DriveBit const &other) { *this = other; }
+	DriveChunk(DriveBit மாறிலி &other) { *this = other; }
 
-	DriveChunk(Const const &constant) { *this = constant; }
+	DriveChunk(Const மாறிலி &constant) { *this = constant; }
 	DriveChunk(Const &&constant) { *this = constant; }
-	DriveChunk(DriveChunkWire const &wire) { *this = wire; }
+	DriveChunk(DriveChunkWire மாறிலி &wire) { *this = wire; }
 	DriveChunk(DriveChunkWire &&wire) { *this = wire; }
-	DriveChunk(DriveChunkPort const &port) { *this = port; }
+	DriveChunk(DriveChunkPort மாறிலி &port) { *this = port; }
 	DriveChunk(DriveChunkPort &&port) { *this = port; }
-	DriveChunk(DriveChunkMarker const &marker) { *this = marker; }
+	DriveChunk(DriveChunkMarker மாறிலி &marker) { *this = marker; }
 	DriveChunk(DriveChunkMarker &&marker) { *this = marker; }
-	DriveChunk(DriveChunkMultiple const &multiple) { *this = multiple; }
+	DriveChunk(DriveChunkMultiple மாறிலி &multiple) { *this = multiple; }
 	DriveChunk(DriveChunkMultiple &&multiple) { *this = multiple; }
 
 	~DriveChunk() { set_none(); }
 
-	DriveBit operator[](int i) const
+	DriveBit operator[](முழு i) மாறிலி
 	{
-		switch (type_)
+		தேர்வு (type_)
 		{
-			case DriveType::NONE:
-				return DriveBit();
-			case DriveType::CONSTANT:
-				return constant_[i];
-			case DriveType::WIRE:
-				return wire_[i];
-			case DriveType::PORT:
-				return port_[i];
-			case DriveType::MARKER:
-				return marker_[i];
-			case DriveType::MULTIPLE:
-				return multiple_[i];
+			நிலை DriveType::NONE:
+				திரும்பு DriveBit();
+			நிலை DriveType::CONSTANT:
+				திரும்பு constant_[i];
+			நிலை DriveType::WIRE:
+				திரும்பு wire_[i];
+			நிலை DriveType::PORT:
+				திரும்பு port_[i];
+			நிலை DriveType::MARKER:
+				திரும்பு marker_[i];
+			நிலை DriveType::MULTIPLE:
+				திரும்பு multiple_[i];
 		}
 		log_abort();
 	}
 
-	void set_none(int width = 0)
+	வெறுமை set_none(முழு width = 0)
 	{
-		switch (type_)
+		தேர்வு (type_)
 		{
-			case DriveType::NONE:
+			நிலை DriveType::NONE:
 				none_ = width;
-				break;
-			case DriveType::CONSTANT:
+				நிறுத்து;
+			நிலை DriveType::CONSTANT:
 				constant_.~Const();
-				break;
-			case DriveType::WIRE:
+				நிறுத்து;
+			நிலை DriveType::WIRE:
 				wire_.~DriveChunkWire();
-				break;
-			case DriveType::PORT:
+				நிறுத்து;
+			நிலை DriveType::PORT:
 				port_.~DriveChunkPort();
-				break;
-			case DriveType::MARKER:
+				நிறுத்து;
+			நிலை DriveType::MARKER:
 				marker_.~DriveChunkMarker();
-				break;
-			case DriveType::MULTIPLE:
+				நிறுத்து;
+			நிலை DriveType::MULTIPLE:
 				multiple_.~DriveChunkMultiple();
-				break;
+				நிறுத்து;
 		}
 		type_ = DriveType::NONE;
 		none_ = width;
 	}
 
-	DriveChunk &operator=(DriveChunk const &other)
+	DriveChunk &operator=(DriveChunk மாறிலி &other)
 	{
-		switch (other.type_)
+		தேர்வு (other.type_)
 		{
-			case DriveType::NONE:
+			நிலை DriveType::NONE:
 				set_none(other.none_);
-				break;
-			case DriveType::CONSTANT:
+				நிறுத்து;
+			நிலை DriveType::CONSTANT:
 				*this = other.constant_;
-				break;
-			case DriveType::WIRE:
+				நிறுத்து;
+			நிலை DriveType::WIRE:
 				*this = other.wire_;
-				break;
-			case DriveType::PORT:
+				நிறுத்து;
+			நிலை DriveType::PORT:
 				*this = other.port_;
-				break;
-			case DriveType::MARKER:
+				நிறுத்து;
+			நிலை DriveType::MARKER:
 				*this = other.marker_;
-				break;
-			case DriveType::MULTIPLE:
+				நிறுத்து;
+			நிலை DriveType::MULTIPLE:
 				*this = other.multiple_;
-				break;
+				நிறுத்து;
 		}
-		return *this;
+		திரும்பு *this;
 	}
 
 	DriveChunk &operator=(DriveChunk &&other)
 	{
-		switch (other.type_)
+		தேர்வு (other.type_)
 		{
-			case DriveType::NONE:
+			நிலை DriveType::NONE:
 				set_none(other.none_);
-				break;
-			case DriveType::CONSTANT:
+				நிறுத்து;
+			நிலை DriveType::CONSTANT:
 				*this = std::move(other.constant_);
-				break;
-			case DriveType::WIRE:
+				நிறுத்து;
+			நிலை DriveType::WIRE:
 				*this = std::move(other.wire_);
-				break;
-			case DriveType::PORT:
+				நிறுத்து;
+			நிலை DriveType::PORT:
 				*this = std::move(other.port_);
-				break;
-			case DriveType::MARKER:
+				நிறுத்து;
+			நிலை DriveType::MARKER:
 				*this = std::move(other.marker_);
-				break;
-			case DriveType::MULTIPLE:
+				நிறுத்து;
+			நிலை DriveType::MULTIPLE:
 				*this = std::move(other.multiple_);
-				break;
+				நிறுத்து;
 		}
-		return *this;
+		திரும்பு *this;
 	}
 
-	DriveChunk &operator=(Const const &constant)
+	DriveChunk &operator=(Const மாறிலி &constant)
 	{
 		set_none();
 		new (&constant_) Const(constant);
 		type_ = DriveType::CONSTANT;
-		return *this;
+		திரும்பு *this;
 	}
 
 	DriveChunk &operator=(Const &&constant)
@@ -763,15 +763,15 @@ public:
 		set_none();
 		new (&constant_) Const(std::move(constant));
 		type_ = DriveType::CONSTANT;
-		return *this;
+		திரும்பு *this;
 	}
 
-	DriveChunk &operator=(DriveChunkWire const &wire)
+	DriveChunk &operator=(DriveChunkWire மாறிலி &wire)
 	{
 		set_none();
 		new (&wire_) DriveChunkWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		திரும்பு *this;
 	}
 
 	DriveChunk &operator=(DriveChunkWire &&wire)
@@ -779,15 +779,15 @@ public:
 		set_none();
 		new (&wire_) DriveChunkWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		திரும்பு *this;
 	}
 
-	DriveChunk &operator=(DriveChunkPort const &port)
+	DriveChunk &operator=(DriveChunkPort மாறிலி &port)
 	{
 		set_none();
 		new (&port_) DriveChunkPort(port);
 		type_ = DriveType::PORT;
-		return *this;
+		திரும்பு *this;
 	}
 
 	DriveChunk &operator=(DriveChunkPort &&port)
@@ -795,15 +795,15 @@ public:
 		set_none();
 		new (&port_) DriveChunkPort(port);
 		type_ = DriveType::PORT;
-		return *this;
+		திரும்பு *this;
 	}
 
-	DriveChunk &operator=(DriveChunkMarker const &marker)
+	DriveChunk &operator=(DriveChunkMarker மாறிலி &marker)
 	{
 		set_none();
 		new (&marker_) DriveChunkMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		திரும்பு *this;
 	}
 
 	DriveChunk &operator=(DriveChunkMarker &&marker)
@@ -811,324 +811,324 @@ public:
 		set_none();
 		new (&marker_) DriveChunkMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		திரும்பு *this;
 	}
 
-	DriveChunk &operator=(DriveChunkMultiple const &multiple)
+	DriveChunk &operator=(DriveChunkMultiple மாறிலி &multiple)
 	{
 		set_none(multiple.size());
-		if (multiple.multiple().empty())
-			return *this;
+		எனில் (multiple.multiple().empty())
+			திரும்பு *this;
 		new (&multiple_) DriveChunkMultiple(multiple);
 		type_ = DriveType::MULTIPLE;
-		return *this;
+		திரும்பு *this;
 	}
 
 	DriveChunk &operator=(DriveChunkMultiple &&multiple)
 	{
 		set_none(multiple.size());
-		if (multiple.multiple().empty())
-			return *this;
+		எனில் (multiple.multiple().empty())
+			திரும்பு *this;
 		new (&multiple_) DriveChunkMultiple(multiple);
 		type_ = DriveType::MULTIPLE;
-		return *this;
+		திரும்பு *this;
 	}
 
-	DriveChunk &operator=(DriveBit const &other)
+	DriveChunk &operator=(DriveBit மாறிலி &other)
 	{
-		switch (other.type())
+		தேர்வு (other.type())
 		{
-			case DriveType::NONE:
+			நிலை DriveType::NONE:
 				set_none(1);
-				break;
-			case DriveType::CONSTANT:
+				நிறுத்து;
+			நிலை DriveType::CONSTANT:
 				*this = Const(other.constant());
-				break;
-			case DriveType::WIRE:
+				நிறுத்து;
+			நிலை DriveType::WIRE:
 				*this = DriveChunkWire(other.wire());
-				break;
-			case DriveType::PORT:
+				நிறுத்து;
+			நிலை DriveType::PORT:
 				*this = DriveChunkPort(other.port());
-				break;
-			case DriveType::MARKER:
+				நிறுத்து;
+			நிலை DriveType::MARKER:
 				*this = DriveChunkMarker(other.marker());
-				break;
-			case DriveType::MULTIPLE:
+				நிறுத்து;
+			நிலை DriveType::MULTIPLE:
 				*this = DriveChunkMultiple(other.multiple());
-				break;
+				நிறுத்து;
 		}
-		return *this;
+		திரும்பு *this;
 	}
 
-	bool can_append(DriveBit const &bit) const;
-	bool try_append(DriveBit const &bit);
-	bool try_append(DriveChunk const &chunk);
+	bool can_append(DriveBit மாறிலி &bit) மாறிலி;
+	bool try_append(DriveBit மாறிலி &bit);
+	bool try_append(DriveChunk மாறிலி &chunk);
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி;
 
-	bool operator==(const DriveChunk &other) const
+	bool operator==(மாறிலி DriveChunk &other) மாறிலி
 	{
-		if (type_ != other.type_)
-			return false;
+		எனில் (type_ != other.type_)
+			திரும்பு false;
 
-		switch (type_)
+		தேர்வு (type_)
 		{
-			case DriveType::NONE:
-				return true;
-			case DriveType::CONSTANT:
-				return constant_ == other.constant_;
-			case DriveType::WIRE:
-				return wire_ == other.wire_;
-			case DriveType::PORT:
-				return port_ == other.port_;
-			case DriveType::MARKER:
-				return marker_ == other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ == other.multiple_;
-		}
-		log_abort();
-	}
-
-	bool operator!=(const DriveChunk &other) const
-	{
-		return !(*this == other);
-	}
-
-	bool operator<(const DriveChunk &other) const
-	{
-		if (type_ != other.type_)
-			return type_ < other.type_;
-		switch (type_)
-		{
-			case DriveType::NONE:
-				return false;
-			case DriveType::CONSTANT:
-				return constant_ < other.constant_;
-			case DriveType::WIRE:
-				return wire_ < other.wire_;
-			case DriveType::PORT:
-				return port_ < other.port_;
-			case DriveType::MARKER:
-				return marker_ < other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ < other.multiple_;
+			நிலை DriveType::NONE:
+				திரும்பு true;
+			நிலை DriveType::CONSTANT:
+				திரும்பு constant_ == other.constant_;
+			நிலை DriveType::WIRE:
+				திரும்பு wire_ == other.wire_;
+			நிலை DriveType::PORT:
+				திரும்பு port_ == other.port_;
+			நிலை DriveType::MARKER:
+				திரும்பு marker_ == other.marker_;
+			நிலை DriveType::MULTIPLE:
+				திரும்பு multiple_ == other.multiple_;
 		}
 		log_abort();
 	}
 
-	DriveType type() const { return type_; }
-
-	bool is_none() const { return type_ == DriveType::NONE; }
-	bool is_constant() const { return type_ == DriveType::CONSTANT; }
-	bool is_wire() const { return type_ == DriveType::WIRE; }
-	bool is_port() const { return type_ == DriveType::PORT; }
-	bool is_marker() const { return type_ == DriveType::MARKER; }
-	bool is_multiple() const { return type_ == DriveType::MULTIPLE; }
-
-	Const &constant() { log_assert(is_constant()); return constant_; }
-	Const const &constant() const { log_assert(is_constant()); return constant_; }
-	DriveChunkWire &wire() { log_assert(is_wire()); return wire_; }
-	DriveChunkWire const &wire() const { log_assert(is_wire()); return wire_; }
-	DriveChunkPort &port() { log_assert(is_port()); return port_; }
-	DriveChunkPort const &port() const { log_assert(is_port()); return port_; }
-	DriveChunkMarker &marker() { log_assert(is_marker()); return marker_; }
-	DriveChunkMarker const &marker() const { log_assert(is_marker()); return marker_; }
-	DriveChunkMultiple &multiple() { log_assert(is_multiple()); return multiple_; }
-	DriveChunkMultiple const &multiple() const { log_assert(is_multiple()); return multiple_; }
-
-
-	int size() const
+	bool operator!=(மாறிலி DriveChunk &other) மாறிலி
 	{
-		switch (type_)
+		திரும்பு !(*this == other);
+	}
+
+	bool operator<(மாறிலி DriveChunk &other) மாறிலி
+	{
+		எனில் (type_ != other.type_)
+			திரும்பு type_ < other.type_;
+		தேர்வு (type_)
 		{
-			case DriveType::NONE:
-				return none_;
-			case DriveType::CONSTANT:
-				return constant_.size();
-			case DriveType::WIRE:
-				return wire_.size();
-			case DriveType::PORT:
-				return port_.size();
-			case DriveType::MARKER:
-				return marker_.size();
-			case DriveType::MULTIPLE:
-				return multiple_.size();
+			நிலை DriveType::NONE:
+				திரும்பு false;
+			நிலை DriveType::CONSTANT:
+				திரும்பு constant_ < other.constant_;
+			நிலை DriveType::WIRE:
+				திரும்பு wire_ < other.wire_;
+			நிலை DriveType::PORT:
+				திரும்பு port_ < other.port_;
+			நிலை DriveType::MARKER:
+				திரும்பு marker_ < other.marker_;
+			நிலை DriveType::MULTIPLE:
+				திரும்பு multiple_ < other.multiple_;
+		}
+		log_abort();
+	}
+
+	DriveType type() மாறிலி { திரும்பு type_; }
+
+	bool is_none() மாறிலி { திரும்பு type_ == DriveType::NONE; }
+	bool is_constant() மாறிலி { திரும்பு type_ == DriveType::CONSTANT; }
+	bool is_wire() மாறிலி { திரும்பு type_ == DriveType::WIRE; }
+	bool is_port() மாறிலி { திரும்பு type_ == DriveType::PORT; }
+	bool is_marker() மாறிலி { திரும்பு type_ == DriveType::MARKER; }
+	bool is_multiple() மாறிலி { திரும்பு type_ == DriveType::MULTIPLE; }
+
+	Const &constant() { log_assert(is_constant()); திரும்பு constant_; }
+	Const மாறிலி &constant() மாறிலி { log_assert(is_constant()); திரும்பு constant_; }
+	DriveChunkWire &wire() { log_assert(is_wire()); திரும்பு wire_; }
+	DriveChunkWire மாறிலி &wire() மாறிலி { log_assert(is_wire()); திரும்பு wire_; }
+	DriveChunkPort &port() { log_assert(is_port()); திரும்பு port_; }
+	DriveChunkPort மாறிலி &port() மாறிலி { log_assert(is_port()); திரும்பு port_; }
+	DriveChunkMarker &marker() { log_assert(is_marker()); திரும்பு marker_; }
+	DriveChunkMarker மாறிலி &marker() மாறிலி { log_assert(is_marker()); திரும்பு marker_; }
+	DriveChunkMultiple &multiple() { log_assert(is_multiple()); திரும்பு multiple_; }
+	DriveChunkMultiple மாறிலி &multiple() மாறிலி { log_assert(is_multiple()); திரும்பு multiple_; }
+
+
+	முழு size() மாறிலி
+	{
+		தேர்வு (type_)
+		{
+			நிலை DriveType::NONE:
+				திரும்பு none_;
+			நிலை DriveType::CONSTANT:
+				திரும்பு constant_.size();
+			நிலை DriveType::WIRE:
+				திரும்பு wire_.size();
+			நிலை DriveType::PORT:
+				திரும்பு port_.size();
+			நிலை DriveType::MARKER:
+				திரும்பு marker_.size();
+			நிலை DriveType::MULTIPLE:
+				திரும்பு multiple_.size();
 		}
 		log_abort();
 	}
 };
 
-inline DriveChunkMultiple::DriveChunkMultiple(DriveBitMultiple const &bit)
+உள்வரி DriveChunkMultiple::DriveChunkMultiple(DriveBitMultiple மாறிலி &bit)
 	: width_(1)
 {
-	for (auto const &bit : bit.multiple())
+	க்கு (auto மாறிலி &bit : bit.multiple())
 		multiple_.emplace(bit);
 }
 
-struct DriveSpec
+கட்டமைப்பு DriveSpec
 {
-private:
-	int width_ = 0;
+தனிப்பட்ட:
+	முழு width_ = 0;
 	mutable std::vector<DriveChunk> chunks_;
 	mutable std::vector<DriveBit> bits_;
-	mutable unsigned int hash_ = 0;
-public:
+	mutable unsigned முழு hash_ = 0;
+பொது:
 
-	inline bool packed() const {
-		return bits_.empty();
+	உள்வரி bool packed() மாறிலி {
+		திரும்பு bits_.empty();
 	}
 
 	DriveSpec() {}
 
-	DriveSpec(DriveChunk const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkWire const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkPort const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkMarker const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkMultiple const &chunk) { *this = chunk; }
+	DriveSpec(DriveChunk மாறிலி &chunk) { *this = chunk; }
+	DriveSpec(DriveChunkWire மாறிலி &chunk) { *this = chunk; }
+	DriveSpec(DriveChunkPort மாறிலி &chunk) { *this = chunk; }
+	DriveSpec(DriveChunkMarker மாறிலி &chunk) { *this = chunk; }
+	DriveSpec(DriveChunkMultiple மாறிலி &chunk) { *this = chunk; }
 
-	DriveSpec(DriveBit const &bit) { *this = bit; }
-	DriveSpec(DriveBitWire const &bit) { *this = bit; }
-	DriveSpec(DriveBitPort const &bit) { *this = bit; }
-	DriveSpec(DriveBitMarker const &bit) { *this = bit; }
-	DriveSpec(DriveBitMultiple const &bit) { *this = bit; }
+	DriveSpec(DriveBit மாறிலி &bit) { *this = bit; }
+	DriveSpec(DriveBitWire மாறிலி &bit) { *this = bit; }
+	DriveSpec(DriveBitPort மாறிலி &bit) { *this = bit; }
+	DriveSpec(DriveBitMarker மாறிலி &bit) { *this = bit; }
+	DriveSpec(DriveBitMultiple மாறிலி &bit) { *this = bit; }
 
-	DriveSpec(std::vector<DriveChunk> const &chunks) : chunks_(chunks) { compute_width(); }
+	DriveSpec(std::vector<DriveChunk> மாறிலி &chunks) : chunks_(chunks) { compute_width(); }
 
-	DriveSpec(std::vector<DriveBit> const &bits)
+	DriveSpec(std::vector<DriveBit> மாறிலி &bits)
 	{
-		for (auto const &bit : bits)
+		க்கு (auto மாறிலி &bit : bits)
 			append(bit);
 	}
 
-	DriveSpec(SigSpec const &sig)
+	DriveSpec(SigSpec மாறிலி &sig)
 	{
 		// TODO: converting one chunk at a time would be faster
-		for (auto const &bit : sig.bits())
+		க்கு (auto மாறிலி &bit : sig.bits())
 			append(bit);
 	}
 
-	std::vector<DriveChunk> const &chunks() const { pack(); return chunks_; }
-	std::vector<DriveBit> const &bits() const { unpack(); return bits_; }
+	std::vector<DriveChunk> மாறிலி &chunks() மாறிலி { pack(); திரும்பு chunks_; }
+	std::vector<DriveBit> மாறிலி &bits() மாறிலி { unpack(); திரும்பு bits_; }
 
-	int size() const { return width_; }
+	முழு size() மாறிலி { திரும்பு width_; }
 
-	void append(DriveBit const &bit);
+	வெறுமை append(DriveBit மாறிலி &bit);
 
-	void append(DriveChunk const &chunk);
+	வெறுமை append(DriveChunk மாறிலி &chunk);
 
-	void pack() const;
+	வெறுமை pack() மாறிலி;
 
-	void unpack() const;
+	வெறுமை unpack() மாறிலி;
 
-	DriveBit &operator[](int index)
+	DriveBit &operator[](முழு index)
 	{
 		log_assert(index >= 0 && index < size());
 		unpack();
-		return bits_[index];
+		திரும்பு bits_[index];
 	}
 
-	const DriveBit &operator[](int index) const
+	மாறிலி DriveBit &operator[](முழு index) மாறிலி
 	{
 		log_assert(index >= 0 && index < size());
 		unpack();
-		return bits_[index];
+		திரும்பு bits_[index];
 	}
 
-	void clear()
+	வெறுமை clear()
 	{
 		chunks_.clear();
 		bits_.clear();
 		width_ = 0;
 	}
 
-	DriveSpec &operator=(DriveChunk const &chunk)
+	DriveSpec &operator=(DriveChunk மாறிலி &chunk)
 	{
 		chunks_.clear();
 		bits_.clear();
 		append(chunk);
-		return *this;
+		திரும்பு *this;
 	}
 
-	DriveSpec &operator=(DriveChunkWire const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkPort const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkMarker const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkMultiple const &chunk) { return *this = DriveChunk(chunk); }
+	DriveSpec &operator=(DriveChunkWire மாறிலி &chunk) { திரும்பு *this = DriveChunk(chunk); }
+	DriveSpec &operator=(DriveChunkPort மாறிலி &chunk) { திரும்பு *this = DriveChunk(chunk); }
+	DriveSpec &operator=(DriveChunkMarker மாறிலி &chunk) { திரும்பு *this = DriveChunk(chunk); }
+	DriveSpec &operator=(DriveChunkMultiple மாறிலி &chunk) { திரும்பு *this = DriveChunk(chunk); }
 
-	DriveSpec &operator=(DriveBit const &bit)
+	DriveSpec &operator=(DriveBit மாறிலி &bit)
 	{
 		chunks_.clear();
 		bits_.clear();
 		append(bit);
-		return *this;
+		திரும்பு *this;
 	}
 
-	DriveSpec &operator=(DriveBitWire const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitPort const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitMarker const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitMultiple const &bit) { return *this = DriveBit(bit); }
+	DriveSpec &operator=(DriveBitWire மாறிலி &bit) { திரும்பு *this = DriveBit(bit); }
+	DriveSpec &operator=(DriveBitPort மாறிலி &bit) { திரும்பு *this = DriveBit(bit); }
+	DriveSpec &operator=(DriveBitMarker மாறிலி &bit) { திரும்பு *this = DriveBit(bit); }
+	DriveSpec &operator=(DriveBitMultiple மாறிலி &bit) { திரும்பு *this = DriveBit(bit); }
 
-	void updhash() const {
-		if (hash_ != 0)
-			return;
+	வெறுமை updhash() மாறிலி {
+		எனில் (hash_ != 0)
+			திரும்பு;
 		pack();
 		hash_ = run_hash(chunks_);
 		hash_ |= (hash_ == 0);
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி;
 
-	bool operator==(DriveSpec const &other) const {
+	bool operator==(DriveSpec மாறிலி &other) மாறிலி {
 		updhash();
 		other.updhash();
-		if (size() != other.size() || hash_ != other.hash_)
-			return false;
-		return chunks() == other.chunks();
+		எனில் (size() != other.size() || hash_ != other.hash_)
+			திரும்பு false;
+		திரும்பு chunks() == other.chunks();
 	}
 
-private:
-	void compute_width();
+தனிப்பட்ட:
+	வெறுமை compute_width();
 };
 
 
 
-struct DriverMap
+கட்டமைப்பு DriverMap
 {
 	NewCellTypes celltypes;
 
 	DriverMap() { celltypes.setup(); }
 	DriverMap(Design *design) { celltypes.setup(design); }
 
-private:
+தனிப்பட்ட:
 
 	// Internally we represent all DriveBits by mapping them to DriveBitIds
 	// which use less memory and are cheaper to compare.
-	struct DriveBitId
+	கட்டமைப்பு DriveBitId
 	{
-		int id = -1;
+		முழு id = -1;
 
 		DriveBitId() {};
 
-		DriveBitId(int id) : id(id) { }
+		DriveBitId(முழு id) : id(id) { }
 
-		bool operator==(const DriveBitId &other) const { return id == other.id; }
-		bool operator!=(const DriveBitId &other) const { return id != other.id; }
-		bool operator<(const DriveBitId &other) const { return id < other.id; }
-		[[nodiscard]] Hasher hash_into(Hasher h) const;
+		bool operator==(மாறிலி DriveBitId &other) மாறிலி { திரும்பு id == other.id; }
+		bool operator!=(மாறிலி DriveBitId &other) மாறிலி { திரும்பு id != other.id; }
+		bool operator<(மாறிலி DriveBitId &other) மாறிலி { திரும்பு id < other.id; }
+		[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி;
 	};
 	// Essentially a dict<DriveBitId, pool<DriveBitId>> but using less memory
 	// and fewer allocations
-	struct DriveBitGraph {
+	கட்டமைப்பு DriveBitGraph {
 		dict<DriveBitId, DriveBitId> first_edges;
 		dict<DriveBitId, DriveBitId> second_edges;
 		dict<DriveBitId, pool<DriveBitId>> more_edges;
 
-		void add_edge(DriveBitId src, DriveBitId dst);
-		DriveBitId pop_edge(DriveBitId src);
-		void clear(DriveBitId src);
+		வெறுமை add_edge(DriveBitId src, DriveBitId dst);
+		DriveBitId எடு_edge(DriveBitId src);
+		வெறுமை clear(DriveBitId src);
 		bool contains(DriveBitId src);
-		int count(DriveBitId src);
+		முழு மொத்தம்(DriveBitId src);
 
-		DriveBitId at(DriveBitId src, int index);
+		DriveBitId at(DriveBitId src, முழு index);
 	};
 
 	// The following two maps maintain a sparse DriveBit to DriveBitId mapping.
@@ -1156,7 +1156,7 @@ private:
 
 	// Used for allocating DriveBitIds, none and constant states use a fixewd
 	// mapping to the first few ids, which we need to skip.
-	int next_offset = 1 + (int)State::Sm;
+	முழு next_offset = 1 + (முழு)State::Sm;
 
 	// Union-Find over directly connected bits that share the same single
 	// driver or are undriven. We never merge connections between drivers
@@ -1185,7 +1185,7 @@ private:
 	pool<DriveBitId> oriented_present;
 
 
-	enum class BitMode {
+	எண்ணிக்கை class BitMode {
 		NONE = 0, // Not driven, no need to keep wire
 		DRIVEN = 1, // Not driven, uses a value driven elsewhere
 		DRIVEN_UNIQUE = 2, // Uses a value driven elsewhere, has at most one direct connection
@@ -1194,194 +1194,194 @@ private:
 		DRIVER = 5, // Drives a value
 	};
 
-	BitMode bit_mode(DriveBit const &bit);
-	DriveBitId id_from_drive_bit(DriveBit const &bit);
+	BitMode bit_mode(DriveBit மாறிலி &bit);
+	DriveBitId id_from_drive_bit(DriveBit மாறிலி &bit);
 	DriveBit drive_bit_from_id(DriveBitId id);
 
-	void connect_directed_merge(DriveBitId driven_id, DriveBitId driver_id);
-	void connect_directed_buffer(DriveBitId driven_id, DriveBitId driver_id);
-	void connect_undirected(DriveBitId a_id, DriveBitId b_id);
+	வெறுமை connect_directed_merge(DriveBitId driven_id, DriveBitId driver_id);
+	வெறுமை connect_directed_buffer(DriveBitId driven_id, DriveBitId driver_id);
+	வெறுமை connect_undirected(DriveBitId a_id, DriveBitId b_id);
 
-public:
+பொது:
 
-	void add(Module *module);
+	வெறுமை add(Module *module);
 
 	// Add a single bit connection to the driver map.
-	void add(DriveBit const &a, DriveBit const &b);
+	வெறுமை add(DriveBit மாறிலி &a, DriveBit மாறிலி &b);
 
 	template<typename T>
-	static constexpr bool is_sig_type() {
-		return
-			std::is_same<T, SigSpec>::value ||
-			std::is_same<T, SigChunk>::value ||
-			std::is_same<T, DriveSpec>::value ||
-			std::is_same<T, DriveChunk>::value ||
-			std::is_same<T, DriveChunkPort>::value ||
-			std::is_same<T, DriveChunkWire>::value ||
-			std::is_same<T, Const>::value;
+	நிலையான constexpr bool is_sig_type() {
+		திரும்பு
+			std::is_same<T, SigSpec>::மதிப்பு ||
+			std::is_same<T, SigChunk>::மதிப்பு ||
+			std::is_same<T, DriveSpec>::மதிப்பு ||
+			std::is_same<T, DriveChunk>::மதிப்பு ||
+			std::is_same<T, DriveChunkPort>::மதிப்பு ||
+			std::is_same<T, DriveChunkWire>::மதிப்பு ||
+			std::is_same<T, Const>::மதிப்பு;
 	}
 
 	// We use the enable_if to produce better compiler errors when unsupported
 	// types are used
 	template<typename T, typename U>
 	typename std::enable_if<is_sig_type<T>() && is_sig_type<U>()>::type
-	add(T const &a, U const &b)
+	add(T மாறிலி &a, U மாறிலி &b)
 	{
 		log_assert(a.size() == b.size());
-		for (int i = 0; i != GetSize(a); ++i)
+		க்கு (முழு i = 0; i != GetSize(a); ++i)
 			add(DriveBit(a[i]), DriveBit(b[i]));
 	}
 
 
 	// Specialized version that avoids unpacking
-	void add(SigSpec const &a, SigSpec const &b);
+	வெறுமை add(SigSpec மாறிலி &a, SigSpec மாறிலி &b);
 
-private:
-	void add_port(Cell *cell, IdString port, SigSpec const &b);
+தனிப்பட்ட:
+	வெறுமை add_port(Cell *cell, IdString port, SigSpec மாறிலி &b);
 
 	// Only used a local variables in `orient_undirected`, always cleared, only
 	// stored to reduce allocations.
 	pool<DriveBitId> orient_undirected_seen;
 	pool<DriveBitId> orient_undirected_drivers;
-	dict<DriveBitId, int> orient_undirected_distance;
+	dict<DriveBitId, முழு> orient_undirected_distance;
 
-	void orient_undirected(DriveBitId id);
+	வெறுமை orient_undirected(DriveBitId id);
 
-public:
-	DriveBit operator()(DriveBit const &bit);
+பொது:
+	DriveBit operator()(DriveBit மாறிலி &bit);
 
 	DriveSpec operator()(DriveSpec spec);
 
-private:
+தனிப்பட்ட:
 	bool keep_wire(Wire *wire) {
 		// TODO configurable
-		return wire->has_attribute(ID(keep));
+		திரும்பு wire->has_attribute(ID(keep));
 	}
 };
 
-inline Hasher DriveBitWire::hash_into(Hasher h) const
+உள்வரி Hasher DriveBitWire::hash_into(Hasher h) மாறிலி
 {
 	h.eat(wire->name);
 	h.eat(offset);
-	return h;
+	திரும்பு h;
 }
 
-inline Hasher DriveBitPort::hash_into(Hasher h) const
+உள்வரி Hasher DriveBitPort::hash_into(Hasher h) மாறிலி
 {
 	h.eat(cell->name);
 	h.eat(port);
 	h.eat(offset);
-	return h;
+	திரும்பு h;
 }
 
-inline Hasher DriveBitMarker::hash_into(Hasher h) const
+உள்வரி Hasher DriveBitMarker::hash_into(Hasher h) மாறிலி
 {
 	h.eat(marker);
 	h.eat(offset);
-	return h;
+	திரும்பு h;
 }
 
-inline Hasher DriveBitMultiple::hash_into(Hasher h) const
+உள்வரி Hasher DriveBitMultiple::hash_into(Hasher h) மாறிலி
 {
 	h.eat(multiple_);
-	return h;
+	திரும்பு h;
 }
 
-inline Hasher DriveBit::hash_into(Hasher h) const
+உள்வரி Hasher DriveBit::hash_into(Hasher h) மாறிலி
 {
-	switch (type_) {
-	case DriveType::NONE:
+	தேர்வு (type_) {
+	நிலை DriveType::NONE:
 		h.eat(0);
-		break;
-	case DriveType::CONSTANT:
+		நிறுத்து;
+	நிலை DriveType::CONSTANT:
 		h.eat(constant_);
-		break;
-	case DriveType::WIRE:
+		நிறுத்து;
+	நிலை DriveType::WIRE:
 		h.eat(wire_);
-		break;
-	case DriveType::PORT:
+		நிறுத்து;
+	நிலை DriveType::PORT:
 		h.eat(port_);
-		break;
-	case DriveType::MARKER:
+		நிறுத்து;
+	நிலை DriveType::MARKER:
 		h.eat(marker_);
-		break;
-	case DriveType::MULTIPLE:
+		நிறுத்து;
+	நிலை DriveType::MULTIPLE:
 		h.eat(multiple_);
-		break;
+		நிறுத்து;
 	}
 	h.eat(type_);
-	return h;
+	திரும்பு h;
 }
 
-inline Hasher DriveChunkWire::hash_into(Hasher h) const
+உள்வரி Hasher DriveChunkWire::hash_into(Hasher h) மாறிலி
 {
 	h.eat(wire->name);
 	h.eat(width);
 	h.eat(offset);
-	return h;
+	திரும்பு h;
 }
 
-inline Hasher DriveChunkPort::hash_into(Hasher h) const
+உள்வரி Hasher DriveChunkPort::hash_into(Hasher h) மாறிலி
 {
 	h.eat(cell->name);
 	h.eat(port);
 	h.eat(width);
 	h.eat(offset);
-	return h;
+	திரும்பு h;
 }
 
-inline Hasher DriveChunkMarker::hash_into(Hasher h) const
+உள்வரி Hasher DriveChunkMarker::hash_into(Hasher h) மாறிலி
 {
 	h.eat(marker);
 	h.eat(width);
 	h.eat(offset);
-	return h;
+	திரும்பு h;
 }
 
-inline Hasher DriveChunkMultiple::hash_into(Hasher h) const
+உள்வரி Hasher DriveChunkMultiple::hash_into(Hasher h) மாறிலி
 {
 	h.eat(width_);
 	h.eat(multiple_);
-	return h;
+	திரும்பு h;
 }
 
-inline Hasher DriveChunk::hash_into(Hasher h) const
+உள்வரி Hasher DriveChunk::hash_into(Hasher h) மாறிலி
 {
-	switch (type_) {
-	case DriveType::NONE:
+	தேர்வு (type_) {
+	நிலை DriveType::NONE:
 		h.eat(0);
-		break;
-	case DriveType::CONSTANT:
+		நிறுத்து;
+	நிலை DriveType::CONSTANT:
 		h.eat(constant_);
-		break;
-	case DriveType::WIRE:
+		நிறுத்து;
+	நிலை DriveType::WIRE:
 		h.eat(wire_);
-		break;
-	case DriveType::PORT:
+		நிறுத்து;
+	நிலை DriveType::PORT:
 		h.eat(port_);
-		break;
-	case DriveType::MARKER:
+		நிறுத்து;
+	நிலை DriveType::MARKER:
 		h.eat(marker_);
-		break;
-	case DriveType::MULTIPLE:
+		நிறுத்து;
+	நிலை DriveType::MULTIPLE:
 		h.eat(multiple_);
-		break;
+		நிறுத்து;
 	}
 	h.eat(type_);
-	return h;
+	திரும்பு h;
 }
 
-inline Hasher DriveSpec::hash_into(Hasher h) const
+உள்வரி Hasher DriveSpec::hash_into(Hasher h) மாறிலி
 {
 	updhash();
 	h.eat(hash_);
-	return h;
+	திரும்பு h;
 }
 
-inline Hasher DriverMap::DriveBitId::hash_into(Hasher h) const
+உள்வரி Hasher DriverMap::DriveBitId::hash_into(Hasher h) மாறிலி
 {
 	h.eat(id);
-	return h;
+	திரும்பு h;
 }
 
 YOSYS_NAMESPACE_END

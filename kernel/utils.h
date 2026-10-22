@@ -20,8 +20,8 @@
 // This file contains various c++ utility routines and helper classes that
 // do not depend on any other components of yosys (except stuff like log_*).
 
-#include "kernel/yosys.h"
-#include <iterator>
+#அந்தர்பாவ "kernel/yosys.h"
+#அந்தர்பாவ <iterator>
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -32,94 +32,94 @@ YOSYS_NAMESPACE_BEGIN
 // A map-like container, but you can save and restore the state
 // ------------------------------------------------
 
-template<typename Key, typename T>
-struct stackmap
+template<typename சாவி_2, typename T>
+கட்டமைப்பு stackmap
 {
-private:
-	std::vector<dict<Key, T*>> backup_state;
-	dict<Key, T> current_state;
-	static T empty_tuple;
+தனிப்பட்ட:
+	std::vector<dict<சாவி_2, T*>> backup_state;
+	dict<சாவி_2, T> current_state;
+	நிலையான T empty_tuple;
 
-public:
+பொது:
 	stackmap() { }
-	stackmap(const dict<Key, T> &other) : current_state(other) { }
+	stackmap(மாறிலி dict<சாவி_2, T> &other) : current_state(other) { }
 
 	template<typename Other>
-	void operator=(const Other &other)
+	வெறுமை operator=(மாறிலி Other &other)
 	{
-		for (auto &it : current_state)
-			if (!backup_state.empty() && backup_state.back().count(it.first) == 0)
+		க்கு (auto &it : current_state)
+			எனில் (!backup_state.empty() && backup_state.back().மொத்தம்(it.first) == 0)
 				backup_state.back()[it.first] = new T(it.second);
 		current_state.clear();
 
-		for (auto &it : other)
+		க்கு (auto &it : other)
 			set(it.first, it.second);
 	}
 
-	bool has(const Key &k)
+	bool has(மாறிலி சாவி_2 &k)
 	{
-		return current_state.count(k) != 0;
+		திரும்பு current_state.மொத்தம்(k) != 0;
 	}
 
-	void set(const Key &k, const T &v)
+	வெறுமை set(மாறிலி சாவி_2 &k, மாறிலி T &v)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
-			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
+		எனில் (!backup_state.empty() && backup_state.back().மொத்தம்(k) == 0)
+			backup_state.back()[k] = current_state.மொத்தம்(k) ? new T(current_state.at(k)) : nullptr;
 		current_state[k] = v;
 	}
 
-	void unset(const Key &k)
+	வெறுமை unset(மாறிலி சாவி_2 &k)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
-			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
+		எனில் (!backup_state.empty() && backup_state.back().மொத்தம்(k) == 0)
+			backup_state.back()[k] = current_state.மொத்தம்(k) ? new T(current_state.at(k)) : nullptr;
 		current_state.erase(k);
 	}
 
-	const T &get(const Key &k)
+	மாறிலி T &get(மாறிலி சாவி_2 &k)
 	{
-		if (current_state.count(k) == 0)
-			return empty_tuple;
-		return current_state.at(k);
+		எனில் (current_state.மொத்தம்(k) == 0)
+			திரும்பு empty_tuple;
+		திரும்பு current_state.at(k);
 	}
 
-	void reset(const Key &k)
+	வெறுமை reset(மாறிலி சாவி_2 &k)
 	{
-		for (int i = GetSize(backup_state)-1; i >= 0; i--)
-			if (backup_state[i].count(k) != 0) {
-				if (backup_state[i].at(k) == nullptr)
+		க்கு (முழு i = GetSize(backup_state)-1; i >= 0; i--)
+			எனில் (backup_state[i].மொத்தம்(k) != 0) {
+				எனில் (backup_state[i].at(k) == nullptr)
 					current_state.erase(k);
-				else
+				இல்லையெனில்
 					current_state[k] = *backup_state[i].at(k);
-				return;
+				திரும்பு;
 			}
 		current_state.erase(k);
 	}
 
-	const dict<Key, T> &stdmap()
+	மாறிலி dict<சாவி_2, T> &stdmap()
 	{
-		return current_state;
+		திரும்பு current_state;
 	}
 
-	void save()
+	வெறுமை save()
 	{
 		backup_state.resize(backup_state.size()+1);
 	}
 
-	void restore()
+	வெறுமை restore()
 	{
 		log_assert(!backup_state.empty());
-		for (auto &it : backup_state.back())
-			if (it.second != nullptr) {
+		க்கு (auto &it : backup_state.back())
+			எனில் (it.second != nullptr) {
 				current_state[it.first] = *it.second;
 				delete it.second;
-			} else
+			} இல்லையெனில்
 				current_state.erase(it.first);
-		backup_state.pop_back();
+		backup_state.எடு_back();
 	}
 
 	~stackmap()
 	{
-		while (!backup_state.empty())
+		போது (!backup_state.empty())
 			restore();
 	}
 };
@@ -131,198 +131,198 @@ public:
 
 template <typename T, typename C = std::less<T>> class TopoSort
 {
-	static_assert(!(std::is_pointer<T>::value && std::is_same<C, std::less<T>>::value),
+	static_assert(!(std::is_pointer<T>::மதிப்பு && std::is_same<C, std::less<T>>::மதிப்பு),
 			"std::less is run-to-run unstable for pointers");
-public:
+பொது:
 	// We use this ordering of the edges in the adjacency matrix for
 	// exact compatibility with an older implementation.
-	struct IndirectCmp {
-		IndirectCmp(const std::vector<T> &nodes, const C &node_cmp) : node_cmp_(node_cmp), nodes_(nodes) {}
-		bool operator()(int a, int b) const
+	கட்டமைப்பு IndirectCmp {
+		IndirectCmp(மாறிலி std::vector<T> &nodes, மாறிலி C &முனை_cmp) : முனை_cmp_2(முனை_cmp), nodes_(nodes) {}
+		bool operator()(முழு a, முழு b) மாறிலி
 		{
 			log_assert(static_cast<size_t>(a) < nodes_.size());
 			log_assert(static_cast<size_t>(b) < nodes_.size());
-			return node_cmp_(nodes_[a], nodes_[b]);
+			திரும்பு முனை_cmp_2(nodes_[a], nodes_[b]);
 		}
-		const C node_cmp_;
-		const std::vector<T> &nodes_;
+		மாறிலி C முனை_cmp_2;
+		மாறிலி std::vector<T> &nodes_;
 	};
 
 	bool analyze_loops;
 	// The stability doesn't rely on std::less of T, so pointers are safe
-	std::map<T, int, C> node_to_index;
+	std::map<T, முழு, C> முனை_to_index;
 	// edges[i] is the set of nodes with an edge into node i
-	std::vector<std::set<int, IndirectCmp>> edges;
+	std::vector<std::set<முழு, IndirectCmp>> edges;
 	std::vector<T> sorted;
 	std::set<std::vector<T>> loops;
 
 	TopoSort() requires std::is_default_constructible_v<C> : TopoSort(C()) {}
-	explicit TopoSort(const C &cmp) : node_to_index(cmp), indirect_cmp(nodes, cmp)
+	explicit TopoSort(மாறிலி C &cmp) : முனை_to_index(cmp), indirect_cmp(nodes, cmp)
 	{
 		analyze_loops = true;
 		found_loops = false;
 	}
 
-	int node(T n)
+	முழு முனை(T n)
 	{
-		auto rv = node_to_index.emplace(n, static_cast<int>(nodes.size()));
-		if (rv.second) {
-			nodes.push_back(n);
-			edges.push_back(std::set<int, IndirectCmp>(indirect_cmp));
+		auto rv = முனை_to_index.emplace(n, static_cast<முழு>(nodes.size()));
+		எனில் (rv.second) {
+			nodes.தள்ளு_back(n);
+			edges.தள்ளு_back(std::set<முழு, IndirectCmp>(indirect_cmp));
 		}
-		return rv.first->second;
+		திரும்பு rv.first->second;
 	}
 
-	void edge(int l_index, int r_index) { edges[r_index].insert(l_index); }
+	வெறுமை edge(முழு l_index, முழு r_index) { edges[r_index].செருகு(l_index); }
 
-	void edge(T left, T right) { edge(node(left), node(right)); }
+	வெறுமை edge(T இடது_2, T வலது_2) { edge(முனை(இடது_2), முனை(வலது_2)); }
 
-	bool has_node(const T &node) { return node_to_index.find(node) != node_to_index.end(); }
+	bool has_முனை(மாறிலி T &முனை) { திரும்பு முனை_to_index.find(முனை) != முனை_to_index.end(); }
 
 	bool sort()
 	{
-		log_assert(GetSize(node_to_index) == GetSize(edges));
+		log_assert(GetSize(முனை_to_index) == GetSize(edges));
 		log_assert(GetSize(nodes) == GetSize(edges));
 
 		loops.clear();
 		sorted.clear();
 		found_loops = false;
 
-		std::vector<bool> node_is_sorted(edges.size(), false);
-		std::vector<bool> node_is_on_stack(edges.size(), false);
+		std::vector<bool> முனை_is_sorted(edges.size(), false);
+		std::vector<bool> முனை_is_on_அடுக்கு(edges.size(), false);
 		// Only used with analyze_loops
-		std::vector<int> stack;
+		std::vector<முழு> அடுக்கு;
 		sorted.reserve(edges.size());
 
-		for (const auto &it : node_to_index)
-			sort_worker(it.second, node_is_sorted, node_is_on_stack, stack);
+		க்கு (மாறிலி auto &it : முனை_to_index)
+			sort_worker(it.second, முனை_is_sorted, முனை_is_on_அடுக்கு, அடுக்கு);
 
 		log_assert(GetSize(sorted) == GetSize(nodes));
 
-		return !found_loops;
+		திரும்பு !found_loops;
 	}
 
 	// Build the more expensive representation of edges for
 	// a few passes that use it directly.
 	std::map<T, std::set<T, C>, C> get_database()
 	{
-		std::map<T, std::set<T, C>, C> database(node_to_index.key_comp());
-		for (size_t i = 0; i < nodes.size(); ++i) {
-			std::set<T, C> converted_edge_set(node_to_index.key_comp());
-			for (int other_node : edges[i]) {
-				converted_edge_set.insert(nodes[other_node]);
+		std::map<T, std::set<T, C>, C> database(முனை_to_index.சாவி_comp());
+		க்கு (size_t i = 0; i < nodes.size(); ++i) {
+			std::set<T, C> converted_edge_set(முனை_to_index.சாவி_comp());
+			க்கு (முழு other_முனை : edges[i]) {
+				converted_edge_set.செருகு(nodes[other_முனை]);
 			}
 			database.emplace(nodes[i], converted_edge_set);
 		}
-		return database;
+		திரும்பு database;
 	}
 
-private:
+தனிப்பட்ட:
 	bool found_loops;
 	std::vector<T> nodes;
-	const IndirectCmp indirect_cmp;
+	மாறிலி IndirectCmp indirect_cmp;
 
-	void sort_worker(const int root_index, std::vector<bool> &node_is_sorted, std::vector<bool> &node_is_on_stack, std::vector<int> &stack)
+	வெறுமை sort_worker(மாறிலி முழு வேர்_index, std::vector<bool> &முனை_is_sorted, std::vector<bool> &முனை_is_on_அடுக்கு, std::vector<முழு> &அடுக்கு)
 	{
-		if (node_is_on_stack[root_index]) {
+		எனில் (முனை_is_on_அடுக்கு[வேர்_index]) {
 			// We've been here before, meaning we have a loop
 			found_loops = true;
-			if (analyze_loops) {
+			எனில் (analyze_loops) {
 				std::vector<T> loop;
-				for (int i = GetSize(stack) - 1; i >= 0; i--) {
-					const int index = stack[i];
-					loop.push_back(nodes[index]);
-					if (index == root_index)
-						break;
+				க்கு (முழு i = GetSize(அடுக்கு) - 1; i >= 0; i--) {
+					மாறிலி முழு index = அடுக்கு[i];
+					loop.தள்ளு_back(nodes[index]);
+					எனில் (index == வேர்_index)
+						நிறுத்து;
 				}
-				loops.insert(loop);
+				loops.செருகு(loop);
 			}
-			return;
+			திரும்பு;
 		}
 
 		// We're done if we've already sorted this subgraph
-		if (node_is_sorted[root_index])
-			return;
+		எனில் (முனை_is_sorted[வேர்_index])
+			திரும்பு;
 
-		if (!edges[root_index].empty()) {
-			if (analyze_loops)
-				stack.push_back(root_index);
-			node_is_on_stack[root_index] = true;
+		எனில் (!edges[வேர்_index].empty()) {
+			எனில் (analyze_loops)
+				அடுக்கு.தள்ளு_back(வேர்_index);
+			முனை_is_on_அடுக்கு[வேர்_index] = true;
 
-			for (int left_n : edges[root_index])
-				sort_worker(left_n, node_is_sorted, node_is_on_stack, stack);
+			க்கு (முழு இடது_n : edges[வேர்_index])
+				sort_worker(இடது_n, முனை_is_sorted, முனை_is_on_அடுக்கு, அடுக்கு);
 
-			if (analyze_loops)
-				stack.pop_back();
-			node_is_on_stack[root_index] = false;
+			எனில் (analyze_loops)
+				அடுக்கு.எடு_back();
+			முனை_is_on_அடுக்கு[வேர்_index] = false;
 		}
 
-		node_is_sorted[root_index] = true;
-		sorted.push_back(nodes[root_index]);
+		முனை_is_sorted[வேர்_index] = true;
+		sorted.தள்ளு_back(nodes[வேர்_index]);
 	}
 };
 
 // this class is used for implementing operator-> on iterators that return values rather than references
 // it's necessary because in C++ operator-> is called recursively until a raw pointer is obtained
 template<class T>
-struct arrow_proxy {
+கட்டமைப்பு arrow_proxy {
 	T v;
-	explicit arrow_proxy(T const & v) : v(v) {}
-	T* operator->() { return &v; }
+	explicit arrow_proxy(T மாறிலி & v) : v(v) {}
+	T* operator->() { திரும்பு &v; }
 };
 
-inline int ceil_log2(int x)
+உள்வரி முழு ceil_log2(முழு x)
 {
-#if defined(__GNUC__)
-        return x > 1 ? (8*sizeof(int)) - __builtin_clz(x-1) : 0;
-#else
-	if (x <= 0)
-		return 0;
-	for (int i = 0; i < 32; i++)
-		if (((x-1) >> i) == 0)
-			return i;
+#எனில் defined(__GNUC__)
+        திரும்பு x > 1 ? (8*அளவு(முழு)) - __builtin_clz(x-1) : 0;
+#இல்லையெனில்
+	எனில் (x <= 0)
+		திரும்பு 0;
+	க்கு (முழு i = 0; i < 32; i++)
+		எனில் (((x-1) >> i) == 0)
+			திரும்பு i;
 	log_abort();
 #endif
 }
 
 template <typename T>
 auto reversed(T& container) {
-	struct reverse_view {
+	கட்டமைப்பு reverse_view {
 		reverse_view(T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
+		auto begin() மாறிலி { திரும்பு container.rbegin(); }
+		auto end() மாறிலி { திரும்பு container.rend(); }
 		T& container;
 	};
-	return reverse_view{container};
+	திரும்பு reverse_view{container};
 }
 
 template <typename T>
-auto reversed(const T& container) {
-	struct reverse_view {
-		reverse_view(const T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
-		const T& container;
+auto reversed(மாறிலி T& container) {
+	கட்டமைப்பு reverse_view {
+		reverse_view(மாறிலி T& container) : container(container) {}
+		auto begin() மாறிலி { திரும்பு container.rbegin(); }
+		auto end() மாறிலி { திரும்பு container.rend(); }
+		மாறிலி T& container;
 	};
-	return reverse_view{container};
+	திரும்பு reverse_view{container};
 }
 
 // A range of integers [start_, end_) that can be iterated over with a
 // C++ range-based for loop.
-struct IntRange {
-	int start_;
-	int end_;
-	struct Int {
-		int v;
-		int operator*() const { return v; }
-		Int &operator++() { ++v; return *this; }
-		bool operator!=(const Int &other) const { return v != other.v; }
+கட்டமைப்பு IntRange {
+	முழு start_;
+	முழு end_;
+	கட்டமைப்பு Int {
+		முழு v;
+		முழு operator*() மாறிலி { திரும்பு v; }
+		Int &operator++() { ++v; திரும்பு *this; }
+		bool operator!=(மாறிலி Int &other) மாறிலி { திரும்பு v != other.v; }
 	};
-	Int begin() const { return {start_}; }
-	Int end() const { return {end_}; }
+	Int begin() மாறிலி { திரும்பு {start_}; }
+	Int end() மாறிலி { திரும்பு {end_}; }
 
-	bool operator==(const IntRange &other) const { return start_ == other.start_ && end_ == other.end_; }
-	bool operator!=(const IntRange &other) const { return !(*this == other); }
+	bool operator==(மாறிலி IntRange &other) மாறிலி { திரும்பு start_ == other.start_ && end_ == other.end_; }
+	bool operator!=(மாறிலி IntRange &other) மாறிலி { திரும்பு !(*this == other); }
 };
 
 YOSYS_NAMESPACE_END

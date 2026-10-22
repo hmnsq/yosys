@@ -17,155 +17,155 @@
  *
  */
 
-#include "kernel/json.h"
+#அந்தர்பாவ "kernel/json.h"
 
 USING_YOSYS_NAMESPACE
 
-void PrettyJson::emit_to_log()
+வெறுமை PrettyJson::emit_to_log()
 {
-    struct LogTarget : public Target {
-        void emit(const char *data) override { log("%s", data); }
+    கட்டமைப்பு LogTarget : பொது Target {
+        வெறுமை emit(மாறிலி எழுத்து *data) override { log("%s", data); }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new LogTarget));
+    targets.தள்ளு_back(std::unique_ptr<Target>(புதிய LogTarget));
 }
 
-void PrettyJson::append_to_string(std::string &target)
+வெறுமை PrettyJson::append_to_string(std::string &target)
 {
-    struct AppendStringTarget : public Target {
+    கட்டமைப்பு AppendStringTarget : பொது Target {
         std::string &target;
         AppendStringTarget(std::string &target) : target(target) {}
-        void emit(const char *data) override { target += data; }
+        வெறுமை emit(மாறிலி எழுத்து *data) override { target += data; }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new AppendStringTarget(target)));
+    targets.தள்ளு_back(std::unique_ptr<Target>(புதிய AppendStringTarget(target)));
 }
 
-bool PrettyJson::write_to_file(const std::string &path)
+தருக்க PrettyJson::write_to_file(மாறிலி std::string &path)
 {
-    struct WriteFileTarget : public Target {
+    கட்டமைப்பு WriteFileTarget : பொது Target {
         std::ofstream target;
-        void emit(const char *data) override { target << data; }
-        void flush() override { target.flush(); }
+        வெறுமை emit(மாறிலி எழுத்து *data) override { target << data; }
+        வெறுமை flush() override { target.flush(); }
     };
 
-    auto target = std::unique_ptr<WriteFileTarget>(new WriteFileTarget);
+    auto target = std::unique_ptr<WriteFileTarget>(புதிய WriteFileTarget);
     target->target.open(path);
-    if (target->target.fail())
-        return false;
-    targets.push_back(std::unique_ptr<Target>(target.release()));
-    return true;
+    எனில் (target->target.fail())
+        திரும்பு பொய்;
+    targets.தள்ளு_back(std::unique_ptr<Target>(target.release()));
+    திரும்பு உண்மை;
 }
 
-void PrettyJson::line(bool space_if_inline)
+வெறுமை PrettyJson::வரி(தருக்க space_if_inline)
 {
-    if (compact_depth != INT_MAX) {
-        if (space_if_inline)
+    எனில் (compact_depth != INT_MAX) {
+        எனில் (space_if_inline)
             raw(" ");
-        return;
+        திரும்பு;
     }
-    int indent = state.size() - (state.empty() ? 0 : state.back() == VALUE);
+    முழு indent = state.size() - (state.empty() ? 0 : state.back() == மதிப்பு_2);
     newline_indent.resize(1 + 2 * indent, ' ');
     raw(newline_indent.c_str());
 }
 
-void PrettyJson::raw(const char *raw_json)
+வெறுமை PrettyJson::raw(மாறிலி எழுத்து *raw_json)
 {
-    for (auto &target : targets)
+    க்கு (auto &target : targets)
         target->emit(raw_json);
 }
 
-void PrettyJson::flush()
+வெறுமை PrettyJson::flush()
 {
-    for (auto &target : targets)
+    க்கு (auto &target : targets)
         target->flush();
 }
 
-void PrettyJson::begin_object()
+வெறுமை PrettyJson::begin_object()
 {
-    begin_value();
+    begin_மதிப்பு();
     raw("{");
-    state.push_back(OBJECT_FIRST);
+    state.தள்ளு_back(OBJECT_FIRST);
 }
 
-void PrettyJson::begin_array()
+வெறுமை PrettyJson::begin_array()
 {
-    begin_value();
+    begin_மதிப்பு();
     raw("[");
-    state.push_back(ARRAY_FIRST);
+    state.தள்ளு_back(ARRAY_FIRST);
 }
 
-void PrettyJson::end_object()
+வெறுமை PrettyJson::end_object()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == OBJECT)
-        line(false);
-    else
-        log_assert(top_scope == OBJECT_FIRST);
+    Scope உச்சி_scope = state.back();
+    state.எடு_back();
+    எனில் (உச்சி_scope == OBJECT)
+        வரி(பொய்);
+    இல்லையெனில்
+        log_assert(உச்சி_scope == OBJECT_FIRST);
     raw("}");
-    end_value();
+    end_மதிப்பு();
 }
 
-void PrettyJson::end_array()
+வெறுமை PrettyJson::end_array()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == ARRAY)
-        line(false);
-    else
-        log_assert(top_scope == ARRAY_FIRST);
+    Scope உச்சி_scope = state.back();
+    state.எடு_back();
+    எனில் (உச்சி_scope == ARRAY)
+        வரி(பொய்);
+    இல்லையெனில்
+        log_assert(உச்சி_scope == ARRAY_FIRST);
     raw("]");
-    end_value();
+    end_மதிப்பு();
 }
 
-void PrettyJson::name(const char *name)
+வெறுமை PrettyJson::name(மாறிலி எழுத்து *name)
 {
-    if (state.back() == OBJECT_FIRST) {
+    எனில் (state.back() == OBJECT_FIRST) {
         state.back() = OBJECT;
-        line(false);
-    } else {
+        வரி(பொய்);
+    } இல்லையெனில் {
         raw(",");
-        line();
+        வரி();
     }
     raw(Json(name).dump().c_str());
     raw(": ");
-    state.push_back(VALUE);
+    state.தள்ளு_back(மதிப்பு_2);
 }
 
-void PrettyJson::begin_value()
+வெறுமை PrettyJson::begin_மதிப்பு()
 {
-    if (state.back() == ARRAY_FIRST) {
-        line(false);
+    எனில் (state.back() == ARRAY_FIRST) {
+        வரி(பொய்);
         state.back() = ARRAY;
-    } else if (state.back() == ARRAY) {
+    } இல்லையெனில் எனில் (state.back() == ARRAY) {
         raw(",");
-        line();
-    } else {
-        log_assert(state.back() == VALUE);
-        state.pop_back();
+        வரி();
+    } இல்லையெனில் {
+        log_assert(state.back() == மதிப்பு_2);
+        state.எடு_back();
     }
 }
 
-void PrettyJson::end_value()
+வெறுமை PrettyJson::end_மதிப்பு()
 {
-    if (state.empty()) {
+    எனில் (state.empty()) {
         raw("\n");
         flush();
     }
-    if (GetSize(state) < compact_depth)
+    எனில் (GetSize(state) < compact_depth)
         compact_depth = INT_MAX;
 }
 
-void PrettyJson::value_json(const Json &value)
+வெறுமை PrettyJson::மதிப்பு_json(மாறிலி Json &மதிப்பு)
 {
-    begin_value();
-    raw(value.dump().c_str());
-    end_value();
+    begin_மதிப்பு();
+    raw(மதிப்பு.dump().c_str());
+    end_மதிப்பு();
 }
 
-void PrettyJson::entry_json(const char *name, const Json &value)
+வெறுமை PrettyJson::entry_json(மாறிலி எழுத்து *name, மாறிலி Json &மதிப்பு)
 {
-    this->name(name);
-    this->value(value);
+    இது->name(name);
+    இது->மதிப்பு(மதிப்பு);
 }

@@ -20,256 +20,256 @@
 #ifndef SIGTOOLS_H
 #define SIGTOOLS_H
 
-#include "kernel/yosys.h"
+#அந்தர்பாவ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct SigPool
+கட்டமைப்பு SigPool
 {
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+	கட்டமைப்பு bitDef_t : பொது std::pair<RTLIL::Wire*, முழு> {
+		bitDef_t() : std::pair<RTLIL::Wire*, முழு>(வெற்று, 0) { }
+		bitDef_t(மாறிலி RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, முழு>(bit.wire, bit.offset) { }
+		[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி {
 			h.eat(first->name);
 			h.eat(second);
-			return h;
+			திரும்பு h;
 		}
 	};
 
 	pool<bitDef_t> bits;
 
-	void clear()
+	வெறுமை clear()
 	{
 		bits.clear();
 	}
 
-	void add(const RTLIL::SigSpec &sig)
+	வெறுமை add(மாறிலி RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
-				bits.insert(bit);
+		க்கு (auto &bit : sig)
+			எனில் (bit.wire != வெற்று)
+				bits.செருகு(bit);
 	}
 
-	void add(const SigPool &other)
+	வெறுமை add(மாறிலி SigPool &other)
 	{
-		for (auto &bit : other.bits)
-			bits.insert(bit);
+		க்கு (auto &bit : other.bits)
+			bits.செருகு(bit);
 	}
 
-	void del(const RTLIL::SigSpec &sig)
+	வெறுமை del(மாறிலி RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
+		க்கு (auto &bit : sig)
+			எனில் (bit.wire != வெற்று)
 				bits.erase(bit);
 	}
 
-	void del(const SigPool &other)
+	வெறுமை del(மாறிலி SigPool &other)
 	{
-		for (auto &bit : other.bits)
+		க்கு (auto &bit : other.bits)
 			bits.erase(bit);
 	}
 
-	void expand(const RTLIL::SigSpec &from, const RTLIL::SigSpec &to)
+	வெறுமை expand(மாறிலி RTLIL::SigSpec &from, மாறிலி RTLIL::SigSpec &to)
 	{
 		log_assert(GetSize(from) == GetSize(to));
-		for (int i = 0; i < GetSize(from); i++) {
+		க்கு (முழு i = 0; i < GetSize(from); i++) {
 			bitDef_t bit_from(from[i]), bit_to(to[i]);
-			if (bit_from.first != NULL && bit_to.first != NULL && bits.count(bit_from) > 0)
-				bits.insert(bit_to);
+			எனில் (bit_from.first != வெற்று && bit_to.first != வெற்று && bits.மொத்தம்(bit_from) > 0)
+				bits.செருகு(bit_to);
 		}
 	}
 
-	RTLIL::SigSpec extract(const RTLIL::SigSpec &sig) const
+	RTLIL::SigSpec extract(மாறிலி RTLIL::SigSpec &sig) மாறிலி
 	{
 		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
+		க்கு (auto &bit : sig)
+			எனில் (bit.wire != வெற்று && bits.மொத்தம்(bit))
 				result.append(bit);
-		return result;
+		திரும்பு result;
 	}
 
-	RTLIL::SigSpec remove(const RTLIL::SigSpec &sig) const
+	RTLIL::SigSpec remove(மாறிலி RTLIL::SigSpec &sig) மாறிலி
 	{
 		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
+		க்கு (auto &bit : sig)
+			எனில் (bit.wire != வெற்று && bits.மொத்தம்(bit) == 0)
 				result.append(bit);
-		return result;
+		திரும்பு result;
 	}
 
-	bool check(const RTLIL::SigBit &bit) const
+	bool check(மாறிலி RTLIL::SigBit &bit) மாறிலி
 	{
-		return bit.wire != NULL && bits.count(bit);
+		திரும்பு bit.wire != வெற்று && bits.மொத்தம்(bit);
 	}
 
-	bool check_any(const RTLIL::SigSpec &sig) const
+	bool check_any(மாறிலி RTLIL::SigSpec &sig) மாறிலி
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		க்கு (auto &bit : sig)
+			எனில் (bit.wire != வெற்று && bits.மொத்தம்(bit))
+				திரும்பு true;
+		திரும்பு false;
 	}
 
-	bool check_all(const RTLIL::SigSpec &sig) const
+	bool check_all(மாறிலி RTLIL::SigSpec &sig) மாறிலி
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
-				return false;
-		return true;
+		க்கு (auto &bit : sig)
+			எனில் (bit.wire != வெற்று && bits.மொத்தம்(bit) == 0)
+				திரும்பு false;
+		திரும்பு true;
 	}
 
-	RTLIL::SigSpec export_one() const
+	RTLIL::SigSpec export_one() மாறிலி
 	{
-		for (auto &bit : bits)
-			return RTLIL::SigSpec(bit.first, bit.second);
-		return RTLIL::SigSpec();
+		க்கு (auto &bit : bits)
+			திரும்பு RTLIL::SigSpec(bit.first, bit.second);
+		திரும்பு RTLIL::SigSpec();
 	}
 
-	RTLIL::SigSpec export_all() const
+	RTLIL::SigSpec export_all() மாறிலி
 	{
 		pool<RTLIL::SigBit> sig;
-		for (auto &bit : bits)
-			sig.insert(RTLIL::SigBit(bit.first, bit.second));
-		return sig;
+		க்கு (auto &bit : bits)
+			sig.செருகு(RTLIL::SigBit(bit.first, bit.second));
+		திரும்பு sig;
 	}
 
-	size_t size() const
+	size_t size() மாறிலி
 	{
-		return bits.size();
+		திரும்பு bits.size();
 	}
 };
 
-template <typename T, class Compare = void>
-struct SigSet
+template <typename T, class Compare = வெறுமை>
+கட்டமைப்பு SigSet
 {
-	static_assert(!std::is_same<Compare,void>::value, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
+	static_assert(!std::is_same<Compare,வெறுமை>::மதிப்பு, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
 
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+	கட்டமைப்பு bitDef_t : பொது std::pair<RTLIL::Wire*, முழு> {
+		bitDef_t() : std::pair<RTLIL::Wire*, முழு>(வெற்று, 0) { }
+		bitDef_t(மாறிலி RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, முழு>(bit.wire, bit.offset) { }
+		[[nodiscard]] Hasher hash_into(Hasher h) மாறிலி {
 			h.eat(first->name);
 			h.eat(second);
-			return h;
+			திரும்பு h;
 		}
 	};
 
 	dict<bitDef_t, std::set<T, Compare>> bits;
 
-	void clear()
+	வெறுமை clear()
 	{
 		bits.clear();
 	}
 
-	void insert(const RTLIL::SigSpec &sig, T data)
+	வெறுமை செருகு(மாறிலி RTLIL::SigSpec &sig, T data)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].insert(data);
+		க்கு (மாறிலி auto &bit : sig)
+			எனில் (bit.wire != வெற்று)
+				bits[bit].செருகு(data);
 	}
 
-	void insert(const RTLIL::SigSpec& sig, const std::set<T> &data)
+	வெறுமை செருகு(மாறிலி RTLIL::SigSpec& sig, மாறிலி std::set<T> &data)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].insert(data.begin(), data.end());
+		க்கு (மாறிலி auto &bit : sig)
+			எனில் (bit.wire != வெற்று)
+				bits[bit].செருகு(data.begin(), data.end());
 	}
 
-	void erase(const RTLIL::SigSpec& sig)
+	வெறுமை erase(மாறிலி RTLIL::SigSpec& sig)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
+		க்கு (மாறிலி auto &bit : sig)
+			எனில் (bit.wire != வெற்று)
 				bits[bit].clear();
 	}
 
-	void erase(const RTLIL::SigSpec &sig, T data)
+	வெறுமை erase(மாறிலி RTLIL::SigSpec &sig, T data)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
+		க்கு (மாறிலி auto &bit : sig)
+			எனில் (bit.wire != வெற்று)
 				bits[bit].erase(data);
 	}
 
-	void erase(const RTLIL::SigSpec &sig, const std::set<T> &data)
+	வெறுமை erase(மாறிலி RTLIL::SigSpec &sig, மாறிலி std::set<T> &data)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
+		க்கு (மாறிலி auto &bit : sig)
+			எனில் (bit.wire != வெற்று)
 				bits[bit].erase(data.begin(), data.end());
 	}
 
-	void find(const RTLIL::SigSpec &sig, std::set<T> &result)
+	வெறுமை find(மாறிலி RTLIL::SigSpec &sig, std::set<T> &result)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
+		க்கு (மாறிலி auto &bit : sig)
+			எனில் (bit.wire != வெற்று) {
 				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+				result.செருகு(data.begin(), data.end());
 			}
 	}
 
-	void find(const RTLIL::SigSpec &sig, pool<T> &result)
+	வெறுமை find(மாறிலி RTLIL::SigSpec &sig, pool<T> &result)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
+		க்கு (மாறிலி auto &bit : sig)
+			எனில் (bit.wire != வெற்று) {
 				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+				result.செருகு(data.begin(), data.end());
 			}
 	}
 
-	std::set<T> find(const RTLIL::SigSpec &sig)
+	std::set<T> find(மாறிலி RTLIL::SigSpec &sig)
 	{
 		std::set<T> result;
 		find(sig, result);
-		return result;
+		திரும்பு result;
 	}
 
-	bool has(const RTLIL::SigSpec &sig)
+	bool has(மாறிலி RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		க்கு (auto &bit : sig)
+			எனில் (bit.wire != வெற்று && bits.மொத்தம்(bit))
+				திரும்பு true;
+		திரும்பு false;
 	}
 };
 
 template<typename T>
-class SigSet<T, typename std::enable_if<!std::is_pointer<T>::value>::type> : public SigSet<T, std::less<T>> {};
+class SigSet<T, typename std::enable_if<!std::is_pointer<T>::மதிப்பு>::type> : பொது SigSet<T, std::less<T>> {};
 template<typename T>
-using sort_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::value>::type;
+using sort_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::மதிப்பு>::type;
 template<typename T>
-class SigSet<T, sort_by_name_id_guard<T>> : public SigSet<T, RTLIL::sort_by_name_id<typename std::remove_pointer<T>::type>> {};
+class SigSet<T, sort_by_name_id_guard<T>> : பொது SigSet<T, RTLIL::sort_by_name_id<typename std::remove_pointer<T>::type>> {};
 
-struct SigMapView
+கட்டமைப்பு SigMapView
 {
 	mfp<SigBit> database;
 
 	// Modify bit to its representative
-	void apply(RTLIL::SigBit &bit) const
+	வெறுமை apply(RTLIL::SigBit &bit) மாறிலி
 	{
 		bit = database.find(bit);
 	}
 
-	void apply(RTLIL::SigSpec &sig) const
+	வெறுமை apply(RTLIL::SigSpec &sig) மாறிலி
 	{
-		for (auto &bit : sig)
+		க்கு (auto &bit : sig)
 			apply(bit);
 	}
 
-	RTLIL::SigBit operator()(RTLIL::SigBit bit) const
+	RTLIL::SigBit operator()(RTLIL::SigBit bit) மாறிலி
 	{
 		apply(bit);
-		return bit;
+		திரும்பு bit;
 	}
 
-	RTLIL::SigSpec operator()(RTLIL::SigSpec sig) const
+	RTLIL::SigSpec operator()(RTLIL::SigSpec sig) மாறிலி
 	{
 		apply(sig);
-		return sig;
+		திரும்பு sig;
 	}
 
-	RTLIL::SigSpec operator()(RTLIL::Wire *wire) const
+	RTLIL::SigSpec operator()(RTLIL::Wire *wire) மாறிலி
 	{
 		SigSpec sig(wire);
 		apply(sig);
-		return sig;
+		திரும்பு sig;
 	}
 };
 
@@ -280,88 +280,88 @@ struct SigMapView
  * If a SigBit has a const state (impl: bit.wire is nullptr),
  * it's promoted to a representative.
  */
-struct SigMap final : public SigMapView
+கட்டமைப்பு SigMap final : பொது SigMapView
 {
-	SigMap(RTLIL::Module *module = NULL)
+	SigMap(RTLIL::Module *module = வெற்று)
 	{
-		if (module != NULL)
+		எனில் (module != வெற்று)
 			set(module);
 	}
 
-	void swap(SigMap &other)
+	வெறுமை swap(SigMap &other)
 	{
 		database.swap(other.database);
 	}
 
-	void clear()
+	வெறுமை clear()
 	{
 		database.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
-	void set(RTLIL::Module *module)
+	வெறுமை set(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
+		முழு bitcount = 0;
+		க்கு (auto &it : module->connections())
 			bitcount += it.first.size();
 
 		database.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
+		க்கு (auto &it : module->connections())
 			add(it.first, it.second);
 	}
 
 	// Add connections from "from" to "to", bit-by-bit
-	void add(const RTLIL::SigSpec& from, const RTLIL::SigSpec& to)
+	வெறுமை add(மாறிலி RTLIL::SigSpec& from, மாறிலி RTLIL::SigSpec& to)
 	{
 		log_assert(GetSize(from) == GetSize(to));
 
-		for (int i = 0; i < GetSize(from); i++)
+		க்கு (முழு i = 0; i < GetSize(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
+			முழு bfi = database.lookup(from[i]);
+			முழு bti = database.lookup(to[i]);
 
-			const RTLIL::SigBit &bf = database[bfi];
-			const RTLIL::SigBit &bt = database[bti];
+			மாறிலி RTLIL::SigBit &bf = database[bfi];
+			மாறிலி RTLIL::SigBit &bt = database[bti];
 
-			if (bf.wire || bt.wire)
+			எனில் (bf.wire || bt.wire)
 			{
 				database.imerge(bfi, bti);
 
-				if (bf.wire == nullptr)
+				எனில் (bf.wire == nullptr)
 					database.ipromote(bfi);
 
-				if (bt.wire == nullptr)
+				எனில் (bt.wire == nullptr)
 					database.ipromote(bti);
 			}
 		}
 	}
 
 	// Add sig as disconnected from anything
-	void add(const RTLIL::SigBit &bit)
+	வெறுமை add(மாறிலி RTLIL::SigBit &bit)
 	{
-		const auto &b = database.find(bit);
-		if (b.wire != nullptr)
+		மாறிலி auto &b = database.find(bit);
+		எனில் (b.wire != nullptr)
 			database.promote(bit);
 	}
 
-	void add(const RTLIL::SigSpec &sig)
+	வெறுமை add(மாறிலி RTLIL::SigSpec &sig)
 	{
-		for (const auto &bit : sig)
+		க்கு (மாறிலி auto &bit : sig)
 			add(bit);
 	}
 
-	inline void add(Wire *wire) { return add(RTLIL::SigSpec(wire)); }
+	உள்வரி வெறுமை add(Wire *wire) { திரும்பு add(RTLIL::SigSpec(wire)); }
 
 	// All non-const bits
-	RTLIL::SigSpec allbits() const
+	RTLIL::SigSpec allbits() மாறிலி
 	{
 		RTLIL::SigSpec sig;
-		for (const auto &bit : database)
-			if (bit.wire != nullptr)
+		க்கு (மாறிலி auto &bit : database)
+			எனில் (bit.wire != nullptr)
 				sig.append(bit);
-		return sig;
+		திரும்பு sig;
 	}
 };
 
@@ -375,94 +375,94 @@ struct SigMap final : public SigMapView
  * If any of the SigBits in a set are a constant, the canonical SigBit is a constant.
  */
 template <class Val>
-struct SigValMap final : public SigMapView
+கட்டமைப்பு SigValMap final : பொது SigMapView
 {
-	dict<SigBit, Val> values;
+	dict<SigBit, Val> மதிப்புகள்;
 
-	void swap(SigValMap<Val> &other)
+	வெறுமை swap(SigValMap<Val> &other)
 	{
 		database.swap(other.database);
-		values.swap(other.values);
+		மதிப்புகள்.swap(other.மதிப்புகள்);
 	}
 
-	void clear()
+	வெறுமை clear()
 	{
 		database.clear();
-		values.clear();
+		மதிப்புகள்.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
-	void set(RTLIL::Module *module)
+	வெறுமை set(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
+		முழு bitcount = 0;
+		க்கு (auto &it : module->connections())
 			bitcount += it.first.size();
 
 		database.clear();
-		values.clear();
+		மதிப்புகள்.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
+		க்கு (auto &it : module->connections())
 			add(it.first, it.second);
 	}
 
 	// Add connections from "from" to "to", bit-by-bit.
-	void add(const RTLIL::SigSpec& from, const RTLIL::SigSpec& to)
+	வெறுமை add(மாறிலி RTLIL::SigSpec& from, மாறிலி RTLIL::SigSpec& to)
 	{
 		log_assert(GetSize(from) == GetSize(to));
 
-		for (int i = 0; i < GetSize(from); i++)
+		க்கு (முழு i = 0; i < GetSize(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
-			if (bfi == bti) {
-				continue;
+			முழு bfi = database.lookup(from[i]);
+			முழு bti = database.lookup(to[i]);
+			எனில் (bfi == bti) {
+				தொடர்;
 			}
 
-			const RTLIL::SigBit &bf = database[bfi];
-			const RTLIL::SigBit &bt = database[bti];
-			if (bf.wire == nullptr) {
+			மாறிலி RTLIL::SigBit &bf = database[bfi];
+			மாறிலி RTLIL::SigBit &bt = database[bti];
+			எனில் (bf.wire == nullptr) {
 				// bf is constant so make it the canonical representative.
 				database.imerge(bti, bfi);
-				merge_value(bt, bf);
-			} else {
+				merge_மதிப்பு(bt, bf);
+			} இல்லையெனில் {
 				// Make bt the canonical representative.
 				database.imerge(bfi, bti);
-				merge_value(bf, bt);
+				merge_மதிப்பு(bf, bt);
 			}
 		}
 	}
 
-	void addVal(const RTLIL::SigBit &bit, const Val &val)
+	வெறுமை addVal(மாறிலி RTLIL::SigBit &bit, மாறிலி Val &val)
 	{
-		values[database.find(bit)] |= val;
+		மதிப்புகள்[database.find(bit)] |= val;
 	}
 
-	void addVal(const RTLIL::SigSpec &sig, const Val &val)
+	வெறுமை addVal(மாறிலி RTLIL::SigSpec &sig, மாறிலி Val &val)
 	{
-		for (const auto &bit : sig)
+		க்கு (மாறிலி auto &bit : sig)
 			addVal(bit, val);
 	}
 
-	Val apply_and_get_value(RTLIL::SigBit &bit) const
+	Val apply_and_get_மதிப்பு(RTLIL::SigBit &bit) மாறிலி
 	{
 		bit = database.find(bit);
-		auto it = values.find(bit);
-		return it == values.end() ? Val() : it->second;
+		auto it = மதிப்புகள்.find(bit);
+		திரும்பு it == மதிப்புகள்.end() ? Val() : it->second;
 	}
 
-private:
-	void merge_value(const RTLIL::SigBit &from, const RTLIL::SigBit &to)
+தனிப்பட்ட:
+	வெறுமை merge_மதிப்பு(மாறிலி RTLIL::SigBit &from, மாறிலி RTLIL::SigBit &to)
 	{
-		auto it = values.find(from);
-		if (it == values.end()) {
-			return;
+		auto it = மதிப்புகள்.find(from);
+		எனில் (it == மதிப்புகள்.end()) {
+			திரும்பு;
 		}
 		// values[to] could resize the underlying `entries` so
 		// finish using `it` first.
 		Val v = it->second;
-		values.erase(it);
-		values[to] |= v;
+		மதிப்புகள்.erase(it);
+		மதிப்புகள்[to] |= v;
 	}
 };
 

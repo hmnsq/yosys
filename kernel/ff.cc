@@ -17,305 +17,305 @@
  *
  */
 
-#include "kernel/ff.h"
+#அந்தர்பாவ "kernel/ff.h"
 
 USING_YOSYS_NAMESPACE
 
 // sorry
-template<typename InputType, typename OutputType, typename = std::enable_if_t<std::is_base_of_v<FfTypeData, OutputType>>>
-void manufacture_info(InputType flop, OutputType& info, FfInitVals *initvals) {
+template<typename உள்ளீடு_Type, typename OutputType, typename = std::enable_if_t<std::is_base_of_v<FfTypeData, OutputType>>>
+வெறுமை manufacture_info(உள்ளீடு_Type flop, OutputType& info, FfInitVals *initvals) {
 	Cell* cell = nullptr;
 	IdString type;
-	constexpr bool have_cell = std::is_same_v<InputType, Cell*>;
-	if constexpr (std::is_same_v<InputType, IdString>) {
+	constexpr தருக்க have_cell = std::is_same_v<உள்ளீடு_Type, Cell*>;
+	எனில் constexpr (std::is_same_v<உள்ளீடு_Type, IdString>) {
 		type = flop;
-	} else {
-		static_assert(std::is_same_v<InputType, Cell*>);
+	} இல்லையெனில் {
+		static_assert(std::is_same_v<உள்ளீடு_Type, Cell*>);
 		cell = flop;
 		type = flop->type;
 	}
-	if constexpr (have_cell) {
+	எனில் constexpr (have_cell) {
 		info.sig_q = cell->getPort(ID::Q);
 		info.width = GetSize(info.sig_q);
 		info.attributes = cell->attributes;
-		if (initvals)
+		எனில் (initvals)
 			info.val_init = (*initvals)(info.sig_q);
 	}
 
 
 	std::string type_str = ID::str(type);
 
-	if (type.in(ID($anyinit), ID($ff), ID($dff), ID($dffe), ID($dffsr), ID($dffsre), ID($adff), ID($adffe), ID($aldff), ID($aldffe), ID($sdff), ID($sdffe), ID($sdffce), ID($dlatch), ID($adlatch), ID($dlatchsr), ID($sr))) {
-		if (type.in(ID($anyinit), ID($ff))) {
-			info.has_gclk = true;
-			if constexpr (have_cell)
+	எனில் (type.in(ID($anyinit), ID($ff), ID($dff), ID($dffe), ID($dffsr), ID($dffsre), ID($adff), ID($adffe), ID($aldff), ID($aldffe), ID($sdff), ID($sdffe), ID($sdffce), ID($dlatch), ID($adlatch), ID($dlatchsr), ID($sr))) {
+		எனில் (type.in(ID($anyinit), ID($ff))) {
+			info.has_gclk = உண்மை;
+			எனில் constexpr (have_cell)
 				info.sig_d = cell->getPort(ID::D);
-			if (type == ID($anyinit)) {
-				info.is_anyinit = true;
-				if constexpr (have_cell)
+			எனில் (type == ID($anyinit)) {
+				info.is_anyinit = உண்மை;
+				எனில் constexpr (have_cell)
 					log_assert(info.val_init.is_fully_undef());
 			}
-		} else if (type == ID($sr)) {
+		} இல்லையெனில் எனில் (type == ID($sr)) {
 			// No data input at all.
-		} else if (type.in(ID($dlatch), ID($adlatch), ID($dlatchsr))) {
-			info.has_aload = true;
-			if constexpr (have_cell) {
+		} இல்லையெனில் எனில் (type.in(ID($dlatch), ID($adlatch), ID($dlatchsr))) {
+			info.has_aload = உண்மை;
+			எனில் constexpr (have_cell) {
 				info.sig_aload = cell->getPort(ID::EN);
 				info.pol_aload = cell->getParam(ID::EN_POLARITY).as_bool();
 				info.sig_ad = cell->getPort(ID::D);
 			}
-		} else {
-			info.has_clk = true;
-			if constexpr (have_cell) {
+		} இல்லையெனில் {
+			info.has_clk = உண்மை;
+			எனில் constexpr (have_cell) {
 				info.sig_clk = cell->getPort(ID::CLK);
 				info.pol_clk = cell->getParam(ID::CLK_POLARITY).as_bool();
 				info.sig_d = cell->getPort(ID::D);
 			}
 		}
-		if (type.in(ID($dffe), ID($dffsre), ID($adffe), ID($aldffe), ID($sdffe), ID($sdffce))) {
-			info.has_ce = true;
-			if constexpr (have_cell) {
+		எனில் (type.in(ID($dffe), ID($dffsre), ID($adffe), ID($aldffe), ID($sdffe), ID($sdffce))) {
+			info.has_ce = உண்மை;
+			எனில் constexpr (have_cell) {
 				info.sig_ce = cell->getPort(ID::EN);
 				info.pol_ce = cell->getParam(ID::EN_POLARITY).as_bool();
 			}
 		}
-		if (type.in(ID($dffsr), ID($dffsre), ID($dlatchsr), ID($sr))) {
-			info.has_sr = true;
-			if constexpr (have_cell) {
+		எனில் (type.in(ID($dffsr), ID($dffsre), ID($dlatchsr), ID($sr))) {
+			info.has_sr = உண்மை;
+			எனில் constexpr (have_cell) {
 				info.sig_clr = cell->getPort(ID::CLR);
 				info.sig_set = cell->getPort(ID::SET);
 				info.pol_clr = cell->getParam(ID::CLR_POLARITY).as_bool();
 				info.pol_set = cell->getParam(ID::SET_POLARITY).as_bool();
 			}
 		}
-		if (type.in(ID($aldff), ID($aldffe))) {
-			info.has_aload = true;
-			if constexpr (have_cell) {
+		எனில் (type.in(ID($aldff), ID($aldffe))) {
+			info.has_aload = உண்மை;
+			எனில் constexpr (have_cell) {
 				info.sig_aload = cell->getPort(ID::ALOAD);
 				info.pol_aload = cell->getParam(ID::ALOAD_POLARITY).as_bool();
 				info.sig_ad = cell->getPort(ID::AD);
 			}
 		}
-		if (type.in(ID($adff), ID($adffe), ID($adlatch))) {
-			info.has_arst = true;
-			if constexpr (have_cell) {
+		எனில் (type.in(ID($adff), ID($adffe), ID($adlatch))) {
+			info.has_arst = உண்மை;
+			எனில் constexpr (have_cell) {
 				info.sig_arst = cell->getPort(ID::ARST);
 				info.pol_arst = cell->getParam(ID::ARST_POLARITY).as_bool();
-				info.val_arst = cell->getParam(ID::ARST_VALUE);
+				info.val_arst = cell->getParam(ID::ARST_மதிப்பு);
 			}
 		}
-		if (type.in(ID($sdff), ID($sdffe), ID($sdffce))) {
-			info.has_srst = true;
-			if constexpr (have_cell) {
+		எனில் (type.in(ID($sdff), ID($sdffe), ID($sdffce))) {
+			info.has_srst = உண்மை;
+			எனில் constexpr (have_cell) {
 				info.sig_srst = cell->getPort(ID::SRST);
 				info.pol_srst = cell->getParam(ID::SRST_POLARITY).as_bool();
-				info.val_srst = cell->getParam(ID::SRST_VALUE);
+				info.val_srst = cell->getParam(ID::SRST_மதிப்பு);
 			}
 			info.ce_over_srst = type == ID($sdffce);
 		}
-	} else if (type == ID($_FF_)) {
-		info.is_fine = true;
-		info.has_gclk = true;
-		if constexpr (have_cell)
+	} இல்லையெனில் எனில் (type == ID($_FF_)) {
+		info.is_fine = உண்மை;
+		info.has_gclk = உண்மை;
+		எனில் constexpr (have_cell)
 			info.sig_d = cell->getPort(ID::D);
-	} else if (type_str.substr(0, 5) == "$_SR_") {
-		info.is_fine = true;
-		info.has_sr = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 5) == "$_SR_") {
+		info.is_fine = உண்மை;
+		info.has_sr = உண்மை;
 		info.pol_set = type_str[5] == 'P';
 		info.pol_clr = type_str[6] == 'P';
-		if constexpr (have_cell) {
+		எனில் constexpr (have_cell) {
 			info.sig_set = cell->getPort(ID::S);
 			info.sig_clr = cell->getPort(ID::R);
 		}
-	} else if (type_str.substr(0, 6) == "$_DFF_" && type_str.size() == 8) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 6) == "$_DFF_" && type_str.size() == 8) {
+		info.is_fine = உண்மை;
+		info.has_clk = உண்மை;
 		info.pol_clk = type_str[6] == 'P';
-		if constexpr (have_cell) {
+		எனில் constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 		}
-	} else if (type_str.substr(0, 7) == "$_DFFE_" && type_str.size() == 10) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 7) == "$_DFFE_" && type_str.size() == 10) {
+		info.is_fine = உண்மை;
+		info.has_clk = உண்மை;
 		info.pol_clk = type_str[7] == 'P';
-		info.has_ce = true;
+		info.has_ce = உண்மை;
 		info.pol_ce = type_str[8] == 'P';
-		if constexpr (have_cell) {
+		எனில் constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_ce = cell->getPort(ID::E);
 		}
-	} else if (type_str.substr(0, 6) == "$_DFF_" && type_str.size() == 10) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 6) == "$_DFF_" && type_str.size() == 10) {
+		info.is_fine = உண்மை;
+		info.has_clk = உண்மை;
 		info.pol_clk = type_str[6] == 'P';
-		info.has_arst = true;
+		info.has_arst = உண்மை;
 		info.pol_arst = type_str[7] == 'P';
 		info.val_arst = type_str[8] == '1' ? State::S1 : State::S0;
-		if constexpr (have_cell) {
+		எனில் constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_arst = cell->getPort(ID::R);
 		}
-	} else if (type_str.substr(0, 7) == "$_DFFE_" && type_str.size() == 12) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 7) == "$_DFFE_" && type_str.size() == 12) {
+		info.is_fine = உண்மை;
+		info.has_clk = உண்மை;
 		info.pol_clk = type_str[7] == 'P';
-		info.has_arst = true;
+		info.has_arst = உண்மை;
 		info.pol_arst = type_str[8] == 'P';
 		info.val_arst = type_str[9] == '1' ? State::S1 : State::S0;
-		info.has_ce = true;
+		info.has_ce = உண்மை;
 		info.pol_ce = type_str[10] == 'P';
-		if constexpr (have_cell) {
+		எனில் constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_arst = cell->getPort(ID::R);
 			info.sig_ce = cell->getPort(ID::E);
 		}
-	} else if (type_str.substr(0, 8) == "$_ALDFF_" && type_str.size() == 11) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 8) == "$_ALDFF_" && type_str.size() == 11) {
+		info.is_fine = உண்மை;
+		info.has_clk = உண்மை;
 		info.pol_clk = type_str[8] == 'P';
-		info.has_aload = true;
+		info.has_aload = உண்மை;
 		info.pol_aload = type_str[9] == 'P';
-		if constexpr (have_cell) {
+		எனில் constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_aload = cell->getPort(ID::L);
 			info.sig_ad = cell->getPort(ID::AD);
 		}
-	} else if (type_str.substr(0, 9) == "$_ALDFFE_" && type_str.size() == 13) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 9) == "$_ALDFFE_" && type_str.size() == 13) {
+		info.is_fine = உண்மை;
+		info.has_clk = உண்மை;
 		info.pol_clk = type_str[9] == 'P';
-		info.has_aload = true;
+		info.has_aload = உண்மை;
 		info.pol_aload = type_str[10] == 'P';
-		info.has_ce = true;
+		info.has_ce = உண்மை;
 		info.pol_ce = type_str[11] == 'P';
-		if constexpr (have_cell) {
+		எனில் constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_aload = cell->getPort(ID::L);
 			info.sig_ad = cell->getPort(ID::AD);
 			info.sig_ce = cell->getPort(ID::E);
 		}
-	} else if (type_str.substr(0, 8) == "$_DFFSR_" && type_str.size() == 12) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 8) == "$_DFFSR_" && type_str.size() == 12) {
+		info.is_fine = உண்மை;
+		info.has_clk = உண்மை;
 		info.pol_clk = type_str[8] == 'P';
-		info.has_sr = true;
+		info.has_sr = உண்மை;
 		info.pol_set = type_str[9] == 'P';
 		info.pol_clr = type_str[10] == 'P';
-		if constexpr (have_cell) {
+		எனில் constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_set = cell->getPort(ID::S);
 			info.sig_clr = cell->getPort(ID::R);
 		}
-	} else if (type_str.substr(0, 9) == "$_DFFSRE_" && type_str.size() == 14) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 9) == "$_DFFSRE_" && type_str.size() == 14) {
+		info.is_fine = உண்மை;
+		info.has_clk = உண்மை;
 		info.pol_clk = type_str[9] == 'P';
-		info.has_sr = true;
+		info.has_sr = உண்மை;
 		info.pol_set = type_str[10] == 'P';
 		info.pol_clr = type_str[11] == 'P';
-		info.has_ce = true;
+		info.has_ce = உண்மை;
 		info.pol_ce = type_str[12] == 'P';
-		if constexpr (have_cell) {
+		எனில் constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_set = cell->getPort(ID::S);
 			info.sig_clr = cell->getPort(ID::R);
 			info.sig_ce = cell->getPort(ID::E);
 		}
-	} else if (type_str.substr(0, 7) == "$_SDFF_" && type_str.size() == 11) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 7) == "$_SDFF_" && type_str.size() == 11) {
+		info.is_fine = உண்மை;
+		info.has_clk = உண்மை;
 		info.pol_clk = type_str[7] == 'P';
-		info.has_srst = true;
+		info.has_srst = உண்மை;
 		info.pol_srst = type_str[8] == 'P';
 		info.val_srst = type_str[9] == '1' ? State::S1 : State::S0;
-		if constexpr (have_cell) {
+		எனில் constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_srst = cell->getPort(ID::R);
 		}
-	} else if (type_str.substr(0, 8) == "$_SDFFE_" && type_str.size() == 13) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 8) == "$_SDFFE_" && type_str.size() == 13) {
+		info.is_fine = உண்மை;
+		info.has_clk = உண்மை;
 		info.pol_clk = type_str[8] == 'P';
-		info.has_srst = true;
+		info.has_srst = உண்மை;
 		info.pol_srst = type_str[9] == 'P';
 		info.val_srst = type_str[10] == '1' ? State::S1 : State::S0;
-		info.has_ce = true;
+		info.has_ce = உண்மை;
 		info.pol_ce = type_str[11] == 'P';
-		if constexpr (have_cell) {
+		எனில் constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_srst = cell->getPort(ID::R);
 			info.sig_ce = cell->getPort(ID::E);
 		}
-	} else if (type_str.substr(0, 9) == "$_SDFFCE_" && type_str.size() == 14) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 9) == "$_SDFFCE_" && type_str.size() == 14) {
+		info.is_fine = உண்மை;
+		info.has_clk = உண்மை;
 		info.pol_clk = type_str[9] == 'P';
-		info.has_srst = true;
+		info.has_srst = உண்மை;
 		info.pol_srst = type_str[10] == 'P';
 		info.val_srst = type_str[11] == '1' ? State::S1 : State::S0;
-		info.has_ce = true;
+		info.has_ce = உண்மை;
 		info.pol_ce = type_str[12] == 'P';
-		info.ce_over_srst = true;
-		if constexpr (have_cell) {
+		info.ce_over_srst = உண்மை;
+		எனில் constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_srst = cell->getPort(ID::R);
 			info.sig_ce = cell->getPort(ID::E);
 		}
-	} else if (type_str.substr(0, 9) == "$_DLATCH_" && type_str.size() == 11) {
-		info.is_fine = true;
-		info.has_aload = true;
-		info.has_aload = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 9) == "$_DLATCH_" && type_str.size() == 11) {
+		info.is_fine = உண்மை;
+		info.has_aload = உண்மை;
+		info.has_aload = உண்மை;
 		info.pol_aload = type_str[9] == 'P';
-		if constexpr (have_cell) {
+		எனில் constexpr (have_cell) {
 			info.sig_ad = cell->getPort(ID::D);
 			info.sig_aload = cell->getPort(ID::E);
 		}
-	} else if (type_str.substr(0, 9) == "$_DLATCH_" && type_str.size() == 13) {
-		info.is_fine = true;
-		info.has_aload = true;
-		info.has_aload = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 9) == "$_DLATCH_" && type_str.size() == 13) {
+		info.is_fine = உண்மை;
+		info.has_aload = உண்மை;
+		info.has_aload = உண்மை;
 		info.pol_aload = type_str[9] == 'P';
-		info.has_arst = true;
+		info.has_arst = உண்மை;
 		info.pol_arst = type_str[10] == 'P';
 		info.val_arst = type_str[11] == '1' ? State::S1 : State::S0;
-		if constexpr (have_cell) {
+		எனில் constexpr (have_cell) {
 			info.sig_ad = cell->getPort(ID::D);
 			info.sig_aload = cell->getPort(ID::E);
 			info.sig_arst = cell->getPort(ID::R);
 		}
-	} else if (type_str.substr(0, 11) == "$_DLATCHSR_" && type_str.size() == 15) {
-		info.is_fine = true;
-		info.has_aload = true;
-		info.has_aload = true;
+	} இல்லையெனில் எனில் (type_str.substr(0, 11) == "$_DLATCHSR_" && type_str.size() == 15) {
+		info.is_fine = உண்மை;
+		info.has_aload = உண்மை;
+		info.has_aload = உண்மை;
 		info.pol_aload = type_str[11] == 'P';
-		info.has_sr = true;
+		info.has_sr = உண்மை;
 		info.pol_set = type_str[12] == 'P';
 		info.pol_clr = type_str[13] == 'P';
-		if constexpr (have_cell) {
+		எனில் constexpr (have_cell) {
 			info.sig_ad = cell->getPort(ID::D);
 			info.sig_aload = cell->getPort(ID::E);
 			info.sig_set = cell->getPort(ID::S);
 			info.sig_clr = cell->getPort(ID::R);
 		}
-	} else {
+	} இல்லையெனில் {
 		log_assert(0);
 	}
-	if constexpr (have_cell)
-		if (info.has_aload && !info.has_clk && !info.has_sr && !info.has_arst && info.sig_ad.is_fully_const()) {
+	எனில் constexpr (have_cell)
+		எனில் (info.has_aload && !info.has_clk && !info.has_sr && !info.has_arst && info.sig_ad.is_fully_const()) {
 			// Plain D latches with const D treated specially.
-			info.has_aload = false;
-			info.has_arst = true;
+			info.has_aload = பொய்;
+			info.has_arst = உண்மை;
 			info.sig_arst = info.sig_aload;
 			info.pol_arst = info.pol_aload;
 			info.val_arst = info.sig_ad.as_const();
@@ -324,16 +324,16 @@ void manufacture_info(InputType flop, OutputType& info, FfInitVals *initvals) {
 
 FfTypeData::FfTypeData(IdString type) : FfTypeData()
 {
-	manufacture_info(type, *this, nullptr);
+	manufacture_info(type, *இது, nullptr);
 }
 
 FfData::FfData(FfInitVals *initvals, Cell *cell_) : FfData(cell_->module, initvals, cell_->name)
 {
 	cell = cell_;
-	manufacture_info(cell, *this, initvals);
+	manufacture_info(cell, *இது, initvals);
 }
 
-FfData FfData::slice(const std::vector<int> &bits) {
+FfData FfData::slice(மாறிலி std::vector<முழு> &bits) {
 	FfData res(module, initvals, module->twines().add(NEW_ID));
 	res.sig_clk = sig_clk;
 	res.sig_ce = sig_ce;
@@ -359,219 +359,219 @@ FfData FfData::slice(const std::vector<int> &bits) {
 	res.pol_set = pol_set;
 	res.attributes = attributes;
 	std::optional<Const::Builder> arst_bits;
-	if (has_arst)
+	எனில் (has_arst)
 		arst_bits.emplace(bits.size());
 	std::optional<Const::Builder> srst_bits;
-	if (has_srst)
+	எனில் (has_srst)
 		srst_bits.emplace(bits.size());
 	std::optional<Const::Builder> init_bits;
-	if (initvals)
+	எனில் (initvals)
 		init_bits.emplace(bits.size());
 
-	for (int i : bits) {
+	க்கு (முழு i : bits) {
 		res.sig_q.append(sig_q[i]);
-		if (has_clk || has_gclk)
+		எனில் (has_clk || has_gclk)
 			res.sig_d.append(sig_d[i]);
-		if (has_aload)
+		எனில் (has_aload)
 			res.sig_ad.append(sig_ad[i]);
-		if (has_sr) {
+		எனில் (has_sr) {
 			res.sig_clr.append(sig_clr[i]);
 			res.sig_set.append(sig_set[i]);
 		}
-		if (has_arst)
-			arst_bits->push_back(val_arst[i]);
-		if (has_srst)
-			srst_bits->push_back(val_srst[i]);
-		if (initvals)
-			init_bits->push_back(val_init[i]);
+		எனில் (has_arst)
+			arst_bits->தள்ளு_back(val_arst[i]);
+		எனில் (has_srst)
+			srst_bits->தள்ளு_back(val_srst[i]);
+		எனில் (initvals)
+			init_bits->தள்ளு_back(val_init[i]);
 	}
 
-	if (has_arst)
+	எனில் (has_arst)
 		res.val_arst = arst_bits->build();
-	if (has_srst)
+	எனில் (has_srst)
 		res.val_srst = srst_bits->build();
-	if (initvals)
+	எனில் (initvals)
 		res.val_init = init_bits->build();
 	res.width = GetSize(res.sig_q);
-	return res;
+	திரும்பு res;
 }
 
-void FfData::add_dummy_ce() {
-	if (has_ce)
-		return;
-	has_ce = true;
-	pol_ce = true;
+வெறுமை FfData::add_dummy_ce() {
+	எனில் (has_ce)
+		திரும்பு;
+	has_ce = உண்மை;
+	pol_ce = உண்மை;
 	sig_ce = State::S1;
-	ce_over_srst = false;
+	ce_over_srst = பொய்;
 }
 
-void FfData::add_dummy_srst() {
-	if (has_srst)
-		return;
-	has_srst = true;
-	pol_srst = true;
+வெறுமை FfData::add_dummy_srst() {
+	எனில் (has_srst)
+		திரும்பு;
+	has_srst = உண்மை;
+	pol_srst = உண்மை;
 	sig_srst = State::S0;
 	val_srst = Const(State::Sx, width);
-	ce_over_srst = false;
+	ce_over_srst = பொய்;
 }
 
-void FfData::add_dummy_arst() {
-	if (has_arst)
-		return;
-	has_arst = true;
-	pol_arst = true;
+வெறுமை FfData::add_dummy_arst() {
+	எனில் (has_arst)
+		திரும்பு;
+	has_arst = உண்மை;
+	pol_arst = உண்மை;
 	sig_arst = State::S0;
 	val_arst = Const(State::Sx, width);
 }
 
-void FfData::add_dummy_aload() {
-	if (has_aload)
-		return;
-	has_aload = true;
-	pol_aload = true;
+வெறுமை FfData::add_dummy_aload() {
+	எனில் (has_aload)
+		திரும்பு;
+	has_aload = உண்மை;
+	pol_aload = உண்மை;
 	sig_aload = State::S0;
 	sig_ad = Const(State::Sx, width);
 }
 
-void FfData::add_dummy_sr() {
-	if (has_sr)
-		return;
-	has_sr = true;
-	pol_clr = true;
-	pol_set = true;
+வெறுமை FfData::add_dummy_sr() {
+	எனில் (has_sr)
+		திரும்பு;
+	has_sr = உண்மை;
+	pol_clr = உண்மை;
+	pol_set = உண்மை;
 	sig_clr = Const(State::S0, width);
 	sig_set = Const(State::S0, width);
 }
 
-void FfData::add_dummy_clk() {
-	if (has_clk)
-		return;
-	has_clk = true;
-	pol_clk = true;
+வெறுமை FfData::add_dummy_clk() {
+	எனில் (has_clk)
+		திரும்பு;
+	has_clk = உண்மை;
+	pol_clk = உண்மை;
 	sig_clk = State::S0;
 	sig_d = Const(State::Sx, width);
 }
 
-void FfData::arst_to_aload() {
+வெறுமை FfData::arst_to_aload() {
 	log_assert(has_arst);
 	log_assert(!has_aload);
 	pol_aload = pol_arst;
 	sig_aload = sig_arst;
 	sig_ad = val_arst;
-	has_aload = true;
-	has_arst = false;
+	has_aload = உண்மை;
+	has_arst = பொய்;
 }
 
-void FfData::arst_to_sr() {
+வெறுமை FfData::arst_to_sr() {
 	log_assert(has_arst);
 	log_assert(!has_sr);
 	pol_clr = pol_arst;
 	pol_set = pol_arst;
 	sig_clr = Const(pol_arst ? State::S0 : State::S1, width);
 	sig_set = Const(pol_arst ? State::S0 : State::S1, width);
-	has_sr = true;
-	has_arst = false;
-	for (int i = 0; i < width; i++) {
-		if (val_arst[i] == State::S1)
+	has_sr = உண்மை;
+	has_arst = பொய்;
+	க்கு (முழு i = 0; i < width; i++) {
+		எனில் (val_arst[i] == State::S1)
 			sig_set[i] = sig_arst;
-		else
+		இல்லையெனில்
 			sig_clr[i] = sig_arst;
 	}
 }
 
-void FfData::aload_to_sr() {
+வெறுமை FfData::aload_to_sr() {
 	log_assert(has_aload);
 	log_assert(!has_sr);
-	has_sr = true;
-	has_aload = false;
-	if (!is_fine) {
-		pol_clr = false;
-		pol_set = true;
-		if (pol_aload) {
+	has_sr = உண்மை;
+	has_aload = பொய்;
+	எனில் (!is_fine) {
+		pol_clr = பொய்;
+		pol_set = உண்மை;
+		எனில் (pol_aload) {
 			sig_clr = module->Mux(NEW_ID, Const(State::S1, width), sig_ad, sig_aload);
 			sig_set = module->Mux(NEW_ID, Const(State::S0, width), sig_ad, sig_aload);
-		} else {
+		} இல்லையெனில் {
 			sig_clr = module->Mux(NEW_ID, sig_ad, Const(State::S1, width), sig_aload);
 			sig_set = module->Mux(NEW_ID, sig_ad, Const(State::S0, width), sig_aload);
 		}
-	} else {
+	} இல்லையெனில் {
 		pol_clr = pol_aload;
 		pol_set = pol_aload;
-		if (pol_aload) {
+		எனில் (pol_aload) {
 			sig_clr = module->AndnotGate(NEW_ID, sig_aload, sig_ad);
 			sig_set = module->AndGate(NEW_ID, sig_aload, sig_ad);
-		} else {
+		} இல்லையெனில் {
 			sig_clr = module->OrGate(NEW_ID, sig_aload, sig_ad);
 			sig_set = module->OrnotGate(NEW_ID, sig_aload, sig_ad);
 		}
 	}
 }
 
-void FfData::convert_ce_over_srst(bool val) {
-	if (!has_ce || !has_srst || ce_over_srst == val)
-		return;
-	if (val) {
+வெறுமை FfData::convert_ce_over_srst(தருக்க val) {
+	எனில் (!has_ce || !has_srst || ce_over_srst == val)
+		திரும்பு;
+	எனில் (val) {
 		// sdffe to sdffce
-		if (!is_fine) {
-			if (pol_ce) {
-				if (pol_srst) {
+		எனில் (!is_fine) {
+			எனில் (pol_ce) {
+				எனில் (pol_srst) {
 					sig_ce = module->Or(NEW_ID, sig_ce, sig_srst);
-				} else {
+				} இல்லையெனில் {
 					SigSpec tmp = module->Not(NEW_ID, sig_srst);
 					sig_ce = module->Or(NEW_ID, sig_ce, tmp);
 				}
-			} else {
-				if (pol_srst) {
+			} இல்லையெனில் {
+				எனில் (pol_srst) {
 					SigSpec tmp = module->Not(NEW_ID, sig_srst);
 					sig_ce = module->And(NEW_ID, sig_ce, tmp);
-				} else {
+				} இல்லையெனில் {
 					sig_ce = module->And(NEW_ID, sig_ce, sig_srst);
 				}
 			}
-		} else {
-			if (pol_ce) {
-				if (pol_srst) {
+		} இல்லையெனில் {
+			எனில் (pol_ce) {
+				எனில் (pol_srst) {
 					sig_ce = module->OrGate(NEW_ID, sig_ce, sig_srst);
-				} else {
+				} இல்லையெனில் {
 					sig_ce = module->OrnotGate(NEW_ID, sig_ce, sig_srst);
 				}
-			} else {
-				if (pol_srst) {
+			} இல்லையெனில் {
+				எனில் (pol_srst) {
 					sig_ce = module->AndnotGate(NEW_ID, sig_ce, sig_srst);
-				} else {
+				} இல்லையெனில் {
 					sig_ce = module->AndGate(NEW_ID, sig_ce, sig_srst);
 				}
 			}
 		}
-	} else {
+	} இல்லையெனில் {
 		// sdffce to sdffe
-		if (!is_fine) {
-			if (pol_srst) {
-				if (pol_ce) {
+		எனில் (!is_fine) {
+			எனில் (pol_srst) {
+				எனில் (pol_ce) {
 					sig_srst = cell->module->And(NEW_ID, sig_srst, sig_ce);
-				} else {
+				} இல்லையெனில் {
 					SigSpec tmp = module->Not(NEW_ID, sig_ce);
 					sig_srst = cell->module->And(NEW_ID, sig_srst, tmp);
 				}
-			} else {
-				if (pol_ce) {
+			} இல்லையெனில் {
+				எனில் (pol_ce) {
 					SigSpec tmp = module->Not(NEW_ID, sig_ce);
 					sig_srst = cell->module->Or(NEW_ID, sig_srst, tmp);
-				} else {
+				} இல்லையெனில் {
 					sig_srst = cell->module->Or(NEW_ID, sig_srst, sig_ce);
 				}
 			}
-		} else {
-			if (pol_srst) {
-				if (pol_ce) {
+		} இல்லையெனில் {
+			எனில் (pol_srst) {
+				எனில் (pol_ce) {
 					sig_srst = cell->module->AndGate(NEW_ID, sig_srst, sig_ce);
-				} else {
+				} இல்லையெனில் {
 					sig_srst = cell->module->AndnotGate(NEW_ID, sig_srst, sig_ce);
 				}
-			} else {
-				if (pol_ce) {
+			} இல்லையெனில் {
+				எனில் (pol_ce) {
 					sig_srst = cell->module->OrnotGate(NEW_ID, sig_srst, sig_ce);
-				} else {
+				} இல்லையெனில் {
 					sig_srst = cell->module->OrGate(NEW_ID, sig_srst, sig_ce);
 				}
 			}
@@ -580,121 +580,121 @@ void FfData::convert_ce_over_srst(bool val) {
 	ce_over_srst = val;
 }
 
-void FfData::unmap_ce() {
-	if (!has_ce)
-		return;
+வெறுமை FfData::unmap_ce() {
+	எனில் (!has_ce)
+		திரும்பு;
 	log_assert(has_clk);
-	if (has_srst && ce_over_srst)
+	எனில் (has_srst && ce_over_srst)
 		unmap_srst();
 
-	if (!is_fine) {
-		if (pol_ce)
+	எனில் (!is_fine) {
+		எனில் (pol_ce)
 			sig_d = module->Mux(NEW_ID, sig_q, sig_d, sig_ce);
-		else
+		இல்லையெனில்
 			sig_d = module->Mux(NEW_ID, sig_d, sig_q, sig_ce);
-	} else {
-		if (pol_ce)
+	} இல்லையெனில் {
+		எனில் (pol_ce)
 			sig_d = module->MuxGate(NEW_ID, sig_q, sig_d, sig_ce);
-		else
+		இல்லையெனில்
 			sig_d = module->MuxGate(NEW_ID, sig_d, sig_q, sig_ce);
 	}
-	has_ce = false;
+	has_ce = பொய்;
 }
 
-void FfData::unmap_srst() {
-	if (!has_srst)
-		return;
-	if (has_ce && !ce_over_srst)
+வெறுமை FfData::unmap_srst() {
+	எனில் (!has_srst)
+		திரும்பு;
+	எனில் (has_ce && !ce_over_srst)
 		unmap_ce();
 
-	if (!is_fine) {
-		if (pol_srst)
+	எனில் (!is_fine) {
+		எனில் (pol_srst)
 			sig_d = module->Mux(NEW_ID, sig_d, val_srst, sig_srst);
-		else
+		இல்லையெனில்
 			sig_d = module->Mux(NEW_ID, val_srst, sig_d, sig_srst);
-	} else {
-		if (pol_srst)
+	} இல்லையெனில் {
+		எனில் (pol_srst)
 			sig_d = module->MuxGate(NEW_ID, sig_d, val_srst[0], sig_srst);
-		else
+		இல்லையெனில்
 			sig_d = module->MuxGate(NEW_ID, val_srst[0], sig_d, sig_srst);
 	}
-	has_srst = false;
+	has_srst = பொய்;
 }
 
 Cell *FfData::emit() {
 	remove();
-	if (!width)
-		return nullptr;
-	if (!has_aload && !has_clk && !has_gclk && !has_sr) {
-		if (has_arst) {
+	எனில் (!width)
+		திரும்பு nullptr;
+	எனில் (!has_aload && !has_clk && !has_gclk && !has_sr) {
+		எனில் (has_arst) {
 			// Convert this case to a D latch.
 			arst_to_aload();
-		} else {
+		} இல்லையெனில் {
 			// No control inputs left.  Turn into a const driver.
 			module->connect(sig_q, val_init);
-			return nullptr;
+			திரும்பு nullptr;
 		}
 	}
-	if (initvals && !is_anyinit)
+	எனில் (initvals && !is_anyinit)
 		initvals->set_init(sig_q, val_init);
-	if (!is_fine) {
-		if (has_gclk) {
+	எனில் (!is_fine) {
+		எனில் (has_gclk) {
 			log_assert(!has_clk);
 			log_assert(!has_ce);
 			log_assert(!has_aload);
 			log_assert(!has_arst);
 			log_assert(!has_srst);
 			log_assert(!has_sr);
-			if (is_anyinit) {
+			எனில் (is_anyinit) {
 				cell = module->addAnyinit(name, sig_d, sig_q);
 				log_assert(val_init.is_fully_undef());
-			} else {
+			} இல்லையெனில் {
 				cell = module->addFf(name, sig_d, sig_q);
 			}
-		} else if (!has_aload && !has_clk) {
+		} இல்லையெனில் எனில் (!has_aload && !has_clk) {
 			log_assert(has_sr);
 			cell = module->addSr(name, sig_set, sig_clr, sig_q, pol_set, pol_clr);
-		} else if (!has_clk) {
+		} இல்லையெனில் எனில் (!has_clk) {
 			log_assert(!has_srst);
-			if (has_sr)
+			எனில் (has_sr)
 				cell = module->addDlatchsr(name, sig_aload, sig_set, sig_clr, sig_ad, sig_q, pol_aload, pol_set, pol_clr);
-			else if (has_arst)
+			இல்லையெனில் எனில் (has_arst)
 				cell = module->addAdlatch(name, sig_aload, sig_arst, sig_ad, sig_q, val_arst, pol_aload, pol_arst);
-			else
+			இல்லையெனில்
 				cell = module->addDlatch(name, sig_aload, sig_ad, sig_q, pol_aload);
-		} else {
-			if (has_sr) {
-				if (has_ce)
+		} இல்லையெனில் {
+			எனில் (has_sr) {
+				எனில் (has_ce)
 					cell = module->addDffsre(name, sig_clk, sig_ce, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_ce, pol_set, pol_clr);
-				else
+				இல்லையெனில்
 					cell = module->addDffsr(name, sig_clk, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_set, pol_clr);
-			} else if (has_arst) {
-				if (has_ce)
+			} இல்லையெனில் எனில் (has_arst) {
+				எனில் (has_ce)
 					cell = module->addAdffe(name, sig_clk, sig_ce, sig_arst, sig_d, sig_q, val_arst, pol_clk, pol_ce, pol_arst);
-				else
+				இல்லையெனில்
 					cell = module->addAdff(name, sig_clk, sig_arst, sig_d, sig_q, val_arst, pol_clk, pol_arst);
-			} else if (has_aload) {
-				if (has_ce)
+			} இல்லையெனில் எனில் (has_aload) {
+				எனில் (has_ce)
 					cell = module->addAldffe(name, sig_clk, sig_ce, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_ce, pol_aload);
-				else
+				இல்லையெனில்
 					cell = module->addAldff(name, sig_clk, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_aload);
-			} else if (has_srst) {
-				if (has_ce)
-					if (ce_over_srst)
+			} இல்லையெனில் எனில் (has_srst) {
+				எனில் (has_ce)
+					எனில் (ce_over_srst)
 						cell = module->addSdffce(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_ce, pol_srst);
-					else
+					இல்லையெனில்
 						cell = module->addSdffe(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_ce, pol_srst);
-				else
+				இல்லையெனில்
 					cell = module->addSdff(name, sig_clk, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_srst);
-			} else {
-				if (has_ce)
+			} இல்லையெனில் {
+				எனில் (has_ce)
 					cell = module->addDffe(name, sig_clk, sig_ce, sig_d, sig_q, pol_clk, pol_ce);
-				else
+				இல்லையெனில்
 					cell = module->addDff(name, sig_clk, sig_d, sig_q, pol_clk);
 			}
 		}
-	} else {
-		if (has_gclk) {
+	} இல்லையெனில் {
+		எனில் (has_gclk) {
 			log_assert(!has_clk);
 			log_assert(!has_ce);
 			log_assert(!has_aload);
@@ -703,112 +703,112 @@ Cell *FfData::emit() {
 			log_assert(!has_sr);
 			log_assert(!is_anyinit);
 			cell = module->addFfGate(name, sig_d, sig_q);
-		} else if (!has_aload && !has_clk) {
+		} இல்லையெனில் எனில் (!has_aload && !has_clk) {
 			log_assert(has_sr);
 			cell = module->addSrGate(name, sig_set, sig_clr, sig_q, pol_set, pol_clr);
-		} else if (!has_clk) {
+		} இல்லையெனில் எனில் (!has_clk) {
 			log_assert(!has_srst);
-			if (has_sr)
+			எனில் (has_sr)
 				cell = module->addDlatchsrGate(name, sig_aload, sig_set, sig_clr, sig_ad, sig_q, pol_aload, pol_set, pol_clr);
-			else if (has_arst)
+			இல்லையெனில் எனில் (has_arst)
 				cell = module->addAdlatchGate(name, sig_aload, sig_arst, sig_ad, sig_q, val_arst.as_bool(), pol_aload, pol_arst);
-			else
+			இல்லையெனில்
 				cell = module->addDlatchGate(name, sig_aload, sig_ad, sig_q, pol_aload);
-		} else {
-			if (has_sr) {
-				if (has_ce)
+		} இல்லையெனில் {
+			எனில் (has_sr) {
+				எனில் (has_ce)
 					cell = module->addDffsreGate(name, sig_clk, sig_ce, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_ce, pol_set, pol_clr);
-				else
+				இல்லையெனில்
 					cell = module->addDffsrGate(name, sig_clk, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_set, pol_clr);
-			} else if (has_arst) {
-				if (has_ce)
+			} இல்லையெனில் எனில் (has_arst) {
+				எனில் (has_ce)
 					cell = module->addAdffeGate(name, sig_clk, sig_ce, sig_arst, sig_d, sig_q, val_arst.as_bool(), pol_clk, pol_ce, pol_arst);
-				else
+				இல்லையெனில்
 					cell = module->addAdffGate(name, sig_clk, sig_arst, sig_d, sig_q, val_arst.as_bool(), pol_clk, pol_arst);
-			} else if (has_aload) {
-				if (has_ce)
+			} இல்லையெனில் எனில் (has_aload) {
+				எனில் (has_ce)
 					cell = module->addAldffeGate(name, sig_clk, sig_ce, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_ce, pol_aload);
-				else
+				இல்லையெனில்
 					cell = module->addAldffGate(name, sig_clk, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_aload);
-			} else if (has_srst) {
-				if (has_ce)
-					if (ce_over_srst)
+			} இல்லையெனில் எனில் (has_srst) {
+				எனில் (has_ce)
+					எனில் (ce_over_srst)
 						cell = module->addSdffceGate(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_ce, pol_srst);
-					else
+					இல்லையெனில்
 						cell = module->addSdffeGate(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_ce, pol_srst);
-				else
+				இல்லையெனில்
 					cell = module->addSdffGate(name, sig_clk, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_srst);
-			} else {
-				if (has_ce)
+			} இல்லையெனில் {
+				எனில் (has_ce)
 					cell = module->addDffeGate(name, sig_clk, sig_ce, sig_d, sig_q, pol_clk, pol_ce);
-				else
+				இல்லையெனில்
 					cell = module->addDffGate(name, sig_clk, sig_d, sig_q, pol_clk);
 			}
 		}
 	}
 	cell->attributes = attributes;
-	return cell;
+	திரும்பு cell;
 }
 
-void FfData::remove() {
-	if (cell) {
+வெறுமை FfData::remove() {
+	எனில் (cell) {
 		remove_init();
 		module->remove(cell);
 		cell = nullptr;
 	}
 }
 
-namespace {
+நாமாகாஶ {
 	State invert(State s) {
-		switch (s) {
-			case State::S0: return State::S1;
-			case State::S1: return State::S0;
-			default: return s;
+		தேர்வு (s) {
+			நிலை State::S0: திரும்பு State::S1;
+			நிலை State::S1: திரும்பு State::S0;
+			இயல்பு: திரும்பு s;
 		}
 	}
 }
 
-void FfData::flip_rst_bits(const pool<int> &bits) {
-	if (!bits.size())
-		return;
+வெறுமை FfData::flip_rst_bits(மாறிலி pool<முழு> &bits) {
+	எனில் (!bits.size())
+		திரும்பு;
 
 	remove_init();
 
-	for (auto bit: bits) {
-		if (has_arst)
+	க்கு (auto bit: bits) {
+		எனில் (has_arst)
 			val_arst.set(bit, invert(val_arst[bit]));
-		if (has_srst)
+		எனில் (has_srst)
 			val_srst.set(bit, invert(val_srst[bit]));
 		val_init.set(bit, invert(val_init[bit]));
 	}
 }
 
-void FfData::flip_bits(const pool<int> &bits) {
-	if (!bits.size())
-		return;
+வெறுமை FfData::flip_bits(மாறிலி pool<முழு> &bits) {
+	எனில் (!bits.size())
+		திரும்பு;
 
 	flip_rst_bits(bits);
 
 	Wire *new_q = module->addWire(NEW_ID, width);
 
-	if (has_sr && cell) {
+	எனில் (has_sr && cell) {
 		log_warning("Flipping D/Q/init and inserting priority fixup to legalize %s.%s [%s].\n", module->name.unescape(), cell->name.unescape(), cell->type.unescape());
 	}
 
-	if (is_fine) {
-		if (has_sr) {
-			bool new_pol_clr = pol_set;
+	எனில் (is_fine) {
+		எனில் (has_sr) {
+			தருக்க new_pol_clr = pol_set;
 			SigSpec new_sig_clr;
-			if (pol_set) {
-				if (pol_clr) {
+			எனில் (pol_set) {
+				எனில் (pol_clr) {
 					new_sig_clr = module->AndnotGate(NEW_ID, sig_set, sig_clr);
-				} else {
+				} இல்லையெனில் {
 					new_sig_clr = module->AndGate(NEW_ID, sig_set, sig_clr);
 				}
-			} else {
-				if (pol_clr) {
+			} இல்லையெனில் {
+				எனில் (pol_clr) {
 					new_sig_clr = module->OrGate(NEW_ID, sig_set, sig_clr);
-				} else {
+				} இல்லையெனில் {
 					new_sig_clr = module->OrnotGate(NEW_ID, sig_set, sig_clr);
 				}
 			}
@@ -817,42 +817,42 @@ void FfData::flip_bits(const pool<int> &bits) {
 			pol_clr = new_pol_clr;
 			sig_clr = new_sig_clr;
 		}
-		if (has_clk || has_gclk)
+		எனில் (has_clk || has_gclk)
 			sig_d = module->NotGate(NEW_ID, sig_d);
-		if (has_aload)
+		எனில் (has_aload)
 			sig_ad = module->NotGate(NEW_ID, sig_ad);
 		module->addNotGate(NEW_ID, new_q, sig_q);
 	}
-	else
+	இல்லையெனில்
 	{
-		if (has_sr) {
+		எனில் (has_sr) {
 			SigSpec not_clr;
-			if (!pol_clr) {
+			எனில் (!pol_clr) {
 				not_clr = sig_clr;
 				sig_clr = module->Not(NEW_ID, sig_clr);
-				pol_clr = true;
-			} else {
+				pol_clr = உண்மை;
+			} இல்லையெனில் {
 				not_clr = module->Not(NEW_ID, sig_clr);
 			}
-			if (!pol_set) {
+			எனில் (!pol_set) {
 				sig_set = module->Not(NEW_ID, sig_set);
-				pol_set = true;
+				pol_set = உண்மை;
 			}
 
 			SigSpec masked_set = module->And(NEW_ID, sig_set, not_clr);
-			for (auto bit: bits) {
+			க்கு (auto bit: bits) {
 				sig_set[bit] = sig_clr[bit];
 				sig_clr[bit] = masked_set[bit];
 			}
 		}
 
 		Const mask = Const(State::S0, width);
-		for (auto bit: bits)
+		க்கு (auto bit: bits)
 			mask.set(bit, State::S1);
 
-		if (has_clk || has_gclk)
+		எனில் (has_clk || has_gclk)
 			sig_d = module->Xor(NEW_ID, sig_d, mask);
-		if (has_aload)
+		எனில் (has_aload)
 			sig_ad = module->Xor(NEW_ID, sig_ad, mask);
 		module->addXor(NEW_ID, new_q, mask, sig_q);
 	}
