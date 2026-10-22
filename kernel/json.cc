@@ -17,155 +17,155 @@
  *
  */
 
-#include "kernel/json.h"
+#ಅನ್ತರ್ಭಾವ "kernel/json.h"
 
 USING_YOSYS_NAMESPACE
 
-void PrettyJson::emit_to_log()
+ಶೂನ್ಯ PrettyJson::emit_to_log()
 {
-    struct LogTarget : public Target {
-        void emit(const char *data) override { log("%s", data); }
+    ಸಂರಚನಾ LogTarget : ಸಾರ್ವಜನಿಕ Target {
+        ಶೂನ್ಯ emit(ಧ್ರುವ ವರ್ಣ *data) override { log("%s", data); }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new LogTarget));
+    targets.ತಳ್ಳು_back(std::unique_ptr<Target>(ನೂತನ LogTarget));
 }
 
-void PrettyJson::append_to_string(std::string &target)
+ಶೂನ್ಯ PrettyJson::append_to_string(std::string &target)
 {
-    struct AppendStringTarget : public Target {
+    ಸಂರಚನಾ AppendStringTarget : ಸಾರ್ವಜನಿಕ Target {
         std::string &target;
         AppendStringTarget(std::string &target) : target(target) {}
-        void emit(const char *data) override { target += data; }
+        ಶೂನ್ಯ emit(ಧ್ರುವ ವರ್ಣ *data) override { target += data; }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new AppendStringTarget(target)));
+    targets.ತಳ್ಳು_back(std::unique_ptr<Target>(ನೂತನ AppendStringTarget(target)));
 }
 
-bool PrettyJson::write_to_file(const std::string &path)
+ತಾರ್ಕಿಕ PrettyJson::write_to_file(ಧ್ರುವ std::string &path)
 {
-    struct WriteFileTarget : public Target {
+    ಸಂರಚನಾ WriteFileTarget : ಸಾರ್ವಜನಿಕ Target {
         std::ofstream target;
-        void emit(const char *data) override { target << data; }
-        void flush() override { target.flush(); }
+        ಶೂನ್ಯ emit(ಧ್ರುವ ವರ್ಣ *data) override { target << data; }
+        ಶೂನ್ಯ flush() override { target.flush(); }
     };
 
-    auto target = std::unique_ptr<WriteFileTarget>(new WriteFileTarget);
+    auto target = std::unique_ptr<WriteFileTarget>(ನೂತನ WriteFileTarget);
     target->target.open(path);
-    if (target->target.fail())
-        return false;
-    targets.push_back(std::unique_ptr<Target>(target.release()));
-    return true;
+    ಯದಿ (target->target.fail())
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+    targets.ತಳ್ಳು_back(std::unique_ptr<Target>(target.release()));
+    ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
 }
 
-void PrettyJson::line(bool space_if_inline)
+ಶೂನ್ಯ PrettyJson::ಸಾಲು(ತಾರ್ಕಿಕ space_if_inline)
 {
-    if (compact_depth != INT_MAX) {
-        if (space_if_inline)
+    ಯದಿ (compact_depth != INT_MAX) {
+        ಯದಿ (space_if_inline)
             raw(" ");
-        return;
+        ಪ್ರತ್ಯಾಗಮ;
     }
-    int indent = state.size() - (state.empty() ? 0 : state.back() == VALUE);
+    ಪೂರ್ಣಾಙ್ಕ indent = state.size() - (state.empty() ? 0 : state.back() == ಮೌಲ್ಯ_2);
     newline_indent.resize(1 + 2 * indent, ' ');
     raw(newline_indent.c_str());
 }
 
-void PrettyJson::raw(const char *raw_json)
+ಶೂನ್ಯ PrettyJson::raw(ಧ್ರುವ ವರ್ಣ *raw_json)
 {
-    for (auto &target : targets)
+    ಪ್ರತಿ (auto &target : targets)
         target->emit(raw_json);
 }
 
-void PrettyJson::flush()
+ಶೂನ್ಯ PrettyJson::flush()
 {
-    for (auto &target : targets)
+    ಪ್ರತಿ (auto &target : targets)
         target->flush();
 }
 
-void PrettyJson::begin_object()
+ಶೂನ್ಯ PrettyJson::begin_object()
 {
-    begin_value();
+    begin_ಮೌಲ್ಯ();
     raw("{");
-    state.push_back(OBJECT_FIRST);
+    state.ತಳ್ಳು_back(OBJECT_FIRST);
 }
 
-void PrettyJson::begin_array()
+ಶೂನ್ಯ PrettyJson::begin_array()
 {
-    begin_value();
+    begin_ಮೌಲ್ಯ();
     raw("[");
-    state.push_back(ARRAY_FIRST);
+    state.ತಳ್ಳು_back(ARRAY_FIRST);
 }
 
-void PrettyJson::end_object()
+ಶೂನ್ಯ PrettyJson::end_object()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == OBJECT)
-        line(false);
-    else
-        log_assert(top_scope == OBJECT_FIRST);
+    Scope ತುದಿ_scope = state.back();
+    state.ತೆಗೆ_back();
+    ಯದಿ (ತುದಿ_scope == OBJECT)
+        ಸಾಲು(ಅಸತ್ಯ);
+    ಅನ್ಯಥಾ
+        log_assert(ತುದಿ_scope == OBJECT_FIRST);
     raw("}");
-    end_value();
+    end_ಮೌಲ್ಯ();
 }
 
-void PrettyJson::end_array()
+ಶೂನ್ಯ PrettyJson::end_array()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == ARRAY)
-        line(false);
-    else
-        log_assert(top_scope == ARRAY_FIRST);
+    Scope ತುದಿ_scope = state.back();
+    state.ತೆಗೆ_back();
+    ಯದಿ (ತುದಿ_scope == ARRAY)
+        ಸಾಲು(ಅಸತ್ಯ);
+    ಅನ್ಯಥಾ
+        log_assert(ತುದಿ_scope == ARRAY_FIRST);
     raw("]");
-    end_value();
+    end_ಮೌಲ್ಯ();
 }
 
-void PrettyJson::name(const char *name)
+ಶೂನ್ಯ PrettyJson::name(ಧ್ರುವ ವರ್ಣ *name)
 {
-    if (state.back() == OBJECT_FIRST) {
+    ಯದಿ (state.back() == OBJECT_FIRST) {
         state.back() = OBJECT;
-        line(false);
-    } else {
+        ಸಾಲು(ಅಸತ್ಯ);
+    } ಅನ್ಯಥಾ {
         raw(",");
-        line();
+        ಸಾಲು();
     }
     raw(Json(name).dump().c_str());
     raw(": ");
-    state.push_back(VALUE);
+    state.ತಳ್ಳು_back(ಮೌಲ್ಯ_2);
 }
 
-void PrettyJson::begin_value()
+ಶೂನ್ಯ PrettyJson::begin_ಮೌಲ್ಯ()
 {
-    if (state.back() == ARRAY_FIRST) {
-        line(false);
+    ಯದಿ (state.back() == ARRAY_FIRST) {
+        ಸಾಲು(ಅಸತ್ಯ);
         state.back() = ARRAY;
-    } else if (state.back() == ARRAY) {
+    } ಅನ್ಯಥಾ ಯದಿ (state.back() == ARRAY) {
         raw(",");
-        line();
-    } else {
-        log_assert(state.back() == VALUE);
-        state.pop_back();
+        ಸಾಲು();
+    } ಅನ್ಯಥಾ {
+        log_assert(state.back() == ಮೌಲ್ಯ_2);
+        state.ತೆಗೆ_back();
     }
 }
 
-void PrettyJson::end_value()
+ಶೂನ್ಯ PrettyJson::end_ಮೌಲ್ಯ()
 {
-    if (state.empty()) {
+    ಯದಿ (state.empty()) {
         raw("\n");
         flush();
     }
-    if (GetSize(state) < compact_depth)
+    ಯದಿ (GetSize(state) < compact_depth)
         compact_depth = INT_MAX;
 }
 
-void PrettyJson::value_json(const Json &value)
+ಶೂನ್ಯ PrettyJson::ಮೌಲ್ಯ_json(ಧ್ರುವ Json &ಮೌಲ್ಯ)
 {
-    begin_value();
-    raw(value.dump().c_str());
-    end_value();
+    begin_ಮೌಲ್ಯ();
+    raw(ಮೌಲ್ಯ.dump().c_str());
+    end_ಮೌಲ್ಯ();
 }
 
-void PrettyJson::entry_json(const char *name, const Json &value)
+ಶೂನ್ಯ PrettyJson::entry_json(ಧ್ರುವ ವರ್ಣ *name, ಧ್ರುವ Json &ಮೌಲ್ಯ)
 {
-    this->name(name);
-    this->value(value);
+    ಏತತ್->name(name);
+    ಏತತ್->ಮೌಲ್ಯ(ಮೌಲ್ಯ);
 }

@@ -17,123 +17,123 @@
  *
  */
 
-#include "kernel/scopeinfo.h"
+#ಅನ್ತರ್ಭಾವ "kernel/scopeinfo.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template <typename I, typename Filter> void ModuleHdlnameIndex::index_items(I begin, I end, Filter filter)
+template <typename I, typename Filter> ಶೂನ್ಯ ModuleHdlnameIndex::index_ವಸ್ತುಗಳು(I begin, I end, Filter filter)
 {
-	for (; begin != end; ++begin) {
-		auto const &item = *begin;
+	ಪ್ರತಿ (; begin != end; ++begin) {
+		auto ಧ್ರುವ &item = *begin;
 
-		if (!filter(item))
-			continue;
+		ಯದಿ (!filter(item))
+			ಅನುವರ್ತ;
 		std::vector<IdString> path = parse_hdlname(item);
-		if (!path.empty())
-			lookup.emplace(item, tree.insert(path, item));
+		ಯದಿ (!path.empty())
+			lookup.emplace(item, ವೃಕ್ಷ.ಸೇರಿಸು(path, item));
 	}
 }
 
-void ModuleHdlnameIndex::index()
+ಶೂನ್ಯ ModuleHdlnameIndex::index()
 {
 	index_wires();
 	index_cells();
 }
 
-void ModuleHdlnameIndex::index_wires()
+ಶೂನ್ಯ ModuleHdlnameIndex::index_wires()
 {
 	auto wires = module->wires();
-	index_items(wires.begin(), wires.end(), [](Wire *) { return true; });
+	index_ವಸ್ತುಗಳು(wires.begin(), wires.end(), [](Wire *) { ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ; });
 }
 
-void ModuleHdlnameIndex::index_cells()
+ಶೂನ್ಯ ModuleHdlnameIndex::index_cells()
 {
 	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *) { return true; });
+	index_ವಸ್ತುಗಳು(cells.begin(), cells.end(), [](Cell *) { ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ; });
 }
 
-void ModuleHdlnameIndex::index_scopeinfo_cells()
+ಶೂನ್ಯ ModuleHdlnameIndex::index_scopeinfo_cells()
 {
 	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *cell) { return cell->type == ID($scopeinfo); });
+	index_ವಸ್ತುಗಳು(cells.begin(), cells.end(), [](Cell *cell) { ಪ್ರತ್ಯಾಗಮ cell->type == ID($scopeinfo); });
 }
 
 std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
 {
 	std::vector<std::string> result;
 
-	for (; !cursor.is_root(); cursor = cursor.parent()) {
-		if (!cursor.has_entry()) {
-			result.push_back("");
-			result.push_back("");
-			continue;
+	ಪ್ರತಿ (; !cursor.is_ಬೇರು(); cursor = cursor.parent()) {
+		ಯದಿ (!cursor.has_entry()) {
+			result.ತಳ್ಳು_back("");
+			result.ತಳ್ಳು_back("");
+			ಅನುವರ್ತ;
 		}
 		Cell *cell = cursor.entry().cell();
-		if (cell == nullptr || cell->type != ID($scopeinfo)) {
-			result.push_back("");
-			result.push_back("");
-			continue;
+		ಯದಿ (cell == nullptr || cell->type != ID($scopeinfo)) {
+			result.ತಳ್ಳು_back("");
+			result.ತಳ್ಳು_back("");
+			ಅನುವರ್ತ;
 		}
-		result.push_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Module, ID::src).decode_string());
-		result.push_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Cell, ID::src).decode_string());
+		result.ತಳ್ಳು_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Module, ID::src).decode_string());
+		result.ತಳ್ಳು_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Cell, ID::src).decode_string());
 	}
 
-	result.push_back(module->get_src_attribute());
+	result.ತಳ್ಳು_back(module->get_src_attribute());
 
 	std::reverse(result.begin(), result.end());
 
-	return result;
+	ಪ್ರತ್ಯಾಗಮ result;
 }
 
-static const char *attr_prefix(ScopeinfoAttrs attrs)
+ಸ್ಥಿರ ಧ್ರುವ ವರ್ಣ *attr_prefix(ScopeinfoAttrs attrs)
 {
-	switch (attrs) {
-	case ScopeinfoAttrs::Cell:
-		return "\\cell_";
-	case ScopeinfoAttrs::Module:
-		return "\\module_";
-	default:
+	ವಿಕಲ್ಪ (attrs) {
+	ಪಕ್ಷ ScopeinfoAttrs::Cell:
+		ಪ್ರತ್ಯಾಗಮ "\\cell_";
+	ಪಕ್ಷ ScopeinfoAttrs::Module:
+		ಪ್ರತ್ಯಾಗಮ "\\module_";
+	ಸ್ವಭಾವ:
 		log_abort();
 	}
 }
 
-bool scopeinfo_has_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
+ತಾರ್ಕಿಕ scopeinfo_has_attribute(ಧ್ರುವ RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
 {
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
-	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	return key != IdString::Null && scopeinfo->has_attribute(key);
+	IdString ಕೀಲಿ = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
+	ಪ್ರತ್ಯಾಗಮ ಕೀಲಿ != IdString::Null && scopeinfo->has_attribute(ಕೀಲಿ);
 }
 
-RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
+RTLIL::Const scopeinfo_get_attribute(ಧ್ರುವ RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
 {
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
-	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	if (key == IdString::Null)
-		return RTLIL::Const();
-	auto found = scopeinfo->attributes.find(key);
-	if (found == scopeinfo->attributes.end())
-		return RTLIL::Const();
-	return found->second;
+	IdString ಕೀಲಿ = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
+	ಯದಿ (ಕೀಲಿ == IdString::Null)
+		ಪ್ರತ್ಯಾಗಮ RTLIL::Const();
+	auto found = scopeinfo->attributes.find(ಕೀಲಿ);
+	ಯದಿ (found == scopeinfo->attributes.end())
+		ಪ್ರತ್ಯಾಗಮ RTLIL::Const();
+	ಪ್ರತ್ಯಾಗಮ found->second;
 }
 
-dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs)
+dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(ಧ್ರುವ RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs)
 {
 	dict<RTLIL::IdString, RTLIL::Const> attributes;
 
-	const char *prefix = attr_prefix(attrs);
+	ಧ್ರುವ ವರ್ಣ *prefix = attr_prefix(attrs);
 	size_t prefix_len = strlen(prefix);
 	TwinePool &twines = scopeinfo->twines();
 
-	for (auto const &entry : scopeinfo->attributes) {
+	ಪ್ರತಿ (auto ಧ್ರುವ &entry : scopeinfo->attributes) {
 		std::string name = twines.str(entry.first);
-		if (name.compare(0, prefix_len, prefix) != 0)
-			continue;
+		ಯದಿ (name.compare(0, prefix_len, prefix) != 0)
+			ಅನುವರ್ತ;
 		attributes.emplace(twines.add(RTLIL::escape_id(name.substr(prefix_len))), entry.second);
 	}
 
-	return attributes;
+	ಪ್ರತ್ಯಾಗಮ attributes;
 }
 
 YOSYS_NAMESPACE_END

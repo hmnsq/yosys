@@ -1,11 +1,11 @@
-#include "compressor_tree.h"
+#ಅನ್ತರ್ಭಾವ "compressor_tree.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-namespace CompressorTree
+ನಾಮಾಕಾಶ Compressor_ವೃಕ್ಷ
 {
 
-std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, int width)
+std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, ಪೂರ್ಣಾಙ್ಕ width)
 {
 	SigSpec sum = module->addWire(NEW_ID, width);
 	SigSpec cout = module->addWire(NEW_ID, width);
@@ -14,10 +14,10 @@ std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpe
 	SigSpec carry;
 	carry.append(State::S0);
 	carry.append(cout.extract(0, width - 1));
-	return {sum, carry};
+	ಪ್ರತ್ಯಾಗಮ {sum, carry};
 }
 
-std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, int width)
+std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, ಪೂರ್ಣಾಙ್ಕ width)
 {
 	// First FA: a + b + c -> s0
 	SigSpec s0 = module->addWire(NEW_ID, width);
@@ -27,7 +27,7 @@ std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpe
 	// cin[0] = 0, cin[i] = cout_h_full[i-1]
 	SigSpec cin;
 	cin.append(State::S0);
-	if (width > 1)
+	ಯದಿ (width > 1)
 		cin.append(cout_h_full.extract(0, width - 1));
 
 	// Second FA: s0 + d + cin -> sum
@@ -37,25 +37,25 @@ std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpe
 
 	SigSpec carry;
 	carry.append(State::S0);
-	if (width > 1)
+	ಯದಿ (width > 1)
 		carry.append(carry_full.extract(0, width - 1));
 
-	return {sum, carry};
+	ಪ್ರತ್ಯಾಗಮ {sum, carry};
 }
 
-std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSpec b, bool a_signed, bool b_signed, int width) {
-	int width_a = GetSize(a);
-	int width_b = GetSize(b);
+std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSpec b, ತಾರ್ಕಿಕ a_signed, ತಾರ್ಕಿಕ b_signed, ಪೂರ್ಣಾಙ್ಕ width) {
+	ಪೂರ್ಣಾಙ್ಕ width_a = GetSize(a);
+	ಪೂರ್ಣಾಙ್ಕ width_b = GetSize(b);
 	std::vector<DepthSig> products;
 	products.reserve(width_a + 3);
 
-	for (int i = 0; i < width_a; i++) {
+	ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 0; i < width_a; i++) {
 		SigBit ai = a[i];
 
 		// b_shifted = (0_i ## b)
 		SigSpec b_shifted = SigSpec(State::S0, i);
 		b_shifted.append(b);
-		b_shifted.extend_u0(width, false);
+		b_shifted.extend_u0(width, ಅಸತ್ಯ);
 
 		// row = b_shifted & replicate(a[i], width)
 		SigSpec ai_rep = SigSpec(ai, width);
@@ -63,92 +63,92 @@ std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSp
 		module->addAnd(NEW_ID, b_shifted, ai_rep, row);
 
 		// Apply Modified Baugh-Wooley inversions for this row
-		bool row_is_bottom = (i == width_a - 1);
-		bool any_inversion = (row_is_bottom && b_signed) || a_signed;
+		ತಾರ್ಕಿಕ row_is_bottom = (i == width_a - 1);
+		ತಾರ್ಕಿಕ any_inversion = (row_is_bottom && b_signed) || a_signed;
 
-		if (any_inversion) {
+		ಯದಿ (any_inversion) {
 			std::vector<RTLIL::State> mask(width, RTLIL::State::S0);
 
-			for (int j = 0; j < width_b; j++) {
-				int col = i + j;
-				if (col < 0 || col >= width)
-					continue;
-				bool col_is_right = (j == width_b - 1);
+			ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ j = 0; j < width_b; j++) {
+				ಪೂರ್ಣಾಙ್ಕ col = i + j;
+				ಯದಿ (col < 0 || col >= width)
+					ಅನುವರ್ತ;
+				ತಾರ್ಕಿಕ col_is_ಬಲ = (j == width_b - 1);
 				// Flip masks
-				bool invert = (row_is_bottom && b_signed) ^ (col_is_right && a_signed);
-				if (invert)
+				ತಾರ್ಕಿಕ invert = (row_is_bottom && b_signed) ^ (col_is_ಬಲ && a_signed);
+				ಯದಿ (invert)
 					mask[col] = RTLIL::State::S1;
 			}
 
 			// Skip the xor entirely if the mask is all zeroes
-			bool nonzero = false;
-			for (auto s : mask)
-				if (s == RTLIL::State::S1) {
-					nonzero = true;
-					break;
+			ತಾರ್ಕಿಕ nonzero = ಅಸತ್ಯ;
+			ಪ್ರತಿ (auto s : mask)
+				ಯದಿ (s == RTLIL::State::S1) {
+					nonzero = ಸತ್ಯ;
+					ಭಙ್ಗ;
 				}
-			if (nonzero) {
+			ಯದಿ (nonzero) {
 				SigSpec inverted = module->addWire(NEW_ID, width);
 				module->addXor(NEW_ID, row, SigSpec(RTLIL::Const(mask)), inverted);
 				row = inverted;
 			}
 		}
 
-		products.push_back({row, 0});
+		products.ತಳ್ಳು_back({row, 0});
 	}
 
 	// Correction constants
-	auto push_one_at = [&](int col) {
-		if (col < 0 || col >= width)
-			return;
+	auto ತಳ್ಳು_one_at = [&](ಪೂರ್ಣಾಙ್ಕ col) {
+		ಯದಿ (col < 0 || col >= width)
+			ಪ್ರತ್ಯಾಗಮ;
 		std::vector<RTLIL::State> v(width, RTLIL::State::S0);
 		v[col] = RTLIL::State::S1;
-		products.push_back({SigSpec(RTLIL::Const(v)), 0});
+		products.ತಳ್ಳು_back({SigSpec(RTLIL::Const(v)), 0});
 	};
 
-	if (b_signed)
-		push_one_at(width_a - 1);
-	if (a_signed)
-		push_one_at(width_b - 1);
-	if (a_signed || b_signed) {
+	ಯದಿ (b_signed)
+		ತಳ್ಳು_one_at(width_a - 1);
+	ಯದಿ (a_signed)
+		ತಳ್ಳು_one_at(width_b - 1);
+	ಯದಿ (a_signed || b_signed) {
 		// Sign-extend the Baugh-Wooley correction to the accumulator width.
-		int sign_extension_start = width_a + width_b - 1;
-		if (sign_extension_start < width) {
+		ಪೂರ್ಣಾಙ್ಕ sign_extension_start = width_a + width_b - 1;
+		ಯದಿ (sign_extension_start < width) {
 			std::vector<RTLIL::State> v(width, RTLIL::State::S0);
-			for (int i = sign_extension_start; i < width; i++)
+			ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = sign_extension_start; i < width; i++)
 				v[i] = RTLIL::State::S1;
-			products.push_back({SigSpec(RTLIL::Const(v)), 0});
+			products.ತಳ್ಳು_back({SigSpec(RTLIL::Const(v)), 0});
 		}
 	}
 
-	return products;
+	ಪ್ರತ್ಯಾಗಮ products;
 }
 
-std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, int width, Strategy strategy, int *out_compressor_count, int *out_final_depth) {
-	int levels = 0;
-	int fa_count = 0;
-	int c42_count = 0;
-	int final_depth = 0;
+std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, ಪೂರ್ಣಾಙ್ಕ width, Strategy strategy, ಪೂರ್ಣಾಙ್ಕ *out_compressor_ಎಣಿಕೆ, ಪೂರ್ಣಾಙ್ಕ *out_final_depth) {
+	ಪೂರ್ಣಾಙ್ಕ levels = 0;
+	ಪೂರ್ಣಾಙ್ಕ fa_ಎಣಿಕೆ = 0;
+	ಪೂರ್ಣಾಙ್ಕ c42_ಎಣಿಕೆ = 0;
+	ಪೂರ್ಣಾಙ್ಕ final_depth = 0;
 
-	for (auto &op : operands)
+	ಪ್ರತಿ (auto &op : operands)
 		op.sig.extend_u0(width);
 
 	// Only compress operands ready at current level
-	for (int level = 0; operands.size() > 2; level++) {
+	ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ level = 0; operands.size() > 2; level++) {
 		// Partition operands into ready and waiting
 		std::vector<DepthSig> ready;
 		std::vector<DepthSig> waiting;
 		ready.reserve(operands.size());
-		for (auto &op : operands) {
-			if (op.depth <= level)
-				ready.push_back(op);
-			else
-				waiting.push_back(op);
+		ಪ್ರತಿ (auto &op : operands) {
+			ಯದಿ (op.depth <= level)
+				ready.ತಳ್ಳು_back(op);
+			ಅನ್ಯಥಾ
+				waiting.ತಳ್ಳು_back(op);
 		}
 
-		if (ready.size() < 3) {
+		ಯದಿ (ready.size() < 3) {
 			levels++;
-			continue;
+			ಅನುವರ್ತ;
 		}
 
 		// Apply compressors to ready operands
@@ -159,93 +159,93 @@ std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSi
 		// PREFER_42 attempts 4:2 grouping greedily (falls back to 3:2 for the residual)
 		// FA_ONLY skips
 		// DADDA = PREFER_42 (TODO: inspect column heights?)
-		bool try_42 = (strategy == Strategy::PREFER_42 || strategy == Strategy::DADDA);
+		ತಾರ್ಕಿಕ try_42 = (strategy == Strategy::PREFER_42 || strategy == Strategy::DADDA);
 
-		while (i < ready.size()) {
+		ಯಾವತ್ (i < ready.size()) {
 			size_t remaining = ready.size() - i;
 
-			if (try_42 && remaining >= 4) {
+			ಯದಿ (try_42 && remaining >= 4) {
 				DepthSig a = ready[i + 0];
 				DepthSig b = ready[i + 1];
 				DepthSig c = ready[i + 2];
 				DepthSig d = ready[i + 3];
 
 				auto [sum, carry] = emit_compressor_42(module, a.sig, b.sig, c.sig, d.sig, width);
-				int dmax = std::max({a.depth, b.depth, c.depth, d.depth});
+				ಪೂರ್ಣಾಙ್ಕ dmax = std::max({a.depth, b.depth, c.depth, d.depth});
 
-				compressed.push_back({sum, dmax + 2});
-				compressed.push_back({carry, dmax + 2});
+				compressed.ತಳ್ಳು_back({sum, dmax + 2});
+				compressed.ತಳ್ಳು_back({carry, dmax + 2});
 
-				fa_count += 2;
-				c42_count += 1;
+				fa_ಎಣಿಕೆ += 2;
+				c42_ಎಣಿಕೆ += 1;
 				i += 4;
-			} else if (remaining >= 3) {
+			} ಅನ್ಯಥಾ ಯದಿ (remaining >= 3) {
 				DepthSig a = ready[i + 0];
 				DepthSig b = ready[i + 1];
 				DepthSig c = ready[i + 2];
 
 				auto [sum, carry] = emit_compressor_32(module, a.sig, b.sig, c.sig, width);
-				int dmax = std::max({a.depth, b.depth, c.depth});
+				ಪೂರ್ಣಾಙ್ಕ dmax = std::max({a.depth, b.depth, c.depth});
 
-				compressed.push_back({sum, dmax + 1});
-				compressed.push_back({carry, dmax + 1});
+				compressed.ತಳ್ಳು_back({sum, dmax + 1});
+				compressed.ತಳ್ಳು_back({carry, dmax + 1});
 
-				fa_count += 1;
+				fa_ಎಣಿಕೆ += 1;
 				i += 3;
-			} else {
+			} ಅನ್ಯಥಾ {
 				// Uncompressed operands pass through to next level
-				for (; i < ready.size(); i++)
-					compressed.push_back(ready[i]);
-				break;
+				ಪ್ರತಿ (; i < ready.size(); i++)
+					compressed.ತಳ್ಳು_back(ready[i]);
+				ಭಙ್ಗ;
 			}
 		}
 
 		// Merge compressed with waiting operands
-		for (auto &op : waiting)
-			compressed.push_back(op);
+		ಪ್ರತಿ (auto &op : waiting)
+			compressed.ತಳ್ಳು_back(op);
 
 		operands = std::move(compressed);
 		levels++;
 	}
 
-	if(out_compressor_count)
-		*out_compressor_count = fa_count;
-	if (operands.size() == 0) {
-		if (out_final_depth)
+	ಯದಿ(out_compressor_ಎಣಿಕೆ)
+		*out_compressor_ಎಣಿಕೆ = fa_ಎಣಿಕೆ;
+	ಯದಿ (operands.size() == 0) {
+		ಯದಿ (out_final_depth)
 			*out_final_depth = 0;
-		return {SigSpec(State::S0, width), SigSpec(State::S0, width)};
+		ಪ್ರತ್ಯಾಗಮ {SigSpec(State::S0, width), SigSpec(State::S0, width)};
 	}
-	if (operands.size() == 1) {
-		if (out_final_depth)
+	ಯದಿ (operands.size() == 1) {
+		ಯದಿ (out_final_depth)
 			*out_final_depth = operands[0].depth;
-		return {operands[0].sig, SigSpec(State::S0, width)};
+		ಪ್ರತ್ಯಾಗಮ {operands[0].sig, SigSpec(State::S0, width)};
 	}
 
 	final_depth = std::max(operands[0].depth, operands[1].depth);
-	if (out_final_depth)
+	ಯದಿ (out_final_depth)
 		*out_final_depth = final_depth;
 	log_assert(operands.size() == 2);
-	log("    CompressorTree::reduce_scheduled: %d levels, %d $fa (%d as 4:2), final depth %d\n", levels, fa_count, c42_count, final_depth);
-	return {operands[0].sig, operands[1].sig};
+	log("    CompressorTree::reduce_scheduled: %d levels, %d $fa (%d as 4:2), final depth %d\n", levels, fa_ಎಣಿಕೆ, c42_ಎಣಿಕೆ, final_depth);
+	ಪ್ರತ್ಯಾಗಮ {operands[0].sig, operands[1].sig};
 }
 
-void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
+ಶೂನ್ಯ emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 {
-	int width = GetSize(y);
+	ಪೂರ್ಣಾಙ್ಕ width = GetSize(y);
 	log_assert(GetSize(a) == width);
 	log_assert(GetSize(b) == width);
 
-	if (width == 0)
-		return;
+	ಯದಿ (width == 0)
+		ಪ್ರತ್ಯಾಗಮ;
 
-	if (width == 1) {
+	ಯದಿ (width == 1) {
 		module->addXorGate(NEW_ID, a[0], b[0], y[0]);
-		return;
+		ಪ್ರತ್ಯಾಗಮ;
 	}
 
 	// Bit level gen and prop
 	std::vector<SigBit> g_pre(width), p_pre(width);
-	for (int i = 0; i < width; i++) {
+	ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 0; i < width; i++) {
 		SigBit gi = module->addWire(NEW_ID);
 		SigBit pi = module->addWire(NEW_ID);
 		module->addAndGate(NEW_ID, a[i], b[i], gi);
@@ -257,20 +257,20 @@ void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 	// Propagate (g, p) through ceil(log2 W) levels
 	std::vector<SigBit> g = g_pre;
 	std::vector<SigBit> p = p_pre;
-	int num_levels = 0;
+	ಪೂರ್ಣಾಙ್ಕ ಅಂಕೆ_levels = 0;
 
-	while ((1 << num_levels) < width)
-		num_levels++;
+	ಯಾವತ್ ((1 << ಅಂಕೆ_levels) < width)
+		ಅಂಕೆ_levels++;
 
-	for (int k = 1; k <= num_levels; k++) {
-		int s = 1 << (k - 1);
+	ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ k = 1; k <= ಅಂಕೆ_levels; k++) {
+		ಪೂರ್ಣಾಙ್ಕ s = 1 << (k - 1);
 		std::vector<SigBit> g_next(width), p_next(width);
-		for (int i = 0; i < width; i++) {
-			if (i < s) {
+		ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 0; i < width; i++) {
+			ಯದಿ (i < s) {
 				// Nothing to do
 				g_next[i] = g[i];
 				p_next[i] = p[i];
-			} else {
+			} ಅನ್ಯಥಾ {
 				// g_i^k = g_i | (p_i & g_(i-s))
 				SigBit and_pg = module->addWire(NEW_ID);
 				module->addAndGate(NEW_ID, p[i], g[i - s], and_pg);
@@ -279,11 +279,11 @@ void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 				g_next[i] = gnew;
 
 				// p_i^k = p_i & p_(i-s)
-				if (k < num_levels) {
+				ಯದಿ (k < ಅಂಕೆ_levels) {
 					SigBit pnew = module->addWire(NEW_ID);
 					module->addAndGate(NEW_ID, p[i], p[i - s], pnew);
 					p_next[i] = pnew;
-				} else {
+				} ಅನ್ಯಥಾ {
 					// Skip last level
 					p_next[i] = State::Sx;
 				}
@@ -299,34 +299,34 @@ void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 	//   sum[0] = p_pre[0]
 	//   sum[i] = p_pre[i] ^ g[i-1] ...
 	module->connect(y[0], p_pre[0]);
-	for (int i = 1; i < width; i++)
+	ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 1; i < width; i++)
 		module->addXorGate(NEW_ID, p_pre[i], g[i - 1], y[i]);
 }
 
 Cell *emit_final_adder(Module *module, SigSpec a, SigSpec b, SigSpec y, FinalAdder choice) {
-	switch (choice) {
-		case FinalAdder::DEFAULT:
-		case FinalAdder::RIPPLE: {
-			return module->addAdd(NEW_ID, a, b, y, false);
+	ವಿಕಲ್ಪ (choice) {
+		ಪಕ್ಷ FinalAdder::DEFAULT:
+		ಪಕ್ಷ FinalAdder::RIPPLE: {
+			ಪ್ರತ್ಯಾಗಮ module->addAdd(NEW_ID, a, b, y, ಅಸತ್ಯ);
 		}
-		case FinalAdder::PARALLEL_PREFIX: {
+		ಪಕ್ಷ FinalAdder::PARALLEL_PREFIX: {
 			emit_kogge_stone(module, a, b, y);
-			return nullptr;
+			ಪ್ರತ್ಯಾಗಮ nullptr;
 		}
 	}
-	log_assert(false && "CompressorTree::emit_final_adder: invalid choice");
-	return nullptr;
+	log_assert(ಅಸತ್ಯ && "CompressorTree::emit_final_adder: invalid choice");
+	ಪ್ರತ್ಯಾಗಮ nullptr;
 }
 
-FinalAdder pick_final_adder(int width, int final_depth, FinalMode mode) {
-	switch (mode) {
-		case FinalMode::RIPPLE:  return FinalAdder::RIPPLE;
-		case FinalMode::PREFIX:  return FinalAdder::PARALLEL_PREFIX;
-		case FinalMode::AUTO:
-		default: {
-			bool wide = width >= RIPPLE_PREFIX_WIDTH_THRESHOLD;
-			bool deep = final_depth >= RIPPLE_PREFIX_DEPTH_THRESHOLD;
-			return (wide && deep) ? FinalAdder::PARALLEL_PREFIX : FinalAdder::DEFAULT;
+FinalAdder pick_final_adder(ಪೂರ್ಣಾಙ್ಕ width, ಪೂರ್ಣಾಙ್ಕ final_depth, FinalMode mode) {
+	ವಿಕಲ್ಪ (mode) {
+		ಪಕ್ಷ FinalMode::RIPPLE:  ಪ್ರತ್ಯಾಗಮ FinalAdder::RIPPLE;
+		ಪಕ್ಷ FinalMode::PREFIX:  ಪ್ರತ್ಯಾಗಮ FinalAdder::PARALLEL_PREFIX;
+		ಪಕ್ಷ FinalMode::AUTO:
+		ಸ್ವಭಾವ: {
+			ತಾರ್ಕಿಕ wide = width >= RIPPLE_PREFIX_WIDTH_THRESHOLD;
+			ತಾರ್ಕಿಕ deep = final_depth >= RIPPLE_PREFIX_DEPTH_THRESHOLD;
+			ಪ್ರತ್ಯಾಗಮ (wide && deep) ? FinalAdder::PARALLEL_PREFIX : FinalAdder::DEFAULT;
 		}
 	}
 }

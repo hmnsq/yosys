@@ -20,8 +20,8 @@
 #ifndef BITPATTERN_H
 #define BITPATTERN_H
 
-#include "kernel/log.h"
-#include "kernel/rtlil.h"
+#ಅನ್ತರ್ಭಾವ "kernel/log.h"
+#ಅನ್ತರ್ಭಾವ "kernel/rtlil.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -37,29 +37,29 @@ YOSYS_NAMESPACE_BEGIN
  * BitPatternPool does not permit adding new patterns, only removing.
  * Its intended use case is in analysing cases in case/match constructs in HDL.
  */
-struct BitPatternPool
+ಸಂರಚನಾ BitPatternPool
 {
-	int width;
-	struct bits_t {
+	ಪೂರ್ಣಾಙ್ಕ width;
+	ಸಂರಚನಾ bits_t {
 		std::vector<RTLIL::State> bitdata;
 		mutable Hasher::hash_t cached_hash;
-		bits_t(int width = 0) : bitdata(width), cached_hash(0) { }
-		RTLIL::State &operator[](int index) {
-			return bitdata[index];
+		bits_t(ಪೂರ್ಣಾಙ್ಕ width = 0) : bitdata(width), cached_hash(0) { }
+		RTLIL::State &operator[](ಪೂರ್ಣಾಙ್ಕ index) {
+			ಪ್ರತ್ಯಾಗಮ bitdata[index];
 		}
-		const RTLIL::State &operator[](int index) const {
-			return bitdata[index];
+		ಧ್ರುವ RTLIL::State &operator[](ಪೂರ್ಣಾಙ್ಕ index) ಧ್ರುವ {
+			ಪ್ರತ್ಯಾಗಮ bitdata[index];
 		}
-		bool operator==(const bits_t &other) const {
-			if (run_hash(*this) != run_hash(other))
-				return false;
-			return bitdata == other.bitdata;
+		bool operator==(ಧ್ರುವ bits_t &other) ಧ್ರುವ {
+			ಯದಿ (run_hash(*this) != run_hash(other))
+				ಪ್ರತ್ಯಾಗಮ false;
+			ಪ್ರತ್ಯಾಗಮ bitdata == other.bitdata;
 		}
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			if (!cached_hash)
+		[[nodiscard]] Hasher hash_into(Hasher h) ಧ್ರುವ {
+			ಯದಿ (!cached_hash)
 				cached_hash = run_hash(bitdata);
 			h.eat(cached_hash);
-			return h;
+			ಪ್ರತ್ಯಾಗಮ h;
 		}
 	};
 	pool<bits_t> database;
@@ -67,29 +67,29 @@ struct BitPatternPool
 	BitPatternPool(RTLIL::SigSpec sig)
 	{
 		width = sig.size();
-		if (width > 0) {
+		ಯದಿ (width > 0) {
 			bits_t pattern(width);
-			for (int i = 0; i < width; i++) {
-				if (sig[i].wire == NULL && sig[i].data <= RTLIL::State::S1)
+			ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 0; i < width; i++) {
+				ಯದಿ (sig[i].wire == ರಿಕ್ತ && sig[i].data <= RTLIL::State::S1)
 					pattern[i] = sig[i].data;
-				else
+				ಅನ್ಯಥಾ
 					pattern[i] = RTLIL::State::Sa;
 			}
-			database.insert(pattern);
+			database.ಸೇರಿಸು(pattern);
 		}
 	}
 
 	/**
 	 * Constructs a pool of all possible patterns (all don't-care bits)
 	 */
-	BitPatternPool(int width)
+	BitPatternPool(ಪೂರ್ಣಾಙ್ಕ width)
 	{
 		this->width = width;
-		if (width > 0) {
+		ಯದಿ (width > 0) {
 			bits_t pattern(width);
-			for (int i = 0; i < width; i++)
+			ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 0; i < width; i++)
 				pattern[i] = RTLIL::State::Sa;
-			database.insert(pattern);
+			database.ಸೇರಿಸು(pattern);
 		}
 	}
 
@@ -101,22 +101,22 @@ struct BitPatternPool
 	{
 		bits_t bits;
 		bits.bitdata = sig.as_const().to_bits();
-		for (auto &b : bits.bitdata)
-			if (b > RTLIL::State::S1)
+		ಪ್ರತಿ (auto &b : bits.bitdata)
+			ಯದಿ (b > RTLIL::State::S1)
 				b = RTLIL::State::Sa;
-		return bits;
+		ಪ್ರತ್ಯಾಗಮ bits;
 	}
 
 	/**
 	 * A literal x/z bit can never match a 2-valued selector, so a pattern containing
 	 * one covers nothing.
 	 */
-	static bool covers_nothing(RTLIL::SigSpec sig)
+	ಸ್ಥಿರ bool covers_nothing(RTLIL::SigSpec sig)
 	{
-		for (auto bit : sig)
-			if (bit.wire == NULL && (bit.data == RTLIL::State::Sx || bit.data == RTLIL::State::Sz))
-				return true;
-		return false;
+		ಪ್ರತಿ (auto bit : sig)
+			ಯದಿ (bit.wire == ರಿಕ್ತ && (bit.data == RTLIL::State::Sx || bit.data == RTLIL::State::Sz))
+				ಪ್ರತ್ಯಾಗಮ true;
+		ಪ್ರತ್ಯಾಗಮ false;
 	}
 
 	/**
@@ -124,12 +124,12 @@ struct BitPatternPool
 	 */
 	bool match(bits_t a, bits_t b)
 	{
-		log_assert(int(a.bitdata.size()) == width);
-		log_assert(int(b.bitdata.size()) == width);
-		for (int i = 0; i < width; i++)
-			if (a[i] <= RTLIL::State::S1 && b[i] <= RTLIL::State::S1 && a[i] != b[i])
-				return false;
-		return true;
+		log_assert(ಪೂರ್ಣಾಙ್ಕ(a.bitdata.size()) == width);
+		log_assert(ಪೂರ್ಣಾಙ್ಕ(b.bitdata.size()) == width);
+		ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 0; i < width; i++)
+			ಯದಿ (a[i] <= RTLIL::State::S1 && b[i] <= RTLIL::State::S1 && a[i] != b[i])
+				ಪ್ರತ್ಯಾಗಮ false;
+		ಪ್ರತ್ಯಾಗಮ true;
 	}
 
 	/**
@@ -143,13 +143,13 @@ struct BitPatternPool
 	 */
 	bool has_any(RTLIL::SigSpec sig)
 	{
-		if (covers_nothing(sig))
-			return false;
+		ಯದಿ (covers_nothing(sig))
+			ಪ್ರತ್ಯಾಗಮ false;
 		bits_t bits = sig2bits(sig);
-		for (auto &it : database)
-			if (match(it, bits))
-				return true;
-		return false;
+		ಪ್ರತಿ (auto &it : database)
+			ಯದಿ (match(it, bits))
+				ಪ್ರತ್ಯಾಗಮ true;
+		ಪ್ರತ್ಯಾಗಮ false;
 	}
 
 	/**
@@ -163,18 +163,18 @@ struct BitPatternPool
 	 */
 	bool has_all(RTLIL::SigSpec sig)
 	{
-		if (covers_nothing(sig))
-			return true;
+		ಯದಿ (covers_nothing(sig))
+			ಪ್ರತ್ಯಾಗಮ true;
 		bits_t bits = sig2bits(sig);
-		for (auto &it : database)
-			if (match(it, bits)) {
-				for (int i = 0; i < width; i++)
-					if (bits[i] > RTLIL::State::S1 && it[i] <= RTLIL::State::S1)
-						goto next_database_entry;
-				return true;
+		ಪ್ರತಿ (auto &it : database)
+			ಯದಿ (match(it, bits)) {
+				ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 0; i < width; i++)
+					ಯದಿ (bits[i] > RTLIL::State::S1 && it[i] <= RTLIL::State::S1)
+						ಗಚ್ಛ next_database_entry;
+				ಪ್ರತ್ಯಾಗಮ true;
 	next_database_entry:;
 			}
-		return false;
+		ಪ್ರತ್ಯಾಗಮ false;
 	}
 
 	/**
@@ -186,25 +186,25 @@ struct BitPatternPool
 	bool take(RTLIL::SigSpec sig)
 	{
 		bool status = false;
-		if (covers_nothing(sig))
-			return false;
+		ಯದಿ (covers_nothing(sig))
+			ಪ್ರತ್ಯಾಗಮ false;
 		bits_t bits = sig2bits(sig);
-		for (auto it = database.begin(); it != database.end();)
-			if (match(*it, bits)) {
-				for (int i = 0; i < width; i++) {
-					if ((*it)[i] != RTLIL::State::Sa || bits[i] == RTLIL::State::Sa)
-						continue;
+		ಪ್ರತಿ (auto it = database.begin(); it != database.end();)
+			ಯದಿ (match(*it, bits)) {
+				ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 0; i < width; i++) {
+					ಯದಿ ((*it)[i] != RTLIL::State::Sa || bits[i] == RTLIL::State::Sa)
+						ಅನುವರ್ತ;
 					bits_t new_pattern;
 					new_pattern.bitdata = it->bitdata;
 					new_pattern[i] = bits[i] == RTLIL::State::S1 ? RTLIL::State::S0 : RTLIL::State::S1;
-					database.insert(new_pattern);
+					database.ಸೇರಿಸು(new_pattern);
 				}
 				it = database.erase(it);
 				status = true;
-				continue;
-			} else
+				ಅನುವರ್ತ;
+			} ಅನ್ಯಥಾ
 				++it;
-		return status;
+		ಪ್ರತ್ಯಾಗಮ status;
 	}
 
 	/**
@@ -212,15 +212,15 @@ struct BitPatternPool
 	 */
 	bool take_all()
 	{
-		if (database.empty())
-			return false;
+		ಯದಿ (database.empty())
+			ಪ್ರತ್ಯಾಗಮ false;
 		database.clear();
-		return true;
+		ಪ್ರತ್ಯಾಗಮ true;
 	}
 
 	bool empty()
 	{
-		return database.empty();
+		ಪ್ರತ್ಯಾಗಮ database.empty();
 	}
 };
 

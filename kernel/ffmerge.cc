@@ -17,26 +17,26 @@
  *
  */
 
-#include "kernel/ffmerge.h"
+#ಅನ್ತರ್ಭಾವ "kernel/ffmerge.h"
 
 USING_YOSYS_NAMESPACE
 
-bool FfMergeHelper::is_output_unused(RTLIL::SigSpec sig) {
-	for (auto bit : (*sigmap)(sig))
-		if (sigbit_users_count[bit] != 0)
-			return false;
-	return true;
+ತಾರ್ಕಿಕ FfMergeHelper::is_output_unused(RTLIL::SigSpec sig) {
+	ಪ್ರತಿ (auto bit : (*sigmap)(sig))
+		ಯದಿ (sigbit_users_ಎಣಿಕೆ[bit] != 0)
+			ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+	ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
 }
 
-bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+ತಾರ್ಕಿಕ FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, ಪೂರ್ಣಾಙ್ಕ>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
-	bool found = false;
+	ತಾರ್ಕಿಕ found = ಅಸತ್ಯ;
 
-	for (auto bit : sig)
+	ಪ್ರತಿ (auto bit : sig)
 	{
-		if (bit.wire == NULL || sigbit_users_count[bit] == 0) {
+		ಯದಿ (bit.wire == ರಿಕ್ತ || sigbit_users_ಎಣಿಕೆ[bit] == 0) {
 			ff.width++;
 			ff.sig_q.append(bit);
 			ff.sig_d.append(bit);
@@ -45,30 +45,30 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			ff.val_init.append(RTLIL::Const(State::Sx));
 			ff.val_srst.append(RTLIL::Const(State::Sx));
 			ff.val_arst.append(RTLIL::Const(State::Sx));
-			continue;
+			ಅನುವರ್ತ;
 		}
 
-		if (sigbit_users_count[bit] != 1)
-			return false;
+		ಯದಿ (sigbit_users_ಎಣಿಕೆ[bit] != 1)
+			ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 
 		auto &sinks = dff_sink[bit];
-		if (sinks.size() != 1)
-			return false;
+		ಯದಿ (sinks.size() != 1)
+			ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 
 		Cell *cell;
-		int idx;
+		ಪೂರ್ಣಾಙ್ಕ idx;
 		std::tie(cell, idx) = *sinks.begin();
-		bits.insert(std::make_pair(cell, idx));
+		bits.ಸೇರಿಸು(std::make_pair(cell, idx));
 
 		FfData cur_ff(initvals, cell);
 
 		// Reject latches and $ff.
-		if (!cur_ff.has_clk)
-			return false;
+		ಯದಿ (!cur_ff.has_clk)
+			ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 
 		log_assert((*sigmap)(cur_ff.sig_d[idx]) == bit);
 
-		if (!found) {
+		ಯದಿ (!found) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -88,56 +88,56 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
 			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+		} ಅನ್ಯಥಾ {
+			ಯದಿ (ff.has_clk != cur_ff.has_clk)
+				ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+			ಯದಿ (ff.has_ce != cur_ff.has_ce)
+				ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+			ಯದಿ (ff.has_aload != cur_ff.has_aload)
+				ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+			ಯದಿ (ff.has_srst != cur_ff.has_srst)
+				ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+			ಯದಿ (ff.has_arst != cur_ff.has_arst)
+				ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+			ಯದಿ (ff.has_sr != cur_ff.has_sr)
+				ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+			ಯದಿ (ff.has_clk) {
+				ಯದಿ (ff.sig_clk != cur_ff.sig_clk)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+				ಯದಿ (ff.pol_clk != cur_ff.pol_clk)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			ಯದಿ (ff.has_ce) {
+				ಯದಿ (ff.sig_ce != cur_ff.sig_ce)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+				ಯದಿ (ff.pol_ce != cur_ff.pol_ce)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			ಯದಿ (ff.has_aload) {
+				ಯದಿ (ff.sig_aload != cur_ff.sig_aload)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+				ಯದಿ (ff.pol_aload != cur_ff.pol_aload)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			ಯದಿ (ff.has_srst) {
+				ಯದಿ (ff.sig_srst != cur_ff.sig_srst)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+				ಯದಿ (ff.pol_srst != cur_ff.pol_srst)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+				ಯದಿ (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			ಯದಿ (ff.has_arst) {
+				ಯದಿ (ff.sig_arst != cur_ff.sig_arst)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+				ಯದಿ (ff.pol_arst != cur_ff.pol_arst)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			ಯದಿ (ff.has_sr) {
+				ಯದಿ (ff.pol_clr != cur_ff.pol_clr)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+				ಯದಿ (ff.pol_set != cur_ff.pol_set)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 			}
 		}
 
@@ -150,24 +150,24 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 		ff.val_arst.append(RTLIL::Const(ff.has_arst ? cur_ff.val_arst[idx] : State::Sx));
 		ff.val_srst.append(RTLIL::Const(ff.has_srst ? cur_ff.val_srst[idx] : State::Sx));
 		ff.val_init.append(RTLIL::Const(cur_ff.val_init[idx]));
-		found = true;
+		found = ಸತ್ಯ;
 	}
 
-	return found;
+	ಪ್ರತ್ಯಾಗಮ found;
 }
 
-bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+ತಾರ್ಕಿಕ FfMergeHelper::find_ಒಳಹರಿವು_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, ಪೂರ್ಣಾಙ್ಕ>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
-	bool found = false;
+	ತಾರ್ಕಿಕ found = ಅಸತ್ಯ;
 
-	pool<int> const_bits;
+	pool<ಪೂರ್ಣಾಙ್ಕ> const_bits;
 
-	for (auto bit : sig)
+	ಪ್ರತಿ (auto bit : sig)
 	{
-		if (bit.wire == NULL) {
-			const_bits.insert(ff.width);
+		ಯದಿ (bit.wire == ರಿಕ್ತ) {
+			const_bits.ಸೇರಿಸು(ff.width);
 			ff.width++;
 			ff.sig_q.append(bit);
 			ff.sig_d.append(bit);
@@ -177,22 +177,22 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			ff.val_init.append(RTLIL::Const(bit.data));
 			ff.val_srst.append(RTLIL::Const(bit.data));
 			ff.val_arst.append(RTLIL::Const(bit.data));
-			continue;
+			ಅನುವರ್ತ;
 		}
 
-		if (!dff_driver.count(bit))
-			return false;
+		ಯದಿ (!dff_driver.ಎಣಿಕೆ(bit))
+			ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 
 		Cell *cell;
-		int idx;
+		ಪೂರ್ಣಾಙ್ಕ idx;
 		std::tie(cell, idx) = dff_driver[bit];
-		bits.insert(std::make_pair(cell, idx));
+		bits.ಸೇರಿಸು(std::make_pair(cell, idx));
 
 		FfData cur_ff(initvals, cell);
 
 		log_assert((*sigmap)(cur_ff.sig_q[idx]) == bit);
 
-		if (!found) {
+		ಯದಿ (!found) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -213,58 +213,58 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
 			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_gclk != cur_ff.has_gclk)
-				return false;
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+		} ಅನ್ಯಥಾ {
+			ಯದಿ (ff.has_gclk != cur_ff.has_gclk)
+				ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+			ಯದಿ (ff.has_clk != cur_ff.has_clk)
+				ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+			ಯದಿ (ff.has_ce != cur_ff.has_ce)
+				ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+			ಯದಿ (ff.has_aload != cur_ff.has_aload)
+				ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+			ಯದಿ (ff.has_srst != cur_ff.has_srst)
+				ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+			ಯದಿ (ff.has_arst != cur_ff.has_arst)
+				ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+			ಯದಿ (ff.has_sr != cur_ff.has_sr)
+				ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+			ಯದಿ (ff.has_clk) {
+				ಯದಿ (ff.sig_clk != cur_ff.sig_clk)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+				ಯದಿ (ff.pol_clk != cur_ff.pol_clk)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			ಯದಿ (ff.has_ce) {
+				ಯದಿ (ff.sig_ce != cur_ff.sig_ce)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+				ಯದಿ (ff.pol_ce != cur_ff.pol_ce)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			ಯದಿ (ff.has_aload) {
+				ಯದಿ (ff.sig_aload != cur_ff.sig_aload)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+				ಯದಿ (ff.pol_aload != cur_ff.pol_aload)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			ಯದಿ (ff.has_srst) {
+				ಯದಿ (ff.sig_srst != cur_ff.sig_srst)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+				ಯದಿ (ff.pol_srst != cur_ff.pol_srst)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+				ಯದಿ (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			ಯದಿ (ff.has_arst) {
+				ಯದಿ (ff.sig_arst != cur_ff.sig_arst)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+				ಯದಿ (ff.pol_arst != cur_ff.pol_arst)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			ಯದಿ (ff.has_sr) {
+				ಯದಿ (ff.pol_clr != cur_ff.pol_clr)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+				ಯದಿ (ff.pol_set != cur_ff.pol_set)
+					ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 			}
 		}
 
@@ -277,27 +277,27 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 		ff.val_arst.append(RTLIL::Const(ff.has_arst ? cur_ff.val_arst[idx] : State::Sx));
 		ff.val_srst.append(RTLIL::Const(ff.has_srst ? cur_ff.val_srst[idx] : State::Sx));
 		ff.val_init.append(RTLIL::Const(cur_ff.val_init[idx]));
-		found = true;
+		found = ಸತ್ಯ;
 	}
 
-	if (found && ff.has_sr) {
-		for (auto i: const_bits) {
-			if (ff.sig_d[i] == State::S0) {
+	ಯದಿ (found && ff.has_sr) {
+		ಪ್ರತಿ (auto i: const_bits) {
+			ಯದಿ (ff.sig_d[i] == State::S0) {
 				ff.sig_set[i] = ff.pol_set ? State::S0 : State::S1;
-			} else if (ff.sig_d[i] == State::S1) {
+			} ಅನ್ಯಥಾ ಯದಿ (ff.sig_d[i] == State::S1) {
 				ff.sig_clr[i] = ff.pol_clr ? State::S0 : State::S1;
 			}
 		}
 	}
 
-	return found;
+	ಪ್ರತ್ಯಾಗಮ found;
 }
 
 
-void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
+ಶೂನ್ಯ FfMergeHelper::remove_output_ff(ಧ್ರುವ pool<std::pair<Cell *, ಪೂರ್ಣಾಙ್ಕ>> &bits) {
+	ಪ್ರತಿ (auto &it : bits) {
 		Cell *cell = it.first;
-		int idx = it.second;
+		ಪೂರ್ಣಾಙ್ಕ idx = it.second;
 		SigSpec q = cell->getPort(ID::Q);
 		initvals->remove_init(q[idx]);
 		dff_driver.erase((*sigmap)(q[idx]));
@@ -307,54 +307,54 @@ void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
 	}
 }
 
-void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
+ಶೂನ್ಯ FfMergeHelper::mark_ಒಳಹರಿವು_ff(ಧ್ರುವ pool<std::pair<Cell *, ಪೂರ್ಣಾಙ್ಕ>> &bits) {
+	ಪ್ರತಿ (auto &it : bits) {
 		Cell *cell = it.first;
-		int idx = it.second;
-		if (cell->hasPort(ID::D)) {
+		ಪೂರ್ಣಾಙ್ಕ idx = it.second;
+		ಯದಿ (cell->hasPort(ID::D)) {
 			SigSpec d = cell->getPort(ID::D);
 			// The user count was already at least 1
 			// (for the D port).  Bump it as it is now connected
 			// to the merged-to cell as well.  This suffices for
 			// it to not be considered for output merging.
-			sigbit_users_count[d[idx]]++;
+			sigbit_users_ಎಣಿಕೆ[d[idx]]++;
 		}
 	}
 }
 
-void FfMergeHelper::set(FfInitVals *initvals_, RTLIL::Module *module_)
+ಶೂನ್ಯ FfMergeHelper::set(FfInitVals *initvals_, RTLIL::Module *module_)
 {
 	clear();
 	initvals = initvals_;
 	sigmap = initvals->sigmap;
 	module = module_;
 
-	for (auto wire : module->wires()) {
-		if (wire->port_output)
-			for (auto bit : (*sigmap)(wire))
-				sigbit_users_count[bit]++;
+	ಪ್ರತಿ (auto wire : module->wires()) {
+		ಯದಿ (wire->port_output)
+			ಪ್ರತಿ (auto bit : (*sigmap)(wire))
+				sigbit_users_ಎಣಿಕೆ[bit]++;
 	}
 
-	for (auto cell : module->cells()) {
-		if (cell->is_builtin_ff()) {
-			if (cell->hasPort(ID::D)) {
+	ಪ್ರತಿ (auto cell : module->cells()) {
+		ಯದಿ (cell->is_builtin_ff()) {
+			ಯದಿ (cell->hasPort(ID::D)) {
 				SigSpec d = (*sigmap)(cell->getPort(ID::D));
-				for (int i = 0; i < GetSize(d); i++)
-					dff_sink[d[i]].insert(std::make_pair(cell, i));
+				ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 0; i < GetSize(d); i++)
+					dff_sink[d[i]].ಸೇರಿಸು(std::make_pair(cell, i));
 			}
 			SigSpec q = (*sigmap)(cell->getPort(ID::Q));
-			for (int i = 0; i < GetSize(q); i++)
+			ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 0; i < GetSize(q); i++)
 				dff_driver[q[i]] = std::make_pair(cell, i);
 		}
-		for (auto &conn : cell->connections())
-			if (!cell->known() || cell->input(conn.first))
-				for (auto bit : (*sigmap)(conn.second))
-					sigbit_users_count[bit]++;
+		ಪ್ರತಿ (auto &conn : cell->connections())
+			ಯದಿ (!cell->known() || cell->ಒಳಹರಿವು(conn.first))
+				ಪ್ರತಿ (auto bit : (*sigmap)(conn.second))
+					sigbit_users_ಎಣಿಕೆ[bit]++;
 	}
 }
 
-void FfMergeHelper::clear() {
+ಶೂನ್ಯ FfMergeHelper::clear() {
 	dff_driver.clear();
 	dff_sink.clear();
-	sigbit_users_count.clear();
+	sigbit_users_ಎಣಿಕೆ.clear();
 }
