@@ -17,123 +17,123 @@
  *
  */
 
-#include "kernel/scopeinfo.h"
+#समावेश "kernel/scopeinfo.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template <typename I, typename Filter> void ModuleHdlnameIndex::index_items(I begin, I end, Filter filter)
+ढाँचा <typename I, typename Filter> व्योम Module_Hdlname_सूचकांक::सूचकांक_वस्तुएँ(I begin, I end, Filter filter)
 {
-	for (; begin != end; ++begin) {
-		auto const &item = *begin;
+	क्रम (; begin != end; ++begin) {
+		स्वतः स्थिर &item = *begin;
 
-		if (!filter(item))
-			continue;
+		अगर (!filter(item))
+			जारी;
 		std::vector<IdString> path = parse_hdlname(item);
-		if (!path.empty())
-			lookup.emplace(item, tree.insert(path, item));
+		अगर (!path.empty())
+			lookup.emplace(item, वृक्ष.जोड़ो(path, item));
 	}
 }
 
-void ModuleHdlnameIndex::index()
+व्योम Module_Hdlname_सूचकांक::सूचकांक()
 {
-	index_wires();
-	index_cells();
+	सूचकांक_wires();
+	सूचकांक_cells();
 }
 
-void ModuleHdlnameIndex::index_wires()
+व्योम Module_Hdlname_सूचकांक::सूचकांक_wires()
 {
-	auto wires = module->wires();
-	index_items(wires.begin(), wires.end(), [](Wire *) { return true; });
+	स्वतः wires = module->wires();
+	सूचकांक_वस्तुएँ(wires.begin(), wires.end(), [](Wire *) { वापस true; });
 }
 
-void ModuleHdlnameIndex::index_cells()
+व्योम Module_Hdlname_सूचकांक::सूचकांक_cells()
 {
-	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *) { return true; });
+	स्वतः cells = module->cells();
+	सूचकांक_वस्तुएँ(cells.begin(), cells.end(), [](Cell *) { वापस true; });
 }
 
-void ModuleHdlnameIndex::index_scopeinfo_cells()
+व्योम Module_Hdlname_सूचकांक::सूचकांक_scopeinfo_cells()
 {
-	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *cell) { return cell->type == ID($scopeinfo); });
+	स्वतः cells = module->cells();
+	सूचकांक_वस्तुएँ(cells.begin(), cells.end(), [](Cell *cell) { वापस cell->type == ID($scopeinfo); });
 }
 
-std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
+std::vector<std::string> Module_Hdlname_सूचकांक::scope_sources(Cursor cursor)
 {
-	std::vector<std::string> result;
+	std::vector<std::string> परिणाम;
 
-	for (; !cursor.is_root(); cursor = cursor.parent()) {
-		if (!cursor.has_entry()) {
-			result.push_back("");
-			result.push_back("");
-			continue;
+	क्रम (; !cursor.is_मूल(); cursor = cursor.parent()) {
+		अगर (!cursor.has_entry()) {
+			परिणाम.धकेलो_back("");
+			परिणाम.धकेलो_back("");
+			जारी;
 		}
 		Cell *cell = cursor.entry().cell();
-		if (cell == nullptr || cell->type != ID($scopeinfo)) {
-			result.push_back("");
-			result.push_back("");
-			continue;
+		अगर (cell == nullptr || cell->type != ID($scopeinfo)) {
+			परिणाम.धकेलो_back("");
+			परिणाम.धकेलो_back("");
+			जारी;
 		}
-		result.push_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Module, ID::src).decode_string());
-		result.push_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Cell, ID::src).decode_string());
+		परिणाम.धकेलो_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Module, ID::src).decode_string());
+		परिणाम.धकेलो_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Cell, ID::src).decode_string());
 	}
 
-	result.push_back(module->get_src_attribute());
+	परिणाम.धकेलो_back(module->get_src_attribute());
 
-	std::reverse(result.begin(), result.end());
+	std::reverse(परिणाम.begin(), परिणाम.end());
 
-	return result;
+	वापस परिणाम;
 }
 
-static const char *attr_prefix(ScopeinfoAttrs attrs)
+अटल स्थिर अक्षर *attr_prefix(ScopeinfoAttrs attrs)
 {
-	switch (attrs) {
-	case ScopeinfoAttrs::Cell:
-		return "\\cell_";
-	case ScopeinfoAttrs::Module:
-		return "\\module_";
-	default:
+	चयन (attrs) {
+	हाल ScopeinfoAttrs::Cell:
+		वापस "\\cell_";
+	हाल ScopeinfoAttrs::Module:
+		वापस "\\module_";
+	शेष:
 		log_abort();
 	}
 }
 
-bool scopeinfo_has_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
+bool scopeinfo_has_attribute(स्थिर RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
 {
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
-	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	return key != IdString::Null && scopeinfo->has_attribute(key);
+	IdString कुंजी = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
+	वापस कुंजी != IdString::Null && scopeinfo->has_attribute(कुंजी);
 }
 
-RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
+RTLIL::Const scopeinfo_get_attribute(स्थिर RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
 {
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
-	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	if (key == IdString::Null)
-		return RTLIL::Const();
-	auto found = scopeinfo->attributes.find(key);
-	if (found == scopeinfo->attributes.end())
-		return RTLIL::Const();
-	return found->second;
+	IdString कुंजी = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
+	अगर (कुंजी == IdString::Null)
+		वापस RTLIL::Const();
+	स्वतः found = scopeinfo->attributes.find(कुंजी);
+	अगर (found == scopeinfo->attributes.end())
+		वापस RTLIL::Const();
+	वापस found->second;
 }
 
-dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs)
+dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(स्थिर RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs)
 {
 	dict<RTLIL::IdString, RTLIL::Const> attributes;
 
-	const char *prefix = attr_prefix(attrs);
-	size_t prefix_len = strlen(prefix);
+	स्थिर अक्षर *prefix = attr_prefix(attrs);
+	माप_प्रकार prefix_len = म_माप(prefix);
 	TwinePool &twines = scopeinfo->twines();
 
-	for (auto const &entry : scopeinfo->attributes) {
+	क्रम (स्वतः स्थिर &entry : scopeinfo->attributes) {
 		std::string name = twines.str(entry.first);
-		if (name.compare(0, prefix_len, prefix) != 0)
-			continue;
+		अगर (name.compare(0, prefix_len, prefix) != 0)
+			जारी;
 		attributes.emplace(twines.add(RTLIL::escape_id(name.substr(prefix_len))), entry.second);
 	}
 
-	return attributes;
+	वापस attributes;
 }
 
 YOSYS_NAMESPACE_END

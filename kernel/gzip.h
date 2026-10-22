@@ -1,39 +1,39 @@
-#include <string>
-#include "kernel/yosys_common.h"
+#समावेश <string>
+#समावेश "kernel/yosys_common.h"
 
-#ifndef YOSYS_GZIP_H
-#define YOSYS_GZIP_H
+#अगर_अघोषित YOSYS_GZIP_H
+#घोषणा YOSYS_GZIP_H
 
 YOSYS_NAMESPACE_BEGIN
 
-#ifdef YOSYS_ENABLE_ZLIB
+#अगर_घोषित YOSYS_ENABLE_ZLIB
 
 namespace Zlib {
-#include <zlib.h>
+#समावेश <zlib.h>
 }
 
 /*
 An output stream that uses a stringbuf to buffer data internally,
 using zlib to write gzip-compressed data every time the stream is flushed.
 */
-class gzip_ostream : public std::ostream {
-public:
+class gzip_ostream : खुला std::ostream {
+खुला:
 	gzip_ostream(): std::ostream(nullptr) {
 		rdbuf(&outbuf);
 	}
-	bool open(const std::string &filename) {
-		return outbuf.open(filename);
+	bool खोलो(स्थिर std::string &filename) {
+		वापस outbuf.खोलो(filename);
 	}
-private:
-	class obuf : public std::stringbuf {
-	public:
+निजी:
+	class obuf : खुला std::stringbuf {
+	खुला:
 		obuf();
-		bool open(const std::string &filename);
-		virtual int sync() override;
-		virtual ~obuf();
-	private:
-		static const int buffer_size = 4096;
-		char buffer[buffer_size];             // Internal buffer for compressed data
+		bool खोलो(स्थिर std::string &filename);
+		भव पूर्णांक sync() override;
+		भव ~obuf();
+	निजी:
+		अटल स्थिर पूर्णांक बफर_आकार = 4096;
+		अक्षर बफर[बफर_आकार];             // Internal buffer for compressed data
 		Zlib::gzFile gzf = nullptr;                 // Handle to the gzip file
 	};
 
@@ -44,35 +44,35 @@ private:
 An input stream that uses zlib to read gzip-compressed data from a file,
 buffering the decompressed data internally using its own buffer.
 */
-class gzip_istream final : public std::istream {
-public:
+class gzip_istream final : खुला std::istream {
+खुला:
 	gzip_istream() : std::istream(&inbuf) {}
-	bool open(const std::string& filename) {
-		return inbuf.open(filename);
+	bool खोलो(स्थिर std::string& filename) {
+		वापस inbuf.खोलो(filename);
 	}
-private:
-	class ibuf final : public std::streambuf {
-	public:
+निजी:
+	class ibuf final : खुला std::streambuf {
+	खुला:
 		ibuf() : gzf(nullptr) {}
-		bool open(const std::string& filename);
-		virtual ~ibuf();
+		bool खोलो(स्थिर std::string& filename);
+		भव ~ibuf();
 
-	protected:
+	रक्षित:
 		// Called when the buffer is empty and more input is needed
-		virtual int_type underflow() override;
-	private:
-		static const int buffer_size = 8192;
-		char buffer[buffer_size];
+		भव int_type underflow() override;
+	निजी:
+		अटल स्थिर पूर्णांक बफर_आकार = 8192;
+		अक्षर बफर[बफर_आकार];
 		Zlib::gzFile gzf;
 	};
 
 	ibuf inbuf;  // The stream buffer instance
 };
 
-#endif // YOSYS_ENABLE_ZLIB
+#पूर्ण_अगर // YOSYS_ENABLE_ZLIB
 
-std::istream* uncompressed(const std::string filename, std::ios_base::openmode mode = std::ios_base::in);
+std::istream* uncompressed(स्थिर std::string filename, std::ios_base::openmode mode = std::ios_base::in);
 
 YOSYS_NAMESPACE_END
 
-#endif // YOSYS_GZIP_H
+#पूर्ण_अगर // YOSYS_GZIP_H

@@ -17,15 +17,15 @@
  *
  */
 
-#ifndef CELLTYPES_H
-#define CELLTYPES_H
+#अगर_अघोषित CELLTYPES_H
+#घोषणा CELLTYPES_H
 
-#include "kernel/yosys.h"
-#include "kernel/newcelltypes.h"
+#समावेश "kernel/yosys.h"
+#समावेश "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct CellType
+काष्ठा CellType
 {
 	RTLIL::IdString type;
 	pool<RTLIL::IdString> inputs, outputs;
@@ -34,7 +34,7 @@ struct CellType
 	bool is_synthesizable;
 };
 
-struct CellTypes
+काष्ठा CellTypes
 {
 	dict<RTLIL::IdString, CellType> cell_types;
 
@@ -47,9 +47,9 @@ struct CellTypes
 		setup(design);
 	}
 
-	void setup(RTLIL::Design *design = NULL)
+	व्योम setup(RTLIL::Design *design = शून्य)
 	{
-		if (design)
+		अगर (design)
 			setup_design(design);
 
 		setup_internals();
@@ -59,38 +59,38 @@ struct CellTypes
 		setup_stdcells_mem();
 	}
 
-	void setup_type(RTLIL::IdString type, const pool<RTLIL::IdString> &inputs, const pool<RTLIL::IdString> &outputs, bool is_evaluable = false, bool is_combinatorial = false, bool is_synthesizable = false)
+	व्योम setup_type(RTLIL::IdString type, स्थिर pool<RTLIL::IdString> &inputs, स्थिर pool<RTLIL::IdString> &outputs, bool is_evaluable = false, bool is_combinatorial = false, bool is_synthesizable = false)
 	{
 		CellType ct = {type, inputs, outputs, is_evaluable, is_combinatorial, is_synthesizable};
 		cell_types[ct.type] = ct;
 	}
 
-	template<typename N, YS_NAME_STRING(N)>
-	void setup_type(const N &type_str, const pool<RTLIL::IdString> &inputs, const pool<RTLIL::IdString> &outputs, bool is_evaluable = false, bool is_combinatorial = false, bool is_synthesizable = false)
+	ढाँचा<typename N, YS_NAME_STRING(N)>
+	व्योम setup_type(स्थिर N &type_str, स्थिर pool<RTLIL::IdString> &inputs, स्थिर pool<RTLIL::IdString> &outputs, bool is_evaluable = false, bool is_combinatorial = false, bool is_synthesizable = false)
 	{
 		setup_type(ID::lookup(type_str), inputs, outputs, is_evaluable, is_combinatorial, is_synthesizable);
 	}
 
-	void setup_module(RTLIL::Module *module)
+	व्योम setup_module(RTLIL::Module *module)
 	{
 		pool<IdString> inputs, outputs;
-		for (auto wire_name : module->ports) {
+		क्रम (स्वतः wire_name : module->ports) {
 			RTLIL::Wire *wire = module->wire(wire_name);
-			if (wire->port_input)
-				inputs.insert(wire->name);
-			if (wire->port_output)
-				outputs.insert(wire->name);
+			अगर (wire->port_निवेश)
+				inputs.जोड़ो(wire->name);
+			अगर (wire->port_output)
+				outputs.जोड़ो(wire->name);
 		}
 		setup_type(module->name, inputs, outputs);
 	}
 
-	void setup_design(RTLIL::Design *design)
+	व्योम setup_design(RTLIL::Design *design)
 	{
-		for (auto module : design->modules())
+		क्रम (स्वतः module : design->modules())
 			setup_module(module);
 	}
 
-	void setup_internals()
+	व्योम setup_internals()
 	{
 		setup_internals_eval();
 
@@ -98,7 +98,7 @@ struct CellTypes
 
 		setup_type(ID($tribuf), {ID::A, ID::EN}, {ID::Y});
 
-		setup_type(ID($assert), {ID::A, ID::EN}, pool<RTLIL::IdString>());
+		setup_type(ID($निश्चित), {ID::A, ID::EN}, pool<RTLIL::IdString>());
 		setup_type(ID($assume), {ID::A, ID::EN}, pool<RTLIL::IdString>());
 		setup_type(ID($live), {ID::A, ID::EN}, pool<RTLIL::IdString>());
 		setup_type(ID($fair), {ID::A, ID::EN}, pool<RTLIL::IdString>());
@@ -120,11 +120,11 @@ struct CellTypes
 		setup_type(ID($original_tag), {ID::A}, {ID::Y});
 		setup_type(ID($future_ff), {ID::A}, {ID::Y});
 		setup_type(ID($scopeinfo), {}, {});
-		setup_type(ID($input_port), {}, {ID::Y});
+		setup_type(ID($निवेश_port), {}, {ID::Y});
 		setup_type(ID($connect), {ID::A, ID::B}, {});
 	}
 
-	void setup_internals_eval()
+	व्योम setup_internals_eval()
 	{
 		std::vector<RTLIL::IdString> unary_ops = {
 			ID($not), ID($pos), ID($buf), ID($neg),
@@ -132,25 +132,25 @@ struct CellTypes
 			ID($logic_not), ID($slice), ID($lut), ID($sop)
 		};
 
-		std::vector<RTLIL::IdString> binary_ops = {
+		std::vector<RTLIL::IdString> द्विआधारी_ops = {
 			ID($and), ID($or), ID($xor), ID($xnor),
 			ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx),
 			ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt),
-			ID($add), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow),
+			ID($add), ID($sub), ID($mul), ID($भाग), ID($mod), ID($divfloor), ID($modfloor), ID($घात),
 			ID($logic_and), ID($logic_or), ID($concat), ID($macc),
 			ID($bweqx)
 		};
 
-		for (auto type : unary_ops)
+		क्रम (स्वतः type : unary_ops)
 			setup_type(type, {ID::A}, {ID::Y}, true);
 
-		for (auto type : binary_ops)
+		क्रम (स्वतः type : द्विआधारी_ops)
 			setup_type(type, {ID::A, ID::B}, {ID::Y}, true);
 
-		for (auto type : std::vector<RTLIL::IdString>({ID($mux), ID($pmux), ID($bwmux)}))
+		क्रम (स्वतः type : std::vector<RTLIL::IdString>({ID($mux), ID($pmux), ID($bwmux)}))
 			setup_type(type, {ID::A, ID::B, ID::S}, {ID::Y}, true);
 
-		for (auto type : std::vector<RTLIL::IdString>({ID($bmux), ID($demux)}))
+		क्रम (स्वतः type : std::vector<RTLIL::IdString>({ID($bmux), ID($demux)}))
 			setup_type(type, {ID::A, ID::S}, {ID::Y}, true);
 
 		setup_type(ID($lcu), {ID::P, ID::G, ID::CI}, {ID::CO}, true);
@@ -159,7 +159,7 @@ struct CellTypes
 		setup_type(ID($fa), {ID::A, ID::B, ID::C}, {ID::X, ID::Y}, true);
 	}
 
-	void setup_internals_ff()
+	व्योम setup_internals_ff()
 	{
 		setup_type(ID($sr), {ID::SET, ID::CLR}, {ID::Q});
 		setup_type(ID($ff), {ID::D}, {ID::Q});
@@ -179,35 +179,35 @@ struct CellTypes
 		setup_type(ID($dlatchsr), {ID::EN, ID::SET, ID::CLR, ID::D}, {ID::Q});
 	}
 
-	void setup_internals_anyinit()
+	व्योम setup_internals_anyinit()
 	{
 		setup_type(ID($anyinit), {ID::D}, {ID::Q});
 	}
 
-	void setup_internals_mem()
+	व्योम setup_internals_mem()
 	{
 		setup_internals_ff();
 
-		setup_type(ID($memrd), {ID::CLK, ID::EN, ID::ADDR}, {ID::DATA});
-		setup_type(ID($memrd_v2), {ID::CLK, ID::EN, ID::ARST, ID::SRST, ID::ADDR}, {ID::DATA});
-		setup_type(ID($memwr), {ID::CLK, ID::EN, ID::ADDR, ID::DATA}, pool<RTLIL::IdString>());
-		setup_type(ID($memwr_v2), {ID::CLK, ID::EN, ID::ADDR, ID::DATA}, pool<RTLIL::IdString>());
-		setup_type(ID($meminit), {ID::ADDR, ID::DATA}, pool<RTLIL::IdString>());
-		setup_type(ID($meminit_v2), {ID::ADDR, ID::DATA, ID::EN}, pool<RTLIL::IdString>());
-		setup_type(ID($mem), {ID::RD_CLK, ID::RD_EN, ID::RD_ADDR, ID::WR_CLK, ID::WR_EN, ID::WR_ADDR, ID::WR_DATA}, {ID::RD_DATA});
-		setup_type(ID($mem_v2), {ID::RD_CLK, ID::RD_EN, ID::RD_ARST, ID::RD_SRST, ID::RD_ADDR, ID::WR_CLK, ID::WR_EN, ID::WR_ADDR, ID::WR_DATA}, {ID::RD_DATA});
+		setup_type(ID($memrd), {ID::CLK, ID::EN, ID::ADDR}, {ID::तथ्य_2});
+		setup_type(ID($memrd_v2), {ID::CLK, ID::EN, ID::ARST, ID::SRST, ID::ADDR}, {ID::तथ्य_2});
+		setup_type(ID($memwr), {ID::CLK, ID::EN, ID::ADDR, ID::तथ्य_2}, pool<RTLIL::IdString>());
+		setup_type(ID($memwr_v2), {ID::CLK, ID::EN, ID::ADDR, ID::तथ्य_2}, pool<RTLIL::IdString>());
+		setup_type(ID($meminit), {ID::ADDR, ID::तथ्य_2}, pool<RTLIL::IdString>());
+		setup_type(ID($meminit_v2), {ID::ADDR, ID::तथ्य_2, ID::EN}, pool<RTLIL::IdString>());
+		setup_type(ID($mem), {ID::RD_CLK, ID::RD_EN, ID::RD_ADDR, ID::WR_CLK, ID::WR_EN, ID::WR_ADDR, ID::WR_तथ्य}, {ID::RD_तथ्य});
+		setup_type(ID($mem_v2), {ID::RD_CLK, ID::RD_EN, ID::RD_ARST, ID::RD_SRST, ID::RD_ADDR, ID::WR_CLK, ID::WR_EN, ID::WR_ADDR, ID::WR_तथ्य}, {ID::RD_तथ्य});
 
 		setup_type(ID($fsm), {ID::CLK, ID::ARST, ID::CTRL_IN}, {ID::CTRL_OUT});
 	}
 
-	void setup_stdcells()
+	व्योम setup_stdcells()
 	{
 		setup_stdcells_eval();
 
 		setup_type(ID($_TBUF_), {ID::A, ID::E}, {ID::Y});
 	}
 
-	void setup_stdcells_eval()
+	व्योम setup_stdcells_eval()
 	{
 		setup_type(ID($_BUF_), {ID::A}, {ID::Y}, true);
 		setup_type(ID($_NOT_), {ID::A}, {ID::Y}, true);
@@ -230,146 +230,146 @@ struct CellTypes
 		setup_type(ID($_OAI4_), {ID::A, ID::B, ID::C, ID::D}, {ID::Y}, true);
 	}
 
-	void setup_stdcells_mem()
+	व्योम setup_stdcells_mem()
 	{
-		std::vector<char> list_np = {'N', 'P'}, list_01 = {'0', '1'};
+		std::vector<अक्षर> list_np = {'N', 'P'}, list_01 = {'0', '1'};
 
-		for (auto c1 : list_np)
-		for (auto c2 : list_np)
+		क्रम (स्वतः c1 : list_np)
+		क्रम (स्वतः c2 : list_np)
 			setup_type(stringf("$_SR_%c%c_", c1, c2), {ID::S, ID::R}, {ID::Q});
 
 		setup_type(ID($_FF_), {ID::D}, {ID::Q});
 
-		for (auto c1 : list_np)
+		क्रम (स्वतः c1 : list_np)
 			setup_type(stringf("$_DFF_%c_", c1), {ID::C, ID::D}, {ID::Q});
 
-		for (auto c1 : list_np)
-		for (auto c2 : list_np)
+		क्रम (स्वतः c1 : list_np)
+		क्रम (स्वतः c2 : list_np)
 			setup_type(stringf("$_DFFE_%c%c_", c1, c2), {ID::C, ID::D, ID::E}, {ID::Q});
 
-		for (auto c1 : list_np)
-		for (auto c2 : list_np)
-		for (auto c3 : list_01)
+		क्रम (स्वतः c1 : list_np)
+		क्रम (स्वतः c2 : list_np)
+		क्रम (स्वतः c3 : list_01)
 			setup_type(stringf("$_DFF_%c%c%c_", c1, c2, c3), {ID::C, ID::R, ID::D}, {ID::Q});
 
-		for (auto c1 : list_np)
-		for (auto c2 : list_np)
-		for (auto c3 : list_01)
-		for (auto c4 : list_np)
+		क्रम (स्वतः c1 : list_np)
+		क्रम (स्वतः c2 : list_np)
+		क्रम (स्वतः c3 : list_01)
+		क्रम (स्वतः c4 : list_np)
 			setup_type(stringf("$_DFFE_%c%c%c%c_", c1, c2, c3, c4), {ID::C, ID::R, ID::D, ID::E}, {ID::Q});
 
-		for (auto c1 : list_np)
-		for (auto c2 : list_np)
+		क्रम (स्वतः c1 : list_np)
+		क्रम (स्वतः c2 : list_np)
 			setup_type(stringf("$_ALDFF_%c%c_", c1, c2), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q});
 
-		for (auto c1 : list_np)
-		for (auto c2 : list_np)
-		for (auto c3 : list_np)
+		क्रम (स्वतः c1 : list_np)
+		क्रम (स्वतः c2 : list_np)
+		क्रम (स्वतः c3 : list_np)
 			setup_type(stringf("$_ALDFFE_%c%c%c_", c1, c2, c3), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q});
 
-		for (auto c1 : list_np)
-		for (auto c2 : list_np)
-		for (auto c3 : list_np)
+		क्रम (स्वतः c1 : list_np)
+		क्रम (स्वतः c2 : list_np)
+		क्रम (स्वतः c3 : list_np)
 			setup_type(stringf("$_DFFSR_%c%c%c_", c1, c2, c3), {ID::C, ID::S, ID::R, ID::D}, {ID::Q});
 
-		for (auto c1 : list_np)
-		for (auto c2 : list_np)
-		for (auto c3 : list_np)
-		for (auto c4 : list_np)
+		क्रम (स्वतः c1 : list_np)
+		क्रम (स्वतः c2 : list_np)
+		क्रम (स्वतः c3 : list_np)
+		क्रम (स्वतः c4 : list_np)
 			setup_type(stringf("$_DFFSRE_%c%c%c%c_", c1, c2, c3, c4), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q});
 
-		for (auto c1 : list_np)
-		for (auto c2 : list_np)
-		for (auto c3 : list_01)
+		क्रम (स्वतः c1 : list_np)
+		क्रम (स्वतः c2 : list_np)
+		क्रम (स्वतः c3 : list_01)
 			setup_type(stringf("$_SDFF_%c%c%c_", c1, c2, c3), {ID::C, ID::R, ID::D}, {ID::Q});
 
-		for (auto c1 : list_np)
-		for (auto c2 : list_np)
-		for (auto c3 : list_01)
-		for (auto c4 : list_np)
+		क्रम (स्वतः c1 : list_np)
+		क्रम (स्वतः c2 : list_np)
+		क्रम (स्वतः c3 : list_01)
+		क्रम (स्वतः c4 : list_np)
 			setup_type(stringf("$_SDFFE_%c%c%c%c_", c1, c2, c3, c4), {ID::C, ID::R, ID::D, ID::E}, {ID::Q});
 
-		for (auto c1 : list_np)
-		for (auto c2 : list_np)
-		for (auto c3 : list_01)
-		for (auto c4 : list_np)
+		क्रम (स्वतः c1 : list_np)
+		क्रम (स्वतः c2 : list_np)
+		क्रम (स्वतः c3 : list_01)
+		क्रम (स्वतः c4 : list_np)
 			setup_type(stringf("$_SDFFCE_%c%c%c%c_", c1, c2, c3, c4), {ID::C, ID::R, ID::D, ID::E}, {ID::Q});
 
-		for (auto c1 : list_np)
+		क्रम (स्वतः c1 : list_np)
 			setup_type(stringf("$_DLATCH_%c_", c1), {ID::E, ID::D}, {ID::Q});
 
-		for (auto c1 : list_np)
-		for (auto c2 : list_np)
-		for (auto c3 : list_01)
+		क्रम (स्वतः c1 : list_np)
+		क्रम (स्वतः c2 : list_np)
+		क्रम (स्वतः c3 : list_01)
 			setup_type(stringf("$_DLATCH_%c%c%c_", c1, c2, c3), {ID::E, ID::R, ID::D}, {ID::Q});
 
-		for (auto c1 : list_np)
-		for (auto c2 : list_np)
-		for (auto c3 : list_np)
+		क्रम (स्वतः c1 : list_np)
+		क्रम (स्वतः c2 : list_np)
+		क्रम (स्वतः c3 : list_np)
 			setup_type(stringf("$_DLATCHSR_%c%c%c_", c1, c2, c3), {ID::E, ID::S, ID::R, ID::D}, {ID::Q});
 	}
 
-	void clear()
+	व्योम clear()
 	{
 		cell_types.clear();
 	}
 
-	bool cell_known(RTLIL::IdString type) const
+	bool cell_known(RTLIL::IdString type) स्थिर
 	{
-		return cell_types.count(type) != 0;
+		वापस cell_types.गिनती(type) != 0;
 	}
 
-	bool cell_output(RTLIL::IdString type, RTLIL::IdString port) const
+	bool cell_output(RTLIL::IdString type, RTLIL::IdString port) स्थिर
 	{
-		auto it = cell_types.find(type);
-		return it != cell_types.end() && it->second.outputs.count(port) != 0;
+		स्वतः it = cell_types.find(type);
+		वापस it != cell_types.end() && it->second.outputs.गिनती(port) != 0;
 	}
 
-	bool cell_input(RTLIL::IdString type, RTLIL::IdString port) const
+	bool cell_निवेश(RTLIL::IdString type, RTLIL::IdString port) स्थिर
 	{
-		auto it = cell_types.find(type);
-		return it != cell_types.end() && it->second.inputs.count(port) != 0;
+		स्वतः it = cell_types.find(type);
+		वापस it != cell_types.end() && it->second.inputs.गिनती(port) != 0;
 	}
 
-	RTLIL::PortDir cell_port_dir(RTLIL::IdString type, RTLIL::IdString port) const
+	RTLIL::PortDir cell_port_dir(RTLIL::IdString type, RTLIL::IdString port) स्थिर
 	{
-		auto it = cell_types.find(type);
-		if (it == cell_types.end())
-			return RTLIL::PD_UNKNOWN;
-		bool is_input = it->second.inputs.count(port);
-		bool is_output = it->second.outputs.count(port);
-		return RTLIL::PortDir(is_input + is_output * 2);
+		स्वतः it = cell_types.find(type);
+		अगर (it == cell_types.end())
+			वापस RTLIL::PD_UNKNOWN;
+		bool is_निवेश = it->second.inputs.गिनती(port);
+		bool is_output = it->second.outputs.गिनती(port);
+		वापस RTLIL::PortDir(is_निवेश + is_output * 2);
 	}
 
-	bool cell_evaluable(RTLIL::IdString type) const
+	bool cell_evaluable(RTLIL::IdString type) स्थिर
 	{
-		auto it = cell_types.find(type);
-		return it != cell_types.end() && it->second.is_evaluable;
+		स्वतः it = cell_types.find(type);
+		वापस it != cell_types.end() && it->second.is_evaluable;
 	}
 
-	static RTLIL::Const eval_not(RTLIL::Const v)
+	अटल RTLIL::Const eval_not(RTLIL::Const v)
 	{
-		for (auto bit : v)
-			if (bit == State::S0) bit = State::S1;
-			else if (bit == State::S1) bit = State::S0;
-		return v;
+		क्रम (स्वतः bit : v)
+			अगर (bit == State::S0) bit = State::S1;
+			अन्यथा अगर (bit == State::S1) bit = State::S0;
+		वापस v;
 	}
 
 	// Consider using the ConstEval struct instead if you need named ports and/or multiple outputs
-	static RTLIL::Const eval(RTLIL::IdString type, const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len, bool *errp = nullptr)
+	अटल RTLIL::Const eval(RTLIL::IdString type, स्थिर RTLIL::Const &arg1, स्थिर RTLIL::Const &arg2, bool signed1, bool signed2, पूर्णांक परिणाम_len, bool *errp = nullptr)
 	{
-		if (type == ID($sshr) && !signed1)
+		अगर (type == ID($sshr) && !signed1)
 			type = ID($shr);
-		if (type == ID($sshl) && !signed1)
+		अगर (type == ID($sshl) && !signed1)
 			type = ID($shl);
 
-		if (type != ID($sshr) && type != ID($sshl) && type != ID($shr) && type != ID($shl) && type != ID($shift) && type != ID($shiftx) &&
+		अगर (type != ID($sshr) && type != ID($sshl) && type != ID($shr) && type != ID($shl) && type != ID($shift) && type != ID($shiftx) &&
 				type != ID($pos) && type != ID($buf) && type != ID($neg) && type != ID($not)) {
-			if (!signed1 || !signed2)
+			अगर (!signed1 || !signed2)
 				signed1 = false, signed2 = false;
 		}
 
-#define HANDLE_CELL_TYPE(_t) if (type == constid<ID::lookup("$" #_t).raw()>) return const_ ## _t(arg1, arg2, signed1, signed2, result_len);
+#घोषणा HANDLE_CELL_TYPE(_t) अगर (type == constid<ID::lookup("$" #_t).raw()>) वापस const_ ## _t(arg1, arg2, signed1, signed2, परिणाम_len);
 		HANDLE_CELL_TYPE(not)
 		HANDLE_CELL_TYPE(and)
 		HANDLE_CELL_TYPE(or)
@@ -400,163 +400,163 @@ struct CellTypes
 		HANDLE_CELL_TYPE(add)
 		HANDLE_CELL_TYPE(sub)
 		HANDLE_CELL_TYPE(mul)
-		HANDLE_CELL_TYPE(div)
+		HANDLE_CELL_TYPE(भाग)
 		HANDLE_CELL_TYPE(mod)
 		HANDLE_CELL_TYPE(divfloor)
 		HANDLE_CELL_TYPE(modfloor)
-		HANDLE_CELL_TYPE(pow)
+		HANDLE_CELL_TYPE(घात)
 		HANDLE_CELL_TYPE(pos)
 		HANDLE_CELL_TYPE(neg)
-#undef HANDLE_CELL_TYPE
+#अघोषित HANDLE_CELL_TYPE
 
-		if (type.in(ID($_BUF_), ID($buf)))
-			return arg1;
-		if (type == ID($_NOT_))
-			return eval_not(arg1);
-		if (type == ID($_AND_))
-			return const_and(arg1, arg2, false, false, 1);
-		if (type == ID($_NAND_))
-			return eval_not(const_and(arg1, arg2, false, false, 1));
-		if (type == ID($_OR_))
-			return const_or(arg1, arg2, false, false, 1);
-		if (type == ID($_NOR_))
-			return eval_not(const_or(arg1, arg2, false, false, 1));
-		if (type == ID($_XOR_))
-			return const_xor(arg1, arg2, false, false, 1);
-		if (type == ID($_XNOR_))
-			return const_xnor(arg1, arg2, false, false, 1);
-		if (type == ID($_ANDNOT_))
-			return const_and(arg1, eval_not(arg2), false, false, 1);
-		if (type == ID($_ORNOT_))
-			return const_or(arg1, eval_not(arg2), false, false, 1);
+		अगर (type.in(ID($_BUF_), ID($buf)))
+			वापस arg1;
+		अगर (type == ID($_NOT_))
+			वापस eval_not(arg1);
+		अगर (type == ID($_AND_))
+			वापस const_and(arg1, arg2, false, false, 1);
+		अगर (type == ID($_NAND_))
+			वापस eval_not(const_and(arg1, arg2, false, false, 1));
+		अगर (type == ID($_OR_))
+			वापस const_or(arg1, arg2, false, false, 1);
+		अगर (type == ID($_NOR_))
+			वापस eval_not(const_or(arg1, arg2, false, false, 1));
+		अगर (type == ID($_XOR_))
+			वापस const_xor(arg1, arg2, false, false, 1);
+		अगर (type == ID($_XNOR_))
+			वापस const_xnor(arg1, arg2, false, false, 1);
+		अगर (type == ID($_ANDNOT_))
+			वापस const_and(arg1, eval_not(arg2), false, false, 1);
+		अगर (type == ID($_ORNOT_))
+			वापस const_or(arg1, eval_not(arg2), false, false, 1);
 
-		if (errp != nullptr) {
+		अगर (errp != nullptr) {
 			*errp = true;
-			return State::Sm;
+			वापस State::Sm;
 		}
 
 		log_abort();
 	}
 
 	// Consider using the ConstEval struct instead if you need named ports and/or multiple outputs
-	static RTLIL::Const eval(RTLIL::Cell *cell, const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool *errp = nullptr)
+	अटल RTLIL::Const eval(RTLIL::Cell *cell, स्थिर RTLIL::Const &arg1, स्थिर RTLIL::Const &arg2, bool *errp = nullptr)
 	{
-		if (cell->type == ID($slice)) {
-			int width = cell->parameters.at(ID::Y_WIDTH).as_int();
-			int offset = cell->parameters.at(ID::OFFSET).as_int();
-			return arg1.extract(offset, width);
+		अगर (cell->type == ID($slice)) {
+			पूर्णांक width = cell->parameters.at(ID::Y_WIDTH).as_int();
+			पूर्णांक offset = cell->parameters.at(ID::OFFSET).as_int();
+			वापस arg1.extract(offset, width);
 		}
 
-		if (cell->type == ID($concat)) {
+		अगर (cell->type == ID($concat)) {
 			RTLIL::Const ret = arg1;
 			ret.append(arg2);
-			return ret;
+			वापस ret;
 		}
 
-		if (cell->type == ID($bmux))
+		अगर (cell->type == ID($bmux))
 		{
-			return const_bmux(arg1, arg2);
+			वापस const_bmux(arg1, arg2);
 		}
 
-		if (cell->type == ID($demux))
+		अगर (cell->type == ID($demux))
 		{
-			return const_demux(arg1, arg2);
+			वापस const_demux(arg1, arg2);
 		}
 
-		if (cell->type == ID($bweqx))
+		अगर (cell->type == ID($bweqx))
 		{
-			return const_bweqx(arg1, arg2);
+			वापस const_bweqx(arg1, arg2);
 		}
 
-		if (cell->type == ID($lut))
+		अगर (cell->type == ID($lut))
 		{
-			int width = cell->parameters.at(ID::WIDTH).as_int();
+			पूर्णांक width = cell->parameters.at(ID::WIDTH).as_int();
 
 			std::vector<RTLIL::State> t = cell->parameters.at(ID::LUT).to_bits();
-			while (GetSize(t) < (1 << width))
-				t.push_back(State::S0);
+			जबतक (Get_आकार(t) < (1 << width))
+				t.धकेलो_back(State::S0);
 			t.resize(1 << width);
 
-			return const_bmux(t, arg1);
+			वापस const_bmux(t, arg1);
 		}
 
-		if (cell->type == ID($sop))
+		अगर (cell->type == ID($sop))
 		{
-			int width = cell->parameters.at(ID::WIDTH).as_int();
-			int depth = cell->parameters.at(ID::DEPTH).as_int();
+			पूर्णांक width = cell->parameters.at(ID::WIDTH).as_int();
+			पूर्णांक depth = cell->parameters.at(ID::DEPTH).as_int();
 			std::vector<RTLIL::State> t = cell->parameters.at(ID::TABLE).to_bits();
 
-			while (GetSize(t) < width*depth*2)
-				t.push_back(State::S0);
+			जबतक (Get_आकार(t) < width*depth*2)
+				t.धकेलो_back(State::S0);
 
 			RTLIL::State default_ret = State::S0;
 
-			for (int i = 0; i < depth; i++)
+			क्रम (पूर्णांक i = 0; i < depth; i++)
 			{
 				bool match = true;
 				bool match_x = true;
 
-				for (int j = 0; j < width; j++) {
+				क्रम (पूर्णांक j = 0; j < width; j++) {
 					RTLIL::State a = arg1.at(j);
-					if (t.at(2*width*i + 2*j + 0) == State::S1) {
-						if (a == State::S1) match_x = false;
-						if (a != State::S0) match = false;
+					अगर (t.at(2*width*i + 2*j + 0) == State::S1) {
+						अगर (a == State::S1) match_x = false;
+						अगर (a != State::S0) match = false;
 					}
-					if (t.at(2*width*i + 2*j + 1) == State::S1) {
-						if (a == State::S0) match_x = false;
-						if (a != State::S1) match = false;
+					अगर (t.at(2*width*i + 2*j + 1) == State::S1) {
+						अगर (a == State::S0) match_x = false;
+						अगर (a != State::S1) match = false;
 					}
 				}
 
-				if (match)
-					return State::S1;
+				अगर (match)
+					वापस State::S1;
 
-				if (match_x)
+				अगर (match_x)
 					default_ret = State::Sx;
 			}
 
-			return default_ret;
+			वापस default_ret;
 		}
 
-		bool signed_a = cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool();
-		bool signed_b = cell->parameters.count(ID::B_SIGNED) > 0 && cell->parameters[ID::B_SIGNED].as_bool();
-		int result_len = cell->parameters.count(ID::Y_WIDTH) > 0 ? cell->parameters[ID::Y_WIDTH].as_int() : -1;
-		return eval(cell->type, arg1, arg2, signed_a, signed_b, result_len, errp);
+		bool signed_a = cell->parameters.गिनती(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool();
+		bool signed_b = cell->parameters.गिनती(ID::B_SIGNED) > 0 && cell->parameters[ID::B_SIGNED].as_bool();
+		पूर्णांक परिणाम_len = cell->parameters.गिनती(ID::Y_WIDTH) > 0 ? cell->parameters[ID::Y_WIDTH].as_int() : -1;
+		वापस eval(cell->type, arg1, arg2, signed_a, signed_b, परिणाम_len, errp);
 	}
 
 	// Consider using the ConstEval struct instead if you need named ports and/or multiple outputs
-	static RTLIL::Const eval(RTLIL::Cell *cell, const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3, bool *errp = nullptr)
+	अटल RTLIL::Const eval(RTLIL::Cell *cell, स्थिर RTLIL::Const &arg1, स्थिर RTLIL::Const &arg2, स्थिर RTLIL::Const &arg3, bool *errp = nullptr)
 	{
-		if (cell->type.in(ID($mux), ID($_MUX_)))
-			return const_mux(arg1, arg2, arg3);
-		if (cell->type == ID($_NMUX_))
-			return eval_not(const_mux(arg1, arg2, arg3));
-		if (cell->type == ID($bwmux))
-			return const_bwmux(arg1, arg2, arg3);
-		if (cell->type == ID($pmux))
-			return const_pmux(arg1, arg2, arg3);
-		if (cell->type == ID($_AOI3_))
-			return eval_not(const_or(const_and(arg1, arg2, false, false, 1), arg3, false, false, 1));
-		if (cell->type == ID($_OAI3_))
-			return eval_not(const_and(const_or(arg1, arg2, false, false, 1), arg3, false, false, 1));
+		अगर (cell->type.in(ID($mux), ID($_MUX_)))
+			वापस const_mux(arg1, arg2, arg3);
+		अगर (cell->type == ID($_NMUX_))
+			वापस eval_not(const_mux(arg1, arg2, arg3));
+		अगर (cell->type == ID($bwmux))
+			वापस const_bwmux(arg1, arg2, arg3);
+		अगर (cell->type == ID($pmux))
+			वापस const_pmux(arg1, arg2, arg3);
+		अगर (cell->type == ID($_AOI3_))
+			वापस eval_not(const_or(const_and(arg1, arg2, false, false, 1), arg3, false, false, 1));
+		अगर (cell->type == ID($_OAI3_))
+			वापस eval_not(const_and(const_or(arg1, arg2, false, false, 1), arg3, false, false, 1));
 
-		log_assert(arg3.size() == 0);
-		return eval(cell, arg1, arg2, errp);
+		log_assert(arg3.आकार() == 0);
+		वापस eval(cell, arg1, arg2, errp);
 	}
 
 	// Consider using the ConstEval struct instead if you need named ports and/or multiple outputs
-	static RTLIL::Const eval(RTLIL::Cell *cell, const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3, const RTLIL::Const &arg4, bool *errp = nullptr)
+	अटल RTLIL::Const eval(RTLIL::Cell *cell, स्थिर RTLIL::Const &arg1, स्थिर RTLIL::Const &arg2, स्थिर RTLIL::Const &arg3, स्थिर RTLIL::Const &arg4, bool *errp = nullptr)
 	{
-		if (cell->type == ID($_AOI4_))
-			return eval_not(const_or(const_and(arg1, arg2, false, false, 1), const_and(arg3, arg4, false, false, 1), false, false, 1));
-		if (cell->type == ID($_OAI4_))
-			return eval_not(const_and(const_or(arg1, arg2, false, false, 1), const_or(arg3, arg4, false, false, 1), false, false, 1));
+		अगर (cell->type == ID($_AOI4_))
+			वापस eval_not(const_or(const_and(arg1, arg2, false, false, 1), const_and(arg3, arg4, false, false, 1), false, false, 1));
+		अगर (cell->type == ID($_OAI4_))
+			वापस eval_not(const_and(const_or(arg1, arg2, false, false, 1), const_or(arg3, arg4, false, false, 1), false, false, 1));
 
-		log_assert(arg4.size() == 0);
-		return eval(cell, arg1, arg2, arg3, errp);
+		log_assert(arg4.आकार() == 0);
+		वापस eval(cell, arg1, arg2, arg3, errp);
 	}
 };
 
 YOSYS_NAMESPACE_END
 
-#endif
+#पूर्ण_अगर

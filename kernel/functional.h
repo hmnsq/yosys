@@ -18,14 +18,14 @@
  *
  */
 
-#ifndef FUNCTIONAL_H
-#define FUNCTIONAL_H
+#अगर_अघोषित FUNCTIONAL_H
+#घोषणा FUNCTIONAL_H
 
-#include "kernel/yosys.h"
-#include "kernel/compute_graph.h"
-#include "kernel/drivertools.h"
-#include "kernel/mem.h"
-#include "kernel/utils.h"
+#समावेश "kernel/yosys.h"
+#समावेश "kernel/compute_graph.h"
+#समावेश "kernel/drivertools.h"
+#समावेश "kernel/mem.h"
+#समावेश "kernel/utils.h"
 
 USING_YOSYS_NAMESPACE
 YOSYS_NAMESPACE_BEGIN
@@ -49,7 +49,7 @@ namespace Functional {
 	// additionally, they can carry a constant of sort int, Const[N] or IdString
 	// each node has a 'sort' field that stores the sort of the node
 	// slice, zero_extend, sign_extend use the sort field to store out_width
-	enum class Fn {
+	क्रमागत class Fn {
 		// invalid() = known-invalid/shouldn't happen value
 		// TODO: maybe remove this and use e.g. std::optional instead?
 		invalid,
@@ -110,20 +110,20 @@ namespace Functional {
 		unsigned_greater_equal,
 		// logical_shift_left(a: bit[N], b: unsigned bit[M]): bit[N] = a << b
 		// required: M == clog2(N)
-		logical_shift_left,
+		logical_shift_बायाँ,
 		// logical_shift_right(a: unsigned bit[N], b: unsigned bit[M]): unsigned bit[N] = a >> b
 		// required: M == clog2(N)
-		logical_shift_right,
+		logical_shift_दायाँ,
 		// arithmetic_shift_right(a: signed bit[N], b: unsigned bit[M]): signed bit[N] = a >> b
 		// required: M == clog2(N)
-		arithmetic_shift_right,
+		arithmetic_shift_दायाँ,
 		// mux(a: bit[N], b: bit[N], s: bit[1]): bit[N] = s ? b : a
 		mux,
 		// constant(a: Const[N]): bit[N] = a
 		constant,
 		// input(a: IdString): any
 		// returns the current value of the input with the specified name
-		input,
+		निवेश,
 		// state(a: IdString): any
 		// returns the current value of the state variable with the specified name
 		state,
@@ -134,510 +134,510 @@ namespace Functional {
 		memory_write
 	};
 	// returns the name of a Fn value, as a string literal
-	const char *fn_to_string(Fn);
+	स्थिर अक्षर *fn_to_string(Fn);
 	// Sort represents the sort or type of a node
 	// currently the only two sorts are signal/bit and memory
 	class Sort {
-		std::variant<int, std::pair<int, int>> _v;
-	public:
-		explicit Sort(int width) : _v(width) { }
-		Sort(int addr_width, int data_width) : _v(std::make_pair(addr_width, data_width)) { }
-		bool is_signal() const { return _v.index() == 0; }
-		bool is_memory() const { return _v.index() == 1; }
+		std::variant<पूर्णांक, std::pair<पूर्णांक, पूर्णांक>> _v;
+	खुला:
+		explicit Sort(पूर्णांक width) : _v(width) { }
+		Sort(पूर्णांक addr_width, पूर्णांक तथ्य_width) : _v(std::make_pair(addr_width, तथ्य_width)) { }
+		bool is_signal() स्थिर { वापस _v.सूचकांक() == 0; }
+		bool is_memory() स्थिर { वापस _v.सूचकांक() == 1; }
 		// returns the width of a bitvector sort, errors out for other sorts
-		int width() const { return std::get<0>(_v); }
+		पूर्णांक width() स्थिर { वापस std::get<0>(_v); }
 		// returns the address width of a bitvector sort, errors out for other sorts
-		int addr_width() const { return std::get<1>(_v).first; }
+		पूर्णांक addr_width() स्थिर { वापस std::get<1>(_v).first; }
 		// returns the data width of a bitvector sort, errors out for other sorts
-		int data_width() const { return std::get<1>(_v).second; }
-		bool operator==(Sort const& other) const { return _v == other._v; }
-		[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(_v); return h; }
+		पूर्णांक तथ्य_width() स्थिर { वापस std::get<1>(_v).second; }
+		bool चालक==(Sort स्थिर& other) स्थिर { वापस _v == other._v; }
+		[[nodiscard]] Hasher hash_into(Hasher h) स्थिर { h.eat(_v); वापस h; }
 	};
 	class IR;
 	class Factory;
-	class Node;
+	class गाँठ_2;
 	class IRInput {
-		friend class Factory;
-	public:
+		मित्र class Factory;
+	खुला:
 		PooledName name;
 		PooledName kind;
 		Sort sort;
-	private:
+	निजी:
 		IRInput(IR &ir, IdString name, IdString kind, Sort sort);
 	};
 	class IROutput {
-		friend class Factory;
+		मित्र class Factory;
 		IR &_ir;
-	public:
+	खुला:
 		PooledName name;
 		PooledName kind;
 		Sort sort;
-	private:
+	निजी:
 		IROutput(IR &ir, IdString name, IdString kind, Sort sort);
-	public:
-		Node value() const;
-		bool has_value() const;
-		void set_value(Node value);
+	खुला:
+		गाँठ_2 मूल्य() स्थिर;
+		bool has_मूल्य() स्थिर;
+		व्योम set_मूल्य(गाँठ_2 मूल्य);
 	};
 	class IRState {
-		friend class Factory;
+		मित्र class Factory;
 		IR &_ir;
-	public:
+	खुला:
 		PooledName name;
 		PooledName kind;
 		Sort sort;
-	private:
+	निजी:
 		std::variant<RTLIL::Const, MemContents> _initial;
 		IRState(IR &ir, IdString name, IdString kind, Sort sort);
-	public:
-		Node next_value() const;
-		bool has_next_value() const;
-		RTLIL::Const const& initial_value_signal() const { return std::get<RTLIL::Const>(_initial); }
-		MemContents const& initial_value_memory() const { return std::get<MemContents>(_initial); }
-		void set_next_value(Node value);
-		void set_initial_value(RTLIL::Const value) { value.extu(sort.width()); _initial = std::move(value); }
-		void set_initial_value(MemContents value) { log_assert(Sort(value.addr_width(), value.data_width()) == sort); _initial = std::move(value); }
+	खुला:
+		गाँठ_2 अग्र_मूल्य() स्थिर;
+		bool has_अग्र_मूल्य() स्थिर;
+		RTLIL::Const स्थिर& initial_मूल्य_signal() स्थिर { वापस std::get<RTLIL::Const>(_initial); }
+		MemContents स्थिर& initial_मूल्य_memory() स्थिर { वापस std::get<MemContents>(_initial); }
+		व्योम set_अग्र_मूल्य(गाँठ_2 मूल्य);
+		व्योम set_initial_मूल्य(RTLIL::Const मूल्य) { मूल्य.extu(sort.width()); _initial = std::move(मूल्य); }
+		व्योम set_initial_मूल्य(MemContents मूल्य) { log_assert(Sort(मूल्य.addr_width(), मूल्य.तथ्य_width()) == sort); _initial = std::move(मूल्य); }
 	};
 	class IR {
-		friend class Factory;
-		friend class Node;
-		friend class IRInput;
-		friend class IROutput;
-		friend class IRState;
+		मित्र class Factory;
+		मित्र class गाँठ_2;
+		मित्र class IRInput;
+		मित्र class IROutput;
+		मित्र class IRState;
 		// one NodeData is stored per Node, containing the function and non-node arguments
 		// note that NodeData is deduplicated by ComputeGraph
-		class NodeData {
+		class गाँठ_तथ्य {
 			Fn _fn;
 			std::variant<
 				std::monostate,
 				RTLIL::Const,
 				std::pair<IdString, IdString>,
-				int
+				पूर्णांक
 			> _extra;
-		public:
-			NodeData() : _fn(Fn::invalid) {}
-			NodeData(Fn fn) : _fn(fn) {}
-			template<class T> NodeData(Fn fn, T &&extra) : _fn(fn), _extra(std::forward<T>(extra)) {}
-			Fn fn() const { return _fn; }
-			const RTLIL::Const &as_const() const { return std::get<RTLIL::Const>(_extra); }
-			std::pair<IdString, IdString> as_idstring_pair() const { return std::get<std::pair<IdString, IdString>>(_extra); }
-			int as_int() const { return std::get<int>(_extra); }
-			[[nodiscard]] Hasher hash_into(Hasher h) const {
-				h.eat((unsigned int) _fn);
+		खुला:
+			गाँठ_तथ्य() : _fn(Fn::invalid) {}
+			गाँठ_तथ्य(Fn fn) : _fn(fn) {}
+			ढाँचा<class T> गाँठ_तथ्य(Fn fn, T &&extra) : _fn(fn), _extra(std::forward<T>(extra)) {}
+			Fn fn() स्थिर { वापस _fn; }
+			स्थिर RTLIL::Const &as_const() स्थिर { वापस std::get<RTLIL::Const>(_extra); }
+			std::pair<IdString, IdString> as_idstring_pair() स्थिर { वापस std::get<std::pair<IdString, IdString>>(_extra); }
+			पूर्णांक as_int() स्थिर { वापस std::get<पूर्णांक>(_extra); }
+			[[nodiscard]] Hasher hash_into(Hasher h) स्थिर {
+				h.eat((अचिन्हित पूर्णांक) _fn);
 				h.eat(_extra);
-				return h;
+				वापस h;
 			}
-			bool operator==(NodeData const &other) const {
-				return _fn == other._fn && _extra == other._extra;
+			bool चालक==(गाँठ_तथ्य स्थिर &other) स्थिर {
+				वापस _fn == other._fn && _extra == other._extra;
 			}
 		};
 		// Attr contains all the information about a note that should not be deduplicated
-		struct Attr {
+		काष्ठा Attr {
 			Sort sort;
 		};
 		// our specialised version of ComputeGraph
 		// the sparse_attr IdString stores a naming suggestion, retrieved with name()
 		// the key is currently used to identify the nodes that represent output and next state values
 		// the bool is true for next state values
-		using Graph = ComputeGraph<NodeData, Attr, IdString, std::tuple<IdString, IdString, bool>>;
+		using Graph = ComputeGraph<गाँठ_तथ्य, Attr, IdString, std::tuple<IdString, IdString, bool>>;
 		Graph _graph;
 		dict<std::pair<IdString, IdString>, IRInput> _inputs;
 		dict<std::pair<IdString, IdString>, IROutput> _outputs;
 		dict<std::pair<IdString, IdString>, IRState> _states;
-		IR::Graph::Ref mutate(Node n);
-	public:
+		IR::Graph::Ref mutate(गाँठ_2 n);
+	खुला:
 		Design *design = nullptr;
-		static IR from_module(Module *module);
+		अटल IR from_module(Module *module);
 		Factory factory();
-		int size() const { return _graph.size(); }
-		Node operator[](int i);
-		void topological_sort();
-		void forward_buf();
-		IRInput const& input(IdString name, IdString kind) const { return _inputs.at({name, kind}); }
-		IRInput const& input(IdString name) const { return input(name, ID($input)); }
-		IROutput const& output(IdString name, IdString kind) const { return _outputs.at({name, kind}); }
-		IROutput const& output(IdString name) const { return output(name, ID($output)); }
-		IRState const& state(IdString name, IdString kind) const { return _states.at({name, kind}); }
-		IRState const& state(IdString name) const { return state(name, ID($state)); }
-		bool has_input(IdString name, IdString kind) const { return _inputs.count({name, kind}); }
-		bool has_output(IdString name, IdString kind) const { return _outputs.count({name, kind}); }
-		bool has_state(IdString name, IdString kind) const { return _states.count({name, kind}); }
-		vector<IRInput const*> inputs(IdString kind) const;
-		vector<IRInput const*> inputs() const { return inputs(ID($input)); }
-		vector<IROutput const*> outputs(IdString kind) const;
-		vector<IROutput const*> outputs() const { return outputs(ID($output)); }
-		vector<IRState const*> states(IdString kind) const;
-		vector<IRState const*> states() const { return states(ID($state)); }
-		vector<IRInput const*> all_inputs() const;
-		vector<IROutput const*> all_outputs() const;
-		vector<IRState const*> all_states() const;
+		पूर्णांक आकार() स्थिर { वापस _graph.आकार(); }
+		गाँठ_2 चालक[](पूर्णांक i);
+		व्योम topological_sort();
+		व्योम forward_buf();
+		IRInput स्थिर& निवेश(IdString name, IdString kind) स्थिर { वापस _inputs.at({name, kind}); }
+		IRInput स्थिर& निवेश(IdString name) स्थिर { वापस निवेश(name, ID($निवेश)); }
+		IROutput स्थिर& output(IdString name, IdString kind) स्थिर { वापस _outputs.at({name, kind}); }
+		IROutput स्थिर& output(IdString name) स्थिर { वापस output(name, ID($output)); }
+		IRState स्थिर& state(IdString name, IdString kind) स्थिर { वापस _states.at({name, kind}); }
+		IRState स्थिर& state(IdString name) स्थिर { वापस state(name, ID($state)); }
+		bool has_निवेश(IdString name, IdString kind) स्थिर { वापस _inputs.गिनती({name, kind}); }
+		bool has_output(IdString name, IdString kind) स्थिर { वापस _outputs.गिनती({name, kind}); }
+		bool has_state(IdString name, IdString kind) स्थिर { वापस _states.गिनती({name, kind}); }
+		vector<IRInput स्थिर*> inputs(IdString kind) स्थिर;
+		vector<IRInput स्थिर*> inputs() स्थिर { वापस inputs(ID($निवेश)); }
+		vector<IROutput स्थिर*> outputs(IdString kind) स्थिर;
+		vector<IROutput स्थिर*> outputs() स्थिर { वापस outputs(ID($output)); }
+		vector<IRState स्थिर*> states(IdString kind) स्थिर;
+		vector<IRState स्थिर*> states() स्थिर { वापस states(ID($state)); }
+		vector<IRInput स्थिर*> all_inputs() स्थिर;
+		vector<IROutput स्थिर*> all_outputs() स्थिर;
+		vector<IRState स्थिर*> all_states() स्थिर;
 		class iterator {
-			friend class IR;
+			मित्र class IR;
 			IR *_ir;
-			int _index;
-			iterator(IR *ir, int index) : _ir(ir), _index(index) {}
-		public:
-			using iterator_category = std::input_iterator_tag;
-			using value_type = Node;
-			using pointer = arrow_proxy<Node>;
-			using reference = Node;
-			using difference_type = ptrdiff_t;
-			Node operator*();
-			iterator &operator++() { _index++; return *this; }
-			bool operator!=(iterator const &other) const { return _ir != other._ir || _index != other._index; }
-			bool operator==(iterator const &other) const { return !(*this != other); }
-			pointer operator->();
+			पूर्णांक सूचकांक_3;
+			iterator(IR *ir, पूर्णांक सूचकांक) : _ir(ir), सूचकांक_3(सूचकांक) {}
+		खुला:
+			using iterator_category = std::निवेश_iterator_tag;
+			using मूल्य_type = गाँठ_2;
+			using pointer = arrow_proxy<गाँठ_2>;
+			using reference = गाँठ_2;
+			using difference_type = सूचक_भेद_प्रकार;
+			गाँठ_2 चालक*();
+			iterator &चालक++() { सूचकांक_3++; वापस *this; }
+			bool चालक!=(iterator स्थिर &other) स्थिर { वापस _ir != other._ir || सूचकांक_3 != other.सूचकांक_3; }
+			bool चालक==(iterator स्थिर &other) स्थिर { वापस !(*this != other); }
+			pointer चालक->();
 		};
-		iterator begin() { return iterator(this, 0); }
-		iterator end() { return iterator(this, _graph.size()); }
+		iterator begin() { वापस iterator(this, 0); }
+		iterator end() { वापस iterator(this, _graph.आकार()); }
 	};
 	// Node is an immutable reference to a FunctionalIR node
-	class Node {
-		friend class Factory;
-		friend class IR;
-		friend class IRInput;
-		friend class IROutput;
-		friend class IRState;
+	class गाँठ_2 {
+		मित्र class Factory;
+		मित्र class IR;
+		मित्र class IRInput;
+		मित्र class IROutput;
+		मित्र class IRState;
 		IR::Graph::ConstRef _ref;
-		Node(IR::Graph::ConstRef ref, Design *design) : _ref(ref), design(design) { }
-		explicit operator IR::Graph::ConstRef() { return _ref; }
-	public:
+		गाँठ_2(IR::Graph::ConstRef ref, Design *design) : _ref(ref), design(design) { }
+		explicit चालक IR::Graph::ConstRef() { वापस _ref; }
+	खुला:
 		Design *design = nullptr;
 		// the node's index. may change if nodes are added or removed
-		int id() const { return _ref.index(); }
+		पूर्णांक id() स्थिर { वापस _ref.सूचकांक(); }
 		// a name suggestion for the node, which need not be unique
-		PooledName name() const {
-			if(_ref.has_sparse_attr())
-				return {design, _ref.sparse_attr()};
-			else
-				return {design, design->twines().add(std::string("\\n") + std::to_string(id()))};
+		PooledName name() स्थिर {
+			अगर(_ref.has_sparse_attr())
+				वापस {design, _ref.sparse_attr()};
+			अन्यथा
+				वापस {design, design->twines().add(std::string("\\n") + std::to_string(id()))};
 		}
-		Fn fn() const { return _ref.function().fn(); }
-		Sort sort() const { return _ref.attr().sort; }
+		Fn fn() स्थिर { वापस _ref.function().fn(); }
+		Sort sort() स्थिर { वापस _ref.attr().sort; }
 		// returns the width of a bitvector node, errors out for other nodes
-		int width() const { return sort().width(); }
-		size_t arg_count() const { return _ref.size(); }
-		Node arg(int n) const { return Node(_ref.arg(n), design); }
+		पूर्णांक width() स्थिर { वापस sort().width(); }
+		माप_प्रकार arg_गिनती() स्थिर { वापस _ref.आकार(); }
+		गाँठ_2 arg(पूर्णांक n) स्थिर { वापस गाँठ_2(_ref.arg(n), design); }
 		// visit calls the appropriate visitor method depending on the type of the node
-		template<class Visitor> auto visit(Visitor v) const
+		ढाँचा<class Visitor> स्वतः visit(Visitor v) स्थिर
 		{
 			// currently templated but could be switched to AbstractVisitor &
-			switch(_ref.function().fn()) {
-			case Fn::invalid: log_error("invalid node in visit\n"); break;
-			case Fn::buf: return v.buf(*this, arg(0)); break;
-			case Fn::slice: return v.slice(*this, arg(0), _ref.function().as_int(), sort().width()); break;
-			case Fn::zero_extend: return v.zero_extend(*this, arg(0), width()); break;
-			case Fn::sign_extend: return v.sign_extend(*this, arg(0), width()); break;
-			case Fn::concat: return v.concat(*this, arg(0), arg(1)); break;
-			case Fn::add: return v.add(*this, arg(0), arg(1)); break;
-			case Fn::sub: return v.sub(*this, arg(0), arg(1)); break;
-			case Fn::mul: return v.mul(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_div: return v.unsigned_div(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_mod: return v.unsigned_mod(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_and: return v.bitwise_and(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_or: return v.bitwise_or(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_xor: return v.bitwise_xor(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_not: return v.bitwise_not(*this, arg(0)); break;
-			case Fn::unary_minus: return v.unary_minus(*this, arg(0)); break;
-			case Fn::reduce_and: return v.reduce_and(*this, arg(0)); break;
-			case Fn::reduce_or: return v.reduce_or(*this, arg(0)); break;
-			case Fn::reduce_xor: return v.reduce_xor(*this, arg(0)); break;
-			case Fn::equal: return v.equal(*this, arg(0), arg(1)); break;
-			case Fn::not_equal: return v.not_equal(*this, arg(0), arg(1)); break;
-			case Fn::signed_greater_than: return v.signed_greater_than(*this, arg(0), arg(1)); break;
-			case Fn::signed_greater_equal: return v.signed_greater_equal(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_greater_than: return v.unsigned_greater_than(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_greater_equal: return v.unsigned_greater_equal(*this, arg(0), arg(1)); break;
-			case Fn::logical_shift_left: return v.logical_shift_left(*this, arg(0), arg(1)); break;
-			case Fn::logical_shift_right: return v.logical_shift_right(*this, arg(0), arg(1)); break;
-			case Fn::arithmetic_shift_right: return v.arithmetic_shift_right(*this, arg(0), arg(1)); break;
-			case Fn::mux: return v.mux(*this, arg(0), arg(1), arg(2)); break;
-			case Fn::constant: return v.constant(*this, _ref.function().as_const()); break;
-			case Fn::input: return v.input(*this, _ref.function().as_idstring_pair().first, _ref.function().as_idstring_pair().second); break;
-			case Fn::state: return v.state(*this, _ref.function().as_idstring_pair().first, _ref.function().as_idstring_pair().second); break;
-			case Fn::memory_read: return v.memory_read(*this, arg(0), arg(1)); break;
-			case Fn::memory_write: return v.memory_write(*this, arg(0), arg(1), arg(2)); break;
+			चयन(_ref.function().fn()) {
+			हाल Fn::invalid: log_error("invalid node in visit\n"); अवरोध;
+			हाल Fn::buf: वापस v.buf(*this, arg(0)); अवरोध;
+			हाल Fn::slice: वापस v.slice(*this, arg(0), _ref.function().as_int(), sort().width()); अवरोध;
+			हाल Fn::zero_extend: वापस v.zero_extend(*this, arg(0), width()); अवरोध;
+			हाल Fn::sign_extend: वापस v.sign_extend(*this, arg(0), width()); अवरोध;
+			हाल Fn::concat: वापस v.concat(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::add: वापस v.add(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::sub: वापस v.sub(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::mul: वापस v.mul(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::unsigned_div: वापस v.unsigned_div(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::unsigned_mod: वापस v.unsigned_mod(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::bitwise_and: वापस v.bitwise_and(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::bitwise_or: वापस v.bitwise_or(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::bitwise_xor: वापस v.bitwise_xor(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::bitwise_not: वापस v.bitwise_not(*this, arg(0)); अवरोध;
+			हाल Fn::unary_minus: वापस v.unary_minus(*this, arg(0)); अवरोध;
+			हाल Fn::reduce_and: वापस v.reduce_and(*this, arg(0)); अवरोध;
+			हाल Fn::reduce_or: वापस v.reduce_or(*this, arg(0)); अवरोध;
+			हाल Fn::reduce_xor: वापस v.reduce_xor(*this, arg(0)); अवरोध;
+			हाल Fn::equal: वापस v.equal(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::not_equal: वापस v.not_equal(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::signed_greater_than: वापस v.signed_greater_than(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::signed_greater_equal: वापस v.signed_greater_equal(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::unsigned_greater_than: वापस v.unsigned_greater_than(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::unsigned_greater_equal: वापस v.unsigned_greater_equal(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::logical_shift_बायाँ: वापस v.logical_shift_बायाँ(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::logical_shift_दायाँ: वापस v.logical_shift_दायाँ(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::arithmetic_shift_दायाँ: वापस v.arithmetic_shift_दायाँ(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::mux: वापस v.mux(*this, arg(0), arg(1), arg(2)); अवरोध;
+			हाल Fn::constant: वापस v.constant(*this, _ref.function().as_const()); अवरोध;
+			हाल Fn::निवेश: वापस v.निवेश(*this, _ref.function().as_idstring_pair().first, _ref.function().as_idstring_pair().second); अवरोध;
+			हाल Fn::state: वापस v.state(*this, _ref.function().as_idstring_pair().first, _ref.function().as_idstring_pair().second); अवरोध;
+			हाल Fn::memory_read: वापस v.memory_read(*this, arg(0), arg(1)); अवरोध;
+			हाल Fn::memory_write: वापस v.memory_write(*this, arg(0), arg(1), arg(2)); अवरोध;
 			}
 			log_abort();
 		}
 		std::string to_string();
-		std::string to_string(std::function<std::string(Node)>);
+		std::string to_string(std::function<std::string(गाँठ_2)>);
 	};
-	inline IRInput::IRInput(IR &ir, IdString name, IdString kind, Sort sort)
+	अंतरभूत IRInput::IRInput(IR &ir, IdString name, IdString kind, Sort sort)
 		: name(ir.design, name), kind(ir.design, kind), sort(std::move(sort)) {}
-	inline IROutput::IROutput(IR &ir, IdString name, IdString kind, Sort sort)
+	अंतरभूत IROutput::IROutput(IR &ir, IdString name, IdString kind, Sort sort)
 		: _ir(ir), name(ir.design, name), kind(ir.design, kind), sort(std::move(sort)) {}
-	inline IRState::IRState(IR &ir, IdString name, IdString kind, Sort sort)
+	अंतरभूत IRState::IRState(IR &ir, IdString name, IdString kind, Sort sort)
 		: _ir(ir), name(ir.design, name), kind(ir.design, kind), sort(std::move(sort)) {}
-	inline IR::Graph::Ref IR::mutate(Node n) { return _graph[n._ref.index()]; }
-	inline Node IR::operator[](int i) { return Node(_graph[i], design); }
-	inline Node IROutput::value() const { return Node(_ir._graph({name, kind, false}), _ir.design); }
-	inline bool IROutput::has_value() const { return _ir._graph.has_key({name, kind, false}); }
-	inline void IROutput::set_value(Node value) { log_assert(sort == value.sort()); _ir.mutate(value).assign_key({name, kind, false}); }
-	inline Node IRState::next_value() const { return Node(_ir._graph({name, kind, true}), _ir.design); }
-	inline bool IRState::has_next_value() const { return _ir._graph.has_key({name, kind, true}); }
-	inline void IRState::set_next_value(Node value) { log_assert(sort == value.sort()); _ir.mutate(value).assign_key({name, kind, true}); }
-	inline Node IR::iterator::operator*() { return Node(_ir->_graph[_index], _ir->design); }
-	inline arrow_proxy<Node> IR::iterator::operator->() { return arrow_proxy<Node>(**this); }
+	अंतरभूत IR::Graph::Ref IR::mutate(गाँठ_2 n) { वापस _graph[n._ref.सूचकांक()]; }
+	अंतरभूत गाँठ_2 IR::चालक[](पूर्णांक i) { वापस गाँठ_2(_graph[i], design); }
+	अंतरभूत गाँठ_2 IROutput::मूल्य() स्थिर { वापस गाँठ_2(_ir._graph({name, kind, false}), _ir.design); }
+	अंतरभूत bool IROutput::has_मूल्य() स्थिर { वापस _ir._graph.has_कुंजी({name, kind, false}); }
+	अंतरभूत व्योम IROutput::set_मूल्य(गाँठ_2 मूल्य) { log_assert(sort == मूल्य.sort()); _ir.mutate(मूल्य).assign_कुंजी({name, kind, false}); }
+	अंतरभूत गाँठ_2 IRState::अग्र_मूल्य() स्थिर { वापस गाँठ_2(_ir._graph({name, kind, true}), _ir.design); }
+	अंतरभूत bool IRState::has_अग्र_मूल्य() स्थिर { वापस _ir._graph.has_कुंजी({name, kind, true}); }
+	अंतरभूत व्योम IRState::set_अग्र_मूल्य(गाँठ_2 मूल्य) { log_assert(sort == मूल्य.sort()); _ir.mutate(मूल्य).assign_कुंजी({name, kind, true}); }
+	अंतरभूत गाँठ_2 IR::iterator::चालक*() { वापस गाँठ_2(_ir->_graph[सूचकांक_3], _ir->design); }
+	अंतरभूत arrow_proxy<गाँठ_2> IR::iterator::चालक->() { वापस arrow_proxy<गाँठ_2>(**this); }
 	// AbstractVisitor provides an abstract base class for visitors
-	template<class T> struct AbstractVisitor {
-		virtual T buf(Node self, Node n) = 0;
-		virtual T slice(Node self, Node a, int offset, int out_width) = 0;
-		virtual T zero_extend(Node self, Node a, int out_width) = 0;
-		virtual T sign_extend(Node self, Node a, int out_width) = 0;
-		virtual T concat(Node self, Node a, Node b) = 0;
-		virtual T add(Node self, Node a, Node b) = 0;
-		virtual T sub(Node self, Node a, Node b) = 0;
-		virtual T mul(Node self, Node a, Node b) = 0;
-		virtual T unsigned_div(Node self, Node a, Node b) = 0;
-		virtual T unsigned_mod(Node self, Node a, Node b) = 0;
-		virtual T bitwise_and(Node self, Node a, Node b) = 0;
-		virtual T bitwise_or(Node self, Node a, Node b) = 0;
-		virtual T bitwise_xor(Node self, Node a, Node b) = 0;
-		virtual T bitwise_not(Node self, Node a) = 0;
-		virtual T unary_minus(Node self, Node a) = 0;
-		virtual T reduce_and(Node self, Node a) = 0;
-		virtual T reduce_or(Node self, Node a) = 0;
-		virtual T reduce_xor(Node self, Node a) = 0;
-		virtual T equal(Node self, Node a, Node b) = 0;
-		virtual T not_equal(Node self, Node a, Node b) = 0;
-		virtual T signed_greater_than(Node self, Node a, Node b) = 0;
-		virtual T signed_greater_equal(Node self, Node a, Node b) = 0;
-		virtual T unsigned_greater_than(Node self, Node a, Node b) = 0;
-		virtual T unsigned_greater_equal(Node self, Node a, Node b) = 0;
-		virtual T logical_shift_left(Node self, Node a, Node b) = 0;
-		virtual T logical_shift_right(Node self, Node a, Node b) = 0;
-		virtual T arithmetic_shift_right(Node self, Node a, Node b) = 0;
-		virtual T mux(Node self, Node a, Node b, Node s) = 0;
-		virtual T constant(Node self, RTLIL::Const const & value) = 0;
-		virtual T input(Node self, IdString name, IdString kind) = 0;
-		virtual T state(Node self, IdString name, IdString kind) = 0;
-		virtual T memory_read(Node self, Node mem, Node addr) = 0;
-		virtual T memory_write(Node self, Node mem, Node addr, Node data) = 0;
+	ढाँचा<class T> काष्ठा AbstractVisitor {
+		भव T buf(गाँठ_2 self, गाँठ_2 n) = 0;
+		भव T slice(गाँठ_2 self, गाँठ_2 a, पूर्णांक offset, पूर्णांक out_width) = 0;
+		भव T zero_extend(गाँठ_2 self, गाँठ_2 a, पूर्णांक out_width) = 0;
+		भव T sign_extend(गाँठ_2 self, गाँठ_2 a, पूर्णांक out_width) = 0;
+		भव T concat(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T add(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T sub(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T mul(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T unsigned_div(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T unsigned_mod(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T bitwise_and(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T bitwise_or(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T bitwise_xor(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T bitwise_not(गाँठ_2 self, गाँठ_2 a) = 0;
+		भव T unary_minus(गाँठ_2 self, गाँठ_2 a) = 0;
+		भव T reduce_and(गाँठ_2 self, गाँठ_2 a) = 0;
+		भव T reduce_or(गाँठ_2 self, गाँठ_2 a) = 0;
+		भव T reduce_xor(गाँठ_2 self, गाँठ_2 a) = 0;
+		भव T equal(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T not_equal(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T signed_greater_than(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T signed_greater_equal(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T unsigned_greater_than(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T unsigned_greater_equal(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T logical_shift_बायाँ(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T logical_shift_दायाँ(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T arithmetic_shift_दायाँ(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b) = 0;
+		भव T mux(गाँठ_2 self, गाँठ_2 a, गाँठ_2 b, गाँठ_2 s) = 0;
+		भव T constant(गाँठ_2 self, RTLIL::Const स्थिर & मूल्य) = 0;
+		भव T निवेश(गाँठ_2 self, IdString name, IdString kind) = 0;
+		भव T state(गाँठ_2 self, IdString name, IdString kind) = 0;
+		भव T memory_read(गाँठ_2 self, गाँठ_2 mem, गाँठ_2 addr) = 0;
+		भव T memory_write(गाँठ_2 self, गाँठ_2 mem, गाँठ_2 addr, गाँठ_2 तथ्य) = 0;
 	};
 	// DefaultVisitor provides defaults for all visitor methods which just calls default_handler
-	template<class T> struct DefaultVisitor : public AbstractVisitor<T> {
-		virtual T default_handler(Node self) = 0;
-		T buf(Node self, Node) override { return default_handler(self); }
-		T slice(Node self, Node, int, int) override { return default_handler(self); }
-		T zero_extend(Node self, Node, int) override { return default_handler(self); }
-		T sign_extend(Node self, Node, int) override { return default_handler(self); }
-		T concat(Node self, Node, Node) override { return default_handler(self); }
-		T add(Node self, Node, Node) override { return default_handler(self); }
-		T sub(Node self, Node, Node) override { return default_handler(self); }
-		T mul(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_div(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_mod(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_and(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_or(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_xor(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_not(Node self, Node) override { return default_handler(self); }
-		T unary_minus(Node self, Node) override { return default_handler(self); }
-		T reduce_and(Node self, Node) override { return default_handler(self); }
-		T reduce_or(Node self, Node) override { return default_handler(self); }
-		T reduce_xor(Node self, Node) override { return default_handler(self); }
-		T equal(Node self, Node, Node) override { return default_handler(self); }
-		T not_equal(Node self, Node, Node) override { return default_handler(self); }
-		T signed_greater_than(Node self, Node, Node) override { return default_handler(self); }
-		T signed_greater_equal(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_greater_than(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_greater_equal(Node self, Node, Node) override { return default_handler(self); }
-		T logical_shift_left(Node self, Node, Node) override { return default_handler(self); }
-		T logical_shift_right(Node self, Node, Node) override { return default_handler(self); }
-		T arithmetic_shift_right(Node self, Node, Node) override { return default_handler(self); }
-		T mux(Node self, Node, Node, Node) override { return default_handler(self); }
-		T constant(Node self, RTLIL::Const const &) override { return default_handler(self); }
-		T input(Node self, IdString, IdString) override { return default_handler(self); }
-		T state(Node self, IdString, IdString) override { return default_handler(self); }
-		T memory_read(Node self, Node, Node) override { return default_handler(self); }
-		T memory_write(Node self, Node, Node, Node) override { return default_handler(self); }
+	ढाँचा<class T> काष्ठा DefaultVisitor : खुला AbstractVisitor<T> {
+		भव T default_handler(गाँठ_2 self) = 0;
+		T buf(गाँठ_2 self, गाँठ_2) override { वापस default_handler(self); }
+		T slice(गाँठ_2 self, गाँठ_2, पूर्णांक, पूर्णांक) override { वापस default_handler(self); }
+		T zero_extend(गाँठ_2 self, गाँठ_2, पूर्णांक) override { वापस default_handler(self); }
+		T sign_extend(गाँठ_2 self, गाँठ_2, पूर्णांक) override { वापस default_handler(self); }
+		T concat(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T add(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T sub(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T mul(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T unsigned_div(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T unsigned_mod(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T bitwise_and(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T bitwise_or(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T bitwise_xor(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T bitwise_not(गाँठ_2 self, गाँठ_2) override { वापस default_handler(self); }
+		T unary_minus(गाँठ_2 self, गाँठ_2) override { वापस default_handler(self); }
+		T reduce_and(गाँठ_2 self, गाँठ_2) override { वापस default_handler(self); }
+		T reduce_or(गाँठ_2 self, गाँठ_2) override { वापस default_handler(self); }
+		T reduce_xor(गाँठ_2 self, गाँठ_2) override { वापस default_handler(self); }
+		T equal(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T not_equal(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T signed_greater_than(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T signed_greater_equal(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T unsigned_greater_than(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T unsigned_greater_equal(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T logical_shift_बायाँ(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T logical_shift_दायाँ(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T arithmetic_shift_दायाँ(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T mux(गाँठ_2 self, गाँठ_2, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T constant(गाँठ_2 self, RTLIL::Const स्थिर &) override { वापस default_handler(self); }
+		T निवेश(गाँठ_2 self, IdString, IdString) override { वापस default_handler(self); }
+		T state(गाँठ_2 self, IdString, IdString) override { वापस default_handler(self); }
+		T memory_read(गाँठ_2 self, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
+		T memory_write(गाँठ_2 self, गाँठ_2, गाँठ_2, गाँठ_2) override { वापस default_handler(self); }
 	};
 	// a factory is used to modify a FunctionalIR. it creates new nodes and allows for some modification of existing nodes.
 	class Factory {
-		friend class IR;
+		मित्र class IR;
 		IR &_ir;
 		explicit Factory(IR &ir) : _ir(ir) {}
-		Node add(IR::NodeData &&fn, Sort const &sort, std::initializer_list<Node> args) {
+		गाँठ_2 add(IR::गाँठ_तथ्य &&fn, Sort स्थिर &sort, std::initializer_list<गाँठ_2> args) {
 			log_assert(!sort.is_signal() || sort.width() > 0);
-			log_assert(!sort.is_memory() || (sort.addr_width() > 0 && sort.data_width() > 0));
+			log_assert(!sort.is_memory() || (sort.addr_width() > 0 && sort.तथ्य_width() > 0));
 			IR::Graph::Ref ref = _ir._graph.add(std::move(fn), {std::move(sort)});
-			for (auto arg : args)
+			क्रम (स्वतः arg : args)
 				ref.append_arg(IR::Graph::ConstRef(arg));
-			return Node(ref, _ir.design);
+			वापस गाँठ_2(ref, _ir.design);
 		}
-		void check_basic_binary(Node const &a, Node const &b) { log_assert(a.sort().is_signal() && a.sort() == b.sort()); }
-		void check_shift(Node const &a, Node const &b) { log_assert(a.sort().is_signal() && b.sort().is_signal() && b.width() == ceil_log2(a.width())); }
-		void check_unary(Node const &a) { log_assert(a.sort().is_signal()); }
-	public:
-		IR &ir() { return _ir; }
-		Node slice(Node a, int offset, int out_width) {
+		व्योम check_basic_द्विआधारी(गाँठ_2 स्थिर &a, गाँठ_2 स्थिर &b) { log_assert(a.sort().is_signal() && a.sort() == b.sort()); }
+		व्योम check_shift(गाँठ_2 स्थिर &a, गाँठ_2 स्थिर &b) { log_assert(a.sort().is_signal() && b.sort().is_signal() && b.width() == ceil_log2(a.width())); }
+		व्योम check_unary(गाँठ_2 स्थिर &a) { log_assert(a.sort().is_signal()); }
+	खुला:
+		IR &ir() { वापस _ir; }
+		गाँठ_2 slice(गाँठ_2 a, पूर्णांक offset, पूर्णांक out_width) {
 			log_assert(a.sort().is_signal() && offset + out_width <= a.sort().width());
-			if(offset == 0 && out_width == a.width())
-				return a;
-			return add(IR::NodeData(Fn::slice, offset), Sort(out_width), {a});
+			अगर(offset == 0 && out_width == a.width())
+				वापस a;
+			वापस add(IR::गाँठ_तथ्य(Fn::slice, offset), Sort(out_width), {a});
 		}
 		// extend will either extend or truncate the provided value to reach the desired width
-		Node extend(Node a, int out_width, bool is_signed) {
-			int in_width = a.sort().width();
+		गाँठ_2 extend(गाँठ_2 a, पूर्णांक out_width, bool is_signed) {
+			पूर्णांक in_width = a.sort().width();
 			log_assert(a.sort().is_signal());
-			if(in_width == out_width)
-				return a;
-			if(in_width > out_width)
-				return slice(a, 0, out_width);
-			if(is_signed)
-				return add(Fn::sign_extend, Sort(out_width), {a});
-			else
-				return add(Fn::zero_extend, Sort(out_width), {a});
+			अगर(in_width == out_width)
+				वापस a;
+			अगर(in_width > out_width)
+				वापस slice(a, 0, out_width);
+			अगर(is_signed)
+				वापस add(Fn::sign_extend, Sort(out_width), {a});
+			अन्यथा
+				वापस add(Fn::zero_extend, Sort(out_width), {a});
 		}
-		Node concat(Node a, Node b) {
+		गाँठ_2 concat(गाँठ_2 a, गाँठ_2 b) {
 			log_assert(a.sort().is_signal() && b.sort().is_signal());
-			return add(Fn::concat, Sort(a.sort().width() + b.sort().width()), {a, b});
+			वापस add(Fn::concat, Sort(a.sort().width() + b.sort().width()), {a, b});
 		}
-		Node add(Node a, Node b) { check_basic_binary(a, b); return add(Fn::add, a.sort(), {a, b}); }
-		Node sub(Node a, Node b) { check_basic_binary(a, b); return add(Fn::sub, a.sort(), {a, b}); }
-		Node mul(Node a, Node b) { check_basic_binary(a, b); return add(Fn::mul, a.sort(), {a, b}); }
-		Node unsigned_div(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_div, a.sort(), {a, b}); }
-		Node unsigned_mod(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_mod, a.sort(), {a, b}); }
-		Node bitwise_and(Node a, Node b) { check_basic_binary(a, b); return add(Fn::bitwise_and, a.sort(), {a, b}); }
-		Node bitwise_or(Node a, Node b) { check_basic_binary(a, b); return add(Fn::bitwise_or, a.sort(), {a, b}); }
-		Node bitwise_xor(Node a, Node b) { check_basic_binary(a, b); return add(Fn::bitwise_xor, a.sort(), {a, b}); }
-		Node bitwise_not(Node a) { check_unary(a); return add(Fn::bitwise_not, a.sort(), {a}); }
-		Node unary_minus(Node a) { check_unary(a); return add(Fn::unary_minus, a.sort(), {a}); }
-		Node reduce_and(Node a) {
+		गाँठ_2 add(गाँठ_2 a, गाँठ_2 b) { check_basic_द्विआधारी(a, b); वापस add(Fn::add, a.sort(), {a, b}); }
+		गाँठ_2 sub(गाँठ_2 a, गाँठ_2 b) { check_basic_द्विआधारी(a, b); वापस add(Fn::sub, a.sort(), {a, b}); }
+		गाँठ_2 mul(गाँठ_2 a, गाँठ_2 b) { check_basic_द्विआधारी(a, b); वापस add(Fn::mul, a.sort(), {a, b}); }
+		गाँठ_2 unsigned_div(गाँठ_2 a, गाँठ_2 b) { check_basic_द्विआधारी(a, b); वापस add(Fn::unsigned_div, a.sort(), {a, b}); }
+		गाँठ_2 unsigned_mod(गाँठ_2 a, गाँठ_2 b) { check_basic_द्विआधारी(a, b); वापस add(Fn::unsigned_mod, a.sort(), {a, b}); }
+		गाँठ_2 bitwise_and(गाँठ_2 a, गाँठ_2 b) { check_basic_द्विआधारी(a, b); वापस add(Fn::bitwise_and, a.sort(), {a, b}); }
+		गाँठ_2 bitwise_or(गाँठ_2 a, गाँठ_2 b) { check_basic_द्विआधारी(a, b); वापस add(Fn::bitwise_or, a.sort(), {a, b}); }
+		गाँठ_2 bitwise_xor(गाँठ_2 a, गाँठ_2 b) { check_basic_द्विआधारी(a, b); वापस add(Fn::bitwise_xor, a.sort(), {a, b}); }
+		गाँठ_2 bitwise_not(गाँठ_2 a) { check_unary(a); वापस add(Fn::bitwise_not, a.sort(), {a}); }
+		गाँठ_2 unary_minus(गाँठ_2 a) { check_unary(a); वापस add(Fn::unary_minus, a.sort(), {a}); }
+		गाँठ_2 reduce_and(गाँठ_2 a) {
 			check_unary(a);
-			if(a.width() == 1)
-				return a;
-			return add(Fn::reduce_and, Sort(1), {a});
+			अगर(a.width() == 1)
+				वापस a;
+			वापस add(Fn::reduce_and, Sort(1), {a});
 		}
-		Node reduce_or(Node a) {
+		गाँठ_2 reduce_or(गाँठ_2 a) {
 			check_unary(a);
-			if(a.width() == 1)
-				return a;
-			return add(Fn::reduce_or, Sort(1), {a});
+			अगर(a.width() == 1)
+				वापस a;
+			वापस add(Fn::reduce_or, Sort(1), {a});
 		}
-		Node reduce_xor(Node a) {
+		गाँठ_2 reduce_xor(गाँठ_2 a) {
 			check_unary(a);
-			if(a.width() == 1)
-				return a;
-			return add(Fn::reduce_xor, Sort(1), {a});
+			अगर(a.width() == 1)
+				वापस a;
+			वापस add(Fn::reduce_xor, Sort(1), {a});
 		}
-		Node equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::equal, Sort(1), {a, b}); }
-		Node not_equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::not_equal, Sort(1), {a, b}); }
-		Node signed_greater_than(Node a, Node b) { check_basic_binary(a, b); return add(Fn::signed_greater_than, Sort(1), {a, b}); }
-		Node signed_greater_equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::signed_greater_equal, Sort(1), {a, b}); }
-		Node unsigned_greater_than(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_greater_than, Sort(1), {a, b}); }
-		Node unsigned_greater_equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_greater_equal, Sort(1), {a, b}); }
-		Node logical_shift_left(Node a, Node b) { check_shift(a, b); return add(Fn::logical_shift_left, a.sort(), {a, b}); }
-		Node logical_shift_right(Node a, Node b) { check_shift(a, b); return add(Fn::logical_shift_right, a.sort(), {a, b}); }
-		Node arithmetic_shift_right(Node a, Node b) { check_shift(a, b); return add(Fn::arithmetic_shift_right, a.sort(), {a, b}); }
-		Node mux(Node a, Node b, Node s) {
+		गाँठ_2 equal(गाँठ_2 a, गाँठ_2 b) { check_basic_द्विआधारी(a, b); वापस add(Fn::equal, Sort(1), {a, b}); }
+		गाँठ_2 not_equal(गाँठ_2 a, गाँठ_2 b) { check_basic_द्विआधारी(a, b); वापस add(Fn::not_equal, Sort(1), {a, b}); }
+		गाँठ_2 signed_greater_than(गाँठ_2 a, गाँठ_2 b) { check_basic_द्विआधारी(a, b); वापस add(Fn::signed_greater_than, Sort(1), {a, b}); }
+		गाँठ_2 signed_greater_equal(गाँठ_2 a, गाँठ_2 b) { check_basic_द्विआधारी(a, b); वापस add(Fn::signed_greater_equal, Sort(1), {a, b}); }
+		गाँठ_2 unsigned_greater_than(गाँठ_2 a, गाँठ_2 b) { check_basic_द्विआधारी(a, b); वापस add(Fn::unsigned_greater_than, Sort(1), {a, b}); }
+		गाँठ_2 unsigned_greater_equal(गाँठ_2 a, गाँठ_2 b) { check_basic_द्विआधारी(a, b); वापस add(Fn::unsigned_greater_equal, Sort(1), {a, b}); }
+		गाँठ_2 logical_shift_बायाँ(गाँठ_2 a, गाँठ_2 b) { check_shift(a, b); वापस add(Fn::logical_shift_बायाँ, a.sort(), {a, b}); }
+		गाँठ_2 logical_shift_दायाँ(गाँठ_2 a, गाँठ_2 b) { check_shift(a, b); वापस add(Fn::logical_shift_दायाँ, a.sort(), {a, b}); }
+		गाँठ_2 arithmetic_shift_दायाँ(गाँठ_2 a, गाँठ_2 b) { check_shift(a, b); वापस add(Fn::arithmetic_shift_दायाँ, a.sort(), {a, b}); }
+		गाँठ_2 mux(गाँठ_2 a, गाँठ_2 b, गाँठ_2 s) {
 			log_assert(a.sort().is_signal() && a.sort() == b.sort() && s.sort() == Sort(1));
-			return add(Fn::mux, a.sort(), {a, b, s});
+			वापस add(Fn::mux, a.sort(), {a, b, s});
 		}
-		Node memory_read(Node mem, Node addr) {
+		गाँठ_2 memory_read(गाँठ_2 mem, गाँठ_2 addr) {
 			log_assert(mem.sort().is_memory() && addr.sort().is_signal() && mem.sort().addr_width() == addr.sort().width());
-			return add(Fn::memory_read, Sort(mem.sort().data_width()), {mem, addr});
+			वापस add(Fn::memory_read, Sort(mem.sort().तथ्य_width()), {mem, addr});
 		}
-		Node memory_write(Node mem, Node addr, Node data) {
-			log_assert(mem.sort().is_memory() && addr.sort().is_signal() && data.sort().is_signal() &&
-				mem.sort().addr_width() == addr.sort().width() && mem.sort().data_width() == data.sort().width());
-			return add(Fn::memory_write, mem.sort(), {mem, addr, data});
+		गाँठ_2 memory_write(गाँठ_2 mem, गाँठ_2 addr, गाँठ_2 तथ्य) {
+			log_assert(mem.sort().is_memory() && addr.sort().is_signal() && तथ्य.sort().is_signal() &&
+				mem.sort().addr_width() == addr.sort().width() && mem.sort().तथ्य_width() == तथ्य.sort().width());
+			वापस add(Fn::memory_write, mem.sort(), {mem, addr, तथ्य});
 		}
-		Node constant(RTLIL::Const value) {
-			int s = value.size();
-			return add(IR::NodeData(Fn::constant, std::move(value)), Sort(s), {});
+		गाँठ_2 constant(RTLIL::Const मूल्य) {
+			पूर्णांक s = मूल्य.आकार();
+			वापस add(IR::गाँठ_तथ्य(Fn::constant, std::move(मूल्य)), Sort(s), {});
 		}
-		Node create_pending(int width) {
-			return add(Fn::buf, Sort(width), {});
+		गाँठ_2 create_pending(पूर्णांक width) {
+			वापस add(Fn::buf, Sort(width), {});
 		}
-		void update_pending(Node node, Node value) {
-			log_assert(node._ref.function() == Fn::buf && node._ref.size() == 0);
-			log_assert(node.sort() == value.sort());
-			_ir.mutate(node).append_arg(value._ref);
+		व्योम update_pending(गाँठ_2 गाँठ, गाँठ_2 मूल्य) {
+			log_assert(गाँठ._ref.function() == Fn::buf && गाँठ._ref.आकार() == 0);
+			log_assert(गाँठ.sort() == मूल्य.sort());
+			_ir.mutate(गाँठ).append_arg(मूल्य._ref);
 		}
-		IRInput &add_input(IdString name, IdString kind, Sort sort) {
-			auto [it, inserted] = _ir._inputs.emplace({name, kind}, IRInput(_ir, name, kind, std::move(sort)));
-			if (!inserted) log_error("input `%s` was re-defined\n", _ir.design->twines().str(name));
-			return it->second;
+		IRInput &add_निवेश(IdString name, IdString kind, Sort sort) {
+			स्वतः [it, inserted] = _ir._inputs.emplace({name, kind}, IRInput(_ir, name, kind, std::move(sort)));
+			अगर (!inserted) log_error("input `%s` was re-defined\n", _ir.design->twines().str(name));
+			वापस it->second;
 		}
 		IROutput &add_output(IdString name, IdString kind, Sort sort) {
-			auto [it, inserted] = _ir._outputs.emplace({name, kind}, IROutput(_ir, name, kind, std::move(sort)));
-			if (!inserted) log_error("output `%s` was re-defined\n", _ir.design->twines().str(name));
-			return it->second;
+			स्वतः [it, inserted] = _ir._outputs.emplace({name, kind}, IROutput(_ir, name, kind, std::move(sort)));
+			अगर (!inserted) log_error("output `%s` was re-defined\n", _ir.design->twines().str(name));
+			वापस it->second;
 		}
 		IRState &add_state(IdString name, IdString kind, Sort sort) {
-			auto [it, inserted] = _ir._states.emplace({name, kind}, IRState(_ir, name, kind, std::move(sort)));
-			if (!inserted) log_error("state `%s` was re-defined\n", _ir.design->twines().str(name));
-			return it->second;
+			स्वतः [it, inserted] = _ir._states.emplace({name, kind}, IRState(_ir, name, kind, std::move(sort)));
+			अगर (!inserted) log_error("state `%s` was re-defined\n", _ir.design->twines().str(name));
+			वापस it->second;
 		}
-		Node value(IRInput const& input) {
-			return add(IR::NodeData(Fn::input, std::pair(input.name, input.kind)), input.sort, {});
+		गाँठ_2 मूल्य(IRInput स्थिर& निवेश) {
+			वापस add(IR::गाँठ_तथ्य(Fn::निवेश, std::pair(निवेश.name, निवेश.kind)), निवेश.sort, {});
 		}
-		Node value(IRState const& state) {
-			return add(IR::NodeData(Fn::state, std::pair(state.name, state.kind)), state.sort, {});
+		गाँठ_2 मूल्य(IRState स्थिर& state) {
+			वापस add(IR::गाँठ_तथ्य(Fn::state, std::pair(state.name, state.kind)), state.sort, {});
 		}
-		void suggest_name(Node node, IdString name) {
-			_ir.mutate(node).sparse_attr() = name;
+		व्योम suggest_name(गाँठ_2 गाँठ, IdString name) {
+			_ir.mutate(गाँठ).sparse_attr() = name;
 		}
 		YS_NAME_FWD_2ND_POOL(suggest_name, _ir.design->twines())
 	};
-	inline Factory IR::factory() { return Factory(*this); }
-	template<class Id> class Scope {
-	protected:
-		char substitution_character = '_';
-		virtual bool is_character_legal(char, int) = 0;
-	private:
+	अंतरभूत Factory IR::factory() { वापस Factory(*this); }
+	ढाँचा<class Id> class Scope {
+	रक्षित:
+		अक्षर substitution_character = '_';
+		भव bool is_character_legal(अक्षर, पूर्णांक) = 0;
+	निजी:
 		pool<std::string> _used_names;
 		dict<Id, std::string> _by_id;
-	public:
-		void reserve(std::string name) {
-			_used_names.insert(std::move(name));
+	खुला:
+		व्योम reserve(std::string name) {
+			_used_names.जोड़ो(std::move(name));
 		}
-		template<typename N> std::string unique_name(const N &suggestion) {
+		ढाँचा<typename N> std::string unique_name(स्थिर N &suggestion) {
 			std::string str = RTLIL::unescape_id(suggestion);
-			for(size_t i = 0; i < str.size(); i++)
-				if(!is_character_legal(str[i], i))
+			क्रम(माप_प्रकार i = 0; i < str.आकार(); i++)
+				अगर(!is_character_legal(str[i], i))
 					str[i] = substitution_character;
-			if(_used_names.count(str) == 0) {
-				_used_names.insert(str);
-				return str;
+			अगर(_used_names.गिनती(str) == 0) {
+				_used_names.जोड़ो(str);
+				वापस str;
 			}
-			for (int idx = 0 ; ; idx++){
+			क्रम (पूर्णांक idx = 0 ; ; idx++){
 				std::string suffixed = str + "_" + std::to_string(idx);
-				if(_used_names.count(suffixed) == 0) {
-					_used_names.insert(suffixed);
-					return suffixed;
+				अगर(_used_names.गिनती(suffixed) == 0) {
+					_used_names.जोड़ो(suffixed);
+					वापस suffixed;
 				}
 			}
 		}
-		template<typename N> std::string operator()(Id id, const N &suggestion) {
-			auto it = _by_id.find(id);
-			if(it != _by_id.end())
-				return it->second;
+		ढाँचा<typename N> std::string चालक()(Id id, स्थिर N &suggestion) {
+			स्वतः it = _by_id.find(id);
+			अगर(it != _by_id.end())
+				वापस it->second;
 			std::string str = unique_name(suggestion);
-			_by_id.insert({id, str});
-			return str;
+			_by_id.जोड़ो({id, str});
+			वापस str;
 		}
 	};
 	class Writer {
 		std::ostream *os;
-		void print_impl(const char *fmt, vector<std::function<void()>>& fns);
-	public:
+		व्योम print_impl(स्थिर अक्षर *fmt, vector<std::function<व्योम()>>& fns);
+	खुला:
 		Writer(std::ostream &os) : os(&os) {}
-		template<class T> Writer& operator <<(T&& arg) { *os << std::forward<T>(arg); return *this; }
-		template<typename... Args>
-		void print(const char *fmt, Args&&... args)
+		ढाँचा<class T> Writer& चालक <<(T&& arg) { *os << std::forward<T>(arg); वापस *this; }
+		ढाँचा<typename... Args>
+		व्योम print(स्थिर अक्षर *fmt, Args&&... args)
 		{
-			vector<std::function<void()>> fns { [&]() { *this << args; }... };
+			vector<std::function<व्योम()>> fns { [&]() { *this << args; }... };
 			print_impl(fmt, fns);
 		}
-		template<typename Fn, typename... Args>
-		void print_with(Fn fn, const char *fmt, Args&&... args)
+		ढाँचा<typename Fn, typename... Args>
+		व्योम print_with(Fn fn, स्थिर अक्षर *fmt, Args&&... args)
 		{
-			vector<std::function<void()>> fns { [&]() {
-				if constexpr (std::is_invocable_v<Fn, Args>)
+			vector<std::function<व्योम()>> fns { [&]() {
+				अगर constexpr (std::is_invocable_v<Fn, Args>)
 					*this << fn(args);
-				else
+				अन्यथा
 					*this << args; }...
 			};
 			print_impl(fmt, fns);
@@ -648,4 +648,4 @@ namespace Functional {
 
 YOSYS_NAMESPACE_END
 
-#endif
+#पूर्ण_अगर

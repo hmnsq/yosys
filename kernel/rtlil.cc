@@ -17,463 +17,463 @@
  *
  */
 
-#include "kernel/rtlil.h"
-#include "kernel/yosys.h"
-#include "kernel/macc.h"
-#include "kernel/newcelltypes.h"
-#include "kernel/sigtools.h"
-#include "kernel/threading.h"
-#include "frontends/verilog/verilog_frontend.h"
-#include "frontends/verilog/preproc.h"
-#include "backends/rtlil/rtlil_backend.h"
+#समावेश "kernel/rtlil.h"
+#समावेश "kernel/yosys.h"
+#समावेश "kernel/macc.h"
+#समावेश "kernel/newcelltypes.h"
+#समावेश "kernel/sigtools.h"
+#समावेश "kernel/threading.h"
+#समावेश "frontends/verilog/verilog_frontend.h"
+#समावेश "frontends/verilog/preproc.h"
+#समावेश "backends/rtlil/rtlil_backend.h"
 
-#include <string.h>
-#include <algorithm>
-#include <charconv>
-#include <optional>
-#include <string_view>
-#include <sstream>
+#समावेश <string.h>
+#समावेश <algorithm>
+#समावेश <charconv>
+#समावेश <optional>
+#समावेश <string_view>
+#समावेश <sstream>
 
 YOSYS_NAMESPACE_BEGIN
 
 dict<std::string, std::string> RTLIL::constpad;
 
-const pool<IdString> &RTLIL::builtin_ff_cell_types() {
-	static const pool<IdString> res = []() {
+स्थिर pool<IdString> &RTLIL::builtin_ff_cell_types() {
+	अटल स्थिर pool<IdString> res = []() {
 		pool<IdString> r;
-		for (size_t i = 0; i < StaticCellTypes::builder.count; i++) {
-			auto &cell = StaticCellTypes::builder.cells[i];
-			if (cell.features.is_ff)
-				r.insert(cell.type);
+		क्रम (माप_प्रकार i = 0; i < StaticCellTypes::builder.गिनती; i++) {
+			स्वतः &cell = StaticCellTypes::builder.cells[i];
+			अगर (cell.features.is_ff)
+				r.जोड़ो(cell.type);
 		}
-		return r;
+		वापस r;
 	}();
-	return res;
+	वापस res;
 }
 
-#define check(condition) log_assert(condition && "malformed Const union")
+#घोषणा check(condition) log_assert(condition && "malformed Const union")
 
-const Const::bitvectype& Const::get_bits() const {
+स्थिर Const::bitvectype& Const::get_bits() स्थिर {
 	check(is_bits());
-	return *get_if_bits();
+	वापस *get_if_bits();
 }
 
-const std::string& Const::get_str() const {
+स्थिर std::string& Const::get_str() स्थिर {
 	check(is_str());
-	return *get_if_str();
+	वापस *get_if_str();
 }
 
 Const::bitvectype& Const::get_bits() {
 	check(is_bits());
-	return *get_if_bits();
+	वापस *get_if_bits();
 }
 
 std::string& Const::get_str() {
 	check(is_str());
-	return *get_if_str();
+	वापस *get_if_str();
 }
 
 RTLIL::Const::Const(std::string str)
 {
 	flags = RTLIL::CONST_FLAG_STRING;
-	new ((void*)&str_) std::string(std::move(str));
+	नया ((व्योम*)&str_) std::string(std::move(str));
 	tag = backing_tag::string;
 }
 
-RTLIL::Const::Const(long long val) // default width 32
+RTLIL::Const::Const(दीर्घ दीर्घ val) // default width 32
 {
 	flags = RTLIL::CONST_FLAG_NONE;
-	char bytes[] = {
-		(char)(val >> 24), (char)(val >> 16), (char)(val >> 8), (char)val
+	अक्षर bytes[] = {
+		(अक्षर)(val >> 24), (अक्षर)(val >> 16), (अक्षर)(val >> 8), (अक्षर)val
 	};
-	new ((void*)&str_) std::string(bytes, 4);
+	नया ((व्योम*)&str_) std::string(bytes, 4);
 	tag = backing_tag::string;
 }
 
-RTLIL::Const::Const(long long val, int width)
+RTLIL::Const::Const(दीर्घ दीर्घ val, पूर्णांक width)
 {
 	log_assert(width >= 0 && width < RTLIL::WIDTH_LIMIT);
 	flags = RTLIL::CONST_FLAG_NONE;
-	if ((width & 7) == 0) {
-		new ((void*)&str_) std::string();
+	अगर ((width & 7) == 0) {
+		नया ((व्योम*)&str_) std::string();
 		tag = backing_tag::string;
 		std::string& str = get_str();
-		int bytes = width >> 3;
-		signed char sign_byte = val < 0 ? -1 : 0;
+		पूर्णांक bytes = width >> 3;
+		चिन्हित अक्षर sign_byte = val < 0 ? -1 : 0;
 		str.resize(bytes, sign_byte);
-		bytes = std::min<int>(bytes, sizeof(val));
-		for (int i = 0; i < bytes; i++) {
-			str[str.size() - 1 - i] = val;
+		bytes = std::min<पूर्णांक>(bytes, माप(val));
+		क्रम (पूर्णांक i = 0; i < bytes; i++) {
+			str[str.आकार() - 1 - i] = val;
 			val = val >> 8;
 		}
-		return;
+		वापस;
 	}
 
-	new ((void*)&bits_) bitvectype();
+	नया ((व्योम*)&bits_) bitvectype();
 	tag = backing_tag::bits;
 	bitvectype& bv = get_bits();
 	bv.reserve(width);
-	for (int i = 0; i < width; i++) {
-		bv.push_back((val & 1) != 0 ? State::S1 : State::S0);
+	क्रम (पूर्णांक i = 0; i < width; i++) {
+		bv.धकेलो_back((val & 1) != 0 ? State::S1 : State::S0);
 		val = val >> 1;
 	}
 }
 
-RTLIL::Const::Const(RTLIL::State bit, int width)
+RTLIL::Const::Const(RTLIL::State bit, पूर्णांक width)
 {
 	log_assert(width >= 0 && width < RTLIL::WIDTH_LIMIT);
 	flags = RTLIL::CONST_FLAG_NONE;
-	new ((void*)&bits_) bitvectype();
+	नया ((व्योम*)&bits_) bitvectype();
 	tag = backing_tag::bits;
 	bitvectype& bv = get_bits();
 	bv.reserve(width);
-	for (int i = 0; i < width; i++)
-		bv.push_back(bit);
+	क्रम (पूर्णांक i = 0; i < width; i++)
+		bv.धकेलो_back(bit);
 }
 
-RTLIL::Const::Const(const std::vector<bool> &bits)
+RTLIL::Const::Const(स्थिर std::vector<bool> &bits)
 {
 	flags = RTLIL::CONST_FLAG_NONE;
-	new ((void*)&bits_) bitvectype();
+	नया ((व्योम*)&bits_) bitvectype();
 	tag = backing_tag::bits;
 	bitvectype& bv = get_bits();
-	bv.reserve(bits.size());
-	for (const auto &b : bits)
+	bv.reserve(bits.आकार());
+	क्रम (स्थिर स्वतः &b : bits)
 		bv.emplace_back(b ? State::S1 : State::S0);
 }
 
-RTLIL::Const::Const(const RTLIL::Const &other) {
+RTLIL::Const::Const(स्थिर RTLIL::Const &other) {
 	tag = other.tag;
 	flags = other.flags;
-	if (is_str())
-		new ((void*)&str_) std::string(other.get_str());
-	else if (is_bits())
-		new ((void*)&bits_) bitvectype(other.get_bits());
-	else
+	अगर (is_str())
+		नया ((व्योम*)&str_) std::string(other.get_str());
+	अन्यथा अगर (is_bits())
+		नया ((व्योम*)&bits_) bitvectype(other.get_bits());
+	अन्यथा
 		check(false);
 }
 
 RTLIL::Const::Const(RTLIL::Const &&other) {
 	tag = other.tag;
 	flags = other.flags;
-	if (is_str())
-		new ((void*)&str_) std::string(std::move(other.get_str()));
-	else if (is_bits())
-		new ((void*)&bits_) bitvectype(std::move(other.get_bits()));
-	else
+	अगर (is_str())
+		नया ((व्योम*)&str_) std::string(std::move(other.get_str()));
+	अन्यथा अगर (is_bits())
+		नया ((व्योम*)&bits_) bitvectype(std::move(other.get_bits()));
+	अन्यथा
 		check(false);
 }
 
-RTLIL::Const &RTLIL::Const::operator =(const RTLIL::Const &other) {
+RTLIL::Const &RTLIL::Const::चालक =(स्थिर RTLIL::Const &other) {
 	flags = other.flags;
-	if (other.is_str()) {
-		if (!is_str()) {
+	अगर (other.is_str()) {
+		अगर (!is_str()) {
 			// sketchy zone
 			check(is_bits());
 			bits_.~bitvectype();
-			(void)new ((void*)&str_) std::string();
+			(व्योम)नया ((व्योम*)&str_) std::string();
 		}
 		tag = other.tag;
 		get_str() = other.get_str();
-	} else if (other.is_bits()) {
-		if (!is_bits()) {
+	} अन्यथा अगर (other.is_bits()) {
+		अगर (!is_bits()) {
 			// sketchy zone
 			check(is_str());
 			str_.~string();
-			(void)new ((void*)&bits_) bitvectype();
+			(व्योम)नया ((व्योम*)&bits_) bitvectype();
 		}
 		tag = other.tag;
 		get_bits() = other.get_bits();
-	} else {
+	} अन्यथा {
 		check(false);
 	}
-	return *this;
+	वापस *यह;
 }
 
 RTLIL::Const::~Const() {
-	if (is_bits())
+	अगर (is_bits())
 		bits_.~bitvectype();
-	else if (is_str())
+	अन्यथा अगर (is_str())
 		str_.~string();
-	else
+	अन्यथा
 		check(false);
 }
 
-bool RTLIL::Const::operator<(const RTLIL::Const &other) const
+bool RTLIL::Const::चालक<(स्थिर RTLIL::Const &other) स्थिर
 {
-	if (size() != other.size())
-		return size() < other.size();
+	अगर (आकार() != other.आकार())
+		वापस आकार() < other.आकार();
 
-	for (int i = 0; i < size(); i++)
-		if ((*this)[i] != other[i])
-			return (*this)[i] < other[i];
+	क्रम (पूर्णांक i = 0; i < आकार(); i++)
+		अगर ((*यह)[i] != other[i])
+			वापस (*यह)[i] < other[i];
 
-	return false;
+	वापस false;
 }
 
-bool RTLIL::Const::operator ==(const RTLIL::Const &other) const
+bool RTLIL::Const::चालक ==(स्थिर RTLIL::Const &other) स्थिर
 {
-	if (is_str() && other.is_str())
-		return get_str() == other.get_str();
-	if (is_bits() && other.is_bits())
-		return get_bits() == other.get_bits();
+	अगर (is_str() && other.is_str())
+		वापस get_str() == other.get_str();
+	अगर (is_bits() && other.is_bits())
+		वापस get_bits() == other.get_bits();
 
-	if (size() != other.size())
-		return false;
+	अगर (आकार() != other.आकार())
+		वापस false;
 
-	for (int i = 0; i < size(); i++)
-	if ((*this)[i] != other[i])
-		return false;
+	क्रम (पूर्णांक i = 0; i < आकार(); i++)
+	अगर ((*यह)[i] != other[i])
+		वापस false;
 
-	return true;
+	वापस true;
 }
 
-bool RTLIL::Const::operator !=(const RTLIL::Const &other) const
+bool RTLIL::Const::चालक !=(स्थिर RTLIL::Const &other) स्थिर
 {
-	return !(*this == other);
+	वापस !(*यह == other);
 }
 
 std::vector<RTLIL::State>& RTLIL::Const::bits_internal()
 {
 	bitvectorize_internal();
-	return get_bits();
+	वापस get_bits();
 }
 
-std::vector<RTLIL::State> RTLIL::Const::to_bits() const
+std::vector<RTLIL::State> RTLIL::Const::to_bits() स्थिर
 {
 	std::vector<State> v;
-	for (auto bit : *this)
-		v.push_back(bit);
-	return v;
+	क्रम (स्वतः bit : *यह)
+		v.धकेलो_back(bit);
+	वापस v;
 }
 
-bool RTLIL::Const::as_bool() const
+bool RTLIL::Const::as_bool() स्थिर
 {
-	if (is_str()) {
-		for (char ch : get_str())
-			if (ch != 0)
-				return true;
-		return false;
+	अगर (is_str()) {
+		क्रम (अक्षर ch : get_str())
+			अगर (ch != 0)
+				वापस true;
+		वापस false;
 	}
 
-	const bitvectype& bv = get_bits();
-	for (size_t i = 0; i < bv.size(); i++)
-		if (bv[i] == State::S1)
-			return true;
-	return false;
+	स्थिर bitvectype& bv = get_bits();
+	क्रम (माप_प्रकार i = 0; i < bv.आकार(); i++)
+		अगर (bv[i] == State::S1)
+			वापस true;
+	वापस false;
 }
 
-int RTLIL::Const::as_int(bool is_signed) const
+पूर्णांक RTLIL::Const::as_int(bool is_signed) स्थिर
 {
 	int32_t ret = 0;
-	if (const std::string *s = get_if_str()) {
-		int size = GetSize(*s);
+	अगर (स्थिर std::string *s = get_if_str()) {
+		पूर्णांक आकार = Get_आकार(*s);
 		// Ignore any bytes after the first 4 since bits beyond 32 are truncated.
-		for (int i = std::min(4, size); i > 0; i--)
-			ret |= static_cast<unsigned char>((*s)[size - i]) << ((i - 1) * 8);
+		क्रम (पूर्णांक i = std::min(4, आकार); i > 0; i--)
+			ret |= static_cast<अचिन्हित अक्षर>((*s)[आकार - i]) << ((i - 1) * 8);
 		// If is_signed and the string is shorter than 4 bytes then apply sign extension.
-		if (is_signed && size > 0 && size < 4 && ((*s)[0] & 0x80))
-			ret |= UINT32_MAX << size*8;
-		return ret;
+		अगर (is_signed && आकार > 0 && आकार < 4 && ((*s)[0] & 0x80))
+			ret |= UINT32_MAX << आकार*8;
+		वापस ret;
 	}
 
-	const bitvectype& bv = get_bits();
-	int significant_bits = std::min(GetSize(bv), 32);
-	for (int i = 0; i < significant_bits; i++)
-		if (bv[i] == State::S1)
+	स्थिर bitvectype& bv = get_bits();
+	पूर्णांक significant_bits = std::min(Get_आकार(bv), 32);
+	क्रम (पूर्णांक i = 0; i < significant_bits; i++)
+		अगर (bv[i] == State::S1)
 			ret |= 1 << i;
-	if (is_signed && significant_bits > 0 && significant_bits < 32 && bv.back() == State::S1 )
+	अगर (is_signed && significant_bits > 0 && significant_bits < 32 && bv.back() == State::S1 )
 		ret |= UINT32_MAX << significant_bits;
-	return ret;
+	वापस ret;
 }
 
-bool RTLIL::Const::convertible_to_int(bool is_signed) const
+bool RTLIL::Const::convertible_to_int(bool is_signed) स्थिर
 {
-	auto size = get_min_size(is_signed);
+	स्वतः आकार = get_min_आकार(is_signed);
 
-	if (size < 0)
-		return false;
+	अगर (आकार < 0)
+		वापस false;
 
 	// If it fits in 31 bits it is definitely convertible
-	if (size <= 31)
-		return true;
+	अगर (आकार <= 31)
+		वापस true;
 
 	// If it fits in 32 bits, it is convertible if signed or if unsigned and the
 	// leading bit is not 1
-	if (size == 32) {
-		if (is_signed)
-			return true;
-		return (*this)[size - 1] != State::S1;
+	अगर (आकार == 32) {
+		अगर (is_signed)
+			वापस true;
+		वापस (*यह)[आकार - 1] != State::S1;
 	}
 
-	return false;
+	वापस false;
 }
 
-std::optional<int> RTLIL::Const::try_as_int(bool is_signed) const
+std::optional<पूर्णांक> RTLIL::Const::try_as_int(bool is_signed) स्थिर
 {
-	if (!convertible_to_int(is_signed))
-		return std::nullopt;
-	return as_int(is_signed);
+	अगर (!convertible_to_int(is_signed))
+		वापस std::nullopt;
+	वापस as_int(is_signed);
 }
 
-int RTLIL::Const::as_int_saturating(bool is_signed) const
+पूर्णांक RTLIL::Const::as_int_saturating(bool is_signed) स्थिर
 {
-	if (!convertible_to_int(is_signed)) {
-		if (!is_signed)
-			return std::numeric_limits<int>::max();
+	अगर (!convertible_to_int(is_signed)) {
+		अगर (!is_signed)
+			वापस std::numeric_limits<पूर्णांक>::max();
 
-		const auto min_size = get_min_size(is_signed);
-		log_assert(min_size > 0);
-		const auto neg = (*this)[min_size - 1];
-		return neg ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
+		स्थिर स्वतः min_आकार = get_min_आकार(is_signed);
+		log_assert(min_आकार > 0);
+		स्थिर स्वतः neg = (*यह)[min_आकार - 1];
+		वापस neg ? std::numeric_limits<पूर्णांक>::min() : std::numeric_limits<पूर्णांक>::max();
 	}
-	return as_int(is_signed);
+	वापस as_int(is_signed);
 }
 
-void RTLIL::Const::tag_bare_integer_const(const std::string &value)
+व्योम RTLIL::Const::tag_bare_integer_const(स्थिर std::string &मूल्य)
 {
-	if (value.empty() || value.find('\'') != std::string::npos)
-		return;
-	size_t start = (value[0] == '-' || value[0] == '+') ? 1 : 0;
-	if (start < value.size() && std::all_of(value.begin() + start, value.end(), ::isdigit))
+	अगर (मूल्य.empty() || मूल्य.find('\'') != std::string::npos)
+		वापस;
+	माप_प्रकार start = (मूल्य[0] == '-' || मूल्य[0] == '+') ? 1 : 0;
+	अगर (start < मूल्य.आकार() && std::all_of(मूल्य.begin() + start, मूल्य.end(), ::है_अंक))
 		flags |= RTLIL::CONST_FLAG_SIGNED;
 }
 
-int RTLIL::Const::get_min_size(bool is_signed) const
+पूर्णांक RTLIL::Const::get_min_आकार(bool is_signed) स्थिर
 {
-	if (empty()) return 0;
+	अगर (empty()) वापस 0;
 
 	// back to front (MSB to LSB)
 	RTLIL::State leading_bit;
-	if (is_signed)
+	अगर (is_signed)
 		leading_bit = (back() == RTLIL::State::Sx) ? RTLIL::State::S0 : back();
-	else
+	अन्यथा
 		leading_bit = RTLIL::State::S0;
 
-	auto idx = size();
-	while (idx > 0 && (*this)[idx -1] == leading_bit) {
+	स्वतः idx = आकार();
+	जबतक (idx > 0 && (*यह)[idx -1] == leading_bit) {
 		idx--;
 	}
 
 	// signed needs one leading bit
-	if (is_signed && idx < size()) {
+	अगर (is_signed && idx < आकार()) {
 		idx++;
 	}
 	// must be at least one bit
-	return (idx == 0) ? 1 : idx;
+	वापस (idx == 0) ? 1 : idx;
 }
 
-void RTLIL::Const::compress(bool is_signed)
+व्योम RTLIL::Const::compress(bool is_signed)
 {
-	auto idx = get_min_size(is_signed);
+	स्वतः idx = get_min_आकार(is_signed);
 	resize(idx, RTLIL::State::S0);
 }
 
-std::optional<int> RTLIL::Const::as_int_compress(bool is_signed) const
+std::optional<पूर्णांक> RTLIL::Const::as_int_compress(bool is_signed) स्थिर
 {
-	return try_as_int(is_signed);
+	वापस try_as_int(is_signed);
 }
 
-std::string RTLIL::Const::as_string(const char* any) const
+std::string RTLIL::Const::as_string(स्थिर अक्षर* any) स्थिर
 {
-	int sz = size();
+	पूर्णांक sz = आकार();
 	std::string ret;
 	ret.reserve(sz);
-	for (int i = sz - 1; i >= 0; --i)
-		switch ((*this)[i]) {
-			case S0: ret.push_back('0'); break;
-			case S1: ret.push_back('1'); break;
-			case Sx: ret.push_back('x'); break;
-			case Sz: ret.push_back('z'); break;
-			case Sa: ret += any; break;
-			case Sm: ret.push_back('m'); break;
+	क्रम (पूर्णांक i = sz - 1; i >= 0; --i)
+		चयन ((*यह)[i]) {
+			हाल S0: ret.धकेलो_back('0'); अवरोध;
+			हाल S1: ret.धकेलो_back('1'); अवरोध;
+			हाल Sx: ret.धकेलो_back('x'); अवरोध;
+			हाल Sz: ret.धकेलो_back('z'); अवरोध;
+			हाल Sa: ret += any; अवरोध;
+			हाल Sm: ret.धकेलो_back('m'); अवरोध;
 		}
-	return ret;
+	वापस ret;
 }
 
-RTLIL::Const RTLIL::Const::from_string(const std::string &str)
+RTLIL::Const RTLIL::Const::from_string(स्थिर std::string &str)
 {
 	Const c;
 	bitvectype& bv = c.get_bits();
-	bv.reserve(str.size());
-	for (auto it = str.rbegin(); it != str.rend(); it++)
-		switch (*it) {
-			case '0': bv.push_back(State::S0); break;
-			case '1': bv.push_back(State::S1); break;
-			case 'x': bv.push_back(State::Sx); break;
-			case 'z': bv.push_back(State::Sz); break;
-			case 'm': bv.push_back(State::Sm); break;
-			default: bv.push_back(State::Sa);
+	bv.reserve(str.आकार());
+	क्रम (स्वतः it = str.rbegin(); it != str.rend(); it++)
+		चयन (*it) {
+			हाल '0': bv.धकेलो_back(State::S0); अवरोध;
+			हाल '1': bv.धकेलो_back(State::S1); अवरोध;
+			हाल 'x': bv.धकेलो_back(State::Sx); अवरोध;
+			हाल 'z': bv.धकेलो_back(State::Sz); अवरोध;
+			हाल 'm': bv.धकेलो_back(State::Sm); अवरोध;
+			शेष: bv.धकेलो_back(State::Sa);
 		}
-	return c;
+	वापस c;
 }
 
-std::string RTLIL::Const::decode_string() const
+std::string RTLIL::Const::decode_string() स्थिर
 {
-	if (auto str = get_if_str())
-		return *str;
+	अगर (स्वतः str = get_if_str())
+		वापस *str;
 
-	const bitvectype& bv = get_bits();
-	const int n = GetSize(bv);
-	const int n_over_8 = n / 8;
+	स्थिर bitvectype& bv = get_bits();
+	स्थिर पूर्णांक n = Get_आकार(bv);
+	स्थिर पूर्णांक n_over_8 = n / 8;
 	std::string s;
 	s.reserve(n_over_8);
-	int i = n_over_8 * 8;
-	if (i < n) {
-		char ch = 0;
-		for (int j = 0; j < (n - i); j++) {
-			if (bv[i + j] == RTLIL::State::S1) {
+	पूर्णांक i = n_over_8 * 8;
+	अगर (i < n) {
+		अक्षर ch = 0;
+		क्रम (पूर्णांक j = 0; j < (n - i); j++) {
+			अगर (bv[i + j] == RTLIL::State::S1) {
 				ch |= 1 << j;
 			}
 		}
-		if (ch != 0)
+		अगर (ch != 0)
 			s.append({ch});
 	}
 	i -= 8;
-	for (; i >= 0; i -= 8) {
-		char ch = 0;
-		for (int j = 0; j < 8; j++) {
-			if (bv[i + j] == RTLIL::State::S1) {
+	क्रम (; i >= 0; i -= 8) {
+		अक्षर ch = 0;
+		क्रम (पूर्णांक j = 0; j < 8; j++) {
+			अगर (bv[i + j] == RTLIL::State::S1) {
 				ch |= 1 << j;
 			}
 		}
-		if (ch != 0)
+		अगर (ch != 0)
 			s.append({ch});
 	}
-	return s;
+	वापस s;
 }
 
-int RTLIL::Const::size() const {
-	if (is_str())
-		return 8 * str_.size();
-	else {
+पूर्णांक RTLIL::Const::आकार() स्थिर {
+	अगर (is_str())
+		वापस 8 * str_.आकार();
+	अन्यथा {
 		check(is_bits());
-		return bits_.size();
+		वापस bits_.आकार();
 	}
 }
 
-bool RTLIL::Const::empty() const {
-	if (is_str())
-		return str_.empty();
-	else {
+bool RTLIL::Const::empty() स्थिर {
+	अगर (is_str())
+		वापस str_.empty();
+	अन्यथा {
 		check(is_bits());
-		return bits_.empty();
+		वापस bits_.empty();
 	}
 }
 
-void RTLIL::Const::bitvectorize_internal() {
-	if (tag == backing_tag::bits)
-		return;
+व्योम RTLIL::Const::bitvectorize_internal() {
+	अगर (tag == backing_tag::bits)
+		वापस;
 
 	check(is_str());
 
 	bitvectype new_bits;
 
-	new_bits.reserve(str_.size() * 8);
-	for (int i = str_.size() - 1; i >= 0; i--) {
-		unsigned char ch = str_[i];
-		for (int j = 0; j < 8; j++) {
-			new_bits.push_back((ch & 1) != 0 ? State::S1 : State::S0);
+	new_bits.reserve(str_.आकार() * 8);
+	क्रम (पूर्णांक i = str_.आकार() - 1; i >= 0; i--) {
+		अचिन्हित अक्षर ch = str_[i];
+		क्रम (पूर्णांक j = 0; j < 8; j++) {
+			new_bits.धकेलो_back((ch & 1) != 0 ? State::S1 : State::S0);
 			ch = ch >> 1;
 		}
 	}
@@ -481,685 +481,685 @@ void RTLIL::Const::bitvectorize_internal() {
 	{
 		// sketchy zone
 		str_.~string();
-		(void)new ((void*)&bits_) bitvectype(std::move(new_bits));
+		(व्योम)नया ((व्योम*)&bits_) bitvectype(std::move(new_bits));
 		tag = backing_tag::bits;
 	}
 }
 
-void RTLIL::Const::append(const RTLIL::Const &other) {
+व्योम RTLIL::Const::append(स्थिर RTLIL::Const &other) {
 	bitvectorize_internal();
 	bitvectype& bv = get_bits();
-	bv.insert(bv.end(), other.begin(), other.end());
+	bv.जोड़ो(bv.end(), other.begin(), other.end());
 }
 
-RTLIL::State RTLIL::Const::const_iterator::operator*() const {
-	if (auto bv = parent->get_if_bits())
-		return (*bv)[idx];
+RTLIL::State RTLIL::Const::const_iterator::चालक*() स्थिर {
+	अगर (स्वतः bv = parent->get_if_bits())
+		वापस (*bv)[idx];
 
-	int char_idx = parent->get_str().size() - idx / 8 - 1;
+	पूर्णांक char_idx = parent->get_str().आकार() - idx / 8 - 1;
 	bool bit = (parent->get_str()[char_idx] & (1 << (idx % 8)));
-	return bit ? State::S1 : State::S0;
+	वापस bit ? State::S1 : State::S0;
 }
 
-bool RTLIL::Const::is_fully_zero() const
+bool RTLIL::Const::is_fully_zero() स्थिर
 {
-	if (auto str = get_if_str()) {
-		for (char ch : *str)
-			if (ch != 0)
-				return false;
-		return true;
+	अगर (स्वतः str = get_if_str()) {
+		क्रम (अक्षर ch : *str)
+			अगर (ch != 0)
+				वापस false;
+		वापस true;
 	}
 
-	const bitvectype& bv = get_bits();
+	स्थिर bitvectype& bv = get_bits();
 
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::S0)
-			return false;
+	क्रम (स्थिर स्वतः &bit : bv)
+		अगर (bit != RTLIL::State::S0)
+			वापस false;
 
-	return true;
+	वापस true;
 }
 
-bool RTLIL::Const::is_fully_ones() const
+bool RTLIL::Const::is_fully_ones() स्थिर
 {
-	if (auto str = get_if_str()) {
-		for (char ch : *str)
-			if (ch != (char)0xff)
-				return false;
-		return true;
+	अगर (स्वतः str = get_if_str()) {
+		क्रम (अक्षर ch : *str)
+			अगर (ch != (अक्षर)0xff)
+				वापस false;
+		वापस true;
 	}
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::S1)
-			return false;
+	स्थिर bitvectype& bv = get_bits();
+	क्रम (स्थिर स्वतः &bit : bv)
+		अगर (bit != RTLIL::State::S1)
+			वापस false;
 
-	return true;
+	वापस true;
 }
 
-bool RTLIL::Const::is_fully_def() const
+bool RTLIL::Const::is_fully_def() स्थिर
 {
-	if (is_str())
-		return true;
+	अगर (is_str())
+		वापस true;
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::S0 && bit != RTLIL::State::S1)
-			return false;
+	स्थिर bitvectype& bv = get_bits();
+	क्रम (स्थिर स्वतः &bit : bv)
+		अगर (bit != RTLIL::State::S0 && bit != RTLIL::State::S1)
+			वापस false;
 
-	return true;
+	वापस true;
 }
 
-bool RTLIL::Const::is_fully_undef() const
+bool RTLIL::Const::is_fully_undef() स्थिर
 {
-	if (auto str = get_if_str())
-		return str->empty();
+	अगर (स्वतः str = get_if_str())
+		वापस str->empty();
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::Sx && bit != RTLIL::State::Sz)
-			return false;
+	स्थिर bitvectype& bv = get_bits();
+	क्रम (स्थिर स्वतः &bit : bv)
+		अगर (bit != RTLIL::State::Sx && bit != RTLIL::State::Sz)
+			वापस false;
 
-	return true;
+	वापस true;
 }
 
-bool RTLIL::Const::is_fully_undef_x_only() const
+bool RTLIL::Const::is_fully_undef_x_only() स्थिर
 {
-	if (auto str = get_if_str())
-		return str->empty();
+	अगर (स्वतः str = get_if_str())
+		वापस str->empty();
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::Sx)
-			return false;
+	स्थिर bitvectype& bv = get_bits();
+	क्रम (स्थिर स्वतः &bit : bv)
+		अगर (bit != RTLIL::State::Sx)
+			वापस false;
 
-	return true;
+	वापस true;
 }
 
-bool RTLIL::Const::is_onehot(int *pos) const
+bool RTLIL::Const::is_onehot(पूर्णांक *pos) स्थिर
 {
 	bool found = false;
-	int size = GetSize(*this);
-	for (int i = 0; i < size; i++) {
-		State bit = (*this)[i];
-		if (bit != RTLIL::State::S0 && bit != RTLIL::State::S1)
-			return false;
-		if (bit == RTLIL::State::S1) {
-			if (found)
-				return false;
-			if (pos)
+	पूर्णांक आकार = Get_आकार(*यह);
+	क्रम (पूर्णांक i = 0; i < आकार; i++) {
+		State bit = (*यह)[i];
+		अगर (bit != RTLIL::State::S0 && bit != RTLIL::State::S1)
+			वापस false;
+		अगर (bit == RTLIL::State::S1) {
+			अगर (found)
+				वापस false;
+			अगर (pos)
 				*pos = i;
 			found = true;
 		}
 	}
-	return found;
+	वापस found;
 }
 
-Hasher RTLIL::Const::hash_into(Hasher h) const
+Hasher RTLIL::Const::hash_into(Hasher h) स्थिर
 {
-	if (auto str = get_if_str())
-		return hashlib::hash_ops<std::string>::hash_into(*str, h);
+	अगर (स्वतः str = get_if_str())
+		वापस hashlib::hash_ops<std::string>::hash_into(*str, h);
 
 	// If the bits are all 0/1, hash packed bits using the string hash.
 	// Otherwise hash the leading packed bits with the rest of the bits individually.
-	const bitvectype &bv = get_bits();
-	int size = GetSize(bv);
+	स्थिर bitvectype &bv = get_bits();
+	पूर्णांक आकार = Get_आकार(bv);
 	std::string packed;
-	int packed_size = (size + 7) >> 3;
-	packed.resize(packed_size, 0);
-	for (int bi = 0; bi < packed_size; ++bi) {
-		char ch = 0;
-		int end = std::min((bi + 1)*8, size);
-		for (int i = bi*8; i < end; ++i) {
+	पूर्णांक packed_आकार = (आकार + 7) >> 3;
+	packed.resize(packed_आकार, 0);
+	क्रम (पूर्णांक bi = 0; bi < packed_आकार; ++bi) {
+		अक्षर ch = 0;
+		पूर्णांक end = std::min((bi + 1)*8, आकार);
+		क्रम (पूर्णांक i = bi*8; i < end; ++i) {
 			RTLIL::State b = bv[i];
-			if (b > RTLIL::State::S1) {
+			अगर (b > RTLIL::State::S1) {
 				// Hash the packed bits we've seen so far, plus the remaining bits.
 				h = hashlib::hash_ops<std::string>::hash_into(packed, h);
-				h = hashlib::hash_ops<char>::hash_into(ch, h);
-				for (; i < size; ++i) {
+				h = hashlib::hash_ops<अक्षर>::hash_into(ch, h);
+				क्रम (; i < आकार; ++i) {
 					h = hashlib::hash_ops<RTLIL::State>::hash_into(bv[i], h);
 				}
-				h.eat(size);
-				return h;
+				h.eat(आकार);
+				वापस h;
 			}
-			ch |= static_cast<int>(b) << (i & 7);
+			ch |= static_cast<पूर्णांक>(b) << (i & 7);
 		}
-		packed[packed_size - 1 - bi] = ch;
+		packed[packed_आकार - 1 - bi] = ch;
 	}
-	return hashlib::hash_ops<std::string>::hash_into(packed, h);
+	वापस hashlib::hash_ops<std::string>::hash_into(packed, h);
 }
 
-RTLIL::Const RTLIL::Const::extract(int offset, int len, RTLIL::State padding) const {
+RTLIL::Const RTLIL::Const::extract(पूर्णांक offset, पूर्णांक len, RTLIL::State padding) स्थिर {
 	bitvectype ret_bv;
 	ret_bv.reserve(len);
-	for (int i = offset; i < offset + len; i++)
-		ret_bv.push_back(i < GetSize(*this) ? (*this)[i] : padding);
-	return RTLIL::Const(ret_bv);
+	क्रम (पूर्णांक i = offset; i < offset + len; i++)
+		ret_bv.धकेलो_back(i < Get_आकार(*यह) ? (*यह)[i] : padding);
+	वापस RTLIL::Const(ret_bv);
 }
-#undef check /* check(condition) for Const */
+#अघोषित check /* check(condition) for Const */
 
-bool RTLIL::AttrObject::has_attribute(RTLIL::IdString id) const
+bool RTLIL::AttrObject::has_attribute(RTLIL::IdString id) स्थिर
 {
-	return attributes.count(id);
+	वापस attributes.गिनती(id);
 }
 
-void RTLIL::AttrObject::set_bool_attribute(RTLIL::IdString id, bool value)
+व्योम RTLIL::AttrObject::set_bool_attribute(RTLIL::IdString id, bool मूल्य)
 {
-	if (value)
+	अगर (मूल्य)
 		attributes[id] = RTLIL::Const(1);
-	else
+	अन्यथा
 		attributes.erase(id);
 }
 
-bool RTLIL::AttrObject::get_bool_attribute(RTLIL::IdString id) const
+bool RTLIL::AttrObject::get_bool_attribute(RTLIL::IdString id) स्थिर
 {
-	const auto it = attributes.find(id);
-	if (it == attributes.end())
-		return false;
-	return it->second.as_bool();
+	स्थिर स्वतः it = attributes.find(id);
+	अगर (it == attributes.end())
+		वापस false;
+	वापस it->second.as_bool();
 }
 
-void RTLIL::AttrObject::set_string_attribute(RTLIL::IdString id, string value)
+व्योम RTLIL::AttrObject::set_string_attribute(RTLIL::IdString id, string मूल्य)
 {
-	if (value.empty())
+	अगर (मूल्य.empty())
 		attributes.erase(id);
-	else
-		attributes[id] = value;
+	अन्यथा
+		attributes[id] = मूल्य;
 }
 
-string RTLIL::AttrObject::get_string_attribute(RTLIL::IdString id) const
+string RTLIL::AttrObject::get_string_attribute(RTLIL::IdString id) स्थिर
 {
-	std::string value;
-	const auto it = attributes.find(id);
-	if (it != attributes.end())
-		value = it->second.decode_string();
-	return value;
+	std::string मूल्य;
+	स्थिर स्वतः it = attributes.find(id);
+	अगर (it != attributes.end())
+		मूल्य = it->second.decode_string();
+	वापस मूल्य;
 }
 
-void RTLIL::AttrObject::set_strpool_attribute(RTLIL::IdString id, const pool<string> &data)
+व्योम RTLIL::AttrObject::set_strpool_attribute(RTLIL::IdString id, स्थिर pool<string> &तथ्य)
 {
 	string attrval;
-	for (const auto &s : data) {
-		if (!attrval.empty())
+	क्रम (स्थिर स्वतः &s : तथ्य) {
+		अगर (!attrval.empty())
 			attrval += "|";
 		attrval += s;
 	}
 	set_string_attribute(id, attrval);
 }
 
-void RTLIL::AttrObject::add_strpool_attribute(RTLIL::IdString id, const pool<string> &data)
+व्योम RTLIL::AttrObject::add_strpool_attribute(RTLIL::IdString id, स्थिर pool<string> &तथ्य)
 {
-	pool<string> union_data = get_strpool_attribute(id);
-	union_data.insert(data.begin(), data.end());
-	if (!union_data.empty())
-		set_strpool_attribute(id, union_data);
+	pool<string> union_तथ्य = get_strpool_attribute(id);
+	union_तथ्य.जोड़ो(तथ्य.begin(), तथ्य.end());
+	अगर (!union_तथ्य.empty())
+		set_strpool_attribute(id, union_तथ्य);
 }
 
-void RTLIL::Design::absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf)
+व्योम RTLIL::Design::absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf)
 {
 	obj->attributes = std::move(buf);
 }
 
 namespace {
-	template<typename F>
-	void walk_process_attr_objects(RTLIL::Process *process, F visit) {
+	ढाँचा<typename F>
+	व्योम walk_process_attr_objects(RTLIL::Process *process, F visit) {
 		visit(process);
-		std::vector<RTLIL::CaseRule*> case_stack{&process->root_case};
-		while (!case_stack.empty()) {
-			RTLIL::CaseRule *cs = case_stack.back();
-			case_stack.pop_back();
+		std::vector<RTLIL::CaseRule*> case_ढेर{&process->मूल_case};
+		जबतक (!case_ढेर.empty()) {
+			RTLIL::CaseRule *cs = case_ढेर.back();
+			case_ढेर.निकालो_back();
 			visit(cs);
-			for (auto *sw : cs->switches) {
+			क्रम (स्वतः *sw : cs->switches) {
 				visit(sw);
-				for (auto *case_ : sw->cases)
-					case_stack.push_back(case_);
+				क्रम (स्वतः *case_ : sw->cases)
+					case_ढेर.धकेलो_back(case_);
 			}
 		}
-		for (auto *sync : process->syncs)
-			for (auto &mwa : sync->mem_write_actions)
+		क्रम (स्वतः *sync : process->syncs)
+			क्रम (स्वतः &mwa : sync->mem_write_actions)
 				visit(&mwa);
 	}
 
-	template<typename F>
-	void walk_attr_objects(RTLIL::Design *design, F visit) {
-		for (auto &[_, module] : design->modules_) {
+	ढाँचा<typename F>
+	व्योम walk_attr_objects(RTLIL::Design *design, F visit) {
+		क्रम (स्वतः &[_, module] : design->modules_) {
 			visit(module);
-			for (auto &[_, wire] : module->wires_)
+			क्रम (स्वतः &[_, wire] : module->wires_)
 				visit(wire);
-			for (auto &[_, mem] : module->memories)
+			क्रम (स्वतः &[_, mem] : module->memories)
 				visit(mem);
-			for (auto &[_, cell] : module->cells_)
+			क्रम (स्वतः &[_, cell] : module->cells_)
 				visit(cell);
-			for (auto &[_, process] : module->processes)
+			क्रम (स्वतः &[_, process] : module->processes)
 				walk_process_attr_objects(process, visit);
 		}
 	}
 }
 
 
-size_t RTLIL::Design::gc_twines()
+माप_प्रकार RTLIL::Design::gc_twines()
 {
 	int64_t start = PerformanceTimer::query();
 	pool<IdString> live;
-	auto root = [&](IdString ref) {
-		if (ref != IdString::Null)
-			live.insert(ref);
+	स्वतः मूल = [&](IdString ref) {
+		अगर (ref != IdString::Null)
+			live.जोड़ो(ref);
 	};
 
-	walk_attr_objects(this, [&](const RTLIL::AttrObject *obj) {
-		for (auto &attr : obj->attributes)
-			root(attr.first);
+	walk_attr_objects(यह, [&](स्थिर RTLIL::AttrObject *obj) {
+		क्रम (स्वतः &attr : obj->attributes)
+			मूल(attr.first);
 	});
 
-	root(selected_active_module);
+	मूल(selected_active_module);
 
-	for (auto &[name, module] : modules_) {
-		root(name);
-		for (IdString port : module->ports)
-			root(port);
-		for (IdString param : module->avail_parameters)
-			root(param);
-		for (auto &[param, _] : module->parameter_default_values)
-			root(param);
-		for (auto &[name, _] : module->memories)
-			root(name);
-		for (auto &[name, _] : module->processes)
-			root(name);
-		for (auto &[name, wire] : module->wires_) {
-			root(name);
-			if (wire->known_driver())
-				root(wire->driverPort());
+	क्रम (स्वतः &[name, module] : modules_) {
+		मूल(name);
+		क्रम (IdString port : module->ports)
+			मूल(port);
+		क्रम (IdString param : module->avail_parameters)
+			मूल(param);
+		क्रम (स्वतः &[param, _] : module->parameter_default_मूल्यावली)
+			मूल(param);
+		क्रम (स्वतः &[name, _] : module->memories)
+			मूल(name);
+		क्रम (स्वतः &[name, _] : module->processes)
+			मूल(name);
+		क्रम (स्वतः &[name, wire] : module->wires_) {
+			मूल(name);
+			अगर (wire->known_driver())
+				मूल(wire->driverPort());
 		}
-		for (auto &[name, cell] : module->cells_) {
-			root(name);
-			root(cell->type);
-			for (auto &conn : cell->connections())
-				root(conn.first);
-			for (auto &param : cell->parameters)
-				root(param.first);
+		क्रम (स्वतः &[name, cell] : module->cells_) {
+			मूल(name);
+			मूल(cell->type);
+			क्रम (स्वतः &conn : cell->connections())
+				मूल(conn.first);
+			क्रम (स्वतः &param : cell->parameters)
+				मूल(param.first);
 		}
-		for (auto &[_, process] : module->processes) {
-			std::vector<RTLIL::CaseRule*> case_stack{&process->root_case};
-			while (!case_stack.empty()) {
-				RTLIL::CaseRule *cs = case_stack.back();
-				case_stack.pop_back();
-				for (auto *sw : cs->switches) {
-					for (auto *case_ : sw->cases)
-						case_stack.push_back(case_);
+		क्रम (स्वतः &[_, process] : module->processes) {
+			std::vector<RTLIL::CaseRule*> case_ढेर{&process->मूल_case};
+			जबतक (!case_ढेर.empty()) {
+				RTLIL::CaseRule *cs = case_ढेर.back();
+				case_ढेर.निकालो_back();
+				क्रम (स्वतः *sw : cs->switches) {
+					क्रम (स्वतः *case_ : sw->cases)
+						case_ढेर.धकेलो_back(case_);
 				}
 			}
-			for (auto *sync : process->syncs) {
-				for (auto &mwa : sync->mem_write_actions)
-					root(mwa.memid);
+			क्रम (स्वतः *sync : process->syncs) {
+				क्रम (स्वतः &mwa : sync->mem_write_actions)
+					मूल(mwa.memid);
 			}
 		}
 	}
 
-	auto root_selection = [&](const RTLIL::Selection &sel) {
-		for (IdString m : sel.selected_modules)
-			root(m);
-		for (auto &[m, members] : sel.selected_members) {
-			root(m);
-			for (IdString member : members)
-				root(member);
+	स्वतः मूल_selection = [&](स्थिर RTLIL::Selection &sel) {
+		क्रम (IdString m : sel.selected_modules)
+			मूल(m);
+		क्रम (स्वतः &[m, members] : sel.selected_members) {
+			मूल(m);
+			क्रम (IdString member : members)
+				मूल(member);
 		}
 	};
 
-	for (auto &[name, sel] : selection_vars) {
-		root(name);
-		root_selection(sel);
+	क्रम (स्वतः &[name, sel] : selection_vars) {
+		मूल(name);
+		मूल_selection(sel);
 	}
 
-	for (auto &sel : selection_stack)
-		root_selection(sel);
+	क्रम (स्वतः &sel : selection_ढेर)
+		मूल_selection(sel);
 
-	size_t erased = twines_.gc(live);
+	माप_प्रकार erased = twines_.gc(live);
 
 	int64_t time_ns = PerformanceTimer::query() - start;
 	Pass::subtract_from_current_runtime_ns(time_ns);
 	twine_gc_ns += time_ns;
-	++twine_gc_count;
-	return erased;
+	++twine_gc_गिनती;
+	वापस erased;
 }
 
 
 
 
-pool<string> RTLIL::AttrObject::get_strpool_attribute(RTLIL::IdString id) const
+pool<string> RTLIL::AttrObject::get_strpool_attribute(RTLIL::IdString id) स्थिर
 {
-	pool<string> data;
-	if (attributes.count(id) != 0)
-		for (auto s : split_tokens(get_string_attribute(id), "|"))
-			data.insert(s);
-	return data;
+	pool<string> तथ्य;
+	अगर (attributes.गिनती(id) != 0)
+		क्रम (स्वतः s : split_tokens(get_string_attribute(id), "|"))
+			तथ्य.जोड़ो(s);
+	वापस तथ्य;
 }
 
-void RTLIL::AttrObject::set_hdlname_attribute(const vector<string> &hierarchy)
+व्योम RTLIL::AttrObject::set_hdlname_attribute(स्थिर vector<string> &hierarchy)
 {
 	string attrval;
-	for (const auto &ident : hierarchy) {
-		if (!attrval.empty())
+	क्रम (स्थिर स्वतः &ident : hierarchy) {
+		अगर (!attrval.empty())
 			attrval += " ";
 		attrval += ident;
 	}
 	set_string_attribute(ID::hdlname, attrval);
 }
 
-vector<string> RTLIL::AttrObject::get_hdlname_attribute() const
+vector<string> RTLIL::AttrObject::get_hdlname_attribute() स्थिर
 {
-	return split_tokens(get_string_attribute(ID::hdlname), " ");
+	वापस split_tokens(get_string_attribute(ID::hdlname), " ");
 }
 
-void RTLIL::AttrObject::set_intvec_attribute(RTLIL::IdString id, const vector<int> &data)
+व्योम RTLIL::AttrObject::set_intvec_attribute(RTLIL::IdString id, स्थिर vector<पूर्णांक> &तथ्य)
 {
 	std::stringstream attrval;
-	for (auto &i : data) {
-		if (attrval.tellp() > 0)
+	क्रम (स्वतः &i : तथ्य) {
+		अगर (attrval.tellp() > 0)
 			attrval << " ";
 		attrval << i;
 	}
 	attributes[id] = RTLIL::Const(attrval.str());
 }
 
-vector<int> RTLIL::AttrObject::get_intvec_attribute(RTLIL::IdString id) const
+vector<पूर्णांक> RTLIL::AttrObject::get_intvec_attribute(RTLIL::IdString id) स्थिर
 {
-	vector<int> data;
-	auto it = attributes.find(id);
-	if (it != attributes.end())
-		for (const auto &s : split_tokens(attributes.at(id).decode_string())) {
-			char *end = nullptr;
-			errno = 0;
-			long value = strtol(s.c_str(), &end, 10);
-			if (end != s.c_str() + s.size())
+	vector<पूर्णांक> तथ्य;
+	स्वतः it = attributes.find(id);
+	अगर (it != attributes.end())
+		क्रम (स्थिर स्वतः &s : split_tokens(attributes.at(id).decode_string())) {
+			अक्षर *end = nullptr;
+			त्रुटि_सं = 0;
+			दीर्घ मूल्य = म_से_दीर्घ(s.c_str(), &end, 10);
+			अगर (end != s.c_str() + s.आकार())
 				log_cmd_error("Literal for intvec attribute has invalid format\n");
-			if (errno == ERANGE || value < INT_MIN || value > INT_MAX)
+			अगर (त्रुटि_सं == दुस्फल || मूल्य < पूर्णांक_न्यून || मूल्य > पूर्णांक_उच्च)
 				log_cmd_error("Literal for intvec attribute is out of range\n");
-			data.push_back(value);
+			तथ्य.धकेलो_back(मूल्य);
 		}
-	return data;
+	वापस तथ्य;
 }
 
-bool RTLIL::Selection::boxed_module(RTLIL::IdString mod_name) const
+bool RTLIL::Selection::boxed_module(RTLIL::IdString mod_name) स्थिर
 {
-	if (current_design != nullptr) {
-		auto module = current_design->module(mod_name);
-		return module && module->get_blackbox_attribute();
-	} else {
+	अगर (current_design != nullptr) {
+		स्वतः module = current_design->module(mod_name);
+		वापस module && module->get_blackbox_attribute();
+	} अन्यथा {
 		log_warning("Unable to check if module is boxed for null design.\n");
-		return false;
+		वापस false;
 	}
 }
 
-bool RTLIL::Selection::selected_module(RTLIL::IdString mod_name) const
+bool RTLIL::Selection::selected_module(RTLIL::IdString mod_name) स्थिर
 {
-	if (complete_selection)
-		return true;
-	if (!selects_boxes && boxed_module(mod_name))
-		return false;
-	if (full_selection)
-		return true;
-	if (selected_modules.count(mod_name) > 0)
-		return true;
-	if (selected_members.count(mod_name) > 0)
-		return true;
-	return false;
+	अगर (complete_selection)
+		वापस true;
+	अगर (!selects_boxes && boxed_module(mod_name))
+		वापस false;
+	अगर (full_selection)
+		वापस true;
+	अगर (selected_modules.गिनती(mod_name) > 0)
+		वापस true;
+	अगर (selected_members.गिनती(mod_name) > 0)
+		वापस true;
+	वापस false;
 }
 
-bool RTLIL::Selection::selected_whole_module(RTLIL::IdString mod_name) const
+bool RTLIL::Selection::selected_whole_module(RTLIL::IdString mod_name) स्थिर
 {
-	if (complete_selection)
-		return true;
-	if (!selects_boxes && boxed_module(mod_name))
-		return false;
-	if (full_selection)
-		return true;
-	if (selected_modules.count(mod_name) > 0)
-		return true;
-	return false;
+	अगर (complete_selection)
+		वापस true;
+	अगर (!selects_boxes && boxed_module(mod_name))
+		वापस false;
+	अगर (full_selection)
+		वापस true;
+	अगर (selected_modules.गिनती(mod_name) > 0)
+		वापस true;
+	वापस false;
 }
 
-bool RTLIL::Selection::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) const
+bool RTLIL::Selection::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) स्थिर
 {
-	if (complete_selection)
-		return true;
-	if (!selects_boxes && boxed_module(mod_name))
-		return false;
-	if (full_selection)
-		return true;
-	if (selected_modules.count(mod_name) > 0)
-		return true;
-	if (selected_members.count(mod_name) > 0)
-		if (selected_members.at(mod_name).count(memb_name) > 0)
-			return true;
-	return false;
+	अगर (complete_selection)
+		वापस true;
+	अगर (!selects_boxes && boxed_module(mod_name))
+		वापस false;
+	अगर (full_selection)
+		वापस true;
+	अगर (selected_modules.गिनती(mod_name) > 0)
+		वापस true;
+	अगर (selected_members.गिनती(mod_name) > 0)
+		अगर (selected_members.at(mod_name).गिनती(memb_name) > 0)
+			वापस true;
+	वापस false;
 }
 
-void RTLIL::Selection::optimize(RTLIL::Design *design)
+व्योम RTLIL::Selection::optimize(RTLIL::Design *design)
 {
-	if (design != current_design) {
+	अगर (design != current_design) {
 		current_design = design;
 	}
 
-	if (selects_boxes && full_selection)
+	अगर (selects_boxes && full_selection)
 		complete_selection = true;
-	if (complete_selection) {
+	अगर (complete_selection) {
 		full_selection = false;
 		selects_boxes = true;
 	}
-	if (selects_all()) {
-		selected_modules.clear();
-		selected_members.clear();
-		return;
+	अगर (selects_all()) {
+		selected_modules.सफा();
+		selected_members.सफा();
+		वापस;
 	}
 
 	std::vector<RTLIL::IdString> del_list, add_list;
 
-	del_list.clear();
-	for (auto mod_name : selected_modules) {
-		if (current_design->module(mod_name) == nullptr || (!selects_boxes && boxed_module(mod_name)))
-			del_list.push_back(mod_name);
+	del_list.सफा();
+	क्रम (स्वतः mod_name : selected_modules) {
+		अगर (current_design->module(mod_name) == nullptr || (!selects_boxes && boxed_module(mod_name)))
+			del_list.धकेलो_back(mod_name);
 		selected_members.erase(mod_name);
 	}
-	for (auto mod_name : del_list)
+	क्रम (स्वतः mod_name : del_list)
 		selected_modules.erase(mod_name);
 
-	del_list.clear();
-	for (auto &it : selected_members)
-		if (current_design->module(it.first) == nullptr || (!selects_boxes && boxed_module(it.first)))
-			del_list.push_back(it.first);
-	for (auto mod_name : del_list)
+	del_list.सफा();
+	क्रम (स्वतः &it : selected_members)
+		अगर (current_design->module(it.first) == nullptr || (!selects_boxes && boxed_module(it.first)))
+			del_list.धकेलो_back(it.first);
+	क्रम (स्वतः mod_name : del_list)
 		selected_members.erase(mod_name);
 
-	for (auto &it : selected_members) {
-		del_list.clear();
-		for (auto memb_name : it.second)
-			if (current_design->module(it.first)->count_id(memb_name) == 0)
-				del_list.push_back(memb_name);
-		for (auto memb_name : del_list)
+	क्रम (स्वतः &it : selected_members) {
+		del_list.सफा();
+		क्रम (स्वतः memb_name : it.second)
+			अगर (current_design->module(it.first)->गिनती_id(memb_name) == 0)
+				del_list.धकेलो_back(memb_name);
+		क्रम (स्वतः memb_name : del_list)
 			it.second.erase(memb_name);
 	}
 
-	del_list.clear();
-	add_list.clear();
-	for (auto &it : selected_members)
-		if (it.second.size() == 0)
-			del_list.push_back(it.first);
-		else if (it.second.size() == current_design->module(it.first)->wires_.size() + current_design->module(it.first)->memories.size() +
-				current_design->module(it.first)->cells_.size() + current_design->module(it.first)->processes.size())
-			add_list.push_back(it.first);
-	for (auto mod_name : del_list)
+	del_list.सफा();
+	add_list.सफा();
+	क्रम (स्वतः &it : selected_members)
+		अगर (it.second.आकार() == 0)
+			del_list.धकेलो_back(it.first);
+		अन्यथा अगर (it.second.आकार() == current_design->module(it.first)->wires_.आकार() + current_design->module(it.first)->memories.आकार() +
+				current_design->module(it.first)->cells_.आकार() + current_design->module(it.first)->processes.आकार())
+			add_list.धकेलो_back(it.first);
+	क्रम (स्वतः mod_name : del_list)
 		selected_members.erase(mod_name);
-	for (auto mod_name : add_list) {
+	क्रम (स्वतः mod_name : add_list) {
 		selected_members.erase(mod_name);
-		selected_modules.insert(mod_name);
+		selected_modules.जोड़ो(mod_name);
 	}
 
-	if (selected_modules.size() == current_design->modules_.size()) {
-		selected_modules.clear();
-		selected_members.clear();
-		if (selects_boxes)
+	अगर (selected_modules.आकार() == current_design->modules_.आकार()) {
+		selected_modules.सफा();
+		selected_members.सफा();
+		अगर (selects_boxes)
 			complete_selection = true;
-		else
+		अन्यथा
 			full_selection = true;
 	}
 }
 
-void RTLIL::Selection::clear()
+व्योम RTLIL::Selection::सफा()
 {
 	full_selection = false;
 	complete_selection = false;
-	selected_modules.clear();
-	selected_members.clear();
+	selected_modules.सफा();
+	selected_members.सफा();
 }
 
 RTLIL::Design::Design()
-  : verilog_defines (new define_map_t)
+  : verilog_defines (नया define_map_t)
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	अटल अचिन्हित पूर्णांक hashidx_गिनती = 123456789;
+	hashidx_गिनती = mkhash_xorshift(hashidx_गिनती);
+	hashidx_ = hashidx_गिनती;
 
 	refcount_modules_ = 0;
-	selected_active_module.clear();
-	push_full_selection();
+	selected_active_module.सफा();
+	धकेलो_full_selection();
 
-	RTLIL::Design::get_all_designs()->insert(std::pair<unsigned int, RTLIL::Design*>(hashidx_, this));
+	RTLIL::Design::get_all_designs()->जोड़ो(std::pair<अचिन्हित पूर्णांक, RTLIL::Design*>(hashidx_, यह));
 }
 
 RTLIL::Design::~Design()
 {
-	for (auto &pr : modules_)
-		delete pr.second;
+	क्रम (स्वतः &pr : modules_)
+		मिटाओ pr.second;
 	RTLIL::Design::get_all_designs()->erase(hashidx_);
 }
 
-static std::map<unsigned int, RTLIL::Design*> all_designs;
-std::map<unsigned int, RTLIL::Design*> *RTLIL::Design::get_all_designs(void)
+अटल std::map<अचिन्हित पूर्णांक, RTLIL::Design*> all_designs;
+std::map<अचिन्हित पूर्णांक, RTLIL::Design*> *RTLIL::Design::get_all_designs(व्योम)
 {
-	return &all_designs;
+	वापस &all_designs;
 }
 
 RTLIL::ObjRange<RTLIL::Module*, IdString> RTLIL::Design::modules()
 {
-	return RTLIL::ObjRange<RTLIL::Module*, IdString>(&modules_, &refcount_modules_);
+	वापस RTLIL::ObjRange<RTLIL::Module*, IdString>(&modules_, &refcount_modules_);
 }
 
-const RTLIL::Module *RTLIL::Design::module(IdString id) const {
+स्थिर RTLIL::Module *RTLIL::Design::module(IdString id) स्थिर {
 	twines_.check_owned(id);
-	return modules_.count(id) ? modules_.at(id) : NULL;
+	वापस modules_.गिनती(id) ? modules_.at(id) : शून्य;
 }
 RTLIL::Module *RTLIL::Design::module(IdString id) {
 	twines_.check_owned(id);
-	return modules_.count(id) ? modules_.at(id) : NULL;
+	वापस modules_.गिनती(id) ? modules_.at(id) : शून्य;
 }
 
-RTLIL::Module *RTLIL::Design::top_module() const
+RTLIL::Module *RTLIL::Design::शीर्ष_module() स्थिर
 {
 	RTLIL::Module *module = nullptr;
-	int module_count = 0;
+	पूर्णांक module_गिनती = 0;
 
-	for (auto mod : selected_modules()) {
-		if (mod->get_bool_attribute(ID::top))
-			return mod;
-		module_count++;
+	क्रम (स्वतः mod : selected_modules()) {
+		अगर (mod->get_bool_attribute(ID::शीर्ष))
+			वापस mod;
+		module_गिनती++;
 		module = mod;
 	}
 
-	return module_count == 1 ? module : nullptr;
+	वापस module_गिनती == 1 ? module : nullptr;
 }
 
 RTLIL::Module *RTLIL::Design::addModule(RTLIL::IdString name)
 {
-	if (modules_.count(name) != 0)
+	अगर (modules_.गिनती(name) != 0)
 		log_error("Attempted to add new module named '%s', but a module by that name already exists\n", twines_.str(name));
 	log_assert(refcount_modules_ == 0);
 
-	RTLIL::Module *module = new RTLIL::Module;
+	RTLIL::Module *module = नया RTLIL::Module;
 	modules_[name] = module;
-	module->design = this;
+	module->design = यह;
 	module->name = name;
 
-	for (auto mon : monitors)
+	क्रम (स्वतः mon : monitors)
 		mon->notify_module_add(module);
 
-	if (yosys_xtrace) {
+	अगर (yosys_xtrace) {
 		log("#X# New Module: %s\n", twines_.str(name));
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
-	return module;
+	वापस module;
 }
 
-void RTLIL::Design::scratchpad_unset(const std::string &varname)
+व्योम RTLIL::Design::scratchpad_unset(स्थिर std::string &varname)
 {
 	scratchpad.erase(varname);
 }
 
-void RTLIL::Design::scratchpad_set_int(const std::string &varname, int value)
+व्योम RTLIL::Design::scratchpad_set_int(स्थिर std::string &varname, पूर्णांक मूल्य)
 {
-	scratchpad[varname] = stringf("%d", value);
+	scratchpad[varname] = stringf("%d", मूल्य);
 }
 
-void RTLIL::Design::scratchpad_set_bool(const std::string &varname, bool value)
+व्योम RTLIL::Design::scratchpad_set_bool(स्थिर std::string &varname, bool मूल्य)
 {
-	scratchpad[varname] = value ? "true" : "false";
+	scratchpad[varname] = मूल्य ? "true" : "false";
 }
 
-void RTLIL::Design::scratchpad_set_string(const std::string &varname, std::string value)
+व्योम RTLIL::Design::scratchpad_set_string(स्थिर std::string &varname, std::string मूल्य)
 {
-	scratchpad[varname] = std::move(value);
+	scratchpad[varname] = std::move(मूल्य);
 }
 
-int RTLIL::Design::scratchpad_get_int(const std::string &varname, int default_value) const
+पूर्णांक RTLIL::Design::scratchpad_get_int(स्थिर std::string &varname, पूर्णांक default_मूल्य_2) स्थिर
 {
-	auto it = scratchpad.find(varname);
-	if (it == scratchpad.end())
-		return default_value;
+	स्वतः it = scratchpad.find(varname);
+	अगर (it == scratchpad.end())
+		वापस default_मूल्य_2;
 
-	const std::string &str = it->second;
+	स्थिर std::string &str = it->second;
 
-	if (str == "0" || str == "false")
-		return 0;
+	अगर (str == "0" || str == "false")
+		वापस 0;
 
-	if (str == "1" || str == "true")
-		return 1;
+	अगर (str == "1" || str == "true")
+		वापस 1;
 
-	char *endptr = nullptr;
-	long int parsed_value = strtol(str.c_str(), &endptr, 10);
-	return *endptr ? default_value : parsed_value;
+	अक्षर *endptr = nullptr;
+	दीर्घ पूर्णांक parsed_मूल्य = म_से_दीर्घ(str.c_str(), &endptr, 10);
+	वापस *endptr ? default_मूल्य_2 : parsed_मूल्य;
 }
 
-bool RTLIL::Design::scratchpad_get_bool(const std::string &varname, bool default_value) const
+bool RTLIL::Design::scratchpad_get_bool(स्थिर std::string &varname, bool default_मूल्य_2) स्थिर
 {
-	auto it = scratchpad.find(varname);
-	if (it == scratchpad.end())
-		return default_value;
+	स्वतः it = scratchpad.find(varname);
+	अगर (it == scratchpad.end())
+		वापस default_मूल्य_2;
 
-	const std::string &str = it->second;
+	स्थिर std::string &str = it->second;
 
-	if (str == "0" || str == "false")
-		return false;
+	अगर (str == "0" || str == "false")
+		वापस false;
 
-	if (str == "1" || str == "true")
-		return true;
+	अगर (str == "1" || str == "true")
+		वापस true;
 
-	return default_value;
+	वापस default_मूल्य_2;
 }
 
-std::string RTLIL::Design::scratchpad_get_string(const std::string &varname, const std::string &default_value) const
+std::string RTLIL::Design::scratchpad_get_string(स्थिर std::string &varname, स्थिर std::string &default_मूल्य_2) स्थिर
 {
-	auto it = scratchpad.find(varname);
-	if (it == scratchpad.end())
-		return default_value;
+	स्वतः it = scratchpad.find(varname);
+	अगर (it == scratchpad.end())
+		वापस default_मूल्य_2;
 
-	return it->second;
+	वापस it->second;
 }
 
-void RTLIL::Design::remove(RTLIL::Module *module)
+व्योम RTLIL::Design::हटाओ(RTLIL::Module *module)
 {
-	for (auto mon : monitors)
+	क्रम (स्वतः mon : monitors)
 		mon->notify_module_del(module);
 
-	if (yosys_xtrace) {
+	अगर (yosys_xtrace) {
 		log("#X# Remove Module: %s\n", module);
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
@@ -1167,294 +1167,294 @@ void RTLIL::Design::remove(RTLIL::Module *module)
 	log_assert(modules_.at(module->name) == module);
 	log_assert(refcount_modules_ == 0);
 	modules_.erase(module->name);
-	delete module;
+	मिटाओ module;
 }
 
-void RTLIL::Design::rename(RTLIL::Module *module, RTLIL::IdString new_name)
+व्योम RTLIL::Design::नाम(RTLIL::Module *module, RTLIL::IdString new_name)
 {
 	modules_.erase(module->name);
 	module->name = new_name;
 	add(module);
 }
 
-void RTLIL::Design::sort()
+व्योम RTLIL::Design::sort()
 {
 	scratchpad.sort();
 	modules_.sort(sort_by_id_str(twines_));
-	for (auto &it : modules_)
+	क्रम (स्वतः &it : modules_)
 		it.second->sort();
 }
 
-void RTLIL::Design::sort_modules()
+व्योम RTLIL::Design::sort_modules()
 {
 	scratchpad.sort();
 	modules_.sort(sort_by_id_str(twines_));
 }
 
-void check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool);
+व्योम check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool);
 
-void RTLIL::Design::check()
+व्योम RTLIL::Design::check()
 {
-#ifndef NDEBUG
-	log_assert(!selection_stack.empty());
-	int pool_size = 0;
-	for (auto &it : modules_)
-		pool_size = std::max(pool_size, ThreadPool::work_pool_size(0, it.second->cells_size(), 1000));
-	ParallelDispatchThreadPool thread_pool(pool_size);
-	for (auto &it : modules_) {
-		log_assert(this == it.second->design);
+#अगर_अघोषित न_संशोधन
+	log_assert(!selection_ढेर.empty());
+	पूर्णांक pool_आकार = 0;
+	क्रम (स्वतः &it : modules_)
+		pool_आकार = std::max(pool_आकार, ThreadPool::work_pool_आकार(0, it.second->cells_आकार(), 1000));
+	ParallelDispatchThreadPool thread_pool(pool_आकार);
+	क्रम (स्वतः &it : modules_) {
+		log_assert(यह == it.second->design);
 		log_assert(it.first == it.second->name);
 		check_module(it.second, thread_pool);
 	}
-#endif
+#पूर्ण_अगर
 }
 
-void RTLIL::Design::optimize()
+व्योम RTLIL::Design::optimize()
 {
-	for (auto &it : modules_)
+	क्रम (स्वतः &it : modules_)
 		it.second->optimize();
-	for (auto &it : selection_stack)
-		it.optimize(this);
-	for (auto &it : selection_vars)
-		it.second.optimize(this);
+	क्रम (स्वतः &it : selection_ढेर)
+		it.optimize(यह);
+	क्रम (स्वतः &it : selection_vars)
+		it.second.optimize(यह);
 }
 
-void RTLIL::Design::clone_into(RTLIL::Design *dst) const
+व्योम RTLIL::Design::clone_into(RTLIL::Design *dst) स्थिर
 {
 	log_assert(dst->modules_.empty());
 	dst->twines_ = twines_;
-	for (auto it = modules_.rbegin(); it != modules_.rend(); ++it)
+	क्रम (स्वतः it = modules_.rbegin(); it != modules_.rend(); ++it)
 		it->second->clone(dst);
 }
 
-bool RTLIL::Design::selected_module(IdString mod_name) const
+bool RTLIL::Design::selected_module(IdString mod_name) स्थिर
 {
-	if (!selected_active_module.empty() && mod_name != selected_active_module)
-		return false;
-	return selection().selected_module(mod_name);
+	अगर (!selected_active_module.empty() && mod_name != selected_active_module)
+		वापस false;
+	वापस selection().selected_module(mod_name);
 }
 
-bool RTLIL::Design::selected_whole_module(RTLIL::IdString mod_name) const
+bool RTLIL::Design::selected_whole_module(RTLIL::IdString mod_name) स्थिर
 {
-	if (!selected_active_module.empty() && mod_name != selected_active_module)
-		return false;
-	return selection().selected_whole_module(mod_name);
+	अगर (!selected_active_module.empty() && mod_name != selected_active_module)
+		वापस false;
+	वापस selection().selected_whole_module(mod_name);
 }
 
-bool RTLIL::Design::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) const
+bool RTLIL::Design::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) स्थिर
 {
-	if (!selected_active_module.empty() && mod_name != selected_active_module)
-		return false;
-	return selection().selected_member(mod_name, memb_name);
+	अगर (!selected_active_module.empty() && mod_name != selected_active_module)
+		वापस false;
+	वापस selection().selected_member(mod_name, memb_name);
 }
 
-bool RTLIL::Design::selected_module(RTLIL::Module *mod) const
+bool RTLIL::Design::selected_module(RTLIL::Module *mod) स्थिर
 {
-	return selected_module(mod->name);
+	वापस selected_module(mod->name);
 }
 
-bool RTLIL::Design::selected_whole_module(RTLIL::Module *mod) const
+bool RTLIL::Design::selected_whole_module(RTLIL::Module *mod) स्थिर
 {
-	return selected_whole_module(mod->name);
+	वापस selected_whole_module(mod->name);
 }
 
-void RTLIL::Design::push_selection(RTLIL::Selection sel)
+व्योम RTLIL::Design::धकेलो_selection(RTLIL::Selection sel)
 {
-	sel.current_design = this;
-	selection_stack.push_back(sel);
+	sel.current_design = यह;
+	selection_ढेर.धकेलो_back(sel);
 }
 
-void RTLIL::Design::push_empty_selection()
+व्योम RTLIL::Design::धकेलो_empty_selection()
 {
-	push_selection(RTLIL::Selection::EmptySelection(this));
+	धकेलो_selection(RTLIL::Selection::EmptySelection(यह));
 }
 
-void RTLIL::Design::push_full_selection()
+व्योम RTLIL::Design::धकेलो_full_selection()
 {
-	push_selection(RTLIL::Selection::FullSelection(this));
+	धकेलो_selection(RTLIL::Selection::FullSelection(यह));
 }
 
-void RTLIL::Design::push_complete_selection()
+व्योम RTLIL::Design::धकेलो_complete_selection()
 {
-	push_selection(RTLIL::Selection::CompleteSelection(this));
+	धकेलो_selection(RTLIL::Selection::CompleteSelection(यह));
 }
 
-void RTLIL::Design::pop_selection()
+व्योम RTLIL::Design::निकालो_selection()
 {
-	selection_stack.pop_back();
+	selection_ढेर.निकालो_back();
 	// Default to a full_selection if we ran out of stack
-	if (selection_stack.empty())
-		push_full_selection();
+	अगर (selection_ढेर.empty())
+		धकेलो_full_selection();
 }
 
-std::string RTLIL::Design::to_rtlil_str(bool only_selected) const
+std::string RTLIL::Design::to_rtlil_str(bool only_selected) स्थिर
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_design(f, const_cast<RTLIL::Design*>(this), only_selected, true, false, RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_design(f, const_cast<RTLIL::Design*>(यह), only_selected, true, false, RTLIL_BACKEND::DumpMode::Readable);
+	वापस f.str();
 }
 
-std::vector<RTLIL::Module*> RTLIL::Design::selected_modules(RTLIL::SelectPartials partials, RTLIL::SelectBoxes boxes) const
+std::vector<RTLIL::Module*> RTLIL::Design::selected_modules(RTLIL::SelectPartials partials, RTLIL::SelectBoxes boxes) स्थिर
 {
 	bool include_partials = partials == RTLIL::SELECT_ALL;
 	bool exclude_boxes = (boxes & RTLIL::SB_UNBOXED_ONLY) != 0;
 	bool ignore_wb = (boxes & RTLIL::SB_INCL_WB) != 0;
-	std::vector<RTLIL::Module*> result;
-	result.reserve(modules_.size());
-	for (auto &it : modules_) {
-		if (selected_whole_module(it.first) || (include_partials && selected_module(it.first))) {
-			if (!(exclude_boxes && it.second->get_blackbox_attribute(ignore_wb)))
-				result.push_back(it.second);
-			else
-				switch (boxes)
+	std::vector<RTLIL::Module*> परिणाम;
+	परिणाम.reserve(modules_.आकार());
+	क्रम (स्वतः &it : modules_) {
+		अगर (selected_whole_module(it.first) || (include_partials && selected_module(it.first))) {
+			अगर (!(exclude_boxes && it.second->get_blackbox_attribute(ignore_wb)))
+				परिणाम.धकेलो_back(it.second);
+			अन्यथा
+				चयन (boxes)
 				{
-				case RTLIL::SB_UNBOXED_WARN:
+				हाल RTLIL::SB_UNBOXED_WARN:
 					log_warning("Ignoring boxed module %s.\n", it.second);
-					break;
-				case RTLIL::SB_EXCL_BB_WARN:
+					अवरोध;
+				हाल RTLIL::SB_EXCL_BB_WARN:
 					log_warning("Ignoring blackbox module %s.\n", it.second);
-					break;
-				case RTLIL::SB_UNBOXED_ERR:
+					अवरोध;
+				हाल RTLIL::SB_UNBOXED_ERR:
 					log_error("Unsupported boxed module %s.\n", it.second);
-					break;
-				case RTLIL::SB_EXCL_BB_ERR:
+					अवरोध;
+				हाल RTLIL::SB_EXCL_BB_ERR:
 					log_error("Unsupported blackbox module %s.\n", it.second);
-					break;
-				case RTLIL::SB_UNBOXED_CMDERR:
+					अवरोध;
+				हाल RTLIL::SB_UNBOXED_CMDERR:
 					log_cmd_error("Unsupported boxed module %s.\n", it.second);
-					break;
-				case RTLIL::SB_EXCL_BB_CMDERR:
+					अवरोध;
+				हाल RTLIL::SB_EXCL_BB_CMDERR:
 					log_cmd_error("Unsupported blackbox module %s.\n", it.second);
-					break;
-				default:
-					break;
+					अवरोध;
+				शेष:
+					अवरोध;
 				}
-		} else if (!include_partials && selected_module(it.first)) {
-			switch(partials)
+		} अन्यथा अगर (!include_partials && selected_module(it.first)) {
+			चयन(partials)
 			{
-			case RTLIL::SELECT_WHOLE_WARN:
+			हाल RTLIL::SELECT_WHOLE_WARN:
 				log_warning("Ignoring partially selected module %s.\n", it.second);
-				break;
-			case RTLIL::SELECT_WHOLE_ERR:
+				अवरोध;
+			हाल RTLIL::SELECT_WHOLE_ERR:
 				log_error("Unsupported partially selected module %s.\n", it.second);
-				break;
-			case RTLIL::SELECT_WHOLE_CMDERR:
+				अवरोध;
+			हाल RTLIL::SELECT_WHOLE_CMDERR:
 				log_cmd_error("Unsupported partially selected module %s.\n", it.second);
-				break;
-			default:
-				break;
+				अवरोध;
+			शेष:
+				अवरोध;
 			}
 		}
 	}
-	return result;
+	वापस परिणाम;
 }
 
 RTLIL::Module::Module()
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	अटल अचिन्हित पूर्णांक hashidx_गिनती = 123456789;
+	hashidx_गिनती = mkhash_xorshift(hashidx_गिनती);
+	hashidx_ = hashidx_गिनती;
 
 	design = nullptr;
 	refcount_wires_ = 0;
 	refcount_cells_ = 0;
 
-#ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Module::get_all_modules()->insert(std::pair<unsigned int, RTLIL::Module*>(hashidx_, this));
-#endif
+#अगर_घोषित YOSYS_ENABLE_PYTHON
+	RTLIL::Module::get_all_modules()->जोड़ो(std::pair<अचिन्हित पूर्णांक, RTLIL::Module*>(hashidx_, यह));
+#पूर्ण_अगर
 }
 
 RTLIL::Module::~Module()
 {
-	for (auto &pr : wires_)
-		delete pr.second;
-	for (auto &pr : memories)
-		delete pr.second;
-	for (auto &pr : cells_)
-		delete pr.second;
-	for (auto &pr : processes)
-		delete pr.second;
-#ifdef YOSYS_ENABLE_PYTHON
+	क्रम (स्वतः &pr : wires_)
+		मिटाओ pr.second;
+	क्रम (स्वतः &pr : memories)
+		मिटाओ pr.second;
+	क्रम (स्वतः &pr : cells_)
+		मिटाओ pr.second;
+	क्रम (स्वतः &pr : processes)
+		मिटाओ pr.second;
+#अगर_घोषित YOSYS_ENABLE_PYTHON
 	RTLIL::Module::get_all_modules()->erase(hashidx_);
-#endif
+#पूर्ण_अगर
 }
 
-#ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Module*> all_modules;
-std::map<unsigned int, RTLIL::Module*> *RTLIL::Module::get_all_modules(void)
+#अगर_घोषित YOSYS_ENABLE_PYTHON
+अटल std::map<अचिन्हित पूर्णांक, RTLIL::Module*> all_modules;
+std::map<अचिन्हित पूर्णांक, RTLIL::Module*> *RTLIL::Module::get_all_modules(व्योम)
 {
-	return &all_modules;
+	वापस &all_modules;
 }
-#endif
+#पूर्ण_अगर
 
-void RTLIL::Module::makeblackbox()
+व्योम RTLIL::Module::makeblackbox()
 {
 	pool<RTLIL::Wire*> delwires;
 
-	for (auto it = wires_.begin(); it != wires_.end(); ++it)
-		if (!it->second->port_input && !it->second->port_output)
-			delwires.insert(it->second);
+	क्रम (स्वतः it = wires_.begin(); it != wires_.end(); ++it)
+		अगर (!it->second->port_निवेश && !it->second->port_output)
+			delwires.जोड़ो(it->second);
 
-	for (auto it = memories.begin(); it != memories.end(); ++it)
-		delete it->second;
-	memories.clear();
+	क्रम (स्वतः it = memories.begin(); it != memories.end(); ++it)
+		मिटाओ it->second;
+	memories.सफा();
 
-	for (auto it = cells_.begin(); it != cells_.end(); ++it)
-		delete it->second;
-	cells_.clear();
+	क्रम (स्वतः it = cells_.begin(); it != cells_.end(); ++it)
+		मिटाओ it->second;
+	cells_.सफा();
 
-	for (auto it = processes.begin(); it != processes.end(); ++it)
-		delete it->second;
-	processes.clear();
+	क्रम (स्वतः it = processes.begin(); it != processes.end(); ++it)
+		मिटाओ it->second;
+	processes.सफा();
 
-	connections_.clear();
+	connections_.सफा();
 
-	remove(delwires);
+	हटाओ(delwires);
 	set_bool_attribute(ID::blackbox);
 }
 
-void RTLIL::Module::expand_interfaces(RTLIL::Design *, const dict<RTLIL::IdString, RTLIL::Module *> &)
+व्योम RTLIL::Module::expand_interfaces(RTLIL::Design *, स्थिर dict<RTLIL::IdString, RTLIL::Module *> &)
 {
 	log_error("Class doesn't support expand_interfaces (module: `%s')!\n", name.unescape());
 }
 
 bool RTLIL::Module::reprocess_if_necessary(RTLIL::Design *)
 {
-	return false;
+	वापस false;
 }
 
-RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, const dict<RTLIL::IdString, RTLIL::Const> &, bool mayfail)
+RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, स्थिर dict<RTLIL::IdString, RTLIL::Const> &, bool mayfail)
 {
-	if (mayfail)
-		return IdString::Null;
+	अगर (mayfail)
+		वापस IdString::Null;
 	log_error("Module `%s' is used with parameters but is not parametric!\n", name.unescape());
 }
 
 
-RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, const dict<RTLIL::IdString, RTLIL::Const> &, const dict<RTLIL::IdString, RTLIL::Module*> &, const dict<RTLIL::IdString, RTLIL::IdString> &, bool mayfail)
+RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, स्थिर dict<RTLIL::IdString, RTLIL::Const> &, स्थिर dict<RTLIL::IdString, RTLIL::Module*> &, स्थिर dict<RTLIL::IdString, RTLIL::IdString> &, bool mayfail)
 {
-	if (mayfail)
-		return IdString::Null;
+	अगर (mayfail)
+		वापस IdString::Null;
 	log_error("Module `%s' is used with parameters but is not parametric!\n", name.unescape());
 }
 
-size_t RTLIL::Module::count_id(RTLIL::IdString id)
+माप_प्रकार RTLIL::Module::गिनती_id(RTLIL::IdString id)
 {
-	return wires_.count(id) + cells_.count(id) + memories.count(id) + processes.count(id);
+	वापस wires_.गिनती(id) + cells_.गिनती(id) + memories.गिनती(id) + processes.गिनती(id);
 }
 
-#ifndef NDEBUG
+#अगर_अघोषित न_संशोधन
 namespace {
-	struct InternalCellChecker
+	काष्ठा InternalCellChecker
 	{
-		const RTLIL::Module *module;
+		स्थिर RTLIL::Module *module;
 		RTLIL::Cell *cell;
 		pool<IdString> expected_params;
 		pool<IdString> expected_ports;
 
-		InternalCellChecker(const RTLIL::Module *module, RTLIL::Cell *cell) : module(module), cell(cell) { }
+		InternalCellChecker(स्थिर RTLIL::Module *module, RTLIL::Cell *cell) : module(module), cell(cell) { }
 
-		void error(int linenr, std::optional<std::string> error_msg = std::nullopt)
+		व्योम error(पूर्णांक linenr, std::optional<std::string> error_संदेश = std::nullopt)
 		{
 			std::stringstream buf;
 			RTLIL_BACKEND::dump_cell(buf, "  ", cell, cell->module->design);
@@ -1462,142 +1462,142 @@ namespace {
 			std::string mod_name = module ? module->name.str() : std::string();
 			std::string cell_name = cell->name.unescape();
 			std::string cell_loc = stringf("%s%s%s (%s) at %s:%d:\n%s", mod_name, module ? "." : "",
-							   cell_name, cell->type.str(), __FILE__, linenr, buf.str());
+							   cell_name, cell->type.str(), __खाता__, linenr, buf.str());
 
-			if (error_msg) {
-				log_error("%s in internal cell %s\n", *error_msg, cell_loc);
-			} else {
+			अगर (error_संदेश) {
+				log_error("%s in internal cell %s\n", *error_संदेश, cell_loc);
+			} अन्यथा {
 				log_error("Found error in internal cell %s\n", cell_loc);
 			}
 		}
 
-		int param(RTLIL::IdString name)
+		पूर्णांक param(RTLIL::IdString name)
 		{
-			auto it = cell->parameters.find(name);
-			if (it == cell->parameters.end()) {
+			स्वतः it = cell->parameters.find(name);
+			अगर (it == cell->parameters.end()) {
 				std::string err = stringf("Expected to find parameter %s", cell->module->design->twines().str(name));
 				error(__LINE__, err);
 			}
-			expected_params.insert(name);
-			return it->second.as_int();
+			expected_params.जोड़ो(name);
+			वापस it->second.as_int();
 		}
 
-		int param_bool(RTLIL::IdString name)
+		पूर्णांक param_bool(RTLIL::IdString name)
 		{
-			int v = param(name);
-			if (GetSize(cell->parameters.at(name)) > 32)
+			पूर्णांक v = param(name);
+			अगर (Get_आकार(cell->parameters.at(name)) > 32)
 				error(__LINE__);
-			if (v != 0 && v != 1)
+			अगर (v != 0 && v != 1)
 				error(__LINE__);
-			return v;
+			वापस v;
 		}
 
-		int param_bool(RTLIL::IdString name, bool expected)
+		पूर्णांक param_bool(RTLIL::IdString name, bool expected)
 		{
-			int v = param_bool(name);
-			if (v != expected)
+			पूर्णांक v = param_bool(name);
+			अगर (v != expected)
 				error(__LINE__);
-			return v;
+			वापस v;
 		}
 
-		void param_bits(RTLIL::IdString name, int width)
+		व्योम param_bits(RTLIL::IdString name, पूर्णांक width)
 		{
 			param(name);
-			if (GetSize(cell->parameters.at(name)) != width)
+			अगर (Get_आकार(cell->parameters.at(name)) != width)
 				error(__LINE__);
 		}
 
 		std::string param_string(RTLIL::IdString name)
 		{
 			param(name);
-			return cell->parameters.at(name).decode_string();
+			वापस cell->parameters.at(name).decode_string();
 		}
 
-		void port(RTLIL::IdString name, int width)
+		व्योम port(RTLIL::IdString name, पूर्णांक width)
 		{
-			auto it = cell->connections_.find(name);
-			if (it == cell->connections_.end()) {
+			स्वतः it = cell->connections_.find(name);
+			अगर (it == cell->connections_.end()) {
 				std::string err = stringf("Expected to find port %s", cell->module->design->twines().str(name));
 				error(__LINE__, err);
 			}
-			if (GetSize(it->second) != width) {
+			अगर (Get_आकार(it->second) != width) {
 				std::string err = stringf("Expected port to have width %d", width);
 				error(__LINE__, err);
 			}
-			expected_ports.insert(name);
+			expected_ports.जोड़ो(name);
 		}
 
-		void check_expected(bool check_matched_sign = false)
+		व्योम check_expected(bool check_matched_sign = false)
 		{
-			for (auto &para : cell->parameters)
-				if (expected_params.count(para.first) == 0)
+			क्रम (स्वतः &para : cell->parameters)
+				अगर (expected_params.गिनती(para.first) == 0)
 					error(__LINE__);
-			for (auto &conn : cell->connections())
-				if (expected_ports.count(conn.first) == 0)
+			क्रम (स्वतः &conn : cell->connections())
+				अगर (expected_ports.गिनती(conn.first) == 0)
 					error(__LINE__);
 
-			if (check_matched_sign) {
-				log_assert(expected_params.count(ID::A_SIGNED) != 0 && expected_params.count(ID::B_SIGNED) != 0);
+			अगर (check_matched_sign) {
+				log_assert(expected_params.गिनती(ID::A_SIGNED) != 0 && expected_params.गिनती(ID::B_SIGNED) != 0);
 				bool a_is_signed = cell->parameters.at(ID::A_SIGNED).as_bool();
 				bool b_is_signed = cell->parameters.at(ID::B_SIGNED).as_bool();
-				if (a_is_signed != b_is_signed)
+				अगर (a_is_signed != b_is_signed)
 					error(__LINE__);
 			}
 		}
 
-		void check()
+		व्योम check()
 		{
-			if (cell->type.isPublic() || cell->type.begins_with("$__") || cell->type.begins_with("$paramod") || cell->type.begins_with("$fmcombine") ||
+			अगर (cell->type.isPublic() || cell->type.begins_with("$__") || cell->type.begins_with("$paramod") || cell->type.begins_with("$fmcombine") ||
 					cell->type.begins_with("$verific$") || cell->type.begins_with("$array:") || cell->type.begins_with("$extern:"))
-				return;
+				वापस;
 
-			if (cell->type.in(ID($buf), ID($barrier))) {
+			अगर (cell->type.in(ID($buf), ID($barrier))) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type.in(ID($not), ID($pos), ID($neg))) {
+			अगर (cell->type.in(ID($not), ID($pos), ID($neg))) {
 				param_bool(ID::A_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type.in(ID($and), ID($or), ID($xor), ID($xnor))) {
+			अगर (cell->type.in(ID($and), ID($or), ID($xor), ID($xnor))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::B, param(ID::B_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected(true);
-				return;
+				वापस;
 			}
 
-			if (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool))) {
+			अगर (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool))) {
 				param_bool(ID::A_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr))) {
+			अगर (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED, /*expected=*/false);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::B, param(ID::B_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected(/*check_matched_sign=*/false);
-				return;
+				वापस;
 			}
 
-			if (cell->type.in(ID($shift), ID($shiftx))) {
-				if (cell->type == ID($shiftx)) {
+			अगर (cell->type.in(ID($shift), ID($shiftx))) {
+				अगर (cell->type == ID($shiftx)) {
 					param_bool(ID::A_SIGNED, /*expected=*/false);
-				} else {
+				} अन्यथा {
 					param_bool(ID::A_SIGNED);
 				}
 				param_bool(ID::B_SIGNED);
@@ -1605,49 +1605,49 @@ namespace {
 				port(ID::B, param(ID::B_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected(/*check_matched_sign=*/false);
-				return;
+				वापस;
 			}
 
-			if (cell->type.in(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt))) {
+			अगर (cell->type.in(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::B, param(ID::B_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected(true);
-				return;
+				वापस;
 			}
 
-			if (cell->type.in(ID($add), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow))) {
+			अगर (cell->type.in(ID($add), ID($sub), ID($mul), ID($भाग), ID($mod), ID($divfloor), ID($modfloor), ID($घात))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::B, param(ID::B_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(cell->type != ID($pow));
-				return;
+				check_expected(cell->type != ID($घात));
+				वापस;
 			}
 
-			if (cell->type == ID($fa)) {
+			अगर (cell->type == ID($fa)) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::B, param(ID::WIDTH));
 				port(ID::C, param(ID::WIDTH));
 				port(ID::X, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($lcu)) {
+			अगर (cell->type == ID($lcu)) {
 				port(ID::P, param(ID::WIDTH));
 				port(ID::G, param(ID::WIDTH));
 				port(ID::CI, 1);
 				port(ID::CO, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($alu)) {
+			अगर (cell->type == ID($alu)) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
@@ -1658,10 +1658,10 @@ namespace {
 				port(ID::Y, param(ID::Y_WIDTH));
 				port(ID::CO, param(ID::Y_WIDTH));
 				check_expected(true);
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($macc)) {
+			अगर (cell->type == ID($macc)) {
 				param(ID::CONFIG);
 				param(ID::CONFIG_WIDTH);
 				port(ID::A, param(ID::A_WIDTH));
@@ -1669,157 +1669,157 @@ namespace {
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected();
 				Macc().from_cell(cell);
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($macc_v2)) {
-				if (param(ID::NPRODUCTS) < 0)
+			अगर (cell->type == ID($macc_v2)) {
+				अगर (param(ID::NPRODUCTS) < 0)
 					error(__LINE__);
-				if (param(ID::NADDENDS) < 0)
+				अगर (param(ID::NADDENDS) < 0)
 					error(__LINE__);
 				param_bits(ID::PRODUCT_NEGATED, max(param(ID::NPRODUCTS), 1));
 				param_bits(ID::ADDEND_NEGATED, max(param(ID::NADDENDS), 1));
 				param_bits(ID::A_SIGNED, max(param(ID::NPRODUCTS), 1));
 				param_bits(ID::B_SIGNED, max(param(ID::NPRODUCTS), 1));
 				param_bits(ID::C_SIGNED, max(param(ID::NADDENDS), 1));
-				if (cell->getParam(ID::A_SIGNED) != cell->getParam(ID::B_SIGNED))
+				अगर (cell->getParam(ID::A_SIGNED) != cell->getParam(ID::B_SIGNED))
 					error(__LINE__);
 				param_bits(ID::A_WIDTHS, max(param(ID::NPRODUCTS) * 16, 1));
 				param_bits(ID::B_WIDTHS, max(param(ID::NPRODUCTS) * 16, 1));
 				param_bits(ID::C_WIDTHS, max(param(ID::NADDENDS) * 16, 1));
-				const Const &a_width = cell->getParam(ID::A_WIDTHS);
-				const Const &b_width = cell->getParam(ID::B_WIDTHS);
-				const Const &c_width = cell->getParam(ID::C_WIDTHS);
-				int a_width_sum = 0, b_width_sum = 0, c_width_sum = 0;
-				for (int i = 0; i < param(ID::NPRODUCTS); i++) {
-					a_width_sum += a_width.extract(16 * i, 16).as_int(false);
-					b_width_sum += b_width.extract(16 * i, 16).as_int(false);
+				स्थिर Const &a_width = cell->getParam(ID::A_WIDTHS);
+				स्थिर Const &b_width = cell->getParam(ID::B_WIDTHS);
+				स्थिर Const &c_width = cell->getParam(ID::C_WIDTHS);
+				पूर्णांक a_width_योग = 0, b_width_योग = 0, c_width_योग = 0;
+				क्रम (पूर्णांक i = 0; i < param(ID::NPRODUCTS); i++) {
+					a_width_योग += a_width.extract(16 * i, 16).as_int(false);
+					b_width_योग += b_width.extract(16 * i, 16).as_int(false);
 				}
-				for (int i = 0; i < param(ID::NADDENDS); i++) {
-					c_width_sum += c_width.extract(16 * i, 16).as_int(false);
+				क्रम (पूर्णांक i = 0; i < param(ID::NADDENDS); i++) {
+					c_width_योग += c_width.extract(16 * i, 16).as_int(false);
 				}
-				port(ID::A, a_width_sum);
-				port(ID::B, b_width_sum);
-				port(ID::C, c_width_sum);
+				port(ID::A, a_width_योग);
+				port(ID::B, b_width_योग);
+				port(ID::C, c_width_योग);
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($logic_not)) {
+			अगर (cell->type == ID($logic_not)) {
 				param_bool(ID::A_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type.in(ID($logic_and), ID($logic_or))) {
+			अगर (cell->type.in(ID($logic_and), ID($logic_or))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::B, param(ID::B_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected(/*check_matched_sign=*/false);
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($slice)) {
+			अगर (cell->type == ID($slice)) {
 				param(ID::OFFSET);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
-				if (param(ID::OFFSET) + param(ID::Y_WIDTH) > param(ID::A_WIDTH))
+				अगर (param(ID::OFFSET) + param(ID::Y_WIDTH) > param(ID::A_WIDTH))
 					error(__LINE__);
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($concat)) {
+			अगर (cell->type == ID($concat)) {
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::B, param(ID::B_WIDTH));
 				port(ID::Y, param(ID::A_WIDTH) + param(ID::B_WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($mux)) {
+			अगर (cell->type == ID($mux)) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::B, param(ID::WIDTH));
 				port(ID::S, 1);
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($pmux)) {
+			अगर (cell->type == ID($pmux)) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::B, param(ID::WIDTH) * param(ID::S_WIDTH));
 				port(ID::S, param(ID::S_WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($bmux)) {
+			अगर (cell->type == ID($bmux)) {
 				port(ID::A, param(ID::WIDTH) << param(ID::S_WIDTH));
 				port(ID::S, param(ID::S_WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($demux)) {
+			अगर (cell->type == ID($demux)) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::S, param(ID::S_WIDTH));
 				port(ID::Y, param(ID::WIDTH) << param(ID::S_WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($lut)) {
+			अगर (cell->type == ID($lut)) {
 				param(ID::LUT);
 				port(ID::A, param(ID::WIDTH));
 				port(ID::Y, 1);
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($sop)) {
+			अगर (cell->type == ID($sop)) {
 				param(ID::DEPTH);
 				param(ID::TABLE);
 				port(ID::A, param(ID::WIDTH));
 				port(ID::Y, 1);
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($sr)) {
+			अगर (cell->type == ID($sr)) {
 				param_bool(ID::SET_POLARITY);
 				param_bool(ID::CLR_POLARITY);
 				port(ID::SET, param(ID::WIDTH));
 				port(ID::CLR, param(ID::WIDTH));
 				port(ID::Q,   param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($ff)) {
+			अगर (cell->type == ID($ff)) {
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($dff)) {
+			अगर (cell->type == ID($dff)) {
 				param_bool(ID::CLK_POLARITY);
 				port(ID::CLK, 1);
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($dffe)) {
+			अगर (cell->type == ID($dffe)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
 				port(ID::CLK, 1);
@@ -1827,10 +1827,10 @@ namespace {
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($dffsr)) {
+			अगर (cell->type == ID($dffsr)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::SET_POLARITY);
 				param_bool(ID::CLR_POLARITY);
@@ -1840,10 +1840,10 @@ namespace {
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($dffsre)) {
+			अगर (cell->type == ID($dffsre)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::SET_POLARITY);
 				param_bool(ID::CLR_POLARITY);
@@ -1855,62 +1855,62 @@ namespace {
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($adff)) {
+			अगर (cell->type == ID($adff)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::ARST_POLARITY);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
+				param_bits(ID::ARST_मूल्य, param(ID::WIDTH));
 				port(ID::CLK, 1);
 				port(ID::ARST, 1);
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($sdff)) {
+			अगर (cell->type == ID($sdff)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::SRST_POLARITY);
-				param_bits(ID::SRST_VALUE, param(ID::WIDTH));
+				param_bits(ID::SRST_मूल्य, param(ID::WIDTH));
 				port(ID::CLK, 1);
 				port(ID::SRST, 1);
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type.in(ID($sdffe), ID($sdffce))) {
+			अगर (cell->type.in(ID($sdffe), ID($sdffce))) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::SRST_POLARITY);
-				param_bits(ID::SRST_VALUE, param(ID::WIDTH));
+				param_bits(ID::SRST_मूल्य, param(ID::WIDTH));
 				port(ID::CLK, 1);
 				port(ID::EN, 1);
 				port(ID::SRST, 1);
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($adffe)) {
+			अगर (cell->type == ID($adffe)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::ARST_POLARITY);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
+				param_bits(ID::ARST_मूल्य, param(ID::WIDTH));
 				port(ID::CLK, 1);
 				port(ID::EN, 1);
 				port(ID::ARST, 1);
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($aldff)) {
+			अगर (cell->type == ID($aldff)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::ALOAD_POLARITY);
 				port(ID::CLK, 1);
@@ -1919,10 +1919,10 @@ namespace {
 				port(ID::AD, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($aldffe)) {
+			अगर (cell->type == ID($aldffe)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::ALOAD_POLARITY);
@@ -1933,31 +1933,31 @@ namespace {
 				port(ID::AD, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($dlatch)) {
+			अगर (cell->type == ID($dlatch)) {
 				param_bool(ID::EN_POLARITY);
 				port(ID::EN, 1);
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($adlatch)) {
+			अगर (cell->type == ID($adlatch)) {
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::ARST_POLARITY);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
+				param_bits(ID::ARST_मूल्य, param(ID::WIDTH));
 				port(ID::EN, 1);
 				port(ID::ARST, 1);
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($dlatchsr)) {
+			अगर (cell->type == ID($dlatchsr)) {
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::SET_POLARITY);
 				param_bool(ID::CLR_POLARITY);
@@ -1967,29 +1967,29 @@ namespace {
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($fsm)) {
+			अगर (cell->type == ID($fsm)) {
 				param(ID::NAME);
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::ARST_POLARITY);
 				param(ID::STATE_BITS);
-				param(ID::STATE_NUM);
-				param(ID::STATE_NUM_LOG2);
+				param(ID::STATE_अंक);
+				param(ID::STATE_अंक_LOG2);
 				param(ID::STATE_RST);
-				param_bits(ID::STATE_TABLE, param(ID::STATE_BITS) * param(ID::STATE_NUM));
-				param(ID::TRANS_NUM);
-				param_bits(ID::TRANS_TABLE, param(ID::TRANS_NUM) * (2*param(ID::STATE_NUM_LOG2) + param(ID::CTRL_IN_WIDTH) + param(ID::CTRL_OUT_WIDTH)));
+				param_bits(ID::STATE_TABLE, param(ID::STATE_BITS) * param(ID::STATE_अंक));
+				param(ID::TRANS_अंक);
+				param_bits(ID::TRANS_TABLE, param(ID::TRANS_अंक) * (2*param(ID::STATE_अंक_LOG2) + param(ID::CTRL_IN_WIDTH) + param(ID::CTRL_OUT_WIDTH)));
 				port(ID::CLK, 1);
 				port(ID::ARST, 1);
 				port(ID::CTRL_IN, param(ID::CTRL_IN_WIDTH));
 				port(ID::CTRL_OUT, param(ID::CTRL_OUT_WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($memrd)) {
+			अगर (cell->type == ID($memrd)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
@@ -1997,32 +1997,32 @@ namespace {
 				port(ID::CLK, 1);
 				port(ID::EN, 1);
 				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH));
+				port(ID::तथ्य_2, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($memrd_v2)) {
+			अगर (cell->type == ID($memrd_v2)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
 				param(ID::TRANSPARENCY_MASK);
 				param(ID::COLLISION_X_MASK);
 				param_bool(ID::CE_OVER_SRST);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
-				param_bits(ID::SRST_VALUE, param(ID::WIDTH));
-				param_bits(ID::INIT_VALUE, param(ID::WIDTH));
+				param_bits(ID::ARST_मूल्य, param(ID::WIDTH));
+				param_bits(ID::SRST_मूल्य, param(ID::WIDTH));
+				param_bits(ID::INIT_मूल्य, param(ID::WIDTH));
 				port(ID::CLK, 1);
 				port(ID::EN, 1);
 				port(ID::ARST, 1);
 				port(ID::SRST, 1);
 				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH));
+				port(ID::तथ्य_2, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($memwr)) {
+			अगर (cell->type == ID($memwr)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
@@ -2030,12 +2030,12 @@ namespace {
 				port(ID::CLK, 1);
 				port(ID::EN, param(ID::WIDTH));
 				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH));
+				port(ID::तथ्य_2, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($memwr_v2)) {
+			अगर (cell->type == ID($memwr_v2)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
@@ -2044,33 +2044,33 @@ namespace {
 				port(ID::CLK, 1);
 				port(ID::EN, param(ID::WIDTH));
 				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH));
+				port(ID::तथ्य_2, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($meminit)) {
+			अगर (cell->type == ID($meminit)) {
 				param(ID::MEMID);
 				param(ID::PRIORITY);
 				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH) * param(ID::WORDS));
+				port(ID::तथ्य_2, param(ID::WIDTH) * param(ID::शब्दगण));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($meminit_v2)) {
+			अगर (cell->type == ID($meminit_v2)) {
 				param(ID::MEMID);
 				param(ID::PRIORITY);
 				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH) * param(ID::WORDS));
+				port(ID::तथ्य_2, param(ID::WIDTH) * param(ID::शब्दगण));
 				port(ID::EN, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($mem)) {
+			अगर (cell->type == ID($mem)) {
 				param(ID::MEMID);
-				param(ID::SIZE);
+				param(ID::आकार_2);
 				param(ID::OFFSET);
 				param(ID::INIT);
 				param_bits(ID::RD_CLK_ENABLE, max(1, param(ID::RD_PORTS)));
@@ -2081,18 +2081,18 @@ namespace {
 				port(ID::RD_CLK, param(ID::RD_PORTS));
 				port(ID::RD_EN, param(ID::RD_PORTS));
 				port(ID::RD_ADDR, param(ID::RD_PORTS) * param(ID::ABITS));
-				port(ID::RD_DATA, param(ID::RD_PORTS) * param(ID::WIDTH));
+				port(ID::RD_तथ्य, param(ID::RD_PORTS) * param(ID::WIDTH));
 				port(ID::WR_CLK, param(ID::WR_PORTS));
 				port(ID::WR_EN, param(ID::WR_PORTS) * param(ID::WIDTH));
 				port(ID::WR_ADDR, param(ID::WR_PORTS) * param(ID::ABITS));
-				port(ID::WR_DATA, param(ID::WR_PORTS) * param(ID::WIDTH));
+				port(ID::WR_तथ्य, param(ID::WR_PORTS) * param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($mem_v2)) {
+			अगर (cell->type == ID($mem_v2)) {
 				param(ID::MEMID);
-				param(ID::SIZE);
+				param(ID::आकार_2);
 				param(ID::OFFSET);
 				param(ID::INIT);
 				param_bits(ID::RD_CLK_ENABLE, max(1, param(ID::RD_PORTS)));
@@ -2101,9 +2101,9 @@ namespace {
 				param_bits(ID::RD_COLLISION_X_MASK, max(1, param(ID::RD_PORTS) * param(ID::WR_PORTS)));
 				param_bits(ID::RD_WIDE_CONTINUATION, max(1, param(ID::RD_PORTS)));
 				param_bits(ID::RD_CE_OVER_SRST, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::RD_ARST_VALUE, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
-				param_bits(ID::RD_SRST_VALUE, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
-				param_bits(ID::RD_INIT_VALUE, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
+				param_bits(ID::RD_ARST_मूल्य, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
+				param_bits(ID::RD_SRST_मूल्य, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
+				param_bits(ID::RD_INIT_मूल्य, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
 				param_bits(ID::WR_CLK_ENABLE, max(1, param(ID::WR_PORTS)));
 				param_bits(ID::WR_CLK_POLARITY, max(1, param(ID::WR_PORTS)));
 				param_bits(ID::WR_WIDE_CONTINUATION, max(1, param(ID::WR_PORTS)));
@@ -2113,75 +2113,75 @@ namespace {
 				port(ID::RD_ARST, param(ID::RD_PORTS));
 				port(ID::RD_SRST, param(ID::RD_PORTS));
 				port(ID::RD_ADDR, param(ID::RD_PORTS) * param(ID::ABITS));
-				port(ID::RD_DATA, param(ID::RD_PORTS) * param(ID::WIDTH));
+				port(ID::RD_तथ्य, param(ID::RD_PORTS) * param(ID::WIDTH));
 				port(ID::WR_CLK, param(ID::WR_PORTS));
 				port(ID::WR_EN, param(ID::WR_PORTS) * param(ID::WIDTH));
 				port(ID::WR_ADDR, param(ID::WR_PORTS) * param(ID::ABITS));
-				port(ID::WR_DATA, param(ID::WR_PORTS) * param(ID::WIDTH));
+				port(ID::WR_तथ्य, param(ID::WR_PORTS) * param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($tribuf)) {
+			अगर (cell->type == ID($tribuf)) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				port(ID::EN, 1);
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($bweqx)) {
+			अगर (cell->type == ID($bweqx)) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::B, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($bwmux)) {
+			अगर (cell->type == ID($bwmux)) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::B, param(ID::WIDTH));
 				port(ID::S, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover))) {
+			अगर (cell->type.in(ID($निश्चित), ID($assume), ID($live), ID($fair), ID($cover))) {
 				port(ID::A, 1);
 				port(ID::EN, 1);
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($initstate)) {
+			अगर (cell->type == ID($initstate)) {
 				port(ID::Y, 1);
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type.in(ID($anyconst), ID($anyseq), ID($allconst), ID($allseq))) {
+			अगर (cell->type.in(ID($anyconst), ID($anyseq), ID($allconst), ID($allseq))) {
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type.in(ID($anyinit))) {
+			अगर (cell->type.in(ID($anyinit))) {
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($equiv)) {
+			अगर (cell->type == ID($equiv)) {
 				port(ID::A, 1);
 				port(ID::B, 1);
 				port(ID::Y, 1);
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type.in(ID($specify2), ID($specify3))) {
+			अगर (cell->type.in(ID($specify2), ID($specify3))) {
 				param_bool(ID::FULL);
 				param_bool(ID::SRC_DST_PEN);
 				param_bool(ID::SRC_DST_POL);
@@ -2194,7 +2194,7 @@ namespace {
 				port(ID::EN, 1);
 				port(ID::SRC, param(ID::SRC_WIDTH));
 				port(ID::DST, param(ID::DST_WIDTH));
-				if (cell->type == ID($specify3)) {
+				अगर (cell->type == ID($specify3)) {
 					param_bool(ID::EDGE_EN);
 					param_bool(ID::EDGE_POL);
 					param_bool(ID::DAT_DST_PEN);
@@ -2202,10 +2202,10 @@ namespace {
 					port(ID::DAT, param(ID::DST_WIDTH));
 				}
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($specrule)) {
+			अगर (cell->type == ID($specrule)) {
 				param(ID::TYPE);
 				param_bool(ID::SRC_PEN);
 				param_bool(ID::SRC_POL);
@@ -2222,10 +2222,10 @@ namespace {
 				port(ID::SRC, param(ID::SRC_WIDTH));
 				port(ID::DST, param(ID::DST_WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($print)) {
+			अगर (cell->type == ID($print)) {
 				param(ID(FORMAT));
 				param_bool(ID::TRG_ENABLE);
 				param(ID::TRG_POLARITY);
@@ -2234,12 +2234,12 @@ namespace {
 				port(ID::TRG, param(ID::TRG_WIDTH));
 				port(ID::ARGS, param(ID::ARGS_WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($check)) {
+			अगर (cell->type == ID($check)) {
 				std::string flavor = param_string(ID(FLAVOR));
-				if (!(flavor == "assert" || flavor == "assume" || flavor == "live" || flavor == "fair" || flavor == "cover"))
+				अगर (!(flavor == "assert" || flavor == "assume" || flavor == "live" || flavor == "fair" || flavor == "cover"))
 					error(__LINE__);
 				param(ID(FORMAT));
 				param_bool(ID::TRG_ENABLE);
@@ -2250,91 +2250,91 @@ namespace {
 				port(ID::TRG, param(ID::TRG_WIDTH));
 				port(ID::ARGS, param(ID::ARGS_WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($scopeinfo)) {
+			अगर (cell->type == ID($scopeinfo)) {
 				param(ID::TYPE);
 				check_expected();
 				std::string scope_type = cell->getParam(ID::TYPE).decode_string();
-				if (scope_type != "module" && scope_type != "struct" && scope_type != "blackbox")
+				अगर (scope_type != "module" && scope_type != "struct" && scope_type != "blackbox")
 					error(__LINE__);
-				return;
+				वापस;
 			}
 
-			if (cell->type == ID($_BUF_))    { port(ID::A,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NOT_))    { port(ID::A,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_AND_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NAND_))   { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_OR_))     { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NOR_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_XOR_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_XNOR_))   { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_ANDNOT_)) { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_ORNOT_))  { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_MUX_))    { port(ID::A,1); port(ID::B,1); port(ID::S,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NMUX_))   { port(ID::A,1); port(ID::B,1); port(ID::S,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_AOI3_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_OAI3_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_AOI4_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_OAI4_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::Y,1); check_expected(); return; }
+			अगर (cell->type == ID($_BUF_))    { port(ID::A,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_NOT_))    { port(ID::A,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_AND_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_NAND_))   { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_OR_))     { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_NOR_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_XOR_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_XNOR_))   { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_ANDNOT_)) { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_ORNOT_))  { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_MUX_))    { port(ID::A,1); port(ID::B,1); port(ID::S,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_NMUX_))   { port(ID::A,1); port(ID::B,1); port(ID::S,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_AOI3_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_OAI3_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_AOI4_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_OAI4_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::Y,1); check_expected(); वापस; }
 
-			if (cell->type == ID($_TBUF_))  { port(ID::A,1); port(ID::Y,1); port(ID::E,1); check_expected(); return; }
+			अगर (cell->type == ID($_TBUF_))  { port(ID::A,1); port(ID::Y,1); port(ID::E,1); check_expected(); वापस; }
 
-			if (cell->type == ID($_MUX4_))  { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::S,1); port(ID::T,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_MUX8_))  { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::E,1); port(ID::F,1); port(ID::G,1); port(ID::H,1); port(ID::S,1); port(ID::T,1); port(ID::U,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_MUX16_)) { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::E,1); port(ID::F,1); port(ID::G,1); port(ID::H,1); port(ID::I,1); port(ID::J,1); port(ID::K,1); port(ID::L,1); port(ID::M,1); port(ID::N,1); port(ID::O,1); port(ID::P,1); port(ID::S,1); port(ID::T,1); port(ID::U,1); port(ID::V,1); port(ID::Y,1); check_expected(); return; }
+			अगर (cell->type == ID($_MUX4_))  { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::S,1); port(ID::T,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_MUX8_))  { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::E,1); port(ID::F,1); port(ID::G,1); port(ID::H,1); port(ID::S,1); port(ID::T,1); port(ID::U,1); port(ID::Y,1); check_expected(); वापस; }
+			अगर (cell->type == ID($_MUX16_)) { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::E,1); port(ID::F,1); port(ID::G,1); port(ID::H,1); port(ID::I,1); port(ID::J,1); port(ID::K,1); port(ID::L,1); port(ID::M,1); port(ID::N,1); port(ID::O,1); port(ID::P,1); port(ID::S,1); port(ID::T,1); port(ID::U,1); port(ID::V,1); port(ID::Y,1); check_expected(); वापस; }
 
-			if (cell->type.in(ID($_SR_NN_), ID($_SR_NP_), ID($_SR_PN_), ID($_SR_PP_)))
-				{ port(ID::S,1); port(ID::R,1); port(ID::Q,1); check_expected(); return; }
+			अगर (cell->type.in(ID($_SR_NN_), ID($_SR_NP_), ID($_SR_PN_), ID($_SR_PP_)))
+				{ port(ID::S,1); port(ID::R,1); port(ID::Q,1); check_expected(); वापस; }
 
-			if (cell->type == ID($_FF_)) { port(ID::D,1); port(ID::Q,1); check_expected();  return; }
+			अगर (cell->type == ID($_FF_)) { port(ID::D,1); port(ID::Q,1); check_expected();  वापस; }
 
-			if (cell->type.in(ID($_DFF_N_), ID($_DFF_P_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); check_expected(); return; }
+			अगर (cell->type.in(ID($_DFF_N_), ID($_DFF_P_)))
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); check_expected(); वापस; }
 
-			if (cell->type.in(ID($_DFFE_NN_), ID($_DFFE_NP_), ID($_DFFE_PN_), ID($_DFFE_PP_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::E,1); check_expected(); return; }
+			अगर (cell->type.in(ID($_DFFE_NN_), ID($_DFFE_NP_), ID($_DFFE_PN_), ID($_DFFE_PP_)))
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::E,1); check_expected(); वापस; }
 
-			if (cell->type.in(
+			अगर (cell->type.in(
 					ID($_DFF_NN0_), ID($_DFF_NN1_), ID($_DFF_NP0_), ID($_DFF_NP1_),
 					ID($_DFF_PN0_), ID($_DFF_PN1_), ID($_DFF_PP0_), ID($_DFF_PP1_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); check_expected(); return; }
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); check_expected(); वापस; }
 
-			if (cell->type.in(
+			अगर (cell->type.in(
 					ID($_DFFE_NN0N_), ID($_DFFE_NN0P_), ID($_DFFE_NN1N_), ID($_DFFE_NN1P_),
 					ID($_DFFE_NP0N_), ID($_DFFE_NP0P_), ID($_DFFE_NP1N_), ID($_DFFE_NP1P_),
 					ID($_DFFE_PN0N_), ID($_DFFE_PN0P_), ID($_DFFE_PN1N_), ID($_DFFE_PN1P_),
 					ID($_DFFE_PP0N_), ID($_DFFE_PP0P_), ID($_DFFE_PP1N_), ID($_DFFE_PP1P_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); port(ID::E,1); check_expected(); return; }
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); port(ID::E,1); check_expected(); वापस; }
 
-			if (cell->type.in(
+			अगर (cell->type.in(
 					ID($_ALDFF_NN_), ID($_ALDFF_NP_), ID($_ALDFF_PN_), ID($_ALDFF_PP_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::L,1); port(ID::AD,1); check_expected(); return; }
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::L,1); port(ID::AD,1); check_expected(); वापस; }
 
-			if (cell->type.in(
+			अगर (cell->type.in(
 					ID($_ALDFFE_NNN_), ID($_ALDFFE_NNP_), ID($_ALDFFE_NPN_), ID($_ALDFFE_NPP_),
 					ID($_ALDFFE_PNN_), ID($_ALDFFE_PNP_), ID($_ALDFFE_PPN_), ID($_ALDFFE_PPP_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::L,1); port(ID::AD,1); port(ID::E,1); check_expected(); return; }
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::L,1); port(ID::AD,1); port(ID::E,1); check_expected(); वापस; }
 
-			if (cell->type.in(
+			अगर (cell->type.in(
 					ID($_DFFSR_NNN_), ID($_DFFSR_NNP_), ID($_DFFSR_NPN_), ID($_DFFSR_NPP_),
 					ID($_DFFSR_PNN_), ID($_DFFSR_PNP_), ID($_DFFSR_PPN_), ID($_DFFSR_PPP_)))
-				{ port(ID::C,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+				{ port(ID::C,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); वापस; }
 
-			if (cell->type.in(
+			अगर (cell->type.in(
 					ID($_DFFSRE_NNNN_), ID($_DFFSRE_NNNP_), ID($_DFFSRE_NNPN_), ID($_DFFSRE_NNPP_),
 					ID($_DFFSRE_NPNN_), ID($_DFFSRE_NPNP_), ID($_DFFSRE_NPPN_), ID($_DFFSRE_NPPP_),
 					ID($_DFFSRE_PNNN_), ID($_DFFSRE_PNNP_), ID($_DFFSRE_PNPN_), ID($_DFFSRE_PNPP_),
 					ID($_DFFSRE_PPNN_), ID($_DFFSRE_PPNP_), ID($_DFFSRE_PPPN_), ID($_DFFSRE_PPPP_)))
-				{ port(ID::C,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::E,1); port(ID::Q,1); check_expected(); return; }
+				{ port(ID::C,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::E,1); port(ID::Q,1); check_expected(); वापस; }
 
-			if (cell->type.in(
+			अगर (cell->type.in(
 					ID($_SDFF_NN0_), ID($_SDFF_NN1_), ID($_SDFF_NP0_), ID($_SDFF_NP1_),
 					ID($_SDFF_PN0_), ID($_SDFF_PN1_), ID($_SDFF_PP0_), ID($_SDFF_PP1_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); check_expected(); return; }
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); check_expected(); वापस; }
 
-			if (cell->type.in(
+			अगर (cell->type.in(
 					ID($_SDFFE_NN0N_), ID($_SDFFE_NN0P_), ID($_SDFFE_NN1N_), ID($_SDFFE_NN1P_),
 					ID($_SDFFE_NP0N_), ID($_SDFFE_NP0P_), ID($_SDFFE_NP1N_), ID($_SDFFE_NP1P_),
 					ID($_SDFFE_PN0N_), ID($_SDFFE_PN0P_), ID($_SDFFE_PN1N_), ID($_SDFFE_PN1P_),
@@ -2343,22 +2343,22 @@ namespace {
 					ID($_SDFFCE_NP0N_), ID($_SDFFCE_NP0P_), ID($_SDFFCE_NP1N_), ID($_SDFFCE_NP1P_),
 					ID($_SDFFCE_PN0N_), ID($_SDFFCE_PN0P_), ID($_SDFFCE_PN1N_), ID($_SDFFCE_PN1P_),
 					ID($_SDFFCE_PP0N_), ID($_SDFFCE_PP0P_), ID($_SDFFCE_PP1N_), ID($_SDFFCE_PP1P_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); port(ID::E,1); check_expected(); return; }
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); port(ID::E,1); check_expected(); वापस; }
 
-			if (cell->type.in(ID($_DLATCH_N_), ID($_DLATCH_P_)))
-				{ port(ID::E,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+			अगर (cell->type.in(ID($_DLATCH_N_), ID($_DLATCH_P_)))
+				{ port(ID::E,1); port(ID::D,1); port(ID::Q,1); check_expected(); वापस; }
 
-			if (cell->type.in(
+			अगर (cell->type.in(
 					ID($_DLATCH_NN0_), ID($_DLATCH_NN1_), ID($_DLATCH_NP0_), ID($_DLATCH_NP1_),
 					ID($_DLATCH_PN0_), ID($_DLATCH_PN1_), ID($_DLATCH_PP0_), ID($_DLATCH_PP1_)))
-				{ port(ID::E,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+				{ port(ID::E,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); वापस; }
 
-			if (cell->type.in(
+			अगर (cell->type.in(
 					ID($_DLATCHSR_NNN_), ID($_DLATCHSR_NNP_), ID($_DLATCHSR_NPN_), ID($_DLATCHSR_NPP_),
 					ID($_DLATCHSR_PNN_), ID($_DLATCHSR_PNP_), ID($_DLATCHSR_PPN_), ID($_DLATCHSR_PPP_)))
-				{ port(ID::E,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+				{ port(ID::E,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); वापस; }
 
-			if (cell->type.in(ID($set_tag))) {
+			अगर (cell->type.in(ID($set_tag))) {
 				param(ID::WIDTH);
 				param(ID::TAG);
 				port(ID::A, param(ID::WIDTH));
@@ -2366,44 +2366,44 @@ namespace {
 				port(ID::CLR, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
-			if (cell->type.in(ID($get_tag),ID($original_tag))) {
+			अगर (cell->type.in(ID($get_tag),ID($original_tag))) {
 				param(ID::WIDTH);
 				param(ID::TAG);
 				port(ID::A, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
-			if (cell->type.in(ID($overwrite_tag))) {
+			अगर (cell->type.in(ID($overwrite_tag))) {
 				param(ID::WIDTH);
 				param(ID::TAG);
 				port(ID::A, param(ID::WIDTH));
 				port(ID::SET, param(ID::WIDTH));
 				port(ID::CLR, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
-			if (cell->type.in(ID($future_ff))) {
+			अगर (cell->type.in(ID($future_ff))) {
 				param(ID::WIDTH);
 				port(ID::A, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
-			if (cell->type.in(ID($input_port))) {
+			अगर (cell->type.in(ID($निवेश_port))) {
 				param(ID::WIDTH);
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
-			if (cell->type.in(ID($connect))) {
+			अगर (cell->type.in(ID($connect))) {
 				param(ID::WIDTH);
 				port(ID::A, param(ID::WIDTH));
 				port(ID::B, param(ID::WIDTH));
 				check_expected();
-				return;
+				वापस;
 			}
 			/*
 			 * Checklist for adding internal cell types
@@ -2424,219 +2424,219 @@ namespace {
 		}
 	};
 }
-#endif
+#पूर्ण_अगर
 
-void RTLIL::Module::sort()
+व्योम RTLIL::Module::sort()
 {
 	wires_.sort(sort_by_id_str(design->twines()));
 	cells_.sort(sort_by_id_str(design->twines()));
-	parameter_default_values.sort(sort_by_id_str(design->twines()));
+	parameter_default_मूल्यावली.sort(sort_by_id_str(design->twines()));
 	memories.sort(sort_by_id_str(design->twines()));
 	processes.sort(sort_by_id_str(design->twines()));
-	for (auto &it : cells_)
+	क्रम (स्वतः &it : cells_)
 		it.second->sort();
-	for (auto &it : wires_)
+	क्रम (स्वतः &it : wires_)
 		it.second->attributes.sort(sort_by_id_str(design->twines()));
-	for (auto &it : memories)
+	क्रम (स्वतः &it : memories)
 		it.second->attributes.sort(sort_by_id_str(design->twines()));
 }
 
-#ifndef NDEBUG
-static void check_id_keys(const dict<RTLIL::IdString, RTLIL::Const> &keyed)
+#अगर_अघोषित न_संशोधन
+अटल व्योम check_id_कुंजियाँ(स्थिर dict<RTLIL::IdString, RTLIL::Const> &keyed)
 {
-	for (auto &it : keyed)
+	क्रम (स्वतः &it : keyed)
 		log_assert(!it.first.empty());
 }
-#endif
+#पूर्ण_अगर
 
-void check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool)
+व्योम check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool)
 {
-#ifndef NDEBUG
-	ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_size(0, module->cells_size(), 1000));
-	const RTLIL::Module *const_module = module;
+#अगर_अघोषित न_संशोधन
+	ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_आकार(0, module->cells_आकार(), 1000));
+	स्थिर RTLIL::Module *const_module = module;
 
 	pool<std::string> memory_strings;
-	for (auto &it : module->memories) {
+	क्रम (स्वतः &it : module->memories) {
 		log_assert(it.first == it.second->name);
 		log_assert(it.first != IdString::Null);
 		log_assert(it.second->width >= 0);
-		log_assert(it.second->size >= 0);
-		check_id_keys(it.second->attributes);
-		memory_strings.insert(it.second->name.str());
+		log_assert(it.second->आकार >= 0);
+		check_id_कुंजियाँ(it.second->attributes);
+		memory_strings.जोड़ो(it.second->name.str());
 	}
 
-	std::vector<MonotonicFlag> ports_declared(GetSize(module->ports));
+	std::vector<MonotonicFlag> ports_declared(Get_आकार(module->ports));
 	ShardedVector<std::string> memids(subpool);
-	subpool.run([const_module, &ports_declared, &memory_strings, &memids](const ParallelDispatchThreadPool::RunCtx &ctx) {
-		for (int i : ctx.item_range(const_module->cells_size())) {
-			auto it = *const_module->cells_.element(i);
+	subpool.run([const_module, &ports_declared, &memory_strings, &memids](स्थिर ParallelDispatchThreadPool::RunCtx &ctx) {
+		क्रम (पूर्णांक i : ctx.item_range(const_module->cells_आकार())) {
+			स्वतः it = *const_module->cells_.element(i);
 			log_assert(const_module == it.second->module);
 			log_assert(it.first == it.second->name);
 			log_assert(it.first != IdString::Null);
 			log_assert(!it.second->type.empty());
-			for (auto &it2 : it.second->connections()) {
+			क्रम (स्वतः &it2 : it.second->connections()) {
 				log_assert(it2.first != IdString::Null);
 				it2.second.check(const_module);
 			}
-			check_id_keys(it.second->attributes);
-			check_id_keys(it.second->parameters);
+			check_id_कुंजियाँ(it.second->attributes);
+			check_id_कुंजियाँ(it.second->parameters);
 			InternalCellChecker checker(const_module, it.second);
 			checker.check();
-			if (it.second->has_memid()) {
-				log_assert(memory_strings.count(it.second->parameters.at(ID::MEMID).decode_string()));
-			} else if (it.second->is_mem_cell()) {
+			अगर (it.second->has_memid()) {
+				log_assert(memory_strings.गिनती(it.second->parameters.at(ID::MEMID).decode_string()));
+			} अन्यथा अगर (it.second->is_mem_cell()) {
 				std::string memid = it.second->parameters.at(ID::MEMID).decode_string();
-				log_assert(!memory_strings.count(memid));
-				memids.insert(ctx, std::move(memid));
+				log_assert(!memory_strings.गिनती(memid));
+				memids.जोड़ो(ctx, std::move(memid));
 			}
-			auto cell_mod = const_module->design->module(it.second->name);
-			if (cell_mod != nullptr) {
+			स्वतः cell_mod = const_module->design->module(it.second->name);
+			अगर (cell_mod != nullptr) {
 				// assertion check below to make sure that there are no
 				// cases where a cell has a blackbox attribute since
 				// that is deprecated
-				#ifdef __GNUC__
-				#pragma GCC diagnostic push
-				#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-				#endif
+				#अगर_घोषित __GNUC__
+				#आशय GCC diagnostic धकेलो
+				#आशय GCC diagnostic ignored "-Wdeprecated-declarations"
+				#पूर्ण_अगर
 				log_assert(!it.second->get_blackbox_attribute());
-				#ifdef __GNUC__
-				#pragma GCC diagnostic pop
-				#endif
+				#अगर_घोषित __GNUC__
+				#आशय GCC diagnostic निकालो
+				#पूर्ण_अगर
 			}
 		}
 
-		for (int i : ctx.item_range(const_module->wires_size())) {
-			auto it = *const_module->wires_.element(i);
+		क्रम (पूर्णांक i : ctx.item_range(const_module->wires_आकार())) {
+			स्वतः it = *const_module->wires_.element(i);
 			log_assert(const_module == it.second->module);
 			log_assert(it.first == it.second->name);
 			log_assert(it.first != IdString::Null);
 			log_assert(it.second->width >= 0);
 			log_assert(it.second->port_id >= 0);
-			check_id_keys(it.second->attributes);
-			if (it.second->port_id) {
-				log_assert(GetSize(const_module->ports) >= it.second->port_id);
+			check_id_कुंजियाँ(it.second->attributes);
+			अगर (it.second->port_id) {
+				log_assert(Get_आकार(const_module->ports) >= it.second->port_id);
 				log_assert(const_module->ports.at(it.second->port_id-1) == it.second->name);
-				log_assert(it.second->port_input || it.second->port_output);
-				log_assert(it.second->port_id <= GetSize(ports_declared));
+				log_assert(it.second->port_निवेश || it.second->port_output);
+				log_assert(it.second->port_id <= Get_आकार(ports_declared));
 				bool previously_declared = ports_declared[it.second->port_id-1].set_and_return_old();
 				log_assert(previously_declared == false);
-			} else
-				log_assert(!it.second->port_input && !it.second->port_output);
+			} अन्यथा
+				log_assert(!it.second->port_निवेश && !it.second->port_output);
 		}
 	});
-	for (const MonotonicFlag &port_declared : ports_declared)
+	क्रम (स्थिर MonotonicFlag &port_declared : ports_declared)
 		log_assert(port_declared.load() == true);
 	pool<std::string> memids_pool;
-	for (std::string &memid : memids)
-		log_assert(memids_pool.insert(memid).second);
+	क्रम (std::string &memid : memids)
+		log_assert(memids_pool.जोड़ो(memid).second);
 
-	for (auto &it : module->processes) {
+	क्रम (स्वतः &it : module->processes) {
 		log_assert(it.first == it.second->name);
 		log_assert(it.first != IdString::Null);
-		log_assert(it.second->root_case.compare.empty());
-		std::vector<RTLIL::CaseRule*> all_cases = {&it.second->root_case};
-		for (size_t i = 0; i < all_cases.size(); i++) {
-			for (auto &switch_it : all_cases[i]->switches) {
-				for (auto &case_it : switch_it->cases) {
-					for (auto &compare_it : case_it->compare) {
-						log_assert(switch_it->signal.size() == compare_it.size());
+		log_assert(it.second->मूल_case.compare.empty());
+		std::vector<RTLIL::CaseRule*> all_cases = {&it.second->मूल_case};
+		क्रम (माप_प्रकार i = 0; i < all_cases.आकार(); i++) {
+			क्रम (स्वतः &switch_it : all_cases[i]->switches) {
+				क्रम (स्वतः &case_it : switch_it->cases) {
+					क्रम (स्वतः &compare_it : case_it->compare) {
+						log_assert(switch_it->संकेत.आकार() == compare_it.आकार());
 					}
-					all_cases.push_back(case_it);
+					all_cases.धकेलो_back(case_it);
 				}
 			}
 		}
-		for (auto &sync_it : it.second->syncs) {
-			switch (sync_it->type) {
-				case RTLIL::SyncType::ST0:
-				case RTLIL::SyncType::ST1:
-				case RTLIL::SyncType::STp:
-				case RTLIL::SyncType::STn:
-				case RTLIL::SyncType::STe:
-					log_assert(!sync_it->signal.empty());
-					break;
-				case RTLIL::SyncType::STa:
-				case RTLIL::SyncType::STg:
-				case RTLIL::SyncType::STi:
-					log_assert(sync_it->signal.empty());
-					break;
+		क्रम (स्वतः &sync_it : it.second->syncs) {
+			चयन (sync_it->type) {
+				हाल RTLIL::SyncType::ST0:
+				हाल RTLIL::SyncType::ST1:
+				हाल RTLIL::SyncType::STp:
+				हाल RTLIL::SyncType::STn:
+				हाल RTLIL::SyncType::STe:
+					log_assert(!sync_it->संकेत.empty());
+					अवरोध;
+				हाल RTLIL::SyncType::STa:
+				हाल RTLIL::SyncType::STg:
+				हाल RTLIL::SyncType::STi:
+					log_assert(sync_it->संकेत.empty());
+					अवरोध;
 			}
 		}
 	}
 
-	for (auto &it : module->connections_) {
-		log_assert(it.first.size() == it.second.size());
+	क्रम (स्वतः &it : module->connections_) {
+		log_assert(it.first.आकार() == it.second.आकार());
 		log_assert(!it.first.has_const());
 		it.first.check(module);
 		it.second.check(module);
 	}
 
-	check_id_keys(module->attributes);
-#endif
+	check_id_कुंजियाँ(module->attributes);
+#पूर्ण_अगर
 }
 
-void RTLIL::Module::check()
+व्योम RTLIL::Module::check()
 {
-	int pool_size = ThreadPool::work_pool_size(0, cells_size(), 1000);
-	ParallelDispatchThreadPool thread_pool(pool_size);
-	check_module(this, thread_pool);
+	पूर्णांक pool_आकार = ThreadPool::work_pool_आकार(0, cells_आकार(), 1000);
+	ParallelDispatchThreadPool thread_pool(pool_आकार);
+	check_module(यह, thread_pool);
 }
 
-void RTLIL::Module::optimize()
+व्योम RTLIL::Module::optimize()
 {
 }
 
-void RTLIL::Module::cloneInto(RTLIL::Module *new_mod) const
+व्योम RTLIL::Module::cloneInto(RTLIL::Module *new_mod) स्थिर
 {
 	log_assert(new_mod->refcount_wires_ == 0);
 	log_assert(new_mod->refcount_cells_ == 0);
 
 	TwinePool &dst_twines = new_mod->twines();
 
-	new_mod->avail_parameters.clear();
-	for (IdString param : avail_parameters)
+	new_mod->avail_parameters.सफा();
+	क्रम (IdString param : avail_parameters)
 		new_mod->avail_parameters(dst_twines.copy_from(design->twines(), param));
-	new_mod->parameter_default_values.clear();
-	for (auto &it : parameter_default_values)
-		new_mod->parameter_default_values[dst_twines.copy_from(design->twines(), it.first)] = it.second;
+	new_mod->parameter_default_मूल्यावली.सफा();
+	क्रम (स्वतः &it : parameter_default_मूल्यावली)
+		new_mod->parameter_default_मूल्यावली[dst_twines.copy_from(design->twines(), it.first)] = it.second;
 
-	for (auto &conn : connections())
+	क्रम (स्वतः &conn : connections())
 		new_mod->connect(conn);
 
 	RTLIL::copy_attr_dict(new_mod->attributes, attributes, design, new_mod->design);
 
 	dict<RTLIL::Wire*, RTLIL::Wire*> wire_map;
 
-	for (auto it = wires_.rbegin(); it != wires_.rend(); ++it) {
+	क्रम (स्वतः it = wires_.rbegin(); it != wires_.rend(); ++it) {
 		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
 		wire_map[it->second] = new_mod->addWire(dst_id, it->second);
 	}
 
-	for (auto it = memories.rbegin(); it != memories.rend(); ++it) {
+	क्रम (स्वतः it = memories.rbegin(); it != memories.rend(); ++it) {
 		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
 		new_mod->addMemory(dst_id, it->second);
 	}
 
-	for (auto it = cells_.rbegin(); it != cells_.rend(); ++it) {
+	क्रम (स्वतः it = cells_.rbegin(); it != cells_.rend(); ++it) {
 		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
 		new_mod->addCell(dst_id, it->second);
 	}
 
-	for (auto it = processes.rbegin(); it != processes.rend(); ++it) {
+	क्रम (स्वतः it = processes.rbegin(); it != processes.rend(); ++it) {
 		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
 		new_mod->addProcess(dst_id, it->second);
 	}
 
-	struct RewriteSigSpecWorker
+	काष्ठा RewriteSigSpecWorker
 	{
-		const dict<RTLIL::Wire*, RTLIL::Wire*> &wire_map;
-		const RTLIL::Module *new_mod;
-		void operator()(RTLIL::SigSpec &sig)
+		स्थिर dict<RTLIL::Wire*, RTLIL::Wire*> &wire_map;
+		स्थिर RTLIL::Module *new_mod;
+		व्योम चालक()(RTLIL::SigSpec &sig)
 		{
-			sig.rewrite_wires([this](RTLIL::Wire *&wire) {
-				auto it = wire_map.find(wire);
-				if (it != wire_map.end())
+			sig.rewrite_wires([यह](RTLIL::Wire *&wire) {
+				स्वतः it = wire_map.find(wire);
+				अगर (it != wire_map.end())
 					wire = it->second;
-				else
+				अन्यथा
 					log_assert(wire->module == new_mod);
 			});
 		}
@@ -2647,170 +2647,170 @@ void RTLIL::Module::cloneInto(RTLIL::Module *new_mod) const
 	new_mod->fixup_ports();
 }
 
-RTLIL::Module *RTLIL::Module::clone() const
+RTLIL::Module *RTLIL::Module::clone() स्थिर
 {
-	RTLIL::Module *new_mod = new RTLIL::Module;
+	RTLIL::Module *new_mod = नया RTLIL::Module;
 	new_mod->design = design;
 	new_mod->name = name;
 	cloneInto(new_mod);
-	return new_mod;
+	वापस new_mod;
 }
 
-RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst) const
+RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst) स्थिर
 {
-	RTLIL::Module *new_mod = new RTLIL::Module;
+	RTLIL::Module *new_mod = नया RTLIL::Module;
 	new_mod->design = dst;
 	new_mod->name = dst->twines().copy_from(design->twines(), name);
 	cloneInto(new_mod);
 	dst->add(new_mod);
-	return new_mod;
+	वापस new_mod;
 }
 
-RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst, IdString target_name) const
+RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst, IdString target_name) स्थिर
 {
-	RTLIL::Module *new_mod = new RTLIL::Module;
+	RTLIL::Module *new_mod = नया RTLIL::Module;
 	new_mod->design = dst;
 	new_mod->name = target_name;
 	cloneInto(new_mod);
 	dst->add(new_mod);
-	return new_mod;
+	वापस new_mod;
 }
 
-bool RTLIL::Module::has_memories() const
+bool RTLIL::Module::has_memories() स्थिर
 {
-	return !memories.empty();
+	वापस !memories.empty();
 }
 
-bool RTLIL::Module::has_processes() const
+bool RTLIL::Module::has_processes() स्थिर
 {
-	return !processes.empty();
+	वापस !processes.empty();
 }
 
-bool RTLIL::Module::has_memories_warn() const
+bool RTLIL::Module::has_memories_warn() स्थिर
 {
-	if (!memories.empty())
-		log_warning("Ignoring module %s because it contains memories (run 'memory' command first).\n", this);
-	return !memories.empty();
+	अगर (!memories.empty())
+		log_warning("Ignoring module %s because it contains memories (run 'memory' command first).\n", यह);
+	वापस !memories.empty();
 }
 
-bool RTLIL::Module::has_processes_warn() const
+bool RTLIL::Module::has_processes_warn() स्थिर
 {
-	if (!processes.empty())
-		log_warning("Ignoring module %s because it contains processes (run 'proc' command first).\n", this);
-	return !processes.empty();
+	अगर (!processes.empty())
+		log_warning("Ignoring module %s because it contains processes (run 'proc' command first).\n", यह);
+	वापस !processes.empty();
 }
 
-bool RTLIL::Module::is_selected() const
+bool RTLIL::Module::is_selected() स्थिर
 {
-	return design->selected_module(this->name);
+	वापस design->selected_module(यह->name);
 }
 
-bool RTLIL::Module::is_selected_whole() const
+bool RTLIL::Module::is_selected_whole() स्थिर
 {
-	return design->selected_whole_module(this->name);
+	वापस design->selected_whole_module(यह->name);
 }
 
-std::vector<RTLIL::Wire*> RTLIL::Module::selected_wires() const
+std::vector<RTLIL::Wire*> RTLIL::Module::selected_wires() स्थिर
 {
-	std::vector<RTLIL::Wire*> result;
-	result.reserve(wires_.size());
-	for (auto &it : wires_)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	std::vector<RTLIL::Wire*> परिणाम;
+	परिणाम.reserve(wires_.आकार());
+	क्रम (स्वतः &it : wires_)
+		अगर (design->selected(यह, it.second))
+			परिणाम.धकेलो_back(it.second);
+	वापस परिणाम;
 }
 
-std::vector<RTLIL::Cell*> RTLIL::Module::selected_cells() const
+std::vector<RTLIL::Cell*> RTLIL::Module::selected_cells() स्थिर
 {
-	std::vector<RTLIL::Cell*> result;
-	result.reserve(cells_.size());
-	for (auto &it : cells_)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	std::vector<RTLIL::Cell*> परिणाम;
+	परिणाम.reserve(cells_.आकार());
+	क्रम (स्वतः &it : cells_)
+		अगर (design->selected(यह, it.second))
+			परिणाम.धकेलो_back(it.second);
+	वापस परिणाम;
 }
 
-std::vector<RTLIL::Memory*> RTLIL::Module::selected_memories() const
+std::vector<RTLIL::Memory*> RTLIL::Module::selected_memories() स्थिर
 {
-	std::vector<RTLIL::Memory*> result;
-	result.reserve(memories.size());
-	for (auto &it : memories)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	std::vector<RTLIL::Memory*> परिणाम;
+	परिणाम.reserve(memories.आकार());
+	क्रम (स्वतः &it : memories)
+		अगर (design->selected(यह, it.second))
+			परिणाम.धकेलो_back(it.second);
+	वापस परिणाम;
 }
 
-std::vector<RTLIL::Process*> RTLIL::Module::selected_processes() const
+std::vector<RTLIL::Process*> RTLIL::Module::selected_processes() स्थिर
 {
-	std::vector<RTLIL::Process*> result;
-	result.reserve(processes.size());
-	for (auto &it : processes)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	std::vector<RTLIL::Process*> परिणाम;
+	परिणाम.reserve(processes.आकार());
+	क्रम (स्वतः &it : processes)
+		अगर (design->selected(यह, it.second))
+			परिणाम.धकेलो_back(it.second);
+	वापस परिणाम;
 }
 
-std::vector<RTLIL::SelectedMember> RTLIL::Module::selected_members() const
+std::vector<RTLIL::SelectedMember> RTLIL::Module::selected_members() स्थिर
 {
-	std::vector<RTLIL::SelectedMember> result;
-	for (auto cell : selected_cells())
-		result.push_back({cell, cell->name});
-	for (auto memory : selected_memories())
-		result.push_back({memory, memory->name});
-	for (auto wire : selected_wires())
-		result.push_back({wire, wire->name});
-	for (auto process : selected_processes())
-		result.push_back({process, process->name});
-	return result;
+	std::vector<RTLIL::SelectedMember> परिणाम;
+	क्रम (स्वतः cell : selected_cells())
+		परिणाम.धकेलो_back({cell, cell->name});
+	क्रम (स्वतः memory : selected_memories())
+		परिणाम.धकेलो_back({memory, memory->name});
+	क्रम (स्वतः wire : selected_wires())
+		परिणाम.धकेलो_back({wire, wire->name});
+	क्रम (स्वतः process : selected_processes())
+		परिणाम.धकेलो_back({process, process->name});
+	वापस परिणाम;
 }
 
-void RTLIL::Module::add(RTLIL::Wire *wire)
+व्योम RTLIL::Module::add(RTLIL::Wire *wire)
 {
 	log_assert(wire->name != IdString::Null);
 	IdString id = wire->name;
-	log_assert(count_id(id) == 0);
+	log_assert(गिनती_id(id) == 0);
 	log_assert(refcount_wires_ == 0);
 	wires_[id] = wire;
-	wire->module = this;
+	wire->module = यह;
 }
 
-void RTLIL::Module::add(RTLIL::Cell *cell)
+व्योम RTLIL::Module::add(RTLIL::Cell *cell)
 {
 	log_assert(cell->name != IdString::Null);
 	IdString id = cell->name;
-	log_assert(count_id(id) == 0);
+	log_assert(गिनती_id(id) == 0);
 	log_assert(refcount_cells_ == 0);
 	cells_[id] = cell;
-	cell->module = this;
+	cell->module = यह;
 }
 
-void RTLIL::Module::add(RTLIL::Process *process)
+व्योम RTLIL::Module::add(RTLIL::Process *process)
 {
 	log_assert(process->name != IdString::Null);
-	log_assert(count_id(process->name) == 0);
+	log_assert(गिनती_id(process->name) == 0);
 	processes[process->name] = process;
-	process->module = this;
+	process->module = यह;
 }
 
-void RTLIL::Module::remove(const pool<RTLIL::Wire*> &wires)
+व्योम RTLIL::Module::हटाओ(स्थिर pool<RTLIL::Wire*> &wires)
 {
 	log_assert(refcount_wires_ == 0);
-	if (wires.empty())
-		return;
+	अगर (wires.empty())
+		वापस;
 
-	struct DeleteWireWorker
+	काष्ठा DeleteWireWorker
 	{
 		RTLIL::Module *module;
-		const pool<RTLIL::Wire*> *wires_p;
+		स्थिर pool<RTLIL::Wire*> *wires_p;
 
-		void operator()(RTLIL::SigSpec &sig) {
-			sig.rewrite_wires([this](RTLIL::Wire *&wire) {
-				if (wires_p->count(wire))
-					wire = module->addWire(stringf("$delete_wire$%d", (int)autoidx++), wire->width);
+		व्योम चालक()(RTLIL::SigSpec &sig) {
+			sig.rewrite_wires([यह](RTLIL::Wire *&wire) {
+				अगर (wires_p->गिनती(wire))
+					wire = module->addWire(stringf("$delete_wire$%d", (पूर्णांक)autoidx++), wire->width);
 			});
 		}
 
-		void operator()(RTLIL::SigSpec &lhs, RTLIL::SigSpec &rhs) {
+		व्योम चालक()(RTLIL::SigSpec &lhs, RTLIL::SigSpec &rhs) {
 			// If a deleted wire occurs on the lhs or rhs we just remove that part
 			// of the assignment
 			lhs.remove2(*wires_p, &rhs);
@@ -2819,58 +2819,58 @@ void RTLIL::Module::remove(const pool<RTLIL::Wire*> &wires)
 	};
 
 	DeleteWireWorker delete_wire_worker;
-	delete_wire_worker.module = this;
+	delete_wire_worker.module = यह;
 	delete_wire_worker.wires_p = &wires;
 	rewrite_sigspecs2(delete_wire_worker);
 
-	if (design->flagBufferedNormalized) {
-		for (auto wire : wires) {
+	अगर (design->flagBufferedNormalized) {
+		क्रम (स्वतः wire : wires) {
 			buf_norm_wire_queue.erase(wire);
-			buf_norm_connect_index.erase(wire);
+			buf_norm_connect_सूचकांक.erase(wire);
 		}
 	}
 
-	for (auto &it : wires) {
+	क्रम (स्वतः &it : wires) {
 		log_assert(it->name != IdString::Null);
 		IdString id = it->name;
-		log_assert(wires_.count(id) != 0);
+		log_assert(wires_.गिनती(id) != 0);
 		wires_.erase(id);
-		delete it;
+		मिटाओ it;
 	}
 }
 
-void RTLIL::Module::remove(RTLIL::Cell *cell)
+व्योम RTLIL::Module::हटाओ(RTLIL::Cell *cell)
 {
-	while (!cell->connections_.empty())
+	जबतक (!cell->connections_.empty())
 		cell->unsetPort(cell->connections_.begin()->first);
 
-	log_assert(cells_.count(cell->name) != 0);
+	log_assert(cells_.गिनती(cell->name) != 0);
 	log_assert(refcount_cells_ == 0);
 	cells_.erase(cell->name);
-	if (design && design->flagBufferedNormalized && buf_norm_cell_queue.count(cell)) {
+	अगर (design && design->flagBufferedNormalized && buf_norm_cell_queue.गिनती(cell)) {
 		cell->type = IdString::Null;
 		cell->name = IdString::Null;
-		pending_deleted_cells.insert(cell);
-	} else {
-		delete cell;
+		pending_deleted_cells.जोड़ो(cell);
+	} अन्यथा {
+		मिटाओ cell;
 	}
 }
 
-void RTLIL::Module::remove(RTLIL::Memory *memory)
+व्योम RTLIL::Module::हटाओ(RTLIL::Memory *memory)
 {
-	log_assert(memories.count(memory->name) != 0);
+	log_assert(memories.गिनती(memory->name) != 0);
 	memories.erase(memory->name);
-	delete memory;
+	मिटाओ memory;
 }
 
-void RTLIL::Module::remove(RTLIL::Process *process)
+व्योम RTLIL::Module::हटाओ(RTLIL::Process *process)
 {
-	log_assert(processes.count(process->name) != 0);
+	log_assert(processes.गिनती(process->name) != 0);
 	processes.erase(process->name);
-	delete process;
+	मिटाओ process;
 }
 
-void RTLIL::Module::rename(RTLIL::Wire *wire, RTLIL::IdString new_name)
+व्योम RTLIL::Module::नाम(RTLIL::Wire *wire, RTLIL::IdString new_name)
 {
 	log_assert(wire->name != IdString::Null);
 	IdString old_id = wire->name;
@@ -2881,7 +2881,7 @@ void RTLIL::Module::rename(RTLIL::Wire *wire, RTLIL::IdString new_name)
 	add(wire);
 }
 
-void RTLIL::Module::rename(RTLIL::Cell *cell, RTLIL::IdString new_name)
+व्योम RTLIL::Module::नाम(RTLIL::Cell *cell, RTLIL::IdString new_name)
 {
 	log_assert(cell->name != IdString::Null);
 	IdString old_id = cell->name;
@@ -2892,18 +2892,18 @@ void RTLIL::Module::rename(RTLIL::Cell *cell, RTLIL::IdString new_name)
 	add(cell);
 }
 
-void RTLIL::Module::rename(RTLIL::IdString old_name, RTLIL::IdString new_name)
+व्योम RTLIL::Module::नाम(RTLIL::IdString old_name, RTLIL::IdString new_name)
 {
 	IdString old_id = old_name;
-	if (old_id != IdString::Null && wires_.count(old_id))
-		rename(wires_.at(old_id), new_name);
-	else if (old_id != IdString::Null && cells_.count(old_id))
-		rename(cells_.at(old_id), new_name);
-	else
+	अगर (old_id != IdString::Null && wires_.गिनती(old_id))
+		नाम(wires_.at(old_id), new_name);
+	अन्यथा अगर (old_id != IdString::Null && cells_.गिनती(old_id))
+		नाम(cells_.at(old_id), new_name);
+	अन्यथा
 		log_abort();
 }
 
-void RTLIL::Module::swap_names(RTLIL::Wire *w1, RTLIL::Wire *w2)
+व्योम RTLIL::Module::swap_names(RTLIL::Wire *w1, RTLIL::Wire *w2)
 {
 	log_assert(w1->name != IdString::Null);
 	log_assert(w2->name != IdString::Null);
@@ -2918,7 +2918,7 @@ void RTLIL::Module::swap_names(RTLIL::Wire *w1, RTLIL::Wire *w2)
 	swap(w1->name, w2->name);
 }
 
-void RTLIL::Module::swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2)
+व्योम RTLIL::Module::swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2)
 {
 	log_assert(c1->name != IdString::Null);
 	log_assert(c2->name != IdString::Null);
@@ -2935,324 +2935,324 @@ void RTLIL::Module::swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2)
 
 RTLIL::IdString RTLIL::Module::uniquify(RTLIL::IdString name)
 {
-	int index = 0;
-	return uniquify(name, index);
+	पूर्णांक सूचकांक = 0;
+	वापस uniquify(name, सूचकांक);
 }
 
-IdString RTLIL::Module::uniquify(IdString name, int &index)
+IdString RTLIL::Module::uniquify(IdString name, पूर्णांक &सूचकांक)
 {
-	if (index == 0) {
-		if (count_id(name) == 0)
-			return name;
-		index++;
+	अगर (सूचकांक == 0) {
+		अगर (गिनती_id(name) == 0)
+			वापस name;
+		सूचकांक++;
 	}
 
-	while (1) {
-		IdString new_name = design->twines().add(TwineSpec::Suffix{name, stringf("_%d", index)});
-		if (count_id(new_name) == 0)
-			return new_name;
-		index++;
+	जबतक (1) {
+		IdString new_name = design->twines().add(TwineSpec::Suffix{name, stringf("_%d", सूचकांक)});
+		अगर (गिनती_id(new_name) == 0)
+			वापस new_name;
+		सूचकांक++;
 	}
 }
 
-static bool fixup_ports_compare(const RTLIL::Wire *a, const RTLIL::Wire *b)
+अटल bool fixup_ports_compare(स्थिर RTLIL::Wire *a, स्थिर RTLIL::Wire *b)
 {
-	if (a->port_id && !b->port_id)
-		return true;
-	if (!a->port_id && b->port_id)
-		return false;
+	अगर (a->port_id && !b->port_id)
+		वापस true;
+	अगर (!a->port_id && b->port_id)
+		वापस false;
 
-	if (a->port_id == b->port_id)
-		return a->name < b->name;
-	return a->port_id < b->port_id;
+	अगर (a->port_id == b->port_id)
+		वापस a->name < b->name;
+	वापस a->port_id < b->port_id;
 }
 
-void RTLIL::Module::connect(const RTLIL::SigSig &conn)
+व्योम RTLIL::Module::connect(स्थिर RTLIL::SigSig &conn)
 {
-	for (auto mon : monitors)
-		mon->notify_connect(this, conn);
+	क्रम (स्वतः mon : monitors)
+		mon->notify_connect(यह, conn);
 
-	if (design)
-		for (auto mon : design->monitors)
-			mon->notify_connect(this, conn);
+	अगर (design)
+		क्रम (स्वतः mon : design->monitors)
+			mon->notify_connect(यह, conn);
 
 	// ignore all attempts to assign constants to other constants
-	if (conn.first.has_const()) {
+	अगर (conn.first.has_const()) {
 		RTLIL::SigSig new_conn;
-		for (int i = 0; i < GetSize(conn.first); i++)
-			if (conn.first[i].wire) {
+		क्रम (पूर्णांक i = 0; i < Get_आकार(conn.first); i++)
+			अगर (conn.first[i].wire) {
 				new_conn.first.append(conn.first[i]);
 				new_conn.second.append(conn.second[i]);
 			}
-		if (GetSize(new_conn.first))
+		अगर (Get_आकार(new_conn.first))
 			connect(new_conn);
-		return;
+		वापस;
 	}
 
-	if (yosys_xtrace) {
-		log("#X# Connect (SigSig) in %s: %s = %s (%d bits)\n", this, log_signal(conn.first), log_signal(conn.second), GetSize(conn.first));
+	अगर (yosys_xtrace) {
+		log("#X# Connect (SigSig) in %s: %s = %s (%d bits)\n", यह, log_signal(conn.first), log_signal(conn.second), Get_आकार(conn.first));
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
-	log_assert(GetSize(conn.first) == GetSize(conn.second));
-	connections_.push_back(conn);
+	log_assert(Get_आकार(conn.first) == Get_आकार(conn.second));
+	connections_.धकेलो_back(conn);
 }
 
-void RTLIL::Module::connect(const RTLIL::SigSpec &lhs, const RTLIL::SigSpec &rhs)
+व्योम RTLIL::Module::connect(स्थिर RTLIL::SigSpec &lhs, स्थिर RTLIL::SigSpec &rhs)
 {
 	connect(RTLIL::SigSig(lhs, rhs));
 }
 
-void RTLIL::Module::new_connections(const std::vector<RTLIL::SigSig> &new_conn)
+व्योम RTLIL::Module::new_connections(स्थिर std::vector<RTLIL::SigSig> &new_conn)
 {
-	for (auto mon : monitors)
-		mon->notify_connect(this, new_conn);
+	क्रम (स्वतः mon : monitors)
+		mon->notify_connect(यह, new_conn);
 
-	if (design)
-		for (auto mon : design->monitors)
-			mon->notify_connect(this, new_conn);
+	अगर (design)
+		क्रम (स्वतः mon : design->monitors)
+			mon->notify_connect(यह, new_conn);
 
-	if (yosys_xtrace) {
-		log("#X# New connections vector in %s:\n", this);
-		for (auto &conn: new_conn)
-			log("#X#    %s = %s (%d bits)\n", log_signal(conn.first), log_signal(conn.second), GetSize(conn.first));
+	अगर (yosys_xtrace) {
+		log("#X# New connections vector in %s:\n", यह);
+		क्रम (स्वतः &conn: new_conn)
+			log("#X#    %s = %s (%d bits)\n", log_signal(conn.first), log_signal(conn.second), Get_आकार(conn.first));
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
 	connections_ = new_conn;
 }
 
-const std::vector<RTLIL::SigSig> &RTLIL::Module::connections() const
+स्थिर std::vector<RTLIL::SigSig> &RTLIL::Module::connections() स्थिर
 {
-	return connections_;
+	वापस connections_;
 }
 
-void RTLIL::Module::fixup_ports()
+व्योम RTLIL::Module::fixup_ports()
 {
 	std::vector<RTLIL::Wire*> all_ports;
 
-	for (auto &w : wires_)
-		if (w.second->port_input || w.second->port_output)
-			all_ports.push_back(w.second);
-		else
+	क्रम (स्वतः &w : wires_)
+		अगर (w.second->port_निवेश || w.second->port_output)
+			all_ports.धकेलो_back(w.second);
+		अन्यथा
 			w.second->port_id = 0;
 
 	std::sort(all_ports.begin(), all_ports.end(), fixup_ports_compare);
 
-	if (design && design->flagBufferedNormalized) {
-		for (auto &w : wires_)
-			if (w.second->driverCell_ && w.second->driverCell_->type == ID($input_port))
-				buf_norm_wire_queue.insert(w.second);
+	अगर (design && design->flagBufferedNormalized) {
+		क्रम (स्वतः &w : wires_)
+			अगर (w.second->driverCell_ && w.second->driverCell_->type == ID($निवेश_port))
+				buf_norm_wire_queue.जोड़ो(w.second);
 
-		buf_norm_wire_queue.insert(all_ports.begin(), all_ports.end());
+		buf_norm_wire_queue.जोड़ो(all_ports.begin(), all_ports.end());
 	}
 
-	ports.clear();
-	for (size_t i = 0; i < all_ports.size(); i++) {
-		ports.push_back(all_ports[i]->name);
+	ports.सफा();
+	क्रम (माप_प्रकार i = 0; i < all_ports.आकार(); i++) {
+		ports.धकेलो_back(all_ports[i]->name);
 		all_ports[i]->port_id = i+1;
 	}
 }
 
-void RTLIL::copy_attr_dict(dict<IdString, RTLIL::Const> &dst,
-		const dict<IdString, RTLIL::Const> &src,
-		const RTLIL::Design *src_design, RTLIL::Design *dst_design)
+व्योम RTLIL::copy_attr_dict(dict<IdString, RTLIL::Const> &dst,
+		स्थिर dict<IdString, RTLIL::Const> &src,
+		स्थिर RTLIL::Design *src_design, RTLIL::Design *dst_design)
 {
-	if (!src_design || !dst_design || src_design == dst_design) {
+	अगर (!src_design || !dst_design || src_design == dst_design) {
 		dst = src;
-		return;
+		वापस;
 	}
-	dst.clear();
-	for (int i = GetSize(src) - 1; i >= 0; i--) {
-		auto &it = *src.element(i);
+	dst.सफा();
+	क्रम (पूर्णांक i = Get_आकार(src) - 1; i >= 0; i--) {
+		स्वतः &it = *src.element(i);
 		dst[dst_design->twines().copy_from(src_design->twines(), it.first)] = it.second;
 	}
 }
 
-RTLIL::Wire *RTLIL::Module::addWire(RTLIL::IdString name, int width)
+RTLIL::Wire *RTLIL::Module::addWire(RTLIL::IdString name, पूर्णांक width)
 {
 	log_assert(design);
 	log_assert(width >= 0 && width < RTLIL::WIDTH_LIMIT);
-	RTLIL::Wire *wire = new RTLIL::Wire;
+	RTLIL::Wire *wire = नया RTLIL::Wire;
 	wire->width = width;
 	wire->name = name;
 	add(wire);
-	return wire;
+	वापस wire;
 }
 
-RTLIL::Wire *RTLIL::Module::addWire(IdString name, const RTLIL::Wire *other)
+RTLIL::Wire *RTLIL::Module::addWire(IdString name, स्थिर RTLIL::Wire *other)
 {
 	RTLIL::Wire *wire = addWire(name);
 	wire->width = other->width;
 	wire->start_offset = other->start_offset;
 	wire->port_id = other->port_id;
-	wire->port_input = other->port_input;
+	wire->port_निवेश = other->port_निवेश;
 	wire->port_output = other->port_output;
 	wire->upto = other->upto;
 	wire->is_signed = other->is_signed;
 	{
-		const RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
-		RTLIL::copy_attr_dict(wire->attributes, other->attributes, src_design, this->design);
+		स्थिर RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
+		RTLIL::copy_attr_dict(wire->attributes, other->attributes, src_design, यह->design);
 	}
-	return wire;
+	वापस wire;
 }
 
 RTLIL::Cell *RTLIL::Module::addCell(IdString name, IdString type)
 {
 	log_assert(design);
-	RTLIL::Cell *cell = new RTLIL::Cell;
+	RTLIL::Cell *cell = नया RTLIL::Cell;
 	cell->type = type;
 	cell->name = name;
 	add(cell);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell *RTLIL::Module::addCell(IdString name, const RTLIL::Cell *other)
+RTLIL::Cell *RTLIL::Module::addCell(IdString name, स्थिर RTLIL::Cell *other)
 {
-	const RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
-	bool cross_pool = src_design && this->design && src_design != this->design;
+	स्थिर RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
+	bool cross_pool = src_design && यह->design && src_design != यह->design;
 
 	IdString type = other->type.ref();
-	if (cross_pool)
+	अगर (cross_pool)
 		type = twines().copy_from(src_design->twines(), other->type.ref());
 
 	RTLIL::Cell *cell = addCell(name, type);
-	RTLIL::copy_attr_dict(cell->parameters, other->parameters, src_design, this->design);
-	RTLIL::copy_attr_dict(cell->attributes, other->attributes, src_design, this->design);
+	RTLIL::copy_attr_dict(cell->parameters, other->parameters, src_design, यह->design);
+	RTLIL::copy_attr_dict(cell->attributes, other->attributes, src_design, यह->design);
 
-	if (!cross_pool)
+	अगर (!cross_pool)
 		cell->connections_ = other->connections_;
-	else
-		for (int i = GetSize(other->connections_) - 1; i >= 0; i--) {
-			auto &c = *other->connections_.element(i);
+	अन्यथा
+		क्रम (पूर्णांक i = Get_आकार(other->connections_) - 1; i >= 0; i--) {
+			स्वतः &c = *other->connections_.element(i);
 			cell->connections_[twines().copy_from(src_design->twines(), c.first)] = c.second;
 		}
-	return cell;
+	वापस cell;
 }
 
 RTLIL::Memory *RTLIL::Module::addMemory(IdString name)
 {
 	log_assert(design);
-	RTLIL::Memory *mem = new RTLIL::Memory;
-	mem->module = this;
+	RTLIL::Memory *mem = नया RTLIL::Memory;
+	mem->module = यह;
 	mem->name = name;
 	memories[name] = mem;
-	return mem;
+	वापस mem;
 }
 
-RTLIL::Memory *RTLIL::Module::addMemory(IdString name, const RTLIL::Memory *other)
+RTLIL::Memory *RTLIL::Module::addMemory(IdString name, स्थिर RTLIL::Memory *other)
 {
 	log_assert(design);
-	RTLIL::Memory *mem = new RTLIL::Memory;
-	mem->module = this;
+	RTLIL::Memory *mem = नया RTLIL::Memory;
+	mem->module = यह;
 	mem->name = name;
 	mem->width = other->width;
 	mem->start_offset = other->start_offset;
-	mem->size = other->size;
+	mem->आकार = other->आकार;
 	RTLIL::copy_attr_dict(mem->attributes, other->attributes,
 			other->module ? other->module->design : nullptr, design);
 	memories[name] = mem;
-	return mem;
+	वापस mem;
 }
 
 RTLIL::Process *RTLIL::Module::addProcess(IdString name)
 {
 	log_assert(design);
-	RTLIL::Process *proc = new RTLIL::Process;
+	RTLIL::Process *proc = नया RTLIL::Process;
 	proc->name = name;
 	add(proc);
-	return proc;
+	वापस proc;
 }
 
-RTLIL::Process *RTLIL::Module::addProcess(RTLIL::IdString name, const RTLIL::Process *other)
+RTLIL::Process *RTLIL::Module::addProcess(RTLIL::IdString name, स्थिर RTLIL::Process *other)
 {
 	log_assert(design);
 	RTLIL::Process *proc = other->clone();
 	proc->name = name;
-	const RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
-	if (src_design && src_design != design) {
+	स्थिर RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
+	अगर (src_design && src_design != design) {
 		walk_process_attr_objects(proc, [&](RTLIL::AttrObject *obj) {
 			dict<IdString, RTLIL::Const> attributes;
 			RTLIL::copy_attr_dict(attributes, obj->attributes, src_design, design);
 			obj->attributes = std::move(attributes);
 		});
-		for (auto *sync : proc->syncs)
-			for (auto &mwa : sync->mem_write_actions)
+		क्रम (स्वतः *sync : proc->syncs)
+			क्रम (स्वतः &mwa : sync->mem_write_actions)
 				mwa.memid = design->twines().copy_from(src_design->twines(), mwa.memid);
 	}
 	add(proc);
-	return proc;
+	वापस proc;
 }
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
+#घोषणा DEF_METHOD(_func, y_आकार, _type) \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_y, bool is_signed, स्थिर std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);           \
 		cell->parameters[ID::A_SIGNED] = is_signed;         \
-		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
-		cell->parameters[ID::Y_WIDTH] = sig_y.size();       \
+		cell->parameters[ID::A_WIDTH] = sig_a.आकार();       \
+		cell->parameters[ID::Y_WIDTH] = sig_y.आकार();       \
 		cell->setPort(ID::A, sig_a);                        \
 		cell->setPort(ID::Y, sig_y);                        \
 		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		वापस cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);    \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, bool is_signed, स्थिर std::string &src) { \
+		RTLIL::SigSpec sig_y = addWire(NEW_ID, y_आकार);    \
 		add ## _func(name, sig_a, sig_y, is_signed, src);   \
-		return sig_y;                                       \
+		वापस sig_y;                                       \
 	}
-DEF_METHOD(Not,        sig_a.size(), ID($not))
-DEF_METHOD(Pos,        sig_a.size(), ID($pos))
-DEF_METHOD(Neg,        sig_a.size(), ID($neg))
+DEF_METHOD(Not,        sig_a.आकार(), ID($not))
+DEF_METHOD(Pos,        sig_a.आकार(), ID($pos))
+DEF_METHOD(Neg,        sig_a.आकार(), ID($neg))
 DEF_METHOD(ReduceAnd,  1, ID($reduce_and))
 DEF_METHOD(ReduceOr,   1, ID($reduce_or))
 DEF_METHOD(ReduceXor,  1, ID($reduce_xor))
 DEF_METHOD(ReduceXnor, 1, ID($reduce_xnor))
 DEF_METHOD(ReduceBool, 1, ID($reduce_bool))
 DEF_METHOD(LogicNot,   1, ID($logic_not))
-#undef DEF_METHOD
+#अघोषित DEF_METHOD
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool /* is_signed */, const std::string &src) { \
+#घोषणा DEF_METHOD(_func, y_आकार, _type) \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_y, bool /* is_signed */, स्थिर std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);           \
-		cell->parameters[ID::WIDTH] = sig_a.size();         \
+		cell->parameters[ID::WIDTH] = sig_a.आकार();         \
 		cell->setPort(ID::A, sig_a);                        \
 		cell->setPort(ID::Y, sig_y);                        \
 		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		वापस cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);    \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, bool is_signed, स्थिर std::string &src) { \
+		RTLIL::SigSpec sig_y = addWire(NEW_ID, y_आकार);    \
 		add ## _func(name, sig_a, sig_y, is_signed, src);   \
-		return sig_y;                                       \
+		वापस sig_y;                                       \
 	}
-DEF_METHOD(Buf,     sig_a.size(), ID($buf))
-DEF_METHOD(Barrier, sig_a.size(), ID($barrier))
-#undef DEF_METHOD
+DEF_METHOD(Buf,     sig_a.आकार(), ID($buf))
+DEF_METHOD(Barrier, sig_a.आकार(), ID($barrier))
+#अघोषित DEF_METHOD
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
+#घोषणा DEF_METHOD(_func, y_आकार, _type) \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_b, स्थिर RTLIL::SigSpec &sig_y, bool is_signed, स्थिर std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);           \
 		cell->parameters[ID::A_SIGNED] = is_signed;         \
 		cell->parameters[ID::B_SIGNED] = is_signed;         \
-		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
-		cell->parameters[ID::B_WIDTH] = sig_b.size();       \
-		cell->parameters[ID::Y_WIDTH] = sig_y.size();       \
+		cell->parameters[ID::A_WIDTH] = sig_a.आकार();       \
+		cell->parameters[ID::B_WIDTH] = sig_b.आकार();       \
+		cell->parameters[ID::Y_WIDTH] = sig_y.आकार();       \
 		cell->setPort(ID::A, sig_a);                        \
 		cell->setPort(ID::B, sig_b);                        \
 		cell->setPort(ID::Y, sig_y);                        \
 		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		वापस cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);         \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_b, bool is_signed, स्थिर std::string &src) { \
+		RTLIL::SigSpec sig_y = addWire(NEW_ID, y_आकार);         \
 		add ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
-		return sig_y;                                            \
+		वापस sig_y;                                            \
 	}
-DEF_METHOD(And,      max(sig_a.size(), sig_b.size()), ID($and))
-DEF_METHOD(Or,       max(sig_a.size(), sig_b.size()), ID($or))
-DEF_METHOD(Xor,      max(sig_a.size(), sig_b.size()), ID($xor))
-DEF_METHOD(Xnor,     max(sig_a.size(), sig_b.size()), ID($xnor))
-DEF_METHOD(Shift,    sig_a.size(), ID($shift))
+DEF_METHOD(And,      max(sig_a.आकार(), sig_b.आकार()), ID($and))
+DEF_METHOD(Or,       max(sig_a.आकार(), sig_b.आकार()), ID($or))
+DEF_METHOD(Xor,      max(sig_a.आकार(), sig_b.आकार()), ID($xor))
+DEF_METHOD(Xnor,     max(sig_a.आकार(), sig_b.आकार()), ID($xnor))
+DEF_METHOD(Shift,    sig_a.आकार(), ID($shift))
 DEF_METHOD(Lt,       1, ID($lt))
 DEF_METHOD(Le,       1, ID($le))
 DEF_METHOD(Eq,       1, ID($eq))
@@ -3261,168 +3261,168 @@ DEF_METHOD(Eqx,      1, ID($eqx))
 DEF_METHOD(Nex,      1, ID($nex))
 DEF_METHOD(Ge,       1, ID($ge))
 DEF_METHOD(Gt,       1, ID($gt))
-DEF_METHOD(Add,      max(sig_a.size(), sig_b.size()), ID($add))
-DEF_METHOD(Sub,      max(sig_a.size(), sig_b.size()), ID($sub))
-DEF_METHOD(Mul,      max(sig_a.size(), sig_b.size()), ID($mul))
-DEF_METHOD(Div,      max(sig_a.size(), sig_b.size()), ID($div))
-DEF_METHOD(Mod,      max(sig_a.size(), sig_b.size()), ID($mod))
-DEF_METHOD(DivFloor, max(sig_a.size(), sig_b.size()), ID($divfloor))
-DEF_METHOD(ModFloor, max(sig_a.size(), sig_b.size()), ID($modfloor))
+DEF_METHOD(Add,      max(sig_a.आकार(), sig_b.आकार()), ID($add))
+DEF_METHOD(Sub,      max(sig_a.आकार(), sig_b.आकार()), ID($sub))
+DEF_METHOD(Mul,      max(sig_a.आकार(), sig_b.आकार()), ID($mul))
+DEF_METHOD(Div,      max(sig_a.आकार(), sig_b.आकार()), ID($भाग))
+DEF_METHOD(Mod,      max(sig_a.आकार(), sig_b.आकार()), ID($mod))
+DEF_METHOD(DivFloor, max(sig_a.आकार(), sig_b.आकार()), ID($divfloor))
+DEF_METHOD(ModFloor, max(sig_a.आकार(), sig_b.आकार()), ID($modfloor))
 DEF_METHOD(LogicAnd, 1, ID($logic_and))
 DEF_METHOD(LogicOr,  1, ID($logic_or))
-#undef DEF_METHOD
+#अघोषित DEF_METHOD
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
+#घोषणा DEF_METHOD(_func, y_आकार, _type) \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_b, स्थिर RTLIL::SigSpec &sig_y, bool is_signed, स्थिर std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);           \
 		cell->parameters[ID::A_SIGNED] = is_signed;         \
 		cell->parameters[ID::B_SIGNED] = false;             \
-		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
-		cell->parameters[ID::B_WIDTH] = sig_b.size();       \
-		cell->parameters[ID::Y_WIDTH] = sig_y.size();       \
+		cell->parameters[ID::A_WIDTH] = sig_a.आकार();       \
+		cell->parameters[ID::B_WIDTH] = sig_b.आकार();       \
+		cell->parameters[ID::Y_WIDTH] = sig_y.आकार();       \
 		cell->setPort(ID::A, sig_a);                        \
 		cell->setPort(ID::B, sig_b);                        \
 		cell->setPort(ID::Y, sig_y);                        \
 		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		वापस cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);         \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_b, bool is_signed, स्थिर std::string &src) { \
+		RTLIL::SigSpec sig_y = addWire(NEW_ID, y_आकार);         \
 		add ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
-		return sig_y;                                            \
+		वापस sig_y;                                            \
 	}
-DEF_METHOD(Shl,      sig_a.size(), ID($shl))
-DEF_METHOD(Shr,      sig_a.size(), ID($shr))
-DEF_METHOD(Sshl,     sig_a.size(), ID($sshl))
-DEF_METHOD(Sshr,     sig_a.size(), ID($sshr))
-#undef DEF_METHOD
+DEF_METHOD(Shl,      sig_a.आकार(), ID($shl))
+DEF_METHOD(Shr,      sig_a.आकार(), ID($shr))
+DEF_METHOD(Sshl,     sig_a.आकार(), ID($sshl))
+DEF_METHOD(Sshr,     sig_a.आकार(), ID($sshr))
+#अघोषित DEF_METHOD
 
-#define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
+#घोषणा DEF_METHOD(_func, y_आकार, _type) \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_b, स्थिर RTLIL::SigSpec &sig_y, bool is_signed, स्थिर std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);           \
 		cell->parameters[ID::A_SIGNED] = false;             \
 		cell->parameters[ID::B_SIGNED] = is_signed;         \
-		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
-		cell->parameters[ID::B_WIDTH] = sig_b.size();       \
-		cell->parameters[ID::Y_WIDTH] = sig_y.size();       \
+		cell->parameters[ID::A_WIDTH] = sig_a.आकार();       \
+		cell->parameters[ID::B_WIDTH] = sig_b.आकार();       \
+		cell->parameters[ID::Y_WIDTH] = sig_y.आकार();       \
 		cell->setPort(ID::A, sig_a);                        \
 		cell->setPort(ID::B, sig_b);                        \
 		cell->setPort(ID::Y, sig_y);                        \
 		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		वापस cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);         \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_b, bool is_signed, स्थिर std::string &src) { \
+		RTLIL::SigSpec sig_y = addWire(NEW_ID, y_आकार);         \
 		add ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
-		return sig_y;                                            \
+		वापस sig_y;                                            \
 	}
-DEF_METHOD(Shiftx,      sig_a.size(), ID($shiftx))
-#undef DEF_METHOD
+DEF_METHOD(Shiftx,      sig_a.आकार(), ID($shiftx))
+#अघोषित DEF_METHOD
 
-#define DEF_METHOD(_func, _type, _pmux) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src) { \
+#घोषणा DEF_METHOD(_func, _type, _pmux) \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_b, स्थिर RTLIL::SigSpec &sig_s, स्थिर RTLIL::SigSpec &sig_y, स्थिर std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);                 \
-		cell->parameters[ID::WIDTH] = sig_a.size();               \
-		if (_pmux) cell->parameters[ID::S_WIDTH] = sig_s.size();  \
+		cell->parameters[ID::WIDTH] = sig_a.आकार();               \
+		अगर (_pmux) cell->parameters[ID::S_WIDTH] = sig_s.आकार();  \
 		cell->setPort(ID::A, sig_a);                              \
 		cell->setPort(ID::B, sig_b);                              \
 		cell->setPort(ID::S, sig_s);                              \
 		cell->setPort(ID::Y, sig_y);                              \
 		cell->set_src_attribute(src);                             \
-		return cell;                                              \
+		वापस cell;                                              \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, sig_a.size());     \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_b, स्थिर RTLIL::SigSpec &sig_s, स्थिर std::string &src) { \
+		RTLIL::SigSpec sig_y = addWire(NEW_ID, sig_a.आकार());     \
 		add ## _func(name, sig_a, sig_b, sig_s, sig_y, src);      \
-		return sig_y;                                             \
+		वापस sig_y;                                             \
 	}
 DEF_METHOD(Mux,      ID($mux),        0)
 DEF_METHOD(Bwmux,    ID($bwmux),      0)
 DEF_METHOD(Pmux,     ID($pmux),       1)
-#undef DEF_METHOD
+#अघोषित DEF_METHOD
 
-#define DEF_METHOD(_func, _type, _demux) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src) { \
+#घोषणा DEF_METHOD(_func, _type, _demux) \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_s, स्थिर RTLIL::SigSpec &sig_y, स्थिर std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);                 \
-		cell->parameters[ID::WIDTH] = _demux ? sig_a.size() : sig_y.size(); \
-		cell->parameters[ID::S_WIDTH] = sig_s.size();             \
+		cell->parameters[ID::WIDTH] = _demux ? sig_a.आकार() : sig_y.आकार(); \
+		cell->parameters[ID::S_WIDTH] = sig_s.आकार();             \
 		cell->setPort(ID::A, sig_a);                              \
 		cell->setPort(ID::S, sig_s);                              \
 		cell->setPort(ID::Y, sig_y);                              \
 		cell->set_src_attribute(src);                             \
-		return cell;                                              \
+		वापस cell;                                              \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, _demux ? sig_a.size() << sig_s.size() : sig_a.size() >> sig_s.size()); \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_s, स्थिर std::string &src) { \
+		RTLIL::SigSpec sig_y = addWire(NEW_ID, _demux ? sig_a.आकार() << sig_s.आकार() : sig_a.आकार() >> sig_s.आकार()); \
 		add ## _func(name, sig_a, sig_s, sig_y, src);             \
-		return sig_y;                                             \
+		वापस sig_y;                                             \
 	}
 DEF_METHOD(Bmux,     ID($bmux),       0)
 DEF_METHOD(Demux,    ID($demux),      1)
-#undef DEF_METHOD
+#अघोषित DEF_METHOD
 
-#define DEF_METHOD(_func, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src) { \
+#घोषणा DEF_METHOD(_func, _type) \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_b, स्थिर RTLIL::SigSpec &sig_y, स्थिर std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);                 \
-		cell->parameters[ID::WIDTH] = sig_a.size();               \
+		cell->parameters[ID::WIDTH] = sig_a.आकार();               \
 		cell->setPort(ID::A, sig_a);                              \
 		cell->setPort(ID::B, sig_b);                              \
 		cell->setPort(ID::Y, sig_y);                              \
 		cell->set_src_attribute(src);                             \
-		return cell;                                              \
+		वापस cell;                                              \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const std::string &src) { \
-		RTLIL::SigSpec sig_y = addWire(NEW_ID, sig_a.size());     \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_s, स्थिर std::string &src) { \
+		RTLIL::SigSpec sig_y = addWire(NEW_ID, sig_a.आकार());     \
 		add ## _func(name, sig_a, sig_s, sig_y, src);             \
-		return sig_y;                                             \
+		वापस sig_y;                                             \
 	}
 DEF_METHOD(Bweqx,    ID($bweqx))
-#undef DEF_METHOD
+#अघोषित DEF_METHOD
 
-#define DEF_METHOD_2(_func, _type, _P1, _P2) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const std::string &src) { \
+#घोषणा DEF_METHOD_2(_func, _type, _P1, _P2) \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, स्थिर RTLIL::SigBit &sig1, स्थिर RTLIL::SigBit &sig2, स्थिर std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);         \
 		cell->setPort("\\" #_P1, sig1);                   \
 		cell->setPort("\\" #_P2, sig2);                   \
 		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+		वापस cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const std::string &src) { \
+	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, स्थिर RTLIL::SigBit &sig1, स्थिर std::string &src) { \
 		RTLIL::SigBit sig2 = addWire(NEW_ID);             \
 		add ## _func(name, sig1, sig2, src);              \
-		return sig2;                                      \
+		वापस sig2;                                      \
 	}
-#define DEF_METHOD_3(_func, _type, _P1, _P2, _P3) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const std::string &src) { \
+#घोषणा DEF_METHOD_3(_func, _type, _P1, _P2, _P3) \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, स्थिर RTLIL::SigBit &sig1, स्थिर RTLIL::SigBit &sig2, स्थिर RTLIL::SigBit &sig3, स्थिर std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);         \
 		cell->setPort("\\" #_P1, sig1);                   \
 		cell->setPort("\\" #_P2, sig2);                   \
 		cell->setPort("\\" #_P3, sig3);                   \
 		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+		वापस cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const std::string &src) { \
+	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, स्थिर RTLIL::SigBit &sig1, स्थिर RTLIL::SigBit &sig2, स्थिर std::string &src) { \
 		RTLIL::SigBit sig3 = addWire(NEW_ID);             \
 		add ## _func(name, sig1, sig2, sig3, src);        \
-		return sig3;                                      \
+		वापस sig3;                                      \
 	}
-#define DEF_METHOD_4(_func, _type, _P1, _P2, _P3, _P4) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const RTLIL::SigBit &sig4, const std::string &src) { \
+#घोषणा DEF_METHOD_4(_func, _type, _P1, _P2, _P3, _P4) \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, स्थिर RTLIL::SigBit &sig1, स्थिर RTLIL::SigBit &sig2, स्थिर RTLIL::SigBit &sig3, स्थिर RTLIL::SigBit &sig4, स्थिर std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);         \
 		cell->setPort("\\" #_P1, sig1);                   \
 		cell->setPort("\\" #_P2, sig2);                   \
 		cell->setPort("\\" #_P3, sig3);                   \
 		cell->setPort("\\" #_P4, sig4);                   \
 		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+		वापस cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const std::string &src) { \
+	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, स्थिर RTLIL::SigBit &sig1, स्थिर RTLIL::SigBit &sig2, स्थिर RTLIL::SigBit &sig3, स्थिर std::string &src) { \
 		RTLIL::SigBit sig4 = addWire(NEW_ID);             \
 		add ## _func(name, sig1, sig2, sig3, sig4, src);  \
-		return sig4;                                      \
+		वापस sig4;                                      \
 	}
-#define DEF_METHOD_5(_func, _type, _P1, _P2, _P3, _P4, _P5) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const RTLIL::SigBit &sig4, const RTLIL::SigBit &sig5, const std::string &src) { \
+#घोषणा DEF_METHOD_5(_func, _type, _P1, _P2, _P3, _P4, _P5) \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, स्थिर RTLIL::SigBit &sig1, स्थिर RTLIL::SigBit &sig2, स्थिर RTLIL::SigBit &sig3, स्थिर RTLIL::SigBit &sig4, स्थिर RTLIL::SigBit &sig5, स्थिर std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);         \
 		cell->setPort("\\" #_P1, sig1);                   \
 		cell->setPort("\\" #_P2, sig2);                   \
@@ -3430,12 +3430,12 @@ DEF_METHOD(Bweqx,    ID($bweqx))
 		cell->setPort("\\" #_P4, sig4);                   \
 		cell->setPort("\\" #_P5, sig5);                   \
 		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+		वापस cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const RTLIL::SigBit &sig4, const std::string &src) { \
+	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, स्थिर RTLIL::SigBit &sig1, स्थिर RTLIL::SigBit &sig2, स्थिर RTLIL::SigBit &sig3, स्थिर RTLIL::SigBit &sig4, स्थिर std::string &src) { \
 		RTLIL::SigBit sig5 = addWire(NEW_ID);                  \
 		add ## _func(name, sig1, sig2, sig3, sig4, sig5, src); \
-		return sig5;                                           \
+		वापस sig5;                                           \
 	}
 DEF_METHOD_2(BufGate,    ID($_BUF_),    A, Y)
 DEF_METHOD_2(NotGate,    ID($_NOT_),    A, Y)
@@ -3453,215 +3453,215 @@ DEF_METHOD_4(Aoi3Gate,   ID($_AOI3_),   A, B, C, Y)
 DEF_METHOD_4(Oai3Gate,   ID($_OAI3_),   A, B, C, Y)
 DEF_METHOD_5(Aoi4Gate,   ID($_AOI4_),   A, B, C, D, Y)
 DEF_METHOD_5(Oai4Gate,   ID($_OAI4_),   A, B, C, D, Y)
-#undef DEF_METHOD_2
-#undef DEF_METHOD_3
-#undef DEF_METHOD_4
-#undef DEF_METHOD_5
+#अघोषित DEF_METHOD_2
+#अघोषित DEF_METHOD_3
+#अघोषित DEF_METHOD_4
+#अघोषित DEF_METHOD_5
 
-RTLIL::Cell* RTLIL::Module::addPow(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool a_signed, bool b_signed, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addPow(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_b, स्थिर RTLIL::SigSpec &sig_y, bool a_signed, bool b_signed, स्थिर std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($pow));
+	RTLIL::Cell *cell = addCell(name, ID($घात));
 	cell->parameters[ID::A_SIGNED] = a_signed;
 	cell->parameters[ID::B_SIGNED] = b_signed;
-	cell->parameters[ID::A_WIDTH] = sig_a.size();
-	cell->parameters[ID::B_WIDTH] = sig_b.size();
-	cell->parameters[ID::Y_WIDTH] = sig_y.size();
+	cell->parameters[ID::A_WIDTH] = sig_a.आकार();
+	cell->parameters[ID::B_WIDTH] = sig_b.आकार();
+	cell->parameters[ID::Y_WIDTH] = sig_y.आकार();
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::B, sig_b);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFa(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_c, const RTLIL::SigSpec &sig_x, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addFa(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_b, स्थिर RTLIL::SigSpec &sig_c, स्थिर RTLIL::SigSpec &sig_x, स्थिर RTLIL::SigSpec &sig_y, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($fa));
-	cell->parameters[ID::WIDTH] = sig_a.size();
+	cell->parameters[ID::WIDTH] = sig_a.आकार();
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::B, sig_b);
 	cell->setPort(ID::C, sig_c);
 	cell->setPort(ID::X, sig_x);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSlice(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, RTLIL::Const offset, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSlice(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_y, RTLIL::Const offset, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($slice));
-	cell->parameters[ID::A_WIDTH] = sig_a.size();
-	cell->parameters[ID::Y_WIDTH] = sig_y.size();
+	cell->parameters[ID::A_WIDTH] = sig_a.आकार();
+	cell->parameters[ID::Y_WIDTH] = sig_y.आकार();
 	cell->parameters[ID::OFFSET] = offset;
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addConcat(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addConcat(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_b, स्थिर RTLIL::SigSpec &sig_y, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($concat));
-	cell->parameters[ID::A_WIDTH] = sig_a.size();
-	cell->parameters[ID::B_WIDTH] = sig_b.size();
+	cell->parameters[ID::A_WIDTH] = sig_a.आकार();
+	cell->parameters[ID::B_WIDTH] = sig_b.आकार();
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::B, sig_b);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addLut(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, RTLIL::Const lut, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addLut(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_y, RTLIL::Const lut, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($lut));
 	cell->parameters[ID::LUT] = lut;
-	cell->parameters[ID::WIDTH] = sig_a.size();
+	cell->parameters[ID::WIDTH] = sig_a.आकार();
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addTribuf(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addTribuf(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_y, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($tribuf));
-	cell->parameters[ID::WIDTH] = sig_a.size();
+	cell->parameters[ID::WIDTH] = sig_a.आकार();
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::EN, sig_en);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAssert(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAssert(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_en, स्थिर std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($assert));
+	RTLIL::Cell *cell = addCell(name, ID($निश्चित));
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::EN, sig_en);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAssume(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAssume(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_en, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($assume));
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::EN, sig_en);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addLive(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addLive(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_en, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($live));
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::EN, sig_en);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFair(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addFair(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_en, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($fair));
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::EN, sig_en);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addCover(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addCover(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_en, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($cover));
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::EN, sig_en);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addEquiv(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addEquiv(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_b, स्थिर RTLIL::SigSpec &sig_y, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($equiv));
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::B, sig_b);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSr(RTLIL::IdString name, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, const RTLIL::SigSpec &sig_q, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSr(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_set, स्थिर RTLIL::SigSpec &sig_clr, स्थिर RTLIL::SigSpec &sig_q, bool set_polarity, bool clr_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($sr));
 	cell->parameters[ID::SET_POLARITY] = set_polarity;
 	cell->parameters[ID::CLR_POLARITY] = clr_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::SET, sig_set);
 	cell->setPort(ID::CLR, sig_clr);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFf(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addFf(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($ff));
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDff(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q, bool clk_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($dff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDffe(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($dffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::EN, sig_en);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsr(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDffsr(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_set, स्थिर RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, स्थिर RTLIL::SigSpec &sig_q, bool clk_polarity, bool set_polarity, bool clr_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($dffsr));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::SET_POLARITY] = set_polarity;
 	cell->parameters[ID::CLR_POLARITY] = clr_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::SET, sig_set);
 	cell->setPort(ID::CLR, sig_clr);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsre(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDffsre(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_set, स्थिर RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, स्थिर RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, bool set_polarity, bool clr_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($dffsre));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::SET_POLARITY] = set_polarity;
 	cell->parameters[ID::CLR_POLARITY] = clr_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::EN, sig_en);
 	cell->setPort(ID::SET, sig_set);
@@ -3669,67 +3669,67 @@ RTLIL::Cell* RTLIL::Module::addDffsre(RTLIL::IdString name, const RTLIL::SigSpec
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const arst_value, bool clk_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAdff(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_arst, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		RTLIL::Const arst_मूल्य, bool clk_polarity, bool arst_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($adff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::ARST_POLARITY] = arst_polarity;
-	cell->parameters[ID::ARST_VALUE] = arst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::ARST_मूल्य] = arst_मूल्य;
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::ARST, sig_arst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const arst_value, bool clk_polarity, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAdffe(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_arst, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		RTLIL::Const arst_मूल्य, bool clk_polarity, bool en_polarity, bool arst_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($adffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::ARST_POLARITY] = arst_polarity;
-	cell->parameters[ID::ARST_VALUE] = arst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::ARST_मूल्य] = arst_मूल्य;
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::EN, sig_en);
 	cell->setPort(ID::ARST, sig_arst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAldff(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_aload, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		स्थिर RTLIL::SigSpec &sig_ad, bool clk_polarity, bool aload_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($aldff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::ALOAD_POLARITY] = aload_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::ALOAD, sig_aload);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::AD, sig_ad);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool en_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAldffe(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_aload, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		स्थिर RTLIL::SigSpec &sig_ad, bool clk_polarity, bool en_polarity, bool aload_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($aldffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::ALOAD_POLARITY] = aload_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::EN, sig_en);
 	cell->setPort(ID::ALOAD, sig_aload);
@@ -3737,137 +3737,137 @@ RTLIL::Cell* RTLIL::Module::addAldffe(RTLIL::IdString name, const RTLIL::SigSpec
 	cell->setPort(ID::AD, sig_ad);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const srst_value, bool clk_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSdff(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_srst, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		RTLIL::Const srst_मूल्य, bool clk_polarity, bool srst_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($sdff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::SRST_POLARITY] = srst_polarity;
-	cell->parameters[ID::SRST_VALUE] = srst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::SRST_मूल्य] = srst_मूल्य;
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::SRST, sig_srst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSdffe(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_srst, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		RTLIL::Const srst_मूल्य, bool clk_polarity, bool en_polarity, bool srst_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($sdffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::SRST_POLARITY] = srst_polarity;
-	cell->parameters[ID::SRST_VALUE] = srst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::SRST_मूल्य] = srst_मूल्य;
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::EN, sig_en);
 	cell->setPort(ID::SRST, sig_srst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffce(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSdffce(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_srst, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		RTLIL::Const srst_मूल्य, bool clk_polarity, bool en_polarity, bool srst_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($sdffce));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::SRST_POLARITY] = srst_polarity;
-	cell->parameters[ID::SRST_VALUE] = srst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::SRST_मूल्य] = srst_मूल्य;
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::EN, sig_en);
 	cell->setPort(ID::SRST, sig_srst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatch(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDlatch(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q, bool en_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($dlatch));
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::EN, sig_en);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdlatch(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const arst_value, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAdlatch(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_arst, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		RTLIL::Const arst_मूल्य, bool en_polarity, bool arst_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($adlatch));
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::ARST_POLARITY] = arst_polarity;
-	cell->parameters[ID::ARST_VALUE] = arst_value;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::ARST_मूल्य] = arst_मूल्य;
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::EN, sig_en);
 	cell->setPort(ID::ARST, sig_arst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatchsr(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDlatchsr(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_set, स्थिर RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, स्थिर RTLIL::SigSpec &sig_q, bool en_polarity, bool set_polarity, bool clr_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($dlatchsr));
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::SET_POLARITY] = set_polarity;
 	cell->parameters[ID::CLR_POLARITY] = clr_polarity;
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::EN, sig_en);
 	cell->setPort(ID::SET, sig_set);
 	cell->setPort(ID::CLR, sig_clr);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSrGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		const RTLIL::SigSpec &sig_q, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSrGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_set, स्थिर RTLIL::SigSpec &sig_clr,
+		स्थिर RTLIL::SigSpec &sig_q, bool set_polarity, bool clr_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_SR_%c%c_", set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
 	cell->setPort(ID::S, sig_set);
 	cell->setPort(ID::R, sig_clr);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFfGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addFfGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($_FF_));
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDffGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q, bool clk_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_DFF_%c_", clk_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDffeGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_DFFE_%c%c_", clk_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
@@ -3875,11 +3875,11 @@ RTLIL::Cell* RTLIL::Module::addDffeGate(RTLIL::IdString name, const RTLIL::SigSp
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsrGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDffsrGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_set, स्थिर RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, स्थिर RTLIL::SigSpec &sig_q, bool clk_polarity, bool set_polarity, bool clr_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_DFFSR_%c%c%c_", clk_polarity ? 'P' : 'N', set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
@@ -3888,11 +3888,11 @@ RTLIL::Cell* RTLIL::Module::addDffsrGate(RTLIL::IdString name, const RTLIL::SigS
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsreGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDffsreGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_set, स्थिर RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, स्थिर RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, bool set_polarity, bool clr_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_DFFSRE_%c%c%c%c_", clk_polarity ? 'P' : 'N', set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
@@ -3902,36 +3902,36 @@ RTLIL::Cell* RTLIL::Module::addDffsreGate(RTLIL::IdString name, const RTLIL::Sig
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool arst_value, bool clk_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAdffGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_arst, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		bool arst_मूल्य, bool clk_polarity, bool arst_polarity, स्थिर std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFF_%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_value ? '1' : '0'));
+	RTLIL::Cell *cell = addCell(name, stringf("$_DFF_%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_मूल्य ? '1' : '0'));
 	cell->setPort(ID::C, sig_clk);
 	cell->setPort(ID::R, sig_arst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool arst_value, bool clk_polarity, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAdffeGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_arst, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		bool arst_मूल्य, bool clk_polarity, bool en_polarity, bool arst_polarity, स्थिर std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_value ? '1' : '0', en_polarity ? 'P' : 'N'));
+	RTLIL::Cell *cell = addCell(name, stringf("$_DFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_मूल्य ? '1' : '0', en_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
 	cell->setPort(ID::R, sig_arst);
 	cell->setPort(ID::E, sig_en);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAldffGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_aload, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		स्थिर RTLIL::SigSpec &sig_ad, bool clk_polarity, bool aload_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_ALDFF_%c%c_", clk_polarity ? 'P' : 'N', aload_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
@@ -3940,11 +3940,11 @@ RTLIL::Cell* RTLIL::Module::addAldffGate(RTLIL::IdString name, const RTLIL::SigS
 	cell->setPort(ID::AD, sig_ad);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool en_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAldffeGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_aload, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		स्थिर RTLIL::SigSpec &sig_ad, bool clk_polarity, bool en_polarity, bool aload_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_ALDFFE_%c%c%c_", clk_polarity ? 'P' : 'N', aload_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
@@ -3954,71 +3954,71 @@ RTLIL::Cell* RTLIL::Module::addAldffeGate(RTLIL::IdString name, const RTLIL::Sig
 	cell->setPort(ID::AD, sig_ad);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool srst_value, bool clk_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSdffGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_srst, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		bool srst_मूल्य, bool clk_polarity, bool srst_polarity, स्थिर std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_SDFF_%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_value ? '1' : '0'));
+	RTLIL::Cell *cell = addCell(name, stringf("$_SDFF_%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_मूल्य ? '1' : '0'));
 	cell->setPort(ID::C, sig_clk);
 	cell->setPort(ID::R, sig_srst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSdffeGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_srst, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		bool srst_मूल्य, bool clk_polarity, bool en_polarity, bool srst_polarity, स्थिर std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_SDFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_value ? '1' : '0', en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::R, sig_srst);
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
-}
-
-RTLIL::Cell* RTLIL::Module::addSdffceGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
-{
-	RTLIL::Cell *cell = addCell(name, stringf("$_SDFFCE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_value ? '1' : '0', en_polarity ? 'P' : 'N'));
+	RTLIL::Cell *cell = addCell(name, stringf("$_SDFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_मूल्य ? '1' : '0', en_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
 	cell->setPort(ID::R, sig_srst);
 	cell->setPort(ID::E, sig_en);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatchGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSdffceGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_clk, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_srst, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		bool srst_मूल्य, bool clk_polarity, bool en_polarity, bool srst_polarity, स्थिर std::string &src)
+{
+	RTLIL::Cell *cell = addCell(name, stringf("$_SDFFCE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_मूल्य ? '1' : '0', en_polarity ? 'P' : 'N'));
+	cell->setPort(ID::C, sig_clk);
+	cell->setPort(ID::R, sig_srst);
+	cell->setPort(ID::E, sig_en);
+	cell->setPort(ID::D, sig_d);
+	cell->setPort(ID::Q, sig_q);
+	cell->set_src_attribute(src);
+	वापस cell;
+}
+
+RTLIL::Cell* RTLIL::Module::addDlatchGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q, bool en_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_DLATCH_%c_", en_polarity ? 'P' : 'N'));
 	cell->setPort(ID::E, sig_en);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdlatchGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool arst_value, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAdlatchGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_arst, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q,
+		bool arst_मूल्य, bool en_polarity, bool arst_polarity, स्थिर std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DLATCH_%c%c%c_", en_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_value ? '1' : '0'));
+	RTLIL::Cell *cell = addCell(name, stringf("$_DLATCH_%c%c%c_", en_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_मूल्य ? '1' : '0'));
 	cell->setPort(ID::E, sig_en);
 	cell->setPort(ID::R, sig_arst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatchsrGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDlatchsrGate(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_en, स्थिर RTLIL::SigSpec &sig_set, स्थिर RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, स्थिर RTLIL::SigSpec &sig_q, bool en_polarity, bool set_polarity, bool clr_polarity, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_DLATCHSR_%c%c%c_", en_polarity ? 'P' : 'N', set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
 	cell->setPort(ID::E, sig_en);
@@ -4027,573 +4027,573 @@ RTLIL::Cell* RTLIL::Module::addDlatchsrGate(RTLIL::IdString name, const RTLIL::S
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAnyinit(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAnyinit(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_d, स्थिर RTLIL::SigSpec &sig_q, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($anyinit));
-	cell->parameters[ID::WIDTH] = sig_q.size();
+	cell->parameters[ID::WIDTH] = sig_q.आकार();
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::SigSpec RTLIL::Module::Anyconst(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Anyconst(RTLIL::IdString name, पूर्णांक width, स्थिर std::string &src)
 {
 	RTLIL::SigSpec sig = addWire(NEW_ID, width);
 	Cell *cell = addCell(name, ID($anyconst));
 	cell->setParam(ID::WIDTH, width);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	वापस sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Anyseq(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Anyseq(RTLIL::IdString name, पूर्णांक width, स्थिर std::string &src)
 {
 	RTLIL::SigSpec sig = addWire(NEW_ID, width);
 	Cell *cell = addCell(name, ID($anyseq));
 	cell->setParam(ID::WIDTH, width);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	वापस sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Allconst(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Allconst(RTLIL::IdString name, पूर्णांक width, स्थिर std::string &src)
 {
 	RTLIL::SigSpec sig = addWire(NEW_ID, width);
 	Cell *cell = addCell(name, ID($allconst));
 	cell->setParam(ID::WIDTH, width);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	वापस sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Allseq(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Allseq(RTLIL::IdString name, पूर्णांक width, स्थिर std::string &src)
 {
 	RTLIL::SigSpec sig = addWire(NEW_ID, width);
 	Cell *cell = addCell(name, ID($allseq));
 	cell->setParam(ID::WIDTH, width);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	वापस sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Initstate(RTLIL::IdString name, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Initstate(RTLIL::IdString name, स्थिर std::string &src)
 {
 	RTLIL::SigSpec sig = addWire(NEW_ID);
 	Cell *cell = addCell(name, ID($initstate));
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	वापस sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::SetTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::SetTag(RTLIL::IdString name, स्थिर std::string &tag, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_s, स्थिर RTLIL::SigSpec &sig_c, स्थिर std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.size());
+	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.आकार());
 	Cell *cell = addCell(name, ID($set_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
+	cell->parameters[ID::WIDTH] = sig_a.आकार();
 	cell->parameters[ID::TAG] = tag;
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::SET, sig_s);
 	cell->setPort(ID::CLR, sig_c);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	वापस sig;
 }
 
-RTLIL::Cell* RTLIL::Module::addSetTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSetTag(RTLIL::IdString name, स्थिर std::string &tag, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_s, स्थिर RTLIL::SigSpec &sig_c, स्थिर RTLIL::SigSpec &sig_y, स्थिर std::string &src)
 {
 	Cell *cell = addCell(name, ID($set_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
+	cell->parameters[ID::WIDTH] = sig_a.आकार();
 	cell->parameters[ID::TAG] = tag;
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::SET, sig_s);
 	cell->setPort(ID::CLR, sig_c);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::SigSpec RTLIL::Module::GetTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::GetTag(RTLIL::IdString name, स्थिर std::string &tag, स्थिर RTLIL::SigSpec &sig_a, स्थिर std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.size());
+	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.आकार());
 	Cell *cell = addCell(name, ID($get_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
+	cell->parameters[ID::WIDTH] = sig_a.आकार();
 	cell->parameters[ID::TAG] = tag;
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	वापस sig;
 }
 
-RTLIL::Cell* RTLIL::Module::addOverwriteTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addOverwriteTag(RTLIL::IdString name, स्थिर std::string &tag, स्थिर RTLIL::SigSpec &sig_a, स्थिर RTLIL::SigSpec &sig_s, स्थिर RTLIL::SigSpec &sig_c, स्थिर std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($overwrite_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
+	cell->parameters[ID::WIDTH] = sig_a.आकार();
 	cell->parameters[ID::TAG] = tag;
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::SET, sig_s);
 	cell->setPort(ID::CLR, sig_c);
 	cell->set_src_attribute(src);
-	return cell;
+	वापस cell;
 }
 
-RTLIL::SigSpec RTLIL::Module::OriginalTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::OriginalTag(RTLIL::IdString name, स्थिर std::string &tag, स्थिर RTLIL::SigSpec &sig_a, स्थिर std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.size());
+	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.आकार());
 	Cell *cell = addCell(name, ID($original_tag));
-	cell->parameters[ID::WIDTH] = sig_a.size();
+	cell->parameters[ID::WIDTH] = sig_a.आकार();
 	cell->parameters[ID::TAG] = tag;
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	वापस sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::FutureFF(RTLIL::IdString name, const RTLIL::SigSpec &sig_e, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::FutureFF(RTLIL::IdString name, स्थिर RTLIL::SigSpec &sig_e, स्थिर std::string &src)
 {
-	RTLIL::SigSpec sig = addWire(NEW_ID, sig_e.size());
+	RTLIL::SigSpec sig = addWire(NEW_ID, sig_e.आकार());
 	Cell *cell = addCell(name, ID($future_ff));
-	cell->parameters[ID::WIDTH] = sig_e.size();
+	cell->parameters[ID::WIDTH] = sig_e.आकार();
 	cell->setPort(ID::A, sig_e);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	वापस sig;
 }
 
-std::string RTLIL::Module::to_rtlil_str() const
+std::string RTLIL::Module::to_rtlil_str() स्थिर
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_module(f, "", const_cast<RTLIL::Module*>(this), design, false, true, false, RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_module(f, "", const_cast<RTLIL::Module*>(यह), design, false, true, false, RTLIL_BACKEND::DumpMode::Readable);
+	वापस f.str();
 }
 
 RTLIL::Wire::Wire()
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	अटल अचिन्हित पूर्णांक hashidx_गिनती = 123456789;
+	hashidx_गिनती = mkhash_xorshift(hashidx_गिनती);
+	hashidx_ = hashidx_गिनती;
 
 	module = nullptr;
 	width = 1;
 	start_offset = 0;
 	port_id = 0;
-	port_input = false;
+	port_निवेश = false;
 	port_output = false;
 	upto = false;
 	is_signed = false;
 
-#ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Wire::get_all_wires()->insert(std::pair<unsigned int, RTLIL::Wire*>(hashidx_, this));
-#endif
+#अगर_घोषित YOSYS_ENABLE_PYTHON
+	RTLIL::Wire::get_all_wires()->जोड़ो(std::pair<अचिन्हित पूर्णांक, RTLIL::Wire*>(hashidx_, यह));
+#पूर्ण_अगर
 }
 
 RTLIL::Wire::~Wire()
 {
-#ifdef YOSYS_ENABLE_PYTHON
+#अगर_घोषित YOSYS_ENABLE_PYTHON
 	RTLIL::Wire::get_all_wires()->erase(hashidx_);
-#endif
+#पूर्ण_अगर
 }
 
-std::string RTLIL::Wire::to_rtlil_str() const
+std::string RTLIL::Wire::to_rtlil_str() स्थिर
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_wire(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_wire(f, "", यह, design(), RTLIL_BACKEND::DumpMode::Readable);
+	वापस f.str();
 }
 
-#ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Wire*> all_wires;
-std::map<unsigned int, RTLIL::Wire*> *RTLIL::Wire::get_all_wires(void)
+#अगर_घोषित YOSYS_ENABLE_PYTHON
+अटल std::map<अचिन्हित पूर्णांक, RTLIL::Wire*> all_wires;
+std::map<अचिन्हित पूर्णांक, RTLIL::Wire*> *RTLIL::Wire::get_all_wires(व्योम)
 {
-	return &all_wires;
+	वापस &all_wires;
 }
-#endif
+#पूर्ण_अगर
 
 RTLIL::Memory::Memory()
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	अटल अचिन्हित पूर्णांक hashidx_गिनती = 123456789;
+	hashidx_गिनती = mkhash_xorshift(hashidx_गिनती);
+	hashidx_ = hashidx_गिनती;
 
 	width = 1;
 	start_offset = 0;
-	size = 0;
-#ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Memory::get_all_memorys()->insert(std::pair<unsigned int, RTLIL::Memory*>(hashidx_, this));
-#endif
+	आकार = 0;
+#अगर_घोषित YOSYS_ENABLE_PYTHON
+	RTLIL::Memory::get_all_memorys()->जोड़ो(std::pair<अचिन्हित पूर्णांक, RTLIL::Memory*>(hashidx_, यह));
+#पूर्ण_अगर
 }
 
-std::string RTLIL::Memory::to_rtlil_str() const
+std::string RTLIL::Memory::to_rtlil_str() स्थिर
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_memory(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_memory(f, "", यह, design(), RTLIL_BACKEND::DumpMode::Readable);
+	वापस f.str();
 }
 
 RTLIL::Process::Process() : module(nullptr)
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	अटल अचिन्हित पूर्णांक hashidx_गिनती = 123456789;
+	hashidx_गिनती = mkhash_xorshift(hashidx_गिनती);
+	hashidx_ = hashidx_गिनती;
 }
 
-std::string RTLIL::Process::to_rtlil_str() const
+std::string RTLIL::Process::to_rtlil_str() स्थिर
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_proc(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_proc(f, "", यह, design(), RTLIL_BACKEND::DumpMode::Readable);
+	वापस f.str();
 }
 
 RTLIL::Cell::Cell() : module(nullptr)
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	अटल अचिन्हित पूर्णांक hashidx_गिनती = 123456789;
+	hashidx_गिनती = mkhash_xorshift(hashidx_गिनती);
+	hashidx_ = hashidx_गिनती;
 
 	// log("#memtrace# %p\n", this);
 	memhasher();
 
-#ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Cell::get_all_cells()->insert(std::pair<unsigned int, RTLIL::Cell*>(hashidx_, this));
-#endif
+#अगर_घोषित YOSYS_ENABLE_PYTHON
+	RTLIL::Cell::get_all_cells()->जोड़ो(std::pair<अचिन्हित पूर्णांक, RTLIL::Cell*>(hashidx_, यह));
+#पूर्ण_अगर
 }
 
 RTLIL::Cell::~Cell()
 {
-#ifdef YOSYS_ENABLE_PYTHON
+#अगर_घोषित YOSYS_ENABLE_PYTHON
 	RTLIL::Cell::get_all_cells()->erase(hashidx_);
-#endif
+#पूर्ण_अगर
 }
 
-std::string RTLIL::Cell::to_rtlil_str() const
+std::string RTLIL::Cell::to_rtlil_str() स्थिर
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_cell(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_cell(f, "", यह, design(), RTLIL_BACKEND::DumpMode::Readable);
+	वापस f.str();
 }
 
-#ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Cell*> all_cells;
-std::map<unsigned int, RTLIL::Cell*> *RTLIL::Cell::get_all_cells(void)
+#अगर_घोषित YOSYS_ENABLE_PYTHON
+अटल std::map<अचिन्हित पूर्णांक, RTLIL::Cell*> all_cells;
+std::map<अचिन्हित पूर्णांक, RTLIL::Cell*> *RTLIL::Cell::get_all_cells(व्योम)
 {
-	return &all_cells;
+	वापस &all_cells;
 }
-#endif
+#पूर्ण_अगर
 
-bool RTLIL::Cell::hasPort(RTLIL::IdString portname) const
+bool RTLIL::Cell::hasPort(RTLIL::IdString portname) स्थिर
 {
-	return connections_.count(portname) != 0;
+	वापस connections_.गिनती(portname) != 0;
 }
 
 // bufnorm
 
-const RTLIL::SigSpec &RTLIL::Cell::getPort(RTLIL::IdString portname) const
+स्थिर RTLIL::SigSpec &RTLIL::Cell::getPort(RTLIL::IdString portname) स्थिर
 {
-	return connections_.at(portname);
+	वापस connections_.at(portname);
 }
 
-const dict<RTLIL::IdString, RTLIL::SigSpec> &RTLIL::Cell::connections() const
+स्थिर dict<RTLIL::IdString, RTLIL::SigSpec> &RTLIL::Cell::connections() स्थिर
 {
-	return connections_;
+	वापस connections_;
 }
 
-bool RTLIL::Cell::known() const
+bool RTLIL::Cell::known() स्थिर
 {
-	if (yosys_celltypes.cell_known(type))
-		return true;
-	if (module && module->design && module->design->module(type))
-		return true;
-	return false;
+	अगर (yosys_celltypes.cell_known(type))
+		वापस true;
+	अगर (module && module->design && module->design->module(type))
+		वापस true;
+	वापस false;
 }
 
-bool RTLIL::Cell::input(IdString portname) const
+bool RTLIL::Cell::निवेश(IdString portname) स्थिर
 {
-	if (yosys_celltypes.cell_known(type))
-		return yosys_celltypes.cell_input(type.ref(), portname);
-	if (module && module->design) {
+	अगर (yosys_celltypes.cell_known(type))
+		वापस yosys_celltypes.cell_निवेश(type.ref(), portname);
+	अगर (module && module->design) {
 		RTLIL::Module *m = module->design->module(type.ref());
 		RTLIL::Wire *w = m ? m->wire(portname) : nullptr;
-		return w && w->port_input;
+		वापस w && w->port_निवेश;
 	}
-	return false;
+	वापस false;
 }
 
-bool RTLIL::Cell::output(RTLIL::IdString portname) const
+bool RTLIL::Cell::output(RTLIL::IdString portname) स्थिर
 {
-	if (yosys_celltypes.cell_known(type))
-		return yosys_celltypes.cell_output(type, portname);
-	if (module && module->design) {
+	अगर (yosys_celltypes.cell_known(type))
+		वापस yosys_celltypes.cell_output(type, portname);
+	अगर (module && module->design) {
 		RTLIL::Module *m = module->design->module(type.ref());
 		RTLIL::Wire *w = m ? m->wire(portname) : nullptr;
-		return w && w->port_output;
+		वापस w && w->port_output;
 	}
-	return false;
+	वापस false;
 }
 
-RTLIL::PortDir RTLIL::Cell::port_dir(RTLIL::IdString portname) const
+RTLIL::PortDir RTLIL::Cell::port_dir(RTLIL::IdString portname) स्थिर
 {
-	if (yosys_celltypes.cell_known(type.ref()))
-		return yosys_celltypes.cell_port_dir(type, portname);
-	if (module && module->design) {
+	अगर (yosys_celltypes.cell_known(type.ref()))
+		वापस yosys_celltypes.cell_port_dir(type, portname);
+	अगर (module && module->design) {
 		RTLIL::Module *m = module->design->module(type.ref());
-		if (m == nullptr)
-			return PortDir::PD_UNKNOWN;
+		अगर (m == nullptr)
+			वापस PortDir::PD_UNKNOWN;
 		RTLIL::Wire *w = m->wire(portname);
-		if (w == nullptr)
-			return PortDir::PD_UNKNOWN;
-		return PortDir(w->port_input + w->port_output * 2);
+		अगर (w == nullptr)
+			वापस PortDir::PD_UNKNOWN;
+		वापस PortDir(w->port_निवेश + w->port_output * 2);
 	}
-	return PortDir::PD_UNKNOWN;
+	वापस PortDir::PD_UNKNOWN;
 }
 
-bool RTLIL::Cell::hasParam(RTLIL::IdString paramname) const
+bool RTLIL::Cell::hasParam(RTLIL::IdString paramname) स्थिर
 {
-	return parameters.count(paramname) != 0;
+	वापस parameters.गिनती(paramname) != 0;
 }
 
-void RTLIL::Cell::unsetParam(RTLIL::IdString paramname)
+व्योम RTLIL::Cell::unsetParam(RTLIL::IdString paramname)
 {
 	parameters.erase(paramname);
 }
 
-void RTLIL::Cell::setParam(RTLIL::IdString paramname, RTLIL::Const value)
+व्योम RTLIL::Cell::setParam(RTLIL::IdString paramname, RTLIL::Const मूल्य)
 {
-	parameters[paramname] = std::move(value);
+	parameters[paramname] = std::move(मूल्य);
 }
 
-const RTLIL::Const &RTLIL::Cell::getParam(RTLIL::IdString paramname) const
+स्थिर RTLIL::Const &RTLIL::Cell::getParam(RTLIL::IdString paramname) स्थिर
 {
-	const auto &it = parameters.find(paramname);
-	if (it != parameters.end())
-		return it->second;
-	if (module && module->design) {
+	स्थिर स्वतः &it = parameters.find(paramname);
+	अगर (it != parameters.end())
+		वापस it->second;
+	अगर (module && module->design) {
 		RTLIL::Module *m = module->design->module(type);
-		if (m)
-			return m->parameter_default_values.at(paramname);
+		अगर (m)
+			वापस m->parameter_default_मूल्यावली.at(paramname);
 	}
-	throw std::out_of_range("Cell::getParam()");
+	फेंको std::out_of_range("Cell::getParam()");
 }
 
-void RTLIL::Cell::sort()
+व्योम RTLIL::Cell::sort()
 {
 	connections_.sort(sort_by_id_str(module->twines()));
 	parameters.sort(sort_by_id_str(module->twines()));
 	attributes.sort(sort_by_id_str(module->twines()));
 }
 
-void RTLIL::Cell::check()
+व्योम RTLIL::Cell::check()
 {
-#ifndef NDEBUG
-	InternalCellChecker checker(NULL, this);
+#अगर_अघोषित न_संशोधन
+	InternalCellChecker checker(शून्य, यह);
 	checker.check();
-#endif
+#पूर्ण_अगर
 }
 
-void RTLIL::Cell::fixup_parameters(bool set_a_signed, bool set_b_signed)
+व्योम RTLIL::Cell::fixup_parameters(bool set_a_signed, bool set_b_signed)
 {
-	if (type.isPublic() || type.begins_with("$_") || type.begins_with("$paramod") || type.begins_with("$fmcombine") ||
+	अगर (type.isPublic() || type.begins_with("$_") || type.begins_with("$paramod") || type.begins_with("$fmcombine") ||
 			type.begins_with("$verific$") || type.begins_with("$array:") || type.begins_with("$extern:"))
-		return;
+		वापस;
 
-	if (type == ID($buf) || type == ID($barrier) || type == ID($mux) || type == ID($pmux) || type == ID($bmux) || type == ID($bwmux) || type == ID($bweqx)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::Y]);
-		if (type.in(ID($pmux), ID($bmux)))
-			parameters[ID::S_WIDTH] = GetSize(connections_[ID::S]);
+	अगर (type == ID($buf) || type == ID($barrier) || type == ID($mux) || type == ID($pmux) || type == ID($bmux) || type == ID($bwmux) || type == ID($bweqx)) {
+		parameters[ID::WIDTH] = Get_आकार(connections_[ID::Y]);
+		अगर (type.in(ID($pmux), ID($bmux)))
+			parameters[ID::S_WIDTH] = Get_आकार(connections_[ID::S]);
 		check();
-		return;
+		वापस;
 	}
 
-	if (type == ID($demux)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::A]);
-		parameters[ID::S_WIDTH] = GetSize(connections_[ID::S]);
+	अगर (type == ID($demux)) {
+		parameters[ID::WIDTH] = Get_आकार(connections_[ID::A]);
+		parameters[ID::S_WIDTH] = Get_आकार(connections_[ID::S]);
 		check();
-		return;
+		वापस;
 	}
 
-	if (type == ID($lut) || type == ID($sop)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::A]);
-		return;
+	अगर (type == ID($lut) || type == ID($sop)) {
+		parameters[ID::WIDTH] = Get_आकार(connections_[ID::A]);
+		वापस;
 	}
 
-	if (type == ID($fa)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::Y]);
-		return;
+	अगर (type == ID($fa)) {
+		parameters[ID::WIDTH] = Get_आकार(connections_[ID::Y]);
+		वापस;
 	}
 
-	if (type == ID($lcu)) {
-		parameters[ID::WIDTH] = GetSize(connections_[ID::CO]);
-		return;
+	अगर (type == ID($lcu)) {
+		parameters[ID::WIDTH] = Get_आकार(connections_[ID::CO]);
+		वापस;
 	}
 
-	if (type == ID($macc_v2)) {
-		parameters[ID::Y_WIDTH] = GetSize(connections_[ID::Y]);
-		return;
+	अगर (type == ID($macc_v2)) {
+		parameters[ID::Y_WIDTH] = Get_आकार(connections_[ID::Y]);
+		वापस;
 	}
 
 	bool signedness_ab = !type.in(ID($slice), ID($concat), ID($macc));
 
-	if (connections_.count(ID::A)) {
-		if (signedness_ab) {
-			if (set_a_signed)
+	अगर (connections_.गिनती(ID::A)) {
+		अगर (signedness_ab) {
+			अगर (set_a_signed)
 				parameters[ID::A_SIGNED] = true;
-			else if (parameters.count(ID::A_SIGNED) == 0)
+			अन्यथा अगर (parameters.गिनती(ID::A_SIGNED) == 0)
 				parameters[ID::A_SIGNED] = false;
 		}
-		parameters[ID::A_WIDTH] = GetSize(connections_[ID::A]);
+		parameters[ID::A_WIDTH] = Get_आकार(connections_[ID::A]);
 	}
 
-	if (connections_.count(ID::B)) {
-		if (signedness_ab) {
-			if (set_b_signed)
+	अगर (connections_.गिनती(ID::B)) {
+		अगर (signedness_ab) {
+			अगर (set_b_signed)
 				parameters[ID::B_SIGNED] = true;
-			else if (parameters.count(ID::B_SIGNED) == 0)
+			अन्यथा अगर (parameters.गिनती(ID::B_SIGNED) == 0)
 				parameters[ID::B_SIGNED] = false;
 		}
-		parameters[ID::B_WIDTH] = GetSize(connections_[ID::B]);
+		parameters[ID::B_WIDTH] = Get_आकार(connections_[ID::B]);
 	}
 
-	if (connections_.count(ID::Y) && type != ID($concat))
-		parameters[ID::Y_WIDTH] = GetSize(connections_[ID::Y]);
+	अगर (connections_.गिनती(ID::Y) && type != ID($concat))
+		parameters[ID::Y_WIDTH] = Get_आकार(connections_[ID::Y]);
 
-	if (connections_.count(ID::Q))
-		parameters[ID::WIDTH] = GetSize(connections_[ID::Q]);
+	अगर (connections_.गिनती(ID::Q))
+		parameters[ID::WIDTH] = Get_आकार(connections_[ID::Q]);
 
 	check();
 }
 
-bool RTLIL::Cell::has_keep_attr() const {
-	return get_bool_attribute(ID::keep) || (module && module->design && module->design->module(type.ref()) &&
+bool RTLIL::Cell::has_keep_attr() स्थिर {
+	वापस get_bool_attribute(ID::keep) || (module && module->design && module->design->module(type.ref()) &&
 			module->design->module(type.ref())->get_bool_attribute(ID::keep));
 }
 
-bool RTLIL::Cell::has_memid() const
+bool RTLIL::Cell::has_memid() स्थिर
 {
-	return type.in(ID($memwr), ID($memwr_v2), ID($memrd), ID($memrd_v2), ID($meminit), ID($meminit_v2));
+	वापस type.in(ID($memwr), ID($memwr_v2), ID($memrd), ID($memrd_v2), ID($meminit), ID($meminit_v2));
 }
 
-bool RTLIL::Cell::is_mem_cell() const
+bool RTLIL::Cell::is_mem_cell() स्थिर
 {
-	return type.in(ID($mem), ID($mem_v2)) || has_memid();
+	वापस type.in(ID($mem), ID($mem_v2)) || has_memid();
 }
 
-bool RTLIL::Cell::is_builtin_ff() const {
-	return StaticCellTypes::categories.is_ff(type);
+bool RTLIL::Cell::is_builtin_ff() स्थिर {
+	वापस StaticCellTypes::categories.is_ff(type);
 }
 
-RTLIL::SigChunk::SigChunk(const RTLIL::SigBit &bit)
+RTLIL::SigChunk::SigChunk(स्थिर RTLIL::SigBit &bit)
 {
 	wire = bit.wire;
 	offset = 0;
-	if (wire == NULL)
-		data = {bit.data};
-	else
+	अगर (wire == शून्य)
+		तथ्य = {bit.तथ्य};
+	अन्यथा
 		offset = bit.offset;
 	width = 1;
 }
 
-RTLIL::SigChunk RTLIL::SigChunk::extract(int offset, int length) const
+RTLIL::SigChunk RTLIL::SigChunk::extract(पूर्णांक offset, पूर्णांक लंबाई) स्थिर
 {
 	log_assert(offset >= 0);
-	log_assert(length >= 0);
-	log_assert(offset + length <= width);
+	log_assert(लंबाई >= 0);
+	log_assert(offset + लंबाई <= width);
 	RTLIL::SigChunk ret;
-	if (wire) {
+	अगर (wire) {
 		ret.wire = wire;
-		ret.offset = this->offset + offset;
-		ret.width = length;
-	} else {
-		for (int i = 0; i < length; i++)
-			ret.data.push_back(data[offset+i]);
-		ret.width = length;
+		ret.offset = यह->offset + offset;
+		ret.width = लंबाई;
+	} अन्यथा {
+		क्रम (पूर्णांक i = 0; i < लंबाई; i++)
+			ret.तथ्य.धकेलो_back(तथ्य[offset+i]);
+		ret.width = लंबाई;
 	}
-	return ret;
+	वापस ret;
 }
 
-RTLIL::SigBit RTLIL::SigChunk::operator[](int offset) const
+RTLIL::SigBit RTLIL::SigChunk::चालक[](पूर्णांक offset) स्थिर
 {
 	log_assert(offset >= 0);
 	log_assert(offset < width);
 	RTLIL::SigBit ret;
-	if (wire) {
+	अगर (wire) {
 		ret.wire = wire;
-		ret.offset = this->offset + offset;
-	} else {
-		ret.data = data[offset];
+		ret.offset = यह->offset + offset;
+	} अन्यथा {
+		ret.तथ्य = तथ्य[offset];
 	}
-	return ret;
+	वापस ret;
 }
 
-bool RTLIL::SigChunk::operator <(const RTLIL::SigChunk &other) const
+bool RTLIL::SigChunk::चालक <(स्थिर RTLIL::SigChunk &other) स्थिर
 {
-	if (wire && other.wire)
-		if (wire->name != other.wire->name)
-			return wire->name < other.wire->name;
+	अगर (wire && other.wire)
+		अगर (wire->name != other.wire->name)
+			वापस wire->name < other.wire->name;
 
-	if (wire != other.wire)
-		return wire < other.wire;
+	अगर (wire != other.wire)
+		वापस wire < other.wire;
 
-	if (offset != other.offset)
-		return offset < other.offset;
+	अगर (offset != other.offset)
+		वापस offset < other.offset;
 
-	if (width != other.width)
-		return width < other.width;
+	अगर (width != other.width)
+		वापस width < other.width;
 
-	return data < other.data;
+	वापस तथ्य < other.तथ्य;
 }
 
-bool RTLIL::SigChunk::operator ==(const RTLIL::SigChunk &other) const
+bool RTLIL::SigChunk::चालक ==(स्थिर RTLIL::SigChunk &other) स्थिर
 {
-	return wire == other.wire && width == other.width && offset == other.offset && data == other.data;
+	वापस wire == other.wire && width == other.width && offset == other.offset && तथ्य == other.तथ्य;
 }
 
-bool RTLIL::SigChunk::operator !=(const RTLIL::SigChunk &other) const
+bool RTLIL::SigChunk::चालक !=(स्थिर RTLIL::SigChunk &other) स्थिर
 {
-	if (*this == other)
-		return false;
-	return true;
+	अगर (*यह == other)
+		वापस false;
+	वापस true;
 }
 
 RTLIL::SigSpec::SigSpec(std::initializer_list<RTLIL::SigSpec> parts)
 {
 	init_empty_bits();
-	log_assert(parts.size() > 0);
-	auto ie = parts.begin();
-	auto it = ie + parts.size() - 1;
-	while (it >= ie)
+	log_assert(parts.आकार() > 0);
+	स्वतः ie = parts.begin();
+	स्वतः it = ie + parts.आकार() - 1;
+	जबतक (it >= ie)
 		append(*it--);
 }
 
-RTLIL::SigSpec::SigSpec(const RTLIL::Const &value)
+RTLIL::SigSpec::SigSpec(स्थिर RTLIL::Const &मूल्य)
 {
-	if (GetSize(value) != 0) {
+	अगर (Get_आकार(मूल्य) != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(value);
-	} else {
+		नया (&chunk_) RTLIL::SigChunk(मूल्य);
+	} अन्यथा {
 		init_empty_bits();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(RTLIL::Const &&value)
+RTLIL::SigSpec::SigSpec(RTLIL::Const &&मूल्य)
 {
-	if (GetSize(value) != 0) {
+	अगर (Get_आकार(मूल्य) != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(value);
-	} else {
+		नया (&chunk_) RTLIL::SigChunk(मूल्य);
+	} अन्यथा {
 		init_empty_bits();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const RTLIL::SigChunk &chunk)
+RTLIL::SigSpec::SigSpec(स्थिर RTLIL::SigChunk &chunk)
 {
-	if (chunk.width != 0) {
+	अगर (chunk.width != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(chunk);
-	} else {
+		नया (&chunk_) RTLIL::SigChunk(chunk);
+	} अन्यथा {
 		init_empty_bits();
 	}
 	check();
@@ -4601,10 +4601,10 @@ RTLIL::SigSpec::SigSpec(const RTLIL::SigChunk &chunk)
 
 RTLIL::SigSpec::SigSpec(RTLIL::SigChunk &&chunk)
 {
-	if (chunk.width != 0) {
+	अगर (chunk.width != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(chunk);
-	} else {
+		नया (&chunk_) RTLIL::SigChunk(chunk);
+	} अन्यथा {
 		init_empty_bits();
 	}
 	check();
@@ -4612,105 +4612,105 @@ RTLIL::SigSpec::SigSpec(RTLIL::SigChunk &&chunk)
 
 RTLIL::SigSpec::SigSpec(RTLIL::Wire *wire)
 {
-	if (wire->width != 0) {
+	अगर (wire->width != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(wire);
-	} else {
+		नया (&chunk_) RTLIL::SigChunk(wire);
+	} अन्यथा {
 		init_empty_bits();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(RTLIL::Wire *wire, int offset, int width)
+RTLIL::SigSpec::SigSpec(RTLIL::Wire *wire, पूर्णांक offset, पूर्णांक width)
 {
-	if (width != 0) {
+	अगर (width != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(wire, offset, width);
-	} else {
+		नया (&chunk_) RTLIL::SigChunk(wire, offset, width);
+	} अन्यथा {
 		init_empty_bits();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::string &str)
+RTLIL::SigSpec::SigSpec(स्थिर std::string &str)
 {
-	if (str.size() != 0) {
+	अगर (str.आकार() != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(str);
-	} else {
+		नया (&chunk_) RTLIL::SigChunk(str);
+	} अन्यथा {
 		init_empty_bits();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(int val, int width)
+RTLIL::SigSpec::SigSpec(पूर्णांक val, पूर्णांक width)
 {
-	if (width != 0) {
+	अगर (width != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(val, width);
-	} else
+		नया (&chunk_) RTLIL::SigChunk(val, width);
+	} अन्यथा
 		init_empty_bits();
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(RTLIL::State bit, int width)
+RTLIL::SigSpec::SigSpec(RTLIL::State bit, पूर्णांक width)
 {
-	if (width != 0) {
+	अगर (width != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(bit, width);
-	} else
+		नया (&chunk_) RTLIL::SigChunk(bit, width);
+	} अन्यथा
 		init_empty_bits();
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const RTLIL::SigBit &bit, int width)
+RTLIL::SigSpec::SigSpec(स्थिर RTLIL::SigBit &bit, पूर्णांक width)
 {
-	if (width != 0) {
-		if (bit.wire == NULL) {
+	अगर (width != 0) {
+		अगर (bit.wire == शून्य) {
 			rep_ = CHUNK;
-			new (&chunk_) RTLIL::SigChunk(bit.data, width);
-		} else if (width == 1) {
+			नया (&chunk_) RTLIL::SigChunk(bit.तथ्य, width);
+		} अन्यथा अगर (width == 1) {
 			rep_ = CHUNK;
-			new (&chunk_) RTLIL::SigChunk(bit);
-		} else {
+			नया (&chunk_) RTLIL::SigChunk(bit);
+		} अन्यथा {
 			init_empty_bits();
 			bits_.reserve(width);
-			for (int i = 0; i < width; i++)
-				bits_.push_back(bit);
+			क्रम (पूर्णांक i = 0; i < width; i++)
+				bits_.धकेलो_back(bit);
 		}
-	} else
+	} अन्यथा
 		init_empty_bits();
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::vector<RTLIL::SigChunk> &chunks)
+RTLIL::SigSpec::SigSpec(स्थिर std::vector<RTLIL::SigChunk> &chunks)
 {
 	init_empty_bits();
-	for (const auto &c : chunks)
+	क्रम (स्थिर स्वतः &c : chunks)
 		append(c);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::vector<RTLIL::SigBit> &bits)
+RTLIL::SigSpec::SigSpec(स्थिर std::vector<RTLIL::SigBit> &bits)
 {
 	init_empty_bits();
-	for (const auto &bit : bits)
+	क्रम (स्थिर स्वतः &bit : bits)
 		append(bit);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const pool<RTLIL::SigBit> &bits)
+RTLIL::SigSpec::SigSpec(स्थिर pool<RTLIL::SigBit> &bits)
 {
 	init_empty_bits();
-	for (const auto &bit : bits)
+	क्रम (स्थिर स्वतः &bit : bits)
 		append(bit);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::set<RTLIL::SigBit> &bits)
+RTLIL::SigSpec::SigSpec(स्थिर std::set<RTLIL::SigBit> &bits)
 {
 	init_empty_bits();
-	for (const auto &bit : bits)
+	क्रम (स्थिर स्वतः &bit : bits)
 		append(bit);
 	check();
 }
@@ -4718,109 +4718,109 @@ RTLIL::SigSpec::SigSpec(const std::set<RTLIL::SigBit> &bits)
 RTLIL::SigSpec::SigSpec(bool bit)
 {
 	rep_ = CHUNK;
-	new (&chunk_) RTLIL::SigChunk(bit ? RTLIL::S1 : RTLIL::S0);
+	नया (&chunk_) RTLIL::SigChunk(bit ? RTLIL::S1 : RTLIL::S0);
 	check();
 }
 
-void RTLIL::SigSpec::Chunks::const_iterator::next_chunk_bits()
+व्योम RTLIL::SigSpec::Chunks::const_iterator::अग्र_chunk_bits()
 {
-	int bits_size = GetSize(spec.bits_);
-	if (bit_index >= bits_size)
-		return;
-	int i = bit_index;
-	const SigBit &bit = spec.bits_[i++];
+	पूर्णांक bits_आकार = Get_आकार(spec.bits_);
+	अगर (bit_सूचकांक >= bits_आकार)
+		वापस;
+	पूर्णांक i = bit_सूचकांक;
+	स्थिर SigBit &bit = spec.bits_[i++];
 	chunk.wire = bit.wire;
-	chunk.data.clear();
-	if (bit.is_wire()) {
+	chunk.तथ्य.सफा();
+	अगर (bit.is_wire()) {
 		chunk.offset = bit.offset;
-		while (i < bits_size && spec.bits_[i].wire == bit.wire &&
-			spec.bits_[i].offset == bit.offset + i - bit_index)
+		जबतक (i < bits_आकार && spec.bits_[i].wire == bit.wire &&
+			spec.bits_[i].offset == bit.offset + i - bit_सूचकांक)
 			++i;
-	} else {
+	} अन्यथा {
 		chunk.offset = 0;
-		chunk.data.push_back(bit.data);
-		while (i < bits_size && !spec.bits_[i].is_wire()) {
-			chunk.data.push_back(spec.bits_[i].data);
+		chunk.तथ्य.धकेलो_back(bit.तथ्य);
+		जबतक (i < bits_आकार && !spec.bits_[i].is_wire()) {
+			chunk.तथ्य.धकेलो_back(spec.bits_[i].तथ्य);
 			++i;
 		}
 	}
-	chunk.width = i - bit_index;
+	chunk.width = i - bit_सूचकांक;
 }
 
-void RTLIL::SigSpec::unpack()
+व्योम RTLIL::SigSpec::unpack()
 {
-	if (rep_ == BITS)
-		return;
+	अगर (rep_ == BITS)
+		वापस;
 
 	std::vector<RTLIL::SigBit> bits;
 	bits.reserve(chunk_.width);
-	for (int i = 0; i < chunk_.width; i++)
+	क्रम (पूर्णांक i = 0; i < chunk_.width; i++)
 		bits.emplace_back(chunk_, i);
 
 	chunk_.~SigChunk();
 	rep_ = BITS;
-	new (&bits_) std::vector<RTLIL::SigBit>(std::move(bits));
+	नया (&bits_) std::vector<RTLIL::SigBit>(std::move(bits));
 }
 
-void RTLIL::SigSpec::try_repack()
+व्योम RTLIL::SigSpec::try_repack()
 {
-	if (rep_ != BITS)
-		return;
+	अगर (rep_ != BITS)
+		वापस;
 
-	int bits_size = GetSize(bits_);
-	if (bits_size == 0)
-		return;
-	if (bits_[0].is_wire()) {
-		for (int i = 1; i < bits_size; i++)
-			if (bits_[0].wire != bits_[i].wire || bits_[0].offset + i != bits_[i].offset)
-				return;
-		SigChunk chunk(bits_[0].wire, bits_[0].offset, bits_size);
+	पूर्णांक bits_आकार = Get_आकार(bits_);
+	अगर (bits_आकार == 0)
+		वापस;
+	अगर (bits_[0].is_wire()) {
+		क्रम (पूर्णांक i = 1; i < bits_आकार; i++)
+			अगर (bits_[0].wire != bits_[i].wire || bits_[0].offset + i != bits_[i].offset)
+				वापस;
+		SigChunk chunk(bits_[0].wire, bits_[0].offset, bits_आकार);
 		bits_.~vector();
 		rep_ = CHUNK;
-		new (&chunk_) SigChunk(std::move(chunk));
-		return;
+		नया (&chunk_) SigChunk(std::move(chunk));
+		वापस;
 	}
 	std::vector<RTLIL::State> bits;
-	bits.reserve(bits_size);
-	bits.push_back(bits_[0].data);
-	for (int i = 1; i < bits_size; i++) {
-		if (bits_[i].is_wire())
-			return;
-		bits.push_back(bits_[i].data);
+	bits.reserve(bits_आकार);
+	bits.धकेलो_back(bits_[0].तथ्य);
+	क्रम (पूर्णांक i = 1; i < bits_आकार; i++) {
+		अगर (bits_[i].is_wire())
+			वापस;
+		bits.धकेलो_back(bits_[i].तथ्य);
 	}
 	bits_.~vector();
 	rep_ = CHUNK;
-	new (&chunk_) SigChunk(std::move(bits));
+	नया (&chunk_) SigChunk(std::move(bits));
 }
 
-Hasher::hash_t RTLIL::SigSpec::updhash() const
+Hasher::hash_t RTLIL::SigSpec::updhash() स्थिर
 {
 	Hasher h;
-	for (auto &c : chunks())
-		if (c.wire == NULL) {
-			for (auto &v : c.data)
+	क्रम (स्वतः &c : chunks())
+		अगर (c.wire == शून्य) {
+			क्रम (स्वतः &v : c.तथ्य)
 				h.eat(v);
-		} else {
+		} अन्यथा {
 			h.eat(c.wire->name.ref());
 			h.eat(c.offset);
 			h.eat(c.width);
 		}
-	Hasher::hash_t result = h.yield();
-	if (result == 0)
-		result = 1;
-	hash_.set(result);
-	return result;
+	Hasher::hash_t परिणाम = h.yield();
+	अगर (परिणाम == 0)
+		परिणाम = 1;
+	hash_.set(परिणाम);
+	वापस परिणाम;
 }
 
-void RTLIL::SigSpec::sort()
+व्योम RTLIL::SigSpec::sort()
 {
 	unpack();
 	std::sort(bits_.begin(), bits_.end());
-	hash_.clear();
+	hash_.सफा();
 	try_repack();
 }
 
-void RTLIL::SigSpec::sort_and_unify()
+व्योम RTLIL::SigSpec::sort_and_unify()
 {
 	unpack();
 	// A copy of the bits vector is used to prevent duplicating the logic from
@@ -4828,295 +4828,295 @@ void RTLIL::SigSpec::sort_and_unify()
 	// that isn't showing up as significant in profiles.
 	std::vector<SigBit> unique_bits = bits_;
 	std::sort(unique_bits.begin(), unique_bits.end());
-	auto last = std::unique(unique_bits.begin(), unique_bits.end());
+	स्वतः last = std::unique(unique_bits.begin(), unique_bits.end());
 	unique_bits.erase(last, unique_bits.end());
 
-	*this = unique_bits;
-	hash_.clear();
+	*यह = unique_bits;
+	hash_.सफा();
 	try_repack();
 }
 
-void RTLIL::SigSpec::replace(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec &with)
+व्योम RTLIL::SigSpec::replace(स्थिर RTLIL::SigSpec &pattern, स्थिर RTLIL::SigSpec &with)
 {
-	replace(pattern, with, this);
+	replace(pattern, with, यह);
 }
 
-void RTLIL::SigSpec::replace(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec &with, RTLIL::SigSpec *other) const
+व्योम RTLIL::SigSpec::replace(स्थिर RTLIL::SigSpec &pattern, स्थिर RTLIL::SigSpec &with, RTLIL::SigSpec *other) स्थिर
 {
-	log_assert(other != NULL);
-	log_assert(size() == other->size());
-	log_assert(pattern.size() == with.size());
+	log_assert(other != शून्य);
+	log_assert(आकार() == other->आकार());
+	log_assert(pattern.आकार() == with.आकार());
 
-	dict<RTLIL::SigBit, int> pattern_to_with;
-	int pattern_size = pattern.size();
-	for (int i = 0; i < pattern_size; i++) {
+	dict<RTLIL::SigBit, पूर्णांक> pattern_to_with;
+	पूर्णांक pattern_आकार = pattern.आकार();
+	क्रम (पूर्णांक i = 0; i < pattern_आकार; i++) {
 		SigBit pattern_bit = pattern[i];
-		if (pattern_bit.wire != NULL) {
+		अगर (pattern_bit.wire != शून्य) {
 			pattern_to_with.emplace(pattern_bit, i);
 		}
 	}
 
-	int this_size = size();
+	पूर्णांक this_आकार = आकार();
 	bool other_modified = false;
-	for (int j = 0; j < this_size; j++) {
-		auto it = pattern_to_with.find((*this)[j]);
-		if (it != pattern_to_with.end()) {
+	क्रम (पूर्णांक j = 0; j < this_आकार; j++) {
+		स्वतः it = pattern_to_with.find((*यह)[j]);
+		अगर (it != pattern_to_with.end()) {
 			other_modified = true;
 			(*other)[j] = with[it->second];
 		}
 	}
 
-	if (other_modified)
+	अगर (other_modified)
 		other->try_repack();
 	other->check();
 }
 
-void RTLIL::SigSpec::replace(const dict<RTLIL::SigBit, RTLIL::SigBit> &rules)
+व्योम RTLIL::SigSpec::replace(स्थिर dict<RTLIL::SigBit, RTLIL::SigBit> &rules)
 {
-	replace(rules, this);
+	replace(rules, यह);
 }
 
-void RTLIL::SigSpec::replace(const dict<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const
+व्योम RTLIL::SigSpec::replace(स्थिर dict<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) स्थिर
 {
-	log_assert(other != NULL);
-	log_assert(size() == other->size());
+	log_assert(other != शून्य);
+	log_assert(आकार() == other->आकार());
 
-	if (rules.empty()) return;
+	अगर (rules.empty()) वापस;
 
-	int this_size = size();
+	पूर्णांक this_आकार = आकार();
 	bool other_modified = false;
-	for (int i = 0; i < this_size; i++) {
-		auto it = rules.find((*this)[i]);
-		if (it != rules.end()) {
+	क्रम (पूर्णांक i = 0; i < this_आकार; i++) {
+		स्वतः it = rules.find((*यह)[i]);
+		अगर (it != rules.end()) {
 			other_modified = true;
 			(*other)[i] = it->second;
 		}
 	}
 
-	if (other_modified)
+	अगर (other_modified)
 		other->try_repack();
 	other->check();
 }
 
-void RTLIL::SigSpec::replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules)
+व्योम RTLIL::SigSpec::replace(स्थिर std::map<RTLIL::SigBit, RTLIL::SigBit> &rules)
 {
-	replace(rules, this);
+	replace(rules, यह);
 }
 
-void RTLIL::SigSpec::replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const
+व्योम RTLIL::SigSpec::replace(स्थिर std::map<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) स्थिर
 {
-	log_assert(other != NULL);
-	log_assert(size() == other->size());
+	log_assert(other != शून्य);
+	log_assert(आकार() == other->आकार());
 
-	if (rules.empty()) return;
+	अगर (rules.empty()) वापस;
 
-	int this_size = size();
+	पूर्णांक this_आकार = आकार();
 	bool other_modified = false;
-	for (int i = 0; i < this_size; i++) {
-		auto it = rules.find((*this)[i]);
-		if (it != rules.end()) {
+	क्रम (पूर्णांक i = 0; i < this_आकार; i++) {
+		स्वतः it = rules.find((*यह)[i]);
+		अगर (it != rules.end()) {
 			other_modified = true;
 			(*other)[i] = it->second;
 		}
 	}
 
-	if (other_modified)
+	अगर (other_modified)
 		other->try_repack();
 	other->check();
 }
 
-void RTLIL::SigSpec::remove(const RTLIL::SigSpec &pattern)
+व्योम RTLIL::SigSpec::हटाओ(स्थिर RTLIL::SigSpec &pattern)
 {
-	remove2(pattern, NULL);
+	remove2(pattern, शून्य);
 }
 
-void RTLIL::SigSpec::remove(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other) const
+व्योम RTLIL::SigSpec::हटाओ(स्थिर RTLIL::SigSpec &pattern, RTLIL::SigSpec *other) स्थिर
 {
-	RTLIL::SigSpec tmp = *this;
+	RTLIL::SigSpec tmp = *यह;
 	tmp.remove2(pattern, other);
 }
 
-void RTLIL::SigSpec::remove2(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other)
+व्योम RTLIL::SigSpec::remove2(स्थिर RTLIL::SigSpec &pattern, RTLIL::SigSpec *other)
 {
 	unpack();
-	if (other != NULL) {
-		log_assert(size() == other->size());
+	अगर (other != शून्य) {
+		log_assert(आकार() == other->आकार());
 		other->unpack();
 	}
 
 	//  Convert pattern to pool for O(1) lookup, avoiding O(n*m) chunk iteration
 	pool<SigBit> pattern_bits;
-	pattern_bits.reserve(pattern.size());
-	for (auto &bit : pattern)
-		if (bit.wire != NULL)
-			pattern_bits.insert(bit);
+	pattern_bits.reserve(pattern.आकार());
+	क्रम (स्वतः &bit : pattern)
+		अगर (bit.wire != शून्य)
+			pattern_bits.जोड़ो(bit);
 
 	// Compact in-place to avoid O(n^2) erase operations
-	size_t write_idx = 0;
-	for (size_t read_idx = 0; read_idx < bits_.size(); read_idx++)
+	माप_प्रकार write_idx = 0;
+	क्रम (माप_प्रकार read_idx = 0; read_idx < bits_.आकार(); read_idx++)
 	{
-		if (!(bits_[read_idx].wire != NULL && pattern_bits.count(bits_[read_idx]))) {
-			if (write_idx != read_idx) {
+		अगर (!(bits_[read_idx].wire != शून्य && pattern_bits.गिनती(bits_[read_idx]))) {
+			अगर (write_idx != read_idx) {
 				bits_[write_idx] = bits_[read_idx];
-				if (other != NULL)
+				अगर (other != शून्य)
 					other->bits_[write_idx] = other->bits_[read_idx];
 			}
 			write_idx++;
 		}
 	}
 
-	bool modified = (write_idx < bits_.size());
-	if (modified) {
+	bool modified = (write_idx < bits_.आकार());
+	अगर (modified) {
 		bits_.resize(write_idx);
-		hash_.clear();
+		hash_.सफा();
 		try_repack();
 	}
-	if (other != NULL && modified) {
+	अगर (other != शून्य && modified) {
 		other->bits_.resize(write_idx);
-		other->hash_.clear();
+		other->hash_.सफा();
 		other->try_repack();
 	}
 	check();
 }
 
-void RTLIL::SigSpec::remove(const pool<RTLIL::SigBit> &pattern)
+व्योम RTLIL::SigSpec::हटाओ(स्थिर pool<RTLIL::SigBit> &pattern)
 {
-	remove2(pattern, NULL);
+	remove2(pattern, शून्य);
 }
 
-void RTLIL::SigSpec::remove(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other) const
+व्योम RTLIL::SigSpec::हटाओ(स्थिर pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other) स्थिर
 {
-	RTLIL::SigSpec tmp = *this;
+	RTLIL::SigSpec tmp = *यह;
 	tmp.remove2(pattern, other);
 }
 
-void RTLIL::SigSpec::remove2(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other)
+व्योम RTLIL::SigSpec::remove2(स्थिर pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other)
 {
 	unpack();
 
-	if (other != NULL) {
-		log_assert(size() == other->size());
+	अगर (other != शून्य) {
+		log_assert(आकार() == other->आकार());
 		other->unpack();
 	}
 
 	// Avoid O(n^2) complexity by compacting in-place
-	size_t write_idx = 0;
-	for (size_t read_idx = 0; read_idx < bits_.size(); read_idx++) {
-		if (!(bits_[read_idx].wire != NULL && pattern.count(bits_[read_idx]))) {
-			if (write_idx != read_idx) {
+	माप_प्रकार write_idx = 0;
+	क्रम (माप_प्रकार read_idx = 0; read_idx < bits_.आकार(); read_idx++) {
+		अगर (!(bits_[read_idx].wire != शून्य && pattern.गिनती(bits_[read_idx]))) {
+			अगर (write_idx != read_idx) {
 				bits_[write_idx] = bits_[read_idx];
-				if (other != NULL)
+				अगर (other != शून्य)
 					other->bits_[write_idx] = other->bits_[read_idx];
 			}
 			write_idx++;
 		}
 	}
 
-	bool modified = (write_idx < bits_.size());
-	if (modified) {
+	bool modified = (write_idx < bits_.आकार());
+	अगर (modified) {
 		bits_.resize(write_idx);
-		hash_.clear();
+		hash_.सफा();
 		try_repack();
 	}
-	if (other != NULL && modified) {
+	अगर (other != शून्य && modified) {
 		other->bits_.resize(write_idx);
-		other->hash_.clear();
+		other->hash_.सफा();
 		other->try_repack();
 	}
 	check();
 }
 
-void RTLIL::SigSpec::remove2(const std::set<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other)
+व्योम RTLIL::SigSpec::remove2(स्थिर std::set<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other)
 {
 	unpack();
 
-	if (other != NULL) {
-		log_assert(size() == other->size());
+	अगर (other != शून्य) {
+		log_assert(आकार() == other->आकार());
 		other->unpack();
 	}
 
 	// Avoid O(n^2) complexity by compacting in-place
-	size_t write_idx = 0;
-	for (size_t read_idx = 0; read_idx < bits_.size(); read_idx++) {
-		if (!(bits_[read_idx].wire != NULL && pattern.count(bits_[read_idx]))) {
-			if (write_idx != read_idx) {
+	माप_प्रकार write_idx = 0;
+	क्रम (माप_प्रकार read_idx = 0; read_idx < bits_.आकार(); read_idx++) {
+		अगर (!(bits_[read_idx].wire != शून्य && pattern.गिनती(bits_[read_idx]))) {
+			अगर (write_idx != read_idx) {
 				bits_[write_idx] = bits_[read_idx];
-				if (other != NULL)
+				अगर (other != शून्य)
 					other->bits_[write_idx] = other->bits_[read_idx];
 			}
 			write_idx++;
 		}
 	}
 
-	bool modified = (write_idx < bits_.size());
-	if (modified) {
+	bool modified = (write_idx < bits_.आकार());
+	अगर (modified) {
 		bits_.resize(write_idx);
-		hash_.clear();
+		hash_.सफा();
 		try_repack();
 	}
-	if (other != NULL && modified) {
+	अगर (other != शून्य && modified) {
 		other->bits_.resize(write_idx);
-		other->hash_.clear();
+		other->hash_.सफा();
 		other->try_repack();
 	}
 	check();
 }
 
-void RTLIL::SigSpec::remove2(const pool<RTLIL::Wire*> &pattern, RTLIL::SigSpec *other)
+व्योम RTLIL::SigSpec::remove2(स्थिर pool<RTLIL::Wire*> &pattern, RTLIL::SigSpec *other)
 {
 	unpack();
 
-	if (other != NULL) {
-		log_assert(size() == other->size());
+	अगर (other != शून्य) {
+		log_assert(आकार() == other->आकार());
 		other->unpack();
 	}
 
 	bool modified = false;
 	bool other_modified = false;
-	for (int i = GetSize(bits_) - 1; i >= 0; i--) {
-		if (bits_[i].wire != NULL && pattern.count(bits_[i].wire)) {
+	क्रम (पूर्णांक i = Get_आकार(bits_) - 1; i >= 0; i--) {
+		अगर (bits_[i].wire != शून्य && pattern.गिनती(bits_[i].wire)) {
 			modified = true;
 			bits_.erase(bits_.begin() + i);
-			if (other != NULL) {
+			अगर (other != शून्य) {
 				other_modified = true;
 				other->bits_.erase(other->bits_.begin() + i);
 			}
 		}
 	}
 
-	if (modified) {
-		hash_.clear();
+	अगर (modified) {
+		hash_.सफा();
 		try_repack();
 	}
-	if (other_modified) {
-		other->hash_.clear();
+	अगर (other_modified) {
+		other->hash_.सफा();
 		other->try_repack();
 	}
 	check();
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::extract(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec *other) const
+RTLIL::SigSpec RTLIL::SigSpec::extract(स्थिर RTLIL::SigSpec &pattern, स्थिर RTLIL::SigSpec *other) स्थिर
 {
-	log_assert(other == NULL || size() == other->size());
+	log_assert(other == शून्य || आकार() == other->आकार());
 
 	RTLIL::SigSpec ret;
 	std::vector<RTLIL::SigBit> bits_match = to_sigbit_vector();
 
-	for (auto& pattern_chunk : pattern.chunks()) {
-		if (other) {
+	क्रम (स्वतः& pattern_chunk : pattern.chunks()) {
+		अगर (other) {
 			std::vector<RTLIL::SigBit> bits_other = other->to_sigbit_vector();
-			int i = 0;
-			for (const RTLIL::SigBit &bit : bits_match) {
-				if (bit.wire &&
+			पूर्णांक i = 0;
+			क्रम (स्थिर RTLIL::SigBit &bit : bits_match) {
+				अगर (bit.wire &&
 					bit.wire == pattern_chunk.wire &&
 					bit.offset >= pattern_chunk.offset &&
 					bit.offset < pattern_chunk.offset + pattern_chunk.width)
 					ret.append(bits_other[i]);
 				++i;
 			}
-		} else {
-			for (const RTLIL::SigBit &bit : bits_match)
-				if (bit.wire &&
+		} अन्यथा {
+			क्रम (स्थिर RTLIL::SigBit &bit : bits_match)
+				अगर (bit.wire &&
 					bit.wire == pattern_chunk.wire &&
 					bit.offset >= pattern_chunk.offset &&
 					bit.offset < pattern_chunk.offset + pattern_chunk.width)
@@ -5125,76 +5125,76 @@ RTLIL::SigSpec RTLIL::SigSpec::extract(const RTLIL::SigSpec &pattern, const RTLI
 	}
 
 	ret.check();
-	return ret;
+	वापस ret;
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::extract(const pool<RTLIL::SigBit> &pattern, const RTLIL::SigSpec *other) const
+RTLIL::SigSpec RTLIL::SigSpec::extract(स्थिर pool<RTLIL::SigBit> &pattern, स्थिर RTLIL::SigSpec *other) स्थिर
 {
-	log_assert(other == NULL || size() == other->size());
+	log_assert(other == शून्य || आकार() == other->आकार());
 
 	std::vector<RTLIL::SigBit> bits_match = to_sigbit_vector();
 	RTLIL::SigSpec ret;
 
-	if (other) {
+	अगर (other) {
 		std::vector<RTLIL::SigBit> bits_other = other->to_sigbit_vector();
-		int i = 0;
-		for (const RTLIL::SigBit &bit : bits_match) {
-			if (bit.wire && pattern.count(bit))
+		पूर्णांक i = 0;
+		क्रम (स्थिर RTLIL::SigBit &bit : bits_match) {
+			अगर (bit.wire && pattern.गिनती(bit))
 				ret.append(bits_other[i]);
 			++i;
 		}
-	} else {
-		for (const RTLIL::SigBit &bit : bits_match)
-			if (bit.wire && pattern.count(bit))
+	} अन्यथा {
+		क्रम (स्थिर RTLIL::SigBit &bit : bits_match)
+			अगर (bit.wire && pattern.गिनती(bit))
 				ret.append(bit);
 	}
 
 	ret.check();
-	return ret;
+	वापस ret;
 }
 
-void RTLIL::SigSpec::replace(int offset, const RTLIL::SigSpec &with)
+व्योम RTLIL::SigSpec::replace(पूर्णांक offset, स्थिर RTLIL::SigSpec &with)
 {
-	if (with.size() == 0)
-		return;
+	अगर (with.आकार() == 0)
+		वापस;
 
 	unpack();
 
 	log_assert(offset >= 0);
-	log_assert(with.size() >= 0);
-	log_assert(offset+with.size() <= size());
+	log_assert(with.आकार() >= 0);
+	log_assert(offset+with.आकार() <= आकार());
 
-	int i = 0;
-	for (const RTLIL::SigBit &bit : with.bits()) {
+	पूर्णांक i = 0;
+	क्रम (स्थिर RTLIL::SigBit &bit : with.bits()) {
 		bits_.at(offset + i) = bit;
 		++i;
 	}
-	hash_.clear();
+	hash_.सफा();
 	try_repack();
 
 	check();
 }
 
-void RTLIL::SigSpec::remove_const()
+व्योम RTLIL::SigSpec::remove_const()
 {
-	if (rep_ == CHUNK)
+	अगर (rep_ == CHUNK)
 	{
-		if (chunk_.wire == NULL) {
+		अगर (chunk_.wire == शून्य) {
 			chunk_.~SigChunk();
 			init_empty_bits();
-			hash_.clear();
+			hash_.सफा();
 		}
 	}
-	else
+	अन्यथा
 	{
 		std::vector<RTLIL::SigBit> new_bits;
-		new_bits.reserve(bits_.size());
-		for (auto &bit : bits_)
-			if (bit.wire != NULL)
-				new_bits.push_back(bit);
-		if (GetSize(new_bits) != GetSize(bits_)) {
+		new_bits.reserve(bits_.आकार());
+		क्रम (स्वतः &bit : bits_)
+			अगर (bit.wire != शून्य)
+				new_bits.धकेलो_back(bit);
+		अगर (Get_आकार(new_bits) != Get_आकार(bits_)) {
 			bits_.swap(new_bits);
-			hash_.clear();
+			hash_.सफा();
 			try_repack();
 		}
 	}
@@ -5202,533 +5202,533 @@ void RTLIL::SigSpec::remove_const()
 	check();
 }
 
-void RTLIL::SigSpec::remove(int offset, int length)
+व्योम RTLIL::SigSpec::हटाओ(पूर्णांक offset, पूर्णांक लंबाई)
 {
-	if (length == 0)
-		return;
+	अगर (लंबाई == 0)
+		वापस;
 
 	unpack();
 
 	log_assert(offset >= 0);
-	log_assert(length >= 0);
-	log_assert(offset + length <= size());
+	log_assert(लंबाई >= 0);
+	log_assert(offset + लंबाई <= आकार());
 
-	bits_.erase(bits_.begin() + offset, bits_.begin() + offset + length);
+	bits_.erase(bits_.begin() + offset, bits_.begin() + offset + लंबाई);
 
-	hash_.clear();
+	hash_.सफा();
 	try_repack();
 	check();
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::extract(int offset, int length) const
+RTLIL::SigSpec RTLIL::SigSpec::extract(पूर्णांक offset, पूर्णांक लंबाई) स्थिर
 {
 	log_assert(offset >= 0);
-	log_assert(length >= 0);
-	log_assert(offset + length <= size());
+	log_assert(लंबाई >= 0);
+	log_assert(offset + लंबाई <= आकार());
 
 	std::vector<SigBit> extracted;
 	SigBit first;
 	bool is_packing = true;
-	for (int i = offset; i < offset + length; i++) {
+	क्रम (पूर्णांक i = offset; i < offset + लंबाई; i++) {
 		bool was_packing_before = is_packing;
-		SigBit bit = (*this)[i];
-		if (i == offset) {
+		SigBit bit = (*यह)[i];
+		अगर (i == offset) {
 			first = bit;
-			if (!bit.wire)
+			अगर (!bit.wire)
 				is_packing = false;
-		} else {
-			if (bit.wire != first.wire)
+		} अन्यथा {
+			अगर (bit.wire != first.wire)
 				is_packing = false;
-			if (bit.wire)
-				if (bit.offset != first.offset + (i - offset))
+			अगर (bit.wire)
+				अगर (bit.offset != first.offset + (i - offset))
 					is_packing = false;
 		}
-		if (was_packing_before && !is_packing)
-			for (int j = offset; j < i; j++)
-				extracted.push_back((*this)[j]);
-		if (!is_packing)
-			extracted.push_back((*this)[i]);
+		अगर (was_packing_before && !is_packing)
+			क्रम (पूर्णांक j = offset; j < i; j++)
+				extracted.धकेलो_back((*यह)[j]);
+		अगर (!is_packing)
+			extracted.धकेलो_back((*यह)[i]);
 	}
-	if (is_packing)
-		return SigChunk(first.wire, first.offset, length);
+	अगर (is_packing)
+		वापस SigChunk(first.wire, first.offset, लंबाई);
 
-	return extracted;
+	वापस extracted;
 }
 
-void RTLIL::SigSpec::rewrite_wires(std::function<void(RTLIL::Wire*& wire)> rewrite)
+व्योम RTLIL::SigSpec::rewrite_wires(std::function<व्योम(RTLIL::Wire*& wire)> rewrite)
 {
-	if (rep_ == CHUNK) {
-		if (chunk_.wire != nullptr)
+	अगर (rep_ == CHUNK) {
+		अगर (chunk_.wire != nullptr)
 			rewrite(chunk_.wire);
-		return;
+		वापस;
 	}
 
 	std::vector<RTLIL::SigBit> new_bits;
-	for (const RTLIL::SigChunk &chunk : chunks()) {
+	क्रम (स्थिर RTLIL::SigChunk &chunk : chunks()) {
 		RTLIL::SigChunk c = chunk;
-		if (c.wire != nullptr)
+		अगर (c.wire != nullptr)
 			rewrite(c.wire);
-		for (int i = 0; i < c.width; i++)
+		क्रम (पूर्णांक i = 0; i < c.width; i++)
 			new_bits.emplace_back(c, i);
 	}
 	bits_ = std::move(new_bits);
-	hash_.clear();
+	hash_.सफा();
 }
 
-void RTLIL::SigSpec::append(const RTLIL::SigSpec &signal)
+व्योम RTLIL::SigSpec::append(स्थिर RTLIL::SigSpec &संकेत)
 {
-	if (signal.size() == 0)
-		return;
+	अगर (संकेत.आकार() == 0)
+		वापस;
 
-	if (size() == 0) {
-		*this = signal;
-		return;
+	अगर (आकार() == 0) {
+		*यह = संकेत;
+		वापस;
 	}
 
-	hash_.clear();
-	if (rep_ == CHUNK && signal.rep_ == CHUNK && chunk_.wire == signal.chunk_.wire) {
-		if (chunk_.wire == NULL) {
-			chunk_.data.insert(chunk_.data.end(), signal.chunk_.data.begin(), signal.chunk_.data.end());
-			chunk_.width = GetSize(chunk_.data);
-			return;
+	hash_.सफा();
+	अगर (rep_ == CHUNK && संकेत.rep_ == CHUNK && chunk_.wire == संकेत.chunk_.wire) {
+		अगर (chunk_.wire == शून्य) {
+			chunk_.तथ्य.जोड़ो(chunk_.तथ्य.end(), संकेत.chunk_.तथ्य.begin(), संकेत.chunk_.तथ्य.end());
+			chunk_.width = Get_आकार(chunk_.तथ्य);
+			वापस;
 		}
-		if (chunk_.offset + chunk_.width == signal.chunk_.offset) {
-			chunk_.width += signal.chunk_.width;
-			return;
+		अगर (chunk_.offset + chunk_.width == संकेत.chunk_.offset) {
+			chunk_.width += संकेत.chunk_.width;
+			वापस;
 		}
 	}
 
 	unpack();
-	for (const SigBit &bit : signal.bits())
-		bits_.push_back(bit);
+	क्रम (स्थिर SigBit &bit : संकेत.bits())
+		bits_.धकेलो_back(bit);
 	check();
 }
 
-void RTLIL::SigSpec::append(const RTLIL::SigBit &bit)
+व्योम RTLIL::SigSpec::append(स्थिर RTLIL::SigBit &bit)
 {
-	hash_.clear();
+	hash_.सफा();
 
-	if (size() == 0) {
+	अगर (आकार() == 0) {
 		destroy();
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(bit);
-		return;
+		नया (&chunk_) RTLIL::SigChunk(bit);
+		वापस;
 	}
 
-	if (rep_ == CHUNK && chunk_.wire == bit.wire) {
-		if (chunk_.wire == NULL) {
-			chunk_.data.push_back(bit.data);
+	अगर (rep_ == CHUNK && chunk_.wire == bit.wire) {
+		अगर (chunk_.wire == शून्य) {
+			chunk_.तथ्य.धकेलो_back(bit.तथ्य);
 			chunk_.width++;
-			return;
+			वापस;
 		}
-		if (chunk_.offset + chunk_.width == bit.offset) {
+		अगर (chunk_.offset + chunk_.width == bit.offset) {
 			chunk_.width++;
-			return;
+			वापस;
 		}
 	}
 
 	unpack();
 
-	bits_.push_back(bit);
+	bits_.धकेलो_back(bit);
 	check();
 }
 
-void RTLIL::SigSpec::extend_u0(int width, bool is_signed)
+व्योम RTLIL::SigSpec::extend_u0(पूर्णांक width, bool is_signed)
 {
-	if (size() > width)
-		remove(width, size() - width);
+	अगर (आकार() > width)
+		हटाओ(width, आकार() - width);
 
-	if (size() < width) {
-		RTLIL::SigBit padding = size() > 0 ? (*this)[size() - 1] : RTLIL::State::Sx;
-		if (!is_signed)
+	अगर (आकार() < width) {
+		RTLIL::SigBit padding = आकार() > 0 ? (*यह)[आकार() - 1] : RTLIL::State::Sx;
+		अगर (!is_signed)
 			padding = RTLIL::State::S0;
-		while (size() < width)
+		जबतक (आकार() < width)
 			append(padding);
 	}
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::repeat(int num) const
+RTLIL::SigSpec RTLIL::SigSpec::repeat(पूर्णांक अंक) स्थिर
 {
 	RTLIL::SigSpec sig;
-	for (int i = 0; i < num; i++)
-		sig.append(*this);
-	return sig;
+	क्रम (पूर्णांक i = 0; i < अंक; i++)
+		sig.append(*यह);
+	वापस sig;
 }
 
-#ifndef NDEBUG
-void RTLIL::SigSpec::check(const Module *mod) const
+#अगर_अघोषित न_संशोधन
+व्योम RTLIL::SigSpec::check(स्थिर Module *mod) स्थिर
 {
-	if (rep_ == CHUNK)
+	अगर (rep_ == CHUNK)
 	{
 		log_assert(chunk_.width != 0);
-		if (chunk_.wire == NULL) {
+		अगर (chunk_.wire == शून्य) {
 			log_assert(chunk_.offset == 0);
-			log_assert(chunk_.data.size() == (size_t)chunk_.width);
-		} else {
+			log_assert(chunk_.तथ्य.आकार() == (माप_प्रकार)chunk_.width);
+		} अन्यथा {
 			log_assert(chunk_.offset >= 0);
 			log_assert(chunk_.width >= 0);
 			log_assert(chunk_.offset + chunk_.width <= chunk_.wire->width);
-			log_assert(chunk_.data.size() == 0);
-			if (mod != nullptr)
+			log_assert(chunk_.तथ्य.आकार() == 0);
+			अगर (mod != nullptr)
 				log_assert(chunk_.wire->module == mod);
 		}
 	}
-	else if (size() <= 64)
+	अन्यथा अगर (आकार() <= 64)
 	{
-		if (mod != nullptr) {
-			for (const RTLIL::SigBit &bit : bits_)
-				if (bit.wire != nullptr)
+		अगर (mod != nullptr) {
+			क्रम (स्थिर RTLIL::SigBit &bit : bits_)
+				अगर (bit.wire != nullptr)
 					log_assert(bit.wire->module == mod);
 		}
 	}
 }
-#endif
+#पूर्ण_अगर
 
-bool RTLIL::SigSpec::operator <(const RTLIL::SigSpec &other) const
+bool RTLIL::SigSpec::चालक <(स्थिर RTLIL::SigSpec &other) स्थिर
 {
-	if (this == &other)
-		return false;
+	अगर (यह == &other)
+		वापस false;
 
-	if (size() != other.size())
-		return size() < other.size();
+	अगर (आकार() != other.आकार())
+		वापस आकार() < other.आकार();
 
-	auto other_it = other.chunks().begin();
-	for (const SigChunk &c : chunks()) {
-		if (c != *other_it)
-			return c < *other_it;
+	स्वतः other_it = other.chunks().begin();
+	क्रम (स्थिर SigChunk &c : chunks()) {
+		अगर (c != *other_it)
+			वापस c < *other_it;
 		++other_it;
 	}
 
-	return false;
+	वापस false;
 }
 
-bool RTLIL::SigSpec::operator ==(const RTLIL::SigSpec &other) const
+bool RTLIL::SigSpec::चालक ==(स्थिर RTLIL::SigSpec &other) स्थिर
 {
-	if (this == &other)
-		return true;
+	अगर (यह == &other)
+		वापस true;
 
-	if (size() != other.size())
-		return false;
+	अगर (आकार() != other.आकार())
+		वापस false;
 
-	auto other_it = other.chunks().begin();
-	for (const SigChunk &c : chunks()) {
-		if (c != *other_it)
-			return false;
+	स्वतः other_it = other.chunks().begin();
+	क्रम (स्थिर SigChunk &c : chunks()) {
+		अगर (c != *other_it)
+			वापस false;
 		++other_it;
 	}
 
-	return true;
+	वापस true;
 }
 
-bool RTLIL::SigSpec::is_wire() const
+bool RTLIL::SigSpec::is_wire() स्थिर
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
-	if (it == cs.end())
-		return false;
-	const RTLIL::SigChunk &chunk = *it;
-	return chunk.wire && chunk.wire->width == size() && ++it == cs.end();
+	स्वतः it = cs.begin();
+	अगर (it == cs.end())
+		वापस false;
+	स्थिर RTLIL::SigChunk &chunk = *it;
+	वापस chunk.wire && chunk.wire->width == आकार() && ++it == cs.end();
 }
 
-bool RTLIL::SigSpec::is_chunk() const
+bool RTLIL::SigSpec::is_chunk() स्थिर
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
-	if (it == cs.end())
-		return false;
-	return ++it == cs.end();
+	स्वतः it = cs.begin();
+	अगर (it == cs.end())
+		वापस false;
+	वापस ++it == cs.end();
 }
 
-bool RTLIL::SigSpec::known_driver() const
+bool RTLIL::SigSpec::known_driver() स्थिर
 {
-	for (auto &chunk : chunks())
-		if (chunk.is_wire() && !chunk.wire->known_driver())
-			return false;
-	return true;
+	क्रम (स्वतः &chunk : chunks())
+		अगर (chunk.is_wire() && !chunk.wire->known_driver())
+			वापस false;
+	वापस true;
 }
 
-bool RTLIL::SigSpec::is_fully_const() const
+bool RTLIL::SigSpec::is_fully_const() स्थिर
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-	return true;
+	क्रम (स्वतः &chunk : chunks())
+		अगर (chunk.width > 0 && chunk.wire != शून्य)
+			वापस false;
+	वापस true;
 }
 
-bool RTLIL::SigSpec::is_fully_zero() const
+bool RTLIL::SigSpec::is_fully_zero() स्थिर
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::S0)
-				return false;
+	क्रम (स्वतः &chunk : chunks()) {
+		अगर (chunk.width > 0 && chunk.wire != शून्य)
+			वापस false;
+		क्रम (RTLIL::State d : chunk.तथ्य)
+			अगर (d != RTLIL::State::S0)
+				वापस false;
 	}
-	return true;
+	वापस true;
 }
 
-bool RTLIL::SigSpec::is_fully_ones() const
+bool RTLIL::SigSpec::is_fully_ones() स्थिर
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::S1)
-				return false;
+	क्रम (स्वतः &chunk : chunks()) {
+		अगर (chunk.width > 0 && chunk.wire != शून्य)
+			वापस false;
+		क्रम (RTLIL::State d : chunk.तथ्य)
+			अगर (d != RTLIL::State::S1)
+				वापस false;
 	}
-	return true;
+	वापस true;
 }
 
-bool RTLIL::SigSpec::is_fully_def() const
+bool RTLIL::SigSpec::is_fully_def() स्थिर
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::S0 && d != RTLIL::State::S1)
-				return false;
+	क्रम (स्वतः &chunk : chunks()) {
+		अगर (chunk.width > 0 && chunk.wire != शून्य)
+			वापस false;
+		क्रम (RTLIL::State d : chunk.तथ्य)
+			अगर (d != RTLIL::State::S0 && d != RTLIL::State::S1)
+				वापस false;
 	}
-	return true;
+	वापस true;
 }
 
-bool RTLIL::SigSpec::is_fully_undef() const
+bool RTLIL::SigSpec::is_fully_undef() स्थिर
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::Sx && d != RTLIL::State::Sz)
-				return false;
+	क्रम (स्वतः &chunk : chunks()) {
+		अगर (chunk.width > 0 && chunk.wire != शून्य)
+			वापस false;
+		क्रम (RTLIL::State d : chunk.तथ्य)
+			अगर (d != RTLIL::State::Sx && d != RTLIL::State::Sz)
+				वापस false;
 	}
-	return true;
+	वापस true;
 }
 
-bool RTLIL::SigSpec::has_const() const
+bool RTLIL::SigSpec::has_const() स्थिर
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire == NULL)
-			return true;
-	return false;
+	क्रम (स्वतः &chunk : chunks())
+		अगर (chunk.width > 0 && chunk.wire == शून्य)
+			वापस true;
+	वापस false;
 }
 
-bool RTLIL::SigSpec::has_const(State state) const
+bool RTLIL::SigSpec::has_const(State state) स्थिर
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire == NULL && std::find(chunk.data.begin(), chunk.data.end(), state) != chunk.data.end())
-			return true;
-	return false;
+	क्रम (स्वतः &chunk : chunks())
+		अगर (chunk.width > 0 && chunk.wire == शून्य && std::find(chunk.तथ्य.begin(), chunk.तथ्य.end(), state) != chunk.तथ्य.end())
+			वापस true;
+	वापस false;
 }
 
 
-bool RTLIL::SigSpec::has_marked_bits() const
+bool RTLIL::SigSpec::has_marked_bits() स्थिर
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire == NULL) {
-			for (RTLIL::State d : chunk.data)
-				if (d == RTLIL::State::Sm)
-					return true;
+	क्रम (स्वतः &chunk : chunks())
+		अगर (chunk.width > 0 && chunk.wire == शून्य) {
+			क्रम (RTLIL::State d : chunk.तथ्य)
+				अगर (d == RTLIL::State::Sm)
+					वापस true;
 		}
-	return false;
+	वापस false;
 }
 
-bool RTLIL::SigSpec::is_onehot(int *pos) const
+bool RTLIL::SigSpec::is_onehot(पूर्णांक *pos) स्थिर
 {
-	if (std::optional<RTLIL::Const> c = try_as_const())
-		return c->is_onehot(pos);
-	return false;
+	अगर (std::optional<RTLIL::Const> c = try_as_const())
+		वापस c->is_onehot(pos);
+	वापस false;
 }
 
-bool RTLIL::SigSpec::as_bool() const
-{
-	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return c->as_bool();
-}
-
-int RTLIL::SigSpec::as_int(bool is_signed) const
+bool RTLIL::SigSpec::as_bool() स्थिर
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return c->as_int(is_signed);
+	log_assert(c.has_मूल्य());
+	वापस c->as_bool();
 }
 
-bool RTLIL::SigSpec::convertible_to_int(bool is_signed) const
+पूर्णांक RTLIL::SigSpec::as_int(bool is_signed) स्थिर
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	if (!c.has_value())
-		return false;
-	return c->convertible_to_int(is_signed);
+	log_assert(c.has_मूल्य());
+	वापस c->as_int(is_signed);
 }
 
-std::optional<int> RTLIL::SigSpec::try_as_int(bool is_signed) const
+bool RTLIL::SigSpec::convertible_to_int(bool is_signed) स्थिर
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	if (!c.has_value())
-		return std::nullopt;
-	return c->try_as_int(is_signed);
+	अगर (!c.has_मूल्य())
+		वापस false;
+	वापस c->convertible_to_int(is_signed);
 }
 
-int RTLIL::SigSpec::as_int_saturating(bool is_signed) const
+std::optional<पूर्णांक> RTLIL::SigSpec::try_as_int(bool is_signed) स्थिर
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return c->as_int_saturating(is_signed);
+	अगर (!c.has_मूल्य())
+		वापस std::nullopt;
+	वापस c->try_as_int(is_signed);
 }
 
-std::string RTLIL::SigSpec::as_string() const
+पूर्णांक RTLIL::SigSpec::as_int_saturating(bool is_signed) स्थिर
+{
+	std::optional<RTLIL::Const> c = try_as_const();
+	log_assert(c.has_मूल्य());
+	वापस c->as_int_saturating(is_signed);
+}
+
+std::string RTLIL::SigSpec::as_string() स्थिर
 {
 	std::string str;
-	str.reserve(size());
-	std::vector<RTLIL::SigChunk> chunks = *this;
-	for (size_t i = chunks.size(); i > 0; i--) {
-		const RTLIL::SigChunk &chunk = chunks[i-1];
-		if (chunk.wire != NULL)
+	str.reserve(आकार());
+	std::vector<RTLIL::SigChunk> chunks = *यह;
+	क्रम (माप_प्रकार i = chunks.आकार(); i > 0; i--) {
+		स्थिर RTLIL::SigChunk &chunk = chunks[i-1];
+		अगर (chunk.wire != शून्य)
 			str.append(chunk.width, '?');
-		else
-			str += RTLIL::Const(chunk.data).as_string();
+		अन्यथा
+			str += RTLIL::Const(chunk.तथ्य).as_string();
 	}
-	return str;
+	वापस str;
 }
 
-std::optional<RTLIL::Const> RTLIL::SigSpec::try_as_const() const
+std::optional<RTLIL::Const> RTLIL::SigSpec::try_as_const() स्थिर
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
-	if (it == cs.end())
-		return RTLIL::Const();
+	स्वतः it = cs.begin();
+	अगर (it == cs.end())
+		वापस RTLIL::Const();
 	SigChunk chunk = *it;
-	if (chunk.wire != NULL || ++it != cs.end())
-		return std::nullopt;
-	return RTLIL::Const(std::move(chunk.data));
+	अगर (chunk.wire != शून्य || ++it != cs.end())
+		वापस std::nullopt;
+	वापस RTLIL::Const(std::move(chunk.तथ्य));
 }
 
-RTLIL::Const RTLIL::SigSpec::as_const() const
+RTLIL::Const RTLIL::SigSpec::as_const() स्थिर
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return *c;
+	log_assert(c.has_मूल्य());
+	वापस *c;
 }
 
-RTLIL::Wire *RTLIL::SigSpec::as_wire() const
+RTLIL::Wire *RTLIL::SigSpec::as_wire() स्थिर
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
+	स्वतः it = cs.begin();
 	log_assert(it != cs.end());
 	RTLIL::SigChunk chunk = *it;
-	log_assert(++it == cs.end() && chunk.wire && chunk.wire->width == size());
-	return chunk.wire;
+	log_assert(++it == cs.end() && chunk.wire && chunk.wire->width == आकार());
+	वापस chunk.wire;
 }
 
-RTLIL::SigChunk RTLIL::SigSpec::as_chunk() const
+RTLIL::SigChunk RTLIL::SigSpec::as_chunk() स्थिर
 {
 	Chunks cs = chunks();
-	auto it = cs.begin();
+	स्वतः it = cs.begin();
 	log_assert(it != cs.end());
 	RTLIL::SigChunk chunk = *it;
 	log_assert(++it == cs.end());
-	return chunk;
+	वापस chunk;
 }
 
-RTLIL::SigBit RTLIL::SigSpec::as_bit() const
+RTLIL::SigBit RTLIL::SigSpec::as_bit() स्थिर
 {
-	return RTLIL::SigBit(*this);
+	वापस RTLIL::SigBit(*यह);
 }
 
-bool RTLIL::SigSpec::match(const char* pattern) const
+bool RTLIL::SigSpec::match(स्थिर अक्षर* pattern) स्थिर
 {
-	int pattern_len = strlen(pattern);
-	log_assert(pattern_len == size());
+	पूर्णांक pattern_len = म_माप(pattern);
+	log_assert(pattern_len == आकार());
 
-	for (int i = 0; i < pattern_len; ++i) {
-		char ch = pattern[i];
-		if (ch == ' ')
-			continue;
-		RTLIL::SigBit bit = (*this)[pattern_len - 1 - i];
-		if (ch == '*') {
-			if (bit != State::Sz && bit != State::Sx)
-				return false;
-			continue;
+	क्रम (पूर्णांक i = 0; i < pattern_len; ++i) {
+		अक्षर ch = pattern[i];
+		अगर (ch == ' ')
+			जारी;
+		RTLIL::SigBit bit = (*यह)[pattern_len - 1 - i];
+		अगर (ch == '*') {
+			अगर (bit != State::Sz && bit != State::Sx)
+				वापस false;
+			जारी;
 		}
-		if (ch == '0') {
-			if (bit != State::S0)
-				return false;
-		} else
-		if (ch == '1') {
-			if (bit != State::S1)
-				return false;
-		} else
+		अगर (ch == '0') {
+			अगर (bit != State::S0)
+				वापस false;
+		} अन्यथा
+		अगर (ch == '1') {
+			अगर (bit != State::S1)
+				वापस false;
+		} अन्यथा
 			log_abort();
 	}
 
-	return true;
+	वापस true;
 }
 
-std::set<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_set() const
+std::set<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_set() स्थिर
 {
 	std::set<RTLIL::SigBit> sigbits;
-	for (auto &c : chunks())
-		for (int i = 0; i < c.width; i++)
-			sigbits.insert(RTLIL::SigBit(c, i));
-	return sigbits;
+	क्रम (स्वतः &c : chunks())
+		क्रम (पूर्णांक i = 0; i < c.width; i++)
+			sigbits.जोड़ो(RTLIL::SigBit(c, i));
+	वापस sigbits;
 }
 
-pool<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_pool() const
+pool<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_pool() स्थिर
 {
 	pool<RTLIL::SigBit> sigbits;
-	sigbits.reserve(size());
-	for (auto &c : chunks())
-		for (int i = 0; i < c.width; i++)
-			sigbits.insert(RTLIL::SigBit(c, i));
-	return sigbits;
+	sigbits.reserve(आकार());
+	क्रम (स्वतः &c : chunks())
+		क्रम (पूर्णांक i = 0; i < c.width; i++)
+			sigbits.जोड़ो(RTLIL::SigBit(c, i));
+	वापस sigbits;
 }
 
-std::vector<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_vector() const
+std::vector<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_vector() स्थिर
 {
-	std::vector<RTLIL::SigBit> result;
-	result.reserve(size());
-	for (SigBit bit : *this)
-		result.push_back(bit);
-	return result;
+	std::vector<RTLIL::SigBit> परिणाम;
+	परिणाम.reserve(आकार());
+	क्रम (SigBit bit : *यह)
+		परिणाम.धकेलो_back(bit);
+	वापस परिणाम;
 }
 
-std::map<RTLIL::SigBit, RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_map(const RTLIL::SigSpec &other) const
+std::map<RTLIL::SigBit, RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_map(स्थिर RTLIL::SigSpec &other) स्थिर
 {
-	int this_size = size();
-	log_assert(this_size == other.size());
+	पूर्णांक this_आकार = आकार();
+	log_assert(this_आकार == other.आकार());
 
 	std::map<RTLIL::SigBit, RTLIL::SigBit> new_map;
-	for (int i = 0; i < this_size; i++)
-		new_map[(*this)[i]] = other[i];
+	क्रम (पूर्णांक i = 0; i < this_आकार; i++)
+		new_map[(*यह)[i]] = other[i];
 
-	return new_map;
+	वापस new_map;
 }
 
-dict<RTLIL::SigBit, RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_dict(const RTLIL::SigSpec &other) const
+dict<RTLIL::SigBit, RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_dict(स्थिर RTLIL::SigSpec &other) स्थिर
 {
-	int this_size = size();
-	log_assert(this_size == other.size());
+	पूर्णांक this_आकार = आकार();
+	log_assert(this_आकार == other.आकार());
 
 	dict<RTLIL::SigBit, RTLIL::SigBit> new_map;
-	new_map.reserve(this_size);
-	for (int i = 0; i < this_size; i++)
-		new_map[(*this)[i]] = other[i];
+	new_map.reserve(this_आकार);
+	क्रम (पूर्णांक i = 0; i < this_आकार; i++)
+		new_map[(*यह)[i]] = other[i];
 
-	return new_map;
+	वापस new_map;
 }
 
-static void sigspec_parse_split(std::vector<std::string> &tokens, const std::string &text, char sep)
+अटल व्योम sigspec_parse_split(std::vector<std::string> &tokens, स्थिर std::string &text, अक्षर sep)
 {
-	size_t start = 0, end = 0;
-	while ((end = text.find(sep, start)) != std::string::npos) {
-		tokens.push_back(text.substr(start, end - start));
+	माप_प्रकार start = 0, end = 0;
+	जबतक ((end = text.find(sep, start)) != std::string::npos) {
+		tokens.धकेलो_back(text.substr(start, end - start));
 		start = end + 1;
 	}
-	tokens.push_back(text.substr(start));
+	tokens.धकेलो_back(text.substr(start));
 }
 
-static RTLIL::Wire *sigspec_parse_wire(RTLIL::Module *module, const std::string &netname)
+अटल RTLIL::Wire *sigspec_parse_wire(RTLIL::Module *module, स्थिर std::string &netname)
 {
-	return module->wire(netname);
+	वापस module->wire(netname);
 }
 
 bool RTLIL::SigSpec::parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
@@ -5737,40 +5737,40 @@ bool RTLIL::SigSpec::parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::stri
 	sigspec_parse_split(tokens, str, ',');
 
 	sig = RTLIL::SigSpec();
-	for (int tokidx = int(tokens.size())-1; tokidx >= 0; tokidx--)
+	क्रम (पूर्णांक tokidx = पूर्णांक(tokens.आकार())-1; tokidx >= 0; tokidx--)
 	{
 		std::string netname = tokens[tokidx];
 		std::string indices;
 
-		if (netname.size() == 0)
-			continue;
+		अगर (netname.आकार() == 0)
+			जारी;
 
-		if (('0' <= netname[0] && netname[0] <= '9') || netname[0] == '\'') {
+		अगर (('0' <= netname[0] && netname[0] <= '9') || netname[0] == '\'') {
 			VERILOG_FRONTEND::ConstParser p{Location()};
-			auto ast = p.const2ast(netname);
-			if (ast == nullptr)
-				return false;
+			स्वतः ast = p.const2ast(netname);
+			अगर (ast == nullptr)
+				वापस false;
 			sig.append(RTLIL::Const(ast->bits));
-			continue;
+			जारी;
 		}
 
-		if (module == NULL)
-			return false;
+		अगर (module == शून्य)
+			वापस false;
 
-		if (netname[0] != '$' && netname[0] != '\\')
+		अगर (netname[0] != '$' && netname[0] != '\\')
 			netname = "\\" + netname;
 
-		if (sigspec_parse_wire(module, netname) == nullptr) {
-			size_t indices_pos = netname.size()-1;
-			if (indices_pos > 2 && netname[indices_pos] == ']')
+		अगर (sigspec_parse_wire(module, netname) == nullptr) {
+			माप_प्रकार indices_pos = netname.आकार()-1;
+			अगर (indices_pos > 2 && netname[indices_pos] == ']')
 			{
 				indices_pos--;
-				while (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
-				if (indices_pos > 0 && netname[indices_pos] == ':') {
+				जबतक (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
+				अगर (indices_pos > 0 && netname[indices_pos] == ':') {
 					indices_pos--;
-					while (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
+					जबतक (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
 				}
-				if (indices_pos > 0 && netname[indices_pos] == '[') {
+				अगर (indices_pos > 0 && netname[indices_pos] == '[') {
 					indices = netname.substr(indices_pos);
 					netname = netname.substr(0, indices_pos);
 				}
@@ -5778,180 +5778,180 @@ bool RTLIL::SigSpec::parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::stri
 		}
 
 		RTLIL::Wire *wire = sigspec_parse_wire(module, netname);
-		if (wire == nullptr)
-			return false;
+		अगर (wire == nullptr)
+			वापस false;
 
-		if (!indices.empty()) {
-			std::vector<std::string> index_tokens;
-			sigspec_parse_split(index_tokens, indices.substr(1, indices.size()-2), ':');
-			if (index_tokens.size() == 1) {
-				int a = atoi(index_tokens.at(0).c_str());
-				if (a < 0 || a >= wire->width)
-					return false;
+		अगर (!indices.empty()) {
+			std::vector<std::string> सूचकांक_tokens;
+			sigspec_parse_split(सूचकांक_tokens, indices.substr(1, indices.आकार()-2), ':');
+			अगर (सूचकांक_tokens.आकार() == 1) {
+				पूर्णांक a = म_से_प(सूचकांक_tokens.at(0).c_str());
+				अगर (a < 0 || a >= wire->width)
+					वापस false;
 				sig.append(RTLIL::SigSpec(wire, a));
-			} else {
-				int a = atoi(index_tokens.at(0).c_str());
-				int b = atoi(index_tokens.at(1).c_str());
-				if (a > b) {
-					int tmp = a;
+			} अन्यथा {
+				पूर्णांक a = म_से_प(सूचकांक_tokens.at(0).c_str());
+				पूर्णांक b = म_से_प(सूचकांक_tokens.at(1).c_str());
+				अगर (a > b) {
+					पूर्णांक tmp = a;
 					a = b, b = tmp;
 				}
-				if (a < 0 || a >= wire->width)
-					return false;
-				if (b < 0 || b >= wire->width)
-					return false;
+				अगर (a < 0 || a >= wire->width)
+					वापस false;
+				अगर (b < 0 || b >= wire->width)
+					वापस false;
 				sig.append(RTLIL::SigSpec(wire, a, b-a+1));
 			}
-		} else
+		} अन्यथा
 			sig.append(wire);
 	}
 
-	return true;
+	वापस true;
 }
 
 bool RTLIL::SigSpec::parse_sel(RTLIL::SigSpec &sig, RTLIL::Design *design, RTLIL::Module *module, std::string str)
 {
-	if (str.empty() || str[0] != '@')
-		return parse(sig, module, str);
+	अगर (str.empty() || str[0] != '@')
+		वापस parse(sig, module, str);
 
 	IdString sel_name = design->twines().find(RTLIL::escape_id(str.substr(1)));
-	if (sel_name == IdString::Null || design->selection_vars.count(sel_name) == 0)
-		return false;
+	अगर (sel_name == IdString::Null || design->selection_vars.गिनती(sel_name) == 0)
+		वापस false;
 
 	sig = RTLIL::SigSpec();
 	RTLIL::Selection &sel = design->selection_vars.at(sel_name);
-	for (auto &it : module->wires_)
-		if (sel.selected_member(module->name, it.second->name))
+	क्रम (स्वतः &it : module->wires_)
+		अगर (sel.selected_member(module->name, it.second->name))
 			sig.append(it.second);
 
-	return true;
+	वापस true;
 }
 
-bool RTLIL::SigSpec::parse_rhs(const RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
+bool RTLIL::SigSpec::parse_rhs(स्थिर RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
 {
-	if (str == "0") {
-		sig = RTLIL::SigSpec(RTLIL::State::S0, lhs.size());
-		return true;
+	अगर (str == "0") {
+		sig = RTLIL::SigSpec(RTLIL::State::S0, lhs.आकार());
+		वापस true;
 	}
 
-	if (str == "~0") {
-		sig = RTLIL::SigSpec(RTLIL::State::S1, lhs.size());
-		return true;
+	अगर (str == "~0") {
+		sig = RTLIL::SigSpec(RTLIL::State::S1, lhs.आकार());
+		वापस true;
 	}
 
-	if (lhs.is_chunk()) {
-		char *p = (char*)str.c_str(), *endptr;
-		long int val = strtol(p, &endptr, 10);
-		if (endptr && endptr != p && *endptr == 0) {
-			sig = RTLIL::SigSpec(val, lhs.size());
-			return true;
+	अगर (lhs.is_chunk()) {
+		अक्षर *p = (अक्षर*)str.c_str(), *endptr;
+		दीर्घ पूर्णांक val = म_से_दीर्घ(p, &endptr, 10);
+		अगर (endptr && endptr != p && *endptr == 0) {
+			sig = RTLIL::SigSpec(val, lhs.आकार());
+			वापस true;
 		}
 	}
 
-	if (!parse(sig, module, str))
-		return false;
-	if (sig.size() > lhs.size())
-		sig.remove(lhs.size(), sig.size() - lhs.size());
-	return true;
+	अगर (!parse(sig, module, str))
+		वापस false;
+	अगर (sig.आकार() > lhs.आकार())
+		sig.हटाओ(lhs.आकार(), sig.आकार() - lhs.आकार());
+	वापस true;
 }
 
-RTLIL::SigSpec::operator std::vector<RTLIL::SigChunk>() const
+RTLIL::SigSpec::चालक std::vector<RTLIL::SigChunk>() स्थिर
 {
-	std::vector<RTLIL::SigChunk> result;
-	for (const RTLIL::SigChunk &c : chunks())
-		result.push_back(c);
-	return result;
+	std::vector<RTLIL::SigChunk> परिणाम;
+	क्रम (स्थिर RTLIL::SigChunk &c : chunks())
+		परिणाम.धकेलो_back(c);
+	वापस परिणाम;
 }
 
 RTLIL::CaseRule::~CaseRule()
 {
-	for (auto it = switches.begin(); it != switches.end(); it++)
-		delete *it;
+	क्रम (स्वतः it = switches.begin(); it != switches.end(); it++)
+		मिटाओ *it;
 }
 
-bool RTLIL::CaseRule::empty() const
+bool RTLIL::CaseRule::empty() स्थिर
 {
-	return actions.empty() && switches.empty();
+	वापस actions.empty() && switches.empty();
 }
 
-RTLIL::CaseRule *RTLIL::CaseRule::clone() const
+RTLIL::CaseRule *RTLIL::CaseRule::clone() स्थिर
 {
-	RTLIL::CaseRule *new_caserule = new RTLIL::CaseRule;
+	RTLIL::CaseRule *new_caserule = नया RTLIL::CaseRule;
 	new_caserule->compare = compare;
 	new_caserule->actions = actions;
 	new_caserule->attributes = attributes;
-	for (auto &it : switches)
-		new_caserule->switches.push_back(it->clone());
-	return new_caserule;
+	क्रम (स्वतः &it : switches)
+		new_caserule->switches.धकेलो_back(it->clone());
+	वापस new_caserule;
 }
 
 RTLIL::SwitchRule::~SwitchRule()
 {
-	for (auto it = cases.begin(); it != cases.end(); it++)
-		delete *it;
+	क्रम (स्वतः it = cases.begin(); it != cases.end(); it++)
+		मिटाओ *it;
 }
 
-bool RTLIL::SwitchRule::empty() const
+bool RTLIL::SwitchRule::empty() स्थिर
 {
-	return cases.empty();
+	वापस cases.empty();
 }
 
-RTLIL::SwitchRule *RTLIL::SwitchRule::clone() const
+RTLIL::SwitchRule *RTLIL::SwitchRule::clone() स्थिर
 {
-	RTLIL::SwitchRule *new_switchrule = new RTLIL::SwitchRule;
-	new_switchrule->signal = signal;
+	RTLIL::SwitchRule *new_switchrule = नया RTLIL::SwitchRule;
+	new_switchrule->संकेत = संकेत;
 	new_switchrule->attributes = attributes;
-	for (auto &it : cases)
-		new_switchrule->cases.push_back(it->clone());
-	return new_switchrule;
+	क्रम (स्वतः &it : cases)
+		new_switchrule->cases.धकेलो_back(it->clone());
+	वापस new_switchrule;
 
 }
 
-RTLIL::SyncRule *RTLIL::SyncRule::clone() const
+RTLIL::SyncRule *RTLIL::SyncRule::clone() स्थिर
 {
-	RTLIL::SyncRule *new_syncrule = new RTLIL::SyncRule;
+	RTLIL::SyncRule *new_syncrule = नया RTLIL::SyncRule;
 	new_syncrule->type = type;
-	new_syncrule->signal = signal;
+	new_syncrule->संकेत = संकेत;
 	new_syncrule->actions = actions;
 	new_syncrule->mem_write_actions = mem_write_actions;
-	return new_syncrule;
+	वापस new_syncrule;
 }
 
 RTLIL::Process::~Process()
 {
-	for (auto it = syncs.begin(); it != syncs.end(); it++)
-		delete *it;
+	क्रम (स्वतः it = syncs.begin(); it != syncs.end(); it++)
+		मिटाओ *it;
 }
 
-RTLIL::Process *RTLIL::Process::clone() const
+RTLIL::Process *RTLIL::Process::clone() स्थिर
 {
-	RTLIL::Process *new_proc = new RTLIL::Process;
+	RTLIL::Process *new_proc = नया RTLIL::Process;
 
 	new_proc->attributes = attributes;
 
-	RTLIL::CaseRule *rc_ptr = root_case.clone();
-	new_proc->root_case = *rc_ptr;
-	rc_ptr->switches.clear();
-	delete rc_ptr;
+	RTLIL::CaseRule *rc_ptr = मूल_case.clone();
+	new_proc->मूल_case = *rc_ptr;
+	rc_ptr->switches.सफा();
+	मिटाओ rc_ptr;
 
-	for (auto &it : syncs)
-		new_proc->syncs.push_back(it->clone());
+	क्रम (स्वतः &it : syncs)
+		new_proc->syncs.धकेलो_back(it->clone());
 
-	return new_proc;
+	वापस new_proc;
 }
 
 RTLIL::Memory::~Memory()
 {
-#ifdef YOSYS_ENABLE_PYTHON
+#अगर_घोषित YOSYS_ENABLE_PYTHON
 	RTLIL::Memory::get_all_memorys()->erase(hashidx_);
-#endif
+#पूर्ण_अगर
 }
 
-#ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Memory*> all_memorys;
-std::map<unsigned int, RTLIL::Memory*> *RTLIL::Memory::get_all_memorys(void)
+#अगर_घोषित YOSYS_ENABLE_PYTHON
+अटल std::map<अचिन्हित पूर्णांक, RTLIL::Memory*> all_memorys;
+std::map<अचिन्हित पूर्णांक, RTLIL::Memory*> *RTLIL::Memory::get_all_memorys(व्योम)
 {
-	return &all_memorys;
+	वापस &all_memorys;
 }
-#endif
+#पूर्ण_अगर
 YOSYS_NAMESPACE_END

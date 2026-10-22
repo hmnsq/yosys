@@ -17,12 +17,12 @@
  *
  */
 
-#ifndef JSON_H
-#define JSON_H
+#अगर_अघोषित JSON_H
+#घोषणा JSON_H
 
-#include "kernel/yosys.h"
-#include "libs/json11/json11.hpp"
-#include <functional>
+#समावेश "kernel/yosys.h"
+#समावेश "libs/json11/json11.hpp"
+#समावेश <functional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -30,69 +30,69 @@ using json11::Json;
 
 class PrettyJson
 {
-    enum Scope {
-        VALUE,
+    क्रमागत Scope {
+        मूल्य_2,
         OBJECT_FIRST,
         OBJECT,
         ARRAY_FIRST,
         ARRAY,
     };
 
-    struct Target {
-        virtual void emit(const char *data) = 0;
-        virtual void flush() {};
-        virtual ~Target() {};
+    काष्ठा Target {
+        भव व्योम emit(स्थिर अक्षर *तथ्य) = 0;
+        भव व्योम flush() {};
+        भव ~Target() {};
     };
 
     std::string newline_indent = "\n";
     std::vector<std::unique_ptr<Target>> targets;
-    std::vector<Scope> state = {VALUE};
-    int compact_depth = INT_MAX;
-public:
+    std::vector<Scope> state = {मूल्य_2};
+    पूर्णांक compact_depth = पूर्णांक_उच्च;
+खुला:
 
-    void emit_to_log();
-    void append_to_string(std::string &target);
-    bool write_to_file(const std::string &path);
+    व्योम emit_to_log();
+    व्योम append_to_string(std::string &target);
+    bool write_to_file(स्थिर std::string &path);
 
-    bool active() { return !targets.empty(); }
+    bool active() { वापस !targets.empty(); }
 
-    void compact() { compact_depth = GetSize(state); }
+    व्योम compact() { compact_depth = Get_आकार(state); }
 
-    void line(bool space_if_inline = true);
-    void raw(const char *raw_json);
-    void flush();
-    void begin_object();
-    void begin_array();
-    void end_object();
-    void end_array();
-    void name(const char *name);
-    void begin_value();
-    void end_value();
-    void value_json(const Json &value);
-    void value(unsigned int value) { value_json(Json((int)value)); }
-    template<typename T>
-    void value(T &&value) { value_json(Json(std::forward<T>(value))); };
+    व्योम पंक्ति(bool space_if_inline = true);
+    व्योम raw(स्थिर अक्षर *raw_json);
+    व्योम flush();
+    व्योम begin_object();
+    व्योम begin_array();
+    व्योम end_object();
+    व्योम end_array();
+    व्योम name(स्थिर अक्षर *name);
+    व्योम begin_मूल्य();
+    व्योम end_मूल्य();
+    व्योम मूल्य_json(स्थिर Json &मूल्य);
+    व्योम मूल्य(अचिन्हित पूर्णांक मूल्य) { मूल्य_json(Json((पूर्णांक)मूल्य)); }
+    ढाँचा<typename T>
+    व्योम मूल्य(T &&मूल्य) { मूल्य_json(Json(std::forward<T>(मूल्य))); };
 
-    void entry_json(const char *name, const Json &value);
-    void entry(const char *name, unsigned int value) { entry_json(name, Json((int)value)); }
-    template<typename T>
-    void entry(const char *name, T &&value) { entry_json(name, Json(std::forward<T>(value))); };
+    व्योम entry_json(स्थिर अक्षर *name, स्थिर Json &मूल्य);
+    व्योम entry(स्थिर अक्षर *name, अचिन्हित पूर्णांक मूल्य) { entry_json(name, Json((पूर्णांक)मूल्य)); }
+    ढाँचा<typename T>
+    व्योम entry(स्थिर अक्षर *name, T &&मूल्य) { entry_json(name, Json(std::forward<T>(मूल्य))); };
 
-    template<typename T>
-    void object(const T &&values)
+    ढाँचा<typename T>
+    व्योम object(स्थिर T &&मूल्यावली)
     {
         begin_object();
-        for (auto &item : values)
+        क्रम (स्वतः &item : मूल्यावली)
             entry(item.first, item.second);
         end_object();
     }
 
-    template<typename T>
-    void array(const T &&values)
+    ढाँचा<typename T>
+    व्योम array(स्थिर T &&मूल्यावली)
     {
         begin_array();
-        for (auto &item : values)
-            value(item);
+        क्रम (स्वतः &item : मूल्यावली)
+            मूल्य(item);
         end_array();
     }
 };
@@ -101,4 +101,4 @@ public:
 
 YOSYS_NAMESPACE_END
 
-#endif
+#पूर्ण_अगर

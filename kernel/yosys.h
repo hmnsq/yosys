@@ -34,72 +34,72 @@
 // belong nowhere else and includes the interesting headers.
 
 
-#ifndef YOSYS_H
-#define YOSYS_H
+#अगर_अघोषित YOSYS_H
+#घोषणा YOSYS_H
 
-#include "kernel/yosys_common.h"
+#समावेश "kernel/yosys_common.h"
 
-#include "kernel/log.h"
-#include "kernel/rtlil.h"
-#include "kernel/register.h"
+#समावेश "kernel/log.h"
+#समावेश "kernel/rtlil.h"
+#समावेश "kernel/register.h"
 
-#ifdef YOSYS_ENABLE_TCL
-struct Tcl_Interp;
-#endif
+#अगर_घोषित YOSYS_ENABLE_TCL
+काष्ठा Tcl_Interp;
+#पूर्ण_अगर
 
 YOSYS_NAMESPACE_BEGIN
 
-void yosys_setup();
+व्योम yosys_setup();
 
-#ifdef YOSYS_ENABLE_PYTHON
+#अगर_घोषित YOSYS_ENABLE_PYTHON
 bool yosys_already_setup();
-#endif
+#पूर्ण_अगर
 
-void yosys_shutdown();
+व्योम yosys_shutdown();
 
-#ifdef YOSYS_ENABLE_TCL
+#अगर_घोषित YOSYS_ENABLE_TCL
 Tcl_Interp *yosys_get_tcl_interp();
-#endif
+#पूर्ण_अगर
 
-extern RTLIL::Design *yosys_design;
+बाह्य RTLIL::Design *yosys_design;
 
 RTLIL::Design *yosys_get_design();
 std::string proc_self_dirname();
 std::string proc_share_dirname();
 std::string proc_program_prefix();
-const char *create_prompt(RTLIL::Design *design, int recursion_counter, bool newline = true);
-std::vector<std::string> glob_filename(const std::string &filename_pattern);
-void rewrite_filename(std::string &filename);
+स्थिर अक्षर *create_prompt(RTLIL::Design *design, पूर्णांक recursion_गणक, bool newline = true);
+std::vector<std::string> glob_filename(स्थिर std::string &filename_pattern);
+व्योम rewrite_filename(std::string &filename);
 
-void run_pass(std::string command, RTLIL::Design *design = nullptr);
+व्योम run_pass(std::string command, RTLIL::Design *design = nullptr);
 bool run_frontend(std::string filename, std::string command, RTLIL::Design *design = nullptr, std::string *from_to_label = nullptr);
-void run_backend(std::string filename, std::string command, RTLIL::Design *design = nullptr);
-void shell(RTLIL::Design *design);
+व्योम run_backend(std::string filename, std::string command, RTLIL::Design *design = nullptr);
+व्योम shell(RTLIL::Design *design);
 
 // journal of all input and output files read (for "yosys -E")
-extern std::set<std::string> yosys_input_files, yosys_output_files;
+बाह्य std::set<std::string> yosys_निवेश_files, yosys_output_files;
 
 // from kernel/version_*.o (cc source generated from Makefile)
-extern const char *yosys_version_str;
-extern const char *yosys_git_hash_str;
-extern const char *yosys_build_datetime_str;
-const char* yosys_maybe_version();
+बाह्य स्थिर अक्षर *yosys_version_str;
+बाह्य स्थिर अक्षर *yosys_git_hash_str;
+बाह्य स्थिर अक्षर *yosys_build_datetime_str;
+स्थिर अक्षर* yosys_maybe_version();
 
 // from passes/cmds/design.cc
-extern std::map<std::string, RTLIL::Design*> saved_designs;
-extern std::vector<RTLIL::Design*> pushed_designs;
+बाह्य std::map<std::string, RTLIL::Design*> saved_designs;
+बाह्य std::vector<RTLIL::Design*> pushed_designs;
 
 // from passes/cmds/pluginc.cc
-extern std::map<std::string, void*> loaded_plugins;
-#ifdef YOSYS_ENABLE_PYTHON
-extern std::map<std::string, void*> loaded_python_plugins;
-#endif
-extern std::map<std::string, std::string> loaded_plugin_aliases;
-void load_plugin(std::string filename, std::vector<std::string> aliases);
+बाह्य std::map<std::string, व्योम*> loaded_plugins;
+#अगर_घोषित YOSYS_ENABLE_PYTHON
+बाह्य std::map<std::string, व्योम*> loaded_python_plugins;
+#पूर्ण_अगर
+बाह्य std::map<std::string, std::string> loaded_plugin_aliases;
+व्योम load_plugin(std::string filename, std::vector<std::string> aliases);
 
-extern std::string yosys_share_dirname;
-extern std::string yosys_abc_executable;
+बाह्य std::string yosys_share_dirname;
+बाह्य std::string yosys_abc_executable;
 
 YOSYS_NAMESPACE_END
 
-#endif
+#पूर्ण_अगर

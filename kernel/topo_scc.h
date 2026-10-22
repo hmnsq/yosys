@@ -17,261 +17,261 @@
  *
  */
 
-#ifndef TOPO_SCC_H
-#define TOPO_SCC_H
+#अगर_अघोषित TOPO_SCC_H
+#घोषणा TOPO_SCC_H
 
-#include "kernel/yosys.h"
+#समावेश "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 class SigCellGraph {
-public:
-    typedef int node_type;
+खुला:
+    प्रकार पूर्णांक गाँठ_type;
 
-    struct successor_enumerator {
-        std::vector<std::pair<int, int>>::const_iterator current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
+    काष्ठा successor_enumerator {
+        std::vector<std::pair<पूर्णांक, पूर्णांक>>::const_iterator current, end;
+        bool finished() स्थिर { वापस current == end; }
+        गाँठ_type अग्र() {
             log_assert(!finished());
-            node_type result = current->second;
+            गाँठ_type परिणाम = current->second;
             ++current;
-            return result;
+            वापस परिणाम;
         }
     };
 
-    struct node_enumerator {
-        int current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
+    काष्ठा गाँठ_enumerator {
+        पूर्णांक current, end;
+        bool finished() स्थिर { वापस current == end; }
+        गाँठ_type अग्र() {
             log_assert(!finished());
-            node_type result = current;
+            गाँठ_type परिणाम = current;
             ++current;
-            return result;
+            वापस परिणाम;
         }
     };
 
-private:
+निजी:
     idict<RTLIL::Cell *> cell_ids;
     idict<RTLIL::SigBit> sig_ids;
-    std::vector<std::pair<int, int>> edges;
-    std::vector<std::pair<int, int>> edge_ranges;
-    std::vector<int> indices_;
-    int offset;
+    std::vector<std::pair<पूर्णांक, पूर्णांक>> edges;
+    std::vector<std::pair<पूर्णांक, पूर्णांक>> edge_ranges;
+    std::vector<पूर्णांक> indices_;
+    पूर्णांक offset;
     bool computed = false;
 
-    void compute() {
-        offset = GetSize(sig_ids);
+    व्योम compute() {
+        offset = Get_आकार(sig_ids);
         edge_ranges.clear();
         indices_.clear();
-        indices_.resize(GetSize(sig_ids) + GetSize(cell_ids), -1);
+        indices_.resize(Get_आकार(sig_ids) + Get_आकार(cell_ids), -1);
 
         std::sort(edges.begin(), edges.end());
-        auto last = std::unique(edges.begin(), edges.end());
+        स्वतः last = std::unique(edges.begin(), edges.end());
         edges.erase(last, edges.end());
-        auto edge = edges.begin();
-        auto edge_end = edges.end();
-        int range_begin = 0;
-        for (int node = -offset, node_end = GetSize(cell_ids); node != node_end; ++node) {
-            while (edge != edge_end && edge->first <= node)
+        स्वतः edge = edges.begin();
+        स्वतः edge_end = edges.end();
+        पूर्णांक range_begin = 0;
+        क्रम (पूर्णांक गाँठ = -offset, गाँठ_end = Get_आकार(cell_ids); गाँठ != गाँठ_end; ++गाँठ) {
+            जबतक (edge != edge_end && edge->first <= गाँठ)
                 ++edge;
-            int range_end = edge - edges.begin();
+            पूर्णांक range_end = edge - edges.begin();
             edge_ranges.emplace_back(std::make_pair(range_begin, range_end));
             range_begin = range_end;
         }
     }
 
-public:
-    node_type node(RTLIL::Cell *cell) { return cell_ids(cell); }
-    node_type node(SigBit const &bit) { return ~sig_ids(bit); }
+खुला:
+    गाँठ_type गाँठ(RTLIL::Cell *cell) { वापस cell_ids(cell); }
+    गाँठ_type गाँठ(SigBit स्थिर &bit) { वापस ~sig_ids(bit); }
 
-    bool is_cell(node_type node) { return node >= 0; }
-    bool is_sig(node_type node) { return node < 0; }
+    bool is_cell(गाँठ_type गाँठ) { वापस गाँठ >= 0; }
+    bool is_sig(गाँठ_type गाँठ) { वापस गाँठ < 0; }
 
-    Cell *cell(node_type node) { return node >= 0 ? cell_ids[node] : nullptr; }
-    SigBit sig(node_type node) { return node < 0 ? sig_ids[~node] : SigBit(); }
+    Cell *cell(गाँठ_type गाँठ) { वापस गाँठ >= 0 ? cell_ids[गाँठ] : nullptr; }
+    SigBit sig(गाँठ_type गाँठ) { वापस गाँठ < 0 ? sig_ids[~गाँठ] : SigBit(); }
 
-    template<typename Src, typename Dst>
-    void add_edge(Src &&src, Dst &&dst) {
+    ढाँचा<typename Src, typename Dst>
+    व्योम add_edge(Src &&src, Dst &&dst) {
         computed = false;
-        node_type src_node = node(std::forward<Src>(src));
-        node_type dst_node = node(std::forward<Dst>(dst));
-        edges.emplace_back(std::make_pair(src_node, dst_node));
+        गाँठ_type src_गाँठ = गाँठ(std::forward<Src>(src));
+        गाँठ_type dst_गाँठ = गाँठ(std::forward<Dst>(dst));
+        edges.emplace_back(std::make_pair(src_गाँठ, dst_गाँठ));
     }
 
-    node_enumerator enumerate_nodes() {
-        if (!computed) compute();
-        return {-GetSize(sig_ids), GetSize(cell_ids)};
+    गाँठ_enumerator enumerate_nodes() {
+        अगर (!computed) compute();
+        वापस {-Get_आकार(sig_ids), Get_आकार(cell_ids)};
     }
 
-    successor_enumerator enumerate_successors(node_type const &node) const {
-        auto range = edge_ranges[node + offset];
-        return {edges.begin() + range.first, edges.begin() + range.second};
+    successor_enumerator enumerate_successors(गाँठ_type स्थिर &गाँठ) स्थिर {
+        स्वतः range = edge_ranges[गाँठ + offset];
+        वापस {edges.begin() + range.first, edges.begin() + range.second};
     }
 
-    int &dfs_index(node_type const &node) {
-        return indices_[node + offset];
+    पूर्णांक &dfs_सूचकांक(गाँठ_type स्थिर &गाँठ) {
+        वापस indices_[गाँठ + offset];
     }
 };
 
 
 class IntGraph {
-public:
-    typedef int node_type;
+खुला:
+    प्रकार पूर्णांक गाँठ_type;
 
-    struct successor_enumerator {
-        std::vector<std::pair<int, int>>::const_iterator current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
+    काष्ठा successor_enumerator {
+        std::vector<std::pair<पूर्णांक, पूर्णांक>>::const_iterator current, end;
+        bool finished() स्थिर { वापस current == end; }
+        गाँठ_type अग्र() {
             log_assert(!finished());
-            node_type result = current->second;
+            गाँठ_type परिणाम = current->second;
             ++current;
-            return result;
+            वापस परिणाम;
         }
     };
 
-    struct node_enumerator {
-        int current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
+    काष्ठा गाँठ_enumerator {
+        पूर्णांक current, end;
+        bool finished() स्थिर { वापस current == end; }
+        गाँठ_type अग्र() {
             log_assert(!finished());
-            node_type result = current;
+            गाँठ_type परिणाम = current;
             ++current;
-            return result;
+            वापस परिणाम;
         }
     };
 
-private:
-    std::vector<std::pair<int, int>> edges;
-    std::vector<std::pair<int, int>> edge_ranges;
-    std::vector<int> indices_;
+निजी:
+    std::vector<std::pair<पूर्णांक, पूर्णांक>> edges;
+    std::vector<std::pair<पूर्णांक, पूर्णांक>> edge_ranges;
+    std::vector<पूर्णांक> indices_;
     bool computed = false;
 
-    void compute() {
+    व्योम compute() {
         edge_ranges.clear();
 
-        int node_end = 0;
-        for (auto const &edge : edges)
-            node_end = std::max(node_end, std::max(edge.first, edge.second) + 1);
+        पूर्णांक गाँठ_end = 0;
+        क्रम (स्वतः स्थिर &edge : edges)
+            गाँठ_end = std::max(गाँठ_end, std::max(edge.first, edge.second) + 1);
         indices_.clear();
-        indices_.resize(node_end, -1);
+        indices_.resize(गाँठ_end, -1);
 
         std::sort(edges.begin(), edges.end());
-        auto last = std::unique(edges.begin(), edges.end());
+        स्वतः last = std::unique(edges.begin(), edges.end());
         edges.erase(last, edges.end());
-        auto edge = edges.begin();
-        auto edge_end = edges.end();
-        int range_begin = 0;
-        for (int node = 0; node != node_end; ++node) {
-            while (edge != edge_end && edge->first <= node)
+        स्वतः edge = edges.begin();
+        स्वतः edge_end = edges.end();
+        पूर्णांक range_begin = 0;
+        क्रम (पूर्णांक गाँठ = 0; गाँठ != गाँठ_end; ++गाँठ) {
+            जबतक (edge != edge_end && edge->first <= गाँठ)
                 ++edge;
-            int range_end = edge - edges.begin();
+            पूर्णांक range_end = edge - edges.begin();
             edge_ranges.emplace_back(std::make_pair(range_begin, range_end));
             range_begin = range_end;
         }
     }
 
-public:
-    void add_edge(int src, int dst) {
+खुला:
+    व्योम add_edge(पूर्णांक src, पूर्णांक dst) {
         log_assert(src >= 0);
         log_assert(dst >= 0);
         computed = false;
         edges.emplace_back(std::make_pair(src, dst));
     }
 
-    node_enumerator enumerate_nodes() {
-        if (!computed) compute();
-        return {0, GetSize(indices_)};
+    गाँठ_enumerator enumerate_nodes() {
+        अगर (!computed) compute();
+        वापस {0, Get_आकार(indices_)};
     }
 
-    successor_enumerator enumerate_successors(int node) const {
-        auto range = edge_ranges[node];
-        return {edges.begin() + range.first, edges.begin() + range.second};
+    successor_enumerator enumerate_successors(पूर्णांक गाँठ) स्थिर {
+        स्वतः range = edge_ranges[गाँठ];
+        वापस {edges.begin() + range.first, edges.begin() + range.second};
     }
 
-    int &dfs_index(node_type const &node) {
-        return indices_[node];
+    पूर्णांक &dfs_सूचकांक(गाँठ_type स्थिर &गाँठ) {
+        वापस indices_[गाँठ];
     }
 };
 
-template<typename G, typename ComponentCallback>
+ढाँचा<typename G, typename ComponentCallback>
 class TopoSortedSccs
 {
-    typedef typename G::node_enumerator node_enumerator;
-    typedef typename G::successor_enumerator successor_enumerator;
-    typedef typename G::node_type node_type;
+    प्रकार typename G::गाँठ_enumerator गाँठ_enumerator;
+    प्रकार typename G::successor_enumerator successor_enumerator;
+    प्रकार typename G::गाँठ_type गाँठ_type;
 
-    struct dfs_entry {
-        node_type node;
+    काष्ठा dfs_entry {
+        गाँठ_type गाँठ;
         successor_enumerator successors;
-        int lowlink;
+        पूर्णांक lowlink;
 
-        dfs_entry(node_type node, successor_enumerator successors, int lowlink) :
-            node(node), successors(successors), lowlink(lowlink)
+        dfs_entry(गाँठ_type गाँठ, successor_enumerator successors, पूर्णांक lowlink) :
+            गाँठ(गाँठ), successors(successors), lowlink(lowlink)
         {}
     };
 
     G &graph;
     ComponentCallback component;
 
-    std::vector<dfs_entry> dfs_stack;
-    std::vector<node_type> component_stack;
-    int next_index = 0;
+    std::vector<dfs_entry> dfs_ढेर;
+    std::vector<गाँठ_type> component_ढेर;
+    पूर्णांक अग्र_सूचकांक = 0;
 
-public:
+खुला:
     TopoSortedSccs(G &graph, ComponentCallback component)
     : graph(graph), component(component) {}
 
     // process all sources (nodes without a successor)
     TopoSortedSccs &process_sources() {
-        node_enumerator nodes = graph.enumerate_nodes();
-        while (!nodes.finished()) {
-            node_type node = nodes.next();
-            successor_enumerator successors = graph.enumerate_successors(node);
-            if (successors.finished())
+        गाँठ_enumerator nodes = graph.enumerate_nodes();
+        जबतक (!nodes.finished()) {
+            गाँठ_type गाँठ = nodes.अग्र();
+            successor_enumerator successors = graph.enumerate_successors(गाँठ);
+            अगर (successors.finished())
             {
-                graph.dfs_index(node) = next_index;
-                next_index++;
-                component_stack.push_back(node);
-                component(component_stack.data(), component_stack.data() + 1);
-                component_stack.clear();
-                graph.dfs_index(node) = INT_MAX;
+                graph.dfs_सूचकांक(गाँठ) = अग्र_सूचकांक;
+                अग्र_सूचकांक++;
+                component_ढेर.धकेलो_back(गाँठ);
+                component(component_ढेर.तथ्य(), component_ढेर.तथ्य() + 1);
+                component_ढेर.clear();
+                graph.dfs_सूचकांक(गाँठ) = पूर्णांक_उच्च;
             }
         }
-        return *this;
+        वापस *this;
     }
 
     // process all remaining nodes in the graph
     TopoSortedSccs &process_all() {
-        node_enumerator nodes = graph.enumerate_nodes();
+        गाँठ_enumerator nodes = graph.enumerate_nodes();
         // iterate over all nodes to ensure we process the whole graph
-        while (!nodes.finished())
-            process(nodes.next());
-        return *this;
+        जबतक (!nodes.finished())
+            process(nodes.अग्र());
+        वापस *this;
     }
 
     // process all nodes that are reachable from a given start node
-    TopoSortedSccs &process(node_type node) {
+    TopoSortedSccs &process(गाँठ_type गाँठ) {
         // only start a new search if the node wasn't visited yet
-        if (graph.dfs_index(node) >= 0)
-            return *this;
-        while (true) {
+        अगर (graph.dfs_सूचकांक(गाँठ) >= 0)
+            वापस *this;
+        जबतक (true) {
             // at this point we're visiting the node for the first time during
             // the DFS search
 
             // we record the timestamp of when we first visited the node as the
             // dfs_index
-            int lowlink = next_index;
-            next_index++;
-            graph.dfs_index(node) = lowlink;
+            पूर्णांक lowlink = अग्र_सूचकांक;
+            अग्र_सूचकांक++;
+            graph.dfs_सूचकांक(गाँठ) = lowlink;
 
             // and we add the node to the component stack where it will remain
             // until all nodes of the component containing this node are popped
-            component_stack.push_back(node);
+            component_ढेर.धकेलो_back(गाँठ);
 
             // then we start iterating over the successors of this node
-            successor_enumerator successors = graph.enumerate_successors(node);
-            while (true) {
-                if (successors.finished()) {
+            successor_enumerator successors = graph.enumerate_successors(गाँठ);
+            जबतक (true) {
+                अगर (successors.finished()) {
                     // when we processed all successors, i.e. when we visited
                     // the complete DFS subtree rooted at the current node, we
                     // first check whether the current node is a SCC root
@@ -279,20 +279,20 @@ public:
                     // (why this check identifies SCC roots is out of scope for
                     // this comment, see other material on Tarjan's SCC
                     // algorithm)
-                    if (lowlink == graph.dfs_index(node)) {
+                    अगर (lowlink == graph.dfs_सूचकांक(गाँठ)) {
                         // the SCC containing the current node is at the top of
                         // the component stack, with the current node at the bottom
-                        int current = GetSize(component_stack);
-                        do {
+                        पूर्णांक current = Get_आकार(component_ढेर);
+                        करो {
                             --current;
-                        } while (component_stack[current] != node);
+                        } जबतक (component_ढेर[current] != गाँठ);
 
                         // we invoke the callback with a pointer range of the
                         // nodes in the SCC
 
-                        node_type *stack_ptr = component_stack.data();
-                        node_type *component_begin = stack_ptr + current;
-                        node_type *component_end = stack_ptr + component_stack.size();
+                        गाँठ_type *ढेर_ptr = component_ढेर.तथ्य();
+                        गाँठ_type *component_begin = ढेर_ptr + current;
+                        गाँठ_type *component_end = ढेर_ptr + component_ढेर.आकार();
 
                         // note that we allow the callback to permute the nodes
                         // in this range as well as to modify dfs_index of the
@@ -303,40 +303,40 @@ public:
                         // nodes to INT_MAX, we don't need a separate check for
                         // whether successor nodes are still on the component
                         // stack before updating the lowlink value
-                        for (; component_begin != component_end; ++component_begin)
-                            graph.dfs_index(*component_begin) = INT_MAX;
-                        component_stack.resize(current);
+                        क्रम (; component_begin != component_end; ++component_begin)
+                            graph.dfs_सूचकांक(*component_begin) = पूर्णांक_उच्च;
+                        component_ढेर.resize(current);
                     }
 
                     // after checking for a completed SCC the DFS either
                     // continues the search at the parent node or returns to
                     // the outer loop if we already are at the root node.
-                    if (dfs_stack.empty())
-                        return *this;
-                    auto &dfs_top = dfs_stack.back();
+                    अगर (dfs_ढेर.empty())
+                        वापस *this;
+                    स्वतः &dfs_शीर्ष = dfs_ढेर.back();
 
-                    node = dfs_top.node;
-                    successors = std::move(dfs_top.successors);
+                    गाँठ = dfs_शीर्ष.गाँठ;
+                    successors = std::move(dfs_शीर्ष.successors);
 
                     // the parent's lowlink is updated when returning
-                    lowlink = min(lowlink, dfs_top.lowlink);
-                    dfs_stack.pop_back();
+                    lowlink = min(lowlink, dfs_शीर्ष.lowlink);
+                    dfs_ढेर.निकालो_back();
                     // continue checking the remaining successors of the parent node.
-                } else {
-                    node_type succ = successors.next();
-                    if (graph.dfs_index(succ) < 0) {
+                } अन्यथा {
+                    गाँठ_type succ = successors.अग्र();
+                    अगर (graph.dfs_सूचकांक(succ) < 0) {
                         // if the successor wasn't visted yet, the DFS recurses
                         // into the successor
 
                         // we save the state for this node and make the
                         // successor the current node.
-                        dfs_stack.emplace_back(node, std::move(successors), lowlink);
-                        node = succ;
+                        dfs_ढेर.emplace_back(गाँठ, std::move(successors), lowlink);
+                        गाँठ = succ;
 
                         // this break gets us to the section corresponding to
                         // the function entry in the recursive version
-                        break;
-                    } else {
+                        अवरोध;
+                    } अन्यथा {
                         // the textbook version guards this update with a check
                         // whether the successor is still on the component
                         // stack. If the successor node was already visisted
@@ -344,7 +344,7 @@ public:
                         // of an already emitted SCC. We can avoid this check
                         // by setting the DFS index of all nodes in a SCC to
                         // INT_MAX when the SCC is emitted.
-                        lowlink = min(lowlink, graph.dfs_index(succ));
+                        lowlink = min(lowlink, graph.dfs_सूचकांक(succ));
                     }
                 }
             }
@@ -354,4 +354,4 @@ public:
 
 YOSYS_NAMESPACE_END
 
-#endif
+#पूर्ण_अगर

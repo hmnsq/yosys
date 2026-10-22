@@ -17,47 +17,47 @@
  *
  */
 
-#ifndef CELLEDGES_H
-#define CELLEDGES_H
+#अगर_अघोषित CELLEDGES_H
+#घोषणा CELLEDGES_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
+#समावेश "kernel/yosys.h"
+#समावेश "kernel/sigtools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AbstractCellEdgesDatabase
+काष्ठा AbstractCellEdgesDatabase
 {
-	virtual ~AbstractCellEdgesDatabase() { }
-	virtual void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int delay) = 0;
+	भव ~AbstractCellEdgesDatabase() { }
+	भव व्योम add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, पूर्णांक from_bit, RTLIL::IdString to_port, पूर्णांक to_bit, पूर्णांक delay) = 0;
 	bool add_edges_from_cell(RTLIL::Cell *cell);
 };
 
-struct FwdCellEdgesDatabase : AbstractCellEdgesDatabase
+काष्ठा FwdCellEdgesDatabase : AbstractCellEdgesDatabase
 {
 	SigMap &sigmap;
 	dict<SigBit, pool<SigBit>> db;
 	FwdCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
+	व्योम add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, पूर्णांक from_bit, RTLIL::IdString to_port, पूर्णांक to_bit, पूर्णांक) override {
 		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
 		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[from_sigbit].insert(to_sigbit);
+		db[from_sigbit].जोड़ो(to_sigbit);
 	}
 };
 
-struct RevCellEdgesDatabase : AbstractCellEdgesDatabase
+काष्ठा RevCellEdgesDatabase : AbstractCellEdgesDatabase
 {
 	SigMap &sigmap;
 	dict<SigBit, pool<SigBit>> db;
 	RevCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
+	व्योम add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, पूर्णांक from_bit, RTLIL::IdString to_port, पूर्णांक to_bit, पूर्णांक) override {
 		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
 		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[to_sigbit].insert(from_sigbit);
+		db[to_sigbit].जोड़ो(from_sigbit);
 	}
 };
 
 YOSYS_NAMESPACE_END
 
-#endif
+#पूर्ण_अगर

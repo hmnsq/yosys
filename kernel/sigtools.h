@@ -17,259 +17,259 @@
  *
  */
 
-#ifndef SIGTOOLS_H
-#define SIGTOOLS_H
+#अगर_अघोषित SIGTOOLS_H
+#घोषणा SIGTOOLS_H
 
-#include "kernel/yosys.h"
+#समावेश "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct SigPool
+काष्ठा SigPool
 {
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+	काष्ठा bitDef_t : खुला std::pair<RTLIL::Wire*, पूर्णांक> {
+		bitDef_t() : std::pair<RTLIL::Wire*, पूर्णांक>(शून्य, 0) { }
+		bitDef_t(स्थिर RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, पूर्णांक>(bit.wire, bit.offset) { }
+		[[nodiscard]] Hasher hash_into(Hasher h) स्थिर {
 			h.eat(first->name);
 			h.eat(second);
-			return h;
+			वापस h;
 		}
 	};
 
 	pool<bitDef_t> bits;
 
-	void clear()
+	व्योम clear()
 	{
 		bits.clear();
 	}
 
-	void add(const RTLIL::SigSpec &sig)
+	व्योम add(स्थिर RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
-				bits.insert(bit);
+		क्रम (स्वतः &bit : sig)
+			अगर (bit.wire != शून्य)
+				bits.जोड़ो(bit);
 	}
 
-	void add(const SigPool &other)
+	व्योम add(स्थिर SigPool &other)
 	{
-		for (auto &bit : other.bits)
-			bits.insert(bit);
+		क्रम (स्वतः &bit : other.bits)
+			bits.जोड़ो(bit);
 	}
 
-	void del(const RTLIL::SigSpec &sig)
+	व्योम del(स्थिर RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
+		क्रम (स्वतः &bit : sig)
+			अगर (bit.wire != शून्य)
 				bits.erase(bit);
 	}
 
-	void del(const SigPool &other)
+	व्योम del(स्थिर SigPool &other)
 	{
-		for (auto &bit : other.bits)
+		क्रम (स्वतः &bit : other.bits)
 			bits.erase(bit);
 	}
 
-	void expand(const RTLIL::SigSpec &from, const RTLIL::SigSpec &to)
+	व्योम expand(स्थिर RTLIL::SigSpec &from, स्थिर RTLIL::SigSpec &to)
 	{
-		log_assert(GetSize(from) == GetSize(to));
-		for (int i = 0; i < GetSize(from); i++) {
+		log_assert(Get_आकार(from) == Get_आकार(to));
+		क्रम (पूर्णांक i = 0; i < Get_आकार(from); i++) {
 			bitDef_t bit_from(from[i]), bit_to(to[i]);
-			if (bit_from.first != NULL && bit_to.first != NULL && bits.count(bit_from) > 0)
-				bits.insert(bit_to);
+			अगर (bit_from.first != शून्य && bit_to.first != शून्य && bits.गिनती(bit_from) > 0)
+				bits.जोड़ो(bit_to);
 		}
 	}
 
-	RTLIL::SigSpec extract(const RTLIL::SigSpec &sig) const
+	RTLIL::SigSpec extract(स्थिर RTLIL::SigSpec &sig) स्थिर
 	{
-		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				result.append(bit);
-		return result;
+		RTLIL::SigSpec परिणाम;
+		क्रम (स्वतः &bit : sig)
+			अगर (bit.wire != शून्य && bits.गिनती(bit))
+				परिणाम.append(bit);
+		वापस परिणाम;
 	}
 
-	RTLIL::SigSpec remove(const RTLIL::SigSpec &sig) const
+	RTLIL::SigSpec हटाओ(स्थिर RTLIL::SigSpec &sig) स्थिर
 	{
-		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
-				result.append(bit);
-		return result;
+		RTLIL::SigSpec परिणाम;
+		क्रम (स्वतः &bit : sig)
+			अगर (bit.wire != शून्य && bits.गिनती(bit) == 0)
+				परिणाम.append(bit);
+		वापस परिणाम;
 	}
 
-	bool check(const RTLIL::SigBit &bit) const
+	bool check(स्थिर RTLIL::SigBit &bit) स्थिर
 	{
-		return bit.wire != NULL && bits.count(bit);
+		वापस bit.wire != शून्य && bits.गिनती(bit);
 	}
 
-	bool check_any(const RTLIL::SigSpec &sig) const
+	bool check_any(स्थिर RTLIL::SigSpec &sig) स्थिर
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		क्रम (स्वतः &bit : sig)
+			अगर (bit.wire != शून्य && bits.गिनती(bit))
+				वापस true;
+		वापस false;
 	}
 
-	bool check_all(const RTLIL::SigSpec &sig) const
+	bool check_all(स्थिर RTLIL::SigSpec &sig) स्थिर
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
-				return false;
-		return true;
+		क्रम (स्वतः &bit : sig)
+			अगर (bit.wire != शून्य && bits.गिनती(bit) == 0)
+				वापस false;
+		वापस true;
 	}
 
-	RTLIL::SigSpec export_one() const
+	RTLIL::SigSpec export_one() स्थिर
 	{
-		for (auto &bit : bits)
-			return RTLIL::SigSpec(bit.first, bit.second);
-		return RTLIL::SigSpec();
+		क्रम (स्वतः &bit : bits)
+			वापस RTLIL::SigSpec(bit.first, bit.second);
+		वापस RTLIL::SigSpec();
 	}
 
-	RTLIL::SigSpec export_all() const
+	RTLIL::SigSpec export_all() स्थिर
 	{
 		pool<RTLIL::SigBit> sig;
-		for (auto &bit : bits)
-			sig.insert(RTLIL::SigBit(bit.first, bit.second));
-		return sig;
+		क्रम (स्वतः &bit : bits)
+			sig.जोड़ो(RTLIL::SigBit(bit.first, bit.second));
+		वापस sig;
 	}
 
-	size_t size() const
+	माप_प्रकार आकार() स्थिर
 	{
-		return bits.size();
+		वापस bits.आकार();
 	}
 };
 
-template <typename T, class Compare = void>
-struct SigSet
+ढाँचा <typename T, class Compare = व्योम>
+काष्ठा SigSet
 {
-	static_assert(!std::is_same<Compare,void>::value, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
+	static_assert(!std::is_same<Compare,व्योम>::मूल्य, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
 
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+	काष्ठा bitDef_t : खुला std::pair<RTLIL::Wire*, पूर्णांक> {
+		bitDef_t() : std::pair<RTLIL::Wire*, पूर्णांक>(शून्य, 0) { }
+		bitDef_t(स्थिर RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, पूर्णांक>(bit.wire, bit.offset) { }
+		[[nodiscard]] Hasher hash_into(Hasher h) स्थिर {
 			h.eat(first->name);
 			h.eat(second);
-			return h;
+			वापस h;
 		}
 	};
 
 	dict<bitDef_t, std::set<T, Compare>> bits;
 
-	void clear()
+	व्योम clear()
 	{
 		bits.clear();
 	}
 
-	void insert(const RTLIL::SigSpec &sig, T data)
+	व्योम जोड़ो(स्थिर RTLIL::SigSpec &sig, T तथ्य)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].insert(data);
+		क्रम (स्थिर स्वतः &bit : sig)
+			अगर (bit.wire != शून्य)
+				bits[bit].जोड़ो(तथ्य);
 	}
 
-	void insert(const RTLIL::SigSpec& sig, const std::set<T> &data)
+	व्योम जोड़ो(स्थिर RTLIL::SigSpec& sig, स्थिर std::set<T> &तथ्य)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].insert(data.begin(), data.end());
+		क्रम (स्थिर स्वतः &bit : sig)
+			अगर (bit.wire != शून्य)
+				bits[bit].जोड़ो(तथ्य.begin(), तथ्य.end());
 	}
 
-	void erase(const RTLIL::SigSpec& sig)
+	व्योम erase(स्थिर RTLIL::SigSpec& sig)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
+		क्रम (स्थिर स्वतः &bit : sig)
+			अगर (bit.wire != शून्य)
 				bits[bit].clear();
 	}
 
-	void erase(const RTLIL::SigSpec &sig, T data)
+	व्योम erase(स्थिर RTLIL::SigSpec &sig, T तथ्य)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].erase(data);
+		क्रम (स्थिर स्वतः &bit : sig)
+			अगर (bit.wire != शून्य)
+				bits[bit].erase(तथ्य);
 	}
 
-	void erase(const RTLIL::SigSpec &sig, const std::set<T> &data)
+	व्योम erase(स्थिर RTLIL::SigSpec &sig, स्थिर std::set<T> &तथ्य)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].erase(data.begin(), data.end());
+		क्रम (स्थिर स्वतः &bit : sig)
+			अगर (bit.wire != शून्य)
+				bits[bit].erase(तथ्य.begin(), तथ्य.end());
 	}
 
-	void find(const RTLIL::SigSpec &sig, std::set<T> &result)
+	व्योम find(स्थिर RTLIL::SigSpec &sig, std::set<T> &परिणाम)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
-				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+		क्रम (स्थिर स्वतः &bit : sig)
+			अगर (bit.wire != शून्य) {
+				स्वतः &तथ्य = bits[bit];
+				परिणाम.जोड़ो(तथ्य.begin(), तथ्य.end());
 			}
 	}
 
-	void find(const RTLIL::SigSpec &sig, pool<T> &result)
+	व्योम find(स्थिर RTLIL::SigSpec &sig, pool<T> &परिणाम)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
-				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+		क्रम (स्थिर स्वतः &bit : sig)
+			अगर (bit.wire != शून्य) {
+				स्वतः &तथ्य = bits[bit];
+				परिणाम.जोड़ो(तथ्य.begin(), तथ्य.end());
 			}
 	}
 
-	std::set<T> find(const RTLIL::SigSpec &sig)
+	std::set<T> find(स्थिर RTLIL::SigSpec &sig)
 	{
-		std::set<T> result;
-		find(sig, result);
-		return result;
+		std::set<T> परिणाम;
+		find(sig, परिणाम);
+		वापस परिणाम;
 	}
 
-	bool has(const RTLIL::SigSpec &sig)
+	bool has(स्थिर RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		क्रम (स्वतः &bit : sig)
+			अगर (bit.wire != शून्य && bits.गिनती(bit))
+				वापस true;
+		वापस false;
 	}
 };
 
-template<typename T>
-class SigSet<T, typename std::enable_if<!std::is_pointer<T>::value>::type> : public SigSet<T, std::less<T>> {};
-template<typename T>
-using sort_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::value>::type;
-template<typename T>
-class SigSet<T, sort_by_name_id_guard<T>> : public SigSet<T, RTLIL::sort_by_name_id<typename std::remove_pointer<T>::type>> {};
+ढाँचा<typename T>
+class SigSet<T, typename std::enable_if<!std::is_pointer<T>::मूल्य>::type> : खुला SigSet<T, std::less<T>> {};
+ढाँचा<typename T>
+using sort_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::मूल्य>::type;
+ढाँचा<typename T>
+class SigSet<T, sort_by_name_id_guard<T>> : खुला SigSet<T, RTLIL::sort_by_name_id<typename std::remove_pointer<T>::type>> {};
 
-struct SigMapView
+काष्ठा SigMapView
 {
 	mfp<SigBit> database;
 
 	// Modify bit to its representative
-	void apply(RTLIL::SigBit &bit) const
+	व्योम apply(RTLIL::SigBit &bit) स्थिर
 	{
 		bit = database.find(bit);
 	}
 
-	void apply(RTLIL::SigSpec &sig) const
+	व्योम apply(RTLIL::SigSpec &sig) स्थिर
 	{
-		for (auto &bit : sig)
+		क्रम (स्वतः &bit : sig)
 			apply(bit);
 	}
 
-	RTLIL::SigBit operator()(RTLIL::SigBit bit) const
+	RTLIL::SigBit चालक()(RTLIL::SigBit bit) स्थिर
 	{
 		apply(bit);
-		return bit;
+		वापस bit;
 	}
 
-	RTLIL::SigSpec operator()(RTLIL::SigSpec sig) const
+	RTLIL::SigSpec चालक()(RTLIL::SigSpec sig) स्थिर
 	{
 		apply(sig);
-		return sig;
+		वापस sig;
 	}
 
-	RTLIL::SigSpec operator()(RTLIL::Wire *wire) const
+	RTLIL::SigSpec चालक()(RTLIL::Wire *wire) स्थिर
 	{
 		SigSpec sig(wire);
 		apply(sig);
-		return sig;
+		वापस sig;
 	}
 };
 
@@ -280,88 +280,88 @@ struct SigMapView
  * If a SigBit has a const state (impl: bit.wire is nullptr),
  * it's promoted to a representative.
  */
-struct SigMap final : public SigMapView
+काष्ठा SigMap final : खुला SigMapView
 {
-	SigMap(RTLIL::Module *module = NULL)
+	SigMap(RTLIL::Module *module = शून्य)
 	{
-		if (module != NULL)
+		अगर (module != शून्य)
 			set(module);
 	}
 
-	void swap(SigMap &other)
+	व्योम swap(SigMap &other)
 	{
 		database.swap(other.database);
 	}
 
-	void clear()
+	व्योम clear()
 	{
 		database.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
-	void set(RTLIL::Module *module)
+	व्योम set(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
-			bitcount += it.first.size();
+		पूर्णांक bitcount = 0;
+		क्रम (स्वतः &it : module->connections())
+			bitcount += it.first.आकार();
 
 		database.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
+		क्रम (स्वतः &it : module->connections())
 			add(it.first, it.second);
 	}
 
 	// Add connections from "from" to "to", bit-by-bit
-	void add(const RTLIL::SigSpec& from, const RTLIL::SigSpec& to)
+	व्योम add(स्थिर RTLIL::SigSpec& from, स्थिर RTLIL::SigSpec& to)
 	{
-		log_assert(GetSize(from) == GetSize(to));
+		log_assert(Get_आकार(from) == Get_आकार(to));
 
-		for (int i = 0; i < GetSize(from); i++)
+		क्रम (पूर्णांक i = 0; i < Get_आकार(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
+			पूर्णांक bfi = database.lookup(from[i]);
+			पूर्णांक bti = database.lookup(to[i]);
 
-			const RTLIL::SigBit &bf = database[bfi];
-			const RTLIL::SigBit &bt = database[bti];
+			स्थिर RTLIL::SigBit &bf = database[bfi];
+			स्थिर RTLIL::SigBit &bt = database[bti];
 
-			if (bf.wire || bt.wire)
+			अगर (bf.wire || bt.wire)
 			{
 				database.imerge(bfi, bti);
 
-				if (bf.wire == nullptr)
+				अगर (bf.wire == nullptr)
 					database.ipromote(bfi);
 
-				if (bt.wire == nullptr)
+				अगर (bt.wire == nullptr)
 					database.ipromote(bti);
 			}
 		}
 	}
 
 	// Add sig as disconnected from anything
-	void add(const RTLIL::SigBit &bit)
+	व्योम add(स्थिर RTLIL::SigBit &bit)
 	{
-		const auto &b = database.find(bit);
-		if (b.wire != nullptr)
+		स्थिर स्वतः &b = database.find(bit);
+		अगर (b.wire != nullptr)
 			database.promote(bit);
 	}
 
-	void add(const RTLIL::SigSpec &sig)
+	व्योम add(स्थिर RTLIL::SigSpec &sig)
 	{
-		for (const auto &bit : sig)
+		क्रम (स्थिर स्वतः &bit : sig)
 			add(bit);
 	}
 
-	inline void add(Wire *wire) { return add(RTLIL::SigSpec(wire)); }
+	अंतरभूत व्योम add(Wire *wire) { वापस add(RTLIL::SigSpec(wire)); }
 
 	// All non-const bits
-	RTLIL::SigSpec allbits() const
+	RTLIL::SigSpec allbits() स्थिर
 	{
 		RTLIL::SigSpec sig;
-		for (const auto &bit : database)
-			if (bit.wire != nullptr)
+		क्रम (स्थिर स्वतः &bit : database)
+			अगर (bit.wire != nullptr)
 				sig.append(bit);
-		return sig;
+		वापस sig;
 	}
 };
 
@@ -374,98 +374,98 @@ struct SigMap final : public SigMapView
  * the associated value is the "sum" of all the values associated with the contributing bits.
  * If any of the SigBits in a set are a constant, the canonical SigBit is a constant.
  */
-template <class Val>
-struct SigValMap final : public SigMapView
+ढाँचा <class Val>
+काष्ठा SigValMap final : खुला SigMapView
 {
-	dict<SigBit, Val> values;
+	dict<SigBit, Val> मूल्यावली;
 
-	void swap(SigValMap<Val> &other)
+	व्योम swap(SigValMap<Val> &other)
 	{
 		database.swap(other.database);
-		values.swap(other.values);
+		मूल्यावली.swap(other.मूल्यावली);
 	}
 
-	void clear()
+	व्योम clear()
 	{
 		database.clear();
-		values.clear();
+		मूल्यावली.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
-	void set(RTLIL::Module *module)
+	व्योम set(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
-			bitcount += it.first.size();
+		पूर्णांक bitcount = 0;
+		क्रम (स्वतः &it : module->connections())
+			bitcount += it.first.आकार();
 
 		database.clear();
-		values.clear();
+		मूल्यावली.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
+		क्रम (स्वतः &it : module->connections())
 			add(it.first, it.second);
 	}
 
 	// Add connections from "from" to "to", bit-by-bit.
-	void add(const RTLIL::SigSpec& from, const RTLIL::SigSpec& to)
+	व्योम add(स्थिर RTLIL::SigSpec& from, स्थिर RTLIL::SigSpec& to)
 	{
-		log_assert(GetSize(from) == GetSize(to));
+		log_assert(Get_आकार(from) == Get_आकार(to));
 
-		for (int i = 0; i < GetSize(from); i++)
+		क्रम (पूर्णांक i = 0; i < Get_आकार(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
-			if (bfi == bti) {
-				continue;
+			पूर्णांक bfi = database.lookup(from[i]);
+			पूर्णांक bti = database.lookup(to[i]);
+			अगर (bfi == bti) {
+				जारी;
 			}
 
-			const RTLIL::SigBit &bf = database[bfi];
-			const RTLIL::SigBit &bt = database[bti];
-			if (bf.wire == nullptr) {
+			स्थिर RTLIL::SigBit &bf = database[bfi];
+			स्थिर RTLIL::SigBit &bt = database[bti];
+			अगर (bf.wire == nullptr) {
 				// bf is constant so make it the canonical representative.
 				database.imerge(bti, bfi);
-				merge_value(bt, bf);
-			} else {
+				merge_मूल्य(bt, bf);
+			} अन्यथा {
 				// Make bt the canonical representative.
 				database.imerge(bfi, bti);
-				merge_value(bf, bt);
+				merge_मूल्य(bf, bt);
 			}
 		}
 	}
 
-	void addVal(const RTLIL::SigBit &bit, const Val &val)
+	व्योम addVal(स्थिर RTLIL::SigBit &bit, स्थिर Val &val)
 	{
-		values[database.find(bit)] |= val;
+		मूल्यावली[database.find(bit)] |= val;
 	}
 
-	void addVal(const RTLIL::SigSpec &sig, const Val &val)
+	व्योम addVal(स्थिर RTLIL::SigSpec &sig, स्थिर Val &val)
 	{
-		for (const auto &bit : sig)
+		क्रम (स्थिर स्वतः &bit : sig)
 			addVal(bit, val);
 	}
 
-	Val apply_and_get_value(RTLIL::SigBit &bit) const
+	Val apply_and_get_मूल्य(RTLIL::SigBit &bit) स्थिर
 	{
 		bit = database.find(bit);
-		auto it = values.find(bit);
-		return it == values.end() ? Val() : it->second;
+		स्वतः it = मूल्यावली.find(bit);
+		वापस it == मूल्यावली.end() ? Val() : it->second;
 	}
 
-private:
-	void merge_value(const RTLIL::SigBit &from, const RTLIL::SigBit &to)
+निजी:
+	व्योम merge_मूल्य(स्थिर RTLIL::SigBit &from, स्थिर RTLIL::SigBit &to)
 	{
-		auto it = values.find(from);
-		if (it == values.end()) {
-			return;
+		स्वतः it = मूल्यावली.find(from);
+		अगर (it == मूल्यावली.end()) {
+			वापस;
 		}
 		// values[to] could resize the underlying `entries` so
 		// finish using `it` first.
 		Val v = it->second;
-		values.erase(it);
-		values[to] |= v;
+		मूल्यावली.erase(it);
+		मूल्यावली[to] |= v;
 	}
 };
 
 YOSYS_NAMESPACE_END
 
-#endif /* SIGTOOLS_H */
+#पूर्ण_अगर /* SIGTOOLS_H */

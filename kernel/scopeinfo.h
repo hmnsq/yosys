@@ -17,400 +17,400 @@
  *
  */
 
-#ifndef SCOPEINFO_H
-#define SCOPEINFO_H
+#अगर_अघोषित SCOPEINFO_H
+#घोषणा SCOPEINFO_H
 
-#include <vector>
-#include <algorithm>
+#समावेश <vector>
+#समावेश <algorithm>
 
-#include "kernel/yosys.h"
-#include "kernel/celltypes.h"
+#समावेश "kernel/yosys.h"
+#समावेश "kernel/celltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template<typename T>
-class IdTree
+ढाँचा<typename T>
+class Id_वृक्ष
 {
-public:
-	struct Cursor;
+खुला:
+	काष्ठा Cursor;
 
-protected:
-	IdTree *parent = nullptr;
+रक्षित:
+	Id_वृक्ष *parent = nullptr;
 	IdString scope_name;
-	int depth = 0;
+	पूर्णांक depth = 0;
 
 	pool<IdString> names;
 	dict<IdString, T> entries;
-public: // XXX
-	dict<IdString, std::unique_ptr<IdTree>> subtrees;
+खुला: // XXX
+	dict<IdString, std::unique_ptr<Id_वृक्ष>> subtrees;
 
-	template<typename P, typename T_ref>
-	static Cursor do_insert(IdTree *tree, P begin, P end, T_ref &&value)
+	ढाँचा<typename P, typename T_ref>
+	अटल Cursor do_जोड़ो(Id_वृक्ष *वृक्ष, P begin, P end, T_ref &&मूल्य)
 	{
 		log_assert(begin != end && "path must be non-empty");
-		while (true) {
+		जबतक (true) {
 			IdString name = *begin;
 			++begin;
 			log_assert(!name.empty());
-			tree->names.insert(name);
-			if (begin == end) {
-				tree->entries.emplace(name, std::forward<T_ref>(value));
-				return Cursor(tree, name);
+			वृक्ष->names.जोड़ो(name);
+			अगर (begin == end) {
+				वृक्ष->entries.emplace(name, std::forward<T_ref>(मूल्य));
+				वापस Cursor(वृक्ष, name);
 			}
-			auto &unique = tree->subtrees[name];
-			if (!unique) {
-				unique.reset(new IdTree);
+			स्वतः &unique = वृक्ष->subtrees[name];
+			अगर (!unique) {
+				unique.reset(new Id_वृक्ष);
 				unique->scope_name = name;
-				unique->parent = tree;
-				unique->depth = tree->depth + 1;
+				unique->parent = वृक्ष;
+				unique->depth = वृक्ष->depth + 1;
 			}
-			tree = unique.get();
+			वृक्ष = unique.get();
 		}
 	}
 
-public:
-	IdTree() = default;
-	IdTree(const IdTree &) = delete;
-	IdTree(IdTree &&) = delete;
+खुला:
+	Id_वृक्ष() = शेष;
+	Id_वृक्ष(स्थिर Id_वृक्ष &) = delete;
+	Id_वृक्ष(Id_वृक्ष &&) = delete;
 
 	// A cursor remains valid as long as the (sub-)IdTree it points at is alive
-	struct Cursor
+	काष्ठा Cursor
 	{
-		friend class IdTree;
-	protected:
-	public:
-		IdTree *target;
+		मित्र class Id_वृक्ष;
+	रक्षित:
+	खुला:
+		Id_वृक्ष *target;
 		IdString scope_name;
 
 		Cursor() : target(nullptr) {}
-		Cursor(IdTree *target, IdString scope_name) : target(target), scope_name(scope_name) {
-			if (scope_name.empty())
+		Cursor(Id_वृक्ष *target, IdString scope_name) : target(target), scope_name(scope_name) {
+			अगर (scope_name.empty())
 				log_assert(target->parent == nullptr);
 		}
 
 		Cursor do_first_child() {
-			IdTree *tree = nullptr;
-			if (scope_name.empty()) {
-				tree = target;
-			} else {
-				auto found = target->subtrees.find(scope_name);
-				if (found != target->subtrees.end()) {
-					tree = found->second.get();
-				} else {
-					return Cursor();
+			Id_वृक्ष *वृक्ष = nullptr;
+			अगर (scope_name.empty()) {
+				वृक्ष = target;
+			} अन्यथा {
+				स्वतः found = target->subtrees.find(scope_name);
+				अगर (found != target->subtrees.end()) {
+					वृक्ष = found->second.get();
+				} अन्यथा {
+					वापस Cursor();
 				}
 			}
-			if (tree->names.empty()) {
-				return Cursor();
+			अगर (वृक्ष->names.empty()) {
+				वापस Cursor();
 			}
-			return Cursor(tree, *tree->names.begin());
+			वापस Cursor(वृक्ष, *वृक्ष->names.begin());
 		}
 
-		Cursor do_next_sibling() {
-			if (scope_name.empty())
-				return Cursor();
-			auto found = target->names.find(scope_name);
-			if (found == target->names.end())
-				return Cursor();
+		Cursor do_अग्र_sibling() {
+			अगर (scope_name.empty())
+				वापस Cursor();
+			स्वतः found = target->names.find(scope_name);
+			अगर (found == target->names.end())
+				वापस Cursor();
 			++found;
-			if (found == target->names.end())
-				return Cursor();
-			return Cursor(target, *found);
+			अगर (found == target->names.end())
+				वापस Cursor();
+			वापस Cursor(target, *found);
 		}
 
 		Cursor do_parent() {
-			if (scope_name.empty())
-				return Cursor();
-			if (target->parent != nullptr)
-				return Cursor(target->parent, target->scope_name);
-			return Cursor(target, IdString());
+			अगर (scope_name.empty())
+				वापस Cursor();
+			अगर (target->parent != nullptr)
+				वापस Cursor(target->parent, target->scope_name);
+			वापस Cursor(target, IdString());
 		}
 
-		Cursor do_next_preorder() {
+		Cursor do_अग्र_preorder() {
 			Cursor current = *this;
-			Cursor next = current.do_first_child();
-			if (next.valid())
-				return next;
-			while (current.valid()) {
-				if (next.valid())
-					return next;
-				next = current.do_next_sibling();
-				if (next.valid())
-					return next;
+			Cursor अग्र = current.do_first_child();
+			अगर (अग्र.valid())
+				वापस अग्र;
+			जबतक (current.valid()) {
+				अगर (अग्र.valid())
+					वापस अग्र;
+				अग्र = current.do_अग्र_sibling();
+				अगर (अग्र.valid())
+					वापस अग्र;
 				current = current.do_parent();
 			}
-			return current;
+			वापस current;
 		}
 
 		Cursor do_child(IdString name) {
-			IdTree *tree = nullptr;
-			if (scope_name.empty()) {
-				tree = target;
-			} else {
-				auto found = target->subtrees.find(scope_name);
-				if (found != target->subtrees.end()) {
-					tree = found->second.get();
-				} else {
-					return Cursor();
+			Id_वृक्ष *वृक्ष = nullptr;
+			अगर (scope_name.empty()) {
+				वृक्ष = target;
+			} अन्यथा {
+				स्वतः found = target->subtrees.find(scope_name);
+				अगर (found != target->subtrees.end()) {
+					वृक्ष = found->second.get();
+				} अन्यथा {
+					वापस Cursor();
 				}
 			}
-			auto found = tree->names.find(name);
-			if (found == tree->names.end()) {
-				return Cursor();
+			स्वतः found = वृक्ष->names.find(name);
+			अगर (found == वृक्ष->names.end()) {
+				वापस Cursor();
 			}
-			return Cursor(tree, *found);
+			वापस Cursor(वृक्ष, *found);
 		}
 
-	public:
-		bool operator==(const Cursor &other) const {
-			return target == other.target && scope_name == other.scope_name;
+	खुला:
+		bool चालक==(स्थिर Cursor &other) स्थिर {
+			वापस target == other.target && scope_name == other.scope_name;
 		}
-		bool operator!=(const Cursor &other) const {
-			return !(*this == other);
+		bool चालक!=(स्थिर Cursor &other) स्थिर {
+			वापस !(*this == other);
 		}
 
-		[[nodiscard]] Hasher hash_into(Hasher h) const
+		[[nodiscard]] Hasher hash_into(Hasher h) स्थिर
 		{
 			h.eat(scope_name);
 			h.eat(target);
-			return h;
+			वापस h;
 		}
 
-		bool valid() const {
-			return target != nullptr;
+		bool valid() स्थिर {
+			वापस target != nullptr;
 		}
 
-		int depth() const {
+		पूर्णांक depth() स्थिर {
 			log_assert(valid());
-			return target->depth + !scope_name.empty();
+			वापस target->depth + !scope_name.empty();
 		}
 
-		bool is_root() const {
-			return target != nullptr && scope_name.empty();
+		bool is_मूल() स्थिर {
+			वापस target != nullptr && scope_name.empty();
 		}
 
-		bool has_entry() const {
+		bool has_entry() स्थिर {
 			log_assert(valid());
-			return !scope_name.empty() && target->entries.count(scope_name);
+			वापस !scope_name.empty() && target->entries.गिनती(scope_name);
 		}
 
 		T &entry() {
 			log_assert(!scope_name.empty());
-			return target->entries.at(scope_name);
+			वापस target->entries.at(scope_name);
 		}
 
-		void assign_path_to(std::vector<IdString> &out_path) {
+		व्योम assign_path_to(std::vector<IdString> &out_path) {
 			log_assert(valid());
 			out_path.clear();
-			if (scope_name.empty())
-				return;
-			out_path.push_back(scope_name);
-			IdTree *current = target;
-			while (current->parent) {
-				out_path.push_back(current->scope_name);
+			अगर (scope_name.empty())
+				वापस;
+			out_path.धकेलो_back(scope_name);
+			Id_वृक्ष *current = target;
+			जबतक (current->parent) {
+				out_path.धकेलो_back(current->scope_name);
 				current = current->parent;
 			}
 			std::reverse(out_path.begin(), out_path.end());
 		}
 
 		std::vector<IdString> path() {
-			std::vector<IdString> result;
-			assign_path_to(result);
-			return result;
+			std::vector<IdString> परिणाम;
+			assign_path_to(परिणाम);
+			वापस परिणाम;
 		}
 
-		std::string path_str(const RTLIL::Design *design) {
-			std::string result;
-			for (const auto &item : path()) {
-				if (!result.empty())
-					result.push_back(' ');
-				result += design->twines().unescaped_str(item);
+		std::string path_str(स्थिर RTLIL::Design *design) {
+			std::string परिणाम;
+			क्रम (स्थिर स्वतः &item : path()) {
+				अगर (!परिणाम.empty())
+					परिणाम.धकेलो_back(' ');
+				परिणाम += design->twines().unescaped_str(item);
 			}
-			return result;
+			वापस परिणाम;
 		}
 
 		Cursor first_child() {
 			log_assert(valid());
-			return do_first_child();
+			वापस do_first_child();
 		}
 
-		Cursor next_preorder() {
+		Cursor अग्र_preorder() {
 			log_assert(valid());
-			return do_next_preorder();
+			वापस do_अग्र_preorder();
 		}
 
 		Cursor parent() {
 			log_assert(valid());
-			return do_parent();
+			वापस do_parent();
 		}
 
 		Cursor child(IdString name) {
 			log_assert(valid());
-			return do_child(name);
+			वापस do_child(name);
 		}
 
 		Cursor common_ancestor(Cursor other) {
 			Cursor current = *this;
 
-			while (current != other) {
-				if (!current.valid() || !other.valid())
-					return Cursor();
-				int delta = current.depth() - other.depth();
-				if (delta >= 0)
+			जबतक (current != other) {
+				अगर (!current.valid() || !other.valid())
+					वापस Cursor();
+				पूर्णांक delta = current.depth() - other.depth();
+				अगर (delta >= 0)
 					current = current.do_parent();
-				if (delta <= 0)
+				अगर (delta <= 0)
 					other = other.do_parent();
 			}
-			return current;
+			वापस current;
 		}
 	};
 
-	template<typename P>
-	Cursor insert(P begin, P end, const T &value) {
-		return do_insert(this, begin, end, value);
+	ढाँचा<typename P>
+	Cursor जोड़ो(P begin, P end, स्थिर T &मूल्य) {
+		वापस do_जोड़ो(this, begin, end, मूल्य);
 	}
 
-	template<typename P>
-	Cursor insert(P begin, P end, T &&value) {
-		return do_insert(this, begin, end, std::move(value));
+	ढाँचा<typename P>
+	Cursor जोड़ो(P begin, P end, T &&मूल्य) {
+		वापस do_जोड़ो(this, begin, end, std::move(मूल्य));
 	}
 
-	template<typename P>
-	Cursor insert(const P &path, const T &value) {
-		return do_insert(this, path.begin(), path.end(), value);
+	ढाँचा<typename P>
+	Cursor जोड़ो(स्थिर P &path, स्थिर T &मूल्य) {
+		वापस do_जोड़ो(this, path.begin(), path.end(), मूल्य);
 	}
 
-	template<typename P>
-	Cursor insert(const P &path, T &&value) {
-		return do_insert(this, path.begin(), path.end(), std::move(value));
+	ढाँचा<typename P>
+	Cursor जोड़ो(स्थिर P &path, T &&मूल्य) {
+		वापस do_जोड़ो(this, path.begin(), path.end(), std::move(मूल्य));
 	}
 
 	Cursor cursor() {
-		return parent ? Cursor(this->parent, this->scope_name) : Cursor(this, IdString());
+		वापस parent ? Cursor(this->parent, this->scope_name) : Cursor(this, IdString());
 	}
 
-	template<typename P>
+	ढाँचा<typename P>
 	Cursor cursor(P begin, P end) {
 		Cursor current = cursor();
-		for (; begin != end; ++begin) {
+		क्रम (; begin != end; ++begin) {
 			current = current.do_child(*begin);
-			if (!current.valid())
-				break;
+			अगर (!current.valid())
+				अवरोध;
 		}
-		return current;
+		वापस current;
 	}
 
-	template<typename P>
-	Cursor cursor(const P &path) {
-		return cursor(path.begin(), path.end());
+	ढाँचा<typename P>
+	Cursor cursor(स्थिर P &path) {
+		वापस cursor(path.begin(), path.end());
 	}
 };
 
 
-struct ModuleItem {
-	enum class Type {
+काष्ठा ModuleItem {
+	क्रमागत class Type {
 		Wire,
 		Cell,
 	};
 	Type type;
-	void *ptr;
+	व्योम *ptr;
 
 	ModuleItem(Wire *wire) : type(Type::Wire), ptr(wire) {}
 	ModuleItem(Cell *cell) : type(Type::Cell), ptr(cell) {}
 
-	bool is_wire() const { return type == Type::Wire; }
-	bool is_cell() const { return type == Type::Cell; }
+	bool is_wire() स्थिर { वापस type == Type::Wire; }
+	bool is_cell() स्थिर { वापस type == Type::Cell; }
 
-	Wire *wire() const { return type == Type::Wire ? static_cast<Wire *>(ptr) : nullptr; }
-	Cell *cell() const { return type == Type::Cell ? static_cast<Cell *>(ptr) : nullptr; }
+	Wire *wire() स्थिर { वापस type == Type::Wire ? static_cast<Wire *>(ptr) : nullptr; }
+	Cell *cell() स्थिर { वापस type == Type::Cell ? static_cast<Cell *>(ptr) : nullptr; }
 
-	bool operator==(const ModuleItem &other) const { return ptr == other.ptr && type == other.type; }
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(ptr); return h; }
+	bool चालक==(स्थिर ModuleItem &other) स्थिर { वापस ptr == other.ptr && type == other.type; }
+	[[nodiscard]] Hasher hash_into(Hasher h) स्थिर { h.eat(ptr); वापस h; }
 };
 
-static inline void log_dump_val_worker(typename IdTree<ModuleItem>::Cursor cursor ) { log("%p ", cursor.target); log_dump_val_worker(cursor.scope_name); }
+अटल अंतरभूत व्योम log_dump_val_worker(typename Id_वृक्ष<ModuleItem>::Cursor cursor ) { log("%p ", cursor.target); log_dump_val_worker(cursor.scope_name); }
 
-template<typename T>
-static inline void log_dump_val_worker(const typename std::unique_ptr<T> &cursor ) { log("unique %p", cursor.get()); }
+ढाँचा<typename T>
+अटल अंतरभूत व्योम log_dump_val_worker(स्थिर typename std::unique_ptr<T> &cursor ) { log("unique %p", cursor.get()); }
 
-template<typename O>
-std::vector<IdString> parse_hdlname(const O* object)
+ढाँचा<typename O>
+std::vector<IdString> parse_hdlname(स्थिर O* object)
 {
 	TwinePool &twines = object->design()->twines();
 	IdString name = object->name;
 	std::vector<IdString> path;
-	for (auto const &item : object->get_hdlname_attribute())
-		path.push_back(twines.add("\\" + item));
+	क्रम (स्वतः स्थिर &item : object->get_hdlname_attribute())
+		path.धकेलो_back(twines.add("\\" + item));
 	bool synthetic = !name.isPublic() && !object->name.begins_with("$paramod")
 			&& !object->name.begins_with("$abstract");
-	if (path.empty() && name.isPublic())
-		path.push_back(name);
-	if (!path.empty() && synthetic) {
-		path.pop_back();
-		path.push_back(name);
+	अगर (path.empty() && name.isPublic())
+		path.धकेलो_back(name);
+	अगर (!path.empty() && synthetic) {
+		path.निकालो_back();
+		path.धकेलो_back(name);
 	}
-	return path;
+	वापस path;
 }
 
-template<typename O>
-std::pair<std::vector<IdString>, IdString> parse_scopename(const O* object)
+ढाँचा<typename O>
+std::pair<std::vector<IdString>, IdString> parse_scopename(स्थिर O* object)
 {
 	TwinePool &twines = object->design()->twines();
 	std::vector<IdString> path;
 	IdString trailing = object->name;
-	if (trailing.isPublic() || object->name.begins_with("$paramod") || object->name.begins_with("$abstract")) {
-		for (auto const &item : object->get_hdlname_attribute())
-			path.push_back(twines.add("\\" + item));
-		if (!path.empty()) {
+	अगर (trailing.isPublic() || object->name.begins_with("$paramod") || object->name.begins_with("$abstract")) {
+		क्रम (स्वतः स्थिर &item : object->get_hdlname_attribute())
+			path.धकेलो_back(twines.add("\\" + item));
+		अगर (!path.empty()) {
 			trailing = path.back();
-			path.pop_back();
+			path.निकालो_back();
 		}
-	} else if (object->has_attribute(ID::hdlname)) {
-		for (auto const &item : object->get_hdlname_attribute())
-			path.push_back(twines.add("\\" + item));
-		if (!path.empty()) {
-			path.pop_back();
+	} अन्यथा अगर (object->has_attribute(ID::hdlname)) {
+		क्रम (स्वतः स्थिर &item : object->get_hdlname_attribute())
+			path.धकेलो_back(twines.add("\\" + item));
+		अगर (!path.empty()) {
+			path.निकालो_back();
 		}
-	} else {
-		for (auto const &item : split_tokens(object->get_string_attribute(ID(scopename)), " "))
-			path.push_back(twines.add("\\" + item));
+	} अन्यथा {
+		क्रम (स्वतः स्थिर &item : split_tokens(object->get_string_attribute(ID(scopename)), " "))
+			path.धकेलो_back(twines.add("\\" + item));
 	}
-	return {path, trailing};
+	वापस {path, trailing};
 }
 
-struct ModuleHdlnameIndex {
-	typedef IdTree<ModuleItem>::Cursor Cursor;
+काष्ठा Module_Hdlname_सूचकांक {
+	प्रकार Id_वृक्ष<ModuleItem>::Cursor Cursor;
 
 	RTLIL::Module *module;
-	IdTree<ModuleItem> tree;
+	Id_वृक्ष<ModuleItem> वृक्ष;
 	dict<ModuleItem, Cursor> lookup;
 
-	ModuleHdlnameIndex(RTLIL::Module *module) : module(module) {}
+	Module_Hdlname_सूचकांक(RTLIL::Module *module) : module(module) {}
 
-private:
-	template<typename I, typename Filter>
-	void index_items(I begin, I end, Filter filter);
+निजी:
+	ढाँचा<typename I, typename Filter>
+	व्योम सूचकांक_वस्तुएँ(I begin, I end, Filter filter);
 
-public:
+खुला:
 	// Index all wires and cells of the module
-	void index();
+	व्योम सूचकांक();
 
 	// Index all wires of the module
-	void index_wires();
+	व्योम सूचकांक_wires();
 
 	// Index all cells of the module
-	void index_cells();
+	व्योम सूचकांक_cells();
 
 	// Index only the $scopeinfo cells of the module.
 	// This is sufficient when using `containing_scope`.
-	void index_scopeinfo_cells();
+	व्योम सूचकांक_scopeinfo_cells();
 
 
 	// Return the cursor for the containing scope of some RTLIL object (Wire/Cell/...)
-	template<typename O>
+	ढाँचा<typename O>
 	std::pair<Cursor, IdString> containing_scope(O *object) {
-		auto pair = parse_scopename(object);
-		return {tree.cursor(pair.first), pair.second};
+		स्वतः pair = parse_scopename(object);
+		वापस {वृक्ष.cursor(pair.first), pair.second};
 	}
 
 	// Return a vector of source locations starting from the indexed module to
@@ -423,29 +423,29 @@ public:
 	// the passed RTLIL object (Wire/Cell/...). The vector alternates module
 	// and module item source locations, using empty strings for missing src
 	// attributes.
-	template<typename O>
+	ढाँचा<typename O>
 	std::vector<std::string> sources(O *object) {
-		auto pair = parse_scopename(object);
-		std::vector<std::string> result = scope_sources(tree.cursor(pair.first));
-		result.push_back(object->get_src_attribute());
-		return result;
+		स्वतः pair = parse_scopename(object);
+		std::vector<std::string> परिणाम = scope_sources(वृक्ष.cursor(pair.first));
+		परिणाम.धकेलो_back(object->get_src_attribute());
+		वापस परिणाम;
 	}
 };
 
-enum class ScopeinfoAttrs {
+क्रमागत class ScopeinfoAttrs {
 	Module,
 	Cell,
 };
 
 // Check whether the flattened module or flattened cell corresponding to a $scopeinfo cell had a specific attribute.
-bool scopeinfo_has_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
+bool scopeinfo_has_attribute(स्थिर RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
 
 // Get a specific attribute from the flattened module or flattened cell corresponding to a $scopeinfo cell.
-RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
+RTLIL::Const scopeinfo_get_attribute(स्थिर RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
 
 // Get all attribute from the flattened module or flattened cell corresponding to a $scopeinfo cell.
-dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs);
+dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(स्थिर RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs);
 
 YOSYS_NAMESPACE_END
 
-#endif
+#पूर्ण_अगर

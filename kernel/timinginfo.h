@@ -18,60 +18,60 @@
  *
  */
 
-#ifndef TIMINGINFO_H
-#define TIMINGINFO_H
+#अगर_अघोषित TIMINGINFO_H
+#घोषणा TIMINGINFO_H
 
-#include "kernel/yosys.h"
+#समावेश "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct TimingInfo
+काष्ठा TimingInfo
 {
-	struct NameBit
+	काष्ठा NameBit
 	{
 		RTLIL::IdString name;
-		int offset;
+		पूर्णांक offset;
 		NameBit() : offset(0) {}
-		NameBit(IdString name, int offset) : name(name), offset(offset) {}
-		explicit NameBit(const RTLIL::SigBit &b) : name(b.wire->name), offset(b.offset) {}
-		bool operator==(const NameBit& nb) const { return nb.name == name && nb.offset == offset; }
-		bool operator!=(const NameBit& nb) const { return !operator==(nb); }
+		NameBit(IdString name, पूर्णांक offset) : name(name), offset(offset) {}
+		explicit NameBit(स्थिर RTLIL::SigBit &b) : name(b.wire->name), offset(b.offset) {}
+		bool चालक==(स्थिर NameBit& nb) स्थिर { वापस nb.name == name && nb.offset == offset; }
+		bool चालक!=(स्थिर NameBit& nb) स्थिर { वापस !चालक==(nb); }
 		std::optional<SigBit> get_connection(RTLIL::Cell *cell) {
 			IdString port_name = name;
-			if (!cell->hasPort(port_name))
-				return {};
-			auto &port = cell->getPort(port_name);
-			if (offset >= port.size())
-				return {};
-			return port[offset];
+			अगर (!cell->hasPort(port_name))
+				वापस {};
+			स्वतः &port = cell->getPort(port_name);
+			अगर (offset >= port.आकार())
+				वापस {};
+			वापस port[offset];
 		}
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		[[nodiscard]] Hasher hash_into(Hasher h) स्थिर {
 			h.eat(name);
 			h.eat(offset);
-			return h;
+			वापस h;
 		}
 	};
-	struct BitBit
+	काष्ठा BitBit
 	{
 		NameBit first, second;
-		BitBit(const NameBit &first, const NameBit &second) : first(first), second(second) {}
-		BitBit(const SigBit &first, const SigBit &second) : first(first), second(second) {}
-		bool operator==(const BitBit& bb) const { return bb.first == first && bb.second == second; }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		BitBit(स्थिर NameBit &first, स्थिर NameBit &second) : first(first), second(second) {}
+		BitBit(स्थिर SigBit &first, स्थिर SigBit &second) : first(first), second(second) {}
+		bool चालक==(स्थिर BitBit& bb) स्थिर { वापस bb.first == first && bb.second == second; }
+		[[nodiscard]] Hasher hash_into(Hasher h) स्थिर {
 			h.eat(first);
 			h.eat(second);
-			return h;
+			वापस h;
 		}
 	};
 
-	struct ModuleTiming
+	काष्ठा ModuleTiming
 	{
-		dict<BitBit, int> comb;
-		dict<NameBit, std::pair<int,NameBit>> arrival, required;
+		dict<BitBit, पूर्णांक> comb;
+		dict<NameBit, std::pair<पूर्णांक,NameBit>> arrival, required;
 		bool has_inputs;
 	};
 
-	dict<RTLIL::IdString, ModuleTiming> data;
+	dict<RTLIL::IdString, ModuleTiming> तथ्य;
 
 	TimingInfo()
 	{
@@ -82,104 +82,104 @@ struct TimingInfo
 		setup(design);
 	}
 
-	void setup(RTLIL::Design *design)
+	व्योम setup(RTLIL::Design *design)
 	{
-		for (auto module : design->modules()) {
-			if (!module->get_blackbox_attribute())
-				continue;
+		क्रम (स्वतः module : design->modules()) {
+			अगर (!module->get_blackbox_attribute())
+				जारी;
 			setup_module(module);
 		}
 	}
 
-	const ModuleTiming& setup_module(RTLIL::Module *module)
+	स्थिर ModuleTiming& setup_module(RTLIL::Module *module)
 	{
-		auto r = data.insert(module->name);
+		स्वतः r = तथ्य.जोड़ो(module->name);
 		log_assert(r.second);
-		auto &t = r.first->second;
+		स्वतः &t = r.first->second;
 
-		for (auto cell : module->cells()) {
-			if (cell->type == ID($specify2)) {
-				auto en = cell->getPort(ID::EN);
-				if (en.is_fully_const() && !en.as_bool())
-					continue;
-				auto src = cell->getPort(ID::SRC);
-				auto dst = cell->getPort(ID::DST);
-				for (const auto &c : src.chunks())
-					if (!c.wire || !c.wire->port_input)
+		क्रम (स्वतः cell : module->cells()) {
+			अगर (cell->type == ID($specify2)) {
+				स्वतः en = cell->getPort(ID::EN);
+				अगर (en.is_fully_const() && !en.as_bool())
+					जारी;
+				स्वतः src = cell->getPort(ID::SRC);
+				स्वतः dst = cell->getPort(ID::DST);
+				क्रम (स्थिर स्वतः &c : src.chunks())
+					अगर (!c.wire || !c.wire->port_निवेश)
 						log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
-				for (const auto &c : dst.chunks())
-					if (!c.wire || !c.wire->port_output)
+				क्रम (स्थिर स्वतः &c : dst.chunks())
+					अगर (!c.wire || !c.wire->port_output)
 						log_error("Module '%s' contains specify cell '%s' where DST '%s' is not a module output.\n", module, cell, log_signal(dst));
-				int rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
-				int fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
-				int max = std::max(rise_max,fall_max);
-				if (max < 0)
+				पूर्णांक rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
+				पूर्णांक fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
+				पूर्णांक max = std::max(rise_max,fall_max);
+				अगर (max < 0)
 					log_error("Module '%s' contains specify cell '%s' with T_{RISE,FALL}_MAX < 0.\n", module, cell);
-				if (cell->getParam(ID::FULL).as_bool()) {
-					for (const auto &s : src)
-						for (const auto &d : dst) {
-							auto r = t.comb.insert(BitBit(s,d));
-							if (!r.second)
+				अगर (cell->getParam(ID::FULL).as_bool()) {
+					क्रम (स्थिर स्वतः &s : src)
+						क्रम (स्थिर स्वतः &d : dst) {
+							स्वतः r = t.comb.जोड़ो(BitBit(s,d));
+							अगर (!r.second)
 								log_error("Module '%s' contains multiple specify cells for SRC '%s' and DST '%s'.\n", module, log_signal(s), log_signal(d));
 							r.first->second = max;
 						}
 				}
-				else {
-					log_assert(GetSize(src) == GetSize(dst));
-					for (auto i = 0; i < GetSize(src); i++) {
-						const auto &s = src[i];
-						const auto &d = dst[i];
-						auto r = t.comb.insert(BitBit(s,d));
-						if (!r.second)
+				अन्यथा {
+					log_assert(Get_आकार(src) == Get_आकार(dst));
+					क्रम (स्वतः i = 0; i < Get_आकार(src); i++) {
+						स्थिर स्वतः &s = src[i];
+						स्थिर स्वतः &d = dst[i];
+						स्वतः r = t.comb.जोड़ो(BitBit(s,d));
+						अगर (!r.second)
 							log_error("Module '%s' contains multiple specify cells for SRC '%s' and DST '%s'.\n", module, log_signal(s), log_signal(d));
 						r.first->second = max;
 					}
 				}
 			}
-			else if (cell->type == ID($specify3)) {
-				auto src = cell->getPort(ID::SRC).as_bit();
-				auto dst = cell->getPort(ID::DST);
-				if (!src.wire || !src.wire->port_input)
+			अन्यथा अगर (cell->type == ID($specify3)) {
+				स्वतः src = cell->getPort(ID::SRC).as_bit();
+				स्वतः dst = cell->getPort(ID::DST);
+				अगर (!src.wire || !src.wire->port_निवेश)
 					log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
-				for (const auto &c : dst.chunks())
-					if (!c.wire->port_output)
+				क्रम (स्थिर स्वतः &c : dst.chunks())
+					अगर (!c.wire->port_output)
 						log_error("Module '%s' contains specify cell '%s' where DST '%s' is not a module output.\n", module, cell, log_signal(dst));
-				int rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
-				int fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
-				int max = std::max(rise_max,fall_max);
-				if (max < 0) {
+				पूर्णांक rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
+				पूर्णांक fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
+				पूर्णांक max = std::max(rise_max,fall_max);
+				अगर (max < 0) {
 					log_warning("Module '%s' contains specify cell '%s' with T_{RISE,FALL}_MAX < 0 which is currently unsupported. Clamping to 0.\n", module, cell);
 					max = 0;
 				}
-				for (const auto &d : dst) {
-					auto r = t.arrival.insert(NameBit(d));
-					auto &v = r.first->second;
-					if (r.second || v.first < max) {
+				क्रम (स्थिर स्वतः &d : dst) {
+					स्वतः r = t.arrival.जोड़ो(NameBit(d));
+					स्वतः &v = r.first->second;
+					अगर (r.second || v.first < max) {
 						v.first = max;
 						v.second = NameBit(src);
 					}
 				}
 			}
-			else if (cell->type == ID($specrule)) {
+			अन्यथा अगर (cell->type == ID($specrule)) {
 				std::string type = cell->getParam(ID::TYPE).decode_string();
-				if (type != "$setup" && type != "$setuphold")
-					continue;
-				auto src = cell->getPort(ID::SRC);
-				auto dst = cell->getPort(ID::DST).as_bit();
-				for (const auto &c : src.chunks())
-					if (!c.wire || !c.wire->port_input)
+				अगर (type != "$setup" && type != "$setuphold")
+					जारी;
+				स्वतः src = cell->getPort(ID::SRC);
+				स्वतः dst = cell->getPort(ID::DST).as_bit();
+				क्रम (स्थिर स्वतः &c : src.chunks())
+					अगर (!c.wire || !c.wire->port_निवेश)
 						log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
-				if (!dst.wire || !dst.wire->port_input)
+				अगर (!dst.wire || !dst.wire->port_निवेश)
 					log_error("Module '%s' contains specify cell '%s' where DST '%s' is not a module input.\n", module, cell, log_signal(dst));
-				int max = cell->getParam(ID::T_LIMIT_MAX).as_int();
-				if (max < 0) {
+				पूर्णांक max = cell->getParam(ID::T_LIMIT_MAX).as_int();
+				अगर (max < 0) {
 					log_warning("Module '%s' contains specify cell '%s' with T_LIMIT_MAX < 0 which is currently unsupported. Clamping to 0.\n", module, cell);
 					max = 0;
 				}
-				for (const auto &s : src) {
-					auto r = t.required.insert(NameBit(s));
-					auto &v = r.first->second;
-					if (r.second || v.first < max) {
+				क्रम (स्थिर स्वतः &s : src) {
+					स्वतः r = t.required.जोड़ो(NameBit(s));
+					स्वतः &v = r.first->second;
+					अगर (r.second || v.first < max) {
 						v.first = max;
 						v.second = NameBit(dst);
 					}
@@ -187,23 +187,23 @@ struct TimingInfo
 			}
 		}
 
-		for (auto port_name : module->ports) {
-			auto wire = module->wire(port_name);
-			if (wire->port_input) {
+		क्रम (स्वतः port_name : module->ports) {
+			स्वतः wire = module->wire(port_name);
+			अगर (wire->port_निवेश) {
 				t.has_inputs = true;
-				break;
+				अवरोध;
 			}
 		}
 
-		return t;
+		वापस t;
 	}
 
-	decltype(data)::const_iterator find(RTLIL::IdString module_name) const { return data.find(module_name); }
-	decltype(data)::const_iterator end() const { return data.end(); }
-	int count(RTLIL::IdString module_name) const { return data.count(module_name); }
-	const ModuleTiming& at(RTLIL::IdString module_name) const { return data.at(module_name); }
+	decltype(तथ्य)::const_iterator find(RTLIL::IdString module_name) स्थिर { वापस तथ्य.find(module_name); }
+	decltype(तथ्य)::const_iterator end() स्थिर { वापस तथ्य.end(); }
+	पूर्णांक गिनती(RTLIL::IdString module_name) स्थिर { वापस तथ्य.गिनती(module_name); }
+	स्थिर ModuleTiming& at(RTLIL::IdString module_name) स्थिर { वापस तथ्य.at(module_name); }
 };
 
 YOSYS_NAMESPACE_END
 
-#endif
+#पूर्ण_अगर

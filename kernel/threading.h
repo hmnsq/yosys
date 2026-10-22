@@ -1,70 +1,70 @@
-#include <deque>
+#समावेश <deque>
 
-#include "kernel/yosys_common.h"
-#include "kernel/log.h"
-#include "kernel/utils.h"
+#समावेश "kernel/yosys_common.h"
+#समावेश "kernel/log.h"
+#समावेश "kernel/utils.h"
 
-#ifdef YOSYS_ENABLE_THREADS
-#include <condition_variable>
-#include <mutex>
-#include <thread>
-#endif
+#अगर_घोषित YOSYS_ENABLE_THREADS
+#समावेश <condition_variable>
+#समावेश <mutex>
+#समावेश <thread>
+#पूर्ण_अगर
 
-#ifndef YOSYS_THREADING_H
-#define YOSYS_THREADING_H
+#अगर_अघोषित YOSYS_THREADING_H
+#घोषणा YOSYS_THREADING_H
 
 YOSYS_NAMESPACE_BEGIN
 
 // Redirect to no-op to avoid dependence on <mutex>
 // and <condition_variable> in single-threaded builds
-#ifdef YOSYS_ENABLE_THREADS
+#अगर_घोषित YOSYS_ENABLE_THREADS
 using Mutex = std::mutex;
 using CondVar = std::condition_variable;
 using UniqueLock = std::unique_lock<Mutex>;
 using LockGuard = std::lock_guard<Mutex>;
-#else
-struct Mutex {
-	void lock() {}
-	void unlock() {}
-	bool try_lock() { return true; }
+#अन्यथा
+काष्ठा Mutex {
+	व्योम lock() {}
+	व्योम unlock() {}
+	bool try_lock() { वापस true; }
 };
-struct CondVar {
-	template <class L> void wait(L &) {}
-	template <class L, class P> void wait(L &, P) {}
-	void notify_one() {}
-	void notify_all() {}
+काष्ठा CondVar {
+	ढाँचा <class L> व्योम रुको(L &) {}
+	ढाँचा <class L, class P> व्योम रुको(L &, P) {}
+	व्योम notify_one() {}
+	व्योम notify_all() {}
 };
-struct UniqueLock {
+काष्ठा UniqueLock {
 	UniqueLock(Mutex &) {}
 };
-struct LockGuard {
+काष्ठा LockGuard {
 	LockGuard(Mutex &) {}
 };
-#endif
+#पूर्ण_अगर
 
 // Concurrent queue implementation. Not fast, but simple.
 // Multi-producer, multi-consumer, optionally bounded.
 // When YOSYS_ENABLE_THREADS is not defined, this is just a non-thread-safe non-blocking deque.
-template <typename T>
+ढाँचा <typename T>
 class ConcurrentQueue
 {
-public:
-	ConcurrentQueue(int capacity = INT_MAX)
+खुला:
+	ConcurrentQueue(पूर्णांक capacity = पूर्णांक_उच्च)
 		: capacity(capacity) {}
 	// Push an element into the queue. If it's at capacity, block until there is room.
-	void push_back(T t)
+	व्योम धकेलो_back(T t)
 	{
 		UniqueLock lock(mutex);
-		not_full_condition.wait(lock, [this] { return static_cast<int>(contents.size()) < capacity; });
-		if (contents.empty())
+		not_full_condition.रुको(lock, [this] { वापस static_cast<पूर्णांक>(contents.आकार()) < capacity; });
+		अगर (contents.empty())
 			not_empty_condition.notify_one();
 		log_assert(!closed);
-		contents.push_back(std::move(t));
-		if (static_cast<int>(contents.size()) < capacity)
+		contents.धकेलो_back(std::move(t));
+		अगर (static_cast<पूर्णांक>(contents.आकार()) < capacity)
 			not_full_condition.notify_one();
 	}
 	// Signal that no more elements will be produced. `pop_front()` will return nullopt.
-	void close()
+	व्योम बंद()
 	{
 		UniqueLock lock(mutex);
 		not_empty_condition.notify_all();
@@ -72,32 +72,32 @@ public:
 	}
 	// Pop an element from the queue. Blocks until an element is available
 	// or the queue is closed and empty.
-	std::optional<T> pop_front()
+	std::optional<T> निकालो_front()
 	{
-		return pop_front_internal(true);
+		वापस निकालो_front_internal(true);
 	}
 	// Pop an element from the queue. Does not block, just returns nullopt if the
 	// queue is empty.
-	std::optional<T> try_pop_front()
+	std::optional<T> try_निकालो_front()
 	{
-		return pop_front_internal(false);
+		वापस निकालो_front_internal(false);
 	}
-private:
-	std::optional<T> pop_front_internal(bool wait)
+निजी:
+	std::optional<T> निकालो_front_internal(bool रुको)
 	{
 		UniqueLock lock(mutex);
-		if (wait) {
-			not_empty_condition.wait(lock, [this] { return !contents.empty() || closed; });
+		अगर (रुको) {
+			not_empty_condition.रुको(lock, [this] { वापस !contents.empty() || closed; });
 		}
-		if (contents.empty())
-			return std::nullopt;
-		if (static_cast<int>(contents.size()) == capacity)
+		अगर (contents.empty())
+			वापस std::nullopt;
+		अगर (static_cast<पूर्णांक>(contents.आकार()) == capacity)
 			not_full_condition.notify_one();
-		T result = std::move(contents.front());
-		contents.pop_front();
-		if (!contents.empty())
+		T परिणाम = std::move(contents.front());
+		contents.निकालो_front();
+		अगर (!contents.empty())
 			not_empty_condition.notify_one();
-		return std::move(result);
+		वापस std::move(परिणाम);
 	}
 
 	Mutex mutex;
@@ -106,26 +106,26 @@ private:
 	// Signals one waiter thread when the queue changes and is not empty.
 	CondVar not_empty_condition;
 	std::deque<T> contents;
-	int capacity;
+	पूर्णांक capacity;
 	bool closed = false;
 };
 
 class DeferredLogs
 {
-public:
-	template <typename... Args>
-	void log(FmtString<TypeIdentity<Args>...> fmt, Args... args)
+खुला:
+	ढाँचा <typename... Args>
+	व्योम log(FmtString<TypeIdentity<Args>...> fmt, Args... args)
 	{
-		logs.push_back({fmt.format(args...), false});
+		logs.धकेलो_back({fmt.format(args...), false});
 	}
-	template <typename... Args>
-	void log_error(FmtString<TypeIdentity<Args>...> fmt, Args... args)
+	ढाँचा <typename... Args>
+	व्योम log_error(FmtString<TypeIdentity<Args>...> fmt, Args... args)
 	{
-		logs.push_back({fmt.format(args...), true});
+		logs.धकेलो_back({fmt.format(args...), true});
 	}
-	void flush();
-private:
-	struct Message
+	व्योम flush();
+निजी:
+	काष्ठा Message
 	{
 		std::string text;
 		bool error;
@@ -135,49 +135,49 @@ private:
 
 class ThreadPool
 {
-public:
+खुला:
 	// Computes the number of worker threads to use.
 	// `reserved_cores` cores are set aside for other threads (e.g. work on the main thread).
 	// `max_worker_threads` --- don't return more workers than this.
 	// The result may be 0.
-	static int pool_size(int reserved_cores, int max_worker_threads);
+	अटल पूर्णांक pool_आकार(पूर्णांक reserved_cores, पूर्णांक max_worker_threads);
 
 	// Computes the number of worker threads to use, by dividing work_units among threads.
 	// For testing purposes you can set YOSYS_WORK_UNITS_PER_THREAD to override `work_units_per_thread`.
 	// The result may be 0.
-	static int work_pool_size(int reserved_cores, int work_units, int work_units_per_thread);
+	अटल पूर्णांक work_pool_आकार(पूर्णांक reserved_cores, पूर्णांक work_units, पूर्णांक work_units_per_thread);
 
 	// Create a pool of threads running the given closure (parameterized by thread number).
 	// `pool_size` must be the result of a `pool_size()` call.
-	ThreadPool(int pool_size, std::function<void(int)> b);
+	ThreadPool(पूर्णांक pool_आकार, std::function<व्योम(पूर्णांक)> b);
 	ThreadPool(ThreadPool &&other) = delete;
 	// Waits for all threads to terminate. Make sure those closures return!
 	~ThreadPool();
 
 	// Return the number of threads in the pool.
-	int num_threads() const
+	पूर्णांक अंक_threads() स्थिर
 	{
-#ifdef YOSYS_ENABLE_THREADS
-		return threads.size();
-#else
-		return 0;
-#endif
+#अगर_घोषित YOSYS_ENABLE_THREADS
+		वापस threads.आकार();
+#अन्यथा
+		वापस 0;
+#पूर्ण_अगर
 	}
-private:
-	std::function<void(int)> body;
-#ifdef YOSYS_ENABLE_THREADS
+निजी:
+	std::function<व्योम(पूर्णांक)> body;
+#अगर_घोषित YOSYS_ENABLE_THREADS
 	std::vector<std::thread> threads;
-#endif
+#पूर्ण_अगर
 };
 
 // Divides some number of items into `num_threads` subranges and returns the
 // `thread_num`'th subrange. If `num_threads` is zero, returns the whole range.
-IntRange item_range_for_worker(int num_items, int thread_num, int num_threads);
+IntRange item_range_for_worker(पूर्णांक अंक_वस्तुएँ, पूर्णांक thread_अंक, पूर्णांक अंक_threads);
 
 // A type that encapsulates the index of a thread in some list of threads. Useful for
 // stronger typechecking and code readability.
-struct ThreadIndex {
-	int thread_num;
+काष्ठा Thread_सूचकांक {
+	पूर्णांक thread_अंक;
 };
 
 // A set of threads with a `run()` API that runs a closure on all of the threads
@@ -185,66 +185,66 @@ struct ThreadIndex {
 // parallel algorithms that use barrier synchronization.
 class ParallelDispatchThreadPool
 {
-public:
+खुला:
 	// Create a pool of threads running the given closure (parameterized by thread number).
 	// `pool_size` must be the result of a `pool_size()` call.
 	// `pool_size` can be zero, which we treat as 1.
-	ParallelDispatchThreadPool(int pool_size);
+	ParallelDispatchThreadPool(पूर्णांक pool_आकार);
 	~ParallelDispatchThreadPool();
 
 	// For each thread running a closure, a `RunCtx` is passed to the closure. Currently
 	// it contains the thread index and the total number of threads. It can be passed
 	// directly to any APIs requiring a `ThreadIndex`.
-	struct RunCtx : public ThreadIndex {
-		int num_threads;
-		IntRange item_range(int num_items) const {
-			return item_range_for_worker(num_items, thread_num, num_threads);
+	काष्ठा RunCtx : खुला Thread_सूचकांक {
+		पूर्णांक अंक_threads;
+		IntRange item_range(पूर्णांक अंक_वस्तुएँ) स्थिर {
+			वापस item_range_for_worker(अंक_वस्तुएँ, thread_अंक, अंक_threads);
 		}
 	};
 	// Sometimes we only want to activate a subset of the threads in the pool. This
 	// class provides a way to do that. It provides the same `num_threads()`
 	// and `run()` APIs as a `ParallelDispatchThreadPool`.
 	class Subpool {
-	public:
-		Subpool(ParallelDispatchThreadPool &parent, int max_threads)
+	खुला:
+		Subpool(ParallelDispatchThreadPool &parent, पूर्णांक max_threads)
 				: parent(parent), max_threads(max_threads) {}
 		// Returns the number of threads that will be used when calling `run()`.
-		int num_threads() const {
-			return parent.num_threads(max_threads);
+		पूर्णांक अंक_threads() स्थिर {
+			वापस parent.अंक_threads(max_threads);
 		}
-		void run(std::function<void(const RunCtx &)> work) {
+		व्योम run(std::function<व्योम(स्थिर RunCtx &)> work) {
 			parent.run(std::move(work), max_threads);
 		}
-		ParallelDispatchThreadPool &thread_pool() { return parent; }
-	private:
+		ParallelDispatchThreadPool &thread_pool() { वापस parent; }
+	निजी:
 		ParallelDispatchThreadPool &parent;
-		int max_threads;
+		पूर्णांक max_threads;
 	};
 
 	// Run the `work` function in parallel on each thread in the pool (parameterized by
 	// thread number). Waits for all work functions to complete. Only one `run()` can be
 	// active at a time.
 	// Uses no more than `max_threads` threads (but at least one).
-	void run(std::function<void(const RunCtx &)> work) {
-		run(std::move(work), INT_MAX);
+	व्योम run(std::function<व्योम(स्थिर RunCtx &)> work) {
+		run(std::move(work), पूर्णांक_उच्च);
 	}
 
 	// Returns the number of threads that will be used when calling `run()`.
-	int num_threads() const {
-		return num_threads(INT_MAX);
+	पूर्णांक अंक_threads() स्थिर {
+		वापस अंक_threads(पूर्णांक_उच्च);
 	}
-private:
-	friend class Subpool;
+निजी:
+	मित्र class Subpool;
 
-	void run(std::function<void(const RunCtx &)> work, int max_threads);
-	int num_threads(int max_threads) const {
-		return std::min(num_worker_threads_ + 1, std::max(1, max_threads));
+	व्योम run(std::function<व्योम(स्थिर RunCtx &)> work, पूर्णांक max_threads);
+	पूर्णांक अंक_threads(पूर्णांक max_threads) स्थिर {
+		वापस std::min(अंक_worker_threads + 1, std::max(1, max_threads));
 	}
-	void run_worker(int thread_num);
+	व्योम run_worker(पूर्णांक thread_अंक);
 
-	std::function<void(const RunCtx &)> *current_work = nullptr;
+	std::function<व्योम(स्थिर RunCtx &)> *current_work = nullptr;
 	// Keeps a correct count even when threads are exiting.
-	int num_worker_threads_;
+	पूर्णांक अंक_worker_threads;
 	// The count of active worker threads for the current `run()`.
 	// This is only written by the main thread, and only written when
 	// no other worker threads are running (i.e. all worker threads have
@@ -253,7 +253,7 @@ private:
 	// Although there can't be any races, we still need to make it atomic
 	// to prevent the compiler reordering accesses so the above invariant
 	// is maintained.
-	std::atomic<int> num_active_worker_threads_ = 0;
+	std::atomic<पूर्णांक> अंक_active_worker_threads = 0;
 
 	// Not especially efficient for large numbers of threads. Worker wakeup could scale
 	// better by conceptually organising workers into a tree and having workers wake
@@ -261,40 +261,40 @@ private:
 	Mutex main_to_workers_signal_mutex;
 	CondVar main_to_workers_signal_cv;
 	std::vector<uint8_t> main_to_workers_signal;
-	void signal_workers_start() {
+	व्योम signal_workers_start() {
 		UniqueLock lock(main_to_workers_signal_mutex);
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-		std::fill(main_to_workers_signal.begin(), main_to_workers_signal.begin() + num_active_worker_threads, 1);
+		पूर्णांक अंक_active_worker_threads_2 = अंक_active_worker_threads.load(std::memory_order_relaxed);
+		std::fill(main_to_workers_signal.begin(), main_to_workers_signal.begin() + अंक_active_worker_threads_2, 1);
 		// When `num_active_worker_threads_` is small compared to `num_worker_threads_`, we have a "thundering herd"
 		// problem here. Fixing that would add complexity so don't worry about it for now.
 		main_to_workers_signal_cv.notify_all();
 	}
-	void worker_wait_for_start(int thread_num) {
+	व्योम worker_wait_for_start(पूर्णांक thread_अंक) {
 		UniqueLock lock(main_to_workers_signal_mutex);
-		main_to_workers_signal_cv.wait(lock, [this, thread_num] { return main_to_workers_signal[thread_num] > 0; });
-		main_to_workers_signal[thread_num] = 0;
+		main_to_workers_signal_cv.रुको(lock, [this, thread_अंक] { वापस main_to_workers_signal[thread_अंक] > 0; });
+		main_to_workers_signal[thread_अंक] = 0;
 	}
 
-	std::atomic<int> done_workers = 0;
+	std::atomic<पूर्णांक> done_workers = 0;
 	Mutex workers_to_main_signal_mutex;
 	CondVar workers_to_main_signal_cv;
-	void signal_worker_done() {
+	व्योम signal_worker_done() {
 		// Must read `num_active_worker_threads_` before we increment `d`! Otherwise
 		// it is possible we would increment `d`, and then another worker signals the
 		// main thread that all workers are done, and the main thread writes to
 		// `num_active_worker_threads_` before we check it.
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-		int d = done_workers.fetch_add(1, std::memory_order_release);
-		if (d + 1 == num_active_worker_threads) {
+		पूर्णांक अंक_active_worker_threads_2 = अंक_active_worker_threads.load(std::memory_order_relaxed);
+		पूर्णांक d = done_workers.fetch_add(1, std::memory_order_release);
+		अगर (d + 1 == अंक_active_worker_threads_2) {
 			UniqueLock lock(workers_to_main_signal_mutex);
 			workers_to_main_signal_cv.notify_all();
 		}
 	}
-	void wait_for_workers_done() {
+	व्योम wait_for_workers_done() {
 		UniqueLock lock(workers_to_main_signal_mutex);
-		workers_to_main_signal_cv.wait(lock, [this] {
-			int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-			return done_workers.load(std::memory_order_acquire) == num_active_worker_threads;
+		workers_to_main_signal_cv.रुको(lock, [this] {
+			पूर्णांक अंक_active_worker_threads_2 = अंक_active_worker_threads.load(std::memory_order_relaxed);
+			वापस done_workers.load(std::memory_order_acquire) == अंक_active_worker_threads_2;
 		});
 		done_workers.store(0, std::memory_order_relaxed);
 	}
@@ -304,23 +304,23 @@ private:
 	std::unique_ptr<ThreadPool> thread_pool;
 };
 
-template <class T>
-class ConcurrentStack
+ढाँचा <class T>
+class Concurrent_ढेर
 {
-public:
-	void push_back(T &&t) {
+खुला:
+	व्योम धकेलो_back(T &&t) {
 		LockGuard lock(mutex);
-		contents.push_back(std::move(t));
+		contents.धकेलो_back(std::move(t));
 	}
-	std::optional<T> try_pop_back() {
+	std::optional<T> try_निकालो_back() {
 		LockGuard lock(mutex);
-		if (contents.empty())
-			return std::nullopt;
-		T result = std::move(contents.back());
-		contents.pop_back();
-		return result;
+		अगर (contents.empty())
+			वापस std::nullopt;
+		T परिणाम = std::move(contents.back());
+		contents.निकालो_back();
+		वापस परिणाम;
 	}
-private:
+निजी:
 	Mutex mutex;
 	std::vector<T> contents;
 };
@@ -330,58 +330,58 @@ private:
 // finished writing, the vector can be iterated over. The iteration order is deterministic:
 // all the elements written by thread 0 in the order it inserted them, followed by all elements
 // written by thread 1, etc.
-template <typename T>
+ढाँचा <typename T>
 class ShardedVector {
-public:
-	ShardedVector(const ParallelDispatchThreadPool &thread_pool) {
-		init(thread_pool.num_threads());
+खुला:
+	ShardedVector(स्थिर ParallelDispatchThreadPool &thread_pool) {
+		init(thread_pool.अंक_threads());
 	}
-	ShardedVector(const ParallelDispatchThreadPool::Subpool &thread_pool) {
-		init(thread_pool.num_threads());
+	ShardedVector(स्थिर ParallelDispatchThreadPool::Subpool &thread_pool) {
+		init(thread_pool.अंक_threads());
 	}
 
 	// Insert a value, passing the `ThreadIndex` of the writer thread.
 	// Parallel inserts with different `ThreadIndex` values are fine.
 	// Inserts must not run concurrently with any other methods (e.g.
 	// iteration or `empty()`.)
-	void insert(const ThreadIndex &thread, T value) {
-		buckets[thread.thread_num].emplace_back(std::move(value));
+	व्योम जोड़ो(स्थिर Thread_सूचकांक &thread, T मूल्य) {
+		buckets[thread.thread_अंक].emplace_back(std::move(मूल्य));
 	}
 
-	bool empty() const {
-		for (const std::vector<T> &bucket : buckets)
-			if (!bucket.empty())
-				return false;
-		return true;
+	bool empty() स्थिर {
+		क्रम (स्थिर std::vector<T> &bucket : buckets)
+			अगर (!bucket.empty())
+				वापस false;
+		वापस true;
 	}
 
 	using Buckets = std::vector<std::vector<T>>;
 	class iterator {
-	public:
+	खुला:
 		iterator(typename Buckets::iterator bucket_it, typename Buckets::iterator bucket_end)
 			: bucket_it(std::move(bucket_it)), bucket_end(std::move(bucket_end)) {
-			if (bucket_it != bucket_end)
+			अगर (bucket_it != bucket_end)
 				inner_it = bucket_it->begin();
 			normalize();
 		}
-		T& operator*() const { return *inner_it.value(); }
-		iterator &operator++() {
+		T& चालक*() स्थिर { वापस *inner_it.मूल्य(); }
+		iterator &चालक++() {
 			++*inner_it;
 			normalize();
-			return *this;
+			वापस *this;
 		}
-		bool operator!=(const iterator &other) const {
-			return bucket_it != other.bucket_it || inner_it != other.inner_it;
+		bool चालक!=(स्थिर iterator &other) स्थिर {
+			वापस bucket_it != other.bucket_it || inner_it != other.inner_it;
 		}
-	private:
-		void normalize() {
-			if (bucket_it == bucket_end)
-				return;
-			while (inner_it == bucket_it->end()) {
+	निजी:
+		व्योम normalize() {
+			अगर (bucket_it == bucket_end)
+				वापस;
+			जबतक (inner_it == bucket_it->end()) {
 				++bucket_it;
-				if (bucket_it == bucket_end) {
+				अगर (bucket_it == bucket_end) {
 					inner_it.reset();
-					return;
+					वापस;
 				}
 				inner_it = bucket_it->begin();
 			}
@@ -390,11 +390,11 @@ public:
 		typename Buckets::iterator bucket_it;
 		typename Buckets::iterator bucket_end;
 	};
-	iterator begin() { return iterator(buckets.begin(), buckets.end()); }
-	iterator end() { return iterator(buckets.end(), buckets.end()); }
-private:
-	void init(int num_threads) {
-		buckets.resize(num_threads);
+	iterator begin() { वापस iterator(buckets.begin(), buckets.end()); }
+	iterator end() { वापस iterator(buckets.end(), buckets.end()); }
+निजी:
+	व्योम init(पूर्णांक अंक_threads) {
+		buckets.resize(अंक_threads);
 	}
 	Buckets buckets;
 };
@@ -403,9 +403,9 @@ private:
 // the current value and discarding the other. This is correct when all values with the
 // same key are interchangeable, i.e. when the hashtable is being used as a set instead
 // of a map.
-template <typename V>
-struct SetCollisionHandler {
-	void operator()(typename V::Accumulated &, typename V::Accumulated &) const {}
+ढाँचा <typename V>
+काष्ठा SetCollisionHandler {
+	व्योम चालक()(typename V::Accumulated &, typename V::Accumulated &) स्थिर {}
 };
 
 // A hashtable that can be efficiently built in parallel and then looked up concurrently.
@@ -418,193 +418,193 @@ struct SetCollisionHandler {
 //
 // To use this, first construct a `Builder` and fill it in (in parallel), then construct
 // a `ShardedHashtable` from the `Builder`.
-template <typename V, typename KeyEquality, typename CollisionHandler>
+ढाँचा <typename V, typename कुंजी_Equality, typename CollisionHandler>
 class ShardedHashtable {
-public:
+खुला:
 	// A combination of a `V` and its hash value.
-	struct Value {
-		Value(V value, unsigned int hash) : value(std::move(value)), hash(hash) {}
-		Value(Value &&) = default;
-		Value(const Value &) = delete;
-		Value &operator=(const Value &) = delete;
-		V value;
-		unsigned int hash;
+	काष्ठा मूल्य_3 {
+		मूल्य_3(V मूल्य, अचिन्हित पूर्णांक hash) : मूल्य(std::move(मूल्य)), hash(hash) {}
+		मूल्य_3(मूल्य_3 &&) = शेष;
+		मूल्य_3(स्थिर मूल्य_3 &) = delete;
+		मूल्य_3 &चालक=(स्थिर मूल्य_3 &) = delete;
+		V मूल्य;
+		अचिन्हित पूर्णांक hash;
 	};
 	// A combination of a `V::Accumulated` and its hash value.
-	struct AccumulatedValue {
-		AccumulatedValue(typename V::Accumulated value, unsigned int hash) : value(std::move(value)), hash(hash) {}
-		AccumulatedValue(AccumulatedValue &&) = default;
-#if defined(_MSC_VER)
-		AccumulatedValue(const AccumulatedValue &) {
+	काष्ठा Accumulated_मूल्य {
+		Accumulated_मूल्य(typename V::Accumulated मूल्य, अचिन्हित पूर्णांक hash) : मूल्य(std::move(मूल्य)), hash(hash) {}
+		Accumulated_मूल्य(Accumulated_मूल्य &&) = शेष;
+#अगर defined(_MSC_VER)
+		Accumulated_मूल्य(स्थिर Accumulated_मूल्य &) {
 			log_error("Copy constructor called on AccumulatedValue\n");
 		}
-		AccumulatedValue &operator=(const AccumulatedValue &) {
+		Accumulated_मूल्य &चालक=(स्थिर Accumulated_मूल्य &) {
 			log_error("Copy assignment called on AccumulatedValue\n");
-			return *this;
+			वापस *this;
 		}
-#else
-		AccumulatedValue(const AccumulatedValue &) = delete;
-		AccumulatedValue &operator=(const AccumulatedValue &) = delete;
-#endif
-		typename V::Accumulated value;
-		unsigned int hash;
+#अन्यथा
+		Accumulated_मूल्य(स्थिर Accumulated_मूल्य &) = delete;
+		Accumulated_मूल्य &चालक=(स्थिर Accumulated_मूल्य &) = delete;
+#पूर्ण_अगर
+		typename V::Accumulated मूल्य;
+		अचिन्हित पूर्णांक hash;
 	};
 	// A class containing an `operator()` that returns true of two `AccumulatedValue`
 	// elements have equal keys.
 	// Required to insert `AccumulatedValue`s into an `std::unordered_set`.
-	struct AccumulatedValueEquality {
-		KeyEquality inner;
-		AccumulatedValueEquality(const KeyEquality &inner) : inner(inner) {}
-		bool operator()(const AccumulatedValue &v1, const AccumulatedValue &v2) const {
-			return inner(v1.value, v2.value);
+	काष्ठा Accumulated_मूल्य_Equality {
+		कुंजी_Equality inner;
+		Accumulated_मूल्य_Equality(स्थिर कुंजी_Equality &inner) : inner(inner) {}
+		bool चालक()(स्थिर Accumulated_मूल्य &v1, स्थिर Accumulated_मूल्य &v2) स्थिर {
+			वापस inner(v1.मूल्य, v2.मूल्य);
 		}
 	};
 	// A class containing an `operator()` that returns the hash value of an `AccumulatedValue`.
 	// Required to insert `AccumulatedValue`s into an `std::unordered_set`.
-	struct AccumulatedValueHashOp {
-		size_t operator()(const AccumulatedValue &v) const {
-			return static_cast<size_t>(v.hash);
+	काष्ठा Accumulated_मूल्य_Hash_Op {
+		माप_प्रकार चालक()(स्थिर Accumulated_मूल्य &v) स्थिर {
+			वापस static_cast<माप_प्रकार>(v.hash);
 		}
 	};
-	using Shard = std::unordered_set<AccumulatedValue, AccumulatedValueHashOp, AccumulatedValueEquality>;
+	using Shard = std::unordered_set<Accumulated_मूल्य, Accumulated_मूल्य_Hash_Op, Accumulated_मूल्य_Equality>;
 
 	// First construct one of these. Then populate it in parallel by calling `insert()` from many threads.
 	// Then do another parallel phase calling `process()` from many threads.
 	class Builder {
-	public:
-		Builder(const ParallelDispatchThreadPool &thread_pool, KeyEquality equality = KeyEquality(), CollisionHandler collision_handler = CollisionHandler())
+	खुला:
+		Builder(स्थिर ParallelDispatchThreadPool &thread_pool, कुंजी_Equality equality = कुंजी_Equality(), CollisionHandler collision_handler = CollisionHandler())
 				: collision_handler(std::move(collision_handler)) {
-			init(thread_pool.num_threads(), std::move(equality));
+			init(thread_pool.अंक_threads(), std::move(equality));
 		}
-		Builder(const ParallelDispatchThreadPool::Subpool &thread_pool, KeyEquality equality = KeyEquality(), CollisionHandler collision_handler = CollisionHandler())
+		Builder(स्थिर ParallelDispatchThreadPool::Subpool &thread_pool, कुंजी_Equality equality = कुंजी_Equality(), CollisionHandler collision_handler = CollisionHandler())
 				: collision_handler(std::move(collision_handler)) {
-			init(thread_pool.num_threads(), std::move(equality));
+			init(thread_pool.अंक_threads(), std::move(equality));
 		}
 		// First call `insert` to insert all elements. All inserts must finish
 		// before calling any `process()`.
-		void insert(const ThreadIndex &thread, Value v) {
+		व्योम जोड़ो(स्थिर Thread_सूचकांक &thread, मूल्य_3 v) {
 			// You might think that for the single-threaded case, we can optimize by
 			// inserting directly into the `std::unordered_set` here. But that slows things down
 			// a lot and I never got around to figuring out why.
-			std::vector<std::vector<Value>> &buckets = all_buckets[thread.thread_num];
-			size_t bucket = static_cast<size_t>(v.hash) % buckets.size();
+			std::vector<std::vector<मूल्य_3>> &buckets = all_buckets[thread.thread_अंक];
+			माप_प्रकार bucket = static_cast<माप_प्रकार>(v.hash) % buckets.आकार();
 			buckets[bucket].emplace_back(std::move(v));
 		}
 		// Then call `process` for each thread. All `process()`s must finish before using
 		// the `Builder` to construct a `ShardedHashtable`.
-		void process(const ThreadIndex &thread) {
-			int size = 0;
-			for (std::vector<std::vector<Value>> &buckets : all_buckets)
-				size += GetSize(buckets[thread.thread_num]);
-			Shard &shard = shards[thread.thread_num];
-			shard.reserve(size);
-			for (std::vector<std::vector<Value>> &buckets : all_buckets) {
-				for (Value &value : buckets[thread.thread_num])
-					accumulate(value, shard);
+		व्योम process(स्थिर Thread_सूचकांक &thread) {
+			पूर्णांक आकार = 0;
+			क्रम (std::vector<std::vector<मूल्य_3>> &buckets : all_buckets)
+				आकार += Get_आकार(buckets[thread.thread_अंक]);
+			Shard &shard = shards[thread.thread_अंक];
+			shard.reserve(आकार);
+			क्रम (std::vector<std::vector<मूल्य_3>> &buckets : all_buckets) {
+				क्रम (मूल्य_3 &मूल्य : buckets[thread.thread_अंक])
+					accumulate(मूल्य, shard);
 				// Free as much memory as we can during the parallel phase.
-				std::vector<Value>().swap(buckets[thread.thread_num]);
+				std::vector<मूल्य_3>().swap(buckets[thread.thread_अंक]);
 			}
 		}
-	private:
-		friend class ShardedHashtable<V, KeyEquality, CollisionHandler>;
-		void accumulate(Value &value, Shard &shard) {
+	निजी:
+		मित्र class ShardedHashtable<V, कुंजी_Equality, CollisionHandler>;
+		व्योम accumulate(मूल्य_3 &मूल्य, Shard &shard) {
 			// With C++20 we could make this more efficient using heterogenous lookup
-			AccumulatedValue accumulated_value{std::move(value.value), value.hash};
-			auto [it, inserted] = shard.insert(std::move(accumulated_value));
-			if (!inserted)
-				collision_handler(const_cast<typename V::Accumulated &>(it->value), accumulated_value.value);
+			Accumulated_मूल्य accumulated_मूल्य{std::move(मूल्य.मूल्य), मूल्य.hash};
+			स्वतः [it, inserted] = shard.जोड़ो(std::move(accumulated_मूल्य));
+			अगर (!inserted)
+				collision_handler(const_cast<typename V::Accumulated &>(it->मूल्य), accumulated_मूल्य.मूल्य);
 		}
-		void init(int num_threads, KeyEquality equality) {
-			all_buckets.resize(num_threads);
-			for (std::vector<std::vector<Value>> &buckets : all_buckets)
-				buckets.resize(num_threads);
-			for (int i = 0; i < num_threads; ++i)
-				shards.emplace_back(0, AccumulatedValueHashOp(), AccumulatedValueEquality(equality));
+		व्योम init(पूर्णांक अंक_threads, कुंजी_Equality equality) {
+			all_buckets.resize(अंक_threads);
+			क्रम (std::vector<std::vector<मूल्य_3>> &buckets : all_buckets)
+				buckets.resize(अंक_threads);
+			क्रम (पूर्णांक i = 0; i < अंक_threads; ++i)
+				shards.emplace_back(0, Accumulated_मूल्य_Hash_Op(), Accumulated_मूल्य_Equality(equality));
 		}
-		const CollisionHandler collision_handler;
+		स्थिर CollisionHandler collision_handler;
 		// A num_threads x num_threads matrix of buckets.
 		// In the first phase, each thread i gemerates elements and writes them to
 		// bucket [i][j] where j = hash(element) % num_threads.
 		// In the second phase, thread i reads from bucket [j][i] for all j, collecting
 		// all elements where i = hash(element) % num_threads.
-		std::vector<std::vector<std::vector<Value>>> all_buckets;
+		std::vector<std::vector<std::vector<मूल्य_3>>> all_buckets;
 		std::vector<Shard> shards;
 	};
 
 	// Then finally construct the hashtable:
 	ShardedHashtable(Builder &builder) : shards(std::move(builder.shards)) {
 		// Check that all necessary 'process()' calls were made.
-		for (std::vector<std::vector<Value>> &buckets : builder.all_buckets)
-			for (std::vector<Value> &bucket : buckets)
+		क्रम (std::vector<std::vector<मूल्य_3>> &buckets : builder.all_buckets)
+			क्रम (std::vector<मूल्य_3> &bucket : buckets)
 				log_assert(bucket.empty());
 		// Free memory.
-		std::vector<std::vector<std::vector<Value>>>().swap(builder.all_buckets);
+		std::vector<std::vector<std::vector<मूल्य_3>>>().swap(builder.all_buckets);
 	}
-	ShardedHashtable(ShardedHashtable &&other) = default;
+	ShardedHashtable(ShardedHashtable &&other) = शेष;
 	ShardedHashtable() {}
 
-	ShardedHashtable &operator=(ShardedHashtable &&other) = default;
+	ShardedHashtable &चालक=(ShardedHashtable &&other) = शेष;
 
 	// Look up by `AccumulatedValue`. If we switch to C++20 then we could use
 	// heterogenous lookup to support looking up by `Value` here. Returns nullptr
 	// if the key is not found.
-	const typename V::Accumulated *find(const AccumulatedValue &v) const {
-		size_t num_shards = shards.size();
-		if (num_shards == 0)
-			return nullptr;
-		size_t shard = static_cast<size_t>(v.hash) % num_shards;
-		auto it = shards[shard].find(v);
-		if (it == shards[shard].end())
-			return nullptr;
-		return &it->value;
+	स्थिर typename V::Accumulated *find(स्थिर Accumulated_मूल्य &v) स्थिर {
+		माप_प्रकार अंक_shards = shards.आकार();
+		अगर (अंक_shards == 0)
+			वापस nullptr;
+		माप_प्रकार shard = static_cast<माप_प्रकार>(v.hash) % अंक_shards;
+		स्वतः it = shards[shard].find(v);
+		अगर (it == shards[shard].end())
+			वापस nullptr;
+		वापस &it->मूल्य;
 	}
 
 	// Insert an element into the table. The caller is responsible for ensuring this does not
 	// happen concurrently with any other method calls.
-	void insert(AccumulatedValue v) {
-		size_t num_shards = shards.size();
-		if (num_shards == 0)
-			return;
-		size_t shard = static_cast<size_t>(v.hash) % num_shards;
-		shards[shard].insert(v);
+	व्योम जोड़ो(Accumulated_मूल्य v) {
+		माप_प्रकार अंक_shards = shards.आकार();
+		अगर (अंक_shards == 0)
+			वापस;
+		माप_प्रकार shard = static_cast<माप_प्रकार>(v.hash) % अंक_shards;
+		shards[shard].जोड़ो(v);
 	}
 
 	// Call this for each shard to implement parallel destruction. For very large `ShardedHashtable`s,
 	// deleting all elements of all shards on a single thread can be a performance bottleneck.
-	void clear(const ThreadIndex &shard) {
-		AccumulatedValueEquality equality = shards[shard.thread_num].key_eq();
-		shards[shard.thread_num] = Shard(0, AccumulatedValueHashOp(), equality);
+	व्योम clear(स्थिर Thread_सूचकांक &shard) {
+		Accumulated_मूल्य_Equality equality = shards[shard.thread_अंक].कुंजी_eq();
+		shards[shard.thread_अंक] = Shard(0, Accumulated_मूल्य_Hash_Op(), equality);
 	}
-private:
+निजी:
 	std::vector<Shard> shards;
 };
 
 // A concurrent work-queue that can share batches of work across threads.
 // Uses a naive implementation of work-stealing.
-template <typename T>
+ढाँचा <typename T>
 class ConcurrentWorkQueue {
-public:
+खुला:
 	// Create a queue that supports the given number of threads and
 	// groups work into `batch_size` units.
-	ConcurrentWorkQueue(int num_threads, int batch_size = 100)
-		: batch_size(batch_size), thread_states(num_threads) {}
-	int num_threads() const { return GetSize(thread_states); }
+	ConcurrentWorkQueue(पूर्णांक अंक_threads, पूर्णांक batch_आकार = 100)
+		: batch_आकार(batch_आकार), thread_states(अंक_threads) {}
+	पूर्णांक अंक_threads() स्थिर { वापस Get_आकार(thread_states); }
 	// Push some work to do. Pushes and pops with the same `thread` must
 	// not happen concurrently.
-	void push(const ThreadIndex &thread, T work) {
-		ThreadState &thread_state = thread_states[thread.thread_num];
-		thread_state.next_batch.emplace_back(std::move(work));
-		if (GetSize(thread_state.next_batch) < batch_size)
-			return;
+	व्योम धकेलो(स्थिर Thread_सूचकांक &thread, T work) {
+		ThreadState &thread_state = thread_states[thread.thread_अंक];
+		thread_state.अग्र_batch.emplace_back(std::move(work));
+		अगर (Get_आकार(thread_state.अग्र_batch) < batch_आकार)
+			वापस;
 		bool was_empty;
 		{
 			UniqueLock lock(thread_state.batches_lock);
 			was_empty = thread_state.batches.empty();
-			thread_state.batches.push_back(std::move(thread_state.next_batch));
+			thread_state.batches.धकेलो_back(std::move(thread_state.अग्र_batch));
 		}
-		if (was_empty) {
+		अगर (was_empty) {
 			UniqueLock lock(waiters_lock);
-			if (num_waiters > 0) {
+			अगर (अंक_waiters > 0) {
 				waiters_cv.notify_one();
 			}
 		}
@@ -613,24 +613,24 @@ public:
 	// If all threads enter `pop_batch()`, then instead of deadlocking the
 	// queue will return no work. That is the only case in which it will
 	// return no work.
-	std::vector<T> pop_batch(const ThreadIndex &thread) {
-		ThreadState &thread_state = thread_states[thread.thread_num];
-		if (!thread_state.next_batch.empty())
-			return std::move(thread_state.next_batch);
+	std::vector<T> निकालो_batch(स्थिर Thread_सूचकांक &thread) {
+		ThreadState &thread_state = thread_states[thread.thread_अंक];
+		अगर (!thread_state.अग्र_batch.empty())
+			वापस std::move(thread_state.अग्र_batch);
 		// Empty our own work queue first.
 		{
 			UniqueLock lock(thread_state.batches_lock);
-			if (!thread_state.batches.empty()) {
+			अगर (!thread_state.batches.empty()) {
 				std::vector<T> batch = std::move(thread_state.batches.back());
-				thread_state.batches.pop_back();
-				return batch;
+				thread_state.batches.निकालो_back();
+				वापस batch;
 			}
 		}
 		// From here on in this function, our work queue is empty.
-		while (true) {
+		जबतक (true) {
 			std::vector<T> batch = try_steal(thread);
-			if (!batch.empty()) {
-				return std::move(batch);
+			अगर (!batch.empty()) {
+				वापस std::move(batch);
 			}
 			// Termination: if all threads run out of work, then all of
 			// them will eventually enter this loop and there will be no further
@@ -639,39 +639,39 @@ public:
 			// will become true. In single-threaded builds, num_threads() is 1,
 			// so we always terminate on the first iteration.
 			UniqueLock lock(waiters_lock);
-			++num_waiters;
-			if (num_waiters == num_threads()) {
+			++अंक_waiters;
+			अगर (अंक_waiters == अंक_threads()) {
 				waiters_cv.notify_all();
-				return {};
+				वापस {};
 			}
 			// As above, it's possible that we'll wait here even when there
 			// are work batches posted by other threads. That's OK.
-			waiters_cv.wait(lock);
-			if (num_waiters == num_threads())
-				return {};
-			--num_waiters;
+			waiters_cv.रुको(lock);
+			अगर (अंक_waiters == अंक_threads())
+				वापस {};
+			--अंक_waiters;
 		}
 	}
-private:
-	std::vector<T> try_steal(const ThreadIndex &thread) {
-		for (int i = 1; i < num_threads(); i++) {
-			int other_thread_num = (thread.thread_num + i) % num_threads();
-			ThreadState &other_thread_state = thread_states[other_thread_num];
+निजी:
+	std::vector<T> try_steal(स्थिर Thread_सूचकांक &thread) {
+		क्रम (पूर्णांक i = 1; i < अंक_threads(); i++) {
+			पूर्णांक other_thread_अंक = (thread.thread_अंक + i) % अंक_threads();
+			ThreadState &other_thread_state = thread_states[other_thread_अंक];
 			UniqueLock lock(other_thread_state.batches_lock);
-			if (!other_thread_state.batches.empty()) {
+			अगर (!other_thread_state.batches.empty()) {
 				std::vector<T> batch = std::move(other_thread_state.batches.front());
-				other_thread_state.batches.pop_front();
-				return batch;
+				other_thread_state.batches.निकालो_front();
+				वापस batch;
 			}
 		}
-		return {};
+		वापस {};
 	}
 
-	int batch_size;
+	पूर्णांक batch_आकार;
 
-	struct ThreadState {
+	काष्ठा ThreadState {
 		// Entirely thread-local.
-		std::vector<T> next_batch;
+		std::vector<T> अग्र_batch;
 
 		Mutex batches_lock;
 		// Only the associated thread ever adds to this, and only at the back.
@@ -683,7 +683,7 @@ private:
 	Mutex waiters_lock;
 	CondVar waiters_cv;
 	// Number of threads waiting for work. Their queues are empty.
-	int num_waiters = 0;
+	पूर्णांक अंक_waiters = 0;
 };
 
 // A monotonic flag. Starts false, and can be set to true in a thread-safe way.
@@ -691,17 +691,17 @@ private:
 // Uses relaxed atomics so there are no memory ordering guarantees. Do not use this
 // to guard access to shared memory.
 class MonotonicFlag {
-public:
-	MonotonicFlag() : value(false) {}
-	bool load() const { return value.load(std::memory_order_relaxed); }
-	void set() { value.store(true, std::memory_order_relaxed); }
+खुला:
+	MonotonicFlag() : मूल्य(false) {}
+	bool load() स्थिर { वापस मूल्य.load(std::memory_order_relaxed); }
+	व्योम set() { मूल्य.store(true, std::memory_order_relaxed); }
 	bool set_and_return_old() {
-		return value.exchange(true, std::memory_order_relaxed);
+		वापस मूल्य.exchange(true, std::memory_order_relaxed);
 	}
-private:
-	std::atomic<bool> value;
+निजी:
+	std::atomic<bool> मूल्य;
 };
 
 YOSYS_NAMESPACE_END
 
-#endif // YOSYS_THREADING_H
+#पूर्ण_अगर // YOSYS_THREADING_H
