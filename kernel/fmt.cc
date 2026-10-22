@@ -17,245 +17,245 @@
  *
  */
 
-#include "libs/bigint/BigUnsigned.hh"
-#include "kernel/fmt.h"
+#ضمن "libs/bigint/BigUnsigned.hh"
+#ضمن "kernel/fmt.h"
 
 USING_YOSYS_NAMESPACE
 
-void Fmt::append_literal(const std::string &str) {
+فراغ Fmt::append_literal(ثابت std::string &str) {
 	FmtPart part = {};
 	part.type = FmtPart::LITERAL;
 	part.str = str;
-	parts.push_back(part);
+	parts.تولق_back(part);
 }
 
-void Fmt::parse_rtlil(const RTLIL::Cell *cell) {
+فراغ Fmt::parse_rtlil(ثابت RTLIL::Cell *cell) {
 	std::string fmt = cell->getParam(ID(FORMAT)).decode_string();
 	RTLIL::SigSpec args = cell->getPort(ID(ARGS));
 	parts.clear();
 
 	FmtPart part;
-	for (size_t i = 0; i < fmt.size(); i++) {
-		if (fmt.substr(i, 2) == "}}") {
+	لكل (size_t i = 0; i < fmt.size(); i++) {
+		إذا (fmt.substr(i, 2) == "}}") {
 			part.str += '}';
 			++i;
-		} else if (fmt.substr(i, 2) == "{{") {
+		} وإلا إذا (fmt.substr(i, 2) == "{{") {
 			part.str += '{';
 			++i;
-		} else if (fmt[i] == '}') {
-			log_assert(false && "Unexpected '}' in format string");
-		} else if (fmt[i] == '{') {
-			if (!part.str.empty()) {
+		} وإلا إذا (fmt[i] == '}') {
+			log_assert(خطأ && "Unexpected '}' in format string");
+		} وإلا إذا (fmt[i] == '{') {
+			إذا (!part.str.empty()) {
 				part.type = FmtPart::LITERAL;
-				parts.push_back(part);
+				parts.تولق_back(part);
 				part = {};
 			}
 
-			if (++i == fmt.size())
-				log_assert(false && "Unexpected end in format substitution");
+			إذا (++i == fmt.size())
+				log_assert(خطأ && "Unexpected end in format substitution");
 
 			size_t arg_size = 0;
-			for (; i < fmt.size(); i++) {
-				if (fmt[i] >= '0' && fmt[i] <= '9') {
+			لكل (; i < fmt.size(); i++) {
+				إذا (fmt[i] >= '0' && fmt[i] <= '9') {
 					arg_size *= 10;
 					arg_size += fmt[i] - '0';
-				} else if (fmt[i] == ':') {
+				} وإلا إذا (fmt[i] == ':') {
 					++i;
-					break;
-				} else {
-					log_assert(false && "Unexpected character in format substitution");
+					اكسر;
+				} وإلا {
+					log_assert(خطأ && "Unexpected character in format substitution");
 				}
 			}
-			if (i == fmt.size())
-				log_assert(false && "Unexpected end in format substitution");
+			إذا (i == fmt.size())
+				log_assert(خطأ && "Unexpected end in format substitution");
 
-			if ((size_t)args.size() < arg_size)
-				log_assert(false && "Format part overruns arguments");
+			إذا ((size_t)args.size() < arg_size)
+				log_assert(خطأ && "Format part overruns arguments");
 			part.sig = args.extract(0, arg_size);
 			args.remove(0, arg_size);
 
-			if (fmt[i] == 'U') {
+			إذا (fmt[i] == 'U') {
 				part.type = FmtPart::UNICHAR;
 				++i;
-				goto success;
+				اذهب success;
 			}
 
-			if (fmt[i] == '>')
-				part.justify = FmtPart::RIGHT;
-			else if (fmt[i] == '<')
-				part.justify = FmtPart::LEFT;
-			else if (fmt[i] == '=')
+			إذا (fmt[i] == '>')
+				part.justify = FmtPart::کانن;
+			وإلا إذا (fmt[i] == '<')
+				part.justify = FmtPart::کيري;
+			وإلا إذا (fmt[i] == '=')
 				part.justify = FmtPart::NUMERIC;
-			else
-				log_assert(false && "Unexpected justification in format substitution");
-			if (++i == fmt.size())
-				log_assert(false && "Unexpected end in format substitution");
+			وإلا
+				log_assert(خطأ && "Unexpected justification in format substitution");
+			إذا (++i == fmt.size())
+				log_assert(خطأ && "Unexpected end in format substitution");
 
 			part.padding = fmt[i];
-			if (++i == fmt.size())
-				log_assert(false && "Unexpected end in format substitution");
+			إذا (++i == fmt.size())
+				log_assert(خطأ && "Unexpected end in format substitution");
 
-			for (; i < fmt.size(); i++) {
-				if (fmt[i] >= '0' && fmt[i] <= '9') {
+			لكل (; i < fmt.size(); i++) {
+				إذا (fmt[i] >= '0' && fmt[i] <= '9') {
 					part.width *= 10;
 					part.width += fmt[i] - '0';
-					continue;
-				} else if (fmt[i] == 'b') {
+					استمر;
+				} وإلا إذا (fmt[i] == 'b') {
 					part.type = FmtPart::INTEGER;
 					part.base = 2;
-				} else if (fmt[i] == 'o') {
+				} وإلا إذا (fmt[i] == 'o') {
 					part.type = FmtPart::INTEGER;
 					part.base = 8;
-				} else if (fmt[i] == 'd') {
+				} وإلا إذا (fmt[i] == 'd') {
 					part.type = FmtPart::INTEGER;
 					part.base = 10;
-				} else if (fmt[i] == 'h') {
+				} وإلا إذا (fmt[i] == 'h') {
 					part.type = FmtPart::INTEGER;
 					part.base = 16;
-				} else if (fmt[i] == 'H') {
+				} وإلا إذا (fmt[i] == 'H') {
 					part.type = FmtPart::INTEGER;
 					part.base = 16;
 					part.hex_upper = true;
-				} else if (fmt[i] == 'c') {
+				} وإلا إذا (fmt[i] == 'c') {
 					part.type = FmtPart::STRING;
-				} else if (fmt[i] == 't') {
+				} وإلا إذا (fmt[i] == 't') {
 					part.type = FmtPart::VLOG_TIME;
-				} else if (fmt[i] == 'r') {
+				} وإلا إذا (fmt[i] == 'r') {
 					part.type = FmtPart::VLOG_TIME;
 					part.realtime = true;
-				} else {
-					log_assert(false && "Unexpected character in format substitution");
+				} وإلا {
+					log_assert(خطأ && "Unexpected character in format substitution");
 				}
 				++i;
-				break;
+				اكسر;
 			}
-			if (i == fmt.size())
-				log_assert(false && "Unexpected end in format substitution");
+			إذا (i == fmt.size())
+				log_assert(خطأ && "Unexpected end in format substitution");
 
-			if (part.type == FmtPart::INTEGER) {
-				if (fmt[i] == '-') {
+			إذا (part.type == FmtPart::INTEGER) {
+				إذا (fmt[i] == '-') {
 					part.sign = FmtPart::MINUS;
-					if (++i == fmt.size())
-						log_assert(false && "Unexpected end in format substitution");
-				} else if (fmt[i] == '+') {
+					إذا (++i == fmt.size())
+						log_assert(خطأ && "Unexpected end in format substitution");
+				} وإلا إذا (fmt[i] == '+') {
 					part.sign = FmtPart::PLUS_MINUS;
-					if (++i == fmt.size())
-						log_assert(false && "Unexpected end in format substitution");
-				} else if (fmt[i] == ' ') {
+					إذا (++i == fmt.size())
+						log_assert(خطأ && "Unexpected end in format substitution");
+				} وإلا إذا (fmt[i] == ' ') {
 					part.sign = FmtPart::SPACE_MINUS;
-					if (++i == fmt.size())
-						log_assert(false && "Unexpected end in format substitution");
-				} else {
+					إذا (++i == fmt.size())
+						log_assert(خطأ && "Unexpected end in format substitution");
+				} وإلا {
 					// also accept no sign character and treat like MINUS for compatibility
 				}
 
-				if (fmt[i] == '#') {
+				إذا (fmt[i] == '#') {
 					part.show_base = true;
 					++i;
 				}
-				if (fmt[i] == '_') {
+				إذا (fmt[i] == '_') {
 					part.group = true;
 					++i;
 				}
 
-				if (fmt[i] == 'u')
-					part.signed_ = false;
-				else if (fmt[i] == 's')
+				إذا (fmt[i] == 'u')
+					part.signed_ = خطأ;
+				وإلا إذا (fmt[i] == 's')
 					part.signed_ = true;
-				else
-					log_assert(false && "Unexpected character in format substitution");
-				if (++i == fmt.size())
-					log_assert(false && "Unexpected end in format substitution");
+				وإلا
+					log_assert(خطأ && "Unexpected character in format substitution");
+				إذا (++i == fmt.size())
+					log_assert(خطأ && "Unexpected end in format substitution");
 			}
 
 		success:
-			if (fmt[i] != '}')
-				log_assert(false && "Expected '}' after format substitution");
+			إذا (fmt[i] != '}')
+				log_assert(خطأ && "Expected '}' after format substitution");
 
-			parts.push_back(part);
+			parts.تولق_back(part);
 			part = {};
-		} else {
+		} وإلا {
 			part.str += fmt[i];
 		}
 	}
-	if (!part.str.empty()) {
+	إذا (!part.str.empty()) {
 		part.type = FmtPart::LITERAL;
-		parts.push_back(part);
+		parts.تولق_back(part);
 	}
 }
 
-void Fmt::emit_rtlil(RTLIL::Cell *cell) const {
+فراغ Fmt::emit_rtlil(RTLIL::Cell *cell) ثابت {
 	std::string fmt;
 	RTLIL::SigSpec args;
 
-	for (auto &part : parts) {
-		switch (part.type) {
-			case FmtPart::LITERAL:
-				for (char c : part.str) {
-					if (c == '{')
+	لكل (auto &part : parts) {
+		بدل (part.type) {
+			حالة FmtPart::LITERAL:
+				لكل (حرف c : part.str) {
+					إذا (c == '{')
 						fmt += "{{";
-					else if (c == '}')
+					وإلا إذا (c == '}')
 						fmt += "}}";
-					else
+					وإلا
 						fmt += c;
 				}
-				break;
+				اكسر;
 
-			case FmtPart::UNICHAR:
+			حالة FmtPart::UNICHAR:
 				log_assert(part.sig.size() <= 32);
 				fmt += "{U}";
-				break;
+				اكسر;
 
-			case FmtPart::VLOG_TIME:
+			حالة FmtPart::VLOG_TIME:
 				log_assert(part.sig.size() == 0);
 				YS_FALLTHROUGH
-			case FmtPart::STRING:
+			حالة FmtPart::STRING:
 				log_assert(part.sig.size() % 8 == 0);
 				YS_FALLTHROUGH
-			case FmtPart::INTEGER:
+			حالة FmtPart::INTEGER:
 				args.append(part.sig);
 				fmt += '{';
 				fmt += std::to_string(part.sig.size());
 				fmt += ':';
-				if (part.justify == FmtPart::RIGHT)
+				إذا (part.justify == FmtPart::کانن)
 					fmt += '>';
-				else if (part.justify == FmtPart::LEFT)
+				وإلا إذا (part.justify == FmtPart::کيري)
 					fmt += '<';
-				else if (part.justify == FmtPart::NUMERIC)
+				وإلا إذا (part.justify == FmtPart::NUMERIC)
 					fmt += '=';
-				else log_abort();
+				وإلا log_abort();
 				log_assert(part.width == 0 || part.padding != '\0');
 				fmt += part.padding != '\0' ? part.padding : ' ';
-				if (part.width > 0)
+				إذا (part.width > 0)
 					fmt += std::to_string(part.width);
-				if (part.type == FmtPart::INTEGER) {
-					switch (part.base) {
-						case  2: fmt += 'b'; break;
-						case  8: fmt += 'o'; break;
-						case 10: fmt += 'd'; break;
-						case 16: fmt += part.hex_upper ? 'H' : 'h'; break;
-						default: log_abort();
+				إذا (part.type == FmtPart::INTEGER) {
+					بدل (part.base) {
+						حالة  2: fmt += 'b'; اكسر;
+						حالة  8: fmt += 'o'; اكسر;
+						حالة 10: fmt += 'd'; اكسر;
+						حالة 16: fmt += part.hex_upper ? 'H' : 'h'; اكسر;
+						افتراضي: log_abort();
 					}
-					switch (part.sign) {
-						case FmtPart::MINUS:       fmt += '-'; break;
-						case FmtPart::PLUS_MINUS:  fmt += '+'; break;
-						case FmtPart::SPACE_MINUS: fmt += ' '; break;
+					بدل (part.sign) {
+						حالة FmtPart::MINUS:       fmt += '-'; اكسر;
+						حالة FmtPart::PLUS_MINUS:  fmt += '+'; اكسر;
+						حالة FmtPart::SPACE_MINUS: fmt += ' '; اكسر;
 					}
 					fmt += part.show_base ? "#" : "";
 					fmt += part.group ? "_" : "";
 					fmt += part.signed_ ? 's' : 'u';
-				} else if (part.type == FmtPart::STRING) {
+				} وإلا إذا (part.type == FmtPart::STRING) {
 					fmt += 'c';
-				} else if (part.type == FmtPart::VLOG_TIME) {
-					if (part.realtime)
+				} وإلا إذا (part.type == FmtPart::VLOG_TIME) {
+					إذا (part.realtime)
 						fmt += 'r';
-					else
+					وإلا
 						fmt += 't';
-				} else log_abort();
+				} وإلا log_abort();
 				fmt += '}';
-				break;
+				اكسر;
 
-			default: log_abort();
+			افتراضي: log_abort();
 		}
 	}
 
@@ -264,34 +264,34 @@ void Fmt::emit_rtlil(RTLIL::Cell *cell) const {
 	cell->setPort(ID(ARGS), args);
 }
 
-static size_t compute_required_decimal_places(size_t size, bool signed_)
+ساكن size_t compute_required_decimal_places(size_t size, منطقي signed_)
 {
 	BigUnsigned max;
-	if (!signed_)
+	إذا (!signed_)
 		max.setBit(size, true);
-	else
+	وإلا
 		max.setBit(size - 1, true);
 	size_t places = 0;
-	while (!max.isZero()) {
+	طالما (!max.isZero()) {
 		places++;
 		max /= 10;
 	}
-	if (signed_)
+	إذا (signed_)
 		places++;
-	return places;
+	أرجع places;
 }
 
-static size_t compute_required_nondecimal_places(size_t size, unsigned base)
+ساكن size_t compute_required_nondecimal_places(size_t size, unsigned base)
 {
 	log_assert(base != 10);
 	BigUnsigned max;
 	max.setBit(size - 1, true);
 	size_t places = 0;
-	while (!max.isZero()) {
+	طالما (!max.isZero()) {
 		places++;
 		max /= base;
 	}
-	return places;
+	أرجع places;
 }
 
 // Only called for integers, either when:
@@ -316,370 +316,370 @@ static size_t compute_required_nondecimal_places(size_t size, unsigned base)
 // implementations, and intuitively makes sense as decimal representations lack
 // a discrete mapping of digits to bit groups.  Decimals may also show sign and
 // must accommodate this, whereas other representations do not.
-void Fmt::apply_verilog_automatic_sizing_and_add(FmtPart &part)
+فراغ Fmt::apply_verilog_automatic_sizing_and_add(FmtPart &part)
 {
-	if (part.base == 10) {
+	إذا (part.base == 10) {
 		size_t places = compute_required_decimal_places(part.sig.size(), part.signed_);
 		part.padding = ' ';
 		part.width = std::max(part.width, places);
-		parts.push_back(part);
-		return;
+		parts.تولق_back(part);
+		أرجع;
 	}
 
 	part.padding = '0';
 
 	size_t places = compute_required_nondecimal_places(part.sig.size(), part.base);
-	if (part.width < places) {
-		part.justify = FmtPart::RIGHT;
+	إذا (part.width < places) {
+		part.justify = FmtPart::کانن;
 		part.width = places;
-		parts.push_back(part);
-	} else if (part.width == places) {
-		parts.push_back(part);
-	} else if (part.width > places) {
+		parts.تولق_back(part);
+	} وإلا إذا (part.width == places) {
+		parts.تولق_back(part);
+	} وإلا إذا (part.width > places) {
 		auto gap = std::string(part.width - places, ' ');
 		part.width = places;
 
-		if (part.justify == FmtPart::RIGHT) {
+		إذا (part.justify == FmtPart::کانن) {
 			append_literal(gap);
-			parts.push_back(part);
-		} else {
-			part.justify = FmtPart::RIGHT;
-			parts.push_back(part);
+			parts.تولق_back(part);
+		} وإلا {
+			part.justify = FmtPart::کانن;
+			parts.تولق_back(part);
 			append_literal(gap);
 		}
 	}
 }
 
-void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_like, int default_base, const std::string &task_name, const std::string &module_name)
+فراغ Fmt::parse_verilog(ثابت std::vector<VerilogFmtArg> &args, منطقي sformat_like, صحيح default_base, ثابت std::string &task_name, ثابت std::string &module_name)
 {
 	parts.clear();
 
 	auto arg = args.begin();
-	for (; arg != args.end(); ++arg) {
-		switch (arg->type) {
-			case VerilogFmtArg::INTEGER: {
+	لكل (; arg != args.end(); ++arg) {
+		بدل (arg->type) {
+			حالة VerilogFmtArg::INTEGER: {
 				FmtPart part = {};
 				part.type = FmtPart::INTEGER;
 				part.sig = arg->sig;
 				part.base = default_base;
 				part.signed_ = arg->signed_;
 				apply_verilog_automatic_sizing_and_add(part);
-				break;
+				اكسر;
 			}
 
-			case VerilogFmtArg::TIME: {
+			حالة VerilogFmtArg::TIME: {
 				FmtPart part = {};
 				part.type = FmtPart::VLOG_TIME;
 				part.realtime = arg->realtime;
 				part.padding = ' ';
 				part.width = 20;
-				parts.push_back(part);
-				break;
+				parts.تولق_back(part);
+				اكسر;
 			}
 
-			case VerilogFmtArg::STRING: {
-				if (arg == args.begin() || !sformat_like) {
-					const auto fmtarg = arg;
-					const std::string &fmt = fmtarg->str;
+			حالة VerilogFmtArg::STRING: {
+				إذا (arg == args.begin() || !sformat_like) {
+					ثابت auto fmtarg = arg;
+					ثابت std::string &fmt = fmtarg->str;
 					FmtPart part = {};
-					for (size_t i = 0; i < fmt.size(); i++) {
-						if (fmt[i] != '%') {
+					لكل (size_t i = 0; i < fmt.size(); i++) {
+						إذا (fmt[i] != '%') {
 							part.str += fmt[i];
-						} else if (fmt.substr(i, 2) == "%%") {
+						} وإلا إذا (fmt.substr(i, 2) == "%%") {
 							i++;
 							part.str += '%';
-						} else if (fmt.substr(i, 2) == "%l" || fmt.substr(i, 2) == "%L") {
+						} وإلا إذا (fmt.substr(i, 2) == "%l" || fmt.substr(i, 2) == "%L") {
 							i++;
 							part.str += module_name;
-						} else if (fmt.substr(i, 2) == "%m" || fmt.substr(i, 2) == "%M") {
+						} وإلا إذا (fmt.substr(i, 2) == "%m" || fmt.substr(i, 2) == "%M") {
 							i++;
 							part.str += module_name;
-						} else {
-							if (!part.str.empty()) {
+						} وإلا {
+							إذا (!part.str.empty()) {
 								part.type = FmtPart::LITERAL;
-								parts.push_back(part);
+								parts.تولق_back(part);
 								part = {};
 							}
-							if (++i == fmt.size()) {
+							إذا (++i == fmt.size()) {
 								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 							}
 
-							if (++arg == args.end()) {
+							إذا (++arg == args.end()) {
 								log_file_error(fmtarg->src, "System task `%s' called with fewer arguments than the format specifiers in argument %zu require.\n", task_name, fmtarg - args.begin() + 1);
 							}
 							part.sig = arg->sig;
 							part.signed_ = arg->signed_;
 
-							for (; i < fmt.size(); i++) {
-								if (fmt[i] == '-') {
+							لكل (; i < fmt.size(); i++) {
+								إذا (fmt[i] == '-') {
 									// left justify; not in IEEE 1800-2017 or verilator but iverilog has it
-									part.justify = FmtPart::LEFT;
-								} else if (fmt[i] == '+') {
+									part.justify = FmtPart::کيري;
+								} وإلا إذا (fmt[i] == '+') {
 									// always show sign; not in IEEE 1800-2017 or verilator but iverilog has it
 									part.sign = FmtPart::PLUS_MINUS;
-								} else break;
+								} وإلا اكسر;
 							}
-							if (i == fmt.size()) {
+							إذا (i == fmt.size()) {
 								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 							}
 
-							bool has_leading_zero = false, has_width = false;
-							for (; i < fmt.size(); i++) {
-								if (fmt[i] >= '0' && fmt[i] <= '9') {
-									if (fmt[i] == '0' && !has_width) {
+							منطقي has_leading_zero = خطأ, has_width = خطأ;
+							لكل (; i < fmt.size(); i++) {
+								إذا (fmt[i] >= '0' && fmt[i] <= '9') {
+									إذا (fmt[i] == '0' && !has_width) {
 										has_leading_zero = true;
-									} else {
+									} وإلا {
 										has_width = true;
 										part.width *= 10;
 										part.width += fmt[i] - '0';
 									}
-									continue;
-								} else if (fmt[i] == 'b' || fmt[i] == 'B') {
+									استمر;
+								} وإلا إذا (fmt[i] == 'b' || fmt[i] == 'B') {
 									part.type = FmtPart::INTEGER;
 									part.base =  2;
-								} else if (fmt[i] == 'o' || fmt[i] == 'O') {
+								} وإلا إذا (fmt[i] == 'o' || fmt[i] == 'O') {
 									part.type = FmtPart::INTEGER;
 									part.base =  8;
-								} else if (fmt[i] == 'd' || fmt[i] == 'D') {
+								} وإلا إذا (fmt[i] == 'd' || fmt[i] == 'D') {
 									part.type = FmtPart::INTEGER;
 									part.base = 10;
-								} else if (fmt[i] == 'h' || fmt[i] == 'H' ||
+								} وإلا إذا (fmt[i] == 'h' || fmt[i] == 'H' ||
 								           fmt[i] == 'x' || fmt[i] == 'X') {
 									// hex digits always printed in lowercase for %h%x as well as %H%X
 									part.type = FmtPart::INTEGER;
 									part.base = 16;
-								} else if (fmt[i] == 'c' || fmt[i] == 'C') {
+								} وإلا إذا (fmt[i] == 'c' || fmt[i] == 'C') {
 									part.type = FmtPart::STRING;
 									part.sig.extend_u0(8);
 									// %10c and %010c not fully defined in IEEE 1800-2017 and do different things in iverilog
-								} else if (fmt[i] == 's' || fmt[i] == 'S') {
+								} وإلا إذا (fmt[i] == 's' || fmt[i] == 'S') {
 									part.type = FmtPart::STRING;
-									if ((part.sig.size() % 8) != 0)
+									إذا ((part.sig.size() % 8) != 0)
 										part.sig.extend_u0((part.sig.size() + 7) / 8 * 8);
 									// %10s and %010s not fully defined in IEEE 1800-2017 and do the same thing in iverilog
 									part.padding = ' ';
-								} else if (fmt[i] == 't' || fmt[i] == 'T') {
-									if (arg->type == VerilogFmtArg::TIME) {
+								} وإلا إذا (fmt[i] == 't' || fmt[i] == 'T') {
+									إذا (arg->type == VerilogFmtArg::TIME) {
 										part.type = FmtPart::VLOG_TIME;
 										part.realtime = arg->realtime;
-										if (!has_width && !has_leading_zero)
+										إذا (!has_width && !has_leading_zero)
 											part.width = 20;
-									} else {
+									} وإلا {
 										log_file_error(fmtarg->src, "System task `%s' called with format character `%c' in argument %zu, but the argument is not $time or $realtime.\n", task_name, fmt[i], fmtarg - args.begin() + 1);
 									}
-								} else {
+								} وإلا {
 									log_file_error(fmtarg->src, "System task `%s' called with unrecognized format character `%c' in argument %zu.\n", task_name, fmt[i], fmtarg - args.begin() + 1);
 								}
-								break;
+								اكسر;
 							}
-							if (i == fmt.size()) {
+							إذا (i == fmt.size()) {
 								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 							}
 
-							if (part.padding == '\0') {
-								if (has_leading_zero && part.justify == FmtPart::RIGHT) {
+							إذا (part.padding == '\0') {
+								إذا (has_leading_zero && part.justify == FmtPart::کانن) {
 									part.padding = '0';
 									part.justify = FmtPart::NUMERIC;
-								} else {
+								} وإلا {
 									part.padding = ' ';
 								}
 							}
 
-							if (part.type == FmtPart::INTEGER && part.base != 10 && part.sign != FmtPart::MINUS)
+							إذا (part.type == FmtPart::INTEGER && part.base != 10 && part.sign != FmtPart::MINUS)
 								log_file_error(fmtarg->src, "System task `%s' called with invalid format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 
-							if (part.base != 10)
-								part.signed_ = false;
-							if (part.type == FmtPart::INTEGER && !has_leading_zero)
+							إذا (part.base != 10)
+								part.signed_ = خطأ;
+							إذا (part.type == FmtPart::INTEGER && !has_leading_zero)
 								apply_verilog_automatic_sizing_and_add(part);
-							else
-								parts.push_back(part);
+							وإلا
+								parts.تولق_back(part);
 							part = {};
 						}
 					}
-					if (!part.str.empty()) {
+					إذا (!part.str.empty()) {
 						part.type = FmtPart::LITERAL;
-						parts.push_back(part);
+						parts.تولق_back(part);
 					}
-				} else {
+				} وإلا {
 					FmtPart part = {};
 					part.type = FmtPart::LITERAL;
 					part.str = arg->str;
-					parts.push_back(part);
+					parts.تولق_back(part);
 				}
-				break;
+				اكسر;
 			}
 
-			default: log_abort();
+			افتراضي: log_abort();
 		}
 	}
 }
 
-std::vector<VerilogFmtArg> Fmt::emit_verilog() const
+std::vector<VerilogFmtArg> Fmt::emit_verilog() ثابت
 {
 	std::vector<VerilogFmtArg> args;
 	VerilogFmtArg fmt = {};
 	fmt.type = VerilogFmtArg::STRING;
 
-	for (auto &part : parts) {
-		switch (part.type) {
-			case FmtPart::LITERAL:
-				for (char c : part.str) {
-					if (c == '%')
+	لكل (auto &part : parts) {
+		بدل (part.type) {
+			حالة FmtPart::LITERAL:
+				لكل (حرف c : part.str) {
+					إذا (c == '%')
 						fmt.str += "%%";
-					else
+					وإلا
 						fmt.str += c;
 				}
-				break;
+				اكسر;
 
-			case FmtPart::INTEGER: {
+			حالة FmtPart::INTEGER: {
 				VerilogFmtArg arg = {};
 				arg.type = VerilogFmtArg::INTEGER;
 				arg.sig = part.sig;
 				arg.signed_ = part.signed_;
-				args.push_back(arg);
+				args.تولق_back(arg);
 
 				fmt.str += '%';
-				if (part.sign == FmtPart::PLUS_MINUS || part.sign == FmtPart::SPACE_MINUS)
+				إذا (part.sign == FmtPart::PLUS_MINUS || part.sign == FmtPart::SPACE_MINUS)
 					fmt.str += '+'; // treat space/minus as plus/minus
-				if (part.justify == FmtPart::LEFT)
+				إذا (part.justify == FmtPart::کيري)
 					fmt.str += '-';
-				if (part.width == 0) {
+				إذا (part.width == 0) {
 					fmt.str += '0';
-				} else if (part.width > 0) {
-					if (part.base != 10 || part.padding == '0')
+				} وإلا إذا (part.width > 0) {
+					إذا (part.base != 10 || part.padding == '0')
 						fmt.str += '0';
 					fmt.str += std::to_string(part.width);
 				}
-				switch (part.base) {
-					case  2: fmt.str += 'b'; break;
-					case  8: fmt.str += 'o'; break;
-					case 10: fmt.str += 'd'; break;
-					case 16: fmt.str += 'h'; break; // treat uppercase hex as lowercase
-					default: log_abort();
+				بدل (part.base) {
+					حالة  2: fmt.str += 'b'; اكسر;
+					حالة  8: fmt.str += 'o'; اكسر;
+					حالة 10: fmt.str += 'd'; اكسر;
+					حالة 16: fmt.str += 'h'; اكسر; // treat uppercase hex as lowercase
+					افتراضي: log_abort();
 				}
-				break;
+				اكسر;
 			}
 
-			case FmtPart::STRING: {
+			حالة FmtPart::STRING: {
 				VerilogFmtArg arg;
 				arg.type = VerilogFmtArg::INTEGER;
 				arg.sig = part.sig;
-				args.push_back(arg);
+				args.تولق_back(arg);
 
 				fmt.str += '%';
-				if (part.justify == FmtPart::LEFT)
+				إذا (part.justify == FmtPart::کيري)
 					fmt.str += '-';
-				if (part.sig.size() == 8) {
-					if (part.width > 0) {
-						if (part.padding == '0')
+				إذا (part.sig.size() == 8) {
+					إذا (part.width > 0) {
+						إذا (part.padding == '0')
 							fmt.str += part.padding;
 						fmt.str += std::to_string(part.width);
 					}
 					fmt.str += 'c';
-				} else {
+				} وإلا {
 					log_assert(part.sig.size() % 8 == 0);
-					if (part.width > 0) {
+					إذا (part.width > 0) {
 						fmt.str += std::to_string(part.width);
 					}
 					fmt.str += 's';
 				}
-				break;
+				اكسر;
 			}
 
-			case FmtPart::UNICHAR: {
+			حالة FmtPart::UNICHAR: {
 				VerilogFmtArg arg;
 				arg.type = VerilogFmtArg::INTEGER;
 				arg.sig = part.sig.extract(0, 7); // only ASCII
-				args.push_back(arg);
+				args.تولق_back(arg);
 
 				fmt.str += "%c";
-				break;
+				اكسر;
 			}
 
-			case FmtPart::VLOG_TIME: {
+			حالة FmtPart::VLOG_TIME: {
 				VerilogFmtArg arg;
 				arg.type = VerilogFmtArg::TIME;
-				if (part.realtime)
+				إذا (part.realtime)
 					arg.realtime = true;
-				args.push_back(arg);
+				args.تولق_back(arg);
 
 				fmt.str += '%';
 				log_assert(part.sign == FmtPart::MINUS || part.sign == FmtPart::PLUS_MINUS);
-				if (part.sign == FmtPart::PLUS_MINUS)
+				إذا (part.sign == FmtPart::PLUS_MINUS)
 					fmt.str += '+';
-				if (part.justify == FmtPart::LEFT)
+				إذا (part.justify == FmtPart::کيري)
 					fmt.str += '-';
-				if (part.padding == '0' && part.width > 0)
+				إذا (part.padding == '0' && part.width > 0)
 					fmt.str += '0';
 				fmt.str += std::to_string(part.width);
 				fmt.str += 't';
-				break;
+				اكسر;
 			}
 
-			default: log_abort();
+			افتراضي: log_abort();
 		}
 	}
 
-	args.insert(args.begin(), fmt);
-	return args;
+	args.سيسيڤ(args.begin(), fmt);
+	أرجع args;
 }
 
-std::string escape_cxx_string(const std::string &input)
+std::string escape_cxx_string(ثابت std::string &ماسوقن)
 {
 	std::string output = "\"";
-	for (auto c : input) {
-		if (::isprint(c)) {
-			if (c == '\\' || c == '"')
-				output.push_back('\\');
-			output.push_back(c);
-		} else {
-			char l = c & 0x7, m = (c >> 3) & 0x7, h = (c >> 6) & 0x3;
-			output.push_back('\\');
-			output.push_back('0' + h);
-			output.push_back('0' + m);
-			output.push_back('0' + l);
+	لكل (auto c : ماسوقن) {
+		إذا (::isprint(c)) {
+			إذا (c == '\\' || c == '"')
+				output.تولق_back('\\');
+			output.تولق_back(c);
+		} وإلا {
+			حرف l = c & 0x7, m = (c >> 3) & 0x7, h = (c >> 6) & 0x3;
+			output.تولق_back('\\');
+			output.تولق_back('0' + h);
+			output.تولق_back('0' + m);
+			output.تولق_back('0' + l);
 		}
 	}
-	output.push_back('"');
-	if (output.find('\0') != std::string::npos) {
-		output.insert(0, "std::string {");
-		output.append(stringf(", %zu}", input.size()));
+	output.تولق_back('"');
+	إذا (output.find('\0') != std::string::npos) {
+		output.سيسيڤ(0, "std::string {");
+		output.append(stringf(", %zu}", ماسوقن.size()));
 	}
-	return output;
+	أرجع output;
 }
 
-void Fmt::emit_cxxrtl(std::ostream &os, std::string indent, std::function<void(const RTLIL::SigSpec &)> emit_sig, const std::string &context) const
+فراغ Fmt::emit_cxxrtl(std::ostream &os, std::string indent, std::function<فراغ(ثابت RTLIL::SigSpec &)> emit_sig, ثابت std::string &context) ثابت
 {
 	os << indent << "std::string buf;\n";
-	for (auto &part : parts) {
+	لكل (auto &part : parts) {
 		os << indent << "buf += fmt_part { ";
 		os << "fmt_part::";
-		switch (part.type) {
-			case FmtPart::LITERAL:   os << "LITERAL";   break;
-			case FmtPart::INTEGER:   os << "INTEGER";   break;
-			case FmtPart::STRING:    os << "STRING";    break;
-			case FmtPart::UNICHAR:   os << "UNICHAR";   break;
-			case FmtPart::VLOG_TIME: os << "VLOG_TIME"; break;
+		بدل (part.type) {
+			حالة FmtPart::LITERAL:   os << "LITERAL";   اكسر;
+			حالة FmtPart::INTEGER:   os << "INTEGER";   اكسر;
+			حالة FmtPart::STRING:    os << "STRING";    اكسر;
+			حالة FmtPart::UNICHAR:   os << "UNICHAR";   اكسر;
+			حالة FmtPart::VLOG_TIME: os << "VLOG_TIME"; اكسر;
 		}
 		os << ", ";
 		os << escape_cxx_string(part.str) << ", ";
 		os << "fmt_part::";
-		switch (part.justify) {
-			case FmtPart::LEFT:    os << "LEFT";    break;
-			case FmtPart::RIGHT:   os << "RIGHT";   break;
-			case FmtPart::NUMERIC: os << "NUMERIC"; break;
+		بدل (part.justify) {
+			حالة FmtPart::کيري:    os << "LEFT";    اكسر;
+			حالة FmtPart::کانن:   os << "RIGHT";   اكسر;
+			حالة FmtPart::NUMERIC: os << "NUMERIC"; اكسر;
 		}
 		os << ", ";
-		os << "(char)" << (int)part.padding << ", ";
+		os << "(char)" << (صحيح)part.padding << ", ";
 		os << part.width << ", ";
 		os << part.base << ", ";
 		os << part.signed_ << ", ";
 		os << "fmt_part::";
-		switch (part.sign) {
-			case FmtPart::MINUS:       os << "MINUS";       break;
-			case FmtPart::PLUS_MINUS:  os << "PLUS_MINUS";  break;
-			case FmtPart::SPACE_MINUS: os << "SPACE_MINUS"; break;
+		بدل (part.sign) {
+			حالة FmtPart::MINUS:       os << "MINUS";       اكسر;
+			حالة FmtPart::PLUS_MINUS:  os << "PLUS_MINUS";  اكسر;
+			حالة FmtPart::SPACE_MINUS: os << "SPACE_MINUS"; اكسر;
 		}
 		os << ", ";
 		os << part.hex_upper << ", ";
@@ -693,191 +693,191 @@ void Fmt::emit_cxxrtl(std::ostream &os, std::string indent, std::function<void(c
 	os << indent << "return buf;\n";
 }
 
-std::string Fmt::render() const
+std::string Fmt::render() ثابت
 {
 	std::string str;
 
-	for (auto &part : parts) {
-		switch (part.type) {
-			case FmtPart::LITERAL:
+	لكل (auto &part : parts) {
+		بدل (part.type) {
+			حالة FmtPart::LITERAL:
 				str += part.str;
-				break;
+				اكسر;
 
-			case FmtPart::UNICHAR: {
-				RTLIL::Const value = part.sig.as_const();
-				uint32_t codepoint = value.as_int();
-				if (codepoint >= 0x10000)
-					str += (char)(0xf0 |  (codepoint >> 18));
-				else if (codepoint >= 0x800)
-					str += (char)(0xe0 |  (codepoint >> 12));
-				else if (codepoint >= 0x80)
-					str += (char)(0xc0 |  (codepoint >>  6));
-				else
-					str += (char)codepoint;
-				if (codepoint >= 0x10000)
-					str += (char)(0x80 | ((codepoint >> 12) & 0x3f));
-				if (codepoint >= 0x800)
-					str += (char)(0x80 | ((codepoint >>  6) & 0x3f));
-				if (codepoint >= 0x80)
-					str += (char)(0x80 | ((codepoint >>  0) & 0x3f));
-				break;
+			حالة FmtPart::UNICHAR: {
+				RTLIL::Const نيلاي = part.sig.as_const();
+				uint32_t codepoint = نيلاي.as_int();
+				إذا (codepoint >= 0x10000)
+					str += (حرف)(0xf0 |  (codepoint >> 18));
+				وإلا إذا (codepoint >= 0x800)
+					str += (حرف)(0xe0 |  (codepoint >> 12));
+				وإلا إذا (codepoint >= 0x80)
+					str += (حرف)(0xc0 |  (codepoint >>  6));
+				وإلا
+					str += (حرف)codepoint;
+				إذا (codepoint >= 0x10000)
+					str += (حرف)(0x80 | ((codepoint >> 12) & 0x3f));
+				إذا (codepoint >= 0x800)
+					str += (حرف)(0x80 | ((codepoint >>  6) & 0x3f));
+				إذا (codepoint >= 0x80)
+					str += (حرف)(0x80 | ((codepoint >>  0) & 0x3f));
+				اكسر;
 			}
 
-			case FmtPart::INTEGER:
-			case FmtPart::STRING:
-			case FmtPart::VLOG_TIME: {
+			حالة FmtPart::INTEGER:
+			حالة FmtPart::STRING:
+			حالة FmtPart::VLOG_TIME: {
 				std::string buf;
 				std::string prefix;
-				if (part.type == FmtPart::INTEGER) {
-					RTLIL::Const value = part.sig.as_const();
-					bool has_x = false, all_x = true, has_z = false, all_z = true;
-					for (State bit : value) {
-						if (bit == State::Sx)
+				إذا (part.type == FmtPart::INTEGER) {
+					RTLIL::Const نيلاي = part.sig.as_const();
+					منطقي has_x = خطأ, all_x = true, has_z = خطأ, all_z = true;
+					لكل (State bit : نيلاي) {
+						إذا (bit == State::Sx)
 							has_x = true;
-						else
-							all_x = false;
-						if (bit == State::Sz)
+						وإلا
+							all_x = خطأ;
+						إذا (bit == State::Sz)
 							has_z = true;
-						else
-							all_z = false;
+						وإلا
+							all_z = خطأ;
 					}
 
-					if (!has_z && !has_x && part.signed_ && value[value.size() - 1]) {
+					إذا (!has_z && !has_x && part.signed_ && نيلاي[نيلاي.size() - 1]) {
 						prefix = "-";
-						value = RTLIL::const_neg(value, {}, part.signed_, {}, value.size() + 1);
-					} else {
-						switch (part.sign) {
-							case FmtPart::MINUS:       break;
-							case FmtPart::PLUS_MINUS:  prefix = "+"; break;
-							case FmtPart::SPACE_MINUS: prefix = " "; break;
+						نيلاي = RTLIL::const_neg(نيلاي, {}, part.signed_, {}, نيلاي.size() + 1);
+					} وإلا {
+						بدل (part.sign) {
+							حالة FmtPart::MINUS:       اكسر;
+							حالة FmtPart::PLUS_MINUS:  prefix = "+"; اكسر;
+							حالة FmtPart::SPACE_MINUS: prefix = " "; اكسر;
 						}
 					}
 
-					if (part.base != 10) {
+					إذا (part.base != 10) {
 						size_t minimum_size = 1;
-						for (size_t index = 0; index < (size_t)value.size(); index++)
-							if (value[index] != State::S0)
+						لكل (size_t index = 0; index < (size_t)نيلاي.size(); index++)
+							إذا (نيلاي[index] != State::S0)
 								minimum_size = index + 1;
-						value = value.extract(0, minimum_size);
+						نيلاي = نيلاي.extract(0, minimum_size);
 					}
 
-					if (part.base == 2) {
-						if (part.show_base)
+					إذا (part.base == 2) {
+						إذا (part.show_base)
 							prefix += "0b";
-						for (size_t index = 0; index < (size_t)value.size(); index++) {
-							if (part.group && index > 0 && index % 4 == 0)
+						لكل (size_t index = 0; index < (size_t)نيلاي.size(); index++) {
+							إذا (part.group && index > 0 && index % 4 == 0)
 								buf += '_';
-							RTLIL::State bit = value[index];
-							if (bit == State::Sx)
+							RTLIL::State bit = نيلاي[index];
+							إذا (bit == State::Sx)
 								buf += 'x';
-							else if (bit == State::Sz)
+							وإلا إذا (bit == State::Sz)
 								buf += 'z';
-							else if (bit == State::S1)
+							وإلا إذا (bit == State::S1)
 								buf += '1';
-							else /* if (bit == State::S0) */
+							وإلا /* if (bit == State::S0) */
 								buf += '0';
 						}
-					} else if (part.base == 8 || part.base == 16) {
-						if (part.show_base)
+					} وإلا إذا (part.base == 8 || part.base == 16) {
+						إذا (part.show_base)
 							prefix += (part.base == 16) ? (part.hex_upper ? "0X" : "0x") : "0o";
 						size_t step = (part.base == 16) ? 4 : 3;
-						for (size_t index = 0; index < (size_t)value.size(); index += step) {
-							if (part.group && index > 0 && index % (4 * step) == 0)
+						لكل (size_t index = 0; index < (size_t)نيلاي.size(); index += step) {
+							إذا (part.group && index > 0 && index % (4 * step) == 0)
 								buf += '_';
-							RTLIL::Const subvalue = value.extract(index, min(step, value.size() - index));
-							bool has_x = false, all_x = true, has_z = false, all_z = true;
-							for (State bit : subvalue) {
-								if (bit == State::Sx)
+							RTLIL::Const subvalue = نيلاي.extract(index, min(step, نيلاي.size() - index));
+							منطقي has_x = خطأ, all_x = true, has_z = خطأ, all_z = true;
+							لكل (State bit : subvalue) {
+								إذا (bit == State::Sx)
 									has_x = true;
-								else
-									all_x = false;
-								if (bit == State::Sz)
+								وإلا
+									all_x = خطأ;
+								إذا (bit == State::Sz)
 									has_z = true;
-								else
-									all_z = false;
+								وإلا
+									all_z = خطأ;
 							}
-							if (all_x)
+							إذا (all_x)
 								buf += 'x';
-							else if (all_z)
+							وإلا إذا (all_z)
 								buf += 'z';
-							else if (has_x)
+							وإلا إذا (has_x)
 								buf += 'X';
-							else if (has_z)
+							وإلا إذا (has_z)
 								buf += 'Z';
-							else {
-								const char *digits = part.hex_upper ? "0123456789ABCDEF" : "0123456789abcdef";
+							وإلا {
+								ثابت حرف *digits = part.hex_upper ? "0123456789ABCDEF" : "0123456789abcdef";
 								buf += digits[subvalue.as_int()];
 							}
 						}
-					} else if (part.base == 10) {
-						if (part.show_base)
+					} وإلا إذا (part.base == 10) {
+						إذا (part.show_base)
 							prefix += "0d";
-						if (all_x)
+						إذا (all_x)
 							buf += 'x';
-						else if (all_z)
+						وإلا إذا (all_z)
 							buf += 'z';
-						else if (has_x)
+						وإلا إذا (has_x)
 							buf += 'X';
-						else if (has_z)
+						وإلا إذا (has_z)
 							buf += 'Z';
-						else {
-							log_assert(value.is_fully_def());
-							if (value.is_fully_zero())
+						وإلا {
+							log_assert(نيلاي.is_fully_def());
+							إذا (نيلاي.is_fully_zero())
 								buf += '0';
 							size_t index = 0;
-							while (!value.is_fully_zero())	{
-								if (part.group && index > 0 && index % 3 == 0)
+							طالما (!نيلاي.is_fully_zero())	{
+								إذا (part.group && index > 0 && index % 3 == 0)
 									buf += '_';
-								buf += '0' + RTLIL::const_mod(value, 10, false, false, 4).as_int();
-								value = RTLIL::const_div(value, 10, false, false, value.size());
+								buf += '0' + RTLIL::const_mod(نيلاي, 10, خطأ, خطأ, 4).as_int();
+								نيلاي = RTLIL::const_div(نيلاي, 10, خطأ, خطأ, نيلاي.size());
 								index++;
 							}
 						}
-					} else log_abort();
-					if (part.justify == FmtPart::NUMERIC && part.group && part.padding == '0') {
+					} وإلا log_abort();
+					إذا (part.justify == FmtPart::NUMERIC && part.group && part.padding == '0') {
 						size_t group_size = part.base == 10 ? 3 : 4;
-						while (prefix.size() + buf.size() < part.width) {
-							if (buf.size() % (group_size + 1) == group_size)
+						طالما (prefix.size() + buf.size() < part.width) {
+							إذا (buf.size() % (group_size + 1) == group_size)
 								buf += '_';
 							buf += '0';
 						}
 					}
 					std::reverse(buf.begin(), buf.end());
-				} else if (part.type == FmtPart::STRING) {
+				} وإلا إذا (part.type == FmtPart::STRING) {
 					buf = part.sig.as_const().decode_string();
-				} else if (part.type == FmtPart::VLOG_TIME) {
+				} وإلا إذا (part.type == FmtPart::VLOG_TIME) {
 					// We only render() during initial, so time is always zero.
 					buf = "0";
 				}
 
 				log_assert(part.width == 0 || part.padding != '\0');
-				if (prefix.size() + buf.size() < part.width) {
+				إذا (prefix.size() + buf.size() < part.width) {
 					size_t pad_width = part.width - prefix.size() - buf.size();
-					switch (part.justify) {
-						case FmtPart::LEFT:
+					بدل (part.justify) {
+						حالة FmtPart::کيري:
 							str += prefix;
 							str += buf;
 							str += std::string(pad_width, part.padding);
-							break;
-						case FmtPart::RIGHT:
+							اكسر;
+						حالة FmtPart::کانن:
 							str += std::string(pad_width, part.padding);
 							str += prefix;
 							str += buf;
-							break;
-						case FmtPart::NUMERIC:
+							اكسر;
+						حالة FmtPart::NUMERIC:
 							str += prefix;
 							str += std::string(pad_width, part.padding);
 							str += buf;
-							break;
+							اكسر;
 					}
-				} else {
+				} وإلا {
 					str += prefix;
 					str += buf;
 				}
-				break;
+				اكسر;
 			}
 		}
 	}
 
-	return str;
+	أرجع str;
 }
