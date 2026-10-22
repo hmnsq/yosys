@@ -17,118 +17,118 @@
  *
  */
 
-#include "kernel/log_help.h"
+#ضمن "kernel/log_help.h"
 
 USING_YOSYS_NAMESPACE
 
-std::filesystem::path Yosys::fixup_source_path (const char* source_file,
-	const std::filesystem::path &source_root, bool* skip_source_group)
+std::filesystem::path Yosys::fixup_source_path (ثابت حرف* source_file,
+	ثابت std::filesystem::path &source_جذر, منطقي* skip_source_group)
 {
 	std::filesystem::path source_path(source_file);
-	if (source_path.is_absolute()) {
+	إذا (source_path.is_absolute()) {
 		// using proximate instead of relative means that we
 		// still get the source path if they aren't relative
-		auto proximate_path = std::filesystem::proximate(source_path, source_root);
-		if (proximate_path == proximate_path.lexically_normal()) {
+		auto proximate_path = std::filesystem::proximate(source_path, source_جذر);
+		إذا (proximate_path == proximate_path.lexically_normal()) {
 			// we're only interested if it's a subpath of our root dir
 			// if the normal form differs, then the proximate path includes ".."
-			return proximate_path;
-		} else if (skip_source_group != nullptr) {
+			أرجع proximate_path;
+		} وإلا إذا (skip_source_group != nullptr) {
 			// don't try to group external paths
 			*skip_source_group = true;
 		}
 	}
-	return source_path;
+	أرجع source_path;
 }
 
-Json ContentListing::to_json(const std::filesystem::path &source_root) const {
+Json ContentListing::to_json(ثابت std::filesystem::path &source_جذر) ثابت {
 	Json::object object;
 
 	object["type"] = type;
-	if (body.length())
+	إذا (body.length())
 		object["body"] = body;
 
-	if (has_source())
-		object["source_file"] = fixup_source_path(source_file, source_root).string();
-	if (source_line != 0)
-		object["source_line"] = source_line;
+	إذا (has_source())
+		object["source_file"] = fixup_source_path(source_file, source_جذر).string();
+	إذا (source_سطر != 0)
+		object["source_line"] = source_سطر;
 
 	object["options"] = Json(options);
 
 	Json::array content_array;
-	for (auto child : _content)
-		content_array.push_back(child.to_json(source_root));
+	لكل (auto child : _content)
+		content_array.ادفع_back(child.to_json(source_جذر));
 	object["content"] = content_array;
 
-	return object;
+	أرجع object;
 }
 
-void ContentListing::usage(const string &text,
-	const source_location location)
+فراغ ContentListing::usage(ثابت string &text,
+	ثابت source_location location)
 {
 	log_assert(type.compare("root") == 0);
 	add_content("usage", text, location);
 }
 
-void ContentListing::option(const string &text, const string &description,
-	const source_location location)
+فراغ ContentListing::option(ثابت string &text, ثابت string &description,
+	ثابت source_location location)
 {
 	auto option = open_option(text, source_location());
-	if (description.length())
+	إذا (description.length())
 		option->add_content("text", description, location);
 }
 
-void ContentListing::codeblock(const string &code, const string &language,
-	const source_location location)
+فراغ ContentListing::codeblock(ثابت string &code, ثابت string &language,
+	ثابت source_location location)
 {
 	add_content("code", code, location);
 	back()->set_option("language", language);
 }
 
-void ContentListing::paragraph(const string &text,
-	const source_location location)
+فراغ ContentListing::paragraph(ثابت string &text,
+	ثابت source_location location)
 {
 	add_content("text", text, location);
 }
 
-ContentListing* ContentListing::open_usage(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_usage(ثابت string &text,
+	ثابت source_location location)
 {
 	usage(text, location);
-	return back();
+	أرجع back();
 }
 
-ContentListing* ContentListing::open_option(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_option(ثابت string &text,
+	ثابت source_location location)
 {
 	log_assert(type.compare("root") == 0 || type.compare("usage") == 0);
 	add_content("option", text, location);
-	return back();
+	أرجع back();
 }
 
-#define MAX_LINE_LEN 80
-void log_body_str(const std::string &pass_str, std::string indent_str, bool leading_newline=false, bool is_formatted=false) {
-	if (pass_str.empty())
-		return;
+#define MAX_سطر_LEN 80
+فراغ log_body_str(ثابت std::string &pass_str, std::string indent_str, منطقي leading_newline=خطأ, منطقي is_formatted=خطأ) {
+	إذا (pass_str.empty())
+		أرجع;
 	std::istringstream iss(pass_str);
-	if (leading_newline)
+	إذا (leading_newline)
 		log("\n");
-	for (std::string line; std::getline(iss, line);) {
+	لكل (std::string سطر; std::getline(iss, سطر);) {
 		std::string message = indent_str;
-		if (is_formatted) {
-			message += line;
-		} else {
+		إذا (is_formatted) {
+			message += سطر;
+		} وإلا {
 			auto curr_len = indent_str.length();
-			std::istringstream lss(line);
-			for (std::string word; std::getline(lss, word, ' ');) {
-				while (word[0] == '`' && word.back() == '`')
+			std::istringstream lss(سطر);
+			لكل (std::string word; std::getline(lss, word, ' ');) {
+				طالما (word[0] == '`' && word.back() == '`')
 					word = word.substr(1, word.length()-2);
-				if (curr_len + word.length() >= MAX_LINE_LEN-1) {
+				إذا (curr_len + word.length() >= MAX_سطر_LEN-1) {
 					curr_len = 0;
 					log("%s\n", message);
 					message = indent_str;
 				}
-				if (word.length()) {
+				إذا (word.length()) {
 					message += word + " ";
 					curr_len += word.length() + 1;
 				}
@@ -137,7 +137,7 @@ void log_body_str(const std::string &pass_str, std::string indent_str, bool lead
 		log("%s\n", message);
 	}
 }
-void log_body(const ContentListing &content, int indent=0, bool leading_newline=false) {
+فراغ log_body(ثابت ContentListing &content, صحيح indent=0, منطقي leading_newline=خطأ) {
 	std::string indent_str(indent*4, ' ');
 	log_body_str(content.body, indent_str, leading_newline, content.type.compare("code") == 0);
 }
@@ -147,9 +147,9 @@ PrettyHelp *current_help = nullptr;
 PrettyHelp::PrettyHelp()
 {
 	_prior = current_help;
-	_root_listing = ContentListing("root", "");
+	جذر_listing = ContentListing("root", "");
 
-	current_help = this;
+	current_help = هذا;
 }
 
 PrettyHelp::~PrettyHelp()
@@ -159,24 +159,24 @@ PrettyHelp::~PrettyHelp()
 
 PrettyHelp *PrettyHelp::get_current()
 {
-	if (current_help == nullptr)
-		new PrettyHelp();
-	return current_help;
+	إذا (current_help == nullptr)
+		جديد PrettyHelp();
+	أرجع current_help;
 }
 
-void PrettyHelp::log_help() const
+فراغ PrettyHelp::log_help() ثابت
 {
-	for (auto &content : _root_listing) {
-		if (content.type.compare("usage") == 0) {
+	لكل (auto &content : جذر_listing) {
+		إذا (content.type.compare("usage") == 0) {
 			log_body(content, 1, true);
 			log("\n");
-		} else if (content.type.compare("option") == 0) {
+		} وإلا إذا (content.type.compare("option") == 0) {
 			log_body(content, 1);
-			for (auto text : content) {
+			لكل (auto text : content) {
 				log_body(text, 2);
 				log("\n");
 			}
-		} else {
+		} وإلا {
 			log_body(content, 0);
 			log("\n");
 		}
