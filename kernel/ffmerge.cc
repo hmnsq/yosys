@@ -17,26 +17,26 @@
  *
  */
 
-#include "kernel/ffmerge.h"
+#ضمن "kernel/ffmerge.h"
 
 USING_YOSYS_NAMESPACE
 
-bool FfMergeHelper::is_output_unused(RTLIL::SigSpec sig) {
-	for (auto bit : (*sigmap)(sig))
-		if (sigbit_users_count[bit] != 0)
-			return false;
-	return true;
+منطقي FfMergeHelper::is_output_unused(RTLIL::SigSpec sig) {
+	لكل (auto bit : (*sigmap)(sig))
+		إذا (sigbit_users_كدي[bit] != 0)
+			أرجع خطأ;
+	أرجع true;
 }
 
-bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+منطقي FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, صحيح>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
-	bool found = false;
+	منطقي found = خطأ;
 
-	for (auto bit : sig)
+	لكل (auto bit : sig)
 	{
-		if (bit.wire == NULL || sigbit_users_count[bit] == 0) {
+		إذا (bit.wire == عدم || sigbit_users_كدي[bit] == 0) {
 			ff.width++;
 			ff.sig_q.append(bit);
 			ff.sig_d.append(bit);
@@ -45,30 +45,30 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			ff.val_init.append(RTLIL::Const(State::Sx));
 			ff.val_srst.append(RTLIL::Const(State::Sx));
 			ff.val_arst.append(RTLIL::Const(State::Sx));
-			continue;
+			استمر;
 		}
 
-		if (sigbit_users_count[bit] != 1)
-			return false;
+		إذا (sigbit_users_كدي[bit] != 1)
+			أرجع خطأ;
 
 		auto &sinks = dff_sink[bit];
-		if (sinks.size() != 1)
-			return false;
+		إذا (sinks.size() != 1)
+			أرجع خطأ;
 
 		Cell *cell;
-		int idx;
+		صحيح idx;
 		std::tie(cell, idx) = *sinks.begin();
-		bits.insert(std::make_pair(cell, idx));
+		bits.سك(std::make_pair(cell, idx));
 
 		FfData cur_ff(initvals, cell);
 
 		// Reject latches and $ff.
-		if (!cur_ff.has_clk)
-			return false;
+		إذا (!cur_ff.has_clk)
+			أرجع خطأ;
 
 		log_assert((*sigmap)(cur_ff.sig_d[idx]) == bit);
 
-		if (!found) {
+		إذا (!found) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -88,56 +88,56 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
 			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+		} وإلا {
+			إذا (ff.has_clk != cur_ff.has_clk)
+				أرجع خطأ;
+			إذا (ff.has_ce != cur_ff.has_ce)
+				أرجع خطأ;
+			إذا (ff.has_aload != cur_ff.has_aload)
+				أرجع خطأ;
+			إذا (ff.has_srst != cur_ff.has_srst)
+				أرجع خطأ;
+			إذا (ff.has_arst != cur_ff.has_arst)
+				أرجع خطأ;
+			إذا (ff.has_sr != cur_ff.has_sr)
+				أرجع خطأ;
+			إذا (ff.has_clk) {
+				إذا (ff.sig_clk != cur_ff.sig_clk)
+					أرجع خطأ;
+				إذا (ff.pol_clk != cur_ff.pol_clk)
+					أرجع خطأ;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			إذا (ff.has_ce) {
+				إذا (ff.sig_ce != cur_ff.sig_ce)
+					أرجع خطأ;
+				إذا (ff.pol_ce != cur_ff.pol_ce)
+					أرجع خطأ;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			إذا (ff.has_aload) {
+				إذا (ff.sig_aload != cur_ff.sig_aload)
+					أرجع خطأ;
+				إذا (ff.pol_aload != cur_ff.pol_aload)
+					أرجع خطأ;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			إذا (ff.has_srst) {
+				إذا (ff.sig_srst != cur_ff.sig_srst)
+					أرجع خطأ;
+				إذا (ff.pol_srst != cur_ff.pol_srst)
+					أرجع خطأ;
+				إذا (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					أرجع خطأ;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			إذا (ff.has_arst) {
+				إذا (ff.sig_arst != cur_ff.sig_arst)
+					أرجع خطأ;
+				إذا (ff.pol_arst != cur_ff.pol_arst)
+					أرجع خطأ;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			إذا (ff.has_sr) {
+				إذا (ff.pol_clr != cur_ff.pol_clr)
+					أرجع خطأ;
+				إذا (ff.pol_set != cur_ff.pol_set)
+					أرجع خطأ;
 			}
 		}
 
@@ -153,21 +153,21 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 		found = true;
 	}
 
-	return found;
+	أرجع found;
 }
 
-bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+منطقي FfMergeHelper::find_شغرو_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, صحيح>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
-	bool found = false;
+	منطقي found = خطأ;
 
-	pool<int> const_bits;
+	pool<صحيح> const_bits;
 
-	for (auto bit : sig)
+	لكل (auto bit : sig)
 	{
-		if (bit.wire == NULL) {
-			const_bits.insert(ff.width);
+		إذا (bit.wire == عدم) {
+			const_bits.سك(ff.width);
 			ff.width++;
 			ff.sig_q.append(bit);
 			ff.sig_d.append(bit);
@@ -177,22 +177,22 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			ff.val_init.append(RTLIL::Const(bit.data));
 			ff.val_srst.append(RTLIL::Const(bit.data));
 			ff.val_arst.append(RTLIL::Const(bit.data));
-			continue;
+			استمر;
 		}
 
-		if (!dff_driver.count(bit))
-			return false;
+		إذا (!dff_driver.كدي(bit))
+			أرجع خطأ;
 
 		Cell *cell;
-		int idx;
+		صحيح idx;
 		std::tie(cell, idx) = dff_driver[bit];
-		bits.insert(std::make_pair(cell, idx));
+		bits.سك(std::make_pair(cell, idx));
 
 		FfData cur_ff(initvals, cell);
 
 		log_assert((*sigmap)(cur_ff.sig_q[idx]) == bit);
 
-		if (!found) {
+		إذا (!found) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -213,58 +213,58 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
 			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_gclk != cur_ff.has_gclk)
-				return false;
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+		} وإلا {
+			إذا (ff.has_gclk != cur_ff.has_gclk)
+				أرجع خطأ;
+			إذا (ff.has_clk != cur_ff.has_clk)
+				أرجع خطأ;
+			إذا (ff.has_ce != cur_ff.has_ce)
+				أرجع خطأ;
+			إذا (ff.has_aload != cur_ff.has_aload)
+				أرجع خطأ;
+			إذا (ff.has_srst != cur_ff.has_srst)
+				أرجع خطأ;
+			إذا (ff.has_arst != cur_ff.has_arst)
+				أرجع خطأ;
+			إذا (ff.has_sr != cur_ff.has_sr)
+				أرجع خطأ;
+			إذا (ff.has_clk) {
+				إذا (ff.sig_clk != cur_ff.sig_clk)
+					أرجع خطأ;
+				إذا (ff.pol_clk != cur_ff.pol_clk)
+					أرجع خطأ;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			إذا (ff.has_ce) {
+				إذا (ff.sig_ce != cur_ff.sig_ce)
+					أرجع خطأ;
+				إذا (ff.pol_ce != cur_ff.pol_ce)
+					أرجع خطأ;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			إذا (ff.has_aload) {
+				إذا (ff.sig_aload != cur_ff.sig_aload)
+					أرجع خطأ;
+				إذا (ff.pol_aload != cur_ff.pol_aload)
+					أرجع خطأ;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			إذا (ff.has_srst) {
+				إذا (ff.sig_srst != cur_ff.sig_srst)
+					أرجع خطأ;
+				إذا (ff.pol_srst != cur_ff.pol_srst)
+					أرجع خطأ;
+				إذا (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					أرجع خطأ;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			إذا (ff.has_arst) {
+				إذا (ff.sig_arst != cur_ff.sig_arst)
+					أرجع خطأ;
+				إذا (ff.pol_arst != cur_ff.pol_arst)
+					أرجع خطأ;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			إذا (ff.has_sr) {
+				إذا (ff.pol_clr != cur_ff.pol_clr)
+					أرجع خطأ;
+				إذا (ff.pol_set != cur_ff.pol_set)
+					أرجع خطأ;
 			}
 		}
 
@@ -280,24 +280,24 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 		found = true;
 	}
 
-	if (found && ff.has_sr) {
-		for (auto i: const_bits) {
-			if (ff.sig_d[i] == State::S0) {
+	إذا (found && ff.has_sr) {
+		لكل (auto i: const_bits) {
+			إذا (ff.sig_d[i] == State::S0) {
 				ff.sig_set[i] = ff.pol_set ? State::S0 : State::S1;
-			} else if (ff.sig_d[i] == State::S1) {
+			} وإلا إذا (ff.sig_d[i] == State::S1) {
 				ff.sig_clr[i] = ff.pol_clr ? State::S0 : State::S1;
 			}
 		}
 	}
 
-	return found;
+	أرجع found;
 }
 
 
-void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
+فراغ FfMergeHelper::remove_output_ff(ثابت pool<std::pair<Cell *, صحيح>> &bits) {
+	لكل (auto &it : bits) {
 		Cell *cell = it.first;
-		int idx = it.second;
+		صحيح idx = it.second;
 		SigSpec q = cell->getPort(ID::Q);
 		initvals->remove_init(q[idx]);
 		dff_driver.erase((*sigmap)(q[idx]));
@@ -307,54 +307,54 @@ void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
 	}
 }
 
-void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
+فراغ FfMergeHelper::mark_شغرو_ff(ثابت pool<std::pair<Cell *, صحيح>> &bits) {
+	لكل (auto &it : bits) {
 		Cell *cell = it.first;
-		int idx = it.second;
-		if (cell->hasPort(ID::D)) {
+		صحيح idx = it.second;
+		إذا (cell->hasPort(ID::D)) {
 			SigSpec d = cell->getPort(ID::D);
 			// The user count was already at least 1
 			// (for the D port).  Bump it as it is now connected
 			// to the merged-to cell as well.  This suffices for
 			// it to not be considered for output merging.
-			sigbit_users_count[d[idx]]++;
+			sigbit_users_كدي[d[idx]]++;
 		}
 	}
 }
 
-void FfMergeHelper::set(FfInitVals *initvals_, RTLIL::Module *module_)
+فراغ FfMergeHelper::set(FfInitVals *initvals_, RTLIL::Module *module_)
 {
 	clear();
 	initvals = initvals_;
 	sigmap = initvals->sigmap;
 	module = module_;
 
-	for (auto wire : module->wires()) {
-		if (wire->port_output)
-			for (auto bit : (*sigmap)(wire))
-				sigbit_users_count[bit]++;
+	لكل (auto wire : module->wires()) {
+		إذا (wire->port_output)
+			لكل (auto bit : (*sigmap)(wire))
+				sigbit_users_كدي[bit]++;
 	}
 
-	for (auto cell : module->cells()) {
-		if (cell->is_builtin_ff()) {
-			if (cell->hasPort(ID::D)) {
+	لكل (auto cell : module->cells()) {
+		إذا (cell->is_builtin_ff()) {
+			إذا (cell->hasPort(ID::D)) {
 				SigSpec d = (*sigmap)(cell->getPort(ID::D));
-				for (int i = 0; i < GetSize(d); i++)
-					dff_sink[d[i]].insert(std::make_pair(cell, i));
+				لكل (صحيح i = 0; i < GetSize(d); i++)
+					dff_sink[d[i]].سك(std::make_pair(cell, i));
 			}
 			SigSpec q = (*sigmap)(cell->getPort(ID::Q));
-			for (int i = 0; i < GetSize(q); i++)
+			لكل (صحيح i = 0; i < GetSize(q); i++)
 				dff_driver[q[i]] = std::make_pair(cell, i);
 		}
-		for (auto &conn : cell->connections())
-			if (!cell->known() || cell->input(conn.first))
-				for (auto bit : (*sigmap)(conn.second))
-					sigbit_users_count[bit]++;
+		لكل (auto &conn : cell->connections())
+			إذا (!cell->known() || cell->شغرو(conn.first))
+				لكل (auto bit : (*sigmap)(conn.second))
+					sigbit_users_كدي[bit]++;
 	}
 }
 
-void FfMergeHelper::clear() {
+فراغ FfMergeHelper::clear() {
 	dff_driver.clear();
 	dff_sink.clear();
-	sigbit_users_count.clear();
+	sigbit_users_كدي.clear();
 }
