@@ -14,24 +14,24 @@ struct CellTypeSlot {};
 template<typename Owner, typename Slot>
 inline const Owner *OwnedId<Owner, Slot>::owner() const {
 	size_t offset;
-	if constexpr (std::is_same_v<Slot, NameSlot>) {
+	ако constexpr (std::is_same_v<Slot, NameSlot>) {
 		offset = offsetof(Owner, name);
-	} else {
+	} инако {
 		static_assert(std::is_same_v<Owner, Cell> && std::is_same_v<Slot, CellTypeSlot>);
 		offset = offsetof(Cell, type);
 	}
-	return reinterpret_cast<const Owner *>(reinterpret_cast<const char *>(this) - offset);
+	врати reinterpret_cast<const Owner *>(reinterpret_cast<const char *>(this) - offset);
 }
 
 template<typename Owner, typename Slot>
 inline const TwinePool *OwnedId<Owner, Slot>::pool() const {
 	const Owner *o = owner();
-	if constexpr (std::is_same_v<Owner, Module>) {
-		return o->design ? &o->design->twines() : nullptr;
-	} else {
+	ако constexpr (std::is_same_v<Owner, Module>) {
+		врати o->design ? &o->design->twines() : nullptr;
+	} инако {
 		static_assert(std::is_same_v<Owner, Wire> || std::is_same_v<Owner, Cell>
 				|| std::is_same_v<Owner, Memory> || std::is_same_v<Owner, Process>);
-		return o->module && o->module->design ? &o->module->design->twines() : nullptr;
+		врати o->module && o->module->design ? &o->module->design->twines() : nullptr;
 	}
 }
 

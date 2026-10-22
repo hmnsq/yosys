@@ -23,13 +23,13 @@ YOSYS_NAMESPACE_BEGIN
 
 template <typename I, typename Filter> void ModuleHdlnameIndex::index_items(I begin, I end, Filter filter)
 {
-	for (; begin != end; ++begin) {
+	за (; begin != end; ++begin) {
 		auto const &item = *begin;
 
-		if (!filter(item))
+		ако (!filter(item))
 			continue;
 		std::vector<IdString> path = parse_hdlname(item);
-		if (!path.empty())
+		ако (!path.empty())
 			lookup.emplace(item, tree.insert(path, item));
 	}
 }
@@ -43,33 +43,33 @@ void ModuleHdlnameIndex::index()
 void ModuleHdlnameIndex::index_wires()
 {
 	auto wires = module->wires();
-	index_items(wires.begin(), wires.end(), [](Wire *) { return true; });
+	index_items(wires.begin(), wires.end(), [](Wire *) { врати true; });
 }
 
 void ModuleHdlnameIndex::index_cells()
 {
 	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *) { return true; });
+	index_items(cells.begin(), cells.end(), [](Cell *) { врати true; });
 }
 
 void ModuleHdlnameIndex::index_scopeinfo_cells()
 {
 	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *cell) { return cell->type == ID($scopeinfo); });
+	index_items(cells.begin(), cells.end(), [](Cell *cell) { врати cell->type == ID($scopeinfo); });
 }
 
 std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
 {
 	std::vector<std::string> result;
 
-	for (; !cursor.is_root(); cursor = cursor.parent()) {
-		if (!cursor.has_entry()) {
+	за (; !cursor.is_root(); cursor = cursor.parent()) {
+		ако (!cursor.has_entry()) {
 			result.push_back("");
 			result.push_back("");
 			continue;
 		}
 		Cell *cell = cursor.entry().cell();
-		if (cell == nullptr || cell->type != ID($scopeinfo)) {
+		ако (cell == nullptr || cell->type != ID($scopeinfo)) {
 			result.push_back("");
 			result.push_back("");
 			continue;
@@ -82,16 +82,16 @@ std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
 
 	std::reverse(result.begin(), result.end());
 
-	return result;
+	врати result;
 }
 
 static const char *attr_prefix(ScopeinfoAttrs attrs)
 {
 	switch (attrs) {
 	case ScopeinfoAttrs::Cell:
-		return "\\cell_";
+		врати "\\cell_";
 	case ScopeinfoAttrs::Module:
-		return "\\module_";
+		врати "\\module_";
 	default:
 		log_abort();
 	}
@@ -102,7 +102,7 @@ bool scopeinfo_has_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs,
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
 	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	return key != IdString::Null && scopeinfo->has_attribute(key);
+	врати key != IdString::Null && scopeinfo->has_attribute(key);
 }
 
 RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
@@ -110,12 +110,12 @@ RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttr
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
 	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	if (key == IdString::Null)
-		return RTLIL::Const();
+	ако (key == IdString::Null)
+		врати RTLIL::Const();
 	auto found = scopeinfo->attributes.find(key);
-	if (found == scopeinfo->attributes.end())
-		return RTLIL::Const();
-	return found->second;
+	ако (found == scopeinfo->attributes.end())
+		врати RTLIL::Const();
+	врати found->second;
 }
 
 dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs)
@@ -126,14 +126,14 @@ dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scop
 	size_t prefix_len = strlen(prefix);
 	TwinePool &twines = scopeinfo->twines();
 
-	for (auto const &entry : scopeinfo->attributes) {
+	за (auto const &entry : scopeinfo->attributes) {
 		std::string name = twines.str(entry.first);
-		if (name.compare(0, prefix_len, prefix) != 0)
+		ако (name.compare(0, prefix_len, prefix) != 0)
 			continue;
 		attributes.emplace(twines.add(RTLIL::escape_id(name.substr(prefix_len))), entry.second);
 	}
 
-	return attributes;
+	врати attributes;
 }
 
 YOSYS_NAMESPACE_END
