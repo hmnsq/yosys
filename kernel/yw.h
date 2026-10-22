@@ -29,15 +29,15 @@ struct IdPath : public std::vector<std::string>
 {
 	template<typename... T>
 	IdPath(T&&... args) : std::vector<std::string>(std::forward<T>(args)...) { }
-	IdPath prefix() const { return {begin(), end() - !empty()}; }
+	IdPath prefix() const { 戻る {begin(), end() - !empty()}; }
 	std::string str() const;
 
-	bool has_address() const { int tmp; return get_address(tmp); };
-	bool get_address(int &addr) const;
+	bool has_address() const { 整数 tmp; 戻る get_address(tmp); };
+	bool get_address(整数 &addr) const;
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const {
 		h.eat(static_cast<const std::vector<std::string>&&>(*this));
-		return h;
+		戻る h;
 	}
 };
 
@@ -57,32 +57,32 @@ void witness_hierarchy(RTLIL::Module *module, D data, T callback);
 
 template<class T> static std::vector<std::string> witness_path(T *obj) {
 	std::vector<std::string> path;
-	if (obj->name.isPublic()) {
+	もし (obj->name.isPublic()) {
 		auto hdlname = obj->get_string_attribute(ID::hdlname);
-		for (auto token : split_tokens(hdlname))
+		ために (auto token : split_tokens(hdlname))
 			path.push_back("\\" + token);
 	}
-	if (path.empty())
+	もし (path.empty())
 		path.push_back(obj->name.str());
-	return path;
+	戻る path;
 }
 
 struct ReadWitness
 {
 	struct Clock {
 		IdPath path;
-		int offset;
+		整数 offset;
 		bool is_posedge = false;
 		bool is_negedge = false;
 	};
 
 	struct Signal {
 		IdPath path;
-		int offset;
-		int width;
+		整数 offset;
+		整数 width;
 		bool init_only;
 
-		int bits_offset;
+		整数 bits_offset;
 	};
 
 	struct Step {
@@ -96,48 +96,48 @@ struct ReadWitness
 
 	ReadWitness(const std::string &filename);
 
-	RTLIL::Const get_bits(int t, int bits_offset, int width) const;
+	RTLIL::Const get_bits(整数 t, 整数 bits_offset, 整数 width) const;
 };
 
 template<typename D, typename T>
-void witness_hierarchy_recursion(IdPath &path, int hdlname_mode, RTLIL::Module *module, D data, T &callback)
+void witness_hierarchy_recursion(IdPath &path, 整数 hdlname_mode, RTLIL::Module *module, D data, T &callback)
 {
 	auto const &const_path = path;
 	size_t path_size = path.size();
-	for (auto wire : module->wires())
+	ために (auto wire : module->wires())
 	{
 		auto hdlname = hdlname_mode < 0 ? std::vector<std::string>() : wire->get_hdlname_attribute();
-		for (auto item : hdlname)
+		ために (auto item : hdlname)
 			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && wire->name == path.back())
+		もし (hdlname.size() == 1 && wire->name == path.back())
 			hdlname.clear();
-		if (!hdlname.empty())
+		もし (!hdlname.empty())
 			callback(const_path, WitnessHierarchyItem(module, wire), data);
 		path.resize(path_size);
-		if (hdlname.empty() || hdlname_mode <= 0) {
+		もし (hdlname.empty() || hdlname_mode <= 0) {
 			path.push_back(wire->name);
 			callback(const_path, WitnessHierarchyItem(module, wire), data);
 			path.pop_back();
 		}
 	}
 
-	for (auto cell : module->cells())
+	ために (auto cell : module->cells())
 	{
 		Module *child = module->design->module(cell->type);
-		if (child == nullptr)
+		もし (child == nullptr)
 			continue;
 
 		auto hdlname = hdlname_mode < 0 ? std::vector<std::string>() : cell->get_hdlname_attribute();
-		for (auto item : hdlname)
+		ために (auto item : hdlname)
 			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && cell->name == path.back())
+		もし (hdlname.size() == 1 && cell->name == path.back())
 			hdlname.clear();
-		if (!hdlname.empty()) {
+		もし (!hdlname.empty()) {
 			D child_data = callback(const_path, WitnessHierarchyItem(module, cell), data);
 			witness_hierarchy_recursion<D, T>(path, 1, child, child_data, callback);
 		}
 		path.resize(path_size);
-		if (hdlname.empty() || hdlname_mode <= 0) {
+		もし (hdlname.empty() || hdlname_mode <= 0) {
 			path.push_back(cell->name);
 			D child_data = callback(const_path, WitnessHierarchyItem(module, cell), data);
 			witness_hierarchy_recursion<D, T>(path, hdlname.empty() ? hdlname_mode : -1, child, child_data, callback);
@@ -145,26 +145,26 @@ void witness_hierarchy_recursion(IdPath &path, int hdlname_mode, RTLIL::Module *
 		}
 	}
 
-	for (auto mem : Mem::get_all_memories(module)) {
+	ために (auto mem : Mem::get_all_memories(module)) {
 		std::vector<std::string> hdlname;
 
-		if (hdlname_mode >= 0 && mem.cell != nullptr)
+		もし (hdlname_mode >= 0 && mem.cell != nullptr)
 			hdlname = mem.cell->get_hdlname_attribute();
-		for (auto item : hdlname)
+		ために (auto item : hdlname)
 			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && mem.cell->name == path.back())
+		もし (hdlname.size() == 1 && mem.cell->name == path.back())
 			hdlname.clear();
-		if (!hdlname.empty()) {
+		もし (!hdlname.empty()) {
 			callback(const_path, WitnessHierarchyItem(module, &mem), data);
 		}
 		path.resize(path_size);
 
-		if (hdlname.empty() || hdlname_mode <= 0) {
+		もし (hdlname.empty() || hdlname_mode <= 0) {
 			path.push_back(mem.memid.str());
 			callback(const_path, WitnessHierarchyItem(module, &mem), data);
 			path.pop_back();
 
-			if (mem.cell != nullptr && mem.cell->name != mem.memid) {
+			もし (mem.cell != nullptr && mem.cell->name != mem.memid) {
 				path.push_back(mem.cell->name);
 				callback(const_path, WitnessHierarchyItem(module, &mem), data);
 				path.pop_back();

@@ -40,23 +40,23 @@ private:
     idict<Fn> functions;
 
     struct Node {
-        int fn_index;
-        int arg_offset;
-        int arg_count;
+        整数 fn_index;
+        整数 arg_offset;
+        整数 arg_count;
         Attr attr;
 
-        Node(int fn_index, Attr &&attr, int arg_offset, int arg_count = 0)
+        Node(整数 fn_index, Attr &&attr, 整数 arg_offset, 整数 arg_count = 0)
             : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(std::move(attr)) {}
 
-        Node(int fn_index, Attr const &attr, int arg_offset, int arg_count = 0)
+        Node(整数 fn_index, Attr const &attr, 整数 arg_offset, 整数 arg_count = 0)
             : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(attr) {}
     };
 
 
     std::vector<Node> nodes;
-    std::vector<int> args;
-    dict<Key, int> keys_;
-    dict<int, SparseAttr> sparse_attrs;
+    std::vector<整数> args;
+    dict<Key, 整数> keys_;
+    dict<整数, SparseAttr> sparse_attrs;
 
 public:
     template<typename Graph>
@@ -65,51 +65,51 @@ public:
     protected:
         friend struct ComputeGraph;
         Graph *graph_;
-        int index_;
-        BaseRef(Graph *graph, int index) : graph_(graph), index_(index) {
+        整数 index_;
+        BaseRef(Graph *graph, 整数 index) : graph_(graph), index_(index) {
             log_assert(index_ >= 0);
             check();
         }
 
         void check() const { log_assert(index_ < graph_->size()); }
 
-        Node const &deref() const { check(); return graph_->nodes[index_]; }
+        Node const &deref() const { check(); 戻る graph_->nodes[index_]; }
 
     public:
-        ComputeGraph const &graph() const { return graph_; }
-        int index() const { return index_; }
+        ComputeGraph const &graph() const { 戻る graph_; }
+        整数 index() const { 戻る index_; }
 
-        int size() const { return deref().arg_count; }
+        整数 size() const { 戻る deref().arg_count; }
 
-        BaseRef arg(int n) const
+        BaseRef arg(整数 n) const
         {
             Node const &node = deref();
             log_assert(n >= 0 && n < node.arg_count);
-            return BaseRef(graph_, graph_->args[node.arg_offset + n]);
+            戻る BaseRef(graph_, graph_->args[node.arg_offset + n]);
         }
 
-        std::vector<int>::const_iterator arg_indices_cbegin() const
+        std::vector<整数>::const_iterator arg_indices_cbegin() const
         {
             Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset;
+            戻る graph_->args.cbegin() + node.arg_offset;
         }
 
-        std::vector<int>::const_iterator arg_indices_cend() const
+        std::vector<整数>::const_iterator arg_indices_cend() const
         {
             Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset + node.arg_count;
+            戻る graph_->args.cbegin() + node.arg_offset + node.arg_count;
         }
 
-        Fn const &function() const { return graph_->functions[deref().fn_index]; }
-        Attr const &attr() const { return deref().attr; }
+        Fn const &function() const { 戻る graph_->functions[deref().fn_index]; }
+        Attr const &attr() const { 戻る deref().attr; }
 
-        bool has_sparse_attr() const { return graph_->sparse_attrs.count(index_); }
+        bool has_sparse_attr() const { 戻る graph_->sparse_attrs.count(index_); }
 
         SparseAttr const &sparse_attr() const
         {
             auto found = graph_->sparse_attrs.find(index_);
             log_assert(found != graph_->sparse_attrs.end());
-            return found->second;
+            戻る found->second;
         }
     };
 
@@ -119,8 +119,8 @@ public:
     {
     private:
         friend struct ComputeGraph;
-        Ref(ComputeGraph *graph, int index) : BaseRef<ComputeGraph>(graph, index) {}
-        Node &deref() const { this->check(); return this->graph_->nodes[this->index_]; }
+        Ref(ComputeGraph *graph, 整数 index) : BaseRef<ComputeGraph>(graph, index) {}
+        Node &deref() const { this->check(); 戻る this->graph_->nodes[this->index_]; }
 
     public:
         Ref(BaseRef<ComputeGraph> ref) : Ref(ref.graph_, ref.index_) {}
@@ -130,7 +130,7 @@ public:
             deref().fn_index = this->graph_->functions(function);
         }
 
-        Attr &attr() const { return deref().attr; }
+        Attr &attr() const { 戻る deref().attr; }
 
         void append_arg(ConstRef arg) const
         {
@@ -138,11 +138,11 @@ public:
             append_arg(arg.index());
         }
 
-        void append_arg(int arg) const
+        void append_arg(整数 arg) const
         {
             log_assert(arg >= 0 && arg < this->graph_->size());
             Node &node = deref();
-            if (node.arg_offset + node.arg_count != GetSize(this->graph_->args))
+            もし (node.arg_offset + node.arg_count != GetSize(this->graph_->args))
                 move_args(node);
             this->graph_->args.push_back(arg);
             node.arg_count++;
@@ -150,12 +150,12 @@ public:
 
         operator ConstRef() const
         {
-            return ConstRef(this->graph_, this->index_);
+            戻る ConstRef(this->graph_, this->index_);
         }
 
         SparseAttr &sparse_attr() const
         {
-            return this->graph_->sparse_attrs[this->index_];
+            戻る this->graph_->sparse_attrs[this->index_];
         }
 
         void clear_sparse_attr() const
@@ -172,9 +172,9 @@ public:
         void move_args(Node &node) const
         {
             auto &args = this->graph_->args;
-            int old_offset = node.arg_offset;
+            整数 old_offset = node.arg_offset;
             node.arg_offset = GetSize(args);
-            for (int i = 0; i != node.arg_count; ++i)
+            ために (整数 i = 0; i != node.arg_count; ++i)
                 args.push_back(args[old_offset + i]);
         }
 
@@ -182,113 +182,113 @@ public:
 
     bool has_key(Key const &key) const
     {
-        return keys_.count(key);
+        戻る keys_.count(key);
     }
 
-    dict<Key, int> const &keys() const
+    dict<Key, 整数> const &keys() const
     {
-        return keys_;
+        戻る keys_;
     }
 
     ConstRef operator()(Key const &key) const
     {
         auto it = keys_.find(key);
         log_assert(it != keys_.end());
-        return (*this)[it->second];
+        戻る (*this)[it->second];
     }
 
     Ref operator()(Key const &key)
     {
         auto it = keys_.find(key);
         log_assert(it != keys_.end());
-        return (*this)[it->second];
+        戻る (*this)[it->second];
     }
 
-    int size() const { return GetSize(nodes); }
+    整数 size() const { 戻る GetSize(nodes); }
 
-    ConstRef operator[](int index) const { return ConstRef(this, index); }
-    Ref operator[](int index) { return Ref(this, index); }
+    ConstRef operator[](整数 index) const { 戻る ConstRef(this, index); }
+    Ref operator[](整数 index) { 戻る Ref(this, index); }
 
     Ref add(Fn const &function, Attr &&attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
+        整数 index = GetSize(nodes);
+        整数 fn_index = functions(function);
         nodes.emplace_back(fn_index, std::move(attr), GetSize(args));
-        return Ref(this, index);
+        戻る Ref(this, index);
     }
 
     Ref add(Fn const &function, Attr const &attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
+        整数 index = GetSize(nodes);
+        整数 fn_index = functions(function);
         nodes.emplace_back(fn_index, attr,  GetSize(args));
-        return Ref(this, index);
+        戻る Ref(this, index);
     }
 
     template<typename T>
     Ref add(Fn const &function, Attr const &attr, T &&args)
     {
         Ref added = add(function, attr);
-        for (auto arg : args)
+        ために (auto arg : args)
             added.append_arg(arg);
-        return added;
+        戻る added;
     }
 
     template<typename T>
     Ref add(Fn const &function, Attr &&attr, T &&args)
     {
         Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        ために (auto arg : args)
             added.append_arg(arg);
-        return added;
+        戻る added;
     }
 
     Ref add(Fn const &function, Attr const &attr, std::initializer_list<Ref> args)
     {
         Ref added = add(function, attr);
-        for (auto arg : args)
+        ために (auto arg : args)
             added.append_arg(arg);
-        return added;
+        戻る added;
     }
 
     Ref add(Fn const &function, Attr &&attr, std::initializer_list<Ref> args)
     {
         Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        ために (auto arg : args)
             added.append_arg(arg);
-        return added;
+        戻る added;
     }
 
     template<typename T>
     Ref add(Fn const &function, Attr const &attr, T begin, T end)
     {
         Ref added = add(function, attr);
-        for (; begin != end; ++begin)
+        ために (; begin != end; ++begin)
             added.append_arg(*begin);
-        return added;
+        戻る added;
     }
 
     void compact_args()
     {
-        std::vector<int> new_args;
-        for (auto &node : nodes)
+        std::vector<整数> new_args;
+        ために (auto &node : nodes)
         {
-            int new_offset = GetSize(new_args);
-            for (int i = 0; i < node.arg_count; i++)
+            整数 new_offset = GetSize(new_args);
+            ために (整数 i = 0; i < node.arg_count; i++)
                 new_args.push_back(args[node.arg_offset + i]);
             node.arg_offset = new_offset;
         }
         std::swap(args, new_args);
     }
 
-    void permute(std::vector<int> const &perm)
+    void permute(std::vector<整数> const &perm)
     {
         log_assert(perm.size() <= nodes.size());
-        std::vector<int> inv_perm;
+        std::vector<整数> inv_perm;
         inv_perm.resize(nodes.size(), -1);
-        for (int i = 0; i < GetSize(perm); ++i)
+        ために (整数 i = 0; i < GetSize(perm); ++i)
         {
-            int j = perm[i];
+            整数 j = perm[i];
             log_assert(j >= 0 && j < GetSize(nodes));
             log_assert(inv_perm[j] == -1);
             inv_perm[j] = i;
@@ -296,18 +296,18 @@ public:
         permute(perm, inv_perm);
     }
 
-    void permute(std::vector<int> const &perm, std::vector<int> const &inv_perm)
+    void permute(std::vector<整数> const &perm, std::vector<整数> const &inv_perm)
     {
         log_assert(inv_perm.size() == nodes.size());
         std::vector<Node> new_nodes;
         new_nodes.reserve(perm.size());
-        dict<int, SparseAttr> new_sparse_attrs;
-        for (int i : perm)
+        dict<整数, SparseAttr> new_sparse_attrs;
+        ために (整数 i : perm)
         {
-            int j = GetSize(new_nodes);
+            整数 j = GetSize(new_nodes);
             new_nodes.emplace_back(std::move(nodes[i]));
             auto found = sparse_attrs.find(i);
-            if (found != sparse_attrs.end())
+            もし (found != sparse_attrs.end())
                 new_sparse_attrs.emplace(j, std::move(found->second));
         }
 
@@ -315,14 +315,14 @@ public:
         std::swap(sparse_attrs, new_sparse_attrs);
 
         compact_args();
-        for (int &arg : args)
+        ために (整数 &arg : args)
         {
             log_assert(arg < GetSize(inv_perm));
             log_assert(inv_perm[arg] >= 0);
             arg = inv_perm[arg];
         }
 
-        for (auto &key : keys_)
+        ために (auto &key : keys_)
         {
             log_assert(key.second < GetSize(inv_perm));
             log_assert(inv_perm[key.second] >= 0);
@@ -334,7 +334,7 @@ public:
     {
     private:
         ComputeGraph const &graph_;
-        std::vector<int> indices_;
+        std::vector<整数> indices_;
     public:
         SccAdaptor(ComputeGraph const &graph) : graph_(graph)
         {
@@ -342,55 +342,55 @@ public:
         }
 
 
-        typedef int node_type;
+        typedef 整数 node_type;
 
         struct node_enumerator {
         private:
             friend struct SccAdaptor;
-            int current, end;
-            node_enumerator(int current, int end) : current(current), end(end) {}
+            整数 current, end;
+            node_enumerator(整数 current, 整数 end) : current(current), end(end) {}
 
         public:
 
-            bool finished() const { return current == end; }
+            bool finished() const { 戻る current == end; }
             node_type next() {
                 log_assert(!finished());
                 node_type result = current;
                 ++current;
-                return result;
+                戻る result;
             }
         };
 
         node_enumerator enumerate_nodes() {
-            return node_enumerator(0, GetSize(indices_));
+            戻る node_enumerator(0, GetSize(indices_));
         }
 
 
         struct successor_enumerator {
         private:
             friend struct SccAdaptor;
-            std::vector<int>::const_iterator current, end;
-            successor_enumerator(std::vector<int>::const_iterator current, std::vector<int>::const_iterator end) :
+            std::vector<整数>::const_iterator current, end;
+            successor_enumerator(std::vector<整数>::const_iterator current, std::vector<整数>::const_iterator end) :
                 current(current), end(end) {}
 
         public:
-            bool finished() const { return current == end; }
+            bool finished() const { 戻る current == end; }
             node_type next() {
                 log_assert(!finished());
                 node_type result = *current;
                 ++current;
-                return result;
+                戻る result;
             }
         };
 
-        successor_enumerator enumerate_successors(int index) const {
+        successor_enumerator enumerate_successors(整数 index) const {
             auto const &ref = graph_[index];
-            return successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
+            戻る successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
         }
 
-        int &dfs_index(node_type const &node) { return indices_[node]; }
+        整数 &dfs_index(node_type const &node) { 戻る indices_[node]; }
 
-        std::vector<int> const &dfs_indices() { return indices_; }
+        std::vector<整数> const &dfs_indices() { 戻る indices_; }
     };
 
 };

@@ -23,13 +23,13 @@ YOSYS_NAMESPACE_BEGIN
 
 template <typename I, typename Filter> void ModuleHdlnameIndex::index_items(I begin, I end, Filter filter)
 {
-	for (; begin != end; ++begin) {
+	ために (; begin != end; ++begin) {
 		auto const &item = *begin;
 
-		if (!filter(item))
+		もし (!filter(item))
 			continue;
 		std::vector<IdString> path = parse_hdlname(item);
-		if (!path.empty())
+		もし (!path.empty())
 			lookup.emplace(item, tree.insert(path, item));
 	}
 }
@@ -43,33 +43,33 @@ void ModuleHdlnameIndex::index()
 void ModuleHdlnameIndex::index_wires()
 {
 	auto wires = module->wires();
-	index_items(wires.begin(), wires.end(), [](Wire *) { return true; });
+	index_items(wires.begin(), wires.end(), [](Wire *) { 戻る true; });
 }
 
 void ModuleHdlnameIndex::index_cells()
 {
 	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *) { return true; });
+	index_items(cells.begin(), cells.end(), [](Cell *) { 戻る true; });
 }
 
 void ModuleHdlnameIndex::index_scopeinfo_cells()
 {
 	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *cell) { return cell->type == ID($scopeinfo); });
+	index_items(cells.begin(), cells.end(), [](Cell *cell) { 戻る cell->type == ID($scopeinfo); });
 }
 
 std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
 {
 	std::vector<std::string> result;
 
-	for (; !cursor.is_root(); cursor = cursor.parent()) {
-		if (!cursor.has_entry()) {
+	ために (; !cursor.is_root(); cursor = cursor.parent()) {
+		もし (!cursor.has_entry()) {
 			result.push_back("");
 			result.push_back("");
 			continue;
 		}
 		Cell *cell = cursor.entry().cell();
-		if (cell == nullptr || cell->type != ID($scopeinfo)) {
+		もし (cell == nullptr || cell->type != ID($scopeinfo)) {
 			result.push_back("");
 			result.push_back("");
 			continue;
@@ -82,16 +82,16 @@ std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
 
 	std::reverse(result.begin(), result.end());
 
-	return result;
+	戻る result;
 }
 
 static const char *attr_prefix(ScopeinfoAttrs attrs)
 {
 	switch (attrs) {
 	case ScopeinfoAttrs::Cell:
-		return "\\cell_";
+		戻る "\\cell_";
 	case ScopeinfoAttrs::Module:
-		return "\\module_";
+		戻る "\\module_";
 	default:
 		log_abort();
 	}
@@ -102,7 +102,7 @@ bool scopeinfo_has_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs,
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
 	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	return key != IdString::Null && scopeinfo->has_attribute(key);
+	戻る key != IdString::Null && scopeinfo->has_attribute(key);
 }
 
 RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
@@ -110,12 +110,12 @@ RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttr
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
 	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	if (key == IdString::Null)
-		return RTLIL::Const();
+	もし (key == IdString::Null)
+		戻る RTLIL::Const();
 	auto found = scopeinfo->attributes.find(key);
-	if (found == scopeinfo->attributes.end())
-		return RTLIL::Const();
-	return found->second;
+	もし (found == scopeinfo->attributes.end())
+		戻る RTLIL::Const();
+	戻る found->second;
 }
 
 dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs)
@@ -126,14 +126,14 @@ dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scop
 	size_t prefix_len = strlen(prefix);
 	TwinePool &twines = scopeinfo->twines();
 
-	for (auto const &entry : scopeinfo->attributes) {
+	ために (auto const &entry : scopeinfo->attributes) {
 		std::string name = twines.str(entry.first);
-		if (name.compare(0, prefix_len, prefix) != 0)
+		もし (name.compare(0, prefix_len, prefix) != 0)
 			continue;
 		attributes.emplace(twines.add(RTLIL::escape_id(name.substr(prefix_len))), entry.second);
 	}
 
-	return attributes;
+	戻る attributes;
 }
 
 YOSYS_NAMESPACE_END

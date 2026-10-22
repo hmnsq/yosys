@@ -35,8 +35,8 @@ struct FfInitVals
 	{
 		sigmap = sigmap_;
 		initbits.clear();
-		for (auto wire : module->wires())
-			if (wire->attributes.count(ID::init))
+		ために (auto wire : module->wires())
+			もし (wire->attributes.count(ID::init))
 				process_wire(wire);
 	}
 
@@ -45,16 +45,16 @@ struct FfInitVals
 		SigSpec wirebits = (*sigmap)(wire);
 		Const initval = wire->attributes.at(ID::init);
 
-		for (int i = 0; i < GetSize(wirebits) && i < GetSize(initval); i++)
+		ために (整数 i = 0; i < GetSize(wirebits) && i < GetSize(initval); i++)
 		{
 			SigBit bit = wirebits[i];
 			State val = initval[i];
 
-			if (val != State::S0 && val != State::S1 && bit.wire != nullptr)
+			もし (val != State::S0 && val != State::S1 && bit.wire != nullptr)
 				continue;
 
-			if (initbits.count(bit)) {
-				if (initbits.at(bit).first != val)
+			もし (initbits.count(bit)) {
+				もし (initbits.at(bit).first != val)
 					log_error("Conflicting init values for signal %s (%s = %s != %s).\n",
 							log_signal(bit), log_signal(SigBit(wire, i)),
 							log_signal(val), log_signal(initbits.at(bit).first));
@@ -74,32 +74,32 @@ struct FfInitVals
 		ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_size(0, module->wires_size(), 1000));
 		ShardedVector<RTLIL::Wire*> init_wires(subpool);
 		subpool.run([const_module, &init_wires](const ParallelDispatchThreadPool::RunCtx &ctx) {
-			for (int i : ctx.item_range(const_module->wires_size())) {
+			ために (整数 i : ctx.item_range(const_module->wires_size())) {
 				RTLIL::Wire *wire = const_module->wire_at(i);
-				if (wire->attributes.count(ID::init))
+				もし (wire->attributes.count(ID::init))
 					init_wires.insert(ctx, wire);
 			}
 		});
 
-		for (RTLIL::Wire *wire : init_wires)
+		ために (RTLIL::Wire *wire : init_wires)
 			process_wire(wire);
 	}
 
 	RTLIL::State operator()(RTLIL::SigBit bit) const
 	{
 		auto it = initbits.find((*sigmap)(bit));
-		if (it != initbits.end())
-			return it->second.first;
-		else
-			return State::Sx;
+		もし (it != initbits.end())
+			戻る it->second.first;
+		否则
+			戻る State::Sx;
 	}
 
 	RTLIL::Const operator()(const RTLIL::SigSpec &sig) const
 	{
 		RTLIL::Const::Builder res_bits(GetSize(sig));
-		for (auto bit : sig)
+		ために (auto bit : sig)
 			res_bits.push_back((*this)(bit));
-		return res_bits.build();
+		戻る res_bits.build();
 	}
 
 	void set_init(RTLIL::SigBit bit, RTLIL::State val)
@@ -107,18 +107,18 @@ struct FfInitVals
 		SigBit mbit = (*sigmap)(bit);
 		SigBit abit = bit;
 		auto it = initbits.find(mbit);
-		if (it != initbits.end())
+		もし (it != initbits.end())
 			abit = it->second.second;
-		else if (val == State::Sx)
-			return;
+		否则 もし (val == State::Sx)
+			戻る;
 		log_assert(abit.wire);
 		initbits[mbit] = std::make_pair(val,abit);
 		auto it2 = abit.wire->attributes.find(ID::init);
-		if (it2 != abit.wire->attributes.end()) {
+		もし (it2 != abit.wire->attributes.end()) {
 			it2->second.set(abit.offset, val);
-			if (it2->second.is_fully_undef())
+			もし (it2->second.is_fully_undef())
 				abit.wire->attributes.erase(it2);
-		} else if (val != State::Sx) {
+		} 否则 もし (val != State::Sx) {
 			Const cval(State::Sx, GetSize(abit.wire));
 			cval.set(abit.offset, val);
 			abit.wire->attributes[ID::init] = cval;
@@ -128,7 +128,7 @@ struct FfInitVals
 	void set_init(const RTLIL::SigSpec &sig, RTLIL::Const val)
 	{
 		log_assert(GetSize(sig) == GetSize(val));
-		for (int i = 0; i < GetSize(sig); i++)
+		ために (整数 i = 0; i < GetSize(sig); i++)
 			set_init(sig[i], val[i]);
 	}
 
@@ -139,7 +139,7 @@ struct FfInitVals
 
 	void remove_init(const RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sig)
+		ために (auto bit : sig)
 			remove_init(bit);
 	}
 
@@ -147,59 +147,59 @@ struct FfInitVals
 	void move_barrier_inits(RTLIL::Module *module)
 	{
 		dict<RTLIL::SigBit, RTLIL::SigBit> next;
-		for (auto cell : module->cells()) {
-			if (cell->type != ID($barrier))
+		ために (auto cell : module->cells()) {
+			もし (cell->type != ID($barrier))
 				continue;
 			RTLIL::SigSpec sig_y = (*sigmap)(cell->getPort(ID::Y)), sig_a = cell->getPort(ID::A);
-			for (int i = 0; i < GetSize(sig_y); i++)
+			ために (整数 i = 0; i < GetSize(sig_y); i++)
 				next[sig_y[i]] = sig_a[i];
 		}
-		if (next.empty() || initbits.empty())
-			return;
+		もし (next.empty() || initbits.empty())
+			戻る;
 		pool<RTLIL::SigBit> inputs = input_nets(module), moved;
-		for (auto [from, to] : next) {
+		ために (auto [from, to] : next) {
 			RTLIL::State val = (*this)(from);
-			if (val == State::Sx)
+			もし (val == State::Sx)
 				continue;
 			moved.insert(from);
-			for (int i = 0; i < GetSize(next) && next.count((*sigmap)(to)); i++)
+			ために (整数 i = 0; i < GetSize(next) && next.count((*sigmap)(to)); i++)
 				to = next.at((*sigmap)(to));
 			RTLIL::SigBit to_net = (*sigmap)(to);
-			if (to_net.wire == nullptr || inputs.count(to_net))
+			もし (to_net.wire == nullptr || inputs.count(to_net))
 				continue;
 			RTLIL::State to_val = (*this)(to);
-			if (to_val == State::Sx)
+			もし (to_val == State::Sx)
 				set_init(to, val);
-			else if (to_val != val)
+			否则 もし (to_val != val)
 				log_error("Conflicting init values for signal %s (%s = %s != %s).\n",
 						log_signal(to), log_signal(from), log_signal(val), log_signal(to_val));
 		}
-		if (!moved.empty())
+		もし (!moved.empty())
 			remove_net_inits(module, moved);
 	}
 
 	pool<RTLIL::SigBit> input_nets(RTLIL::Module *module) const
 	{
 		pool<RTLIL::SigBit> nets;
-		for (auto wire : module->wires())
-			if (wire->port_input)
-				for (auto bit : (*sigmap)(wire))
+		ために (auto wire : module->wires())
+			もし (wire->port_input)
+				ために (auto bit : (*sigmap)(wire))
 					nets.insert(bit);
-		return nets;
+		戻る nets;
 	}
 
 	void remove_net_inits(RTLIL::Module *module, const pool<RTLIL::SigBit> &nets)
 	{
-		for (auto bit : nets)
+		ために (auto bit : nets)
 			initbits.erase(bit);
-		for (auto wire : module->wires()) {
+		ために (auto wire : module->wires()) {
 			auto it = wire->attributes.find(ID::init);
-			if (it == wire->attributes.end())
+			もし (it == wire->attributes.end())
 				continue;
-			for (int i = 0; i < GetSize(wire) && i < GetSize(it->second); i++)
-				if (nets.count((*sigmap)(RTLIL::SigBit(wire, i))))
+			ために (整数 i = 0; i < GetSize(wire) && i < GetSize(it->second); i++)
+				もし (nets.count((*sigmap)(RTLIL::SigBit(wire, i))))
 					it->second.set(i, State::Sx);
-			if (it->second.is_fully_undef())
+			もし (it->second.is_fully_undef())
 				wire->attributes.erase(it);
 		}
 	}

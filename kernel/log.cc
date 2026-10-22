@@ -21,11 +21,11 @@
 #include "libs/sha1/sha1.h"
 #include "backends/rtlil/rtlil_backend.h"
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#もし !defined(_WIN32) || defined(__MINGW32__)
 #  include <sys/time.h>
 #endif
 
-#if defined(YOSYS_ENABLE_DLOPEN)
+#もし defined(YOSYS_ENABLE_DLOPEN)
 #  include <dlfcn.h>
 #endif
 
@@ -43,34 +43,34 @@ bool log_stderr_sink_forced = false;
 LogManager &logger()
 {
 	static LogManager instance;
-	return instance;
+	戻る instance;
 }
 
 std::chrono::steady_clock::time_point LogManager::get_initial_time() const
 {
 	static const auto initial_time = std::chrono::steady_clock::now();
-	return initial_time;
+	戻る initial_time;
 }
 
 void (*log_error_atexit)() = nullptr;
-void (*log_verific_callback)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg) = nullptr;
+void (*log_verific_callback)(整数 msg_type, const char *message_id, LogSourceLocation src, const char *msg) = nullptr;
 
 static bool next_print_log = true;
 
 FileLogSink::FileLogSink(const std::string &filename, bool line_buffered, bool append)
 	: file(fopen(filename.c_str(), append ? "at" : "wt"))
 {
-	if (!file)
+	もし (!file)
 		throw std::runtime_error("Can't open log file `" + filename + "' for writing!\n");
 
-	if (line_buffered)
+	もし (line_buffered)
 		setvbuf(file, nullptr, _IOLBF, 0);
 }
 
 FileLogSink::~FileLogSink()
 {
 	flush();
-	if (file)
+	もし (file)
 		fclose(file);
 }
 
@@ -98,7 +98,7 @@ void ConsoleLogSink::flush()
 
 bool StderrLogSink::should_log(const LogMessage &msg) const
 {
-	return msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
+	戻る msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
 			(msg.severity == LogSeverity::Warning && !quiet_warnings) ||
 			log_stderr_sink_forced;
 }
@@ -121,8 +121,8 @@ ScratchPadLogSink::ScratchPadLogSink(std::string scratchpad)
 void ScratchPadLogSink::log(const LogMessage &msg)
 {
 	RTLIL::Design *design = yosys_get_design();
-	if (!design)
-		return;
+	もし (!design)
+		戻る;
 
 	design->scratchpad[scratchpad].append(msg.cached_msg);
 }
@@ -136,22 +136,22 @@ LogMessage::LogMessage(LogSeverity severity, LogSourceLocation src, std::string_
 	src(src)
 {
 	std::string time_str;
-	if (logger().get_log_time())
+	もし (logger().get_log_time())
 	{
-		if (next_print_log) {
+		もし (next_print_log) {
 			next_print_log = false;
 			auto elapsed = std::chrono::steady_clock::now() - logger().get_initial_time();
 			auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-			time_str += stringf("[%05d.%06d] ", int(us.count() / 1'000'000),int(us.count() % 1'000'000));
+			time_str += stringf("[%05d.%06d] ", 整数(us.count() / 1'000'000),整数(us.count() % 1'000'000));
 		}
 
-		if (!format.empty() && format.back() == '\n')
+		もし (!format.empty() && format.back() == '\n')
 			next_print_log = true;
 
 		// Special case to detect newlines in Python log output, since
 		// the binding always calls `log("%s", payload)` and the newline
 		// is then in the first formatted argument
-		if (format == "%s" && !message.empty() && message.back() == '\n')
+		もし (format == "%s" && !message.empty() && message.back() == '\n')
 			next_print_log = true;
 	}
 	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
@@ -160,61 +160,61 @@ LogMessage::LogMessage(LogSeverity severity, LogSourceLocation src, std::string_
 
 void LogManager::logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in) {
 	size_t remove_leading = 0;
-	while (format.size() > 1 && format[0] == '\n') {
+	ながら (format.size() > 1 && format[0] == '\n') {
 		logv_string(severity, src, prefix, "\n", "\n");
 		format = format.substr(1);
 		++remove_leading;
 	}
-	if (remove_leading > 0) {
+	もし (remove_leading > 0) {
 		str_in = str_in.substr(remove_leading);
 	}
 
 	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
 	std::string str = stringf("%s%s%s",loc,prefix,str_in);
 
-	if (str.empty())
-		return;
+	もし (str.empty())
+		戻る;
 
 	size_t nnl_pos = str.find_last_not_of('\n');
-	if (nnl_pos == std::string::npos)
+	もし (nnl_pos == std::string::npos)
 		newline_count += GetSize(str);
-	else
+	否则
 		newline_count = GetSize(str) - nnl_pos - 1;
 
-	if (hasher)
+	もし (hasher)
 		hasher->update(str);
 
 	auto msg = LogMessage(severity, src, prefix, format, str_in);
-	for (auto &sink : sinks) {
-		if (sink->should_log(msg))
+	ために (auto &sink : sinks) {
+		もし (sink->should_log(msg))
 			sink->log(msg);
 	}
 
-	if (severity == LogSeverity::Header)
+	もし (severity == LogSeverity::Header)
 		str = str_in;
 
 	static std::string linebuffer;
 	static bool warn_regex_recusion_guard = false;
 
-	if (!warn_regex_recusion_guard)
+	もし (!warn_regex_recusion_guard)
 	{
 		warn_regex_recusion_guard = true;
 
-		if (warn_regexes.empty() && expect_log.empty() && expect_prefix_log.empty())
+		もし (warn_regexes.empty() && expect_log.empty() && expect_prefix_log.empty())
 		{
 			linebuffer.clear();
 		}
-		else
+		否则
 		{
 			linebuffer += str;
 
-			if (!linebuffer.empty() && linebuffer.back() == '\n') {
-				for (auto &re : warn_regexes)
-					if (std::regex_search(linebuffer, re))
+			もし (!linebuffer.empty() && linebuffer.back() == '\n') {
+				ために (auto &re : warn_regexes)
+					もし (std::regex_search(linebuffer, re))
 						log_warning("Found log message matching -W regex:\n%s", str);
 
-				for (auto &[_, item] : expect_log)
-					if (std::regex_search(linebuffer, item.pattern))
+				ために (auto &[_, item] : expect_log)
+					もし (std::regex_search(linebuffer, item.pattern))
 						item.current_count++;
 
 				linebuffer.clear();
@@ -229,8 +229,8 @@ void LogManager::formatted_string(LogSeverity severity, LogSourceLocation src, s
 {
 	log_assert(!Multithreading::active());
 
-	if (make_debug && !is_debug(1))
-		return;
+	もし (make_debug && !is_debug(1))
+		戻る;
 	logv_string(severity, src, prefix, format, std::move(str));
 }
 
@@ -239,26 +239,26 @@ void LogManager::formatted_header(RTLIL::Design *design, std::string_view format
 	log_assert(!Multithreading::active());
 
 	spacer();
-	if (header_count.size() > 0)
+	もし (header_count.size() > 0)
 		header_count.back()++;
 
-	if (int(header_count.size()) <= verbose_level) {
+	もし (整数(header_count.size()) <= verbose_level) {
 		log_stderr_sink_forced = true;
 	}
 
 	std::string header_id;
 
-	for (int c : header_count)
+	ために (整数 c : header_count)
 		header_id += stringf("%s%d", header_id.empty() ? "" : ".", c);
 
 	formatted_string(LogSeverity::Header, LogSourceLocation{}, stringf("%s. ", header_id), format, std::move(str));
 	flush();
 
-	if (hdump_all)
+	もし (hdump_all)
 		hdump[header_id].insert("yosys_dump_" + header_id + ".il");
 
-	if (hdump.count(header_id) && design != nullptr)
-		for (auto &filename : hdump.at(header_id)) {
+	もし (hdump.count(header_id) && design != nullptr)
+		ために (auto &filename : hdump.at(header_id)) {
 			log("Dumping current design to '%s'.\n", filename);
 			Pass::call(design, {"dump", "-o", filename});
 		}
@@ -271,51 +271,51 @@ void LogManager::formatted_warning(LogSourceLocation src, std::string_view prefi
 
 	bool suppressed = false;
 
-	for (auto &re : nowarn_regexes)
-		if (std::regex_search(message, re))
+	ために (auto &re : nowarn_regexes)
+		もし (std::regex_search(message, re))
 			suppressed = true;
 
 	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	if (suppressed)
+	もし (suppressed)
 	{
 		log("Suppressed %s%s%s", loc, prefix, message);
 	}
-	else
+	否则
 	{
-		int bak_make_debug = make_debug;
+		整数 bak_make_debug = make_debug;
 		make_debug = 0;
 
-		for (auto &re : werror_regexes)
-			if (std::regex_search(message, re))
+		ために (auto &re : werror_regexes)
+			もし (std::regex_search(message, re))
 				formatted_error(src, "ERROR: ", format, message);
 
 		bool warning_match = false;
-		for (auto &[_, item] : expect_warning)
-			if (std::regex_search(message, item.pattern)) {
+		ために (auto &[_, item] : expect_warning)
+			もし (std::regex_search(message, item.pattern)) {
 				item.current_count++;
 				warning_match = true;
 			}
 
 		std::string pattern = loc + string(prefix) + message;
-		for (auto &[_, item] : expect_prefix_warning)
-			if (std::regex_search(pattern, item.pattern)) {
+		ために (auto &[_, item] : expect_prefix_warning)
+			もし (std::regex_search(pattern, item.pattern)) {
 				item.current_count++;
 				warning_match = true;
 			}
 
-		if (warnings.count(message))
+		もし (warnings.count(message))
 		{
 			formatted_string(LogSeverity::Info, src, prefix, format, message);
 			flush();
 		}
-		else
+		否则
 		{
 			formatted_string(LogSeverity::Warning, src, prefix, format, message);
 			flush();
 			warnings.insert(message);
 		}
 
-		if (!warning_match)
+		もし (!warning_match)
 			warnings_count_noexpect++;
 		warnings_count++;
 		make_debug = bak_make_debug;
@@ -323,7 +323,7 @@ void LogManager::formatted_warning(LogSourceLocation src, std::string_view prefi
 }
 
 void LogManager::suppressed() {
-	if (debug_suppressed && !make_debug) {
+	もし (debug_suppressed && !make_debug) {
 		constexpr const char* format = "<suppressed ~%d debug messages>\n";
 		logv_string(LogSeverity::Info, LogSourceLocation{}, {}, format, stringf(format, debug_suppressed));
 		debug_suppressed = 0;
@@ -332,9 +332,9 @@ void LogManager::suppressed() {
 
 void LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
 {
-	int bak_make_debug = make_debug;
+	整数 bak_make_debug = make_debug;
 	make_debug = 0;
-	if (severity == LogSeverity::Error)
+	もし (severity == LogSeverity::Error)
 		suppressed();
 
 	logv_string(severity, src, prefix, format, message);
@@ -342,14 +342,14 @@ void LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, 
 
 	make_debug = bak_make_debug;
 
-	for (auto &[_, item] : expect_error)
-		if (std::regex_search(message, item.pattern))
+	ために (auto &[_, item] : expect_error)
+		もし (std::regex_search(message, item.pattern))
 			item.current_count++;
 
 	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
 	std::string pattern = loc + string(prefix) + message;
-	for (auto &[_, item] : expect_prefix_error)
-		if (std::regex_search(pattern, item.pattern))
+	ために (auto &[_, item] : expect_prefix_error)
+		もし (std::regex_search(pattern, item.pattern))
 			item.current_count++;
 
 	errors_count++;
@@ -362,17 +362,17 @@ void LogManager::formatted_error(LogSourceLocation src, std::string_view prefix,
 
 	check_expected();
 
-	if (log_error_atexit)
+	もし (log_error_atexit)
 		log_error_atexit();
 
 	YS_DEBUGTRAP_IF_DEBUGGING;
 	const char *e = getenv("YOSYS_ABORT_ON_LOG_ERROR");
-	if (e && atoi(e))
+	もし (e && atoi(e))
 		abort();
 
-#if defined(_MSC_VER)
+#もし defined(_MSC_VER)
 	_exit(1);
-#else
+#否则
 	_Exit(1);
 #endif
 }
@@ -384,7 +384,7 @@ void LogManager::formatted_nonfatal_error(LogSourceLocation src, std::string_vie
 
 void LogManager::add_experimental(const std::string &str)
 {
-	if (experimental_ignored.count(str) == 0 && experimental.count(str) == 0) {
+	もし (experimental_ignored.count(str) == 0 && experimental.count(str) == 0) {
 		log_warning("Feature '%s' is experimental.\n", str);
 		experimental.insert(str);
 	}
@@ -392,10 +392,10 @@ void LogManager::add_experimental(const std::string &str)
 
 void LogManager::add_deprecated(const std::string &feature, const std::string &earliest_removal)
 {
-	if (deprecated.count(feature) == 0) {
-		if (earliest_removal.empty())
+	もし (deprecated.count(feature) == 0) {
+		もし (earliest_removal.empty())
 			log_warning("Feature '%s' is deprecated.\n", feature);
-		else
+		否则
 			log_warning("Feature '%s' is deprecated and may be removed as soon as Yosys %s.\n", feature, earliest_removal);
 		deprecated[feature] = earliest_removal;
 	}
@@ -406,19 +406,19 @@ void log_assert_failure(const char *expr, source_location location)
 	log_error("Assert `%s' failed in %s:%d.\n", expr, location.file_name(), location.line());
 }
 
-void log_abort_internal(const char *file, int line)
+void log_abort_internal(const char *file, 整数 line)
 {
 	log_error("Abort in %s:%d.\n", file, line);
 }
 
-void log_yosys_abort_message(std::string_view file, int line, std::string_view func, std::string_view message)
+void log_yosys_abort_message(std::string_view file, 整数 line, std::string_view func, std::string_view message)
 {
 	log_error("Abort in %s:%d (%s): %s\n", file, line, func, message);
 }
 
 void LogManager::formatted_cmd_error(std::string_view format, std::string message)
 {
-	if (cmd_error_throw) {
+	もし (cmd_error_throw) {
 		formatted_string(LogSeverity::Error, LogSourceLocation{}, "ERROR: ", format, message);
 		flush();
 
@@ -430,13 +430,13 @@ void LogManager::formatted_cmd_error(std::string_view format, std::string messag
 
 void LogManager::spacer()
 {
-	if (newline_count < 2) log("\n");
-	if (newline_count < 2) log("\n");
+	もし (newline_count < 2) log("\n");
+	もし (newline_count < 2) log("\n");
 }
 
 void LogManager::clear_original()
 {
-	std::erase_if(sinks, [](const auto &sink) { return dynamic_cast<LogSinkRef *>(sink.get()) != nullptr; });
+	std::erase_if(sinks, [](const auto &sink) { 戻る dynamic_cast<LogSinkRef *>(sink.get()) != nullptr; });
 }
 
 void LogManager::push()
@@ -450,118 +450,118 @@ void LogManager::pop()
 	flush();
 }
 
-#if defined(YOSYS_ENABLE_DLOPEN)
-void log_backtrace(const char *prefix, int levels)
+#もし defined(YOSYS_ENABLE_DLOPEN)
+void log_backtrace(const char *prefix, 整数 levels)
 {
-	if (levels <= 0) return;
+	もし (levels <= 0) 戻る;
 
 	Dl_info dli;
 	void *p;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(0))) && dladdr(p, &dli)) {
+	もし ((p = __builtin_extract_return_addr(__builtin_return_address(0))) && dladdr(p, &dli)) {
 		log("%sframe #1: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} 否则 {
 		log("%sframe #1: ---\n", prefix);
-		return;
+		戻る;
 	}
 
-	if (levels <= 1) return;
+	もし (levels <= 1) 戻る;
 
 #ifndef DEBUG
 	log("%sframe #2: [build Yosys with ENABLE_DEBUG for deeper backtraces]\n", prefix);
-#else
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(1))) && dladdr(p, &dli)) {
+#否则
+	もし ((p = __builtin_extract_return_addr(__builtin_return_address(1))) && dladdr(p, &dli)) {
 		log("%sframe #2: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} 否则 {
 		log("%sframe #2: ---\n", prefix);
-		return;
+		戻る;
 	}
 
-	if (levels <= 2) return;
+	もし (levels <= 2) 戻る;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(2))) && dladdr(p, &dli)) {
+	もし ((p = __builtin_extract_return_addr(__builtin_return_address(2))) && dladdr(p, &dli)) {
 		log("%sframe #3: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} 否则 {
 		log("%sframe #3: ---\n", prefix);
-		return;
+		戻る;
 	}
 
-	if (levels <= 3) return;
+	もし (levels <= 3) 戻る;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(3))) && dladdr(p, &dli)) {
+	もし ((p = __builtin_extract_return_addr(__builtin_return_address(3))) && dladdr(p, &dli)) {
 		log("%sframe #4: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} 否则 {
 		log("%sframe #4: ---\n", prefix);
-		return;
+		戻る;
 	}
 
-	if (levels <= 4) return;
+	もし (levels <= 4) 戻る;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(4))) && dladdr(p, &dli)) {
+	もし ((p = __builtin_extract_return_addr(__builtin_return_address(4))) && dladdr(p, &dli)) {
 		log("%sframe #5: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} 否则 {
 		log("%sframe #5: ---\n", prefix);
-		return;
+		戻る;
 	}
 
-	if (levels <= 5) return;
+	もし (levels <= 5) 戻る;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(5))) && dladdr(p, &dli)) {
+	もし ((p = __builtin_extract_return_addr(__builtin_return_address(5))) && dladdr(p, &dli)) {
 		log("%sframe #6: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} 否则 {
 		log("%sframe #6: ---\n", prefix);
-		return;
+		戻る;
 	}
 
-	if (levels <= 6) return;
+	もし (levels <= 6) 戻る;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(6))) && dladdr(p, &dli)) {
+	もし ((p = __builtin_extract_return_addr(__builtin_return_address(6))) && dladdr(p, &dli)) {
 		log("%sframe #7: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} 否则 {
 		log("%sframe #7: ---\n", prefix);
-		return;
+		戻る;
 	}
 
-	if (levels <= 7) return;
+	もし (levels <= 7) 戻る;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(7))) && dladdr(p, &dli)) {
+	もし ((p = __builtin_extract_return_addr(__builtin_return_address(7))) && dladdr(p, &dli)) {
 		log("%sframe #8: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} 否则 {
 		log("%sframe #8: ---\n", prefix);
-		return;
+		戻る;
 	}
 
-	if (levels <= 8) return;
+	もし (levels <= 8) 戻る;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(8))) && dladdr(p, &dli)) {
+	もし ((p = __builtin_extract_return_addr(__builtin_return_address(8))) && dladdr(p, &dli)) {
 		log("%sframe #9: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} 否则 {
 		log("%sframe #9: ---\n", prefix);
-		return;
+		戻る;
 	}
 
-	if (levels <= 9) return;
+	もし (levels <= 9) 戻る;
 #endif
 }
-#else
-void log_backtrace(const char*, int) { }
+#否则
+void log_backtrace(const char*, 整数) { }
 #endif
 
 void LogManager::reset_stack()
 {
-	while (header_count.size() > 1)
+	ながら (header_count.size() > 1)
 		header_count.pop_back();
 	flush();
 }
 
 void log_dump_val_worker(RTLIL::IdString v) {
-	if (v == IdString::Null)
+	もし (v == IdString::Null)
 		log("(null)");
-	else if (ID::is_static(v))
+	否则 もし (ID::is_static(v))
 		log("%s", ID::unescaped_str(v));
-	else if (yosys_design && yosys_design->twines().is_live(v))
+	否则 もし (yosys_design && yosys_design->twines().is_live(v))
 		log("%s", yosys_design->twines().unescaped_str(v));
-	else
+	否则
 		log("%s", v.handle_token());
 }
 
@@ -577,15 +577,15 @@ std::string log_signal(const RTLIL::SigSpec &sig, bool autoint)
 {
 	std::stringstream buf;
 	RTLIL_BACKEND::dump_sigspec(buf, sig, autoint, RTLIL_BACKEND::DumpMode::Readable);
-	return buf.str();
+	戻る buf.str();
 }
 
 std::string log_const(const RTLIL::Const &value, bool autoint)
 {
-	if ((value.flags & RTLIL::CONST_FLAG_STRING) == 0)
-		return log_signal(value, autoint);
+	もし ((value.flags & RTLIL::CONST_FLAG_STRING) == 0)
+		戻る log_signal(value, autoint);
 
-	return "\"" + value.decode_string() + "\"";
+	戻る "\"" + value.decode_string() + "\"";
 }
 
 void log_module(RTLIL::Module *module, std::string indent)
@@ -623,69 +623,69 @@ void LogManager::check_expected()
 	std::swap(expect_prefix_error_copy, expect_prefix_error);
 
 	auto check = [&](const std::string kind, std::string pattern, LogExpectedItem item) {
-		if (item.current_count == 0) {
+		もし (item.current_count == 0) {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' not found !\n", kind, pattern);
 		}
-		if (item.current_count != item.expected_count) {
+		もし (item.current_count != item.expected_count) {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' found %d time(s), instead of %d time(s) !\n",
 				kind.c_str(), pattern.c_str(), item.current_count, item.expected_count);
 		}
 	};
 
-	for (auto &[pattern, item] : expect_warning_copy)
+	ために (auto &[pattern, item] : expect_warning_copy)
 		check("warning", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_warning_copy)
+	ために (auto &[pattern, item] : expect_prefix_warning_copy)
 		check("prefixed warning", pattern, item);
-	for (auto &[pattern, item] : expect_log_copy)
+	ために (auto &[pattern, item] : expect_log_copy)
 		check("log", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_log_copy)
+	ために (auto &[pattern, item] : expect_prefix_log_copy)
 		check("prefixed log", pattern, item);
 
 	auto check_err = [&](const std::string kind, std::string pattern, LogExpectedItem item) {
-		if (item.current_count == item.expected_count) {
+		もし (item.current_count == item.expected_count) {
 			warn_regexes.clear();
 			log("Expected %s pattern '%s' found !!!\n", kind, pattern);
 			yosys_shutdown();
-			#if defined(_MSC_VER)
+			#もし defined(_MSC_VER)
 				_exit(0);
-			#else
+			#否则
 				_Exit(0);
 			#endif
-		} else {
+		} 否则 {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' not found !\n", kind, pattern);
 		}
 	};
-	for (auto &[pattern, item] : expect_error_copy)
+	ために (auto &[pattern, item] : expect_error_copy)
 		check_err("error", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_error_copy)
+	ために (auto &[pattern, item] : expect_prefix_error_copy)
 		check_err("prefixed error", pattern, item);
 }
 
 void LogManager::report_unexpected_error()
 {
-	if (expect_no_warnings && warnings_count_noexpect)
+	もし (expect_no_warnings && warnings_count_noexpect)
 		log_error("Unexpected warnings found: %d unique messages, %d total, %d expected\n", GetSize(warnings),
 					warnings_count, warnings_count - warnings_count_noexpect);
 }
 
-void LogManager::add_expect(std::string type, std::string pattern, int count)
+void LogManager::add_expect(std::string type, std::string pattern, 整数 count)
 {
-	if (type == "error")
+	もし (type == "error")
 		expect_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-error")
+	否则 もし (type == "prefix-error")
 		expect_prefix_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "warning")
+	否则 もし (type == "warning")
 		expect_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-warning")
+	否则 もし (type == "prefix-warning")
 		expect_prefix_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "log")
+	否则 もし (type == "log")
 		expect_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-log")
+	否则 もし (type == "prefix-log")
 		expect_prefix_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else log_abort();
+	否则 log_abort();
 }
 
 void LogManager::start_hasher()
@@ -695,12 +695,12 @@ void LogManager::start_hasher()
 
 std::string LogManager::finish_hasher()
 {
-	if (!hasher)
-		return {};
+	もし (!hasher)
+		戻る {};
 
 	std::string hash = hasher->final().substr(0, 10);
 	hasher.reset();
-	return hash;
+	戻る hash;
 }
 
 YOSYS_NAMESPACE_END
