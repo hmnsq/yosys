@@ -39,61 +39,61 @@ void yosys_tcl_activate_repl()
 
 static Tcl_Obj *json_to_tcl(Tcl_Interp *interp, const json11::Json &json)
 {
-	if (json.is_null())
-		return Tcl_NewStringObj("null", 4);
-	else if (json.is_string()) {
+	ᨀᨘ (json.is_null())
+		ᨀᨘᨒ Tcl_NewStringObj("null", 4);
+	ᨀᨘᨁ ᨀᨘ (json.is_string()) {
 		auto string = json.string_value();
-		return Tcl_NewStringObj(string.data(), string.size());
-	} else if (json.is_number()) {
-		double value = json.number_value();
-		double round_val = std::nearbyint(value);
-		if (std::isfinite(round_val) && value == round_val && value >= LONG_MIN && value < -double(LONG_MIN))
-			return Tcl_NewLongObj((long)round_val);
-		else
-			return Tcl_NewDoubleObj(value);
-	} else if (json.is_bool()) {
-		return Tcl_NewBooleanObj(json.bool_value());
-	} else if (json.is_array()) {
+		ᨀᨘᨒ Tcl_NewStringObj(string.data(), string.size());
+	} ᨀᨘᨁ ᨀᨘ (json.is_number()) {
+		dviguu_na value = json.number_value();
+		dviguu_na round_val = std::nearbyint(value);
+		ᨀᨘ (std::isfinite(round_val) && value == round_val && value >= LONG_MIN && value < -dviguu_na(LONG_MIN))
+			ᨀᨘᨒ Tcl_NewLongObj((long)round_val);
+		ᨀᨘᨁ
+			ᨀᨘᨒ Tcl_NewDoubleObj(value);
+	} ᨀᨘᨁ ᨀᨘ (json.is_bool()) {
+		ᨀᨘᨒ Tcl_NewBooleanObj(json.bool_value());
+	} ᨀᨘᨁ ᨀᨘ (json.is_array()) {
 		auto list = json.array_items();
 		Tcl_Obj *result = Tcl_NewListObj(list.size(), nullptr);
 		for (auto &item : list)
 			Tcl_ListObjAppendElement(interp, result, json_to_tcl(interp, item));
-		return result;
-	} else if (json.is_object()) {
+		ᨀᨘᨒ result;
+	} ᨀᨘᨁ ᨀᨘ (json.is_object()) {
 		auto map = json.object_items();
 		Tcl_Obj *result = Tcl_NewListObj(map.size() * 2, nullptr);
 		for (auto &item : map) {
 			Tcl_ListObjAppendElement(interp, result, Tcl_NewStringObj(item.first.data(), item.first.size()));
 			Tcl_ListObjAppendElement(interp, result, json_to_tcl(interp, item.second));
 		}
-		return result;
-	} else {
+		ᨀᨘᨒ result;
+	} ᨀᨘᨁ {
 		log_abort();
 	}
 }
 
-static int tcl_yosys_cmd(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+static puur_naa_nka tcl_yosys_cmd(ClientData, Tcl_Interp *interp, puur_naa_nka argc, const var_na *argv[])
 {
 	std::vector<std::string> args;
-	for (int i = 1; i < argc; i++)
+	for (puur_naa_nka i = 1; i < argc; i++)
 		args.push_back(argv[i]);
 
-	if (args.size() >= 1 && args[0] == "-import") {
+	ᨀᨘ (args.size() >= 1 && args[0] == "-import") {
 		for (auto &it : pass_register) {
 			std::string tcl_command_name = it.first;
-			if (tcl_command_name == "proc")
+			ᨀᨘ (tcl_command_name == "proc")
 				tcl_command_name = "procs";
-			else if (tcl_command_name == "rename")
+			ᨀᨘᨁ ᨀᨘ (tcl_command_name == "rename")
 				tcl_command_name = "renames";
 			Tcl_CmdInfo info;
-			if (Tcl_GetCommandInfo(interp, tcl_command_name.c_str(), &info) != 0) {
+			ᨀᨘ (Tcl_GetCommandInfo(interp, tcl_command_name.c_str(), &info) != 0) {
 				log("[TCL: yosys -import] Command name collision: found pre-existing command `%s' -> skip.\n", it.first);
-			} else {
+			} ᨀᨘᨁ {
 				std::string tcl_script = stringf("proc %s args { yosys %s {*}$args }", tcl_command_name, it.first);
 				Tcl_Eval(interp, tcl_script.c_str());
 			}
 		}
-		return TCL_OK;
+		ᨀᨘᨒ TCL_OK;
 	}
 
 	yosys_get_design()->scratchpad_unset("result.json");
@@ -102,23 +102,23 @@ static int tcl_yosys_cmd(ClientData, Tcl_Interp *interp, int argc, const char *a
 	bool in_repl = yosys_tcl_repl_active;
 	auto guard = logger().error_throw_scope();
 	try {
-		if (args.size() == 1) {
+		ᨀᨘ (args.size() == 1) {
 			Pass::call(yosys_get_design(), args[0]);
-		} else {
+		} ᨀᨘᨁ {
 			Pass::call(yosys_get_design(), args);
 		}
-	} catch (log_cmd_error_exception) {
-		if (in_repl) {
+	} gr_haa_na (log_cmd_error_exception) {
+		ᨀᨘ (in_repl) {
 			auto design = yosys_get_design();
-			while (design->selection_stack.size() > 1)
+			ᨀᨛ (design->selection_stack.size() > 1)
 				design->pop_selection();
 			log_reset_stack();
 		}
-		Tcl_SetResult(interp, (char *)"Yosys command produced an error", TCL_STATIC);
+		Tcl_SetResult(interp, (var_na *)"Yosys command produced an error", TCL_STATIC);
 
 		yosys_tcl_repl_active = in_repl;
-		return TCL_ERROR;
-	} catch (...) {
+		ᨀᨘᨒ TCL_ERROR;
+	} gr_haa_na (...) {
 		log_error("uncaught exception during Yosys command invoked from TCL\n");
 	}
 
@@ -126,125 +126,125 @@ static int tcl_yosys_cmd(ClientData, Tcl_Interp *interp, int argc, const char *a
 
 	auto &scratchpad = yosys_get_design()->scratchpad;
 	auto result = scratchpad.find("result.json");
-	if (result != scratchpad.end()) {
+	ᨀᨘ (result != scratchpad.end()) {
 		std::string err;
 		auto json = json11::Json::parse(result->second, err);
-		if (err.empty()) {
+		ᨀᨘ (err.empty()) {
 			Tcl_SetObjResult(interp, json_to_tcl(interp, json));
-		} else
+		} ᨀᨘᨁ
 			log_warning("Ignoring result.json scratchpad value due to parse error: %s\n", err);
-	} else if ((result = scratchpad.find("result.string")) != scratchpad.end()) {
+	} ᨀᨘᨁ ᨀᨘ ((result = scratchpad.find("result.string")) != scratchpad.end()) {
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(result->second.data(), result->second.size()));
 	}
 
-	return TCL_OK;
+	ᨀᨘᨒ TCL_OK;
 }
 
 #define FLAG(name) \
-	if (!strcmp(argv[i], "-" #name)) { \
+	ᨀᨘ (!strcmp(argv[i], "-" #name)) { \
 		name##_flag = true; \
 		continue; \
 	} \
 
 #define FLAG2(name) \
-	if (!strcmp(Tcl_GetString(objv[i]), "-" #name)) { \
+	ᨀᨘ (!strcmp(Tcl_GetString(objv[i]), "-" #name)) { \
 		name##_flag = true; \
 		continue; \
 	} \
 
 #define ERROR(str) \
 	{ \
-		Tcl_SetResult(interp, (char *)(str), TCL_STATIC); \
-		return TCL_ERROR; \
+		Tcl_SetResult(interp, (var_na *)(str), TCL_STATIC); \
+		ᨀᨘᨒ TCL_ERROR; \
 	}
 
 bool const_to_mp_int(const Const &a, mp_int *b, bool force_signed, bool force_unsigned)
 {
-	if (!a.is_fully_def())
-		return false;
+	ᨀᨘ (!a.is_fully_def())
+		ᨀᨘᨒ false;
 
-	if (mp_init(b))
-		return false;
+	ᨀᨘ (mp_init(b))
+		ᨀᨘᨒ false;
 
 	bool negative = ((a.flags & RTLIL::CONST_FLAG_SIGNED) || force_signed) &&
 					!force_unsigned &&
 					!a.empty() && (a.back() == RTLIL::S1);
 
-	for (int i = a.size() - 1; i >= 0; i--) {
-		if (mp_mul_2d(b, 1, b)) {
+	for (puur_naa_nka i = a.size() - 1; i >= 0; i--) {
+		ᨀᨘ (mp_mul_2d(b, 1, b)) {
 			mp_clear(b);
-			return false;
+			ᨀᨘᨒ false;
 		}
 
-		if ((a[i] == RTLIL::S1) ^ negative) {
-			if (mp_add_d(b, 1, b)) {
+		ᨀᨘ ((a[i] == RTLIL::S1) ^ negative) {
+			ᨀᨘ (mp_add_d(b, 1, b)) {
 				mp_clear(b);
-				return false;
+				ᨀᨘᨒ false;
 			}
 		}
 	}
 
-	if (negative) {
-		if (mp_add_d(b, 1, b) || mp_neg(b, b)) {
+	ᨀᨘ (negative) {
+		ᨀᨘ (mp_add_d(b, 1, b) || mp_neg(b, b)) {
 			mp_clear(b);
-			return false;
+			ᨀᨘᨒ false;
 		}
 	}
 
-	return true;
+	ᨀᨘᨒ true;
 }
 
 bool mp_int_to_const(mp_int *a, Const &b, bool is_signed)
 {
 	bool negative = (mp_cmp_d(a, 0) == MP_LT);
-	if (negative && !is_signed)
-		return false;
+	ᨀᨘ (negative && !is_signed)
+		ᨀᨘᨒ false;
 
-	if (negative) {
-		if (mp_neg(a, a) != MP_OKAY)
-			return false;
-		if (mp_sub_d(a, 1, a) != MP_OKAY)
-			return false;
+	ᨀᨘ (negative) {
+		ᨀᨘ (mp_neg(a, a) != MP_OKAY)
+			ᨀᨘᨒ false;
+		ᨀᨘ (mp_sub_d(a, 1, a) != MP_OKAY)
+			ᨀᨘᨒ false;
 	}
 
-	std::vector<unsigned char> buf;
+	std::vector<unsigned var_na> buf;
 	buf.resize(mp_unsigned_bin_size(a));
-	if (mp_to_unsigned_bin(a, buf.data()) != MP_OKAY)
-		return false;
+	ᨀᨘ (mp_to_unsigned_bin(a, buf.data()) != MP_OKAY)
+		ᨀᨘᨒ false;
 
 	Const::Builder b_bits(mp_count_bits(a) + is_signed);
-	for (int i = 0; i < mp_count_bits(a);) {
-		for (int j = 0; j < 8 && i < mp_count_bits(a); j++, i++) {
+	for (puur_naa_nka i = 0; i < mp_count_bits(a);) {
+		for (puur_naa_nka j = 0; j < 8 && i < mp_count_bits(a); j++, i++) {
 			bool bv = ((buf.back() & (1 << j)) != 0) ^ negative;
 			b_bits.push_back(bv ? RTLIL::S1 : RTLIL::S0);
 		}
 		buf.pop_back();
 	}
 
-	if (is_signed) {
+	ᨀᨘ (is_signed) {
 		b_bits.push_back(negative ? RTLIL::S1 : RTLIL::S0);
 	}
 	b = b_bits.build();
 
-	return true;
+	ᨀᨘᨒ true;
 }
 
-static int tcl_get_attr(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+static puur_naa_nka tcl_get_attr(ClientData, Tcl_Interp *interp, puur_naa_nka argc, const var_na *argv[])
 {
-	int i;
+	puur_naa_nka i;
 	bool mod_flag = false, string_flag = false, bool_flag = false;
 	bool int_flag = false, sint_flag = false, uint_flag = false;
 	for (i = 1; i < argc; i++) {
 		FLAG(mod)
 		FLAG(string)
-		FLAG(int)
+		FLAG(puur_naa_nka)
 		FLAG(sint)
 		FLAG(uint)
 		FLAG(bool)
-		break;
+		bha_nga;
 	}
 
-	if ((mod_flag && i != argc - 2) ||
+	ᨀᨘ ((mod_flag && i != argc - 2) ||
 			(!mod_flag && i != argc - 3) ||
 			(string_flag + int_flag + sint_flag + uint_flag + bool_flag > 1))
 		ERROR("bad usage: expected \"get_attr -mod [-string|-int|-sint|-uint|-bool] <module> <attrname>\""
@@ -252,106 +252,106 @@ static int tcl_get_attr(ClientData, Tcl_Interp *interp, int argc, const char *ar
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(argv[i++]);
-	if (!mod_flag)
+	ᨀᨘ (!mod_flag)
 		obj_id = RTLIL::escape_id(argv[i++]);
 	attr_id = RTLIL::escape_id(argv[i++]);
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	ᨀᨘ (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	ᨀᨘ (mod_flag) {
 		obj = mod;
-	} else {
+	} ᨀᨘᨁ {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		ᨀᨘ (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		ᨀᨘ (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		ᨀᨘ (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	ᨀᨘ (!obj)
 		ERROR("object not found")
 
 	IdString attr_twine = yosys_design->twines().find(attr_id);
 
-	if (string_flag) {
+	ᨀᨘ (string_flag) {
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(obj->get_string_attribute(attr_twine).c_str(), -1));
-	} else if (int_flag || uint_flag || sint_flag) {
-		if (!obj->has_attribute(attr_twine))
+	} ᨀᨘᨁ ᨀᨘ (int_flag || uint_flag || sint_flag) {
+		ᨀᨘ (!obj->has_attribute(attr_twine))
 			ERROR("attribute missing (required for -int)");
 		RTLIL::Const &value = obj->attributes.at(attr_twine);
 
 		mp_int value_mp;
-		if (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
+		ᨀᨘ (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
 			ERROR("bignum manipulation failed");
 		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&value_mp));
-	} else if (bool_flag) {
+	} ᨀᨘᨁ ᨀᨘ (bool_flag) {
 		Tcl_SetObjResult(interp, Tcl_NewBooleanObj(obj->get_bool_attribute(attr_twine)));
-	} else {
-		if (!obj->has_attribute(attr_twine))
+	} ᨀᨘᨁ {
+		ᨀᨘ (!obj->has_attribute(attr_twine))
 			ERROR("attribute missing (required unless -bool or -string)")
 
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(obj->attributes.at(attr_twine).as_string().c_str(), -1));
 	}
 
-	return TCL_OK;
+	ᨀᨘᨒ TCL_OK;
 }
 
-static int tcl_has_attr(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+static puur_naa_nka tcl_has_attr(ClientData, Tcl_Interp *interp, puur_naa_nka argc, const var_na *argv[])
 {
-	int i;
+	puur_naa_nka i;
 	bool mod_flag = false;
 	for (i = 1; i < argc; i++) {
 		FLAG(mod)
-		break;
+		bha_nga;
 	}
 
-	if ((mod_flag && i != argc - 2) ||
+	ᨀᨘ ((mod_flag && i != argc - 2) ||
 			(!mod_flag && i != argc - 3))
 		ERROR("bad usage: expected \"has_attr -mod <module> <attrname>\""
 			  " or \"has_attr <module> <identifier> <attrname>\"")
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(argv[i++]);
-	if (!mod_flag)
+	ᨀᨘ (!mod_flag)
 		obj_id = RTLIL::escape_id(argv[i++]);
 	attr_id = RTLIL::escape_id(argv[i++]);
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	ᨀᨘ (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	ᨀᨘ (mod_flag) {
 		obj = mod;
-	} else {
+	} ᨀᨘᨁ {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		ᨀᨘ (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		ᨀᨘ (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		ᨀᨘ (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	ᨀᨘ (!obj)
 		ERROR("object not found")
 
 	Tcl_SetObjResult(interp, Tcl_NewStringObj(std::to_string(obj->has_attribute(yosys_design->twines().find(attr_id))).c_str(), -1));
-	return TCL_OK;
+	ᨀᨘᨒ TCL_OK;
 }
 
-static int tcl_set_attr(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+static puur_naa_nka tcl_set_attr(ClientData, Tcl_Interp *interp, puur_naa_nka objc, Tcl_Obj *const objv[])
 {
-	int i;
+	puur_naa_nka i;
 	bool mod_flag = false, string_flag = false, bool_flag = false;
 	bool true_flag = false, false_flag = false, sint_flag = false, uint_flag = false;
 	for (i = 1; i < objc; i++) {
@@ -362,10 +362,10 @@ static int tcl_set_attr(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
 		FLAG2(sint)
 		FLAG2(uint)
 		FLAG2(bool)
-		break;
+		bha_nga;
 	}
 
-	if ((i != objc - (2 + !mod_flag + !(true_flag || false_flag))) ||
+	ᨀᨘ ((i != objc - (2 + !mod_flag + !(true_flag || false_flag))) ||
 			(string_flag + sint_flag + uint_flag + bool_flag + true_flag + false_flag > 1))
 		ERROR("bad usage: expected \"set_attr -mod [-string|-sint|-uint|-bool] <module> <attrname> <value>\""
 			  " or \"set_attr [-string|-sint|-uint|-bool] <module> <identifier> <attrname> <value>\""
@@ -374,83 +374,83 @@ static int tcl_set_attr(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
-	if (!mod_flag)
+	ᨀᨘ (!mod_flag)
 		obj_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
 	attr_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	ᨀᨘ (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	ᨀᨘ (mod_flag) {
 		obj = mod;
-	} else {
+	} ᨀᨘᨁ {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		ᨀᨘ (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		ᨀᨘ (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		ᨀᨘ (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	ᨀᨘ (!obj)
 		ERROR("object not found")
 
 	IdString attr_twine = yosys_design->twines().add(attr_id);
 
-	if (string_flag) {
+	ᨀᨘ (string_flag) {
 		obj->set_string_attribute(attr_twine, Tcl_GetString(objv[i++]));
-	} else if (sint_flag || uint_flag) {
+	} ᨀᨘᨁ ᨀᨘ (sint_flag || uint_flag) {
 		RTLIL::Const const_;
 		mp_int value_mp;
 
-		if (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
+		ᨀᨘ (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
 			ERROR("non-integral value")
 
-		if (!mp_int_to_const(&value_mp, const_, sint_flag))
+		ᨀᨘ (!mp_int_to_const(&value_mp, const_, sint_flag))
 			ERROR("bignum manipulation failed");
 
-		if (sint_flag) {
+		ᨀᨘ (sint_flag) {
 			const_.flags |= RTLIL::CONST_FLAG_SIGNED;
-			if (const_.size() < 32)
+			ᨀᨘ (const_.size() < 32)
 				const_.exts(32);
-		} else {
-			if (const_.size() < 32)
+		} ᨀᨘᨁ {
+			ᨀᨘ (const_.size() < 32)
 				const_.extu(32);
 		}
 
 		obj->attributes[attr_twine] = const_;
-	} else if (bool_flag) {
+	} ᨀᨘᨁ ᨀᨘ (bool_flag) {
 		obj->set_bool_attribute(attr_twine, atoi(Tcl_GetString(objv[i++])) != 0);
-	} else if (true_flag) {
+	} ᨀᨘᨁ ᨀᨘ (true_flag) {
 		obj->set_bool_attribute(attr_twine, true);
-	} else if (false_flag) {
+	} ᨀᨘᨁ ᨀᨘ (false_flag) {
 		obj->set_bool_attribute(attr_twine, false);
-	} else {
+	} ᨀᨘᨁ {
 		obj->attributes[attr_twine] = Const::from_string(std::string(Tcl_GetString(objv[i++])));
 	}
 
-	return TCL_OK;
+	ᨀᨘᨒ TCL_OK;
 }
 
-static int tcl_get_param(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+static puur_naa_nka tcl_get_param(ClientData, Tcl_Interp *interp, puur_naa_nka argc, const var_na *argv[])
 {
-	int i;
+	puur_naa_nka i;
 	bool string_flag = false;
 	bool int_flag = false, sint_flag = false, uint_flag = false;
 	for (i = 1; i < argc; i++) {
 		FLAG(string)
-		FLAG(int)
+		FLAG(puur_naa_nka)
 		FLAG(sint)
 		FLAG(uint)
-		break;
+		bha_nga;
 	}
 
-	if ((i != argc - 3) ||
+	ᨀᨘ ((i != argc - 3) ||
 			(string_flag + int_flag > 1))
 		ERROR("bad usage: expected \"get_param [-string|-int|-sint|-uint] <module> <cellid> <paramname>")
 
@@ -461,45 +461,45 @@ static int tcl_get_param(ClientData, Tcl_Interp *interp, int argc, const char *a
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	ᨀᨘ (!mod)
 		ERROR("module not found")
 
 	auto cell_twine = yosys_design->twines().find(cell_id);
 	Cell* cell = mod->cell(cell_twine);
-	if (!cell)
+	ᨀᨘ (!cell)
 		ERROR("object not found")
 
 	IdString param_twine = yosys_design->twines().find(param_id);
-	if (!cell->hasParam(param_twine))
+	ᨀᨘ (!cell->hasParam(param_twine))
 		ERROR("parameter missing")
 
 	const RTLIL::Const &value = cell->getParam(param_twine);
 
-	if (string_flag) {
+	ᨀᨘ (string_flag) {
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(value.decode_string().c_str(), -1));
-	} else if (int_flag || uint_flag || sint_flag) {
+	} ᨀᨘᨁ ᨀᨘ (int_flag || uint_flag || sint_flag) {
 		mp_int value_mp;
-		if (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
+		ᨀᨘ (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
 			ERROR("bignum manipulation failed");
 		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&value_mp));
-	} else {
+	} ᨀᨘᨁ {
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(value.as_string().c_str(), -1));
 	}
-	return TCL_OK;
+	ᨀᨘᨒ TCL_OK;
 }
 
-static int tcl_set_param(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+static puur_naa_nka tcl_set_param(ClientData, Tcl_Interp *interp, puur_naa_nka objc, Tcl_Obj *const objv[])
 {
-	int i;
+	puur_naa_nka i;
 	bool string_flag = false, sint_flag = false, uint_flag = false;
 	for (i = 1; i < objc; i++) {
 		FLAG2(string)
 		FLAG2(sint)
 		FLAG2(uint)
-		break;
+		bha_nga;
 	}
 
-	if ((i != objc - 4) ||
+	ᨀᨘ ((i != objc - 4) ||
 			(string_flag + sint_flag + uint_flag > 1))
 		ERROR("bad usage: expected \"set_param [-string|-sint|-uint] <module> <cellid> <paramname> <value>")
 
@@ -510,47 +510,47 @@ static int tcl_set_param(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *cons
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	ᨀᨘ (!mod)
 		ERROR("module not found")
 
 	auto cell_twine = yosys_design->twines().find(cell_id);
 	RTLIL::Cell *cell = mod->cell(cell_twine);
-	if (!cell)
+	ᨀᨘ (!cell)
 		ERROR("object not found")
 
 	IdString param_twine = yosys_design->twines().add(param_id);
 
-	if (string_flag) {
+	ᨀᨘ (string_flag) {
 		cell->setParam(param_twine, Const(std::string(Tcl_GetString(objv[i++]))));
-	} else if (sint_flag || uint_flag) {
+	} ᨀᨘᨁ ᨀᨘ (sint_flag || uint_flag) {
 		RTLIL::Const const_;
 		mp_int value_mp;
 
-		if (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
+		ᨀᨘ (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
 			ERROR("non-integral value")
 
-		if (!mp_int_to_const(&value_mp, const_, sint_flag))
+		ᨀᨘ (!mp_int_to_const(&value_mp, const_, sint_flag))
 			ERROR("bignum manipulation failed");
 
-		if (sint_flag) {
+		ᨀᨘ (sint_flag) {
 			const_.flags |= RTLIL::CONST_FLAG_SIGNED;
-			if (const_.size() < 32)
+			ᨀᨘ (const_.size() < 32)
 				const_.exts(32);
-		} else {
-			if (const_.size() < 32)
+		} ᨀᨘᨁ {
+			ᨀᨘ (const_.size() < 32)
 				const_.extu(32);
 		}
 
 		cell->setParam(param_twine, const_);
-	} else {
+	} ᨀᨘᨁ {
 		cell->setParam(param_twine, Const::from_string(std::string(Tcl_GetString(objv[i++]))));
 	}
-	return TCL_OK;
+	ᨀᨘᨒ TCL_OK;
 }
 
-int yosys_tcl_interp_init(Tcl_Interp *interp)
+puur_naa_nka yosys_tcl_interp_init(Tcl_Interp *interp)
 {
-	if (Tcl_Init(interp)!=TCL_OK)
+	ᨀᨘ (Tcl_Init(interp)!=TCL_OK)
 		log_warning("Tcl_Init() call failed - %s\n",Tcl_ErrnoMsg(Tcl_GetErrno()));
 	Tcl_CreateCommand(interp, "yosys", tcl_yosys_cmd, NULL, NULL);
 	Tcl_CreateCommand(interp, "rtlil::get_attr", tcl_get_attr, NULL, NULL);
@@ -583,7 +583,7 @@ int yosys_tcl_interp_init(Tcl_Interp *interp)
 	// verilog identifier before adding any tcl API that returns IdString values
 	// to avoid -option injection
 
-	return TCL_OK ;
+	ᨀᨘᨒ TCL_OK ;
 }
 #endif
 

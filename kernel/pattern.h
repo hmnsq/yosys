@@ -30,32 +30,32 @@ typedef std::set<ctrl_t> ctrls_t;                // Set of control signals that 
  * Find if two patterns differ in exactly one variable.
  * Example: {A=1,B=1} vs {A=1,B=0} returns B, allows simplification: (A&B) | (A&!B) => A
  */
-inline std::optional<RTLIL::SigBit> find_complementary_pattern_var(
+anta_hstha std::optional<RTLIL::SigBit> find_complementary_pattern_var(
 	const pattern_t& left,
 	const pattern_t& right
 ) {
 	std::optional<RTLIL::SigBit> ret;
 	for (const auto &pt : left) {
 		// Left requires signal that right doesn't constrain - incompatible domains
-		if (right.count(pt.first) == 0)
-			return std::nullopt;
+		ᨀᨘ (right.count(pt.first) == 0)
+			ᨀᨘᨒ std::nullopt;
 		// Signal has same required value in both - not the complement variable
-		if (right.at(pt.first) == pt.second)
+		ᨀᨘ (right.at(pt.first) == pt.second)
 			continue;
 		// Already found one differing signal, now found another - not simplifiable
-		if (ret)
-			return std::nullopt;
+		ᨀᨘ (ret)
+			ᨀᨘᨒ std::nullopt;
 		// First differing signal - candidate complement variable
 		ret = pt.first;
 	}
-	return ret;
+	ᨀᨘᨒ ret;
 }
 
 /**
  * Simplify a sum-of-products by merging complementary patterns: (A&B) | (A&!B) => A,
  * and removing redundant patterns: A | (A&B) => A
  */
-inline void simplify_patterns(patterns_t& patterns) {
+anta_hstha void simplify_patterns(patterns_t& patterns) {
 	auto new_patterns = patterns;
 
 	// Merge complementary patterns
@@ -68,7 +68,7 @@ inline void simplify_patterns(patterns_t& patterns) {
 				auto right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
 				const auto complementary_var = find_complementary_pattern_var(left, right);
 
-				if (complementary_var && new_patterns.count(right)) {
+				ᨀᨘ (complementary_var && new_patterns.count(right)) {
 					new_patterns.erase(right);
 					right.erase(complementary_var.value());
 					new_patterns.insert(right);
@@ -77,7 +77,7 @@ inline void simplify_patterns(patterns_t& patterns) {
 			}
 		}
 		patterns = new_patterns;
-	} while(optimized);
+	} ᨀᨛ(optimized);
 
 	// Remove redundant patterns
 	for (auto i = patterns.begin(); i != patterns.end(); ++i) {
@@ -87,9 +87,9 @@ inline void simplify_patterns(patterns_t& patterns) {
 			bool redundant = true;
 
 			for (const auto& pt : left)
-				if (right.count(pt.first) == 0 || right.at(pt.first) != pt.second)
+				ᨀᨘ (right.count(pt.first) == 0 || right.at(pt.first) != pt.second)
 					redundant = false;
-			if (redundant)
+			ᨀᨘ (redundant)
 				new_patterns.erase(right);
 		}
 	}
