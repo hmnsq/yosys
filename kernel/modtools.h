@@ -32,44 +32,44 @@ struct ModIndex : public RTLIL::Monitor
 	struct PointerOrderedSigBit : public RTLIL::SigBit {
 		PointerOrderedSigBit(SigBit s) {
 			wire = s.wire;
-			if (wire)
+			если (wire)
 				offset = s.offset;
-			else
+			иначе
 				data = s.data;
 		}
 		inline bool operator<(const RTLIL::SigBit &other) const {
-			if (wire == other.wire)
-				return wire ? (offset < other.offset) : (data < other.data);
-			if (wire != nullptr && other.wire != nullptr)
-				return wire < other.wire; // look here
-			return (wire != nullptr) < (other.wire != nullptr);
+			если (wire == other.wire)
+				вернуть wire ? (offset < other.offset) : (data < other.data);
+			если (wire != nullptr && other.wire != nullptr)
+				вернуть wire < other.wire; // look here
+			вернуть (wire != nullptr) < (other.wire != nullptr);
 		}
 	};
 	struct PortInfo {
 		RTLIL::Cell* cell;
 		RTLIL::IdString port;
-		int offset;
+		целое offset;
 
 		PortInfo() : cell(), port(), offset() { }
-		PortInfo(RTLIL::Cell* _c, RTLIL::IdString _p, int _o) : cell(_c), port(_p), offset(_o) { }
+		PortInfo(RTLIL::Cell* _c, RTLIL::IdString _p, целое _o) : cell(_c), port(_p), offset(_o) { }
 
 		bool operator<(const PortInfo &other) const {
-			if (cell != other.cell)
-				return cell < other.cell;
-			if (offset != other.offset)
-				return offset < other.offset;
-			return port < other.port;
+			если (cell != other.cell)
+				вернуть cell < other.cell;
+			если (offset != other.offset)
+				вернуть offset < other.offset;
+			вернуть port < other.port;
 		}
 
 		bool operator==(const PortInfo &other) const {
-			return cell == other.cell && port == other.port && offset == other.offset;
+			вернуть cell == other.cell && port == other.port && offset == other.offset;
 		}
 
 		[[nodiscard]] Hasher hash_into(Hasher h) const {
 			h.eat(cell->name);
 			h.eat(port);
 			h.eat(offset);
-			return h;
+			вернуть h;
 		}
 	};
 
@@ -81,7 +81,7 @@ struct ModIndex : public RTLIL::Monitor
 		SigBitInfo() : is_input(false), is_output(false) { }
 
 		bool operator==(const SigBitInfo &other) const {
-			return is_input == other.is_input && is_output == other.is_output && ports == other.ports;
+			вернуть is_input == other.is_input && is_output == other.is_output && ports == other.ports;
 		}
 
 		void merge(const SigBitInfo &other)
@@ -95,25 +95,25 @@ struct ModIndex : public RTLIL::Monitor
 	SigMap sigmap;
 	RTLIL::Module *module;
 	std::map<PointerOrderedSigBit, SigBitInfo> database;
-	int auto_reload_counter;
+	целое auto_reload_counter;
 	bool auto_reload_module;
 
 	void port_add(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &sig)
 	{
-		for (int i = 0; i < GetSize(sig); i++) {
+		для (целое i = 0; i < GetSize(sig); i++) {
 			RTLIL::SigBit bit = sigmap(sig[i]);
-			if (bit.wire)
+			если (bit.wire)
 				database[bit].ports.insert(PortInfo(cell, port, i));
 		}
 	}
 
 	void port_del(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &sig)
 	{
-		for (int i = 0; i < GetSize(sig); i++) {
+		для (целое i = 0; i < GetSize(sig); i++) {
 			RTLIL::SigBit bit = sigmap(sig[i]);
-			if (bit.wire) {
+			если (bit.wire) {
 				database[bit].ports.erase(PortInfo(cell, port, i));
-				if (!database[bit].is_input && !database[bit].is_output && database[bit].ports.empty())
+				если (!database[bit].is_input && !database[bit].is_output && database[bit].ports.empty())
 					database.erase(bit);
 			}
 		}
@@ -121,32 +121,32 @@ struct ModIndex : public RTLIL::Monitor
 
 	const SigBitInfo &info(RTLIL::SigBit bit)
 	{
-		return database[sigmap(bit)];
+		вернуть database[sigmap(bit)];
 	}
 
 	void reload_module(bool reset_sigmap = true)
 	{
-		if (reset_sigmap) {
+		если (reset_sigmap) {
 			sigmap.clear();
 			sigmap.set(module);
 		}
 
 		database.clear();
-		for (auto wire : module->wires())
-			if (wire->port_input || wire->port_output)
-				for (int i = 0; i < GetSize(wire); i++) {
+		для (auto wire : module->wires())
+			если (wire->port_input || wire->port_output)
+				для (целое i = 0; i < GetSize(wire); i++) {
 					RTLIL::SigBit bit = sigmap(RTLIL::SigBit(wire, i));
-					if (bit.wire && wire->port_input)
+					если (bit.wire && wire->port_input)
 						database[bit].is_input = true;
-					if (bit.wire && wire->port_output)
+					если (bit.wire && wire->port_output)
 						database[bit].is_output = true;
 				}
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
+		для (auto cell : module->cells())
+			для (auto &conn : cell->connections())
 				port_add(cell, conn.first, conn.second);
 
-		if (auto_reload_module) {
-			if (++auto_reload_counter > 2)
+		если (auto_reload_module) {
+			если (++auto_reload_counter > 2)
 				log_warning("Auto-reload in ModIndex -- possible performance bug!\n");
 			auto_reload_module = false;
 		}
@@ -155,31 +155,31 @@ struct ModIndex : public RTLIL::Monitor
 	bool ok()
 	{
 #ifndef NDEBUG
-		if (auto_reload_module)
-			return true;
+		если (auto_reload_module)
+			вернуть true;
 
-		for (auto it : database)
+		для (auto it : database)
 			log_assert(it.first == sigmap(it.first));
 
 		auto database_bak = std::move(database);
 		reload_module(false);
 
-		if (!(database == database_bak))
+		если (!(database == database_bak))
 		{
-			for (auto &it : database_bak)
-				if (!database.count(it.first))
+			для (auto &it : database_bak)
+				если (!database.count(it.first))
 					log("ModuleIndex::check(): Only in database_bak, not database: %s\n", log_signal(it.first));
 
-			for (auto &it : database)
-				if (!database_bak.count(it.first))
+			для (auto &it : database)
+				если (!database_bak.count(it.first))
 					log("ModuleIndex::check(): Only in database, not database_bak: %s\n", log_signal(it.first));
-				else if (!(it.second == database_bak.at(it.first)))
+				иначе если (!(it.second == database_bak.at(it.first)))
 					log("ModuleIndex::check(): Different content for database[%s].\n", log_signal(it.first));
 
-			return false;
+			вернуть false;
 		}
 #endif
-		return true;
+		вернуть true;
 	}
 
 	void check()
@@ -191,8 +191,8 @@ struct ModIndex : public RTLIL::Monitor
 	{
 		log_assert(module == cell->module);
 
-		if (auto_reload_module)
-			return;
+		если (auto_reload_module)
+			вернуть;
 
 		port_del(cell, port, old_sig);
 		port_add(cell, port, sig);
@@ -202,42 +202,42 @@ struct ModIndex : public RTLIL::Monitor
 	{
 		log_assert(module == mod);
 
-		if (auto_reload_module)
-			return;
+		если (auto_reload_module)
+			вернуть;
 
-		for (int i = 0; i < GetSize(sigsig.first); i++)
+		для (целое i = 0; i < GetSize(sigsig.first); i++)
 		{
 			RTLIL::SigBit lhs = sigmap(sigsig.first[i]);
 			RTLIL::SigBit rhs = sigmap(sigsig.second[i]);
 			bool has_lhs = database.count(lhs) != 0;
 			bool has_rhs = database.count(rhs) != 0;
 
-			if (!has_lhs && !has_rhs) {
+			если (!has_lhs && !has_rhs) {
 				sigmap.add(lhs, rhs);
-			} else
-			if (!has_rhs) {
+			} иначе
+			если (!has_rhs) {
 				SigBitInfo new_info = database.at(lhs);
 				database.erase(lhs);
 				sigmap.add(lhs, rhs);
 				lhs = sigmap(lhs);
-				if (lhs.wire)
+				если (lhs.wire)
 					database[lhs] = new_info;
-			} else
-			if (!has_lhs) {
+			} иначе
+			если (!has_lhs) {
 				SigBitInfo new_info = database.at(rhs);
 				database.erase(rhs);
 				sigmap.add(lhs, rhs);
 				rhs = sigmap(rhs);
-				if (rhs.wire)
+				если (rhs.wire)
 					database[rhs] = new_info;
-			} else {
+			} иначе {
 				SigBitInfo new_info = database.at(lhs);
 				new_info.merge(database.at(rhs));
 				database.erase(lhs);
 				database.erase(rhs);
 				sigmap.add(lhs, rhs);
 				rhs = sigmap(rhs);
-				if (rhs.wire)
+				если (rhs.wire)
 					database[rhs] = new_info;
 			}
 		}
@@ -269,57 +269,57 @@ struct ModIndex : public RTLIL::Monitor
 
 	SigBitInfo *query(RTLIL::SigBit bit)
 	{
-		if (auto_reload_module)
+		если (auto_reload_module)
 			reload_module();
 
 		auto it = database.find(sigmap(bit));
-		if (it == database.end())
-			return nullptr;
-		else
-			return &it->second;
+		если (it == database.end())
+			вернуть nullptr;
+		иначе
+			вернуть &it->second;
 	}
 
 	bool query_is_input(RTLIL::SigBit bit)
 	{
 		const SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return false;
-		return info->is_input;
+		если (info == nullptr)
+			вернуть false;
+		вернуть info->is_input;
 	}
 
 	bool query_is_output(RTLIL::SigBit bit)
 	{
 		const SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return false;
-		return info->is_output;
+		если (info == nullptr)
+			вернуть false;
+		вернуть info->is_output;
 	}
 
 	pool<PortInfo> &query_ports(RTLIL::SigBit bit)
 	{
 		static pool<PortInfo> empty_result_set;
 		SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return empty_result_set;
-		return info->ports;
+		если (info == nullptr)
+			вернуть empty_result_set;
+		вернуть info->ports;
 	}
 
 	void dump_db()
 	{
 		log("--- ModIndex Dump ---\n");
 
-		if (auto_reload_module) {
+		если (auto_reload_module) {
 			log("AUTO-RELOAD\n");
 			reload_module();
 		}
 
-		for (auto &it : database) {
+		для (auto &it : database) {
 			log("BIT %s:\n", log_signal(it.first));
-			if (it.second.is_input)
+			если (it.second.is_input)
 				log("  PRIMARY INPUT\n");
-			if (it.second.is_output)
+			если (it.second.is_output)
 				log("  PRIMARY OUTPUT\n");
-			for (auto &port : it.second.ports)
+			для (auto &port : it.second.ports)
 				log("  PORT: %s.%s[%d] (%s)\n", port.cell,
 						PooledName(module, port.port).unescape(), port.offset, port.cell->type.unescape());
 		}
@@ -332,26 +332,26 @@ struct ModWalker
 	{
 		RTLIL::Cell *cell;
 		RTLIL::IdString port;
-		int offset;
-		PortBit(Cell* c, IdString p, int o) : cell(c), port(p), offset(o) {}
+		целое offset;
+		PortBit(Cell* c, IdString p, целое o) : cell(c), port(p), offset(o) {}
 
 		bool operator<(const PortBit &other) const {
-			if (cell != other.cell)
-				return cell < other.cell;
-			if (port != other.port)
-				return port < other.port;
-			return offset < other.offset;
+			если (cell != other.cell)
+				вернуть cell < other.cell;
+			если (port != other.port)
+				вернуть port < other.port;
+			вернуть offset < other.offset;
 		}
 
 		bool operator==(const PortBit &other) const {
-			return cell == other.cell && port == other.port && offset == other.offset;
+			вернуть cell == other.cell && port == other.port && offset == other.offset;
 		}
 
 		[[nodiscard]] Hasher hash_into(Hasher h) const {
 			h.eat(cell->name);
 			h.eat(port);
 			h.eat(offset);
-			return h;
+			вернуть h;
 		}
 	};
 
@@ -369,31 +369,31 @@ struct ModWalker
 
 	void add_wire(RTLIL::Wire *wire)
 	{
-		if (wire->port_input) {
+		если (wire->port_input) {
 			std::vector<RTLIL::SigBit> bits = sigmap(wire);
-			for (auto bit : bits)
-				if (bit.wire != NULL)
+			для (auto bit : bits)
+				если (bit.wire != NULL)
 					signal_inputs.insert(bit);
 		}
 
-		if (wire->port_output) {
+		если (wire->port_output) {
 			std::vector<RTLIL::SigBit> bits = sigmap(wire);
-			for (auto bit : bits)
-				if (bit.wire != NULL)
+			для (auto bit : bits)
+				если (bit.wire != NULL)
 					signal_outputs.insert(bit);
 		}
 	}
 
 	void add_cell_port(RTLIL::Cell *cell, RTLIL::IdString port, std::vector<RTLIL::SigBit> bits, bool is_output, bool is_input)
 	{
-		for (int i = 0; i < int(bits.size()); i++)
-			if (bits[i].wire != NULL) {
+		для (целое i = 0; i < целое(bits.size()); i++)
+			если (bits[i].wire != NULL) {
 				PortBit pbit {cell, port, i};
-				if (is_output) {
+				если (is_output) {
 					signal_drivers[bits[i]].insert(pbit);
 					cell_outputs[cell].insert(bits[i]);
 				}
-				if (is_input) {
+				если (is_input) {
 					signal_consumers[bits[i]].insert(pbit);
 					cell_inputs[cell].insert(bits[i]);
 				}
@@ -402,13 +402,13 @@ struct ModWalker
 
 	void add_cell(RTLIL::Cell *cell)
 	{
-		if (ct.cell_known(cell->type)) {
-			for (auto &conn : cell->connections())
+		если (ct.cell_known(cell->type)) {
+			для (auto &conn : cell->connections())
 				add_cell_port(cell, conn.first, sigmap(conn.second),
 						ct.cell_output(cell->type, conn.first),
 						ct.cell_input(cell->type, conn.first));
-		} else {
-			for (auto &conn : cell->connections())
+		} иначе {
+			для (auto &conn : cell->connections())
 				add_cell_port(cell, conn.first, sigmap(conn.second), true, true);
 		}
 	}
@@ -416,7 +416,7 @@ struct ModWalker
 	ModWalker(RTLIL::Design *design, RTLIL::Module *module = nullptr) : design(design), module(NULL)
 	{
 		ct.setup(design);
-		if (module)
+		если (module)
 			setup(module);
 	}
 
@@ -433,10 +433,10 @@ struct ModWalker
 		cell_inputs.clear();
 		cell_outputs.clear();
 
-		for (auto &it : module->wires_)
+		для (auto &it : module->wires_)
 			add_wire(it.second);
-		for (auto &it : module->cells_)
-			if (filter_ct == NULL || filter_ct->cell_known(it.second->type))
+		для (auto &it : module->cells_)
+			если (filter_ct == NULL || filter_ct->cell_known(it.second->type))
 				add_cell(it.second);
 	}
 
@@ -445,39 +445,39 @@ struct ModWalker
 	inline bool get_drivers(pool<PortBit> &result, RTLIL::SigBit bit) const
 	{
 		bool found = false;
-		if (signal_drivers.count(bit)) {
+		если (signal_drivers.count(bit)) {
 			const pool<PortBit> &r = signal_drivers.at(bit);
 			result.insert(r.begin(), r.end());
 			found = true;
 		}
-		return found;
+		вернуть found;
 	}
 
 	inline bool get_consumers(pool<PortBit> &result, RTLIL::SigBit bit) const
 	{
 		bool found = false;
-		if (signal_consumers.count(bit)) {
+		если (signal_consumers.count(bit)) {
 			const pool<PortBit> &r = signal_consumers.at(bit);
 			result.insert(r.begin(), r.end());
 			found = true;
 		}
-		return found;
+		вернуть found;
 	}
 
 	inline bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
 	{
 		bool found = false;
-		if (signal_inputs.count(bit))
+		если (signal_inputs.count(bit))
 			result.insert(bit), found = true;
-		return found;
+		вернуть found;
 	}
 
 	inline bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
 	{
 		bool found = false;
-		if (signal_outputs.count(bit))
+		если (signal_outputs.count(bit))
 			result.insert(bit), found = true;
-		return found;
+		вернуть found;
 	}
 
 	// get_* methods -- container of RTLIL::SigBit's (always by reference)
@@ -486,46 +486,46 @@ struct ModWalker
 	inline bool get_drivers(pool<PortBit> &result, const T &bits) const
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_drivers.count(bit)) {
+		для (RTLIL::SigBit bit : bits)
+			если (signal_drivers.count(bit)) {
 				const pool<PortBit> &r = signal_drivers.at(bit);
 				result.insert(r.begin(), r.end());
 				found = true;
 			}
-		return found;
+		вернуть found;
 	}
 
 	template<typename T>
 	inline bool get_consumers(pool<PortBit> &result, const T &bits) const
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_consumers.count(bit)) {
+		для (RTLIL::SigBit bit : bits)
+			если (signal_consumers.count(bit)) {
 				const pool<PortBit> &r = signal_consumers.at(bit);
 				result.insert(r.begin(), r.end());
 				found = true;
 			}
-		return found;
+		вернуть found;
 	}
 
 	template<typename T>
 	inline bool get_inputs(pool<RTLIL::SigBit> &result, const T &bits) const
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_inputs.count(bit))
+		для (RTLIL::SigBit bit : bits)
+			если (signal_inputs.count(bit))
 				result.insert(bit), found = true;
-		return found;
+		вернуть found;
 	}
 
 	template<typename T>
 	inline bool get_outputs(pool<RTLIL::SigBit> &result, const T &bits) const
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_outputs.count(bit))
+		для (RTLIL::SigBit bit : bits)
+			если (signal_outputs.count(bit))
 				result.insert(bit), found = true;
-		return found;
+		вернуть found;
 	}
 
 	// get_* methods -- call by RTLIL::SigSpec (always by value)
@@ -533,25 +533,25 @@ struct ModWalker
 	bool get_drivers(pool<PortBit> &result, RTLIL::SigSpec signal) const
 	{
 		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_drivers(result, bits);
+		вернуть get_drivers(result, bits);
 	}
 
 	bool get_consumers(pool<PortBit> &result, RTLIL::SigSpec signal) const
 	{
 		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_consumers(result, bits);
+		вернуть get_consumers(result, bits);
 	}
 
 	bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
 	{
 		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_inputs(result, bits);
+		вернуть get_inputs(result, bits);
 	}
 
 	bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
 	{
 		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_outputs(result, bits);
+		вернуть get_outputs(result, bits);
 	}
 
 	// has_* methods -- call by reference
@@ -559,47 +559,47 @@ struct ModWalker
 	template<typename T>
 	inline bool has_drivers(const T &sig) const {
 		pool<PortBit> result;
-		return get_drivers(result, sig);
+		вернуть get_drivers(result, sig);
 	}
 
 	template<typename T>
 	inline bool has_consumers(const T &sig) const {
 		pool<PortBit> result;
-		return get_consumers(result, sig);
+		вернуть get_consumers(result, sig);
 	}
 
 	template<typename T>
 	inline bool has_inputs(const T &sig) const {
 		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+		вернуть get_inputs(result, sig);
 	}
 
 	template<typename T>
 	inline bool has_outputs(const T &sig) const {
 		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+		вернуть get_outputs(result, sig);
 	}
 
 	// has_* methods -- call by value
 
 	inline bool has_drivers(RTLIL::SigSpec sig) const {
 		pool<PortBit> result;
-		return get_drivers(result, sig);
+		вернуть get_drivers(result, sig);
 	}
 
 	inline bool has_consumers(RTLIL::SigSpec sig) const {
 		pool<PortBit> result;
-		return get_consumers(result, sig);
+		вернуть get_consumers(result, sig);
 	}
 
 	inline bool has_inputs(RTLIL::SigSpec sig) const {
 		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+		вернуть get_inputs(result, sig);
 	}
 
 	inline bool has_outputs(RTLIL::SigSpec sig) const {
 		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+		вернуть get_outputs(result, sig);
 	}
 };
 

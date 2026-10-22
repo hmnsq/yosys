@@ -29,194 +29,194 @@ namespace Functional {
 
 const char *fn_to_string(Fn fn) {
 	switch(fn) {
-	case Fn::invalid: return "invalid";
-	case Fn::buf: return "buf";
-	case Fn::slice: return "slice";
-	case Fn::zero_extend: return "zero_extend";
-	case Fn::sign_extend: return "sign_extend";
-	case Fn::concat: return "concat";
-	case Fn::add: return "add";
-	case Fn::sub: return "sub";
-	case Fn::mul: return "mul";
-	case Fn::unsigned_div: return "unsigned_div";
-	case Fn::unsigned_mod: return "unsigned_mod";
-	case Fn::bitwise_and: return "bitwise_and";
-	case Fn::bitwise_or: return "bitwise_or";
-	case Fn::bitwise_xor: return "bitwise_xor";
-	case Fn::bitwise_not: return "bitwise_not";
-	case Fn::reduce_and: return "reduce_and";
-	case Fn::reduce_or: return "reduce_or";
-	case Fn::reduce_xor: return "reduce_xor";
-	case Fn::unary_minus: return "unary_minus";
-	case Fn::equal: return "equal";
-	case Fn::not_equal: return "not_equal";
-	case Fn::signed_greater_than: return "signed_greater_than";
-	case Fn::signed_greater_equal: return "signed_greater_equal";
-	case Fn::unsigned_greater_than: return "unsigned_greater_than";
-	case Fn::unsigned_greater_equal: return "unsigned_greater_equal";
-	case Fn::logical_shift_left: return "logical_shift_left";
-	case Fn::logical_shift_right: return "logical_shift_right";
-	case Fn::arithmetic_shift_right: return "arithmetic_shift_right";
-	case Fn::mux: return "mux";
-	case Fn::constant: return "constant";
-	case Fn::input: return "input";
-	case Fn::state: return "state";
-	case Fn::memory_read: return "memory_read";
-	case Fn::memory_write: return "memory_write";
+	case Fn::invalid: вернуть "invalid";
+	case Fn::buf: вернуть "buf";
+	case Fn::slice: вернуть "slice";
+	case Fn::zero_extend: вернуть "zero_extend";
+	case Fn::sign_extend: вернуть "sign_extend";
+	case Fn::concat: вернуть "concat";
+	case Fn::add: вернуть "add";
+	case Fn::sub: вернуть "sub";
+	case Fn::mul: вернуть "mul";
+	case Fn::unsigned_div: вернуть "unsigned_div";
+	case Fn::unsigned_mod: вернуть "unsigned_mod";
+	case Fn::bitwise_and: вернуть "bitwise_and";
+	case Fn::bitwise_or: вернуть "bitwise_or";
+	case Fn::bitwise_xor: вернуть "bitwise_xor";
+	case Fn::bitwise_not: вернуть "bitwise_not";
+	case Fn::reduce_and: вернуть "reduce_and";
+	case Fn::reduce_or: вернуть "reduce_or";
+	case Fn::reduce_xor: вернуть "reduce_xor";
+	case Fn::unary_minus: вернуть "unary_minus";
+	case Fn::equal: вернуть "equal";
+	case Fn::not_equal: вернуть "not_equal";
+	case Fn::signed_greater_than: вернуть "signed_greater_than";
+	case Fn::signed_greater_equal: вернуть "signed_greater_equal";
+	case Fn::unsigned_greater_than: вернуть "unsigned_greater_than";
+	case Fn::unsigned_greater_equal: вернуть "unsigned_greater_equal";
+	case Fn::logical_shift_left: вернуть "logical_shift_left";
+	case Fn::logical_shift_right: вернуть "logical_shift_right";
+	case Fn::arithmetic_shift_right: вернуть "arithmetic_shift_right";
+	case Fn::mux: вернуть "mux";
+	case Fn::constant: вернуть "constant";
+	case Fn::input: вернуть "input";
+	case Fn::state: вернуть "state";
+	case Fn::memory_read: вернуть "memory_read";
+	case Fn::memory_write: вернуть "memory_write";
 	}
-	log_error("fn_to_string: unknown Functional::Fn value %d\n", (int)fn);
+	log_error("fn_to_string: unknown Functional::Fn value %d\n", (целое)fn);
 }
 
 vector<IRInput const*> IR::inputs(IdString kind) const {
 	vector<IRInput const*> ret;
-	for (const auto &[name, input] : _inputs)
-		if(input.kind == kind)
+	для (const auto &[name, input] : _inputs)
+		если(input.kind == kind)
 			ret.push_back(&input);
-	return ret;
+	вернуть ret;
 }
 
 vector<IROutput const*> IR::outputs(IdString kind) const {
 	vector<IROutput const*> ret;
-	for (const auto &[name, output] : _outputs)
-		if(output.kind == kind)
+	для (const auto &[name, output] : _outputs)
+		если(output.kind == kind)
 			ret.push_back(&output);
-	return ret;
+	вернуть ret;
 }
 
 vector<IRState const*> IR::states(IdString kind) const {
 	vector<IRState const*> ret;
-	for (const auto &[name, state] : _states)
-		if(state.kind == kind)
+	для (const auto &[name, state] : _states)
+		если(state.kind == kind)
 			ret.push_back(&state);
-	return ret;
+	вернуть ret;
 }
 
 vector<IRInput const*> IR::all_inputs() const {
 	vector<IRInput const*> ret;
-	for (const auto &[name, input] : _inputs)
+	для (const auto &[name, input] : _inputs)
 		ret.push_back(&input);
-	return ret;
+	вернуть ret;
 }
 
 vector<IROutput const*> IR::all_outputs() const {
 	vector<IROutput const*> ret;
-	for (const auto &[name, output] : _outputs)
+	для (const auto &[name, output] : _outputs)
 		ret.push_back(&output);
-	return ret;
+	вернуть ret;
 }
 
 vector<IRState const*> IR::all_states() const {
 	vector<IRState const*> ret;
-	for (const auto &[name, state] : _states)
+	для (const auto &[name, state] : _states)
 		ret.push_back(&state);
-	return ret;
+	вернуть ret;
 }
 
 struct PrintVisitor : DefaultVisitor<std::string> {
 	std::function<std::string(Node)> np;
 	PrintVisitor(std::function<std::string(Node)> np) : np(np) { }
 	// as a general rule the default handler is good enough iff the only arguments are of type Node
-	std::string slice(Node, Node a, int offset, int out_width) override { return "slice(" + np(a) + ", " + std::to_string(offset) + ", " + std::to_string(out_width) + ")"; }
-	std::string zero_extend(Node, Node a, int out_width) override { return "zero_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
-	std::string sign_extend(Node, Node a, int out_width) override { return "sign_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
-	std::string constant(Node, RTLIL::Const const& value) override { return "constant(" + value.as_string() + ")"; }
-	std::string input(Node self, IdString name, IdString kind) override { return "input(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
-	std::string state(Node self, IdString name, IdString kind) override { return "state(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
+	std::string slice(Node, Node a, целое offset, целое out_width) override { вернуть "slice(" + np(a) + ", " + std::to_string(offset) + ", " + std::to_string(out_width) + ")"; }
+	std::string zero_extend(Node, Node a, целое out_width) override { вернуть "zero_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
+	std::string sign_extend(Node, Node a, целое out_width) override { вернуть "sign_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
+	std::string constant(Node, RTLIL::Const const& value) override { вернуть "constant(" + value.as_string() + ")"; }
+	std::string input(Node self, IdString name, IdString kind) override { вернуть "input(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
+	std::string state(Node self, IdString name, IdString kind) override { вернуть "state(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
 	std::string default_handler(Node self) override {
 		std::string ret = fn_to_string(self.fn());
 		ret += "(";
-		for(size_t i = 0; i < self.arg_count(); i++) {
-			if(i > 0) ret += ", ";
+		для(size_t i = 0; i < self.arg_count(); i++) {
+			если(i > 0) ret += ", ";
 			ret += np(self.arg(i));
 		}
 		ret += ")";
-		return ret;
+		вернуть ret;
 	}
 };
 
 std::string Node::to_string()
 {
-	return to_string([](Node n) { return n.name().unescape(); });
+	вернуть to_string([](Node n) { вернуть n.name().unescape(); });
 }
 
 std::string Node::to_string(std::function<std::string(Node)> np)
 {
-	return visit(PrintVisitor(np));
+	вернуть visit(PrintVisitor(np));
 }
 
 class CellSimplifier {
 	Factory &factory;
 	Node sign(Node a) {
-		return factory.slice(a, a.width() - 1, 1);
+		вернуть factory.slice(a, a.width() - 1, 1);
 	}
 	Node neg_if(Node a, Node s) {
-		return factory.mux(a, factory.unary_minus(a), s);
+		вернуть factory.mux(a, factory.unary_minus(a), s);
 	}
 	Node abs(Node a) {
-		return neg_if(a, sign(a));
+		вернуть neg_if(a, sign(a));
 	}
 	Node handle_shift(Node a, Node b, bool is_right, bool is_signed) {
 		// to prevent new_width == 0, we handle this case separately
-		if(a.width() == 1) {
-			if(!is_signed)
-				return factory.bitwise_and(a, factory.bitwise_not(factory.reduce_or(b)));
-			else
-				return a;
+		если(a.width() == 1) {
+			если(!is_signed)
+				вернуть factory.bitwise_and(a, factory.bitwise_not(factory.reduce_or(b)));
+			иначе
+				вернуть a;
 		}
-		int new_width = ceil_log2(a.width());
+		целое new_width = ceil_log2(a.width());
 		Node b_truncated = factory.extend(b, new_width, false);
 		Node y =
 			!is_right ? factory.logical_shift_left(a, b_truncated) :
 			!is_signed ? factory.logical_shift_right(a, b_truncated) :
 			factory.arithmetic_shift_right(a, b_truncated);
-		if(b.width() <= new_width)
-			return y;
+		если(b.width() <= new_width)
+			вернуть y;
 		Node overflow = factory.unsigned_greater_equal(b, factory.constant(RTLIL::Const(a.width(), b.width())));
 		Node y_if_overflow = is_signed ? factory.extend(sign(a), a.width(), true) : factory.constant(RTLIL::Const(State::S0, a.width()));
-		return factory.mux(y, y_if_overflow, overflow);
+		вернуть factory.mux(y, y_if_overflow, overflow);
 	}
 public:
-	Node logical_shift_left(Node a, Node b) { return handle_shift(a, b, false, false); }
-	Node logical_shift_right(Node a, Node b) { return handle_shift(a, b, true, false); }
-	Node arithmetic_shift_right(Node a, Node b) { return handle_shift(a, b, true, true); }
+	Node logical_shift_left(Node a, Node b) { вернуть handle_shift(a, b, false, false); }
+	Node logical_shift_right(Node a, Node b) { вернуть handle_shift(a, b, true, false); }
+	Node arithmetic_shift_right(Node a, Node b) { вернуть handle_shift(a, b, true, true); }
 	Node bitwise_mux(Node a, Node b, Node s) {
 		Node aa = factory.bitwise_and(a, factory.bitwise_not(s));
 		Node bb = factory.bitwise_and(b, s);
-		return factory.bitwise_or(aa, bb);
+		вернуть factory.bitwise_or(aa, bb);
 	}
 	CellSimplifier(Factory &f) : factory(f) {}
 private:
-	Node handle_pow(Node a0, Node b, int y_width, bool is_signed) {
+	Node handle_pow(Node a0, Node b, целое y_width, bool is_signed) {
 		Node a = factory.extend(a0, y_width, is_signed);
 		Node r = factory.constant(Const(1, y_width));
-		for(int i = 0; i < b.width(); i++) {
+		для(целое i = 0; i < b.width(); i++) {
 			Node b_bit = factory.slice(b, i, 1);
 			r = factory.mux(r, factory.mul(r, a), b_bit);
 			a = factory.mul(a, a);
 		}
-		if (is_signed) {
+		если (is_signed) {
 			Node a_ge_1 = factory.unsigned_greater_than(abs(a0), factory.constant(Const(1, a0.width())));
 			Node zero_result = factory.bitwise_and(a_ge_1, sign(b));
 			r = factory.mux(r, factory.constant(Const(0, y_width)), zero_result);
 		}
-		return r;
+		вернуть r;
 	}
-	Node handle_bmux(Node a, Node s, int a_offset, int width, int sn) {
-		if(sn < 1)
-			return factory.slice(a, a_offset, width);
-		else {
+	Node handle_bmux(Node a, Node s, целое a_offset, целое width, целое sn) {
+		если(sn < 1)
+			вернуть factory.slice(a, a_offset, width);
+		иначе {
 			Node y0 = handle_bmux(a, s, a_offset, width, sn - 1);
 			Node y1 = handle_bmux(a, s, a_offset + (width << (sn - 1)), width, sn - 1);
-			return factory.mux(y0, y1, factory.slice(s, sn - 1, 1));
+			вернуть factory.mux(y0, y1, factory.slice(s, sn - 1, 1));
 		}
 	}
 	Node handle_pmux(Node a, Node b, Node s) {
 		// TODO : what to do about multiple b bits set ?
 		log_assert(b.width() == a.width() * s.width());
 		Node y = a;
-		for(int i = 0; i < s.width(); i++)
+		для(целое i = 0; i < s.width(); i++)
 			y = factory.mux(y, factory.slice(b, a.width() * i, a.width()), factory.slice(s, i, 1));
-		return y;
+		вернуть y;
 	}
 	dict<IdString, Node> handle_fa(Node a, Node b, Node c) {
 		Node t1 = factory.bitwise_xor(a, b);
@@ -224,9 +224,9 @@ private:
 		Node t3 = factory.bitwise_and(c, t1);
 		Node y = factory.bitwise_xor(c, t1);
 		Node x = factory.bitwise_or(t2, t3);
-		return {{ID(X), x}, {ID(Y), y}};
+		вернуть {{ID(X), x}, {ID(Y), y}};
 	}
-	dict<IdString, Node> handle_alu(Node a_in, Node b_in, int y_width, bool is_signed, Node ci, Node bi) {
+	dict<IdString, Node> handle_alu(Node a_in, Node b_in, целое y_width, bool is_signed, Node ci, Node bi) {
 		Node a = factory.extend(a_in, y_width, is_signed);
 		Node b_uninverted = factory.extend(b_in, y_width, is_signed);
 		Node b = factory.mux(b_uninverted, factory.bitwise_not(b_uninverted), bi);
@@ -240,140 +240,140 @@ private:
 		Node y = factory.slice(y_extra, 0, y_width);
 		Node carries = factory.bitwise_xor(y_extra, factory.bitwise_xor(a_extra, b_extra));
 		Node co = factory.slice(carries, 1, y_width);
-		return {{ID(X), x}, {ID(Y), y}, {ID(CO), co}};
+		вернуть {{ID(X), x}, {ID(Y), y}, {ID(CO), co}};
 	}
 	Node handle_lcu(Node p, Node g, Node ci) {
-		return handle_alu(g, factory.bitwise_or(p, g), g.width(), false, ci, factory.constant(Const(State::S0, 1))).at(ID(CO));
+		вернуть handle_alu(g, factory.bitwise_or(p, g), g.width(), false, ci, factory.constant(Const(State::S0, 1))).at(ID(CO));
 	}
 public:
 	std::variant<dict<IdString, Node>, Node> handle(IdString cellName, IdString cellType, dict<IdString, Const> parameters, dict<IdString, Node> inputs)
 	{
-		int a_width = parameters.at(ID(A_WIDTH), Const(-1)).as_int();
-		int b_width = parameters.at(ID(B_WIDTH), Const(-1)).as_int();
-		int y_width = parameters.at(ID(Y_WIDTH), Const(-1)).as_int();
+		целое a_width = parameters.at(ID(A_WIDTH), Const(-1)).as_int();
+		целое b_width = parameters.at(ID(B_WIDTH), Const(-1)).as_int();
+		целое y_width = parameters.at(ID(Y_WIDTH), Const(-1)).as_int();
 		bool a_signed = parameters.at(ID(A_SIGNED), Const(0)).as_bool();
 		bool b_signed = parameters.at(ID(B_SIGNED), Const(0)).as_bool();
-		if(cellType.in(ID($add), ID($sub), ID($and), ID($or), ID($xor), ID($xnor), ID($mul))){
+		если(cellType.in(ID($add), ID($sub), ID($and), ID($or), ID($xor), ID($xnor), ID($mul))){
 			bool is_signed = a_signed && b_signed;
 			Node a = factory.extend(inputs.at(ID(A)), y_width, is_signed);
 			Node b = factory.extend(inputs.at(ID(B)), y_width, is_signed);
-			if(cellType == ID($add))
-				return factory.add(a, b);
-			else if(cellType == ID($sub))
-				return factory.sub(a, b);
-			else if(cellType == ID($mul))
-				return factory.mul(a, b);
-			else if(cellType == ID($and))
-				return factory.bitwise_and(a, b);
-			else if(cellType == ID($or))
-				return factory.bitwise_or(a, b);
-			else if(cellType == ID($xor))
-				return factory.bitwise_xor(a, b);
-			else if(cellType == ID($xnor))
-				return factory.bitwise_not(factory.bitwise_xor(a, b));
-			else
+			если(cellType == ID($add))
+				вернуть factory.add(a, b);
+			иначе если(cellType == ID($sub))
+				вернуть factory.sub(a, b);
+			иначе если(cellType == ID($mul))
+				вернуть factory.mul(a, b);
+			иначе если(cellType == ID($and))
+				вернуть factory.bitwise_and(a, b);
+			иначе если(cellType == ID($or))
+				вернуть factory.bitwise_or(a, b);
+			иначе если(cellType == ID($xor))
+				вернуть factory.bitwise_xor(a, b);
+			иначе если(cellType == ID($xnor))
+				вернуть factory.bitwise_not(factory.bitwise_xor(a, b));
+			иначе
 				log_abort();
-		}else if(cellType.in(ID($eq), ID($ne), ID($eqx), ID($nex), ID($le), ID($lt), ID($ge), ID($gt))){
+		}иначе если(cellType.in(ID($eq), ID($ne), ID($eqx), ID($nex), ID($le), ID($lt), ID($ge), ID($gt))){
 			bool is_signed = a_signed && b_signed;
-			int width = max(a_width, b_width);
+			целое width = max(a_width, b_width);
 			Node a = factory.extend(inputs.at(ID(A)), width, is_signed);
 			Node b = factory.extend(inputs.at(ID(B)), width, is_signed);
-			if(cellType.in(ID($eq), ID($eqx)))
-				return factory.extend(factory.equal(a, b), y_width, false);
-			else if(cellType.in(ID($ne), ID($nex)))
-				return factory.extend(factory.not_equal(a, b), y_width, false);
-			else if(cellType == ID($lt))
-				return factory.extend(is_signed ? factory.signed_greater_than(b, a) : factory.unsigned_greater_than(b, a), y_width, false);
-			else if(cellType == ID($le))
-				return factory.extend(is_signed ? factory.signed_greater_equal(b, a) : factory.unsigned_greater_equal(b, a), y_width, false);
-			else if(cellType == ID($gt))
-				return factory.extend(is_signed ? factory.signed_greater_than(a, b) : factory.unsigned_greater_than(a, b), y_width, false);
-			else if(cellType == ID($ge))
-				return factory.extend(is_signed ? factory.signed_greater_equal(a, b) : factory.unsigned_greater_equal(a, b), y_width, false);
-			else
+			если(cellType.in(ID($eq), ID($eqx)))
+				вернуть factory.extend(factory.equal(a, b), y_width, false);
+			иначе если(cellType.in(ID($ne), ID($nex)))
+				вернуть factory.extend(factory.not_equal(a, b), y_width, false);
+			иначе если(cellType == ID($lt))
+				вернуть factory.extend(is_signed ? factory.signed_greater_than(b, a) : factory.unsigned_greater_than(b, a), y_width, false);
+			иначе если(cellType == ID($le))
+				вернуть factory.extend(is_signed ? factory.signed_greater_equal(b, a) : factory.unsigned_greater_equal(b, a), y_width, false);
+			иначе если(cellType == ID($gt))
+				вернуть factory.extend(is_signed ? factory.signed_greater_than(a, b) : factory.unsigned_greater_than(a, b), y_width, false);
+			иначе если(cellType == ID($ge))
+				вернуть factory.extend(is_signed ? factory.signed_greater_equal(a, b) : factory.unsigned_greater_equal(a, b), y_width, false);
+			иначе
 				log_abort();
-		}else if(cellType.in(ID($logic_or), ID($logic_and))){
+		}иначе если(cellType.in(ID($logic_or), ID($logic_and))){
 			Node a = factory.reduce_or(inputs.at(ID(A)));
 			Node b = factory.reduce_or(inputs.at(ID(B)));
 			Node y = cellType == ID($logic_and) ? factory.bitwise_and(a, b) : factory.bitwise_or(a, b);
-			return factory.extend(y, y_width, false);
-		}else if(cellType == ID($not)){
+			вернуть factory.extend(y, y_width, false);
+		}иначе если(cellType == ID($not)){
 			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			return factory.bitwise_not(a);
-		}else if(cellType == ID($pos)){
-			return factory.extend(inputs.at(ID(A)), y_width, a_signed);
-		}else if(cellType == ID($barrier)){
-			return inputs.at(ID(A));
-		}else if(cellType == ID($neg)){
+			вернуть factory.bitwise_not(a);
+		}иначе если(cellType == ID($pos)){
+			вернуть factory.extend(inputs.at(ID(A)), y_width, a_signed);
+		}иначе если(cellType == ID($barrier)){
+			вернуть inputs.at(ID(A));
+		}иначе если(cellType == ID($neg)){
 			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			return factory.unary_minus(a);
-		}else if(cellType == ID($logic_not)){
+			вернуть factory.unary_minus(a);
+		}иначе если(cellType == ID($logic_not)){
 			Node a = factory.reduce_or(inputs.at(ID(A)));
 			Node y = factory.bitwise_not(a);
-			return factory.extend(y, y_width, false);
-		}else if(cellType.in(ID($reduce_or), ID($reduce_bool))){
+			вернуть factory.extend(y, y_width, false);
+		}иначе если(cellType.in(ID($reduce_or), ID($reduce_bool))){
 			Node a = factory.reduce_or(inputs.at(ID(A)));
-			return factory.extend(a, y_width, false);
-		}else if(cellType == ID($reduce_and)){
+			вернуть factory.extend(a, y_width, false);
+		}иначе если(cellType == ID($reduce_and)){
 			Node a = factory.reduce_and(inputs.at(ID(A)));
-			return factory.extend(a, y_width, false);
-		}else if(cellType.in(ID($reduce_xor), ID($reduce_xnor))){
+			вернуть factory.extend(a, y_width, false);
+		}иначе если(cellType.in(ID($reduce_xor), ID($reduce_xnor))){
 			Node a = factory.reduce_xor(inputs.at(ID(A)));
 			Node y = cellType == ID($reduce_xnor) ? factory.bitwise_not(a) : a;
-			return factory.extend(y, y_width, false);
-		}else if(cellType == ID($shl) || cellType == ID($sshl)){
+			вернуть factory.extend(y, y_width, false);
+		}иначе если(cellType == ID($shl) || cellType == ID($sshl)){
 			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
 			Node b = inputs.at(ID(B));
-			return logical_shift_left(a, b);
-		}else if(cellType == ID($shr) || cellType == ID($sshr)){
-			int width = max(a_width, y_width);
+			вернуть logical_shift_left(a, b);
+		}иначе если(cellType == ID($shr) || cellType == ID($sshr)){
+			целое width = max(a_width, y_width);
 			Node a = factory.extend(inputs.at(ID(A)), width, a_signed);
 			Node b = inputs.at(ID(B));
 			Node y = a_signed && cellType == ID($sshr) ?
 				arithmetic_shift_right(a, b) :
 				logical_shift_right(a, b);
-			return factory.extend(y, y_width, a_signed);
-		}else if(cellType == ID($shiftx) || cellType == ID($shift)){
-			int width = max(a_width, y_width);
+			вернуть factory.extend(y, y_width, a_signed);
+		}иначе если(cellType == ID($shiftx) || cellType == ID($shift)){
+			целое width = max(a_width, y_width);
 			Node a = factory.extend(inputs.at(ID(A)), width, cellType == ID($shift) && a_signed);
 			Node b = inputs.at(ID(B));
 			Node shr = logical_shift_right(a, b);
-			if(b_signed) {
+			если(b_signed) {
 				Node shl = logical_shift_left(a, factory.unary_minus(b));
 				Node y = factory.mux(shr, shl, sign(b));
-				return factory.extend(y, y_width, false);
-			} else {
-				return factory.extend(shr, y_width, false);
+				вернуть factory.extend(y, y_width, false);
+			} иначе {
+				вернуть factory.extend(shr, y_width, false);
 			}
-		}else if(cellType == ID($mux)){
-			return factory.mux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
-		}else if(cellType == ID($pmux)){
-			return handle_pmux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
-		}else if(cellType == ID($concat)){
+		}иначе если(cellType == ID($mux)){
+			вернуть factory.mux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
+		}иначе если(cellType == ID($pmux)){
+			вернуть handle_pmux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
+		}иначе если(cellType == ID($concat)){
 			Node a = inputs.at(ID(A));
 			Node b = inputs.at(ID(B));
-			return factory.concat(a, b);
-		}else if(cellType == ID($slice)){
-			int offset = parameters.at(ID(OFFSET)).as_int();
+			вернуть factory.concat(a, b);
+		}иначе если(cellType == ID($slice)){
+			целое offset = parameters.at(ID(OFFSET)).as_int();
 			Node a = inputs.at(ID(A));
-			return factory.slice(a, offset, y_width);
-		}else if(cellType.in(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
-			int width = max(a_width, b_width);
+			вернуть factory.slice(a, offset, y_width);
+		}иначе если(cellType.in(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
+			целое width = max(a_width, b_width);
 			bool is_signed = a_signed && b_signed;
 			Node a = factory.extend(inputs.at(ID(A)), width, is_signed);
 			Node b = factory.extend(inputs.at(ID(B)), width, is_signed);
-			if(is_signed) {
-				if(cellType == ID($div)) {
+			если(is_signed) {
+				если(cellType == ID($div)) {
 					// divide absolute values, then flip the sign if input signs differ
 					// but extend the width first, to handle the case (most negative value) / (-1)
 					Node abs_y = factory.unsigned_div(abs(a), abs(b));
 					Node out_sign = factory.not_equal(sign(a), sign(b));
-					return neg_if(factory.extend(abs_y, y_width, false), out_sign);
-				} else if(cellType == ID($mod)) {
+					вернуть neg_if(factory.extend(abs_y, y_width, false), out_sign);
+				} иначе если(cellType == ID($mod)) {
 					// similar to division but output sign == divisor sign
 					Node abs_y = factory.unsigned_mod(abs(a), abs(b));
-					return neg_if(factory.extend(abs_y, y_width, false), sign(a));
-				} else if(cellType == ID($divfloor)) {
+					вернуть neg_if(factory.extend(abs_y, y_width, false), sign(a));
+				} иначе если(cellType == ID($divfloor)) {
 					// if b is negative, flip both signs so that b is positive
 					Node b_sign = sign(b);
 					Node a1 = neg_if(a, b_sign);
@@ -386,8 +386,8 @@ public:
 					Node a2 = factory.mux(a1, factory.bitwise_not(a1), a1_sign);
 					Node y1 = factory.unsigned_div(a2, b1);
 					Node y2 = factory.extend(y1, y_width, false);
-					return factory.mux(y2, factory.bitwise_not(y2), a1_sign);
-				} else if(cellType == ID($modfloor)) {
+					вернуть factory.mux(y2, factory.bitwise_not(y2), a1_sign);
+				} иначе если(cellType == ID($modfloor)) {
 					// calculate |a| % |b| and then subtract from |b| if input signs differ and the remainder is non-zero
 					Node abs_b = abs(b);
 					Node abs_y = factory.unsigned_mod(abs(a), abs_b);
@@ -395,73 +395,73 @@ public:
 					Node y_flipped = factory.mux(abs_y, factory.sub(abs_b, abs_y), flip_y);
 					// since y_flipped is strictly less than |b|, the top bit is always 0 and we can just sign extend the flipped result
 					Node y = neg_if(y_flipped, sign(b));
-					return factory.extend(y, y_width, true);
-				} else
+					вернуть factory.extend(y, y_width, true);
+				} иначе
 					log_error("unhandled cell in CellSimplifier %s\n", factory.ir().design->twines().str(cellType));
-			} else {
-				if(cellType.in(ID($mod), ID($modfloor)))
-					return factory.extend(factory.unsigned_mod(a, b), y_width, false);
-				else
-					return factory.extend(factory.unsigned_div(a, b), y_width, false);
+			} иначе {
+				если(cellType.in(ID($mod), ID($modfloor)))
+					вернуть factory.extend(factory.unsigned_mod(a, b), y_width, false);
+				иначе
+					вернуть factory.extend(factory.unsigned_div(a, b), y_width, false);
 			}
-		} else if(cellType == ID($pow)) {
-			return handle_pow(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed);
-		} else if (cellType == ID($lut)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
+		} иначе если(cellType == ID($pow)) {
+			вернуть handle_pow(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed);
+		} иначе если (cellType == ID($lut)) {
+			целое width = parameters.at(ID(WIDTH)).as_int();
 			Const lut_table = parameters.at(ID(LUT));
 			lut_table.extu(1 << width);
-			return handle_bmux(factory.constant(lut_table), inputs.at(ID(A)), 0, 1, width);
-		} else if (cellType == ID($bwmux)) {
+			вернуть handle_bmux(factory.constant(lut_table), inputs.at(ID(A)), 0, 1, width);
+		} иначе если (cellType == ID($bwmux)) {
 			Node a = inputs.at(ID(A));
 			Node b = inputs.at(ID(B));
 			Node s = inputs.at(ID(S));
-			return factory.bitwise_or(
+			вернуть factory.bitwise_or(
 				factory.bitwise_and(a, factory.bitwise_not(s)),
 				factory.bitwise_and(b, s));
-		} else if (cellType == ID($bweqx)) {
+		} иначе если (cellType == ID($bweqx)) {
 			Node a = inputs.at(ID(A));
 			Node b = inputs.at(ID(B));
-			return factory.bitwise_not(factory.bitwise_xor(a, b));
-		} else if(cellType == ID($bmux)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			int s_width = parameters.at(ID(S_WIDTH)).as_int();
-			return handle_bmux(inputs.at(ID(A)), inputs.at(ID(S)), 0, width, s_width);
-		} else if(cellType == ID($demux)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			int s_width = parameters.at(ID(S_WIDTH)).as_int();
-			int y_width = width << s_width;
-			int b_width = ceil_log2(y_width);
+			вернуть factory.bitwise_not(factory.bitwise_xor(a, b));
+		} иначе если(cellType == ID($bmux)) {
+			целое width = parameters.at(ID(WIDTH)).as_int();
+			целое s_width = parameters.at(ID(S_WIDTH)).as_int();
+			вернуть handle_bmux(inputs.at(ID(A)), inputs.at(ID(S)), 0, width, s_width);
+		} иначе если(cellType == ID($demux)) {
+			целое width = parameters.at(ID(WIDTH)).as_int();
+			целое s_width = parameters.at(ID(S_WIDTH)).as_int();
+			целое y_width = width << s_width;
+			целое b_width = ceil_log2(y_width);
 			Node a = factory.extend(inputs.at(ID(A)), y_width, false);
 			Node s = factory.extend(inputs.at(ID(S)), b_width, false);
 			Node b = factory.mul(s, factory.constant(Const(width, b_width)));
-			return factory.logical_shift_left(a, b);
-		} else if(cellType == ID($fa)) {
-			return handle_fa(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(C)));
-		} else if(cellType == ID($lcu)) {
-			return handle_lcu(inputs.at(ID(P)), inputs.at(ID(G)), inputs.at(ID(CI)));
-		} else if(cellType == ID($alu)) {
-			return handle_alu(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed, inputs.at(ID(CI)), inputs.at(ID(BI)));
-		} else if(cellType.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover))) {
+			вернуть factory.logical_shift_left(a, b);
+		} иначе если(cellType == ID($fa)) {
+			вернуть handle_fa(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(C)));
+		} иначе если(cellType == ID($lcu)) {
+			вернуть handle_lcu(inputs.at(ID(P)), inputs.at(ID(G)), inputs.at(ID(CI)));
+		} иначе если(cellType == ID($alu)) {
+			вернуть handle_alu(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed, inputs.at(ID(CI)), inputs.at(ID(BI)));
+		} иначе если(cellType.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover))) {
 			Node a = factory.mux(factory.constant(Const(State::S1, 1)), inputs.at(ID(A)), inputs.at(ID(EN)));
 			auto &output = factory.add_output(cellName, cellType, Sort(1));
 			output.set_value(a);
-			return {};
-		} else if(cellType.in(ID($anyconst), ID($allconst), ID($anyseq), ID($allseq))) {
-			int width = parameters.at(ID(WIDTH)).as_int();
+			вернуть {};
+		} иначе если(cellType.in(ID($anyconst), ID($allconst), ID($anyseq), ID($allseq))) {
+			целое width = parameters.at(ID(WIDTH)).as_int();
 			auto &input = factory.add_input(cellName, cellType, Sort(width));
-			return factory.value(input);
-		} else if(cellType == ID($initstate)) {
-			if(factory.ir().has_state(ID($initstate), ID($state)))
-				return factory.value(factory.ir().state(ID($initstate)));
-			else {
+			вернуть factory.value(input);
+		} иначе если(cellType == ID($initstate)) {
+			если(factory.ir().has_state(ID($initstate), ID($state)))
+				вернуть factory.value(factory.ir().state(ID($initstate)));
+			иначе {
 				auto &state = factory.add_state(ID($initstate), ID($state), Sort(1));
 				state.set_initial_value(RTLIL::Const(State::S1, 1));
 				state.set_next_value(factory.constant(RTLIL::Const(State::S0, 1)));
-				return factory.value(state);
+				вернуть factory.value(state);
 			}
-		} else if(cellType == ID($check)) {
+		} иначе если(cellType == ID($check)) {
 			log_error("The design contains a $check cell `%s'. This is not supported by the functional backend. Call `chformal -lower' to avoid this error.\n", factory.ir().design->twines().str(cellName));
-		} else {
+		} иначе {
 			log_error("`%s' cells are not supported by the functional backend\n", factory.ir().design->twines().str(cellType));
 		}
 	}
@@ -482,31 +482,31 @@ class FunctionalIRConstruction {
 	Node enqueue(DriveSpec const &spec)
 	{
 		auto it = graph_nodes.find(spec);
-		if(it == graph_nodes.end()){
+		если(it == graph_nodes.end()){
 			auto node = factory.create_pending(spec.size());
 			graph_nodes.insert({spec, node});
 			queue.emplace_back(spec);
-			return node;
-		}else
-			return it->second;
+			вернуть node;
+		}иначе
+			вернуть it->second;
 	}
 	Node enqueue_cell(Cell *cell, IdString port_name)
 	{
 		auto it = cell_outputs.find({cell, port_name});
-		if(it == cell_outputs.end()) {
+		если(it == cell_outputs.end()) {
 			queue.emplace_back(cell);
 			std::optional<Node> rv;
-			for(auto const &[name, sigspec] : cell->connections())
-				if(driver_map.celltypes.cell_output(cell->type, name)) {
+			для(auto const &[name, sigspec] : cell->connections())
+				если(driver_map.celltypes.cell_output(cell->type, name)) {
 					auto node = factory.create_pending(sigspec.size());
 					factory.suggest_name(node, cell->name.str() + "$" + PooledName(cell->module, name).str());
 					cell_outputs.emplace({cell, name}, node);
-					if(name == port_name)
+					если(name == port_name)
 						rv = node;
 				}
-			return *rv;
-		} else
-			return it->second;
+			вернуть *rv;
+		} иначе
+			вернуть it->second;
 	}
 public:
 	FunctionalIRConstruction(Module *module, Factory &f)
@@ -516,24 +516,24 @@ public:
 		, ff_initvals(&sig_map, module)
 	{
 		driver_map.add(module);
-		for (auto cell : module->cells()) {
-			if (cell->type.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover), ID($check)))
+		для (auto cell : module->cells()) {
+			если (cell->type.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover), ID($check)))
 				queue.emplace_back(cell);
 		}
 		// we are relying here on unsorted pools iterating last-in-first-out
-		for (auto riter = module->ports.rbegin(); riter != module->ports.rend(); ++riter) {
+		для (auto riter = module->ports.rbegin(); riter != module->ports.rend(); ++riter) {
 			auto *wire = module->wire(*riter);
-			if (wire && wire->port_input) {
+			если (wire && wire->port_input) {
 				factory.add_input(wire->name, ID($input), Sort(wire->width));
 			}
-			if (wire && wire->port_output) {
+			если (wire && wire->port_output) {
 				auto &output = factory.add_output(wire->name, ID($output), Sort(wire->width));
 				output.set_value(enqueue(DriveChunk(DriveChunkWire(wire, 0, wire->width))));
 			}
 		}
 		memories_vector = Mem::get_all_memories(module);
-		for (auto &mem : memories_vector) {
-			if (mem.cell != nullptr)
+		для (auto &mem : memories_vector) {
+			если (mem.cell != nullptr)
 				memories[mem.cell] = &mem;
 		}
 	}
@@ -542,9 +542,9 @@ private:
 	{
 		// sanity check: all read ports concatenated should equal to the RD_DATA port
 		const SigSpec &rd_data = mem->cell->connections().at(ID(RD_DATA));
-		int current = 0;
-		for(size_t i = 0; i < mem->rd_ports.size(); i++) {
-			int width = mem->width << mem->rd_ports[i].wide_log2;
+		целое current = 0;
+		для(size_t i = 0; i < mem->rd_ports.size(); i++) {
+			целое width = mem->width << mem->rd_ports[i].wide_log2;
 			log_assert (results[i].width() == width);
 			log_assert (mem->rd_ports[i].data == rd_data.extract(current, width));
 			current += width;
@@ -552,9 +552,9 @@ private:
 		log_assert (current == rd_data.size());
 		log_assert (!results.empty());
 		Node node = results[0];
-		for(size_t i = 1; i < results.size(); i++)
+		для(size_t i = 1; i < results.size(); i++)
 			node = factory.concat(node, results[i]);
-		return node;
+		вернуть node;
 	}
 	Node handle_memory(Mem *mem)
 	{
@@ -570,9 +570,9 @@ private:
 		auto &state = factory.add_state(mem->cell->name, ID($state), Sort(ceil_log2(mem->size), mem->width));
 		state.set_initial_value(MemContents(mem));
 		Node node = factory.value(state);
-		for (size_t i = 0; i < mem->wr_ports.size(); i++) {
+		для (size_t i = 0; i < mem->wr_ports.size(); i++) {
 			const auto &wr = mem->wr_ports[i];
-			if (wr.clk_enable)
+			если (wr.clk_enable)
 				log_error("Write port %zd of memory %s.%s is clocked. This is not supported by the functional backend. "
 					"Call async2sync or clk2fflogic to avoid this error.\n", i, mem->module, PooledName(mem->module, mem->memid).unescape());
 			Node en = enqueue(driver_map(DriveSpec(wr.en)));
@@ -582,34 +582,34 @@ private:
 			Node wr_data = simplifier.bitwise_mux(old_data, new_data, en);
 			node = factory.memory_write(node, addr, wr_data);
 		}
-		if (mem->rd_ports.empty())
+		если (mem->rd_ports.empty())
 			log_error("Memory %s.%s has no read ports. This is not supported by the functional backend. "
 				"Call opt_clean to remove it.", mem->module, PooledName(mem->module, mem->memid).unescape());
-		for (size_t i = 0; i < mem->rd_ports.size(); i++) {
+		для (size_t i = 0; i < mem->rd_ports.size(); i++) {
 			const auto &rd = mem->rd_ports[i];
-			if (rd.clk_enable)
+			если (rd.clk_enable)
 				log_error("Read port %zd of memory %s.%s is clocked. This is not supported by the functional backend. "
 					"Call memory_nordff to avoid this error.\n", i, mem->module, PooledName(mem->module, mem->memid).unescape());
 			Node addr = enqueue(driver_map(DriveSpec(rd.addr)));
 			read_results.push_back(factory.memory_read(node, addr));
 		}
 		state.set_next_value(node);
-		return concatenate_read_results(mem, read_results);
+		вернуть concatenate_read_results(mem, read_results);
 	}
 	void process_cell(Cell *cell)
 	{
-		if (cell->is_mem_cell()) {
+		если (cell->is_mem_cell()) {
 			Mem *mem = memories.at(cell, nullptr);
-			if (mem == nullptr) {
+			если (mem == nullptr) {
 				log_assert(cell->has_memid());
 				log_error("The design contains an unpacked memory at %s. This is not supported by the functional backend. "
 					"Call memory_collect to avoid this error.\n", log_const(cell->parameters.at(ID(MEMID))));
 			}
 			Node node = handle_memory(mem);
 			factory.update_pending(cell_outputs.at({cell, ID(RD_DATA)}), node);
-		} else if (cell->is_builtin_ff()) {
+		} иначе если (cell->is_builtin_ff()) {
 			FfData ff(&ff_initvals, cell);
-			if (!ff.has_gclk)
+			если (!ff.has_gclk)
 				log_error("The design contains a %s flip-flop at %s. This is not supported by the functional backend. "
 					"Call async2sync or clk2fflogic to avoid this error.\n", cell->type.unescape(), cell);
 			auto &state = factory.add_state(ff.name, ID($state), Sort(ff.width));
@@ -618,24 +618,24 @@ private:
 			factory.update_pending(cell_outputs.at({cell, ID(Q)}), q_value);
 			state.set_next_value(enqueue(ff.sig_d));
 			state.set_initial_value(ff.val_init);
-		} else {
+		} иначе {
 			dict<IdString, Node> connections;
 			IdString output_name; // for the single output case
-			int n_outputs = 0;
-			for(auto const &[name, sigspec] : cell->connections()) {
-				if(driver_map.celltypes.cell_input(cell->type, name) && sigspec.size() > 0)
+			целое n_outputs = 0;
+			для(auto const &[name, sigspec] : cell->connections()) {
+				если(driver_map.celltypes.cell_input(cell->type, name) && sigspec.size() > 0)
 					connections.insert({ name, enqueue(DriveChunkPort(cell, {name, sigspec})) });
-				if(driver_map.celltypes.cell_output(cell->type, name)) {
+				если(driver_map.celltypes.cell_output(cell->type, name)) {
 					output_name = name;
 					n_outputs++;
 				}
 			}
 			std::variant<dict<IdString, Node>, Node> outputs = simplifier.handle(cell->name, cell->type, cell->parameters, connections);
-			if(auto *nodep = std::get_if<Node>(&outputs); nodep != nullptr) {
+			если(auto *nodep = std::get_if<Node>(&outputs); nodep != nullptr) {
 				log_assert(n_outputs == 1);
 				factory.update_pending(cell_outputs.at({cell, output_name}), *nodep);
-			} else {
-				for(auto [name, node] : std::get<dict<IdString, Node>>(outputs))
+			} иначе {
+				для(auto [name, node] : std::get<dict<IdString, Node>>(outputs))
 					factory.update_pending(cell_outputs.at({cell, name}), node);
 			}
 		}
@@ -646,15 +646,15 @@ private:
 	}
 	// we perform this check separately to give better error messages that include the wire or port name
 	void check_undriven(DriveSpec const& spec, std::string const& name) {
-		for(auto const &chunk : spec.chunks())
-			if(chunk.is_none())
+		для(auto const &chunk : spec.chunks())
+			если(chunk.is_none())
 				undriven(name);
 	}
 public:
 	void process_queue()
 	{
-		for (; !queue.empty(); queue.pop_front()) {
-			if(auto p = std::get_if<Cell *>(&queue.front()); p != nullptr) {
+		для (; !queue.empty(); queue.pop_front()) {
+			если(auto p = std::get_if<Cell *>(&queue.front()); p != nullptr) {
 				process_cell(*p);
 				continue;
 			}
@@ -662,63 +662,63 @@ public:
 			DriveSpec spec = std::get<DriveSpec>(queue.front());
 			Node pending = graph_nodes.at(spec);
 
-			if (spec.chunks().size() > 1) {
+			если (spec.chunks().size() > 1) {
 				auto chunks = spec.chunks();
 				Node node = enqueue(chunks[0]);
-				for(size_t i = 1; i < chunks.size(); i++)
+				для(size_t i = 1; i < chunks.size(); i++)
 					node = factory.concat(node, enqueue(chunks[i]));
 				factory.update_pending(pending, node);
-			} else if (spec.chunks().size() == 1) {
+			} иначе если (spec.chunks().size() == 1) {
 				DriveChunk chunk = spec.chunks()[0];
-				if (chunk.is_wire()) {
+				если (chunk.is_wire()) {
 					DriveChunkWire wire_chunk = chunk.wire();
-					if (wire_chunk.is_whole()) {
-						if (wire_chunk.wire->port_input) {
+					если (wire_chunk.is_whole()) {
+						если (wire_chunk.wire->port_input) {
 							Node node = factory.value(factory.ir().input(wire_chunk.wire->name));
 							factory.suggest_name(node, wire_chunk.wire->name);
 							factory.update_pending(pending, node);
-						} else {
+						} иначе {
 							DriveSpec driver = driver_map(DriveSpec(wire_chunk));
 							check_undriven(driver, wire_chunk.wire->name.unescape());
 							Node node = enqueue(driver);
 							factory.suggest_name(node, wire_chunk.wire->name);
 							factory.update_pending(pending, node);
 						}
-					} else {
+					} иначе {
 						DriveChunkWire whole_wire(wire_chunk.wire, 0, wire_chunk.wire->width);
 						Node node = factory.slice(enqueue(whole_wire), wire_chunk.offset, wire_chunk.width);
 						factory.update_pending(pending, node);
 					}
-				} else if (chunk.is_port()) {
+				} иначе если (chunk.is_port()) {
 					DriveChunkPort port_chunk = chunk.port();
-					if (port_chunk.is_whole()) {
-						if (driver_map.celltypes.cell_output(port_chunk.cell->type, port_chunk.port)) {
+					если (port_chunk.is_whole()) {
+						если (driver_map.celltypes.cell_output(port_chunk.cell->type, port_chunk.port)) {
 							Node node = enqueue_cell(port_chunk.cell, port_chunk.port);
 							factory.update_pending(pending, node);
-						} else {
+						} иначе {
 							DriveSpec driver = driver_map(DriveSpec(port_chunk));
 							check_undriven(driver, port_chunk.cell->name.unescape() + " port " + PooledName(port_chunk.cell->module, port_chunk.port).unescape());
 							factory.update_pending(pending, enqueue(driver));
 						}
-					} else {
+					} иначе {
 						DriveChunkPort whole_port(port_chunk.cell, port_chunk.port, 0, GetSize(port_chunk.cell->connections().at(port_chunk.port)));
 						Node node = factory.slice(enqueue(whole_port), port_chunk.offset, port_chunk.width);
 						factory.update_pending(pending, node);
 					}
-				} else if (chunk.is_constant()) {
+				} иначе если (chunk.is_constant()) {
 					Node node = factory.constant(chunk.constant());
 					factory.suggest_name(node, "$const" + std::to_string(chunk.size()) + "b" + chunk.constant().as_string());
 					factory.update_pending(pending, node);
-				} else if (chunk.is_multiple()) {
+				} иначе если (chunk.is_multiple()) {
 					log_error("Signal %s has multiple drivers. This is not supported by the functional backend. "
 						"If tristate drivers are used, call tristate -formal to avoid this error.\n", log_signal(chunk));
-				} else if (chunk.is_none()) {
+				} иначе если (chunk.is_none()) {
 					undriven(log_signal(chunk));
-				} else {
+				} иначе {
 					log_error("unhandled drivespec: %s\n", log_signal(chunk));
 					log_abort();
 				}
-			} else {
+			} иначе {
 				log_abort();
 			}
 		}
@@ -733,19 +733,19 @@ IR IR::from_module(Module *module) {
     ctor.process_queue();
     ir.topological_sort();
     ir.forward_buf();
-    return ir;
+    вернуть ir;
 }
 
 void IR::topological_sort() {
     Graph::SccAdaptor compute_graph_scc(_graph);
     bool scc = false;
-    std::vector<int> perm;
-    TopoSortedSccs toposort(compute_graph_scc, [&](int *begin, int *end) {
+    std::vector<целое> perm;
+    TopoSortedSccs toposort(compute_graph_scc, [&](целое *begin, целое *end) {
         perm.insert(perm.end(), begin, end);
-        if (end > begin + 1)
+        если (end > begin + 1)
         {
             log_warning("Combinational loop:\n");
-            for (int *i = begin; i != end; ++i) {
+            для (целое *i = begin; i != end; ++i) {
 				Node node(_graph[*i], design);
                 log("- %s = %s\n", node.name().unescape(), node.to_string());
 			}
@@ -753,48 +753,48 @@ void IR::topological_sort() {
             scc = true;
         }
     });
-	for(const auto &[name, state]: _states)
-		if(state.has_next_value())
+	для(const auto &[name, state]: _states)
+		если(state.has_next_value())
 			toposort.process(state.next_value().id());
-	for(const auto &[name, output]: _outputs)
-		if(output.has_value())
+	для(const auto &[name, output]: _outputs)
+		если(output.has_value())
 			toposort.process(output.value().id());
 	// any nodes untouched by this point are dead code and will be removed by permute
     _graph.permute(perm);
-    if(scc) log_error("The design contains combinational loops. This is not supported by the functional backend. "
+    если(scc) log_error("The design contains combinational loops. This is not supported by the functional backend. "
 		"Try `scc -select; simplemap; select -clear` to avoid this error.\n");
 }
 
 static IdString merge_name(IdString a, IdString b) {
-	if(!a.isPublic() && b.isPublic())
-		return b;
-	else
-		return a;
+	если(!a.isPublic() && b.isPublic())
+		вернуть b;
+	иначе
+		вернуть a;
 }
 
 void IR::forward_buf() {
-    std::vector<int> perm, alias;
+    std::vector<целое> perm, alias;
     perm.clear();
 
-    for (int i = 0; i < _graph.size(); ++i)
+    для (целое i = 0; i < _graph.size(); ++i)
     {
         auto node = _graph[i];
-        if (node.function().fn() == Fn::buf && node.arg(0).index() < i)
+        если (node.function().fn() == Fn::buf && node.arg(0).index() < i)
         {
-            int target_index = alias[node.arg(0).index()];
+            целое target_index = alias[node.arg(0).index()];
             auto target_node = _graph[perm[target_index]];
-			if(node.has_sparse_attr()) {
-				if(target_node.has_sparse_attr()) {
+			если(node.has_sparse_attr()) {
+				если(target_node.has_sparse_attr()) {
 					IdString id = merge_name(node.sparse_attr(), target_node.sparse_attr());
 					target_node.sparse_attr() = id;
-				} else {
+				} иначе {
 					IdString id = node.sparse_attr();
 					target_node.sparse_attr() = id;
 				}
 			}
             alias.push_back(target_index);
         }
-        else
+        иначе
         {
             alias.push_back(GetSize(perm));
             perm.push_back(i);
@@ -807,7 +807,7 @@ void IR::forward_buf() {
 static std::string quote_fmt(const char *fmt)
 {
 	std::string r;
-	for(const char *p = fmt; *p != 0; p++) {
+	для(const char *p = fmt; *p != 0; p++) {
 		switch(*p) {
 		case '\n': r += "\\n"; break;
 		case '\t': r += "\\t"; break;
@@ -816,29 +816,29 @@ static std::string quote_fmt(const char *fmt)
 		default: r += *p; break;
 		}
 	}
-	return r;
+	вернуть r;
 }
 
 void Writer::print_impl(const char *fmt, vector<std::function<void()>> &fns)
 {
 	size_t next_index = 0;
-	for(const char *p = fmt; *p != 0; p++)
+	для(const char *p = fmt; *p != 0; p++)
 		switch(*p) {
 		case '{':
-			if(*++p == '{') {
+			если(*++p == '{') {
 				*os << '{';
-			} else {
+			} иначе {
 				char *pe;
 				size_t index = strtoul(p, &pe, 10);
-				if(*pe != '}')
+				если(*pe != '}')
 					log_error("invalid format string: expected {<number>}, {} or {{, got \"%s\": \"%s\"\n",
 						quote_fmt(std::string(p - 1, pe - p + 2).c_str()).c_str(),
 						quote_fmt(fmt).c_str());
-				if(p == pe)
+				если(p == pe)
 					index = next_index;
-				else
+				иначе
 					p = pe;
-				if(index >= fns.size())
+				если(index >= fns.size())
 					log_error("invalid format string: index %zu out of bounds (%zu): \"%s\"\n", index, fns.size(), quote_fmt(fmt));
 				fns[index]();
 				next_index = index + 1;
@@ -846,7 +846,7 @@ void Writer::print_impl(const char *fmt, vector<std::function<void()>> &fns)
 			break;
 		case '}':
 			p++;
-			if(*p != '}')
+			если(*p != '}')
 				log_error("invalid format string: unescaped }: \"%s\"\n", quote_fmt(fmt));
 			*os << '}';
 			break;

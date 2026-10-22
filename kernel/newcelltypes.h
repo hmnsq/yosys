@@ -14,30 +14,30 @@ YOSYS_NAMESPACE_BEGIN
 namespace StaticCellTypes {
 
 // Given by last internal cell type IdString constids.inc, compilation error if too low
-constexpr int MAX_CELLS = 300;
+constexpr целое MAX_CELLS = 300;
 // Currently given by _MUX16_, compilation error if too low
-constexpr int MAX_PORTS = 20;
+constexpr целое MAX_PORTS = 20;
 struct CellTableBuilder {
 	struct PortList {
 		std::array<RTLIL::IdString, MAX_PORTS> ports{};
 		size_t count = 0;
 		constexpr PortList() = default;
 		constexpr PortList(std::initializer_list<RTLIL::IdString> init) {
-			for (auto p : init) {
+			для (auto p : init) {
 				ports[count++] = p;
 			}
 		}
-		constexpr auto begin() const { return ports.begin(); }
-		constexpr auto end() const { return ports.begin() + count; }
+		constexpr auto begin() const { вернуть ports.begin(); }
+		constexpr auto end() const { вернуть ports.begin() + count; }
 		constexpr bool contains(RTLIL::IdString port) const {
-			for (size_t i = 0; i < count; i++) {
-				if (port == ports[i])
-					return true;
+			для (size_t i = 0; i < count; i++) {
+				если (port == ports[i])
+					вернуть true;
 			}
 
-			return false;
+			вернуть false;
 		}
-		constexpr size_t size() const { return count; }
+		constexpr size_t size() const { вернуть count; }
 	};
 	struct Features {
 		bool is_evaluable = false;
@@ -114,16 +114,16 @@ struct CellTableBuilder {
 			ID($bweqx)
 		};
 
-		for (auto type : unary_ops)
+		для (auto type : unary_ops)
 			setup_type(type, {ID::A}, {ID::Y}, features);
 
-		for (auto type : binary_ops)
+		для (auto type : binary_ops)
 			setup_type(type, {ID::A, ID::B}, {ID::Y}, features);
 
-		for (auto type : {ID($mux), ID($pmux), ID($bwmux)})
+		для (auto type : {ID($mux), ID($pmux), ID($bwmux)})
 			setup_type(type, {ID::A, ID::B, ID::S}, {ID::Y}, features);
 
-		for (auto type : {ID($bmux), ID($demux)})
+		для (auto type : {ID($bmux), ID($demux)})
 			setup_type(type, {ID::A, ID::S}, {ID::Y}, features);
 
 		setup_type(ID($lcu), {ID::P, ID::G, ID::CI}, {ID::CO}, features);
@@ -425,17 +425,17 @@ struct PortInfo {
 	struct PortLists {
 		std::array<CellTableBuilder::PortList, MAX_CELLS> data{};
 		constexpr CellTableBuilder::PortList operator()(IdString type) const {
-			return data[type.raw()];
+			вернуть data[type.raw()];
 		}
 		constexpr CellTableBuilder::PortList& operator[](size_t idx) {
-			return data[idx];
+			вернуть data[idx];
 		}
-		constexpr size_t size() const { return data.size(); }
+		constexpr size_t size() const { вернуть data.size(); }
 	};
 	PortLists inputs {};
 	PortLists outputs {};
 	constexpr PortInfo() {
-		for (size_t i = 0; i < builder.count; ++i) {
+		для (size_t i = 0; i < builder.count; ++i) {
 			auto& cell = builder.cells[i];
 			size_t idx = cell.type.raw();
 			inputs[idx] = cell.inputs;
@@ -449,17 +449,17 @@ struct Categories {
 		std::array<bool, MAX_CELLS> data{};
 		constexpr bool operator()(IdString type) const {
 			size_t idx = type.raw();
-			if (idx >= MAX_CELLS)
-				return false;
-			return data[idx];
+			если (idx >= MAX_CELLS)
+				вернуть false;
+			вернуть data[idx];
 		}
 		constexpr bool operator[](size_t idx) {
-			return data[idx];
+			вернуть data[idx];
 		}
 		constexpr void set_id(IdString type, bool val = true) {
 			size_t idx = type.raw();
-			if (idx >= MAX_CELLS) {
-				if (std::is_constant_evaluated())
+			если (idx >= MAX_CELLS) {
+				если (std::is_constant_evaluated())
 					throw "cell type index out of range";
 				log_abort();
 			}
@@ -468,7 +468,7 @@ struct Categories {
 		constexpr void set(size_t idx, bool val = true) {
 			data[idx] = val;
 		}
-		constexpr size_t size() const { return data.size(); }
+		constexpr size_t size() const { вернуть data.size(); }
 	};
 	Category empty {};
 	Category is_known {};
@@ -481,7 +481,7 @@ struct Categories {
 	Category is_anyinit {};
 	Category is_tristate {};
 	constexpr Categories() {
-		for (size_t i = 0; i < builder.count; ++i) {
+		для (size_t i = 0; i < builder.count; ++i) {
 			auto& cell = builder.cells[i];
 			size_t idx = cell.type.raw();
 			is_known.set(idx);
@@ -497,26 +497,26 @@ struct Categories {
 	}
 	constexpr static Category join(Category left, Category right) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
+		для (size_t i = 0; i < MAX_CELLS; ++i) {
 			c.set(i, left[i] || right[i]);
 		}
-		return c;
+		вернуть c;
 	}
 	constexpr static Category meet(Category left, Category right) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
+		для (size_t i = 0; i < MAX_CELLS; ++i) {
 			c.set(i, left[i] && right[i]);
 		}
-		return c;
+		вернуть c;
 	}
 	// Sketchy! Make sure to always meet with only the known universe.
 	// In other words, no modus tollens allowed
 	constexpr static Category complement(Category arg) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
+		для (size_t i = 0; i < MAX_CELLS; ++i) {
 			c.set(i, !arg[i]);
 		}
-		return c;
+		вернуть c;
 	}
 };
 
@@ -571,22 +571,22 @@ struct NewCellTypes {
 		setup(design);
 	}
 	void setup(RTLIL::Design *design = NULL) {
-		if (design)
+		если (design)
 			setup_design(design);
 		static_cell_types = StaticCellTypes::categories.is_known;
 	}
 	void setup_design(RTLIL::Design *design) {
-		for (auto module : design->modules())
+		для (auto module : design->modules())
 			setup_module(module);
 	}
 
 	void setup_module(RTLIL::Module *module) {
 		pool<IdString> inputs, outputs;
-		for (auto wire_name : module->ports) {
+		для (auto wire_name : module->ports) {
 			RTLIL::Wire *wire = module->wire(wire_name);
-			if (wire->port_input)
+			если (wire->port_input)
 				inputs.insert(wire->name);
-			if (wire->port_output)
+			если (wire->port_output)
 				outputs.insert(wire->name);
 		}
 		setup_type(module->name, inputs, outputs);
@@ -603,45 +603,45 @@ struct NewCellTypes {
 	}
 
 	bool cell_known(IdString type) const {
-		return static_cell_types(type) || custom_cell_types.count(type) != 0;
+		вернуть static_cell_types(type) || custom_cell_types.count(type) != 0;
 	}
 
 	bool cell_output(IdString type, IdString port) const
 	{
-		if (static_cell_types(type) && StaticCellTypes::port_info.outputs(type).contains(port)) {
-			return true;
+		если (static_cell_types(type) && StaticCellTypes::port_info.outputs(type).contains(port)) {
+			вернуть true;
 		}
 		auto it = custom_cell_types.find(type);
-		return it != custom_cell_types.end() && it->second.outputs.count(port) != 0;
+		вернуть it != custom_cell_types.end() && it->second.outputs.count(port) != 0;
 	}
 
 	bool cell_input(IdString type, IdString port) const
 	{
-		if (static_cell_types(type) && StaticCellTypes::port_info.inputs(type).contains(port)) {
-			return true;
+		если (static_cell_types(type) && StaticCellTypes::port_info.inputs(type).contains(port)) {
+			вернуть true;
 		}
 		auto it = custom_cell_types.find(type);
-		return it != custom_cell_types.end() && it->second.inputs.count(port) != 0;
+		вернуть it != custom_cell_types.end() && it->second.inputs.count(port) != 0;
 	}
 
 	RTLIL::PortDir cell_port_dir(RTLIL::IdString type, RTLIL::IdString port) const
 	{
 		bool is_input, is_output;
-		if (static_cell_types(type)) {
+		если (static_cell_types(type)) {
 			is_input = StaticCellTypes::port_info.inputs(type).contains(port);
 			is_output = StaticCellTypes::port_info.outputs(type).contains(port);
-		} else {
+		} иначе {
 			auto it = custom_cell_types.find(type);
-			if (it == custom_cell_types.end())
-				return RTLIL::PD_UNKNOWN;
+			если (it == custom_cell_types.end())
+				вернуть RTLIL::PD_UNKNOWN;
 			is_input = it->second.inputs.count(port);
 			is_output = it->second.outputs.count(port);
 		}
-		return RTLIL::PortDir(is_input + is_output * 2);
+		вернуть RTLIL::PortDir(is_input + is_output * 2);
 	}
 	bool cell_evaluable(IdString type) const
 	{
-		return static_cell_types(type) && StaticCellTypes::categories.is_evaluable(type);
+		вернуть static_cell_types(type) && StaticCellTypes::categories.is_evaluable(type);
 	}
 };
 

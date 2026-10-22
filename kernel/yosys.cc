@@ -44,7 +44,7 @@
 namespace py = pybind11;
 #endif
 
-#if defined(_WIN32)
+#если defined(_WIN32)
 #  include <windows.h>
 #  include <io.h>
 #elif defined(__APPLE__)
@@ -52,21 +52,21 @@ namespace py = pybind11;
 #  include <unistd.h>
 #  include <dirent.h>
 #  include <sys/stat.h>
-#else
+#иначе
 #  include <unistd.h>
 #  include <dirent.h>
 #  include <sys/types.h>
 #  include <sys/stat.h>
-#  if defined(YOSYS_ENABLE_SPAWN)
+#  если defined(YOSYS_ENABLE_SPAWN)
 #    include <sys/wait.h>
 #  endif
 #endif
 
-#if !defined(_WIN32) && defined(YOSYS_ENABLE_GLOB)
+#если !defined(_WIN32) && defined(YOSYS_ENABLE_GLOB)
 #  include <glob.h>
 #endif
 
-#if defined(__FreeBSD__) || defined(__NetBSD__)
+#если defined(__FreeBSD__) || defined(__NetBSD__)
 #  include <sys/sysctl.h>
 #endif
 
@@ -82,13 +82,13 @@ extern "C" PyObject* PyInit_pyosys();
 YOSYS_NAMESPACE_BEGIN
 
 Autoidx autoidx(1);
-int yosys_xtrace = 0;
+целое yosys_xtrace = 0;
 bool yosys_write_versions = true;
 const char* yosys_maybe_version() {
-	if (yosys_write_versions)
-		return yosys_version_str;
-	else
-		return "Yosys";
+	если (yosys_write_versions)
+		вернуть yosys_version_str;
+	иначе
+		вернуть "Yosys";
 }
 
 RTLIL::Design *yosys_design = NULL;
@@ -123,19 +123,19 @@ Multithreading::~Multithreading() {
 	active_ = false;
 }
 
-void Autoidx::ensure_at_least(int v) {
+void Autoidx::ensure_at_least(целое v) {
 	log_assert(!Multithreading::active());
 	value = std::max(value, v);
 }
 
-int Autoidx::operator++(int) {
+целое Autoidx::operator++(целое) {
 	log_assert(!Multithreading::active());
-	return value++;
+	вернуть value++;
 }
 
 void memhasher_on()
 {
-#if defined(__linux__) || defined(__FreeBSD__)
+#если defined(__linux__) || defined(__FreeBSD__)
 	memhasher_rng += time(NULL) << 16 ^ getpid();
 #endif
 	memhasher_store.resize(0x10000);
@@ -144,8 +144,8 @@ void memhasher_on()
 
 void memhasher_off()
 {
-	for (auto p : memhasher_store)
-		if (p) free(p);
+	для (auto p : memhasher_store)
+		если (p) free(p);
 	memhasher_store.clear();
 	memhasher_active = false;
 }
@@ -156,7 +156,7 @@ void memhasher_do()
 	memhasher_rng ^= memhasher_rng >> 17;
 	memhasher_rng ^= memhasher_rng << 5;
 
-	int size, index = (memhasher_rng >> 4) & 0xffff;
+	целое size, index = (memhasher_rng >> 4) & 0xffff;
 	switch (memhasher_rng & 7) {
 		case 0: size =   16; break;
 		case 1: size =  256; break;
@@ -164,7 +164,7 @@ void memhasher_do()
 		case 3: size = 4096; break;
 		default: size = 0;
 	}
-	if (index < 16) size *= 16;
+	если (index < 16) size *= 16;
 	memhasher_store[index] = realloc(memhasher_store[index], size);
 }
 
@@ -179,42 +179,42 @@ void yosys_banner()
 	log(" %s\n", yosys_maybe_version());
 }
 
-#if defined(YOSYS_ENABLE_SPAWN)
-int run_command(const std::string &command, std::function<void(const std::string&)> process_line)
+#если defined(YOSYS_ENABLE_SPAWN)
+целое run_command(const std::string &command, std::function<void(const std::string&)> process_line)
 {
-	if (!process_line)
-		return system(command.c_str());
+	если (!process_line)
+		вернуть system(command.c_str());
 
 	FILE *f = popen(command.c_str(), "r");
-	if (f == nullptr)
-		return -1;
+	если (f == nullptr)
+		вернуть -1;
 
 	std::string line;
 	char logbuf[128];
-	while (true) {
-		if (fgets(logbuf, 128, f) != NULL) {
+	пока (true) {
+		если (fgets(logbuf, 128, f) != NULL) {
 			line += logbuf;
-			if (!line.empty() && line.back() == '\n')
+			если (!line.empty() && line.back() == '\n')
 				process_line(line), line.clear();
-		} else if (ferror(f) && errno == EINTR) {
+		} иначе если (ferror(f) && errno == EINTR) {
 			clearerr(f);
 			continue;
-		} else {
+		} иначе {
 			break;
 		}
 	}
-	if (!line.empty())
+	если (!line.empty())
 		process_line(line);
 
-	int ret = pclose(f);
-	if (ret < 0)
-		return -2;
+	целое ret = pclose(f);
+	если (ret < 0)
+		вернуть -2;
 #ifdef _WIN32
-	return ret;
-#else
-	if (!WIFEXITED(ret))
-		return -1;
-	return WEXITSTATUS(ret);
+	вернуть ret;
+#иначе
+	если (!WIFEXITED(ret))
+		вернуть -1;
+	вернуть WEXITSTATUS(ret);
 #endif
 }
 #endif
@@ -244,8 +244,8 @@ PYBIND11_MODULE(libyosys_dummy, _) {
 
 void yosys_setup()
 {
-	if(already_setup)
-		return;
+	если(already_setup)
+		вернуть;
 	already_setup = true;
 	already_shutdown = false;
 
@@ -255,7 +255,7 @@ void yosys_setup()
 	// Starting Python 3.12, calling PyImport_AppendInittab on an already
 	// initialized platform fails (such as when libyosys is imported
 	// from a Python interpreter)
-	if (!Py_IsInitialized()) {
+	если (!Py_IsInitialized()) {
 		PyImport_AppendInittab((char*)"pyosys.libyosys", PyInit_libyosys);
 		// compatibility with wheels
 		PyImport_AppendInittab((char*)"pyosys", PyInit_pyosys);
@@ -278,13 +278,13 @@ void yosys_setup()
 
 bool yosys_already_setup()
 {
-	return already_setup;
+	вернуть already_setup;
 }
 
 void yosys_shutdown()
 {
-	if(already_shutdown)
-		return;
+	если(already_shutdown)
+		вернуть;
 	already_setup = false;
 	already_shutdown = true;
 	log_pop();
@@ -297,8 +297,8 @@ void yosys_shutdown()
 	logger().clear();
 
 #ifdef YOSYS_ENABLE_TCL
-	if (yosys_tcl_interp != NULL) {
-		if (!Tcl_InterpDeleted(yosys_tcl_interp)) {
+	если (yosys_tcl_interp != NULL) {
+		если (!Tcl_InterpDeleted(yosys_tcl_interp)) {
 			Tcl_DeleteInterp(yosys_tcl_interp);
 		}
 		Tcl_Finalize();
@@ -307,7 +307,7 @@ void yosys_shutdown()
 #endif
 
 #ifdef YOSYS_ENABLE_PLUGINS
-	for (auto &it : loaded_plugins)
+	для (auto &it : loaded_plugins)
 		dlclose(it.second);
 
 	loaded_plugins.clear();
@@ -322,79 +322,79 @@ void yosys_shutdown()
 #endif
 }
 
-const std::string *create_id_prefix(std::string_view file, int line, std::string_view func)
+const std::string *create_id_prefix(std::string_view file, целое line, std::string_view func)
 {
 #ifdef _WIN32
 	size_t pos = file.find_last_of("/\\");
-#else
+#иначе
 	size_t pos = file.find_last_of('/');
 #endif
-	if (pos != std::string_view::npos)
+	если (pos != std::string_view::npos)
 		file = file.substr(pos+1);
 
 	pos = func.find_last_of(':');
-	if (pos != std::string_view::npos)
+	если (pos != std::string_view::npos)
 		func = func.substr(pos+1);
 
-	return new std::string(stringf("$auto$%s:%d:%s$", file, line, func));
+	вернуть new std::string(stringf("$auto$%s:%d:%s$", file, line, func));
 }
 
 RTLIL::Design *yosys_get_design()
 {
-	return yosys_design;
+	вернуть yosys_design;
 }
 
-const char *create_prompt(RTLIL::Design *design, int recursion_counter, bool newline)
+const char *create_prompt(RTLIL::Design *design, целое recursion_counter, bool newline)
 {
 	static char buffer[100];
 	std::string str = newline ? "\n" : "";
-	if (recursion_counter > 1)
+	если (recursion_counter > 1)
 		str += stringf("(%d) ", recursion_counter);
 	str += "yosys";
-	if (!design->selected_active_module.empty())
+	если (!design->selected_active_module.empty())
 		str += stringf(" [%s]", RTLIL::unescape_id(design->twines().str(design->selected_active_module)).c_str());
-	if (!design->full_selection()) {
-		if (design->selected_active_module.empty())
+	если (!design->full_selection()) {
+		если (design->selected_active_module.empty())
 			str += "*";
-		else if (design->selection().selected_modules.size() != 1 || design->selection().selected_members.size() != 0 ||
+		иначе если (design->selection().selected_modules.size() != 1 || design->selection().selected_members.size() != 0 ||
 				design->selection().selected_modules.count(design->selected_active_module) == 0)
 			str += "*";
 	}
 	snprintf(buffer, 100, "%s> ", str.c_str());
-	return buffer;
+	вернуть buffer;
 }
 
 std::vector<std::string> glob_filename(const std::string &filename_pattern)
 {
 	std::vector<std::string> results;
 
-#if defined(_WIN32) || !defined(YOSYS_ENABLE_GLOB)
+#если defined(_WIN32) || !defined(YOSYS_ENABLE_GLOB)
 	results.push_back(filename_pattern);
-#else
+#иначе
 	glob_t globbuf;
 
-	int err = glob(filename_pattern.c_str(), 0, NULL, &globbuf);
+	целое err = glob(filename_pattern.c_str(), 0, NULL, &globbuf);
 
-	if(err == 0) {
-		for (size_t i = 0; i < globbuf.gl_pathc; i++)
+	если(err == 0) {
+		для (size_t i = 0; i < globbuf.gl_pathc; i++)
 			results.push_back(globbuf.gl_pathv[i]);
 		globfree(&globbuf);
-	} else {
+	} иначе {
 		results.push_back(filename_pattern);
 	}
 #endif
 
-	return results;
+	вернуть results;
 }
 
 void rewrite_filename(std::string &filename)
 {
-	if (filename.compare(0, 1, "\"") == 0 && filename.compare(GetSize(filename)-1, std::string::npos, "\"") == 0)
+	если (filename.compare(0, 1, "\"") == 0 && filename.compare(GetSize(filename)-1, std::string::npos, "\"") == 0)
 		filename = filename.substr(1, GetSize(filename)-2);
-	if (filename.compare(0, 2, "+/") == 0)
+	если (filename.compare(0, 2, "+/") == 0)
 		filename = proc_share_dirname() + filename.substr(2);
 #ifndef _WIN32
-	if (filename.compare(0, 2, "~/") == 0)
+	если (filename.compare(0, 2, "~/") == 0)
 		filename = filename.replace(0, 1, getenv("HOME"));
 #endif
 }
@@ -402,15 +402,15 @@ void rewrite_filename(std::string &filename)
 #ifdef YOSYS_ENABLE_TCL
 
 // defined in tclapi.cc
-extern int yosys_tcl_interp_init(Tcl_Interp *interp);
+extern целое yosys_tcl_interp_init(Tcl_Interp *interp);
 
 extern Tcl_Interp *yosys_get_tcl_interp()
 {
-	if (yosys_tcl_interp == NULL) {
+	если (yosys_tcl_interp == NULL) {
 		yosys_tcl_interp = Tcl_CreateInterp();
 		yosys_tcl_interp_init(yosys_tcl_interp);
 	}
-	return yosys_tcl_interp;
+	вернуть yosys_tcl_interp;
 }
 
 // Also see SdcPass
@@ -439,11 +439,11 @@ struct TclPass : public Pass {
 		log("\n");
 	}
 	void execute(std::vector<std::string> args, RTLIL::Design *) override {
-		if (args.size() < 2)
+		если (args.size() < 2)
 			log_cmd_error("Missing script file.\n");
 
 		std::vector<Tcl_Obj*> script_args;
-		for (auto it = args.begin() + 2; it != args.end(); ++it)
+		для (auto it = args.begin() + 2; it != args.end(); ++it)
 			script_args.push_back(Tcl_NewStringObj((*it).c_str(), (*it).size()));
 
 		Tcl_Interp *interp = yosys_get_tcl_interp();
@@ -451,7 +451,7 @@ struct TclPass : public Pass {
 		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), NULL, Tcl_NewIntObj(script_args.size()), 0);
 		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), NULL, Tcl_NewListObj(script_args.size(), script_args.data()), 0);
 		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), NULL, Tcl_NewStringObj(args[1].c_str(), args[1].size()), 0);
-		if (Tcl_EvalFile(interp, args[1].c_str()) != TCL_OK)
+		если (Tcl_EvalFile(interp, args[1].c_str()) != TCL_OK)
 			log_cmd_error("TCL interpreter returned an error: %s\n", Tcl_GetStringResult(interp));
 		Tcl_Release(interp);
 	}
@@ -459,7 +459,7 @@ struct TclPass : public Pass {
 
 #endif
 
-#if defined(__linux__) || defined(__CYGWIN__) || defined(__gnu_hurd__)
+#если defined(__linux__) || defined(__CYGWIN__) || defined(__gnu_hurd__)
 std::string proc_self_dirname()
 {
 	std::string path(4096, '\0');
@@ -467,84 +467,84 @@ std::string proc_self_dirname()
 	// Double until sucess, while avoiding endless loop.  Give up
 	// when symlink is longer than 4096*(2^30) = 4398046511104
 	// bytes.
-	for (int tries = 30; 0 < tries; tries--) {
+	для (целое tries = 30; 0 < tries; tries--) {
 		buflen = readlink("/proc/self/exe", path.data(), path.size());
-		if (buflen < (ssize_t)path.size())
+		если (buflen < (ssize_t)path.size())
 			break;
-		else
+		иначе
 			path.resize(path.size() * 2);
 	}
-	if (buflen < 0) {
+	если (buflen < 0) {
 		log_error("readlink(\"/proc/self/exe\") failed: %s\n", strerror(errno));
 		path.resize(0);
-	} else {
-		while (buflen > 0 && path[buflen-1] != '/')
+	} иначе {
+		пока (buflen > 0 && path[buflen-1] != '/')
 			buflen--;
 		path.resize(buflen);
 	}
-	return path;
+	вернуть path;
 }
 #elif defined(__FreeBSD__) || defined(__NetBSD__)
 std::string proc_self_dirname()
 {
 #ifdef __NetBSD__
-	int mib[4] = {CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_PATHNAME};
-#else
-	int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+	целое mib[4] = {CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_PATHNAME};
+#иначе
+	целое mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
 #endif
 	size_t buflen;
 	char *buffer;
 	std::string path;
-	if (sysctl(mib, 4, NULL, &buflen, NULL, 0) != 0)
+	если (sysctl(mib, 4, NULL, &buflen, NULL, 0) != 0)
 		log_error("sysctl failed: %s\n", strerror(errno));
 	buffer = (char*)malloc(buflen);
-	if (buffer == NULL)
+	если (buffer == NULL)
 		log_error("malloc failed: %s\n", strerror(errno));
-	if (sysctl(mib, 4, buffer, &buflen, NULL, 0) != 0)
+	если (sysctl(mib, 4, buffer, &buflen, NULL, 0) != 0)
 		log_error("sysctl failed: %s\n", strerror(errno));
-	while (buflen > 0 && buffer[buflen-1] != '/')
+	пока (buflen > 0 && buffer[buflen-1] != '/')
 		buflen--;
 	path.assign(buffer, buflen);
 	free(buffer);
-	return path;
+	вернуть path;
 }
 #elif defined(__APPLE__)
 std::string proc_self_dirname()
 {
 	char *path = NULL;
 	uint32_t buflen = 0;
-	while (_NSGetExecutablePath(path, &buflen) != 0)
+	пока (_NSGetExecutablePath(path, &buflen) != 0)
 		path = (char *) realloc((void *) path, buflen);
 	char resolved[PATH_MAX];
-	if (realpath(path, resolved) != NULL) {
+	если (realpath(path, resolved) != NULL) {
 		free(path);
 		path = strdup(resolved);
 		buflen = strlen(path);
 	}
-	while (buflen > 0 && path[buflen-1] != '/')
+	пока (buflen > 0 && path[buflen-1] != '/')
 		buflen--;
 	std::string str(path, buflen);
 	free(path);
-	return str;
+	вернуть str;
 }
 #elif defined(_WIN32)
 std::string proc_self_dirname()
 {
 	std::wstring wbinpath(4096, L'\0');
-	if (!GetModuleFileNameW(0, &wbinpath[0], wbinpath.size()))
+	если (!GetModuleFileNameW(0, &wbinpath[0], wbinpath.size()))
 	fprintf(stderr, "GetModuleFileNameW() failed.\n");
 	wbinpath.resize(wbinpath.rfind(L'\\') + 1); // remove filename
 	std::string ubinpath;
 	ubinpath.resize(WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), &ubinpath[0], ubinpath.size(), NULL, NULL) == 0)
+	если (WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), &ubinpath[0], ubinpath.size(), NULL, NULL) == 0)
 	fprintf(stderr, "WideCharToMultiByte() failed.\n");
-	return ubinpath;
+	вернуть ubinpath;
 
 }
 #elif defined(__wasm)
 std::string proc_self_dirname()
 {
-	return "/";
+	вернуть "/";
 }
 #elif defined(__OpenBSD__) || defined(__HAIKU__)
 char yosys_path[PATH_MAX];
@@ -554,76 +554,76 @@ std::string proc_self_dirname(void)
 {
 	char buf[PATH_MAX + 1] = "", *path, *p;
 	// if case argv[0] contains a valid path, return it
-	if (strlen(yosys_path) > 0) {
+	если (strlen(yosys_path) > 0) {
 		p = strrchr(yosys_path, '/');
-		snprintf(buf, sizeof buf, "%*s/", (int)(yosys_path - p), yosys_path);
-		return buf;
+		snprintf(buf, sizeof buf, "%*s/", (целое)(yosys_path - p), yosys_path);
+		вернуть buf;
 	}
 	// if argv[0] does not, reconstruct the path out of $PATH
 	path = strdup(getenv("PATH"));
-	if (!path)
+	если (!path)
 		log_error("getenv(\"PATH\") failed: %s\n",  strerror(errno));
-	for (p = strtok(path, ":"); p; p = strtok(NULL, ":")) {
+	для (p = strtok(path, ":"); p; p = strtok(NULL, ":")) {
 		snprintf(buf, sizeof buf, "%s/%s", p, yosys_argv0);
-		if (access(buf, X_OK) == 0) {
+		если (access(buf, X_OK) == 0) {
 			*(strrchr(buf, '/') + 1) = '\0';
 			free(path);
-			return buf;
+			вернуть buf;
 		}
 	}
 	free(path);
 	log_error("Can't determine yosys executable path.\n");
-	return NULL;
+	вернуть NULL;
 }
-#else
+#иначе
 	#error "Don't know how to determine process executable base path!"
 #endif
 
-#if defined(__wasm)
+#если defined(__wasm)
 void init_share_dirname()
 {
 	yosys_share_dirname = "/share/";
 }
-#else
+#иначе
 void init_share_dirname()
 {
 #  ifdef YOSYS_ENABLE_PYTHON
 	PyObject *sys_obj = PyImport_ImportModule("sys");
 
-	if (PyObject_HasAttrString(sys_obj, "_pyosys_share_dirname")) {
+	если (PyObject_HasAttrString(sys_obj, "_pyosys_share_dirname")) {
 		PyObject *share_path_obj = PyObject_GetAttrString(sys_obj, "_pyosys_share_dirname");
 		const char *share_path = PyUnicode_AsUTF8(share_path_obj);
 		yosys_share_dirname = std::string(share_path);
-		return;
+		вернуть;
 	}
 #  endif
 	std::string proc_self_path = proc_self_dirname();
-#  if defined(_WIN32) && !defined(YOSYS_WIN32_UNIX_DIR)
+#  если defined(_WIN32) && !defined(YOSYS_WIN32_UNIX_DIR)
 	std::string proc_share_path = proc_self_path + "share\\";
-	if (check_directory_exists(proc_share_path, true)) {
+	если (check_directory_exists(proc_share_path, true)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		вернуть;
 	}
 	proc_share_path = proc_self_path + "..\\share\\";
-	if (check_directory_exists(proc_share_path, true)) {
+	если (check_directory_exists(proc_share_path, true)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		вернуть;
 	}
-#  else
+#  иначе
 	std::string proc_share_path = proc_self_path + "share/";
-	if (check_directory_exists(proc_share_path, true)) {
+	если (check_directory_exists(proc_share_path, true)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		вернуть;
 	}
 	proc_share_path = proc_self_path + "../share/" + proc_program_prefix()+ "yosys/";
-	if (check_directory_exists(proc_share_path, true)) {
+	если (check_directory_exists(proc_share_path, true)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		вернуть;
 	}
 	proc_share_path = YOSYS_DATDIR "/";
-	if (check_directory_exists(proc_share_path, true)) {
+	если (check_directory_exists(proc_share_path, true)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		вернуть;
 	}
 #  endif
 }
@@ -633,22 +633,22 @@ void init_abc_executable_name()
 {
 #ifdef ABCEXTERNAL
 	std::string exe_file;
-	if (std::getenv("ABC")) {
+	если (std::getenv("ABC")) {
 		yosys_abc_executable = std::getenv("ABC");
-	} else {
+	} иначе {
 		yosys_abc_executable = ABCEXTERNAL;
 	}
-#else
+#иначе
 	yosys_abc_executable = proc_self_dirname() + proc_program_prefix()+ "yosys-abc";
 #  ifdef _WIN32
-	if (!check_file_exists(yosys_abc_executable + ".exe") && check_file_exists(proc_self_dirname() + "..\\" + proc_program_prefix() + "yosys-abc.exe"))
+	если (!check_file_exists(yosys_abc_executable + ".exe") && check_file_exists(proc_self_dirname() + "..\\" + proc_program_prefix() + "yosys-abc.exe"))
 		yosys_abc_executable = proc_self_dirname() + "..\\" + proc_program_prefix() + "yosys-abc";
 #  endif
 
 #  ifdef YOSYS_ENABLE_PYTHON
 	PyObject *sys_obj = PyImport_ImportModule("sys");
 
-	if (PyObject_HasAttrString(sys_obj, "_pyosys_abc")) {
+	если (PyObject_HasAttrString(sys_obj, "_pyosys_abc")) {
 		PyObject *abc_path_obj = PyObject_GetAttrString(sys_obj, "_pyosys_abc");
 		const char *abc_path = PyUnicode_AsUTF8(abc_path_obj);
 		yosys_abc_executable = std::string(abc_path);
@@ -659,111 +659,111 @@ void init_abc_executable_name()
 
 std::string proc_share_dirname()
 {
-	if (yosys_share_dirname.empty())
+	если (yosys_share_dirname.empty())
 		log_error("init_share_dirname: unable to determine share/ directory!\n");
-	return yosys_share_dirname;
+	вернуть yosys_share_dirname;
 }
 
 std::string proc_program_prefix()
 {
-	return YOSYS_PROGRAM_PREFIX;
+	вернуть YOSYS_PROGRAM_PREFIX;
 }
 
 bool fgetline(FILE *f, std::string &buffer)
 {
 	buffer = "";
 	char block[4096];
-	while (1) {
-		if (fgets(block, 4096, f) == NULL)
-			return false;
+	пока (1) {
+		если (fgets(block, 4096, f) == NULL)
+			вернуть false;
 		buffer += block;
-		if (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r')) {
-			while (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r'))
+		если (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r')) {
+			пока (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r'))
 				buffer.resize(buffer.size()-1);
-			return true;
+			вернуть true;
 		}
 	}
 }
 
 static void handle_label(std::string &command, bool &from_to_active, const std::string &run_from, const std::string &run_to)
 {
-	int pos = 0;
+	целое pos = 0;
 	std::string label;
 
-	while (pos < GetSize(command) && (command[pos] == ' ' || command[pos] == '\t'))
+	пока (pos < GetSize(command) && (command[pos] == ' ' || command[pos] == '\t'))
 		pos++;
 
-	if (pos < GetSize(command) && command[pos] == '#')
-		return;
+	если (pos < GetSize(command) && command[pos] == '#')
+		вернуть;
 
-	while (pos < GetSize(command) && command[pos] != ' ' && command[pos] != '\t' && command[pos] != '\r' && command[pos] != '\n')
+	пока (pos < GetSize(command) && command[pos] != ' ' && command[pos] != '\t' && command[pos] != '\r' && command[pos] != '\n')
 		label += command[pos++];
 
-	if (GetSize(label) > 1 && label.back() == ':')
+	если (GetSize(label) > 1 && label.back() == ':')
 	{
 		label = label.substr(0, GetSize(label)-1);
 		command = command.substr(pos);
 
-		if (label == run_from)
+		если (label == run_from)
 			from_to_active = true;
-		else if (label == run_to || (run_from == run_to && !run_from.empty()))
+		иначе если (label == run_to || (run_from == run_to && !run_from.empty()))
 			from_to_active = false;
 	}
 }
 
 bool run_frontend(std::string filename, std::string command, RTLIL::Design *design, std::string *from_to_label)
 {
-	if (design == nullptr)
+	если (design == nullptr)
 		design = yosys_design;
 
-	if (command == "auto") {
+	если (command == "auto") {
 	  std::string filename_trim = filename;
 
 	  auto has_extension = [](const std::string& filename, const std::string& extension) {
-	    if (filename.size() >= extension.size()) {
-	      return filename.compare(filename.size() - extension.size(), extension.size(), extension) == 0;
+	    если (filename.size() >= extension.size()) {
+	      вернуть filename.compare(filename.size() - extension.size(), extension.size(), extension) == 0;
 	    }
-	    return false;
+	    вернуть false;
 	  };
 
-	  if (has_extension(filename_trim, ".gz")) {
+	  если (has_extension(filename_trim, ".gz")) {
 	    filename_trim.erase(filename_trim.size() - 3);
 	  }
 
-	  if (has_extension(filename_trim, ".v")) {
+	  если (has_extension(filename_trim, ".v")) {
 	    command = " -vlog2k";
-	  } else if (has_extension(filename_trim, ".sv")) {
+	  } иначе если (has_extension(filename_trim, ".sv")) {
 	    command = " -sv";
-	  } else if (has_extension(filename_trim, ".vhd") || has_extension(filename_trim, ".vhdl")) {
+	  } иначе если (has_extension(filename_trim, ".vhd") || has_extension(filename_trim, ".vhdl")) {
 	    command = " -vhdl";
-	  } else if (has_extension(filename_trim, ".blif") || has_extension(filename_trim, ".eblif")) {
+	  } иначе если (has_extension(filename_trim, ".blif") || has_extension(filename_trim, ".eblif")) {
 	    command = "blif";
-	  } else if (has_extension(filename_trim, ".json")) {
+	  } иначе если (has_extension(filename_trim, ".json")) {
 	    command = "json";
-	  } else if (has_extension(filename_trim, ".il")) {
+	  } иначе если (has_extension(filename_trim, ".il")) {
 	    command = "rtlil";
-	  } else if (has_extension(filename_trim, ".ys")) {
+	  } иначе если (has_extension(filename_trim, ".ys")) {
 	    command = "script";
-	  } else if (has_extension(filename_trim, ".tcl")) {
+	  } иначе если (has_extension(filename_trim, ".tcl")) {
 	    command = "tcl";
-	  } else if (filename == "-") {
+	  } иначе если (filename == "-") {
 	    command = "script";
-	  } else {
+	  } иначе {
 	    log_error("Can't guess frontend for input file `%s' (missing -f option)!\n", filename);
 	  }
 	}
 
-	if (command == "script")
+	если (command == "script")
 	{
 		std::string run_from, run_to;
 		bool from_to_active = true;
 
-		if (from_to_label != NULL) {
+		если (from_to_label != NULL) {
 			size_t pos = from_to_label->find(':');
-			if (pos == std::string::npos) {
+			если (pos == std::string::npos) {
 				run_from = *from_to_label;
 				run_to = *from_to_label;
-			} else {
+			} иначе {
 				run_from = from_to_label->substr(0, pos);
 				run_to = from_to_label->substr(pos+1);
 			}
@@ -775,43 +775,43 @@ bool run_frontend(std::string filename, std::string command, RTLIL::Design *desi
 
 		FILE *f = stdin;
 
-		if (filename != "-") {
+		если (filename != "-") {
 			f = fopen(filename.c_str(), "r");
 			yosys_input_files.insert(filename);
 		}
 
-		if (f == NULL)
+		если (f == NULL)
 			log_error("Can't open script file `%s' for reading: %s\n", filename, strerror(errno));
 
 		FILE *backup_script_file = Frontend::current_script_file;
 		std::string backup_script_filename = Frontend::current_script_filename;
-		int backup_script_lineno = Frontend::current_script_lineno;
+		целое backup_script_lineno = Frontend::current_script_lineno;
 		Frontend::current_script_file = f;
 		Frontend::current_script_filename = filename;
 		Frontend::current_script_lineno = 0;
 
 		try {
 			std::string command;
-			while (fgetline(f, command)) {
+			пока (fgetline(f, command)) {
 				Frontend::current_script_lineno++;
-				while (!command.empty() && command[command.size()-1] == '\\') {
+				пока (!command.empty() && command[command.size()-1] == '\\') {
 					std::string next_line;
-					if (!fgetline(f, next_line))
+					если (!fgetline(f, next_line))
 						break;
 					Frontend::current_script_lineno++;
 					command.resize(command.size()-1);
 					command += next_line;
 				}
 				handle_label(command, from_to_active, run_from, run_to);
-				if (from_to_active) {
+				если (from_to_active) {
 					Pass::call(design, command);
 					design->check();
 				}
 			}
 
-			if (!command.empty()) {
+			если (!command.empty()) {
 				handle_label(command, from_to_active, run_from, run_to);
-				if (from_to_active) {
+				если (from_to_active) {
 					Frontend::current_script_lineno++;
 					Pass::call(design, command);
 					design->check();
@@ -829,38 +829,38 @@ bool run_frontend(std::string filename, std::string command, RTLIL::Design *desi
 		Frontend::current_script_filename = backup_script_filename;
 		Frontend::current_script_lineno = backup_script_lineno;
 
-		if (filename != "-")
+		если (filename != "-")
 			fclose(f);
 
-		return true;
+		вернуть true;
 	}
 
-	if (command == "tcl") {
+	если (command == "tcl") {
 		Pass::call(design, vector<string>({command, filename}));
-		return true;
+		вернуть true;
 	}
 
 	log("\n");
-	if (filename == "-") {
+	если (filename == "-") {
 		log_comment("-- Parsing stdin using frontend `%s' --\n", command);
-	} else {
+	} иначе {
 		log_comment("-- Parsing `%s' using frontend `%s' --\n", filename, command);
 	}
 
-	if (command[0] == ' ') {
+	если (command[0] == ' ') {
 		auto argv = split_tokens("read" + command);
 		argv.push_back(filename);
 		Pass::call(design, argv);
-	} else
+	} иначе
 		Frontend::frontend_call(design, NULL, filename, command);
 
 	design->check();
-	return false;
+	вернуть false;
 }
 
 void run_pass(std::string command, RTLIL::Design *design)
 {
-	if (design == nullptr)
+	если (design == nullptr)
 		design = yosys_design;
 
 	log("\n");
@@ -871,107 +871,107 @@ void run_pass(std::string command, RTLIL::Design *design)
 
 void run_backend(std::string filename, std::string command, RTLIL::Design *design)
 {
-	if (design == nullptr)
+	если (design == nullptr)
 		design = yosys_design;
 
-	if (command == "auto") {
-		if (filename.size() > 2 && filename.compare(filename.size()-2, std::string::npos, ".v") == 0)
+	если (command == "auto") {
+		если (filename.size() > 2 && filename.compare(filename.size()-2, std::string::npos, ".v") == 0)
 			command = "verilog";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".sv") == 0)
+		иначе если (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".sv") == 0)
 			command = "verilog -sv";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".il") == 0)
+		иначе если (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".il") == 0)
 			command = "rtlil";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".cc") == 0)
+		иначе если (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".cc") == 0)
 			command = "cxxrtl";
-		else if (filename.size() > 4 && filename.compare(filename.size()-4, std::string::npos, ".aig") == 0)
+		иначе если (filename.size() > 4 && filename.compare(filename.size()-4, std::string::npos, ".aig") == 0)
 			command = "aiger";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".blif") == 0)
+		иначе если (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".blif") == 0)
 			command = "blif";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".edif") == 0)
+		иначе если (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".edif") == 0)
 			command = "edif";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".json") == 0)
+		иначе если (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".json") == 0)
 			command = "json";
-		else if (filename == "-")
+		иначе если (filename == "-")
 			command = "rtlil";
-		else if (filename.empty())
-			return;
-		else
+		иначе если (filename.empty())
+			вернуть;
+		иначе
 			log_error("Can't guess backend for output file `%s' (missing -b option)!\n", filename);
 	}
 
-	if (filename.empty())
+	если (filename.empty())
 		filename = "-";
 
 	log("\n");
-	if (filename == "-") {
+	если (filename == "-") {
 		log_comment("-- Writing to stdout using backend `%s' --\n", command);
-	} else {
+	} иначе {
 		log_comment("-- Writing to `%s' using backend `%s' --\n", filename, command);
 	}
 
 	Backend::backend_call(design, NULL, filename, command);
 }
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-static char *readline_cmd_generator(const char *text, int state)
+#если defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+static char *readline_cmd_generator(const char *text, целое state)
 {
 	static std::map<std::string, Pass*>::iterator it;
-	static int len;
+	static целое len;
 
-	if (!state) {
+	если (!state) {
 		it = pass_register.begin();
 		len = strlen(text);
 	}
 
-	for (; it != pass_register.end(); it++) {
-		if (it->first.compare(0, len, text) == 0)
-			return strdup((it++)->first.c_str());
+	для (; it != pass_register.end(); it++) {
+		если (it->first.compare(0, len, text) == 0)
+			вернуть strdup((it++)->first.c_str());
 	}
-	return NULL;
+	вернуть NULL;
 }
 
-static char *readline_obj_generator(const char *text, int state)
+static char *readline_obj_generator(const char *text, целое state)
 {
 	static std::vector<char*> obj_names;
 	static size_t idx;
 
-	if (!state)
+	если (!state)
 	{
 		idx = 0;
 		obj_names.clear();
 
 		RTLIL::Design *design = yosys_get_design();
-		int len = strlen(text);
+		целое len = strlen(text);
 
-		if (design->selected_active_module.empty())
+		если (design->selected_active_module.empty())
 		{
-			for (auto mod : design->modules()) {
+			для (auto mod : design->modules()) {
 				std::string mod_name = mod->name.unescape();
-				if (mod_name.compare(0, len, text) == 0)
+				если (mod_name.compare(0, len, text) == 0)
 					obj_names.push_back(strdup(mod_name.c_str()));
 			}
 		}
-		else if (design->module(design->selected_active_module) != nullptr)
+		иначе если (design->module(design->selected_active_module) != nullptr)
 		{
 			RTLIL::Module *module = design->module(design->selected_active_module);
 
-			for (auto w : module->wires())
-				if (w->name.unescape().compare(0, len, text) == 0)
+			для (auto w : module->wires())
+				если (w->name.unescape().compare(0, len, text) == 0)
 					obj_names.push_back(strdup(w->name.unescape().c_str()));
 
-			for (auto &it : module->memories) {
+			для (auto &it : module->memories) {
 				std::string mem_name = design->twines().unescaped_str(it.first);
-				if (mem_name.compare(0, len, text) == 0)
+				если (mem_name.compare(0, len, text) == 0)
 					obj_names.push_back(strdup(mem_name.c_str()));
 			}
 
-			for (auto cell : module->cells())
-				if (cell->name.unescape().compare(0, len, text) == 0)
+			для (auto cell : module->cells())
+				если (cell->name.unescape().compare(0, len, text) == 0)
 					obj_names.push_back(strdup(cell->name.unescape().c_str()));
 
-			for (auto &it : module->processes) {
+			для (auto &it : module->processes) {
 				std::string proc_name = design->twines().unescaped_str(it.first);
-				if (proc_name.compare(0, len, text) == 0)
+				если (proc_name.compare(0, len, text) == 0)
 					obj_names.push_back(strdup(proc_name.c_str()));
 			}
 		}
@@ -979,65 +979,65 @@ static char *readline_obj_generator(const char *text, int state)
 		std::sort(obj_names.begin(), obj_names.end());
 	}
 
-	if (idx < obj_names.size())
-		return strdup(obj_names[idx++]);
+	если (idx < obj_names.size())
+		вернуть strdup(obj_names[idx++]);
 
 	idx = 0;
 	obj_names.clear();
-	return NULL;
+	вернуть NULL;
 }
 
-static char **readline_completion(const char *text, int start, int)
+static char **readline_completion(const char *text, целое start, целое)
 {
-	if (start == 0)
-		return rl_completion_matches(text, readline_cmd_generator);
-	if (strncmp(rl_line_buffer, "read_", 5) && strncmp(rl_line_buffer, "write_", 6))
-		return rl_completion_matches(text, readline_obj_generator);
-	return NULL;
+	если (start == 0)
+		вернуть rl_completion_matches(text, readline_cmd_generator);
+	если (strncmp(rl_line_buffer, "read_", 5) && strncmp(rl_line_buffer, "write_", 6))
+		вернуть rl_completion_matches(text, readline_obj_generator);
+	вернуть NULL;
 }
 #endif
 
 void shell(RTLIL::Design *design)
 {
-	static int recursion_counter = 0;
+	static целое recursion_counter = 0;
 
 	recursion_counter++;
 	auto guard = logger().error_throw_scope();
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+#если defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
 	rl_readline_name = (char*)"yosys";
 	rl_attempted_completion_function = readline_completion;
 	rl_basic_word_break_characters = (char*)" \t\n";
 #endif
 
 	char *command = NULL;
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	while ((command = readline(create_prompt(design, recursion_counter))) != NULL)
+#если defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	пока ((command = readline(create_prompt(design, recursion_counter))) != NULL)
 	{
-#else
+#иначе
 	char command_buffer[4096];
-	while (1)
+	пока (1)
 	{
 		fputs(create_prompt(design, recursion_counter), stdout);
 		fflush(stdout);
-		if ((command = fgets(command_buffer, 4096, stdin)) == NULL)
+		если ((command = fgets(command_buffer, 4096, stdin)) == NULL)
 			break;
 #endif
-		if (command[strspn(command, " \t\r\n")] == 0) {
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+		если (command[strspn(command, " \t\r\n")] == 0) {
+#если defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
 			free(command);
 #endif
 			continue;
 		}
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+#если defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
 		add_history(command);
 #endif
 
 		char *p = command + strspn(command, " \t\r\n");
-		if (!strncmp(p, "exit", 4)) {
+		если (!strncmp(p, "exit", 4)) {
 			p += 4;
 			p += strspn(p, " \t\r\n");
-			if (*p == 0)
+			если (*p == 0)
 				break;
 		}
 
@@ -1045,20 +1045,20 @@ void shell(RTLIL::Design *design)
 			log_assert(design->selection_stack.size() == 1);
 			Pass::call(design, command);
 		} catch (log_cmd_error_exception) {
-			while (design->selection_stack.size() > 1)
+			пока (design->selection_stack.size() > 1)
 				design->pop_selection();
 			log_reset_stack();
 		}
 		design->check();
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-		if (command)
+#если defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+		если (command)
 			free(command);
 #endif
 	}
-	if (command == NULL)
+	если (command == NULL)
 		printf("exit\n");
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	else
+#если defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	иначе
 		free(command);
 #endif
 	recursion_counter--;
@@ -1104,7 +1104,7 @@ struct ShellPass : public Pass {
 	}
 } ShellPass;
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+#если defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
 struct HistoryPass : public Pass {
 	HistoryPass() : Pass("history", "show last interactive commands") { }
 	void help() override {
@@ -1119,10 +1119,10 @@ struct HistoryPass : public Pass {
 	void execute(std::vector<std::string> args, RTLIL::Design *design) override {
 		extra_args(args, 1, design, false);
 #ifdef YOSYS_ENABLE_READLINE
-		for(HIST_ENTRY **list = history_list(); *list != NULL; list++)
+		для(HIST_ENTRY **list = history_list(); *list != NULL; list++)
 			log("%s\n", (*list)->line);
-#else
-		for (int i = where_history(); history_get(i); i++)
+#иначе
+		для (целое i = where_history(); history_get(i); i++)
 			log("%s\n", history_get(i)->line);
 #endif
 	}
@@ -1159,36 +1159,36 @@ struct ScriptCmdPass : public Pass {
 		bool scriptwire = false;
 
 		size_t argidx;
-		for (argidx = 1; argidx < args.size(); argidx++) {
-			if (args[argidx] == "-scriptwire") {
+		для (argidx = 1; argidx < args.size(); argidx++) {
+			если (args[argidx] == "-scriptwire") {
 				scriptwire = true;
 				continue;
 			}
 			break;
 		}
-		if (scriptwire) {
+		если (scriptwire) {
 			extra_args(args, argidx, design);
 
-			for (auto mod : design->selected_modules())
-				for (auto &c : mod->connections()) {
-					if (!c.first.is_wire())
+			для (auto mod : design->selected_modules())
+				для (auto &c : mod->connections()) {
+					если (!c.first.is_wire())
 						continue;
 					auto w = c.first.as_wire();
-					if (!mod->selected(w))
+					если (!mod->selected(w))
 						continue;
-					if (!c.second.is_fully_const())
+					если (!c.second.is_fully_const())
 						log_error("RHS of selected wire %s.%s is not constant.\n", mod, w);
 					auto v = c.second.as_const();
 					Pass::call_on_module(design, mod, v.decode_string());
 				}
 		}
-		else if (args.size() < 2)
+		иначе если (args.size() < 2)
 			log_cmd_error("Missing script file.\n");
-		else if (args.size() == 2)
+		иначе если (args.size() == 2)
 			run_frontend(args[1], "script", design);
-		else if (args.size() == 3)
+		иначе если (args.size() == 3)
 			run_frontend(args[1], "script", design, &args[2]);
-		else
+		иначе
 			extra_args(args, 2, design, false);
 	}
 } ScriptCmdPass;

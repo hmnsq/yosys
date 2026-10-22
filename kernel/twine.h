@@ -54,16 +54,16 @@ struct IdString {
 private:
 #ifdef YOSYS_ENABLE_TWINE_PROVENANCE
 	using bits_t = uint64_t;
-#else
+#иначе
 	using bits_t = uint32_t;
 #endif
 	bits_t value;
 
-	static constexpr int TWINE_WIDTH = std::numeric_limits<bits_t>::digits;
-	static constexpr int TWINE_PUBLIC_SHIFT = TWINE_WIDTH - 1;
+	static constexpr целое TWINE_WIDTH = std::numeric_limits<bits_t>::digits;
+	static constexpr целое TWINE_PUBLIC_SHIFT = TWINE_WIDTH - 1;
 	static constexpr bits_t TWINE_PUBLIC_BIT = bits_t{1} << TWINE_PUBLIC_SHIFT;
 	static constexpr bits_t TWINE_NULL_VAL = ~bits_t{0};
-	static constexpr int TWINE_SERIAL_SHIFT = TWINE_WIDTH == 64 ? 32 : TWINE_PUBLIC_SHIFT;
+	static constexpr целое TWINE_SERIAL_SHIFT = TWINE_WIDTH == 64 ? 32 : TWINE_PUBLIC_SHIFT;
 	static constexpr bits_t TWINE_INDEX_MASK = (bits_t{1} << TWINE_SERIAL_SHIFT) - 1;
 	static constexpr bits_t TWINE_SERIAL_MASK = bits_t(~(TWINE_INDEX_MASK | TWINE_PUBLIC_BIT));
 
@@ -74,20 +74,20 @@ public:
 	static constexpr size_t MAX_SERIAL = TWINE_SERIAL_MASK >> TWINE_SERIAL_SHIFT;
 
 	constexpr size_t raw() const {
-		return value == TWINE_NULL_VAL ? value : (value & ~TWINE_SERIAL_MASK);
+		вернуть value == TWINE_NULL_VAL ? value : (value & ~TWINE_SERIAL_MASK);
 	}
 
 	// raw() with the pool serial kept
-	constexpr size_t bits() const { return value; }
+	constexpr size_t bits() const { вернуть value; }
 
-	constexpr size_t order_key() const { return std::rotl((bits_t) eq_key(), 1); }
+	constexpr size_t order_key() const { вернуть std::rotl((bits_t) eq_key(), 1); }
 
 	constexpr size_t serial() const {
-		return value == TWINE_NULL_VAL ? 0 : ((value & TWINE_SERIAL_MASK) >> TWINE_SERIAL_SHIFT);
+		вернуть value == TWINE_NULL_VAL ? 0 : ((value & TWINE_SERIAL_MASK) >> TWINE_SERIAL_SHIFT);
 	}
 
 	constexpr IdString stamped(size_t pool_serial) const {
-		return value == TWINE_NULL_VAL ? *this
+		вернуть value == TWINE_NULL_VAL ? *this
 			: IdString((value & ~TWINE_SERIAL_MASK)
 					| (bits_t(pool_serial << TWINE_SERIAL_SHIFT) & TWINE_SERIAL_MASK));
 	}
@@ -95,17 +95,17 @@ public:
 	constexpr IdString() : value(TWINE_NULL_VAL) {}
 	explicit constexpr IdString(size_t val) : value((bits_t) val) {}
 
-	constexpr size_t eq_key() const { return value & ~TWINE_SERIAL_MASK; }
+	constexpr size_t eq_key() const { вернуть value & ~TWINE_SERIAL_MASK; }
 
-	constexpr bool operator==(const IdString &rhs) const { return eq_key() == rhs.eq_key(); }
-	constexpr bool operator!=(const IdString &rhs) const { return eq_key() != rhs.eq_key(); }
+	constexpr bool operator==(const IdString &rhs) const { вернуть eq_key() == rhs.eq_key(); }
+	constexpr bool operator!=(const IdString &rhs) const { вернуть eq_key() != rhs.eq_key(); }
 	constexpr std::strong_ordering operator<=>(const IdString &rhs) const {
-		return order_key() <=> rhs.order_key();
+		вернуть order_key() <=> rhs.order_key();
 	}
 
 	template <typename... Args>
 	constexpr bool in(const Args&... args) const {
-		return (in_one(args) || ...);
+		вернуть (in_one(args) || ...);
 	}
 	bool in(const pool<IdString> &rhs) const;
 
@@ -114,51 +114,51 @@ public:
 	// set has an influence on the algorithm.
 	template<typename T> struct compare_ptr_by_name {
 		bool operator()(const T *a, const T *b) const {
-			return (a == nullptr || b == nullptr) ? (a < b) : (a->name < b->name);
+			вернуть (a == nullptr || b == nullptr) ? (a < b) : (a->name < b->name);
 		}
 	};
 
 	// A ref is "empty" when it names nothing at all.
-	constexpr bool empty() const { return value == TWINE_NULL_VAL; }
+	constexpr bool empty() const { вернуть value == TWINE_NULL_VAL; }
 	constexpr void clear() { value = TWINE_NULL_VAL; }
-	constexpr bool isPublic() const { return value != TWINE_NULL_VAL && (value & TWINE_PUBLIC_BIT); }
+	constexpr bool isPublic() const { вернуть value != TWINE_NULL_VAL && (value & TWINE_PUBLIC_BIT); }
 
 	constexpr IdString untag() const {
-		return value == TWINE_NULL_VAL ? *this : IdString(value & ~TWINE_PUBLIC_BIT);
+		вернуть value == TWINE_NULL_VAL ? *this : IdString(value & ~TWINE_PUBLIC_BIT);
 	}
 	constexpr IdString tag(bool pub) const {
-		return value == TWINE_NULL_VAL ? *this : IdString(pub ? (value | TWINE_PUBLIC_BIT) : (value & ~TWINE_PUBLIC_BIT));
+		вернуть value == TWINE_NULL_VAL ? *this : IdString(pub ? (value | TWINE_PUBLIC_BIT) : (value & ~TWINE_PUBLIC_BIT));
 	}
 
 	std::string handle_token() const;
 	static size_t handle_token_prefix(std::string_view token, bool &is_public);
 
 private:
-	constexpr bool in_one(IdString rhs) const { return *this == rhs; }
+	constexpr bool in_one(IdString rhs) const { вернуть *this == rhs; }
 	bool in_one(const pool<IdString> &rhs) const;
 };
 
-constexpr NullIdString::operator IdString() const { return IdString(); }
-constexpr bool NullIdString::operator==(IdString ref) const { return ref.empty(); }
+constexpr NullIdString::operator IdString() const { вернуть IdString(); }
+constexpr bool NullIdString::operator==(IdString ref) const { вернуть ref.empty(); }
 
 namespace hashlib {
 	template<>
 	struct hash_ops<IdString> {
-		static inline bool cmp(IdString a, IdString b) { return a == b; }
+		static inline bool cmp(IdString a, IdString b) { вернуть a == b; }
 		[[nodiscard]] static inline Hasher hash(IdString id) {
 			Hasher h;
 			h.force((Hasher::hash_t) id.eq_key());
-			return h;
+			вернуть h;
 		}
 		[[nodiscard]] static inline Hasher hash_into(IdString id, Hasher h) {
 			h.hash64(id.eq_key());
-			return h;
+			вернуть h;
 		}
 	};
 }
 
-inline bool IdString::in_one(const pool<IdString> &rhs) const { return rhs.count(*this) != 0; }
-inline bool IdString::in(const pool<IdString> &rhs) const { return in_one(rhs); }
+inline bool IdString::in_one(const pool<IdString> &rhs) const { вернуть rhs.count(*this) != 0; }
+inline bool IdString::in(const pool<IdString> &rhs) const { вернуть in_one(rhs); }
 
 
 enum : short {
@@ -183,29 +183,29 @@ struct ID {
 
 	static constexpr IdString lookup(std::string_view name)
 	{
-		int low = 0, high = STATIC_TWINE_END;
-		while (high - low >= 2) {
-			int mid = (low + high) / 2;
-			if (name < static_names[mid])
+		целое low = 0, high = STATIC_TWINE_END;
+		пока (high - low >= 2) {
+			целое mid = (low + high) / 2;
+			если (name < static_names[mid])
 				high = mid;
-			else
+			иначе
 				low = mid;
 		}
 
-		if (name != static_names[low])
+		если (name != static_names[low])
 			throw "unknown twine id, strings that aren't statically allocated in kernel/constids.inc must be interned into a TwinePool";
 
-		return IdString(low).tag(name[0] != '$');
+		вернуть IdString(low).tag(name[0] != '$');
 	}
 
 	static constexpr bool is_static(IdString ref) {
-		return ref.untag().raw() < STATIC_TWINE_END;
+		вернуть ref.untag().raw() < STATIC_TWINE_END;
 	}
 
 	static constexpr IdString static_ref(size_t raw) {
-		if (!is_static(IdString(raw)))
+		если (!is_static(IdString(raw)))
 			throw "not a static twine id";
-		return IdString(raw);
+		вернуть IdString(raw);
 	}
 
 	// Static IdString can be constructed without a design pointer
@@ -263,7 +263,7 @@ struct SmallString {
 	SmallString &operator=(SmallString &&other) noexcept;
 	~SmallString();
 
-	std::string_view view() const { return {len_ <= INLINE_CAP ? inl_ : ptr_, len_}; }
+	std::string_view view() const { вернуть {len_ <= INLINE_CAP ? inl_ : ptr_, len_}; }
 
 private:
 	void store(std::string_view content);
@@ -290,9 +290,9 @@ struct TwineNode {
 		// Basically DJB2, but we're not doing it with hashlib.h hash64,
 		// so that we get the "content hashing" identity:
 		// hash(suffix(leaf("a"), "b")) == hash(leaf("ab"))
-		for (char c : tail)
+		для (char c : tail)
 			hash = ((hash << 5) + hash) + static_cast<unsigned char>(c);
-		return hash;
+		вернуть hash;
 	}
 
 	TwineNode() = default;
@@ -308,25 +308,25 @@ struct TwineNode {
 
 	enum class Kind { Dead, Leaf, Suffix };
 
-	constexpr bool is_dead() const { return prefix_ == DEAD; }
-	constexpr bool is_leaf() const { return prefix_ == NO_PREFIX; }
-	constexpr bool is_suffix() const { return prefix_ < DEAD; }
+	constexpr bool is_dead() const { вернуть prefix_ == DEAD; }
+	constexpr bool is_leaf() const { вернуть prefix_ == NO_PREFIX; }
+	constexpr bool is_suffix() const { вернуть prefix_ < DEAD; }
 
 	constexpr Kind kind() const {
-		return prefix_ == DEAD ? Kind::Dead
+		вернуть prefix_ == DEAD ? Kind::Dead
 			: prefix_ == NO_PREFIX ? Kind::Leaf
 			: Kind::Suffix;
 	}
 
-	std::string_view text() const { return text_.view(); }
-	IdString prefix() const { return IdString(prefix_); }
-	uint32_t hash() const { return hash_; }
-	Key key() const { return {prefix_, text()}; }
+	std::string_view text() const { вернуть text_.view(); }
+	IdString prefix() const { вернуть IdString(prefix_); }
+	uint32_t hash() const { вернуть hash_; }
+	Key key() const { вернуть {prefix_, text()}; }
 
 	bool operator==(const TwineNode &other) const
-		{ return prefix_ == other.prefix_ && text() == other.text(); }
+		{ вернуть prefix_ == other.prefix_ && text() == other.text(); }
 	bool operator==(const Key &other) const
-		{ return prefix_ == other.prefix && text() == other.text; }
+		{ вернуть prefix_ == other.prefix && text() == other.text; }
 
 private:
 	SmallString text_;
@@ -346,7 +346,7 @@ private:
 };
 
 extern int64_t twine_gc_ns;
-extern int twine_gc_count;
+extern целое twine_gc_count;
 
 struct TwinePool : HashConsPool<TwinePool, TwineNode, IdString> {
 	static constexpr size_t STATIC_COUNT = STATIC_TWINE_END;
@@ -362,11 +362,11 @@ struct TwinePool : HashConsPool<TwinePool, TwineNode, IdString> {
 	static const TwineNode& static_node(size_t idx);
 
 	static void check_ready();
-	static uint32_t hash_node(const TwineNode& t) { return t.hash(); }
+	static uint32_t hash_node(const TwineNode& t) { вернуть t.hash(); }
 
 	template<typename F>
 	static void for_each_child(const TwineNode& t, F&& f) {
-		if (t.is_suffix())
+		если (t.is_suffix())
 			f(t.prefix());
 	}
 
@@ -383,7 +383,7 @@ struct TwinePool : HashConsPool<TwinePool, TwineNode, IdString> {
 	bool begins_with(IdString ref, std::string_view prefix) const;
 	// Publicity bit provides escaping, as in str()
 	bool name_equal(IdString ref, std::string_view name) const;
-	int compare_by_name(IdString a, IdString b) const;
+	целое compare_by_name(IdString a, IdString b) const;
 	IdString prefix_of(IdString ref) const;
 
 	IdString find(std::string_view name) const;

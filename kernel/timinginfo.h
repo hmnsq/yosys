@@ -30,25 +30,25 @@ struct TimingInfo
 	struct NameBit
 	{
 		RTLIL::IdString name;
-		int offset;
+		целое offset;
 		NameBit() : offset(0) {}
-		NameBit(IdString name, int offset) : name(name), offset(offset) {}
+		NameBit(IdString name, целое offset) : name(name), offset(offset) {}
 		explicit NameBit(const RTLIL::SigBit &b) : name(b.wire->name), offset(b.offset) {}
-		bool operator==(const NameBit& nb) const { return nb.name == name && nb.offset == offset; }
-		bool operator!=(const NameBit& nb) const { return !operator==(nb); }
+		bool operator==(const NameBit& nb) const { вернуть nb.name == name && nb.offset == offset; }
+		bool operator!=(const NameBit& nb) const { вернуть !operator==(nb); }
 		std::optional<SigBit> get_connection(RTLIL::Cell *cell) {
 			IdString port_name = name;
-			if (!cell->hasPort(port_name))
-				return {};
+			если (!cell->hasPort(port_name))
+				вернуть {};
 			auto &port = cell->getPort(port_name);
-			if (offset >= port.size())
-				return {};
-			return port[offset];
+			если (offset >= port.size())
+				вернуть {};
+			вернуть port[offset];
 		}
 		[[nodiscard]] Hasher hash_into(Hasher h) const {
 			h.eat(name);
 			h.eat(offset);
-			return h;
+			вернуть h;
 		}
 	};
 	struct BitBit
@@ -56,18 +56,18 @@ struct TimingInfo
 		NameBit first, second;
 		BitBit(const NameBit &first, const NameBit &second) : first(first), second(second) {}
 		BitBit(const SigBit &first, const SigBit &second) : first(first), second(second) {}
-		bool operator==(const BitBit& bb) const { return bb.first == first && bb.second == second; }
+		bool operator==(const BitBit& bb) const { вернуть bb.first == first && bb.second == second; }
 		[[nodiscard]] Hasher hash_into(Hasher h) const {
 			h.eat(first);
 			h.eat(second);
-			return h;
+			вернуть h;
 		}
 	};
 
 	struct ModuleTiming
 	{
-		dict<BitBit, int> comb;
-		dict<NameBit, std::pair<int,NameBit>> arrival, required;
+		dict<BitBit, целое> comb;
+		dict<NameBit, std::pair<целое,NameBit>> arrival, required;
 		bool has_inputs;
 	};
 
@@ -84,8 +84,8 @@ struct TimingInfo
 
 	void setup(RTLIL::Design *design)
 	{
-		for (auto module : design->modules()) {
-			if (!module->get_blackbox_attribute())
+		для (auto module : design->modules()) {
+			если (!module->get_blackbox_attribute())
 				continue;
 			setup_module(module);
 		}
@@ -97,89 +97,89 @@ struct TimingInfo
 		log_assert(r.second);
 		auto &t = r.first->second;
 
-		for (auto cell : module->cells()) {
-			if (cell->type == ID($specify2)) {
+		для (auto cell : module->cells()) {
+			если (cell->type == ID($specify2)) {
 				auto en = cell->getPort(ID::EN);
-				if (en.is_fully_const() && !en.as_bool())
+				если (en.is_fully_const() && !en.as_bool())
 					continue;
 				auto src = cell->getPort(ID::SRC);
 				auto dst = cell->getPort(ID::DST);
-				for (const auto &c : src.chunks())
-					if (!c.wire || !c.wire->port_input)
+				для (const auto &c : src.chunks())
+					если (!c.wire || !c.wire->port_input)
 						log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
-				for (const auto &c : dst.chunks())
-					if (!c.wire || !c.wire->port_output)
+				для (const auto &c : dst.chunks())
+					если (!c.wire || !c.wire->port_output)
 						log_error("Module '%s' contains specify cell '%s' where DST '%s' is not a module output.\n", module, cell, log_signal(dst));
-				int rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
-				int fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
-				int max = std::max(rise_max,fall_max);
-				if (max < 0)
+				целое rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
+				целое fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
+				целое max = std::max(rise_max,fall_max);
+				если (max < 0)
 					log_error("Module '%s' contains specify cell '%s' with T_{RISE,FALL}_MAX < 0.\n", module, cell);
-				if (cell->getParam(ID::FULL).as_bool()) {
-					for (const auto &s : src)
-						for (const auto &d : dst) {
+				если (cell->getParam(ID::FULL).as_bool()) {
+					для (const auto &s : src)
+						для (const auto &d : dst) {
 							auto r = t.comb.insert(BitBit(s,d));
-							if (!r.second)
+							если (!r.second)
 								log_error("Module '%s' contains multiple specify cells for SRC '%s' and DST '%s'.\n", module, log_signal(s), log_signal(d));
 							r.first->second = max;
 						}
 				}
-				else {
+				иначе {
 					log_assert(GetSize(src) == GetSize(dst));
-					for (auto i = 0; i < GetSize(src); i++) {
+					для (auto i = 0; i < GetSize(src); i++) {
 						const auto &s = src[i];
 						const auto &d = dst[i];
 						auto r = t.comb.insert(BitBit(s,d));
-						if (!r.second)
+						если (!r.second)
 							log_error("Module '%s' contains multiple specify cells for SRC '%s' and DST '%s'.\n", module, log_signal(s), log_signal(d));
 						r.first->second = max;
 					}
 				}
 			}
-			else if (cell->type == ID($specify3)) {
+			иначе если (cell->type == ID($specify3)) {
 				auto src = cell->getPort(ID::SRC).as_bit();
 				auto dst = cell->getPort(ID::DST);
-				if (!src.wire || !src.wire->port_input)
+				если (!src.wire || !src.wire->port_input)
 					log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
-				for (const auto &c : dst.chunks())
-					if (!c.wire->port_output)
+				для (const auto &c : dst.chunks())
+					если (!c.wire->port_output)
 						log_error("Module '%s' contains specify cell '%s' where DST '%s' is not a module output.\n", module, cell, log_signal(dst));
-				int rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
-				int fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
-				int max = std::max(rise_max,fall_max);
-				if (max < 0) {
+				целое rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
+				целое fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
+				целое max = std::max(rise_max,fall_max);
+				если (max < 0) {
 					log_warning("Module '%s' contains specify cell '%s' with T_{RISE,FALL}_MAX < 0 which is currently unsupported. Clamping to 0.\n", module, cell);
 					max = 0;
 				}
-				for (const auto &d : dst) {
+				для (const auto &d : dst) {
 					auto r = t.arrival.insert(NameBit(d));
 					auto &v = r.first->second;
-					if (r.second || v.first < max) {
+					если (r.second || v.first < max) {
 						v.first = max;
 						v.second = NameBit(src);
 					}
 				}
 			}
-			else if (cell->type == ID($specrule)) {
+			иначе если (cell->type == ID($specrule)) {
 				std::string type = cell->getParam(ID::TYPE).decode_string();
-				if (type != "$setup" && type != "$setuphold")
+				если (type != "$setup" && type != "$setuphold")
 					continue;
 				auto src = cell->getPort(ID::SRC);
 				auto dst = cell->getPort(ID::DST).as_bit();
-				for (const auto &c : src.chunks())
-					if (!c.wire || !c.wire->port_input)
+				для (const auto &c : src.chunks())
+					если (!c.wire || !c.wire->port_input)
 						log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
-				if (!dst.wire || !dst.wire->port_input)
+				если (!dst.wire || !dst.wire->port_input)
 					log_error("Module '%s' contains specify cell '%s' where DST '%s' is not a module input.\n", module, cell, log_signal(dst));
-				int max = cell->getParam(ID::T_LIMIT_MAX).as_int();
-				if (max < 0) {
+				целое max = cell->getParam(ID::T_LIMIT_MAX).as_int();
+				если (max < 0) {
 					log_warning("Module '%s' contains specify cell '%s' with T_LIMIT_MAX < 0 which is currently unsupported. Clamping to 0.\n", module, cell);
 					max = 0;
 				}
-				for (const auto &s : src) {
+				для (const auto &s : src) {
 					auto r = t.required.insert(NameBit(s));
 					auto &v = r.first->second;
-					if (r.second || v.first < max) {
+					если (r.second || v.first < max) {
 						v.first = max;
 						v.second = NameBit(dst);
 					}
@@ -187,21 +187,21 @@ struct TimingInfo
 			}
 		}
 
-		for (auto port_name : module->ports) {
+		для (auto port_name : module->ports) {
 			auto wire = module->wire(port_name);
-			if (wire->port_input) {
+			если (wire->port_input) {
 				t.has_inputs = true;
 				break;
 			}
 		}
 
-		return t;
+		вернуть t;
 	}
 
-	decltype(data)::const_iterator find(RTLIL::IdString module_name) const { return data.find(module_name); }
-	decltype(data)::const_iterator end() const { return data.end(); }
-	int count(RTLIL::IdString module_name) const { return data.count(module_name); }
-	const ModuleTiming& at(RTLIL::IdString module_name) const { return data.at(module_name); }
+	decltype(data)::const_iterator find(RTLIL::IdString module_name) const { вернуть data.find(module_name); }
+	decltype(data)::const_iterator end() const { вернуть data.end(); }
+	целое count(RTLIL::IdString module_name) const { вернуть data.count(module_name); }
+	const ModuleTiming& at(RTLIL::IdString module_name) const { вернуть data.at(module_name); }
 };
 
 YOSYS_NAMESPACE_END

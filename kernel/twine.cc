@@ -9,34 +9,34 @@ template struct HashConsPool<TwinePool, TwineNode, IdString>;
 std::vector<TwineNode> StaticTwines::nodes_;
 
 void StaticTwines::init() {
-	if (ready())
-		return;
+	если (ready())
+		вернуть;
 	log_assert(nodes_.empty());
 	nodes_.reserve(STATIC_TWINE_END);
-	for (const char *name : ID::static_names)
+	для (const char *name : ID::static_names)
 		nodes_.emplace_back(std::string_view(name));
 }
 
-const TwineNode &StaticTwines::node(size_t idx) { return nodes_[idx]; }
-bool StaticTwines::ready() { return nodes_.size() == STATIC_TWINE_END; }
+const TwineNode &StaticTwines::node(size_t idx) { вернуть nodes_[idx]; }
+bool StaticTwines::ready() { вернуть nodes_.size() == STATIC_TWINE_END; }
 
 int64_t twine_gc_ns;
-int twine_gc_count;
+целое twine_gc_count;
 
 std::string IdString::handle_token() const {
-	return stringf("%s@%zu", isPublic() ? "$pub" : "$priv", untag().raw());
+	вернуть stringf("%s@%zu", isPublic() ? "$pub" : "$priv", untag().raw());
 }
 
 size_t IdString::handle_token_prefix(std::string_view token, bool &is_public) {
-	if (token.substr(0, 5) == "$pub@") {
+	если (token.substr(0, 5) == "$pub@") {
 		is_public = true;
-		return 5;
+		вернуть 5;
 	}
-	if (token.substr(0, 6) == "$priv@") {
+	если (token.substr(0, 6) == "$priv@") {
 		is_public = false;
-		return 6;
+		вернуть 6;
 	}
-	return 0;
+	вернуть 0;
 }
 
 std::string ID::str(IdString ref) {
@@ -44,13 +44,13 @@ std::string ID::str(IdString ref) {
 	log_assert(idx.raw() < STATIC_TWINE_END);
 	std::string result = ref.isPublic() ? "\\" : "";
 	result += static_names[idx.raw()];
-	return result;
+	вернуть result;
 }
 
 std::string ID::unescaped_str(IdString ref) {
 	IdString idx = ref.untag();
 	log_assert(idx.raw() < STATIC_TWINE_END);
-	return static_names[idx.raw()];
+	вернуть static_names[idx.raw()];
 }
 
 TwineSpec::TwineSpec(Leaf v) : data(std::move(v)) {}
@@ -62,17 +62,17 @@ void SmallString::store(std::string_view content)
 	log_assert(content.size() <= MAX_LEN);
 	release();
 	len_ = content.size();
-	if (len_ > INLINE_CAP) {
+	если (len_ > INLINE_CAP) {
 		ptr_ = new char[len_];
 		memcpy(ptr_, content.data(), len_);
-	} else {
+	} иначе {
 		memcpy(inl_, content.data(), len_);
 	}
 }
 
 void SmallString::release()
 {
-	if (len_ > INLINE_CAP)
+	если (len_ > INLINE_CAP)
 		delete[] ptr_;
 	len_ = 0;
 }
@@ -89,20 +89,20 @@ SmallString::SmallString(SmallString &&other) noexcept : len_(other.len_)
 
 SmallString &SmallString::operator=(const SmallString &other)
 {
-	if (this != &other)
+	если (this != &other)
 		store(other.view());
-	return *this;
+	вернуть *this;
 }
 
 SmallString &SmallString::operator=(SmallString &&other) noexcept
 {
-	if (this == &other)
-		return *this;
+	если (this == &other)
+		вернуть *this;
 	release();
 	memcpy(inl_, other.inl_, INLINE_CAP);
 	len_ = other.len_;
 	other.len_ = 0;
-	return *this;
+	вернуть *this;
 }
 
 SmallString::~SmallString() { release(); }
@@ -115,32 +115,32 @@ TwineNode::TwineNode(TwineNode &&other) noexcept
 
 TwineNode &TwineNode::operator=(TwineNode &&other) noexcept
 {
-	if (this == &other)
-		return *this;
+	если (this == &other)
+		вернуть *this;
 	text_ = std::move(other.text_);
 	prefix_ = other.prefix_;
 	hash_ = other.hash_;
 	other.prefix_ = DEAD;
-	return *this;
+	вернуть *this;
 }
 
 std::string TwineSpec::content_str() const {
-	if (auto *leaf = std::get_if<Leaf>(&data))
-		return leaf->s;
+	если (auto *leaf = std::get_if<Leaf>(&data))
+		вернуть leaf->s;
 	auto &autosfx = std::get<AutoSuffix>(data);
-	return *autosfx.prefix + autosfx.tail;
+	вернуть *autosfx.prefix + autosfx.tail;
 }
 
 static std::pair<std::string_view, bool> unescape_name(std::string_view name) {
-	if (!name.empty() && name[0] == '\\')
-		return {name.substr(1), true};
-	return {name, false};
+	если (!name.empty() && name[0] == '\\')
+		вернуть {name.substr(1), true};
+	вернуть {name, false};
 }
 
 static void check_name(std::string_view name) {
 	log_assert(name[0] == '$' || name[0] == '\\');
-	for (char ch : name)
-		if ((unsigned)ch <= (unsigned)' ')
+	для (char ch : name)
+		если ((unsigned)ch <= (unsigned)' ')
 			log_error("Found control character or space (0x%02x) in string '%s' which is not allowed in RTLIL identifiers\n", ch, std::string(name));
 }
 
@@ -151,66 +151,66 @@ TwinePool::TwinePool(TwinePool&& other)
 	: HashConsPool(std::move(other)), auto_prefixes(std::move(other.auto_prefixes)), serial_(next_serial()) {}
 
 TwinePool& TwinePool::operator=(const TwinePool& other) {
-	if (this == &other)
-		return *this;
+	если (this == &other)
+		вернуть *this;
 	HashConsPool::operator=(other);
 	auto_prefixes = other.auto_prefixes;
 	serial_ = next_serial();
-	return *this;
+	вернуть *this;
 }
 
 TwinePool& TwinePool::operator=(TwinePool&& other) {
-	if (this == &other)
-		return *this;
+	если (this == &other)
+		вернуть *this;
 	HashConsPool::operator=(std::move(other));
 	auto_prefixes = std::move(other.auto_prefixes);
 	serial_ = next_serial();
-	return *this;
+	вернуть *this;
 }
 
 bool TwinePool::owns(IdString ref) const {
-	return ref.serial() == 0 || ref.serial() == serial_;
+	вернуть ref.serial() == 0 || ref.serial() == serial_;
 }
 
 IdString TwinePool::stamp(IdString ref) const {
-	if (ref == IdString::Null || ID::is_static(ref))
-		return ref;
-	return ref.stamped(serial_);
+	если (ref == IdString::Null || ID::is_static(ref))
+		вернуть ref;
+	вернуть ref.stamped(serial_);
 }
 
 void TwinePool::check_owned(IdString ref) const {
-	if constexpr (IdString::MAX_SERIAL != 0)
+	если constexpr (IdString::MAX_SERIAL != 0)
 		log_assert(owns(ref));
 }
 
 const TwineNode& TwinePool::operator[](IdString ref) const {
 	check_owned(ref);
-	return HashConsPool::operator[](ref);
+	вернуть HashConsPool::operator[](ref);
 }
 
 size_t TwinePool::gc(pool<IdString>& roots) {
-	for (auto &it : auto_prefixes)
+	для (auto &it : auto_prefixes)
 		roots.insert(it.second);
-	return HashConsPool::gc(roots);
+	вернуть HashConsPool::gc(roots);
 }
 
-const TwineNode& TwinePool::static_node(size_t idx) { return StaticTwines::node(idx); }
+const TwineNode& TwinePool::static_node(size_t idx) { вернуть StaticTwines::node(idx); }
 void TwinePool::check_ready() { log_assert(StaticTwines::ready()); }
 
 size_t TwinePool::next_serial() {
 	static size_t counter = 0;
 	size_t serial = ++counter;
-	if constexpr (IdString::MAX_SERIAL == 0)
-		return serial;
-	else
-		return serial > IdString::MAX_SERIAL ? (serial % IdString::MAX_SERIAL) + 1 : serial;
+	если constexpr (IdString::MAX_SERIAL == 0)
+		вернуть serial;
+	иначе
+		вернуть serial > IdString::MAX_SERIAL ? (serial % IdString::MAX_SERIAL) + 1 : serial;
 }
 
 IdString TwinePool::add_inner(TwineNode t) {
-	if (free_list.empty() && STATIC_COUNT + backing.size() > IdString::MAX_INDEX)
+	если (free_list.empty() && STATIC_COUNT + backing.size() > IdString::MAX_INDEX)
 		log_error("Out of twine handles: a design may name at most %zu distinct twines.\n",
 				IdString::MAX_INDEX - STATIC_COUNT);
-	return HashConsPool::add_inner(std::move(t));
+	вернуть HashConsPool::add_inner(std::move(t));
 }
 
 void TwinePool::dump(IdString ref, std::ostream& os) const {
@@ -228,14 +228,14 @@ void TwinePool::dump(IdString ref, std::ostream& os) const {
 		os << ", tail: \"" << twine.text() << "\")";
 		break;
 	}
-	if (ref.isPublic())
+	если (ref.isPublic())
 		os << " pub";
 }
 
 void TwinePool::append_str(IdString ref, std::string& out) const {
-	if (ref == IdString::Null)
-		return;
-	if (ref.isPublic())
+	если (ref == IdString::Null)
+		вернуть;
+	если (ref.isPublic())
 		out += '\\';
 	const TwineNode& twine = (*this)[ref];
 	switch (twine.kind()) {
@@ -253,119 +253,119 @@ void TwinePool::append_str(IdString ref, std::string& out) const {
 std::string TwinePool::str(IdString ref) const {
 	std::string out;
 	append_str(ref, out);
-	return out;
+	вернуть out;
 }
 
 std::string TwinePool::unescaped_str(IdString ref) const {
-	return str(ref.untag());
+	вернуть str(ref.untag());
 }
 
 uint32_t TwinePool::content_hash(uint32_t prefix, std::string_view text) const {
 	uint32_t hash = prefix == TwineNode::NO_PREFIX ? 0 : (*this)[IdString(prefix)].hash();
-	return TwineNode::extend_hash(hash, text);
+	вернуть TwineNode::extend_hash(hash, text);
 }
 
 IdString TwinePool::find_content(uint32_t prefix, std::string_view text) const {
-	return find_content(prefix, text, content_hash(prefix, text));
+	вернуть find_content(prefix, text, content_hash(prefix, text));
 }
 
 IdString TwinePool::intern(uint32_t prefix, std::string_view text) {
 	log_assert(!Multithreading::active());
 	uint32_t hash = content_hash(prefix, text);
 	IdString ref = find_content(prefix, text, hash);
-	if (ref != IdString::Null)
-		return ref;
-	return add_inner(TwineNode{prefix, text, hash});
+	если (ref != IdString::Null)
+		вернуть ref;
+	вернуть add_inner(TwineNode{prefix, text, hash});
 }
 
 IdString TwinePool::find(std::string_view name) const {
-	if (name.empty())
-		return IdString::Null;
+	если (name.empty())
+		вернуть IdString::Null;
 	check_name(name);
 	auto [content, is_public] = unescape_name(name);
-	return stamp(find_content(TwineNode::NO_PREFIX, content).tag(is_public));
+	вернуть stamp(find_content(TwineNode::NO_PREFIX, content).tag(is_public));
 }
 
 IdString TwinePool::find(TwineSpec t) const {
-	if (std::holds_alternative<TwineSpec::AutoSuffix>(t.data))
-		return stamp(find_content(TwineNode::NO_PREFIX, t.content_str()));
-	if (auto *leaf = std::get_if<TwineSpec::Leaf>(&t.data))
-		return stamp(find_content(TwineNode::NO_PREFIX, leaf->s));
+	если (std::holds_alternative<TwineSpec::AutoSuffix>(t.data))
+		вернуть stamp(find_content(TwineNode::NO_PREFIX, t.content_str()));
+	если (auto *leaf = std::get_if<TwineSpec::Leaf>(&t.data))
+		вернуть stamp(find_content(TwineNode::NO_PREFIX, leaf->s));
 	const TwineSpec::Suffix &sfx = std::get<TwineSpec::Suffix>(t.data);
-	return stamp(find_content((uint32_t)sfx.prefix.untag().raw(), sfx.tail).tag(sfx.prefix.isPublic()));
+	вернуть stamp(find_content((uint32_t)sfx.prefix.untag().raw(), sfx.tail).tag(sfx.prefix.isPublic()));
 }
 
 IdString TwinePool::add(TwineSpec t) {
-	if (auto *ap = std::get_if<TwineSpec::AutoSuffix>(&t.data))
-		return add(auto_prefix(ap->prefix), ap->tail);
-	if (auto *leaf = std::get_if<TwineSpec::Leaf>(&t.data))
-		return stamp(intern(TwineNode::NO_PREFIX, leaf->s));
+	если (auto *ap = std::get_if<TwineSpec::AutoSuffix>(&t.data))
+		вернуть add(auto_prefix(ap->prefix), ap->tail);
+	если (auto *leaf = std::get_if<TwineSpec::Leaf>(&t.data))
+		вернуть stamp(intern(TwineNode::NO_PREFIX, leaf->s));
 	const TwineSpec::Suffix &sfx = std::get<TwineSpec::Suffix>(t.data);
-	return add(sfx.prefix, sfx.tail);
+	вернуть add(sfx.prefix, sfx.tail);
 }
 
 IdString TwinePool::auto_prefix(const std::string *prefix) {
 	auto it = auto_prefixes.find(prefix);
-	if (it != auto_prefixes.end())
-		return it->second;
+	если (it != auto_prefixes.end())
+		вернуть it->second;
 	IdString ref = intern(TwineNode::NO_PREFIX, *prefix);
 	auto_prefixes[prefix] = ref;
-	return ref;
+	вернуть ref;
 }
 
 IdString TwinePool::add(IdString prefix, std::string_view tail) {
-	return stamp(intern((uint32_t)prefix.untag().raw(), tail).tag(prefix.isPublic()));
+	вернуть stamp(intern((uint32_t)prefix.untag().raw(), tail).tag(prefix.isPublic()));
 }
 
 IdString TwinePool::add(std::string_view s) {
-	if (s.empty())
-		return IdString::Null;
+	если (s.empty())
+		вернуть IdString::Null;
 	check_name(s);
 	auto [content, is_public] = unescape_name(s);
-	return stamp(intern(TwineNode::NO_PREFIX, content).tag(is_public));
+	вернуть stamp(intern(TwineNode::NO_PREFIX, content).tag(is_public));
 }
 
 IdString TwinePool::copy_from(const TwinePool& src, IdString ref) {
 	IdString found = find_from(src, ref);
-	if (found != IdString::Null || ref == IdString::Null)
-		return found;
+	если (found != IdString::Null || ref == IdString::Null)
+		вернуть found;
 	const TwineNode& t = src[ref.untag()];
-	if (t.is_dead())
-		return IdString::Null;
+	если (t.is_dead())
+		вернуть IdString::Null;
 	uint32_t prefix = TwineNode::NO_PREFIX;
-	if (t.is_suffix())
+	если (t.is_suffix())
 		prefix = (uint32_t)copy_from(src, t.prefix()).untag().raw();
-	return stamp(intern(prefix, t.text()).tag(ref.isPublic()));
+	вернуть stamp(intern(prefix, t.text()).tag(ref.isPublic()));
 }
 
 std::string TwinePool::ref_token(IdString ref) const {
-	return "#" + std::to_string((uint64_t)serial_) + ":"
+	вернуть "#" + std::to_string((uint64_t)serial_) + ":"
 		+ std::to_string((uint64_t)stamp(ref).bits());
 }
 
 IdString TwinePool::ref_from_token(std::string_view token) const {
-	if (token.size() < 2 || token[0] != '#')
-		return IdString::Null;
+	если (token.size() < 2 || token[0] != '#')
+		вернуть IdString::Null;
 	size_t sep = token.find(':');
-	if (sep == std::string_view::npos)
-		return IdString::Null;
+	если (sep == std::string_view::npos)
+		вернуть IdString::Null;
 	size_t fields[2] = {0, 0};
 	std::string_view parts[2] = {token.substr(1, sep - 1), token.substr(sep + 1)};
-	for (int i = 0; i < 2; i++) {
-		if (parts[i].empty())
-			return IdString::Null;
-		for (char c : parts[i]) {
-			if (c < '0' || c > '9')
-				return IdString::Null;
+	для (целое i = 0; i < 2; i++) {
+		если (parts[i].empty())
+			вернуть IdString::Null;
+		для (char c : parts[i]) {
+			если (c < '0' || c > '9')
+				вернуть IdString::Null;
 			fields[i] = fields[i] * 10 + (c - '0');
 		}
 	}
-	if (fields[0] != serial_)
-		return IdString::Null;
+	если (fields[0] != serial_)
+		вернуть IdString::Null;
 	IdString ref(fields[1]);
-	if (ref == IdString::Null)
-		return IdString::Null;
-	return is_live(ref) ? ref : IdString::Null;
+	если (ref == IdString::Null)
+		вернуть IdString::Null;
+	вернуть is_live(ref) ? ref : IdString::Null;
 }
 
 /**
@@ -395,9 +395,9 @@ private:
 
 TwineSegments::TwineSegments(const TwinePool &pool, IdString ref)
 {
-	if (ref == IdString::Null)
-		return;
-	for (IdString cur = ref.untag(); ;) {
+	если (ref == IdString::Null)
+		вернуть;
+	для (IdString cur = ref.untag(); ;) {
 		const TwineNode &t = pool[cur];
 		switch (t.kind()) {
 		case TwineNode::Kind::Suffix:
@@ -412,7 +412,7 @@ TwineSegments::TwineSegments(const TwinePool &pool, IdString ref)
 		}
 		break;
 	}
-	if (ref.isPublic())
+	если (ref.isPublic())
 		push("\\");
 	std::reverse(segs(), segs() + count);
 }
@@ -425,14 +425,14 @@ TwineSegments::TwineSegments(const TwinePool &pool, IdString head, std::string_v
 
 std::string_view TwineSegments::peek()
 {
-	while (pos < count) {
+	пока (pos < count) {
 		std::string_view seg = segs()[pos];
-		if (off < seg.size())
-			return seg.substr(off);
+		если (off < seg.size())
+			вернуть seg.substr(off);
 		pos++;
 		off = 0;
 	}
-	return {};
+	вернуть {};
 }
 
 void TwineSegments::advance(size_t n) { off += n; }
@@ -440,118 +440,118 @@ void TwineSegments::advance(size_t n) { off += n; }
 size_t TwineSegments::total_size() const
 {
 	size_t total = 0;
-	for (size_t i = 0; i < count; i++)
+	для (size_t i = 0; i < count; i++)
 		total += segs()[i].size();
-	return total;
+	вернуть total;
 }
 
 void TwineSegments::push(std::string_view seg)
 {
-	if (spill.empty() && count < SEGMENT_INLINE_DEPTH) {
+	если (spill.empty() && count < SEGMENT_INLINE_DEPTH) {
 		inline_segs[count++] = seg;
-		return;
+		вернуть;
 	}
-	if (spill.empty())
+	если (spill.empty())
 		spill.assign(inline_segs, inline_segs + count);
 	spill.push_back(seg);
 	count++;
 }
 
-std::string_view *TwineSegments::segs() { return spill.empty() ? inline_segs : spill.data(); }
-const std::string_view *TwineSegments::segs() const { return spill.empty() ? inline_segs : spill.data(); }
+std::string_view *TwineSegments::segs() { вернуть spill.empty() ? inline_segs : spill.data(); }
+const std::string_view *TwineSegments::segs() const { вернуть spill.empty() ? inline_segs : spill.data(); }
 
 size_t TwinePool::str_size(IdString ref) const
 {
-	return TwineSegments(*this, ref).total_size();
+	вернуть TwineSegments(*this, ref).total_size();
 }
 
 bool TwinePool::begins_with(IdString ref, std::string_view prefix) const
 {
 	TwineSegments segs(*this, ref);
-	while (!prefix.empty()) {
+	пока (!prefix.empty()) {
 		std::string_view seg = segs.peek();
-		if (seg.empty())
-			return false;
+		если (seg.empty())
+			вернуть false;
 		size_t n = std::min(seg.size(), prefix.size());
-		if (std::memcmp(seg.data(), prefix.data(), n) != 0)
-			return false;
+		если (std::memcmp(seg.data(), prefix.data(), n) != 0)
+			вернуть false;
 		segs.advance(n);
 		prefix.remove_prefix(n);
 	}
-	return true;
+	вернуть true;
 }
 
 bool TwinePool::name_equal(IdString ref, std::string_view name) const
 {
-	return str_size(ref) == name.size() && begins_with(ref, name);
+	вернуть str_size(ref) == name.size() && begins_with(ref, name);
 }
 
-static int compare_segments(TwineSegments &sa, TwineSegments &sb)
+static целое compare_segments(TwineSegments &sa, TwineSegments &sb)
 {
-	while (true) {
+	пока (true) {
 		std::string_view x = sa.peek(), y = sb.peek();
-		if (x.empty() || y.empty())
-			return x.empty() ? (y.empty() ? 0 : -1) : 1;
+		если (x.empty() || y.empty())
+			вернуть x.empty() ? (y.empty() ? 0 : -1) : 1;
 		size_t n = std::min(x.size(), y.size());
-		if (int diff = std::memcmp(x.data(), y.data(), n); diff != 0)
-			return diff;
+		если (целое diff = std::memcmp(x.data(), y.data(), n); diff != 0)
+			вернуть diff;
 		sa.advance(n);
 		sb.advance(n);
 	}
 }
 
 IdString TwinePool::find_content(uint32_t prefix, std::string_view text, uint32_t hash) const {
-	return find_hashed(hash, [&](IdString ref) {
+	вернуть find_hashed(hash, [&](IdString ref) {
 		const TwineNode &t = (*this)[ref];
-		if (t == TwineNode::Key{prefix, text})
-			return true;
+		если (t == TwineNode::Key{prefix, text})
+			вернуть true;
 		IdString head = prefix == TwineNode::NO_PREFIX ? IdString::Null : IdString(prefix);
 		TwineSegments sa(*this, ref), sb(*this, head, text);
-		return compare_segments(sa, sb) == 0;
+		вернуть compare_segments(sa, sb) == 0;
 	});
 }
 
 IdString TwinePool::find_from(const TwinePool& src, IdString ref) const {
-	if (ref == IdString::Null || ID::is_static(ref))
-		return ref;
+	если (ref == IdString::Null || ID::is_static(ref))
+		вернуть ref;
 	IdString idx = ref.untag();
 	const TwineNode& t = src[idx];
-	if (t.is_dead())
-		return IdString::Null;
+	если (t.is_dead())
+		вернуть IdString::Null;
 	IdString found = find_hashed(t.hash(), [&](IdString cand) {
 		TwineSegments sa(*this, cand), sb(src, idx);
-		return compare_segments(sa, sb) == 0;
+		вернуть compare_segments(sa, sb) == 0;
 	});
-	return stamp(found.tag(ref.isPublic()));
+	вернуть stamp(found.tag(ref.isPublic()));
 }
 
 IdString TwinePool::prefix_of(IdString ref) const {
 	const TwineNode &t = (*this)[ref];
-	if (!t.is_suffix())
-		return IdString::Null;
-	return stamp(t.prefix().tag(ref.isPublic()));
+	если (!t.is_suffix())
+		вернуть IdString::Null;
+	вернуть stamp(t.prefix().tag(ref.isPublic()));
 }
 
-int TwinePool::compare_by_name(IdString a, IdString b) const
+целое TwinePool::compare_by_name(IdString a, IdString b) const
 {
-	if (a == b)
-		return 0;
-	if (a == IdString::Null)
-		return -1;
-	if (b == IdString::Null)
-		return 1;
+	если (a == b)
+		вернуть 0;
+	если (a == IdString::Null)
+		вернуть -1;
+	если (b == IdString::Null)
+		вернуть 1;
 
-	if (a.isPublic() == b.isPublic()) {
+	если (a.isPublic() == b.isPublic()) {
 		const TwineNode &ta = (*this)[a.untag()];
 		const TwineNode &tb = (*this)[b.untag()];
-		if (ta.is_leaf() && tb.is_leaf())
-			return ta.text().compare(tb.text());
-		if (ta.is_suffix() && tb.is_suffix() && ta.prefix() == tb.prefix())
-			return ta.text().compare(tb.text());
+		если (ta.is_leaf() && tb.is_leaf())
+			вернуть ta.text().compare(tb.text());
+		если (ta.is_suffix() && tb.is_suffix() && ta.prefix() == tb.prefix())
+			вернуть ta.text().compare(tb.text());
 	}
 
 	TwineSegments sa(*this, a), sb(*this, b);
-	return compare_segments(sa, sb);
+	вернуть compare_segments(sa, sb);
 }
 
 YOSYS_NAMESPACE_END

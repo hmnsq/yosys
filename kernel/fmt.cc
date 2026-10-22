@@ -35,150 +35,150 @@ void Fmt::parse_rtlil(const RTLIL::Cell *cell) {
 	parts.clear();
 
 	FmtPart part;
-	for (size_t i = 0; i < fmt.size(); i++) {
-		if (fmt.substr(i, 2) == "}}") {
+	для (size_t i = 0; i < fmt.size(); i++) {
+		если (fmt.substr(i, 2) == "}}") {
 			part.str += '}';
 			++i;
-		} else if (fmt.substr(i, 2) == "{{") {
+		} иначе если (fmt.substr(i, 2) == "{{") {
 			part.str += '{';
 			++i;
-		} else if (fmt[i] == '}') {
+		} иначе если (fmt[i] == '}') {
 			log_assert(false && "Unexpected '}' in format string");
-		} else if (fmt[i] == '{') {
-			if (!part.str.empty()) {
+		} иначе если (fmt[i] == '{') {
+			если (!part.str.empty()) {
 				part.type = FmtPart::LITERAL;
 				parts.push_back(part);
 				part = {};
 			}
 
-			if (++i == fmt.size())
+			если (++i == fmt.size())
 				log_assert(false && "Unexpected end in format substitution");
 
 			size_t arg_size = 0;
-			for (; i < fmt.size(); i++) {
-				if (fmt[i] >= '0' && fmt[i] <= '9') {
+			для (; i < fmt.size(); i++) {
+				если (fmt[i] >= '0' && fmt[i] <= '9') {
 					arg_size *= 10;
 					arg_size += fmt[i] - '0';
-				} else if (fmt[i] == ':') {
+				} иначе если (fmt[i] == ':') {
 					++i;
 					break;
-				} else {
+				} иначе {
 					log_assert(false && "Unexpected character in format substitution");
 				}
 			}
-			if (i == fmt.size())
+			если (i == fmt.size())
 				log_assert(false && "Unexpected end in format substitution");
 
-			if ((size_t)args.size() < arg_size)
+			если ((size_t)args.size() < arg_size)
 				log_assert(false && "Format part overruns arguments");
 			part.sig = args.extract(0, arg_size);
 			args.remove(0, arg_size);
 
-			if (fmt[i] == 'U') {
+			если (fmt[i] == 'U') {
 				part.type = FmtPart::UNICHAR;
 				++i;
 				goto success;
 			}
 
-			if (fmt[i] == '>')
+			если (fmt[i] == '>')
 				part.justify = FmtPart::RIGHT;
-			else if (fmt[i] == '<')
+			иначе если (fmt[i] == '<')
 				part.justify = FmtPart::LEFT;
-			else if (fmt[i] == '=')
+			иначе если (fmt[i] == '=')
 				part.justify = FmtPart::NUMERIC;
-			else
+			иначе
 				log_assert(false && "Unexpected justification in format substitution");
-			if (++i == fmt.size())
+			если (++i == fmt.size())
 				log_assert(false && "Unexpected end in format substitution");
 
 			part.padding = fmt[i];
-			if (++i == fmt.size())
+			если (++i == fmt.size())
 				log_assert(false && "Unexpected end in format substitution");
 
-			for (; i < fmt.size(); i++) {
-				if (fmt[i] >= '0' && fmt[i] <= '9') {
+			для (; i < fmt.size(); i++) {
+				если (fmt[i] >= '0' && fmt[i] <= '9') {
 					part.width *= 10;
 					part.width += fmt[i] - '0';
 					continue;
-				} else if (fmt[i] == 'b') {
+				} иначе если (fmt[i] == 'b') {
 					part.type = FmtPart::INTEGER;
 					part.base = 2;
-				} else if (fmt[i] == 'o') {
+				} иначе если (fmt[i] == 'o') {
 					part.type = FmtPart::INTEGER;
 					part.base = 8;
-				} else if (fmt[i] == 'd') {
+				} иначе если (fmt[i] == 'd') {
 					part.type = FmtPart::INTEGER;
 					part.base = 10;
-				} else if (fmt[i] == 'h') {
+				} иначе если (fmt[i] == 'h') {
 					part.type = FmtPart::INTEGER;
 					part.base = 16;
-				} else if (fmt[i] == 'H') {
+				} иначе если (fmt[i] == 'H') {
 					part.type = FmtPart::INTEGER;
 					part.base = 16;
 					part.hex_upper = true;
-				} else if (fmt[i] == 'c') {
+				} иначе если (fmt[i] == 'c') {
 					part.type = FmtPart::STRING;
-				} else if (fmt[i] == 't') {
+				} иначе если (fmt[i] == 't') {
 					part.type = FmtPart::VLOG_TIME;
-				} else if (fmt[i] == 'r') {
+				} иначе если (fmt[i] == 'r') {
 					part.type = FmtPart::VLOG_TIME;
 					part.realtime = true;
-				} else {
+				} иначе {
 					log_assert(false && "Unexpected character in format substitution");
 				}
 				++i;
 				break;
 			}
-			if (i == fmt.size())
+			если (i == fmt.size())
 				log_assert(false && "Unexpected end in format substitution");
 
-			if (part.type == FmtPart::INTEGER) {
-				if (fmt[i] == '-') {
+			если (part.type == FmtPart::INTEGER) {
+				если (fmt[i] == '-') {
 					part.sign = FmtPart::MINUS;
-					if (++i == fmt.size())
+					если (++i == fmt.size())
 						log_assert(false && "Unexpected end in format substitution");
-				} else if (fmt[i] == '+') {
+				} иначе если (fmt[i] == '+') {
 					part.sign = FmtPart::PLUS_MINUS;
-					if (++i == fmt.size())
+					если (++i == fmt.size())
 						log_assert(false && "Unexpected end in format substitution");
-				} else if (fmt[i] == ' ') {
+				} иначе если (fmt[i] == ' ') {
 					part.sign = FmtPart::SPACE_MINUS;
-					if (++i == fmt.size())
+					если (++i == fmt.size())
 						log_assert(false && "Unexpected end in format substitution");
-				} else {
+				} иначе {
 					// also accept no sign character and treat like MINUS for compatibility
 				}
 
-				if (fmt[i] == '#') {
+				если (fmt[i] == '#') {
 					part.show_base = true;
 					++i;
 				}
-				if (fmt[i] == '_') {
+				если (fmt[i] == '_') {
 					part.group = true;
 					++i;
 				}
 
-				if (fmt[i] == 'u')
+				если (fmt[i] == 'u')
 					part.signed_ = false;
-				else if (fmt[i] == 's')
+				иначе если (fmt[i] == 's')
 					part.signed_ = true;
-				else
+				иначе
 					log_assert(false && "Unexpected character in format substitution");
-				if (++i == fmt.size())
+				если (++i == fmt.size())
 					log_assert(false && "Unexpected end in format substitution");
 			}
 
 		success:
-			if (fmt[i] != '}')
+			если (fmt[i] != '}')
 				log_assert(false && "Expected '}' after format substitution");
 
 			parts.push_back(part);
 			part = {};
-		} else {
+		} иначе {
 			part.str += fmt[i];
 		}
 	}
-	if (!part.str.empty()) {
+	если (!part.str.empty()) {
 		part.type = FmtPart::LITERAL;
 		parts.push_back(part);
 	}
@@ -188,15 +188,15 @@ void Fmt::emit_rtlil(RTLIL::Cell *cell) const {
 	std::string fmt;
 	RTLIL::SigSpec args;
 
-	for (auto &part : parts) {
+	для (auto &part : parts) {
 		switch (part.type) {
 			case FmtPart::LITERAL:
-				for (char c : part.str) {
-					if (c == '{')
+				для (char c : part.str) {
+					если (c == '{')
 						fmt += "{{";
-					else if (c == '}')
+					иначе если (c == '}')
 						fmt += "}}";
-					else
+					иначе
 						fmt += c;
 				}
 				break;
@@ -217,18 +217,18 @@ void Fmt::emit_rtlil(RTLIL::Cell *cell) const {
 				fmt += '{';
 				fmt += std::to_string(part.sig.size());
 				fmt += ':';
-				if (part.justify == FmtPart::RIGHT)
+				если (part.justify == FmtPart::RIGHT)
 					fmt += '>';
-				else if (part.justify == FmtPart::LEFT)
+				иначе если (part.justify == FmtPart::LEFT)
 					fmt += '<';
-				else if (part.justify == FmtPart::NUMERIC)
+				иначе если (part.justify == FmtPart::NUMERIC)
 					fmt += '=';
-				else log_abort();
+				иначе log_abort();
 				log_assert(part.width == 0 || part.padding != '\0');
 				fmt += part.padding != '\0' ? part.padding : ' ';
-				if (part.width > 0)
+				если (part.width > 0)
 					fmt += std::to_string(part.width);
-				if (part.type == FmtPart::INTEGER) {
+				если (part.type == FmtPart::INTEGER) {
 					switch (part.base) {
 						case  2: fmt += 'b'; break;
 						case  8: fmt += 'o'; break;
@@ -244,14 +244,14 @@ void Fmt::emit_rtlil(RTLIL::Cell *cell) const {
 					fmt += part.show_base ? "#" : "";
 					fmt += part.group ? "_" : "";
 					fmt += part.signed_ ? 's' : 'u';
-				} else if (part.type == FmtPart::STRING) {
+				} иначе если (part.type == FmtPart::STRING) {
 					fmt += 'c';
-				} else if (part.type == FmtPart::VLOG_TIME) {
-					if (part.realtime)
+				} иначе если (part.type == FmtPart::VLOG_TIME) {
+					если (part.realtime)
 						fmt += 'r';
-					else
+					иначе
 						fmt += 't';
-				} else log_abort();
+				} иначе log_abort();
 				fmt += '}';
 				break;
 
@@ -267,18 +267,18 @@ void Fmt::emit_rtlil(RTLIL::Cell *cell) const {
 static size_t compute_required_decimal_places(size_t size, bool signed_)
 {
 	BigUnsigned max;
-	if (!signed_)
+	если (!signed_)
 		max.setBit(size, true);
-	else
+	иначе
 		max.setBit(size - 1, true);
 	size_t places = 0;
-	while (!max.isZero()) {
+	пока (!max.isZero()) {
 		places++;
 		max /= 10;
 	}
-	if (signed_)
+	если (signed_)
 		places++;
-	return places;
+	вернуть places;
 }
 
 static size_t compute_required_nondecimal_places(size_t size, unsigned base)
@@ -287,11 +287,11 @@ static size_t compute_required_nondecimal_places(size_t size, unsigned base)
 	BigUnsigned max;
 	max.setBit(size - 1, true);
 	size_t places = 0;
-	while (!max.isZero()) {
+	пока (!max.isZero()) {
 		places++;
 		max /= base;
 	}
-	return places;
+	вернуть places;
 }
 
 // Only called for integers, either when:
@@ -318,31 +318,31 @@ static size_t compute_required_nondecimal_places(size_t size, unsigned base)
 // must accommodate this, whereas other representations do not.
 void Fmt::apply_verilog_automatic_sizing_and_add(FmtPart &part)
 {
-	if (part.base == 10) {
+	если (part.base == 10) {
 		size_t places = compute_required_decimal_places(part.sig.size(), part.signed_);
 		part.padding = ' ';
 		part.width = std::max(part.width, places);
 		parts.push_back(part);
-		return;
+		вернуть;
 	}
 
 	part.padding = '0';
 
 	size_t places = compute_required_nondecimal_places(part.sig.size(), part.base);
-	if (part.width < places) {
+	если (part.width < places) {
 		part.justify = FmtPart::RIGHT;
 		part.width = places;
 		parts.push_back(part);
-	} else if (part.width == places) {
+	} иначе если (part.width == places) {
 		parts.push_back(part);
-	} else if (part.width > places) {
+	} иначе если (part.width > places) {
 		auto gap = std::string(part.width - places, ' ');
 		part.width = places;
 
-		if (part.justify == FmtPart::RIGHT) {
+		если (part.justify == FmtPart::RIGHT) {
 			append_literal(gap);
 			parts.push_back(part);
-		} else {
+		} иначе {
 			part.justify = FmtPart::RIGHT;
 			parts.push_back(part);
 			append_literal(gap);
@@ -350,12 +350,12 @@ void Fmt::apply_verilog_automatic_sizing_and_add(FmtPart &part)
 	}
 }
 
-void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_like, int default_base, const std::string &task_name, const std::string &module_name)
+void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_like, целое default_base, const std::string &task_name, const std::string &module_name)
 {
 	parts.clear();
 
 	auto arg = args.begin();
-	for (; arg != args.end(); ++arg) {
+	для (; arg != args.end(); ++arg) {
 		switch (arg->type) {
 			case VerilogFmtArg::INTEGER: {
 				FmtPart part = {};
@@ -378,130 +378,130 @@ void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_lik
 			}
 
 			case VerilogFmtArg::STRING: {
-				if (arg == args.begin() || !sformat_like) {
+				если (arg == args.begin() || !sformat_like) {
 					const auto fmtarg = arg;
 					const std::string &fmt = fmtarg->str;
 					FmtPart part = {};
-					for (size_t i = 0; i < fmt.size(); i++) {
-						if (fmt[i] != '%') {
+					для (size_t i = 0; i < fmt.size(); i++) {
+						если (fmt[i] != '%') {
 							part.str += fmt[i];
-						} else if (fmt.substr(i, 2) == "%%") {
+						} иначе если (fmt.substr(i, 2) == "%%") {
 							i++;
 							part.str += '%';
-						} else if (fmt.substr(i, 2) == "%l" || fmt.substr(i, 2) == "%L") {
+						} иначе если (fmt.substr(i, 2) == "%l" || fmt.substr(i, 2) == "%L") {
 							i++;
 							part.str += module_name;
-						} else if (fmt.substr(i, 2) == "%m" || fmt.substr(i, 2) == "%M") {
+						} иначе если (fmt.substr(i, 2) == "%m" || fmt.substr(i, 2) == "%M") {
 							i++;
 							part.str += module_name;
-						} else {
-							if (!part.str.empty()) {
+						} иначе {
+							если (!part.str.empty()) {
 								part.type = FmtPart::LITERAL;
 								parts.push_back(part);
 								part = {};
 							}
-							if (++i == fmt.size()) {
+							если (++i == fmt.size()) {
 								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 							}
 
-							if (++arg == args.end()) {
+							если (++arg == args.end()) {
 								log_file_error(fmtarg->src, "System task `%s' called with fewer arguments than the format specifiers in argument %zu require.\n", task_name, fmtarg - args.begin() + 1);
 							}
 							part.sig = arg->sig;
 							part.signed_ = arg->signed_;
 
-							for (; i < fmt.size(); i++) {
-								if (fmt[i] == '-') {
+							для (; i < fmt.size(); i++) {
+								если (fmt[i] == '-') {
 									// left justify; not in IEEE 1800-2017 or verilator but iverilog has it
 									part.justify = FmtPart::LEFT;
-								} else if (fmt[i] == '+') {
+								} иначе если (fmt[i] == '+') {
 									// always show sign; not in IEEE 1800-2017 or verilator but iverilog has it
 									part.sign = FmtPart::PLUS_MINUS;
-								} else break;
+								} иначе break;
 							}
-							if (i == fmt.size()) {
+							если (i == fmt.size()) {
 								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 							}
 
 							bool has_leading_zero = false, has_width = false;
-							for (; i < fmt.size(); i++) {
-								if (fmt[i] >= '0' && fmt[i] <= '9') {
-									if (fmt[i] == '0' && !has_width) {
+							для (; i < fmt.size(); i++) {
+								если (fmt[i] >= '0' && fmt[i] <= '9') {
+									если (fmt[i] == '0' && !has_width) {
 										has_leading_zero = true;
-									} else {
+									} иначе {
 										has_width = true;
 										part.width *= 10;
 										part.width += fmt[i] - '0';
 									}
 									continue;
-								} else if (fmt[i] == 'b' || fmt[i] == 'B') {
+								} иначе если (fmt[i] == 'b' || fmt[i] == 'B') {
 									part.type = FmtPart::INTEGER;
 									part.base =  2;
-								} else if (fmt[i] == 'o' || fmt[i] == 'O') {
+								} иначе если (fmt[i] == 'o' || fmt[i] == 'O') {
 									part.type = FmtPart::INTEGER;
 									part.base =  8;
-								} else if (fmt[i] == 'd' || fmt[i] == 'D') {
+								} иначе если (fmt[i] == 'd' || fmt[i] == 'D') {
 									part.type = FmtPart::INTEGER;
 									part.base = 10;
-								} else if (fmt[i] == 'h' || fmt[i] == 'H' ||
+								} иначе если (fmt[i] == 'h' || fmt[i] == 'H' ||
 								           fmt[i] == 'x' || fmt[i] == 'X') {
 									// hex digits always printed in lowercase for %h%x as well as %H%X
 									part.type = FmtPart::INTEGER;
 									part.base = 16;
-								} else if (fmt[i] == 'c' || fmt[i] == 'C') {
+								} иначе если (fmt[i] == 'c' || fmt[i] == 'C') {
 									part.type = FmtPart::STRING;
 									part.sig.extend_u0(8);
 									// %10c and %010c not fully defined in IEEE 1800-2017 and do different things in iverilog
-								} else if (fmt[i] == 's' || fmt[i] == 'S') {
+								} иначе если (fmt[i] == 's' || fmt[i] == 'S') {
 									part.type = FmtPart::STRING;
-									if ((part.sig.size() % 8) != 0)
+									если ((part.sig.size() % 8) != 0)
 										part.sig.extend_u0((part.sig.size() + 7) / 8 * 8);
 									// %10s and %010s not fully defined in IEEE 1800-2017 and do the same thing in iverilog
 									part.padding = ' ';
-								} else if (fmt[i] == 't' || fmt[i] == 'T') {
-									if (arg->type == VerilogFmtArg::TIME) {
+								} иначе если (fmt[i] == 't' || fmt[i] == 'T') {
+									если (arg->type == VerilogFmtArg::TIME) {
 										part.type = FmtPart::VLOG_TIME;
 										part.realtime = arg->realtime;
-										if (!has_width && !has_leading_zero)
+										если (!has_width && !has_leading_zero)
 											part.width = 20;
-									} else {
+									} иначе {
 										log_file_error(fmtarg->src, "System task `%s' called with format character `%c' in argument %zu, but the argument is not $time or $realtime.\n", task_name, fmt[i], fmtarg - args.begin() + 1);
 									}
-								} else {
+								} иначе {
 									log_file_error(fmtarg->src, "System task `%s' called with unrecognized format character `%c' in argument %zu.\n", task_name, fmt[i], fmtarg - args.begin() + 1);
 								}
 								break;
 							}
-							if (i == fmt.size()) {
+							если (i == fmt.size()) {
 								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 							}
 
-							if (part.padding == '\0') {
-								if (has_leading_zero && part.justify == FmtPart::RIGHT) {
+							если (part.padding == '\0') {
+								если (has_leading_zero && part.justify == FmtPart::RIGHT) {
 									part.padding = '0';
 									part.justify = FmtPart::NUMERIC;
-								} else {
+								} иначе {
 									part.padding = ' ';
 								}
 							}
 
-							if (part.type == FmtPart::INTEGER && part.base != 10 && part.sign != FmtPart::MINUS)
+							если (part.type == FmtPart::INTEGER && part.base != 10 && part.sign != FmtPart::MINUS)
 								log_file_error(fmtarg->src, "System task `%s' called with invalid format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 
-							if (part.base != 10)
+							если (part.base != 10)
 								part.signed_ = false;
-							if (part.type == FmtPart::INTEGER && !has_leading_zero)
+							если (part.type == FmtPart::INTEGER && !has_leading_zero)
 								apply_verilog_automatic_sizing_and_add(part);
-							else
+							иначе
 								parts.push_back(part);
 							part = {};
 						}
 					}
-					if (!part.str.empty()) {
+					если (!part.str.empty()) {
 						part.type = FmtPart::LITERAL;
 						parts.push_back(part);
 					}
-				} else {
+				} иначе {
 					FmtPart part = {};
 					part.type = FmtPart::LITERAL;
 					part.str = arg->str;
@@ -521,13 +521,13 @@ std::vector<VerilogFmtArg> Fmt::emit_verilog() const
 	VerilogFmtArg fmt = {};
 	fmt.type = VerilogFmtArg::STRING;
 
-	for (auto &part : parts) {
+	для (auto &part : parts) {
 		switch (part.type) {
 			case FmtPart::LITERAL:
-				for (char c : part.str) {
-					if (c == '%')
+				для (char c : part.str) {
+					если (c == '%')
 						fmt.str += "%%";
-					else
+					иначе
 						fmt.str += c;
 				}
 				break;
@@ -540,14 +540,14 @@ std::vector<VerilogFmtArg> Fmt::emit_verilog() const
 				args.push_back(arg);
 
 				fmt.str += '%';
-				if (part.sign == FmtPart::PLUS_MINUS || part.sign == FmtPart::SPACE_MINUS)
+				если (part.sign == FmtPart::PLUS_MINUS || part.sign == FmtPart::SPACE_MINUS)
 					fmt.str += '+'; // treat space/minus as plus/minus
-				if (part.justify == FmtPart::LEFT)
+				если (part.justify == FmtPart::LEFT)
 					fmt.str += '-';
-				if (part.width == 0) {
+				если (part.width == 0) {
 					fmt.str += '0';
-				} else if (part.width > 0) {
-					if (part.base != 10 || part.padding == '0')
+				} иначе если (part.width > 0) {
+					если (part.base != 10 || part.padding == '0')
 						fmt.str += '0';
 					fmt.str += std::to_string(part.width);
 				}
@@ -568,18 +568,18 @@ std::vector<VerilogFmtArg> Fmt::emit_verilog() const
 				args.push_back(arg);
 
 				fmt.str += '%';
-				if (part.justify == FmtPart::LEFT)
+				если (part.justify == FmtPart::LEFT)
 					fmt.str += '-';
-				if (part.sig.size() == 8) {
-					if (part.width > 0) {
-						if (part.padding == '0')
+				если (part.sig.size() == 8) {
+					если (part.width > 0) {
+						если (part.padding == '0')
 							fmt.str += part.padding;
 						fmt.str += std::to_string(part.width);
 					}
 					fmt.str += 'c';
-				} else {
+				} иначе {
 					log_assert(part.sig.size() % 8 == 0);
-					if (part.width > 0) {
+					если (part.width > 0) {
 						fmt.str += std::to_string(part.width);
 					}
 					fmt.str += 's';
@@ -600,17 +600,17 @@ std::vector<VerilogFmtArg> Fmt::emit_verilog() const
 			case FmtPart::VLOG_TIME: {
 				VerilogFmtArg arg;
 				arg.type = VerilogFmtArg::TIME;
-				if (part.realtime)
+				если (part.realtime)
 					arg.realtime = true;
 				args.push_back(arg);
 
 				fmt.str += '%';
 				log_assert(part.sign == FmtPart::MINUS || part.sign == FmtPart::PLUS_MINUS);
-				if (part.sign == FmtPart::PLUS_MINUS)
+				если (part.sign == FmtPart::PLUS_MINUS)
 					fmt.str += '+';
-				if (part.justify == FmtPart::LEFT)
+				если (part.justify == FmtPart::LEFT)
 					fmt.str += '-';
-				if (part.padding == '0' && part.width > 0)
+				если (part.padding == '0' && part.width > 0)
 					fmt.str += '0';
 				fmt.str += std::to_string(part.width);
 				fmt.str += 't';
@@ -622,18 +622,18 @@ std::vector<VerilogFmtArg> Fmt::emit_verilog() const
 	}
 
 	args.insert(args.begin(), fmt);
-	return args;
+	вернуть args;
 }
 
 std::string escape_cxx_string(const std::string &input)
 {
 	std::string output = "\"";
-	for (auto c : input) {
-		if (::isprint(c)) {
-			if (c == '\\' || c == '"')
+	для (auto c : input) {
+		если (::isprint(c)) {
+			если (c == '\\' || c == '"')
 				output.push_back('\\');
 			output.push_back(c);
-		} else {
+		} иначе {
 			char l = c & 0x7, m = (c >> 3) & 0x7, h = (c >> 6) & 0x3;
 			output.push_back('\\');
 			output.push_back('0' + h);
@@ -642,17 +642,17 @@ std::string escape_cxx_string(const std::string &input)
 		}
 	}
 	output.push_back('"');
-	if (output.find('\0') != std::string::npos) {
+	если (output.find('\0') != std::string::npos) {
 		output.insert(0, "std::string {");
 		output.append(stringf(", %zu}", input.size()));
 	}
-	return output;
+	вернуть output;
 }
 
 void Fmt::emit_cxxrtl(std::ostream &os, std::string indent, std::function<void(const RTLIL::SigSpec &)> emit_sig, const std::string &context) const
 {
 	os << indent << "std::string buf;\n";
-	for (auto &part : parts) {
+	для (auto &part : parts) {
 		os << indent << "buf += fmt_part { ";
 		os << "fmt_part::";
 		switch (part.type) {
@@ -671,7 +671,7 @@ void Fmt::emit_cxxrtl(std::ostream &os, std::string indent, std::function<void(c
 			case FmtPart::NUMERIC: os << "NUMERIC"; break;
 		}
 		os << ", ";
-		os << "(char)" << (int)part.padding << ", ";
+		os << "(char)" << (целое)part.padding << ", ";
 		os << part.width << ", ";
 		os << part.base << ", ";
 		os << part.signed_ << ", ";
@@ -697,7 +697,7 @@ std::string Fmt::render() const
 {
 	std::string str;
 
-	for (auto &part : parts) {
+	для (auto &part : parts) {
 		switch (part.type) {
 			case FmtPart::LITERAL:
 				str += part.str;
@@ -706,19 +706,19 @@ std::string Fmt::render() const
 			case FmtPart::UNICHAR: {
 				RTLIL::Const value = part.sig.as_const();
 				uint32_t codepoint = value.as_int();
-				if (codepoint >= 0x10000)
+				если (codepoint >= 0x10000)
 					str += (char)(0xf0 |  (codepoint >> 18));
-				else if (codepoint >= 0x800)
+				иначе если (codepoint >= 0x800)
 					str += (char)(0xe0 |  (codepoint >> 12));
-				else if (codepoint >= 0x80)
+				иначе если (codepoint >= 0x80)
 					str += (char)(0xc0 |  (codepoint >>  6));
-				else
+				иначе
 					str += (char)codepoint;
-				if (codepoint >= 0x10000)
+				если (codepoint >= 0x10000)
 					str += (char)(0x80 | ((codepoint >> 12) & 0x3f));
-				if (codepoint >= 0x800)
+				если (codepoint >= 0x800)
 					str += (char)(0x80 | ((codepoint >>  6) & 0x3f));
-				if (codepoint >= 0x80)
+				если (codepoint >= 0x80)
 					str += (char)(0x80 | ((codepoint >>  0) & 0x3f));
 				break;
 			}
@@ -728,24 +728,24 @@ std::string Fmt::render() const
 			case FmtPart::VLOG_TIME: {
 				std::string buf;
 				std::string prefix;
-				if (part.type == FmtPart::INTEGER) {
+				если (part.type == FmtPart::INTEGER) {
 					RTLIL::Const value = part.sig.as_const();
 					bool has_x = false, all_x = true, has_z = false, all_z = true;
-					for (State bit : value) {
-						if (bit == State::Sx)
+					для (State bit : value) {
+						если (bit == State::Sx)
 							has_x = true;
-						else
+						иначе
 							all_x = false;
-						if (bit == State::Sz)
+						если (bit == State::Sz)
 							has_z = true;
-						else
+						иначе
 							all_z = false;
 					}
 
-					if (!has_z && !has_x && part.signed_ && value[value.size() - 1]) {
+					если (!has_z && !has_x && part.signed_ && value[value.size() - 1]) {
 						prefix = "-";
 						value = RTLIL::const_neg(value, {}, part.signed_, {}, value.size() + 1);
-					} else {
+					} иначе {
 						switch (part.sign) {
 							case FmtPart::MINUS:       break;
 							case FmtPart::PLUS_MINUS:  prefix = "+"; break;
@@ -753,105 +753,105 @@ std::string Fmt::render() const
 						}
 					}
 
-					if (part.base != 10) {
+					если (part.base != 10) {
 						size_t minimum_size = 1;
-						for (size_t index = 0; index < (size_t)value.size(); index++)
-							if (value[index] != State::S0)
+						для (size_t index = 0; index < (size_t)value.size(); index++)
+							если (value[index] != State::S0)
 								minimum_size = index + 1;
 						value = value.extract(0, minimum_size);
 					}
 
-					if (part.base == 2) {
-						if (part.show_base)
+					если (part.base == 2) {
+						если (part.show_base)
 							prefix += "0b";
-						for (size_t index = 0; index < (size_t)value.size(); index++) {
-							if (part.group && index > 0 && index % 4 == 0)
+						для (size_t index = 0; index < (size_t)value.size(); index++) {
+							если (part.group && index > 0 && index % 4 == 0)
 								buf += '_';
 							RTLIL::State bit = value[index];
-							if (bit == State::Sx)
+							если (bit == State::Sx)
 								buf += 'x';
-							else if (bit == State::Sz)
+							иначе если (bit == State::Sz)
 								buf += 'z';
-							else if (bit == State::S1)
+							иначе если (bit == State::S1)
 								buf += '1';
-							else /* if (bit == State::S0) */
+							иначе /* if (bit == State::S0) */
 								buf += '0';
 						}
-					} else if (part.base == 8 || part.base == 16) {
-						if (part.show_base)
+					} иначе если (part.base == 8 || part.base == 16) {
+						если (part.show_base)
 							prefix += (part.base == 16) ? (part.hex_upper ? "0X" : "0x") : "0o";
 						size_t step = (part.base == 16) ? 4 : 3;
-						for (size_t index = 0; index < (size_t)value.size(); index += step) {
-							if (part.group && index > 0 && index % (4 * step) == 0)
+						для (size_t index = 0; index < (size_t)value.size(); index += step) {
+							если (part.group && index > 0 && index % (4 * step) == 0)
 								buf += '_';
 							RTLIL::Const subvalue = value.extract(index, min(step, value.size() - index));
 							bool has_x = false, all_x = true, has_z = false, all_z = true;
-							for (State bit : subvalue) {
-								if (bit == State::Sx)
+							для (State bit : subvalue) {
+								если (bit == State::Sx)
 									has_x = true;
-								else
+								иначе
 									all_x = false;
-								if (bit == State::Sz)
+								если (bit == State::Sz)
 									has_z = true;
-								else
+								иначе
 									all_z = false;
 							}
-							if (all_x)
+							если (all_x)
 								buf += 'x';
-							else if (all_z)
+							иначе если (all_z)
 								buf += 'z';
-							else if (has_x)
+							иначе если (has_x)
 								buf += 'X';
-							else if (has_z)
+							иначе если (has_z)
 								buf += 'Z';
-							else {
+							иначе {
 								const char *digits = part.hex_upper ? "0123456789ABCDEF" : "0123456789abcdef";
 								buf += digits[subvalue.as_int()];
 							}
 						}
-					} else if (part.base == 10) {
-						if (part.show_base)
+					} иначе если (part.base == 10) {
+						если (part.show_base)
 							prefix += "0d";
-						if (all_x)
+						если (all_x)
 							buf += 'x';
-						else if (all_z)
+						иначе если (all_z)
 							buf += 'z';
-						else if (has_x)
+						иначе если (has_x)
 							buf += 'X';
-						else if (has_z)
+						иначе если (has_z)
 							buf += 'Z';
-						else {
+						иначе {
 							log_assert(value.is_fully_def());
-							if (value.is_fully_zero())
+							если (value.is_fully_zero())
 								buf += '0';
 							size_t index = 0;
-							while (!value.is_fully_zero())	{
-								if (part.group && index > 0 && index % 3 == 0)
+							пока (!value.is_fully_zero())	{
+								если (part.group && index > 0 && index % 3 == 0)
 									buf += '_';
 								buf += '0' + RTLIL::const_mod(value, 10, false, false, 4).as_int();
 								value = RTLIL::const_div(value, 10, false, false, value.size());
 								index++;
 							}
 						}
-					} else log_abort();
-					if (part.justify == FmtPart::NUMERIC && part.group && part.padding == '0') {
+					} иначе log_abort();
+					если (part.justify == FmtPart::NUMERIC && part.group && part.padding == '0') {
 						size_t group_size = part.base == 10 ? 3 : 4;
-						while (prefix.size() + buf.size() < part.width) {
-							if (buf.size() % (group_size + 1) == group_size)
+						пока (prefix.size() + buf.size() < part.width) {
+							если (buf.size() % (group_size + 1) == group_size)
 								buf += '_';
 							buf += '0';
 						}
 					}
 					std::reverse(buf.begin(), buf.end());
-				} else if (part.type == FmtPart::STRING) {
+				} иначе если (part.type == FmtPart::STRING) {
 					buf = part.sig.as_const().decode_string();
-				} else if (part.type == FmtPart::VLOG_TIME) {
+				} иначе если (part.type == FmtPart::VLOG_TIME) {
 					// We only render() during initial, so time is always zero.
 					buf = "0";
 				}
 
 				log_assert(part.width == 0 || part.padding != '\0');
-				if (prefix.size() + buf.size() < part.width) {
+				если (prefix.size() + buf.size() < part.width) {
 					size_t pad_width = part.width - prefix.size() - buf.size();
 					switch (part.justify) {
 						case FmtPart::LEFT:
@@ -870,7 +870,7 @@ std::string Fmt::render() const
 							str += buf;
 							break;
 					}
-				} else {
+				} иначе {
 					str += prefix;
 					str += buf;
 				}
@@ -879,5 +879,5 @@ std::string Fmt::render() const
 		}
 	}
 
-	return str;
+	вернуть str;
 }
