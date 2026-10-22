@@ -20,41 +20,41 @@
 #ifndef CELLEDGES_H
 #define CELLEDGES_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
+#ଅନ୍ତର୍ଭାଵ "kernel/yosys.h"
+#ଅନ୍ତର୍ଭାଵ "kernel/sigtools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AbstractCellEdgesDatabase
+ସଂରଚନା AbstractCellEdgesDatabase
 {
-	virtual ~AbstractCellEdgesDatabase() { }
-	virtual void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int delay) = 0;
+	ଆଭାସୀ ~AbstractCellEdgesDatabase() { }
+	ଆଭାସୀ ଶୂନ୍ୟ add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, ପୂର୍ଣ୍ଣସଂଖ୍ୟା from_bit, RTLIL::IdString to_port, ପୂର୍ଣ୍ଣସଂଖ୍ୟା to_bit, ପୂର୍ଣ୍ଣସଂଖ୍ୟା delay) = 0;
 	bool add_edges_from_cell(RTLIL::Cell *cell);
 };
 
-struct FwdCellEdgesDatabase : AbstractCellEdgesDatabase
+ସଂରଚନା FwdCellEdgesDatabase : AbstractCellEdgesDatabase
 {
 	SigMap &sigmap;
 	dict<SigBit, pool<SigBit>> db;
 	FwdCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
+	ଶୂନ୍ୟ add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, ପୂର୍ଣ୍ଣସଂଖ୍ୟା from_bit, RTLIL::IdString to_port, ପୂର୍ଣ୍ଣସଂଖ୍ୟା to_bit, ପୂର୍ଣ୍ଣସଂଖ୍ୟା) override {
 		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
 		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[from_sigbit].insert(to_sigbit);
+		db[from_sigbit].ଭର୍ତ୍ତି(to_sigbit);
 	}
 };
 
-struct RevCellEdgesDatabase : AbstractCellEdgesDatabase
+ସଂରଚନା RevCellEdgesDatabase : AbstractCellEdgesDatabase
 {
 	SigMap &sigmap;
 	dict<SigBit, pool<SigBit>> db;
 	RevCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
+	ଶୂନ୍ୟ add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, ପୂର୍ଣ୍ଣସଂଖ୍ୟା from_bit, RTLIL::IdString to_port, ପୂର୍ଣ୍ଣସଂଖ୍ୟା to_bit, ପୂର୍ଣ୍ଣସଂଖ୍ୟା) override {
 		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
 		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[to_sigbit].insert(from_sigbit);
+		db[to_sigbit].ଭର୍ତ୍ତି(from_sigbit);
 	}
 };
 

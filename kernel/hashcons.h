@@ -1,11 +1,11 @@
 #ifndef YOSYS_HASHCONS_H
 #define YOSYS_HASHCONS_H
 
-#include "kernel/yosys_common.h"
+#ଅନ୍ତର୍ଭାଵ "kernel/yosys_common.h"
 
-#include <bit>
-#include <deque>
-#include <vector>
+#ଅନ୍ତର୍ଭାଵ <bit>
+#ଅନ୍ତର୍ଭାଵ <deque>
+#ଅନ୍ତର୍ଭାଵ <vector>
 
 /**
  * Implements deduplicating backing storage indexed by content hash
@@ -13,77 +13,77 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-template<typename Derived, typename Node, typename Ref>
-struct HashConsPool {
-public:
-	bool is_live(Ref ref) const;
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+ସଂରଚନା HashConsPool {
+ସର୍ବସାଧାରଣ:
+	bool is_live(Ref ref) ଅଚଳ;
 
-protected:
-	std::deque<Node> backing;
+ସୁରକ୍ଷିତ:
+	std::deque<ଗଣ୍ଠି_2> backing;
 	std::vector<Ref> table;
 	std::vector<size_t> free_list;
 
 	HashConsPool();
-	HashConsPool(const HashConsPool& other) = default;
+	HashConsPool(ଅଚଳ HashConsPool& other) = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
 	HashConsPool(HashConsPool&& other);
-	HashConsPool& operator=(const HashConsPool& other) = default;
+	HashConsPool& operator=(ଅଚଳ HashConsPool& other) = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
 	HashConsPool& operator=(HashConsPool&& other);
 
-	static void check_ready();
+	ସ୍ଥିର ଶୂନ୍ୟ check_ready();
 
-	const Node& operator[] (Ref ref) const;
+	ଅଚଳ ଗଣ୍ଠି_2& operator[] (Ref ref) ଅଚଳ;
 
 	template<typename Eq>
-	Ref find_hashed(uint64_t hash, Eq&& eq) const;
-	Ref add_inner(Node t);
+	Ref find_hashed(uint64_t hash, Eq&& eq) ଅଚଳ;
+	Ref add_inner(ଗଣ୍ଠି_2 t);
 
 	template<typename Roots>
-	size_t gc(const Roots& roots);
+	size_t gc(ଅଚଳ Roots& roots);
 
-private:
+ବ୍ୟକ୍ତିଗତ:
 	Derived* self();
-	const Derived* self() const;
+	ଅଚଳ Derived* self() ଅଚଳ;
 
-	void reset();
+	ଶୂନ୍ୟ reset();
 
-	static bool is_static(Ref ref);
+	ସ୍ଥିର bool is_static(Ref ref);
 
-	struct RefIterator {
-		const HashConsPool* pool;
+	ସଂରଚନା RefIterator {
+		ଅଚଳ HashConsPool* pool;
 		size_t idx;
 		size_t stop;
 		bool skip_dead;
 
-		void settle();
-		Ref operator*() const;
+		ଶୂନ୍ୟ settle();
+		Ref operator*() ଅଚଳ;
 		RefIterator& operator++();
-		bool operator!=(const RefIterator& other) const;
+		bool operator!=(ଅଚଳ RefIterator& other) ଅଚଳ;
 	};
 
-	struct RefRange {
-		const HashConsPool* pool;
+	ସଂରଚନା RefRange {
+		ଅଚଳ HashConsPool* pool;
 		size_t first;
 		size_t stop;
 		bool skip_dead;
 
-		RefIterator begin() const;
-		RefIterator end() const;
+		RefIterator begin() ଅଚଳ;
+		RefIterator end() ଅଚଳ;
 	};
 
-	RefRange refs(bool include_statics = true) const;
+	RefRange refs(bool include_statics = true) ଅଚଳ;
 	// Includes the dead
-	RefRange slots() const;
+	RefRange slots() ଅଚଳ;
 
-	void rebuild_index();
-	size_t home_slot(uint64_t hash) const;
-	size_t next_slot(size_t slot) const;
-	void index_insert(Ref ref);
-	void index_erase(Ref ref);
-	void grow_index();
+	ଶୂନ୍ୟ rebuild_index();
+	size_t home_slot(uint64_t hash) ଅଚଳ;
+	size_t next_slot(size_t slot) ଅଚଳ;
+	ଶୂନ୍ୟ index_ଭର୍ତ୍ତି(Ref ref);
+	ଶୂନ୍ୟ index_erase(Ref ref);
+	ଶୂନ୍ୟ grow_index();
 
-	size_t size() const;
-	bool slot_live(size_t abs) const;
-	void mark_live(Ref ref, pool<Ref>& live) const;
+	size_t size() ଅଚଳ;
+	bool slot_live(size_t abs) ଅଚଳ;
+	ଶୂନ୍ୟ mark_live(Ref ref, pool<Ref>& live) ଅଚଳ;
 };
 
 YOSYS_NAMESPACE_END

@@ -17,309 +17,309 @@
  *
  */
 
-#include "kernel/cellaigs.h"
+#ଅନ୍ତର୍ଭାଵ "kernel/cellaigs.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-AigNode::AigNode()
+Aig_ଗଣ୍ଠି::Aig_ଗଣ୍ଠି()
 {
 	portbit = -1;
-	inverter = false;
-	left_parent = -1;
-	right_parent = -1;
+	inverter = ମିଥ୍ୟା;
+	ବାମ_parent = -1;
+	ଡାହାଣ_parent = -1;
 }
 
-bool AigNode::operator==(const AigNode &other) const
+ତାର୍କିକ Aig_ଗଣ୍ଠି::operator==(ଅଚଳ Aig_ଗଣ୍ଠି &other) ଅଚଳ
 {
-	if (portname != other.portname) return false;
-	if (portbit != other.portbit) return false;
-	if (inverter != other.inverter) return false;
-	if (left_parent != other.left_parent) return false;
-	if (right_parent != other.right_parent) return false;
-	return true;
+	ଯଦି (portname != other.portname) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+	ଯଦି (portbit != other.portbit) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+	ଯଦି (inverter != other.inverter) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+	ଯଦି (ବାମ_parent != other.ବାମ_parent) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+	ଯଦି (ଡାହାଣ_parent != other.ଡାହାଣ_parent) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+	ଫେରନ୍ତୁ ସତ୍ୟ;
 }
 
-Hasher AigNode::hash_into(Hasher h) const
+Hasher Aig_ଗଣ୍ଠି::hash_into(Hasher h) ଅଚଳ
 {
 	h.eat(portname);
 	h.eat(portbit);
 	h.eat(inverter);
-	h.eat(left_parent);
-	h.eat(right_parent);
-	return h;
+	h.eat(ବାମ_parent);
+	h.eat(ଡାହାଣ_parent);
+	ଫେରନ୍ତୁ h;
 }
 
-bool Aig::operator==(const Aig &other) const
+ତାର୍କିକ Aig::operator==(ଅଚଳ Aig &other) ଅଚଳ
 {
-	return name == other.name;
+	ଫେରନ୍ତୁ name == other.name;
 }
 
-Hasher Aig::hash_into(Hasher h) const
+Hasher Aig::hash_into(Hasher h) ଅଚଳ
 {
 	h.eat(name);
-	return h;
+	ଫେରନ୍ତୁ h;
 }
 
-struct AigMaker
+ସଂରଚନା AigMaker
 {
 	Aig *aig;
 	Cell *cell;
-	idict<AigNode> aig_indices;
+	idict<Aig_ଗଣ୍ଠି> aig_indices;
 
 	AigMaker(Aig *aig, Cell *cell) : aig(aig), cell(cell) {}
 
-	int node2index(const AigNode &node)
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା node2index(ଅଚଳ Aig_ଗଣ୍ଠି &ଗଣ୍ଠି)
 	{
-		if (node.left_parent > node.right_parent) {
-			AigNode n(node);
-			std::swap(n.left_parent, n.right_parent);
-			return node2index(n);
+		ଯଦି (ଗଣ୍ଠି.ବାମ_parent > ଗଣ୍ଠି.ଡାହାଣ_parent) {
+			Aig_ଗଣ୍ଠି n(ଗଣ୍ଠି);
+			std::swap(n.ବାମ_parent, n.ଡାହାଣ_parent);
+			ଫେରନ୍ତୁ node2index(n);
 		}
 
-		if (!aig_indices.count(node)) {
-			aig_indices.expect(node, GetSize(aig->nodes));
-			aig->nodes.push_back(node);
+		ଯଦି (!aig_indices.ଗଣନା_2(ଗଣ୍ଠି)) {
+			aig_indices.expect(ଗଣ୍ଠି, GetSize(aig->nodes));
+			aig->nodes.ଠେଲ_back(ଗଣ୍ଠି);
 		}
 
-		return aig_indices.at(node);
+		ଫେରନ୍ତୁ aig_indices.at(ଗଣ୍ଠି);
 	}
 
-	int bool_node(bool value)
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା bool_ଗଣ୍ଠି(ତାର୍କିକ ମୂଲ୍ୟ)
 	{
-		AigNode node;
-		node.inverter = value;
-		return node2index(node);
+		Aig_ଗଣ୍ଠି ଗଣ୍ଠି;
+		ଗଣ୍ଠି.inverter = ମୂଲ୍ୟ;
+		ଫେରନ୍ତୁ node2index(ଗଣ୍ଠି);
 	}
 
-	int inport(IdString portname, int portbit = 0, bool inverter = false)
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା inport(IdString portname, ପୂର୍ଣ୍ଣସଂଖ୍ୟା portbit = 0, ତାର୍କିକ inverter = ମିଥ୍ୟା)
 	{
-		if (portbit >= GetSize(cell->getPort(portname))) {
+		ଯଦି (portbit >= GetSize(cell->getPort(portname))) {
 			IdString signed_param = cell->twines().find(
 				cell->twines().str(portname) + "_SIGNED");
-		if (signed_param != IdString::Null && cell->parameters.count(signed_param) && cell->getParam(signed_param).as_bool())
-				return inport(portname, GetSize(cell->getPort(portname))-1, inverter);
-			return bool_node(inverter);
+		ଯଦି (signed_param != IdString::Null && cell->parameters.ଗଣନା_2(signed_param) && cell->getParam(signed_param).as_bool())
+				ଫେରନ୍ତୁ inport(portname, GetSize(cell->getPort(portname))-1, inverter);
+			ଫେରନ୍ତୁ bool_ଗଣ୍ଠି(inverter);
 		}
 
-		AigNode node;
-		node.portname = portname;
-		node.portbit = portbit;
-		node.inverter = inverter;
-		return node2index(node);
+		Aig_ଗଣ୍ଠି ଗଣ୍ଠି;
+		ଗଣ୍ଠି.portname = portname;
+		ଗଣ୍ଠି.portbit = portbit;
+		ଗଣ୍ଠି.inverter = inverter;
+		ଫେରନ୍ତୁ node2index(ଗଣ୍ଠି);
 	}
 
-	vector<int> inport_vec(IdString portname, int width)
+	vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> inport_vec(IdString portname, ପୂର୍ଣ୍ଣସଂଖ୍ୟା width)
 	{
-		vector<int> vec;
-		for (int i = 0; i < width; i++)
-			vec.push_back(inport(portname, i));
-		return vec;
+		vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> vec;
+		ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < width; i++)
+			vec.ଠେଲ_back(inport(portname, i));
+		ଫେରନ୍ତୁ vec;
 	}
 
-	int not_inport(IdString portname, int portbit = 0)
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା not_inport(IdString portname, ପୂର୍ଣ୍ଣସଂଖ୍ୟା portbit = 0)
 	{
-		return inport(portname, portbit, true);
+		ଫେରନ୍ତୁ inport(portname, portbit, ସତ୍ୟ);
 	}
 
-	int not_gate(int A)
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା not_gate(ପୂର୍ଣ୍ଣସଂଖ୍ୟା A)
 	{
-		AigNode node(aig_indices[A]);
-		node.outports.clear();
-		node.inverter = !node.inverter;
-		return node2index(node);
+		Aig_ଗଣ୍ଠି ଗଣ୍ଠି(aig_indices[A]);
+		ଗଣ୍ଠି.outports.clear();
+		ଗଣ୍ଠି.inverter = !ଗଣ୍ଠି.inverter;
+		ଫେରନ୍ତୁ node2index(ଗଣ୍ଠି);
 	}
 
-	int and_gate(int A, int B, bool inverter = false)
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା and_gate(ପୂର୍ଣ୍ଣସଂଖ୍ୟା A, ପୂର୍ଣ୍ଣସଂଖ୍ୟା B, ତାର୍କିକ inverter = ମିଥ୍ୟା)
 	{
-		if (A == B)
-			return inverter ? not_gate(A) : A;
+		ଯଦି (A == B)
+			ଫେରନ୍ତୁ inverter ? not_gate(A) : A;
 
-		const AigNode &nA = aig_indices[A];
-		const AigNode &nB = aig_indices[B];
+		ଅଚଳ Aig_ଗଣ୍ଠି &nA = aig_indices[A];
+		ଅଚଳ Aig_ଗଣ୍ଠି &nB = aig_indices[B];
 
-		AigNode nB_inv(nB);
+		Aig_ଗଣ୍ଠି nB_inv(nB);
 		nB_inv.inverter = !nB_inv.inverter;
 
-		if (nA == nB_inv)
-			return bool_node(inverter);
+		ଯଦି (nA == nB_inv)
+			ଫେରନ୍ତୁ bool_ଗଣ୍ଠି(inverter);
 
-		bool nA_bool = nA.portbit < 0 && nA.left_parent < 0 && nA.right_parent < 0;
-		bool nB_bool = nB.portbit < 0 && nB.left_parent < 0 && nB.right_parent < 0;
+		ତାର୍କିକ nA_bool = nA.portbit < 0 && nA.ବାମ_parent < 0 && nA.ଡାହାଣ_parent < 0;
+		ତାର୍କିକ nB_bool = nB.portbit < 0 && nB.ବାମ_parent < 0 && nB.ଡାହାଣ_parent < 0;
 
-		if (nA_bool && nB_bool) {
-			bool bA = nA.inverter;
-			bool bB = nB.inverter;
-			return bool_node(inverter != (bA && bB));
+		ଯଦି (nA_bool && nB_bool) {
+			ତାର୍କିକ bA = nA.inverter;
+			ତାର୍କିକ bB = nB.inverter;
+			ଫେରନ୍ତୁ bool_ଗଣ୍ଠି(inverter != (bA && bB));
 		}
 
-		if (nA_bool) {
-			bool bA = nA.inverter;
-			if (inverter)
-				return bA ? not_gate(B) : bool_node(true);
-			return bA ? B : bool_node(false);
+		ଯଦି (nA_bool) {
+			ତାର୍କିକ bA = nA.inverter;
+			ଯଦି (inverter)
+				ଫେରନ୍ତୁ bA ? not_gate(B) : bool_ଗଣ୍ଠି(ସତ୍ୟ);
+			ଫେରନ୍ତୁ bA ? B : bool_ଗଣ୍ଠି(ମିଥ୍ୟା);
 		}
 
-		if (nB_bool) {
-			bool bB = nB.inverter;
-			if (inverter)
-				return bB ? not_gate(A) : bool_node(true);
-			return bB ? A : bool_node(false);
+		ଯଦି (nB_bool) {
+			ତାର୍କିକ bB = nB.inverter;
+			ଯଦି (inverter)
+				ଫେରନ୍ତୁ bB ? not_gate(A) : bool_ଗଣ୍ଠି(ସତ୍ୟ);
+			ଫେରନ୍ତୁ bB ? A : bool_ଗଣ୍ଠି(ମିଥ୍ୟା);
 		}
 
-		AigNode node;
-		node.inverter = inverter;
-		node.left_parent = A;
-		node.right_parent = B;
-		return node2index(node);
+		Aig_ଗଣ୍ଠି ଗଣ୍ଠି;
+		ଗଣ୍ଠି.inverter = inverter;
+		ଗଣ୍ଠି.ବାମ_parent = A;
+		ଗଣ୍ଠି.ଡାହାଣ_parent = B;
+		ଫେରନ୍ତୁ node2index(ଗଣ୍ଠି);
 	}
 
-	int nand_gate(int A, int B)
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା nand_gate(ପୂର୍ଣ୍ଣସଂଖ୍ୟା A, ପୂର୍ଣ୍ଣସଂଖ୍ୟା B)
 	{
-		return and_gate(A, B, true);
+		ଫେରନ୍ତୁ and_gate(A, B, ସତ୍ୟ);
 	}
 
-	int or_gate(int A, int B)
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା or_gate(ପୂର୍ଣ୍ଣସଂଖ୍ୟା A, ପୂର୍ଣ୍ଣସଂଖ୍ୟା B)
 	{
-		int not_a = not_gate(A);
-		int not_b = not_gate(B);
-		return nand_gate(not_a, not_b);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା not_a = not_gate(A);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା not_b = not_gate(B);
+		ଫେରନ୍ତୁ nand_gate(not_a, not_b);
 	}
 
-	int nor_gate(int A, int B)
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା nor_gate(ପୂର୍ଣ୍ଣସଂଖ୍ୟା A, ପୂର୍ଣ୍ଣସଂଖ୍ୟା B)
 	{
-		int not_a = not_gate(A);
-		int not_b = not_gate(B);
-		return and_gate(not_a, not_b);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା not_a = not_gate(A);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା not_b = not_gate(B);
+		ଫେରନ୍ତୁ and_gate(not_a, not_b);
 	}
 
-	int xor_gate(int A, int B)
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା xor_gate(ପୂର୍ଣ୍ଣସଂଖ୍ୟା A, ପୂର୍ଣ୍ଣସଂଖ୍ୟା B)
 	{
-		int a_and_b = and_gate(A, B);
-		int a_nor_b = nor_gate(A, B);
-		return nor_gate(a_and_b, a_nor_b);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା a_and_b = and_gate(A, B);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା a_nor_b = nor_gate(A, B);
+		ଫେରନ୍ତୁ nor_gate(a_and_b, a_nor_b);
 	}
 
-	int xnor_gate(int A, int B)
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା xnor_gate(ପୂର୍ଣ୍ଣସଂଖ୍ୟା A, ପୂର୍ଣ୍ଣସଂଖ୍ୟା B)
 	{
-		int a_and_b = and_gate(A, B);
-		int a_nor_b = nor_gate(A, B);
-		return or_gate(a_and_b, a_nor_b);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା a_and_b = and_gate(A, B);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା a_nor_b = nor_gate(A, B);
+		ଫେରନ୍ତୁ or_gate(a_and_b, a_nor_b);
 	}
 
-	int andnot_gate(int A, int B)
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା andnot_gate(ପୂର୍ଣ୍ଣସଂଖ୍ୟା A, ପୂର୍ଣ୍ଣସଂଖ୍ୟା B)
 	{
-		int not_b = not_gate(B);
-		return and_gate(A, not_b);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା not_b = not_gate(B);
+		ଫେରନ୍ତୁ and_gate(A, not_b);
 	}
 
-	int ornot_gate(int A, int B)
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ornot_gate(ପୂର୍ଣ୍ଣସଂଖ୍ୟା A, ପୂର୍ଣ୍ଣସଂଖ୍ୟା B)
 	{
-		int not_b = not_gate(B);
-		return or_gate(A, not_b);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା not_b = not_gate(B);
+		ଫେରନ୍ତୁ or_gate(A, not_b);
 	}
 
-	int mux_gate(int A, int B, int S)
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_gate(ପୂର୍ଣ୍ଣସଂଖ୍ୟା A, ପୂର୍ଣ୍ଣସଂଖ୍ୟା B, ପୂର୍ଣ୍ଣସଂଖ୍ୟା S)
 	{
-		int not_s = not_gate(S);
-		int a_active = and_gate(A, not_s);
-		int b_active = and_gate(B, S);
-		return or_gate(a_active, b_active);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା not_s = not_gate(S);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା a_active = and_gate(A, not_s);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା b_active = and_gate(B, S);
+		ଫେରନ୍ତୁ or_gate(a_active, b_active);
 	}
 
-	vector<int> adder(const vector<int> &A, const vector<int> &B, int carry_in, vector<int> *X = nullptr, vector<int> *CO = nullptr)
+	vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> adder(ଅଚଳ vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> &A, ଅଚଳ vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> &B, ପୂର୍ଣ୍ଣସଂଖ୍ୟା carry_in, vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> *X = nullptr, vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> *CO = nullptr)
 	{
-		vector<int> Y(GetSize(A));
+		vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> Y(GetSize(A));
 		log_assert(GetSize(A) == GetSize(B));
-		for (int i = 0; i < GetSize(A); i++) {
-			int a_xor_b = xor_gate(A[i], B[i]);
-			int a_or_b = or_gate(A[i], B[i]);
-			int a_and_b = and_gate(A[i], B[i]);
+		ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < GetSize(A); i++) {
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା a_xor_b = xor_gate(A[i], B[i]);
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା a_or_b = or_gate(A[i], B[i]);
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା a_and_b = and_gate(A[i], B[i]);
 			Y[i] = xor_gate(a_xor_b, carry_in);
-			int tmp = and_gate(a_or_b, carry_in);
-			int carry_out = or_gate(a_and_b, tmp);
-			if (X != nullptr)
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା tmp = and_gate(a_or_b, carry_in);
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା carry_out = or_gate(a_and_b, tmp);
+			ଯଦି (X != nullptr)
 				X->at(i) = a_xor_b;
-			if (CO != nullptr)
+			ଯଦି (CO != nullptr)
 				CO->at(i) = carry_out;
 			carry_in = carry_out;
 		}
-		return Y;
+		ଫେରନ୍ତୁ Y;
 	}
 
-	void outport(int node, IdString portname, int portbit = 0)
+	ଶୂନ୍ୟ outport(ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଗଣ୍ଠି, IdString portname, ପୂର୍ଣ୍ଣସଂଖ୍ୟା portbit = 0)
 	{
-		if (portbit < GetSize(cell->getPort(portname)))
-			aig->nodes.at(node).outports.push_back(pair<IdString, int>(portname, portbit));
+		ଯଦି (portbit < GetSize(cell->getPort(portname)))
+			aig->nodes.at(ଗଣ୍ଠି).outports.ଠେଲ_back(pair<IdString, ପୂର୍ଣ୍ଣସଂଖ୍ୟା>(portname, portbit));
 	}
 
-	void outport_bool(int node, IdString portname)
+	ଶୂନ୍ୟ outport_bool(ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଗଣ୍ଠି, IdString portname)
 	{
-		outport(node, portname);
-		for (int i = 1; i < GetSize(cell->getPort(portname)); i++)
-			outport(bool_node(false), portname, i);
+		outport(ଗଣ୍ଠି, portname);
+		ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 1; i < GetSize(cell->getPort(portname)); i++)
+			outport(bool_ଗଣ୍ଠି(ମିଥ୍ୟା), portname, i);
 	}
 
-	void outport_vec(const vector<int> &vec, IdString portname)
+	ଶୂନ୍ୟ outport_vec(ଅଚଳ vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> &vec, IdString portname)
 	{
-		for (int i = 0; i < GetSize(vec); i++)
+		ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < GetSize(vec); i++)
 			outport(vec.at(i), portname, i);
 	}
 };
 
 Aig::Aig(Cell *cell)
 {
-	if (cell->type.isPublic())
-		return;
+	ଯଦି (cell->type.isPublic())
+		ଫେରନ୍ତୁ;
 
-	AigMaker mk(this, cell);
+	AigMaker mk(ଏହି, cell);
 	name = cell->type.str();
 
 	string mkname_last;
-	bool mkname_a_signed = false;
-	bool mkname_b_signed = false;
-	bool mkname_is_signed = false;
+	ତାର୍କିକ mkname_a_signed = ମିଥ୍ୟା;
+	ତାର୍କିକ mkname_b_signed = ମିଥ୍ୟା;
+	ତାର୍କିକ mkname_is_signed = ମିଥ୍ୟା;
 
 	cell->parameters.sort();
-	for (auto p : cell->parameters)
+	ପାଇଁ (auto p : cell->parameters)
 	{
-		if (p.first == ID::A_WIDTH && mkname_a_signed) {
+		ଯଦି (p.first == ID::A_WIDTH && mkname_a_signed) {
 			name = mkname_last + stringf(":%d%c", p.second.as_int(), mkname_is_signed ? 'S' : 'U');
-		} else if (p.first == ID::B_WIDTH && mkname_b_signed) {
+		} ଅନ୍ୟଥା ଯଦି (p.first == ID::B_WIDTH && mkname_b_signed) {
 			name = mkname_last + stringf(":%d%c", p.second.as_int(), mkname_is_signed ? 'S' : 'U');
-		} else {
+		} ଅନ୍ୟଥା {
 			mkname_last = name;
 			name += stringf(":%d", p.second.as_int());
 		}
 
-		mkname_a_signed = false;
-		mkname_b_signed = false;
-		mkname_is_signed = false;
-		if (p.first == ID::A_SIGNED) {
-			mkname_a_signed = true;
+		mkname_a_signed = ମିଥ୍ୟା;
+		mkname_b_signed = ମିଥ୍ୟା;
+		mkname_is_signed = ମିଥ୍ୟା;
+		ଯଦି (p.first == ID::A_SIGNED) {
+			mkname_a_signed = ସତ୍ୟ;
 			mkname_is_signed = p.second.as_bool();
 		}
-		if (p.first == ID::B_SIGNED) {
-			mkname_b_signed = true;
+		ଯଦି (p.first == ID::B_SIGNED) {
+			mkname_b_signed = ସତ୍ୟ;
 			mkname_is_signed = p.second.as_bool();
 		}
 	}
 
-	if (cell->type.in(ID($not), ID($_NOT_), ID($pos), ID($buf), ID($_BUF_)))
+	ଯଦି (cell->type.in(ID($not), ID($_NOT_), ID($pos), ID($buf), ID($_BUF_)))
 	{
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int Y = cell->type.in(ID($not), ID($_NOT_)) ? mk.not_gate(A) : A;
+		ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା A = mk.inport(ID::A, i);
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା Y = cell->type.in(ID($not), ID($_NOT_)) ? mk.not_gate(A) : A;
 			mk.outport(Y, ID::Y, i);
 		}
-		goto optimize;
+		ଯାଅ optimize;
 	}
 
-	if (cell->type.in(ID($and), ID($_AND_), ID($_NAND_), ID($or), ID($_OR_), ID($_NOR_), ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_)))
+	ଯଦି (cell->type.in(ID($and), ID($_AND_), ID($_NAND_), ID($or), ID($_OR_), ID($_NOR_), ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_)))
 	{
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int B = mk.inport(ID::B, i);
-			int Y = cell->type.in(ID($and), ID($_AND_))   ? mk.and_gate(A, B) :
+		ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା A = mk.inport(ID::A, i);
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା B = mk.inport(ID::B, i);
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା Y = cell->type.in(ID($and), ID($_AND_))   ? mk.and_gate(A, B) :
 			        cell->type.in(ID($_NAND_))            ? mk.nand_gate(A, B) :
 			        cell->type.in(ID($or), ID($_OR_))     ? mk.or_gate(A, B) :
 			        cell->type.in(ID($_NOR_))             ? mk.nor_gate(A, B) :
@@ -329,200 +329,200 @@ Aig::Aig(Cell *cell)
 			        cell->type.in(ID($_ORNOT_))           ? mk.ornot_gate(A, B) : -1;
 			mk.outport(Y, ID::Y, i);
 		}
-		goto optimize;
+		ଯାଅ optimize;
 	}
 
-	if (cell->type.in(ID($mux), ID($_MUX_), ID($_NMUX_)))
+	ଯଦି (cell->type.in(ID($mux), ID($_MUX_), ID($_NMUX_)))
 	{
-		int S = mk.inport(ID::S);
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int B = mk.inport(ID::B, i);
-			int Y = mk.mux_gate(A, B, S);
-			if (cell->type == ID($_NMUX_))
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା S = mk.inport(ID::S);
+		ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା A = mk.inport(ID::A, i);
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା B = mk.inport(ID::B, i);
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା Y = mk.mux_gate(A, B, S);
+			ଯଦି (cell->type == ID($_NMUX_))
 				Y = mk.not_gate(Y);
 			mk.outport(Y, ID::Y, i);
 		}
-		goto optimize;
+		ଯାଅ optimize;
 	}
 
-	if (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)))
+	ଯଦି (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)))
 	{
-		int Y = mk.inport(ID::A, 0);
-		for (int i = 1; i < GetSize(cell->getPort(ID::A)); i++) {
-			int A = mk.inport(ID::A, i);
-			if (cell->type == ID($reduce_and))  Y = mk.and_gate(A, Y);
-			if (cell->type == ID($reduce_or))   Y = mk.or_gate(A, Y);
-			if (cell->type == ID($reduce_bool)) Y = mk.or_gate(A, Y);
-			if (cell->type == ID($reduce_xor))  Y = mk.xor_gate(A, Y);
-			if (cell->type == ID($reduce_xnor)) Y = mk.xor_gate(A, Y);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା Y = mk.inport(ID::A, 0);
+		ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 1; i < GetSize(cell->getPort(ID::A)); i++) {
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା A = mk.inport(ID::A, i);
+			ଯଦି (cell->type == ID($reduce_and))  Y = mk.and_gate(A, Y);
+			ଯଦି (cell->type == ID($reduce_or))   Y = mk.or_gate(A, Y);
+			ଯଦି (cell->type == ID($reduce_bool)) Y = mk.or_gate(A, Y);
+			ଯଦି (cell->type == ID($reduce_xor))  Y = mk.xor_gate(A, Y);
+			ଯଦି (cell->type == ID($reduce_xnor)) Y = mk.xor_gate(A, Y);
 		}
-		if (cell->type == ID($reduce_xnor))
+		ଯଦି (cell->type == ID($reduce_xnor))
 			Y = mk.not_gate(Y);
 		mk.outport(Y, ID::Y, 0);
-		for (int i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
-			mk.outport(mk.bool_node(false), ID::Y, i);
-		goto optimize;
+		ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
+			mk.outport(mk.bool_ଗଣ୍ଠି(ମିଥ୍ୟା), ID::Y, i);
+		ଯାଅ optimize;
 	}
 
-	if (cell->type.in(ID($logic_not), ID($logic_and), ID($logic_or)))
+	ଯଦି (cell->type.in(ID($logic_not), ID($logic_and), ID($logic_or)))
 	{
-		int A = mk.inport(ID::A, 0), Y = -1;
-		for (int i = 1; i < GetSize(cell->getPort(ID::A)); i++)
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା A = mk.inport(ID::A, 0), Y = -1;
+		ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 1; i < GetSize(cell->getPort(ID::A)); i++)
 			A = mk.or_gate(mk.inport(ID::A, i), A);
-		if (cell->type.in(ID($logic_and), ID($logic_or))) {
-			int B = mk.inport(ID::B, 0);
-			for (int i = 1; i < GetSize(cell->getPort(ID::B)); i++)
+		ଯଦି (cell->type.in(ID($logic_and), ID($logic_or))) {
+			ପୂର୍ଣ୍ଣସଂଖ୍ୟା B = mk.inport(ID::B, 0);
+			ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 1; i < GetSize(cell->getPort(ID::B)); i++)
 				B = mk.or_gate(mk.inport(ID::B, i), B);
-			if (cell->type == ID($logic_and)) Y = mk.and_gate(A, B);
-			if (cell->type == ID($logic_or))  Y = mk.or_gate(A, B);
-		} else {
-			if (cell->type == ID($logic_not)) Y = mk.not_gate(A);
+			ଯଦି (cell->type == ID($logic_and)) Y = mk.and_gate(A, B);
+			ଯଦି (cell->type == ID($logic_or))  Y = mk.or_gate(A, B);
+		} ଅନ୍ୟଥା {
+			ଯଦି (cell->type == ID($logic_not)) Y = mk.not_gate(A);
 		}
 		mk.outport_bool(Y, ID::Y);
-		goto optimize;
+		ଯାଅ optimize;
 	}
 
-	if (cell->type.in(ID($add), ID($sub)))
+	ଯଦି (cell->type.in(ID($add), ID($sub)))
 	{
-		int width = GetSize(cell->getPort(ID::Y));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int carry = mk.bool_node(false);
-		if (cell->type == ID($sub)) {
-			for (auto &n : B)
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା width = GetSize(cell->getPort(ID::Y));
+		vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> A = mk.inport_vec(ID::A, width);
+		vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> B = mk.inport_vec(ID::B, width);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା carry = mk.bool_ଗଣ୍ଠି(ମିଥ୍ୟା);
+		ଯଦି (cell->type == ID($sub)) {
+			ପାଇଁ (auto &n : B)
 				n = mk.not_gate(n);
 			carry = mk.not_gate(carry);
 		}
-		vector<int> Y = mk.adder(A, B, carry);
+		vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> Y = mk.adder(A, B, carry);
 		mk.outport_vec(Y, ID::Y);
-		goto optimize;
+		ଯାଅ optimize;
 	}
 
-	if (cell->type.in(ID($lt), ID($gt), ID($le), ID($ge)))
+	ଯଦି (cell->type.in(ID($lt), ID($gt), ID($le), ID($ge)))
 	{
-		int width = std::max(GetSize(cell->getPort(ID::A)),
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା width = std::max(GetSize(cell->getPort(ID::A)),
 							 GetSize(cell->getPort(ID::B))) + 1;
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
+		vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> A = mk.inport_vec(ID::A, width);
+		vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> B = mk.inport_vec(ID::B, width);
 
-		if (cell->type.in(ID($gt), ID($ge)))
+		ଯଦି (cell->type.in(ID($gt), ID($ge)))
 			std::swap(A, B);
 
-		int carry = mk.bool_node(!cell->type.in(ID($le), ID($ge)));
-		for (auto &n : B)
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା carry = mk.bool_ଗଣ୍ଠି(!cell->type.in(ID($le), ID($ge)));
+		ପାଇଁ (auto &n : B)
 			n = mk.not_gate(n);
-		vector<int> Y = mk.adder(A, B, carry);
+		vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> Y = mk.adder(A, B, carry);
 		mk.outport(Y.back(), ID::Y);
-		for (int i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
-			mk.outport(mk.bool_node(false), ID::Y, i);
-		goto optimize;
+		ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
+			mk.outport(mk.bool_ଗଣ୍ଠି(ମିଥ୍ୟା), ID::Y, i);
+		ଯାଅ optimize;
 	}
 
-	if (cell->type == ID($alu))
+	ଯଦି (cell->type == ID($alu))
 	{
-		int width = GetSize(cell->getPort(ID::Y));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int carry = mk.inport(ID::CI);
-		int binv = mk.inport(ID::BI);
-		for (auto &n : B)
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା width = GetSize(cell->getPort(ID::Y));
+		vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> A = mk.inport_vec(ID::A, width);
+		vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> B = mk.inport_vec(ID::B, width);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା carry = mk.inport(ID::CI);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା binv = mk.inport(ID::BI);
+		ପାଇଁ (auto &n : B)
 			n = mk.xor_gate(n, binv);
-		vector<int> X(width), CO(width);
-		vector<int> Y = mk.adder(A, B, carry, &X, &CO);
-		for (int i = 0; i < width; i++)
+		vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> X(width), CO(width);
+		vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> Y = mk.adder(A, B, carry, &X, &CO);
+		ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < width; i++)
 			X[i] = mk.xor_gate(A[i], B[i]);
 		mk.outport_vec(Y, ID::Y);
 		mk.outport_vec(X, ID::X);
 		mk.outport_vec(CO, ID::CO);
-		goto optimize;
+		ଯାଅ optimize;
 	}
 
-	if (cell->type.in(ID($eq), ID($ne)))
+	ଯଦି (cell->type.in(ID($eq), ID($ne)))
 	{
-		int width = max(GetSize(cell->getPort(ID::A)), GetSize(cell->getPort(ID::B)));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int Y = mk.bool_node(false);
-		for (int i = 0; i < width; i++)
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା width = max(GetSize(cell->getPort(ID::A)), GetSize(cell->getPort(ID::B)));
+		vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> A = mk.inport_vec(ID::A, width);
+		vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> B = mk.inport_vec(ID::B, width);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା Y = mk.bool_ଗଣ୍ଠି(ମିଥ୍ୟା);
+		ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < width; i++)
 			Y = mk.or_gate(Y, mk.xor_gate(A[i], B[i]));
-		if (cell->type == ID($eq))
+		ଯଦି (cell->type == ID($eq))
 			Y = mk.not_gate(Y);
 		mk.outport_bool(Y, ID::Y);
-		goto optimize;
+		ଯାଅ optimize;
 	}
 
-	if (cell->type == ID($_AOI3_))
+	ଯଦି (cell->type == ID($_AOI3_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int Y = mk.nor_gate(mk.and_gate(A, B), C);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା A = mk.inport(ID::A);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା B = mk.inport(ID::B);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା C = mk.inport(ID::C);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା Y = mk.nor_gate(mk.and_gate(A, B), C);
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		ଯାଅ optimize;
 	}
 
-	if (cell->type == ID($_OAI3_))
+	ଯଦି (cell->type == ID($_OAI3_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int Y = mk.nand_gate(mk.or_gate(A, B), C);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା A = mk.inport(ID::A);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା B = mk.inport(ID::B);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା C = mk.inport(ID::C);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା Y = mk.nand_gate(mk.or_gate(A, B), C);
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		ଯାଅ optimize;
 	}
 
-	if (cell->type == ID($_AOI4_))
+	ଯଦି (cell->type == ID($_AOI4_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int D = mk.inport(ID::D);
-		int a_and_b = mk.and_gate(A, B);
-		int Y = mk.nor_gate(a_and_b, mk.and_gate(C, D));
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା A = mk.inport(ID::A);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା B = mk.inport(ID::B);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା C = mk.inport(ID::C);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା D = mk.inport(ID::D);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା a_and_b = mk.and_gate(A, B);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା Y = mk.nor_gate(a_and_b, mk.and_gate(C, D));
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		ଯାଅ optimize;
 	}
 
-	if (cell->type == ID($_OAI4_))
+	ଯଦି (cell->type == ID($_OAI4_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int D = mk.inport(ID::D);
-		int a_or_b = mk.or_gate(A, B);
-		int Y = mk.nand_gate(a_or_b, mk.or_gate(C, D));
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା A = mk.inport(ID::A);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା B = mk.inport(ID::B);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା C = mk.inport(ID::C);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା D = mk.inport(ID::D);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା a_or_b = mk.or_gate(A, B);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା Y = mk.nand_gate(a_or_b, mk.or_gate(C, D));
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		ଯାଅ optimize;
 	}
 
 	name.clear();
-	return;
+	ଫେରନ୍ତୁ;
 
 optimize:;
-	pool<int> used_old_ids;
-	vector<AigNode> new_nodes;
-	dict<int, int> old_to_new_ids;
+	pool<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> used_old_ids;
+	vector<Aig_ଗଣ୍ଠି> new_nodes;
+	dict<ପୂର୍ଣ୍ଣସଂଖ୍ୟା, ପୂର୍ଣ୍ଣସଂଖ୍ୟା> old_to_new_ids;
 	old_to_new_ids[-1] = -1;
 
-	for (int i = GetSize(nodes)-1; i >= 0; i--) {
-		if (!nodes[i].outports.empty())
-			used_old_ids.insert(i);
-		if (!used_old_ids.count(i))
-			continue;
-		if (nodes[i].left_parent >= 0)
-			used_old_ids.insert(nodes[i].left_parent);
-		if (nodes[i].right_parent >= 0)
-			used_old_ids.insert(nodes[i].right_parent);
+	ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = GetSize(nodes)-1; i >= 0; i--) {
+		ଯଦି (!nodes[i].outports.empty())
+			used_old_ids.ଭର୍ତ୍ତି(i);
+		ଯଦି (!used_old_ids.ଗଣନା_2(i))
+			ଜାରି;
+		ଯଦି (nodes[i].ବାମ_parent >= 0)
+			used_old_ids.ଭର୍ତ୍ତି(nodes[i].ବାମ_parent);
+		ଯଦି (nodes[i].ଡାହାଣ_parent >= 0)
+			used_old_ids.ଭର୍ତ୍ତି(nodes[i].ଡାହାଣ_parent);
 	}
 
-	for (int i = 0; i < GetSize(nodes); i++) {
-		if (!used_old_ids.count(i))
-			continue;
-		nodes[i].left_parent = old_to_new_ids.at(nodes[i].left_parent);
-		nodes[i].right_parent = old_to_new_ids.at(nodes[i].right_parent);
+	ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < GetSize(nodes); i++) {
+		ଯଦି (!used_old_ids.ଗଣନା_2(i))
+			ଜାରି;
+		nodes[i].ବାମ_parent = old_to_new_ids.at(nodes[i].ବାମ_parent);
+		nodes[i].ଡାହାଣ_parent = old_to_new_ids.at(nodes[i].ଡାହାଣ_parent);
 		old_to_new_ids[i] = GetSize(new_nodes);
-		new_nodes.push_back(nodes[i]);
+		new_nodes.ଠେଲ_back(nodes[i]);
 	}
 
 	new_nodes.swap(nodes);

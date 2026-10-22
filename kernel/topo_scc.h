@@ -20,46 +20,46 @@
 #ifndef TOPO_SCC_H
 #define TOPO_SCC_H
 
-#include "kernel/yosys.h"
+#ଅନ୍ତର୍ଭାଵ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 class SigCellGraph {
-public:
-    typedef int node_type;
+ସର୍ବସାଧାରଣ:
+    ପ୍ରକାରବ୍ୟାଖ୍ୟା ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଗଣ୍ଠି_type;
 
-    struct successor_enumerator {
-        std::vector<std::pair<int, int>>::const_iterator current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
+    ସଂରଚନା successor_enumerator {
+        std::vector<std::pair<ପୂର୍ଣ୍ଣସଂଖ୍ୟା, ପୂର୍ଣ୍ଣସଂଖ୍ୟା>>::const_iterator current, end;
+        bool finished() ଅଚଳ { ଫେରନ୍ତୁ current == end; }
+        ଗଣ୍ଠି_type next() {
             log_assert(!finished());
-            node_type result = current->second;
+            ଗଣ୍ଠି_type result = current->second;
             ++current;
-            return result;
+            ଫେରନ୍ତୁ result;
         }
     };
 
-    struct node_enumerator {
-        int current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
+    ସଂରଚନା ଗଣ୍ଠି_enumerator {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା current, end;
+        bool finished() ଅଚଳ { ଫେରନ୍ତୁ current == end; }
+        ଗଣ୍ଠି_type next() {
             log_assert(!finished());
-            node_type result = current;
+            ଗଣ୍ଠି_type result = current;
             ++current;
-            return result;
+            ଫେରନ୍ତୁ result;
         }
     };
 
-private:
+ବ୍ୟକ୍ତିଗତ:
     idict<RTLIL::Cell *> cell_ids;
     idict<RTLIL::SigBit> sig_ids;
-    std::vector<std::pair<int, int>> edges;
-    std::vector<std::pair<int, int>> edge_ranges;
-    std::vector<int> indices_;
-    int offset;
+    std::vector<std::pair<ପୂର୍ଣ୍ଣସଂଖ୍ୟା, ପୂର୍ଣ୍ଣସଂଖ୍ୟା>> edges;
+    std::vector<std::pair<ପୂର୍ଣ୍ଣସଂଖ୍ୟା, ପୂର୍ଣ୍ଣସଂଖ୍ୟା>> edge_ranges;
+    std::vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> indices_;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା offset;
     bool computed = false;
 
-    void compute() {
+    ଶୂନ୍ୟ compute() {
         offset = GetSize(sig_ids);
         edge_ranges.clear();
         indices_.clear();
@@ -70,208 +70,208 @@ private:
         edges.erase(last, edges.end());
         auto edge = edges.begin();
         auto edge_end = edges.end();
-        int range_begin = 0;
-        for (int node = -offset, node_end = GetSize(cell_ids); node != node_end; ++node) {
-            while (edge != edge_end && edge->first <= node)
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା range_begin = 0;
+        ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଗଣ୍ଠି = -offset, ଗଣ୍ଠି_end = GetSize(cell_ids); ଗଣ୍ଠି != ଗଣ୍ଠି_end; ++ଗଣ୍ଠି) {
+            ଯେତେବେଳେ (edge != edge_end && edge->first <= ଗଣ୍ଠି)
                 ++edge;
-            int range_end = edge - edges.begin();
+            ପୂର୍ଣ୍ଣସଂଖ୍ୟା range_end = edge - edges.begin();
             edge_ranges.emplace_back(std::make_pair(range_begin, range_end));
             range_begin = range_end;
         }
     }
 
-public:
-    node_type node(RTLIL::Cell *cell) { return cell_ids(cell); }
-    node_type node(SigBit const &bit) { return ~sig_ids(bit); }
+ସର୍ବସାଧାରଣ:
+    ଗଣ୍ଠି_type ଗଣ୍ଠି(RTLIL::Cell *cell) { ଫେରନ୍ତୁ cell_ids(cell); }
+    ଗଣ୍ଠି_type ଗଣ୍ଠି(SigBit ଅଚଳ &bit) { ଫେରନ୍ତୁ ~sig_ids(bit); }
 
-    bool is_cell(node_type node) { return node >= 0; }
-    bool is_sig(node_type node) { return node < 0; }
+    bool is_cell(ଗଣ୍ଠି_type ଗଣ୍ଠି) { ଫେରନ୍ତୁ ଗଣ୍ଠି >= 0; }
+    bool is_sig(ଗଣ୍ଠି_type ଗଣ୍ଠି) { ଫେରନ୍ତୁ ଗଣ୍ଠି < 0; }
 
-    Cell *cell(node_type node) { return node >= 0 ? cell_ids[node] : nullptr; }
-    SigBit sig(node_type node) { return node < 0 ? sig_ids[~node] : SigBit(); }
+    Cell *cell(ଗଣ୍ଠି_type ଗଣ୍ଠି) { ଫେରନ୍ତୁ ଗଣ୍ଠି >= 0 ? cell_ids[ଗଣ୍ଠି] : nullptr; }
+    SigBit sig(ଗଣ୍ଠି_type ଗଣ୍ଠି) { ଫେରନ୍ତୁ ଗଣ୍ଠି < 0 ? sig_ids[~ଗଣ୍ଠି] : SigBit(); }
 
     template<typename Src, typename Dst>
-    void add_edge(Src &&src, Dst &&dst) {
+    ଶୂନ୍ୟ add_edge(Src &&src, Dst &&dst) {
         computed = false;
-        node_type src_node = node(std::forward<Src>(src));
-        node_type dst_node = node(std::forward<Dst>(dst));
-        edges.emplace_back(std::make_pair(src_node, dst_node));
+        ଗଣ୍ଠି_type src_ଗଣ୍ଠି = ଗଣ୍ଠି(std::forward<Src>(src));
+        ଗଣ୍ଠି_type dst_ଗଣ୍ଠି = ଗଣ୍ଠି(std::forward<Dst>(dst));
+        edges.emplace_back(std::make_pair(src_ଗଣ୍ଠି, dst_ଗଣ୍ଠି));
     }
 
-    node_enumerator enumerate_nodes() {
-        if (!computed) compute();
-        return {-GetSize(sig_ids), GetSize(cell_ids)};
+    ଗଣ୍ଠି_enumerator enumerate_nodes() {
+        ଯଦି (!computed) compute();
+        ଫେରନ୍ତୁ {-GetSize(sig_ids), GetSize(cell_ids)};
     }
 
-    successor_enumerator enumerate_successors(node_type const &node) const {
-        auto range = edge_ranges[node + offset];
-        return {edges.begin() + range.first, edges.begin() + range.second};
+    successor_enumerator enumerate_successors(ଗଣ୍ଠି_type ଅଚଳ &ଗଣ୍ଠି) ଅଚଳ {
+        auto range = edge_ranges[ଗଣ୍ଠି + offset];
+        ଫେରନ୍ତୁ {edges.begin() + range.first, edges.begin() + range.second};
     }
 
-    int &dfs_index(node_type const &node) {
-        return indices_[node + offset];
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା &dfs_index(ଗଣ୍ଠି_type ଅଚଳ &ଗଣ୍ଠି) {
+        ଫେରନ୍ତୁ indices_[ଗଣ୍ଠି + offset];
     }
 };
 
 
 class IntGraph {
-public:
-    typedef int node_type;
+ସର୍ବସାଧାରଣ:
+    ପ୍ରକାରବ୍ୟାଖ୍ୟା ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଗଣ୍ଠି_type;
 
-    struct successor_enumerator {
-        std::vector<std::pair<int, int>>::const_iterator current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
+    ସଂରଚନା successor_enumerator {
+        std::vector<std::pair<ପୂର୍ଣ୍ଣସଂଖ୍ୟା, ପୂର୍ଣ୍ଣସଂଖ୍ୟା>>::const_iterator current, end;
+        bool finished() ଅଚଳ { ଫେରନ୍ତୁ current == end; }
+        ଗଣ୍ଠି_type next() {
             log_assert(!finished());
-            node_type result = current->second;
+            ଗଣ୍ଠି_type result = current->second;
             ++current;
-            return result;
+            ଫେରନ୍ତୁ result;
         }
     };
 
-    struct node_enumerator {
-        int current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
+    ସଂରଚନା ଗଣ୍ଠି_enumerator {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା current, end;
+        bool finished() ଅଚଳ { ଫେରନ୍ତୁ current == end; }
+        ଗଣ୍ଠି_type next() {
             log_assert(!finished());
-            node_type result = current;
+            ଗଣ୍ଠି_type result = current;
             ++current;
-            return result;
+            ଫେରନ୍ତୁ result;
         }
     };
 
-private:
-    std::vector<std::pair<int, int>> edges;
-    std::vector<std::pair<int, int>> edge_ranges;
-    std::vector<int> indices_;
+ବ୍ୟକ୍ତିଗତ:
+    std::vector<std::pair<ପୂର୍ଣ୍ଣସଂଖ୍ୟା, ପୂର୍ଣ୍ଣସଂଖ୍ୟା>> edges;
+    std::vector<std::pair<ପୂର୍ଣ୍ଣସଂଖ୍ୟା, ପୂର୍ଣ୍ଣସଂଖ୍ୟା>> edge_ranges;
+    std::vector<ପୂର୍ଣ୍ଣସଂଖ୍ୟା> indices_;
     bool computed = false;
 
-    void compute() {
+    ଶୂନ୍ୟ compute() {
         edge_ranges.clear();
 
-        int node_end = 0;
-        for (auto const &edge : edges)
-            node_end = std::max(node_end, std::max(edge.first, edge.second) + 1);
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଗଣ୍ଠି_end = 0;
+        ପାଇଁ (auto ଅଚଳ &edge : edges)
+            ଗଣ୍ଠି_end = std::max(ଗଣ୍ଠି_end, std::max(edge.first, edge.second) + 1);
         indices_.clear();
-        indices_.resize(node_end, -1);
+        indices_.resize(ଗଣ୍ଠି_end, -1);
 
         std::sort(edges.begin(), edges.end());
         auto last = std::unique(edges.begin(), edges.end());
         edges.erase(last, edges.end());
         auto edge = edges.begin();
         auto edge_end = edges.end();
-        int range_begin = 0;
-        for (int node = 0; node != node_end; ++node) {
-            while (edge != edge_end && edge->first <= node)
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା range_begin = 0;
+        ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଗଣ୍ଠି = 0; ଗଣ୍ଠି != ଗଣ୍ଠି_end; ++ଗଣ୍ଠି) {
+            ଯେତେବେଳେ (edge != edge_end && edge->first <= ଗଣ୍ଠି)
                 ++edge;
-            int range_end = edge - edges.begin();
+            ପୂର୍ଣ୍ଣସଂଖ୍ୟା range_end = edge - edges.begin();
             edge_ranges.emplace_back(std::make_pair(range_begin, range_end));
             range_begin = range_end;
         }
     }
 
-public:
-    void add_edge(int src, int dst) {
+ସର୍ବସାଧାରଣ:
+    ଶୂନ୍ୟ add_edge(ପୂର୍ଣ୍ଣସଂଖ୍ୟା src, ପୂର୍ଣ୍ଣସଂଖ୍ୟା dst) {
         log_assert(src >= 0);
         log_assert(dst >= 0);
         computed = false;
         edges.emplace_back(std::make_pair(src, dst));
     }
 
-    node_enumerator enumerate_nodes() {
-        if (!computed) compute();
-        return {0, GetSize(indices_)};
+    ଗଣ୍ଠି_enumerator enumerate_nodes() {
+        ଯଦି (!computed) compute();
+        ଫେରନ୍ତୁ {0, GetSize(indices_)};
     }
 
-    successor_enumerator enumerate_successors(int node) const {
-        auto range = edge_ranges[node];
-        return {edges.begin() + range.first, edges.begin() + range.second};
+    successor_enumerator enumerate_successors(ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଗଣ୍ଠି) ଅଚଳ {
+        auto range = edge_ranges[ଗଣ୍ଠି];
+        ଫେରନ୍ତୁ {edges.begin() + range.first, edges.begin() + range.second};
     }
 
-    int &dfs_index(node_type const &node) {
-        return indices_[node];
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା &dfs_index(ଗଣ୍ଠି_type ଅଚଳ &ଗଣ୍ଠି) {
+        ଫେରନ୍ତୁ indices_[ଗଣ୍ଠି];
     }
 };
 
 template<typename G, typename ComponentCallback>
 class TopoSortedSccs
 {
-    typedef typename G::node_enumerator node_enumerator;
-    typedef typename G::successor_enumerator successor_enumerator;
-    typedef typename G::node_type node_type;
+    ପ୍ରକାରବ୍ୟାଖ୍ୟା typename G::ଗଣ୍ଠି_enumerator ଗଣ୍ଠି_enumerator;
+    ପ୍ରକାରବ୍ୟାଖ୍ୟା typename G::successor_enumerator successor_enumerator;
+    ପ୍ରକାରବ୍ୟାଖ୍ୟା typename G::ଗଣ୍ଠି_type ଗଣ୍ଠି_type;
 
-    struct dfs_entry {
-        node_type node;
+    ସଂରଚନା dfs_entry {
+        ଗଣ୍ଠି_type ଗଣ୍ଠି;
         successor_enumerator successors;
-        int lowlink;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା lowlink;
 
-        dfs_entry(node_type node, successor_enumerator successors, int lowlink) :
-            node(node), successors(successors), lowlink(lowlink)
+        dfs_entry(ଗଣ୍ଠି_type ଗଣ୍ଠି, successor_enumerator successors, ପୂର୍ଣ୍ଣସଂଖ୍ୟା lowlink) :
+            ଗଣ୍ଠି(ଗଣ୍ଠି), successors(successors), lowlink(lowlink)
         {}
     };
 
     G &graph;
     ComponentCallback component;
 
-    std::vector<dfs_entry> dfs_stack;
-    std::vector<node_type> component_stack;
-    int next_index = 0;
+    std::vector<dfs_entry> dfs_ଗଦା;
+    std::vector<ଗଣ୍ଠି_type> component_ଗଦା;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା next_index = 0;
 
-public:
+ସର୍ବସାଧାରଣ:
     TopoSortedSccs(G &graph, ComponentCallback component)
     : graph(graph), component(component) {}
 
     // process all sources (nodes without a successor)
     TopoSortedSccs &process_sources() {
-        node_enumerator nodes = graph.enumerate_nodes();
-        while (!nodes.finished()) {
-            node_type node = nodes.next();
-            successor_enumerator successors = graph.enumerate_successors(node);
-            if (successors.finished())
+        ଗଣ୍ଠି_enumerator nodes = graph.enumerate_nodes();
+        ଯେତେବେଳେ (!nodes.finished()) {
+            ଗଣ୍ଠି_type ଗଣ୍ଠି = nodes.next();
+            successor_enumerator successors = graph.enumerate_successors(ଗଣ୍ଠି);
+            ଯଦି (successors.finished())
             {
-                graph.dfs_index(node) = next_index;
+                graph.dfs_index(ଗଣ୍ଠି) = next_index;
                 next_index++;
-                component_stack.push_back(node);
-                component(component_stack.data(), component_stack.data() + 1);
-                component_stack.clear();
-                graph.dfs_index(node) = INT_MAX;
+                component_ଗଦା.ଠେଲ_back(ଗଣ୍ଠି);
+                component(component_ଗଦା.data(), component_ଗଦା.data() + 1);
+                component_ଗଦା.clear();
+                graph.dfs_index(ଗଣ୍ଠି) = INT_MAX;
             }
         }
-        return *this;
+        ଫେରନ୍ତୁ *this;
     }
 
     // process all remaining nodes in the graph
     TopoSortedSccs &process_all() {
-        node_enumerator nodes = graph.enumerate_nodes();
+        ଗଣ୍ଠି_enumerator nodes = graph.enumerate_nodes();
         // iterate over all nodes to ensure we process the whole graph
-        while (!nodes.finished())
+        ଯେତେବେଳେ (!nodes.finished())
             process(nodes.next());
-        return *this;
+        ଫେରନ୍ତୁ *this;
     }
 
     // process all nodes that are reachable from a given start node
-    TopoSortedSccs &process(node_type node) {
+    TopoSortedSccs &process(ଗଣ୍ଠି_type ଗଣ୍ଠି) {
         // only start a new search if the node wasn't visited yet
-        if (graph.dfs_index(node) >= 0)
-            return *this;
-        while (true) {
+        ଯଦି (graph.dfs_index(ଗଣ୍ଠି) >= 0)
+            ଫେରନ୍ତୁ *this;
+        ଯେତେବେଳେ (true) {
             // at this point we're visiting the node for the first time during
             // the DFS search
 
             // we record the timestamp of when we first visited the node as the
             // dfs_index
-            int lowlink = next_index;
+            ପୂର୍ଣ୍ଣସଂଖ୍ୟା lowlink = next_index;
             next_index++;
-            graph.dfs_index(node) = lowlink;
+            graph.dfs_index(ଗଣ୍ଠି) = lowlink;
 
             // and we add the node to the component stack where it will remain
             // until all nodes of the component containing this node are popped
-            component_stack.push_back(node);
+            component_ଗଦା.ଠେଲ_back(ଗଣ୍ଠି);
 
             // then we start iterating over the successors of this node
-            successor_enumerator successors = graph.enumerate_successors(node);
-            while (true) {
-                if (successors.finished()) {
+            successor_enumerator successors = graph.enumerate_successors(ଗଣ୍ଠି);
+            ଯେତେବେଳେ (true) {
+                ଯଦି (successors.finished()) {
                     // when we processed all successors, i.e. when we visited
                     // the complete DFS subtree rooted at the current node, we
                     // first check whether the current node is a SCC root
@@ -279,20 +279,20 @@ public:
                     // (why this check identifies SCC roots is out of scope for
                     // this comment, see other material on Tarjan's SCC
                     // algorithm)
-                    if (lowlink == graph.dfs_index(node)) {
+                    ଯଦି (lowlink == graph.dfs_index(ଗଣ୍ଠି)) {
                         // the SCC containing the current node is at the top of
                         // the component stack, with the current node at the bottom
-                        int current = GetSize(component_stack);
-                        do {
+                        ପୂର୍ଣ୍ଣସଂଖ୍ୟା current = GetSize(component_ଗଦା);
+                        କର {
                             --current;
-                        } while (component_stack[current] != node);
+                        } ଯେତେବେଳେ (component_ଗଦା[current] != ଗଣ୍ଠି);
 
                         // we invoke the callback with a pointer range of the
                         // nodes in the SCC
 
-                        node_type *stack_ptr = component_stack.data();
-                        node_type *component_begin = stack_ptr + current;
-                        node_type *component_end = stack_ptr + component_stack.size();
+                        ଗଣ୍ଠି_type *ଗଦା_ptr = component_ଗଦା.data();
+                        ଗଣ୍ଠି_type *component_begin = ଗଦା_ptr + current;
+                        ଗଣ୍ଠି_type *component_end = ଗଦା_ptr + component_ଗଦା.size();
 
                         // note that we allow the callback to permute the nodes
                         // in this range as well as to modify dfs_index of the
@@ -303,40 +303,40 @@ public:
                         // nodes to INT_MAX, we don't need a separate check for
                         // whether successor nodes are still on the component
                         // stack before updating the lowlink value
-                        for (; component_begin != component_end; ++component_begin)
+                        ପାଇଁ (; component_begin != component_end; ++component_begin)
                             graph.dfs_index(*component_begin) = INT_MAX;
-                        component_stack.resize(current);
+                        component_ଗଦା.resize(current);
                     }
 
                     // after checking for a completed SCC the DFS either
                     // continues the search at the parent node or returns to
                     // the outer loop if we already are at the root node.
-                    if (dfs_stack.empty())
-                        return *this;
-                    auto &dfs_top = dfs_stack.back();
+                    ଯଦି (dfs_ଗଦା.empty())
+                        ଫେରନ୍ତୁ *this;
+                    auto &dfs_ଶୀର୍ଷ = dfs_ଗଦା.back();
 
-                    node = dfs_top.node;
-                    successors = std::move(dfs_top.successors);
+                    ଗଣ୍ଠି = dfs_ଶୀର୍ଷ.ଗଣ୍ଠି;
+                    successors = std::move(dfs_ଶୀର୍ଷ.successors);
 
                     // the parent's lowlink is updated when returning
-                    lowlink = min(lowlink, dfs_top.lowlink);
-                    dfs_stack.pop_back();
+                    lowlink = min(lowlink, dfs_ଶୀର୍ଷ.lowlink);
+                    dfs_ଗଦା.କାଢ଼_back();
                     // continue checking the remaining successors of the parent node.
-                } else {
-                    node_type succ = successors.next();
-                    if (graph.dfs_index(succ) < 0) {
+                } ଅନ୍ୟଥା {
+                    ଗଣ୍ଠି_type succ = successors.next();
+                    ଯଦି (graph.dfs_index(succ) < 0) {
                         // if the successor wasn't visted yet, the DFS recurses
                         // into the successor
 
                         // we save the state for this node and make the
                         // successor the current node.
-                        dfs_stack.emplace_back(node, std::move(successors), lowlink);
-                        node = succ;
+                        dfs_ଗଦା.emplace_back(ଗଣ୍ଠି, std::move(successors), lowlink);
+                        ଗଣ୍ଠି = succ;
 
                         // this break gets us to the section corresponding to
                         // the function entry in the recursive version
-                        break;
-                    } else {
+                        ଭାଙ୍ଗ;
+                    } ଅନ୍ୟଥା {
                         // the textbook version guards this update with a check
                         // whether the successor is still on the component
                         // stack. If the successor node was already visisted

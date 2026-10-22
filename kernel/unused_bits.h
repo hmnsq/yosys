@@ -1,13 +1,13 @@
 #ifndef UNUSED_BITS_H
 #define UNUSED_BITS_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/newcelltypes.h"
+#ଅନ୍ତର୍ଭାଵ "kernel/yosys.h"
+#ଅନ୍ତର୍ଭାଵ "kernel/sigtools.h"
+#ଅନ୍ତର୍ଭାଵ "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct UnusedBits
+ସଂରଚନା UnusedBits
 {
 	SigMap sigmap;
 	pool<RTLIL::SigBit> used;
@@ -18,34 +18,34 @@ struct UnusedBits
 		collect_used(module, ct);
 	}
 
-	UnusedBits(RTLIL::Module *module, const NewCellTypes &ct) : sigmap(module)
+	UnusedBits(RTLIL::Module *module, ଅଚଳ NewCellTypes &ct) : sigmap(module)
 	{
 		collect_used(module, ct);
 	}
 
-	void collect_used(RTLIL::Module *module, const NewCellTypes &ct)
+	ଶୂନ୍ୟ collect_used(RTLIL::Module *module, ଅଚଳ NewCellTypes &ct)
 	{
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				if (!ct.cell_output(cell->type, conn.first))
+		ପାଇଁ (auto cell : module->cells())
+			ପାଇଁ (auto &conn : cell->connections())
+				ଯଦି (!ct.cell_output(cell->type, conn.first))
 					add_used(conn.second);
 
-		for (auto wire : module->wires())
-			if (wire->port_output)
+		ପାଇଁ (auto wire : module->wires())
+			ଯଦି (wire->port_output)
 				add_used(wire);
 	}
 
-	void add_used(const RTLIL::SigSpec &sig)
+	ଶୂନ୍ୟ add_used(ଅଚଳ RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sigmap(sig))
-			if (bit.wire != nullptr)
-				used.insert(bit);
+		ପାଇଁ (auto bit : sigmap(sig))
+			ଯଦି (bit.wire != nullptr)
+				used.ଭର୍ତ୍ତି(bit);
 	}
 
-	bool check(RTLIL::SigBit bit) const
+	bool check(RTLIL::SigBit bit) ଅଚଳ
 	{
 		RTLIL::SigBit mapped = sigmap(bit);
-		return mapped.wire != nullptr && !used.count(mapped);
+		ଫେରନ୍ତୁ mapped.wire != nullptr && !used.ଗଣନା_2(mapped);
 	}
 };
 

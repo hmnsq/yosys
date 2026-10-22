@@ -17,245 +17,245 @@
  *
  */
 
-#include "libs/bigint/BigUnsigned.hh"
-#include "kernel/fmt.h"
+#ଅନ୍ତର୍ଭାଵ "libs/bigint/BigUnsigned.hh"
+#ଅନ୍ତର୍ଭାଵ "kernel/fmt.h"
 
 USING_YOSYS_NAMESPACE
 
-void Fmt::append_literal(const std::string &str) {
+ଶୂନ୍ୟ Fmt::append_literal(ଅଚଳ std::string &str) {
 	FmtPart part = {};
 	part.type = FmtPart::LITERAL;
 	part.str = str;
-	parts.push_back(part);
+	parts.ଠେଲ_back(part);
 }
 
-void Fmt::parse_rtlil(const RTLIL::Cell *cell) {
+ଶୂନ୍ୟ Fmt::parse_rtlil(ଅଚଳ RTLIL::Cell *cell) {
 	std::string fmt = cell->getParam(ID(FORMAT)).decode_string();
 	RTLIL::SigSpec args = cell->getPort(ID(ARGS));
 	parts.clear();
 
 	FmtPart part;
-	for (size_t i = 0; i < fmt.size(); i++) {
-		if (fmt.substr(i, 2) == "}}") {
+	ପାଇଁ (size_t i = 0; i < fmt.size(); i++) {
+		ଯଦି (fmt.substr(i, 2) == "}}") {
 			part.str += '}';
 			++i;
-		} else if (fmt.substr(i, 2) == "{{") {
+		} ଅନ୍ୟଥା ଯଦି (fmt.substr(i, 2) == "{{") {
 			part.str += '{';
 			++i;
-		} else if (fmt[i] == '}') {
-			log_assert(false && "Unexpected '}' in format string");
-		} else if (fmt[i] == '{') {
-			if (!part.str.empty()) {
+		} ଅନ୍ୟଥା ଯଦି (fmt[i] == '}') {
+			log_assert(ମିଥ୍ୟା && "Unexpected '}' in format string");
+		} ଅନ୍ୟଥା ଯଦି (fmt[i] == '{') {
+			ଯଦି (!part.str.empty()) {
 				part.type = FmtPart::LITERAL;
-				parts.push_back(part);
+				parts.ଠେଲ_back(part);
 				part = {};
 			}
 
-			if (++i == fmt.size())
-				log_assert(false && "Unexpected end in format substitution");
+			ଯଦି (++i == fmt.size())
+				log_assert(ମିଥ୍ୟା && "Unexpected end in format substitution");
 
 			size_t arg_size = 0;
-			for (; i < fmt.size(); i++) {
-				if (fmt[i] >= '0' && fmt[i] <= '9') {
+			ପାଇଁ (; i < fmt.size(); i++) {
+				ଯଦି (fmt[i] >= '0' && fmt[i] <= '9') {
 					arg_size *= 10;
 					arg_size += fmt[i] - '0';
-				} else if (fmt[i] == ':') {
+				} ଅନ୍ୟଥା ଯଦି (fmt[i] == ':') {
 					++i;
-					break;
-				} else {
-					log_assert(false && "Unexpected character in format substitution");
+					ଭାଙ୍ଗ;
+				} ଅନ୍ୟଥା {
+					log_assert(ମିଥ୍ୟା && "Unexpected character in format substitution");
 				}
 			}
-			if (i == fmt.size())
-				log_assert(false && "Unexpected end in format substitution");
+			ଯଦି (i == fmt.size())
+				log_assert(ମିଥ୍ୟା && "Unexpected end in format substitution");
 
-			if ((size_t)args.size() < arg_size)
-				log_assert(false && "Format part overruns arguments");
+			ଯଦି ((size_t)args.size() < arg_size)
+				log_assert(ମିଥ୍ୟା && "Format part overruns arguments");
 			part.sig = args.extract(0, arg_size);
 			args.remove(0, arg_size);
 
-			if (fmt[i] == 'U') {
+			ଯଦି (fmt[i] == 'U') {
 				part.type = FmtPart::UNICHAR;
 				++i;
-				goto success;
+				ଯାଅ success;
 			}
 
-			if (fmt[i] == '>')
-				part.justify = FmtPart::RIGHT;
-			else if (fmt[i] == '<')
-				part.justify = FmtPart::LEFT;
-			else if (fmt[i] == '=')
+			ଯଦି (fmt[i] == '>')
+				part.justify = FmtPart::ଡାହାଣ;
+			ଅନ୍ୟଥା ଯଦି (fmt[i] == '<')
+				part.justify = FmtPart::ବାମ;
+			ଅନ୍ୟଥା ଯଦି (fmt[i] == '=')
 				part.justify = FmtPart::NUMERIC;
-			else
-				log_assert(false && "Unexpected justification in format substitution");
-			if (++i == fmt.size())
-				log_assert(false && "Unexpected end in format substitution");
+			ଅନ୍ୟଥା
+				log_assert(ମିଥ୍ୟା && "Unexpected justification in format substitution");
+			ଯଦି (++i == fmt.size())
+				log_assert(ମିଥ୍ୟା && "Unexpected end in format substitution");
 
 			part.padding = fmt[i];
-			if (++i == fmt.size())
-				log_assert(false && "Unexpected end in format substitution");
+			ଯଦି (++i == fmt.size())
+				log_assert(ମିଥ୍ୟା && "Unexpected end in format substitution");
 
-			for (; i < fmt.size(); i++) {
-				if (fmt[i] >= '0' && fmt[i] <= '9') {
+			ପାଇଁ (; i < fmt.size(); i++) {
+				ଯଦି (fmt[i] >= '0' && fmt[i] <= '9') {
 					part.width *= 10;
 					part.width += fmt[i] - '0';
-					continue;
-				} else if (fmt[i] == 'b') {
+					ଜାରି;
+				} ଅନ୍ୟଥା ଯଦି (fmt[i] == 'b') {
 					part.type = FmtPart::INTEGER;
 					part.base = 2;
-				} else if (fmt[i] == 'o') {
+				} ଅନ୍ୟଥା ଯଦି (fmt[i] == 'o') {
 					part.type = FmtPart::INTEGER;
 					part.base = 8;
-				} else if (fmt[i] == 'd') {
+				} ଅନ୍ୟଥା ଯଦି (fmt[i] == 'd') {
 					part.type = FmtPart::INTEGER;
 					part.base = 10;
-				} else if (fmt[i] == 'h') {
+				} ଅନ୍ୟଥା ଯଦି (fmt[i] == 'h') {
 					part.type = FmtPart::INTEGER;
 					part.base = 16;
-				} else if (fmt[i] == 'H') {
+				} ଅନ୍ୟଥା ଯଦି (fmt[i] == 'H') {
 					part.type = FmtPart::INTEGER;
 					part.base = 16;
-					part.hex_upper = true;
-				} else if (fmt[i] == 'c') {
+					part.hex_upper = ସତ୍ୟ;
+				} ଅନ୍ୟଥା ଯଦି (fmt[i] == 'c') {
 					part.type = FmtPart::STRING;
-				} else if (fmt[i] == 't') {
+				} ଅନ୍ୟଥା ଯଦି (fmt[i] == 't') {
 					part.type = FmtPart::VLOG_TIME;
-				} else if (fmt[i] == 'r') {
+				} ଅନ୍ୟଥା ଯଦି (fmt[i] == 'r') {
 					part.type = FmtPart::VLOG_TIME;
-					part.realtime = true;
-				} else {
-					log_assert(false && "Unexpected character in format substitution");
+					part.realtime = ସତ୍ୟ;
+				} ଅନ୍ୟଥା {
+					log_assert(ମିଥ୍ୟା && "Unexpected character in format substitution");
 				}
 				++i;
-				break;
+				ଭାଙ୍ଗ;
 			}
-			if (i == fmt.size())
-				log_assert(false && "Unexpected end in format substitution");
+			ଯଦି (i == fmt.size())
+				log_assert(ମିଥ୍ୟା && "Unexpected end in format substitution");
 
-			if (part.type == FmtPart::INTEGER) {
-				if (fmt[i] == '-') {
+			ଯଦି (part.type == FmtPart::INTEGER) {
+				ଯଦି (fmt[i] == '-') {
 					part.sign = FmtPart::MINUS;
-					if (++i == fmt.size())
-						log_assert(false && "Unexpected end in format substitution");
-				} else if (fmt[i] == '+') {
+					ଯଦି (++i == fmt.size())
+						log_assert(ମିଥ୍ୟା && "Unexpected end in format substitution");
+				} ଅନ୍ୟଥା ଯଦି (fmt[i] == '+') {
 					part.sign = FmtPart::PLUS_MINUS;
-					if (++i == fmt.size())
-						log_assert(false && "Unexpected end in format substitution");
-				} else if (fmt[i] == ' ') {
+					ଯଦି (++i == fmt.size())
+						log_assert(ମିଥ୍ୟା && "Unexpected end in format substitution");
+				} ଅନ୍ୟଥା ଯଦି (fmt[i] == ' ') {
 					part.sign = FmtPart::SPACE_MINUS;
-					if (++i == fmt.size())
-						log_assert(false && "Unexpected end in format substitution");
-				} else {
+					ଯଦି (++i == fmt.size())
+						log_assert(ମିଥ୍ୟା && "Unexpected end in format substitution");
+				} ଅନ୍ୟଥା {
 					// also accept no sign character and treat like MINUS for compatibility
 				}
 
-				if (fmt[i] == '#') {
-					part.show_base = true;
+				ଯଦି (fmt[i] == '#') {
+					part.show_base = ସତ୍ୟ;
 					++i;
 				}
-				if (fmt[i] == '_') {
-					part.group = true;
+				ଯଦି (fmt[i] == '_') {
+					part.group = ସତ୍ୟ;
 					++i;
 				}
 
-				if (fmt[i] == 'u')
-					part.signed_ = false;
-				else if (fmt[i] == 's')
-					part.signed_ = true;
-				else
-					log_assert(false && "Unexpected character in format substitution");
-				if (++i == fmt.size())
-					log_assert(false && "Unexpected end in format substitution");
+				ଯଦି (fmt[i] == 'u')
+					part.signed_ = ମିଥ୍ୟା;
+				ଅନ୍ୟଥା ଯଦି (fmt[i] == 's')
+					part.signed_ = ସତ୍ୟ;
+				ଅନ୍ୟଥା
+					log_assert(ମିଥ୍ୟା && "Unexpected character in format substitution");
+				ଯଦି (++i == fmt.size())
+					log_assert(ମିଥ୍ୟା && "Unexpected end in format substitution");
 			}
 
 		success:
-			if (fmt[i] != '}')
-				log_assert(false && "Expected '}' after format substitution");
+			ଯଦି (fmt[i] != '}')
+				log_assert(ମିଥ୍ୟା && "Expected '}' after format substitution");
 
-			parts.push_back(part);
+			parts.ଠେଲ_back(part);
 			part = {};
-		} else {
+		} ଅନ୍ୟଥା {
 			part.str += fmt[i];
 		}
 	}
-	if (!part.str.empty()) {
+	ଯଦି (!part.str.empty()) {
 		part.type = FmtPart::LITERAL;
-		parts.push_back(part);
+		parts.ଠେଲ_back(part);
 	}
 }
 
-void Fmt::emit_rtlil(RTLIL::Cell *cell) const {
+ଶୂନ୍ୟ Fmt::emit_rtlil(RTLIL::Cell *cell) ଅଚଳ {
 	std::string fmt;
 	RTLIL::SigSpec args;
 
-	for (auto &part : parts) {
-		switch (part.type) {
-			case FmtPart::LITERAL:
-				for (char c : part.str) {
-					if (c == '{')
+	ପାଇଁ (auto &part : parts) {
+		ବାଛ (part.type) {
+			ସ୍ଥିତି FmtPart::LITERAL:
+				ପାଇଁ (ଅକ୍ଷର c : part.str) {
+					ଯଦି (c == '{')
 						fmt += "{{";
-					else if (c == '}')
+					ଅନ୍ୟଥା ଯଦି (c == '}')
 						fmt += "}}";
-					else
+					ଅନ୍ୟଥା
 						fmt += c;
 				}
-				break;
+				ଭାଙ୍ଗ;
 
-			case FmtPart::UNICHAR:
+			ସ୍ଥିତି FmtPart::UNICHAR:
 				log_assert(part.sig.size() <= 32);
 				fmt += "{U}";
-				break;
+				ଭାଙ୍ଗ;
 
-			case FmtPart::VLOG_TIME:
+			ସ୍ଥିତି FmtPart::VLOG_TIME:
 				log_assert(part.sig.size() == 0);
 				YS_FALLTHROUGH
-			case FmtPart::STRING:
+			ସ୍ଥିତି FmtPart::STRING:
 				log_assert(part.sig.size() % 8 == 0);
 				YS_FALLTHROUGH
-			case FmtPart::INTEGER:
+			ସ୍ଥିତି FmtPart::INTEGER:
 				args.append(part.sig);
 				fmt += '{';
 				fmt += std::to_string(part.sig.size());
 				fmt += ':';
-				if (part.justify == FmtPart::RIGHT)
+				ଯଦି (part.justify == FmtPart::ଡାହାଣ)
 					fmt += '>';
-				else if (part.justify == FmtPart::LEFT)
+				ଅନ୍ୟଥା ଯଦି (part.justify == FmtPart::ବାମ)
 					fmt += '<';
-				else if (part.justify == FmtPart::NUMERIC)
+				ଅନ୍ୟଥା ଯଦି (part.justify == FmtPart::NUMERIC)
 					fmt += '=';
-				else log_abort();
+				ଅନ୍ୟଥା log_abort();
 				log_assert(part.width == 0 || part.padding != '\0');
 				fmt += part.padding != '\0' ? part.padding : ' ';
-				if (part.width > 0)
+				ଯଦି (part.width > 0)
 					fmt += std::to_string(part.width);
-				if (part.type == FmtPart::INTEGER) {
-					switch (part.base) {
-						case  2: fmt += 'b'; break;
-						case  8: fmt += 'o'; break;
-						case 10: fmt += 'd'; break;
-						case 16: fmt += part.hex_upper ? 'H' : 'h'; break;
-						default: log_abort();
+				ଯଦି (part.type == FmtPart::INTEGER) {
+					ବାଛ (part.base) {
+						ସ୍ଥିତି  2: fmt += 'b'; ଭାଙ୍ଗ;
+						ସ୍ଥିତି  8: fmt += 'o'; ଭାଙ୍ଗ;
+						ସ୍ଥିତି 10: fmt += 'd'; ଭାଙ୍ଗ;
+						ସ୍ଥିତି 16: fmt += part.hex_upper ? 'H' : 'h'; ଭାଙ୍ଗ;
+						ପୂର୍ବନିର୍ଦ୍ଧାରିତ: log_abort();
 					}
-					switch (part.sign) {
-						case FmtPart::MINUS:       fmt += '-'; break;
-						case FmtPart::PLUS_MINUS:  fmt += '+'; break;
-						case FmtPart::SPACE_MINUS: fmt += ' '; break;
+					ବାଛ (part.sign) {
+						ସ୍ଥିତି FmtPart::MINUS:       fmt += '-'; ଭାଙ୍ଗ;
+						ସ୍ଥିତି FmtPart::PLUS_MINUS:  fmt += '+'; ଭାଙ୍ଗ;
+						ସ୍ଥିତି FmtPart::SPACE_MINUS: fmt += ' '; ଭାଙ୍ଗ;
 					}
 					fmt += part.show_base ? "#" : "";
 					fmt += part.group ? "_" : "";
 					fmt += part.signed_ ? 's' : 'u';
-				} else if (part.type == FmtPart::STRING) {
+				} ଅନ୍ୟଥା ଯଦି (part.type == FmtPart::STRING) {
 					fmt += 'c';
-				} else if (part.type == FmtPart::VLOG_TIME) {
-					if (part.realtime)
+				} ଅନ୍ୟଥା ଯଦି (part.type == FmtPart::VLOG_TIME) {
+					ଯଦି (part.realtime)
 						fmt += 'r';
-					else
+					ଅନ୍ୟଥା
 						fmt += 't';
-				} else log_abort();
+				} ଅନ୍ୟଥା log_abort();
 				fmt += '}';
-				break;
+				ଭାଙ୍ଗ;
 
-			default: log_abort();
+			ପୂର୍ବନିର୍ଦ୍ଧାରିତ: log_abort();
 		}
 	}
 
@@ -264,34 +264,34 @@ void Fmt::emit_rtlil(RTLIL::Cell *cell) const {
 	cell->setPort(ID(ARGS), args);
 }
 
-static size_t compute_required_decimal_places(size_t size, bool signed_)
+ସ୍ଥିର size_t compute_required_decimal_places(size_t size, ତାର୍କିକ signed_)
 {
 	BigUnsigned max;
-	if (!signed_)
-		max.setBit(size, true);
-	else
-		max.setBit(size - 1, true);
+	ଯଦି (!signed_)
+		max.setBit(size, ସତ୍ୟ);
+	ଅନ୍ୟଥା
+		max.setBit(size - 1, ସତ୍ୟ);
 	size_t places = 0;
-	while (!max.isZero()) {
+	ଯେତେବେଳେ (!max.isZero()) {
 		places++;
 		max /= 10;
 	}
-	if (signed_)
+	ଯଦି (signed_)
 		places++;
-	return places;
+	ଫେରନ୍ତୁ places;
 }
 
-static size_t compute_required_nondecimal_places(size_t size, unsigned base)
+ସ୍ଥିର size_t compute_required_nondecimal_places(size_t size, unsigned base)
 {
 	log_assert(base != 10);
 	BigUnsigned max;
-	max.setBit(size - 1, true);
+	max.setBit(size - 1, ସତ୍ୟ);
 	size_t places = 0;
-	while (!max.isZero()) {
+	ଯେତେବେଳେ (!max.isZero()) {
 		places++;
 		max /= base;
 	}
-	return places;
+	ଫେରନ୍ତୁ places;
 }
 
 // Only called for integers, either when:
@@ -316,370 +316,370 @@ static size_t compute_required_nondecimal_places(size_t size, unsigned base)
 // implementations, and intuitively makes sense as decimal representations lack
 // a discrete mapping of digits to bit groups.  Decimals may also show sign and
 // must accommodate this, whereas other representations do not.
-void Fmt::apply_verilog_automatic_sizing_and_add(FmtPart &part)
+ଶୂନ୍ୟ Fmt::apply_verilog_automatic_sizing_and_add(FmtPart &part)
 {
-	if (part.base == 10) {
+	ଯଦି (part.base == 10) {
 		size_t places = compute_required_decimal_places(part.sig.size(), part.signed_);
 		part.padding = ' ';
 		part.width = std::max(part.width, places);
-		parts.push_back(part);
-		return;
+		parts.ଠେଲ_back(part);
+		ଫେରନ୍ତୁ;
 	}
 
 	part.padding = '0';
 
 	size_t places = compute_required_nondecimal_places(part.sig.size(), part.base);
-	if (part.width < places) {
-		part.justify = FmtPart::RIGHT;
+	ଯଦି (part.width < places) {
+		part.justify = FmtPart::ଡାହାଣ;
 		part.width = places;
-		parts.push_back(part);
-	} else if (part.width == places) {
-		parts.push_back(part);
-	} else if (part.width > places) {
+		parts.ଠେଲ_back(part);
+	} ଅନ୍ୟଥା ଯଦି (part.width == places) {
+		parts.ଠେଲ_back(part);
+	} ଅନ୍ୟଥା ଯଦି (part.width > places) {
 		auto gap = std::string(part.width - places, ' ');
 		part.width = places;
 
-		if (part.justify == FmtPart::RIGHT) {
+		ଯଦି (part.justify == FmtPart::ଡାହାଣ) {
 			append_literal(gap);
-			parts.push_back(part);
-		} else {
-			part.justify = FmtPart::RIGHT;
-			parts.push_back(part);
+			parts.ଠେଲ_back(part);
+		} ଅନ୍ୟଥା {
+			part.justify = FmtPart::ଡାହାଣ;
+			parts.ଠେଲ_back(part);
 			append_literal(gap);
 		}
 	}
 }
 
-void Fmt::parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_like, int default_base, const std::string &task_name, const std::string &module_name)
+ଶୂନ୍ୟ Fmt::parse_verilog(ଅଚଳ std::vector<VerilogFmtArg> &args, ତାର୍କିକ sformat_like, ପୂର୍ଣ୍ଣସଂଖ୍ୟା default_base, ଅଚଳ std::string &task_name, ଅଚଳ std::string &module_name)
 {
 	parts.clear();
 
 	auto arg = args.begin();
-	for (; arg != args.end(); ++arg) {
-		switch (arg->type) {
-			case VerilogFmtArg::INTEGER: {
+	ପାଇଁ (; arg != args.end(); ++arg) {
+		ବାଛ (arg->type) {
+			ସ୍ଥିତି VerilogFmtArg::INTEGER: {
 				FmtPart part = {};
 				part.type = FmtPart::INTEGER;
 				part.sig = arg->sig;
 				part.base = default_base;
 				part.signed_ = arg->signed_;
 				apply_verilog_automatic_sizing_and_add(part);
-				break;
+				ଭାଙ୍ଗ;
 			}
 
-			case VerilogFmtArg::TIME: {
+			ସ୍ଥିତି VerilogFmtArg::TIME: {
 				FmtPart part = {};
 				part.type = FmtPart::VLOG_TIME;
 				part.realtime = arg->realtime;
 				part.padding = ' ';
 				part.width = 20;
-				parts.push_back(part);
-				break;
+				parts.ଠେଲ_back(part);
+				ଭାଙ୍ଗ;
 			}
 
-			case VerilogFmtArg::STRING: {
-				if (arg == args.begin() || !sformat_like) {
-					const auto fmtarg = arg;
-					const std::string &fmt = fmtarg->str;
+			ସ୍ଥିତି VerilogFmtArg::STRING: {
+				ଯଦି (arg == args.begin() || !sformat_like) {
+					ଅଚଳ auto fmtarg = arg;
+					ଅଚଳ std::string &fmt = fmtarg->str;
 					FmtPart part = {};
-					for (size_t i = 0; i < fmt.size(); i++) {
-						if (fmt[i] != '%') {
+					ପାଇଁ (size_t i = 0; i < fmt.size(); i++) {
+						ଯଦି (fmt[i] != '%') {
 							part.str += fmt[i];
-						} else if (fmt.substr(i, 2) == "%%") {
+						} ଅନ୍ୟଥା ଯଦି (fmt.substr(i, 2) == "%%") {
 							i++;
 							part.str += '%';
-						} else if (fmt.substr(i, 2) == "%l" || fmt.substr(i, 2) == "%L") {
+						} ଅନ୍ୟଥା ଯଦି (fmt.substr(i, 2) == "%l" || fmt.substr(i, 2) == "%L") {
 							i++;
 							part.str += module_name;
-						} else if (fmt.substr(i, 2) == "%m" || fmt.substr(i, 2) == "%M") {
+						} ଅନ୍ୟଥା ଯଦି (fmt.substr(i, 2) == "%m" || fmt.substr(i, 2) == "%M") {
 							i++;
 							part.str += module_name;
-						} else {
-							if (!part.str.empty()) {
+						} ଅନ୍ୟଥା {
+							ଯଦି (!part.str.empty()) {
 								part.type = FmtPart::LITERAL;
-								parts.push_back(part);
+								parts.ଠେଲ_back(part);
 								part = {};
 							}
-							if (++i == fmt.size()) {
+							ଯଦି (++i == fmt.size()) {
 								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 							}
 
-							if (++arg == args.end()) {
+							ଯଦି (++arg == args.end()) {
 								log_file_error(fmtarg->src, "System task `%s' called with fewer arguments than the format specifiers in argument %zu require.\n", task_name, fmtarg - args.begin() + 1);
 							}
 							part.sig = arg->sig;
 							part.signed_ = arg->signed_;
 
-							for (; i < fmt.size(); i++) {
-								if (fmt[i] == '-') {
+							ପାଇଁ (; i < fmt.size(); i++) {
+								ଯଦି (fmt[i] == '-') {
 									// left justify; not in IEEE 1800-2017 or verilator but iverilog has it
-									part.justify = FmtPart::LEFT;
-								} else if (fmt[i] == '+') {
+									part.justify = FmtPart::ବାମ;
+								} ଅନ୍ୟଥା ଯଦି (fmt[i] == '+') {
 									// always show sign; not in IEEE 1800-2017 or verilator but iverilog has it
 									part.sign = FmtPart::PLUS_MINUS;
-								} else break;
+								} ଅନ୍ୟଥା ଭାଙ୍ଗ;
 							}
-							if (i == fmt.size()) {
+							ଯଦି (i == fmt.size()) {
 								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 							}
 
-							bool has_leading_zero = false, has_width = false;
-							for (; i < fmt.size(); i++) {
-								if (fmt[i] >= '0' && fmt[i] <= '9') {
-									if (fmt[i] == '0' && !has_width) {
-										has_leading_zero = true;
-									} else {
-										has_width = true;
+							ତାର୍କିକ has_leading_zero = ମିଥ୍ୟା, has_width = ମିଥ୍ୟା;
+							ପାଇଁ (; i < fmt.size(); i++) {
+								ଯଦି (fmt[i] >= '0' && fmt[i] <= '9') {
+									ଯଦି (fmt[i] == '0' && !has_width) {
+										has_leading_zero = ସତ୍ୟ;
+									} ଅନ୍ୟଥା {
+										has_width = ସତ୍ୟ;
 										part.width *= 10;
 										part.width += fmt[i] - '0';
 									}
-									continue;
-								} else if (fmt[i] == 'b' || fmt[i] == 'B') {
+									ଜାରି;
+								} ଅନ୍ୟଥା ଯଦି (fmt[i] == 'b' || fmt[i] == 'B') {
 									part.type = FmtPart::INTEGER;
 									part.base =  2;
-								} else if (fmt[i] == 'o' || fmt[i] == 'O') {
+								} ଅନ୍ୟଥା ଯଦି (fmt[i] == 'o' || fmt[i] == 'O') {
 									part.type = FmtPart::INTEGER;
 									part.base =  8;
-								} else if (fmt[i] == 'd' || fmt[i] == 'D') {
+								} ଅନ୍ୟଥା ଯଦି (fmt[i] == 'd' || fmt[i] == 'D') {
 									part.type = FmtPart::INTEGER;
 									part.base = 10;
-								} else if (fmt[i] == 'h' || fmt[i] == 'H' ||
+								} ଅନ୍ୟଥା ଯଦି (fmt[i] == 'h' || fmt[i] == 'H' ||
 								           fmt[i] == 'x' || fmt[i] == 'X') {
 									// hex digits always printed in lowercase for %h%x as well as %H%X
 									part.type = FmtPart::INTEGER;
 									part.base = 16;
-								} else if (fmt[i] == 'c' || fmt[i] == 'C') {
+								} ଅନ୍ୟଥା ଯଦି (fmt[i] == 'c' || fmt[i] == 'C') {
 									part.type = FmtPart::STRING;
 									part.sig.extend_u0(8);
 									// %10c and %010c not fully defined in IEEE 1800-2017 and do different things in iverilog
-								} else if (fmt[i] == 's' || fmt[i] == 'S') {
+								} ଅନ୍ୟଥା ଯଦି (fmt[i] == 's' || fmt[i] == 'S') {
 									part.type = FmtPart::STRING;
-									if ((part.sig.size() % 8) != 0)
+									ଯଦି ((part.sig.size() % 8) != 0)
 										part.sig.extend_u0((part.sig.size() + 7) / 8 * 8);
 									// %10s and %010s not fully defined in IEEE 1800-2017 and do the same thing in iverilog
 									part.padding = ' ';
-								} else if (fmt[i] == 't' || fmt[i] == 'T') {
-									if (arg->type == VerilogFmtArg::TIME) {
+								} ଅନ୍ୟଥା ଯଦି (fmt[i] == 't' || fmt[i] == 'T') {
+									ଯଦି (arg->type == VerilogFmtArg::TIME) {
 										part.type = FmtPart::VLOG_TIME;
 										part.realtime = arg->realtime;
-										if (!has_width && !has_leading_zero)
+										ଯଦି (!has_width && !has_leading_zero)
 											part.width = 20;
-									} else {
+									} ଅନ୍ୟଥା {
 										log_file_error(fmtarg->src, "System task `%s' called with format character `%c' in argument %zu, but the argument is not $time or $realtime.\n", task_name, fmt[i], fmtarg - args.begin() + 1);
 									}
-								} else {
+								} ଅନ୍ୟଥା {
 									log_file_error(fmtarg->src, "System task `%s' called with unrecognized format character `%c' in argument %zu.\n", task_name, fmt[i], fmtarg - args.begin() + 1);
 								}
-								break;
+								ଭାଙ୍ଗ;
 							}
-							if (i == fmt.size()) {
+							ଯଦି (i == fmt.size()) {
 								log_file_error(fmtarg->src, "System task `%s' called with incomplete format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 							}
 
-							if (part.padding == '\0') {
-								if (has_leading_zero && part.justify == FmtPart::RIGHT) {
+							ଯଦି (part.padding == '\0') {
+								ଯଦି (has_leading_zero && part.justify == FmtPart::ଡାହାଣ) {
 									part.padding = '0';
 									part.justify = FmtPart::NUMERIC;
-								} else {
+								} ଅନ୍ୟଥା {
 									part.padding = ' ';
 								}
 							}
 
-							if (part.type == FmtPart::INTEGER && part.base != 10 && part.sign != FmtPart::MINUS)
+							ଯଦି (part.type == FmtPart::INTEGER && part.base != 10 && part.sign != FmtPart::MINUS)
 								log_file_error(fmtarg->src, "System task `%s' called with invalid format specifier in argument %zu.\n", task_name, fmtarg - args.begin() + 1);
 
-							if (part.base != 10)
-								part.signed_ = false;
-							if (part.type == FmtPart::INTEGER && !has_leading_zero)
+							ଯଦି (part.base != 10)
+								part.signed_ = ମିଥ୍ୟା;
+							ଯଦି (part.type == FmtPart::INTEGER && !has_leading_zero)
 								apply_verilog_automatic_sizing_and_add(part);
-							else
-								parts.push_back(part);
+							ଅନ୍ୟଥା
+								parts.ଠେଲ_back(part);
 							part = {};
 						}
 					}
-					if (!part.str.empty()) {
+					ଯଦି (!part.str.empty()) {
 						part.type = FmtPart::LITERAL;
-						parts.push_back(part);
+						parts.ଠେଲ_back(part);
 					}
-				} else {
+				} ଅନ୍ୟଥା {
 					FmtPart part = {};
 					part.type = FmtPart::LITERAL;
 					part.str = arg->str;
-					parts.push_back(part);
+					parts.ଠେଲ_back(part);
 				}
-				break;
+				ଭାଙ୍ଗ;
 			}
 
-			default: log_abort();
+			ପୂର୍ବନିର୍ଦ୍ଧାରିତ: log_abort();
 		}
 	}
 }
 
-std::vector<VerilogFmtArg> Fmt::emit_verilog() const
+std::vector<VerilogFmtArg> Fmt::emit_verilog() ଅଚଳ
 {
 	std::vector<VerilogFmtArg> args;
 	VerilogFmtArg fmt = {};
 	fmt.type = VerilogFmtArg::STRING;
 
-	for (auto &part : parts) {
-		switch (part.type) {
-			case FmtPart::LITERAL:
-				for (char c : part.str) {
-					if (c == '%')
+	ପାଇଁ (auto &part : parts) {
+		ବାଛ (part.type) {
+			ସ୍ଥିତି FmtPart::LITERAL:
+				ପାଇଁ (ଅକ୍ଷର c : part.str) {
+					ଯଦି (c == '%')
 						fmt.str += "%%";
-					else
+					ଅନ୍ୟଥା
 						fmt.str += c;
 				}
-				break;
+				ଭାଙ୍ଗ;
 
-			case FmtPart::INTEGER: {
+			ସ୍ଥିତି FmtPart::INTEGER: {
 				VerilogFmtArg arg = {};
 				arg.type = VerilogFmtArg::INTEGER;
 				arg.sig = part.sig;
 				arg.signed_ = part.signed_;
-				args.push_back(arg);
+				args.ଠେଲ_back(arg);
 
 				fmt.str += '%';
-				if (part.sign == FmtPart::PLUS_MINUS || part.sign == FmtPart::SPACE_MINUS)
+				ଯଦି (part.sign == FmtPart::PLUS_MINUS || part.sign == FmtPart::SPACE_MINUS)
 					fmt.str += '+'; // treat space/minus as plus/minus
-				if (part.justify == FmtPart::LEFT)
+				ଯଦି (part.justify == FmtPart::ବାମ)
 					fmt.str += '-';
-				if (part.width == 0) {
+				ଯଦି (part.width == 0) {
 					fmt.str += '0';
-				} else if (part.width > 0) {
-					if (part.base != 10 || part.padding == '0')
+				} ଅନ୍ୟଥା ଯଦି (part.width > 0) {
+					ଯଦି (part.base != 10 || part.padding == '0')
 						fmt.str += '0';
 					fmt.str += std::to_string(part.width);
 				}
-				switch (part.base) {
-					case  2: fmt.str += 'b'; break;
-					case  8: fmt.str += 'o'; break;
-					case 10: fmt.str += 'd'; break;
-					case 16: fmt.str += 'h'; break; // treat uppercase hex as lowercase
-					default: log_abort();
+				ବାଛ (part.base) {
+					ସ୍ଥିତି  2: fmt.str += 'b'; ଭାଙ୍ଗ;
+					ସ୍ଥିତି  8: fmt.str += 'o'; ଭାଙ୍ଗ;
+					ସ୍ଥିତି 10: fmt.str += 'd'; ଭାଙ୍ଗ;
+					ସ୍ଥିତି 16: fmt.str += 'h'; ଭାଙ୍ଗ; // treat uppercase hex as lowercase
+					ପୂର୍ବନିର୍ଦ୍ଧାରିତ: log_abort();
 				}
-				break;
+				ଭାଙ୍ଗ;
 			}
 
-			case FmtPart::STRING: {
+			ସ୍ଥିତି FmtPart::STRING: {
 				VerilogFmtArg arg;
 				arg.type = VerilogFmtArg::INTEGER;
 				arg.sig = part.sig;
-				args.push_back(arg);
+				args.ଠେଲ_back(arg);
 
 				fmt.str += '%';
-				if (part.justify == FmtPart::LEFT)
+				ଯଦି (part.justify == FmtPart::ବାମ)
 					fmt.str += '-';
-				if (part.sig.size() == 8) {
-					if (part.width > 0) {
-						if (part.padding == '0')
+				ଯଦି (part.sig.size() == 8) {
+					ଯଦି (part.width > 0) {
+						ଯଦି (part.padding == '0')
 							fmt.str += part.padding;
 						fmt.str += std::to_string(part.width);
 					}
 					fmt.str += 'c';
-				} else {
+				} ଅନ୍ୟଥା {
 					log_assert(part.sig.size() % 8 == 0);
-					if (part.width > 0) {
+					ଯଦି (part.width > 0) {
 						fmt.str += std::to_string(part.width);
 					}
 					fmt.str += 's';
 				}
-				break;
+				ଭାଙ୍ଗ;
 			}
 
-			case FmtPart::UNICHAR: {
+			ସ୍ଥିତି FmtPart::UNICHAR: {
 				VerilogFmtArg arg;
 				arg.type = VerilogFmtArg::INTEGER;
 				arg.sig = part.sig.extract(0, 7); // only ASCII
-				args.push_back(arg);
+				args.ଠେଲ_back(arg);
 
 				fmt.str += "%c";
-				break;
+				ଭାଙ୍ଗ;
 			}
 
-			case FmtPart::VLOG_TIME: {
+			ସ୍ଥିତି FmtPart::VLOG_TIME: {
 				VerilogFmtArg arg;
 				arg.type = VerilogFmtArg::TIME;
-				if (part.realtime)
-					arg.realtime = true;
-				args.push_back(arg);
+				ଯଦି (part.realtime)
+					arg.realtime = ସତ୍ୟ;
+				args.ଠେଲ_back(arg);
 
 				fmt.str += '%';
 				log_assert(part.sign == FmtPart::MINUS || part.sign == FmtPart::PLUS_MINUS);
-				if (part.sign == FmtPart::PLUS_MINUS)
+				ଯଦି (part.sign == FmtPart::PLUS_MINUS)
 					fmt.str += '+';
-				if (part.justify == FmtPart::LEFT)
+				ଯଦି (part.justify == FmtPart::ବାମ)
 					fmt.str += '-';
-				if (part.padding == '0' && part.width > 0)
+				ଯଦି (part.padding == '0' && part.width > 0)
 					fmt.str += '0';
 				fmt.str += std::to_string(part.width);
 				fmt.str += 't';
-				break;
+				ଭାଙ୍ଗ;
 			}
 
-			default: log_abort();
+			ପୂର୍ବନିର୍ଦ୍ଧାରିତ: log_abort();
 		}
 	}
 
-	args.insert(args.begin(), fmt);
-	return args;
+	args.ଭର୍ତ୍ତି(args.begin(), fmt);
+	ଫେରନ୍ତୁ args;
 }
 
-std::string escape_cxx_string(const std::string &input)
+std::string escape_cxx_string(ଅଚଳ std::string &ନିବେଶ)
 {
 	std::string output = "\"";
-	for (auto c : input) {
-		if (::isprint(c)) {
-			if (c == '\\' || c == '"')
-				output.push_back('\\');
-			output.push_back(c);
-		} else {
-			char l = c & 0x7, m = (c >> 3) & 0x7, h = (c >> 6) & 0x3;
-			output.push_back('\\');
-			output.push_back('0' + h);
-			output.push_back('0' + m);
-			output.push_back('0' + l);
+	ପାଇଁ (auto c : ନିବେଶ) {
+		ଯଦି (::isprint(c)) {
+			ଯଦି (c == '\\' || c == '"')
+				output.ଠେଲ_back('\\');
+			output.ଠେଲ_back(c);
+		} ଅନ୍ୟଥା {
+			ଅକ୍ଷର l = c & 0x7, m = (c >> 3) & 0x7, h = (c >> 6) & 0x3;
+			output.ଠେଲ_back('\\');
+			output.ଠେଲ_back('0' + h);
+			output.ଠେଲ_back('0' + m);
+			output.ଠେଲ_back('0' + l);
 		}
 	}
-	output.push_back('"');
-	if (output.find('\0') != std::string::npos) {
-		output.insert(0, "std::string {");
-		output.append(stringf(", %zu}", input.size()));
+	output.ଠେଲ_back('"');
+	ଯଦି (output.find('\0') != std::string::npos) {
+		output.ଭର୍ତ୍ତି(0, "std::string {");
+		output.append(stringf(", %zu}", ନିବେଶ.size()));
 	}
-	return output;
+	ଫେରନ୍ତୁ output;
 }
 
-void Fmt::emit_cxxrtl(std::ostream &os, std::string indent, std::function<void(const RTLIL::SigSpec &)> emit_sig, const std::string &context) const
+ଶୂନ୍ୟ Fmt::emit_cxxrtl(std::ostream &os, std::string indent, std::function<ଶୂନ୍ୟ(ଅଚଳ RTLIL::SigSpec &)> emit_sig, ଅଚଳ std::string &context) ଅଚଳ
 {
 	os << indent << "std::string buf;\n";
-	for (auto &part : parts) {
+	ପାଇଁ (auto &part : parts) {
 		os << indent << "buf += fmt_part { ";
 		os << "fmt_part::";
-		switch (part.type) {
-			case FmtPart::LITERAL:   os << "LITERAL";   break;
-			case FmtPart::INTEGER:   os << "INTEGER";   break;
-			case FmtPart::STRING:    os << "STRING";    break;
-			case FmtPart::UNICHAR:   os << "UNICHAR";   break;
-			case FmtPart::VLOG_TIME: os << "VLOG_TIME"; break;
+		ବାଛ (part.type) {
+			ସ୍ଥିତି FmtPart::LITERAL:   os << "LITERAL";   ଭାଙ୍ଗ;
+			ସ୍ଥିତି FmtPart::INTEGER:   os << "INTEGER";   ଭାଙ୍ଗ;
+			ସ୍ଥିତି FmtPart::STRING:    os << "STRING";    ଭାଙ୍ଗ;
+			ସ୍ଥିତି FmtPart::UNICHAR:   os << "UNICHAR";   ଭାଙ୍ଗ;
+			ସ୍ଥିତି FmtPart::VLOG_TIME: os << "VLOG_TIME"; ଭାଙ୍ଗ;
 		}
 		os << ", ";
 		os << escape_cxx_string(part.str) << ", ";
 		os << "fmt_part::";
-		switch (part.justify) {
-			case FmtPart::LEFT:    os << "LEFT";    break;
-			case FmtPart::RIGHT:   os << "RIGHT";   break;
-			case FmtPart::NUMERIC: os << "NUMERIC"; break;
+		ବାଛ (part.justify) {
+			ସ୍ଥିତି FmtPart::ବାମ:    os << "LEFT";    ଭାଙ୍ଗ;
+			ସ୍ଥିତି FmtPart::ଡାହାଣ:   os << "RIGHT";   ଭାଙ୍ଗ;
+			ସ୍ଥିତି FmtPart::NUMERIC: os << "NUMERIC"; ଭାଙ୍ଗ;
 		}
 		os << ", ";
-		os << "(char)" << (int)part.padding << ", ";
+		os << "(char)" << (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)part.padding << ", ";
 		os << part.width << ", ";
 		os << part.base << ", ";
 		os << part.signed_ << ", ";
 		os << "fmt_part::";
-		switch (part.sign) {
-			case FmtPart::MINUS:       os << "MINUS";       break;
-			case FmtPart::PLUS_MINUS:  os << "PLUS_MINUS";  break;
-			case FmtPart::SPACE_MINUS: os << "SPACE_MINUS"; break;
+		ବାଛ (part.sign) {
+			ସ୍ଥିତି FmtPart::MINUS:       os << "MINUS";       ଭାଙ୍ଗ;
+			ସ୍ଥିତି FmtPart::PLUS_MINUS:  os << "PLUS_MINUS";  ଭାଙ୍ଗ;
+			ସ୍ଥିତି FmtPart::SPACE_MINUS: os << "SPACE_MINUS"; ଭାଙ୍ଗ;
 		}
 		os << ", ";
 		os << part.hex_upper << ", ";
@@ -693,191 +693,191 @@ void Fmt::emit_cxxrtl(std::ostream &os, std::string indent, std::function<void(c
 	os << indent << "return buf;\n";
 }
 
-std::string Fmt::render() const
+std::string Fmt::render() ଅଚଳ
 {
 	std::string str;
 
-	for (auto &part : parts) {
-		switch (part.type) {
-			case FmtPart::LITERAL:
+	ପାଇଁ (auto &part : parts) {
+		ବାଛ (part.type) {
+			ସ୍ଥିତି FmtPart::LITERAL:
 				str += part.str;
-				break;
+				ଭାଙ୍ଗ;
 
-			case FmtPart::UNICHAR: {
-				RTLIL::Const value = part.sig.as_const();
-				uint32_t codepoint = value.as_int();
-				if (codepoint >= 0x10000)
-					str += (char)(0xf0 |  (codepoint >> 18));
-				else if (codepoint >= 0x800)
-					str += (char)(0xe0 |  (codepoint >> 12));
-				else if (codepoint >= 0x80)
-					str += (char)(0xc0 |  (codepoint >>  6));
-				else
-					str += (char)codepoint;
-				if (codepoint >= 0x10000)
-					str += (char)(0x80 | ((codepoint >> 12) & 0x3f));
-				if (codepoint >= 0x800)
-					str += (char)(0x80 | ((codepoint >>  6) & 0x3f));
-				if (codepoint >= 0x80)
-					str += (char)(0x80 | ((codepoint >>  0) & 0x3f));
-				break;
+			ସ୍ଥିତି FmtPart::UNICHAR: {
+				RTLIL::Const ମୂଲ୍ୟ = part.sig.as_const();
+				uint32_t codepoint = ମୂଲ୍ୟ.as_int();
+				ଯଦି (codepoint >= 0x10000)
+					str += (ଅକ୍ଷର)(0xf0 |  (codepoint >> 18));
+				ଅନ୍ୟଥା ଯଦି (codepoint >= 0x800)
+					str += (ଅକ୍ଷର)(0xe0 |  (codepoint >> 12));
+				ଅନ୍ୟଥା ଯଦି (codepoint >= 0x80)
+					str += (ଅକ୍ଷର)(0xc0 |  (codepoint >>  6));
+				ଅନ୍ୟଥା
+					str += (ଅକ୍ଷର)codepoint;
+				ଯଦି (codepoint >= 0x10000)
+					str += (ଅକ୍ଷର)(0x80 | ((codepoint >> 12) & 0x3f));
+				ଯଦି (codepoint >= 0x800)
+					str += (ଅକ୍ଷର)(0x80 | ((codepoint >>  6) & 0x3f));
+				ଯଦି (codepoint >= 0x80)
+					str += (ଅକ୍ଷର)(0x80 | ((codepoint >>  0) & 0x3f));
+				ଭାଙ୍ଗ;
 			}
 
-			case FmtPart::INTEGER:
-			case FmtPart::STRING:
-			case FmtPart::VLOG_TIME: {
+			ସ୍ଥିତି FmtPart::INTEGER:
+			ସ୍ଥିତି FmtPart::STRING:
+			ସ୍ଥିତି FmtPart::VLOG_TIME: {
 				std::string buf;
 				std::string prefix;
-				if (part.type == FmtPart::INTEGER) {
-					RTLIL::Const value = part.sig.as_const();
-					bool has_x = false, all_x = true, has_z = false, all_z = true;
-					for (State bit : value) {
-						if (bit == State::Sx)
-							has_x = true;
-						else
-							all_x = false;
-						if (bit == State::Sz)
-							has_z = true;
-						else
-							all_z = false;
+				ଯଦି (part.type == FmtPart::INTEGER) {
+					RTLIL::Const ମୂଲ୍ୟ = part.sig.as_const();
+					ତାର୍କିକ has_x = ମିଥ୍ୟା, all_x = ସତ୍ୟ, has_z = ମିଥ୍ୟା, all_z = ସତ୍ୟ;
+					ପାଇଁ (State bit : ମୂଲ୍ୟ) {
+						ଯଦି (bit == State::Sx)
+							has_x = ସତ୍ୟ;
+						ଅନ୍ୟଥା
+							all_x = ମିଥ୍ୟା;
+						ଯଦି (bit == State::Sz)
+							has_z = ସତ୍ୟ;
+						ଅନ୍ୟଥା
+							all_z = ମିଥ୍ୟା;
 					}
 
-					if (!has_z && !has_x && part.signed_ && value[value.size() - 1]) {
+					ଯଦି (!has_z && !has_x && part.signed_ && ମୂଲ୍ୟ[ମୂଲ୍ୟ.size() - 1]) {
 						prefix = "-";
-						value = RTLIL::const_neg(value, {}, part.signed_, {}, value.size() + 1);
-					} else {
-						switch (part.sign) {
-							case FmtPart::MINUS:       break;
-							case FmtPart::PLUS_MINUS:  prefix = "+"; break;
-							case FmtPart::SPACE_MINUS: prefix = " "; break;
+						ମୂଲ୍ୟ = RTLIL::const_neg(ମୂଲ୍ୟ, {}, part.signed_, {}, ମୂଲ୍ୟ.size() + 1);
+					} ଅନ୍ୟଥା {
+						ବାଛ (part.sign) {
+							ସ୍ଥିତି FmtPart::MINUS:       ଭାଙ୍ଗ;
+							ସ୍ଥିତି FmtPart::PLUS_MINUS:  prefix = "+"; ଭାଙ୍ଗ;
+							ସ୍ଥିତି FmtPart::SPACE_MINUS: prefix = " "; ଭାଙ୍ଗ;
 						}
 					}
 
-					if (part.base != 10) {
+					ଯଦି (part.base != 10) {
 						size_t minimum_size = 1;
-						for (size_t index = 0; index < (size_t)value.size(); index++)
-							if (value[index] != State::S0)
+						ପାଇଁ (size_t index = 0; index < (size_t)ମୂଲ୍ୟ.size(); index++)
+							ଯଦି (ମୂଲ୍ୟ[index] != State::S0)
 								minimum_size = index + 1;
-						value = value.extract(0, minimum_size);
+						ମୂଲ୍ୟ = ମୂଲ୍ୟ.extract(0, minimum_size);
 					}
 
-					if (part.base == 2) {
-						if (part.show_base)
+					ଯଦି (part.base == 2) {
+						ଯଦି (part.show_base)
 							prefix += "0b";
-						for (size_t index = 0; index < (size_t)value.size(); index++) {
-							if (part.group && index > 0 && index % 4 == 0)
+						ପାଇଁ (size_t index = 0; index < (size_t)ମୂଲ୍ୟ.size(); index++) {
+							ଯଦି (part.group && index > 0 && index % 4 == 0)
 								buf += '_';
-							RTLIL::State bit = value[index];
-							if (bit == State::Sx)
+							RTLIL::State bit = ମୂଲ୍ୟ[index];
+							ଯଦି (bit == State::Sx)
 								buf += 'x';
-							else if (bit == State::Sz)
+							ଅନ୍ୟଥା ଯଦି (bit == State::Sz)
 								buf += 'z';
-							else if (bit == State::S1)
+							ଅନ୍ୟଥା ଯଦି (bit == State::S1)
 								buf += '1';
-							else /* if (bit == State::S0) */
+							ଅନ୍ୟଥା /* if (bit == State::S0) */
 								buf += '0';
 						}
-					} else if (part.base == 8 || part.base == 16) {
-						if (part.show_base)
+					} ଅନ୍ୟଥା ଯଦି (part.base == 8 || part.base == 16) {
+						ଯଦି (part.show_base)
 							prefix += (part.base == 16) ? (part.hex_upper ? "0X" : "0x") : "0o";
 						size_t step = (part.base == 16) ? 4 : 3;
-						for (size_t index = 0; index < (size_t)value.size(); index += step) {
-							if (part.group && index > 0 && index % (4 * step) == 0)
+						ପାଇଁ (size_t index = 0; index < (size_t)ମୂଲ୍ୟ.size(); index += step) {
+							ଯଦି (part.group && index > 0 && index % (4 * step) == 0)
 								buf += '_';
-							RTLIL::Const subvalue = value.extract(index, min(step, value.size() - index));
-							bool has_x = false, all_x = true, has_z = false, all_z = true;
-							for (State bit : subvalue) {
-								if (bit == State::Sx)
-									has_x = true;
-								else
-									all_x = false;
-								if (bit == State::Sz)
-									has_z = true;
-								else
-									all_z = false;
+							RTLIL::Const subvalue = ମୂଲ୍ୟ.extract(index, min(step, ମୂଲ୍ୟ.size() - index));
+							ତାର୍କିକ has_x = ମିଥ୍ୟା, all_x = ସତ୍ୟ, has_z = ମିଥ୍ୟା, all_z = ସତ୍ୟ;
+							ପାଇଁ (State bit : subvalue) {
+								ଯଦି (bit == State::Sx)
+									has_x = ସତ୍ୟ;
+								ଅନ୍ୟଥା
+									all_x = ମିଥ୍ୟା;
+								ଯଦି (bit == State::Sz)
+									has_z = ସତ୍ୟ;
+								ଅନ୍ୟଥା
+									all_z = ମିଥ୍ୟା;
 							}
-							if (all_x)
+							ଯଦି (all_x)
 								buf += 'x';
-							else if (all_z)
+							ଅନ୍ୟଥା ଯଦି (all_z)
 								buf += 'z';
-							else if (has_x)
+							ଅନ୍ୟଥା ଯଦି (has_x)
 								buf += 'X';
-							else if (has_z)
+							ଅନ୍ୟଥା ଯଦି (has_z)
 								buf += 'Z';
-							else {
-								const char *digits = part.hex_upper ? "0123456789ABCDEF" : "0123456789abcdef";
+							ଅନ୍ୟଥା {
+								ଅଚଳ ଅକ୍ଷର *digits = part.hex_upper ? "0123456789ABCDEF" : "0123456789abcdef";
 								buf += digits[subvalue.as_int()];
 							}
 						}
-					} else if (part.base == 10) {
-						if (part.show_base)
+					} ଅନ୍ୟଥା ଯଦି (part.base == 10) {
+						ଯଦି (part.show_base)
 							prefix += "0d";
-						if (all_x)
+						ଯଦି (all_x)
 							buf += 'x';
-						else if (all_z)
+						ଅନ୍ୟଥା ଯଦି (all_z)
 							buf += 'z';
-						else if (has_x)
+						ଅନ୍ୟଥା ଯଦି (has_x)
 							buf += 'X';
-						else if (has_z)
+						ଅନ୍ୟଥା ଯଦି (has_z)
 							buf += 'Z';
-						else {
-							log_assert(value.is_fully_def());
-							if (value.is_fully_zero())
+						ଅନ୍ୟଥା {
+							log_assert(ମୂଲ୍ୟ.is_fully_def());
+							ଯଦି (ମୂଲ୍ୟ.is_fully_zero())
 								buf += '0';
 							size_t index = 0;
-							while (!value.is_fully_zero())	{
-								if (part.group && index > 0 && index % 3 == 0)
+							ଯେତେବେଳେ (!ମୂଲ୍ୟ.is_fully_zero())	{
+								ଯଦି (part.group && index > 0 && index % 3 == 0)
 									buf += '_';
-								buf += '0' + RTLIL::const_mod(value, 10, false, false, 4).as_int();
-								value = RTLIL::const_div(value, 10, false, false, value.size());
+								buf += '0' + RTLIL::const_mod(ମୂଲ୍ୟ, 10, ମିଥ୍ୟା, ମିଥ୍ୟା, 4).as_int();
+								ମୂଲ୍ୟ = RTLIL::const_div(ମୂଲ୍ୟ, 10, ମିଥ୍ୟା, ମିଥ୍ୟା, ମୂଲ୍ୟ.size());
 								index++;
 							}
 						}
-					} else log_abort();
-					if (part.justify == FmtPart::NUMERIC && part.group && part.padding == '0') {
+					} ଅନ୍ୟଥା log_abort();
+					ଯଦି (part.justify == FmtPart::NUMERIC && part.group && part.padding == '0') {
 						size_t group_size = part.base == 10 ? 3 : 4;
-						while (prefix.size() + buf.size() < part.width) {
-							if (buf.size() % (group_size + 1) == group_size)
+						ଯେତେବେଳେ (prefix.size() + buf.size() < part.width) {
+							ଯଦି (buf.size() % (group_size + 1) == group_size)
 								buf += '_';
 							buf += '0';
 						}
 					}
 					std::reverse(buf.begin(), buf.end());
-				} else if (part.type == FmtPart::STRING) {
+				} ଅନ୍ୟଥା ଯଦି (part.type == FmtPart::STRING) {
 					buf = part.sig.as_const().decode_string();
-				} else if (part.type == FmtPart::VLOG_TIME) {
+				} ଅନ୍ୟଥା ଯଦି (part.type == FmtPart::VLOG_TIME) {
 					// We only render() during initial, so time is always zero.
 					buf = "0";
 				}
 
 				log_assert(part.width == 0 || part.padding != '\0');
-				if (prefix.size() + buf.size() < part.width) {
+				ଯଦି (prefix.size() + buf.size() < part.width) {
 					size_t pad_width = part.width - prefix.size() - buf.size();
-					switch (part.justify) {
-						case FmtPart::LEFT:
+					ବାଛ (part.justify) {
+						ସ୍ଥିତି FmtPart::ବାମ:
 							str += prefix;
 							str += buf;
 							str += std::string(pad_width, part.padding);
-							break;
-						case FmtPart::RIGHT:
+							ଭାଙ୍ଗ;
+						ସ୍ଥିତି FmtPart::ଡାହାଣ:
 							str += std::string(pad_width, part.padding);
 							str += prefix;
 							str += buf;
-							break;
-						case FmtPart::NUMERIC:
+							ଭାଙ୍ଗ;
+						ସ୍ଥିତି FmtPart::NUMERIC:
 							str += prefix;
 							str += std::string(pad_width, part.padding);
 							str += buf;
-							break;
+							ଭାଙ୍ଗ;
 					}
-				} else {
+				} ଅନ୍ୟଥା {
 					str += prefix;
 					str += buf;
 				}
-				break;
+				ଭାଙ୍ଗ;
 			}
 		}
 	}
 
-	return str;
+	ଫେରନ୍ତୁ str;
 }

@@ -17,50 +17,50 @@
  *
  */
 
-#include "sexpr.h"
+#ଅନ୍ତର୍ଭାଵ "sexpr.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-std::ostream &operator<<(std::ostream &os, SExpr const &sexpr) {
-    if(sexpr.is_atom())
+std::ostream &operator<<(std::ostream &os, SExpr ଅଚଳ &sexpr) {
+    ଯଦି(sexpr.is_atom())
         os << sexpr.atom();
-    else if(sexpr.is_list()){
+    ଅନ୍ୟଥା ଯଦି(sexpr.is_list()){
         os << "(";
         auto l = sexpr.list();
-        for(size_t i = 0; i < l.size(); i++) {
-            if(i > 0) os << " ";
+        ପାଇଁ(size_t i = 0; i < l.size(); i++) {
+            ଯଦି(i > 0) os << " ";
             os << l[i];
         }
         os << ")";
-    }else
+    }ଅନ୍ୟଥା
         os << "<invalid>";
-    return os;
+    ଫେରନ୍ତୁ os;
 }
 
- std::string SExpr::to_string() const {
+ std::string SExpr::to_string() ଅଚଳ {
     std::stringstream ss;
-    ss << *this;
-    return ss.str();
+    ss << *ଏହି;
+    ଫେରନ୍ତୁ ss.str();
 }
 
-void SExprWriter::nl_if_pending() {
-    if(_pending_nl) {
+ଶୂନ୍ୟ SExprWriter::nl_if_pending() {
+    ଯଦି(_pending_nl) {
         os << '\n';
         _pos = 0;
-        _pending_nl = false;
+        _pending_nl = ମିଥ୍ୟା;
     }
 }
 
-void SExprWriter::puts(std::string_view s) {
-    if(s.empty()) return;
+ଶୂନ୍ୟ SExprWriter::puts(std::string_view s) {
+    ଯଦି(s.empty()) ଫେରନ୍ତୁ;
     nl_if_pending();
-    for(auto c : s) {
-        if(c == '\n') {
+    ପାଇଁ(auto c : s) {
+        ଯଦି(c == '\n') {
             os << c;
             _pos = 0;
-        } else {
-            if(_pos == 0) {
-                for(int i = 0; i < _indent; i++)
+        } ଅନ୍ୟଥା {
+            ଯଦି(_pos == 0) {
+                ପାଇଁ(ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < _indent; i++)
                     os << "  ";
                 _pos = 2 * _indent;
             }
@@ -78,84 +78,84 @@ void SExprWriter::puts(std::string_view s) {
 // but I can't figure out how to store the widths. As an alternative,
 // we bail out of the calculation as soon as we can tell the expression
 // doesn't fit in the available space.)
-int SExprWriter::check_fit(SExpr const &sexpr, int space) {
-    if(sexpr.is_atom())
-        return space - sexpr.atom().size();
-    else if(sexpr.is_list()) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା SExprWriter::check_fit(SExpr ଅଚଳ &sexpr, ପୂର୍ଣ୍ଣସଂଖ୍ୟା space) {
+    ଯଦି(sexpr.is_atom())
+        ଫେରନ୍ତୁ space - sexpr.atom().size();
+    ଅନ୍ୟଥା ଯଦି(sexpr.is_list()) {
         space -= 2;
-        if(sexpr.list().size() > 1)
+        ଯଦି(sexpr.list().size() > 1)
             space -= sexpr.list().size() - 1;
-        for(auto arg : sexpr.list()) {
-            if(space < 0) break;
+        ପାଇଁ(auto arg : sexpr.list()) {
+            ଯଦି(space < 0) ଭାଙ୍ଗ;
             space = check_fit(arg, space);
         }
-        return space;
-    } else
-        return -1;
+        ଫେରନ୍ତୁ space;
+    } ଅନ୍ୟଥା
+        ଫେରନ୍ତୁ -1;
 }
 
-void SExprWriter::print(SExpr const &sexpr, bool close, bool indent_rest) {
-    if(sexpr.is_atom())
+ଶୂନ୍ୟ SExprWriter::print(SExpr ଅଚଳ &sexpr, ତାର୍କିକ close, ତାର୍କିକ indent_rest) {
+    ଯଦି(sexpr.is_atom())
         puts(sexpr.atom());
-    else if(sexpr.is_list()) {
+    ଅନ୍ୟଥା ଯଦି(sexpr.is_list()) {
         auto args = sexpr.list();
         puts("(");
         // Expressions are printed horizontally if they fit on the line.
         // We do the check *after* puts("(") to make sure that _pos is accurate.
         // (Otherwise there could be a pending newline + indentation)
-        bool vertical = args.size() > 1 && check_fit(sexpr, _max_line_width - _pos + 1) < 0;
-        if(vertical) _indent++;
-        for(size_t i = 0; i < args.size(); i++) {
-            if(i > 0) puts(vertical ? "\n" : " ");
+        ତାର୍କିକ vertical = args.size() > 1 && check_fit(sexpr, max_ଧାଡ଼ି_width - _pos + 1) < 0;
+        ଯଦି(vertical) _indent++;
+        ପାଇଁ(size_t i = 0; i < args.size(); i++) {
+            ଯଦି(i > 0) puts(vertical ? "\n" : " ");
             print(args[i]);
         }
         // Any remaining arguments are currently always printed vertically,
         // but are not indented if indent_rest = false.
         _indent += (!close && indent_rest) - vertical;
-        if(close)
+        ଯଦି(close)
             puts(")");
-        else {
-            _unclosed.push_back(indent_rest);
-            _pending_nl = true;
+        ଅନ୍ୟଥା {
+            _unclosed.ଠେଲ_back(indent_rest);
+            _pending_nl = ସତ୍ୟ;
         }
-    }else
+    }ଅନ୍ୟଥା
         log_error("shouldn't happen: SExpr '%s' is neither an atom nor a list\n", sexpr.to_string());
 }
 
-void SExprWriter::close(size_t n) {
-    log_assert(_unclosed.size() - (_unclosed_stack.empty() ? 0 : _unclosed_stack.back()) >= n);
-    while(n-- > 0) {
-        bool indented = _unclosed[_unclosed.size() - 1];
-        _unclosed.pop_back();
+ଶୂନ୍ୟ SExprWriter::close(size_t n) {
+    log_assert(_unclosed.size() - (unclosed_ଗଦା.empty() ? 0 : unclosed_ଗଦା.back()) >= n);
+    ଯେତେବେଳେ(n-- > 0) {
+        ତାର୍କିକ indented = _unclosed[_unclosed.size() - 1];
+        _unclosed.କାଢ଼_back();
         // Only print ) on the same line if it fits.
-        _pending_nl = _pos >= _max_line_width;
-        if(indented)
+        _pending_nl = _pos >= max_ଧାଡ଼ି_width;
+        ଯଦି(indented)
             _indent--;
         puts(")");
-        _pending_nl = true;
+        _pending_nl = ସତ୍ୟ;
     }
 }
 
-void SExprWriter::comment(std::string const &str, bool hanging) {
-    if(hanging) {
-        if(_pending_nl) {
-            _pending_nl = false;
+ଶୂନ୍ୟ SExprWriter::comment(std::string ଅଚଳ &str, ତାର୍କିକ hanging) {
+    ଯଦି(hanging) {
+        ଯଦି(_pending_nl) {
+            _pending_nl = ମିଥ୍ୟା;
             puts(" ");
         }
     }
     size_t i = 0, e;
-    do{
+    କର{
         e = str.find('\n', i);
         puts("; ");
         puts(std::string_view(str).substr(i, e - i));
         puts("\n");
         i = e + 1;
-    }while(e != std::string::npos);
+    }ଯେତେବେଳେ(e != std::string::npos);
 }
 
 SExprWriter::~SExprWriter() {
-    while(!_unclosed_stack.empty())
-        pop();
+    ଯେତେବେଳେ(!unclosed_ଗଦା.empty())
+        କାଢ଼();
     close(_unclosed.size());
     nl_if_pending();
 }

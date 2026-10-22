@@ -20,113 +20,113 @@
 #ifndef LOG_HELP_H
 #define LOG_HELP_H
 
-#include "kernel/yosys_common.h"
-#include "kernel/json.h"
-#include <filesystem>
-#include <string_view>
+#ଅନ୍ତର୍ଭାଵ "kernel/yosys_common.h"
+#ଅନ୍ତର୍ଭାଵ "kernel/json.h"
+#ଅନ୍ତର୍ଭାଵ <filesystem>
+#ଅନ୍ତର୍ଭାଵ <string_view>
 
 YOSYS_NAMESPACE_BEGIN
 
-std::filesystem::path fixup_source_path (const char* source_file,
-	const std::filesystem::path &source_root, bool* skip_source_group = nullptr);
+std::filesystem::path fixup_source_path (ଅଚଳ ଅକ୍ଷର* source_file,
+	ଅଚଳ std::filesystem::path &source_ମୂଳ, bool* skip_source_group = nullptr);
 
 class ContentListing {
 	vector<ContentListing> _content;
-public:
+ସର୍ବସାଧାରଣ:
 	string type;
 	string body;
-	const char* source_file;
-	int source_line;
+	ଅଚଳ ଅକ୍ଷର* source_file;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା source_ଧାଡ଼ି;
 	std::map<string, string> options;
 
 	ContentListing(
 		string type = "root", string body = "",
-		const char* source_file = "unknown", int source_line = 0
-	) : type(type), body(body), source_file(source_file), source_line(source_line) {
+		ଅଚଳ ଅକ୍ଷର* source_file = "unknown", ପୂର୍ଣ୍ଣସଂଖ୍ୟା source_ଧାଡ଼ି = 0
+	) : type(type), body(body), source_file(source_file), source_ଧାଡ଼ି(source_ଧାଡ଼ି) {
 		_content = {};
 		options = {};
 	}
 
 	ContentListing(string type, string body, source_location location) :
-		ContentListing(type, body, location.file_name(), location.line()) { }
+		ContentListing(type, body, location.file_name(), location.ଧାଡ଼ି()) { }
 
-	void add_content(string type, string body, source_location location) {
-		_content.push_back({type, body, location});
+	ଶୂନ୍ୟ add_content(string type, string body, source_location location) {
+		_content.ଠେଲ_back({type, body, location});
 	}
 
-	bool has_source() const { return strlen(source_file) && strcmp(source_file, "unknown") != 0; }
-	bool has_content() const { return _content.size() != 0; }
+	bool has_source() ଅଚଳ { ଫେରନ୍ତୁ strlen(source_file) && strcmp(source_file, "unknown") != 0; }
+	bool has_content() ଅଚଳ { ଫେରନ୍ତୁ _content.size() != 0; }
 
-	vector<ContentListing>::const_iterator begin() const { return _content.cbegin(); }
-	vector<ContentListing>::const_iterator end() const { return _content.cend(); }
+	vector<ContentListing>::const_iterator begin() ଅଚଳ { ଫେରନ୍ତୁ _content.cbegin(); }
+	vector<ContentListing>::const_iterator end() ଅଚଳ { ଫେରନ୍ତୁ _content.cend(); }
 
 	ContentListing* back() {
-		return &_content.back();
+		ଫେରନ୍ତୁ &_content.back();
 	}
 
-	void set_option(string key, string val = "") {
-		options[key] = val;
+	ଶୂନ୍ୟ set_option(string ଚାବି, string val = "") {
+		options[ଚାବି] = val;
 	}
 
-	void usage(
-		const string &text,
-		const source_location location = source_location::current()
+	ଶୂନ୍ୟ usage(
+		ଅଚଳ string &text,
+		ଅଚଳ source_location location = source_location::current()
 	);
-	void option(
-		const string &text,
-		const string &description = "",
-		const source_location location = source_location::current()
+	ଶୂନ୍ୟ option(
+		ଅଚଳ string &text,
+		ଅଚଳ string &description = "",
+		ଅଚଳ source_location location = source_location::current()
 	);
-	void codeblock(
-		const string &code,
-		const string &language = "none",
-		const source_location location = source_location::current()
+	ଶୂନ୍ୟ codeblock(
+		ଅଚଳ string &code,
+		ଅଚଳ string &language = "none",
+		ଅଚଳ source_location location = source_location::current()
 	);
-	void paragraph(
-		const string &text,
-		const source_location location = source_location::current()
+	ଶୂନ୍ୟ paragraph(
+		ଅଚଳ string &text,
+		ଅଚଳ source_location location = source_location::current()
 	);
 
 	ContentListing* open_usage(
-		const string &text,
-		const source_location location = source_location::current()
+		ଅଚଳ string &text,
+		ଅଚଳ source_location location = source_location::current()
 	);
 	ContentListing* open_option(
-		const string &text,
-		const source_location location = source_location::current()
+		ଅଚଳ string &text,
+		ଅଚଳ source_location location = source_location::current()
 	);
 
-	Json to_json(const std::filesystem::path &source_root) const;
+	Json to_json(ଅଚଳ std::filesystem::path &source_ମୂଳ) ଅଚଳ;
 };
 
 class PrettyHelp
 {
-public:
+ସର୍ବସାଧାରଣ:
 	string group = "unknown";
 
-private:
+ବ୍ୟକ୍ତିଗତ:
 	PrettyHelp *_prior;
-	ContentListing _root_listing;
+	ContentListing ମୂଳ_listing;
 
-public:
+ସର୍ବସାଧାରଣ:
 	PrettyHelp();
 	~PrettyHelp();
 
-	static PrettyHelp *get_current();
+	ସ୍ଥିର PrettyHelp *get_current();
 
-	bool has_content() const { return _root_listing.has_content(); }
+	bool has_content() ଅଚଳ { ଫେରନ୍ତୁ ମୂଳ_listing.has_content(); }
 
-	vector<ContentListing>::const_iterator begin() const { return _root_listing.begin(); }
-	vector<ContentListing>::const_iterator end() const { return _root_listing.end(); }
+	vector<ContentListing>::const_iterator begin() ଅଚଳ { ଫେରନ୍ତୁ ମୂଳ_listing.begin(); }
+	vector<ContentListing>::const_iterator end() ଅଚଳ { ଫେରନ୍ତୁ ମୂଳ_listing.end(); }
 
-	ContentListing* get_root() {
-		return &_root_listing;
+	ContentListing* get_ମୂଳ() {
+		ଫେରନ୍ତୁ &ମୂଳ_listing;
 	}
 
-	void set_group(const string g) { group = g; }
-	bool has_group() const { return group.compare("unknown") != 0; }
+	ଶୂନ୍ୟ set_group(ଅଚଳ string g) { group = g; }
+	bool has_group() ଅଚଳ { ଫେରନ୍ତୁ group.compare("unknown") != 0; }
 
-	void log_help() const;
+	ଶୂନ୍ୟ log_help() ଅଚଳ;
 };
 
 YOSYS_NAMESPACE_END

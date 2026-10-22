@@ -1,172 +1,172 @@
 #ifndef YOSYS_HASHCONS_IMPL_H
 #define YOSYS_HASHCONS_IMPL_H
 
-#include "kernel/hashcons.h"
+#ଅନ୍ତର୍ଭାଵ "kernel/hashcons.h"
 
-#include <algorithm>
+#ଅନ୍ତର୍ଭାଵ <algorithm>
 
 YOSYS_NAMESPACE_BEGIN
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::is_live(Ref ref) const {
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+bool HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::is_live(Ref ref) ଅଚଳ {
 	Ref idx = ref.untag();
-	if (is_static(idx))
-		return true;
-	size_t slot = idx.raw() - Derived::STATIC_COUNT;
-	return slot < backing.size() && !backing[slot].is_dead();
+	ଯଦି (is_static(idx))
+		ଫେରନ୍ତୁ true;
+	size_t slot = idx.raw() - Derived::STATIC_ଗଣନା;
+	ଫେରନ୍ତୁ slot < backing.size() && !backing[slot].is_dead();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::check_ready() {}
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+ଶୂନ୍ୟ HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::check_ready() {}
 
-template<typename Derived, typename Node, typename Ref>
-const Node& HashConsPool<Derived, Node, Ref>::operator[] (Ref ref) const {
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+ଅଚଳ ଗଣ୍ଠି_2& HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::operator[] (Ref ref) ଅଚଳ {
 	Ref idx = ref.untag();
-	if constexpr (Derived::STATIC_COUNT != 0) {
-		if (is_static(idx))
-			return Derived::static_node(idx.raw());
+	ଯଦି constexpr (Derived::STATIC_ଗଣନା != 0) {
+		ଯଦି (is_static(idx))
+			ଫେରନ୍ତୁ Derived::static_ଗଣ୍ଠି(idx.raw());
 	}
-	return backing[idx.raw() - Derived::STATIC_COUNT];
+	ଫେରନ୍ତୁ backing[idx.raw() - Derived::STATIC_ଗଣନା];
 }
 
-template<typename Derived, typename Node, typename Ref>
-Derived* HashConsPool<Derived, Node, Ref>::self() { return static_cast<Derived*>(this); }
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+Derived* HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::self() { ଫେରନ୍ତୁ static_cast<Derived*>(this); }
 
-template<typename Derived, typename Node, typename Ref>
-const Derived* HashConsPool<Derived, Node, Ref>::self() const { return static_cast<const Derived*>(this); }
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+ଅଚଳ Derived* HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::self() ଅଚଳ { ଫେରନ୍ତୁ static_cast<ଅଚଳ Derived*>(this); }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::is_static(Ref ref) {
-	if constexpr (Derived::STATIC_COUNT == 0)
-		return false;
-	else
-		return ref.raw() < Derived::STATIC_COUNT;
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+bool HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::is_static(Ref ref) {
+	ଯଦି constexpr (Derived::STATIC_ଗଣନା == 0)
+		ଫେରନ୍ତୁ false;
+	ଅନ୍ୟଥା
+		ଫେରନ୍ତୁ ref.raw() < Derived::STATIC_ଗଣନା;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::RefIterator::settle() {
-	while (skip_dead && idx < stop && !pool->slot_live(idx))
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+ଶୂନ୍ୟ HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::RefIterator::settle() {
+	ଯେତେବେଳେ (skip_dead && idx < stop && !pool->slot_live(idx))
 		idx++;
 }
 
-template<typename Derived, typename Node, typename Ref>
-Ref HashConsPool<Derived, Node, Ref>::RefIterator::operator*() const { return Ref(idx); }
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+Ref HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::RefIterator::operator*() ଅଚଳ { ଫେରନ୍ତୁ Ref(idx); }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefIterator::operator++() -> RefIterator& { idx++; settle(); return *this; }
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+auto HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::RefIterator::operator++() -> RefIterator& { idx++; settle(); ଫେରନ୍ତୁ *this; }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::RefIterator::operator!=(const RefIterator& other) const { return idx != other.idx; }
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+bool HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::RefIterator::operator!=(ଅଚଳ RefIterator& other) ଅଚଳ { ଫେରନ୍ତୁ idx != other.idx; }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefRange::begin() const -> RefIterator {
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+auto HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::RefRange::begin() ଅଚଳ -> RefIterator {
 	RefIterator it{pool, first, stop, skip_dead};
 	it.settle();
-	return it;
+	ଫେରନ୍ତୁ it;
 }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefRange::end() const -> RefIterator { return RefIterator{pool, stop, stop, skip_dead}; }
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+auto HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::RefRange::end() ଅଚଳ -> RefIterator { ଫେରନ୍ତୁ RefIterator{pool, stop, stop, skip_dead}; }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::refs(bool include_statics) const -> RefRange {
-	return RefRange{this, include_statics ? 0 : Derived::STATIC_COUNT,
-			Derived::STATIC_COUNT + backing.size(), true};
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+auto HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::refs(bool include_statics) ଅଚଳ -> RefRange {
+	ଫେରନ୍ତୁ RefRange{this, include_statics ? 0 : Derived::STATIC_ଗଣନା,
+			Derived::STATIC_ଗଣନା + backing.size(), true};
 }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::slots() const -> RefRange {
-	return RefRange{this, Derived::STATIC_COUNT,
-			Derived::STATIC_COUNT + backing.size(), false};
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+auto HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::slots() ଅଚଳ -> RefRange {
+	ଫେରନ୍ତୁ RefRange{this, Derived::STATIC_ଗଣନା,
+			Derived::STATIC_ଗଣନା + backing.size(), false};
 }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::home_slot(uint64_t hash) const {
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+size_t HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::home_slot(uint64_t hash) ଅଚଳ {
 	// Knuth's Fibonacci hashing saves us from how bad DJB2 is
-	return (hash * 0x9e3779b97f4a7c15ull) >> (64 - std::countr_zero(table.size()));
+	ଫେରନ୍ତୁ (hash * 0x9e3779b97f4a7c15ull) >> (64 - std::countr_zero(table.size()));
 }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::next_slot(size_t slot) const { return (slot + 1) & (table.size() - 1); }
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+size_t HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::next_slot(size_t slot) ଅଚଳ { ଫେରନ୍ତୁ (slot + 1) & (table.size() - 1); }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::size() const { return backing.size() - free_list.size(); }
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+size_t HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::size() ଅଚଳ { ଫେରନ୍ତୁ backing.size() - free_list.size(); }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::slot_live(size_t abs) const {
-	if (abs < Derived::STATIC_COUNT)
-		return true;
-	return !backing[abs - Derived::STATIC_COUNT].is_dead();
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+bool HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::slot_live(size_t abs) ଅଚଳ {
+	ଯଦି (abs < Derived::STATIC_ଗଣନା)
+		ଫେରନ୍ତୁ true;
+	ଫେରନ୍ତୁ !backing[abs - Derived::STATIC_ଗଣନା].is_dead();
 }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>::HashConsPool() { rebuild_index(); }
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::HashConsPool() { rebuild_index(); }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>::HashConsPool(HashConsPool&& other)
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::HashConsPool(HashConsPool&& other)
 	: backing(std::move(other.backing)), table(std::move(other.table)), free_list(std::move(other.free_list)) {
 	other.reset();
 }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>& HashConsPool<Derived, Node, Ref>::operator=(HashConsPool&& other) {
-	if (this != &other) {
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>& HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::operator=(HashConsPool&& other) {
+	ଯଦି (this != &other) {
 		backing = std::move(other.backing);
 		table = std::move(other.table);
 		free_list = std::move(other.free_list);
 		other.reset();
 	}
-	return *this;
+	ଫେରନ୍ତୁ *this;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::reset() {
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+ଶୂନ୍ୟ HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::reset() {
 	backing.clear();
 	free_list.clear();
 	rebuild_index();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::rebuild_index() {
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+ଶୂନ୍ୟ HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::rebuild_index() {
 	Derived::check_ready();
 	free_list.clear();
-	for (size_t idx = 0; idx < backing.size(); ++idx)
-		if (backing[idx].is_dead())
-			free_list.push_back(idx);
+	ପାଇଁ (size_t idx = 0; idx < backing.size(); ++idx)
+		ଯଦି (backing[idx].is_dead())
+			free_list.ଠେଲ_back(idx);
 	std::sort(free_list.begin(), free_list.end(), std::greater<size_t>());
-	table.assign(std::bit_ceil((Derived::STATIC_COUNT + size()) * 2 + 2), Ref());
-	for (Ref ref : refs())
-		index_insert(ref);
+	table.assign(std::bit_ceil((Derived::STATIC_ଗଣନା + size()) * 2 + 2), Ref());
+	ପାଇଁ (Ref ref : refs())
+		index_ଭର୍ତ୍ତି(ref);
 }
 
-template<typename Derived, typename Node, typename Ref>
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
 template<typename Eq>
-Ref HashConsPool<Derived, Node, Ref>::find_hashed(uint64_t hash, Eq&& eq) const {
-	for (size_t slot = home_slot(hash); table[slot] != Ref(); slot = next_slot(slot)) {
+Ref HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::find_hashed(uint64_t hash, Eq&& eq) ଅଚଳ {
+	ପାଇଁ (size_t slot = home_slot(hash); table[slot] != Ref(); slot = next_slot(slot)) {
 		Ref ref = table[slot];
-		if (Derived::hash_node((*this)[ref]) == hash && eq(ref))
-			return ref;
+		ଯଦି (Derived::hash_ଗଣ୍ଠି((*this)[ref]) == hash && eq(ref))
+			ଫେରନ୍ତୁ ref;
 	}
-	return Ref();
+	ଫେରନ୍ତୁ Ref();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::index_insert(Ref ref) {
-	size_t slot = home_slot(Derived::hash_node((*this)[ref]));
-	while (table[slot] != Ref())
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+ଶୂନ୍ୟ HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::index_ଭର୍ତ୍ତି(Ref ref) {
+	size_t slot = home_slot(Derived::hash_ଗଣ୍ଠି((*this)[ref]));
+	ଯେତେବେଳେ (table[slot] != Ref())
 		slot = next_slot(slot);
 	table[slot] = ref;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::index_erase(Ref ref) {
-	size_t hole = home_slot(Derived::hash_node((*this)[ref]));
-	while (table[hole] != ref)
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+ଶୂନ୍ୟ HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::index_erase(Ref ref) {
+	size_t hole = home_slot(Derived::hash_ଗଣ୍ଠି((*this)[ref]));
+	ଯେତେବେଳେ (table[hole] != ref)
 		hole = next_slot(hole);
 	size_t mask = table.size() - 1;
-	for (size_t slot = next_slot(hole); table[slot] != Ref(); slot = next_slot(slot)) {
-		size_t home = home_slot(Derived::hash_node((*this)[table[slot]]));
-		if (((slot - home) & mask) >= ((slot - hole) & mask)) {
+	ପାଇଁ (size_t slot = next_slot(hole); table[slot] != Ref(); slot = next_slot(slot)) {
+		size_t home = home_slot(Derived::hash_ଗଣ୍ଠି((*this)[table[slot]]));
+		ଯଦି (((slot - home) & mask) >= ((slot - hole) & mask)) {
 			table[hole] = table[slot];
 			hole = slot;
 		}
@@ -174,66 +174,66 @@ void HashConsPool<Derived, Node, Ref>::index_erase(Ref ref) {
 	table[hole] = Ref();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::grow_index() {
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+ଶୂନ୍ୟ HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::grow_index() {
 	std::vector<Ref> old(table.size() * 2, Ref());
 	std::swap(old, table);
-	for (Ref ref : old)
-		if (ref != Ref())
-			index_insert(ref);
+	ପାଇଁ (Ref ref : old)
+		ଯଦି (ref != Ref())
+			index_ଭର୍ତ୍ତି(ref);
 }
 
-template<typename Derived, typename Node, typename Ref>
-Ref HashConsPool<Derived, Node, Ref>::add_inner(Node t) {
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+Ref HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::add_inner(ଗଣ୍ଠି_2 t) {
 	Ref ref;
-	if (!free_list.empty()) {
+	ଯଦି (!free_list.empty()) {
 		size_t idx = free_list.back();
-		free_list.pop_back();
+		free_list.କାଢ଼_back();
 		backing[idx] = std::move(t);
-		ref = Ref(Derived::STATIC_COUNT + idx);
-	} else {
-		ref = Ref(Derived::STATIC_COUNT + backing.size());
-		backing.push_back(std::move(t));
+		ref = Ref(Derived::STATIC_ଗଣନା + idx);
+	} ଅନ୍ୟଥା {
+		ref = Ref(Derived::STATIC_ଗଣନା + backing.size());
+		backing.ଠେଲ_back(std::move(t));
 	}
-	if ((Derived::STATIC_COUNT + size()) * 3 > table.size() * 2)
+	ଯଦି ((Derived::STATIC_ଗଣନା + size()) * 3 > table.size() * 2)
 		grow_index();
-	index_insert(ref);
-	if (yosys_xtrace) {
+	index_ଭର୍ତ୍ତି(ref);
+	ଯଦି (yosys_xtrace) {
 		std::cout << "#X# add_inner added ";
 		self()->dump(ref);
 		std::cout << "\n";
 		std::cout << "#X# as integer " << ref.raw() << "\n";
 	}
-	return ref;
+	ଫେରନ୍ତୁ ref;
 }
 
-template<typename Derived, typename Node, typename Ref>
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
 template<typename Roots>
-size_t HashConsPool<Derived, Node, Ref>::gc(const Roots& roots) {
+size_t HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::gc(ଅଚଳ Roots& roots) {
 	pool<Ref> live;
-	for (Ref ref : roots)
+	ପାଇଁ (Ref ref : roots)
 		mark_live(ref, live);
 	size_t erased = 0;
-	for (size_t idx = 0; idx < backing.size(); ++idx) {
-		if (backing[idx].is_dead())
-			continue;
-		if (!live.count(Ref(Derived::STATIC_COUNT + idx))) {
-			index_erase(Ref(Derived::STATIC_COUNT + idx));
-			free_list.push_back(idx);
-			backing[idx] = Node{};
+	ପାଇଁ (size_t idx = 0; idx < backing.size(); ++idx) {
+		ଯଦି (backing[idx].is_dead())
+			ଜାରି;
+		ଯଦି (!live.ଗଣନା_2(Ref(Derived::STATIC_ଗଣନା + idx))) {
+			index_erase(Ref(Derived::STATIC_ଗଣନା + idx));
+			free_list.ଠେଲ_back(idx);
+			backing[idx] = ଗଣ୍ଠି_2{};
 			erased++;
 		}
 	}
 	// TODO something like YOSYS_SORT_ID_FREE_LIST to make it optional?
 	std::sort(free_list.begin(), free_list.end(), std::greater<size_t>());
-	return erased;
+	ଫେରନ୍ତୁ erased;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::mark_live(Ref ref, pool<Ref>& live) const {
+template<typename Derived, typename ଗଣ୍ଠି_2, typename Ref>
+ଶୂନ୍ୟ HashConsPool<Derived, ଗଣ୍ଠି_2, Ref>::mark_live(Ref ref, pool<Ref>& live) ଅଚଳ {
 	ref = ref.untag();
-	if (ref == Ref() || is_static(ref) || !live.insert(ref).second)
-		return;
+	ଯଦି (ref == Ref() || is_static(ref) || !live.ଭର୍ତ୍ତି(ref).second)
+		ଫେରନ୍ତୁ;
 	Derived::for_each_child((*this)[ref], [&](Ref child) { mark_live(child, live); });
 }
 
