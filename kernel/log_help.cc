@@ -21,46 +21,46 @@
 
 USING_YOSYS_NAMESPACE
 
-std::filesystem::path Yosys::fixup_source_path (const char* source_file,
+std::filesystem::path Yosys::fixup_source_path (const var_na* source_file,
 	const std::filesystem::path &source_root, bool* skip_source_group)
 {
 	std::filesystem::path source_path(source_file);
-	if (source_path.is_absolute()) {
+	གལ་ཏེ (source_path.is_absolute()) {
 		// using proximate instead of relative means that we
 		// still get the source path if they aren't relative
 		auto proximate_path = std::filesystem::proximate(source_path, source_root);
-		if (proximate_path == proximate_path.lexically_normal()) {
+		གལ་ཏེ (proximate_path == proximate_path.lexically_normal()) {
 			// we're only interested if it's a subpath of our root dir
 			// if the normal form differs, then the proximate path includes ".."
-			return proximate_path;
-		} else if (skip_source_group != nullptr) {
+			ཕྱིར proximate_path;
+		} དེ་མིན གལ་ཏེ (skip_source_group != nullptr) {
 			// don't try to group external paths
 			*skip_source_group = true;
 		}
 	}
-	return source_path;
+	ཕྱིར source_path;
 }
 
 Json ContentListing::to_json(const std::filesystem::path &source_root) const {
 	Json::object object;
 
 	object["type"] = type;
-	if (body.length())
+	གལ་ཏེ (body.length())
 		object["body"] = body;
 
-	if (has_source())
+	གལ་ཏེ (has_source())
 		object["source_file"] = fixup_source_path(source_file, source_root).string();
-	if (source_line != 0)
+	གལ་ཏེ (source_line != 0)
 		object["source_line"] = source_line;
 
 	object["options"] = Json(options);
 
 	Json::array content_array;
-	for (auto child : _content)
+	ཆེད་དུ (auto child : _content)
 		content_array.push_back(child.to_json(source_root));
 	object["content"] = content_array;
 
-	return object;
+	ཕྱིར object;
 }
 
 void ContentListing::usage(const string &text,
@@ -74,7 +74,7 @@ void ContentListing::option(const string &text, const string &description,
 	const source_location location)
 {
 	auto option = open_option(text, source_location());
-	if (description.length())
+	གལ་ཏེ (description.length())
 		option->add_content("text", description, location);
 }
 
@@ -95,7 +95,7 @@ ContentListing* ContentListing::open_usage(const string &text,
 	const source_location location)
 {
 	usage(text, location);
-	return back();
+	ཕྱིར back();
 }
 
 ContentListing* ContentListing::open_option(const string &text,
@@ -103,32 +103,32 @@ ContentListing* ContentListing::open_option(const string &text,
 {
 	log_assert(type.compare("root") == 0 || type.compare("usage") == 0);
 	add_content("option", text, location);
-	return back();
+	ཕྱིར back();
 }
 
 #define MAX_LINE_LEN 80
 void log_body_str(const std::string &pass_str, std::string indent_str, bool leading_newline=false, bool is_formatted=false) {
-	if (pass_str.empty())
-		return;
+	གལ་ཏེ (pass_str.empty())
+		ཕྱིར;
 	std::istringstream iss(pass_str);
-	if (leading_newline)
+	གལ་ཏེ (leading_newline)
 		log("\n");
-	for (std::string line; std::getline(iss, line);) {
+	ཆེད་དུ (std::string line; std::getline(iss, line);) {
 		std::string message = indent_str;
-		if (is_formatted) {
+		གལ་ཏེ (is_formatted) {
 			message += line;
-		} else {
+		} དེ་མིན {
 			auto curr_len = indent_str.length();
 			std::istringstream lss(line);
-			for (std::string word; std::getline(lss, word, ' ');) {
-				while (word[0] == '`' && word.back() == '`')
+			ཆེད་དུ (std::string word; std::getline(lss, word, ' ');) {
+				སྐབས (word[0] == '`' && word.back() == '`')
 					word = word.substr(1, word.length()-2);
-				if (curr_len + word.length() >= MAX_LINE_LEN-1) {
+				གལ་ཏེ (curr_len + word.length() >= MAX_LINE_LEN-1) {
 					curr_len = 0;
 					log("%s\n", message);
 					message = indent_str;
 				}
-				if (word.length()) {
+				གལ་ཏེ (word.length()) {
 					message += word + " ";
 					curr_len += word.length() + 1;
 				}
@@ -137,7 +137,7 @@ void log_body_str(const std::string &pass_str, std::string indent_str, bool lead
 		log("%s\n", message);
 	}
 }
-void log_body(const ContentListing &content, int indent=0, bool leading_newline=false) {
+void log_body(const ContentListing &content, ཧྲིལ indent=0, bool leading_newline=false) {
 	std::string indent_str(indent*4, ' ');
 	log_body_str(content.body, indent_str, leading_newline, content.type.compare("code") == 0);
 }
@@ -159,24 +159,24 @@ PrettyHelp::~PrettyHelp()
 
 PrettyHelp *PrettyHelp::get_current()
 {
-	if (current_help == nullptr)
+	གལ་ཏེ (current_help == nullptr)
 		new PrettyHelp();
-	return current_help;
+	ཕྱིར current_help;
 }
 
 void PrettyHelp::log_help() const
 {
-	for (auto &content : _root_listing) {
-		if (content.type.compare("usage") == 0) {
+	ཆེད་དུ (auto &content : _root_listing) {
+		གལ་ཏེ (content.type.compare("usage") == 0) {
 			log_body(content, 1, true);
 			log("\n");
-		} else if (content.type.compare("option") == 0) {
+		} དེ་མིན གལ་ཏེ (content.type.compare("option") == 0) {
 			log_body(content, 1);
-			for (auto text : content) {
+			ཆེད་དུ (auto text : content) {
 				log_body(text, 2);
 				log("\n");
 			}
-		} else {
+		} དེ་མིན {
 			log_body(content, 0);
 			log("\n");
 		}

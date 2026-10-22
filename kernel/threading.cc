@@ -3,73 +3,73 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-static int init_max_threads()
+static ཧྲིལ init_max_threads()
 {
-	const char *v = getenv("YOSYS_MAX_THREADS");
-	if (v == nullptr)
-		return INT32_MAX;
-	return atoi(v);
+	const var_na *v = getenv("YOSYS_MAX_THREADS");
+	གལ་ཏེ (v == nullptr)
+		ཕྱིར INT32_MAX;
+	ཕྱིར atoi(v);
 }
 
-static int get_max_threads()
+static ཧྲིལ get_max_threads()
 {
-	static int max_threads = init_max_threads();
-	return max_threads;
+	static ཧྲིལ max_threads = init_max_threads();
+	ཕྱིར max_threads;
 }
 
-static int init_work_units_per_thread_override()
+static ཧྲིལ init_work_units_per_thread_override()
 {
-	const char *v = getenv("YOSYS_WORK_UNITS_PER_THREAD");
-	if (v == nullptr)
-		return 0;
-	return atoi(v);
+	const var_na *v = getenv("YOSYS_WORK_UNITS_PER_THREAD");
+	གལ་ཏེ (v == nullptr)
+		ཕྱིར 0;
+	ཕྱིར atoi(v);
 }
 
-static int get_work_units_per_thread_override()
+static ཧྲིལ get_work_units_per_thread_override()
 {
-	static int work_units_per_thread = init_work_units_per_thread_override();
-	return work_units_per_thread;
+	static ཧྲིལ work_units_per_thread = init_work_units_per_thread_override();
+	ཕྱིར work_units_per_thread;
 }
 
 void DeferredLogs::flush()
 {
-	for (auto &m : logs)
-		if (m.error)
+	ཆེད་དུ (auto &m : logs)
+		གལ་ཏེ (m.error)
 			YOSYS_NAMESPACE_PREFIX log_error("%s", m.text.c_str());
-		else
+		དེ་མིན
 			YOSYS_NAMESPACE_PREFIX log("%s", m.text.c_str());
 }
 
-int ThreadPool::pool_size(int reserved_cores, int max_worker_threads)
+ཧྲིལ ThreadPool::pool_size(ཧྲིལ reserved_cores, ཧྲིལ max_worker_threads)
 {
 #ifdef YOSYS_ENABLE_THREADS
-	int available_threads = std::min<int>(std::thread::hardware_concurrency(), get_max_threads());
-	int num_threads = std::min(available_threads - reserved_cores, max_worker_threads);
-	return std::max(0, num_threads);
-#else
+	ཧྲིལ available_threads = std::min<ཧྲིལ>(std::thread::hardware_concurrency(), get_max_threads());
+	ཧྲིལ num_threads = std::min(available_threads - reserved_cores, max_worker_threads);
+	ཕྱིར std::max(0, num_threads);
+#དེ་མིན
 	(void)reserved_cores;
 	(void)max_worker_threads;
 	(void)get_max_threads();
-	return 0;
+	ཕྱིར 0;
 #endif
 }
 
-int ThreadPool::work_pool_size(int reserved_cores, int work_units, int work_units_per_thread)
+ཧྲིལ ThreadPool::work_pool_size(ཧྲིལ reserved_cores, ཧྲིལ work_units, ཧྲིལ work_units_per_thread)
 {
-	int work_units_per_thread_override = get_work_units_per_thread_override();
-	if (work_units_per_thread_override > 0)
+	ཧྲིལ work_units_per_thread_override = get_work_units_per_thread_override();
+	གལ་ཏེ (work_units_per_thread_override > 0)
 		work_units_per_thread = work_units_per_thread_override;
-	return pool_size(reserved_cores, work_units / work_units_per_thread);
+	ཕྱིར pool_size(reserved_cores, work_units / work_units_per_thread);
 }
 
-ThreadPool::ThreadPool(int pool_size, std::function<void(int)> b)
+ThreadPool::ThreadPool(ཧྲིལ pool_size, std::function<void(ཧྲིལ)> b)
 	: body(std::move(b))
 {
 #ifdef YOSYS_ENABLE_THREADS
 	threads.reserve(pool_size);
-	for (int i = 0; i < pool_size; i++)
+	ཆེད་དུ (ཧྲིལ i = 0; i < pool_size; i++)
 		threads.emplace_back([i, this]{ body(i); });
-#else
+#དེ་མིན
 	(void)pool_size;
 #endif
 }
@@ -77,28 +77,28 @@ ThreadPool::ThreadPool(int pool_size, std::function<void(int)> b)
 ThreadPool::~ThreadPool()
 {
 #ifdef YOSYS_ENABLE_THREADS
-	for (auto &t : threads)
+	ཆེད་དུ (auto &t : threads)
 		t.join();
 #endif
 }
 
-IntRange item_range_for_worker(int num_items, int thread_num, int num_threads)
+IntRange item_range_for_worker(ཧྲིལ num_items, ཧྲིལ thread_num, ཧྲིལ num_threads)
 {
-	if (num_threads <= 1) {
-		return {0, num_items};
+	གལ་ཏེ (num_threads <= 1) {
+		ཕྱིར {0, num_items};
 	}
-	int items_per_thread = num_items / num_threads;
-	int extra_items = num_items % num_threads;
+	ཧྲིལ items_per_thread = num_items / num_threads;
+	ཧྲིལ extra_items = num_items % num_threads;
 	// The first `extra_items` threads get one extra item.
-	int start = thread_num * items_per_thread + std::min(thread_num, extra_items);
-	int end = (thread_num + 1) * items_per_thread + std::min(thread_num + 1, extra_items);
-	return {start, end};
+	ཧྲིལ start = thread_num * items_per_thread + std::min(thread_num, extra_items);
+	ཧྲིལ end = (thread_num + 1) * items_per_thread + std::min(thread_num + 1, extra_items);
+	ཕྱིར {start, end};
 }
 
-ParallelDispatchThreadPool::ParallelDispatchThreadPool(int pool_size)
+ParallelDispatchThreadPool::ParallelDispatchThreadPool(ཧྲིལ pool_size)
 #ifdef YOSYS_ENABLE_THREADS
 		: num_worker_threads_(std::max(1, pool_size) - 1)
-#else
+#དེ་མིན
 		: num_worker_threads_(0)
 #endif
 {
@@ -107,28 +107,28 @@ ParallelDispatchThreadPool::ParallelDispatchThreadPool(int pool_size)
 #endif
 	main_to_workers_signal.resize(num_worker_threads_, 0);
 	// Don't start the threads until we've constructed all our data members.
-	thread_pool = std::make_unique<ThreadPool>(num_worker_threads_, [this](int thread_num){
+	thread_pool = std::make_unique<ThreadPool>(num_worker_threads_, [this](ཧྲིལ thread_num){
 		run_worker(thread_num);
 	});
 }
 
 ParallelDispatchThreadPool::~ParallelDispatchThreadPool()
 {
-	if (num_worker_threads_ == 0)
-		return;
+	གལ་ཏེ (num_worker_threads_ == 0)
+		ཕྱིར;
 	current_work = nullptr;
 	num_active_worker_threads_.store(num_worker_threads_, std::memory_order_relaxed);
 	signal_workers_start();
 	wait_for_workers_done();
 }
 
-void ParallelDispatchThreadPool::run(std::function<void(const RunCtx &)> work, int max_threads)
+void ParallelDispatchThreadPool::run(std::function<void(const RunCtx &)> work, ཧྲིལ max_threads)
 {
 	Multithreading multithreading;
-	int num_active_worker_threads = num_threads(max_threads) - 1;
-	if (num_active_worker_threads == 0) {
+	ཧྲིལ num_active_worker_threads = num_threads(max_threads) - 1;
+	གལ་ཏེ (num_active_worker_threads == 0) {
 		work({{0}, 1});
-		return;
+		ཕྱིར;
 	}
 	num_active_worker_threads_.store(num_active_worker_threads, std::memory_order_relaxed);
 	current_work = &work;
@@ -137,20 +137,20 @@ void ParallelDispatchThreadPool::run(std::function<void(const RunCtx &)> work, i
 	wait_for_workers_done();
 }
 
-void ParallelDispatchThreadPool::run_worker(int thread_num)
+void ParallelDispatchThreadPool::run_worker(ཧྲིལ thread_num)
 {
 #ifdef YOSYS_ENABLE_THREADS
-	while (true)
+	སྐབས (true)
 	{
 		worker_wait_for_start(thread_num);
-		if (current_work == nullptr)
-			break;
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
+		གལ་ཏེ (current_work == nullptr)
+			bha_nga;
+		ཧྲིལ num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
 		(*current_work)({{thread_num + 1}, num_active_worker_threads + 1});
 		signal_worker_done();
 	}
 	signal_worker_done();
-#else
+#དེ་མིན
 	(void)thread_num;
 	(void)current_work;
 #endif
