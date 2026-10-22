@@ -1,0 +1,632 @@
+# What is still missing
+
+76 languages. Each line says in how many languages it is missing.
+
+## Files in languages BURP cannot read yet
+
+
+## Keywords with no word in a language's table
+
+- shraeni:clear: 75
+- shraeni:get: 75
+- shraeni:flush: 75
+- shraeni:ostream: 75
+- shraeni:istream: 75
+- shraeni:ofstream: 75
+- shraeni:cerr: 75
+- shraeni:ifstream: 75
+- shraeni:fail: 75
+- guru:__FILE__: 75
+- shraeni:getline: 75
+- soochee:replace: 75
+- shraeni:_exit: 75
+- shraeni:binary: 75
+- shraeni:trunc: 75
+- soochee:join: 75
+- shraeni:eof: 75
+- shraeni:seekg: 75
+- shraeni:ios: 75
+- shraeni:__FILE__: 75
+- shraeni:size_t: 71
+- guru:size_t: 71
+- shraeni:dirname: 71
+- shraeni:remove: 71
+- shraeni:errno: 71
+- shraeni:getenv: 71
+- guru:remove: 71
+- shraeni:strerror: 71
+- shraeni:fprintf: 71
+- shraeni:FILE: 71
+- guru:ptrdiff_t: 71
+- shraeni:stderr: 71
+- guru:NDEBUG: 71
+- shraeni:stdout: 71
+- shraeni:clock: 71
+- shraeni:fflush: 71
+- shraeni:close: 71
+- shraeni:NDEBUG: 71
+- shraeni:va_list: 71
+- shraeni:va_start: 71
+- shraeni:va_end: 71
+- shraeni:atoi: 71
+- shraeni:strtol: 71
+- shraeni:mkdir: 71
+- guru:FILE: 71
+- shraeni:strtok: 71
+- shraeni:rename: 71
+- guru:rename: 71
+- shraeni:fopen: 71
+- guru:dirname: 71
+- shraeni:fputs: 71
+- shraeni:fgets: 71
+- guru:close: 71
+- shraeni:wchar_t: 71
+- shraeni:stdin: 71
+- shraeni:strspn: 71
+- shraeni:abort: 71
+- shraeni:EOF: 71
+- shraeni:time: 71
+- guru:va_list: 71
+- guru:va_end: 71
+- shraeni:fclose: 71
+- guru:INT_MIN: 71
+- guru:offsetof: 71
+- shraeni:LONG_MIN: 71
+- shraeni:memcmp: 71
+- shraeni:realloc: 71
+- shraeni:strrchr: 71
+- shraeni:setlocale: 71
+- shraeni:isprint: 71
+- shraeni:strtoul: 71
+- shraeni:strchr: 71
+- shraeni:rmdir: 71
+- shraeni:ptrdiff_t: 71
+- guru:realloc: 71
+- shraeni:setvbuf: 71
+- guru:SIG_IGN: 71
+- guru:stdout: 71
+- shraeni:ERANGE: 71
+- shraeni:INT_MIN: 71
+- shraeni:isfinite: 71
+- shraeni:system: 71
+- shraeni:ferror: 71
+- shraeni:clearerr: 71
+- shraeni:SIGINT: 71
+- shraeni:SIG_DFL: 71
+- guru:system: 71
+- guru:mkdir: 71
+- shraeni:div: 70
+- shraeni:puts: 70
+- shraeni:open: 70
+- guru:wait: 70
+- shraeni:strcmp: 70
+- guru:open: 70
+- guru:div: 70
+- guru:strcmp: 70
+- guru:puts: 70
+- shraeni:log: 67
+- shraeni:nullptr: 67
+- guru:log: 67
+- shraeni:typename: 67
+- soochee:def: 67
+- soochee:None: 67
+- soochee:len: 67
+- soochee:pass: 67
+- soochee:print: 67
+- shraeni:explicit: 67
+- shraeni:#endif: 66
+- guru:#endif: 66
+- guru:#define: 66
+- shraeni:#ifdef: 66
+- guru:#ifndef: 66
+- shraeni:delete: 66
+- guru:#ifdef: 66
+- shraeni:#define: 66
+- shraeni:#undef: 66
+- shraeni:#ifndef: 66
+- shraeni:cout: 66
+- shraeni:endl: 66
+- shraeni:cin: 66
+- guru:#undef: 66
+- shraeni:#pragma: 66
+- guru:#pragma: 66
+- shraeni:#error: 66
+- shraeni:auto: 62
+- guru:auto: 62
+- guru:operator: 62
+- guru:template: 62
+- shraeni:unsigned: 62
+- guru:unsigned: 62
+- guru:friend: 62
+- shraeni:operator: 62
+- guru:long: 62
+- shraeni:long: 62
+- shraeni:strlen: 62
+- shraeni:abs: 62
+- shraeni:exit: 62
+- shraeni:pow: 62
+- shraeni:template: 62
+- guru:INT_MAX: 62
+- shraeni:INT_MAX: 62
+- guru:abs: 62
+- guru:short: 62
+- shraeni:memcpy: 62
+- guru:pow: 62
+- shraeni:strncmp: 62
+- shraeni:malloc: 62
+- guru:memcpy: 62
+- shraeni:short: 62
+- guru:strlen: 62
+- shraeni:signed: 62
+- shraeni:isdigit: 62
+- shraeni:printf: 62
+- shraeni:main: 54
+- guru:virtual: 40
+- shraeni:true: 38
+- shraeni:bool: 26
+- shraeni:false: 26
+- shraeni:namespace: 26
+- shraeni:sync: 26
+- soochee:elif: 26
+- soochee:except: 26
+- soochee:assert: 26
+- guru:const: 25
+- shraeni:const: 25
+- guru:void: 25
+- shraeni:void: 25
+- guru:static: 25
+- shraeni:this: 25
+- guru:public: 25
+- shraeni:NULL: 25
+- shraeni:static: 25
+- shraeni:continue: 25
+- guru:private: 25
+- shraeni:new: 25
+- guru:typedef: 25
+- guru:NULL: 25
+- shraeni:switch: 25
+- guru:extern: 25
+- shraeni:default: 25
+- guru:default: 25
+- guru:continue: 25
+- guru:switch: 25
+- shraeni:public: 25
+- shraeni:free: 25
+- shraeni:goto: 25
+- shraeni:#elif: 25
+- guru:do: 25
+- shraeni:extern: 25
+- shraeni:assert: 25
+- shraeni:try: 25
+- soochee:import: 25
+- shraeni:private: 25
+- shraeni:class: 25
+- shraeni:do: 25
+- guru:assert: 25
+- guru:free: 25
+- guru:#elif: 25
+- guru:raise: 25
+- guru:float: 25
+
+## Names with no dictionary entry (the most common first)
+
+- `ID`: 76
+- `RTLIL`: 76
+- `std`: 76
+- `cell`: 76
+- `i`: 76
+- `string`: 76
+- `SigSpec`: 76
+- `name`: 76
+- `IdString`: 76
+- `Const`: 76
+- `it`: 76
+- `a`: 76
+- `type`: 76
+- `ez`: 76
+- `other`: 76
+- `module`: 76
+- `State`: 76
+- `wire`: 76
+- `log_assert`: 76
+- `b`: 76
+- `T`: 76
+- `Cell`: 76
+- `src`: 76
+- `A`: 76
+- `design`: 76
+- `Y`: 76
+- `at`: 76
+- `Module`: 76
+- `param`: 76
+- `str`: 76
+- `parameters`: 76
+- `sig_a`: 76
+- `D`: 76
+- `h`: 76
+- `sig`: 76
+- `fmt`: 76
+- `B`: 76
+- `Q`: 76
+- `part`: 76
+- `features`: 76
+- `pool`: 76
+- `timestep`: 76
+- `chunk`: 76
+- `ff`: 76
+- `j`: 76
+- `Hasher`: 76
+- `filename`: 76
+- `info`: 76
+- `is_signed`: 76
+- `S0`: 76
+- `begin`: 76
+- `C`: 76
+- `factory`: 76
+- `arg1`: 76
+- `c`: 76
+- `idx`: 76
+- `p`: 76
+- `ref`: 76
+- `S1`: 76
+- `sig_d`: 76
+- `sig_q`: 76
+- `clear`: 76
+- `DriveType`: 76
+- `arg`: 76
+- `YS_NAME_FWD`: 76
+- `y`: 76
+- `hash`: 76
+- `k`: 76
+- `Design`: 76
+- `v`: 76
+- `arg2`: 76
+- `sig_b`: 76
+- `iterator`: 76
+- `sig_y`: 76
+- `string_view`: 76
+- `s`: 76
+- `id`: 76
+- `dict`: 76
+- `append`: 76
+- `NEW_ID`: 76
+- `Wire`: 76
+- `R`: 76
+- `pair`: 76
+- `move`: 76
+- `E`: 76
+- `addr`: 76
+- `self`: 76
+- `entries`: 76
+- `K`: 76
+- `Ref`: 76
+- `twines`: 76
+- `pos`: 76
+- `res`: 76
+- `Sx`: 76
+- `c_str`: 76
+- `f`: 76
+- `Fn`: 76
+- `defined`: 76
+- `mem`: 76
+- `sig_clk`: 76
+- `max`: 76
+- `t`: 76
+- `spec`: 76
+- `database`: 76
+- `signed1`: 76
+- `log_error`: 76
+- `S`: 76
+- `state`: 76
+- `command`: 76
+- `const_iterator`: 76
+- `clk_polarity`: 76
+- `init`: 76
+- `Derived`: 76
+- `stringf`: 76
+- `check_expected`: 76
+- `undef_y`: 76
+- `SigChunk`: 76
+- `FmtPart`: 76
+- `mk`: 76
+- `undef_a`: 76
+- `buf`: 76
+- `cur_ff`: 76
+- `importUndefSigSpec`: 76
+- `eat`: 76
+- `erase`: 76
+- `signed2`: 76
+- `hash_into`: 76
+- `EN`: 76
+- `override`: 76
+- `inputs`: 76
+- `check`: 76
+- `TwinePool`: 76
+- `sigmap`: 76
+- `importDefSigSpec`: 76
+- `yy`: 76
+- `n`: 76
+- `current`: 76
+- `val`: 76
+- `ret`: 76
+- `format`: 76
+- `ff_sel`: 76
+- `substr`: 76
+- `as_int`: 76
+- `en`: 76
+- `mod`: 76
+- `assume`: 76
+- `json`: 76
+- `addr_t`: 76
+- `hash_t`: 76
+- `db`: 76
+- `sub`: 76
+- `N`: 76
+- `wr_ports`: 76
+- `sig_srst`: 76
+- `Pass`: 76
+- `param_bool`: 76
+- `as_bool`: 76
+- `chunks`: 76
+- `map`: 76
+- `wide_log2`: 76
+- `rhs`: 76
+- `sig_en`: 76
+- `type_`: 76
+- `model_undef`: 76
+- `type_str`: 76
+- `getParam`: 76
+- `chunk_`: 76
+- `DriveChunk`: 76
+- `resize`: 76
+- `marker`: 76
+- `initvals`: 76
+- `sig_ce`: 76
+- `sig_clr`: 76
+- `os`: 76
+- `log_signal`: 76
+- `logger`: 76
+- `YOSYS_NAMESPACE_BEGIN`: 76
+- `nodiscard`: 76
+- `CLK`: 76
+- `cellType`: 76
+- `obj`: 76
+- `undef_b`: 76
+- `vec_eq`: 76
+- `w`: 76
+- `single`: 76
+- `uint32_t`: 76
+- `functor`: 76
+- `portname`: 76
+- `conn`: 76
+- `_func`: 76
+- `Null`: 76
+- `get`: 76
+- `pol_clk`: 76
+- `mrd`: 76
+- `CONST_FALSE`: 76
+- `d`: 76
+- `HashConsPool`: 76
+- `DriveSpec`: 76
+- `hash_ops`: 76
+- `hashtable`: 76
+- `en_polarity`: 76
+- `constant`: 76
+- `rd_ports`: 76
+- `connections_`: 76
+- `Cursor`: 76
+- `emplace`: 76
+- `interp`: 76
+- `sig_ad`: 76
+- `has_clk`: 76
+- `ce_over_srst`: 76
+- `location`: 76
+- `NOT`: 76
+- `BigInteger`: 76
+- `nodes`: 76
+- `A_SIGNED`: 76
+- `function`: 76
+- `sig_s`: 76
+- `sig_aload`: 76
+- `sig_arst`: 76
+- `has_ce`: 76
+- `udata`: 76
+- `lhs`: 76
+- `bv`: 76
+- `mod_name`: 76
+- `NONE`: 76
+- `rport`: 76
+- `reserve`: 76
+- `hash_`: 76
+- `has_arst`: 76
+- `compare`: 76
+- `IR`: 76
+- `r`: 76
+- `Mem`: 76
+- `log_abort`: 76
+- `dst`: 76
+- `pol_ce`: 76
+- `dli`: 76
+- `clk`: 76
+- `attr`: 76
+- `has_aload`: 76
+- `has_sr`: 76
+- `has_srst`: 76
+- `ptr`: 76
+- `ch`: 76
+- `wport`: 76
+- `ezSAT`: 76
+- `rep_`: 76
+- `tmp`: 76
+- `extend`: 76
+- `LogSeverity`: 76
+- `dynamic_ints`: 76
+- `AND`: 76
+- `min`: 76
+- `pf`: 76
+- `undef`: 76
+- `clk_enable`: 76
+- `vec_not`: 76
+- `as_const`: 76
+- `mux`: 76
+- `eval`: 76
+- `do_hash`: 76
+- `srst`: 76
+- `pol_srst`: 76
+- `argidx`: 76
+- `OR`: 76
+- `B_SIGNED`: 76
+- `ports`: 76
+- `P`: 76
+- `c1`: 76
+- `HANDLE_CELL_TYPE`: 76
+- `raw`: 76
+- `_WIN32`: 76
+- `val_srst`: 76
+- `memid`: 76
+- `Frontend`: 76
+- `Process`: 76
+- `OpOr`: 76
+- `cells_`: 76
+- `current_state`: 76
+- `new_mod`: 76
+- `vec_or`: 76
+- `x`: 76
+- `outputs`: 76
+- `list_np`: 76
+- `yosys_design`: 76
+- `npos`: 76
+- `PooledName`: 76
+- `wires_`: 76
+- `list_p`: 76
+- `unescape`: 76
+- `pol_aload`: 76
+- `pol_clr`: 76
+- `pol_arst`: 76
+- `content`: 76
+- `output`: 76
+- `define`: 76
+- `TwineSpec`: 76
+- `default_handler`: 76
+- `_ir`: 76
+- `ap`: 76
+
+## Comments with no translation
+
+- for (auto c1 : list_np): 76
+- for (auto c2 : list_np): 76
+- for (auto c3 : list_01): 76
+- Format checking will have guaranteed num_dynamic_ints == 0.: 76
+- Consider using the ConstEval struct instead if you need named ports and/or multiple outputs: 76
+- for (auto c4 : list_np): 76
+- for (auto c3 : list_np): 76
+- truncating division: 76
+- truncating modulo: 76
+- required: M == clog2(N): 76
+- YOSYS_ENABLE_ZLIB: 76
+- cmd_log_args(args);: 76
+- sketchy zone: 76
+- check_matched_sign=: 76
+- only used for parameters: 76
+- namespace CompressorTree: 76
+- equality: 76
+- others: 76
+- Add a single bit connection to the driver map.: 76
+- Specialized version that avoids unpacking: 76
+- For each bit, store a set of connected driver bits for which the: 76
+- explicit connection should be preserved and the driving direction is: 76
+- if active: 76
+- - ignore clock edge (don't change value) unless sig_ce is active: 76
+- Zero length if unknowable from just type: 76
+- INTEGER type: 76
+- remove closing bracket: 76
+- required: out_width > in_width: 76
+- Called when the buffer is empty and more input is needed: 76
+- The stream buffer instance: 76
+- On some platforms (Wasm) we must ensure that the arg is properly aligned: 76
+- after the dynamic `int` parameters.: 76
+- wchar not supported: 76
+- dynamic width/precision args for the next format conversion specifier.: 76
+- Emit the string representation of `arg` that has been converted to a `double'.: 76
+- One bit for every write port, true iff simultanous read on this: 76
+- Can only be set for write ports that have the same clock domain.: 76
+- Returns the address of given subword index accessed by this port.: 76
+- emulation logic.: 76
+- init json: 76
+- write to json: 76
+- this option is undocumented as it is for internal use only: 76
+- default width 32: 76
+- expected=: 76
+- Avoid O(n^2) complexity by compacting in-place: 76
+- truncate any higher bits, potentially over/underflowing. Consider using: 76
+- try_as_int, as_int_saturating, or guarding behind convertible_to_int: 76
+- instead.: 76
+- Returns the constant's value as an int if it can be represented without: 76
+- checks if the given module is included in the current selection: 76
+- checks if the given module is wholly included in the current: 76
+- selection, i.e. not partially selected: 76
+- get the current selection: 76
+- Return a vector of source locations starting from the indexed module to: 76
+- attributes.: 76
+- Rebuild SigMap for all connections in module: 76
+- The result may be 0.: 76
+- Create a pool of threads running the given closure (parameterized by thread number).: 76
+- `pool_size` must be the result of a `pool_size()` call.: 76
+- Returns the number of threads that will be used when calling `run()`.: 76
+- Required to insert `AccumulatedValue`s into an `std::unordered_set`.: 76
+- This should not affect using wheels as the dylib has to actually be called: 76
+- *
+ * This file implements BitPatternPool for efficiently storing and querying
+ * sets of fixed-width: 76
+- *
+	 * Constructs a pool of all possible patterns (all don't-care bits): 76
+- *
+	 * Convert a constant SigSpec to a pattern. Normalize Yosys many-valued
+	 * to three-valued logic: 76
+- *
+	 * A literal x/z bit can never match a 2-valued selector, so a pattern containing
+	 * one covers : 76
+- *
+	 * Two cubes match if their intersection is non-empty.: 76
+- *
+	 * Does cube sig overlap any cube in the pool?
+	 * For example:
+	 * pool({aaa}).has_any(01a) == t: 76
+- *
+	 * Is cube sig covered by a cube in the pool?
+	 * For example:
+	 * pool({aaa}).has_all(01a) == tr: 76
+- *
+	 * Remove cube sig from the pool, splitting the remaining cubes. True if success.
+	 * For example: 76
+- *
+	 * Remove all patterns. Returns false if already empty.: 76
+- [[CITE]] Power-Modulus Algorithm: 76
+- Schneier, Bruce (1996). Applied Cryptography: Protocols, Algorithms, and Source Code in C,: 76
+- Second Edition (2nd ed.). Wiley. ISBN 978-0-471-11709-4, page 244: 76
+- Shift `arg1` by `arg2` bits.: 76
+- If `direction` is +1, `arg1` is shifted right by `arg2` bits; if `direction` is -1, `arg1` is shifte: 76
+- If `signed2` is true, `arg2` is interpreted as a signed integer; a negative `arg2` will cause a shif: 76
+- Any required bits outside the bounds of `arg1` are padded with `vacant_bits` unless `sign_ext` is tr: 76
+- bounds are filled with the leftmost bit of `arg1` (arithmetic shift).: 76
+- bigint division with negative numbers is wonky, make sure we only negate at the very end: 76
+- Power-modulo with 2^result_len as modulus: 76
+- unreachable: 76
+- Behavior of the different shift cells:: 76
+- $shl, $sshl -- shifts left by the amount on B port, B always unsigned: 76
+- $shr, $sshr -- ditto right: 76
+- $shift, $shiftx -- shifts right by the amount on B port, B optionally signed: 76
+- Sign extension (if A signed):: 76
+- $shl, $shr, $shift -- only sign-extends up to size of Y, then shifts in zeroes: 76
+- $sshl, $sshr -- fully sign-extends: 76
+- $shiftx -- no sign extension: 76
+- Because $shl, $sshl only shift left, and $shl sign-extens up to size of Y, they: 76
+- are effectively the same.: 76
+- the cap below makes sure we don't overflow in the arithmetic further down, though: 76
+- it makes the edge data invalid once a_width approaches the order of 2**30: 76
+- (that ever happening is considered improbable): 76
+- highest position of Y that can change with the value of B: 76
+- 1 + highest position of A that can be moved to Y[i]: 76
+- lowest position of A that can be moved to Y[i]: 76
+- can go both ways depending on sign of B: 76
+- 2's complement range is different depending on direction: 76
