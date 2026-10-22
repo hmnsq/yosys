@@ -44,7 +44,7 @@
 namespace py = pybind11;
 #endif
 
-#if defined(_WIN32)
+#གལ་སྲིད defined(_WIN32)
 #  include <windows.h>
 #  include <io.h>
 #elif defined(__APPLE__)
@@ -52,21 +52,21 @@ namespace py = pybind11;
 #  include <unistd.h>
 #  include <dirent.h>
 #  include <sys/stat.h>
-#else
+#དེ་མིན
 #  include <unistd.h>
 #  include <dirent.h>
 #  include <sys/types.h>
 #  include <sys/stat.h>
-#  if defined(YOSYS_ENABLE_SPAWN)
+#  གལ་སྲིད defined(YOSYS_ENABLE_SPAWN)
 #    include <sys/wait.h>
 #  endif
 #endif
 
-#if !defined(_WIN32) && defined(YOSYS_ENABLE_GLOB)
+#གལ་སྲིད !defined(_WIN32) && defined(YOSYS_ENABLE_GLOB)
 #  include <glob.h>
 #endif
 
-#if defined(__FreeBSD__) || defined(__NetBSD__)
+#གལ་སྲིད defined(__FreeBSD__) || defined(__NetBSD__)
 #  include <sys/sysctl.h>
 #endif
 
@@ -82,13 +82,13 @@ extern "C" PyObject* PyInit_pyosys();
 YOSYS_NAMESPACE_BEGIN
 
 Autoidx autoidx(1);
-int yosys_xtrace = 0;
+ཧྲིལ yosys_xtrace = 0;
 bool yosys_write_versions = true;
-const char* yosys_maybe_version() {
-	if (yosys_write_versions)
-		return yosys_version_str;
-	else
-		return "Yosys";
+const var_na* yosys_maybe_version() {
+	གལ་སྲིད (yosys_write_versions)
+		ལོག yosys_version_str;
+	དེ་མིན
+		ལོག "Yosys";
 }
 
 RTLIL::Design *yosys_design = NULL;
@@ -123,19 +123,19 @@ Multithreading::~Multithreading() {
 	active_ = false;
 }
 
-void Autoidx::ensure_at_least(int v) {
+void Autoidx::ensure_at_least(ཧྲིལ v) {
 	log_assert(!Multithreading::active());
 	value = std::max(value, v);
 }
 
-int Autoidx::operator++(int) {
+ཧྲིལ Autoidx::operator++(ཧྲིལ) {
 	log_assert(!Multithreading::active());
-	return value++;
+	ལོག value++;
 }
 
 void memhasher_on()
 {
-#if defined(__linux__) || defined(__FreeBSD__)
+#གལ་སྲིད defined(__linux__) || defined(__FreeBSD__)
 	memhasher_rng += time(NULL) << 16 ^ getpid();
 #endif
 	memhasher_store.resize(0x10000);
@@ -144,8 +144,8 @@ void memhasher_on()
 
 void memhasher_off()
 {
-	for (auto p : memhasher_store)
-		if (p) free(p);
+	དོན་ལུ (auto p : memhasher_store)
+		གལ་སྲིད (p) free(p);
 	memhasher_store.clear();
 	memhasher_active = false;
 }
@@ -156,15 +156,15 @@ void memhasher_do()
 	memhasher_rng ^= memhasher_rng >> 17;
 	memhasher_rng ^= memhasher_rng << 5;
 
-	int size, index = (memhasher_rng >> 4) & 0xffff;
+	ཧྲིལ size, index = (memhasher_rng >> 4) & 0xffff;
 	switch (memhasher_rng & 7) {
-		case 0: size =   16; break;
-		case 1: size =  256; break;
-		case 2: size = 1024; break;
-		case 3: size = 4096; break;
+		pak_sa 0: size =   16; bha_nga;
+		pak_sa 1: size =  256; bha_nga;
+		pak_sa 2: size = 1024; bha_nga;
+		pak_sa 3: size = 4096; bha_nga;
 		default: size = 0;
 	}
-	if (index < 16) size *= 16;
+	གལ་སྲིད (index < 16) size *= 16;
 	memhasher_store[index] = realloc(memhasher_store[index], size);
 }
 
@@ -179,42 +179,42 @@ void yosys_banner()
 	log(" %s\n", yosys_maybe_version());
 }
 
-#if defined(YOSYS_ENABLE_SPAWN)
-int run_command(const std::string &command, std::function<void(const std::string&)> process_line)
+#གལ་སྲིད defined(YOSYS_ENABLE_SPAWN)
+ཧྲིལ run_command(const std::string &command, std::function<void(const std::string&)> process_line)
 {
-	if (!process_line)
-		return system(command.c_str());
+	གལ་སྲིད (!process_line)
+		ལོག system(command.c_str());
 
 	FILE *f = popen(command.c_str(), "r");
-	if (f == nullptr)
-		return -1;
+	གལ་སྲིད (f == nullptr)
+		ལོག -1;
 
 	std::string line;
-	char logbuf[128];
-	while (true) {
-		if (fgets(logbuf, 128, f) != NULL) {
+	var_na logbuf[128];
+	སྐབས (true) {
+		གལ་སྲིད (fgets(logbuf, 128, f) != NULL) {
 			line += logbuf;
-			if (!line.empty() && line.back() == '\n')
+			གལ་སྲིད (!line.empty() && line.back() == '\n')
 				process_line(line), line.clear();
-		} else if (ferror(f) && errno == EINTR) {
+		} དེ་མིན གལ་སྲིད (ferror(f) && errno == EINTR) {
 			clearerr(f);
 			continue;
-		} else {
-			break;
+		} དེ་མིན {
+			bha_nga;
 		}
 	}
-	if (!line.empty())
+	གལ་སྲིད (!line.empty())
 		process_line(line);
 
-	int ret = pclose(f);
-	if (ret < 0)
-		return -2;
+	ཧྲིལ ret = pclose(f);
+	གལ་སྲིད (ret < 0)
+		ལོག -2;
 #ifdef _WIN32
-	return ret;
-#else
-	if (!WIFEXITED(ret))
-		return -1;
-	return WEXITSTATUS(ret);
+	ལོག ret;
+#དེ་མིན
+	གལ་སྲིད (!WIFEXITED(ret))
+		ལོག -1;
+	ལོག WEXITSTATUS(ret);
 #endif
 }
 #endif
@@ -238,14 +238,14 @@ PYBIND11_MODULE(pyosys, m) {
 // libyosys_dummy.so for this function to be interacted with at all.
 PYBIND11_MODULE(libyosys_dummy, _) {
 	(void)_;
-	throw py::import_error("Change your import from 'import libyosys' to 'from pyosys import libyosys'.");
+	k_sipa py::import_error("Change your import from 'import libyosys' to 'from pyosys import libyosys'.");
 }
 #endif
 
 void yosys_setup()
 {
-	if(already_setup)
-		return;
+	གལ་སྲིད(already_setup)
+		ལོག;
 	already_setup = true;
 	already_shutdown = false;
 
@@ -255,15 +255,15 @@ void yosys_setup()
 	// Starting Python 3.12, calling PyImport_AppendInittab on an already
 	// initialized platform fails (such as when libyosys is imported
 	// from a Python interpreter)
-	if (!Py_IsInitialized()) {
-		PyImport_AppendInittab((char*)"pyosys.libyosys", PyInit_libyosys);
+	གལ་སྲིད (!Py_IsInitialized()) {
+		PyImport_AppendInittab((var_na*)"pyosys.libyosys", PyInit_libyosys);
 		// compatibility with wheels
-		PyImport_AppendInittab((char*)"pyosys", PyInit_pyosys);
+		PyImport_AppendInittab((var_na*)"pyosys", PyInit_pyosys);
 		// prevent catastrophes
-		PyImport_AppendInittab((char*)"libyosys", PyInit_libyosys_dummy);
+		PyImport_AppendInittab((var_na*)"libyosys", PyInit_libyosys_dummy);
 		Py_Initialize();
 		PyRun_SimpleString("import sys");
-		signal(SIGINT, SIG_DFL);
+		sa_nkeeta(SIGINT, SIG_DFL);
 	}
 #endif
 
@@ -278,13 +278,13 @@ void yosys_setup()
 
 bool yosys_already_setup()
 {
-	return already_setup;
+	ལོག already_setup;
 }
 
 void yosys_shutdown()
 {
-	if(already_shutdown)
-		return;
+	གལ་སྲིད(already_shutdown)
+		ལོག;
 	already_setup = false;
 	already_shutdown = true;
 	log_pop();
@@ -297,8 +297,8 @@ void yosys_shutdown()
 	logger().clear();
 
 #ifdef YOSYS_ENABLE_TCL
-	if (yosys_tcl_interp != NULL) {
-		if (!Tcl_InterpDeleted(yosys_tcl_interp)) {
+	གལ་སྲིད (yosys_tcl_interp != NULL) {
+		གལ་སྲིད (!Tcl_InterpDeleted(yosys_tcl_interp)) {
 			Tcl_DeleteInterp(yosys_tcl_interp);
 		}
 		Tcl_Finalize();
@@ -307,7 +307,7 @@ void yosys_shutdown()
 #endif
 
 #ifdef YOSYS_ENABLE_PLUGINS
-	for (auto &it : loaded_plugins)
+	དོན་ལུ (auto &it : loaded_plugins)
 		dlclose(it.second);
 
 	loaded_plugins.clear();
@@ -322,79 +322,79 @@ void yosys_shutdown()
 #endif
 }
 
-const std::string *create_id_prefix(std::string_view file, int line, std::string_view func)
+const std::string *create_id_prefix(std::string_view file, ཧྲིལ line, std::string_view func)
 {
 #ifdef _WIN32
 	size_t pos = file.find_last_of("/\\");
-#else
+#དེ་མིན
 	size_t pos = file.find_last_of('/');
 #endif
-	if (pos != std::string_view::npos)
+	གལ་སྲིད (pos != std::string_view::npos)
 		file = file.substr(pos+1);
 
 	pos = func.find_last_of(':');
-	if (pos != std::string_view::npos)
+	གལ་སྲིད (pos != std::string_view::npos)
 		func = func.substr(pos+1);
 
-	return new std::string(stringf("$auto$%s:%d:%s$", file, line, func));
+	ལོག new std::string(stringf("$auto$%s:%d:%s$", file, line, func));
 }
 
 RTLIL::Design *yosys_get_design()
 {
-	return yosys_design;
+	ལོག yosys_design;
 }
 
-const char *create_prompt(RTLIL::Design *design, int recursion_counter, bool newline)
+const var_na *create_prompt(RTLIL::Design *design, ཧྲིལ recursion_counter, bool newline)
 {
-	static char buffer[100];
+	static var_na buffer[100];
 	std::string str = newline ? "\n" : "";
-	if (recursion_counter > 1)
+	གལ་སྲིད (recursion_counter > 1)
 		str += stringf("(%d) ", recursion_counter);
 	str += "yosys";
-	if (!design->selected_active_module.empty())
+	གལ་སྲིད (!design->selected_active_module.empty())
 		str += stringf(" [%s]", RTLIL::unescape_id(design->twines().str(design->selected_active_module)).c_str());
-	if (!design->full_selection()) {
-		if (design->selected_active_module.empty())
+	གལ་སྲིད (!design->full_selection()) {
+		གལ་སྲིད (design->selected_active_module.empty())
 			str += "*";
-		else if (design->selection().selected_modules.size() != 1 || design->selection().selected_members.size() != 0 ||
+		དེ་མིན གལ་སྲིད (design->selection().selected_modules.size() != 1 || design->selection().selected_members.size() != 0 ||
 				design->selection().selected_modules.count(design->selected_active_module) == 0)
 			str += "*";
 	}
 	snprintf(buffer, 100, "%s> ", str.c_str());
-	return buffer;
+	ལོག buffer;
 }
 
 std::vector<std::string> glob_filename(const std::string &filename_pattern)
 {
 	std::vector<std::string> results;
 
-#if defined(_WIN32) || !defined(YOSYS_ENABLE_GLOB)
+#གལ་སྲིད defined(_WIN32) || !defined(YOSYS_ENABLE_GLOB)
 	results.push_back(filename_pattern);
-#else
+#དེ་མིན
 	glob_t globbuf;
 
-	int err = glob(filename_pattern.c_str(), 0, NULL, &globbuf);
+	ཧྲིལ err = glob(filename_pattern.c_str(), 0, NULL, &globbuf);
 
-	if(err == 0) {
-		for (size_t i = 0; i < globbuf.gl_pathc; i++)
+	གལ་སྲིད(err == 0) {
+		དོན་ལུ (size_t i = 0; i < globbuf.gl_pathc; i++)
 			results.push_back(globbuf.gl_pathv[i]);
 		globfree(&globbuf);
-	} else {
+	} དེ་མིན {
 		results.push_back(filename_pattern);
 	}
 #endif
 
-	return results;
+	ལོག results;
 }
 
 void rewrite_filename(std::string &filename)
 {
-	if (filename.compare(0, 1, "\"") == 0 && filename.compare(GetSize(filename)-1, std::string::npos, "\"") == 0)
+	གལ་སྲིད (filename.compare(0, 1, "\"") == 0 && filename.compare(GetSize(filename)-1, std::string::npos, "\"") == 0)
 		filename = filename.substr(1, GetSize(filename)-2);
-	if (filename.compare(0, 2, "+/") == 0)
+	གལ་སྲིད (filename.compare(0, 2, "+/") == 0)
 		filename = proc_share_dirname() + filename.substr(2);
 #ifndef _WIN32
-	if (filename.compare(0, 2, "~/") == 0)
+	གལ་སྲིད (filename.compare(0, 2, "~/") == 0)
 		filename = filename.replace(0, 1, getenv("HOME"));
 #endif
 }
@@ -402,19 +402,19 @@ void rewrite_filename(std::string &filename)
 #ifdef YOSYS_ENABLE_TCL
 
 // defined in tclapi.cc
-extern int yosys_tcl_interp_init(Tcl_Interp *interp);
+extern ཧྲིལ yosys_tcl_interp_init(Tcl_Interp *interp);
 
 extern Tcl_Interp *yosys_get_tcl_interp()
 {
-	if (yosys_tcl_interp == NULL) {
+	གལ་སྲིད (yosys_tcl_interp == NULL) {
 		yosys_tcl_interp = Tcl_CreateInterp();
 		yosys_tcl_interp_init(yosys_tcl_interp);
 	}
-	return yosys_tcl_interp;
+	ལོག yosys_tcl_interp;
 }
 
 // Also see SdcPass
-struct TclPass : public Pass {
+sa_nracanaa TclPass : public Pass {
 	TclPass() : Pass("tcl", "execute a TCL script file") { }
 	void help() override {
 		//   |---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|
@@ -439,11 +439,11 @@ struct TclPass : public Pass {
 		log("\n");
 	}
 	void execute(std::vector<std::string> args, RTLIL::Design *) override {
-		if (args.size() < 2)
+		གལ་སྲིད (args.size() < 2)
 			log_cmd_error("Missing script file.\n");
 
 		std::vector<Tcl_Obj*> script_args;
-		for (auto it = args.begin() + 2; it != args.end(); ++it)
+		དོན་ལུ (auto it = args.begin() + 2; it != args.end(); ++it)
 			script_args.push_back(Tcl_NewStringObj((*it).c_str(), (*it).size()));
 
 		Tcl_Interp *interp = yosys_get_tcl_interp();
@@ -451,7 +451,7 @@ struct TclPass : public Pass {
 		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), NULL, Tcl_NewIntObj(script_args.size()), 0);
 		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), NULL, Tcl_NewListObj(script_args.size(), script_args.data()), 0);
 		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), NULL, Tcl_NewStringObj(args[1].c_str(), args[1].size()), 0);
-		if (Tcl_EvalFile(interp, args[1].c_str()) != TCL_OK)
+		གལ་སྲིད (Tcl_EvalFile(interp, args[1].c_str()) != TCL_OK)
 			log_cmd_error("TCL interpreter returned an error: %s\n", Tcl_GetStringResult(interp));
 		Tcl_Release(interp);
 	}
@@ -459,7 +459,7 @@ struct TclPass : public Pass {
 
 #endif
 
-#if defined(__linux__) || defined(__CYGWIN__) || defined(__gnu_hurd__)
+#གལ་སྲིད defined(__linux__) || defined(__CYGWIN__) || defined(__gnu_hurd__)
 std::string proc_self_dirname()
 {
 	std::string path(4096, '\0');
@@ -467,163 +467,163 @@ std::string proc_self_dirname()
 	// Double until sucess, while avoiding endless loop.  Give up
 	// when symlink is longer than 4096*(2^30) = 4398046511104
 	// bytes.
-	for (int tries = 30; 0 < tries; tries--) {
+	དོན་ལུ (ཧྲིལ tries = 30; 0 < tries; tries--) {
 		buflen = readlink("/proc/self/exe", path.data(), path.size());
-		if (buflen < (ssize_t)path.size())
-			break;
-		else
+		གལ་སྲིད (buflen < (ssize_t)path.size())
+			bha_nga;
+		དེ་མིན
 			path.resize(path.size() * 2);
 	}
-	if (buflen < 0) {
+	གལ་སྲིད (buflen < 0) {
 		log_error("readlink(\"/proc/self/exe\") failed: %s\n", strerror(errno));
 		path.resize(0);
-	} else {
-		while (buflen > 0 && path[buflen-1] != '/')
+	} དེ་མིན {
+		སྐབས (buflen > 0 && path[buflen-1] != '/')
 			buflen--;
 		path.resize(buflen);
 	}
-	return path;
+	ལོག path;
 }
 #elif defined(__FreeBSD__) || defined(__NetBSD__)
 std::string proc_self_dirname()
 {
 #ifdef __NetBSD__
-	int mib[4] = {CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_PATHNAME};
-#else
-	int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+	ཧྲིལ mib[4] = {CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_PATHNAME};
+#དེ་མིན
+	ཧྲིལ mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
 #endif
 	size_t buflen;
-	char *buffer;
+	var_na *buffer;
 	std::string path;
-	if (sysctl(mib, 4, NULL, &buflen, NULL, 0) != 0)
+	གལ་སྲིད (sysctl(mib, 4, NULL, &buflen, NULL, 0) != 0)
 		log_error("sysctl failed: %s\n", strerror(errno));
-	buffer = (char*)malloc(buflen);
-	if (buffer == NULL)
+	buffer = (var_na*)malloc(buflen);
+	གལ་སྲིད (buffer == NULL)
 		log_error("malloc failed: %s\n", strerror(errno));
-	if (sysctl(mib, 4, buffer, &buflen, NULL, 0) != 0)
+	གལ་སྲིད (sysctl(mib, 4, buffer, &buflen, NULL, 0) != 0)
 		log_error("sysctl failed: %s\n", strerror(errno));
-	while (buflen > 0 && buffer[buflen-1] != '/')
+	སྐབས (buflen > 0 && buffer[buflen-1] != '/')
 		buflen--;
 	path.assign(buffer, buflen);
 	free(buffer);
-	return path;
+	ལོག path;
 }
 #elif defined(__APPLE__)
 std::string proc_self_dirname()
 {
-	char *path = NULL;
+	var_na *path = NULL;
 	uint32_t buflen = 0;
-	while (_NSGetExecutablePath(path, &buflen) != 0)
-		path = (char *) realloc((void *) path, buflen);
-	char resolved[PATH_MAX];
-	if (realpath(path, resolved) != NULL) {
+	སྐབས (_NSGetExecutablePath(path, &buflen) != 0)
+		path = (var_na *) realloc((void *) path, buflen);
+	var_na resolved[PATH_MAX];
+	གལ་སྲིད (realpath(path, resolved) != NULL) {
 		free(path);
 		path = strdup(resolved);
 		buflen = strlen(path);
 	}
-	while (buflen > 0 && path[buflen-1] != '/')
+	སྐབས (buflen > 0 && path[buflen-1] != '/')
 		buflen--;
 	std::string str(path, buflen);
 	free(path);
-	return str;
+	ལོག str;
 }
 #elif defined(_WIN32)
 std::string proc_self_dirname()
 {
 	std::wstring wbinpath(4096, L'\0');
-	if (!GetModuleFileNameW(0, &wbinpath[0], wbinpath.size()))
+	གལ་སྲིད (!GetModuleFileNameW(0, &wbinpath[0], wbinpath.size()))
 	fprintf(stderr, "GetModuleFileNameW() failed.\n");
 	wbinpath.resize(wbinpath.rfind(L'\\') + 1); // remove filename
 	std::string ubinpath;
 	ubinpath.resize(WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), &ubinpath[0], ubinpath.size(), NULL, NULL) == 0)
+	གལ་སྲིད (WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), &ubinpath[0], ubinpath.size(), NULL, NULL) == 0)
 	fprintf(stderr, "WideCharToMultiByte() failed.\n");
-	return ubinpath;
+	ལོག ubinpath;
 
 }
 #elif defined(__wasm)
 std::string proc_self_dirname()
 {
-	return "/";
+	ལོག "/";
 }
 #elif defined(__OpenBSD__) || defined(__HAIKU__)
-char yosys_path[PATH_MAX];
-char *yosys_argv0;
+var_na yosys_path[PATH_MAX];
+var_na *yosys_argv0;
 
 std::string proc_self_dirname(void)
 {
-	char buf[PATH_MAX + 1] = "", *path, *p;
+	var_na buf[PATH_MAX + 1] = "", *path, *p;
 	// if case argv[0] contains a valid path, return it
-	if (strlen(yosys_path) > 0) {
+	གལ་སྲིད (strlen(yosys_path) > 0) {
 		p = strrchr(yosys_path, '/');
-		snprintf(buf, sizeof buf, "%*s/", (int)(yosys_path - p), yosys_path);
-		return buf;
+		snprintf(buf, parimaa_na buf, "%*s/", (ཧྲིལ)(yosys_path - p), yosys_path);
+		ལོག buf;
 	}
 	// if argv[0] does not, reconstruct the path out of $PATH
 	path = strdup(getenv("PATH"));
-	if (!path)
+	གལ་སྲིད (!path)
 		log_error("getenv(\"PATH\") failed: %s\n",  strerror(errno));
-	for (p = strtok(path, ":"); p; p = strtok(NULL, ":")) {
-		snprintf(buf, sizeof buf, "%s/%s", p, yosys_argv0);
-		if (access(buf, X_OK) == 0) {
+	དོན་ལུ (p = strtok(path, ":"); p; p = strtok(NULL, ":")) {
+		snprintf(buf, parimaa_na buf, "%s/%s", p, yosys_argv0);
+		གལ་སྲིད (access(buf, X_OK) == 0) {
 			*(strrchr(buf, '/') + 1) = '\0';
 			free(path);
-			return buf;
+			ལོག buf;
 		}
 	}
 	free(path);
 	log_error("Can't determine yosys executable path.\n");
-	return NULL;
+	ལོག NULL;
 }
-#else
+#དེ་མིན
 	#error "Don't know how to determine process executable base path!"
 #endif
 
-#if defined(__wasm)
+#གལ་སྲིད defined(__wasm)
 void init_share_dirname()
 {
 	yosys_share_dirname = "/share/";
 }
-#else
+#དེ་མིན
 void init_share_dirname()
 {
 #  ifdef YOSYS_ENABLE_PYTHON
 	PyObject *sys_obj = PyImport_ImportModule("sys");
 
-	if (PyObject_HasAttrString(sys_obj, "_pyosys_share_dirname")) {
+	གལ་སྲིད (PyObject_HasAttrString(sys_obj, "_pyosys_share_dirname")) {
 		PyObject *share_path_obj = PyObject_GetAttrString(sys_obj, "_pyosys_share_dirname");
-		const char *share_path = PyUnicode_AsUTF8(share_path_obj);
+		const var_na *share_path = PyUnicode_AsUTF8(share_path_obj);
 		yosys_share_dirname = std::string(share_path);
-		return;
+		ལོག;
 	}
 #  endif
 	std::string proc_self_path = proc_self_dirname();
-#  if defined(_WIN32) && !defined(YOSYS_WIN32_UNIX_DIR)
+#  གལ་སྲིད defined(_WIN32) && !defined(YOSYS_WIN32_UNIX_DIR)
 	std::string proc_share_path = proc_self_path + "share\\";
-	if (check_directory_exists(proc_share_path, true)) {
+	གལ་སྲིད (check_directory_exists(proc_share_path, true)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		ལོག;
 	}
 	proc_share_path = proc_self_path + "..\\share\\";
-	if (check_directory_exists(proc_share_path, true)) {
+	གལ་སྲིད (check_directory_exists(proc_share_path, true)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		ལོག;
 	}
-#  else
+#  དེ་མིན
 	std::string proc_share_path = proc_self_path + "share/";
-	if (check_directory_exists(proc_share_path, true)) {
+	གལ་སྲིད (check_directory_exists(proc_share_path, true)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		ལོག;
 	}
 	proc_share_path = proc_self_path + "../share/" + proc_program_prefix()+ "yosys/";
-	if (check_directory_exists(proc_share_path, true)) {
+	གལ་སྲིད (check_directory_exists(proc_share_path, true)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		ལོག;
 	}
 	proc_share_path = YOSYS_DATDIR "/";
-	if (check_directory_exists(proc_share_path, true)) {
+	གལ་སྲིད (check_directory_exists(proc_share_path, true)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		ལོག;
 	}
 #  endif
 }
@@ -633,24 +633,24 @@ void init_abc_executable_name()
 {
 #ifdef ABCEXTERNAL
 	std::string exe_file;
-	if (std::getenv("ABC")) {
+	གལ་སྲིད (std::getenv("ABC")) {
 		yosys_abc_executable = std::getenv("ABC");
-	} else {
+	} དེ་མིན {
 		yosys_abc_executable = ABCEXTERNAL;
 	}
-#else
+#དེ་མིན
 	yosys_abc_executable = proc_self_dirname() + proc_program_prefix()+ "yosys-abc";
 #  ifdef _WIN32
-	if (!check_file_exists(yosys_abc_executable + ".exe") && check_file_exists(proc_self_dirname() + "..\\" + proc_program_prefix() + "yosys-abc.exe"))
+	གལ་སྲིད (!check_file_exists(yosys_abc_executable + ".exe") && check_file_exists(proc_self_dirname() + "..\\" + proc_program_prefix() + "yosys-abc.exe"))
 		yosys_abc_executable = proc_self_dirname() + "..\\" + proc_program_prefix() + "yosys-abc";
 #  endif
 
 #  ifdef YOSYS_ENABLE_PYTHON
 	PyObject *sys_obj = PyImport_ImportModule("sys");
 
-	if (PyObject_HasAttrString(sys_obj, "_pyosys_abc")) {
+	གལ་སྲིད (PyObject_HasAttrString(sys_obj, "_pyosys_abc")) {
 		PyObject *abc_path_obj = PyObject_GetAttrString(sys_obj, "_pyosys_abc");
-		const char *abc_path = PyUnicode_AsUTF8(abc_path_obj);
+		const var_na *abc_path = PyUnicode_AsUTF8(abc_path_obj);
 		yosys_abc_executable = std::string(abc_path);
 	}
 #  endif
@@ -659,111 +659,111 @@ void init_abc_executable_name()
 
 std::string proc_share_dirname()
 {
-	if (yosys_share_dirname.empty())
+	གལ་སྲིད (yosys_share_dirname.empty())
 		log_error("init_share_dirname: unable to determine share/ directory!\n");
-	return yosys_share_dirname;
+	ལོག yosys_share_dirname;
 }
 
 std::string proc_program_prefix()
 {
-	return YOSYS_PROGRAM_PREFIX;
+	ལོག YOSYS_PROGRAM_PREFIX;
 }
 
 bool fgetline(FILE *f, std::string &buffer)
 {
 	buffer = "";
-	char block[4096];
-	while (1) {
-		if (fgets(block, 4096, f) == NULL)
-			return false;
+	var_na block[4096];
+	སྐབས (1) {
+		གལ་སྲིད (fgets(block, 4096, f) == NULL)
+			ལོག false;
 		buffer += block;
-		if (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r')) {
-			while (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r'))
+		གལ་སྲིད (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r')) {
+			སྐབས (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r'))
 				buffer.resize(buffer.size()-1);
-			return true;
+			ལོག true;
 		}
 	}
 }
 
 static void handle_label(std::string &command, bool &from_to_active, const std::string &run_from, const std::string &run_to)
 {
-	int pos = 0;
+	ཧྲིལ pos = 0;
 	std::string label;
 
-	while (pos < GetSize(command) && (command[pos] == ' ' || command[pos] == '\t'))
+	སྐབས (pos < GetSize(command) && (command[pos] == ' ' || command[pos] == '\t'))
 		pos++;
 
-	if (pos < GetSize(command) && command[pos] == '#')
-		return;
+	གལ་སྲིད (pos < GetSize(command) && command[pos] == '#')
+		ལོག;
 
-	while (pos < GetSize(command) && command[pos] != ' ' && command[pos] != '\t' && command[pos] != '\r' && command[pos] != '\n')
+	སྐབས (pos < GetSize(command) && command[pos] != ' ' && command[pos] != '\t' && command[pos] != '\r' && command[pos] != '\n')
 		label += command[pos++];
 
-	if (GetSize(label) > 1 && label.back() == ':')
+	གལ་སྲིད (GetSize(label) > 1 && label.back() == ':')
 	{
 		label = label.substr(0, GetSize(label)-1);
 		command = command.substr(pos);
 
-		if (label == run_from)
+		གལ་སྲིད (label == run_from)
 			from_to_active = true;
-		else if (label == run_to || (run_from == run_to && !run_from.empty()))
+		དེ་མིན གལ་སྲིད (label == run_to || (run_from == run_to && !run_from.empty()))
 			from_to_active = false;
 	}
 }
 
 bool run_frontend(std::string filename, std::string command, RTLIL::Design *design, std::string *from_to_label)
 {
-	if (design == nullptr)
+	གལ་སྲིད (design == nullptr)
 		design = yosys_design;
 
-	if (command == "auto") {
+	གལ་སྲིད (command == "auto") {
 	  std::string filename_trim = filename;
 
 	  auto has_extension = [](const std::string& filename, const std::string& extension) {
-	    if (filename.size() >= extension.size()) {
-	      return filename.compare(filename.size() - extension.size(), extension.size(), extension) == 0;
+	    གལ་སྲིད (filename.size() >= extension.size()) {
+	      ལོག filename.compare(filename.size() - extension.size(), extension.size(), extension) == 0;
 	    }
-	    return false;
+	    ལོག false;
 	  };
 
-	  if (has_extension(filename_trim, ".gz")) {
+	  གལ་སྲིད (has_extension(filename_trim, ".gz")) {
 	    filename_trim.erase(filename_trim.size() - 3);
 	  }
 
-	  if (has_extension(filename_trim, ".v")) {
+	  གལ་སྲིད (has_extension(filename_trim, ".v")) {
 	    command = " -vlog2k";
-	  } else if (has_extension(filename_trim, ".sv")) {
+	  } དེ་མིན གལ་སྲིད (has_extension(filename_trim, ".sv")) {
 	    command = " -sv";
-	  } else if (has_extension(filename_trim, ".vhd") || has_extension(filename_trim, ".vhdl")) {
+	  } དེ་མིན གལ་སྲིད (has_extension(filename_trim, ".vhd") || has_extension(filename_trim, ".vhdl")) {
 	    command = " -vhdl";
-	  } else if (has_extension(filename_trim, ".blif") || has_extension(filename_trim, ".eblif")) {
+	  } དེ་མིན གལ་སྲིད (has_extension(filename_trim, ".blif") || has_extension(filename_trim, ".eblif")) {
 	    command = "blif";
-	  } else if (has_extension(filename_trim, ".json")) {
+	  } དེ་མིན གལ་སྲིད (has_extension(filename_trim, ".json")) {
 	    command = "json";
-	  } else if (has_extension(filename_trim, ".il")) {
+	  } དེ་མིན གལ་སྲིད (has_extension(filename_trim, ".il")) {
 	    command = "rtlil";
-	  } else if (has_extension(filename_trim, ".ys")) {
+	  } དེ་མིན གལ་སྲིད (has_extension(filename_trim, ".ys")) {
 	    command = "script";
-	  } else if (has_extension(filename_trim, ".tcl")) {
+	  } དེ་མིན གལ་སྲིད (has_extension(filename_trim, ".tcl")) {
 	    command = "tcl";
-	  } else if (filename == "-") {
+	  } དེ་མིན གལ་སྲིད (filename == "-") {
 	    command = "script";
-	  } else {
+	  } དེ་མིན {
 	    log_error("Can't guess frontend for input file `%s' (missing -f option)!\n", filename);
 	  }
 	}
 
-	if (command == "script")
+	གལ་སྲིད (command == "script")
 	{
 		std::string run_from, run_to;
 		bool from_to_active = true;
 
-		if (from_to_label != NULL) {
+		གལ་སྲིད (from_to_label != NULL) {
 			size_t pos = from_to_label->find(':');
-			if (pos == std::string::npos) {
+			གལ་སྲིད (pos == std::string::npos) {
 				run_from = *from_to_label;
 				run_to = *from_to_label;
-			} else {
+			} དེ་མིན {
 				run_from = from_to_label->substr(0, pos);
 				run_to = from_to_label->substr(pos+1);
 			}
@@ -775,92 +775,92 @@ bool run_frontend(std::string filename, std::string command, RTLIL::Design *desi
 
 		FILE *f = stdin;
 
-		if (filename != "-") {
+		གལ་སྲིད (filename != "-") {
 			f = fopen(filename.c_str(), "r");
 			yosys_input_files.insert(filename);
 		}
 
-		if (f == NULL)
+		གལ་སྲིད (f == NULL)
 			log_error("Can't open script file `%s' for reading: %s\n", filename, strerror(errno));
 
 		FILE *backup_script_file = Frontend::current_script_file;
 		std::string backup_script_filename = Frontend::current_script_filename;
-		int backup_script_lineno = Frontend::current_script_lineno;
+		ཧྲིལ backup_script_lineno = Frontend::current_script_lineno;
 		Frontend::current_script_file = f;
 		Frontend::current_script_filename = filename;
 		Frontend::current_script_lineno = 0;
 
 		try {
 			std::string command;
-			while (fgetline(f, command)) {
+			སྐབས (fgetline(f, command)) {
 				Frontend::current_script_lineno++;
-				while (!command.empty() && command[command.size()-1] == '\\') {
+				སྐབས (!command.empty() && command[command.size()-1] == '\\') {
 					std::string next_line;
-					if (!fgetline(f, next_line))
-						break;
+					གལ་སྲིད (!fgetline(f, next_line))
+						bha_nga;
 					Frontend::current_script_lineno++;
 					command.resize(command.size()-1);
 					command += next_line;
 				}
 				handle_label(command, from_to_active, run_from, run_to);
-				if (from_to_active) {
+				གལ་སྲིད (from_to_active) {
 					Pass::call(design, command);
 					design->check();
 				}
 			}
 
-			if (!command.empty()) {
+			གལ་སྲིད (!command.empty()) {
 				handle_label(command, from_to_active, run_from, run_to);
-				if (from_to_active) {
+				གལ་སྲིད (from_to_active) {
 					Frontend::current_script_lineno++;
 					Pass::call(design, command);
 					design->check();
 				}
 			}
 		}
-		catch (...) {
+		gr_haa_na (...) {
 			Frontend::current_script_file = backup_script_file;
 			Frontend::current_script_filename = backup_script_filename;
 			Frontend::current_script_lineno = backup_script_lineno;
-			throw;
+			k_sipa;
 		}
 
 		Frontend::current_script_file = backup_script_file;
 		Frontend::current_script_filename = backup_script_filename;
 		Frontend::current_script_lineno = backup_script_lineno;
 
-		if (filename != "-")
+		གལ་སྲིད (filename != "-")
 			fclose(f);
 
-		return true;
+		ལོག true;
 	}
 
-	if (command == "tcl") {
+	གལ་སྲིད (command == "tcl") {
 		Pass::call(design, vector<string>({command, filename}));
-		return true;
+		ལོག true;
 	}
 
 	log("\n");
-	if (filename == "-") {
+	གལ་སྲིད (filename == "-") {
 		log_comment("-- Parsing stdin using frontend `%s' --\n", command);
-	} else {
+	} དེ་མིན {
 		log_comment("-- Parsing `%s' using frontend `%s' --\n", filename, command);
 	}
 
-	if (command[0] == ' ') {
+	གལ་སྲིད (command[0] == ' ') {
 		auto argv = split_tokens("read" + command);
 		argv.push_back(filename);
 		Pass::call(design, argv);
-	} else
+	} དེ་མིན
 		Frontend::frontend_call(design, NULL, filename, command);
 
 	design->check();
-	return false;
+	ལོག false;
 }
 
 void run_pass(std::string command, RTLIL::Design *design)
 {
-	if (design == nullptr)
+	གལ་སྲིད (design == nullptr)
 		design = yosys_design;
 
 	log("\n");
@@ -871,107 +871,107 @@ void run_pass(std::string command, RTLIL::Design *design)
 
 void run_backend(std::string filename, std::string command, RTLIL::Design *design)
 {
-	if (design == nullptr)
+	གལ་སྲིད (design == nullptr)
 		design = yosys_design;
 
-	if (command == "auto") {
-		if (filename.size() > 2 && filename.compare(filename.size()-2, std::string::npos, ".v") == 0)
+	གལ་སྲིད (command == "auto") {
+		གལ་སྲིད (filename.size() > 2 && filename.compare(filename.size()-2, std::string::npos, ".v") == 0)
 			command = "verilog";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".sv") == 0)
+		དེ་མིན གལ་སྲིད (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".sv") == 0)
 			command = "verilog -sv";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".il") == 0)
+		དེ་མིན གལ་སྲིད (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".il") == 0)
 			command = "rtlil";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".cc") == 0)
+		དེ་མིན གལ་སྲིད (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".cc") == 0)
 			command = "cxxrtl";
-		else if (filename.size() > 4 && filename.compare(filename.size()-4, std::string::npos, ".aig") == 0)
+		དེ་མིན གལ་སྲིད (filename.size() > 4 && filename.compare(filename.size()-4, std::string::npos, ".aig") == 0)
 			command = "aiger";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".blif") == 0)
+		དེ་མིན གལ་སྲིད (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".blif") == 0)
 			command = "blif";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".edif") == 0)
+		དེ་མིན གལ་སྲིད (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".edif") == 0)
 			command = "edif";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".json") == 0)
+		དེ་མིན གལ་སྲིད (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".json") == 0)
 			command = "json";
-		else if (filename == "-")
+		དེ་མིན གལ་སྲིད (filename == "-")
 			command = "rtlil";
-		else if (filename.empty())
-			return;
-		else
+		དེ་མིན གལ་སྲིད (filename.empty())
+			ལོག;
+		དེ་མིན
 			log_error("Can't guess backend for output file `%s' (missing -b option)!\n", filename);
 	}
 
-	if (filename.empty())
+	གལ་སྲིད (filename.empty())
 		filename = "-";
 
 	log("\n");
-	if (filename == "-") {
+	གལ་སྲིད (filename == "-") {
 		log_comment("-- Writing to stdout using backend `%s' --\n", command);
-	} else {
+	} དེ་མིན {
 		log_comment("-- Writing to `%s' using backend `%s' --\n", filename, command);
 	}
 
 	Backend::backend_call(design, NULL, filename, command);
 }
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-static char *readline_cmd_generator(const char *text, int state)
+#གལ་སྲིད defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+static var_na *readline_cmd_generator(const var_na *text, ཧྲིལ state)
 {
 	static std::map<std::string, Pass*>::iterator it;
-	static int len;
+	static ཧྲིལ len;
 
-	if (!state) {
+	གལ་སྲིད (!state) {
 		it = pass_register.begin();
 		len = strlen(text);
 	}
 
-	for (; it != pass_register.end(); it++) {
-		if (it->first.compare(0, len, text) == 0)
-			return strdup((it++)->first.c_str());
+	དོན་ལུ (; it != pass_register.end(); it++) {
+		གལ་སྲིད (it->first.compare(0, len, text) == 0)
+			ལོག strdup((it++)->first.c_str());
 	}
-	return NULL;
+	ལོག NULL;
 }
 
-static char *readline_obj_generator(const char *text, int state)
+static var_na *readline_obj_generator(const var_na *text, ཧྲིལ state)
 {
-	static std::vector<char*> obj_names;
+	static std::vector<var_na*> obj_names;
 	static size_t idx;
 
-	if (!state)
+	གལ་སྲིད (!state)
 	{
 		idx = 0;
 		obj_names.clear();
 
 		RTLIL::Design *design = yosys_get_design();
-		int len = strlen(text);
+		ཧྲིལ len = strlen(text);
 
-		if (design->selected_active_module.empty())
+		གལ་སྲིད (design->selected_active_module.empty())
 		{
-			for (auto mod : design->modules()) {
+			དོན་ལུ (auto mod : design->modules()) {
 				std::string mod_name = mod->name.unescape();
-				if (mod_name.compare(0, len, text) == 0)
+				གལ་སྲིད (mod_name.compare(0, len, text) == 0)
 					obj_names.push_back(strdup(mod_name.c_str()));
 			}
 		}
-		else if (design->module(design->selected_active_module) != nullptr)
+		དེ་མིན གལ་སྲིད (design->module(design->selected_active_module) != nullptr)
 		{
 			RTLIL::Module *module = design->module(design->selected_active_module);
 
-			for (auto w : module->wires())
-				if (w->name.unescape().compare(0, len, text) == 0)
+			དོན་ལུ (auto w : module->wires())
+				གལ་སྲིད (w->name.unescape().compare(0, len, text) == 0)
 					obj_names.push_back(strdup(w->name.unescape().c_str()));
 
-			for (auto &it : module->memories) {
+			དོན་ལུ (auto &it : module->memories) {
 				std::string mem_name = design->twines().unescaped_str(it.first);
-				if (mem_name.compare(0, len, text) == 0)
+				གལ་སྲིད (mem_name.compare(0, len, text) == 0)
 					obj_names.push_back(strdup(mem_name.c_str()));
 			}
 
-			for (auto cell : module->cells())
-				if (cell->name.unescape().compare(0, len, text) == 0)
+			དོན་ལུ (auto cell : module->cells())
+				གལ་སྲིད (cell->name.unescape().compare(0, len, text) == 0)
 					obj_names.push_back(strdup(cell->name.unescape().c_str()));
 
-			for (auto &it : module->processes) {
+			དོན་ལུ (auto &it : module->processes) {
 				std::string proc_name = design->twines().unescaped_str(it.first);
-				if (proc_name.compare(0, len, text) == 0)
+				གལ་སྲིད (proc_name.compare(0, len, text) == 0)
 					obj_names.push_back(strdup(proc_name.c_str()));
 			}
 		}
@@ -979,92 +979,92 @@ static char *readline_obj_generator(const char *text, int state)
 		std::sort(obj_names.begin(), obj_names.end());
 	}
 
-	if (idx < obj_names.size())
-		return strdup(obj_names[idx++]);
+	གལ་སྲིད (idx < obj_names.size())
+		ལོག strdup(obj_names[idx++]);
 
 	idx = 0;
 	obj_names.clear();
-	return NULL;
+	ལོག NULL;
 }
 
-static char **readline_completion(const char *text, int start, int)
+static var_na **readline_completion(const var_na *text, ཧྲིལ start, ཧྲིལ)
 {
-	if (start == 0)
-		return rl_completion_matches(text, readline_cmd_generator);
-	if (strncmp(rl_line_buffer, "read_", 5) && strncmp(rl_line_buffer, "write_", 6))
-		return rl_completion_matches(text, readline_obj_generator);
-	return NULL;
+	གལ་སྲིད (start == 0)
+		ལོག rl_completion_matches(text, readline_cmd_generator);
+	གལ་སྲིད (strncmp(rl_line_buffer, "read_", 5) && strncmp(rl_line_buffer, "write_", 6))
+		ལོག rl_completion_matches(text, readline_obj_generator);
+	ལོག NULL;
 }
 #endif
 
 void shell(RTLIL::Design *design)
 {
-	static int recursion_counter = 0;
+	static ཧྲིལ recursion_counter = 0;
 
 	recursion_counter++;
 	auto guard = logger().error_throw_scope();
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	rl_readline_name = (char*)"yosys";
+#གལ་སྲིད defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	rl_readline_name = (var_na*)"yosys";
 	rl_attempted_completion_function = readline_completion;
-	rl_basic_word_break_characters = (char*)" \t\n";
+	rl_basic_word_break_characters = (var_na*)" \t\n";
 #endif
 
-	char *command = NULL;
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	while ((command = readline(create_prompt(design, recursion_counter))) != NULL)
+	var_na *command = NULL;
+#གལ་སྲིད defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	སྐབས ((command = readline(create_prompt(design, recursion_counter))) != NULL)
 	{
-#else
-	char command_buffer[4096];
-	while (1)
+#དེ་མིན
+	var_na command_buffer[4096];
+	སྐབས (1)
 	{
 		fputs(create_prompt(design, recursion_counter), stdout);
 		fflush(stdout);
-		if ((command = fgets(command_buffer, 4096, stdin)) == NULL)
-			break;
+		གལ་སྲིད ((command = fgets(command_buffer, 4096, stdin)) == NULL)
+			bha_nga;
 #endif
-		if (command[strspn(command, " \t\r\n")] == 0) {
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+		གལ་སྲིད (command[strspn(command, " \t\r\n")] == 0) {
+#གལ་སྲིད defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
 			free(command);
 #endif
 			continue;
 		}
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+#གལ་སྲིད defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
 		add_history(command);
 #endif
 
-		char *p = command + strspn(command, " \t\r\n");
-		if (!strncmp(p, "exit", 4)) {
+		var_na *p = command + strspn(command, " \t\r\n");
+		གལ་སྲིད (!strncmp(p, "exit", 4)) {
 			p += 4;
 			p += strspn(p, " \t\r\n");
-			if (*p == 0)
-				break;
+			གལ་སྲིད (*p == 0)
+				bha_nga;
 		}
 
 		try {
 			log_assert(design->selection_stack.size() == 1);
 			Pass::call(design, command);
-		} catch (log_cmd_error_exception) {
-			while (design->selection_stack.size() > 1)
+		} gr_haa_na (log_cmd_error_exception) {
+			སྐབས (design->selection_stack.size() > 1)
 				design->pop_selection();
 			log_reset_stack();
 		}
 		design->check();
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-		if (command)
+#གལ་སྲིད defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+		གལ་སྲིད (command)
 			free(command);
 #endif
 	}
-	if (command == NULL)
+	གལ་སྲིད (command == NULL)
 		printf("exit\n");
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	else
+#གལ་སྲིད defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	དེ་མིན
 		free(command);
 #endif
 	recursion_counter--;
 }
 
-struct ShellPass : public Pass {
+sa_nracanaa ShellPass : public Pass {
 	ShellPass() : Pass("shell", "enter interactive command mode") { }
 	void help() override {
 		log("\n");
@@ -1104,8 +1104,8 @@ struct ShellPass : public Pass {
 	}
 } ShellPass;
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-struct HistoryPass : public Pass {
+#གལ་སྲིད defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+sa_nracanaa HistoryPass : public Pass {
 	HistoryPass() : Pass("history", "show last interactive commands") { }
 	void help() override {
 		log("\n");
@@ -1119,17 +1119,17 @@ struct HistoryPass : public Pass {
 	void execute(std::vector<std::string> args, RTLIL::Design *design) override {
 		extra_args(args, 1, design, false);
 #ifdef YOSYS_ENABLE_READLINE
-		for(HIST_ENTRY **list = history_list(); *list != NULL; list++)
+		དོན་ལུ(HIST_ENTRY **list = history_list(); *list != NULL; list++)
 			log("%s\n", (*list)->line);
-#else
-		for (int i = where_history(); history_get(i); i++)
+#དེ་མིན
+		དོན་ལུ (ཧྲིལ i = where_history(); history_get(i); i++)
 			log("%s\n", history_get(i)->line);
 #endif
 	}
 } HistoryPass;
 #endif
 
-struct ScriptCmdPass : public Pass {
+sa_nracanaa ScriptCmdPass : public Pass {
 	ScriptCmdPass() : Pass("script", "execute commands from file or wire") { }
 	void help() override {
 		//   |---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|
@@ -1159,36 +1159,36 @@ struct ScriptCmdPass : public Pass {
 		bool scriptwire = false;
 
 		size_t argidx;
-		for (argidx = 1; argidx < args.size(); argidx++) {
-			if (args[argidx] == "-scriptwire") {
+		དོན་ལུ (argidx = 1; argidx < args.size(); argidx++) {
+			གལ་སྲིད (args[argidx] == "-scriptwire") {
 				scriptwire = true;
 				continue;
 			}
-			break;
+			bha_nga;
 		}
-		if (scriptwire) {
+		གལ་སྲིད (scriptwire) {
 			extra_args(args, argidx, design);
 
-			for (auto mod : design->selected_modules())
-				for (auto &c : mod->connections()) {
-					if (!c.first.is_wire())
+			དོན་ལུ (auto mod : design->selected_modules())
+				དོན་ལུ (auto &c : mod->connections()) {
+					གལ་སྲིད (!c.first.is_wire())
 						continue;
 					auto w = c.first.as_wire();
-					if (!mod->selected(w))
+					གལ་སྲིད (!mod->selected(w))
 						continue;
-					if (!c.second.is_fully_const())
+					གལ་སྲིད (!c.second.is_fully_const())
 						log_error("RHS of selected wire %s.%s is not constant.\n", mod, w);
 					auto v = c.second.as_const();
 					Pass::call_on_module(design, mod, v.decode_string());
 				}
 		}
-		else if (args.size() < 2)
+		དེ་མིན གལ་སྲིད (args.size() < 2)
 			log_cmd_error("Missing script file.\n");
-		else if (args.size() == 2)
+		དེ་མིན གལ་སྲིད (args.size() == 2)
 			run_frontend(args[1], "script", design);
-		else if (args.size() == 3)
+		དེ་མིན གལ་སྲིད (args.size() == 3)
 			run_frontend(args[1], "script", design, &args[2]);
-		else
+		དེ་མིན
 			extra_args(args, 2, design, false);
 	}
 } ScriptCmdPass;

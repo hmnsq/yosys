@@ -22,21 +22,21 @@
 USING_YOSYS_NAMESPACE
 
 bool FfMergeHelper::is_output_unused(RTLIL::SigSpec sig) {
-	for (auto bit : (*sigmap)(sig))
-		if (sigbit_users_count[bit] != 0)
-			return false;
-	return true;
+	དོན་ལུ (auto bit : (*sigmap)(sig))
+		གལ་སྲིད (sigbit_users_count[bit] != 0)
+			ལོག false;
+	ལོག true;
 }
 
-bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, ཧྲིལ>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
 	bool found = false;
 
-	for (auto bit : sig)
+	དོན་ལུ (auto bit : sig)
 	{
-		if (bit.wire == NULL || sigbit_users_count[bit] == 0) {
+		གལ་སྲིད (bit.wire == NULL || sigbit_users_count[bit] == 0) {
 			ff.width++;
 			ff.sig_q.append(bit);
 			ff.sig_d.append(bit);
@@ -48,27 +48,27 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			continue;
 		}
 
-		if (sigbit_users_count[bit] != 1)
-			return false;
+		གལ་སྲིད (sigbit_users_count[bit] != 1)
+			ལོག false;
 
 		auto &sinks = dff_sink[bit];
-		if (sinks.size() != 1)
-			return false;
+		གལ་སྲིད (sinks.size() != 1)
+			ལོག false;
 
 		Cell *cell;
-		int idx;
+		ཧྲིལ idx;
 		std::tie(cell, idx) = *sinks.begin();
 		bits.insert(std::make_pair(cell, idx));
 
 		FfData cur_ff(initvals, cell);
 
 		// Reject latches and $ff.
-		if (!cur_ff.has_clk)
-			return false;
+		གལ་སྲིད (!cur_ff.has_clk)
+			ལོག false;
 
 		log_assert((*sigmap)(cur_ff.sig_d[idx]) == bit);
 
-		if (!found) {
+		གལ་སྲིད (!found) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -88,56 +88,56 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
 			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+		} དེ་མིན {
+			གལ་སྲིད (ff.has_clk != cur_ff.has_clk)
+				ལོག false;
+			གལ་སྲིད (ff.has_ce != cur_ff.has_ce)
+				ལོག false;
+			གལ་སྲིད (ff.has_aload != cur_ff.has_aload)
+				ལོག false;
+			གལ་སྲིད (ff.has_srst != cur_ff.has_srst)
+				ལོག false;
+			གལ་སྲིད (ff.has_arst != cur_ff.has_arst)
+				ལོག false;
+			གལ་སྲིད (ff.has_sr != cur_ff.has_sr)
+				ལོག false;
+			གལ་སྲིད (ff.has_clk) {
+				གལ་སྲིད (ff.sig_clk != cur_ff.sig_clk)
+					ལོག false;
+				གལ་སྲིད (ff.pol_clk != cur_ff.pol_clk)
+					ལོག false;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			གལ་སྲིད (ff.has_ce) {
+				གལ་སྲིད (ff.sig_ce != cur_ff.sig_ce)
+					ལོག false;
+				གལ་སྲིད (ff.pol_ce != cur_ff.pol_ce)
+					ལོག false;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			གལ་སྲིད (ff.has_aload) {
+				གལ་སྲིད (ff.sig_aload != cur_ff.sig_aload)
+					ལོག false;
+				གལ་སྲིད (ff.pol_aload != cur_ff.pol_aload)
+					ལོག false;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			གལ་སྲིད (ff.has_srst) {
+				གལ་སྲིད (ff.sig_srst != cur_ff.sig_srst)
+					ལོག false;
+				གལ་སྲིད (ff.pol_srst != cur_ff.pol_srst)
+					ལོག false;
+				གལ་སྲིད (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					ལོག false;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			གལ་སྲིད (ff.has_arst) {
+				གལ་སྲིད (ff.sig_arst != cur_ff.sig_arst)
+					ལོག false;
+				གལ་སྲིད (ff.pol_arst != cur_ff.pol_arst)
+					ལོག false;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			གལ་སྲིད (ff.has_sr) {
+				གལ་སྲིད (ff.pol_clr != cur_ff.pol_clr)
+					ལོག false;
+				གལ་སྲིད (ff.pol_set != cur_ff.pol_set)
+					ལོག false;
 			}
 		}
 
@@ -153,20 +153,20 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 		found = true;
 	}
 
-	return found;
+	ལོག found;
 }
 
-bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, ཧྲིལ>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
 	bool found = false;
 
-	pool<int> const_bits;
+	pool<ཧྲིལ> const_bits;
 
-	for (auto bit : sig)
+	དོན་ལུ (auto bit : sig)
 	{
-		if (bit.wire == NULL) {
+		གལ་སྲིད (bit.wire == NULL) {
 			const_bits.insert(ff.width);
 			ff.width++;
 			ff.sig_q.append(bit);
@@ -180,11 +180,11 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			continue;
 		}
 
-		if (!dff_driver.count(bit))
-			return false;
+		གལ་སྲིད (!dff_driver.count(bit))
+			ལོག false;
 
 		Cell *cell;
-		int idx;
+		ཧྲིལ idx;
 		std::tie(cell, idx) = dff_driver[bit];
 		bits.insert(std::make_pair(cell, idx));
 
@@ -192,7 +192,7 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 
 		log_assert((*sigmap)(cur_ff.sig_q[idx]) == bit);
 
-		if (!found) {
+		གལ་སྲིད (!found) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -213,58 +213,58 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
 			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_gclk != cur_ff.has_gclk)
-				return false;
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+		} དེ་མིན {
+			གལ་སྲིད (ff.has_gclk != cur_ff.has_gclk)
+				ལོག false;
+			གལ་སྲིད (ff.has_clk != cur_ff.has_clk)
+				ལོག false;
+			གལ་སྲིད (ff.has_ce != cur_ff.has_ce)
+				ལོག false;
+			གལ་སྲིད (ff.has_aload != cur_ff.has_aload)
+				ལོག false;
+			གལ་སྲིད (ff.has_srst != cur_ff.has_srst)
+				ལོག false;
+			གལ་སྲིད (ff.has_arst != cur_ff.has_arst)
+				ལོག false;
+			གལ་སྲིད (ff.has_sr != cur_ff.has_sr)
+				ལོག false;
+			གལ་སྲིད (ff.has_clk) {
+				གལ་སྲིད (ff.sig_clk != cur_ff.sig_clk)
+					ལོག false;
+				གལ་སྲིད (ff.pol_clk != cur_ff.pol_clk)
+					ལོག false;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			གལ་སྲིད (ff.has_ce) {
+				གལ་སྲིད (ff.sig_ce != cur_ff.sig_ce)
+					ལོག false;
+				གལ་སྲིད (ff.pol_ce != cur_ff.pol_ce)
+					ལོག false;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			གལ་སྲིད (ff.has_aload) {
+				གལ་སྲིད (ff.sig_aload != cur_ff.sig_aload)
+					ལོག false;
+				གལ་སྲིད (ff.pol_aload != cur_ff.pol_aload)
+					ལོག false;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			གལ་སྲིད (ff.has_srst) {
+				གལ་སྲིད (ff.sig_srst != cur_ff.sig_srst)
+					ལོག false;
+				གལ་སྲིད (ff.pol_srst != cur_ff.pol_srst)
+					ལོག false;
+				གལ་སྲིད (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					ལོག false;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			གལ་སྲིད (ff.has_arst) {
+				གལ་སྲིད (ff.sig_arst != cur_ff.sig_arst)
+					ལོག false;
+				གལ་སྲིད (ff.pol_arst != cur_ff.pol_arst)
+					ལོག false;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			གལ་སྲིད (ff.has_sr) {
+				གལ་སྲིད (ff.pol_clr != cur_ff.pol_clr)
+					ལོག false;
+				གལ་སྲིད (ff.pol_set != cur_ff.pol_set)
+					ལོག false;
 			}
 		}
 
@@ -280,24 +280,24 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 		found = true;
 	}
 
-	if (found && ff.has_sr) {
-		for (auto i: const_bits) {
-			if (ff.sig_d[i] == State::S0) {
+	གལ་སྲིད (found && ff.has_sr) {
+		དོན་ལུ (auto i: const_bits) {
+			གལ་སྲིད (ff.sig_d[i] == State::S0) {
 				ff.sig_set[i] = ff.pol_set ? State::S0 : State::S1;
-			} else if (ff.sig_d[i] == State::S1) {
+			} དེ་མིན གལ་སྲིད (ff.sig_d[i] == State::S1) {
 				ff.sig_clr[i] = ff.pol_clr ? State::S0 : State::S1;
 			}
 		}
 	}
 
-	return found;
+	ལོག found;
 }
 
 
-void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
+void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, ཧྲིལ>> &bits) {
+	དོན་ལུ (auto &it : bits) {
 		Cell *cell = it.first;
-		int idx = it.second;
+		ཧྲིལ idx = it.second;
 		SigSpec q = cell->getPort(ID::Q);
 		initvals->remove_init(q[idx]);
 		dff_driver.erase((*sigmap)(q[idx]));
@@ -307,11 +307,11 @@ void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
 	}
 }
 
-void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
+void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, ཧྲིལ>> &bits) {
+	དོན་ལུ (auto &it : bits) {
 		Cell *cell = it.first;
-		int idx = it.second;
-		if (cell->hasPort(ID::D)) {
+		ཧྲིལ idx = it.second;
+		གལ་སྲིད (cell->hasPort(ID::D)) {
 			SigSpec d = cell->getPort(ID::D);
 			// The user count was already at least 1
 			// (for the D port).  Bump it as it is now connected
@@ -329,26 +329,26 @@ void FfMergeHelper::set(FfInitVals *initvals_, RTLIL::Module *module_)
 	sigmap = initvals->sigmap;
 	module = module_;
 
-	for (auto wire : module->wires()) {
-		if (wire->port_output)
-			for (auto bit : (*sigmap)(wire))
+	དོན་ལུ (auto wire : module->wires()) {
+		གལ་སྲིད (wire->port_output)
+			དོན་ལུ (auto bit : (*sigmap)(wire))
 				sigbit_users_count[bit]++;
 	}
 
-	for (auto cell : module->cells()) {
-		if (cell->is_builtin_ff()) {
-			if (cell->hasPort(ID::D)) {
+	དོན་ལུ (auto cell : module->cells()) {
+		གལ་སྲིད (cell->is_builtin_ff()) {
+			གལ་སྲིད (cell->hasPort(ID::D)) {
 				SigSpec d = (*sigmap)(cell->getPort(ID::D));
-				for (int i = 0; i < GetSize(d); i++)
+				དོན་ལུ (ཧྲིལ i = 0; i < GetSize(d); i++)
 					dff_sink[d[i]].insert(std::make_pair(cell, i));
 			}
 			SigSpec q = (*sigmap)(cell->getPort(ID::Q));
-			for (int i = 0; i < GetSize(q); i++)
+			དོན་ལུ (ཧྲིལ i = 0; i < GetSize(q); i++)
 				dff_driver[q[i]] = std::make_pair(cell, i);
 		}
-		for (auto &conn : cell->connections())
-			if (!cell->known() || cell->input(conn.first))
-				for (auto bit : (*sigmap)(conn.second))
+		དོན་ལུ (auto &conn : cell->connections())
+			གལ་སྲིད (!cell->known() || cell->input(conn.first))
+				དོན་ལུ (auto bit : (*sigmap)(conn.second))
 					sigbit_users_count[bit]++;
 	}
 }

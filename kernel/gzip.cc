@@ -6,10 +6,10 @@
 #include <cstdarg>
 #include <cstdio>
 
-#if !defined(WIN32)
+#གལ་སྲིད !defined(WIN32)
 #include <dirent.h>
 #include <unistd.h>
-#else
+#དེ་མིན
 #include <io.h>
 #endif
 
@@ -23,73 +23,73 @@ gzip_ostream::obuf::obuf() {
 
 bool gzip_ostream::obuf::open(const std::string &filename) {
     gzf = Zlib::gzopen(filename.c_str(), "wb");
-    return gzf != nullptr;
+    ལོག gzf != nullptr;
 }
 
-int gzip_ostream::obuf::sync() {
-    int num = pptr() - pbase();
-    if (num > 0) {
-        if (Zlib::gzwrite(gzf, reinterpret_cast<const void*>(pbase()), num) != num) {
-            return -1;
+ཧྲིལ gzip_ostream::obuf::sync() {
+    ཧྲིལ num = pptr() - pbase();
+    གལ་སྲིད (num > 0) {
+        གལ་སྲིད (Zlib::gzwrite(gzf, reinterpret_cast<const void*>(pbase()), num) != num) {
+            ལོག -1;
         }
         pbump(-num);
     }
-    return 0;
+    ལོག 0;
 }
 
 gzip_ostream::obuf::~obuf() {
-    if (gzf) {
+    གལ་སྲིད (gzf) {
         sync();
         Zlib::gzclose(gzf);
     }
 }
 
 bool gzip_istream::ibuf::open(const std::string& filename) {
-	if (gzf) {
+	གལ་སྲིད (gzf) {
 		Zlib::gzclose(gzf);
 	}
 	gzf = Zlib::gzopen(filename.c_str(), "rb");
-	if (!gzf) {
-		return false;
+	གལ་སྲིད (!gzf) {
+		ལོག false;
 	}
 	// Empty and point to start
 	setg(buffer, buffer, buffer);
-	return true;
+	ལོག true;
 }
 
 // Called when the buffer is empty and more input is needed
 std::istream::int_type gzip_istream::ibuf::underflow() {
 	log_assert(gzf && "No gzfile opened\n");
-	int bytes_read = Zlib::gzread(gzf, buffer, buffer_size);
-	if (bytes_read <= 0) {
-		if (Zlib::gzeof(gzf)) {
+	ཧྲིལ bytes_read = Zlib::gzread(gzf, buffer, buffer_size);
+	གལ་སྲིད (bytes_read <= 0) {
+		གལ་སྲིད (Zlib::gzeof(gzf)) {
 			// "On failure, the function ensures that either
 			// gptr() == nullptr or gptr() == egptr."
 			// Let's set gptr to egptr
 			setg(eback(), egptr(), egptr());
-			return traits_type::eof();
+			ལོག traits_type::eof();
 		}
 
-		int err;
-		const char* error_msg = Zlib::gzerror(gzf, &err);
-		if (err != Z_OK)
+		ཧྲིལ err;
+		const var_na* error_msg = Zlib::gzerror(gzf, &err);
+		གལ་སྲིད (err != Z_OK)
 			log_error("%s", error_msg);
-		else
+		དེ་མིན
 			log_error("Decompression logic failure: "\
 					"read <=0 bytes but neither EOF nor error\n");
 	}
 
 	// Keep size and point to start
 	setg(buffer, buffer, buffer + bytes_read);
-	return traits_type::to_int_type(buffer[0]);
+	ལོག traits_type::to_int_type(buffer[0]);
 }
 
 gzip_istream::ibuf::~ibuf() {
-	if (gzf) {
-		int err = Zlib::gzclose(gzf);
-		if (err != Z_OK) {
+	གལ་སྲིད (gzf) {
+		ཧྲིལ err = Zlib::gzclose(gzf);
+		གལ་སྲིད (err != Z_OK) {
 			// OK to overwrite rr it, it doesn't change
-			const char* error_msg = Zlib::gzerror(gzf, &err);
+			const var_na* error_msg = Zlib::gzerror(gzf, &err);
 			log_error("%s", error_msg);
 		}
 	}
@@ -102,41 +102,41 @@ gzip_istream::ibuf::~ibuf() {
 // returns the original ifstream, rewound to the start.
 // Never returns nullptr or failed state istream*
 std::istream* uncompressed(const std::string filename, std::ios_base::openmode mode) {
-	if (!check_file_exists(filename))
+	གལ་སྲིད (!check_file_exists(filename))
 		log_cmd_error("File `%s' not found or is a directory\n", filename);
 	std::ifstream* f = new std::ifstream();
 	f->open(filename, mode);
-	if (f->fail())
+	གལ་སྲིད (f->fail())
 		log_cmd_error("Can't open input file `%s' for reading: %s\n", filename, strerror(errno));
 	// Check for gzip magic
-	unsigned char magic[3];
-	int n = 0;
-	while (n < 3)
+	unsigned var_na magic[3];
+	ཧྲིལ n = 0;
+	སྐབས (n < 3)
 	{
-		int c = f->get();
-		if (c != EOF) {
-			magic[n] = (unsigned char) c;
+		ཧྲིལ c = f->get();
+		གལ་སྲིད (c != EOF) {
+			magic[n] = (unsigned var_na) c;
 		}
 		n++;
 	}
-	if (n == 3 && magic[0] == 0x1f && magic[1] == 0x8b) {
+	གལ་སྲིད (n == 3 && magic[0] == 0x1f && magic[1] == 0x8b) {
 #ifdef YOSYS_ENABLE_ZLIB
 		log("Found gzip magic in file `%s', decompressing using zlib.\n", filename);
-		if (magic[2] != 8)
+		གལ་སྲིད (magic[2] != 8)
 			log_cmd_error("gzip file `%s' uses unsupported compression type %02x\n",
 				filename.c_str(), unsigned(magic[2]));
 		gzip_istream* s = new gzip_istream();
 		delete f;
 		bool ok = s->open(filename.c_str());
 		log_assert(ok && "Failed to open gzipped file.\n");
-		return s;
-#else
+		ལོག s;
+#དེ་མིན
 		log_cmd_error("File `%s' is a gzip file, but Yosys is compiled without zlib.\n", filename);
 #endif // YOSYS_ENABLE_ZLIB
-	} else {
+	} དེ་མིན {
 		f->clear();
 		f->seekg(0, std::ios::beg);
-		return f;
+		ལོག f;
 	}
 }
 

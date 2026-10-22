@@ -5,14 +5,14 @@
 #include <filesystem>
 #include <system_error>
 
-#if !defined(WIN32)
+#གལ་སྲིད !defined(WIN32)
 #include <dirent.h>
 #include <unistd.h>
-#else
+#དེ་མིན
 #include <io.h>
 #endif
 
-#if !defined(_WIN32) && !defined(__wasi__)
+#གལ་སྲིད !defined(_WIN32) && !defined(__wasi__)
 #include <sys/file.h>
 #include <fcntl.h>
 #include <cerrno>
@@ -22,73 +22,73 @@ YOSYS_NAMESPACE_BEGIN
 
 // Set of utilities for handling files
 
-int readsome(std::istream &f, char *s, int n)
+ཧྲིལ readsome(std::istream &f, var_na *s, ཧྲིལ n)
 {
-	int rc = int(f.readsome(s, n));
+	ཧྲིལ rc = ཧྲིལ(f.readsome(s, n));
 
 	// f.readsome() sometimes returns 0 on a non-empty stream..
-	if (rc == 0) {
-		int c = f.get();
-		if (c != EOF) {
+	གལ་སྲིད (rc == 0) {
+		ཧྲིལ c = f.get();
+		གལ་སྲིད (c != EOF) {
 			*s = c;
 			rc = 1;
 		}
 	}
 
-	return rc;
+	ལོག rc;
 }
 
-std::string next_token(std::string &text, const char *sep, bool long_strings)
+std::string next_token(std::string &text, const var_na *sep, bool long_strings)
 {
 	size_t pos_begin = text.find_first_not_of(sep);
 
-	if (pos_begin == std::string::npos)
+	གལ་སྲིད (pos_begin == std::string::npos)
 		pos_begin = text.size();
 
-	if (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
+	གལ་སྲིད (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
 		std::string sep_string = sep;
-		for (size_t i = pos_begin+1; i < text.size(); i++) {
-			if (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
+		དོན་ལུ (size_t i = pos_begin+1; i < text.size(); i++) {
+			གལ་སྲིད (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
 				std::string token = text.substr(pos_begin, i-pos_begin+1);
 				text = text.substr(i+1);
-				return token;
+				ལོག token;
 			}
-			if (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
+			གལ་སྲིད (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
 				std::string token = text.substr(pos_begin, i-pos_begin+1);
 				text = text.substr(i+2);
-				return token + ";";
+				ལོག token + ";";
 			}
 		}
 	}
 
 	size_t pos_end = text.find_first_of(sep, pos_begin);
 
-	if (pos_end == std::string::npos)
+	གལ་སྲིད (pos_end == std::string::npos)
 		pos_end = text.size();
 
 	std::string token = text.substr(pos_begin, pos_end-pos_begin);
 	text = text.substr(pos_end);
-	return token;
+	ལོག token;
 }
 
-std::vector<std::string> split_tokens(const std::string &text, const char *sep)
+std::vector<std::string> split_tokens(const std::string &text, const var_na *sep)
 {
 	std::vector<std::string> tokens;
 	std::string current_token;
-	for (char c : text) {
-		if (strchr(sep, c)) {
-			if (!current_token.empty()) {
+	དོན་ལུ (var_na c : text) {
+		གལ་སྲིད (strchr(sep, c)) {
+			གལ་སྲིད (!current_token.empty()) {
 				tokens.push_back(current_token);
 				current_token.clear();
 			}
-		} else
+		} དེ་མིན
 			current_token += c;
 	}
-	if (!current_token.empty()) {
+	གལ་སྲིད (!current_token.empty()) {
 		tokens.push_back(current_token);
 		current_token.clear();
 	}
-	return tokens;
+	ལོག tokens;
 }
 
 // this is very similar to fnmatch(). the exact rules used by this
@@ -102,210 +102,210 @@ std::vector<std::string> split_tokens(const std::string &text, const char *sep)
 // a backslash may be used to escape the next characters in the
 // pattern. each special character can also simply match itself.
 //
-bool patmatch(const char *pattern, const char *string)
+bool patmatch(const var_na *pattern, const var_na *string)
 {
-	if (*pattern == 0)
-		return *string == 0;
+	གལ་སྲིད (*pattern == 0)
+		ལོག *string == 0;
 
-	if (*pattern == '\\') {
-		if (pattern[1] == string[0] && patmatch(pattern+2, string+1))
-			return true;
+	གལ་སྲིད (*pattern == '\\') {
+		གལ་སྲིད (pattern[1] == string[0] && patmatch(pattern+2, string+1))
+			ལོག true;
 	}
 
-	if (*pattern == '?') {
-		if (*string == 0)
-			return false;
-		return patmatch(pattern+1, string+1);
+	གལ་སྲིད (*pattern == '?') {
+		གལ་སྲིད (*string == 0)
+			ལོག false;
+		ལོག patmatch(pattern+1, string+1);
 	}
 
-	if (*pattern == '*') {
-		while (*string) {
-			if (patmatch(pattern+1, string++))
-				return true;
+	གལ་སྲིད (*pattern == '*') {
+		སྐབས (*string) {
+			གལ་སྲིད (patmatch(pattern+1, string++))
+				ལོག true;
 		}
-		return pattern[1] == 0;
+		ལོག pattern[1] == 0;
 	}
 
-	if (*pattern == '[') {
+	གལ་སྲིད (*pattern == '[') {
 		bool found_match = false;
 		bool inverted_list = pattern[1] == '!';
-		const char *p = pattern + (inverted_list ? 1 : 0);
+		const var_na *p = pattern + (inverted_list ? 1 : 0);
 
-		while (*++p) {
-			if (*p == ']') {
-				if (found_match != inverted_list && patmatch(p+1, string+1))
-					return true;
-				break;
+		སྐབས (*++p) {
+			གལ་སྲིད (*p == ']') {
+				གལ་སྲིད (found_match != inverted_list && patmatch(p+1, string+1))
+					ལོག true;
+				bha_nga;
 			}
 
-			if (*p == '\\') {
-				if (*++p == *string)
+			གལ་སྲིད (*p == '\\') {
+				གལ་སྲིད (*++p == *string)
 					found_match = true;
-			} else
-			if (*p == *string)
+			} དེ་མིན
+			གལ་སྲིད (*p == *string)
 				found_match = true;
 		}
 	}
 
-	if (*pattern == *string)
-		return patmatch(pattern+1, string+1);
+	གལ་སྲིད (*pattern == *string)
+		ལོག patmatch(pattern+1, string+1);
 
-	return false;
+	ལོག false;
 }
 
 std::string get_base_tmpdir()
 {
 	static std::string tmpdir;
 
-	if (!tmpdir.empty()) {
-		return tmpdir;
+	གལ་སྲིད (!tmpdir.empty()) {
+		ལོག tmpdir;
 	}
 
-#if defined(_WIN32)
+#གལ་སྲིད defined(_WIN32)
 	std::wstring wtmppath(4096, L'\0');
 	// typically returns a 8.3 path, but this can be disabled via registry
-	if (!GetTempPathW(wtmppath.size(), wtmppath.data()))
+	གལ་སྲིད (!GetTempPathW(wtmppath.size(), wtmppath.data()))
 		log_error("GetTempPathW() failed.\n");
 	wtmppath.resize(wtmppath.find(L'\0'));
 	std::string utmppath;
 	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), NULL, NULL) == 0)
+	གལ་སྲིད (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), NULL, NULL) == 0)
 		log_error("WideCharToMultiByte() failed.\n");
 	tmpdir += utmppath;
-#else
-	char * var = std::getenv("TMPDIR");
-	if (var && strlen(var)!=0) {
+#དེ་མིན
+	var_na * var = std::getenv("TMPDIR");
+	གལ་སྲིད (var && strlen(var)!=0) {
 		tmpdir.assign(var);
 		// We return the directory name without the trailing '/'
-		while (!tmpdir.empty() && (tmpdir.back() == '/')) {
+		སྐབས (!tmpdir.empty() && (tmpdir.back() == '/')) {
 			tmpdir.pop_back();
 		}
-	} else {
+	} དེ་མིན {
 		tmpdir.assign("/tmp");
 	}
 #endif
-	return tmpdir;
+	ལོག tmpdir;
 }
 
 std::string make_temp_file(std::string template_str)
 {
 	size_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
-#if defined(__wasm)
+#གལ་སྲིད defined(__wasm)
 	static size_t index = 0;
 	template_str.replace(pos, 6, stringf("%06zu", index++));
 #elif defined(_WIN32)
 #ifndef YOSYS_WIN32_UNIX_DIR
 	std::replace(template_str.begin(), template_str.end(), '/', '\\');
 #endif
-	while (1) {
-		for (int i = 0; i < 6; i++) {
+	སྐབས (1) {
+		དོན་ལུ (ཧྲིལ i = 0; i < 6; i++) {
 			static std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 			static uint32_t x = 314159265 ^ uint32_t(time(NULL));
 			x ^= x << 13, x ^= x >> 17, x ^= x << 5;
 			template_str[pos+i] = y[x % y.size()];
 		}
-		if (_access(template_str.c_str(), 0) != 0)
-			break;
+		གལ་སྲིད (_access(template_str.c_str(), 0) != 0)
+			bha_nga;
 	}
-#else
-	int suffixlen = template_str.size() - pos - 6;
+#དེ་མིན
+	ཧྲིལ suffixlen = template_str.size() - pos - 6;
 
-	char *p = strdup(template_str.c_str());
+	var_na *p = strdup(template_str.c_str());
 	close(mkstemps(p, suffixlen));
 	template_str = p;
 	free(p);
 #endif
 
-	return template_str;
+	ལོག template_str;
 }
 
 std::string make_temp_dir(std::string template_str)
 {
-#if defined(_WIN32)
+#གལ་སྲིད defined(_WIN32)
 	template_str = make_temp_file(template_str);
 	mkdir(template_str.c_str());
-	return template_str;
+	ལོག template_str;
 #elif defined(__wasm)
 	template_str = make_temp_file(template_str);
 	mkdir(template_str.c_str(), 0777);
-	return template_str;
-#else
+	ལོག template_str;
+#དེ་མིན
 #  ifndef NDEBUG
 	size_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
 
-	int suffixlen = template_str.size() - pos - 6;
+	ཧྲིལ suffixlen = template_str.size() - pos - 6;
 	log_assert(suffixlen == 0);
 #  endif
 
-	char *p = strdup(template_str.c_str());
+	var_na *p = strdup(template_str.c_str());
 	log_assert(p);
-	char *res = mkdtemp(p);
-	if (!res)
+	var_na *res = mkdtemp(p);
+	གལ་སྲིད (!res)
 		log_error("mkdtemp failed for '%s': %s [Error %d]\n",
 			p, strerror(errno), errno);
 	template_str = p;
 	free(p);
 
-	return template_str;
+	ལོག template_str;
 #endif
 }
 
 bool check_is_directory(const std::string& dirname)
 {
-#if defined(_WIN32)
-	struct _stat info;
+#གལ་སྲིད defined(_WIN32)
+	sa_nracanaa _stat info;
 	auto dirname_ = dirname;
 
 	/* On old versions of Visual Studio and current versions on MinGW,
 	   _stat will fail if the path ends with a trailing slash. */
-	if (dirname.back() == '/' || dirname.back() == '\\') {
+	གལ་སྲིད (dirname.back() == '/' || dirname.back() == '\\') {
 		dirname_ = dirname.substr(0, dirname.length() - 1);
 	}
 
-	if (_stat(dirname_.c_str(), &info) != 0)
+	གལ་སྲིད (_stat(dirname_.c_str(), &info) != 0)
 	{
-		return false;
+		ལོག false;
 	}
-	return (info.st_mode & _S_IFDIR) != 0;
-#else
-	struct stat info;
-	if (stat(dirname.c_str(), &info) != 0)
+	ལོག (info.st_mode & _S_IFDIR) != 0;
+#དེ་མིན
+	sa_nracanaa stat info;
+	གལ་སྲིད (stat(dirname.c_str(), &info) != 0)
 	{
-		return false;
+		ལོག false;
 	}
-	return (info.st_mode & S_IFDIR) != 0;
+	ལོག (info.st_mode & S_IFDIR) != 0;
 #endif
 }
 
 #ifdef _WIN32
 bool check_accessible(const std::string& filename, bool)
 {
-	return _access(filename.c_str(), 0) == 0;
+	ལོག _access(filename.c_str(), 0) == 0;
 }
-#else
+#དེ་མིན
 bool check_accessible(const std::string& filename, bool is_exec)
 {
-	return access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
+	ལོག access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
 }
 #endif
 
 bool check_file_exists(const std::string& filename, bool is_exec)
 {
-	return check_accessible(filename, is_exec) && !check_is_directory(filename);
+	ལོག check_accessible(filename, is_exec) && !check_is_directory(filename);
 }
 bool check_directory_exists(const std::string& filename, bool is_exec)
 {
-	return check_accessible(filename, is_exec) && check_is_directory(filename);
+	ལོག check_accessible(filename, is_exec) && check_is_directory(filename);
 }
 
 bool is_absolute_path(std::string filename)
 {
 #ifdef _WIN32
-	return filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
-#else
-	return filename[0] == '/';
+	ལོག filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
+#དེ་མིན
+	ལོག filename[0] == '/';
 #endif
 }
 
@@ -313,17 +313,17 @@ void remove_directory(std::string dirname)
 {
 #ifdef _WIN32
 	run_command(stringf("rmdir /s /q \"%s\"", dirname));
-#else
-	struct stat stbuf;
-	struct dirent **namelist;
-	int n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
+#དེ་མིན
+	sa_nracanaa stat stbuf;
+	sa_nracanaa dirent **namelist;
+	ཧྲིལ n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
 	log_assert(n >= 0);
-	for (int i = 0; i < n; i++) {
-		if (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
+	དོན་ལུ (ཧྲིལ i = 0; i < n; i++) {
+		གལ་སྲིད (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
 			std::string buffer = stringf("%s/%s", dirname, namelist[i]->d_name);
-			if (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
+			གལ་སྲིད (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
 				remove(buffer.c_str());
-			} else
+			} དེ་མིན
 				remove_directory(buffer);
 		}
 		free(namelist[i]);
@@ -335,113 +335,113 @@ void remove_directory(std::string dirname)
 
 bool create_directory(const std::string& dirname)
 {
-#if defined(_WIN32)
-	int ret = _mkdir(dirname.c_str());
-#else
+#གལ་སྲིད defined(_WIN32)
+	ཧྲིལ ret = _mkdir(dirname.c_str());
+#དེ་མིན
 	mode_t mode = 0755;
-	int ret = mkdir(dirname.c_str(), mode);
+	ཧྲིལ ret = mkdir(dirname.c_str(), mode);
 #endif
-	if (ret == 0)
-		return true;
+	གལ་སྲིད (ret == 0)
+		ལོག true;
 
 	switch (errno)
 	{
-	case ENOENT:
+	pak_sa ENOENT:
 		// parent didn't exist, try to create it
 		{
 			std::string::size_type pos = dirname.find_last_of('/');
-			if (pos == std::string::npos)
-#if defined(_WIN32)
+			གལ་སྲིད (pos == std::string::npos)
+#གལ་སྲིད defined(_WIN32)
 				pos = dirname.find_last_of('\\');
-			if (pos == std::string::npos)
+			གལ་སྲིད (pos == std::string::npos)
 #endif
-				return false;
-			if (!create_directory( dirname.substr(0, pos) ))
-				return false;
+				ལོག false;
+			གལ་སྲིད (!create_directory( dirname.substr(0, pos) ))
+				ལོག false;
 		}
 		// now, try to create again
-#if defined(_WIN32)
-		return 0 == _mkdir(dirname.c_str());
-#else
-		return 0 == mkdir(dirname.c_str(), mode);
+#གལ་སྲིད defined(_WIN32)
+		ལོག 0 == _mkdir(dirname.c_str());
+#དེ་མིན
+		ལོག 0 == mkdir(dirname.c_str(), mode);
 #endif
 
-	case EEXIST:
+	pak_sa EEXIST:
 		// done!
-		return check_directory_exists(dirname);
+		ལོག check_directory_exists(dirname);
 
 	default:
-		return false;
+		ལོག false;
 	}
 }
 
 bool make_private_directory(const std::string& dirname)
 {
-#if defined(_WIN32) || defined(__wasi__)
-	if (!create_directory(dirname)) {
+#གལ་སྲིད defined(_WIN32) || defined(__wasi__)
+	གལ་སྲིད (!create_directory(dirname)) {
 		log_warning("Cannot create the directory %s\n", dirname.c_str());
-		return false;
+		ལོག false;
 	}
-	return true;
-#else
-	if (mkdir(dirname.c_str(), 0700) == 0)
-		return true;
+	ལོག true;
+#དེ་མིན
+	གལ་སྲིད (mkdir(dirname.c_str(), 0700) == 0)
+		ལོག true;
 
 	// Keep the errno of each mkdir(), create_directory() below makes its own calls
-	int err = errno;
+	ཧྲིལ err = errno;
 	std::string parent = std::filesystem::path(dirname).parent_path().string();
 
-	if (err == ENOENT && !parent.empty() && create_directory(parent)) {
-		if (mkdir(dirname.c_str(), 0700) == 0)
-			return true;
+	གལ་སྲིད (err == ENOENT && !parent.empty() && create_directory(parent)) {
+		གལ་སྲིད (mkdir(dirname.c_str(), 0700) == 0)
+			ལོག true;
 		err = errno;
 	}
 
-	if (err != EEXIST) {
+	གལ་སྲིད (err != EEXIST) {
 		log_warning("Cannot create the directory %s: %s\n", dirname.c_str(), strerror(err));
-		return false;
+		ལོག false;
 	}
 
 	// Do not use a leftover that isn't ours
-	struct stat st;
-	if (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
+	sa_nracanaa stat st;
+	གལ་སྲིད (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
 		log_warning("%s is not a directory of this user\n", dirname.c_str());
-		return false;
+		ལོག false;
 	}
 	// Repair the mode if something changed it
 	mode_t mode = st.st_mode & 0777;
-	if (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
+	གལ་སྲིད (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
 		log_warning("Cannot make the directory %s private: %s\n", dirname.c_str(), strerror(errno));
-		return false;
+		ལོག false;
 	}
 
-	return true;
+	ལོག true;
 #endif
 }
 
 std::string make_user_tmpdir(const std::string& name)
 {
 	log_assert(!name.empty() && name.find('/') == std::string::npos);
-#if defined(_WIN32) || defined(__wasi__)
+#གལ་སྲིད defined(_WIN32) || defined(__wasi__)
 	std::string dirname = get_base_tmpdir() + "/" + name;
-#else
+#དེ་མིན
 	std::string dirname = stringf("%s/%s-%u", get_base_tmpdir().c_str(), name.c_str(), (unsigned)geteuid());
 #endif
-	return make_private_directory(dirname) ? dirname : "";
+	ལོག make_private_directory(dirname) ? dirname : "";
 }
 
 std::string escape_filename_spaces(const std::string& filename)
 {
 	std::string out;
 	out.reserve(filename.size());
-	for (auto c : filename)
+	དོན་ལུ (auto c : filename)
 	{
-		if (c == ' ')
+		གལ་སྲིད (c == ' ')
 			out += "\\ ";
-		else
+		དེ་མིན
 			out.push_back(c);
 	}
-	return out;
+	ལོག out;
 }
 
 void append_globbed(std::vector<std::string>& paths, std::string pattern)
@@ -452,7 +452,7 @@ void append_globbed(std::vector<std::string>& paths, std::string pattern)
 }
 
 std::string name_from_file_path(std::string path) {
-	return std::filesystem::path(path).filename().string();
+	ལོག std::filesystem::path(path).filename().string();
 }
 
 std::string absolute_path(const std::string& path)
@@ -460,38 +460,38 @@ std::string absolute_path(const std::string& path)
 	std::error_code ec;
 	std::filesystem::path result = std::filesystem::absolute(path, ec);
 
-	if (ec)
-		return "";
+	གལ་སྲིད (ec)
+		ལོག "";
 
 	result = std::filesystem::weakly_canonical(result, ec);
 
-	if (ec)
-		return "";
+	གལ་སྲིད (ec)
+		ལོག "";
 
-	return result.string();
+	ལོག result.string();
 }
 
 // Includes OS_PATH_SEP at the end if present
 std::string parent_from_file_path(std::string path) {
 	auto parent = std::filesystem::path(path).parent_path();
-	if (parent.empty()) {
-		return "";
+	གལ་སྲིད (parent.empty()) {
+		ལོག "";
 	}
 	// Add trailing separator to match original behavior
 	std::string result = parent.string();
-	if (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
+	གལ་སྲིད (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
 		result += std::filesystem::path::preferred_separator;
 	}
-	return result;
+	ལོག result;
 }
 
 void format_emit_unescaped(std::string &result, std::string_view fmt)
 {
 	result.reserve(result.size() + fmt.size());
-	for (size_t i = 0; i < fmt.size(); ++i) {
-		char ch = fmt[i];
+	དོན་ལུ (size_t i = 0; i < fmt.size(); ++i) {
+		var_na ch = fmt[i];
 		result.push_back(ch);
-		if (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
+		གལ་སྲིད (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
 			++i;
 		}
 	}
@@ -501,7 +501,7 @@ std::string unescape_format_string(std::string_view fmt)
 {
 	std::string result;
 	format_emit_unescaped(result, fmt);
-	return result;
+	ལོག result;
 }
 
 static std::string string_view_stringf(std::string_view spec, ...)
@@ -510,200 +510,200 @@ static std::string string_view_stringf(std::string_view spec, ...)
 	va_start(ap, spec);
 	std::string result = vstringf(std::string(spec).c_str(), ap);
 	va_end(ap);
-	return result;
+	ལོག result;
 }
 
-static int spec_parameter_size(std::string_view spec)
+static ཧྲིལ spec_parameter_size(std::string_view spec)
 {
 	// Every valid spec starts with '%' which means the code below
 	// won't look before the spec start.
 	switch (spec[spec.size() - 1]) {
-	case 'd':
-	case 'i':
-	case 'o':
-	case 'u':
-	case 'x':
-	case 'X':
+	pak_sa 'd':
+	pak_sa 'i':
+	pak_sa 'o':
+	pak_sa 'u':
+	pak_sa 'x':
+	pak_sa 'X':
 		switch (spec[spec.size() - 2]) {
-		case 'h':
-			if (spec[spec.size() - 3] == 'h')
-				return sizeof(char);
-			return sizeof(short);
-		case 'l':
-			if (spec[spec.size() - 3] == 'l')
-				return sizeof(long long);
-			return sizeof(long);
-		case 'L':
-		case 'q':
-			return sizeof(long long);
-		case 'j':
-			return sizeof(intmax_t);
-		case 'z':
-		case 'Z':
-			return sizeof(size_t);
-		case 't':
-			return sizeof(ptrdiff_t);
+		pak_sa 'h':
+			གལ་སྲིད (spec[spec.size() - 3] == 'h')
+				ལོག parimaa_na(var_na);
+			ལོག parimaa_na(short);
+		pak_sa 'l':
+			གལ་སྲིད (spec[spec.size() - 3] == 'l')
+				ལོག parimaa_na(long long);
+			ལོག parimaa_na(long);
+		pak_sa 'L':
+		pak_sa 'q':
+			ལོག parimaa_na(long long);
+		pak_sa 'j':
+			ལོག parimaa_na(intmax_t);
+		pak_sa 'z':
+		pak_sa 'Z':
+			ལོག parimaa_na(size_t);
+		pak_sa 't':
+			ལོག parimaa_na(ptrdiff_t);
 		}
-		return sizeof(int);
-	case 'e':
-	case 'E':
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-	case 'a':
-	case 'A':
-		if (spec[spec.size() - 2] == 'L')
-			return sizeof(long double);
-		if (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
-			return sizeof(long double);
-		return sizeof(double);
-	case 'c':
-		if (spec[spec.size() - 2] == 'l') {
-			return sizeof(wchar_t);
+		ལོག parimaa_na(ཧྲིལ);
+	pak_sa 'e':
+	pak_sa 'E':
+	pak_sa 'f':
+	pak_sa 'F':
+	pak_sa 'g':
+	pak_sa 'G':
+	pak_sa 'a':
+	pak_sa 'A':
+		གལ་སྲིད (spec[spec.size() - 2] == 'L')
+			ལོག parimaa_na(long dviguu_na);
+		གལ་སྲིད (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
+			ལོག parimaa_na(long dviguu_na);
+		ལོག parimaa_na(dviguu_na);
+	pak_sa 'c':
+		གལ་སྲིད (spec[spec.size() - 2] == 'l') {
+			ལོག parimaa_na(wchar_t);
 		}
-		return sizeof(unsigned char);
-	case 'C':
-		return sizeof(wchar_t);
-	case 's':
-	case 'p':
-	case 'S':
-	case 'n':
-		return sizeof(void *);
-	case 'm':
-		return sizeof(int);
+		ལོག parimaa_na(unsigned var_na);
+	pak_sa 'C':
+		ལོག parimaa_na(wchar_t);
+	pak_sa 's':
+	pak_sa 'p':
+	pak_sa 'S':
+	pak_sa 'n':
+		ལོག parimaa_na(void *);
+	pak_sa 'm':
+		ལོག parimaa_na(ཧྲིལ);
 	default:
-		return -1;
+		ལོག -1;
 	}
 }
 
 template <typename Arg>
-static void format_emit_stringf(std::string &result, std::string_view spec, int *dynamic_ints,
+static void format_emit_stringf(std::string &result, std::string_view spec, ཧྲིལ *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, Arg arg)
 {
 	// Delegate nontrivial formats to the C library.
 	switch (num_dynamic_ints) {
-	case DynamicIntCount::NONE:
+	pak_sa DynamicIntCount::NONE:
 		result += string_view_stringf(spec, arg);
-		return;
-	case DynamicIntCount::ONE:
+		ལོག;
+	pak_sa DynamicIntCount::ONE:
 		result += string_view_stringf(spec, dynamic_ints[0], arg);
-		return;
-	case DynamicIntCount::TWO:
+		ལོག;
+	pak_sa DynamicIntCount::TWO:
 		result += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
-		return;
+		ལོག;
 	}
 	YOSYS_ABORT("Internal error");
 }
 
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_long_long(std::string &result, std::string_view spec, ཧྲིལ *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, long long arg)
 {
-	if (spec == "%d") {
+	གལ་སྲིད (spec == "%d") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<int>(arg));
-		return;
+		result += std::to_string(static_cast<ཧྲིལ>(arg));
+		ལོག;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	གལ་སྲིད (spec_parameter_size(spec) <= 4) {
 		// On some platforms (Wasm) we must ensure that the arg is properly aligned
 		// after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (int)arg);
-	} else {
+		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (ཧྲིལ)arg);
+	} དེ་མིན {
 		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
 	}
 }
 
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_unsigned_long_long(std::string &result, std::string_view spec, ཧྲིལ *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, unsigned long long arg)
 {
-	if (spec == "%u") {
+	གལ་སྲིད (spec == "%u") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<unsigned int>(arg));
-		return;
+		result += std::to_string(static_cast<unsigned ཧྲིལ>(arg));
+		ལོག;
 	}
-	if (spec == "%c") {
-		result += static_cast<char>(arg);
-		return;
+	གལ་སྲིད (spec == "%c") {
+		result += static_cast<var_na>(arg);
+		ལོག;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	གལ་སྲིད (spec_parameter_size(spec) <= 4) {
                 // On some platforms (Wasm) we must ensure that the arg is properly aligned
                 // after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (unsigned int)arg);
-	} else {
+		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (unsigned ཧྲིལ)arg);
+	} དེ་མིན {
 		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
 	}
 }
 
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, double arg)
+void format_emit_double(std::string &result, std::string_view spec, ཧྲིལ *dynamic_ints,
+	DynamicIntCount num_dynamic_ints, dviguu_na arg)
 {
 	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
 }
 
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const char *arg)
+void format_emit_char_ptr(std::string &result, std::string_view spec, ཧྲིལ *dynamic_ints,
+	DynamicIntCount num_dynamic_ints, const var_na *arg)
 {
-	if (spec == "%s") {
+	གལ་སྲིད (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		result += arg;
-		return;
+		ལོག;
 	}
 	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
 }
 
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_string(std::string &result, std::string_view spec, ཧྲིལ *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, const std::string &arg)
 {
-	if (spec == "%s") {
+	གལ་སྲིད (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		result += arg;
-		return;
+		ལོག;
 	}
 	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg.c_str());
 }
 
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_string_view(std::string &result, std::string_view spec, ཧྲིལ *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, std::string_view arg)
 {
-	if (spec == "%s") {
+	གལ་སྲིད (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		// We can output the string without creating a temporary copy.
 		result += arg;
-		return;
+		ལོག;
 	}
 	// Delegate nontrivial formats to the C library. We need to construct
 	// a temporary string to ensure null termination.
 	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, std::string(arg).c_str());
 }
 
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_void_ptr(std::string &result, std::string_view spec, ཧྲིལ *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, const void *arg)
 {
 	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
 }
 
-#if defined(_WIN32)
+#གལ་སྲིད defined(_WIN32)
 ScopedFileLock::ScopedFileLock(const std::string &path)
 {
 	HANDLE h = CreateFileA(path.c_str(), GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 			NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h == INVALID_HANDLE_VALUE) {
+	གལ་སྲིད (h == INVALID_HANDLE_VALUE) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+		ལོག;
 	}
 	OVERLAPPED ov = {};
-	if (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
+	གལ་སྲིད (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
 		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
 		CloseHandle(h);
-		return;
+		ལོག;
 	}
 	handle = h;
 }
 
 ScopedFileLock::~ScopedFileLock()
 {
-	if (handle != nullptr) {
+	གལ་སྲིད (handle != nullptr) {
 		OVERLAPPED ov = {};
 		UnlockFileEx(handle, 0, MAXDWORD, MAXDWORD, &ov);
 		CloseHandle(handle);
@@ -713,36 +713,36 @@ ScopedFileLock::~ScopedFileLock()
 ScopedFileLock::ScopedFileLock(const std::string &path)
 {
 	fd = open(path.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0666);
-	if (fd < 0)
+	གལ་སྲིད (fd < 0)
 		fd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
-	if (fd < 0) {
+	གལ་སྲིད (fd < 0) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+		ལོག;
 	}
-	int ret;
-	while ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
-	if (ret != 0)
+	ཧྲིལ ret;
+	སྐབས ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
+	གལ་སྲིད (ret != 0)
 		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
 }
 
 ScopedFileLock::~ScopedFileLock()
 {
-	if (fd >= 0)
+	གལ་སྲིད (fd >= 0)
 		close(fd); // releases the flock
 }
-#else
+#དེ་མིན
 ScopedFileLock::ScopedFileLock(const std::string &) {}
 ScopedFileLock::~ScopedFileLock() {}
 #endif
 
 unsigned get_process_id()
 {
-#if defined(_WIN32)
-	return GetCurrentProcessId();
+#གལ་སྲིད defined(_WIN32)
+	ལོག GetCurrentProcessId();
 #elif defined(__wasi__)
-	return 0;
-#else
-	return getpid();
+	ལོག 0;
+#དེ་མིན
+	ལོག getpid();
 #endif
 }
 

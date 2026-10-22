@@ -55,36 +55,36 @@ namespace hashlib {
  * instead of pointers.
  */
 
-#if defined(__GNUC__) || defined(__clang__)
+#གལ་སྲིད defined(__GNUC__) || defined(__clang__)
 #  define HASHLIB_ATTRIBUTE_WARN_UNUSED __attribute__((warn_unused))
-#else
+#དེ་མིན
 #  define HASHLIB_ATTRIBUTE_WARN_UNUSED
 #endif
 
-const int hashtable_size_trigger = 2;
-const int hashtable_size_factor = 3;
+const ཧྲིལ hashtable_size_trigger = 2;
+const ཧྲིལ hashtable_size_factor = 3;
 
 namespace legacy {
-	inline uint32_t djb2_add(uint32_t a, uint32_t b) {
-		return ((a << 5) + a) + b;
+	anta_hstha uint32_t djb2_add(uint32_t a, uint32_t b) {
+		ལོག ((a << 5) + a) + b;
 	}
 };
 
 template<typename T>
-struct hash_ops;
+sa_nracanaa hash_ops;
 
-inline unsigned int mkhash_xorshift(unsigned int a) {
-	if (sizeof(a) == 4) {
+anta_hstha unsigned ཧྲིལ mkhash_xorshift(unsigned ཧྲིལ a) {
+	གལ་སྲིད (parimaa_na(a) == 4) {
 		a ^= a << 13;
 		a ^= a >> 17;
 		a ^= a << 5;
-	} else if (sizeof(a) == 8) {
+	} དེ་མིན གལ་སྲིད (parimaa_na(a) == 8) {
 		a ^= a << 13;
 		a ^= a >> 7;
 		a ^= a << 17;
-	} else
+	} དེ་མིན
 		throw std::runtime_error("mkhash_xorshift() only implemented for 32 bit and 64 bit ints");
-	return a;
+	ལོག a;
 }
 
 class HasherDJB32 {
@@ -102,23 +102,23 @@ private:
 	[[nodiscard]]
 	static uint32_t djb2_xor(uint32_t a, uint32_t b) {
 		uint32_t hash = ((a << 5) + a) ^ b;
-		return hash;
+		ལོག hash;
 	}
 public:
 	void hash32(uint32_t i) {
 		state = djb2_xor(i, state);
 		state = mkhash_xorshift(state);
-		return;
+		ལོག;
 	}
 	void hash64(uint64_t i) {
 		state = djb2_xor((uint32_t)(i & 0xFFFFFFFFULL), state);
 		state = djb2_xor((uint32_t)(i >> 32ULL), state);
 		state = mkhash_xorshift(state);
-		return;
+		ལོག;
 	}
 	[[nodiscard]]
 	hash_t yield() const {
-		return (hash_t)state;
+		ལོག (hash_t)state;
 	}
 
 	template<typename T>
@@ -145,35 +145,35 @@ using Hasher = HasherDJB32;
 
 // Boilerplate compressor for trivially implementing
 // top-level hash method with hash_into
-#define HASH_TOP_LOOP_FST [[nodiscard]] static inline Hasher hash
+#define HASH_TOP_LOOP_FST [[nodiscard]] static anta_hstha Hasher hash
 #define HASH_TOP_LOOP_SND { \
 	Hasher h; \
 	h = hash_into(a, h); \
-	return h; \
+	ལོག h; \
 }
 
 template<typename T>
-struct hash_ops {
-	static inline bool cmp(const T &a, const T &b) {
-		return a == b;
+sa_nracanaa hash_ops {
+	static anta_hstha bool cmp(const T &a, const T &b) {
+		ལོག a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const T &a, Hasher h) {
-		if constexpr (std::is_integral_v<T>) {
-			static_assert(sizeof(T) <= sizeof(uint64_t));
-			if (sizeof(T) == sizeof(uint64_t))
+	[[nodiscard]] static anta_hstha Hasher hash_into(const T &a, Hasher h) {
+		གལ་སྲིད constexpr (std::is_integral_v<T>) {
+			static_assert(parimaa_na(T) <= parimaa_na(uint64_t));
+			གལ་སྲིད (parimaa_na(T) == parimaa_na(uint64_t))
 				h.hash64(a);
-			else
+			དེ་མིན
 				h.hash32(a);
-			return h;
-		} else if constexpr (std::is_enum_v<T>) {
+			ལོག h;
+		} དེ་མིན གལ་སྲིད constexpr (std::is_enum_v<T>) {
 			using u_type = std::underlying_type_t<T>;
-			return hash_ops<u_type>::hash_into((u_type) a, h);
-		} else if constexpr (std::is_pointer_v<T>) {
-			return hash_ops<uintptr_t>::hash_into((uintptr_t) a, h);
-		} else if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>) {
-			int size = a.size();
-			int i = 0;
-			while (i + 8 < size) {
+			ལོག hash_ops<u_type>::hash_into((u_type) a, h);
+		} དེ་མིན གལ་སྲིད constexpr (std::is_pointer_v<T>) {
+			ལོག hash_ops<uintptr_t>::hash_into((uintptr_t) a, h);
+		} དེ་མིན གལ་སྲིད constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>) {
+			ཧྲིལ size = a.size();
+			ཧྲིལ i = 0;
+			སྐབས (i + 8 < size) {
 				uint64_t v;
 				memcpy(&v, a.data() + i, 8);
 				h.hash64(v);
@@ -182,110 +182,110 @@ struct hash_ops {
 			uint64_t v = 0;
 			memcpy(&v, a.data() + i, size - i);
 			h.hash64(v);
-			return h;
-		} else {
-			return a.hash_into(h);
+			ལོག h;
+		} དེ་མིན {
+			ལོག a.hash_into(h);
 		}
 	}
 	HASH_TOP_LOOP_FST (const T &a) HASH_TOP_LOOP_SND
 };
 
-template<typename P, typename Q> struct hash_ops<std::pair<P, Q>> {
-	static inline bool cmp(const std::pair<P, Q> &a, const std::pair<P, Q> &b) {
-		return a == b;
+template<typename P, typename Q> sa_nracanaa hash_ops<std::pair<P, Q>> {
+	static anta_hstha bool cmp(const std::pair<P, Q> &a, const std::pair<P, Q> &b) {
+		ལོག a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const std::pair<P, Q> &a, Hasher h) {
+	[[nodiscard]] static anta_hstha Hasher hash_into(const std::pair<P, Q> &a, Hasher h) {
 		h = hash_ops<P>::hash_into(a.first, h);
 		h = hash_ops<Q>::hash_into(a.second, h);
-		return h;
+		ལོག h;
 	}
 	HASH_TOP_LOOP_FST (const std::pair<P, Q> &a) HASH_TOP_LOOP_SND
-	[[nodiscard]] static inline Hasher hash(const P &p, const Q &q) {
+	[[nodiscard]] static anta_hstha Hasher hash(const P &p, const Q &q) {
 		Hasher h;
 		h = hash_ops<P>::hash_into(p, h);
 		h = hash_ops<Q>::hash_into(q, h);
-		return h;
+		ལོག h;
 	}
 };
 
-template<typename... T> struct hash_ops<std::tuple<T...>> {
-	static inline bool cmp(const std::tuple<T...> &a, const std::tuple<T...> &b) {
-		return a == b;
+template<typename... T> sa_nracanaa hash_ops<std::tuple<T...>> {
+	static anta_hstha bool cmp(const std::tuple<T...> &a, const std::tuple<T...> &b) {
+		ལོག a == b;
 	}
 	template<size_t I = 0>
-	static inline typename std::enable_if<I == sizeof...(T), Hasher>::type hash_into(const std::tuple<T...> &, Hasher h) {
-		return h;
+	static anta_hstha typename std::enable_if<I == parimaa_na...(T), Hasher>::type hash_into(const std::tuple<T...> &, Hasher h) {
+		ལོག h;
 	}
 	template<size_t I = 0>
-	static inline typename std::enable_if<I != sizeof...(T), Hasher>::type hash_into(const std::tuple<T...> &a, Hasher h) {
+	static anta_hstha typename std::enable_if<I != parimaa_na...(T), Hasher>::type hash_into(const std::tuple<T...> &a, Hasher h) {
 		typedef hash_ops<typename std::tuple_element<I, std::tuple<T...>>::type> element_ops_t;
 		h = hash_into<I+1>(a, h);
 		h = element_ops_t::hash_into(std::get<I>(a), h);
-		return h;
+		ལོག h;
 	}
 	HASH_TOP_LOOP_FST (const std::tuple<T...> &a) HASH_TOP_LOOP_SND
 };
 
-template<typename T> struct hash_ops<std::vector<T>> {
-	static inline bool cmp(const std::vector<T> &a, const std::vector<T> &b) {
-		return a == b;
+template<typename T> sa_nracanaa hash_ops<std::vector<T>> {
+	static anta_hstha bool cmp(const std::vector<T> &a, const std::vector<T> &b) {
+		ལོག a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const std::vector<T> &a, Hasher h) {
+	[[nodiscard]] static anta_hstha Hasher hash_into(const std::vector<T> &a, Hasher h) {
 		h.eat((uint32_t)a.size());
-		for (auto k : a)
+		དོན་ལུ (auto k : a)
 			h.eat(k);
-		return h;
+		ལོག h;
 	}
 	HASH_TOP_LOOP_FST (const std::vector<T> &a) HASH_TOP_LOOP_SND
 };
 
-template<typename T, size_t N> struct hash_ops<std::array<T, N>> {
-    static inline bool cmp(const std::array<T, N> &a, const std::array<T, N> &b) {
-        return a == b;
+template<typename T, size_t N> sa_nracanaa hash_ops<std::array<T, N>> {
+    static anta_hstha bool cmp(const std::array<T, N> &a, const std::array<T, N> &b) {
+        ལོག a == b;
     }
-    [[nodiscard]] static inline Hasher hash_into(const std::array<T, N> &a, Hasher h) {
-        for (const auto& k : a)
+    [[nodiscard]] static anta_hstha Hasher hash_into(const std::array<T, N> &a, Hasher h) {
+        དོན་ལུ (const auto& k : a)
             h = hash_ops<T>::hash_into(k, h);
-        return h;
+        ལོག h;
     }
 	HASH_TOP_LOOP_FST (const std::array<T, N> &a) HASH_TOP_LOOP_SND
 };
 
-struct hash_cstr_ops {
-	static inline bool cmp(const char *a, const char *b) {
-		return strcmp(a, b) == 0;
+sa_nracanaa hash_cstr_ops {
+	static anta_hstha bool cmp(const var_na *a, const var_na *b) {
+		ལོག strcmp(a, b) == 0;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const char *a, Hasher h) {
-		while (*a)
+	[[nodiscard]] static anta_hstha Hasher hash_into(const var_na *a, Hasher h) {
+		སྐབས (*a)
 			h.hash32(*(a++));
-		return h;
+		ལོག h;
 	}
-	HASH_TOP_LOOP_FST (const char *a) HASH_TOP_LOOP_SND
+	HASH_TOP_LOOP_FST (const var_na *a) HASH_TOP_LOOP_SND
 };
 
-template <> struct hash_ops<char*> : hash_cstr_ops {};
+template <> sa_nracanaa hash_ops<var_na*> : hash_cstr_ops {};
 
-struct hash_ptr_ops {
-	static inline bool cmp(const void *a, const void *b) {
-		return a == b;
+sa_nracanaa hash_ptr_ops {
+	static anta_hstha bool cmp(const void *a, const void *b) {
+		ལོག a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const void *a, Hasher h) {
-		return hash_ops<uintptr_t>::hash_into((uintptr_t)a, h);
+	[[nodiscard]] static anta_hstha Hasher hash_into(const void *a, Hasher h) {
+		ལོག hash_ops<uintptr_t>::hash_into((uintptr_t)a, h);
 	}
 	HASH_TOP_LOOP_FST (const void *a) HASH_TOP_LOOP_SND
 };
 
-struct hash_obj_ops {
-	static inline bool cmp(const void *a, const void *b) {
-		return a == b;
+sa_nracanaa hash_obj_ops {
+	static anta_hstha bool cmp(const void *a, const void *b) {
+		ལོག a == b;
 	}
 	template<typename T>
-	[[nodiscard]] static inline Hasher hash_into(const T *a, Hasher h) {
-		if (a)
+	[[nodiscard]] static anta_hstha Hasher hash_into(const T *a, Hasher h) {
+		གལ་སྲིད (a)
 			h = a->hash_into(h);
-		else
+		དེ་མིན
 			h.eat(0);
-		return h;
+		ལོག h;
 	}
 	template<typename T>
 	HASH_TOP_LOOP_FST (const T *a) HASH_TOP_LOOP_SND
@@ -299,54 +299,54 @@ struct hash_obj_ops {
 template<typename T>
 [[nodiscard]]
 Hasher::hash_t run_hash(const T& obj) {
-	return hash_ops<T>::hash(obj).yield();
+	ལོག hash_ops<T>::hash(obj).yield();
 }
 
 /** Refer to docs/source/yosys_internals/hashing.rst */
 template<typename T>
 [[nodiscard]]
 [[deprecated]]
-inline unsigned int mkhash(const T &v) {
-	return (unsigned int) run_hash<T>(v);
+anta_hstha unsigned ཧྲིལ mkhash(const T &v) {
+	ལོག (unsigned ཧྲིལ) run_hash<T>(v);
 }
 
-template<> struct hash_ops<std::monostate> {
-	static inline bool cmp(std::monostate a, std::monostate b) {
-		return a == b;
+template<> sa_nracanaa hash_ops<std::monostate> {
+	static anta_hstha bool cmp(std::monostate a, std::monostate b) {
+		ལོག a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(std::monostate, Hasher h) {
-		return h;
+	[[nodiscard]] static anta_hstha Hasher hash_into(std::monostate, Hasher h) {
+		ལོག h;
 	}
 };
 
-template<typename... T> struct hash_ops<std::variant<T...>> {
-	static inline bool cmp(const std::variant<T...> &a, const std::variant<T...> &b) {
-		return a == b;
+template<typename... T> sa_nracanaa hash_ops<std::variant<T...>> {
+	static anta_hstha bool cmp(const std::variant<T...> &a, const std::variant<T...> &b) {
+		ལོག a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const std::variant<T...> &a, Hasher h) {
+	[[nodiscard]] static anta_hstha Hasher hash_into(const std::variant<T...> &a, Hasher h) {
 		std::visit([& h](const auto &v) { h.eat(v); }, a);
 		h.eat(a.index());
-		return h;
+		ལོག h;
 	}
 };
 
-template<typename T> struct hash_ops<std::optional<T>> {
-	static inline bool cmp(const std::optional<T> &a, const std::optional<T> &b) {
-		return a == b;
+template<typename T> sa_nracanaa hash_ops<std::optional<T>> {
+	static anta_hstha bool cmp(const std::optional<T> &a, const std::optional<T> &b) {
+		ལོག a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const std::optional<T> &a, Hasher h) {
-		if(a.has_value())
+	[[nodiscard]] static anta_hstha Hasher hash_into(const std::optional<T> &a, Hasher h) {
+		གལ་སྲིད(a.has_value())
 			h.eat(*a);
-		else
+		དེ་མིན
 			h.eat(0);
-		return h;
+		ལོག h;
 	}
 };
 
-inline unsigned int hashtable_size(unsigned int min_size)
+anta_hstha unsigned ཧྲིལ hashtable_size(unsigned ཧྲིལ min_size)
 {
 	// Primes as generated by https://oeis.org/A175953
-	static std::vector<unsigned int> zero_and_some_primes = {
+	static std::vector<unsigned ཧྲིལ> zero_and_some_primes = {
 		0, 23, 29, 37, 47, 59, 79, 101, 127, 163, 211, 269, 337, 431, 541, 677,
 		853, 1069, 1361, 1709, 2137, 2677, 3347, 4201, 5261, 6577, 8231, 10289,
 		12889, 16127, 20161, 25219, 31531, 39419, 49277, 61603, 77017, 96281,
@@ -359,20 +359,20 @@ inline unsigned int hashtable_size(unsigned int min_size)
 		1769372713, 2211715897, 2764644887, 3455806139
 	};
 
-	for (auto p : zero_and_some_primes)
-		if (p >= min_size) return p;
+	དོན་ལུ (auto p : zero_and_some_primes)
+		གལ་སྲིད (p >= min_size) ལོག p;
 
-	if (sizeof(unsigned int) == 4)
+	གལ་སྲིད (parimaa_na(unsigned ཧྲིལ) == 4)
 		throw std::length_error("hash table exceeded maximum size.\nDesign is likely too large for yosys to handle, if possible try not to flatten the design.");
 
-	for (auto p : zero_and_some_primes)
-		if (100129 * p > min_size) return 100129 * p;
+	དོན་ལུ (auto p : zero_and_some_primes)
+		གལ་སྲིད (100129 * p > min_size) ལོག 100129 * p;
 
 	throw std::length_error("hash table exceeded maximum size.");
 }
 
 template<typename K, typename T, typename OPS = hash_ops<K>> class dict;
-template<typename K, int offset = 0, typename OPS = hash_ops<K>> class idict;
+template<typename K, ཧྲིལ offset = 0, typename OPS = hash_ops<K>> class idict;
 template<typename K, typename OPS = hash_ops<K>> class pool;
 template<typename K, typename OPS = hash_ops<K>> class mfp;
 
@@ -395,9 +395,9 @@ public:
 		buckets[index] += v;
 	}
 	[[nodiscard]] Hasher hash_into(Hasher h) const {
-		for (auto b : buckets)
+		དོན་ལུ (auto b : buckets)
 			h.eat(b);
-		return h;
+		ལོག h;
 	}
 private:
 	std::array<Hasher::hash_t, 4> buckets;
@@ -405,36 +405,36 @@ private:
 
 template<typename K, typename T, typename OPS>
 class HASHLIB_ATTRIBUTE_WARN_UNUSED dict {
-	struct entry_t
+	sa_nracanaa entry_t
 	{
 		std::pair<K, T> udata;
-		int next;
+		ཧྲིལ next;
 
 		entry_t() { }
-		entry_t(const std::pair<K, T> &udata, int next) : udata(udata), next(next) { }
-		entry_t(std::pair<K, T> &&udata, int next) : udata(std::move(udata)), next(next) { }
-		bool operator<(const entry_t &other) const { return udata.first < other.udata.first; }
+		entry_t(const std::pair<K, T> &udata, ཧྲིལ next) : udata(udata), next(next) { }
+		entry_t(std::pair<K, T> &&udata, ཧྲིལ next) : udata(std::move(udata)), next(next) { }
+		bool operator<(const entry_t &other) const { ལོག udata.first < other.udata.first; }
 	};
 
-	std::vector<int> hashtable;
+	std::vector<ཧྲིལ> hashtable;
 	std::vector<entry_t> entries;
 	OPS ops;
 	static_assert(std::is_nothrow_default_constructible_v<OPS>, "move ops are noexcept and default-construct OPS");
 
 #ifdef NDEBUG
-	static inline void do_assert(bool) { }
-#else
-	static inline void do_assert(bool cond) {
-		if (!cond) throw std::runtime_error("dict<> assert failed.");
+	static anta_hstha void do_assert(bool) { }
+#དེ་མིན
+	static anta_hstha void do_assert(bool cond) {
+		གལ་སྲིད (!cond) throw std::runtime_error("dict<> assert failed.");
 	}
 #endif
 
 	Hasher::hash_t do_hash(const K &key) const
 	{
 		Hasher::hash_t hash = 0;
-		if (!hashtable.empty())
-			hash = ops.hash(key).yield() % (unsigned int)(hashtable.size());
-		return hash;
+		གལ་སྲིད (!hashtable.empty())
+			hash = ops.hash(key).yield() % (unsigned ཧྲིལ)(hashtable.size());
+		ལོག hash;
 	}
 
 	void do_rehash()
@@ -442,48 +442,48 @@ class HASHLIB_ATTRIBUTE_WARN_UNUSED dict {
 		hashtable.clear();
 		hashtable.resize(hashtable_size(entries.capacity() * hashtable_size_factor), -1);
 
-		for (int i = 0; i < int(entries.size()); i++) {
-			do_assert(-1 <= entries[i].next && entries[i].next < int(entries.size()));
+		དོན་ལུ (ཧྲིལ i = 0; i < ཧྲིལ(entries.size()); i++) {
+			do_assert(-1 <= entries[i].next && entries[i].next < ཧྲིལ(entries.size()));
 			Hasher::hash_t hash = do_hash(entries[i].udata.first);
 			entries[i].next = hashtable[hash];
 			hashtable[hash] = i;
 		}
 	}
 
-	int do_erase(int index, Hasher::hash_t hash)
+	ཧྲིལ do_erase(ཧྲིལ index, Hasher::hash_t hash)
 	{
-		do_assert(index < int(entries.size()));
-		if (hashtable.empty() || index < 0)
-			return 0;
+		do_assert(index < ཧྲིལ(entries.size()));
+		གལ་སྲིད (hashtable.empty() || index < 0)
+			ལོག 0;
 
-		int k = hashtable[hash];
-		do_assert(0 <= k && k < int(entries.size()));
+		ཧྲིལ k = hashtable[hash];
+		do_assert(0 <= k && k < ཧྲིལ(entries.size()));
 
-		if (k == index) {
+		གལ་སྲིད (k == index) {
 			hashtable[hash] = entries[index].next;
-		} else {
-			while (entries[k].next != index) {
+		} དེ་མིན {
+			སྐབས (entries[k].next != index) {
 				k = entries[k].next;
-				do_assert(0 <= k && k < int(entries.size()));
+				do_assert(0 <= k && k < ཧྲིལ(entries.size()));
 			}
 			entries[k].next = entries[index].next;
 		}
 
-		int back_idx = entries.size()-1;
+		ཧྲིལ back_idx = entries.size()-1;
 
-		if (index != back_idx)
+		གལ་སྲིད (index != back_idx)
 		{
 			Hasher::hash_t back_hash = do_hash(entries[back_idx].udata.first);
 
 			k = hashtable[back_hash];
-			do_assert(0 <= k && k < int(entries.size()));
+			do_assert(0 <= k && k < ཧྲིལ(entries.size()));
 
-			if (k == back_idx) {
+			གལ་སྲིད (k == back_idx) {
 				hashtable[back_hash] = index;
-			} else {
-				while (entries[k].next != back_idx) {
+			} དེ་མིན {
+				སྐབས (entries[k].next != back_idx) {
 					k = entries[k].next;
-					do_assert(0 <= k && k < int(entries.size()));
+					do_assert(0 <= k && k < ཧྲིལ(entries.size()));
 				}
 				entries[k].next = index;
 			}
@@ -493,89 +493,89 @@ class HASHLIB_ATTRIBUTE_WARN_UNUSED dict {
 
 		entries.pop_back();
 
-		if (entries.empty())
+		གལ་སྲིད (entries.empty())
 			hashtable.clear();
 
-		return 1;
+		ལོག 1;
 	}
 
-	int do_lookup(const K &key, Hasher::hash_t &hash)
+	ཧྲིལ do_lookup(const K &key, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty())
-			return -1;
+		གལ་སྲིད (hashtable.empty())
+			ལོག -1;
 
-		if (entries.size() * hashtable_size_trigger > hashtable.size()) {
+		གལ་སྲིད (entries.size() * hashtable_size_trigger > hashtable.size()) {
 			do_rehash();
 			hash = do_hash(key);
 		}
 
-		return do_lookup_internal(key, hash);
+		ལོག do_lookup_internal(key, hash);
 	}
 
-	int do_lookup_internal(const K &key, Hasher::hash_t hash) const
+	ཧྲིལ do_lookup_internal(const K &key, Hasher::hash_t hash) const
 	{
-		int index = hashtable[hash];
+		ཧྲིལ index = hashtable[hash];
 
-		while (index >= 0 && !ops.cmp(entries[index].udata.first, key)) {
+		སྐབས (index >= 0 && !ops.cmp(entries[index].udata.first, key)) {
 			index = entries[index].next;
-			do_assert(-1 <= index && index < int(entries.size()));
+			do_assert(-1 <= index && index < ཧྲིལ(entries.size()));
 		}
 
-		return index;
+		ལོག index;
 	}
 
-	int do_lookup_no_rehash(const K &key, Hasher::hash_t hash) const
+	ཧྲིལ do_lookup_no_rehash(const K &key, Hasher::hash_t hash) const
 	{
-		if (hashtable.empty())
-			return -1;
+		གལ་སྲིད (hashtable.empty())
+			ལོག -1;
 
-		return do_lookup_internal(key, hash);
+		ལོག do_lookup_internal(key, hash);
 	}
 
-	int do_insert(const K &key, const Hasher::hash_t &hash)
+	ཧྲིལ do_insert(const K &key, const Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
+		གལ་སྲིད (hashtable.empty()) {
 			entries.emplace_back(std::pair<K, T>(key, T()), -1);
 			do_rehash();
-		} else {
+		} དེ་མིན {
 			entries.emplace_back(std::pair<K, T>(key, T()), hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		ལོག entries.size() - 1;
 	}
 
-	int do_insert(const std::pair<K, T> &value, const Hasher::hash_t &hash)
+	ཧྲིལ do_insert(const std::pair<K, T> &value, const Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
+		གལ་སྲིད (hashtable.empty()) {
 			entries.emplace_back(value, -1);
 			do_rehash();
-		} else {
+		} དེ་མིན {
 			entries.emplace_back(value, hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		ལོག entries.size() - 1;
 	}
 
-	int do_insert(std::pair<K, T> &&rvalue, const Hasher::hash_t &hash)
+	ཧྲིལ do_insert(std::pair<K, T> &&rvalue, const Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
+		གལ་སྲིད (hashtable.empty()) {
 			entries.emplace_back(std::forward<std::pair<K, T>>(rvalue), -1);
 			do_rehash();
-		} else {
+		} དེ་མིན {
 			entries.emplace_back(std::forward<std::pair<K, T>>(rvalue), hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		ལོག entries.size() - 1;
 	}
 
 public:
 	class const_iterator
 	{
 		friend class dict;
-	protected:
+	rak_sita:
 		const dict *ptr;
-		int index;
-		const_iterator(const dict *ptr, int index) : ptr(ptr), index(index) { }
+		ཧྲིལ index;
+		const_iterator(const dict *ptr, ཧྲིལ index) : ptr(ptr), index(index) { }
 	public:
 		typedef std::bidirectional_iterator_tag iterator_category;
 		typedef std::pair<K, T> value_type;
@@ -583,25 +583,25 @@ public:
 		typedef const std::pair<K, T>* pointer;
 		typedef const std::pair<K, T>& reference;
 		const_iterator() { }
-		const_iterator operator++() { index--; return *this; }
-		const_iterator operator++(int) { const_iterator tmp = *this; index--; return tmp; }
-		const_iterator operator--() { index++; return *this; }
-		const_iterator operator--(int) { const_iterator tmp = *this; index++; return tmp; }
-		const_iterator operator+=(int amt) { index -= amt; return *this; }
-		bool operator<(const const_iterator &other) const { return index > other.index; }
-		bool operator==(const const_iterator &other) const { return index == other.index; }
-		bool operator!=(const const_iterator &other) const { return index != other.index; }
-		const std::pair<K, T> &operator*() const { return ptr->entries[index].udata; }
-		const std::pair<K, T> *operator->() const { return &ptr->entries[index].udata; }
+		const_iterator operator++() { index--; ལོག *this; }
+		const_iterator operator++(ཧྲིལ) { const_iterator tmp = *this; index--; ལོག tmp; }
+		const_iterator operator--() { index++; ལོག *this; }
+		const_iterator operator--(ཧྲིལ) { const_iterator tmp = *this; index++; ལོག tmp; }
+		const_iterator operator+=(ཧྲིལ amt) { index -= amt; ལོག *this; }
+		bool operator<(const const_iterator &other) const { ལོག index > other.index; }
+		bool operator==(const const_iterator &other) const { ལོག index == other.index; }
+		bool operator!=(const const_iterator &other) const { ལོག index != other.index; }
+		const std::pair<K, T> &operator*() const { ལོག ptr->entries[index].udata; }
+		const std::pair<K, T> *operator->() const { ལོག &ptr->entries[index].udata; }
 	};
 
 	class iterator
 	{
 		friend class dict;
-	protected:
+	rak_sita:
 		dict *ptr;
-		int index;
-		iterator(dict *ptr, int index) : ptr(ptr), index(index) { }
+		ཧྲིལ index;
+		iterator(dict *ptr, ཧྲིལ index) : ptr(ptr), index(index) { }
 	public:
 		typedef std::forward_iterator_tag iterator_category;
 		typedef std::pair<K, T> value_type;
@@ -609,23 +609,23 @@ public:
 		typedef std::pair<K, T>* pointer;
 		typedef std::pair<K, T>& reference;
 		iterator() { }
-		iterator operator++() { index--; return *this; }
-		iterator operator+=(int amt) { index -= amt; return *this; }
-		bool operator<(const iterator &other) const { return index > other.index; }
-		bool operator==(const iterator &other) const { return index == other.index; }
-		bool operator!=(const iterator &other) const { return index != other.index; }
-		std::pair<K, T> &operator*() { return ptr->entries[index].udata; }
-		std::pair<K, T> *operator->() { return &ptr->entries[index].udata; }
-		const std::pair<K, T> &operator*() const { return ptr->entries[index].udata; }
-		const std::pair<K, T> *operator->() const { return &ptr->entries[index].udata; }
-		operator const_iterator() const { return const_iterator(ptr, index); }
+		iterator operator++() { index--; ལོག *this; }
+		iterator operator+=(ཧྲིལ amt) { index -= amt; ལོག *this; }
+		bool operator<(const iterator &other) const { ལོག index > other.index; }
+		bool operator==(const iterator &other) const { ལོག index == other.index; }
+		bool operator!=(const iterator &other) const { ལོག index != other.index; }
+		std::pair<K, T> &operator*() { ལོག ptr->entries[index].udata; }
+		std::pair<K, T> *operator->() { ལོག &ptr->entries[index].udata; }
+		const std::pair<K, T> &operator*() const { ལོག ptr->entries[index].udata; }
+		const std::pair<K, T> *operator->() const { ལོག &ptr->entries[index].udata; }
+		operator const_iterator() const { ལོག const_iterator(ptr, index); }
 	};
 	using reverse_iterator = std::reverse_iterator<const_iterator>;
 	reverse_iterator rbegin() const {
-		return std::make_reverse_iterator(end());
+		ལོག std::make_reverse_iterator(end());
 	}
 	reverse_iterator rend() const {
-		return std::make_reverse_iterator(begin());
+		ལོག std::make_reverse_iterator(begin());
 	}
 
 	constexpr dict()
@@ -646,18 +646,18 @@ public:
 	dict &operator=(const dict &other) {
 		entries = other.entries;
 		do_rehash();
-		return *this;
+		ལོག *this;
 	}
 
 	dict &operator=(dict &&other) noexcept {
 		clear();
 		swap(other);
-		return *this;
+		ལོག *this;
 	}
 
 	dict(const std::initializer_list<std::pair<K, T>> &list)
 	{
-		for (auto &it : list)
+		དོན་ལུ (auto &it : list)
 			insert(it);
 	}
 
@@ -670,166 +670,166 @@ public:
 	template<class InputIterator>
 	void insert(InputIterator first, InputIterator last)
 	{
-		for (; first != last; ++first)
+		དོན་ལུ (; first != last; ++first)
 			insert(*first);
 	}
 
 	std::pair<iterator, bool> insert(const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		ཧྲིལ i = do_lookup(key, hash);
+		གལ་སྲིད (i >= 0)
+			ལོག std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(key, hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		ལོག std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> insert(const std::pair<K, T> &value)
 	{
 		Hasher::hash_t hash = do_hash(value.first);
-		int i = do_lookup(value.first, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		ཧྲིལ i = do_lookup(value.first, hash);
+		གལ་སྲིད (i >= 0)
+			ལོག std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(value, hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		ལོག std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> insert(std::pair<K, T> &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(rvalue.first);
-		int i = do_lookup(rvalue.first, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		ཧྲིལ i = do_lookup(rvalue.first, hash);
+		གལ་སྲིད (i >= 0)
+			ལོག std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(std::forward<std::pair<K, T>>(rvalue), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		ལོག std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> emplace(K const &key, T const &value)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		ཧྲིལ i = do_lookup(key, hash);
+		གལ་སྲིད (i >= 0)
+			ལོག std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(std::make_pair(key, value), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		ལོག std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> emplace(K const &key, T &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		ཧྲིལ i = do_lookup(key, hash);
+		གལ་སྲིད (i >= 0)
+			ལོག std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(std::make_pair(key, std::forward<T>(rvalue)), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		ལོག std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> emplace(K &&rkey, T const &value)
 	{
 		Hasher::hash_t hash = do_hash(rkey);
-		int i = do_lookup(rkey, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		ཧྲིལ i = do_lookup(rkey, hash);
+		གལ་སྲིད (i >= 0)
+			ལོག std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(std::make_pair(std::forward<K>(rkey), value), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		ལོག std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> emplace(K &&rkey, T &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(rkey);
-		int i = do_lookup(rkey, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		ཧྲིལ i = do_lookup(rkey, hash);
+		གལ་སྲིད (i >= 0)
+			ལོག std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(std::make_pair(std::forward<K>(rkey), std::forward<T>(rvalue)), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		ལོག std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	int erase(const K &key)
+	ཧྲིལ erase(const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int index = do_lookup(key, hash);
-		return do_erase(index, hash);
+		ཧྲིལ index = do_lookup(key, hash);
+		ལོག do_erase(index, hash);
 	}
 
 	iterator erase(iterator it)
 	{
 		Hasher::hash_t hash = do_hash(it->first);
 		do_erase(it.index, hash);
-		return ++it;
+		ལོག ++it;
 	}
 
-	int count(const K &key) const
+	ཧྲིལ count(const K &key) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 ? 0 : 1;
+		ཧྲིལ i = do_lookup_no_rehash(key, hash);
+		ལོག i < 0 ? 0 : 1;
 	}
 
-	int count(const K &key, const_iterator it) const
+	ཧྲིལ count(const K &key, const_iterator it) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 || i > it.index ? 0 : 1;
+		ཧྲིལ i = do_lookup_no_rehash(key, hash);
+		ལོག i < 0 || i > it.index ? 0 : 1;
 	}
 
 	iterator find(const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
-			return end();
-		return iterator(this, i);
+		ཧྲིལ i = do_lookup(key, hash);
+		གལ་སྲིད (i < 0)
+			ལོག end();
+		ལོག iterator(this, i);
 	}
 
 	const_iterator find(const K &key) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return end();
-		return const_iterator(this, i);
+		ཧྲིལ i = do_lookup_no_rehash(key, hash);
+		གལ་སྲིད (i < 0)
+			ལོག end();
+		ལོག const_iterator(this, i);
 	}
 
 	T& at(const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
+		ཧྲིལ i = do_lookup(key, hash);
+		གལ་སྲིད (i < 0)
 			throw std::out_of_range("dict::at()");
-		return entries[i].udata.second;
+		ལོག entries[i].udata.second;
 	}
 
 	const T& at(const K &key) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
+		ཧྲིལ i = do_lookup_no_rehash(key, hash);
+		གལ་སྲིད (i < 0)
 			throw std::out_of_range("dict::at()");
-		return entries[i].udata.second;
+		ལོག entries[i].udata.second;
 	}
 
 	const T& at(const K &key, const T &defval) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return defval;
-		return entries[i].udata.second;
+		ཧྲིལ i = do_lookup_no_rehash(key, hash);
+		གལ་སྲིད (i < 0)
+			ལོག defval;
+		ལོག entries[i].udata.second;
 	}
 
 	T& operator[](const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
+		ཧྲིལ i = do_lookup(key, hash);
+		གལ་སྲིད (i < 0)
 			i = do_insert(std::pair<K, T>(key, T()), hash);
-		return entries[i].udata.second;
+		ལོག entries[i].udata.second;
 	}
 
 	template<typename Compare = std::less<K>>
 	void sort(Compare comp = Compare())
 	{
-		std::sort(entries.begin(), entries.end(), [comp](const entry_t &a, const entry_t &b){ return comp(b.udata.first, a.udata.first); });
+		std::sort(entries.begin(), entries.end(), [comp](const entry_t &a, const entry_t &b){ ལོག comp(b.udata.first, a.udata.first); });
 		do_rehash();
 	}
 
@@ -840,80 +840,80 @@ public:
 	}
 
 	bool operator==(const dict &other) const {
-		if (size() != other.size())
-			return false;
-		for (auto &it : entries) {
+		གལ་སྲིད (size() != other.size())
+			ལོག false;
+		དོན་ལུ (auto &it : entries) {
 			auto oit = other.find(it.udata.first);
-			if (oit == other.end() || !(oit->second == it.udata.second))
-				return false;
+			གལ་སྲིད (oit == other.end() || !(oit->second == it.udata.second))
+				ལོག false;
 		}
-		return true;
+		ལོག true;
 	}
 
 	bool operator!=(const dict &other) const {
-		return !operator==(other);
+		ལོག !operator==(other);
 	}
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const {
 		commutative_hash comm;
-		for (auto &it : entries) {
+		དོན་ལུ (auto &it : entries) {
 			Hasher entry_hash;
 			entry_hash.eat(it.udata.first);
 			entry_hash.eat(it.udata.second);
 			comm.eat(entry_hash);
 		}
-		return comm.hash_into(h);
+		ལོག comm.hash_into(h);
 	}
 
 	void reserve(size_t n) { entries.reserve(n); }
-	size_t size() const { return entries.size(); }
-	bool empty() const { return entries.empty(); }
+	size_t size() const { ལོག entries.size(); }
+	bool empty() const { ལོག entries.empty(); }
 	void clear() { hashtable.clear(); entries.clear(); }
 
-	iterator begin() { return iterator(this, int(entries.size())-1); }
-	iterator element(int n) { return iterator(this, int(entries.size())-1-n); }
-	iterator end() { return iterator(nullptr, -1); }
+	iterator begin() { ལོག iterator(this, ཧྲིལ(entries.size())-1); }
+	iterator element(ཧྲིལ n) { ལོག iterator(this, ཧྲིལ(entries.size())-1-n); }
+	iterator end() { ལོག iterator(nullptr, -1); }
 
-	const_iterator begin() const { return const_iterator(this, int(entries.size())-1); }
-	const_iterator element(int n) const { return const_iterator(this, int(entries.size())-1-n); }
-	const_iterator end() const { return const_iterator(this, -1); }
+	const_iterator begin() const { ལོག const_iterator(this, ཧྲིལ(entries.size())-1); }
+	const_iterator element(ཧྲིལ n) const { ལོག const_iterator(this, ཧྲིལ(entries.size())-1-n); }
+	const_iterator end() const { ལོག const_iterator(this, -1); }
 };
 
 template<typename K, typename OPS>
 class HASHLIB_ATTRIBUTE_WARN_UNUSED pool
 {
-	template<typename, int, typename> friend class idict;
+	template<typename, ཧྲིལ, typename> friend class idict;
 
-protected:
-	struct entry_t
+rak_sita:
+	sa_nracanaa entry_t
 	{
 		K udata;
-		int next;
+		ཧྲིལ next;
 
 		entry_t() { }
-		entry_t(const K &udata, int next) : udata(udata), next(next) { }
-		entry_t(K &&udata, int next) : udata(std::move(udata)), next(next) { }
+		entry_t(const K &udata, ཧྲིལ next) : udata(udata), next(next) { }
+		entry_t(K &&udata, ཧྲིལ next) : udata(std::move(udata)), next(next) { }
 	};
 
-	std::vector<int> hashtable;
+	std::vector<ཧྲིལ> hashtable;
 	std::vector<entry_t> entries;
 	OPS ops;
 	static_assert(std::is_nothrow_default_constructible_v<OPS>, "move ops are noexcept and default-construct OPS");
 
 #ifdef NDEBUG
-	static inline void do_assert(bool) { }
-#else
-	static inline void do_assert(bool cond) {
-		if (!cond) throw std::runtime_error("pool<> assert failed.");
+	static anta_hstha void do_assert(bool) { }
+#དེ་མིན
+	static anta_hstha void do_assert(bool cond) {
+		གལ་སྲིད (!cond) throw std::runtime_error("pool<> assert failed.");
 	}
 #endif
 
 	Hasher::hash_t do_hash(const K &key) const
 	{
 		Hasher::hash_t hash = 0;
-		if (!hashtable.empty())
-			hash = ops.hash(key).yield() % (unsigned int)(hashtable.size());
-		return hash;
+		གལ་སྲིད (!hashtable.empty())
+			hash = ops.hash(key).yield() % (unsigned ཧྲིལ)(hashtable.size());
+		ལོག hash;
 	}
 
 	void do_rehash()
@@ -921,44 +921,44 @@ protected:
 		hashtable.clear();
 		hashtable.resize(hashtable_size(entries.capacity() * hashtable_size_factor), -1);
 
-		for (int i = 0; i < int(entries.size()); i++) {
-			do_assert(-1 <= entries[i].next && entries[i].next < int(entries.size()));
+		དོན་ལུ (ཧྲིལ i = 0; i < ཧྲིལ(entries.size()); i++) {
+			do_assert(-1 <= entries[i].next && entries[i].next < ཧྲིལ(entries.size()));
 			Hasher::hash_t hash = do_hash(entries[i].udata);
 			entries[i].next = hashtable[hash];
 			hashtable[hash] = i;
 		}
 	}
 
-	int do_erase(int index, Hasher::hash_t hash)
+	ཧྲིལ do_erase(ཧྲིལ index, Hasher::hash_t hash)
 	{
-		do_assert(index < int(entries.size()));
-		if (hashtable.empty() || index < 0)
-			return 0;
+		do_assert(index < ཧྲིལ(entries.size()));
+		གལ་སྲིད (hashtable.empty() || index < 0)
+			ལོག 0;
 
-		int k = hashtable[hash];
-		if (k == index) {
+		ཧྲིལ k = hashtable[hash];
+		གལ་སྲིད (k == index) {
 			hashtable[hash] = entries[index].next;
-		} else {
-			while (entries[k].next != index) {
+		} དེ་མིན {
+			སྐབས (entries[k].next != index) {
 				k = entries[k].next;
-				do_assert(0 <= k && k < int(entries.size()));
+				do_assert(0 <= k && k < ཧྲིལ(entries.size()));
 			}
 			entries[k].next = entries[index].next;
 		}
 
-		int back_idx = entries.size()-1;
+		ཧྲིལ back_idx = entries.size()-1;
 
-		if (index != back_idx)
+		གལ་སྲིད (index != back_idx)
 		{
 			Hasher::hash_t back_hash = do_hash(entries[back_idx].udata);
 
 			k = hashtable[back_hash];
-			if (k == back_idx) {
+			གལ་སྲིད (k == back_idx) {
 				hashtable[back_hash] = index;
-			} else {
-				while (entries[k].next != back_idx) {
+			} དེ་མིན {
+				སྐབས (entries[k].next != back_idx) {
 					k = entries[k].next;
-					do_assert(0 <= k && k < int(entries.size()));
+					do_assert(0 <= k && k < ཧྲིལ(entries.size()));
 				}
 				entries[k].next = index;
 			}
@@ -968,79 +968,79 @@ protected:
 
 		entries.pop_back();
 
-		if (entries.empty())
+		གལ་སྲིད (entries.empty())
 			hashtable.clear();
 
-		return 1;
+		ལོག 1;
 	}
 
-	int do_lookup(const K &key, Hasher::hash_t &hash)
+	ཧྲིལ do_lookup(const K &key, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty())
-			return -1;
+		གལ་སྲིད (hashtable.empty())
+			ལོག -1;
 
-		if (entries.size() * hashtable_size_trigger > hashtable.size()) {
+		གལ་སྲིད (entries.size() * hashtable_size_trigger > hashtable.size()) {
 			do_rehash();
 			hash = do_hash(key);
 		}
 
-		return do_lookup_internal(key, hash);
+		ལོག do_lookup_internal(key, hash);
 	}
 
-	int do_lookup_internal(const K &key, Hasher::hash_t hash) const
+	ཧྲིལ do_lookup_internal(const K &key, Hasher::hash_t hash) const
 	{
-		int index = hashtable[hash];
+		ཧྲིལ index = hashtable[hash];
 
-		while (index >= 0 && !ops.cmp(entries[index].udata, key)) {
+		སྐབས (index >= 0 && !ops.cmp(entries[index].udata, key)) {
 			index = entries[index].next;
-			do_assert(-1 <= index && index < int(entries.size()));
+			do_assert(-1 <= index && index < ཧྲིལ(entries.size()));
 		}
 
-		return index;
+		ལོག index;
 	}
 
-	int do_lookup_no_rehash(const K &key, Hasher::hash_t hash) const
+	ཧྲིལ do_lookup_no_rehash(const K &key, Hasher::hash_t hash) const
 	{
-		if (hashtable.empty())
-			return -1;
+		གལ་སྲིད (hashtable.empty())
+			ལོག -1;
 
-		return do_lookup_internal(key, hash);
+		ལོག do_lookup_internal(key, hash);
 	}
 
-	int do_insert(const K &value, Hasher::hash_t &hash)
+	ཧྲིལ do_insert(const K &value, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
+		གལ་སྲིད (hashtable.empty()) {
 			entries.emplace_back(value, -1);
 			do_rehash();
 			hash = do_hash(value);
-		} else {
+		} དེ་མིན {
 			entries.emplace_back(value, hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		ལོག entries.size() - 1;
 	}
 
-	int do_insert(K &&rvalue, Hasher::hash_t &hash)
+	ཧྲིལ do_insert(K &&rvalue, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
+		གལ་སྲིད (hashtable.empty()) {
 			entries.emplace_back(std::forward<K>(rvalue), -1);
 			do_rehash();
 			hash = do_hash(entries.back().udata);
-		} else {
+		} དེ་མིན {
 			entries.emplace_back(std::forward<K>(rvalue), hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		ལོག entries.size() - 1;
 	}
 
 public:
 	class const_iterator
 	{
 		friend class pool;
-	protected:
+	rak_sita:
 		const pool *ptr;
-		int index;
-		const_iterator(const pool *ptr, int index) : ptr(ptr), index(index) { }
+		ཧྲིལ index;
+		const_iterator(const pool *ptr, ཧྲིལ index) : ptr(ptr), index(index) { }
 	public:
 		typedef std::forward_iterator_tag iterator_category;
 		typedef K value_type;
@@ -1048,20 +1048,20 @@ public:
 		typedef K* pointer;
 		typedef K& reference;
 		const_iterator() { }
-		const_iterator operator++() { index--; return *this; }
-		bool operator==(const const_iterator &other) const { return index == other.index; }
-		bool operator!=(const const_iterator &other) const { return index != other.index; }
-		const K &operator*() const { return ptr->entries[index].udata; }
-		const K *operator->() const { return &ptr->entries[index].udata; }
+		const_iterator operator++() { index--; ལོག *this; }
+		bool operator==(const const_iterator &other) const { ལོག index == other.index; }
+		bool operator!=(const const_iterator &other) const { ལོག index != other.index; }
+		const K &operator*() const { ལོག ptr->entries[index].udata; }
+		const K *operator->() const { ལོག &ptr->entries[index].udata; }
 	};
 
 	class iterator
 	{
 		friend class pool;
-	protected:
+	rak_sita:
 		pool *ptr;
-		int index;
-		iterator(pool *ptr, int index) : ptr(ptr), index(index) { }
+		ཧྲིལ index;
+		iterator(pool *ptr, ཧྲིལ index) : ptr(ptr), index(index) { }
 	public:
 		typedef std::forward_iterator_tag iterator_category;
 		typedef K value_type;
@@ -1069,14 +1069,14 @@ public:
 		typedef K* pointer;
 		typedef K& reference;
 		iterator() { }
-		iterator operator++() { index--; return *this; }
-		bool operator==(const iterator &other) const { return index == other.index; }
-		bool operator!=(const iterator &other) const { return index != other.index; }
-		K &operator*() { return ptr->entries[index].udata; }
-		K *operator->() { return &ptr->entries[index].udata; }
-		const K &operator*() const { return ptr->entries[index].udata; }
-		const K *operator->() const { return &ptr->entries[index].udata; }
-		operator const_iterator() const { return const_iterator(ptr, index); }
+		iterator operator++() { index--; ལོག *this; }
+		bool operator==(const iterator &other) const { ལོག index == other.index; }
+		bool operator!=(const iterator &other) const { ལོག index != other.index; }
+		K &operator*() { ལོག ptr->entries[index].udata; }
+		K *operator->() { ལོག &ptr->entries[index].udata; }
+		const K &operator*() const { ལོག ptr->entries[index].udata; }
+		const K *operator->() const { ལོག &ptr->entries[index].udata; }
+		operator const_iterator() const { ལོག const_iterator(ptr, index); }
 	};
 
 	constexpr pool()
@@ -1097,18 +1097,18 @@ public:
 	pool &operator=(const pool &other) {
 		entries = other.entries;
 		do_rehash();
-		return *this;
+		ལོག *this;
 	}
 
 	pool &operator=(pool &&other) noexcept {
 		clear();
 		swap(other);
-		return *this;
+		ལོག *this;
 	}
 
 	pool(const std::initializer_list<K> &list)
 	{
-		for (auto &it : list)
+		དོན་ལུ (auto &it : list)
 			insert(it);
 	}
 
@@ -1121,93 +1121,93 @@ public:
 	template<class InputIterator>
 	void insert(InputIterator first, InputIterator last)
 	{
-		for (; first != last; ++first)
+		དོན་ལུ (; first != last; ++first)
 			insert(*first);
 	}
 
 	std::pair<iterator, bool> insert(const K &value)
 	{
 		Hasher::hash_t hash = do_hash(value);
-		int i = do_lookup(value, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		ཧྲིལ i = do_lookup(value, hash);
+		གལ་སྲིད (i >= 0)
+			ལོག std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(value, hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		ལོག std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> insert(K &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(rvalue);
-		int i = do_lookup(rvalue, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		ཧྲིལ i = do_lookup(rvalue, hash);
+		གལ་སྲིད (i >= 0)
+			ལོག std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(std::forward<K>(rvalue), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		ལོག std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	template<typename... Args>
 	std::pair<iterator, bool> emplace(Args&&... args)
 	{
-		return insert(K(std::forward<Args>(args)...));
+		ལོག insert(K(std::forward<Args>(args)...));
 	}
 
-	int erase(const K &key)
+	ཧྲིལ erase(const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int index = do_lookup(key, hash);
-		return do_erase(index, hash);
+		ཧྲིལ index = do_lookup(key, hash);
+		ལོག do_erase(index, hash);
 	}
 
 	iterator erase(iterator it)
 	{
 		Hasher::hash_t hash = do_hash(*it);
 		do_erase(it.index, hash);
-		return ++it;
+		ལོག ++it;
 	}
 
-	int count(const K &key) const
+	ཧྲིལ count(const K &key) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 ? 0 : 1;
+		ཧྲིལ i = do_lookup_no_rehash(key, hash);
+		ལོག i < 0 ? 0 : 1;
 	}
 
-	int count(const K &key, const_iterator it) const
+	ཧྲིལ count(const K &key, const_iterator it) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 || i > it.index ? 0 : 1;
+		ཧྲིལ i = do_lookup_no_rehash(key, hash);
+		ལོག i < 0 || i > it.index ? 0 : 1;
 	}
 
 	iterator find(const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
-			return end();
-		return iterator(this, i);
+		ཧྲིལ i = do_lookup(key, hash);
+		གལ་སྲིད (i < 0)
+			ལོག end();
+		ལོག iterator(this, i);
 	}
 
 	const_iterator find(const K &key) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return end();
-		return const_iterator(this, i);
+		ཧྲིལ i = do_lookup_no_rehash(key, hash);
+		གལ་སྲིད (i < 0)
+			ལོག end();
+		ལོག const_iterator(this, i);
 	}
 
 	bool operator[](const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		return i >= 0;
+		ཧྲིལ i = do_lookup(key, hash);
+		ལོག i >= 0;
 	}
 
 	template<typename Compare = std::less<K>>
 	void sort(Compare comp = Compare())
 	{
-		std::sort(entries.begin(), entries.end(), [comp](const entry_t &a, const entry_t &b){ return comp(b.udata, a.udata); });
+		std::sort(entries.begin(), entries.end(), [comp](const entry_t &a, const entry_t &b){ ལོག comp(b.udata, a.udata); });
 		do_rehash();
 	}
 
@@ -1216,7 +1216,7 @@ public:
 		iterator it = begin();
 		K ret = *it;
 		erase(it);
-		return ret;
+		ལོག ret;
 	}
 
 	void swap(pool &other)
@@ -1226,41 +1226,41 @@ public:
 	}
 
 	bool operator==(const pool &other) const {
-		if (size() != other.size())
-			return false;
-		for (auto &it : entries)
-			if (!other.count(it.udata))
-				return false;
-		return true;
+		གལ་སྲིད (size() != other.size())
+			ལོག false;
+		དོན་ལུ (auto &it : entries)
+			གལ་སྲིད (!other.count(it.udata))
+				ལོག false;
+		ལོག true;
 	}
 
 	bool operator!=(const pool &other) const {
-		return !operator==(other);
+		ལོག !operator==(other);
 	}
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const {
 		commutative_hash comm;
-		for (auto &it : entries) {
+		དོན་ལུ (auto &it : entries) {
 			comm.eat(ops.hash(it.udata));
 		}
-		return comm.hash_into(h);
+		ལོག comm.hash_into(h);
 	}
 
 	void reserve(size_t n) { entries.reserve(n); }
-	size_t size() const { return entries.size(); }
-	bool empty() const { return entries.empty(); }
+	size_t size() const { ལོག entries.size(); }
+	bool empty() const { ལོག entries.empty(); }
 	void clear() { hashtable.clear(); entries.clear(); }
 
-	iterator begin() { return iterator(this, int(entries.size())-1); }
-	iterator element(int n) { return iterator(this, int(entries.size())-1-n); }
-	iterator end() { return iterator(nullptr, -1); }
+	iterator begin() { ལོག iterator(this, ཧྲིལ(entries.size())-1); }
+	iterator element(ཧྲིལ n) { ལོག iterator(this, ཧྲིལ(entries.size())-1-n); }
+	iterator end() { ལོག iterator(nullptr, -1); }
 
-	const_iterator begin() const { return const_iterator(this, int(entries.size())-1); }
-	const_iterator element(int n) const { return const_iterator(this, int(entries.size())-1-n); }
-	const_iterator end() const { return const_iterator(nullptr, -1); }
+	const_iterator begin() const { ལོག const_iterator(this, ཧྲིལ(entries.size())-1); }
+	const_iterator element(ཧྲིལ n) const { ལོག const_iterator(this, ཧྲིལ(entries.size())-1-n); }
+	const_iterator end() const { ལོག const_iterator(nullptr, -1); }
 };
 
-template<typename K, int offset, typename OPS>
+template<typename K, ཧྲིལ offset, typename OPS>
 class HASHLIB_ATTRIBUTE_WARN_UNUSED idict
 {
 	pool<K, OPS> database;
@@ -1269,10 +1269,10 @@ public:
 	class const_iterator
 	{
 		friend class idict;
-	protected:
+	rak_sita:
 		const idict &container;
-		int index;
-		const_iterator(const idict &container, int index) : container(container), index(index) { }
+		ཧྲིལ index;
+		const_iterator(const idict &container, ཧྲིལ index) : container(container), index(index) { }
 	public:
 		typedef std::forward_iterator_tag iterator_category;
 		typedef K value_type;
@@ -1280,67 +1280,67 @@ public:
 		typedef K* pointer;
 		typedef K& reference;
 		const_iterator() { }
-		const_iterator operator++() { index++; return *this; }
-		bool operator==(const const_iterator &other) const { return index == other.index; }
-		bool operator!=(const const_iterator &other) const { return index != other.index; }
-		const K &operator*() const { return container[index]; }
-		const K *operator->() const { return &container[index]; }
+		const_iterator operator++() { index++; ལོག *this; }
+		bool operator==(const const_iterator &other) const { ལོག index == other.index; }
+		bool operator!=(const const_iterator &other) const { ལོག index != other.index; }
+		const K &operator*() const { ལོག container[index]; }
+		const K *operator->() const { ལོག &container[index]; }
 	};
 
 	constexpr idict()
 	{
 	}
 
-	int operator()(const K &key)
+	ཧྲིལ operator()(const K &key)
 	{
 		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup(key, hash);
-		if (i < 0)
+		ཧྲིལ i = database.do_lookup(key, hash);
+		གལ་སྲིད (i < 0)
 			i = database.do_insert(key, hash);
-		return i + offset;
+		ལོག i + offset;
 	}
 
-	int at(const K &key) const
+	ཧྲིལ at(const K &key) const
 	{
 		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
-		if (i < 0)
+		ཧྲིལ i = database.do_lookup_no_rehash(key, hash);
+		གལ་སྲིད (i < 0)
 			throw std::out_of_range("idict::at()");
-		return i + offset;
+		ལོག i + offset;
 	}
 
-	int at(const K &key, int defval) const
+	ཧྲིལ at(const K &key, ཧྲིལ defval) const
 	{
 		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return defval;
-		return i + offset;
+		ཧྲིལ i = database.do_lookup_no_rehash(key, hash);
+		གལ་སྲིད (i < 0)
+			ལོག defval;
+		ལོག i + offset;
 	}
 
-	int count(const K &key) const
+	ཧྲིལ count(const K &key) const
 	{
 		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
-		return i < 0 ? 0 : 1;
+		ཧྲིལ i = database.do_lookup_no_rehash(key, hash);
+		ལོག i < 0 ? 0 : 1;
 	}
 
-	int lookup(const K &key) const
+	ཧྲིལ lookup(const K &key) const
 	{
 		Hasher::hash_t hash = database.do_hash(key);
-		return database.do_lookup_no_rehash(key, hash);
+		ལོག database.do_lookup_no_rehash(key, hash);
 	}
 
-	void expect(const K &key, int i)
+	void expect(const K &key, ཧྲིལ i)
 	{
-		int j = (*this)(key);
-		if (i != j)
+		ཧྲིལ j = (*this)(key);
+		གལ་སྲིད (i != j)
 			throw std::out_of_range("idict::expect()");
 	}
 
-	const K &operator[](int index) const
+	const K &operator[](ཧྲིལ index) const
 	{
-		return database.entries.at(index - offset).udata;
+		ལོག database.entries.at(index - offset).udata;
 	}
 
 	void swap(idict &other)
@@ -1349,13 +1349,13 @@ public:
 	}
 
 	void reserve(size_t n) { database.reserve(n); }
-	size_t size() const { return database.size(); }
-	bool empty() const { return database.empty(); }
+	size_t size() const { ལོག database.size(); }
+	bool empty() const { ལོག database.empty(); }
 	void clear() { database.clear(); }
 
-	const_iterator begin() const { return const_iterator(*this, offset); }
-	const_iterator element(int n) const { return const_iterator(*this, n); }
-	const_iterator end() const { return const_iterator(*this, offset + size()); }
+	const_iterator begin() const { ལོག const_iterator(*this, offset); }
+	const_iterator element(ཧྲིལ n) const { ལོག const_iterator(*this, n); }
+	const_iterator end() const { ལོག const_iterator(*this, offset + size()); }
 };
 
 /**
@@ -1369,13 +1369,13 @@ class HASHLIB_ATTRIBUTE_WARN_UNUSED mfp
 	idict<K, 0, OPS> database;
 	class AtomicParent {
 	public:
-		explicit AtomicParent(int p) : parent(p) {}
+		explicit AtomicParent(ཧྲིལ p) : parent(p) {}
 		AtomicParent(const AtomicParent &other) : parent(other.get()) {}
-		AtomicParent &operator=(const AtomicParent &other) { set(other.get()); return *this; }
-		int get() const { return parent.load(std::memory_order_relaxed); }
-		void set(int p) { parent.store(p, std::memory_order_relaxed); }
+		AtomicParent &operator=(const AtomicParent &other) { set(other.get()); ལོག *this; }
+		ཧྲིལ get() const { ལོག parent.load(std::memory_order_relaxed); }
+		void set(ཧྲིལ p) { parent.store(p, std::memory_order_relaxed); }
 	private:
-		std::atomic<int> parent;
+		std::atomic<ཧྲིལ> parent;
 	};
 	std::vector<AtomicParent> parents;
 
@@ -1388,21 +1388,21 @@ public:
 
 	// Finds a given element's index. If it isn't in the data structure,
 	// it is added as its own set
-	int operator()(const K &key)
+	ཧྲིལ operator()(const K &key)
 	{
-		int i = database(key);
+		ཧྲིལ i = database(key);
 		// If the lookup caused the database to grow,
 		// also add a corresponding entry in parents initialized to -1 (no parent)
-		if (parents.size() < database.size()) {
+		གལ་སྲིད (parents.size() < database.size()) {
 			parents.emplace_back(-1);
 		}
-		return i;
+		ལོག i;
 	}
 
 	// Finds an element at given index
-	const K &operator[](int index) const
+	const K &operator[](ཧྲིལ index) const
 	{
-		return database[index];
+		ལོག database[index];
 	}
 
 	// Why this method is correct for concurent ifind() calls:
@@ -1419,14 +1419,14 @@ public:
 	// parents[p] reads either observe 'orig_parents[p]' or R (and observing R ends the first
 	// while loop immediately). Thus all parents[p] reads observe either 'orig_parents[p]'
 	// or R, so ifind() always returns R.
-	int ifind(int i) const
+	ཧྲིལ ifind(ཧྲིལ i) const
 	{
-		int p = i, k = i;
+		ཧྲིལ p = i, k = i;
 
-		while (true) {
-			int pp = parents[p].get();
-			if (pp < 0)
-				break;
+		སྐབས (true) {
+			ཧྲིལ pp = parents[p].get();
+			གལ་སྲིད (pp < 0)
+				bha_nga;
 			p = pp;
 		}
 		// p is now the representative of i
@@ -1434,32 +1434,32 @@ public:
 		// and make p the parent of all the nodes along the way.
 		// This is a side effect and doesn't affect the return value.
 		// It speeds up future find operations
-		while (k != p) {
-			int next_k = parents[k].get();
+		སྐབས (k != p) {
+			ཧྲིལ next_k = parents[k].get();
 			const_cast<AtomicParent*>(&parents[k])->set(p);
 			k = next_k;
 		}
 
-		return p;
+		ལོག p;
 	}
 
 	// Merge sets if the given indices belong to different sets.
 	// Makes ifind(j) the root of the merged set.
-	void imerge(int i, int j)
+	void imerge(ཧྲིལ i, ཧྲིལ j)
 	{
 		i = ifind(i);
 		j = ifind(j);
 
-		if (i != j)
+		གལ་སྲིད (i != j)
 			parents[i].set(j);
 	}
 
-	void ipromote(int i)
+	void ipromote(ཧྲིལ i)
 	{
-		int k = i;
+		ཧྲིལ k = i;
 
-		while (k != -1) {
-			int next_k = parents[k].get();
+		སྐབས (k != -1) {
+			ཧྲིལ next_k = parents[k].get();
 			parents[k].set(i);
 			k = next_k;
 		}
@@ -1467,17 +1467,17 @@ public:
 		parents[i].set(-1);
 	}
 
-	int lookup(const K &a)
+	ཧྲིལ lookup(const K &a)
 	{
-		return ifind((*this)(a));
+		ལོག ifind((*this)(a));
 	}
 
 	const K &find(const K &a) const
 	{
-		int i = database.at(a, -1);
-		if (i < 0)
-			return a;
-		return (*this)[ifind(i)];
+		ཧྲིལ i = database.at(a, -1);
+		གལ་སྲིད (i < 0)
+			ལོག a;
+		ལོག (*this)[ifind(i)];
 	}
 
 	void merge(const K &a, const K &b)
@@ -1487,8 +1487,8 @@ public:
 
 	void promote(const K &a)
 	{
-		int i = database.at(a, -1);
-		if (i >= 0)
+		ཧྲིལ i = database.at(a, -1);
+		གལ་སྲིད (i >= 0)
 			ipromote(i);
 	}
 
@@ -1499,13 +1499,13 @@ public:
 	}
 
 	void reserve(size_t n) { database.reserve(n); }
-	size_t size() const { return database.size(); }
-	bool empty() const { return database.empty(); }
+	size_t size() const { ལོག database.size(); }
+	bool empty() const { ལོག database.empty(); }
 	void clear() { database.clear(); parents.clear(); }
 
-	const_iterator begin() const { return database.begin(); }
-	const_iterator element(int n) const { return database.element(n); }
-	const_iterator end() const { return database.end(); }
+	const_iterator begin() const { ལོག database.begin(); }
+	const_iterator element(ཧྲིལ n) const { ལོག database.element(n); }
+	const_iterator end() const { ལོག database.end(); }
 };
 
 } /* namespace hashlib */

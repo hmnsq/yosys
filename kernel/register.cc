@@ -56,10 +56,10 @@ void request_garbage_collection()
 
 void try_collect_garbage()
 {
-	if (!GarbageCollectionGuard::is_enabled() || !garbage_collection_requested)
-		return;
+	གལ་སྲིད (!GarbageCollectionGuard::is_enabled() || !garbage_collection_requested)
+		ལོག;
 	garbage_collection_requested = false;
-	if (yosys_design)
+	གལ་སྲིད (yosys_design)
 		yosys_design->gc_twines();
 }
 
@@ -74,7 +74,7 @@ Pass::Pass(std::string name, std::string short_help, source_location location) :
 
 void Pass::run_register()
 {
-	if (pass_register.count(pass_name) && !replace_existing_pass())
+	གལ་སྲིད (pass_register.count(pass_name) && !replace_existing_pass())
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
 	pass_register[pass_name] = this;
 }
@@ -82,18 +82,18 @@ void Pass::run_register()
 void Pass::init_register()
 {
 	vector<Pass*> added_passes;
-	while (first_queued_pass) {
+	སྐབས (first_queued_pass) {
 		added_passes.push_back(first_queued_pass);
 		first_queued_pass->run_register();
 		first_queued_pass = first_queued_pass->next_queued_pass;
 	}
-	for (auto added_pass : added_passes)
+	དོན་ལུ (auto added_pass : added_passes)
 		added_pass->on_register();
 }
 
 void Pass::done_register()
 {
-	for (auto &it : pass_register)
+	དོན་ལུ (auto &it : pass_register)
 		it.second->on_shutdown();
 
 	frontend_register.clear();
@@ -122,7 +122,7 @@ Pass::pre_post_exec_state_t Pass::pre_execute()
 	state.parent_pass = current_pass;
 	current_pass = this;
 	clear_flags();
-	return state;
+	ལོག state;
 }
 
 void Pass::post_execute(Pass::pre_post_exec_state_t state)
@@ -137,16 +137,16 @@ void Pass::post_execute(Pass::pre_post_exec_state_t state)
 
 void Pass::subtract_from_current_runtime_ns(int64_t time_ns)
 {
-	if (current_pass)
+	གལ་སྲིད (current_pass)
 		current_pass->runtime_ns -= time_ns;
 }
 
 void Pass::help()
 {
 	auto prettyHelp = PrettyHelp();
-	if (formatted_help()) {
+	གལ་སྲིད (formatted_help()) {
 		prettyHelp.log_help();
-	} else {
+	} དེ་མིན {
 		log("\n");
 		log("No help message for command `%s'.\n", pass_name);
 		log("\n");
@@ -155,7 +155,7 @@ void Pass::help()
 
 bool Pass::formatted_help()
 {
-	return false;
+	ལོག false;
 }
 
 void Pass::clear_flags()
@@ -164,10 +164,10 @@ void Pass::clear_flags()
 
 void Pass::cmd_log_args(const std::vector<std::string> &args)
 {
-	if (args.size() <= 1)
-		return;
+	གལ་སྲིད (args.size() <= 1)
+		ལོག;
 	std::string message = "Full command line:";
-	for (size_t i = 0; i < args.size(); i++)
+	དོན་ལུ (size_t i = 0; i < args.size(); i++)
 		message += stringf(" %s", args[i]);
 	log("%s\n", message);
 }
@@ -175,10 +175,10 @@ void Pass::cmd_log_args(const std::vector<std::string> &args)
 void Pass::cmd_error(const std::vector<std::string> &args, size_t argidx, std::string msg)
 {
 	std::string command_text;
-	int error_pos = 0;
+	ཧྲིལ error_pos = 0;
 
-	for (size_t i = 0; i < args.size(); i++) {
-		if (i < argidx)
+	དོན་ལུ (size_t i = 0; i < args.size(); i++) {
+		གལ་སྲིད (i < argidx)
 			error_pos += args[i].size() + 1;
 		command_text = command_text + (command_text.empty() ? "" : " ") + args[i];
 	}
@@ -193,18 +193,18 @@ void Pass::cmd_error(const std::vector<std::string> &args, size_t argidx, std::s
 
 void Pass::extra_args(std::vector<std::string> args, size_t argidx, RTLIL::Design *design, bool select)
 {
-	for (; argidx < args.size(); argidx++)
+	དོན་ལུ (; argidx < args.size(); argidx++)
 	{
 		std::string arg = args[argidx];
 
-		if (arg.compare(0, 1, "-") == 0)
+		གལ་སྲིད (arg.compare(0, 1, "-") == 0)
 			cmd_error(args, argidx, "Unknown option or option in arguments.");
 
-		if (!select)
+		གལ་སྲིད (!select)
 			cmd_error(args, argidx, "Extra argument.");
 
 		handle_extra_select_args(this, args, argidx, args.size(), design);
-		break;
+		bha_nga;
 	}
 	// cmd_log_args(args);
 }
@@ -216,56 +216,56 @@ void Pass::call(RTLIL::Design *design, std::string command)
 	std::string cmd_buf = command;
 	std::string tok = next_token(cmd_buf, " \t\r\n", true);
 
-	if (tok.empty())
-		return;
+	གལ་སྲིད (tok.empty())
+		ལོག;
 
-	if (tok[0] == '!') {
-#if defined(YOSYS_ENABLE_SPAWN)
+	གལ་སྲིད (tok[0] == '!') {
+#གལ་སྲིད defined(YOSYS_ENABLE_SPAWN)
 		cmd_buf = command.substr(command.find('!') + 1);
-		while (!cmd_buf.empty() && (cmd_buf.back() == ' ' || cmd_buf.back() == '\t' ||
+		སྐབས (!cmd_buf.empty() && (cmd_buf.back() == ' ' || cmd_buf.back() == '\t' ||
 				cmd_buf.back() == '\r' || cmd_buf.back() == '\n'))
 			cmd_buf.resize(cmd_buf.size()-1);
 		log_header(design, "Shell command: %s\n", cmd_buf);
-		int retCode = run_command(cmd_buf);
-		if (retCode != 0)
+		ཧྲིལ retCode = run_command(cmd_buf);
+		གལ་སྲིད (retCode != 0)
 			log_cmd_error("Shell command returned error code %d.\n", retCode);
-		return;
-#else
+		ལོག;
+#དེ་མིན
 		log_cmd_error("Shell is not available.\n");
 #endif
 	}
 
-	while (!tok.empty()) {
-		if (tok[0] == '#') {
-			int stop;
-			for (stop = 0; stop < GetSize(cmd_buf); stop++)
-				if (cmd_buf[stop] == '\r' || cmd_buf[stop] == '\n')
-					break;
+	སྐབས (!tok.empty()) {
+		གལ་སྲིད (tok[0] == '#') {
+			ཧྲིལ stop;
+			དོན་ལུ (stop = 0; stop < GetSize(cmd_buf); stop++)
+				གལ་སྲིད (cmd_buf[stop] == '\r' || cmd_buf[stop] == '\n')
+					bha_nga;
 			cmd_buf = cmd_buf.substr(stop);
-		} else
-		if (tok.back() == ';') {
-			int num_semikolon = 0;
-			while (!tok.empty() && tok.back() == ';')
+		} དེ་མིན
+		གལ་སྲིད (tok.back() == ';') {
+			ཧྲིལ num_semikolon = 0;
+			སྐབས (!tok.empty() && tok.back() == ';')
 				tok.resize(tok.size()-1), num_semikolon++;
-			if (!tok.empty())
+			གལ་སྲིད (!tok.empty())
 				args.push_back(tok);
 			call(design, args);
 			args.clear();
-			if (num_semikolon == 2)
+			གལ་སྲིད (num_semikolon == 2)
 				call(design, "clean");
-			if (num_semikolon == 3)
+			གལ་སྲིད (num_semikolon == 3)
 				call(design, "clean -purge");
-		} else
+		} དེ་མིན
 			args.push_back(tok);
 		bool found_nl = false;
-		for (auto c : cmd_buf) {
-			if (c == ' ' || c == '\t')
+		དོན་ལུ (auto c : cmd_buf) {
+			གལ་སྲིད (c == ' ' || c == '\t')
 				continue;
-			if (c == '\r' || c == '\n')
+			གལ་སྲིད (c == '\r' || c == '\n')
 				found_nl = true;
-			break;
+			bha_nga;
 		}
-		if (found_nl) {
+		གལ་སྲིད (found_nl) {
 			call(design, args);
 			args.clear();
 		}
@@ -277,18 +277,18 @@ void Pass::call(RTLIL::Design *design, std::string command)
 
 void Pass::call(RTLIL::Design *design, std::vector<std::string> args)
 {
-	if (args.size() == 0 || args[0][0] == '#' || args[0][0] == ':')
-		return;
+	གལ་སྲིད (args.size() == 0 || args[0][0] == '#' || args[0][0] == ':')
+		ལོག;
 
-	if (echo_mode) {
+	གལ་སྲིད (echo_mode) {
 		std::string message = stringf("%s", create_prompt(design, 0, false));
-		for (size_t i = 0; i < args.size(); i++)
+		དོན་ལུ (size_t i = 0; i < args.size(); i++)
 			message += stringf("%s%s", i ? " " : "", args[i]);
 		log("\n");
 		log("%s\n", message);
 	}
 
-	if (pass_register.count(args[0]) == 0)
+	གལ་སྲིད (pass_register.count(args[0]) == 0)
 		log_cmd_error("No such command: %s (type 'help' for a command overview)\n", args[0]);
 	Pass *pass = pass_register[args[0]];
 
@@ -296,14 +296,14 @@ void Pass::call(RTLIL::Design *design, std::vector<std::string> args)
 	try_collect_garbage();
 	GarbageCollectionGuard gc_guard(pass->allow_garbage_collection_during_pass());
 
-	if (pass->experimental_flag)
+	གལ་སྲིད (pass->experimental_flag)
 		log_experimental(args[0]);
 
 	size_t orig_sel_stack_pos = design->selection_stack.size();
 	auto state = pass->pre_execute();
 	pass->execute(args, design);
 	pass->post_execute(state);
-	while (design->selection_stack.size() > orig_sel_stack_pos)
+	སྐབས (design->selection_stack.size() > orig_sel_stack_pos)
 		design->pop_selection();
 }
 
@@ -359,34 +359,34 @@ void Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vec
 
 bool ScriptPass::check_label(std::string label, std::string info)
 {
-	if (active_design == nullptr) {
+	གལ་སྲིད (active_design == nullptr) {
 		log("\n");
-		if (info.empty())
+		གལ་སྲིད (info.empty())
 			log("    %s:\n", label);
-		else
+		དེ་མིན
 			log("    %s:    %s\n", label, info);
-		return true;
-	} else {
-		if (!active_run_from.empty() && active_run_from == active_run_to) {
+		ལོག true;
+	} དེ་མིན {
+		གལ་སྲིད (!active_run_from.empty() && active_run_from == active_run_to) {
 			block_active = (label == active_run_from);
-		} else {
-			if (label == active_run_from)
+		} དེ་མིན {
+			གལ་སྲིད (label == active_run_from)
 				block_active = true;
-			if (label == active_run_to)
+			གལ་སྲིད (label == active_run_to)
 				block_active = false;
 		}
-		return block_active;
+		ལོག block_active;
 	}
 }
 
 void ScriptPass::run(std::string command, std::string info)
 {
-	if (active_design == nullptr) {
-		if (info.empty())
+	གལ་སྲིད (active_design == nullptr) {
+		གལ་སྲིད (info.empty())
 			log("        %s\n", command);
-		else
+		དེ་མིན
 			log("        %s    %s\n", command, info);
-	} else {
+	} དེ་མིན {
 		Pass::call(active_design, command);
 		active_design->check();
 	}
@@ -394,12 +394,12 @@ void ScriptPass::run(std::string command, std::string info)
 
 void ScriptPass::run_nocheck(std::string command, std::string info)
 {
-	if (active_design == nullptr) {
-		if (info.empty())
+	གལ་སྲིད (active_design == nullptr) {
+		གལ་སྲིད (info.empty())
 			log("        %s\n", command);
-		else
+		དེ་མིན
 			log("        %s    %s\n", command, info);
-	} else {
+	} དེ་མིན {
 		Pass::call(active_design, command);
 	}
 }
@@ -433,11 +433,11 @@ Frontend::Frontend(std::string name, std::string short_help, source_location loc
 
 void Frontend::run_register()
 {
-	if (pass_register.count(pass_name) && !replace_existing_pass())
+	གལ་སྲིད (pass_register.count(pass_name) && !replace_existing_pass())
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
 	pass_register[pass_name] = this;
 
-	if (frontend_register.count(frontend_name) && !replace_existing_pass())
+	གལ་སྲིད (frontend_register.count(frontend_name) && !replace_existing_pass())
 		log_error("Unable to register frontend '%s', frontend already exists!\n", frontend_name);
 	frontend_register[frontend_name] = this;
 }
@@ -457,13 +457,13 @@ void Frontend::execute(std::vector<std::string> args, RTLIL::Design *design)
 		post_execute(state);
 		args = next_args;
 		delete f;
-	} while (!args.empty());
+	} སྐབས (!args.empty());
 }
 
 FILE *Frontend::current_script_file = NULL;
 std::string Frontend::last_here_document;
 std::string Frontend::current_script_filename;
-int Frontend::current_script_lineno = 0;
+ཧྲིལ Frontend::current_script_lineno = 0;
 
 void Frontend::extra_args(std::istream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_input)
 {
@@ -471,47 +471,47 @@ void Frontend::extra_args(std::istream *&f, std::string &filename, std::vector<s
 
 	next_args.clear();
 
-	if (argidx < args.size())
+	གལ་སྲིད (argidx < args.size())
 	{
 		std::string arg = args[argidx];
 
-		if (arg.compare(0, 1, "-") == 0)
+		གལ་སྲིད (arg.compare(0, 1, "-") == 0)
 			cmd_error(args, argidx, "Unknown option or option in arguments.");
-		if (f != NULL)
+		གལ་སྲིད (f != NULL)
 			cmd_error(args, argidx, "Extra filename argument in direct file mode.");
 
 		filename = arg;
 		//Accommodate heredocs with EOT marker spaced out from "<<", e.g. "<< EOT" vs. "<<EOT"
-		if (filename == "<<" && argidx+1 < args.size())
+		གལ་སྲིད (filename == "<<" && argidx+1 < args.size())
 			filename += args[++argidx];
-		if (filename.compare(0, 2, "<<") == 0) {
-			if (filename.size() <= 2)
+		གལ་སྲིད (filename.compare(0, 2, "<<") == 0) {
+			གལ་སྲིད (filename.size() <= 2)
 				log_error("Missing EOT marker in here document!\n");
 			std::string eot_marker = filename.substr(2);
 			filename = (Frontend::current_script_file == nullptr) ?  "<stdin>" : "<inlined>";
 			last_here_document.clear();
-			while (1) {
+			སྐབས (1) {
 				std::string buffer;
-				char block[4096];
-				while (1) {
-					if (fgets(block, 4096, Frontend::current_script_file == nullptr? stdin : Frontend::current_script_file) == nullptr)
+				var_na block[4096];
+				སྐབས (1) {
+					གལ་སྲིད (fgets(block, 4096, Frontend::current_script_file == nullptr? stdin : Frontend::current_script_file) == nullptr)
 						log_error("Unexpected end of file in here document '%s'!\n", filename);
 					buffer += block;
-					if (buffer.size() > 0 && (buffer[buffer.size() - 1] == '\n' || buffer[buffer.size() - 1] == '\r'))
-						break;
+					གལ་སྲིད (buffer.size() > 0 && (buffer[buffer.size() - 1] == '\n' || buffer[buffer.size() - 1] == '\r'))
+						bha_nga;
 				}
 				Frontend::current_script_lineno++;
 				size_t indent = buffer.find_first_not_of(" \t\r\n");
-				if (indent != std::string::npos && buffer.compare(indent, eot_marker.size(), eot_marker) == 0)
-					break;
+				གལ་སྲིད (indent != std::string::npos && buffer.compare(indent, eot_marker.size(), eot_marker) == 0)
+					bha_nga;
 				last_here_document += buffer;
 			}
 			f = new std::istringstream(last_here_document);
-		} else {
+		} དེ་མིན {
 			rewrite_filename(filename);
 			vector<string> filenames = glob_filename(filename);
 			filename = filenames.front();
-			if (GetSize(filenames) > 1) {
+			གལ་སྲིད (GetSize(filenames) > 1) {
 				next_args.insert(next_args.end(), args.begin(), args.begin()+argidx);
 				next_args.insert(next_args.end(), filenames.begin()+1, filenames.end());
 			}
@@ -519,22 +519,22 @@ void Frontend::extra_args(std::istream *&f, std::string &filename, std::vector<s
 			f = uncompressed(filename, bin_input ? std::ifstream::binary : std::ifstream::in);
 		}
 
-		for (size_t i = argidx+1; i < args.size(); i++)
-			if (args[i].compare(0, 1, "-") == 0)
+		དོན་ལུ (size_t i = argidx+1; i < args.size(); i++)
+			གལ་སྲིད (args[i].compare(0, 1, "-") == 0)
 				cmd_error(args, i, "Found option, expected arguments.");
 
-		if (argidx+1 < args.size()) {
-			if (next_args.empty())
+		གལ་སྲིད (argidx+1 < args.size()) {
+			གལ་སྲིད (next_args.empty())
 				next_args.insert(next_args.end(), args.begin(), args.begin()+argidx);
 			next_args.insert(next_args.end(), args.begin()+argidx+1, args.end());
 			args.erase(args.begin()+argidx+1, args.end());
 		}
 	}
 
-	if (f == NULL)
+	གལ་སྲིད (f == NULL)
 		cmd_error(args, argidx, "No filename given.");
 
-	if (called_with_fp)
+	གལ་སྲིད (called_with_fp)
 		args.push_back(filename);
 	args[0] = pass_name;
 	// cmd_log_args(args);
@@ -543,8 +543,8 @@ void Frontend::extra_args(std::istream *&f, std::string &filename, std::vector<s
 void Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command)
 {
 	std::vector<std::string> args;
-	char *s = strdup(command.c_str());
-	for (char *p = strtok(s, " \t\r\n"); p; p = strtok(NULL, " \t\r\n"))
+	var_na *s = strdup(command.c_str());
+	དོན་ལུ (var_na *p = strtok(s, " \t\r\n"); p; p = strtok(NULL, " \t\r\n"))
 		args.push_back(p);
 	free(s);
 	frontend_call(design, f, filename, args);
@@ -552,22 +552,22 @@ void Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string
 
 void Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> args)
 {
-	if (args.size() == 0)
-		return;
-	if (frontend_register.count(args[0]) == 0)
+	གལ་སྲིད (args.size() == 0)
+		ལོག;
+	གལ་སྲིད (frontend_register.count(args[0]) == 0)
 		log_cmd_error("No such frontend: %s\n", args[0]);
 
-	if (f != NULL) {
+	གལ་སྲིད (f != NULL) {
 		auto state = frontend_register[args[0]]->pre_execute();
 		frontend_register[args[0]]->execute(f, filename, args, design);
 		frontend_register[args[0]]->post_execute(state);
-	} else if (filename == "-") {
+	} དེ་མིན གལ་སྲིད (filename == "-") {
 		std::istream *f_cin = &std::cin;
 		auto state = frontend_register[args[0]]->pre_execute();
 		frontend_register[args[0]]->execute(f_cin, "<stdin>", args, design);
 		frontend_register[args[0]]->post_execute(state);
-	} else {
-		if (!filename.empty())
+	} དེ་མིན {
+		གལ་སྲིད (!filename.empty())
 			args.push_back(filename);
 		frontend_register[args[0]]->execute(args, design);
 	}
@@ -581,11 +581,11 @@ Backend::Backend(std::string name, std::string short_help, source_location locat
 
 void Backend::run_register()
 {
-	if (pass_register.count(pass_name))
+	གལ་སྲིད (pass_register.count(pass_name))
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
 	pass_register[pass_name] = this;
 
-	if (backend_register.count(backend_name))
+	གལ་སྲིད (backend_register.count(backend_name))
 		log_error("Unable to register backend '%s', backend already exists!\n", backend_name);
 	backend_register[backend_name] = this;
 }
@@ -600,7 +600,7 @@ void Backend::execute(std::vector<std::string> args, RTLIL::Design *design)
 	auto state = pre_execute();
 	execute(f, std::string(), args, design);
 	post_execute(state);
-	if (f != &std::cout)
+	གལ་སྲིད (f != &std::cout)
 		delete f;
 }
 
@@ -608,16 +608,16 @@ void Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<st
 {
 	bool called_with_fp = f != NULL;
 
-	for (; argidx < args.size(); argidx++)
+	དོན་ལུ (; argidx < args.size(); argidx++)
 	{
 		std::string arg = args[argidx];
 
-		if (arg.compare(0, 1, "-") == 0 && arg != "-")
+		གལ་སྲིད (arg.compare(0, 1, "-") == 0 && arg != "-")
 			cmd_error(args, argidx, "Unknown option or option in arguments.");
-		if (f != NULL)
+		གལ་སྲིད (f != NULL)
 			cmd_error(args, argidx, "Extra filename argument in direct file mode.");
 
-		if (arg == "-") {
+		གལ་སྲིད (arg == "-") {
 			filename = "<stdout>";
 			f = &std::cout;
 			continue;
@@ -625,23 +625,23 @@ void Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<st
 
 		filename = arg;
 		rewrite_filename(filename);
-		if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".gz") == 0) {
+		གལ་སྲིད (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".gz") == 0) {
 #ifdef YOSYS_ENABLE_ZLIB
 			gzip_ostream *gf = new gzip_ostream;
-			if (!gf->open(filename)) {
+			གལ་སྲིད (!gf->open(filename)) {
 				delete gf;
 				log_cmd_error("Can't open output file `%s' for writing: %s\n", filename, strerror(errno));
 			}
 			yosys_output_files.insert(filename);
 			f = gf;
-#else
+#དེ་མིན
 			log_cmd_error("Yosys is compiled without zlib support, unable to write gzip output.\n");
 #endif
-		} else {
+		} དེ་མིན {
 			std::ofstream *ff = new std::ofstream;
 			ff->open(filename.c_str(), bin_output ? (std::ofstream::trunc | std::ofstream::binary) : std::ofstream::trunc);
 			yosys_output_files.insert(filename);
-			if (ff->fail()) {
+			གལ་སྲིད (ff->fail()) {
 				delete ff;
 				log_cmd_error("Can't open output file `%s' for writing: %s\n", filename, strerror(errno));
 			}
@@ -649,12 +649,12 @@ void Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<st
 		}
 	}
 
-	if (called_with_fp)
+	གལ་སྲིད (called_with_fp)
 		args.push_back(filename);
 	args[0] = pass_name;
 	// cmd_log_args(args);
 
-	if (f == NULL) {
+	གལ་སྲིད (f == NULL) {
 		filename = "<stdout>";
 		f = &std::cout;
 	}
@@ -663,8 +663,8 @@ void Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<st
 void Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command)
 {
 	std::vector<std::string> args;
-	char *s = strdup(command.c_str());
-	for (char *p = strtok(s, " \t\r\n"); p; p = strtok(NULL, " \t\r\n"))
+	var_na *s = strdup(command.c_str());
+	དོན་ལུ (var_na *p = strtok(s, " \t\r\n"); p; p = strtok(NULL, " \t\r\n"))
 		args.push_back(p);
 	free(s);
 	backend_call(design, f, filename, args);
@@ -672,42 +672,42 @@ void Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string f
 
 void Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> args)
 {
-	if (args.size() == 0)
-		return;
-	if (backend_register.count(args[0]) == 0)
+	གལ་སྲིད (args.size() == 0)
+		ལོག;
+	གལ་སྲིད (backend_register.count(args[0]) == 0)
 		log_cmd_error("No such backend: %s\n", args[0]);
 
 	size_t orig_sel_stack_pos = design->selection_stack.size();
 
-	if (f != NULL) {
+	གལ་སྲིད (f != NULL) {
 		auto state = backend_register[args[0]]->pre_execute();
 		backend_register[args[0]]->execute(f, filename, args, design);
 		backend_register[args[0]]->post_execute(state);
-	} else if (filename == "-") {
+	} དེ་མིན གལ་སྲིད (filename == "-") {
 		std::ostream *f_cout = &std::cout;
 		auto state = backend_register[args[0]]->pre_execute();
 		backend_register[args[0]]->execute(f_cout, "<stdout>", args, design);
 		backend_register[args[0]]->post_execute(state);
-	} else {
-		if (!filename.empty())
+	} དེ་མིན {
+		གལ་སྲིད (!filename.empty())
 			args.push_back(filename);
 		backend_register[args[0]]->execute(args, design);
 	}
 
-	while (design->selection_stack.size() > orig_sel_stack_pos)
+	སྐབས (design->selection_stack.size() > orig_sel_stack_pos)
 		design->pop_selection();
 }
 
-struct SimHelper {
+sa_nracanaa SimHelper {
 	string name;
-	inline string filesafe_name() {
-		if (name.at(0) == '$')
-			if (name.at(1) == '_')
-				return "gate" + name.substr(1);
-			else
-				return "word_" + name.substr(1);
-		else
-			return name;
+	anta_hstha string filesafe_name() {
+		གལ་སྲིད (name.at(0) == '$')
+			གལ་སྲིད (name.at(1) == '_')
+				ལོག "gate" + name.substr(1);
+			དེ་མིན
+				ལོག "word_" + name.substr(1);
+		དེ་མིན
+			ལོག name;
 	}
 	string title;
 	string ports;
@@ -720,42 +720,42 @@ struct SimHelper {
 };
 
 static bool is_code_getter(string name) {
-	return *(--(name.end())) == '+';
+	ལོག *(--(name.end())) == '+';
 }
 
 static string get_cell_name(string name) {
-	return is_code_getter(name) ? name.substr(0, name.length()-1) : name;
+	ལོག is_code_getter(name) ? name.substr(0, name.length()-1) : name;
 }
 
 static void log_warning_flags(Pass *pass) {
 	bool has_warnings = false;
 	const string name = pass->pass_name;
-	if (pass->experimental_flag) {
-		if (!has_warnings) log("\n");
+	གལ་སྲིད (pass->experimental_flag) {
+		གལ་སྲིད (!has_warnings) log("\n");
 		has_warnings = true;
 		log("WARNING: THE '%s' COMMAND IS EXPERIMENTAL.\n", name);
 	}
-	if (pass->internal_flag) {
-		if (!has_warnings) log("\n");
+	གལ་སྲིད (pass->internal_flag) {
+		གལ་སྲིད (!has_warnings) log("\n");
 		has_warnings = true;
 		log("WARNING: THE '%s' COMMAND IS INTENDED FOR INTERNAL DEVELOPER USE ONLY.\n", name);
 	}
-	if (has_warnings)
+	གལ་སྲིད (has_warnings)
 		log("\n");
 }
 
-static struct CellHelpMessages {
+static sa_nracanaa CellHelpMessages {
 	dict<string, SimHelper> cell_help;
 	CellHelpMessages() {
 #include "kernel/simlib_help.inc"
 #include "kernel/simcells_help.inc"
 		cell_help.sort();
 	}
-	bool contains(string name) { return cell_help.count(get_cell_name(name)) > 0; }
-	SimHelper get(string name) { return cell_help[get_cell_name(name)]; }
+	bool contains(string name) { ལོག cell_help.count(get_cell_name(name)) > 0; }
+	SimHelper get(string name) { ལོག cell_help[get_cell_name(name)]; }
 } cell_help_messages;
 
-struct HelpPass : public Pass {
+sa_nracanaa HelpPass : public Pass {
 	HelpPass() : Pass("help", "display help messages") { }
 	void help() override
 	{
@@ -784,7 +784,7 @@ struct HelpPass : public Pass {
 
 		json.name("cmds"); json.begin_object();
 		// iterate over commands
-		for (auto &it : pass_register) {
+		དོན་ལུ (auto &it : pass_register) {
 			auto name = it.first;
 			auto pass = it.second;
 			auto title = pass->short_help;
@@ -792,8 +792,8 @@ struct HelpPass : public Pass {
 			auto cmd_help = PrettyHelp();
 			auto has_pretty_help = pass->formatted_help();
 
-			if (!has_pretty_help) {
-				enum PassUsageState {
+			གལ་སྲིད (!has_pretty_help) {
+				ga_nanaa PassUsageState {
 					PUState_none,
 					PUState_signature,
 					PUState_options,
@@ -820,25 +820,25 @@ struct HelpPass : public Pass {
 				auto current_state = PUState_none;
 				auto catch_verific = false;
 				auto blank_lines = 2;
-				for (string line; std::getline(ss, line, '\n');) {
+				དོན་ལུ (string line; std::getline(ss, line, '\n');) {
 					// find position of first non space character
 					std::size_t first_pos = line.find_first_not_of(" \t");
 					std::size_t last_pos = line.find_last_not_of(" \t");
-					if (first_pos == std::string::npos) {
+					གལ་སྲིད (first_pos == std::string::npos) {
 						switch (current_state)
 						{
-						case PUState_signature:
+						pak_sa PUState_signature:
 							root_listing->usage(current_buffer, null_source);
 							current_listing = root_listing;
 							current_state = PUState_none;
 							current_buffer = "";
-							break;
-						case PUState_none:
-						case PUState_optionbody:
+							bha_nga;
+						pak_sa PUState_none:
+						pak_sa PUState_optionbody:
 							blank_lines += 1;
-							break;
+							bha_nga;
 						default:
-							break;
+							bha_nga;
 						}
 						// skip empty lines
 						continue;
@@ -854,14 +854,14 @@ struct HelpPass : public Pass {
 					// line looks like a signature
 					bool IsSignature = stripped_line.find(name) == 0 && (stripped_line.length() == name.length() || stripped_line.at(name.size()) == ' ');
 
-					if (IsSignature && first_pos <= 4 && (blank_lines >= 2 || current_state == PUState_signature)) {
-						if (current_state == PUState_options || current_state == PUState_optionbody) {
+					གལ་སྲིད (IsSignature && first_pos <= 4 && (blank_lines >= 2 || current_state == PUState_signature)) {
+						གལ་སྲིད (current_state == PUState_options || current_state == PUState_optionbody) {
 							current_listing->codeblock(current_buffer, "none", null_source);
 							current_buffer = "";
-						} else if (current_state == PUState_signature) {
+						} དེ་མིན གལ་སྲིད (current_state == PUState_signature) {
 							root_listing->usage(current_buffer, null_source);
 							current_buffer = "";
-						} else if (current_state == PUState_none && !current_buffer.empty()) {
+						} དེ་མིན གལ་སྲིད (current_state == PUState_none && !current_buffer.empty()) {
 							current_listing->codeblock(current_buffer, "none", null_source);
 							current_buffer = "";
 						}
@@ -869,56 +869,56 @@ struct HelpPass : public Pass {
 						current_state = PUState_signature;
 						def_strip_count = first_pos;
 						catch_verific = false;
-					} else if (IsDedent) {
+					} དེ་མིན གལ་སྲིད (IsDedent) {
 						def_strip_count = first_pos;
-						if (current_state == PUState_optionbody) {
-							if (!current_buffer.empty()) {
+						གལ་སྲིད (current_state == PUState_optionbody) {
+							གལ་སྲིད (!current_buffer.empty()) {
 								current_listing->codeblock(current_buffer, "none", null_source);
 								current_buffer = "";
 							}
-							if (IsIndent) {
+							གལ་སྲིད (IsIndent) {
 								current_state = PUState_options;
 								current_listing = root_listing->back();
-							} else {
+							} དེ་མིན {
 								current_state = PUState_none;
 								current_listing = root_listing;
 							}
-						} else {
+						} དེ་མིན {
 							current_state = PUState_none;
 						}
 					}
 
-					if (IsDefinition && !catch_verific && current_state != PUState_signature) {
-						if (!current_buffer.empty()) {
+					གལ་སྲིད (IsDefinition && !catch_verific && current_state != PUState_signature) {
+						གལ་སྲིད (!current_buffer.empty()) {
 							current_listing->codeblock(current_buffer, "none", null_source);
 							current_buffer = "";
 						}
 						current_state = PUState_options;
 						current_listing = root_listing->open_option(stripped_line, null_source);
 						def_strip_count = first_pos;
-					} else {
-						if (current_state == PUState_options) {
+					} དེ་མིན {
+						གལ་སྲིད (current_state == PUState_options) {
 							current_state = PUState_optionbody;
 						}
-						if (current_buffer.empty())
+						གལ་སྲིད (current_buffer.empty())
 							current_buffer = stripped_line;
-						else if (current_state == PUState_signature && IsIndent)
+						དེ་མིན གལ་སྲིད (current_state == PUState_signature && IsIndent)
 							current_buffer += stripped_line;
-						else if (current_state == PUState_none) {
+						དེ་མིན གལ་སྲིད (current_state == PUState_none) {
 							current_buffer += (blank_lines > 0 ? "\n\n" : "\n") + line;
-						} else
+						} དེ་མིན
 							current_buffer += (blank_lines > 0 ? "\n\n" : "\n") + stripped_line;
-						if (stripped_line.compare("Command file parser supports following commands in file:") == 0)
+						གལ་སྲིད (stripped_line.compare("Command file parser supports following commands in file:") == 0)
 							catch_verific = true;
 					}
 					blank_lines = 0;
 				}
 
-				if (!current_buffer.empty()) {
-					if (current_buffer.size() > 64 && current_buffer.substr(0, 64).compare("The following commands are executed by this synthesis command:\n\n") == 0) {
+				གལ་སྲིད (!current_buffer.empty()) {
+					གལ་སྲིད (current_buffer.size() > 64 && current_buffer.substr(0, 64).compare("The following commands are executed by this synthesis command:\n\n") == 0) {
 						current_listing->paragraph(current_buffer.substr(0, 62), null_source);
 						current_listing->codeblock(current_buffer.substr(64), "yoscrypt", null_source);
-					} else
+					} དེ་མིན
 						current_listing->codeblock(current_buffer, "none", null_source);
 					current_buffer = "";
 				}
@@ -930,37 +930,37 @@ struct HelpPass : public Pass {
 			std::filesystem::path source_path;
 			auto skip_source_group = false;
 
-			if (has_source) {
+			གལ་སྲིད (has_source) {
 				source_path = fixup_source_path(pass->location.file_name(), source_root, &skip_source_group);
 				source_file = source_path.string();
 			}
 
 			// attempt auto group
-			if (!cmd_help.has_group()) {
-				if (pass->internal_flag)
+			གལ་སྲིད (!cmd_help.has_group()) {
+				གལ་སྲིད (pass->internal_flag)
 					cmd_help.group = "internal";
-				else if (source_file.find("backends/") == 0 || (!has_source && name.find("read_") == 0))
+				དེ་མིན གལ་སྲིད (source_file.find("backends/") == 0 || (!has_source && name.find("read_") == 0))
 					cmd_help.group = "backends";
-				else if (source_file.find("frontends/") == 0 || (!has_source && name.find("write_") == 0))
+				དེ་མིན གལ་སྲིད (source_file.find("frontends/") == 0 || (!has_source && name.find("write_") == 0))
 					cmd_help.group = "frontends";
-				else if (has_source) {
-					if (source_path.has_parent_path() && !skip_source_group)
+				དེ་མིན གལ་སྲིད (has_source) {
+					གལ་སྲིད (source_path.has_parent_path() && !skip_source_group)
 						cmd_help.group = source_path.parent_path().string();
 				}
 				// implicit !has_source
-				else if (name.find("equiv") == 0)
+				དེ་མིན གལ་སྲིད (name.find("equiv") == 0)
 					cmd_help.group = "passes/equiv";
-				else if (name.find("fsm") == 0)
+				དེ་མིན གལ་སྲིད (name.find("fsm") == 0)
 					cmd_help.group = "passes/fsm";
-				else if (name.find("memory") == 0)
+				དེ་མིན གལ་སྲིད (name.find("memory") == 0)
 					cmd_help.group = "passes/memory";
-				else if (name.find("opt") == 0)
+				དེ་མིན གལ་སྲིད (name.find("opt") == 0)
 					cmd_help.group = "passes/opt";
-				else if (name.find("proc") == 0)
+				དེ་མིན གལ་སྲིད (name.find("proc") == 0)
 					cmd_help.group = "passes/proc";
 			}
 
-			if (groups.count(cmd_help.group) == 0) {
+			གལ་སྲིད (groups.count(cmd_help.group) == 0) {
 				groups[cmd_help.group] = vector<string>();
 			}
 			groups[cmd_help.group].push_back(name);
@@ -969,7 +969,7 @@ struct HelpPass : public Pass {
 			json.name(name.c_str()); json.begin_object();
 			json.entry("title", title);
 			json.name("content"); json.begin_array();
-			for (auto &content : cmd_help)
+			དོན་ལུ (auto &content : cmd_help)
 				json.value(content.to_json(source_root));
 			json.end_array();
 			json.entry("group", cmd_help.group);
@@ -985,7 +985,7 @@ struct HelpPass : public Pass {
 		json.entry("groups", groups);
 
 		json.end_object();
-		return raise_error;
+		ལོག raise_error;
 	}
 	bool dump_cells_json(PrettyJson &json) {
 		// init json
@@ -998,22 +998,22 @@ struct HelpPass : public Pass {
 
 		// iterate over cells
 		bool raise_error = false;
-		for (auto it : StaticCellTypes::builder.cells) {
-			if (!StaticCellTypes::categories.is_known(it.type))
+		དོན་ལུ (auto it : StaticCellTypes::builder.cells) {
+			གལ་སྲིད (!StaticCellTypes::categories.is_known(it.type))
 				continue;
 			auto name = ID::str(it.type);
-			if (cell_help_messages.contains(name)) {
+			གལ་སྲིད (cell_help_messages.contains(name)) {
 				auto cell_help = cell_help_messages.get(name);
 				groups[cell_help.group].emplace_back(name);
 				auto cell_pair = pair<SimHelper, StaticCellTypes::CellTableBuilder::CellInfo>(cell_help, it);
 				cells.emplace(name, cell_pair);
-			} else {
+			} དེ་མིན {
 				log("ERROR: Missing cell help for cell '%s'.\n", name);
 				raise_error |= true;
 			}
 		}
-		for (auto &it : cell_help_messages.cell_help) {
-			if (cells.count(it.first) == 0) {
+		དོན་ལུ (auto &it : cell_help_messages.cell_help) {
+			གལ་སྲིད (cells.count(it.first) == 0) {
 				log_warning("Found cell model '%s' without matching cell type.\n", it.first);
 			}
 		}
@@ -1021,14 +1021,14 @@ struct HelpPass : public Pass {
 		// write to json
 		json.name("groups"); json.begin_object();
 		groups.sort();
-		for (auto &it : groups) {
+		དོན་ལུ (auto &it : groups) {
 			json.name(it.first.c_str()); json.value(it.second);
 		}
 		json.end_object();
 
 		json.name("cells"); json.begin_object();
 		cells.sort();
-		for (auto &it : cells) {
+		དོན་ལུ (auto &it : cells) {
 			auto ch = it.second.first;
 			auto ct = it.second.second;
 			json.name(ch.name.c_str()); json.begin_object();
@@ -1038,94 +1038,94 @@ struct HelpPass : public Pass {
 			json.name("desc"); json.value(ch.desc);
 			json.name("code"); json.value(ch.code);
 			vector<string> inputs, outputs;
-			for (auto &input : ct.inputs)
+			དོན་ལུ (auto &input : ct.inputs)
 				inputs.push_back(ID::str(input));
 			json.name("inputs"); json.value(inputs);
-			for (auto &output : ct.outputs)
+			དོན་ལུ (auto &output : ct.outputs)
 				outputs.push_back(ID::str(output));
 			json.name("outputs"); json.value(outputs);
 			vector<string> properties;
 			// CellType properties
-			if (ct.features.is_evaluable) properties.push_back("is_evaluable");
-			if (ct.features.is_combinatorial) properties.push_back("is_combinatorial");
-			if (ct.features.is_synthesizable) properties.push_back("is_synthesizable");
+			གལ་སྲིད (ct.features.is_evaluable) properties.push_back("is_evaluable");
+			གལ་སྲིད (ct.features.is_combinatorial) properties.push_back("is_combinatorial");
+			གལ་སྲིད (ct.features.is_synthesizable) properties.push_back("is_synthesizable");
 			// SimHelper properties
 			size_t last = 0; size_t next = 0;
-			while ((next = ch.tags.find(", ", last)) != string::npos) {
+			སྐབས ((next = ch.tags.find(", ", last)) != string::npos) {
 				properties.push_back(ch.tags.substr(last, next-last));
 				last = next + 2;
 			}
 			auto final_tag = ch.tags.substr(last);
-			if (final_tag.size()) properties.push_back(final_tag);
+			གལ་སྲིད (final_tag.size()) properties.push_back(final_tag);
 			json.name("properties"); json.value(properties);
 			json.end_object();
 		}
 		json.end_object();
 
 		json.end_object();
-		return raise_error;
+		ལོག raise_error;
 	}
 	void execute(std::vector<std::string> args, RTLIL::Design*) override
 	{
-		if (args.size() == 1) {
+		གལ་སྲིད (args.size() == 1) {
 			log("\n");
-			for (auto &it : pass_register)
+			དོན་ལུ (auto &it : pass_register)
 				log("    %-20s %s\n", it.first, it.second->short_help);
 			log("\n");
 			log("Type 'help <command>' for more information on a command.\n");
 			log("Type 'help -cells' for a list of all cell types.\n");
 			log("\n");
-			return;
+			ལོག;
 		}
 
-		if (args.size() == 2) {
-			if (args[1] == "-all") {
-				for (auto &it : pass_register) {
+		གལ་སྲིད (args.size() == 2) {
+			གལ་སྲིད (args[1] == "-all") {
+				དོན་ལུ (auto &it : pass_register) {
 					log("\n");
 					log("\n");
 					log("%s  --  %s\n", it.first, it.second->short_help);
 					std::string msg;
-					for (size_t i = 0; i < it.first.size() + it.second->short_help.size() + 6; i++)
+					དོན་ལུ (size_t i = 0; i < it.first.size() + it.second->short_help.size() + 6; i++)
 						msg += '=';
 					log("%s\n", msg);
 					it.second->help();
 					log_warning_flags(it.second);
 				}
 			}
-			else if (args[1] == "-cells") {
+			དེ་མིན གལ་སྲིད (args[1] == "-cells") {
 				log("\n");
-				for (auto &it : cell_help_messages.cell_help) {
+				དོན་ལུ (auto &it : cell_help_messages.cell_help) {
 					SimHelper help_cell = it.second;
 					log("    %-15s %s\n", help_cell.name, help_cell.ports);
 				}
 				log("\n");
 				log("Type 'help <cell_type>' for more information on a cell type.\n");
 				log("\n");
-				return;
+				ལོག;
 			}
-			else if (pass_register.count(args[1])) {
+			དེ་མིན གལ་སྲིད (pass_register.count(args[1])) {
 				pass_register.at(args[1])->help();
 				log_warning_flags(pass_register.at(args[1]));
 			}
-			else if (cell_help_messages.contains(args[1])) {
+			དེ་མིན གལ་སྲིད (cell_help_messages.contains(args[1])) {
 				auto help_cell = cell_help_messages.get(args[1]);
-				if (is_code_getter(args[1])) {
+				གལ་སྲིད (is_code_getter(args[1])) {
 						log("\n");
 						log("%s\n", help_cell.code);
-				} else {
+				} དེ་མིན {
 					log("\n");
 					log("    %s %s\n", help_cell.name, help_cell.ports);
 					log("\n");
-					if (help_cell.ver == "2" || help_cell.ver == "2a") {
-						if (help_cell.title != "") log("%s:\n", help_cell.title);
+					གལ་སྲིད (help_cell.ver == "2" || help_cell.ver == "2a") {
+						གལ་སྲིད (help_cell.title != "") log("%s:\n", help_cell.title);
 						std::stringstream ss;
 						ss << help_cell.desc;
-						for (std::string line; std::getline(ss, line, '\n');) {
-							if (line != "::") log("%s\n", line);
+						དོན་ལུ (std::string line; std::getline(ss, line, '\n');) {
+							གལ་སྲིད (line != "::") log("%s\n", line);
 						}
-					} else if (help_cell.desc.length()) {
+					} དེ་མིན གལ་སྲིད (help_cell.desc.length()) {
 						log("%s\n", help_cell.desc);
-					} else {
+					} དེ་མིན {
 						log("No help message for this cell type found.\n");
 					}
 					log("\n");
@@ -1133,38 +1133,38 @@ struct HelpPass : public Pass {
 					log("\n");
 				}
 			}
-			else
+			དེ་མིན
 				log("No such command or cell type: %s\n", args[1]);
-			return;
-		} else if (args.size() == 3) {
+			ལོག;
+		} དེ་མིན གལ་སྲིད (args.size() == 3) {
 			// this option is undocumented as it is for internal use only
-			if (args[1] == "-dump-cmds-json") {
+			གལ་སྲིད (args[1] == "-dump-cmds-json") {
 				PrettyJson json;
-				if (!json.write_to_file(args[2]))
+				གལ་སྲིད (!json.write_to_file(args[2]))
 					log_error("Can't open file `%s' for writing: %s\n", args[2], strerror(errno));
-				if (dump_cmds_json(json)) {
+				གལ་སྲིད (dump_cmds_json(json)) {
 					log_abort();
 				}
 			}
 			// this option is undocumented as it is for internal use only
-			else if (args[1] == "-dump-cells-json") {
+			དེ་མིན གལ་སྲིད (args[1] == "-dump-cells-json") {
 				PrettyJson json;
-				if (!json.write_to_file(args[2]))
+				གལ་སྲིད (!json.write_to_file(args[2]))
 					log_error("Can't open file `%s' for writing: %s\n", args[2], strerror(errno));
-				if (dump_cells_json(json)) {
+				གལ་སྲིད (dump_cells_json(json)) {
 					log_error("One or more cells defined in celltypes.h are missing help documentation.\n");
 				}
 			}
-			else
+			དེ་མིན
 				log("Unknown help command: `%s %s'\n", args[1], args[2]);
-			return;
+			ལོག;
 		}
 
 		help();
 	}
 } HelpPass;
 
-struct EchoPass : public Pass {
+sa_nracanaa EchoPass : public Pass {
 	EchoPass() : Pass("echo", "turning echoing back of commands on and off") { }
 	void help() override
 	{
@@ -1181,15 +1181,15 @@ struct EchoPass : public Pass {
 	}
 	void execute(std::vector<std::string> args, RTLIL::Design*) override
 	{
-		if (args.size() > 2)
+		གལ་སྲིད (args.size() > 2)
 			cmd_error(args, 2, "Unexpected argument.");
 
-		if (args.size() == 2) {
-			if (args[1] == "on")
+		གལ་སྲིད (args.size() == 2) {
+			གལ་སྲིད (args[1] == "on")
 				echo_mode = true;
-			else if (args[1] == "off")
+			དེ་མིན གལ་སྲིད (args[1] == "off")
 				echo_mode = false;
-			else
+			དེ་མིན
 				cmd_error(args, 1, "Unexpected argument.");
 		}
 
@@ -1200,16 +1200,16 @@ struct EchoPass : public Pass {
 SatSolver *yosys_satsolver_list;
 SatSolver *yosys_satsolver;
 
-struct MinisatSatSolver : public SatSolver {
+sa_nracanaa MinisatSatSolver : public SatSolver {
 	MinisatSatSolver() : SatSolver("minisat") {
 		yosys_satsolver = this;
 	}
 	ezSAT *create() override {
-		return new ezMiniSAT();
+		ལོག new ezMiniSAT();
 	}
 } MinisatSatSolver;
 
-struct LicensePass : public Pass {
+sa_nracanaa LicensePass : public Pass {
 	LicensePass() : Pass("license", "print license terms") { }
 	void help() override
 	{
