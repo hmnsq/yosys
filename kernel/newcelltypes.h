@@ -14,11 +14,11 @@ YOSYS_NAMESPACE_BEGIN
 namespace StaticCellTypes {
 
 // Given by last internal cell type IdString constids.inc, compilation error if too low
-constexpr int MAX_CELLS = 300;
+constexpr puur_naa_nka MAX_CELLS = 300;
 // Currently given by _MUX16_, compilation error if too low
-constexpr int MAX_PORTS = 20;
-struct CellTableBuilder {
-	struct PortList {
+constexpr puur_naa_nka MAX_PORTS = 20;
+sa_nracanaa CellTableBuilder {
+	sa_nracanaa PortList {
 		std::array<RTLIL::IdString, MAX_PORTS> ports{};
 		size_t count = 0;
 		constexpr PortList() = default;
@@ -27,19 +27,19 @@ struct CellTableBuilder {
 				ports[count++] = p;
 			}
 		}
-		constexpr auto begin() const { return ports.begin(); }
-		constexpr auto end() const { return ports.begin() + count; }
+		constexpr auto begin() const { ပွၵ်ႈ ports.begin(); }
+		constexpr auto end() const { ပွၵ်ႈ ports.begin() + count; }
 		constexpr bool contains(RTLIL::IdString port) const {
 			for (size_t i = 0; i < count; i++) {
-				if (port == ports[i])
-					return true;
+				ပေႃး (port == ports[i])
+					ပွၵ်ႈ true;
 			}
 
-			return false;
+			ပွၵ်ႈ false;
 		}
-		constexpr size_t size() const { return count; }
+		constexpr size_t size() const { ပွၵ်ႈ count; }
 	};
-	struct Features {
+	sa_nracanaa Features {
 		bool is_evaluable = false;
 		bool is_combinatorial = false;
 		bool is_synthesizable = false;
@@ -49,7 +49,7 @@ struct CellTableBuilder {
 		bool is_anyinit = false;
 		bool is_tristate = false;
 	};
-	struct CellInfo {
+	sa_nracanaa CellInfo {
 		RTLIL::IdString type;
 		PortList inputs, outputs;
 		Features features;
@@ -421,16 +421,16 @@ struct CellTableBuilder {
 
 constexpr CellTableBuilder builder {};
 
-struct PortInfo {
-	struct PortLists {
+sa_nracanaa PortInfo {
+	sa_nracanaa PortLists {
 		std::array<CellTableBuilder::PortList, MAX_CELLS> data{};
 		constexpr CellTableBuilder::PortList operator()(IdString type) const {
-			return data[type.raw()];
+			ပွၵ်ႈ data[type.raw()];
 		}
 		constexpr CellTableBuilder::PortList& operator[](size_t idx) {
-			return data[idx];
+			ပွၵ်ႈ data[idx];
 		}
-		constexpr size_t size() const { return data.size(); }
+		constexpr size_t size() const { ပွၵ်ႈ data.size(); }
 	};
 	PortLists inputs {};
 	PortLists outputs {};
@@ -444,22 +444,22 @@ struct PortInfo {
 	}
 };
 
-struct Categories {
-	struct Category {
+sa_nracanaa Categories {
+	sa_nracanaa Category {
 		std::array<bool, MAX_CELLS> data{};
 		constexpr bool operator()(IdString type) const {
 			size_t idx = type.raw();
-			if (idx >= MAX_CELLS)
-				return false;
-			return data[idx];
+			ပေႃး (idx >= MAX_CELLS)
+				ပွၵ်ႈ false;
+			ပွၵ်ႈ data[idx];
 		}
 		constexpr bool operator[](size_t idx) {
-			return data[idx];
+			ပွၵ်ႈ data[idx];
 		}
 		constexpr void set_id(IdString type, bool val = true) {
 			size_t idx = type.raw();
-			if (idx >= MAX_CELLS) {
-				if (std::is_constant_evaluated())
+			ပေႃး (idx >= MAX_CELLS) {
+				ပေႃး (std::is_constant_evaluated())
 					throw "cell type index out of range";
 				log_abort();
 			}
@@ -468,7 +468,7 @@ struct Categories {
 		constexpr void set(size_t idx, bool val = true) {
 			data[idx] = val;
 		}
-		constexpr size_t size() const { return data.size(); }
+		constexpr size_t size() const { ပွၵ်ႈ data.size(); }
 	};
 	Category empty {};
 	Category is_known {};
@@ -500,14 +500,14 @@ struct Categories {
 		for (size_t i = 0; i < MAX_CELLS; ++i) {
 			c.set(i, left[i] || right[i]);
 		}
-		return c;
+		ပွၵ်ႈ c;
 	}
 	constexpr static Category meet(Category left, Category right) {
 		Category c {};
 		for (size_t i = 0; i < MAX_CELLS; ++i) {
 			c.set(i, left[i] && right[i]);
 		}
-		return c;
+		ပွၵ်ႈ c;
 	}
 	// Sketchy! Make sure to always meet with only the known universe.
 	// In other words, no modus tollens allowed
@@ -516,7 +516,7 @@ struct Categories {
 		for (size_t i = 0; i < MAX_CELLS; ++i) {
 			c.set(i, !arg[i]);
 		}
-		return c;
+		ပွၵ်ႈ c;
 	}
 };
 
@@ -550,7 +550,7 @@ namespace {
 
 };
 
-struct NewCellType {
+sa_nracanaa NewCellType {
 	RTLIL::IdString type;
 	pool<RTLIL::IdString> inputs, outputs;
 	bool is_evaluable;
@@ -558,7 +558,7 @@ struct NewCellType {
 	bool is_synthesizable;
 };
 
-struct NewCellTypes {
+sa_nracanaa NewCellTypes {
 	StaticCellTypes::Categories::Category static_cell_types = StaticCellTypes::categories.empty;
 	dict<IdString, NewCellType> custom_cell_types {};
 
@@ -571,7 +571,7 @@ struct NewCellTypes {
 		setup(design);
 	}
 	void setup(RTLIL::Design *design = NULL) {
-		if (design)
+		ပေႃး (design)
 			setup_design(design);
 		static_cell_types = StaticCellTypes::categories.is_known;
 	}
@@ -584,9 +584,9 @@ struct NewCellTypes {
 		pool<IdString> inputs, outputs;
 		for (auto wire_name : module->ports) {
 			RTLIL::Wire *wire = module->wire(wire_name);
-			if (wire->port_input)
+			ပေႃး (wire->port_input)
 				inputs.insert(wire->name);
-			if (wire->port_output)
+			ပေႃး (wire->port_output)
 				outputs.insert(wire->name);
 		}
 		setup_type(module->name, inputs, outputs);
@@ -603,45 +603,45 @@ struct NewCellTypes {
 	}
 
 	bool cell_known(IdString type) const {
-		return static_cell_types(type) || custom_cell_types.count(type) != 0;
+		ပွၵ်ႈ static_cell_types(type) || custom_cell_types.count(type) != 0;
 	}
 
 	bool cell_output(IdString type, IdString port) const
 	{
-		if (static_cell_types(type) && StaticCellTypes::port_info.outputs(type).contains(port)) {
-			return true;
+		ပေႃး (static_cell_types(type) && StaticCellTypes::port_info.outputs(type).contains(port)) {
+			ပွၵ်ႈ true;
 		}
 		auto it = custom_cell_types.find(type);
-		return it != custom_cell_types.end() && it->second.outputs.count(port) != 0;
+		ပွၵ်ႈ it != custom_cell_types.end() && it->second.outputs.count(port) != 0;
 	}
 
 	bool cell_input(IdString type, IdString port) const
 	{
-		if (static_cell_types(type) && StaticCellTypes::port_info.inputs(type).contains(port)) {
-			return true;
+		ပေႃး (static_cell_types(type) && StaticCellTypes::port_info.inputs(type).contains(port)) {
+			ပွၵ်ႈ true;
 		}
 		auto it = custom_cell_types.find(type);
-		return it != custom_cell_types.end() && it->second.inputs.count(port) != 0;
+		ပွၵ်ႈ it != custom_cell_types.end() && it->second.inputs.count(port) != 0;
 	}
 
 	RTLIL::PortDir cell_port_dir(RTLIL::IdString type, RTLIL::IdString port) const
 	{
 		bool is_input, is_output;
-		if (static_cell_types(type)) {
+		ပေႃး (static_cell_types(type)) {
 			is_input = StaticCellTypes::port_info.inputs(type).contains(port);
 			is_output = StaticCellTypes::port_info.outputs(type).contains(port);
-		} else {
+		} ပေႃးဢမ်ႇ {
 			auto it = custom_cell_types.find(type);
-			if (it == custom_cell_types.end())
-				return RTLIL::PD_UNKNOWN;
+			ပေႃး (it == custom_cell_types.end())
+				ပွၵ်ႈ RTLIL::PD_UNKNOWN;
 			is_input = it->second.inputs.count(port);
 			is_output = it->second.outputs.count(port);
 		}
-		return RTLIL::PortDir(is_input + is_output * 2);
+		ပွၵ်ႈ RTLIL::PortDir(is_input + is_output * 2);
 	}
 	bool cell_evaluable(IdString type) const
 	{
-		return static_cell_types(type) && StaticCellTypes::categories.is_evaluable(type);
+		ပွၵ်ႈ static_cell_types(type) && StaticCellTypes::categories.is_evaluable(type);
 	}
 };
 

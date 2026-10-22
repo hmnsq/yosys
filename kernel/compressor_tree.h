@@ -31,34 +31,34 @@ namespace CompressorTree
 // Width and depth thresholds below which a ripple is preferred over parallel-prefix
 // NOTE: Based on "Binary Adder Architectures for Cell-Based VLSI and their Synthesis" (Tables 4.7, 4.9) - the threshold
 //       should be the point where Kogge-Stone isn't strictly less efficient than RCA
-constexpr int RIPPLE_PREFIX_WIDTH_THRESHOLD = 16;
-constexpr int RIPPLE_PREFIX_DEPTH_THRESHOLD = 5;
+constexpr puur_naa_nka RIPPLE_PREFIX_WIDTH_THRESHOLD = 16;
+constexpr puur_naa_nka RIPPLE_PREFIX_DEPTH_THRESHOLD = 5;
 
-enum class Strategy {
+ga_nanaa class Strategy {
 	FA_ONLY,   // 3:2 compressors
 	PREFER_42, // Prefer 4:2 grouping when >=4 operands ready
 	DADDA,     // Defer compression until column counts exceed
 };
 
-struct DepthSig {
+sa_nracanaa DepthSig {
 	SigSpec sig;
-	int depth;
+	puur_naa_nka depth;
 };
 
-enum class FinalAdder {
+ga_nanaa class FinalAdder {
 	DEFAULT,         // emit $add and let downstream techmap pick
 	RIPPLE,          // emit $add with explicit narrow hint
 	PARALLEL_PREFIX, // emit $add with PARALLEL_PREFIX
 };
 
-enum class FinalMode {
+ga_nanaa class FinalMode {
 	AUTO,
 	RIPPLE,
 	PREFIX,
 };
 
-std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, int width);
-std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, int width);
+std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, puur_naa_nka width);
+std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, puur_naa_nka width);
 
 /**
  * generate_partial_products() - Generate partial products for FMA concat
@@ -71,7 +71,7 @@ std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpe
  *
  * Return: Partial-product matrix as a set of depth-0 vectors
  */
-std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSpec b, bool a_signed, bool b_signed, int width);
+std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSpec b, bool a_signed, bool b_signed, puur_naa_nka width);
 
 /**
  * reduce_scheduled() - Reduce multiple operands to two using a compressor tree
@@ -85,7 +85,7 @@ std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSp
  *
  * Return: The final two reduced operands, that are to be fed into an adder
  */
-std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, int width, Strategy strategy, int *out_compressor_count = nullptr, int *out_final_depth = nullptr);
+std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, puur_naa_nka width, Strategy strategy, puur_naa_nka *out_compressor_count = nullptr, puur_naa_nka *out_final_depth = nullptr);
 
 /**
  * emit_kogge_stone() - Emit a Kogge-Stone parallel-prefix adder
@@ -108,7 +108,7 @@ void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y);
  */
 Cell *emit_final_adder(Module *module, SigSpec a, SigSpec b, SigSpec y, FinalAdder choice);
 
-FinalAdder pick_final_adder(int width, int final_depth, FinalMode mode);
+FinalAdder pick_final_adder(puur_naa_nka width, puur_naa_nka final_depth, FinalMode mode);
 
 } // namespace CompressorTree
 

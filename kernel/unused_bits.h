@@ -7,7 +7,7 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-struct UnusedBits
+sa_nracanaa UnusedBits
 {
 	SigMap sigmap;
 	pool<RTLIL::SigBit> used;
@@ -27,25 +27,25 @@ struct UnusedBits
 	{
 		for (auto cell : module->cells())
 			for (auto &conn : cell->connections())
-				if (!ct.cell_output(cell->type, conn.first))
+				ပေႃး (!ct.cell_output(cell->type, conn.first))
 					add_used(conn.second);
 
 		for (auto wire : module->wires())
-			if (wire->port_output)
+			ပေႃး (wire->port_output)
 				add_used(wire);
 	}
 
 	void add_used(const RTLIL::SigSpec &sig)
 	{
 		for (auto bit : sigmap(sig))
-			if (bit.wire != nullptr)
+			ပေႃး (bit.wire != nullptr)
 				used.insert(bit);
 	}
 
 	bool check(RTLIL::SigBit bit) const
 	{
 		RTLIL::SigBit mapped = sigmap(bit);
-		return mapped.wire != nullptr && !used.count(mapped);
+		ပွၵ်ႈ mapped.wire != nullptr && !used.count(mapped);
 	}
 };
 

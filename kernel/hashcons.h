@@ -14,11 +14,11 @@
 YOSYS_NAMESPACE_BEGIN
 
 template<typename Derived, typename Node, typename Ref>
-struct HashConsPool {
+sa_nracanaa HashConsPool {
 public:
 	bool is_live(Ref ref) const;
 
-protected:
+rak_sita:
 	std::deque<Node> backing;
 	std::vector<Ref> table;
 	std::vector<size_t> free_list;
@@ -48,7 +48,7 @@ private:
 
 	static bool is_static(Ref ref);
 
-	struct RefIterator {
+	sa_nracanaa RefIterator {
 		const HashConsPool* pool;
 		size_t idx;
 		size_t stop;
@@ -60,7 +60,7 @@ private:
 		bool operator!=(const RefIterator& other) const;
 	};
 
-	struct RefRange {
+	sa_nracanaa RefRange {
 		const HashConsPool* pool;
 		size_t first;
 		size_t stop;

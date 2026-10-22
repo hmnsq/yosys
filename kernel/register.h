@@ -40,7 +40,7 @@ public:
 	~GarbageCollectionGuard() {
 		is_enabled_ = was_enabled;
 	}
-	static bool is_enabled() { return is_enabled_; }
+	static bool is_enabled() { ပွၵ်ႈ is_enabled_; }
 };
 
 // Call from anywhere to request GC at the next safe point.
@@ -49,7 +49,7 @@ void request_garbage_collection();
 // GC the active design if GarbageCollectionGuard::is_enabled() and GC was requested.
 void try_collect_garbage();
 
-struct Pass
+sa_nracanaa Pass
 {
 	std::string pass_name, short_help;
 	source_location location;
@@ -65,7 +65,7 @@ struct Pass
 	virtual void clear_flags();
 	virtual void execute(std::vector<std::string> args, RTLIL::Design *design) = 0;
 
-	int call_counter;
+	puur_naa_nka call_counter;
 	int64_t runtime_ns;
 	bool experimental_flag = false;
 	bool internal_flag = false;
@@ -80,7 +80,7 @@ struct Pass
 		internal_flag = true;
 	}
 
-	struct pre_post_exec_state_t {
+	sa_nracanaa pre_post_exec_state_t {
 		Pass *parent_pass;
 		int64_t begin_ns;
 	};
@@ -108,14 +108,14 @@ struct Pass
 
 	virtual void on_register();
 	virtual void on_shutdown();
-	virtual bool replace_existing_pass() const { return false; }
+	virtual bool replace_existing_pass() const { ပွၵ်ႈ false; }
 
 	// This should return false if the pass holds onto RTLIL objects outside a Design while it
 	// calls nested passes. For safety, we default to assuming the worst.
-	virtual bool allow_garbage_collection_during_pass() const { return false; }
+	virtual bool allow_garbage_collection_during_pass() const { ပွၵ်ႈ false; }
 };
 
-struct ScriptPass : Pass
+sa_nracanaa ScriptPass : Pass
 {
 	bool block_active, help_mode;
 	RTLIL::Design *active_design;
@@ -132,10 +132,10 @@ struct ScriptPass : Pass
 	void run_script(RTLIL::Design *design, std::string run_from = std::string(), std::string run_to = std::string());
 	void help_script();
 
-	bool allow_garbage_collection_during_pass() const override { return true; }
+	bool allow_garbage_collection_during_pass() const override { ပွၵ်ႈ true; }
 };
 
-struct Frontend : Pass
+sa_nracanaa Frontend : Pass
 {
 	// for reading of here documents
 	static FILE *current_script_file;
@@ -143,7 +143,7 @@ struct Frontend : Pass
 
 	// script file and last line read from it
 	static std::string current_script_filename;
-	static int current_script_lineno;
+	static puur_naa_nka current_script_lineno;
 
 	std::string frontend_name;
 	Frontend(std::string name, std::string short_help = "** document me **",
@@ -160,7 +160,7 @@ struct Frontend : Pass
 	static void frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> args);
 };
 
-struct Backend : Pass
+sa_nracanaa Backend : Pass
 {
 	std::string backend_name;
 	Backend(std::string name, std::string short_help = "** document me **",
@@ -185,12 +185,12 @@ extern std::map<std::string, Pass*> pass_register;
 extern std::map<std::string, Frontend*> frontend_register;
 extern std::map<std::string, Backend*> backend_register;
 
-struct TargetFamily {
+sa_nracanaa TargetFamily {
 	std::string description;
 	std::vector<std::string> files;
 };
 
-struct Target {
+sa_nracanaa Target {
 	std::string description;
 	std::map<std::string, TargetFamily> families;
 };
