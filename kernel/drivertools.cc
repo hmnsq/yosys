@@ -17,924 +17,924 @@
  *
  */
 
-#include "kernel/drivertools.h"
+#ضمن "kernel/drivertools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-DriveBit::DriveBit(SigBit const &bit)
+Drive_بټ::Drive_بټ(Sig_بټ ثابت &بټ)
 {
-	if (bit.is_wire())
-		*this = DriveBitWire(bit.wire, bit.offset);
-	else
-		*this = bit.data;
+	إذا (بټ.is_wire())
+		*هذا = Drive_بټ_Wire(بټ.wire, بټ.دننه_واټن);
+	وإلا
+		*هذا = بټ.معلومات;
 }
 
-void DriveBit::merge(DriveBit const &other)
+فراغ Drive_بټ::یوځای(Drive_بټ ثابت &other)
 {
-	if (other.type_ == DriveType::NONE)
-		return;
-	if (type_ == DriveType::NONE) {
-		*this = other;
-		return;
+	إذا (other.type_ == DriveType::NONE)
+		أرجع;
+	إذا (type_ == DriveType::NONE) {
+		*هذا = other;
+		أرجع;
 	}
-	if (type_ != DriveType::MULTIPLE) {
-		DriveBitMultiple multi(std::move(*this));
-		*this = std::move(multi);
+	إذا (type_ != DriveType::مضرب) {
+		Drive_بټ_مضرب multi(std::move(*هذا));
+		*هذا = std::move(multi);
 	}
-	multiple().merge(other);
+	مضرب_2().یوځای(other);
 }
 
 
-void DriveBitMultiple::merge(DriveBit const &single)
+فراغ Drive_بټ_مضرب::یوځای(Drive_بټ ثابت &single)
 {
-	if (single.type() == DriveType::NONE)
-		return;
-	if (single.type() == DriveType::MULTIPLE) {
-		merge(single.multiple());
-		return;
+	إذا (single.type() == DriveType::NONE)
+		أرجع;
+	إذا (single.type() == DriveType::مضرب) {
+		یوځای(single.مضرب_2());
+		أرجع;
 	}
-	multiple_.emplace(single);
+	مضرب_3.emplace(single);
 }
 
-void DriveBitMultiple::merge(DriveBit &&single)
+فراغ Drive_بټ_مضرب::یوځای(Drive_بټ &&single)
 {
-	if (single.type() == DriveType::NONE)
-		return;
-	if (single.type() == DriveType::MULTIPLE) {
-		merge(std::move(single.multiple()));
-		return;
+	إذا (single.type() == DriveType::NONE)
+		أرجع;
+	إذا (single.type() == DriveType::مضرب) {
+		یوځای(std::move(single.مضرب_2()));
+		أرجع;
 	}
-	multiple_.emplace(std::move(single));
+	مضرب_3.emplace(std::move(single));
 }
 
-DriveBitMultiple DriveChunkMultiple::operator[](int i) const
+Drive_بټ_مضرب Drive_Chunk_مضرب::چلوونکی[](صحيح i) ثابت
 {
-	DriveBitMultiple result;
-	for (auto const &single : multiple_)
-		result.merge(single[i]);
-	return result;
-}
-
-
-bool DriveChunkWire::can_append(DriveBitWire const &bit) const
-{
-	return bit.wire == wire && bit.offset == offset + width;
-}
-
-bool DriveChunkWire::try_append(DriveBitWire const &bit)
-{
-	if (!can_append(bit))
-		return false;
-	width += 1;
-	return true;
-}
-
-bool DriveChunkWire::try_append(DriveChunkWire const &chunk)
-{
-	if (chunk.wire != wire || chunk.offset != offset + width)
-		return false;
-	width += chunk.width;
-	return true;
-}
-
-bool DriveChunkPort::can_append(DriveBitPort const &bit) const
-{
-	return bit.cell == cell && bit.port == port && bit.offset == offset + width;
-}
-
-bool DriveChunkPort::try_append(DriveBitPort const &bit)
-{
-	if (!can_append(bit))
-		return false;
-	width += 1;
-	return true;
-}
-
-bool DriveChunkPort::try_append(DriveChunkPort const &chunk)
-{
-	if (chunk.cell != cell || chunk.port != port || chunk.offset != offset + width)
-		return false;
-	width += chunk.width;
-	return true;
-}
-
-bool DriveChunkMarker::can_append(DriveBitMarker const &bit) const
-{
-	return bit.marker == marker && bit.offset == offset + width;
-}
-
-bool DriveChunkMarker::try_append(DriveBitMarker const &bit)
-{
-	if (!can_append(bit))
-		return false;
-	width += 1;
-	return true;
-}
-
-bool DriveChunkMarker::try_append(DriveChunkMarker const &chunk)
-{
-	if (chunk.marker != marker || chunk.offset != offset + width)
-		return false;
-	width += chunk.width;
-	return true;
+	Drive_بټ_مضرب پایله;
+	لكل (خپلکاری ثابت &single : مضرب_3)
+		پایله.یوځای(single[i]);
+	أرجع پایله;
 }
 
 
-bool DriveChunkMultiple::can_append(DriveBitMultiple const &bit) const
+منطقي DriveChunkWire::can_append(Drive_بټ_Wire ثابت &بټ) ثابت
 {
-	if (bit.multiple().size() != multiple_.size())
-		return false;
+	أرجع بټ.wire == wire && بټ.دننه_واټن == دننه_واټن + پلنوالی;
+}
 
-	int const_drivers = 0;
-	for (DriveChunk const &single : multiple_)
-		if (single.is_constant())
+منطقي DriveChunkWire::try_append(Drive_بټ_Wire ثابت &بټ)
+{
+	إذا (!can_append(بټ))
+		أرجع خطأ;
+	پلنوالی += 1;
+	أرجع ریښتیا;
+}
+
+منطقي DriveChunkWire::try_append(DriveChunkWire ثابت &chunk)
+{
+	إذا (chunk.wire != wire || chunk.دننه_واټن != دننه_واټن + پلنوالی)
+		أرجع خطأ;
+	پلنوالی += chunk.پلنوالی;
+	أرجع ریښتیا;
+}
+
+منطقي Drive_Chunk_پورټ::can_append(Drive_بټ_پورټ ثابت &بټ) ثابت
+{
+	أرجع بټ.cell == cell && بټ.پورټ == پورټ && بټ.دننه_واټن == دننه_واټن + پلنوالی;
+}
+
+منطقي Drive_Chunk_پورټ::try_append(Drive_بټ_پورټ ثابت &بټ)
+{
+	إذا (!can_append(بټ))
+		أرجع خطأ;
+	پلنوالی += 1;
+	أرجع ریښتیا;
+}
+
+منطقي Drive_Chunk_پورټ::try_append(Drive_Chunk_پورټ ثابت &chunk)
+{
+	إذا (chunk.cell != cell || chunk.پورټ != پورټ || chunk.دننه_واټن != دننه_واټن + پلنوالی)
+		أرجع خطأ;
+	پلنوالی += chunk.پلنوالی;
+	أرجع ریښتیا;
+}
+
+منطقي DriveChunkMarker::can_append(Drive_بټ_Marker ثابت &بټ) ثابت
+{
+	أرجع بټ.marker == marker && بټ.دننه_واټن == دننه_واټن + پلنوالی;
+}
+
+منطقي DriveChunkMarker::try_append(Drive_بټ_Marker ثابت &بټ)
+{
+	إذا (!can_append(بټ))
+		أرجع خطأ;
+	پلنوالی += 1;
+	أرجع ریښتیا;
+}
+
+منطقي DriveChunkMarker::try_append(DriveChunkMarker ثابت &chunk)
+{
+	إذا (chunk.marker != marker || chunk.دننه_واټن != دننه_واټن + پلنوالی)
+		أرجع خطأ;
+	پلنوالی += chunk.پلنوالی;
+	أرجع ریښتیا;
+}
+
+
+منطقي Drive_Chunk_مضرب::can_append(Drive_بټ_مضرب ثابت &بټ) ثابت
+{
+	إذا (بټ.مضرب_2().اندازه() != مضرب_3.اندازه())
+		أرجع خطأ;
+
+	صحيح const_drivers = 0;
+	لكل (DriveChunk ثابت &single : مضرب_3)
+		إذا (single.is_constant())
 			const_drivers += 1;
 
-	if (const_drivers > 1)
-		return false;
+	إذا (const_drivers > 1)
+		أرجع خطأ;
 
-	for (DriveBit const &single : bit.multiple())
-		if (single.is_constant())
+	لكل (Drive_بټ ثابت &single : بټ.مضرب_2())
+		إذا (single.is_constant())
 			const_drivers -= 1;
 
-	if (const_drivers != 0)
-		return false;
+	إذا (const_drivers != 0)
+		أرجع خطأ;
 
-	for (DriveChunk const &single : multiple_)
+	لكل (DriveChunk ثابت &single : مضرب_3)
 	{
-		switch (single.type())
+		بدل (single.type())
 		{
-			case DriveType::CONSTANT: {
-			} break;
-			case DriveType::WIRE: {
-				auto const &wire = single.wire();
-				DriveBit next = DriveBitWire(wire.wire, wire.offset + wire.width);
-				if (!bit.multiple().count(next))
-					return false;
-			} break;
-			case DriveType::PORT: {
-				auto const &port = single.port();
-				DriveBit next = DriveBitPort(port.cell, port.port, port.offset + port.width);
-				if (!bit.multiple().count(next))
-					return false;
-			} break;
-			case DriveType::MARKER: {
-				auto const &marker = single.marker();
-				DriveBit next = DriveBitMarker(marker.marker, marker.offset + marker.width);
-				if (!bit.multiple().count(next))
-					return false;
-			} break;
-			default:
-				return false;
+			حالة DriveType::CONSTANT: {
+			} اكسر;
+			حالة DriveType::WIRE: {
+				خپلکاری ثابت &wire = single.wire();
+				Drive_بټ بل = Drive_بټ_Wire(wire.wire, wire.دننه_واټن + wire.پلنوالی);
+				إذا (!بټ.مضرب_2().شمېر(بل))
+					أرجع خطأ;
+			} اكسر;
+			حالة DriveType::پورټ_2: {
+				خپلکاری ثابت &پورټ = single.پورټ();
+				Drive_بټ بل = Drive_بټ_پورټ(پورټ.cell, پورټ.پورټ, پورټ.دننه_واټن + پورټ.پلنوالی);
+				إذا (!بټ.مضرب_2().شمېر(بل))
+					أرجع خطأ;
+			} اكسر;
+			حالة DriveType::MARKER: {
+				خپلکاری ثابت &marker = single.marker();
+				Drive_بټ بل = Drive_بټ_Marker(marker.marker, marker.دننه_واټن + marker.پلنوالی);
+				إذا (!بټ.مضرب_2().شمېر(بل))
+					أرجع خطأ;
+			} اكسر;
+			افتراضي:
+				أرجع خطأ;
 		}
 	}
 
-	return true;
+	أرجع ریښتیا;
 }
 
-bool DriveChunkMultiple::can_append(DriveChunkMultiple const &chunk) const
+منطقي Drive_Chunk_مضرب::can_append(Drive_Chunk_مضرب ثابت &chunk) ثابت
 {
-	if (chunk.multiple().size() != multiple_.size())
-		return false;
+	إذا (chunk.مضرب_2().اندازه() != مضرب_3.اندازه())
+		أرجع خطأ;
 
-	int const_drivers = 0;
-	for (DriveChunk const &single : multiple_)
-		if (single.is_constant())
+	صحيح const_drivers = 0;
+	لكل (DriveChunk ثابت &single : مضرب_3)
+		إذا (single.is_constant())
 			const_drivers += 1;
 
-	if (const_drivers > 1)
-		return false;
+	إذا (const_drivers > 1)
+		أرجع خطأ;
 
-	for (DriveChunk const &single : chunk.multiple())
-		if (single.is_constant())
+	لكل (DriveChunk ثابت &single : chunk.مضرب_2())
+		إذا (single.is_constant())
 			const_drivers -= 1;
 
-	if (const_drivers != 0)
-		return false;
+	إذا (const_drivers != 0)
+		أرجع خطأ;
 
-	for (DriveChunk const &single : multiple_)
+	لكل (DriveChunk ثابت &single : مضرب_3)
 	{
-		switch (single.type())
+		بدل (single.type())
 		{
-			case DriveType::CONSTANT: {
-			} break;
-			case DriveType::WIRE: {
-				auto const &wire = single.wire();
-				DriveChunk next = DriveChunkWire(wire.wire, wire.offset + wire.width, chunk.size());
-				if (!chunk.multiple().count(next))
-					return false;
-			} break;
-			case DriveType::PORT: {
-				auto const &port = single.port();
-				DriveChunk next = DriveChunkPort(port.cell, port.port, port.offset + port.width, chunk.size());
-				if (!chunk.multiple().count(next))
-					return false;
-			} break;
-			case DriveType::MARKER: {
-				auto const &marker = single.marker();
-				DriveChunk next = DriveChunkMarker(marker.marker, marker.offset + marker.width, chunk.size());
-				if (!chunk.multiple().count(next))
-					return false;
-			} break;
-			default:
-				return false;
+			حالة DriveType::CONSTANT: {
+			} اكسر;
+			حالة DriveType::WIRE: {
+				خپلکاری ثابت &wire = single.wire();
+				DriveChunk بل = DriveChunkWire(wire.wire, wire.دننه_واټن + wire.پلنوالی, chunk.اندازه());
+				إذا (!chunk.مضرب_2().شمېر(بل))
+					أرجع خطأ;
+			} اكسر;
+			حالة DriveType::پورټ_2: {
+				خپلکاری ثابت &پورټ = single.پورټ();
+				DriveChunk بل = Drive_Chunk_پورټ(پورټ.cell, پورټ.پورټ, پورټ.دننه_واټن + پورټ.پلنوالی, chunk.اندازه());
+				إذا (!chunk.مضرب_2().شمېر(بل))
+					أرجع خطأ;
+			} اكسر;
+			حالة DriveType::MARKER: {
+				خپلکاری ثابت &marker = single.marker();
+				DriveChunk بل = DriveChunkMarker(marker.marker, marker.دننه_واټن + marker.پلنوالی, chunk.اندازه());
+				إذا (!chunk.مضرب_2().شمېر(بل))
+					أرجع خطأ;
+			} اكسر;
+			افتراضي:
+				أرجع خطأ;
 		}
 	}
 
-	return true;
+	أرجع ریښتیا;
 }
 
-bool DriveChunkMultiple::try_append(DriveBitMultiple const &bit)
+منطقي Drive_Chunk_مضرب::try_append(Drive_بټ_مضرب ثابت &بټ)
 {
-	if (!can_append(bit))
-		return false;
-	width_ += 1;
+	إذا (!can_append(بټ))
+		أرجع خطأ;
+	پلنوالی_3 += 1;
 	State constant;
 
-	for (DriveBit const &single : bit.multiple())
-		if (single.is_constant())
+	لكل (Drive_بټ ثابت &single : بټ.مضرب_2())
+		إذا (single.is_constant())
 			constant = single.constant();
 
-	for (DriveChunk &single : multiple_)
+	لكل (DriveChunk &single : مضرب_3)
 	{
-		switch (single.type())
+		بدل (single.type())
 		{
-			case DriveType::CONSTANT: {
+			حالة DriveType::CONSTANT: {
 				single.constant().append(RTLIL::Const(constant));
-			} break;
-			case DriveType::WIRE: {
-				single.wire().width += 1;
-			} break;
-			case DriveType::PORT: {
-				single.port().width += 1;
-			} break;
-			case DriveType::MARKER: {
-				single.marker().width += 1;
-			} break;
-			default:
+			} اكسر;
+			حالة DriveType::WIRE: {
+				single.wire().پلنوالی += 1;
+			} اكسر;
+			حالة DriveType::پورټ_2: {
+				single.پورټ().پلنوالی += 1;
+			} اكسر;
+			حالة DriveType::MARKER: {
+				single.marker().پلنوالی += 1;
+			} اكسر;
+			افتراضي:
 				log_abort();
 		}
 	}
-	return true;
+	أرجع ریښتیا;
 }
 
-bool DriveChunkMultiple::try_append(DriveChunkMultiple const &chunk)
+منطقي Drive_Chunk_مضرب::try_append(Drive_Chunk_مضرب ثابت &chunk)
 {
-	if (!can_append(chunk))
-		return false;
-	int width = chunk.size();
-	width_ += width;
+	إذا (!can_append(chunk))
+		أرجع خطأ;
+	صحيح پلنوالی = chunk.اندازه();
+	پلنوالی_3 += پلنوالی;
 	Const constant;
 
-	for (DriveChunk const &single : chunk.multiple())
-		if (single.is_constant())
+	لكل (DriveChunk ثابت &single : chunk.مضرب_2())
+		إذا (single.is_constant())
 			constant = single.constant();
 
-	for (DriveChunk &single : multiple_)
+	لكل (DriveChunk &single : مضرب_3)
 	{
-		switch (single.type())
+		بدل (single.type())
 		{
-			case DriveType::CONSTANT: {
+			حالة DriveType::CONSTANT: {
 				single.constant().append(constant);
-			} break;
-			case DriveType::WIRE: {
-				single.wire().width += width;
-			} break;
-			case DriveType::PORT: {
-				single.port().width += width;
-			} break;
-			case DriveType::MARKER: {
-				single.marker().width += width;
-			} break;
-			default:
+			} اكسر;
+			حالة DriveType::WIRE: {
+				single.wire().پلنوالی += پلنوالی;
+			} اكسر;
+			حالة DriveType::پورټ_2: {
+				single.پورټ().پلنوالی += پلنوالی;
+			} اكسر;
+			حالة DriveType::MARKER: {
+				single.marker().پلنوالی += پلنوالی;
+			} اكسر;
+			افتراضي:
 				log_abort();
 		}
 	}
-	return true;
+	أرجع ریښتیا;
 }
 
-bool DriveChunk::can_append(DriveBit const &bit) const
+منطقي DriveChunk::can_append(Drive_بټ ثابت &بټ) ثابت
 {
-	if (size() == 0)
-		return true;
-	if (bit.type() != type_)
-		return false;
-	switch (type_)
+	إذا (اندازه() == 0)
+		أرجع ریښتیا;
+	إذا (بټ.type() != type_)
+		أرجع خطأ;
+	بدل (type_)
 	{
-		case DriveType::NONE:
-			return true;
-		case DriveType::CONSTANT:
-			return true;
-		case DriveType::WIRE:
-			return wire_.can_append(bit.wire());
-		case DriveType::PORT:
-			return port_.can_append(bit.port());
-		case DriveType::MULTIPLE:
-			return multiple_.can_append(bit.multiple());
-		default:
+		حالة DriveType::NONE:
+			أرجع ریښتیا;
+		حالة DriveType::CONSTANT:
+			أرجع ریښتیا;
+		حالة DriveType::WIRE:
+			أرجع wire_.can_append(بټ.wire());
+		حالة DriveType::پورټ_2:
+			أرجع پورټ_3.can_append(بټ.پورټ());
+		حالة DriveType::مضرب:
+			أرجع مضرب_3.can_append(بټ.مضرب_2());
+		افتراضي:
 			log_abort();
 	}
 }
 
-bool DriveChunk::try_append(DriveBit const &bit)
+منطقي DriveChunk::try_append(Drive_بټ ثابت &بټ)
 {
-	if (size() == 0)
-		*this = bit;
-	if (bit.type() != type_)
-		return false;
-	switch (type_)
+	إذا (اندازه() == 0)
+		*هذا = بټ;
+	إذا (بټ.type() != type_)
+		أرجع خطأ;
+	بدل (type_)
 	{
-		case DriveType::NONE:
+		حالة DriveType::NONE:
 			none_ += 1;
-			return true;
-		case DriveType::CONSTANT:
-			constant_.append(RTLIL::Const(bit.constant()));
-			return true;
-		case DriveType::WIRE:
-			return wire_.try_append(bit.wire());
-		case DriveType::PORT:
-			return port_.try_append(bit.port());
-		case DriveType::MULTIPLE:
-			return multiple_.try_append(bit.multiple());
-		default:
+			أرجع ریښتیا;
+		حالة DriveType::CONSTANT:
+			constant_.append(RTLIL::Const(بټ.constant()));
+			أرجع ریښتیا;
+		حالة DriveType::WIRE:
+			أرجع wire_.try_append(بټ.wire());
+		حالة DriveType::پورټ_2:
+			أرجع پورټ_3.try_append(بټ.پورټ());
+		حالة DriveType::مضرب:
+			أرجع مضرب_3.try_append(بټ.مضرب_2());
+		افتراضي:
 			log_abort();
 	}
 }
 
 
-bool DriveChunk::try_append(DriveChunk const &chunk)
+منطقي DriveChunk::try_append(DriveChunk ثابت &chunk)
 {
-	if (size() == 0)
-		*this = chunk;
-	if (chunk.type_ != type_)
-		return false;
-	switch (type_)
+	إذا (اندازه() == 0)
+		*هذا = chunk;
+	إذا (chunk.type_ != type_)
+		أرجع خطأ;
+	بدل (type_)
 	{
-		case DriveType::NONE:
+		حالة DriveType::NONE:
 			none_ += chunk.none_;
-			return true;
-		case DriveType::CONSTANT:
+			أرجع ریښتیا;
+		حالة DriveType::CONSTANT:
 			constant_.append(chunk.constant_);
-			return true;
-		case DriveType::WIRE:
-			return wire_.try_append(chunk.wire());
-		case DriveType::PORT:
-			return port_.try_append(chunk.port());
-		case DriveType::MARKER:
-			return marker_.try_append(chunk.marker());
-		case DriveType::MULTIPLE:
-			return multiple_.try_append(chunk.multiple());
+			أرجع ریښتیا;
+		حالة DriveType::WIRE:
+			أرجع wire_.try_append(chunk.wire());
+		حالة DriveType::پورټ_2:
+			أرجع پورټ_3.try_append(chunk.پورټ());
+		حالة DriveType::MARKER:
+			أرجع marker_.try_append(chunk.marker());
+		حالة DriveType::مضرب:
+			أرجع مضرب_3.try_append(chunk.مضرب_2());
 	}
 	log_abort();
 }
 
-void DriveSpec::append(DriveBit const &bit)
+فراغ DriveSpec::append(Drive_بټ ثابت &بټ)
 {
 	hash_ = 0;
-	if (!packed()) {
-		bits_.push_back(bit);
-		width_ += 1;
-		return;
+	إذا (!packed()) {
+		بټونه_2.ټېل_شا(بټ);
+		پلنوالی_3 += 1;
+		أرجع;
 	}
 
-	if (chunks_.empty() || !chunks_.back().try_append(bit))
-		chunks_.emplace_back(bit);
-	width_ += 1;
+	إذا (chunks_.تشه() || !chunks_.شا().try_append(بټ))
+		chunks_.emplace_شا(بټ);
+	پلنوالی_3 += 1;
 }
 
-void DriveSpec::append(DriveChunk const &chunk)
+فراغ DriveSpec::append(DriveChunk ثابت &chunk)
 {
 	hash_ = 0;
 	pack();
-	if (chunks_.empty() || !chunks_.back().try_append(chunk))
-		chunks_.emplace_back(chunk);
-	width_ += chunk.size();
+	إذا (chunks_.تشه() || !chunks_.شا().try_append(chunk))
+		chunks_.emplace_شا(chunk);
+	پلنوالی_3 += chunk.اندازه();
 }
 
-void DriveSpec::pack() const {
-	if (bits_.empty())
-		return;
-	std::vector<DriveBit> bits(std::move(bits_));
-	for (auto &bit : bits)
-		if (chunks_.empty() || !chunks_.back().try_append(bit))
-			chunks_.emplace_back(std::move(bit));
+فراغ DriveSpec::pack() ثابت {
+	إذا (بټونه_2.تشه())
+		أرجع;
+	std::ویکټور<Drive_بټ> بټونه(std::move(بټونه_2));
+	لكل (خپلکاری &بټ : بټونه)
+		إذا (chunks_.تشه() || !chunks_.شا().try_append(بټ))
+			chunks_.emplace_شا(std::move(بټ));
 }
 
-void DriveSpec::unpack() const {
-	if (chunks_.empty())
-		return;
-	for (auto &chunk : chunks_)
+فراغ DriveSpec::unpack() ثابت {
+	إذا (chunks_.تشه())
+		أرجع;
+	لكل (خپلکاری &chunk : chunks_)
 	{
-		for (int i = 0, width = chunk.size(); i != width; ++i)
+		لكل (صحيح i = 0, پلنوالی = chunk.اندازه(); i != پلنوالی; ++i)
 		{
-			bits_.emplace_back(chunk[i]);
+			بټونه_2.emplace_شا(chunk[i]);
 		}
 	}
 	chunks_.clear();
 }
 
-void DriveSpec::compute_width()
+فراغ DriveSpec::compute_پلنوالی()
 {
-	width_ = 0;
-	for (auto const &chunk : chunks_)
-		width_ += chunk.size();
+	پلنوالی_3 = 0;
+	لكل (خپلکاری ثابت &chunk : chunks_)
+		پلنوالی_3 += chunk.اندازه();
 }
 
-void DriverMap::DriveBitGraph::add_edge(DriveBitId src, DriveBitId dst)
+فراغ DriverMap::Drive_بټ_ګراف::جمع_کړه_څنډه(Drive_بټ_Id src, Drive_بټ_Id dst)
 {
-	if (first_edges.emplace(src, dst).first->second == dst)
-		return;
-	if (second_edges.emplace(src, dst).first->second == dst)
-		return;
-	more_edges[src].emplace(dst);
+	إذا (لومړی_څنډې.emplace(src, dst).لومړی->دوهم == dst)
+		أرجع;
+	إذا (دوهم_څنډې.emplace(src, dst).لومړی->دوهم == dst)
+		أرجع;
+	نور_څنډې[src].emplace(dst);
 }
 
-DriverMap::DriveBitId DriverMap::DriveBitGraph::pop_edge(DriveBitId src)
+DriverMap::Drive_بټ_Id DriverMap::Drive_بټ_ګراف::راوباسه_څنډه(Drive_بټ_Id src)
 {
 	// TODO unused I think?
-	auto found_more = more_edges.find(src);
-	if (found_more != more_edges.end()) {
-		auto result = found_more->second.pop();
-		if (found_more->second.empty())
-			more_edges.erase(found_more);
-		return result;
+	خپلکاری وموندل_نور = نور_څنډې.پیدا_کړه(src);
+	إذا (وموندل_نور != نور_څنډې.پای_ټکی()) {
+		خپلکاری پایله = وموندل_نور->دوهم.راوباسه();
+		إذا (وموندل_نور->دوهم.تشه())
+			نور_څنډې.erase(وموندل_نور);
+		أرجع پایله;
 	}
 
-	auto found_second = second_edges.find(src);
-	if (found_second != second_edges.end()) {
-		auto result = found_second->second;
-		second_edges.erase(found_second);
-		return result;
+	خپلکاری وموندل_دوهم = دوهم_څنډې.پیدا_کړه(src);
+	إذا (وموندل_دوهم != دوهم_څنډې.پای_ټکی()) {
+		خپلکاری پایله = وموندل_دوهم->دوهم;
+		دوهم_څنډې.erase(وموندل_دوهم);
+		أرجع پایله;
 	}
 
-	auto found_first = first_edges.find(src);
-	if (found_first != first_edges.end()) {
-		auto result = found_first->second;
-		first_edges.erase(found_first);
-		return result;
+	خپلکاری وموندل_لومړی = لومړی_څنډې.پیدا_کړه(src);
+	إذا (وموندل_لومړی != لومړی_څنډې.پای_ټکی()) {
+		خپلکاری پایله = وموندل_لومړی->دوهم;
+		لومړی_څنډې.erase(وموندل_لومړی);
+		أرجع پایله;
 	}
 
-	return DriveBitId();
+	أرجع Drive_بټ_Id();
 }
 
-void DriverMap::DriveBitGraph::clear(DriveBitId src)
+فراغ DriverMap::Drive_بټ_ګراف::clear(Drive_بټ_Id src)
 {
-	first_edges.erase(src);
-	second_edges.erase(src);
-	more_edges.erase(src);
+	لومړی_څنډې.erase(src);
+	دوهم_څنډې.erase(src);
+	نور_څنډې.erase(src);
 }
 
-bool DriverMap::DriveBitGraph::contains(DriveBitId src)
+منطقي DriverMap::Drive_بټ_ګراف::لري(Drive_بټ_Id src)
 {
-	return first_edges.count(src);
+	أرجع لومړی_څنډې.شمېر(src);
 }
 
-int DriverMap::DriveBitGraph::count(DriveBitId src)
+صحيح DriverMap::Drive_بټ_ګراف::شمېر(Drive_بټ_Id src)
 {
-	if (!first_edges.count(src))
-		return 0;
-	if (!second_edges.count(src))
-		return 1;
-	auto found = more_edges.find(src);
-	if (found == more_edges.end())
-		return 2;
-	return GetSize(found->second) + 2;
+	إذا (!لومړی_څنډې.شمېر(src))
+		أرجع 0;
+	إذا (!دوهم_څنډې.شمېر(src))
+		أرجع 1;
+	خپلکاری وموندل = نور_څنډې.پیدا_کړه(src);
+	إذا (وموندل == نور_څنډې.پای_ټکی())
+		أرجع 2;
+	أرجع Get_اندازه(وموندل->دوهم) + 2;
 }
 
-DriverMap::DriveBitId DriverMap::DriveBitGraph::at(DriveBitId src, int index)
+DriverMap::Drive_بټ_Id DriverMap::Drive_بټ_ګراف::at(Drive_بټ_Id src, صحيح شاخص)
 {
-	if (index == 0)
-		return first_edges.at(src);
-	else if (index == 1)
-		return second_edges.at(src);
-	else
-		return *more_edges.at(src).element(index - 2);
+	إذا (شاخص == 0)
+		أرجع لومړی_څنډې.at(src);
+	وإلا إذا (شاخص == 1)
+		أرجع دوهم_څنډې.at(src);
+	وإلا
+		أرجع *نور_څنډې.at(src).element(شاخص - 2);
 }
 
 
-DriverMap::BitMode DriverMap::bit_mode(DriveBit const &bit)
+DriverMap::بټ_ډېرپېښ DriverMap::بټ_ډېرپېښ_2(Drive_بټ ثابت &بټ)
 {
-	switch (bit.type())
+	بدل (بټ.type())
 	{
-		case DriveType::NONE:
-			return BitMode::NONE;
-		case DriveType::CONSTANT:
+		حالة DriveType::NONE:
+			أرجع بټ_ډېرپېښ::NONE;
+		حالة DriveType::CONSTANT:
 			// TODO how to handle Sx here?
-			return bit.constant() == State::Sz ? BitMode::NONE : BitMode::DRIVER;
-		case DriveType::WIRE: {
-			auto const &wire = bit.wire();
-			bool driver = wire.wire->port_input;
-			bool driven = wire.wire->port_output;
+			أرجع بټ.constant() == State::Sz ? بټ_ډېرپېښ::NONE : بټ_ډېرپېښ::DRIVER;
+		حالة DriveType::WIRE: {
+			خپلکاری ثابت &wire = بټ.wire();
+			منطقي driver = wire.wire->پورټ_ننوت;
+			منطقي driven = wire.wire->پورټ_output;
 
-			if (driver && !driven)
-				return BitMode::DRIVER;
-			else if (driven && !driver)
-				return BitMode::DRIVEN;
-			else if (driver && driven)
-				return BitMode::TRISTATE;
-			else
-				return keep_wire(bit.wire().wire) ? BitMode::KEEP : BitMode::NONE;
+			إذا (driver && !driven)
+				أرجع بټ_ډېرپېښ::DRIVER;
+			وإلا إذا (driven && !driver)
+				أرجع بټ_ډېرپېښ::DRIVEN;
+			وإلا إذا (driver && driven)
+				أرجع بټ_ډېرپېښ::TRISTATE;
+			وإلا
+				أرجع keep_wire(بټ.wire().wire) ? بټ_ډېرپېښ::KEEP : بټ_ډېرپېښ::NONE;
 		}
-		case DriveType::PORT: {
-			auto const &port = bit.port();
-			bool driver = celltypes.cell_output(port.cell->type, port.port);
-			bool driven = celltypes.cell_input(port.cell->type, port.port);
-			if (driver && !driven)
-				return BitMode::DRIVER;
-			else if (driven && !driver)
-				return BitMode::DRIVEN_UNIQUE;
-			else
-				return BitMode::TRISTATE;
+		حالة DriveType::پورټ_2: {
+			خپلکاری ثابت &پورټ = بټ.پورټ();
+			منطقي driver = celltypes.cell_output(پورټ.cell->type, پورټ.پورټ);
+			منطقي driven = celltypes.cell_ننوت(پورټ.cell->type, پورټ.پورټ);
+			إذا (driver && !driven)
+				أرجع بټ_ډېرپېښ::DRIVER;
+			وإلا إذا (driven && !driver)
+				أرجع بټ_ډېرپېښ::DRIVEN_UNIQUE;
+			وإلا
+				أرجع بټ_ډېرپېښ::TRISTATE;
 		}
-		case DriveType::MARKER: {
+		حالة DriveType::MARKER: {
 			// TODO user supplied classification
 			log_abort();
 		}
-		default:
+		افتراضي:
 			log_abort();
 	}
 }
 
-DriverMap::DriveBitId DriverMap::id_from_drive_bit(DriveBit const &bit)
+DriverMap::Drive_بټ_Id DriverMap::id_from_drive_بټ(Drive_بټ ثابت &بټ)
 {
-	switch (bit.type())
+	بدل (بټ.type())
 	{
-		case DriveType::NONE:
-			return -1;
-		case DriveType::CONSTANT:
-			return (int)bit.constant();
-		case DriveType::WIRE: {
-			auto const &wire_bit = bit.wire();
-			int offset = next_offset;
-			auto insertion = wire_offsets.emplace(wire_bit.wire, offset);
-			if (insertion.second) {
-				if (wire_bit.wire->width == 1) {
-					log_assert(wire_bit.offset == 0);
-					isolated_drive_bits.emplace(offset, bit);
-				} else
-					drive_bits.emplace(offset, DriveBitWire(wire_bit.wire, 0));
-				next_offset += wire_bit.wire->width;
+		حالة DriveType::NONE:
+			أرجع -1;
+		حالة DriveType::CONSTANT:
+			أرجع (صحيح)بټ.constant();
+		حالة DriveType::WIRE: {
+			خپلکاری ثابت &wire_بټ = بټ.wire();
+			صحيح دننه_واټن = بل_دننه_واټن;
+			خپلکاری insertion = wire_offsets.emplace(wire_بټ.wire, دننه_واټن);
+			إذا (insertion.دوهم) {
+				إذا (wire_بټ.wire->پلنوالی == 1) {
+					log_assert(wire_بټ.دننه_واټن == 0);
+					isolated_drive_بټونه.emplace(دننه_واټن, بټ);
+				} وإلا
+					drive_بټونه.emplace(دننه_واټن, Drive_بټ_Wire(wire_بټ.wire, 0));
+				بل_دننه_واټن += wire_بټ.wire->پلنوالی;
 			}
-			return insertion.first->second.id + wire_bit.offset;
+			أرجع insertion.لومړی->دوهم.id + wire_بټ.دننه_واټن;
 		}
-		case DriveType::PORT: {
-			auto const &port_bit = bit.port();
-			auto key = std::make_pair(port_bit.cell, port_bit.port);
-			int offset = next_offset;
-			auto insertion = port_offsets.emplace(key, offset);
-			if (insertion.second) {
-				int width = port_bit.cell->connections().at(port_bit.port).size();
-				if (width == 1 && offset == 0) {
-					log_assert(port_bit.offset == 0);
-					isolated_drive_bits.emplace(offset, bit);
-				} else
-					drive_bits.emplace(offset, DriveBitPort(port_bit.cell, port_bit.port, 0));
-				next_offset += width;
+		حالة DriveType::پورټ_2: {
+			خپلکاری ثابت &پورټ_بټ = بټ.پورټ();
+			خپلکاری کلی = std::make_pair(پورټ_بټ.cell, پورټ_بټ.پورټ);
+			صحيح دننه_واټن = بل_دننه_واټن;
+			خپلکاری insertion = پورټ_offsets.emplace(کلی, دننه_واټن);
+			إذا (insertion.دوهم) {
+				صحيح پلنوالی = پورټ_بټ.cell->connections().at(پورټ_بټ.پورټ).اندازه();
+				إذا (پلنوالی == 1 && دننه_واټن == 0) {
+					log_assert(پورټ_بټ.دننه_واټن == 0);
+					isolated_drive_بټونه.emplace(دننه_واټن, بټ);
+				} وإلا
+					drive_بټونه.emplace(دننه_واټن, Drive_بټ_پورټ(پورټ_بټ.cell, پورټ_بټ.پورټ, 0));
+				بل_دننه_واټن += پلنوالی;
 			}
-			return insertion.first->second.id + port_bit.offset;
+			أرجع insertion.لومړی->دوهم.id + پورټ_بټ.دننه_واټن;
 		}
-		default:
-			log_assert(false && "unsupported DriveType in DriverMap");
+		افتراضي:
+			log_assert(خطأ && "unsupported DriveType in DriverMap");
 	}
 	log_abort();
 }
 
-DriveBit DriverMap::drive_bit_from_id(DriveBitId id)
+Drive_بټ DriverMap::drive_بټ_from_id(Drive_بټ_Id id)
 {
-	auto found_isolated = isolated_drive_bits.find(id);
-	if (found_isolated != isolated_drive_bits.end())
-		return found_isolated->second;
+	خپلکاری وموندل_isolated = isolated_drive_بټونه.پیدا_کړه(id);
+	إذا (وموندل_isolated != isolated_drive_بټونه.پای_ټکی())
+		أرجع وموندل_isolated->دوهم;
 
-	auto found = drive_bits.upper_bound(id);
-	if (found == drive_bits.begin()) {
-		return id < 0 ? DriveBit() : DriveBit((State) id.id);
+	خپلکاری وموندل = drive_بټونه.پاسنی_bound(id);
+	إذا (وموندل == drive_بټونه.begin()) {
+		أرجع id < 0 ? Drive_بټ() : Drive_بټ((State) id.id);
 	}
-	--found;
-	DriveBit result = found->second;
-	if (result.is_wire()) {
-		result.wire().offset += id.id - found->first.id;
-	} else {
-		log_assert(result.is_port());
-		result.port().offset += id.id - found->first.id;
+	--وموندل;
+	Drive_بټ پایله = وموندل->دوهم;
+	إذا (پایله.is_wire()) {
+		پایله.wire().دننه_واټن += id.id - وموندل->لومړی.id;
+	} وإلا {
+		log_assert(پایله.is_پورټ());
+		پایله.پورټ().دننه_واټن += id.id - وموندل->لومړی.id;
 	}
-	return result;
+	أرجع پایله;
 }
 
-void DriverMap::connect_directed_merge(DriveBitId driven_id, DriveBitId driver_id)
+فراغ DriverMap::connect_directed_یوځای(Drive_بټ_Id driven_id, Drive_بټ_Id driver_id)
 {
-	if (driven_id == driver_id)
-		return;
+	إذا (driven_id == driver_id)
+		أرجع;
 
-	same_driver.merge(driven_id, driver_id);
+	same_driver.یوځای(driven_id, driver_id);
 
-	for (int i = 0, end = connected_drivers.count(driven_id); i != end; ++i)
-		connected_drivers.add_edge(driver_id, connected_drivers.at(driven_id, i));
+	لكل (صحيح i = 0, پای_ټکی = connected_drivers.شمېر(driven_id); i != پای_ټکی; ++i)
+		connected_drivers.جمع_کړه_څنډه(driver_id, connected_drivers.at(driven_id, i));
 
 	connected_drivers.clear(driven_id);
 
-	for (int i = 0, end = connected_undirected.count(driven_id); i != end; ++i)
-		connected_undirected.add_edge(driver_id, connected_undirected.at(driven_id, i));
+	لكل (صحيح i = 0, پای_ټکی = connected_undirected.شمېر(driven_id); i != پای_ټکی; ++i)
+		connected_undirected.جمع_کړه_څنډه(driver_id, connected_undirected.at(driven_id, i));
 
 	connected_undirected.clear(driven_id);
 }
 
-void DriverMap::connect_directed_buffer(DriveBitId driven_id, DriveBitId driver_id)
+فراغ DriverMap::connect_directed_بفر(Drive_بټ_Id driven_id, Drive_بټ_Id driver_id)
 {
-	connected_drivers.add_edge(driven_id, driver_id);
+	connected_drivers.جمع_کړه_څنډه(driven_id, driver_id);
 }
 
-void DriverMap::connect_undirected(DriveBitId a_id, DriveBitId b_id)
+فراغ DriverMap::connect_undirected(Drive_بټ_Id a_id, Drive_بټ_Id b_id)
 {
-	connected_undirected.add_edge(a_id, b_id);
-	connected_undirected.add_edge(b_id, a_id);
+	connected_undirected.جمع_کړه_څنډه(a_id, b_id);
+	connected_undirected.جمع_کړه_څنډه(b_id, a_id);
 }
 
-void DriverMap::add(Module *module)
+فراغ DriverMap::جمع_کړه(Module *module)
 {
-	for (auto const &conn : module->connections())
-		add(conn.first, conn.second);
+	لكل (خپلکاری ثابت &conn : module->connections())
+		جمع_کړه(conn.لومړی, conn.دوهم);
 
-	for (auto cell : module->cells())
-		for (auto const &conn : cell->connections())
-			add_port(cell, conn.first, conn.second);
+	لكل (خپلکاری cell : module->cells())
+		لكل (خپلکاری ثابت &conn : cell->connections())
+			جمع_کړه_پورټ(cell, conn.لومړی, conn.دوهم);
 }
 
 // Add a single bit connection to the driver map.
-void DriverMap::add(DriveBit const &a, DriveBit const &b)
+فراغ DriverMap::جمع_کړه(Drive_بټ ثابت &a, Drive_بټ ثابت &b)
 {
-	DriveBitId a_id = id_from_drive_bit(a);
-	DriveBitId b_id = id_from_drive_bit(b);
+	Drive_بټ_Id a_id = id_from_drive_بټ(a);
+	Drive_بټ_Id b_id = id_from_drive_بټ(b);
 
-	DriveBitId orig_a_id = a_id;
-	DriveBitId orig_b_id = b_id;
+	Drive_بټ_Id orig_a_id = a_id;
+	Drive_بټ_Id orig_b_id = b_id;
 
-	a_id = same_driver.find(a_id);
-	b_id = same_driver.find(b_id);
+	a_id = same_driver.پیدا_کړه(a_id);
+	b_id = same_driver.پیدا_کړه(b_id);
 
-	if (a_id == b_id)
-		return;
+	إذا (a_id == b_id)
+		أرجع;
 
-	BitMode a_mode = bit_mode(orig_a_id == a_id ? a : drive_bit_from_id(a_id));
-	BitMode b_mode = bit_mode(orig_b_id == b_id ? b : drive_bit_from_id(b_id));
+	بټ_ډېرپېښ a_ډېرپېښ = بټ_ډېرپېښ_2(orig_a_id == a_id ? a : drive_بټ_from_id(a_id));
+	بټ_ډېرپېښ b_ډېرپېښ = بټ_ډېرپېښ_2(orig_b_id == b_id ? b : drive_بټ_from_id(b_id));
 
 	// If either bit is just a wire that we don't need to keep, merge and
 	// use the other end as representative bit.
-	if (a_mode == BitMode::NONE && !(b_mode == BitMode::DRIVEN_UNIQUE || b_mode == BitMode::DRIVEN))
-		connect_directed_merge(a_id, b_id);
-	else if (b_mode == BitMode::NONE && !(a_mode == BitMode::DRIVEN_UNIQUE || a_mode == BitMode::DRIVEN))
-		connect_directed_merge(b_id, a_id);
+	إذا (a_ډېرپېښ == بټ_ډېرپېښ::NONE && !(b_ډېرپېښ == بټ_ډېرپېښ::DRIVEN_UNIQUE || b_ډېرپېښ == بټ_ډېرپېښ::DRIVEN))
+		connect_directed_یوځای(a_id, b_id);
+	وإلا إذا (b_ډېرپېښ == بټ_ډېرپېښ::NONE && !(a_ډېرپېښ == بټ_ډېرپېښ::DRIVEN_UNIQUE || a_ډېرپېښ == بټ_ډېرپېښ::DRIVEN))
+		connect_directed_یوځای(b_id, a_id);
 	// If either bit requires a driven value and has a unique driver, merge
 	// and use the other end as representative bit.
-	else if (a_mode == BitMode::DRIVEN_UNIQUE && !(b_mode == BitMode::DRIVEN_UNIQUE || b_mode == BitMode::DRIVEN))
-		connect_directed_buffer(a_id, b_id);
-	else if (b_mode == BitMode::DRIVEN_UNIQUE && !(a_mode == BitMode::DRIVEN_UNIQUE || a_mode == BitMode::DRIVEN))
-		connect_directed_buffer(b_id, a_id);
+	وإلا إذا (a_ډېرپېښ == بټ_ډېرپېښ::DRIVEN_UNIQUE && !(b_ډېرپېښ == بټ_ډېرپېښ::DRIVEN_UNIQUE || b_ډېرپېښ == بټ_ډېرپېښ::DRIVEN))
+		connect_directed_بفر(a_id, b_id);
+	وإلا إذا (b_ډېرپېښ == بټ_ډېرپېښ::DRIVEN_UNIQUE && !(a_ډېرپېښ == بټ_ډېرپېښ::DRIVEN_UNIQUE || a_ډېرپېښ == بټ_ډېرپېښ::DRIVEN))
+		connect_directed_بفر(b_id, a_id);
 	// If either bit only drives a value, store a directed connection from
 	// it to the other bit.
-	else if (a_mode == BitMode::DRIVER)
-		connect_directed_buffer(b_id, a_id);
-	else if (b_mode == BitMode::DRIVER)
-		connect_directed_buffer(a_id, b_id);
+	وإلا إذا (a_ډېرپېښ == بټ_ډېرپېښ::DRIVER)
+		connect_directed_بفر(b_id, a_id);
+	وإلا إذا (b_ډېرپېښ == بټ_ډېرپېښ::DRIVER)
+		connect_directed_بفر(a_id, b_id);
 	// Otherwise we store an undirected connection which we will resolve
 	// during querying.
-	else
+	وإلا
 		connect_undirected(a_id, b_id);
 
-	return;
+	أرجع;
 }
 
 // Specialized version that avoids unpacking
-void DriverMap::add(SigSpec const &a, SigSpec const &b)
+فراغ DriverMap::جمع_کړه(SigSpec ثابت &a, SigSpec ثابت &b)
 {
-	log_assert(a.size() == b.size());
-	auto const &a_chunks = a.chunks();
-	auto const &b_chunks = b.chunks();
+	log_assert(a.اندازه() == b.اندازه());
+	خپلکاری ثابت &a_chunks = a.chunks();
+	خپلکاری ثابت &b_chunks = b.chunks();
 
-	auto a_chunk = a_chunks.begin();
-	auto a_end = a_chunks.end();
-	int a_offset = 0;
+	خپلکاری a_chunk = a_chunks.begin();
+	خپلکاری a_پای_ټکی = a_chunks.پای_ټکی();
+	صحيح a_دننه_واټن = 0;
 
-	auto b_chunk = b_chunks.begin();
-	int b_offset = 0;
+	خپلکاری b_chunk = b_chunks.begin();
+	صحيح b_دننه_واټن = 0;
 
 	SigChunk tmp_a, tmp_b;
-	while (a_chunk != a_end) {
-		int a_width = a_chunk->width - a_offset;
-		if (a_width == 0) {
-			a_offset = 0;
+	طالما (a_chunk != a_پای_ټکی) {
+		صحيح a_پلنوالی = a_chunk->پلنوالی - a_دننه_واټن;
+		إذا (a_پلنوالی == 0) {
+			a_دننه_واټن = 0;
 			++a_chunk;
-			continue;
+			استمر;
 		}
-		int b_width = b_chunk->width - b_offset;
-		if (b_width == 0) {
-			b_offset = 0;
+		صحيح b_پلنوالی = b_chunk->پلنوالی - b_دننه_واټن;
+		إذا (b_پلنوالی == 0) {
+			b_دننه_واټن = 0;
 			++b_chunk;
-			continue;
+			استمر;
 		}
-		int width = std::min(a_width, b_width);
-		log_assert(width > 0);
+		صحيح پلنوالی = std::min(a_پلنوالی, b_پلنوالی);
+		log_assert(پلنوالی > 0);
 
-		SigChunk const &a_subchunk =
-			a_offset == 0 && a_width == width ? *a_chunk : a_chunk->extract(a_offset, width);
-		SigChunk const &b_subchunk =
-			b_offset == 0 && b_width == width ? *b_chunk : b_chunk->extract(b_offset, width);
+		SigChunk ثابت &a_subchunk =
+			a_دننه_واټن == 0 && a_پلنوالی == پلنوالی ? *a_chunk : a_chunk->ایستل(a_دننه_واټن, پلنوالی);
+		SigChunk ثابت &b_subchunk =
+			b_دننه_واټن == 0 && b_پلنوالی == پلنوالی ? *b_chunk : b_chunk->ایستل(b_دننه_واټن, پلنوالی);
 
-		add(a_subchunk, b_subchunk);
+		جمع_کړه(a_subchunk, b_subchunk);
 
-		a_offset += width;
-		b_offset += width;
+		a_دننه_واټن += پلنوالی;
+		b_دننه_واټن += پلنوالی;
 	}
 }
 
-void DriverMap::add_port(Cell *cell, IdString port, SigSpec const &b)
+فراغ DriverMap::جمع_کړه_پورټ(Cell *cell, IdString پورټ, SigSpec ثابت &b)
 {
-	int offset = 0;
-	for (auto const &chunk : b.chunks()) {
-		add(chunk, DriveChunkPort(cell, port, offset, chunk.width));
-		offset += chunk.size();
+	صحيح دننه_واټن = 0;
+	لكل (خپلکاری ثابت &chunk : b.chunks()) {
+		جمع_کړه(chunk, Drive_Chunk_پورټ(cell, پورټ, دننه_واټن, chunk.پلنوالی));
+		دننه_واټن += chunk.اندازه();
 	}
 }
 
-void DriverMap::orient_undirected(DriveBitId id)
+فراغ DriverMap::orient_undirected(Drive_بټ_Id id)
 {
-	pool<DriveBitId> &seen = orient_undirected_seen;
-	pool<DriveBitId> &drivers = orient_undirected_drivers;
-	dict<DriveBitId, int> &distance = orient_undirected_distance;
-	seen.clear();
+	pool<Drive_بټ_Id> &کتل_شوی = orient_undirected_کتل_شوی;
+	pool<Drive_بټ_Id> &drivers = orient_undirected_drivers;
+	dict<Drive_بټ_Id, صحيح> &واټن = orient_undirected_واټن;
+	کتل_شوی.clear();
 	drivers.clear();
 
-	seen.emplace(id);
+	کتل_شوی.emplace(id);
 
-	for (int pos = 0; pos < GetSize(seen); ++pos) {
-		DriveBitId current = *seen.element(seen.size() - 1 - pos);
-		DriveBit bit = drive_bit_from_id(current);
+	لكل (صحيح pos = 0; pos < Get_اندازه(کتل_شوی); ++pos) {
+		Drive_بټ_Id current = *کتل_شوی.element(کتل_شوی.اندازه() - 1 - pos);
+		Drive_بټ بټ = drive_بټ_from_id(current);
 
-		BitMode mode = bit_mode(bit);
+		بټ_ډېرپېښ ډېرپېښ = بټ_ډېرپېښ_2(بټ);
 
-		if (mode == BitMode::DRIVER || mode == BitMode::TRISTATE)
+		إذا (ډېرپېښ == بټ_ډېرپېښ::DRIVER || ډېرپېښ == بټ_ډېرپېښ::TRISTATE)
 			drivers.emplace(current);
 
-		if (connected_drivers.contains(current))
+		إذا (connected_drivers.لري(current))
 			drivers.emplace(current);
 
-		int undirected_driver_count = connected_undirected.count(current);
+		صحيح undirected_driver_شمېر = connected_undirected.شمېر(current);
 
-		for (int i = 0; i != undirected_driver_count; ++i)
-			seen.emplace(same_driver.find(connected_undirected.at(current, i)));
+		لكل (صحيح i = 0; i != undirected_driver_شمېر; ++i)
+			کتل_شوی.emplace(same_driver.پیدا_کړه(connected_undirected.at(current, i)));
 	}
 
-	if (drivers.empty())
-		for (auto seen_id : seen)
-			drivers.emplace(seen_id);
+	إذا (drivers.تشه())
+		لكل (خپلکاری کتل_شوی_id : کتل_شوی)
+			drivers.emplace(کتل_شوی_id);
 
-	for (auto driver : drivers)
+	لكل (خپلکاری driver : drivers)
 	{
-		distance.clear();
-		distance.emplace(driver, 0);
+		واټن.clear();
+		واټن.emplace(driver, 0);
 
-		for (int pos = 0; pos < GetSize(distance); ++pos) {
-			auto current_it = distance.element(distance.size() - 1 - pos);
+		لكل (صحيح pos = 0; pos < Get_اندازه(واټن); ++pos) {
+			خپلکاری current_it = واټن.element(واټن.اندازه() - 1 - pos);
 
-			DriveBitId current = current_it->first;
-			int undirected_driver_count = connected_undirected.count(current);
+			Drive_بټ_Id current = current_it->لومړی;
+			صحيح undirected_driver_شمېر = connected_undirected.شمېر(current);
 
-			for (int i = 0; i != undirected_driver_count; ++i)
+			لكل (صحيح i = 0; i != undirected_driver_شمېر; ++i)
 			{
-				DriveBitId next = same_driver.find(connected_undirected.at(current, i));
-				auto emplaced = distance.emplace(next, current_it->second + 1);
-				if (emplaced.first->second == current_it->second + 1)
-					connected_oriented.add_edge(next, current);
+				Drive_بټ_Id بل = same_driver.پیدا_کړه(connected_undirected.at(current, i));
+				خپلکاری emplaced = واټن.emplace(بل, current_it->دوهم + 1);
+				إذا (emplaced.لومړی->دوهم == current_it->دوهم + 1)
+					connected_oriented.جمع_کړه_څنډه(بل, current);
 			}
 		}
 	}
 
-	for (auto seen_id : seen)
-		oriented_present.emplace(seen_id);
+	لكل (خپلکاری کتل_شوی_id : کتل_شوی)
+		oriented_present.emplace(کتل_شوی_id);
 }
 
-DriveBit DriverMap::operator()(DriveBit const &bit)
+Drive_بټ DriverMap::چلوونکی()(Drive_بټ ثابت &بټ)
 {
-	if (bit.type() == DriveType::MARKER || bit.type() == DriveType::NONE)
-		return bit;
-	if (bit.type() == DriveType::MULTIPLE)
+	إذا (بټ.type() == DriveType::MARKER || بټ.type() == DriveType::NONE)
+		أرجع بټ;
+	إذا (بټ.type() == DriveType::مضرب)
 	{
-		DriveBit result;
-		for (auto const &inner : bit.multiple().multiple())
-			result.merge((*this)(inner));
-		return result;
+		Drive_بټ پایله;
+		لكل (خپلکاری ثابت &inner : بټ.مضرب_2().مضرب_2())
+			پایله.یوځای((*هذا)(inner));
+		أرجع پایله;
 	}
 
-	DriveBitId bit_id = id_from_drive_bit(bit);
+	Drive_بټ_Id بټ_id = id_from_drive_بټ(بټ);
 
-	DriveBitId bit_repr_id = same_driver.find(bit_id);
+	Drive_بټ_Id بټ_repr_id = same_driver.پیدا_کړه(بټ_id);
 
-	DriveBit bit_repr = drive_bit_from_id(bit_repr_id);
+	Drive_بټ بټ_repr = drive_بټ_from_id(بټ_repr_id);
 
-	BitMode mode = bit_mode(bit_repr);
+	بټ_ډېرپېښ ډېرپېښ = بټ_ډېرپېښ_2(بټ_repr);
 
-	if (mode == BitMode::KEEP && bit_repr_id != bit_id)
-		return bit_repr;
+	إذا (ډېرپېښ == بټ_ډېرپېښ::KEEP && بټ_repr_id != بټ_id)
+		أرجع بټ_repr;
 
-	int implicit_driver_count = connected_drivers.count(bit_repr_id);
-	if (connected_undirected.contains(bit_repr_id) && !oriented_present.count(bit_repr_id))
-		orient_undirected(bit_repr_id);
+	صحيح implicit_driver_شمېر = connected_drivers.شمېر(بټ_repr_id);
+	إذا (connected_undirected.لري(بټ_repr_id) && !oriented_present.شمېر(بټ_repr_id))
+		orient_undirected(بټ_repr_id);
 
-	DriveBit driver;
+	Drive_بټ driver;
 
-	if (mode == BitMode::DRIVER || mode == BitMode::TRISTATE)
-		driver = bit_repr;
+	إذا (ډېرپېښ == بټ_ډېرپېښ::DRIVER || ډېرپېښ == بټ_ډېرپېښ::TRISTATE)
+		driver = بټ_repr;
 
-	for (int i = 0; i != implicit_driver_count; ++i)
-		driver.merge(drive_bit_from_id(connected_drivers.at(bit_repr_id, i)));
+	لكل (صحيح i = 0; i != implicit_driver_شمېر; ++i)
+		driver.یوځای(drive_بټ_from_id(connected_drivers.at(بټ_repr_id, i)));
 
-	int oriented_driver_count = connected_oriented.count(bit_repr_id);
-	for (int i = 0; i != oriented_driver_count; ++i)
-		driver.merge(drive_bit_from_id(connected_oriented.at(bit_repr_id, i)));
+	صحيح oriented_driver_شمېر = connected_oriented.شمېر(بټ_repr_id);
+	لكل (صحيح i = 0; i != oriented_driver_شمېر; ++i)
+		driver.یوځای(drive_بټ_from_id(connected_oriented.at(بټ_repr_id, i)));
 
-	return driver;
+	أرجع driver;
 }
 
-DriveSpec DriverMap::operator()(DriveSpec spec)
+DriveSpec DriverMap::چلوونکی()(DriveSpec spec)
 {
-	DriveSpec result;
+	DriveSpec پایله;
 
-	for (int i = 0, width = spec.size(); i != width; ++i)
-		result.append((*this)(spec[i]));
+	لكل (صحيح i = 0, پلنوالی = spec.اندازه(); i != پلنوالی; ++i)
+		پایله.append((*هذا)(spec[i]));
 
-	return result;
+	أرجع پایله;
 }
 
-std::string log_signal(DriveChunkWire const &chunk)
+std::string log_signal(DriveChunkWire ثابت &chunk)
 {
 	std::string id = chunk.wire->name.unescape();
-	if (chunk.is_whole())
-		return id;
-	if (chunk.width == 1)
-		return stringf("%s [%d]", id, chunk.offset);
-	return stringf("%s [%d:%d]", id, chunk.offset + chunk.width - 1, chunk.offset);
+	إذا (chunk.is_ټولیز())
+		أرجع id;
+	إذا (chunk.پلنوالی == 1)
+		أرجع stringf("%s [%d]", id, chunk.دننه_واټن);
+	أرجع stringf("%s [%d:%d]", id, chunk.دننه_واټن + chunk.پلنوالی - 1, chunk.دننه_واټن);
 }
 
 
-std::string log_signal(DriveChunkPort const &chunk)
+std::string log_signal(Drive_Chunk_پورټ ثابت &chunk)
 {
 	std::string cell_id = chunk.cell->name.unescape();
-	std::string port_id = chunk.cell->twines().unescaped_str(chunk.port);
-	if (chunk.is_whole())
-		return stringf("%s <%s>", cell_id, port_id);
-	if (chunk.width == 1)
-		return stringf("%s <%s> [%d]", cell_id, port_id, chunk.offset);
-	return stringf("%s <%s> [%d:%d]", cell_id, port_id, chunk.offset + chunk.width - 1, chunk.offset);
+	std::string پورټ_id = chunk.cell->twines().unescaped_str(chunk.پورټ);
+	إذا (chunk.is_ټولیز())
+		أرجع stringf("%s <%s>", cell_id, پورټ_id);
+	إذا (chunk.پلنوالی == 1)
+		أرجع stringf("%s <%s> [%d]", cell_id, پورټ_id, chunk.دننه_واټن);
+	أرجع stringf("%s <%s> [%d:%d]", cell_id, پورټ_id, chunk.دننه_واټن + chunk.پلنوالی - 1, chunk.دننه_واټن);
 }
 
-std::string log_signal(DriveChunkMarker const &chunk)
+std::string log_signal(DriveChunkMarker ثابت &chunk)
 {
-	if (chunk.width == 1)
-		return stringf("<marker %d> [%d]", chunk.marker, chunk.offset);
-	return stringf("<marker %d> [%d:%d]", chunk.marker, chunk.offset + chunk.width - 1, chunk.offset);
+	إذا (chunk.پلنوالی == 1)
+		أرجع stringf("<marker %d> [%d]", chunk.marker, chunk.دننه_واټن);
+	أرجع stringf("<marker %d> [%d:%d]", chunk.marker, chunk.دننه_واټن + chunk.پلنوالی - 1, chunk.دننه_واټن);
 }
 
-std::string log_signal(DriveChunk const &chunk)
+std::string log_signal(DriveChunk ثابت &chunk)
 {
-	switch (chunk.type())
+	بدل (chunk.type())
 	{
-		case DriveType::NONE:
-			return stringf("<none x%d>", chunk.size());
-		case DriveType::CONSTANT:
-			return log_const(chunk.constant());
-		case DriveType::WIRE:
-			return log_signal(chunk.wire());
-		case DriveType::PORT:
-			return log_signal(chunk.port());
-		case DriveType::MARKER:
-			return log_signal(chunk.marker());
-		case DriveType::MULTIPLE: {
+		حالة DriveType::NONE:
+			أرجع stringf("<none x%d>", chunk.اندازه());
+		حالة DriveType::CONSTANT:
+			أرجع log_const(chunk.constant());
+		حالة DriveType::WIRE:
+			أرجع log_signal(chunk.wire());
+		حالة DriveType::پورټ_2:
+			أرجع log_signal(chunk.پورټ());
+		حالة DriveType::MARKER:
+			أرجع log_signal(chunk.marker());
+		حالة DriveType::مضرب: {
 			std::string str = "<multiple";
-			const char *sep = " ";
-			for (auto const &single : chunk.multiple().multiple()) {
+			ثابت حرف *sep = " ";
+			لكل (خپلکاری ثابت &single : chunk.مضرب_2().مضرب_2()) {
 				str += sep;
 				sep = ", ";
 				str += log_signal(single);
 			}
 			str += ">";
-			return str;
+			أرجع str;
 		}
-		default:
+		افتراضي:
 			log_abort();
 	}
 }
 
-std::string log_signal(DriveSpec const &spec)
+std::string log_signal(DriveSpec ثابت &spec)
 {
-	auto &chunks = spec.chunks();
-	if (chunks.empty())
-		return "{}";
-	if (chunks.size() == 1)
-		return log_signal(chunks[0]);
+	خپلکاری &chunks = spec.chunks();
+	إذا (chunks.تشه())
+		أرجع "{}";
+	إذا (chunks.اندازه() == 1)
+		أرجع log_signal(chunks[0]);
 
 	std::string str;
-	const char *sep = "{ ";
+	ثابت حرف *sep = "{ ";
 
-	for (auto i = chunks.rbegin(), end = chunks.rend(); i != end; ++i)
+	لكل (خپلکاری i = chunks.rbegin(), پای_ټکی = chunks.rend(); i != پای_ټکی; ++i)
 	{
 		str += sep;
 		sep = " ";
@@ -942,7 +942,7 @@ std::string log_signal(DriveSpec const &spec)
 	}
 	str += " }";
 
-	return str;
+	أرجع str;
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی

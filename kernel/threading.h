@@ -1,183 +1,183 @@
-#include <deque>
+#ضمن <deque>
 
-#include "kernel/yosys_common.h"
-#include "kernel/log.h"
-#include "kernel/utils.h"
+#ضمن "kernel/yosys_common.h"
+#ضمن "kernel/log.h"
+#ضمن "kernel/utils.h"
 
-#ifdef YOSYS_ENABLE_THREADS
-#include <condition_variable>
-#include <mutex>
-#include <thread>
-#endif
+#که_تعریف_شوی YOSYS_ENABLE_تارونه
+#ضمن <condition_variable>
+#ضمن <mutex>
+#ضمن <thread>
+#د_که_پای
 
-#ifndef YOSYS_THREADING_H
-#define YOSYS_THREADING_H
+#که_نه_تعریف_شوی YOSYS_THREADING_H
+#تعریف_کړه YOSYS_THREADING_H
 
 YOSYS_NAMESPACE_BEGIN
 
 // Redirect to no-op to avoid dependence on <mutex>
 // and <condition_variable> in single-threaded builds
-#ifdef YOSYS_ENABLE_THREADS
+#که_تعریف_شوی YOSYS_ENABLE_تارونه
 using Mutex = std::mutex;
 using CondVar = std::condition_variable;
-using UniqueLock = std::unique_lock<Mutex>;
-using LockGuard = std::lock_guard<Mutex>;
-#else
-struct Mutex {
-	void lock() {}
-	void unlock() {}
-	bool try_lock() { return true; }
+using Unique_قلف = std::unique_قلف<Mutex>;
+using قلف_Guard = std::قلف_guard<Mutex>;
+#وإلا
+بنية Mutex {
+	فراغ قلف() {}
+	فراغ unlock() {}
+	bool try_قلف() { أرجع true; }
 };
-struct CondVar {
-	template <class L> void wait(L &) {}
-	template <class L, class P> void wait(L &, P) {}
-	void notify_one() {}
-	void notify_all() {}
+بنية CondVar {
+	کينډۍ <class L> فراغ wait(L &) {}
+	کينډۍ <class L, class P> فراغ wait(L &, P) {}
+	فراغ notify_one() {}
+	فراغ notify_all() {}
 };
-struct UniqueLock {
-	UniqueLock(Mutex &) {}
+بنية Unique_قلف {
+	Unique_قلف(Mutex &) {}
 };
-struct LockGuard {
-	LockGuard(Mutex &) {}
+بنية قلف_Guard {
+	قلف_Guard(Mutex &) {}
 };
-#endif
+#د_که_پای
 
 // Concurrent queue implementation. Not fast, but simple.
 // Multi-producer, multi-consumer, optionally bounded.
 // When YOSYS_ENABLE_THREADS is not defined, this is just a non-thread-safe non-blocking deque.
-template <typename T>
-class ConcurrentQueue
+کينډۍ <typename T>
+class Concurrent_کتار
 {
-public:
-	ConcurrentQueue(int capacity = INT_MAX)
-		: capacity(capacity) {}
+عام:
+	Concurrent_کتار(صحيح ظرفیت = لوی_عدد)
+		: ظرفیت(ظرفیت) {}
 	// Push an element into the queue. If it's at capacity, block until there is room.
-	void push_back(T t)
+	فراغ ټېل_شا(T t)
 	{
-		UniqueLock lock(mutex);
-		not_full_condition.wait(lock, [this] { return static_cast<int>(contents.size()) < capacity; });
-		if (contents.empty())
-			not_empty_condition.notify_one();
+		Unique_قلف قلف(mutex);
+		not_ډک_condition.wait(قلف, [this] { أرجع static_cast<صحيح>(contents.اندازه()) < ظرفیت; });
+		إذا (contents.تشه())
+			not_تشه_condition.notify_one();
 		log_assert(!closed);
-		contents.push_back(std::move(t));
-		if (static_cast<int>(contents.size()) < capacity)
-			not_full_condition.notify_one();
+		contents.ټېل_شا(std::move(t));
+		إذا (static_cast<صحيح>(contents.اندازه()) < ظرفیت)
+			not_ډک_condition.notify_one();
 	}
 	// Signal that no more elements will be produced. `pop_front()` will return nullopt.
-	void close()
+	فراغ close()
 	{
-		UniqueLock lock(mutex);
-		not_empty_condition.notify_all();
+		Unique_قلف قلف(mutex);
+		not_تشه_condition.notify_all();
 		closed = true;
 	}
 	// Pop an element from the queue. Blocks until an element is available
 	// or the queue is closed and empty.
-	std::optional<T> pop_front()
+	std::optional<T> راوباسه_front()
 	{
-		return pop_front_internal(true);
+		أرجع راوباسه_front_دننی(true);
 	}
 	// Pop an element from the queue. Does not block, just returns nullopt if the
 	// queue is empty.
-	std::optional<T> try_pop_front()
+	std::optional<T> try_راوباسه_front()
 	{
-		return pop_front_internal(false);
+		أرجع راوباسه_front_دننی(false);
 	}
-private:
-	std::optional<T> pop_front_internal(bool wait)
+خاص:
+	std::optional<T> راوباسه_front_دننی(bool wait)
 	{
-		UniqueLock lock(mutex);
-		if (wait) {
-			not_empty_condition.wait(lock, [this] { return !contents.empty() || closed; });
+		Unique_قلف قلف(mutex);
+		إذا (wait) {
+			not_تشه_condition.wait(قلف, [this] { أرجع !contents.تشه() || closed; });
 		}
-		if (contents.empty())
-			return std::nullopt;
-		if (static_cast<int>(contents.size()) == capacity)
-			not_full_condition.notify_one();
-		T result = std::move(contents.front());
-		contents.pop_front();
-		if (!contents.empty())
-			not_empty_condition.notify_one();
-		return std::move(result);
+		إذا (contents.تشه())
+			أرجع std::nullopt;
+		إذا (static_cast<صحيح>(contents.اندازه()) == ظرفیت)
+			not_ډک_condition.notify_one();
+		T پایله = std::move(contents.front());
+		contents.راوباسه_front();
+		إذا (!contents.تشه())
+			not_تشه_condition.notify_one();
+		أرجع std::move(پایله);
 	}
 
 	Mutex mutex;
 	// Signals one waiter thread when the queue changes and is not full.
-	CondVar not_full_condition;
+	CondVar not_ډک_condition;
 	// Signals one waiter thread when the queue changes and is not empty.
-	CondVar not_empty_condition;
+	CondVar not_تشه_condition;
 	std::deque<T> contents;
-	int capacity;
+	صحيح ظرفیت;
 	bool closed = false;
 };
 
 class DeferredLogs
 {
-public:
-	template <typename... Args>
-	void log(FmtString<TypeIdentity<Args>...> fmt, Args... args)
+عام:
+	کينډۍ <typename... دلیلونه_3>
+	فراغ لوګاریتم(FmtString<Type_بې_اغېزه_عنصر<دلیلونه_3>...> fmt, دلیلونه_3... دلیلونه_2)
 	{
-		logs.push_back({fmt.format(args...), false});
+		logs.ټېل_شا({fmt.format(دلیلونه_2...), false});
 	}
-	template <typename... Args>
-	void log_error(FmtString<TypeIdentity<Args>...> fmt, Args... args)
+	کينډۍ <typename... دلیلونه_3>
+	فراغ log_error(FmtString<Type_بې_اغېزه_عنصر<دلیلونه_3>...> fmt, دلیلونه_3... دلیلونه_2)
 	{
-		logs.push_back({fmt.format(args...), true});
+		logs.ټېل_شا({fmt.format(دلیلونه_2...), true});
 	}
-	void flush();
-private:
-	struct Message
+	فراغ flush();
+خاص:
+	بنية پیغام_3
 	{
-		std::string text;
+		std::string متن;
 		bool error;
 	};
-	std::vector<Message> logs;
+	std::ویکټور<پیغام_3> logs;
 };
 
 class ThreadPool
 {
-public:
+عام:
 	// Computes the number of worker threads to use.
 	// `reserved_cores` cores are set aside for other threads (e.g. work on the main thread).
 	// `max_worker_threads` --- don't return more workers than this.
 	// The result may be 0.
-	static int pool_size(int reserved_cores, int max_worker_threads);
+	ساكن صحيح pool_اندازه(صحيح reserved_cores, صحيح max_کارګر_تارونه);
 
 	// Computes the number of worker threads to use, by dividing work_units among threads.
 	// For testing purposes you can set YOSYS_WORK_UNITS_PER_THREAD to override `work_units_per_thread`.
 	// The result may be 0.
-	static int work_pool_size(int reserved_cores, int work_units, int work_units_per_thread);
+	ساكن صحيح work_pool_اندازه(صحيح reserved_cores, صحيح work_units, صحيح work_units_فی_thread);
 
 	// Create a pool of threads running the given closure (parameterized by thread number).
 	// `pool_size` must be the result of a `pool_size()` call.
-	ThreadPool(int pool_size, std::function<void(int)> b);
+	ThreadPool(صحيح pool_اندازه, std::function<فراغ(صحيح)> b);
 	ThreadPool(ThreadPool &&other) = delete;
 	// Waits for all threads to terminate. Make sure those closures return!
 	~ThreadPool();
 
 	// Return the number of threads in the pool.
-	int num_threads() const
+	صحيح عدد_تارونه() ثابت
 	{
-#ifdef YOSYS_ENABLE_THREADS
-		return threads.size();
-#else
-		return 0;
-#endif
+#که_تعریف_شوی YOSYS_ENABLE_تارونه
+		أرجع تارونه.اندازه();
+#وإلا
+		أرجع 0;
+#د_که_پای
 	}
-private:
-	std::function<void(int)> body;
-#ifdef YOSYS_ENABLE_THREADS
-	std::vector<std::thread> threads;
-#endif
+خاص:
+	std::function<فراغ(صحيح)> body;
+#که_تعریف_شوی YOSYS_ENABLE_تارونه
+	std::ویکټور<std::thread> تارونه;
+#د_که_پای
 };
 
 // Divides some number of items into `num_threads` subranges and returns the
 // `thread_num`'th subrange. If `num_threads` is zero, returns the whole range.
-IntRange item_range_for_worker(int num_items, int thread_num, int num_threads);
+IntRange توکی_range_for_کارګر(صحيح عدد_توکي, صحيح thread_عدد, صحيح عدد_تارونه);
 
 // A type that encapsulates the index of a thread in some list of threads. Useful for
 // stronger typechecking and code readability.
-struct ThreadIndex {
-	int thread_num;
+بنية Thread_شاخص {
+	صحيح thread_عدد;
 };
 
 // A set of threads with a `run()` API that runs a closure on all of the threads
@@ -185,66 +185,66 @@ struct ThreadIndex {
 // parallel algorithms that use barrier synchronization.
 class ParallelDispatchThreadPool
 {
-public:
+عام:
 	// Create a pool of threads running the given closure (parameterized by thread number).
 	// `pool_size` must be the result of a `pool_size()` call.
 	// `pool_size` can be zero, which we treat as 1.
-	ParallelDispatchThreadPool(int pool_size);
+	ParallelDispatchThreadPool(صحيح pool_اندازه);
 	~ParallelDispatchThreadPool();
 
 	// For each thread running a closure, a `RunCtx` is passed to the closure. Currently
 	// it contains the thread index and the total number of threads. It can be passed
 	// directly to any APIs requiring a `ThreadIndex`.
-	struct RunCtx : public ThreadIndex {
-		int num_threads;
-		IntRange item_range(int num_items) const {
-			return item_range_for_worker(num_items, thread_num, num_threads);
+	بنية پرلپسې_Ctx : عام Thread_شاخص {
+		صحيح عدد_تارونه;
+		IntRange توکی_range(صحيح عدد_توکي) ثابت {
+			أرجع توکی_range_for_کارګر(عدد_توکي, thread_عدد, عدد_تارونه);
 		}
 	};
 	// Sometimes we only want to activate a subset of the threads in the pool. This
 	// class provides a way to do that. It provides the same `num_threads()`
 	// and `run()` APIs as a `ParallelDispatchThreadPool`.
 	class Subpool {
-	public:
-		Subpool(ParallelDispatchThreadPool &parent, int max_threads)
-				: parent(parent), max_threads(max_threads) {}
+	عام:
+		Subpool(ParallelDispatchThreadPool &پلار, صحيح max_تارونه)
+				: پلار(پلار), max_تارونه(max_تارونه) {}
 		// Returns the number of threads that will be used when calling `run()`.
-		int num_threads() const {
-			return parent.num_threads(max_threads);
+		صحيح عدد_تارونه() ثابت {
+			أرجع پلار.عدد_تارونه(max_تارونه);
 		}
-		void run(std::function<void(const RunCtx &)> work) {
-			parent.run(std::move(work), max_threads);
+		فراغ پرلپسې(std::function<فراغ(ثابت پرلپسې_Ctx &)> work) {
+			پلار.پرلپسې(std::move(work), max_تارونه);
 		}
-		ParallelDispatchThreadPool &thread_pool() { return parent; }
-	private:
-		ParallelDispatchThreadPool &parent;
-		int max_threads;
+		ParallelDispatchThreadPool &thread_pool() { أرجع پلار; }
+	خاص:
+		ParallelDispatchThreadPool &پلار;
+		صحيح max_تارونه;
 	};
 
 	// Run the `work` function in parallel on each thread in the pool (parameterized by
 	// thread number). Waits for all work functions to complete. Only one `run()` can be
 	// active at a time.
 	// Uses no more than `max_threads` threads (but at least one).
-	void run(std::function<void(const RunCtx &)> work) {
-		run(std::move(work), INT_MAX);
+	فراغ پرلپسې(std::function<فراغ(ثابت پرلپسې_Ctx &)> work) {
+		پرلپسې(std::move(work), لوی_عدد);
 	}
 
 	// Returns the number of threads that will be used when calling `run()`.
-	int num_threads() const {
-		return num_threads(INT_MAX);
+	صحيح عدد_تارونه() ثابت {
+		أرجع عدد_تارونه(لوی_عدد);
 	}
-private:
-	friend class Subpool;
+خاص:
+	ملګری class Subpool;
 
-	void run(std::function<void(const RunCtx &)> work, int max_threads);
-	int num_threads(int max_threads) const {
-		return std::min(num_worker_threads_ + 1, std::max(1, max_threads));
+	فراغ پرلپسې(std::function<فراغ(ثابت پرلپسې_Ctx &)> work, صحيح max_تارونه);
+	صحيح عدد_تارونه(صحيح max_تارونه) ثابت {
+		أرجع std::min(عدد_کارګر_تارونه + 1, std::max(1, max_تارونه));
 	}
-	void run_worker(int thread_num);
+	فراغ پرلپسې_کارګر(صحيح thread_عدد);
 
-	std::function<void(const RunCtx &)> *current_work = nullptr;
+	std::function<فراغ(ثابت پرلپسې_Ctx &)> *current_work = nullptr;
 	// Keeps a correct count even when threads are exiting.
-	int num_worker_threads_;
+	صحيح عدد_کارګر_تارونه;
 	// The count of active worker threads for the current `run()`.
 	// This is only written by the main thread, and only written when
 	// no other worker threads are running (i.e. all worker threads have
@@ -253,50 +253,50 @@ private:
 	// Although there can't be any races, we still need to make it atomic
 	// to prevent the compiler reordering accesses so the above invariant
 	// is maintained.
-	std::atomic<int> num_active_worker_threads_ = 0;
+	std::atomic<صحيح> عدد_فعال_کارګر_تارونه = 0;
 
 	// Not especially efficient for large numbers of threads. Worker wakeup could scale
 	// better by conceptually organising workers into a tree and having workers wake
 	// up their children.
-	Mutex main_to_workers_signal_mutex;
-	CondVar main_to_workers_signal_cv;
-	std::vector<uint8_t> main_to_workers_signal;
-	void signal_workers_start() {
-		UniqueLock lock(main_to_workers_signal_mutex);
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-		std::fill(main_to_workers_signal.begin(), main_to_workers_signal.begin() + num_active_worker_threads, 1);
+	Mutex main_منزل_workers_signal_mutex;
+	CondVar main_منزل_workers_signal_cv;
+	std::ویکټور<uint8_t> main_منزل_workers_signal;
+	فراغ signal_workers_پیل() {
+		Unique_قلف قلف(main_منزل_workers_signal_mutex);
+		صحيح عدد_فعال_کارګر_تارونه_2 = عدد_فعال_کارګر_تارونه.بارول(std::حافظه_ترتیب_relaxed);
+		std::fill(main_منزل_workers_signal.begin(), main_منزل_workers_signal.begin() + عدد_فعال_کارګر_تارونه_2, 1);
 		// When `num_active_worker_threads_` is small compared to `num_worker_threads_`, we have a "thundering herd"
 		// problem here. Fixing that would add complexity so don't worry about it for now.
-		main_to_workers_signal_cv.notify_all();
+		main_منزل_workers_signal_cv.notify_all();
 	}
-	void worker_wait_for_start(int thread_num) {
-		UniqueLock lock(main_to_workers_signal_mutex);
-		main_to_workers_signal_cv.wait(lock, [this, thread_num] { return main_to_workers_signal[thread_num] > 0; });
-		main_to_workers_signal[thread_num] = 0;
+	فراغ کارګر_wait_for_پیل(صحيح thread_عدد) {
+		Unique_قلف قلف(main_منزل_workers_signal_mutex);
+		main_منزل_workers_signal_cv.wait(قلف, [this, thread_عدد] { أرجع main_منزل_workers_signal[thread_عدد] > 0; });
+		main_منزل_workers_signal[thread_عدد] = 0;
 	}
 
-	std::atomic<int> done_workers = 0;
-	Mutex workers_to_main_signal_mutex;
-	CondVar workers_to_main_signal_cv;
-	void signal_worker_done() {
+	std::atomic<صحيح> بشپړ_workers = 0;
+	Mutex workers_منزل_main_signal_mutex;
+	CondVar workers_منزل_main_signal_cv;
+	فراغ signal_کارګر_بشپړ() {
 		// Must read `num_active_worker_threads_` before we increment `d`! Otherwise
 		// it is possible we would increment `d`, and then another worker signals the
 		// main thread that all workers are done, and the main thread writes to
 		// `num_active_worker_threads_` before we check it.
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-		int d = done_workers.fetch_add(1, std::memory_order_release);
-		if (d + 1 == num_active_worker_threads) {
-			UniqueLock lock(workers_to_main_signal_mutex);
-			workers_to_main_signal_cv.notify_all();
+		صحيح عدد_فعال_کارګر_تارونه_2 = عدد_فعال_کارګر_تارونه.بارول(std::حافظه_ترتیب_relaxed);
+		صحيح d = بشپړ_workers.fetch_جمع_کړه(1, std::حافظه_ترتیب_release);
+		إذا (d + 1 == عدد_فعال_کارګر_تارونه_2) {
+			Unique_قلف قلف(workers_منزل_main_signal_mutex);
+			workers_منزل_main_signal_cv.notify_all();
 		}
 	}
-	void wait_for_workers_done() {
-		UniqueLock lock(workers_to_main_signal_mutex);
-		workers_to_main_signal_cv.wait(lock, [this] {
-			int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-			return done_workers.load(std::memory_order_acquire) == num_active_worker_threads;
+	فراغ wait_for_workers_بشپړ() {
+		Unique_قلف قلف(workers_منزل_main_signal_mutex);
+		workers_منزل_main_signal_cv.wait(قلف, [this] {
+			صحيح عدد_فعال_کارګر_تارونه_2 = عدد_فعال_کارګر_تارونه.بارول(std::حافظه_ترتیب_relaxed);
+			أرجع بشپړ_workers.بارول(std::حافظه_ترتیب_acquire) == عدد_فعال_کارګر_تارونه_2;
 		});
-		done_workers.store(0, std::memory_order_relaxed);
+		بشپړ_workers.store(0, std::حافظه_ترتیب_relaxed);
 	}
 	// Ensure `thread_pool` is destroyed before any other members,
 	// forcing all threads to be joined before destroying the
@@ -304,25 +304,25 @@ private:
 	std::unique_ptr<ThreadPool> thread_pool;
 };
 
-template <class T>
-class ConcurrentStack
+کينډۍ <class T>
+class Concurrent_ډېری
 {
-public:
-	void push_back(T &&t) {
-		LockGuard lock(mutex);
-		contents.push_back(std::move(t));
+عام:
+	فراغ ټېل_شا(T &&t) {
+		قلف_Guard قلف(mutex);
+		contents.ټېل_شا(std::move(t));
 	}
-	std::optional<T> try_pop_back() {
-		LockGuard lock(mutex);
-		if (contents.empty())
-			return std::nullopt;
-		T result = std::move(contents.back());
-		contents.pop_back();
-		return result;
+	std::optional<T> try_راوباسه_شا() {
+		قلف_Guard قلف(mutex);
+		إذا (contents.تشه())
+			أرجع std::nullopt;
+		T پایله = std::move(contents.شا());
+		contents.راوباسه_شا();
+		أرجع پایله;
 	}
-private:
+خاص:
 	Mutex mutex;
-	std::vector<T> contents;
+	std::ویکټور<T> contents;
 };
 
 // A vector that is sharded into buckets, one per thread. This lets multiple threads write
@@ -330,71 +330,71 @@ private:
 // finished writing, the vector can be iterated over. The iteration order is deterministic:
 // all the elements written by thread 0 in the order it inserted them, followed by all elements
 // written by thread 1, etc.
-template <typename T>
-class ShardedVector {
-public:
-	ShardedVector(const ParallelDispatchThreadPool &thread_pool) {
-		init(thread_pool.num_threads());
+کينډۍ <typename T>
+class Sharded_ویکټور {
+عام:
+	Sharded_ویکټور(ثابت ParallelDispatchThreadPool &thread_pool) {
+		init(thread_pool.عدد_تارونه());
 	}
-	ShardedVector(const ParallelDispatchThreadPool::Subpool &thread_pool) {
-		init(thread_pool.num_threads());
+	Sharded_ویکټور(ثابت ParallelDispatchThreadPool::Subpool &thread_pool) {
+		init(thread_pool.عدد_تارونه());
 	}
 
 	// Insert a value, passing the `ThreadIndex` of the writer thread.
 	// Parallel inserts with different `ThreadIndex` values are fine.
 	// Inserts must not run concurrently with any other methods (e.g.
 	// iteration or `empty()`.)
-	void insert(const ThreadIndex &thread, T value) {
-		buckets[thread.thread_num].emplace_back(std::move(value));
+	فراغ ورننباسه(ثابت Thread_شاخص &thread, T ارزښت) {
+		buckets[thread.thread_عدد].emplace_شا(std::move(ارزښت));
 	}
 
-	bool empty() const {
-		for (const std::vector<T> &bucket : buckets)
-			if (!bucket.empty())
-				return false;
-		return true;
+	bool تشه() ثابت {
+		لكل (ثابت std::ویکټور<T> &لوښی : buckets)
+			إذا (!لوښی.تشه())
+				أرجع false;
+		أرجع true;
 	}
 
-	using Buckets = std::vector<std::vector<T>>;
+	using Buckets = std::ویکټور<std::ویکټور<T>>;
 	class iterator {
-	public:
-		iterator(typename Buckets::iterator bucket_it, typename Buckets::iterator bucket_end)
-			: bucket_it(std::move(bucket_it)), bucket_end(std::move(bucket_end)) {
-			if (bucket_it != bucket_end)
-				inner_it = bucket_it->begin();
+	عام:
+		iterator(typename Buckets::iterator لوښی_it, typename Buckets::iterator لوښی_پای_ټکی)
+			: لوښی_it(std::move(لوښی_it)), لوښی_پای_ټکی(std::move(لوښی_پای_ټکی)) {
+			إذا (لوښی_it != لوښی_پای_ټکی)
+				inner_it = لوښی_it->begin();
 			normalize();
 		}
-		T& operator*() const { return *inner_it.value(); }
-		iterator &operator++() {
+		T& چلوونکی*() ثابت { أرجع *inner_it.ارزښت(); }
+		iterator &چلوونکی++() {
 			++*inner_it;
 			normalize();
-			return *this;
+			أرجع *this;
 		}
-		bool operator!=(const iterator &other) const {
-			return bucket_it != other.bucket_it || inner_it != other.inner_it;
+		bool چلوونکی!=(ثابت iterator &other) ثابت {
+			أرجع لوښی_it != other.لوښی_it || inner_it != other.inner_it;
 		}
-	private:
-		void normalize() {
-			if (bucket_it == bucket_end)
-				return;
-			while (inner_it == bucket_it->end()) {
-				++bucket_it;
-				if (bucket_it == bucket_end) {
+	خاص:
+		فراغ normalize() {
+			إذا (لوښی_it == لوښی_پای_ټکی)
+				أرجع;
+			طالما (inner_it == لوښی_it->پای_ټکی()) {
+				++لوښی_it;
+				إذا (لوښی_it == لوښی_پای_ټکی) {
 					inner_it.reset();
-					return;
+					أرجع;
 				}
-				inner_it = bucket_it->begin();
+				inner_it = لوښی_it->begin();
 			}
 		}
-		std::optional<typename std::vector<T>::iterator> inner_it;
-		typename Buckets::iterator bucket_it;
-		typename Buckets::iterator bucket_end;
+		std::optional<typename std::ویکټور<T>::iterator> inner_it;
+		typename Buckets::iterator لوښی_it;
+		typename Buckets::iterator لوښی_پای_ټکی;
 	};
-	iterator begin() { return iterator(buckets.begin(), buckets.end()); }
-	iterator end() { return iterator(buckets.end(), buckets.end()); }
-private:
-	void init(int num_threads) {
-		buckets.resize(num_threads);
+	iterator begin() { أرجع iterator(buckets.begin(), buckets.پای_ټکی()); }
+	iterator پای_ټکی() { أرجع iterator(buckets.پای_ټکی(), buckets.پای_ټکی()); }
+خاص:
+	فراغ init(صحيح عدد_تارونه) {
+		buckets.resize(عدد_تارونه);
 	}
 	Buckets buckets;
 };
@@ -403,9 +403,9 @@ private:
 // the current value and discarding the other. This is correct when all values with the
 // same key are interchangeable, i.e. when the hashtable is being used as a set instead
 // of a map.
-template <typename V>
-struct SetCollisionHandler {
-	void operator()(typename V::Accumulated &, typename V::Accumulated &) const {}
+کينډۍ <typename V>
+بنية سېټ_Collision_Handler {
+	فراغ چلوونکی()(typename V::Accumulated &, typename V::Accumulated &) ثابت {}
 };
 
 // A hashtable that can be efficiently built in parallel and then looked up concurrently.
@@ -418,193 +418,193 @@ struct SetCollisionHandler {
 //
 // To use this, first construct a `Builder` and fill it in (in parallel), then construct
 // a `ShardedHashtable` from the `Builder`.
-template <typename V, typename KeyEquality, typename CollisionHandler>
+کينډۍ <typename V, typename کلی_Equality, typename CollisionHandler>
 class ShardedHashtable {
-public:
+عام:
 	// A combination of a `V` and its hash value.
-	struct Value {
-		Value(V value, unsigned int hash) : value(std::move(value)), hash(hash) {}
-		Value(Value &&) = default;
-		Value(const Value &) = delete;
-		Value &operator=(const Value &) = delete;
-		V value;
-		unsigned int hash;
+	بنية ارزښت_3 {
+		ارزښت_3(V ارزښت, بینښه صحيح hash) : ارزښت(std::move(ارزښت)), hash(hash) {}
+		ارزښت_3(ارزښت_3 &&) = افتراضي;
+		ارزښت_3(ثابت ارزښت_3 &) = delete;
+		ارزښت_3 &چلوونکی=(ثابت ارزښت_3 &) = delete;
+		V ارزښت;
+		بینښه صحيح hash;
 	};
 	// A combination of a `V::Accumulated` and its hash value.
-	struct AccumulatedValue {
-		AccumulatedValue(typename V::Accumulated value, unsigned int hash) : value(std::move(value)), hash(hash) {}
-		AccumulatedValue(AccumulatedValue &&) = default;
-#if defined(_MSC_VER)
-		AccumulatedValue(const AccumulatedValue &) {
+	بنية Accumulated_ارزښت {
+		Accumulated_ارزښت(typename V::Accumulated ارزښت, بینښه صحيح hash) : ارزښت(std::move(ارزښت)), hash(hash) {}
+		Accumulated_ارزښت(Accumulated_ارزښت &&) = افتراضي;
+#إذا defined(_MSC_VER)
+		Accumulated_ارزښت(ثابت Accumulated_ارزښت &) {
 			log_error("Copy constructor called on AccumulatedValue\n");
 		}
-		AccumulatedValue &operator=(const AccumulatedValue &) {
+		Accumulated_ارزښت &چلوونکی=(ثابت Accumulated_ارزښت &) {
 			log_error("Copy assignment called on AccumulatedValue\n");
-			return *this;
+			أرجع *this;
 		}
-#else
-		AccumulatedValue(const AccumulatedValue &) = delete;
-		AccumulatedValue &operator=(const AccumulatedValue &) = delete;
-#endif
-		typename V::Accumulated value;
-		unsigned int hash;
+#وإلا
+		Accumulated_ارزښت(ثابت Accumulated_ارزښت &) = delete;
+		Accumulated_ارزښت &چلوونکی=(ثابت Accumulated_ارزښت &) = delete;
+#د_که_پای
+		typename V::Accumulated ارزښت;
+		بینښه صحيح hash;
 	};
 	// A class containing an `operator()` that returns true of two `AccumulatedValue`
 	// elements have equal keys.
 	// Required to insert `AccumulatedValue`s into an `std::unordered_set`.
-	struct AccumulatedValueEquality {
-		KeyEquality inner;
-		AccumulatedValueEquality(const KeyEquality &inner) : inner(inner) {}
-		bool operator()(const AccumulatedValue &v1, const AccumulatedValue &v2) const {
-			return inner(v1.value, v2.value);
+	بنية Accumulated_ارزښت_Equality {
+		کلی_Equality inner;
+		Accumulated_ارزښت_Equality(ثابت کلی_Equality &inner) : inner(inner) {}
+		bool چلوونکی()(ثابت Accumulated_ارزښت &v1, ثابت Accumulated_ارزښت &v2) ثابت {
+			أرجع inner(v1.ارزښت, v2.ارزښت);
 		}
 	};
 	// A class containing an `operator()` that returns the hash value of an `AccumulatedValue`.
 	// Required to insert `AccumulatedValue`s into an `std::unordered_set`.
-	struct AccumulatedValueHashOp {
-		size_t operator()(const AccumulatedValue &v) const {
-			return static_cast<size_t>(v.hash);
+	بنية Accumulated_ارزښت_Hash_Op {
+		اندازه_t چلوونکی()(ثابت Accumulated_ارزښت &v) ثابت {
+			أرجع static_cast<اندازه_t>(v.hash);
 		}
 	};
-	using Shard = std::unordered_set<AccumulatedValue, AccumulatedValueHashOp, AccumulatedValueEquality>;
+	using Shard = std::unordered_سېټ<Accumulated_ارزښت, Accumulated_ارزښت_Hash_Op, Accumulated_ارزښت_Equality>;
 
 	// First construct one of these. Then populate it in parallel by calling `insert()` from many threads.
 	// Then do another parallel phase calling `process()` from many threads.
 	class Builder {
-	public:
-		Builder(const ParallelDispatchThreadPool &thread_pool, KeyEquality equality = KeyEquality(), CollisionHandler collision_handler = CollisionHandler())
+	عام:
+		Builder(ثابت ParallelDispatchThreadPool &thread_pool, کلی_Equality equality = کلی_Equality(), CollisionHandler collision_handler = CollisionHandler())
 				: collision_handler(std::move(collision_handler)) {
-			init(thread_pool.num_threads(), std::move(equality));
+			init(thread_pool.عدد_تارونه(), std::move(equality));
 		}
-		Builder(const ParallelDispatchThreadPool::Subpool &thread_pool, KeyEquality equality = KeyEquality(), CollisionHandler collision_handler = CollisionHandler())
+		Builder(ثابت ParallelDispatchThreadPool::Subpool &thread_pool, کلی_Equality equality = کلی_Equality(), CollisionHandler collision_handler = CollisionHandler())
 				: collision_handler(std::move(collision_handler)) {
-			init(thread_pool.num_threads(), std::move(equality));
+			init(thread_pool.عدد_تارونه(), std::move(equality));
 		}
 		// First call `insert` to insert all elements. All inserts must finish
 		// before calling any `process()`.
-		void insert(const ThreadIndex &thread, Value v) {
+		فراغ ورننباسه(ثابت Thread_شاخص &thread, ارزښت_3 v) {
 			// You might think that for the single-threaded case, we can optimize by
 			// inserting directly into the `std::unordered_set` here. But that slows things down
 			// a lot and I never got around to figuring out why.
-			std::vector<std::vector<Value>> &buckets = all_buckets[thread.thread_num];
-			size_t bucket = static_cast<size_t>(v.hash) % buckets.size();
-			buckets[bucket].emplace_back(std::move(v));
+			std::ویکټور<std::ویکټور<ارزښت_3>> &buckets = all_buckets[thread.thread_عدد];
+			اندازه_t لوښی = static_cast<اندازه_t>(v.hash) % buckets.اندازه();
+			buckets[لوښی].emplace_شا(std::move(v));
 		}
 		// Then call `process` for each thread. All `process()`s must finish before using
 		// the `Builder` to construct a `ShardedHashtable`.
-		void process(const ThreadIndex &thread) {
-			int size = 0;
-			for (std::vector<std::vector<Value>> &buckets : all_buckets)
-				size += GetSize(buckets[thread.thread_num]);
-			Shard &shard = shards[thread.thread_num];
-			shard.reserve(size);
-			for (std::vector<std::vector<Value>> &buckets : all_buckets) {
-				for (Value &value : buckets[thread.thread_num])
-					accumulate(value, shard);
+		فراغ process(ثابت Thread_شاخص &thread) {
+			صحيح اندازه = 0;
+			لكل (std::ویکټور<std::ویکټور<ارزښت_3>> &buckets : all_buckets)
+				اندازه += Get_اندازه(buckets[thread.thread_عدد]);
+			Shard &shard = shards[thread.thread_عدد];
+			shard.reserve(اندازه);
+			لكل (std::ویکټور<std::ویکټور<ارزښت_3>> &buckets : all_buckets) {
+				لكل (ارزښت_3 &ارزښت : buckets[thread.thread_عدد])
+					accumulate(ارزښت, shard);
 				// Free as much memory as we can during the parallel phase.
-				std::vector<Value>().swap(buckets[thread.thread_num]);
+				std::ویکټور<ارزښت_3>().بدلون(buckets[thread.thread_عدد]);
 			}
 		}
-	private:
-		friend class ShardedHashtable<V, KeyEquality, CollisionHandler>;
-		void accumulate(Value &value, Shard &shard) {
+	خاص:
+		ملګری class ShardedHashtable<V, کلی_Equality, CollisionHandler>;
+		فراغ accumulate(ارزښت_3 &ارزښت, Shard &shard) {
 			// With C++20 we could make this more efficient using heterogenous lookup
-			AccumulatedValue accumulated_value{std::move(value.value), value.hash};
-			auto [it, inserted] = shard.insert(std::move(accumulated_value));
-			if (!inserted)
-				collision_handler(const_cast<typename V::Accumulated &>(it->value), accumulated_value.value);
+			Accumulated_ارزښت accumulated_ارزښت{std::move(ارزښت.ارزښت), ارزښت.hash};
+			خپلکاری [it, inserted] = shard.ورننباسه(std::move(accumulated_ارزښت));
+			إذا (!inserted)
+				collision_handler(const_cast<typename V::Accumulated &>(it->ارزښت), accumulated_ارزښت.ارزښت);
 		}
-		void init(int num_threads, KeyEquality equality) {
-			all_buckets.resize(num_threads);
-			for (std::vector<std::vector<Value>> &buckets : all_buckets)
-				buckets.resize(num_threads);
-			for (int i = 0; i < num_threads; ++i)
-				shards.emplace_back(0, AccumulatedValueHashOp(), AccumulatedValueEquality(equality));
+		فراغ init(صحيح عدد_تارونه, کلی_Equality equality) {
+			all_buckets.resize(عدد_تارونه);
+			لكل (std::ویکټور<std::ویکټور<ارزښت_3>> &buckets : all_buckets)
+				buckets.resize(عدد_تارونه);
+			لكل (صحيح i = 0; i < عدد_تارونه; ++i)
+				shards.emplace_شا(0, Accumulated_ارزښت_Hash_Op(), Accumulated_ارزښت_Equality(equality));
 		}
-		const CollisionHandler collision_handler;
+		ثابت CollisionHandler collision_handler;
 		// A num_threads x num_threads matrix of buckets.
 		// In the first phase, each thread i gemerates elements and writes them to
 		// bucket [i][j] where j = hash(element) % num_threads.
 		// In the second phase, thread i reads from bucket [j][i] for all j, collecting
 		// all elements where i = hash(element) % num_threads.
-		std::vector<std::vector<std::vector<Value>>> all_buckets;
-		std::vector<Shard> shards;
+		std::ویکټور<std::ویکټور<std::ویکټور<ارزښت_3>>> all_buckets;
+		std::ویکټور<Shard> shards;
 	};
 
 	// Then finally construct the hashtable:
 	ShardedHashtable(Builder &builder) : shards(std::move(builder.shards)) {
 		// Check that all necessary 'process()' calls were made.
-		for (std::vector<std::vector<Value>> &buckets : builder.all_buckets)
-			for (std::vector<Value> &bucket : buckets)
-				log_assert(bucket.empty());
+		لكل (std::ویکټور<std::ویکټور<ارزښت_3>> &buckets : builder.all_buckets)
+			لكل (std::ویکټور<ارزښت_3> &لوښی : buckets)
+				log_assert(لوښی.تشه());
 		// Free memory.
-		std::vector<std::vector<std::vector<Value>>>().swap(builder.all_buckets);
+		std::ویکټور<std::ویکټور<std::ویکټور<ارزښت_3>>>().بدلون(builder.all_buckets);
 	}
-	ShardedHashtable(ShardedHashtable &&other) = default;
+	ShardedHashtable(ShardedHashtable &&other) = افتراضي;
 	ShardedHashtable() {}
 
-	ShardedHashtable &operator=(ShardedHashtable &&other) = default;
+	ShardedHashtable &چلوونکی=(ShardedHashtable &&other) = افتراضي;
 
 	// Look up by `AccumulatedValue`. If we switch to C++20 then we could use
 	// heterogenous lookup to support looking up by `Value` here. Returns nullptr
 	// if the key is not found.
-	const typename V::Accumulated *find(const AccumulatedValue &v) const {
-		size_t num_shards = shards.size();
-		if (num_shards == 0)
-			return nullptr;
-		size_t shard = static_cast<size_t>(v.hash) % num_shards;
-		auto it = shards[shard].find(v);
-		if (it == shards[shard].end())
-			return nullptr;
-		return &it->value;
+	ثابت typename V::Accumulated *پیدا_کړه(ثابت Accumulated_ارزښت &v) ثابت {
+		اندازه_t عدد_shards = shards.اندازه();
+		إذا (عدد_shards == 0)
+			أرجع nullptr;
+		اندازه_t shard = static_cast<اندازه_t>(v.hash) % عدد_shards;
+		خپلکاری it = shards[shard].پیدا_کړه(v);
+		إذا (it == shards[shard].پای_ټکی())
+			أرجع nullptr;
+		أرجع &it->ارزښت;
 	}
 
 	// Insert an element into the table. The caller is responsible for ensuring this does not
 	// happen concurrently with any other method calls.
-	void insert(AccumulatedValue v) {
-		size_t num_shards = shards.size();
-		if (num_shards == 0)
-			return;
-		size_t shard = static_cast<size_t>(v.hash) % num_shards;
-		shards[shard].insert(v);
+	فراغ ورننباسه(Accumulated_ارزښت v) {
+		اندازه_t عدد_shards = shards.اندازه();
+		إذا (عدد_shards == 0)
+			أرجع;
+		اندازه_t shard = static_cast<اندازه_t>(v.hash) % عدد_shards;
+		shards[shard].ورننباسه(v);
 	}
 
 	// Call this for each shard to implement parallel destruction. For very large `ShardedHashtable`s,
 	// deleting all elements of all shards on a single thread can be a performance bottleneck.
-	void clear(const ThreadIndex &shard) {
-		AccumulatedValueEquality equality = shards[shard.thread_num].key_eq();
-		shards[shard.thread_num] = Shard(0, AccumulatedValueHashOp(), equality);
+	فراغ clear(ثابت Thread_شاخص &shard) {
+		Accumulated_ارزښت_Equality equality = shards[shard.thread_عدد].کلی_eq();
+		shards[shard.thread_عدد] = Shard(0, Accumulated_ارزښت_Hash_Op(), equality);
 	}
-private:
-	std::vector<Shard> shards;
+خاص:
+	std::ویکټور<Shard> shards;
 };
 
 // A concurrent work-queue that can share batches of work across threads.
 // Uses a naive implementation of work-stealing.
-template <typename T>
-class ConcurrentWorkQueue {
-public:
+کينډۍ <typename T>
+class Concurrent_Work_کتار {
+عام:
 	// Create a queue that supports the given number of threads and
 	// groups work into `batch_size` units.
-	ConcurrentWorkQueue(int num_threads, int batch_size = 100)
-		: batch_size(batch_size), thread_states(num_threads) {}
-	int num_threads() const { return GetSize(thread_states); }
+	Concurrent_Work_کتار(صحيح عدد_تارونه, صحيح batch_اندازه = 100)
+		: batch_اندازه(batch_اندازه), thread_حالتونه(عدد_تارونه) {}
+	صحيح عدد_تارونه() ثابت { أرجع Get_اندازه(thread_حالتونه); }
 	// Push some work to do. Pushes and pops with the same `thread` must
 	// not happen concurrently.
-	void push(const ThreadIndex &thread, T work) {
-		ThreadState &thread_state = thread_states[thread.thread_num];
-		thread_state.next_batch.emplace_back(std::move(work));
-		if (GetSize(thread_state.next_batch) < batch_size)
-			return;
-		bool was_empty;
+	فراغ ټېل(ثابت Thread_شاخص &thread, T work) {
+		ThreadState &thread_state = thread_حالتونه[thread.thread_عدد];
+		thread_state.بل_batch.emplace_شا(std::move(work));
+		إذا (Get_اندازه(thread_state.بل_batch) < batch_اندازه)
+			أرجع;
+		bool was_تشه;
 		{
-			UniqueLock lock(thread_state.batches_lock);
-			was_empty = thread_state.batches.empty();
-			thread_state.batches.push_back(std::move(thread_state.next_batch));
+			Unique_قلف قلف(thread_state.batches_قلف);
+			was_تشه = thread_state.batches.تشه();
+			thread_state.batches.ټېل_شا(std::move(thread_state.بل_batch));
 		}
-		if (was_empty) {
-			UniqueLock lock(waiters_lock);
-			if (num_waiters > 0) {
+		إذا (was_تشه) {
+			Unique_قلف قلف(waiters_قلف);
+			إذا (عدد_waiters > 0) {
 				waiters_cv.notify_one();
 			}
 		}
@@ -613,24 +613,24 @@ public:
 	// If all threads enter `pop_batch()`, then instead of deadlocking the
 	// queue will return no work. That is the only case in which it will
 	// return no work.
-	std::vector<T> pop_batch(const ThreadIndex &thread) {
-		ThreadState &thread_state = thread_states[thread.thread_num];
-		if (!thread_state.next_batch.empty())
-			return std::move(thread_state.next_batch);
+	std::ویکټور<T> راوباسه_batch(ثابت Thread_شاخص &thread) {
+		ThreadState &thread_state = thread_حالتونه[thread.thread_عدد];
+		إذا (!thread_state.بل_batch.تشه())
+			أرجع std::move(thread_state.بل_batch);
 		// Empty our own work queue first.
 		{
-			UniqueLock lock(thread_state.batches_lock);
-			if (!thread_state.batches.empty()) {
-				std::vector<T> batch = std::move(thread_state.batches.back());
-				thread_state.batches.pop_back();
-				return batch;
+			Unique_قلف قلف(thread_state.batches_قلف);
+			إذا (!thread_state.batches.تشه()) {
+				std::ویکټور<T> batch = std::move(thread_state.batches.شا());
+				thread_state.batches.راوباسه_شا();
+				أرجع batch;
 			}
 		}
 		// From here on in this function, our work queue is empty.
-		while (true) {
-			std::vector<T> batch = try_steal(thread);
-			if (!batch.empty()) {
-				return std::move(batch);
+		طالما (true) {
+			std::ویکټور<T> batch = try_steal(thread);
+			إذا (!batch.تشه()) {
+				أرجع std::move(batch);
 			}
 			// Termination: if all threads run out of work, then all of
 			// them will eventually enter this loop and there will be no further
@@ -638,52 +638,52 @@ public:
 			// num_waiters and wait, so num_waiters == num_threads()
 			// will become true. In single-threaded builds, num_threads() is 1,
 			// so we always terminate on the first iteration.
-			UniqueLock lock(waiters_lock);
-			++num_waiters;
-			if (num_waiters == num_threads()) {
+			Unique_قلف قلف(waiters_قلف);
+			++عدد_waiters;
+			إذا (عدد_waiters == عدد_تارونه()) {
 				waiters_cv.notify_all();
-				return {};
+				أرجع {};
 			}
 			// As above, it's possible that we'll wait here even when there
 			// are work batches posted by other threads. That's OK.
-			waiters_cv.wait(lock);
-			if (num_waiters == num_threads())
-				return {};
-			--num_waiters;
+			waiters_cv.wait(قلف);
+			إذا (عدد_waiters == عدد_تارونه())
+				أرجع {};
+			--عدد_waiters;
 		}
 	}
-private:
-	std::vector<T> try_steal(const ThreadIndex &thread) {
-		for (int i = 1; i < num_threads(); i++) {
-			int other_thread_num = (thread.thread_num + i) % num_threads();
-			ThreadState &other_thread_state = thread_states[other_thread_num];
-			UniqueLock lock(other_thread_state.batches_lock);
-			if (!other_thread_state.batches.empty()) {
-				std::vector<T> batch = std::move(other_thread_state.batches.front());
-				other_thread_state.batches.pop_front();
-				return batch;
+خاص:
+	std::ویکټور<T> try_steal(ثابت Thread_شاخص &thread) {
+		لكل (صحيح i = 1; i < عدد_تارونه(); i++) {
+			صحيح other_thread_عدد = (thread.thread_عدد + i) % عدد_تارونه();
+			ThreadState &other_thread_state = thread_حالتونه[other_thread_عدد];
+			Unique_قلف قلف(other_thread_state.batches_قلف);
+			إذا (!other_thread_state.batches.تشه()) {
+				std::ویکټور<T> batch = std::move(other_thread_state.batches.front());
+				other_thread_state.batches.راوباسه_front();
+				أرجع batch;
 			}
 		}
-		return {};
+		أرجع {};
 	}
 
-	int batch_size;
+	صحيح batch_اندازه;
 
-	struct ThreadState {
+	بنية ThreadState {
 		// Entirely thread-local.
-		std::vector<T> next_batch;
+		std::ویکټور<T> بل_batch;
 
-		Mutex batches_lock;
+		Mutex batches_قلف;
 		// Only the associated thread ever adds to this, and only at the back.
 		// Other threads can remove elements from the front.
-		std::deque<std::vector<T>> batches;
+		std::deque<std::ویکټور<T>> batches;
 	};
-	std::vector<ThreadState> thread_states;
+	std::ویکټور<ThreadState> thread_حالتونه;
 
-	Mutex waiters_lock;
+	Mutex waiters_قلف;
 	CondVar waiters_cv;
 	// Number of threads waiting for work. Their queues are empty.
-	int num_waiters = 0;
+	صحيح عدد_waiters = 0;
 };
 
 // A monotonic flag. Starts false, and can be set to true in a thread-safe way.
@@ -691,17 +691,17 @@ private:
 // Uses relaxed atomics so there are no memory ordering guarantees. Do not use this
 // to guard access to shared memory.
 class MonotonicFlag {
-public:
-	MonotonicFlag() : value(false) {}
-	bool load() const { return value.load(std::memory_order_relaxed); }
-	void set() { value.store(true, std::memory_order_relaxed); }
-	bool set_and_return_old() {
-		return value.exchange(true, std::memory_order_relaxed);
+عام:
+	MonotonicFlag() : ارزښت(false) {}
+	bool بارول() ثابت { أرجع ارزښت.بارول(std::حافظه_ترتیب_relaxed); }
+	فراغ سېټ() { ارزښت.store(true, std::حافظه_ترتیب_relaxed); }
+	bool سېټ_and_return_old() {
+		أرجع ارزښت.exchange(true, std::حافظه_ترتیب_relaxed);
 	}
-private:
-	std::atomic<bool> value;
+خاص:
+	std::atomic<bool> ارزښت;
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی
 
-#endif // YOSYS_THREADING_H
+#د_که_پای // YOSYS_THREADING_H

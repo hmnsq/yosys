@@ -17,98 +17,98 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "libs/sha1/sha1.h"
-#include "backends/rtlil/rtlil_backend.h"
+#ضمن "kernel/yosys.h"
+#ضمن "libs/sha1/sha1.h"
+#ضمن "backends/rtlil/rtlil_backend.h"
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#إذا !defined(_WIN32) || defined(__MINGW32__)
 #  include <sys/time.h>
-#endif
+#د_که_پای
 
-#if defined(YOSYS_ENABLE_DLOPEN)
+#إذا defined(YOSYS_ENABLE_DLOPEN)
 #  include <dlfcn.h>
-#endif
+#د_که_پای
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-#include <vector>
-#include <list>
+#ضمن <stdlib.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
+#ضمن <stdarg.h>
+#ضمن <vector>
+#ضمن <list>
 
 YOSYS_NAMESPACE_BEGIN
 
-bool log_stderr_sink_forced = false;
+منطقي log_stderr_sink_forced = خطأ;
 
 LogManager &logger()
 {
-	static LogManager instance;
-	return instance;
+	ساكن LogManager instance;
+	أرجع instance;
 }
 
-std::chrono::steady_clock::time_point LogManager::get_initial_time() const
+std::chrono::steady_clock::وخت_ټکی LogManager::get_initial_وخت() ثابت
 {
-	static const auto initial_time = std::chrono::steady_clock::now();
-	return initial_time;
+	ساكن ثابت خپلکاری initial_وخت = std::chrono::steady_clock::now();
+	أرجع initial_وخت;
 }
 
-void (*log_error_atexit)() = nullptr;
-void (*log_verific_callback)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg) = nullptr;
+فراغ (*log_error_atexit)() = تش_اشاره;
+فراغ (*log_verific_callback)(صحيح پیغام_type, ثابت حرف *پیغام_id, Log_سرچینه_Location src, ثابت حرف *پیغام) = تش_اشاره;
 
-static bool next_print_log = true;
+ساكن منطقي بل_print_log = ریښتیا;
 
-FileLogSink::FileLogSink(const std::string &filename, bool line_buffered, bool append)
+FileLogSink::FileLogSink(ثابت std::string &filename, منطقي کرښه_buffered, منطقي append)
 	: file(fopen(filename.c_str(), append ? "at" : "wt"))
 {
-	if (!file)
-		throw std::runtime_error("Can't open log file `" + filename + "' for writing!\n");
+	إذا (!file)
+		ارم std::runtime_error("Can't open log file `" + filename + "' for writing!\n");
 
-	if (line_buffered)
-		setvbuf(file, nullptr, _IOLBF, 0);
+	إذا (کرښه_buffered)
+		setvbuf(file, تش_اشاره, _IOLBF, 0);
 }
 
 FileLogSink::~FileLogSink()
 {
 	flush();
-	if (file)
+	إذا (file)
 		fclose(file);
 }
 
-void FileLogSink::log(const LogMessage &msg)
+فراغ FileLogSink::لوګاریتم(ثابت Log_پیغام &پیغام)
 {
-	fputs(msg.cached_msg.c_str(), file);
+	fputs(پیغام.cached_پیغام.c_str(), file);
 }
 
-void FileLogSink::flush()
+فراغ FileLogSink::flush()
 {
 	fflush(file);
 }
 
-void ConsoleLogSink::log(const LogMessage &msg)
+فراغ ConsoleLogSink::لوګاریتم(ثابت Log_پیغام &پیغام)
 {
-	FILE *file = (msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError) ? stderr : stdout;
-	fputs(msg.cached_msg.c_str(), file);
+	FILE *file = (پیغام.severity == LogSeverity::Error || پیغام.severity == LogSeverity::NonFatalError) ? stderr : stdout;
+	fputs(پیغام.cached_پیغام.c_str(), file);
 }
 
-void ConsoleLogSink::flush()
+فراغ ConsoleLogSink::flush()
 {
 	fflush(stdout);
 	fflush(stderr);
 }
 
-bool StderrLogSink::should_log(const LogMessage &msg) const
+منطقي StderrLogSink::should_log(ثابت Log_پیغام &پیغام) ثابت
 {
-	return msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
-			(msg.severity == LogSeverity::Warning && !quiet_warnings) ||
+	أرجع پیغام.severity == LogSeverity::Error || پیغام.severity == LogSeverity::NonFatalError ||
+			(پیغام.severity == LogSeverity::Warning && !quiet_warnings) ||
 			log_stderr_sink_forced;
 }
 
-void StderrLogSink::log(const LogMessage &msg)
+فراغ StderrLogSink::لوګاریتم(ثابت Log_پیغام &پیغام)
 {
-	fputs(msg.cached_msg.c_str(), stderr);
+	fputs(پیغام.cached_پیغام.c_str(), stderr);
 }
 
-void StderrLogSink::flush()
+فراغ StderrLogSink::flush()
 {
 	fflush(stderr);
 }
@@ -118,589 +118,589 @@ ScratchPadLogSink::ScratchPadLogSink(std::string scratchpad)
 {
 }
 
-void ScratchPadLogSink::log(const LogMessage &msg)
+فراغ ScratchPadLogSink::لوګاریتم(ثابت Log_پیغام &پیغام)
 {
 	RTLIL::Design *design = yosys_get_design();
-	if (!design)
-		return;
+	إذا (!design)
+		أرجع;
 
-	design->scratchpad[scratchpad].append(msg.cached_msg);
+	design->scratchpad[scratchpad].append(پیغام.cached_پیغام);
 }
 
-LogMessage::LogMessage(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string_view message) :
+Log_پیغام::Log_پیغام(LogSeverity severity, Log_سرچینه_Location src, std::string_view مختاړی_2, std::string_view format, std::string_view پیغام_2) :
 	severity(severity),
-	prefix(prefix),
+	مختاړی_2(مختاړی_2),
 	format(format),
-	message(message),
+	پیغام_2(پیغام_2),
 	timestamp(std::chrono::steady_clock::now()),
 	src(src)
 {
-	std::string time_str;
-	if (logger().get_log_time())
+	std::string وخت_str;
+	إذا (logger().get_log_وخت())
 	{
-		if (next_print_log) {
-			next_print_log = false;
-			auto elapsed = std::chrono::steady_clock::now() - logger().get_initial_time();
-			auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-			time_str += stringf("[%05d.%06d] ", int(us.count() / 1'000'000),int(us.count() % 1'000'000));
+		إذا (بل_print_log) {
+			بل_print_log = خطأ;
+			خپلکاری elapsed = std::chrono::steady_clock::now() - logger().get_initial_وخت();
+			خپلکاری us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
+			وخت_str += stringf("[%05d.%06d] ", صحيح(us.شمېر() / 1'000'000),صحيح(us.شمېر() % 1'000'000));
 		}
 
-		if (!format.empty() && format.back() == '\n')
-			next_print_log = true;
+		إذا (!format.تشه() && format.شا() == '\n')
+			بل_print_log = ریښتیا;
 
 		// Special case to detect newlines in Python log output, since
 		// the binding always calls `log("%s", payload)` and the newline
 		// is then in the first formatted argument
-		if (format == "%s" && !message.empty() && message.back() == '\n')
-			next_print_log = true;
+		إذا (format == "%s" && !پیغام_2.تشه() && پیغام_2.شا() == '\n')
+			بل_print_log = ریښتیا;
 	}
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	cached_msg = stringf("%s%s%s%s", time_str, loc, prefix, message);
+	std::string loc = !src.filename.تشه() ? stringf("%s:%d: ", src.filename, src.پیل_کرښه) : "";
+	cached_پیغام = stringf("%s%s%s%s", وخت_str, loc, مختاړی_2, پیغام_2);
 }
 
-void LogManager::logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in) {
-	size_t remove_leading = 0;
-	while (format.size() > 1 && format[0] == '\n') {
-		logv_string(severity, src, prefix, "\n", "\n");
+فراغ LogManager::logv_string(LogSeverity severity, Log_سرچینه_Location src, std::string_view مختاړی_2, std::string_view format, std::string str_دننه) {
+	اندازه_t remove_leading = 0;
+	طالما (format.اندازه() > 1 && format[0] == '\n') {
+		logv_string(severity, src, مختاړی_2, "\n", "\n");
 		format = format.substr(1);
 		++remove_leading;
 	}
-	if (remove_leading > 0) {
-		str_in = str_in.substr(remove_leading);
+	إذا (remove_leading > 0) {
+		str_دننه = str_دننه.substr(remove_leading);
 	}
 
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	std::string str = stringf("%s%s%s",loc,prefix,str_in);
+	std::string loc = !src.filename.تشه() ? stringf("%s:%d: ", src.filename, src.پیل_کرښه) : "";
+	std::string str = stringf("%s%s%s",loc,مختاړی_2,str_دننه);
 
-	if (str.empty())
-		return;
+	إذا (str.تشه())
+		أرجع;
 
-	size_t nnl_pos = str.find_last_not_of('\n');
-	if (nnl_pos == std::string::npos)
-		newline_count += GetSize(str);
-	else
-		newline_count = GetSize(str) - nnl_pos - 1;
+	اندازه_t nnl_pos = str.پیدا_کړه_وروستی_not_د('\n');
+	إذا (nnl_pos == std::string::npos)
+		newline_شمېر += Get_اندازه(str);
+	وإلا
+		newline_شمېر = Get_اندازه(str) - nnl_pos - 1;
 
-	if (hasher)
+	إذا (hasher)
 		hasher->update(str);
 
-	auto msg = LogMessage(severity, src, prefix, format, str_in);
-	for (auto &sink : sinks) {
-		if (sink->should_log(msg))
-			sink->log(msg);
+	خپلکاری پیغام = Log_پیغام(severity, src, مختاړی_2, format, str_دننه);
+	لكل (خپلکاری &sink : sinks) {
+		إذا (sink->should_log(پیغام))
+			sink->لوګاریتم(پیغام);
 	}
 
-	if (severity == LogSeverity::Header)
-		str = str_in;
+	إذا (severity == LogSeverity::سرلیک)
+		str = str_دننه;
 
-	static std::string linebuffer;
-	static bool warn_regex_recusion_guard = false;
+	ساكن std::string linebuffer;
+	ساكن منطقي warn_regex_recusion_guard = خطأ;
 
-	if (!warn_regex_recusion_guard)
+	إذا (!warn_regex_recusion_guard)
 	{
-		warn_regex_recusion_guard = true;
+		warn_regex_recusion_guard = ریښتیا;
 
-		if (warn_regexes.empty() && expect_log.empty() && expect_prefix_log.empty())
+		إذا (warn_regexes.تشه() && expect_log.تشه() && expect_مختاړی_log.تشه())
 		{
 			linebuffer.clear();
 		}
-		else
+		وإلا
 		{
 			linebuffer += str;
 
-			if (!linebuffer.empty() && linebuffer.back() == '\n') {
-				for (auto &re : warn_regexes)
-					if (std::regex_search(linebuffer, re))
+			إذا (!linebuffer.تشه() && linebuffer.شا() == '\n') {
+				لكل (خپلکاری &re : warn_regexes)
+					إذا (std::regex_پلټنه(linebuffer, re))
 						log_warning("Found log message matching -W regex:\n%s", str);
 
-				for (auto &[_, item] : expect_log)
-					if (std::regex_search(linebuffer, item.pattern))
-						item.current_count++;
+				لكل (خپلکاری &[_, توکی] : expect_log)
+					إذا (std::regex_پلټنه(linebuffer, توکی.نمونه))
+						توکی.current_شمېر++;
 
 				linebuffer.clear();
 			}
 		}
 
-		warn_regex_recusion_guard = false;
+		warn_regex_recusion_guard = خطأ;
 	}
 }
 
-void LogManager::formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str)
+فراغ LogManager::formatted_string(LogSeverity severity, Log_سرچینه_Location src, std::string_view مختاړی_2, std::string_view format, std::string str)
 {
-	log_assert(!Multithreading::active());
+	log_assert(!Multithreading::فعال());
 
-	if (make_debug && !is_debug(1))
-		return;
-	logv_string(severity, src, prefix, format, std::move(str));
+	إذا (make_debug && !is_debug(1))
+		أرجع;
+	logv_string(severity, src, مختاړی_2, format, std::move(str));
 }
 
-void LogManager::formatted_header(RTLIL::Design *design, std::string_view format, std::string str)
+فراغ LogManager::formatted_سرلیک(RTLIL::Design *design, std::string_view format, std::string str)
 {
-	log_assert(!Multithreading::active());
+	log_assert(!Multithreading::فعال());
 
 	spacer();
-	if (header_count.size() > 0)
-		header_count.back()++;
+	إذا (سرلیک_شمېر.اندازه() > 0)
+		سرلیک_شمېر.شا()++;
 
-	if (int(header_count.size()) <= verbose_level) {
-		log_stderr_sink_forced = true;
+	إذا (صحيح(سرلیک_شمېر.اندازه()) <= verbose_level) {
+		log_stderr_sink_forced = ریښتیا;
 	}
 
-	std::string header_id;
+	std::string سرلیک_id;
 
-	for (int c : header_count)
-		header_id += stringf("%s%d", header_id.empty() ? "" : ".", c);
+	لكل (صحيح c : سرلیک_شمېر)
+		سرلیک_id += stringf("%s%d", سرلیک_id.تشه() ? "" : ".", c);
 
-	formatted_string(LogSeverity::Header, LogSourceLocation{}, stringf("%s. ", header_id), format, std::move(str));
+	formatted_string(LogSeverity::سرلیک, Log_سرچینه_Location{}, stringf("%s. ", سرلیک_id), format, std::move(str));
 	flush();
 
-	if (hdump_all)
-		hdump[header_id].insert("yosys_dump_" + header_id + ".il");
+	إذا (hdump_all)
+		hdump[سرلیک_id].ورننباسه("yosys_dump_" + سرلیک_id + ".il");
 
-	if (hdump.count(header_id) && design != nullptr)
-		for (auto &filename : hdump.at(header_id)) {
-			log("Dumping current design to '%s'.\n", filename);
+	إذا (hdump.شمېر(سرلیک_id) && design != تش_اشاره)
+		لكل (خپلکاری &filename : hdump.at(سرلیک_id)) {
+			لوګاریتم("Dumping current design to '%s'.\n", filename);
 			Pass::call(design, {"dump", "-o", filename});
 		}
-	log_stderr_sink_forced = false;
+	log_stderr_sink_forced = خطأ;
 }
 
-void LogManager::formatted_warning(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+فراغ LogManager::formatted_warning(Log_سرچینه_Location src, std::string_view مختاړی_2, std::string_view format, std::string پیغام_2)
 {
-	log_assert(!Multithreading::active());
+	log_assert(!Multithreading::فعال());
 
-	bool suppressed = false;
+	منطقي suppressed = خطأ;
 
-	for (auto &re : nowarn_regexes)
-		if (std::regex_search(message, re))
-			suppressed = true;
+	لكل (خپلکاری &re : nowarn_regexes)
+		إذا (std::regex_پلټنه(پیغام_2, re))
+			suppressed = ریښتیا;
 
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	if (suppressed)
+	std::string loc = !src.filename.تشه() ? stringf("%s:%d: ", src.filename, src.پیل_کرښه) : "";
+	إذا (suppressed)
 	{
-		log("Suppressed %s%s%s", loc, prefix, message);
+		لوګاریتم("Suppressed %s%s%s", loc, مختاړی_2, پیغام_2);
 	}
-	else
+	وإلا
 	{
-		int bak_make_debug = make_debug;
+		صحيح bak_make_debug = make_debug;
 		make_debug = 0;
 
-		for (auto &re : werror_regexes)
-			if (std::regex_search(message, re))
-				formatted_error(src, "ERROR: ", format, message);
+		لكل (خپلکاری &re : werror_regexes)
+			إذا (std::regex_پلټنه(پیغام_2, re))
+				formatted_error(src, "ERROR: ", format, پیغام_2);
 
-		bool warning_match = false;
-		for (auto &[_, item] : expect_warning)
-			if (std::regex_search(message, item.pattern)) {
-				item.current_count++;
-				warning_match = true;
+		منطقي warning_سمون = خطأ;
+		لكل (خپلکاری &[_, توکی] : expect_warning)
+			إذا (std::regex_پلټنه(پیغام_2, توکی.نمونه)) {
+				توکی.current_شمېر++;
+				warning_سمون = ریښتیا;
 			}
 
-		std::string pattern = loc + string(prefix) + message;
-		for (auto &[_, item] : expect_prefix_warning)
-			if (std::regex_search(pattern, item.pattern)) {
-				item.current_count++;
-				warning_match = true;
+		std::string نمونه = loc + string(مختاړی_2) + پیغام_2;
+		لكل (خپلکاری &[_, توکی] : expect_مختاړی_warning)
+			إذا (std::regex_پلټنه(نمونه, توکی.نمونه)) {
+				توکی.current_شمېر++;
+				warning_سمون = ریښتیا;
 			}
 
-		if (warnings.count(message))
+		إذا (warnings.شمېر(پیغام_2))
 		{
-			formatted_string(LogSeverity::Info, src, prefix, format, message);
+			formatted_string(LogSeverity::Info, src, مختاړی_2, format, پیغام_2);
 			flush();
 		}
-		else
+		وإلا
 		{
-			formatted_string(LogSeverity::Warning, src, prefix, format, message);
+			formatted_string(LogSeverity::Warning, src, مختاړی_2, format, پیغام_2);
 			flush();
-			warnings.insert(message);
+			warnings.ورننباسه(پیغام_2);
 		}
 
-		if (!warning_match)
-			warnings_count_noexpect++;
-		warnings_count++;
+		إذا (!warning_سمون)
+			warnings_شمېر_noexpect++;
+		warnings_شمېر++;
 		make_debug = bak_make_debug;
 	}
 }
 
-void LogManager::suppressed() {
-	if (debug_suppressed && !make_debug) {
-		constexpr const char* format = "<suppressed ~%d debug messages>\n";
-		logv_string(LogSeverity::Info, LogSourceLocation{}, {}, format, stringf(format, debug_suppressed));
+فراغ LogManager::suppressed() {
+	إذا (debug_suppressed && !make_debug) {
+		constexpr ثابت حرف* format = "<suppressed ~%d debug messages>\n";
+		logv_string(LogSeverity::Info, Log_سرچینه_Location{}, {}, format, stringf(format, debug_suppressed));
 		debug_suppressed = 0;
 	}
 }
 
-void LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+فراغ LogManager::error_with_مختاړی(LogSeverity severity, Log_سرچینه_Location src, std::string_view مختاړی_2, std::string_view format, std::string پیغام_2)
 {
-	int bak_make_debug = make_debug;
+	صحيح bak_make_debug = make_debug;
 	make_debug = 0;
-	if (severity == LogSeverity::Error)
+	إذا (severity == LogSeverity::Error)
 		suppressed();
 
-	logv_string(severity, src, prefix, format, message);
+	logv_string(severity, src, مختاړی_2, format, پیغام_2);
 	flush();
 
 	make_debug = bak_make_debug;
 
-	for (auto &[_, item] : expect_error)
-		if (std::regex_search(message, item.pattern))
-			item.current_count++;
+	لكل (خپلکاری &[_, توکی] : expect_error)
+		إذا (std::regex_پلټنه(پیغام_2, توکی.نمونه))
+			توکی.current_شمېر++;
 
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	std::string pattern = loc + string(prefix) + message;
-	for (auto &[_, item] : expect_prefix_error)
-		if (std::regex_search(pattern, item.pattern))
-			item.current_count++;
+	std::string loc = !src.filename.تشه() ? stringf("%s:%d: ", src.filename, src.پیل_کرښه) : "";
+	std::string نمونه = loc + string(مختاړی_2) + پیغام_2;
+	لكل (خپلکاری &[_, توکی] : expect_مختاړی_error)
+		إذا (std::regex_پلټنه(نمونه, توکی.نمونه))
+			توکی.current_شمېر++;
 
-	errors_count++;
+	errors_شمېر++;
 }
 
 [[noreturn]]
-void LogManager::formatted_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+فراغ LogManager::formatted_error(Log_سرچینه_Location src, std::string_view مختاړی_2, std::string_view format, std::string پیغام_2)
 {
-	error_with_prefix(LogSeverity::Error, src, prefix, format, message);
+	error_with_مختاړی(LogSeverity::Error, src, مختاړی_2, format, پیغام_2);
 
 	check_expected();
 
-	if (log_error_atexit)
+	إذا (log_error_atexit)
 		log_error_atexit();
 
 	YS_DEBUGTRAP_IF_DEBUGGING;
-	const char *e = getenv("YOSYS_ABORT_ON_LOG_ERROR");
-	if (e && atoi(e))
+	ثابت حرف *e = getenv("YOSYS_ABORT_ON_LOG_ERROR");
+	إذا (e && atoi(e))
 		abort();
 
-#if defined(_MSC_VER)
+#إذا defined(_MSC_VER)
 	_exit(1);
-#else
+#وإلا
 	_Exit(1);
-#endif
+#د_که_پای
 }
 
-void LogManager::formatted_nonfatal_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+فراغ LogManager::formatted_nonfatal_error(Log_سرچینه_Location src, std::string_view مختاړی_2, std::string_view format, std::string پیغام_2)
 {
-	error_with_prefix(LogSeverity::NonFatalError, src, prefix, format, message);
+	error_with_مختاړی(LogSeverity::NonFatalError, src, مختاړی_2, format, پیغام_2);
 }
 
-void LogManager::add_experimental(const std::string &str)
+فراغ LogManager::جمع_کړه_experimental(ثابت std::string &str)
 {
-	if (experimental_ignored.count(str) == 0 && experimental.count(str) == 0) {
+	إذا (experimental_ignored.شمېر(str) == 0 && experimental.شمېر(str) == 0) {
 		log_warning("Feature '%s' is experimental.\n", str);
-		experimental.insert(str);
+		experimental.ورننباسه(str);
 	}
 }
 
-void LogManager::add_deprecated(const std::string &feature, const std::string &earliest_removal)
+فراغ LogManager::جمع_کړه_deprecated(ثابت std::string &feature, ثابت std::string &earliest_removal)
 {
-	if (deprecated.count(feature) == 0) {
-		if (earliest_removal.empty())
+	إذا (deprecated.شمېر(feature) == 0) {
+		إذا (earliest_removal.تشه())
 			log_warning("Feature '%s' is deprecated.\n", feature);
-		else
+		وإلا
 			log_warning("Feature '%s' is deprecated and may be removed as soon as Yosys %s.\n", feature, earliest_removal);
 		deprecated[feature] = earliest_removal;
 	}
 }
 
-void log_assert_failure(const char *expr, source_location location)
+فراغ log_assert_failure(ثابت حرف *بیان, سرچینه_location location)
 {
-	log_error("Assert `%s' failed in %s:%d.\n", expr, location.file_name(), location.line());
+	log_error("Assert `%s' failed in %s:%d.\n", بیان, location.file_name(), location.کرښه());
 }
 
-void log_abort_internal(const char *file, int line)
+فراغ log_abort_دننی(ثابت حرف *file, صحيح کرښه)
 {
-	log_error("Abort in %s:%d.\n", file, line);
+	log_error("Abort in %s:%d.\n", file, کرښه);
 }
 
-void log_yosys_abort_message(std::string_view file, int line, std::string_view func, std::string_view message)
+فراغ log_yosys_abort_پیغام(std::string_view file, صحيح کرښه, std::string_view func, std::string_view پیغام_2)
 {
-	log_error("Abort in %s:%d (%s): %s\n", file, line, func, message);
+	log_error("Abort in %s:%d (%s): %s\n", file, کرښه, func, پیغام_2);
 }
 
-void LogManager::formatted_cmd_error(std::string_view format, std::string message)
+فراغ LogManager::formatted_cmd_error(std::string_view format, std::string پیغام_2)
 {
-	if (cmd_error_throw) {
-		formatted_string(LogSeverity::Error, LogSourceLocation{}, "ERROR: ", format, message);
+	إذا (cmd_error_throw) {
+		formatted_string(LogSeverity::Error, Log_سرچینه_Location{}, "ERROR: ", format, پیغام_2);
 		flush();
 
-		throw log_cmd_error_exception();
+		ارم log_cmd_error_exception();
 	}
 
-	formatted_error(LogSourceLocation{}, "ERROR: ", format, message);
+	formatted_error(Log_سرچینه_Location{}, "ERROR: ", format, پیغام_2);
 }
 
-void LogManager::spacer()
+فراغ LogManager::spacer()
 {
-	if (newline_count < 2) log("\n");
-	if (newline_count < 2) log("\n");
+	إذا (newline_شمېر < 2) لوګاریتم("\n");
+	إذا (newline_شمېر < 2) لوګاریتم("\n");
 }
 
-void LogManager::clear_original()
+فراغ LogManager::clear_original()
 {
-	std::erase_if(sinks, [](const auto &sink) { return dynamic_cast<LogSinkRef *>(sink.get()) != nullptr; });
+	std::erase_if(sinks, [](ثابت خپلکاری &sink) { أرجع dynamic_cast<LogSinkRef *>(sink.get()) != تش_اشاره; });
 }
 
-void LogManager::push()
+فراغ LogManager::ټېل()
 {
-	header_count.push_back(0);
+	سرلیک_شمېر.ټېل_شا(0);
 }
 
-void LogManager::pop()
+فراغ LogManager::راوباسه()
 {
-	header_count.pop_back();
+	سرلیک_شمېر.راوباسه_شا();
 	flush();
 }
 
-#if defined(YOSYS_ENABLE_DLOPEN)
-void log_backtrace(const char *prefix, int levels)
+#إذا defined(YOSYS_ENABLE_DLOPEN)
+فراغ log_backtrace(ثابت حرف *مختاړی_2, صحيح پوړونه)
 {
-	if (levels <= 0) return;
+	إذا (پوړونه <= 0) أرجع;
 
 	Dl_info dli;
-	void *p;
+	فراغ *p;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(0))) && dladdr(p, &dli)) {
-		log("%sframe #1: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #1: ---\n", prefix);
-		return;
+	إذا ((p = __builtin_extract_return_addr(__builtin_return_address(0))) && dladdr(p, &dli)) {
+		لوګاریتم("%sframe #1: %p %s(%p) %s(%p)\n", مختاړی_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} وإلا {
+		لوګاریتم("%sframe #1: ---\n", مختاړی_2);
+		أرجع;
 	}
 
-	if (levels <= 1) return;
+	إذا (پوړونه <= 1) أرجع;
 
-#ifndef DEBUG
-	log("%sframe #2: [build Yosys with ENABLE_DEBUG for deeper backtraces]\n", prefix);
-#else
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(1))) && dladdr(p, &dli)) {
-		log("%sframe #2: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #2: ---\n", prefix);
-		return;
+#که_نه_تعریف_شوی DEBUG
+	لوګاریتم("%sframe #2: [build Yosys with ENABLE_DEBUG for deeper backtraces]\n", مختاړی_2);
+#وإلا
+	إذا ((p = __builtin_extract_return_addr(__builtin_return_address(1))) && dladdr(p, &dli)) {
+		لوګاریتم("%sframe #2: %p %s(%p) %s(%p)\n", مختاړی_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} وإلا {
+		لوګاریتم("%sframe #2: ---\n", مختاړی_2);
+		أرجع;
 	}
 
-	if (levels <= 2) return;
+	إذا (پوړونه <= 2) أرجع;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(2))) && dladdr(p, &dli)) {
-		log("%sframe #3: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #3: ---\n", prefix);
-		return;
+	إذا ((p = __builtin_extract_return_addr(__builtin_return_address(2))) && dladdr(p, &dli)) {
+		لوګاریتم("%sframe #3: %p %s(%p) %s(%p)\n", مختاړی_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} وإلا {
+		لوګاریتم("%sframe #3: ---\n", مختاړی_2);
+		أرجع;
 	}
 
-	if (levels <= 3) return;
+	إذا (پوړونه <= 3) أرجع;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(3))) && dladdr(p, &dli)) {
-		log("%sframe #4: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #4: ---\n", prefix);
-		return;
+	إذا ((p = __builtin_extract_return_addr(__builtin_return_address(3))) && dladdr(p, &dli)) {
+		لوګاریتم("%sframe #4: %p %s(%p) %s(%p)\n", مختاړی_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} وإلا {
+		لوګاریتم("%sframe #4: ---\n", مختاړی_2);
+		أرجع;
 	}
 
-	if (levels <= 4) return;
+	إذا (پوړونه <= 4) أرجع;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(4))) && dladdr(p, &dli)) {
-		log("%sframe #5: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #5: ---\n", prefix);
-		return;
+	إذا ((p = __builtin_extract_return_addr(__builtin_return_address(4))) && dladdr(p, &dli)) {
+		لوګاریتم("%sframe #5: %p %s(%p) %s(%p)\n", مختاړی_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} وإلا {
+		لوګاریتم("%sframe #5: ---\n", مختاړی_2);
+		أرجع;
 	}
 
-	if (levels <= 5) return;
+	إذا (پوړونه <= 5) أرجع;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(5))) && dladdr(p, &dli)) {
-		log("%sframe #6: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #6: ---\n", prefix);
-		return;
+	إذا ((p = __builtin_extract_return_addr(__builtin_return_address(5))) && dladdr(p, &dli)) {
+		لوګاریتم("%sframe #6: %p %s(%p) %s(%p)\n", مختاړی_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} وإلا {
+		لوګاریتم("%sframe #6: ---\n", مختاړی_2);
+		أرجع;
 	}
 
-	if (levels <= 6) return;
+	إذا (پوړونه <= 6) أرجع;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(6))) && dladdr(p, &dli)) {
-		log("%sframe #7: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #7: ---\n", prefix);
-		return;
+	إذا ((p = __builtin_extract_return_addr(__builtin_return_address(6))) && dladdr(p, &dli)) {
+		لوګاریتم("%sframe #7: %p %s(%p) %s(%p)\n", مختاړی_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} وإلا {
+		لوګاریتم("%sframe #7: ---\n", مختاړی_2);
+		أرجع;
 	}
 
-	if (levels <= 7) return;
+	إذا (پوړونه <= 7) أرجع;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(7))) && dladdr(p, &dli)) {
-		log("%sframe #8: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #8: ---\n", prefix);
-		return;
+	إذا ((p = __builtin_extract_return_addr(__builtin_return_address(7))) && dladdr(p, &dli)) {
+		لوګاریتم("%sframe #8: %p %s(%p) %s(%p)\n", مختاړی_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} وإلا {
+		لوګاریتم("%sframe #8: ---\n", مختاړی_2);
+		أرجع;
 	}
 
-	if (levels <= 8) return;
+	إذا (پوړونه <= 8) أرجع;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(8))) && dladdr(p, &dli)) {
-		log("%sframe #9: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
-		log("%sframe #9: ---\n", prefix);
-		return;
+	إذا ((p = __builtin_extract_return_addr(__builtin_return_address(8))) && dladdr(p, &dli)) {
+		لوګاریتم("%sframe #9: %p %s(%p) %s(%p)\n", مختاړی_2, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
+	} وإلا {
+		لوګاریتم("%sframe #9: ---\n", مختاړی_2);
+		أرجع;
 	}
 
-	if (levels <= 9) return;
-#endif
+	إذا (پوړونه <= 9) أرجع;
+#د_که_پای
 }
-#else
-void log_backtrace(const char*, int) { }
-#endif
+#وإلا
+فراغ log_backtrace(ثابت حرف*, صحيح) { }
+#د_که_پای
 
-void LogManager::reset_stack()
+فراغ LogManager::reset_ډېری()
 {
-	while (header_count.size() > 1)
-		header_count.pop_back();
+	طالما (سرلیک_شمېر.اندازه() > 1)
+		سرلیک_شمېر.راوباسه_شا();
 	flush();
 }
 
-void log_dump_val_worker(RTLIL::IdString v) {
-	if (v == IdString::Null)
-		log("(null)");
-	else if (ID::is_static(v))
-		log("%s", ID::unescaped_str(v));
-	else if (yosys_design && yosys_design->twines().is_live(v))
-		log("%s", yosys_design->twines().unescaped_str(v));
-	else
-		log("%s", v.handle_token());
+فراغ log_dump_val_کارګر(RTLIL::IdString v) {
+	إذا (v == IdString::Null)
+		لوګاریتم("(null)");
+	وإلا إذا (ID::is_static(v))
+		لوګاریتم("%s", ID::unescaped_str(v));
+	وإلا إذا (yosys_design && yosys_design->twines().is_ژوندی(v))
+		لوګاریتم("%s", yosys_design->twines().unescaped_str(v));
+	وإلا
+		لوګاریتم("%s", v.handle_token());
 }
 
-void log_dump_val_worker(RTLIL::SigSpec v) {
-	log("%s", log_signal(v));
+فراغ log_dump_val_کارګر(RTLIL::SigSpec v) {
+	لوګاریتم("%s", log_signal(v));
 }
 
-void log_dump_val_worker(RTLIL::State v) {
-	log("%s", log_signal(v));
+فراغ log_dump_val_کارګر(RTLIL::State v) {
+	لوګاریتم("%s", log_signal(v));
 }
 
-std::string log_signal(const RTLIL::SigSpec &sig, bool autoint)
+std::string log_signal(ثابت RTLIL::SigSpec &sig, منطقي autoint)
 {
 	std::stringstream buf;
-	RTLIL_BACKEND::dump_sigspec(buf, sig, autoint, RTLIL_BACKEND::DumpMode::Readable);
-	return buf.str();
+	RTLIL_BACKEND::dump_sigspec(buf, sig, autoint, RTLIL_BACKEND::Dump_ډېرپېښ::Readable);
+	أرجع buf.str();
 }
 
-std::string log_const(const RTLIL::Const &value, bool autoint)
+std::string log_const(ثابت RTLIL::Const &ارزښت, منطقي autoint)
 {
-	if ((value.flags & RTLIL::CONST_FLAG_STRING) == 0)
-		return log_signal(value, autoint);
+	إذا ((ارزښت.flags & RTLIL::CONST_FLAG_STRING) == 0)
+		أرجع log_signal(ارزښت, autoint);
 
-	return "\"" + value.decode_string() + "\"";
+	أرجع "\"" + ارزښت.decode_string() + "\"";
 }
 
-void log_module(RTLIL::Module *module, std::string indent)
-{
-	std::stringstream buf;
-	RTLIL_BACKEND::dump_module(buf, indent, module, module->design, false, true, false, RTLIL_BACKEND::DumpMode::Readable);
-	log("%s", buf.str());
-}
-
-void log_cell(RTLIL::Cell *cell, std::string indent)
+فراغ log_module(RTLIL::Module *module, std::string indent)
 {
 	std::stringstream buf;
-	RTLIL_BACKEND::dump_cell(buf, indent, cell, cell->module ? cell->module->design : nullptr, RTLIL_BACKEND::DumpMode::Readable);
-	log("%s", buf.str());
+	RTLIL_BACKEND::dump_module(buf, indent, module, module->design, خطأ, ریښتیا, خطأ, RTLIL_BACKEND::Dump_ډېرپېښ::Readable);
+	لوګاریتم("%s", buf.str());
 }
 
-void log_wire(RTLIL::Wire *wire, std::string indent)
+فراغ log_cell(RTLIL::Cell *cell, std::string indent)
 {
 	std::stringstream buf;
-	RTLIL_BACKEND::dump_wire(buf, indent, wire, wire->module ? wire->module->design : nullptr, RTLIL_BACKEND::DumpMode::Readable);
-	log("%s", buf.str());
+	RTLIL_BACKEND::dump_cell(buf, indent, cell, cell->module ? cell->module->design : تش_اشاره, RTLIL_BACKEND::Dump_ډېرپېښ::Readable);
+	لوګاریتم("%s", buf.str());
 }
 
-void LogManager::check_expected()
+فراغ log_wire(RTLIL::Wire *wire, std::string indent)
+{
+	std::stringstream buf;
+	RTLIL_BACKEND::dump_wire(buf, indent, wire, wire->module ? wire->module->design : تش_اشاره, RTLIL_BACKEND::Dump_ډېرپېښ::Readable);
+	لوګاریتم("%s", buf.str());
+}
+
+فراغ LogManager::check_expected()
 {
 	// copy out all of the expected logs so that they cannot be re-checked
 	// or match against themselves
-	dict<std::string, LogExpectedItem> expect_log_copy, expect_warning_copy, expect_error_copy;
-	dict<std::string, LogExpectedItem> expect_prefix_log_copy, expect_prefix_warning_copy, expect_prefix_error_copy;
-	std::swap(expect_warning_copy, expect_warning);
-	std::swap(expect_log_copy, expect_log);
-	std::swap(expect_error_copy, expect_error);
-	std::swap(expect_prefix_warning_copy, expect_prefix_warning);
-	std::swap(expect_prefix_log_copy, expect_prefix_log);
-	std::swap(expect_prefix_error_copy, expect_prefix_error);
+	dict<std::string, Log_Expected_توکی> expect_log_copy, expect_warning_copy, expect_error_copy;
+	dict<std::string, Log_Expected_توکی> expect_مختاړی_log_copy, expect_مختاړی_warning_copy, expect_مختاړی_error_copy;
+	std::بدلون(expect_warning_copy, expect_warning);
+	std::بدلون(expect_log_copy, expect_log);
+	std::بدلون(expect_error_copy, expect_error);
+	std::بدلون(expect_مختاړی_warning_copy, expect_مختاړی_warning);
+	std::بدلون(expect_مختاړی_log_copy, expect_مختاړی_log);
+	std::بدلون(expect_مختاړی_error_copy, expect_مختاړی_error);
 
-	auto check = [&](const std::string kind, std::string pattern, LogExpectedItem item) {
-		if (item.current_count == 0) {
+	خپلکاری check = [&](ثابت std::string ډول, std::string نمونه, Log_Expected_توکی توکی) {
+		إذا (توکی.current_شمېر == 0) {
 			warn_regexes.clear();
-			log_error("Expected %s pattern '%s' not found !\n", kind, pattern);
+			log_error("Expected %s pattern '%s' not found !\n", ډول, نمونه);
 		}
-		if (item.current_count != item.expected_count) {
+		إذا (توکی.current_شمېر != توکی.expected_شمېر) {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' found %d time(s), instead of %d time(s) !\n",
-				kind.c_str(), pattern.c_str(), item.current_count, item.expected_count);
+				ډول.c_str(), نمونه.c_str(), توکی.current_شمېر, توکی.expected_شمېر);
 		}
 	};
 
-	for (auto &[pattern, item] : expect_warning_copy)
-		check("warning", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_warning_copy)
-		check("prefixed warning", pattern, item);
-	for (auto &[pattern, item] : expect_log_copy)
-		check("log", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_log_copy)
-		check("prefixed log", pattern, item);
+	لكل (خپلکاری &[نمونه, توکی] : expect_warning_copy)
+		check("warning", نمونه, توکی);
+	لكل (خپلکاری &[نمونه, توکی] : expect_مختاړی_warning_copy)
+		check("prefixed warning", نمونه, توکی);
+	لكل (خپلکاری &[نمونه, توکی] : expect_log_copy)
+		check("log", نمونه, توکی);
+	لكل (خپلکاری &[نمونه, توکی] : expect_مختاړی_log_copy)
+		check("prefixed log", نمونه, توکی);
 
-	auto check_err = [&](const std::string kind, std::string pattern, LogExpectedItem item) {
-		if (item.current_count == item.expected_count) {
+	خپلکاری check_err = [&](ثابت std::string ډول, std::string نمونه, Log_Expected_توکی توکی) {
+		إذا (توکی.current_شمېر == توکی.expected_شمېر) {
 			warn_regexes.clear();
-			log("Expected %s pattern '%s' found !!!\n", kind, pattern);
+			لوګاریتم("Expected %s pattern '%s' found !!!\n", ډول, نمونه);
 			yosys_shutdown();
-			#if defined(_MSC_VER)
+			#إذا defined(_MSC_VER)
 				_exit(0);
-			#else
+			#وإلا
 				_Exit(0);
-			#endif
-		} else {
+			#د_که_پای
+		} وإلا {
 			warn_regexes.clear();
-			log_error("Expected %s pattern '%s' not found !\n", kind, pattern);
+			log_error("Expected %s pattern '%s' not found !\n", ډول, نمونه);
 		}
 	};
-	for (auto &[pattern, item] : expect_error_copy)
-		check_err("error", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_error_copy)
-		check_err("prefixed error", pattern, item);
+	لكل (خپلکاری &[نمونه, توکی] : expect_error_copy)
+		check_err("error", نمونه, توکی);
+	لكل (خپلکاری &[نمونه, توکی] : expect_مختاړی_error_copy)
+		check_err("prefixed error", نمونه, توکی);
 }
 
-void LogManager::report_unexpected_error()
+فراغ LogManager::report_unexpected_error()
 {
-	if (expect_no_warnings && warnings_count_noexpect)
-		log_error("Unexpected warnings found: %d unique messages, %d total, %d expected\n", GetSize(warnings),
-					warnings_count, warnings_count - warnings_count_noexpect);
+	إذا (expect_no_warnings && warnings_شمېر_noexpect)
+		log_error("Unexpected warnings found: %d unique messages, %d total, %d expected\n", Get_اندازه(warnings),
+					warnings_شمېر, warnings_شمېر - warnings_شمېر_noexpect);
 }
 
-void LogManager::add_expect(std::string type, std::string pattern, int count)
+فراغ LogManager::جمع_کړه_expect(std::string type, std::string نمونه, صحيح شمېر)
 {
-	if (type == "error")
-		expect_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-error")
-		expect_prefix_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "warning")
-		expect_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-warning")
-		expect_prefix_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "log")
-		expect_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-log")
-		expect_prefix_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else log_abort();
+	إذا (type == "error")
+		expect_error[نمونه] = Log_Expected_توکی(YS_REGEX_COMPILE(نمونه), شمېر);
+	وإلا إذا (type == "prefix-error")
+		expect_مختاړی_error[نمونه] = Log_Expected_توکی(YS_REGEX_COMPILE(نمونه), شمېر);
+	وإلا إذا (type == "warning")
+		expect_warning[نمونه] = Log_Expected_توکی(YS_REGEX_COMPILE(نمونه), شمېر);
+	وإلا إذا (type == "prefix-warning")
+		expect_مختاړی_warning[نمونه] = Log_Expected_توکی(YS_REGEX_COMPILE(نمونه), شمېر);
+	وإلا إذا (type == "log")
+		expect_log[نمونه] = Log_Expected_توکی(YS_REGEX_COMPILE(نمونه), شمېر);
+	وإلا إذا (type == "prefix-log")
+		expect_مختاړی_log[نمونه] = Log_Expected_توکی(YS_REGEX_COMPILE(نمونه), شمېر);
+	وإلا log_abort();
 }
 
-void LogManager::start_hasher()
+فراغ LogManager::پیل_hasher()
 {
 	hasher = std::make_unique<SHA1>();
 }
 
-std::string LogManager::finish_hasher()
+std::string LogManager::پای_hasher()
 {
-	if (!hasher)
-		return {};
+	إذا (!hasher)
+		أرجع {};
 
 	std::string hash = hasher->final().substr(0, 10);
 	hasher.reset();
-	return hash;
+	أرجع hash;
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی

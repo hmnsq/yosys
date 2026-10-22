@@ -17,1118 +17,1118 @@
  *
  */
 
-#ifndef DRIVERTOOLS_H
-#define DRIVERTOOLS_H
+#که_نه_تعریف_شوی DRIVERTOOLS_H
+#تعریف_کړه DRIVERTOOLS_H
 
-#include <string>
-#include <type_traits>
+#ضمن <string>
+#ضمن <type_traits>
 
-#include "kernel/rtlil.h"
-#include "kernel/sigtools.h"
-#include "kernel/newcelltypes.h"
+#ضمن "kernel/rtlil.h"
+#ضمن "kernel/sigtools.h"
+#ضمن "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // TODO move implementation into a .cc file
 
-struct DriveBit;
+بنية Drive_بټ;
 
-struct DriveChunkWire;
-struct DriveChunkPort;
-struct DriveChunkMarker;
-struct DriveChunk;
+بنية DriveChunkWire;
+بنية Drive_Chunk_پورټ;
+بنية DriveChunkMarker;
+بنية DriveChunk;
 
-struct DriveSpec;
+بنية DriveSpec;
 
-std::string log_signal(DriveChunkWire const &chunk);
-std::string log_signal(DriveChunkPort const &chunk);
-std::string log_signal(DriveChunkMarker const &chunk);
-std::string log_signal(DriveChunk const &chunk);
-std::string log_signal(DriveSpec const &chunk);
+std::string log_signal(DriveChunkWire ثابت &chunk);
+std::string log_signal(Drive_Chunk_پورټ ثابت &chunk);
+std::string log_signal(DriveChunkMarker ثابت &chunk);
+std::string log_signal(DriveChunk ثابت &chunk);
+std::string log_signal(DriveSpec ثابت &chunk);
 
-enum class DriveType : unsigned char
+تعداد class DriveType : بینښه حرف
 {
 	NONE,
 	CONSTANT,
 	WIRE,
-	PORT,
-	MULTIPLE,
+	پورټ_2,
+	مضرب,
 	MARKER,
 };
 
-struct DriveBitWire
+بنية Drive_بټ_Wire
 {
 	Wire *wire;
-	int offset;
+	صحيح دننه_واټن;
 
-	DriveBitWire(Wire *wire, int offset) : wire(wire), offset(offset) {}
+	Drive_بټ_Wire(Wire *wire, صحيح دننه_واټن) : wire(wire), دننه_واټن(دننه_واټن) {}
 
-	bool operator==(const DriveBitWire &other) const
+	bool چلوونکی==(ثابت Drive_بټ_Wire &other) ثابت
 	{
-		return wire == other.wire && offset == other.offset;
+		أرجع wire == other.wire && دننه_واټن == other.دننه_واټن;
 	}
 
-	bool operator<(const DriveBitWire &other) const
+	bool چلوونکی<(ثابت Drive_بټ_Wire &other) ثابت
 	{
-		if (wire != other.wire)
-			return wire->name < other.wire->name;
-		return offset < other.offset;
+		إذا (wire != other.wire)
+			أرجع wire->name < other.wire->name;
+		أرجع دننه_واټن < other.دننه_واټن;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت;
 
 
-	operator SigBit() const
+	چلوونکی Sig_بټ() ثابت
 	{
-		return SigBit(wire, offset);
+		أرجع Sig_بټ(wire, دننه_واټن);
 	}
 };
 
-struct DriveBitPort
+بنية Drive_بټ_پورټ
 {
 	Cell *cell;
-	IdString port;
-	int offset;
+	IdString پورټ;
+	صحيح دننه_واټن;
 
-	DriveBitPort(Cell *cell, IdString port, int offset) : cell(cell), port(port), offset(offset) {}
+	Drive_بټ_پورټ(Cell *cell, IdString پورټ, صحيح دننه_واټن) : cell(cell), پورټ(پورټ), دننه_واټن(دننه_واټن) {}
 
-	bool operator==(const DriveBitPort &other) const
+	bool چلوونکی==(ثابت Drive_بټ_پورټ &other) ثابت
 	{
-		return cell == other.cell && port == other.port && offset == other.offset;
+		أرجع cell == other.cell && پورټ == other.پورټ && دننه_واټن == other.دننه_واټن;
 	}
 
-	bool operator<(const DriveBitPort &other) const
+	bool چلوونکی<(ثابت Drive_بټ_پورټ &other) ثابت
 	{
-		if (cell != other.cell)
-			return cell->name < other.cell->name;
-		if (port != other.port)
-			return port < other.port;
-		return offset < other.offset;
+		إذا (cell != other.cell)
+			أرجع cell->name < other.cell->name;
+		إذا (پورټ != other.پورټ)
+			أرجع پورټ < other.پورټ;
+		أرجع دننه_واټن < other.دننه_واټن;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت;
 
 };
 
 
-struct DriveBitMarker
+بنية Drive_بټ_Marker
 {
-	int marker;
-	int offset;
+	صحيح marker;
+	صحيح دننه_واټن;
 
-	DriveBitMarker(int marker, int offset) : marker(marker), offset(offset) {}
+	Drive_بټ_Marker(صحيح marker, صحيح دننه_واټن) : marker(marker), دننه_واټن(دننه_واټن) {}
 
-	bool operator==(const DriveBitMarker &other) const
+	bool چلوونکی==(ثابت Drive_بټ_Marker &other) ثابت
 	{
-		return marker == other.marker && offset == other.offset;
+		أرجع marker == other.marker && دننه_واټن == other.دننه_واټن;
 	}
 
-	bool operator<(const DriveBitMarker &other) const
+	bool چلوونکی<(ثابت Drive_بټ_Marker &other) ثابت
 	{
-		if (marker != other.marker)
-			return marker < other.marker;
-		return offset < other.offset;
+		إذا (marker != other.marker)
+			أرجع marker < other.marker;
+		أرجع دننه_واټن < other.دننه_واټن;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت;
 
 };
 
-struct DriveBitMultiple
+بنية Drive_بټ_مضرب
 {
-private:
-	pool<DriveBit> multiple_;
+خاص:
+	pool<Drive_بټ> مضرب_3;
 
-public:
-	DriveBitMultiple();
-	DriveBitMultiple(DriveBit const &single);
+عام:
+	Drive_بټ_مضرب();
+	Drive_بټ_مضرب(Drive_بټ ثابت &single);
 
-	pool<DriveBit> const &multiple() const { return multiple_; }
+	pool<Drive_بټ> ثابت &مضرب_2() ثابت { أرجع مضرب_3; }
 
-	void merge(DriveBitMultiple const &other)
+	فراغ یوځای(Drive_بټ_مضرب ثابت &other)
 	{
-		for (DriveBit const &single : other.multiple_)
-			merge(single);
+		لكل (Drive_بټ ثابت &single : other.مضرب_3)
+			یوځای(single);
 	}
 
-	void merge(DriveBitMultiple &&other)
+	فراغ یوځای(Drive_بټ_مضرب &&other)
 	{
-		for (DriveBit &single : other.multiple_)
-			merge(std::move(single));
+		لكل (Drive_بټ &single : other.مضرب_3)
+			یوځای(std::move(single));
 	}
 
-	void merge(DriveBit const &single);
-	void merge(DriveBit &&single);
+	فراغ یوځای(Drive_بټ ثابت &single);
+	فراغ یوځای(Drive_بټ &&single);
 
-	bool operator==(const DriveBitMultiple &other) const
+	bool چلوونکی==(ثابت Drive_بټ_مضرب &other) ثابت
 	{
-		return multiple_ == other.multiple_;
+		أرجع مضرب_3 == other.مضرب_3;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت;
 };
 
-struct DriveBit
+بنية Drive_بټ
 {
-private:
+خاص:
 	DriveType type_ = DriveType::NONE;
-	union
+	اتحاد
 	{
 		State constant_;
-		DriveBitWire wire_;
-		DriveBitPort port_;
-		DriveBitMarker marker_;
-		DriveBitMultiple multiple_;
+		Drive_بټ_Wire wire_;
+		Drive_بټ_پورټ پورټ_3;
+		Drive_بټ_Marker marker_;
+		Drive_بټ_مضرب مضرب_3;
 	};
-public:
-	DriveBit()  {}
+عام:
+	Drive_بټ()  {}
 
-	DriveBit(SigBit const &bit);
+	Drive_بټ(Sig_بټ ثابت &بټ);
 
-	DriveBit(DriveBit const &other) { *this = other; }
-	DriveBit(DriveBit &&other) { *this = other; }
+	Drive_بټ(Drive_بټ ثابت &other) { *this = other; }
+	Drive_بټ(Drive_بټ &&other) { *this = other; }
 
 
-	DriveBit(State constant) { *this = constant; }
-	DriveBit(DriveBitWire const &wire) { *this = wire; }
-	DriveBit(DriveBitWire &&wire) { *this = wire; }
-	DriveBit(DriveBitPort const &port) { *this = port; }
-	DriveBit(DriveBitPort &&port) { *this = port; }
-	DriveBit(DriveBitMarker const &marker) { *this = marker; }
-	DriveBit(DriveBitMarker &&marker) { *this = marker; }
-	DriveBit(DriveBitMultiple const &multiple) { *this = multiple; }
-	DriveBit(DriveBitMultiple &&multiple) { *this = multiple; }
+	Drive_بټ(State constant) { *this = constant; }
+	Drive_بټ(Drive_بټ_Wire ثابت &wire) { *this = wire; }
+	Drive_بټ(Drive_بټ_Wire &&wire) { *this = wire; }
+	Drive_بټ(Drive_بټ_پورټ ثابت &پورټ) { *this = پورټ; }
+	Drive_بټ(Drive_بټ_پورټ &&پورټ) { *this = پورټ; }
+	Drive_بټ(Drive_بټ_Marker ثابت &marker) { *this = marker; }
+	Drive_بټ(Drive_بټ_Marker &&marker) { *this = marker; }
+	Drive_بټ(Drive_بټ_مضرب ثابت &مضرب_2) { *this = مضرب_2; }
+	Drive_بټ(Drive_بټ_مضرب &&مضرب_2) { *this = مضرب_2; }
 
-	~DriveBit() { set_none(); }
+	~Drive_بټ() { سېټ_none(); }
 
-	void set_none()
+	فراغ سېټ_none()
 	{
-		switch (type_)
+		بدل (type_)
 		{
-			case DriveType::NONE:
-				break;
-			case DriveType::CONSTANT:
-				break;
-			case DriveType::WIRE:
-				wire_.~DriveBitWire();
-				break;
-			case DriveType::PORT:
-				port_.~DriveBitPort();
-				break;
-			case DriveType::MARKER:
-				marker_.~DriveBitMarker();
-				break;
-			case DriveType::MULTIPLE:
-				multiple_.~DriveBitMultiple();
-				break;
+			حالة DriveType::NONE:
+				اكسر;
+			حالة DriveType::CONSTANT:
+				اكسر;
+			حالة DriveType::WIRE:
+				wire_.~Drive_بټ_Wire();
+				اكسر;
+			حالة DriveType::پورټ_2:
+				پورټ_3.~Drive_بټ_پورټ();
+				اكسر;
+			حالة DriveType::MARKER:
+				marker_.~Drive_بټ_Marker();
+				اكسر;
+			حالة DriveType::مضرب:
+				مضرب_3.~Drive_بټ_مضرب();
+				اكسر;
 		}
 		type_ = DriveType::NONE;
 	}
 
-	DriveBit &operator=(DriveBit const &other)
+	Drive_بټ &چلوونکی=(Drive_بټ ثابت &other)
 	{
-		switch (other.type_)
+		بدل (other.type_)
 		{
-			case DriveType::NONE:
-				set_none();
-				break;
-			case DriveType::CONSTANT:
+			حالة DriveType::NONE:
+				سېټ_none();
+				اكسر;
+			حالة DriveType::CONSTANT:
 				*this = other.constant_;
-				break;
-			case DriveType::WIRE:
+				اكسر;
+			حالة DriveType::WIRE:
 				*this = other.wire_;
-				break;
-			case DriveType::PORT:
-				*this = other.port_;
-				break;
-			case DriveType::MARKER:
+				اكسر;
+			حالة DriveType::پورټ_2:
+				*this = other.پورټ_3;
+				اكسر;
+			حالة DriveType::MARKER:
 				*this = other.marker_;
-				break;
-			case DriveType::MULTIPLE:
-				*this = other.multiple_;
-				break;
+				اكسر;
+			حالة DriveType::مضرب:
+				*this = other.مضرب_3;
+				اكسر;
 		}
-		return *this;
+		أرجع *this;
 	}
 
-	DriveBit &operator=(DriveBit &&other)
+	Drive_بټ &چلوونکی=(Drive_بټ &&other)
 	{
-		switch (other.type_)
+		بدل (other.type_)
 		{
-			case DriveType::NONE:
-				set_none();
-				break;
-			case DriveType::CONSTANT:
+			حالة DriveType::NONE:
+				سېټ_none();
+				اكسر;
+			حالة DriveType::CONSTANT:
 				*this = std::move(other.constant_);
-				break;
-			case DriveType::WIRE:
+				اكسر;
+			حالة DriveType::WIRE:
 				*this = std::move(other.wire_);
-				break;
-			case DriveType::PORT:
-				*this = std::move(other.port_);
-				break;
-			case DriveType::MARKER:
+				اكسر;
+			حالة DriveType::پورټ_2:
+				*this = std::move(other.پورټ_3);
+				اكسر;
+			حالة DriveType::MARKER:
 				*this = std::move(other.marker_);
-				break;
-			case DriveType::MULTIPLE:
-				*this = std::move(other.multiple_);
-				break;
+				اكسر;
+			حالة DriveType::مضرب:
+				*this = std::move(other.مضرب_3);
+				اكسر;
 		}
-		return *this;
+		أرجع *this;
 	}
 
-	DriveBit &operator=(State constant)
+	Drive_بټ &چلوونکی=(State constant)
 	{
-		set_none();
+		سېټ_none();
 		constant_ = constant;
 		type_ = DriveType::CONSTANT;
-		return *this;
+		أرجع *this;
 	}
 
-	DriveBit &operator=(DriveBitWire const &wire)
+	Drive_بټ &چلوونکی=(Drive_بټ_Wire ثابت &wire)
 	{
-		set_none();
-		new (&wire_) DriveBitWire(wire);
+		سېټ_none();
+		new (&wire_) Drive_بټ_Wire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		أرجع *this;
 	}
 
-	DriveBit &operator=(DriveBitWire &&wire)
+	Drive_بټ &چلوونکی=(Drive_بټ_Wire &&wire)
 	{
-		set_none();
-		new (&wire_) DriveBitWire(wire);
+		سېټ_none();
+		new (&wire_) Drive_بټ_Wire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		أرجع *this;
 	}
 
-	DriveBit &operator=(DriveBitPort const &port)
+	Drive_بټ &چلوونکی=(Drive_بټ_پورټ ثابت &پورټ)
 	{
-		set_none();
-		new (&port_) DriveBitPort(port);
-		type_ = DriveType::PORT;
-		return *this;
+		سېټ_none();
+		new (&پورټ_3) Drive_بټ_پورټ(پورټ);
+		type_ = DriveType::پورټ_2;
+		أرجع *this;
 	}
 
-	DriveBit &operator=(DriveBitPort &&port)
+	Drive_بټ &چلوونکی=(Drive_بټ_پورټ &&پورټ)
 	{
-		set_none();
-		new (&port_) DriveBitPort(port);
-		type_ = DriveType::PORT;
-		return *this;
+		سېټ_none();
+		new (&پورټ_3) Drive_بټ_پورټ(پورټ);
+		type_ = DriveType::پورټ_2;
+		أرجع *this;
 	}
 
-	DriveBit &operator=(DriveBitMarker const &marker)
+	Drive_بټ &چلوونکی=(Drive_بټ_Marker ثابت &marker)
 	{
-		set_none();
-		new (&marker_) DriveBitMarker(marker);
+		سېټ_none();
+		new (&marker_) Drive_بټ_Marker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		أرجع *this;
 	}
 
-	DriveBit &operator=(DriveBitMarker &&marker)
+	Drive_بټ &چلوونکی=(Drive_بټ_Marker &&marker)
 	{
-		set_none();
-		new (&marker_) DriveBitMarker(marker);
+		سېټ_none();
+		new (&marker_) Drive_بټ_Marker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		أرجع *this;
 	}
 
-	DriveBit &operator=(DriveBitMultiple const &multiple)
+	Drive_بټ &چلوونکی=(Drive_بټ_مضرب ثابت &مضرب_2)
 	{
-		set_none();
-		if (multiple.multiple().empty())
-			return *this;
-		new (&multiple_) DriveBitMultiple(multiple);
-		type_ = DriveType::MULTIPLE;
-		return *this;
+		سېټ_none();
+		إذا (مضرب_2.مضرب_2().تشه())
+			أرجع *this;
+		new (&مضرب_3) Drive_بټ_مضرب(مضرب_2);
+		type_ = DriveType::مضرب;
+		أرجع *this;
 	}
 
-	DriveBit &operator=(DriveBitMultiple &&multiple)
+	Drive_بټ &چلوونکی=(Drive_بټ_مضرب &&مضرب_2)
 	{
-		set_none();
-		if (multiple.multiple().empty())
-			return *this;
-		new (&multiple_) DriveBitMultiple(multiple);
-		type_ = DriveType::MULTIPLE;
-		return *this;
+		سېټ_none();
+		إذا (مضرب_2.مضرب_2().تشه())
+			أرجع *this;
+		new (&مضرب_3) Drive_بټ_مضرب(مضرب_2);
+		type_ = DriveType::مضرب;
+		أرجع *this;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت;
 
-	bool operator==(const DriveBit &other) const
+	bool چلوونکی==(ثابت Drive_بټ &other) ثابت
 	{
-		if (type_ != other.type_)
-			return false;
+		إذا (type_ != other.type_)
+			أرجع false;
 
-		switch (type_)
+		بدل (type_)
 		{
-			case DriveType::NONE:
-				return true;
-			case DriveType::CONSTANT:
-				return constant_ == other.constant_;
-			case DriveType::WIRE:
-				return wire_ == other.wire_;
-			case DriveType::PORT:
-				return port_ == other.port_;
-			case DriveType::MARKER:
-				return marker_ == other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ == other.multiple_;
+			حالة DriveType::NONE:
+				أرجع true;
+			حالة DriveType::CONSTANT:
+				أرجع constant_ == other.constant_;
+			حالة DriveType::WIRE:
+				أرجع wire_ == other.wire_;
+			حالة DriveType::پورټ_2:
+				أرجع پورټ_3 == other.پورټ_3;
+			حالة DriveType::MARKER:
+				أرجع marker_ == other.marker_;
+			حالة DriveType::مضرب:
+				أرجع مضرب_3 == other.مضرب_3;
 		}
 		log_abort();
 	}
 
-	bool operator!=(const DriveBit &other) const
+	bool چلوونکی!=(ثابت Drive_بټ &other) ثابت
 	{
-		return !(*this == other);
+		أرجع !(*this == other);
 	}
 
-	bool operator<(const DriveBit &other) const
+	bool چلوونکی<(ثابت Drive_بټ &other) ثابت
 	{
-		if (type_ != other.type_)
-			return type_ < other.type_;
-		switch (type_)
+		إذا (type_ != other.type_)
+			أرجع type_ < other.type_;
+		بدل (type_)
 		{
-			case DriveType::NONE:
-				return false;
-			case DriveType::CONSTANT:
-				return constant_ < other.constant_;
-			case DriveType::WIRE:
-				return wire_ < other.wire_;
-			case DriveType::PORT:
-				return port_ < other.port_;
-			case DriveType::MARKER:
-				return marker_ < other.marker_;
-			case DriveType::MULTIPLE:
+			حالة DriveType::NONE:
+				أرجع false;
+			حالة DriveType::CONSTANT:
+				أرجع constant_ < other.constant_;
+			حالة DriveType::WIRE:
+				أرجع wire_ < other.wire_;
+			حالة DriveType::پورټ_2:
+				أرجع پورټ_3 < other.پورټ_3;
+			حالة DriveType::MARKER:
+				أرجع marker_ < other.marker_;
+			حالة DriveType::مضرب:
 				log_assert(!"TODO");
 		}
 		log_abort();
 	}
 
 
-	DriveType type() const { return type_; }
+	DriveType type() ثابت { أرجع type_; }
 
-	bool is_none() const { return type_ == DriveType::NONE; }
-	bool is_constant() const { return type_ == DriveType::CONSTANT; }
-	bool is_wire() const { return type_ == DriveType::WIRE; }
-	bool is_port() const { return type_ == DriveType::PORT; }
-	bool is_marker() const { return type_ == DriveType::MARKER; }
-	bool is_multiple() const { return type_ == DriveType::MULTIPLE; }
+	bool is_none() ثابت { أرجع type_ == DriveType::NONE; }
+	bool is_constant() ثابت { أرجع type_ == DriveType::CONSTANT; }
+	bool is_wire() ثابت { أرجع type_ == DriveType::WIRE; }
+	bool is_پورټ() ثابت { أرجع type_ == DriveType::پورټ_2; }
+	bool is_marker() ثابت { أرجع type_ == DriveType::MARKER; }
+	bool is_مضرب() ثابت { أرجع type_ == DriveType::مضرب; }
 
-	State &constant() { log_assert(is_constant()); return constant_; }
-	State const &constant() const { log_assert(is_constant()); return constant_; }
-	DriveBitWire &wire() { log_assert(is_wire()); return wire_; }
-	DriveBitWire const &wire() const { log_assert(is_wire()); return wire_; }
-	DriveBitPort &port() { log_assert(is_port()); return port_; }
-	DriveBitPort const &port() const { log_assert(is_port()); return port_; }
-	DriveBitMarker &marker() { log_assert(is_marker()); return marker_; }
-	DriveBitMarker const &marker() const { log_assert(is_marker()); return marker_; }
-	DriveBitMultiple &multiple() { log_assert(is_multiple()); return multiple_; }
-	DriveBitMultiple const &multiple() const { log_assert(is_multiple()); return multiple_; }
+	State &constant() { log_assert(is_constant()); أرجع constant_; }
+	State ثابت &constant() ثابت { log_assert(is_constant()); أرجع constant_; }
+	Drive_بټ_Wire &wire() { log_assert(is_wire()); أرجع wire_; }
+	Drive_بټ_Wire ثابت &wire() ثابت { log_assert(is_wire()); أرجع wire_; }
+	Drive_بټ_پورټ &پورټ() { log_assert(is_پورټ()); أرجع پورټ_3; }
+	Drive_بټ_پورټ ثابت &پورټ() ثابت { log_assert(is_پورټ()); أرجع پورټ_3; }
+	Drive_بټ_Marker &marker() { log_assert(is_marker()); أرجع marker_; }
+	Drive_بټ_Marker ثابت &marker() ثابت { log_assert(is_marker()); أرجع marker_; }
+	Drive_بټ_مضرب &مضرب_2() { log_assert(is_مضرب()); أرجع مضرب_3; }
+	Drive_بټ_مضرب ثابت &مضرب_2() ثابت { log_assert(is_مضرب()); أرجع مضرب_3; }
 
-	void merge(DriveBit const &other);
+	فراغ یوځای(Drive_بټ ثابت &other);
 
 };
 
-inline DriveBitMultiple::DriveBitMultiple() {}
-inline DriveBitMultiple::DriveBitMultiple(DriveBit const &single)
+مضمن Drive_بټ_مضرب::Drive_بټ_مضرب() {}
+مضمن Drive_بټ_مضرب::Drive_بټ_مضرب(Drive_بټ ثابت &single)
 {
-	multiple_.emplace(single);
+	مضرب_3.emplace(single);
 }
 
-struct DriveChunkWire
+بنية DriveChunkWire
 {
 	Wire *wire;
-	int offset;
-	int width;
+	صحيح دننه_واټن;
+	صحيح پلنوالی;
 
-	DriveChunkWire(Wire *wire, int offset, int width) : wire(wire), offset(offset), width(width) {}
-	DriveChunkWire(DriveBitWire const &bit) : wire(bit.wire), offset(bit.offset), width(1) {}
+	DriveChunkWire(Wire *wire, صحيح دننه_واټن, صحيح پلنوالی) : wire(wire), دننه_واټن(دننه_واټن), پلنوالی(پلنوالی) {}
+	DriveChunkWire(Drive_بټ_Wire ثابت &بټ) : wire(بټ.wire), دننه_واټن(بټ.دننه_واټن), پلنوالی(1) {}
 
-	int size() const { return width; }
+	صحيح اندازه() ثابت { أرجع پلنوالی; }
 
-	DriveBitWire operator[](int i) const
+	Drive_بټ_Wire چلوونکی[](صحيح i) ثابت
 	{
-		log_assert(i >= 0 && i < width);
-		return DriveBitWire(wire, offset + i);
+		log_assert(i >= 0 && i < پلنوالی);
+		أرجع Drive_بټ_Wire(wire, دننه_واټن + i);
 	}
 
-	bool can_append(DriveBitWire const &bit) const;
-	bool try_append(DriveBitWire const &bit);
-	bool try_append(DriveChunkWire const &chunk);
+	bool can_append(Drive_بټ_Wire ثابت &بټ) ثابت;
+	bool try_append(Drive_بټ_Wire ثابت &بټ);
+	bool try_append(DriveChunkWire ثابت &chunk);
 
 	// Whether this chunk is a whole wire
-	bool is_whole() const { return offset == 0 && width == wire->width; }
+	bool is_ټولیز() ثابت { أرجع دننه_واټن == 0 && پلنوالی == wire->پلنوالی; }
 
-	bool operator==(const DriveChunkWire &other) const
+	bool چلوونکی==(ثابت DriveChunkWire &other) ثابت
 	{
-		return wire == other.wire && offset == other.offset && width == other.width;
+		أرجع wire == other.wire && دننه_واټن == other.دننه_واټن && پلنوالی == other.پلنوالی;
 	}
 
-	bool operator<(const DriveChunkWire &other) const
+	bool چلوونکی<(ثابت DriveChunkWire &other) ثابت
 	{
-		if (wire != other.wire)
-			return wire->name < other.wire->name;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		إذا (wire != other.wire)
+			أرجع wire->name < other.wire->name;
+		إذا (پلنوالی != other.پلنوالی)
+			أرجع پلنوالی < other.پلنوالی;
+		أرجع دننه_واټن < other.دننه_واټن;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت;
 
-	explicit operator SigChunk() const
+	explicit چلوونکی SigChunk() ثابت
 	{
-		return SigChunk(wire, offset, width);
+		أرجع SigChunk(wire, دننه_واټن, پلنوالی);
 	}
 };
 
-struct DriveChunkPort
+بنية Drive_Chunk_پورټ
 {
 	Cell *cell;
-	IdString port;
-	int offset;
-	int width;
+	IdString پورټ;
+	صحيح دننه_واټن;
+	صحيح پلنوالی;
 
-	DriveChunkPort(Cell *cell, IdString port, int offset, int width) :
-		cell(cell), port(port), offset(offset), width(width) { }
-	DriveChunkPort(Cell *cell, IdString port) :
-		cell(cell), port(port), offset(0), width(GetSize(cell->connections().at(port))) { }
-	DriveChunkPort(Cell *cell, std::pair<IdString, SigSpec> const &conn) :
-		cell(cell), port(conn.first), offset(0), width(GetSize(conn.second)) { }
-	DriveChunkPort(DriveBitPort const &bit) :
-		cell(bit.cell), port(bit.port), offset(bit.offset), width(1) { }
+	Drive_Chunk_پورټ(Cell *cell, IdString پورټ, صحيح دننه_واټن, صحيح پلنوالی) :
+		cell(cell), پورټ(پورټ), دننه_واټن(دننه_واټن), پلنوالی(پلنوالی) { }
+	Drive_Chunk_پورټ(Cell *cell, IdString پورټ) :
+		cell(cell), پورټ(پورټ), دننه_واټن(0), پلنوالی(Get_اندازه(cell->connections().at(پورټ))) { }
+	Drive_Chunk_پورټ(Cell *cell, std::pair<IdString, SigSpec> ثابت &conn) :
+		cell(cell), پورټ(conn.لومړی), دننه_واټن(0), پلنوالی(Get_اندازه(conn.دوهم)) { }
+	Drive_Chunk_پورټ(Drive_بټ_پورټ ثابت &بټ) :
+		cell(بټ.cell), پورټ(بټ.پورټ), دننه_واټن(بټ.دننه_واټن), پلنوالی(1) { }
 
-	int size() const { return width; }
+	صحيح اندازه() ثابت { أرجع پلنوالی; }
 
-	DriveBitPort operator[](int i) const
+	Drive_بټ_پورټ چلوونکی[](صحيح i) ثابت
 	{
-		log_assert(i >= 0 && i < width);
-		return DriveBitPort(cell, port, offset + i);
+		log_assert(i >= 0 && i < پلنوالی);
+		أرجع Drive_بټ_پورټ(cell, پورټ, دننه_واټن + i);
 	}
 
-	bool can_append(DriveBitPort const &bit) const;
-	bool try_append(DriveBitPort const &bit);
-	bool try_append(DriveChunkPort const &chunk);
+	bool can_append(Drive_بټ_پورټ ثابت &بټ) ثابت;
+	bool try_append(Drive_بټ_پورټ ثابت &بټ);
+	bool try_append(Drive_Chunk_پورټ ثابت &chunk);
 
 	// Whether this chunk is a whole port
-	bool is_whole() const
+	bool is_ټولیز() ثابت
 	{
-		return offset == 0 && width == cell->connections().at(port).size();
+		أرجع دننه_واټن == 0 && پلنوالی == cell->connections().at(پورټ).اندازه();
 	}
 
-	bool operator==(const DriveChunkPort &other) const
+	bool چلوونکی==(ثابت Drive_Chunk_پورټ &other) ثابت
 	{
-		return cell == other.cell && port == other.port && offset == other.offset && width == other.width;
+		أرجع cell == other.cell && پورټ == other.پورټ && دننه_واټن == other.دننه_واټن && پلنوالی == other.پلنوالی;
 	}
 
-	bool operator<(const DriveChunkPort &other) const
+	bool چلوونکی<(ثابت Drive_Chunk_پورټ &other) ثابت
 	{
-		if (cell != other.cell)
-			return cell->name < other.cell->name;
-		if (port != other.port)
-			return port < other.port;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		إذا (cell != other.cell)
+			أرجع cell->name < other.cell->name;
+		إذا (پورټ != other.پورټ)
+			أرجع پورټ < other.پورټ;
+		إذا (پلنوالی != other.پلنوالی)
+			أرجع پلنوالی < other.پلنوالی;
+		أرجع دننه_واټن < other.دننه_واټن;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت;
 };
 
 
-struct DriveChunkMarker
+بنية DriveChunkMarker
 {
-	int marker;
-	int offset;
-	int width;
+	صحيح marker;
+	صحيح دننه_واټن;
+	صحيح پلنوالی;
 
-	DriveChunkMarker(int marker, int offset, int width) :
-		marker(marker), offset(offset), width(width) {}
-	DriveChunkMarker(DriveBitMarker const &bit) :
-		marker(bit.marker), offset(bit.offset), width(1) {}
+	DriveChunkMarker(صحيح marker, صحيح دننه_واټن, صحيح پلنوالی) :
+		marker(marker), دننه_واټن(دننه_واټن), پلنوالی(پلنوالی) {}
+	DriveChunkMarker(Drive_بټ_Marker ثابت &بټ) :
+		marker(بټ.marker), دننه_واټن(بټ.دننه_واټن), پلنوالی(1) {}
 
-	int size() const { return width; }
+	صحيح اندازه() ثابت { أرجع پلنوالی; }
 
-	DriveBitMarker operator[](int i) const
+	Drive_بټ_Marker چلوونکی[](صحيح i) ثابت
 	{
-		log_assert(i >= 0 && i < width);
-		return DriveBitMarker(marker, offset + i);
+		log_assert(i >= 0 && i < پلنوالی);
+		أرجع Drive_بټ_Marker(marker, دننه_واټن + i);
 	}
 
-	bool can_append(DriveBitMarker const &bit) const;
-	bool try_append(DriveBitMarker const &bit);
-	bool try_append(DriveChunkMarker const &chunk);
+	bool can_append(Drive_بټ_Marker ثابت &بټ) ثابت;
+	bool try_append(Drive_بټ_Marker ثابت &بټ);
+	bool try_append(DriveChunkMarker ثابت &chunk);
 
-	bool operator==(const DriveChunkMarker &other) const
+	bool چلوونکی==(ثابت DriveChunkMarker &other) ثابت
 	{
-		return marker == other.marker && offset == other.offset && width == other.width;
+		أرجع marker == other.marker && دننه_واټن == other.دننه_واټن && پلنوالی == other.پلنوالی;
 	}
 
-	bool operator<(const DriveChunkMarker &other) const
+	bool چلوونکی<(ثابت DriveChunkMarker &other) ثابت
 	{
-		if (marker != other.marker)
-			return marker < other.marker;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		إذا (marker != other.marker)
+			أرجع marker < other.marker;
+		إذا (پلنوالی != other.پلنوالی)
+			أرجع پلنوالی < other.پلنوالی;
+		أرجع دننه_واټن < other.دننه_واټن;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت;
 };
 
-struct DriveChunkMultiple
+بنية Drive_Chunk_مضرب
 {
-private:
-	mutable pool<DriveChunk> multiple_;
-	int width_;
+خاص:
+	mutable pool<DriveChunk> مضرب_3;
+	صحيح پلنوالی_3;
 
-public:
-	pool<DriveChunk> const &multiple() const { return multiple_; }
+عام:
+	pool<DriveChunk> ثابت &مضرب_2() ثابت { أرجع مضرب_3; }
 
-	DriveChunkMultiple(DriveBitMultiple const &bit);
+	Drive_Chunk_مضرب(Drive_بټ_مضرب ثابت &بټ);
 
-	int size() const { return width_; }
+	صحيح اندازه() ثابت { أرجع پلنوالی_3; }
 
-	DriveBitMultiple operator[](int i) const;
+	Drive_بټ_مضرب چلوونکی[](صحيح i) ثابت;
 
-	bool can_append(DriveBitMultiple const &bit) const;
+	bool can_append(Drive_بټ_مضرب ثابت &بټ) ثابت;
 
-	bool try_append(DriveBitMultiple const &bit);
+	bool try_append(Drive_بټ_مضرب ثابت &بټ);
 
 
-	bool can_append(DriveChunkMultiple const &bit) const;
+	bool can_append(Drive_Chunk_مضرب ثابت &بټ) ثابت;
 
-	bool try_append(DriveChunkMultiple const &bit);
+	bool try_append(Drive_Chunk_مضرب ثابت &بټ);
 
-	bool operator==(const DriveChunkMultiple &other) const
+	bool چلوونکی==(ثابت Drive_Chunk_مضرب &other) ثابت
 	{
-		return width_ == other.width_ && multiple_ == other.multiple_;
+		أرجع پلنوالی_3 == other.پلنوالی_3 && مضرب_3 == other.مضرب_3;
 	}
 
-	bool operator<(const DriveChunkMultiple &other) const
+	bool چلوونکی<(ثابت Drive_Chunk_مضرب &other) ثابت
 	{
-		if (multiple_.size() < other.multiple_.size())
+		إذا (مضرب_3.اندازه() < other.مضرب_3.اندازه())
 
-		multiple_.sort();
-		return false; // TODO implement, canonicalize order
+		مضرب_3.ترتیبول();
+		أرجع false; // TODO implement, canonicalize order
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت;
 };
 
-struct DriveChunk
+بنية DriveChunk
 {
-private:
+خاص:
 	DriveType type_ = DriveType::NONE;
-	union
+	اتحاد
 	{
-		int none_;
+		صحيح none_;
 		Const constant_;
 		DriveChunkWire wire_;
-		DriveChunkPort port_;
+		Drive_Chunk_پورټ پورټ_3;
 		DriveChunkMarker marker_;
-		DriveChunkMultiple multiple_;
+		Drive_Chunk_مضرب مضرب_3;
 	};
 
-public:
-	DriveChunk() { set_none(); }
+عام:
+	DriveChunk() { سېټ_none(); }
 
-	DriveChunk(DriveChunk const &other) { *this = other; }
+	DriveChunk(DriveChunk ثابت &other) { *this = other; }
 	DriveChunk(DriveChunk &&other) { *this = other; }
 
-	DriveChunk(DriveBit const &other) { *this = other; }
+	DriveChunk(Drive_بټ ثابت &other) { *this = other; }
 
-	DriveChunk(Const const &constant) { *this = constant; }
+	DriveChunk(Const ثابت &constant) { *this = constant; }
 	DriveChunk(Const &&constant) { *this = constant; }
-	DriveChunk(DriveChunkWire const &wire) { *this = wire; }
+	DriveChunk(DriveChunkWire ثابت &wire) { *this = wire; }
 	DriveChunk(DriveChunkWire &&wire) { *this = wire; }
-	DriveChunk(DriveChunkPort const &port) { *this = port; }
-	DriveChunk(DriveChunkPort &&port) { *this = port; }
-	DriveChunk(DriveChunkMarker const &marker) { *this = marker; }
+	DriveChunk(Drive_Chunk_پورټ ثابت &پورټ) { *this = پورټ; }
+	DriveChunk(Drive_Chunk_پورټ &&پورټ) { *this = پورټ; }
+	DriveChunk(DriveChunkMarker ثابت &marker) { *this = marker; }
 	DriveChunk(DriveChunkMarker &&marker) { *this = marker; }
-	DriveChunk(DriveChunkMultiple const &multiple) { *this = multiple; }
-	DriveChunk(DriveChunkMultiple &&multiple) { *this = multiple; }
+	DriveChunk(Drive_Chunk_مضرب ثابت &مضرب_2) { *this = مضرب_2; }
+	DriveChunk(Drive_Chunk_مضرب &&مضرب_2) { *this = مضرب_2; }
 
-	~DriveChunk() { set_none(); }
+	~DriveChunk() { سېټ_none(); }
 
-	DriveBit operator[](int i) const
+	Drive_بټ چلوونکی[](صحيح i) ثابت
 	{
-		switch (type_)
+		بدل (type_)
 		{
-			case DriveType::NONE:
-				return DriveBit();
-			case DriveType::CONSTANT:
-				return constant_[i];
-			case DriveType::WIRE:
-				return wire_[i];
-			case DriveType::PORT:
-				return port_[i];
-			case DriveType::MARKER:
-				return marker_[i];
-			case DriveType::MULTIPLE:
-				return multiple_[i];
+			حالة DriveType::NONE:
+				أرجع Drive_بټ();
+			حالة DriveType::CONSTANT:
+				أرجع constant_[i];
+			حالة DriveType::WIRE:
+				أرجع wire_[i];
+			حالة DriveType::پورټ_2:
+				أرجع پورټ_3[i];
+			حالة DriveType::MARKER:
+				أرجع marker_[i];
+			حالة DriveType::مضرب:
+				أرجع مضرب_3[i];
 		}
 		log_abort();
 	}
 
-	void set_none(int width = 0)
+	فراغ سېټ_none(صحيح پلنوالی = 0)
 	{
-		switch (type_)
+		بدل (type_)
 		{
-			case DriveType::NONE:
-				none_ = width;
-				break;
-			case DriveType::CONSTANT:
+			حالة DriveType::NONE:
+				none_ = پلنوالی;
+				اكسر;
+			حالة DriveType::CONSTANT:
 				constant_.~Const();
-				break;
-			case DriveType::WIRE:
+				اكسر;
+			حالة DriveType::WIRE:
 				wire_.~DriveChunkWire();
-				break;
-			case DriveType::PORT:
-				port_.~DriveChunkPort();
-				break;
-			case DriveType::MARKER:
+				اكسر;
+			حالة DriveType::پورټ_2:
+				پورټ_3.~Drive_Chunk_پورټ();
+				اكسر;
+			حالة DriveType::MARKER:
 				marker_.~DriveChunkMarker();
-				break;
-			case DriveType::MULTIPLE:
-				multiple_.~DriveChunkMultiple();
-				break;
+				اكسر;
+			حالة DriveType::مضرب:
+				مضرب_3.~Drive_Chunk_مضرب();
+				اكسر;
 		}
 		type_ = DriveType::NONE;
-		none_ = width;
+		none_ = پلنوالی;
 	}
 
-	DriveChunk &operator=(DriveChunk const &other)
+	DriveChunk &چلوونکی=(DriveChunk ثابت &other)
 	{
-		switch (other.type_)
+		بدل (other.type_)
 		{
-			case DriveType::NONE:
-				set_none(other.none_);
-				break;
-			case DriveType::CONSTANT:
+			حالة DriveType::NONE:
+				سېټ_none(other.none_);
+				اكسر;
+			حالة DriveType::CONSTANT:
 				*this = other.constant_;
-				break;
-			case DriveType::WIRE:
+				اكسر;
+			حالة DriveType::WIRE:
 				*this = other.wire_;
-				break;
-			case DriveType::PORT:
-				*this = other.port_;
-				break;
-			case DriveType::MARKER:
+				اكسر;
+			حالة DriveType::پورټ_2:
+				*this = other.پورټ_3;
+				اكسر;
+			حالة DriveType::MARKER:
 				*this = other.marker_;
-				break;
-			case DriveType::MULTIPLE:
-				*this = other.multiple_;
-				break;
+				اكسر;
+			حالة DriveType::مضرب:
+				*this = other.مضرب_3;
+				اكسر;
 		}
-		return *this;
+		أرجع *this;
 	}
 
-	DriveChunk &operator=(DriveChunk &&other)
+	DriveChunk &چلوونکی=(DriveChunk &&other)
 	{
-		switch (other.type_)
+		بدل (other.type_)
 		{
-			case DriveType::NONE:
-				set_none(other.none_);
-				break;
-			case DriveType::CONSTANT:
+			حالة DriveType::NONE:
+				سېټ_none(other.none_);
+				اكسر;
+			حالة DriveType::CONSTANT:
 				*this = std::move(other.constant_);
-				break;
-			case DriveType::WIRE:
+				اكسر;
+			حالة DriveType::WIRE:
 				*this = std::move(other.wire_);
-				break;
-			case DriveType::PORT:
-				*this = std::move(other.port_);
-				break;
-			case DriveType::MARKER:
+				اكسر;
+			حالة DriveType::پورټ_2:
+				*this = std::move(other.پورټ_3);
+				اكسر;
+			حالة DriveType::MARKER:
 				*this = std::move(other.marker_);
-				break;
-			case DriveType::MULTIPLE:
-				*this = std::move(other.multiple_);
-				break;
+				اكسر;
+			حالة DriveType::مضرب:
+				*this = std::move(other.مضرب_3);
+				اكسر;
 		}
-		return *this;
+		أرجع *this;
 	}
 
-	DriveChunk &operator=(Const const &constant)
+	DriveChunk &چلوونکی=(Const ثابت &constant)
 	{
-		set_none();
+		سېټ_none();
 		new (&constant_) Const(constant);
 		type_ = DriveType::CONSTANT;
-		return *this;
+		أرجع *this;
 	}
 
-	DriveChunk &operator=(Const &&constant)
+	DriveChunk &چلوونکی=(Const &&constant)
 	{
-		set_none();
+		سېټ_none();
 		new (&constant_) Const(std::move(constant));
 		type_ = DriveType::CONSTANT;
-		return *this;
+		أرجع *this;
 	}
 
-	DriveChunk &operator=(DriveChunkWire const &wire)
+	DriveChunk &چلوونکی=(DriveChunkWire ثابت &wire)
 	{
-		set_none();
+		سېټ_none();
 		new (&wire_) DriveChunkWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		أرجع *this;
 	}
 
-	DriveChunk &operator=(DriveChunkWire &&wire)
+	DriveChunk &چلوونکی=(DriveChunkWire &&wire)
 	{
-		set_none();
+		سېټ_none();
 		new (&wire_) DriveChunkWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		أرجع *this;
 	}
 
-	DriveChunk &operator=(DriveChunkPort const &port)
+	DriveChunk &چلوونکی=(Drive_Chunk_پورټ ثابت &پورټ)
 	{
-		set_none();
-		new (&port_) DriveChunkPort(port);
-		type_ = DriveType::PORT;
-		return *this;
+		سېټ_none();
+		new (&پورټ_3) Drive_Chunk_پورټ(پورټ);
+		type_ = DriveType::پورټ_2;
+		أرجع *this;
 	}
 
-	DriveChunk &operator=(DriveChunkPort &&port)
+	DriveChunk &چلوونکی=(Drive_Chunk_پورټ &&پورټ)
 	{
-		set_none();
-		new (&port_) DriveChunkPort(port);
-		type_ = DriveType::PORT;
-		return *this;
+		سېټ_none();
+		new (&پورټ_3) Drive_Chunk_پورټ(پورټ);
+		type_ = DriveType::پورټ_2;
+		أرجع *this;
 	}
 
-	DriveChunk &operator=(DriveChunkMarker const &marker)
+	DriveChunk &چلوونکی=(DriveChunkMarker ثابت &marker)
 	{
-		set_none();
+		سېټ_none();
 		new (&marker_) DriveChunkMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		أرجع *this;
 	}
 
-	DriveChunk &operator=(DriveChunkMarker &&marker)
+	DriveChunk &چلوونکی=(DriveChunkMarker &&marker)
 	{
-		set_none();
+		سېټ_none();
 		new (&marker_) DriveChunkMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		أرجع *this;
 	}
 
-	DriveChunk &operator=(DriveChunkMultiple const &multiple)
+	DriveChunk &چلوونکی=(Drive_Chunk_مضرب ثابت &مضرب_2)
 	{
-		set_none(multiple.size());
-		if (multiple.multiple().empty())
-			return *this;
-		new (&multiple_) DriveChunkMultiple(multiple);
-		type_ = DriveType::MULTIPLE;
-		return *this;
+		سېټ_none(مضرب_2.اندازه());
+		إذا (مضرب_2.مضرب_2().تشه())
+			أرجع *this;
+		new (&مضرب_3) Drive_Chunk_مضرب(مضرب_2);
+		type_ = DriveType::مضرب;
+		أرجع *this;
 	}
 
-	DriveChunk &operator=(DriveChunkMultiple &&multiple)
+	DriveChunk &چلوونکی=(Drive_Chunk_مضرب &&مضرب_2)
 	{
-		set_none(multiple.size());
-		if (multiple.multiple().empty())
-			return *this;
-		new (&multiple_) DriveChunkMultiple(multiple);
-		type_ = DriveType::MULTIPLE;
-		return *this;
+		سېټ_none(مضرب_2.اندازه());
+		إذا (مضرب_2.مضرب_2().تشه())
+			أرجع *this;
+		new (&مضرب_3) Drive_Chunk_مضرب(مضرب_2);
+		type_ = DriveType::مضرب;
+		أرجع *this;
 	}
 
-	DriveChunk &operator=(DriveBit const &other)
+	DriveChunk &چلوونکی=(Drive_بټ ثابت &other)
 	{
-		switch (other.type())
+		بدل (other.type())
 		{
-			case DriveType::NONE:
-				set_none(1);
-				break;
-			case DriveType::CONSTANT:
+			حالة DriveType::NONE:
+				سېټ_none(1);
+				اكسر;
+			حالة DriveType::CONSTANT:
 				*this = Const(other.constant());
-				break;
-			case DriveType::WIRE:
+				اكسر;
+			حالة DriveType::WIRE:
 				*this = DriveChunkWire(other.wire());
-				break;
-			case DriveType::PORT:
-				*this = DriveChunkPort(other.port());
-				break;
-			case DriveType::MARKER:
+				اكسر;
+			حالة DriveType::پورټ_2:
+				*this = Drive_Chunk_پورټ(other.پورټ());
+				اكسر;
+			حالة DriveType::MARKER:
 				*this = DriveChunkMarker(other.marker());
-				break;
-			case DriveType::MULTIPLE:
-				*this = DriveChunkMultiple(other.multiple());
-				break;
+				اكسر;
+			حالة DriveType::مضرب:
+				*this = Drive_Chunk_مضرب(other.مضرب_2());
+				اكسر;
 		}
-		return *this;
+		أرجع *this;
 	}
 
-	bool can_append(DriveBit const &bit) const;
-	bool try_append(DriveBit const &bit);
-	bool try_append(DriveChunk const &chunk);
+	bool can_append(Drive_بټ ثابت &بټ) ثابت;
+	bool try_append(Drive_بټ ثابت &بټ);
+	bool try_append(DriveChunk ثابت &chunk);
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت;
 
-	bool operator==(const DriveChunk &other) const
+	bool چلوونکی==(ثابت DriveChunk &other) ثابت
 	{
-		if (type_ != other.type_)
-			return false;
+		إذا (type_ != other.type_)
+			أرجع false;
 
-		switch (type_)
+		بدل (type_)
 		{
-			case DriveType::NONE:
-				return true;
-			case DriveType::CONSTANT:
-				return constant_ == other.constant_;
-			case DriveType::WIRE:
-				return wire_ == other.wire_;
-			case DriveType::PORT:
-				return port_ == other.port_;
-			case DriveType::MARKER:
-				return marker_ == other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ == other.multiple_;
-		}
-		log_abort();
-	}
-
-	bool operator!=(const DriveChunk &other) const
-	{
-		return !(*this == other);
-	}
-
-	bool operator<(const DriveChunk &other) const
-	{
-		if (type_ != other.type_)
-			return type_ < other.type_;
-		switch (type_)
-		{
-			case DriveType::NONE:
-				return false;
-			case DriveType::CONSTANT:
-				return constant_ < other.constant_;
-			case DriveType::WIRE:
-				return wire_ < other.wire_;
-			case DriveType::PORT:
-				return port_ < other.port_;
-			case DriveType::MARKER:
-				return marker_ < other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ < other.multiple_;
+			حالة DriveType::NONE:
+				أرجع true;
+			حالة DriveType::CONSTANT:
+				أرجع constant_ == other.constant_;
+			حالة DriveType::WIRE:
+				أرجع wire_ == other.wire_;
+			حالة DriveType::پورټ_2:
+				أرجع پورټ_3 == other.پورټ_3;
+			حالة DriveType::MARKER:
+				أرجع marker_ == other.marker_;
+			حالة DriveType::مضرب:
+				أرجع مضرب_3 == other.مضرب_3;
 		}
 		log_abort();
 	}
 
-	DriveType type() const { return type_; }
-
-	bool is_none() const { return type_ == DriveType::NONE; }
-	bool is_constant() const { return type_ == DriveType::CONSTANT; }
-	bool is_wire() const { return type_ == DriveType::WIRE; }
-	bool is_port() const { return type_ == DriveType::PORT; }
-	bool is_marker() const { return type_ == DriveType::MARKER; }
-	bool is_multiple() const { return type_ == DriveType::MULTIPLE; }
-
-	Const &constant() { log_assert(is_constant()); return constant_; }
-	Const const &constant() const { log_assert(is_constant()); return constant_; }
-	DriveChunkWire &wire() { log_assert(is_wire()); return wire_; }
-	DriveChunkWire const &wire() const { log_assert(is_wire()); return wire_; }
-	DriveChunkPort &port() { log_assert(is_port()); return port_; }
-	DriveChunkPort const &port() const { log_assert(is_port()); return port_; }
-	DriveChunkMarker &marker() { log_assert(is_marker()); return marker_; }
-	DriveChunkMarker const &marker() const { log_assert(is_marker()); return marker_; }
-	DriveChunkMultiple &multiple() { log_assert(is_multiple()); return multiple_; }
-	DriveChunkMultiple const &multiple() const { log_assert(is_multiple()); return multiple_; }
-
-
-	int size() const
+	bool چلوونکی!=(ثابت DriveChunk &other) ثابت
 	{
-		switch (type_)
+		أرجع !(*this == other);
+	}
+
+	bool چلوونکی<(ثابت DriveChunk &other) ثابت
+	{
+		إذا (type_ != other.type_)
+			أرجع type_ < other.type_;
+		بدل (type_)
 		{
-			case DriveType::NONE:
-				return none_;
-			case DriveType::CONSTANT:
-				return constant_.size();
-			case DriveType::WIRE:
-				return wire_.size();
-			case DriveType::PORT:
-				return port_.size();
-			case DriveType::MARKER:
-				return marker_.size();
-			case DriveType::MULTIPLE:
-				return multiple_.size();
+			حالة DriveType::NONE:
+				أرجع false;
+			حالة DriveType::CONSTANT:
+				أرجع constant_ < other.constant_;
+			حالة DriveType::WIRE:
+				أرجع wire_ < other.wire_;
+			حالة DriveType::پورټ_2:
+				أرجع پورټ_3 < other.پورټ_3;
+			حالة DriveType::MARKER:
+				أرجع marker_ < other.marker_;
+			حالة DriveType::مضرب:
+				أرجع مضرب_3 < other.مضرب_3;
+		}
+		log_abort();
+	}
+
+	DriveType type() ثابت { أرجع type_; }
+
+	bool is_none() ثابت { أرجع type_ == DriveType::NONE; }
+	bool is_constant() ثابت { أرجع type_ == DriveType::CONSTANT; }
+	bool is_wire() ثابت { أرجع type_ == DriveType::WIRE; }
+	bool is_پورټ() ثابت { أرجع type_ == DriveType::پورټ_2; }
+	bool is_marker() ثابت { أرجع type_ == DriveType::MARKER; }
+	bool is_مضرب() ثابت { أرجع type_ == DriveType::مضرب; }
+
+	Const &constant() { log_assert(is_constant()); أرجع constant_; }
+	Const ثابت &constant() ثابت { log_assert(is_constant()); أرجع constant_; }
+	DriveChunkWire &wire() { log_assert(is_wire()); أرجع wire_; }
+	DriveChunkWire ثابت &wire() ثابت { log_assert(is_wire()); أرجع wire_; }
+	Drive_Chunk_پورټ &پورټ() { log_assert(is_پورټ()); أرجع پورټ_3; }
+	Drive_Chunk_پورټ ثابت &پورټ() ثابت { log_assert(is_پورټ()); أرجع پورټ_3; }
+	DriveChunkMarker &marker() { log_assert(is_marker()); أرجع marker_; }
+	DriveChunkMarker ثابت &marker() ثابت { log_assert(is_marker()); أرجع marker_; }
+	Drive_Chunk_مضرب &مضرب_2() { log_assert(is_مضرب()); أرجع مضرب_3; }
+	Drive_Chunk_مضرب ثابت &مضرب_2() ثابت { log_assert(is_مضرب()); أرجع مضرب_3; }
+
+
+	صحيح اندازه() ثابت
+	{
+		بدل (type_)
+		{
+			حالة DriveType::NONE:
+				أرجع none_;
+			حالة DriveType::CONSTANT:
+				أرجع constant_.اندازه();
+			حالة DriveType::WIRE:
+				أرجع wire_.اندازه();
+			حالة DriveType::پورټ_2:
+				أرجع پورټ_3.اندازه();
+			حالة DriveType::MARKER:
+				أرجع marker_.اندازه();
+			حالة DriveType::مضرب:
+				أرجع مضرب_3.اندازه();
 		}
 		log_abort();
 	}
 };
 
-inline DriveChunkMultiple::DriveChunkMultiple(DriveBitMultiple const &bit)
-	: width_(1)
+مضمن Drive_Chunk_مضرب::Drive_Chunk_مضرب(Drive_بټ_مضرب ثابت &بټ)
+	: پلنوالی_3(1)
 {
-	for (auto const &bit : bit.multiple())
-		multiple_.emplace(bit);
+	لكل (خپلکاری ثابت &بټ : بټ.مضرب_2())
+		مضرب_3.emplace(بټ);
 }
 
-struct DriveSpec
+بنية DriveSpec
 {
-private:
-	int width_ = 0;
-	mutable std::vector<DriveChunk> chunks_;
-	mutable std::vector<DriveBit> bits_;
-	mutable unsigned int hash_ = 0;
-public:
+خاص:
+	صحيح پلنوالی_3 = 0;
+	mutable std::ویکټور<DriveChunk> chunks_;
+	mutable std::ویکټور<Drive_بټ> بټونه_2;
+	mutable بینښه صحيح hash_ = 0;
+عام:
 
-	inline bool packed() const {
-		return bits_.empty();
+	مضمن bool packed() ثابت {
+		أرجع بټونه_2.تشه();
 	}
 
 	DriveSpec() {}
 
-	DriveSpec(DriveChunk const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkWire const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkPort const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkMarker const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkMultiple const &chunk) { *this = chunk; }
+	DriveSpec(DriveChunk ثابت &chunk) { *this = chunk; }
+	DriveSpec(DriveChunkWire ثابت &chunk) { *this = chunk; }
+	DriveSpec(Drive_Chunk_پورټ ثابت &chunk) { *this = chunk; }
+	DriveSpec(DriveChunkMarker ثابت &chunk) { *this = chunk; }
+	DriveSpec(Drive_Chunk_مضرب ثابت &chunk) { *this = chunk; }
 
-	DriveSpec(DriveBit const &bit) { *this = bit; }
-	DriveSpec(DriveBitWire const &bit) { *this = bit; }
-	DriveSpec(DriveBitPort const &bit) { *this = bit; }
-	DriveSpec(DriveBitMarker const &bit) { *this = bit; }
-	DriveSpec(DriveBitMultiple const &bit) { *this = bit; }
+	DriveSpec(Drive_بټ ثابت &بټ) { *this = بټ; }
+	DriveSpec(Drive_بټ_Wire ثابت &بټ) { *this = بټ; }
+	DriveSpec(Drive_بټ_پورټ ثابت &بټ) { *this = بټ; }
+	DriveSpec(Drive_بټ_Marker ثابت &بټ) { *this = بټ; }
+	DriveSpec(Drive_بټ_مضرب ثابت &بټ) { *this = بټ; }
 
-	DriveSpec(std::vector<DriveChunk> const &chunks) : chunks_(chunks) { compute_width(); }
+	DriveSpec(std::ویکټور<DriveChunk> ثابت &chunks) : chunks_(chunks) { compute_پلنوالی(); }
 
-	DriveSpec(std::vector<DriveBit> const &bits)
+	DriveSpec(std::ویکټور<Drive_بټ> ثابت &بټونه)
 	{
-		for (auto const &bit : bits)
-			append(bit);
+		لكل (خپلکاری ثابت &بټ : بټونه)
+			append(بټ);
 	}
 
-	DriveSpec(SigSpec const &sig)
+	DriveSpec(SigSpec ثابت &sig)
 	{
 		// TODO: converting one chunk at a time would be faster
-		for (auto const &bit : sig.bits())
-			append(bit);
+		لكل (خپلکاری ثابت &بټ : sig.بټونه())
+			append(بټ);
 	}
 
-	std::vector<DriveChunk> const &chunks() const { pack(); return chunks_; }
-	std::vector<DriveBit> const &bits() const { unpack(); return bits_; }
+	std::ویکټور<DriveChunk> ثابت &chunks() ثابت { pack(); أرجع chunks_; }
+	std::ویکټور<Drive_بټ> ثابت &بټونه() ثابت { unpack(); أرجع بټونه_2; }
 
-	int size() const { return width_; }
+	صحيح اندازه() ثابت { أرجع پلنوالی_3; }
 
-	void append(DriveBit const &bit);
+	فراغ append(Drive_بټ ثابت &بټ);
 
-	void append(DriveChunk const &chunk);
+	فراغ append(DriveChunk ثابت &chunk);
 
-	void pack() const;
+	فراغ pack() ثابت;
 
-	void unpack() const;
+	فراغ unpack() ثابت;
 
-	DriveBit &operator[](int index)
+	Drive_بټ &چلوونکی[](صحيح شاخص)
 	{
-		log_assert(index >= 0 && index < size());
+		log_assert(شاخص >= 0 && شاخص < اندازه());
 		unpack();
-		return bits_[index];
+		أرجع بټونه_2[شاخص];
 	}
 
-	const DriveBit &operator[](int index) const
+	ثابت Drive_بټ &چلوونکی[](صحيح شاخص) ثابت
 	{
-		log_assert(index >= 0 && index < size());
+		log_assert(شاخص >= 0 && شاخص < اندازه());
 		unpack();
-		return bits_[index];
+		أرجع بټونه_2[شاخص];
 	}
 
-	void clear()
+	فراغ clear()
 	{
 		chunks_.clear();
-		bits_.clear();
-		width_ = 0;
+		بټونه_2.clear();
+		پلنوالی_3 = 0;
 	}
 
-	DriveSpec &operator=(DriveChunk const &chunk)
+	DriveSpec &چلوونکی=(DriveChunk ثابت &chunk)
 	{
 		chunks_.clear();
-		bits_.clear();
+		بټونه_2.clear();
 		append(chunk);
-		return *this;
+		أرجع *this;
 	}
 
-	DriveSpec &operator=(DriveChunkWire const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkPort const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkMarker const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkMultiple const &chunk) { return *this = DriveChunk(chunk); }
+	DriveSpec &چلوونکی=(DriveChunkWire ثابت &chunk) { أرجع *this = DriveChunk(chunk); }
+	DriveSpec &چلوونکی=(Drive_Chunk_پورټ ثابت &chunk) { أرجع *this = DriveChunk(chunk); }
+	DriveSpec &چلوونکی=(DriveChunkMarker ثابت &chunk) { أرجع *this = DriveChunk(chunk); }
+	DriveSpec &چلوونکی=(Drive_Chunk_مضرب ثابت &chunk) { أرجع *this = DriveChunk(chunk); }
 
-	DriveSpec &operator=(DriveBit const &bit)
+	DriveSpec &چلوونکی=(Drive_بټ ثابت &بټ)
 	{
 		chunks_.clear();
-		bits_.clear();
-		append(bit);
-		return *this;
+		بټونه_2.clear();
+		append(بټ);
+		أرجع *this;
 	}
 
-	DriveSpec &operator=(DriveBitWire const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitPort const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitMarker const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitMultiple const &bit) { return *this = DriveBit(bit); }
+	DriveSpec &چلوونکی=(Drive_بټ_Wire ثابت &بټ) { أرجع *this = Drive_بټ(بټ); }
+	DriveSpec &چلوونکی=(Drive_بټ_پورټ ثابت &بټ) { أرجع *this = Drive_بټ(بټ); }
+	DriveSpec &چلوونکی=(Drive_بټ_Marker ثابت &بټ) { أرجع *this = Drive_بټ(بټ); }
+	DriveSpec &چلوونکی=(Drive_بټ_مضرب ثابت &بټ) { أرجع *this = Drive_بټ(بټ); }
 
-	void updhash() const {
-		if (hash_ != 0)
-			return;
+	فراغ updhash() ثابت {
+		إذا (hash_ != 0)
+			أرجع;
 		pack();
-		hash_ = run_hash(chunks_);
+		hash_ = پرلپسې_hash(chunks_);
 		hash_ |= (hash_ == 0);
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت;
 
-	bool operator==(DriveSpec const &other) const {
+	bool چلوونکی==(DriveSpec ثابت &other) ثابت {
 		updhash();
 		other.updhash();
-		if (size() != other.size() || hash_ != other.hash_)
-			return false;
-		return chunks() == other.chunks();
+		إذا (اندازه() != other.اندازه() || hash_ != other.hash_)
+			أرجع false;
+		أرجع chunks() == other.chunks();
 	}
 
-private:
-	void compute_width();
+خاص:
+	فراغ compute_پلنوالی();
 };
 
 
 
-struct DriverMap
+بنية DriverMap
 {
 	NewCellTypes celltypes;
 
-	DriverMap() { celltypes.setup(); }
-	DriverMap(Design *design) { celltypes.setup(design); }
+	DriverMap() { celltypes.تیاری(); }
+	DriverMap(Design *design) { celltypes.تیاری(design); }
 
-private:
+خاص:
 
 	// Internally we represent all DriveBits by mapping them to DriveBitIds
 	// which use less memory and are cheaper to compare.
-	struct DriveBitId
+	بنية Drive_بټ_Id
 	{
-		int id = -1;
+		صحيح id = -1;
 
-		DriveBitId() {};
+		Drive_بټ_Id() {};
 
-		DriveBitId(int id) : id(id) { }
+		Drive_بټ_Id(صحيح id) : id(id) { }
 
-		bool operator==(const DriveBitId &other) const { return id == other.id; }
-		bool operator!=(const DriveBitId &other) const { return id != other.id; }
-		bool operator<(const DriveBitId &other) const { return id < other.id; }
-		[[nodiscard]] Hasher hash_into(Hasher h) const;
+		bool چلوونکی==(ثابت Drive_بټ_Id &other) ثابت { أرجع id == other.id; }
+		bool چلوونکی!=(ثابت Drive_بټ_Id &other) ثابت { أرجع id != other.id; }
+		bool چلوونکی<(ثابت Drive_بټ_Id &other) ثابت { أرجع id < other.id; }
+		[[nodiscard]] Hasher hash_into(Hasher h) ثابت;
 	};
 	// Essentially a dict<DriveBitId, pool<DriveBitId>> but using less memory
 	// and fewer allocations
-	struct DriveBitGraph {
-		dict<DriveBitId, DriveBitId> first_edges;
-		dict<DriveBitId, DriveBitId> second_edges;
-		dict<DriveBitId, pool<DriveBitId>> more_edges;
+	بنية Drive_بټ_ګراف {
+		dict<Drive_بټ_Id, Drive_بټ_Id> لومړی_څنډې;
+		dict<Drive_بټ_Id, Drive_بټ_Id> دوهم_څنډې;
+		dict<Drive_بټ_Id, pool<Drive_بټ_Id>> نور_څنډې;
 
-		void add_edge(DriveBitId src, DriveBitId dst);
-		DriveBitId pop_edge(DriveBitId src);
-		void clear(DriveBitId src);
-		bool contains(DriveBitId src);
-		int count(DriveBitId src);
+		فراغ جمع_کړه_څنډه(Drive_بټ_Id src, Drive_بټ_Id dst);
+		Drive_بټ_Id راوباسه_څنډه(Drive_بټ_Id src);
+		فراغ clear(Drive_بټ_Id src);
+		bool لري(Drive_بټ_Id src);
+		صحيح شمېر(Drive_بټ_Id src);
 
-		DriveBitId at(DriveBitId src, int index);
+		Drive_بټ_Id at(Drive_بټ_Id src, صحيح شاخص);
 	};
 
 	// The following two maps maintain a sparse DriveBit to DriveBitId mapping.
@@ -1137,55 +1137,55 @@ private:
 
 	// Maps wires to the first DriveBitId of the consecutive range used for
 	// that wire.
-	dict<Wire *, DriveBitId> wire_offsets;
+	dict<Wire *, Drive_بټ_Id> wire_offsets;
 
 	// Maps cell ports to a the first DriveBitId of the consecutive range used
 	// for that cell port.
-	dict<pair<Cell *, IdString>, DriveBitId> port_offsets;
+	dict<pair<Cell *, IdString>, Drive_بټ_Id> پورټ_offsets;
 
 	// For the inverse map that maps DriveBitIds back to DriveBits we use a
 	// sorted map containing only the first DriveBit for each wire and cell
 	// port.
-	std::map<DriveBitId, DriveBit> drive_bits;
+	std::map<Drive_بټ_Id, Drive_بټ> drive_بټونه;
 
 	// As a memory optimization for gate level net lists we store single-bit
 	// wires and cell ports in a `dict` which requires less memory and fewer
 	// allocations than `std::map` but doesn't support the kind of lookups we
 	// need for a sparse coarse grained mapping.
-	dict<DriveBitId, DriveBit> isolated_drive_bits;
+	dict<Drive_بټ_Id, Drive_بټ> isolated_drive_بټونه;
 
 	// Used for allocating DriveBitIds, none and constant states use a fixewd
 	// mapping to the first few ids, which we need to skip.
-	int next_offset = 1 + (int)State::Sm;
+	صحيح بل_دننه_واټن = 1 + (صحيح)State::Sm;
 
 	// Union-Find over directly connected bits that share the same single
 	// driver or are undriven. We never merge connections between drivers
 	// and/or kept wires.
-	mfp<DriveBitId> same_driver;
+	mfp<Drive_بټ_Id> same_driver;
 
 	// For each bit, store a set of connected driver bits for which the
 	// explicit connection should be preserved and the driving direction is
 	// locally unambiguous (one side only drives or requires a driven value).
-	DriveBitGraph connected_drivers;
+	Drive_بټ_ګراف connected_drivers;
 
 	// For each bit, store a set of connected driver bits for which the
 	// explicit connection should be preserved and the driving direction is
 	// locally ambiguous. Every such ambiguous connection is also present in
 	// the reverse direction and has to be resolved when querying drivers.
-	DriveBitGraph connected_undirected;
+	Drive_بټ_ګراف connected_undirected;
 
 	// Subset of `connected_undirected` for caching the resolved driving
 	// direction. In case multiple drivers are present this can still contain
 	// both orientations of a single connection, but for a single driver only
 	// one will be present.
-	DriveBitGraph connected_oriented;
+	Drive_بټ_ګراف connected_oriented;
 
 	// Stores for which bits we already resolved the orientation (cached in
 	// `connected_oriented`).
-	pool<DriveBitId> oriented_present;
+	pool<Drive_بټ_Id> oriented_present;
 
 
-	enum class BitMode {
+	تعداد class بټ_ډېرپېښ {
 		NONE = 0, // Not driven, no need to keep wire
 		DRIVEN = 1, // Not driven, uses a value driven elsewhere
 		DRIVEN_UNIQUE = 2, // Uses a value driven elsewhere, has at most one direct connection
@@ -1194,196 +1194,196 @@ private:
 		DRIVER = 5, // Drives a value
 	};
 
-	BitMode bit_mode(DriveBit const &bit);
-	DriveBitId id_from_drive_bit(DriveBit const &bit);
-	DriveBit drive_bit_from_id(DriveBitId id);
+	بټ_ډېرپېښ بټ_ډېرپېښ_2(Drive_بټ ثابت &بټ);
+	Drive_بټ_Id id_from_drive_بټ(Drive_بټ ثابت &بټ);
+	Drive_بټ drive_بټ_from_id(Drive_بټ_Id id);
 
-	void connect_directed_merge(DriveBitId driven_id, DriveBitId driver_id);
-	void connect_directed_buffer(DriveBitId driven_id, DriveBitId driver_id);
-	void connect_undirected(DriveBitId a_id, DriveBitId b_id);
+	فراغ connect_directed_یوځای(Drive_بټ_Id driven_id, Drive_بټ_Id driver_id);
+	فراغ connect_directed_بفر(Drive_بټ_Id driven_id, Drive_بټ_Id driver_id);
+	فراغ connect_undirected(Drive_بټ_Id a_id, Drive_بټ_Id b_id);
 
-public:
+عام:
 
-	void add(Module *module);
+	فراغ جمع_کړه(Module *module);
 
 	// Add a single bit connection to the driver map.
-	void add(DriveBit const &a, DriveBit const &b);
+	فراغ جمع_کړه(Drive_بټ ثابت &a, Drive_بټ ثابت &b);
 
-	template<typename T>
-	static constexpr bool is_sig_type() {
-		return
-			std::is_same<T, SigSpec>::value ||
-			std::is_same<T, SigChunk>::value ||
-			std::is_same<T, DriveSpec>::value ||
-			std::is_same<T, DriveChunk>::value ||
-			std::is_same<T, DriveChunkPort>::value ||
-			std::is_same<T, DriveChunkWire>::value ||
-			std::is_same<T, Const>::value;
+	کينډۍ<typename T>
+	ساكن constexpr bool is_sig_type() {
+		أرجع
+			std::is_same<T, SigSpec>::ارزښت ||
+			std::is_same<T, SigChunk>::ارزښت ||
+			std::is_same<T, DriveSpec>::ارزښت ||
+			std::is_same<T, DriveChunk>::ارزښت ||
+			std::is_same<T, Drive_Chunk_پورټ>::ارزښت ||
+			std::is_same<T, DriveChunkWire>::ارزښت ||
+			std::is_same<T, Const>::ارزښت;
 	}
 
 	// We use the enable_if to produce better compiler errors when unsupported
 	// types are used
-	template<typename T, typename U>
+	کينډۍ<typename T, typename U>
 	typename std::enable_if<is_sig_type<T>() && is_sig_type<U>()>::type
-	add(T const &a, U const &b)
+	جمع_کړه(T ثابت &a, U ثابت &b)
 	{
-		log_assert(a.size() == b.size());
-		for (int i = 0; i != GetSize(a); ++i)
-			add(DriveBit(a[i]), DriveBit(b[i]));
+		log_assert(a.اندازه() == b.اندازه());
+		لكل (صحيح i = 0; i != Get_اندازه(a); ++i)
+			جمع_کړه(Drive_بټ(a[i]), Drive_بټ(b[i]));
 	}
 
 
 	// Specialized version that avoids unpacking
-	void add(SigSpec const &a, SigSpec const &b);
+	فراغ جمع_کړه(SigSpec ثابت &a, SigSpec ثابت &b);
 
-private:
-	void add_port(Cell *cell, IdString port, SigSpec const &b);
+خاص:
+	فراغ جمع_کړه_پورټ(Cell *cell, IdString پورټ, SigSpec ثابت &b);
 
 	// Only used a local variables in `orient_undirected`, always cleared, only
 	// stored to reduce allocations.
-	pool<DriveBitId> orient_undirected_seen;
-	pool<DriveBitId> orient_undirected_drivers;
-	dict<DriveBitId, int> orient_undirected_distance;
+	pool<Drive_بټ_Id> orient_undirected_کتل_شوی;
+	pool<Drive_بټ_Id> orient_undirected_drivers;
+	dict<Drive_بټ_Id, صحيح> orient_undirected_واټن;
 
-	void orient_undirected(DriveBitId id);
+	فراغ orient_undirected(Drive_بټ_Id id);
 
-public:
-	DriveBit operator()(DriveBit const &bit);
+عام:
+	Drive_بټ چلوونکی()(Drive_بټ ثابت &بټ);
 
-	DriveSpec operator()(DriveSpec spec);
+	DriveSpec چلوونکی()(DriveSpec spec);
 
-private:
+خاص:
 	bool keep_wire(Wire *wire) {
 		// TODO configurable
-		return wire->has_attribute(ID(keep));
+		أرجع wire->has_attribute(ID(keep));
 	}
 };
 
-inline Hasher DriveBitWire::hash_into(Hasher h) const
+مضمن Hasher Drive_بټ_Wire::hash_into(Hasher h) ثابت
 {
 	h.eat(wire->name);
-	h.eat(offset);
-	return h;
+	h.eat(دننه_واټن);
+	أرجع h;
 }
 
-inline Hasher DriveBitPort::hash_into(Hasher h) const
+مضمن Hasher Drive_بټ_پورټ::hash_into(Hasher h) ثابت
 {
 	h.eat(cell->name);
-	h.eat(port);
-	h.eat(offset);
-	return h;
+	h.eat(پورټ);
+	h.eat(دننه_واټن);
+	أرجع h;
 }
 
-inline Hasher DriveBitMarker::hash_into(Hasher h) const
+مضمن Hasher Drive_بټ_Marker::hash_into(Hasher h) ثابت
 {
 	h.eat(marker);
-	h.eat(offset);
-	return h;
+	h.eat(دننه_واټن);
+	أرجع h;
 }
 
-inline Hasher DriveBitMultiple::hash_into(Hasher h) const
+مضمن Hasher Drive_بټ_مضرب::hash_into(Hasher h) ثابت
 {
-	h.eat(multiple_);
-	return h;
+	h.eat(مضرب_3);
+	أرجع h;
 }
 
-inline Hasher DriveBit::hash_into(Hasher h) const
+مضمن Hasher Drive_بټ::hash_into(Hasher h) ثابت
 {
-	switch (type_) {
-	case DriveType::NONE:
+	بدل (type_) {
+	حالة DriveType::NONE:
 		h.eat(0);
-		break;
-	case DriveType::CONSTANT:
+		اكسر;
+	حالة DriveType::CONSTANT:
 		h.eat(constant_);
-		break;
-	case DriveType::WIRE:
+		اكسر;
+	حالة DriveType::WIRE:
 		h.eat(wire_);
-		break;
-	case DriveType::PORT:
-		h.eat(port_);
-		break;
-	case DriveType::MARKER:
+		اكسر;
+	حالة DriveType::پورټ_2:
+		h.eat(پورټ_3);
+		اكسر;
+	حالة DriveType::MARKER:
 		h.eat(marker_);
-		break;
-	case DriveType::MULTIPLE:
-		h.eat(multiple_);
-		break;
+		اكسر;
+	حالة DriveType::مضرب:
+		h.eat(مضرب_3);
+		اكسر;
 	}
 	h.eat(type_);
-	return h;
+	أرجع h;
 }
 
-inline Hasher DriveChunkWire::hash_into(Hasher h) const
+مضمن Hasher DriveChunkWire::hash_into(Hasher h) ثابت
 {
 	h.eat(wire->name);
-	h.eat(width);
-	h.eat(offset);
-	return h;
+	h.eat(پلنوالی);
+	h.eat(دننه_واټن);
+	أرجع h;
 }
 
-inline Hasher DriveChunkPort::hash_into(Hasher h) const
+مضمن Hasher Drive_Chunk_پورټ::hash_into(Hasher h) ثابت
 {
 	h.eat(cell->name);
-	h.eat(port);
-	h.eat(width);
-	h.eat(offset);
-	return h;
+	h.eat(پورټ);
+	h.eat(پلنوالی);
+	h.eat(دننه_واټن);
+	أرجع h;
 }
 
-inline Hasher DriveChunkMarker::hash_into(Hasher h) const
+مضمن Hasher DriveChunkMarker::hash_into(Hasher h) ثابت
 {
 	h.eat(marker);
-	h.eat(width);
-	h.eat(offset);
-	return h;
+	h.eat(پلنوالی);
+	h.eat(دننه_واټن);
+	أرجع h;
 }
 
-inline Hasher DriveChunkMultiple::hash_into(Hasher h) const
+مضمن Hasher Drive_Chunk_مضرب::hash_into(Hasher h) ثابت
 {
-	h.eat(width_);
-	h.eat(multiple_);
-	return h;
+	h.eat(پلنوالی_3);
+	h.eat(مضرب_3);
+	أرجع h;
 }
 
-inline Hasher DriveChunk::hash_into(Hasher h) const
+مضمن Hasher DriveChunk::hash_into(Hasher h) ثابت
 {
-	switch (type_) {
-	case DriveType::NONE:
+	بدل (type_) {
+	حالة DriveType::NONE:
 		h.eat(0);
-		break;
-	case DriveType::CONSTANT:
+		اكسر;
+	حالة DriveType::CONSTANT:
 		h.eat(constant_);
-		break;
-	case DriveType::WIRE:
+		اكسر;
+	حالة DriveType::WIRE:
 		h.eat(wire_);
-		break;
-	case DriveType::PORT:
-		h.eat(port_);
-		break;
-	case DriveType::MARKER:
+		اكسر;
+	حالة DriveType::پورټ_2:
+		h.eat(پورټ_3);
+		اكسر;
+	حالة DriveType::MARKER:
 		h.eat(marker_);
-		break;
-	case DriveType::MULTIPLE:
-		h.eat(multiple_);
-		break;
+		اكسر;
+	حالة DriveType::مضرب:
+		h.eat(مضرب_3);
+		اكسر;
 	}
 	h.eat(type_);
-	return h;
+	أرجع h;
 }
 
-inline Hasher DriveSpec::hash_into(Hasher h) const
+مضمن Hasher DriveSpec::hash_into(Hasher h) ثابت
 {
 	updhash();
 	h.eat(hash_);
-	return h;
+	أرجع h;
 }
 
-inline Hasher DriverMap::DriveBitId::hash_into(Hasher h) const
+مضمن Hasher DriverMap::Drive_بټ_Id::hash_into(Hasher h) ثابت
 {
 	h.eat(id);
-	return h;
+	أرجع h;
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی
 
-#endif
+#د_که_پای

@@ -17,11 +17,11 @@
  *
  */
 
-#ifndef REGISTER_H
-#define REGISTER_H
+#که_نه_تعریف_شوی ثبتوونکی_H
+#تعریف_کړه ثبتوونکی_H
 
-#include "kernel/yosys_common.h"
-#include "kernel/yosys.h"
+#ضمن "kernel/yosys_common.h"
+#ضمن "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -32,173 +32,173 @@ YOSYS_NAMESPACE_BEGIN
 class GarbageCollectionGuard
 {
 	bool was_enabled;
-	static bool is_enabled_;
-public:
+	ساكن bool is_enabled_;
+عام:
 	GarbageCollectionGuard(bool allow) : was_enabled(is_enabled_) {
 		is_enabled_ &= allow;
 	}
 	~GarbageCollectionGuard() {
 		is_enabled_ = was_enabled;
 	}
-	static bool is_enabled() { return is_enabled_; }
+	ساكن bool is_enabled() { أرجع is_enabled_; }
 };
 
 // Call from anywhere to request GC at the next safe point.
-void request_garbage_collection();
+فراغ request_garbage_collection();
 
 // GC the active design if GarbageCollectionGuard::is_enabled() and GC was requested.
-void try_collect_garbage();
+فراغ try_collect_garbage();
 
-struct Pass
+بنية Pass
 {
 	std::string pass_name, short_help;
-	source_location location;
+	سرچینه_location location;
 	Pass(std::string name, std::string short_help = "** document me **",
-		source_location location = source_location::current());
+		سرچینه_location location = سرچینه_location::current());
 	// Prefer overriding 'Pass::on_shutdown()' if possible
-	virtual ~Pass();
+	مجازي ~Pass();
 
 	// Makes calls to log() to generate help message
-	virtual void help();
+	مجازي فراغ help();
 	// Uses PrettyHelp::get_current() to produce a more portable formatted help message
-	virtual bool formatted_help();
-	virtual void clear_flags();
-	virtual void execute(std::vector<std::string> args, RTLIL::Design *design) = 0;
+	مجازي bool formatted_help();
+	مجازي فراغ clear_flags();
+	مجازي فراغ execute(std::ویکټور<std::string> دلیلونه_2, RTLIL::Design *design) = 0;
 
-	int call_counter;
+	صحيح call_counter;
 	int64_t runtime_ns;
 	bool experimental_flag = false;
-	bool internal_flag = false;
+	bool دننی_flag = false;
 
-	static void subtract_from_current_runtime_ns(int64_t time_ns);
+	ساكن فراغ کمول_from_current_runtime_ns(int64_t وخت_ns);
 
-	void experimental() {
+	فراغ experimental() {
 		experimental_flag = true;
 	}
 
-	void internal() {
-		internal_flag = true;
+	فراغ دننی() {
+		دننی_flag = true;
 	}
 
-	struct pre_post_exec_state_t {
-		Pass *parent_pass;
+	بنية pre_post_exec_state_t {
+		Pass *پلار_pass;
 		int64_t begin_ns;
 	};
 
 	pre_post_exec_state_t pre_execute();
-	void post_execute(pre_post_exec_state_t state);
+	فراغ post_execute(pre_post_exec_state_t state);
 
-	void cmd_log_args(const std::vector<std::string> &args);
-	void cmd_error(const std::vector<std::string> &args, size_t argidx, std::string msg);
-	void extra_args(std::vector<std::string> args, size_t argidx, RTLIL::Design *design, bool select = true);
+	فراغ cmd_log_دلیلونه(ثابت std::ویکټور<std::string> &دلیلونه_2);
+	فراغ cmd_error(ثابت std::ویکټور<std::string> &دلیلونه_2, اندازه_t argidx, std::string پیغام);
+	فراغ extra_دلیلونه(std::ویکټور<std::string> دلیلونه_2, اندازه_t argidx, RTLIL::Design *design, bool select = true);
 
-	static void call(RTLIL::Design *design, std::string command);
-	static void call(RTLIL::Design *design, std::vector<std::string> args);
+	ساكن فراغ call(RTLIL::Design *design, std::string command);
+	ساكن فراغ call(RTLIL::Design *design, std::ویکټور<std::string> دلیلونه_2);
 
-	static void call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::string command);
-	static void call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::vector<std::string> args);
+	ساكن فراغ call_on_selection(RTLIL::Design *design, ثابت RTLIL::Selection &selection, std::string command);
+	ساكن فراغ call_on_selection(RTLIL::Design *design, ثابت RTLIL::Selection &selection, std::ویکټور<std::string> دلیلونه_2);
 
-	static void call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command);
-	static void call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vector<std::string> args);
+	ساكن فراغ call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command);
+	ساكن فراغ call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::ویکټور<std::string> دلیلونه_2);
 
-	Pass *next_queued_pass;
-	virtual void run_register();
-	static void init_register();
-	static void done_register();
+	Pass *بل_queued_pass;
+	مجازي فراغ پرلپسې_ثبتوونکی();
+	ساكن فراغ init_ثبتوونکی();
+	ساكن فراغ بشپړ_ثبتوونکی();
 
-	virtual void on_register();
-	virtual void on_shutdown();
-	virtual bool replace_existing_pass() const { return false; }
+	مجازي فراغ on_ثبتوونکی();
+	مجازي فراغ on_shutdown();
+	مجازي bool replace_existing_pass() ثابت { أرجع false; }
 
 	// This should return false if the pass holds onto RTLIL objects outside a Design while it
 	// calls nested passes. For safety, we default to assuming the worst.
-	virtual bool allow_garbage_collection_during_pass() const { return false; }
+	مجازي bool allow_garbage_collection_during_pass() ثابت { أرجع false; }
 };
 
-struct ScriptPass : Pass
+بنية ScriptPass : Pass
 {
-	bool block_active, help_mode;
-	RTLIL::Design *active_design;
-	std::string active_run_from, active_run_to;
+	bool بلاک_فعال, help_ډېرپېښ;
+	RTLIL::Design *فعال_design;
+	std::string فعال_پرلپسې_from, فعال_پرلپسې_منزل;
 
-	ScriptPass(std::string name, std::string short_help = "** document me **", source_location location = source_location::current()) :
+	ScriptPass(std::string name, std::string short_help = "** document me **", سرچینه_location location = سرچینه_location::current()) :
 		Pass(name, short_help, location) { }
 
-	virtual void script() = 0;
+	مجازي فراغ script() = 0;
 
 	bool check_label(std::string label, std::string info = std::string());
-	void run(std::string command, std::string info = std::string());
-	void run_nocheck(std::string command, std::string info = std::string());
-	void run_script(RTLIL::Design *design, std::string run_from = std::string(), std::string run_to = std::string());
-	void help_script();
+	فراغ پرلپسې(std::string command, std::string info = std::string());
+	فراغ پرلپسې_nocheck(std::string command, std::string info = std::string());
+	فراغ پرلپسې_script(RTLIL::Design *design, std::string پرلپسې_from = std::string(), std::string پرلپسې_منزل = std::string());
+	فراغ help_script();
 
-	bool allow_garbage_collection_during_pass() const override { return true; }
+	bool allow_garbage_collection_during_pass() ثابت override { أرجع true; }
 };
 
-struct Frontend : Pass
+بنية Frontend : Pass
 {
 	// for reading of here documents
-	static FILE *current_script_file;
-	static std::string last_here_document;
+	ساكن FILE *current_script_file;
+	ساكن std::string وروستی_دلته_document;
 
 	// script file and last line read from it
-	static std::string current_script_filename;
-	static int current_script_lineno;
+	ساكن std::string current_script_filename;
+	ساكن صحيح current_script_lineno;
 
 	std::string frontend_name;
 	Frontend(std::string name, std::string short_help = "** document me **",
-		source_location location = source_location::current());
-	void run_register() override;
+		سرچینه_location location = سرچینه_location::current());
+	فراغ پرلپسې_ثبتوونکی() override;
 	~Frontend() override;
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override final;
-	virtual void execute(std::istream *&f, std::string filename, std::vector<std::string> args, RTLIL::Design *design) = 0;
+	فراغ execute(std::ویکټور<std::string> دلیلونه_2, RTLIL::Design *design) override final;
+	مجازي فراغ execute(std::istream *&f, std::string filename, std::ویکټور<std::string> دلیلونه_2, RTLIL::Design *design) = 0;
 
-	static std::vector<std::string> next_args;
-	void extra_args(std::istream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_input = false);
+	ساكن std::ویکټور<std::string> بل_دلیلونه;
+	فراغ extra_دلیلونه(std::istream *&f, std::string &filename, std::ویکټور<std::string> دلیلونه_2, اندازه_t argidx, bool bin_ننوت = false);
 
-	static void frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command);
-	static void frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> args);
+	ساكن فراغ frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command);
+	ساكن فراغ frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::ویکټور<std::string> دلیلونه_2);
 };
 
-struct Backend : Pass
+بنية Backend : Pass
 {
 	std::string backend_name;
 	Backend(std::string name, std::string short_help = "** document me **",
-		source_location location = source_location::current());
-	void run_register() override;
+		سرچینه_location location = سرچینه_location::current());
+	فراغ پرلپسې_ثبتوونکی() override;
 	~Backend() override;
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override final;
-	virtual void execute(std::ostream *&f, std::string filename,  std::vector<std::string> args, RTLIL::Design *design) = 0;
+	فراغ execute(std::ویکټور<std::string> دلیلونه_2, RTLIL::Design *design) override final;
+	مجازي فراغ execute(std::ostream *&f, std::string filename,  std::ویکټور<std::string> دلیلونه_2, RTLIL::Design *design) = 0;
 
-	void extra_args(std::ostream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_output = false);
+	فراغ extra_دلیلونه(std::ostream *&f, std::string &filename, std::ویکټور<std::string> دلیلونه_2, اندازه_t argidx, bool bin_output = false);
 
-	static void backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command);
-	static void backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> args);
+	ساكن فراغ backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command);
+	ساكن فراغ backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::ویکټور<std::string> دلیلونه_2);
 };
 
 // implemented in passes/cmds/select.cc
-extern void handle_extra_select_args(Pass *pass, const std::vector<std::string> &args, size_t argidx, size_t args_size, RTLIL::Design *design);
-extern RTLIL::Selection eval_select_args(const vector<string> &args, RTLIL::Design *design);
-extern void eval_select_op(vector<RTLIL::Selection> &work, const string &op, RTLIL::Design *design);
+خارجي فراغ handle_extra_select_دلیلونه(Pass *pass, ثابت std::ویکټور<std::string> &دلیلونه_2, اندازه_t argidx, اندازه_t دلیلونه_اندازه, RTLIL::Design *design);
+خارجي RTLIL::Selection eval_select_دلیلونه(ثابت ویکټور<string> &دلیلونه_2, RTLIL::Design *design);
+خارجي فراغ eval_select_op(ویکټور<RTLIL::Selection> &work, ثابت string &op, RTLIL::Design *design);
 
-extern std::map<std::string, Pass*> pass_register;
-extern std::map<std::string, Frontend*> frontend_register;
-extern std::map<std::string, Backend*> backend_register;
+خارجي std::map<std::string, Pass*> pass_ثبتوونکی;
+خارجي std::map<std::string, Frontend*> frontend_ثبتوونکی;
+خارجي std::map<std::string, Backend*> backend_ثبتوونکی;
 
-struct TargetFamily {
+بنية موخه_Family {
 	std::string description;
-	std::vector<std::string> files;
+	std::ویکټور<std::string> files;
 };
 
-struct Target {
+بنية موخه {
 	std::string description;
-	std::map<std::string, TargetFamily> families;
+	std::map<std::string, موخه_Family> families;
 };
 
-extern std::map<std::string, Target> target_register;
+خارجي std::map<std::string, موخه> موخه_ثبتوونکی;
 
-#define YOSYS_HAS_TARGET_REGISTER 1
+#تعریف_کړه YOSYS_HAS_موخه_ثبتوونکی 1
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی
 
-#endif
+#د_که_پای

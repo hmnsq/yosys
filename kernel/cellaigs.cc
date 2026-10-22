@@ -17,515 +17,515 @@
  *
  */
 
-#include "kernel/cellaigs.h"
+#ضمن "kernel/cellaigs.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-AigNode::AigNode()
+Aig_غوټه::Aig_غوټه()
 {
 	portbit = -1;
-	inverter = false;
-	left_parent = -1;
-	right_parent = -1;
+	inverter = خطأ;
+	کیڼ_پلار = -1;
+	ښی_پلار = -1;
 }
 
-bool AigNode::operator==(const AigNode &other) const
+منطقي Aig_غوټه::چلوونکی==(ثابت Aig_غوټه &other) ثابت
 {
-	if (portname != other.portname) return false;
-	if (portbit != other.portbit) return false;
-	if (inverter != other.inverter) return false;
-	if (left_parent != other.left_parent) return false;
-	if (right_parent != other.right_parent) return false;
-	return true;
+	إذا (portname != other.portname) أرجع خطأ;
+	إذا (portbit != other.portbit) أرجع خطأ;
+	إذا (inverter != other.inverter) أرجع خطأ;
+	إذا (کیڼ_پلار != other.کیڼ_پلار) أرجع خطأ;
+	إذا (ښی_پلار != other.ښی_پلار) أرجع خطأ;
+	أرجع ریښتیا;
 }
 
-Hasher AigNode::hash_into(Hasher h) const
+Hasher Aig_غوټه::hash_into(Hasher h) ثابت
 {
 	h.eat(portname);
 	h.eat(portbit);
 	h.eat(inverter);
-	h.eat(left_parent);
-	h.eat(right_parent);
-	return h;
+	h.eat(کیڼ_پلار);
+	h.eat(ښی_پلار);
+	أرجع h;
 }
 
-bool Aig::operator==(const Aig &other) const
+منطقي Aig::چلوونکی==(ثابت Aig &other) ثابت
 {
-	return name == other.name;
+	أرجع name == other.name;
 }
 
-Hasher Aig::hash_into(Hasher h) const
+Hasher Aig::hash_into(Hasher h) ثابت
 {
 	h.eat(name);
-	return h;
+	أرجع h;
 }
 
-struct AigMaker
+بنية AigMaker
 {
 	Aig *aig;
 	Cell *cell;
-	idict<AigNode> aig_indices;
+	idict<Aig_غوټه> aig_indices;
 
 	AigMaker(Aig *aig, Cell *cell) : aig(aig), cell(cell) {}
 
-	int node2index(const AigNode &node)
+	صحيح node2index(ثابت Aig_غوټه &غوټه)
 	{
-		if (node.left_parent > node.right_parent) {
-			AigNode n(node);
-			std::swap(n.left_parent, n.right_parent);
-			return node2index(n);
+		إذا (غوټه.کیڼ_پلار > غوټه.ښی_پلار) {
+			Aig_غوټه n(غوټه);
+			std::بدلون(n.کیڼ_پلار, n.ښی_پلار);
+			أرجع node2index(n);
 		}
 
-		if (!aig_indices.count(node)) {
-			aig_indices.expect(node, GetSize(aig->nodes));
-			aig->nodes.push_back(node);
+		إذا (!aig_indices.شمېر(غوټه)) {
+			aig_indices.expect(غوټه, Get_اندازه(aig->nodes));
+			aig->nodes.ټېل_شا(غوټه);
 		}
 
-		return aig_indices.at(node);
+		أرجع aig_indices.at(غوټه);
 	}
 
-	int bool_node(bool value)
+	صحيح bool_غوټه(منطقي ارزښت)
 	{
-		AigNode node;
-		node.inverter = value;
-		return node2index(node);
+		Aig_غوټه غوټه;
+		غوټه.inverter = ارزښت;
+		أرجع node2index(غوټه);
 	}
 
-	int inport(IdString portname, int portbit = 0, bool inverter = false)
+	صحيح inport(IdString portname, صحيح portbit = 0, منطقي inverter = خطأ)
 	{
-		if (portbit >= GetSize(cell->getPort(portname))) {
-			IdString signed_param = cell->twines().find(
+		إذا (portbit >= Get_اندازه(cell->get_پورټ(portname))) {
+			IdString signed_param = cell->twines().پیدا_کړه(
 				cell->twines().str(portname) + "_SIGNED");
-		if (signed_param != IdString::Null && cell->parameters.count(signed_param) && cell->getParam(signed_param).as_bool())
-				return inport(portname, GetSize(cell->getPort(portname))-1, inverter);
-			return bool_node(inverter);
+		إذا (signed_param != IdString::Null && cell->parameters.شمېر(signed_param) && cell->getParam(signed_param).as_bool())
+				أرجع inport(portname, Get_اندازه(cell->get_پورټ(portname))-1, inverter);
+			أرجع bool_غوټه(inverter);
 		}
 
-		AigNode node;
-		node.portname = portname;
-		node.portbit = portbit;
-		node.inverter = inverter;
-		return node2index(node);
+		Aig_غوټه غوټه;
+		غوټه.portname = portname;
+		غوټه.portbit = portbit;
+		غوټه.inverter = inverter;
+		أرجع node2index(غوټه);
 	}
 
-	vector<int> inport_vec(IdString portname, int width)
+	ویکټور<صحيح> inport_vec(IdString portname, صحيح پلنوالی)
 	{
-		vector<int> vec;
-		for (int i = 0; i < width; i++)
-			vec.push_back(inport(portname, i));
-		return vec;
+		ویکټور<صحيح> vec;
+		لكل (صحيح i = 0; i < پلنوالی; i++)
+			vec.ټېل_شا(inport(portname, i));
+		أرجع vec;
 	}
 
-	int not_inport(IdString portname, int portbit = 0)
+	صحيح not_inport(IdString portname, صحيح portbit = 0)
 	{
-		return inport(portname, portbit, true);
+		أرجع inport(portname, portbit, ریښتیا);
 	}
 
-	int not_gate(int A)
+	صحيح not_gate(صحيح A)
 	{
-		AigNode node(aig_indices[A]);
-		node.outports.clear();
-		node.inverter = !node.inverter;
-		return node2index(node);
+		Aig_غوټه غوټه(aig_indices[A]);
+		غوټه.outports.clear();
+		غوټه.inverter = !غوټه.inverter;
+		أرجع node2index(غوټه);
 	}
 
-	int and_gate(int A, int B, bool inverter = false)
+	صحيح and_gate(صحيح A, صحيح B, منطقي inverter = خطأ)
 	{
-		if (A == B)
-			return inverter ? not_gate(A) : A;
+		إذا (A == B)
+			أرجع inverter ? not_gate(A) : A;
 
-		const AigNode &nA = aig_indices[A];
-		const AigNode &nB = aig_indices[B];
+		ثابت Aig_غوټه &nA = aig_indices[A];
+		ثابت Aig_غوټه &nB = aig_indices[B];
 
-		AigNode nB_inv(nB);
+		Aig_غوټه nB_inv(nB);
 		nB_inv.inverter = !nB_inv.inverter;
 
-		if (nA == nB_inv)
-			return bool_node(inverter);
+		إذا (nA == nB_inv)
+			أرجع bool_غوټه(inverter);
 
-		bool nA_bool = nA.portbit < 0 && nA.left_parent < 0 && nA.right_parent < 0;
-		bool nB_bool = nB.portbit < 0 && nB.left_parent < 0 && nB.right_parent < 0;
+		منطقي nA_bool = nA.portbit < 0 && nA.کیڼ_پلار < 0 && nA.ښی_پلار < 0;
+		منطقي nB_bool = nB.portbit < 0 && nB.کیڼ_پلار < 0 && nB.ښی_پلار < 0;
 
-		if (nA_bool && nB_bool) {
-			bool bA = nA.inverter;
-			bool bB = nB.inverter;
-			return bool_node(inverter != (bA && bB));
+		إذا (nA_bool && nB_bool) {
+			منطقي bA = nA.inverter;
+			منطقي bB = nB.inverter;
+			أرجع bool_غوټه(inverter != (bA && bB));
 		}
 
-		if (nA_bool) {
-			bool bA = nA.inverter;
-			if (inverter)
-				return bA ? not_gate(B) : bool_node(true);
-			return bA ? B : bool_node(false);
+		إذا (nA_bool) {
+			منطقي bA = nA.inverter;
+			إذا (inverter)
+				أرجع bA ? not_gate(B) : bool_غوټه(ریښتیا);
+			أرجع bA ? B : bool_غوټه(خطأ);
 		}
 
-		if (nB_bool) {
-			bool bB = nB.inverter;
-			if (inverter)
-				return bB ? not_gate(A) : bool_node(true);
-			return bB ? A : bool_node(false);
+		إذا (nB_bool) {
+			منطقي bB = nB.inverter;
+			إذا (inverter)
+				أرجع bB ? not_gate(A) : bool_غوټه(ریښتیا);
+			أرجع bB ? A : bool_غوټه(خطأ);
 		}
 
-		AigNode node;
-		node.inverter = inverter;
-		node.left_parent = A;
-		node.right_parent = B;
-		return node2index(node);
+		Aig_غوټه غوټه;
+		غوټه.inverter = inverter;
+		غوټه.کیڼ_پلار = A;
+		غوټه.ښی_پلار = B;
+		أرجع node2index(غوټه);
 	}
 
-	int nand_gate(int A, int B)
+	صحيح nand_gate(صحيح A, صحيح B)
 	{
-		return and_gate(A, B, true);
+		أرجع and_gate(A, B, ریښتیا);
 	}
 
-	int or_gate(int A, int B)
+	صحيح or_gate(صحيح A, صحيح B)
 	{
-		int not_a = not_gate(A);
-		int not_b = not_gate(B);
-		return nand_gate(not_a, not_b);
+		صحيح not_a = not_gate(A);
+		صحيح not_b = not_gate(B);
+		أرجع nand_gate(not_a, not_b);
 	}
 
-	int nor_gate(int A, int B)
+	صحيح nor_gate(صحيح A, صحيح B)
 	{
-		int not_a = not_gate(A);
-		int not_b = not_gate(B);
-		return and_gate(not_a, not_b);
+		صحيح not_a = not_gate(A);
+		صحيح not_b = not_gate(B);
+		أرجع and_gate(not_a, not_b);
 	}
 
-	int xor_gate(int A, int B)
+	صحيح xor_gate(صحيح A, صحيح B)
 	{
-		int a_and_b = and_gate(A, B);
-		int a_nor_b = nor_gate(A, B);
-		return nor_gate(a_and_b, a_nor_b);
+		صحيح a_and_b = and_gate(A, B);
+		صحيح a_nor_b = nor_gate(A, B);
+		أرجع nor_gate(a_and_b, a_nor_b);
 	}
 
-	int xnor_gate(int A, int B)
+	صحيح xnor_gate(صحيح A, صحيح B)
 	{
-		int a_and_b = and_gate(A, B);
-		int a_nor_b = nor_gate(A, B);
-		return or_gate(a_and_b, a_nor_b);
+		صحيح a_and_b = and_gate(A, B);
+		صحيح a_nor_b = nor_gate(A, B);
+		أرجع or_gate(a_and_b, a_nor_b);
 	}
 
-	int andnot_gate(int A, int B)
+	صحيح andnot_gate(صحيح A, صحيح B)
 	{
-		int not_b = not_gate(B);
-		return and_gate(A, not_b);
+		صحيح not_b = not_gate(B);
+		أرجع and_gate(A, not_b);
 	}
 
-	int ornot_gate(int A, int B)
+	صحيح ornot_gate(صحيح A, صحيح B)
 	{
-		int not_b = not_gate(B);
-		return or_gate(A, not_b);
+		صحيح not_b = not_gate(B);
+		أرجع or_gate(A, not_b);
 	}
 
-	int mux_gate(int A, int B, int S)
+	صحيح mux_gate(صحيح A, صحيح B, صحيح S)
 	{
-		int not_s = not_gate(S);
-		int a_active = and_gate(A, not_s);
-		int b_active = and_gate(B, S);
-		return or_gate(a_active, b_active);
+		صحيح not_s = not_gate(S);
+		صحيح a_فعال = and_gate(A, not_s);
+		صحيح b_فعال = and_gate(B, S);
+		أرجع or_gate(a_فعال, b_فعال);
 	}
 
-	vector<int> adder(const vector<int> &A, const vector<int> &B, int carry_in, vector<int> *X = nullptr, vector<int> *CO = nullptr)
+	ویکټور<صحيح> adder(ثابت ویکټور<صحيح> &A, ثابت ویکټور<صحيح> &B, صحيح لېږد_دننه, ویکټور<صحيح> *X = تش_اشاره, ویکټور<صحيح> *CO = تش_اشاره)
 	{
-		vector<int> Y(GetSize(A));
-		log_assert(GetSize(A) == GetSize(B));
-		for (int i = 0; i < GetSize(A); i++) {
-			int a_xor_b = xor_gate(A[i], B[i]);
-			int a_or_b = or_gate(A[i], B[i]);
-			int a_and_b = and_gate(A[i], B[i]);
-			Y[i] = xor_gate(a_xor_b, carry_in);
-			int tmp = and_gate(a_or_b, carry_in);
-			int carry_out = or_gate(a_and_b, tmp);
-			if (X != nullptr)
+		ویکټور<صحيح> Y(Get_اندازه(A));
+		log_assert(Get_اندازه(A) == Get_اندازه(B));
+		لكل (صحيح i = 0; i < Get_اندازه(A); i++) {
+			صحيح a_xor_b = xor_gate(A[i], B[i]);
+			صحيح a_or_b = or_gate(A[i], B[i]);
+			صحيح a_and_b = and_gate(A[i], B[i]);
+			Y[i] = xor_gate(a_xor_b, لېږد_دننه);
+			صحيح tmp = and_gate(a_or_b, لېږد_دننه);
+			صحيح لېږد_بهر = or_gate(a_and_b, tmp);
+			إذا (X != تش_اشاره)
 				X->at(i) = a_xor_b;
-			if (CO != nullptr)
-				CO->at(i) = carry_out;
-			carry_in = carry_out;
+			إذا (CO != تش_اشاره)
+				CO->at(i) = لېږد_بهر;
+			لېږد_دننه = لېږد_بهر;
 		}
-		return Y;
+		أرجع Y;
 	}
 
-	void outport(int node, IdString portname, int portbit = 0)
+	فراغ outport(صحيح غوټه, IdString portname, صحيح portbit = 0)
 	{
-		if (portbit < GetSize(cell->getPort(portname)))
-			aig->nodes.at(node).outports.push_back(pair<IdString, int>(portname, portbit));
+		إذا (portbit < Get_اندازه(cell->get_پورټ(portname)))
+			aig->nodes.at(غوټه).outports.ټېل_شا(pair<IdString, صحيح>(portname, portbit));
 	}
 
-	void outport_bool(int node, IdString portname)
+	فراغ outport_bool(صحيح غوټه, IdString portname)
 	{
-		outport(node, portname);
-		for (int i = 1; i < GetSize(cell->getPort(portname)); i++)
-			outport(bool_node(false), portname, i);
+		outport(غوټه, portname);
+		لكل (صحيح i = 1; i < Get_اندازه(cell->get_پورټ(portname)); i++)
+			outport(bool_غوټه(خطأ), portname, i);
 	}
 
-	void outport_vec(const vector<int> &vec, IdString portname)
+	فراغ outport_vec(ثابت ویکټور<صحيح> &vec, IdString portname)
 	{
-		for (int i = 0; i < GetSize(vec); i++)
+		لكل (صحيح i = 0; i < Get_اندازه(vec); i++)
 			outport(vec.at(i), portname, i);
 	}
 };
 
 Aig::Aig(Cell *cell)
 {
-	if (cell->type.isPublic())
-		return;
+	إذا (cell->type.is_عامه())
+		أرجع;
 
-	AigMaker mk(this, cell);
+	AigMaker mk(هذا, cell);
 	name = cell->type.str();
 
-	string mkname_last;
-	bool mkname_a_signed = false;
-	bool mkname_b_signed = false;
-	bool mkname_is_signed = false;
+	string mkname_وروستی;
+	منطقي mkname_a_signed = خطأ;
+	منطقي mkname_b_signed = خطأ;
+	منطقي mkname_is_signed = خطأ;
 
-	cell->parameters.sort();
-	for (auto p : cell->parameters)
+	cell->parameters.ترتیبول();
+	لكل (خپلکاری p : cell->parameters)
 	{
-		if (p.first == ID::A_WIDTH && mkname_a_signed) {
-			name = mkname_last + stringf(":%d%c", p.second.as_int(), mkname_is_signed ? 'S' : 'U');
-		} else if (p.first == ID::B_WIDTH && mkname_b_signed) {
-			name = mkname_last + stringf(":%d%c", p.second.as_int(), mkname_is_signed ? 'S' : 'U');
-		} else {
-			mkname_last = name;
-			name += stringf(":%d", p.second.as_int());
+		إذا (p.لومړی == ID::A_پلنوالی && mkname_a_signed) {
+			name = mkname_وروستی + stringf(":%d%c", p.دوهم.as_int(), mkname_is_signed ? 'S' : 'U');
+		} وإلا إذا (p.لومړی == ID::B_پلنوالی && mkname_b_signed) {
+			name = mkname_وروستی + stringf(":%d%c", p.دوهم.as_int(), mkname_is_signed ? 'S' : 'U');
+		} وإلا {
+			mkname_وروستی = name;
+			name += stringf(":%d", p.دوهم.as_int());
 		}
 
-		mkname_a_signed = false;
-		mkname_b_signed = false;
-		mkname_is_signed = false;
-		if (p.first == ID::A_SIGNED) {
-			mkname_a_signed = true;
-			mkname_is_signed = p.second.as_bool();
+		mkname_a_signed = خطأ;
+		mkname_b_signed = خطأ;
+		mkname_is_signed = خطأ;
+		إذا (p.لومړی == ID::A_SIGNED) {
+			mkname_a_signed = ریښتیا;
+			mkname_is_signed = p.دوهم.as_bool();
 		}
-		if (p.first == ID::B_SIGNED) {
-			mkname_b_signed = true;
-			mkname_is_signed = p.second.as_bool();
+		إذا (p.لومړی == ID::B_SIGNED) {
+			mkname_b_signed = ریښتیا;
+			mkname_is_signed = p.دوهم.as_bool();
 		}
 	}
 
-	if (cell->type.in(ID($not), ID($_NOT_), ID($pos), ID($buf), ID($_BUF_)))
+	إذا (cell->type.دننه(ID($not), ID($_NOT_), ID($pos), ID($buf), ID($_BUF_)))
 	{
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int Y = cell->type.in(ID($not), ID($_NOT_)) ? mk.not_gate(A) : A;
+		لكل (صحيح i = 0; i < Get_اندازه(cell->get_پورټ(ID::Y)); i++) {
+			صحيح A = mk.inport(ID::A, i);
+			صحيح Y = cell->type.دننه(ID($not), ID($_NOT_)) ? mk.not_gate(A) : A;
 			mk.outport(Y, ID::Y, i);
 		}
-		goto optimize;
+		اذهب optimize;
 	}
 
-	if (cell->type.in(ID($and), ID($_AND_), ID($_NAND_), ID($or), ID($_OR_), ID($_NOR_), ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_)))
+	إذا (cell->type.دننه(ID($and), ID($_AND_), ID($_NAND_), ID($or), ID($_OR_), ID($_NOR_), ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_)))
 	{
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int B = mk.inport(ID::B, i);
-			int Y = cell->type.in(ID($and), ID($_AND_))   ? mk.and_gate(A, B) :
-			        cell->type.in(ID($_NAND_))            ? mk.nand_gate(A, B) :
-			        cell->type.in(ID($or), ID($_OR_))     ? mk.or_gate(A, B) :
-			        cell->type.in(ID($_NOR_))             ? mk.nor_gate(A, B) :
-			        cell->type.in(ID($xor), ID($_XOR_))   ? mk.xor_gate(A, B) :
-			        cell->type.in(ID($xnor), ID($_XNOR_)) ? mk.xnor_gate(A, B) :
-			        cell->type.in(ID($_ANDNOT_))          ? mk.andnot_gate(A, B) :
-			        cell->type.in(ID($_ORNOT_))           ? mk.ornot_gate(A, B) : -1;
+		لكل (صحيح i = 0; i < Get_اندازه(cell->get_پورټ(ID::Y)); i++) {
+			صحيح A = mk.inport(ID::A, i);
+			صحيح B = mk.inport(ID::B, i);
+			صحيح Y = cell->type.دننه(ID($and), ID($_AND_))   ? mk.and_gate(A, B) :
+			        cell->type.دننه(ID($_NAND_))            ? mk.nand_gate(A, B) :
+			        cell->type.دننه(ID($or), ID($_OR_))     ? mk.or_gate(A, B) :
+			        cell->type.دننه(ID($_NOR_))             ? mk.nor_gate(A, B) :
+			        cell->type.دننه(ID($xor), ID($_XOR_))   ? mk.xor_gate(A, B) :
+			        cell->type.دننه(ID($xnor), ID($_XNOR_)) ? mk.xnor_gate(A, B) :
+			        cell->type.دننه(ID($_ANDNOT_))          ? mk.andnot_gate(A, B) :
+			        cell->type.دننه(ID($_ORNOT_))           ? mk.ornot_gate(A, B) : -1;
 			mk.outport(Y, ID::Y, i);
 		}
-		goto optimize;
+		اذهب optimize;
 	}
 
-	if (cell->type.in(ID($mux), ID($_MUX_), ID($_NMUX_)))
+	إذا (cell->type.دننه(ID($mux), ID($_MUX_), ID($_NMUX_)))
 	{
-		int S = mk.inport(ID::S);
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int B = mk.inport(ID::B, i);
-			int Y = mk.mux_gate(A, B, S);
-			if (cell->type == ID($_NMUX_))
+		صحيح S = mk.inport(ID::S);
+		لكل (صحيح i = 0; i < Get_اندازه(cell->get_پورټ(ID::Y)); i++) {
+			صحيح A = mk.inport(ID::A, i);
+			صحيح B = mk.inport(ID::B, i);
+			صحيح Y = mk.mux_gate(A, B, S);
+			إذا (cell->type == ID($_NMUX_))
 				Y = mk.not_gate(Y);
 			mk.outport(Y, ID::Y, i);
 		}
-		goto optimize;
+		اذهب optimize;
 	}
 
-	if (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)))
+	إذا (cell->type.دننه(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)))
 	{
-		int Y = mk.inport(ID::A, 0);
-		for (int i = 1; i < GetSize(cell->getPort(ID::A)); i++) {
-			int A = mk.inport(ID::A, i);
-			if (cell->type == ID($reduce_and))  Y = mk.and_gate(A, Y);
-			if (cell->type == ID($reduce_or))   Y = mk.or_gate(A, Y);
-			if (cell->type == ID($reduce_bool)) Y = mk.or_gate(A, Y);
-			if (cell->type == ID($reduce_xor))  Y = mk.xor_gate(A, Y);
-			if (cell->type == ID($reduce_xnor)) Y = mk.xor_gate(A, Y);
+		صحيح Y = mk.inport(ID::A, 0);
+		لكل (صحيح i = 1; i < Get_اندازه(cell->get_پورټ(ID::A)); i++) {
+			صحيح A = mk.inport(ID::A, i);
+			إذا (cell->type == ID($reduce_and))  Y = mk.and_gate(A, Y);
+			إذا (cell->type == ID($reduce_or))   Y = mk.or_gate(A, Y);
+			إذا (cell->type == ID($reduce_bool)) Y = mk.or_gate(A, Y);
+			إذا (cell->type == ID($reduce_xor))  Y = mk.xor_gate(A, Y);
+			إذا (cell->type == ID($reduce_xnor)) Y = mk.xor_gate(A, Y);
 		}
-		if (cell->type == ID($reduce_xnor))
+		إذا (cell->type == ID($reduce_xnor))
 			Y = mk.not_gate(Y);
 		mk.outport(Y, ID::Y, 0);
-		for (int i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
-			mk.outport(mk.bool_node(false), ID::Y, i);
-		goto optimize;
+		لكل (صحيح i = 1; i < Get_اندازه(cell->get_پورټ(ID::Y)); i++)
+			mk.outport(mk.bool_غوټه(خطأ), ID::Y, i);
+		اذهب optimize;
 	}
 
-	if (cell->type.in(ID($logic_not), ID($logic_and), ID($logic_or)))
+	إذا (cell->type.دننه(ID($logic_not), ID($logic_and), ID($logic_or)))
 	{
-		int A = mk.inport(ID::A, 0), Y = -1;
-		for (int i = 1; i < GetSize(cell->getPort(ID::A)); i++)
+		صحيح A = mk.inport(ID::A, 0), Y = -1;
+		لكل (صحيح i = 1; i < Get_اندازه(cell->get_پورټ(ID::A)); i++)
 			A = mk.or_gate(mk.inport(ID::A, i), A);
-		if (cell->type.in(ID($logic_and), ID($logic_or))) {
-			int B = mk.inport(ID::B, 0);
-			for (int i = 1; i < GetSize(cell->getPort(ID::B)); i++)
+		إذا (cell->type.دننه(ID($logic_and), ID($logic_or))) {
+			صحيح B = mk.inport(ID::B, 0);
+			لكل (صحيح i = 1; i < Get_اندازه(cell->get_پورټ(ID::B)); i++)
 				B = mk.or_gate(mk.inport(ID::B, i), B);
-			if (cell->type == ID($logic_and)) Y = mk.and_gate(A, B);
-			if (cell->type == ID($logic_or))  Y = mk.or_gate(A, B);
-		} else {
-			if (cell->type == ID($logic_not)) Y = mk.not_gate(A);
+			إذا (cell->type == ID($logic_and)) Y = mk.and_gate(A, B);
+			إذا (cell->type == ID($logic_or))  Y = mk.or_gate(A, B);
+		} وإلا {
+			إذا (cell->type == ID($logic_not)) Y = mk.not_gate(A);
 		}
 		mk.outport_bool(Y, ID::Y);
-		goto optimize;
+		اذهب optimize;
 	}
 
-	if (cell->type.in(ID($add), ID($sub)))
+	إذا (cell->type.دننه(ID($جمع_کړه), ID($sub)))
 	{
-		int width = GetSize(cell->getPort(ID::Y));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int carry = mk.bool_node(false);
-		if (cell->type == ID($sub)) {
-			for (auto &n : B)
+		صحيح پلنوالی = Get_اندازه(cell->get_پورټ(ID::Y));
+		ویکټور<صحيح> A = mk.inport_vec(ID::A, پلنوالی);
+		ویکټور<صحيح> B = mk.inport_vec(ID::B, پلنوالی);
+		صحيح لېږد = mk.bool_غوټه(خطأ);
+		إذا (cell->type == ID($sub)) {
+			لكل (خپلکاری &n : B)
 				n = mk.not_gate(n);
-			carry = mk.not_gate(carry);
+			لېږد = mk.not_gate(لېږد);
 		}
-		vector<int> Y = mk.adder(A, B, carry);
+		ویکټور<صحيح> Y = mk.adder(A, B, لېږد);
 		mk.outport_vec(Y, ID::Y);
-		goto optimize;
+		اذهب optimize;
 	}
 
-	if (cell->type.in(ID($lt), ID($gt), ID($le), ID($ge)))
+	إذا (cell->type.دننه(ID($lt), ID($gt), ID($le), ID($ge)))
 	{
-		int width = std::max(GetSize(cell->getPort(ID::A)),
-							 GetSize(cell->getPort(ID::B))) + 1;
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
+		صحيح پلنوالی = std::max(Get_اندازه(cell->get_پورټ(ID::A)),
+							 Get_اندازه(cell->get_پورټ(ID::B))) + 1;
+		ویکټور<صحيح> A = mk.inport_vec(ID::A, پلنوالی);
+		ویکټور<صحيح> B = mk.inport_vec(ID::B, پلنوالی);
 
-		if (cell->type.in(ID($gt), ID($ge)))
-			std::swap(A, B);
+		إذا (cell->type.دننه(ID($gt), ID($ge)))
+			std::بدلون(A, B);
 
-		int carry = mk.bool_node(!cell->type.in(ID($le), ID($ge)));
-		for (auto &n : B)
+		صحيح لېږد = mk.bool_غوټه(!cell->type.دننه(ID($le), ID($ge)));
+		لكل (خپلکاری &n : B)
 			n = mk.not_gate(n);
-		vector<int> Y = mk.adder(A, B, carry);
-		mk.outport(Y.back(), ID::Y);
-		for (int i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
-			mk.outport(mk.bool_node(false), ID::Y, i);
-		goto optimize;
+		ویکټور<صحيح> Y = mk.adder(A, B, لېږد);
+		mk.outport(Y.شا(), ID::Y);
+		لكل (صحيح i = 1; i < Get_اندازه(cell->get_پورټ(ID::Y)); i++)
+			mk.outport(mk.bool_غوټه(خطأ), ID::Y, i);
+		اذهب optimize;
 	}
 
-	if (cell->type == ID($alu))
+	إذا (cell->type == ID($alu))
 	{
-		int width = GetSize(cell->getPort(ID::Y));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int carry = mk.inport(ID::CI);
-		int binv = mk.inport(ID::BI);
-		for (auto &n : B)
+		صحيح پلنوالی = Get_اندازه(cell->get_پورټ(ID::Y));
+		ویکټور<صحيح> A = mk.inport_vec(ID::A, پلنوالی);
+		ویکټور<صحيح> B = mk.inport_vec(ID::B, پلنوالی);
+		صحيح لېږد = mk.inport(ID::CI);
+		صحيح binv = mk.inport(ID::BI);
+		لكل (خپلکاری &n : B)
 			n = mk.xor_gate(n, binv);
-		vector<int> X(width), CO(width);
-		vector<int> Y = mk.adder(A, B, carry, &X, &CO);
-		for (int i = 0; i < width; i++)
+		ویکټور<صحيح> X(پلنوالی), CO(پلنوالی);
+		ویکټور<صحيح> Y = mk.adder(A, B, لېږد, &X, &CO);
+		لكل (صحيح i = 0; i < پلنوالی; i++)
 			X[i] = mk.xor_gate(A[i], B[i]);
 		mk.outport_vec(Y, ID::Y);
 		mk.outport_vec(X, ID::X);
 		mk.outport_vec(CO, ID::CO);
-		goto optimize;
+		اذهب optimize;
 	}
 
-	if (cell->type.in(ID($eq), ID($ne)))
+	إذا (cell->type.دننه(ID($eq), ID($ne)))
 	{
-		int width = max(GetSize(cell->getPort(ID::A)), GetSize(cell->getPort(ID::B)));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int Y = mk.bool_node(false);
-		for (int i = 0; i < width; i++)
+		صحيح پلنوالی = max(Get_اندازه(cell->get_پورټ(ID::A)), Get_اندازه(cell->get_پورټ(ID::B)));
+		ویکټور<صحيح> A = mk.inport_vec(ID::A, پلنوالی);
+		ویکټور<صحيح> B = mk.inport_vec(ID::B, پلنوالی);
+		صحيح Y = mk.bool_غوټه(خطأ);
+		لكل (صحيح i = 0; i < پلنوالی; i++)
 			Y = mk.or_gate(Y, mk.xor_gate(A[i], B[i]));
-		if (cell->type == ID($eq))
+		إذا (cell->type == ID($eq))
 			Y = mk.not_gate(Y);
 		mk.outport_bool(Y, ID::Y);
-		goto optimize;
+		اذهب optimize;
 	}
 
-	if (cell->type == ID($_AOI3_))
+	إذا (cell->type == ID($_AOI3_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int Y = mk.nor_gate(mk.and_gate(A, B), C);
+		صحيح A = mk.inport(ID::A);
+		صحيح B = mk.inport(ID::B);
+		صحيح C = mk.inport(ID::C);
+		صحيح Y = mk.nor_gate(mk.and_gate(A, B), C);
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		اذهب optimize;
 	}
 
-	if (cell->type == ID($_OAI3_))
+	إذا (cell->type == ID($_OAI3_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int Y = mk.nand_gate(mk.or_gate(A, B), C);
+		صحيح A = mk.inport(ID::A);
+		صحيح B = mk.inport(ID::B);
+		صحيح C = mk.inport(ID::C);
+		صحيح Y = mk.nand_gate(mk.or_gate(A, B), C);
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		اذهب optimize;
 	}
 
-	if (cell->type == ID($_AOI4_))
+	إذا (cell->type == ID($_AOI4_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int D = mk.inport(ID::D);
-		int a_and_b = mk.and_gate(A, B);
-		int Y = mk.nor_gate(a_and_b, mk.and_gate(C, D));
+		صحيح A = mk.inport(ID::A);
+		صحيح B = mk.inport(ID::B);
+		صحيح C = mk.inport(ID::C);
+		صحيح D = mk.inport(ID::D);
+		صحيح a_and_b = mk.and_gate(A, B);
+		صحيح Y = mk.nor_gate(a_and_b, mk.and_gate(C, D));
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		اذهب optimize;
 	}
 
-	if (cell->type == ID($_OAI4_))
+	إذا (cell->type == ID($_OAI4_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int D = mk.inport(ID::D);
-		int a_or_b = mk.or_gate(A, B);
-		int Y = mk.nand_gate(a_or_b, mk.or_gate(C, D));
+		صحيح A = mk.inport(ID::A);
+		صحيح B = mk.inport(ID::B);
+		صحيح C = mk.inport(ID::C);
+		صحيح D = mk.inport(ID::D);
+		صحيح a_or_b = mk.or_gate(A, B);
+		صحيح Y = mk.nand_gate(a_or_b, mk.or_gate(C, D));
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		اذهب optimize;
 	}
 
 	name.clear();
-	return;
+	أرجع;
 
 optimize:;
-	pool<int> used_old_ids;
-	vector<AigNode> new_nodes;
-	dict<int, int> old_to_new_ids;
-	old_to_new_ids[-1] = -1;
+	pool<صحيح> کارول_شوی_old_ids;
+	ویکټور<Aig_غوټه> new_nodes;
+	dict<صحيح, صحيح> old_منزل_new_ids;
+	old_منزل_new_ids[-1] = -1;
 
-	for (int i = GetSize(nodes)-1; i >= 0; i--) {
-		if (!nodes[i].outports.empty())
-			used_old_ids.insert(i);
-		if (!used_old_ids.count(i))
-			continue;
-		if (nodes[i].left_parent >= 0)
-			used_old_ids.insert(nodes[i].left_parent);
-		if (nodes[i].right_parent >= 0)
-			used_old_ids.insert(nodes[i].right_parent);
+	لكل (صحيح i = Get_اندازه(nodes)-1; i >= 0; i--) {
+		إذا (!nodes[i].outports.تشه())
+			کارول_شوی_old_ids.ورننباسه(i);
+		إذا (!کارول_شوی_old_ids.شمېر(i))
+			استمر;
+		إذا (nodes[i].کیڼ_پلار >= 0)
+			کارول_شوی_old_ids.ورننباسه(nodes[i].کیڼ_پلار);
+		إذا (nodes[i].ښی_پلار >= 0)
+			کارول_شوی_old_ids.ورننباسه(nodes[i].ښی_پلار);
 	}
 
-	for (int i = 0; i < GetSize(nodes); i++) {
-		if (!used_old_ids.count(i))
-			continue;
-		nodes[i].left_parent = old_to_new_ids.at(nodes[i].left_parent);
-		nodes[i].right_parent = old_to_new_ids.at(nodes[i].right_parent);
-		old_to_new_ids[i] = GetSize(new_nodes);
-		new_nodes.push_back(nodes[i]);
+	لكل (صحيح i = 0; i < Get_اندازه(nodes); i++) {
+		إذا (!کارول_شوی_old_ids.شمېر(i))
+			استمر;
+		nodes[i].کیڼ_پلار = old_منزل_new_ids.at(nodes[i].کیڼ_پلار);
+		nodes[i].ښی_پلار = old_منزل_new_ids.at(nodes[i].ښی_پلار);
+		old_منزل_new_ids[i] = Get_اندازه(new_nodes);
+		new_nodes.ټېل_شا(nodes[i]);
 	}
 
-	new_nodes.swap(nodes);
+	new_nodes.بدلون(nodes);
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی

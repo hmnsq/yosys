@@ -17,168 +17,168 @@
  *
  */
 
-#include "kernel/log_help.h"
+#ضمن "kernel/log_help.h"
 
 USING_YOSYS_NAMESPACE
 
-std::filesystem::path Yosys::fixup_source_path (const char* source_file,
-	const std::filesystem::path &source_root, bool* skip_source_group)
+std::filesystem::لار_2 Yosys::fixup_سرچینه_لار (ثابت حرف* سرچینه_file,
+	ثابت std::filesystem::لار_2 &سرچینه_ریښه, منطقي* skip_سرچینه_ډله)
 {
-	std::filesystem::path source_path(source_file);
-	if (source_path.is_absolute()) {
+	std::filesystem::لار_2 سرچینه_لار(سرچینه_file);
+	إذا (سرچینه_لار.is_absolute()) {
 		// using proximate instead of relative means that we
 		// still get the source path if they aren't relative
-		auto proximate_path = std::filesystem::proximate(source_path, source_root);
-		if (proximate_path == proximate_path.lexically_normal()) {
+		خپلکاری proximate_لار = std::filesystem::proximate(سرچینه_لار, سرچینه_ریښه);
+		إذا (proximate_لار == proximate_لار.lexically_نورمال()) {
 			// we're only interested if it's a subpath of our root dir
 			// if the normal form differs, then the proximate path includes ".."
-			return proximate_path;
-		} else if (skip_source_group != nullptr) {
+			أرجع proximate_لار;
+		} وإلا إذا (skip_سرچینه_ډله != تش_اشاره) {
 			// don't try to group external paths
-			*skip_source_group = true;
+			*skip_سرچینه_ډله = ریښتیا;
 		}
 	}
-	return source_path;
+	أرجع سرچینه_لار;
 }
 
-Json ContentListing::to_json(const std::filesystem::path &source_root) const {
+Json ContentListing::منزل_json(ثابت std::filesystem::لار_2 &سرچینه_ریښه) ثابت {
 	Json::object object;
 
 	object["type"] = type;
-	if (body.length())
+	إذا (body.اوږدتیا())
 		object["body"] = body;
 
-	if (has_source())
-		object["source_file"] = fixup_source_path(source_file, source_root).string();
-	if (source_line != 0)
-		object["source_line"] = source_line;
+	إذا (has_سرچینه())
+		object["source_file"] = fixup_سرچینه_لار(سرچینه_file, سرچینه_ریښه).string();
+	إذا (سرچینه_کرښه != 0)
+		object["source_line"] = سرچینه_کرښه;
 
 	object["options"] = Json(options);
 
 	Json::array content_array;
-	for (auto child : _content)
-		content_array.push_back(child.to_json(source_root));
+	لكل (خپلکاری ماشوم : _content)
+		content_array.ټېل_شا(ماشوم.منزل_json(سرچینه_ریښه));
 	object["content"] = content_array;
 
-	return object;
+	أرجع object;
 }
 
-void ContentListing::usage(const string &text,
-	const source_location location)
+فراغ ContentListing::usage(ثابت string &متن,
+	ثابت سرچینه_location location)
 {
 	log_assert(type.compare("root") == 0);
-	add_content("usage", text, location);
+	جمع_کړه_content("usage", متن, location);
 }
 
-void ContentListing::option(const string &text, const string &description,
-	const source_location location)
+فراغ ContentListing::option(ثابت string &متن, ثابت string &description,
+	ثابت سرچینه_location location)
 {
-	auto option = open_option(text, source_location());
-	if (description.length())
-		option->add_content("text", description, location);
+	خپلکاری option = open_option(متن, سرچینه_location());
+	إذا (description.اوږدتیا())
+		option->جمع_کړه_content("text", description, location);
 }
 
-void ContentListing::codeblock(const string &code, const string &language,
-	const source_location location)
+فراغ ContentListing::codeblock(ثابت string &کوډ, ثابت string &language,
+	ثابت سرچینه_location location)
 {
-	add_content("code", code, location);
-	back()->set_option("language", language);
+	جمع_کړه_content("code", کوډ, location);
+	شا()->سېټ_option("language", language);
 }
 
-void ContentListing::paragraph(const string &text,
-	const source_location location)
+فراغ ContentListing::paragraph(ثابت string &متن,
+	ثابت سرچینه_location location)
 {
-	add_content("text", text, location);
+	جمع_کړه_content("text", متن, location);
 }
 
-ContentListing* ContentListing::open_usage(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_usage(ثابت string &متن,
+	ثابت سرچینه_location location)
 {
-	usage(text, location);
-	return back();
+	usage(متن, location);
+	أرجع شا();
 }
 
-ContentListing* ContentListing::open_option(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_option(ثابت string &متن,
+	ثابت سرچینه_location location)
 {
 	log_assert(type.compare("root") == 0 || type.compare("usage") == 0);
-	add_content("option", text, location);
-	return back();
+	جمع_کړه_content("option", متن, location);
+	أرجع شا();
 }
 
-#define MAX_LINE_LEN 80
-void log_body_str(const std::string &pass_str, std::string indent_str, bool leading_newline=false, bool is_formatted=false) {
-	if (pass_str.empty())
-		return;
+#تعریف_کړه MAX_کرښه_LEN 80
+فراغ log_body_str(ثابت std::string &pass_str, std::string indent_str, منطقي leading_newline=خطأ, منطقي is_formatted=خطأ) {
+	إذا (pass_str.تشه())
+		أرجع;
 	std::istringstream iss(pass_str);
-	if (leading_newline)
-		log("\n");
-	for (std::string line; std::getline(iss, line);) {
-		std::string message = indent_str;
-		if (is_formatted) {
-			message += line;
-		} else {
-			auto curr_len = indent_str.length();
-			std::istringstream lss(line);
-			for (std::string word; std::getline(lss, word, ' ');) {
-				while (word[0] == '`' && word.back() == '`')
-					word = word.substr(1, word.length()-2);
-				if (curr_len + word.length() >= MAX_LINE_LEN-1) {
+	إذا (leading_newline)
+		لوګاریتم("\n");
+	لكل (std::string کرښه; std::getline(iss, کرښه);) {
+		std::string پیغام_2 = indent_str;
+		إذا (is_formatted) {
+			پیغام_2 += کرښه;
+		} وإلا {
+			خپلکاری curr_len = indent_str.اوږدتیا();
+			std::istringstream lss(کرښه);
+			لكل (std::string کلمه; std::getline(lss, کلمه, ' ');) {
+				طالما (کلمه[0] == '`' && کلمه.شا() == '`')
+					کلمه = کلمه.substr(1, کلمه.اوږدتیا()-2);
+				إذا (curr_len + کلمه.اوږدتیا() >= MAX_کرښه_LEN-1) {
 					curr_len = 0;
-					log("%s\n", message);
-					message = indent_str;
+					لوګاریتم("%s\n", پیغام_2);
+					پیغام_2 = indent_str;
 				}
-				if (word.length()) {
-					message += word + " ";
-					curr_len += word.length() + 1;
+				إذا (کلمه.اوږدتیا()) {
+					پیغام_2 += کلمه + " ";
+					curr_len += کلمه.اوږدتیا() + 1;
 				}
 			}
 		}
-		log("%s\n", message);
+		لوګاریتم("%s\n", پیغام_2);
 	}
 }
-void log_body(const ContentListing &content, int indent=0, bool leading_newline=false) {
+فراغ log_body(ثابت ContentListing &content, صحيح indent=0, منطقي leading_newline=خطأ) {
 	std::string indent_str(indent*4, ' ');
 	log_body_str(content.body, indent_str, leading_newline, content.type.compare("code") == 0);
 }
 
-PrettyHelp *current_help = nullptr;
+PrettyHelp *current_help = تش_اشاره;
 
 PrettyHelp::PrettyHelp()
 {
-	_prior = current_help;
-	_root_listing = ContentListing("root", "");
+	مخکینی = current_help;
+	ریښه_listing = ContentListing("root", "");
 
-	current_help = this;
+	current_help = هذا;
 }
 
 PrettyHelp::~PrettyHelp()
 {
-	current_help = _prior;
+	current_help = مخکینی;
 }
 
 PrettyHelp *PrettyHelp::get_current()
 {
-	if (current_help == nullptr)
-		new PrettyHelp();
-	return current_help;
+	إذا (current_help == تش_اشاره)
+		جديد PrettyHelp();
+	أرجع current_help;
 }
 
-void PrettyHelp::log_help() const
+فراغ PrettyHelp::log_help() ثابت
 {
-	for (auto &content : _root_listing) {
-		if (content.type.compare("usage") == 0) {
-			log_body(content, 1, true);
-			log("\n");
-		} else if (content.type.compare("option") == 0) {
+	لكل (خپلکاری &content : ریښه_listing) {
+		إذا (content.type.compare("usage") == 0) {
+			log_body(content, 1, ریښتیا);
+			لوګاریتم("\n");
+		} وإلا إذا (content.type.compare("option") == 0) {
 			log_body(content, 1);
-			for (auto text : content) {
-				log_body(text, 2);
-				log("\n");
+			لكل (خپلکاری متن : content) {
+				log_body(متن, 2);
+				لوګاریتم("\n");
 			}
-		} else {
+		} وإلا {
 			log_body(content, 0);
-			log("\n");
+			لوګاریتم("\n");
 		}
 	}
 }

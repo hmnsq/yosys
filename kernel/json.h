@@ -17,12 +17,12 @@
  *
  */
 
-#ifndef JSON_H
-#define JSON_H
+#که_نه_تعریف_شوی JSON_H
+#تعریف_کړه JSON_H
 
-#include "kernel/yosys.h"
-#include "libs/json11/json11.hpp"
-#include <functional>
+#ضمن "kernel/yosys.h"
+#ضمن "libs/json11/json11.hpp"
+#ضمن <functional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -30,75 +30,75 @@ using json11::Json;
 
 class PrettyJson
 {
-    enum Scope {
-        VALUE,
-        OBJECT_FIRST,
+    تعداد Scope {
+        ارزښت_2,
+        OBJECT_لومړی,
         OBJECT,
-        ARRAY_FIRST,
+        ARRAY_لومړی,
         ARRAY,
     };
 
-    struct Target {
-        virtual void emit(const char *data) = 0;
-        virtual void flush() {};
-        virtual ~Target() {};
+    بنية موخه {
+        مجازي فراغ emit(ثابت حرف *معلومات) = 0;
+        مجازي فراغ flush() {};
+        مجازي ~موخه() {};
     };
 
     std::string newline_indent = "\n";
-    std::vector<std::unique_ptr<Target>> targets;
-    std::vector<Scope> state = {VALUE};
-    int compact_depth = INT_MAX;
-public:
+    std::ویکټور<std::unique_ptr<موخه>> targets;
+    std::ویکټور<Scope> state = {ارزښت_2};
+    صحيح compact_ژوروالی = لوی_عدد;
+عام:
 
-    void emit_to_log();
-    void append_to_string(std::string &target);
-    bool write_to_file(const std::string &path);
+    فراغ emit_منزل_log();
+    فراغ append_منزل_string(std::string &موخه_2);
+    bool write_منزل_file(ثابت std::string &لار_2);
 
-    bool active() { return !targets.empty(); }
+    bool فعال() { أرجع !targets.تشه(); }
 
-    void compact() { compact_depth = GetSize(state); }
+    فراغ compact() { compact_ژوروالی = Get_اندازه(state); }
 
-    void line(bool space_if_inline = true);
-    void raw(const char *raw_json);
-    void flush();
-    void begin_object();
-    void begin_array();
-    void end_object();
-    void end_array();
-    void name(const char *name);
-    void begin_value();
-    void end_value();
-    void value_json(const Json &value);
-    void value(unsigned int value) { value_json(Json((int)value)); }
-    template<typename T>
-    void value(T &&value) { value_json(Json(std::forward<T>(value))); };
+    فراغ کرښه(bool space_if_inline = true);
+    فراغ raw(ثابت حرف *raw_json);
+    فراغ flush();
+    فراغ begin_object();
+    فراغ begin_array();
+    فراغ پای_ټکی_object();
+    فراغ پای_ټکی_array();
+    فراغ name(ثابت حرف *name);
+    فراغ begin_ارزښت();
+    فراغ پای_ټکی_ارزښت();
+    فراغ ارزښت_json(ثابت Json &ارزښت);
+    فراغ ارزښت(بینښه صحيح ارزښت) { ارزښت_json(Json((صحيح)ارزښت)); }
+    کينډۍ<typename T>
+    فراغ ارزښت(T &&ارزښت) { ارزښت_json(Json(std::forward<T>(ارزښت))); };
 
-    void entry_json(const char *name, const Json &value);
-    void entry(const char *name, unsigned int value) { entry_json(name, Json((int)value)); }
-    template<typename T>
-    void entry(const char *name, T &&value) { entry_json(name, Json(std::forward<T>(value))); };
+    فراغ ثبت_json(ثابت حرف *name, ثابت Json &ارزښت);
+    فراغ ثبت(ثابت حرف *name, بینښه صحيح ارزښت) { ثبت_json(name, Json((صحيح)ارزښت)); }
+    کينډۍ<typename T>
+    فراغ ثبت(ثابت حرف *name, T &&ارزښت) { ثبت_json(name, Json(std::forward<T>(ارزښت))); };
 
-    template<typename T>
-    void object(const T &&values)
+    کينډۍ<typename T>
+    فراغ object(ثابت T &&ارزښتونه)
     {
         begin_object();
-        for (auto &item : values)
-            entry(item.first, item.second);
-        end_object();
+        لكل (خپلکاری &توکی : ارزښتونه)
+            ثبت(توکی.لومړی, توکی.دوهم);
+        پای_ټکی_object();
     }
 
-    template<typename T>
-    void array(const T &&values)
+    کينډۍ<typename T>
+    فراغ array(ثابت T &&ارزښتونه)
     {
         begin_array();
-        for (auto &item : values)
-            value(item);
-        end_array();
+        لكل (خپلکاری &توکی : ارزښتونه)
+            ارزښت(توکی);
+        پای_ټکی_array();
     }
 };
 
 
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی
 
-#endif
+#د_که_پای

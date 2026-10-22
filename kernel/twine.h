@@ -1,27 +1,27 @@
-#ifndef YOSYS_TWINE_H
-#define YOSYS_TWINE_H
+#که_نه_تعریف_شوی YOSYS_TWINE_H
+#تعریف_کړه YOSYS_TWINE_H
 
-#include "kernel/hashcons.h"
-#include "kernel/yosys_common.h"
+#ضمن "kernel/hashcons.h"
+#ضمن "kernel/yosys_common.h"
 
-#include <algorithm>
-#include <bit>
-#include <cstdint>
-#include <cstring>
-#include <deque>
-#include <limits>
-#include <span>
-#include <string>
-#include <string_view>
-#include <unordered_set>
-#include <variant>
-#include <vector>
+#ضمن <algorithm>
+#ضمن <bit>
+#ضمن <cstdint>
+#ضمن <cstring>
+#ضمن <deque>
+#ضمن <limits>
+#ضمن <span>
+#ضمن <string>
+#ضمن <string_view>
+#ضمن <unordered_set>
+#ضمن <variant>
+#ضمن <vector>
 
 YOSYS_NAMESPACE_BEGIN
 
-struct TwineSpec;
-struct TwinePool;
-struct IdString;
+بنية TwineSpec;
+بنية TwinePool;
+بنية IdString;
 
 /**
  * A twine is a data structure designed to deduplicate prefixes.
@@ -45,379 +45,379 @@ struct IdString;
  * live in a global read-only pool, so they're an exception to that.
  */
 
-struct NullIdString {
-	constexpr operator IdString() const;
-	constexpr bool operator==(IdString ref) const;
+بنية NullIdString {
+	constexpr چلوونکی IdString() ثابت;
+	constexpr bool چلوونکی==(IdString ref) ثابت;
 };
 
-struct IdString {
-private:
-#ifdef YOSYS_ENABLE_TWINE_PROVENANCE
-	using bits_t = uint64_t;
-#else
-	using bits_t = uint32_t;
-#endif
-	bits_t value;
+بنية IdString {
+خاص:
+#که_تعریف_شوی YOSYS_ENABLE_TWINE_PROVENANCE
+	using بټونه_t = uint64_t;
+#وإلا
+	using بټونه_t = uint32_t;
+#د_که_پای
+	بټونه_t ارزښت;
 
-	static constexpr int TWINE_WIDTH = std::numeric_limits<bits_t>::digits;
-	static constexpr int TWINE_PUBLIC_SHIFT = TWINE_WIDTH - 1;
-	static constexpr bits_t TWINE_PUBLIC_BIT = bits_t{1} << TWINE_PUBLIC_SHIFT;
-	static constexpr bits_t TWINE_NULL_VAL = ~bits_t{0};
-	static constexpr int TWINE_SERIAL_SHIFT = TWINE_WIDTH == 64 ? 32 : TWINE_PUBLIC_SHIFT;
-	static constexpr bits_t TWINE_INDEX_MASK = (bits_t{1} << TWINE_SERIAL_SHIFT) - 1;
-	static constexpr bits_t TWINE_SERIAL_MASK = bits_t(~(TWINE_INDEX_MASK | TWINE_PUBLIC_BIT));
+	ساكن constexpr صحيح TWINE_پلنوالی = std::numeric_limits<بټونه_t>::digits;
+	ساكن constexpr صحيح TWINE_عامه_ښويدنه = TWINE_پلنوالی - 1;
+	ساكن constexpr بټونه_t TWINE_عامه_بټ = بټونه_t{1} << TWINE_عامه_ښويدنه;
+	ساكن constexpr بټونه_t TWINE_NULL_VAL = ~بټونه_t{0};
+	ساكن constexpr صحيح TWINE_SERIAL_ښويدنه = TWINE_پلنوالی == 64 ? 32 : TWINE_عامه_ښويدنه;
+	ساكن constexpr بټونه_t TWINE_شاخص_ماسک = (بټونه_t{1} << TWINE_SERIAL_ښويدنه) - 1;
+	ساكن constexpr بټونه_t TWINE_SERIAL_ماسک = بټونه_t(~(TWINE_شاخص_ماسک | TWINE_عامه_بټ));
 
-public:
-	static constexpr NullIdString Null{};
+عام:
+	ساكن constexpr NullIdString Null{};
 
-	static constexpr size_t MAX_INDEX = TWINE_INDEX_MASK;
-	static constexpr size_t MAX_SERIAL = TWINE_SERIAL_MASK >> TWINE_SERIAL_SHIFT;
+	ساكن constexpr اندازه_t MAX_شاخص = TWINE_شاخص_ماسک;
+	ساكن constexpr اندازه_t MAX_SERIAL = TWINE_SERIAL_ماسک >> TWINE_SERIAL_ښويدنه;
 
-	constexpr size_t raw() const {
-		return value == TWINE_NULL_VAL ? value : (value & ~TWINE_SERIAL_MASK);
+	constexpr اندازه_t raw() ثابت {
+		أرجع ارزښت == TWINE_NULL_VAL ? ارزښت : (ارزښت & ~TWINE_SERIAL_ماسک);
 	}
 
 	// raw() with the pool serial kept
-	constexpr size_t bits() const { return value; }
+	constexpr اندازه_t بټونه() ثابت { أرجع ارزښت; }
 
-	constexpr size_t order_key() const { return std::rotl((bits_t) eq_key(), 1); }
+	constexpr اندازه_t ترتیب_کلی() ثابت { أرجع std::rotl((بټونه_t) eq_کلی(), 1); }
 
-	constexpr size_t serial() const {
-		return value == TWINE_NULL_VAL ? 0 : ((value & TWINE_SERIAL_MASK) >> TWINE_SERIAL_SHIFT);
+	constexpr اندازه_t serial() ثابت {
+		أرجع ارزښت == TWINE_NULL_VAL ? 0 : ((ارزښت & TWINE_SERIAL_ماسک) >> TWINE_SERIAL_ښويدنه);
 	}
 
-	constexpr IdString stamped(size_t pool_serial) const {
-		return value == TWINE_NULL_VAL ? *this
-			: IdString((value & ~TWINE_SERIAL_MASK)
-					| (bits_t(pool_serial << TWINE_SERIAL_SHIFT) & TWINE_SERIAL_MASK));
+	constexpr IdString stamped(اندازه_t pool_serial) ثابت {
+		أرجع ارزښت == TWINE_NULL_VAL ? *this
+			: IdString((ارزښت & ~TWINE_SERIAL_ماسک)
+					| (بټونه_t(pool_serial << TWINE_SERIAL_ښويدنه) & TWINE_SERIAL_ماسک));
 	}
 
-	constexpr IdString() : value(TWINE_NULL_VAL) {}
-	explicit constexpr IdString(size_t val) : value((bits_t) val) {}
+	constexpr IdString() : ارزښت(TWINE_NULL_VAL) {}
+	explicit constexpr IdString(اندازه_t val) : ارزښت((بټونه_t) val) {}
 
-	constexpr size_t eq_key() const { return value & ~TWINE_SERIAL_MASK; }
+	constexpr اندازه_t eq_کلی() ثابت { أرجع ارزښت & ~TWINE_SERIAL_ماسک; }
 
-	constexpr bool operator==(const IdString &rhs) const { return eq_key() == rhs.eq_key(); }
-	constexpr bool operator!=(const IdString &rhs) const { return eq_key() != rhs.eq_key(); }
-	constexpr std::strong_ordering operator<=>(const IdString &rhs) const {
-		return order_key() <=> rhs.order_key();
+	constexpr bool چلوونکی==(ثابت IdString &rhs) ثابت { أرجع eq_کلی() == rhs.eq_کلی(); }
+	constexpr bool چلوونکی!=(ثابت IdString &rhs) ثابت { أرجع eq_کلی() != rhs.eq_کلی(); }
+	constexpr std::strong_ordering چلوونکی<=>(ثابت IdString &rhs) ثابت {
+		أرجع ترتیب_کلی() <=> rhs.ترتیب_کلی();
 	}
 
-	template <typename... Args>
-	constexpr bool in(const Args&... args) const {
-		return (in_one(args) || ...);
+	کينډۍ <typename... دلیلونه_3>
+	constexpr bool دننه(ثابت دلیلونه_3&... دلیلونه_2) ثابت {
+		أرجع (دننه_one(دلیلونه_2) || ...);
 	}
-	bool in(const pool<IdString> &rhs) const;
+	bool دننه(ثابت pool<IdString> &rhs) ثابت;
 
 	// Instead of for example std::set<Cell*>
 	// use std::set<Cell*, IdString::compare_ptr_by_name<Cell>> if the order of cells in the
 	// set has an influence on the algorithm.
-	template<typename T> struct compare_ptr_by_name {
-		bool operator()(const T *a, const T *b) const {
-			return (a == nullptr || b == nullptr) ? (a < b) : (a->name < b->name);
+	کينډۍ<typename T> بنية compare_ptr_by_name {
+		bool چلوونکی()(ثابت T *a, ثابت T *b) ثابت {
+			أرجع (a == nullptr || b == nullptr) ? (a < b) : (a->name < b->name);
 		}
 	};
 
 	// A ref is "empty" when it names nothing at all.
-	constexpr bool empty() const { return value == TWINE_NULL_VAL; }
-	constexpr void clear() { value = TWINE_NULL_VAL; }
-	constexpr bool isPublic() const { return value != TWINE_NULL_VAL && (value & TWINE_PUBLIC_BIT); }
+	constexpr bool تشه() ثابت { أرجع ارزښت == TWINE_NULL_VAL; }
+	constexpr فراغ clear() { ارزښت = TWINE_NULL_VAL; }
+	constexpr bool is_عامه() ثابت { أرجع ارزښت != TWINE_NULL_VAL && (ارزښت & TWINE_عامه_بټ); }
 
-	constexpr IdString untag() const {
-		return value == TWINE_NULL_VAL ? *this : IdString(value & ~TWINE_PUBLIC_BIT);
+	constexpr IdString untag() ثابت {
+		أرجع ارزښت == TWINE_NULL_VAL ? *this : IdString(ارزښت & ~TWINE_عامه_بټ);
 	}
-	constexpr IdString tag(bool pub) const {
-		return value == TWINE_NULL_VAL ? *this : IdString(pub ? (value | TWINE_PUBLIC_BIT) : (value & ~TWINE_PUBLIC_BIT));
+	constexpr IdString نښان(bool pub) ثابت {
+		أرجع ارزښت == TWINE_NULL_VAL ? *this : IdString(pub ? (ارزښت | TWINE_عامه_بټ) : (ارزښت & ~TWINE_عامه_بټ));
 	}
 
-	std::string handle_token() const;
-	static size_t handle_token_prefix(std::string_view token, bool &is_public);
+	std::string handle_token() ثابت;
+	ساكن اندازه_t handle_token_مختاړی(std::string_view token, bool &is_عامه_2);
 
-private:
-	constexpr bool in_one(IdString rhs) const { return *this == rhs; }
-	bool in_one(const pool<IdString> &rhs) const;
+خاص:
+	constexpr bool دننه_one(IdString rhs) ثابت { أرجع *this == rhs; }
+	bool دننه_one(ثابت pool<IdString> &rhs) ثابت;
 };
 
-constexpr NullIdString::operator IdString() const { return IdString(); }
-constexpr bool NullIdString::operator==(IdString ref) const { return ref.empty(); }
+constexpr NullIdString::چلوونکی IdString() ثابت { أرجع IdString(); }
+constexpr bool NullIdString::چلوونکی==(IdString ref) ثابت { أرجع ref.تشه(); }
 
 namespace hashlib {
-	template<>
-	struct hash_ops<IdString> {
-		static inline bool cmp(IdString a, IdString b) { return a == b; }
-		[[nodiscard]] static inline Hasher hash(IdString id) {
+	کينډۍ<>
+	بنية hash_ops<IdString> {
+		ساكن مضمن bool cmp(IdString a, IdString b) { أرجع a == b; }
+		[[nodiscard]] ساكن مضمن Hasher hash(IdString id) {
 			Hasher h;
-			h.force((Hasher::hash_t) id.eq_key());
-			return h;
+			h.force((Hasher::hash_t) id.eq_کلی());
+			أرجع h;
 		}
-		[[nodiscard]] static inline Hasher hash_into(IdString id, Hasher h) {
-			h.hash64(id.eq_key());
-			return h;
+		[[nodiscard]] ساكن مضمن Hasher hash_into(IdString id, Hasher h) {
+			h.hash64(id.eq_کلی());
+			أرجع h;
 		}
 	};
 }
 
-inline bool IdString::in_one(const pool<IdString> &rhs) const { return rhs.count(*this) != 0; }
-inline bool IdString::in(const pool<IdString> &rhs) const { return in_one(rhs); }
+مضمن bool IdString::دننه_one(ثابت pool<IdString> &rhs) ثابت { أرجع rhs.شمېر(*this) != 0; }
+مضمن bool IdString::دننه(ثابت pool<IdString> &rhs) ثابت { أرجع دننه_one(rhs); }
 
 
-enum : short {
-#define X(N) IDX_##N,
-#include "kernel/constids.inc"
-#undef X
-	STATIC_TWINE_END
+تعداد : لنډ {
+#تعریف_کړه X(N) IDX_##N,
+#ضمن "kernel/constids.inc"
+#تعریف_لغوه X
+	STATIC_TWINE_پای_ټکی
 };
 
-struct ID {
+بنية ID {
 // Static ids are name handles: non-'$' constids were '\'-escaped publics,
 // so their handles carry the publicity bit baked in at compile time.
-#define X(N) static constexpr IdString N = IdString(IDX_##N).tag((#N)[0] != '$');
-#include "kernel/constids.inc"
-#undef X
+#تعریف_کړه X(N) ساكن constexpr IdString N = IdString(IDX_##N).نښان((#N)[0] != '$');
+#ضمن "kernel/constids.inc"
+#تعریف_لغوه X
 
-	static constexpr const char* static_names[] = {
-#define X(N) #N,
-#include "kernel/constids.inc"
-#undef X
+	ساكن constexpr ثابت حرف* static_نومونه[] = {
+#تعریف_کړه X(N) #N,
+#ضمن "kernel/constids.inc"
+#تعریف_لغوه X
 	};
 
-	static constexpr IdString lookup(std::string_view name)
+	ساكن constexpr IdString lookup(std::string_view name)
 	{
-		int low = 0, high = STATIC_TWINE_END;
-		while (high - low >= 2) {
-			int mid = (low + high) / 2;
-			if (name < static_names[mid])
-				high = mid;
-			else
-				low = mid;
+		صحيح ټیټ = 0, لوړ = STATIC_TWINE_پای_ټکی;
+		طالما (لوړ - ټیټ >= 2) {
+			صحيح mid = (ټیټ + لوړ) / 2;
+			إذا (name < static_نومونه[mid])
+				لوړ = mid;
+			وإلا
+				ټیټ = mid;
 		}
 
-		if (name != static_names[low])
+		إذا (name != static_نومونه[ټیټ])
 			throw "unknown twine id, strings that aren't statically allocated in kernel/constids.inc must be interned into a TwinePool";
 
-		return IdString(low).tag(name[0] != '$');
+		أرجع IdString(ټیټ).نښان(name[0] != '$');
 	}
 
-	static constexpr bool is_static(IdString ref) {
-		return ref.untag().raw() < STATIC_TWINE_END;
+	ساكن constexpr bool is_static(IdString ref) {
+		أرجع ref.untag().raw() < STATIC_TWINE_پای_ټکی;
 	}
 
-	static constexpr IdString static_ref(size_t raw) {
-		if (!is_static(IdString(raw)))
+	ساكن constexpr IdString static_ref(اندازه_t raw) {
+		إذا (!is_static(IdString(raw)))
 			throw "not a static twine id";
-		return IdString(raw);
+		أرجع IdString(raw);
 	}
 
 	// Static IdString can be constructed without a design pointer
-	static std::string str(IdString ref);
-	static std::string unescaped_str(IdString ref);
+	ساكن std::string str(IdString ref);
+	ساكن std::string unescaped_str(IdString ref);
 };
 
-template<size_t Raw> inline constexpr IdString constid = ID::static_ref(Raw);
+کينډۍ<اندازه_t Raw> مضمن constexpr IdString constid = ID::static_ref(Raw);
 
-#define ID(id) (YOSYS_NAMESPACE_PREFIX constid<YOSYS_NAMESPACE_PREFIX ID::lookup(#id).raw()>)
+#تعریف_کړه ID(id) (YOSYS_NAMESPACE_مختاړی constid<YOSYS_NAMESPACE_مختاړی ID::lookup(#id).raw()>)
 
 // TwineSpec is the object that lives in the TwinePool,
 // while IdString points to a TwineSpec and carries publicity information
-struct TwineSpec {
+بنية TwineSpec {
 	// deduplicates shared prefixes
-	struct Suffix {
-		IdString prefix;
-		std::string tail;
-		auto operator<=>(const Suffix&) const = default;
+	بنية Suffix {
+		IdString مختاړی_2;
+		std::string لکۍ;
+		خپلکاری چلوونکی<=>(ثابت Suffix&) ثابت = افتراضي;
 	};
 
 	// transient suffix constructed with NEW_ID and NEW_ID_SUFFIX
 	// turned into a regular Suffix when added to a TwinePool
-	struct AutoSuffix {
-		const std::string *prefix;
-		std::string tail;
-		auto operator<=>(const AutoSuffix&) const = default;
+	بنية AutoSuffix {
+		ثابت std::string *مختاړی_2;
+		std::string لکۍ;
+		خپلکاری چلوونکی<=>(ثابت AutoSuffix&) ثابت = افتراضي;
 	};
 
 	// "leaf", regular deduplicated string
-	struct Leaf {
+	بنية ونې_پاڼه {
 		std::string s;
-		auto operator<=>(const Leaf&) const = default;
+		خپلکاری چلوونکی<=>(ثابت ونې_پاڼه&) ثابت = افتراضي;
 	};
 
-	std::variant<Leaf, Suffix, AutoSuffix> data;
+	std::variant<ونې_پاڼه, Suffix, AutoSuffix> معلومات;
 
-	TwineSpec(Leaf v);
+	TwineSpec(ونې_پاڼه v);
 	TwineSpec(Suffix v);
 	TwineSpec(AutoSuffix v);
 
 	// Only for the pool-free variants, Leaf and AutoSuffix
-	std::string content_str() const;
+	std::string content_str() ثابت;
 };
 
-struct SmallString {
-	static constexpr uint32_t INLINE_CAP = 8;
-	static constexpr size_t MAX_LEN = std::numeric_limits<uint32_t>::max();
+بنية SmallString {
+	ساكن constexpr uint32_t INLINE_CAP = 8;
+	ساكن constexpr اندازه_t MAX_LEN = std::numeric_limits<uint32_t>::max();
 
-	SmallString() = default;
+	SmallString() = افتراضي;
 	explicit SmallString(std::string_view content);
-	SmallString(const SmallString &other);
+	SmallString(ثابت SmallString &other);
 	SmallString(SmallString &&other) noexcept;
-	SmallString &operator=(const SmallString &other);
-	SmallString &operator=(SmallString &&other) noexcept;
+	SmallString &چلوونکی=(ثابت SmallString &other);
+	SmallString &چلوونکی=(SmallString &&other) noexcept;
 	~SmallString();
 
-	std::string_view view() const { return {len_ <= INLINE_CAP ? inl_ : ptr_, len_}; }
+	std::string_view view() ثابت { أرجع {len_ <= INLINE_CAP ? inl_ : ptr_, len_}; }
 
-private:
-	void store(std::string_view content);
-	void release();
+خاص:
+	فراغ store(std::string_view content);
+	فراغ release();
 
-	union {
-		char inl_[INLINE_CAP];
-		char *ptr_;
+	اتحاد {
+		حرف inl_[INLINE_CAP];
+		حرف *ptr_;
 	};
 	uint32_t len_ = 0;
 };
 
 // TwineNode is the in-memory version of TwineSpec
-struct TwineNode {
-	static constexpr uint32_t NO_PREFIX = ~uint32_t{0};
-	static constexpr uint32_t DEAD = NO_PREFIX - 1;
+بنية Twine_غوټه {
+	ساكن constexpr uint32_t NO_مختاړی = ~uint32_t{0};
+	ساكن constexpr uint32_t DEAD = NO_مختاړی - 1;
 
-	struct Key {
-		uint32_t prefix;
-		std::string_view text;
+	بنية کلی_2 {
+		uint32_t مختاړی_2;
+		std::string_view متن;
 	};
 
-	static constexpr uint32_t extend_hash(uint32_t hash, std::string_view tail) {
+	ساكن constexpr uint32_t extend_hash(uint32_t hash, std::string_view لکۍ) {
 		// Basically DJB2, but we're not doing it with hashlib.h hash64,
 		// so that we get the "content hashing" identity:
 		// hash(suffix(leaf("a"), "b")) == hash(leaf("ab"))
-		for (char c : tail)
-			hash = ((hash << 5) + hash) + static_cast<unsigned char>(c);
-		return hash;
+		لكل (حرف c : لکۍ)
+			hash = ((hash << 5) + hash) + static_cast<بینښه حرف>(c);
+		أرجع hash;
 	}
 
-	TwineNode() = default;
-	explicit TwineNode(std::string_view content)
-		: text_(content), prefix_(NO_PREFIX), hash_(extend_hash(0, content)) {}
-	TwineNode(uint32_t prefix, std::string_view tail, uint32_t hash)
-		: text_(tail), prefix_(prefix), hash_(hash) {}
-	TwineNode(const TwineNode &other) = default;
-	TwineNode(TwineNode &&other) noexcept;
-	TwineNode &operator=(const TwineNode &other) = default;
-	TwineNode &operator=(TwineNode &&other) noexcept;
-	~TwineNode() = default;
+	Twine_غوټه() = افتراضي;
+	explicit Twine_غوټه(std::string_view content)
+		: متن_2(content), مختاړی_3(NO_مختاړی), hash_(extend_hash(0, content)) {}
+	Twine_غوټه(uint32_t مختاړی_2, std::string_view لکۍ, uint32_t hash)
+		: متن_2(لکۍ), مختاړی_3(مختاړی_2), hash_(hash) {}
+	Twine_غوټه(ثابت Twine_غوټه &other) = افتراضي;
+	Twine_غوټه(Twine_غوټه &&other) noexcept;
+	Twine_غوټه &چلوونکی=(ثابت Twine_غوټه &other) = افتراضي;
+	Twine_غوټه &چلوونکی=(Twine_غوټه &&other) noexcept;
+	~Twine_غوټه() = افتراضي;
 
-	enum class Kind { Dead, Leaf, Suffix };
+	تعداد class ډول_2 { Dead, ونې_پاڼه, Suffix };
 
-	constexpr bool is_dead() const { return prefix_ == DEAD; }
-	constexpr bool is_leaf() const { return prefix_ == NO_PREFIX; }
-	constexpr bool is_suffix() const { return prefix_ < DEAD; }
+	constexpr bool is_dead() ثابت { أرجع مختاړی_3 == DEAD; }
+	constexpr bool is_ونې_پاڼه() ثابت { أرجع مختاړی_3 == NO_مختاړی; }
+	constexpr bool is_suffix() ثابت { أرجع مختاړی_3 < DEAD; }
 
-	constexpr Kind kind() const {
-		return prefix_ == DEAD ? Kind::Dead
-			: prefix_ == NO_PREFIX ? Kind::Leaf
-			: Kind::Suffix;
+	constexpr ډول_2 ډول() ثابت {
+		أرجع مختاړی_3 == DEAD ? ډول_2::Dead
+			: مختاړی_3 == NO_مختاړی ? ډول_2::ونې_پاڼه
+			: ډول_2::Suffix;
 	}
 
-	std::string_view text() const { return text_.view(); }
-	IdString prefix() const { return IdString(prefix_); }
-	uint32_t hash() const { return hash_; }
-	Key key() const { return {prefix_, text()}; }
+	std::string_view متن() ثابت { أرجع متن_2.view(); }
+	IdString مختاړی_2() ثابت { أرجع IdString(مختاړی_3); }
+	uint32_t hash() ثابت { أرجع hash_; }
+	کلی_2 کلی() ثابت { أرجع {مختاړی_3, متن()}; }
 
-	bool operator==(const TwineNode &other) const
-		{ return prefix_ == other.prefix_ && text() == other.text(); }
-	bool operator==(const Key &other) const
-		{ return prefix_ == other.prefix && text() == other.text; }
+	bool چلوونکی==(ثابت Twine_غوټه &other) ثابت
+		{ أرجع مختاړی_3 == other.مختاړی_3 && متن() == other.متن(); }
+	bool چلوونکی==(ثابت کلی_2 &other) ثابت
+		{ أرجع مختاړی_3 == other.مختاړی_2 && متن() == other.متن; }
 
-private:
-	SmallString text_;
-	uint32_t prefix_ = DEAD;
+خاص:
+	SmallString متن_2;
+	uint32_t مختاړی_3 = DEAD;
 	uint32_t hash_ = 0;
 };
 
-static_assert(sizeof(TwineNode) == (sizeof(void *) == 8 ? 24 : 20));
+static_assert(حجم(Twine_غوټه) == (حجم(فراغ *) == 8 ? 24 : 20));
 
-struct StaticTwines {
-	static void init();
-	static const TwineNode &node(size_t idx);
-	static bool ready();
+بنية StaticTwines {
+	ساكن فراغ init();
+	ساكن ثابت Twine_غوټه &غوټه(اندازه_t idx);
+	ساكن bool ready();
 
-private:
-	static std::vector<TwineNode> nodes_;
+خاص:
+	ساكن std::ویکټور<Twine_غوټه> nodes_;
 };
 
-extern int64_t twine_gc_ns;
-extern int twine_gc_count;
+خارجي int64_t twine_gc_ns;
+خارجي صحيح twine_gc_شمېر;
 
-struct TwinePool : HashConsPool<TwinePool, TwineNode, IdString> {
-	static constexpr size_t STATIC_COUNT = STATIC_TWINE_END;
+بنية TwinePool : HashConsPool<TwinePool, Twine_غوټه, IdString> {
+	ساكن constexpr اندازه_t STATIC_شمېر = STATIC_TWINE_پای_ټکی;
 
 	TwinePool();
-	TwinePool(const TwinePool& other);
+	TwinePool(ثابت TwinePool& other);
 	TwinePool(TwinePool&& other);
-	TwinePool& operator=(const TwinePool& other);
-	TwinePool& operator=(TwinePool&& other);
+	TwinePool& چلوونکی=(ثابت TwinePool& other);
+	TwinePool& چلوونکی=(TwinePool&& other);
 
-	const TwineNode& operator[](IdString ref) const;
+	ثابت Twine_غوټه& چلوونکی[](IdString ref) ثابت;
 
-	static const TwineNode& static_node(size_t idx);
+	ساكن ثابت Twine_غوټه& static_غوټه(اندازه_t idx);
 
-	static void check_ready();
-	static uint32_t hash_node(const TwineNode& t) { return t.hash(); }
+	ساكن فراغ check_ready();
+	ساكن uint32_t hash_غوټه(ثابت Twine_غوټه& t) { أرجع t.hash(); }
 
-	template<typename F>
-	static void for_each_child(const TwineNode& t, F&& f) {
-		if (t.is_suffix())
-			f(t.prefix());
+	کينډۍ<typename F>
+	ساكن فراغ for_each_ماشوم(ثابت Twine_غوټه& t, F&& f) {
+		إذا (t.is_suffix())
+			f(t.مختاړی_2());
 	}
 
-	size_t gc(pool<IdString>& roots);
+	اندازه_t gc(pool<IdString>& roots);
 
-	void dump(IdString ref, std::ostream& os = std::cout) const;
+	فراغ dump(IdString ref, std::ostream& os = std::cout) ثابت;
 
 	// Publicity bit provides escaping
-	std::string str(IdString ref) const;
+	std::string str(IdString ref) ثابت;
 	// Publicity bit ignored
-	std::string unescaped_str(IdString ref) const;
+	std::string unescaped_str(IdString ref) ثابت;
 
-	size_t str_size(IdString ref) const;
-	bool begins_with(IdString ref, std::string_view prefix) const;
+	اندازه_t str_اندازه(IdString ref) ثابت;
+	bool begins_with(IdString ref, std::string_view مختاړی_2) ثابت;
 	// Publicity bit provides escaping, as in str()
-	bool name_equal(IdString ref, std::string_view name) const;
-	int compare_by_name(IdString a, IdString b) const;
-	IdString prefix_of(IdString ref) const;
+	bool name_equal(IdString ref, std::string_view name) ثابت;
+	صحيح compare_by_name(IdString a, IdString b) ثابت;
+	IdString مختاړی_د(IdString ref) ثابت;
 
-	IdString find(std::string_view name) const;
-	IdString find(TwineSpec t) const;
+	IdString پیدا_کړه(std::string_view name) ثابت;
+	IdString پیدا_کړه(TwineSpec t) ثابت;
 	// Doesn't infer publicity
-	IdString add(TwineSpec t);
-	IdString add(IdString prefix, std::string_view tail);
+	IdString جمع_کړه(TwineSpec t);
+	IdString جمع_کړه(IdString مختاړی_2, std::string_view لکۍ);
 	// Infers publicity from first character
-	IdString add(std::string_view s);
-	IdString copy_from(const TwinePool& src, IdString ref);
+	IdString جمع_کړه(std::string_view s);
+	IdString copy_from(ثابت TwinePool& src, IdString ref);
 	// Non-mutating counterpart of copy_from
-	IdString find_from(const TwinePool& src, IdString ref) const;
+	IdString پیدا_کړه_from(ثابت TwinePool& src, IdString ref) ثابت;
 	// Opaque handle for files that never leave one run of yosys.
 	// Only valid until garbage collection reuses the slot.
-	std::string ref_token(IdString ref) const;
+	std::string ref_token(IdString ref) ثابت;
 	// Null unless the token names a live twine stamped by this pool
-	IdString ref_from_token(std::string_view token) const;
-	void check_owned(IdString ref) const;
+	IdString ref_from_token(std::string_view token) ثابت;
+	فراغ check_owned(IdString ref) ثابت;
 
-private:
-	bool owns(IdString ref) const;
-	IdString stamp(IdString ref) const;
-	void append_str(IdString ref, std::string& out) const;
-	IdString auto_prefix(const std::string *prefix);
-	IdString add_inner(TwineNode t);
-	IdString intern(uint32_t prefix, std::string_view text);
-	uint32_t content_hash(uint32_t prefix, std::string_view text) const;
-	IdString find_content(uint32_t prefix, std::string_view text, uint32_t hash) const;
-	IdString find_content(uint32_t prefix, std::string_view text) const;
-	static size_t next_serial();
-	dict<const std::string *, IdString> auto_prefixes;
-	size_t serial_;
+خاص:
+	bool owns(IdString ref) ثابت;
+	IdString stamp(IdString ref) ثابت;
+	فراغ append_str(IdString ref, std::string& بهر) ثابت;
+	IdString auto_مختاړی(ثابت std::string *مختاړی_2);
+	IdString جمع_کړه_inner(Twine_غوټه t);
+	IdString intern(uint32_t مختاړی_2, std::string_view متن);
+	uint32_t content_hash(uint32_t مختاړی_2, std::string_view متن) ثابت;
+	IdString پیدا_کړه_content(uint32_t مختاړی_2, std::string_view متن, uint32_t hash) ثابت;
+	IdString پیدا_کړه_content(uint32_t مختاړی_2, std::string_view متن) ثابت;
+	ساكن اندازه_t بل_serial();
+	dict<ثابت std::string *, IdString> auto_prefixes;
+	اندازه_t serial_;
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی
 
-#endif
+#د_که_پای

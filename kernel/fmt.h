@@ -17,24 +17,24 @@
  *
  */
 
-#ifndef FMT_H
-#define FMT_H
+#که_نه_تعریف_شوی FMT_H
+#تعریف_کړه FMT_H
 
-#include "kernel/yosys.h"
+#ضمن "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // Verilog format argument, such as the arguments in:
 //   $display("foo %d bar %01x", 4'b0, $signed(2'b11))
-struct VerilogFmtArg {
-	enum {
+بنية VerilogFmtArg {
+	تعداد {
 		STRING  = 0,
 		INTEGER = 1,
-		TIME    = 2,
+		وخت    = 2,
 	} type;
 
 	// All types
-	LogSourceLocation src;
+	Log_سرچینه_Location src;
 
 	// STRING type
 	std::string str;
@@ -50,13 +50,13 @@ struct VerilogFmtArg {
 // RTLIL format part, such as the substitutions in:
 //   "foo {4:> 4du} bar {2:<01hs}"
 // Must be kept in sync with `struct fmt_part` in backends/cxxrtl/runtime/cxxrtl/cxxrtl.h!
-struct FmtPart {
-	enum {
+بنية FmtPart {
+	تعداد {
 		LITERAL  	= 0,
 		INTEGER 	= 1,
 		STRING    = 2,
 		UNICHAR   = 3,
-		VLOG_TIME = 4,
+		VLOG_وخت = 4,
 	} type;
 
 	// LITERAL type
@@ -66,50 +66,50 @@ struct FmtPart {
 	RTLIL::SigSpec sig;
 
 	// INTEGER/STRING/VLOG_TIME types
-	enum {
-		RIGHT	= 0,
-		LEFT	= 1,
+	تعداد {
+		ښی_2	= 0,
+		کیڼ_2	= 1,
 		NUMERIC	= 2,
-	} justify = RIGHT;
-	char padding = '\0';
-	size_t width = 0;
+	} justify = ښی_2;
+	حرف padding = '\0';
+	اندازه_t پلنوالی = 0;
 
 	// INTEGER type
-	unsigned base = 10;
+	بینښه بنسټ = 10;
 	bool signed_ = false;
-	enum {
+	تعداد {
 		MINUS		= 0,
 		PLUS_MINUS	= 1,
 		SPACE_MINUS	= 2,
 	} sign = MINUS;
-	bool hex_upper = false;
-	bool show_base = false;
-	bool group = false;
+	bool hex_پاسنی = false;
+	bool show_بنسټ = false;
+	bool ډله = false;
 
 	// VLOG_TIME type
 	bool realtime = false;
 };
 
-struct Fmt {
-public:
-	std::vector<FmtPart> parts;
+بنية Fmt {
+عام:
+	std::ویکټور<FmtPart> parts;
 
-	void append_literal(const std::string &str);
+	فراغ append_literal(ثابت std::string &str);
 
-	void parse_rtlil(const RTLIL::Cell *cell);
-	void emit_rtlil(RTLIL::Cell *cell) const;
+	فراغ parse_rtlil(ثابت RTLIL::Cell *cell);
+	فراغ emit_rtlil(RTLIL::Cell *cell) ثابت;
 
-	void parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_like, int default_base, const std::string &task_name, const std::string &module_name);
-	std::vector<VerilogFmtArg> emit_verilog() const;
+	فراغ parse_verilog(ثابت std::ویکټور<VerilogFmtArg> &دلیلونه_2, bool sformat_like, صحيح default_بنسټ, ثابت std::string &task_name, ثابت std::string &module_name);
+	std::ویکټور<VerilogFmtArg> emit_verilog() ثابت;
 
-	void emit_cxxrtl(std::ostream &os, std::string indent, std::function<void(const RTLIL::SigSpec &)> emit_sig, const std::string &context) const;
+	فراغ emit_cxxrtl(std::ostream &os, std::string indent, std::function<فراغ(ثابت RTLIL::SigSpec &)> emit_sig, ثابت std::string &context) ثابت;
 
-	std::string render() const;
+	std::string render() ثابت;
 
-private:
-	void apply_verilog_automatic_sizing_and_add(FmtPart &part);
+خاص:
+	فراغ apply_verilog_automatic_sizing_and_جمع_کړه(FmtPart &part);
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی
 
-#endif
+#د_که_پای

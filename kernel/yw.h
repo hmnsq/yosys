@@ -17,169 +17,169 @@
  *
  */
 
-#ifndef YW_H
-#define YW_H
+#که_نه_تعریف_شوی YW_H
+#تعریف_کړه YW_H
 
-#include "kernel/yosys.h"
-#include "kernel/mem.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/mem.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct IdPath : public std::vector<std::string>
+بنية Id_لار : عام std::ویکټور<std::string>
 {
-	template<typename... T>
-	IdPath(T&&... args) : std::vector<std::string>(std::forward<T>(args)...) { }
-	IdPath prefix() const { return {begin(), end() - !empty()}; }
-	std::string str() const;
+	کينډۍ<typename... T>
+	Id_لار(T&&... دلیلونه_2) : std::ویکټور<std::string>(std::forward<T>(دلیلونه_2)...) { }
+	Id_لار مختاړی_2() ثابت { أرجع {begin(), پای_ټکی() - !تشه()}; }
+	std::string str() ثابت;
 
-	bool has_address() const { int tmp; return get_address(tmp); };
-	bool get_address(int &addr) const;
+	bool has_پته() ثابت { صحيح tmp; أرجع get_پته(tmp); };
+	bool get_پته(صحيح &addr) ثابت;
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
-		h.eat(static_cast<const std::vector<std::string>&&>(*this));
-		return h;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
+		h.eat(static_cast<ثابت std::ویکټور<std::string>&&>(*this));
+		أرجع h;
 	}
 };
 
-struct WitnessHierarchyItem {
+بنية Witness_Hierarchy_توکی {
 	RTLIL::Module *module;
 	RTLIL::Wire *wire = nullptr;
 	RTLIL::Cell *cell = nullptr;
 	Mem *mem = nullptr;
 
-	WitnessHierarchyItem(RTLIL::Module *module, RTLIL::Wire *wire) : module(module), wire(wire) {}
-	WitnessHierarchyItem(RTLIL::Module *module, RTLIL::Cell *cell) : module(module), cell(cell) {}
-	WitnessHierarchyItem(RTLIL::Module *module, Mem *mem) : module(module), mem(mem) {}
+	Witness_Hierarchy_توکی(RTLIL::Module *module, RTLIL::Wire *wire) : module(module), wire(wire) {}
+	Witness_Hierarchy_توکی(RTLIL::Module *module, RTLIL::Cell *cell) : module(module), cell(cell) {}
+	Witness_Hierarchy_توکی(RTLIL::Module *module, Mem *mem) : module(module), mem(mem) {}
 };
 
-template<typename D, typename T>
-void witness_hierarchy(RTLIL::Module *module, D data, T callback);
+کينډۍ<typename D, typename T>
+فراغ witness_hierarchy(RTLIL::Module *module, D معلومات, T callback);
 
-template<class T> static std::vector<std::string> witness_path(T *obj) {
-	std::vector<std::string> path;
-	if (obj->name.isPublic()) {
-		auto hdlname = obj->get_string_attribute(ID::hdlname);
-		for (auto token : split_tokens(hdlname))
-			path.push_back("\\" + token);
+کينډۍ<class T> ساكن std::ویکټور<std::string> witness_لار(T *obj) {
+	std::ویکټور<std::string> لار_2;
+	إذا (obj->name.is_عامه()) {
+		خپلکاری hdlname = obj->get_string_attribute(ID::hdlname);
+		لكل (خپلکاری token : وېشل_نښې(hdlname))
+			لار_2.ټېل_شا("\\" + token);
 	}
-	if (path.empty())
-		path.push_back(obj->name.str());
-	return path;
+	إذا (لار_2.تشه())
+		لار_2.ټېل_شا(obj->name.str());
+	أرجع لار_2;
 }
 
-struct ReadWitness
+بنية ReadWitness
 {
-	struct Clock {
-		IdPath path;
-		int offset;
+	بنية Clock {
+		Id_لار لار_2;
+		صحيح دننه_واټن;
 		bool is_posedge = false;
 		bool is_negedge = false;
 	};
 
-	struct Signal {
-		IdPath path;
-		int offset;
-		int width;
+	بنية Signal {
+		Id_لار لار_2;
+		صحيح دننه_واټن;
+		صحيح پلنوالی;
 		bool init_only;
 
-		int bits_offset;
+		صحيح بټونه_دننه_واټن;
 	};
 
-	struct Step {
-		std::string bits;
+	بنية ګام_2 {
+		std::string بټونه;
 	};
 
 	std::string filename;
-	std::vector<Clock> clocks;
-	std::vector<Signal> signals;
-	std::vector<Step> steps;
+	std::ویکټور<Clock> clocks;
+	std::ویکټور<Signal> سیګنالونه;
+	std::ویکټور<ګام_2> ګامونه;
 
-	ReadWitness(const std::string &filename);
+	ReadWitness(ثابت std::string &filename);
 
-	RTLIL::Const get_bits(int t, int bits_offset, int width) const;
+	RTLIL::Const get_بټونه(صحيح t, صحيح بټونه_دننه_واټن, صحيح پلنوالی) ثابت;
 };
 
-template<typename D, typename T>
-void witness_hierarchy_recursion(IdPath &path, int hdlname_mode, RTLIL::Module *module, D data, T &callback)
+کينډۍ<typename D, typename T>
+فراغ witness_hierarchy_recursion(Id_لار &لار_2, صحيح hdlname_ډېرپېښ, RTLIL::Module *module, D معلومات, T &callback)
 {
-	auto const &const_path = path;
-	size_t path_size = path.size();
-	for (auto wire : module->wires())
+	خپلکاری ثابت &const_لار = لار_2;
+	اندازه_t لار_اندازه = لار_2.اندازه();
+	لكل (خپلکاری wire : module->wires())
 	{
-		auto hdlname = hdlname_mode < 0 ? std::vector<std::string>() : wire->get_hdlname_attribute();
-		for (auto item : hdlname)
-			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && wire->name == path.back())
+		خپلکاری hdlname = hdlname_ډېرپېښ < 0 ? std::ویکټور<std::string>() : wire->get_hdlname_attribute();
+		لكل (خپلکاری توکی : hdlname)
+			لار_2.ټېل_شا("\\" + توکی);
+		إذا (hdlname.اندازه() == 1 && wire->name == لار_2.شا())
 			hdlname.clear();
-		if (!hdlname.empty())
-			callback(const_path, WitnessHierarchyItem(module, wire), data);
-		path.resize(path_size);
-		if (hdlname.empty() || hdlname_mode <= 0) {
-			path.push_back(wire->name);
-			callback(const_path, WitnessHierarchyItem(module, wire), data);
-			path.pop_back();
+		إذا (!hdlname.تشه())
+			callback(const_لار, Witness_Hierarchy_توکی(module, wire), معلومات);
+		لار_2.resize(لار_اندازه);
+		إذا (hdlname.تشه() || hdlname_ډېرپېښ <= 0) {
+			لار_2.ټېل_شا(wire->name);
+			callback(const_لار, Witness_Hierarchy_توکی(module, wire), معلومات);
+			لار_2.راوباسه_شا();
 		}
 	}
 
-	for (auto cell : module->cells())
+	لكل (خپلکاری cell : module->cells())
 	{
-		Module *child = module->design->module(cell->type);
-		if (child == nullptr)
-			continue;
+		Module *ماشوم = module->design->module(cell->type);
+		إذا (ماشوم == nullptr)
+			استمر;
 
-		auto hdlname = hdlname_mode < 0 ? std::vector<std::string>() : cell->get_hdlname_attribute();
-		for (auto item : hdlname)
-			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && cell->name == path.back())
+		خپلکاری hdlname = hdlname_ډېرپېښ < 0 ? std::ویکټور<std::string>() : cell->get_hdlname_attribute();
+		لكل (خپلکاری توکی : hdlname)
+			لار_2.ټېل_شا("\\" + توکی);
+		إذا (hdlname.اندازه() == 1 && cell->name == لار_2.شا())
 			hdlname.clear();
-		if (!hdlname.empty()) {
-			D child_data = callback(const_path, WitnessHierarchyItem(module, cell), data);
-			witness_hierarchy_recursion<D, T>(path, 1, child, child_data, callback);
+		إذا (!hdlname.تشه()) {
+			D ماشوم_معلومات = callback(const_لار, Witness_Hierarchy_توکی(module, cell), معلومات);
+			witness_hierarchy_recursion<D, T>(لار_2, 1, ماشوم, ماشوم_معلومات, callback);
 		}
-		path.resize(path_size);
-		if (hdlname.empty() || hdlname_mode <= 0) {
-			path.push_back(cell->name);
-			D child_data = callback(const_path, WitnessHierarchyItem(module, cell), data);
-			witness_hierarchy_recursion<D, T>(path, hdlname.empty() ? hdlname_mode : -1, child, child_data, callback);
-			path.pop_back();
+		لار_2.resize(لار_اندازه);
+		إذا (hdlname.تشه() || hdlname_ډېرپېښ <= 0) {
+			لار_2.ټېل_شا(cell->name);
+			D ماشوم_معلومات = callback(const_لار, Witness_Hierarchy_توکی(module, cell), معلومات);
+			witness_hierarchy_recursion<D, T>(لار_2, hdlname.تشه() ? hdlname_ډېرپېښ : -1, ماشوم, ماشوم_معلومات, callback);
+			لار_2.راوباسه_شا();
 		}
 	}
 
-	for (auto mem : Mem::get_all_memories(module)) {
-		std::vector<std::string> hdlname;
+	لكل (خپلکاری mem : Mem::get_all_memories(module)) {
+		std::ویکټور<std::string> hdlname;
 
-		if (hdlname_mode >= 0 && mem.cell != nullptr)
+		إذا (hdlname_ډېرپېښ >= 0 && mem.cell != nullptr)
 			hdlname = mem.cell->get_hdlname_attribute();
-		for (auto item : hdlname)
-			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && mem.cell->name == path.back())
+		لكل (خپلکاری توکی : hdlname)
+			لار_2.ټېل_شا("\\" + توکی);
+		إذا (hdlname.اندازه() == 1 && mem.cell->name == لار_2.شا())
 			hdlname.clear();
-		if (!hdlname.empty()) {
-			callback(const_path, WitnessHierarchyItem(module, &mem), data);
+		إذا (!hdlname.تشه()) {
+			callback(const_لار, Witness_Hierarchy_توکی(module, &mem), معلومات);
 		}
-		path.resize(path_size);
+		لار_2.resize(لار_اندازه);
 
-		if (hdlname.empty() || hdlname_mode <= 0) {
-			path.push_back(mem.memid.str());
-			callback(const_path, WitnessHierarchyItem(module, &mem), data);
-			path.pop_back();
+		إذا (hdlname.تشه() || hdlname_ډېرپېښ <= 0) {
+			لار_2.ټېل_شا(mem.memid.str());
+			callback(const_لار, Witness_Hierarchy_توکی(module, &mem), معلومات);
+			لار_2.راوباسه_شا();
 
-			if (mem.cell != nullptr && mem.cell->name != mem.memid) {
-				path.push_back(mem.cell->name);
-				callback(const_path, WitnessHierarchyItem(module, &mem), data);
-				path.pop_back();
+			إذا (mem.cell != nullptr && mem.cell->name != mem.memid) {
+				لار_2.ټېل_شا(mem.cell->name);
+				callback(const_لار, Witness_Hierarchy_توکی(module, &mem), معلومات);
+				لار_2.راوباسه_شا();
 			}
 		}
 	}
 }
 
-template<typename D, typename T>
-void witness_hierarchy(RTLIL::Module *module, D data, T callback)
+کينډۍ<typename D, typename T>
+فراغ witness_hierarchy(RTLIL::Module *module, D معلومات, T callback)
 {
-	IdPath path;
-	witness_hierarchy_recursion<D, T>(path, 0, module, data, callback);
+	Id_لار لار_2;
+	witness_hierarchy_recursion<D, T>(لار_2, 0, module, معلومات, callback);
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی
 
-#endif
+#د_که_پای

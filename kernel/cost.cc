@@ -1,215 +1,215 @@
-#include "kernel/cost.h"
-#include "kernel/macc.h"
+#ضمن "kernel/cost.h"
+#ضمن "kernel/macc.h"
 
 USING_YOSYS_NAMESPACE
 
-unsigned int CellCosts::get(RTLIL::Module *mod)
+بینښه صحيح CellCosts::get(RTLIL::Module *mod)
 {
-	if (mod_cost_cache_.count(mod->name))
-		return mod_cost_cache_.at(mod->name);
+	إذا (mod_لګښت_cache.شمېر(mod->name))
+		أرجع mod_لګښت_cache.at(mod->name);
 
-	unsigned int module_cost = 1;
-	for (auto c : mod->cells()) {
-		unsigned int new_cost = module_cost + get(c);
-		module_cost = new_cost >= module_cost ? new_cost : INT_MAX;
+	بینښه صحيح module_لګښت = 1;
+	لكل (خپلکاری c : mod->cells()) {
+		بینښه صحيح new_لګښت = module_لګښت + get(c);
+		module_لګښت = new_لګښت >= module_لګښت ? new_لګښت : لوی_عدد;
 	}
 
-	mod_cost_cache_[mod->name] = module_cost;
-	return module_cost;
+	mod_لګښت_cache[mod->name] = module_لګښت;
+	أرجع module_لګښت;
 }
 
-static unsigned int y_coef(RTLIL::IdString type)
+ساكن بینښه صحيح y_coef(RTLIL::IdString type)
 {
-	if (
+	إذا (
 	  // equality
-	  type.in(ID($bweqx), ID($nex), ID($eqx)) ||
+	  type.دننه(ID($bweqx), ID($nex), ID($eqx)) ||
 	  // basic logic
-	  type.in(ID($and), ID($or), ID($xor), ID($xnor), ID($not)) ||
+	  type.دننه(ID($and), ID($or), ID($xor), ID($xnor), ID($not)) ||
 	  // mux
-	  type.in(ID($bwmux), ID($mux)) ||
+	  type.دننه(ID($bwmux), ID($mux)) ||
 	  // others
 	  type == ID($tribuf)) {
-		return 1;
-	} else if (type == ID($neg)) {
-		return 4;
-	} else if (type == ID($demux)) {
-		return 2;
-	} else if (type == ID($fa)) {
-		return 5;
-	} else if (type.in(ID($add), ID($sub), ID($alu))) {
+		أرجع 1;
+	} وإلا إذا (type == ID($neg)) {
+		أرجع 4;
+	} وإلا إذا (type == ID($demux)) {
+		أرجع 2;
+	} وإلا إذا (type == ID($fa)) {
+		أرجع 5;
+	} وإلا إذا (type.دننه(ID($جمع_کړه), ID($sub), ID($alu))) {
 		// multi-bit adders
-		return 8;
-	} else if (type.in(ID($shl), ID($sshl))) {
+		أرجع 8;
+	} وإلا إذا (type.دننه(ID($shl), ID($sshl))) {
 		// left shift
-		return 10;
+		أرجع 10;
 	}
-	return 0;
+	أرجع 0;
 }
 
-static unsigned int max_inp_coef(RTLIL::IdString type)
+ساكن بینښه صحيح max_inp_coef(RTLIL::IdString type)
 {
-	if (
+	إذا (
 	  // binop reduce
-	  type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)) ||
+	  type.دننه(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)) ||
 	  // others
-	  type.in(ID($logic_not), ID($pmux), ID($bmux))) {
-		return 1;
-	} else if (
+	  type.دننه(ID($logic_not), ID($pmux), ID($bmux))) {
+		أرجع 1;
+	} وإلا إذا (
 	  // equality
-	  type.in(ID($eq), ID($ne)) ||
+	  type.دننه(ID($eq), ID($ne)) ||
 	  // logic
-	  type.in(ID($logic_and), ID($logic_or))) {
-		return 2;
-	} else if (type == ID($lcu)) {
-		return 5;
-	} else if (type.in(ID($lt), ID($le), ID($ge), ID($gt))) {
+	  type.دننه(ID($logic_and), ID($logic_or))) {
+		أرجع 2;
+	} وإلا إذا (type == ID($lcu)) {
+		أرجع 5;
+	} وإلا إذا (type.دننه(ID($lt), ID($le), ID($ge), ID($gt))) {
 		// comparison
-		return 7;
+		أرجع 7;
 	}
-	return 0;
+	أرجع 0;
 }
 
-static unsigned int sum_coef(RTLIL::IdString type)
+ساكن بینښه صحيح مجموعه_coef(RTLIL::IdString type)
 {
-	if (type.in(ID($shr), ID($sshr))) {
+	إذا (type.دننه(ID($shr), ID($sshr))) {
 		// right shift
-		return 4;
-	} else if (type.in(ID($shift), ID($shiftx))) {
-		// shift
-		return 8;
+		أرجع 4;
+	} وإلا إذا (type.دننه(ID($ښويدنه), ID($shiftx))) {
+		//ښويدنه
+		أرجع 8;
 	}
-	return 0;
+	أرجع 0;
 }
 
-static unsigned int is_div_mod(RTLIL::IdString type)
+ساكن بینښه صحيح is_div_mod(RTLIL::IdString type)
 {
-	return (type == ID($div) || type == ID($divfloor) || type == ID($mod) || type == ID($modfloor));
+	أرجع (type == ID($div) || type == ID($divfloor) || type == ID($mod) || type == ID($modfloor));
 }
 
-static bool is_free(RTLIL::IdString type)
+ساكن منطقي is_free(RTLIL::IdString type)
 {
-	return (
-	  // tags
-	  type.in(ID($overwrite_tag), ID($set_tag), ID($original_tag), ID($get_tag)) ||
+	أرجع (
+	  //نښانونه
+	  type.دننه(ID($overwrite_نښان), ID($سېټ_نښان), ID($original_نښان), ID($get_نښان)) ||
 	  // formal
-	  type.in(ID($check), ID($equiv), ID($initstate), ID($assert), ID($assume), ID($live), ID($cover), ID($fair)) ||
-	  type.in(ID($allseq), ID($allconst), ID($anyseq), ID($anyconst), ID($anyinit)) ||
+	  type.دننه(ID($check), ID($equiv), ID($initstate), ID($أكد), ID($assume), ID($ژوندی), ID($cover), ID($fair)) ||
+	  type.دننه(ID($allseq), ID($allconst), ID($anyseq), ID($anyconst), ID($anyinit)) ||
 	  // utilities
-	  type.in(ID($scopeinfo), ID($print)) ||
+	  type.دننه(ID($scopeinfo), ID($print)) ||
 	  // real but free
-	  type.in(ID($concat), ID($slice), ID($pos)) ||
+	  type.دننه(ID($concat), ID($ټوټه), ID($pos)) ||
 	  // specify
-	  type.in(ID($specrule), ID($specify2), ID($specify3)));
+	  type.دننه(ID($specrule), ID($specify2), ID($specify3)));
 }
 
-unsigned int max_inp_width(RTLIL::Cell *cell)
+بینښه صحيح max_inp_پلنوالی(RTLIL::Cell *cell)
 {
-	unsigned int max = 0;
-	RTLIL::IdString input_width_params[] = {
-	  ID::WIDTH,
-	  ID::A_WIDTH,
-	  ID::B_WIDTH,
-	  ID::S_WIDTH,
+	بینښه صحيح max = 0;
+	RTLIL::IdString ننوت_پلنوالی_params[] = {
+	  ID::پلنوالی_2,
+	  ID::A_پلنوالی,
+	  ID::B_پلنوالی,
+	  ID::S_پلنوالی,
 	};
 
-	if (cell->type == ID($bmux))
-		return cell->getParam(ID::WIDTH).as_int() << cell->getParam(ID::S_WIDTH).as_int();
+	إذا (cell->type == ID($bmux))
+		أرجع cell->getParam(ID::پلنوالی_2).as_int() << cell->getParam(ID::S_پلنوالی).as_int();
 
-	for (RTLIL::IdString param : input_width_params)
-		if (cell->hasParam(param))
-			max = std::max(max, (unsigned int)cell->getParam(param).as_int());
-	return max;
+	لكل (RTLIL::IdString param : ننوت_پلنوالی_params)
+		إذا (cell->hasParam(param))
+			max = std::max(max, (بینښه صحيح)cell->getParam(param).as_int());
+	أرجع max;
 }
 
-unsigned int port_width_sum(RTLIL::Cell *cell)
+بینښه صحيح پورټ_پلنوالی_مجموعه(RTLIL::Cell *cell)
 {
-	unsigned int sum = 0;
-	RTLIL::IdString port_width_params[] = {
-	  ID::WIDTH, ID::A_WIDTH, ID::B_WIDTH, ID::S_WIDTH, ID::Y_WIDTH,
+	بینښه صحيح مجموعه = 0;
+	RTLIL::IdString پورټ_پلنوالی_params[] = {
+	  ID::پلنوالی_2, ID::A_پلنوالی, ID::B_پلنوالی, ID::S_پلنوالی, ID::Y_پلنوالی,
 	};
 
-	for (auto param : port_width_params)
-		if (cell->hasParam(param))
-			sum += cell->getParam(param).as_int();
+	لكل (خپلکاری param : پورټ_پلنوالی_params)
+		إذا (cell->hasParam(param))
+			مجموعه += cell->getParam(param).as_int();
 
-	return sum;
+	أرجع مجموعه;
 }
 
-unsigned int CellCosts::get(RTLIL::Cell *cell)
+بینښه صحيح CellCosts::get(RTLIL::Cell *cell)
 {
 
 	// simple 1-bit cells
-	if (cmos_gate_cost().count(cell->type))
-		return 1;
+	إذا (cmos_gate_لګښت().شمېر(cell->type))
+		أرجع 1;
 
-	if (design_ && design_->module(cell->type) && cell->parameters.empty()) {
+	إذا (design_ && design_->module(cell->type) && cell->parameters.تشه()) {
 		log_debug("%s is a module, recurse\n", cell->name);
-		return get(design_->module(cell->type));
-	} else if (cell->is_builtin_ff()) {
-		log_assert(cell->hasPort(ID::Q) && "Weird flip flop");
+		أرجع get(design_->module(cell->type));
+	} وإلا إذا (cell->is_builtin_ff()) {
+		log_assert(cell->has_پورټ(ID::Q) && "Weird flip flop");
 		log_debug("%s is ff\n", cell->name);
-		return cell->getParam(ID::WIDTH).as_int();
-	} else if (cell->type.in(ID($mem), ID($mem_v2))) {
+		أرجع cell->getParam(ID::پلنوالی_2).as_int();
+	} وإلا إذا (cell->type.دننه(ID($mem), ID($mem_v2))) {
 		log_debug("%s is mem\n", cell->name);
-		return cell->getParam(ID::WIDTH).as_int() * cell->getParam(ID::SIZE).as_int();
-	} else if (y_coef(cell->type)) {
+		أرجع cell->getParam(ID::پلنوالی_2).as_int() * cell->getParam(ID::اندازه_2).as_int();
+	} وإلا إذا (y_coef(cell->type)) {
 		// linear with Y_WIDTH or WIDTH
-		log_assert((cell->hasParam(ID::Y_WIDTH) || cell->hasParam(ID::WIDTH)) && "Unknown width");
-		auto param = cell->hasParam(ID::Y_WIDTH) ? ID::Y_WIDTH : ID::WIDTH;
-		int width = cell->getParam(param).as_int();
-		if (cell->type == ID($demux))
-			width <<= cell->getParam(ID::S_WIDTH).as_int();
-		log_debug("%s Y*coef %d * %d\n", cell->name, width, y_coef(cell->type));
-		return width * y_coef(cell->type);
-	} else if (sum_coef(cell->type)) {
+		log_assert((cell->hasParam(ID::Y_پلنوالی) || cell->hasParam(ID::پلنوالی_2)) && "Unknown width");
+		خپلکاری param = cell->hasParam(ID::Y_پلنوالی) ? ID::Y_پلنوالی : ID::پلنوالی_2;
+		صحيح پلنوالی = cell->getParam(param).as_int();
+		إذا (cell->type == ID($demux))
+			پلنوالی <<= cell->getParam(ID::S_پلنوالی).as_int();
+		log_debug("%s Y*coef %d * %d\n", cell->name, پلنوالی, y_coef(cell->type));
+		أرجع پلنوالی * y_coef(cell->type);
+	} وإلا إذا (مجموعه_coef(cell->type)) {
 		// linear with sum of port widths
-		unsigned int sum = port_width_sum(cell);
-		log_debug("%s sum*coef %d * %d\n", cell->name, sum, sum_coef(cell->type));
-		return sum * sum_coef(cell->type);
-	} else if (max_inp_coef(cell->type)) {
+		بینښه صحيح مجموعه = پورټ_پلنوالی_مجموعه(cell);
+		log_debug("%s sum*coef %d * %d\n", cell->name, مجموعه, مجموعه_coef(cell->type));
+		أرجع مجموعه * مجموعه_coef(cell->type);
+	} وإلا إذا (max_inp_coef(cell->type)) {
 		// linear with largest input width
-		unsigned int max = max_inp_width(cell);
+		بینښه صحيح max = max_inp_پلنوالی(cell);
 		log_debug("%s max*coef %d * %d\n", cell->name, max, max_inp_coef(cell->type));
-		return max * max_inp_coef(cell->type);
-	} else if (is_div_mod(cell->type) || cell->type == ID($mul)) {
+		أرجع max * max_inp_coef(cell->type);
+	} وإلا إذا (is_div_mod(cell->type) || cell->type == ID($mul)) {
 		// quadratic with sum of port widths
-		unsigned int sum = port_width_sum(cell);
-		unsigned int coef = cell->type == ID($mul) ? 3 : 5;
-		log_debug("%s coef*(sum**2) %d * %d\n", cell->name, coef, sum * sum);
-		return coef * sum * sum;
-	} else if (cell->type.in(ID($macc), ID($macc_v2))) {
+		بینښه صحيح مجموعه = پورټ_پلنوالی_مجموعه(cell);
+		بینښه صحيح coef = cell->type == ID($mul) ? 3 : 5;
+		log_debug("%s coef*(sum**2) %d * %d\n", cell->name, coef, مجموعه * مجموعه);
+		أرجع coef * مجموعه * مجموعه;
+	} وإلا إذا (cell->type.دننه(ID($macc), ID($macc_v2))) {
 		// quadratic per term
-		unsigned int cost_sum = 0;
+		بینښه صحيح لګښت_مجموعه = 0;
 		Macc macc;
 		macc.from_cell(cell);
-		unsigned int y_width = cell->getParam(ID::Y_WIDTH).as_int();
-		for (auto &term: macc.terms) {
-			if (term.in_b.empty()) {
+		بینښه صحيح y_پلنوالی = cell->getParam(ID::Y_پلنوالی).as_int();
+		لكل (خپلکاری &غړی: macc.terms) {
+			إذا (غړی.دننه_b.تشه()) {
 				// neglect addends
-				continue;
+				استمر;
 			}
-			unsigned a_width = term.in_a.size(), b_width = term.in_b.size();
-			unsigned int sum = a_width + b_width + std::min(y_width, a_width + b_width);
-			cost_sum += 3 * sum * sum;
+			بینښه a_پلنوالی = غړی.دننه_a.اندازه(), b_پلنوالی = غړی.دننه_b.اندازه();
+			بینښه صحيح مجموعه = a_پلنوالی + b_پلنوالی + std::min(y_پلنوالی, a_پلنوالی + b_پلنوالی);
+			لګښت_مجموعه += 3 * مجموعه * مجموعه;
 		}
-		return cost_sum;
-	} else if (cell->type == ID($lut)) {
-		int width = cell->getParam(ID::WIDTH).as_int();
-		unsigned int cost = 1U << (unsigned int)width;
-		log_debug("%s is 2**%d\n", cell->name, width);
-		return cost;
-	} else if (cell->type == ID($sop)) {
-		int width = cell->getParam(ID::WIDTH).as_int();
-		int depth = cell->getParam(ID::DEPTH).as_int();
-		log_debug("%s is (2*%d + 1)*%d\n", cell->name, width, depth);
-		return (2 * width + 1) * depth;
-	} else if (is_free(cell->type)) {
+		أرجع لګښت_مجموعه;
+	} وإلا إذا (cell->type == ID($lut)) {
+		صحيح پلنوالی = cell->getParam(ID::پلنوالی_2).as_int();
+		بینښه صحيح لګښت = 1U << (بینښه صحيح)پلنوالی;
+		log_debug("%s is 2**%d\n", cell->name, پلنوالی);
+		أرجع لګښت;
+	} وإلا إذا (cell->type == ID($sop)) {
+		صحيح پلنوالی = cell->getParam(ID::پلنوالی_2).as_int();
+		صحيح ژوروالی = cell->getParam(ID::ژوروالی_2).as_int();
+		log_debug("%s is (2*%d + 1)*%d\n", cell->name, پلنوالی, ژوروالی);
+		أرجع (2 * پلنوالی + 1) * ژوروالی;
+	} وإلا إذا (is_free(cell->type)) {
 		log_debug("%s is free\n", cell->name);
-		return 0;
+		أرجع 0;
 	}
 	// TODO: $fsm
 	// ignored: $pow $memrd $memwr $meminit (and v2 counterparts)
 
-	log_warning("Can't determine cost of %s cell (%d parameters).\n", cell->type.unescape(), GetSize(cell->parameters));
-	return 1;
+	log_warning("Can't determine cost of %s cell (%d parameters).\n", cell->type.unescape(), Get_اندازه(cell->parameters));
+	أرجع 1;
 }

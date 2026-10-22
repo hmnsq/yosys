@@ -1,242 +1,242 @@
-#ifndef YOSYS_HASHCONS_IMPL_H
-#define YOSYS_HASHCONS_IMPL_H
+#که_نه_تعریف_شوی YOSYS_HASHCONS_IMPL_H
+#تعریف_کړه YOSYS_HASHCONS_IMPL_H
 
-#include "kernel/hashcons.h"
+#ضمن "kernel/hashcons.h"
 
-#include <algorithm>
+#ضمن <algorithm>
 
 YOSYS_NAMESPACE_BEGIN
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::is_live(Ref ref) const {
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+bool HashConsPool<Derived, غوټه_2, Ref>::is_ژوندی(Ref ref) ثابت {
 	Ref idx = ref.untag();
-	if (is_static(idx))
-		return true;
-	size_t slot = idx.raw() - Derived::STATIC_COUNT;
-	return slot < backing.size() && !backing[slot].is_dead();
+	إذا (is_static(idx))
+		أرجع true;
+	اندازه_t خونه = idx.raw() - Derived::STATIC_شمېر;
+	أرجع خونه < backing.اندازه() && !backing[خونه].is_dead();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::check_ready() {}
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+فراغ HashConsPool<Derived, غوټه_2, Ref>::check_ready() {}
 
-template<typename Derived, typename Node, typename Ref>
-const Node& HashConsPool<Derived, Node, Ref>::operator[] (Ref ref) const {
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+ثابت غوټه_2& HashConsPool<Derived, غوټه_2, Ref>::چلوونکی[] (Ref ref) ثابت {
 	Ref idx = ref.untag();
-	if constexpr (Derived::STATIC_COUNT != 0) {
-		if (is_static(idx))
-			return Derived::static_node(idx.raw());
+	إذا constexpr (Derived::STATIC_شمېر != 0) {
+		إذا (is_static(idx))
+			أرجع Derived::static_غوټه(idx.raw());
 	}
-	return backing[idx.raw() - Derived::STATIC_COUNT];
+	أرجع backing[idx.raw() - Derived::STATIC_شمېر];
 }
 
-template<typename Derived, typename Node, typename Ref>
-Derived* HashConsPool<Derived, Node, Ref>::self() { return static_cast<Derived*>(this); }
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+Derived* HashConsPool<Derived, غوټه_2, Ref>::self() { أرجع static_cast<Derived*>(this); }
 
-template<typename Derived, typename Node, typename Ref>
-const Derived* HashConsPool<Derived, Node, Ref>::self() const { return static_cast<const Derived*>(this); }
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+ثابت Derived* HashConsPool<Derived, غوټه_2, Ref>::self() ثابت { أرجع static_cast<ثابت Derived*>(this); }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::is_static(Ref ref) {
-	if constexpr (Derived::STATIC_COUNT == 0)
-		return false;
-	else
-		return ref.raw() < Derived::STATIC_COUNT;
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+bool HashConsPool<Derived, غوټه_2, Ref>::is_static(Ref ref) {
+	إذا constexpr (Derived::STATIC_شمېر == 0)
+		أرجع false;
+	وإلا
+		أرجع ref.raw() < Derived::STATIC_شمېر;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::RefIterator::settle() {
-	while (skip_dead && idx < stop && !pool->slot_live(idx))
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+فراغ HashConsPool<Derived, غوټه_2, Ref>::RefIterator::settle() {
+	طالما (skip_dead && idx < stop && !pool->خونه_ژوندی(idx))
 		idx++;
 }
 
-template<typename Derived, typename Node, typename Ref>
-Ref HashConsPool<Derived, Node, Ref>::RefIterator::operator*() const { return Ref(idx); }
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+Ref HashConsPool<Derived, غوټه_2, Ref>::RefIterator::چلوونکی*() ثابت { أرجع Ref(idx); }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefIterator::operator++() -> RefIterator& { idx++; settle(); return *this; }
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+خپلکاری HashConsPool<Derived, غوټه_2, Ref>::RefIterator::چلوونکی++() -> RefIterator& { idx++; settle(); أرجع *this; }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::RefIterator::operator!=(const RefIterator& other) const { return idx != other.idx; }
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+bool HashConsPool<Derived, غوټه_2, Ref>::RefIterator::چلوونکی!=(ثابت RefIterator& other) ثابت { أرجع idx != other.idx; }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefRange::begin() const -> RefIterator {
-	RefIterator it{pool, first, stop, skip_dead};
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+خپلکاری HashConsPool<Derived, غوټه_2, Ref>::RefRange::begin() ثابت -> RefIterator {
+	RefIterator it{pool, لومړی, stop, skip_dead};
 	it.settle();
-	return it;
+	أرجع it;
 }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefRange::end() const -> RefIterator { return RefIterator{pool, stop, stop, skip_dead}; }
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+خپلکاری HashConsPool<Derived, غوټه_2, Ref>::RefRange::پای_ټکی() ثابت -> RefIterator { أرجع RefIterator{pool, stop, stop, skip_dead}; }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::refs(bool include_statics) const -> RefRange {
-	return RefRange{this, include_statics ? 0 : Derived::STATIC_COUNT,
-			Derived::STATIC_COUNT + backing.size(), true};
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+خپلکاری HashConsPool<Derived, غوټه_2, Ref>::refs(bool include_statics) ثابت -> RefRange {
+	أرجع RefRange{this, include_statics ? 0 : Derived::STATIC_شمېر,
+			Derived::STATIC_شمېر + backing.اندازه(), true};
 }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::slots() const -> RefRange {
-	return RefRange{this, Derived::STATIC_COUNT,
-			Derived::STATIC_COUNT + backing.size(), false};
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+خپلکاری HashConsPool<Derived, غوټه_2, Ref>::slots() ثابت -> RefRange {
+	أرجع RefRange{this, Derived::STATIC_شمېر,
+			Derived::STATIC_شمېر + backing.اندازه(), false};
 }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::home_slot(uint64_t hash) const {
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+اندازه_t HashConsPool<Derived, غوټه_2, Ref>::home_خونه(uint64_t hash) ثابت {
 	// Knuth's Fibonacci hashing saves us from how bad DJB2 is
-	return (hash * 0x9e3779b97f4a7c15ull) >> (64 - std::countr_zero(table.size()));
+	أرجع (hash * 0x9e3779b97f4a7c15ull) >> (64 - std::countr_zero(جدول_2.اندازه()));
 }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::next_slot(size_t slot) const { return (slot + 1) & (table.size() - 1); }
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+اندازه_t HashConsPool<Derived, غوټه_2, Ref>::بل_خونه(اندازه_t خونه) ثابت { أرجع (خونه + 1) & (جدول_2.اندازه() - 1); }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::size() const { return backing.size() - free_list.size(); }
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+اندازه_t HashConsPool<Derived, غوټه_2, Ref>::اندازه() ثابت { أرجع backing.اندازه() - free_list.اندازه(); }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::slot_live(size_t abs) const {
-	if (abs < Derived::STATIC_COUNT)
-		return true;
-	return !backing[abs - Derived::STATIC_COUNT].is_dead();
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+bool HashConsPool<Derived, غوټه_2, Ref>::خونه_ژوندی(اندازه_t مطلق_قیمت) ثابت {
+	إذا (مطلق_قیمت < Derived::STATIC_شمېر)
+		أرجع true;
+	أرجع !backing[مطلق_قیمت - Derived::STATIC_شمېر].is_dead();
 }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>::HashConsPool() { rebuild_index(); }
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+HashConsPool<Derived, غوټه_2, Ref>::HashConsPool() { rebuild_شاخص(); }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>::HashConsPool(HashConsPool&& other)
-	: backing(std::move(other.backing)), table(std::move(other.table)), free_list(std::move(other.free_list)) {
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+HashConsPool<Derived, غوټه_2, Ref>::HashConsPool(HashConsPool&& other)
+	: backing(std::move(other.backing)), جدول_2(std::move(other.جدول_2)), free_list(std::move(other.free_list)) {
 	other.reset();
 }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>& HashConsPool<Derived, Node, Ref>::operator=(HashConsPool&& other) {
-	if (this != &other) {
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+HashConsPool<Derived, غوټه_2, Ref>& HashConsPool<Derived, غوټه_2, Ref>::چلوونکی=(HashConsPool&& other) {
+	إذا (this != &other) {
 		backing = std::move(other.backing);
-		table = std::move(other.table);
+		جدول_2 = std::move(other.جدول_2);
 		free_list = std::move(other.free_list);
 		other.reset();
 	}
-	return *this;
+	أرجع *this;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::reset() {
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+فراغ HashConsPool<Derived, غوټه_2, Ref>::reset() {
 	backing.clear();
 	free_list.clear();
-	rebuild_index();
+	rebuild_شاخص();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::rebuild_index() {
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+فراغ HashConsPool<Derived, غوټه_2, Ref>::rebuild_شاخص() {
 	Derived::check_ready();
 	free_list.clear();
-	for (size_t idx = 0; idx < backing.size(); ++idx)
-		if (backing[idx].is_dead())
-			free_list.push_back(idx);
-	std::sort(free_list.begin(), free_list.end(), std::greater<size_t>());
-	table.assign(std::bit_ceil((Derived::STATIC_COUNT + size()) * 2 + 2), Ref());
-	for (Ref ref : refs())
-		index_insert(ref);
+	لكل (اندازه_t idx = 0; idx < backing.اندازه(); ++idx)
+		إذا (backing[idx].is_dead())
+			free_list.ټېل_شا(idx);
+	std::ترتیبول(free_list.begin(), free_list.پای_ټکی(), std::greater<اندازه_t>());
+	جدول_2.ټاکل(std::بټ_ceil((Derived::STATIC_شمېر + اندازه()) * 2 + 2), Ref());
+	لكل (Ref ref : refs())
+		شاخص_ورننباسه(ref);
 }
 
-template<typename Derived, typename Node, typename Ref>
-template<typename Eq>
-Ref HashConsPool<Derived, Node, Ref>::find_hashed(uint64_t hash, Eq&& eq) const {
-	for (size_t slot = home_slot(hash); table[slot] != Ref(); slot = next_slot(slot)) {
-		Ref ref = table[slot];
-		if (Derived::hash_node((*this)[ref]) == hash && eq(ref))
-			return ref;
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+کينډۍ<typename Eq>
+Ref HashConsPool<Derived, غوټه_2, Ref>::پیدا_کړه_hashed(uint64_t hash, Eq&& eq) ثابت {
+	لكل (اندازه_t خونه = home_خونه(hash); جدول_2[خونه] != Ref(); خونه = بل_خونه(خونه)) {
+		Ref ref = جدول_2[خونه];
+		إذا (Derived::hash_غوټه((*this)[ref]) == hash && eq(ref))
+			أرجع ref;
 	}
-	return Ref();
+	أرجع Ref();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::index_insert(Ref ref) {
-	size_t slot = home_slot(Derived::hash_node((*this)[ref]));
-	while (table[slot] != Ref())
-		slot = next_slot(slot);
-	table[slot] = ref;
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+فراغ HashConsPool<Derived, غوټه_2, Ref>::شاخص_ورننباسه(Ref ref) {
+	اندازه_t خونه = home_خونه(Derived::hash_غوټه((*this)[ref]));
+	طالما (جدول_2[خونه] != Ref())
+		خونه = بل_خونه(خونه);
+	جدول_2[خونه] = ref;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::index_erase(Ref ref) {
-	size_t hole = home_slot(Derived::hash_node((*this)[ref]));
-	while (table[hole] != ref)
-		hole = next_slot(hole);
-	size_t mask = table.size() - 1;
-	for (size_t slot = next_slot(hole); table[slot] != Ref(); slot = next_slot(slot)) {
-		size_t home = home_slot(Derived::hash_node((*this)[table[slot]]));
-		if (((slot - home) & mask) >= ((slot - hole) & mask)) {
-			table[hole] = table[slot];
-			hole = slot;
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+فراغ HashConsPool<Derived, غوټه_2, Ref>::شاخص_erase(Ref ref) {
+	اندازه_t hole = home_خونه(Derived::hash_غوټه((*this)[ref]));
+	طالما (جدول_2[hole] != ref)
+		hole = بل_خونه(hole);
+	اندازه_t ماسک = جدول_2.اندازه() - 1;
+	لكل (اندازه_t خونه = بل_خونه(hole); جدول_2[خونه] != Ref(); خونه = بل_خونه(خونه)) {
+		اندازه_t home = home_خونه(Derived::hash_غوټه((*this)[جدول_2[خونه]]));
+		إذا (((خونه - home) & ماسک) >= ((خونه - hole) & ماسک)) {
+			جدول_2[hole] = جدول_2[خونه];
+			hole = خونه;
 		}
 	}
-	table[hole] = Ref();
+	جدول_2[hole] = Ref();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::grow_index() {
-	std::vector<Ref> old(table.size() * 2, Ref());
-	std::swap(old, table);
-	for (Ref ref : old)
-		if (ref != Ref())
-			index_insert(ref);
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+فراغ HashConsPool<Derived, غوټه_2, Ref>::grow_شاخص() {
+	std::ویکټور<Ref> old(جدول_2.اندازه() * 2, Ref());
+	std::بدلون(old, جدول_2);
+	لكل (Ref ref : old)
+		إذا (ref != Ref())
+			شاخص_ورننباسه(ref);
 }
 
-template<typename Derived, typename Node, typename Ref>
-Ref HashConsPool<Derived, Node, Ref>::add_inner(Node t) {
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+Ref HashConsPool<Derived, غوټه_2, Ref>::جمع_کړه_inner(غوټه_2 t) {
 	Ref ref;
-	if (!free_list.empty()) {
-		size_t idx = free_list.back();
-		free_list.pop_back();
+	إذا (!free_list.تشه()) {
+		اندازه_t idx = free_list.شا();
+		free_list.راوباسه_شا();
 		backing[idx] = std::move(t);
-		ref = Ref(Derived::STATIC_COUNT + idx);
-	} else {
-		ref = Ref(Derived::STATIC_COUNT + backing.size());
-		backing.push_back(std::move(t));
+		ref = Ref(Derived::STATIC_شمېر + idx);
+	} وإلا {
+		ref = Ref(Derived::STATIC_شمېر + backing.اندازه());
+		backing.ټېل_شا(std::move(t));
 	}
-	if ((Derived::STATIC_COUNT + size()) * 3 > table.size() * 2)
-		grow_index();
-	index_insert(ref);
-	if (yosys_xtrace) {
+	إذا ((Derived::STATIC_شمېر + اندازه()) * 3 > جدول_2.اندازه() * 2)
+		grow_شاخص();
+	شاخص_ورننباسه(ref);
+	إذا (yosys_xtrace) {
 		std::cout << "#X# add_inner added ";
 		self()->dump(ref);
 		std::cout << "\n";
 		std::cout << "#X# as integer " << ref.raw() << "\n";
 	}
-	return ref;
+	أرجع ref;
 }
 
-template<typename Derived, typename Node, typename Ref>
-template<typename Roots>
-size_t HashConsPool<Derived, Node, Ref>::gc(const Roots& roots) {
-	pool<Ref> live;
-	for (Ref ref : roots)
-		mark_live(ref, live);
-	size_t erased = 0;
-	for (size_t idx = 0; idx < backing.size(); ++idx) {
-		if (backing[idx].is_dead())
-			continue;
-		if (!live.count(Ref(Derived::STATIC_COUNT + idx))) {
-			index_erase(Ref(Derived::STATIC_COUNT + idx));
-			free_list.push_back(idx);
-			backing[idx] = Node{};
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+کينډۍ<typename Roots>
+اندازه_t HashConsPool<Derived, غوټه_2, Ref>::gc(ثابت Roots& roots) {
+	pool<Ref> ژوندی;
+	لكل (Ref ref : roots)
+		mark_ژوندی(ref, ژوندی);
+	اندازه_t erased = 0;
+	لكل (اندازه_t idx = 0; idx < backing.اندازه(); ++idx) {
+		إذا (backing[idx].is_dead())
+			استمر;
+		إذا (!ژوندی.شمېر(Ref(Derived::STATIC_شمېر + idx))) {
+			شاخص_erase(Ref(Derived::STATIC_شمېر + idx));
+			free_list.ټېل_شا(idx);
+			backing[idx] = غوټه_2{};
 			erased++;
 		}
 	}
 	// TODO something like YOSYS_SORT_ID_FREE_LIST to make it optional?
-	std::sort(free_list.begin(), free_list.end(), std::greater<size_t>());
-	return erased;
+	std::ترتیبول(free_list.begin(), free_list.پای_ټکی(), std::greater<اندازه_t>());
+	أرجع erased;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::mark_live(Ref ref, pool<Ref>& live) const {
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+فراغ HashConsPool<Derived, غوټه_2, Ref>::mark_ژوندی(Ref ref, pool<Ref>& ژوندی) ثابت {
 	ref = ref.untag();
-	if (ref == Ref() || is_static(ref) || !live.insert(ref).second)
-		return;
-	Derived::for_each_child((*this)[ref], [&](Ref child) { mark_live(child, live); });
+	إذا (ref == Ref() || is_static(ref) || !ژوندی.ورننباسه(ref).دوهم)
+		أرجع;
+	Derived::for_each_ماشوم((*this)[ref], [&](Ref ماشوم) { mark_ژوندی(ماشوم, ژوندی); });
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی
 
-#endif
+#د_که_پای

@@ -18,545 +18,545 @@
  *
  */
 
-#include "kernel/functional.h"
-#include "kernel/topo_scc.h"
-#include "ff.h"
-#include "ffinit.h"
-#include <deque>
+#ضمن "kernel/functional.h"
+#ضمن "kernel/topo_scc.h"
+#ضمن "ff.h"
+#ضمن "ffinit.h"
+#ضمن <deque>
 
 YOSYS_NAMESPACE_BEGIN
-namespace Functional {
+نطاق Functional {
 
-const char *fn_to_string(Fn fn) {
-	switch(fn) {
-	case Fn::invalid: return "invalid";
-	case Fn::buf: return "buf";
-	case Fn::slice: return "slice";
-	case Fn::zero_extend: return "zero_extend";
-	case Fn::sign_extend: return "sign_extend";
-	case Fn::concat: return "concat";
-	case Fn::add: return "add";
-	case Fn::sub: return "sub";
-	case Fn::mul: return "mul";
-	case Fn::unsigned_div: return "unsigned_div";
-	case Fn::unsigned_mod: return "unsigned_mod";
-	case Fn::bitwise_and: return "bitwise_and";
-	case Fn::bitwise_or: return "bitwise_or";
-	case Fn::bitwise_xor: return "bitwise_xor";
-	case Fn::bitwise_not: return "bitwise_not";
-	case Fn::reduce_and: return "reduce_and";
-	case Fn::reduce_or: return "reduce_or";
-	case Fn::reduce_xor: return "reduce_xor";
-	case Fn::unary_minus: return "unary_minus";
-	case Fn::equal: return "equal";
-	case Fn::not_equal: return "not_equal";
-	case Fn::signed_greater_than: return "signed_greater_than";
-	case Fn::signed_greater_equal: return "signed_greater_equal";
-	case Fn::unsigned_greater_than: return "unsigned_greater_than";
-	case Fn::unsigned_greater_equal: return "unsigned_greater_equal";
-	case Fn::logical_shift_left: return "logical_shift_left";
-	case Fn::logical_shift_right: return "logical_shift_right";
-	case Fn::arithmetic_shift_right: return "arithmetic_shift_right";
-	case Fn::mux: return "mux";
-	case Fn::constant: return "constant";
-	case Fn::input: return "input";
-	case Fn::state: return "state";
-	case Fn::memory_read: return "memory_read";
-	case Fn::memory_write: return "memory_write";
+ثابت حرف *fn_منزل_string(Fn fn) {
+	بدل(fn) {
+	حالة Fn::invalid: أرجع "invalid";
+	حالة Fn::buf: أرجع "buf";
+	حالة Fn::ټوټه: أرجع "slice";
+	حالة Fn::zero_extend: أرجع "zero_extend";
+	حالة Fn::sign_extend: أرجع "sign_extend";
+	حالة Fn::concat: أرجع "concat";
+	حالة Fn::جمع_کړه: أرجع "add";
+	حالة Fn::sub: أرجع "sub";
+	حالة Fn::mul: أرجع "mul";
+	حالة Fn::unsigned_div: أرجع "unsigned_div";
+	حالة Fn::unsigned_mod: أرجع "unsigned_mod";
+	حالة Fn::bitwise_and: أرجع "bitwise_and";
+	حالة Fn::bitwise_or: أرجع "bitwise_or";
+	حالة Fn::bitwise_xor: أرجع "bitwise_xor";
+	حالة Fn::bitwise_not: أرجع "bitwise_not";
+	حالة Fn::reduce_and: أرجع "reduce_and";
+	حالة Fn::reduce_or: أرجع "reduce_or";
+	حالة Fn::reduce_xor: أرجع "reduce_xor";
+	حالة Fn::unary_minus: أرجع "unary_minus";
+	حالة Fn::equal: أرجع "equal";
+	حالة Fn::not_equal: أرجع "not_equal";
+	حالة Fn::signed_greater_than: أرجع "signed_greater_than";
+	حالة Fn::signed_greater_equal: أرجع "signed_greater_equal";
+	حالة Fn::unsigned_greater_than: أرجع "unsigned_greater_than";
+	حالة Fn::unsigned_greater_equal: أرجع "unsigned_greater_equal";
+	حالة Fn::logical_ښويدنه_کیڼ: أرجع "logical_shift_left";
+	حالة Fn::logical_ښويدنه_ښی: أرجع "logical_shift_right";
+	حالة Fn::arithmetic_ښويدنه_ښی: أرجع "arithmetic_shift_right";
+	حالة Fn::mux: أرجع "mux";
+	حالة Fn::constant: أرجع "constant";
+	حالة Fn::ننوت: أرجع "input";
+	حالة Fn::state: أرجع "state";
+	حالة Fn::حافظه_read: أرجع "memory_read";
+	حالة Fn::حافظه_write: أرجع "memory_write";
 	}
-	log_error("fn_to_string: unknown Functional::Fn value %d\n", (int)fn);
+	log_error("fn_to_string: unknown Functional::Fn value %d\n", (صحيح)fn);
 }
 
-vector<IRInput const*> IR::inputs(IdString kind) const {
-	vector<IRInput const*> ret;
-	for (const auto &[name, input] : _inputs)
-		if(input.kind == kind)
-			ret.push_back(&input);
-	return ret;
+ویکټور<IRInput ثابت*> IR::inputs(IdString ډول) ثابت {
+	ویکټور<IRInput ثابت*> ret;
+	لكل (ثابت خپلکاری &[name, ننوت] : _inputs)
+		إذا(ننوت.ډول == ډول)
+			ret.ټېل_شا(&ننوت);
+	أرجع ret;
 }
 
-vector<IROutput const*> IR::outputs(IdString kind) const {
-	vector<IROutput const*> ret;
-	for (const auto &[name, output] : _outputs)
-		if(output.kind == kind)
-			ret.push_back(&output);
-	return ret;
+ویکټور<IROutput ثابت*> IR::outputs(IdString ډول) ثابت {
+	ویکټور<IROutput ثابت*> ret;
+	لكل (ثابت خپلکاری &[name, output] : _outputs)
+		إذا(output.ډول == ډول)
+			ret.ټېل_شا(&output);
+	أرجع ret;
 }
 
-vector<IRState const*> IR::states(IdString kind) const {
-	vector<IRState const*> ret;
-	for (const auto &[name, state] : _states)
-		if(state.kind == kind)
-			ret.push_back(&state);
-	return ret;
+ویکټور<IRState ثابت*> IR::حالتونه(IdString ډول) ثابت {
+	ویکټور<IRState ثابت*> ret;
+	لكل (ثابت خپلکاری &[name, state] : حالتونه_2)
+		إذا(state.ډول == ډول)
+			ret.ټېل_شا(&state);
+	أرجع ret;
 }
 
-vector<IRInput const*> IR::all_inputs() const {
-	vector<IRInput const*> ret;
-	for (const auto &[name, input] : _inputs)
-		ret.push_back(&input);
-	return ret;
+ویکټور<IRInput ثابت*> IR::all_inputs() ثابت {
+	ویکټور<IRInput ثابت*> ret;
+	لكل (ثابت خپلکاری &[name, ننوت] : _inputs)
+		ret.ټېل_شا(&ننوت);
+	أرجع ret;
 }
 
-vector<IROutput const*> IR::all_outputs() const {
-	vector<IROutput const*> ret;
-	for (const auto &[name, output] : _outputs)
-		ret.push_back(&output);
-	return ret;
+ویکټور<IROutput ثابت*> IR::all_outputs() ثابت {
+	ویکټور<IROutput ثابت*> ret;
+	لكل (ثابت خپلکاری &[name, output] : _outputs)
+		ret.ټېل_شا(&output);
+	أرجع ret;
 }
 
-vector<IRState const*> IR::all_states() const {
-	vector<IRState const*> ret;
-	for (const auto &[name, state] : _states)
-		ret.push_back(&state);
-	return ret;
+ویکټور<IRState ثابت*> IR::all_حالتونه() ثابت {
+	ویکټور<IRState ثابت*> ret;
+	لكل (ثابت خپلکاری &[name, state] : حالتونه_2)
+		ret.ټېل_شا(&state);
+	أرجع ret;
 }
 
-struct PrintVisitor : DefaultVisitor<std::string> {
-	std::function<std::string(Node)> np;
-	PrintVisitor(std::function<std::string(Node)> np) : np(np) { }
+بنية PrintVisitor : DefaultVisitor<std::string> {
+	std::function<std::string(غوټه_2)> np;
+	PrintVisitor(std::function<std::string(غوټه_2)> np) : np(np) { }
 	// as a general rule the default handler is good enough iff the only arguments are of type Node
-	std::string slice(Node, Node a, int offset, int out_width) override { return "slice(" + np(a) + ", " + std::to_string(offset) + ", " + std::to_string(out_width) + ")"; }
-	std::string zero_extend(Node, Node a, int out_width) override { return "zero_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
-	std::string sign_extend(Node, Node a, int out_width) override { return "sign_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
-	std::string constant(Node, RTLIL::Const const& value) override { return "constant(" + value.as_string() + ")"; }
-	std::string input(Node self, IdString name, IdString kind) override { return "input(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
-	std::string state(Node self, IdString name, IdString kind) override { return "state(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
-	std::string default_handler(Node self) override {
-		std::string ret = fn_to_string(self.fn());
+	std::string ټوټه(غوټه_2, غوټه_2 a, صحيح دننه_واټن, صحيح بهر_پلنوالی) override { أرجع "slice(" + np(a) + ", " + std::منزل_string(دننه_واټن) + ", " + std::منزل_string(بهر_پلنوالی) + ")"; }
+	std::string zero_extend(غوټه_2, غوټه_2 a, صحيح بهر_پلنوالی) override { أرجع "zero_extend(" + np(a) + ", " + std::منزل_string(بهر_پلنوالی) + ")"; }
+	std::string sign_extend(غوټه_2, غوټه_2 a, صحيح بهر_پلنوالی) override { أرجع "sign_extend(" + np(a) + ", " + std::منزل_string(بهر_پلنوالی) + ")"; }
+	std::string constant(غوټه_2, RTLIL::Const ثابت& ارزښت) override { أرجع "constant(" + ارزښت.as_string() + ")"; }
+	std::string ننوت(غوټه_2 self, IdString name, IdString ډول) override { أرجع "input(" + self.design->twines().str(name) + ", " + self.design->twines().str(ډول) + ")"; }
+	std::string state(غوټه_2 self, IdString name, IdString ډول) override { أرجع "state(" + self.design->twines().str(name) + ", " + self.design->twines().str(ډول) + ")"; }
+	std::string default_handler(غوټه_2 self) override {
+		std::string ret = fn_منزل_string(self.fn());
 		ret += "(";
-		for(size_t i = 0; i < self.arg_count(); i++) {
-			if(i > 0) ret += ", ";
+		لكل(اندازه_t i = 0; i < self.arg_شمېر(); i++) {
+			إذا(i > 0) ret += ", ";
 			ret += np(self.arg(i));
 		}
 		ret += ")";
-		return ret;
+		أرجع ret;
 	}
 };
 
-std::string Node::to_string()
+std::string غوټه_2::منزل_string()
 {
-	return to_string([](Node n) { return n.name().unescape(); });
+	أرجع منزل_string([](غوټه_2 n) { أرجع n.name().unescape(); });
 }
 
-std::string Node::to_string(std::function<std::string(Node)> np)
+std::string غوټه_2::منزل_string(std::function<std::string(غوټه_2)> np)
 {
-	return visit(PrintVisitor(np));
+	أرجع لیدنه(PrintVisitor(np));
 }
 
-class CellSimplifier {
+صنف CellSimplifier {
 	Factory &factory;
-	Node sign(Node a) {
-		return factory.slice(a, a.width() - 1, 1);
+	غوټه_2 sign(غوټه_2 a) {
+		أرجع factory.ټوټه(a, a.پلنوالی() - 1, 1);
 	}
-	Node neg_if(Node a, Node s) {
-		return factory.mux(a, factory.unary_minus(a), s);
+	غوټه_2 neg_if(غوټه_2 a, غوټه_2 s) {
+		أرجع factory.mux(a, factory.unary_minus(a), s);
 	}
-	Node abs(Node a) {
-		return neg_if(a, sign(a));
+	غوټه_2 مطلق_قیمت(غوټه_2 a) {
+		أرجع neg_if(a, sign(a));
 	}
-	Node handle_shift(Node a, Node b, bool is_right, bool is_signed) {
+	غوټه_2 handle_ښويدنه(غوټه_2 a, غوټه_2 b, منطقي is_ښی, منطقي is_signed) {
 		// to prevent new_width == 0, we handle this case separately
-		if(a.width() == 1) {
-			if(!is_signed)
-				return factory.bitwise_and(a, factory.bitwise_not(factory.reduce_or(b)));
-			else
-				return a;
+		إذا(a.پلنوالی() == 1) {
+			إذا(!is_signed)
+				أرجع factory.bitwise_and(a, factory.bitwise_not(factory.reduce_or(b)));
+			وإلا
+				أرجع a;
 		}
-		int new_width = ceil_log2(a.width());
-		Node b_truncated = factory.extend(b, new_width, false);
-		Node y =
-			!is_right ? factory.logical_shift_left(a, b_truncated) :
-			!is_signed ? factory.logical_shift_right(a, b_truncated) :
-			factory.arithmetic_shift_right(a, b_truncated);
-		if(b.width() <= new_width)
-			return y;
-		Node overflow = factory.unsigned_greater_equal(b, factory.constant(RTLIL::Const(a.width(), b.width())));
-		Node y_if_overflow = is_signed ? factory.extend(sign(a), a.width(), true) : factory.constant(RTLIL::Const(State::S0, a.width()));
-		return factory.mux(y, y_if_overflow, overflow);
+		صحيح new_پلنوالی = ceil_log2(a.پلنوالی());
+		غوټه_2 b_truncated = factory.extend(b, new_پلنوالی, خطأ);
+		غوټه_2 y =
+			!is_ښی ? factory.logical_ښويدنه_کیڼ(a, b_truncated) :
+			!is_signed ? factory.logical_ښويدنه_ښی(a, b_truncated) :
+			factory.arithmetic_ښويدنه_ښی(a, b_truncated);
+		إذا(b.پلنوالی() <= new_پلنوالی)
+			أرجع y;
+		غوټه_2 ډکېدنه = factory.unsigned_greater_equal(b, factory.constant(RTLIL::Const(a.پلنوالی(), b.پلنوالی())));
+		غوټه_2 y_if_ډکېدنه = is_signed ? factory.extend(sign(a), a.پلنوالی(), ریښتیا) : factory.constant(RTLIL::Const(State::S0, a.پلنوالی()));
+		أرجع factory.mux(y, y_if_ډکېدنه, ډکېدنه);
 	}
-public:
-	Node logical_shift_left(Node a, Node b) { return handle_shift(a, b, false, false); }
-	Node logical_shift_right(Node a, Node b) { return handle_shift(a, b, true, false); }
-	Node arithmetic_shift_right(Node a, Node b) { return handle_shift(a, b, true, true); }
-	Node bitwise_mux(Node a, Node b, Node s) {
-		Node aa = factory.bitwise_and(a, factory.bitwise_not(s));
-		Node bb = factory.bitwise_and(b, s);
-		return factory.bitwise_or(aa, bb);
+عام:
+	غوټه_2 logical_ښويدنه_کیڼ(غوټه_2 a, غوټه_2 b) { أرجع handle_ښويدنه(a, b, خطأ, خطأ); }
+	غوټه_2 logical_ښويدنه_ښی(غوټه_2 a, غوټه_2 b) { أرجع handle_ښويدنه(a, b, ریښتیا, خطأ); }
+	غوټه_2 arithmetic_ښويدنه_ښی(غوټه_2 a, غوټه_2 b) { أرجع handle_ښويدنه(a, b, ریښتیا, ریښتیا); }
+	غوټه_2 bitwise_mux(غوټه_2 a, غوټه_2 b, غوټه_2 s) {
+		غوټه_2 aa = factory.bitwise_and(a, factory.bitwise_not(s));
+		غوټه_2 bb = factory.bitwise_and(b, s);
+		أرجع factory.bitwise_or(aa, bb);
 	}
 	CellSimplifier(Factory &f) : factory(f) {}
-private:
-	Node handle_pow(Node a0, Node b, int y_width, bool is_signed) {
-		Node a = factory.extend(a0, y_width, is_signed);
-		Node r = factory.constant(Const(1, y_width));
-		for(int i = 0; i < b.width(); i++) {
-			Node b_bit = factory.slice(b, i, 1);
-			r = factory.mux(r, factory.mul(r, a), b_bit);
+خاص:
+	غوټه_2 handle_pow(غوټه_2 a0, غوټه_2 b, صحيح y_پلنوالی, منطقي is_signed) {
+		غوټه_2 a = factory.extend(a0, y_پلنوالی, is_signed);
+		غوټه_2 r = factory.constant(Const(1, y_پلنوالی));
+		لكل(صحيح i = 0; i < b.پلنوالی(); i++) {
+			غوټه_2 b_بټ = factory.ټوټه(b, i, 1);
+			r = factory.mux(r, factory.mul(r, a), b_بټ);
 			a = factory.mul(a, a);
 		}
-		if (is_signed) {
-			Node a_ge_1 = factory.unsigned_greater_than(abs(a0), factory.constant(Const(1, a0.width())));
-			Node zero_result = factory.bitwise_and(a_ge_1, sign(b));
-			r = factory.mux(r, factory.constant(Const(0, y_width)), zero_result);
+		إذا (is_signed) {
+			غوټه_2 a_ge_1 = factory.unsigned_greater_than(مطلق_قیمت(a0), factory.constant(Const(1, a0.پلنوالی())));
+			غوټه_2 zero_پایله = factory.bitwise_and(a_ge_1, sign(b));
+			r = factory.mux(r, factory.constant(Const(0, y_پلنوالی)), zero_پایله);
 		}
-		return r;
+		أرجع r;
 	}
-	Node handle_bmux(Node a, Node s, int a_offset, int width, int sn) {
-		if(sn < 1)
-			return factory.slice(a, a_offset, width);
-		else {
-			Node y0 = handle_bmux(a, s, a_offset, width, sn - 1);
-			Node y1 = handle_bmux(a, s, a_offset + (width << (sn - 1)), width, sn - 1);
-			return factory.mux(y0, y1, factory.slice(s, sn - 1, 1));
+	غوټه_2 handle_bmux(غوټه_2 a, غوټه_2 s, صحيح a_دننه_واټن, صحيح پلنوالی, صحيح sn) {
+		إذا(sn < 1)
+			أرجع factory.ټوټه(a, a_دننه_واټن, پلنوالی);
+		وإلا {
+			غوټه_2 y0 = handle_bmux(a, s, a_دننه_واټن, پلنوالی, sn - 1);
+			غوټه_2 y1 = handle_bmux(a, s, a_دننه_واټن + (پلنوالی << (sn - 1)), پلنوالی, sn - 1);
+			أرجع factory.mux(y0, y1, factory.ټوټه(s, sn - 1, 1));
 		}
 	}
-	Node handle_pmux(Node a, Node b, Node s) {
+	غوټه_2 handle_pmux(غوټه_2 a, غوټه_2 b, غوټه_2 s) {
 		// TODO : what to do about multiple b bits set ?
-		log_assert(b.width() == a.width() * s.width());
-		Node y = a;
-		for(int i = 0; i < s.width(); i++)
-			y = factory.mux(y, factory.slice(b, a.width() * i, a.width()), factory.slice(s, i, 1));
-		return y;
+		log_assert(b.پلنوالی() == a.پلنوالی() * s.پلنوالی());
+		غوټه_2 y = a;
+		لكل(صحيح i = 0; i < s.پلنوالی(); i++)
+			y = factory.mux(y, factory.ټوټه(b, a.پلنوالی() * i, a.پلنوالی()), factory.ټوټه(s, i, 1));
+		أرجع y;
 	}
-	dict<IdString, Node> handle_fa(Node a, Node b, Node c) {
-		Node t1 = factory.bitwise_xor(a, b);
-		Node t2 = factory.bitwise_and(a, b);
-		Node t3 = factory.bitwise_and(c, t1);
-		Node y = factory.bitwise_xor(c, t1);
-		Node x = factory.bitwise_or(t2, t3);
-		return {{ID(X), x}, {ID(Y), y}};
+	dict<IdString, غوټه_2> handle_fa(غوټه_2 a, غوټه_2 b, غوټه_2 c) {
+		غوټه_2 t1 = factory.bitwise_xor(a, b);
+		غوټه_2 t2 = factory.bitwise_and(a, b);
+		غوټه_2 t3 = factory.bitwise_and(c, t1);
+		غوټه_2 y = factory.bitwise_xor(c, t1);
+		غوټه_2 x = factory.bitwise_or(t2, t3);
+		أرجع {{ID(X), x}, {ID(Y), y}};
 	}
-	dict<IdString, Node> handle_alu(Node a_in, Node b_in, int y_width, bool is_signed, Node ci, Node bi) {
-		Node a = factory.extend(a_in, y_width, is_signed);
-		Node b_uninverted = factory.extend(b_in, y_width, is_signed);
-		Node b = factory.mux(b_uninverted, factory.bitwise_not(b_uninverted), bi);
-		Node x = factory.bitwise_xor(a, b);
+	dict<IdString, غوټه_2> handle_alu(غوټه_2 a_دننه, غوټه_2 b_دننه, صحيح y_پلنوالی, منطقي is_signed, غوټه_2 ci, غوټه_2 bi) {
+		غوټه_2 a = factory.extend(a_دننه, y_پلنوالی, is_signed);
+		غوټه_2 b_uninverted = factory.extend(b_دننه, y_پلنوالی, is_signed);
+		غوټه_2 b = factory.mux(b_uninverted, factory.bitwise_not(b_uninverted), bi);
+		غوټه_2 x = factory.bitwise_xor(a, b);
 		// we can compute the carry into each bit using (a+b+c)^a^b. since we want the carry out,
 		// i.e. the carry into the next bit, we have to add an extra bit to a and b, and
 		// then slice off the bottom bit of the result.
-		Node a_extra = factory.extend(a, y_width + 1, false);
-		Node b_extra = factory.extend(b, y_width + 1, false);
-		Node y_extra = factory.add(factory.add(a_extra, b_extra), factory.extend(ci, a.width() + 1, false));
-		Node y = factory.slice(y_extra, 0, y_width);
-		Node carries = factory.bitwise_xor(y_extra, factory.bitwise_xor(a_extra, b_extra));
-		Node co = factory.slice(carries, 1, y_width);
-		return {{ID(X), x}, {ID(Y), y}, {ID(CO), co}};
+		غوټه_2 a_extra = factory.extend(a, y_پلنوالی + 1, خطأ);
+		غوټه_2 b_extra = factory.extend(b, y_پلنوالی + 1, خطأ);
+		غوټه_2 y_extra = factory.جمع_کړه(factory.جمع_کړه(a_extra, b_extra), factory.extend(ci, a.پلنوالی() + 1, خطأ));
+		غوټه_2 y = factory.ټوټه(y_extra, 0, y_پلنوالی);
+		غوټه_2 carries = factory.bitwise_xor(y_extra, factory.bitwise_xor(a_extra, b_extra));
+		غوټه_2 co = factory.ټوټه(carries, 1, y_پلنوالی);
+		أرجع {{ID(X), x}, {ID(Y), y}, {ID(CO), co}};
 	}
-	Node handle_lcu(Node p, Node g, Node ci) {
-		return handle_alu(g, factory.bitwise_or(p, g), g.width(), false, ci, factory.constant(Const(State::S0, 1))).at(ID(CO));
+	غوټه_2 handle_lcu(غوټه_2 p, غوټه_2 g, غوټه_2 ci) {
+		أرجع handle_alu(g, factory.bitwise_or(p, g), g.پلنوالی(), خطأ, ci, factory.constant(Const(State::S0, 1))).at(ID(CO));
 	}
-public:
-	std::variant<dict<IdString, Node>, Node> handle(IdString cellName, IdString cellType, dict<IdString, Const> parameters, dict<IdString, Node> inputs)
+عام:
+	std::variant<dict<IdString, غوټه_2>, غوټه_2> handle(IdString cellName, IdString cellType, dict<IdString, Const> parameters, dict<IdString, غوټه_2> inputs)
 	{
-		int a_width = parameters.at(ID(A_WIDTH), Const(-1)).as_int();
-		int b_width = parameters.at(ID(B_WIDTH), Const(-1)).as_int();
-		int y_width = parameters.at(ID(Y_WIDTH), Const(-1)).as_int();
-		bool a_signed = parameters.at(ID(A_SIGNED), Const(0)).as_bool();
-		bool b_signed = parameters.at(ID(B_SIGNED), Const(0)).as_bool();
-		if(cellType.in(ID($add), ID($sub), ID($and), ID($or), ID($xor), ID($xnor), ID($mul))){
-			bool is_signed = a_signed && b_signed;
-			Node a = factory.extend(inputs.at(ID(A)), y_width, is_signed);
-			Node b = factory.extend(inputs.at(ID(B)), y_width, is_signed);
-			if(cellType == ID($add))
-				return factory.add(a, b);
-			else if(cellType == ID($sub))
-				return factory.sub(a, b);
-			else if(cellType == ID($mul))
-				return factory.mul(a, b);
-			else if(cellType == ID($and))
-				return factory.bitwise_and(a, b);
-			else if(cellType == ID($or))
-				return factory.bitwise_or(a, b);
-			else if(cellType == ID($xor))
-				return factory.bitwise_xor(a, b);
-			else if(cellType == ID($xnor))
-				return factory.bitwise_not(factory.bitwise_xor(a, b));
-			else
+		صحيح a_پلنوالی = parameters.at(ID(A_پلنوالی), Const(-1)).as_int();
+		صحيح b_پلنوالی = parameters.at(ID(B_پلنوالی), Const(-1)).as_int();
+		صحيح y_پلنوالی = parameters.at(ID(Y_پلنوالی), Const(-1)).as_int();
+		منطقي a_signed = parameters.at(ID(A_SIGNED), Const(0)).as_bool();
+		منطقي b_signed = parameters.at(ID(B_SIGNED), Const(0)).as_bool();
+		إذا(cellType.دننه(ID($جمع_کړه), ID($sub), ID($and), ID($or), ID($xor), ID($xnor), ID($mul))){
+			منطقي is_signed = a_signed && b_signed;
+			غوټه_2 a = factory.extend(inputs.at(ID(A)), y_پلنوالی, is_signed);
+			غوټه_2 b = factory.extend(inputs.at(ID(B)), y_پلنوالی, is_signed);
+			إذا(cellType == ID($جمع_کړه))
+				أرجع factory.جمع_کړه(a, b);
+			وإلا إذا(cellType == ID($sub))
+				أرجع factory.sub(a, b);
+			وإلا إذا(cellType == ID($mul))
+				أرجع factory.mul(a, b);
+			وإلا إذا(cellType == ID($and))
+				أرجع factory.bitwise_and(a, b);
+			وإلا إذا(cellType == ID($or))
+				أرجع factory.bitwise_or(a, b);
+			وإلا إذا(cellType == ID($xor))
+				أرجع factory.bitwise_xor(a, b);
+			وإلا إذا(cellType == ID($xnor))
+				أرجع factory.bitwise_not(factory.bitwise_xor(a, b));
+			وإلا
 				log_abort();
-		}else if(cellType.in(ID($eq), ID($ne), ID($eqx), ID($nex), ID($le), ID($lt), ID($ge), ID($gt))){
-			bool is_signed = a_signed && b_signed;
-			int width = max(a_width, b_width);
-			Node a = factory.extend(inputs.at(ID(A)), width, is_signed);
-			Node b = factory.extend(inputs.at(ID(B)), width, is_signed);
-			if(cellType.in(ID($eq), ID($eqx)))
-				return factory.extend(factory.equal(a, b), y_width, false);
-			else if(cellType.in(ID($ne), ID($nex)))
-				return factory.extend(factory.not_equal(a, b), y_width, false);
-			else if(cellType == ID($lt))
-				return factory.extend(is_signed ? factory.signed_greater_than(b, a) : factory.unsigned_greater_than(b, a), y_width, false);
-			else if(cellType == ID($le))
-				return factory.extend(is_signed ? factory.signed_greater_equal(b, a) : factory.unsigned_greater_equal(b, a), y_width, false);
-			else if(cellType == ID($gt))
-				return factory.extend(is_signed ? factory.signed_greater_than(a, b) : factory.unsigned_greater_than(a, b), y_width, false);
-			else if(cellType == ID($ge))
-				return factory.extend(is_signed ? factory.signed_greater_equal(a, b) : factory.unsigned_greater_equal(a, b), y_width, false);
-			else
+		}وإلا إذا(cellType.دننه(ID($eq), ID($ne), ID($eqx), ID($nex), ID($le), ID($lt), ID($ge), ID($gt))){
+			منطقي is_signed = a_signed && b_signed;
+			صحيح پلنوالی = max(a_پلنوالی, b_پلنوالی);
+			غوټه_2 a = factory.extend(inputs.at(ID(A)), پلنوالی, is_signed);
+			غوټه_2 b = factory.extend(inputs.at(ID(B)), پلنوالی, is_signed);
+			إذا(cellType.دننه(ID($eq), ID($eqx)))
+				أرجع factory.extend(factory.equal(a, b), y_پلنوالی, خطأ);
+			وإلا إذا(cellType.دننه(ID($ne), ID($nex)))
+				أرجع factory.extend(factory.not_equal(a, b), y_پلنوالی, خطأ);
+			وإلا إذا(cellType == ID($lt))
+				أرجع factory.extend(is_signed ? factory.signed_greater_than(b, a) : factory.unsigned_greater_than(b, a), y_پلنوالی, خطأ);
+			وإلا إذا(cellType == ID($le))
+				أرجع factory.extend(is_signed ? factory.signed_greater_equal(b, a) : factory.unsigned_greater_equal(b, a), y_پلنوالی, خطأ);
+			وإلا إذا(cellType == ID($gt))
+				أرجع factory.extend(is_signed ? factory.signed_greater_than(a, b) : factory.unsigned_greater_than(a, b), y_پلنوالی, خطأ);
+			وإلا إذا(cellType == ID($ge))
+				أرجع factory.extend(is_signed ? factory.signed_greater_equal(a, b) : factory.unsigned_greater_equal(a, b), y_پلنوالی, خطأ);
+			وإلا
 				log_abort();
-		}else if(cellType.in(ID($logic_or), ID($logic_and))){
-			Node a = factory.reduce_or(inputs.at(ID(A)));
-			Node b = factory.reduce_or(inputs.at(ID(B)));
-			Node y = cellType == ID($logic_and) ? factory.bitwise_and(a, b) : factory.bitwise_or(a, b);
-			return factory.extend(y, y_width, false);
-		}else if(cellType == ID($not)){
-			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			return factory.bitwise_not(a);
-		}else if(cellType == ID($pos)){
-			return factory.extend(inputs.at(ID(A)), y_width, a_signed);
-		}else if(cellType == ID($barrier)){
-			return inputs.at(ID(A));
-		}else if(cellType == ID($neg)){
-			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			return factory.unary_minus(a);
-		}else if(cellType == ID($logic_not)){
-			Node a = factory.reduce_or(inputs.at(ID(A)));
-			Node y = factory.bitwise_not(a);
-			return factory.extend(y, y_width, false);
-		}else if(cellType.in(ID($reduce_or), ID($reduce_bool))){
-			Node a = factory.reduce_or(inputs.at(ID(A)));
-			return factory.extend(a, y_width, false);
-		}else if(cellType == ID($reduce_and)){
-			Node a = factory.reduce_and(inputs.at(ID(A)));
-			return factory.extend(a, y_width, false);
-		}else if(cellType.in(ID($reduce_xor), ID($reduce_xnor))){
-			Node a = factory.reduce_xor(inputs.at(ID(A)));
-			Node y = cellType == ID($reduce_xnor) ? factory.bitwise_not(a) : a;
-			return factory.extend(y, y_width, false);
-		}else if(cellType == ID($shl) || cellType == ID($sshl)){
-			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			Node b = inputs.at(ID(B));
-			return logical_shift_left(a, b);
-		}else if(cellType == ID($shr) || cellType == ID($sshr)){
-			int width = max(a_width, y_width);
-			Node a = factory.extend(inputs.at(ID(A)), width, a_signed);
-			Node b = inputs.at(ID(B));
-			Node y = a_signed && cellType == ID($sshr) ?
-				arithmetic_shift_right(a, b) :
-				logical_shift_right(a, b);
-			return factory.extend(y, y_width, a_signed);
-		}else if(cellType == ID($shiftx) || cellType == ID($shift)){
-			int width = max(a_width, y_width);
-			Node a = factory.extend(inputs.at(ID(A)), width, cellType == ID($shift) && a_signed);
-			Node b = inputs.at(ID(B));
-			Node shr = logical_shift_right(a, b);
-			if(b_signed) {
-				Node shl = logical_shift_left(a, factory.unary_minus(b));
-				Node y = factory.mux(shr, shl, sign(b));
-				return factory.extend(y, y_width, false);
-			} else {
-				return factory.extend(shr, y_width, false);
+		}وإلا إذا(cellType.دننه(ID($logic_or), ID($logic_and))){
+			غوټه_2 a = factory.reduce_or(inputs.at(ID(A)));
+			غوټه_2 b = factory.reduce_or(inputs.at(ID(B)));
+			غوټه_2 y = cellType == ID($logic_and) ? factory.bitwise_and(a, b) : factory.bitwise_or(a, b);
+			أرجع factory.extend(y, y_پلنوالی, خطأ);
+		}وإلا إذا(cellType == ID($not)){
+			غوټه_2 a = factory.extend(inputs.at(ID(A)), y_پلنوالی, a_signed);
+			أرجع factory.bitwise_not(a);
+		}وإلا إذا(cellType == ID($pos)){
+			أرجع factory.extend(inputs.at(ID(A)), y_پلنوالی, a_signed);
+		}وإلا إذا(cellType == ID($barrier)){
+			أرجع inputs.at(ID(A));
+		}وإلا إذا(cellType == ID($neg)){
+			غوټه_2 a = factory.extend(inputs.at(ID(A)), y_پلنوالی, a_signed);
+			أرجع factory.unary_minus(a);
+		}وإلا إذا(cellType == ID($logic_not)){
+			غوټه_2 a = factory.reduce_or(inputs.at(ID(A)));
+			غوټه_2 y = factory.bitwise_not(a);
+			أرجع factory.extend(y, y_پلنوالی, خطأ);
+		}وإلا إذا(cellType.دننه(ID($reduce_or), ID($reduce_bool))){
+			غوټه_2 a = factory.reduce_or(inputs.at(ID(A)));
+			أرجع factory.extend(a, y_پلنوالی, خطأ);
+		}وإلا إذا(cellType == ID($reduce_and)){
+			غوټه_2 a = factory.reduce_and(inputs.at(ID(A)));
+			أرجع factory.extend(a, y_پلنوالی, خطأ);
+		}وإلا إذا(cellType.دننه(ID($reduce_xor), ID($reduce_xnor))){
+			غوټه_2 a = factory.reduce_xor(inputs.at(ID(A)));
+			غوټه_2 y = cellType == ID($reduce_xnor) ? factory.bitwise_not(a) : a;
+			أرجع factory.extend(y, y_پلنوالی, خطأ);
+		}وإلا إذا(cellType == ID($shl) || cellType == ID($sshl)){
+			غوټه_2 a = factory.extend(inputs.at(ID(A)), y_پلنوالی, a_signed);
+			غوټه_2 b = inputs.at(ID(B));
+			أرجع logical_ښويدنه_کیڼ(a, b);
+		}وإلا إذا(cellType == ID($shr) || cellType == ID($sshr)){
+			صحيح پلنوالی = max(a_پلنوالی, y_پلنوالی);
+			غوټه_2 a = factory.extend(inputs.at(ID(A)), پلنوالی, a_signed);
+			غوټه_2 b = inputs.at(ID(B));
+			غوټه_2 y = a_signed && cellType == ID($sshr) ?
+				arithmetic_ښويدنه_ښی(a, b) :
+				logical_ښويدنه_ښی(a, b);
+			أرجع factory.extend(y, y_پلنوالی, a_signed);
+		}وإلا إذا(cellType == ID($shiftx) || cellType == ID($ښويدنه)){
+			صحيح پلنوالی = max(a_پلنوالی, y_پلنوالی);
+			غوټه_2 a = factory.extend(inputs.at(ID(A)), پلنوالی, cellType == ID($ښويدنه) && a_signed);
+			غوټه_2 b = inputs.at(ID(B));
+			غوټه_2 shr = logical_ښويدنه_ښی(a, b);
+			إذا(b_signed) {
+				غوټه_2 shl = logical_ښويدنه_کیڼ(a, factory.unary_minus(b));
+				غوټه_2 y = factory.mux(shr, shl, sign(b));
+				أرجع factory.extend(y, y_پلنوالی, خطأ);
+			} وإلا {
+				أرجع factory.extend(shr, y_پلنوالی, خطأ);
 			}
-		}else if(cellType == ID($mux)){
-			return factory.mux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
-		}else if(cellType == ID($pmux)){
-			return handle_pmux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
-		}else if(cellType == ID($concat)){
-			Node a = inputs.at(ID(A));
-			Node b = inputs.at(ID(B));
-			return factory.concat(a, b);
-		}else if(cellType == ID($slice)){
-			int offset = parameters.at(ID(OFFSET)).as_int();
-			Node a = inputs.at(ID(A));
-			return factory.slice(a, offset, y_width);
-		}else if(cellType.in(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
-			int width = max(a_width, b_width);
-			bool is_signed = a_signed && b_signed;
-			Node a = factory.extend(inputs.at(ID(A)), width, is_signed);
-			Node b = factory.extend(inputs.at(ID(B)), width, is_signed);
-			if(is_signed) {
-				if(cellType == ID($div)) {
+		}وإلا إذا(cellType == ID($mux)){
+			أرجع factory.mux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
+		}وإلا إذا(cellType == ID($pmux)){
+			أرجع handle_pmux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
+		}وإلا إذا(cellType == ID($concat)){
+			غوټه_2 a = inputs.at(ID(A));
+			غوټه_2 b = inputs.at(ID(B));
+			أرجع factory.concat(a, b);
+		}وإلا إذا(cellType == ID($ټوټه)){
+			صحيح دننه_واټن = parameters.at(ID(دننه_واټن_2)).as_int();
+			غوټه_2 a = inputs.at(ID(A));
+			أرجع factory.ټوټه(a, دننه_واټن, y_پلنوالی);
+		}وإلا إذا(cellType.دننه(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
+			صحيح پلنوالی = max(a_پلنوالی, b_پلنوالی);
+			منطقي is_signed = a_signed && b_signed;
+			غوټه_2 a = factory.extend(inputs.at(ID(A)), پلنوالی, is_signed);
+			غوټه_2 b = factory.extend(inputs.at(ID(B)), پلنوالی, is_signed);
+			إذا(is_signed) {
+				إذا(cellType == ID($div)) {
 					// divide absolute values, then flip the sign if input signs differ
 					// but extend the width first, to handle the case (most negative value) / (-1)
-					Node abs_y = factory.unsigned_div(abs(a), abs(b));
-					Node out_sign = factory.not_equal(sign(a), sign(b));
-					return neg_if(factory.extend(abs_y, y_width, false), out_sign);
-				} else if(cellType == ID($mod)) {
+					غوټه_2 abs_y = factory.unsigned_div(مطلق_قیمت(a), مطلق_قیمت(b));
+					غوټه_2 بهر_sign = factory.not_equal(sign(a), sign(b));
+					أرجع neg_if(factory.extend(abs_y, y_پلنوالی, خطأ), بهر_sign);
+				} وإلا إذا(cellType == ID($mod)) {
 					// similar to division but output sign == divisor sign
-					Node abs_y = factory.unsigned_mod(abs(a), abs(b));
-					return neg_if(factory.extend(abs_y, y_width, false), sign(a));
-				} else if(cellType == ID($divfloor)) {
+					غوټه_2 abs_y = factory.unsigned_mod(مطلق_قیمت(a), مطلق_قیمت(b));
+					أرجع neg_if(factory.extend(abs_y, y_پلنوالی, خطأ), sign(a));
+				} وإلا إذا(cellType == ID($divfloor)) {
 					// if b is negative, flip both signs so that b is positive
-					Node b_sign = sign(b);
-					Node a1 = neg_if(a, b_sign);
-					Node b1 = neg_if(b, b_sign);
+					غوټه_2 b_sign = sign(b);
+					غوټه_2 a1 = neg_if(a, b_sign);
+					غوټه_2 b1 = neg_if(b, b_sign);
 					// if a is now negative, calculate ~((~a) / b) = -((-a - 1) / b + 1)
 					// which equals the negative of (-a) / b with rounding up rather than down
 					// note that to handle the case where a = most negative value properly,
 					// we have to calculate a1_sign from the original values rather than using sign(a1)
-					Node a1_sign = factory.bitwise_and(factory.not_equal(sign(a), sign(b)), factory.reduce_or(a));
-					Node a2 = factory.mux(a1, factory.bitwise_not(a1), a1_sign);
-					Node y1 = factory.unsigned_div(a2, b1);
-					Node y2 = factory.extend(y1, y_width, false);
-					return factory.mux(y2, factory.bitwise_not(y2), a1_sign);
-				} else if(cellType == ID($modfloor)) {
+					غوټه_2 a1_sign = factory.bitwise_and(factory.not_equal(sign(a), sign(b)), factory.reduce_or(a));
+					غوټه_2 a2 = factory.mux(a1, factory.bitwise_not(a1), a1_sign);
+					غوټه_2 y1 = factory.unsigned_div(a2, b1);
+					غوټه_2 y2 = factory.extend(y1, y_پلنوالی, خطأ);
+					أرجع factory.mux(y2, factory.bitwise_not(y2), a1_sign);
+				} وإلا إذا(cellType == ID($modfloor)) {
 					// calculate |a| % |b| and then subtract from |b| if input signs differ and the remainder is non-zero
-					Node abs_b = abs(b);
-					Node abs_y = factory.unsigned_mod(abs(a), abs_b);
-					Node flip_y = factory.bitwise_and(factory.bitwise_xor(sign(a), sign(b)), factory.reduce_or(abs_y));
-					Node y_flipped = factory.mux(abs_y, factory.sub(abs_b, abs_y), flip_y);
+					غوټه_2 abs_b = مطلق_قیمت(b);
+					غوټه_2 abs_y = factory.unsigned_mod(مطلق_قیمت(a), abs_b);
+					غوټه_2 flip_y = factory.bitwise_and(factory.bitwise_xor(sign(a), sign(b)), factory.reduce_or(abs_y));
+					غوټه_2 y_flipped = factory.mux(abs_y, factory.sub(abs_b, abs_y), flip_y);
 					// since y_flipped is strictly less than |b|, the top bit is always 0 and we can just sign extend the flipped result
-					Node y = neg_if(y_flipped, sign(b));
-					return factory.extend(y, y_width, true);
-				} else
+					غوټه_2 y = neg_if(y_flipped, sign(b));
+					أرجع factory.extend(y, y_پلنوالی, ریښتیا);
+				} وإلا
 					log_error("unhandled cell in CellSimplifier %s\n", factory.ir().design->twines().str(cellType));
-			} else {
-				if(cellType.in(ID($mod), ID($modfloor)))
-					return factory.extend(factory.unsigned_mod(a, b), y_width, false);
-				else
-					return factory.extend(factory.unsigned_div(a, b), y_width, false);
+			} وإلا {
+				إذا(cellType.دننه(ID($mod), ID($modfloor)))
+					أرجع factory.extend(factory.unsigned_mod(a, b), y_پلنوالی, خطأ);
+				وإلا
+					أرجع factory.extend(factory.unsigned_div(a, b), y_پلنوالی, خطأ);
 			}
-		} else if(cellType == ID($pow)) {
-			return handle_pow(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed);
-		} else if (cellType == ID($lut)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			Const lut_table = parameters.at(ID(LUT));
-			lut_table.extu(1 << width);
-			return handle_bmux(factory.constant(lut_table), inputs.at(ID(A)), 0, 1, width);
-		} else if (cellType == ID($bwmux)) {
-			Node a = inputs.at(ID(A));
-			Node b = inputs.at(ID(B));
-			Node s = inputs.at(ID(S));
-			return factory.bitwise_or(
+		} وإلا إذا(cellType == ID($توان)) {
+			أرجع handle_pow(inputs.at(ID(A)), inputs.at(ID(B)), y_پلنوالی, a_signed && b_signed);
+		} وإلا إذا (cellType == ID($lut)) {
+			صحيح پلنوالی = parameters.at(ID(پلنوالی_2)).as_int();
+			Const lut_جدول = parameters.at(ID(LUT));
+			lut_جدول.extu(1 << پلنوالی);
+			أرجع handle_bmux(factory.constant(lut_جدول), inputs.at(ID(A)), 0, 1, پلنوالی);
+		} وإلا إذا (cellType == ID($bwmux)) {
+			غوټه_2 a = inputs.at(ID(A));
+			غوټه_2 b = inputs.at(ID(B));
+			غوټه_2 s = inputs.at(ID(S));
+			أرجع factory.bitwise_or(
 				factory.bitwise_and(a, factory.bitwise_not(s)),
 				factory.bitwise_and(b, s));
-		} else if (cellType == ID($bweqx)) {
-			Node a = inputs.at(ID(A));
-			Node b = inputs.at(ID(B));
-			return factory.bitwise_not(factory.bitwise_xor(a, b));
-		} else if(cellType == ID($bmux)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			int s_width = parameters.at(ID(S_WIDTH)).as_int();
-			return handle_bmux(inputs.at(ID(A)), inputs.at(ID(S)), 0, width, s_width);
-		} else if(cellType == ID($demux)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			int s_width = parameters.at(ID(S_WIDTH)).as_int();
-			int y_width = width << s_width;
-			int b_width = ceil_log2(y_width);
-			Node a = factory.extend(inputs.at(ID(A)), y_width, false);
-			Node s = factory.extend(inputs.at(ID(S)), b_width, false);
-			Node b = factory.mul(s, factory.constant(Const(width, b_width)));
-			return factory.logical_shift_left(a, b);
-		} else if(cellType == ID($fa)) {
-			return handle_fa(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(C)));
-		} else if(cellType == ID($lcu)) {
-			return handle_lcu(inputs.at(ID(P)), inputs.at(ID(G)), inputs.at(ID(CI)));
-		} else if(cellType == ID($alu)) {
-			return handle_alu(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed, inputs.at(ID(CI)), inputs.at(ID(BI)));
-		} else if(cellType.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover))) {
-			Node a = factory.mux(factory.constant(Const(State::S1, 1)), inputs.at(ID(A)), inputs.at(ID(EN)));
-			auto &output = factory.add_output(cellName, cellType, Sort(1));
-			output.set_value(a);
-			return {};
-		} else if(cellType.in(ID($anyconst), ID($allconst), ID($anyseq), ID($allseq))) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			auto &input = factory.add_input(cellName, cellType, Sort(width));
-			return factory.value(input);
-		} else if(cellType == ID($initstate)) {
-			if(factory.ir().has_state(ID($initstate), ID($state)))
-				return factory.value(factory.ir().state(ID($initstate)));
-			else {
-				auto &state = factory.add_state(ID($initstate), ID($state), Sort(1));
-				state.set_initial_value(RTLIL::Const(State::S1, 1));
-				state.set_next_value(factory.constant(RTLIL::Const(State::S0, 1)));
-				return factory.value(state);
+		} وإلا إذا (cellType == ID($bweqx)) {
+			غوټه_2 a = inputs.at(ID(A));
+			غوټه_2 b = inputs.at(ID(B));
+			أرجع factory.bitwise_not(factory.bitwise_xor(a, b));
+		} وإلا إذا(cellType == ID($bmux)) {
+			صحيح پلنوالی = parameters.at(ID(پلنوالی_2)).as_int();
+			صحيح s_پلنوالی = parameters.at(ID(S_پلنوالی)).as_int();
+			أرجع handle_bmux(inputs.at(ID(A)), inputs.at(ID(S)), 0, پلنوالی, s_پلنوالی);
+		} وإلا إذا(cellType == ID($demux)) {
+			صحيح پلنوالی = parameters.at(ID(پلنوالی_2)).as_int();
+			صحيح s_پلنوالی = parameters.at(ID(S_پلنوالی)).as_int();
+			صحيح y_پلنوالی = پلنوالی << s_پلنوالی;
+			صحيح b_پلنوالی = ceil_log2(y_پلنوالی);
+			غوټه_2 a = factory.extend(inputs.at(ID(A)), y_پلنوالی, خطأ);
+			غوټه_2 s = factory.extend(inputs.at(ID(S)), b_پلنوالی, خطأ);
+			غوټه_2 b = factory.mul(s, factory.constant(Const(پلنوالی, b_پلنوالی)));
+			أرجع factory.logical_ښويدنه_کیڼ(a, b);
+		} وإلا إذا(cellType == ID($fa)) {
+			أرجع handle_fa(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(C)));
+		} وإلا إذا(cellType == ID($lcu)) {
+			أرجع handle_lcu(inputs.at(ID(P)), inputs.at(ID(G)), inputs.at(ID(CI)));
+		} وإلا إذا(cellType == ID($alu)) {
+			أرجع handle_alu(inputs.at(ID(A)), inputs.at(ID(B)), y_پلنوالی, a_signed && b_signed, inputs.at(ID(CI)), inputs.at(ID(BI)));
+		} وإلا إذا(cellType.دننه(ID($أكد), ID($assume), ID($ژوندی), ID($fair), ID($cover))) {
+			غوټه_2 a = factory.mux(factory.constant(Const(State::S1, 1)), inputs.at(ID(A)), inputs.at(ID(EN)));
+			خپلکاری &output = factory.جمع_کړه_output(cellName, cellType, ترتیبول_2(1));
+			output.سېټ_ارزښت(a);
+			أرجع {};
+		} وإلا إذا(cellType.دننه(ID($anyconst), ID($allconst), ID($anyseq), ID($allseq))) {
+			صحيح پلنوالی = parameters.at(ID(پلنوالی_2)).as_int();
+			خپلکاری &ننوت = factory.جمع_کړه_ننوت(cellName, cellType, ترتیبول_2(پلنوالی));
+			أرجع factory.ارزښت(ننوت);
+		} وإلا إذا(cellType == ID($initstate)) {
+			إذا(factory.ir().has_state(ID($initstate), ID($state)))
+				أرجع factory.ارزښت(factory.ir().state(ID($initstate)));
+			وإلا {
+				خپلکاری &state = factory.جمع_کړه_state(ID($initstate), ID($state), ترتیبول_2(1));
+				state.سېټ_initial_ارزښت(RTLIL::Const(State::S1, 1));
+				state.سېټ_بل_ارزښت(factory.constant(RTLIL::Const(State::S0, 1)));
+				أرجع factory.ارزښت(state);
 			}
-		} else if(cellType == ID($check)) {
+		} وإلا إذا(cellType == ID($check)) {
 			log_error("The design contains a $check cell `%s'. This is not supported by the functional backend. Call `chformal -lower' to avoid this error.\n", factory.ir().design->twines().str(cellName));
-		} else {
+		} وإلا {
 			log_error("`%s' cells are not supported by the functional backend\n", factory.ir().design->twines().str(cellType));
 		}
 	}
 };
 
-class FunctionalIRConstruction {
-	std::deque<std::variant<DriveSpec, Cell *>> queue;
-	dict<DriveSpec, Node> graph_nodes;
-	dict<std::pair<Cell *, IdString>, Node> cell_outputs;
+صنف FunctionalIRConstruction {
+	std::deque<std::variant<DriveSpec, Cell *>> کتار;
+	dict<DriveSpec, غوټه_2> ګراف_nodes;
+	dict<std::pair<Cell *, IdString>, غوټه_2> cell_outputs;
 	DriverMap driver_map;
 	Factory& factory;
 	CellSimplifier simplifier;
-	vector<Mem> memories_vector;
+	ویکټور<Mem> memories_ویکټور;
 	dict<Cell*, Mem*> memories;
 	SigMap sig_map; // TODO: this is only for FfInitVals, remove this once FfInitVals supports DriverMap
 	FfInitVals ff_initvals;
 
-	Node enqueue(DriveSpec const &spec)
+	غوټه_2 کتار_ته_ورزیاتول(DriveSpec ثابت &spec)
 	{
-		auto it = graph_nodes.find(spec);
-		if(it == graph_nodes.end()){
-			auto node = factory.create_pending(spec.size());
-			graph_nodes.insert({spec, node});
-			queue.emplace_back(spec);
-			return node;
-		}else
-			return it->second;
+		خپلکاری it = ګراف_nodes.پیدا_کړه(spec);
+		إذا(it == ګراف_nodes.پای_ټکی()){
+			خپلکاری غوټه = factory.create_pending(spec.اندازه());
+			ګراف_nodes.ورننباسه({spec, غوټه});
+			کتار.emplace_شا(spec);
+			أرجع غوټه;
+		}وإلا
+			أرجع it->دوهم;
 	}
-	Node enqueue_cell(Cell *cell, IdString port_name)
+	غوټه_2 کتار_ته_ورزیاتول_cell(Cell *cell, IdString پورټ_name)
 	{
-		auto it = cell_outputs.find({cell, port_name});
-		if(it == cell_outputs.end()) {
-			queue.emplace_back(cell);
-			std::optional<Node> rv;
-			for(auto const &[name, sigspec] : cell->connections())
-				if(driver_map.celltypes.cell_output(cell->type, name)) {
-					auto node = factory.create_pending(sigspec.size());
-					factory.suggest_name(node, cell->name.str() + "$" + PooledName(cell->module, name).str());
-					cell_outputs.emplace({cell, name}, node);
-					if(name == port_name)
-						rv = node;
+		خپلکاری it = cell_outputs.پیدا_کړه({cell, پورټ_name});
+		إذا(it == cell_outputs.پای_ټکی()) {
+			کتار.emplace_شا(cell);
+			std::optional<غوټه_2> rv;
+			لكل(خپلکاری ثابت &[name, sigspec] : cell->connections())
+				إذا(driver_map.celltypes.cell_output(cell->type, name)) {
+					خپلکاری غوټه = factory.create_pending(sigspec.اندازه());
+					factory.suggest_name(غوټه, cell->name.str() + "$" + PooledName(cell->module, name).str());
+					cell_outputs.emplace({cell, name}, غوټه);
+					إذا(name == پورټ_name)
+						rv = غوټه;
 				}
-			return *rv;
-		} else
-			return it->second;
+			أرجع *rv;
+		} وإلا
+			أرجع it->دوهم;
 	}
-public:
+عام:
 	FunctionalIRConstruction(Module *module, Factory &f)
 		: factory(f)
 		, simplifier(f)
 		, sig_map(module)
 		, ff_initvals(&sig_map, module)
 	{
-		driver_map.add(module);
-		for (auto cell : module->cells()) {
-			if (cell->type.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover), ID($check)))
-				queue.emplace_back(cell);
+		driver_map.جمع_کړه(module);
+		لكل (خپلکاری cell : module->cells()) {
+			إذا (cell->type.دننه(ID($أكد), ID($assume), ID($ژوندی), ID($fair), ID($cover), ID($check)))
+				کتار.emplace_شا(cell);
 		}
 		// we are relying here on unsorted pools iterating last-in-first-out
-		for (auto riter = module->ports.rbegin(); riter != module->ports.rend(); ++riter) {
-			auto *wire = module->wire(*riter);
-			if (wire && wire->port_input) {
-				factory.add_input(wire->name, ID($input), Sort(wire->width));
+		لكل (خپلکاری riter = module->ports.rbegin(); riter != module->ports.rend(); ++riter) {
+			خپلکاری *wire = module->wire(*riter);
+			إذا (wire && wire->پورټ_ننوت) {
+				factory.جمع_کړه_ننوت(wire->name, ID($ننوت), ترتیبول_2(wire->پلنوالی));
 			}
-			if (wire && wire->port_output) {
-				auto &output = factory.add_output(wire->name, ID($output), Sort(wire->width));
-				output.set_value(enqueue(DriveChunk(DriveChunkWire(wire, 0, wire->width))));
+			إذا (wire && wire->پورټ_output) {
+				خپلکاری &output = factory.جمع_کړه_output(wire->name, ID($output), ترتیبول_2(wire->پلنوالی));
+				output.سېټ_ارزښت(کتار_ته_ورزیاتول(DriveChunk(DriveChunkWire(wire, 0, wire->پلنوالی))));
 			}
 		}
-		memories_vector = Mem::get_all_memories(module);
-		for (auto &mem : memories_vector) {
-			if (mem.cell != nullptr)
+		memories_ویکټور = Mem::get_all_memories(module);
+		لكل (خپلکاری &mem : memories_ویکټور) {
+			إذا (mem.cell != تش_اشاره)
 				memories[mem.cell] = &mem;
 		}
 	}
-private:
-	Node concatenate_read_results(Mem *mem, vector<Node> results)
+خاص:
+	غوټه_2 concatenate_read_results(Mem *mem, ویکټور<غوټه_2> results)
 	{
 		// sanity check: all read ports concatenated should equal to the RD_DATA port
-		const SigSpec &rd_data = mem->cell->connections().at(ID(RD_DATA));
-		int current = 0;
-		for(size_t i = 0; i < mem->rd_ports.size(); i++) {
-			int width = mem->width << mem->rd_ports[i].wide_log2;
-			log_assert (results[i].width() == width);
-			log_assert (mem->rd_ports[i].data == rd_data.extract(current, width));
-			current += width;
+		ثابت SigSpec &rd_معلومات = mem->cell->connections().at(ID(RD_معلومات));
+		صحيح current = 0;
+		لكل(اندازه_t i = 0; i < mem->rd_ports.اندازه(); i++) {
+			صحيح پلنوالی = mem->پلنوالی << mem->rd_ports[i].wide_log2;
+			log_assert (results[i].پلنوالی() == پلنوالی);
+			log_assert (mem->rd_ports[i].معلومات == rd_معلومات.ایستل(current, پلنوالی));
+			current += پلنوالی;
 		}
-		log_assert (current == rd_data.size());
-		log_assert (!results.empty());
-		Node node = results[0];
-		for(size_t i = 1; i < results.size(); i++)
-			node = factory.concat(node, results[i]);
-		return node;
+		log_assert (current == rd_معلومات.اندازه());
+		log_assert (!results.تشه());
+		غوټه_2 غوټه = results[0];
+		لكل(اندازه_t i = 1; i < results.اندازه(); i++)
+			غوټه = factory.concat(غوټه, results[i]);
+		أرجع غوټه;
 	}
-	Node handle_memory(Mem *mem)
+	غوټه_2 handle_حافظه(Mem *mem)
 	{
 		// To simplify memory handling, the functional backend makes the following assumptions:
 		// - Since async2sync or clk2fflogic must be run to use the functional backend,
@@ -566,159 +566,159 @@ private:
 		// - We ignore collision_x_mask because x is a dont care value for us anyway.
 		// - Since wr port j can only have priority over wr port i if j > i, if we do writes in
 		//   ascending index order the result will obey the priorty relation.
-		vector<Node> read_results;
-		auto &state = factory.add_state(mem->cell->name, ID($state), Sort(ceil_log2(mem->size), mem->width));
-		state.set_initial_value(MemContents(mem));
-		Node node = factory.value(state);
-		for (size_t i = 0; i < mem->wr_ports.size(); i++) {
-			const auto &wr = mem->wr_ports[i];
-			if (wr.clk_enable)
+		ویکټور<غوټه_2> read_results;
+		خپلکاری &state = factory.جمع_کړه_state(mem->cell->name, ID($state), ترتیبول_2(ceil_log2(mem->اندازه), mem->پلنوالی));
+		state.سېټ_initial_ارزښت(MemContents(mem));
+		غوټه_2 غوټه = factory.ارزښت(state);
+		لكل (اندازه_t i = 0; i < mem->wr_ports.اندازه(); i++) {
+			ثابت خپلکاری &wr = mem->wr_ports[i];
+			إذا (wr.clk_enable)
 				log_error("Write port %zd of memory %s.%s is clocked. This is not supported by the functional backend. "
 					"Call async2sync or clk2fflogic to avoid this error.\n", i, mem->module, PooledName(mem->module, mem->memid).unescape());
-			Node en = enqueue(driver_map(DriveSpec(wr.en)));
-			Node addr = enqueue(driver_map(DriveSpec(wr.addr)));
-			Node new_data = enqueue(driver_map(DriveSpec(wr.data)));
-			Node old_data = factory.memory_read(node, addr);
-			Node wr_data = simplifier.bitwise_mux(old_data, new_data, en);
-			node = factory.memory_write(node, addr, wr_data);
+			غوټه_2 en = کتار_ته_ورزیاتول(driver_map(DriveSpec(wr.en)));
+			غوټه_2 addr = کتار_ته_ورزیاتول(driver_map(DriveSpec(wr.addr)));
+			غوټه_2 new_معلومات = کتار_ته_ورزیاتول(driver_map(DriveSpec(wr.معلومات)));
+			غوټه_2 old_معلومات = factory.حافظه_read(غوټه, addr);
+			غوټه_2 wr_معلومات = simplifier.bitwise_mux(old_معلومات, new_معلومات, en);
+			غوټه = factory.حافظه_write(غوټه, addr, wr_معلومات);
 		}
-		if (mem->rd_ports.empty())
+		إذا (mem->rd_ports.تشه())
 			log_error("Memory %s.%s has no read ports. This is not supported by the functional backend. "
 				"Call opt_clean to remove it.", mem->module, PooledName(mem->module, mem->memid).unescape());
-		for (size_t i = 0; i < mem->rd_ports.size(); i++) {
-			const auto &rd = mem->rd_ports[i];
-			if (rd.clk_enable)
+		لكل (اندازه_t i = 0; i < mem->rd_ports.اندازه(); i++) {
+			ثابت خپلکاری &rd = mem->rd_ports[i];
+			إذا (rd.clk_enable)
 				log_error("Read port %zd of memory %s.%s is clocked. This is not supported by the functional backend. "
 					"Call memory_nordff to avoid this error.\n", i, mem->module, PooledName(mem->module, mem->memid).unescape());
-			Node addr = enqueue(driver_map(DriveSpec(rd.addr)));
-			read_results.push_back(factory.memory_read(node, addr));
+			غوټه_2 addr = کتار_ته_ورزیاتول(driver_map(DriveSpec(rd.addr)));
+			read_results.ټېل_شا(factory.حافظه_read(غوټه, addr));
 		}
-		state.set_next_value(node);
-		return concatenate_read_results(mem, read_results);
+		state.سېټ_بل_ارزښت(غوټه);
+		أرجع concatenate_read_results(mem, read_results);
 	}
-	void process_cell(Cell *cell)
+	فراغ process_cell(Cell *cell)
 	{
-		if (cell->is_mem_cell()) {
-			Mem *mem = memories.at(cell, nullptr);
-			if (mem == nullptr) {
+		إذا (cell->is_mem_cell()) {
+			Mem *mem = memories.at(cell, تش_اشاره);
+			إذا (mem == تش_اشاره) {
 				log_assert(cell->has_memid());
 				log_error("The design contains an unpacked memory at %s. This is not supported by the functional backend. "
 					"Call memory_collect to avoid this error.\n", log_const(cell->parameters.at(ID(MEMID))));
 			}
-			Node node = handle_memory(mem);
-			factory.update_pending(cell_outputs.at({cell, ID(RD_DATA)}), node);
-		} else if (cell->is_builtin_ff()) {
-			FfData ff(&ff_initvals, cell);
-			if (!ff.has_gclk)
+			غوټه_2 غوټه = handle_حافظه(mem);
+			factory.update_pending(cell_outputs.at({cell, ID(RD_معلومات)}), غوټه);
+		} وإلا إذا (cell->is_builtin_ff()) {
+			Ff_معلومات ff(&ff_initvals, cell);
+			إذا (!ff.has_gclk)
 				log_error("The design contains a %s flip-flop at %s. This is not supported by the functional backend. "
 					"Call async2sync or clk2fflogic to avoid this error.\n", cell->type.unescape(), cell);
-			auto &state = factory.add_state(ff.name, ID($state), Sort(ff.width));
-			Node q_value = factory.value(state);
-			factory.suggest_name(q_value, ff.name);
-			factory.update_pending(cell_outputs.at({cell, ID(Q)}), q_value);
-			state.set_next_value(enqueue(ff.sig_d));
-			state.set_initial_value(ff.val_init);
-		} else {
-			dict<IdString, Node> connections;
+			خپلکاری &state = factory.جمع_کړه_state(ff.name, ID($state), ترتیبول_2(ff.پلنوالی));
+			غوټه_2 q_ارزښت = factory.ارزښت(state);
+			factory.suggest_name(q_ارزښت, ff.name);
+			factory.update_pending(cell_outputs.at({cell, ID(Q)}), q_ارزښت);
+			state.سېټ_بل_ارزښت(کتار_ته_ورزیاتول(ff.sig_d));
+			state.سېټ_initial_ارزښت(ff.val_init);
+		} وإلا {
+			dict<IdString, غوټه_2> connections;
 			IdString output_name; // for the single output case
-			int n_outputs = 0;
-			for(auto const &[name, sigspec] : cell->connections()) {
-				if(driver_map.celltypes.cell_input(cell->type, name) && sigspec.size() > 0)
-					connections.insert({ name, enqueue(DriveChunkPort(cell, {name, sigspec})) });
-				if(driver_map.celltypes.cell_output(cell->type, name)) {
+			صحيح n_outputs = 0;
+			لكل(خپلکاری ثابت &[name, sigspec] : cell->connections()) {
+				إذا(driver_map.celltypes.cell_ننوت(cell->type, name) && sigspec.اندازه() > 0)
+					connections.ورننباسه({ name, کتار_ته_ورزیاتول(Drive_Chunk_پورټ(cell, {name, sigspec})) });
+				إذا(driver_map.celltypes.cell_output(cell->type, name)) {
 					output_name = name;
 					n_outputs++;
 				}
 			}
-			std::variant<dict<IdString, Node>, Node> outputs = simplifier.handle(cell->name, cell->type, cell->parameters, connections);
-			if(auto *nodep = std::get_if<Node>(&outputs); nodep != nullptr) {
+			std::variant<dict<IdString, غوټه_2>, غوټه_2> outputs = simplifier.handle(cell->name, cell->type, cell->parameters, connections);
+			إذا(خپلکاری *nodep = std::get_if<غوټه_2>(&outputs); nodep != تش_اشاره) {
 				log_assert(n_outputs == 1);
 				factory.update_pending(cell_outputs.at({cell, output_name}), *nodep);
-			} else {
-				for(auto [name, node] : std::get<dict<IdString, Node>>(outputs))
-					factory.update_pending(cell_outputs.at({cell, name}), node);
+			} وإلا {
+				لكل(خپلکاری [name, غوټه] : std::get<dict<IdString, غوټه_2>>(outputs))
+					factory.update_pending(cell_outputs.at({cell, name}), غوټه);
 			}
 		}
 	}
-	void undriven(const std::string& name) {
+	فراغ undriven(ثابت std::string& name) {
 		log_error("The design contains an undriven signal %s. This is not supported by the functional backend. "
 			"Call setundef with appropriate options to avoid this error.\n", name);
 	}
 	// we perform this check separately to give better error messages that include the wire or port name
-	void check_undriven(DriveSpec const& spec, std::string const& name) {
-		for(auto const &chunk : spec.chunks())
-			if(chunk.is_none())
+	فراغ check_undriven(DriveSpec ثابت& spec, std::string ثابت& name) {
+		لكل(خپلکاری ثابت &chunk : spec.chunks())
+			إذا(chunk.is_none())
 				undriven(name);
 	}
-public:
-	void process_queue()
+عام:
+	فراغ process_کتار()
 	{
-		for (; !queue.empty(); queue.pop_front()) {
-			if(auto p = std::get_if<Cell *>(&queue.front()); p != nullptr) {
+		لكل (; !کتار.تشه(); کتار.راوباسه_front()) {
+			إذا(خپلکاری p = std::get_if<Cell *>(&کتار.front()); p != تش_اشاره) {
 				process_cell(*p);
-				continue;
+				استمر;
 			}
 
-			DriveSpec spec = std::get<DriveSpec>(queue.front());
-			Node pending = graph_nodes.at(spec);
+			DriveSpec spec = std::get<DriveSpec>(کتار.front());
+			غوټه_2 pending = ګراف_nodes.at(spec);
 
-			if (spec.chunks().size() > 1) {
-				auto chunks = spec.chunks();
-				Node node = enqueue(chunks[0]);
-				for(size_t i = 1; i < chunks.size(); i++)
-					node = factory.concat(node, enqueue(chunks[i]));
-				factory.update_pending(pending, node);
-			} else if (spec.chunks().size() == 1) {
+			إذا (spec.chunks().اندازه() > 1) {
+				خپلکاری chunks = spec.chunks();
+				غوټه_2 غوټه = کتار_ته_ورزیاتول(chunks[0]);
+				لكل(اندازه_t i = 1; i < chunks.اندازه(); i++)
+					غوټه = factory.concat(غوټه, کتار_ته_ورزیاتول(chunks[i]));
+				factory.update_pending(pending, غوټه);
+			} وإلا إذا (spec.chunks().اندازه() == 1) {
 				DriveChunk chunk = spec.chunks()[0];
-				if (chunk.is_wire()) {
+				إذا (chunk.is_wire()) {
 					DriveChunkWire wire_chunk = chunk.wire();
-					if (wire_chunk.is_whole()) {
-						if (wire_chunk.wire->port_input) {
-							Node node = factory.value(factory.ir().input(wire_chunk.wire->name));
-							factory.suggest_name(node, wire_chunk.wire->name);
-							factory.update_pending(pending, node);
-						} else {
+					إذا (wire_chunk.is_ټولیز()) {
+						إذا (wire_chunk.wire->پورټ_ننوت) {
+							غوټه_2 غوټه = factory.ارزښت(factory.ir().ننوت(wire_chunk.wire->name));
+							factory.suggest_name(غوټه, wire_chunk.wire->name);
+							factory.update_pending(pending, غوټه);
+						} وإلا {
 							DriveSpec driver = driver_map(DriveSpec(wire_chunk));
 							check_undriven(driver, wire_chunk.wire->name.unescape());
-							Node node = enqueue(driver);
-							factory.suggest_name(node, wire_chunk.wire->name);
-							factory.update_pending(pending, node);
+							غوټه_2 غوټه = کتار_ته_ورزیاتول(driver);
+							factory.suggest_name(غوټه, wire_chunk.wire->name);
+							factory.update_pending(pending, غوټه);
 						}
-					} else {
-						DriveChunkWire whole_wire(wire_chunk.wire, 0, wire_chunk.wire->width);
-						Node node = factory.slice(enqueue(whole_wire), wire_chunk.offset, wire_chunk.width);
-						factory.update_pending(pending, node);
+					} وإلا {
+						DriveChunkWire ټولیز_wire(wire_chunk.wire, 0, wire_chunk.wire->پلنوالی);
+						غوټه_2 غوټه = factory.ټوټه(کتار_ته_ورزیاتول(ټولیز_wire), wire_chunk.دننه_واټن, wire_chunk.پلنوالی);
+						factory.update_pending(pending, غوټه);
 					}
-				} else if (chunk.is_port()) {
-					DriveChunkPort port_chunk = chunk.port();
-					if (port_chunk.is_whole()) {
-						if (driver_map.celltypes.cell_output(port_chunk.cell->type, port_chunk.port)) {
-							Node node = enqueue_cell(port_chunk.cell, port_chunk.port);
-							factory.update_pending(pending, node);
-						} else {
-							DriveSpec driver = driver_map(DriveSpec(port_chunk));
-							check_undriven(driver, port_chunk.cell->name.unescape() + " port " + PooledName(port_chunk.cell->module, port_chunk.port).unescape());
-							factory.update_pending(pending, enqueue(driver));
+				} وإلا إذا (chunk.is_پورټ()) {
+					Drive_Chunk_پورټ پورټ_chunk = chunk.پورټ();
+					إذا (پورټ_chunk.is_ټولیز()) {
+						إذا (driver_map.celltypes.cell_output(پورټ_chunk.cell->type, پورټ_chunk.پورټ)) {
+							غوټه_2 غوټه = کتار_ته_ورزیاتول_cell(پورټ_chunk.cell, پورټ_chunk.پورټ);
+							factory.update_pending(pending, غوټه);
+						} وإلا {
+							DriveSpec driver = driver_map(DriveSpec(پورټ_chunk));
+							check_undriven(driver, پورټ_chunk.cell->name.unescape() + " port " + PooledName(پورټ_chunk.cell->module, پورټ_chunk.پورټ).unescape());
+							factory.update_pending(pending, کتار_ته_ورزیاتول(driver));
 						}
-					} else {
-						DriveChunkPort whole_port(port_chunk.cell, port_chunk.port, 0, GetSize(port_chunk.cell->connections().at(port_chunk.port)));
-						Node node = factory.slice(enqueue(whole_port), port_chunk.offset, port_chunk.width);
-						factory.update_pending(pending, node);
+					} وإلا {
+						Drive_Chunk_پورټ ټولیز_پورټ(پورټ_chunk.cell, پورټ_chunk.پورټ, 0, Get_اندازه(پورټ_chunk.cell->connections().at(پورټ_chunk.پورټ)));
+						غوټه_2 غوټه = factory.ټوټه(کتار_ته_ورزیاتول(ټولیز_پورټ), پورټ_chunk.دننه_واټن, پورټ_chunk.پلنوالی);
+						factory.update_pending(pending, غوټه);
 					}
-				} else if (chunk.is_constant()) {
-					Node node = factory.constant(chunk.constant());
-					factory.suggest_name(node, "$const" + std::to_string(chunk.size()) + "b" + chunk.constant().as_string());
-					factory.update_pending(pending, node);
-				} else if (chunk.is_multiple()) {
+				} وإلا إذا (chunk.is_constant()) {
+					غوټه_2 غوټه = factory.constant(chunk.constant());
+					factory.suggest_name(غوټه, "$const" + std::منزل_string(chunk.اندازه()) + "b" + chunk.constant().as_string());
+					factory.update_pending(pending, غوټه);
+				} وإلا إذا (chunk.is_مضرب()) {
 					log_error("Signal %s has multiple drivers. This is not supported by the functional backend. "
 						"If tristate drivers are used, call tristate -formal to avoid this error.\n", log_signal(chunk));
-				} else if (chunk.is_none()) {
+				} وإلا إذا (chunk.is_none()) {
 					undriven(log_signal(chunk));
-				} else {
+				} وإلا {
 					log_error("unhandled drivespec: %s\n", log_signal(chunk));
 					log_abort();
 				}
-			} else {
+			} وإلا {
 				log_abort();
 			}
 		}
@@ -728,132 +728,132 @@ public:
 IR IR::from_module(Module *module) {
 	IR ir;
     ir.design = module->design;
-    auto factory = ir.factory();
+    خپلکاری factory = ir.factory();
     FunctionalIRConstruction ctor(module, factory);
-    ctor.process_queue();
-    ir.topological_sort();
+    ctor.process_کتار();
+    ir.topological_ترتیبول();
     ir.forward_buf();
-    return ir;
+    أرجع ir;
 }
 
-void IR::topological_sort() {
-    Graph::SccAdaptor compute_graph_scc(_graph);
-    bool scc = false;
-    std::vector<int> perm;
-    TopoSortedSccs toposort(compute_graph_scc, [&](int *begin, int *end) {
-        perm.insert(perm.end(), begin, end);
-        if (end > begin + 1)
+فراغ IR::topological_ترتیبول() {
+    ګراف::SccAdaptor compute_ګراف_scc(ګراف_4);
+    منطقي scc = خطأ;
+    std::ویکټور<صحيح> perm;
+    TopoSortedSccs toposort(compute_ګراف_scc, [&](صحيح *begin, صحيح *پای_ټکی) {
+        perm.ورننباسه(perm.پای_ټکی(), begin, پای_ټکی);
+        إذا (پای_ټکی > begin + 1)
         {
             log_warning("Combinational loop:\n");
-            for (int *i = begin; i != end; ++i) {
-				Node node(_graph[*i], design);
-                log("- %s = %s\n", node.name().unescape(), node.to_string());
+            لكل (صحيح *i = begin; i != پای_ټکی; ++i) {
+				غوټه_2 غوټه(ګراف_4[*i], design);
+                لوګاریتم("- %s = %s\n", غوټه.name().unescape(), غوټه.منزل_string());
 			}
-            log("\n");
-            scc = true;
+            لوګاریتم("\n");
+            scc = ریښتیا;
         }
     });
-	for(const auto &[name, state]: _states)
-		if(state.has_next_value())
-			toposort.process(state.next_value().id());
-	for(const auto &[name, output]: _outputs)
-		if(output.has_value())
-			toposort.process(output.value().id());
+	لكل(ثابت خپلکاری &[name, state]: حالتونه_2)
+		إذا(state.has_بل_ارزښت())
+			toposort.process(state.بل_ارزښت().id());
+	لكل(ثابت خپلکاری &[name, output]: _outputs)
+		إذا(output.has_ارزښت())
+			toposort.process(output.ارزښت().id());
 	// any nodes untouched by this point are dead code and will be removed by permute
-    _graph.permute(perm);
-    if(scc) log_error("The design contains combinational loops. This is not supported by the functional backend. "
+    ګراف_4.ترتیب_بدلول(perm);
+    إذا(scc) log_error("The design contains combinational loops. This is not supported by the functional backend. "
 		"Try `scc -select; simplemap; select -clear` to avoid this error.\n");
 }
 
-static IdString merge_name(IdString a, IdString b) {
-	if(!a.isPublic() && b.isPublic())
-		return b;
-	else
-		return a;
+ساكن IdString یوځای_name(IdString a, IdString b) {
+	إذا(!a.is_عامه() && b.is_عامه())
+		أرجع b;
+	وإلا
+		أرجع a;
 }
 
-void IR::forward_buf() {
-    std::vector<int> perm, alias;
+فراغ IR::forward_buf() {
+    std::ویکټور<صحيح> perm, alias;
     perm.clear();
 
-    for (int i = 0; i < _graph.size(); ++i)
+    لكل (صحيح i = 0; i < ګراف_4.اندازه(); ++i)
     {
-        auto node = _graph[i];
-        if (node.function().fn() == Fn::buf && node.arg(0).index() < i)
+        خپلکاری غوټه = ګراف_4[i];
+        إذا (غوټه.function().fn() == Fn::buf && غوټه.arg(0).شاخص() < i)
         {
-            int target_index = alias[node.arg(0).index()];
-            auto target_node = _graph[perm[target_index]];
-			if(node.has_sparse_attr()) {
-				if(target_node.has_sparse_attr()) {
-					IdString id = merge_name(node.sparse_attr(), target_node.sparse_attr());
-					target_node.sparse_attr() = id;
-				} else {
-					IdString id = node.sparse_attr();
-					target_node.sparse_attr() = id;
+            صحيح موخه_شاخص = alias[غوټه.arg(0).شاخص()];
+            خپلکاری موخه_غوټه = ګراف_4[perm[موخه_شاخص]];
+			إذا(غوټه.has_sparse_attr()) {
+				إذا(موخه_غوټه.has_sparse_attr()) {
+					IdString id = یوځای_name(غوټه.sparse_attr(), موخه_غوټه.sparse_attr());
+					موخه_غوټه.sparse_attr() = id;
+				} وإلا {
+					IdString id = غوټه.sparse_attr();
+					موخه_غوټه.sparse_attr() = id;
 				}
 			}
-            alias.push_back(target_index);
+            alias.ټېل_شا(موخه_شاخص);
         }
-        else
+        وإلا
         {
-            alias.push_back(GetSize(perm));
-            perm.push_back(i);
+            alias.ټېل_شا(Get_اندازه(perm));
+            perm.ټېل_شا(i);
         }
     }
-    _graph.permute(perm, alias);
+    ګراف_4.ترتیب_بدلول(perm, alias);
 }
 
 // Quoting routine to make error messages nicer
-static std::string quote_fmt(const char *fmt)
+ساكن std::string quote_fmt(ثابت حرف *fmt)
 {
 	std::string r;
-	for(const char *p = fmt; *p != 0; p++) {
-		switch(*p) {
-		case '\n': r += "\\n"; break;
-		case '\t': r += "\\t"; break;
-		case '"': r += "\\\""; break;
-		case '\\': r += "\\\\"; break;
-		default: r += *p; break;
+	لكل(ثابت حرف *p = fmt; *p != 0; p++) {
+		بدل(*p) {
+		حالة '\n': r += "\\n"; اكسر;
+		حالة '\t': r += "\\t"; اكسر;
+		حالة '"': r += "\\\""; اكسر;
+		حالة '\\': r += "\\\\"; اكسر;
+		افتراضي: r += *p; اكسر;
 		}
 	}
-	return r;
+	أرجع r;
 }
 
-void Writer::print_impl(const char *fmt, vector<std::function<void()>> &fns)
+فراغ Writer::print_impl(ثابت حرف *fmt, ویکټور<std::function<فراغ()>> &fns)
 {
-	size_t next_index = 0;
-	for(const char *p = fmt; *p != 0; p++)
-		switch(*p) {
-		case '{':
-			if(*++p == '{') {
+	اندازه_t بل_شاخص = 0;
+	لكل(ثابت حرف *p = fmt; *p != 0; p++)
+		بدل(*p) {
+		حالة '{':
+			إذا(*++p == '{') {
 				*os << '{';
-			} else {
-				char *pe;
-				size_t index = strtoul(p, &pe, 10);
-				if(*pe != '}')
+			} وإلا {
+				حرف *pe;
+				اندازه_t شاخص = strtoul(p, &pe, 10);
+				إذا(*pe != '}')
 					log_error("invalid format string: expected {<number>}, {} or {{, got \"%s\": \"%s\"\n",
 						quote_fmt(std::string(p - 1, pe - p + 2).c_str()).c_str(),
 						quote_fmt(fmt).c_str());
-				if(p == pe)
-					index = next_index;
-				else
+				إذا(p == pe)
+					شاخص = بل_شاخص;
+				وإلا
 					p = pe;
-				if(index >= fns.size())
-					log_error("invalid format string: index %zu out of bounds (%zu): \"%s\"\n", index, fns.size(), quote_fmt(fmt));
-				fns[index]();
-				next_index = index + 1;
+				إذا(شاخص >= fns.اندازه())
+					log_error("invalid format string: index %zu out of bounds (%zu): \"%s\"\n", شاخص, fns.اندازه(), quote_fmt(fmt));
+				fns[شاخص]();
+				بل_شاخص = شاخص + 1;
 			}
-			break;
-		case '}':
+			اكسر;
+		حالة '}':
 			p++;
-			if(*p != '}')
+			إذا(*p != '}')
 				log_error("invalid format string: unescaped }: \"%s\"\n", quote_fmt(fmt));
 			*os << '}';
-			break;
-		default:
+			اكسر;
+		افتراضي:
 			*os << *p;
 		}
 }
 
 }
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی

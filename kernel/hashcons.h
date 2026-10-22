@@ -1,11 +1,11 @@
-#ifndef YOSYS_HASHCONS_H
-#define YOSYS_HASHCONS_H
+#که_نه_تعریف_شوی YOSYS_HASHCONS_H
+#تعریف_کړه YOSYS_HASHCONS_H
 
-#include "kernel/yosys_common.h"
+#ضمن "kernel/yosys_common.h"
 
-#include <bit>
-#include <deque>
-#include <vector>
+#ضمن <bit>
+#ضمن <deque>
+#ضمن <vector>
 
 /**
  * Implements deduplicating backing storage indexed by content hash
@@ -13,79 +13,79 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-template<typename Derived, typename Node, typename Ref>
-struct HashConsPool {
-public:
-	bool is_live(Ref ref) const;
+کينډۍ<typename Derived, typename غوټه_2, typename Ref>
+بنية HashConsPool {
+عام:
+	bool is_ژوندی(Ref ref) ثابت;
 
-protected:
-	std::deque<Node> backing;
-	std::vector<Ref> table;
-	std::vector<size_t> free_list;
+محمي:
+	std::deque<غوټه_2> backing;
+	std::ویکټور<Ref> جدول_2;
+	std::ویکټور<اندازه_t> free_list;
 
 	HashConsPool();
-	HashConsPool(const HashConsPool& other) = default;
+	HashConsPool(ثابت HashConsPool& other) = افتراضي;
 	HashConsPool(HashConsPool&& other);
-	HashConsPool& operator=(const HashConsPool& other) = default;
-	HashConsPool& operator=(HashConsPool&& other);
+	HashConsPool& چلوونکی=(ثابت HashConsPool& other) = افتراضي;
+	HashConsPool& چلوونکی=(HashConsPool&& other);
 
-	static void check_ready();
+	ساكن فراغ check_ready();
 
-	const Node& operator[] (Ref ref) const;
+	ثابت غوټه_2& چلوونکی[] (Ref ref) ثابت;
 
-	template<typename Eq>
-	Ref find_hashed(uint64_t hash, Eq&& eq) const;
-	Ref add_inner(Node t);
+	کينډۍ<typename Eq>
+	Ref پیدا_کړه_hashed(uint64_t hash, Eq&& eq) ثابت;
+	Ref جمع_کړه_inner(غوټه_2 t);
 
-	template<typename Roots>
-	size_t gc(const Roots& roots);
+	کينډۍ<typename Roots>
+	اندازه_t gc(ثابت Roots& roots);
 
-private:
+خاص:
 	Derived* self();
-	const Derived* self() const;
+	ثابت Derived* self() ثابت;
 
-	void reset();
+	فراغ reset();
 
-	static bool is_static(Ref ref);
+	ساكن bool is_static(Ref ref);
 
-	struct RefIterator {
-		const HashConsPool* pool;
-		size_t idx;
-		size_t stop;
+	بنية RefIterator {
+		ثابت HashConsPool* pool;
+		اندازه_t idx;
+		اندازه_t stop;
 		bool skip_dead;
 
-		void settle();
-		Ref operator*() const;
-		RefIterator& operator++();
-		bool operator!=(const RefIterator& other) const;
+		فراغ settle();
+		Ref چلوونکی*() ثابت;
+		RefIterator& چلوونکی++();
+		bool چلوونکی!=(ثابت RefIterator& other) ثابت;
 	};
 
-	struct RefRange {
-		const HashConsPool* pool;
-		size_t first;
-		size_t stop;
+	بنية RefRange {
+		ثابت HashConsPool* pool;
+		اندازه_t لومړی;
+		اندازه_t stop;
 		bool skip_dead;
 
-		RefIterator begin() const;
-		RefIterator end() const;
+		RefIterator begin() ثابت;
+		RefIterator پای_ټکی() ثابت;
 	};
 
-	RefRange refs(bool include_statics = true) const;
+	RefRange refs(bool include_statics = true) ثابت;
 	// Includes the dead
-	RefRange slots() const;
+	RefRange slots() ثابت;
 
-	void rebuild_index();
-	size_t home_slot(uint64_t hash) const;
-	size_t next_slot(size_t slot) const;
-	void index_insert(Ref ref);
-	void index_erase(Ref ref);
-	void grow_index();
+	فراغ rebuild_شاخص();
+	اندازه_t home_خونه(uint64_t hash) ثابت;
+	اندازه_t بل_خونه(اندازه_t خونه) ثابت;
+	فراغ شاخص_ورننباسه(Ref ref);
+	فراغ شاخص_erase(Ref ref);
+	فراغ grow_شاخص();
 
-	size_t size() const;
-	bool slot_live(size_t abs) const;
-	void mark_live(Ref ref, pool<Ref>& live) const;
+	اندازه_t اندازه() ثابت;
+	bool خونه_ژوندی(اندازه_t مطلق_قیمت) ثابت;
+	فراغ mark_ژوندی(Ref ref, pool<Ref>& ژوندی) ثابت;
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی
 
-#endif
+#د_که_پای

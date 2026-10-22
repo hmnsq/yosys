@@ -17,11 +17,11 @@
  *
  */
 
-#ifndef QCSAT_H
-#define QCSAT_H
+#که_نه_تعریف_شوی QCSAT_H
+#تعریف_کړه QCSAT_H
 
-#include "kernel/satgen.h"
-#include "kernel/modtools.h"
+#ضمن "kernel/satgen.h"
+#ضمن "kernel/modtools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -33,7 +33,7 @@ YOSYS_NAMESPACE_BEGIN
 // skipped and the solver spuriously returns SAT with a solution that
 // cannot exist in reality due to skipped constraints (ie. only UNSAT results
 // from this class should be considered binding).
-struct QuickConeSat {
+بنية چټک_Cone_Sat {
 	ModWalker &modwalker;
 	ezSatPtr ez;
 	SatGen satgen;
@@ -45,30 +45,30 @@ struct QuickConeSat {
 	// - 2: addition, subtraction, greater/less than comparisons, lcu
 	// - 3: shifts
 	// - 4: multiplication, division, power
-	int max_cell_complexity = 2;
+	صحيح max_cell_complexity = 2;
 	// The maximum number of cells to import, or 0 for no limit.
-	int max_cell_count = 0;
+	صحيح max_cell_شمېر = 0;
 	// If non-0, skip importing cells with more than this number of output bits.
-	int max_cell_outs = 0;
+	صحيح max_cell_outs = 0;
 
 	// Internal state.
 	pool<RTLIL::Cell*> imported_cells;
 	pool<RTLIL::Wire*> imported_onehot;
-	pool<RTLIL::SigBit> bits_queue;
+	pool<RTLIL::Sig_بټ> بټونه_کتار;
 
-	QuickConeSat(ModWalker &modwalker) : modwalker(modwalker), ez(), satgen(ez.get(), &modwalker.sigmap) {}
+	چټک_Cone_Sat(ModWalker &modwalker) : modwalker(modwalker), ez(), satgen(ez.get(), &modwalker.sigmap) {}
 
 	// Imports a signal into the SAT solver, queues its input cone to be
 	// imported in the next prepare() call.
-	std::vector<int> importSig(SigSpec sig);
-	int importSigBit(SigBit bit);
+	std::ویکټور<صحيح> importSig(SigSpec sig);
+	صحيح import_Sig_بټ(Sig_بټ بټ);
 
 	// Imports the input cones of all previously importSig'd signals into
 	// the SAT solver.
-	void prepare();
+	فراغ prepare();
 
 	// Returns the "complexity level" of a given cell.
-	static int cell_complexity(RTLIL::Cell *cell);
+	ساكن صحيح cell_complexity(RTLIL::Cell *cell);
 };
 
 // A deterministic effort budget for SAT-based optimizations, measured in solver
@@ -78,35 +78,35 @@ struct QuickConeSat {
 // spends from it in every batch, rather than resetting the budget per solver.
 // Spending the budget only skips optimizations, and it never affects correctness,
 // because a skipped proof just leaves a candidate un-optimized.
-struct SatEffortBudget {
-	enum class Result { Sat, Unsat, LimitReached };
+بنية SatEffortBudget {
+	تعداد class پایله_2 { Sat, Unsat, حد_Reached };
 
 	// Effort charged per imported cell
-	static constexpr int64_t import_cell_cost = 100;
+	ساكن constexpr int64_t import_cell_لګښت = 100;
 
 	// starting budget (0 = unlimited)
-	int64_t total = 0;
-	int64_t remaining = 0;
+	int64_t ټول = 0;
+	int64_t پاتې_شوی = 0;
 
 	SatEffortBudget() {}
-	explicit SatEffortBudget(int64_t total) : total(total), remaining(total) {}
+	explicit SatEffortBudget(int64_t ټول) : ټول(ټول), پاتې_شوی(ټول) {}
 
-	bool enabled() const { return total > 0; }
+	bool enabled() ثابت { أرجع ټول > 0; }
 
 	// True once the budget is used up
-	bool spent() const { return enabled() && remaining <= 0; }
+	bool spent() ثابت { أرجع enabled() && پاتې_شوی <= 0; }
 
 	// Charge for the cells imported into qcsat since the previous call (pricing the cells pulled in)
 	// cells_charged is how many of qcsat's imported cells are already paid for, returns the new count
-	int64_t charge_import(QuickConeSat &qcsat, int64_t cells_charged);
+	int64_t charge_import(چټک_Cone_Sat &qcsat, int64_t cells_charged);
 
-	Result solve(QuickConeSat &qcsat, int64_t cap, const std::vector<int> &modelExprs,
-			std::vector<bool> &modelVals, const std::vector<int> &assumptions);
+	پایله_2 solve(چټک_Cone_Sat &qcsat, int64_t cap, ثابت std::ویکټور<صحيح> &modelExprs,
+			std::ویکټور<bool> &modelVals, ثابت std::ویکټور<صحيح> &assumptions);
 
 	// Assumptions-only query without a model
-	Result solve(QuickConeSat &qcsat, int64_t cap, const std::vector<int> &assumptions);
+	پایله_2 solve(چټک_Cone_Sat &qcsat, int64_t cap, ثابت std::ویکټور<صحيح> &assumptions);
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی
 
-#endif
+#د_که_پای

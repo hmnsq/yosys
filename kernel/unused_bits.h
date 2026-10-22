@@ -1,54 +1,54 @@
-#ifndef UNUSED_BITS_H
-#define UNUSED_BITS_H
+#که_نه_تعریف_شوی ناکارول_شوی_بټونه_H
+#تعریف_کړه ناکارول_شوی_بټونه_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/newcelltypes.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/sigtools.h"
+#ضمن "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct UnusedBits
+بنية ناکارول_شوی_بټونه
 {
 	SigMap sigmap;
-	pool<RTLIL::SigBit> used;
+	pool<RTLIL::Sig_بټ> کارول_شوی;
 
-	UnusedBits(RTLIL::Module *module) : sigmap(module)
+	ناکارول_شوی_بټونه(RTLIL::Module *module) : sigmap(module)
 	{
 		NewCellTypes ct(module->design);
-		collect_used(module, ct);
+		collect_کارول_شوی(module, ct);
 	}
 
-	UnusedBits(RTLIL::Module *module, const NewCellTypes &ct) : sigmap(module)
+	ناکارول_شوی_بټونه(RTLIL::Module *module, ثابت NewCellTypes &ct) : sigmap(module)
 	{
-		collect_used(module, ct);
+		collect_کارول_شوی(module, ct);
 	}
 
-	void collect_used(RTLIL::Module *module, const NewCellTypes &ct)
+	فراغ collect_کارول_شوی(RTLIL::Module *module, ثابت NewCellTypes &ct)
 	{
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				if (!ct.cell_output(cell->type, conn.first))
-					add_used(conn.second);
+		لكل (خپلکاری cell : module->cells())
+			لكل (خپلکاری &conn : cell->connections())
+				إذا (!ct.cell_output(cell->type, conn.لومړی))
+					جمع_کړه_کارول_شوی(conn.دوهم);
 
-		for (auto wire : module->wires())
-			if (wire->port_output)
-				add_used(wire);
+		لكل (خپلکاری wire : module->wires())
+			إذا (wire->پورټ_output)
+				جمع_کړه_کارول_شوی(wire);
 	}
 
-	void add_used(const RTLIL::SigSpec &sig)
+	فراغ جمع_کړه_کارول_شوی(ثابت RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sigmap(sig))
-			if (bit.wire != nullptr)
-				used.insert(bit);
+		لكل (خپلکاری بټ : sigmap(sig))
+			إذا (بټ.wire != nullptr)
+				کارول_شوی.ورننباسه(بټ);
 	}
 
-	bool check(RTLIL::SigBit bit) const
+	bool check(RTLIL::Sig_بټ بټ) ثابت
 	{
-		RTLIL::SigBit mapped = sigmap(bit);
-		return mapped.wire != nullptr && !used.count(mapped);
+		RTLIL::Sig_بټ mapped = sigmap(بټ);
+		أرجع mapped.wire != nullptr && !کارول_شوی.شمېر(mapped);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی
 
-#endif
+#د_که_پای

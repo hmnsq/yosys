@@ -17,288 +17,288 @@
  *
  */
 
-#ifndef MACC_H
-#define MACC_H
+#که_نه_تعریف_شوی MACC_H
+#تعریف_کړه MACC_H
 
-#include "kernel/yosys.h"
+#ضمن "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct Macc
+بنية Macc
 {
-	struct term_t {
-		RTLIL::SigSpec in_a, in_b;
-		bool is_signed, do_subtract;
+	بنية غړی_t {
+		RTLIL::SigSpec دننه_a, دننه_b;
+		bool is_signed, do_کمول;
 	};
-	std::vector<term_t> terms;
+	std::ویکټور<غړی_t> terms;
 
-	void optimize(int width)
+	فراغ optimize(صحيح پلنوالی)
 	{
-		std::vector<term_t> new_terms;
-		RTLIL::Const off(0, width);
+		std::ویکټور<غړی_t> new_terms;
+		RTLIL::Const off(0, پلنوالی);
 
-		for (auto &port : terms)
+		لكل (خپلکاری &پورټ : terms)
 		{
-			if (GetSize(port.in_a) == 0 && GetSize(port.in_b) == 0)
-				continue;
+			إذا (Get_اندازه(پورټ.دننه_a) == 0 && Get_اندازه(پورټ.دننه_b) == 0)
+				استمر;
 
-			if (GetSize(port.in_a) < GetSize(port.in_b))
-				std::swap(port.in_a, port.in_b);
+			إذا (Get_اندازه(پورټ.دننه_a) < Get_اندازه(پورټ.دننه_b))
+				std::بدلون(پورټ.دننه_a, پورټ.دننه_b);
 
-			if (port.in_a.is_fully_const() && port.in_b.is_fully_const()) {
-				RTLIL::Const v = port.in_a.as_const();
-				if (GetSize(port.in_b))
-					v = const_mul(v, port.in_b.as_const(), port.is_signed, port.is_signed, width);
-				if (port.do_subtract)
-					off = const_sub(off, v, port.is_signed, port.is_signed, width);
-				else
-					off = const_add(off, v, port.is_signed, port.is_signed, width);
-				continue;
+			إذا (پورټ.دننه_a.is_fully_const() && پورټ.دننه_b.is_fully_const()) {
+				RTLIL::Const v = پورټ.دننه_a.as_const();
+				إذا (Get_اندازه(پورټ.دننه_b))
+					v = const_mul(v, پورټ.دننه_b.as_const(), پورټ.is_signed, پورټ.is_signed, پلنوالی);
+				إذا (پورټ.do_کمول)
+					off = const_sub(off, v, پورټ.is_signed, پورټ.is_signed, پلنوالی);
+				وإلا
+					off = const_جمع_کړه(off, v, پورټ.is_signed, پورټ.is_signed, پلنوالی);
+				استمر;
 			}
 
-			if (port.is_signed) {
-				while (GetSize(port.in_a) > 1 && port.in_a[GetSize(port.in_a)-1] == port.in_a[GetSize(port.in_a)-2])
-					port.in_a.remove(GetSize(port.in_a)-1);
-				while (GetSize(port.in_b) > 1 && port.in_b[GetSize(port.in_b)-1] == port.in_b[GetSize(port.in_b)-2])
-					port.in_b.remove(GetSize(port.in_b)-1);
-			} else {
-				while (GetSize(port.in_a) > 1 && port.in_a[GetSize(port.in_a)-1] == State::S0)
-					port.in_a.remove(GetSize(port.in_a)-1);
-				while (GetSize(port.in_b) > 1 && port.in_b[GetSize(port.in_b)-1] == State::S0)
-					port.in_b.remove(GetSize(port.in_b)-1);
+			إذا (پورټ.is_signed) {
+				طالما (Get_اندازه(پورټ.دننه_a) > 1 && پورټ.دننه_a[Get_اندازه(پورټ.دننه_a)-1] == پورټ.دننه_a[Get_اندازه(پورټ.دننه_a)-2])
+					پورټ.دننه_a.remove(Get_اندازه(پورټ.دننه_a)-1);
+				طالما (Get_اندازه(پورټ.دننه_b) > 1 && پورټ.دننه_b[Get_اندازه(پورټ.دننه_b)-1] == پورټ.دننه_b[Get_اندازه(پورټ.دننه_b)-2])
+					پورټ.دننه_b.remove(Get_اندازه(پورټ.دننه_b)-1);
+			} وإلا {
+				طالما (Get_اندازه(پورټ.دننه_a) > 1 && پورټ.دننه_a[Get_اندازه(پورټ.دننه_a)-1] == State::S0)
+					پورټ.دننه_a.remove(Get_اندازه(پورټ.دننه_a)-1);
+				طالما (Get_اندازه(پورټ.دننه_b) > 1 && پورټ.دننه_b[Get_اندازه(پورټ.دننه_b)-1] == State::S0)
+					پورټ.دننه_b.remove(Get_اندازه(پورټ.دننه_b)-1);
 			}
 
-			new_terms.push_back(port);
+			new_terms.ټېل_شا(پورټ);
 		}
 
-		if (off.as_bool()) {
-			term_t port;
-			port.in_a = off;
-			port.is_signed = false;
-			port.do_subtract = false;
-			new_terms.push_back(port);
+		إذا (off.as_bool()) {
+			غړی_t پورټ;
+			پورټ.دننه_a = off;
+			پورټ.is_signed = false;
+			پورټ.do_کمول = false;
+			new_terms.ټېل_شا(پورټ);
 		}
 
-		new_terms.swap(terms);
+		new_terms.بدلون(terms);
 	}
 
-	void from_cell_v1(RTLIL::Cell *cell)
+	فراغ from_cell_v1(RTLIL::Cell *cell)
 	{
-		RTLIL::SigSpec port_a = cell->getPort(ID::A);
+		RTLIL::SigSpec پورټ_a = cell->get_پورټ(ID::A);
 
 		terms.clear();
 
-		auto config_bits = cell->getParam(ID::CONFIG);
-		int config_cursor = 0;
+		خپلکاری config_بټونه = cell->getParam(ID::CONFIG);
+		صحيح config_cursor = 0;
 
-		int config_width = cell->getParam(ID::CONFIG_WIDTH).as_int();
-		log_assert(GetSize(config_bits) >= config_width);
+		صحيح config_پلنوالی = cell->getParam(ID::CONFIG_پلنوالی).as_int();
+		log_assert(Get_اندازه(config_بټونه) >= config_پلنوالی);
 
-		int num_bits = 0;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 1;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 2;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 4;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 8;
+		صحيح عدد_بټونه = 0;
+		إذا (config_بټونه[config_cursor++] == State::S1) عدد_بټونه |= 1;
+		إذا (config_بټونه[config_cursor++] == State::S1) عدد_بټونه |= 2;
+		إذا (config_بټونه[config_cursor++] == State::S1) عدد_بټونه |= 4;
+		إذا (config_بټونه[config_cursor++] == State::S1) عدد_بټونه |= 8;
 
-		int port_a_cursor = 0;
-		while (port_a_cursor < GetSize(port_a))
+		صحيح پورټ_a_cursor = 0;
+		طالما (پورټ_a_cursor < Get_اندازه(پورټ_a))
 		{
-			log_assert(config_cursor + 2 + 2*num_bits <= config_width);
+			log_assert(config_cursor + 2 + 2*عدد_بټونه <= config_پلنوالی);
 
-			term_t this_port;
-			this_port.is_signed = config_bits[config_cursor++] == State::S1;
-			this_port.do_subtract = config_bits[config_cursor++] == State::S1;
+			غړی_t this_پورټ;
+			this_پورټ.is_signed = config_بټونه[config_cursor++] == State::S1;
+			this_پورټ.do_کمول = config_بټونه[config_cursor++] == State::S1;
 
-			int size_a = 0;
-			for (int i = 0; i < num_bits; i++)
-				if (config_bits[config_cursor++] == State::S1)
-					size_a |= 1 << i;
+			صحيح اندازه_a = 0;
+			لكل (صحيح i = 0; i < عدد_بټونه; i++)
+				إذا (config_بټونه[config_cursor++] == State::S1)
+					اندازه_a |= 1 << i;
 
-			this_port.in_a = port_a.extract(port_a_cursor, size_a);
-			port_a_cursor += size_a;
+			this_پورټ.دننه_a = پورټ_a.ایستل(پورټ_a_cursor, اندازه_a);
+			پورټ_a_cursor += اندازه_a;
 
-			int size_b = 0;
-			for (int i = 0; i < num_bits; i++)
-				if (config_bits[config_cursor++] == State::S1)
-					size_b |= 1 << i;
+			صحيح اندازه_b = 0;
+			لكل (صحيح i = 0; i < عدد_بټونه; i++)
+				إذا (config_بټونه[config_cursor++] == State::S1)
+					اندازه_b |= 1 << i;
 
-			this_port.in_b = port_a.extract(port_a_cursor, size_b);
-			port_a_cursor += size_b;
+			this_پورټ.دننه_b = پورټ_a.ایستل(پورټ_a_cursor, اندازه_b);
+			پورټ_a_cursor += اندازه_b;
 
-			if (size_a || size_b)
-				terms.push_back(this_port);
+			إذا (اندازه_a || اندازه_b)
+				terms.ټېل_شا(this_پورټ);
 		}
 
-		for (auto bit : cell->getPort(ID::B))
-			terms.push_back(term_t{{bit}, {}, false, false});
+		لكل (خپلکاری بټ : cell->get_پورټ(ID::B))
+			terms.ټېل_شا(غړی_t{{بټ}, {}, false, false});
 
-		log_assert(config_cursor == config_width);
-		log_assert(port_a_cursor == GetSize(port_a));
+		log_assert(config_cursor == config_پلنوالی);
+		log_assert(پورټ_a_cursor == Get_اندازه(پورټ_a));
 	}
 
-	void from_cell(RTLIL::Cell *cell)
+	فراغ from_cell(RTLIL::Cell *cell)
 	{
-		if (cell->type == ID($macc)) {
+		إذا (cell->type == ID($macc)) {
 			from_cell_v1(cell);
-			return;
+			أرجع;
 		}
 		log_assert(cell->type == ID($macc_v2));
 
-		RTLIL::SigSpec port_a = cell->getPort(ID::A);
-		RTLIL::SigSpec port_b = cell->getPort(ID::B);
-		RTLIL::SigSpec port_c = cell->getPort(ID::C);
+		RTLIL::SigSpec پورټ_a = cell->get_پورټ(ID::A);
+		RTLIL::SigSpec پورټ_b = cell->get_پورټ(ID::B);
+		RTLIL::SigSpec پورټ_c = cell->get_پورټ(ID::C);
 
 		terms.clear();
 
-		int nproducts = cell->getParam(ID::NPRODUCTS).as_int();
-		const Const &product_neg = cell->getParam(ID::PRODUCT_NEGATED);
-		const Const &a_widths = cell->getParam(ID::A_WIDTHS);
-		const Const &b_widths = cell->getParam(ID::B_WIDTHS);
-		const Const &a_signed = cell->getParam(ID::A_SIGNED);
-		const Const &b_signed = cell->getParam(ID::B_SIGNED);
-		int ai = 0, bi = 0;
-		for (int i = 0; i < nproducts; i++) {
-			term_t term;
+		صحيح nproducts = cell->getParam(ID::NPRODUCTS).as_int();
+		ثابت Const &حاصل_ضرب_neg = cell->getParam(ID::حاصل_ضرب_NEGATED);
+		ثابت Const &a_widths = cell->getParam(ID::A_WIDTHS);
+		ثابت Const &b_widths = cell->getParam(ID::B_WIDTHS);
+		ثابت Const &a_signed = cell->getParam(ID::A_SIGNED);
+		ثابت Const &b_signed = cell->getParam(ID::B_SIGNED);
+		صحيح ai = 0, bi = 0;
+		لكل (صحيح i = 0; i < nproducts; i++) {
+			غړی_t غړی;
 
 			log_assert(a_signed[i] == b_signed[i]);
-			term.is_signed = (a_signed[i] == State::S1);
-			int a_width = a_widths.extract(16 * i, 16).as_int(false);
-			int b_width = b_widths.extract(16 * i, 16).as_int(false);
+			غړی.is_signed = (a_signed[i] == State::S1);
+			صحيح a_پلنوالی = a_widths.ایستل(16 * i, 16).as_int(false);
+			صحيح b_پلنوالی = b_widths.ایستل(16 * i, 16).as_int(false);
 
-			term.in_a = port_a.extract(ai, a_width);
-			ai += a_width;
-			term.in_b = port_b.extract(bi, b_width);
-			bi += b_width;
-			term.do_subtract = (product_neg[i] == State::S1);
+			غړی.دننه_a = پورټ_a.ایستل(ai, a_پلنوالی);
+			ai += a_پلنوالی;
+			غړی.دننه_b = پورټ_b.ایستل(bi, b_پلنوالی);
+			bi += b_پلنوالی;
+			غړی.do_کمول = (حاصل_ضرب_neg[i] == State::S1);
 
-			terms.push_back(term);
+			terms.ټېل_شا(غړی);
 		}
-		log_assert(port_a.size() == ai);
-		log_assert(port_b.size() == bi);
+		log_assert(پورټ_a.اندازه() == ai);
+		log_assert(پورټ_b.اندازه() == bi);
 
-		int naddends = cell->getParam(ID::NADDENDS).as_int();
-		const Const &addend_neg = cell->getParam(ID::ADDEND_NEGATED);
-		const Const &c_widths = cell->getParam(ID::C_WIDTHS);
-		const Const &c_signed = cell->getParam(ID::C_SIGNED);
-		int ci = 0;
-		for (int i = 0; i < naddends; i++) {
-			term_t term;
+		صحيح naddends = cell->getParam(ID::NADDENDS).as_int();
+		ثابت Const &addend_neg = cell->getParam(ID::ADDEND_NEGATED);
+		ثابت Const &c_widths = cell->getParam(ID::C_WIDTHS);
+		ثابت Const &c_signed = cell->getParam(ID::C_SIGNED);
+		صحيح ci = 0;
+		لكل (صحيح i = 0; i < naddends; i++) {
+			غړی_t غړی;
 
-			term.is_signed = (c_signed[i] == State::S1);
-			int c_width = c_widths.extract(16 * i, 16).as_int(false);
+			غړی.is_signed = (c_signed[i] == State::S1);
+			صحيح c_پلنوالی = c_widths.ایستل(16 * i, 16).as_int(false);
 
-			term.in_a = port_c.extract(ci, c_width);
-			ci += c_width;
-			term.do_subtract = (addend_neg[i] == State::S1);
+			غړی.دننه_a = پورټ_c.ایستل(ci, c_پلنوالی);
+			ci += c_پلنوالی;
+			غړی.do_کمول = (addend_neg[i] == State::S1);
 
-			terms.push_back(term);
+			terms.ټېل_شا(غړی);
 		}
-		log_assert(port_c.size() == ci);
+		log_assert(پورټ_c.اندازه() == ci);
 	}
 
-	void to_cell(RTLIL::Cell *cell)
+	فراغ منزل_cell(RTLIL::Cell *cell)
 	{
 		cell->type = ID($macc_v2);
 
-		int nproducts = 0, naddends = 0;
-		Const a_signed, b_signed, a_widths, b_widths, product_negated;
+		صحيح nproducts = 0, naddends = 0;
+		Const a_signed, b_signed, a_widths, b_widths, حاصل_ضرب_negated;
 		Const c_signed, c_widths, addend_negated;
 		SigSpec a, b, c;
 
-		for (int i = 0; i < (int) terms.size(); i++) {
-			SigSpec term_a = terms[i].in_a, term_b = terms[i].in_b;
+		لكل (صحيح i = 0; i < (صحيح) terms.اندازه(); i++) {
+			SigSpec غړی_a = terms[i].دننه_a, غړی_b = terms[i].دننه_b;
 
-			if (term_b.empty()) {
+			إذا (غړی_b.تشه()) {
 				// addend
-				c_widths.append(Const(term_a.size(), 16));
+				c_widths.append(Const(غړی_a.اندازه(), 16));
 				c_signed.append(terms[i].is_signed ? RTLIL::S1 : RTLIL::S0);
-				addend_negated.append(terms[i].do_subtract ? RTLIL::S1 : RTLIL::S0);
-				c.append(term_a);
+				addend_negated.append(terms[i].do_کمول ? RTLIL::S1 : RTLIL::S0);
+				c.append(غړی_a);
 				naddends++;
-			} else {
-				// product
-				a_widths.append(Const(term_a.size(), 16));
-				b_widths.append(Const(term_b.size(), 16));
+			} وإلا {
+				//حاصل_ضرب
+				a_widths.append(Const(غړی_a.اندازه(), 16));
+				b_widths.append(Const(غړی_b.اندازه(), 16));
 				a_signed.append(terms[i].is_signed ? RTLIL::S1 : RTLIL::S0);
 				b_signed.append(terms[i].is_signed ? RTLIL::S1 : RTLIL::S0);
-				product_negated.append(terms[i].do_subtract ? RTLIL::S1 : RTLIL::S0);
-				a.append(term_a);
-				b.append(term_b);
+				حاصل_ضرب_negated.append(terms[i].do_کمول ? RTLIL::S1 : RTLIL::S0);
+				a.append(غړی_a);
+				b.append(غړی_b);
 				nproducts++;
 			}
 		}
 
-		if (a_signed.empty())
+		إذا (a_signed.تشه())
 			a_signed = {RTLIL::Sx};
-		if (b_signed.empty())
+		إذا (b_signed.تشه())
 			b_signed = {RTLIL::Sx};
-		if (c_signed.empty())
+		إذا (c_signed.تشه())
 			c_signed = {RTLIL::Sx};
-		if (a_widths.empty())
+		إذا (a_widths.تشه())
 			a_widths = {RTLIL::Sx};
-		if (b_widths.empty())
+		إذا (b_widths.تشه())
 			b_widths = {RTLIL::Sx};
-		if (c_widths.empty())
+		إذا (c_widths.تشه())
 			c_widths = {RTLIL::Sx};
-		if (product_negated.empty())
-			product_negated = {RTLIL::Sx};
-		if (addend_negated.empty())
+		إذا (حاصل_ضرب_negated.تشه())
+			حاصل_ضرب_negated = {RTLIL::Sx};
+		إذا (addend_negated.تشه())
 			addend_negated = {RTLIL::Sx};
 
-		cell->setParam(ID::NPRODUCTS, nproducts);
-		cell->setParam(ID::PRODUCT_NEGATED, product_negated);
-		cell->setParam(ID::NADDENDS, naddends);
-		cell->setParam(ID::ADDEND_NEGATED, addend_negated);
-		cell->setParam(ID::A_SIGNED, a_signed);
-		cell->setParam(ID::B_SIGNED, b_signed);
-		cell->setParam(ID::C_SIGNED, c_signed);
-		cell->setParam(ID::A_WIDTHS, a_widths);
-		cell->setParam(ID::B_WIDTHS, b_widths);
-		cell->setParam(ID::C_WIDTHS, c_widths);
-		cell->setPort(ID::A, a);
-		cell->setPort(ID::B, b);
-		cell->setPort(ID::C, c);
+		cell->سېټ_Param(ID::NPRODUCTS, nproducts);
+		cell->سېټ_Param(ID::حاصل_ضرب_NEGATED, حاصل_ضرب_negated);
+		cell->سېټ_Param(ID::NADDENDS, naddends);
+		cell->سېټ_Param(ID::ADDEND_NEGATED, addend_negated);
+		cell->سېټ_Param(ID::A_SIGNED, a_signed);
+		cell->سېټ_Param(ID::B_SIGNED, b_signed);
+		cell->سېټ_Param(ID::C_SIGNED, c_signed);
+		cell->سېټ_Param(ID::A_WIDTHS, a_widths);
+		cell->سېټ_Param(ID::B_WIDTHS, b_widths);
+		cell->سېټ_Param(ID::C_WIDTHS, c_widths);
+		cell->سېټ_پورټ(ID::A, a);
+		cell->سېټ_پورټ(ID::B, b);
+		cell->سېټ_پورټ(ID::C, c);
 	}
 
-	bool eval(RTLIL::Const &result) const
+	bool eval(RTLIL::Const &پایله) ثابت
 	{
-		for (auto bit : result)
-			bit = State::S0;
+		لكل (خپلکاری بټ : پایله)
+			بټ = State::S0;
 
-		for (auto &port : terms)
+		لكل (خپلکاری &پورټ : terms)
 		{
-			if (!port.in_a.is_fully_const() || !port.in_b.is_fully_const())
-				return false;
+			إذا (!پورټ.دننه_a.is_fully_const() || !پورټ.دننه_b.is_fully_const())
+				أرجع false;
 
 			RTLIL::Const summand;
-			if (GetSize(port.in_b) == 0)
-				summand = const_pos(port.in_a.as_const(), port.in_b.as_const(), port.is_signed, port.is_signed, GetSize(result));
-			else
-				summand = const_mul(port.in_a.as_const(), port.in_b.as_const(), port.is_signed, port.is_signed, GetSize(result));
+			إذا (Get_اندازه(پورټ.دننه_b) == 0)
+				summand = const_pos(پورټ.دننه_a.as_const(), پورټ.دننه_b.as_const(), پورټ.is_signed, پورټ.is_signed, Get_اندازه(پایله));
+			وإلا
+				summand = const_mul(پورټ.دننه_a.as_const(), پورټ.دننه_b.as_const(), پورټ.is_signed, پورټ.is_signed, Get_اندازه(پایله));
 
-			if (port.do_subtract)
-				result = const_sub(result, summand, port.is_signed, port.is_signed, GetSize(result));
-			else
-				result = const_add(result, summand, port.is_signed, port.is_signed, GetSize(result));
+			إذا (پورټ.do_کمول)
+				پایله = const_sub(پایله, summand, پورټ.is_signed, پورټ.is_signed, Get_اندازه(پایله));
+			وإلا
+				پایله = const_جمع_کړه(پایله, summand, پورټ.is_signed, پورټ.is_signed, Get_اندازه(پایله));
 		}
 
-		return true;
+		أرجع true;
 	}
 
-	bool is_simple_product()
+	bool is_simple_حاصل_ضرب()
 	{
-		return terms.size() == 1 &&
-				!terms[0].in_b.empty() &&
-				!terms[0].do_subtract;
+		أرجع terms.اندازه() == 1 &&
+				!terms[0].دننه_b.تشه() &&
+				!terms[0].do_کمول;
 	}
 
 	Macc(RTLIL::Cell *cell = nullptr)
 	{
-		if (cell != nullptr)
+		إذا (cell != nullptr)
 			from_cell(cell);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی
 
-#endif
+#د_که_پای

@@ -17,47 +17,47 @@
  *
  */
 
-#ifndef CELLEDGES_H
-#define CELLEDGES_H
+#که_نه_تعریف_شوی CELLEDGES_H
+#تعریف_کړه CELLEDGES_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/sigtools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AbstractCellEdgesDatabase
+بنية Abstract_Cell_څنډې_Database
 {
-	virtual ~AbstractCellEdgesDatabase() { }
-	virtual void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int delay) = 0;
-	bool add_edges_from_cell(RTLIL::Cell *cell);
+	مجازي ~Abstract_Cell_څنډې_Database() { }
+	مجازي فراغ جمع_کړه_څنډه(RTLIL::Cell *cell, RTLIL::IdString from_پورټ, صحيح from_بټ, RTLIL::IdString منزل_پورټ, صحيح منزل_بټ, صحيح delay) = 0;
+	bool جمع_کړه_څنډې_from_cell(RTLIL::Cell *cell);
 };
 
-struct FwdCellEdgesDatabase : AbstractCellEdgesDatabase
+بنية Fwd_Cell_څنډې_Database : Abstract_Cell_څنډې_Database
 {
 	SigMap &sigmap;
-	dict<SigBit, pool<SigBit>> db;
-	FwdCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
+	dict<Sig_بټ, pool<Sig_بټ>> db;
+	Fwd_Cell_څنډې_Database(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
-		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
-		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[from_sigbit].insert(to_sigbit);
+	فراغ جمع_کړه_څنډه(RTLIL::Cell *cell, RTLIL::IdString from_پورټ, صحيح from_بټ, RTLIL::IdString منزل_پورټ, صحيح منزل_بټ, صحيح) override {
+		Sig_بټ from_sigbit = sigmap(cell->get_پورټ(from_پورټ)[from_بټ]);
+		Sig_بټ منزل_sigbit = sigmap(cell->get_پورټ(منزل_پورټ)[منزل_بټ]);
+		db[from_sigbit].ورننباسه(منزل_sigbit);
 	}
 };
 
-struct RevCellEdgesDatabase : AbstractCellEdgesDatabase
+بنية Rev_Cell_څنډې_Database : Abstract_Cell_څنډې_Database
 {
 	SigMap &sigmap;
-	dict<SigBit, pool<SigBit>> db;
-	RevCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
+	dict<Sig_بټ, pool<Sig_بټ>> db;
+	Rev_Cell_څنډې_Database(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
-		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
-		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[to_sigbit].insert(from_sigbit);
+	فراغ جمع_کړه_څنډه(RTLIL::Cell *cell, RTLIL::IdString from_پورټ, صحيح from_بټ, RTLIL::IdString منزل_پورټ, صحيح منزل_بټ, صحيح) override {
+		Sig_بټ from_sigbit = sigmap(cell->get_پورټ(from_پورټ)[from_بټ]);
+		Sig_بټ منزل_sigbit = sigmap(cell->get_پورټ(منزل_پورټ)[منزل_بټ]);
+		db[منزل_sigbit].ورننباسه(from_sigbit);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_پای_ټکی
 
-#endif
+#د_که_پای
