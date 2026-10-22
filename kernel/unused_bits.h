@@ -7,7 +7,7 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-struct UnusedBits
+sa_nracanaa UnusedBits
 {
 	SigMap sigmap;
 	pool<RTLIL::SigBit> used;
@@ -25,27 +25,27 @@ struct UnusedBits
 
 	void collect_used(RTLIL::Module *module, const NewCellTypes &ct)
 	{
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				if (!ct.cell_output(cell->type, conn.first))
+		ꦏꦁꦒꦺꦴ (auto cell : module->cells())
+			ꦏꦁꦒꦺꦴ (auto &conn : cell->connections())
+				ꦪꦼꦤ꧀ (!ct.cell_output(cell->type, conn.first))
 					add_used(conn.second);
 
-		for (auto wire : module->wires())
-			if (wire->port_output)
+		ꦏꦁꦒꦺꦴ (auto wire : module->wires())
+			ꦪꦼꦤ꧀ (wire->port_output)
 				add_used(wire);
 	}
 
 	void add_used(const RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sigmap(sig))
-			if (bit.wire != nullptr)
+		ꦏꦁꦒꦺꦴ (auto bit : sigmap(sig))
+			ꦪꦼꦤ꧀ (bit.wire != nullptr)
 				used.insert(bit);
 	}
 
 	bool check(RTLIL::SigBit bit) const
 	{
 		RTLIL::SigBit mapped = sigmap(bit);
-		return mapped.wire != nullptr && !used.count(mapped);
+		ꦮꦭꦶ mapped.wire != nullptr && !used.count(mapped);
 	}
 };
 

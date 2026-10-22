@@ -37,29 +37,29 @@ YOSYS_NAMESPACE_BEGIN
  * BitPatternPool does not permit adding new patterns, only removing.
  * Its intended use case is in analysing cases in case/match constructs in HDL.
  */
-struct BitPatternPool
+sa_nracanaa BitPatternPool
 {
-	int width;
-	struct bits_t {
+	puur_naa_nka width;
+	sa_nracanaa bits_t {
 		std::vector<RTLIL::State> bitdata;
 		mutable Hasher::hash_t cached_hash;
-		bits_t(int width = 0) : bitdata(width), cached_hash(0) { }
-		RTLIL::State &operator[](int index) {
-			return bitdata[index];
+		bits_t(puur_naa_nka width = 0) : bitdata(width), cached_hash(0) { }
+		RTLIL::State &operator[](puur_naa_nka index) {
+			ꦮꦭꦶ bitdata[index];
 		}
-		const RTLIL::State &operator[](int index) const {
-			return bitdata[index];
+		const RTLIL::State &operator[](puur_naa_nka index) const {
+			ꦮꦭꦶ bitdata[index];
 		}
 		bool operator==(const bits_t &other) const {
-			if (run_hash(*this) != run_hash(other))
-				return false;
-			return bitdata == other.bitdata;
+			ꦪꦼꦤ꧀ (run_hash(*this) != run_hash(other))
+				ꦮꦭꦶ false;
+			ꦮꦭꦶ bitdata == other.bitdata;
 		}
 		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			if (!cached_hash)
+			ꦪꦼꦤ꧀ (!cached_hash)
 				cached_hash = run_hash(bitdata);
 			h.eat(cached_hash);
-			return h;
+			ꦮꦭꦶ h;
 		}
 	};
 	pool<bits_t> database;
@@ -67,12 +67,12 @@ struct BitPatternPool
 	BitPatternPool(RTLIL::SigSpec sig)
 	{
 		width = sig.size();
-		if (width > 0) {
+		ꦪꦼꦤ꧀ (width > 0) {
 			bits_t pattern(width);
-			for (int i = 0; i < width; i++) {
-				if (sig[i].wire == NULL && sig[i].data <= RTLIL::State::S1)
+			ꦏꦁꦒꦺꦴ (puur_naa_nka i = 0; i < width; i++) {
+				ꦪꦼꦤ꧀ (sig[i].wire == NULL && sig[i].data <= RTLIL::State::S1)
 					pattern[i] = sig[i].data;
-				else
+				ꦭꦶꦪ
 					pattern[i] = RTLIL::State::Sa;
 			}
 			database.insert(pattern);
@@ -82,12 +82,12 @@ struct BitPatternPool
 	/**
 	 * Constructs a pool of all possible patterns (all don't-care bits)
 	 */
-	BitPatternPool(int width)
+	BitPatternPool(puur_naa_nka width)
 	{
 		this->width = width;
-		if (width > 0) {
+		ꦪꦼꦤ꧀ (width > 0) {
 			bits_t pattern(width);
-			for (int i = 0; i < width; i++)
+			ꦏꦁꦒꦺꦴ (puur_naa_nka i = 0; i < width; i++)
 				pattern[i] = RTLIL::State::Sa;
 			database.insert(pattern);
 		}
@@ -101,10 +101,10 @@ struct BitPatternPool
 	{
 		bits_t bits;
 		bits.bitdata = sig.as_const().to_bits();
-		for (auto &b : bits.bitdata)
-			if (b > RTLIL::State::S1)
+		ꦏꦁꦒꦺꦴ (auto &b : bits.bitdata)
+			ꦪꦼꦤ꧀ (b > RTLIL::State::S1)
 				b = RTLIL::State::Sa;
-		return bits;
+		ꦮꦭꦶ bits;
 	}
 
 	/**
@@ -113,10 +113,10 @@ struct BitPatternPool
 	 */
 	static bool covers_nothing(RTLIL::SigSpec sig)
 	{
-		for (auto bit : sig)
-			if (bit.wire == NULL && (bit.data == RTLIL::State::Sx || bit.data == RTLIL::State::Sz))
-				return true;
-		return false;
+		ꦏꦁꦒꦺꦴ (auto bit : sig)
+			ꦪꦼꦤ꧀ (bit.wire == NULL && (bit.data == RTLIL::State::Sx || bit.data == RTLIL::State::Sz))
+				ꦮꦭꦶ true;
+		ꦮꦭꦶ false;
 	}
 
 	/**
@@ -124,12 +124,12 @@ struct BitPatternPool
 	 */
 	bool match(bits_t a, bits_t b)
 	{
-		log_assert(int(a.bitdata.size()) == width);
-		log_assert(int(b.bitdata.size()) == width);
-		for (int i = 0; i < width; i++)
-			if (a[i] <= RTLIL::State::S1 && b[i] <= RTLIL::State::S1 && a[i] != b[i])
-				return false;
-		return true;
+		log_assert(puur_naa_nka(a.bitdata.size()) == width);
+		log_assert(puur_naa_nka(b.bitdata.size()) == width);
+		ꦏꦁꦒꦺꦴ (puur_naa_nka i = 0; i < width; i++)
+			ꦪꦼꦤ꧀ (a[i] <= RTLIL::State::S1 && b[i] <= RTLIL::State::S1 && a[i] != b[i])
+				ꦮꦭꦶ false;
+		ꦮꦭꦶ true;
 	}
 
 	/**
@@ -143,13 +143,13 @@ struct BitPatternPool
 	 */
 	bool has_any(RTLIL::SigSpec sig)
 	{
-		if (covers_nothing(sig))
-			return false;
+		ꦪꦼꦤ꧀ (covers_nothing(sig))
+			ꦮꦭꦶ false;
 		bits_t bits = sig2bits(sig);
-		for (auto &it : database)
-			if (match(it, bits))
-				return true;
-		return false;
+		ꦏꦁꦒꦺꦴ (auto &it : database)
+			ꦪꦼꦤ꧀ (match(it, bits))
+				ꦮꦭꦶ true;
+		ꦮꦭꦶ false;
 	}
 
 	/**
@@ -163,18 +163,18 @@ struct BitPatternPool
 	 */
 	bool has_all(RTLIL::SigSpec sig)
 	{
-		if (covers_nothing(sig))
-			return true;
+		ꦪꦼꦤ꧀ (covers_nothing(sig))
+			ꦮꦭꦶ true;
 		bits_t bits = sig2bits(sig);
-		for (auto &it : database)
-			if (match(it, bits)) {
-				for (int i = 0; i < width; i++)
-					if (bits[i] > RTLIL::State::S1 && it[i] <= RTLIL::State::S1)
+		ꦏꦁꦒꦺꦴ (auto &it : database)
+			ꦪꦼꦤ꧀ (match(it, bits)) {
+				ꦏꦁꦒꦺꦴ (puur_naa_nka i = 0; i < width; i++)
+					ꦪꦼꦤ꧀ (bits[i] > RTLIL::State::S1 && it[i] <= RTLIL::State::S1)
 						goto next_database_entry;
-				return true;
+				ꦮꦭꦶ true;
 	next_database_entry:;
 			}
-		return false;
+		ꦮꦭꦶ false;
 	}
 
 	/**
@@ -186,13 +186,13 @@ struct BitPatternPool
 	bool take(RTLIL::SigSpec sig)
 	{
 		bool status = false;
-		if (covers_nothing(sig))
-			return false;
+		ꦪꦼꦤ꧀ (covers_nothing(sig))
+			ꦮꦭꦶ false;
 		bits_t bits = sig2bits(sig);
-		for (auto it = database.begin(); it != database.end();)
-			if (match(*it, bits)) {
-				for (int i = 0; i < width; i++) {
-					if ((*it)[i] != RTLIL::State::Sa || bits[i] == RTLIL::State::Sa)
+		ꦏꦁꦒꦺꦴ (auto it = database.begin(); it != database.end();)
+			ꦪꦼꦤ꧀ (match(*it, bits)) {
+				ꦏꦁꦒꦺꦴ (puur_naa_nka i = 0; i < width; i++) {
+					ꦪꦼꦤ꧀ ((*it)[i] != RTLIL::State::Sa || bits[i] == RTLIL::State::Sa)
 						continue;
 					bits_t new_pattern;
 					new_pattern.bitdata = it->bitdata;
@@ -202,9 +202,9 @@ struct BitPatternPool
 				it = database.erase(it);
 				status = true;
 				continue;
-			} else
+			} ꦭꦶꦪ
 				++it;
-		return status;
+		ꦮꦭꦶ status;
 	}
 
 	/**
@@ -212,15 +212,15 @@ struct BitPatternPool
 	 */
 	bool take_all()
 	{
-		if (database.empty())
-			return false;
+		ꦪꦼꦤ꧀ (database.empty())
+			ꦮꦭꦶ false;
 		database.clear();
-		return true;
+		ꦮꦭꦶ true;
 	}
 
 	bool empty()
 	{
-		return database.empty();
+		ꦮꦭꦶ database.empty();
 	}
 };
 
