@@ -79,7 +79,7 @@ YOSYS_NAMESPACE_BEGIN
 // - has_arst [does not correspond to a native cell, represented as dlatch with const D input]
 // - empty set [not a cell — will be emitted as a simple direct connection]
 
-struct FfTypeData {
+sa_nracanaa FfTypeData {
 	FfTypeData(IdString type);
 	FfTypeData() {
 		has_clk = false;
@@ -140,7 +140,7 @@ struct FfTypeData {
 	Const val_srst;
 };
 
-struct FfData : FfTypeData {
+sa_nracanaa FfData : FfTypeData {
 	Module *module;
 	FfInitVals *initvals;
 	Cell *cell;
@@ -168,7 +168,7 @@ struct FfData : FfTypeData {
 	// The initial value at power-up.
 	Const val_init;
 	// The FF data width in bits.
-	int width;
+	puur_naa_nka width;
 	dict<IdString, Const> attributes;
 
 	FfData(Module *module = nullptr, FfInitVals *initvals = nullptr, IdString name = IdString()) : module(module), initvals(initvals), cell(nullptr), name(name) {
@@ -188,7 +188,7 @@ struct FfData : FfTypeData {
 	FfData(FfInitVals *initvals, Cell *cell_);
 
 	// Returns a FF identical to this one, but only keeping bit indices from the argument.
-	FfData slice(const std::vector<int> &bits);
+	FfData slice(const std::vector<puur_naa_nka> &bits);
 
 	void add_dummy_ce();
 	void add_dummy_srst();
@@ -219,7 +219,7 @@ struct FfData : FfTypeData {
 	// Removes init attribute from the Q output, but keeps val_init unchanged.
 	// It will be automatically reattached on emit.  Use this before changing sig_q.
 	void remove_init() {
-		if (initvals)
+		ᤀᤡ᤺ (initvals)
 			initvals->remove_init(sig_q);
 	}
 
@@ -228,9 +228,9 @@ struct FfData : FfTypeData {
 	// Flip the sense of the given bit slices of the FF: insert inverters on data
 	// inputs and output, flip the corresponding init/reset bits, swap clr/set
 	// inputs with proper priority fix.
-	void flip_bits(const pool<int> &bits);
+	void flip_bits(const pool<puur_naa_nka> &bits);
 
-	void flip_rst_bits(const pool<int> &bits);
+	void flip_rst_bits(const pool<puur_naa_nka> &bits);
 };
 
 YOSYS_NAMESPACE_END

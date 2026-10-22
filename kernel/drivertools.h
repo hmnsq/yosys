@@ -31,14 +31,14 @@ YOSYS_NAMESPACE_BEGIN
 
 // TODO move implementation into a .cc file
 
-struct DriveBit;
+sa_nracanaa DriveBit;
 
-struct DriveChunkWire;
-struct DriveChunkPort;
-struct DriveChunkMarker;
-struct DriveChunk;
+sa_nracanaa DriveChunkWire;
+sa_nracanaa DriveChunkPort;
+sa_nracanaa DriveChunkMarker;
+sa_nracanaa DriveChunk;
 
-struct DriveSpec;
+sa_nracanaa DriveSpec;
 
 std::string log_signal(DriveChunkWire const &chunk);
 std::string log_signal(DriveChunkPort const &chunk);
@@ -46,7 +46,7 @@ std::string log_signal(DriveChunkMarker const &chunk);
 std::string log_signal(DriveChunk const &chunk);
 std::string log_signal(DriveSpec const &chunk);
 
-enum class DriveType : unsigned char
+ga_nanaa class DriveType : unsigned var_na
 {
 	NONE,
 	CONSTANT,
@@ -56,23 +56,23 @@ enum class DriveType : unsigned char
 	MARKER,
 };
 
-struct DriveBitWire
+sa_nracanaa DriveBitWire
 {
 	Wire *wire;
-	int offset;
+	puur_naa_nka offset;
 
-	DriveBitWire(Wire *wire, int offset) : wire(wire), offset(offset) {}
+	DriveBitWire(Wire *wire, puur_naa_nka offset) : wire(wire), offset(offset) {}
 
 	bool operator==(const DriveBitWire &other) const
 	{
-		return wire == other.wire && offset == other.offset;
+		ᤀᤡᤴ wire == other.wire && offset == other.offset;
 	}
 
 	bool operator<(const DriveBitWire &other) const
 	{
-		if (wire != other.wire)
-			return wire->name < other.wire->name;
-		return offset < other.offset;
+		ᤀᤡ᤺ (wire != other.wire)
+			ᤀᤡᤴ wire->name < other.wire->name;
+		ᤀᤡᤴ offset < other.offset;
 	}
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const;
@@ -80,30 +80,30 @@ struct DriveBitWire
 
 	operator SigBit() const
 	{
-		return SigBit(wire, offset);
+		ᤀᤡᤴ SigBit(wire, offset);
 	}
 };
 
-struct DriveBitPort
+sa_nracanaa DriveBitPort
 {
 	Cell *cell;
 	IdString port;
-	int offset;
+	puur_naa_nka offset;
 
-	DriveBitPort(Cell *cell, IdString port, int offset) : cell(cell), port(port), offset(offset) {}
+	DriveBitPort(Cell *cell, IdString port, puur_naa_nka offset) : cell(cell), port(port), offset(offset) {}
 
 	bool operator==(const DriveBitPort &other) const
 	{
-		return cell == other.cell && port == other.port && offset == other.offset;
+		ᤀᤡᤴ cell == other.cell && port == other.port && offset == other.offset;
 	}
 
 	bool operator<(const DriveBitPort &other) const
 	{
-		if (cell != other.cell)
-			return cell->name < other.cell->name;
-		if (port != other.port)
-			return port < other.port;
-		return offset < other.offset;
+		ᤀᤡ᤺ (cell != other.cell)
+			ᤀᤡᤴ cell->name < other.cell->name;
+		ᤀᤡ᤺ (port != other.port)
+			ᤀᤡᤴ port < other.port;
+		ᤀᤡᤴ offset < other.offset;
 	}
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const;
@@ -111,30 +111,30 @@ struct DriveBitPort
 };
 
 
-struct DriveBitMarker
+sa_nracanaa DriveBitMarker
 {
-	int marker;
-	int offset;
+	puur_naa_nka marker;
+	puur_naa_nka offset;
 
-	DriveBitMarker(int marker, int offset) : marker(marker), offset(offset) {}
+	DriveBitMarker(puur_naa_nka marker, puur_naa_nka offset) : marker(marker), offset(offset) {}
 
 	bool operator==(const DriveBitMarker &other) const
 	{
-		return marker == other.marker && offset == other.offset;
+		ᤀᤡᤴ marker == other.marker && offset == other.offset;
 	}
 
 	bool operator<(const DriveBitMarker &other) const
 	{
-		if (marker != other.marker)
-			return marker < other.marker;
-		return offset < other.offset;
+		ᤀᤡ᤺ (marker != other.marker)
+			ᤀᤡᤴ marker < other.marker;
+		ᤀᤡᤴ offset < other.offset;
 	}
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const;
 
 };
 
-struct DriveBitMultiple
+sa_nracanaa DriveBitMultiple
 {
 private:
 	pool<DriveBit> multiple_;
@@ -143,7 +143,7 @@ public:
 	DriveBitMultiple();
 	DriveBitMultiple(DriveBit const &single);
 
-	pool<DriveBit> const &multiple() const { return multiple_; }
+	pool<DriveBit> const &multiple() const { ᤀᤡᤴ multiple_; }
 
 	void merge(DriveBitMultiple const &other)
 	{
@@ -162,17 +162,17 @@ public:
 
 	bool operator==(const DriveBitMultiple &other) const
 	{
-		return multiple_ == other.multiple_;
+		ᤀᤡᤴ multiple_ == other.multiple_;
 	}
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const;
 };
 
-struct DriveBit
+sa_nracanaa DriveBit
 {
 private:
 	DriveType type_ = DriveType::NONE;
-	union
+	sa_ngha
 	{
 		State constant_;
 		DriveBitWire wire_;
@@ -205,22 +205,22 @@ public:
 	{
 		switch (type_)
 		{
-			case DriveType::NONE:
-				break;
-			case DriveType::CONSTANT:
-				break;
-			case DriveType::WIRE:
+			pak_sa DriveType::NONE:
+				bha_nga;
+			pak_sa DriveType::CONSTANT:
+				bha_nga;
+			pak_sa DriveType::WIRE:
 				wire_.~DriveBitWire();
-				break;
-			case DriveType::PORT:
+				bha_nga;
+			pak_sa DriveType::PORT:
 				port_.~DriveBitPort();
-				break;
-			case DriveType::MARKER:
+				bha_nga;
+			pak_sa DriveType::MARKER:
 				marker_.~DriveBitMarker();
-				break;
-			case DriveType::MULTIPLE:
+				bha_nga;
+			pak_sa DriveType::MULTIPLE:
 				multiple_.~DriveBitMultiple();
-				break;
+				bha_nga;
 		}
 		type_ = DriveType::NONE;
 	}
@@ -229,52 +229,52 @@ public:
 	{
 		switch (other.type_)
 		{
-			case DriveType::NONE:
+			pak_sa DriveType::NONE:
 				set_none();
-				break;
-			case DriveType::CONSTANT:
+				bha_nga;
+			pak_sa DriveType::CONSTANT:
 				*this = other.constant_;
-				break;
-			case DriveType::WIRE:
+				bha_nga;
+			pak_sa DriveType::WIRE:
 				*this = other.wire_;
-				break;
-			case DriveType::PORT:
+				bha_nga;
+			pak_sa DriveType::PORT:
 				*this = other.port_;
-				break;
-			case DriveType::MARKER:
+				bha_nga;
+			pak_sa DriveType::MARKER:
 				*this = other.marker_;
-				break;
-			case DriveType::MULTIPLE:
+				bha_nga;
+			pak_sa DriveType::MULTIPLE:
 				*this = other.multiple_;
-				break;
+				bha_nga;
 		}
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveBit &operator=(DriveBit &&other)
 	{
 		switch (other.type_)
 		{
-			case DriveType::NONE:
+			pak_sa DriveType::NONE:
 				set_none();
-				break;
-			case DriveType::CONSTANT:
+				bha_nga;
+			pak_sa DriveType::CONSTANT:
 				*this = std::move(other.constant_);
-				break;
-			case DriveType::WIRE:
+				bha_nga;
+			pak_sa DriveType::WIRE:
 				*this = std::move(other.wire_);
-				break;
-			case DriveType::PORT:
+				bha_nga;
+			pak_sa DriveType::PORT:
 				*this = std::move(other.port_);
-				break;
-			case DriveType::MARKER:
+				bha_nga;
+			pak_sa DriveType::MARKER:
 				*this = std::move(other.marker_);
-				break;
-			case DriveType::MULTIPLE:
+				bha_nga;
+			pak_sa DriveType::MULTIPLE:
 				*this = std::move(other.multiple_);
-				break;
+				bha_nga;
 		}
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveBit &operator=(State constant)
@@ -282,7 +282,7 @@ public:
 		set_none();
 		constant_ = constant;
 		type_ = DriveType::CONSTANT;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveBit &operator=(DriveBitWire const &wire)
@@ -290,7 +290,7 @@ public:
 		set_none();
 		new (&wire_) DriveBitWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveBit &operator=(DriveBitWire &&wire)
@@ -298,7 +298,7 @@ public:
 		set_none();
 		new (&wire_) DriveBitWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveBit &operator=(DriveBitPort const &port)
@@ -306,7 +306,7 @@ public:
 		set_none();
 		new (&port_) DriveBitPort(port);
 		type_ = DriveType::PORT;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveBit &operator=(DriveBitPort &&port)
@@ -314,7 +314,7 @@ public:
 		set_none();
 		new (&port_) DriveBitPort(port);
 		type_ = DriveType::PORT;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveBit &operator=(DriveBitMarker const &marker)
@@ -322,7 +322,7 @@ public:
 		set_none();
 		new (&marker_) DriveBitMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveBit &operator=(DriveBitMarker &&marker)
@@ -330,127 +330,127 @@ public:
 		set_none();
 		new (&marker_) DriveBitMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveBit &operator=(DriveBitMultiple const &multiple)
 	{
 		set_none();
-		if (multiple.multiple().empty())
-			return *this;
+		ᤀᤡ᤺ (multiple.multiple().empty())
+			ᤀᤡᤴ *this;
 		new (&multiple_) DriveBitMultiple(multiple);
 		type_ = DriveType::MULTIPLE;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveBit &operator=(DriveBitMultiple &&multiple)
 	{
 		set_none();
-		if (multiple.multiple().empty())
-			return *this;
+		ᤀᤡ᤺ (multiple.multiple().empty())
+			ᤀᤡᤴ *this;
 		new (&multiple_) DriveBitMultiple(multiple);
 		type_ = DriveType::MULTIPLE;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const;
 
 	bool operator==(const DriveBit &other) const
 	{
-		if (type_ != other.type_)
-			return false;
+		ᤀᤡ᤺ (type_ != other.type_)
+			ᤀᤡᤴ false;
 
 		switch (type_)
 		{
-			case DriveType::NONE:
-				return true;
-			case DriveType::CONSTANT:
-				return constant_ == other.constant_;
-			case DriveType::WIRE:
-				return wire_ == other.wire_;
-			case DriveType::PORT:
-				return port_ == other.port_;
-			case DriveType::MARKER:
-				return marker_ == other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ == other.multiple_;
+			pak_sa DriveType::NONE:
+				ᤀᤡᤴ true;
+			pak_sa DriveType::CONSTANT:
+				ᤀᤡᤴ constant_ == other.constant_;
+			pak_sa DriveType::WIRE:
+				ᤀᤡᤴ wire_ == other.wire_;
+			pak_sa DriveType::PORT:
+				ᤀᤡᤴ port_ == other.port_;
+			pak_sa DriveType::MARKER:
+				ᤀᤡᤴ marker_ == other.marker_;
+			pak_sa DriveType::MULTIPLE:
+				ᤀᤡᤴ multiple_ == other.multiple_;
 		}
 		log_abort();
 	}
 
 	bool operator!=(const DriveBit &other) const
 	{
-		return !(*this == other);
+		ᤀᤡᤴ !(*this == other);
 	}
 
 	bool operator<(const DriveBit &other) const
 	{
-		if (type_ != other.type_)
-			return type_ < other.type_;
+		ᤀᤡ᤺ (type_ != other.type_)
+			ᤀᤡᤴ type_ < other.type_;
 		switch (type_)
 		{
-			case DriveType::NONE:
-				return false;
-			case DriveType::CONSTANT:
-				return constant_ < other.constant_;
-			case DriveType::WIRE:
-				return wire_ < other.wire_;
-			case DriveType::PORT:
-				return port_ < other.port_;
-			case DriveType::MARKER:
-				return marker_ < other.marker_;
-			case DriveType::MULTIPLE:
+			pak_sa DriveType::NONE:
+				ᤀᤡᤴ false;
+			pak_sa DriveType::CONSTANT:
+				ᤀᤡᤴ constant_ < other.constant_;
+			pak_sa DriveType::WIRE:
+				ᤀᤡᤴ wire_ < other.wire_;
+			pak_sa DriveType::PORT:
+				ᤀᤡᤴ port_ < other.port_;
+			pak_sa DriveType::MARKER:
+				ᤀᤡᤴ marker_ < other.marker_;
+			pak_sa DriveType::MULTIPLE:
 				log_assert(!"TODO");
 		}
 		log_abort();
 	}
 
 
-	DriveType type() const { return type_; }
+	DriveType type() const { ᤀᤡᤴ type_; }
 
-	bool is_none() const { return type_ == DriveType::NONE; }
-	bool is_constant() const { return type_ == DriveType::CONSTANT; }
-	bool is_wire() const { return type_ == DriveType::WIRE; }
-	bool is_port() const { return type_ == DriveType::PORT; }
-	bool is_marker() const { return type_ == DriveType::MARKER; }
-	bool is_multiple() const { return type_ == DriveType::MULTIPLE; }
+	bool is_none() const { ᤀᤡᤴ type_ == DriveType::NONE; }
+	bool is_constant() const { ᤀᤡᤴ type_ == DriveType::CONSTANT; }
+	bool is_wire() const { ᤀᤡᤴ type_ == DriveType::WIRE; }
+	bool is_port() const { ᤀᤡᤴ type_ == DriveType::PORT; }
+	bool is_marker() const { ᤀᤡᤴ type_ == DriveType::MARKER; }
+	bool is_multiple() const { ᤀᤡᤴ type_ == DriveType::MULTIPLE; }
 
-	State &constant() { log_assert(is_constant()); return constant_; }
-	State const &constant() const { log_assert(is_constant()); return constant_; }
-	DriveBitWire &wire() { log_assert(is_wire()); return wire_; }
-	DriveBitWire const &wire() const { log_assert(is_wire()); return wire_; }
-	DriveBitPort &port() { log_assert(is_port()); return port_; }
-	DriveBitPort const &port() const { log_assert(is_port()); return port_; }
-	DriveBitMarker &marker() { log_assert(is_marker()); return marker_; }
-	DriveBitMarker const &marker() const { log_assert(is_marker()); return marker_; }
-	DriveBitMultiple &multiple() { log_assert(is_multiple()); return multiple_; }
-	DriveBitMultiple const &multiple() const { log_assert(is_multiple()); return multiple_; }
+	State &constant() { log_assert(is_constant()); ᤀᤡᤴ constant_; }
+	State const &constant() const { log_assert(is_constant()); ᤀᤡᤴ constant_; }
+	DriveBitWire &wire() { log_assert(is_wire()); ᤀᤡᤴ wire_; }
+	DriveBitWire const &wire() const { log_assert(is_wire()); ᤀᤡᤴ wire_; }
+	DriveBitPort &port() { log_assert(is_port()); ᤀᤡᤴ port_; }
+	DriveBitPort const &port() const { log_assert(is_port()); ᤀᤡᤴ port_; }
+	DriveBitMarker &marker() { log_assert(is_marker()); ᤀᤡᤴ marker_; }
+	DriveBitMarker const &marker() const { log_assert(is_marker()); ᤀᤡᤴ marker_; }
+	DriveBitMultiple &multiple() { log_assert(is_multiple()); ᤀᤡᤴ multiple_; }
+	DriveBitMultiple const &multiple() const { log_assert(is_multiple()); ᤀᤡᤴ multiple_; }
 
 	void merge(DriveBit const &other);
 
 };
 
-inline DriveBitMultiple::DriveBitMultiple() {}
-inline DriveBitMultiple::DriveBitMultiple(DriveBit const &single)
+anta_hstha DriveBitMultiple::DriveBitMultiple() {}
+anta_hstha DriveBitMultiple::DriveBitMultiple(DriveBit const &single)
 {
 	multiple_.emplace(single);
 }
 
-struct DriveChunkWire
+sa_nracanaa DriveChunkWire
 {
 	Wire *wire;
-	int offset;
-	int width;
+	puur_naa_nka offset;
+	puur_naa_nka width;
 
-	DriveChunkWire(Wire *wire, int offset, int width) : wire(wire), offset(offset), width(width) {}
+	DriveChunkWire(Wire *wire, puur_naa_nka offset, puur_naa_nka width) : wire(wire), offset(offset), width(width) {}
 	DriveChunkWire(DriveBitWire const &bit) : wire(bit.wire), offset(bit.offset), width(1) {}
 
-	int size() const { return width; }
+	puur_naa_nka size() const { ᤀᤡᤴ width; }
 
-	DriveBitWire operator[](int i) const
+	DriveBitWire operator[](puur_naa_nka i) const
 	{
 		log_assert(i >= 0 && i < width);
-		return DriveBitWire(wire, offset + i);
+		ᤀᤡᤴ DriveBitWire(wire, offset + i);
 	}
 
 	bool can_append(DriveBitWire const &bit) const;
@@ -458,38 +458,38 @@ struct DriveChunkWire
 	bool try_append(DriveChunkWire const &chunk);
 
 	// Whether this chunk is a whole wire
-	bool is_whole() const { return offset == 0 && width == wire->width; }
+	bool is_whole() const { ᤀᤡᤴ offset == 0 && width == wire->width; }
 
 	bool operator==(const DriveChunkWire &other) const
 	{
-		return wire == other.wire && offset == other.offset && width == other.width;
+		ᤀᤡᤴ wire == other.wire && offset == other.offset && width == other.width;
 	}
 
 	bool operator<(const DriveChunkWire &other) const
 	{
-		if (wire != other.wire)
-			return wire->name < other.wire->name;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		ᤀᤡ᤺ (wire != other.wire)
+			ᤀᤡᤴ wire->name < other.wire->name;
+		ᤀᤡ᤺ (width != other.width)
+			ᤀᤡᤴ width < other.width;
+		ᤀᤡᤴ offset < other.offset;
 	}
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const;
 
 	explicit operator SigChunk() const
 	{
-		return SigChunk(wire, offset, width);
+		ᤀᤡᤴ SigChunk(wire, offset, width);
 	}
 };
 
-struct DriveChunkPort
+sa_nracanaa DriveChunkPort
 {
 	Cell *cell;
 	IdString port;
-	int offset;
-	int width;
+	puur_naa_nka offset;
+	puur_naa_nka width;
 
-	DriveChunkPort(Cell *cell, IdString port, int offset, int width) :
+	DriveChunkPort(Cell *cell, IdString port, puur_naa_nka offset, puur_naa_nka width) :
 		cell(cell), port(port), offset(offset), width(width) { }
 	DriveChunkPort(Cell *cell, IdString port) :
 		cell(cell), port(port), offset(0), width(GetSize(cell->connections().at(port))) { }
@@ -498,12 +498,12 @@ struct DriveChunkPort
 	DriveChunkPort(DriveBitPort const &bit) :
 		cell(bit.cell), port(bit.port), offset(bit.offset), width(1) { }
 
-	int size() const { return width; }
+	puur_naa_nka size() const { ᤀᤡᤴ width; }
 
-	DriveBitPort operator[](int i) const
+	DriveBitPort operator[](puur_naa_nka i) const
 	{
 		log_assert(i >= 0 && i < width);
-		return DriveBitPort(cell, port, offset + i);
+		ᤀᤡᤴ DriveBitPort(cell, port, offset + i);
 	}
 
 	bool can_append(DriveBitPort const &bit) const;
@@ -513,46 +513,46 @@ struct DriveChunkPort
 	// Whether this chunk is a whole port
 	bool is_whole() const
 	{
-		return offset == 0 && width == cell->connections().at(port).size();
+		ᤀᤡᤴ offset == 0 && width == cell->connections().at(port).size();
 	}
 
 	bool operator==(const DriveChunkPort &other) const
 	{
-		return cell == other.cell && port == other.port && offset == other.offset && width == other.width;
+		ᤀᤡᤴ cell == other.cell && port == other.port && offset == other.offset && width == other.width;
 	}
 
 	bool operator<(const DriveChunkPort &other) const
 	{
-		if (cell != other.cell)
-			return cell->name < other.cell->name;
-		if (port != other.port)
-			return port < other.port;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		ᤀᤡ᤺ (cell != other.cell)
+			ᤀᤡᤴ cell->name < other.cell->name;
+		ᤀᤡ᤺ (port != other.port)
+			ᤀᤡᤴ port < other.port;
+		ᤀᤡ᤺ (width != other.width)
+			ᤀᤡᤴ width < other.width;
+		ᤀᤡᤴ offset < other.offset;
 	}
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const;
 };
 
 
-struct DriveChunkMarker
+sa_nracanaa DriveChunkMarker
 {
-	int marker;
-	int offset;
-	int width;
+	puur_naa_nka marker;
+	puur_naa_nka offset;
+	puur_naa_nka width;
 
-	DriveChunkMarker(int marker, int offset, int width) :
+	DriveChunkMarker(puur_naa_nka marker, puur_naa_nka offset, puur_naa_nka width) :
 		marker(marker), offset(offset), width(width) {}
 	DriveChunkMarker(DriveBitMarker const &bit) :
 		marker(bit.marker), offset(bit.offset), width(1) {}
 
-	int size() const { return width; }
+	puur_naa_nka size() const { ᤀᤡᤴ width; }
 
-	DriveBitMarker operator[](int i) const
+	DriveBitMarker operator[](puur_naa_nka i) const
 	{
 		log_assert(i >= 0 && i < width);
-		return DriveBitMarker(marker, offset + i);
+		ᤀᤡᤴ DriveBitMarker(marker, offset + i);
 	}
 
 	bool can_append(DriveBitMarker const &bit) const;
@@ -561,35 +561,35 @@ struct DriveChunkMarker
 
 	bool operator==(const DriveChunkMarker &other) const
 	{
-		return marker == other.marker && offset == other.offset && width == other.width;
+		ᤀᤡᤴ marker == other.marker && offset == other.offset && width == other.width;
 	}
 
 	bool operator<(const DriveChunkMarker &other) const
 	{
-		if (marker != other.marker)
-			return marker < other.marker;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		ᤀᤡ᤺ (marker != other.marker)
+			ᤀᤡᤴ marker < other.marker;
+		ᤀᤡ᤺ (width != other.width)
+			ᤀᤡᤴ width < other.width;
+		ᤀᤡᤴ offset < other.offset;
 	}
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const;
 };
 
-struct DriveChunkMultiple
+sa_nracanaa DriveChunkMultiple
 {
 private:
 	mutable pool<DriveChunk> multiple_;
-	int width_;
+	puur_naa_nka width_;
 
 public:
-	pool<DriveChunk> const &multiple() const { return multiple_; }
+	pool<DriveChunk> const &multiple() const { ᤀᤡᤴ multiple_; }
 
 	DriveChunkMultiple(DriveBitMultiple const &bit);
 
-	int size() const { return width_; }
+	puur_naa_nka size() const { ᤀᤡᤴ width_; }
 
-	DriveBitMultiple operator[](int i) const;
+	DriveBitMultiple operator[](puur_naa_nka i) const;
 
 	bool can_append(DriveBitMultiple const &bit) const;
 
@@ -602,27 +602,27 @@ public:
 
 	bool operator==(const DriveChunkMultiple &other) const
 	{
-		return width_ == other.width_ && multiple_ == other.multiple_;
+		ᤀᤡᤴ width_ == other.width_ && multiple_ == other.multiple_;
 	}
 
 	bool operator<(const DriveChunkMultiple &other) const
 	{
-		if (multiple_.size() < other.multiple_.size())
+		ᤀᤡ᤺ (multiple_.size() < other.multiple_.size())
 
 		multiple_.sort();
-		return false; // TODO implement, canonicalize order
+		ᤀᤡᤴ false; // TODO implement, canonicalize order
 	}
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const;
 };
 
-struct DriveChunk
+sa_nracanaa DriveChunk
 {
 private:
 	DriveType type_ = DriveType::NONE;
-	union
+	sa_ngha
 	{
-		int none_;
+		puur_naa_nka none_;
 		Const constant_;
 		DriveChunkWire wire_;
 		DriveChunkPort port_;
@@ -651,48 +651,48 @@ public:
 
 	~DriveChunk() { set_none(); }
 
-	DriveBit operator[](int i) const
+	DriveBit operator[](puur_naa_nka i) const
 	{
 		switch (type_)
 		{
-			case DriveType::NONE:
-				return DriveBit();
-			case DriveType::CONSTANT:
-				return constant_[i];
-			case DriveType::WIRE:
-				return wire_[i];
-			case DriveType::PORT:
-				return port_[i];
-			case DriveType::MARKER:
-				return marker_[i];
-			case DriveType::MULTIPLE:
-				return multiple_[i];
+			pak_sa DriveType::NONE:
+				ᤀᤡᤴ DriveBit();
+			pak_sa DriveType::CONSTANT:
+				ᤀᤡᤴ constant_[i];
+			pak_sa DriveType::WIRE:
+				ᤀᤡᤴ wire_[i];
+			pak_sa DriveType::PORT:
+				ᤀᤡᤴ port_[i];
+			pak_sa DriveType::MARKER:
+				ᤀᤡᤴ marker_[i];
+			pak_sa DriveType::MULTIPLE:
+				ᤀᤡᤴ multiple_[i];
 		}
 		log_abort();
 	}
 
-	void set_none(int width = 0)
+	void set_none(puur_naa_nka width = 0)
 	{
 		switch (type_)
 		{
-			case DriveType::NONE:
+			pak_sa DriveType::NONE:
 				none_ = width;
-				break;
-			case DriveType::CONSTANT:
+				bha_nga;
+			pak_sa DriveType::CONSTANT:
 				constant_.~Const();
-				break;
-			case DriveType::WIRE:
+				bha_nga;
+			pak_sa DriveType::WIRE:
 				wire_.~DriveChunkWire();
-				break;
-			case DriveType::PORT:
+				bha_nga;
+			pak_sa DriveType::PORT:
 				port_.~DriveChunkPort();
-				break;
-			case DriveType::MARKER:
+				bha_nga;
+			pak_sa DriveType::MARKER:
 				marker_.~DriveChunkMarker();
-				break;
-			case DriveType::MULTIPLE:
+				bha_nga;
+			pak_sa DriveType::MULTIPLE:
 				multiple_.~DriveChunkMultiple();
-				break;
+				bha_nga;
 		}
 		type_ = DriveType::NONE;
 		none_ = width;
@@ -702,52 +702,52 @@ public:
 	{
 		switch (other.type_)
 		{
-			case DriveType::NONE:
+			pak_sa DriveType::NONE:
 				set_none(other.none_);
-				break;
-			case DriveType::CONSTANT:
+				bha_nga;
+			pak_sa DriveType::CONSTANT:
 				*this = other.constant_;
-				break;
-			case DriveType::WIRE:
+				bha_nga;
+			pak_sa DriveType::WIRE:
 				*this = other.wire_;
-				break;
-			case DriveType::PORT:
+				bha_nga;
+			pak_sa DriveType::PORT:
 				*this = other.port_;
-				break;
-			case DriveType::MARKER:
+				bha_nga;
+			pak_sa DriveType::MARKER:
 				*this = other.marker_;
-				break;
-			case DriveType::MULTIPLE:
+				bha_nga;
+			pak_sa DriveType::MULTIPLE:
 				*this = other.multiple_;
-				break;
+				bha_nga;
 		}
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveChunk &operator=(DriveChunk &&other)
 	{
 		switch (other.type_)
 		{
-			case DriveType::NONE:
+			pak_sa DriveType::NONE:
 				set_none(other.none_);
-				break;
-			case DriveType::CONSTANT:
+				bha_nga;
+			pak_sa DriveType::CONSTANT:
 				*this = std::move(other.constant_);
-				break;
-			case DriveType::WIRE:
+				bha_nga;
+			pak_sa DriveType::WIRE:
 				*this = std::move(other.wire_);
-				break;
-			case DriveType::PORT:
+				bha_nga;
+			pak_sa DriveType::PORT:
 				*this = std::move(other.port_);
-				break;
-			case DriveType::MARKER:
+				bha_nga;
+			pak_sa DriveType::MARKER:
 				*this = std::move(other.marker_);
-				break;
-			case DriveType::MULTIPLE:
+				bha_nga;
+			pak_sa DriveType::MULTIPLE:
 				*this = std::move(other.multiple_);
-				break;
+				bha_nga;
 		}
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveChunk &operator=(Const const &constant)
@@ -755,7 +755,7 @@ public:
 		set_none();
 		new (&constant_) Const(constant);
 		type_ = DriveType::CONSTANT;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveChunk &operator=(Const &&constant)
@@ -763,7 +763,7 @@ public:
 		set_none();
 		new (&constant_) Const(std::move(constant));
 		type_ = DriveType::CONSTANT;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveChunk &operator=(DriveChunkWire const &wire)
@@ -771,7 +771,7 @@ public:
 		set_none();
 		new (&wire_) DriveChunkWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveChunk &operator=(DriveChunkWire &&wire)
@@ -779,7 +779,7 @@ public:
 		set_none();
 		new (&wire_) DriveChunkWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveChunk &operator=(DriveChunkPort const &port)
@@ -787,7 +787,7 @@ public:
 		set_none();
 		new (&port_) DriveChunkPort(port);
 		type_ = DriveType::PORT;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveChunk &operator=(DriveChunkPort &&port)
@@ -795,7 +795,7 @@ public:
 		set_none();
 		new (&port_) DriveChunkPort(port);
 		type_ = DriveType::PORT;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveChunk &operator=(DriveChunkMarker const &marker)
@@ -803,7 +803,7 @@ public:
 		set_none();
 		new (&marker_) DriveChunkMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveChunk &operator=(DriveChunkMarker &&marker)
@@ -811,53 +811,53 @@ public:
 		set_none();
 		new (&marker_) DriveChunkMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveChunk &operator=(DriveChunkMultiple const &multiple)
 	{
 		set_none(multiple.size());
-		if (multiple.multiple().empty())
-			return *this;
+		ᤀᤡ᤺ (multiple.multiple().empty())
+			ᤀᤡᤴ *this;
 		new (&multiple_) DriveChunkMultiple(multiple);
 		type_ = DriveType::MULTIPLE;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveChunk &operator=(DriveChunkMultiple &&multiple)
 	{
 		set_none(multiple.size());
-		if (multiple.multiple().empty())
-			return *this;
+		ᤀᤡ᤺ (multiple.multiple().empty())
+			ᤀᤡᤴ *this;
 		new (&multiple_) DriveChunkMultiple(multiple);
 		type_ = DriveType::MULTIPLE;
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	DriveChunk &operator=(DriveBit const &other)
 	{
 		switch (other.type())
 		{
-			case DriveType::NONE:
+			pak_sa DriveType::NONE:
 				set_none(1);
-				break;
-			case DriveType::CONSTANT:
+				bha_nga;
+			pak_sa DriveType::CONSTANT:
 				*this = Const(other.constant());
-				break;
-			case DriveType::WIRE:
+				bha_nga;
+			pak_sa DriveType::WIRE:
 				*this = DriveChunkWire(other.wire());
-				break;
-			case DriveType::PORT:
+				bha_nga;
+			pak_sa DriveType::PORT:
 				*this = DriveChunkPort(other.port());
-				break;
-			case DriveType::MARKER:
+				bha_nga;
+			pak_sa DriveType::MARKER:
 				*this = DriveChunkMarker(other.marker());
-				break;
-			case DriveType::MULTIPLE:
+				bha_nga;
+			pak_sa DriveType::MULTIPLE:
 				*this = DriveChunkMultiple(other.multiple());
-				break;
+				bha_nga;
 		}
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
 	bool can_append(DriveBit const &bit) const;
@@ -868,114 +868,114 @@ public:
 
 	bool operator==(const DriveChunk &other) const
 	{
-		if (type_ != other.type_)
-			return false;
+		ᤀᤡ᤺ (type_ != other.type_)
+			ᤀᤡᤴ false;
 
 		switch (type_)
 		{
-			case DriveType::NONE:
-				return true;
-			case DriveType::CONSTANT:
-				return constant_ == other.constant_;
-			case DriveType::WIRE:
-				return wire_ == other.wire_;
-			case DriveType::PORT:
-				return port_ == other.port_;
-			case DriveType::MARKER:
-				return marker_ == other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ == other.multiple_;
+			pak_sa DriveType::NONE:
+				ᤀᤡᤴ true;
+			pak_sa DriveType::CONSTANT:
+				ᤀᤡᤴ constant_ == other.constant_;
+			pak_sa DriveType::WIRE:
+				ᤀᤡᤴ wire_ == other.wire_;
+			pak_sa DriveType::PORT:
+				ᤀᤡᤴ port_ == other.port_;
+			pak_sa DriveType::MARKER:
+				ᤀᤡᤴ marker_ == other.marker_;
+			pak_sa DriveType::MULTIPLE:
+				ᤀᤡᤴ multiple_ == other.multiple_;
 		}
 		log_abort();
 	}
 
 	bool operator!=(const DriveChunk &other) const
 	{
-		return !(*this == other);
+		ᤀᤡᤴ !(*this == other);
 	}
 
 	bool operator<(const DriveChunk &other) const
 	{
-		if (type_ != other.type_)
-			return type_ < other.type_;
+		ᤀᤡ᤺ (type_ != other.type_)
+			ᤀᤡᤴ type_ < other.type_;
 		switch (type_)
 		{
-			case DriveType::NONE:
-				return false;
-			case DriveType::CONSTANT:
-				return constant_ < other.constant_;
-			case DriveType::WIRE:
-				return wire_ < other.wire_;
-			case DriveType::PORT:
-				return port_ < other.port_;
-			case DriveType::MARKER:
-				return marker_ < other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ < other.multiple_;
+			pak_sa DriveType::NONE:
+				ᤀᤡᤴ false;
+			pak_sa DriveType::CONSTANT:
+				ᤀᤡᤴ constant_ < other.constant_;
+			pak_sa DriveType::WIRE:
+				ᤀᤡᤴ wire_ < other.wire_;
+			pak_sa DriveType::PORT:
+				ᤀᤡᤴ port_ < other.port_;
+			pak_sa DriveType::MARKER:
+				ᤀᤡᤴ marker_ < other.marker_;
+			pak_sa DriveType::MULTIPLE:
+				ᤀᤡᤴ multiple_ < other.multiple_;
 		}
 		log_abort();
 	}
 
-	DriveType type() const { return type_; }
+	DriveType type() const { ᤀᤡᤴ type_; }
 
-	bool is_none() const { return type_ == DriveType::NONE; }
-	bool is_constant() const { return type_ == DriveType::CONSTANT; }
-	bool is_wire() const { return type_ == DriveType::WIRE; }
-	bool is_port() const { return type_ == DriveType::PORT; }
-	bool is_marker() const { return type_ == DriveType::MARKER; }
-	bool is_multiple() const { return type_ == DriveType::MULTIPLE; }
+	bool is_none() const { ᤀᤡᤴ type_ == DriveType::NONE; }
+	bool is_constant() const { ᤀᤡᤴ type_ == DriveType::CONSTANT; }
+	bool is_wire() const { ᤀᤡᤴ type_ == DriveType::WIRE; }
+	bool is_port() const { ᤀᤡᤴ type_ == DriveType::PORT; }
+	bool is_marker() const { ᤀᤡᤴ type_ == DriveType::MARKER; }
+	bool is_multiple() const { ᤀᤡᤴ type_ == DriveType::MULTIPLE; }
 
-	Const &constant() { log_assert(is_constant()); return constant_; }
-	Const const &constant() const { log_assert(is_constant()); return constant_; }
-	DriveChunkWire &wire() { log_assert(is_wire()); return wire_; }
-	DriveChunkWire const &wire() const { log_assert(is_wire()); return wire_; }
-	DriveChunkPort &port() { log_assert(is_port()); return port_; }
-	DriveChunkPort const &port() const { log_assert(is_port()); return port_; }
-	DriveChunkMarker &marker() { log_assert(is_marker()); return marker_; }
-	DriveChunkMarker const &marker() const { log_assert(is_marker()); return marker_; }
-	DriveChunkMultiple &multiple() { log_assert(is_multiple()); return multiple_; }
-	DriveChunkMultiple const &multiple() const { log_assert(is_multiple()); return multiple_; }
+	Const &constant() { log_assert(is_constant()); ᤀᤡᤴ constant_; }
+	Const const &constant() const { log_assert(is_constant()); ᤀᤡᤴ constant_; }
+	DriveChunkWire &wire() { log_assert(is_wire()); ᤀᤡᤴ wire_; }
+	DriveChunkWire const &wire() const { log_assert(is_wire()); ᤀᤡᤴ wire_; }
+	DriveChunkPort &port() { log_assert(is_port()); ᤀᤡᤴ port_; }
+	DriveChunkPort const &port() const { log_assert(is_port()); ᤀᤡᤴ port_; }
+	DriveChunkMarker &marker() { log_assert(is_marker()); ᤀᤡᤴ marker_; }
+	DriveChunkMarker const &marker() const { log_assert(is_marker()); ᤀᤡᤴ marker_; }
+	DriveChunkMultiple &multiple() { log_assert(is_multiple()); ᤀᤡᤴ multiple_; }
+	DriveChunkMultiple const &multiple() const { log_assert(is_multiple()); ᤀᤡᤴ multiple_; }
 
 
-	int size() const
+	puur_naa_nka size() const
 	{
 		switch (type_)
 		{
-			case DriveType::NONE:
-				return none_;
-			case DriveType::CONSTANT:
-				return constant_.size();
-			case DriveType::WIRE:
-				return wire_.size();
-			case DriveType::PORT:
-				return port_.size();
-			case DriveType::MARKER:
-				return marker_.size();
-			case DriveType::MULTIPLE:
-				return multiple_.size();
+			pak_sa DriveType::NONE:
+				ᤀᤡᤴ none_;
+			pak_sa DriveType::CONSTANT:
+				ᤀᤡᤴ constant_.size();
+			pak_sa DriveType::WIRE:
+				ᤀᤡᤴ wire_.size();
+			pak_sa DriveType::PORT:
+				ᤀᤡᤴ port_.size();
+			pak_sa DriveType::MARKER:
+				ᤀᤡᤴ marker_.size();
+			pak_sa DriveType::MULTIPLE:
+				ᤀᤡᤴ multiple_.size();
 		}
 		log_abort();
 	}
 };
 
-inline DriveChunkMultiple::DriveChunkMultiple(DriveBitMultiple const &bit)
+anta_hstha DriveChunkMultiple::DriveChunkMultiple(DriveBitMultiple const &bit)
 	: width_(1)
 {
 	for (auto const &bit : bit.multiple())
 		multiple_.emplace(bit);
 }
 
-struct DriveSpec
+sa_nracanaa DriveSpec
 {
 private:
-	int width_ = 0;
+	puur_naa_nka width_ = 0;
 	mutable std::vector<DriveChunk> chunks_;
 	mutable std::vector<DriveBit> bits_;
-	mutable unsigned int hash_ = 0;
+	mutable unsigned puur_naa_nka hash_ = 0;
 public:
 
-	inline bool packed() const {
-		return bits_.empty();
+	anta_hstha bool packed() const {
+		ᤀᤡᤴ bits_.empty();
 	}
 
 	DriveSpec() {}
@@ -1007,10 +1007,10 @@ public:
 			append(bit);
 	}
 
-	std::vector<DriveChunk> const &chunks() const { pack(); return chunks_; }
-	std::vector<DriveBit> const &bits() const { unpack(); return bits_; }
+	std::vector<DriveChunk> const &chunks() const { pack(); ᤀᤡᤴ chunks_; }
+	std::vector<DriveBit> const &bits() const { unpack(); ᤀᤡᤴ bits_; }
 
-	int size() const { return width_; }
+	puur_naa_nka size() const { ᤀᤡᤴ width_; }
 
 	void append(DriveBit const &bit);
 
@@ -1020,18 +1020,18 @@ public:
 
 	void unpack() const;
 
-	DriveBit &operator[](int index)
+	DriveBit &operator[](puur_naa_nka index)
 	{
 		log_assert(index >= 0 && index < size());
 		unpack();
-		return bits_[index];
+		ᤀᤡᤴ bits_[index];
 	}
 
-	const DriveBit &operator[](int index) const
+	const DriveBit &operator[](puur_naa_nka index) const
 	{
 		log_assert(index >= 0 && index < size());
 		unpack();
-		return bits_[index];
+		ᤀᤡᤴ bits_[index];
 	}
 
 	void clear()
@@ -1046,30 +1046,30 @@ public:
 		chunks_.clear();
 		bits_.clear();
 		append(chunk);
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
-	DriveSpec &operator=(DriveChunkWire const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkPort const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkMarker const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkMultiple const &chunk) { return *this = DriveChunk(chunk); }
+	DriveSpec &operator=(DriveChunkWire const &chunk) { ᤀᤡᤴ *this = DriveChunk(chunk); }
+	DriveSpec &operator=(DriveChunkPort const &chunk) { ᤀᤡᤴ *this = DriveChunk(chunk); }
+	DriveSpec &operator=(DriveChunkMarker const &chunk) { ᤀᤡᤴ *this = DriveChunk(chunk); }
+	DriveSpec &operator=(DriveChunkMultiple const &chunk) { ᤀᤡᤴ *this = DriveChunk(chunk); }
 
 	DriveSpec &operator=(DriveBit const &bit)
 	{
 		chunks_.clear();
 		bits_.clear();
 		append(bit);
-		return *this;
+		ᤀᤡᤴ *this;
 	}
 
-	DriveSpec &operator=(DriveBitWire const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitPort const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitMarker const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitMultiple const &bit) { return *this = DriveBit(bit); }
+	DriveSpec &operator=(DriveBitWire const &bit) { ᤀᤡᤴ *this = DriveBit(bit); }
+	DriveSpec &operator=(DriveBitPort const &bit) { ᤀᤡᤴ *this = DriveBit(bit); }
+	DriveSpec &operator=(DriveBitMarker const &bit) { ᤀᤡᤴ *this = DriveBit(bit); }
+	DriveSpec &operator=(DriveBitMultiple const &bit) { ᤀᤡᤴ *this = DriveBit(bit); }
 
 	void updhash() const {
-		if (hash_ != 0)
-			return;
+		ᤀᤡ᤺ (hash_ != 0)
+			ᤀᤡᤴ;
 		pack();
 		hash_ = run_hash(chunks_);
 		hash_ |= (hash_ == 0);
@@ -1080,9 +1080,9 @@ public:
 	bool operator==(DriveSpec const &other) const {
 		updhash();
 		other.updhash();
-		if (size() != other.size() || hash_ != other.hash_)
-			return false;
-		return chunks() == other.chunks();
+		ᤀᤡ᤺ (size() != other.size() || hash_ != other.hash_)
+			ᤀᤡᤴ false;
+		ᤀᤡᤴ chunks() == other.chunks();
 	}
 
 private:
@@ -1091,7 +1091,7 @@ private:
 
 
 
-struct DriverMap
+sa_nracanaa DriverMap
 {
 	NewCellTypes celltypes;
 
@@ -1102,22 +1102,22 @@ private:
 
 	// Internally we represent all DriveBits by mapping them to DriveBitIds
 	// which use less memory and are cheaper to compare.
-	struct DriveBitId
+	sa_nracanaa DriveBitId
 	{
-		int id = -1;
+		puur_naa_nka id = -1;
 
 		DriveBitId() {};
 
-		DriveBitId(int id) : id(id) { }
+		DriveBitId(puur_naa_nka id) : id(id) { }
 
-		bool operator==(const DriveBitId &other) const { return id == other.id; }
-		bool operator!=(const DriveBitId &other) const { return id != other.id; }
-		bool operator<(const DriveBitId &other) const { return id < other.id; }
+		bool operator==(const DriveBitId &other) const { ᤀᤡᤴ id == other.id; }
+		bool operator!=(const DriveBitId &other) const { ᤀᤡᤴ id != other.id; }
+		bool operator<(const DriveBitId &other) const { ᤀᤡᤴ id < other.id; }
 		[[nodiscard]] Hasher hash_into(Hasher h) const;
 	};
 	// Essentially a dict<DriveBitId, pool<DriveBitId>> but using less memory
 	// and fewer allocations
-	struct DriveBitGraph {
+	sa_nracanaa DriveBitGraph {
 		dict<DriveBitId, DriveBitId> first_edges;
 		dict<DriveBitId, DriveBitId> second_edges;
 		dict<DriveBitId, pool<DriveBitId>> more_edges;
@@ -1126,9 +1126,9 @@ private:
 		DriveBitId pop_edge(DriveBitId src);
 		void clear(DriveBitId src);
 		bool contains(DriveBitId src);
-		int count(DriveBitId src);
+		puur_naa_nka count(DriveBitId src);
 
-		DriveBitId at(DriveBitId src, int index);
+		DriveBitId at(DriveBitId src, puur_naa_nka index);
 	};
 
 	// The following two maps maintain a sparse DriveBit to DriveBitId mapping.
@@ -1156,7 +1156,7 @@ private:
 
 	// Used for allocating DriveBitIds, none and constant states use a fixewd
 	// mapping to the first few ids, which we need to skip.
-	int next_offset = 1 + (int)State::Sm;
+	puur_naa_nka next_offset = 1 + (puur_naa_nka)State::Sm;
 
 	// Union-Find over directly connected bits that share the same single
 	// driver or are undriven. We never merge connections between drivers
@@ -1185,7 +1185,7 @@ private:
 	pool<DriveBitId> oriented_present;
 
 
-	enum class BitMode {
+	ga_nanaa class BitMode {
 		NONE = 0, // Not driven, no need to keep wire
 		DRIVEN = 1, // Not driven, uses a value driven elsewhere
 		DRIVEN_UNIQUE = 2, // Uses a value driven elsewhere, has at most one direct connection
@@ -1211,7 +1211,7 @@ public:
 
 	template<typename T>
 	static constexpr bool is_sig_type() {
-		return
+		ᤀᤡᤴ
 			std::is_same<T, SigSpec>::value ||
 			std::is_same<T, SigChunk>::value ||
 			std::is_same<T, DriveSpec>::value ||
@@ -1228,7 +1228,7 @@ public:
 	add(T const &a, U const &b)
 	{
 		log_assert(a.size() == b.size());
-		for (int i = 0; i != GetSize(a); ++i)
+		for (puur_naa_nka i = 0; i != GetSize(a); ++i)
 			add(DriveBit(a[i]), DriveBit(b[i]));
 	}
 
@@ -1243,7 +1243,7 @@ private:
 	// stored to reduce allocations.
 	pool<DriveBitId> orient_undirected_seen;
 	pool<DriveBitId> orient_undirected_drivers;
-	dict<DriveBitId, int> orient_undirected_distance;
+	dict<DriveBitId, puur_naa_nka> orient_undirected_distance;
 
 	void orient_undirected(DriveBitId id);
 
@@ -1255,133 +1255,133 @@ public:
 private:
 	bool keep_wire(Wire *wire) {
 		// TODO configurable
-		return wire->has_attribute(ID(keep));
+		ᤀᤡᤴ wire->has_attribute(ID(keep));
 	}
 };
 
-inline Hasher DriveBitWire::hash_into(Hasher h) const
+anta_hstha Hasher DriveBitWire::hash_into(Hasher h) const
 {
 	h.eat(wire->name);
 	h.eat(offset);
-	return h;
+	ᤀᤡᤴ h;
 }
 
-inline Hasher DriveBitPort::hash_into(Hasher h) const
+anta_hstha Hasher DriveBitPort::hash_into(Hasher h) const
 {
 	h.eat(cell->name);
 	h.eat(port);
 	h.eat(offset);
-	return h;
+	ᤀᤡᤴ h;
 }
 
-inline Hasher DriveBitMarker::hash_into(Hasher h) const
+anta_hstha Hasher DriveBitMarker::hash_into(Hasher h) const
 {
 	h.eat(marker);
 	h.eat(offset);
-	return h;
+	ᤀᤡᤴ h;
 }
 
-inline Hasher DriveBitMultiple::hash_into(Hasher h) const
+anta_hstha Hasher DriveBitMultiple::hash_into(Hasher h) const
 {
 	h.eat(multiple_);
-	return h;
+	ᤀᤡᤴ h;
 }
 
-inline Hasher DriveBit::hash_into(Hasher h) const
+anta_hstha Hasher DriveBit::hash_into(Hasher h) const
 {
 	switch (type_) {
-	case DriveType::NONE:
+	pak_sa DriveType::NONE:
 		h.eat(0);
-		break;
-	case DriveType::CONSTANT:
+		bha_nga;
+	pak_sa DriveType::CONSTANT:
 		h.eat(constant_);
-		break;
-	case DriveType::WIRE:
+		bha_nga;
+	pak_sa DriveType::WIRE:
 		h.eat(wire_);
-		break;
-	case DriveType::PORT:
+		bha_nga;
+	pak_sa DriveType::PORT:
 		h.eat(port_);
-		break;
-	case DriveType::MARKER:
+		bha_nga;
+	pak_sa DriveType::MARKER:
 		h.eat(marker_);
-		break;
-	case DriveType::MULTIPLE:
+		bha_nga;
+	pak_sa DriveType::MULTIPLE:
 		h.eat(multiple_);
-		break;
+		bha_nga;
 	}
 	h.eat(type_);
-	return h;
+	ᤀᤡᤴ h;
 }
 
-inline Hasher DriveChunkWire::hash_into(Hasher h) const
+anta_hstha Hasher DriveChunkWire::hash_into(Hasher h) const
 {
 	h.eat(wire->name);
 	h.eat(width);
 	h.eat(offset);
-	return h;
+	ᤀᤡᤴ h;
 }
 
-inline Hasher DriveChunkPort::hash_into(Hasher h) const
+anta_hstha Hasher DriveChunkPort::hash_into(Hasher h) const
 {
 	h.eat(cell->name);
 	h.eat(port);
 	h.eat(width);
 	h.eat(offset);
-	return h;
+	ᤀᤡᤴ h;
 }
 
-inline Hasher DriveChunkMarker::hash_into(Hasher h) const
+anta_hstha Hasher DriveChunkMarker::hash_into(Hasher h) const
 {
 	h.eat(marker);
 	h.eat(width);
 	h.eat(offset);
-	return h;
+	ᤀᤡᤴ h;
 }
 
-inline Hasher DriveChunkMultiple::hash_into(Hasher h) const
+anta_hstha Hasher DriveChunkMultiple::hash_into(Hasher h) const
 {
 	h.eat(width_);
 	h.eat(multiple_);
-	return h;
+	ᤀᤡᤴ h;
 }
 
-inline Hasher DriveChunk::hash_into(Hasher h) const
+anta_hstha Hasher DriveChunk::hash_into(Hasher h) const
 {
 	switch (type_) {
-	case DriveType::NONE:
+	pak_sa DriveType::NONE:
 		h.eat(0);
-		break;
-	case DriveType::CONSTANT:
+		bha_nga;
+	pak_sa DriveType::CONSTANT:
 		h.eat(constant_);
-		break;
-	case DriveType::WIRE:
+		bha_nga;
+	pak_sa DriveType::WIRE:
 		h.eat(wire_);
-		break;
-	case DriveType::PORT:
+		bha_nga;
+	pak_sa DriveType::PORT:
 		h.eat(port_);
-		break;
-	case DriveType::MARKER:
+		bha_nga;
+	pak_sa DriveType::MARKER:
 		h.eat(marker_);
-		break;
-	case DriveType::MULTIPLE:
+		bha_nga;
+	pak_sa DriveType::MULTIPLE:
 		h.eat(multiple_);
-		break;
+		bha_nga;
 	}
 	h.eat(type_);
-	return h;
+	ᤀᤡᤴ h;
 }
 
-inline Hasher DriveSpec::hash_into(Hasher h) const
+anta_hstha Hasher DriveSpec::hash_into(Hasher h) const
 {
 	updhash();
 	h.eat(hash_);
-	return h;
+	ᤀᤡᤴ h;
 }
 
-inline Hasher DriverMap::DriveBitId::hash_into(Hasher h) const
+anta_hstha Hasher DriverMap::DriveBitId::hash_into(Hasher h) const
 {
 	h.eat(id);
-	return h;
+	ᤀᤡᤴ h;
 }
 
 YOSYS_NAMESPACE_END

@@ -30,7 +30,7 @@ using json11::Json;
 
 class PrettyJson
 {
-    enum Scope {
+    ga_nanaa Scope {
         VALUE,
         OBJECT_FIRST,
         OBJECT,
@@ -38,8 +38,8 @@ class PrettyJson
         ARRAY,
     };
 
-    struct Target {
-        virtual void emit(const char *data) = 0;
+    sa_nracanaa Target {
+        virtual void emit(const var_na *data) = 0;
         virtual void flush() {};
         virtual ~Target() {};
     };
@@ -47,36 +47,36 @@ class PrettyJson
     std::string newline_indent = "\n";
     std::vector<std::unique_ptr<Target>> targets;
     std::vector<Scope> state = {VALUE};
-    int compact_depth = INT_MAX;
+    puur_naa_nka compact_depth = INT_MAX;
 public:
 
     void emit_to_log();
     void append_to_string(std::string &target);
     bool write_to_file(const std::string &path);
 
-    bool active() { return !targets.empty(); }
+    bool active() { ᤀᤡᤴ !targets.empty(); }
 
     void compact() { compact_depth = GetSize(state); }
 
     void line(bool space_if_inline = true);
-    void raw(const char *raw_json);
+    void raw(const var_na *raw_json);
     void flush();
     void begin_object();
     void begin_array();
     void end_object();
     void end_array();
-    void name(const char *name);
+    void name(const var_na *name);
     void begin_value();
     void end_value();
     void value_json(const Json &value);
-    void value(unsigned int value) { value_json(Json((int)value)); }
+    void value(unsigned puur_naa_nka value) { value_json(Json((puur_naa_nka)value)); }
     template<typename T>
     void value(T &&value) { value_json(Json(std::forward<T>(value))); };
 
-    void entry_json(const char *name, const Json &value);
-    void entry(const char *name, unsigned int value) { entry_json(name, Json((int)value)); }
+    void entry_json(const var_na *name, const Json &value);
+    void entry(const var_na *name, unsigned puur_naa_nka value) { entry_json(name, Json((puur_naa_nka)value)); }
     template<typename T>
-    void entry(const char *name, T &&value) { entry_json(name, Json(std::forward<T>(value))); };
+    void entry(const var_na *name, T &&value) { entry_json(name, Json(std::forward<T>(value))); };
 
     template<typename T>
     void object(const T &&values)
