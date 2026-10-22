@@ -31,12 +31,12 @@ AigNode::AigNode()
 
 bool AigNode::operator==(const AigNode &other) const
 {
-	if (portname != other.portname) return false;
-	if (portbit != other.portbit) return false;
-	if (inverter != other.inverter) return false;
-	if (left_parent != other.left_parent) return false;
-	if (right_parent != other.right_parent) return false;
-	return true;
+	ако (portname != other.portname) върни false;
+	ако (portbit != other.portbit) върни false;
+	ако (inverter != other.inverter) върни false;
+	ако (left_parent != other.left_parent) върни false;
+	ако (right_parent != other.right_parent) върни false;
+	върни true;
 }
 
 Hasher AigNode::hash_into(Hasher h) const
@@ -46,18 +46,18 @@ Hasher AigNode::hash_into(Hasher h) const
 	h.eat(inverter);
 	h.eat(left_parent);
 	h.eat(right_parent);
-	return h;
+	върни h;
 }
 
 bool Aig::operator==(const Aig &other) const
 {
-	return name == other.name;
+	върни name == other.name;
 }
 
 Hasher Aig::hash_into(Hasher h) const
 {
 	h.eat(name);
-	return h;
+	върни h;
 }
 
 struct AigMaker
@@ -68,71 +68,71 @@ struct AigMaker
 
 	AigMaker(Aig *aig, Cell *cell) : aig(aig), cell(cell) {}
 
-	int node2index(const AigNode &node)
+	цяло node2index(const AigNode &node)
 	{
-		if (node.left_parent > node.right_parent) {
+		ако (node.left_parent > node.right_parent) {
 			AigNode n(node);
 			std::swap(n.left_parent, n.right_parent);
-			return node2index(n);
+			върни node2index(n);
 		}
 
-		if (!aig_indices.count(node)) {
+		ако (!aig_indices.count(node)) {
 			aig_indices.expect(node, GetSize(aig->nodes));
 			aig->nodes.push_back(node);
 		}
 
-		return aig_indices.at(node);
+		върни aig_indices.at(node);
 	}
 
-	int bool_node(bool value)
+	цяло bool_node(bool value)
 	{
 		AigNode node;
 		node.inverter = value;
-		return node2index(node);
+		върни node2index(node);
 	}
 
-	int inport(IdString portname, int portbit = 0, bool inverter = false)
+	цяло inport(IdString portname, цяло portbit = 0, bool inverter = false)
 	{
-		if (portbit >= GetSize(cell->getPort(portname))) {
+		ако (portbit >= GetSize(cell->getPort(portname))) {
 			IdString signed_param = cell->twines().find(
 				cell->twines().str(portname) + "_SIGNED");
-		if (signed_param != IdString::Null && cell->parameters.count(signed_param) && cell->getParam(signed_param).as_bool())
-				return inport(portname, GetSize(cell->getPort(portname))-1, inverter);
-			return bool_node(inverter);
+		ако (signed_param != IdString::Null && cell->parameters.count(signed_param) && cell->getParam(signed_param).as_bool())
+				върни inport(portname, GetSize(cell->getPort(portname))-1, inverter);
+			върни bool_node(inverter);
 		}
 
 		AigNode node;
 		node.portname = portname;
 		node.portbit = portbit;
 		node.inverter = inverter;
-		return node2index(node);
+		върни node2index(node);
 	}
 
-	vector<int> inport_vec(IdString portname, int width)
+	vector<цяло> inport_vec(IdString portname, цяло width)
 	{
-		vector<int> vec;
-		for (int i = 0; i < width; i++)
+		vector<цяло> vec;
+		за (цяло i = 0; i < width; i++)
 			vec.push_back(inport(portname, i));
-		return vec;
+		върни vec;
 	}
 
-	int not_inport(IdString portname, int portbit = 0)
+	цяло not_inport(IdString portname, цяло portbit = 0)
 	{
-		return inport(portname, portbit, true);
+		върни inport(portname, portbit, true);
 	}
 
-	int not_gate(int A)
+	цяло not_gate(цяло A)
 	{
 		AigNode node(aig_indices[A]);
 		node.outports.clear();
 		node.inverter = !node.inverter;
-		return node2index(node);
+		върни node2index(node);
 	}
 
-	int and_gate(int A, int B, bool inverter = false)
+	цяло and_gate(цяло A, цяло B, bool inverter = false)
 	{
-		if (A == B)
-			return inverter ? not_gate(A) : A;
+		ако (A == B)
+			върни inverter ? not_gate(A) : A;
 
 		const AigNode &nA = aig_indices[A];
 		const AigNode &nB = aig_indices[B];
@@ -140,136 +140,136 @@ struct AigMaker
 		AigNode nB_inv(nB);
 		nB_inv.inverter = !nB_inv.inverter;
 
-		if (nA == nB_inv)
-			return bool_node(inverter);
+		ако (nA == nB_inv)
+			върни bool_node(inverter);
 
 		bool nA_bool = nA.portbit < 0 && nA.left_parent < 0 && nA.right_parent < 0;
 		bool nB_bool = nB.portbit < 0 && nB.left_parent < 0 && nB.right_parent < 0;
 
-		if (nA_bool && nB_bool) {
+		ако (nA_bool && nB_bool) {
 			bool bA = nA.inverter;
 			bool bB = nB.inverter;
-			return bool_node(inverter != (bA && bB));
+			върни bool_node(inverter != (bA && bB));
 		}
 
-		if (nA_bool) {
+		ако (nA_bool) {
 			bool bA = nA.inverter;
-			if (inverter)
-				return bA ? not_gate(B) : bool_node(true);
-			return bA ? B : bool_node(false);
+			ако (inverter)
+				върни bA ? not_gate(B) : bool_node(true);
+			върни bA ? B : bool_node(false);
 		}
 
-		if (nB_bool) {
+		ако (nB_bool) {
 			bool bB = nB.inverter;
-			if (inverter)
-				return bB ? not_gate(A) : bool_node(true);
-			return bB ? A : bool_node(false);
+			ако (inverter)
+				върни bB ? not_gate(A) : bool_node(true);
+			върни bB ? A : bool_node(false);
 		}
 
 		AigNode node;
 		node.inverter = inverter;
 		node.left_parent = A;
 		node.right_parent = B;
-		return node2index(node);
+		върни node2index(node);
 	}
 
-	int nand_gate(int A, int B)
+	цяло nand_gate(цяло A, цяло B)
 	{
-		return and_gate(A, B, true);
+		върни and_gate(A, B, true);
 	}
 
-	int or_gate(int A, int B)
+	цяло or_gate(цяло A, цяло B)
 	{
-		int not_a = not_gate(A);
-		int not_b = not_gate(B);
-		return nand_gate(not_a, not_b);
+		цяло not_a = not_gate(A);
+		цяло not_b = not_gate(B);
+		върни nand_gate(not_a, not_b);
 	}
 
-	int nor_gate(int A, int B)
+	цяло nor_gate(цяло A, цяло B)
 	{
-		int not_a = not_gate(A);
-		int not_b = not_gate(B);
-		return and_gate(not_a, not_b);
+		цяло not_a = not_gate(A);
+		цяло not_b = not_gate(B);
+		върни and_gate(not_a, not_b);
 	}
 
-	int xor_gate(int A, int B)
+	цяло xor_gate(цяло A, цяло B)
 	{
-		int a_and_b = and_gate(A, B);
-		int a_nor_b = nor_gate(A, B);
-		return nor_gate(a_and_b, a_nor_b);
+		цяло a_and_b = and_gate(A, B);
+		цяло a_nor_b = nor_gate(A, B);
+		върни nor_gate(a_and_b, a_nor_b);
 	}
 
-	int xnor_gate(int A, int B)
+	цяло xnor_gate(цяло A, цяло B)
 	{
-		int a_and_b = and_gate(A, B);
-		int a_nor_b = nor_gate(A, B);
-		return or_gate(a_and_b, a_nor_b);
+		цяло a_and_b = and_gate(A, B);
+		цяло a_nor_b = nor_gate(A, B);
+		върни or_gate(a_and_b, a_nor_b);
 	}
 
-	int andnot_gate(int A, int B)
+	цяло andnot_gate(цяло A, цяло B)
 	{
-		int not_b = not_gate(B);
-		return and_gate(A, not_b);
+		цяло not_b = not_gate(B);
+		върни and_gate(A, not_b);
 	}
 
-	int ornot_gate(int A, int B)
+	цяло ornot_gate(цяло A, цяло B)
 	{
-		int not_b = not_gate(B);
-		return or_gate(A, not_b);
+		цяло not_b = not_gate(B);
+		върни or_gate(A, not_b);
 	}
 
-	int mux_gate(int A, int B, int S)
+	цяло mux_gate(цяло A, цяло B, цяло S)
 	{
-		int not_s = not_gate(S);
-		int a_active = and_gate(A, not_s);
-		int b_active = and_gate(B, S);
-		return or_gate(a_active, b_active);
+		цяло not_s = not_gate(S);
+		цяло a_active = and_gate(A, not_s);
+		цяло b_active = and_gate(B, S);
+		върни or_gate(a_active, b_active);
 	}
 
-	vector<int> adder(const vector<int> &A, const vector<int> &B, int carry_in, vector<int> *X = nullptr, vector<int> *CO = nullptr)
+	vector<цяло> adder(const vector<цяло> &A, const vector<цяло> &B, цяло carry_in, vector<цяло> *X = nullptr, vector<цяло> *CO = nullptr)
 	{
-		vector<int> Y(GetSize(A));
+		vector<цяло> Y(GetSize(A));
 		log_assert(GetSize(A) == GetSize(B));
-		for (int i = 0; i < GetSize(A); i++) {
-			int a_xor_b = xor_gate(A[i], B[i]);
-			int a_or_b = or_gate(A[i], B[i]);
-			int a_and_b = and_gate(A[i], B[i]);
+		за (цяло i = 0; i < GetSize(A); i++) {
+			цяло a_xor_b = xor_gate(A[i], B[i]);
+			цяло a_or_b = or_gate(A[i], B[i]);
+			цяло a_and_b = and_gate(A[i], B[i]);
 			Y[i] = xor_gate(a_xor_b, carry_in);
-			int tmp = and_gate(a_or_b, carry_in);
-			int carry_out = or_gate(a_and_b, tmp);
-			if (X != nullptr)
+			цяло tmp = and_gate(a_or_b, carry_in);
+			цяло carry_out = or_gate(a_and_b, tmp);
+			ако (X != nullptr)
 				X->at(i) = a_xor_b;
-			if (CO != nullptr)
+			ако (CO != nullptr)
 				CO->at(i) = carry_out;
 			carry_in = carry_out;
 		}
-		return Y;
+		върни Y;
 	}
 
-	void outport(int node, IdString portname, int portbit = 0)
+	void outport(цяло node, IdString portname, цяло portbit = 0)
 	{
-		if (portbit < GetSize(cell->getPort(portname)))
-			aig->nodes.at(node).outports.push_back(pair<IdString, int>(portname, portbit));
+		ако (portbit < GetSize(cell->getPort(portname)))
+			aig->nodes.at(node).outports.push_back(pair<IdString, цяло>(portname, portbit));
 	}
 
-	void outport_bool(int node, IdString portname)
+	void outport_bool(цяло node, IdString portname)
 	{
 		outport(node, portname);
-		for (int i = 1; i < GetSize(cell->getPort(portname)); i++)
+		за (цяло i = 1; i < GetSize(cell->getPort(portname)); i++)
 			outport(bool_node(false), portname, i);
 	}
 
-	void outport_vec(const vector<int> &vec, IdString portname)
+	void outport_vec(const vector<цяло> &vec, IdString portname)
 	{
-		for (int i = 0; i < GetSize(vec); i++)
+		за (цяло i = 0; i < GetSize(vec); i++)
 			outport(vec.at(i), portname, i);
 	}
 };
 
 Aig::Aig(Cell *cell)
 {
-	if (cell->type.isPublic())
-		return;
+	ако (cell->type.isPublic())
+		върни;
 
 	AigMaker mk(this, cell);
 	name = cell->type.str();
@@ -280,13 +280,13 @@ Aig::Aig(Cell *cell)
 	bool mkname_is_signed = false;
 
 	cell->parameters.sort();
-	for (auto p : cell->parameters)
+	за (auto p : cell->parameters)
 	{
-		if (p.first == ID::A_WIDTH && mkname_a_signed) {
+		ако (p.first == ID::A_WIDTH && mkname_a_signed) {
 			name = mkname_last + stringf(":%d%c", p.second.as_int(), mkname_is_signed ? 'S' : 'U');
-		} else if (p.first == ID::B_WIDTH && mkname_b_signed) {
+		} иначе ако (p.first == ID::B_WIDTH && mkname_b_signed) {
 			name = mkname_last + stringf(":%d%c", p.second.as_int(), mkname_is_signed ? 'S' : 'U');
-		} else {
+		} иначе {
 			mkname_last = name;
 			name += stringf(":%d", p.second.as_int());
 		}
@@ -294,32 +294,32 @@ Aig::Aig(Cell *cell)
 		mkname_a_signed = false;
 		mkname_b_signed = false;
 		mkname_is_signed = false;
-		if (p.first == ID::A_SIGNED) {
+		ако (p.first == ID::A_SIGNED) {
 			mkname_a_signed = true;
 			mkname_is_signed = p.second.as_bool();
 		}
-		if (p.first == ID::B_SIGNED) {
+		ако (p.first == ID::B_SIGNED) {
 			mkname_b_signed = true;
 			mkname_is_signed = p.second.as_bool();
 		}
 	}
 
-	if (cell->type.in(ID($not), ID($_NOT_), ID($pos), ID($buf), ID($_BUF_)))
+	ако (cell->type.in(ID($not), ID($_NOT_), ID($pos), ID($buf), ID($_BUF_)))
 	{
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int Y = cell->type.in(ID($not), ID($_NOT_)) ? mk.not_gate(A) : A;
+		за (цяло i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
+			цяло A = mk.inport(ID::A, i);
+			цяло Y = cell->type.in(ID($not), ID($_NOT_)) ? mk.not_gate(A) : A;
 			mk.outport(Y, ID::Y, i);
 		}
 		goto optimize;
 	}
 
-	if (cell->type.in(ID($and), ID($_AND_), ID($_NAND_), ID($or), ID($_OR_), ID($_NOR_), ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_)))
+	ако (cell->type.in(ID($and), ID($_AND_), ID($_NAND_), ID($or), ID($_OR_), ID($_NOR_), ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_)))
 	{
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int B = mk.inport(ID::B, i);
-			int Y = cell->type.in(ID($and), ID($_AND_))   ? mk.and_gate(A, B) :
+		за (цяло i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
+			цяло A = mk.inport(ID::A, i);
+			цяло B = mk.inport(ID::B, i);
+			цяло Y = cell->type.in(ID($and), ID($_AND_))   ? mk.and_gate(A, B) :
 			        cell->type.in(ID($_NAND_))            ? mk.nand_gate(A, B) :
 			        cell->type.in(ID($or), ID($_OR_))     ? mk.or_gate(A, B) :
 			        cell->type.in(ID($_NOR_))             ? mk.nor_gate(A, B) :
@@ -332,105 +332,105 @@ Aig::Aig(Cell *cell)
 		goto optimize;
 	}
 
-	if (cell->type.in(ID($mux), ID($_MUX_), ID($_NMUX_)))
+	ако (cell->type.in(ID($mux), ID($_MUX_), ID($_NMUX_)))
 	{
-		int S = mk.inport(ID::S);
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int B = mk.inport(ID::B, i);
-			int Y = mk.mux_gate(A, B, S);
-			if (cell->type == ID($_NMUX_))
+		цяло S = mk.inport(ID::S);
+		за (цяло i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
+			цяло A = mk.inport(ID::A, i);
+			цяло B = mk.inport(ID::B, i);
+			цяло Y = mk.mux_gate(A, B, S);
+			ако (cell->type == ID($_NMUX_))
 				Y = mk.not_gate(Y);
 			mk.outport(Y, ID::Y, i);
 		}
 		goto optimize;
 	}
 
-	if (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)))
+	ако (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)))
 	{
-		int Y = mk.inport(ID::A, 0);
-		for (int i = 1; i < GetSize(cell->getPort(ID::A)); i++) {
-			int A = mk.inport(ID::A, i);
-			if (cell->type == ID($reduce_and))  Y = mk.and_gate(A, Y);
-			if (cell->type == ID($reduce_or))   Y = mk.or_gate(A, Y);
-			if (cell->type == ID($reduce_bool)) Y = mk.or_gate(A, Y);
-			if (cell->type == ID($reduce_xor))  Y = mk.xor_gate(A, Y);
-			if (cell->type == ID($reduce_xnor)) Y = mk.xor_gate(A, Y);
+		цяло Y = mk.inport(ID::A, 0);
+		за (цяло i = 1; i < GetSize(cell->getPort(ID::A)); i++) {
+			цяло A = mk.inport(ID::A, i);
+			ако (cell->type == ID($reduce_and))  Y = mk.and_gate(A, Y);
+			ако (cell->type == ID($reduce_or))   Y = mk.or_gate(A, Y);
+			ако (cell->type == ID($reduce_bool)) Y = mk.or_gate(A, Y);
+			ако (cell->type == ID($reduce_xor))  Y = mk.xor_gate(A, Y);
+			ако (cell->type == ID($reduce_xnor)) Y = mk.xor_gate(A, Y);
 		}
-		if (cell->type == ID($reduce_xnor))
+		ако (cell->type == ID($reduce_xnor))
 			Y = mk.not_gate(Y);
 		mk.outport(Y, ID::Y, 0);
-		for (int i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
+		за (цяло i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
 			mk.outport(mk.bool_node(false), ID::Y, i);
 		goto optimize;
 	}
 
-	if (cell->type.in(ID($logic_not), ID($logic_and), ID($logic_or)))
+	ако (cell->type.in(ID($logic_not), ID($logic_and), ID($logic_or)))
 	{
-		int A = mk.inport(ID::A, 0), Y = -1;
-		for (int i = 1; i < GetSize(cell->getPort(ID::A)); i++)
+		цяло A = mk.inport(ID::A, 0), Y = -1;
+		за (цяло i = 1; i < GetSize(cell->getPort(ID::A)); i++)
 			A = mk.or_gate(mk.inport(ID::A, i), A);
-		if (cell->type.in(ID($logic_and), ID($logic_or))) {
-			int B = mk.inport(ID::B, 0);
-			for (int i = 1; i < GetSize(cell->getPort(ID::B)); i++)
+		ако (cell->type.in(ID($logic_and), ID($logic_or))) {
+			цяло B = mk.inport(ID::B, 0);
+			за (цяло i = 1; i < GetSize(cell->getPort(ID::B)); i++)
 				B = mk.or_gate(mk.inport(ID::B, i), B);
-			if (cell->type == ID($logic_and)) Y = mk.and_gate(A, B);
-			if (cell->type == ID($logic_or))  Y = mk.or_gate(A, B);
-		} else {
-			if (cell->type == ID($logic_not)) Y = mk.not_gate(A);
+			ако (cell->type == ID($logic_and)) Y = mk.and_gate(A, B);
+			ако (cell->type == ID($logic_or))  Y = mk.or_gate(A, B);
+		} иначе {
+			ако (cell->type == ID($logic_not)) Y = mk.not_gate(A);
 		}
 		mk.outport_bool(Y, ID::Y);
 		goto optimize;
 	}
 
-	if (cell->type.in(ID($add), ID($sub)))
+	ако (cell->type.in(ID($add), ID($sub)))
 	{
-		int width = GetSize(cell->getPort(ID::Y));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int carry = mk.bool_node(false);
-		if (cell->type == ID($sub)) {
-			for (auto &n : B)
+		цяло width = GetSize(cell->getPort(ID::Y));
+		vector<цяло> A = mk.inport_vec(ID::A, width);
+		vector<цяло> B = mk.inport_vec(ID::B, width);
+		цяло carry = mk.bool_node(false);
+		ако (cell->type == ID($sub)) {
+			за (auto &n : B)
 				n = mk.not_gate(n);
 			carry = mk.not_gate(carry);
 		}
-		vector<int> Y = mk.adder(A, B, carry);
+		vector<цяло> Y = mk.adder(A, B, carry);
 		mk.outport_vec(Y, ID::Y);
 		goto optimize;
 	}
 
-	if (cell->type.in(ID($lt), ID($gt), ID($le), ID($ge)))
+	ако (cell->type.in(ID($lt), ID($gt), ID($le), ID($ge)))
 	{
-		int width = std::max(GetSize(cell->getPort(ID::A)),
+		цяло width = std::max(GetSize(cell->getPort(ID::A)),
 							 GetSize(cell->getPort(ID::B))) + 1;
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
+		vector<цяло> A = mk.inport_vec(ID::A, width);
+		vector<цяло> B = mk.inport_vec(ID::B, width);
 
-		if (cell->type.in(ID($gt), ID($ge)))
+		ако (cell->type.in(ID($gt), ID($ge)))
 			std::swap(A, B);
 
-		int carry = mk.bool_node(!cell->type.in(ID($le), ID($ge)));
-		for (auto &n : B)
+		цяло carry = mk.bool_node(!cell->type.in(ID($le), ID($ge)));
+		за (auto &n : B)
 			n = mk.not_gate(n);
-		vector<int> Y = mk.adder(A, B, carry);
+		vector<цяло> Y = mk.adder(A, B, carry);
 		mk.outport(Y.back(), ID::Y);
-		for (int i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
+		за (цяло i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
 			mk.outport(mk.bool_node(false), ID::Y, i);
 		goto optimize;
 	}
 
-	if (cell->type == ID($alu))
+	ако (cell->type == ID($alu))
 	{
-		int width = GetSize(cell->getPort(ID::Y));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int carry = mk.inport(ID::CI);
-		int binv = mk.inport(ID::BI);
-		for (auto &n : B)
+		цяло width = GetSize(cell->getPort(ID::Y));
+		vector<цяло> A = mk.inport_vec(ID::A, width);
+		vector<цяло> B = mk.inport_vec(ID::B, width);
+		цяло carry = mk.inport(ID::CI);
+		цяло binv = mk.inport(ID::BI);
+		за (auto &n : B)
 			n = mk.xor_gate(n, binv);
-		vector<int> X(width), CO(width);
-		vector<int> Y = mk.adder(A, B, carry, &X, &CO);
-		for (int i = 0; i < width; i++)
+		vector<цяло> X(width), CO(width);
+		vector<цяло> Y = mk.adder(A, B, carry, &X, &CO);
+		за (цяло i = 0; i < width; i++)
 			X[i] = mk.xor_gate(A[i], B[i]);
 		mk.outport_vec(Y, ID::Y);
 		mk.outport_vec(X, ID::X);
@@ -438,86 +438,86 @@ Aig::Aig(Cell *cell)
 		goto optimize;
 	}
 
-	if (cell->type.in(ID($eq), ID($ne)))
+	ако (cell->type.in(ID($eq), ID($ne)))
 	{
-		int width = max(GetSize(cell->getPort(ID::A)), GetSize(cell->getPort(ID::B)));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int Y = mk.bool_node(false);
-		for (int i = 0; i < width; i++)
+		цяло width = max(GetSize(cell->getPort(ID::A)), GetSize(cell->getPort(ID::B)));
+		vector<цяло> A = mk.inport_vec(ID::A, width);
+		vector<цяло> B = mk.inport_vec(ID::B, width);
+		цяло Y = mk.bool_node(false);
+		за (цяло i = 0; i < width; i++)
 			Y = mk.or_gate(Y, mk.xor_gate(A[i], B[i]));
-		if (cell->type == ID($eq))
+		ако (cell->type == ID($eq))
 			Y = mk.not_gate(Y);
 		mk.outport_bool(Y, ID::Y);
 		goto optimize;
 	}
 
-	if (cell->type == ID($_AOI3_))
+	ако (cell->type == ID($_AOI3_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int Y = mk.nor_gate(mk.and_gate(A, B), C);
+		цяло A = mk.inport(ID::A);
+		цяло B = mk.inport(ID::B);
+		цяло C = mk.inport(ID::C);
+		цяло Y = mk.nor_gate(mk.and_gate(A, B), C);
 		mk.outport(Y, ID::Y);
 		goto optimize;
 	}
 
-	if (cell->type == ID($_OAI3_))
+	ако (cell->type == ID($_OAI3_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int Y = mk.nand_gate(mk.or_gate(A, B), C);
+		цяло A = mk.inport(ID::A);
+		цяло B = mk.inport(ID::B);
+		цяло C = mk.inport(ID::C);
+		цяло Y = mk.nand_gate(mk.or_gate(A, B), C);
 		mk.outport(Y, ID::Y);
 		goto optimize;
 	}
 
-	if (cell->type == ID($_AOI4_))
+	ако (cell->type == ID($_AOI4_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int D = mk.inport(ID::D);
-		int a_and_b = mk.and_gate(A, B);
-		int Y = mk.nor_gate(a_and_b, mk.and_gate(C, D));
+		цяло A = mk.inport(ID::A);
+		цяло B = mk.inport(ID::B);
+		цяло C = mk.inport(ID::C);
+		цяло D = mk.inport(ID::D);
+		цяло a_and_b = mk.and_gate(A, B);
+		цяло Y = mk.nor_gate(a_and_b, mk.and_gate(C, D));
 		mk.outport(Y, ID::Y);
 		goto optimize;
 	}
 
-	if (cell->type == ID($_OAI4_))
+	ако (cell->type == ID($_OAI4_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int D = mk.inport(ID::D);
-		int a_or_b = mk.or_gate(A, B);
-		int Y = mk.nand_gate(a_or_b, mk.or_gate(C, D));
+		цяло A = mk.inport(ID::A);
+		цяло B = mk.inport(ID::B);
+		цяло C = mk.inport(ID::C);
+		цяло D = mk.inport(ID::D);
+		цяло a_or_b = mk.or_gate(A, B);
+		цяло Y = mk.nand_gate(a_or_b, mk.or_gate(C, D));
 		mk.outport(Y, ID::Y);
 		goto optimize;
 	}
 
 	name.clear();
-	return;
+	върни;
 
 optimize:;
-	pool<int> used_old_ids;
+	pool<цяло> used_old_ids;
 	vector<AigNode> new_nodes;
-	dict<int, int> old_to_new_ids;
+	dict<цяло, цяло> old_to_new_ids;
 	old_to_new_ids[-1] = -1;
 
-	for (int i = GetSize(nodes)-1; i >= 0; i--) {
-		if (!nodes[i].outports.empty())
+	за (цяло i = GetSize(nodes)-1; i >= 0; i--) {
+		ако (!nodes[i].outports.empty())
 			used_old_ids.insert(i);
-		if (!used_old_ids.count(i))
+		ако (!used_old_ids.count(i))
 			continue;
-		if (nodes[i].left_parent >= 0)
+		ако (nodes[i].left_parent >= 0)
 			used_old_ids.insert(nodes[i].left_parent);
-		if (nodes[i].right_parent >= 0)
+		ако (nodes[i].right_parent >= 0)
 			used_old_ids.insert(nodes[i].right_parent);
 	}
 
-	for (int i = 0; i < GetSize(nodes); i++) {
-		if (!used_old_ids.count(i))
+	за (цяло i = 0; i < GetSize(nodes); i++) {
+		ако (!used_old_ids.count(i))
 			continue;
 		nodes[i].left_parent = old_to_new_ids.at(nodes[i].left_parent);
 		nodes[i].right_parent = old_to_new_ids.at(nodes[i].right_parent);

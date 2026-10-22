@@ -22,21 +22,21 @@
 USING_YOSYS_NAMESPACE
 
 bool FfMergeHelper::is_output_unused(RTLIL::SigSpec sig) {
-	for (auto bit : (*sigmap)(sig))
-		if (sigbit_users_count[bit] != 0)
-			return false;
-	return true;
+	за (auto bit : (*sigmap)(sig))
+		ако (sigbit_users_count[bit] != 0)
+			върни false;
+	върни true;
 }
 
-bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, цяло>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
 	bool found = false;
 
-	for (auto bit : sig)
+	за (auto bit : sig)
 	{
-		if (bit.wire == NULL || sigbit_users_count[bit] == 0) {
+		ако (bit.wire == NULL || sigbit_users_count[bit] == 0) {
 			ff.width++;
 			ff.sig_q.append(bit);
 			ff.sig_d.append(bit);
@@ -48,27 +48,27 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			continue;
 		}
 
-		if (sigbit_users_count[bit] != 1)
-			return false;
+		ако (sigbit_users_count[bit] != 1)
+			върни false;
 
 		auto &sinks = dff_sink[bit];
-		if (sinks.size() != 1)
-			return false;
+		ако (sinks.size() != 1)
+			върни false;
 
 		Cell *cell;
-		int idx;
+		цяло idx;
 		std::tie(cell, idx) = *sinks.begin();
 		bits.insert(std::make_pair(cell, idx));
 
 		FfData cur_ff(initvals, cell);
 
 		// Reject latches and $ff.
-		if (!cur_ff.has_clk)
-			return false;
+		ако (!cur_ff.has_clk)
+			върни false;
 
 		log_assert((*sigmap)(cur_ff.sig_d[idx]) == bit);
 
-		if (!found) {
+		ако (!found) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -88,56 +88,56 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
 			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+		} иначе {
+			ако (ff.has_clk != cur_ff.has_clk)
+				върни false;
+			ако (ff.has_ce != cur_ff.has_ce)
+				върни false;
+			ако (ff.has_aload != cur_ff.has_aload)
+				върни false;
+			ако (ff.has_srst != cur_ff.has_srst)
+				върни false;
+			ако (ff.has_arst != cur_ff.has_arst)
+				върни false;
+			ако (ff.has_sr != cur_ff.has_sr)
+				върни false;
+			ако (ff.has_clk) {
+				ако (ff.sig_clk != cur_ff.sig_clk)
+					върни false;
+				ако (ff.pol_clk != cur_ff.pol_clk)
+					върни false;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			ако (ff.has_ce) {
+				ако (ff.sig_ce != cur_ff.sig_ce)
+					върни false;
+				ако (ff.pol_ce != cur_ff.pol_ce)
+					върни false;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			ако (ff.has_aload) {
+				ако (ff.sig_aload != cur_ff.sig_aload)
+					върни false;
+				ако (ff.pol_aload != cur_ff.pol_aload)
+					върни false;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			ако (ff.has_srst) {
+				ако (ff.sig_srst != cur_ff.sig_srst)
+					върни false;
+				ако (ff.pol_srst != cur_ff.pol_srst)
+					върни false;
+				ако (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					върни false;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			ако (ff.has_arst) {
+				ако (ff.sig_arst != cur_ff.sig_arst)
+					върни false;
+				ако (ff.pol_arst != cur_ff.pol_arst)
+					върни false;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			ако (ff.has_sr) {
+				ако (ff.pol_clr != cur_ff.pol_clr)
+					върни false;
+				ако (ff.pol_set != cur_ff.pol_set)
+					върни false;
 			}
 		}
 
@@ -153,20 +153,20 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 		found = true;
 	}
 
-	return found;
+	върни found;
 }
 
-bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, цяло>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
 	bool found = false;
 
-	pool<int> const_bits;
+	pool<цяло> const_bits;
 
-	for (auto bit : sig)
+	за (auto bit : sig)
 	{
-		if (bit.wire == NULL) {
+		ако (bit.wire == NULL) {
 			const_bits.insert(ff.width);
 			ff.width++;
 			ff.sig_q.append(bit);
@@ -180,11 +180,11 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			continue;
 		}
 
-		if (!dff_driver.count(bit))
-			return false;
+		ако (!dff_driver.count(bit))
+			върни false;
 
 		Cell *cell;
-		int idx;
+		цяло idx;
 		std::tie(cell, idx) = dff_driver[bit];
 		bits.insert(std::make_pair(cell, idx));
 
@@ -192,7 +192,7 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 
 		log_assert((*sigmap)(cur_ff.sig_q[idx]) == bit);
 
-		if (!found) {
+		ако (!found) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -213,58 +213,58 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
 			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_gclk != cur_ff.has_gclk)
-				return false;
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+		} иначе {
+			ако (ff.has_gclk != cur_ff.has_gclk)
+				върни false;
+			ако (ff.has_clk != cur_ff.has_clk)
+				върни false;
+			ако (ff.has_ce != cur_ff.has_ce)
+				върни false;
+			ако (ff.has_aload != cur_ff.has_aload)
+				върни false;
+			ако (ff.has_srst != cur_ff.has_srst)
+				върни false;
+			ако (ff.has_arst != cur_ff.has_arst)
+				върни false;
+			ако (ff.has_sr != cur_ff.has_sr)
+				върни false;
+			ако (ff.has_clk) {
+				ако (ff.sig_clk != cur_ff.sig_clk)
+					върни false;
+				ако (ff.pol_clk != cur_ff.pol_clk)
+					върни false;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			ако (ff.has_ce) {
+				ако (ff.sig_ce != cur_ff.sig_ce)
+					върни false;
+				ако (ff.pol_ce != cur_ff.pol_ce)
+					върни false;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			ако (ff.has_aload) {
+				ако (ff.sig_aload != cur_ff.sig_aload)
+					върни false;
+				ако (ff.pol_aload != cur_ff.pol_aload)
+					върни false;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			ако (ff.has_srst) {
+				ако (ff.sig_srst != cur_ff.sig_srst)
+					върни false;
+				ако (ff.pol_srst != cur_ff.pol_srst)
+					върни false;
+				ако (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					върни false;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			ако (ff.has_arst) {
+				ако (ff.sig_arst != cur_ff.sig_arst)
+					върни false;
+				ако (ff.pol_arst != cur_ff.pol_arst)
+					върни false;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			ако (ff.has_sr) {
+				ако (ff.pol_clr != cur_ff.pol_clr)
+					върни false;
+				ако (ff.pol_set != cur_ff.pol_set)
+					върни false;
 			}
 		}
 
@@ -280,24 +280,24 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 		found = true;
 	}
 
-	if (found && ff.has_sr) {
-		for (auto i: const_bits) {
-			if (ff.sig_d[i] == State::S0) {
+	ако (found && ff.has_sr) {
+		за (auto i: const_bits) {
+			ако (ff.sig_d[i] == State::S0) {
 				ff.sig_set[i] = ff.pol_set ? State::S0 : State::S1;
-			} else if (ff.sig_d[i] == State::S1) {
+			} иначе ако (ff.sig_d[i] == State::S1) {
 				ff.sig_clr[i] = ff.pol_clr ? State::S0 : State::S1;
 			}
 		}
 	}
 
-	return found;
+	върни found;
 }
 
 
-void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
+void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, цяло>> &bits) {
+	за (auto &it : bits) {
 		Cell *cell = it.first;
-		int idx = it.second;
+		цяло idx = it.second;
 		SigSpec q = cell->getPort(ID::Q);
 		initvals->remove_init(q[idx]);
 		dff_driver.erase((*sigmap)(q[idx]));
@@ -307,11 +307,11 @@ void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
 	}
 }
 
-void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
+void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, цяло>> &bits) {
+	за (auto &it : bits) {
 		Cell *cell = it.first;
-		int idx = it.second;
-		if (cell->hasPort(ID::D)) {
+		цяло idx = it.second;
+		ако (cell->hasPort(ID::D)) {
 			SigSpec d = cell->getPort(ID::D);
 			// The user count was already at least 1
 			// (for the D port).  Bump it as it is now connected
@@ -329,26 +329,26 @@ void FfMergeHelper::set(FfInitVals *initvals_, RTLIL::Module *module_)
 	sigmap = initvals->sigmap;
 	module = module_;
 
-	for (auto wire : module->wires()) {
-		if (wire->port_output)
-			for (auto bit : (*sigmap)(wire))
+	за (auto wire : module->wires()) {
+		ако (wire->port_output)
+			за (auto bit : (*sigmap)(wire))
 				sigbit_users_count[bit]++;
 	}
 
-	for (auto cell : module->cells()) {
-		if (cell->is_builtin_ff()) {
-			if (cell->hasPort(ID::D)) {
+	за (auto cell : module->cells()) {
+		ако (cell->is_builtin_ff()) {
+			ако (cell->hasPort(ID::D)) {
 				SigSpec d = (*sigmap)(cell->getPort(ID::D));
-				for (int i = 0; i < GetSize(d); i++)
+				за (цяло i = 0; i < GetSize(d); i++)
 					dff_sink[d[i]].insert(std::make_pair(cell, i));
 			}
 			SigSpec q = (*sigmap)(cell->getPort(ID::Q));
-			for (int i = 0; i < GetSize(q); i++)
+			за (цяло i = 0; i < GetSize(q); i++)
 				dff_driver[q[i]] = std::make_pair(cell, i);
 		}
-		for (auto &conn : cell->connections())
-			if (!cell->known() || cell->input(conn.first))
-				for (auto bit : (*sigmap)(conn.second))
+		за (auto &conn : cell->connections())
+			ако (!cell->known() || cell->input(conn.first))
+				за (auto bit : (*sigmap)(conn.second))
 					sigbit_users_count[bit]++;
 	}
 }

@@ -5,14 +5,14 @@
 #include <filesystem>
 #include <system_error>
 
-#if !defined(WIN32)
+#ако !defined(WIN32)
 #include <dirent.h>
 #include <unistd.h>
-#else
+#иначе
 #include <io.h>
 #endif
 
-#if !defined(_WIN32) && !defined(__wasi__)
+#ако !defined(_WIN32) && !defined(__wasi__)
 #include <sys/file.h>
 #include <fcntl.h>
 #include <cerrno>
@@ -22,73 +22,73 @@ YOSYS_NAMESPACE_BEGIN
 
 // Set of utilities for handling files
 
-int readsome(std::istream &f, char *s, int n)
+цяло readsome(std::istream &f, char *s, цяло n)
 {
-	int rc = int(f.readsome(s, n));
+	цяло rc = цяло(f.readsome(s, n));
 
 	// f.readsome() sometimes returns 0 on a non-empty stream..
-	if (rc == 0) {
-		int c = f.get();
-		if (c != EOF) {
+	ако (rc == 0) {
+		цяло c = f.get();
+		ако (c != EOF) {
 			*s = c;
 			rc = 1;
 		}
 	}
 
-	return rc;
+	върни rc;
 }
 
 std::string next_token(std::string &text, const char *sep, bool long_strings)
 {
 	size_t pos_begin = text.find_first_not_of(sep);
 
-	if (pos_begin == std::string::npos)
+	ако (pos_begin == std::string::npos)
 		pos_begin = text.size();
 
-	if (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
+	ако (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
 		std::string sep_string = sep;
-		for (size_t i = pos_begin+1; i < text.size(); i++) {
-			if (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
+		за (size_t i = pos_begin+1; i < text.size(); i++) {
+			ако (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
 				std::string token = text.substr(pos_begin, i-pos_begin+1);
 				text = text.substr(i+1);
-				return token;
+				върни token;
 			}
-			if (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
+			ако (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
 				std::string token = text.substr(pos_begin, i-pos_begin+1);
 				text = text.substr(i+2);
-				return token + ";";
+				върни token + ";";
 			}
 		}
 	}
 
 	size_t pos_end = text.find_first_of(sep, pos_begin);
 
-	if (pos_end == std::string::npos)
+	ако (pos_end == std::string::npos)
 		pos_end = text.size();
 
 	std::string token = text.substr(pos_begin, pos_end-pos_begin);
 	text = text.substr(pos_end);
-	return token;
+	върни token;
 }
 
 std::vector<std::string> split_tokens(const std::string &text, const char *sep)
 {
 	std::vector<std::string> tokens;
 	std::string current_token;
-	for (char c : text) {
-		if (strchr(sep, c)) {
-			if (!current_token.empty()) {
+	за (char c : text) {
+		ако (strchr(sep, c)) {
+			ако (!current_token.empty()) {
 				tokens.push_back(current_token);
 				current_token.clear();
 			}
-		} else
+		} иначе
 			current_token += c;
 	}
-	if (!current_token.empty()) {
+	ако (!current_token.empty()) {
 		tokens.push_back(current_token);
 		current_token.clear();
 	}
-	return tokens;
+	върни tokens;
 }
 
 // this is very similar to fnmatch(). the exact rules used by this
@@ -104,112 +104,112 @@ std::vector<std::string> split_tokens(const std::string &text, const char *sep)
 //
 bool patmatch(const char *pattern, const char *string)
 {
-	if (*pattern == 0)
-		return *string == 0;
+	ако (*pattern == 0)
+		върни *string == 0;
 
-	if (*pattern == '\\') {
-		if (pattern[1] == string[0] && patmatch(pattern+2, string+1))
-			return true;
+	ако (*pattern == '\\') {
+		ако (pattern[1] == string[0] && patmatch(pattern+2, string+1))
+			върни true;
 	}
 
-	if (*pattern == '?') {
-		if (*string == 0)
-			return false;
-		return patmatch(pattern+1, string+1);
+	ако (*pattern == '?') {
+		ако (*string == 0)
+			върни false;
+		върни patmatch(pattern+1, string+1);
 	}
 
-	if (*pattern == '*') {
-		while (*string) {
-			if (patmatch(pattern+1, string++))
-				return true;
+	ако (*pattern == '*') {
+		докато (*string) {
+			ако (patmatch(pattern+1, string++))
+				върни true;
 		}
-		return pattern[1] == 0;
+		върни pattern[1] == 0;
 	}
 
-	if (*pattern == '[') {
+	ако (*pattern == '[') {
 		bool found_match = false;
 		bool inverted_list = pattern[1] == '!';
 		const char *p = pattern + (inverted_list ? 1 : 0);
 
-		while (*++p) {
-			if (*p == ']') {
-				if (found_match != inverted_list && patmatch(p+1, string+1))
-					return true;
+		докато (*++p) {
+			ако (*p == ']') {
+				ако (found_match != inverted_list && patmatch(p+1, string+1))
+					върни true;
 				break;
 			}
 
-			if (*p == '\\') {
-				if (*++p == *string)
+			ако (*p == '\\') {
+				ако (*++p == *string)
 					found_match = true;
-			} else
-			if (*p == *string)
+			} иначе
+			ако (*p == *string)
 				found_match = true;
 		}
 	}
 
-	if (*pattern == *string)
-		return patmatch(pattern+1, string+1);
+	ако (*pattern == *string)
+		върни patmatch(pattern+1, string+1);
 
-	return false;
+	върни false;
 }
 
 std::string get_base_tmpdir()
 {
 	static std::string tmpdir;
 
-	if (!tmpdir.empty()) {
-		return tmpdir;
+	ако (!tmpdir.empty()) {
+		върни tmpdir;
 	}
 
-#if defined(_WIN32)
+#ако defined(_WIN32)
 	std::wstring wtmppath(4096, L'\0');
 	// typically returns a 8.3 path, but this can be disabled via registry
-	if (!GetTempPathW(wtmppath.size(), wtmppath.data()))
+	ако (!GetTempPathW(wtmppath.size(), wtmppath.data()))
 		log_error("GetTempPathW() failed.\n");
 	wtmppath.resize(wtmppath.find(L'\0'));
 	std::string utmppath;
 	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), NULL, NULL) == 0)
+	ако (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), NULL, NULL) == 0)
 		log_error("WideCharToMultiByte() failed.\n");
 	tmpdir += utmppath;
-#else
+#иначе
 	char * var = std::getenv("TMPDIR");
-	if (var && strlen(var)!=0) {
+	ако (var && strlen(var)!=0) {
 		tmpdir.assign(var);
 		// We return the directory name without the trailing '/'
-		while (!tmpdir.empty() && (tmpdir.back() == '/')) {
+		докато (!tmpdir.empty() && (tmpdir.back() == '/')) {
 			tmpdir.pop_back();
 		}
-	} else {
+	} иначе {
 		tmpdir.assign("/tmp");
 	}
 #endif
-	return tmpdir;
+	върни tmpdir;
 }
 
 std::string make_temp_file(std::string template_str)
 {
 	size_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
-#if defined(__wasm)
+#ако defined(__wasm)
 	static size_t index = 0;
 	template_str.replace(pos, 6, stringf("%06zu", index++));
 #elif defined(_WIN32)
 #ifndef YOSYS_WIN32_UNIX_DIR
 	std::replace(template_str.begin(), template_str.end(), '/', '\\');
 #endif
-	while (1) {
-		for (int i = 0; i < 6; i++) {
+	докато (1) {
+		за (цяло i = 0; i < 6; i++) {
 			static std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 			static uint32_t x = 314159265 ^ uint32_t(time(NULL));
 			x ^= x << 13, x ^= x >> 17, x ^= x << 5;
 			template_str[pos+i] = y[x % y.size()];
 		}
-		if (_access(template_str.c_str(), 0) != 0)
+		ако (_access(template_str.c_str(), 0) != 0)
 			break;
 	}
-#else
-	int suffixlen = template_str.size() - pos - 6;
+#иначе
+	цяло suffixlen = template_str.size() - pos - 6;
 
 	char *p = strdup(template_str.c_str());
 	close(mkstemps(p, suffixlen));
@@ -217,95 +217,95 @@ std::string make_temp_file(std::string template_str)
 	free(p);
 #endif
 
-	return template_str;
+	върни template_str;
 }
 
 std::string make_temp_dir(std::string template_str)
 {
-#if defined(_WIN32)
+#ако defined(_WIN32)
 	template_str = make_temp_file(template_str);
 	mkdir(template_str.c_str());
-	return template_str;
+	върни template_str;
 #elif defined(__wasm)
 	template_str = make_temp_file(template_str);
 	mkdir(template_str.c_str(), 0777);
-	return template_str;
-#else
+	върни template_str;
+#иначе
 #  ifndef NDEBUG
 	size_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
 
-	int suffixlen = template_str.size() - pos - 6;
+	цяло suffixlen = template_str.size() - pos - 6;
 	log_assert(suffixlen == 0);
 #  endif
 
 	char *p = strdup(template_str.c_str());
 	log_assert(p);
 	char *res = mkdtemp(p);
-	if (!res)
+	ако (!res)
 		log_error("mkdtemp failed for '%s': %s [Error %d]\n",
 			p, strerror(errno), errno);
 	template_str = p;
 	free(p);
 
-	return template_str;
+	върни template_str;
 #endif
 }
 
 bool check_is_directory(const std::string& dirname)
 {
-#if defined(_WIN32)
+#ако defined(_WIN32)
 	struct _stat info;
 	auto dirname_ = dirname;
 
 	/* On old versions of Visual Studio and current versions on MinGW,
 	   _stat will fail if the path ends with a trailing slash. */
-	if (dirname.back() == '/' || dirname.back() == '\\') {
+	ако (dirname.back() == '/' || dirname.back() == '\\') {
 		dirname_ = dirname.substr(0, dirname.length() - 1);
 	}
 
-	if (_stat(dirname_.c_str(), &info) != 0)
+	ако (_stat(dirname_.c_str(), &info) != 0)
 	{
-		return false;
+		върни false;
 	}
-	return (info.st_mode & _S_IFDIR) != 0;
-#else
+	върни (info.st_mode & _S_IFDIR) != 0;
+#иначе
 	struct stat info;
-	if (stat(dirname.c_str(), &info) != 0)
+	ако (stat(dirname.c_str(), &info) != 0)
 	{
-		return false;
+		върни false;
 	}
-	return (info.st_mode & S_IFDIR) != 0;
+	върни (info.st_mode & S_IFDIR) != 0;
 #endif
 }
 
 #ifdef _WIN32
 bool check_accessible(const std::string& filename, bool)
 {
-	return _access(filename.c_str(), 0) == 0;
+	върни _access(filename.c_str(), 0) == 0;
 }
-#else
+#иначе
 bool check_accessible(const std::string& filename, bool is_exec)
 {
-	return access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
+	върни access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
 }
 #endif
 
 bool check_file_exists(const std::string& filename, bool is_exec)
 {
-	return check_accessible(filename, is_exec) && !check_is_directory(filename);
+	върни check_accessible(filename, is_exec) && !check_is_directory(filename);
 }
 bool check_directory_exists(const std::string& filename, bool is_exec)
 {
-	return check_accessible(filename, is_exec) && check_is_directory(filename);
+	върни check_accessible(filename, is_exec) && check_is_directory(filename);
 }
 
 bool is_absolute_path(std::string filename)
 {
 #ifdef _WIN32
-	return filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
-#else
-	return filename[0] == '/';
+	върни filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
+#иначе
+	върни filename[0] == '/';
 #endif
 }
 
@@ -313,17 +313,17 @@ void remove_directory(std::string dirname)
 {
 #ifdef _WIN32
 	run_command(stringf("rmdir /s /q \"%s\"", dirname));
-#else
+#иначе
 	struct stat stbuf;
 	struct dirent **namelist;
-	int n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
+	цяло n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
 	log_assert(n >= 0);
-	for (int i = 0; i < n; i++) {
-		if (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
+	за (цяло i = 0; i < n; i++) {
+		ако (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
 			std::string buffer = stringf("%s/%s", dirname, namelist[i]->d_name);
-			if (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
+			ако (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
 				remove(buffer.c_str());
-			} else
+			} иначе
 				remove_directory(buffer);
 		}
 		free(namelist[i]);
@@ -335,14 +335,14 @@ void remove_directory(std::string dirname)
 
 bool create_directory(const std::string& dirname)
 {
-#if defined(_WIN32)
-	int ret = _mkdir(dirname.c_str());
-#else
+#ако defined(_WIN32)
+	цяло ret = _mkdir(dirname.c_str());
+#иначе
 	mode_t mode = 0755;
-	int ret = mkdir(dirname.c_str(), mode);
+	цяло ret = mkdir(dirname.c_str(), mode);
 #endif
-	if (ret == 0)
-		return true;
+	ако (ret == 0)
+		върни true;
 
 	switch (errno)
 	{
@@ -350,98 +350,98 @@ bool create_directory(const std::string& dirname)
 		// parent didn't exist, try to create it
 		{
 			std::string::size_type pos = dirname.find_last_of('/');
-			if (pos == std::string::npos)
-#if defined(_WIN32)
+			ако (pos == std::string::npos)
+#ако defined(_WIN32)
 				pos = dirname.find_last_of('\\');
-			if (pos == std::string::npos)
+			ако (pos == std::string::npos)
 #endif
-				return false;
-			if (!create_directory( dirname.substr(0, pos) ))
-				return false;
+				върни false;
+			ако (!create_directory( dirname.substr(0, pos) ))
+				върни false;
 		}
 		// now, try to create again
-#if defined(_WIN32)
-		return 0 == _mkdir(dirname.c_str());
-#else
-		return 0 == mkdir(dirname.c_str(), mode);
+#ако defined(_WIN32)
+		върни 0 == _mkdir(dirname.c_str());
+#иначе
+		върни 0 == mkdir(dirname.c_str(), mode);
 #endif
 
 	case EEXIST:
 		// done!
-		return check_directory_exists(dirname);
+		върни check_directory_exists(dirname);
 
 	default:
-		return false;
+		върни false;
 	}
 }
 
 bool make_private_directory(const std::string& dirname)
 {
-#if defined(_WIN32) || defined(__wasi__)
-	if (!create_directory(dirname)) {
+#ако defined(_WIN32) || defined(__wasi__)
+	ако (!create_directory(dirname)) {
 		log_warning("Cannot create the directory %s\n", dirname.c_str());
-		return false;
+		върни false;
 	}
-	return true;
-#else
-	if (mkdir(dirname.c_str(), 0700) == 0)
-		return true;
+	върни true;
+#иначе
+	ако (mkdir(dirname.c_str(), 0700) == 0)
+		върни true;
 
 	// Keep the errno of each mkdir(), create_directory() below makes its own calls
-	int err = errno;
+	цяло err = errno;
 	std::string parent = std::filesystem::path(dirname).parent_path().string();
 
-	if (err == ENOENT && !parent.empty() && create_directory(parent)) {
-		if (mkdir(dirname.c_str(), 0700) == 0)
-			return true;
+	ако (err == ENOENT && !parent.empty() && create_directory(parent)) {
+		ако (mkdir(dirname.c_str(), 0700) == 0)
+			върни true;
 		err = errno;
 	}
 
-	if (err != EEXIST) {
+	ако (err != EEXIST) {
 		log_warning("Cannot create the directory %s: %s\n", dirname.c_str(), strerror(err));
-		return false;
+		върни false;
 	}
 
 	// Do not use a leftover that isn't ours
 	struct stat st;
-	if (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
+	ако (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
 		log_warning("%s is not a directory of this user\n", dirname.c_str());
-		return false;
+		върни false;
 	}
 	// Repair the mode if something changed it
 	mode_t mode = st.st_mode & 0777;
-	if (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
+	ако (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
 		log_warning("Cannot make the directory %s private: %s\n", dirname.c_str(), strerror(errno));
-		return false;
+		върни false;
 	}
 
-	return true;
+	върни true;
 #endif
 }
 
 std::string make_user_tmpdir(const std::string& name)
 {
 	log_assert(!name.empty() && name.find('/') == std::string::npos);
-#if defined(_WIN32) || defined(__wasi__)
+#ако defined(_WIN32) || defined(__wasi__)
 	std::string dirname = get_base_tmpdir() + "/" + name;
-#else
+#иначе
 	std::string dirname = stringf("%s/%s-%u", get_base_tmpdir().c_str(), name.c_str(), (unsigned)geteuid());
 #endif
-	return make_private_directory(dirname) ? dirname : "";
+	върни make_private_directory(dirname) ? dirname : "";
 }
 
 std::string escape_filename_spaces(const std::string& filename)
 {
 	std::string out;
 	out.reserve(filename.size());
-	for (auto c : filename)
+	за (auto c : filename)
 	{
-		if (c == ' ')
+		ако (c == ' ')
 			out += "\\ ";
-		else
+		иначе
 			out.push_back(c);
 	}
-	return out;
+	върни out;
 }
 
 void append_globbed(std::vector<std::string>& paths, std::string pattern)
@@ -452,7 +452,7 @@ void append_globbed(std::vector<std::string>& paths, std::string pattern)
 }
 
 std::string name_from_file_path(std::string path) {
-	return std::filesystem::path(path).filename().string();
+	върни std::filesystem::path(path).filename().string();
 }
 
 std::string absolute_path(const std::string& path)
@@ -460,38 +460,38 @@ std::string absolute_path(const std::string& path)
 	std::error_code ec;
 	std::filesystem::path result = std::filesystem::absolute(path, ec);
 
-	if (ec)
-		return "";
+	ако (ec)
+		върни "";
 
 	result = std::filesystem::weakly_canonical(result, ec);
 
-	if (ec)
-		return "";
+	ако (ec)
+		върни "";
 
-	return result.string();
+	върни result.string();
 }
 
 // Includes OS_PATH_SEP at the end if present
 std::string parent_from_file_path(std::string path) {
 	auto parent = std::filesystem::path(path).parent_path();
-	if (parent.empty()) {
-		return "";
+	ако (parent.empty()) {
+		върни "";
 	}
 	// Add trailing separator to match original behavior
 	std::string result = parent.string();
-	if (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
+	ако (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
 		result += std::filesystem::path::preferred_separator;
 	}
-	return result;
+	върни result;
 }
 
 void format_emit_unescaped(std::string &result, std::string_view fmt)
 {
 	result.reserve(result.size() + fmt.size());
-	for (size_t i = 0; i < fmt.size(); ++i) {
+	за (size_t i = 0; i < fmt.size(); ++i) {
 		char ch = fmt[i];
 		result.push_back(ch);
-		if (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
+		ако (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
 			++i;
 		}
 	}
@@ -501,7 +501,7 @@ std::string unescape_format_string(std::string_view fmt)
 {
 	std::string result;
 	format_emit_unescaped(result, fmt);
-	return result;
+	върни result;
 }
 
 static std::string string_view_stringf(std::string_view spec, ...)
@@ -510,10 +510,10 @@ static std::string string_view_stringf(std::string_view spec, ...)
 	va_start(ap, spec);
 	std::string result = vstringf(std::string(spec).c_str(), ap);
 	va_end(ap);
-	return result;
+	върни result;
 }
 
-static int spec_parameter_size(std::string_view spec)
+static цяло spec_parameter_size(std::string_view spec)
 {
 	// Every valid spec starts with '%' which means the code below
 	// won't look before the spec start.
@@ -526,25 +526,25 @@ static int spec_parameter_size(std::string_view spec)
 	case 'X':
 		switch (spec[spec.size() - 2]) {
 		case 'h':
-			if (spec[spec.size() - 3] == 'h')
-				return sizeof(char);
-			return sizeof(short);
+			ако (spec[spec.size() - 3] == 'h')
+				върни sizeof(char);
+			върни sizeof(short);
 		case 'l':
-			if (spec[spec.size() - 3] == 'l')
-				return sizeof(long long);
-			return sizeof(long);
+			ако (spec[spec.size() - 3] == 'l')
+				върни sizeof(long long);
+			върни sizeof(long);
 		case 'L':
 		case 'q':
-			return sizeof(long long);
+			върни sizeof(long long);
 		case 'j':
-			return sizeof(intmax_t);
+			върни sizeof(intmax_t);
 		case 'z':
 		case 'Z':
-			return sizeof(size_t);
+			върни sizeof(size_t);
 		case 't':
-			return sizeof(ptrdiff_t);
+			върни sizeof(ptrdiff_t);
 		}
-		return sizeof(int);
+		върни sizeof(цяло);
 	case 'e':
 	case 'E':
 	case 'f':
@@ -553,157 +553,157 @@ static int spec_parameter_size(std::string_view spec)
 	case 'G':
 	case 'a':
 	case 'A':
-		if (spec[spec.size() - 2] == 'L')
-			return sizeof(long double);
-		if (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
-			return sizeof(long double);
-		return sizeof(double);
+		ако (spec[spec.size() - 2] == 'L')
+			върни sizeof(long double);
+		ако (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
+			върни sizeof(long double);
+		върни sizeof(double);
 	case 'c':
-		if (spec[spec.size() - 2] == 'l') {
-			return sizeof(wchar_t);
+		ако (spec[spec.size() - 2] == 'l') {
+			върни sizeof(wchar_t);
 		}
-		return sizeof(unsigned char);
+		върни sizeof(unsigned char);
 	case 'C':
-		return sizeof(wchar_t);
+		върни sizeof(wchar_t);
 	case 's':
 	case 'p':
 	case 'S':
 	case 'n':
-		return sizeof(void *);
+		върни sizeof(void *);
 	case 'm':
-		return sizeof(int);
+		върни sizeof(цяло);
 	default:
-		return -1;
+		върни -1;
 	}
 }
 
 template <typename Arg>
-static void format_emit_stringf(std::string &result, std::string_view spec, int *dynamic_ints,
+static void format_emit_stringf(std::string &result, std::string_view spec, цяло *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, Arg arg)
 {
 	// Delegate nontrivial formats to the C library.
 	switch (num_dynamic_ints) {
 	case DynamicIntCount::NONE:
 		result += string_view_stringf(spec, arg);
-		return;
+		върни;
 	case DynamicIntCount::ONE:
 		result += string_view_stringf(spec, dynamic_ints[0], arg);
-		return;
+		върни;
 	case DynamicIntCount::TWO:
 		result += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
-		return;
+		върни;
 	}
 	YOSYS_ABORT("Internal error");
 }
 
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_long_long(std::string &result, std::string_view spec, цяло *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, long long arg)
 {
-	if (spec == "%d") {
+	ако (spec == "%d") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<int>(arg));
-		return;
+		result += std::to_string(static_cast<цяло>(arg));
+		върни;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	ако (spec_parameter_size(spec) <= 4) {
 		// On some platforms (Wasm) we must ensure that the arg is properly aligned
 		// after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (int)arg);
-	} else {
+		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (цяло)arg);
+	} иначе {
 		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
 	}
 }
 
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_unsigned_long_long(std::string &result, std::string_view spec, цяло *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, unsigned long long arg)
 {
-	if (spec == "%u") {
+	ако (spec == "%u") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<unsigned int>(arg));
-		return;
+		result += std::to_string(static_cast<unsigned цяло>(arg));
+		върни;
 	}
-	if (spec == "%c") {
+	ако (spec == "%c") {
 		result += static_cast<char>(arg);
-		return;
+		върни;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	ако (spec_parameter_size(spec) <= 4) {
                 // On some platforms (Wasm) we must ensure that the arg is properly aligned
                 // after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (unsigned int)arg);
-	} else {
+		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (unsigned цяло)arg);
+	} иначе {
 		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
 	}
 }
 
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_double(std::string &result, std::string_view spec, цяло *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, double arg)
 {
 	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
 }
 
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_char_ptr(std::string &result, std::string_view spec, цяло *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, const char *arg)
 {
-	if (spec == "%s") {
+	ако (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		result += arg;
-		return;
+		върни;
 	}
 	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
 }
 
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_string(std::string &result, std::string_view spec, цяло *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, const std::string &arg)
 {
-	if (spec == "%s") {
+	ако (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		result += arg;
-		return;
+		върни;
 	}
 	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg.c_str());
 }
 
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_string_view(std::string &result, std::string_view spec, цяло *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, std::string_view arg)
 {
-	if (spec == "%s") {
+	ако (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		// We can output the string without creating a temporary copy.
 		result += arg;
-		return;
+		върни;
 	}
 	// Delegate nontrivial formats to the C library. We need to construct
 	// a temporary string to ensure null termination.
 	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, std::string(arg).c_str());
 }
 
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_void_ptr(std::string &result, std::string_view spec, цяло *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, const void *arg)
 {
 	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
 }
 
-#if defined(_WIN32)
+#ако defined(_WIN32)
 ScopedFileLock::ScopedFileLock(const std::string &path)
 {
 	HANDLE h = CreateFileA(path.c_str(), GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 			NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h == INVALID_HANDLE_VALUE) {
+	ако (h == INVALID_HANDLE_VALUE) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+		върни;
 	}
 	OVERLAPPED ov = {};
-	if (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
+	ако (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
 		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
 		CloseHandle(h);
-		return;
+		върни;
 	}
 	handle = h;
 }
 
 ScopedFileLock::~ScopedFileLock()
 {
-	if (handle != nullptr) {
+	ако (handle != nullptr) {
 		OVERLAPPED ov = {};
 		UnlockFileEx(handle, 0, MAXDWORD, MAXDWORD, &ov);
 		CloseHandle(handle);
@@ -713,36 +713,36 @@ ScopedFileLock::~ScopedFileLock()
 ScopedFileLock::ScopedFileLock(const std::string &path)
 {
 	fd = open(path.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0666);
-	if (fd < 0)
+	ако (fd < 0)
 		fd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
-	if (fd < 0) {
+	ако (fd < 0) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+		върни;
 	}
-	int ret;
-	while ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
-	if (ret != 0)
+	цяло ret;
+	докато ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
+	ако (ret != 0)
 		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
 }
 
 ScopedFileLock::~ScopedFileLock()
 {
-	if (fd >= 0)
+	ако (fd >= 0)
 		close(fd); // releases the flock
 }
-#else
+#иначе
 ScopedFileLock::ScopedFileLock(const std::string &) {}
 ScopedFileLock::~ScopedFileLock() {}
 #endif
 
 unsigned get_process_id()
 {
-#if defined(_WIN32)
-	return GetCurrentProcessId();
+#ако defined(_WIN32)
+	върни GetCurrentProcessId();
 #elif defined(__wasi__)
-	return 0;
-#else
-	return getpid();
+	върни 0;
+#иначе
+	върни getpid();
 #endif
 }
 

@@ -35,7 +35,7 @@ struct FstVar
 	bool is_alias;
 	bool is_reg;
 	std::string scope;
-	int width;
+	цяло width;
 };
 
 class FstData
@@ -47,16 +47,16 @@ class FstData
 	uint64_t getStartTime();
 	uint64_t getEndTime();
 
-	std::vector<FstVar>& getVars() { return vars; };
+	std::vector<FstVar>& getVars() { върни vars; };
 
 	void reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t plen);
-	void reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start_time, uint64_t end_time, unsigned int end_cycle, CallbackFunction cb);
+	void reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start_time, uint64_t end_time, unsigned цяло end_cycle, CallbackFunction cb);
 
 	std::string valueOf(fstHandle signal);
 	fstHandle getHandle(std::string name);
-	dict<int,fstHandle> getMemoryHandles(std::string name);
-	int getScale() { return scale; }
-	const char *getTimescaleString() { return timescale_str.c_str(); }
+	dict<цяло,fstHandle> getMemoryHandles(std::string name);
+	цяло getScale() { върни scale; }
+	const char *getTimescaleString() { върни timescale_str.c_str(); }
 private:
 	void extractVarNames();
 
@@ -64,17 +64,17 @@ private:
 	std::vector<FstVar> vars;
 	std::map<fstHandle, FstVar> handle_to_var;
 	std::map<std::string, fstHandle> name_to_handle;
-	std::map<std::string, dict<int, fstHandle>> memory_to_handle;
+	std::map<std::string, dict<цяло, fstHandle>> memory_to_handle;
 	std::map<fstHandle, std::string> last_data;
 	uint64_t last_time;
 	std::map<fstHandle, std::string> past_data;
 	uint64_t past_time;
-	int scale; // exponent of 10, e.g. -6 = us, -9 = ns
+	цяло scale; // exponent of 10, e.g. -6 = us, -9 = ns
 	std::string timescale_str;
 	uint64_t start_time;
 	uint64_t end_time;
-	unsigned int last_cycle;
-	unsigned int curr_cycle;
+	unsigned цяло last_cycle;
+	unsigned цяло curr_cycle;
 	CallbackFunction callback;
 	std::vector<fstHandle> clk_signals;
 	bool all_samples;

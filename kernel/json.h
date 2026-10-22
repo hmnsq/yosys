@@ -47,14 +47,14 @@ class PrettyJson
     std::string newline_indent = "\n";
     std::vector<std::unique_ptr<Target>> targets;
     std::vector<Scope> state = {VALUE};
-    int compact_depth = INT_MAX;
+    цяло compact_depth = INT_MAX;
 public:
 
     void emit_to_log();
     void append_to_string(std::string &target);
     bool write_to_file(const std::string &path);
 
-    bool active() { return !targets.empty(); }
+    bool active() { върни !targets.empty(); }
 
     void compact() { compact_depth = GetSize(state); }
 
@@ -69,12 +69,12 @@ public:
     void begin_value();
     void end_value();
     void value_json(const Json &value);
-    void value(unsigned int value) { value_json(Json((int)value)); }
+    void value(unsigned цяло value) { value_json(Json((цяло)value)); }
     template<typename T>
     void value(T &&value) { value_json(Json(std::forward<T>(value))); };
 
     void entry_json(const char *name, const Json &value);
-    void entry(const char *name, unsigned int value) { entry_json(name, Json((int)value)); }
+    void entry(const char *name, unsigned цяло value) { entry_json(name, Json((цяло)value)); }
     template<typename T>
     void entry(const char *name, T &&value) { entry_json(name, Json(std::forward<T>(value))); };
 
@@ -82,7 +82,7 @@ public:
     void object(const T &&values)
     {
         begin_object();
-        for (auto &item : values)
+        за (auto &item : values)
             entry(item.first, item.second);
         end_object();
     }
@@ -91,7 +91,7 @@ public:
     void array(const T &&values)
     {
         begin_array();
-        for (auto &item : values)
+        за (auto &item : values)
             value(item);
         end_array();
     }
