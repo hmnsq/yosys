@@ -17,155 +17,155 @@
  *
  */
 
-#include "kernel/json.h"
+#अन्तर्भाव "kernel/json.h"
 
 USING_YOSYS_NAMESPACE
 
-void PrettyJson::emit_to_log()
+शून्य PrettyJson::emit_to_log()
 {
-    struct LogTarget : public Target {
-        void emit(const char *data) override { log("%s", data); }
+    संरचना LogTarget : सार्वजनिक Target {
+        शून्य emit(ध्रुव वर्ण *data) override { log("%s", data); }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new LogTarget));
+    targets.धकेलो_back(std::unique_ptr<Target>(नूतन LogTarget));
 }
 
-void PrettyJson::append_to_string(std::string &target)
+शून्य PrettyJson::append_to_string(std::string &target)
 {
-    struct AppendStringTarget : public Target {
+    संरचना AppendStringTarget : सार्वजनिक Target {
         std::string &target;
         AppendStringTarget(std::string &target) : target(target) {}
-        void emit(const char *data) override { target += data; }
+        शून्य emit(ध्रुव वर्ण *data) override { target += data; }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new AppendStringTarget(target)));
+    targets.धकेलो_back(std::unique_ptr<Target>(नूतन AppendStringTarget(target)));
 }
 
-bool PrettyJson::write_to_file(const std::string &path)
+तार्किक PrettyJson::write_to_file(ध्रुव std::string &path)
 {
-    struct WriteFileTarget : public Target {
+    संरचना WriteFileTarget : सार्वजनिक Target {
         std::ofstream target;
-        void emit(const char *data) override { target << data; }
-        void flush() override { target.flush(); }
+        शून्य emit(ध्रुव वर्ण *data) override { target << data; }
+        शून्य flush() override { target.flush(); }
     };
 
-    auto target = std::unique_ptr<WriteFileTarget>(new WriteFileTarget);
+    auto target = std::unique_ptr<WriteFileTarget>(नूतन WriteFileTarget);
     target->target.open(path);
-    if (target->target.fail())
-        return false;
-    targets.push_back(std::unique_ptr<Target>(target.release()));
-    return true;
+    यदि (target->target.fail())
+        प्रत्यागम असत्य;
+    targets.धकेलो_back(std::unique_ptr<Target>(target.release()));
+    प्रत्यागम सत्य;
 }
 
-void PrettyJson::line(bool space_if_inline)
+शून्य PrettyJson::पंक्ति(तार्किक space_if_inline)
 {
-    if (compact_depth != INT_MAX) {
-        if (space_if_inline)
+    यदि (compact_depth != INT_MAX) {
+        यदि (space_if_inline)
             raw(" ");
-        return;
+        प्रत्यागम;
     }
-    int indent = state.size() - (state.empty() ? 0 : state.back() == VALUE);
+    पूर्णाङ्क indent = state.size() - (state.empty() ? 0 : state.back() == मूल्य_2);
     newline_indent.resize(1 + 2 * indent, ' ');
     raw(newline_indent.c_str());
 }
 
-void PrettyJson::raw(const char *raw_json)
+शून्य PrettyJson::raw(ध्रुव वर्ण *raw_json)
 {
-    for (auto &target : targets)
+    प्रति (auto &target : targets)
         target->emit(raw_json);
 }
 
-void PrettyJson::flush()
+शून्य PrettyJson::flush()
 {
-    for (auto &target : targets)
+    प्रति (auto &target : targets)
         target->flush();
 }
 
-void PrettyJson::begin_object()
+शून्य PrettyJson::begin_object()
 {
-    begin_value();
+    begin_मूल्य();
     raw("{");
-    state.push_back(OBJECT_FIRST);
+    state.धकेलो_back(OBJECT_FIRST);
 }
 
-void PrettyJson::begin_array()
+शून्य PrettyJson::begin_array()
 {
-    begin_value();
+    begin_मूल्य();
     raw("[");
-    state.push_back(ARRAY_FIRST);
+    state.धकेलो_back(ARRAY_FIRST);
 }
 
-void PrettyJson::end_object()
+शून्य PrettyJson::end_object()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == OBJECT)
-        line(false);
-    else
-        log_assert(top_scope == OBJECT_FIRST);
+    Scope शीर्ष_scope = state.back();
+    state.निकालो_back();
+    यदि (शीर्ष_scope == OBJECT)
+        पंक्ति(असत्य);
+    अन्यथा
+        log_assert(शीर्ष_scope == OBJECT_FIRST);
     raw("}");
-    end_value();
+    end_मूल्य();
 }
 
-void PrettyJson::end_array()
+शून्य PrettyJson::end_array()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == ARRAY)
-        line(false);
-    else
-        log_assert(top_scope == ARRAY_FIRST);
+    Scope शीर्ष_scope = state.back();
+    state.निकालो_back();
+    यदि (शीर्ष_scope == ARRAY)
+        पंक्ति(असत्य);
+    अन्यथा
+        log_assert(शीर्ष_scope == ARRAY_FIRST);
     raw("]");
-    end_value();
+    end_मूल्य();
 }
 
-void PrettyJson::name(const char *name)
+शून्य PrettyJson::name(ध्रुव वर्ण *name)
 {
-    if (state.back() == OBJECT_FIRST) {
+    यदि (state.back() == OBJECT_FIRST) {
         state.back() = OBJECT;
-        line(false);
-    } else {
+        पंक्ति(असत्य);
+    } अन्यथा {
         raw(",");
-        line();
+        पंक्ति();
     }
     raw(Json(name).dump().c_str());
     raw(": ");
-    state.push_back(VALUE);
+    state.धकेलो_back(मूल्य_2);
 }
 
-void PrettyJson::begin_value()
+शून्य PrettyJson::begin_मूल्य()
 {
-    if (state.back() == ARRAY_FIRST) {
-        line(false);
+    यदि (state.back() == ARRAY_FIRST) {
+        पंक्ति(असत्य);
         state.back() = ARRAY;
-    } else if (state.back() == ARRAY) {
+    } अन्यथा यदि (state.back() == ARRAY) {
         raw(",");
-        line();
-    } else {
-        log_assert(state.back() == VALUE);
-        state.pop_back();
+        पंक्ति();
+    } अन्यथा {
+        log_assert(state.back() == मूल्य_2);
+        state.निकालो_back();
     }
 }
 
-void PrettyJson::end_value()
+शून्य PrettyJson::end_मूल्य()
 {
-    if (state.empty()) {
+    यदि (state.empty()) {
         raw("\n");
         flush();
     }
-    if (GetSize(state) < compact_depth)
+    यदि (GetSize(state) < compact_depth)
         compact_depth = INT_MAX;
 }
 
-void PrettyJson::value_json(const Json &value)
+शून्य PrettyJson::मूल्य_json(ध्रुव Json &मूल्य)
 {
-    begin_value();
-    raw(value.dump().c_str());
-    end_value();
+    begin_मूल्य();
+    raw(मूल्य.dump().c_str());
+    end_मूल्य();
 }
 
-void PrettyJson::entry_json(const char *name, const Json &value)
+शून्य PrettyJson::entry_json(ध्रुव वर्ण *name, ध्रुव Json &मूल्य)
 {
-    this->name(name);
-    this->value(value);
+    एतत्->name(name);
+    एतत्->मूल्य(मूल्य);
 }
