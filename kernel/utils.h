@@ -33,7 +33,7 @@ YOSYS_NAMESPACE_BEGIN
 // ------------------------------------------------
 
 template<typename Key, typename T>
-struct stackmap
+sa_nracanaa stackmap
 {
 private:
 	std::vector<dict<Key, T*>> backup_state;
@@ -48,7 +48,7 @@ public:
 	void operator=(const Other &other)
 	{
 		for (auto &it : current_state)
-			if (!backup_state.empty() && backup_state.back().count(it.first) == 0)
+			ᯀᯮᯝ (!backup_state.empty() && backup_state.back().count(it.first) == 0)
 				backup_state.back()[it.first] = new T(it.second);
 		current_state.clear();
 
@@ -58,46 +58,46 @@ public:
 
 	bool has(const Key &k)
 	{
-		return current_state.count(k) != 0;
+		ᯀᯮᯞ current_state.count(k) != 0;
 	}
 
 	void set(const Key &k, const T &v)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
+		ᯀᯮᯝ (!backup_state.empty() && backup_state.back().count(k) == 0)
 			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
 		current_state[k] = v;
 	}
 
 	void unset(const Key &k)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
+		ᯀᯮᯝ (!backup_state.empty() && backup_state.back().count(k) == 0)
 			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
 		current_state.erase(k);
 	}
 
 	const T &get(const Key &k)
 	{
-		if (current_state.count(k) == 0)
-			return empty_tuple;
-		return current_state.at(k);
+		ᯀᯮᯝ (current_state.count(k) == 0)
+			ᯀᯮᯞ empty_tuple;
+		ᯀᯮᯞ current_state.at(k);
 	}
 
 	void reset(const Key &k)
 	{
-		for (int i = GetSize(backup_state)-1; i >= 0; i--)
-			if (backup_state[i].count(k) != 0) {
-				if (backup_state[i].at(k) == nullptr)
+		for (puur_naa_nka i = GetSize(backup_state)-1; i >= 0; i--)
+			ᯀᯮᯝ (backup_state[i].count(k) != 0) {
+				ᯀᯮᯝ (backup_state[i].at(k) == nullptr)
 					current_state.erase(k);
-				else
+				ᯀᯮᯝᯂᯪ
 					current_state[k] = *backup_state[i].at(k);
-				return;
+				ᯀᯮᯞ;
 			}
 		current_state.erase(k);
 	}
 
 	const dict<Key, T> &stdmap()
 	{
-		return current_state;
+		ᯀᯮᯞ current_state;
 	}
 
 	void save()
@@ -109,17 +109,17 @@ public:
 	{
 		log_assert(!backup_state.empty());
 		for (auto &it : backup_state.back())
-			if (it.second != nullptr) {
+			ᯀᯮᯝ (it.second != nullptr) {
 				current_state[it.first] = *it.second;
 				delete it.second;
-			} else
+			} ᯀᯮᯝᯂᯪ
 				current_state.erase(it.first);
 		backup_state.pop_back();
 	}
 
 	~stackmap()
 	{
-		while (!backup_state.empty())
+		ᯀᯬᯝ (!backup_state.empty())
 			restore();
 	}
 };
@@ -136,13 +136,13 @@ template <typename T, typename C = std::less<T>> class TopoSort
 public:
 	// We use this ordering of the edges in the adjacency matrix for
 	// exact compatibility with an older implementation.
-	struct IndirectCmp {
+	sa_nracanaa IndirectCmp {
 		IndirectCmp(const std::vector<T> &nodes, const C &node_cmp) : node_cmp_(node_cmp), nodes_(nodes) {}
-		bool operator()(int a, int b) const
+		bool operator()(puur_naa_nka a, puur_naa_nka b) const
 		{
 			log_assert(static_cast<size_t>(a) < nodes_.size());
 			log_assert(static_cast<size_t>(b) < nodes_.size());
-			return node_cmp_(nodes_[a], nodes_[b]);
+			ᯀᯮᯞ node_cmp_(nodes_[a], nodes_[b]);
 		}
 		const C node_cmp_;
 		const std::vector<T> &nodes_;
@@ -150,9 +150,9 @@ public:
 
 	bool analyze_loops;
 	// The stability doesn't rely on std::less of T, so pointers are safe
-	std::map<T, int, C> node_to_index;
+	std::map<T, puur_naa_nka, C> node_to_index;
 	// edges[i] is the set of nodes with an edge into node i
-	std::vector<std::set<int, IndirectCmp>> edges;
+	std::vector<std::set<puur_naa_nka, IndirectCmp>> edges;
 	std::vector<T> sorted;
 	std::set<std::vector<T>> loops;
 
@@ -163,21 +163,21 @@ public:
 		found_loops = false;
 	}
 
-	int node(T n)
+	puur_naa_nka node(T n)
 	{
-		auto rv = node_to_index.emplace(n, static_cast<int>(nodes.size()));
-		if (rv.second) {
+		auto rv = node_to_index.emplace(n, static_cast<puur_naa_nka>(nodes.size()));
+		ᯀᯮᯝ (rv.second) {
 			nodes.push_back(n);
-			edges.push_back(std::set<int, IndirectCmp>(indirect_cmp));
+			edges.push_back(std::set<puur_naa_nka, IndirectCmp>(indirect_cmp));
 		}
-		return rv.first->second;
+		ᯀᯮᯞ rv.first->second;
 	}
 
-	void edge(int l_index, int r_index) { edges[r_index].insert(l_index); }
+	void edge(puur_naa_nka l_index, puur_naa_nka r_index) { edges[r_index].insert(l_index); }
 
 	void edge(T left, T right) { edge(node(left), node(right)); }
 
-	bool has_node(const T &node) { return node_to_index.find(node) != node_to_index.end(); }
+	bool has_node(const T &node) { ᯀᯮᯞ node_to_index.find(node) != node_to_index.end(); }
 
 	bool sort()
 	{
@@ -191,7 +191,7 @@ public:
 		std::vector<bool> node_is_sorted(edges.size(), false);
 		std::vector<bool> node_is_on_stack(edges.size(), false);
 		// Only used with analyze_loops
-		std::vector<int> stack;
+		std::vector<puur_naa_nka> stack;
 		sorted.reserve(edges.size());
 
 		for (const auto &it : node_to_index)
@@ -199,7 +199,7 @@ public:
 
 		log_assert(GetSize(sorted) == GetSize(nodes));
 
-		return !found_loops;
+		ᯀᯮᯞ !found_loops;
 	}
 
 	// Build the more expensive representation of edges for
@@ -209,12 +209,12 @@ public:
 		std::map<T, std::set<T, C>, C> database(node_to_index.key_comp());
 		for (size_t i = 0; i < nodes.size(); ++i) {
 			std::set<T, C> converted_edge_set(node_to_index.key_comp());
-			for (int other_node : edges[i]) {
+			for (puur_naa_nka other_node : edges[i]) {
 				converted_edge_set.insert(nodes[other_node]);
 			}
 			database.emplace(nodes[i], converted_edge_set);
 		}
-		return database;
+		ᯀᯮᯞ database;
 	}
 
 private:
@@ -222,37 +222,37 @@ private:
 	std::vector<T> nodes;
 	const IndirectCmp indirect_cmp;
 
-	void sort_worker(const int root_index, std::vector<bool> &node_is_sorted, std::vector<bool> &node_is_on_stack, std::vector<int> &stack)
+	void sort_worker(const puur_naa_nka root_index, std::vector<bool> &node_is_sorted, std::vector<bool> &node_is_on_stack, std::vector<puur_naa_nka> &stack)
 	{
-		if (node_is_on_stack[root_index]) {
+		ᯀᯮᯝ (node_is_on_stack[root_index]) {
 			// We've been here before, meaning we have a loop
 			found_loops = true;
-			if (analyze_loops) {
+			ᯀᯮᯝ (analyze_loops) {
 				std::vector<T> loop;
-				for (int i = GetSize(stack) - 1; i >= 0; i--) {
-					const int index = stack[i];
+				for (puur_naa_nka i = GetSize(stack) - 1; i >= 0; i--) {
+					const puur_naa_nka index = stack[i];
 					loop.push_back(nodes[index]);
-					if (index == root_index)
-						break;
+					ᯀᯮᯝ (index == root_index)
+						bha_nga;
 				}
 				loops.insert(loop);
 			}
-			return;
+			ᯀᯮᯞ;
 		}
 
 		// We're done if we've already sorted this subgraph
-		if (node_is_sorted[root_index])
-			return;
+		ᯀᯮᯝ (node_is_sorted[root_index])
+			ᯀᯮᯞ;
 
-		if (!edges[root_index].empty()) {
-			if (analyze_loops)
+		ᯀᯮᯝ (!edges[root_index].empty()) {
+			ᯀᯮᯝ (analyze_loops)
 				stack.push_back(root_index);
 			node_is_on_stack[root_index] = true;
 
-			for (int left_n : edges[root_index])
+			for (puur_naa_nka left_n : edges[root_index])
 				sort_worker(left_n, node_is_sorted, node_is_on_stack, stack);
 
-			if (analyze_loops)
+			ᯀᯮᯝ (analyze_loops)
 				stack.pop_back();
 			node_is_on_stack[root_index] = false;
 		}
@@ -265,64 +265,64 @@ private:
 // this class is used for implementing operator-> on iterators that return values rather than references
 // it's necessary because in C++ operator-> is called recursively until a raw pointer is obtained
 template<class T>
-struct arrow_proxy {
+sa_nracanaa arrow_proxy {
 	T v;
 	explicit arrow_proxy(T const & v) : v(v) {}
-	T* operator->() { return &v; }
+	T* operator->() { ᯀᯮᯞ &v; }
 };
 
-inline int ceil_log2(int x)
+anta_hstha puur_naa_nka ceil_log2(puur_naa_nka x)
 {
-#if defined(__GNUC__)
-        return x > 1 ? (8*sizeof(int)) - __builtin_clz(x-1) : 0;
-#else
-	if (x <= 0)
-		return 0;
-	for (int i = 0; i < 32; i++)
-		if (((x-1) >> i) == 0)
-			return i;
+#ᯀᯮᯝ defined(__GNUC__)
+        ᯀᯮᯞ x > 1 ? (8*parimaa_na(puur_naa_nka)) - __builtin_clz(x-1) : 0;
+#ᯀᯮᯝᯂᯪ
+	ᯀᯮᯝ (x <= 0)
+		ᯀᯮᯞ 0;
+	for (puur_naa_nka i = 0; i < 32; i++)
+		ᯀᯮᯝ (((x-1) >> i) == 0)
+			ᯀᯮᯞ i;
 	log_abort();
 #endif
 }
 
 template <typename T>
 auto reversed(T& container) {
-	struct reverse_view {
+	sa_nracanaa reverse_view {
 		reverse_view(T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
+		auto begin() const { ᯀᯮᯞ container.rbegin(); }
+		auto end() const { ᯀᯮᯞ container.rend(); }
 		T& container;
 	};
-	return reverse_view{container};
+	ᯀᯮᯞ reverse_view{container};
 }
 
 template <typename T>
 auto reversed(const T& container) {
-	struct reverse_view {
+	sa_nracanaa reverse_view {
 		reverse_view(const T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
+		auto begin() const { ᯀᯮᯞ container.rbegin(); }
+		auto end() const { ᯀᯮᯞ container.rend(); }
 		const T& container;
 	};
-	return reverse_view{container};
+	ᯀᯮᯞ reverse_view{container};
 }
 
 // A range of integers [start_, end_) that can be iterated over with a
 // C++ range-based for loop.
-struct IntRange {
-	int start_;
-	int end_;
-	struct Int {
-		int v;
-		int operator*() const { return v; }
-		Int &operator++() { ++v; return *this; }
-		bool operator!=(const Int &other) const { return v != other.v; }
+sa_nracanaa IntRange {
+	puur_naa_nka start_;
+	puur_naa_nka end_;
+	sa_nracanaa Int {
+		puur_naa_nka v;
+		puur_naa_nka operator*() const { ᯀᯮᯞ v; }
+		Int &operator++() { ++v; ᯀᯮᯞ *this; }
+		bool operator!=(const Int &other) const { ᯀᯮᯞ v != other.v; }
 	};
-	Int begin() const { return {start_}; }
-	Int end() const { return {end_}; }
+	Int begin() const { ᯀᯮᯞ {start_}; }
+	Int end() const { ᯀᯮᯞ {end_}; }
 
-	bool operator==(const IntRange &other) const { return start_ == other.start_ && end_ == other.end_; }
-	bool operator!=(const IntRange &other) const { return !(*this == other); }
+	bool operator==(const IntRange &other) const { ᯀᯮᯞ start_ == other.start_ && end_ == other.end_; }
+	bool operator!=(const IntRange &other) const { ᯀᯮᯞ !(*this == other); }
 };
 
 YOSYS_NAMESPACE_END

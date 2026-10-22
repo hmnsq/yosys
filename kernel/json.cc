@@ -23,8 +23,8 @@ USING_YOSYS_NAMESPACE
 
 void PrettyJson::emit_to_log()
 {
-    struct LogTarget : public Target {
-        void emit(const char *data) override { log("%s", data); }
+    sa_nracanaa LogTarget : public Target {
+        void emit(const var_na *data) override { log("%s", data); }
     };
 
     targets.push_back(std::unique_ptr<Target>(new LogTarget));
@@ -32,10 +32,10 @@ void PrettyJson::emit_to_log()
 
 void PrettyJson::append_to_string(std::string &target)
 {
-    struct AppendStringTarget : public Target {
+    sa_nracanaa AppendStringTarget : public Target {
         std::string &target;
         AppendStringTarget(std::string &target) : target(target) {}
-        void emit(const char *data) override { target += data; }
+        void emit(const var_na *data) override { target += data; }
     };
 
     targets.push_back(std::unique_ptr<Target>(new AppendStringTarget(target)));
@@ -43,33 +43,33 @@ void PrettyJson::append_to_string(std::string &target)
 
 bool PrettyJson::write_to_file(const std::string &path)
 {
-    struct WriteFileTarget : public Target {
+    sa_nracanaa WriteFileTarget : public Target {
         std::ofstream target;
-        void emit(const char *data) override { target << data; }
+        void emit(const var_na *data) override { target << data; }
         void flush() override { target.flush(); }
     };
 
     auto target = std::unique_ptr<WriteFileTarget>(new WriteFileTarget);
     target->target.open(path);
-    if (target->target.fail())
-        return false;
+    ᯀᯮᯝ (target->target.fail())
+        ᯀᯮᯞ false;
     targets.push_back(std::unique_ptr<Target>(target.release()));
-    return true;
+    ᯀᯮᯞ true;
 }
 
 void PrettyJson::line(bool space_if_inline)
 {
-    if (compact_depth != INT_MAX) {
-        if (space_if_inline)
+    ᯀᯮᯝ (compact_depth != INT_MAX) {
+        ᯀᯮᯝ (space_if_inline)
             raw(" ");
-        return;
+        ᯀᯮᯞ;
     }
-    int indent = state.size() - (state.empty() ? 0 : state.back() == VALUE);
+    puur_naa_nka indent = state.size() - (state.empty() ? 0 : state.back() == VALUE);
     newline_indent.resize(1 + 2 * indent, ' ');
     raw(newline_indent.c_str());
 }
 
-void PrettyJson::raw(const char *raw_json)
+void PrettyJson::raw(const var_na *raw_json)
 {
     for (auto &target : targets)
         target->emit(raw_json);
@@ -99,9 +99,9 @@ void PrettyJson::end_object()
 {
     Scope top_scope = state.back();
     state.pop_back();
-    if (top_scope == OBJECT)
+    ᯀᯮᯝ (top_scope == OBJECT)
         line(false);
-    else
+    ᯀᯮᯝᯂᯪ
         log_assert(top_scope == OBJECT_FIRST);
     raw("}");
     end_value();
@@ -111,20 +111,20 @@ void PrettyJson::end_array()
 {
     Scope top_scope = state.back();
     state.pop_back();
-    if (top_scope == ARRAY)
+    ᯀᯮᯝ (top_scope == ARRAY)
         line(false);
-    else
+    ᯀᯮᯝᯂᯪ
         log_assert(top_scope == ARRAY_FIRST);
     raw("]");
     end_value();
 }
 
-void PrettyJson::name(const char *name)
+void PrettyJson::name(const var_na *name)
 {
-    if (state.back() == OBJECT_FIRST) {
+    ᯀᯮᯝ (state.back() == OBJECT_FIRST) {
         state.back() = OBJECT;
         line(false);
-    } else {
+    } ᯀᯮᯝᯂᯪ {
         raw(",");
         line();
     }
@@ -135,13 +135,13 @@ void PrettyJson::name(const char *name)
 
 void PrettyJson::begin_value()
 {
-    if (state.back() == ARRAY_FIRST) {
+    ᯀᯮᯝ (state.back() == ARRAY_FIRST) {
         line(false);
         state.back() = ARRAY;
-    } else if (state.back() == ARRAY) {
+    } ᯀᯮᯝᯂᯪ ᯀᯮᯝ (state.back() == ARRAY) {
         raw(",");
         line();
-    } else {
+    } ᯀᯮᯝᯂᯪ {
         log_assert(state.back() == VALUE);
         state.pop_back();
     }
@@ -149,11 +149,11 @@ void PrettyJson::begin_value()
 
 void PrettyJson::end_value()
 {
-    if (state.empty()) {
+    ᯀᯮᯝ (state.empty()) {
         raw("\n");
         flush();
     }
-    if (GetSize(state) < compact_depth)
+    ᯀᯮᯝ (GetSize(state) < compact_depth)
         compact_depth = INT_MAX;
 }
 
@@ -164,7 +164,7 @@ void PrettyJson::value_json(const Json &value)
     end_value();
 }
 
-void PrettyJson::entry_json(const char *name, const Json &value)
+void PrettyJson::entry_json(const var_na *name, const Json &value)
 {
     this->name(name);
     this->value(value);
