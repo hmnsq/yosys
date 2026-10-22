@@ -17,108 +17,108 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/rtlil.h"
-#include "libs/json11/json11.hpp"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/rtlil.h"
+#ضمن "libs/json11/json11.hpp"
 
 #ifdef YOSYS_ENABLE_TCL
-#include <tcl.h>
-#include <tclTomMath.h>
-#include <tclTomMathDecls.h>
+#ضمن <tcl.h>
+#ضمن <tclTomMath.h>
+#ضمن <tclTomMathDecls.h>
 #endif
 
 YOSYS_NAMESPACE_BEGIN
 
 #ifdef YOSYS_ENABLE_TCL
-bool yosys_tcl_repl_active = false;
+منطقي yosys_tcl_repl_active = שקר;
 
-void yosys_tcl_activate_repl()
+فراغ yosys_tcl_activate_repl()
 {
-	yosys_tcl_repl_active = true;
+	yosys_tcl_repl_active = אמת;
 }
 
-static Tcl_Obj *json_to_tcl(Tcl_Interp *interp, const json11::Json &json)
+ساكن Tcl_Obj *json_to_tcl(Tcl_Interp *interp, ثابت json11::Json &json)
 {
-	if (json.is_null())
-		return Tcl_NewStringObj("null", 4);
-	else if (json.is_string()) {
+	אם (json.is_null())
+		החזר Tcl_NewStringObj("null", 4);
+	אחרת אם (json.is_string()) {
 		auto string = json.string_value();
-		return Tcl_NewStringObj(string.data(), string.size());
-	} else if (json.is_number()) {
-		double value = json.number_value();
-		double round_val = std::nearbyint(value);
-		if (std::isfinite(round_val) && value == round_val && value >= LONG_MIN && value < -double(LONG_MIN))
-			return Tcl_NewLongObj((long)round_val);
-		else
-			return Tcl_NewDoubleObj(value);
-	} else if (json.is_bool()) {
-		return Tcl_NewBooleanObj(json.bool_value());
-	} else if (json.is_array()) {
+		החזר Tcl_NewStringObj(string.data(), string.size());
+	} אחרת אם (json.is_number()) {
+		مزدوج value = json.number_value();
+		مزدوج round_val = std::nearbyint(value);
+		אם (std::isfinite(round_val) && value == round_val && value >= LONG_MIN && value < -مزدوج(LONG_MIN))
+			החזר Tcl_NewLongObj((long)round_val);
+		אחרת
+			החזר Tcl_NewDoubleObj(value);
+	} אחרת אם (json.is_bool()) {
+		החזר Tcl_NewBooleanObj(json.bool_value());
+	} אחרת אם (json.is_array()) {
 		auto list = json.array_items();
 		Tcl_Obj *result = Tcl_NewListObj(list.size(), nullptr);
-		for (auto &item : list)
+		עבור (auto &item : list)
 			Tcl_ListObjAppendElement(interp, result, json_to_tcl(interp, item));
-		return result;
-	} else if (json.is_object()) {
+		החזר result;
+	} אחרת אם (json.is_object()) {
 		auto map = json.object_items();
 		Tcl_Obj *result = Tcl_NewListObj(map.size() * 2, nullptr);
-		for (auto &item : map) {
+		עבור (auto &item : map) {
 			Tcl_ListObjAppendElement(interp, result, Tcl_NewStringObj(item.first.data(), item.first.size()));
 			Tcl_ListObjAppendElement(interp, result, json_to_tcl(interp, item.second));
 		}
-		return result;
-	} else {
+		החזר result;
+	} אחרת {
 		log_abort();
 	}
 }
 
-static int tcl_yosys_cmd(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+ساكن صحيح tcl_yosys_cmd(ClientData, Tcl_Interp *interp, صحيح argc, ثابت حرف *argv[])
 {
 	std::vector<std::string> args;
-	for (int i = 1; i < argc; i++)
+	עבור (صحيح i = 1; i < argc; i++)
 		args.push_back(argv[i]);
 
-	if (args.size() >= 1 && args[0] == "-import") {
-		for (auto &it : pass_register) {
+	אם (args.size() >= 1 && args[0] == "-import") {
+		עבור (auto &it : pass_register) {
 			std::string tcl_command_name = it.first;
-			if (tcl_command_name == "proc")
+			אם (tcl_command_name == "proc")
 				tcl_command_name = "procs";
-			else if (tcl_command_name == "rename")
+			אחרת אם (tcl_command_name == "rename")
 				tcl_command_name = "renames";
 			Tcl_CmdInfo info;
-			if (Tcl_GetCommandInfo(interp, tcl_command_name.c_str(), &info) != 0) {
+			אם (Tcl_GetCommandInfo(interp, tcl_command_name.c_str(), &info) != 0) {
 				log("[TCL: yosys -import] Command name collision: found pre-existing command `%s' -> skip.\n", it.first);
-			} else {
+			} אחרת {
 				std::string tcl_script = stringf("proc %s args { yosys %s {*}$args }", tcl_command_name, it.first);
 				Tcl_Eval(interp, tcl_script.c_str());
 			}
 		}
-		return TCL_OK;
+		החזר TCL_OK;
 	}
 
 	yosys_get_design()->scratchpad_unset("result.json");
 	yosys_get_design()->scratchpad_unset("result.string");
 
-	bool in_repl = yosys_tcl_repl_active;
+	منطقي in_repl = yosys_tcl_repl_active;
 	auto guard = logger().error_throw_scope();
-	try {
-		if (args.size() == 1) {
+	حاول {
+		אם (args.size() == 1) {
 			Pass::call(yosys_get_design(), args[0]);
-		} else {
+		} אחרת {
 			Pass::call(yosys_get_design(), args);
 		}
-	} catch (log_cmd_error_exception) {
-		if (in_repl) {
+	} امسك (log_cmd_error_exception) {
+		אם (in_repl) {
 			auto design = yosys_get_design();
-			while (design->selection_stack.size() > 1)
+			כלעוד (design->selection_stack.size() > 1)
 				design->pop_selection();
 			log_reset_stack();
 		}
-		Tcl_SetResult(interp, (char *)"Yosys command produced an error", TCL_STATIC);
+		Tcl_SetResult(interp, (حرف *)"Yosys command produced an error", TCL_STATIC);
 
 		yosys_tcl_repl_active = in_repl;
-		return TCL_ERROR;
-	} catch (...) {
+		החזר TCL_ERROR;
+	} امسك (...) {
 		log_error("uncaught exception during Yosys command invoked from TCL\n");
 	}
 
@@ -126,125 +126,125 @@ static int tcl_yosys_cmd(ClientData, Tcl_Interp *interp, int argc, const char *a
 
 	auto &scratchpad = yosys_get_design()->scratchpad;
 	auto result = scratchpad.find("result.json");
-	if (result != scratchpad.end()) {
+	אם (result != scratchpad.end()) {
 		std::string err;
 		auto json = json11::Json::parse(result->second, err);
-		if (err.empty()) {
+		אם (err.empty()) {
 			Tcl_SetObjResult(interp, json_to_tcl(interp, json));
-		} else
+		} אחרת
 			log_warning("Ignoring result.json scratchpad value due to parse error: %s\n", err);
-	} else if ((result = scratchpad.find("result.string")) != scratchpad.end()) {
+	} אחרת אם ((result = scratchpad.find("result.string")) != scratchpad.end()) {
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(result->second.data(), result->second.size()));
 	}
 
-	return TCL_OK;
+	החזר TCL_OK;
 }
 
 #define FLAG(name) \
-	if (!strcmp(argv[i], "-" #name)) { \
-		name##_flag = true; \
-		continue; \
+	אם (!strcmp(argv[i], "-" #name)) { \
+		name##_flag = אמת; \
+		استمر; \
 	} \
 
 #define FLAG2(name) \
-	if (!strcmp(Tcl_GetString(objv[i]), "-" #name)) { \
-		name##_flag = true; \
-		continue; \
+	אם (!strcmp(Tcl_GetString(objv[i]), "-" #name)) { \
+		name##_flag = אמת; \
+		استمر; \
 	} \
 
 #define ERROR(str) \
 	{ \
-		Tcl_SetResult(interp, (char *)(str), TCL_STATIC); \
-		return TCL_ERROR; \
+		Tcl_SetResult(interp, (حرف *)(str), TCL_STATIC); \
+		החזר TCL_ERROR; \
 	}
 
-bool const_to_mp_int(const Const &a, mp_int *b, bool force_signed, bool force_unsigned)
+منطقي const_to_mp_int(ثابت Const &a, mp_int *b, منطقي force_signed, منطقي force_unsigned)
 {
-	if (!a.is_fully_def())
-		return false;
+	אם (!a.is_fully_def())
+		החזר שקר;
 
-	if (mp_init(b))
-		return false;
+	אם (mp_init(b))
+		החזר שקר;
 
-	bool negative = ((a.flags & RTLIL::CONST_FLAG_SIGNED) || force_signed) &&
+	منطقي negative = ((a.flags & RTLIL::CONST_FLAG_SIGNED) || force_signed) &&
 					!force_unsigned &&
 					!a.empty() && (a.back() == RTLIL::S1);
 
-	for (int i = a.size() - 1; i >= 0; i--) {
-		if (mp_mul_2d(b, 1, b)) {
+	עבור (صحيح i = a.size() - 1; i >= 0; i--) {
+		אם (mp_mul_2d(b, 1, b)) {
 			mp_clear(b);
-			return false;
+			החזר שקר;
 		}
 
-		if ((a[i] == RTLIL::S1) ^ negative) {
-			if (mp_add_d(b, 1, b)) {
+		אם ((a[i] == RTLIL::S1) ^ negative) {
+			אם (mp_add_d(b, 1, b)) {
 				mp_clear(b);
-				return false;
+				החזר שקר;
 			}
 		}
 	}
 
-	if (negative) {
-		if (mp_add_d(b, 1, b) || mp_neg(b, b)) {
+	אם (negative) {
+		אם (mp_add_d(b, 1, b) || mp_neg(b, b)) {
 			mp_clear(b);
-			return false;
+			החזר שקר;
 		}
 	}
 
-	return true;
+	החזר אמת;
 }
 
-bool mp_int_to_const(mp_int *a, Const &b, bool is_signed)
+منطقي mp_int_to_const(mp_int *a, Const &b, منطقي is_signed)
 {
-	bool negative = (mp_cmp_d(a, 0) == MP_LT);
-	if (negative && !is_signed)
-		return false;
+	منطقي negative = (mp_cmp_d(a, 0) == MP_LT);
+	אם (negative && !is_signed)
+		החזר שקר;
 
-	if (negative) {
-		if (mp_neg(a, a) != MP_OKAY)
-			return false;
-		if (mp_sub_d(a, 1, a) != MP_OKAY)
-			return false;
+	אם (negative) {
+		אם (mp_neg(a, a) != MP_OKAY)
+			החזר שקר;
+		אם (mp_sub_d(a, 1, a) != MP_OKAY)
+			החזר שקר;
 	}
 
-	std::vector<unsigned char> buf;
+	std::vector<unsigned حرف> buf;
 	buf.resize(mp_unsigned_bin_size(a));
-	if (mp_to_unsigned_bin(a, buf.data()) != MP_OKAY)
-		return false;
+	אם (mp_to_unsigned_bin(a, buf.data()) != MP_OKAY)
+		החזר שקר;
 
 	Const::Builder b_bits(mp_count_bits(a) + is_signed);
-	for (int i = 0; i < mp_count_bits(a);) {
-		for (int j = 0; j < 8 && i < mp_count_bits(a); j++, i++) {
-			bool bv = ((buf.back() & (1 << j)) != 0) ^ negative;
+	עבור (صحيح i = 0; i < mp_count_bits(a);) {
+		עבור (صحيح j = 0; j < 8 && i < mp_count_bits(a); j++, i++) {
+			منطقي bv = ((buf.back() & (1 << j)) != 0) ^ negative;
 			b_bits.push_back(bv ? RTLIL::S1 : RTLIL::S0);
 		}
 		buf.pop_back();
 	}
 
-	if (is_signed) {
+	אם (is_signed) {
 		b_bits.push_back(negative ? RTLIL::S1 : RTLIL::S0);
 	}
 	b = b_bits.build();
 
-	return true;
+	החזר אמת;
 }
 
-static int tcl_get_attr(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+ساكن صحيح tcl_get_attr(ClientData, Tcl_Interp *interp, صحيح argc, ثابت حرف *argv[])
 {
-	int i;
-	bool mod_flag = false, string_flag = false, bool_flag = false;
-	bool int_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < argc; i++) {
+	صحيح i;
+	منطقي mod_flag = שקר, string_flag = שקר, bool_flag = שקר;
+	منطقي int_flag = שקר, sint_flag = שקר, uint_flag = שקר;
+	עבור (i = 1; i < argc; i++) {
 		FLAG(mod)
 		FLAG(string)
-		FLAG(int)
+		FLAG(صحيح)
 		FLAG(sint)
 		FLAG(uint)
-		FLAG(bool)
-		break;
+		FLAG(منطقي)
+		اكسر;
 	}
 
-	if ((mod_flag && i != argc - 2) ||
+	אם ((mod_flag && i != argc - 2) ||
 			(!mod_flag && i != argc - 3) ||
 			(string_flag + int_flag + sint_flag + uint_flag + bool_flag > 1))
 		ERROR("bad usage: expected \"get_attr -mod [-string|-int|-sint|-uint|-bool] <module> <attrname>\""
@@ -252,120 +252,120 @@ static int tcl_get_attr(ClientData, Tcl_Interp *interp, int argc, const char *ar
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(argv[i++]);
-	if (!mod_flag)
+	אם (!mod_flag)
 		obj_id = RTLIL::escape_id(argv[i++]);
 	attr_id = RTLIL::escape_id(argv[i++]);
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	אם (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	אם (mod_flag) {
 		obj = mod;
-	} else {
+	} אחרת {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		אם (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		אם (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		אם (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	אם (!obj)
 		ERROR("object not found")
 
 	IdString attr_twine = yosys_design->twines().find(attr_id);
 
-	if (string_flag) {
+	אם (string_flag) {
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(obj->get_string_attribute(attr_twine).c_str(), -1));
-	} else if (int_flag || uint_flag || sint_flag) {
-		if (!obj->has_attribute(attr_twine))
+	} אחרת אם (int_flag || uint_flag || sint_flag) {
+		אם (!obj->has_attribute(attr_twine))
 			ERROR("attribute missing (required for -int)");
 		RTLIL::Const &value = obj->attributes.at(attr_twine);
 
 		mp_int value_mp;
-		if (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
+		אם (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
 			ERROR("bignum manipulation failed");
 		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&value_mp));
-	} else if (bool_flag) {
+	} אחרת אם (bool_flag) {
 		Tcl_SetObjResult(interp, Tcl_NewBooleanObj(obj->get_bool_attribute(attr_twine)));
-	} else {
-		if (!obj->has_attribute(attr_twine))
+	} אחרת {
+		אם (!obj->has_attribute(attr_twine))
 			ERROR("attribute missing (required unless -bool or -string)")
 
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(obj->attributes.at(attr_twine).as_string().c_str(), -1));
 	}
 
-	return TCL_OK;
+	החזר TCL_OK;
 }
 
-static int tcl_has_attr(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+ساكن صحيح tcl_has_attr(ClientData, Tcl_Interp *interp, صحيح argc, ثابت حرف *argv[])
 {
-	int i;
-	bool mod_flag = false;
-	for (i = 1; i < argc; i++) {
+	صحيح i;
+	منطقي mod_flag = שקר;
+	עבור (i = 1; i < argc; i++) {
 		FLAG(mod)
-		break;
+		اكسر;
 	}
 
-	if ((mod_flag && i != argc - 2) ||
+	אם ((mod_flag && i != argc - 2) ||
 			(!mod_flag && i != argc - 3))
 		ERROR("bad usage: expected \"has_attr -mod <module> <attrname>\""
 			  " or \"has_attr <module> <identifier> <attrname>\"")
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(argv[i++]);
-	if (!mod_flag)
+	אם (!mod_flag)
 		obj_id = RTLIL::escape_id(argv[i++]);
 	attr_id = RTLIL::escape_id(argv[i++]);
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	אם (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	אם (mod_flag) {
 		obj = mod;
-	} else {
+	} אחרת {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		אם (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		אם (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		אם (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	אם (!obj)
 		ERROR("object not found")
 
 	Tcl_SetObjResult(interp, Tcl_NewStringObj(std::to_string(obj->has_attribute(yosys_design->twines().find(attr_id))).c_str(), -1));
-	return TCL_OK;
+	החזר TCL_OK;
 }
 
-static int tcl_set_attr(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+ساكن صحيح tcl_set_attr(ClientData, Tcl_Interp *interp, صحيح objc, Tcl_Obj *ثابت objv[])
 {
-	int i;
-	bool mod_flag = false, string_flag = false, bool_flag = false;
-	bool true_flag = false, false_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < objc; i++) {
+	صحيح i;
+	منطقي mod_flag = שקר, string_flag = שקר, bool_flag = שקר;
+	منطقي true_flag = שקר, false_flag = שקר, sint_flag = שקר, uint_flag = שקר;
+	עבור (i = 1; i < objc; i++) {
 		FLAG2(mod)
 		FLAG2(string)
-		FLAG2(true)
-		FLAG2(false)
+		FLAG2(אמת)
+		FLAG2(שקר)
 		FLAG2(sint)
 		FLAG2(uint)
-		FLAG2(bool)
-		break;
+		FLAG2(منطقي)
+		اكسر;
 	}
 
-	if ((i != objc - (2 + !mod_flag + !(true_flag || false_flag))) ||
+	אם ((i != objc - (2 + !mod_flag + !(true_flag || false_flag))) ||
 			(string_flag + sint_flag + uint_flag + bool_flag + true_flag + false_flag > 1))
 		ERROR("bad usage: expected \"set_attr -mod [-string|-sint|-uint|-bool] <module> <attrname> <value>\""
 			  " or \"set_attr [-string|-sint|-uint|-bool] <module> <identifier> <attrname> <value>\""
@@ -374,83 +374,83 @@ static int tcl_set_attr(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
-	if (!mod_flag)
+	אם (!mod_flag)
 		obj_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
 	attr_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	אם (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	אם (mod_flag) {
 		obj = mod;
-	} else {
+	} אחרת {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		אם (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		אם (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		אם (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	אם (!obj)
 		ERROR("object not found")
 
 	IdString attr_twine = yosys_design->twines().add(attr_id);
 
-	if (string_flag) {
+	אם (string_flag) {
 		obj->set_string_attribute(attr_twine, Tcl_GetString(objv[i++]));
-	} else if (sint_flag || uint_flag) {
+	} אחרת אם (sint_flag || uint_flag) {
 		RTLIL::Const const_;
 		mp_int value_mp;
 
-		if (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
+		אם (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
 			ERROR("non-integral value")
 
-		if (!mp_int_to_const(&value_mp, const_, sint_flag))
+		אם (!mp_int_to_const(&value_mp, const_, sint_flag))
 			ERROR("bignum manipulation failed");
 
-		if (sint_flag) {
+		אם (sint_flag) {
 			const_.flags |= RTLIL::CONST_FLAG_SIGNED;
-			if (const_.size() < 32)
+			אם (const_.size() < 32)
 				const_.exts(32);
-		} else {
-			if (const_.size() < 32)
+		} אחרת {
+			אם (const_.size() < 32)
 				const_.extu(32);
 		}
 
 		obj->attributes[attr_twine] = const_;
-	} else if (bool_flag) {
+	} אחרת אם (bool_flag) {
 		obj->set_bool_attribute(attr_twine, atoi(Tcl_GetString(objv[i++])) != 0);
-	} else if (true_flag) {
-		obj->set_bool_attribute(attr_twine, true);
-	} else if (false_flag) {
-		obj->set_bool_attribute(attr_twine, false);
-	} else {
+	} אחרת אם (true_flag) {
+		obj->set_bool_attribute(attr_twine, אמת);
+	} אחרת אם (false_flag) {
+		obj->set_bool_attribute(attr_twine, שקר);
+	} אחרת {
 		obj->attributes[attr_twine] = Const::from_string(std::string(Tcl_GetString(objv[i++])));
 	}
 
-	return TCL_OK;
+	החזר TCL_OK;
 }
 
-static int tcl_get_param(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+ساكن صحيح tcl_get_param(ClientData, Tcl_Interp *interp, صحيح argc, ثابت حرف *argv[])
 {
-	int i;
-	bool string_flag = false;
-	bool int_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < argc; i++) {
+	صحيح i;
+	منطقي string_flag = שקר;
+	منطقي int_flag = שקר, sint_flag = שקר, uint_flag = שקר;
+	עבור (i = 1; i < argc; i++) {
 		FLAG(string)
-		FLAG(int)
+		FLAG(صحيح)
 		FLAG(sint)
 		FLAG(uint)
-		break;
+		اكسر;
 	}
 
-	if ((i != argc - 3) ||
+	אם ((i != argc - 3) ||
 			(string_flag + int_flag > 1))
 		ERROR("bad usage: expected \"get_param [-string|-int|-sint|-uint] <module> <cellid> <paramname>")
 
@@ -461,45 +461,45 @@ static int tcl_get_param(ClientData, Tcl_Interp *interp, int argc, const char *a
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	אם (!mod)
 		ERROR("module not found")
 
 	auto cell_twine = yosys_design->twines().find(cell_id);
 	Cell* cell = mod->cell(cell_twine);
-	if (!cell)
+	אם (!cell)
 		ERROR("object not found")
 
 	IdString param_twine = yosys_design->twines().find(param_id);
-	if (!cell->hasParam(param_twine))
+	אם (!cell->hasParam(param_twine))
 		ERROR("parameter missing")
 
-	const RTLIL::Const &value = cell->getParam(param_twine);
+	ثابت RTLIL::Const &value = cell->getParam(param_twine);
 
-	if (string_flag) {
+	אם (string_flag) {
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(value.decode_string().c_str(), -1));
-	} else if (int_flag || uint_flag || sint_flag) {
+	} אחרת אם (int_flag || uint_flag || sint_flag) {
 		mp_int value_mp;
-		if (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
+		אם (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
 			ERROR("bignum manipulation failed");
 		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&value_mp));
-	} else {
+	} אחרת {
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(value.as_string().c_str(), -1));
 	}
-	return TCL_OK;
+	החזר TCL_OK;
 }
 
-static int tcl_set_param(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+ساكن صحيح tcl_set_param(ClientData, Tcl_Interp *interp, صحيح objc, Tcl_Obj *ثابت objv[])
 {
-	int i;
-	bool string_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < objc; i++) {
+	صحيح i;
+	منطقي string_flag = שקר, sint_flag = שקר, uint_flag = שקר;
+	עבור (i = 1; i < objc; i++) {
 		FLAG2(string)
 		FLAG2(sint)
 		FLAG2(uint)
-		break;
+		اكسر;
 	}
 
-	if ((i != objc - 4) ||
+	אם ((i != objc - 4) ||
 			(string_flag + sint_flag + uint_flag > 1))
 		ERROR("bad usage: expected \"set_param [-string|-sint|-uint] <module> <cellid> <paramname> <value>")
 
@@ -510,54 +510,54 @@ static int tcl_set_param(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *cons
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	אם (!mod)
 		ERROR("module not found")
 
 	auto cell_twine = yosys_design->twines().find(cell_id);
 	RTLIL::Cell *cell = mod->cell(cell_twine);
-	if (!cell)
+	אם (!cell)
 		ERROR("object not found")
 
 	IdString param_twine = yosys_design->twines().add(param_id);
 
-	if (string_flag) {
+	אם (string_flag) {
 		cell->setParam(param_twine, Const(std::string(Tcl_GetString(objv[i++]))));
-	} else if (sint_flag || uint_flag) {
+	} אחרת אם (sint_flag || uint_flag) {
 		RTLIL::Const const_;
 		mp_int value_mp;
 
-		if (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
+		אם (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
 			ERROR("non-integral value")
 
-		if (!mp_int_to_const(&value_mp, const_, sint_flag))
+		אם (!mp_int_to_const(&value_mp, const_, sint_flag))
 			ERROR("bignum manipulation failed");
 
-		if (sint_flag) {
+		אם (sint_flag) {
 			const_.flags |= RTLIL::CONST_FLAG_SIGNED;
-			if (const_.size() < 32)
+			אם (const_.size() < 32)
 				const_.exts(32);
-		} else {
-			if (const_.size() < 32)
+		} אחרת {
+			אם (const_.size() < 32)
 				const_.extu(32);
 		}
 
 		cell->setParam(param_twine, const_);
-	} else {
+	} אחרת {
 		cell->setParam(param_twine, Const::from_string(std::string(Tcl_GetString(objv[i++]))));
 	}
-	return TCL_OK;
+	החזר TCL_OK;
 }
 
-int yosys_tcl_interp_init(Tcl_Interp *interp)
+صحيح yosys_tcl_interp_init(Tcl_Interp *interp)
 {
-	if (Tcl_Init(interp)!=TCL_OK)
+	אם (Tcl_Init(interp)!=TCL_OK)
 		log_warning("Tcl_Init() call failed - %s\n",Tcl_ErrnoMsg(Tcl_GetErrno()));
-	Tcl_CreateCommand(interp, "yosys", tcl_yosys_cmd, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::get_attr", tcl_get_attr, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::has_attr", tcl_has_attr, NULL, NULL);
-	Tcl_CreateObjCommand(interp, "rtlil::set_attr", tcl_set_attr, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::get_param", tcl_get_param, NULL, NULL);
-	Tcl_CreateObjCommand(interp, "rtlil::set_param", tcl_set_param, NULL, NULL);
+	Tcl_CreateCommand(interp, "yosys", tcl_yosys_cmd, عدم, عدم);
+	Tcl_CreateCommand(interp, "rtlil::get_attr", tcl_get_attr, عدم, عدم);
+	Tcl_CreateCommand(interp, "rtlil::has_attr", tcl_has_attr, عدم, عدم);
+	Tcl_CreateObjCommand(interp, "rtlil::set_attr", tcl_set_attr, عدم, عدم);
+	Tcl_CreateCommand(interp, "rtlil::get_param", tcl_get_param, عدم, عدم);
+	Tcl_CreateObjCommand(interp, "rtlil::set_param", tcl_set_param, عدم, عدم);
 
 	// TODO:
 	//
@@ -583,7 +583,7 @@ int yosys_tcl_interp_init(Tcl_Interp *interp)
 	// verilog identifier before adding any tcl API that returns IdString values
 	// to avoid -option injection
 
-	return TCL_OK ;
+	החזר TCL_OK ;
 }
 #endif
 

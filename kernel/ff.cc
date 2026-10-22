@@ -17,305 +17,305 @@
  *
  */
 
-#include "kernel/ff.h"
+#ضمن "kernel/ff.h"
 
 USING_YOSYS_NAMESPACE
 
 // sorry
 template<typename InputType, typename OutputType, typename = std::enable_if_t<std::is_base_of_v<FfTypeData, OutputType>>>
-void manufacture_info(InputType flop, OutputType& info, FfInitVals *initvals) {
+فراغ manufacture_info(InputType flop, OutputType& info, FfInitVals *initvals) {
 	Cell* cell = nullptr;
 	IdString type;
-	constexpr bool have_cell = std::is_same_v<InputType, Cell*>;
-	if constexpr (std::is_same_v<InputType, IdString>) {
+	constexpr منطقي have_cell = std::is_same_v<InputType, Cell*>;
+	אם constexpr (std::is_same_v<InputType, IdString>) {
 		type = flop;
-	} else {
+	} אחרת {
 		static_assert(std::is_same_v<InputType, Cell*>);
 		cell = flop;
 		type = flop->type;
 	}
-	if constexpr (have_cell) {
+	אם constexpr (have_cell) {
 		info.sig_q = cell->getPort(ID::Q);
 		info.width = GetSize(info.sig_q);
 		info.attributes = cell->attributes;
-		if (initvals)
+		אם (initvals)
 			info.val_init = (*initvals)(info.sig_q);
 	}
 
 
 	std::string type_str = ID::str(type);
 
-	if (type.in(ID($anyinit), ID($ff), ID($dff), ID($dffe), ID($dffsr), ID($dffsre), ID($adff), ID($adffe), ID($aldff), ID($aldffe), ID($sdff), ID($sdffe), ID($sdffce), ID($dlatch), ID($adlatch), ID($dlatchsr), ID($sr))) {
-		if (type.in(ID($anyinit), ID($ff))) {
-			info.has_gclk = true;
-			if constexpr (have_cell)
+	אם (type.in(ID($anyinit), ID($ff), ID($dff), ID($dffe), ID($dffsr), ID($dffsre), ID($adff), ID($adffe), ID($aldff), ID($aldffe), ID($sdff), ID($sdffe), ID($sdffce), ID($dlatch), ID($adlatch), ID($dlatchsr), ID($sr))) {
+		אם (type.in(ID($anyinit), ID($ff))) {
+			info.has_gclk = אמת;
+			אם constexpr (have_cell)
 				info.sig_d = cell->getPort(ID::D);
-			if (type == ID($anyinit)) {
-				info.is_anyinit = true;
-				if constexpr (have_cell)
+			אם (type == ID($anyinit)) {
+				info.is_anyinit = אמת;
+				אם constexpr (have_cell)
 					log_assert(info.val_init.is_fully_undef());
 			}
-		} else if (type == ID($sr)) {
+		} אחרת אם (type == ID($sr)) {
 			// No data input at all.
-		} else if (type.in(ID($dlatch), ID($adlatch), ID($dlatchsr))) {
-			info.has_aload = true;
-			if constexpr (have_cell) {
+		} אחרת אם (type.in(ID($dlatch), ID($adlatch), ID($dlatchsr))) {
+			info.has_aload = אמת;
+			אם constexpr (have_cell) {
 				info.sig_aload = cell->getPort(ID::EN);
 				info.pol_aload = cell->getParam(ID::EN_POLARITY).as_bool();
 				info.sig_ad = cell->getPort(ID::D);
 			}
-		} else {
-			info.has_clk = true;
-			if constexpr (have_cell) {
+		} אחרת {
+			info.has_clk = אמת;
+			אם constexpr (have_cell) {
 				info.sig_clk = cell->getPort(ID::CLK);
 				info.pol_clk = cell->getParam(ID::CLK_POLARITY).as_bool();
 				info.sig_d = cell->getPort(ID::D);
 			}
 		}
-		if (type.in(ID($dffe), ID($dffsre), ID($adffe), ID($aldffe), ID($sdffe), ID($sdffce))) {
-			info.has_ce = true;
-			if constexpr (have_cell) {
+		אם (type.in(ID($dffe), ID($dffsre), ID($adffe), ID($aldffe), ID($sdffe), ID($sdffce))) {
+			info.has_ce = אמת;
+			אם constexpr (have_cell) {
 				info.sig_ce = cell->getPort(ID::EN);
 				info.pol_ce = cell->getParam(ID::EN_POLARITY).as_bool();
 			}
 		}
-		if (type.in(ID($dffsr), ID($dffsre), ID($dlatchsr), ID($sr))) {
-			info.has_sr = true;
-			if constexpr (have_cell) {
+		אם (type.in(ID($dffsr), ID($dffsre), ID($dlatchsr), ID($sr))) {
+			info.has_sr = אמת;
+			אם constexpr (have_cell) {
 				info.sig_clr = cell->getPort(ID::CLR);
 				info.sig_set = cell->getPort(ID::SET);
 				info.pol_clr = cell->getParam(ID::CLR_POLARITY).as_bool();
 				info.pol_set = cell->getParam(ID::SET_POLARITY).as_bool();
 			}
 		}
-		if (type.in(ID($aldff), ID($aldffe))) {
-			info.has_aload = true;
-			if constexpr (have_cell) {
+		אם (type.in(ID($aldff), ID($aldffe))) {
+			info.has_aload = אמת;
+			אם constexpr (have_cell) {
 				info.sig_aload = cell->getPort(ID::ALOAD);
 				info.pol_aload = cell->getParam(ID::ALOAD_POLARITY).as_bool();
 				info.sig_ad = cell->getPort(ID::AD);
 			}
 		}
-		if (type.in(ID($adff), ID($adffe), ID($adlatch))) {
-			info.has_arst = true;
-			if constexpr (have_cell) {
+		אם (type.in(ID($adff), ID($adffe), ID($adlatch))) {
+			info.has_arst = אמת;
+			אם constexpr (have_cell) {
 				info.sig_arst = cell->getPort(ID::ARST);
 				info.pol_arst = cell->getParam(ID::ARST_POLARITY).as_bool();
 				info.val_arst = cell->getParam(ID::ARST_VALUE);
 			}
 		}
-		if (type.in(ID($sdff), ID($sdffe), ID($sdffce))) {
-			info.has_srst = true;
-			if constexpr (have_cell) {
+		אם (type.in(ID($sdff), ID($sdffe), ID($sdffce))) {
+			info.has_srst = אמת;
+			אם constexpr (have_cell) {
 				info.sig_srst = cell->getPort(ID::SRST);
 				info.pol_srst = cell->getParam(ID::SRST_POLARITY).as_bool();
 				info.val_srst = cell->getParam(ID::SRST_VALUE);
 			}
 			info.ce_over_srst = type == ID($sdffce);
 		}
-	} else if (type == ID($_FF_)) {
-		info.is_fine = true;
-		info.has_gclk = true;
-		if constexpr (have_cell)
+	} אחרת אם (type == ID($_FF_)) {
+		info.is_fine = אמת;
+		info.has_gclk = אמת;
+		אם constexpr (have_cell)
 			info.sig_d = cell->getPort(ID::D);
-	} else if (type_str.substr(0, 5) == "$_SR_") {
-		info.is_fine = true;
-		info.has_sr = true;
+	} אחרת אם (type_str.substr(0, 5) == "$_SR_") {
+		info.is_fine = אמת;
+		info.has_sr = אמת;
 		info.pol_set = type_str[5] == 'P';
 		info.pol_clr = type_str[6] == 'P';
-		if constexpr (have_cell) {
+		אם constexpr (have_cell) {
 			info.sig_set = cell->getPort(ID::S);
 			info.sig_clr = cell->getPort(ID::R);
 		}
-	} else if (type_str.substr(0, 6) == "$_DFF_" && type_str.size() == 8) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} אחרת אם (type_str.substr(0, 6) == "$_DFF_" && type_str.size() == 8) {
+		info.is_fine = אמת;
+		info.has_clk = אמת;
 		info.pol_clk = type_str[6] == 'P';
-		if constexpr (have_cell) {
+		אם constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 		}
-	} else if (type_str.substr(0, 7) == "$_DFFE_" && type_str.size() == 10) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} אחרת אם (type_str.substr(0, 7) == "$_DFFE_" && type_str.size() == 10) {
+		info.is_fine = אמת;
+		info.has_clk = אמת;
 		info.pol_clk = type_str[7] == 'P';
-		info.has_ce = true;
+		info.has_ce = אמת;
 		info.pol_ce = type_str[8] == 'P';
-		if constexpr (have_cell) {
+		אם constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_ce = cell->getPort(ID::E);
 		}
-	} else if (type_str.substr(0, 6) == "$_DFF_" && type_str.size() == 10) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} אחרת אם (type_str.substr(0, 6) == "$_DFF_" && type_str.size() == 10) {
+		info.is_fine = אמת;
+		info.has_clk = אמת;
 		info.pol_clk = type_str[6] == 'P';
-		info.has_arst = true;
+		info.has_arst = אמת;
 		info.pol_arst = type_str[7] == 'P';
 		info.val_arst = type_str[8] == '1' ? State::S1 : State::S0;
-		if constexpr (have_cell) {
+		אם constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_arst = cell->getPort(ID::R);
 		}
-	} else if (type_str.substr(0, 7) == "$_DFFE_" && type_str.size() == 12) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} אחרת אם (type_str.substr(0, 7) == "$_DFFE_" && type_str.size() == 12) {
+		info.is_fine = אמת;
+		info.has_clk = אמת;
 		info.pol_clk = type_str[7] == 'P';
-		info.has_arst = true;
+		info.has_arst = אמת;
 		info.pol_arst = type_str[8] == 'P';
 		info.val_arst = type_str[9] == '1' ? State::S1 : State::S0;
-		info.has_ce = true;
+		info.has_ce = אמת;
 		info.pol_ce = type_str[10] == 'P';
-		if constexpr (have_cell) {
+		אם constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_arst = cell->getPort(ID::R);
 			info.sig_ce = cell->getPort(ID::E);
 		}
-	} else if (type_str.substr(0, 8) == "$_ALDFF_" && type_str.size() == 11) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} אחרת אם (type_str.substr(0, 8) == "$_ALDFF_" && type_str.size() == 11) {
+		info.is_fine = אמת;
+		info.has_clk = אמת;
 		info.pol_clk = type_str[8] == 'P';
-		info.has_aload = true;
+		info.has_aload = אמת;
 		info.pol_aload = type_str[9] == 'P';
-		if constexpr (have_cell) {
+		אם constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_aload = cell->getPort(ID::L);
 			info.sig_ad = cell->getPort(ID::AD);
 		}
-	} else if (type_str.substr(0, 9) == "$_ALDFFE_" && type_str.size() == 13) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} אחרת אם (type_str.substr(0, 9) == "$_ALDFFE_" && type_str.size() == 13) {
+		info.is_fine = אמת;
+		info.has_clk = אמת;
 		info.pol_clk = type_str[9] == 'P';
-		info.has_aload = true;
+		info.has_aload = אמת;
 		info.pol_aload = type_str[10] == 'P';
-		info.has_ce = true;
+		info.has_ce = אמת;
 		info.pol_ce = type_str[11] == 'P';
-		if constexpr (have_cell) {
+		אם constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_aload = cell->getPort(ID::L);
 			info.sig_ad = cell->getPort(ID::AD);
 			info.sig_ce = cell->getPort(ID::E);
 		}
-	} else if (type_str.substr(0, 8) == "$_DFFSR_" && type_str.size() == 12) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} אחרת אם (type_str.substr(0, 8) == "$_DFFSR_" && type_str.size() == 12) {
+		info.is_fine = אמת;
+		info.has_clk = אמת;
 		info.pol_clk = type_str[8] == 'P';
-		info.has_sr = true;
+		info.has_sr = אמת;
 		info.pol_set = type_str[9] == 'P';
 		info.pol_clr = type_str[10] == 'P';
-		if constexpr (have_cell) {
+		אם constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_set = cell->getPort(ID::S);
 			info.sig_clr = cell->getPort(ID::R);
 		}
-	} else if (type_str.substr(0, 9) == "$_DFFSRE_" && type_str.size() == 14) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} אחרת אם (type_str.substr(0, 9) == "$_DFFSRE_" && type_str.size() == 14) {
+		info.is_fine = אמת;
+		info.has_clk = אמת;
 		info.pol_clk = type_str[9] == 'P';
-		info.has_sr = true;
+		info.has_sr = אמת;
 		info.pol_set = type_str[10] == 'P';
 		info.pol_clr = type_str[11] == 'P';
-		info.has_ce = true;
+		info.has_ce = אמת;
 		info.pol_ce = type_str[12] == 'P';
-		if constexpr (have_cell) {
+		אם constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_set = cell->getPort(ID::S);
 			info.sig_clr = cell->getPort(ID::R);
 			info.sig_ce = cell->getPort(ID::E);
 		}
-	} else if (type_str.substr(0, 7) == "$_SDFF_" && type_str.size() == 11) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} אחרת אם (type_str.substr(0, 7) == "$_SDFF_" && type_str.size() == 11) {
+		info.is_fine = אמת;
+		info.has_clk = אמת;
 		info.pol_clk = type_str[7] == 'P';
-		info.has_srst = true;
+		info.has_srst = אמת;
 		info.pol_srst = type_str[8] == 'P';
 		info.val_srst = type_str[9] == '1' ? State::S1 : State::S0;
-		if constexpr (have_cell) {
+		אם constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_srst = cell->getPort(ID::R);
 		}
-	} else if (type_str.substr(0, 8) == "$_SDFFE_" && type_str.size() == 13) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} אחרת אם (type_str.substr(0, 8) == "$_SDFFE_" && type_str.size() == 13) {
+		info.is_fine = אמת;
+		info.has_clk = אמת;
 		info.pol_clk = type_str[8] == 'P';
-		info.has_srst = true;
+		info.has_srst = אמת;
 		info.pol_srst = type_str[9] == 'P';
 		info.val_srst = type_str[10] == '1' ? State::S1 : State::S0;
-		info.has_ce = true;
+		info.has_ce = אמת;
 		info.pol_ce = type_str[11] == 'P';
-		if constexpr (have_cell) {
+		אם constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_srst = cell->getPort(ID::R);
 			info.sig_ce = cell->getPort(ID::E);
 		}
-	} else if (type_str.substr(0, 9) == "$_SDFFCE_" && type_str.size() == 14) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} אחרת אם (type_str.substr(0, 9) == "$_SDFFCE_" && type_str.size() == 14) {
+		info.is_fine = אמת;
+		info.has_clk = אמת;
 		info.pol_clk = type_str[9] == 'P';
-		info.has_srst = true;
+		info.has_srst = אמת;
 		info.pol_srst = type_str[10] == 'P';
 		info.val_srst = type_str[11] == '1' ? State::S1 : State::S0;
-		info.has_ce = true;
+		info.has_ce = אמת;
 		info.pol_ce = type_str[12] == 'P';
-		info.ce_over_srst = true;
-		if constexpr (have_cell) {
+		info.ce_over_srst = אמת;
+		אם constexpr (have_cell) {
 			info.sig_d = cell->getPort(ID::D);
 			info.sig_clk = cell->getPort(ID::C);
 			info.sig_srst = cell->getPort(ID::R);
 			info.sig_ce = cell->getPort(ID::E);
 		}
-	} else if (type_str.substr(0, 9) == "$_DLATCH_" && type_str.size() == 11) {
-		info.is_fine = true;
-		info.has_aload = true;
-		info.has_aload = true;
+	} אחרת אם (type_str.substr(0, 9) == "$_DLATCH_" && type_str.size() == 11) {
+		info.is_fine = אמת;
+		info.has_aload = אמת;
+		info.has_aload = אמת;
 		info.pol_aload = type_str[9] == 'P';
-		if constexpr (have_cell) {
+		אם constexpr (have_cell) {
 			info.sig_ad = cell->getPort(ID::D);
 			info.sig_aload = cell->getPort(ID::E);
 		}
-	} else if (type_str.substr(0, 9) == "$_DLATCH_" && type_str.size() == 13) {
-		info.is_fine = true;
-		info.has_aload = true;
-		info.has_aload = true;
+	} אחרת אם (type_str.substr(0, 9) == "$_DLATCH_" && type_str.size() == 13) {
+		info.is_fine = אמת;
+		info.has_aload = אמת;
+		info.has_aload = אמת;
 		info.pol_aload = type_str[9] == 'P';
-		info.has_arst = true;
+		info.has_arst = אמת;
 		info.pol_arst = type_str[10] == 'P';
 		info.val_arst = type_str[11] == '1' ? State::S1 : State::S0;
-		if constexpr (have_cell) {
+		אם constexpr (have_cell) {
 			info.sig_ad = cell->getPort(ID::D);
 			info.sig_aload = cell->getPort(ID::E);
 			info.sig_arst = cell->getPort(ID::R);
 		}
-	} else if (type_str.substr(0, 11) == "$_DLATCHSR_" && type_str.size() == 15) {
-		info.is_fine = true;
-		info.has_aload = true;
-		info.has_aload = true;
+	} אחרת אם (type_str.substr(0, 11) == "$_DLATCHSR_" && type_str.size() == 15) {
+		info.is_fine = אמת;
+		info.has_aload = אמת;
+		info.has_aload = אמת;
 		info.pol_aload = type_str[11] == 'P';
-		info.has_sr = true;
+		info.has_sr = אמת;
 		info.pol_set = type_str[12] == 'P';
 		info.pol_clr = type_str[13] == 'P';
-		if constexpr (have_cell) {
+		אם constexpr (have_cell) {
 			info.sig_ad = cell->getPort(ID::D);
 			info.sig_aload = cell->getPort(ID::E);
 			info.sig_set = cell->getPort(ID::S);
 			info.sig_clr = cell->getPort(ID::R);
 		}
-	} else {
+	} אחרת {
 		log_assert(0);
 	}
-	if constexpr (have_cell)
-		if (info.has_aload && !info.has_clk && !info.has_sr && !info.has_arst && info.sig_ad.is_fully_const()) {
+	אם constexpr (have_cell)
+		אם (info.has_aload && !info.has_clk && !info.has_sr && !info.has_arst && info.sig_ad.is_fully_const()) {
 			// Plain D latches with const D treated specially.
-			info.has_aload = false;
-			info.has_arst = true;
+			info.has_aload = שקר;
+			info.has_arst = אמת;
 			info.sig_arst = info.sig_aload;
 			info.pol_arst = info.pol_aload;
 			info.val_arst = info.sig_ad.as_const();
@@ -324,16 +324,16 @@ void manufacture_info(InputType flop, OutputType& info, FfInitVals *initvals) {
 
 FfTypeData::FfTypeData(IdString type) : FfTypeData()
 {
-	manufacture_info(type, *this, nullptr);
+	manufacture_info(type, *هذا, nullptr);
 }
 
 FfData::FfData(FfInitVals *initvals, Cell *cell_) : FfData(cell_->module, initvals, cell_->name)
 {
 	cell = cell_;
-	manufacture_info(cell, *this, initvals);
+	manufacture_info(cell, *هذا, initvals);
 }
 
-FfData FfData::slice(const std::vector<int> &bits) {
+FfData FfData::slice(ثابت std::vector<صحيح> &bits) {
 	FfData res(module, initvals, module->twines().add(NEW_ID));
 	res.sig_clk = sig_clk;
 	res.sig_ce = sig_ce;
@@ -359,219 +359,219 @@ FfData FfData::slice(const std::vector<int> &bits) {
 	res.pol_set = pol_set;
 	res.attributes = attributes;
 	std::optional<Const::Builder> arst_bits;
-	if (has_arst)
+	אם (has_arst)
 		arst_bits.emplace(bits.size());
 	std::optional<Const::Builder> srst_bits;
-	if (has_srst)
+	אם (has_srst)
 		srst_bits.emplace(bits.size());
 	std::optional<Const::Builder> init_bits;
-	if (initvals)
+	אם (initvals)
 		init_bits.emplace(bits.size());
 
-	for (int i : bits) {
+	עבור (صحيح i : bits) {
 		res.sig_q.append(sig_q[i]);
-		if (has_clk || has_gclk)
+		אם (has_clk || has_gclk)
 			res.sig_d.append(sig_d[i]);
-		if (has_aload)
+		אם (has_aload)
 			res.sig_ad.append(sig_ad[i]);
-		if (has_sr) {
+		אם (has_sr) {
 			res.sig_clr.append(sig_clr[i]);
 			res.sig_set.append(sig_set[i]);
 		}
-		if (has_arst)
+		אם (has_arst)
 			arst_bits->push_back(val_arst[i]);
-		if (has_srst)
+		אם (has_srst)
 			srst_bits->push_back(val_srst[i]);
-		if (initvals)
+		אם (initvals)
 			init_bits->push_back(val_init[i]);
 	}
 
-	if (has_arst)
+	אם (has_arst)
 		res.val_arst = arst_bits->build();
-	if (has_srst)
+	אם (has_srst)
 		res.val_srst = srst_bits->build();
-	if (initvals)
+	אם (initvals)
 		res.val_init = init_bits->build();
 	res.width = GetSize(res.sig_q);
-	return res;
+	החזר res;
 }
 
-void FfData::add_dummy_ce() {
-	if (has_ce)
-		return;
-	has_ce = true;
-	pol_ce = true;
+فراغ FfData::add_dummy_ce() {
+	אם (has_ce)
+		החזר;
+	has_ce = אמת;
+	pol_ce = אמת;
 	sig_ce = State::S1;
-	ce_over_srst = false;
+	ce_over_srst = שקר;
 }
 
-void FfData::add_dummy_srst() {
-	if (has_srst)
-		return;
-	has_srst = true;
-	pol_srst = true;
+فراغ FfData::add_dummy_srst() {
+	אם (has_srst)
+		החזר;
+	has_srst = אמת;
+	pol_srst = אמת;
 	sig_srst = State::S0;
 	val_srst = Const(State::Sx, width);
-	ce_over_srst = false;
+	ce_over_srst = שקר;
 }
 
-void FfData::add_dummy_arst() {
-	if (has_arst)
-		return;
-	has_arst = true;
-	pol_arst = true;
+فراغ FfData::add_dummy_arst() {
+	אם (has_arst)
+		החזר;
+	has_arst = אמת;
+	pol_arst = אמת;
 	sig_arst = State::S0;
 	val_arst = Const(State::Sx, width);
 }
 
-void FfData::add_dummy_aload() {
-	if (has_aload)
-		return;
-	has_aload = true;
-	pol_aload = true;
+فراغ FfData::add_dummy_aload() {
+	אם (has_aload)
+		החזר;
+	has_aload = אמת;
+	pol_aload = אמת;
 	sig_aload = State::S0;
 	sig_ad = Const(State::Sx, width);
 }
 
-void FfData::add_dummy_sr() {
-	if (has_sr)
-		return;
-	has_sr = true;
-	pol_clr = true;
-	pol_set = true;
+فراغ FfData::add_dummy_sr() {
+	אם (has_sr)
+		החזר;
+	has_sr = אמת;
+	pol_clr = אמת;
+	pol_set = אמת;
 	sig_clr = Const(State::S0, width);
 	sig_set = Const(State::S0, width);
 }
 
-void FfData::add_dummy_clk() {
-	if (has_clk)
-		return;
-	has_clk = true;
-	pol_clk = true;
+فراغ FfData::add_dummy_clk() {
+	אם (has_clk)
+		החזר;
+	has_clk = אמת;
+	pol_clk = אמת;
 	sig_clk = State::S0;
 	sig_d = Const(State::Sx, width);
 }
 
-void FfData::arst_to_aload() {
+فراغ FfData::arst_to_aload() {
 	log_assert(has_arst);
 	log_assert(!has_aload);
 	pol_aload = pol_arst;
 	sig_aload = sig_arst;
 	sig_ad = val_arst;
-	has_aload = true;
-	has_arst = false;
+	has_aload = אמת;
+	has_arst = שקר;
 }
 
-void FfData::arst_to_sr() {
+فراغ FfData::arst_to_sr() {
 	log_assert(has_arst);
 	log_assert(!has_sr);
 	pol_clr = pol_arst;
 	pol_set = pol_arst;
 	sig_clr = Const(pol_arst ? State::S0 : State::S1, width);
 	sig_set = Const(pol_arst ? State::S0 : State::S1, width);
-	has_sr = true;
-	has_arst = false;
-	for (int i = 0; i < width; i++) {
-		if (val_arst[i] == State::S1)
+	has_sr = אמת;
+	has_arst = שקר;
+	עבור (صحيح i = 0; i < width; i++) {
+		אם (val_arst[i] == State::S1)
 			sig_set[i] = sig_arst;
-		else
+		אחרת
 			sig_clr[i] = sig_arst;
 	}
 }
 
-void FfData::aload_to_sr() {
+فراغ FfData::aload_to_sr() {
 	log_assert(has_aload);
 	log_assert(!has_sr);
-	has_sr = true;
-	has_aload = false;
-	if (!is_fine) {
-		pol_clr = false;
-		pol_set = true;
-		if (pol_aload) {
+	has_sr = אמת;
+	has_aload = שקר;
+	אם (!is_fine) {
+		pol_clr = שקר;
+		pol_set = אמת;
+		אם (pol_aload) {
 			sig_clr = module->Mux(NEW_ID, Const(State::S1, width), sig_ad, sig_aload);
 			sig_set = module->Mux(NEW_ID, Const(State::S0, width), sig_ad, sig_aload);
-		} else {
+		} אחרת {
 			sig_clr = module->Mux(NEW_ID, sig_ad, Const(State::S1, width), sig_aload);
 			sig_set = module->Mux(NEW_ID, sig_ad, Const(State::S0, width), sig_aload);
 		}
-	} else {
+	} אחרת {
 		pol_clr = pol_aload;
 		pol_set = pol_aload;
-		if (pol_aload) {
+		אם (pol_aload) {
 			sig_clr = module->AndnotGate(NEW_ID, sig_aload, sig_ad);
 			sig_set = module->AndGate(NEW_ID, sig_aload, sig_ad);
-		} else {
+		} אחרת {
 			sig_clr = module->OrGate(NEW_ID, sig_aload, sig_ad);
 			sig_set = module->OrnotGate(NEW_ID, sig_aload, sig_ad);
 		}
 	}
 }
 
-void FfData::convert_ce_over_srst(bool val) {
-	if (!has_ce || !has_srst || ce_over_srst == val)
-		return;
-	if (val) {
+فراغ FfData::convert_ce_over_srst(منطقي val) {
+	אם (!has_ce || !has_srst || ce_over_srst == val)
+		החזר;
+	אם (val) {
 		// sdffe to sdffce
-		if (!is_fine) {
-			if (pol_ce) {
-				if (pol_srst) {
+		אם (!is_fine) {
+			אם (pol_ce) {
+				אם (pol_srst) {
 					sig_ce = module->Or(NEW_ID, sig_ce, sig_srst);
-				} else {
+				} אחרת {
 					SigSpec tmp = module->Not(NEW_ID, sig_srst);
 					sig_ce = module->Or(NEW_ID, sig_ce, tmp);
 				}
-			} else {
-				if (pol_srst) {
+			} אחרת {
+				אם (pol_srst) {
 					SigSpec tmp = module->Not(NEW_ID, sig_srst);
 					sig_ce = module->And(NEW_ID, sig_ce, tmp);
-				} else {
+				} אחרת {
 					sig_ce = module->And(NEW_ID, sig_ce, sig_srst);
 				}
 			}
-		} else {
-			if (pol_ce) {
-				if (pol_srst) {
+		} אחרת {
+			אם (pol_ce) {
+				אם (pol_srst) {
 					sig_ce = module->OrGate(NEW_ID, sig_ce, sig_srst);
-				} else {
+				} אחרת {
 					sig_ce = module->OrnotGate(NEW_ID, sig_ce, sig_srst);
 				}
-			} else {
-				if (pol_srst) {
+			} אחרת {
+				אם (pol_srst) {
 					sig_ce = module->AndnotGate(NEW_ID, sig_ce, sig_srst);
-				} else {
+				} אחרת {
 					sig_ce = module->AndGate(NEW_ID, sig_ce, sig_srst);
 				}
 			}
 		}
-	} else {
+	} אחרת {
 		// sdffce to sdffe
-		if (!is_fine) {
-			if (pol_srst) {
-				if (pol_ce) {
+		אם (!is_fine) {
+			אם (pol_srst) {
+				אם (pol_ce) {
 					sig_srst = cell->module->And(NEW_ID, sig_srst, sig_ce);
-				} else {
+				} אחרת {
 					SigSpec tmp = module->Not(NEW_ID, sig_ce);
 					sig_srst = cell->module->And(NEW_ID, sig_srst, tmp);
 				}
-			} else {
-				if (pol_ce) {
+			} אחרת {
+				אם (pol_ce) {
 					SigSpec tmp = module->Not(NEW_ID, sig_ce);
 					sig_srst = cell->module->Or(NEW_ID, sig_srst, tmp);
-				} else {
+				} אחרת {
 					sig_srst = cell->module->Or(NEW_ID, sig_srst, sig_ce);
 				}
 			}
-		} else {
-			if (pol_srst) {
-				if (pol_ce) {
+		} אחרת {
+			אם (pol_srst) {
+				אם (pol_ce) {
 					sig_srst = cell->module->AndGate(NEW_ID, sig_srst, sig_ce);
-				} else {
+				} אחרת {
 					sig_srst = cell->module->AndnotGate(NEW_ID, sig_srst, sig_ce);
 				}
-			} else {
-				if (pol_ce) {
+			} אחרת {
+				אם (pol_ce) {
 					sig_srst = cell->module->OrnotGate(NEW_ID, sig_srst, sig_ce);
-				} else {
+				} אחרת {
 					sig_srst = cell->module->OrGate(NEW_ID, sig_srst, sig_ce);
 				}
 			}
@@ -580,121 +580,121 @@ void FfData::convert_ce_over_srst(bool val) {
 	ce_over_srst = val;
 }
 
-void FfData::unmap_ce() {
-	if (!has_ce)
-		return;
+فراغ FfData::unmap_ce() {
+	אם (!has_ce)
+		החזר;
 	log_assert(has_clk);
-	if (has_srst && ce_over_srst)
+	אם (has_srst && ce_over_srst)
 		unmap_srst();
 
-	if (!is_fine) {
-		if (pol_ce)
+	אם (!is_fine) {
+		אם (pol_ce)
 			sig_d = module->Mux(NEW_ID, sig_q, sig_d, sig_ce);
-		else
+		אחרת
 			sig_d = module->Mux(NEW_ID, sig_d, sig_q, sig_ce);
-	} else {
-		if (pol_ce)
+	} אחרת {
+		אם (pol_ce)
 			sig_d = module->MuxGate(NEW_ID, sig_q, sig_d, sig_ce);
-		else
+		אחרת
 			sig_d = module->MuxGate(NEW_ID, sig_d, sig_q, sig_ce);
 	}
-	has_ce = false;
+	has_ce = שקר;
 }
 
-void FfData::unmap_srst() {
-	if (!has_srst)
-		return;
-	if (has_ce && !ce_over_srst)
+فراغ FfData::unmap_srst() {
+	אם (!has_srst)
+		החזר;
+	אם (has_ce && !ce_over_srst)
 		unmap_ce();
 
-	if (!is_fine) {
-		if (pol_srst)
+	אם (!is_fine) {
+		אם (pol_srst)
 			sig_d = module->Mux(NEW_ID, sig_d, val_srst, sig_srst);
-		else
+		אחרת
 			sig_d = module->Mux(NEW_ID, val_srst, sig_d, sig_srst);
-	} else {
-		if (pol_srst)
+	} אחרת {
+		אם (pol_srst)
 			sig_d = module->MuxGate(NEW_ID, sig_d, val_srst[0], sig_srst);
-		else
+		אחרת
 			sig_d = module->MuxGate(NEW_ID, val_srst[0], sig_d, sig_srst);
 	}
-	has_srst = false;
+	has_srst = שקר;
 }
 
 Cell *FfData::emit() {
 	remove();
-	if (!width)
-		return nullptr;
-	if (!has_aload && !has_clk && !has_gclk && !has_sr) {
-		if (has_arst) {
+	אם (!width)
+		החזר nullptr;
+	אם (!has_aload && !has_clk && !has_gclk && !has_sr) {
+		אם (has_arst) {
 			// Convert this case to a D latch.
 			arst_to_aload();
-		} else {
+		} אחרת {
 			// No control inputs left.  Turn into a const driver.
 			module->connect(sig_q, val_init);
-			return nullptr;
+			החזר nullptr;
 		}
 	}
-	if (initvals && !is_anyinit)
+	אם (initvals && !is_anyinit)
 		initvals->set_init(sig_q, val_init);
-	if (!is_fine) {
-		if (has_gclk) {
+	אם (!is_fine) {
+		אם (has_gclk) {
 			log_assert(!has_clk);
 			log_assert(!has_ce);
 			log_assert(!has_aload);
 			log_assert(!has_arst);
 			log_assert(!has_srst);
 			log_assert(!has_sr);
-			if (is_anyinit) {
+			אם (is_anyinit) {
 				cell = module->addAnyinit(name, sig_d, sig_q);
 				log_assert(val_init.is_fully_undef());
-			} else {
+			} אחרת {
 				cell = module->addFf(name, sig_d, sig_q);
 			}
-		} else if (!has_aload && !has_clk) {
+		} אחרת אם (!has_aload && !has_clk) {
 			log_assert(has_sr);
 			cell = module->addSr(name, sig_set, sig_clr, sig_q, pol_set, pol_clr);
-		} else if (!has_clk) {
+		} אחרת אם (!has_clk) {
 			log_assert(!has_srst);
-			if (has_sr)
+			אם (has_sr)
 				cell = module->addDlatchsr(name, sig_aload, sig_set, sig_clr, sig_ad, sig_q, pol_aload, pol_set, pol_clr);
-			else if (has_arst)
+			אחרת אם (has_arst)
 				cell = module->addAdlatch(name, sig_aload, sig_arst, sig_ad, sig_q, val_arst, pol_aload, pol_arst);
-			else
+			אחרת
 				cell = module->addDlatch(name, sig_aload, sig_ad, sig_q, pol_aload);
-		} else {
-			if (has_sr) {
-				if (has_ce)
+		} אחרת {
+			אם (has_sr) {
+				אם (has_ce)
 					cell = module->addDffsre(name, sig_clk, sig_ce, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_ce, pol_set, pol_clr);
-				else
+				אחרת
 					cell = module->addDffsr(name, sig_clk, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_set, pol_clr);
-			} else if (has_arst) {
-				if (has_ce)
+			} אחרת אם (has_arst) {
+				אם (has_ce)
 					cell = module->addAdffe(name, sig_clk, sig_ce, sig_arst, sig_d, sig_q, val_arst, pol_clk, pol_ce, pol_arst);
-				else
+				אחרת
 					cell = module->addAdff(name, sig_clk, sig_arst, sig_d, sig_q, val_arst, pol_clk, pol_arst);
-			} else if (has_aload) {
-				if (has_ce)
+			} אחרת אם (has_aload) {
+				אם (has_ce)
 					cell = module->addAldffe(name, sig_clk, sig_ce, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_ce, pol_aload);
-				else
+				אחרת
 					cell = module->addAldff(name, sig_clk, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_aload);
-			} else if (has_srst) {
-				if (has_ce)
-					if (ce_over_srst)
+			} אחרת אם (has_srst) {
+				אם (has_ce)
+					אם (ce_over_srst)
 						cell = module->addSdffce(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_ce, pol_srst);
-					else
+					אחרת
 						cell = module->addSdffe(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_ce, pol_srst);
-				else
+				אחרת
 					cell = module->addSdff(name, sig_clk, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_srst);
-			} else {
-				if (has_ce)
+			} אחרת {
+				אם (has_ce)
 					cell = module->addDffe(name, sig_clk, sig_ce, sig_d, sig_q, pol_clk, pol_ce);
-				else
+				אחרת
 					cell = module->addDff(name, sig_clk, sig_d, sig_q, pol_clk);
 			}
 		}
-	} else {
-		if (has_gclk) {
+	} אחרת {
+		אם (has_gclk) {
 			log_assert(!has_clk);
 			log_assert(!has_ce);
 			log_assert(!has_aload);
@@ -703,112 +703,112 @@ Cell *FfData::emit() {
 			log_assert(!has_sr);
 			log_assert(!is_anyinit);
 			cell = module->addFfGate(name, sig_d, sig_q);
-		} else if (!has_aload && !has_clk) {
+		} אחרת אם (!has_aload && !has_clk) {
 			log_assert(has_sr);
 			cell = module->addSrGate(name, sig_set, sig_clr, sig_q, pol_set, pol_clr);
-		} else if (!has_clk) {
+		} אחרת אם (!has_clk) {
 			log_assert(!has_srst);
-			if (has_sr)
+			אם (has_sr)
 				cell = module->addDlatchsrGate(name, sig_aload, sig_set, sig_clr, sig_ad, sig_q, pol_aload, pol_set, pol_clr);
-			else if (has_arst)
+			אחרת אם (has_arst)
 				cell = module->addAdlatchGate(name, sig_aload, sig_arst, sig_ad, sig_q, val_arst.as_bool(), pol_aload, pol_arst);
-			else
+			אחרת
 				cell = module->addDlatchGate(name, sig_aload, sig_ad, sig_q, pol_aload);
-		} else {
-			if (has_sr) {
-				if (has_ce)
+		} אחרת {
+			אם (has_sr) {
+				אם (has_ce)
 					cell = module->addDffsreGate(name, sig_clk, sig_ce, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_ce, pol_set, pol_clr);
-				else
+				אחרת
 					cell = module->addDffsrGate(name, sig_clk, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_set, pol_clr);
-			} else if (has_arst) {
-				if (has_ce)
+			} אחרת אם (has_arst) {
+				אם (has_ce)
 					cell = module->addAdffeGate(name, sig_clk, sig_ce, sig_arst, sig_d, sig_q, val_arst.as_bool(), pol_clk, pol_ce, pol_arst);
-				else
+				אחרת
 					cell = module->addAdffGate(name, sig_clk, sig_arst, sig_d, sig_q, val_arst.as_bool(), pol_clk, pol_arst);
-			} else if (has_aload) {
-				if (has_ce)
+			} אחרת אם (has_aload) {
+				אם (has_ce)
 					cell = module->addAldffeGate(name, sig_clk, sig_ce, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_ce, pol_aload);
-				else
+				אחרת
 					cell = module->addAldffGate(name, sig_clk, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_aload);
-			} else if (has_srst) {
-				if (has_ce)
-					if (ce_over_srst)
+			} אחרת אם (has_srst) {
+				אם (has_ce)
+					אם (ce_over_srst)
 						cell = module->addSdffceGate(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_ce, pol_srst);
-					else
+					אחרת
 						cell = module->addSdffeGate(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_ce, pol_srst);
-				else
+				אחרת
 					cell = module->addSdffGate(name, sig_clk, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_srst);
-			} else {
-				if (has_ce)
+			} אחרת {
+				אם (has_ce)
 					cell = module->addDffeGate(name, sig_clk, sig_ce, sig_d, sig_q, pol_clk, pol_ce);
-				else
+				אחרת
 					cell = module->addDffGate(name, sig_clk, sig_d, sig_q, pol_clk);
 			}
 		}
 	}
 	cell->attributes = attributes;
-	return cell;
+	החזר cell;
 }
 
-void FfData::remove() {
-	if (cell) {
+فراغ FfData::remove() {
+	אם (cell) {
 		remove_init();
 		module->remove(cell);
 		cell = nullptr;
 	}
 }
 
-namespace {
+نطاق {
 	State invert(State s) {
-		switch (s) {
-			case State::S0: return State::S1;
-			case State::S1: return State::S0;
-			default: return s;
+		بدل (s) {
+			حالة State::S0: החזר State::S1;
+			حالة State::S1: החזר State::S0;
+			افتراضي: החזר s;
 		}
 	}
 }
 
-void FfData::flip_rst_bits(const pool<int> &bits) {
-	if (!bits.size())
-		return;
+فراغ FfData::flip_rst_bits(ثابت pool<صحيح> &bits) {
+	אם (!bits.size())
+		החזר;
 
 	remove_init();
 
-	for (auto bit: bits) {
-		if (has_arst)
+	עבור (auto bit: bits) {
+		אם (has_arst)
 			val_arst.set(bit, invert(val_arst[bit]));
-		if (has_srst)
+		אם (has_srst)
 			val_srst.set(bit, invert(val_srst[bit]));
 		val_init.set(bit, invert(val_init[bit]));
 	}
 }
 
-void FfData::flip_bits(const pool<int> &bits) {
-	if (!bits.size())
-		return;
+فراغ FfData::flip_bits(ثابت pool<صحيح> &bits) {
+	אם (!bits.size())
+		החזר;
 
 	flip_rst_bits(bits);
 
 	Wire *new_q = module->addWire(NEW_ID, width);
 
-	if (has_sr && cell) {
+	אם (has_sr && cell) {
 		log_warning("Flipping D/Q/init and inserting priority fixup to legalize %s.%s [%s].\n", module->name.unescape(), cell->name.unescape(), cell->type.unescape());
 	}
 
-	if (is_fine) {
-		if (has_sr) {
-			bool new_pol_clr = pol_set;
+	אם (is_fine) {
+		אם (has_sr) {
+			منطقي new_pol_clr = pol_set;
 			SigSpec new_sig_clr;
-			if (pol_set) {
-				if (pol_clr) {
+			אם (pol_set) {
+				אם (pol_clr) {
 					new_sig_clr = module->AndnotGate(NEW_ID, sig_set, sig_clr);
-				} else {
+				} אחרת {
 					new_sig_clr = module->AndGate(NEW_ID, sig_set, sig_clr);
 				}
-			} else {
-				if (pol_clr) {
+			} אחרת {
+				אם (pol_clr) {
 					new_sig_clr = module->OrGate(NEW_ID, sig_set, sig_clr);
-				} else {
+				} אחרת {
 					new_sig_clr = module->OrnotGate(NEW_ID, sig_set, sig_clr);
 				}
 			}
@@ -817,42 +817,42 @@ void FfData::flip_bits(const pool<int> &bits) {
 			pol_clr = new_pol_clr;
 			sig_clr = new_sig_clr;
 		}
-		if (has_clk || has_gclk)
+		אם (has_clk || has_gclk)
 			sig_d = module->NotGate(NEW_ID, sig_d);
-		if (has_aload)
+		אם (has_aload)
 			sig_ad = module->NotGate(NEW_ID, sig_ad);
 		module->addNotGate(NEW_ID, new_q, sig_q);
 	}
-	else
+	אחרת
 	{
-		if (has_sr) {
+		אם (has_sr) {
 			SigSpec not_clr;
-			if (!pol_clr) {
+			אם (!pol_clr) {
 				not_clr = sig_clr;
 				sig_clr = module->Not(NEW_ID, sig_clr);
-				pol_clr = true;
-			} else {
+				pol_clr = אמת;
+			} אחרת {
 				not_clr = module->Not(NEW_ID, sig_clr);
 			}
-			if (!pol_set) {
+			אם (!pol_set) {
 				sig_set = module->Not(NEW_ID, sig_set);
-				pol_set = true;
+				pol_set = אמת;
 			}
 
 			SigSpec masked_set = module->And(NEW_ID, sig_set, not_clr);
-			for (auto bit: bits) {
+			עבור (auto bit: bits) {
 				sig_set[bit] = sig_clr[bit];
 				sig_clr[bit] = masked_set[bit];
 			}
 		}
 
 		Const mask = Const(State::S0, width);
-		for (auto bit: bits)
+		עבור (auto bit: bits)
 			mask.set(bit, State::S1);
 
-		if (has_clk || has_gclk)
+		אם (has_clk || has_gclk)
 			sig_d = module->Xor(NEW_ID, sig_d, mask);
-		if (has_aload)
+		אם (has_aload)
 			sig_ad = module->Xor(NEW_ID, sig_ad, mask);
 		module->addXor(NEW_ID, new_q, mask, sig_q);
 	}

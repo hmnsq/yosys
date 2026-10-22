@@ -20,71 +20,71 @@
 #ifndef MODTOOLS_H
 #define MODTOOLS_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/celltypes.h"
-#include "kernel/newcelltypes.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/sigtools.h"
+#ضمن "kernel/celltypes.h"
+#ضمن "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct ModIndex : public RTLIL::Monitor
+بنية ModIndex : عام RTLIL::Monitor
 {
-	struct PointerOrderedSigBit : public RTLIL::SigBit {
+	بنية PointerOrderedSigBit : عام RTLIL::SigBit {
 		PointerOrderedSigBit(SigBit s) {
 			wire = s.wire;
-			if (wire)
+			אם (wire)
 				offset = s.offset;
-			else
+			אחרת
 				data = s.data;
 		}
-		inline bool operator<(const RTLIL::SigBit &other) const {
-			if (wire == other.wire)
-				return wire ? (offset < other.offset) : (data < other.data);
-			if (wire != nullptr && other.wire != nullptr)
-				return wire < other.wire; // look here
-			return (wire != nullptr) < (other.wire != nullptr);
+		مضمن bool operator<(ثابت RTLIL::SigBit &other) ثابت {
+			אם (wire == other.wire)
+				החזר wire ? (offset < other.offset) : (data < other.data);
+			אם (wire != nullptr && other.wire != nullptr)
+				החזר wire < other.wire; // look here
+			החזר (wire != nullptr) < (other.wire != nullptr);
 		}
 	};
-	struct PortInfo {
+	بنية PortInfo {
 		RTLIL::Cell* cell;
 		RTLIL::IdString port;
-		int offset;
+		صحيح offset;
 
 		PortInfo() : cell(), port(), offset() { }
-		PortInfo(RTLIL::Cell* _c, RTLIL::IdString _p, int _o) : cell(_c), port(_p), offset(_o) { }
+		PortInfo(RTLIL::Cell* _c, RTLIL::IdString _p, صحيح _o) : cell(_c), port(_p), offset(_o) { }
 
-		bool operator<(const PortInfo &other) const {
-			if (cell != other.cell)
-				return cell < other.cell;
-			if (offset != other.offset)
-				return offset < other.offset;
-			return port < other.port;
+		bool operator<(ثابت PortInfo &other) ثابت {
+			אם (cell != other.cell)
+				החזר cell < other.cell;
+			אם (offset != other.offset)
+				החזר offset < other.offset;
+			החזר port < other.port;
 		}
 
-		bool operator==(const PortInfo &other) const {
-			return cell == other.cell && port == other.port && offset == other.offset;
+		bool operator==(ثابت PortInfo &other) ثابت {
+			החזר cell == other.cell && port == other.port && offset == other.offset;
 		}
 
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
 			h.eat(cell->name);
 			h.eat(port);
 			h.eat(offset);
-			return h;
+			החזר h;
 		}
 	};
 
-	struct SigBitInfo
+	بنية SigBitInfo
 	{
 		bool is_input, is_output;
 		pool<PortInfo> ports;
 
 		SigBitInfo() : is_input(false), is_output(false) { }
 
-		bool operator==(const SigBitInfo &other) const {
-			return is_input == other.is_input && is_output == other.is_output && ports == other.ports;
+		bool operator==(ثابت SigBitInfo &other) ثابت {
+			החזר is_input == other.is_input && is_output == other.is_output && ports == other.ports;
 		}
 
-		void merge(const SigBitInfo &other)
+		فراغ merge(ثابت SigBitInfo &other)
 		{
 			is_input = is_input || other.is_input;
 			is_output = is_output || other.is_output;
@@ -95,58 +95,58 @@ struct ModIndex : public RTLIL::Monitor
 	SigMap sigmap;
 	RTLIL::Module *module;
 	std::map<PointerOrderedSigBit, SigBitInfo> database;
-	int auto_reload_counter;
+	صحيح auto_reload_counter;
 	bool auto_reload_module;
 
-	void port_add(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &sig)
+	فراغ port_add(RTLIL::Cell *cell, RTLIL::IdString port, ثابت RTLIL::SigSpec &sig)
 	{
-		for (int i = 0; i < GetSize(sig); i++) {
+		עבור (صحيح i = 0; i < GetSize(sig); i++) {
 			RTLIL::SigBit bit = sigmap(sig[i]);
-			if (bit.wire)
+			אם (bit.wire)
 				database[bit].ports.insert(PortInfo(cell, port, i));
 		}
 	}
 
-	void port_del(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &sig)
+	فراغ port_del(RTLIL::Cell *cell, RTLIL::IdString port, ثابت RTLIL::SigSpec &sig)
 	{
-		for (int i = 0; i < GetSize(sig); i++) {
+		עבור (صحيح i = 0; i < GetSize(sig); i++) {
 			RTLIL::SigBit bit = sigmap(sig[i]);
-			if (bit.wire) {
+			אם (bit.wire) {
 				database[bit].ports.erase(PortInfo(cell, port, i));
-				if (!database[bit].is_input && !database[bit].is_output && database[bit].ports.empty())
+				אם (!database[bit].is_input && !database[bit].is_output && database[bit].ports.empty())
 					database.erase(bit);
 			}
 		}
 	}
 
-	const SigBitInfo &info(RTLIL::SigBit bit)
+	ثابت SigBitInfo &info(RTLIL::SigBit bit)
 	{
-		return database[sigmap(bit)];
+		החזר database[sigmap(bit)];
 	}
 
-	void reload_module(bool reset_sigmap = true)
+	فراغ reload_module(bool reset_sigmap = true)
 	{
-		if (reset_sigmap) {
+		אם (reset_sigmap) {
 			sigmap.clear();
 			sigmap.set(module);
 		}
 
 		database.clear();
-		for (auto wire : module->wires())
-			if (wire->port_input || wire->port_output)
-				for (int i = 0; i < GetSize(wire); i++) {
+		עבור (auto wire : module->wires())
+			אם (wire->port_input || wire->port_output)
+				עבור (صحيح i = 0; i < GetSize(wire); i++) {
 					RTLIL::SigBit bit = sigmap(RTLIL::SigBit(wire, i));
-					if (bit.wire && wire->port_input)
+					אם (bit.wire && wire->port_input)
 						database[bit].is_input = true;
-					if (bit.wire && wire->port_output)
+					אם (bit.wire && wire->port_output)
 						database[bit].is_output = true;
 				}
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
+		עבור (auto cell : module->cells())
+			עבור (auto &conn : cell->connections())
 				port_add(cell, conn.first, conn.second);
 
-		if (auto_reload_module) {
-			if (++auto_reload_counter > 2)
+		אם (auto_reload_module) {
+			אם (++auto_reload_counter > 2)
 				log_warning("Auto-reload in ModIndex -- possible performance bug!\n");
 			auto_reload_module = false;
 		}
@@ -155,101 +155,101 @@ struct ModIndex : public RTLIL::Monitor
 	bool ok()
 	{
 #ifndef NDEBUG
-		if (auto_reload_module)
-			return true;
+		אם (auto_reload_module)
+			החזר true;
 
-		for (auto it : database)
+		עבור (auto it : database)
 			log_assert(it.first == sigmap(it.first));
 
 		auto database_bak = std::move(database);
 		reload_module(false);
 
-		if (!(database == database_bak))
+		אם (!(database == database_bak))
 		{
-			for (auto &it : database_bak)
-				if (!database.count(it.first))
+			עבור (auto &it : database_bak)
+				אם (!database.count(it.first))
 					log("ModuleIndex::check(): Only in database_bak, not database: %s\n", log_signal(it.first));
 
-			for (auto &it : database)
-				if (!database_bak.count(it.first))
+			עבור (auto &it : database)
+				אם (!database_bak.count(it.first))
 					log("ModuleIndex::check(): Only in database, not database_bak: %s\n", log_signal(it.first));
-				else if (!(it.second == database_bak.at(it.first)))
+				אחרת אם (!(it.second == database_bak.at(it.first)))
 					log("ModuleIndex::check(): Different content for database[%s].\n", log_signal(it.first));
 
-			return false;
+			החזר false;
 		}
 #endif
-		return true;
+		החזר true;
 	}
 
-	void check()
+	فراغ check()
 	{
 		log_assert(ok());
 	}
 
-	void notify_connect(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &old_sig, const RTLIL::SigSpec &sig) override
+	فراغ notify_connect(RTLIL::Cell *cell, RTLIL::IdString port, ثابت RTLIL::SigSpec &old_sig, ثابت RTLIL::SigSpec &sig) override
 	{
 		log_assert(module == cell->module);
 
-		if (auto_reload_module)
-			return;
+		אם (auto_reload_module)
+			החזר;
 
 		port_del(cell, port, old_sig);
 		port_add(cell, port, sig);
 	}
 
-	void notify_connect(RTLIL::Module *mod, const RTLIL::SigSig &sigsig) override
+	فراغ notify_connect(RTLIL::Module *mod, ثابت RTLIL::SigSig &sigsig) override
 	{
 		log_assert(module == mod);
 
-		if (auto_reload_module)
-			return;
+		אם (auto_reload_module)
+			החזר;
 
-		for (int i = 0; i < GetSize(sigsig.first); i++)
+		עבור (صحيح i = 0; i < GetSize(sigsig.first); i++)
 		{
 			RTLIL::SigBit lhs = sigmap(sigsig.first[i]);
 			RTLIL::SigBit rhs = sigmap(sigsig.second[i]);
 			bool has_lhs = database.count(lhs) != 0;
 			bool has_rhs = database.count(rhs) != 0;
 
-			if (!has_lhs && !has_rhs) {
+			אם (!has_lhs && !has_rhs) {
 				sigmap.add(lhs, rhs);
-			} else
-			if (!has_rhs) {
+			} אחרת
+			אם (!has_rhs) {
 				SigBitInfo new_info = database.at(lhs);
 				database.erase(lhs);
 				sigmap.add(lhs, rhs);
 				lhs = sigmap(lhs);
-				if (lhs.wire)
+				אם (lhs.wire)
 					database[lhs] = new_info;
-			} else
-			if (!has_lhs) {
+			} אחרת
+			אם (!has_lhs) {
 				SigBitInfo new_info = database.at(rhs);
 				database.erase(rhs);
 				sigmap.add(lhs, rhs);
 				rhs = sigmap(rhs);
-				if (rhs.wire)
+				אם (rhs.wire)
 					database[rhs] = new_info;
-			} else {
+			} אחרת {
 				SigBitInfo new_info = database.at(lhs);
 				new_info.merge(database.at(rhs));
 				database.erase(lhs);
 				database.erase(rhs);
 				sigmap.add(lhs, rhs);
 				rhs = sigmap(rhs);
-				if (rhs.wire)
+				אם (rhs.wire)
 					database[rhs] = new_info;
 			}
 		}
 	}
 
-	void notify_connect(RTLIL::Module *mod, const std::vector<RTLIL::SigSig>&) override
+	فراغ notify_connect(RTLIL::Module *mod, ثابت std::vector<RTLIL::SigSig>&) override
 	{
 		log_assert(module == mod);
 		auto_reload_module = true;
 	}
 
-	void notify_blackout(RTLIL::Module *mod) override
+	فراغ notify_blackout(RTLIL::Module *mod) override
 	{
 		log_assert(module == mod);
 		auto_reload_module = true;
@@ -269,89 +269,89 @@ struct ModIndex : public RTLIL::Monitor
 
 	SigBitInfo *query(RTLIL::SigBit bit)
 	{
-		if (auto_reload_module)
+		אם (auto_reload_module)
 			reload_module();
 
 		auto it = database.find(sigmap(bit));
-		if (it == database.end())
-			return nullptr;
-		else
-			return &it->second;
+		אם (it == database.end())
+			החזר nullptr;
+		אחרת
+			החזר &it->second;
 	}
 
 	bool query_is_input(RTLIL::SigBit bit)
 	{
-		const SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return false;
-		return info->is_input;
+		ثابت SigBitInfo *info = query(bit);
+		אם (info == nullptr)
+			החזר false;
+		החזר info->is_input;
 	}
 
 	bool query_is_output(RTLIL::SigBit bit)
 	{
-		const SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return false;
-		return info->is_output;
+		ثابت SigBitInfo *info = query(bit);
+		אם (info == nullptr)
+			החזר false;
+		החזר info->is_output;
 	}
 
 	pool<PortInfo> &query_ports(RTLIL::SigBit bit)
 	{
-		static pool<PortInfo> empty_result_set;
+		ساكن pool<PortInfo> empty_result_set;
 		SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return empty_result_set;
-		return info->ports;
+		אם (info == nullptr)
+			החזר empty_result_set;
+		החזר info->ports;
 	}
 
-	void dump_db()
+	فراغ dump_db()
 	{
 		log("--- ModIndex Dump ---\n");
 
-		if (auto_reload_module) {
+		אם (auto_reload_module) {
 			log("AUTO-RELOAD\n");
 			reload_module();
 		}
 
-		for (auto &it : database) {
+		עבור (auto &it : database) {
 			log("BIT %s:\n", log_signal(it.first));
-			if (it.second.is_input)
+			אם (it.second.is_input)
 				log("  PRIMARY INPUT\n");
-			if (it.second.is_output)
+			אם (it.second.is_output)
 				log("  PRIMARY OUTPUT\n");
-			for (auto &port : it.second.ports)
+			עבור (auto &port : it.second.ports)
 				log("  PORT: %s.%s[%d] (%s)\n", port.cell,
 						PooledName(module, port.port).unescape(), port.offset, port.cell->type.unescape());
 		}
 	}
 };
 
-struct ModWalker
+بنية ModWalker
 {
-	struct PortBit
+	بنية PortBit
 	{
 		RTLIL::Cell *cell;
 		RTLIL::IdString port;
-		int offset;
-		PortBit(Cell* c, IdString p, int o) : cell(c), port(p), offset(o) {}
+		صحيح offset;
+		PortBit(Cell* c, IdString p, صحيح o) : cell(c), port(p), offset(o) {}
 
-		bool operator<(const PortBit &other) const {
-			if (cell != other.cell)
-				return cell < other.cell;
-			if (port != other.port)
-				return port < other.port;
-			return offset < other.offset;
+		bool operator<(ثابت PortBit &other) ثابت {
+			אם (cell != other.cell)
+				החזר cell < other.cell;
+			אם (port != other.port)
+				החזר port < other.port;
+			החזר offset < other.offset;
 		}
 
-		bool operator==(const PortBit &other) const {
-			return cell == other.cell && port == other.port && offset == other.offset;
+		bool operator==(ثابت PortBit &other) ثابت {
+			החזר cell == other.cell && port == other.port && offset == other.offset;
 		}
 
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
 			h.eat(cell->name);
 			h.eat(port);
 			h.eat(offset);
-			return h;
+			החזר h;
 		}
 	};
 
@@ -367,60 +367,60 @@ struct ModWalker
 
 	dict<RTLIL::Cell*, pool<RTLIL::SigBit>> cell_outputs, cell_inputs;
 
-	void add_wire(RTLIL::Wire *wire)
+	فراغ add_wire(RTLIL::Wire *wire)
 	{
-		if (wire->port_input) {
+		אם (wire->port_input) {
 			std::vector<RTLIL::SigBit> bits = sigmap(wire);
-			for (auto bit : bits)
-				if (bit.wire != NULL)
+			עבור (auto bit : bits)
+				אם (bit.wire != عدم)
 					signal_inputs.insert(bit);
 		}
 
-		if (wire->port_output) {
+		אם (wire->port_output) {
 			std::vector<RTLIL::SigBit> bits = sigmap(wire);
-			for (auto bit : bits)
-				if (bit.wire != NULL)
+			עבור (auto bit : bits)
+				אם (bit.wire != عدم)
 					signal_outputs.insert(bit);
 		}
 	}
 
-	void add_cell_port(RTLIL::Cell *cell, RTLIL::IdString port, std::vector<RTLIL::SigBit> bits, bool is_output, bool is_input)
+	فراغ add_cell_port(RTLIL::Cell *cell, RTLIL::IdString port, std::vector<RTLIL::SigBit> bits, bool is_output, bool is_input)
 	{
-		for (int i = 0; i < int(bits.size()); i++)
-			if (bits[i].wire != NULL) {
+		עבור (صحيح i = 0; i < صحيح(bits.size()); i++)
+			אם (bits[i].wire != عدم) {
 				PortBit pbit {cell, port, i};
-				if (is_output) {
+				אם (is_output) {
 					signal_drivers[bits[i]].insert(pbit);
 					cell_outputs[cell].insert(bits[i]);
 				}
-				if (is_input) {
+				אם (is_input) {
 					signal_consumers[bits[i]].insert(pbit);
 					cell_inputs[cell].insert(bits[i]);
 				}
 			}
 	}
 
-	void add_cell(RTLIL::Cell *cell)
+	فراغ add_cell(RTLIL::Cell *cell)
 	{
-		if (ct.cell_known(cell->type)) {
-			for (auto &conn : cell->connections())
+		אם (ct.cell_known(cell->type)) {
+			עבור (auto &conn : cell->connections())
 				add_cell_port(cell, conn.first, sigmap(conn.second),
 						ct.cell_output(cell->type, conn.first),
 						ct.cell_input(cell->type, conn.first));
-		} else {
-			for (auto &conn : cell->connections())
+		} אחרת {
+			עבור (auto &conn : cell->connections())
 				add_cell_port(cell, conn.first, sigmap(conn.second), true, true);
 		}
 	}
 
-	ModWalker(RTLIL::Design *design, RTLIL::Module *module = nullptr) : design(design), module(NULL)
+	ModWalker(RTLIL::Design *design, RTLIL::Module *module = nullptr) : design(design), module(عدم)
 	{
 		ct.setup(design);
-		if (module)
+		אם (module)
 			setup(module);
 	}
 
-	void setup(RTLIL::Module *module, CellTypes *filter_ct = NULL)
+	فراغ setup(RTLIL::Module *module, CellTypes *filter_ct = عدم)
 	{
 		this->module = module;
 
@@ -433,173 +433,173 @@ struct ModWalker
 		cell_inputs.clear();
 		cell_outputs.clear();
 
-		for (auto &it : module->wires_)
+		עבור (auto &it : module->wires_)
 			add_wire(it.second);
-		for (auto &it : module->cells_)
-			if (filter_ct == NULL || filter_ct->cell_known(it.second->type))
+		עבור (auto &it : module->cells_)
+			אם (filter_ct == عدم || filter_ct->cell_known(it.second->type))
 				add_cell(it.second);
 	}
 
 	// get_* methods -- single RTLIL::SigBit
 
-	inline bool get_drivers(pool<PortBit> &result, RTLIL::SigBit bit) const
+	مضمن bool get_drivers(pool<PortBit> &result, RTLIL::SigBit bit) ثابت
 	{
 		bool found = false;
-		if (signal_drivers.count(bit)) {
-			const pool<PortBit> &r = signal_drivers.at(bit);
+		אם (signal_drivers.count(bit)) {
+			ثابت pool<PortBit> &r = signal_drivers.at(bit);
 			result.insert(r.begin(), r.end());
 			found = true;
 		}
-		return found;
+		החזר found;
 	}
 
-	inline bool get_consumers(pool<PortBit> &result, RTLIL::SigBit bit) const
+	مضمن bool get_consumers(pool<PortBit> &result, RTLIL::SigBit bit) ثابت
 	{
 		bool found = false;
-		if (signal_consumers.count(bit)) {
-			const pool<PortBit> &r = signal_consumers.at(bit);
+		אם (signal_consumers.count(bit)) {
+			ثابت pool<PortBit> &r = signal_consumers.at(bit);
 			result.insert(r.begin(), r.end());
 			found = true;
 		}
-		return found;
+		החזר found;
 	}
 
-	inline bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
+	مضمن bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) ثابت
 	{
 		bool found = false;
-		if (signal_inputs.count(bit))
+		אם (signal_inputs.count(bit))
 			result.insert(bit), found = true;
-		return found;
+		החזר found;
 	}
 
-	inline bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
+	مضمن bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) ثابت
 	{
 		bool found = false;
-		if (signal_outputs.count(bit))
+		אם (signal_outputs.count(bit))
 			result.insert(bit), found = true;
-		return found;
+		החזר found;
 	}
 
 	// get_* methods -- container of RTLIL::SigBit's (always by reference)
 
 	template<typename T>
-	inline bool get_drivers(pool<PortBit> &result, const T &bits) const
+	مضمن bool get_drivers(pool<PortBit> &result, ثابت T &bits) ثابت
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_drivers.count(bit)) {
-				const pool<PortBit> &r = signal_drivers.at(bit);
+		עבור (RTLIL::SigBit bit : bits)
+			אם (signal_drivers.count(bit)) {
+				ثابت pool<PortBit> &r = signal_drivers.at(bit);
 				result.insert(r.begin(), r.end());
 				found = true;
 			}
-		return found;
+		החזר found;
 	}
 
 	template<typename T>
-	inline bool get_consumers(pool<PortBit> &result, const T &bits) const
+	مضمن bool get_consumers(pool<PortBit> &result, ثابت T &bits) ثابت
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_consumers.count(bit)) {
-				const pool<PortBit> &r = signal_consumers.at(bit);
+		עבור (RTLIL::SigBit bit : bits)
+			אם (signal_consumers.count(bit)) {
+				ثابت pool<PortBit> &r = signal_consumers.at(bit);
 				result.insert(r.begin(), r.end());
 				found = true;
 			}
-		return found;
+		החזר found;
 	}
 
 	template<typename T>
-	inline bool get_inputs(pool<RTLIL::SigBit> &result, const T &bits) const
+	مضمن bool get_inputs(pool<RTLIL::SigBit> &result, ثابت T &bits) ثابت
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_inputs.count(bit))
+		עבור (RTLIL::SigBit bit : bits)
+			אם (signal_inputs.count(bit))
 				result.insert(bit), found = true;
-		return found;
+		החזר found;
 	}
 
 	template<typename T>
-	inline bool get_outputs(pool<RTLIL::SigBit> &result, const T &bits) const
+	مضمن bool get_outputs(pool<RTLIL::SigBit> &result, ثابت T &bits) ثابت
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_outputs.count(bit))
+		עבור (RTLIL::SigBit bit : bits)
+			אם (signal_outputs.count(bit))
 				result.insert(bit), found = true;
-		return found;
+		החזר found;
 	}
 
 	// get_* methods -- call by RTLIL::SigSpec (always by value)
 
-	bool get_drivers(pool<PortBit> &result, RTLIL::SigSpec signal) const
+	bool get_drivers(pool<PortBit> &result, RTLIL::SigSpec إشارة) ثابت
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_drivers(result, bits);
+		std::vector<RTLIL::SigBit> bits = sigmap(إشارة);
+		החזר get_drivers(result, bits);
 	}
 
-	bool get_consumers(pool<PortBit> &result, RTLIL::SigSpec signal) const
+	bool get_consumers(pool<PortBit> &result, RTLIL::SigSpec إشارة) ثابت
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_consumers(result, bits);
+		std::vector<RTLIL::SigBit> bits = sigmap(إشارة);
+		החזר get_consumers(result, bits);
 	}
 
-	bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
+	bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec إشارة) ثابت
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_inputs(result, bits);
+		std::vector<RTLIL::SigBit> bits = sigmap(إشارة);
+		החזר get_inputs(result, bits);
 	}
 
-	bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
+	bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec إشارة) ثابت
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_outputs(result, bits);
+		std::vector<RTLIL::SigBit> bits = sigmap(إشارة);
+		החזר get_outputs(result, bits);
 	}
 
 	// has_* methods -- call by reference
 
 	template<typename T>
-	inline bool has_drivers(const T &sig) const {
+	مضمن bool has_drivers(ثابت T &sig) ثابت {
 		pool<PortBit> result;
-		return get_drivers(result, sig);
+		החזר get_drivers(result, sig);
 	}
 
 	template<typename T>
-	inline bool has_consumers(const T &sig) const {
+	مضمن bool has_consumers(ثابت T &sig) ثابت {
 		pool<PortBit> result;
-		return get_consumers(result, sig);
+		החזר get_consumers(result, sig);
 	}
 
 	template<typename T>
-	inline bool has_inputs(const T &sig) const {
+	مضمن bool has_inputs(ثابت T &sig) ثابت {
 		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+		החזר get_inputs(result, sig);
 	}
 
 	template<typename T>
-	inline bool has_outputs(const T &sig) const {
+	مضمن bool has_outputs(ثابت T &sig) ثابت {
 		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+		החזר get_outputs(result, sig);
 	}
 
 	// has_* methods -- call by value
 
-	inline bool has_drivers(RTLIL::SigSpec sig) const {
+	مضمن bool has_drivers(RTLIL::SigSpec sig) ثابت {
 		pool<PortBit> result;
-		return get_drivers(result, sig);
+		החזר get_drivers(result, sig);
 	}
 
-	inline bool has_consumers(RTLIL::SigSpec sig) const {
+	مضمن bool has_consumers(RTLIL::SigSpec sig) ثابت {
 		pool<PortBit> result;
-		return get_consumers(result, sig);
+		החזר get_consumers(result, sig);
 	}
 
-	inline bool has_inputs(RTLIL::SigSpec sig) const {
+	مضمن bool has_inputs(RTLIL::SigSpec sig) ثابت {
 		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+		החזר get_inputs(result, sig);
 	}
 
-	inline bool has_outputs(RTLIL::SigSpec sig) const {
+	مضمن bool has_outputs(RTLIL::SigSpec sig) ثابت {
 		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+		החזר get_outputs(result, sig);
 	}
 };
 

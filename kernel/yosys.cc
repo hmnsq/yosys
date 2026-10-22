@@ -17,9 +17,9 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/log.h"
-#include "kernel/newcelltypes.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/log.h"
+#ضمن "kernel/newcelltypes.h"
 
 #ifdef YOSYS_ENABLE_READLINE
 #  include <readline/readline.h>
@@ -41,134 +41,134 @@
 #ifdef YOSYS_ENABLE_PYTHON
 #  include <Python.h>
 #  include <pybind11/pybind11.h>
-namespace py = pybind11;
+نطاق py = pybind11;
 #endif
 
-#if defined(_WIN32)
+#אם defined(_WIN32)
 #  include <windows.h>
 #  include <io.h>
-#elif defined(__APPLE__)
+#وإلاإذا defined(__APPLE__)
 #  include <mach-o/dyld.h>
 #  include <unistd.h>
 #  include <dirent.h>
 #  include <sys/stat.h>
-#else
+#אחרת
 #  include <unistd.h>
 #  include <dirent.h>
 #  include <sys/types.h>
 #  include <sys/stat.h>
-#  if defined(YOSYS_ENABLE_SPAWN)
+#  אם defined(YOSYS_ENABLE_SPAWN)
 #    include <sys/wait.h>
 #  endif
 #endif
 
-#if !defined(_WIN32) && defined(YOSYS_ENABLE_GLOB)
+#אם !defined(_WIN32) && defined(YOSYS_ENABLE_GLOB)
 #  include <glob.h>
 #endif
 
-#if defined(__FreeBSD__) || defined(__NetBSD__)
+#אם defined(__FreeBSD__) || defined(__NetBSD__)
 #  include <sys/sysctl.h>
 #endif
 
 #ifdef YOSYS_ENABLE_PYTHON
-extern "C" PyObject* PyInit_libyosys();
-extern "C" PyObject* PyInit_pyosys();
-#include <signal.h>
+خارجي "C" PyObject* PyInit_libyosys();
+خارجي "C" PyObject* PyInit_pyosys();
+#ضمن <signal.h>
 #endif
 
-#include <limits.h>
-#include <errno.h>
+#ضمن <limits.h>
+#ضمن <errno.h>
 
 YOSYS_NAMESPACE_BEGIN
 
 Autoidx autoidx(1);
-int yosys_xtrace = 0;
-bool yosys_write_versions = true;
-const char* yosys_maybe_version() {
-	if (yosys_write_versions)
-		return yosys_version_str;
-	else
-		return "Yosys";
+صحيح yosys_xtrace = 0;
+منطقي yosys_write_versions = אמת;
+ثابت حرف* yosys_maybe_version() {
+	אם (yosys_write_versions)
+		החזר yosys_version_str;
+	אחרת
+		החזר "Yosys";
 }
 
-RTLIL::Design *yosys_design = NULL;
+RTLIL::Design *yosys_design = عدم;
 NewCellTypes yosys_celltypes;
 
 #ifdef YOSYS_ENABLE_TCL
-Tcl_Interp *yosys_tcl_interp = NULL;
-Tcl_Interp *yosys_sdc_interp = NULL;
+Tcl_Interp *yosys_tcl_interp = عدم;
+Tcl_Interp *yosys_sdc_interp = عدم;
 #endif
 
 std::set<std::string> yosys_input_files, yosys_output_files;
 
-bool memhasher_active = false;
+منطقي memhasher_active = שקר;
 uint32_t memhasher_rng = 123456;
-std::vector<void*> memhasher_store;
+std::vector<فراغ*> memhasher_store;
 
 std::string yosys_share_dirname;
 std::string yosys_abc_executable;
 
-bool Multithreading::active_ = false;
+منطقي Multithreading::active_ = שקר;
 
-void init_share_dirname();
-void init_abc_executable_name();
+فراغ init_share_dirname();
+فراغ init_abc_executable_name();
 
 Multithreading::Multithreading() {
 	log_assert(!active_);
-	active_ = true;
+	active_ = אמת;
 }
 
 Multithreading::~Multithreading() {
 	log_assert(active_);
-	active_ = false;
+	active_ = שקר;
 }
 
-void Autoidx::ensure_at_least(int v) {
+فراغ Autoidx::ensure_at_least(صحيح v) {
 	log_assert(!Multithreading::active());
 	value = std::max(value, v);
 }
 
-int Autoidx::operator++(int) {
+صحيح Autoidx::operator++(صحيح) {
 	log_assert(!Multithreading::active());
-	return value++;
+	החזר value++;
 }
 
-void memhasher_on()
+فراغ memhasher_on()
 {
-#if defined(__linux__) || defined(__FreeBSD__)
-	memhasher_rng += time(NULL) << 16 ^ getpid();
+#אם defined(__linux__) || defined(__FreeBSD__)
+	memhasher_rng += time(عدم) << 16 ^ getpid();
 #endif
 	memhasher_store.resize(0x10000);
-	memhasher_active = true;
+	memhasher_active = אמת;
 }
 
-void memhasher_off()
+فراغ memhasher_off()
 {
-	for (auto p : memhasher_store)
-		if (p) free(p);
+	עבור (auto p : memhasher_store)
+		אם (p) حرر(p);
 	memhasher_store.clear();
-	memhasher_active = false;
+	memhasher_active = שקר;
 }
 
-void memhasher_do()
+فراغ memhasher_do()
 {
 	memhasher_rng ^= memhasher_rng << 13;
 	memhasher_rng ^= memhasher_rng >> 17;
 	memhasher_rng ^= memhasher_rng << 5;
 
-	int size, index = (memhasher_rng >> 4) & 0xffff;
-	switch (memhasher_rng & 7) {
-		case 0: size =   16; break;
-		case 1: size =  256; break;
-		case 2: size = 1024; break;
-		case 3: size = 4096; break;
-		default: size = 0;
+	صحيح size, index = (memhasher_rng >> 4) & 0xffff;
+	بدل (memhasher_rng & 7) {
+		حالة 0: size =   16; اكسر;
+		حالة 1: size =  256; اكسر;
+		حالة 2: size = 1024; اكسر;
+		حالة 3: size = 4096; اكسر;
+		افتراضي: size = 0;
 	}
-	if (index < 16) size *= 16;
+	אם (index < 16) size *= 16;
 	memhasher_store[index] = realloc(memhasher_store[index], size);
 }
 
-void yosys_banner()
+فراغ yosys_banner()
 {
 	log("\n");
 	log(" /----------------------------------------------------------------------------\\\n");
@@ -179,48 +179,48 @@ void yosys_banner()
 	log(" %s\n", yosys_maybe_version());
 }
 
-#if defined(YOSYS_ENABLE_SPAWN)
-int run_command(const std::string &command, std::function<void(const std::string&)> process_line)
+#אם defined(YOSYS_ENABLE_SPAWN)
+صحيح run_command(ثابت std::string &command, std::function<فراغ(ثابت std::string&)> process_line)
 {
-	if (!process_line)
-		return system(command.c_str());
+	אם (!process_line)
+		החזר system(command.c_str());
 
 	FILE *f = popen(command.c_str(), "r");
-	if (f == nullptr)
-		return -1;
+	אם (f == nullptr)
+		החזר -1;
 
 	std::string line;
-	char logbuf[128];
-	while (true) {
-		if (fgets(logbuf, 128, f) != NULL) {
+	حرف logbuf[128];
+	כלעוד (אמת) {
+		אם (fgets(logbuf, 128, f) != عدم) {
 			line += logbuf;
-			if (!line.empty() && line.back() == '\n')
+			אם (!line.empty() && line.back() == '\n')
 				process_line(line), line.clear();
-		} else if (ferror(f) && errno == EINTR) {
+		} אחרת אם (ferror(f) && errno == EINTR) {
 			clearerr(f);
-			continue;
-		} else {
-			break;
+			استمر;
+		} אחרת {
+			اكسر;
 		}
 	}
-	if (!line.empty())
+	אם (!line.empty())
 		process_line(line);
 
-	int ret = pclose(f);
-	if (ret < 0)
-		return -2;
+	صحيح ret = pclose(f);
+	אם (ret < 0)
+		החזר -2;
 #ifdef _WIN32
-	return ret;
-#else
-	if (!WIFEXITED(ret))
-		return -1;
-	return WEXITSTATUS(ret);
+	החזר ret;
+#אחרת
+	אם (!WIFEXITED(ret))
+		החזר -1;
+	החזר WEXITSTATUS(ret);
 #endif
 }
 #endif
 
-bool already_setup = false;
-bool already_shutdown = false;
+منطقي already_setup = שקר;
+منطقي already_shutdown = שקר;
 
 #ifdef YOSYS_ENABLE_PYTHON
 // Include pyosys as a package for some compatibility with wheels.
@@ -237,17 +237,17 @@ PYBIND11_MODULE(pyosys, m) {
 // This should not affect using wheels as the dylib has to actually be called
 // libyosys_dummy.so for this function to be interacted with at all.
 PYBIND11_MODULE(libyosys_dummy, _) {
-	(void)_;
-	throw py::import_error("Change your import from 'import libyosys' to 'from pyosys import libyosys'.");
+	(فراغ)_;
+	ارم py::import_error("Change your import from 'import libyosys' to 'from pyosys import libyosys'.");
 }
 #endif
 
-void yosys_setup()
+فراغ yosys_setup()
 {
-	if(already_setup)
-		return;
-	already_setup = true;
-	already_shutdown = false;
+	אם(already_setup)
+		החזר;
+	already_setup = אמת;
+	already_shutdown = שקר;
 
 	StaticTwines::init();
 
@@ -255,15 +255,15 @@ void yosys_setup()
 	// Starting Python 3.12, calling PyImport_AppendInittab on an already
 	// initialized platform fails (such as when libyosys is imported
 	// from a Python interpreter)
-	if (!Py_IsInitialized()) {
-		PyImport_AppendInittab((char*)"pyosys.libyosys", PyInit_libyosys);
+	אם (!Py_IsInitialized()) {
+		PyImport_AppendInittab((حرف*)"pyosys.libyosys", PyInit_libyosys);
 		// compatibility with wheels
-		PyImport_AppendInittab((char*)"pyosys", PyInit_pyosys);
+		PyImport_AppendInittab((حرف*)"pyosys", PyInit_pyosys);
 		// prevent catastrophes
-		PyImport_AppendInittab((char*)"libyosys", PyInit_libyosys_dummy);
+		PyImport_AppendInittab((حرف*)"libyosys", PyInit_libyosys_dummy);
 		Py_Initialize();
 		PyRun_SimpleString("import sys");
-		signal(SIGINT, SIG_DFL);
+		إشارة(SIGINT, SIG_DFL);
 	}
 #endif
 
@@ -271,43 +271,43 @@ void yosys_setup()
 	init_abc_executable_name();
 
 	Pass::init_register();
-	yosys_design = new RTLIL::Design;
+	yosys_design = جديد RTLIL::Design;
 	yosys_celltypes.static_cell_types = StaticCellTypes::categories.is_known;
 	log_push();
 }
 
-bool yosys_already_setup()
+منطقي yosys_already_setup()
 {
-	return already_setup;
+	החזר already_setup;
 }
 
-void yosys_shutdown()
+فراغ yosys_shutdown()
 {
-	if(already_shutdown)
-		return;
-	already_setup = false;
-	already_shutdown = true;
+	אם(already_shutdown)
+		החזר;
+	already_setup = שקר;
+	already_shutdown = אמת;
 	log_pop();
 
 	Pass::done_register();
 
 	delete yosys_design;
-	yosys_design = NULL;
+	yosys_design = عدم;
 
 	logger().clear();
 
 #ifdef YOSYS_ENABLE_TCL
-	if (yosys_tcl_interp != NULL) {
-		if (!Tcl_InterpDeleted(yosys_tcl_interp)) {
+	אם (yosys_tcl_interp != عدم) {
+		אם (!Tcl_InterpDeleted(yosys_tcl_interp)) {
 			Tcl_DeleteInterp(yosys_tcl_interp);
 		}
 		Tcl_Finalize();
-		yosys_tcl_interp = NULL;
+		yosys_tcl_interp = عدم;
 	}
 #endif
 
 #ifdef YOSYS_ENABLE_PLUGINS
-	for (auto &it : loaded_plugins)
+	עבור (auto &it : loaded_plugins)
 		dlclose(it.second);
 
 	loaded_plugins.clear();
@@ -322,79 +322,79 @@ void yosys_shutdown()
 #endif
 }
 
-const std::string *create_id_prefix(std::string_view file, int line, std::string_view func)
+ثابت std::string *create_id_prefix(std::string_view file, صحيح line, std::string_view func)
 {
 #ifdef _WIN32
 	size_t pos = file.find_last_of("/\\");
-#else
+#אחרת
 	size_t pos = file.find_last_of('/');
 #endif
-	if (pos != std::string_view::npos)
+	אם (pos != std::string_view::npos)
 		file = file.substr(pos+1);
 
 	pos = func.find_last_of(':');
-	if (pos != std::string_view::npos)
+	אם (pos != std::string_view::npos)
 		func = func.substr(pos+1);
 
-	return new std::string(stringf("$auto$%s:%d:%s$", file, line, func));
+	החזר جديد std::string(stringf("$auto$%s:%d:%s$", file, line, func));
 }
 
 RTLIL::Design *yosys_get_design()
 {
-	return yosys_design;
+	החזר yosys_design;
 }
 
-const char *create_prompt(RTLIL::Design *design, int recursion_counter, bool newline)
+ثابت حرف *create_prompt(RTLIL::Design *design, صحيح recursion_counter, منطقي newline)
 {
-	static char buffer[100];
+	ساكن حرف buffer[100];
 	std::string str = newline ? "\n" : "";
-	if (recursion_counter > 1)
+	אם (recursion_counter > 1)
 		str += stringf("(%d) ", recursion_counter);
 	str += "yosys";
-	if (!design->selected_active_module.empty())
+	אם (!design->selected_active_module.empty())
 		str += stringf(" [%s]", RTLIL::unescape_id(design->twines().str(design->selected_active_module)).c_str());
-	if (!design->full_selection()) {
-		if (design->selected_active_module.empty())
+	אם (!design->full_selection()) {
+		אם (design->selected_active_module.empty())
 			str += "*";
-		else if (design->selection().selected_modules.size() != 1 || design->selection().selected_members.size() != 0 ||
+		אחרת אם (design->selection().selected_modules.size() != 1 || design->selection().selected_members.size() != 0 ||
 				design->selection().selected_modules.count(design->selected_active_module) == 0)
 			str += "*";
 	}
 	snprintf(buffer, 100, "%s> ", str.c_str());
-	return buffer;
+	החזר buffer;
 }
 
-std::vector<std::string> glob_filename(const std::string &filename_pattern)
+std::vector<std::string> glob_filename(ثابت std::string &filename_pattern)
 {
 	std::vector<std::string> results;
 
-#if defined(_WIN32) || !defined(YOSYS_ENABLE_GLOB)
+#אם defined(_WIN32) || !defined(YOSYS_ENABLE_GLOB)
 	results.push_back(filename_pattern);
-#else
+#אחרת
 	glob_t globbuf;
 
-	int err = glob(filename_pattern.c_str(), 0, NULL, &globbuf);
+	صحيح err = glob(filename_pattern.c_str(), 0, عدم, &globbuf);
 
-	if(err == 0) {
-		for (size_t i = 0; i < globbuf.gl_pathc; i++)
+	אם(err == 0) {
+		עבור (size_t i = 0; i < globbuf.gl_pathc; i++)
 			results.push_back(globbuf.gl_pathv[i]);
 		globfree(&globbuf);
-	} else {
+	} אחרת {
 		results.push_back(filename_pattern);
 	}
 #endif
 
-	return results;
+	החזר results;
 }
 
-void rewrite_filename(std::string &filename)
+فراغ rewrite_filename(std::string &filename)
 {
-	if (filename.compare(0, 1, "\"") == 0 && filename.compare(GetSize(filename)-1, std::string::npos, "\"") == 0)
+	אם (filename.compare(0, 1, "\"") == 0 && filename.compare(GetSize(filename)-1, std::string::npos, "\"") == 0)
 		filename = filename.substr(1, GetSize(filename)-2);
-	if (filename.compare(0, 2, "+/") == 0)
+	אם (filename.compare(0, 2, "+/") == 0)
 		filename = proc_share_dirname() + filename.substr(2);
 #ifndef _WIN32
-	if (filename.compare(0, 2, "~/") == 0)
+	אם (filename.compare(0, 2, "~/") == 0)
 		filename = filename.replace(0, 1, getenv("HOME"));
 #endif
 }
@@ -402,21 +402,21 @@ void rewrite_filename(std::string &filename)
 #ifdef YOSYS_ENABLE_TCL
 
 // defined in tclapi.cc
-extern int yosys_tcl_interp_init(Tcl_Interp *interp);
+خارجي صحيح yosys_tcl_interp_init(Tcl_Interp *interp);
 
-extern Tcl_Interp *yosys_get_tcl_interp()
+خارجي Tcl_Interp *yosys_get_tcl_interp()
 {
-	if (yosys_tcl_interp == NULL) {
+	אם (yosys_tcl_interp == عدم) {
 		yosys_tcl_interp = Tcl_CreateInterp();
 		yosys_tcl_interp_init(yosys_tcl_interp);
 	}
-	return yosys_tcl_interp;
+	החזר yosys_tcl_interp;
 }
 
 // Also see SdcPass
-struct TclPass : public Pass {
+بنية TclPass : عام Pass {
 	TclPass() : Pass("tcl", "execute a TCL script file") { }
-	void help() override {
+	فراغ help() override {
 		//   |---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|
 		log("\n");
 		log("    tcl <filename> [args]\n");
@@ -438,20 +438,20 @@ struct TclPass : public Pass {
 		log("The 'result.string' value is then used as the tcl output value of the command.\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *) override {
-		if (args.size() < 2)
+	فراغ execute(std::vector<std::string> args, RTLIL::Design *) override {
+		אם (args.size() < 2)
 			log_cmd_error("Missing script file.\n");
 
 		std::vector<Tcl_Obj*> script_args;
-		for (auto it = args.begin() + 2; it != args.end(); ++it)
+		עבור (auto it = args.begin() + 2; it != args.end(); ++it)
 			script_args.push_back(Tcl_NewStringObj((*it).c_str(), (*it).size()));
 
 		Tcl_Interp *interp = yosys_get_tcl_interp();
 		Tcl_Preserve(interp);
-		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), NULL, Tcl_NewIntObj(script_args.size()), 0);
-		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), NULL, Tcl_NewListObj(script_args.size(), script_args.data()), 0);
-		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), NULL, Tcl_NewStringObj(args[1].c_str(), args[1].size()), 0);
-		if (Tcl_EvalFile(interp, args[1].c_str()) != TCL_OK)
+		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), عدم, Tcl_NewIntObj(script_args.size()), 0);
+		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), عدم, Tcl_NewListObj(script_args.size(), script_args.data()), 0);
+		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), عدم, Tcl_NewStringObj(args[1].c_str(), args[1].size()), 0);
+		אם (Tcl_EvalFile(interp, args[1].c_str()) != TCL_OK)
 			log_cmd_error("TCL interpreter returned an error: %s\n", Tcl_GetStringResult(interp));
 		Tcl_Release(interp);
 	}
@@ -459,7 +459,7 @@ struct TclPass : public Pass {
 
 #endif
 
-#if defined(__linux__) || defined(__CYGWIN__) || defined(__gnu_hurd__)
+#אם defined(__linux__) || defined(__CYGWIN__) || defined(__gnu_hurd__)
 std::string proc_self_dirname()
 {
 	std::string path(4096, '\0');
@@ -467,190 +467,190 @@ std::string proc_self_dirname()
 	// Double until sucess, while avoiding endless loop.  Give up
 	// when symlink is longer than 4096*(2^30) = 4398046511104
 	// bytes.
-	for (int tries = 30; 0 < tries; tries--) {
+	עבור (صحيح tries = 30; 0 < tries; tries--) {
 		buflen = readlink("/proc/self/exe", path.data(), path.size());
-		if (buflen < (ssize_t)path.size())
-			break;
-		else
+		אם (buflen < (ssize_t)path.size())
+			اكسر;
+		אחרת
 			path.resize(path.size() * 2);
 	}
-	if (buflen < 0) {
+	אם (buflen < 0) {
 		log_error("readlink(\"/proc/self/exe\") failed: %s\n", strerror(errno));
 		path.resize(0);
-	} else {
-		while (buflen > 0 && path[buflen-1] != '/')
+	} אחרת {
+		כלעוד (buflen > 0 && path[buflen-1] != '/')
 			buflen--;
 		path.resize(buflen);
 	}
-	return path;
+	החזר path;
 }
-#elif defined(__FreeBSD__) || defined(__NetBSD__)
+#وإلاإذا defined(__FreeBSD__) || defined(__NetBSD__)
 std::string proc_self_dirname()
 {
 #ifdef __NetBSD__
-	int mib[4] = {CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_PATHNAME};
-#else
-	int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+	صحيح mib[4] = {CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_PATHNAME};
+#אחרת
+	صحيح mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
 #endif
 	size_t buflen;
-	char *buffer;
+	حرف *buffer;
 	std::string path;
-	if (sysctl(mib, 4, NULL, &buflen, NULL, 0) != 0)
+	אם (sysctl(mib, 4, عدم, &buflen, عدم, 0) != 0)
 		log_error("sysctl failed: %s\n", strerror(errno));
-	buffer = (char*)malloc(buflen);
-	if (buffer == NULL)
+	buffer = (حرف*)malloc(buflen);
+	אם (buffer == عدم)
 		log_error("malloc failed: %s\n", strerror(errno));
-	if (sysctl(mib, 4, buffer, &buflen, NULL, 0) != 0)
+	אם (sysctl(mib, 4, buffer, &buflen, عدم, 0) != 0)
 		log_error("sysctl failed: %s\n", strerror(errno));
-	while (buflen > 0 && buffer[buflen-1] != '/')
+	כלעוד (buflen > 0 && buffer[buflen-1] != '/')
 		buflen--;
 	path.assign(buffer, buflen);
-	free(buffer);
-	return path;
+	حرر(buffer);
+	החזר path;
 }
-#elif defined(__APPLE__)
+#وإلاإذا defined(__APPLE__)
 std::string proc_self_dirname()
 {
-	char *path = NULL;
+	حرف *path = عدم;
 	uint32_t buflen = 0;
-	while (_NSGetExecutablePath(path, &buflen) != 0)
-		path = (char *) realloc((void *) path, buflen);
-	char resolved[PATH_MAX];
-	if (realpath(path, resolved) != NULL) {
-		free(path);
+	כלעוד (_NSGetExecutablePath(path, &buflen) != 0)
+		path = (حرف *) realloc((فراغ *) path, buflen);
+	حرف resolved[PATH_MAX];
+	אם (realpath(path, resolved) != عدم) {
+		حرر(path);
 		path = strdup(resolved);
 		buflen = strlen(path);
 	}
-	while (buflen > 0 && path[buflen-1] != '/')
+	כלעוד (buflen > 0 && path[buflen-1] != '/')
 		buflen--;
 	std::string str(path, buflen);
-	free(path);
-	return str;
+	حرر(path);
+	החזר str;
 }
-#elif defined(_WIN32)
+#وإلاإذا defined(_WIN32)
 std::string proc_self_dirname()
 {
 	std::wstring wbinpath(4096, L'\0');
-	if (!GetModuleFileNameW(0, &wbinpath[0], wbinpath.size()))
+	אם (!GetModuleFileNameW(0, &wbinpath[0], wbinpath.size()))
 	fprintf(stderr, "GetModuleFileNameW() failed.\n");
 	wbinpath.resize(wbinpath.rfind(L'\\') + 1); // remove filename
 	std::string ubinpath;
-	ubinpath.resize(WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), &ubinpath[0], ubinpath.size(), NULL, NULL) == 0)
+	ubinpath.resize(WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), عدم, 0, عدم, عدم));
+	אם (WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), &ubinpath[0], ubinpath.size(), عدم, عدم) == 0)
 	fprintf(stderr, "WideCharToMultiByte() failed.\n");
-	return ubinpath;
+	החזר ubinpath;
 
 }
-#elif defined(__wasm)
+#وإلاإذا defined(__wasm)
 std::string proc_self_dirname()
 {
-	return "/";
+	החזר "/";
 }
-#elif defined(__OpenBSD__) || defined(__HAIKU__)
-char yosys_path[PATH_MAX];
-char *yosys_argv0;
+#وإلاإذا defined(__OpenBSD__) || defined(__HAIKU__)
+حرف yosys_path[PATH_MAX];
+حرف *yosys_argv0;
 
-std::string proc_self_dirname(void)
+std::string proc_self_dirname(فراغ)
 {
-	char buf[PATH_MAX + 1] = "", *path, *p;
+	حرف buf[PATH_MAX + 1] = "", *path, *p;
 	// if case argv[0] contains a valid path, return it
-	if (strlen(yosys_path) > 0) {
+	אם (strlen(yosys_path) > 0) {
 		p = strrchr(yosys_path, '/');
-		snprintf(buf, sizeof buf, "%*s/", (int)(yosys_path - p), yosys_path);
-		return buf;
+		snprintf(buf, حجم buf, "%*s/", (صحيح)(yosys_path - p), yosys_path);
+		החזר buf;
 	}
 	// if argv[0] does not, reconstruct the path out of $PATH
 	path = strdup(getenv("PATH"));
-	if (!path)
+	אם (!path)
 		log_error("getenv(\"PATH\") failed: %s\n",  strerror(errno));
-	for (p = strtok(path, ":"); p; p = strtok(NULL, ":")) {
-		snprintf(buf, sizeof buf, "%s/%s", p, yosys_argv0);
-		if (access(buf, X_OK) == 0) {
+	עבור (p = strtok(path, ":"); p; p = strtok(عدم, ":")) {
+		snprintf(buf, حجم buf, "%s/%s", p, yosys_argv0);
+		אם (access(buf, X_OK) == 0) {
 			*(strrchr(buf, '/') + 1) = '\0';
-			free(path);
-			return buf;
+			حرر(path);
+			החזר buf;
 		}
 	}
-	free(path);
+	حرر(path);
 	log_error("Can't determine yosys executable path.\n");
-	return NULL;
+	החזר عدم;
 }
-#else
+#אחרת
 	#error "Don't know how to determine process executable base path!"
 #endif
 
-#if defined(__wasm)
-void init_share_dirname()
+#אם defined(__wasm)
+فراغ init_share_dirname()
 {
 	yosys_share_dirname = "/share/";
 }
-#else
-void init_share_dirname()
+#אחרת
+فراغ init_share_dirname()
 {
 #  ifdef YOSYS_ENABLE_PYTHON
 	PyObject *sys_obj = PyImport_ImportModule("sys");
 
-	if (PyObject_HasAttrString(sys_obj, "_pyosys_share_dirname")) {
+	אם (PyObject_HasAttrString(sys_obj, "_pyosys_share_dirname")) {
 		PyObject *share_path_obj = PyObject_GetAttrString(sys_obj, "_pyosys_share_dirname");
-		const char *share_path = PyUnicode_AsUTF8(share_path_obj);
+		ثابت حرف *share_path = PyUnicode_AsUTF8(share_path_obj);
 		yosys_share_dirname = std::string(share_path);
-		return;
+		החזר;
 	}
 #  endif
 	std::string proc_self_path = proc_self_dirname();
-#  if defined(_WIN32) && !defined(YOSYS_WIN32_UNIX_DIR)
+#  אם defined(_WIN32) && !defined(YOSYS_WIN32_UNIX_DIR)
 	std::string proc_share_path = proc_self_path + "share\\";
-	if (check_directory_exists(proc_share_path, true)) {
+	אם (check_directory_exists(proc_share_path, אמת)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		החזר;
 	}
 	proc_share_path = proc_self_path + "..\\share\\";
-	if (check_directory_exists(proc_share_path, true)) {
+	אם (check_directory_exists(proc_share_path, אמת)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		החזר;
 	}
-#  else
+#  אחרת
 	std::string proc_share_path = proc_self_path + "share/";
-	if (check_directory_exists(proc_share_path, true)) {
+	אם (check_directory_exists(proc_share_path, אמת)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		החזר;
 	}
 	proc_share_path = proc_self_path + "../share/" + proc_program_prefix()+ "yosys/";
-	if (check_directory_exists(proc_share_path, true)) {
+	אם (check_directory_exists(proc_share_path, אמת)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		החזר;
 	}
 	proc_share_path = YOSYS_DATDIR "/";
-	if (check_directory_exists(proc_share_path, true)) {
+	אם (check_directory_exists(proc_share_path, אמת)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		החזר;
 	}
 #  endif
 }
 #endif
 
-void init_abc_executable_name()
+فراغ init_abc_executable_name()
 {
 #ifdef ABCEXTERNAL
 	std::string exe_file;
-	if (std::getenv("ABC")) {
+	אם (std::getenv("ABC")) {
 		yosys_abc_executable = std::getenv("ABC");
-	} else {
+	} אחרת {
 		yosys_abc_executable = ABCEXTERNAL;
 	}
-#else
+#אחרת
 	yosys_abc_executable = proc_self_dirname() + proc_program_prefix()+ "yosys-abc";
 #  ifdef _WIN32
-	if (!check_file_exists(yosys_abc_executable + ".exe") && check_file_exists(proc_self_dirname() + "..\\" + proc_program_prefix() + "yosys-abc.exe"))
+	אם (!check_file_exists(yosys_abc_executable + ".exe") && check_file_exists(proc_self_dirname() + "..\\" + proc_program_prefix() + "yosys-abc.exe"))
 		yosys_abc_executable = proc_self_dirname() + "..\\" + proc_program_prefix() + "yosys-abc";
 #  endif
 
 #  ifdef YOSYS_ENABLE_PYTHON
 	PyObject *sys_obj = PyImport_ImportModule("sys");
 
-	if (PyObject_HasAttrString(sys_obj, "_pyosys_abc")) {
+	אם (PyObject_HasAttrString(sys_obj, "_pyosys_abc")) {
 		PyObject *abc_path_obj = PyObject_GetAttrString(sys_obj, "_pyosys_abc");
-		const char *abc_path = PyUnicode_AsUTF8(abc_path_obj);
+		ثابت حرف *abc_path = PyUnicode_AsUTF8(abc_path_obj);
 		yosys_abc_executable = std::string(abc_path);
 	}
 #  endif
@@ -659,111 +659,111 @@ void init_abc_executable_name()
 
 std::string proc_share_dirname()
 {
-	if (yosys_share_dirname.empty())
+	אם (yosys_share_dirname.empty())
 		log_error("init_share_dirname: unable to determine share/ directory!\n");
-	return yosys_share_dirname;
+	החזר yosys_share_dirname;
 }
 
 std::string proc_program_prefix()
 {
-	return YOSYS_PROGRAM_PREFIX;
+	החזר YOSYS_PROGRAM_PREFIX;
 }
 
-bool fgetline(FILE *f, std::string &buffer)
+منطقي fgetline(FILE *f, std::string &buffer)
 {
 	buffer = "";
-	char block[4096];
-	while (1) {
-		if (fgets(block, 4096, f) == NULL)
-			return false;
+	حرف block[4096];
+	כלעוד (1) {
+		אם (fgets(block, 4096, f) == عدم)
+			החזר שקר;
 		buffer += block;
-		if (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r')) {
-			while (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r'))
+		אם (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r')) {
+			כלעוד (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r'))
 				buffer.resize(buffer.size()-1);
-			return true;
+			החזר אמת;
 		}
 	}
 }
 
-static void handle_label(std::string &command, bool &from_to_active, const std::string &run_from, const std::string &run_to)
+ساكن فراغ handle_label(std::string &command, منطقي &from_to_active, ثابت std::string &run_from, ثابت std::string &run_to)
 {
-	int pos = 0;
+	صحيح pos = 0;
 	std::string label;
 
-	while (pos < GetSize(command) && (command[pos] == ' ' || command[pos] == '\t'))
+	כלעוד (pos < GetSize(command) && (command[pos] == ' ' || command[pos] == '\t'))
 		pos++;
 
-	if (pos < GetSize(command) && command[pos] == '#')
-		return;
+	אם (pos < GetSize(command) && command[pos] == '#')
+		החזר;
 
-	while (pos < GetSize(command) && command[pos] != ' ' && command[pos] != '\t' && command[pos] != '\r' && command[pos] != '\n')
+	כלעוד (pos < GetSize(command) && command[pos] != ' ' && command[pos] != '\t' && command[pos] != '\r' && command[pos] != '\n')
 		label += command[pos++];
 
-	if (GetSize(label) > 1 && label.back() == ':')
+	אם (GetSize(label) > 1 && label.back() == ':')
 	{
 		label = label.substr(0, GetSize(label)-1);
 		command = command.substr(pos);
 
-		if (label == run_from)
-			from_to_active = true;
-		else if (label == run_to || (run_from == run_to && !run_from.empty()))
-			from_to_active = false;
+		אם (label == run_from)
+			from_to_active = אמת;
+		אחרת אם (label == run_to || (run_from == run_to && !run_from.empty()))
+			from_to_active = שקר;
 	}
 }
 
-bool run_frontend(std::string filename, std::string command, RTLIL::Design *design, std::string *from_to_label)
+منطقي run_frontend(std::string filename, std::string command, RTLIL::Design *design, std::string *from_to_label)
 {
-	if (design == nullptr)
+	אם (design == nullptr)
 		design = yosys_design;
 
-	if (command == "auto") {
+	אם (command == "auto") {
 	  std::string filename_trim = filename;
 
-	  auto has_extension = [](const std::string& filename, const std::string& extension) {
-	    if (filename.size() >= extension.size()) {
-	      return filename.compare(filename.size() - extension.size(), extension.size(), extension) == 0;
+	  auto has_extension = [](ثابت std::string& filename, ثابت std::string& extension) {
+	    אם (filename.size() >= extension.size()) {
+	      החזר filename.compare(filename.size() - extension.size(), extension.size(), extension) == 0;
 	    }
-	    return false;
+	    החזר שקר;
 	  };
 
-	  if (has_extension(filename_trim, ".gz")) {
+	  אם (has_extension(filename_trim, ".gz")) {
 	    filename_trim.erase(filename_trim.size() - 3);
 	  }
 
-	  if (has_extension(filename_trim, ".v")) {
+	  אם (has_extension(filename_trim, ".v")) {
 	    command = " -vlog2k";
-	  } else if (has_extension(filename_trim, ".sv")) {
+	  } אחרת אם (has_extension(filename_trim, ".sv")) {
 	    command = " -sv";
-	  } else if (has_extension(filename_trim, ".vhd") || has_extension(filename_trim, ".vhdl")) {
+	  } אחרת אם (has_extension(filename_trim, ".vhd") || has_extension(filename_trim, ".vhdl")) {
 	    command = " -vhdl";
-	  } else if (has_extension(filename_trim, ".blif") || has_extension(filename_trim, ".eblif")) {
+	  } אחרת אם (has_extension(filename_trim, ".blif") || has_extension(filename_trim, ".eblif")) {
 	    command = "blif";
-	  } else if (has_extension(filename_trim, ".json")) {
+	  } אחרת אם (has_extension(filename_trim, ".json")) {
 	    command = "json";
-	  } else if (has_extension(filename_trim, ".il")) {
+	  } אחרת אם (has_extension(filename_trim, ".il")) {
 	    command = "rtlil";
-	  } else if (has_extension(filename_trim, ".ys")) {
+	  } אחרת אם (has_extension(filename_trim, ".ys")) {
 	    command = "script";
-	  } else if (has_extension(filename_trim, ".tcl")) {
+	  } אחרת אם (has_extension(filename_trim, ".tcl")) {
 	    command = "tcl";
-	  } else if (filename == "-") {
+	  } אחרת אם (filename == "-") {
 	    command = "script";
-	  } else {
+	  } אחרת {
 	    log_error("Can't guess frontend for input file `%s' (missing -f option)!\n", filename);
 	  }
 	}
 
-	if (command == "script")
+	אם (command == "script")
 	{
 		std::string run_from, run_to;
-		bool from_to_active = true;
+		منطقي from_to_active = אמת;
 
-		if (from_to_label != NULL) {
+		אם (from_to_label != عدم) {
 			size_t pos = from_to_label->find(':');
-			if (pos == std::string::npos) {
+			אם (pos == std::string::npos) {
 				run_from = *from_to_label;
 				run_to = *from_to_label;
-			} else {
+			} אחרת {
 				run_from = from_to_label->substr(0, pos);
 				run_to = from_to_label->substr(pos+1);
 			}
@@ -775,92 +775,92 @@ bool run_frontend(std::string filename, std::string command, RTLIL::Design *desi
 
 		FILE *f = stdin;
 
-		if (filename != "-") {
+		אם (filename != "-") {
 			f = fopen(filename.c_str(), "r");
 			yosys_input_files.insert(filename);
 		}
 
-		if (f == NULL)
+		אם (f == عدم)
 			log_error("Can't open script file `%s' for reading: %s\n", filename, strerror(errno));
 
 		FILE *backup_script_file = Frontend::current_script_file;
 		std::string backup_script_filename = Frontend::current_script_filename;
-		int backup_script_lineno = Frontend::current_script_lineno;
+		صحيح backup_script_lineno = Frontend::current_script_lineno;
 		Frontend::current_script_file = f;
 		Frontend::current_script_filename = filename;
 		Frontend::current_script_lineno = 0;
 
-		try {
+		حاول {
 			std::string command;
-			while (fgetline(f, command)) {
+			כלעוד (fgetline(f, command)) {
 				Frontend::current_script_lineno++;
-				while (!command.empty() && command[command.size()-1] == '\\') {
+				כלעוד (!command.empty() && command[command.size()-1] == '\\') {
 					std::string next_line;
-					if (!fgetline(f, next_line))
-						break;
+					אם (!fgetline(f, next_line))
+						اكسر;
 					Frontend::current_script_lineno++;
 					command.resize(command.size()-1);
 					command += next_line;
 				}
 				handle_label(command, from_to_active, run_from, run_to);
-				if (from_to_active) {
+				אם (from_to_active) {
 					Pass::call(design, command);
 					design->check();
 				}
 			}
 
-			if (!command.empty()) {
+			אם (!command.empty()) {
 				handle_label(command, from_to_active, run_from, run_to);
-				if (from_to_active) {
+				אם (from_to_active) {
 					Frontend::current_script_lineno++;
 					Pass::call(design, command);
 					design->check();
 				}
 			}
 		}
-		catch (...) {
+		امسك (...) {
 			Frontend::current_script_file = backup_script_file;
 			Frontend::current_script_filename = backup_script_filename;
 			Frontend::current_script_lineno = backup_script_lineno;
-			throw;
+			ارم;
 		}
 
 		Frontend::current_script_file = backup_script_file;
 		Frontend::current_script_filename = backup_script_filename;
 		Frontend::current_script_lineno = backup_script_lineno;
 
-		if (filename != "-")
+		אם (filename != "-")
 			fclose(f);
 
-		return true;
+		החזר אמת;
 	}
 
-	if (command == "tcl") {
+	אם (command == "tcl") {
 		Pass::call(design, vector<string>({command, filename}));
-		return true;
+		החזר אמת;
 	}
 
 	log("\n");
-	if (filename == "-") {
+	אם (filename == "-") {
 		log_comment("-- Parsing stdin using frontend `%s' --\n", command);
-	} else {
+	} אחרת {
 		log_comment("-- Parsing `%s' using frontend `%s' --\n", filename, command);
 	}
 
-	if (command[0] == ' ') {
+	אם (command[0] == ' ') {
 		auto argv = split_tokens("read" + command);
 		argv.push_back(filename);
 		Pass::call(design, argv);
-	} else
-		Frontend::frontend_call(design, NULL, filename, command);
+	} אחרת
+		Frontend::frontend_call(design, عدم, filename, command);
 
 	design->check();
-	return false;
+	החזר שקר;
 }
 
-void run_pass(std::string command, RTLIL::Design *design)
+فراغ run_pass(std::string command, RTLIL::Design *design)
 {
-	if (design == nullptr)
+	אם (design == nullptr)
 		design = yosys_design;
 
 	log("\n");
@@ -869,109 +869,109 @@ void run_pass(std::string command, RTLIL::Design *design)
 	Pass::call(design, command);
 }
 
-void run_backend(std::string filename, std::string command, RTLIL::Design *design)
+فراغ run_backend(std::string filename, std::string command, RTLIL::Design *design)
 {
-	if (design == nullptr)
+	אם (design == nullptr)
 		design = yosys_design;
 
-	if (command == "auto") {
-		if (filename.size() > 2 && filename.compare(filename.size()-2, std::string::npos, ".v") == 0)
+	אם (command == "auto") {
+		אם (filename.size() > 2 && filename.compare(filename.size()-2, std::string::npos, ".v") == 0)
 			command = "verilog";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".sv") == 0)
+		אחרת אם (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".sv") == 0)
 			command = "verilog -sv";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".il") == 0)
+		אחרת אם (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".il") == 0)
 			command = "rtlil";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".cc") == 0)
+		אחרת אם (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".cc") == 0)
 			command = "cxxrtl";
-		else if (filename.size() > 4 && filename.compare(filename.size()-4, std::string::npos, ".aig") == 0)
+		אחרת אם (filename.size() > 4 && filename.compare(filename.size()-4, std::string::npos, ".aig") == 0)
 			command = "aiger";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".blif") == 0)
+		אחרת אם (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".blif") == 0)
 			command = "blif";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".edif") == 0)
+		אחרת אם (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".edif") == 0)
 			command = "edif";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".json") == 0)
+		אחרת אם (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".json") == 0)
 			command = "json";
-		else if (filename == "-")
+		אחרת אם (filename == "-")
 			command = "rtlil";
-		else if (filename.empty())
-			return;
-		else
+		אחרת אם (filename.empty())
+			החזר;
+		אחרת
 			log_error("Can't guess backend for output file `%s' (missing -b option)!\n", filename);
 	}
 
-	if (filename.empty())
+	אם (filename.empty())
 		filename = "-";
 
 	log("\n");
-	if (filename == "-") {
+	אם (filename == "-") {
 		log_comment("-- Writing to stdout using backend `%s' --\n", command);
-	} else {
+	} אחרת {
 		log_comment("-- Writing to `%s' using backend `%s' --\n", filename, command);
 	}
 
-	Backend::backend_call(design, NULL, filename, command);
+	Backend::backend_call(design, عدم, filename, command);
 }
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-static char *readline_cmd_generator(const char *text, int state)
+#אם defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+ساكن حرف *readline_cmd_generator(ثابت حرف *text, صحيح state)
 {
-	static std::map<std::string, Pass*>::iterator it;
-	static int len;
+	ساكن std::map<std::string, Pass*>::iterator it;
+	ساكن صحيح len;
 
-	if (!state) {
+	אם (!state) {
 		it = pass_register.begin();
 		len = strlen(text);
 	}
 
-	for (; it != pass_register.end(); it++) {
-		if (it->first.compare(0, len, text) == 0)
-			return strdup((it++)->first.c_str());
+	עבור (; it != pass_register.end(); it++) {
+		אם (it->first.compare(0, len, text) == 0)
+			החזר strdup((it++)->first.c_str());
 	}
-	return NULL;
+	החזר عدم;
 }
 
-static char *readline_obj_generator(const char *text, int state)
+ساكن حرف *readline_obj_generator(ثابت حرف *text, صحيح state)
 {
-	static std::vector<char*> obj_names;
-	static size_t idx;
+	ساكن std::vector<حرف*> obj_names;
+	ساكن size_t idx;
 
-	if (!state)
+	אם (!state)
 	{
 		idx = 0;
 		obj_names.clear();
 
 		RTLIL::Design *design = yosys_get_design();
-		int len = strlen(text);
+		صحيح len = strlen(text);
 
-		if (design->selected_active_module.empty())
+		אם (design->selected_active_module.empty())
 		{
-			for (auto mod : design->modules()) {
+			עבור (auto mod : design->modules()) {
 				std::string mod_name = mod->name.unescape();
-				if (mod_name.compare(0, len, text) == 0)
+				אם (mod_name.compare(0, len, text) == 0)
 					obj_names.push_back(strdup(mod_name.c_str()));
 			}
 		}
-		else if (design->module(design->selected_active_module) != nullptr)
+		אחרת אם (design->module(design->selected_active_module) != nullptr)
 		{
 			RTLIL::Module *module = design->module(design->selected_active_module);
 
-			for (auto w : module->wires())
-				if (w->name.unescape().compare(0, len, text) == 0)
+			עבור (auto w : module->wires())
+				אם (w->name.unescape().compare(0, len, text) == 0)
 					obj_names.push_back(strdup(w->name.unescape().c_str()));
 
-			for (auto &it : module->memories) {
+			עבור (auto &it : module->memories) {
 				std::string mem_name = design->twines().unescaped_str(it.first);
-				if (mem_name.compare(0, len, text) == 0)
+				אם (mem_name.compare(0, len, text) == 0)
 					obj_names.push_back(strdup(mem_name.c_str()));
 			}
 
-			for (auto cell : module->cells())
-				if (cell->name.unescape().compare(0, len, text) == 0)
+			עבור (auto cell : module->cells())
+				אם (cell->name.unescape().compare(0, len, text) == 0)
 					obj_names.push_back(strdup(cell->name.unescape().c_str()));
 
-			for (auto &it : module->processes) {
+			עבור (auto &it : module->processes) {
 				std::string proc_name = design->twines().unescaped_str(it.first);
-				if (proc_name.compare(0, len, text) == 0)
+				אם (proc_name.compare(0, len, text) == 0)
 					obj_names.push_back(strdup(proc_name.c_str()));
 			}
 		}
@@ -979,94 +979,94 @@ static char *readline_obj_generator(const char *text, int state)
 		std::sort(obj_names.begin(), obj_names.end());
 	}
 
-	if (idx < obj_names.size())
-		return strdup(obj_names[idx++]);
+	אם (idx < obj_names.size())
+		החזר strdup(obj_names[idx++]);
 
 	idx = 0;
 	obj_names.clear();
-	return NULL;
+	החזר عدم;
 }
 
-static char **readline_completion(const char *text, int start, int)
+ساكن حرف **readline_completion(ثابت حرف *text, صحيح start, صحيح)
 {
-	if (start == 0)
-		return rl_completion_matches(text, readline_cmd_generator);
-	if (strncmp(rl_line_buffer, "read_", 5) && strncmp(rl_line_buffer, "write_", 6))
-		return rl_completion_matches(text, readline_obj_generator);
-	return NULL;
+	אם (start == 0)
+		החזר rl_completion_matches(text, readline_cmd_generator);
+	אם (strncmp(rl_line_buffer, "read_", 5) && strncmp(rl_line_buffer, "write_", 6))
+		החזר rl_completion_matches(text, readline_obj_generator);
+	החזר عدم;
 }
 #endif
 
-void shell(RTLIL::Design *design)
+فراغ shell(RTLIL::Design *design)
 {
-	static int recursion_counter = 0;
+	ساكن صحيح recursion_counter = 0;
 
 	recursion_counter++;
 	auto guard = logger().error_throw_scope();
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	rl_readline_name = (char*)"yosys";
+#אם defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	rl_readline_name = (حرف*)"yosys";
 	rl_attempted_completion_function = readline_completion;
-	rl_basic_word_break_characters = (char*)" \t\n";
+	rl_basic_word_break_characters = (حرف*)" \t\n";
 #endif
 
-	char *command = NULL;
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	while ((command = readline(create_prompt(design, recursion_counter))) != NULL)
+	حرف *command = عدم;
+#אם defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	כלעוד ((command = readline(create_prompt(design, recursion_counter))) != عدم)
 	{
-#else
-	char command_buffer[4096];
-	while (1)
+#אחרת
+	حرف command_buffer[4096];
+	כלעוד (1)
 	{
 		fputs(create_prompt(design, recursion_counter), stdout);
 		fflush(stdout);
-		if ((command = fgets(command_buffer, 4096, stdin)) == NULL)
-			break;
+		אם ((command = fgets(command_buffer, 4096, stdin)) == عدم)
+			اكسر;
 #endif
-		if (command[strspn(command, " \t\r\n")] == 0) {
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-			free(command);
+		אם (command[strspn(command, " \t\r\n")] == 0) {
+#אם defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+			حرر(command);
 #endif
-			continue;
+			استمر;
 		}
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+#אם defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
 		add_history(command);
 #endif
 
-		char *p = command + strspn(command, " \t\r\n");
-		if (!strncmp(p, "exit", 4)) {
+		حرف *p = command + strspn(command, " \t\r\n");
+		אם (!strncmp(p, "exit", 4)) {
 			p += 4;
 			p += strspn(p, " \t\r\n");
-			if (*p == 0)
-				break;
+			אם (*p == 0)
+				اكسر;
 		}
 
-		try {
+		حاول {
 			log_assert(design->selection_stack.size() == 1);
 			Pass::call(design, command);
-		} catch (log_cmd_error_exception) {
-			while (design->selection_stack.size() > 1)
+		} امسك (log_cmd_error_exception) {
+			כלעוד (design->selection_stack.size() > 1)
 				design->pop_selection();
 			log_reset_stack();
 		}
 		design->check();
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-		if (command)
-			free(command);
+#אם defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+		אם (command)
+			حرر(command);
 #endif
 	}
-	if (command == NULL)
+	אם (command == عدم)
 		printf("exit\n");
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	else
-		free(command);
+#אם defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	אחרת
+		حرر(command);
 #endif
 	recursion_counter--;
 }
 
-struct ShellPass : public Pass {
+بنية ShellPass : عام Pass {
 	ShellPass() : Pass("shell", "enter interactive command mode") { }
-	void help() override {
+	فراغ help() override {
 		log("\n");
 		log("    shell\n");
 		log("\n");
@@ -1098,16 +1098,16 @@ struct ShellPass : public Pass {
 		log("Press Ctrl-D or type 'exit' to leave the interactive shell.\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override {
-		extra_args(args, 1, design, false);
+	فراغ execute(std::vector<std::string> args, RTLIL::Design *design) override {
+		extra_args(args, 1, design, שקר);
 		shell(design);
 	}
 } ShellPass;
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-struct HistoryPass : public Pass {
+#אם defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+بنية HistoryPass : عام Pass {
 	HistoryPass() : Pass("history", "show last interactive commands") { }
-	void help() override {
+	فراغ help() override {
 		log("\n");
 		log("    history\n");
 		log("\n");
@@ -1116,22 +1116,22 @@ struct HistoryPass : public Pass {
 		log("from executed scripts.\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override {
-		extra_args(args, 1, design, false);
+	فراغ execute(std::vector<std::string> args, RTLIL::Design *design) override {
+		extra_args(args, 1, design, שקר);
 #ifdef YOSYS_ENABLE_READLINE
-		for(HIST_ENTRY **list = history_list(); *list != NULL; list++)
+		עבור(HIST_ENTRY **list = history_list(); *list != عدم; list++)
 			log("%s\n", (*list)->line);
-#else
-		for (int i = where_history(); history_get(i); i++)
+#אחרת
+		עבור (صحيح i = where_history(); history_get(i); i++)
 			log("%s\n", history_get(i)->line);
 #endif
 	}
 } HistoryPass;
 #endif
 
-struct ScriptCmdPass : public Pass {
+بنية ScriptCmdPass : عام Pass {
 	ScriptCmdPass() : Pass("script", "execute commands from file or wire") { }
-	void help() override {
+	فراغ help() override {
 		//   |---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|
 		log("\n");
 		log("    script <filename> [<from_label>:<to_label>]\n");
@@ -1154,42 +1154,42 @@ struct ScriptCmdPass : public Pass {
 		log("'-module' mode can be exited by using the 'cd' command.\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override
+	فراغ execute(std::vector<std::string> args, RTLIL::Design *design) override
 	{
-		bool scriptwire = false;
+		منطقي scriptwire = שקר;
 
 		size_t argidx;
-		for (argidx = 1; argidx < args.size(); argidx++) {
-			if (args[argidx] == "-scriptwire") {
-				scriptwire = true;
-				continue;
+		עבור (argidx = 1; argidx < args.size(); argidx++) {
+			אם (args[argidx] == "-scriptwire") {
+				scriptwire = אמת;
+				استمر;
 			}
-			break;
+			اكسر;
 		}
-		if (scriptwire) {
+		אם (scriptwire) {
 			extra_args(args, argidx, design);
 
-			for (auto mod : design->selected_modules())
-				for (auto &c : mod->connections()) {
-					if (!c.first.is_wire())
-						continue;
+			עבור (auto mod : design->selected_modules())
+				עבור (auto &c : mod->connections()) {
+					אם (!c.first.is_wire())
+						استمر;
 					auto w = c.first.as_wire();
-					if (!mod->selected(w))
-						continue;
-					if (!c.second.is_fully_const())
+					אם (!mod->selected(w))
+						استمر;
+					אם (!c.second.is_fully_const())
 						log_error("RHS of selected wire %s.%s is not constant.\n", mod, w);
 					auto v = c.second.as_const();
 					Pass::call_on_module(design, mod, v.decode_string());
 				}
 		}
-		else if (args.size() < 2)
+		אחרת אם (args.size() < 2)
 			log_cmd_error("Missing script file.\n");
-		else if (args.size() == 2)
+		אחרת אם (args.size() == 2)
 			run_frontend(args[1], "script", design);
-		else if (args.size() == 3)
+		אחרת אם (args.size() == 3)
 			run_frontend(args[1], "script", design, &args[2]);
-		else
-			extra_args(args, 2, design, false);
+		אחרת
+			extra_args(args, 2, design, שקר);
 	}
 } ScriptCmdPass;
 

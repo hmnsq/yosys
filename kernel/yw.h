@@ -20,28 +20,28 @@
 #ifndef YW_H
 #define YW_H
 
-#include "kernel/yosys.h"
-#include "kernel/mem.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/mem.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct IdPath : public std::vector<std::string>
+بنية IdPath : عام std::vector<std::string>
 {
 	template<typename... T>
 	IdPath(T&&... args) : std::vector<std::string>(std::forward<T>(args)...) { }
-	IdPath prefix() const { return {begin(), end() - !empty()}; }
-	std::string str() const;
+	IdPath prefix() ثابت { החזר {begin(), end() - !empty()}; }
+	std::string str() ثابت;
 
-	bool has_address() const { int tmp; return get_address(tmp); };
-	bool get_address(int &addr) const;
+	bool has_address() ثابت { صحيح tmp; החזר get_address(tmp); };
+	bool get_address(صحيح &addr) ثابت;
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
-		h.eat(static_cast<const std::vector<std::string>&&>(*this));
-		return h;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
+		h.eat(static_cast<ثابت std::vector<std::string>&&>(*this));
+		החזר h;
 	}
 };
 
-struct WitnessHierarchyItem {
+بنية WitnessHierarchyItem {
 	RTLIL::Module *module;
 	RTLIL::Wire *wire = nullptr;
 	RTLIL::Cell *cell = nullptr;
@@ -53,39 +53,39 @@ struct WitnessHierarchyItem {
 };
 
 template<typename D, typename T>
-void witness_hierarchy(RTLIL::Module *module, D data, T callback);
+فراغ witness_hierarchy(RTLIL::Module *module, D data, T callback);
 
-template<class T> static std::vector<std::string> witness_path(T *obj) {
+template<class T> ساكن std::vector<std::string> witness_path(T *obj) {
 	std::vector<std::string> path;
-	if (obj->name.isPublic()) {
+	אם (obj->name.isPublic()) {
 		auto hdlname = obj->get_string_attribute(ID::hdlname);
-		for (auto token : split_tokens(hdlname))
+		עבור (auto token : split_tokens(hdlname))
 			path.push_back("\\" + token);
 	}
-	if (path.empty())
+	אם (path.empty())
 		path.push_back(obj->name.str());
-	return path;
+	החזר path;
 }
 
-struct ReadWitness
+بنية ReadWitness
 {
-	struct Clock {
+	بنية Clock {
 		IdPath path;
-		int offset;
+		صحيح offset;
 		bool is_posedge = false;
 		bool is_negedge = false;
 	};
 
-	struct Signal {
+	بنية Signal {
 		IdPath path;
-		int offset;
-		int width;
+		صحيح offset;
+		صحيح width;
 		bool init_only;
 
-		int bits_offset;
+		صحيح bits_offset;
 	};
 
-	struct Step {
+	بنية Step {
 		std::string bits;
 	};
 
@@ -94,50 +94,50 @@ struct ReadWitness
 	std::vector<Signal> signals;
 	std::vector<Step> steps;
 
-	ReadWitness(const std::string &filename);
+	ReadWitness(ثابت std::string &filename);
 
-	RTLIL::Const get_bits(int t, int bits_offset, int width) const;
+	RTLIL::Const get_bits(صحيح t, صحيح bits_offset, صحيح width) ثابت;
 };
 
 template<typename D, typename T>
-void witness_hierarchy_recursion(IdPath &path, int hdlname_mode, RTLIL::Module *module, D data, T &callback)
+فراغ witness_hierarchy_recursion(IdPath &path, صحيح hdlname_mode, RTLIL::Module *module, D data, T &callback)
 {
-	auto const &const_path = path;
+	auto ثابت &const_path = path;
 	size_t path_size = path.size();
-	for (auto wire : module->wires())
+	עבור (auto wire : module->wires())
 	{
 		auto hdlname = hdlname_mode < 0 ? std::vector<std::string>() : wire->get_hdlname_attribute();
-		for (auto item : hdlname)
+		עבור (auto item : hdlname)
 			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && wire->name == path.back())
+		אם (hdlname.size() == 1 && wire->name == path.back())
 			hdlname.clear();
-		if (!hdlname.empty())
+		אם (!hdlname.empty())
 			callback(const_path, WitnessHierarchyItem(module, wire), data);
 		path.resize(path_size);
-		if (hdlname.empty() || hdlname_mode <= 0) {
+		אם (hdlname.empty() || hdlname_mode <= 0) {
 			path.push_back(wire->name);
 			callback(const_path, WitnessHierarchyItem(module, wire), data);
 			path.pop_back();
 		}
 	}
 
-	for (auto cell : module->cells())
+	עבור (auto cell : module->cells())
 	{
 		Module *child = module->design->module(cell->type);
-		if (child == nullptr)
-			continue;
+		אם (child == nullptr)
+			استمر;
 
 		auto hdlname = hdlname_mode < 0 ? std::vector<std::string>() : cell->get_hdlname_attribute();
-		for (auto item : hdlname)
+		עבור (auto item : hdlname)
 			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && cell->name == path.back())
+		אם (hdlname.size() == 1 && cell->name == path.back())
 			hdlname.clear();
-		if (!hdlname.empty()) {
+		אם (!hdlname.empty()) {
 			D child_data = callback(const_path, WitnessHierarchyItem(module, cell), data);
 			witness_hierarchy_recursion<D, T>(path, 1, child, child_data, callback);
 		}
 		path.resize(path_size);
-		if (hdlname.empty() || hdlname_mode <= 0) {
+		אם (hdlname.empty() || hdlname_mode <= 0) {
 			path.push_back(cell->name);
 			D child_data = callback(const_path, WitnessHierarchyItem(module, cell), data);
 			witness_hierarchy_recursion<D, T>(path, hdlname.empty() ? hdlname_mode : -1, child, child_data, callback);
@@ -145,26 +145,26 @@ void witness_hierarchy_recursion(IdPath &path, int hdlname_mode, RTLIL::Module *
 		}
 	}
 
-	for (auto mem : Mem::get_all_memories(module)) {
+	עבור (auto mem : Mem::get_all_memories(module)) {
 		std::vector<std::string> hdlname;
 
-		if (hdlname_mode >= 0 && mem.cell != nullptr)
+		אם (hdlname_mode >= 0 && mem.cell != nullptr)
 			hdlname = mem.cell->get_hdlname_attribute();
-		for (auto item : hdlname)
+		עבור (auto item : hdlname)
 			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && mem.cell->name == path.back())
+		אם (hdlname.size() == 1 && mem.cell->name == path.back())
 			hdlname.clear();
-		if (!hdlname.empty()) {
+		אם (!hdlname.empty()) {
 			callback(const_path, WitnessHierarchyItem(module, &mem), data);
 		}
 		path.resize(path_size);
 
-		if (hdlname.empty() || hdlname_mode <= 0) {
+		אם (hdlname.empty() || hdlname_mode <= 0) {
 			path.push_back(mem.memid.str());
 			callback(const_path, WitnessHierarchyItem(module, &mem), data);
 			path.pop_back();
 
-			if (mem.cell != nullptr && mem.cell->name != mem.memid) {
+			אם (mem.cell != nullptr && mem.cell->name != mem.memid) {
 				path.push_back(mem.cell->name);
 				callback(const_path, WitnessHierarchyItem(module, &mem), data);
 				path.pop_back();
@@ -174,7 +174,7 @@ void witness_hierarchy_recursion(IdPath &path, int hdlname_mode, RTLIL::Module *
 }
 
 template<typename D, typename T>
-void witness_hierarchy(RTLIL::Module *module, D data, T callback)
+فراغ witness_hierarchy(RTLIL::Module *module, D data, T callback)
 {
 	IdPath path;
 	witness_hierarchy_recursion<D, T>(path, 0, module, data, callback);

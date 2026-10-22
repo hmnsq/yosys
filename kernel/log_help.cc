@@ -17,118 +17,118 @@
  *
  */
 
-#include "kernel/log_help.h"
+#ضمن "kernel/log_help.h"
 
 USING_YOSYS_NAMESPACE
 
-std::filesystem::path Yosys::fixup_source_path (const char* source_file,
-	const std::filesystem::path &source_root, bool* skip_source_group)
+std::filesystem::path Yosys::fixup_source_path (ثابت حرف* source_file,
+	ثابت std::filesystem::path &source_root, منطقي* skip_source_group)
 {
 	std::filesystem::path source_path(source_file);
-	if (source_path.is_absolute()) {
+	אם (source_path.is_absolute()) {
 		// using proximate instead of relative means that we
 		// still get the source path if they aren't relative
 		auto proximate_path = std::filesystem::proximate(source_path, source_root);
-		if (proximate_path == proximate_path.lexically_normal()) {
+		אם (proximate_path == proximate_path.lexically_normal()) {
 			// we're only interested if it's a subpath of our root dir
 			// if the normal form differs, then the proximate path includes ".."
-			return proximate_path;
-		} else if (skip_source_group != nullptr) {
+			החזר proximate_path;
+		} אחרת אם (skip_source_group != nullptr) {
 			// don't try to group external paths
-			*skip_source_group = true;
+			*skip_source_group = אמת;
 		}
 	}
-	return source_path;
+	החזר source_path;
 }
 
-Json ContentListing::to_json(const std::filesystem::path &source_root) const {
+Json ContentListing::to_json(ثابت std::filesystem::path &source_root) ثابت {
 	Json::object object;
 
 	object["type"] = type;
-	if (body.length())
+	אם (body.length())
 		object["body"] = body;
 
-	if (has_source())
+	אם (has_source())
 		object["source_file"] = fixup_source_path(source_file, source_root).string();
-	if (source_line != 0)
+	אם (source_line != 0)
 		object["source_line"] = source_line;
 
 	object["options"] = Json(options);
 
 	Json::array content_array;
-	for (auto child : _content)
+	עבור (auto child : _content)
 		content_array.push_back(child.to_json(source_root));
 	object["content"] = content_array;
 
-	return object;
+	החזר object;
 }
 
-void ContentListing::usage(const string &text,
-	const source_location location)
+فراغ ContentListing::usage(ثابت string &text,
+	ثابت source_location location)
 {
 	log_assert(type.compare("root") == 0);
 	add_content("usage", text, location);
 }
 
-void ContentListing::option(const string &text, const string &description,
-	const source_location location)
+فراغ ContentListing::option(ثابت string &text, ثابت string &description,
+	ثابت source_location location)
 {
 	auto option = open_option(text, source_location());
-	if (description.length())
+	אם (description.length())
 		option->add_content("text", description, location);
 }
 
-void ContentListing::codeblock(const string &code, const string &language,
-	const source_location location)
+فراغ ContentListing::codeblock(ثابت string &code, ثابت string &language,
+	ثابت source_location location)
 {
 	add_content("code", code, location);
 	back()->set_option("language", language);
 }
 
-void ContentListing::paragraph(const string &text,
-	const source_location location)
+فراغ ContentListing::paragraph(ثابت string &text,
+	ثابت source_location location)
 {
 	add_content("text", text, location);
 }
 
-ContentListing* ContentListing::open_usage(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_usage(ثابت string &text,
+	ثابت source_location location)
 {
 	usage(text, location);
-	return back();
+	החזר back();
 }
 
-ContentListing* ContentListing::open_option(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_option(ثابت string &text,
+	ثابت source_location location)
 {
 	log_assert(type.compare("root") == 0 || type.compare("usage") == 0);
 	add_content("option", text, location);
-	return back();
+	החזר back();
 }
 
 #define MAX_LINE_LEN 80
-void log_body_str(const std::string &pass_str, std::string indent_str, bool leading_newline=false, bool is_formatted=false) {
-	if (pass_str.empty())
-		return;
+فراغ log_body_str(ثابت std::string &pass_str, std::string indent_str, منطقي leading_newline=שקר, منطقي is_formatted=שקר) {
+	אם (pass_str.empty())
+		החזר;
 	std::istringstream iss(pass_str);
-	if (leading_newline)
+	אם (leading_newline)
 		log("\n");
-	for (std::string line; std::getline(iss, line);) {
+	עבור (std::string line; std::getline(iss, line);) {
 		std::string message = indent_str;
-		if (is_formatted) {
+		אם (is_formatted) {
 			message += line;
-		} else {
+		} אחרת {
 			auto curr_len = indent_str.length();
 			std::istringstream lss(line);
-			for (std::string word; std::getline(lss, word, ' ');) {
-				while (word[0] == '`' && word.back() == '`')
+			עבור (std::string word; std::getline(lss, word, ' ');) {
+				כלעוד (word[0] == '`' && word.back() == '`')
 					word = word.substr(1, word.length()-2);
-				if (curr_len + word.length() >= MAX_LINE_LEN-1) {
+				אם (curr_len + word.length() >= MAX_LINE_LEN-1) {
 					curr_len = 0;
 					log("%s\n", message);
 					message = indent_str;
 				}
-				if (word.length()) {
+				אם (word.length()) {
 					message += word + " ";
 					curr_len += word.length() + 1;
 				}
@@ -137,7 +137,7 @@ void log_body_str(const std::string &pass_str, std::string indent_str, bool lead
 		log("%s\n", message);
 	}
 }
-void log_body(const ContentListing &content, int indent=0, bool leading_newline=false) {
+فراغ log_body(ثابت ContentListing &content, صحيح indent=0, منطقي leading_newline=שקר) {
 	std::string indent_str(indent*4, ' ');
 	log_body_str(content.body, indent_str, leading_newline, content.type.compare("code") == 0);
 }
@@ -149,7 +149,7 @@ PrettyHelp::PrettyHelp()
 	_prior = current_help;
 	_root_listing = ContentListing("root", "");
 
-	current_help = this;
+	current_help = هذا;
 }
 
 PrettyHelp::~PrettyHelp()
@@ -159,24 +159,24 @@ PrettyHelp::~PrettyHelp()
 
 PrettyHelp *PrettyHelp::get_current()
 {
-	if (current_help == nullptr)
-		new PrettyHelp();
-	return current_help;
+	אם (current_help == nullptr)
+		جديد PrettyHelp();
+	החזר current_help;
 }
 
-void PrettyHelp::log_help() const
+فراغ PrettyHelp::log_help() ثابت
 {
-	for (auto &content : _root_listing) {
-		if (content.type.compare("usage") == 0) {
-			log_body(content, 1, true);
+	עבור (auto &content : _root_listing) {
+		אם (content.type.compare("usage") == 0) {
+			log_body(content, 1, אמת);
 			log("\n");
-		} else if (content.type.compare("option") == 0) {
+		} אחרת אם (content.type.compare("option") == 0) {
 			log_body(content, 1);
-			for (auto text : content) {
+			עבור (auto text : content) {
 				log_body(text, 2);
 				log("\n");
 			}
-		} else {
+		} אחרת {
 			log_body(content, 0);
 			log("\n");
 		}
