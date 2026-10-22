@@ -20,41 +20,41 @@
 #ifndef CELLEDGES_H
 #define CELLEDGES_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
+#অন্তর্ভাব "kernel/yosys.h"
+#অন্তর্ভাব "kernel/sigtools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AbstractCellEdgesDatabase
+সংরচনা AbstractCellEdgesDatabase
 {
-	virtual ~AbstractCellEdgesDatabase() { }
-	virtual void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int delay) = 0;
+	আভাস ~AbstractCellEdgesDatabase() { }
+	আভাস শূন্য add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, পূর্ণাঙ্ক from_bit, RTLIL::IdString to_port, পূর্ণাঙ্ক to_bit, পূর্ণাঙ্ক delay) = 0;
 	bool add_edges_from_cell(RTLIL::Cell *cell);
 };
 
-struct FwdCellEdgesDatabase : AbstractCellEdgesDatabase
+সংরচনা FwdCellEdgesDatabase : AbstractCellEdgesDatabase
 {
 	SigMap &sigmap;
 	dict<SigBit, pool<SigBit>> db;
 	FwdCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
+	শূন্য add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, পূর্ণাঙ্ক from_bit, RTLIL::IdString to_port, পূর্ণাঙ্ক to_bit, পূর্ণাঙ্ক) override {
 		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
 		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[from_sigbit].insert(to_sigbit);
+		db[from_sigbit].ঢোকাও(to_sigbit);
 	}
 };
 
-struct RevCellEdgesDatabase : AbstractCellEdgesDatabase
+সংরচনা RevCellEdgesDatabase : AbstractCellEdgesDatabase
 {
 	SigMap &sigmap;
 	dict<SigBit, pool<SigBit>> db;
 	RevCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
+	শূন্য add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, পূর্ণাঙ্ক from_bit, RTLIL::IdString to_port, পূর্ণাঙ্ক to_bit, পূর্ণাঙ্ক) override {
 		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
 		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[to_sigbit].insert(from_sigbit);
+		db[to_sigbit].ঢোকাও(from_sigbit);
 	}
 };
 

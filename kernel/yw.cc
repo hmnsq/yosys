@@ -17,190 +17,190 @@
  *
  */
 
-#include "kernel/yw.h"
-#include "libs/json11/json11.hpp"
+#অন্তর্ভাব "kernel/yw.h"
+#অন্তর্ভাব "libs/json11/json11.hpp"
 
 USING_YOSYS_NAMESPACE
 
 // Use the same formatting as witness.py uses
-static const char *pretty_name(const std::string &id)
+স্থির ধ্রুব বর্ণ *pretty_name(ধ্রুব std::string &id)
 {
-	const char *c_str = id.c_str();
-	const char *p = c_str;
+	ধ্রুব বর্ণ *c_str = id.c_str();
+	ধ্রুব বর্ণ *p = c_str;
 
-	if (*p != '\\')
-		return c_str;
+	যদি (*p != '\\')
+		প্রত্যাগম c_str;
 	p++;
 
-	if (*p == '[') {
+	যদি (*p == '[') {
 		p++;
-		while (*p >= '0' && *p <= '9')
+		যাবত্ (*p >= '0' && *p <= '9')
 			p++;
-		if (p[0] != ']' || p[1] != 0)
-			return c_str;
-		return c_str + 1;
+		যদি (p[0] != ']' || p[1] != 0)
+			প্রত্যাগম c_str;
+		প্রত্যাগম c_str + 1;
 	}
 
-	if (!(*p >= 'a' && *p <= 'z') && !(*p >= 'A' && *p <= 'Z') && *p != '_')
-		return c_str;
+	যদি (!(*p >= 'a' && *p <= 'z') && !(*p >= 'A' && *p <= 'Z') && *p != '_')
+		প্রত্যাগম c_str;
 	p++;
-	while ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
+	যাবত্ ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
 		p++;
 
-	if (*p != 0)
-		return c_str;
-	return c_str + 1;
+	যদি (*p != 0)
+		প্রত্যাগম c_str;
+	প্রত্যাগম c_str + 1;
 }
 
-std::string IdPath::str() const
+std::string IdPath::str() ধ্রুব
 {
 	std::string result;
 
-	for (auto &item : *this) {
-		const char *pretty = pretty_name(item);
-		if (pretty[0] == '[') {
+	প্রতি (auto &item : *এতত্) {
+		ধ্রুব বর্ণ *pretty = pretty_name(item);
+		যদি (pretty[0] == '[') {
 			result += pretty;
-			continue;
+			অনুবর্ত;
 		}
-		if (!result.empty())
+		যদি (!result.empty())
 			result += '.';
 		result += pretty;
-		if (pretty[0] == '\\' || pretty[0] == '$')
+		যদি (pretty[0] == '\\' || pretty[0] == '$')
 			result += ' ';
 	}
 
-	return result;
+	প্রত্যাগম result;
 }
 
-bool IdPath::get_address(int &addr) const
+তার্কিক IdPath::get_address(পূর্ণাঙ্ক &addr) ধ্রুব
 {
-	if (empty())
-		return false;
+	যদি (empty())
+		প্রত্যাগম অসত্য;
 	auto &last = back();
-	if (!last.starts_with("\\["))
-		return false;
-	if (last == "\\[0]") {
+	যদি (!last.starts_with("\\["))
+		প্রত্যাগম অসত্য;
+	যদি (last == "\\[0]") {
 		addr = 0;
-		return true;
+		প্রত্যাগম সত্য;
 	}
-	char first = last.c_str()[2];
-	if (first < '1' || first > '9')
-		return false;
-	char *endptr;
+	বর্ণ first = last.c_str()[2];
+	যদি (first < '1' || first > '9')
+		প্রত্যাগম অসত্য;
+	বর্ণ *endptr;
 	addr = std::strtol(last.c_str() + 2, &endptr, 10);
-	return endptr[0] == ']' && endptr[1] == 0;
+	প্রত্যাগম endptr[0] == ']' && endptr[1] == 0;
 }
 
-static std::vector<std::string> get_path(const json11::Json &json)
+স্থির std::vector<std::string> get_path(ধ্রুব json11::Json &json)
 {
 	std::vector<std::string> result;
-	for (auto &path_item : json.array_items()) {
-		auto const &path_item_str = path_item.string_value();
-		if (path_item_str.empty())
-			return {};;
-		result.push_back(path_item_str);
+	প্রতি (auto &path_item : json.array_বস্তুসমূহ()) {
+		auto ধ্রুব &path_item_str = path_item.string_মান();
+		যদি (path_item_str.empty())
+			প্রত্যাগম {};;
+		result.ঠেলো_back(path_item_str);
 	}
-	return result;
+	প্রত্যাগম result;
 }
 
-ReadWitness::ReadWitness(const std::string &filename) :
+ReadWitness::ReadWitness(ধ্রুব std::string &filename) :
 	filename(filename)
 {
 	std::ifstream f(filename.c_str());
-	if (f.fail() || GetSize(filename) == 0)
+	যদি (f.fail() || GetSize(filename) == 0)
 		log_error("Cannot open file `%s`\n", filename);
 	std::stringstream buf;
 	buf << f.rdbuf();
 	std::string err;
 	json11::Json json = json11::Json::parse(buf.str(), err);
-	if (!err.empty())
+	যদি (!err.empty())
 		log_error("Failed to parse `%s`: %s\n", filename, err);
 
-	std::string format = json["format"].string_value();
+	std::string format = json["format"].string_মান();
 
-	if (format.empty())
+	যদি (format.empty())
 		log_error("Failed to parse `%s`: Unknown format\n", filename);
-	if (format != "Yosys Witness Trace")
+	যদি (format != "Yosys Witness Trace")
 		log_error("Failed to parse `%s`: Unsupported format `%s`\n", filename, format);
 
-	for (auto &clock_json : json["clocks"].array_items()) {
+	প্রতি (auto &clock_json : json["clocks"].array_বস্তুসমূহ()) {
 		Clock clock;
 		clock.path = get_path(clock_json["path"]);
-		if (clock.path.empty())
+		যদি (clock.path.empty())
 			log_error("Failed to parse `%s`: Missing path for clock `%s`\n", filename, clock_json.dump());
 		auto edge_str = clock_json["edge"];
-		if (edge_str.string_value() == "posedge")
-			clock.is_posedge = true;
-		else if (edge_str.string_value() == "negedge")
-			clock.is_negedge = true;
-		else
+		যদি (edge_str.string_মান() == "posedge")
+			clock.is_posedge = সত্য;
+		অন্যথা যদি (edge_str.string_মান() == "negedge")
+			clock.is_negedge = সত্য;
+		অন্যথা
 			log_error("Failed to parse `%s`: Unknown edge type for clock `%s`\n", filename, clock_json.dump());
-		if (!clock_json["offset"].is_number())
+		যদি (!clock_json["offset"].is_সংখ্যা())
 			log_error("Failed to parse `%s`: Unknown offset for clock `%s`\n", filename, clock_json.dump());
-		clock.offset = clock_json["offset"].int_value();
-		if (clock.offset < 0)
+		clock.offset = clock_json["offset"].int_মান();
+		যদি (clock.offset < 0)
 			log_error("Failed to parse `%s`: Invalid offset for clock `%s`\n", filename, clock_json.dump());
-		clocks.push_back(clock);
+		clocks.ঠেলো_back(clock);
 	}
 
-	int bits_offset = 0;
-	for (auto &signal_json : json["signals"].array_items()) {
-		Signal signal;
-		signal.bits_offset = bits_offset;
-		signal.path = get_path(signal_json["path"]);
-		if (signal.path.empty())
+	পূর্ণাঙ্ক bits_offset = 0;
+	প্রতি (auto &signal_json : json["signals"].array_বস্তুসমূহ()) {
+		Signal সঙ্কেত;
+		সঙ্কেত.bits_offset = bits_offset;
+		সঙ্কেত.path = get_path(signal_json["path"]);
+		যদি (সঙ্কেত.path.empty())
 			log_error("Failed to parse `%s`: Missing path for signal `%s`\n", filename, signal_json.dump());
-		if (!signal_json["width"].is_number())
+		যদি (!signal_json["width"].is_সংখ্যা())
 			log_error("Failed to parse `%s`: Unknown width for signal `%s`\n", filename, signal_json.dump());
-		signal.width = signal_json["width"].int_value();
-		if (signal.width < 0)
+		সঙ্কেত.width = signal_json["width"].int_মান();
+		যদি (সঙ্কেত.width < 0)
 			log_error("Failed to parse `%s`: Invalid width for signal `%s`\n", filename, signal_json.dump());
-		bits_offset += signal.width;
-		if (!signal_json["offset"].is_number())
+		bits_offset += সঙ্কেত.width;
+		যদি (!signal_json["offset"].is_সংখ্যা())
 			log_error("Failed to parse `%s`: Unknown offset for signal `%s`\n", filename, signal_json.dump());
-		signal.offset = signal_json["offset"].int_value();
-		if (signal.offset < 0)
+		সঙ্কেত.offset = signal_json["offset"].int_মান();
+		যদি (সঙ্কেত.offset < 0)
 			log_error("Failed to parse `%s`: Invalid offset for signal `%s`\n", filename, signal_json.dump());
-		signal.init_only = signal_json["init_only"].bool_value();
-		signals.push_back(signal);
+		সঙ্কেত.init_only = signal_json["init_only"].bool_মান();
+		signals.ঠেলো_back(সঙ্কেত);
 	}
 
-	for (auto &step_json : json["steps"].array_items()) {
+	প্রতি (auto &step_json : json["steps"].array_বস্তুসমূহ()) {
 		Step step;
-		if (!step_json["bits"].is_string())
+		যদি (!step_json["bits"].is_string())
 			log_error("Failed to parse `%s`: Expected string as bits value for step %d\n", filename, GetSize(steps));
-		step.bits = step_json["bits"].string_value();
-		for (char c : step.bits) {
-			if (c != '0' && c != '1' && c != 'x' && c != '?')
+		step.bits = step_json["bits"].string_মান();
+		প্রতি (বর্ণ c : step.bits) {
+			যদি (c != '0' && c != '1' && c != 'x' && c != '?')
 				log_error("Failed to parse `%s`: Invalid bit '%c' value for step %d\n", filename, c, GetSize(steps));
 		}
-		steps.push_back(step);
+		steps.ঠেলো_back(step);
 	}
 }
 
-RTLIL::Const ReadWitness::get_bits(int t, int bits_offset, int width) const
+RTLIL::Const ReadWitness::get_bits(পূর্ণাঙ্ক t, পূর্ণাঙ্ক bits_offset, পূর্ণাঙ্ক width) ধ্রুব
 {
 	log_assert(t >= 0 && t < GetSize(steps));
 
-	const std::string &bits = steps[t].bits;
+	ধ্রুব std::string &bits = steps[t].bits;
 
 	RTLIL::Const result(State::Sa, width);
 
-	int read_begin = GetSize(bits) - 1 - bits_offset;
-	int read_end = max(-1, read_begin - width);
+	পূর্ণাঙ্ক read_begin = GetSize(bits) - 1 - bits_offset;
+	পূর্ণাঙ্ক read_end = max(-1, read_begin - width);
 
-	for (int i = read_begin, j = 0; i > read_end; i--, j++) {
+	প্রতি (পূর্ণাঙ্ক i = read_begin, j = 0; i > read_end; i--, j++) {
 		RTLIL::State bit = State::Sa;
-		switch (bits[i]) {
-			case '0': bit = State::S0; break;
-			case '1': bit = State::S1; break;
-			case 'x': bit = State::Sx; break;
-			case '?': bit = State::Sa; break;
-			default:
+		বিকল্প (bits[i]) {
+			পক্ষ '0': bit = State::S0; ভঙ্গ;
+			পক্ষ '1': bit = State::S1; ভঙ্গ;
+			পক্ষ 'x': bit = State::Sx; ভঙ্গ;
+			পক্ষ '?': bit = State::Sa; ভঙ্গ;
+			স্বভাব:
 				log_abort();
 		}
 		result.set(j, bit);
 	}
 
-	return result;
+	প্রত্যাগম result;
 }

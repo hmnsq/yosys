@@ -17,48 +17,48 @@
  * - "A Suggestion for a Fast Multiplier" (https://www.ece.ucdavis.edu/~vojin/CLASSES/EEC280/Web-page/papers/Arithmetic/Wallace_mult.pdf)
  */
 
-#ifndef COMPRESSOR_TREE_H
-#define COMPRESSOR_TREE_H
+#ifndef COMPRESSOR_বৃক্ষ_H
+#define COMPRESSOR_বৃক্ষ_H
 
-#include "kernel/sigtools.h"
-#include "kernel/yosys.h"
+#অন্তর্ভাব "kernel/sigtools.h"
+#অন্তর্ভাব "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-namespace CompressorTree
+namespace Compressor_বৃক্ষ
 {
 
 // Width and depth thresholds below which a ripple is preferred over parallel-prefix
 // NOTE: Based on "Binary Adder Architectures for Cell-Based VLSI and their Synthesis" (Tables 4.7, 4.9) - the threshold
 //       should be the point where Kogge-Stone isn't strictly less efficient than RCA
-constexpr int RIPPLE_PREFIX_WIDTH_THRESHOLD = 16;
-constexpr int RIPPLE_PREFIX_DEPTH_THRESHOLD = 5;
+constexpr পূর্ণাঙ্ক RIPPLE_PREFIX_WIDTH_THRESHOLD = 16;
+constexpr পূর্ণাঙ্ক RIPPLE_PREFIX_DEPTH_THRESHOLD = 5;
 
-enum class Strategy {
+গণনা class Strategy {
 	FA_ONLY,   // 3:2 compressors
 	PREFER_42, // Prefer 4:2 grouping when >=4 operands ready
 	DADDA,     // Defer compression until column counts exceed
 };
 
-struct DepthSig {
+সংরচনা DepthSig {
 	SigSpec sig;
-	int depth;
+	পূর্ণাঙ্ক depth;
 };
 
-enum class FinalAdder {
+গণনা class FinalAdder {
 	DEFAULT,         // emit $add and let downstream techmap pick
 	RIPPLE,          // emit $add with explicit narrow hint
 	PARALLEL_PREFIX, // emit $add with PARALLEL_PREFIX
 };
 
-enum class FinalMode {
+গণনা class FinalMode {
 	AUTO,
 	RIPPLE,
 	PREFIX,
 };
 
-std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, int width);
-std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, int width);
+std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, পূর্ণাঙ্ক width);
+std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, পূর্ণাঙ্ক width);
 
 /**
  * generate_partial_products() - Generate partial products for FMA concat
@@ -71,7 +71,7 @@ std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpe
  *
  * Return: Partial-product matrix as a set of depth-0 vectors
  */
-std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSpec b, bool a_signed, bool b_signed, int width);
+std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSpec b, bool a_signed, bool b_signed, পূর্ণাঙ্ক width);
 
 /**
  * reduce_scheduled() - Reduce multiple operands to two using a compressor tree
@@ -85,7 +85,7 @@ std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSp
  *
  * Return: The final two reduced operands, that are to be fed into an adder
  */
-std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, int width, Strategy strategy, int *out_compressor_count = nullptr, int *out_final_depth = nullptr);
+std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, পূর্ণাঙ্ক width, Strategy strategy, পূর্ণাঙ্ক *out_compressor_গুনতি = nullptr, পূর্ণাঙ্ক *out_final_depth = nullptr);
 
 /**
  * emit_kogge_stone() - Emit a Kogge-Stone parallel-prefix adder
@@ -94,7 +94,7 @@ std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSi
  * @b: Signal B
  * @y: Signal Y = (A + B) mod 2^W
  */
-void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y);
+শূন্য emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y);
 
 /**
  * emit_final_adder() - Emit the final carry-propagate addition between the two reduced vectors
@@ -108,7 +108,7 @@ void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y);
  */
 Cell *emit_final_adder(Module *module, SigSpec a, SigSpec b, SigSpec y, FinalAdder choice);
 
-FinalAdder pick_final_adder(int width, int final_depth, FinalMode mode);
+FinalAdder pick_final_adder(পূর্ণাঙ্ক width, পূর্ণাঙ্ক final_depth, FinalMode mode);
 
 } // namespace CompressorTree
 

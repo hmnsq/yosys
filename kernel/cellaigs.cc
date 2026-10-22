@@ -17,309 +17,309 @@
  *
  */
 
-#include "kernel/cellaigs.h"
+#অন্তর্ভাব "kernel/cellaigs.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-AigNode::AigNode()
+Aig_গ্রন্থি::Aig_গ্রন্থি()
 {
 	portbit = -1;
-	inverter = false;
-	left_parent = -1;
-	right_parent = -1;
+	inverter = অসত্য;
+	বাম_parent = -1;
+	ডান_parent = -1;
 }
 
-bool AigNode::operator==(const AigNode &other) const
+তার্কিক Aig_গ্রন্থি::operator==(ধ্রুব Aig_গ্রন্থি &other) ধ্রুব
 {
-	if (portname != other.portname) return false;
-	if (portbit != other.portbit) return false;
-	if (inverter != other.inverter) return false;
-	if (left_parent != other.left_parent) return false;
-	if (right_parent != other.right_parent) return false;
-	return true;
+	যদি (portname != other.portname) প্রত্যাগম অসত্য;
+	যদি (portbit != other.portbit) প্রত্যাগম অসত্য;
+	যদি (inverter != other.inverter) প্রত্যাগম অসত্য;
+	যদি (বাম_parent != other.বাম_parent) প্রত্যাগম অসত্য;
+	যদি (ডান_parent != other.ডান_parent) প্রত্যাগম অসত্য;
+	প্রত্যাগম সত্য;
 }
 
-Hasher AigNode::hash_into(Hasher h) const
+Hasher Aig_গ্রন্থি::hash_into(Hasher h) ধ্রুব
 {
 	h.eat(portname);
 	h.eat(portbit);
 	h.eat(inverter);
-	h.eat(left_parent);
-	h.eat(right_parent);
-	return h;
+	h.eat(বাম_parent);
+	h.eat(ডান_parent);
+	প্রত্যাগম h;
 }
 
-bool Aig::operator==(const Aig &other) const
+তার্কিক Aig::operator==(ধ্রুব Aig &other) ধ্রুব
 {
-	return name == other.name;
+	প্রত্যাগম name == other.name;
 }
 
-Hasher Aig::hash_into(Hasher h) const
+Hasher Aig::hash_into(Hasher h) ধ্রুব
 {
 	h.eat(name);
-	return h;
+	প্রত্যাগম h;
 }
 
-struct AigMaker
+সংরচনা AigMaker
 {
 	Aig *aig;
 	Cell *cell;
-	idict<AigNode> aig_indices;
+	idict<Aig_গ্রন্থি> aig_indices;
 
 	AigMaker(Aig *aig, Cell *cell) : aig(aig), cell(cell) {}
 
-	int node2index(const AigNode &node)
+	পূর্ণাঙ্ক node2index(ধ্রুব Aig_গ্রন্থি &গ্রন্থি)
 	{
-		if (node.left_parent > node.right_parent) {
-			AigNode n(node);
-			std::swap(n.left_parent, n.right_parent);
-			return node2index(n);
+		যদি (গ্রন্থি.বাম_parent > গ্রন্থি.ডান_parent) {
+			Aig_গ্রন্থি n(গ্রন্থি);
+			std::swap(n.বাম_parent, n.ডান_parent);
+			প্রত্যাগম node2index(n);
 		}
 
-		if (!aig_indices.count(node)) {
-			aig_indices.expect(node, GetSize(aig->nodes));
-			aig->nodes.push_back(node);
+		যদি (!aig_indices.গুনতি(গ্রন্থি)) {
+			aig_indices.expect(গ্রন্থি, GetSize(aig->nodes));
+			aig->nodes.ঠেলো_back(গ্রন্থি);
 		}
 
-		return aig_indices.at(node);
+		প্রত্যাগম aig_indices.at(গ্রন্থি);
 	}
 
-	int bool_node(bool value)
+	পূর্ণাঙ্ক bool_গ্রন্থি(তার্কিক মান)
 	{
-		AigNode node;
-		node.inverter = value;
-		return node2index(node);
+		Aig_গ্রন্থি গ্রন্থি;
+		গ্রন্থি.inverter = মান;
+		প্রত্যাগম node2index(গ্রন্থি);
 	}
 
-	int inport(IdString portname, int portbit = 0, bool inverter = false)
+	পূর্ণাঙ্ক inport(IdString portname, পূর্ণাঙ্ক portbit = 0, তার্কিক inverter = অসত্য)
 	{
-		if (portbit >= GetSize(cell->getPort(portname))) {
+		যদি (portbit >= GetSize(cell->getPort(portname))) {
 			IdString signed_param = cell->twines().find(
 				cell->twines().str(portname) + "_SIGNED");
-		if (signed_param != IdString::Null && cell->parameters.count(signed_param) && cell->getParam(signed_param).as_bool())
-				return inport(portname, GetSize(cell->getPort(portname))-1, inverter);
-			return bool_node(inverter);
+		যদি (signed_param != IdString::Null && cell->parameters.গুনতি(signed_param) && cell->getParam(signed_param).as_bool())
+				প্রত্যাগম inport(portname, GetSize(cell->getPort(portname))-1, inverter);
+			প্রত্যাগম bool_গ্রন্থি(inverter);
 		}
 
-		AigNode node;
-		node.portname = portname;
-		node.portbit = portbit;
-		node.inverter = inverter;
-		return node2index(node);
+		Aig_গ্রন্থি গ্রন্থি;
+		গ্রন্থি.portname = portname;
+		গ্রন্থি.portbit = portbit;
+		গ্রন্থি.inverter = inverter;
+		প্রত্যাগম node2index(গ্রন্থি);
 	}
 
-	vector<int> inport_vec(IdString portname, int width)
+	vector<পূর্ণাঙ্ক> inport_vec(IdString portname, পূর্ণাঙ্ক width)
 	{
-		vector<int> vec;
-		for (int i = 0; i < width; i++)
-			vec.push_back(inport(portname, i));
-		return vec;
+		vector<পূর্ণাঙ্ক> vec;
+		প্রতি (পূর্ণাঙ্ক i = 0; i < width; i++)
+			vec.ঠেলো_back(inport(portname, i));
+		প্রত্যাগম vec;
 	}
 
-	int not_inport(IdString portname, int portbit = 0)
+	পূর্ণাঙ্ক not_inport(IdString portname, পূর্ণাঙ্ক portbit = 0)
 	{
-		return inport(portname, portbit, true);
+		প্রত্যাগম inport(portname, portbit, সত্য);
 	}
 
-	int not_gate(int A)
+	পূর্ণাঙ্ক not_gate(পূর্ণাঙ্ক A)
 	{
-		AigNode node(aig_indices[A]);
-		node.outports.clear();
-		node.inverter = !node.inverter;
-		return node2index(node);
+		Aig_গ্রন্থি গ্রন্থি(aig_indices[A]);
+		গ্রন্থি.outports.clear();
+		গ্রন্থি.inverter = !গ্রন্থি.inverter;
+		প্রত্যাগম node2index(গ্রন্থি);
 	}
 
-	int and_gate(int A, int B, bool inverter = false)
+	পূর্ণাঙ্ক and_gate(পূর্ণাঙ্ক A, পূর্ণাঙ্ক B, তার্কিক inverter = অসত্য)
 	{
-		if (A == B)
-			return inverter ? not_gate(A) : A;
+		যদি (A == B)
+			প্রত্যাগম inverter ? not_gate(A) : A;
 
-		const AigNode &nA = aig_indices[A];
-		const AigNode &nB = aig_indices[B];
+		ধ্রুব Aig_গ্রন্থি &nA = aig_indices[A];
+		ধ্রুব Aig_গ্রন্থি &nB = aig_indices[B];
 
-		AigNode nB_inv(nB);
+		Aig_গ্রন্থি nB_inv(nB);
 		nB_inv.inverter = !nB_inv.inverter;
 
-		if (nA == nB_inv)
-			return bool_node(inverter);
+		যদি (nA == nB_inv)
+			প্রত্যাগম bool_গ্রন্থি(inverter);
 
-		bool nA_bool = nA.portbit < 0 && nA.left_parent < 0 && nA.right_parent < 0;
-		bool nB_bool = nB.portbit < 0 && nB.left_parent < 0 && nB.right_parent < 0;
+		তার্কিক nA_bool = nA.portbit < 0 && nA.বাম_parent < 0 && nA.ডান_parent < 0;
+		তার্কিক nB_bool = nB.portbit < 0 && nB.বাম_parent < 0 && nB.ডান_parent < 0;
 
-		if (nA_bool && nB_bool) {
-			bool bA = nA.inverter;
-			bool bB = nB.inverter;
-			return bool_node(inverter != (bA && bB));
+		যদি (nA_bool && nB_bool) {
+			তার্কিক bA = nA.inverter;
+			তার্কিক bB = nB.inverter;
+			প্রত্যাগম bool_গ্রন্থি(inverter != (bA && bB));
 		}
 
-		if (nA_bool) {
-			bool bA = nA.inverter;
-			if (inverter)
-				return bA ? not_gate(B) : bool_node(true);
-			return bA ? B : bool_node(false);
+		যদি (nA_bool) {
+			তার্কিক bA = nA.inverter;
+			যদি (inverter)
+				প্রত্যাগম bA ? not_gate(B) : bool_গ্রন্থি(সত্য);
+			প্রত্যাগম bA ? B : bool_গ্রন্থি(অসত্য);
 		}
 
-		if (nB_bool) {
-			bool bB = nB.inverter;
-			if (inverter)
-				return bB ? not_gate(A) : bool_node(true);
-			return bB ? A : bool_node(false);
+		যদি (nB_bool) {
+			তার্কিক bB = nB.inverter;
+			যদি (inverter)
+				প্রত্যাগম bB ? not_gate(A) : bool_গ্রন্থি(সত্য);
+			প্রত্যাগম bB ? A : bool_গ্রন্থি(অসত্য);
 		}
 
-		AigNode node;
-		node.inverter = inverter;
-		node.left_parent = A;
-		node.right_parent = B;
-		return node2index(node);
+		Aig_গ্রন্থি গ্রন্থি;
+		গ্রন্থি.inverter = inverter;
+		গ্রন্থি.বাম_parent = A;
+		গ্রন্থি.ডান_parent = B;
+		প্রত্যাগম node2index(গ্রন্থি);
 	}
 
-	int nand_gate(int A, int B)
+	পূর্ণাঙ্ক nand_gate(পূর্ণাঙ্ক A, পূর্ণাঙ্ক B)
 	{
-		return and_gate(A, B, true);
+		প্রত্যাগম and_gate(A, B, সত্য);
 	}
 
-	int or_gate(int A, int B)
+	পূর্ণাঙ্ক or_gate(পূর্ণাঙ্ক A, পূর্ণাঙ্ক B)
 	{
-		int not_a = not_gate(A);
-		int not_b = not_gate(B);
-		return nand_gate(not_a, not_b);
+		পূর্ণাঙ্ক not_a = not_gate(A);
+		পূর্ণাঙ্ক not_b = not_gate(B);
+		প্রত্যাগম nand_gate(not_a, not_b);
 	}
 
-	int nor_gate(int A, int B)
+	পূর্ণাঙ্ক nor_gate(পূর্ণাঙ্ক A, পূর্ণাঙ্ক B)
 	{
-		int not_a = not_gate(A);
-		int not_b = not_gate(B);
-		return and_gate(not_a, not_b);
+		পূর্ণাঙ্ক not_a = not_gate(A);
+		পূর্ণাঙ্ক not_b = not_gate(B);
+		প্রত্যাগম and_gate(not_a, not_b);
 	}
 
-	int xor_gate(int A, int B)
+	পূর্ণাঙ্ক xor_gate(পূর্ণাঙ্ক A, পূর্ণাঙ্ক B)
 	{
-		int a_and_b = and_gate(A, B);
-		int a_nor_b = nor_gate(A, B);
-		return nor_gate(a_and_b, a_nor_b);
+		পূর্ণাঙ্ক a_and_b = and_gate(A, B);
+		পূর্ণাঙ্ক a_nor_b = nor_gate(A, B);
+		প্রত্যাগম nor_gate(a_and_b, a_nor_b);
 	}
 
-	int xnor_gate(int A, int B)
+	পূর্ণাঙ্ক xnor_gate(পূর্ণাঙ্ক A, পূর্ণাঙ্ক B)
 	{
-		int a_and_b = and_gate(A, B);
-		int a_nor_b = nor_gate(A, B);
-		return or_gate(a_and_b, a_nor_b);
+		পূর্ণাঙ্ক a_and_b = and_gate(A, B);
+		পূর্ণাঙ্ক a_nor_b = nor_gate(A, B);
+		প্রত্যাগম or_gate(a_and_b, a_nor_b);
 	}
 
-	int andnot_gate(int A, int B)
+	পূর্ণাঙ্ক andnot_gate(পূর্ণাঙ্ক A, পূর্ণাঙ্ক B)
 	{
-		int not_b = not_gate(B);
-		return and_gate(A, not_b);
+		পূর্ণাঙ্ক not_b = not_gate(B);
+		প্রত্যাগম and_gate(A, not_b);
 	}
 
-	int ornot_gate(int A, int B)
+	পূর্ণাঙ্ক ornot_gate(পূর্ণাঙ্ক A, পূর্ণাঙ্ক B)
 	{
-		int not_b = not_gate(B);
-		return or_gate(A, not_b);
+		পূর্ণাঙ্ক not_b = not_gate(B);
+		প্রত্যাগম or_gate(A, not_b);
 	}
 
-	int mux_gate(int A, int B, int S)
+	পূর্ণাঙ্ক mux_gate(পূর্ণাঙ্ক A, পূর্ণাঙ্ক B, পূর্ণাঙ্ক S)
 	{
-		int not_s = not_gate(S);
-		int a_active = and_gate(A, not_s);
-		int b_active = and_gate(B, S);
-		return or_gate(a_active, b_active);
+		পূর্ণাঙ্ক not_s = not_gate(S);
+		পূর্ণাঙ্ক a_active = and_gate(A, not_s);
+		পূর্ণাঙ্ক b_active = and_gate(B, S);
+		প্রত্যাগম or_gate(a_active, b_active);
 	}
 
-	vector<int> adder(const vector<int> &A, const vector<int> &B, int carry_in, vector<int> *X = nullptr, vector<int> *CO = nullptr)
+	vector<পূর্ণাঙ্ক> adder(ধ্রুব vector<পূর্ণাঙ্ক> &A, ধ্রুব vector<পূর্ণাঙ্ক> &B, পূর্ণাঙ্ক carry_in, vector<পূর্ণাঙ্ক> *X = nullptr, vector<পূর্ণাঙ্ক> *CO = nullptr)
 	{
-		vector<int> Y(GetSize(A));
+		vector<পূর্ণাঙ্ক> Y(GetSize(A));
 		log_assert(GetSize(A) == GetSize(B));
-		for (int i = 0; i < GetSize(A); i++) {
-			int a_xor_b = xor_gate(A[i], B[i]);
-			int a_or_b = or_gate(A[i], B[i]);
-			int a_and_b = and_gate(A[i], B[i]);
+		প্রতি (পূর্ণাঙ্ক i = 0; i < GetSize(A); i++) {
+			পূর্ণাঙ্ক a_xor_b = xor_gate(A[i], B[i]);
+			পূর্ণাঙ্ক a_or_b = or_gate(A[i], B[i]);
+			পূর্ণাঙ্ক a_and_b = and_gate(A[i], B[i]);
 			Y[i] = xor_gate(a_xor_b, carry_in);
-			int tmp = and_gate(a_or_b, carry_in);
-			int carry_out = or_gate(a_and_b, tmp);
-			if (X != nullptr)
+			পূর্ণাঙ্ক tmp = and_gate(a_or_b, carry_in);
+			পূর্ণাঙ্ক carry_out = or_gate(a_and_b, tmp);
+			যদি (X != nullptr)
 				X->at(i) = a_xor_b;
-			if (CO != nullptr)
+			যদি (CO != nullptr)
 				CO->at(i) = carry_out;
 			carry_in = carry_out;
 		}
-		return Y;
+		প্রত্যাগম Y;
 	}
 
-	void outport(int node, IdString portname, int portbit = 0)
+	শূন্য outport(পূর্ণাঙ্ক গ্রন্থি, IdString portname, পূর্ণাঙ্ক portbit = 0)
 	{
-		if (portbit < GetSize(cell->getPort(portname)))
-			aig->nodes.at(node).outports.push_back(pair<IdString, int>(portname, portbit));
+		যদি (portbit < GetSize(cell->getPort(portname)))
+			aig->nodes.at(গ্রন্থি).outports.ঠেলো_back(pair<IdString, পূর্ণাঙ্ক>(portname, portbit));
 	}
 
-	void outport_bool(int node, IdString portname)
+	শূন্য outport_bool(পূর্ণাঙ্ক গ্রন্থি, IdString portname)
 	{
-		outport(node, portname);
-		for (int i = 1; i < GetSize(cell->getPort(portname)); i++)
-			outport(bool_node(false), portname, i);
+		outport(গ্রন্থি, portname);
+		প্রতি (পূর্ণাঙ্ক i = 1; i < GetSize(cell->getPort(portname)); i++)
+			outport(bool_গ্রন্থি(অসত্য), portname, i);
 	}
 
-	void outport_vec(const vector<int> &vec, IdString portname)
+	শূন্য outport_vec(ধ্রুব vector<পূর্ণাঙ্ক> &vec, IdString portname)
 	{
-		for (int i = 0; i < GetSize(vec); i++)
+		প্রতি (পূর্ণাঙ্ক i = 0; i < GetSize(vec); i++)
 			outport(vec.at(i), portname, i);
 	}
 };
 
 Aig::Aig(Cell *cell)
 {
-	if (cell->type.isPublic())
-		return;
+	যদি (cell->type.isPublic())
+		প্রত্যাগম;
 
-	AigMaker mk(this, cell);
+	AigMaker mk(এতত্, cell);
 	name = cell->type.str();
 
 	string mkname_last;
-	bool mkname_a_signed = false;
-	bool mkname_b_signed = false;
-	bool mkname_is_signed = false;
+	তার্কিক mkname_a_signed = অসত্য;
+	তার্কিক mkname_b_signed = অসত্য;
+	তার্কিক mkname_is_signed = অসত্য;
 
 	cell->parameters.sort();
-	for (auto p : cell->parameters)
+	প্রতি (auto p : cell->parameters)
 	{
-		if (p.first == ID::A_WIDTH && mkname_a_signed) {
+		যদি (p.first == ID::A_WIDTH && mkname_a_signed) {
 			name = mkname_last + stringf(":%d%c", p.second.as_int(), mkname_is_signed ? 'S' : 'U');
-		} else if (p.first == ID::B_WIDTH && mkname_b_signed) {
+		} অন্যথা যদি (p.first == ID::B_WIDTH && mkname_b_signed) {
 			name = mkname_last + stringf(":%d%c", p.second.as_int(), mkname_is_signed ? 'S' : 'U');
-		} else {
+		} অন্যথা {
 			mkname_last = name;
 			name += stringf(":%d", p.second.as_int());
 		}
 
-		mkname_a_signed = false;
-		mkname_b_signed = false;
-		mkname_is_signed = false;
-		if (p.first == ID::A_SIGNED) {
-			mkname_a_signed = true;
+		mkname_a_signed = অসত্য;
+		mkname_b_signed = অসত্য;
+		mkname_is_signed = অসত্য;
+		যদি (p.first == ID::A_SIGNED) {
+			mkname_a_signed = সত্য;
 			mkname_is_signed = p.second.as_bool();
 		}
-		if (p.first == ID::B_SIGNED) {
-			mkname_b_signed = true;
+		যদি (p.first == ID::B_SIGNED) {
+			mkname_b_signed = সত্য;
 			mkname_is_signed = p.second.as_bool();
 		}
 	}
 
-	if (cell->type.in(ID($not), ID($_NOT_), ID($pos), ID($buf), ID($_BUF_)))
+	যদি (cell->type.in(ID($not), ID($_NOT_), ID($pos), ID($buf), ID($_BUF_)))
 	{
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int Y = cell->type.in(ID($not), ID($_NOT_)) ? mk.not_gate(A) : A;
+		প্রতি (পূর্ণাঙ্ক i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
+			পূর্ণাঙ্ক A = mk.inport(ID::A, i);
+			পূর্ণাঙ্ক Y = cell->type.in(ID($not), ID($_NOT_)) ? mk.not_gate(A) : A;
 			mk.outport(Y, ID::Y, i);
 		}
-		goto optimize;
+		গচ্ছ optimize;
 	}
 
-	if (cell->type.in(ID($and), ID($_AND_), ID($_NAND_), ID($or), ID($_OR_), ID($_NOR_), ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_)))
+	যদি (cell->type.in(ID($and), ID($_AND_), ID($_NAND_), ID($or), ID($_OR_), ID($_NOR_), ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_)))
 	{
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int B = mk.inport(ID::B, i);
-			int Y = cell->type.in(ID($and), ID($_AND_))   ? mk.and_gate(A, B) :
+		প্রতি (পূর্ণাঙ্ক i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
+			পূর্ণাঙ্ক A = mk.inport(ID::A, i);
+			পূর্ণাঙ্ক B = mk.inport(ID::B, i);
+			পূর্ণাঙ্ক Y = cell->type.in(ID($and), ID($_AND_))   ? mk.and_gate(A, B) :
 			        cell->type.in(ID($_NAND_))            ? mk.nand_gate(A, B) :
 			        cell->type.in(ID($or), ID($_OR_))     ? mk.or_gate(A, B) :
 			        cell->type.in(ID($_NOR_))             ? mk.nor_gate(A, B) :
@@ -329,200 +329,200 @@ Aig::Aig(Cell *cell)
 			        cell->type.in(ID($_ORNOT_))           ? mk.ornot_gate(A, B) : -1;
 			mk.outport(Y, ID::Y, i);
 		}
-		goto optimize;
+		গচ্ছ optimize;
 	}
 
-	if (cell->type.in(ID($mux), ID($_MUX_), ID($_NMUX_)))
+	যদি (cell->type.in(ID($mux), ID($_MUX_), ID($_NMUX_)))
 	{
-		int S = mk.inport(ID::S);
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int B = mk.inport(ID::B, i);
-			int Y = mk.mux_gate(A, B, S);
-			if (cell->type == ID($_NMUX_))
+		পূর্ণাঙ্ক S = mk.inport(ID::S);
+		প্রতি (পূর্ণাঙ্ক i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
+			পূর্ণাঙ্ক A = mk.inport(ID::A, i);
+			পূর্ণাঙ্ক B = mk.inport(ID::B, i);
+			পূর্ণাঙ্ক Y = mk.mux_gate(A, B, S);
+			যদি (cell->type == ID($_NMUX_))
 				Y = mk.not_gate(Y);
 			mk.outport(Y, ID::Y, i);
 		}
-		goto optimize;
+		গচ্ছ optimize;
 	}
 
-	if (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)))
+	যদি (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)))
 	{
-		int Y = mk.inport(ID::A, 0);
-		for (int i = 1; i < GetSize(cell->getPort(ID::A)); i++) {
-			int A = mk.inport(ID::A, i);
-			if (cell->type == ID($reduce_and))  Y = mk.and_gate(A, Y);
-			if (cell->type == ID($reduce_or))   Y = mk.or_gate(A, Y);
-			if (cell->type == ID($reduce_bool)) Y = mk.or_gate(A, Y);
-			if (cell->type == ID($reduce_xor))  Y = mk.xor_gate(A, Y);
-			if (cell->type == ID($reduce_xnor)) Y = mk.xor_gate(A, Y);
+		পূর্ণাঙ্ক Y = mk.inport(ID::A, 0);
+		প্রতি (পূর্ণাঙ্ক i = 1; i < GetSize(cell->getPort(ID::A)); i++) {
+			পূর্ণাঙ্ক A = mk.inport(ID::A, i);
+			যদি (cell->type == ID($reduce_and))  Y = mk.and_gate(A, Y);
+			যদি (cell->type == ID($reduce_or))   Y = mk.or_gate(A, Y);
+			যদি (cell->type == ID($reduce_bool)) Y = mk.or_gate(A, Y);
+			যদি (cell->type == ID($reduce_xor))  Y = mk.xor_gate(A, Y);
+			যদি (cell->type == ID($reduce_xnor)) Y = mk.xor_gate(A, Y);
 		}
-		if (cell->type == ID($reduce_xnor))
+		যদি (cell->type == ID($reduce_xnor))
 			Y = mk.not_gate(Y);
 		mk.outport(Y, ID::Y, 0);
-		for (int i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
-			mk.outport(mk.bool_node(false), ID::Y, i);
-		goto optimize;
+		প্রতি (পূর্ণাঙ্ক i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
+			mk.outport(mk.bool_গ্রন্থি(অসত্য), ID::Y, i);
+		গচ্ছ optimize;
 	}
 
-	if (cell->type.in(ID($logic_not), ID($logic_and), ID($logic_or)))
+	যদি (cell->type.in(ID($logic_not), ID($logic_and), ID($logic_or)))
 	{
-		int A = mk.inport(ID::A, 0), Y = -1;
-		for (int i = 1; i < GetSize(cell->getPort(ID::A)); i++)
+		পূর্ণাঙ্ক A = mk.inport(ID::A, 0), Y = -1;
+		প্রতি (পূর্ণাঙ্ক i = 1; i < GetSize(cell->getPort(ID::A)); i++)
 			A = mk.or_gate(mk.inport(ID::A, i), A);
-		if (cell->type.in(ID($logic_and), ID($logic_or))) {
-			int B = mk.inport(ID::B, 0);
-			for (int i = 1; i < GetSize(cell->getPort(ID::B)); i++)
+		যদি (cell->type.in(ID($logic_and), ID($logic_or))) {
+			পূর্ণাঙ্ক B = mk.inport(ID::B, 0);
+			প্রতি (পূর্ণাঙ্ক i = 1; i < GetSize(cell->getPort(ID::B)); i++)
 				B = mk.or_gate(mk.inport(ID::B, i), B);
-			if (cell->type == ID($logic_and)) Y = mk.and_gate(A, B);
-			if (cell->type == ID($logic_or))  Y = mk.or_gate(A, B);
-		} else {
-			if (cell->type == ID($logic_not)) Y = mk.not_gate(A);
+			যদি (cell->type == ID($logic_and)) Y = mk.and_gate(A, B);
+			যদি (cell->type == ID($logic_or))  Y = mk.or_gate(A, B);
+		} অন্যথা {
+			যদি (cell->type == ID($logic_not)) Y = mk.not_gate(A);
 		}
 		mk.outport_bool(Y, ID::Y);
-		goto optimize;
+		গচ্ছ optimize;
 	}
 
-	if (cell->type.in(ID($add), ID($sub)))
+	যদি (cell->type.in(ID($add), ID($sub)))
 	{
-		int width = GetSize(cell->getPort(ID::Y));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int carry = mk.bool_node(false);
-		if (cell->type == ID($sub)) {
-			for (auto &n : B)
+		পূর্ণাঙ্ক width = GetSize(cell->getPort(ID::Y));
+		vector<পূর্ণাঙ্ক> A = mk.inport_vec(ID::A, width);
+		vector<পূর্ণাঙ্ক> B = mk.inport_vec(ID::B, width);
+		পূর্ণাঙ্ক carry = mk.bool_গ্রন্থি(অসত্য);
+		যদি (cell->type == ID($sub)) {
+			প্রতি (auto &n : B)
 				n = mk.not_gate(n);
 			carry = mk.not_gate(carry);
 		}
-		vector<int> Y = mk.adder(A, B, carry);
+		vector<পূর্ণাঙ্ক> Y = mk.adder(A, B, carry);
 		mk.outport_vec(Y, ID::Y);
-		goto optimize;
+		গচ্ছ optimize;
 	}
 
-	if (cell->type.in(ID($lt), ID($gt), ID($le), ID($ge)))
+	যদি (cell->type.in(ID($lt), ID($gt), ID($le), ID($ge)))
 	{
-		int width = std::max(GetSize(cell->getPort(ID::A)),
+		পূর্ণাঙ্ক width = std::max(GetSize(cell->getPort(ID::A)),
 							 GetSize(cell->getPort(ID::B))) + 1;
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
+		vector<পূর্ণাঙ্ক> A = mk.inport_vec(ID::A, width);
+		vector<পূর্ণাঙ্ক> B = mk.inport_vec(ID::B, width);
 
-		if (cell->type.in(ID($gt), ID($ge)))
+		যদি (cell->type.in(ID($gt), ID($ge)))
 			std::swap(A, B);
 
-		int carry = mk.bool_node(!cell->type.in(ID($le), ID($ge)));
-		for (auto &n : B)
+		পূর্ণাঙ্ক carry = mk.bool_গ্রন্থি(!cell->type.in(ID($le), ID($ge)));
+		প্রতি (auto &n : B)
 			n = mk.not_gate(n);
-		vector<int> Y = mk.adder(A, B, carry);
+		vector<পূর্ণাঙ্ক> Y = mk.adder(A, B, carry);
 		mk.outport(Y.back(), ID::Y);
-		for (int i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
-			mk.outport(mk.bool_node(false), ID::Y, i);
-		goto optimize;
+		প্রতি (পূর্ণাঙ্ক i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
+			mk.outport(mk.bool_গ্রন্থি(অসত্য), ID::Y, i);
+		গচ্ছ optimize;
 	}
 
-	if (cell->type == ID($alu))
+	যদি (cell->type == ID($alu))
 	{
-		int width = GetSize(cell->getPort(ID::Y));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int carry = mk.inport(ID::CI);
-		int binv = mk.inport(ID::BI);
-		for (auto &n : B)
+		পূর্ণাঙ্ক width = GetSize(cell->getPort(ID::Y));
+		vector<পূর্ণাঙ্ক> A = mk.inport_vec(ID::A, width);
+		vector<পূর্ণাঙ্ক> B = mk.inport_vec(ID::B, width);
+		পূর্ণাঙ্ক carry = mk.inport(ID::CI);
+		পূর্ণাঙ্ক binv = mk.inport(ID::BI);
+		প্রতি (auto &n : B)
 			n = mk.xor_gate(n, binv);
-		vector<int> X(width), CO(width);
-		vector<int> Y = mk.adder(A, B, carry, &X, &CO);
-		for (int i = 0; i < width; i++)
+		vector<পূর্ণাঙ্ক> X(width), CO(width);
+		vector<পূর্ণাঙ্ক> Y = mk.adder(A, B, carry, &X, &CO);
+		প্রতি (পূর্ণাঙ্ক i = 0; i < width; i++)
 			X[i] = mk.xor_gate(A[i], B[i]);
 		mk.outport_vec(Y, ID::Y);
 		mk.outport_vec(X, ID::X);
 		mk.outport_vec(CO, ID::CO);
-		goto optimize;
+		গচ্ছ optimize;
 	}
 
-	if (cell->type.in(ID($eq), ID($ne)))
+	যদি (cell->type.in(ID($eq), ID($ne)))
 	{
-		int width = max(GetSize(cell->getPort(ID::A)), GetSize(cell->getPort(ID::B)));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int Y = mk.bool_node(false);
-		for (int i = 0; i < width; i++)
+		পূর্ণাঙ্ক width = max(GetSize(cell->getPort(ID::A)), GetSize(cell->getPort(ID::B)));
+		vector<পূর্ণাঙ্ক> A = mk.inport_vec(ID::A, width);
+		vector<পূর্ণাঙ্ক> B = mk.inport_vec(ID::B, width);
+		পূর্ণাঙ্ক Y = mk.bool_গ্রন্থি(অসত্য);
+		প্রতি (পূর্ণাঙ্ক i = 0; i < width; i++)
 			Y = mk.or_gate(Y, mk.xor_gate(A[i], B[i]));
-		if (cell->type == ID($eq))
+		যদি (cell->type == ID($eq))
 			Y = mk.not_gate(Y);
 		mk.outport_bool(Y, ID::Y);
-		goto optimize;
+		গচ্ছ optimize;
 	}
 
-	if (cell->type == ID($_AOI3_))
+	যদি (cell->type == ID($_AOI3_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int Y = mk.nor_gate(mk.and_gate(A, B), C);
+		পূর্ণাঙ্ক A = mk.inport(ID::A);
+		পূর্ণাঙ্ক B = mk.inport(ID::B);
+		পূর্ণাঙ্ক C = mk.inport(ID::C);
+		পূর্ণাঙ্ক Y = mk.nor_gate(mk.and_gate(A, B), C);
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		গচ্ছ optimize;
 	}
 
-	if (cell->type == ID($_OAI3_))
+	যদি (cell->type == ID($_OAI3_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int Y = mk.nand_gate(mk.or_gate(A, B), C);
+		পূর্ণাঙ্ক A = mk.inport(ID::A);
+		পূর্ণাঙ্ক B = mk.inport(ID::B);
+		পূর্ণাঙ্ক C = mk.inport(ID::C);
+		পূর্ণাঙ্ক Y = mk.nand_gate(mk.or_gate(A, B), C);
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		গচ্ছ optimize;
 	}
 
-	if (cell->type == ID($_AOI4_))
+	যদি (cell->type == ID($_AOI4_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int D = mk.inport(ID::D);
-		int a_and_b = mk.and_gate(A, B);
-		int Y = mk.nor_gate(a_and_b, mk.and_gate(C, D));
+		পূর্ণাঙ্ক A = mk.inport(ID::A);
+		পূর্ণাঙ্ক B = mk.inport(ID::B);
+		পূর্ণাঙ্ক C = mk.inport(ID::C);
+		পূর্ণাঙ্ক D = mk.inport(ID::D);
+		পূর্ণাঙ্ক a_and_b = mk.and_gate(A, B);
+		পূর্ণাঙ্ক Y = mk.nor_gate(a_and_b, mk.and_gate(C, D));
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		গচ্ছ optimize;
 	}
 
-	if (cell->type == ID($_OAI4_))
+	যদি (cell->type == ID($_OAI4_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int D = mk.inport(ID::D);
-		int a_or_b = mk.or_gate(A, B);
-		int Y = mk.nand_gate(a_or_b, mk.or_gate(C, D));
+		পূর্ণাঙ্ক A = mk.inport(ID::A);
+		পূর্ণাঙ্ক B = mk.inport(ID::B);
+		পূর্ণাঙ্ক C = mk.inport(ID::C);
+		পূর্ণাঙ্ক D = mk.inport(ID::D);
+		পূর্ণাঙ্ক a_or_b = mk.or_gate(A, B);
+		পূর্ণাঙ্ক Y = mk.nand_gate(a_or_b, mk.or_gate(C, D));
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		গচ্ছ optimize;
 	}
 
 	name.clear();
-	return;
+	প্রত্যাগম;
 
 optimize:;
-	pool<int> used_old_ids;
-	vector<AigNode> new_nodes;
-	dict<int, int> old_to_new_ids;
+	pool<পূর্ণাঙ্ক> used_old_ids;
+	vector<Aig_গ্রন্থি> new_nodes;
+	dict<পূর্ণাঙ্ক, পূর্ণাঙ্ক> old_to_new_ids;
 	old_to_new_ids[-1] = -1;
 
-	for (int i = GetSize(nodes)-1; i >= 0; i--) {
-		if (!nodes[i].outports.empty())
-			used_old_ids.insert(i);
-		if (!used_old_ids.count(i))
-			continue;
-		if (nodes[i].left_parent >= 0)
-			used_old_ids.insert(nodes[i].left_parent);
-		if (nodes[i].right_parent >= 0)
-			used_old_ids.insert(nodes[i].right_parent);
+	প্রতি (পূর্ণাঙ্ক i = GetSize(nodes)-1; i >= 0; i--) {
+		যদি (!nodes[i].outports.empty())
+			used_old_ids.ঢোকাও(i);
+		যদি (!used_old_ids.গুনতি(i))
+			অনুবর্ত;
+		যদি (nodes[i].বাম_parent >= 0)
+			used_old_ids.ঢোকাও(nodes[i].বাম_parent);
+		যদি (nodes[i].ডান_parent >= 0)
+			used_old_ids.ঢোকাও(nodes[i].ডান_parent);
 	}
 
-	for (int i = 0; i < GetSize(nodes); i++) {
-		if (!used_old_ids.count(i))
-			continue;
-		nodes[i].left_parent = old_to_new_ids.at(nodes[i].left_parent);
-		nodes[i].right_parent = old_to_new_ids.at(nodes[i].right_parent);
+	প্রতি (পূর্ণাঙ্ক i = 0; i < GetSize(nodes); i++) {
+		যদি (!used_old_ids.গুনতি(i))
+			অনুবর্ত;
+		nodes[i].বাম_parent = old_to_new_ids.at(nodes[i].বাম_parent);
+		nodes[i].ডান_parent = old_to_new_ids.at(nodes[i].ডান_parent);
 		old_to_new_ids[i] = GetSize(new_nodes);
-		new_nodes.push_back(nodes[i]);
+		new_nodes.ঠেলো_back(nodes[i]);
 	}
 
 	new_nodes.swap(nodes);

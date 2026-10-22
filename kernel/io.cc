@@ -1,94 +1,94 @@
-#include "kernel/yosys_common.h"
-#include "kernel/log.h"
-#include <iostream>
-#include <string>
-#include <filesystem>
-#include <system_error>
+#অন্তর্ভাব "kernel/yosys_common.h"
+#অন্তর্ভাব "kernel/log.h"
+#অন্তর্ভাব <iostream>
+#অন্তর্ভাব <string>
+#অন্তর্ভাব <filesystem>
+#অন্তর্ভাব <system_error>
 
-#if !defined(WIN32)
-#include <dirent.h>
-#include <unistd.h>
-#else
-#include <io.h>
+#যদি !defined(WIN32)
+#অন্তর্ভাব <dirent.h>
+#অন্তর্ভাব <unistd.h>
+#অন্যথা
+#অন্তর্ভাব <io.h>
 #endif
 
-#if !defined(_WIN32) && !defined(__wasi__)
-#include <sys/file.h>
-#include <fcntl.h>
-#include <cerrno>
+#যদি !defined(_WIN32) && !defined(__wasi__)
+#অন্তর্ভাব <sys/file.h>
+#অন্তর্ভাব <fcntl.h>
+#অন্তর্ভাব <cerrno>
 #endif
 
 YOSYS_NAMESPACE_BEGIN
 
 // Set of utilities for handling files
 
-int readsome(std::istream &f, char *s, int n)
+পূর্ণাঙ্ক readsome(std::istream &f, বর্ণ *s, পূর্ণাঙ্ক n)
 {
-	int rc = int(f.readsome(s, n));
+	পূর্ণাঙ্ক rc = পূর্ণাঙ্ক(f.readsome(s, n));
 
 	// f.readsome() sometimes returns 0 on a non-empty stream..
-	if (rc == 0) {
-		int c = f.get();
-		if (c != EOF) {
+	যদি (rc == 0) {
+		পূর্ণাঙ্ক c = f.get();
+		যদি (c != EOF) {
 			*s = c;
 			rc = 1;
 		}
 	}
 
-	return rc;
+	প্রত্যাগম rc;
 }
 
-std::string next_token(std::string &text, const char *sep, bool long_strings)
+std::string next_token(std::string &text, ধ্রুব বর্ণ *sep, তার্কিক long_strings)
 {
 	size_t pos_begin = text.find_first_not_of(sep);
 
-	if (pos_begin == std::string::npos)
+	যদি (pos_begin == std::string::npos)
 		pos_begin = text.size();
 
-	if (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
+	যদি (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
 		std::string sep_string = sep;
-		for (size_t i = pos_begin+1; i < text.size(); i++) {
-			if (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
+		প্রতি (size_t i = pos_begin+1; i < text.size(); i++) {
+			যদি (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
 				std::string token = text.substr(pos_begin, i-pos_begin+1);
 				text = text.substr(i+1);
-				return token;
+				প্রত্যাগম token;
 			}
-			if (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
+			যদি (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
 				std::string token = text.substr(pos_begin, i-pos_begin+1);
 				text = text.substr(i+2);
-				return token + ";";
+				প্রত্যাগম token + ";";
 			}
 		}
 	}
 
 	size_t pos_end = text.find_first_of(sep, pos_begin);
 
-	if (pos_end == std::string::npos)
+	যদি (pos_end == std::string::npos)
 		pos_end = text.size();
 
 	std::string token = text.substr(pos_begin, pos_end-pos_begin);
 	text = text.substr(pos_end);
-	return token;
+	প্রত্যাগম token;
 }
 
-std::vector<std::string> split_tokens(const std::string &text, const char *sep)
+std::vector<std::string> split_tokens(ধ্রুব std::string &text, ধ্রুব বর্ণ *sep)
 {
 	std::vector<std::string> tokens;
 	std::string current_token;
-	for (char c : text) {
-		if (strchr(sep, c)) {
-			if (!current_token.empty()) {
-				tokens.push_back(current_token);
+	প্রতি (বর্ণ c : text) {
+		যদি (strchr(sep, c)) {
+			যদি (!current_token.empty()) {
+				tokens.ঠেলো_back(current_token);
 				current_token.clear();
 			}
-		} else
+		} অন্যথা
 			current_token += c;
 	}
-	if (!current_token.empty()) {
-		tokens.push_back(current_token);
+	যদি (!current_token.empty()) {
+		tokens.ঠেলো_back(current_token);
 		current_token.clear();
 	}
-	return tokens;
+	প্রত্যাগম tokens;
 }
 
 // this is very similar to fnmatch(). the exact rules used by this
@@ -102,349 +102,349 @@ std::vector<std::string> split_tokens(const std::string &text, const char *sep)
 // a backslash may be used to escape the next characters in the
 // pattern. each special character can also simply match itself.
 //
-bool patmatch(const char *pattern, const char *string)
+তার্কিক patmatch(ধ্রুব বর্ণ *pattern, ধ্রুব বর্ণ *string)
 {
-	if (*pattern == 0)
-		return *string == 0;
+	যদি (*pattern == 0)
+		প্রত্যাগম *string == 0;
 
-	if (*pattern == '\\') {
-		if (pattern[1] == string[0] && patmatch(pattern+2, string+1))
-			return true;
+	যদি (*pattern == '\\') {
+		যদি (pattern[1] == string[0] && patmatch(pattern+2, string+1))
+			প্রত্যাগম সত্য;
 	}
 
-	if (*pattern == '?') {
-		if (*string == 0)
-			return false;
-		return patmatch(pattern+1, string+1);
+	যদি (*pattern == '?') {
+		যদি (*string == 0)
+			প্রত্যাগম অসত্য;
+		প্রত্যাগম patmatch(pattern+1, string+1);
 	}
 
-	if (*pattern == '*') {
-		while (*string) {
-			if (patmatch(pattern+1, string++))
-				return true;
+	যদি (*pattern == '*') {
+		যাবত্ (*string) {
+			যদি (patmatch(pattern+1, string++))
+				প্রত্যাগম সত্য;
 		}
-		return pattern[1] == 0;
+		প্রত্যাগম pattern[1] == 0;
 	}
 
-	if (*pattern == '[') {
-		bool found_match = false;
-		bool inverted_list = pattern[1] == '!';
-		const char *p = pattern + (inverted_list ? 1 : 0);
+	যদি (*pattern == '[') {
+		তার্কিক found_match = অসত্য;
+		তার্কিক inverted_list = pattern[1] == '!';
+		ধ্রুব বর্ণ *p = pattern + (inverted_list ? 1 : 0);
 
-		while (*++p) {
-			if (*p == ']') {
-				if (found_match != inverted_list && patmatch(p+1, string+1))
-					return true;
-				break;
+		যাবত্ (*++p) {
+			যদি (*p == ']') {
+				যদি (found_match != inverted_list && patmatch(p+1, string+1))
+					প্রত্যাগম সত্য;
+				ভঙ্গ;
 			}
 
-			if (*p == '\\') {
-				if (*++p == *string)
-					found_match = true;
-			} else
-			if (*p == *string)
-				found_match = true;
+			যদি (*p == '\\') {
+				যদি (*++p == *string)
+					found_match = সত্য;
+			} অন্যথা
+			যদি (*p == *string)
+				found_match = সত্য;
 		}
 	}
 
-	if (*pattern == *string)
-		return patmatch(pattern+1, string+1);
+	যদি (*pattern == *string)
+		প্রত্যাগম patmatch(pattern+1, string+1);
 
-	return false;
+	প্রত্যাগম অসত্য;
 }
 
 std::string get_base_tmpdir()
 {
-	static std::string tmpdir;
+	স্থির std::string tmpdir;
 
-	if (!tmpdir.empty()) {
-		return tmpdir;
+	যদি (!tmpdir.empty()) {
+		প্রত্যাগম tmpdir;
 	}
 
-#if defined(_WIN32)
+#যদি defined(_WIN32)
 	std::wstring wtmppath(4096, L'\0');
 	// typically returns a 8.3 path, but this can be disabled via registry
-	if (!GetTempPathW(wtmppath.size(), wtmppath.data()))
+	যদি (!GetTempPathW(wtmppath.size(), wtmppath.data()))
 		log_error("GetTempPathW() failed.\n");
 	wtmppath.resize(wtmppath.find(L'\0'));
 	std::string utmppath;
-	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), NULL, NULL) == 0)
+	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), রিক্ত, 0, রিক্ত, রিক্ত));
+	যদি (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), রিক্ত, রিক্ত) == 0)
 		log_error("WideCharToMultiByte() failed.\n");
 	tmpdir += utmppath;
-#else
-	char * var = std::getenv("TMPDIR");
-	if (var && strlen(var)!=0) {
+#অন্যথা
+	বর্ণ * var = std::getenv("TMPDIR");
+	যদি (var && strlen(var)!=0) {
 		tmpdir.assign(var);
 		// We return the directory name without the trailing '/'
-		while (!tmpdir.empty() && (tmpdir.back() == '/')) {
-			tmpdir.pop_back();
+		যাবত্ (!tmpdir.empty() && (tmpdir.back() == '/')) {
+			tmpdir.বের_করো_back();
 		}
-	} else {
+	} অন্যথা {
 		tmpdir.assign("/tmp");
 	}
 #endif
-	return tmpdir;
+	প্রত্যাগম tmpdir;
 }
 
 std::string make_temp_file(std::string template_str)
 {
 	size_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
-#if defined(__wasm)
-	static size_t index = 0;
+#যদি defined(__wasm)
+	স্থির size_t index = 0;
 	template_str.replace(pos, 6, stringf("%06zu", index++));
-#elif defined(_WIN32)
+#নোচেদ্যদি defined(_WIN32)
 #ifndef YOSYS_WIN32_UNIX_DIR
 	std::replace(template_str.begin(), template_str.end(), '/', '\\');
 #endif
-	while (1) {
-		for (int i = 0; i < 6; i++) {
-			static std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-			static uint32_t x = 314159265 ^ uint32_t(time(NULL));
+	যাবত্ (1) {
+		প্রতি (পূর্ণাঙ্ক i = 0; i < 6; i++) {
+			স্থির std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			স্থির uint32_t x = 314159265 ^ uint32_t(time(রিক্ত));
 			x ^= x << 13, x ^= x >> 17, x ^= x << 5;
 			template_str[pos+i] = y[x % y.size()];
 		}
-		if (_access(template_str.c_str(), 0) != 0)
-			break;
+		যদি (_access(template_str.c_str(), 0) != 0)
+			ভঙ্গ;
 	}
-#else
-	int suffixlen = template_str.size() - pos - 6;
+#অন্যথা
+	পূর্ণাঙ্ক suffixlen = template_str.size() - pos - 6;
 
-	char *p = strdup(template_str.c_str());
+	বর্ণ *p = strdup(template_str.c_str());
 	close(mkstemps(p, suffixlen));
 	template_str = p;
-	free(p);
+	মুক্ত(p);
 #endif
 
-	return template_str;
+	প্রত্যাগম template_str;
 }
 
 std::string make_temp_dir(std::string template_str)
 {
-#if defined(_WIN32)
+#যদি defined(_WIN32)
 	template_str = make_temp_file(template_str);
 	mkdir(template_str.c_str());
-	return template_str;
-#elif defined(__wasm)
+	প্রত্যাগম template_str;
+#নোচেদ্যদি defined(__wasm)
 	template_str = make_temp_file(template_str);
 	mkdir(template_str.c_str(), 0777);
-	return template_str;
-#else
+	প্রত্যাগম template_str;
+#অন্যথা
 #  ifndef NDEBUG
 	size_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
 
-	int suffixlen = template_str.size() - pos - 6;
+	পূর্ণাঙ্ক suffixlen = template_str.size() - pos - 6;
 	log_assert(suffixlen == 0);
 #  endif
 
-	char *p = strdup(template_str.c_str());
+	বর্ণ *p = strdup(template_str.c_str());
 	log_assert(p);
-	char *res = mkdtemp(p);
-	if (!res)
+	বর্ণ *res = mkdtemp(p);
+	যদি (!res)
 		log_error("mkdtemp failed for '%s': %s [Error %d]\n",
 			p, strerror(errno), errno);
 	template_str = p;
-	free(p);
+	মুক্ত(p);
 
-	return template_str;
+	প্রত্যাগম template_str;
 #endif
 }
 
-bool check_is_directory(const std::string& dirname)
+তার্কিক check_is_directory(ধ্রুব std::string& dirname)
 {
-#if defined(_WIN32)
-	struct _stat info;
+#যদি defined(_WIN32)
+	সংরচনা _stat info;
 	auto dirname_ = dirname;
 
 	/* On old versions of Visual Studio and current versions on MinGW,
 	   _stat will fail if the path ends with a trailing slash. */
-	if (dirname.back() == '/' || dirname.back() == '\\') {
+	যদি (dirname.back() == '/' || dirname.back() == '\\') {
 		dirname_ = dirname.substr(0, dirname.length() - 1);
 	}
 
-	if (_stat(dirname_.c_str(), &info) != 0)
+	যদি (_stat(dirname_.c_str(), &info) != 0)
 	{
-		return false;
+		প্রত্যাগম অসত্য;
 	}
-	return (info.st_mode & _S_IFDIR) != 0;
-#else
-	struct stat info;
-	if (stat(dirname.c_str(), &info) != 0)
+	প্রত্যাগম (info.st_mode & _S_IFDIR) != 0;
+#অন্যথা
+	সংরচনা stat info;
+	যদি (stat(dirname.c_str(), &info) != 0)
 	{
-		return false;
+		প্রত্যাগম অসত্য;
 	}
-	return (info.st_mode & S_IFDIR) != 0;
+	প্রত্যাগম (info.st_mode & S_IFDIR) != 0;
 #endif
 }
 
 #ifdef _WIN32
-bool check_accessible(const std::string& filename, bool)
+তার্কিক check_accessible(ধ্রুব std::string& filename, তার্কিক)
 {
-	return _access(filename.c_str(), 0) == 0;
+	প্রত্যাগম _access(filename.c_str(), 0) == 0;
 }
-#else
-bool check_accessible(const std::string& filename, bool is_exec)
+#অন্যথা
+তার্কিক check_accessible(ধ্রুব std::string& filename, তার্কিক is_exec)
 {
-	return access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
+	প্রত্যাগম access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
 }
 #endif
 
-bool check_file_exists(const std::string& filename, bool is_exec)
+তার্কিক check_file_exists(ধ্রুব std::string& filename, তার্কিক is_exec)
 {
-	return check_accessible(filename, is_exec) && !check_is_directory(filename);
+	প্রত্যাগম check_accessible(filename, is_exec) && !check_is_directory(filename);
 }
-bool check_directory_exists(const std::string& filename, bool is_exec)
+তার্কিক check_directory_exists(ধ্রুব std::string& filename, তার্কিক is_exec)
 {
-	return check_accessible(filename, is_exec) && check_is_directory(filename);
+	প্রত্যাগম check_accessible(filename, is_exec) && check_is_directory(filename);
 }
 
-bool is_absolute_path(std::string filename)
+তার্কিক is_absolute_path(std::string filename)
 {
 #ifdef _WIN32
-	return filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
-#else
-	return filename[0] == '/';
+	প্রত্যাগম filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
+#অন্যথা
+	প্রত্যাগম filename[0] == '/';
 #endif
 }
 
-void remove_directory(std::string dirname)
+শূন্য remove_directory(std::string dirname)
 {
 #ifdef _WIN32
 	run_command(stringf("rmdir /s /q \"%s\"", dirname));
-#else
-	struct stat stbuf;
-	struct dirent **namelist;
-	int n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
+#অন্যথা
+	সংরচনা stat stbuf;
+	সংরচনা dirent **namelist;
+	পূর্ণাঙ্ক n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
 	log_assert(n >= 0);
-	for (int i = 0; i < n; i++) {
-		if (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
+	প্রতি (পূর্ণাঙ্ক i = 0; i < n; i++) {
+		যদি (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
 			std::string buffer = stringf("%s/%s", dirname, namelist[i]->d_name);
-			if (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
+			যদি (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
 				remove(buffer.c_str());
-			} else
+			} অন্যথা
 				remove_directory(buffer);
 		}
-		free(namelist[i]);
+		মুক্ত(namelist[i]);
 	}
-	free(namelist);
+	মুক্ত(namelist);
 	rmdir(dirname.c_str());
 #endif
 }
 
-bool create_directory(const std::string& dirname)
+তার্কিক create_directory(ধ্রুব std::string& dirname)
 {
-#if defined(_WIN32)
-	int ret = _mkdir(dirname.c_str());
-#else
+#যদি defined(_WIN32)
+	পূর্ণাঙ্ক ret = _mkdir(dirname.c_str());
+#অন্যথা
 	mode_t mode = 0755;
-	int ret = mkdir(dirname.c_str(), mode);
+	পূর্ণাঙ্ক ret = mkdir(dirname.c_str(), mode);
 #endif
-	if (ret == 0)
-		return true;
+	যদি (ret == 0)
+		প্রত্যাগম সত্য;
 
-	switch (errno)
+	বিকল্প (errno)
 	{
-	case ENOENT:
+	পক্ষ ENOENT:
 		// parent didn't exist, try to create it
 		{
 			std::string::size_type pos = dirname.find_last_of('/');
-			if (pos == std::string::npos)
-#if defined(_WIN32)
+			যদি (pos == std::string::npos)
+#যদি defined(_WIN32)
 				pos = dirname.find_last_of('\\');
-			if (pos == std::string::npos)
+			যদি (pos == std::string::npos)
 #endif
-				return false;
-			if (!create_directory( dirname.substr(0, pos) ))
-				return false;
+				প্রত্যাগম অসত্য;
+			যদি (!create_directory( dirname.substr(0, pos) ))
+				প্রত্যাগম অসত্য;
 		}
 		// now, try to create again
-#if defined(_WIN32)
-		return 0 == _mkdir(dirname.c_str());
-#else
-		return 0 == mkdir(dirname.c_str(), mode);
+#যদি defined(_WIN32)
+		প্রত্যাগম 0 == _mkdir(dirname.c_str());
+#অন্যথা
+		প্রত্যাগম 0 == mkdir(dirname.c_str(), mode);
 #endif
 
-	case EEXIST:
+	পক্ষ EEXIST:
 		// done!
-		return check_directory_exists(dirname);
+		প্রত্যাগম check_directory_exists(dirname);
 
-	default:
-		return false;
+	স্বভাব:
+		প্রত্যাগম অসত্য;
 	}
 }
 
-bool make_private_directory(const std::string& dirname)
+তার্কিক make_private_directory(ধ্রুব std::string& dirname)
 {
-#if defined(_WIN32) || defined(__wasi__)
-	if (!create_directory(dirname)) {
+#যদি defined(_WIN32) || defined(__wasi__)
+	যদি (!create_directory(dirname)) {
 		log_warning("Cannot create the directory %s\n", dirname.c_str());
-		return false;
+		প্রত্যাগম অসত্য;
 	}
-	return true;
-#else
-	if (mkdir(dirname.c_str(), 0700) == 0)
-		return true;
+	প্রত্যাগম সত্য;
+#অন্যথা
+	যদি (mkdir(dirname.c_str(), 0700) == 0)
+		প্রত্যাগম সত্য;
 
 	// Keep the errno of each mkdir(), create_directory() below makes its own calls
-	int err = errno;
+	পূর্ণাঙ্ক err = errno;
 	std::string parent = std::filesystem::path(dirname).parent_path().string();
 
-	if (err == ENOENT && !parent.empty() && create_directory(parent)) {
-		if (mkdir(dirname.c_str(), 0700) == 0)
-			return true;
+	যদি (err == ENOENT && !parent.empty() && create_directory(parent)) {
+		যদি (mkdir(dirname.c_str(), 0700) == 0)
+			প্রত্যাগম সত্য;
 		err = errno;
 	}
 
-	if (err != EEXIST) {
+	যদি (err != EEXIST) {
 		log_warning("Cannot create the directory %s: %s\n", dirname.c_str(), strerror(err));
-		return false;
+		প্রত্যাগম অসত্য;
 	}
 
 	// Do not use a leftover that isn't ours
-	struct stat st;
-	if (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
+	সংরচনা stat st;
+	যদি (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
 		log_warning("%s is not a directory of this user\n", dirname.c_str());
-		return false;
+		প্রত্যাগম অসত্য;
 	}
 	// Repair the mode if something changed it
 	mode_t mode = st.st_mode & 0777;
-	if (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
+	যদি (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
 		log_warning("Cannot make the directory %s private: %s\n", dirname.c_str(), strerror(errno));
-		return false;
+		প্রত্যাগম অসত্য;
 	}
 
-	return true;
+	প্রত্যাগম সত্য;
 #endif
 }
 
-std::string make_user_tmpdir(const std::string& name)
+std::string make_user_tmpdir(ধ্রুব std::string& name)
 {
 	log_assert(!name.empty() && name.find('/') == std::string::npos);
-#if defined(_WIN32) || defined(__wasi__)
+#যদি defined(_WIN32) || defined(__wasi__)
 	std::string dirname = get_base_tmpdir() + "/" + name;
-#else
+#অন্যথা
 	std::string dirname = stringf("%s/%s-%u", get_base_tmpdir().c_str(), name.c_str(), (unsigned)geteuid());
 #endif
-	return make_private_directory(dirname) ? dirname : "";
+	প্রত্যাগম make_private_directory(dirname) ? dirname : "";
 }
 
-std::string escape_filename_spaces(const std::string& filename)
+std::string escape_filename_spaces(ধ্রুব std::string& filename)
 {
 	std::string out;
 	out.reserve(filename.size());
-	for (auto c : filename)
+	প্রতি (auto c : filename)
 	{
-		if (c == ' ')
+		যদি (c == ' ')
 			out += "\\ ";
-		else
-			out.push_back(c);
+		অন্যথা
+			out.ঠেলো_back(c);
 	}
-	return out;
+	প্রত্যাগম out;
 }
 
-void append_globbed(std::vector<std::string>& paths, std::string pattern)
+শূন্য append_globbed(std::vector<std::string>& paths, std::string pattern)
 {
 	rewrite_filename(pattern);
 	std::vector<std::string> globbed = glob_filename(pattern);
@@ -452,46 +452,46 @@ void append_globbed(std::vector<std::string>& paths, std::string pattern)
 }
 
 std::string name_from_file_path(std::string path) {
-	return std::filesystem::path(path).filename().string();
+	প্রত্যাগম std::filesystem::path(path).filename().string();
 }
 
-std::string absolute_path(const std::string& path)
+std::string absolute_path(ধ্রুব std::string& path)
 {
 	std::error_code ec;
 	std::filesystem::path result = std::filesystem::absolute(path, ec);
 
-	if (ec)
-		return "";
+	যদি (ec)
+		প্রত্যাগম "";
 
 	result = std::filesystem::weakly_canonical(result, ec);
 
-	if (ec)
-		return "";
+	যদি (ec)
+		প্রত্যাগম "";
 
-	return result.string();
+	প্রত্যাগম result.string();
 }
 
 // Includes OS_PATH_SEP at the end if present
 std::string parent_from_file_path(std::string path) {
 	auto parent = std::filesystem::path(path).parent_path();
-	if (parent.empty()) {
-		return "";
+	যদি (parent.empty()) {
+		প্রত্যাগম "";
 	}
 	// Add trailing separator to match original behavior
 	std::string result = parent.string();
-	if (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
+	যদি (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
 		result += std::filesystem::path::preferred_separator;
 	}
-	return result;
+	প্রত্যাগম result;
 }
 
-void format_emit_unescaped(std::string &result, std::string_view fmt)
+শূন্য format_emit_unescaped(std::string &result, std::string_view fmt)
 {
 	result.reserve(result.size() + fmt.size());
-	for (size_t i = 0; i < fmt.size(); ++i) {
-		char ch = fmt[i];
-		result.push_back(ch);
-		if (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
+	প্রতি (size_t i = 0; i < fmt.size(); ++i) {
+		বর্ণ ch = fmt[i];
+		result.ঠেলো_back(ch);
+		যদি (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
 			++i;
 		}
 	}
@@ -501,248 +501,248 @@ std::string unescape_format_string(std::string_view fmt)
 {
 	std::string result;
 	format_emit_unescaped(result, fmt);
-	return result;
+	প্রত্যাগম result;
 }
 
-static std::string string_view_stringf(std::string_view spec, ...)
+স্থির std::string string_view_stringf(std::string_view spec, ...)
 {
 	va_list ap;
 	va_start(ap, spec);
 	std::string result = vstringf(std::string(spec).c_str(), ap);
 	va_end(ap);
-	return result;
+	প্রত্যাগম result;
 }
 
-static int spec_parameter_size(std::string_view spec)
+স্থির পূর্ণাঙ্ক spec_parameter_size(std::string_view spec)
 {
 	// Every valid spec starts with '%' which means the code below
 	// won't look before the spec start.
-	switch (spec[spec.size() - 1]) {
-	case 'd':
-	case 'i':
-	case 'o':
-	case 'u':
-	case 'x':
-	case 'X':
-		switch (spec[spec.size() - 2]) {
-		case 'h':
-			if (spec[spec.size() - 3] == 'h')
-				return sizeof(char);
-			return sizeof(short);
-		case 'l':
-			if (spec[spec.size() - 3] == 'l')
-				return sizeof(long long);
-			return sizeof(long);
-		case 'L':
-		case 'q':
-			return sizeof(long long);
-		case 'j':
-			return sizeof(intmax_t);
-		case 'z':
-		case 'Z':
-			return sizeof(size_t);
-		case 't':
-			return sizeof(ptrdiff_t);
+	বিকল্প (spec[spec.size() - 1]) {
+	পক্ষ 'd':
+	পক্ষ 'i':
+	পক্ষ 'o':
+	পক্ষ 'u':
+	পক্ষ 'x':
+	পক্ষ 'X':
+		বিকল্প (spec[spec.size() - 2]) {
+		পক্ষ 'h':
+			যদি (spec[spec.size() - 3] == 'h')
+				প্রত্যাগম পরিমাণ(বর্ণ);
+			প্রত্যাগম পরিমাণ(short);
+		পক্ষ 'l':
+			যদি (spec[spec.size() - 3] == 'l')
+				প্রত্যাগম পরিমাণ(long long);
+			প্রত্যাগম পরিমাণ(long);
+		পক্ষ 'L':
+		পক্ষ 'q':
+			প্রত্যাগম পরিমাণ(long long);
+		পক্ষ 'j':
+			প্রত্যাগম পরিমাণ(intmax_t);
+		পক্ষ 'z':
+		পক্ষ 'Z':
+			প্রত্যাগম পরিমাণ(size_t);
+		পক্ষ 't':
+			প্রত্যাগম পরিমাণ(ptrdiff_t);
 		}
-		return sizeof(int);
-	case 'e':
-	case 'E':
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-	case 'a':
-	case 'A':
-		if (spec[spec.size() - 2] == 'L')
-			return sizeof(long double);
-		if (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
-			return sizeof(long double);
-		return sizeof(double);
-	case 'c':
-		if (spec[spec.size() - 2] == 'l') {
-			return sizeof(wchar_t);
+		প্রত্যাগম পরিমাণ(পূর্ণাঙ্ক);
+	পক্ষ 'e':
+	পক্ষ 'E':
+	পক্ষ 'f':
+	পক্ষ 'F':
+	পক্ষ 'g':
+	পক্ষ 'G':
+	পক্ষ 'a':
+	পক্ষ 'A':
+		যদি (spec[spec.size() - 2] == 'L')
+			প্রত্যাগম পরিমাণ(long দ্বিগুণ);
+		যদি (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
+			প্রত্যাগম পরিমাণ(long দ্বিগুণ);
+		প্রত্যাগম পরিমাণ(দ্বিগুণ);
+	পক্ষ 'c':
+		যদি (spec[spec.size() - 2] == 'l') {
+			প্রত্যাগম পরিমাণ(wchar_t);
 		}
-		return sizeof(unsigned char);
-	case 'C':
-		return sizeof(wchar_t);
-	case 's':
-	case 'p':
-	case 'S':
-	case 'n':
-		return sizeof(void *);
-	case 'm':
-		return sizeof(int);
-	default:
-		return -1;
+		প্রত্যাগম পরিমাণ(unsigned বর্ণ);
+	পক্ষ 'C':
+		প্রত্যাগম পরিমাণ(wchar_t);
+	পক্ষ 's':
+	পক্ষ 'p':
+	পক্ষ 'S':
+	পক্ষ 'n':
+		প্রত্যাগম পরিমাণ(শূন্য *);
+	পক্ষ 'm':
+		প্রত্যাগম পরিমাণ(পূর্ণাঙ্ক);
+	স্বভাব:
+		প্রত্যাগম -1;
 	}
 }
 
 template <typename Arg>
-static void format_emit_stringf(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, Arg arg)
+স্থির শূন্য format_emit_stringf(std::string &result, std::string_view spec, পূর্ণাঙ্ক *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, Arg arg)
 {
 	// Delegate nontrivial formats to the C library.
-	switch (num_dynamic_ints) {
-	case DynamicIntCount::NONE:
+	বিকল্প (অঙ্ক_dynamic_ints) {
+	পক্ষ Dynamic_Int_গুনতি::NONE:
 		result += string_view_stringf(spec, arg);
-		return;
-	case DynamicIntCount::ONE:
+		প্রত্যাগম;
+	পক্ষ Dynamic_Int_গুনতি::ONE:
 		result += string_view_stringf(spec, dynamic_ints[0], arg);
-		return;
-	case DynamicIntCount::TWO:
+		প্রত্যাগম;
+	পক্ষ Dynamic_Int_গুনতি::TWO:
 		result += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
-		return;
+		প্রত্যাগম;
 	}
 	YOSYS_ABORT("Internal error");
 }
 
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, long long arg)
+শূন্য format_emit_long_long(std::string &result, std::string_view spec, পূর্ণাঙ্ক *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, long long arg)
 {
-	if (spec == "%d") {
+	যদি (spec == "%d") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<int>(arg));
-		return;
+		result += std::to_string(static_cast<পূর্ণাঙ্ক>(arg));
+		প্রত্যাগম;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	যদি (spec_parameter_size(spec) <= 4) {
 		// On some platforms (Wasm) we must ensure that the arg is properly aligned
 		// after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(result, spec, dynamic_ints, অঙ্ক_dynamic_ints, (পূর্ণাঙ্ক)arg);
+	} অন্যথা {
+		format_emit_stringf(result, spec, dynamic_ints, অঙ্ক_dynamic_ints, arg);
 	}
 }
 
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, unsigned long long arg)
+শূন্য format_emit_unsigned_long_long(std::string &result, std::string_view spec, পূর্ণাঙ্ক *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, unsigned long long arg)
 {
-	if (spec == "%u") {
+	যদি (spec == "%u") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<unsigned int>(arg));
-		return;
+		result += std::to_string(static_cast<unsigned পূর্ণাঙ্ক>(arg));
+		প্রত্যাগম;
 	}
-	if (spec == "%c") {
-		result += static_cast<char>(arg);
-		return;
+	যদি (spec == "%c") {
+		result += static_cast<বর্ণ>(arg);
+		প্রত্যাগম;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	যদি (spec_parameter_size(spec) <= 4) {
                 // On some platforms (Wasm) we must ensure that the arg is properly aligned
                 // after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (unsigned int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(result, spec, dynamic_ints, অঙ্ক_dynamic_ints, (unsigned পূর্ণাঙ্ক)arg);
+	} অন্যথা {
+		format_emit_stringf(result, spec, dynamic_ints, অঙ্ক_dynamic_ints, arg);
 	}
 }
 
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, double arg)
+শূন্য format_emit_double(std::string &result, std::string_view spec, পূর্ণাঙ্ক *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, দ্বিগুণ arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, অঙ্ক_dynamic_ints, arg);
 }
 
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const char *arg)
+শূন্য format_emit_char_ptr(std::string &result, std::string_view spec, পূর্ণাঙ্ক *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, ধ্রুব বর্ণ *arg)
 {
-	if (spec == "%s") {
+	যদি (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		result += arg;
-		return;
+		প্রত্যাগম;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, অঙ্ক_dynamic_ints, arg);
 }
 
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const std::string &arg)
+শূন্য format_emit_string(std::string &result, std::string_view spec, পূর্ণাঙ্ক *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, ধ্রুব std::string &arg)
 {
-	if (spec == "%s") {
+	যদি (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		result += arg;
-		return;
+		প্রত্যাগম;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg.c_str());
+	format_emit_stringf(result, spec, dynamic_ints, অঙ্ক_dynamic_ints, arg.c_str());
 }
 
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, std::string_view arg)
+শূন্য format_emit_string_view(std::string &result, std::string_view spec, পূর্ণাঙ্ক *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, std::string_view arg)
 {
-	if (spec == "%s") {
+	যদি (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		// We can output the string without creating a temporary copy.
 		result += arg;
-		return;
+		প্রত্যাগম;
 	}
 	// Delegate nontrivial formats to the C library. We need to construct
 	// a temporary string to ensure null termination.
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, std::string(arg).c_str());
+	format_emit_stringf(result, spec, dynamic_ints, অঙ্ক_dynamic_ints, std::string(arg).c_str());
 }
 
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const void *arg)
+শূন্য format_emit_void_ptr(std::string &result, std::string_view spec, পূর্ণাঙ্ক *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, ধ্রুব শূন্য *arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, অঙ্ক_dynamic_ints, arg);
 }
 
-#if defined(_WIN32)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#যদি defined(_WIN32)
+ScopedFileLock::ScopedFileLock(ধ্রুব std::string &path)
 {
 	HANDLE h = CreateFileA(path.c_str(), GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-			NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h == INVALID_HANDLE_VALUE) {
+			রিক্ত, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, রিক্ত);
+	যদি (h == INVALID_HANDLE_মান) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+		প্রত্যাগম;
 	}
 	OVERLAPPED ov = {};
-	if (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
+	যদি (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
 		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
 		CloseHandle(h);
-		return;
+		প্রত্যাগম;
 	}
 	handle = h;
 }
 
 ScopedFileLock::~ScopedFileLock()
 {
-	if (handle != nullptr) {
+	যদি (handle != nullptr) {
 		OVERLAPPED ov = {};
 		UnlockFileEx(handle, 0, MAXDWORD, MAXDWORD, &ov);
 		CloseHandle(handle);
 	}
 }
-#elif !defined(__wasi__)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#নোচেদ্যদি !defined(__wasi__)
+ScopedFileLock::ScopedFileLock(ধ্রুব std::string &path)
 {
 	fd = open(path.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0666);
-	if (fd < 0)
+	যদি (fd < 0)
 		fd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
-	if (fd < 0) {
+	যদি (fd < 0) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+		প্রত্যাগম;
 	}
-	int ret;
-	while ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
-	if (ret != 0)
+	পূর্ণাঙ্ক ret;
+	যাবত্ ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
+	যদি (ret != 0)
 		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
 }
 
 ScopedFileLock::~ScopedFileLock()
 {
-	if (fd >= 0)
+	যদি (fd >= 0)
 		close(fd); // releases the flock
 }
-#else
-ScopedFileLock::ScopedFileLock(const std::string &) {}
+#অন্যথা
+ScopedFileLock::ScopedFileLock(ধ্রুব std::string &) {}
 ScopedFileLock::~ScopedFileLock() {}
 #endif
 
 unsigned get_process_id()
 {
-#if defined(_WIN32)
-	return GetCurrentProcessId();
-#elif defined(__wasi__)
-	return 0;
-#else
-	return getpid();
+#যদি defined(_WIN32)
+	প্রত্যাগম GetCurrentProcessId();
+#নোচেদ্যদি defined(__wasi__)
+	প্রত্যাগম 0;
+#অন্যথা
+	প্রত্যাগম getpid();
 #endif
 }
 

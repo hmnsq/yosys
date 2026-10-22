@@ -20,56 +20,56 @@
 #ifndef YOSYS_COMMON_H
 #define YOSYS_COMMON_H
 
-#include <array>
-#include <atomic>
-#include <map>
-#include <set>
-#include <tuple>
-#include <vector>
-#include <string>
-#include <algorithm>
-#include <functional>
-#include <unordered_map>
-#include <unordered_set>
-#include <initializer_list>
-#include <variant>
-#include <optional>
-#include <stdexcept>
-#include <memory>
-#include <cmath>
-#include <cstddef>
+#অন্তর্ভাব <array>
+#অন্তর্ভাব <atomic>
+#অন্তর্ভাব <map>
+#অন্তর্ভাব <set>
+#অন্তর্ভাব <tuple>
+#অন্তর্ভাব <vector>
+#অন্তর্ভাব <string>
+#অন্তর্ভাব <algorithm>
+#অন্তর্ভাব <functional>
+#অন্তর্ভাব <unordered_map>
+#অন্তর্ভাব <unordered_set>
+#অন্তর্ভাব <initializer_list>
+#অন্তর্ভাব <variant>
+#অন্তর্ভাব <optional>
+#অন্তর্ভাব <stdexcept>
+#অন্তর্ভাব <memory>
+#অন্তর্ভাব <cmath>
+#অন্তর্ভাব <cstddef>
 
-#include <sstream>
-#include <fstream>
-#include <istream>
-#include <ostream>
-#include <iostream>
+#অন্তর্ভাব <sstream>
+#অন্তর্ভাব <fstream>
+#অন্তর্ভাব <istream>
+#অন্তর্ভাব <ostream>
+#অন্তর্ভাব <iostream>
 
-#include <version>
-#if __cpp_lib_source_location >= 201907L
-	#include <source_location>
+#অন্তর্ভাব <version>
+#যদি __cpp_lib_source_location >= 201907L
+	#অন্তর্ভাব <source_location>
 	using std::source_location;
-#else
-	#include <experimental/source_location>
+#অন্যথা
+	#অন্তর্ভাব <experimental/source_location>
 	using std::experimental::source_location;
 #endif
 
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <limits.h>
-#include <sys/stat.h>
-#include <errno.h>
+#অন্তর্ভাব <stdarg.h>
+#অন্তর্ভাব <stdlib.h>
+#অন্তর্ভাব <string.h>
+#অন্তর্ভাব <stdint.h>
+#অন্তর্ভাব <stdio.h>
+#অন্তর্ভাব <limits.h>
+#অন্তর্ভাব <sys/stat.h>
+#অন্তর্ভাব <errno.h>
 
 #ifndef _YOSYS_
 #  error It looks like you are trying to build Yosys without the config defines set. \
          When building Yosys with a custom make system, make sure you set all the \
-         defines the Yosys Makefile would set for your build configuration.
+         defines the Yosys Makefile would set প্রতি your build configuration.
 #endif
 
-#include "kernel/yosys_config.h"
+#অন্তর্ভাব "kernel/yosys_config.h"
 
 #define FRIEND_TEST(test_case_name, test_name) \
   friend class test_case_name##_##test_name##_Test
@@ -118,41 +118,41 @@
 #define YOSYS_NAMESPACE_PREFIX   Yosys::
 #define USING_YOSYS_NAMESPACE    using namespace Yosys;
 
-#if defined(__GNUC__) || defined(__clang__)
+#যদি defined(__GNUC__) || defined(__clang__)
 #  define YS_ATTRIBUTE(...) __attribute__((__VA_ARGS__))
-#elif defined(_MSC_VER)
+#নোচেদ্যদি defined(_MSC_VER)
 #  define YS_ATTRIBUTE(...)
-#else
+#অন্যথা
 #  define YS_ATTRIBUTE(...)
 #endif
 
-#if defined(__GNUC__) || defined(__clang__)
+#যদি defined(__GNUC__) || defined(__clang__)
 #  define YS_MAYBE_UNUSED __attribute__((__unused__))
-#else
+#অন্যথা
 #  define YS_MAYBE_UNUSED
 #endif
 
-#if defined(_MSC_VER)
+#যদি defined(_MSC_VER)
 #  define YS_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
-#else
+#অন্যথা
 #  define YS_NO_UNIQUE_ADDRESS [[no_unique_address]]
 #endif
 
-#if __cplusplus >= 202002L
+#যদি __cplusplus >= 202002L
 #  define YS_FALLTHROUGH [[fallthrough]];
-#else
+#অন্যথা
 #  error "C++20 or later compatible compiler is required"
 #endif
 
-#if defined(__has_cpp_attribute) && __has_cpp_attribute(gnu::cold)
+#যদি defined(__has_cpp_attribute) && __has_cpp_attribute(gnu::cold)
 #  define YS_COLD [[gnu::cold]]
-#else
+#অন্যথা
 #  define YS_COLD
 #endif
 
 #ifdef __cpp_consteval
 #define YOSYS_CONSTEVAL consteval
-#else
+#অন্যথা
 // If we can't use consteval we can at least make it constexpr.
 #define YOSYS_CONSTEVAL constexpr
 #endif
@@ -161,21 +161,21 @@
 
 // This has to precede including "kernel/io.h"
 YOSYS_NAMESPACE_BEGIN
-[[noreturn]] void log_yosys_abort_message(std::string_view file, int line, std::string_view func, std::string_view message);
+[[noreturn]] শূন্য log_yosys_abort_message(std::string_view file, পূর্ণাঙ্ক সারি, std::string_view func, std::string_view message);
 
 [[noreturn]]
-void log_assert_failure(const char *expr, source_location location);
+শূন্য log_assert_failure(ধ্রুব বর্ণ *রাশিমালা, source_location location);
 #ifndef NDEBUG
-static inline void log_assert_worker(bool cond, const char *expr, source_location location = source_location::current()) {
-	if (!cond) log_assert_failure(expr, location);
+স্থির অন্তঃস্থ শূন্য log_assert_worker(bool cond, ধ্রুব বর্ণ *রাশিমালা, source_location location = source_location::current()) {
+	যদি (!cond) log_assert_failure(রাশিমালা, location);
 }
-#  define log_assert(_assert_expr_) YOSYS_NAMESPACE_PREFIX log_assert_worker(_assert_expr_, #_assert_expr_)
-#else
-#  define log_assert(_assert_expr_) do { if (0) { (void)(_assert_expr_); } } while(0)
+#  define log_assert(assert_রাশিমালা) YOSYS_NAMESPACE_PREFIX log_assert_worker(assert_রাশিমালা, #_assert_expr_)
+#অন্যথা
+#  define log_assert(assert_রাশিমালা) কুরু { যদি (0) { (শূন্য)(assert_রাশিমালা); } } যাবত্(0)
 #endif
 YOSYS_NAMESPACE_END
 
-#include "kernel/io.h"
+#অন্তর্ভাব "kernel/io.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -183,7 +183,7 @@ YOSYS_NAMESPACE_BEGIN
 // outside of YOSYS_NAMESPACE before this or bad things will happen.
 #ifdef HASHLIB_H
 #  error "You've probably included hashlib.h under two namespace paths. Bad idea."
-#else
+#অন্যথা
 #  include "kernel/hashlib.h"
 #  undef HASHLIB_H
 #endif
@@ -211,41 +211,41 @@ using hashlib::mfp;
 
 // A primitive shared string implementation that does not
 // move its .c_str() when the object is copied or moved.
-struct shared_str {
+সংরচনা shared_str {
 	std::shared_ptr<string> content;
 	shared_str() { }
 	shared_str(string s) { content = std::shared_ptr<string>(new string(s)); }
-	shared_str(const char *s) { content = std::shared_ptr<string>(new string(s)); }
-	const char *c_str() const { return content->c_str(); }
-	const string &str() const { return *content; }
-	bool operator==(const shared_str &other) const { return *content == *other.content; }
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
+	shared_str(ধ্রুব বর্ণ *s) { content = std::shared_ptr<string>(new string(s)); }
+	ধ্রুব বর্ণ *c_str() ধ্রুব { প্রত্যাগম content->c_str(); }
+	ধ্রুব string &str() ধ্রুব { প্রত্যাগম *content; }
+	bool operator==(ধ্রুব shared_str &other) ধ্রুব { প্রত্যাগম *content == *other.content; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ধ্রুব {
 		h.eat(*content);
-		return h;
+		প্রত্যাগম h;
 	}
 };
 
 namespace RTLIL {
-	struct Const;
-	struct SigBit;
-	struct SigSpec;
-	struct Wire;
-	struct Cell;
-	struct Memory;
-	struct Process;
-	struct Module;
-	struct Design;
-	struct Monitor;
-	struct Selection;
-	struct SigChunk;
-	struct PooledName;
-	enum State : unsigned char;
+	সংরচনা Const;
+	সংরচনা SigBit;
+	সংরচনা SigSpec;
+	সংরচনা Wire;
+	সংরচনা Cell;
+	সংরচনা Memory;
+	সংরচনা Process;
+	সংরচনা Module;
+	সংরচনা Design;
+	সংরচনা Monitor;
+	সংরচনা Selection;
+	সংরচনা SigChunk;
+	সংরচনা PooledName;
+	গণনা State : unsigned বর্ণ;
 
-	typedef std::pair<SigSpec, SigSpec> SigSig;
+	প্রকারনির্দেশ std::pair<SigSpec, SigSpec> SigSig;
 }
 
 namespace AST {
-	struct AstNode;
+	সংরচনা Ast_গ্রন্থি;
 }
 
 using RTLIL::Const;
@@ -262,76 +262,76 @@ using RTLIL::SigSig;
 using RTLIL::PooledName;
 
 namespace hashlib {
-	template<> struct hash_ops<RTLIL::Wire*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Cell*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Memory*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Process*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Module*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Design*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Monitor*> : hash_obj_ops {};
-	template<> struct hash_ops<AST::AstNode*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<RTLIL::Wire*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<RTLIL::Cell*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<RTLIL::Memory*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<RTLIL::Process*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<RTLIL::Module*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<RTLIL::Design*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<RTLIL::Monitor*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<AST::Ast_গ্রন্থি*> : hash_obj_ops {};
 
-	template<> struct hash_ops<const RTLIL::Wire*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Cell*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Memory*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Process*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Module*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Design*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Monitor*> : hash_obj_ops {};
-	template<> struct hash_ops<const AST::AstNode*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<ধ্রুব RTLIL::Wire*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<ধ্রুব RTLIL::Cell*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<ধ্রুব RTLIL::Memory*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<ধ্রুব RTLIL::Process*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<ধ্রুব RTLIL::Module*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<ধ্রুব RTLIL::Design*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<ধ্রুব RTLIL::Monitor*> : hash_obj_ops {};
+	template<> সংরচনা hash_ops<ধ্রুব AST::Ast_গ্রন্থি*> : hash_obj_ops {};
 }
 
-void memhasher_on();
-void memhasher_off();
-void memhasher_do();
+শূন্য memhasher_on();
+শূন্য memhasher_off();
+শূন্য memhasher_do();
 
-extern bool memhasher_active;
-inline void memhasher() { if (memhasher_active) memhasher_do(); }
+বাহ্য bool memhasher_active;
+অন্তঃস্থ শূন্য memhasher() { যদি (memhasher_active) memhasher_do(); }
 
-void yosys_banner();
-int ceil_log2(int x) YS_ATTRIBUTE(const);
+শূন্য yosys_banner();
+পূর্ণাঙ্ক ceil_log2(পূর্ণাঙ্ক x) YS_ATTRIBUTE(ধ্রুব);
 
-template<typename T> int GetSize(const T &obj) { return obj.size(); }
-inline int GetSize(RTLIL::Wire *wire);
+template<typename T> পূর্ণাঙ্ক GetSize(ধ্রুব T &obj) { প্রত্যাগম obj.size(); }
+অন্তঃস্থ পূর্ণাঙ্ক GetSize(RTLIL::Wire *wire);
 
 // When multiple threads are accessing RTLIL, one of these guard objects
 // must exist.
-struct Multithreading
+সংরচনা Multithreading
 {
 	Multithreading();
 	~Multithreading();
 	// Returns true when multiple threads are accessing RTLIL.
 	// autoidx cannot be used during such times.
 	// IdStrings cannot be created during such times.
-	static bool active() { return active_; }
-private:
-	static bool active_;
+	স্থির bool active() { প্রত্যাগম active_; }
+গুপ্ত:
+	স্থির bool active_;
 };
 
-struct Autoidx {
-	Autoidx(int value) : value(value) {}
-	operator int() const { return value; }
-	void ensure_at_least(int v);
-	int operator++(int);
-private:
-	int value;
+সংরচনা Autoidx {
+	Autoidx(পূর্ণাঙ্ক মান) : মান(মান) {}
+	operator পূর্ণাঙ্ক() ধ্রুব { প্রত্যাগম মান; }
+	শূন্য ensure_at_least(পূর্ণাঙ্ক v);
+	পূর্ণাঙ্ক operator++(পূর্ণাঙ্ক);
+গুপ্ত:
+	পূর্ণাঙ্ক মান;
 };
 
-extern Autoidx autoidx;
-extern int yosys_xtrace;
-extern bool yosys_write_versions;
+বাহ্য Autoidx autoidx;
+বাহ্য পূর্ণাঙ্ক yosys_xtrace;
+বাহ্য bool yosys_write_versions;
 
-const std::string *create_id_prefix(std::string_view file, int line, std::string_view func);
+ধ্রুব std::string *create_id_prefix(std::string_view file, পূর্ণাঙ্ক সারি, std::string_view func);
 
 #define NEW_ID \
-	YOSYS_NAMESPACE_PREFIX TwineSpec{YOSYS_NAMESPACE_PREFIX TwineSpec::AutoSuffix{[](source_location location, std::string_view func) -> const std::string * { \
-		static std::unique_ptr<const std::string> prefix(YOSYS_NAMESPACE_PREFIX create_id_prefix(location.file_name(), location.line(), func)); \
-		return prefix.get(); \
+	YOSYS_NAMESPACE_PREFIX TwineSpec{YOSYS_NAMESPACE_PREFIX TwineSpec::AutoSuffix{[](source_location location, std::string_view func) -> ধ্রুব std::string * { \
+		স্থির std::unique_ptr<ধ্রুব std::string> prefix(YOSYS_NAMESPACE_PREFIX create_id_prefix(location.file_name(), location.সারি(), func)); \
+		প্রত্যাগম prefix.get(); \
 	}(source_location::current(), __FUNCTION__), std::to_string(YOSYS_NAMESPACE_PREFIX autoidx++)}}
 #define NEW_ID_SUFFIX(suffix) \
-	YOSYS_NAMESPACE_PREFIX TwineSpec{YOSYS_NAMESPACE_PREFIX TwineSpec::AutoSuffix{[](source_location location, std::string_view func) -> const std::string * { \
-		static std::unique_ptr<const std::string> prefix(YOSYS_NAMESPACE_PREFIX create_id_prefix(location.file_name(), location.line(), func)); \
-		return prefix.get(); \
+	YOSYS_NAMESPACE_PREFIX TwineSpec{YOSYS_NAMESPACE_PREFIX TwineSpec::AutoSuffix{[](source_location location, std::string_view func) -> ধ্রুব std::string * { \
+		স্থির std::unique_ptr<ধ্রুব std::string> prefix(YOSYS_NAMESPACE_PREFIX create_id_prefix(location.file_name(), location.সারি(), func)); \
+		প্রত্যাগম prefix.get(); \
 	}(source_location::current(), __FUNCTION__), std::string(suffix) + "$" + std::to_string(YOSYS_NAMESPACE_PREFIX autoidx++)}}
 
 YOSYS_NAMESPACE_END

@@ -20,8 +20,8 @@
 #ifndef REGISTER_H
 #define REGISTER_H
 
-#include "kernel/yosys_common.h"
-#include "kernel/yosys.h"
+#অন্তর্ভাব "kernel/yosys_common.h"
+#অন্তর্ভাব "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -32,90 +32,90 @@ YOSYS_NAMESPACE_BEGIN
 class GarbageCollectionGuard
 {
 	bool was_enabled;
-	static bool is_enabled_;
-public:
+	স্থির bool is_enabled_;
+সার্বজনিক:
 	GarbageCollectionGuard(bool allow) : was_enabled(is_enabled_) {
 		is_enabled_ &= allow;
 	}
 	~GarbageCollectionGuard() {
 		is_enabled_ = was_enabled;
 	}
-	static bool is_enabled() { return is_enabled_; }
+	স্থির bool is_enabled() { প্রত্যাগম is_enabled_; }
 };
 
 // Call from anywhere to request GC at the next safe point.
-void request_garbage_collection();
+শূন্য request_garbage_collection();
 
 // GC the active design if GarbageCollectionGuard::is_enabled() and GC was requested.
-void try_collect_garbage();
+শূন্য try_collect_garbage();
 
-struct Pass
+সংরচনা Pass
 {
 	std::string pass_name, short_help;
 	source_location location;
 	Pass(std::string name, std::string short_help = "** document me **",
 		source_location location = source_location::current());
 	// Prefer overriding 'Pass::on_shutdown()' if possible
-	virtual ~Pass();
+	আভাস ~Pass();
 
 	// Makes calls to log() to generate help message
-	virtual void help();
+	আভাস শূন্য help();
 	// Uses PrettyHelp::get_current() to produce a more portable formatted help message
-	virtual bool formatted_help();
-	virtual void clear_flags();
-	virtual void execute(std::vector<std::string> args, RTLIL::Design *design) = 0;
+	আভাস bool formatted_help();
+	আভাস শূন্য clear_flags();
+	আভাস শূন্য execute(std::vector<std::string> args, RTLIL::Design *design) = 0;
 
-	int call_counter;
+	পূর্ণাঙ্ক call_counter;
 	int64_t runtime_ns;
 	bool experimental_flag = false;
 	bool internal_flag = false;
 
-	static void subtract_from_current_runtime_ns(int64_t time_ns);
+	স্থির শূন্য subtract_from_current_runtime_ns(int64_t time_ns);
 
-	void experimental() {
+	শূন্য experimental() {
 		experimental_flag = true;
 	}
 
-	void internal() {
+	শূন্য internal() {
 		internal_flag = true;
 	}
 
-	struct pre_post_exec_state_t {
+	সংরচনা pre_post_exec_state_t {
 		Pass *parent_pass;
 		int64_t begin_ns;
 	};
 
 	pre_post_exec_state_t pre_execute();
-	void post_execute(pre_post_exec_state_t state);
+	শূন্য post_execute(pre_post_exec_state_t state);
 
-	void cmd_log_args(const std::vector<std::string> &args);
-	void cmd_error(const std::vector<std::string> &args, size_t argidx, std::string msg);
-	void extra_args(std::vector<std::string> args, size_t argidx, RTLIL::Design *design, bool select = true);
+	শূন্য cmd_log_args(ধ্রুব std::vector<std::string> &args);
+	শূন্য cmd_error(ধ্রুব std::vector<std::string> &args, size_t argidx, std::string বার্তা);
+	শূন্য extra_args(std::vector<std::string> args, size_t argidx, RTLIL::Design *design, bool select = true);
 
-	static void call(RTLIL::Design *design, std::string command);
-	static void call(RTLIL::Design *design, std::vector<std::string> args);
+	স্থির শূন্য call(RTLIL::Design *design, std::string command);
+	স্থির শূন্য call(RTLIL::Design *design, std::vector<std::string> args);
 
-	static void call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::string command);
-	static void call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::vector<std::string> args);
+	স্থির শূন্য call_on_selection(RTLIL::Design *design, ধ্রুব RTLIL::Selection &selection, std::string command);
+	স্থির শূন্য call_on_selection(RTLIL::Design *design, ধ্রুব RTLIL::Selection &selection, std::vector<std::string> args);
 
-	static void call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command);
-	static void call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vector<std::string> args);
+	স্থির শূন্য call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command);
+	স্থির শূন্য call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vector<std::string> args);
 
 	Pass *next_queued_pass;
-	virtual void run_register();
-	static void init_register();
-	static void done_register();
+	আভাস শূন্য run_register();
+	স্থির শূন্য init_register();
+	স্থির শূন্য done_register();
 
-	virtual void on_register();
-	virtual void on_shutdown();
-	virtual bool replace_existing_pass() const { return false; }
+	আভাস শূন্য on_register();
+	আভাস শূন্য on_shutdown();
+	আভাস bool replace_existing_pass() ধ্রুব { প্রত্যাগম false; }
 
 	// This should return false if the pass holds onto RTLIL objects outside a Design while it
 	// calls nested passes. For safety, we default to assuming the worst.
-	virtual bool allow_garbage_collection_during_pass() const { return false; }
+	আভাস bool allow_garbage_collection_during_pass() ধ্রুব { প্রত্যাগম false; }
 };
 
-struct ScriptPass : Pass
+সংরচনা ScriptPass : Pass
 {
 	bool block_active, help_mode;
 	RTLIL::Design *active_design;
@@ -124,78 +124,78 @@ struct ScriptPass : Pass
 	ScriptPass(std::string name, std::string short_help = "** document me **", source_location location = source_location::current()) :
 		Pass(name, short_help, location) { }
 
-	virtual void script() = 0;
+	আভাস শূন্য script() = 0;
 
 	bool check_label(std::string label, std::string info = std::string());
-	void run(std::string command, std::string info = std::string());
-	void run_nocheck(std::string command, std::string info = std::string());
-	void run_script(RTLIL::Design *design, std::string run_from = std::string(), std::string run_to = std::string());
-	void help_script();
+	শূন্য run(std::string command, std::string info = std::string());
+	শূন্য run_nocheck(std::string command, std::string info = std::string());
+	শূন্য run_script(RTLIL::Design *design, std::string run_from = std::string(), std::string run_to = std::string());
+	শূন্য help_script();
 
-	bool allow_garbage_collection_during_pass() const override { return true; }
+	bool allow_garbage_collection_during_pass() ধ্রুব override { প্রত্যাগম true; }
 };
 
-struct Frontend : Pass
+সংরচনা Frontend : Pass
 {
 	// for reading of here documents
-	static FILE *current_script_file;
-	static std::string last_here_document;
+	স্থির FILE *current_script_file;
+	স্থির std::string last_here_document;
 
 	// script file and last line read from it
-	static std::string current_script_filename;
-	static int current_script_lineno;
+	স্থির std::string current_script_filename;
+	স্থির পূর্ণাঙ্ক current_script_lineno;
 
 	std::string frontend_name;
 	Frontend(std::string name, std::string short_help = "** document me **",
 		source_location location = source_location::current());
-	void run_register() override;
+	শূন্য run_register() override;
 	~Frontend() override;
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override final;
-	virtual void execute(std::istream *&f, std::string filename, std::vector<std::string> args, RTLIL::Design *design) = 0;
+	শূন্য execute(std::vector<std::string> args, RTLIL::Design *design) override final;
+	আভাস শূন্য execute(std::istream *&f, std::string filename, std::vector<std::string> args, RTLIL::Design *design) = 0;
 
-	static std::vector<std::string> next_args;
-	void extra_args(std::istream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_input = false);
+	স্থির std::vector<std::string> next_args;
+	শূন্য extra_args(std::istream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_প্রবেশ = false);
 
-	static void frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command);
-	static void frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> args);
+	স্থির শূন্য frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command);
+	স্থির শূন্য frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> args);
 };
 
-struct Backend : Pass
+সংরচনা Backend : Pass
 {
 	std::string backend_name;
 	Backend(std::string name, std::string short_help = "** document me **",
 		source_location location = source_location::current());
-	void run_register() override;
+	শূন্য run_register() override;
 	~Backend() override;
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override final;
-	virtual void execute(std::ostream *&f, std::string filename,  std::vector<std::string> args, RTLIL::Design *design) = 0;
+	শূন্য execute(std::vector<std::string> args, RTLIL::Design *design) override final;
+	আভাস শূন্য execute(std::ostream *&f, std::string filename,  std::vector<std::string> args, RTLIL::Design *design) = 0;
 
-	void extra_args(std::ostream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_output = false);
+	শূন্য extra_args(std::ostream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_output = false);
 
-	static void backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command);
-	static void backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> args);
+	স্থির শূন্য backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command);
+	স্থির শূন্য backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> args);
 };
 
 // implemented in passes/cmds/select.cc
-extern void handle_extra_select_args(Pass *pass, const std::vector<std::string> &args, size_t argidx, size_t args_size, RTLIL::Design *design);
-extern RTLIL::Selection eval_select_args(const vector<string> &args, RTLIL::Design *design);
-extern void eval_select_op(vector<RTLIL::Selection> &work, const string &op, RTLIL::Design *design);
+বাহ্য শূন্য handle_extra_select_args(Pass *pass, ধ্রুব std::vector<std::string> &args, size_t argidx, size_t args_size, RTLIL::Design *design);
+বাহ্য RTLIL::Selection eval_select_args(ধ্রুব vector<string> &args, RTLIL::Design *design);
+বাহ্য শূন্য eval_select_op(vector<RTLIL::Selection> &work, ধ্রুব string &op, RTLIL::Design *design);
 
-extern std::map<std::string, Pass*> pass_register;
-extern std::map<std::string, Frontend*> frontend_register;
-extern std::map<std::string, Backend*> backend_register;
+বাহ্য std::map<std::string, Pass*> pass_register;
+বাহ্য std::map<std::string, Frontend*> frontend_register;
+বাহ্য std::map<std::string, Backend*> backend_register;
 
-struct TargetFamily {
+সংরচনা TargetFamily {
 	std::string description;
 	std::vector<std::string> files;
 };
 
-struct Target {
+সংরচনা Target {
 	std::string description;
 	std::map<std::string, TargetFamily> families;
 };
 
-extern std::map<std::string, Target> target_register;
+বাহ্য std::map<std::string, Target> target_register;
 
 #define YOSYS_HAS_TARGET_REGISTER 1
 
