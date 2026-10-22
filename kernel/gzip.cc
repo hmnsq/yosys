@@ -1,16 +1,16 @@
-#include "kernel/yosys_common.h"
-#include "kernel/log.h"
-#include "kernel/gzip.h"
-#include <iostream>
-#include <string>
-#include <cstdarg>
-#include <cstdio>
+#અન્તર્ભાવ "kernel/yosys_common.h"
+#અન્તર્ભાવ "kernel/log.h"
+#અન્તર્ભાવ "kernel/gzip.h"
+#અન્તર્ભાવ <iostream>
+#અન્તર્ભાવ <string>
+#અન્તર્ભાવ <cstdarg>
+#અન્તર્ભાવ <cstdio>
 
-#if !defined(WIN32)
-#include <dirent.h>
-#include <unistd.h>
-#else
-#include <io.h>
+#જો !defined(WIN32)
+#અન્તર્ભાવ <dirent.h>
+#અન્તર્ભાવ <unistd.h>
+#નહીંતર
+#અન્તર્ભાવ <io.h>
 #endif
 
 YOSYS_NAMESPACE_BEGIN
@@ -21,76 +21,76 @@ gzip_ostream::obuf::obuf() {
     setp(buffer, buffer + buffer_size - 1);
 }
 
-bool gzip_ostream::obuf::open(const std::string &filename) {
+તાર્કિક gzip_ostream::obuf::open(અચલ std::string &filename) {
     gzf = Zlib::gzopen(filename.c_str(), "wb");
-    return gzf != nullptr;
+    પાછા gzf != nullptr;
 }
 
-int gzip_ostream::obuf::sync() {
-    int num = pptr() - pbase();
-    if (num > 0) {
-        if (Zlib::gzwrite(gzf, reinterpret_cast<const void*>(pbase()), num) != num) {
-            return -1;
+પૂર્ણાંક gzip_ostream::obuf::સમકાલિક() {
+    પૂર્ણાંક અંક = pptr() - pbase();
+    જો (અંક > 0) {
+        જો (Zlib::gzwrite(gzf, reinterpret_cast<અચલ શૂન્ય*>(pbase()), અંક) != અંક) {
+            પાછા -1;
         }
-        pbump(-num);
+        pbump(-અંક);
     }
-    return 0;
+    પાછા 0;
 }
 
 gzip_ostream::obuf::~obuf() {
-    if (gzf) {
-        sync();
+    જો (gzf) {
+        સમકાલિક();
         Zlib::gzclose(gzf);
     }
 }
 
-bool gzip_istream::ibuf::open(const std::string& filename) {
-	if (gzf) {
+તાર્કિક gzip_istream::ibuf::open(અચલ std::string& filename) {
+	જો (gzf) {
 		Zlib::gzclose(gzf);
 	}
 	gzf = Zlib::gzopen(filename.c_str(), "rb");
-	if (!gzf) {
-		return false;
+	જો (!gzf) {
+		પાછા ખોટું;
 	}
 	// Empty and point to start
 	setg(buffer, buffer, buffer);
-	return true;
+	પાછા સાચું;
 }
 
 // Called when the buffer is empty and more input is needed
 std::istream::int_type gzip_istream::ibuf::underflow() {
 	log_assert(gzf && "No gzfile opened\n");
-	int bytes_read = Zlib::gzread(gzf, buffer, buffer_size);
-	if (bytes_read <= 0) {
-		if (Zlib::gzeof(gzf)) {
+	પૂર્ણાંક bytes_read = Zlib::gzread(gzf, buffer, buffer_size);
+	જો (bytes_read <= 0) {
+		જો (Zlib::gzeof(gzf)) {
 			// "On failure, the function ensures that either
 			// gptr() == nullptr or gptr() == egptr."
 			// Let's set gptr to egptr
 			setg(eback(), egptr(), egptr());
-			return traits_type::eof();
+			પાછા traits_type::eof();
 		}
 
-		int err;
-		const char* error_msg = Zlib::gzerror(gzf, &err);
-		if (err != Z_OK)
-			log_error("%s", error_msg);
-		else
+		પૂર્ણાંક err;
+		અચલ અક્ષર* error_સંદેશ = Zlib::gzerror(gzf, &err);
+		જો (err != Z_OK)
+			log_error("%s", error_સંદેશ);
+		નહીંતર
 			log_error("Decompression logic failure: "\
 					"read <=0 bytes but neither EOF nor error\n");
 	}
 
 	// Keep size and point to start
 	setg(buffer, buffer, buffer + bytes_read);
-	return traits_type::to_int_type(buffer[0]);
+	પાછા traits_type::to_int_type(buffer[0]);
 }
 
 gzip_istream::ibuf::~ibuf() {
-	if (gzf) {
-		int err = Zlib::gzclose(gzf);
-		if (err != Z_OK) {
+	જો (gzf) {
+		પૂર્ણાંક err = Zlib::gzclose(gzf);
+		જો (err != Z_OK) {
 			// OK to overwrite rr it, it doesn't change
-			const char* error_msg = Zlib::gzerror(gzf, &err);
-			log_error("%s", error_msg);
+			અચલ અક્ષર* error_સંદેશ = Zlib::gzerror(gzf, &err);
+			log_error("%s", error_સંદેશ);
 		}
 	}
 }
@@ -101,42 +101,42 @@ gzip_istream::ibuf::~ibuf() {
 // Takes a successfully opened ifstream. If it's gzipped, returns an istream. Otherwise,
 // returns the original ifstream, rewound to the start.
 // Never returns nullptr or failed state istream*
-std::istream* uncompressed(const std::string filename, std::ios_base::openmode mode) {
-	if (!check_file_exists(filename))
+std::istream* uncompressed(અચલ std::string filename, std::ios_base::openmode mode) {
+	જો (!check_file_exists(filename))
 		log_cmd_error("File `%s' not found or is a directory\n", filename);
-	std::ifstream* f = new std::ifstream();
+	std::ifstream* f = નવું std::ifstream();
 	f->open(filename, mode);
-	if (f->fail())
+	જો (f->fail())
 		log_cmd_error("Can't open input file `%s' for reading: %s\n", filename, strerror(errno));
 	// Check for gzip magic
-	unsigned char magic[3];
-	int n = 0;
-	while (n < 3)
+	unsigned અક્ષર magic[3];
+	પૂર્ણાંક n = 0;
+	જ્યારે (n < 3)
 	{
-		int c = f->get();
-		if (c != EOF) {
-			magic[n] = (unsigned char) c;
+		પૂર્ણાંક c = f->get();
+		જો (c != EOF) {
+			magic[n] = (unsigned અક્ષર) c;
 		}
 		n++;
 	}
-	if (n == 3 && magic[0] == 0x1f && magic[1] == 0x8b) {
+	જો (n == 3 && magic[0] == 0x1f && magic[1] == 0x8b) {
 #ifdef YOSYS_ENABLE_ZLIB
 		log("Found gzip magic in file `%s', decompressing using zlib.\n", filename);
-		if (magic[2] != 8)
+		જો (magic[2] != 8)
 			log_cmd_error("gzip file `%s' uses unsupported compression type %02x\n",
 				filename.c_str(), unsigned(magic[2]));
-		gzip_istream* s = new gzip_istream();
+		gzip_istream* s = નવું gzip_istream();
 		delete f;
-		bool ok = s->open(filename.c_str());
+		તાર્કિક ok = s->open(filename.c_str());
 		log_assert(ok && "Failed to open gzipped file.\n");
-		return s;
-#else
+		પાછા s;
+#નહીંતર
 		log_cmd_error("File `%s' is a gzip file, but Yosys is compiled without zlib.\n", filename);
 #endif // YOSYS_ENABLE_ZLIB
-	} else {
+	} નહીંતર {
 		f->clear();
 		f->seekg(0, std::ios::beg);
-		return f;
+		પાછા f;
 	}
 }
 

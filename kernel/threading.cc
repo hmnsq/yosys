@@ -1,158 +1,158 @@
-#include "kernel/yosys_common.h"
-#include "kernel/threading.h"
+#અન્તર્ભાવ "kernel/yosys_common.h"
+#અન્તર્ભાવ "kernel/threading.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-static int init_max_threads()
+સ્થિર પૂર્ણાંક init_max_threads()
 {
-	const char *v = getenv("YOSYS_MAX_THREADS");
-	if (v == nullptr)
-		return INT32_MAX;
-	return atoi(v);
+	અચલ અક્ષર *v = getenv("YOSYS_MAX_THREADS");
+	જો (v == nullptr)
+		પાછા INT32_MAX;
+	પાછા atoi(v);
 }
 
-static int get_max_threads()
+સ્થિર પૂર્ણાંક get_max_threads()
 {
-	static int max_threads = init_max_threads();
-	return max_threads;
+	સ્થિર પૂર્ણાંક max_threads = init_max_threads();
+	પાછા max_threads;
 }
 
-static int init_work_units_per_thread_override()
+સ્થિર પૂર્ણાંક init_work_units_per_thread_override()
 {
-	const char *v = getenv("YOSYS_WORK_UNITS_PER_THREAD");
-	if (v == nullptr)
-		return 0;
-	return atoi(v);
+	અચલ અક્ષર *v = getenv("YOSYS_WORK_UNITS_PER_THREAD");
+	જો (v == nullptr)
+		પાછા 0;
+	પાછા atoi(v);
 }
 
-static int get_work_units_per_thread_override()
+સ્થિર પૂર્ણાંક get_work_units_per_thread_override()
 {
-	static int work_units_per_thread = init_work_units_per_thread_override();
-	return work_units_per_thread;
+	સ્થિર પૂર્ણાંક work_units_per_thread = init_work_units_per_thread_override();
+	પાછા work_units_per_thread;
 }
 
-void DeferredLogs::flush()
+શૂન્ય DeferredLogs::flush()
 {
-	for (auto &m : logs)
-		if (m.error)
+	માટે (auto &m : logs)
+		જો (m.error)
 			YOSYS_NAMESPACE_PREFIX log_error("%s", m.text.c_str());
-		else
+		નહીંતર
 			YOSYS_NAMESPACE_PREFIX log("%s", m.text.c_str());
 }
 
-int ThreadPool::pool_size(int reserved_cores, int max_worker_threads)
+પૂર્ણાંક ThreadPool::pool_size(પૂર્ણાંક reserved_cores, પૂર્ણાંક max_worker_threads)
 {
 #ifdef YOSYS_ENABLE_THREADS
-	int available_threads = std::min<int>(std::thread::hardware_concurrency(), get_max_threads());
-	int num_threads = std::min(available_threads - reserved_cores, max_worker_threads);
-	return std::max(0, num_threads);
-#else
-	(void)reserved_cores;
-	(void)max_worker_threads;
-	(void)get_max_threads();
-	return 0;
+	પૂર્ણાંક available_threads = std::min<પૂર્ણાંક>(std::thread::hardware_concurrency(), get_max_threads());
+	પૂર્ણાંક અંક_threads = std::min(available_threads - reserved_cores, max_worker_threads);
+	પાછા std::max(0, અંક_threads);
+#નહીંતર
+	(શૂન્ય)reserved_cores;
+	(શૂન્ય)max_worker_threads;
+	(શૂન્ય)get_max_threads();
+	પાછા 0;
 #endif
 }
 
-int ThreadPool::work_pool_size(int reserved_cores, int work_units, int work_units_per_thread)
+પૂર્ણાંક ThreadPool::work_pool_size(પૂર્ણાંક reserved_cores, પૂર્ણાંક work_units, પૂર્ણાંક work_units_per_thread)
 {
-	int work_units_per_thread_override = get_work_units_per_thread_override();
-	if (work_units_per_thread_override > 0)
+	પૂર્ણાંક work_units_per_thread_override = get_work_units_per_thread_override();
+	જો (work_units_per_thread_override > 0)
 		work_units_per_thread = work_units_per_thread_override;
-	return pool_size(reserved_cores, work_units / work_units_per_thread);
+	પાછા pool_size(reserved_cores, work_units / work_units_per_thread);
 }
 
-ThreadPool::ThreadPool(int pool_size, std::function<void(int)> b)
+ThreadPool::ThreadPool(પૂર્ણાંક pool_size, std::function<શૂન્ય(પૂર્ણાંક)> b)
 	: body(std::move(b))
 {
 #ifdef YOSYS_ENABLE_THREADS
 	threads.reserve(pool_size);
-	for (int i = 0; i < pool_size; i++)
-		threads.emplace_back([i, this]{ body(i); });
-#else
-	(void)pool_size;
+	માટે (પૂર્ણાંક i = 0; i < pool_size; i++)
+		threads.emplace_back([i, આ]{ body(i); });
+#નહીંતર
+	(શૂન્ય)pool_size;
 #endif
 }
 
 ThreadPool::~ThreadPool()
 {
 #ifdef YOSYS_ENABLE_THREADS
-	for (auto &t : threads)
+	માટે (auto &t : threads)
 		t.join();
 #endif
 }
 
-IntRange item_range_for_worker(int num_items, int thread_num, int num_threads)
+IntRange item_range_for_worker(પૂર્ણાંક અંક_વસ્તુઓ, પૂર્ણાંક thread_અંક, પૂર્ણાંક અંક_threads)
 {
-	if (num_threads <= 1) {
-		return {0, num_items};
+	જો (અંક_threads <= 1) {
+		પાછા {0, અંક_વસ્તુઓ};
 	}
-	int items_per_thread = num_items / num_threads;
-	int extra_items = num_items % num_threads;
+	પૂર્ણાંક વસ્તુઓ_per_thread = અંક_વસ્તુઓ / અંક_threads;
+	પૂર્ણાંક extra_વસ્તુઓ = અંક_વસ્તુઓ % અંક_threads;
 	// The first `extra_items` threads get one extra item.
-	int start = thread_num * items_per_thread + std::min(thread_num, extra_items);
-	int end = (thread_num + 1) * items_per_thread + std::min(thread_num + 1, extra_items);
-	return {start, end};
+	પૂર્ણાંક start = thread_અંક * વસ્તુઓ_per_thread + std::min(thread_અંક, extra_વસ્તુઓ);
+	પૂર્ણાંક end = (thread_અંક + 1) * વસ્તુઓ_per_thread + std::min(thread_અંક + 1, extra_વસ્તુઓ);
+	પાછા {start, end};
 }
 
-ParallelDispatchThreadPool::ParallelDispatchThreadPool(int pool_size)
+ParallelDispatchThreadPool::ParallelDispatchThreadPool(પૂર્ણાંક pool_size)
 #ifdef YOSYS_ENABLE_THREADS
-		: num_worker_threads_(std::max(1, pool_size) - 1)
-#else
-		: num_worker_threads_(0)
+		: અંક_worker_threads(std::max(1, pool_size) - 1)
+#નહીંતર
+		: અંક_worker_threads(0)
 #endif
 {
 #ifndef YOSYS_ENABLE_THREADS
-	(void)pool_size;
+	(શૂન્ય)pool_size;
 #endif
-	main_to_workers_signal.resize(num_worker_threads_, 0);
+	main_to_workers_signal.resize(અંક_worker_threads, 0);
 	// Don't start the threads until we've constructed all our data members.
-	thread_pool = std::make_unique<ThreadPool>(num_worker_threads_, [this](int thread_num){
-		run_worker(thread_num);
+	thread_pool = std::make_unique<ThreadPool>(અંક_worker_threads, [આ](પૂર્ણાંક thread_અંક){
+		run_worker(thread_અંક);
 	});
 }
 
 ParallelDispatchThreadPool::~ParallelDispatchThreadPool()
 {
-	if (num_worker_threads_ == 0)
-		return;
+	જો (અંક_worker_threads == 0)
+		પાછા;
 	current_work = nullptr;
-	num_active_worker_threads_.store(num_worker_threads_, std::memory_order_relaxed);
+	અંક_active_worker_threads.store(અંક_worker_threads, std::memory_order_relaxed);
 	signal_workers_start();
 	wait_for_workers_done();
 }
 
-void ParallelDispatchThreadPool::run(std::function<void(const RunCtx &)> work, int max_threads)
+શૂન્ય ParallelDispatchThreadPool::run(std::function<શૂન્ય(અચલ RunCtx &)> work, પૂર્ણાંક max_threads)
 {
 	Multithreading multithreading;
-	int num_active_worker_threads = num_threads(max_threads) - 1;
-	if (num_active_worker_threads == 0) {
+	પૂર્ણાંક અંક_active_worker_threads_2 = અંક_threads(max_threads) - 1;
+	જો (અંક_active_worker_threads_2 == 0) {
 		work({{0}, 1});
-		return;
+		પાછા;
 	}
-	num_active_worker_threads_.store(num_active_worker_threads, std::memory_order_relaxed);
+	અંક_active_worker_threads.store(અંક_active_worker_threads_2, std::memory_order_relaxed);
 	current_work = &work;
 	signal_workers_start();
-	work({{0}, num_active_worker_threads + 1});
+	work({{0}, અંક_active_worker_threads_2 + 1});
 	wait_for_workers_done();
 }
 
-void ParallelDispatchThreadPool::run_worker(int thread_num)
+શૂન્ય ParallelDispatchThreadPool::run_worker(પૂર્ણાંક thread_અંક)
 {
 #ifdef YOSYS_ENABLE_THREADS
-	while (true)
+	જ્યારે (સાચું)
 	{
-		worker_wait_for_start(thread_num);
-		if (current_work == nullptr)
-			break;
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-		(*current_work)({{thread_num + 1}, num_active_worker_threads + 1});
+		worker_wait_for_start(thread_અંક);
+		જો (current_work == nullptr)
+			તોડો;
+		પૂર્ણાંક અંક_active_worker_threads_2 = અંક_active_worker_threads.load(std::memory_order_relaxed);
+		(*current_work)({{thread_અંક + 1}, અંક_active_worker_threads_2 + 1});
 		signal_worker_done();
 	}
 	signal_worker_done();
-#else
-	(void)thread_num;
-	(void)current_work;
+#નહીંતર
+	(શૂન્ય)thread_અંક;
+	(શૂન્ય)current_work;
 #endif
 }
 

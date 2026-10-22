@@ -12,16 +12,16 @@
 #ifndef HASHLIB_H
 #define HASHLIB_H
 
-#include <array>
-#include <atomic>
-#include <stdexcept>
-#include <algorithm>
-#include <optional>
-#include <string>
-#include <variant>
-#include <vector>
-#include <type_traits>
-#include <stdint.h>
+#અન્તર્ભાવ <array>
+#અન્તર્ભાવ <atomic>
+#અન્તર્ભાવ <stdexcept>
+#અન્તર્ભાવ <algorithm>
+#અન્તર્ભાવ <optional>
+#અન્તર્ભાવ <string>
+#અન્તર્ભાવ <variant>
+#અન્તર્ભાવ <vector>
+#અન્તર્ભાવ <type_traits>
+#અન્તર્ભાવ <stdint.h>
 
 #define YS_HASHING_VERSION 1
 
@@ -55,40 +55,40 @@ namespace hashlib {
  * instead of pointers.
  */
 
-#if defined(__GNUC__) || defined(__clang__)
+#જો defined(__GNUC__) || defined(__clang__)
 #  define HASHLIB_ATTRIBUTE_WARN_UNUSED __attribute__((warn_unused))
-#else
+#નહીંતર
 #  define HASHLIB_ATTRIBUTE_WARN_UNUSED
 #endif
 
-const int hashtable_size_trigger = 2;
-const int hashtable_size_factor = 3;
+અચલ પૂર્ણાંક hashtable_size_trigger = 2;
+અચલ પૂર્ણાંક hashtable_size_factor = 3;
 
 namespace legacy {
-	inline uint32_t djb2_add(uint32_t a, uint32_t b) {
-		return ((a << 5) + a) + b;
+	અંતઃરેખ uint32_t djb2_add(uint32_t a, uint32_t b) {
+		પાછા ((a << 5) + a) + b;
 	}
 };
 
 template<typename T>
-struct hash_ops;
+સંરચના hash_ops;
 
-inline unsigned int mkhash_xorshift(unsigned int a) {
-	if (sizeof(a) == 4) {
+અંતઃરેખ unsigned પૂર્ણાંક mkhash_xorshift(unsigned પૂર્ણાંક a) {
+	જો (કદ(a) == 4) {
 		a ^= a << 13;
 		a ^= a >> 17;
 		a ^= a << 5;
-	} else if (sizeof(a) == 8) {
+	} નહીંતર જો (કદ(a) == 8) {
 		a ^= a << 13;
 		a ^= a >> 7;
 		a ^= a << 17;
-	} else
+	} નહીંતર
 		throw std::runtime_error("mkhash_xorshift() only implemented for 32 bit and 64 bit ints");
-	return a;
+	પાછા a;
 }
 
 class HasherDJB32 {
-public:
+જાહેર:
 	using hash_t = uint32_t;
 
 	HasherDJB32() {
@@ -96,47 +96,47 @@ public:
 		state = 5381;
 	}
 
-private:
+ખાનગી:
 	uint32_t state;
 	// The XOR version of DJB2
 	[[nodiscard]]
-	static uint32_t djb2_xor(uint32_t a, uint32_t b) {
+	સ્થિર uint32_t djb2_xor(uint32_t a, uint32_t b) {
 		uint32_t hash = ((a << 5) + a) ^ b;
-		return hash;
+		પાછા hash;
 	}
-public:
-	void hash32(uint32_t i) {
+જાહેર:
+	શૂન્ય hash32(uint32_t i) {
 		state = djb2_xor(i, state);
 		state = mkhash_xorshift(state);
-		return;
+		પાછા;
 	}
-	void hash64(uint64_t i) {
+	શૂન્ય hash64(uint64_t i) {
 		state = djb2_xor((uint32_t)(i & 0xFFFFFFFFULL), state);
 		state = djb2_xor((uint32_t)(i >> 32ULL), state);
 		state = mkhash_xorshift(state);
-		return;
+		પાછા;
 	}
 	[[nodiscard]]
-	hash_t yield() const {
-		return (hash_t)state;
+	hash_t yield() અચલ {
+		પાછા (hash_t)state;
 	}
 
 	template<typename T>
-	void eat(T&& t) {
+	શૂન્ય eat(T&& t) {
 		*this = hash_ops<std::remove_cv_t<std::remove_reference_t<T>>>::hash_into(std::forward<T>(t), *this);
 	}
 
 	template<typename T>
-	void eat(const T& t) {
+	શૂન્ય eat(અચલ T& t) {
 		*this = hash_ops<T>::hash_into(t, *this);
 	}
 
 	[[deprecated]]
-	void commutative_eat(hash_t t) {
+	શૂન્ય commutative_eat(hash_t t) {
 		state ^= t;
 	}
 
-	void force(hash_t new_state) {
+	શૂન્ય force(hash_t new_state) {
 		state = new_state;
 	}
 };
@@ -145,35 +145,35 @@ using Hasher = HasherDJB32;
 
 // Boilerplate compressor for trivially implementing
 // top-level hash method with hash_into
-#define HASH_TOP_LOOP_FST [[nodiscard]] static inline Hasher hash
-#define HASH_TOP_LOOP_SND { \
+#define HASH_ટોચ_LOOP_FST [[nodiscard]] સ્થિર અંતઃરેખ Hasher hash
+#define HASH_ટોચ_LOOP_SND { \
 	Hasher h; \
 	h = hash_into(a, h); \
-	return h; \
+	પાછા h; \
 }
 
 template<typename T>
-struct hash_ops {
-	static inline bool cmp(const T &a, const T &b) {
-		return a == b;
+સંરચના hash_ops {
+	સ્થિર અંતઃરેખ bool cmp(અચલ T &a, અચલ T &b) {
+		પાછા a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const T &a, Hasher h) {
-		if constexpr (std::is_integral_v<T>) {
-			static_assert(sizeof(T) <= sizeof(uint64_t));
-			if (sizeof(T) == sizeof(uint64_t))
+	[[nodiscard]] સ્થિર અંતઃરેખ Hasher hash_into(અચલ T &a, Hasher h) {
+		જો constexpr (std::is_integral_v<T>) {
+			static_assert(કદ(T) <= કદ(uint64_t));
+			જો (કદ(T) == કદ(uint64_t))
 				h.hash64(a);
-			else
+			નહીંતર
 				h.hash32(a);
-			return h;
-		} else if constexpr (std::is_enum_v<T>) {
+			પાછા h;
+		} નહીંતર જો constexpr (std::is_enum_v<T>) {
 			using u_type = std::underlying_type_t<T>;
-			return hash_ops<u_type>::hash_into((u_type) a, h);
-		} else if constexpr (std::is_pointer_v<T>) {
-			return hash_ops<uintptr_t>::hash_into((uintptr_t) a, h);
-		} else if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>) {
-			int size = a.size();
-			int i = 0;
-			while (i + 8 < size) {
+			પાછા hash_ops<u_type>::hash_into((u_type) a, h);
+		} નહીંતર જો constexpr (std::is_pointer_v<T>) {
+			પાછા hash_ops<uintptr_t>::hash_into((uintptr_t) a, h);
+		} નહીંતર જો constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>) {
+			પૂર્ણાંક size = a.size();
+			પૂર્ણાંક i = 0;
+			જ્યારે (i + 8 < size) {
 				uint64_t v;
 				memcpy(&v, a.data() + i, 8);
 				h.hash64(v);
@@ -182,113 +182,113 @@ struct hash_ops {
 			uint64_t v = 0;
 			memcpy(&v, a.data() + i, size - i);
 			h.hash64(v);
-			return h;
-		} else {
-			return a.hash_into(h);
+			પાછા h;
+		} નહીંતર {
+			પાછા a.hash_into(h);
 		}
 	}
-	HASH_TOP_LOOP_FST (const T &a) HASH_TOP_LOOP_SND
+	HASH_ટોચ_LOOP_FST (અચલ T &a) HASH_ટોચ_LOOP_SND
 };
 
-template<typename P, typename Q> struct hash_ops<std::pair<P, Q>> {
-	static inline bool cmp(const std::pair<P, Q> &a, const std::pair<P, Q> &b) {
-		return a == b;
+template<typename P, typename Q> સંરચના hash_ops<std::pair<P, Q>> {
+	સ્થિર અંતઃરેખ bool cmp(અચલ std::pair<P, Q> &a, અચલ std::pair<P, Q> &b) {
+		પાછા a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const std::pair<P, Q> &a, Hasher h) {
+	[[nodiscard]] સ્થિર અંતઃરેખ Hasher hash_into(અચલ std::pair<P, Q> &a, Hasher h) {
 		h = hash_ops<P>::hash_into(a.first, h);
 		h = hash_ops<Q>::hash_into(a.second, h);
-		return h;
+		પાછા h;
 	}
-	HASH_TOP_LOOP_FST (const std::pair<P, Q> &a) HASH_TOP_LOOP_SND
-	[[nodiscard]] static inline Hasher hash(const P &p, const Q &q) {
+	HASH_ટોચ_LOOP_FST (અચલ std::pair<P, Q> &a) HASH_ટોચ_LOOP_SND
+	[[nodiscard]] સ્થિર અંતઃરેખ Hasher hash(અચલ P &p, અચલ Q &q) {
 		Hasher h;
 		h = hash_ops<P>::hash_into(p, h);
 		h = hash_ops<Q>::hash_into(q, h);
-		return h;
+		પાછા h;
 	}
 };
 
-template<typename... T> struct hash_ops<std::tuple<T...>> {
-	static inline bool cmp(const std::tuple<T...> &a, const std::tuple<T...> &b) {
-		return a == b;
+template<typename... T> સંરચના hash_ops<std::tuple<T...>> {
+	સ્થિર અંતઃરેખ bool cmp(અચલ std::tuple<T...> &a, અચલ std::tuple<T...> &b) {
+		પાછા a == b;
 	}
 	template<size_t I = 0>
-	static inline typename std::enable_if<I == sizeof...(T), Hasher>::type hash_into(const std::tuple<T...> &, Hasher h) {
-		return h;
+	સ્થિર અંતઃરેખ typename std::enable_if<I == કદ...(T), Hasher>::type hash_into(અચલ std::tuple<T...> &, Hasher h) {
+		પાછા h;
 	}
 	template<size_t I = 0>
-	static inline typename std::enable_if<I != sizeof...(T), Hasher>::type hash_into(const std::tuple<T...> &a, Hasher h) {
-		typedef hash_ops<typename std::tuple_element<I, std::tuple<T...>>::type> element_ops_t;
+	સ્થિર અંતઃરેખ typename std::enable_if<I != કદ...(T), Hasher>::type hash_into(અચલ std::tuple<T...> &a, Hasher h) {
+		પ્રકારવ્યાખ્યા hash_ops<typename std::tuple_element<I, std::tuple<T...>>::type> element_ops_t;
 		h = hash_into<I+1>(a, h);
 		h = element_ops_t::hash_into(std::get<I>(a), h);
-		return h;
+		પાછા h;
 	}
-	HASH_TOP_LOOP_FST (const std::tuple<T...> &a) HASH_TOP_LOOP_SND
+	HASH_ટોચ_LOOP_FST (અચલ std::tuple<T...> &a) HASH_ટોચ_LOOP_SND
 };
 
-template<typename T> struct hash_ops<std::vector<T>> {
-	static inline bool cmp(const std::vector<T> &a, const std::vector<T> &b) {
-		return a == b;
+template<typename T> સંરચના hash_ops<std::vector<T>> {
+	સ્થિર અંતઃરેખ bool cmp(અચલ std::vector<T> &a, અચલ std::vector<T> &b) {
+		પાછા a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const std::vector<T> &a, Hasher h) {
+	[[nodiscard]] સ્થિર અંતઃરેખ Hasher hash_into(અચલ std::vector<T> &a, Hasher h) {
 		h.eat((uint32_t)a.size());
-		for (auto k : a)
+		માટે (auto k : a)
 			h.eat(k);
-		return h;
+		પાછા h;
 	}
-	HASH_TOP_LOOP_FST (const std::vector<T> &a) HASH_TOP_LOOP_SND
+	HASH_ટોચ_LOOP_FST (અચલ std::vector<T> &a) HASH_ટોચ_LOOP_SND
 };
 
-template<typename T, size_t N> struct hash_ops<std::array<T, N>> {
-    static inline bool cmp(const std::array<T, N> &a, const std::array<T, N> &b) {
-        return a == b;
+template<typename T, size_t N> સંરચના hash_ops<std::array<T, N>> {
+    સ્થિર અંતઃરેખ bool cmp(અચલ std::array<T, N> &a, અચલ std::array<T, N> &b) {
+        પાછા a == b;
     }
-    [[nodiscard]] static inline Hasher hash_into(const std::array<T, N> &a, Hasher h) {
-        for (const auto& k : a)
+    [[nodiscard]] સ્થિર અંતઃરેખ Hasher hash_into(અચલ std::array<T, N> &a, Hasher h) {
+        માટે (અચલ auto& k : a)
             h = hash_ops<T>::hash_into(k, h);
-        return h;
+        પાછા h;
     }
-	HASH_TOP_LOOP_FST (const std::array<T, N> &a) HASH_TOP_LOOP_SND
+	HASH_ટોચ_LOOP_FST (અચલ std::array<T, N> &a) HASH_ટોચ_LOOP_SND
 };
 
-struct hash_cstr_ops {
-	static inline bool cmp(const char *a, const char *b) {
-		return strcmp(a, b) == 0;
+સંરચના hash_cstr_ops {
+	સ્થિર અંતઃરેખ bool cmp(અચલ અક્ષર *a, અચલ અક્ષર *b) {
+		પાછા strcmp(a, b) == 0;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const char *a, Hasher h) {
-		while (*a)
+	[[nodiscard]] સ્થિર અંતઃરેખ Hasher hash_into(અચલ અક્ષર *a, Hasher h) {
+		જ્યારે (*a)
 			h.hash32(*(a++));
-		return h;
+		પાછા h;
 	}
-	HASH_TOP_LOOP_FST (const char *a) HASH_TOP_LOOP_SND
+	HASH_ટોચ_LOOP_FST (અચલ અક્ષર *a) HASH_ટોચ_LOOP_SND
 };
 
-template <> struct hash_ops<char*> : hash_cstr_ops {};
+template <> સંરચના hash_ops<અક્ષર*> : hash_cstr_ops {};
 
-struct hash_ptr_ops {
-	static inline bool cmp(const void *a, const void *b) {
-		return a == b;
+સંરચના hash_ptr_ops {
+	સ્થિર અંતઃરેખ bool cmp(અચલ શૂન્ય *a, અચલ શૂન્ય *b) {
+		પાછા a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const void *a, Hasher h) {
-		return hash_ops<uintptr_t>::hash_into((uintptr_t)a, h);
+	[[nodiscard]] સ્થિર અંતઃરેખ Hasher hash_into(અચલ શૂન્ય *a, Hasher h) {
+		પાછા hash_ops<uintptr_t>::hash_into((uintptr_t)a, h);
 	}
-	HASH_TOP_LOOP_FST (const void *a) HASH_TOP_LOOP_SND
+	HASH_ટોચ_LOOP_FST (અચલ શૂન્ય *a) HASH_ટોચ_LOOP_SND
 };
 
-struct hash_obj_ops {
-	static inline bool cmp(const void *a, const void *b) {
-		return a == b;
+સંરચના hash_obj_ops {
+	સ્થિર અંતઃરેખ bool cmp(અચલ શૂન્ય *a, અચલ શૂન્ય *b) {
+		પાછા a == b;
 	}
 	template<typename T>
-	[[nodiscard]] static inline Hasher hash_into(const T *a, Hasher h) {
-		if (a)
+	[[nodiscard]] સ્થિર અંતઃરેખ Hasher hash_into(અચલ T *a, Hasher h) {
+		જો (a)
 			h = a->hash_into(h);
-		else
+		નહીંતર
 			h.eat(0);
-		return h;
+		પાછા h;
 	}
 	template<typename T>
-	HASH_TOP_LOOP_FST (const T *a) HASH_TOP_LOOP_SND
+	HASH_ટોચ_LOOP_FST (અચલ T *a) HASH_ટોચ_LOOP_SND
 };
 /**
  * If you find yourself using this function, think hard
@@ -298,55 +298,55 @@ struct hash_obj_ops {
  */
 template<typename T>
 [[nodiscard]]
-Hasher::hash_t run_hash(const T& obj) {
-	return hash_ops<T>::hash(obj).yield();
+Hasher::hash_t run_hash(અચલ T& obj) {
+	પાછા hash_ops<T>::hash(obj).yield();
 }
 
 /** Refer to docs/source/yosys_internals/hashing.rst */
 template<typename T>
 [[nodiscard]]
 [[deprecated]]
-inline unsigned int mkhash(const T &v) {
-	return (unsigned int) run_hash<T>(v);
+અંતઃરેખ unsigned પૂર્ણાંક mkhash(અચલ T &v) {
+	પાછા (unsigned પૂર્ણાંક) run_hash<T>(v);
 }
 
-template<> struct hash_ops<std::monostate> {
-	static inline bool cmp(std::monostate a, std::monostate b) {
-		return a == b;
+template<> સંરચના hash_ops<std::monostate> {
+	સ્થિર અંતઃરેખ bool cmp(std::monostate a, std::monostate b) {
+		પાછા a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(std::monostate, Hasher h) {
-		return h;
+	[[nodiscard]] સ્થિર અંતઃરેખ Hasher hash_into(std::monostate, Hasher h) {
+		પાછા h;
 	}
 };
 
-template<typename... T> struct hash_ops<std::variant<T...>> {
-	static inline bool cmp(const std::variant<T...> &a, const std::variant<T...> &b) {
-		return a == b;
+template<typename... T> સંરચના hash_ops<std::variant<T...>> {
+	સ્થિર અંતઃરેખ bool cmp(અચલ std::variant<T...> &a, અચલ std::variant<T...> &b) {
+		પાછા a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const std::variant<T...> &a, Hasher h) {
-		std::visit([& h](const auto &v) { h.eat(v); }, a);
+	[[nodiscard]] સ્થિર અંતઃરેખ Hasher hash_into(અચલ std::variant<T...> &a, Hasher h) {
+		std::visit([& h](અચલ auto &v) { h.eat(v); }, a);
 		h.eat(a.index());
-		return h;
+		પાછા h;
 	}
 };
 
-template<typename T> struct hash_ops<std::optional<T>> {
-	static inline bool cmp(const std::optional<T> &a, const std::optional<T> &b) {
-		return a == b;
+template<typename T> સંરચના hash_ops<std::optional<T>> {
+	સ્થિર અંતઃરેખ bool cmp(અચલ std::optional<T> &a, અચલ std::optional<T> &b) {
+		પાછા a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const std::optional<T> &a, Hasher h) {
-		if(a.has_value())
+	[[nodiscard]] સ્થિર અંતઃરેખ Hasher hash_into(અચલ std::optional<T> &a, Hasher h) {
+		જો(a.has_કિંમત())
 			h.eat(*a);
-		else
+		નહીંતર
 			h.eat(0);
-		return h;
+		પાછા h;
 	}
 };
 
-inline unsigned int hashtable_size(unsigned int min_size)
+અંતઃરેખ unsigned પૂર્ણાંક hashtable_size(unsigned પૂર્ણાંક min_size)
 {
 	// Primes as generated by https://oeis.org/A175953
-	static std::vector<unsigned int> zero_and_some_primes = {
+	સ્થિર std::vector<unsigned પૂર્ણાંક> zero_and_some_primes = {
 		0, 23, 29, 37, 47, 59, 79, 101, 127, 163, 211, 269, 337, 431, 541, 677,
 		853, 1069, 1361, 1709, 2137, 2677, 3347, 4201, 5261, 6577, 8231, 10289,
 		12889, 16127, 20161, 25219, 31531, 39419, 49277, 61603, 77017, 96281,
@@ -359,20 +359,20 @@ inline unsigned int hashtable_size(unsigned int min_size)
 		1769372713, 2211715897, 2764644887, 3455806139
 	};
 
-	for (auto p : zero_and_some_primes)
-		if (p >= min_size) return p;
+	માટે (auto p : zero_and_some_primes)
+		જો (p >= min_size) પાછા p;
 
-	if (sizeof(unsigned int) == 4)
+	જો (કદ(unsigned પૂર્ણાંક) == 4)
 		throw std::length_error("hash table exceeded maximum size.\nDesign is likely too large for yosys to handle, if possible try not to flatten the design.");
 
-	for (auto p : zero_and_some_primes)
-		if (100129 * p > min_size) return 100129 * p;
+	માટે (auto p : zero_and_some_primes)
+		જો (100129 * p > min_size) પાછા 100129 * p;
 
 	throw std::length_error("hash table exceeded maximum size.");
 }
 
 template<typename K, typename T, typename OPS = hash_ops<K>> class dict;
-template<typename K, int offset = 0, typename OPS = hash_ops<K>> class idict;
+template<typename K, પૂર્ણાંક offset = 0, typename OPS = hash_ops<K>> class idict;
 template<typename K, typename OPS = hash_ops<K>> class pool;
 template<typename K, typename OPS = hash_ops<K>> class mfp;
 
@@ -381,109 +381,109 @@ template<typename K, typename OPS = hash_ops<K>> class mfp;
 // This is the Sum(4) algorithm from that paper, which has good collision resistance,
 // much better than Sum(1) or Xor(1) (and somewhat better than Xor(4)).
 class commutative_hash {
-public:
+જાહેર:
 	commutative_hash() {
 		buckets.fill(0);
 	}
 	template <typename T>
-	void eat(const T &obj) {
+	શૂન્ય eat(અચલ T &obj) {
 		eat(hash_ops<T>::hash(obj));
 	}
-	void eat(const Hasher &h) {
+	શૂન્ય eat(અચલ Hasher &h) {
 		Hasher::hash_t v = h.yield();
 		size_t index = v & (buckets.size() - 1);
 		buckets[index] += v;
 	}
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
-		for (auto b : buckets)
+	[[nodiscard]] Hasher hash_into(Hasher h) અચલ {
+		માટે (auto b : buckets)
 			h.eat(b);
-		return h;
+		પાછા h;
 	}
-private:
+ખાનગી:
 	std::array<Hasher::hash_t, 4> buckets;
 };
 
 template<typename K, typename T, typename OPS>
 class HASHLIB_ATTRIBUTE_WARN_UNUSED dict {
-	struct entry_t
+	સંરચના entry_t
 	{
 		std::pair<K, T> udata;
-		int next;
+		પૂર્ણાંક next;
 
 		entry_t() { }
-		entry_t(const std::pair<K, T> &udata, int next) : udata(udata), next(next) { }
-		entry_t(std::pair<K, T> &&udata, int next) : udata(std::move(udata)), next(next) { }
-		bool operator<(const entry_t &other) const { return udata.first < other.udata.first; }
+		entry_t(અચલ std::pair<K, T> &udata, પૂર્ણાંક next) : udata(udata), next(next) { }
+		entry_t(std::pair<K, T> &&udata, પૂર્ણાંક next) : udata(std::move(udata)), next(next) { }
+		bool operator<(અચલ entry_t &other) અચલ { પાછા udata.first < other.udata.first; }
 	};
 
-	std::vector<int> hashtable;
+	std::vector<પૂર્ણાંક> hashtable;
 	std::vector<entry_t> entries;
 	OPS ops;
 	static_assert(std::is_nothrow_default_constructible_v<OPS>, "move ops are noexcept and default-construct OPS");
 
 #ifdef NDEBUG
-	static inline void do_assert(bool) { }
-#else
-	static inline void do_assert(bool cond) {
-		if (!cond) throw std::runtime_error("dict<> assert failed.");
+	સ્થિર અંતઃરેખ શૂન્ય do_assert(bool) { }
+#નહીંતર
+	સ્થિર અંતઃરેખ શૂન્ય do_assert(bool cond) {
+		જો (!cond) throw std::runtime_error("dict<> assert failed.");
 	}
 #endif
 
-	Hasher::hash_t do_hash(const K &key) const
+	Hasher::hash_t do_hash(અચલ K &ચાવી) અચલ
 	{
 		Hasher::hash_t hash = 0;
-		if (!hashtable.empty())
-			hash = ops.hash(key).yield() % (unsigned int)(hashtable.size());
-		return hash;
+		જો (!hashtable.empty())
+			hash = ops.hash(ચાવી).yield() % (unsigned પૂર્ણાંક)(hashtable.size());
+		પાછા hash;
 	}
 
-	void do_rehash()
+	શૂન્ય do_rehash()
 	{
 		hashtable.clear();
 		hashtable.resize(hashtable_size(entries.capacity() * hashtable_size_factor), -1);
 
-		for (int i = 0; i < int(entries.size()); i++) {
-			do_assert(-1 <= entries[i].next && entries[i].next < int(entries.size()));
+		માટે (પૂર્ણાંક i = 0; i < પૂર્ણાંક(entries.size()); i++) {
+			do_assert(-1 <= entries[i].next && entries[i].next < પૂર્ણાંક(entries.size()));
 			Hasher::hash_t hash = do_hash(entries[i].udata.first);
 			entries[i].next = hashtable[hash];
 			hashtable[hash] = i;
 		}
 	}
 
-	int do_erase(int index, Hasher::hash_t hash)
+	પૂર્ણાંક do_erase(પૂર્ણાંક index, Hasher::hash_t hash)
 	{
-		do_assert(index < int(entries.size()));
-		if (hashtable.empty() || index < 0)
-			return 0;
+		do_assert(index < પૂર્ણાંક(entries.size()));
+		જો (hashtable.empty() || index < 0)
+			પાછા 0;
 
-		int k = hashtable[hash];
-		do_assert(0 <= k && k < int(entries.size()));
+		પૂર્ણાંક k = hashtable[hash];
+		do_assert(0 <= k && k < પૂર્ણાંક(entries.size()));
 
-		if (k == index) {
+		જો (k == index) {
 			hashtable[hash] = entries[index].next;
-		} else {
-			while (entries[k].next != index) {
+		} નહીંતર {
+			જ્યારે (entries[k].next != index) {
 				k = entries[k].next;
-				do_assert(0 <= k && k < int(entries.size()));
+				do_assert(0 <= k && k < પૂર્ણાંક(entries.size()));
 			}
 			entries[k].next = entries[index].next;
 		}
 
-		int back_idx = entries.size()-1;
+		પૂર્ણાંક back_idx = entries.size()-1;
 
-		if (index != back_idx)
+		જો (index != back_idx)
 		{
 			Hasher::hash_t back_hash = do_hash(entries[back_idx].udata.first);
 
 			k = hashtable[back_hash];
-			do_assert(0 <= k && k < int(entries.size()));
+			do_assert(0 <= k && k < પૂર્ણાંક(entries.size()));
 
-			if (k == back_idx) {
+			જો (k == back_idx) {
 				hashtable[back_hash] = index;
-			} else {
-				while (entries[k].next != back_idx) {
+			} નહીંતર {
+				જ્યારે (entries[k].next != back_idx) {
 					k = entries[k].next;
-					do_assert(0 <= k && k < int(entries.size()));
+					do_assert(0 <= k && k < પૂર્ણાંક(entries.size()));
 				}
 				entries[k].next = index;
 			}
@@ -491,148 +491,148 @@ class HASHLIB_ATTRIBUTE_WARN_UNUSED dict {
 			entries[index] = std::move(entries[back_idx]);
 		}
 
-		entries.pop_back();
+		entries.કાઢો_back();
 
-		if (entries.empty())
+		જો (entries.empty())
 			hashtable.clear();
 
-		return 1;
+		પાછા 1;
 	}
 
-	int do_lookup(const K &key, Hasher::hash_t &hash)
+	પૂર્ણાંક do_lookup(અચલ K &ચાવી, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty())
-			return -1;
+		જો (hashtable.empty())
+			પાછા -1;
 
-		if (entries.size() * hashtable_size_trigger > hashtable.size()) {
+		જો (entries.size() * hashtable_size_trigger > hashtable.size()) {
 			do_rehash();
-			hash = do_hash(key);
+			hash = do_hash(ચાવી);
 		}
 
-		return do_lookup_internal(key, hash);
+		પાછા do_lookup_internal(ચાવી, hash);
 	}
 
-	int do_lookup_internal(const K &key, Hasher::hash_t hash) const
+	પૂર્ણાંક do_lookup_internal(અચલ K &ચાવી, Hasher::hash_t hash) અચલ
 	{
-		int index = hashtable[hash];
+		પૂર્ણાંક index = hashtable[hash];
 
-		while (index >= 0 && !ops.cmp(entries[index].udata.first, key)) {
+		જ્યારે (index >= 0 && !ops.cmp(entries[index].udata.first, ચાવી)) {
 			index = entries[index].next;
-			do_assert(-1 <= index && index < int(entries.size()));
+			do_assert(-1 <= index && index < પૂર્ણાંક(entries.size()));
 		}
 
-		return index;
+		પાછા index;
 	}
 
-	int do_lookup_no_rehash(const K &key, Hasher::hash_t hash) const
+	પૂર્ણાંક do_lookup_no_rehash(અચલ K &ચાવી, Hasher::hash_t hash) અચલ
 	{
-		if (hashtable.empty())
-			return -1;
+		જો (hashtable.empty())
+			પાછા -1;
 
-		return do_lookup_internal(key, hash);
+		પાછા do_lookup_internal(ચાવી, hash);
 	}
 
-	int do_insert(const K &key, const Hasher::hash_t &hash)
+	પૂર્ણાંક do_ઉમેરો(અચલ K &ચાવી, અચલ Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
-			entries.emplace_back(std::pair<K, T>(key, T()), -1);
+		જો (hashtable.empty()) {
+			entries.emplace_back(std::pair<K, T>(ચાવી, T()), -1);
 			do_rehash();
-		} else {
-			entries.emplace_back(std::pair<K, T>(key, T()), hashtable[hash]);
+		} નહીંતર {
+			entries.emplace_back(std::pair<K, T>(ચાવી, T()), hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		પાછા entries.size() - 1;
 	}
 
-	int do_insert(const std::pair<K, T> &value, const Hasher::hash_t &hash)
+	પૂર્ણાંક do_ઉમેરો(અચલ std::pair<K, T> &કિંમત, અચલ Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
-			entries.emplace_back(value, -1);
+		જો (hashtable.empty()) {
+			entries.emplace_back(કિંમત, -1);
 			do_rehash();
-		} else {
-			entries.emplace_back(value, hashtable[hash]);
+		} નહીંતર {
+			entries.emplace_back(કિંમત, hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		પાછા entries.size() - 1;
 	}
 
-	int do_insert(std::pair<K, T> &&rvalue, const Hasher::hash_t &hash)
+	પૂર્ણાંક do_ઉમેરો(std::pair<K, T> &&rvalue, અચલ Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
+		જો (hashtable.empty()) {
 			entries.emplace_back(std::forward<std::pair<K, T>>(rvalue), -1);
 			do_rehash();
-		} else {
+		} નહીંતર {
 			entries.emplace_back(std::forward<std::pair<K, T>>(rvalue), hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		પાછા entries.size() - 1;
 	}
 
-public:
+જાહેર:
 	class const_iterator
 	{
 		friend class dict;
-	protected:
-		const dict *ptr;
-		int index;
-		const_iterator(const dict *ptr, int index) : ptr(ptr), index(index) { }
-	public:
-		typedef std::bidirectional_iterator_tag iterator_category;
-		typedef std::pair<K, T> value_type;
-		typedef ptrdiff_t difference_type;
-		typedef const std::pair<K, T>* pointer;
-		typedef const std::pair<K, T>& reference;
+	સુરક્ષિત:
+		અચલ dict *ptr;
+		પૂર્ણાંક index;
+		const_iterator(અચલ dict *ptr, પૂર્ણાંક index) : ptr(ptr), index(index) { }
+	જાહેર:
+		પ્રકારવ્યાખ્યા std::bidirectional_iterator_tag iterator_category;
+		પ્રકારવ્યાખ્યા std::pair<K, T> કિંમત_type;
+		પ્રકારવ્યાખ્યા ptrdiff_t difference_type;
+		પ્રકારવ્યાખ્યા અચલ std::pair<K, T>* pointer;
+		પ્રકારવ્યાખ્યા અચલ std::pair<K, T>& reference;
 		const_iterator() { }
-		const_iterator operator++() { index--; return *this; }
-		const_iterator operator++(int) { const_iterator tmp = *this; index--; return tmp; }
-		const_iterator operator--() { index++; return *this; }
-		const_iterator operator--(int) { const_iterator tmp = *this; index++; return tmp; }
-		const_iterator operator+=(int amt) { index -= amt; return *this; }
-		bool operator<(const const_iterator &other) const { return index > other.index; }
-		bool operator==(const const_iterator &other) const { return index == other.index; }
-		bool operator!=(const const_iterator &other) const { return index != other.index; }
-		const std::pair<K, T> &operator*() const { return ptr->entries[index].udata; }
-		const std::pair<K, T> *operator->() const { return &ptr->entries[index].udata; }
+		const_iterator operator++() { index--; પાછા *this; }
+		const_iterator operator++(પૂર્ણાંક) { const_iterator tmp = *this; index--; પાછા tmp; }
+		const_iterator operator--() { index++; પાછા *this; }
+		const_iterator operator--(પૂર્ણાંક) { const_iterator tmp = *this; index++; પાછા tmp; }
+		const_iterator operator+=(પૂર્ણાંક amt) { index -= amt; પાછા *this; }
+		bool operator<(અચલ const_iterator &other) અચલ { પાછા index > other.index; }
+		bool operator==(અચલ const_iterator &other) અચલ { પાછા index == other.index; }
+		bool operator!=(અચલ const_iterator &other) અચલ { પાછા index != other.index; }
+		અચલ std::pair<K, T> &operator*() અચલ { પાછા ptr->entries[index].udata; }
+		અચલ std::pair<K, T> *operator->() અચલ { પાછા &ptr->entries[index].udata; }
 	};
 
 	class iterator
 	{
 		friend class dict;
-	protected:
+	સુરક્ષિત:
 		dict *ptr;
-		int index;
-		iterator(dict *ptr, int index) : ptr(ptr), index(index) { }
-	public:
-		typedef std::forward_iterator_tag iterator_category;
-		typedef std::pair<K, T> value_type;
-		typedef ptrdiff_t difference_type;
-		typedef std::pair<K, T>* pointer;
-		typedef std::pair<K, T>& reference;
+		પૂર્ણાંક index;
+		iterator(dict *ptr, પૂર્ણાંક index) : ptr(ptr), index(index) { }
+	જાહેર:
+		પ્રકારવ્યાખ્યા std::forward_iterator_tag iterator_category;
+		પ્રકારવ્યાખ્યા std::pair<K, T> કિંમત_type;
+		પ્રકારવ્યાખ્યા ptrdiff_t difference_type;
+		પ્રકારવ્યાખ્યા std::pair<K, T>* pointer;
+		પ્રકારવ્યાખ્યા std::pair<K, T>& reference;
 		iterator() { }
-		iterator operator++() { index--; return *this; }
-		iterator operator+=(int amt) { index -= amt; return *this; }
-		bool operator<(const iterator &other) const { return index > other.index; }
-		bool operator==(const iterator &other) const { return index == other.index; }
-		bool operator!=(const iterator &other) const { return index != other.index; }
-		std::pair<K, T> &operator*() { return ptr->entries[index].udata; }
-		std::pair<K, T> *operator->() { return &ptr->entries[index].udata; }
-		const std::pair<K, T> &operator*() const { return ptr->entries[index].udata; }
-		const std::pair<K, T> *operator->() const { return &ptr->entries[index].udata; }
-		operator const_iterator() const { return const_iterator(ptr, index); }
+		iterator operator++() { index--; પાછા *this; }
+		iterator operator+=(પૂર્ણાંક amt) { index -= amt; પાછા *this; }
+		bool operator<(અચલ iterator &other) અચલ { પાછા index > other.index; }
+		bool operator==(અચલ iterator &other) અચલ { પાછા index == other.index; }
+		bool operator!=(અચલ iterator &other) અચલ { પાછા index != other.index; }
+		std::pair<K, T> &operator*() { પાછા ptr->entries[index].udata; }
+		std::pair<K, T> *operator->() { પાછા &ptr->entries[index].udata; }
+		અચલ std::pair<K, T> &operator*() અચલ { પાછા ptr->entries[index].udata; }
+		અચલ std::pair<K, T> *operator->() અચલ { પાછા &ptr->entries[index].udata; }
+		operator const_iterator() અચલ { પાછા const_iterator(ptr, index); }
 	};
 	using reverse_iterator = std::reverse_iterator<const_iterator>;
-	reverse_iterator rbegin() const {
-		return std::make_reverse_iterator(end());
+	reverse_iterator rbegin() અચલ {
+		પાછા std::make_reverse_iterator(end());
 	}
-	reverse_iterator rend() const {
-		return std::make_reverse_iterator(begin());
+	reverse_iterator rend() અચલ {
+		પાછા std::make_reverse_iterator(begin());
 	}
 
 	constexpr dict()
 	{
 	}
 
-	dict(const dict &other)
+	dict(અચલ dict &other)
 	{
 		entries = other.entries;
 		do_rehash();
@@ -643,322 +643,322 @@ public:
 		swap(other);
 	}
 
-	dict &operator=(const dict &other) {
+	dict &operator=(અચલ dict &other) {
 		entries = other.entries;
 		do_rehash();
-		return *this;
+		પાછા *this;
 	}
 
 	dict &operator=(dict &&other) noexcept {
 		clear();
 		swap(other);
-		return *this;
+		પાછા *this;
 	}
 
-	dict(const std::initializer_list<std::pair<K, T>> &list)
+	dict(અચલ std::initializer_list<std::pair<K, T>> &list)
 	{
-		for (auto &it : list)
-			insert(it);
+		માટે (auto &it : list)
+			ઉમેરો(it);
 	}
 
-	template<class InputIterator>
-	dict(InputIterator first, InputIterator last)
+	template<class આગત_Iterator>
+	dict(આગત_Iterator first, આગત_Iterator last)
 	{
-		insert(first, last);
+		ઉમેરો(first, last);
 	}
 
-	template<class InputIterator>
-	void insert(InputIterator first, InputIterator last)
+	template<class આગત_Iterator>
+	શૂન્ય ઉમેરો(આગત_Iterator first, આગત_Iterator last)
 	{
-		for (; first != last; ++first)
-			insert(*first);
+		માટે (; first != last; ++first)
+			ઉમેરો(*first);
 	}
 
-	std::pair<iterator, bool> insert(const K &key)
+	std::pair<iterator, bool> ઉમેરો(અચલ K &ચાવી)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(key, hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup(ચાવી, hash);
+		જો (i >= 0)
+			પાછા std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_ઉમેરો(ચાવી, hash);
+		પાછા std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> insert(const std::pair<K, T> &value)
+	std::pair<iterator, bool> ઉમેરો(અચલ std::pair<K, T> &કિંમત)
 	{
-		Hasher::hash_t hash = do_hash(value.first);
-		int i = do_lookup(value.first, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(value, hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		Hasher::hash_t hash = do_hash(કિંમત.first);
+		પૂર્ણાંક i = do_lookup(કિંમત.first, hash);
+		જો (i >= 0)
+			પાછા std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_ઉમેરો(કિંમત, hash);
+		પાછા std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> insert(std::pair<K, T> &&rvalue)
+	std::pair<iterator, bool> ઉમેરો(std::pair<K, T> &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(rvalue.first);
-		int i = do_lookup(rvalue.first, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::forward<std::pair<K, T>>(rvalue), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		પૂર્ણાંક i = do_lookup(rvalue.first, hash);
+		જો (i >= 0)
+			પાછા std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_ઉમેરો(std::forward<std::pair<K, T>>(rvalue), hash);
+		પાછા std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> emplace(K const &key, T const &value)
+	std::pair<iterator, bool> emplace(K અચલ &ચાવી, T અચલ &કિંમત)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::make_pair(key, value), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup(ચાવી, hash);
+		જો (i >= 0)
+			પાછા std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_ઉમેરો(std::make_pair(ચાવી, કિંમત), hash);
+		પાછા std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> emplace(K const &key, T &&rvalue)
+	std::pair<iterator, bool> emplace(K અચલ &ચાવી, T &&rvalue)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::make_pair(key, std::forward<T>(rvalue)), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup(ચાવી, hash);
+		જો (i >= 0)
+			પાછા std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_ઉમેરો(std::make_pair(ચાવી, std::forward<T>(rvalue)), hash);
+		પાછા std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> emplace(K &&rkey, T const &value)
+	std::pair<iterator, bool> emplace(K &&rkey, T અચલ &કિંમત)
 	{
 		Hasher::hash_t hash = do_hash(rkey);
-		int i = do_lookup(rkey, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::make_pair(std::forward<K>(rkey), value), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		પૂર્ણાંક i = do_lookup(rkey, hash);
+		જો (i >= 0)
+			પાછા std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_ઉમેરો(std::make_pair(std::forward<K>(rkey), કિંમત), hash);
+		પાછા std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> emplace(K &&rkey, T &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(rkey);
-		int i = do_lookup(rkey, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::make_pair(std::forward<K>(rkey), std::forward<T>(rvalue)), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		પૂર્ણાંક i = do_lookup(rkey, hash);
+		જો (i >= 0)
+			પાછા std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_ઉમેરો(std::make_pair(std::forward<K>(rkey), std::forward<T>(rvalue)), hash);
+		પાછા std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	int erase(const K &key)
+	પૂર્ણાંક erase(અચલ K &ચાવી)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int index = do_lookup(key, hash);
-		return do_erase(index, hash);
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક index = do_lookup(ચાવી, hash);
+		પાછા do_erase(index, hash);
 	}
 
 	iterator erase(iterator it)
 	{
 		Hasher::hash_t hash = do_hash(it->first);
 		do_erase(it.index, hash);
-		return ++it;
+		પાછા ++it;
 	}
 
-	int count(const K &key) const
+	પૂર્ણાંક ગણતરી(અચલ K &ચાવી) અચલ
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 ? 0 : 1;
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup_no_rehash(ચાવી, hash);
+		પાછા i < 0 ? 0 : 1;
 	}
 
-	int count(const K &key, const_iterator it) const
+	પૂર્ણાંક ગણતરી(અચલ K &ચાવી, const_iterator it) અચલ
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 || i > it.index ? 0 : 1;
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup_no_rehash(ચાવી, hash);
+		પાછા i < 0 || i > it.index ? 0 : 1;
 	}
 
-	iterator find(const K &key)
+	iterator find(અચલ K &ચાવી)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
-			return end();
-		return iterator(this, i);
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup(ચાવી, hash);
+		જો (i < 0)
+			પાછા end();
+		પાછા iterator(this, i);
 	}
 
-	const_iterator find(const K &key) const
+	const_iterator find(અચલ K &ચાવી) અચલ
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return end();
-		return const_iterator(this, i);
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup_no_rehash(ચાવી, hash);
+		જો (i < 0)
+			પાછા end();
+		પાછા const_iterator(this, i);
 	}
 
-	T& at(const K &key)
+	T& at(અચલ K &ચાવી)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup(ચાવી, hash);
+		જો (i < 0)
 			throw std::out_of_range("dict::at()");
-		return entries[i].udata.second;
+		પાછા entries[i].udata.second;
 	}
 
-	const T& at(const K &key) const
+	અચલ T& at(અચલ K &ચાવી) અચલ
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup_no_rehash(ચાવી, hash);
+		જો (i < 0)
 			throw std::out_of_range("dict::at()");
-		return entries[i].udata.second;
+		પાછા entries[i].udata.second;
 	}
 
-	const T& at(const K &key, const T &defval) const
+	અચલ T& at(અચલ K &ચાવી, અચલ T &defval) અચલ
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return defval;
-		return entries[i].udata.second;
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup_no_rehash(ચાવી, hash);
+		જો (i < 0)
+			પાછા defval;
+		પાછા entries[i].udata.second;
 	}
 
-	T& operator[](const K &key)
+	T& operator[](અચલ K &ચાવી)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
-			i = do_insert(std::pair<K, T>(key, T()), hash);
-		return entries[i].udata.second;
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup(ચાવી, hash);
+		જો (i < 0)
+			i = do_ઉમેરો(std::pair<K, T>(ચાવી, T()), hash);
+		પાછા entries[i].udata.second;
 	}
 
 	template<typename Compare = std::less<K>>
-	void sort(Compare comp = Compare())
+	શૂન્ય sort(Compare comp = Compare())
 	{
-		std::sort(entries.begin(), entries.end(), [comp](const entry_t &a, const entry_t &b){ return comp(b.udata.first, a.udata.first); });
+		std::sort(entries.begin(), entries.end(), [comp](અચલ entry_t &a, અચલ entry_t &b){ પાછા comp(b.udata.first, a.udata.first); });
 		do_rehash();
 	}
 
-	void swap(dict &other)
+	શૂન્ય swap(dict &other)
 	{
 		hashtable.swap(other.hashtable);
 		entries.swap(other.entries);
 	}
 
-	bool operator==(const dict &other) const {
-		if (size() != other.size())
-			return false;
-		for (auto &it : entries) {
+	bool operator==(અચલ dict &other) અચલ {
+		જો (size() != other.size())
+			પાછા false;
+		માટે (auto &it : entries) {
 			auto oit = other.find(it.udata.first);
-			if (oit == other.end() || !(oit->second == it.udata.second))
-				return false;
+			જો (oit == other.end() || !(oit->second == it.udata.second))
+				પાછા false;
 		}
-		return true;
+		પાછા true;
 	}
 
-	bool operator!=(const dict &other) const {
-		return !operator==(other);
+	bool operator!=(અચલ dict &other) અચલ {
+		પાછા !operator==(other);
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
+	[[nodiscard]] Hasher hash_into(Hasher h) અચલ {
 		commutative_hash comm;
-		for (auto &it : entries) {
+		માટે (auto &it : entries) {
 			Hasher entry_hash;
 			entry_hash.eat(it.udata.first);
 			entry_hash.eat(it.udata.second);
 			comm.eat(entry_hash);
 		}
-		return comm.hash_into(h);
+		પાછા comm.hash_into(h);
 	}
 
-	void reserve(size_t n) { entries.reserve(n); }
-	size_t size() const { return entries.size(); }
-	bool empty() const { return entries.empty(); }
-	void clear() { hashtable.clear(); entries.clear(); }
+	શૂન્ય reserve(size_t n) { entries.reserve(n); }
+	size_t size() અચલ { પાછા entries.size(); }
+	bool empty() અચલ { પાછા entries.empty(); }
+	શૂન્ય clear() { hashtable.clear(); entries.clear(); }
 
-	iterator begin() { return iterator(this, int(entries.size())-1); }
-	iterator element(int n) { return iterator(this, int(entries.size())-1-n); }
-	iterator end() { return iterator(nullptr, -1); }
+	iterator begin() { પાછા iterator(this, પૂર્ણાંક(entries.size())-1); }
+	iterator element(પૂર્ણાંક n) { પાછા iterator(this, પૂર્ણાંક(entries.size())-1-n); }
+	iterator end() { પાછા iterator(nullptr, -1); }
 
-	const_iterator begin() const { return const_iterator(this, int(entries.size())-1); }
-	const_iterator element(int n) const { return const_iterator(this, int(entries.size())-1-n); }
-	const_iterator end() const { return const_iterator(this, -1); }
+	const_iterator begin() અચલ { પાછા const_iterator(this, પૂર્ણાંક(entries.size())-1); }
+	const_iterator element(પૂર્ણાંક n) અચલ { પાછા const_iterator(this, પૂર્ણાંક(entries.size())-1-n); }
+	const_iterator end() અચલ { પાછા const_iterator(this, -1); }
 };
 
 template<typename K, typename OPS>
 class HASHLIB_ATTRIBUTE_WARN_UNUSED pool
 {
-	template<typename, int, typename> friend class idict;
+	template<typename, પૂર્ણાંક, typename> friend class idict;
 
-protected:
-	struct entry_t
+સુરક્ષિત:
+	સંરચના entry_t
 	{
 		K udata;
-		int next;
+		પૂર્ણાંક next;
 
 		entry_t() { }
-		entry_t(const K &udata, int next) : udata(udata), next(next) { }
-		entry_t(K &&udata, int next) : udata(std::move(udata)), next(next) { }
+		entry_t(અચલ K &udata, પૂર્ણાંક next) : udata(udata), next(next) { }
+		entry_t(K &&udata, પૂર્ણાંક next) : udata(std::move(udata)), next(next) { }
 	};
 
-	std::vector<int> hashtable;
+	std::vector<પૂર્ણાંક> hashtable;
 	std::vector<entry_t> entries;
 	OPS ops;
 	static_assert(std::is_nothrow_default_constructible_v<OPS>, "move ops are noexcept and default-construct OPS");
 
 #ifdef NDEBUG
-	static inline void do_assert(bool) { }
-#else
-	static inline void do_assert(bool cond) {
-		if (!cond) throw std::runtime_error("pool<> assert failed.");
+	સ્થિર અંતઃરેખ શૂન્ય do_assert(bool) { }
+#નહીંતર
+	સ્થિર અંતઃરેખ શૂન્ય do_assert(bool cond) {
+		જો (!cond) throw std::runtime_error("pool<> assert failed.");
 	}
 #endif
 
-	Hasher::hash_t do_hash(const K &key) const
+	Hasher::hash_t do_hash(અચલ K &ચાવી) અચલ
 	{
 		Hasher::hash_t hash = 0;
-		if (!hashtable.empty())
-			hash = ops.hash(key).yield() % (unsigned int)(hashtable.size());
-		return hash;
+		જો (!hashtable.empty())
+			hash = ops.hash(ચાવી).yield() % (unsigned પૂર્ણાંક)(hashtable.size());
+		પાછા hash;
 	}
 
-	void do_rehash()
+	શૂન્ય do_rehash()
 	{
 		hashtable.clear();
 		hashtable.resize(hashtable_size(entries.capacity() * hashtable_size_factor), -1);
 
-		for (int i = 0; i < int(entries.size()); i++) {
-			do_assert(-1 <= entries[i].next && entries[i].next < int(entries.size()));
+		માટે (પૂર્ણાંક i = 0; i < પૂર્ણાંક(entries.size()); i++) {
+			do_assert(-1 <= entries[i].next && entries[i].next < પૂર્ણાંક(entries.size()));
 			Hasher::hash_t hash = do_hash(entries[i].udata);
 			entries[i].next = hashtable[hash];
 			hashtable[hash] = i;
 		}
 	}
 
-	int do_erase(int index, Hasher::hash_t hash)
+	પૂર્ણાંક do_erase(પૂર્ણાંક index, Hasher::hash_t hash)
 	{
-		do_assert(index < int(entries.size()));
-		if (hashtable.empty() || index < 0)
-			return 0;
+		do_assert(index < પૂર્ણાંક(entries.size()));
+		જો (hashtable.empty() || index < 0)
+			પાછા 0;
 
-		int k = hashtable[hash];
-		if (k == index) {
+		પૂર્ણાંક k = hashtable[hash];
+		જો (k == index) {
 			hashtable[hash] = entries[index].next;
-		} else {
-			while (entries[k].next != index) {
+		} નહીંતર {
+			જ્યારે (entries[k].next != index) {
 				k = entries[k].next;
-				do_assert(0 <= k && k < int(entries.size()));
+				do_assert(0 <= k && k < પૂર્ણાંક(entries.size()));
 			}
 			entries[k].next = entries[index].next;
 		}
 
-		int back_idx = entries.size()-1;
+		પૂર્ણાંક back_idx = entries.size()-1;
 
-		if (index != back_idx)
+		જો (index != back_idx)
 		{
 			Hasher::hash_t back_hash = do_hash(entries[back_idx].udata);
 
 			k = hashtable[back_hash];
-			if (k == back_idx) {
+			જો (k == back_idx) {
 				hashtable[back_hash] = index;
-			} else {
-				while (entries[k].next != back_idx) {
+			} નહીંતર {
+				જ્યારે (entries[k].next != back_idx) {
 					k = entries[k].next;
-					do_assert(0 <= k && k < int(entries.size()));
+					do_assert(0 <= k && k < પૂર્ણાંક(entries.size()));
 				}
 				entries[k].next = index;
 			}
@@ -966,124 +966,124 @@ protected:
 			entries[index] = std::move(entries[back_idx]);
 		}
 
-		entries.pop_back();
+		entries.કાઢો_back();
 
-		if (entries.empty())
+		જો (entries.empty())
 			hashtable.clear();
 
-		return 1;
+		પાછા 1;
 	}
 
-	int do_lookup(const K &key, Hasher::hash_t &hash)
+	પૂર્ણાંક do_lookup(અચલ K &ચાવી, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty())
-			return -1;
+		જો (hashtable.empty())
+			પાછા -1;
 
-		if (entries.size() * hashtable_size_trigger > hashtable.size()) {
+		જો (entries.size() * hashtable_size_trigger > hashtable.size()) {
 			do_rehash();
-			hash = do_hash(key);
+			hash = do_hash(ચાવી);
 		}
 
-		return do_lookup_internal(key, hash);
+		પાછા do_lookup_internal(ચાવી, hash);
 	}
 
-	int do_lookup_internal(const K &key, Hasher::hash_t hash) const
+	પૂર્ણાંક do_lookup_internal(અચલ K &ચાવી, Hasher::hash_t hash) અચલ
 	{
-		int index = hashtable[hash];
+		પૂર્ણાંક index = hashtable[hash];
 
-		while (index >= 0 && !ops.cmp(entries[index].udata, key)) {
+		જ્યારે (index >= 0 && !ops.cmp(entries[index].udata, ચાવી)) {
 			index = entries[index].next;
-			do_assert(-1 <= index && index < int(entries.size()));
+			do_assert(-1 <= index && index < પૂર્ણાંક(entries.size()));
 		}
 
-		return index;
+		પાછા index;
 	}
 
-	int do_lookup_no_rehash(const K &key, Hasher::hash_t hash) const
+	પૂર્ણાંક do_lookup_no_rehash(અચલ K &ચાવી, Hasher::hash_t hash) અચલ
 	{
-		if (hashtable.empty())
-			return -1;
+		જો (hashtable.empty())
+			પાછા -1;
 
-		return do_lookup_internal(key, hash);
+		પાછા do_lookup_internal(ચાવી, hash);
 	}
 
-	int do_insert(const K &value, Hasher::hash_t &hash)
+	પૂર્ણાંક do_ઉમેરો(અચલ K &કિંમત, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
-			entries.emplace_back(value, -1);
+		જો (hashtable.empty()) {
+			entries.emplace_back(કિંમત, -1);
 			do_rehash();
-			hash = do_hash(value);
-		} else {
-			entries.emplace_back(value, hashtable[hash]);
+			hash = do_hash(કિંમત);
+		} નહીંતર {
+			entries.emplace_back(કિંમત, hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		પાછા entries.size() - 1;
 	}
 
-	int do_insert(K &&rvalue, Hasher::hash_t &hash)
+	પૂર્ણાંક do_ઉમેરો(K &&rvalue, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
+		જો (hashtable.empty()) {
 			entries.emplace_back(std::forward<K>(rvalue), -1);
 			do_rehash();
 			hash = do_hash(entries.back().udata);
-		} else {
+		} નહીંતર {
 			entries.emplace_back(std::forward<K>(rvalue), hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		પાછા entries.size() - 1;
 	}
 
-public:
+જાહેર:
 	class const_iterator
 	{
 		friend class pool;
-	protected:
-		const pool *ptr;
-		int index;
-		const_iterator(const pool *ptr, int index) : ptr(ptr), index(index) { }
-	public:
-		typedef std::forward_iterator_tag iterator_category;
-		typedef K value_type;
-		typedef ptrdiff_t difference_type;
-		typedef K* pointer;
-		typedef K& reference;
+	સુરક્ષિત:
+		અચલ pool *ptr;
+		પૂર્ણાંક index;
+		const_iterator(અચલ pool *ptr, પૂર્ણાંક index) : ptr(ptr), index(index) { }
+	જાહેર:
+		પ્રકારવ્યાખ્યા std::forward_iterator_tag iterator_category;
+		પ્રકારવ્યાખ્યા K કિંમત_type;
+		પ્રકારવ્યાખ્યા ptrdiff_t difference_type;
+		પ્રકારવ્યાખ્યા K* pointer;
+		પ્રકારવ્યાખ્યા K& reference;
 		const_iterator() { }
-		const_iterator operator++() { index--; return *this; }
-		bool operator==(const const_iterator &other) const { return index == other.index; }
-		bool operator!=(const const_iterator &other) const { return index != other.index; }
-		const K &operator*() const { return ptr->entries[index].udata; }
-		const K *operator->() const { return &ptr->entries[index].udata; }
+		const_iterator operator++() { index--; પાછા *this; }
+		bool operator==(અચલ const_iterator &other) અચલ { પાછા index == other.index; }
+		bool operator!=(અચલ const_iterator &other) અચલ { પાછા index != other.index; }
+		અચલ K &operator*() અચલ { પાછા ptr->entries[index].udata; }
+		અચલ K *operator->() અચલ { પાછા &ptr->entries[index].udata; }
 	};
 
 	class iterator
 	{
 		friend class pool;
-	protected:
+	સુરક્ષિત:
 		pool *ptr;
-		int index;
-		iterator(pool *ptr, int index) : ptr(ptr), index(index) { }
-	public:
-		typedef std::forward_iterator_tag iterator_category;
-		typedef K value_type;
-		typedef ptrdiff_t difference_type;
-		typedef K* pointer;
-		typedef K& reference;
+		પૂર્ણાંક index;
+		iterator(pool *ptr, પૂર્ણાંક index) : ptr(ptr), index(index) { }
+	જાહેર:
+		પ્રકારવ્યાખ્યા std::forward_iterator_tag iterator_category;
+		પ્રકારવ્યાખ્યા K કિંમત_type;
+		પ્રકારવ્યાખ્યા ptrdiff_t difference_type;
+		પ્રકારવ્યાખ્યા K* pointer;
+		પ્રકારવ્યાખ્યા K& reference;
 		iterator() { }
-		iterator operator++() { index--; return *this; }
-		bool operator==(const iterator &other) const { return index == other.index; }
-		bool operator!=(const iterator &other) const { return index != other.index; }
-		K &operator*() { return ptr->entries[index].udata; }
-		K *operator->() { return &ptr->entries[index].udata; }
-		const K &operator*() const { return ptr->entries[index].udata; }
-		const K *operator->() const { return &ptr->entries[index].udata; }
-		operator const_iterator() const { return const_iterator(ptr, index); }
+		iterator operator++() { index--; પાછા *this; }
+		bool operator==(અચલ iterator &other) અચલ { પાછા index == other.index; }
+		bool operator!=(અચલ iterator &other) અચલ { પાછા index != other.index; }
+		K &operator*() { પાછા ptr->entries[index].udata; }
+		K *operator->() { પાછા &ptr->entries[index].udata; }
+		અચલ K &operator*() અચલ { પાછા ptr->entries[index].udata; }
+		અચલ K *operator->() અચલ { પાછા &ptr->entries[index].udata; }
+		operator const_iterator() અચલ { પાછા const_iterator(ptr, index); }
 	};
 
 	constexpr pool()
 	{
 	}
 
-	pool(const pool &other)
+	pool(અચલ pool &other)
 	{
 		entries = other.entries;
 		do_rehash();
@@ -1094,268 +1094,268 @@ public:
 		swap(other);
 	}
 
-	pool &operator=(const pool &other) {
+	pool &operator=(અચલ pool &other) {
 		entries = other.entries;
 		do_rehash();
-		return *this;
+		પાછા *this;
 	}
 
 	pool &operator=(pool &&other) noexcept {
 		clear();
 		swap(other);
-		return *this;
+		પાછા *this;
 	}
 
-	pool(const std::initializer_list<K> &list)
+	pool(અચલ std::initializer_list<K> &list)
 	{
-		for (auto &it : list)
-			insert(it);
+		માટે (auto &it : list)
+			ઉમેરો(it);
 	}
 
-	template<class InputIterator>
-	pool(InputIterator first, InputIterator last)
+	template<class આગત_Iterator>
+	pool(આગત_Iterator first, આગત_Iterator last)
 	{
-		insert(first, last);
+		ઉમેરો(first, last);
 	}
 
-	template<class InputIterator>
-	void insert(InputIterator first, InputIterator last)
+	template<class આગત_Iterator>
+	શૂન્ય ઉમેરો(આગત_Iterator first, આગત_Iterator last)
 	{
-		for (; first != last; ++first)
-			insert(*first);
+		માટે (; first != last; ++first)
+			ઉમેરો(*first);
 	}
 
-	std::pair<iterator, bool> insert(const K &value)
+	std::pair<iterator, bool> ઉમેરો(અચલ K &કિંમત)
 	{
-		Hasher::hash_t hash = do_hash(value);
-		int i = do_lookup(value, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(value, hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		Hasher::hash_t hash = do_hash(કિંમત);
+		પૂર્ણાંક i = do_lookup(કિંમત, hash);
+		જો (i >= 0)
+			પાછા std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_ઉમેરો(કિંમત, hash);
+		પાછા std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> insert(K &&rvalue)
+	std::pair<iterator, bool> ઉમેરો(K &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(rvalue);
-		int i = do_lookup(rvalue, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::forward<K>(rvalue), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		પૂર્ણાંક i = do_lookup(rvalue, hash);
+		જો (i >= 0)
+			પાછા std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_ઉમેરો(std::forward<K>(rvalue), hash);
+		પાછા std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	template<typename... Args>
 	std::pair<iterator, bool> emplace(Args&&... args)
 	{
-		return insert(K(std::forward<Args>(args)...));
+		પાછા ઉમેરો(K(std::forward<Args>(args)...));
 	}
 
-	int erase(const K &key)
+	પૂર્ણાંક erase(અચલ K &ચાવી)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int index = do_lookup(key, hash);
-		return do_erase(index, hash);
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક index = do_lookup(ચાવી, hash);
+		પાછા do_erase(index, hash);
 	}
 
 	iterator erase(iterator it)
 	{
 		Hasher::hash_t hash = do_hash(*it);
 		do_erase(it.index, hash);
-		return ++it;
+		પાછા ++it;
 	}
 
-	int count(const K &key) const
+	પૂર્ણાંક ગણતરી(અચલ K &ચાવી) અચલ
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 ? 0 : 1;
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup_no_rehash(ચાવી, hash);
+		પાછા i < 0 ? 0 : 1;
 	}
 
-	int count(const K &key, const_iterator it) const
+	પૂર્ણાંક ગણતરી(અચલ K &ચાવી, const_iterator it) અચલ
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 || i > it.index ? 0 : 1;
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup_no_rehash(ચાવી, hash);
+		પાછા i < 0 || i > it.index ? 0 : 1;
 	}
 
-	iterator find(const K &key)
+	iterator find(અચલ K &ચાવી)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
-			return end();
-		return iterator(this, i);
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup(ચાવી, hash);
+		જો (i < 0)
+			પાછા end();
+		પાછા iterator(this, i);
 	}
 
-	const_iterator find(const K &key) const
+	const_iterator find(અચલ K &ચાવી) અચલ
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return end();
-		return const_iterator(this, i);
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup_no_rehash(ચાવી, hash);
+		જો (i < 0)
+			પાછા end();
+		પાછા const_iterator(this, i);
 	}
 
-	bool operator[](const K &key)
+	bool operator[](અચલ K &ચાવી)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		return i >= 0;
+		Hasher::hash_t hash = do_hash(ચાવી);
+		પૂર્ણાંક i = do_lookup(ચાવી, hash);
+		પાછા i >= 0;
 	}
 
 	template<typename Compare = std::less<K>>
-	void sort(Compare comp = Compare())
+	શૂન્ય sort(Compare comp = Compare())
 	{
-		std::sort(entries.begin(), entries.end(), [comp](const entry_t &a, const entry_t &b){ return comp(b.udata, a.udata); });
+		std::sort(entries.begin(), entries.end(), [comp](અચલ entry_t &a, અચલ entry_t &b){ પાછા comp(b.udata, a.udata); });
 		do_rehash();
 	}
 
-	K pop()
+	K કાઢો()
 	{
 		iterator it = begin();
 		K ret = *it;
 		erase(it);
-		return ret;
+		પાછા ret;
 	}
 
-	void swap(pool &other)
+	શૂન્ય swap(pool &other)
 	{
 		hashtable.swap(other.hashtable);
 		entries.swap(other.entries);
 	}
 
-	bool operator==(const pool &other) const {
-		if (size() != other.size())
-			return false;
-		for (auto &it : entries)
-			if (!other.count(it.udata))
-				return false;
-		return true;
+	bool operator==(અચલ pool &other) અચલ {
+		જો (size() != other.size())
+			પાછા false;
+		માટે (auto &it : entries)
+			જો (!other.ગણતરી(it.udata))
+				પાછા false;
+		પાછા true;
 	}
 
-	bool operator!=(const pool &other) const {
-		return !operator==(other);
+	bool operator!=(અચલ pool &other) અચલ {
+		પાછા !operator==(other);
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
+	[[nodiscard]] Hasher hash_into(Hasher h) અચલ {
 		commutative_hash comm;
-		for (auto &it : entries) {
+		માટે (auto &it : entries) {
 			comm.eat(ops.hash(it.udata));
 		}
-		return comm.hash_into(h);
+		પાછા comm.hash_into(h);
 	}
 
-	void reserve(size_t n) { entries.reserve(n); }
-	size_t size() const { return entries.size(); }
-	bool empty() const { return entries.empty(); }
-	void clear() { hashtable.clear(); entries.clear(); }
+	શૂન્ય reserve(size_t n) { entries.reserve(n); }
+	size_t size() અચલ { પાછા entries.size(); }
+	bool empty() અચલ { પાછા entries.empty(); }
+	શૂન્ય clear() { hashtable.clear(); entries.clear(); }
 
-	iterator begin() { return iterator(this, int(entries.size())-1); }
-	iterator element(int n) { return iterator(this, int(entries.size())-1-n); }
-	iterator end() { return iterator(nullptr, -1); }
+	iterator begin() { પાછા iterator(this, પૂર્ણાંક(entries.size())-1); }
+	iterator element(પૂર્ણાંક n) { પાછા iterator(this, પૂર્ણાંક(entries.size())-1-n); }
+	iterator end() { પાછા iterator(nullptr, -1); }
 
-	const_iterator begin() const { return const_iterator(this, int(entries.size())-1); }
-	const_iterator element(int n) const { return const_iterator(this, int(entries.size())-1-n); }
-	const_iterator end() const { return const_iterator(nullptr, -1); }
+	const_iterator begin() અચલ { પાછા const_iterator(this, પૂર્ણાંક(entries.size())-1); }
+	const_iterator element(પૂર્ણાંક n) અચલ { પાછા const_iterator(this, પૂર્ણાંક(entries.size())-1-n); }
+	const_iterator end() અચલ { પાછા const_iterator(nullptr, -1); }
 };
 
-template<typename K, int offset, typename OPS>
+template<typename K, પૂર્ણાંક offset, typename OPS>
 class HASHLIB_ATTRIBUTE_WARN_UNUSED idict
 {
 	pool<K, OPS> database;
 
-public:
+જાહેર:
 	class const_iterator
 	{
 		friend class idict;
-	protected:
-		const idict &container;
-		int index;
-		const_iterator(const idict &container, int index) : container(container), index(index) { }
-	public:
-		typedef std::forward_iterator_tag iterator_category;
-		typedef K value_type;
-		typedef ptrdiff_t difference_type;
-		typedef K* pointer;
-		typedef K& reference;
+	સુરક્ષિત:
+		અચલ idict &container;
+		પૂર્ણાંક index;
+		const_iterator(અચલ idict &container, પૂર્ણાંક index) : container(container), index(index) { }
+	જાહેર:
+		પ્રકારવ્યાખ્યા std::forward_iterator_tag iterator_category;
+		પ્રકારવ્યાખ્યા K કિંમત_type;
+		પ્રકારવ્યાખ્યા ptrdiff_t difference_type;
+		પ્રકારવ્યાખ્યા K* pointer;
+		પ્રકારવ્યાખ્યા K& reference;
 		const_iterator() { }
-		const_iterator operator++() { index++; return *this; }
-		bool operator==(const const_iterator &other) const { return index == other.index; }
-		bool operator!=(const const_iterator &other) const { return index != other.index; }
-		const K &operator*() const { return container[index]; }
-		const K *operator->() const { return &container[index]; }
+		const_iterator operator++() { index++; પાછા *this; }
+		bool operator==(અચલ const_iterator &other) અચલ { પાછા index == other.index; }
+		bool operator!=(અચલ const_iterator &other) અચલ { પાછા index != other.index; }
+		અચલ K &operator*() અચલ { પાછા container[index]; }
+		અચલ K *operator->() અચલ { પાછા &container[index]; }
 	};
 
 	constexpr idict()
 	{
 	}
 
-	int operator()(const K &key)
+	પૂર્ણાંક operator()(અચલ K &ચાવી)
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup(key, hash);
-		if (i < 0)
-			i = database.do_insert(key, hash);
-		return i + offset;
+		Hasher::hash_t hash = database.do_hash(ચાવી);
+		પૂર્ણાંક i = database.do_lookup(ચાવી, hash);
+		જો (i < 0)
+			i = database.do_ઉમેરો(ચાવી, hash);
+		પાછા i + offset;
 	}
 
-	int at(const K &key) const
+	પૂર્ણાંક at(અચલ K &ચાવી) અચલ
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
-		if (i < 0)
+		Hasher::hash_t hash = database.do_hash(ચાવી);
+		પૂર્ણાંક i = database.do_lookup_no_rehash(ચાવી, hash);
+		જો (i < 0)
 			throw std::out_of_range("idict::at()");
-		return i + offset;
+		પાછા i + offset;
 	}
 
-	int at(const K &key, int defval) const
+	પૂર્ણાંક at(અચલ K &ચાવી, પૂર્ણાંક defval) અચલ
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return defval;
-		return i + offset;
+		Hasher::hash_t hash = database.do_hash(ચાવી);
+		પૂર્ણાંક i = database.do_lookup_no_rehash(ચાવી, hash);
+		જો (i < 0)
+			પાછા defval;
+		પાછા i + offset;
 	}
 
-	int count(const K &key) const
+	પૂર્ણાંક ગણતરી(અચલ K &ચાવી) અચલ
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
-		return i < 0 ? 0 : 1;
+		Hasher::hash_t hash = database.do_hash(ચાવી);
+		પૂર્ણાંક i = database.do_lookup_no_rehash(ચાવી, hash);
+		પાછા i < 0 ? 0 : 1;
 	}
 
-	int lookup(const K &key) const
+	પૂર્ણાંક lookup(અચલ K &ચાવી) અચલ
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		return database.do_lookup_no_rehash(key, hash);
+		Hasher::hash_t hash = database.do_hash(ચાવી);
+		પાછા database.do_lookup_no_rehash(ચાવી, hash);
 	}
 
-	void expect(const K &key, int i)
+	શૂન્ય expect(અચલ K &ચાવી, પૂર્ણાંક i)
 	{
-		int j = (*this)(key);
-		if (i != j)
+		પૂર્ણાંક j = (*this)(ચાવી);
+		જો (i != j)
 			throw std::out_of_range("idict::expect()");
 	}
 
-	const K &operator[](int index) const
+	અચલ K &operator[](પૂર્ણાંક index) અચલ
 	{
-		return database.entries.at(index - offset).udata;
+		પાછા database.entries.at(index - offset).udata;
 	}
 
-	void swap(idict &other)
+	શૂન્ય swap(idict &other)
 	{
 		database.swap(other.database);
 	}
 
-	void reserve(size_t n) { database.reserve(n); }
-	size_t size() const { return database.size(); }
-	bool empty() const { return database.empty(); }
-	void clear() { database.clear(); }
+	શૂન્ય reserve(size_t n) { database.reserve(n); }
+	size_t size() અચલ { પાછા database.size(); }
+	bool empty() અચલ { પાછા database.empty(); }
+	શૂન્ય clear() { database.clear(); }
 
-	const_iterator begin() const { return const_iterator(*this, offset); }
-	const_iterator element(int n) const { return const_iterator(*this, n); }
-	const_iterator end() const { return const_iterator(*this, offset + size()); }
+	const_iterator begin() અચલ { પાછા const_iterator(*this, offset); }
+	const_iterator element(પૂર્ણાંક n) અચલ { પાછા const_iterator(*this, n); }
+	const_iterator end() અચલ { પાછા const_iterator(*this, offset + size()); }
 };
 
 /**
@@ -1368,19 +1368,19 @@ class HASHLIB_ATTRIBUTE_WARN_UNUSED mfp
 {
 	idict<K, 0, OPS> database;
 	class AtomicParent {
-	public:
-		explicit AtomicParent(int p) : parent(p) {}
-		AtomicParent(const AtomicParent &other) : parent(other.get()) {}
-		AtomicParent &operator=(const AtomicParent &other) { set(other.get()); return *this; }
-		int get() const { return parent.load(std::memory_order_relaxed); }
-		void set(int p) { parent.store(p, std::memory_order_relaxed); }
-	private:
-		std::atomic<int> parent;
+	જાહેર:
+		explicit AtomicParent(પૂર્ણાંક p) : parent(p) {}
+		AtomicParent(અચલ AtomicParent &other) : parent(other.get()) {}
+		AtomicParent &operator=(અચલ AtomicParent &other) { set(other.get()); પાછા *this; }
+		પૂર્ણાંક get() અચલ { પાછા parent.load(std::memory_order_relaxed); }
+		શૂન્ય set(પૂર્ણાંક p) { parent.store(p, std::memory_order_relaxed); }
+	ખાનગી:
+		std::atomic<પૂર્ણાંક> parent;
 	};
 	std::vector<AtomicParent> parents;
 
-public:
-	typedef typename idict<K, 0>::const_iterator const_iterator;
+જાહેર:
+	પ્રકારવ્યાખ્યા typename idict<K, 0>::const_iterator const_iterator;
 
 	constexpr mfp()
 	{
@@ -1388,21 +1388,21 @@ public:
 
 	// Finds a given element's index. If it isn't in the data structure,
 	// it is added as its own set
-	int operator()(const K &key)
+	પૂર્ણાંક operator()(અચલ K &ચાવી)
 	{
-		int i = database(key);
+		પૂર્ણાંક i = database(ચાવી);
 		// If the lookup caused the database to grow,
 		// also add a corresponding entry in parents initialized to -1 (no parent)
-		if (parents.size() < database.size()) {
+		જો (parents.size() < database.size()) {
 			parents.emplace_back(-1);
 		}
-		return i;
+		પાછા i;
 	}
 
 	// Finds an element at given index
-	const K &operator[](int index) const
+	અચલ K &operator[](પૂર્ણાંક index) અચલ
 	{
-		return database[index];
+		પાછા database[index];
 	}
 
 	// Why this method is correct for concurent ifind() calls:
@@ -1419,14 +1419,14 @@ public:
 	// parents[p] reads either observe 'orig_parents[p]' or R (and observing R ends the first
 	// while loop immediately). Thus all parents[p] reads observe either 'orig_parents[p]'
 	// or R, so ifind() always returns R.
-	int ifind(int i) const
+	પૂર્ણાંક ifind(પૂર્ણાંક i) અચલ
 	{
-		int p = i, k = i;
+		પૂર્ણાંક p = i, k = i;
 
-		while (true) {
-			int pp = parents[p].get();
-			if (pp < 0)
-				break;
+		જ્યારે (true) {
+			પૂર્ણાંક pp = parents[p].get();
+			જો (pp < 0)
+				તોડો;
 			p = pp;
 		}
 		// p is now the representative of i
@@ -1434,32 +1434,32 @@ public:
 		// and make p the parent of all the nodes along the way.
 		// This is a side effect and doesn't affect the return value.
 		// It speeds up future find operations
-		while (k != p) {
-			int next_k = parents[k].get();
+		જ્યારે (k != p) {
+			પૂર્ણાંક next_k = parents[k].get();
 			const_cast<AtomicParent*>(&parents[k])->set(p);
 			k = next_k;
 		}
 
-		return p;
+		પાછા p;
 	}
 
 	// Merge sets if the given indices belong to different sets.
 	// Makes ifind(j) the root of the merged set.
-	void imerge(int i, int j)
+	શૂન્ય imerge(પૂર્ણાંક i, પૂર્ણાંક j)
 	{
 		i = ifind(i);
 		j = ifind(j);
 
-		if (i != j)
+		જો (i != j)
 			parents[i].set(j);
 	}
 
-	void ipromote(int i)
+	શૂન્ય ipromote(પૂર્ણાંક i)
 	{
-		int k = i;
+		પૂર્ણાંક k = i;
 
-		while (k != -1) {
-			int next_k = parents[k].get();
+		જ્યારે (k != -1) {
+			પૂર્ણાંક next_k = parents[k].get();
 			parents[k].set(i);
 			k = next_k;
 		}
@@ -1467,45 +1467,45 @@ public:
 		parents[i].set(-1);
 	}
 
-	int lookup(const K &a)
+	પૂર્ણાંક lookup(અચલ K &a)
 	{
-		return ifind((*this)(a));
+		પાછા ifind((*this)(a));
 	}
 
-	const K &find(const K &a) const
+	અચલ K &find(અચલ K &a) અચલ
 	{
-		int i = database.at(a, -1);
-		if (i < 0)
-			return a;
-		return (*this)[ifind(i)];
+		પૂર્ણાંક i = database.at(a, -1);
+		જો (i < 0)
+			પાછા a;
+		પાછા (*this)[ifind(i)];
 	}
 
-	void merge(const K &a, const K &b)
+	શૂન્ય merge(અચલ K &a, અચલ K &b)
 	{
 		imerge((*this)(a), (*this)(b));
 	}
 
-	void promote(const K &a)
+	શૂન્ય promote(અચલ K &a)
 	{
-		int i = database.at(a, -1);
-		if (i >= 0)
+		પૂર્ણાંક i = database.at(a, -1);
+		જો (i >= 0)
 			ipromote(i);
 	}
 
-	void swap(mfp &other)
+	શૂન્ય swap(mfp &other)
 	{
 		database.swap(other.database);
 		parents.swap(other.parents);
 	}
 
-	void reserve(size_t n) { database.reserve(n); }
-	size_t size() const { return database.size(); }
-	bool empty() const { return database.empty(); }
-	void clear() { database.clear(); parents.clear(); }
+	શૂન્ય reserve(size_t n) { database.reserve(n); }
+	size_t size() અચલ { પાછા database.size(); }
+	bool empty() અચલ { પાછા database.empty(); }
+	શૂન્ય clear() { database.clear(); parents.clear(); }
 
-	const_iterator begin() const { return database.begin(); }
-	const_iterator element(int n) const { return database.element(n); }
-	const_iterator end() const { return database.end(); }
+	const_iterator begin() અચલ { પાછા database.begin(); }
+	const_iterator element(પૂર્ણાંક n) અચલ { પાછા database.element(n); }
+	const_iterator end() અચલ { પાછા database.end(); }
 };
 
 } /* namespace hashlib */

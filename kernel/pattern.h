@@ -1,9 +1,9 @@
 #ifndef OPT_DFF_COMP_H
 #define OPT_DFF_COMP_H
 
-#include "kernel/rtlil.h"
-#include <map>
-#include <optional>
+#અન્તર્ભાવ "kernel/rtlil.h"
+#અન્તર્ભાવ <map>
+#અન્તર્ભાવ <optional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -21,76 +21,76 @@ YOSYS_NAMESPACE_BEGIN
 
 // Pattern matching for clock enable
 // A pattern maps control signals to their required values for a MUX path
-typedef std::map<RTLIL::SigBit, bool> pattern_t; // Set of control signals that must ALL match required vals
-typedef std::set<pattern_t> patterns_t;          // Alternative patterns (OR)
-typedef std::pair<RTLIL::SigBit, bool> ctrl_t;   // Control signal
-typedef std::set<ctrl_t> ctrls_t;                // Set of control signals that must ALL be active
+પ્રકારવ્યાખ્યા std::map<RTLIL::SigBit, bool> pattern_t; // Set of control signals that must ALL match required vals
+પ્રકારવ્યાખ્યા std::set<pattern_t> patterns_t;          // Alternative patterns (OR)
+પ્રકારવ્યાખ્યા std::pair<RTLIL::SigBit, bool> ctrl_t;   // Control signal
+પ્રકારવ્યાખ્યા std::set<ctrl_t> ctrls_t;                // Set of control signals that must ALL be active
 
 /**
  * Find if two patterns differ in exactly one variable.
  * Example: {A=1,B=1} vs {A=1,B=0} returns B, allows simplification: (A&B) | (A&!B) => A
  */
-inline std::optional<RTLIL::SigBit> find_complementary_pattern_var(
-	const pattern_t& left,
-	const pattern_t& right
+અંતઃરેખ std::optional<RTLIL::SigBit> find_complementary_pattern_var(
+	અચલ pattern_t& ડાબું_2,
+	અચલ pattern_t& જમણું_2
 ) {
 	std::optional<RTLIL::SigBit> ret;
-	for (const auto &pt : left) {
+	માટે (અચલ auto &pt : ડાબું_2) {
 		// Left requires signal that right doesn't constrain - incompatible domains
-		if (right.count(pt.first) == 0)
-			return std::nullopt;
+		જો (જમણું_2.ગણતરી(pt.first) == 0)
+			પાછા std::nullopt;
 		// Signal has same required value in both - not the complement variable
-		if (right.at(pt.first) == pt.second)
-			continue;
+		જો (જમણું_2.at(pt.first) == pt.second)
+			ચાલુ;
 		// Already found one differing signal, now found another - not simplifiable
-		if (ret)
-			return std::nullopt;
+		જો (ret)
+			પાછા std::nullopt;
 		// First differing signal - candidate complement variable
 		ret = pt.first;
 	}
-	return ret;
+	પાછા ret;
 }
 
 /**
  * Simplify a sum-of-products by merging complementary patterns: (A&B) | (A&!B) => A,
  * and removing redundant patterns: A | (A&B) => A
  */
-inline void simplify_patterns(patterns_t& patterns) {
+અંતઃરેખ શૂન્ય simplify_patterns(patterns_t& patterns) {
 	auto new_patterns = patterns;
 
 	// Merge complementary patterns
 	bool optimized;
-	do {
+	કરો {
 		optimized = false;
-		for (auto i = patterns.begin(); i != patterns.end(); i++) {
-			for (auto j = std::next(i, 1); j != patterns.end(); j++) {
-				const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
-				auto right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
-				const auto complementary_var = find_complementary_pattern_var(left, right);
+		માટે (auto i = patterns.begin(); i != patterns.end(); i++) {
+			માટે (auto j = std::next(i, 1); j != patterns.end(); j++) {
+				અચલ auto& ડાબું_2 = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
+				auto જમણું_2 = (GetSize(*i) < GetSize(*j)) ? *j : *i;
+				અચલ auto complementary_var = find_complementary_pattern_var(ડાબું_2, જમણું_2);
 
-				if (complementary_var && new_patterns.count(right)) {
-					new_patterns.erase(right);
-					right.erase(complementary_var.value());
-					new_patterns.insert(right);
+				જો (complementary_var && new_patterns.ગણતરી(જમણું_2)) {
+					new_patterns.erase(જમણું_2);
+					જમણું_2.erase(complementary_var.કિંમત());
+					new_patterns.ઉમેરો(જમણું_2);
 					optimized = true;
 				}
 			}
 		}
 		patterns = new_patterns;
-	} while(optimized);
+	} જ્યારે(optimized);
 
 	// Remove redundant patterns
-	for (auto i = patterns.begin(); i != patterns.end(); ++i) {
-		for (auto j = std::next(i, 1); j != patterns.end(); ++j) {
-			const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
-			const auto& right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
+	માટે (auto i = patterns.begin(); i != patterns.end(); ++i) {
+		માટે (auto j = std::next(i, 1); j != patterns.end(); ++j) {
+			અચલ auto& ડાબું_2 = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
+			અચલ auto& જમણું_2 = (GetSize(*i) < GetSize(*j)) ? *j : *i;
 			bool redundant = true;
 
-			for (const auto& pt : left)
-				if (right.count(pt.first) == 0 || right.at(pt.first) != pt.second)
+			માટે (અચલ auto& pt : ડાબું_2)
+				જો (જમણું_2.ગણતરી(pt.first) == 0 || જમણું_2.at(pt.first) != pt.second)
 					redundant = false;
-			if (redundant)
-				new_patterns.erase(right);
+			જો (redundant)
+				new_patterns.erase(જમણું_2);
 		}
 	}
 

@@ -20,61 +20,61 @@
 #ifndef FSTDATA_H
 #define FSTDATA_H
 
-#include "kernel/yosys.h"
-#include "libs/fst/fstapi.h"
+#અન્તર્ભાવ "kernel/yosys.h"
+#અન્તર્ભાવ "libs/fst/fstapi.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-typedef std::function<void(uint64_t)> CallbackFunction;
-struct fst_end_of_data_exception { };
+પ્રકારવ્યાખ્યા std::function<શૂન્ય(uint64_t)> CallbackFunction;
+સંરચના fst_end_of_data_exception { };
 
-struct FstVar
+સંરચના FstVar
 {
 	fstHandle id;
 	std::string name;
 	bool is_alias;
 	bool is_reg;
 	std::string scope;
-	int width;
+	પૂર્ણાંક width;
 };
 
 class FstData
 {
-	public:
+	જાહેર:
 	FstData(std::string filename);
 	~FstData();
 
 	uint64_t getStartTime();
 	uint64_t getEndTime();
 
-	std::vector<FstVar>& getVars() { return vars; };
+	std::vector<FstVar>& getVars() { પાછા vars; };
 
-	void reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t plen);
-	void reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start_time, uint64_t end_time, unsigned int end_cycle, CallbackFunction cb);
+	શૂન્ય reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, અચલ unsigned અક્ષર *pnt_કિંમત, uint32_t plen);
+	શૂન્ય reconstructAllAtTimes(std::vector<fstHandle> &સંકેત, uint64_t start_time, uint64_t end_time, unsigned પૂર્ણાંક end_cycle, CallbackFunction cb);
 
-	std::string valueOf(fstHandle signal);
+	std::string કિંમત_Of(fstHandle સંકેત);
 	fstHandle getHandle(std::string name);
-	dict<int,fstHandle> getMemoryHandles(std::string name);
-	int getScale() { return scale; }
-	const char *getTimescaleString() { return timescale_str.c_str(); }
-private:
-	void extractVarNames();
+	dict<પૂર્ણાંક,fstHandle> getMemoryHandles(std::string name);
+	પૂર્ણાંક getScale() { પાછા scale; }
+	અચલ અક્ષર *getTimescaleString() { પાછા timescale_str.c_str(); }
+ખાનગી:
+	શૂન્ય extractVarNames();
 
-	struct fstReaderContext *ctx;
+	સંરચના fstReaderContext *ctx;
 	std::vector<FstVar> vars;
 	std::map<fstHandle, FstVar> handle_to_var;
 	std::map<std::string, fstHandle> name_to_handle;
-	std::map<std::string, dict<int, fstHandle>> memory_to_handle;
+	std::map<std::string, dict<પૂર્ણાંક, fstHandle>> memory_to_handle;
 	std::map<fstHandle, std::string> last_data;
 	uint64_t last_time;
 	std::map<fstHandle, std::string> past_data;
 	uint64_t past_time;
-	int scale; // exponent of 10, e.g. -6 = us, -9 = ns
+	પૂર્ણાંક scale; // exponent of 10, e.g. -6 = us, -9 = ns
 	std::string timescale_str;
 	uint64_t start_time;
 	uint64_t end_time;
-	unsigned int last_cycle;
-	unsigned int curr_cycle;
+	unsigned પૂર્ણાંક last_cycle;
+	unsigned પૂર્ણાંક curr_cycle;
 	CallbackFunction callback;
 	std::vector<fstHandle> clk_signals;
 	bool all_samples;

@@ -17,69 +17,69 @@
  *
  */
 
-#include "kernel/qcsat.h"
+#અન્તર્ભાવ "kernel/qcsat.h"
 
 USING_YOSYS_NAMESPACE
 
-std::vector<int> QuickConeSat::importSig(SigSpec sig)
+std::vector<પૂર્ણાંક> QuickConeSat::importSig(SigSpec sig)
 {
 	sig = modwalker.sigmap(sig);
-	for (auto bit : sig)
-		bits_queue.insert(bit);
-	return satgen.importSigSpec(sig);
+	માટે (auto bit : sig)
+		bits_queue.ઉમેરો(bit);
+	પાછા satgen.importSigSpec(sig);
 }
 
-int QuickConeSat::importSigBit(SigBit bit)
+પૂર્ણાંક QuickConeSat::importSigBit(SigBit bit)
 {
 	bit = modwalker.sigmap(bit);
-	bits_queue.insert(bit);
-	return satgen.importSigBit(bit);
+	bits_queue.ઉમેરો(bit);
+	પાછા satgen.importSigBit(bit);
 }
 
-void QuickConeSat::prepare()
+શૂન્ય QuickConeSat::prepare()
 {
-	while (!bits_queue.empty())
+	જ્યારે (!bits_queue.empty())
 	{
 		pool<ModWalker::PortBit> portbits;
 		modwalker.get_drivers(portbits, bits_queue);
 
-		for (auto bit : bits_queue)
-			if (bit.wire && bit.wire->get_bool_attribute(ID::onehot) && !imported_onehot.count(bit.wire))
+		માટે (auto bit : bits_queue)
+			જો (bit.wire && bit.wire->get_bool_attribute(ID::onehot) && !imported_onehot.ગણતરી(bit.wire))
 			{
-				std::vector<int> bits = satgen.importSigSpec(bit.wire);
-				for (int i : bits)
-				for (int j : bits)
-					if (i != j)
+				std::vector<પૂર્ણાંક> bits = satgen.importSigSpec(bit.wire);
+				માટે (પૂર્ણાંક i : bits)
+				માટે (પૂર્ણાંક j : bits)
+					જો (i != j)
 						ez->assume(ez->NOT(i), j);
-				imported_onehot.insert(bit.wire);
+				imported_onehot.ઉમેરો(bit.wire);
 			}
 
 		bits_queue.clear();
 
-		for (auto &pbit : portbits)
+		માટે (auto &pbit : portbits)
 		{
-			if (imported_cells.count(pbit.cell))
-				continue;
-			if (cell_complexity(pbit.cell) > max_cell_complexity)
-				continue;
-			if (max_cell_outs && GetSize(modwalker.cell_outputs[pbit.cell]) > max_cell_outs)
-				continue;
+			જો (imported_cells.ગણતરી(pbit.cell))
+				ચાલુ;
+			જો (cell_complexity(pbit.cell) > max_cell_complexity)
+				ચાલુ;
+			જો (max_cell_outs && GetSize(modwalker.cell_outputs[pbit.cell]) > max_cell_outs)
+				ચાલુ;
 			auto &inputs = modwalker.cell_inputs[pbit.cell];
-			bits_queue.insert(inputs.begin(), inputs.end());
+			bits_queue.ઉમેરો(inputs.begin(), inputs.end());
 			satgen.importCell(pbit.cell);
-			imported_cells.insert(pbit.cell);
+			imported_cells.ઉમેરો(pbit.cell);
 		}
 
-		if (max_cell_count && GetSize(imported_cells) > max_cell_count)
-			break;
+		જો (max_cell_ગણતરી && GetSize(imported_cells) > max_cell_ગણતરી)
+			તોડો;
 	}
 }
 
-int QuickConeSat::cell_complexity(RTLIL::Cell *cell)
+પૂર્ણાંક QuickConeSat::cell_complexity(RTLIL::Cell *cell)
 {
-	if (cell->type.in(ID($concat), ID($slice), ID($pos), ID($buf), ID($barrier), ID($_BUF_)))
-		return 0;
-	if (cell->type.in(ID($not), ID($and), ID($or), ID($xor), ID($xnor),
+	જો (cell->type.in(ID($concat), ID($slice), ID($pos), ID($buf), ID($barrier), ID($_BUF_)))
+		પાછા 0;
+	જો (cell->type.in(ID($not), ID($and), ID($or), ID($xor), ID($xnor),
 			ID($reduce_and), ID($reduce_or), ID($reduce_xor),
 			ID($reduce_xnor), ID($reduce_bool),
 			ID($logic_not), ID($logic_and), ID($logic_or),
@@ -89,43 +89,43 @@ int QuickConeSat::cell_complexity(RTLIL::Cell *cell)
 			ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_),
 			ID($_MUX_), ID($_NMUX_), ID($_MUX4_), ID($_MUX8_), ID($_MUX16_),
 			ID($_AOI3_), ID($_OAI3_), ID($_AOI4_), ID($_OAI4_)))
-		return 1;
-	if (cell->type.in(ID($neg), ID($add), ID($sub), ID($alu), ID($lcu),
+		પાછા 1;
+	જો (cell->type.in(ID($neg), ID($add), ID($sub), ID($alu), ID($lcu),
 			ID($lt), ID($le), ID($gt), ID($ge)))
-		return 2;
-	if (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx)))
-		return 3;
-	if (cell->type.in(ID($mul), ID($macc), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow)))
-		return 4;
+		પાછા 2;
+	જો (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx)))
+		પાછા 3;
+	જો (cell->type.in(ID($mul), ID($macc), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow)))
+		પાછા 4;
 	// Unknown cell.
-	return 5;
+	પાછા 5;
 }
 
 int64_t SatEffortBudget::charge_import(QuickConeSat &qcsat, int64_t cells_charged)
 {
-	if (enabled())
+	જો (enabled())
 		remaining -= (GetSize(qcsat.imported_cells) - cells_charged) * import_cell_cost;
-	return GetSize(qcsat.imported_cells);
+	પાછા GetSize(qcsat.imported_cells);
 }
 
-SatEffortBudget::Result SatEffortBudget::solve(QuickConeSat &qcsat, int64_t cap, const std::vector<int> &assumptions)
+SatEffortBudget::Result SatEffortBudget::solve(QuickConeSat &qcsat, int64_t cap, અચલ std::vector<પૂર્ણાંક> &assumptions)
 {
-	std::vector<bool> modelVals;
-	return solve(qcsat, cap, {}, modelVals, assumptions);
+	std::vector<તાર્કિક> modelVals;
+	પાછા solve(qcsat, cap, {}, modelVals, assumptions);
 }
 
-SatEffortBudget::Result SatEffortBudget::solve(QuickConeSat &qcsat, int64_t cap, const std::vector<int> &modelExprs,
-		std::vector<bool> &modelVals, const std::vector<int> &assumptions)
+SatEffortBudget::Result SatEffortBudget::solve(QuickConeSat &qcsat, int64_t cap, અચલ std::vector<પૂર્ણાંક> &modelExprs,
+		std::vector<તાર્કિક> &modelVals, અચલ std::vector<પૂર્ણાંક> &assumptions)
 {
-	if (spent())
-		return Result::LimitReached;
-	if (enabled())
+	જો (spent())
+		પાછા Result::LimitReached;
+	જો (enabled())
 		cap = (cap > 0) ? std::min(cap, remaining) : remaining;
 	qcsat.ez->setSolverPropLimit(cap);
-	bool sat = qcsat.ez->solve(modelExprs, modelVals, assumptions);
-	if (enabled())
+	તાર્કિક sat = qcsat.ez->solve(modelExprs, modelVals, assumptions);
+	જો (enabled())
 		remaining -= qcsat.ez->getSolverProps();
-	if (!sat && qcsat.ez->getSolverPropLimitStatus())
-		return Result::LimitReached;
-	return sat ? Result::Sat : Result::Unsat;
+	જો (!sat && qcsat.ez->getSolverPropLimitStatus())
+		પાછા Result::LimitReached;
+	પાછા sat ? Result::Sat : Result::Unsat;
 }

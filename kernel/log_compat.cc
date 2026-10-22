@@ -18,7 +18,7 @@
  */
 
 
-#include "kernel/log.h"
+#અન્તર્ભાવ "kernel/log.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -31,7 +31,7 @@ YOSYS_NAMESPACE_BEGIN
 // provides ABI compatible versions of a subset of the old logging API used by
 // the extensions.
 
-void log_cmd_error(const char *format, ...)
+શૂન્ય log_cmd_error(અચલ અક્ષર *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -40,7 +40,7 @@ void log_cmd_error(const char *format, ...)
 	logger().formatted_cmd_error(format, formatted);
 }
 
-void log_warning(const char *format, ...)
+શૂન્ય log_warning(અચલ અક્ષર *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -49,7 +49,7 @@ void log_warning(const char *format, ...)
 	logger().formatted_warning(LogSourceLocation{}, "Warning: ", format, formatted);
 }
 
-void log_warning_noprefix(const char *format, ...)
+શૂન્ય log_warning_noprefix(અચલ અક્ષર *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -58,7 +58,7 @@ void log_warning_noprefix(const char *format, ...)
 	logger().formatted_warning(LogSourceLocation{}, {}, format, formatted);
 }
 
-void log_error(const char *format, ...)
+શૂન્ય log_error(અચલ અક્ષર *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -67,7 +67,7 @@ void log_error(const char *format, ...)
 	logger().formatted_error(LogSourceLocation{}, "ERROR:", format, formatted);
 }
 
-void log(const char *format, ...)
+શૂન્ય log(અચલ અક્ષર *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -76,7 +76,7 @@ void log(const char *format, ...)
 	logger().formatted_string(LogSeverity::Info, LogSourceLocation{}, {}, format, formatted);
 }
 
-void log_compat(const char *format, ...)
+શૂન્ય log_compat(અચલ અક્ષર *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);

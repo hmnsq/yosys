@@ -20,9 +20,9 @@
 #ifndef JSON_H
 #define JSON_H
 
-#include "kernel/yosys.h"
-#include "libs/json11/json11.hpp"
-#include <functional>
+#અન્તર્ભાવ "kernel/yosys.h"
+#અન્તર્ભાવ "libs/json11/json11.hpp"
+#અન્તર્ભાવ <functional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -30,69 +30,69 @@ using json11::Json;
 
 class PrettyJson
 {
-    enum Scope {
-        VALUE,
+    ગણના Scope {
+        કિંમત_2,
         OBJECT_FIRST,
         OBJECT,
         ARRAY_FIRST,
         ARRAY,
     };
 
-    struct Target {
-        virtual void emit(const char *data) = 0;
-        virtual void flush() {};
-        virtual ~Target() {};
+    સંરચના Target {
+        આભાસી શૂન્ય emit(અચલ અક્ષર *data) = 0;
+        આભાસી શૂન્ય flush() {};
+        આભાસી ~Target() {};
     };
 
     std::string newline_indent = "\n";
     std::vector<std::unique_ptr<Target>> targets;
-    std::vector<Scope> state = {VALUE};
-    int compact_depth = INT_MAX;
-public:
+    std::vector<Scope> state = {કિંમત_2};
+    પૂર્ણાંક compact_depth = INT_MAX;
+જાહેર:
 
-    void emit_to_log();
-    void append_to_string(std::string &target);
-    bool write_to_file(const std::string &path);
+    શૂન્ય emit_to_log();
+    શૂન્ય append_to_string(std::string &target);
+    bool write_to_file(અચલ std::string &path);
 
-    bool active() { return !targets.empty(); }
+    bool active() { પાછા !targets.empty(); }
 
-    void compact() { compact_depth = GetSize(state); }
+    શૂન્ય compact() { compact_depth = GetSize(state); }
 
-    void line(bool space_if_inline = true);
-    void raw(const char *raw_json);
-    void flush();
-    void begin_object();
-    void begin_array();
-    void end_object();
-    void end_array();
-    void name(const char *name);
-    void begin_value();
-    void end_value();
-    void value_json(const Json &value);
-    void value(unsigned int value) { value_json(Json((int)value)); }
+    શૂન્ય લીટી(bool space_if_inline = true);
+    શૂન્ય raw(અચલ અક્ષર *raw_json);
+    શૂન્ય flush();
+    શૂન્ય begin_object();
+    શૂન્ય begin_array();
+    શૂન્ય end_object();
+    શૂન્ય end_array();
+    શૂન્ય name(અચલ અક્ષર *name);
+    શૂન્ય begin_કિંમત();
+    શૂન્ય end_કિંમત();
+    શૂન્ય કિંમત_json(અચલ Json &કિંમત);
+    શૂન્ય કિંમત(unsigned પૂર્ણાંક કિંમત) { કિંમત_json(Json((પૂર્ણાંક)કિંમત)); }
     template<typename T>
-    void value(T &&value) { value_json(Json(std::forward<T>(value))); };
+    શૂન્ય કિંમત(T &&કિંમત) { કિંમત_json(Json(std::forward<T>(કિંમત))); };
 
-    void entry_json(const char *name, const Json &value);
-    void entry(const char *name, unsigned int value) { entry_json(name, Json((int)value)); }
+    શૂન્ય entry_json(અચલ અક્ષર *name, અચલ Json &કિંમત);
+    શૂન્ય entry(અચલ અક્ષર *name, unsigned પૂર્ણાંક કિંમત) { entry_json(name, Json((પૂર્ણાંક)કિંમત)); }
     template<typename T>
-    void entry(const char *name, T &&value) { entry_json(name, Json(std::forward<T>(value))); };
+    શૂન્ય entry(અચલ અક્ષર *name, T &&કિંમત) { entry_json(name, Json(std::forward<T>(કિંમત))); };
 
     template<typename T>
-    void object(const T &&values)
+    શૂન્ય object(અચલ T &&કિંમતો)
     {
         begin_object();
-        for (auto &item : values)
+        માટે (auto &item : કિંમતો)
             entry(item.first, item.second);
         end_object();
     }
 
     template<typename T>
-    void array(const T &&values)
+    શૂન્ય array(અચલ T &&કિંમતો)
     {
         begin_array();
-        for (auto &item : values)
-            value(item);
+        માટે (auto &item : કિંમતો)
+            કિંમત(item);
         end_array();
     }
 };

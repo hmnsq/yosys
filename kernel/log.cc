@@ -17,98 +17,98 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "libs/sha1/sha1.h"
-#include "backends/rtlil/rtlil_backend.h"
+#અન્તર્ભાવ "kernel/yosys.h"
+#અન્તર્ભાવ "libs/sha1/sha1.h"
+#અન્તર્ભાવ "backends/rtlil/rtlil_backend.h"
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#જો !defined(_WIN32) || defined(__MINGW32__)
 #  include <sys/time.h>
 #endif
 
-#if defined(YOSYS_ENABLE_DLOPEN)
+#જો defined(YOSYS_ENABLE_DLOPEN)
 #  include <dlfcn.h>
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-#include <vector>
-#include <list>
+#અન્તર્ભાવ <stdlib.h>
+#અન્તર્ભાવ <stdio.h>
+#અન્તર્ભાવ <string.h>
+#અન્તર્ભાવ <stdarg.h>
+#અન્તર્ભાવ <vector>
+#અન્તર્ભાવ <list>
 
 YOSYS_NAMESPACE_BEGIN
 
-bool log_stderr_sink_forced = false;
+તાર્કિક log_stderr_sink_forced = ખોટું;
 
 LogManager &logger()
 {
-	static LogManager instance;
-	return instance;
+	સ્થિર LogManager instance;
+	પાછા instance;
 }
 
-std::chrono::steady_clock::time_point LogManager::get_initial_time() const
+std::chrono::steady_clock::time_point LogManager::get_initial_time() અચલ
 {
-	static const auto initial_time = std::chrono::steady_clock::now();
-	return initial_time;
+	સ્થિર અચલ auto initial_time = std::chrono::steady_clock::now();
+	પાછા initial_time;
 }
 
-void (*log_error_atexit)() = nullptr;
-void (*log_verific_callback)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg) = nullptr;
+શૂન્ય (*log_error_atexit)() = nullptr;
+શૂન્ય (*log_verific_callback)(પૂર્ણાંક સંદેશ_type, અચલ અક્ષર *message_id, LogSourceLocation src, અચલ અક્ષર *સંદેશ) = nullptr;
 
-static bool next_print_log = true;
+સ્થિર તાર્કિક next_print_log = સાચું;
 
-FileLogSink::FileLogSink(const std::string &filename, bool line_buffered, bool append)
+FileLogSink::FileLogSink(અચલ std::string &filename, તાર્કિક લીટી_buffered, તાર્કિક append)
 	: file(fopen(filename.c_str(), append ? "at" : "wt"))
 {
-	if (!file)
-		throw std::runtime_error("Can't open log file `" + filename + "' for writing!\n");
+	જો (!file)
+		ફેંકો std::runtime_error("Can't open log file `" + filename + "' for writing!\n");
 
-	if (line_buffered)
+	જો (લીટી_buffered)
 		setvbuf(file, nullptr, _IOLBF, 0);
 }
 
 FileLogSink::~FileLogSink()
 {
 	flush();
-	if (file)
+	જો (file)
 		fclose(file);
 }
 
-void FileLogSink::log(const LogMessage &msg)
+શૂન્ય FileLogSink::log(અચલ LogMessage &સંદેશ)
 {
-	fputs(msg.cached_msg.c_str(), file);
+	fputs(સંદેશ.cached_સંદેશ.c_str(), file);
 }
 
-void FileLogSink::flush()
+શૂન્ય FileLogSink::flush()
 {
 	fflush(file);
 }
 
-void ConsoleLogSink::log(const LogMessage &msg)
+શૂન્ય ConsoleLogSink::log(અચલ LogMessage &સંદેશ)
 {
-	FILE *file = (msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError) ? stderr : stdout;
-	fputs(msg.cached_msg.c_str(), file);
+	FILE *file = (સંદેશ.severity == LogSeverity::Error || સંદેશ.severity == LogSeverity::NonFatalError) ? stderr : stdout;
+	fputs(સંદેશ.cached_સંદેશ.c_str(), file);
 }
 
-void ConsoleLogSink::flush()
+શૂન્ય ConsoleLogSink::flush()
 {
 	fflush(stdout);
 	fflush(stderr);
 }
 
-bool StderrLogSink::should_log(const LogMessage &msg) const
+તાર્કિક StderrLogSink::should_log(અચલ LogMessage &સંદેશ) અચલ
 {
-	return msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
-			(msg.severity == LogSeverity::Warning && !quiet_warnings) ||
+	પાછા સંદેશ.severity == LogSeverity::Error || સંદેશ.severity == LogSeverity::NonFatalError ||
+			(સંદેશ.severity == LogSeverity::Warning && !quiet_warnings) ||
 			log_stderr_sink_forced;
 }
 
-void StderrLogSink::log(const LogMessage &msg)
+શૂન્ય StderrLogSink::log(અચલ LogMessage &સંદેશ)
 {
-	fputs(msg.cached_msg.c_str(), stderr);
+	fputs(સંદેશ.cached_સંદેશ.c_str(), stderr);
 }
 
-void StderrLogSink::flush()
+શૂન્ય StderrLogSink::flush()
 {
 	fflush(stderr);
 }
@@ -118,13 +118,13 @@ ScratchPadLogSink::ScratchPadLogSink(std::string scratchpad)
 {
 }
 
-void ScratchPadLogSink::log(const LogMessage &msg)
+શૂન્ય ScratchPadLogSink::log(અચલ LogMessage &સંદેશ)
 {
 	RTLIL::Design *design = yosys_get_design();
-	if (!design)
-		return;
+	જો (!design)
+		પાછા;
 
-	design->scratchpad[scratchpad].append(msg.cached_msg);
+	design->scratchpad[scratchpad].append(સંદેશ.cached_સંદેશ);
 }
 
 LogMessage::LogMessage(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string_view message) :
@@ -136,205 +136,205 @@ LogMessage::LogMessage(LogSeverity severity, LogSourceLocation src, std::string_
 	src(src)
 {
 	std::string time_str;
-	if (logger().get_log_time())
+	જો (logger().get_log_time())
 	{
-		if (next_print_log) {
-			next_print_log = false;
+		જો (next_print_log) {
+			next_print_log = ખોટું;
 			auto elapsed = std::chrono::steady_clock::now() - logger().get_initial_time();
 			auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-			time_str += stringf("[%05d.%06d] ", int(us.count() / 1'000'000),int(us.count() % 1'000'000));
+			time_str += stringf("[%05d.%06d] ", પૂર્ણાંક(us.ગણતરી() / 1'000'000),પૂર્ણાંક(us.ગણતરી() % 1'000'000));
 		}
 
-		if (!format.empty() && format.back() == '\n')
-			next_print_log = true;
+		જો (!format.empty() && format.back() == '\n')
+			next_print_log = સાચું;
 
 		// Special case to detect newlines in Python log output, since
 		// the binding always calls `log("%s", payload)` and the newline
 		// is then in the first formatted argument
-		if (format == "%s" && !message.empty() && message.back() == '\n')
-			next_print_log = true;
+		જો (format == "%s" && !message.empty() && message.back() == '\n')
+			next_print_log = સાચું;
 	}
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	cached_msg = stringf("%s%s%s%s", time_str, loc, prefix, message);
+	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_લીટી) : "";
+	cached_સંદેશ = stringf("%s%s%s%s", time_str, loc, prefix, message);
 }
 
-void LogManager::logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in) {
+શૂન્ય LogManager::logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in) {
 	size_t remove_leading = 0;
-	while (format.size() > 1 && format[0] == '\n') {
+	જ્યારે (format.size() > 1 && format[0] == '\n') {
 		logv_string(severity, src, prefix, "\n", "\n");
 		format = format.substr(1);
 		++remove_leading;
 	}
-	if (remove_leading > 0) {
+	જો (remove_leading > 0) {
 		str_in = str_in.substr(remove_leading);
 	}
 
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
+	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_લીટી) : "";
 	std::string str = stringf("%s%s%s",loc,prefix,str_in);
 
-	if (str.empty())
-		return;
+	જો (str.empty())
+		પાછા;
 
 	size_t nnl_pos = str.find_last_not_of('\n');
-	if (nnl_pos == std::string::npos)
-		newline_count += GetSize(str);
-	else
-		newline_count = GetSize(str) - nnl_pos - 1;
+	જો (nnl_pos == std::string::npos)
+		newline_ગણતરી += GetSize(str);
+	નહીંતર
+		newline_ગણતરી = GetSize(str) - nnl_pos - 1;
 
-	if (hasher)
+	જો (hasher)
 		hasher->update(str);
 
-	auto msg = LogMessage(severity, src, prefix, format, str_in);
-	for (auto &sink : sinks) {
-		if (sink->should_log(msg))
-			sink->log(msg);
+	auto સંદેશ = LogMessage(severity, src, prefix, format, str_in);
+	માટે (auto &sink : sinks) {
+		જો (sink->should_log(સંદેશ))
+			sink->log(સંદેશ);
 	}
 
-	if (severity == LogSeverity::Header)
+	જો (severity == LogSeverity::Header)
 		str = str_in;
 
-	static std::string linebuffer;
-	static bool warn_regex_recusion_guard = false;
+	સ્થિર std::string linebuffer;
+	સ્થિર તાર્કિક warn_regex_recusion_guard = ખોટું;
 
-	if (!warn_regex_recusion_guard)
+	જો (!warn_regex_recusion_guard)
 	{
-		warn_regex_recusion_guard = true;
+		warn_regex_recusion_guard = સાચું;
 
-		if (warn_regexes.empty() && expect_log.empty() && expect_prefix_log.empty())
+		જો (warn_regexes.empty() && expect_log.empty() && expect_prefix_log.empty())
 		{
 			linebuffer.clear();
 		}
-		else
+		નહીંતર
 		{
 			linebuffer += str;
 
-			if (!linebuffer.empty() && linebuffer.back() == '\n') {
-				for (auto &re : warn_regexes)
-					if (std::regex_search(linebuffer, re))
+			જો (!linebuffer.empty() && linebuffer.back() == '\n') {
+				માટે (auto &re : warn_regexes)
+					જો (std::regex_શોધ(linebuffer, re))
 						log_warning("Found log message matching -W regex:\n%s", str);
 
-				for (auto &[_, item] : expect_log)
-					if (std::regex_search(linebuffer, item.pattern))
-						item.current_count++;
+				માટે (auto &[_, item] : expect_log)
+					જો (std::regex_શોધ(linebuffer, item.pattern))
+						item.current_ગણતરી++;
 
 				linebuffer.clear();
 			}
 		}
 
-		warn_regex_recusion_guard = false;
+		warn_regex_recusion_guard = ખોટું;
 	}
 }
 
-void LogManager::formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str)
+શૂન્ય LogManager::formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str)
 {
 	log_assert(!Multithreading::active());
 
-	if (make_debug && !is_debug(1))
-		return;
+	જો (make_debug && !is_debug(1))
+		પાછા;
 	logv_string(severity, src, prefix, format, std::move(str));
 }
 
-void LogManager::formatted_header(RTLIL::Design *design, std::string_view format, std::string str)
+શૂન્ય LogManager::formatted_header(RTLIL::Design *design, std::string_view format, std::string str)
 {
 	log_assert(!Multithreading::active());
 
 	spacer();
-	if (header_count.size() > 0)
-		header_count.back()++;
+	જો (header_ગણતરી.size() > 0)
+		header_ગણતરી.back()++;
 
-	if (int(header_count.size()) <= verbose_level) {
-		log_stderr_sink_forced = true;
+	જો (પૂર્ણાંક(header_ગણતરી.size()) <= verbose_level) {
+		log_stderr_sink_forced = સાચું;
 	}
 
 	std::string header_id;
 
-	for (int c : header_count)
+	માટે (પૂર્ણાંક c : header_ગણતરી)
 		header_id += stringf("%s%d", header_id.empty() ? "" : ".", c);
 
 	formatted_string(LogSeverity::Header, LogSourceLocation{}, stringf("%s. ", header_id), format, std::move(str));
 	flush();
 
-	if (hdump_all)
-		hdump[header_id].insert("yosys_dump_" + header_id + ".il");
+	જો (hdump_all)
+		hdump[header_id].ઉમેરો("yosys_dump_" + header_id + ".il");
 
-	if (hdump.count(header_id) && design != nullptr)
-		for (auto &filename : hdump.at(header_id)) {
+	જો (hdump.ગણતરી(header_id) && design != nullptr)
+		માટે (auto &filename : hdump.at(header_id)) {
 			log("Dumping current design to '%s'.\n", filename);
 			Pass::call(design, {"dump", "-o", filename});
 		}
-	log_stderr_sink_forced = false;
+	log_stderr_sink_forced = ખોટું;
 }
 
-void LogManager::formatted_warning(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+શૂન્ય LogManager::formatted_warning(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
 {
 	log_assert(!Multithreading::active());
 
-	bool suppressed = false;
+	તાર્કિક suppressed = ખોટું;
 
-	for (auto &re : nowarn_regexes)
-		if (std::regex_search(message, re))
-			suppressed = true;
+	માટે (auto &re : nowarn_regexes)
+		જો (std::regex_શોધ(message, re))
+			suppressed = સાચું;
 
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	if (suppressed)
+	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_લીટી) : "";
+	જો (suppressed)
 	{
 		log("Suppressed %s%s%s", loc, prefix, message);
 	}
-	else
+	નહીંતર
 	{
-		int bak_make_debug = make_debug;
+		પૂર્ણાંક bak_make_debug = make_debug;
 		make_debug = 0;
 
-		for (auto &re : werror_regexes)
-			if (std::regex_search(message, re))
+		માટે (auto &re : werror_regexes)
+			જો (std::regex_શોધ(message, re))
 				formatted_error(src, "ERROR: ", format, message);
 
-		bool warning_match = false;
-		for (auto &[_, item] : expect_warning)
-			if (std::regex_search(message, item.pattern)) {
-				item.current_count++;
-				warning_match = true;
+		તાર્કિક warning_match = ખોટું;
+		માટે (auto &[_, item] : expect_warning)
+			જો (std::regex_શોધ(message, item.pattern)) {
+				item.current_ગણતરી++;
+				warning_match = સાચું;
 			}
 
 		std::string pattern = loc + string(prefix) + message;
-		for (auto &[_, item] : expect_prefix_warning)
-			if (std::regex_search(pattern, item.pattern)) {
-				item.current_count++;
-				warning_match = true;
+		માટે (auto &[_, item] : expect_prefix_warning)
+			જો (std::regex_શોધ(pattern, item.pattern)) {
+				item.current_ગણતરી++;
+				warning_match = સાચું;
 			}
 
-		if (warnings.count(message))
+		જો (warnings.ગણતરી(message))
 		{
 			formatted_string(LogSeverity::Info, src, prefix, format, message);
 			flush();
 		}
-		else
+		નહીંતર
 		{
 			formatted_string(LogSeverity::Warning, src, prefix, format, message);
 			flush();
-			warnings.insert(message);
+			warnings.ઉમેરો(message);
 		}
 
-		if (!warning_match)
-			warnings_count_noexpect++;
-		warnings_count++;
+		જો (!warning_match)
+			warnings_ગણતરી_noexpect++;
+		warnings_ગણતરી++;
 		make_debug = bak_make_debug;
 	}
 }
 
-void LogManager::suppressed() {
-	if (debug_suppressed && !make_debug) {
-		constexpr const char* format = "<suppressed ~%d debug messages>\n";
+શૂન્ય LogManager::suppressed() {
+	જો (debug_suppressed && !make_debug) {
+		constexpr અચલ અક્ષર* format = "<suppressed ~%d debug messages>\n";
 		logv_string(LogSeverity::Info, LogSourceLocation{}, {}, format, stringf(format, debug_suppressed));
 		debug_suppressed = 0;
 	}
 }
 
-void LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+શૂન્ય LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
 {
-	int bak_make_debug = make_debug;
+	પૂર્ણાંક bak_make_debug = make_debug;
 	make_debug = 0;
-	if (severity == LogSeverity::Error)
+	જો (severity == LogSeverity::Error)
 		suppressed();
 
 	logv_string(severity, src, prefix, format, message);
@@ -342,274 +342,274 @@ void LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, 
 
 	make_debug = bak_make_debug;
 
-	for (auto &[_, item] : expect_error)
-		if (std::regex_search(message, item.pattern))
-			item.current_count++;
+	માટે (auto &[_, item] : expect_error)
+		જો (std::regex_શોધ(message, item.pattern))
+			item.current_ગણતરી++;
 
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
+	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_લીટી) : "";
 	std::string pattern = loc + string(prefix) + message;
-	for (auto &[_, item] : expect_prefix_error)
-		if (std::regex_search(pattern, item.pattern))
-			item.current_count++;
+	માટે (auto &[_, item] : expect_prefix_error)
+		જો (std::regex_શોધ(pattern, item.pattern))
+			item.current_ગણતરી++;
 
-	errors_count++;
+	errors_ગણતરી++;
 }
 
 [[noreturn]]
-void LogManager::formatted_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+શૂન્ય LogManager::formatted_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
 {
 	error_with_prefix(LogSeverity::Error, src, prefix, format, message);
 
 	check_expected();
 
-	if (log_error_atexit)
+	જો (log_error_atexit)
 		log_error_atexit();
 
 	YS_DEBUGTRAP_IF_DEBUGGING;
-	const char *e = getenv("YOSYS_ABORT_ON_LOG_ERROR");
-	if (e && atoi(e))
+	અચલ અક્ષર *e = getenv("YOSYS_ABORT_ON_LOG_ERROR");
+	જો (e && atoi(e))
 		abort();
 
-#if defined(_MSC_VER)
+#જો defined(_MSC_VER)
 	_exit(1);
-#else
+#નહીંતર
 	_Exit(1);
 #endif
 }
 
-void LogManager::formatted_nonfatal_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+શૂન્ય LogManager::formatted_nonfatal_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
 {
 	error_with_prefix(LogSeverity::NonFatalError, src, prefix, format, message);
 }
 
-void LogManager::add_experimental(const std::string &str)
+શૂન્ય LogManager::add_experimental(અચલ std::string &str)
 {
-	if (experimental_ignored.count(str) == 0 && experimental.count(str) == 0) {
+	જો (experimental_ignored.ગણતરી(str) == 0 && experimental.ગણતરી(str) == 0) {
 		log_warning("Feature '%s' is experimental.\n", str);
-		experimental.insert(str);
+		experimental.ઉમેરો(str);
 	}
 }
 
-void LogManager::add_deprecated(const std::string &feature, const std::string &earliest_removal)
+શૂન્ય LogManager::add_deprecated(અચલ std::string &feature, અચલ std::string &earliest_removal)
 {
-	if (deprecated.count(feature) == 0) {
-		if (earliest_removal.empty())
+	જો (deprecated.ગણતરી(feature) == 0) {
+		જો (earliest_removal.empty())
 			log_warning("Feature '%s' is deprecated.\n", feature);
-		else
+		નહીંતર
 			log_warning("Feature '%s' is deprecated and may be removed as soon as Yosys %s.\n", feature, earliest_removal);
 		deprecated[feature] = earliest_removal;
 	}
 }
 
-void log_assert_failure(const char *expr, source_location location)
+શૂન્ય log_assert_failure(અચલ અક્ષર *પદાવલિ, source_location location)
 {
-	log_error("Assert `%s' failed in %s:%d.\n", expr, location.file_name(), location.line());
+	log_error("Assert `%s' failed in %s:%d.\n", પદાવલિ, location.file_name(), location.લીટી());
 }
 
-void log_abort_internal(const char *file, int line)
+શૂન્ય log_abort_internal(અચલ અક્ષર *file, પૂર્ણાંક લીટી)
 {
-	log_error("Abort in %s:%d.\n", file, line);
+	log_error("Abort in %s:%d.\n", file, લીટી);
 }
 
-void log_yosys_abort_message(std::string_view file, int line, std::string_view func, std::string_view message)
+શૂન્ય log_yosys_abort_message(std::string_view file, પૂર્ણાંક લીટી, std::string_view func, std::string_view message)
 {
-	log_error("Abort in %s:%d (%s): %s\n", file, line, func, message);
+	log_error("Abort in %s:%d (%s): %s\n", file, લીટી, func, message);
 }
 
-void LogManager::formatted_cmd_error(std::string_view format, std::string message)
+શૂન્ય LogManager::formatted_cmd_error(std::string_view format, std::string message)
 {
-	if (cmd_error_throw) {
+	જો (cmd_error_throw) {
 		formatted_string(LogSeverity::Error, LogSourceLocation{}, "ERROR: ", format, message);
 		flush();
 
-		throw log_cmd_error_exception();
+		ફેંકો log_cmd_error_exception();
 	}
 
 	formatted_error(LogSourceLocation{}, "ERROR: ", format, message);
 }
 
-void LogManager::spacer()
+શૂન્ય LogManager::spacer()
 {
-	if (newline_count < 2) log("\n");
-	if (newline_count < 2) log("\n");
+	જો (newline_ગણતરી < 2) log("\n");
+	જો (newline_ગણતરી < 2) log("\n");
 }
 
-void LogManager::clear_original()
+શૂન્ય LogManager::clear_original()
 {
-	std::erase_if(sinks, [](const auto &sink) { return dynamic_cast<LogSinkRef *>(sink.get()) != nullptr; });
+	std::erase_if(sinks, [](અચલ auto &sink) { પાછા dynamic_cast<LogSinkRef *>(sink.get()) != nullptr; });
 }
 
-void LogManager::push()
+શૂન્ય LogManager::ધકેલો()
 {
-	header_count.push_back(0);
+	header_ગણતરી.ધકેલો_back(0);
 }
 
-void LogManager::pop()
+શૂન્ય LogManager::કાઢો()
 {
-	header_count.pop_back();
+	header_ગણતરી.કાઢો_back();
 	flush();
 }
 
-#if defined(YOSYS_ENABLE_DLOPEN)
-void log_backtrace(const char *prefix, int levels)
+#જો defined(YOSYS_ENABLE_DLOPEN)
+શૂન્ય log_backtrace(અચલ અક્ષર *prefix, પૂર્ણાંક levels)
 {
-	if (levels <= 0) return;
+	જો (levels <= 0) પાછા;
 
 	Dl_info dli;
-	void *p;
+	શૂન્ય *p;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(0))) && dladdr(p, &dli)) {
+	જો ((p = __builtin_extract_return_addr(__builtin_return_address(0))) && dladdr(p, &dli)) {
 		log("%sframe #1: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} નહીંતર {
 		log("%sframe #1: ---\n", prefix);
-		return;
+		પાછા;
 	}
 
-	if (levels <= 1) return;
+	જો (levels <= 1) પાછા;
 
 #ifndef DEBUG
 	log("%sframe #2: [build Yosys with ENABLE_DEBUG for deeper backtraces]\n", prefix);
-#else
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(1))) && dladdr(p, &dli)) {
+#નહીંતર
+	જો ((p = __builtin_extract_return_addr(__builtin_return_address(1))) && dladdr(p, &dli)) {
 		log("%sframe #2: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} નહીંતર {
 		log("%sframe #2: ---\n", prefix);
-		return;
+		પાછા;
 	}
 
-	if (levels <= 2) return;
+	જો (levels <= 2) પાછા;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(2))) && dladdr(p, &dli)) {
+	જો ((p = __builtin_extract_return_addr(__builtin_return_address(2))) && dladdr(p, &dli)) {
 		log("%sframe #3: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} નહીંતર {
 		log("%sframe #3: ---\n", prefix);
-		return;
+		પાછા;
 	}
 
-	if (levels <= 3) return;
+	જો (levels <= 3) પાછા;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(3))) && dladdr(p, &dli)) {
+	જો ((p = __builtin_extract_return_addr(__builtin_return_address(3))) && dladdr(p, &dli)) {
 		log("%sframe #4: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} નહીંતર {
 		log("%sframe #4: ---\n", prefix);
-		return;
+		પાછા;
 	}
 
-	if (levels <= 4) return;
+	જો (levels <= 4) પાછા;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(4))) && dladdr(p, &dli)) {
+	જો ((p = __builtin_extract_return_addr(__builtin_return_address(4))) && dladdr(p, &dli)) {
 		log("%sframe #5: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} નહીંતર {
 		log("%sframe #5: ---\n", prefix);
-		return;
+		પાછા;
 	}
 
-	if (levels <= 5) return;
+	જો (levels <= 5) પાછા;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(5))) && dladdr(p, &dli)) {
+	જો ((p = __builtin_extract_return_addr(__builtin_return_address(5))) && dladdr(p, &dli)) {
 		log("%sframe #6: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} નહીંતર {
 		log("%sframe #6: ---\n", prefix);
-		return;
+		પાછા;
 	}
 
-	if (levels <= 6) return;
+	જો (levels <= 6) પાછા;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(6))) && dladdr(p, &dli)) {
+	જો ((p = __builtin_extract_return_addr(__builtin_return_address(6))) && dladdr(p, &dli)) {
 		log("%sframe #7: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} નહીંતર {
 		log("%sframe #7: ---\n", prefix);
-		return;
+		પાછા;
 	}
 
-	if (levels <= 7) return;
+	જો (levels <= 7) પાછા;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(7))) && dladdr(p, &dli)) {
+	જો ((p = __builtin_extract_return_addr(__builtin_return_address(7))) && dladdr(p, &dli)) {
 		log("%sframe #8: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} નહીંતર {
 		log("%sframe #8: ---\n", prefix);
-		return;
+		પાછા;
 	}
 
-	if (levels <= 8) return;
+	જો (levels <= 8) પાછા;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(8))) && dladdr(p, &dli)) {
+	જો ((p = __builtin_extract_return_addr(__builtin_return_address(8))) && dladdr(p, &dli)) {
 		log("%sframe #9: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} નહીંતર {
 		log("%sframe #9: ---\n", prefix);
-		return;
+		પાછા;
 	}
 
-	if (levels <= 9) return;
+	જો (levels <= 9) પાછા;
 #endif
 }
-#else
-void log_backtrace(const char*, int) { }
+#નહીંતર
+શૂન્ય log_backtrace(અચલ અક્ષર*, પૂર્ણાંક) { }
 #endif
 
-void LogManager::reset_stack()
+શૂન્ય LogManager::reset_ઢગલો()
 {
-	while (header_count.size() > 1)
-		header_count.pop_back();
+	જ્યારે (header_ગણતરી.size() > 1)
+		header_ગણતરી.કાઢો_back();
 	flush();
 }
 
-void log_dump_val_worker(RTLIL::IdString v) {
-	if (v == IdString::Null)
+શૂન્ય log_dump_val_worker(RTLIL::IdString v) {
+	જો (v == IdString::Null)
 		log("(null)");
-	else if (ID::is_static(v))
+	નહીંતર જો (ID::is_static(v))
 		log("%s", ID::unescaped_str(v));
-	else if (yosys_design && yosys_design->twines().is_live(v))
+	નહીંતર જો (yosys_design && yosys_design->twines().is_live(v))
 		log("%s", yosys_design->twines().unescaped_str(v));
-	else
+	નહીંતર
 		log("%s", v.handle_token());
 }
 
-void log_dump_val_worker(RTLIL::SigSpec v) {
+શૂન્ય log_dump_val_worker(RTLIL::SigSpec v) {
 	log("%s", log_signal(v));
 }
 
-void log_dump_val_worker(RTLIL::State v) {
+શૂન્ય log_dump_val_worker(RTLIL::State v) {
 	log("%s", log_signal(v));
 }
 
-std::string log_signal(const RTLIL::SigSpec &sig, bool autoint)
+std::string log_signal(અચલ RTLIL::SigSpec &sig, તાર્કિક autoint)
 {
 	std::stringstream buf;
 	RTLIL_BACKEND::dump_sigspec(buf, sig, autoint, RTLIL_BACKEND::DumpMode::Readable);
-	return buf.str();
+	પાછા buf.str();
 }
 
-std::string log_const(const RTLIL::Const &value, bool autoint)
+std::string log_const(અચલ RTLIL::Const &કિંમત, તાર્કિક autoint)
 {
-	if ((value.flags & RTLIL::CONST_FLAG_STRING) == 0)
-		return log_signal(value, autoint);
+	જો ((કિંમત.flags & RTLIL::CONST_FLAG_STRING) == 0)
+		પાછા log_signal(કિંમત, autoint);
 
-	return "\"" + value.decode_string() + "\"";
+	પાછા "\"" + કિંમત.decode_string() + "\"";
 }
 
-void log_module(RTLIL::Module *module, std::string indent)
+શૂન્ય log_module(RTLIL::Module *module, std::string indent)
 {
 	std::stringstream buf;
-	RTLIL_BACKEND::dump_module(buf, indent, module, module->design, false, true, false, RTLIL_BACKEND::DumpMode::Readable);
+	RTLIL_BACKEND::dump_module(buf, indent, module, module->design, ખોટું, સાચું, ખોટું, RTLIL_BACKEND::DumpMode::Readable);
 	log("%s", buf.str());
 }
 
-void log_cell(RTLIL::Cell *cell, std::string indent)
+શૂન્ય log_cell(RTLIL::Cell *cell, std::string indent)
 {
 	std::stringstream buf;
 	RTLIL_BACKEND::dump_cell(buf, indent, cell, cell->module ? cell->module->design : nullptr, RTLIL_BACKEND::DumpMode::Readable);
 	log("%s", buf.str());
 }
 
-void log_wire(RTLIL::Wire *wire, std::string indent)
+શૂન્ય log_wire(RTLIL::Wire *wire, std::string indent)
 {
 	std::stringstream buf;
 	RTLIL_BACKEND::dump_wire(buf, indent, wire, wire->module ? wire->module->design : nullptr, RTLIL_BACKEND::DumpMode::Readable);
 	log("%s", buf.str());
 }
 
-void LogManager::check_expected()
+શૂન્ય LogManager::check_expected()
 {
 	// copy out all of the expected logs so that they cannot be re-checked
 	// or match against themselves
@@ -622,85 +622,85 @@ void LogManager::check_expected()
 	std::swap(expect_prefix_log_copy, expect_prefix_log);
 	std::swap(expect_prefix_error_copy, expect_prefix_error);
 
-	auto check = [&](const std::string kind, std::string pattern, LogExpectedItem item) {
-		if (item.current_count == 0) {
+	auto check = [&](અચલ std::string kind, std::string pattern, LogExpectedItem item) {
+		જો (item.current_ગણતરી == 0) {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' not found !\n", kind, pattern);
 		}
-		if (item.current_count != item.expected_count) {
+		જો (item.current_ગણતરી != item.expected_ગણતરી) {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' found %d time(s), instead of %d time(s) !\n",
-				kind.c_str(), pattern.c_str(), item.current_count, item.expected_count);
+				kind.c_str(), pattern.c_str(), item.current_ગણતરી, item.expected_ગણતરી);
 		}
 	};
 
-	for (auto &[pattern, item] : expect_warning_copy)
+	માટે (auto &[pattern, item] : expect_warning_copy)
 		check("warning", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_warning_copy)
+	માટે (auto &[pattern, item] : expect_prefix_warning_copy)
 		check("prefixed warning", pattern, item);
-	for (auto &[pattern, item] : expect_log_copy)
+	માટે (auto &[pattern, item] : expect_log_copy)
 		check("log", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_log_copy)
+	માટે (auto &[pattern, item] : expect_prefix_log_copy)
 		check("prefixed log", pattern, item);
 
-	auto check_err = [&](const std::string kind, std::string pattern, LogExpectedItem item) {
-		if (item.current_count == item.expected_count) {
+	auto check_err = [&](અચલ std::string kind, std::string pattern, LogExpectedItem item) {
+		જો (item.current_ગણતરી == item.expected_ગણતરી) {
 			warn_regexes.clear();
 			log("Expected %s pattern '%s' found !!!\n", kind, pattern);
 			yosys_shutdown();
-			#if defined(_MSC_VER)
+			#જો defined(_MSC_VER)
 				_exit(0);
-			#else
+			#નહીંતર
 				_Exit(0);
 			#endif
-		} else {
+		} નહીંતર {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' not found !\n", kind, pattern);
 		}
 	};
-	for (auto &[pattern, item] : expect_error_copy)
+	માટે (auto &[pattern, item] : expect_error_copy)
 		check_err("error", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_error_copy)
+	માટે (auto &[pattern, item] : expect_prefix_error_copy)
 		check_err("prefixed error", pattern, item);
 }
 
-void LogManager::report_unexpected_error()
+શૂન્ય LogManager::report_unexpected_error()
 {
-	if (expect_no_warnings && warnings_count_noexpect)
+	જો (expect_no_warnings && warnings_ગણતરી_noexpect)
 		log_error("Unexpected warnings found: %d unique messages, %d total, %d expected\n", GetSize(warnings),
-					warnings_count, warnings_count - warnings_count_noexpect);
+					warnings_ગણતરી, warnings_ગણતરી - warnings_ગણતરી_noexpect);
 }
 
-void LogManager::add_expect(std::string type, std::string pattern, int count)
+શૂન્ય LogManager::add_expect(std::string type, std::string pattern, પૂર્ણાંક ગણતરી)
 {
-	if (type == "error")
-		expect_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-error")
-		expect_prefix_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "warning")
-		expect_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-warning")
-		expect_prefix_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "log")
-		expect_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-log")
-		expect_prefix_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else log_abort();
+	જો (type == "error")
+		expect_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), ગણતરી);
+	નહીંતર જો (type == "prefix-error")
+		expect_prefix_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), ગણતરી);
+	નહીંતર જો (type == "warning")
+		expect_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), ગણતરી);
+	નહીંતર જો (type == "prefix-warning")
+		expect_prefix_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), ગણતરી);
+	નહીંતર જો (type == "log")
+		expect_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), ગણતરી);
+	નહીંતર જો (type == "prefix-log")
+		expect_prefix_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), ગણતરી);
+	નહીંતર log_abort();
 }
 
-void LogManager::start_hasher()
+શૂન્ય LogManager::start_hasher()
 {
 	hasher = std::make_unique<SHA1>();
 }
 
 std::string LogManager::finish_hasher()
 {
-	if (!hasher)
-		return {};
+	જો (!hasher)
+		પાછા {};
 
 	std::string hash = hasher->final().substr(0, 10);
 	hasher.reset();
-	return hash;
+	પાછા hash;
 }
 
 YOSYS_NAMESPACE_END
