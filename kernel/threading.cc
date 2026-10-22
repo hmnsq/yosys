@@ -3,73 +3,73 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-static int init_max_threads()
+static số_nguyên init_max_threads()
 {
 	const char *v = getenv("YOSYS_MAX_THREADS");
-	if (v == nullptr)
-		return INT32_MAX;
-	return atoi(v);
+	nếu (v == nullptr)
+		trả_về INT32_MAX;
+	trả_về atoi(v);
 }
 
-static int get_max_threads()
+static số_nguyên get_max_threads()
 {
-	static int max_threads = init_max_threads();
-	return max_threads;
+	static số_nguyên max_threads = init_max_threads();
+	trả_về max_threads;
 }
 
-static int init_work_units_per_thread_override()
+static số_nguyên init_work_units_per_thread_override()
 {
 	const char *v = getenv("YOSYS_WORK_UNITS_PER_THREAD");
-	if (v == nullptr)
-		return 0;
-	return atoi(v);
+	nếu (v == nullptr)
+		trả_về 0;
+	trả_về atoi(v);
 }
 
-static int get_work_units_per_thread_override()
+static số_nguyên get_work_units_per_thread_override()
 {
-	static int work_units_per_thread = init_work_units_per_thread_override();
-	return work_units_per_thread;
+	static số_nguyên work_units_per_thread = init_work_units_per_thread_override();
+	trả_về work_units_per_thread;
 }
 
 void DeferredLogs::flush()
 {
-	for (auto &m : logs)
-		if (m.error)
+	cho (auto &m : logs)
+		nếu (m.error)
 			YOSYS_NAMESPACE_PREFIX log_error("%s", m.text.c_str());
-		else
+		không_thì
 			YOSYS_NAMESPACE_PREFIX log("%s", m.text.c_str());
 }
 
-int ThreadPool::pool_size(int reserved_cores, int max_worker_threads)
+số_nguyên ThreadPool::pool_size(số_nguyên reserved_cores, số_nguyên max_worker_threads)
 {
 #ifdef YOSYS_ENABLE_THREADS
-	int available_threads = std::min<int>(std::thread::hardware_concurrency(), get_max_threads());
-	int num_threads = std::min(available_threads - reserved_cores, max_worker_threads);
-	return std::max(0, num_threads);
-#else
+	số_nguyên available_threads = std::min<số_nguyên>(std::thread::hardware_concurrency(), get_max_threads());
+	số_nguyên num_threads = std::min(available_threads - reserved_cores, max_worker_threads);
+	trả_về std::max(0, num_threads);
+#không_thì
 	(void)reserved_cores;
 	(void)max_worker_threads;
 	(void)get_max_threads();
-	return 0;
+	trả_về 0;
 #endif
 }
 
-int ThreadPool::work_pool_size(int reserved_cores, int work_units, int work_units_per_thread)
+số_nguyên ThreadPool::work_pool_size(số_nguyên reserved_cores, số_nguyên work_units, số_nguyên work_units_per_thread)
 {
-	int work_units_per_thread_override = get_work_units_per_thread_override();
-	if (work_units_per_thread_override > 0)
+	số_nguyên work_units_per_thread_override = get_work_units_per_thread_override();
+	nếu (work_units_per_thread_override > 0)
 		work_units_per_thread = work_units_per_thread_override;
-	return pool_size(reserved_cores, work_units / work_units_per_thread);
+	trả_về pool_size(reserved_cores, work_units / work_units_per_thread);
 }
 
-ThreadPool::ThreadPool(int pool_size, std::function<void(int)> b)
+ThreadPool::ThreadPool(số_nguyên pool_size, std::function<void(số_nguyên)> b)
 	: body(std::move(b))
 {
 #ifdef YOSYS_ENABLE_THREADS
 	threads.reserve(pool_size);
-	for (int i = 0; i < pool_size; i++)
+	cho (số_nguyên i = 0; i < pool_size; i++)
 		threads.emplace_back([i, this]{ body(i); });
-#else
+#không_thì
 	(void)pool_size;
 #endif
 }
@@ -77,28 +77,28 @@ ThreadPool::ThreadPool(int pool_size, std::function<void(int)> b)
 ThreadPool::~ThreadPool()
 {
 #ifdef YOSYS_ENABLE_THREADS
-	for (auto &t : threads)
+	cho (auto &t : threads)
 		t.join();
 #endif
 }
 
-IntRange item_range_for_worker(int num_items, int thread_num, int num_threads)
+IntRange item_range_for_worker(số_nguyên num_items, số_nguyên thread_num, số_nguyên num_threads)
 {
-	if (num_threads <= 1) {
-		return {0, num_items};
+	nếu (num_threads <= 1) {
+		trả_về {0, num_items};
 	}
-	int items_per_thread = num_items / num_threads;
-	int extra_items = num_items % num_threads;
+	số_nguyên items_per_thread = num_items / num_threads;
+	số_nguyên extra_items = num_items % num_threads;
 	// The first `extra_items` threads get one extra item.
-	int start = thread_num * items_per_thread + std::min(thread_num, extra_items);
-	int end = (thread_num + 1) * items_per_thread + std::min(thread_num + 1, extra_items);
-	return {start, end};
+	số_nguyên start = thread_num * items_per_thread + std::min(thread_num, extra_items);
+	số_nguyên end = (thread_num + 1) * items_per_thread + std::min(thread_num + 1, extra_items);
+	trả_về {start, end};
 }
 
-ParallelDispatchThreadPool::ParallelDispatchThreadPool(int pool_size)
+ParallelDispatchThreadPool::ParallelDispatchThreadPool(số_nguyên pool_size)
 #ifdef YOSYS_ENABLE_THREADS
 		: num_worker_threads_(std::max(1, pool_size) - 1)
-#else
+#không_thì
 		: num_worker_threads_(0)
 #endif
 {
@@ -107,28 +107,28 @@ ParallelDispatchThreadPool::ParallelDispatchThreadPool(int pool_size)
 #endif
 	main_to_workers_signal.resize(num_worker_threads_, 0);
 	// Don't start the threads until we've constructed all our data members.
-	thread_pool = std::make_unique<ThreadPool>(num_worker_threads_, [this](int thread_num){
+	thread_pool = std::make_unique<ThreadPool>(num_worker_threads_, [this](số_nguyên thread_num){
 		run_worker(thread_num);
 	});
 }
 
 ParallelDispatchThreadPool::~ParallelDispatchThreadPool()
 {
-	if (num_worker_threads_ == 0)
-		return;
+	nếu (num_worker_threads_ == 0)
+		trả_về;
 	current_work = nullptr;
 	num_active_worker_threads_.store(num_worker_threads_, std::memory_order_relaxed);
 	signal_workers_start();
 	wait_for_workers_done();
 }
 
-void ParallelDispatchThreadPool::run(std::function<void(const RunCtx &)> work, int max_threads)
+void ParallelDispatchThreadPool::run(std::function<void(const RunCtx &)> work, số_nguyên max_threads)
 {
 	Multithreading multithreading;
-	int num_active_worker_threads = num_threads(max_threads) - 1;
-	if (num_active_worker_threads == 0) {
+	số_nguyên num_active_worker_threads = num_threads(max_threads) - 1;
+	nếu (num_active_worker_threads == 0) {
 		work({{0}, 1});
-		return;
+		trả_về;
 	}
 	num_active_worker_threads_.store(num_active_worker_threads, std::memory_order_relaxed);
 	current_work = &work;
@@ -137,20 +137,20 @@ void ParallelDispatchThreadPool::run(std::function<void(const RunCtx &)> work, i
 	wait_for_workers_done();
 }
 
-void ParallelDispatchThreadPool::run_worker(int thread_num)
+void ParallelDispatchThreadPool::run_worker(số_nguyên thread_num)
 {
 #ifdef YOSYS_ENABLE_THREADS
-	while (true)
+	trong_khi (true)
 	{
 		worker_wait_for_start(thread_num);
-		if (current_work == nullptr)
+		nếu (current_work == nullptr)
 			break;
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
+		số_nguyên num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
 		(*current_work)({{thread_num + 1}, num_active_worker_threads + 1});
 		signal_worker_done();
 	}
 	signal_worker_done();
-#else
+#không_thì
 	(void)thread_num;
 	(void)current_work;
 #endif

@@ -35,7 +35,7 @@ struct FstVar
 	bool is_alias;
 	bool is_reg;
 	std::string scope;
-	int width;
+	số_nguyên width;
 };
 
 class FstData
@@ -47,16 +47,16 @@ class FstData
 	uint64_t getStartTime();
 	uint64_t getEndTime();
 
-	std::vector<FstVar>& getVars() { return vars; };
+	std::vector<FstVar>& getVars() { trả_về vars; };
 
 	void reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t plen);
-	void reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start_time, uint64_t end_time, unsigned int end_cycle, CallbackFunction cb);
+	void reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start_time, uint64_t end_time, unsigned số_nguyên end_cycle, CallbackFunction cb);
 
 	std::string valueOf(fstHandle signal);
 	fstHandle getHandle(std::string name);
-	dict<int,fstHandle> getMemoryHandles(std::string name);
-	int getScale() { return scale; }
-	const char *getTimescaleString() { return timescale_str.c_str(); }
+	dict<số_nguyên,fstHandle> getMemoryHandles(std::string name);
+	số_nguyên getScale() { trả_về scale; }
+	const char *getTimescaleString() { trả_về timescale_str.c_str(); }
 private:
 	void extractVarNames();
 
@@ -64,17 +64,17 @@ private:
 	std::vector<FstVar> vars;
 	std::map<fstHandle, FstVar> handle_to_var;
 	std::map<std::string, fstHandle> name_to_handle;
-	std::map<std::string, dict<int, fstHandle>> memory_to_handle;
+	std::map<std::string, dict<số_nguyên, fstHandle>> memory_to_handle;
 	std::map<fstHandle, std::string> last_data;
 	uint64_t last_time;
 	std::map<fstHandle, std::string> past_data;
 	uint64_t past_time;
-	int scale; // exponent of 10, e.g. -6 = us, -9 = ns
+	số_nguyên scale; // exponent of 10, e.g. -6 = us, -9 = ns
 	std::string timescale_str;
 	uint64_t start_time;
 	uint64_t end_time;
-	unsigned int last_cycle;
-	unsigned int curr_cycle;
+	unsigned số_nguyên last_cycle;
+	unsigned số_nguyên curr_cycle;
 	CallbackFunction callback;
 	std::vector<fstHandle> clk_signals;
 	bool all_samples;

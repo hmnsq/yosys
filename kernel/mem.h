@@ -29,7 +29,7 @@ YOSYS_NAMESPACE_BEGIN
 struct MemRd : RTLIL::AttrObject {
 	bool removed;
 	Cell *cell;
-	int wide_log2;
+	số_nguyên wide_log2;
 	bool clk_enable, clk_polarity, ce_over_srst;
 	Const arst_value, srst_value, init_value;
 	// One bit for every write port, true iff simultanous read on this
@@ -50,18 +50,18 @@ struct MemRd : RTLIL::AttrObject {
 	MemRd() : removed(false), cell(nullptr), wide_log2(0), clk_enable(false), clk_polarity(true), ce_over_srst(false), clk(State::Sx), en(State::S1), arst(State::S0), srst(State::S0) {}
 
 	// Returns the address of given subword index accessed by this port.
-	SigSpec sub_addr(int sub) {
+	SigSpec sub_addr(số_nguyên sub) {
 		SigSpec res = addr;
-		for (int i = 0; i < wide_log2; i++)
+		cho (số_nguyên i = 0; i < wide_log2; i++)
 			res[i] = State(sub >> i & 1);
-		return res;
+		trả_về res;
 	}
 };
 
 struct MemWr : RTLIL::AttrObject {
 	bool removed;
 	Cell *cell;
-	int wide_log2;
+	số_nguyên wide_log2;
 	bool clk_enable, clk_polarity;
 	std::vector<bool> priority_mask;
 	SigSpec clk, en, addr, data;
@@ -69,15 +69,15 @@ struct MemWr : RTLIL::AttrObject {
 	MemWr() : removed(false), cell(nullptr) {}
 
 	// Returns the address of given subword index accessed by this port.
-	SigSpec sub_addr(int sub) {
+	SigSpec sub_addr(số_nguyên sub) {
 		SigSpec res = addr;
-		for (int i = 0; i < wide_log2; i++)
+		cho (số_nguyên i = 0; i < wide_log2; i++)
 			res[i] = State(sub >> i & 1);
-		return res;
+		trả_về res;
 	}
 
-	std::pair<SigSpec, std::vector<int>> compress_en();
-	SigSpec decompress_en(const std::vector<int> &swizzle, SigSpec sig);
+	std::pair<SigSpec, std::vector<số_nguyên>> compress_en();
+	SigSpec decompress_en(const std::vector<số_nguyên> &swizzle, SigSpec sig);
 };
 
 struct MemInit : RTLIL::AttrObject {
@@ -95,7 +95,7 @@ struct Mem : RTLIL::AttrObject {
 	bool packed;
 	RTLIL::Memory *mem;
 	Cell *cell;
-	int width, start_offset, size;
+	số_nguyên width, start_offset, size;
 	std::vector<MemInit> inits;
 	std::vector<MemRd> rd_ports;
 	std::vector<MemWr> wr_ports;
@@ -145,7 +145,7 @@ struct Mem : RTLIL::AttrObject {
 	// register cell, if any.  Note that in some rare cases this function
 	// may succeed and perform a conversion without creating a new
 	// register — a nullptr result doesn't imply nothing was done.
-	Cell *extract_rdff(int idx, FfInitVals *initvals);
+	Cell *extract_rdff(số_nguyên idx, FfInitVals *initvals);
 
 	// Splits all wide ports in this memory into equivalent narrow ones.
 	// This function performs no modifications at all to the actual
@@ -158,7 +158,7 @@ struct Mem : RTLIL::AttrObject {
 	// from the priority mask.  If there is a memory port that is
 	// transparent with idx1, but not with idx2, that port is converted
 	// to use soft transparency logic.
-	void emulate_priority(int idx1, int idx2, FfInitVals *initvals);
+	void emulate_priority(số_nguyên idx1, số_nguyên idx2, FfInitVals *initvals);
 
 	// Creates soft-transparency logic on read port ridx, bypassing the
 	// data from write port widx.  Should only be called when ridx is
@@ -166,7 +166,7 @@ struct Mem : RTLIL::AttrObject {
 	// transparency_mask bit will be cleared, and the collision_x_mask
 	// bit will be set instead (since whatever value is read will be
 	// replaced by the soft transparency logic).
-	void emulate_transparency(int widx, int ridx, FfInitVals *initvals);
+	void emulate_transparency(số_nguyên widx, số_nguyên ridx, FfInitVals *initvals);
 
 	// Prepares for merging write port idx2 into idx1 (where idx1 < idx2).
 	// Specifically, takes care of priority masks: any priority relations
@@ -175,43 +175,43 @@ struct Mem : RTLIL::AttrObject {
 	// is called.  Likewise, ensures transparency and undefined collision
 	// masks of all read ports have the same values for both ports,
 	// calling emulate_transparency if necessary.
-	void prepare_wr_merge(int idx1, int idx2, FfInitVals *initvals);
+	void prepare_wr_merge(số_nguyên idx1, số_nguyên idx2, FfInitVals *initvals);
 
 	// Prepares for merging read port idx2 into idx1.
 	// Specifically, makes sure the transparency and undefined collision
 	// masks of both ports are equal, by changing undefined behavior
 	// of one port to the other's defined behavior, or by calling
 	// emulate_transparency if necessary.
-	void prepare_rd_merge(int idx1, int idx2, FfInitVals *initvals);
+	void prepare_rd_merge(số_nguyên idx1, số_nguyên idx2, FfInitVals *initvals);
 
 	// Prepares the memory for widening a port to a given width.  This
 	// involves ensuring that start_offset and size are aligned to the
 	// target width.
-	void widen_prep(int wide_log2);
+	void widen_prep(số_nguyên wide_log2);
 
 	// Widens a write port up to a given width.  The newly port is
 	// equivalent to the original, made by replicating enable/data bits
 	// and masking enable bits with decoders on the low part of the
 	// original address.
-	void widen_wr_port(int idx, int wide_log2);
+	void widen_wr_port(số_nguyên idx, số_nguyên wide_log2);
 
 	// Emulates a sync read port's enable functionality in soft logic,
 	// changing the actual read port's enable to be always-on.
-	void emulate_rden(int idx, FfInitVals *initvals);
+	void emulate_rden(số_nguyên idx, FfInitVals *initvals);
 
 	// Emulates a sync read port's initial/reset value functionality in
 	// soft logic, removing it from the actual read port.
-	void emulate_reset(int idx, bool emu_init, bool emu_arst, bool emu_srst, FfInitVals *initvals);
+	void emulate_reset(số_nguyên idx, bool emu_init, bool emu_arst, bool emu_srst, FfInitVals *initvals);
 
 	// Given a read port with ce_over_srst set, converts it to a port
 	// with ce_over_srst unset without changing its behavior by adding
 	// emulation logic.
-	void emulate_rd_ce_over_srst(int idx);
+	void emulate_rd_ce_over_srst(số_nguyên idx);
 
 	// Given a read port with ce_over_srst unset, converts it to a port
 	// with ce_over_srst set without changing its behavior by adding
 	// emulation logic.
-	void emulate_rd_srst_over_ce(int idx);
+	void emulate_rd_srst_over_ce(số_nguyên idx);
 
 	// Returns true iff emulate_read_first makes sense to call.
 	bool emulate_read_first_ok();
@@ -222,8 +222,8 @@ struct Mem : RTLIL::AttrObject {
 	// in the same clock domain.
 	void emulate_read_first(FfInitVals *initvals);
 
-	Mem(Module *module, IdString memid, int width, int start_offset, int size) : module(module), memid(module->design, memid), packed(false), mem(nullptr), cell(nullptr), width(width), start_offset(start_offset), size(size) {}
-	Mem(Module *module, TwineSpec &&memid, int width, int start_offset, int size)
+	Mem(Module *module, IdString memid, số_nguyên width, số_nguyên start_offset, số_nguyên size) : module(module), memid(module->design, memid), packed(false), mem(nullptr), cell(nullptr), width(width), start_offset(start_offset), size(size) {}
+	Mem(Module *module, TwineSpec &&memid, số_nguyên width, số_nguyên start_offset, số_nguyên size)
 			: Mem(module, module->twines().add(std::move(memid)), width, start_offset, size) {}
 };
 
@@ -234,8 +234,8 @@ public:
 	using addr_t = uint32_t;
 private:
 	// we ban _addr_width == sizeof(addr_t) * 8 because it adds too many cornercases
-	int _addr_width;
-	int _data_width;
+	số_nguyên _addr_width;
+	số_nguyên _data_width;
 	RTLIL::Const _default_value;
 	// for each range, store the concatenation of the words at the start address
 	// invariants:
@@ -245,9 +245,9 @@ private:
 	std::map<addr_t, RTLIL::Const> _values;
 	// returns an iterator to the range containing addr, if it exists, or the first range past addr
 	std::map<addr_t, RTLIL::Const>::iterator _range_at(addr_t addr) const;
-	addr_t _range_size(std::map<addr_t, RTLIL::Const>::iterator it) const { return it->second.size() / _data_width; }
-	addr_t _range_begin(std::map<addr_t, RTLIL::Const>::iterator it) const { return it->first; }
-	addr_t _range_end(std::map<addr_t, RTLIL::Const>::iterator it) const { return _range_begin(it) + _range_size(it); }
+	addr_t _range_size(std::map<addr_t, RTLIL::Const>::iterator it) const { trả_về it->second.size() / _data_width; }
+	addr_t _range_begin(std::map<addr_t, RTLIL::Const>::iterator it) const { trả_về it->first; }
+	addr_t _range_end(std::map<addr_t, RTLIL::Const>::iterator it) const { trả_về _range_begin(it) + _range_size(it); }
 	// check if the iterator points to a range containing addr
 	bool _range_contains(std::map<addr_t, RTLIL::Const>::iterator it, addr_t addr) const;
 	// check if the iterator points to a range containing [begin_addr, end_addr). assumes end_addr >= begin_addr.
@@ -255,10 +255,10 @@ private:
 	// check if the iterator points to a range overlapping with [begin_addr, end_addr)
 	bool _range_overlaps(std::map<addr_t, RTLIL::Const>::iterator it, addr_t begin_addr, addr_t end_addr) const;
 	// return the offset the addr would have in the range at `it`
-	size_t _range_offset(std::map<addr_t, RTLIL::Const>::iterator it, addr_t addr) const { return (addr - it->first) * _data_width; }
+	size_t _range_offset(std::map<addr_t, RTLIL::Const>::iterator it, addr_t addr) const { trả_về (addr - it->first) * _data_width; }
 	// assuming _range_contains(it, addr), return an iterator pointing to the data at addr
 	RTLIL::Const::iterator _range_data(std::map<addr_t, RTLIL::Const>::iterator it, addr_t addr) {
-		return RTLIL::Const::iterator(it->second, _range_offset(it, addr));
+		trả_về RTLIL::Const::iterator(it->second, _range_offset(it, addr));
 	}
 	// internal version of reserve_range that returns an iterator to the range
 	std::map<addr_t, RTLIL::Const>::iterator _reserve_range(addr_t begin_addr, addr_t end_addr);
@@ -266,22 +266,22 @@ private:
 	RTLIL::Const::iterator _range_write(RTLIL::Const::iterator it, RTLIL::Const const &data);
 public:
 	class range {
-		int _data_width;
+		số_nguyên _data_width;
 		addr_t _base;
 		RTLIL::Const const &_values;
 		friend class iterator;
-		range(int data_width, addr_t base, RTLIL::Const const &values)
+		range(số_nguyên data_width, addr_t base, RTLIL::Const const &values)
 		: _data_width(data_width), _base(base), _values(values) {}
 	public:
-		addr_t base() const { return _base; }
-		addr_t size() const { return ((addr_t) _values.size()) / _data_width; }
-		addr_t limit() const { return _base + size(); }
-		RTLIL::Const const &concatenated() const { return _values; }
+		addr_t base() const { trả_về _base; }
+		addr_t size() const { trả_về ((addr_t) _values.size()) / _data_width; }
+		addr_t limit() const { trả_về _base + size(); }
+		RTLIL::Const const &concatenated() const { trả_về _values; }
 		RTLIL::Const operator[](addr_t addr) const {
 			log_assert(addr - _base < size());
-			return _values.extract((addr - _base) * _data_width, _data_width);
+			trả_về _values.extract((addr - _base) * _data_width, _data_width);
 		}
-		RTLIL::Const at_offset(addr_t offset) const { return (*this)[_base + offset]; }
+		RTLIL::Const at_offset(addr_t offset) const { trả_về (*this)[_base + offset]; }
 	};
 	class iterator {
 		MemContents const *_memory;
@@ -296,21 +296,21 @@ public:
 		using pointer = arrow_proxy<range>;
 		using reference = range;
 		using difference_type = addr_t;
-		reference operator *() const { return range(_memory->_data_width, _addr, _memory->_values.at(_addr)); }
-		pointer operator->() const { return arrow_proxy<range>(**this); }
-		bool operator !=(iterator const &other) const { return _memory != other._memory || _addr != other._addr; }
-		bool operator ==(iterator const &other) const { return !(*this != other); }
+		reference operator *() const { trả_về range(_memory->_data_width, _addr, _memory->_values.at(_addr)); }
+		pointer operator->() const { trả_về arrow_proxy<range>(**this); }
+		bool operator !=(iterator const &other) const { trả_về _memory != other._memory || _addr != other._addr; }
+		bool operator ==(iterator const &other) const { trả_về !(*this != other); }
 		iterator &operator++();
 	};
-	MemContents(int addr_width, int data_width, RTLIL::Const default_value)
+	MemContents(số_nguyên addr_width, số_nguyên data_width, RTLIL::Const default_value)
 		: _addr_width(addr_width), _data_width(data_width)
 		, _default_value((default_value.extu(data_width), std::move(default_value)))
-	{ log_assert(_addr_width > 0 && _addr_width < (int)sizeof(addr_t) * 8); log_assert(_data_width > 0); }
-	MemContents(int addr_width, int data_width) : MemContents(addr_width, data_width, RTLIL::Const(State::Sx, data_width)) {}
+	{ log_assert(_addr_width > 0 && _addr_width < (số_nguyên)sizeof(addr_t) * 8); log_assert(_data_width > 0); }
+	MemContents(số_nguyên addr_width, số_nguyên data_width) : MemContents(addr_width, data_width, RTLIL::Const(State::Sx, data_width)) {}
 	explicit MemContents(Mem *mem);
-	int addr_width() const { return _addr_width; }
-	int data_width() const { return _data_width; }
-	RTLIL::Const const &default_value() const { return _default_value; }
+	số_nguyên addr_width() const { trả_về _addr_width; }
+	số_nguyên data_width() const { trả_về _data_width; }
+	RTLIL::Const const &default_value() const { trả_về _default_value; }
 	// return the value at the address if it exists, the default_value of the memory otherwise. address must not exceed 2**addr_width.
 	RTLIL::Const operator [](addr_t addr) const;
 	// return the number of defined words in the range [begin_addr, end_addr)
@@ -325,16 +325,16 @@ public:
 		log_assert(addr < (addr_t)(1<<_addr_width)); log_assert(words <= (addr_t)(1<<_addr_width) - addr);
 		auto range = _reserve_range(addr, addr + words);
 		auto it = _range_data(range, addr);
-		for(; begin != end; ++begin)
+		cho(; begin != end; ++begin)
 			it = _range_write(it, *begin);
 	}
 	// undefine all words in the range [begin_addr, end_addr)
 	void clear_range(addr_t begin_addr, addr_t end_addr);
 	// check invariants, abort if invariants failed
 	void check();
-	iterator end() const { return iterator(nullptr, ~(addr_t) 0); }
-	iterator begin() const { return _values.empty() ? end() : iterator(this, _values.begin()->first); }
-	bool empty() const { return _values.empty(); }
+	iterator end() const { trả_về iterator(nullptr, ~(addr_t) 0); }
+	iterator begin() const { trả_về _values.empty() ? end() : iterator(this, _values.begin()->first); }
+	bool empty() const { trả_về _values.empty(); }
 };
 
 YOSYS_NAMESPACE_END

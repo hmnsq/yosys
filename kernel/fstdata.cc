@@ -22,92 +22,92 @@
 USING_YOSYS_NAMESPACE
 
 
-#if defined(YOSYS_ENABLE_SPAWN)
+#nếu defined(YOSYS_ENABLE_SPAWN)
 static std::string file_base_name(std::string const & path)
 {
-	return path.substr(path.find_last_of("/\\") + 1);
+	trả_về path.substr(path.find_last_of("/\\") + 1);
 }
 #endif
 
 FstData::FstData(std::string filename) : ctx(nullptr)
 {
-	#if defined(YOSYS_ENABLE_SPAWN)
+	#nếu defined(YOSYS_ENABLE_SPAWN)
 	std::string filename_trim = file_base_name(filename);
-	if (filename_trim.size() > 4 && filename_trim.compare(filename_trim.size()-4, std::string::npos, ".vcd") == 0) {
+	nếu (filename_trim.size() > 4 && filename_trim.compare(filename_trim.size()-4, std::string::npos, ".vcd") == 0) {
 		filename_trim.erase(filename_trim.size()-4);
 		tmp_file = stringf("%s/converted_%s.fst", get_base_tmpdir(), filename_trim);
 		std::string cmd = stringf("vcd2fst %s %s", filename, tmp_file);
 		log("Exec: %s\n", cmd);
-		if (run_command(cmd) != 0)
+		nếu (run_command(cmd) != 0)
 			log_cmd_error("Shell command failed!\n");
 		filename = tmp_file;
 	}
 	#endif
 	const std::vector<std::string> g_units = { "s", "ms", "us", "ns", "ps", "fs", "as", "zs" };
 	ctx = (fstReaderContext *)fstReaderOpen(filename.c_str());
-	if (!ctx)
+	nếu (!ctx)
 		log_error("Error opening '%s' as FST file\n", filename);
-	scale = (int)fstReaderGetTimescale(ctx);
+	scale = (số_nguyên)fstReaderGetTimescale(ctx);
 	timescale_str = "";
-	int unit = 0;
-	int zeros = 0;
-	if (scale > 0)  {
+	số_nguyên unit = 0;
+	số_nguyên zeros = 0;
+	nếu (scale > 0)  {
 		zeros = scale;
-	} else {
-		if ((scale % 3) == 0) {
+	} không_thì {
+		nếu ((scale % 3) == 0) {
 			zeros = (-scale % 3);
 			unit = (-scale / 3);
-		} else {
+		} không_thì {
 			zeros = 3 - (-scale % 3);
 			unit = (-scale / 3) + 1;
 		}
 	}
-	for (int i=0;i<zeros; i++) timescale_str += "0";
+	cho (số_nguyên i=0;i<zeros; i++) timescale_str += "0";
 	timescale_str += g_units[unit];
 	extractVarNames();
 }
 
 FstData::~FstData()
 {
-	if (ctx)
+	nếu (ctx)
 		fstReaderClose(ctx);
-	if (!tmp_file.empty())
+	nếu (!tmp_file.empty())
 		remove(tmp_file.c_str());
 }
 
-uint64_t FstData::getStartTime() { return fstReaderGetStartTime(ctx); }
+uint64_t FstData::getStartTime() { trả_về fstReaderGetStartTime(ctx); }
 
-uint64_t FstData::getEndTime() { return fstReaderGetEndTime(ctx); }
+uint64_t FstData::getEndTime() { trả_về fstReaderGetEndTime(ctx); }
 
 static void normalize_brackets(std::string &str)
 {
-	for (auto &c : str) {
-		if (c == '<')
+	cho (auto &c : str) {
+		nếu (c == '<')
 			c = '[';
-		else if (c == '>')
+		không_thì nếu (c == '>')
 			c = ']';
 	}
 }
 
 fstHandle FstData::getHandle(std::string name) {
 	normalize_brackets(name);
-	if (name_to_handle.find(name) != name_to_handle.end())
-		return name_to_handle[name];
-	else
-		return 0;
+	nếu (name_to_handle.find(name) != name_to_handle.end())
+		trả_về name_to_handle[name];
+	không_thì
+		trả_về 0;
 };
 
-dict<int,fstHandle> FstData::getMemoryHandles(std::string name) {
-	if (memory_to_handle.find(name) != memory_to_handle.end())
-		return memory_to_handle[name];
-	else
-		return dict<int,fstHandle>();
+dict<số_nguyên,fstHandle> FstData::getMemoryHandles(std::string name) {
+	nếu (memory_to_handle.find(name) != memory_to_handle.end())
+		trả_về memory_to_handle[name];
+	không_thì
+		trả_về dict<số_nguyên,fstHandle>();
 };
 
 static std::string remove_spaces(std::string str)
 {
 	str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
-	return str;
+	trả_về str;
 }
 
 void FstData::extractVarNames()
@@ -115,7 +115,7 @@ void FstData::extractVarNames()
 	struct fstHier *h;
 	std::string fst_scope_name;
 
-	while ((h = fstReaderIterateHier(ctx))) {
+	trong_khi ((h = fstReaderIterateHier(ctx))) {
 		switch (h->htyp) {
 			case FST_HT_SCOPE: {
 				fst_scope_name = fstReaderPushScope(ctx, h->u.scope.name, NULL);
@@ -135,50 +135,50 @@ void FstData::extractVarNames()
 				normalize_brackets(var.scope);
 				var.width = h->u.var.length;
 				vars.push_back(var);
-				if (!var.is_alias)
+				nếu (!var.is_alias)
 					handle_to_var[h->u.var.handle] = var;
 				std::string clean_name;
 				bool has_space = false;
-				for(size_t i=0;i<strlen(h->u.var.name);i++)
+				cho(size_t i=0;i<strlen(h->u.var.name);i++)
 				{
 					char c = h->u.var.name[i];
-					if(c==' ') { has_space = true; break; }
+					nếu(c==' ') { has_space = true; break; }
 					clean_name += c;
 				}
-				if (clean_name[0]=='\\')
+				nếu (clean_name[0]=='\\')
 					clean_name = clean_name.substr(1);
-				if (!has_space) {
+				nếu (!has_space) {
 					size_t pos = clean_name.find_last_of("[");
 					std::string index_or_range = clean_name.substr(pos+1);
-					if (index_or_range.find(":") != std::string::npos) {
+					nếu (index_or_range.find(":") != std::string::npos) {
 						clean_name = clean_name.substr(0,pos);
 					}
 				}
 				size_t pos = clean_name.find_last_of("<");
-				if (pos != std::string::npos && clean_name.back() == '>') {
+				nếu (pos != std::string::npos && clean_name.back() == '>') {
 					std::string mem_cell = clean_name.substr(0, pos);
 					normalize_brackets(mem_cell);
 					std::string addr = clean_name.substr(pos+1);
 					addr.pop_back(); // remove closing bracket
 					char *endptr;
-					int mem_addr = strtol(addr.c_str(), &endptr, 16);
-					if (*endptr) {
+					số_nguyên mem_addr = strtol(addr.c_str(), &endptr, 16);
+					nếu (*endptr) {
 						log_debug("Error parsing memory address in : %s\n", clean_name);
-					} else {
+					} không_thì {
 						memory_to_handle[var.scope+"."+mem_cell][mem_addr] = var.id;
 					}
 				}
 				pos = clean_name.find_last_of("[");
-				if (pos != std::string::npos && clean_name.back() == ']') {
+				nếu (pos != std::string::npos && clean_name.back() == ']') {
 					std::string mem_cell = clean_name.substr(0, pos);
 					normalize_brackets(mem_cell);
 					std::string addr = clean_name.substr(pos+1);
 					addr.pop_back(); // remove closing bracket
 					char *endptr;
-					int mem_addr = strtol(addr.c_str(), &endptr, 10);
-					if (*endptr) {
+					số_nguyên mem_addr = strtol(addr.c_str(), &endptr, 10);
+					nếu (*endptr) {
 						log_debug("Error parsing memory address in : %s\n", clean_name);
-					} else {
+					} không_thì {
 						memory_to_handle[var.scope+"."+mem_cell][mem_addr] = var.id;
 					}
 				}
@@ -206,34 +206,34 @@ static void reconstruct_clb_attimes(void *user_data, uint64_t pnt_time, fstHandl
 
 void FstData::reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t /* plen */)
 {
-	if (pnt_time > end_time || !pnt_value) return;
-	if (curr_cycle > last_cycle) return;
+	nếu (pnt_time > end_time || !pnt_value) trả_về;
+	nếu (curr_cycle > last_cycle) trả_về;
 	// if we are past the timestamp
 	bool is_clock = false;
-	if (!all_samples) {
-		for(auto &s : clk_signals) {
-			if (s==pnt_facidx)  {
+	nếu (!all_samples) {
+		cho(auto &s : clk_signals) {
+			nếu (s==pnt_facidx)  {
 				is_clock=true;
 				break;
 			}
 		}
 	}
 
-	if (pnt_time > past_time) {
+	nếu (pnt_time > past_time) {
 		past_data = last_data;
 		past_time = pnt_time;
 	}
 
-	if (pnt_time > last_time) {
-		if (all_samples) {
+	nếu (pnt_time > last_time) {
+		nếu (all_samples) {
 			callback(last_time);
 			curr_cycle++;
 			last_time = pnt_time;
-		} else {
-			if (is_clock) {
+		} không_thì {
+			nếu (is_clock) {
 				std::string val = std::string((const char *)pnt_value);
 				std::string prev = past_data[pnt_facidx];
-				if ((prev!="1" && val=="1") || (prev!="0" && val=="0")) {
+				nếu ((prev!="1" && val=="1") || (prev!="0" && val=="0")) {
 					callback(last_time);
 					curr_cycle++;
 					last_time = pnt_time;
@@ -245,7 +245,7 @@ void FstData::reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_faci
 	last_data[pnt_facidx] =  std::string((const char *)pnt_value);
 }
 
-void FstData::reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start, uint64_t end, unsigned int end_cycle, CallbackFunction cb)
+void FstData::reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start, uint64_t end, unsigned số_nguyên end_cycle, CallbackFunction cb)
 {
 	clk_signals = signal;
 	callback = cb;
@@ -262,12 +262,12 @@ void FstData::reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t sta
 	fstReaderSetUnlimitedTimeRange(ctx);
 	fstReaderSetFacProcessMaskAll(ctx);
 	fstReaderIterBlocks2(ctx, reconstruct_clb_attimes, reconstruct_clb_varlen_attimes, this, nullptr);
-	if (last_time!=end_time && curr_cycle <= last_cycle) {
+	nếu (last_time!=end_time && curr_cycle <= last_cycle) {
 		past_data = last_data;
 		callback(last_time);
 		curr_cycle++;
 	}
-	if (curr_cycle <= last_cycle) {
+	nếu (curr_cycle <= last_cycle) {
 		past_data = last_data;
 		callback(end_time);
 		curr_cycle++;
@@ -276,8 +276,8 @@ void FstData::reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t sta
 
 std::string FstData::valueOf(fstHandle signal)
 {
-	if (past_data.find(signal) == past_data.end()) {
-		return std::string(handle_to_var[signal].width, 'x');
+	nếu (past_data.find(signal) == past_data.end()) {
+		trả_về std::string(handle_to_var[signal].width, 'x');
 	}
-	return past_data[signal];
+	trả_về past_data[signal];
 }

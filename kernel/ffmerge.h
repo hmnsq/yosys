@@ -62,9 +62,9 @@ struct FfMergeHelper
 	RTLIL::Module *module;
 	FfInitVals *initvals;
 
-	dict<SigBit, std::pair<Cell*, int>> dff_driver;
-	dict<SigBit, pool<std::pair<Cell*, int>>> dff_sink;
-	dict<SigBit, int> sigbit_users_count;
+	dict<SigBit, std::pair<Cell*, số_nguyên>> dff_driver;
+	dict<SigBit, pool<std::pair<Cell*, số_nguyên>>> dff_sink;
+	dict<SigBit, số_nguyên> sigbit_users_count;
 
 	// Returns true if all bits in sig are completely unused.
 	bool is_output_unused(RTLIL::SigSpec sig);
@@ -95,7 +95,7 @@ struct FfMergeHelper
 	// the design — this is so that the caller can decide whether to accept
 	// this FF for merging or not.  If the result is accepted,
 	// remove_output_ff should be called on the second output argument.
-	bool find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits);
+	bool find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, số_nguyên>> &bits);
 
 	// Like above, but returns a FF to merge into a given cell input.  Takes
 	// sig_q, which is the current cell input — it will search for FFs with
@@ -110,20 +110,20 @@ struct FfMergeHelper
 	// a constant-input FF bit (with matching initial value and reset value).
 	// However, this will not work if the input is all-constant — if the caller
 	// cares about this case, it needs to check for it explicitely.
-	bool find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits);
+	bool find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, số_nguyên>> &bits);
 
 	// To be called on find_output_ff result that will be merged.  This
 	// marks the given FF bits as used up (and not to be considered for
 	// further merging as inputs), and reconnects their Q ports to a dummy
 	// wire (since the wire previously connected there will now be driven
 	// by the merged-to cell instead).
-	void remove_output_ff(const pool<std::pair<Cell *, int>> &bits);
+	void remove_output_ff(const pool<std::pair<Cell *, số_nguyên>> &bits);
 
 	// To be called on find_input_ff result that will be merged.  This
 	// marks the given FF bits as used, and disallows merging them as
 	// outputs.  They can, however, still be merged as inputs again
 	// (perhaps for another cell).
-	void mark_input_ff(const pool<std::pair<Cell *, int>> &bits);
+	void mark_input_ff(const pool<std::pair<Cell *, số_nguyên>> &bits);
 
 	void set(FfInitVals *initvals_, RTLIL::Module *module_);
 

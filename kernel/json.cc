@@ -51,33 +51,33 @@ bool PrettyJson::write_to_file(const std::string &path)
 
     auto target = std::unique_ptr<WriteFileTarget>(new WriteFileTarget);
     target->target.open(path);
-    if (target->target.fail())
-        return false;
+    nếu (target->target.fail())
+        trả_về false;
     targets.push_back(std::unique_ptr<Target>(target.release()));
-    return true;
+    trả_về true;
 }
 
 void PrettyJson::line(bool space_if_inline)
 {
-    if (compact_depth != INT_MAX) {
-        if (space_if_inline)
+    nếu (compact_depth != INT_MAX) {
+        nếu (space_if_inline)
             raw(" ");
-        return;
+        trả_về;
     }
-    int indent = state.size() - (state.empty() ? 0 : state.back() == VALUE);
+    số_nguyên indent = state.size() - (state.empty() ? 0 : state.back() == VALUE);
     newline_indent.resize(1 + 2 * indent, ' ');
     raw(newline_indent.c_str());
 }
 
 void PrettyJson::raw(const char *raw_json)
 {
-    for (auto &target : targets)
+    cho (auto &target : targets)
         target->emit(raw_json);
 }
 
 void PrettyJson::flush()
 {
-    for (auto &target : targets)
+    cho (auto &target : targets)
         target->flush();
 }
 
@@ -99,9 +99,9 @@ void PrettyJson::end_object()
 {
     Scope top_scope = state.back();
     state.pop_back();
-    if (top_scope == OBJECT)
+    nếu (top_scope == OBJECT)
         line(false);
-    else
+    không_thì
         log_assert(top_scope == OBJECT_FIRST);
     raw("}");
     end_value();
@@ -111,9 +111,9 @@ void PrettyJson::end_array()
 {
     Scope top_scope = state.back();
     state.pop_back();
-    if (top_scope == ARRAY)
+    nếu (top_scope == ARRAY)
         line(false);
-    else
+    không_thì
         log_assert(top_scope == ARRAY_FIRST);
     raw("]");
     end_value();
@@ -121,10 +121,10 @@ void PrettyJson::end_array()
 
 void PrettyJson::name(const char *name)
 {
-    if (state.back() == OBJECT_FIRST) {
+    nếu (state.back() == OBJECT_FIRST) {
         state.back() = OBJECT;
         line(false);
-    } else {
+    } không_thì {
         raw(",");
         line();
     }
@@ -135,13 +135,13 @@ void PrettyJson::name(const char *name)
 
 void PrettyJson::begin_value()
 {
-    if (state.back() == ARRAY_FIRST) {
+    nếu (state.back() == ARRAY_FIRST) {
         line(false);
         state.back() = ARRAY;
-    } else if (state.back() == ARRAY) {
+    } không_thì nếu (state.back() == ARRAY) {
         raw(",");
         line();
-    } else {
+    } không_thì {
         log_assert(state.back() == VALUE);
         state.pop_back();
     }
@@ -149,11 +149,11 @@ void PrettyJson::begin_value()
 
 void PrettyJson::end_value()
 {
-    if (state.empty()) {
+    nếu (state.empty()) {
         raw("\n");
         flush();
     }
-    if (GetSize(state) < compact_depth)
+    nếu (GetSize(state) < compact_depth)
         compact_depth = INT_MAX;
 }
 

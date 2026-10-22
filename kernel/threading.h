@@ -22,11 +22,11 @@ using Mutex = std::mutex;
 using CondVar = std::condition_variable;
 using UniqueLock = std::unique_lock<Mutex>;
 using LockGuard = std::lock_guard<Mutex>;
-#else
+#không_thì
 struct Mutex {
 	void lock() {}
 	void unlock() {}
-	bool try_lock() { return true; }
+	bool try_lock() { trả_về true; }
 };
 struct CondVar {
 	template <class L> void wait(L &) {}
@@ -49,18 +49,18 @@ template <typename T>
 class ConcurrentQueue
 {
 public:
-	ConcurrentQueue(int capacity = INT_MAX)
+	ConcurrentQueue(số_nguyên capacity = INT_MAX)
 		: capacity(capacity) {}
 	// Push an element into the queue. If it's at capacity, block until there is room.
 	void push_back(T t)
 	{
 		UniqueLock lock(mutex);
-		not_full_condition.wait(lock, [this] { return static_cast<int>(contents.size()) < capacity; });
-		if (contents.empty())
+		not_full_condition.wait(lock, [this] { trả_về static_cast<số_nguyên>(contents.size()) < capacity; });
+		nếu (contents.empty())
 			not_empty_condition.notify_one();
 		log_assert(!closed);
 		contents.push_back(std::move(t));
-		if (static_cast<int>(contents.size()) < capacity)
+		nếu (static_cast<số_nguyên>(contents.size()) < capacity)
 			not_full_condition.notify_one();
 	}
 	// Signal that no more elements will be produced. `pop_front()` will return nullopt.
@@ -74,30 +74,30 @@ public:
 	// or the queue is closed and empty.
 	std::optional<T> pop_front()
 	{
-		return pop_front_internal(true);
+		trả_về pop_front_internal(true);
 	}
 	// Pop an element from the queue. Does not block, just returns nullopt if the
 	// queue is empty.
 	std::optional<T> try_pop_front()
 	{
-		return pop_front_internal(false);
+		trả_về pop_front_internal(false);
 	}
 private:
 	std::optional<T> pop_front_internal(bool wait)
 	{
 		UniqueLock lock(mutex);
-		if (wait) {
-			not_empty_condition.wait(lock, [this] { return !contents.empty() || closed; });
+		nếu (wait) {
+			not_empty_condition.wait(lock, [this] { trả_về !contents.empty() || closed; });
 		}
-		if (contents.empty())
-			return std::nullopt;
-		if (static_cast<int>(contents.size()) == capacity)
+		nếu (contents.empty())
+			trả_về std::nullopt;
+		nếu (static_cast<số_nguyên>(contents.size()) == capacity)
 			not_full_condition.notify_one();
 		T result = std::move(contents.front());
 		contents.pop_front();
-		if (!contents.empty())
+		nếu (!contents.empty())
 			not_empty_condition.notify_one();
-		return std::move(result);
+		trả_về std::move(result);
 	}
 
 	Mutex mutex;
@@ -106,7 +106,7 @@ private:
 	// Signals one waiter thread when the queue changes and is not empty.
 	CondVar not_empty_condition;
 	std::deque<T> contents;
-	int capacity;
+	số_nguyên capacity;
 	bool closed = false;
 };
 
@@ -140,31 +140,31 @@ public:
 	// `reserved_cores` cores are set aside for other threads (e.g. work on the main thread).
 	// `max_worker_threads` --- don't return more workers than this.
 	// The result may be 0.
-	static int pool_size(int reserved_cores, int max_worker_threads);
+	static số_nguyên pool_size(số_nguyên reserved_cores, số_nguyên max_worker_threads);
 
 	// Computes the number of worker threads to use, by dividing work_units among threads.
 	// For testing purposes you can set YOSYS_WORK_UNITS_PER_THREAD to override `work_units_per_thread`.
 	// The result may be 0.
-	static int work_pool_size(int reserved_cores, int work_units, int work_units_per_thread);
+	static số_nguyên work_pool_size(số_nguyên reserved_cores, số_nguyên work_units, số_nguyên work_units_per_thread);
 
 	// Create a pool of threads running the given closure (parameterized by thread number).
 	// `pool_size` must be the result of a `pool_size()` call.
-	ThreadPool(int pool_size, std::function<void(int)> b);
+	ThreadPool(số_nguyên pool_size, std::function<void(số_nguyên)> b);
 	ThreadPool(ThreadPool &&other) = delete;
 	// Waits for all threads to terminate. Make sure those closures return!
 	~ThreadPool();
 
 	// Return the number of threads in the pool.
-	int num_threads() const
+	số_nguyên num_threads() const
 	{
 #ifdef YOSYS_ENABLE_THREADS
-		return threads.size();
-#else
-		return 0;
+		trả_về threads.size();
+#không_thì
+		trả_về 0;
 #endif
 	}
 private:
-	std::function<void(int)> body;
+	std::function<void(số_nguyên)> body;
 #ifdef YOSYS_ENABLE_THREADS
 	std::vector<std::thread> threads;
 #endif
@@ -172,12 +172,12 @@ private:
 
 // Divides some number of items into `num_threads` subranges and returns the
 // `thread_num`'th subrange. If `num_threads` is zero, returns the whole range.
-IntRange item_range_for_worker(int num_items, int thread_num, int num_threads);
+IntRange item_range_for_worker(số_nguyên num_items, số_nguyên thread_num, số_nguyên num_threads);
 
 // A type that encapsulates the index of a thread in some list of threads. Useful for
 // stronger typechecking and code readability.
 struct ThreadIndex {
-	int thread_num;
+	số_nguyên thread_num;
 };
 
 // A set of threads with a `run()` API that runs a closure on all of the threads
@@ -189,16 +189,16 @@ public:
 	// Create a pool of threads running the given closure (parameterized by thread number).
 	// `pool_size` must be the result of a `pool_size()` call.
 	// `pool_size` can be zero, which we treat as 1.
-	ParallelDispatchThreadPool(int pool_size);
+	ParallelDispatchThreadPool(số_nguyên pool_size);
 	~ParallelDispatchThreadPool();
 
 	// For each thread running a closure, a `RunCtx` is passed to the closure. Currently
 	// it contains the thread index and the total number of threads. It can be passed
 	// directly to any APIs requiring a `ThreadIndex`.
 	struct RunCtx : public ThreadIndex {
-		int num_threads;
-		IntRange item_range(int num_items) const {
-			return item_range_for_worker(num_items, thread_num, num_threads);
+		số_nguyên num_threads;
+		IntRange item_range(số_nguyên num_items) const {
+			trả_về item_range_for_worker(num_items, thread_num, num_threads);
 		}
 	};
 	// Sometimes we only want to activate a subset of the threads in the pool. This
@@ -206,19 +206,19 @@ public:
 	// and `run()` APIs as a `ParallelDispatchThreadPool`.
 	class Subpool {
 	public:
-		Subpool(ParallelDispatchThreadPool &parent, int max_threads)
+		Subpool(ParallelDispatchThreadPool &parent, số_nguyên max_threads)
 				: parent(parent), max_threads(max_threads) {}
 		// Returns the number of threads that will be used when calling `run()`.
-		int num_threads() const {
-			return parent.num_threads(max_threads);
+		số_nguyên num_threads() const {
+			trả_về parent.num_threads(max_threads);
 		}
 		void run(std::function<void(const RunCtx &)> work) {
 			parent.run(std::move(work), max_threads);
 		}
-		ParallelDispatchThreadPool &thread_pool() { return parent; }
+		ParallelDispatchThreadPool &thread_pool() { trả_về parent; }
 	private:
 		ParallelDispatchThreadPool &parent;
-		int max_threads;
+		số_nguyên max_threads;
 	};
 
 	// Run the `work` function in parallel on each thread in the pool (parameterized by
@@ -230,21 +230,21 @@ public:
 	}
 
 	// Returns the number of threads that will be used when calling `run()`.
-	int num_threads() const {
-		return num_threads(INT_MAX);
+	số_nguyên num_threads() const {
+		trả_về num_threads(INT_MAX);
 	}
 private:
 	friend class Subpool;
 
-	void run(std::function<void(const RunCtx &)> work, int max_threads);
-	int num_threads(int max_threads) const {
-		return std::min(num_worker_threads_ + 1, std::max(1, max_threads));
+	void run(std::function<void(const RunCtx &)> work, số_nguyên max_threads);
+	số_nguyên num_threads(số_nguyên max_threads) const {
+		trả_về std::min(num_worker_threads_ + 1, std::max(1, max_threads));
 	}
-	void run_worker(int thread_num);
+	void run_worker(số_nguyên thread_num);
 
 	std::function<void(const RunCtx &)> *current_work = nullptr;
 	// Keeps a correct count even when threads are exiting.
-	int num_worker_threads_;
+	số_nguyên num_worker_threads_;
 	// The count of active worker threads for the current `run()`.
 	// This is only written by the main thread, and only written when
 	// no other worker threads are running (i.e. all worker threads have
@@ -253,7 +253,7 @@ private:
 	// Although there can't be any races, we still need to make it atomic
 	// to prevent the compiler reordering accesses so the above invariant
 	// is maintained.
-	std::atomic<int> num_active_worker_threads_ = 0;
+	std::atomic<số_nguyên> num_active_worker_threads_ = 0;
 
 	// Not especially efficient for large numbers of threads. Worker wakeup could scale
 	// better by conceptually organising workers into a tree and having workers wake
@@ -263,19 +263,19 @@ private:
 	std::vector<uint8_t> main_to_workers_signal;
 	void signal_workers_start() {
 		UniqueLock lock(main_to_workers_signal_mutex);
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
+		số_nguyên num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
 		std::fill(main_to_workers_signal.begin(), main_to_workers_signal.begin() + num_active_worker_threads, 1);
 		// When `num_active_worker_threads_` is small compared to `num_worker_threads_`, we have a "thundering herd"
 		// problem here. Fixing that would add complexity so don't worry about it for now.
 		main_to_workers_signal_cv.notify_all();
 	}
-	void worker_wait_for_start(int thread_num) {
+	void worker_wait_for_start(số_nguyên thread_num) {
 		UniqueLock lock(main_to_workers_signal_mutex);
-		main_to_workers_signal_cv.wait(lock, [this, thread_num] { return main_to_workers_signal[thread_num] > 0; });
+		main_to_workers_signal_cv.wait(lock, [this, thread_num] { trả_về main_to_workers_signal[thread_num] > 0; });
 		main_to_workers_signal[thread_num] = 0;
 	}
 
-	std::atomic<int> done_workers = 0;
+	std::atomic<số_nguyên> done_workers = 0;
 	Mutex workers_to_main_signal_mutex;
 	CondVar workers_to_main_signal_cv;
 	void signal_worker_done() {
@@ -283,9 +283,9 @@ private:
 		// it is possible we would increment `d`, and then another worker signals the
 		// main thread that all workers are done, and the main thread writes to
 		// `num_active_worker_threads_` before we check it.
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-		int d = done_workers.fetch_add(1, std::memory_order_release);
-		if (d + 1 == num_active_worker_threads) {
+		số_nguyên num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
+		số_nguyên d = done_workers.fetch_add(1, std::memory_order_release);
+		nếu (d + 1 == num_active_worker_threads) {
 			UniqueLock lock(workers_to_main_signal_mutex);
 			workers_to_main_signal_cv.notify_all();
 		}
@@ -293,8 +293,8 @@ private:
 	void wait_for_workers_done() {
 		UniqueLock lock(workers_to_main_signal_mutex);
 		workers_to_main_signal_cv.wait(lock, [this] {
-			int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-			return done_workers.load(std::memory_order_acquire) == num_active_worker_threads;
+			số_nguyên num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
+			trả_về done_workers.load(std::memory_order_acquire) == num_active_worker_threads;
 		});
 		done_workers.store(0, std::memory_order_relaxed);
 	}
@@ -314,11 +314,11 @@ public:
 	}
 	std::optional<T> try_pop_back() {
 		LockGuard lock(mutex);
-		if (contents.empty())
-			return std::nullopt;
+		nếu (contents.empty())
+			trả_về std::nullopt;
 		T result = std::move(contents.back());
 		contents.pop_back();
-		return result;
+		trả_về result;
 	}
 private:
 	Mutex mutex;
@@ -349,10 +349,10 @@ public:
 	}
 
 	bool empty() const {
-		for (const std::vector<T> &bucket : buckets)
-			if (!bucket.empty())
-				return false;
-		return true;
+		cho (const std::vector<T> &bucket : buckets)
+			nếu (!bucket.empty())
+				trả_về false;
+		trả_về true;
 	}
 
 	using Buckets = std::vector<std::vector<T>>;
@@ -360,28 +360,28 @@ public:
 	public:
 		iterator(typename Buckets::iterator bucket_it, typename Buckets::iterator bucket_end)
 			: bucket_it(std::move(bucket_it)), bucket_end(std::move(bucket_end)) {
-			if (bucket_it != bucket_end)
+			nếu (bucket_it != bucket_end)
 				inner_it = bucket_it->begin();
 			normalize();
 		}
-		T& operator*() const { return *inner_it.value(); }
+		T& operator*() const { trả_về *inner_it.value(); }
 		iterator &operator++() {
 			++*inner_it;
 			normalize();
-			return *this;
+			trả_về *this;
 		}
 		bool operator!=(const iterator &other) const {
-			return bucket_it != other.bucket_it || inner_it != other.inner_it;
+			trả_về bucket_it != other.bucket_it || inner_it != other.inner_it;
 		}
 	private:
 		void normalize() {
-			if (bucket_it == bucket_end)
-				return;
-			while (inner_it == bucket_it->end()) {
+			nếu (bucket_it == bucket_end)
+				trả_về;
+			trong_khi (inner_it == bucket_it->end()) {
 				++bucket_it;
-				if (bucket_it == bucket_end) {
+				nếu (bucket_it == bucket_end) {
 					inner_it.reset();
-					return;
+					trả_về;
 				}
 				inner_it = bucket_it->begin();
 			}
@@ -390,10 +390,10 @@ public:
 		typename Buckets::iterator bucket_it;
 		typename Buckets::iterator bucket_end;
 	};
-	iterator begin() { return iterator(buckets.begin(), buckets.end()); }
-	iterator end() { return iterator(buckets.end(), buckets.end()); }
+	iterator begin() { trả_về iterator(buckets.begin(), buckets.end()); }
+	iterator end() { trả_về iterator(buckets.end(), buckets.end()); }
 private:
-	void init(int num_threads) {
+	void init(số_nguyên num_threads) {
 		buckets.resize(num_threads);
 	}
 	Buckets buckets;
@@ -423,31 +423,31 @@ class ShardedHashtable {
 public:
 	// A combination of a `V` and its hash value.
 	struct Value {
-		Value(V value, unsigned int hash) : value(std::move(value)), hash(hash) {}
+		Value(V value, unsigned số_nguyên hash) : value(std::move(value)), hash(hash) {}
 		Value(Value &&) = default;
 		Value(const Value &) = delete;
 		Value &operator=(const Value &) = delete;
 		V value;
-		unsigned int hash;
+		unsigned số_nguyên hash;
 	};
 	// A combination of a `V::Accumulated` and its hash value.
 	struct AccumulatedValue {
-		AccumulatedValue(typename V::Accumulated value, unsigned int hash) : value(std::move(value)), hash(hash) {}
+		AccumulatedValue(typename V::Accumulated value, unsigned số_nguyên hash) : value(std::move(value)), hash(hash) {}
 		AccumulatedValue(AccumulatedValue &&) = default;
-#if defined(_MSC_VER)
+#nếu defined(_MSC_VER)
 		AccumulatedValue(const AccumulatedValue &) {
 			log_error("Copy constructor called on AccumulatedValue\n");
 		}
 		AccumulatedValue &operator=(const AccumulatedValue &) {
 			log_error("Copy assignment called on AccumulatedValue\n");
-			return *this;
+			trả_về *this;
 		}
-#else
+#không_thì
 		AccumulatedValue(const AccumulatedValue &) = delete;
 		AccumulatedValue &operator=(const AccumulatedValue &) = delete;
 #endif
 		typename V::Accumulated value;
-		unsigned int hash;
+		unsigned số_nguyên hash;
 	};
 	// A class containing an `operator()` that returns true of two `AccumulatedValue`
 	// elements have equal keys.
@@ -456,14 +456,14 @@ public:
 		KeyEquality inner;
 		AccumulatedValueEquality(const KeyEquality &inner) : inner(inner) {}
 		bool operator()(const AccumulatedValue &v1, const AccumulatedValue &v2) const {
-			return inner(v1.value, v2.value);
+			trả_về inner(v1.value, v2.value);
 		}
 	};
 	// A class containing an `operator()` that returns the hash value of an `AccumulatedValue`.
 	// Required to insert `AccumulatedValue`s into an `std::unordered_set`.
 	struct AccumulatedValueHashOp {
 		size_t operator()(const AccumulatedValue &v) const {
-			return static_cast<size_t>(v.hash);
+			trả_về static_cast<size_t>(v.hash);
 		}
 	};
 	using Shard = std::unordered_set<AccumulatedValue, AccumulatedValueHashOp, AccumulatedValueEquality>;
@@ -493,13 +493,13 @@ public:
 		// Then call `process` for each thread. All `process()`s must finish before using
 		// the `Builder` to construct a `ShardedHashtable`.
 		void process(const ThreadIndex &thread) {
-			int size = 0;
-			for (std::vector<std::vector<Value>> &buckets : all_buckets)
+			số_nguyên size = 0;
+			cho (std::vector<std::vector<Value>> &buckets : all_buckets)
 				size += GetSize(buckets[thread.thread_num]);
 			Shard &shard = shards[thread.thread_num];
 			shard.reserve(size);
-			for (std::vector<std::vector<Value>> &buckets : all_buckets) {
-				for (Value &value : buckets[thread.thread_num])
+			cho (std::vector<std::vector<Value>> &buckets : all_buckets) {
+				cho (Value &value : buckets[thread.thread_num])
 					accumulate(value, shard);
 				// Free as much memory as we can during the parallel phase.
 				std::vector<Value>().swap(buckets[thread.thread_num]);
@@ -511,14 +511,14 @@ public:
 			// With C++20 we could make this more efficient using heterogenous lookup
 			AccumulatedValue accumulated_value{std::move(value.value), value.hash};
 			auto [it, inserted] = shard.insert(std::move(accumulated_value));
-			if (!inserted)
+			nếu (!inserted)
 				collision_handler(const_cast<typename V::Accumulated &>(it->value), accumulated_value.value);
 		}
-		void init(int num_threads, KeyEquality equality) {
+		void init(số_nguyên num_threads, KeyEquality equality) {
 			all_buckets.resize(num_threads);
-			for (std::vector<std::vector<Value>> &buckets : all_buckets)
+			cho (std::vector<std::vector<Value>> &buckets : all_buckets)
 				buckets.resize(num_threads);
-			for (int i = 0; i < num_threads; ++i)
+			cho (số_nguyên i = 0; i < num_threads; ++i)
 				shards.emplace_back(0, AccumulatedValueHashOp(), AccumulatedValueEquality(equality));
 		}
 		const CollisionHandler collision_handler;
@@ -534,8 +534,8 @@ public:
 	// Then finally construct the hashtable:
 	ShardedHashtable(Builder &builder) : shards(std::move(builder.shards)) {
 		// Check that all necessary 'process()' calls were made.
-		for (std::vector<std::vector<Value>> &buckets : builder.all_buckets)
-			for (std::vector<Value> &bucket : buckets)
+		cho (std::vector<std::vector<Value>> &buckets : builder.all_buckets)
+			cho (std::vector<Value> &bucket : buckets)
 				log_assert(bucket.empty());
 		// Free memory.
 		std::vector<std::vector<std::vector<Value>>>().swap(builder.all_buckets);
@@ -550,21 +550,21 @@ public:
 	// if the key is not found.
 	const typename V::Accumulated *find(const AccumulatedValue &v) const {
 		size_t num_shards = shards.size();
-		if (num_shards == 0)
-			return nullptr;
+		nếu (num_shards == 0)
+			trả_về nullptr;
 		size_t shard = static_cast<size_t>(v.hash) % num_shards;
 		auto it = shards[shard].find(v);
-		if (it == shards[shard].end())
-			return nullptr;
-		return &it->value;
+		nếu (it == shards[shard].end())
+			trả_về nullptr;
+		trả_về &it->value;
 	}
 
 	// Insert an element into the table. The caller is responsible for ensuring this does not
 	// happen concurrently with any other method calls.
 	void insert(AccumulatedValue v) {
 		size_t num_shards = shards.size();
-		if (num_shards == 0)
-			return;
+		nếu (num_shards == 0)
+			trả_về;
 		size_t shard = static_cast<size_t>(v.hash) % num_shards;
 		shards[shard].insert(v);
 	}
@@ -586,25 +586,25 @@ class ConcurrentWorkQueue {
 public:
 	// Create a queue that supports the given number of threads and
 	// groups work into `batch_size` units.
-	ConcurrentWorkQueue(int num_threads, int batch_size = 100)
+	ConcurrentWorkQueue(số_nguyên num_threads, số_nguyên batch_size = 100)
 		: batch_size(batch_size), thread_states(num_threads) {}
-	int num_threads() const { return GetSize(thread_states); }
+	số_nguyên num_threads() const { trả_về GetSize(thread_states); }
 	// Push some work to do. Pushes and pops with the same `thread` must
 	// not happen concurrently.
 	void push(const ThreadIndex &thread, T work) {
 		ThreadState &thread_state = thread_states[thread.thread_num];
 		thread_state.next_batch.emplace_back(std::move(work));
-		if (GetSize(thread_state.next_batch) < batch_size)
-			return;
+		nếu (GetSize(thread_state.next_batch) < batch_size)
+			trả_về;
 		bool was_empty;
 		{
 			UniqueLock lock(thread_state.batches_lock);
 			was_empty = thread_state.batches.empty();
 			thread_state.batches.push_back(std::move(thread_state.next_batch));
 		}
-		if (was_empty) {
+		nếu (was_empty) {
 			UniqueLock lock(waiters_lock);
-			if (num_waiters > 0) {
+			nếu (num_waiters > 0) {
 				waiters_cv.notify_one();
 			}
 		}
@@ -615,22 +615,22 @@ public:
 	// return no work.
 	std::vector<T> pop_batch(const ThreadIndex &thread) {
 		ThreadState &thread_state = thread_states[thread.thread_num];
-		if (!thread_state.next_batch.empty())
-			return std::move(thread_state.next_batch);
+		nếu (!thread_state.next_batch.empty())
+			trả_về std::move(thread_state.next_batch);
 		// Empty our own work queue first.
 		{
 			UniqueLock lock(thread_state.batches_lock);
-			if (!thread_state.batches.empty()) {
+			nếu (!thread_state.batches.empty()) {
 				std::vector<T> batch = std::move(thread_state.batches.back());
 				thread_state.batches.pop_back();
-				return batch;
+				trả_về batch;
 			}
 		}
 		// From here on in this function, our work queue is empty.
-		while (true) {
+		trong_khi (true) {
 			std::vector<T> batch = try_steal(thread);
-			if (!batch.empty()) {
-				return std::move(batch);
+			nếu (!batch.empty()) {
+				trả_về std::move(batch);
 			}
 			// Termination: if all threads run out of work, then all of
 			// them will eventually enter this loop and there will be no further
@@ -640,34 +640,34 @@ public:
 			// so we always terminate on the first iteration.
 			UniqueLock lock(waiters_lock);
 			++num_waiters;
-			if (num_waiters == num_threads()) {
+			nếu (num_waiters == num_threads()) {
 				waiters_cv.notify_all();
-				return {};
+				trả_về {};
 			}
 			// As above, it's possible that we'll wait here even when there
 			// are work batches posted by other threads. That's OK.
 			waiters_cv.wait(lock);
-			if (num_waiters == num_threads())
-				return {};
+			nếu (num_waiters == num_threads())
+				trả_về {};
 			--num_waiters;
 		}
 	}
 private:
 	std::vector<T> try_steal(const ThreadIndex &thread) {
-		for (int i = 1; i < num_threads(); i++) {
-			int other_thread_num = (thread.thread_num + i) % num_threads();
+		cho (số_nguyên i = 1; i < num_threads(); i++) {
+			số_nguyên other_thread_num = (thread.thread_num + i) % num_threads();
 			ThreadState &other_thread_state = thread_states[other_thread_num];
 			UniqueLock lock(other_thread_state.batches_lock);
-			if (!other_thread_state.batches.empty()) {
+			nếu (!other_thread_state.batches.empty()) {
 				std::vector<T> batch = std::move(other_thread_state.batches.front());
 				other_thread_state.batches.pop_front();
-				return batch;
+				trả_về batch;
 			}
 		}
-		return {};
+		trả_về {};
 	}
 
-	int batch_size;
+	số_nguyên batch_size;
 
 	struct ThreadState {
 		// Entirely thread-local.
@@ -683,7 +683,7 @@ private:
 	Mutex waiters_lock;
 	CondVar waiters_cv;
 	// Number of threads waiting for work. Their queues are empty.
-	int num_waiters = 0;
+	số_nguyên num_waiters = 0;
 };
 
 // A monotonic flag. Starts false, and can be set to true in a thread-safe way.
@@ -693,10 +693,10 @@ private:
 class MonotonicFlag {
 public:
 	MonotonicFlag() : value(false) {}
-	bool load() const { return value.load(std::memory_order_relaxed); }
+	bool load() const { trả_về value.load(std::memory_order_relaxed); }
 	void set() { value.store(true, std::memory_order_relaxed); }
 	bool set_and_return_old() {
-		return value.exchange(true, std::memory_order_relaxed);
+		trả_về value.exchange(true, std::memory_order_relaxed);
 	}
 private:
 	std::atomic<bool> value;

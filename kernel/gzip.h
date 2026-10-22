@@ -22,17 +22,17 @@ public:
 		rdbuf(&outbuf);
 	}
 	bool open(const std::string &filename) {
-		return outbuf.open(filename);
+		trả_về outbuf.open(filename);
 	}
 private:
 	class obuf : public std::stringbuf {
 	public:
 		obuf();
 		bool open(const std::string &filename);
-		virtual int sync() override;
+		virtual số_nguyên sync() override;
 		virtual ~obuf();
 	private:
-		static const int buffer_size = 4096;
+		static const số_nguyên buffer_size = 4096;
 		char buffer[buffer_size];             // Internal buffer for compressed data
 		Zlib::gzFile gzf = nullptr;                 // Handle to the gzip file
 	};
@@ -48,7 +48,7 @@ class gzip_istream final : public std::istream {
 public:
 	gzip_istream() : std::istream(&inbuf) {}
 	bool open(const std::string& filename) {
-		return inbuf.open(filename);
+		trả_về inbuf.open(filename);
 	}
 private:
 	class ibuf final : public std::streambuf {
@@ -61,7 +61,7 @@ private:
 		// Called when the buffer is empty and more input is needed
 		virtual int_type underflow() override;
 	private:
-		static const int buffer_size = 8192;
+		static const số_nguyên buffer_size = 8192;
 		char buffer[buffer_size];
 		Zlib::gzFile gzf;
 	};
