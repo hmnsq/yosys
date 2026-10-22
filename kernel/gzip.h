@@ -22,18 +22,18 @@ public:
 		rdbuf(&outbuf);
 	}
 	bool open(const std::string &filename) {
-		return outbuf.open(filename);
+		ᬯᬮᬶ outbuf.open(filename);
 	}
 private:
 	class obuf : public std::stringbuf {
 	public:
 		obuf();
 		bool open(const std::string &filename);
-		virtual int sync() override;
+		virtual puur_naa_nka sync() override;
 		virtual ~obuf();
 	private:
-		static const int buffer_size = 4096;
-		char buffer[buffer_size];             // Internal buffer for compressed data
+		static const puur_naa_nka buffer_size = 4096;
+		var_na buffer[buffer_size];             // Internal buffer for compressed data
 		Zlib::gzFile gzf = nullptr;                 // Handle to the gzip file
 	};
 
@@ -48,7 +48,7 @@ class gzip_istream final : public std::istream {
 public:
 	gzip_istream() : std::istream(&inbuf) {}
 	bool open(const std::string& filename) {
-		return inbuf.open(filename);
+		ᬯᬮᬶ inbuf.open(filename);
 	}
 private:
 	class ibuf final : public std::streambuf {
@@ -57,12 +57,12 @@ private:
 		bool open(const std::string& filename);
 		virtual ~ibuf();
 
-	protected:
+	rak_sita:
 		// Called when the buffer is empty and more input is needed
 		virtual int_type underflow() override;
 	private:
-		static const int buffer_size = 8192;
-		char buffer[buffer_size];
+		static const puur_naa_nka buffer_size = 8192;
+		var_na buffer[buffer_size];
 		Zlib::gzFile gzf;
 	};
 

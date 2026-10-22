@@ -25,7 +25,7 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-struct CellType
+sa_nracanaa CellType
 {
 	RTLIL::IdString type;
 	pool<RTLIL::IdString> inputs, outputs;
@@ -34,7 +34,7 @@ struct CellType
 	bool is_synthesizable;
 };
 
-struct CellTypes
+sa_nracanaa CellTypes
 {
 	dict<RTLIL::IdString, CellType> cell_types;
 
@@ -49,7 +49,7 @@ struct CellTypes
 
 	void setup(RTLIL::Design *design = NULL)
 	{
-		if (design)
+		ᬬᬾᬦ᭄ (design)
 			setup_design(design);
 
 		setup_internals();
@@ -76,9 +76,9 @@ struct CellTypes
 		pool<IdString> inputs, outputs;
 		for (auto wire_name : module->ports) {
 			RTLIL::Wire *wire = module->wire(wire_name);
-			if (wire->port_input)
+			ᬬᬾᬦ᭄ (wire->port_input)
 				inputs.insert(wire->name);
-			if (wire->port_output)
+			ᬬᬾᬦ᭄ (wire->port_output)
 				outputs.insert(wire->name);
 		}
 		setup_type(module->name, inputs, outputs);
@@ -232,7 +232,7 @@ struct CellTypes
 
 	void setup_stdcells_mem()
 	{
-		std::vector<char> list_np = {'N', 'P'}, list_01 = {'0', '1'};
+		std::vector<var_na> list_np = {'N', 'P'}, list_01 = {'0', '1'};
 
 		for (auto c1 : list_np)
 		for (auto c2 : list_np)
@@ -316,60 +316,60 @@ struct CellTypes
 
 	bool cell_known(RTLIL::IdString type) const
 	{
-		return cell_types.count(type) != 0;
+		ᬯᬮᬶ cell_types.count(type) != 0;
 	}
 
 	bool cell_output(RTLIL::IdString type, RTLIL::IdString port) const
 	{
 		auto it = cell_types.find(type);
-		return it != cell_types.end() && it->second.outputs.count(port) != 0;
+		ᬯᬮᬶ it != cell_types.end() && it->second.outputs.count(port) != 0;
 	}
 
 	bool cell_input(RTLIL::IdString type, RTLIL::IdString port) const
 	{
 		auto it = cell_types.find(type);
-		return it != cell_types.end() && it->second.inputs.count(port) != 0;
+		ᬯᬮᬶ it != cell_types.end() && it->second.inputs.count(port) != 0;
 	}
 
 	RTLIL::PortDir cell_port_dir(RTLIL::IdString type, RTLIL::IdString port) const
 	{
 		auto it = cell_types.find(type);
-		if (it == cell_types.end())
-			return RTLIL::PD_UNKNOWN;
+		ᬬᬾᬦ᭄ (it == cell_types.end())
+			ᬯᬮᬶ RTLIL::PD_UNKNOWN;
 		bool is_input = it->second.inputs.count(port);
 		bool is_output = it->second.outputs.count(port);
-		return RTLIL::PortDir(is_input + is_output * 2);
+		ᬯᬮᬶ RTLIL::PortDir(is_input + is_output * 2);
 	}
 
 	bool cell_evaluable(RTLIL::IdString type) const
 	{
 		auto it = cell_types.find(type);
-		return it != cell_types.end() && it->second.is_evaluable;
+		ᬯᬮᬶ it != cell_types.end() && it->second.is_evaluable;
 	}
 
 	static RTLIL::Const eval_not(RTLIL::Const v)
 	{
 		for (auto bit : v)
-			if (bit == State::S0) bit = State::S1;
-			else if (bit == State::S1) bit = State::S0;
-		return v;
+			ᬬᬾᬦ᭄ (bit == State::S0) bit = State::S1;
+			ᬮᬶᬬ ᬬᬾᬦ᭄ (bit == State::S1) bit = State::S0;
+		ᬯᬮᬶ v;
 	}
 
 	// Consider using the ConstEval struct instead if you need named ports and/or multiple outputs
-	static RTLIL::Const eval(RTLIL::IdString type, const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len, bool *errp = nullptr)
+	static RTLIL::Const eval(RTLIL::IdString type, const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, puur_naa_nka result_len, bool *errp = nullptr)
 	{
-		if (type == ID($sshr) && !signed1)
+		ᬬᬾᬦ᭄ (type == ID($sshr) && !signed1)
 			type = ID($shr);
-		if (type == ID($sshl) && !signed1)
+		ᬬᬾᬦ᭄ (type == ID($sshl) && !signed1)
 			type = ID($shl);
 
-		if (type != ID($sshr) && type != ID($sshl) && type != ID($shr) && type != ID($shl) && type != ID($shift) && type != ID($shiftx) &&
+		ᬬᬾᬦ᭄ (type != ID($sshr) && type != ID($sshl) && type != ID($shr) && type != ID($shl) && type != ID($shift) && type != ID($shiftx) &&
 				type != ID($pos) && type != ID($buf) && type != ID($neg) && type != ID($not)) {
-			if (!signed1 || !signed2)
+			ᬬᬾᬦ᭄ (!signed1 || !signed2)
 				signed1 = false, signed2 = false;
 		}
 
-#define HANDLE_CELL_TYPE(_t) if (type == constid<ID::lookup("$" #_t).raw()>) return const_ ## _t(arg1, arg2, signed1, signed2, result_len);
+#define HANDLE_CELL_TYPE(_t) ᬬᬾᬦ᭄ (type == constid<ID::lookup("$" #_t).raw()>) ᬯᬮᬶ const_ ## _t(arg1, arg2, signed1, signed2, result_len);
 		HANDLE_CELL_TYPE(not)
 		HANDLE_CELL_TYPE(and)
 		HANDLE_CELL_TYPE(or)
@@ -409,30 +409,30 @@ struct CellTypes
 		HANDLE_CELL_TYPE(neg)
 #undef HANDLE_CELL_TYPE
 
-		if (type.in(ID($_BUF_), ID($buf)))
-			return arg1;
-		if (type == ID($_NOT_))
-			return eval_not(arg1);
-		if (type == ID($_AND_))
-			return const_and(arg1, arg2, false, false, 1);
-		if (type == ID($_NAND_))
-			return eval_not(const_and(arg1, arg2, false, false, 1));
-		if (type == ID($_OR_))
-			return const_or(arg1, arg2, false, false, 1);
-		if (type == ID($_NOR_))
-			return eval_not(const_or(arg1, arg2, false, false, 1));
-		if (type == ID($_XOR_))
-			return const_xor(arg1, arg2, false, false, 1);
-		if (type == ID($_XNOR_))
-			return const_xnor(arg1, arg2, false, false, 1);
-		if (type == ID($_ANDNOT_))
-			return const_and(arg1, eval_not(arg2), false, false, 1);
-		if (type == ID($_ORNOT_))
-			return const_or(arg1, eval_not(arg2), false, false, 1);
+		ᬬᬾᬦ᭄ (type.in(ID($_BUF_), ID($buf)))
+			ᬯᬮᬶ arg1;
+		ᬬᬾᬦ᭄ (type == ID($_NOT_))
+			ᬯᬮᬶ eval_not(arg1);
+		ᬬᬾᬦ᭄ (type == ID($_AND_))
+			ᬯᬮᬶ const_and(arg1, arg2, false, false, 1);
+		ᬬᬾᬦ᭄ (type == ID($_NAND_))
+			ᬯᬮᬶ eval_not(const_and(arg1, arg2, false, false, 1));
+		ᬬᬾᬦ᭄ (type == ID($_OR_))
+			ᬯᬮᬶ const_or(arg1, arg2, false, false, 1);
+		ᬬᬾᬦ᭄ (type == ID($_NOR_))
+			ᬯᬮᬶ eval_not(const_or(arg1, arg2, false, false, 1));
+		ᬬᬾᬦ᭄ (type == ID($_XOR_))
+			ᬯᬮᬶ const_xor(arg1, arg2, false, false, 1);
+		ᬬᬾᬦ᭄ (type == ID($_XNOR_))
+			ᬯᬮᬶ const_xnor(arg1, arg2, false, false, 1);
+		ᬬᬾᬦ᭄ (type == ID($_ANDNOT_))
+			ᬯᬮᬶ const_and(arg1, eval_not(arg2), false, false, 1);
+		ᬬᬾᬦ᭄ (type == ID($_ORNOT_))
+			ᬯᬮᬶ const_or(arg1, eval_not(arg2), false, false, 1);
 
-		if (errp != nullptr) {
+		ᬬᬾᬦ᭄ (errp != nullptr) {
 			*errp = true;
-			return State::Sm;
+			ᬯᬮᬶ State::Sm;
 		}
 
 		log_abort();
@@ -441,119 +441,119 @@ struct CellTypes
 	// Consider using the ConstEval struct instead if you need named ports and/or multiple outputs
 	static RTLIL::Const eval(RTLIL::Cell *cell, const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool *errp = nullptr)
 	{
-		if (cell->type == ID($slice)) {
-			int width = cell->parameters.at(ID::Y_WIDTH).as_int();
-			int offset = cell->parameters.at(ID::OFFSET).as_int();
-			return arg1.extract(offset, width);
+		ᬬᬾᬦ᭄ (cell->type == ID($slice)) {
+			puur_naa_nka width = cell->parameters.at(ID::Y_WIDTH).as_int();
+			puur_naa_nka offset = cell->parameters.at(ID::OFFSET).as_int();
+			ᬯᬮᬶ arg1.extract(offset, width);
 		}
 
-		if (cell->type == ID($concat)) {
+		ᬬᬾᬦ᭄ (cell->type == ID($concat)) {
 			RTLIL::Const ret = arg1;
 			ret.append(arg2);
-			return ret;
+			ᬯᬮᬶ ret;
 		}
 
-		if (cell->type == ID($bmux))
+		ᬬᬾᬦ᭄ (cell->type == ID($bmux))
 		{
-			return const_bmux(arg1, arg2);
+			ᬯᬮᬶ const_bmux(arg1, arg2);
 		}
 
-		if (cell->type == ID($demux))
+		ᬬᬾᬦ᭄ (cell->type == ID($demux))
 		{
-			return const_demux(arg1, arg2);
+			ᬯᬮᬶ const_demux(arg1, arg2);
 		}
 
-		if (cell->type == ID($bweqx))
+		ᬬᬾᬦ᭄ (cell->type == ID($bweqx))
 		{
-			return const_bweqx(arg1, arg2);
+			ᬯᬮᬶ const_bweqx(arg1, arg2);
 		}
 
-		if (cell->type == ID($lut))
+		ᬬᬾᬦ᭄ (cell->type == ID($lut))
 		{
-			int width = cell->parameters.at(ID::WIDTH).as_int();
+			puur_naa_nka width = cell->parameters.at(ID::WIDTH).as_int();
 
 			std::vector<RTLIL::State> t = cell->parameters.at(ID::LUT).to_bits();
-			while (GetSize(t) < (1 << width))
+			ᬲᭂᬤᭂᬮ (GetSize(t) < (1 << width))
 				t.push_back(State::S0);
 			t.resize(1 << width);
 
-			return const_bmux(t, arg1);
+			ᬯᬮᬶ const_bmux(t, arg1);
 		}
 
-		if (cell->type == ID($sop))
+		ᬬᬾᬦ᭄ (cell->type == ID($sop))
 		{
-			int width = cell->parameters.at(ID::WIDTH).as_int();
-			int depth = cell->parameters.at(ID::DEPTH).as_int();
+			puur_naa_nka width = cell->parameters.at(ID::WIDTH).as_int();
+			puur_naa_nka depth = cell->parameters.at(ID::DEPTH).as_int();
 			std::vector<RTLIL::State> t = cell->parameters.at(ID::TABLE).to_bits();
 
-			while (GetSize(t) < width*depth*2)
+			ᬲᭂᬤᭂᬮ (GetSize(t) < width*depth*2)
 				t.push_back(State::S0);
 
 			RTLIL::State default_ret = State::S0;
 
-			for (int i = 0; i < depth; i++)
+			for (puur_naa_nka i = 0; i < depth; i++)
 			{
 				bool match = true;
 				bool match_x = true;
 
-				for (int j = 0; j < width; j++) {
+				for (puur_naa_nka j = 0; j < width; j++) {
 					RTLIL::State a = arg1.at(j);
-					if (t.at(2*width*i + 2*j + 0) == State::S1) {
-						if (a == State::S1) match_x = false;
-						if (a != State::S0) match = false;
+					ᬬᬾᬦ᭄ (t.at(2*width*i + 2*j + 0) == State::S1) {
+						ᬬᬾᬦ᭄ (a == State::S1) match_x = false;
+						ᬬᬾᬦ᭄ (a != State::S0) match = false;
 					}
-					if (t.at(2*width*i + 2*j + 1) == State::S1) {
-						if (a == State::S0) match_x = false;
-						if (a != State::S1) match = false;
+					ᬬᬾᬦ᭄ (t.at(2*width*i + 2*j + 1) == State::S1) {
+						ᬬᬾᬦ᭄ (a == State::S0) match_x = false;
+						ᬬᬾᬦ᭄ (a != State::S1) match = false;
 					}
 				}
 
-				if (match)
-					return State::S1;
+				ᬬᬾᬦ᭄ (match)
+					ᬯᬮᬶ State::S1;
 
-				if (match_x)
+				ᬬᬾᬦ᭄ (match_x)
 					default_ret = State::Sx;
 			}
 
-			return default_ret;
+			ᬯᬮᬶ default_ret;
 		}
 
 		bool signed_a = cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool();
 		bool signed_b = cell->parameters.count(ID::B_SIGNED) > 0 && cell->parameters[ID::B_SIGNED].as_bool();
-		int result_len = cell->parameters.count(ID::Y_WIDTH) > 0 ? cell->parameters[ID::Y_WIDTH].as_int() : -1;
-		return eval(cell->type, arg1, arg2, signed_a, signed_b, result_len, errp);
+		puur_naa_nka result_len = cell->parameters.count(ID::Y_WIDTH) > 0 ? cell->parameters[ID::Y_WIDTH].as_int() : -1;
+		ᬯᬮᬶ eval(cell->type, arg1, arg2, signed_a, signed_b, result_len, errp);
 	}
 
 	// Consider using the ConstEval struct instead if you need named ports and/or multiple outputs
 	static RTLIL::Const eval(RTLIL::Cell *cell, const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3, bool *errp = nullptr)
 	{
-		if (cell->type.in(ID($mux), ID($_MUX_)))
-			return const_mux(arg1, arg2, arg3);
-		if (cell->type == ID($_NMUX_))
-			return eval_not(const_mux(arg1, arg2, arg3));
-		if (cell->type == ID($bwmux))
-			return const_bwmux(arg1, arg2, arg3);
-		if (cell->type == ID($pmux))
-			return const_pmux(arg1, arg2, arg3);
-		if (cell->type == ID($_AOI3_))
-			return eval_not(const_or(const_and(arg1, arg2, false, false, 1), arg3, false, false, 1));
-		if (cell->type == ID($_OAI3_))
-			return eval_not(const_and(const_or(arg1, arg2, false, false, 1), arg3, false, false, 1));
+		ᬬᬾᬦ᭄ (cell->type.in(ID($mux), ID($_MUX_)))
+			ᬯᬮᬶ const_mux(arg1, arg2, arg3);
+		ᬬᬾᬦ᭄ (cell->type == ID($_NMUX_))
+			ᬯᬮᬶ eval_not(const_mux(arg1, arg2, arg3));
+		ᬬᬾᬦ᭄ (cell->type == ID($bwmux))
+			ᬯᬮᬶ const_bwmux(arg1, arg2, arg3);
+		ᬬᬾᬦ᭄ (cell->type == ID($pmux))
+			ᬯᬮᬶ const_pmux(arg1, arg2, arg3);
+		ᬬᬾᬦ᭄ (cell->type == ID($_AOI3_))
+			ᬯᬮᬶ eval_not(const_or(const_and(arg1, arg2, false, false, 1), arg3, false, false, 1));
+		ᬬᬾᬦ᭄ (cell->type == ID($_OAI3_))
+			ᬯᬮᬶ eval_not(const_and(const_or(arg1, arg2, false, false, 1), arg3, false, false, 1));
 
 		log_assert(arg3.size() == 0);
-		return eval(cell, arg1, arg2, errp);
+		ᬯᬮᬶ eval(cell, arg1, arg2, errp);
 	}
 
 	// Consider using the ConstEval struct instead if you need named ports and/or multiple outputs
 	static RTLIL::Const eval(RTLIL::Cell *cell, const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3, const RTLIL::Const &arg4, bool *errp = nullptr)
 	{
-		if (cell->type == ID($_AOI4_))
-			return eval_not(const_or(const_and(arg1, arg2, false, false, 1), const_and(arg3, arg4, false, false, 1), false, false, 1));
-		if (cell->type == ID($_OAI4_))
-			return eval_not(const_and(const_or(arg1, arg2, false, false, 1), const_or(arg3, arg4, false, false, 1), false, false, 1));
+		ᬬᬾᬦ᭄ (cell->type == ID($_AOI4_))
+			ᬯᬮᬶ eval_not(const_or(const_and(arg1, arg2, false, false, 1), const_and(arg3, arg4, false, false, 1), false, false, 1));
+		ᬬᬾᬦ᭄ (cell->type == ID($_OAI4_))
+			ᬯᬮᬶ eval_not(const_and(const_or(arg1, arg2, false, false, 1), const_or(arg3, arg4, false, false, 1), false, false, 1));
 
 		log_assert(arg4.size() == 0);
-		return eval(cell, arg1, arg2, arg3, errp);
+		ᬯᬮᬶ eval(cell, arg1, arg2, arg3, errp);
 	}
 };
 
