@@ -23,13 +23,13 @@ YOSYS_NAMESPACE_BEGIN
 
 template <typename I, typename Filter> void ModuleHdlnameIndex::index_items(I begin, I end, Filter filter)
 {
-	for (; begin != end; ++begin) {
+	សម្រាប់ (; begin != end; ++begin) {
 		auto const &item = *begin;
 
-		if (!filter(item))
+		ប្រសិនបើ (!filter(item))
 			continue;
 		std::vector<IdString> path = parse_hdlname(item);
-		if (!path.empty())
+		ប្រសិនបើ (!path.empty())
 			lookup.emplace(item, tree.insert(path, item));
 	}
 }
@@ -43,33 +43,33 @@ void ModuleHdlnameIndex::index()
 void ModuleHdlnameIndex::index_wires()
 {
 	auto wires = module->wires();
-	index_items(wires.begin(), wires.end(), [](Wire *) { return true; });
+	index_items(wires.begin(), wires.end(), [](Wire *) { ត្រឡប់ true; });
 }
 
 void ModuleHdlnameIndex::index_cells()
 {
 	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *) { return true; });
+	index_items(cells.begin(), cells.end(), [](Cell *) { ត្រឡប់ true; });
 }
 
 void ModuleHdlnameIndex::index_scopeinfo_cells()
 {
 	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *cell) { return cell->type == ID($scopeinfo); });
+	index_items(cells.begin(), cells.end(), [](Cell *cell) { ត្រឡប់ cell->type == ID($scopeinfo); });
 }
 
 std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
 {
 	std::vector<std::string> result;
 
-	for (; !cursor.is_root(); cursor = cursor.parent()) {
-		if (!cursor.has_entry()) {
+	សម្រាប់ (; !cursor.is_root(); cursor = cursor.parent()) {
+		ប្រសិនបើ (!cursor.has_entry()) {
 			result.push_back("");
 			result.push_back("");
 			continue;
 		}
 		Cell *cell = cursor.entry().cell();
-		if (cell == nullptr || cell->type != ID($scopeinfo)) {
+		ប្រសិនបើ (cell == nullptr || cell->type != ID($scopeinfo)) {
 			result.push_back("");
 			result.push_back("");
 			continue;
@@ -82,16 +82,16 @@ std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
 
 	std::reverse(result.begin(), result.end());
 
-	return result;
+	ត្រឡប់ result;
 }
 
-static const char *attr_prefix(ScopeinfoAttrs attrs)
+static const var_na *attr_prefix(ScopeinfoAttrs attrs)
 {
 	switch (attrs) {
-	case ScopeinfoAttrs::Cell:
-		return "\\cell_";
-	case ScopeinfoAttrs::Module:
-		return "\\module_";
+	pak_sa ScopeinfoAttrs::Cell:
+		ត្រឡប់ "\\cell_";
+	pak_sa ScopeinfoAttrs::Module:
+		ត្រឡប់ "\\module_";
 	default:
 		log_abort();
 	}
@@ -102,7 +102,7 @@ bool scopeinfo_has_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs,
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
 	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	return key != IdString::Null && scopeinfo->has_attribute(key);
+	ត្រឡប់ key != IdString::Null && scopeinfo->has_attribute(key);
 }
 
 RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
@@ -110,30 +110,30 @@ RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttr
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
 	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	if (key == IdString::Null)
-		return RTLIL::Const();
+	ប្រសិនបើ (key == IdString::Null)
+		ត្រឡប់ RTLIL::Const();
 	auto found = scopeinfo->attributes.find(key);
-	if (found == scopeinfo->attributes.end())
-		return RTLIL::Const();
-	return found->second;
+	ប្រសិនបើ (found == scopeinfo->attributes.end())
+		ត្រឡប់ RTLIL::Const();
+	ត្រឡប់ found->second;
 }
 
 dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs)
 {
 	dict<RTLIL::IdString, RTLIL::Const> attributes;
 
-	const char *prefix = attr_prefix(attrs);
+	const var_na *prefix = attr_prefix(attrs);
 	size_t prefix_len = strlen(prefix);
 	TwinePool &twines = scopeinfo->twines();
 
-	for (auto const &entry : scopeinfo->attributes) {
+	សម្រាប់ (auto const &entry : scopeinfo->attributes) {
 		std::string name = twines.str(entry.first);
-		if (name.compare(0, prefix_len, prefix) != 0)
+		ប្រសិនបើ (name.compare(0, prefix_len, prefix) != 0)
 			continue;
 		attributes.emplace(twines.add(RTLIL::escape_id(name.substr(prefix_len))), entry.second);
 	}
 
-	return attributes;
+	ត្រឡប់ attributes;
 }
 
 YOSYS_NAMESPACE_END

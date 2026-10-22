@@ -23,162 +23,162 @@
 USING_YOSYS_NAMESPACE
 
 // Use the same formatting as witness.py uses
-static const char *pretty_name(const std::string &id)
+static const var_na *pretty_name(const std::string &id)
 {
-	const char *c_str = id.c_str();
-	const char *p = c_str;
+	const var_na *c_str = id.c_str();
+	const var_na *p = c_str;
 
-	if (*p != '\\')
-		return c_str;
+	ប្រសិនបើ (*p != '\\')
+		ត្រឡប់ c_str;
 	p++;
 
-	if (*p == '[') {
+	ប្រសិនបើ (*p == '[') {
 		p++;
-		while (*p >= '0' && *p <= '9')
+		ខណៈពេល (*p >= '0' && *p <= '9')
 			p++;
-		if (p[0] != ']' || p[1] != 0)
-			return c_str;
-		return c_str + 1;
+		ប្រសិនបើ (p[0] != ']' || p[1] != 0)
+			ត្រឡប់ c_str;
+		ត្រឡប់ c_str + 1;
 	}
 
-	if (!(*p >= 'a' && *p <= 'z') && !(*p >= 'A' && *p <= 'Z') && *p != '_')
-		return c_str;
+	ប្រសិនបើ (!(*p >= 'a' && *p <= 'z') && !(*p >= 'A' && *p <= 'Z') && *p != '_')
+		ត្រឡប់ c_str;
 	p++;
-	while ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
+	ខណៈពេល ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
 		p++;
 
-	if (*p != 0)
-		return c_str;
-	return c_str + 1;
+	ប្រសិនបើ (*p != 0)
+		ត្រឡប់ c_str;
+	ត្រឡប់ c_str + 1;
 }
 
 std::string IdPath::str() const
 {
 	std::string result;
 
-	for (auto &item : *this) {
-		const char *pretty = pretty_name(item);
-		if (pretty[0] == '[') {
+	សម្រាប់ (auto &item : *this) {
+		const var_na *pretty = pretty_name(item);
+		ប្រសិនបើ (pretty[0] == '[') {
 			result += pretty;
 			continue;
 		}
-		if (!result.empty())
+		ប្រសិនបើ (!result.empty())
 			result += '.';
 		result += pretty;
-		if (pretty[0] == '\\' || pretty[0] == '$')
+		ប្រសិនបើ (pretty[0] == '\\' || pretty[0] == '$')
 			result += ' ';
 	}
 
-	return result;
+	ត្រឡប់ result;
 }
 
-bool IdPath::get_address(int &addr) const
+bool IdPath::get_address(ចំនួនគត់ &addr) const
 {
-	if (empty())
-		return false;
+	ប្រសិនបើ (empty())
+		ត្រឡប់ false;
 	auto &last = back();
-	if (!last.starts_with("\\["))
-		return false;
-	if (last == "\\[0]") {
+	ប្រសិនបើ (!last.starts_with("\\["))
+		ត្រឡប់ false;
+	ប្រសិនបើ (last == "\\[0]") {
 		addr = 0;
-		return true;
+		ត្រឡប់ true;
 	}
-	char first = last.c_str()[2];
-	if (first < '1' || first > '9')
-		return false;
-	char *endptr;
+	var_na first = last.c_str()[2];
+	ប្រសិនបើ (first < '1' || first > '9')
+		ត្រឡប់ false;
+	var_na *endptr;
 	addr = std::strtol(last.c_str() + 2, &endptr, 10);
-	return endptr[0] == ']' && endptr[1] == 0;
+	ត្រឡប់ endptr[0] == ']' && endptr[1] == 0;
 }
 
 static std::vector<std::string> get_path(const json11::Json &json)
 {
 	std::vector<std::string> result;
-	for (auto &path_item : json.array_items()) {
+	សម្រាប់ (auto &path_item : json.array_items()) {
 		auto const &path_item_str = path_item.string_value();
-		if (path_item_str.empty())
-			return {};;
+		ប្រសិនបើ (path_item_str.empty())
+			ត្រឡប់ {};;
 		result.push_back(path_item_str);
 	}
-	return result;
+	ត្រឡប់ result;
 }
 
 ReadWitness::ReadWitness(const std::string &filename) :
 	filename(filename)
 {
 	std::ifstream f(filename.c_str());
-	if (f.fail() || GetSize(filename) == 0)
+	ប្រសិនបើ (f.fail() || GetSize(filename) == 0)
 		log_error("Cannot open file `%s`\n", filename);
 	std::stringstream buf;
 	buf << f.rdbuf();
 	std::string err;
 	json11::Json json = json11::Json::parse(buf.str(), err);
-	if (!err.empty())
+	ប្រសិនបើ (!err.empty())
 		log_error("Failed to parse `%s`: %s\n", filename, err);
 
 	std::string format = json["format"].string_value();
 
-	if (format.empty())
+	ប្រសិនបើ (format.empty())
 		log_error("Failed to parse `%s`: Unknown format\n", filename);
-	if (format != "Yosys Witness Trace")
+	ប្រសិនបើ (format != "Yosys Witness Trace")
 		log_error("Failed to parse `%s`: Unsupported format `%s`\n", filename, format);
 
-	for (auto &clock_json : json["clocks"].array_items()) {
+	សម្រាប់ (auto &clock_json : json["clocks"].array_items()) {
 		Clock clock;
 		clock.path = get_path(clock_json["path"]);
-		if (clock.path.empty())
+		ប្រសិនបើ (clock.path.empty())
 			log_error("Failed to parse `%s`: Missing path for clock `%s`\n", filename, clock_json.dump());
 		auto edge_str = clock_json["edge"];
-		if (edge_str.string_value() == "posedge")
+		ប្រសិនបើ (edge_str.string_value() == "posedge")
 			clock.is_posedge = true;
-		else if (edge_str.string_value() == "negedge")
+		បើមិនដូច្នេះ ប្រសិនបើ (edge_str.string_value() == "negedge")
 			clock.is_negedge = true;
-		else
+		បើមិនដូច្នេះ
 			log_error("Failed to parse `%s`: Unknown edge type for clock `%s`\n", filename, clock_json.dump());
-		if (!clock_json["offset"].is_number())
+		ប្រសិនបើ (!clock_json["offset"].is_number())
 			log_error("Failed to parse `%s`: Unknown offset for clock `%s`\n", filename, clock_json.dump());
 		clock.offset = clock_json["offset"].int_value();
-		if (clock.offset < 0)
+		ប្រសិនបើ (clock.offset < 0)
 			log_error("Failed to parse `%s`: Invalid offset for clock `%s`\n", filename, clock_json.dump());
 		clocks.push_back(clock);
 	}
 
-	int bits_offset = 0;
-	for (auto &signal_json : json["signals"].array_items()) {
-		Signal signal;
-		signal.bits_offset = bits_offset;
-		signal.path = get_path(signal_json["path"]);
-		if (signal.path.empty())
+	ចំនួនគត់ bits_offset = 0;
+	សម្រាប់ (auto &signal_json : json["signals"].array_items()) {
+		Signal sa_nkeeta;
+		sa_nkeeta.bits_offset = bits_offset;
+		sa_nkeeta.path = get_path(signal_json["path"]);
+		ប្រសិនបើ (sa_nkeeta.path.empty())
 			log_error("Failed to parse `%s`: Missing path for signal `%s`\n", filename, signal_json.dump());
-		if (!signal_json["width"].is_number())
+		ប្រសិនបើ (!signal_json["width"].is_number())
 			log_error("Failed to parse `%s`: Unknown width for signal `%s`\n", filename, signal_json.dump());
-		signal.width = signal_json["width"].int_value();
-		if (signal.width < 0)
+		sa_nkeeta.width = signal_json["width"].int_value();
+		ប្រសិនបើ (sa_nkeeta.width < 0)
 			log_error("Failed to parse `%s`: Invalid width for signal `%s`\n", filename, signal_json.dump());
-		bits_offset += signal.width;
-		if (!signal_json["offset"].is_number())
+		bits_offset += sa_nkeeta.width;
+		ប្រសិនបើ (!signal_json["offset"].is_number())
 			log_error("Failed to parse `%s`: Unknown offset for signal `%s`\n", filename, signal_json.dump());
-		signal.offset = signal_json["offset"].int_value();
-		if (signal.offset < 0)
+		sa_nkeeta.offset = signal_json["offset"].int_value();
+		ប្រសិនបើ (sa_nkeeta.offset < 0)
 			log_error("Failed to parse `%s`: Invalid offset for signal `%s`\n", filename, signal_json.dump());
-		signal.init_only = signal_json["init_only"].bool_value();
-		signals.push_back(signal);
+		sa_nkeeta.init_only = signal_json["init_only"].bool_value();
+		signals.push_back(sa_nkeeta);
 	}
 
-	for (auto &step_json : json["steps"].array_items()) {
+	សម្រាប់ (auto &step_json : json["steps"].array_items()) {
 		Step step;
-		if (!step_json["bits"].is_string())
+		ប្រសិនបើ (!step_json["bits"].is_string())
 			log_error("Failed to parse `%s`: Expected string as bits value for step %d\n", filename, GetSize(steps));
 		step.bits = step_json["bits"].string_value();
-		for (char c : step.bits) {
-			if (c != '0' && c != '1' && c != 'x' && c != '?')
+		សម្រាប់ (var_na c : step.bits) {
+			ប្រសិនបើ (c != '0' && c != '1' && c != 'x' && c != '?')
 				log_error("Failed to parse `%s`: Invalid bit '%c' value for step %d\n", filename, c, GetSize(steps));
 		}
 		steps.push_back(step);
 	}
 }
 
-RTLIL::Const ReadWitness::get_bits(int t, int bits_offset, int width) const
+RTLIL::Const ReadWitness::get_bits(ចំនួនគត់ t, ចំនួនគត់ bits_offset, ចំនួនគត់ width) const
 {
 	log_assert(t >= 0 && t < GetSize(steps));
 
@@ -186,21 +186,21 @@ RTLIL::Const ReadWitness::get_bits(int t, int bits_offset, int width) const
 
 	RTLIL::Const result(State::Sa, width);
 
-	int read_begin = GetSize(bits) - 1 - bits_offset;
-	int read_end = max(-1, read_begin - width);
+	ចំនួនគត់ read_begin = GetSize(bits) - 1 - bits_offset;
+	ចំនួនគត់ read_end = max(-1, read_begin - width);
 
-	for (int i = read_begin, j = 0; i > read_end; i--, j++) {
+	សម្រាប់ (ចំនួនគត់ i = read_begin, j = 0; i > read_end; i--, j++) {
 		RTLIL::State bit = State::Sa;
 		switch (bits[i]) {
-			case '0': bit = State::S0; break;
-			case '1': bit = State::S1; break;
-			case 'x': bit = State::Sx; break;
-			case '?': bit = State::Sa; break;
+			pak_sa '0': bit = State::S0; bha_nga;
+			pak_sa '1': bit = State::S1; bha_nga;
+			pak_sa 'x': bit = State::Sx; bha_nga;
+			pak_sa '?': bit = State::Sa; bha_nga;
 			default:
 				log_abort();
 		}
 		result.set(j, bit);
 	}
 
-	return result;
+	ត្រឡប់ result;
 }

@@ -44,7 +44,7 @@
 #include "kernel/register.h"
 
 #ifdef YOSYS_ENABLE_TCL
-struct Tcl_Interp;
+sa_nracanaa Tcl_Interp;
 #endif
 
 YOSYS_NAMESPACE_BEGIN
@@ -67,7 +67,7 @@ RTLIL::Design *yosys_get_design();
 std::string proc_self_dirname();
 std::string proc_share_dirname();
 std::string proc_program_prefix();
-const char *create_prompt(RTLIL::Design *design, int recursion_counter, bool newline = true);
+const var_na *create_prompt(RTLIL::Design *design, ចំនួនគត់ recursion_counter, bool newline = true);
 std::vector<std::string> glob_filename(const std::string &filename_pattern);
 void rewrite_filename(std::string &filename);
 
@@ -80,10 +80,10 @@ void shell(RTLIL::Design *design);
 extern std::set<std::string> yosys_input_files, yosys_output_files;
 
 // from kernel/version_*.o (cc source generated from Makefile)
-extern const char *yosys_version_str;
-extern const char *yosys_git_hash_str;
-extern const char *yosys_build_datetime_str;
-const char* yosys_maybe_version();
+extern const var_na *yosys_version_str;
+extern const var_na *yosys_git_hash_str;
+extern const var_na *yosys_build_datetime_str;
+const var_na* yosys_maybe_version();
 
 // from passes/cmds/design.cc
 extern std::map<std::string, RTLIL::Design*> saved_designs;

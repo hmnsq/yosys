@@ -49,7 +49,7 @@ namespace Functional {
 	// additionally, they can carry a constant of sort int, Const[N] or IdString
 	// each node has a 'sort' field that stores the sort of the node
 	// slice, zero_extend, sign_extend use the sort field to store out_width
-	enum class Fn {
+	ga_nanaa class Fn {
 		// invalid() = known-invalid/shouldn't happen value
 		// TODO: maybe remove this and use e.g. std::optional instead?
 		invalid,
@@ -134,24 +134,24 @@ namespace Functional {
 		memory_write
 	};
 	// returns the name of a Fn value, as a string literal
-	const char *fn_to_string(Fn);
+	const var_na *fn_to_string(Fn);
 	// Sort represents the sort or type of a node
 	// currently the only two sorts are signal/bit and memory
 	class Sort {
-		std::variant<int, std::pair<int, int>> _v;
+		std::variant<ចំនួនគត់, std::pair<ចំនួនគត់, ចំនួនគត់>> _v;
 	public:
-		explicit Sort(int width) : _v(width) { }
-		Sort(int addr_width, int data_width) : _v(std::make_pair(addr_width, data_width)) { }
-		bool is_signal() const { return _v.index() == 0; }
-		bool is_memory() const { return _v.index() == 1; }
+		explicit Sort(ចំនួនគត់ width) : _v(width) { }
+		Sort(ចំនួនគត់ addr_width, ចំនួនគត់ data_width) : _v(std::make_pair(addr_width, data_width)) { }
+		bool is_signal() const { ត្រឡប់ _v.index() == 0; }
+		bool is_memory() const { ត្រឡប់ _v.index() == 1; }
 		// returns the width of a bitvector sort, errors out for other sorts
-		int width() const { return std::get<0>(_v); }
+		ចំនួនគត់ width() const { ត្រឡប់ std::get<0>(_v); }
 		// returns the address width of a bitvector sort, errors out for other sorts
-		int addr_width() const { return std::get<1>(_v).first; }
+		ចំនួនគត់ addr_width() const { ត្រឡប់ std::get<1>(_v).first; }
 		// returns the data width of a bitvector sort, errors out for other sorts
-		int data_width() const { return std::get<1>(_v).second; }
-		bool operator==(Sort const& other) const { return _v == other._v; }
-		[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(_v); return h; }
+		ចំនួនគត់ data_width() const { ត្រឡប់ std::get<1>(_v).second; }
+		bool operator==(Sort const& other) const { ត្រឡប់ _v == other._v; }
+		[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(_v); ត្រឡប់ h; }
 	};
 	class IR;
 	class Factory;
@@ -192,8 +192,8 @@ namespace Functional {
 	public:
 		Node next_value() const;
 		bool has_next_value() const;
-		RTLIL::Const const& initial_value_signal() const { return std::get<RTLIL::Const>(_initial); }
-		MemContents const& initial_value_memory() const { return std::get<MemContents>(_initial); }
+		RTLIL::Const const& initial_value_signal() const { ត្រឡប់ std::get<RTLIL::Const>(_initial); }
+		MemContents const& initial_value_memory() const { ត្រឡប់ std::get<MemContents>(_initial); }
 		void set_next_value(Node value);
 		void set_initial_value(RTLIL::Const value) { value.extu(sort.width()); _initial = std::move(value); }
 		void set_initial_value(MemContents value) { log_assert(Sort(value.addr_width(), value.data_width()) == sort); _initial = std::move(value); }
@@ -212,27 +212,27 @@ namespace Functional {
 				std::monostate,
 				RTLIL::Const,
 				std::pair<IdString, IdString>,
-				int
+				ចំនួនគត់
 			> _extra;
 		public:
 			NodeData() : _fn(Fn::invalid) {}
 			NodeData(Fn fn) : _fn(fn) {}
 			template<class T> NodeData(Fn fn, T &&extra) : _fn(fn), _extra(std::forward<T>(extra)) {}
-			Fn fn() const { return _fn; }
-			const RTLIL::Const &as_const() const { return std::get<RTLIL::Const>(_extra); }
-			std::pair<IdString, IdString> as_idstring_pair() const { return std::get<std::pair<IdString, IdString>>(_extra); }
-			int as_int() const { return std::get<int>(_extra); }
+			Fn fn() const { ត្រឡប់ _fn; }
+			const RTLIL::Const &as_const() const { ត្រឡប់ std::get<RTLIL::Const>(_extra); }
+			std::pair<IdString, IdString> as_idstring_pair() const { ត្រឡប់ std::get<std::pair<IdString, IdString>>(_extra); }
+			ចំនួនគត់ as_int() const { ត្រឡប់ std::get<ចំនួនគត់>(_extra); }
 			[[nodiscard]] Hasher hash_into(Hasher h) const {
-				h.eat((unsigned int) _fn);
+				h.eat((unsigned ចំនួនគត់) _fn);
 				h.eat(_extra);
-				return h;
+				ត្រឡប់ h;
 			}
 			bool operator==(NodeData const &other) const {
-				return _fn == other._fn && _extra == other._extra;
+				ត្រឡប់ _fn == other._fn && _extra == other._extra;
 			}
 		};
 		// Attr contains all the information about a note that should not be deduplicated
-		struct Attr {
+		sa_nracanaa Attr {
 			Sort sort;
 		};
 		// our specialised version of ComputeGraph
@@ -249,33 +249,33 @@ namespace Functional {
 		Design *design = nullptr;
 		static IR from_module(Module *module);
 		Factory factory();
-		int size() const { return _graph.size(); }
-		Node operator[](int i);
+		ចំនួនគត់ size() const { ត្រឡប់ _graph.size(); }
+		Node operator[](ចំនួនគត់ i);
 		void topological_sort();
 		void forward_buf();
-		IRInput const& input(IdString name, IdString kind) const { return _inputs.at({name, kind}); }
-		IRInput const& input(IdString name) const { return input(name, ID($input)); }
-		IROutput const& output(IdString name, IdString kind) const { return _outputs.at({name, kind}); }
-		IROutput const& output(IdString name) const { return output(name, ID($output)); }
-		IRState const& state(IdString name, IdString kind) const { return _states.at({name, kind}); }
-		IRState const& state(IdString name) const { return state(name, ID($state)); }
-		bool has_input(IdString name, IdString kind) const { return _inputs.count({name, kind}); }
-		bool has_output(IdString name, IdString kind) const { return _outputs.count({name, kind}); }
-		bool has_state(IdString name, IdString kind) const { return _states.count({name, kind}); }
+		IRInput const& input(IdString name, IdString kind) const { ត្រឡប់ _inputs.at({name, kind}); }
+		IRInput const& input(IdString name) const { ត្រឡប់ input(name, ID($input)); }
+		IROutput const& output(IdString name, IdString kind) const { ត្រឡប់ _outputs.at({name, kind}); }
+		IROutput const& output(IdString name) const { ត្រឡប់ output(name, ID($output)); }
+		IRState const& state(IdString name, IdString kind) const { ត្រឡប់ _states.at({name, kind}); }
+		IRState const& state(IdString name) const { ត្រឡប់ state(name, ID($state)); }
+		bool has_input(IdString name, IdString kind) const { ត្រឡប់ _inputs.count({name, kind}); }
+		bool has_output(IdString name, IdString kind) const { ត្រឡប់ _outputs.count({name, kind}); }
+		bool has_state(IdString name, IdString kind) const { ត្រឡប់ _states.count({name, kind}); }
 		vector<IRInput const*> inputs(IdString kind) const;
-		vector<IRInput const*> inputs() const { return inputs(ID($input)); }
+		vector<IRInput const*> inputs() const { ត្រឡប់ inputs(ID($input)); }
 		vector<IROutput const*> outputs(IdString kind) const;
-		vector<IROutput const*> outputs() const { return outputs(ID($output)); }
+		vector<IROutput const*> outputs() const { ត្រឡប់ outputs(ID($output)); }
 		vector<IRState const*> states(IdString kind) const;
-		vector<IRState const*> states() const { return states(ID($state)); }
+		vector<IRState const*> states() const { ត្រឡប់ states(ID($state)); }
 		vector<IRInput const*> all_inputs() const;
 		vector<IROutput const*> all_outputs() const;
 		vector<IRState const*> all_states() const;
 		class iterator {
 			friend class IR;
 			IR *_ir;
-			int _index;
-			iterator(IR *ir, int index) : _ir(ir), _index(index) {}
+			ចំនួនគត់ _index;
+			iterator(IR *ir, ចំនួនគត់ index) : _ir(ir), _index(index) {}
 		public:
 			using iterator_category = std::input_iterator_tag;
 			using value_type = Node;
@@ -283,13 +283,13 @@ namespace Functional {
 			using reference = Node;
 			using difference_type = ptrdiff_t;
 			Node operator*();
-			iterator &operator++() { _index++; return *this; }
-			bool operator!=(iterator const &other) const { return _ir != other._ir || _index != other._index; }
-			bool operator==(iterator const &other) const { return !(*this != other); }
+			iterator &operator++() { _index++; ត្រឡប់ *this; }
+			bool operator!=(iterator const &other) const { ត្រឡប់ _ir != other._ir || _index != other._index; }
+			bool operator==(iterator const &other) const { ត្រឡប់ !(*this != other); }
 			pointer operator->();
 		};
-		iterator begin() { return iterator(this, 0); }
-		iterator end() { return iterator(this, _graph.size()); }
+		iterator begin() { ត្រឡប់ iterator(this, 0); }
+		iterator end() { ត្រឡប់ iterator(this, _graph.size()); }
 	};
 	// Node is an immutable reference to a FunctionalIR node
 	class Node {
@@ -300,91 +300,91 @@ namespace Functional {
 		friend class IRState;
 		IR::Graph::ConstRef _ref;
 		Node(IR::Graph::ConstRef ref, Design *design) : _ref(ref), design(design) { }
-		explicit operator IR::Graph::ConstRef() { return _ref; }
+		explicit operator IR::Graph::ConstRef() { ត្រឡប់ _ref; }
 	public:
 		Design *design = nullptr;
 		// the node's index. may change if nodes are added or removed
-		int id() const { return _ref.index(); }
+		ចំនួនគត់ id() const { ត្រឡប់ _ref.index(); }
 		// a name suggestion for the node, which need not be unique
 		PooledName name() const {
-			if(_ref.has_sparse_attr())
-				return {design, _ref.sparse_attr()};
-			else
-				return {design, design->twines().add(std::string("\\n") + std::to_string(id()))};
+			ប្រសិនបើ(_ref.has_sparse_attr())
+				ត្រឡប់ {design, _ref.sparse_attr()};
+			បើមិនដូច្នេះ
+				ត្រឡប់ {design, design->twines().add(std::string("\\n") + std::to_string(id()))};
 		}
-		Fn fn() const { return _ref.function().fn(); }
-		Sort sort() const { return _ref.attr().sort; }
+		Fn fn() const { ត្រឡប់ _ref.function().fn(); }
+		Sort sort() const { ត្រឡប់ _ref.attr().sort; }
 		// returns the width of a bitvector node, errors out for other nodes
-		int width() const { return sort().width(); }
-		size_t arg_count() const { return _ref.size(); }
-		Node arg(int n) const { return Node(_ref.arg(n), design); }
+		ចំនួនគត់ width() const { ត្រឡប់ sort().width(); }
+		size_t arg_count() const { ត្រឡប់ _ref.size(); }
+		Node arg(ចំនួនគត់ n) const { ត្រឡប់ Node(_ref.arg(n), design); }
 		// visit calls the appropriate visitor method depending on the type of the node
 		template<class Visitor> auto visit(Visitor v) const
 		{
 			// currently templated but could be switched to AbstractVisitor &
 			switch(_ref.function().fn()) {
-			case Fn::invalid: log_error("invalid node in visit\n"); break;
-			case Fn::buf: return v.buf(*this, arg(0)); break;
-			case Fn::slice: return v.slice(*this, arg(0), _ref.function().as_int(), sort().width()); break;
-			case Fn::zero_extend: return v.zero_extend(*this, arg(0), width()); break;
-			case Fn::sign_extend: return v.sign_extend(*this, arg(0), width()); break;
-			case Fn::concat: return v.concat(*this, arg(0), arg(1)); break;
-			case Fn::add: return v.add(*this, arg(0), arg(1)); break;
-			case Fn::sub: return v.sub(*this, arg(0), arg(1)); break;
-			case Fn::mul: return v.mul(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_div: return v.unsigned_div(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_mod: return v.unsigned_mod(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_and: return v.bitwise_and(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_or: return v.bitwise_or(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_xor: return v.bitwise_xor(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_not: return v.bitwise_not(*this, arg(0)); break;
-			case Fn::unary_minus: return v.unary_minus(*this, arg(0)); break;
-			case Fn::reduce_and: return v.reduce_and(*this, arg(0)); break;
-			case Fn::reduce_or: return v.reduce_or(*this, arg(0)); break;
-			case Fn::reduce_xor: return v.reduce_xor(*this, arg(0)); break;
-			case Fn::equal: return v.equal(*this, arg(0), arg(1)); break;
-			case Fn::not_equal: return v.not_equal(*this, arg(0), arg(1)); break;
-			case Fn::signed_greater_than: return v.signed_greater_than(*this, arg(0), arg(1)); break;
-			case Fn::signed_greater_equal: return v.signed_greater_equal(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_greater_than: return v.unsigned_greater_than(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_greater_equal: return v.unsigned_greater_equal(*this, arg(0), arg(1)); break;
-			case Fn::logical_shift_left: return v.logical_shift_left(*this, arg(0), arg(1)); break;
-			case Fn::logical_shift_right: return v.logical_shift_right(*this, arg(0), arg(1)); break;
-			case Fn::arithmetic_shift_right: return v.arithmetic_shift_right(*this, arg(0), arg(1)); break;
-			case Fn::mux: return v.mux(*this, arg(0), arg(1), arg(2)); break;
-			case Fn::constant: return v.constant(*this, _ref.function().as_const()); break;
-			case Fn::input: return v.input(*this, _ref.function().as_idstring_pair().first, _ref.function().as_idstring_pair().second); break;
-			case Fn::state: return v.state(*this, _ref.function().as_idstring_pair().first, _ref.function().as_idstring_pair().second); break;
-			case Fn::memory_read: return v.memory_read(*this, arg(0), arg(1)); break;
-			case Fn::memory_write: return v.memory_write(*this, arg(0), arg(1), arg(2)); break;
+			pak_sa Fn::invalid: log_error("invalid node in visit\n"); bha_nga;
+			pak_sa Fn::buf: ត្រឡប់ v.buf(*this, arg(0)); bha_nga;
+			pak_sa Fn::slice: ត្រឡប់ v.slice(*this, arg(0), _ref.function().as_int(), sort().width()); bha_nga;
+			pak_sa Fn::zero_extend: ត្រឡប់ v.zero_extend(*this, arg(0), width()); bha_nga;
+			pak_sa Fn::sign_extend: ត្រឡប់ v.sign_extend(*this, arg(0), width()); bha_nga;
+			pak_sa Fn::concat: ត្រឡប់ v.concat(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::add: ត្រឡប់ v.add(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::sub: ត្រឡប់ v.sub(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::mul: ត្រឡប់ v.mul(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::unsigned_div: ត្រឡប់ v.unsigned_div(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::unsigned_mod: ត្រឡប់ v.unsigned_mod(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::bitwise_and: ត្រឡប់ v.bitwise_and(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::bitwise_or: ត្រឡប់ v.bitwise_or(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::bitwise_xor: ត្រឡប់ v.bitwise_xor(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::bitwise_not: ត្រឡប់ v.bitwise_not(*this, arg(0)); bha_nga;
+			pak_sa Fn::unary_minus: ត្រឡប់ v.unary_minus(*this, arg(0)); bha_nga;
+			pak_sa Fn::reduce_and: ត្រឡប់ v.reduce_and(*this, arg(0)); bha_nga;
+			pak_sa Fn::reduce_or: ត្រឡប់ v.reduce_or(*this, arg(0)); bha_nga;
+			pak_sa Fn::reduce_xor: ត្រឡប់ v.reduce_xor(*this, arg(0)); bha_nga;
+			pak_sa Fn::equal: ត្រឡប់ v.equal(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::not_equal: ត្រឡប់ v.not_equal(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::signed_greater_than: ត្រឡប់ v.signed_greater_than(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::signed_greater_equal: ត្រឡប់ v.signed_greater_equal(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::unsigned_greater_than: ត្រឡប់ v.unsigned_greater_than(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::unsigned_greater_equal: ត្រឡប់ v.unsigned_greater_equal(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::logical_shift_left: ត្រឡប់ v.logical_shift_left(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::logical_shift_right: ត្រឡប់ v.logical_shift_right(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::arithmetic_shift_right: ត្រឡប់ v.arithmetic_shift_right(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::mux: ត្រឡប់ v.mux(*this, arg(0), arg(1), arg(2)); bha_nga;
+			pak_sa Fn::constant: ត្រឡប់ v.constant(*this, _ref.function().as_const()); bha_nga;
+			pak_sa Fn::input: ត្រឡប់ v.input(*this, _ref.function().as_idstring_pair().first, _ref.function().as_idstring_pair().second); bha_nga;
+			pak_sa Fn::state: ត្រឡប់ v.state(*this, _ref.function().as_idstring_pair().first, _ref.function().as_idstring_pair().second); bha_nga;
+			pak_sa Fn::memory_read: ត្រឡប់ v.memory_read(*this, arg(0), arg(1)); bha_nga;
+			pak_sa Fn::memory_write: ត្រឡប់ v.memory_write(*this, arg(0), arg(1), arg(2)); bha_nga;
 			}
 			log_abort();
 		}
 		std::string to_string();
 		std::string to_string(std::function<std::string(Node)>);
 	};
-	inline IRInput::IRInput(IR &ir, IdString name, IdString kind, Sort sort)
+	anta_hstha IRInput::IRInput(IR &ir, IdString name, IdString kind, Sort sort)
 		: name(ir.design, name), kind(ir.design, kind), sort(std::move(sort)) {}
-	inline IROutput::IROutput(IR &ir, IdString name, IdString kind, Sort sort)
+	anta_hstha IROutput::IROutput(IR &ir, IdString name, IdString kind, Sort sort)
 		: _ir(ir), name(ir.design, name), kind(ir.design, kind), sort(std::move(sort)) {}
-	inline IRState::IRState(IR &ir, IdString name, IdString kind, Sort sort)
+	anta_hstha IRState::IRState(IR &ir, IdString name, IdString kind, Sort sort)
 		: _ir(ir), name(ir.design, name), kind(ir.design, kind), sort(std::move(sort)) {}
-	inline IR::Graph::Ref IR::mutate(Node n) { return _graph[n._ref.index()]; }
-	inline Node IR::operator[](int i) { return Node(_graph[i], design); }
-	inline Node IROutput::value() const { return Node(_ir._graph({name, kind, false}), _ir.design); }
-	inline bool IROutput::has_value() const { return _ir._graph.has_key({name, kind, false}); }
-	inline void IROutput::set_value(Node value) { log_assert(sort == value.sort()); _ir.mutate(value).assign_key({name, kind, false}); }
-	inline Node IRState::next_value() const { return Node(_ir._graph({name, kind, true}), _ir.design); }
-	inline bool IRState::has_next_value() const { return _ir._graph.has_key({name, kind, true}); }
-	inline void IRState::set_next_value(Node value) { log_assert(sort == value.sort()); _ir.mutate(value).assign_key({name, kind, true}); }
-	inline Node IR::iterator::operator*() { return Node(_ir->_graph[_index], _ir->design); }
-	inline arrow_proxy<Node> IR::iterator::operator->() { return arrow_proxy<Node>(**this); }
+	anta_hstha IR::Graph::Ref IR::mutate(Node n) { ត្រឡប់ _graph[n._ref.index()]; }
+	anta_hstha Node IR::operator[](ចំនួនគត់ i) { ត្រឡប់ Node(_graph[i], design); }
+	anta_hstha Node IROutput::value() const { ត្រឡប់ Node(_ir._graph({name, kind, false}), _ir.design); }
+	anta_hstha bool IROutput::has_value() const { ត្រឡប់ _ir._graph.has_key({name, kind, false}); }
+	anta_hstha void IROutput::set_value(Node value) { log_assert(sort == value.sort()); _ir.mutate(value).assign_key({name, kind, false}); }
+	anta_hstha Node IRState::next_value() const { ត្រឡប់ Node(_ir._graph({name, kind, true}), _ir.design); }
+	anta_hstha bool IRState::has_next_value() const { ត្រឡប់ _ir._graph.has_key({name, kind, true}); }
+	anta_hstha void IRState::set_next_value(Node value) { log_assert(sort == value.sort()); _ir.mutate(value).assign_key({name, kind, true}); }
+	anta_hstha Node IR::iterator::operator*() { ត្រឡប់ Node(_ir->_graph[_index], _ir->design); }
+	anta_hstha arrow_proxy<Node> IR::iterator::operator->() { ត្រឡប់ arrow_proxy<Node>(**this); }
 	// AbstractVisitor provides an abstract base class for visitors
-	template<class T> struct AbstractVisitor {
+	template<class T> sa_nracanaa AbstractVisitor {
 		virtual T buf(Node self, Node n) = 0;
-		virtual T slice(Node self, Node a, int offset, int out_width) = 0;
-		virtual T zero_extend(Node self, Node a, int out_width) = 0;
-		virtual T sign_extend(Node self, Node a, int out_width) = 0;
+		virtual T slice(Node self, Node a, ចំនួនគត់ offset, ចំនួនគត់ out_width) = 0;
+		virtual T zero_extend(Node self, Node a, ចំនួនគត់ out_width) = 0;
+		virtual T sign_extend(Node self, Node a, ចំនួនគត់ out_width) = 0;
 		virtual T concat(Node self, Node a, Node b) = 0;
 		virtual T add(Node self, Node a, Node b) = 0;
 		virtual T sub(Node self, Node a, Node b) = 0;
@@ -416,41 +416,41 @@ namespace Functional {
 		virtual T memory_write(Node self, Node mem, Node addr, Node data) = 0;
 	};
 	// DefaultVisitor provides defaults for all visitor methods which just calls default_handler
-	template<class T> struct DefaultVisitor : public AbstractVisitor<T> {
+	template<class T> sa_nracanaa DefaultVisitor : public AbstractVisitor<T> {
 		virtual T default_handler(Node self) = 0;
-		T buf(Node self, Node) override { return default_handler(self); }
-		T slice(Node self, Node, int, int) override { return default_handler(self); }
-		T zero_extend(Node self, Node, int) override { return default_handler(self); }
-		T sign_extend(Node self, Node, int) override { return default_handler(self); }
-		T concat(Node self, Node, Node) override { return default_handler(self); }
-		T add(Node self, Node, Node) override { return default_handler(self); }
-		T sub(Node self, Node, Node) override { return default_handler(self); }
-		T mul(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_div(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_mod(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_and(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_or(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_xor(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_not(Node self, Node) override { return default_handler(self); }
-		T unary_minus(Node self, Node) override { return default_handler(self); }
-		T reduce_and(Node self, Node) override { return default_handler(self); }
-		T reduce_or(Node self, Node) override { return default_handler(self); }
-		T reduce_xor(Node self, Node) override { return default_handler(self); }
-		T equal(Node self, Node, Node) override { return default_handler(self); }
-		T not_equal(Node self, Node, Node) override { return default_handler(self); }
-		T signed_greater_than(Node self, Node, Node) override { return default_handler(self); }
-		T signed_greater_equal(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_greater_than(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_greater_equal(Node self, Node, Node) override { return default_handler(self); }
-		T logical_shift_left(Node self, Node, Node) override { return default_handler(self); }
-		T logical_shift_right(Node self, Node, Node) override { return default_handler(self); }
-		T arithmetic_shift_right(Node self, Node, Node) override { return default_handler(self); }
-		T mux(Node self, Node, Node, Node) override { return default_handler(self); }
-		T constant(Node self, RTLIL::Const const &) override { return default_handler(self); }
-		T input(Node self, IdString, IdString) override { return default_handler(self); }
-		T state(Node self, IdString, IdString) override { return default_handler(self); }
-		T memory_read(Node self, Node, Node) override { return default_handler(self); }
-		T memory_write(Node self, Node, Node, Node) override { return default_handler(self); }
+		T buf(Node self, Node) override { ត្រឡប់ default_handler(self); }
+		T slice(Node self, Node, ចំនួនគត់, ចំនួនគត់) override { ត្រឡប់ default_handler(self); }
+		T zero_extend(Node self, Node, ចំនួនគត់) override { ត្រឡប់ default_handler(self); }
+		T sign_extend(Node self, Node, ចំនួនគត់) override { ត្រឡប់ default_handler(self); }
+		T concat(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T add(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T sub(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T mul(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T unsigned_div(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T unsigned_mod(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T bitwise_and(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T bitwise_or(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T bitwise_xor(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T bitwise_not(Node self, Node) override { ត្រឡប់ default_handler(self); }
+		T unary_minus(Node self, Node) override { ត្រឡប់ default_handler(self); }
+		T reduce_and(Node self, Node) override { ត្រឡប់ default_handler(self); }
+		T reduce_or(Node self, Node) override { ត្រឡប់ default_handler(self); }
+		T reduce_xor(Node self, Node) override { ត្រឡប់ default_handler(self); }
+		T equal(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T not_equal(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T signed_greater_than(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T signed_greater_equal(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T unsigned_greater_than(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T unsigned_greater_equal(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T logical_shift_left(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T logical_shift_right(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T arithmetic_shift_right(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T mux(Node self, Node, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T constant(Node self, RTLIL::Const const &) override { ត្រឡប់ default_handler(self); }
+		T input(Node self, IdString, IdString) override { ត្រឡប់ default_handler(self); }
+		T state(Node self, IdString, IdString) override { ត្រឡប់ default_handler(self); }
+		T memory_read(Node self, Node, Node) override { ត្រឡប់ default_handler(self); }
+		T memory_write(Node self, Node, Node, Node) override { ត្រឡប់ default_handler(self); }
 	};
 	// a factory is used to modify a FunctionalIR. it creates new nodes and allows for some modification of existing nodes.
 	class Factory {
@@ -461,94 +461,94 @@ namespace Functional {
 			log_assert(!sort.is_signal() || sort.width() > 0);
 			log_assert(!sort.is_memory() || (sort.addr_width() > 0 && sort.data_width() > 0));
 			IR::Graph::Ref ref = _ir._graph.add(std::move(fn), {std::move(sort)});
-			for (auto arg : args)
+			សម្រាប់ (auto arg : args)
 				ref.append_arg(IR::Graph::ConstRef(arg));
-			return Node(ref, _ir.design);
+			ត្រឡប់ Node(ref, _ir.design);
 		}
 		void check_basic_binary(Node const &a, Node const &b) { log_assert(a.sort().is_signal() && a.sort() == b.sort()); }
 		void check_shift(Node const &a, Node const &b) { log_assert(a.sort().is_signal() && b.sort().is_signal() && b.width() == ceil_log2(a.width())); }
 		void check_unary(Node const &a) { log_assert(a.sort().is_signal()); }
 	public:
-		IR &ir() { return _ir; }
-		Node slice(Node a, int offset, int out_width) {
+		IR &ir() { ត្រឡប់ _ir; }
+		Node slice(Node a, ចំនួនគត់ offset, ចំនួនគត់ out_width) {
 			log_assert(a.sort().is_signal() && offset + out_width <= a.sort().width());
-			if(offset == 0 && out_width == a.width())
-				return a;
-			return add(IR::NodeData(Fn::slice, offset), Sort(out_width), {a});
+			ប្រសិនបើ(offset == 0 && out_width == a.width())
+				ត្រឡប់ a;
+			ត្រឡប់ add(IR::NodeData(Fn::slice, offset), Sort(out_width), {a});
 		}
 		// extend will either extend or truncate the provided value to reach the desired width
-		Node extend(Node a, int out_width, bool is_signed) {
-			int in_width = a.sort().width();
+		Node extend(Node a, ចំនួនគត់ out_width, bool is_signed) {
+			ចំនួនគត់ in_width = a.sort().width();
 			log_assert(a.sort().is_signal());
-			if(in_width == out_width)
-				return a;
-			if(in_width > out_width)
-				return slice(a, 0, out_width);
-			if(is_signed)
-				return add(Fn::sign_extend, Sort(out_width), {a});
-			else
-				return add(Fn::zero_extend, Sort(out_width), {a});
+			ប្រសិនបើ(in_width == out_width)
+				ត្រឡប់ a;
+			ប្រសិនបើ(in_width > out_width)
+				ត្រឡប់ slice(a, 0, out_width);
+			ប្រសិនបើ(is_signed)
+				ត្រឡប់ add(Fn::sign_extend, Sort(out_width), {a});
+			បើមិនដូច្នេះ
+				ត្រឡប់ add(Fn::zero_extend, Sort(out_width), {a});
 		}
 		Node concat(Node a, Node b) {
 			log_assert(a.sort().is_signal() && b.sort().is_signal());
-			return add(Fn::concat, Sort(a.sort().width() + b.sort().width()), {a, b});
+			ត្រឡប់ add(Fn::concat, Sort(a.sort().width() + b.sort().width()), {a, b});
 		}
-		Node add(Node a, Node b) { check_basic_binary(a, b); return add(Fn::add, a.sort(), {a, b}); }
-		Node sub(Node a, Node b) { check_basic_binary(a, b); return add(Fn::sub, a.sort(), {a, b}); }
-		Node mul(Node a, Node b) { check_basic_binary(a, b); return add(Fn::mul, a.sort(), {a, b}); }
-		Node unsigned_div(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_div, a.sort(), {a, b}); }
-		Node unsigned_mod(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_mod, a.sort(), {a, b}); }
-		Node bitwise_and(Node a, Node b) { check_basic_binary(a, b); return add(Fn::bitwise_and, a.sort(), {a, b}); }
-		Node bitwise_or(Node a, Node b) { check_basic_binary(a, b); return add(Fn::bitwise_or, a.sort(), {a, b}); }
-		Node bitwise_xor(Node a, Node b) { check_basic_binary(a, b); return add(Fn::bitwise_xor, a.sort(), {a, b}); }
-		Node bitwise_not(Node a) { check_unary(a); return add(Fn::bitwise_not, a.sort(), {a}); }
-		Node unary_minus(Node a) { check_unary(a); return add(Fn::unary_minus, a.sort(), {a}); }
+		Node add(Node a, Node b) { check_basic_binary(a, b); ត្រឡប់ add(Fn::add, a.sort(), {a, b}); }
+		Node sub(Node a, Node b) { check_basic_binary(a, b); ត្រឡប់ add(Fn::sub, a.sort(), {a, b}); }
+		Node mul(Node a, Node b) { check_basic_binary(a, b); ត្រឡប់ add(Fn::mul, a.sort(), {a, b}); }
+		Node unsigned_div(Node a, Node b) { check_basic_binary(a, b); ត្រឡប់ add(Fn::unsigned_div, a.sort(), {a, b}); }
+		Node unsigned_mod(Node a, Node b) { check_basic_binary(a, b); ត្រឡប់ add(Fn::unsigned_mod, a.sort(), {a, b}); }
+		Node bitwise_and(Node a, Node b) { check_basic_binary(a, b); ត្រឡប់ add(Fn::bitwise_and, a.sort(), {a, b}); }
+		Node bitwise_or(Node a, Node b) { check_basic_binary(a, b); ត្រឡប់ add(Fn::bitwise_or, a.sort(), {a, b}); }
+		Node bitwise_xor(Node a, Node b) { check_basic_binary(a, b); ត្រឡប់ add(Fn::bitwise_xor, a.sort(), {a, b}); }
+		Node bitwise_not(Node a) { check_unary(a); ត្រឡប់ add(Fn::bitwise_not, a.sort(), {a}); }
+		Node unary_minus(Node a) { check_unary(a); ត្រឡប់ add(Fn::unary_minus, a.sort(), {a}); }
 		Node reduce_and(Node a) {
 			check_unary(a);
-			if(a.width() == 1)
-				return a;
-			return add(Fn::reduce_and, Sort(1), {a});
+			ប្រសិនបើ(a.width() == 1)
+				ត្រឡប់ a;
+			ត្រឡប់ add(Fn::reduce_and, Sort(1), {a});
 		}
 		Node reduce_or(Node a) {
 			check_unary(a);
-			if(a.width() == 1)
-				return a;
-			return add(Fn::reduce_or, Sort(1), {a});
+			ប្រសិនបើ(a.width() == 1)
+				ត្រឡប់ a;
+			ត្រឡប់ add(Fn::reduce_or, Sort(1), {a});
 		}
 		Node reduce_xor(Node a) {
 			check_unary(a);
-			if(a.width() == 1)
-				return a;
-			return add(Fn::reduce_xor, Sort(1), {a});
+			ប្រសិនបើ(a.width() == 1)
+				ត្រឡប់ a;
+			ត្រឡប់ add(Fn::reduce_xor, Sort(1), {a});
 		}
-		Node equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::equal, Sort(1), {a, b}); }
-		Node not_equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::not_equal, Sort(1), {a, b}); }
-		Node signed_greater_than(Node a, Node b) { check_basic_binary(a, b); return add(Fn::signed_greater_than, Sort(1), {a, b}); }
-		Node signed_greater_equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::signed_greater_equal, Sort(1), {a, b}); }
-		Node unsigned_greater_than(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_greater_than, Sort(1), {a, b}); }
-		Node unsigned_greater_equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_greater_equal, Sort(1), {a, b}); }
-		Node logical_shift_left(Node a, Node b) { check_shift(a, b); return add(Fn::logical_shift_left, a.sort(), {a, b}); }
-		Node logical_shift_right(Node a, Node b) { check_shift(a, b); return add(Fn::logical_shift_right, a.sort(), {a, b}); }
-		Node arithmetic_shift_right(Node a, Node b) { check_shift(a, b); return add(Fn::arithmetic_shift_right, a.sort(), {a, b}); }
+		Node equal(Node a, Node b) { check_basic_binary(a, b); ត្រឡប់ add(Fn::equal, Sort(1), {a, b}); }
+		Node not_equal(Node a, Node b) { check_basic_binary(a, b); ត្រឡប់ add(Fn::not_equal, Sort(1), {a, b}); }
+		Node signed_greater_than(Node a, Node b) { check_basic_binary(a, b); ត្រឡប់ add(Fn::signed_greater_than, Sort(1), {a, b}); }
+		Node signed_greater_equal(Node a, Node b) { check_basic_binary(a, b); ត្រឡប់ add(Fn::signed_greater_equal, Sort(1), {a, b}); }
+		Node unsigned_greater_than(Node a, Node b) { check_basic_binary(a, b); ត្រឡប់ add(Fn::unsigned_greater_than, Sort(1), {a, b}); }
+		Node unsigned_greater_equal(Node a, Node b) { check_basic_binary(a, b); ត្រឡប់ add(Fn::unsigned_greater_equal, Sort(1), {a, b}); }
+		Node logical_shift_left(Node a, Node b) { check_shift(a, b); ត្រឡប់ add(Fn::logical_shift_left, a.sort(), {a, b}); }
+		Node logical_shift_right(Node a, Node b) { check_shift(a, b); ត្រឡប់ add(Fn::logical_shift_right, a.sort(), {a, b}); }
+		Node arithmetic_shift_right(Node a, Node b) { check_shift(a, b); ត្រឡប់ add(Fn::arithmetic_shift_right, a.sort(), {a, b}); }
 		Node mux(Node a, Node b, Node s) {
 			log_assert(a.sort().is_signal() && a.sort() == b.sort() && s.sort() == Sort(1));
-			return add(Fn::mux, a.sort(), {a, b, s});
+			ត្រឡប់ add(Fn::mux, a.sort(), {a, b, s});
 		}
 		Node memory_read(Node mem, Node addr) {
 			log_assert(mem.sort().is_memory() && addr.sort().is_signal() && mem.sort().addr_width() == addr.sort().width());
-			return add(Fn::memory_read, Sort(mem.sort().data_width()), {mem, addr});
+			ត្រឡប់ add(Fn::memory_read, Sort(mem.sort().data_width()), {mem, addr});
 		}
 		Node memory_write(Node mem, Node addr, Node data) {
 			log_assert(mem.sort().is_memory() && addr.sort().is_signal() && data.sort().is_signal() &&
 				mem.sort().addr_width() == addr.sort().width() && mem.sort().data_width() == data.sort().width());
-			return add(Fn::memory_write, mem.sort(), {mem, addr, data});
+			ត្រឡប់ add(Fn::memory_write, mem.sort(), {mem, addr, data});
 		}
 		Node constant(RTLIL::Const value) {
-			int s = value.size();
-			return add(IR::NodeData(Fn::constant, std::move(value)), Sort(s), {});
+			ចំនួនគត់ s = value.size();
+			ត្រឡប់ add(IR::NodeData(Fn::constant, std::move(value)), Sort(s), {});
 		}
-		Node create_pending(int width) {
-			return add(Fn::buf, Sort(width), {});
+		Node create_pending(ចំនួនគត់ width) {
+			ត្រឡប់ add(Fn::buf, Sort(width), {});
 		}
 		void update_pending(Node node, Node value) {
 			log_assert(node._ref.function() == Fn::buf && node._ref.size() == 0);
@@ -557,35 +557,35 @@ namespace Functional {
 		}
 		IRInput &add_input(IdString name, IdString kind, Sort sort) {
 			auto [it, inserted] = _ir._inputs.emplace({name, kind}, IRInput(_ir, name, kind, std::move(sort)));
-			if (!inserted) log_error("input `%s` was re-defined\n", _ir.design->twines().str(name));
-			return it->second;
+			ប្រសិនបើ (!inserted) log_error("input `%s` was re-defined\n", _ir.design->twines().str(name));
+			ត្រឡប់ it->second;
 		}
 		IROutput &add_output(IdString name, IdString kind, Sort sort) {
 			auto [it, inserted] = _ir._outputs.emplace({name, kind}, IROutput(_ir, name, kind, std::move(sort)));
-			if (!inserted) log_error("output `%s` was re-defined\n", _ir.design->twines().str(name));
-			return it->second;
+			ប្រសិនបើ (!inserted) log_error("output `%s` was re-defined\n", _ir.design->twines().str(name));
+			ត្រឡប់ it->second;
 		}
 		IRState &add_state(IdString name, IdString kind, Sort sort) {
 			auto [it, inserted] = _ir._states.emplace({name, kind}, IRState(_ir, name, kind, std::move(sort)));
-			if (!inserted) log_error("state `%s` was re-defined\n", _ir.design->twines().str(name));
-			return it->second;
+			ប្រសិនបើ (!inserted) log_error("state `%s` was re-defined\n", _ir.design->twines().str(name));
+			ត្រឡប់ it->second;
 		}
 		Node value(IRInput const& input) {
-			return add(IR::NodeData(Fn::input, std::pair(input.name, input.kind)), input.sort, {});
+			ត្រឡប់ add(IR::NodeData(Fn::input, std::pair(input.name, input.kind)), input.sort, {});
 		}
 		Node value(IRState const& state) {
-			return add(IR::NodeData(Fn::state, std::pair(state.name, state.kind)), state.sort, {});
+			ត្រឡប់ add(IR::NodeData(Fn::state, std::pair(state.name, state.kind)), state.sort, {});
 		}
 		void suggest_name(Node node, IdString name) {
 			_ir.mutate(node).sparse_attr() = name;
 		}
 		YS_NAME_FWD_2ND_POOL(suggest_name, _ir.design->twines())
 	};
-	inline Factory IR::factory() { return Factory(*this); }
+	anta_hstha Factory IR::factory() { ត្រឡប់ Factory(*this); }
 	template<class Id> class Scope {
-	protected:
-		char substitution_character = '_';
-		virtual bool is_character_legal(char, int) = 0;
+	rak_sita:
+		var_na substitution_character = '_';
+		virtual bool is_character_legal(var_na, ចំនួនគត់) = 0;
 	private:
 		pool<std::string> _used_names;
 		dict<Id, std::string> _by_id;
@@ -595,49 +595,49 @@ namespace Functional {
 		}
 		template<typename N> std::string unique_name(const N &suggestion) {
 			std::string str = RTLIL::unescape_id(suggestion);
-			for(size_t i = 0; i < str.size(); i++)
-				if(!is_character_legal(str[i], i))
+			សម្រាប់(size_t i = 0; i < str.size(); i++)
+				ប្រសិនបើ(!is_character_legal(str[i], i))
 					str[i] = substitution_character;
-			if(_used_names.count(str) == 0) {
+			ប្រសិនបើ(_used_names.count(str) == 0) {
 				_used_names.insert(str);
-				return str;
+				ត្រឡប់ str;
 			}
-			for (int idx = 0 ; ; idx++){
+			សម្រាប់ (ចំនួនគត់ idx = 0 ; ; idx++){
 				std::string suffixed = str + "_" + std::to_string(idx);
-				if(_used_names.count(suffixed) == 0) {
+				ប្រសិនបើ(_used_names.count(suffixed) == 0) {
 					_used_names.insert(suffixed);
-					return suffixed;
+					ត្រឡប់ suffixed;
 				}
 			}
 		}
 		template<typename N> std::string operator()(Id id, const N &suggestion) {
 			auto it = _by_id.find(id);
-			if(it != _by_id.end())
-				return it->second;
+			ប្រសិនបើ(it != _by_id.end())
+				ត្រឡប់ it->second;
 			std::string str = unique_name(suggestion);
 			_by_id.insert({id, str});
-			return str;
+			ត្រឡប់ str;
 		}
 	};
 	class Writer {
 		std::ostream *os;
-		void print_impl(const char *fmt, vector<std::function<void()>>& fns);
+		void print_impl(const var_na *fmt, vector<std::function<void()>>& fns);
 	public:
 		Writer(std::ostream &os) : os(&os) {}
-		template<class T> Writer& operator <<(T&& arg) { *os << std::forward<T>(arg); return *this; }
+		template<class T> Writer& operator <<(T&& arg) { *os << std::forward<T>(arg); ត្រឡប់ *this; }
 		template<typename... Args>
-		void print(const char *fmt, Args&&... args)
+		void print(const var_na *fmt, Args&&... args)
 		{
 			vector<std::function<void()>> fns { [&]() { *this << args; }... };
 			print_impl(fmt, fns);
 		}
 		template<typename Fn, typename... Args>
-		void print_with(Fn fn, const char *fmt, Args&&... args)
+		void print_with(Fn fn, const var_na *fmt, Args&&... args)
 		{
 			vector<std::function<void()>> fns { [&]() {
-				if constexpr (std::is_invocable_v<Fn, Args>)
+				ប្រសិនបើ constexpr (std::is_invocable_v<Fn, Args>)
 					*this << fn(args);
-				else
+				បើមិនដូច្នេះ
 					*this << args; }...
 			};
 			print_impl(fmt, fns);
