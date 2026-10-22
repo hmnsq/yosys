@@ -17,184 +17,184 @@
  *
  */
 
-#include "kernel/satgen.h"
-#include "kernel/ff.h"
-#include "kernel/yosys_common.h"
+#अन्तर्भाव "kernel/satgen.h"
+#अन्तर्भाव "kernel/ff.h"
+#अन्तर्भाव "kernel/yosys_common.h"
 
 USING_YOSYS_NAMESPACE
 
-bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
+तार्किक SatGen::importCell(RTLIL::Cell *cell, पूर्णाङ्क timestep)
 {
-	bool arith_undef_handled = false;
-	bool is_arith_compare = cell->type.in(ID($lt), ID($le), ID($ge), ID($gt));
+	तार्किक arith_undef_handled = मिच्छ;
+	तार्किक is_arith_compare = cell->type.in(ID($lt), ID($le), ID($ge), ID($gt));
 
-	if (model_undef && (cell->type.in(ID($add), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor)) || is_arith_compare))
+	जइ (model_undef && (cell->type.in(ID($add), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor)) || is_arith_compare))
 	{
-		std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-		if (is_arith_compare)
-			extendSignalWidth(undef_a, undef_b, cell, true);
-		else
-			extendSignalWidth(undef_a, undef_b, undef_y, cell, true);
+		std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
+		std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+		जइ (is_arith_compare)
+			extendSignalWidth(undef_a, undef_b, cell, सच्च);
+		अण्णहा
+			extendSignalWidth(undef_a, undef_b, undef_y, cell, सच्च);
 
-		int undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
-		int undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
-		int undef_y_bit = ez->OR(undef_any_a, undef_any_b);
+		पूर्णाङ्क undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
+		पूर्णाङ्क undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
+		पूर्णाङ्क undef_y_bit = ez->OR(undef_any_a, undef_any_b);
 
-		if (cell->type.in(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
-			std::vector<int> b = importSigSpec(cell->getPort(ID::B), timestep);
+		जइ (cell->type.in(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
+			std::vector<पूर्णाङ्क> b = importSigSpec(cell->getPort(ID::B), timestep);
 			undef_y_bit = ez->OR(undef_y_bit, ez->NOT(ez->expression(ezSAT::OpOr, b)));
 		}
 
-		if (is_arith_compare) {
-			for (size_t i = 1; i < undef_y.size(); i++)
+		जइ (is_arith_compare) {
+			प्रति (size_t i = 1; i < undef_y.size(); i++)
 				ez->SET(ez->CONST_FALSE, undef_y.at(i));
 			ez->SET(undef_y_bit, undef_y.at(0));
-		} else {
-			std::vector<int> undef_y_bits(undef_y.size(), undef_y_bit);
+		} अण्णहा {
+			std::vector<पूर्णाङ्क> undef_y_bits(undef_y.size(), undef_y_bit);
 			ez->assume(ez->vec_eq(undef_y_bits, undef_y));
 		}
 
-		arith_undef_handled = true;
+		arith_undef_handled = सच्च;
 	}
 
-	if (cell->type.in(ID($_AND_), ID($_NAND_), ID($_OR_), ID($_NOR_), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_),
+	जइ (cell->type.in(ID($_AND_), ID($_NAND_), ID($_OR_), ID($_NOR_), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_),
 			ID($and), ID($or), ID($xor), ID($xnor), ID($add), ID($sub)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> b = importDefSigSpec(cell->getPort(ID::B), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 		extendSignalWidth(a, b, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(y.size()) : y;
 
-		if (cell->type.in(ID($and), ID($_AND_)))
+		जइ (cell->type.in(ID($and), ID($_AND_)))
 			ez->assume(ez->vec_eq(ez->vec_and(a, b), yy));
-		if (cell->type == ID($_NAND_))
+		जइ (cell->type == ID($_NAND_))
 			ez->assume(ez->vec_eq(ez->vec_not(ez->vec_and(a, b)), yy));
-		if (cell->type.in(ID($or), ID($_OR_)))
+		जइ (cell->type.in(ID($or), ID($_OR_)))
 			ez->assume(ez->vec_eq(ez->vec_or(a, b), yy));
-		if (cell->type == ID($_NOR_))
+		जइ (cell->type == ID($_NOR_))
 			ez->assume(ez->vec_eq(ez->vec_not(ez->vec_or(a, b)), yy));
-		if (cell->type.in(ID($xor), ID($_XOR_)))
+		जइ (cell->type.in(ID($xor), ID($_XOR_)))
 			ez->assume(ez->vec_eq(ez->vec_xor(a, b), yy));
-		if (cell->type.in(ID($xnor), ID($_XNOR_)))
+		जइ (cell->type.in(ID($xnor), ID($_XNOR_)))
 			ez->assume(ez->vec_eq(ez->vec_not(ez->vec_xor(a, b)), yy));
-		if (cell->type == ID($_ANDNOT_))
+		जइ (cell->type == ID($_ANDNOT_))
 			ez->assume(ez->vec_eq(ez->vec_and(a, ez->vec_not(b)), yy));
-		if (cell->type == ID($_ORNOT_))
+		जइ (cell->type == ID($_ORNOT_))
 			ez->assume(ez->vec_eq(ez->vec_or(a, ez->vec_not(b)), yy));
-		if (cell->type == ID($add))
+		जइ (cell->type == ID($add))
 			ez->assume(ez->vec_eq(ez->vec_add(a, b), yy));
-		if (cell->type == ID($sub))
+		जइ (cell->type == ID($sub))
 			ez->assume(ez->vec_eq(ez->vec_sub(a, b), yy));
 
-		if (model_undef && !arith_undef_handled)
+		जइ (model_undef && !arith_undef_handled)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidth(undef_a, undef_b, undef_y, cell, false);
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			extendSignalWidth(undef_a, undef_b, undef_y, cell, मिच्छ);
 
-			if (cell->type.in(ID($and), ID($_AND_), ID($_NAND_))) {
-				std::vector<int> a0 = ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a));
-				std::vector<int> b0 = ez->vec_and(ez->vec_not(b), ez->vec_not(undef_b));
-				std::vector<int> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a0, b0)));
+			जइ (cell->type.in(ID($and), ID($_AND_), ID($_NAND_))) {
+				std::vector<पूर्णाङ्क> a0 = ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a));
+				std::vector<पूर्णाङ्क> b0 = ez->vec_and(ez->vec_not(b), ez->vec_not(undef_b));
+				std::vector<पूर्णाङ्क> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a0, b0)));
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
-			else if (cell->type.in(ID($or), ID($_OR_), ID($_NOR_))) {
-				std::vector<int> a1 = ez->vec_and(a, ez->vec_not(undef_a));
-				std::vector<int> b1 = ez->vec_and(b, ez->vec_not(undef_b));
-				std::vector<int> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a1, b1)));
+			अण्णहा जइ (cell->type.in(ID($or), ID($_OR_), ID($_NOR_))) {
+				std::vector<पूर्णाङ्क> a1 = ez->vec_and(a, ez->vec_not(undef_a));
+				std::vector<पूर्णाङ्क> b1 = ez->vec_and(b, ez->vec_not(undef_b));
+				std::vector<पूर्णाङ्क> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a1, b1)));
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
-			else if (cell->type.in(ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_))) {
-				std::vector<int> yX = ez->vec_or(undef_a, undef_b);
+			अण्णहा जइ (cell->type.in(ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_))) {
+				std::vector<पूर्णाङ्क> yX = ez->vec_or(undef_a, undef_b);
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
-			else if (cell->type == ID($_ANDNOT_)) {
-				std::vector<int> a0 = ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a));
-				std::vector<int> b1 = ez->vec_and(b, ez->vec_not(undef_b));
-				std::vector<int> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a0, b1)));
+			अण्णहा जइ (cell->type == ID($_ANDNOT_)) {
+				std::vector<पूर्णाङ्क> a0 = ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a));
+				std::vector<पूर्णाङ्क> b1 = ez->vec_and(b, ez->vec_not(undef_b));
+				std::vector<पूर्णाङ्क> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a0, b1)));
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
 
-			else if (cell->type == ID($_ORNOT_)) {
-				std::vector<int> a1 = ez->vec_and(a, ez->vec_not(undef_a));
-				std::vector<int> b0 = ez->vec_and(ez->vec_not(b), ez->vec_not(undef_b));
-				std::vector<int> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a1, b0)));
+			अण्णहा जइ (cell->type == ID($_ORNOT_)) {
+				std::vector<पूर्णाङ्क> a1 = ez->vec_and(a, ez->vec_not(undef_a));
+				std::vector<पूर्णाङ्क> b0 = ez->vec_and(ez->vec_not(b), ez->vec_not(undef_b));
+				std::vector<पूर्णाङ्क> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a1, b0)));
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
-			else
+			अण्णहा
 				log_abort();
 
 			undefGating(y, yy, undef_y);
 		}
-		else if (model_undef)
+		अण्णहा जइ (model_undef)
 		{
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type.in(ID($_AOI3_), ID($_OAI3_), ID($_AOI4_), ID($_OAI4_)))
+	जइ (cell->type.in(ID($_AOI3_), ID($_OAI3_), ID($_AOI4_), ID($_OAI4_)))
 	{
-		bool aoi_mode = cell->type.in(ID($_AOI3_), ID($_AOI4_));
-		bool three_mode = cell->type.in(ID($_AOI3_), ID($_OAI3_));
+		तार्किक aoi_mode = cell->type.in(ID($_AOI3_), ID($_AOI4_));
+		तार्किक three_mode = cell->type.in(ID($_AOI3_), ID($_OAI3_));
 
-		int a = importDefSigSpec(cell->getPort(ID::A), timestep).at(0);
-		int b = importDefSigSpec(cell->getPort(ID::B), timestep).at(0);
-		int c = importDefSigSpec(cell->getPort(ID::C), timestep).at(0);
-		int d = three_mode ? (aoi_mode ? ez->CONST_TRUE : ez->CONST_FALSE) : importDefSigSpec(cell->getPort(ID::D), timestep).at(0);
-		int y = importDefSigSpec(cell->getPort(ID::Y), timestep).at(0);
-		int yy = model_undef ? ez->literal() : y;
+		पूर्णाङ्क a = importDefSigSpec(cell->getPort(ID::A), timestep).at(0);
+		पूर्णाङ्क b = importDefSigSpec(cell->getPort(ID::B), timestep).at(0);
+		पूर्णाङ्क c = importDefSigSpec(cell->getPort(ID::C), timestep).at(0);
+		पूर्णाङ्क d = three_mode ? (aoi_mode ? ez->CONST_TRUE : ez->CONST_FALSE) : importDefSigSpec(cell->getPort(ID::D), timestep).at(0);
+		पूर्णाङ्क y = importDefSigSpec(cell->getPort(ID::Y), timestep).at(0);
+		पूर्णाङ्क yy = model_undef ? ez->literal() : y;
 
-		if (cell->type.in(ID($_AOI3_), ID($_AOI4_)))
+		जइ (cell->type.in(ID($_AOI3_), ID($_AOI4_)))
 			ez->assume(ez->IFF(ez->NOT(ez->OR(ez->AND(a, b), ez->AND(c, d))), yy));
-		else
+		अण्णहा
 			ez->assume(ez->IFF(ez->NOT(ez->AND(ez->OR(a, b), ez->OR(c, d))), yy));
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			int undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep).at(0);
-			int undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep).at(0);
-			int undef_c = importUndefSigSpec(cell->getPort(ID::C), timestep).at(0);
-			int undef_d = three_mode ? ez->CONST_FALSE : importUndefSigSpec(cell->getPort(ID::D), timestep).at(0);
-			int undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep).at(0);
+			पूर्णाङ्क undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep).at(0);
+			पूर्णाङ्क undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep).at(0);
+			पूर्णाङ्क undef_c = importUndefSigSpec(cell->getPort(ID::C), timestep).at(0);
+			पूर्णाङ्क undef_d = three_mode ? ez->CONST_FALSE : importUndefSigSpec(cell->getPort(ID::D), timestep).at(0);
+			पूर्णाङ्क undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep).at(0);
 
-			if (aoi_mode)
+			जइ (aoi_mode)
 			{
-				int a0 = ez->AND(ez->NOT(a), ez->NOT(undef_a));
-				int b0 = ez->AND(ez->NOT(b), ez->NOT(undef_b));
-				int c0 = ez->AND(ez->NOT(c), ez->NOT(undef_c));
-				int d0 = ez->AND(ez->NOT(d), ez->NOT(undef_d));
+				पूर्णाङ्क a0 = ez->AND(ez->NOT(a), ez->NOT(undef_a));
+				पूर्णाङ्क b0 = ez->AND(ez->NOT(b), ez->NOT(undef_b));
+				पूर्णाङ्क c0 = ez->AND(ez->NOT(c), ez->NOT(undef_c));
+				पूर्णाङ्क d0 = ez->AND(ez->NOT(d), ez->NOT(undef_d));
 
-				int ab = ez->AND(a, b), cd = ez->AND(c, d);
-				int undef_ab = ez->AND(ez->OR(undef_a, undef_b), ez->NOT(ez->OR(a0, b0)));
-				int undef_cd = ez->AND(ez->OR(undef_c, undef_d), ez->NOT(ez->OR(c0, d0)));
+				पूर्णाङ्क ab = ez->AND(a, b), cd = ez->AND(c, d);
+				पूर्णाङ्क undef_ab = ez->AND(ez->OR(undef_a, undef_b), ez->NOT(ez->OR(a0, b0)));
+				पूर्णाङ्क undef_cd = ez->AND(ez->OR(undef_c, undef_d), ez->NOT(ez->OR(c0, d0)));
 
-				int ab1 = ez->AND(ab, ez->NOT(undef_ab));
-				int cd1 = ez->AND(cd, ez->NOT(undef_cd));
-				int yX = ez->AND(ez->OR(undef_ab, undef_cd), ez->NOT(ez->OR(ab1, cd1)));
+				पूर्णाङ्क ab1 = ez->AND(ab, ez->NOT(undef_ab));
+				पूर्णाङ्क cd1 = ez->AND(cd, ez->NOT(undef_cd));
+				पूर्णाङ्क yX = ez->AND(ez->OR(undef_ab, undef_cd), ez->NOT(ez->OR(ab1, cd1)));
 
 				ez->assume(ez->IFF(yX, undef_y));
 			}
-			else
+			अण्णहा
 			{
-				int a1 = ez->AND(a, ez->NOT(undef_a));
-				int b1 = ez->AND(b, ez->NOT(undef_b));
-				int c1 = ez->AND(c, ez->NOT(undef_c));
-				int d1 = ez->AND(d, ez->NOT(undef_d));
+				पूर्णाङ्क a1 = ez->AND(a, ez->NOT(undef_a));
+				पूर्णाङ्क b1 = ez->AND(b, ez->NOT(undef_b));
+				पूर्णाङ्क c1 = ez->AND(c, ez->NOT(undef_c));
+				पूर्णाङ्क d1 = ez->AND(d, ez->NOT(undef_d));
 
-				int ab = ez->OR(a, b), cd = ez->OR(c, d);
-				int undef_ab = ez->AND(ez->OR(undef_a, undef_b), ez->NOT(ez->OR(a1, b1)));
-				int undef_cd = ez->AND(ez->OR(undef_c, undef_d), ez->NOT(ez->OR(c1, d1)));
+				पूर्णाङ्क ab = ez->OR(a, b), cd = ez->OR(c, d);
+				पूर्णाङ्क undef_ab = ez->AND(ez->OR(undef_a, undef_b), ez->NOT(ez->OR(a1, b1)));
+				पूर्णाङ्क undef_cd = ez->AND(ez->OR(undef_c, undef_d), ez->NOT(ez->OR(c1, d1)));
 
-				int ab0 = ez->AND(ez->NOT(ab), ez->NOT(undef_ab));
-				int cd0 = ez->AND(ez->NOT(cd), ez->NOT(undef_cd));
-				int yX = ez->AND(ez->OR(undef_ab, undef_cd), ez->NOT(ez->OR(ab0, cd0)));
+				पूर्णाङ्क ab0 = ez->AND(ez->NOT(ab), ez->NOT(undef_ab));
+				पूर्णाङ्क cd0 = ez->AND(ez->NOT(cd), ez->NOT(undef_cd));
+				पूर्णाङ्क yX = ez->AND(ez->OR(undef_ab, undef_cd), ez->NOT(ez->OR(ab0, cd0)));
 
 				ez->assume(ez->IFF(yX, undef_y));
 			}
@@ -202,125 +202,125 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 			undefGating(y, yy, undef_y);
 		}
 
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type.in(ID($_NOT_), ID($not)))
+	जइ (cell->type.in(ID($_NOT_), ID($not)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 		extendSignalWidthUnary(a, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(y.size()) : y;
 		ez->assume(ez->vec_eq(ez->vec_not(a), yy));
 
-		if (model_undef) {
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidthUnary(undef_a, undef_y, cell, false);
+		जइ (model_undef) {
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			extendSignalWidthUnary(undef_a, undef_y, cell, मिच्छ);
 			ez->assume(ez->vec_eq(undef_a, undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($bweqx))
+	जइ (cell->type == ID($bweqx))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> b = importDefSigSpec(cell->getPort(ID::B), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 
-		std::vector<int> bweqx = ez->vec_not(ez->vec_xor(a, b));
+		std::vector<पूर्णाङ्क> bweqx = ez->vec_not(ez->vec_xor(a, b));
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
 
-			std::vector<int> both_undef = ez->vec_and(undef_a, undef_b);
-			std::vector<int> both_def = ez->vec_and(ez->vec_not(undef_a), ez->vec_not(undef_b));
+			std::vector<पूर्णाङ्क> both_undef = ez->vec_and(undef_a, undef_b);
+			std::vector<पूर्णाङ्क> both_def = ez->vec_and(ez->vec_not(undef_a), ez->vec_not(undef_b));
 
 			bweqx = ez->vec_or(both_undef, ez->vec_and(both_def, bweqx));
 
-			for (int yx : undef_y)
+			प्रति (पूर्णाङ्क yx : undef_y)
 				ez->assume(ez->NOT(yx));
 		}
 		ez->assume(ez->vec_eq(bweqx, y));
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type.in(ID($_MUX_), ID($mux), ID($_NMUX_), ID($bwmux)))
+	जइ (cell->type.in(ID($_MUX_), ID($mux), ID($_NMUX_), ID($bwmux)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> s = importDefSigSpec(cell->getPort(ID::S), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> b = importDefSigSpec(cell->getPort(ID::B), timestep);
+		std::vector<पूर्णाङ्क> s = importDefSigSpec(cell->getPort(ID::S), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
-		if (cell->type == ID($_NMUX_))
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(y.size()) : y;
+		जइ (cell->type == ID($_NMUX_))
 			ez->assume(ez->vec_eq(ez->vec_not(ez->vec_ite(s.at(0), b, a)), yy));
-		else if (cell->type == ID($bwmux))
+		अण्णहा जइ (cell->type == ID($bwmux))
 			ez->assume(ez->vec_eq(ez->vec_ite(s, b, a), yy));
-		else
+		अण्णहा
 			ez->assume(ez->vec_eq(ez->vec_ite(s.at(0), b, a), yy));
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_s = importUndefSigSpec(cell->getPort(ID::S), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
+			std::vector<पूर्णाङ्क> undef_s = importUndefSigSpec(cell->getPort(ID::S), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
 
-			std::vector<int> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
-			std::vector<int> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
-			std::vector<int> yX;
-			if (cell->type == ID($bwmux))
+			std::vector<पूर्णाङ्क> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
+			std::vector<पूर्णाङ्क> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
+			std::vector<पूर्णाङ्क> yX;
+			जइ (cell->type == ID($bwmux))
 				yX = ez->vec_ite(undef_s, undef_ab, ez->vec_ite(s, undef_b, undef_a));
-			else
+			अण्णहा
 				yX = ez->vec_ite(undef_s.at(0), undef_ab, ez->vec_ite(s.at(0), undef_b, undef_a));
 			ez->assume(ez->vec_eq(yX, undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($bmux))
+	जइ (cell->type == ID($bmux))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> s = importDefSigSpec(cell->getPort(ID::S), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		std::vector<int> undef_a, undef_s, undef_y;
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> s = importDefSigSpec(cell->getPort(ID::S), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> undef_a, undef_s, undef_y;
 
-		if (model_undef)
+		जइ (model_undef)
 		{
 			undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
 			undef_s = importUndefSigSpec(cell->getPort(ID::S), timestep);
 			undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
 		}
 
-		if (GetSize(s) == 0) {
+		जइ (GetSize(s) == 0) {
 			ez->vec_set(a, y);
-			if (model_undef)
+			जइ (model_undef)
 				ez->vec_set(undef_a, undef_y);
-		} else {
-			for (int i = GetSize(s)-1; i >= 0; i--)
+		} अण्णहा {
+			प्रति (पूर्णाङ्क i = GetSize(s)-1; i >= 0; i--)
 			{
-				std::vector<int> out = (i == 0) ? y : ez->vec_var(a.size() / 2);
-				std::vector<int> yy = model_undef ? ez->vec_var(out.size()) : out;
+				std::vector<पूर्णाङ्क> out = (i == 0) ? y : ez->vec_var(a.size() / 2);
+				std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(out.size()) : out;
 
-				std::vector<int> a0(a.begin(), a.begin() + a.size() / 2);
-				std::vector<int> a1(a.begin() + a.size() / 2, a.end());
+				std::vector<पूर्णाङ्क> a0(a.begin(), a.begin() + a.size() / 2);
+				std::vector<पूर्णाङ्क> a1(a.begin() + a.size() / 2, a.end());
 				ez->assume(ez->vec_eq(ez->vec_ite(s.at(i), a1, a0), yy));
 
-				if (model_undef)
+				जइ (model_undef)
 				{
-					std::vector<int> undef_out = (i == 0) ? undef_y : ez->vec_var(a.size() / 2);
-					std::vector<int> undef_a0(undef_a.begin(), undef_a.begin() + a.size() / 2);
-					std::vector<int> undef_a1(undef_a.begin() + a.size() / 2, undef_a.end());
-					std::vector<int> unequal_ab = ez->vec_not(ez->vec_iff(a0, a1));
-					std::vector<int> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a0, undef_a1));
-					std::vector<int> yX = ez->vec_ite(undef_s.at(i), undef_ab, ez->vec_ite(s.at(i), undef_a1, undef_a0));
+					std::vector<पूर्णाङ्क> undef_out = (i == 0) ? undef_y : ez->vec_var(a.size() / 2);
+					std::vector<पूर्णाङ्क> undef_a0(undef_a.begin(), undef_a.begin() + a.size() / 2);
+					std::vector<पूर्णाङ्क> undef_a1(undef_a.begin() + a.size() / 2, undef_a.end());
+					std::vector<पूर्णाङ्क> unequal_ab = ez->vec_not(ez->vec_iff(a0, a1));
+					std::vector<पूर्णाङ्क> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a0, undef_a1));
+					std::vector<पूर्णाङ्क> yX = ez->vec_ite(undef_s.at(i), undef_ab, ez->vec_ite(s.at(i), undef_a1, undef_a0));
 					ez->assume(ez->vec_eq(yX, undef_out));
 					undefGating(out, yy, undef_out);
 
@@ -330,92 +330,92 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 				a = out;
 			}
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($demux))
+	जइ (cell->type == ID($demux))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> s = importDefSigSpec(cell->getPort(ID::S), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
-		std::vector<int> undef_a, undef_s, undef_y;
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> s = importDefSigSpec(cell->getPort(ID::S), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::vector<पूर्णाङ्क> undef_a, undef_s, undef_y;
 
-		if (model_undef)
+		जइ (model_undef)
 		{
 			undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
 			undef_s = importUndefSigSpec(cell->getPort(ID::S), timestep);
 			undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
 		}
 
-		if (GetSize(s) == 0) {
+		जइ (GetSize(s) == 0) {
 			ez->vec_set(a, y);
-			if (model_undef)
+			जइ (model_undef)
 				ez->vec_set(undef_a, undef_y);
-		} else {
-			for (int i = 0; i < (1 << GetSize(s)); i++)
+		} अण्णहा {
+			प्रति (पूर्णाङ्क i = 0; i < (1 << GetSize(s)); i++)
 			{
-				std::vector<int> ss;
-				for (int j = 0; j < GetSize(s); j++) {
-					if (i & 1 << j)
-						ss.push_back(s[j]);
-					else
-						ss.push_back(ez->NOT(s[j]));
+				std::vector<पूर्णाङ्क> ss;
+				प्रति (पूर्णाङ्क j = 0; j < GetSize(s); j++) {
+					जइ (i & 1 << j)
+						ss.प्रक्षिप_back(s[j]);
+					अण्णहा
+						ss.प्रक्षिप_back(ez->NOT(s[j]));
 				}
-				int sss = ez->expression(ezSAT::OpAnd, ss);
+				पूर्णाङ्क sss = ez->expression(ezSAT::OpAnd, ss);
 
-				for (int j = 0; j < GetSize(a); j++) {
+				प्रति (पूर्णाङ्क j = 0; j < GetSize(a); j++) {
 					ez->SET(ez->AND(sss, a[j]), yy.at(i * GetSize(a) + j));
 				}
 
-				if (model_undef)
+				जइ (model_undef)
 				{
-					int s0 = ez->expression(ezSAT::OpOr, ez->vec_and(ez->vec_not(ss), ez->vec_not(undef_s)));
-					int us = ez->AND(ez->NOT(s0), ez->expression(ezSAT::OpOr, undef_s));
-					for (int j = 0; j < GetSize(a); j++) {
-						int a0 = ez->AND(ez->NOT(a[j]), ez->NOT(undef_a[j]));
-						int yX = ez->AND(ez->OR(us, undef_a[j]), ez->NOT(ez->OR(s0, a0)));
+					पूर्णाङ्क s0 = ez->expression(ezSAT::OpOr, ez->vec_and(ez->vec_not(ss), ez->vec_not(undef_s)));
+					पूर्णाङ्क us = ez->AND(ez->NOT(s0), ez->expression(ezSAT::OpOr, undef_s));
+					प्रति (पूर्णाङ्क j = 0; j < GetSize(a); j++) {
+						पूर्णाङ्क a0 = ez->AND(ez->NOT(a[j]), ez->NOT(undef_a[j]));
+						पूर्णाङ्क yX = ez->AND(ez->OR(us, undef_a[j]), ez->NOT(ez->OR(s0, a0)));
 						ez->SET(yX, undef_y.at(i * GetSize(a) + j));
 					}
 				}
 			}
-			if (model_undef)
+			जइ (model_undef)
 				undefGating(y, yy, undef_y);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($pmux))
+	जइ (cell->type == ID($pmux))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> s = importDefSigSpec(cell->getPort(ID::S), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> b = importDefSigSpec(cell->getPort(ID::B), timestep);
+		std::vector<पूर्णाङ्क> s = importDefSigSpec(cell->getPort(ID::S), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(y.size()) : y;
 
-		std::vector<int> tmp = a;
-		for (size_t i = 0; i < s.size(); i++) {
-			std::vector<int> part_of_b(b.begin()+i*a.size(), b.begin()+(i+1)*a.size());
+		std::vector<पूर्णाङ्क> tmp = a;
+		प्रति (size_t i = 0; i < s.size(); i++) {
+			std::vector<पूर्णाङ्क> part_of_b(b.begin()+i*a.size(), b.begin()+(i+1)*a.size());
 			tmp = ez->vec_ite(s.at(i), part_of_b, tmp);
 		}
 		ez->assume(ez->vec_eq(tmp, yy));
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_s = importUndefSigSpec(cell->getPort(ID::S), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
+			std::vector<पूर्णाङ्क> undef_s = importUndefSigSpec(cell->getPort(ID::S), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
 
-			int all_undef = ez->CONST_FALSE;
-			int found_active = ez->CONST_FALSE;
+			पूर्णाङ्क all_undef = ez->CONST_FALSE;
+			पूर्णाङ्क found_active = ez->CONST_FALSE;
 
-			std::vector<int> undef_tmp = undef_a;
+			std::vector<पूर्णाङ्क> undef_tmp = undef_a;
 
-			for (size_t i = 0; i < s.size(); i++)
+			प्रति (size_t i = 0; i < s.size(); i++)
 			{
-				std::vector<int> part_of_undef_b(undef_b.begin()+i*a.size(), undef_b.begin()+(i+1)*a.size());
+				std::vector<पूर्णाङ्क> part_of_undef_b(undef_b.begin()+i*a.size(), undef_b.begin()+(i+1)*a.size());
 
 				undef_tmp = ez->vec_ite(s.at(i), part_of_undef_b, undef_tmp);
 				all_undef = ez->OR(all_undef, undef_s.at(i));
@@ -423,420 +423,420 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 				found_active = ez->OR(found_active, s.at(i));
 			}
 
-			undef_tmp = ez->vec_or(undef_tmp, std::vector<int>(a.size(), all_undef));
+			undef_tmp = ez->vec_or(undef_tmp, std::vector<पूर्णाङ्क>(a.size(), all_undef));
 
 			ez->assume(ez->vec_eq(undef_tmp, undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type.in(ID($pos), ID($buf), ID($neg)))
+	जइ (cell->type.in(ID($pos), ID($buf), ID($neg)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 		extendSignalWidthUnary(a, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(y.size()) : y;
 
-		if (cell->type.in(ID($pos), ID($buf))) {
+		जइ (cell->type.in(ID($pos), ID($buf))) {
 			ez->assume(ez->vec_eq(a, yy));
-		} else {
-			std::vector<int> zero(a.size(), ez->CONST_FALSE);
+		} अण्णहा {
+			std::vector<पूर्णाङ्क> zero(a.size(), ez->CONST_FALSE);
 			ez->assume(ez->vec_eq(ez->vec_sub(zero, a), yy));
 		}
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
 			extendSignalWidthUnary(undef_a, undef_y, cell);
 
-			if (cell->type.in(ID($pos), ID($buf))) {
+			जइ (cell->type.in(ID($pos), ID($buf))) {
 				ez->assume(ez->vec_eq(undef_a, undef_y));
-			} else {
-				int undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
-				std::vector<int> undef_y_bits(undef_y.size(), undef_any_a);
+			} अण्णहा {
+				पूर्णाङ्क undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
+				std::vector<पूर्णाङ्क> undef_y_bits(undef_y.size(), undef_any_a);
 				ez->assume(ez->vec_eq(undef_y_bits, undef_y));
 			}
 
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool), ID($logic_not)))
+	जइ (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool), ID($logic_not)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(y.size()) : y;
 
-		if (cell->type == ID($reduce_and))
+		जइ (cell->type == ID($reduce_and))
 			ez->SET(ez->expression(ez->OpAnd, a), yy.at(0));
-		if (cell->type.in(ID($reduce_or), ID($reduce_bool)))
+		जइ (cell->type.in(ID($reduce_or), ID($reduce_bool)))
 			ez->SET(ez->expression(ez->OpOr, a), yy.at(0));
-		if (cell->type == ID($reduce_xor))
+		जइ (cell->type == ID($reduce_xor))
 			ez->SET(ez->expression(ez->OpXor, a), yy.at(0));
-		if (cell->type == ID($reduce_xnor))
+		जइ (cell->type == ID($reduce_xnor))
 			ez->SET(ez->NOT(ez->expression(ez->OpXor, a)), yy.at(0));
-		if (cell->type == ID($logic_not))
+		जइ (cell->type == ID($logic_not))
 			ez->SET(ez->NOT(ez->expression(ez->OpOr, a)), yy.at(0));
-		for (size_t i = 1; i < y.size(); i++)
+		प्रति (size_t i = 1; i < y.size(); i++)
 			ez->SET(ez->CONST_FALSE, yy.at(i));
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			int aX = ez->expression(ezSAT::OpOr, undef_a);
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			पूर्णाङ्क aX = ez->expression(ezSAT::OpOr, undef_a);
 
-			if (cell->type == ID($reduce_and)) {
-				int a0 = ez->expression(ezSAT::OpOr, ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a)));
+			जइ (cell->type == ID($reduce_and)) {
+				पूर्णाङ्क a0 = ez->expression(ezSAT::OpOr, ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a)));
 				ez->assume(ez->IFF(ez->AND(ez->NOT(a0), aX), undef_y.at(0)));
 			}
-			else if (cell->type.in(ID($reduce_or), ID($reduce_bool), ID($logic_not))) {
-				int a1 = ez->expression(ezSAT::OpOr, ez->vec_and(a, ez->vec_not(undef_a)));
+			अण्णहा जइ (cell->type.in(ID($reduce_or), ID($reduce_bool), ID($logic_not))) {
+				पूर्णाङ्क a1 = ez->expression(ezSAT::OpOr, ez->vec_and(a, ez->vec_not(undef_a)));
 				ez->assume(ez->IFF(ez->AND(ez->NOT(a1), aX), undef_y.at(0)));
 			}
-			else if (cell->type.in(ID($reduce_xor), ID($reduce_xnor))) {
+			अण्णहा जइ (cell->type.in(ID($reduce_xor), ID($reduce_xnor))) {
 				ez->assume(ez->IFF(aX, undef_y.at(0)));
-			} else
+			} अण्णहा
 				log_abort();
 
-			for (size_t i = 1; i < undef_y.size(); i++)
+			प्रति (size_t i = 1; i < undef_y.size(); i++)
 				ez->SET(ez->CONST_FALSE, undef_y.at(i));
 
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type.in(ID($logic_and), ID($logic_or)))
+	जइ (cell->type.in(ID($logic_and), ID($logic_or)))
 	{
-		std::vector<int> vec_a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> vec_b = importDefSigSpec(cell->getPort(ID::B), timestep);
+		std::vector<पूर्णाङ्क> vec_a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> vec_b = importDefSigSpec(cell->getPort(ID::B), timestep);
 
-		int a = ez->expression(ez->OpOr, vec_a);
-		int b = ez->expression(ez->OpOr, vec_b);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		पूर्णाङ्क a = ez->expression(ez->OpOr, vec_a);
+		पूर्णाङ्क b = ez->expression(ez->OpOr, vec_b);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(y.size()) : y;
 
-		if (cell->type == ID($logic_and))
+		जइ (cell->type == ID($logic_and))
 			ez->SET(ez->expression(ez->OpAnd, a, b), yy.at(0));
-		else
+		अण्णहा
 			ez->SET(ez->expression(ez->OpOr, a, b), yy.at(0));
-		for (size_t i = 1; i < y.size(); i++)
+		प्रति (size_t i = 1; i < y.size(); i++)
 			ez->SET(ez->CONST_FALSE, yy.at(i));
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
 
-			int a0 = ez->NOT(ez->OR(ez->expression(ezSAT::OpOr, vec_a), ez->expression(ezSAT::OpOr, undef_a)));
-			int b0 = ez->NOT(ez->OR(ez->expression(ezSAT::OpOr, vec_b), ez->expression(ezSAT::OpOr, undef_b)));
-			int a1 = ez->expression(ezSAT::OpOr, ez->vec_and(vec_a, ez->vec_not(undef_a)));
-			int b1 = ez->expression(ezSAT::OpOr, ez->vec_and(vec_b, ez->vec_not(undef_b)));
-			int aX = ez->expression(ezSAT::OpOr, undef_a);
-			int bX = ez->expression(ezSAT::OpOr, undef_b);
+			पूर्णाङ्क a0 = ez->NOT(ez->OR(ez->expression(ezSAT::OpOr, vec_a), ez->expression(ezSAT::OpOr, undef_a)));
+			पूर्णाङ्क b0 = ez->NOT(ez->OR(ez->expression(ezSAT::OpOr, vec_b), ez->expression(ezSAT::OpOr, undef_b)));
+			पूर्णाङ्क a1 = ez->expression(ezSAT::OpOr, ez->vec_and(vec_a, ez->vec_not(undef_a)));
+			पूर्णाङ्क b1 = ez->expression(ezSAT::OpOr, ez->vec_and(vec_b, ez->vec_not(undef_b)));
+			पूर्णाङ्क aX = ez->expression(ezSAT::OpOr, undef_a);
+			पूर्णाङ्क bX = ez->expression(ezSAT::OpOr, undef_b);
 
-			if (cell->type == ID($logic_and))
+			जइ (cell->type == ID($logic_and))
 				ez->SET(ez->AND(ez->OR(aX, bX), ez->NOT(ez->AND(a1, b1)), ez->NOT(a0), ez->NOT(b0)), undef_y.at(0));
-			else if (cell->type == ID($logic_or))
+			अण्णहा जइ (cell->type == ID($logic_or))
 				ez->SET(ez->AND(ez->OR(aX, bX), ez->NOT(ez->AND(a0, b0)), ez->NOT(a1), ez->NOT(b1)), undef_y.at(0));
-			else
+			अण्णहा
 				log_abort();
 
-			for (size_t i = 1; i < undef_y.size(); i++)
+			प्रति (size_t i = 1; i < undef_y.size(); i++)
 				ez->SET(ez->CONST_FALSE, undef_y.at(i));
 
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type.in(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt)))
+	जइ (cell->type.in(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt)))
 	{
-		bool is_signed = cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool();
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		तार्किक is_signed = cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool();
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> b = importDefSigSpec(cell->getPort(ID::B), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 		extendSignalWidth(a, b, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(y.size()) : y;
 
-		if (model_undef && cell->type.in(ID($eqx), ID($nex))) {
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			extendSignalWidth(undef_a, undef_b, cell, true);
+		जइ (model_undef && cell->type.in(ID($eqx), ID($nex))) {
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
+			extendSignalWidth(undef_a, undef_b, cell, सच्च);
 			a = ez->vec_or(a, undef_a);
 			b = ez->vec_or(b, undef_b);
 		}
 
-		if (cell->type == ID($lt))
+		जइ (cell->type == ID($lt))
 			ez->SET(is_signed ? ez->vec_lt_signed(a, b) : ez->vec_lt_unsigned(a, b), yy.at(0));
-		if (cell->type == ID($le))
+		जइ (cell->type == ID($le))
 			ez->SET(is_signed ? ez->vec_le_signed(a, b) : ez->vec_le_unsigned(a, b), yy.at(0));
-		if (cell->type.in(ID($eq), ID($eqx)))
+		जइ (cell->type.in(ID($eq), ID($eqx)))
 			ez->SET(ez->vec_eq(a, b), yy.at(0));
-		if (cell->type.in(ID($ne), ID($nex)))
+		जइ (cell->type.in(ID($ne), ID($nex)))
 			ez->SET(ez->vec_ne(a, b), yy.at(0));
-		if (cell->type == ID($ge))
+		जइ (cell->type == ID($ge))
 			ez->SET(is_signed ? ez->vec_ge_signed(a, b) : ez->vec_ge_unsigned(a, b), yy.at(0));
-		if (cell->type == ID($gt))
+		जइ (cell->type == ID($gt))
 			ez->SET(is_signed ? ez->vec_gt_signed(a, b) : ez->vec_gt_unsigned(a, b), yy.at(0));
-		for (size_t i = 1; i < y.size(); i++)
+		प्रति (size_t i = 1; i < y.size(); i++)
 			ez->SET(ez->CONST_FALSE, yy.at(i));
 
-		if (model_undef && cell->type.in(ID($eqx), ID($nex)))
+		जइ (model_undef && cell->type.in(ID($eqx), ID($nex)))
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidth(undef_a, undef_b, cell, true);
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			extendSignalWidth(undef_a, undef_b, cell, सच्च);
 
-			if (cell->type == ID($eqx))
+			जइ (cell->type == ID($eqx))
 				yy.at(0) = ez->AND(yy.at(0), ez->vec_eq(undef_a, undef_b));
-			else
+			अण्णहा
 				yy.at(0) = ez->OR(yy.at(0), ez->vec_ne(undef_a, undef_b));
 
-			for (size_t i = 0; i < y.size(); i++)
+			प्रति (size_t i = 0; i < y.size(); i++)
 				ez->SET(ez->CONST_FALSE, undef_y.at(i));
 
 			ez->assume(ez->vec_eq(y, yy));
 		}
-		else if (model_undef && cell->type.in(ID($eq), ID($ne)))
+		अण्णहा जइ (model_undef && cell->type.in(ID($eq), ID($ne)))
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidth(undef_a, undef_b, cell, true);
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			extendSignalWidth(undef_a, undef_b, cell, सच्च);
 
-			int undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
-			int undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
-			int undef_any = ez->OR(undef_any_a, undef_any_b);
+			पूर्णाङ्क undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
+			पूर्णाङ्क undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
+			पूर्णाङ्क undef_any = ez->OR(undef_any_a, undef_any_b);
 
-			std::vector<int> masked_a_bits = ez->vec_or(a, ez->vec_or(undef_a, undef_b));
-			std::vector<int> masked_b_bits = ez->vec_or(b, ez->vec_or(undef_a, undef_b));
+			std::vector<पूर्णाङ्क> masked_a_bits = ez->vec_or(a, ez->vec_or(undef_a, undef_b));
+			std::vector<पूर्णाङ्क> masked_b_bits = ez->vec_or(b, ez->vec_or(undef_a, undef_b));
 
-			int masked_ne = ez->vec_ne(masked_a_bits, masked_b_bits);
-			int undef_y_bit = ez->AND(undef_any, ez->NOT(masked_ne));
+			पूर्णाङ्क masked_ne = ez->vec_ne(masked_a_bits, masked_b_bits);
+			पूर्णाङ्क undef_y_bit = ez->AND(undef_any, ez->NOT(masked_ne));
 
-			for (size_t i = 1; i < undef_y.size(); i++)
+			प्रति (size_t i = 1; i < undef_y.size(); i++)
 				ez->SET(ez->CONST_FALSE, undef_y.at(i));
 			ez->SET(undef_y_bit, undef_y.at(0));
 
 			undefGating(y, yy, undef_y);
 		}
-		else
+		अण्णहा
 		{
-			if (model_undef) {
-				std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			जइ (model_undef) {
+				std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
 				undefGating(y, yy, undef_y);
 			}
 			log_assert(!model_undef || arith_undef_handled);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx)))
+	जइ (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> b = importDefSigSpec(cell->getPort(ID::B), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 
-		int extend_bit = ez->CONST_FALSE;
+		पूर्णाङ्क extend_bit = ez->CONST_FALSE;
 
-		if (cell->parameters[ID::A_SIGNED].as_bool())
+		जइ (cell->parameters[ID::A_SIGNED].as_bool())
 			extend_bit = a.back();
 
-		while (y.size() < a.size())
-			y.push_back(ez->literal());
-		while (y.size() > a.size())
-			a.push_back(extend_bit);
+		जाव (y.size() < a.size())
+			y.प्रक्षिप_back(ez->literal());
+		जाव (y.size() > a.size())
+			a.प्रक्षिप_back(extend_bit);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
-		std::vector<int> shifted_a;
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::vector<पूर्णाङ्क> shifted_a;
 
-		if (cell->type.in( ID($shl), ID($sshl)))
-			shifted_a = ez->vec_shift_left(a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+		जइ (cell->type.in( ID($shl), ID($sshl)))
+			shifted_a = ez->vec_shift_वामः(a, b, मिच्छ, ez->CONST_FALSE, ez->CONST_FALSE);
 
-		if (cell->type == ID($shr))
-			shifted_a = ez->vec_shift_right(a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+		जइ (cell->type == ID($shr))
+			shifted_a = ez->vec_shift_दक्षिणः(a, b, मिच्छ, ez->CONST_FALSE, ez->CONST_FALSE);
 
-		if (cell->type == ID($sshr))
-			shifted_a = ez->vec_shift_right(a, b, false, cell->parameters[ID::A_SIGNED].as_bool() ? a.back() : ez->CONST_FALSE, ez->CONST_FALSE);
+		जइ (cell->type == ID($sshr))
+			shifted_a = ez->vec_shift_दक्षिणः(a, b, मिच्छ, cell->parameters[ID::A_SIGNED].as_bool() ? a.back() : ez->CONST_FALSE, ez->CONST_FALSE);
 
-		if (cell->type.in(ID($shift), ID($shiftx)))
-			shifted_a = ez->vec_shift_right(a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
+		जइ (cell->type.in(ID($shift), ID($shiftx)))
+			shifted_a = ez->vec_shift_दक्षिणः(a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
 
 		ez->assume(ez->vec_eq(shifted_a, yy));
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			std::vector<int> undef_a_shifted;
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::vector<पूर्णाङ्क> undef_a_shifted;
 
 			extend_bit = cell->type == ID($shiftx) ? ez->CONST_TRUE : ez->CONST_FALSE;
-			if (cell->parameters[ID::A_SIGNED].as_bool())
+			जइ (cell->parameters[ID::A_SIGNED].as_bool())
 				extend_bit = undef_a.back();
 
-			while (undef_y.size() < undef_a.size())
-				undef_y.push_back(ez->literal());
-			while (undef_y.size() > undef_a.size())
-				undef_a.push_back(extend_bit);
+			जाव (undef_y.size() < undef_a.size())
+				undef_y.प्रक्षिप_back(ez->literal());
+			जाव (undef_y.size() > undef_a.size())
+				undef_a.प्रक्षिप_back(extend_bit);
 
-			if (cell->type.in(ID($shl), ID($sshl)))
-				undef_a_shifted = ez->vec_shift_left(undef_a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+			जइ (cell->type.in(ID($shl), ID($sshl)))
+				undef_a_shifted = ez->vec_shift_वामः(undef_a, b, मिच्छ, ez->CONST_FALSE, ez->CONST_FALSE);
 
-			if (cell->type == ID($shr))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+			जइ (cell->type == ID($shr))
+				undef_a_shifted = ez->vec_shift_दक्षिणः(undef_a, b, मिच्छ, ez->CONST_FALSE, ez->CONST_FALSE);
 
-			if (cell->type == ID($sshr))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, false, cell->parameters[ID::A_SIGNED].as_bool() ? undef_a.back() : ez->CONST_FALSE, ez->CONST_FALSE);
+			जइ (cell->type == ID($sshr))
+				undef_a_shifted = ez->vec_shift_दक्षिणः(undef_a, b, मिच्छ, cell->parameters[ID::A_SIGNED].as_bool() ? undef_a.back() : ez->CONST_FALSE, ez->CONST_FALSE);
 
-			if (cell->type == ID($shift))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
+			जइ (cell->type == ID($shift))
+				undef_a_shifted = ez->vec_shift_दक्षिणः(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
 
-			if (cell->type == ID($shiftx))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_TRUE, ez->CONST_TRUE);
+			जइ (cell->type == ID($shiftx))
+				undef_a_shifted = ez->vec_shift_दक्षिणः(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_TRUE, ez->CONST_TRUE);
 
-			int undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
-			std::vector<int> undef_all_y_bits(undef_y.size(), undef_any_b);
+			पूर्णाङ्क undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
+			std::vector<पूर्णाङ्क> undef_all_y_bits(undef_y.size(), undef_any_b);
 			ez->assume(ez->vec_eq(ez->vec_or(undef_a_shifted, undef_all_y_bits), undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($mul))
+	जइ (cell->type == ID($mul))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> b = importDefSigSpec(cell->getPort(ID::B), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 		extendSignalWidth(a, b, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(y.size()) : y;
 
-		std::vector<int> tmp(a.size(), ez->CONST_FALSE);
-		for (int i = 0; i < int(a.size()); i++)
+		std::vector<पूर्णाङ्क> tmp(a.size(), ez->CONST_FALSE);
+		प्रति (पूर्णाङ्क i = 0; i < पूर्णाङ्क(a.size()); i++)
 		{
-			std::vector<int> shifted_a(a.size(), ez->CONST_FALSE);
-			for (int j = i; j < int(a.size()); j++)
+			std::vector<पूर्णाङ्क> shifted_a(a.size(), ez->CONST_FALSE);
+			प्रति (पूर्णाङ्क j = i; j < पूर्णाङ्क(a.size()); j++)
 				shifted_a.at(j) = a.at(j-i);
 			tmp = ez->vec_ite(b.at(i), ez->vec_add(tmp, shifted_a), tmp);
 		}
 		ez->assume(ez->vec_eq(tmp, yy));
 
-		if (model_undef) {
+		जइ (model_undef) {
 			log_assert(arith_undef_handled);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type.in(ID($macc), ID($macc_v2)))
+	जइ (cell->type.in(ID($macc), ID($macc_v2)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 
 		Macc macc;
 		macc.from_cell(cell);
 
-		std::vector<int> tmp(GetSize(y), ez->CONST_FALSE);
+		std::vector<पूर्णाङ्क> tmp(GetSize(y), ez->CONST_FALSE);
 
-		for (auto &port : macc.terms)
+		प्रति (auto &port : macc.terms)
 		{
-			std::vector<int> in_a = importDefSigSpec(port.in_a, timestep);
-			std::vector<int> in_b = importDefSigSpec(port.in_b, timestep);
+			std::vector<पूर्णाङ्क> in_a = importDefSigSpec(port.in_a, timestep);
+			std::vector<पूर्णाङ्क> in_b = importDefSigSpec(port.in_b, timestep);
 
-			while (GetSize(in_a) < GetSize(y))
-				in_a.push_back(port.is_signed && !in_a.empty() ? in_a.back() : ez->CONST_FALSE);
+			जाव (GetSize(in_a) < GetSize(y))
+				in_a.प्रक्षिप_back(port.is_signed && !in_a.empty() ? in_a.back() : ez->CONST_FALSE);
 			in_a.resize(GetSize(y));
 
-			if (GetSize(in_b))
+			जइ (GetSize(in_b))
 			{
-				while (GetSize(in_b) < GetSize(y))
-					in_b.push_back(port.is_signed && !in_b.empty() ? in_b.back() : ez->CONST_FALSE);
+				जाव (GetSize(in_b) < GetSize(y))
+					in_b.प्रक्षिप_back(port.is_signed && !in_b.empty() ? in_b.back() : ez->CONST_FALSE);
 				in_b.resize(GetSize(y));
 
-				for (int i = 0; i < GetSize(in_b); i++) {
-					std::vector<int> shifted_a(in_a.size(), ez->CONST_FALSE);
-					for (int j = i; j < int(in_a.size()); j++)
+				प्रति (पूर्णाङ्क i = 0; i < GetSize(in_b); i++) {
+					std::vector<पूर्णाङ्क> shifted_a(in_a.size(), ez->CONST_FALSE);
+					प्रति (पूर्णाङ्क j = i; j < पूर्णाङ्क(in_a.size()); j++)
 						shifted_a.at(j) = in_a.at(j-i);
-					if (port.do_subtract)
+					जइ (port.do_subtract)
 						tmp = ez->vec_ite(in_b.at(i), ez->vec_sub(tmp, shifted_a), tmp);
-					else
+					अण्णहा
 						tmp = ez->vec_ite(in_b.at(i), ez->vec_add(tmp, shifted_a), tmp);
 				}
 			}
-			else
+			अण्णहा
 			{
-				if (port.do_subtract)
+				जइ (port.do_subtract)
 					tmp = ez->vec_sub(tmp, in_a);
-				else
+				अण्णहा
 					tmp = ez->vec_add(tmp, in_a);
 			}
 		}
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_c;
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
+			std::vector<पूर्णाङ्क> undef_c;
 
-			if (cell->type == ID($macc_v2))
+			जइ (cell->type == ID($macc_v2))
 				undef_c = importUndefSigSpec(cell->getPort(ID::C), timestep);
 
-			int undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
-			int undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
-			int undef_any_c = ez->expression(ezSAT::OpOr, undef_c);
-			int undef_any = ez->OR(undef_any_a, ez->OR(undef_any_b, undef_any_c));
+			पूर्णाङ्क undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
+			पूर्णाङ्क undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
+			पूर्णाङ्क undef_any_c = ez->expression(ezSAT::OpOr, undef_c);
+			पूर्णाङ्क undef_any = ez->OR(undef_any_a, ez->OR(undef_any_b, undef_any_c));
 
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			ez->assume(ez->vec_eq(undef_y, std::vector<int>(GetSize(y), undef_any)));
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			ez->assume(ez->vec_eq(undef_y, std::vector<पूर्णाङ्क>(GetSize(y), undef_any)));
 
 			undefGating(y, tmp, undef_y);
 		}
-		else
+		अण्णहा
 			ez->assume(ez->vec_eq(y, tmp));
 
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type.in(ID($div), ID($mod), ID($divfloor), ID($modfloor)))
+	जइ (cell->type.in(ID($div), ID($mod), ID($divfloor), ID($modfloor)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> b = importDefSigSpec(cell->getPort(ID::B), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 		extendSignalWidth(a, b, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(y.size()) : y;
 
-		std::vector<int> a_u, b_u;
-		if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
+		std::vector<पूर्णाङ्क> a_u, b_u;
+		जइ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
 			a_u = ez->vec_ite(a.back(), ez->vec_neg(a), a);
 			b_u = ez->vec_ite(b.back(), ez->vec_neg(b), b);
-		} else {
+		} अण्णहा {
 			a_u = a;
 			b_u = b;
 		}
 
-		std::vector<int> chain_buf = a_u;
-		std::vector<int> y_u(a_u.size(), ez->CONST_FALSE);
-		for (int i = int(a.size())-1; i >= 0; i--)
+		std::vector<पूर्णाङ्क> chain_buf = a_u;
+		std::vector<पूर्णाङ्क> y_u(a_u.size(), ez->CONST_FALSE);
+		प्रति (पूर्णाङ्क i = पूर्णाङ्क(a.size())-1; i >= 0; i--)
 		{
-			chain_buf.insert(chain_buf.end(), chain_buf.size(), ez->CONST_FALSE);
+			chain_buf.निवेशय(chain_buf.end(), chain_buf.size(), ez->CONST_FALSE);
 
-			std::vector<int> b_shl(i, ez->CONST_FALSE);
-			b_shl.insert(b_shl.end(), b_u.begin(), b_u.end());
-			b_shl.insert(b_shl.end(), chain_buf.size()-b_shl.size(), ez->CONST_FALSE);
+			std::vector<पूर्णाङ्क> b_shl(i, ez->CONST_FALSE);
+			b_shl.निवेशय(b_shl.end(), b_u.begin(), b_u.end());
+			b_shl.निवेशय(b_shl.end(), chain_buf.size()-b_shl.size(), ez->CONST_FALSE);
 
 			y_u.at(i) = ez->vec_ge_unsigned(chain_buf, b_shl);
 			chain_buf = ez->vec_ite(y_u.at(i), ez->vec_sub(chain_buf, b_shl), chain_buf);
@@ -844,29 +844,29 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 			chain_buf.erase(chain_buf.begin() + a_u.size(), chain_buf.end());
 		}
 
-		std::vector<int> y_tmp = ignore_div_by_zero ? yy : ez->vec_var(y.size());
+		std::vector<पूर्णाङ्क> y_tmp = ignore_div_by_zero ? yy : ez->vec_var(y.size());
 
 		// modulo calculation
-		std::vector<int> modulo_trunc;
-		int floored_eq_trunc;
-		if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
+		std::vector<पूर्णाङ्क> modulo_trunc;
+		पूर्णाङ्क floored_eq_trunc;
+		जइ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
 			modulo_trunc = ez->vec_ite(a.back(), ez->vec_neg(chain_buf), chain_buf);
 			// floor == trunc when sgn(a) == sgn(b) or trunc == 0
 			floored_eq_trunc = ez->OR(ez->IFF(a.back(), b.back()), ez->NOT(ez->expression(ezSAT::OpOr, modulo_trunc)));
-		} else {
+		} अण्णहा {
 			modulo_trunc = chain_buf;
 			floored_eq_trunc = ez->CONST_TRUE;
 		}
 
-		if (cell->type == ID($div)) {
-			if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
+		जइ (cell->type == ID($div)) {
+			जइ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
 				ez->assume(ez->vec_eq(y_tmp, ez->vec_ite(ez->XOR(a.back(), b.back()), ez->vec_neg(y_u), y_u)));
-			else
+			अण्णहा
 				ez->assume(ez->vec_eq(y_tmp, y_u));
-		} else if (cell->type == ID($mod)) {
+		} अण्णहा जइ (cell->type == ID($mod)) {
 			ez->assume(ez->vec_eq(y_tmp, modulo_trunc));
-		} else if (cell->type == ID($divfloor)) {
-			if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
+		} अण्णहा जइ (cell->type == ID($divfloor)) {
+			जइ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
 				ez->assume(ez->vec_eq(y_tmp, ez->vec_ite(
 					ez->XOR(a.back(), b.back()),
 					ez->vec_neg(ez->vec_ite(
@@ -876,70 +876,70 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 					)),
 					y_u
 				)));
-			else
+			अण्णहा
 				ez->assume(ez->vec_eq(y_tmp, y_u));
-		} else if (cell->type == ID($modfloor)) {
+		} अण्णहा जइ (cell->type == ID($modfloor)) {
 			ez->assume(ez->vec_eq(y_tmp, ez->vec_ite(floored_eq_trunc, modulo_trunc, ez->vec_add(modulo_trunc, b))));
 		}
 
-		if (ignore_div_by_zero) {
+		जइ (ignore_div_by_zero) {
 			ez->assume(ez->expression(ezSAT::OpOr, b));
-		} else {
-			std::vector<int> div_zero_result;
-			if (cell->type.in(ID($div), ID($divfloor))) {
-				if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
-					std::vector<int> all_ones(y.size(), ez->CONST_TRUE);
-					std::vector<int> only_first_one(y.size(), ez->CONST_FALSE);
+		} अण्णहा {
+			std::vector<पूर्णाङ्क> div_zero_result;
+			जइ (cell->type.in(ID($div), ID($divfloor))) {
+				जइ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
+					std::vector<पूर्णाङ्क> all_ones(y.size(), ez->CONST_TRUE);
+					std::vector<पूर्णाङ्क> only_first_one(y.size(), ez->CONST_FALSE);
 					only_first_one.at(0) = ez->CONST_TRUE;
 					div_zero_result = ez->vec_ite(a.back(), only_first_one, all_ones);
-				} else {
-					div_zero_result.insert(div_zero_result.end(), cell->getPort(ID::A).size(), ez->CONST_TRUE);
-					div_zero_result.insert(div_zero_result.end(), y.size() - div_zero_result.size(), ez->CONST_FALSE);
+				} अण्णहा {
+					div_zero_result.निवेशय(div_zero_result.end(), cell->getPort(ID::A).size(), ez->CONST_TRUE);
+					div_zero_result.निवेशय(div_zero_result.end(), y.size() - div_zero_result.size(), ez->CONST_FALSE);
 				}
-			} else if (cell->type.in(ID($mod), ID($modfloor))) {
+			} अण्णहा जइ (cell->type.in(ID($mod), ID($modfloor))) {
 				// a mod 0 = a
-				int copy_a_bits = min(cell->getPort(ID::A).size(), cell->getPort(ID::B).size());
-				div_zero_result.insert(div_zero_result.end(), a.begin(), a.begin() + copy_a_bits);
-				if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
-					div_zero_result.insert(div_zero_result.end(), y.size() - div_zero_result.size(), div_zero_result.back());
-				else
-					div_zero_result.insert(div_zero_result.end(), y.size() - div_zero_result.size(), ez->CONST_FALSE);
+				पूर्णाङ्क copy_a_bits = min(cell->getPort(ID::A).size(), cell->getPort(ID::B).size());
+				div_zero_result.निवेशय(div_zero_result.end(), a.begin(), a.begin() + copy_a_bits);
+				जइ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
+					div_zero_result.निवेशय(div_zero_result.end(), y.size() - div_zero_result.size(), div_zero_result.back());
+				अण्णहा
+					div_zero_result.निवेशय(div_zero_result.end(), y.size() - div_zero_result.size(), ez->CONST_FALSE);
 			}
 			ez->assume(ez->vec_eq(yy, ez->vec_ite(ez->expression(ezSAT::OpOr, b), y_tmp, div_zero_result)));
 		}
 
-		if (model_undef) {
+		जइ (model_undef) {
 			log_assert(arith_undef_handled);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($lut))
+	जइ (cell->type == ID($lut))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 
-		std::vector<int> lut;
-		for (auto bit : cell->getParam(ID::LUT))
-			lut.push_back(bit == State::S1 ? ez->CONST_TRUE : ez->CONST_FALSE);
-		while (GetSize(lut) < (1 << GetSize(a)))
-			lut.push_back(ez->CONST_FALSE);
+		std::vector<पूर्णाङ्क> lut;
+		प्रति (auto bit : cell->getParam(ID::LUT))
+			lut.प्रक्षिप_back(bit == State::S1 ? ez->CONST_TRUE : ez->CONST_FALSE);
+		जाव (GetSize(lut) < (1 << GetSize(a)))
+			lut.प्रक्षिप_back(ez->CONST_FALSE);
 		lut.resize(1 << GetSize(a));
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> t(lut), u(GetSize(t), ez->CONST_FALSE);
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> t(lut), u(GetSize(t), ez->CONST_FALSE);
 
-			for (int i = GetSize(a)-1; i >= 0; i--)
+			प्रति (पूर्णाङ्क i = GetSize(a)-1; i >= 0; i--)
 			{
-				std::vector<int> t0(t.begin(), t.begin() + GetSize(t)/2);
-				std::vector<int> t1(t.begin() + GetSize(t)/2, t.end());
+				std::vector<पूर्णाङ्क> t0(t.begin(), t.begin() + GetSize(t)/2);
+				std::vector<पूर्णाङ्क> t1(t.begin() + GetSize(t)/2, t.end());
 
-				std::vector<int> u0(u.begin(), u.begin() + GetSize(u)/2);
-				std::vector<int> u1(u.begin() + GetSize(u)/2, u.end());
+				std::vector<पूर्णाङ्क> u0(u.begin(), u.begin() + GetSize(u)/2);
+				std::vector<पूर्णाङ्क> u1(u.begin() + GetSize(u)/2, u.end());
 
 				t = ez->vec_ite(a[i], t1, t0);
 				u = ez->vec_ite(undef_a[i], ez->vec_or(ez->vec_xor(t0, t1), ez->vec_or(u0, u1)), ez->vec_ite(a[i], u1, u0));
@@ -950,130 +950,130 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 			undefGating(y, t, u);
 			ez->assume(ez->vec_eq(importUndefSigSpec(cell->getPort(ID::Y), timestep), u));
 		}
-		else
+		अण्णहा
 		{
-			std::vector<int> t = lut;
-			for (int i = GetSize(a)-1; i >= 0; i--)
+			std::vector<पूर्णाङ्क> t = lut;
+			प्रति (पूर्णाङ्क i = GetSize(a)-1; i >= 0; i--)
 			{
-				std::vector<int> t0(t.begin(), t.begin() + GetSize(t)/2);
-				std::vector<int> t1(t.begin() + GetSize(t)/2, t.end());
+				std::vector<पूर्णाङ्क> t0(t.begin(), t.begin() + GetSize(t)/2);
+				std::vector<पूर्णाङ्क> t1(t.begin() + GetSize(t)/2, t.end());
 				t = ez->vec_ite(a[i], t1, t0);
 			}
 
 			log_assert(GetSize(t) == 1);
 			ez->assume(ez->vec_eq(y, t));
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($sop))
+	जइ (cell->type == ID($sop))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		int y = importDefSigSpec(cell->getPort(ID::Y), timestep).at(0);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		पूर्णाङ्क y = importDefSigSpec(cell->getPort(ID::Y), timestep).at(0);
 
-		int width = cell->getParam(ID::WIDTH).as_int();
-		int depth = cell->getParam(ID::DEPTH).as_int();
+		पूर्णाङ्क width = cell->getParam(ID::WIDTH).as_int();
+		पूर्णाङ्क depth = cell->getParam(ID::DEPTH).as_int();
 
 		vector<State> table_raw = cell->getParam(ID::TABLE).to_bits();
-		while (GetSize(table_raw) < 2*width*depth)
-			table_raw.push_back(State::S0);
+		जाव (GetSize(table_raw) < 2*width*depth)
+			table_raw.प्रक्षिप_back(State::S0);
 
-		vector<vector<int>> table(depth);
+		vector<vector<पूर्णाङ्क>> table(depth);
 
-		for (int i = 0; i < depth; i++)
-		for (int j = 0; j < width; j++)
+		प्रति (पूर्णाङ्क i = 0; i < depth; i++)
+		प्रति (पूर्णाङ्क j = 0; j < width; j++)
 		{
-			bool pat0 = (table_raw[2*width*i + 2*j + 0] == State::S1);
-			bool pat1 = (table_raw[2*width*i + 2*j + 1] == State::S1);
+			तार्किक pat0 = (table_raw[2*width*i + 2*j + 0] == State::S1);
+			तार्किक pat1 = (table_raw[2*width*i + 2*j + 1] == State::S1);
 
-			if (pat0 && !pat1)
-				table.at(i).push_back(0);
-			else if (!pat0 && pat1)
-				table.at(i).push_back(1);
-			else
-				table.at(i).push_back(-1);
+			जइ (pat0 && !pat1)
+				table.at(i).प्रक्षिप_back(0);
+			अण्णहा जइ (!pat0 && pat1)
+				table.at(i).प्रक्षिप_back(1);
+			अण्णहा
+				table.at(i).प्रक्षिप_back(-1);
 		}
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			std::vector<int> products, undef_products;
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			int undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep).at(0);
+			std::vector<पूर्णाङ्क> products, undef_products;
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			पूर्णाङ्क undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep).at(0);
 
-			for (int i = 0; i < depth; i++)
+			प्रति (पूर्णाङ्क i = 0; i < depth; i++)
 			{
-				std::vector<int> cmp_a, cmp_ua, cmp_b;
+				std::vector<पूर्णाङ्क> cmp_a, cmp_ua, cmp_b;
 
-				for (int j = 0; j < width; j++)
-					if (table.at(i).at(j) >= 0) {
-						cmp_a.push_back(a.at(j));
-						cmp_ua.push_back(undef_a.at(j));
-						cmp_b.push_back(table.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
+				प्रति (पूर्णाङ्क j = 0; j < width; j++)
+					जइ (table.at(i).at(j) >= 0) {
+						cmp_a.प्रक्षिप_back(a.at(j));
+						cmp_ua.प्रक्षिप_back(undef_a.at(j));
+						cmp_b.प्रक्षिप_back(table.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
 					}
 
-				std::vector<int> masked_a = ez->vec_or(cmp_a, cmp_ua);
-				std::vector<int> masked_b = ez->vec_or(cmp_b, cmp_ua);
+				std::vector<पूर्णाङ्क> masked_a = ez->vec_or(cmp_a, cmp_ua);
+				std::vector<पूर्णाङ्क> masked_b = ez->vec_or(cmp_b, cmp_ua);
 
-				int masked_eq = ez->vec_eq(masked_a, masked_b);
-				int any_undef = ez->expression(ezSAT::OpOr, cmp_ua);
+				पूर्णाङ्क masked_eq = ez->vec_eq(masked_a, masked_b);
+				पूर्णाङ्क any_undef = ez->expression(ezSAT::OpOr, cmp_ua);
 
-				undef_products.push_back(ez->AND(any_undef, masked_eq));
-				products.push_back(ez->AND(ez->NOT(any_undef), masked_eq));
+				undef_products.प्रक्षिप_back(ez->AND(any_undef, masked_eq));
+				products.प्रक्षिप_back(ez->AND(ez->NOT(any_undef), masked_eq));
 			}
 
-			int yy = ez->expression(ezSAT::OpOr, products);
+			पूर्णाङ्क yy = ez->expression(ezSAT::OpOr, products);
 			ez->SET(undef_y, ez->AND(ez->NOT(yy), ez->expression(ezSAT::OpOr, undef_products)));
 			undefGating(y, yy, undef_y);
 		}
-		else
+		अण्णहा
 		{
-			std::vector<int> products;
+			std::vector<पूर्णाङ्क> products;
 
-			for (int i = 0; i < depth; i++)
+			प्रति (पूर्णाङ्क i = 0; i < depth; i++)
 			{
-				std::vector<int> cmp_a, cmp_b;
+				std::vector<पूर्णाङ्क> cmp_a, cmp_b;
 
-				for (int j = 0; j < width; j++)
-					if (table.at(i).at(j) >= 0) {
-						cmp_a.push_back(a.at(j));
-						cmp_b.push_back(table.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
+				प्रति (पूर्णाङ्क j = 0; j < width; j++)
+					जइ (table.at(i).at(j) >= 0) {
+						cmp_a.प्रक्षिप_back(a.at(j));
+						cmp_b.प्रक्षिप_back(table.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
 					}
 
-				products.push_back(ez->vec_eq(cmp_a, cmp_b));
+				products.प्रक्षिप_back(ez->vec_eq(cmp_a, cmp_b));
 			}
 
 			ez->SET(y, ez->expression(ezSAT::OpOr, products));
 		}
 
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($fa))
+	जइ (cell->type == ID($fa))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> c = importDefSigSpec(cell->getPort(ID::C), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		std::vector<int> x = importDefSigSpec(cell->getPort(ID::X), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> b = importDefSigSpec(cell->getPort(ID::B), timestep);
+		std::vector<पूर्णाङ्क> c = importDefSigSpec(cell->getPort(ID::C), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> x = importDefSigSpec(cell->getPort(ID::X), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
-		std::vector<int> xx = model_undef ? ez->vec_var(x.size()) : x;
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::vector<पूर्णाङ्क> xx = model_undef ? ez->vec_var(x.size()) : x;
 
-		std::vector<int> t1 = ez->vec_xor(a, b);
+		std::vector<पूर्णाङ्क> t1 = ez->vec_xor(a, b);
 		ez->assume(ez->vec_eq(yy, ez->vec_xor(t1, c)));
 
-		std::vector<int> t2 = ez->vec_and(a, b);
-		std::vector<int> t3 = ez->vec_and(c, t1);
+		std::vector<पूर्णाङ्क> t2 = ez->vec_and(a, b);
+		std::vector<पूर्णाङ्क> t3 = ez->vec_and(c, t1);
 		ez->assume(ez->vec_eq(xx, ez->vec_or(t2, t3)));
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_c = importUndefSigSpec(cell->getPort(ID::C), timestep);
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
+			std::vector<पूर्णाङ्क> undef_c = importUndefSigSpec(cell->getPort(ID::C), timestep);
 
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			std::vector<int> undef_x = importUndefSigSpec(cell->getPort(ID::X), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::vector<पूर्णाङ्क> undef_x = importUndefSigSpec(cell->getPort(ID::X), timestep);
 
 			ez->assume(ez->vec_eq(undef_y, ez->vec_or(ez->vec_or(undef_a, undef_b), undef_c)));
 			ez->assume(ez->vec_eq(undef_x, undef_y));
@@ -1081,95 +1081,95 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 			undefGating(y, yy, undef_y);
 			undefGating(x, xx, undef_x);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($lcu))
+	जइ (cell->type == ID($lcu))
 	{
-		std::vector<int> p = importDefSigSpec(cell->getPort(ID::P), timestep);
-		std::vector<int> g = importDefSigSpec(cell->getPort(ID::G), timestep);
-		std::vector<int> ci = importDefSigSpec(cell->getPort(ID::CI), timestep);
-		std::vector<int> co = importDefSigSpec(cell->getPort(ID::CO), timestep);
+		std::vector<पूर्णाङ्क> p = importDefSigSpec(cell->getPort(ID::P), timestep);
+		std::vector<पूर्णाङ्क> g = importDefSigSpec(cell->getPort(ID::G), timestep);
+		std::vector<पूर्णाङ्क> ci = importDefSigSpec(cell->getPort(ID::CI), timestep);
+		std::vector<पूर्णाङ्क> co = importDefSigSpec(cell->getPort(ID::CO), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(co.size()) : co;
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(co.size()) : co;
 
-		for (int i = 0; i < GetSize(co); i++)
+		प्रति (पूर्णाङ्क i = 0; i < GetSize(co); i++)
 			ez->SET(yy[i], ez->OR(g[i], ez->AND(p[i], i ? yy[i-1] : ci[0])));
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			std::vector<int> undef_p = importUndefSigSpec(cell->getPort(ID::P), timestep);
-			std::vector<int> undef_g = importUndefSigSpec(cell->getPort(ID::G), timestep);
-			std::vector<int> undef_ci = importUndefSigSpec(cell->getPort(ID::CI), timestep);
-			std::vector<int> undef_co = importUndefSigSpec(cell->getPort(ID::CO), timestep);
+			std::vector<पूर्णाङ्क> undef_p = importUndefSigSpec(cell->getPort(ID::P), timestep);
+			std::vector<पूर्णाङ्क> undef_g = importUndefSigSpec(cell->getPort(ID::G), timestep);
+			std::vector<पूर्णाङ्क> undef_ci = importUndefSigSpec(cell->getPort(ID::CI), timestep);
+			std::vector<पूर्णाङ्क> undef_co = importUndefSigSpec(cell->getPort(ID::CO), timestep);
 
-			int undef_any_p = ez->expression(ezSAT::OpOr, undef_p);
-			int undef_any_g = ez->expression(ezSAT::OpOr, undef_g);
-			int undef_any_ci = ez->expression(ezSAT::OpOr, undef_ci);
-			int undef_co_bit = ez->OR(undef_any_p, undef_any_g, undef_any_ci);
+			पूर्णाङ्क undef_any_p = ez->expression(ezSAT::OpOr, undef_p);
+			पूर्णाङ्क undef_any_g = ez->expression(ezSAT::OpOr, undef_g);
+			पूर्णाङ्क undef_any_ci = ez->expression(ezSAT::OpOr, undef_ci);
+			पूर्णाङ्क undef_co_bit = ez->OR(undef_any_p, undef_any_g, undef_any_ci);
 
-			std::vector<int> undef_co_bits(undef_co.size(), undef_co_bit);
+			std::vector<पूर्णाङ्क> undef_co_bits(undef_co.size(), undef_co_bit);
 			ez->assume(ez->vec_eq(undef_co_bits, undef_co));
 
 			undefGating(co, yy, undef_co);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($alu))
+	जइ (cell->type == ID($alu))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		std::vector<int> x = importDefSigSpec(cell->getPort(ID::X), timestep);
-		std::vector<int> ci = importDefSigSpec(cell->getPort(ID::CI), timestep);
-		std::vector<int> bi = importDefSigSpec(cell->getPort(ID::BI), timestep);
-		std::vector<int> co = importDefSigSpec(cell->getPort(ID::CO), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> b = importDefSigSpec(cell->getPort(ID::B), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> x = importDefSigSpec(cell->getPort(ID::X), timestep);
+		std::vector<पूर्णाङ्क> ci = importDefSigSpec(cell->getPort(ID::CI), timestep);
+		std::vector<पूर्णाङ्क> bi = importDefSigSpec(cell->getPort(ID::BI), timestep);
+		std::vector<पूर्णाङ्क> co = importDefSigSpec(cell->getPort(ID::CO), timestep);
 
 		extendSignalWidth(a, b, y, cell);
 		extendSignalWidth(a, b, x, cell);
 		extendSignalWidth(a, b, co, cell);
 
-		std::vector<int> def_y = model_undef ? ez->vec_var(y.size()) : y;
-		std::vector<int> def_x = model_undef ? ez->vec_var(x.size()) : x;
-		std::vector<int> def_co = model_undef ? ez->vec_var(co.size()) : co;
+		std::vector<पूर्णाङ्क> def_y = model_undef ? ez->vec_var(y.size()) : y;
+		std::vector<पूर्णाङ्क> def_x = model_undef ? ez->vec_var(x.size()) : x;
+		std::vector<पूर्णाङ्क> def_co = model_undef ? ez->vec_var(co.size()) : co;
 
 		log_assert(GetSize(y) == GetSize(x));
 		log_assert(GetSize(y) == GetSize(co));
 		log_assert(GetSize(ci) == 1);
 		log_assert(GetSize(bi) == 1);
 
-		for (int i = 0; i < GetSize(y); i++)
+		प्रति (पूर्णाङ्क i = 0; i < GetSize(y); i++)
 		{
-			int s1 = a.at(i), s2 = ez->XOR(b.at(i), bi.at(0)), s3 = i ? co.at(i-1) : ci.at(0);
+			पूर्णाङ्क s1 = a.at(i), s2 = ez->XOR(b.at(i), bi.at(0)), s3 = i ? co.at(i-1) : ci.at(0);
 			ez->SET(def_x.at(i), ez->XOR(s1, s2));
 			ez->SET(def_y.at(i), ez->XOR(def_x.at(i), s3));
 			ez->SET(def_co.at(i), ez->OR(ez->AND(s1, s2), ez->AND(s1, s3), ez->AND(s2, s3)));
 		}
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_ci = importUndefSigSpec(cell->getPort(ID::CI), timestep);
-			std::vector<int> undef_bi = importUndefSigSpec(cell->getPort(ID::BI), timestep);
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
+			std::vector<पूर्णाङ्क> undef_ci = importUndefSigSpec(cell->getPort(ID::CI), timestep);
+			std::vector<पूर्णाङ्क> undef_bi = importUndefSigSpec(cell->getPort(ID::BI), timestep);
 
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			std::vector<int> undef_x = importUndefSigSpec(cell->getPort(ID::X), timestep);
-			std::vector<int> undef_co = importUndefSigSpec(cell->getPort(ID::CO), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::vector<पूर्णाङ्क> undef_x = importUndefSigSpec(cell->getPort(ID::X), timestep);
+			std::vector<पूर्णाङ्क> undef_co = importUndefSigSpec(cell->getPort(ID::CO), timestep);
 
 			extendSignalWidth(undef_a, undef_b, undef_y, cell);
 			extendSignalWidth(undef_a, undef_b, undef_x, cell);
 			extendSignalWidth(undef_a, undef_b, undef_co, cell);
 
-			std::vector<int> all_inputs_undef;
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_a.begin(), undef_a.end());
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_b.begin(), undef_b.end());
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_ci.begin(), undef_ci.end());
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_bi.begin(), undef_bi.end());
-			int undef_any = ez->expression(ezSAT::OpOr, all_inputs_undef);
+			std::vector<पूर्णाङ्क> all_inputs_undef;
+			all_inputs_undef.निवेशय(all_inputs_undef.end(), undef_a.begin(), undef_a.end());
+			all_inputs_undef.निवेशय(all_inputs_undef.end(), undef_b.begin(), undef_b.end());
+			all_inputs_undef.निवेशय(all_inputs_undef.end(), undef_ci.begin(), undef_ci.end());
+			all_inputs_undef.निवेशय(all_inputs_undef.end(), undef_bi.begin(), undef_bi.end());
+			पूर्णाङ्क undef_any = ez->expression(ezSAT::OpOr, all_inputs_undef);
 
-			for (int i = 0; i < GetSize(undef_y); i++) {
+			प्रति (पूर्णाङ्क i = 0; i < GetSize(undef_y); i++) {
 				ez->SET(undef_y.at(i), undef_any);
 				ez->SET(undef_x.at(i), ez->OR(undef_a.at(i), undef_b.at(i), undef_bi.at(0)));
 				ez->SET(undef_co.at(i), undef_any);
@@ -1179,18 +1179,18 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 			undefGating(x, def_x, undef_x);
 			undefGating(co, def_co, undef_co);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($slice))
+	जइ (cell->type == ID($slice))
 	{
 		RTLIL::SigSpec a = cell->getPort(ID::A);
 		RTLIL::SigSpec y = cell->getPort(ID::Y);
 		ez->assume(signals_eq(a.extract(cell->parameters.at(ID::OFFSET).as_int(), y.size()), y, timestep));
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($concat))
+	जइ (cell->type == ID($concat))
 	{
 		RTLIL::SigSpec a = cell->getPort(ID::A);
 		RTLIL::SigSpec b = cell->getPort(ID::B);
@@ -1200,211 +1200,211 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 		ab.append(b);
 
 		ez->assume(signals_eq(ab, y, timestep));
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (timestep > 0 && (cell->is_builtin_ff() || cell->type == ID($anyinit)))
+	जइ (timestep > 0 && (cell->is_builtin_ff() || cell->type == ID($anyinit)))
 	{
 		FfData ff(nullptr, cell);
 
 		// Latches and FFs with async inputs are not supported — use clk2fflogic or async2sync first.
-		if (ff.has_aload || ff.has_arst || ff.has_sr)
-			return false;
+		जइ (ff.has_aload || ff.has_arst || ff.has_sr)
+			प्रत्यागम मिच्छ;
 
-		if (timestep == 1)
+		जइ (timestep == 1)
 		{
 			initial_state.add((*sigmap)(cell->getPort(ID::Q)));
-			if (model_undef && def_formal) {
-				std::vector<int> undef_q = importUndefSigSpec(cell->getPort(ID::Q), timestep);
+			जइ (model_undef && def_formal) {
+				std::vector<पूर्णाङ्क> undef_q = importUndefSigSpec(cell->getPort(ID::Q), timestep);
 				ez->assume(ez->NOT(ez->vec_reduce_or(undef_q)));
 			}
 		}
-		else
+		अण्णहा
 		{
-			std::vector<int> d = importDefSigSpec(cell->getPort(ID::D), timestep-1);
-			std::vector<int> undef_d;
-			if (model_undef)
+			std::vector<पूर्णाङ्क> d = importDefSigSpec(cell->getPort(ID::D), timestep-1);
+			std::vector<पूर्णाङ्क> undef_d;
+			जइ (model_undef)
 				undef_d = importUndefSigSpec(cell->getPort(ID::D), timestep-1);
-			if (ff.has_srst && ff.has_ce && ff.ce_over_srst) {
-				int srst = importDefSigSpec(ff.sig_srst, timestep-1).at(0);
-				std::vector<int> rval = importDefSigSpec(ff.val_srst, timestep-1);
-				int undef_srst = -1;
-				std::vector<int> undef_rval;
-				if (model_undef) {
+			जइ (ff.has_srst && ff.has_ce && ff.ce_over_srst) {
+				पूर्णाङ्क srst = importDefSigSpec(ff.sig_srst, timestep-1).at(0);
+				std::vector<पूर्णाङ्क> rval = importDefSigSpec(ff.val_srst, timestep-1);
+				पूर्णाङ्क undef_srst = -1;
+				std::vector<पूर्णाङ्क> undef_rval;
+				जइ (model_undef) {
 					undef_srst = importUndefSigSpec(ff.sig_srst, timestep-1).at(0);
 					undef_rval = importUndefSigSpec(ff.val_srst, timestep-1);
 				}
-				if (ff.pol_srst)
+				जइ (ff.pol_srst)
 					std::tie(d, undef_d) = mux(srst, undef_srst, d, undef_d, rval, undef_rval);
-				else
+				अण्णहा
 					std::tie(d, undef_d) = mux(srst, undef_srst, rval, undef_rval, d, undef_d);
 			}
-			if (ff.has_ce) {
-				int ce = importDefSigSpec(ff.sig_ce, timestep-1).at(0);
-				std::vector<int> old_q = importDefSigSpec(ff.sig_q, timestep-1);
-				int undef_ce = -1;
-				std::vector<int> undef_old_q;
-				if (model_undef) {
+			जइ (ff.has_ce) {
+				पूर्णाङ्क ce = importDefSigSpec(ff.sig_ce, timestep-1).at(0);
+				std::vector<पूर्णाङ्क> old_q = importDefSigSpec(ff.sig_q, timestep-1);
+				पूर्णाङ्क undef_ce = -1;
+				std::vector<पूर्णाङ्क> undef_old_q;
+				जइ (model_undef) {
 					undef_ce = importUndefSigSpec(ff.sig_ce, timestep-1).at(0);
 					undef_old_q = importUndefSigSpec(ff.sig_q, timestep-1);
 				}
-				if (ff.pol_ce)
+				जइ (ff.pol_ce)
 					std::tie(d, undef_d) = mux(ce, undef_ce, old_q, undef_old_q, d, undef_d);
-				else
+				अण्णहा
 					std::tie(d, undef_d) = mux(ce, undef_ce, d, undef_d, old_q, undef_old_q);
 			}
-			if (ff.has_srst && !(ff.has_ce && ff.ce_over_srst)) {
-				int srst = importDefSigSpec(ff.sig_srst, timestep-1).at(0);
-				std::vector<int> rval = importDefSigSpec(ff.val_srst, timestep-1);
-				int undef_srst = -1;
-				std::vector<int> undef_rval;
-				if (model_undef) {
+			जइ (ff.has_srst && !(ff.has_ce && ff.ce_over_srst)) {
+				पूर्णाङ्क srst = importDefSigSpec(ff.sig_srst, timestep-1).at(0);
+				std::vector<पूर्णाङ्क> rval = importDefSigSpec(ff.val_srst, timestep-1);
+				पूर्णाङ्क undef_srst = -1;
+				std::vector<पूर्णाङ्क> undef_rval;
+				जइ (model_undef) {
 					undef_srst = importUndefSigSpec(ff.sig_srst, timestep-1).at(0);
 					undef_rval = importUndefSigSpec(ff.val_srst, timestep-1);
 				}
-				if (ff.pol_srst)
+				जइ (ff.pol_srst)
 					std::tie(d, undef_d) = mux(srst, undef_srst, d, undef_d, rval, undef_rval);
-				else
+				अण्णहा
 					std::tie(d, undef_d) = mux(srst, undef_srst, rval, undef_rval, d, undef_d);
 			}
-			std::vector<int> q = importDefSigSpec(cell->getPort(ID::Q), timestep);
+			std::vector<पूर्णाङ्क> q = importDefSigSpec(cell->getPort(ID::Q), timestep);
 
-			std::vector<int> qq = model_undef ? ez->vec_var(q.size()) : q;
+			std::vector<पूर्णाङ्क> qq = model_undef ? ez->vec_var(q.size()) : q;
 			ez->assume(ez->vec_eq(d, qq));
 
-			if (model_undef)
+			जइ (model_undef)
 			{
-				std::vector<int> undef_q = importUndefSigSpec(cell->getPort(ID::Q), timestep);
+				std::vector<पूर्णाङ्क> undef_q = importUndefSigSpec(cell->getPort(ID::Q), timestep);
 
 				ez->assume(ez->vec_eq(undef_d, undef_q));
 				undefGating(q, qq, undef_q);
 			}
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($anyconst))
+	जइ (cell->type == ID($anyconst))
 	{
-		if (timestep < 2) {
-			if (model_undef && def_formal) {
-				std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+		जइ (timestep < 2) {
+			जइ (model_undef && def_formal) {
+				std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
 				ez->assume(ez->NOT(ez->vec_reduce_or(undef_y)));
 			}
-			return true;
+			प्रत्यागम सच्च;
 		}
 
-		std::vector<int> d = importDefSigSpec(cell->getPort(ID::Y), timestep-1);
-		std::vector<int> q = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> d = importDefSigSpec(cell->getPort(ID::Y), timestep-1);
+		std::vector<पूर्णाङ्क> q = importDefSigSpec(cell->getPort(ID::Y), timestep);
 
-		std::vector<int> qq = (model_undef && !def_formal) ? ez->vec_var(q.size()) : q;
+		std::vector<पूर्णाङ्क> qq = (model_undef && !def_formal) ? ez->vec_var(q.size()) : q;
 		ez->assume(ez->vec_eq(d, qq));
 
-		if (model_undef)
+		जइ (model_undef)
 		{
-			std::vector<int> undef_d = importUndefSigSpec(cell->getPort(ID::Y), timestep-1);
-			std::vector<int> undef_q = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::vector<पूर्णाङ्क> undef_d = importUndefSigSpec(cell->getPort(ID::Y), timestep-1);
+			std::vector<पूर्णाङ्क> undef_q = importUndefSigSpec(cell->getPort(ID::Y), timestep);
 
-			if (def_formal) {
-				for (auto &undef_q_bit : undef_q)
+			जइ (def_formal) {
+				प्रति (auto &undef_q_bit : undef_q)
 					ez->SET(ez->CONST_FALSE, undef_q_bit);
-			} else {
+			} अण्णहा {
 				ez->assume(ez->vec_eq(undef_d, undef_q));
 				undefGating(q, qq, undef_q);
 			}
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($anyseq))
+	जइ (cell->type == ID($anyseq))
 	{
-		if (model_undef && def_formal) {
-			std::vector<int> undef_q = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			for (auto &undef_q_bit : undef_q)
+		जइ (model_undef && def_formal) {
+			std::vector<पूर्णाङ्क> undef_q = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			प्रति (auto &undef_q_bit : undef_q)
 				ez->SET(ez->CONST_FALSE, undef_q_bit);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($barrier) && !model_barriers)
-		return true;
+	जइ (cell->type == ID($barrier) && !model_barriers)
+		प्रत्यागम सच्च;
 
-	if (cell->type.in(ID($_BUF_), ID($equiv), ID($barrier)))
+	जइ (cell->type.in(ID($_BUF_), ID($equiv), ID($barrier)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> a = importDefSigSpec(cell->getPort(ID::A), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 		extendSignalWidthUnary(a, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::vector<पूर्णाङ्क> yy = model_undef ? ez->vec_var(y.size()) : y;
 		ez->assume(ez->vec_eq(a, yy));
 
-		if (model_undef) {
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidthUnary(undef_a, undef_y, cell, false);
+		जइ (model_undef) {
+			std::vector<पूर्णाङ्क> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			extendSignalWidthUnary(undef_a, undef_y, cell, मिच्छ);
 			ez->assume(ez->vec_eq(undef_a, undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($initstate))
+	जइ (cell->type == ID($initstate))
 	{
-		auto key = make_pair(prefix, timestep);
-		if (initstates.count(key) == 0)
-			initstates[key] = false;
+		auto कुञ्चिका = make_pair(prefix, timestep);
+		जइ (initstates.गणनम्(कुञ्चिका) == 0)
+			initstates[कुञ्चिका] = मिच्छ;
 
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::vector<पूर्णाङ्क> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
 		log_assert(GetSize(y) == 1);
-		ez->SET(y[0], initstates[key] ? ez->CONST_TRUE : ez->CONST_FALSE);
+		ez->SET(y[0], initstates[कुञ्चिका] ? ez->CONST_TRUE : ez->CONST_FALSE);
 
-		if (model_undef) {
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+		जइ (model_undef) {
+			std::vector<पूर्णाङ्क> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
 			log_assert(GetSize(undef_y) == 1);
 			ez->SET(undef_y[0], ez->CONST_FALSE);
 		}
 
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($assert))
+	जइ (cell->type == ID($प्रतिज्ञा))
 	{
 		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
 		asserts_a[pf].append((*sigmap)(cell->getPort(ID::A)));
 		asserts_en[pf].append((*sigmap)(cell->getPort(ID::EN)));
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($assume))
+	जइ (cell->type == ID($assume))
 	{
 		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
 		assumes_a[pf].append((*sigmap)(cell->getPort(ID::A)));
 		assumes_en[pf].append((*sigmap)(cell->getPort(ID::EN)));
-		return true;
+		प्रत्यागम सच्च;
 	}
 
-	if (cell->type == ID($scopeinfo) || cell->type == ID($input_port))
+	जइ (cell->type == ID($scopeinfo) || cell->type == ID($निवेशः_port))
 	{
-		return true;
+		प्रत्यागम सच्च;
 	}
 
 	// Unsupported internal cell types: $pow $fsm $mem*
 	// .. and all sequential cells with asynchronous inputs
-	return false;
+	प्रत्यागम मिच्छ;
 }
 
-namespace Yosys {
+नामाकाश Yosys {
 
-void report_missing_model(bool warn_only, RTLIL::Cell* cell)
+शून्य report_missing_model(तार्किक warn_only, RTLIL::Cell* cell)
 {
 	std::string s;
-	if (cell->is_builtin_ff())
+	जइ (cell->is_builtin_ff())
 		s = stringf("No SAT model available for async FF cell %s (%s).  Consider running `async2sync` or `clk2fflogic` first.", cell, cell->type.unescape());
-	else
+	अण्णहा
 		s = stringf("No SAT model available for cell %s (%s).", cell, cell->type.unescape());
 
-	if (warn_only) {
+	जइ (warn_only) {
 		log_warning_noprefix("%s\n", s);
-	} else {
+	} अण्णहा {
 		log_error("%s\n", s);
 	}
 }

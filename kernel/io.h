@@ -1,59 +1,59 @@
-#include <string>
-#include <stdarg.h>
-#include <type_traits>
-#include "kernel/yosys_common.h"
+#अन्तर्भाव <string>
+#अन्तर्भाव <stdarg.h>
+#अन्तर्भाव <type_traits>
+#अन्तर्भाव "kernel/yosys_common.h"
 
 #ifndef YOSYS_IO_H
 #define YOSYS_IO_H
 
 YOSYS_NAMESPACE_BEGIN
 
-struct IdString;
+संरचना IdString;
 
-inline std::string vstringf(const char *fmt, va_list ap)
+अन्तःस्थ std::string vstringf(ध्रुव वर्ण *fmt, va_list ap)
 {
 	// For the common case of strings shorter than 128, save a heap
 	// allocation by using a stack allocated buffer.
-	const int kBufSize = 128;
-	char buf[kBufSize];
+	ध्रुव पूर्णाङ्क kBufSize = 128;
+	वर्ण buf[kBufSize];
 	buf[0] = '\0';
 	va_list apc;
 	va_copy(apc, ap);
-	int n = vsnprintf(buf, kBufSize, fmt, apc);
+	पूर्णाङ्क n = vsnprintf(buf, kBufSize, fmt, apc);
 	va_end(apc);
-	if (n < kBufSize)
-		return std::string(buf);
+	जइ (n < kBufSize)
+		प्रत्यागम std::string(buf);
 
 	std::string string;
-	char *str = NULL;
-#if defined(_WIN32) || defined(__CYGWIN__)
-	int sz = 2 * kBufSize, rc;
-	while (1) {
+	वर्ण *str = रिक्त;
+#जइ defined(_WIN32) || defined(__CYGWIN__)
+	पूर्णाङ्क sz = 2 * kBufSize, rc;
+	जाव (1) {
 		va_copy(apc, ap);
-		str = (char *)realloc(str, sz);
+		str = (वर्ण *)realloc(str, sz);
 		rc = vsnprintf(str, sz, fmt, apc);
 		va_end(apc);
-		if (rc >= 0 && rc < sz)
-			break;
+		जइ (rc >= 0 && rc < sz)
+			भङ्ग;
 		sz *= 2;
 	}
-	if (str != NULL) {
+	जइ (str != रिक्त) {
 		string = str;
-		free(str);
+		मुक्त(str);
 	}
-	return string;
-#else
-	if (vasprintf(&str, fmt, ap) < 0)
-		str = NULL;
-	if (str != NULL) {
+	प्रत्यागम string;
+#अण्णहा
+	जइ (vasprintf(&str, fmt, ap) < 0)
+		str = रिक्त;
+	जइ (str != रिक्त) {
 		string = str;
-		free(str);
+		मुक्त(str);
 	}
-	return string;
+	प्रत्यागम string;
 #endif
 }
 
-enum ConversionSpecifier : uint8_t
+गणना ConversionSpecifier : uint8_t
 {
 	CONVSPEC_NONE,
 	// Specifier not understood/supported
@@ -70,79 +70,79 @@ enum ConversionSpecifier : uint8_t
 	CONVSPEC_VOID_PTR,
 };
 
-constexpr ConversionSpecifier parse_conversion_specifier(char ch, char prev_ch)
+constexpr ConversionSpecifier parse_conversion_specifier(वर्ण ch, वर्ण prev_ch)
 {
-	switch (ch) {
-	case 'd':
-	case 'i':
-		return CONVSPEC_SIGNED_INT;
-	case 'o':
-	case 'u':
-	case 'x':
-	case 'X':
-	case 'm':
-		return CONVSPEC_UNSIGNED_INT;
-	case 'c':
-		if (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
+	विकल्प (ch) {
+	पक्ष 'd':
+	पक्ष 'i':
+		प्रत्यागम CONVSPEC_SIGNED_INT;
+	पक्ष 'o':
+	पक्ष 'u':
+	पक्ष 'x':
+	पक्ष 'X':
+	पक्ष 'm':
+		प्रत्यागम CONVSPEC_UNSIGNED_INT;
+	पक्ष 'c':
+		जइ (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
 			// wchar not supported
-			return CONVSPEC_ERROR;
+			प्रत्यागम CONVSPEC_ERROR;
 		}
-		return CONVSPEC_UNSIGNED_INT;
-	case 'e':
-	case 'E':
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-	case 'a':
-	case 'A':
-		return CONVSPEC_DOUBLE;
-	case 's':
-		if (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
+		प्रत्यागम CONVSPEC_UNSIGNED_INT;
+	पक्ष 'e':
+	पक्ष 'E':
+	पक्ष 'f':
+	पक्ष 'F':
+	पक्ष 'g':
+	पक्ष 'G':
+	पक्ष 'a':
+	पक्ष 'A':
+		प्रत्यागम CONVSPEC_DOUBLE;
+	पक्ष 's':
+		जइ (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
 			// wchar not supported
-			return CONVSPEC_ERROR;
+			प्रत्यागम CONVSPEC_ERROR;
 		}
-		return CONVSPEC_CHAR_PTR;
-	case 'p':
-		return CONVSPEC_VOID_PTR;
-	case '$': // positional parameters
-	case 'n':
-	case 'S':
-		return CONVSPEC_ERROR;
-	default:
-		return CONVSPEC_NONE;
+		प्रत्यागम CONVSPEC_CHAR_PTR;
+	पक्ष 'p':
+		प्रत्यागम CONVSPEC_VOID_PTR;
+	पक्ष '$': // positional parameters
+	पक्ष 'n':
+	पक्ष 'S':
+		प्रत्यागम CONVSPEC_ERROR;
+	स्वभाव:
+		प्रत्यागम CONVSPEC_NONE;
 	}
 }
 
-enum class DynamicIntCount : uint8_t {
+गणना class Dynamic_Int_गणनम् : uint8_t {
 	NONE = 0,
 	ONE = 1,
 	TWO = 2,
 };
 
 // Describes a printf-style format conversion specifier found in a format string.
-struct FoundFormatSpec
+संरचना FoundFormatSpec
 {
 	// The start offset of the conversion spec in the format string.
-	int start;
+	पूर्णाङ्क start;
 	// The end offset of the conversion spec in the format string.
-	int end;
+	पूर्णाङ्क end;
 	ConversionSpecifier spec;
 	// Number of int args consumed by '*' dynamic width/precision args.
-	DynamicIntCount num_dynamic_ints;
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints;
 };
 
 // Ensure there is no format spec.
-constexpr void ensure_no_format_spec(std::string_view fmt, int index, bool *has_escapes)
+constexpr शून्य ensure_no_format_spec(std::string_view fmt, पूर्णाङ्क index, bool *has_escapes)
 {
-	int fmt_size = static_cast<int>(fmt.size());
+	पूर्णाङ्क fmt_size = static_cast<पूर्णाङ्क>(fmt.size());
 	// A trailing '%' is not a format spec.
-	while (index + 1 < fmt_size) {
-		if (fmt[index] != '%') {
+	जाव (index + 1 < fmt_size) {
+		जइ (fmt[index] != '%') {
 			++index;
-			continue;
+			अनुवर्त;
 		}
-		if (fmt[index + 1] != '%') {
+		जइ (fmt[index + 1] != '%') {
 			YOSYS_ABORT("More format conversion specifiers than arguments");
 		}
 		*has_escapes = true;
@@ -152,245 +152,245 @@ constexpr void ensure_no_format_spec(std::string_view fmt, int index, bool *has_
 
 // Returns the next format conversion specifier (starting with '%').
 // Returns CONVSPEC_NONE if there isn't a format conversion specifier.
-constexpr FoundFormatSpec find_next_format_spec(std::string_view fmt, int fmt_start, bool *has_escapes)
+constexpr FoundFormatSpec find_next_format_spec(std::string_view fmt, पूर्णाङ्क fmt_start, bool *has_escapes)
 {
-	int index = fmt_start;
-	int fmt_size = static_cast<int>(fmt.size());
-	while (index < fmt_size) {
-		if (fmt[index] != '%') {
+	पूर्णाङ्क index = fmt_start;
+	पूर्णाङ्क fmt_size = static_cast<पूर्णाङ्क>(fmt.size());
+	जाव (index < fmt_size) {
+		जइ (fmt[index] != '%') {
 			++index;
-			continue;
+			अनुवर्त;
 		}
-		int p = index + 1;
-		uint8_t num_dynamic_ints = 0;
-		while (true) {
-			if (p == fmt_size) {
-				return {0, 0, CONVSPEC_NONE, DynamicIntCount::NONE};
+		पूर्णाङ्क p = index + 1;
+		uint8_t अङ्कः_dynamic_ints = 0;
+		जाव (true) {
+			जइ (p == fmt_size) {
+				प्रत्यागम {0, 0, CONVSPEC_NONE, Dynamic_Int_गणनम्::NONE};
 			}
-			if (fmt[p] == '%') {
+			जइ (fmt[p] == '%') {
 				*has_escapes = true;
 				index = p + 1;
-				break;
+				भङ्ग;
 			}
-			if (fmt[p] == '*') {
-				if (num_dynamic_ints >= 2) {
-					return {0, 0, CONVSPEC_ERROR, DynamicIntCount::NONE};
+			जइ (fmt[p] == '*') {
+				जइ (अङ्कः_dynamic_ints >= 2) {
+					प्रत्यागम {0, 0, CONVSPEC_ERROR, Dynamic_Int_गणनम्::NONE};
 				}
-				++num_dynamic_ints;
+				++अङ्कः_dynamic_ints;
 			}
 			ConversionSpecifier spec = parse_conversion_specifier(fmt[p], fmt[p - 1]);
-			if (spec != CONVSPEC_NONE) {
-				return {index, p + 1, spec, static_cast<DynamicIntCount>(num_dynamic_ints)};
+			जइ (spec != CONVSPEC_NONE) {
+				प्रत्यागम {index, p + 1, spec, static_cast<Dynamic_Int_गणनम्>(अङ्कः_dynamic_ints)};
 			}
 			++p;
 		}
 	}
-	return {0, 0, CONVSPEC_NONE, DynamicIntCount::NONE};
+	प्रत्यागम {0, 0, CONVSPEC_NONE, Dynamic_Int_गणनम्::NONE};
 }
 
 template <typename... Args>
-constexpr typename std::enable_if<sizeof...(Args) == 0>::type
-check_format(std::string_view fmt, int fmt_start, bool *has_escapes, FoundFormatSpec*, DynamicIntCount)
+constexpr typename std::enable_if<परिमाण...(Args) == 0>::type
+check_format(std::string_view fmt, पूर्णाङ्क fmt_start, bool *has_escapes, FoundFormatSpec*, Dynamic_Int_गणनम्)
 {
 	ensure_no_format_spec(fmt, fmt_start, has_escapes);
 }
 
 template <class T>
-static auto has_name_member_imp(int)
-	-> decltype(static_cast<const IdString>(std::declval<T>().name), std::true_type{});
+स्थिर auto has_name_member_imp(पूर्णाङ्क)
+	-> decltype(static_cast<ध्रुव IdString>(std::declval<T>().name), std::true_type{});
 
 template <class T>
-static auto has_name_member_imp(long)
+स्थिर auto has_name_member_imp(long)
 	-> std::false_type;
 
 template <class T>
-struct has_name_member : decltype(has_name_member_imp<T>(0)){};
+संरचना has_name_member : decltype(has_name_member_imp<T>(0)){};
 
 template <class T>
-static auto ptr_has_name_member_imp(int)
-	-> decltype(static_cast<const IdString>(std::declval<T>()->name), std::true_type{});
+स्थिर auto ptr_has_name_member_imp(पूर्णाङ्क)
+	-> decltype(static_cast<ध्रुव IdString>(std::declval<T>()->name), std::true_type{});
 
 template <class T>
-static auto ptr_has_name_member_imp(long)
+स्थिर auto ptr_has_name_member_imp(long)
 	-> std::false_type;
 
 template <class T>
-struct ptr_has_name_member : decltype(ptr_has_name_member_imp<T>(0)){};
+संरचना ptr_has_name_member : decltype(ptr_has_name_member_imp<T>(0)){};
 
 // Check that the format string `fmt.substr(fmt_start)` is valid for the given type arguments.
 // Fills `specs` with the FoundFormatSpecs found in the format string.
 // `int_args_consumed` is the number of int arguments already consumed to satisfy the
 // dynamic width/precision args for the next format conversion specifier.
 template <typename Arg, typename... Args>
-constexpr void check_format(std::string_view fmt, int fmt_start, bool *has_escapes, FoundFormatSpec* specs,
-        DynamicIntCount int_args_consumed)
+constexpr शून्य check_format(std::string_view fmt, पूर्णाङ्क fmt_start, bool *has_escapes, FoundFormatSpec* specs,
+        Dynamic_Int_गणनम् int_args_consumed)
 {
 	FoundFormatSpec found = find_next_format_spec(fmt, fmt_start, has_escapes);
-	if (found.num_dynamic_ints > int_args_consumed) {
+	जइ (found.अङ्कः_dynamic_ints > int_args_consumed) {
 		// We need to consume at least one more int for the dynamic
 		// width/precision of this format conversion specifier.
-		if constexpr (!std::is_convertible_v<Arg, int>) {
+		जइ constexpr (!std::is_convertible_v<Arg, पूर्णाङ्क>) {
 			YOSYS_ABORT("Expected dynamic int argument");
 		}
 		check_format<Args...>(fmt, fmt_start, has_escapes, specs,
-			static_cast<DynamicIntCount>(static_cast<uint8_t>(int_args_consumed) + 1));
-		return;
+			static_cast<Dynamic_Int_गणनम्>(static_cast<uint8_t>(int_args_consumed) + 1));
+		प्रत्यागम;
 	}
-	switch (found.spec) {
-	case CONVSPEC_NONE:
+	विकल्प (found.spec) {
+	पक्ष CONVSPEC_NONE:
 		YOSYS_ABORT("Expected format conversion specifier for argument");
-		break;
-	case CONVSPEC_ERROR:
+		भङ्ग;
+	पक्ष CONVSPEC_ERROR:
 		YOSYS_ABORT("Found unsupported format conversion specifier");
-		break;
-	case CONVSPEC_SIGNED_INT:
-		if constexpr (!std::is_convertible_v<Arg, long long>) {
+		भङ्ग;
+	पक्ष CONVSPEC_SIGNED_INT:
+		जइ constexpr (!std::is_convertible_v<Arg, long long>) {
 			YOSYS_ABORT("Expected type convertible to signed integer");
 		}
 		*specs = found;
-		break;
-	case CONVSPEC_UNSIGNED_INT:
-		if constexpr (!std::is_convertible_v<Arg, unsigned long long>) {
+		भङ्ग;
+	पक्ष CONVSPEC_UNSIGNED_INT:
+		जइ constexpr (!std::is_convertible_v<Arg, unsigned long long>) {
 			YOSYS_ABORT("Expected type convertible to unsigned integer");
 		}
 		*specs = found;
-		break;
-	case CONVSPEC_DOUBLE:
-		if constexpr (!std::is_convertible_v<Arg, double>) {
+		भङ्ग;
+	पक्ष CONVSPEC_DOUBLE:
+		जइ constexpr (!std::is_convertible_v<Arg, द्विगुण>) {
 			YOSYS_ABORT("Expected type convertible to double");
 		}
 		*specs = found;
-		break;
-	case CONVSPEC_CHAR_PTR:
-		if constexpr (!std::is_convertible_v<Arg, const char *> &&
-		        !std::is_convertible_v<Arg, const std::string &> &&
-			!std::is_convertible_v<Arg, const std::string_view &> &&
+		भङ्ग;
+	पक्ष CONVSPEC_CHAR_PTR:
+		जइ constexpr (!std::is_convertible_v<Arg, ध्रुव वर्ण *> &&
+		        !std::is_convertible_v<Arg, ध्रुव std::string &> &&
+			!std::is_convertible_v<Arg, ध्रुव std::string_view &> &&
 			!has_name_member<Arg>() &&
 			!ptr_has_name_member<Arg>()) {
 			YOSYS_ABORT("Expected type convertible to char *");
 		}
 		*specs = found;
-		break;
-	case CONVSPEC_VOID_PTR:
-		if constexpr (!std::is_convertible_v<Arg, const void *>) {
+		भङ्ग;
+	पक्ष CONVSPEC_VOID_PTR:
+		जइ constexpr (!std::is_convertible_v<Arg, ध्रुव शून्य *>) {
 			YOSYS_ABORT("Expected pointer type");
 		}
 		*specs = found;
-		break;
+		भङ्ग;
 	}
-	check_format<Args...>(fmt, found.end, has_escapes, specs + 1, DynamicIntCount::NONE);
+	check_format<Args...>(fmt, found.end, has_escapes, specs + 1, Dynamic_Int_गणनम्::NONE);
 }
 
 // Emit the string representation of `arg` that has been converted to a `long long'.
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, long long arg);
+शून्य format_emit_long_long(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, long long arg);
 
 // Emit the string representation of `arg` that has been converted to a `unsigned long long'.
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, unsigned long long arg);
+शून्य format_emit_unsigned_long_long(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, unsigned long long arg);
 
 // Emit the string representation of `arg` that has been converted to a `double'.
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, double arg);
+शून्य format_emit_double(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, द्विगुण arg);
 
 // Emit the string representation of `arg` that has been converted to a `const char*'.
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const char *arg);
+शून्य format_emit_char_ptr(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, ध्रुव वर्ण *arg);
 
 // Emit the string representation of `arg` that has been converted to a `std::string'.
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const std::string &arg);
+शून्य format_emit_string(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, ध्रुव std::string &arg);
 
 // Emit the string representation of `arg` that has been converted to a `std::string_view'.
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, std::string_view arg);
+शून्य format_emit_string_view(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, std::string_view arg);
 
 // Emit the string representation of `arg` that has been converted to a `double'.
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const void *arg);
+शून्य format_emit_void_ptr(std::string &result, std::string_view spec, पूर्णाङ्क *dynamic_ints,
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints, ध्रुव शून्य *arg);
 
 // Emit the string representation of `arg` according to the given `FoundFormatSpec`,
 // appending it to `result`.
 template <typename Arg>
-inline void format_emit_one(std::string &result, std::string_view fmt, const FoundFormatSpec &ffspec,
-	int *dynamic_ints, const Arg& arg)
+अन्तःस्थ शून्य format_emit_one(std::string &result, std::string_view fmt, ध्रुव FoundFormatSpec &ffspec,
+	पूर्णाङ्क *dynamic_ints, ध्रुव Arg& arg)
 {
 	std::string_view spec = fmt.substr(ffspec.start, ffspec.end - ffspec.start);
-	DynamicIntCount num_dynamic_ints = ffspec.num_dynamic_ints;
-	switch (ffspec.spec) {
-	case CONVSPEC_SIGNED_INT:
-		if constexpr (std::is_convertible_v<Arg, long long>) {
+	Dynamic_Int_गणनम् अङ्कः_dynamic_ints = ffspec.अङ्कः_dynamic_ints;
+	विकल्प (ffspec.spec) {
+	पक्ष CONVSPEC_SIGNED_INT:
+		जइ constexpr (std::is_convertible_v<Arg, long long>) {
 			long long s = arg;
-			format_emit_long_long(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+			format_emit_long_long(result, spec, dynamic_ints, अङ्कः_dynamic_ints, s);
+			प्रत्यागम;
 		}
-		break;
-	case CONVSPEC_UNSIGNED_INT:
-		if constexpr (std::is_convertible_v<Arg, unsigned long long>) {
+		भङ्ग;
+	पक्ष CONVSPEC_UNSIGNED_INT:
+		जइ constexpr (std::is_convertible_v<Arg, unsigned long long>) {
 			unsigned long long s = arg;
-			format_emit_unsigned_long_long(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+			format_emit_unsigned_long_long(result, spec, dynamic_ints, अङ्कः_dynamic_ints, s);
+			प्रत्यागम;
 		}
-		break;
-	case CONVSPEC_DOUBLE:
-		if constexpr (std::is_convertible_v<Arg, double>) {
-			double s = arg;
-			format_emit_double(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		भङ्ग;
+	पक्ष CONVSPEC_DOUBLE:
+		जइ constexpr (std::is_convertible_v<Arg, द्विगुण>) {
+			द्विगुण s = arg;
+			format_emit_double(result, spec, dynamic_ints, अङ्कः_dynamic_ints, s);
+			प्रत्यागम;
 		}
-		break;
-	case CONVSPEC_CHAR_PTR:
-		if constexpr (std::is_convertible_v<Arg, const char *>) {
-			const char *s = arg;
-			format_emit_char_ptr(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		भङ्ग;
+	पक्ष CONVSPEC_CHAR_PTR:
+		जइ constexpr (std::is_convertible_v<Arg, ध्रुव वर्ण *>) {
+			ध्रुव वर्ण *s = arg;
+			format_emit_char_ptr(result, spec, dynamic_ints, अङ्कः_dynamic_ints, s);
+			प्रत्यागम;
 		}
-		if constexpr (std::is_convertible_v<Arg, const std::string &>) {
-			const std::string &s = arg;
-			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		जइ constexpr (std::is_convertible_v<Arg, ध्रुव std::string &>) {
+			ध्रुव std::string &s = arg;
+			format_emit_string(result, spec, dynamic_ints, अङ्कः_dynamic_ints, s);
+			प्रत्यागम;
 		}
-		if constexpr (std::is_convertible_v<Arg, const std::string_view &>) {
-			const std::string_view &s = arg;
-			format_emit_string_view(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		जइ constexpr (std::is_convertible_v<Arg, ध्रुव std::string_view &>) {
+			ध्रुव std::string_view &s = arg;
+			format_emit_string_view(result, spec, dynamic_ints, अङ्कः_dynamic_ints, s);
+			प्रत्यागम;
 		}
-		if constexpr (has_name_member<Arg>()) {
-			const std::string &s = arg.name.unescape();
-			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		जइ constexpr (has_name_member<Arg>()) {
+			ध्रुव std::string &s = arg.name.unescape();
+			format_emit_string(result, spec, dynamic_ints, अङ्कः_dynamic_ints, s);
+			प्रत्यागम;
 		}
-		if constexpr (ptr_has_name_member<Arg>()) {
-			const std::string &s = arg->name.unescape();
-			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		जइ constexpr (ptr_has_name_member<Arg>()) {
+			ध्रुव std::string &s = arg->name.unescape();
+			format_emit_string(result, spec, dynamic_ints, अङ्कः_dynamic_ints, s);
+			प्रत्यागम;
 		}
-		break;
-	case CONVSPEC_VOID_PTR:
-		if constexpr (std::is_convertible_v<Arg, const void *>) {
-			const void *s = arg;
-			format_emit_void_ptr(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		भङ्ग;
+	पक्ष CONVSPEC_VOID_PTR:
+		जइ constexpr (std::is_convertible_v<Arg, ध्रुव शून्य *>) {
+			ध्रुव शून्य *s = arg;
+			format_emit_void_ptr(result, spec, dynamic_ints, अङ्कः_dynamic_ints, s);
+			प्रत्यागम;
 		}
-		break;
-	default:
-		break;
+		भङ्ग;
+	स्वभाव:
+		भङ्ग;
 	}
 	YOSYS_ABORT("Internal error");
 }
 
 // Append the format string `fmt` to `result`, assuming there are no format conversion
 // specifiers other than "%%" and therefore no arguments. Unescape "%%".
-void format_emit_unescaped(std::string &result, std::string_view fmt);
+शून्य format_emit_unescaped(std::string &result, std::string_view fmt);
 std::string unescape_format_string(std::string_view fmt);
 
-inline void format_emit(std::string &result, std::string_view fmt, int fmt_start,
-	bool has_escapes, const FoundFormatSpec*, int*, DynamicIntCount)
+अन्तःस्थ शून्य format_emit(std::string &result, std::string_view fmt, पूर्णाङ्क fmt_start,
+	bool has_escapes, ध्रुव FoundFormatSpec*, पूर्णाङ्क*, Dynamic_Int_गणनम्)
 {
 	fmt = fmt.substr(fmt_start);
-	if (has_escapes) {
+	जइ (has_escapes) {
 		format_emit_unescaped(result, fmt);
-	} else {
+	} अण्णहा {
 		result += fmt;
 	}
 }
@@ -398,47 +398,47 @@ inline void format_emit(std::string &result, std::string_view fmt, int fmt_start
 // `num_dynamic_ints` in `dynamic_ints[]` have already been collected to provide as
 // dynamic width/precision args for the next format conversion specifier.
 template <typename Arg, typename... Args>
-inline void format_emit(std::string &result, std::string_view fmt, int fmt_start, bool has_escapes,
-	const FoundFormatSpec* specs, int *dynamic_ints, DynamicIntCount num_dynamic_ints,
-	const Arg &arg, const Args &... args)
+अन्तःस्थ शून्य format_emit(std::string &result, std::string_view fmt, पूर्णाङ्क fmt_start, bool has_escapes,
+	ध्रुव FoundFormatSpec* specs, पूर्णाङ्क *dynamic_ints, Dynamic_Int_गणनम् अङ्कः_dynamic_ints,
+	ध्रुव Arg &arg, ध्रुव Args &... args)
 {
-	if (specs->num_dynamic_ints > num_dynamic_ints) {
+	जइ (specs->अङ्कः_dynamic_ints > अङ्कः_dynamic_ints) {
 		// Collect another int for the dynamic width precision/args
 		// for the next format conversion specifier.
-		if constexpr (std::is_convertible_v<Arg, int>) {
-			dynamic_ints[static_cast<uint8_t>(num_dynamic_ints)] = arg;
-		} else {
+		जइ constexpr (std::is_convertible_v<Arg, पूर्णाङ्क>) {
+			dynamic_ints[static_cast<uint8_t>(अङ्कः_dynamic_ints)] = arg;
+		} अण्णहा {
 			YOSYS_ABORT("Internal error");
 		}
 		format_emit(result, fmt, fmt_start, has_escapes, specs, dynamic_ints,
-		            static_cast<DynamicIntCount>(static_cast<uint8_t>(num_dynamic_ints) + 1), args...);
-		return;
+		            static_cast<Dynamic_Int_गणनम्>(static_cast<uint8_t>(अङ्कः_dynamic_ints) + 1), args...);
+		प्रत्यागम;
 	}
 	std::string_view str = fmt.substr(fmt_start, specs->start - fmt_start);
-	if (has_escapes) {
+	जइ (has_escapes) {
 		format_emit_unescaped(result, str);
-	} else {
+	} अण्णहा {
 		result += str;
 	}
 	format_emit_one(result, fmt, *specs, dynamic_ints, arg);
-	format_emit(result, fmt, specs->end, has_escapes, specs + 1, dynamic_ints, DynamicIntCount::NONE, args...);
+	format_emit(result, fmt, specs->end, has_escapes, specs + 1, dynamic_ints, Dynamic_Int_गणनम्::NONE, args...);
 }
 
 template <typename... Args>
-inline std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, const FoundFormatSpec* specs, const Args &... args)
+अन्तःस्थ std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, ध्रुव FoundFormatSpec* specs, ध्रुव Args &... args)
 {
 	std::string result;
-	int dynamic_ints[2] = { 0, 0 };
-	format_emit(result, fmt, 0, has_escapes, specs, dynamic_ints, DynamicIntCount::NONE, args...);
-	return result;
+	पूर्णाङ्क dynamic_ints[2] = { 0, 0 };
+	format_emit(result, fmt, 0, has_escapes, specs, dynamic_ints, Dynamic_Int_गणनम्::NONE, args...);
+	प्रत्यागम result;
 }
 template <>
-inline std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, const FoundFormatSpec*)
+अन्तःस्थ std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, ध्रुव FoundFormatSpec*)
 {
-	if (!has_escapes) {
-		return std::string(fmt);
+	जइ (!has_escapes) {
+		प्रत्यागम std::string(fmt);
 	}
-	return unescape_format_string(fmt);
+	प्रत्यागम unescape_format_string(fmt);
 }
 
 // This class parses format strings to build a list of `FoundFormatSpecs` in `specs`.
@@ -448,69 +448,69 @@ inline std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, 
 template <typename... Args>
 class FmtString
 {
-public:
+सार्वजनिक:
 	// Implicit conversion from const char * means that users can pass
 	// C string constants which are automatically parsed.
-	YOSYS_CONSTEVAL FmtString(const char *p) : fmt(p)
+	YOSYS_CONSTEVAL FmtString(ध्रुव वर्ण *p) : fmt(p)
 	{
-		check_format<Args...>(fmt, 0, &has_escapes, specs, DynamicIntCount::NONE);
+		check_format<Args...>(fmt, 0, &has_escapes, specs, Dynamic_Int_गणनम्::NONE);
 	}
-	std::string format(const Args &... args)
+	std::string format(ध्रुव Args &... args)
 	{
-		return format_emit_toplevel(fmt, has_escapes, specs, args...);
+		प्रत्यागम format_emit_toplevel(fmt, has_escapes, specs, args...);
 	}
-	std::string_view format_string() const { return fmt; }
-private:
+	std::string_view format_string() ध्रुव { प्रत्यागम fmt; }
+गुप्त:
 	std::string_view fmt;
 	bool has_escapes = false;
 	// Making array at least size of one to make MSVC happy and strict to standards
-	FoundFormatSpec specs[sizeof...(Args) ? sizeof...(Args) : 1] = {};
+	FoundFormatSpec specs[परिमाण...(Args) ? परिमाण...(Args) : 1] = {};
 };
 
-template <typename T> struct WrapType { using type = T; };
+template <typename T> संरचना WrapType { using type = T; };
 template <typename T> using TypeIdentity = typename WrapType<T>::type;
 
 template <typename... Args>
-inline std::string stringf(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+अन्तःस्थ std::string stringf(FmtString<TypeIdentity<Args>...> fmt, ध्रुव Args &... args)
 {
-	return fmt.format(args...);
+	प्रत्यागम fmt.format(args...);
 }
 
-int readsome(std::istream &f, char *s, int n);
-std::string next_token(std::string &text, const char *sep = " \t\r\n", bool long_strings = false);
-std::vector<std::string> split_tokens(const std::string &text, const char *sep = " \t\r\n");
-bool patmatch(const char *pattern, const char *string);
-#if !defined(YOSYS_DISABLE_SPAWN)
-int run_command(const std::string &command, std::function<void(const std::string&)> process_line = std::function<void(const std::string&)>());
+पूर्णाङ्क readsome(std::istream &f, वर्ण *s, पूर्णाङ्क n);
+std::string next_token(std::string &text, ध्रुव वर्ण *sep = " \t\r\n", bool long_strings = false);
+std::vector<std::string> split_tokens(ध्रुव std::string &text, ध्रुव वर्ण *sep = " \t\r\n");
+bool patmatch(ध्रुव वर्ण *pattern, ध्रुव वर्ण *string);
+#जइ !defined(YOSYS_DISABLE_SPAWN)
+पूर्णाङ्क run_command(ध्रुव std::string &command, std::function<शून्य(ध्रुव std::string&)> process_पङ्क्तिः = std::function<शून्य(ध्रुव std::string&)>());
 #endif
 std::string get_base_tmpdir();
 std::string make_temp_file(std::string template_str = get_base_tmpdir() + "/yosys_XXXXXX");
 std::string make_temp_dir(std::string template_str = get_base_tmpdir() + "/yosys_XXXXXX");
-bool check_file_exists(const std::string& filename, bool is_exec = false);
-bool check_directory_exists(const std::string& dirname, bool is_exec = false);
+bool check_file_exists(ध्रुव std::string& filename, bool is_exec = false);
+bool check_directory_exists(ध्रुव std::string& dirname, bool is_exec = false);
 bool is_absolute_path(std::string filename);
-void remove_directory(std::string dirname);
-bool create_directory(const std::string& dirname);
-bool make_private_directory(const std::string& dirname);
-std::string make_user_tmpdir(const std::string& name);
-std::string escape_filename_spaces(const std::string& filename);
-void append_globbed(std::vector<std::string>& paths, std::string pattern);
+शून्य remove_directory(std::string dirname);
+bool create_directory(ध्रुव std::string& dirname);
+bool make_private_directory(ध्रुव std::string& dirname);
+std::string make_user_tmpdir(ध्रुव std::string& name);
+std::string escape_filename_spaces(ध्रुव std::string& filename);
+शून्य append_globbed(std::vector<std::string>& paths, std::string pattern);
 std::string name_from_file_path(std::string path);
-std::string absolute_path(const std::string& path);
+std::string absolute_path(ध्रुव std::string& path);
 std::string parent_from_file_path(std::string path);
 
 // Exclusive inter-process file lock (flock/LockFileEx, no-op on WASI),
 // released on destruction. Never unlinks the lock file: that would reopen the race.
-struct ScopedFileLock {
-	ScopedFileLock(const std::string &path);
+संरचना ScopedFileLock {
+	ScopedFileLock(ध्रुव std::string &path);
 	~ScopedFileLock();
-	ScopedFileLock(const ScopedFileLock &) = delete;
-	ScopedFileLock &operator=(const ScopedFileLock &) = delete;
-private:
-#if defined(_WIN32)
-	void *handle = nullptr;
-#elif !defined(__wasi__)
-	int fd = -1;
+	ScopedFileLock(ध्रुव ScopedFileLock &) = delete;
+	ScopedFileLock &operator=(ध्रुव ScopedFileLock &) = delete;
+गुप्त:
+#जइ defined(_WIN32)
+	शून्य *handle = nullptr;
+#नोचेद्यदि !defined(__wasi__)
+	पूर्णाङ्क fd = -1;
 #endif
 };
 
