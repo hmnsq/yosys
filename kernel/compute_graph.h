@@ -31,96 +31,96 @@ template<
     typename SparseAttr = std::tuple<>, // Sparse call attributes (optional per node)
     typename Key = std::tuple<> // Stable keys to refer to nodes
 >
-struct ComputeGraph
+sa_nracanaa ComputeGraph
 {
-    struct Ref;
+    sa_nracanaa Ref;
 private:
 
     // Functions are deduplicated by assigning unique ids
     idict<Fn> functions;
 
-    struct Node {
-        int fn_index;
-        int arg_offset;
-        int arg_count;
+    sa_nracanaa Node {
+        จำนวนเต็ม fn_index;
+        จำนวนเต็ม arg_offset;
+        จำนวนเต็ม arg_count;
         Attr attr;
 
-        Node(int fn_index, Attr &&attr, int arg_offset, int arg_count = 0)
+        Node(จำนวนเต็ม fn_index, Attr &&attr, จำนวนเต็ม arg_offset, จำนวนเต็ม arg_count = 0)
             : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(std::move(attr)) {}
 
-        Node(int fn_index, Attr const &attr, int arg_offset, int arg_count = 0)
+        Node(จำนวนเต็ม fn_index, Attr const &attr, จำนวนเต็ม arg_offset, จำนวนเต็ม arg_count = 0)
             : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(attr) {}
     };
 
 
     std::vector<Node> nodes;
-    std::vector<int> args;
-    dict<Key, int> keys_;
-    dict<int, SparseAttr> sparse_attrs;
+    std::vector<จำนวนเต็ม> args;
+    dict<Key, จำนวนเต็ม> keys_;
+    dict<จำนวนเต็ม, SparseAttr> sparse_attrs;
 
 public:
     template<typename Graph>
-    struct BaseRef
+    sa_nracanaa BaseRef
     {
-    protected:
-        friend struct ComputeGraph;
+    rak_sita:
+        friend sa_nracanaa ComputeGraph;
         Graph *graph_;
-        int index_;
-        BaseRef(Graph *graph, int index) : graph_(graph), index_(index) {
+        จำนวนเต็ม index_;
+        BaseRef(Graph *graph, จำนวนเต็ม index) : graph_(graph), index_(index) {
             log_assert(index_ >= 0);
             check();
         }
 
         void check() const { log_assert(index_ < graph_->size()); }
 
-        Node const &deref() const { check(); return graph_->nodes[index_]; }
+        Node const &deref() const { check(); คืน graph_->nodes[index_]; }
 
     public:
-        ComputeGraph const &graph() const { return graph_; }
-        int index() const { return index_; }
+        ComputeGraph const &graph() const { คืน graph_; }
+        จำนวนเต็ม index() const { คืน index_; }
 
-        int size() const { return deref().arg_count; }
+        จำนวนเต็ม size() const { คืน deref().arg_count; }
 
-        BaseRef arg(int n) const
+        BaseRef arg(จำนวนเต็ม n) const
         {
             Node const &node = deref();
             log_assert(n >= 0 && n < node.arg_count);
-            return BaseRef(graph_, graph_->args[node.arg_offset + n]);
+            คืน BaseRef(graph_, graph_->args[node.arg_offset + n]);
         }
 
-        std::vector<int>::const_iterator arg_indices_cbegin() const
+        std::vector<จำนวนเต็ม>::const_iterator arg_indices_cbegin() const
         {
             Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset;
+            คืน graph_->args.cbegin() + node.arg_offset;
         }
 
-        std::vector<int>::const_iterator arg_indices_cend() const
+        std::vector<จำนวนเต็ม>::const_iterator arg_indices_cend() const
         {
             Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset + node.arg_count;
+            คืน graph_->args.cbegin() + node.arg_offset + node.arg_count;
         }
 
-        Fn const &function() const { return graph_->functions[deref().fn_index]; }
-        Attr const &attr() const { return deref().attr; }
+        Fn const &function() const { คืน graph_->functions[deref().fn_index]; }
+        Attr const &attr() const { คืน deref().attr; }
 
-        bool has_sparse_attr() const { return graph_->sparse_attrs.count(index_); }
+        bool has_sparse_attr() const { คืน graph_->sparse_attrs.count(index_); }
 
         SparseAttr const &sparse_attr() const
         {
             auto found = graph_->sparse_attrs.find(index_);
             log_assert(found != graph_->sparse_attrs.end());
-            return found->second;
+            คืน found->second;
         }
     };
 
     using ConstRef = BaseRef<ComputeGraph const>;
 
-    struct Ref : public BaseRef<ComputeGraph>
+    sa_nracanaa Ref : public BaseRef<ComputeGraph>
     {
     private:
-        friend struct ComputeGraph;
-        Ref(ComputeGraph *graph, int index) : BaseRef<ComputeGraph>(graph, index) {}
-        Node &deref() const { this->check(); return this->graph_->nodes[this->index_]; }
+        friend sa_nracanaa ComputeGraph;
+        Ref(ComputeGraph *graph, จำนวนเต็ม index) : BaseRef<ComputeGraph>(graph, index) {}
+        Node &deref() const { this->check(); คืน this->graph_->nodes[this->index_]; }
 
     public:
         Ref(BaseRef<ComputeGraph> ref) : Ref(ref.graph_, ref.index_) {}
@@ -130,7 +130,7 @@ public:
             deref().fn_index = this->graph_->functions(function);
         }
 
-        Attr &attr() const { return deref().attr; }
+        Attr &attr() const { คืน deref().attr; }
 
         void append_arg(ConstRef arg) const
         {
@@ -138,11 +138,11 @@ public:
             append_arg(arg.index());
         }
 
-        void append_arg(int arg) const
+        void append_arg(จำนวนเต็ม arg) const
         {
             log_assert(arg >= 0 && arg < this->graph_->size());
             Node &node = deref();
-            if (node.arg_offset + node.arg_count != GetSize(this->graph_->args))
+            ถ้า (node.arg_offset + node.arg_count != GetSize(this->graph_->args))
                 move_args(node);
             this->graph_->args.push_back(arg);
             node.arg_count++;
@@ -150,12 +150,12 @@ public:
 
         operator ConstRef() const
         {
-            return ConstRef(this->graph_, this->index_);
+            คืน ConstRef(this->graph_, this->index_);
         }
 
         SparseAttr &sparse_attr() const
         {
-            return this->graph_->sparse_attrs[this->index_];
+            คืน this->graph_->sparse_attrs[this->index_];
         }
 
         void clear_sparse_attr() const
@@ -172,9 +172,9 @@ public:
         void move_args(Node &node) const
         {
             auto &args = this->graph_->args;
-            int old_offset = node.arg_offset;
+            จำนวนเต็ม old_offset = node.arg_offset;
             node.arg_offset = GetSize(args);
-            for (int i = 0; i != node.arg_count; ++i)
+            สำหรับ (จำนวนเต็ม i = 0; i != node.arg_count; ++i)
                 args.push_back(args[old_offset + i]);
         }
 
@@ -182,113 +182,113 @@ public:
 
     bool has_key(Key const &key) const
     {
-        return keys_.count(key);
+        คืน keys_.count(key);
     }
 
-    dict<Key, int> const &keys() const
+    dict<Key, จำนวนเต็ม> const &keys() const
     {
-        return keys_;
+        คืน keys_;
     }
 
     ConstRef operator()(Key const &key) const
     {
         auto it = keys_.find(key);
         log_assert(it != keys_.end());
-        return (*this)[it->second];
+        คืน (*this)[it->second];
     }
 
     Ref operator()(Key const &key)
     {
         auto it = keys_.find(key);
         log_assert(it != keys_.end());
-        return (*this)[it->second];
+        คืน (*this)[it->second];
     }
 
-    int size() const { return GetSize(nodes); }
+    จำนวนเต็ม size() const { คืน GetSize(nodes); }
 
-    ConstRef operator[](int index) const { return ConstRef(this, index); }
-    Ref operator[](int index) { return Ref(this, index); }
+    ConstRef operator[](จำนวนเต็ม index) const { คืน ConstRef(this, index); }
+    Ref operator[](จำนวนเต็ม index) { คืน Ref(this, index); }
 
     Ref add(Fn const &function, Attr &&attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
+        จำนวนเต็ม index = GetSize(nodes);
+        จำนวนเต็ม fn_index = functions(function);
         nodes.emplace_back(fn_index, std::move(attr), GetSize(args));
-        return Ref(this, index);
+        คืน Ref(this, index);
     }
 
     Ref add(Fn const &function, Attr const &attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
+        จำนวนเต็ม index = GetSize(nodes);
+        จำนวนเต็ม fn_index = functions(function);
         nodes.emplace_back(fn_index, attr,  GetSize(args));
-        return Ref(this, index);
+        คืน Ref(this, index);
     }
 
     template<typename T>
     Ref add(Fn const &function, Attr const &attr, T &&args)
     {
         Ref added = add(function, attr);
-        for (auto arg : args)
+        สำหรับ (auto arg : args)
             added.append_arg(arg);
-        return added;
+        คืน added;
     }
 
     template<typename T>
     Ref add(Fn const &function, Attr &&attr, T &&args)
     {
         Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        สำหรับ (auto arg : args)
             added.append_arg(arg);
-        return added;
+        คืน added;
     }
 
     Ref add(Fn const &function, Attr const &attr, std::initializer_list<Ref> args)
     {
         Ref added = add(function, attr);
-        for (auto arg : args)
+        สำหรับ (auto arg : args)
             added.append_arg(arg);
-        return added;
+        คืน added;
     }
 
     Ref add(Fn const &function, Attr &&attr, std::initializer_list<Ref> args)
     {
         Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        สำหรับ (auto arg : args)
             added.append_arg(arg);
-        return added;
+        คืน added;
     }
 
     template<typename T>
     Ref add(Fn const &function, Attr const &attr, T begin, T end)
     {
         Ref added = add(function, attr);
-        for (; begin != end; ++begin)
+        สำหรับ (; begin != end; ++begin)
             added.append_arg(*begin);
-        return added;
+        คืน added;
     }
 
     void compact_args()
     {
-        std::vector<int> new_args;
-        for (auto &node : nodes)
+        std::vector<จำนวนเต็ม> new_args;
+        สำหรับ (auto &node : nodes)
         {
-            int new_offset = GetSize(new_args);
-            for (int i = 0; i < node.arg_count; i++)
+            จำนวนเต็ม new_offset = GetSize(new_args);
+            สำหรับ (จำนวนเต็ม i = 0; i < node.arg_count; i++)
                 new_args.push_back(args[node.arg_offset + i]);
             node.arg_offset = new_offset;
         }
         std::swap(args, new_args);
     }
 
-    void permute(std::vector<int> const &perm)
+    void permute(std::vector<จำนวนเต็ม> const &perm)
     {
         log_assert(perm.size() <= nodes.size());
-        std::vector<int> inv_perm;
+        std::vector<จำนวนเต็ม> inv_perm;
         inv_perm.resize(nodes.size(), -1);
-        for (int i = 0; i < GetSize(perm); ++i)
+        สำหรับ (จำนวนเต็ม i = 0; i < GetSize(perm); ++i)
         {
-            int j = perm[i];
+            จำนวนเต็ม j = perm[i];
             log_assert(j >= 0 && j < GetSize(nodes));
             log_assert(inv_perm[j] == -1);
             inv_perm[j] = i;
@@ -296,18 +296,18 @@ public:
         permute(perm, inv_perm);
     }
 
-    void permute(std::vector<int> const &perm, std::vector<int> const &inv_perm)
+    void permute(std::vector<จำนวนเต็ม> const &perm, std::vector<จำนวนเต็ม> const &inv_perm)
     {
         log_assert(inv_perm.size() == nodes.size());
         std::vector<Node> new_nodes;
         new_nodes.reserve(perm.size());
-        dict<int, SparseAttr> new_sparse_attrs;
-        for (int i : perm)
+        dict<จำนวนเต็ม, SparseAttr> new_sparse_attrs;
+        สำหรับ (จำนวนเต็ม i : perm)
         {
-            int j = GetSize(new_nodes);
+            จำนวนเต็ม j = GetSize(new_nodes);
             new_nodes.emplace_back(std::move(nodes[i]));
             auto found = sparse_attrs.find(i);
-            if (found != sparse_attrs.end())
+            ถ้า (found != sparse_attrs.end())
                 new_sparse_attrs.emplace(j, std::move(found->second));
         }
 
@@ -315,14 +315,14 @@ public:
         std::swap(sparse_attrs, new_sparse_attrs);
 
         compact_args();
-        for (int &arg : args)
+        สำหรับ (จำนวนเต็ม &arg : args)
         {
             log_assert(arg < GetSize(inv_perm));
             log_assert(inv_perm[arg] >= 0);
             arg = inv_perm[arg];
         }
 
-        for (auto &key : keys_)
+        สำหรับ (auto &key : keys_)
         {
             log_assert(key.second < GetSize(inv_perm));
             log_assert(inv_perm[key.second] >= 0);
@@ -330,11 +330,11 @@ public:
         }
     }
 
-    struct SccAdaptor
+    sa_nracanaa SccAdaptor
     {
     private:
         ComputeGraph const &graph_;
-        std::vector<int> indices_;
+        std::vector<จำนวนเต็ม> indices_;
     public:
         SccAdaptor(ComputeGraph const &graph) : graph_(graph)
         {
@@ -342,55 +342,55 @@ public:
         }
 
 
-        typedef int node_type;
+        typedef จำนวนเต็ม node_type;
 
-        struct node_enumerator {
+        sa_nracanaa node_enumerator {
         private:
-            friend struct SccAdaptor;
-            int current, end;
-            node_enumerator(int current, int end) : current(current), end(end) {}
+            friend sa_nracanaa SccAdaptor;
+            จำนวนเต็ม current, end;
+            node_enumerator(จำนวนเต็ม current, จำนวนเต็ม end) : current(current), end(end) {}
 
         public:
 
-            bool finished() const { return current == end; }
+            bool finished() const { คืน current == end; }
             node_type next() {
                 log_assert(!finished());
                 node_type result = current;
                 ++current;
-                return result;
+                คืน result;
             }
         };
 
         node_enumerator enumerate_nodes() {
-            return node_enumerator(0, GetSize(indices_));
+            คืน node_enumerator(0, GetSize(indices_));
         }
 
 
-        struct successor_enumerator {
+        sa_nracanaa successor_enumerator {
         private:
-            friend struct SccAdaptor;
-            std::vector<int>::const_iterator current, end;
-            successor_enumerator(std::vector<int>::const_iterator current, std::vector<int>::const_iterator end) :
+            friend sa_nracanaa SccAdaptor;
+            std::vector<จำนวนเต็ม>::const_iterator current, end;
+            successor_enumerator(std::vector<จำนวนเต็ม>::const_iterator current, std::vector<จำนวนเต็ม>::const_iterator end) :
                 current(current), end(end) {}
 
         public:
-            bool finished() const { return current == end; }
+            bool finished() const { คืน current == end; }
             node_type next() {
                 log_assert(!finished());
                 node_type result = *current;
                 ++current;
-                return result;
+                คืน result;
             }
         };
 
-        successor_enumerator enumerate_successors(int index) const {
+        successor_enumerator enumerate_successors(จำนวนเต็ม index) const {
             auto const &ref = graph_[index];
-            return successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
+            คืน successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
         }
 
-        int &dfs_index(node_type const &node) { return indices_[node]; }
+        จำนวนเต็ม &dfs_index(node_type const &node) { คืน indices_[node]; }
 
-        std::vector<int> const &dfs_indices() { return indices_; }
+        std::vector<จำนวนเต็ม> const &dfs_indices() { คืน indices_; }
     };
 
 };

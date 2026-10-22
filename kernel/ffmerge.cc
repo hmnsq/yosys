@@ -22,21 +22,21 @@
 USING_YOSYS_NAMESPACE
 
 bool FfMergeHelper::is_output_unused(RTLIL::SigSpec sig) {
-	for (auto bit : (*sigmap)(sig))
-		if (sigbit_users_count[bit] != 0)
-			return false;
-	return true;
+	สำหรับ (auto bit : (*sigmap)(sig))
+		ถ้า (sigbit_users_count[bit] != 0)
+			คืน false;
+	คืน true;
 }
 
-bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, จำนวนเต็ม>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
 	bool found = false;
 
-	for (auto bit : sig)
+	สำหรับ (auto bit : sig)
 	{
-		if (bit.wire == NULL || sigbit_users_count[bit] == 0) {
+		ถ้า (bit.wire == NULL || sigbit_users_count[bit] == 0) {
 			ff.width++;
 			ff.sig_q.append(bit);
 			ff.sig_d.append(bit);
@@ -48,27 +48,27 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			continue;
 		}
 
-		if (sigbit_users_count[bit] != 1)
-			return false;
+		ถ้า (sigbit_users_count[bit] != 1)
+			คืน false;
 
 		auto &sinks = dff_sink[bit];
-		if (sinks.size() != 1)
-			return false;
+		ถ้า (sinks.size() != 1)
+			คืน false;
 
 		Cell *cell;
-		int idx;
+		จำนวนเต็ม idx;
 		std::tie(cell, idx) = *sinks.begin();
 		bits.insert(std::make_pair(cell, idx));
 
 		FfData cur_ff(initvals, cell);
 
 		// Reject latches and $ff.
-		if (!cur_ff.has_clk)
-			return false;
+		ถ้า (!cur_ff.has_clk)
+			คืน false;
 
 		log_assert((*sigmap)(cur_ff.sig_d[idx]) == bit);
 
-		if (!found) {
+		ถ้า (!found) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -88,56 +88,56 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
 			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+		} มิฉะนั้น {
+			ถ้า (ff.has_clk != cur_ff.has_clk)
+				คืน false;
+			ถ้า (ff.has_ce != cur_ff.has_ce)
+				คืน false;
+			ถ้า (ff.has_aload != cur_ff.has_aload)
+				คืน false;
+			ถ้า (ff.has_srst != cur_ff.has_srst)
+				คืน false;
+			ถ้า (ff.has_arst != cur_ff.has_arst)
+				คืน false;
+			ถ้า (ff.has_sr != cur_ff.has_sr)
+				คืน false;
+			ถ้า (ff.has_clk) {
+				ถ้า (ff.sig_clk != cur_ff.sig_clk)
+					คืน false;
+				ถ้า (ff.pol_clk != cur_ff.pol_clk)
+					คืน false;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			ถ้า (ff.has_ce) {
+				ถ้า (ff.sig_ce != cur_ff.sig_ce)
+					คืน false;
+				ถ้า (ff.pol_ce != cur_ff.pol_ce)
+					คืน false;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			ถ้า (ff.has_aload) {
+				ถ้า (ff.sig_aload != cur_ff.sig_aload)
+					คืน false;
+				ถ้า (ff.pol_aload != cur_ff.pol_aload)
+					คืน false;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			ถ้า (ff.has_srst) {
+				ถ้า (ff.sig_srst != cur_ff.sig_srst)
+					คืน false;
+				ถ้า (ff.pol_srst != cur_ff.pol_srst)
+					คืน false;
+				ถ้า (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					คืน false;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			ถ้า (ff.has_arst) {
+				ถ้า (ff.sig_arst != cur_ff.sig_arst)
+					คืน false;
+				ถ้า (ff.pol_arst != cur_ff.pol_arst)
+					คืน false;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			ถ้า (ff.has_sr) {
+				ถ้า (ff.pol_clr != cur_ff.pol_clr)
+					คืน false;
+				ถ้า (ff.pol_set != cur_ff.pol_set)
+					คืน false;
 			}
 		}
 
@@ -153,20 +153,20 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 		found = true;
 	}
 
-	return found;
+	คืน found;
 }
 
-bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, จำนวนเต็ม>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
 	bool found = false;
 
-	pool<int> const_bits;
+	pool<จำนวนเต็ม> const_bits;
 
-	for (auto bit : sig)
+	สำหรับ (auto bit : sig)
 	{
-		if (bit.wire == NULL) {
+		ถ้า (bit.wire == NULL) {
 			const_bits.insert(ff.width);
 			ff.width++;
 			ff.sig_q.append(bit);
@@ -180,11 +180,11 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			continue;
 		}
 
-		if (!dff_driver.count(bit))
-			return false;
+		ถ้า (!dff_driver.count(bit))
+			คืน false;
 
 		Cell *cell;
-		int idx;
+		จำนวนเต็ม idx;
 		std::tie(cell, idx) = dff_driver[bit];
 		bits.insert(std::make_pair(cell, idx));
 
@@ -192,7 +192,7 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 
 		log_assert((*sigmap)(cur_ff.sig_q[idx]) == bit);
 
-		if (!found) {
+		ถ้า (!found) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -213,58 +213,58 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
 			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_gclk != cur_ff.has_gclk)
-				return false;
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+		} มิฉะนั้น {
+			ถ้า (ff.has_gclk != cur_ff.has_gclk)
+				คืน false;
+			ถ้า (ff.has_clk != cur_ff.has_clk)
+				คืน false;
+			ถ้า (ff.has_ce != cur_ff.has_ce)
+				คืน false;
+			ถ้า (ff.has_aload != cur_ff.has_aload)
+				คืน false;
+			ถ้า (ff.has_srst != cur_ff.has_srst)
+				คืน false;
+			ถ้า (ff.has_arst != cur_ff.has_arst)
+				คืน false;
+			ถ้า (ff.has_sr != cur_ff.has_sr)
+				คืน false;
+			ถ้า (ff.has_clk) {
+				ถ้า (ff.sig_clk != cur_ff.sig_clk)
+					คืน false;
+				ถ้า (ff.pol_clk != cur_ff.pol_clk)
+					คืน false;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			ถ้า (ff.has_ce) {
+				ถ้า (ff.sig_ce != cur_ff.sig_ce)
+					คืน false;
+				ถ้า (ff.pol_ce != cur_ff.pol_ce)
+					คืน false;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			ถ้า (ff.has_aload) {
+				ถ้า (ff.sig_aload != cur_ff.sig_aload)
+					คืน false;
+				ถ้า (ff.pol_aload != cur_ff.pol_aload)
+					คืน false;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			ถ้า (ff.has_srst) {
+				ถ้า (ff.sig_srst != cur_ff.sig_srst)
+					คืน false;
+				ถ้า (ff.pol_srst != cur_ff.pol_srst)
+					คืน false;
+				ถ้า (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					คืน false;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			ถ้า (ff.has_arst) {
+				ถ้า (ff.sig_arst != cur_ff.sig_arst)
+					คืน false;
+				ถ้า (ff.pol_arst != cur_ff.pol_arst)
+					คืน false;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			ถ้า (ff.has_sr) {
+				ถ้า (ff.pol_clr != cur_ff.pol_clr)
+					คืน false;
+				ถ้า (ff.pol_set != cur_ff.pol_set)
+					คืน false;
 			}
 		}
 
@@ -280,24 +280,24 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 		found = true;
 	}
 
-	if (found && ff.has_sr) {
-		for (auto i: const_bits) {
-			if (ff.sig_d[i] == State::S0) {
+	ถ้า (found && ff.has_sr) {
+		สำหรับ (auto i: const_bits) {
+			ถ้า (ff.sig_d[i] == State::S0) {
 				ff.sig_set[i] = ff.pol_set ? State::S0 : State::S1;
-			} else if (ff.sig_d[i] == State::S1) {
+			} มิฉะนั้น ถ้า (ff.sig_d[i] == State::S1) {
 				ff.sig_clr[i] = ff.pol_clr ? State::S0 : State::S1;
 			}
 		}
 	}
 
-	return found;
+	คืน found;
 }
 
 
-void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
+void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, จำนวนเต็ม>> &bits) {
+	สำหรับ (auto &it : bits) {
 		Cell *cell = it.first;
-		int idx = it.second;
+		จำนวนเต็ม idx = it.second;
 		SigSpec q = cell->getPort(ID::Q);
 		initvals->remove_init(q[idx]);
 		dff_driver.erase((*sigmap)(q[idx]));
@@ -307,11 +307,11 @@ void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
 	}
 }
 
-void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
+void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, จำนวนเต็ม>> &bits) {
+	สำหรับ (auto &it : bits) {
 		Cell *cell = it.first;
-		int idx = it.second;
-		if (cell->hasPort(ID::D)) {
+		จำนวนเต็ม idx = it.second;
+		ถ้า (cell->hasPort(ID::D)) {
 			SigSpec d = cell->getPort(ID::D);
 			// The user count was already at least 1
 			// (for the D port).  Bump it as it is now connected
@@ -329,26 +329,26 @@ void FfMergeHelper::set(FfInitVals *initvals_, RTLIL::Module *module_)
 	sigmap = initvals->sigmap;
 	module = module_;
 
-	for (auto wire : module->wires()) {
-		if (wire->port_output)
-			for (auto bit : (*sigmap)(wire))
+	สำหรับ (auto wire : module->wires()) {
+		ถ้า (wire->port_output)
+			สำหรับ (auto bit : (*sigmap)(wire))
 				sigbit_users_count[bit]++;
 	}
 
-	for (auto cell : module->cells()) {
-		if (cell->is_builtin_ff()) {
-			if (cell->hasPort(ID::D)) {
+	สำหรับ (auto cell : module->cells()) {
+		ถ้า (cell->is_builtin_ff()) {
+			ถ้า (cell->hasPort(ID::D)) {
 				SigSpec d = (*sigmap)(cell->getPort(ID::D));
-				for (int i = 0; i < GetSize(d); i++)
+				สำหรับ (จำนวนเต็ม i = 0; i < GetSize(d); i++)
 					dff_sink[d[i]].insert(std::make_pair(cell, i));
 			}
 			SigSpec q = (*sigmap)(cell->getPort(ID::Q));
-			for (int i = 0; i < GetSize(q); i++)
+			สำหรับ (จำนวนเต็ม i = 0; i < GetSize(q); i++)
 				dff_driver[q[i]] = std::make_pair(cell, i);
 		}
-		for (auto &conn : cell->connections())
-			if (!cell->known() || cell->input(conn.first))
-				for (auto bit : (*sigmap)(conn.second))
+		สำหรับ (auto &conn : cell->connections())
+			ถ้า (!cell->known() || cell->input(conn.first))
+				สำหรับ (auto bit : (*sigmap)(conn.second))
 					sigbit_users_count[bit]++;
 	}
 }

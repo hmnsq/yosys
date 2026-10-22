@@ -32,12 +32,12 @@ template<typename T>
 class IdTree
 {
 public:
-	struct Cursor;
+	sa_nracanaa Cursor;
 
-protected:
+rak_sita:
 	IdTree *parent = nullptr;
 	IdString scope_name;
-	int depth = 0;
+	จำนวนเต็ม depth = 0;
 
 	pool<IdString> names;
 	dict<IdString, T> entries;
@@ -48,17 +48,17 @@ public: // XXX
 	static Cursor do_insert(IdTree *tree, P begin, P end, T_ref &&value)
 	{
 		log_assert(begin != end && "path must be non-empty");
-		while (true) {
+		ขณะ (true) {
 			IdString name = *begin;
 			++begin;
 			log_assert(!name.empty());
 			tree->names.insert(name);
-			if (begin == end) {
+			ถ้า (begin == end) {
 				tree->entries.emplace(name, std::forward<T_ref>(value));
-				return Cursor(tree, name);
+				คืน Cursor(tree, name);
 			}
 			auto &unique = tree->subtrees[name];
-			if (!unique) {
+			ถ้า (!unique) {
 				unique.reset(new IdTree);
 				unique->scope_name = name;
 				unique->parent = tree;
@@ -74,139 +74,139 @@ public:
 	IdTree(IdTree &&) = delete;
 
 	// A cursor remains valid as long as the (sub-)IdTree it points at is alive
-	struct Cursor
+	sa_nracanaa Cursor
 	{
 		friend class IdTree;
-	protected:
+	rak_sita:
 	public:
 		IdTree *target;
 		IdString scope_name;
 
 		Cursor() : target(nullptr) {}
 		Cursor(IdTree *target, IdString scope_name) : target(target), scope_name(scope_name) {
-			if (scope_name.empty())
+			ถ้า (scope_name.empty())
 				log_assert(target->parent == nullptr);
 		}
 
 		Cursor do_first_child() {
 			IdTree *tree = nullptr;
-			if (scope_name.empty()) {
+			ถ้า (scope_name.empty()) {
 				tree = target;
-			} else {
+			} มิฉะนั้น {
 				auto found = target->subtrees.find(scope_name);
-				if (found != target->subtrees.end()) {
+				ถ้า (found != target->subtrees.end()) {
 					tree = found->second.get();
-				} else {
-					return Cursor();
+				} มิฉะนั้น {
+					คืน Cursor();
 				}
 			}
-			if (tree->names.empty()) {
-				return Cursor();
+			ถ้า (tree->names.empty()) {
+				คืน Cursor();
 			}
-			return Cursor(tree, *tree->names.begin());
+			คืน Cursor(tree, *tree->names.begin());
 		}
 
 		Cursor do_next_sibling() {
-			if (scope_name.empty())
-				return Cursor();
+			ถ้า (scope_name.empty())
+				คืน Cursor();
 			auto found = target->names.find(scope_name);
-			if (found == target->names.end())
-				return Cursor();
+			ถ้า (found == target->names.end())
+				คืน Cursor();
 			++found;
-			if (found == target->names.end())
-				return Cursor();
-			return Cursor(target, *found);
+			ถ้า (found == target->names.end())
+				คืน Cursor();
+			คืน Cursor(target, *found);
 		}
 
 		Cursor do_parent() {
-			if (scope_name.empty())
-				return Cursor();
-			if (target->parent != nullptr)
-				return Cursor(target->parent, target->scope_name);
-			return Cursor(target, IdString());
+			ถ้า (scope_name.empty())
+				คืน Cursor();
+			ถ้า (target->parent != nullptr)
+				คืน Cursor(target->parent, target->scope_name);
+			คืน Cursor(target, IdString());
 		}
 
 		Cursor do_next_preorder() {
 			Cursor current = *this;
 			Cursor next = current.do_first_child();
-			if (next.valid())
-				return next;
-			while (current.valid()) {
-				if (next.valid())
-					return next;
+			ถ้า (next.valid())
+				คืน next;
+			ขณะ (current.valid()) {
+				ถ้า (next.valid())
+					คืน next;
 				next = current.do_next_sibling();
-				if (next.valid())
-					return next;
+				ถ้า (next.valid())
+					คืน next;
 				current = current.do_parent();
 			}
-			return current;
+			คืน current;
 		}
 
 		Cursor do_child(IdString name) {
 			IdTree *tree = nullptr;
-			if (scope_name.empty()) {
+			ถ้า (scope_name.empty()) {
 				tree = target;
-			} else {
+			} มิฉะนั้น {
 				auto found = target->subtrees.find(scope_name);
-				if (found != target->subtrees.end()) {
+				ถ้า (found != target->subtrees.end()) {
 					tree = found->second.get();
-				} else {
-					return Cursor();
+				} มิฉะนั้น {
+					คืน Cursor();
 				}
 			}
 			auto found = tree->names.find(name);
-			if (found == tree->names.end()) {
-				return Cursor();
+			ถ้า (found == tree->names.end()) {
+				คืน Cursor();
 			}
-			return Cursor(tree, *found);
+			คืน Cursor(tree, *found);
 		}
 
 	public:
 		bool operator==(const Cursor &other) const {
-			return target == other.target && scope_name == other.scope_name;
+			คืน target == other.target && scope_name == other.scope_name;
 		}
 		bool operator!=(const Cursor &other) const {
-			return !(*this == other);
+			คืน !(*this == other);
 		}
 
 		[[nodiscard]] Hasher hash_into(Hasher h) const
 		{
 			h.eat(scope_name);
 			h.eat(target);
-			return h;
+			คืน h;
 		}
 
 		bool valid() const {
-			return target != nullptr;
+			คืน target != nullptr;
 		}
 
-		int depth() const {
+		จำนวนเต็ม depth() const {
 			log_assert(valid());
-			return target->depth + !scope_name.empty();
+			คืน target->depth + !scope_name.empty();
 		}
 
 		bool is_root() const {
-			return target != nullptr && scope_name.empty();
+			คืน target != nullptr && scope_name.empty();
 		}
 
 		bool has_entry() const {
 			log_assert(valid());
-			return !scope_name.empty() && target->entries.count(scope_name);
+			คืน !scope_name.empty() && target->entries.count(scope_name);
 		}
 
 		T &entry() {
 			log_assert(!scope_name.empty());
-			return target->entries.at(scope_name);
+			คืน target->entries.at(scope_name);
 		}
 
 		void assign_path_to(std::vector<IdString> &out_path) {
 			log_assert(valid());
 			out_path.clear();
-			if (scope_name.empty())
-				return;
+			ถ้า (scope_name.empty())
+				คืน;
 			out_path.push_back(scope_name);
 			IdTree *current = target;
-			while (current->parent) {
+			ขณะ (current->parent) {
 				out_path.push_back(current->scope_name);
 				current = current->parent;
 			}
@@ -216,99 +216,99 @@ public:
 		std::vector<IdString> path() {
 			std::vector<IdString> result;
 			assign_path_to(result);
-			return result;
+			คืน result;
 		}
 
 		std::string path_str(const RTLIL::Design *design) {
 			std::string result;
-			for (const auto &item : path()) {
-				if (!result.empty())
+			สำหรับ (const auto &item : path()) {
+				ถ้า (!result.empty())
 					result.push_back(' ');
 				result += design->twines().unescaped_str(item);
 			}
-			return result;
+			คืน result;
 		}
 
 		Cursor first_child() {
 			log_assert(valid());
-			return do_first_child();
+			คืน do_first_child();
 		}
 
 		Cursor next_preorder() {
 			log_assert(valid());
-			return do_next_preorder();
+			คืน do_next_preorder();
 		}
 
 		Cursor parent() {
 			log_assert(valid());
-			return do_parent();
+			คืน do_parent();
 		}
 
 		Cursor child(IdString name) {
 			log_assert(valid());
-			return do_child(name);
+			คืน do_child(name);
 		}
 
 		Cursor common_ancestor(Cursor other) {
 			Cursor current = *this;
 
-			while (current != other) {
-				if (!current.valid() || !other.valid())
-					return Cursor();
-				int delta = current.depth() - other.depth();
-				if (delta >= 0)
+			ขณะ (current != other) {
+				ถ้า (!current.valid() || !other.valid())
+					คืน Cursor();
+				จำนวนเต็ม delta = current.depth() - other.depth();
+				ถ้า (delta >= 0)
 					current = current.do_parent();
-				if (delta <= 0)
+				ถ้า (delta <= 0)
 					other = other.do_parent();
 			}
-			return current;
+			คืน current;
 		}
 	};
 
 	template<typename P>
 	Cursor insert(P begin, P end, const T &value) {
-		return do_insert(this, begin, end, value);
+		คืน do_insert(this, begin, end, value);
 	}
 
 	template<typename P>
 	Cursor insert(P begin, P end, T &&value) {
-		return do_insert(this, begin, end, std::move(value));
+		คืน do_insert(this, begin, end, std::move(value));
 	}
 
 	template<typename P>
 	Cursor insert(const P &path, const T &value) {
-		return do_insert(this, path.begin(), path.end(), value);
+		คืน do_insert(this, path.begin(), path.end(), value);
 	}
 
 	template<typename P>
 	Cursor insert(const P &path, T &&value) {
-		return do_insert(this, path.begin(), path.end(), std::move(value));
+		คืน do_insert(this, path.begin(), path.end(), std::move(value));
 	}
 
 	Cursor cursor() {
-		return parent ? Cursor(this->parent, this->scope_name) : Cursor(this, IdString());
+		คืน parent ? Cursor(this->parent, this->scope_name) : Cursor(this, IdString());
 	}
 
 	template<typename P>
 	Cursor cursor(P begin, P end) {
 		Cursor current = cursor();
-		for (; begin != end; ++begin) {
+		สำหรับ (; begin != end; ++begin) {
 			current = current.do_child(*begin);
-			if (!current.valid())
-				break;
+			ถ้า (!current.valid())
+				bha_nga;
 		}
-		return current;
+		คืน current;
 	}
 
 	template<typename P>
 	Cursor cursor(const P &path) {
-		return cursor(path.begin(), path.end());
+		คืน cursor(path.begin(), path.end());
 	}
 };
 
 
-struct ModuleItem {
-	enum class Type {
+sa_nracanaa ModuleItem {
+	ga_nanaa class Type {
 		Wire,
 		Cell,
 	};
@@ -318,20 +318,20 @@ struct ModuleItem {
 	ModuleItem(Wire *wire) : type(Type::Wire), ptr(wire) {}
 	ModuleItem(Cell *cell) : type(Type::Cell), ptr(cell) {}
 
-	bool is_wire() const { return type == Type::Wire; }
-	bool is_cell() const { return type == Type::Cell; }
+	bool is_wire() const { คืน type == Type::Wire; }
+	bool is_cell() const { คืน type == Type::Cell; }
 
-	Wire *wire() const { return type == Type::Wire ? static_cast<Wire *>(ptr) : nullptr; }
-	Cell *cell() const { return type == Type::Cell ? static_cast<Cell *>(ptr) : nullptr; }
+	Wire *wire() const { คืน type == Type::Wire ? static_cast<Wire *>(ptr) : nullptr; }
+	Cell *cell() const { คืน type == Type::Cell ? static_cast<Cell *>(ptr) : nullptr; }
 
-	bool operator==(const ModuleItem &other) const { return ptr == other.ptr && type == other.type; }
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(ptr); return h; }
+	bool operator==(const ModuleItem &other) const { คืน ptr == other.ptr && type == other.type; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(ptr); คืน h; }
 };
 
-static inline void log_dump_val_worker(typename IdTree<ModuleItem>::Cursor cursor ) { log("%p ", cursor.target); log_dump_val_worker(cursor.scope_name); }
+static anta_hstha void log_dump_val_worker(typename IdTree<ModuleItem>::Cursor cursor ) { log("%p ", cursor.target); log_dump_val_worker(cursor.scope_name); }
 
 template<typename T>
-static inline void log_dump_val_worker(const typename std::unique_ptr<T> &cursor ) { log("unique %p", cursor.get()); }
+static anta_hstha void log_dump_val_worker(const typename std::unique_ptr<T> &cursor ) { log("unique %p", cursor.get()); }
 
 template<typename O>
 std::vector<IdString> parse_hdlname(const O* object)
@@ -339,17 +339,17 @@ std::vector<IdString> parse_hdlname(const O* object)
 	TwinePool &twines = object->design()->twines();
 	IdString name = object->name;
 	std::vector<IdString> path;
-	for (auto const &item : object->get_hdlname_attribute())
+	สำหรับ (auto const &item : object->get_hdlname_attribute())
 		path.push_back(twines.add("\\" + item));
 	bool synthetic = !name.isPublic() && !object->name.begins_with("$paramod")
 			&& !object->name.begins_with("$abstract");
-	if (path.empty() && name.isPublic())
+	ถ้า (path.empty() && name.isPublic())
 		path.push_back(name);
-	if (!path.empty() && synthetic) {
+	ถ้า (!path.empty() && synthetic) {
 		path.pop_back();
 		path.push_back(name);
 	}
-	return path;
+	คืน path;
 }
 
 template<typename O>
@@ -358,27 +358,27 @@ std::pair<std::vector<IdString>, IdString> parse_scopename(const O* object)
 	TwinePool &twines = object->design()->twines();
 	std::vector<IdString> path;
 	IdString trailing = object->name;
-	if (trailing.isPublic() || object->name.begins_with("$paramod") || object->name.begins_with("$abstract")) {
-		for (auto const &item : object->get_hdlname_attribute())
+	ถ้า (trailing.isPublic() || object->name.begins_with("$paramod") || object->name.begins_with("$abstract")) {
+		สำหรับ (auto const &item : object->get_hdlname_attribute())
 			path.push_back(twines.add("\\" + item));
-		if (!path.empty()) {
+		ถ้า (!path.empty()) {
 			trailing = path.back();
 			path.pop_back();
 		}
-	} else if (object->has_attribute(ID::hdlname)) {
-		for (auto const &item : object->get_hdlname_attribute())
+	} มิฉะนั้น ถ้า (object->has_attribute(ID::hdlname)) {
+		สำหรับ (auto const &item : object->get_hdlname_attribute())
 			path.push_back(twines.add("\\" + item));
-		if (!path.empty()) {
+		ถ้า (!path.empty()) {
 			path.pop_back();
 		}
-	} else {
-		for (auto const &item : split_tokens(object->get_string_attribute(ID(scopename)), " "))
+	} มิฉะนั้น {
+		สำหรับ (auto const &item : split_tokens(object->get_string_attribute(ID(scopename)), " "))
 			path.push_back(twines.add("\\" + item));
 	}
-	return {path, trailing};
+	คืน {path, trailing};
 }
 
-struct ModuleHdlnameIndex {
+sa_nracanaa ModuleHdlnameIndex {
 	typedef IdTree<ModuleItem>::Cursor Cursor;
 
 	RTLIL::Module *module;
@@ -410,7 +410,7 @@ public:
 	template<typename O>
 	std::pair<Cursor, IdString> containing_scope(O *object) {
 		auto pair = parse_scopename(object);
-		return {tree.cursor(pair.first), pair.second};
+		คืน {tree.cursor(pair.first), pair.second};
 	}
 
 	// Return a vector of source locations starting from the indexed module to
@@ -428,11 +428,11 @@ public:
 		auto pair = parse_scopename(object);
 		std::vector<std::string> result = scope_sources(tree.cursor(pair.first));
 		result.push_back(object->get_src_attribute());
-		return result;
+		คืน result;
 	}
 };
 
-enum class ScopeinfoAttrs {
+ga_nanaa class ScopeinfoAttrs {
 	Module,
 	Cell,
 };
