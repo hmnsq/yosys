@@ -20,9 +20,9 @@
 #ifndef JSON_H
 #define JSON_H
 
-#include "kernel/yosys.h"
-#include "libs/json11/json11.hpp"
-#include <functional>
+#شامل "kernel/yosys.h"
+#شامل "libs/json11/json11.hpp"
+#شامل <functional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -30,69 +30,69 @@ using json11::Json;
 
 class PrettyJson
 {
-    enum Scope {
-        VALUE,
+    شمارش Scope {
+        مقدار_2,
         OBJECT_FIRST,
         OBJECT,
         ARRAY_FIRST,
         ARRAY,
     };
 
-    struct Target {
-        virtual void emit(const char *data) = 0;
-        virtual void flush() {};
-        virtual ~Target() {};
+    ساختار Target {
+        مجازی تهی emit(ثابت نویسه *data) = 0;
+        مجازی تهی flush() {};
+        مجازی ~Target() {};
     };
 
     std::string newline_indent = "\n";
     std::vector<std::unique_ptr<Target>> targets;
-    std::vector<Scope> state = {VALUE};
-    int compact_depth = INT_MAX;
-public:
+    std::vector<Scope> state = {مقدار_2};
+    صحیح compact_depth = INT_MAX;
+عمومی:
 
-    void emit_to_log();
-    void append_to_string(std::string &target);
-    bool write_to_file(const std::string &path);
+    تهی emit_to_log();
+    تهی append_to_string(std::string &target);
+    bool write_to_file(ثابت std::string &path);
 
-    bool active() { return !targets.empty(); }
+    bool active() { بازگشت !targets.empty(); }
 
-    void compact() { compact_depth = GetSize(state); }
+    تهی compact() { compact_depth = GetSize(state); }
 
-    void line(bool space_if_inline = true);
-    void raw(const char *raw_json);
-    void flush();
-    void begin_object();
-    void begin_array();
-    void end_object();
-    void end_array();
-    void name(const char *name);
-    void begin_value();
-    void end_value();
-    void value_json(const Json &value);
-    void value(unsigned int value) { value_json(Json((int)value)); }
+    تهی سطر(bool space_if_inline = true);
+    تهی raw(ثابت نویسه *raw_json);
+    تهی flush();
+    تهی begin_object();
+    تهی begin_array();
+    تهی end_object();
+    تهی end_array();
+    تهی name(ثابت نویسه *name);
+    تهی begin_مقدار();
+    تهی end_مقدار();
+    تهی مقدار_json(ثابت Json &مقدار);
+    تهی مقدار(unsigned صحیح مقدار) { مقدار_json(Json((صحیح)مقدار)); }
     template<typename T>
-    void value(T &&value) { value_json(Json(std::forward<T>(value))); };
+    تهی مقدار(T &&مقدار) { مقدار_json(Json(std::forward<T>(مقدار))); };
 
-    void entry_json(const char *name, const Json &value);
-    void entry(const char *name, unsigned int value) { entry_json(name, Json((int)value)); }
+    تهی entry_json(ثابت نویسه *name, ثابت Json &مقدار);
+    تهی entry(ثابت نویسه *name, unsigned صحیح مقدار) { entry_json(name, Json((صحیح)مقدار)); }
     template<typename T>
-    void entry(const char *name, T &&value) { entry_json(name, Json(std::forward<T>(value))); };
+    تهی entry(ثابت نویسه *name, T &&مقدار) { entry_json(name, Json(std::forward<T>(مقدار))); };
 
     template<typename T>
-    void object(const T &&values)
+    تهی object(ثابت T &&مقادیر)
     {
         begin_object();
-        for (auto &item : values)
+        برای (auto &item : مقادیر)
             entry(item.first, item.second);
         end_object();
     }
 
     template<typename T>
-    void array(const T &&values)
+    تهی array(ثابت T &&مقادیر)
     {
         begin_array();
-        for (auto &item : values)
-            value(item);
+        برای (auto &item : مقادیر)
+            مقدار(item);
         end_array();
     }
 };

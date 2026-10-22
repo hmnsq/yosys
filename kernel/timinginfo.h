@@ -21,53 +21,53 @@
 #ifndef TIMINGINFO_H
 #define TIMINGINFO_H
 
-#include "kernel/yosys.h"
+#شامل "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct TimingInfo
+ساختار TimingInfo
 {
-	struct NameBit
+	ساختار NameBit
 	{
 		RTLIL::IdString name;
-		int offset;
+		صحیح offset;
 		NameBit() : offset(0) {}
-		NameBit(IdString name, int offset) : name(name), offset(offset) {}
-		explicit NameBit(const RTLIL::SigBit &b) : name(b.wire->name), offset(b.offset) {}
-		bool operator==(const NameBit& nb) const { return nb.name == name && nb.offset == offset; }
-		bool operator!=(const NameBit& nb) const { return !operator==(nb); }
+		NameBit(IdString name, صحیح offset) : name(name), offset(offset) {}
+		explicit NameBit(ثابت RTLIL::SigBit &b) : name(b.wire->name), offset(b.offset) {}
+		bool operator==(ثابت NameBit& nb) ثابت { بازگشت nb.name == name && nb.offset == offset; }
+		bool operator!=(ثابت NameBit& nb) ثابت { بازگشت !operator==(nb); }
 		std::optional<SigBit> get_connection(RTLIL::Cell *cell) {
 			IdString port_name = name;
-			if (!cell->hasPort(port_name))
-				return {};
+			اگر (!cell->hasPort(port_name))
+				بازگشت {};
 			auto &port = cell->getPort(port_name);
-			if (offset >= port.size())
-				return {};
-			return port[offset];
+			اگر (offset >= port.size())
+				بازگشت {};
+			بازگشت port[offset];
 		}
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
 			h.eat(name);
 			h.eat(offset);
-			return h;
+			بازگشت h;
 		}
 	};
-	struct BitBit
+	ساختار BitBit
 	{
 		NameBit first, second;
-		BitBit(const NameBit &first, const NameBit &second) : first(first), second(second) {}
-		BitBit(const SigBit &first, const SigBit &second) : first(first), second(second) {}
-		bool operator==(const BitBit& bb) const { return bb.first == first && bb.second == second; }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		BitBit(ثابت NameBit &first, ثابت NameBit &second) : first(first), second(second) {}
+		BitBit(ثابت SigBit &first, ثابت SigBit &second) : first(first), second(second) {}
+		bool operator==(ثابت BitBit& bb) ثابت { بازگشت bb.first == first && bb.second == second; }
+		[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
 			h.eat(first);
 			h.eat(second);
-			return h;
+			بازگشت h;
 		}
 	};
 
-	struct ModuleTiming
+	ساختار ModuleTiming
 	{
-		dict<BitBit, int> comb;
-		dict<NameBit, std::pair<int,NameBit>> arrival, required;
+		dict<BitBit, صحیح> comb;
+		dict<NameBit, std::pair<صحیح,NameBit>> arrival, required;
 		bool has_inputs;
 	};
 
@@ -82,104 +82,104 @@ struct TimingInfo
 		setup(design);
 	}
 
-	void setup(RTLIL::Design *design)
+	تهی setup(RTLIL::Design *design)
 	{
-		for (auto module : design->modules()) {
-			if (!module->get_blackbox_attribute())
-				continue;
+		برای (auto module : design->modules()) {
+			اگر (!module->get_blackbox_attribute())
+				ادامه;
 			setup_module(module);
 		}
 	}
 
-	const ModuleTiming& setup_module(RTLIL::Module *module)
+	ثابت ModuleTiming& setup_module(RTLIL::Module *module)
 	{
-		auto r = data.insert(module->name);
+		auto r = data.درج(module->name);
 		log_assert(r.second);
 		auto &t = r.first->second;
 
-		for (auto cell : module->cells()) {
-			if (cell->type == ID($specify2)) {
+		برای (auto cell : module->cells()) {
+			اگر (cell->type == ID($specify2)) {
 				auto en = cell->getPort(ID::EN);
-				if (en.is_fully_const() && !en.as_bool())
-					continue;
+				اگر (en.is_fully_const() && !en.as_bool())
+					ادامه;
 				auto src = cell->getPort(ID::SRC);
 				auto dst = cell->getPort(ID::DST);
-				for (const auto &c : src.chunks())
-					if (!c.wire || !c.wire->port_input)
+				برای (ثابت auto &c : src.chunks())
+					اگر (!c.wire || !c.wire->port_درون_داد)
 						log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
-				for (const auto &c : dst.chunks())
-					if (!c.wire || !c.wire->port_output)
+				برای (ثابت auto &c : dst.chunks())
+					اگر (!c.wire || !c.wire->port_output)
 						log_error("Module '%s' contains specify cell '%s' where DST '%s' is not a module output.\n", module, cell, log_signal(dst));
-				int rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
-				int fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
-				int max = std::max(rise_max,fall_max);
-				if (max < 0)
+				صحیح rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
+				صحیح fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
+				صحیح max = std::max(rise_max,fall_max);
+				اگر (max < 0)
 					log_error("Module '%s' contains specify cell '%s' with T_{RISE,FALL}_MAX < 0.\n", module, cell);
-				if (cell->getParam(ID::FULL).as_bool()) {
-					for (const auto &s : src)
-						for (const auto &d : dst) {
-							auto r = t.comb.insert(BitBit(s,d));
-							if (!r.second)
+				اگر (cell->getParam(ID::FULL).as_bool()) {
+					برای (ثابت auto &s : src)
+						برای (ثابت auto &d : dst) {
+							auto r = t.comb.درج(BitBit(s,d));
+							اگر (!r.second)
 								log_error("Module '%s' contains multiple specify cells for SRC '%s' and DST '%s'.\n", module, log_signal(s), log_signal(d));
 							r.first->second = max;
 						}
 				}
-				else {
+				وگرنه {
 					log_assert(GetSize(src) == GetSize(dst));
-					for (auto i = 0; i < GetSize(src); i++) {
-						const auto &s = src[i];
-						const auto &d = dst[i];
-						auto r = t.comb.insert(BitBit(s,d));
-						if (!r.second)
+					برای (auto i = 0; i < GetSize(src); i++) {
+						ثابت auto &s = src[i];
+						ثابت auto &d = dst[i];
+						auto r = t.comb.درج(BitBit(s,d));
+						اگر (!r.second)
 							log_error("Module '%s' contains multiple specify cells for SRC '%s' and DST '%s'.\n", module, log_signal(s), log_signal(d));
 						r.first->second = max;
 					}
 				}
 			}
-			else if (cell->type == ID($specify3)) {
+			وگرنه اگر (cell->type == ID($specify3)) {
 				auto src = cell->getPort(ID::SRC).as_bit();
 				auto dst = cell->getPort(ID::DST);
-				if (!src.wire || !src.wire->port_input)
+				اگر (!src.wire || !src.wire->port_درون_داد)
 					log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
-				for (const auto &c : dst.chunks())
-					if (!c.wire->port_output)
+				برای (ثابت auto &c : dst.chunks())
+					اگر (!c.wire->port_output)
 						log_error("Module '%s' contains specify cell '%s' where DST '%s' is not a module output.\n", module, cell, log_signal(dst));
-				int rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
-				int fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
-				int max = std::max(rise_max,fall_max);
-				if (max < 0) {
+				صحیح rise_max = cell->getParam(ID::T_RISE_MAX).as_int();
+				صحیح fall_max = cell->getParam(ID::T_FALL_MAX).as_int();
+				صحیح max = std::max(rise_max,fall_max);
+				اگر (max < 0) {
 					log_warning("Module '%s' contains specify cell '%s' with T_{RISE,FALL}_MAX < 0 which is currently unsupported. Clamping to 0.\n", module, cell);
 					max = 0;
 				}
-				for (const auto &d : dst) {
-					auto r = t.arrival.insert(NameBit(d));
+				برای (ثابت auto &d : dst) {
+					auto r = t.arrival.درج(NameBit(d));
 					auto &v = r.first->second;
-					if (r.second || v.first < max) {
+					اگر (r.second || v.first < max) {
 						v.first = max;
 						v.second = NameBit(src);
 					}
 				}
 			}
-			else if (cell->type == ID($specrule)) {
+			وگرنه اگر (cell->type == ID($specrule)) {
 				std::string type = cell->getParam(ID::TYPE).decode_string();
-				if (type != "$setup" && type != "$setuphold")
-					continue;
+				اگر (type != "$setup" && type != "$setuphold")
+					ادامه;
 				auto src = cell->getPort(ID::SRC);
 				auto dst = cell->getPort(ID::DST).as_bit();
-				for (const auto &c : src.chunks())
-					if (!c.wire || !c.wire->port_input)
+				برای (ثابت auto &c : src.chunks())
+					اگر (!c.wire || !c.wire->port_درون_داد)
 						log_error("Module '%s' contains specify cell '%s' where SRC '%s' is not a module input.\n", module, cell, log_signal(src));
-				if (!dst.wire || !dst.wire->port_input)
+				اگر (!dst.wire || !dst.wire->port_درون_داد)
 					log_error("Module '%s' contains specify cell '%s' where DST '%s' is not a module input.\n", module, cell, log_signal(dst));
-				int max = cell->getParam(ID::T_LIMIT_MAX).as_int();
-				if (max < 0) {
+				صحیح max = cell->getParam(ID::T_LIMIT_MAX).as_int();
+				اگر (max < 0) {
 					log_warning("Module '%s' contains specify cell '%s' with T_LIMIT_MAX < 0 which is currently unsupported. Clamping to 0.\n", module, cell);
 					max = 0;
 				}
-				for (const auto &s : src) {
-					auto r = t.required.insert(NameBit(s));
+				برای (ثابت auto &s : src) {
+					auto r = t.required.درج(NameBit(s));
 					auto &v = r.first->second;
-					if (r.second || v.first < max) {
+					اگر (r.second || v.first < max) {
 						v.first = max;
 						v.second = NameBit(dst);
 					}
@@ -187,21 +187,21 @@ struct TimingInfo
 			}
 		}
 
-		for (auto port_name : module->ports) {
+		برای (auto port_name : module->ports) {
 			auto wire = module->wire(port_name);
-			if (wire->port_input) {
+			اگر (wire->port_درون_داد) {
 				t.has_inputs = true;
-				break;
+				بشکن;
 			}
 		}
 
-		return t;
+		بازگشت t;
 	}
 
-	decltype(data)::const_iterator find(RTLIL::IdString module_name) const { return data.find(module_name); }
-	decltype(data)::const_iterator end() const { return data.end(); }
-	int count(RTLIL::IdString module_name) const { return data.count(module_name); }
-	const ModuleTiming& at(RTLIL::IdString module_name) const { return data.at(module_name); }
+	decltype(data)::const_iterator find(RTLIL::IdString module_name) ثابت { بازگشت data.find(module_name); }
+	decltype(data)::const_iterator end() ثابت { بازگشت data.end(); }
+	صحیح شمار(RTLIL::IdString module_name) ثابت { بازگشت data.شمار(module_name); }
+	ثابت ModuleTiming& at(RTLIL::IdString module_name) ثابت { بازگشت data.at(module_name); }
 };
 
 YOSYS_NAMESPACE_END

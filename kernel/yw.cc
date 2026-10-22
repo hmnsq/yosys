@@ -17,190 +17,190 @@
  *
  */
 
-#include "kernel/yw.h"
-#include "libs/json11/json11.hpp"
+#شامل "kernel/yw.h"
+#شامل "libs/json11/json11.hpp"
 
 USING_YOSYS_NAMESPACE
 
 // Use the same formatting as witness.py uses
-static const char *pretty_name(const std::string &id)
+ایستا ثابت نویسه *pretty_name(ثابت std::string &id)
 {
-	const char *c_str = id.c_str();
-	const char *p = c_str;
+	ثابت نویسه *c_str = id.c_str();
+	ثابت نویسه *p = c_str;
 
-	if (*p != '\\')
-		return c_str;
+	اگر (*p != '\\')
+		بازگشت c_str;
 	p++;
 
-	if (*p == '[') {
+	اگر (*p == '[') {
 		p++;
-		while (*p >= '0' && *p <= '9')
+		وقتی (*p >= '0' && *p <= '9')
 			p++;
-		if (p[0] != ']' || p[1] != 0)
-			return c_str;
-		return c_str + 1;
+		اگر (p[0] != ']' || p[1] != 0)
+			بازگشت c_str;
+		بازگشت c_str + 1;
 	}
 
-	if (!(*p >= 'a' && *p <= 'z') && !(*p >= 'A' && *p <= 'Z') && *p != '_')
-		return c_str;
+	اگر (!(*p >= 'a' && *p <= 'z') && !(*p >= 'A' && *p <= 'Z') && *p != '_')
+		بازگشت c_str;
 	p++;
-	while ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
+	وقتی ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
 		p++;
 
-	if (*p != 0)
-		return c_str;
-	return c_str + 1;
+	اگر (*p != 0)
+		بازگشت c_str;
+	بازگشت c_str + 1;
 }
 
-std::string IdPath::str() const
+std::string IdPath::str() ثابت
 {
 	std::string result;
 
-	for (auto &item : *this) {
-		const char *pretty = pretty_name(item);
-		if (pretty[0] == '[') {
+	برای (auto &item : *این) {
+		ثابت نویسه *pretty = pretty_name(item);
+		اگر (pretty[0] == '[') {
 			result += pretty;
-			continue;
+			ادامه;
 		}
-		if (!result.empty())
+		اگر (!result.empty())
 			result += '.';
 		result += pretty;
-		if (pretty[0] == '\\' || pretty[0] == '$')
+		اگر (pretty[0] == '\\' || pretty[0] == '$')
 			result += ' ';
 	}
 
-	return result;
+	بازگشت result;
 }
 
-bool IdPath::get_address(int &addr) const
+منطقی IdPath::get_address(صحیح &addr) ثابت
 {
-	if (empty())
-		return false;
+	اگر (empty())
+		بازگشت نادرست;
 	auto &last = back();
-	if (!last.starts_with("\\["))
-		return false;
-	if (last == "\\[0]") {
+	اگر (!last.starts_with("\\["))
+		بازگشت نادرست;
+	اگر (last == "\\[0]") {
 		addr = 0;
-		return true;
+		بازگشت درست;
 	}
-	char first = last.c_str()[2];
-	if (first < '1' || first > '9')
-		return false;
-	char *endptr;
+	نویسه first = last.c_str()[2];
+	اگر (first < '1' || first > '9')
+		بازگشت نادرست;
+	نویسه *endptr;
 	addr = std::strtol(last.c_str() + 2, &endptr, 10);
-	return endptr[0] == ']' && endptr[1] == 0;
+	بازگشت endptr[0] == ']' && endptr[1] == 0;
 }
 
-static std::vector<std::string> get_path(const json11::Json &json)
+ایستا std::vector<std::string> get_path(ثابت json11::Json &json)
 {
 	std::vector<std::string> result;
-	for (auto &path_item : json.array_items()) {
-		auto const &path_item_str = path_item.string_value();
-		if (path_item_str.empty())
-			return {};;
-		result.push_back(path_item_str);
+	برای (auto &path_item : json.array_اقلام()) {
+		auto ثابت &path_item_str = path_item.string_مقدار();
+		اگر (path_item_str.empty())
+			بازگشت {};;
+		result.افزودن_back(path_item_str);
 	}
-	return result;
+	بازگشت result;
 }
 
-ReadWitness::ReadWitness(const std::string &filename) :
+ReadWitness::ReadWitness(ثابت std::string &filename) :
 	filename(filename)
 {
 	std::ifstream f(filename.c_str());
-	if (f.fail() || GetSize(filename) == 0)
+	اگر (f.fail() || GetSize(filename) == 0)
 		log_error("Cannot open file `%s`\n", filename);
 	std::stringstream buf;
 	buf << f.rdbuf();
 	std::string err;
 	json11::Json json = json11::Json::parse(buf.str(), err);
-	if (!err.empty())
+	اگر (!err.empty())
 		log_error("Failed to parse `%s`: %s\n", filename, err);
 
-	std::string format = json["format"].string_value();
+	std::string format = json["format"].string_مقدار();
 
-	if (format.empty())
+	اگر (format.empty())
 		log_error("Failed to parse `%s`: Unknown format\n", filename);
-	if (format != "Yosys Witness Trace")
+	اگر (format != "Yosys Witness Trace")
 		log_error("Failed to parse `%s`: Unsupported format `%s`\n", filename, format);
 
-	for (auto &clock_json : json["clocks"].array_items()) {
+	برای (auto &clock_json : json["clocks"].array_اقلام()) {
 		Clock clock;
 		clock.path = get_path(clock_json["path"]);
-		if (clock.path.empty())
+		اگر (clock.path.empty())
 			log_error("Failed to parse `%s`: Missing path for clock `%s`\n", filename, clock_json.dump());
 		auto edge_str = clock_json["edge"];
-		if (edge_str.string_value() == "posedge")
-			clock.is_posedge = true;
-		else if (edge_str.string_value() == "negedge")
-			clock.is_negedge = true;
-		else
+		اگر (edge_str.string_مقدار() == "posedge")
+			clock.is_posedge = درست;
+		وگرنه اگر (edge_str.string_مقدار() == "negedge")
+			clock.is_negedge = درست;
+		وگرنه
 			log_error("Failed to parse `%s`: Unknown edge type for clock `%s`\n", filename, clock_json.dump());
-		if (!clock_json["offset"].is_number())
+		اگر (!clock_json["offset"].is_عدد())
 			log_error("Failed to parse `%s`: Unknown offset for clock `%s`\n", filename, clock_json.dump());
-		clock.offset = clock_json["offset"].int_value();
-		if (clock.offset < 0)
+		clock.offset = clock_json["offset"].int_مقدار();
+		اگر (clock.offset < 0)
 			log_error("Failed to parse `%s`: Invalid offset for clock `%s`\n", filename, clock_json.dump());
-		clocks.push_back(clock);
+		clocks.افزودن_back(clock);
 	}
 
-	int bits_offset = 0;
-	for (auto &signal_json : json["signals"].array_items()) {
-		Signal signal;
-		signal.bits_offset = bits_offset;
-		signal.path = get_path(signal_json["path"]);
-		if (signal.path.empty())
+	صحیح bits_offset = 0;
+	برای (auto &signal_json : json["signals"].array_اقلام()) {
+		Signal سیگنال;
+		سیگنال.bits_offset = bits_offset;
+		سیگنال.path = get_path(signal_json["path"]);
+		اگر (سیگنال.path.empty())
 			log_error("Failed to parse `%s`: Missing path for signal `%s`\n", filename, signal_json.dump());
-		if (!signal_json["width"].is_number())
+		اگر (!signal_json["width"].is_عدد())
 			log_error("Failed to parse `%s`: Unknown width for signal `%s`\n", filename, signal_json.dump());
-		signal.width = signal_json["width"].int_value();
-		if (signal.width < 0)
+		سیگنال.width = signal_json["width"].int_مقدار();
+		اگر (سیگنال.width < 0)
 			log_error("Failed to parse `%s`: Invalid width for signal `%s`\n", filename, signal_json.dump());
-		bits_offset += signal.width;
-		if (!signal_json["offset"].is_number())
+		bits_offset += سیگنال.width;
+		اگر (!signal_json["offset"].is_عدد())
 			log_error("Failed to parse `%s`: Unknown offset for signal `%s`\n", filename, signal_json.dump());
-		signal.offset = signal_json["offset"].int_value();
-		if (signal.offset < 0)
+		سیگنال.offset = signal_json["offset"].int_مقدار();
+		اگر (سیگنال.offset < 0)
 			log_error("Failed to parse `%s`: Invalid offset for signal `%s`\n", filename, signal_json.dump());
-		signal.init_only = signal_json["init_only"].bool_value();
-		signals.push_back(signal);
+		سیگنال.init_only = signal_json["init_only"].bool_مقدار();
+		signals.افزودن_back(سیگنال);
 	}
 
-	for (auto &step_json : json["steps"].array_items()) {
+	برای (auto &step_json : json["steps"].array_اقلام()) {
 		Step step;
-		if (!step_json["bits"].is_string())
+		اگر (!step_json["bits"].is_string())
 			log_error("Failed to parse `%s`: Expected string as bits value for step %d\n", filename, GetSize(steps));
-		step.bits = step_json["bits"].string_value();
-		for (char c : step.bits) {
-			if (c != '0' && c != '1' && c != 'x' && c != '?')
+		step.bits = step_json["bits"].string_مقدار();
+		برای (نویسه c : step.bits) {
+			اگر (c != '0' && c != '1' && c != 'x' && c != '?')
 				log_error("Failed to parse `%s`: Invalid bit '%c' value for step %d\n", filename, c, GetSize(steps));
 		}
-		steps.push_back(step);
+		steps.افزودن_back(step);
 	}
 }
 
-RTLIL::Const ReadWitness::get_bits(int t, int bits_offset, int width) const
+RTLIL::Const ReadWitness::get_bits(صحیح t, صحیح bits_offset, صحیح width) ثابت
 {
 	log_assert(t >= 0 && t < GetSize(steps));
 
-	const std::string &bits = steps[t].bits;
+	ثابت std::string &bits = steps[t].bits;
 
 	RTLIL::Const result(State::Sa, width);
 
-	int read_begin = GetSize(bits) - 1 - bits_offset;
-	int read_end = max(-1, read_begin - width);
+	صحیح read_begin = GetSize(bits) - 1 - bits_offset;
+	صحیح read_end = max(-1, read_begin - width);
 
-	for (int i = read_begin, j = 0; i > read_end; i--, j++) {
+	برای (صحیح i = read_begin, j = 0; i > read_end; i--, j++) {
 		RTLIL::State bit = State::Sa;
-		switch (bits[i]) {
-			case '0': bit = State::S0; break;
-			case '1': bit = State::S1; break;
-			case 'x': bit = State::Sx; break;
-			case '?': bit = State::Sa; break;
-			default:
+		انتخاب (bits[i]) {
+			حالت '0': bit = State::S0; بشکن;
+			حالت '1': bit = State::S1; بشکن;
+			حالت 'x': bit = State::Sx; بشکن;
+			حالت '?': bit = State::Sa; بشکن;
+			پیشفرض:
 				log_abort();
 		}
 		result.set(j, bit);
 	}
 
-	return result;
+	بازگشت result;
 }

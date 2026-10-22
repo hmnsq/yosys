@@ -17,155 +17,155 @@
  *
  */
 
-#include "kernel/json.h"
+#شامل "kernel/json.h"
 
 USING_YOSYS_NAMESPACE
 
-void PrettyJson::emit_to_log()
+تهی PrettyJson::emit_to_log()
 {
-    struct LogTarget : public Target {
-        void emit(const char *data) override { log("%s", data); }
+    ساختار LogTarget : عمومی Target {
+        تهی emit(ثابت نویسه *data) override { log("%s", data); }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new LogTarget));
+    targets.افزودن_back(std::unique_ptr<Target>(جدید LogTarget));
 }
 
-void PrettyJson::append_to_string(std::string &target)
+تهی PrettyJson::append_to_string(std::string &target)
 {
-    struct AppendStringTarget : public Target {
+    ساختار AppendStringTarget : عمومی Target {
         std::string &target;
         AppendStringTarget(std::string &target) : target(target) {}
-        void emit(const char *data) override { target += data; }
+        تهی emit(ثابت نویسه *data) override { target += data; }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new AppendStringTarget(target)));
+    targets.افزودن_back(std::unique_ptr<Target>(جدید AppendStringTarget(target)));
 }
 
-bool PrettyJson::write_to_file(const std::string &path)
+منطقی PrettyJson::write_to_file(ثابت std::string &path)
 {
-    struct WriteFileTarget : public Target {
+    ساختار WriteFileTarget : عمومی Target {
         std::ofstream target;
-        void emit(const char *data) override { target << data; }
-        void flush() override { target.flush(); }
+        تهی emit(ثابت نویسه *data) override { target << data; }
+        تهی flush() override { target.flush(); }
     };
 
-    auto target = std::unique_ptr<WriteFileTarget>(new WriteFileTarget);
+    auto target = std::unique_ptr<WriteFileTarget>(جدید WriteFileTarget);
     target->target.open(path);
-    if (target->target.fail())
-        return false;
-    targets.push_back(std::unique_ptr<Target>(target.release()));
-    return true;
+    اگر (target->target.fail())
+        بازگشت نادرست;
+    targets.افزودن_back(std::unique_ptr<Target>(target.release()));
+    بازگشت درست;
 }
 
-void PrettyJson::line(bool space_if_inline)
+تهی PrettyJson::سطر(منطقی space_if_inline)
 {
-    if (compact_depth != INT_MAX) {
-        if (space_if_inline)
+    اگر (compact_depth != INT_MAX) {
+        اگر (space_if_inline)
             raw(" ");
-        return;
+        بازگشت;
     }
-    int indent = state.size() - (state.empty() ? 0 : state.back() == VALUE);
+    صحیح indent = state.size() - (state.empty() ? 0 : state.back() == مقدار_2);
     newline_indent.resize(1 + 2 * indent, ' ');
     raw(newline_indent.c_str());
 }
 
-void PrettyJson::raw(const char *raw_json)
+تهی PrettyJson::raw(ثابت نویسه *raw_json)
 {
-    for (auto &target : targets)
+    برای (auto &target : targets)
         target->emit(raw_json);
 }
 
-void PrettyJson::flush()
+تهی PrettyJson::flush()
 {
-    for (auto &target : targets)
+    برای (auto &target : targets)
         target->flush();
 }
 
-void PrettyJson::begin_object()
+تهی PrettyJson::begin_object()
 {
-    begin_value();
+    begin_مقدار();
     raw("{");
-    state.push_back(OBJECT_FIRST);
+    state.افزودن_back(OBJECT_FIRST);
 }
 
-void PrettyJson::begin_array()
+تهی PrettyJson::begin_array()
 {
-    begin_value();
+    begin_مقدار();
     raw("[");
-    state.push_back(ARRAY_FIRST);
+    state.افزودن_back(ARRAY_FIRST);
 }
 
-void PrettyJson::end_object()
+تهی PrettyJson::end_object()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == OBJECT)
-        line(false);
-    else
-        log_assert(top_scope == OBJECT_FIRST);
+    Scope بالاترین_scope = state.back();
+    state.برداشت_back();
+    اگر (بالاترین_scope == OBJECT)
+        سطر(نادرست);
+    وگرنه
+        log_assert(بالاترین_scope == OBJECT_FIRST);
     raw("}");
-    end_value();
+    end_مقدار();
 }
 
-void PrettyJson::end_array()
+تهی PrettyJson::end_array()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == ARRAY)
-        line(false);
-    else
-        log_assert(top_scope == ARRAY_FIRST);
+    Scope بالاترین_scope = state.back();
+    state.برداشت_back();
+    اگر (بالاترین_scope == ARRAY)
+        سطر(نادرست);
+    وگرنه
+        log_assert(بالاترین_scope == ARRAY_FIRST);
     raw("]");
-    end_value();
+    end_مقدار();
 }
 
-void PrettyJson::name(const char *name)
+تهی PrettyJson::name(ثابت نویسه *name)
 {
-    if (state.back() == OBJECT_FIRST) {
+    اگر (state.back() == OBJECT_FIRST) {
         state.back() = OBJECT;
-        line(false);
-    } else {
+        سطر(نادرست);
+    } وگرنه {
         raw(",");
-        line();
+        سطر();
     }
     raw(Json(name).dump().c_str());
     raw(": ");
-    state.push_back(VALUE);
+    state.افزودن_back(مقدار_2);
 }
 
-void PrettyJson::begin_value()
+تهی PrettyJson::begin_مقدار()
 {
-    if (state.back() == ARRAY_FIRST) {
-        line(false);
+    اگر (state.back() == ARRAY_FIRST) {
+        سطر(نادرست);
         state.back() = ARRAY;
-    } else if (state.back() == ARRAY) {
+    } وگرنه اگر (state.back() == ARRAY) {
         raw(",");
-        line();
-    } else {
-        log_assert(state.back() == VALUE);
-        state.pop_back();
+        سطر();
+    } وگرنه {
+        log_assert(state.back() == مقدار_2);
+        state.برداشت_back();
     }
 }
 
-void PrettyJson::end_value()
+تهی PrettyJson::end_مقدار()
 {
-    if (state.empty()) {
+    اگر (state.empty()) {
         raw("\n");
         flush();
     }
-    if (GetSize(state) < compact_depth)
+    اگر (GetSize(state) < compact_depth)
         compact_depth = INT_MAX;
 }
 
-void PrettyJson::value_json(const Json &value)
+تهی PrettyJson::مقدار_json(ثابت Json &مقدار)
 {
-    begin_value();
-    raw(value.dump().c_str());
-    end_value();
+    begin_مقدار();
+    raw(مقدار.dump().c_str());
+    end_مقدار();
 }
 
-void PrettyJson::entry_json(const char *name, const Json &value)
+تهی PrettyJson::entry_json(ثابت نویسه *name, ثابت Json &مقدار)
 {
-    this->name(name);
-    this->value(value);
+    این->name(name);
+    این->مقدار(مقدار);
 }

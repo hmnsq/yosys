@@ -1,13 +1,13 @@
 #ifndef UNUSED_BITS_H
 #define UNUSED_BITS_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/newcelltypes.h"
+#شامل "kernel/yosys.h"
+#شامل "kernel/sigtools.h"
+#شامل "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct UnusedBits
+ساختار UnusedBits
 {
 	SigMap sigmap;
 	pool<RTLIL::SigBit> used;
@@ -18,34 +18,34 @@ struct UnusedBits
 		collect_used(module, ct);
 	}
 
-	UnusedBits(RTLIL::Module *module, const NewCellTypes &ct) : sigmap(module)
+	UnusedBits(RTLIL::Module *module, ثابت NewCellTypes &ct) : sigmap(module)
 	{
 		collect_used(module, ct);
 	}
 
-	void collect_used(RTLIL::Module *module, const NewCellTypes &ct)
+	تهی collect_used(RTLIL::Module *module, ثابت NewCellTypes &ct)
 	{
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				if (!ct.cell_output(cell->type, conn.first))
+		برای (auto cell : module->cells())
+			برای (auto &conn : cell->connections())
+				اگر (!ct.cell_output(cell->type, conn.first))
 					add_used(conn.second);
 
-		for (auto wire : module->wires())
-			if (wire->port_output)
+		برای (auto wire : module->wires())
+			اگر (wire->port_output)
 				add_used(wire);
 	}
 
-	void add_used(const RTLIL::SigSpec &sig)
+	تهی add_used(ثابت RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sigmap(sig))
-			if (bit.wire != nullptr)
-				used.insert(bit);
+		برای (auto bit : sigmap(sig))
+			اگر (bit.wire != nullptr)
+				used.درج(bit);
 	}
 
-	bool check(RTLIL::SigBit bit) const
+	bool check(RTLIL::SigBit bit) ثابت
 	{
 		RTLIL::SigBit mapped = sigmap(bit);
-		return mapped.wire != nullptr && !used.count(mapped);
+		بازگشت mapped.wire != nullptr && !used.شمار(mapped);
 	}
 };
 

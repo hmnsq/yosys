@@ -1,5 +1,5 @@
-#include <string>
-#include "kernel/yosys_common.h"
+#شامل <string>
+#شامل "kernel/yosys_common.h"
 
 #ifndef YOSYS_GZIP_H
 #define YOSYS_GZIP_H
@@ -9,31 +9,31 @@ YOSYS_NAMESPACE_BEGIN
 #ifdef YOSYS_ENABLE_ZLIB
 
 namespace Zlib {
-#include <zlib.h>
+#شامل <zlib.h>
 }
 
 /*
 An output stream that uses a stringbuf to buffer data internally,
 using zlib to write gzip-compressed data every time the stream is flushed.
 */
-class gzip_ostream : public std::ostream {
-public:
+class gzip_ostream : عمومی std::ostream {
+عمومی:
 	gzip_ostream(): std::ostream(nullptr) {
 		rdbuf(&outbuf);
 	}
-	bool open(const std::string &filename) {
-		return outbuf.open(filename);
+	bool open(ثابت std::string &filename) {
+		بازگشت outbuf.open(filename);
 	}
-private:
-	class obuf : public std::stringbuf {
-	public:
+خصوصی:
+	class obuf : عمومی std::stringbuf {
+	عمومی:
 		obuf();
-		bool open(const std::string &filename);
-		virtual int sync() override;
-		virtual ~obuf();
-	private:
-		static const int buffer_size = 4096;
-		char buffer[buffer_size];             // Internal buffer for compressed data
+		bool open(ثابت std::string &filename);
+		مجازی صحیح sync() override;
+		مجازی ~obuf();
+	خصوصی:
+		ایستا ثابت صحیح buffer_size = 4096;
+		نویسه buffer[buffer_size];             // Internal buffer for compressed data
 		Zlib::gzFile gzf = nullptr;                 // Handle to the gzip file
 	};
 
@@ -44,25 +44,25 @@ private:
 An input stream that uses zlib to read gzip-compressed data from a file,
 buffering the decompressed data internally using its own buffer.
 */
-class gzip_istream final : public std::istream {
-public:
+class gzip_istream final : عمومی std::istream {
+عمومی:
 	gzip_istream() : std::istream(&inbuf) {}
-	bool open(const std::string& filename) {
-		return inbuf.open(filename);
+	bool open(ثابت std::string& filename) {
+		بازگشت inbuf.open(filename);
 	}
-private:
-	class ibuf final : public std::streambuf {
-	public:
+خصوصی:
+	class ibuf final : عمومی std::streambuf {
+	عمومی:
 		ibuf() : gzf(nullptr) {}
-		bool open(const std::string& filename);
-		virtual ~ibuf();
+		bool open(ثابت std::string& filename);
+		مجازی ~ibuf();
 
-	protected:
+	محافظتشده:
 		// Called when the buffer is empty and more input is needed
-		virtual int_type underflow() override;
-	private:
-		static const int buffer_size = 8192;
-		char buffer[buffer_size];
+		مجازی int_type underflow() override;
+	خصوصی:
+		ایستا ثابت صحیح buffer_size = 8192;
+		نویسه buffer[buffer_size];
 		Zlib::gzFile gzf;
 	};
 
@@ -71,7 +71,7 @@ private:
 
 #endif // YOSYS_ENABLE_ZLIB
 
-std::istream* uncompressed(const std::string filename, std::ios_base::openmode mode = std::ios_base::in);
+std::istream* uncompressed(ثابت std::string filename, std::ios_base::openmode mode = std::ios_base::in);
 
 YOSYS_NAMESPACE_END
 

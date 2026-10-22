@@ -20,9 +20,9 @@
 #ifndef FF_H
 #define FF_H
 
-#include "kernel/yosys.h"
-#include "kernel/ffinit.h"
-#include "kernel/twine.h"
+#شامل "kernel/yosys.h"
+#شامل "kernel/ffinit.h"
+#شامل "kernel/twine.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -79,7 +79,7 @@ YOSYS_NAMESPACE_BEGIN
 // - has_arst [does not correspond to a native cell, represented as dlatch with const D input]
 // - empty set [not a cell — will be emitted as a simple direct connection]
 
-struct FfTypeData {
+ساختار FfTypeData {
 	FfTypeData(IdString type);
 	FfTypeData() {
 		has_clk = false;
@@ -140,7 +140,7 @@ struct FfTypeData {
 	Const val_srst;
 };
 
-struct FfData : FfTypeData {
+ساختار FfData : FfTypeData {
 	Module *module;
 	FfInitVals *initvals;
 	Cell *cell;
@@ -168,7 +168,7 @@ struct FfData : FfTypeData {
 	// The initial value at power-up.
 	Const val_init;
 	// The FF data width in bits.
-	int width;
+	صحیح width;
 	dict<IdString, Const> attributes;
 
 	FfData(Module *module = nullptr, FfInitVals *initvals = nullptr, IdString name = IdString()) : module(module), initvals(initvals), cell(nullptr), name(name) {
@@ -188,28 +188,28 @@ struct FfData : FfTypeData {
 	FfData(FfInitVals *initvals, Cell *cell_);
 
 	// Returns a FF identical to this one, but only keeping bit indices from the argument.
-	FfData slice(const std::vector<int> &bits);
+	FfData slice(ثابت std::vector<صحیح> &bits);
 
-	void add_dummy_ce();
-	void add_dummy_srst();
-	void add_dummy_arst();
-	void add_dummy_aload();
-	void add_dummy_sr();
-	void add_dummy_clk();
+	تهی add_dummy_ce();
+	تهی add_dummy_srst();
+	تهی add_dummy_arst();
+	تهی add_dummy_aload();
+	تهی add_dummy_sr();
+	تهی add_dummy_clk();
 
-	void arst_to_aload();
-	void arst_to_sr();
+	تهی arst_to_aload();
+	تهی arst_to_sr();
 
-	void aload_to_sr();
+	تهی aload_to_sr();
 
 	// Given a FF with both has_ce and has_srst, sets ce_over_srst to the given value and
 	// fixes up control signals appropriately to preserve semantics.
-	void convert_ce_over_srst(bool val);
+	تهی convert_ce_over_srst(bool val);
 
-	void unmap_ce();
-	void unmap_srst();
+	تهی unmap_ce();
+	تهی unmap_srst();
 
-	void unmap_ce_srst() {
+	تهی unmap_ce_srst() {
 		unmap_ce();
 		unmap_srst();
 	}
@@ -218,19 +218,19 @@ struct FfData : FfTypeData {
 
 	// Removes init attribute from the Q output, but keeps val_init unchanged.
 	// It will be automatically reattached on emit.  Use this before changing sig_q.
-	void remove_init() {
-		if (initvals)
+	تهی remove_init() {
+		اگر (initvals)
 			initvals->remove_init(sig_q);
 	}
 
-	void remove();
+	تهی remove();
 
 	// Flip the sense of the given bit slices of the FF: insert inverters on data
 	// inputs and output, flip the corresponding init/reset bits, swap clr/set
 	// inputs with proper priority fix.
-	void flip_bits(const pool<int> &bits);
+	تهی flip_bits(ثابت pool<صحیح> &bits);
 
-	void flip_rst_bits(const pool<int> &bits);
+	تهی flip_rst_bits(ثابت pool<صحیح> &bits);
 };
 
 YOSYS_NAMESPACE_END

@@ -20,8 +20,8 @@
 // This file contains various c++ utility routines and helper classes that
 // do not depend on any other components of yosys (except stuff like log_*).
 
-#include "kernel/yosys.h"
-#include <iterator>
+#شامل "kernel/yosys.h"
+#شامل <iterator>
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -32,94 +32,94 @@ YOSYS_NAMESPACE_BEGIN
 // A map-like container, but you can save and restore the state
 // ------------------------------------------------
 
-template<typename Key, typename T>
-struct stackmap
+template<typename کلید_2, typename T>
+ساختار stackmap
 {
-private:
-	std::vector<dict<Key, T*>> backup_state;
-	dict<Key, T> current_state;
-	static T empty_tuple;
+خصوصی:
+	std::vector<dict<کلید_2, T*>> backup_state;
+	dict<کلید_2, T> current_state;
+	ایستا T empty_tuple;
 
-public:
+عمومی:
 	stackmap() { }
-	stackmap(const dict<Key, T> &other) : current_state(other) { }
+	stackmap(ثابت dict<کلید_2, T> &other) : current_state(other) { }
 
 	template<typename Other>
-	void operator=(const Other &other)
+	تهی operator=(ثابت Other &other)
 	{
-		for (auto &it : current_state)
-			if (!backup_state.empty() && backup_state.back().count(it.first) == 0)
+		برای (auto &it : current_state)
+			اگر (!backup_state.empty() && backup_state.back().شمار(it.first) == 0)
 				backup_state.back()[it.first] = new T(it.second);
 		current_state.clear();
 
-		for (auto &it : other)
+		برای (auto &it : other)
 			set(it.first, it.second);
 	}
 
-	bool has(const Key &k)
+	bool has(ثابت کلید_2 &k)
 	{
-		return current_state.count(k) != 0;
+		بازگشت current_state.شمار(k) != 0;
 	}
 
-	void set(const Key &k, const T &v)
+	تهی set(ثابت کلید_2 &k, ثابت T &v)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
-			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
+		اگر (!backup_state.empty() && backup_state.back().شمار(k) == 0)
+			backup_state.back()[k] = current_state.شمار(k) ? new T(current_state.at(k)) : nullptr;
 		current_state[k] = v;
 	}
 
-	void unset(const Key &k)
+	تهی unset(ثابت کلید_2 &k)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
-			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
+		اگر (!backup_state.empty() && backup_state.back().شمار(k) == 0)
+			backup_state.back()[k] = current_state.شمار(k) ? new T(current_state.at(k)) : nullptr;
 		current_state.erase(k);
 	}
 
-	const T &get(const Key &k)
+	ثابت T &get(ثابت کلید_2 &k)
 	{
-		if (current_state.count(k) == 0)
-			return empty_tuple;
-		return current_state.at(k);
+		اگر (current_state.شمار(k) == 0)
+			بازگشت empty_tuple;
+		بازگشت current_state.at(k);
 	}
 
-	void reset(const Key &k)
+	تهی reset(ثابت کلید_2 &k)
 	{
-		for (int i = GetSize(backup_state)-1; i >= 0; i--)
-			if (backup_state[i].count(k) != 0) {
-				if (backup_state[i].at(k) == nullptr)
+		برای (صحیح i = GetSize(backup_state)-1; i >= 0; i--)
+			اگر (backup_state[i].شمار(k) != 0) {
+				اگر (backup_state[i].at(k) == nullptr)
 					current_state.erase(k);
-				else
+				وگرنه
 					current_state[k] = *backup_state[i].at(k);
-				return;
+				بازگشت;
 			}
 		current_state.erase(k);
 	}
 
-	const dict<Key, T> &stdmap()
+	ثابت dict<کلید_2, T> &stdmap()
 	{
-		return current_state;
+		بازگشت current_state;
 	}
 
-	void save()
+	تهی save()
 	{
 		backup_state.resize(backup_state.size()+1);
 	}
 
-	void restore()
+	تهی restore()
 	{
 		log_assert(!backup_state.empty());
-		for (auto &it : backup_state.back())
-			if (it.second != nullptr) {
+		برای (auto &it : backup_state.back())
+			اگر (it.second != nullptr) {
 				current_state[it.first] = *it.second;
 				delete it.second;
-			} else
+			} وگرنه
 				current_state.erase(it.first);
-		backup_state.pop_back();
+		backup_state.برداشت_back();
 	}
 
 	~stackmap()
 	{
-		while (!backup_state.empty())
+		وقتی (!backup_state.empty())
 			restore();
 	}
 };
@@ -131,198 +131,198 @@ public:
 
 template <typename T, typename C = std::less<T>> class TopoSort
 {
-	static_assert(!(std::is_pointer<T>::value && std::is_same<C, std::less<T>>::value),
+	static_assert(!(std::is_pointer<T>::مقدار && std::is_same<C, std::less<T>>::مقدار),
 			"std::less is run-to-run unstable for pointers");
-public:
+عمومی:
 	// We use this ordering of the edges in the adjacency matrix for
 	// exact compatibility with an older implementation.
-	struct IndirectCmp {
-		IndirectCmp(const std::vector<T> &nodes, const C &node_cmp) : node_cmp_(node_cmp), nodes_(nodes) {}
-		bool operator()(int a, int b) const
+	ساختار IndirectCmp {
+		IndirectCmp(ثابت std::vector<T> &nodes, ثابت C &گره_cmp) : گره_cmp_2(گره_cmp), nodes_(nodes) {}
+		bool operator()(صحیح a, صحیح b) ثابت
 		{
 			log_assert(static_cast<size_t>(a) < nodes_.size());
 			log_assert(static_cast<size_t>(b) < nodes_.size());
-			return node_cmp_(nodes_[a], nodes_[b]);
+			بازگشت گره_cmp_2(nodes_[a], nodes_[b]);
 		}
-		const C node_cmp_;
-		const std::vector<T> &nodes_;
+		ثابت C گره_cmp_2;
+		ثابت std::vector<T> &nodes_;
 	};
 
 	bool analyze_loops;
 	// The stability doesn't rely on std::less of T, so pointers are safe
-	std::map<T, int, C> node_to_index;
+	std::map<T, صحیح, C> گره_to_index;
 	// edges[i] is the set of nodes with an edge into node i
-	std::vector<std::set<int, IndirectCmp>> edges;
+	std::vector<std::set<صحیح, IndirectCmp>> edges;
 	std::vector<T> sorted;
 	std::set<std::vector<T>> loops;
 
 	TopoSort() requires std::is_default_constructible_v<C> : TopoSort(C()) {}
-	explicit TopoSort(const C &cmp) : node_to_index(cmp), indirect_cmp(nodes, cmp)
+	explicit TopoSort(ثابت C &cmp) : گره_to_index(cmp), indirect_cmp(nodes, cmp)
 	{
 		analyze_loops = true;
 		found_loops = false;
 	}
 
-	int node(T n)
+	صحیح گره(T n)
 	{
-		auto rv = node_to_index.emplace(n, static_cast<int>(nodes.size()));
-		if (rv.second) {
-			nodes.push_back(n);
-			edges.push_back(std::set<int, IndirectCmp>(indirect_cmp));
+		auto rv = گره_to_index.emplace(n, static_cast<صحیح>(nodes.size()));
+		اگر (rv.second) {
+			nodes.افزودن_back(n);
+			edges.افزودن_back(std::set<صحیح, IndirectCmp>(indirect_cmp));
 		}
-		return rv.first->second;
+		بازگشت rv.first->second;
 	}
 
-	void edge(int l_index, int r_index) { edges[r_index].insert(l_index); }
+	تهی edge(صحیح l_index, صحیح r_index) { edges[r_index].درج(l_index); }
 
-	void edge(T left, T right) { edge(node(left), node(right)); }
+	تهی edge(T چپ_2, T راست_2) { edge(گره(چپ_2), گره(راست_2)); }
 
-	bool has_node(const T &node) { return node_to_index.find(node) != node_to_index.end(); }
+	bool has_گره(ثابت T &گره) { بازگشت گره_to_index.find(گره) != گره_to_index.end(); }
 
 	bool sort()
 	{
-		log_assert(GetSize(node_to_index) == GetSize(edges));
+		log_assert(GetSize(گره_to_index) == GetSize(edges));
 		log_assert(GetSize(nodes) == GetSize(edges));
 
 		loops.clear();
 		sorted.clear();
 		found_loops = false;
 
-		std::vector<bool> node_is_sorted(edges.size(), false);
-		std::vector<bool> node_is_on_stack(edges.size(), false);
+		std::vector<bool> گره_is_sorted(edges.size(), false);
+		std::vector<bool> گره_is_on_پشته(edges.size(), false);
 		// Only used with analyze_loops
-		std::vector<int> stack;
+		std::vector<صحیح> پشته;
 		sorted.reserve(edges.size());
 
-		for (const auto &it : node_to_index)
-			sort_worker(it.second, node_is_sorted, node_is_on_stack, stack);
+		برای (ثابت auto &it : گره_to_index)
+			sort_worker(it.second, گره_is_sorted, گره_is_on_پشته, پشته);
 
 		log_assert(GetSize(sorted) == GetSize(nodes));
 
-		return !found_loops;
+		بازگشت !found_loops;
 	}
 
 	// Build the more expensive representation of edges for
 	// a few passes that use it directly.
 	std::map<T, std::set<T, C>, C> get_database()
 	{
-		std::map<T, std::set<T, C>, C> database(node_to_index.key_comp());
-		for (size_t i = 0; i < nodes.size(); ++i) {
-			std::set<T, C> converted_edge_set(node_to_index.key_comp());
-			for (int other_node : edges[i]) {
-				converted_edge_set.insert(nodes[other_node]);
+		std::map<T, std::set<T, C>, C> database(گره_to_index.کلید_comp());
+		برای (size_t i = 0; i < nodes.size(); ++i) {
+			std::set<T, C> converted_edge_set(گره_to_index.کلید_comp());
+			برای (صحیح other_گره : edges[i]) {
+				converted_edge_set.درج(nodes[other_گره]);
 			}
 			database.emplace(nodes[i], converted_edge_set);
 		}
-		return database;
+		بازگشت database;
 	}
 
-private:
+خصوصی:
 	bool found_loops;
 	std::vector<T> nodes;
-	const IndirectCmp indirect_cmp;
+	ثابت IndirectCmp indirect_cmp;
 
-	void sort_worker(const int root_index, std::vector<bool> &node_is_sorted, std::vector<bool> &node_is_on_stack, std::vector<int> &stack)
+	تهی sort_worker(ثابت صحیح ریشه_index, std::vector<bool> &گره_is_sorted, std::vector<bool> &گره_is_on_پشته, std::vector<صحیح> &پشته)
 	{
-		if (node_is_on_stack[root_index]) {
+		اگر (گره_is_on_پشته[ریشه_index]) {
 			// We've been here before, meaning we have a loop
 			found_loops = true;
-			if (analyze_loops) {
+			اگر (analyze_loops) {
 				std::vector<T> loop;
-				for (int i = GetSize(stack) - 1; i >= 0; i--) {
-					const int index = stack[i];
-					loop.push_back(nodes[index]);
-					if (index == root_index)
-						break;
+				برای (صحیح i = GetSize(پشته) - 1; i >= 0; i--) {
+					ثابت صحیح index = پشته[i];
+					loop.افزودن_back(nodes[index]);
+					اگر (index == ریشه_index)
+						بشکن;
 				}
-				loops.insert(loop);
+				loops.درج(loop);
 			}
-			return;
+			بازگشت;
 		}
 
 		// We're done if we've already sorted this subgraph
-		if (node_is_sorted[root_index])
-			return;
+		اگر (گره_is_sorted[ریشه_index])
+			بازگشت;
 
-		if (!edges[root_index].empty()) {
-			if (analyze_loops)
-				stack.push_back(root_index);
-			node_is_on_stack[root_index] = true;
+		اگر (!edges[ریشه_index].empty()) {
+			اگر (analyze_loops)
+				پشته.افزودن_back(ریشه_index);
+			گره_is_on_پشته[ریشه_index] = true;
 
-			for (int left_n : edges[root_index])
-				sort_worker(left_n, node_is_sorted, node_is_on_stack, stack);
+			برای (صحیح چپ_n : edges[ریشه_index])
+				sort_worker(چپ_n, گره_is_sorted, گره_is_on_پشته, پشته);
 
-			if (analyze_loops)
-				stack.pop_back();
-			node_is_on_stack[root_index] = false;
+			اگر (analyze_loops)
+				پشته.برداشت_back();
+			گره_is_on_پشته[ریشه_index] = false;
 		}
 
-		node_is_sorted[root_index] = true;
-		sorted.push_back(nodes[root_index]);
+		گره_is_sorted[ریشه_index] = true;
+		sorted.افزودن_back(nodes[ریشه_index]);
 	}
 };
 
 // this class is used for implementing operator-> on iterators that return values rather than references
 // it's necessary because in C++ operator-> is called recursively until a raw pointer is obtained
 template<class T>
-struct arrow_proxy {
+ساختار arrow_proxy {
 	T v;
-	explicit arrow_proxy(T const & v) : v(v) {}
-	T* operator->() { return &v; }
+	explicit arrow_proxy(T ثابت & v) : v(v) {}
+	T* operator->() { بازگشت &v; }
 };
 
-inline int ceil_log2(int x)
+درونخطی صحیح ceil_log2(صحیح x)
 {
-#if defined(__GNUC__)
-        return x > 1 ? (8*sizeof(int)) - __builtin_clz(x-1) : 0;
-#else
-	if (x <= 0)
-		return 0;
-	for (int i = 0; i < 32; i++)
-		if (((x-1) >> i) == 0)
-			return i;
+#اگر defined(__GNUC__)
+        بازگشت x > 1 ? (8*اندازه(صحیح)) - __builtin_clz(x-1) : 0;
+#وگرنه
+	اگر (x <= 0)
+		بازگشت 0;
+	برای (صحیح i = 0; i < 32; i++)
+		اگر (((x-1) >> i) == 0)
+			بازگشت i;
 	log_abort();
 #endif
 }
 
 template <typename T>
 auto reversed(T& container) {
-	struct reverse_view {
+	ساختار reverse_view {
 		reverse_view(T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
+		auto begin() ثابت { بازگشت container.rbegin(); }
+		auto end() ثابت { بازگشت container.rend(); }
 		T& container;
 	};
-	return reverse_view{container};
+	بازگشت reverse_view{container};
 }
 
 template <typename T>
-auto reversed(const T& container) {
-	struct reverse_view {
-		reverse_view(const T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
-		const T& container;
+auto reversed(ثابت T& container) {
+	ساختار reverse_view {
+		reverse_view(ثابت T& container) : container(container) {}
+		auto begin() ثابت { بازگشت container.rbegin(); }
+		auto end() ثابت { بازگشت container.rend(); }
+		ثابت T& container;
 	};
-	return reverse_view{container};
+	بازگشت reverse_view{container};
 }
 
 // A range of integers [start_, end_) that can be iterated over with a
 // C++ range-based for loop.
-struct IntRange {
-	int start_;
-	int end_;
-	struct Int {
-		int v;
-		int operator*() const { return v; }
-		Int &operator++() { ++v; return *this; }
-		bool operator!=(const Int &other) const { return v != other.v; }
+ساختار IntRange {
+	صحیح start_;
+	صحیح end_;
+	ساختار Int {
+		صحیح v;
+		صحیح operator*() ثابت { بازگشت v; }
+		Int &operator++() { ++v; بازگشت *this; }
+		bool operator!=(ثابت Int &other) ثابت { بازگشت v != other.v; }
 	};
-	Int begin() const { return {start_}; }
-	Int end() const { return {end_}; }
+	Int begin() ثابت { بازگشت {start_}; }
+	Int end() ثابت { بازگشت {end_}; }
 
-	bool operator==(const IntRange &other) const { return start_ == other.start_ && end_ == other.end_; }
-	bool operator!=(const IntRange &other) const { return !(*this == other); }
+	bool operator==(ثابت IntRange &other) ثابت { بازگشت start_ == other.start_ && end_ == other.end_; }
+	bool operator!=(ثابت IntRange &other) ثابت { بازگشت !(*this == other); }
 };
 
 YOSYS_NAMESPACE_END

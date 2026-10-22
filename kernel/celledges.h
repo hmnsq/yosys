@@ -20,41 +20,41 @@
 #ifndef CELLEDGES_H
 #define CELLEDGES_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
+#شامل "kernel/yosys.h"
+#شامل "kernel/sigtools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AbstractCellEdgesDatabase
+ساختار AbstractCellEdgesDatabase
 {
-	virtual ~AbstractCellEdgesDatabase() { }
-	virtual void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int delay) = 0;
+	مجازی ~AbstractCellEdgesDatabase() { }
+	مجازی تهی add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, صحیح from_bit, RTLIL::IdString to_port, صحیح to_bit, صحیح delay) = 0;
 	bool add_edges_from_cell(RTLIL::Cell *cell);
 };
 
-struct FwdCellEdgesDatabase : AbstractCellEdgesDatabase
+ساختار FwdCellEdgesDatabase : AbstractCellEdgesDatabase
 {
 	SigMap &sigmap;
 	dict<SigBit, pool<SigBit>> db;
 	FwdCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
+	تهی add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, صحیح from_bit, RTLIL::IdString to_port, صحیح to_bit, صحیح) override {
 		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
 		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[from_sigbit].insert(to_sigbit);
+		db[from_sigbit].درج(to_sigbit);
 	}
 };
 
-struct RevCellEdgesDatabase : AbstractCellEdgesDatabase
+ساختار RevCellEdgesDatabase : AbstractCellEdgesDatabase
 {
 	SigMap &sigmap;
 	dict<SigBit, pool<SigBit>> db;
 	RevCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
+	تهی add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, صحیح from_bit, RTLIL::IdString to_port, صحیح to_bit, صحیح) override {
 		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
 		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[to_sigbit].insert(from_sigbit);
+		db[to_sigbit].درج(from_sigbit);
 	}
 };
 
