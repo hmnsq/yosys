@@ -17,108 +17,108 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/rtlil.h"
-#include "libs/json11/json11.hpp"
+#അന്തര്ഭാവ "kernel/yosys.h"
+#അന്തര്ഭാവ "kernel/rtlil.h"
+#അന്തര്ഭാവ "libs/json11/json11.hpp"
 
 #ifdef YOSYS_ENABLE_TCL
-#include <tcl.h>
-#include <tclTomMath.h>
-#include <tclTomMathDecls.h>
+#അന്തര്ഭാവ <tcl.h>
+#അന്തര്ഭാവ <tclTomMath.h>
+#അന്തര്ഭാവ <tclTomMathDecls.h>
 #endif
 
 YOSYS_NAMESPACE_BEGIN
 
 #ifdef YOSYS_ENABLE_TCL
-bool yosys_tcl_repl_active = false;
+തർക്കം yosys_tcl_repl_active = അസത്യം;
 
-void yosys_tcl_activate_repl()
+ശൂന്യം yosys_tcl_activate_repl()
 {
-	yosys_tcl_repl_active = true;
+	yosys_tcl_repl_active = സത്യം;
 }
 
-static Tcl_Obj *json_to_tcl(Tcl_Interp *interp, const json11::Json &json)
+സ്ഥിതം Tcl_Obj *json_to_tcl(Tcl_Interp *interp, സ്ഥിരം json11::Json &json)
 {
-	if (json.is_null())
-		return Tcl_NewStringObj("null", 4);
-	else if (json.is_string()) {
-		auto string = json.string_value();
-		return Tcl_NewStringObj(string.data(), string.size());
-	} else if (json.is_number()) {
-		double value = json.number_value();
-		double round_val = std::nearbyint(value);
-		if (std::isfinite(round_val) && value == round_val && value >= LONG_MIN && value < -double(LONG_MIN))
-			return Tcl_NewLongObj((long)round_val);
-		else
-			return Tcl_NewDoubleObj(value);
-	} else if (json.is_bool()) {
-		return Tcl_NewBooleanObj(json.bool_value());
-	} else if (json.is_array()) {
-		auto list = json.array_items();
+	എങ്കിൽ (json.is_null())
+		തിരികെ Tcl_NewStringObj("null", 4);
+	അല്ലെങ്കിൽ എങ്കിൽ (json.is_string()) {
+		auto string = json.string_മൂല്യം();
+		തിരികെ Tcl_NewStringObj(string.data(), string.size());
+	} അല്ലെങ്കിൽ എങ്കിൽ (json.is_സംഖ്യ()) {
+		ഇരട്ട മൂല്യം = json.സംഖ്യ_മൂല്യം();
+		ഇരട്ട round_val = std::nearbyint(മൂല്യം);
+		എങ്കിൽ (std::isfinite(round_val) && മൂല്യം == round_val && മൂല്യം >= LONG_MIN && മൂല്യം < -ഇരട്ട(LONG_MIN))
+			തിരികെ Tcl_NewLongObj((long)round_val);
+		അല്ലെങ്കിൽ
+			തിരികെ Tcl_NewDoubleObj(മൂല്യം);
+	} അല്ലെങ്കിൽ എങ്കിൽ (json.is_bool()) {
+		തിരികെ Tcl_NewBooleanObj(json.bool_മൂല്യം());
+	} അല്ലെങ്കിൽ എങ്കിൽ (json.is_array()) {
+		auto list = json.array_ഇനങ്ങൾ();
 		Tcl_Obj *result = Tcl_NewListObj(list.size(), nullptr);
-		for (auto &item : list)
+		വേണ്ടി (auto &item : list)
 			Tcl_ListObjAppendElement(interp, result, json_to_tcl(interp, item));
-		return result;
-	} else if (json.is_object()) {
-		auto map = json.object_items();
+		തിരികെ result;
+	} അല്ലെങ്കിൽ എങ്കിൽ (json.is_object()) {
+		auto map = json.object_ഇനങ്ങൾ();
 		Tcl_Obj *result = Tcl_NewListObj(map.size() * 2, nullptr);
-		for (auto &item : map) {
+		വേണ്ടി (auto &item : map) {
 			Tcl_ListObjAppendElement(interp, result, Tcl_NewStringObj(item.first.data(), item.first.size()));
 			Tcl_ListObjAppendElement(interp, result, json_to_tcl(interp, item.second));
 		}
-		return result;
-	} else {
+		തിരികെ result;
+	} അല്ലെങ്കിൽ {
 		log_abort();
 	}
 }
 
-static int tcl_yosys_cmd(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+സ്ഥിതം പൂർണ്ണസംഖ്യ tcl_yosys_cmd(ClientData, Tcl_Interp *interp, പൂർണ്ണസംഖ്യ argc, സ്ഥിരം അക്ഷരം *argv[])
 {
 	std::vector<std::string> args;
-	for (int i = 1; i < argc; i++)
-		args.push_back(argv[i]);
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 1; i < argc; i++)
+		args.തള്ളുക_back(argv[i]);
 
-	if (args.size() >= 1 && args[0] == "-import") {
-		for (auto &it : pass_register) {
+	എങ്കിൽ (args.size() >= 1 && args[0] == "-import") {
+		വേണ്ടി (auto &it : pass_register) {
 			std::string tcl_command_name = it.first;
-			if (tcl_command_name == "proc")
+			എങ്കിൽ (tcl_command_name == "proc")
 				tcl_command_name = "procs";
-			else if (tcl_command_name == "rename")
+			അല്ലെങ്കിൽ എങ്കിൽ (tcl_command_name == "rename")
 				tcl_command_name = "renames";
 			Tcl_CmdInfo info;
-			if (Tcl_GetCommandInfo(interp, tcl_command_name.c_str(), &info) != 0) {
+			എങ്കിൽ (Tcl_GetCommandInfo(interp, tcl_command_name.c_str(), &info) != 0) {
 				log("[TCL: yosys -import] Command name collision: found pre-existing command `%s' -> skip.\n", it.first);
-			} else {
+			} അല്ലെങ്കിൽ {
 				std::string tcl_script = stringf("proc %s args { yosys %s {*}$args }", tcl_command_name, it.first);
 				Tcl_Eval(interp, tcl_script.c_str());
 			}
 		}
-		return TCL_OK;
+		തിരികെ TCL_OK;
 	}
 
 	yosys_get_design()->scratchpad_unset("result.json");
 	yosys_get_design()->scratchpad_unset("result.string");
 
-	bool in_repl = yosys_tcl_repl_active;
+	തർക്കം in_repl = yosys_tcl_repl_active;
 	auto guard = logger().error_throw_scope();
-	try {
-		if (args.size() == 1) {
+	ശ്രമിക്കുക {
+		എങ്കിൽ (args.size() == 1) {
 			Pass::call(yosys_get_design(), args[0]);
-		} else {
+		} അല്ലെങ്കിൽ {
 			Pass::call(yosys_get_design(), args);
 		}
-	} catch (log_cmd_error_exception) {
-		if (in_repl) {
+	} പിടിക്കുക (log_cmd_error_exception) {
+		എങ്കിൽ (in_repl) {
 			auto design = yosys_get_design();
-			while (design->selection_stack.size() > 1)
-				design->pop_selection();
-			log_reset_stack();
+			ആകുമ്പോൾ (design->selection_അട്ടി.size() > 1)
+				design->എടുക്കുക_selection();
+			log_reset_അട്ടി();
 		}
-		Tcl_SetResult(interp, (char *)"Yosys command produced an error", TCL_STATIC);
+		Tcl_SetResult(interp, (അക്ഷരം *)"Yosys command produced an error", TCL_STATIC);
 
 		yosys_tcl_repl_active = in_repl;
-		return TCL_ERROR;
-	} catch (...) {
+		തിരികെ TCL_ERROR;
+	} പിടിക്കുക (...) {
 		log_error("uncaught exception during Yosys command invoked from TCL\n");
 	}
 
@@ -126,125 +126,125 @@ static int tcl_yosys_cmd(ClientData, Tcl_Interp *interp, int argc, const char *a
 
 	auto &scratchpad = yosys_get_design()->scratchpad;
 	auto result = scratchpad.find("result.json");
-	if (result != scratchpad.end()) {
+	എങ്കിൽ (result != scratchpad.end()) {
 		std::string err;
 		auto json = json11::Json::parse(result->second, err);
-		if (err.empty()) {
+		എങ്കിൽ (err.empty()) {
 			Tcl_SetObjResult(interp, json_to_tcl(interp, json));
-		} else
+		} അല്ലെങ്കിൽ
 			log_warning("Ignoring result.json scratchpad value due to parse error: %s\n", err);
-	} else if ((result = scratchpad.find("result.string")) != scratchpad.end()) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((result = scratchpad.find("result.string")) != scratchpad.end()) {
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(result->second.data(), result->second.size()));
 	}
 
-	return TCL_OK;
+	തിരികെ TCL_OK;
 }
 
 #define FLAG(name) \
-	if (!strcmp(argv[i], "-" #name)) { \
-		name##_flag = true; \
-		continue; \
+	എങ്കിൽ (!strcmp(argv[i], "-" #name)) { \
+		name##_flag = സത്യം; \
+		തുടരുക; \
 	} \
 
 #define FLAG2(name) \
-	if (!strcmp(Tcl_GetString(objv[i]), "-" #name)) { \
-		name##_flag = true; \
-		continue; \
+	എങ്കിൽ (!strcmp(Tcl_GetString(objv[i]), "-" #name)) { \
+		name##_flag = സത്യം; \
+		തുടരുക; \
 	} \
 
 #define ERROR(str) \
 	{ \
-		Tcl_SetResult(interp, (char *)(str), TCL_STATIC); \
-		return TCL_ERROR; \
+		Tcl_SetResult(interp, (അക്ഷരം *)(str), TCL_STATIC); \
+		തിരികെ TCL_ERROR; \
 	}
 
-bool const_to_mp_int(const Const &a, mp_int *b, bool force_signed, bool force_unsigned)
+തർക്കം const_to_mp_int(സ്ഥിരം Const &a, mp_int *b, തർക്കം force_signed, തർക്കം force_unsigned)
 {
-	if (!a.is_fully_def())
-		return false;
+	എങ്കിൽ (!a.is_fully_def())
+		തിരികെ അസത്യം;
 
-	if (mp_init(b))
-		return false;
+	എങ്കിൽ (mp_init(b))
+		തിരികെ അസത്യം;
 
-	bool negative = ((a.flags & RTLIL::CONST_FLAG_SIGNED) || force_signed) &&
+	തർക്കം negative = ((a.flags & RTLIL::CONST_FLAG_SIGNED) || force_signed) &&
 					!force_unsigned &&
 					!a.empty() && (a.back() == RTLIL::S1);
 
-	for (int i = a.size() - 1; i >= 0; i--) {
-		if (mp_mul_2d(b, 1, b)) {
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = a.size() - 1; i >= 0; i--) {
+		എങ്കിൽ (mp_mul_2d(b, 1, b)) {
 			mp_clear(b);
-			return false;
+			തിരികെ അസത്യം;
 		}
 
-		if ((a[i] == RTLIL::S1) ^ negative) {
-			if (mp_add_d(b, 1, b)) {
+		എങ്കിൽ ((a[i] == RTLIL::S1) ^ negative) {
+			എങ്കിൽ (mp_add_d(b, 1, b)) {
 				mp_clear(b);
-				return false;
+				തിരികെ അസത്യം;
 			}
 		}
 	}
 
-	if (negative) {
-		if (mp_add_d(b, 1, b) || mp_neg(b, b)) {
+	എങ്കിൽ (negative) {
+		എങ്കിൽ (mp_add_d(b, 1, b) || mp_neg(b, b)) {
 			mp_clear(b);
-			return false;
+			തിരികെ അസത്യം;
 		}
 	}
 
-	return true;
+	തിരികെ സത്യം;
 }
 
-bool mp_int_to_const(mp_int *a, Const &b, bool is_signed)
+തർക്കം mp_int_to_const(mp_int *a, Const &b, തർക്കം is_signed)
 {
-	bool negative = (mp_cmp_d(a, 0) == MP_LT);
-	if (negative && !is_signed)
-		return false;
+	തർക്കം negative = (mp_cmp_d(a, 0) == MP_LT);
+	എങ്കിൽ (negative && !is_signed)
+		തിരികെ അസത്യം;
 
-	if (negative) {
-		if (mp_neg(a, a) != MP_OKAY)
-			return false;
-		if (mp_sub_d(a, 1, a) != MP_OKAY)
-			return false;
+	എങ്കിൽ (negative) {
+		എങ്കിൽ (mp_neg(a, a) != MP_OKAY)
+			തിരികെ അസത്യം;
+		എങ്കിൽ (mp_sub_d(a, 1, a) != MP_OKAY)
+			തിരികെ അസത്യം;
 	}
 
-	std::vector<unsigned char> buf;
+	std::vector<unsigned അക്ഷരം> buf;
 	buf.resize(mp_unsigned_bin_size(a));
-	if (mp_to_unsigned_bin(a, buf.data()) != MP_OKAY)
-		return false;
+	എങ്കിൽ (mp_to_unsigned_bin(a, buf.data()) != MP_OKAY)
+		തിരികെ അസത്യം;
 
-	Const::Builder b_bits(mp_count_bits(a) + is_signed);
-	for (int i = 0; i < mp_count_bits(a);) {
-		for (int j = 0; j < 8 && i < mp_count_bits(a); j++, i++) {
-			bool bv = ((buf.back() & (1 << j)) != 0) ^ negative;
-			b_bits.push_back(bv ? RTLIL::S1 : RTLIL::S0);
+	Const::Builder b_bits(mp_എണ്ണം_bits(a) + is_signed);
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < mp_എണ്ണം_bits(a);) {
+		വേണ്ടി (പൂർണ്ണസംഖ്യ j = 0; j < 8 && i < mp_എണ്ണം_bits(a); j++, i++) {
+			തർക്കം bv = ((buf.back() & (1 << j)) != 0) ^ negative;
+			b_bits.തള്ളുക_back(bv ? RTLIL::S1 : RTLIL::S0);
 		}
-		buf.pop_back();
+		buf.എടുക്കുക_back();
 	}
 
-	if (is_signed) {
-		b_bits.push_back(negative ? RTLIL::S1 : RTLIL::S0);
+	എങ്കിൽ (is_signed) {
+		b_bits.തള്ളുക_back(negative ? RTLIL::S1 : RTLIL::S0);
 	}
 	b = b_bits.build();
 
-	return true;
+	തിരികെ സത്യം;
 }
 
-static int tcl_get_attr(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+സ്ഥിതം പൂർണ്ണസംഖ്യ tcl_get_attr(ClientData, Tcl_Interp *interp, പൂർണ്ണസംഖ്യ argc, സ്ഥിരം അക്ഷരം *argv[])
 {
-	int i;
-	bool mod_flag = false, string_flag = false, bool_flag = false;
-	bool int_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < argc; i++) {
+	പൂർണ്ണസംഖ്യ i;
+	തർക്കം mod_flag = അസത്യം, string_flag = അസത്യം, bool_flag = അസത്യം;
+	തർക്കം int_flag = അസത്യം, sint_flag = അസത്യം, uint_flag = അസത്യം;
+	വേണ്ടി (i = 1; i < argc; i++) {
 		FLAG(mod)
 		FLAG(string)
-		FLAG(int)
+		FLAG(പൂർണ്ണസംഖ്യ)
 		FLAG(sint)
 		FLAG(uint)
-		FLAG(bool)
-		break;
+		FLAG(തർക്കം)
+		നിർത്തുക;
 	}
 
-	if ((mod_flag && i != argc - 2) ||
+	എങ്കിൽ ((mod_flag && i != argc - 2) ||
 			(!mod_flag && i != argc - 3) ||
 			(string_flag + int_flag + sint_flag + uint_flag + bool_flag > 1))
 		ERROR("bad usage: expected \"get_attr -mod [-string|-int|-sint|-uint|-bool] <module> <attrname>\""
@@ -252,120 +252,120 @@ static int tcl_get_attr(ClientData, Tcl_Interp *interp, int argc, const char *ar
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(argv[i++]);
-	if (!mod_flag)
+	എങ്കിൽ (!mod_flag)
 		obj_id = RTLIL::escape_id(argv[i++]);
 	attr_id = RTLIL::escape_id(argv[i++]);
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	എങ്കിൽ (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	എങ്കിൽ (mod_flag) {
 		obj = mod;
-	} else {
+	} അല്ലെങ്കിൽ {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		എങ്കിൽ (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		എങ്കിൽ (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		എങ്കിൽ (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	എങ്കിൽ (!obj)
 		ERROR("object not found")
 
 	IdString attr_twine = yosys_design->twines().find(attr_id);
 
-	if (string_flag) {
+	എങ്കിൽ (string_flag) {
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(obj->get_string_attribute(attr_twine).c_str(), -1));
-	} else if (int_flag || uint_flag || sint_flag) {
-		if (!obj->has_attribute(attr_twine))
+	} അല്ലെങ്കിൽ എങ്കിൽ (int_flag || uint_flag || sint_flag) {
+		എങ്കിൽ (!obj->has_attribute(attr_twine))
 			ERROR("attribute missing (required for -int)");
-		RTLIL::Const &value = obj->attributes.at(attr_twine);
+		RTLIL::Const &മൂല്യം = obj->attributes.at(attr_twine);
 
-		mp_int value_mp;
-		if (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
+		mp_int മൂല്യം_mp;
+		എങ്കിൽ (!const_to_mp_int(മൂല്യം, &മൂല്യം_mp, sint_flag, uint_flag))
 			ERROR("bignum manipulation failed");
-		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&value_mp));
-	} else if (bool_flag) {
+		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&മൂല്യം_mp));
+	} അല്ലെങ്കിൽ എങ്കിൽ (bool_flag) {
 		Tcl_SetObjResult(interp, Tcl_NewBooleanObj(obj->get_bool_attribute(attr_twine)));
-	} else {
-		if (!obj->has_attribute(attr_twine))
+	} അല്ലെങ്കിൽ {
+		എങ്കിൽ (!obj->has_attribute(attr_twine))
 			ERROR("attribute missing (required unless -bool or -string)")
 
 		Tcl_SetObjResult(interp, Tcl_NewStringObj(obj->attributes.at(attr_twine).as_string().c_str(), -1));
 	}
 
-	return TCL_OK;
+	തിരികെ TCL_OK;
 }
 
-static int tcl_has_attr(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+സ്ഥിതം പൂർണ്ണസംഖ്യ tcl_has_attr(ClientData, Tcl_Interp *interp, പൂർണ്ണസംഖ്യ argc, സ്ഥിരം അക്ഷരം *argv[])
 {
-	int i;
-	bool mod_flag = false;
-	for (i = 1; i < argc; i++) {
+	പൂർണ്ണസംഖ്യ i;
+	തർക്കം mod_flag = അസത്യം;
+	വേണ്ടി (i = 1; i < argc; i++) {
 		FLAG(mod)
-		break;
+		നിർത്തുക;
 	}
 
-	if ((mod_flag && i != argc - 2) ||
+	എങ്കിൽ ((mod_flag && i != argc - 2) ||
 			(!mod_flag && i != argc - 3))
 		ERROR("bad usage: expected \"has_attr -mod <module> <attrname>\""
 			  " or \"has_attr <module> <identifier> <attrname>\"")
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(argv[i++]);
-	if (!mod_flag)
+	എങ്കിൽ (!mod_flag)
 		obj_id = RTLIL::escape_id(argv[i++]);
 	attr_id = RTLIL::escape_id(argv[i++]);
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	എങ്കിൽ (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	എങ്കിൽ (mod_flag) {
 		obj = mod;
-	} else {
+	} അല്ലെങ്കിൽ {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		എങ്കിൽ (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		എങ്കിൽ (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		എങ്കിൽ (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	എങ്കിൽ (!obj)
 		ERROR("object not found")
 
 	Tcl_SetObjResult(interp, Tcl_NewStringObj(std::to_string(obj->has_attribute(yosys_design->twines().find(attr_id))).c_str(), -1));
-	return TCL_OK;
+	തിരികെ TCL_OK;
 }
 
-static int tcl_set_attr(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+സ്ഥിതം പൂർണ്ണസംഖ്യ tcl_set_attr(ClientData, Tcl_Interp *interp, പൂർണ്ണസംഖ്യ objc, Tcl_Obj *സ്ഥിരം objv[])
 {
-	int i;
-	bool mod_flag = false, string_flag = false, bool_flag = false;
-	bool true_flag = false, false_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < objc; i++) {
+	പൂർണ്ണസംഖ്യ i;
+	തർക്കം mod_flag = അസത്യം, string_flag = അസത്യം, bool_flag = അസത്യം;
+	തർക്കം true_flag = അസത്യം, false_flag = അസത്യം, sint_flag = അസത്യം, uint_flag = അസത്യം;
+	വേണ്ടി (i = 1; i < objc; i++) {
 		FLAG2(mod)
 		FLAG2(string)
-		FLAG2(true)
-		FLAG2(false)
+		FLAG2(സത്യം)
+		FLAG2(അസത്യം)
 		FLAG2(sint)
 		FLAG2(uint)
-		FLAG2(bool)
-		break;
+		FLAG2(തർക്കം)
+		നിർത്തുക;
 	}
 
-	if ((i != objc - (2 + !mod_flag + !(true_flag || false_flag))) ||
+	എങ്കിൽ ((i != objc - (2 + !mod_flag + !(true_flag || false_flag))) ||
 			(string_flag + sint_flag + uint_flag + bool_flag + true_flag + false_flag > 1))
 		ERROR("bad usage: expected \"set_attr -mod [-string|-sint|-uint|-bool] <module> <attrname> <value>\""
 			  " or \"set_attr [-string|-sint|-uint|-bool] <module> <identifier> <attrname> <value>\""
@@ -374,83 +374,83 @@ static int tcl_set_attr(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
-	if (!mod_flag)
+	എങ്കിൽ (!mod_flag)
 		obj_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
 	attr_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	എങ്കിൽ (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	എങ്കിൽ (mod_flag) {
 		obj = mod;
-	} else {
+	} അല്ലെങ്കിൽ {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		എങ്കിൽ (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		എങ്കിൽ (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		എങ്കിൽ (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	എങ്കിൽ (!obj)
 		ERROR("object not found")
 
 	IdString attr_twine = yosys_design->twines().add(attr_id);
 
-	if (string_flag) {
+	എങ്കിൽ (string_flag) {
 		obj->set_string_attribute(attr_twine, Tcl_GetString(objv[i++]));
-	} else if (sint_flag || uint_flag) {
+	} അല്ലെങ്കിൽ എങ്കിൽ (sint_flag || uint_flag) {
 		RTLIL::Const const_;
-		mp_int value_mp;
+		mp_int മൂല്യം_mp;
 
-		if (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
+		എങ്കിൽ (Tcl_TakeBignumFromObj(interp, objv[i++], &മൂല്യം_mp))
 			ERROR("non-integral value")
 
-		if (!mp_int_to_const(&value_mp, const_, sint_flag))
+		എങ്കിൽ (!mp_int_to_const(&മൂല്യം_mp, const_, sint_flag))
 			ERROR("bignum manipulation failed");
 
-		if (sint_flag) {
+		എങ്കിൽ (sint_flag) {
 			const_.flags |= RTLIL::CONST_FLAG_SIGNED;
-			if (const_.size() < 32)
+			എങ്കിൽ (const_.size() < 32)
 				const_.exts(32);
-		} else {
-			if (const_.size() < 32)
+		} അല്ലെങ്കിൽ {
+			എങ്കിൽ (const_.size() < 32)
 				const_.extu(32);
 		}
 
 		obj->attributes[attr_twine] = const_;
-	} else if (bool_flag) {
+	} അല്ലെങ്കിൽ എങ്കിൽ (bool_flag) {
 		obj->set_bool_attribute(attr_twine, atoi(Tcl_GetString(objv[i++])) != 0);
-	} else if (true_flag) {
-		obj->set_bool_attribute(attr_twine, true);
-	} else if (false_flag) {
-		obj->set_bool_attribute(attr_twine, false);
-	} else {
+	} അല്ലെങ്കിൽ എങ്കിൽ (true_flag) {
+		obj->set_bool_attribute(attr_twine, സത്യം);
+	} അല്ലെങ്കിൽ എങ്കിൽ (false_flag) {
+		obj->set_bool_attribute(attr_twine, അസത്യം);
+	} അല്ലെങ്കിൽ {
 		obj->attributes[attr_twine] = Const::from_string(std::string(Tcl_GetString(objv[i++])));
 	}
 
-	return TCL_OK;
+	തിരികെ TCL_OK;
 }
 
-static int tcl_get_param(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+സ്ഥിതം പൂർണ്ണസംഖ്യ tcl_get_param(ClientData, Tcl_Interp *interp, പൂർണ്ണസംഖ്യ argc, സ്ഥിരം അക്ഷരം *argv[])
 {
-	int i;
-	bool string_flag = false;
-	bool int_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < argc; i++) {
+	പൂർണ്ണസംഖ്യ i;
+	തർക്കം string_flag = അസത്യം;
+	തർക്കം int_flag = അസത്യം, sint_flag = അസത്യം, uint_flag = അസത്യം;
+	വേണ്ടി (i = 1; i < argc; i++) {
 		FLAG(string)
-		FLAG(int)
+		FLAG(പൂർണ്ണസംഖ്യ)
 		FLAG(sint)
 		FLAG(uint)
-		break;
+		നിർത്തുക;
 	}
 
-	if ((i != argc - 3) ||
+	എങ്കിൽ ((i != argc - 3) ||
 			(string_flag + int_flag > 1))
 		ERROR("bad usage: expected \"get_param [-string|-int|-sint|-uint] <module> <cellid> <paramname>")
 
@@ -461,45 +461,45 @@ static int tcl_get_param(ClientData, Tcl_Interp *interp, int argc, const char *a
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	എങ്കിൽ (!mod)
 		ERROR("module not found")
 
 	auto cell_twine = yosys_design->twines().find(cell_id);
 	Cell* cell = mod->cell(cell_twine);
-	if (!cell)
+	എങ്കിൽ (!cell)
 		ERROR("object not found")
 
 	IdString param_twine = yosys_design->twines().find(param_id);
-	if (!cell->hasParam(param_twine))
+	എങ്കിൽ (!cell->hasParam(param_twine))
 		ERROR("parameter missing")
 
-	const RTLIL::Const &value = cell->getParam(param_twine);
+	സ്ഥിരം RTLIL::Const &മൂല്യം = cell->getParam(param_twine);
 
-	if (string_flag) {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(value.decode_string().c_str(), -1));
-	} else if (int_flag || uint_flag || sint_flag) {
-		mp_int value_mp;
-		if (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
+	എങ്കിൽ (string_flag) {
+		Tcl_SetObjResult(interp, Tcl_NewStringObj(മൂല്യം.decode_string().c_str(), -1));
+	} അല്ലെങ്കിൽ എങ്കിൽ (int_flag || uint_flag || sint_flag) {
+		mp_int മൂല്യം_mp;
+		എങ്കിൽ (!const_to_mp_int(മൂല്യം, &മൂല്യം_mp, sint_flag, uint_flag))
 			ERROR("bignum manipulation failed");
-		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&value_mp));
-	} else {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(value.as_string().c_str(), -1));
+		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&മൂല്യം_mp));
+	} അല്ലെങ്കിൽ {
+		Tcl_SetObjResult(interp, Tcl_NewStringObj(മൂല്യം.as_string().c_str(), -1));
 	}
-	return TCL_OK;
+	തിരികെ TCL_OK;
 }
 
-static int tcl_set_param(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+സ്ഥിതം പൂർണ്ണസംഖ്യ tcl_set_param(ClientData, Tcl_Interp *interp, പൂർണ്ണസംഖ്യ objc, Tcl_Obj *സ്ഥിരം objv[])
 {
-	int i;
-	bool string_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < objc; i++) {
+	പൂർണ്ണസംഖ്യ i;
+	തർക്കം string_flag = അസത്യം, sint_flag = അസത്യം, uint_flag = അസത്യം;
+	വേണ്ടി (i = 1; i < objc; i++) {
 		FLAG2(string)
 		FLAG2(sint)
 		FLAG2(uint)
-		break;
+		നിർത്തുക;
 	}
 
-	if ((i != objc - 4) ||
+	എങ്കിൽ ((i != objc - 4) ||
 			(string_flag + sint_flag + uint_flag > 1))
 		ERROR("bad usage: expected \"set_param [-string|-sint|-uint] <module> <cellid> <paramname> <value>")
 
@@ -510,54 +510,54 @@ static int tcl_set_param(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *cons
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	എങ്കിൽ (!mod)
 		ERROR("module not found")
 
 	auto cell_twine = yosys_design->twines().find(cell_id);
 	RTLIL::Cell *cell = mod->cell(cell_twine);
-	if (!cell)
+	എങ്കിൽ (!cell)
 		ERROR("object not found")
 
 	IdString param_twine = yosys_design->twines().add(param_id);
 
-	if (string_flag) {
+	എങ്കിൽ (string_flag) {
 		cell->setParam(param_twine, Const(std::string(Tcl_GetString(objv[i++]))));
-	} else if (sint_flag || uint_flag) {
+	} അല്ലെങ്കിൽ എങ്കിൽ (sint_flag || uint_flag) {
 		RTLIL::Const const_;
-		mp_int value_mp;
+		mp_int മൂല്യം_mp;
 
-		if (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
+		എങ്കിൽ (Tcl_TakeBignumFromObj(interp, objv[i++], &മൂല്യം_mp))
 			ERROR("non-integral value")
 
-		if (!mp_int_to_const(&value_mp, const_, sint_flag))
+		എങ്കിൽ (!mp_int_to_const(&മൂല്യം_mp, const_, sint_flag))
 			ERROR("bignum manipulation failed");
 
-		if (sint_flag) {
+		എങ്കിൽ (sint_flag) {
 			const_.flags |= RTLIL::CONST_FLAG_SIGNED;
-			if (const_.size() < 32)
+			എങ്കിൽ (const_.size() < 32)
 				const_.exts(32);
-		} else {
-			if (const_.size() < 32)
+		} അല്ലെങ്കിൽ {
+			എങ്കിൽ (const_.size() < 32)
 				const_.extu(32);
 		}
 
 		cell->setParam(param_twine, const_);
-	} else {
+	} അല്ലെങ്കിൽ {
 		cell->setParam(param_twine, Const::from_string(std::string(Tcl_GetString(objv[i++]))));
 	}
-	return TCL_OK;
+	തിരികെ TCL_OK;
 }
 
-int yosys_tcl_interp_init(Tcl_Interp *interp)
+പൂർണ്ണസംഖ്യ yosys_tcl_interp_init(Tcl_Interp *interp)
 {
-	if (Tcl_Init(interp)!=TCL_OK)
-		log_warning("Tcl_Init() call failed - %s\n",Tcl_ErrnoMsg(Tcl_GetErrno()));
-	Tcl_CreateCommand(interp, "yosys", tcl_yosys_cmd, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::get_attr", tcl_get_attr, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::has_attr", tcl_has_attr, NULL, NULL);
-	Tcl_CreateObjCommand(interp, "rtlil::set_attr", tcl_set_attr, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::get_param", tcl_get_param, NULL, NULL);
-	Tcl_CreateObjCommand(interp, "rtlil::set_param", tcl_set_param, NULL, NULL);
+	എങ്കിൽ (Tcl_Init(interp)!=TCL_OK)
+		log_warning("Tcl_Init() call failed - %s\n",Tcl_Errno_സന്ദേശം(Tcl_GetErrno()));
+	Tcl_CreateCommand(interp, "yosys", tcl_yosys_cmd, ശൂന്യ, ശൂന്യ);
+	Tcl_CreateCommand(interp, "rtlil::get_attr", tcl_get_attr, ശൂന്യ, ശൂന്യ);
+	Tcl_CreateCommand(interp, "rtlil::has_attr", tcl_has_attr, ശൂന്യ, ശൂന്യ);
+	Tcl_CreateObjCommand(interp, "rtlil::set_attr", tcl_set_attr, ശൂന്യ, ശൂന്യ);
+	Tcl_CreateCommand(interp, "rtlil::get_param", tcl_get_param, ശൂന്യ, ശൂന്യ);
+	Tcl_CreateObjCommand(interp, "rtlil::set_param", tcl_set_param, ശൂന്യ, ശൂന്യ);
 
 	// TODO:
 	//
@@ -583,7 +583,7 @@ int yosys_tcl_interp_init(Tcl_Interp *interp)
 	// verilog identifier before adding any tcl API that returns IdString values
 	// to avoid -option injection
 
-	return TCL_OK ;
+	തിരികെ TCL_OK ;
 }
 #endif
 

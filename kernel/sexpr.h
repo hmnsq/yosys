@@ -20,47 +20,47 @@
 #ifndef SEXPR_H
 #define SEXPR_H
 
-#include "kernel/yosys.h"
+#അന്തര്ഭാവ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 class SExpr {
-public:
+പൊതു:
 	std::variant<std::vector<SExpr>, std::string> _v;
-public:
+പൊതു:
 	SExpr(std::string a) : _v(std::move(a)) {}
-    SExpr(const char *a) : _v(a) {}
+    SExpr(സ്ഥിരം അക്ഷരം *a) : _v(a) {}
     // FIXME: should maybe be defined for all integral types
-	SExpr(int n) : _v(std::to_string(n)) {}
-	SExpr(std::vector<SExpr> const &l) : _v(l) {}
+	SExpr(പൂർണ്ണസംഖ്യ n) : _v(std::to_string(n)) {}
+	SExpr(std::vector<SExpr> സ്ഥിരം &l) : _v(l) {}
 	SExpr(std::vector<SExpr> &&l) : _v(std::move(l)) {}
     // It would be nicer to have an std::initializer_list constructor,
     // but that causes confusing issues with overload resolution sometimes.
-    template<typename... Args> static SExpr list(Args&&... args) {
-	    return SExpr(std::vector<SExpr>{std::forward<Args>(args)...});
+    template<typename... Args> സ്ഥിതം SExpr list(Args&&... args) {
+	    തിരികെ SExpr(std::vector<SExpr>{std::forward<Args>(args)...});
     }
-    bool is_atom() const { return std::holds_alternative<std::string>(_v); }
-    std::string const &atom() const { return std::get<std::string>(_v); }
-    bool is_list() const { return std::holds_alternative<std::vector<SExpr>>(_v); }
-    std::vector<SExpr> const &list() const { return std::get<std::vector<SExpr>>(_v); }
-	std::string to_string() const;
+    bool is_atom() സ്ഥിരം { തിരികെ std::holds_alternative<std::string>(_v); }
+    std::string സ്ഥിരം &atom() സ്ഥിരം { തിരികെ std::get<std::string>(_v); }
+    bool is_list() സ്ഥിരം { തിരികെ std::holds_alternative<std::vector<SExpr>>(_v); }
+    std::vector<SExpr> സ്ഥിരം &list() സ്ഥിരം { തിരികെ std::get<std::vector<SExpr>>(_v); }
+	std::string to_string() സ്ഥിരം;
 };
 
-std::ostream &operator<<(std::ostream &os, SExpr const &sexpr);
+std::ostream &operator<<(std::ostream &os, SExpr സ്ഥിരം &sexpr);
 
 namespace SExprUtil {
     // A little hack so that `using SExprUtil::list` lets you import a shortcut to `SExpr::list`
     template<typename... Args> SExpr list(Args&&... args) {
-	    return SExpr(std::vector<SExpr>{std::forward<Args>(args)...});
+	    തിരികെ SExpr(std::vector<SExpr>{std::forward<Args>(args)...});
     }
 }
 
 // SExprWriter is a pretty printer for s-expr. It does not try very hard to get a good layout.
 class SExprWriter {
     std::ostream &os;
-    int _max_line_width;
-    int _indent = 0;
-    int _pos = 0;
+    പൂർണ്ണസംഖ്യ max_വരി_width;
+    പൂർണ്ണസംഖ്യ _indent = 0;
+    പൂർണ്ണസംഖ്യ _pos = 0;
     // If _pending_nl is set, print a newline before the next character.
     // This lets us "undo" the last newline so we can put
     // closing parentheses or a hanging comment on the same line.
@@ -68,49 +68,49 @@ class SExprWriter {
     // Unclosed parentheses (boolean stored is indent_rest)
 	vector<bool> _unclosed;
     // Used only for push() and pop() (stores _unclosed.size())
-	vector<size_t> _unclosed_stack;
-	void nl_if_pending();
-    void puts(std::string_view s);
-    int check_fit(SExpr const &sexpr, int space);
-    void print(SExpr const &sexpr, bool close = true, bool indent_rest = true);
-public:
-    SExprWriter(std::ostream &os, int max_line_width = 80)
+	vector<size_t> unclosed_അട്ടി;
+	ശൂന്യം nl_if_pending();
+    ശൂന്യം puts(std::string_view s);
+    പൂർണ്ണസംഖ്യ check_fit(SExpr സ്ഥിരം &sexpr, പൂർണ്ണസംഖ്യ space);
+    ശൂന്യം print(SExpr സ്ഥിരം &sexpr, bool close = true, bool indent_rest = true);
+പൊതു:
+    SExprWriter(std::ostream &os, പൂർണ്ണസംഖ്യ max_വരി_width_2 = 80)
         : os(os)
-        , _max_line_width(max_line_width)
+        , max_വരി_width(max_വരി_width_2)
     {}
     // Print an s-expr.
-    SExprWriter &operator <<(SExpr const &sexpr) {
+    SExprWriter &operator <<(SExpr സ്ഥിരം &sexpr) {
         print(sexpr);
         _pending_nl = true;
-        return *this;
+        തിരികെ *this;
     }
     // Print an s-expr (which must be a list), but leave room for extra elements
     // which may be printed using either << or further calls to open.
     // If indent_rest = false, the remaining elements are not intended
     // (for avoiding unreasonable indentation on deeply nested structures).
-    void open(SExpr const &sexpr, bool indent_rest = true) {
+    ശൂന്യം open(SExpr സ്ഥിരം &sexpr, bool indent_rest = true) {
         log_assert(sexpr.is_list());
         print(sexpr, false, indent_rest);
     }
     // Close the s-expr opened with the last call to open
     // (if an argument is given, close that many s-exprs).
-    void close(size_t n = 1);
+    ശൂന്യം close(size_t n = 1);
     // push() remembers how many s-exprs are currently open
-	void push() {
-		_unclosed_stack.push_back(_unclosed.size());
+	ശൂന്യം തള്ളുക() {
+		unclosed_അട്ടി.തള്ളുക_back(_unclosed.size());
 	}
     // pop() closes all s-expr opened since the corresponding call to push()
-	void pop() {
-		auto t = _unclosed_stack.back();
+	ശൂന്യം എടുക്കുക() {
+		auto t = unclosed_അട്ടി.back();
 		log_assert(_unclosed.size() >= t);
 		close(_unclosed.size() - t);
-		_unclosed_stack.pop_back();
+		unclosed_അട്ടി.എടുക്കുക_back();
 	}
     // Print a comment.
     // If hanging = true, append it to the end of the last printed s-expr.
-	void comment(std::string const &str, bool hanging = false);
+	ശൂന്യം comment(std::string സ്ഥിരം &str, bool hanging = false);
     // Flush any unprinted characters to the std::ostream, but does not close unclosed parentheses.
-    void flush() {
+    ശൂന്യം flush() {
         nl_if_pending();
     }
     // Destructor closes any unclosed parentheses and flushes.

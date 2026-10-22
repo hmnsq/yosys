@@ -1,13 +1,13 @@
-#include <deque>
+#അന്തര്ഭാവ <deque>
 
-#include "kernel/yosys_common.h"
-#include "kernel/log.h"
-#include "kernel/utils.h"
+#അന്തര്ഭാവ "kernel/yosys_common.h"
+#അന്തര്ഭാവ "kernel/log.h"
+#അന്തര്ഭാവ "kernel/utils.h"
 
 #ifdef YOSYS_ENABLE_THREADS
-#include <condition_variable>
-#include <mutex>
-#include <thread>
+#അന്തര്ഭാവ <condition_variable>
+#അന്തര്ഭാവ <mutex>
+#അന്തര്ഭാവ <thread>
 #endif
 
 #ifndef YOSYS_THREADING_H
@@ -22,22 +22,22 @@ using Mutex = std::mutex;
 using CondVar = std::condition_variable;
 using UniqueLock = std::unique_lock<Mutex>;
 using LockGuard = std::lock_guard<Mutex>;
-#else
-struct Mutex {
-	void lock() {}
-	void unlock() {}
-	bool try_lock() { return true; }
+#അല്ലെങ്കിൽ
+ഘടന Mutex {
+	ശൂന്യം lock() {}
+	ശൂന്യം unlock() {}
+	bool try_lock() { തിരികെ true; }
 };
-struct CondVar {
-	template <class L> void wait(L &) {}
-	template <class L, class P> void wait(L &, P) {}
-	void notify_one() {}
-	void notify_all() {}
+ഘടന CondVar {
+	template <class L> ശൂന്യം wait(L &) {}
+	template <class L, class P> ശൂന്യം wait(L &, P) {}
+	ശൂന്യം notify_one() {}
+	ശൂന്യം notify_all() {}
 };
-struct UniqueLock {
+ഘടന UniqueLock {
 	UniqueLock(Mutex &) {}
 };
-struct LockGuard {
+ഘടന LockGuard {
 	LockGuard(Mutex &) {}
 };
 #endif
@@ -48,23 +48,23 @@ struct LockGuard {
 template <typename T>
 class ConcurrentQueue
 {
-public:
-	ConcurrentQueue(int capacity = INT_MAX)
+പൊതു:
+	ConcurrentQueue(പൂർണ്ണസംഖ്യ capacity = INT_MAX)
 		: capacity(capacity) {}
 	// Push an element into the queue. If it's at capacity, block until there is room.
-	void push_back(T t)
+	ശൂന്യം തള്ളുക_back(T t)
 	{
 		UniqueLock lock(mutex);
-		not_full_condition.wait(lock, [this] { return static_cast<int>(contents.size()) < capacity; });
-		if (contents.empty())
+		not_full_condition.wait(lock, [this] { തിരികെ static_cast<പൂർണ്ണസംഖ്യ>(contents.size()) < capacity; });
+		എങ്കിൽ (contents.empty())
 			not_empty_condition.notify_one();
 		log_assert(!closed);
-		contents.push_back(std::move(t));
-		if (static_cast<int>(contents.size()) < capacity)
+		contents.തള്ളുക_back(std::move(t));
+		എങ്കിൽ (static_cast<പൂർണ്ണസംഖ്യ>(contents.size()) < capacity)
 			not_full_condition.notify_one();
 	}
 	// Signal that no more elements will be produced. `pop_front()` will return nullopt.
-	void close()
+	ശൂന്യം close()
 	{
 		UniqueLock lock(mutex);
 		not_empty_condition.notify_all();
@@ -72,32 +72,32 @@ public:
 	}
 	// Pop an element from the queue. Blocks until an element is available
 	// or the queue is closed and empty.
-	std::optional<T> pop_front()
+	std::optional<T> എടുക്കുക_front()
 	{
-		return pop_front_internal(true);
+		തിരികെ എടുക്കുക_front_internal(true);
 	}
 	// Pop an element from the queue. Does not block, just returns nullopt if the
 	// queue is empty.
-	std::optional<T> try_pop_front()
+	std::optional<T> try_എടുക്കുക_front()
 	{
-		return pop_front_internal(false);
+		തിരികെ എടുക്കുക_front_internal(false);
 	}
-private:
-	std::optional<T> pop_front_internal(bool wait)
+സ്വകാര്യ:
+	std::optional<T> എടുക്കുക_front_internal(bool wait)
 	{
 		UniqueLock lock(mutex);
-		if (wait) {
-			not_empty_condition.wait(lock, [this] { return !contents.empty() || closed; });
+		എങ്കിൽ (wait) {
+			not_empty_condition.wait(lock, [this] { തിരികെ !contents.empty() || closed; });
 		}
-		if (contents.empty())
-			return std::nullopt;
-		if (static_cast<int>(contents.size()) == capacity)
+		എങ്കിൽ (contents.empty())
+			തിരികെ std::nullopt;
+		എങ്കിൽ (static_cast<പൂർണ്ണസംഖ്യ>(contents.size()) == capacity)
 			not_full_condition.notify_one();
 		T result = std::move(contents.front());
-		contents.pop_front();
-		if (!contents.empty())
+		contents.എടുക്കുക_front();
+		എങ്കിൽ (!contents.empty())
 			not_empty_condition.notify_one();
-		return std::move(result);
+		തിരികെ std::move(result);
 	}
 
 	Mutex mutex;
@@ -106,26 +106,26 @@ private:
 	// Signals one waiter thread when the queue changes and is not empty.
 	CondVar not_empty_condition;
 	std::deque<T> contents;
-	int capacity;
+	പൂർണ്ണസംഖ്യ capacity;
 	bool closed = false;
 };
 
 class DeferredLogs
 {
-public:
+പൊതു:
 	template <typename... Args>
-	void log(FmtString<TypeIdentity<Args>...> fmt, Args... args)
+	ശൂന്യം log(FmtString<TypeIdentity<Args>...> fmt, Args... args)
 	{
-		logs.push_back({fmt.format(args...), false});
+		logs.തള്ളുക_back({fmt.format(args...), false});
 	}
 	template <typename... Args>
-	void log_error(FmtString<TypeIdentity<Args>...> fmt, Args... args)
+	ശൂന്യം log_error(FmtString<TypeIdentity<Args>...> fmt, Args... args)
 	{
-		logs.push_back({fmt.format(args...), true});
+		logs.തള്ളുക_back({fmt.format(args...), true});
 	}
-	void flush();
-private:
-	struct Message
+	ശൂന്യം flush();
+സ്വകാര്യ:
+	ഘടന Message
 	{
 		std::string text;
 		bool error;
@@ -135,36 +135,36 @@ private:
 
 class ThreadPool
 {
-public:
+പൊതു:
 	// Computes the number of worker threads to use.
 	// `reserved_cores` cores are set aside for other threads (e.g. work on the main thread).
 	// `max_worker_threads` --- don't return more workers than this.
 	// The result may be 0.
-	static int pool_size(int reserved_cores, int max_worker_threads);
+	സ്ഥിതം പൂർണ്ണസംഖ്യ pool_size(പൂർണ്ണസംഖ്യ reserved_cores, പൂർണ്ണസംഖ്യ max_worker_threads);
 
 	// Computes the number of worker threads to use, by dividing work_units among threads.
 	// For testing purposes you can set YOSYS_WORK_UNITS_PER_THREAD to override `work_units_per_thread`.
 	// The result may be 0.
-	static int work_pool_size(int reserved_cores, int work_units, int work_units_per_thread);
+	സ്ഥിതം പൂർണ്ണസംഖ്യ work_pool_size(പൂർണ്ണസംഖ്യ reserved_cores, പൂർണ്ണസംഖ്യ work_units, പൂർണ്ണസംഖ്യ work_units_per_thread);
 
 	// Create a pool of threads running the given closure (parameterized by thread number).
 	// `pool_size` must be the result of a `pool_size()` call.
-	ThreadPool(int pool_size, std::function<void(int)> b);
+	ThreadPool(പൂർണ്ണസംഖ്യ pool_size, std::function<ശൂന്യം(പൂർണ്ണസംഖ്യ)> b);
 	ThreadPool(ThreadPool &&other) = delete;
 	// Waits for all threads to terminate. Make sure those closures return!
 	~ThreadPool();
 
 	// Return the number of threads in the pool.
-	int num_threads() const
+	പൂർണ്ണസംഖ്യ അക്കം_threads() സ്ഥിരം
 	{
 #ifdef YOSYS_ENABLE_THREADS
-		return threads.size();
-#else
-		return 0;
+		തിരികെ threads.size();
+#അല്ലെങ്കിൽ
+		തിരികെ 0;
 #endif
 	}
-private:
-	std::function<void(int)> body;
+സ്വകാര്യ:
+	std::function<ശൂന്യം(പൂർണ്ണസംഖ്യ)> body;
 #ifdef YOSYS_ENABLE_THREADS
 	std::vector<std::thread> threads;
 #endif
@@ -172,12 +172,12 @@ private:
 
 // Divides some number of items into `num_threads` subranges and returns the
 // `thread_num`'th subrange. If `num_threads` is zero, returns the whole range.
-IntRange item_range_for_worker(int num_items, int thread_num, int num_threads);
+IntRange item_range_for_worker(പൂർണ്ണസംഖ്യ അക്കം_ഇനങ്ങൾ, പൂർണ്ണസംഖ്യ thread_അക്കം, പൂർണ്ണസംഖ്യ അക്കം_threads);
 
 // A type that encapsulates the index of a thread in some list of threads. Useful for
 // stronger typechecking and code readability.
-struct ThreadIndex {
-	int thread_num;
+ഘടന ThreadIndex {
+	പൂർണ്ണസംഖ്യ thread_അക്കം;
 };
 
 // A set of threads with a `run()` API that runs a closure on all of the threads
@@ -185,66 +185,66 @@ struct ThreadIndex {
 // parallel algorithms that use barrier synchronization.
 class ParallelDispatchThreadPool
 {
-public:
+പൊതു:
 	// Create a pool of threads running the given closure (parameterized by thread number).
 	// `pool_size` must be the result of a `pool_size()` call.
 	// `pool_size` can be zero, which we treat as 1.
-	ParallelDispatchThreadPool(int pool_size);
+	ParallelDispatchThreadPool(പൂർണ്ണസംഖ്യ pool_size);
 	~ParallelDispatchThreadPool();
 
 	// For each thread running a closure, a `RunCtx` is passed to the closure. Currently
 	// it contains the thread index and the total number of threads. It can be passed
 	// directly to any APIs requiring a `ThreadIndex`.
-	struct RunCtx : public ThreadIndex {
-		int num_threads;
-		IntRange item_range(int num_items) const {
-			return item_range_for_worker(num_items, thread_num, num_threads);
+	ഘടന RunCtx : പൊതു ThreadIndex {
+		പൂർണ്ണസംഖ്യ അക്കം_threads;
+		IntRange item_range(പൂർണ്ണസംഖ്യ അക്കം_ഇനങ്ങൾ) സ്ഥിരം {
+			തിരികെ item_range_for_worker(അക്കം_ഇനങ്ങൾ, thread_അക്കം, അക്കം_threads);
 		}
 	};
 	// Sometimes we only want to activate a subset of the threads in the pool. This
 	// class provides a way to do that. It provides the same `num_threads()`
 	// and `run()` APIs as a `ParallelDispatchThreadPool`.
 	class Subpool {
-	public:
-		Subpool(ParallelDispatchThreadPool &parent, int max_threads)
+	പൊതു:
+		Subpool(ParallelDispatchThreadPool &parent, പൂർണ്ണസംഖ്യ max_threads)
 				: parent(parent), max_threads(max_threads) {}
 		// Returns the number of threads that will be used when calling `run()`.
-		int num_threads() const {
-			return parent.num_threads(max_threads);
+		പൂർണ്ണസംഖ്യ അക്കം_threads() സ്ഥിരം {
+			തിരികെ parent.അക്കം_threads(max_threads);
 		}
-		void run(std::function<void(const RunCtx &)> work) {
+		ശൂന്യം run(std::function<ശൂന്യം(സ്ഥിരം RunCtx &)> work) {
 			parent.run(std::move(work), max_threads);
 		}
-		ParallelDispatchThreadPool &thread_pool() { return parent; }
-	private:
+		ParallelDispatchThreadPool &thread_pool() { തിരികെ parent; }
+	സ്വകാര്യ:
 		ParallelDispatchThreadPool &parent;
-		int max_threads;
+		പൂർണ്ണസംഖ്യ max_threads;
 	};
 
 	// Run the `work` function in parallel on each thread in the pool (parameterized by
 	// thread number). Waits for all work functions to complete. Only one `run()` can be
 	// active at a time.
 	// Uses no more than `max_threads` threads (but at least one).
-	void run(std::function<void(const RunCtx &)> work) {
+	ശൂന്യം run(std::function<ശൂന്യം(സ്ഥിരം RunCtx &)> work) {
 		run(std::move(work), INT_MAX);
 	}
 
 	// Returns the number of threads that will be used when calling `run()`.
-	int num_threads() const {
-		return num_threads(INT_MAX);
+	പൂർണ്ണസംഖ്യ അക്കം_threads() സ്ഥിരം {
+		തിരികെ അക്കം_threads(INT_MAX);
 	}
-private:
+സ്വകാര്യ:
 	friend class Subpool;
 
-	void run(std::function<void(const RunCtx &)> work, int max_threads);
-	int num_threads(int max_threads) const {
-		return std::min(num_worker_threads_ + 1, std::max(1, max_threads));
+	ശൂന്യം run(std::function<ശൂന്യം(സ്ഥിരം RunCtx &)> work, പൂർണ്ണസംഖ്യ max_threads);
+	പൂർണ്ണസംഖ്യ അക്കം_threads(പൂർണ്ണസംഖ്യ max_threads) സ്ഥിരം {
+		തിരികെ std::min(അക്കം_worker_threads + 1, std::max(1, max_threads));
 	}
-	void run_worker(int thread_num);
+	ശൂന്യം run_worker(പൂർണ്ണസംഖ്യ thread_അക്കം);
 
-	std::function<void(const RunCtx &)> *current_work = nullptr;
+	std::function<ശൂന്യം(സ്ഥിരം RunCtx &)> *current_work = nullptr;
 	// Keeps a correct count even when threads are exiting.
-	int num_worker_threads_;
+	പൂർണ്ണസംഖ്യ അക്കം_worker_threads;
 	// The count of active worker threads for the current `run()`.
 	// This is only written by the main thread, and only written when
 	// no other worker threads are running (i.e. all worker threads have
@@ -253,7 +253,7 @@ private:
 	// Although there can't be any races, we still need to make it atomic
 	// to prevent the compiler reordering accesses so the above invariant
 	// is maintained.
-	std::atomic<int> num_active_worker_threads_ = 0;
+	std::atomic<പൂർണ്ണസംഖ്യ> അക്കം_active_worker_threads = 0;
 
 	// Not especially efficient for large numbers of threads. Worker wakeup could scale
 	// better by conceptually organising workers into a tree and having workers wake
@@ -261,40 +261,40 @@ private:
 	Mutex main_to_workers_signal_mutex;
 	CondVar main_to_workers_signal_cv;
 	std::vector<uint8_t> main_to_workers_signal;
-	void signal_workers_start() {
+	ശൂന്യം signal_workers_start() {
 		UniqueLock lock(main_to_workers_signal_mutex);
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-		std::fill(main_to_workers_signal.begin(), main_to_workers_signal.begin() + num_active_worker_threads, 1);
+		പൂർണ്ണസംഖ്യ അക്കം_active_worker_threads_2 = അക്കം_active_worker_threads.load(std::memory_order_relaxed);
+		std::fill(main_to_workers_signal.begin(), main_to_workers_signal.begin() + അക്കം_active_worker_threads_2, 1);
 		// When `num_active_worker_threads_` is small compared to `num_worker_threads_`, we have a "thundering herd"
 		// problem here. Fixing that would add complexity so don't worry about it for now.
 		main_to_workers_signal_cv.notify_all();
 	}
-	void worker_wait_for_start(int thread_num) {
+	ശൂന്യം worker_wait_for_start(പൂർണ്ണസംഖ്യ thread_അക്കം) {
 		UniqueLock lock(main_to_workers_signal_mutex);
-		main_to_workers_signal_cv.wait(lock, [this, thread_num] { return main_to_workers_signal[thread_num] > 0; });
-		main_to_workers_signal[thread_num] = 0;
+		main_to_workers_signal_cv.wait(lock, [this, thread_അക്കം] { തിരികെ main_to_workers_signal[thread_അക്കം] > 0; });
+		main_to_workers_signal[thread_അക്കം] = 0;
 	}
 
-	std::atomic<int> done_workers = 0;
+	std::atomic<പൂർണ്ണസംഖ്യ> done_workers = 0;
 	Mutex workers_to_main_signal_mutex;
 	CondVar workers_to_main_signal_cv;
-	void signal_worker_done() {
+	ശൂന്യം signal_worker_done() {
 		// Must read `num_active_worker_threads_` before we increment `d`! Otherwise
 		// it is possible we would increment `d`, and then another worker signals the
 		// main thread that all workers are done, and the main thread writes to
 		// `num_active_worker_threads_` before we check it.
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-		int d = done_workers.fetch_add(1, std::memory_order_release);
-		if (d + 1 == num_active_worker_threads) {
+		പൂർണ്ണസംഖ്യ അക്കം_active_worker_threads_2 = അക്കം_active_worker_threads.load(std::memory_order_relaxed);
+		പൂർണ്ണസംഖ്യ d = done_workers.fetch_add(1, std::memory_order_release);
+		എങ്കിൽ (d + 1 == അക്കം_active_worker_threads_2) {
 			UniqueLock lock(workers_to_main_signal_mutex);
 			workers_to_main_signal_cv.notify_all();
 		}
 	}
-	void wait_for_workers_done() {
+	ശൂന്യം wait_for_workers_done() {
 		UniqueLock lock(workers_to_main_signal_mutex);
 		workers_to_main_signal_cv.wait(lock, [this] {
-			int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-			return done_workers.load(std::memory_order_acquire) == num_active_worker_threads;
+			പൂർണ്ണസംഖ്യ അക്കം_active_worker_threads_2 = അക്കം_active_worker_threads.load(std::memory_order_relaxed);
+			തിരികെ done_workers.load(std::memory_order_acquire) == അക്കം_active_worker_threads_2;
 		});
 		done_workers.store(0, std::memory_order_relaxed);
 	}
@@ -305,22 +305,22 @@ private:
 };
 
 template <class T>
-class ConcurrentStack
+class Concurrent_അട്ടി
 {
-public:
-	void push_back(T &&t) {
+പൊതു:
+	ശൂന്യം തള്ളുക_back(T &&t) {
 		LockGuard lock(mutex);
-		contents.push_back(std::move(t));
+		contents.തള്ളുക_back(std::move(t));
 	}
-	std::optional<T> try_pop_back() {
+	std::optional<T> try_എടുക്കുക_back() {
 		LockGuard lock(mutex);
-		if (contents.empty())
-			return std::nullopt;
+		എങ്കിൽ (contents.empty())
+			തിരികെ std::nullopt;
 		T result = std::move(contents.back());
-		contents.pop_back();
-		return result;
+		contents.എടുക്കുക_back();
+		തിരികെ result;
 	}
-private:
+സ്വകാര്യ:
 	Mutex mutex;
 	std::vector<T> contents;
 };
@@ -332,56 +332,56 @@ private:
 // written by thread 1, etc.
 template <typename T>
 class ShardedVector {
-public:
-	ShardedVector(const ParallelDispatchThreadPool &thread_pool) {
-		init(thread_pool.num_threads());
+പൊതു:
+	ShardedVector(സ്ഥിരം ParallelDispatchThreadPool &thread_pool) {
+		init(thread_pool.അക്കം_threads());
 	}
-	ShardedVector(const ParallelDispatchThreadPool::Subpool &thread_pool) {
-		init(thread_pool.num_threads());
+	ShardedVector(സ്ഥിരം ParallelDispatchThreadPool::Subpool &thread_pool) {
+		init(thread_pool.അക്കം_threads());
 	}
 
 	// Insert a value, passing the `ThreadIndex` of the writer thread.
 	// Parallel inserts with different `ThreadIndex` values are fine.
 	// Inserts must not run concurrently with any other methods (e.g.
 	// iteration or `empty()`.)
-	void insert(const ThreadIndex &thread, T value) {
-		buckets[thread.thread_num].emplace_back(std::move(value));
+	ശൂന്യം തിരുകുക(സ്ഥിരം ThreadIndex &thread, T മൂല്യം) {
+		buckets[thread.thread_അക്കം].emplace_back(std::move(മൂല്യം));
 	}
 
-	bool empty() const {
-		for (const std::vector<T> &bucket : buckets)
-			if (!bucket.empty())
-				return false;
-		return true;
+	bool empty() സ്ഥിരം {
+		വേണ്ടി (സ്ഥിരം std::vector<T> &bucket : buckets)
+			എങ്കിൽ (!bucket.empty())
+				തിരികെ false;
+		തിരികെ true;
 	}
 
 	using Buckets = std::vector<std::vector<T>>;
 	class iterator {
-	public:
+	പൊതു:
 		iterator(typename Buckets::iterator bucket_it, typename Buckets::iterator bucket_end)
 			: bucket_it(std::move(bucket_it)), bucket_end(std::move(bucket_end)) {
-			if (bucket_it != bucket_end)
+			എങ്കിൽ (bucket_it != bucket_end)
 				inner_it = bucket_it->begin();
 			normalize();
 		}
-		T& operator*() const { return *inner_it.value(); }
+		T& operator*() സ്ഥിരം { തിരികെ *inner_it.മൂല്യം(); }
 		iterator &operator++() {
 			++*inner_it;
 			normalize();
-			return *this;
+			തിരികെ *this;
 		}
-		bool operator!=(const iterator &other) const {
-			return bucket_it != other.bucket_it || inner_it != other.inner_it;
+		bool operator!=(സ്ഥിരം iterator &other) സ്ഥിരം {
+			തിരികെ bucket_it != other.bucket_it || inner_it != other.inner_it;
 		}
-	private:
-		void normalize() {
-			if (bucket_it == bucket_end)
-				return;
-			while (inner_it == bucket_it->end()) {
+	സ്വകാര്യ:
+		ശൂന്യം normalize() {
+			എങ്കിൽ (bucket_it == bucket_end)
+				തിരികെ;
+			ആകുമ്പോൾ (inner_it == bucket_it->end()) {
 				++bucket_it;
-				if (bucket_it == bucket_end) {
+				എങ്കിൽ (bucket_it == bucket_end) {
 					inner_it.reset();
-					return;
+					തിരികെ;
 				}
 				inner_it = bucket_it->begin();
 			}
@@ -390,11 +390,11 @@ public:
 		typename Buckets::iterator bucket_it;
 		typename Buckets::iterator bucket_end;
 	};
-	iterator begin() { return iterator(buckets.begin(), buckets.end()); }
-	iterator end() { return iterator(buckets.end(), buckets.end()); }
-private:
-	void init(int num_threads) {
-		buckets.resize(num_threads);
+	iterator begin() { തിരികെ iterator(buckets.begin(), buckets.end()); }
+	iterator end() { തിരികെ iterator(buckets.end(), buckets.end()); }
+സ്വകാര്യ:
+	ശൂന്യം init(പൂർണ്ണസംഖ്യ അക്കം_threads) {
+		buckets.resize(അക്കം_threads);
 	}
 	Buckets buckets;
 };
@@ -404,8 +404,8 @@ private:
 // same key are interchangeable, i.e. when the hashtable is being used as a set instead
 // of a map.
 template <typename V>
-struct SetCollisionHandler {
-	void operator()(typename V::Accumulated &, typename V::Accumulated &) const {}
+ഘടന SetCollisionHandler {
+	ശൂന്യം operator()(typename V::Accumulated &, typename V::Accumulated &) സ്ഥിരം {}
 };
 
 // A hashtable that can be efficiently built in parallel and then looked up concurrently.
@@ -418,164 +418,164 @@ struct SetCollisionHandler {
 //
 // To use this, first construct a `Builder` and fill it in (in parallel), then construct
 // a `ShardedHashtable` from the `Builder`.
-template <typename V, typename KeyEquality, typename CollisionHandler>
+template <typename V, typename താക്കോൽ_Equality, typename CollisionHandler>
 class ShardedHashtable {
-public:
+പൊതു:
 	// A combination of a `V` and its hash value.
-	struct Value {
-		Value(V value, unsigned int hash) : value(std::move(value)), hash(hash) {}
-		Value(Value &&) = default;
-		Value(const Value &) = delete;
-		Value &operator=(const Value &) = delete;
-		V value;
-		unsigned int hash;
+	ഘടന മൂല്യം_3 {
+		മൂല്യം_3(V മൂല്യം, unsigned പൂർണ്ണസംഖ്യ hash) : മൂല്യം(std::move(മൂല്യം)), hash(hash) {}
+		മൂല്യം_3(മൂല്യം_3 &&) = സ്ഥിരസ്ഥിതി;
+		മൂല്യം_3(സ്ഥിരം മൂല്യം_3 &) = delete;
+		മൂല്യം_3 &operator=(സ്ഥിരം മൂല്യം_3 &) = delete;
+		V മൂല്യം;
+		unsigned പൂർണ്ണസംഖ്യ hash;
 	};
 	// A combination of a `V::Accumulated` and its hash value.
-	struct AccumulatedValue {
-		AccumulatedValue(typename V::Accumulated value, unsigned int hash) : value(std::move(value)), hash(hash) {}
-		AccumulatedValue(AccumulatedValue &&) = default;
-#if defined(_MSC_VER)
-		AccumulatedValue(const AccumulatedValue &) {
+	ഘടന Accumulated_മൂല്യം {
+		Accumulated_മൂല്യം(typename V::Accumulated മൂല്യം, unsigned പൂർണ്ണസംഖ്യ hash) : മൂല്യം(std::move(മൂല്യം)), hash(hash) {}
+		Accumulated_മൂല്യം(Accumulated_മൂല്യം &&) = സ്ഥിരസ്ഥിതി;
+#എങ്കിൽ defined(_MSC_VER)
+		Accumulated_മൂല്യം(സ്ഥിരം Accumulated_മൂല്യം &) {
 			log_error("Copy constructor called on AccumulatedValue\n");
 		}
-		AccumulatedValue &operator=(const AccumulatedValue &) {
+		Accumulated_മൂല്യം &operator=(സ്ഥിരം Accumulated_മൂല്യം &) {
 			log_error("Copy assignment called on AccumulatedValue\n");
-			return *this;
+			തിരികെ *this;
 		}
-#else
-		AccumulatedValue(const AccumulatedValue &) = delete;
-		AccumulatedValue &operator=(const AccumulatedValue &) = delete;
+#അല്ലെങ്കിൽ
+		Accumulated_മൂല്യം(സ്ഥിരം Accumulated_മൂല്യം &) = delete;
+		Accumulated_മൂല്യം &operator=(സ്ഥിരം Accumulated_മൂല്യം &) = delete;
 #endif
-		typename V::Accumulated value;
-		unsigned int hash;
+		typename V::Accumulated മൂല്യം;
+		unsigned പൂർണ്ണസംഖ്യ hash;
 	};
 	// A class containing an `operator()` that returns true of two `AccumulatedValue`
 	// elements have equal keys.
 	// Required to insert `AccumulatedValue`s into an `std::unordered_set`.
-	struct AccumulatedValueEquality {
-		KeyEquality inner;
-		AccumulatedValueEquality(const KeyEquality &inner) : inner(inner) {}
-		bool operator()(const AccumulatedValue &v1, const AccumulatedValue &v2) const {
-			return inner(v1.value, v2.value);
+	ഘടന Accumulated_മൂല്യം_Equality {
+		താക്കോൽ_Equality inner;
+		Accumulated_മൂല്യം_Equality(സ്ഥിരം താക്കോൽ_Equality &inner) : inner(inner) {}
+		bool operator()(സ്ഥിരം Accumulated_മൂല്യം &v1, സ്ഥിരം Accumulated_മൂല്യം &v2) സ്ഥിരം {
+			തിരികെ inner(v1.മൂല്യം, v2.മൂല്യം);
 		}
 	};
 	// A class containing an `operator()` that returns the hash value of an `AccumulatedValue`.
 	// Required to insert `AccumulatedValue`s into an `std::unordered_set`.
-	struct AccumulatedValueHashOp {
-		size_t operator()(const AccumulatedValue &v) const {
-			return static_cast<size_t>(v.hash);
+	ഘടന Accumulated_മൂല്യം_Hash_Op {
+		size_t operator()(സ്ഥിരം Accumulated_മൂല്യം &v) സ്ഥിരം {
+			തിരികെ static_cast<size_t>(v.hash);
 		}
 	};
-	using Shard = std::unordered_set<AccumulatedValue, AccumulatedValueHashOp, AccumulatedValueEquality>;
+	using Shard = std::unordered_set<Accumulated_മൂല്യം, Accumulated_മൂല്യം_Hash_Op, Accumulated_മൂല്യം_Equality>;
 
 	// First construct one of these. Then populate it in parallel by calling `insert()` from many threads.
 	// Then do another parallel phase calling `process()` from many threads.
 	class Builder {
-	public:
-		Builder(const ParallelDispatchThreadPool &thread_pool, KeyEquality equality = KeyEquality(), CollisionHandler collision_handler = CollisionHandler())
+	പൊതു:
+		Builder(സ്ഥിരം ParallelDispatchThreadPool &thread_pool, താക്കോൽ_Equality equality = താക്കോൽ_Equality(), CollisionHandler collision_handler = CollisionHandler())
 				: collision_handler(std::move(collision_handler)) {
-			init(thread_pool.num_threads(), std::move(equality));
+			init(thread_pool.അക്കം_threads(), std::move(equality));
 		}
-		Builder(const ParallelDispatchThreadPool::Subpool &thread_pool, KeyEquality equality = KeyEquality(), CollisionHandler collision_handler = CollisionHandler())
+		Builder(സ്ഥിരം ParallelDispatchThreadPool::Subpool &thread_pool, താക്കോൽ_Equality equality = താക്കോൽ_Equality(), CollisionHandler collision_handler = CollisionHandler())
 				: collision_handler(std::move(collision_handler)) {
-			init(thread_pool.num_threads(), std::move(equality));
+			init(thread_pool.അക്കം_threads(), std::move(equality));
 		}
 		// First call `insert` to insert all elements. All inserts must finish
 		// before calling any `process()`.
-		void insert(const ThreadIndex &thread, Value v) {
+		ശൂന്യം തിരുകുക(സ്ഥിരം ThreadIndex &thread, മൂല്യം_3 v) {
 			// You might think that for the single-threaded case, we can optimize by
 			// inserting directly into the `std::unordered_set` here. But that slows things down
 			// a lot and I never got around to figuring out why.
-			std::vector<std::vector<Value>> &buckets = all_buckets[thread.thread_num];
+			std::vector<std::vector<മൂല്യം_3>> &buckets = all_buckets[thread.thread_അക്കം];
 			size_t bucket = static_cast<size_t>(v.hash) % buckets.size();
 			buckets[bucket].emplace_back(std::move(v));
 		}
 		// Then call `process` for each thread. All `process()`s must finish before using
 		// the `Builder` to construct a `ShardedHashtable`.
-		void process(const ThreadIndex &thread) {
-			int size = 0;
-			for (std::vector<std::vector<Value>> &buckets : all_buckets)
-				size += GetSize(buckets[thread.thread_num]);
-			Shard &shard = shards[thread.thread_num];
+		ശൂന്യം process(സ്ഥിരം ThreadIndex &thread) {
+			പൂർണ്ണസംഖ്യ size = 0;
+			വേണ്ടി (std::vector<std::vector<മൂല്യം_3>> &buckets : all_buckets)
+				size += GetSize(buckets[thread.thread_അക്കം]);
+			Shard &shard = shards[thread.thread_അക്കം];
 			shard.reserve(size);
-			for (std::vector<std::vector<Value>> &buckets : all_buckets) {
-				for (Value &value : buckets[thread.thread_num])
-					accumulate(value, shard);
+			വേണ്ടി (std::vector<std::vector<മൂല്യം_3>> &buckets : all_buckets) {
+				വേണ്ടി (മൂല്യം_3 &മൂല്യം : buckets[thread.thread_അക്കം])
+					accumulate(മൂല്യം, shard);
 				// Free as much memory as we can during the parallel phase.
-				std::vector<Value>().swap(buckets[thread.thread_num]);
+				std::vector<മൂല്യം_3>().swap(buckets[thread.thread_അക്കം]);
 			}
 		}
-	private:
-		friend class ShardedHashtable<V, KeyEquality, CollisionHandler>;
-		void accumulate(Value &value, Shard &shard) {
+	സ്വകാര്യ:
+		friend class ShardedHashtable<V, താക്കോൽ_Equality, CollisionHandler>;
+		ശൂന്യം accumulate(മൂല്യം_3 &മൂല്യം, Shard &shard) {
 			// With C++20 we could make this more efficient using heterogenous lookup
-			AccumulatedValue accumulated_value{std::move(value.value), value.hash};
-			auto [it, inserted] = shard.insert(std::move(accumulated_value));
-			if (!inserted)
-				collision_handler(const_cast<typename V::Accumulated &>(it->value), accumulated_value.value);
+			Accumulated_മൂല്യം accumulated_മൂല്യം{std::move(മൂല്യം.മൂല്യം), മൂല്യം.hash};
+			auto [it, inserted] = shard.തിരുകുക(std::move(accumulated_മൂല്യം));
+			എങ്കിൽ (!inserted)
+				collision_handler(const_cast<typename V::Accumulated &>(it->മൂല്യം), accumulated_മൂല്യം.മൂല്യം);
 		}
-		void init(int num_threads, KeyEquality equality) {
-			all_buckets.resize(num_threads);
-			for (std::vector<std::vector<Value>> &buckets : all_buckets)
-				buckets.resize(num_threads);
-			for (int i = 0; i < num_threads; ++i)
-				shards.emplace_back(0, AccumulatedValueHashOp(), AccumulatedValueEquality(equality));
+		ശൂന്യം init(പൂർണ്ണസംഖ്യ അക്കം_threads, താക്കോൽ_Equality equality) {
+			all_buckets.resize(അക്കം_threads);
+			വേണ്ടി (std::vector<std::vector<മൂല്യം_3>> &buckets : all_buckets)
+				buckets.resize(അക്കം_threads);
+			വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < അക്കം_threads; ++i)
+				shards.emplace_back(0, Accumulated_മൂല്യം_Hash_Op(), Accumulated_മൂല്യം_Equality(equality));
 		}
-		const CollisionHandler collision_handler;
+		സ്ഥിരം CollisionHandler collision_handler;
 		// A num_threads x num_threads matrix of buckets.
 		// In the first phase, each thread i gemerates elements and writes them to
 		// bucket [i][j] where j = hash(element) % num_threads.
 		// In the second phase, thread i reads from bucket [j][i] for all j, collecting
 		// all elements where i = hash(element) % num_threads.
-		std::vector<std::vector<std::vector<Value>>> all_buckets;
+		std::vector<std::vector<std::vector<മൂല്യം_3>>> all_buckets;
 		std::vector<Shard> shards;
 	};
 
 	// Then finally construct the hashtable:
 	ShardedHashtable(Builder &builder) : shards(std::move(builder.shards)) {
 		// Check that all necessary 'process()' calls were made.
-		for (std::vector<std::vector<Value>> &buckets : builder.all_buckets)
-			for (std::vector<Value> &bucket : buckets)
+		വേണ്ടി (std::vector<std::vector<മൂല്യം_3>> &buckets : builder.all_buckets)
+			വേണ്ടി (std::vector<മൂല്യം_3> &bucket : buckets)
 				log_assert(bucket.empty());
 		// Free memory.
-		std::vector<std::vector<std::vector<Value>>>().swap(builder.all_buckets);
+		std::vector<std::vector<std::vector<മൂല്യം_3>>>().swap(builder.all_buckets);
 	}
-	ShardedHashtable(ShardedHashtable &&other) = default;
+	ShardedHashtable(ShardedHashtable &&other) = സ്ഥിരസ്ഥിതി;
 	ShardedHashtable() {}
 
-	ShardedHashtable &operator=(ShardedHashtable &&other) = default;
+	ShardedHashtable &operator=(ShardedHashtable &&other) = സ്ഥിരസ്ഥിതി;
 
 	// Look up by `AccumulatedValue`. If we switch to C++20 then we could use
 	// heterogenous lookup to support looking up by `Value` here. Returns nullptr
 	// if the key is not found.
-	const typename V::Accumulated *find(const AccumulatedValue &v) const {
-		size_t num_shards = shards.size();
-		if (num_shards == 0)
-			return nullptr;
-		size_t shard = static_cast<size_t>(v.hash) % num_shards;
+	സ്ഥിരം typename V::Accumulated *find(സ്ഥിരം Accumulated_മൂല്യം &v) സ്ഥിരം {
+		size_t അക്കം_shards = shards.size();
+		എങ്കിൽ (അക്കം_shards == 0)
+			തിരികെ nullptr;
+		size_t shard = static_cast<size_t>(v.hash) % അക്കം_shards;
 		auto it = shards[shard].find(v);
-		if (it == shards[shard].end())
-			return nullptr;
-		return &it->value;
+		എങ്കിൽ (it == shards[shard].end())
+			തിരികെ nullptr;
+		തിരികെ &it->മൂല്യം;
 	}
 
 	// Insert an element into the table. The caller is responsible for ensuring this does not
 	// happen concurrently with any other method calls.
-	void insert(AccumulatedValue v) {
-		size_t num_shards = shards.size();
-		if (num_shards == 0)
-			return;
-		size_t shard = static_cast<size_t>(v.hash) % num_shards;
-		shards[shard].insert(v);
+	ശൂന്യം തിരുകുക(Accumulated_മൂല്യം v) {
+		size_t അക്കം_shards = shards.size();
+		എങ്കിൽ (അക്കം_shards == 0)
+			തിരികെ;
+		size_t shard = static_cast<size_t>(v.hash) % അക്കം_shards;
+		shards[shard].തിരുകുക(v);
 	}
 
 	// Call this for each shard to implement parallel destruction. For very large `ShardedHashtable`s,
 	// deleting all elements of all shards on a single thread can be a performance bottleneck.
-	void clear(const ThreadIndex &shard) {
-		AccumulatedValueEquality equality = shards[shard.thread_num].key_eq();
-		shards[shard.thread_num] = Shard(0, AccumulatedValueHashOp(), equality);
+	ശൂന്യം clear(സ്ഥിരം ThreadIndex &shard) {
+		Accumulated_മൂല്യം_Equality equality = shards[shard.thread_അക്കം].താക്കോൽ_eq();
+		shards[shard.thread_അക്കം] = Shard(0, Accumulated_മൂല്യം_Hash_Op(), equality);
 	}
-private:
+സ്വകാര്യ:
 	std::vector<Shard> shards;
 };
 
@@ -583,28 +583,28 @@ private:
 // Uses a naive implementation of work-stealing.
 template <typename T>
 class ConcurrentWorkQueue {
-public:
+പൊതു:
 	// Create a queue that supports the given number of threads and
 	// groups work into `batch_size` units.
-	ConcurrentWorkQueue(int num_threads, int batch_size = 100)
-		: batch_size(batch_size), thread_states(num_threads) {}
-	int num_threads() const { return GetSize(thread_states); }
+	ConcurrentWorkQueue(പൂർണ്ണസംഖ്യ അക്കം_threads, പൂർണ്ണസംഖ്യ batch_size = 100)
+		: batch_size(batch_size), thread_states(അക്കം_threads) {}
+	പൂർണ്ണസംഖ്യ അക്കം_threads() സ്ഥിരം { തിരികെ GetSize(thread_states); }
 	// Push some work to do. Pushes and pops with the same `thread` must
 	// not happen concurrently.
-	void push(const ThreadIndex &thread, T work) {
-		ThreadState &thread_state = thread_states[thread.thread_num];
+	ശൂന്യം തള്ളുക(സ്ഥിരം ThreadIndex &thread, T work) {
+		ThreadState &thread_state = thread_states[thread.thread_അക്കം];
 		thread_state.next_batch.emplace_back(std::move(work));
-		if (GetSize(thread_state.next_batch) < batch_size)
-			return;
+		എങ്കിൽ (GetSize(thread_state.next_batch) < batch_size)
+			തിരികെ;
 		bool was_empty;
 		{
 			UniqueLock lock(thread_state.batches_lock);
 			was_empty = thread_state.batches.empty();
-			thread_state.batches.push_back(std::move(thread_state.next_batch));
+			thread_state.batches.തള്ളുക_back(std::move(thread_state.next_batch));
 		}
-		if (was_empty) {
+		എങ്കിൽ (was_empty) {
 			UniqueLock lock(waiters_lock);
-			if (num_waiters > 0) {
+			എങ്കിൽ (അക്കം_waiters > 0) {
 				waiters_cv.notify_one();
 			}
 		}
@@ -613,24 +613,24 @@ public:
 	// If all threads enter `pop_batch()`, then instead of deadlocking the
 	// queue will return no work. That is the only case in which it will
 	// return no work.
-	std::vector<T> pop_batch(const ThreadIndex &thread) {
-		ThreadState &thread_state = thread_states[thread.thread_num];
-		if (!thread_state.next_batch.empty())
-			return std::move(thread_state.next_batch);
+	std::vector<T> എടുക്കുക_batch(സ്ഥിരം ThreadIndex &thread) {
+		ThreadState &thread_state = thread_states[thread.thread_അക്കം];
+		എങ്കിൽ (!thread_state.next_batch.empty())
+			തിരികെ std::move(thread_state.next_batch);
 		// Empty our own work queue first.
 		{
 			UniqueLock lock(thread_state.batches_lock);
-			if (!thread_state.batches.empty()) {
+			എങ്കിൽ (!thread_state.batches.empty()) {
 				std::vector<T> batch = std::move(thread_state.batches.back());
-				thread_state.batches.pop_back();
-				return batch;
+				thread_state.batches.എടുക്കുക_back();
+				തിരികെ batch;
 			}
 		}
 		// From here on in this function, our work queue is empty.
-		while (true) {
+		ആകുമ്പോൾ (true) {
 			std::vector<T> batch = try_steal(thread);
-			if (!batch.empty()) {
-				return std::move(batch);
+			എങ്കിൽ (!batch.empty()) {
+				തിരികെ std::move(batch);
 			}
 			// Termination: if all threads run out of work, then all of
 			// them will eventually enter this loop and there will be no further
@@ -639,37 +639,37 @@ public:
 			// will become true. In single-threaded builds, num_threads() is 1,
 			// so we always terminate on the first iteration.
 			UniqueLock lock(waiters_lock);
-			++num_waiters;
-			if (num_waiters == num_threads()) {
+			++അക്കം_waiters;
+			എങ്കിൽ (അക്കം_waiters == അക്കം_threads()) {
 				waiters_cv.notify_all();
-				return {};
+				തിരികെ {};
 			}
 			// As above, it's possible that we'll wait here even when there
 			// are work batches posted by other threads. That's OK.
 			waiters_cv.wait(lock);
-			if (num_waiters == num_threads())
-				return {};
-			--num_waiters;
+			എങ്കിൽ (അക്കം_waiters == അക്കം_threads())
+				തിരികെ {};
+			--അക്കം_waiters;
 		}
 	}
-private:
-	std::vector<T> try_steal(const ThreadIndex &thread) {
-		for (int i = 1; i < num_threads(); i++) {
-			int other_thread_num = (thread.thread_num + i) % num_threads();
-			ThreadState &other_thread_state = thread_states[other_thread_num];
+സ്വകാര്യ:
+	std::vector<T> try_steal(സ്ഥിരം ThreadIndex &thread) {
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = 1; i < അക്കം_threads(); i++) {
+			പൂർണ്ണസംഖ്യ other_thread_അക്കം = (thread.thread_അക്കം + i) % അക്കം_threads();
+			ThreadState &other_thread_state = thread_states[other_thread_അക്കം];
 			UniqueLock lock(other_thread_state.batches_lock);
-			if (!other_thread_state.batches.empty()) {
+			എങ്കിൽ (!other_thread_state.batches.empty()) {
 				std::vector<T> batch = std::move(other_thread_state.batches.front());
-				other_thread_state.batches.pop_front();
-				return batch;
+				other_thread_state.batches.എടുക്കുക_front();
+				തിരികെ batch;
 			}
 		}
-		return {};
+		തിരികെ {};
 	}
 
-	int batch_size;
+	പൂർണ്ണസംഖ്യ batch_size;
 
-	struct ThreadState {
+	ഘടന ThreadState {
 		// Entirely thread-local.
 		std::vector<T> next_batch;
 
@@ -683,7 +683,7 @@ private:
 	Mutex waiters_lock;
 	CondVar waiters_cv;
 	// Number of threads waiting for work. Their queues are empty.
-	int num_waiters = 0;
+	പൂർണ്ണസംഖ്യ അക്കം_waiters = 0;
 };
 
 // A monotonic flag. Starts false, and can be set to true in a thread-safe way.
@@ -691,15 +691,15 @@ private:
 // Uses relaxed atomics so there are no memory ordering guarantees. Do not use this
 // to guard access to shared memory.
 class MonotonicFlag {
-public:
-	MonotonicFlag() : value(false) {}
-	bool load() const { return value.load(std::memory_order_relaxed); }
-	void set() { value.store(true, std::memory_order_relaxed); }
+പൊതു:
+	MonotonicFlag() : മൂല്യം(false) {}
+	bool load() സ്ഥിരം { തിരികെ മൂല്യം.load(std::memory_order_relaxed); }
+	ശൂന്യം set() { മൂല്യം.store(true, std::memory_order_relaxed); }
 	bool set_and_return_old() {
-		return value.exchange(true, std::memory_order_relaxed);
+		തിരികെ മൂല്യം.exchange(true, std::memory_order_relaxed);
 	}
-private:
-	std::atomic<bool> value;
+സ്വകാര്യ:
+	std::atomic<bool> മൂല്യം;
 };
 
 YOSYS_NAMESPACE_END

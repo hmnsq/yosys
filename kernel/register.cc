@@ -17,24 +17,24 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/satgen.h"
-#include "kernel/json.h"
-#include "kernel/gzip.h"
-#include "kernel/log_help.h"
-#include "kernel/newcelltypes.h"
+#അന്തര്ഭാവ "kernel/yosys.h"
+#അന്തര്ഭാവ "kernel/satgen.h"
+#അന്തര്ഭാവ "kernel/json.h"
+#അന്തര്ഭാവ "kernel/gzip.h"
+#അന്തര്ഭാവ "kernel/log_help.h"
+#അന്തര്ഭാവ "kernel/newcelltypes.h"
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <filesystem>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <errno.h>
+#അന്തര്ഭാവ <filesystem>
 
 YOSYS_NAMESPACE_BEGIN
 
-#define MAX_REG_COUNT 1000
+#define MAX_REG_എണ്ണം 1000
 
-bool echo_mode = false;
+തർക്കം echo_mode = അസത്യം;
 Pass *first_queued_pass;
 Pass *current_pass;
 
@@ -45,21 +45,21 @@ std::map<std::string, Target> target_register;
 
 std::vector<std::string> Frontend::next_args;
 
-bool GarbageCollectionGuard::is_enabled_ = true;
+തർക്കം GarbageCollectionGuard::is_enabled_ = സത്യം;
 
-static bool garbage_collection_requested = false;
+സ്ഥിതം തർക്കം garbage_collection_requested = അസത്യം;
 
-void request_garbage_collection()
+ശൂന്യം request_garbage_collection()
 {
-	garbage_collection_requested = true;
+	garbage_collection_requested = സത്യം;
 }
 
-void try_collect_garbage()
+ശൂന്യം try_collect_garbage()
 {
-	if (!GarbageCollectionGuard::is_enabled() || !garbage_collection_requested)
-		return;
-	garbage_collection_requested = false;
-	if (yosys_design)
+	എങ്കിൽ (!GarbageCollectionGuard::is_enabled() || !garbage_collection_requested)
+		തിരികെ;
+	garbage_collection_requested = അസത്യം;
+	എങ്കിൽ (yosys_design)
 		yosys_design->gc_twines();
 }
 
@@ -67,46 +67,46 @@ Pass::Pass(std::string name, std::string short_help, source_location location) :
 	pass_name(name), short_help(short_help), location(location)
 {
 	next_queued_pass = first_queued_pass;
-	first_queued_pass = this;
+	first_queued_pass = ഇത്;
 	call_counter = 0;
 	runtime_ns = 0;
 }
 
-void Pass::run_register()
+ശൂന്യം Pass::run_register()
 {
-	if (pass_register.count(pass_name) && !replace_existing_pass())
+	എങ്കിൽ (pass_register.എണ്ണം(pass_name) && !replace_existing_pass())
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
-	pass_register[pass_name] = this;
+	pass_register[pass_name] = ഇത്;
 }
 
-void Pass::init_register()
+ശൂന്യം Pass::init_register()
 {
 	vector<Pass*> added_passes;
-	while (first_queued_pass) {
-		added_passes.push_back(first_queued_pass);
+	ആകുമ്പോൾ (first_queued_pass) {
+		added_passes.തള്ളുക_back(first_queued_pass);
 		first_queued_pass->run_register();
 		first_queued_pass = first_queued_pass->next_queued_pass;
 	}
-	for (auto added_pass : added_passes)
+	വേണ്ടി (auto added_pass : added_passes)
 		added_pass->on_register();
 }
 
-void Pass::done_register()
+ശൂന്യം Pass::done_register()
 {
-	for (auto &it : pass_register)
+	വേണ്ടി (auto &it : pass_register)
 		it.second->on_shutdown();
 
 	frontend_register.clear();
 	pass_register.clear();
 	backend_register.clear();
-	log_assert(first_queued_pass == NULL);
+	log_assert(first_queued_pass == ശൂന്യ);
 }
 
-void Pass::on_register()
+ശൂന്യം Pass::on_register()
 {
 }
 
-void Pass::on_shutdown()
+ശൂന്യം Pass::on_shutdown()
 {
 }
 
@@ -120,12 +120,12 @@ Pass::pre_post_exec_state_t Pass::pre_execute()
 	call_counter++;
 	state.begin_ns = PerformanceTimer::query();
 	state.parent_pass = current_pass;
-	current_pass = this;
+	current_pass = ഇത്;
 	clear_flags();
-	return state;
+	തിരികെ state;
 }
 
-void Pass::post_execute(Pass::pre_post_exec_state_t state)
+ശൂന്യം Pass::post_execute(Pass::pre_post_exec_state_t state)
 {
 	log_suppressed();
 
@@ -135,50 +135,50 @@ void Pass::post_execute(Pass::pre_post_exec_state_t state)
 	subtract_from_current_runtime_ns(time_ns);
 }
 
-void Pass::subtract_from_current_runtime_ns(int64_t time_ns)
+ശൂന്യം Pass::subtract_from_current_runtime_ns(int64_t time_ns)
 {
-	if (current_pass)
+	എങ്കിൽ (current_pass)
 		current_pass->runtime_ns -= time_ns;
 }
 
-void Pass::help()
+ശൂന്യം Pass::help()
 {
 	auto prettyHelp = PrettyHelp();
-	if (formatted_help()) {
+	എങ്കിൽ (formatted_help()) {
 		prettyHelp.log_help();
-	} else {
+	} അല്ലെങ്കിൽ {
 		log("\n");
 		log("No help message for command `%s'.\n", pass_name);
 		log("\n");
 	}
 }
 
-bool Pass::formatted_help()
+തർക്കം Pass::formatted_help()
 {
-	return false;
+	തിരികെ അസത്യം;
 }
 
-void Pass::clear_flags()
+ശൂന്യം Pass::clear_flags()
 {
 }
 
-void Pass::cmd_log_args(const std::vector<std::string> &args)
+ശൂന്യം Pass::cmd_log_args(സ്ഥിരം std::vector<std::string> &args)
 {
-	if (args.size() <= 1)
-		return;
+	എങ്കിൽ (args.size() <= 1)
+		തിരികെ;
 	std::string message = "Full command line:";
-	for (size_t i = 0; i < args.size(); i++)
+	വേണ്ടി (size_t i = 0; i < args.size(); i++)
 		message += stringf(" %s", args[i]);
 	log("%s\n", message);
 }
 
-void Pass::cmd_error(const std::vector<std::string> &args, size_t argidx, std::string msg)
+ശൂന്യം Pass::cmd_error(സ്ഥിരം std::vector<std::string> &args, size_t argidx, std::string സന്ദേശം)
 {
 	std::string command_text;
-	int error_pos = 0;
+	പൂർണ്ണസംഖ്യ error_pos = 0;
 
-	for (size_t i = 0; i < args.size(); i++) {
-		if (i < argidx)
+	വേണ്ടി (size_t i = 0; i < args.size(); i++) {
+		എങ്കിൽ (i < argidx)
 			error_pos += args[i].size() + 1;
 		command_text = command_text + (command_text.empty() ? "" : " ") + args[i];
 	}
@@ -188,107 +188,107 @@ void Pass::cmd_error(const std::vector<std::string> &args, size_t argidx, std::s
 	help();
 
 	log_cmd_error("Command syntax error: %s\n> %s\n> %*s^\n",
-			msg.c_str(), command_text.c_str(), error_pos, "");
+			സന്ദേശം.c_str(), command_text.c_str(), error_pos, "");
 }
 
-void Pass::extra_args(std::vector<std::string> args, size_t argidx, RTLIL::Design *design, bool select)
+ശൂന്യം Pass::extra_args(std::vector<std::string> args, size_t argidx, RTLIL::Design *design, തർക്കം select)
 {
-	for (; argidx < args.size(); argidx++)
+	വേണ്ടി (; argidx < args.size(); argidx++)
 	{
 		std::string arg = args[argidx];
 
-		if (arg.compare(0, 1, "-") == 0)
+		എങ്കിൽ (arg.compare(0, 1, "-") == 0)
 			cmd_error(args, argidx, "Unknown option or option in arguments.");
 
-		if (!select)
+		എങ്കിൽ (!select)
 			cmd_error(args, argidx, "Extra argument.");
 
-		handle_extra_select_args(this, args, argidx, args.size(), design);
-		break;
+		handle_extra_select_args(ഇത്, args, argidx, args.size(), design);
+		നിർത്തുക;
 	}
 	// cmd_log_args(args);
 }
 
-void Pass::call(RTLIL::Design *design, std::string command)
+ശൂന്യം Pass::call(RTLIL::Design *design, std::string command)
 {
 	std::vector<std::string> args;
 
 	std::string cmd_buf = command;
-	std::string tok = next_token(cmd_buf, " \t\r\n", true);
+	std::string tok = next_token(cmd_buf, " \t\r\n", സത്യം);
 
-	if (tok.empty())
-		return;
+	എങ്കിൽ (tok.empty())
+		തിരികെ;
 
-	if (tok[0] == '!') {
-#if defined(YOSYS_ENABLE_SPAWN)
+	എങ്കിൽ (tok[0] == '!') {
+#എങ്കിൽ defined(YOSYS_ENABLE_SPAWN)
 		cmd_buf = command.substr(command.find('!') + 1);
-		while (!cmd_buf.empty() && (cmd_buf.back() == ' ' || cmd_buf.back() == '\t' ||
+		ആകുമ്പോൾ (!cmd_buf.empty() && (cmd_buf.back() == ' ' || cmd_buf.back() == '\t' ||
 				cmd_buf.back() == '\r' || cmd_buf.back() == '\n'))
 			cmd_buf.resize(cmd_buf.size()-1);
 		log_header(design, "Shell command: %s\n", cmd_buf);
-		int retCode = run_command(cmd_buf);
-		if (retCode != 0)
+		പൂർണ്ണസംഖ്യ retCode = run_command(cmd_buf);
+		എങ്കിൽ (retCode != 0)
 			log_cmd_error("Shell command returned error code %d.\n", retCode);
-		return;
-#else
+		തിരികെ;
+#അല്ലെങ്കിൽ
 		log_cmd_error("Shell is not available.\n");
 #endif
 	}
 
-	while (!tok.empty()) {
-		if (tok[0] == '#') {
-			int stop;
-			for (stop = 0; stop < GetSize(cmd_buf); stop++)
-				if (cmd_buf[stop] == '\r' || cmd_buf[stop] == '\n')
-					break;
+	ആകുമ്പോൾ (!tok.empty()) {
+		എങ്കിൽ (tok[0] == '#') {
+			പൂർണ്ണസംഖ്യ stop;
+			വേണ്ടി (stop = 0; stop < GetSize(cmd_buf); stop++)
+				എങ്കിൽ (cmd_buf[stop] == '\r' || cmd_buf[stop] == '\n')
+					നിർത്തുക;
 			cmd_buf = cmd_buf.substr(stop);
-		} else
-		if (tok.back() == ';') {
-			int num_semikolon = 0;
-			while (!tok.empty() && tok.back() == ';')
-				tok.resize(tok.size()-1), num_semikolon++;
-			if (!tok.empty())
-				args.push_back(tok);
+		} അല്ലെങ്കിൽ
+		എങ്കിൽ (tok.back() == ';') {
+			പൂർണ്ണസംഖ്യ അക്കം_semikolon = 0;
+			ആകുമ്പോൾ (!tok.empty() && tok.back() == ';')
+				tok.resize(tok.size()-1), അക്കം_semikolon++;
+			എങ്കിൽ (!tok.empty())
+				args.തള്ളുക_back(tok);
 			call(design, args);
 			args.clear();
-			if (num_semikolon == 2)
+			എങ്കിൽ (അക്കം_semikolon == 2)
 				call(design, "clean");
-			if (num_semikolon == 3)
+			എങ്കിൽ (അക്കം_semikolon == 3)
 				call(design, "clean -purge");
-		} else
-			args.push_back(tok);
-		bool found_nl = false;
-		for (auto c : cmd_buf) {
-			if (c == ' ' || c == '\t')
-				continue;
-			if (c == '\r' || c == '\n')
-				found_nl = true;
-			break;
+		} അല്ലെങ്കിൽ
+			args.തള്ളുക_back(tok);
+		തർക്കം found_nl = അസത്യം;
+		വേണ്ടി (auto c : cmd_buf) {
+			എങ്കിൽ (c == ' ' || c == '\t')
+				തുടരുക;
+			എങ്കിൽ (c == '\r' || c == '\n')
+				found_nl = സത്യം;
+			നിർത്തുക;
 		}
-		if (found_nl) {
+		എങ്കിൽ (found_nl) {
 			call(design, args);
 			args.clear();
 		}
-		tok = next_token(cmd_buf, " \t\r\n", true);
+		tok = next_token(cmd_buf, " \t\r\n", സത്യം);
 	}
 
 	call(design, args);
 }
 
-void Pass::call(RTLIL::Design *design, std::vector<std::string> args)
+ശൂന്യം Pass::call(RTLIL::Design *design, std::vector<std::string> args)
 {
-	if (args.size() == 0 || args[0][0] == '#' || args[0][0] == ':')
-		return;
+	എങ്കിൽ (args.size() == 0 || args[0][0] == '#' || args[0][0] == ':')
+		തിരികെ;
 
-	if (echo_mode) {
-		std::string message = stringf("%s", create_prompt(design, 0, false));
-		for (size_t i = 0; i < args.size(); i++)
+	എങ്കിൽ (echo_mode) {
+		std::string message = stringf("%s", create_prompt(design, 0, അസത്യം));
+		വേണ്ടി (size_t i = 0; i < args.size(); i++)
 			message += stringf("%s%s", i ? " " : "", args[i]);
 		log("\n");
 		log("%s\n", message);
 	}
 
-	if (pass_register.count(args[0]) == 0)
+	എങ്കിൽ (pass_register.എണ്ണം(args[0]) == 0)
 		log_cmd_error("No such command: %s (type 'help' for a command overview)\n", args[0]);
 	Pass *pass = pass_register[args[0]];
 
@@ -296,117 +296,117 @@ void Pass::call(RTLIL::Design *design, std::vector<std::string> args)
 	try_collect_garbage();
 	GarbageCollectionGuard gc_guard(pass->allow_garbage_collection_during_pass());
 
-	if (pass->experimental_flag)
+	എങ്കിൽ (pass->experimental_flag)
 		log_experimental(args[0]);
 
-	size_t orig_sel_stack_pos = design->selection_stack.size();
+	size_t orig_sel_അട്ടി_pos = design->selection_അട്ടി.size();
 	auto state = pass->pre_execute();
 	pass->execute(args, design);
 	pass->post_execute(state);
-	while (design->selection_stack.size() > orig_sel_stack_pos)
-		design->pop_selection();
+	ആകുമ്പോൾ (design->selection_അട്ടി.size() > orig_sel_അട്ടി_pos)
+		design->എടുക്കുക_selection();
 }
 
-void Pass::call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::string command)
+ശൂന്യം Pass::call_on_selection(RTLIL::Design *design, സ്ഥിരം RTLIL::Selection &selection, std::string command)
 {
 	IdString backup_selected_active_module = design->selected_active_module;
 	design->selected_active_module.clear();
-	design->push_selection(selection);
+	design->തള്ളുക_selection(selection);
 
 	Pass::call(design, command);
 
-	design->pop_selection();
+	design->എടുക്കുക_selection();
 	design->selected_active_module = backup_selected_active_module;
 }
 
-void Pass::call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::vector<std::string> args)
+ശൂന്യം Pass::call_on_selection(RTLIL::Design *design, സ്ഥിരം RTLIL::Selection &selection, std::vector<std::string> args)
 {
 	IdString backup_selected_active_module = design->selected_active_module;
 	design->selected_active_module.clear();
-	design->push_selection(selection);
+	design->തള്ളുക_selection(selection);
 
 	Pass::call(design, args);
 
-	design->pop_selection();
+	design->എടുക്കുക_selection();
 	design->selected_active_module = backup_selected_active_module;
 }
 
-void Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command)
+ശൂന്യം Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command)
 {
 	IdString backup_selected_active_module = design->selected_active_module;
 	design->selected_active_module = module->name;
-	design->push_empty_selection();
+	design->തള്ളുക_empty_selection();
 	design->select(module);
 
 	Pass::call(design, command);
 
-	design->pop_selection();
+	design->എടുക്കുക_selection();
 	design->selected_active_module = backup_selected_active_module;
 }
 
-void Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vector<std::string> args)
+ശൂന്യം Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vector<std::string> args)
 {
 	IdString backup_selected_active_module = design->selected_active_module;
 	design->selected_active_module = module->name;
-	design->push_empty_selection();
+	design->തള്ളുക_empty_selection();
 	design->select(module);
 
 	Pass::call(design, args);
 
-	design->pop_selection();
+	design->എടുക്കുക_selection();
 	design->selected_active_module = backup_selected_active_module;
 }
 
-bool ScriptPass::check_label(std::string label, std::string info)
+തർക്കം ScriptPass::check_label(std::string label, std::string info)
 {
-	if (active_design == nullptr) {
+	എങ്കിൽ (active_design == nullptr) {
 		log("\n");
-		if (info.empty())
+		എങ്കിൽ (info.empty())
 			log("    %s:\n", label);
-		else
+		അല്ലെങ്കിൽ
 			log("    %s:    %s\n", label, info);
-		return true;
-	} else {
-		if (!active_run_from.empty() && active_run_from == active_run_to) {
+		തിരികെ സത്യം;
+	} അല്ലെങ്കിൽ {
+		എങ്കിൽ (!active_run_from.empty() && active_run_from == active_run_to) {
 			block_active = (label == active_run_from);
-		} else {
-			if (label == active_run_from)
-				block_active = true;
-			if (label == active_run_to)
-				block_active = false;
+		} അല്ലെങ്കിൽ {
+			എങ്കിൽ (label == active_run_from)
+				block_active = സത്യം;
+			എങ്കിൽ (label == active_run_to)
+				block_active = അസത്യം;
 		}
-		return block_active;
+		തിരികെ block_active;
 	}
 }
 
-void ScriptPass::run(std::string command, std::string info)
+ശൂന്യം ScriptPass::run(std::string command, std::string info)
 {
-	if (active_design == nullptr) {
-		if (info.empty())
+	എങ്കിൽ (active_design == nullptr) {
+		എങ്കിൽ (info.empty())
 			log("        %s\n", command);
-		else
+		അല്ലെങ്കിൽ
 			log("        %s    %s\n", command, info);
-	} else {
+	} അല്ലെങ്കിൽ {
 		Pass::call(active_design, command);
 		active_design->check();
 	}
 }
 
-void ScriptPass::run_nocheck(std::string command, std::string info)
+ശൂന്യം ScriptPass::run_nocheck(std::string command, std::string info)
 {
-	if (active_design == nullptr) {
-		if (info.empty())
+	എങ്കിൽ (active_design == nullptr) {
+		എങ്കിൽ (info.empty())
 			log("        %s\n", command);
-		else
+		അല്ലെങ്കിൽ
 			log("        %s    %s\n", command, info);
-	} else {
+	} അല്ലെങ്കിൽ {
 		Pass::call(active_design, command);
 	}
 }
 
-void ScriptPass::run_script(RTLIL::Design *design, std::string run_from, std::string run_to)
+ശൂന്യം ScriptPass::run_script(RTLIL::Design *design, std::string run_from, std::string run_to)
 {
-	help_mode = false;
+	help_mode = അസത്യം;
 	active_design = design;
 	block_active = run_from.empty();
 	active_run_from = run_from;
@@ -414,12 +414,12 @@ void ScriptPass::run_script(RTLIL::Design *design, std::string run_from, std::st
 	script();
 }
 
-void ScriptPass::help_script()
+ശൂന്യം ScriptPass::help_script()
 {
 	clear_flags();
-	help_mode = true;
+	help_mode = സത്യം;
 	active_design = nullptr;
-	block_active = true;
+	block_active = സത്യം;
 	active_run_from.clear();
 	active_run_to.clear();
 	script();
@@ -431,144 +431,144 @@ Frontend::Frontend(std::string name, std::string short_help, source_location loc
 {
 }
 
-void Frontend::run_register()
+ശൂന്യം Frontend::run_register()
 {
-	if (pass_register.count(pass_name) && !replace_existing_pass())
+	എങ്കിൽ (pass_register.എണ്ണം(pass_name) && !replace_existing_pass())
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
-	pass_register[pass_name] = this;
+	pass_register[pass_name] = ഇത്;
 
-	if (frontend_register.count(frontend_name) && !replace_existing_pass())
+	എങ്കിൽ (frontend_register.എണ്ണം(frontend_name) && !replace_existing_pass())
 		log_error("Unable to register frontend '%s', frontend already exists!\n", frontend_name);
-	frontend_register[frontend_name] = this;
+	frontend_register[frontend_name] = ഇത്;
 }
 
 Frontend::~Frontend()
 {
 }
 
-void Frontend::execute(std::vector<std::string> args, RTLIL::Design *design)
+ശൂന്യം Frontend::execute(std::vector<std::string> args, RTLIL::Design *design)
 {
 	log_assert(next_args.empty());
-	do {
-		std::istream *f = NULL;
+	ചെയ്യുക {
+		std::istream *f = ശൂന്യ;
 		next_args.clear();
 		auto state = pre_execute();
 		execute(f, std::string(), args, design);
 		post_execute(state);
 		args = next_args;
 		delete f;
-	} while (!args.empty());
+	} ആകുമ്പോൾ (!args.empty());
 }
 
-FILE *Frontend::current_script_file = NULL;
+FILE *Frontend::current_script_file = ശൂന്യ;
 std::string Frontend::last_here_document;
 std::string Frontend::current_script_filename;
-int Frontend::current_script_lineno = 0;
+പൂർണ്ണസംഖ്യ Frontend::current_script_lineno = 0;
 
-void Frontend::extra_args(std::istream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_input)
+ശൂന്യം Frontend::extra_args(std::istream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, തർക്കം bin_നിവേശം)
 {
-	bool called_with_fp = f != NULL;
+	തർക്കം called_with_fp = f != ശൂന്യ;
 
 	next_args.clear();
 
-	if (argidx < args.size())
+	എങ്കിൽ (argidx < args.size())
 	{
 		std::string arg = args[argidx];
 
-		if (arg.compare(0, 1, "-") == 0)
+		എങ്കിൽ (arg.compare(0, 1, "-") == 0)
 			cmd_error(args, argidx, "Unknown option or option in arguments.");
-		if (f != NULL)
+		എങ്കിൽ (f != ശൂന്യ)
 			cmd_error(args, argidx, "Extra filename argument in direct file mode.");
 
 		filename = arg;
 		//Accommodate heredocs with EOT marker spaced out from "<<", e.g. "<< EOT" vs. "<<EOT"
-		if (filename == "<<" && argidx+1 < args.size())
+		എങ്കിൽ (filename == "<<" && argidx+1 < args.size())
 			filename += args[++argidx];
-		if (filename.compare(0, 2, "<<") == 0) {
-			if (filename.size() <= 2)
+		എങ്കിൽ (filename.compare(0, 2, "<<") == 0) {
+			എങ്കിൽ (filename.size() <= 2)
 				log_error("Missing EOT marker in here document!\n");
 			std::string eot_marker = filename.substr(2);
 			filename = (Frontend::current_script_file == nullptr) ?  "<stdin>" : "<inlined>";
 			last_here_document.clear();
-			while (1) {
+			ആകുമ്പോൾ (1) {
 				std::string buffer;
-				char block[4096];
-				while (1) {
-					if (fgets(block, 4096, Frontend::current_script_file == nullptr? stdin : Frontend::current_script_file) == nullptr)
+				അക്ഷരം block[4096];
+				ആകുമ്പോൾ (1) {
+					എങ്കിൽ (fgets(block, 4096, Frontend::current_script_file == nullptr? stdin : Frontend::current_script_file) == nullptr)
 						log_error("Unexpected end of file in here document '%s'!\n", filename);
 					buffer += block;
-					if (buffer.size() > 0 && (buffer[buffer.size() - 1] == '\n' || buffer[buffer.size() - 1] == '\r'))
-						break;
+					എങ്കിൽ (buffer.size() > 0 && (buffer[buffer.size() - 1] == '\n' || buffer[buffer.size() - 1] == '\r'))
+						നിർത്തുക;
 				}
 				Frontend::current_script_lineno++;
 				size_t indent = buffer.find_first_not_of(" \t\r\n");
-				if (indent != std::string::npos && buffer.compare(indent, eot_marker.size(), eot_marker) == 0)
-					break;
+				എങ്കിൽ (indent != std::string::npos && buffer.compare(indent, eot_marker.size(), eot_marker) == 0)
+					നിർത്തുക;
 				last_here_document += buffer;
 			}
-			f = new std::istringstream(last_here_document);
-		} else {
+			f = പുതിയ std::istringstream(last_here_document);
+		} അല്ലെങ്കിൽ {
 			rewrite_filename(filename);
 			vector<string> filenames = glob_filename(filename);
 			filename = filenames.front();
-			if (GetSize(filenames) > 1) {
-				next_args.insert(next_args.end(), args.begin(), args.begin()+argidx);
-				next_args.insert(next_args.end(), filenames.begin()+1, filenames.end());
+			എങ്കിൽ (GetSize(filenames) > 1) {
+				next_args.തിരുകുക(next_args.end(), args.begin(), args.begin()+argidx);
+				next_args.തിരുകുക(next_args.end(), filenames.begin()+1, filenames.end());
 			}
-			yosys_input_files.insert(filename);
-			f = uncompressed(filename, bin_input ? std::ifstream::binary : std::ifstream::in);
+			yosys_നിവേശം_files.തിരുകുക(filename);
+			f = uncompressed(filename, bin_നിവേശം ? std::ifstream::ദ്വിമാന : std::ifstream::in);
 		}
 
-		for (size_t i = argidx+1; i < args.size(); i++)
-			if (args[i].compare(0, 1, "-") == 0)
+		വേണ്ടി (size_t i = argidx+1; i < args.size(); i++)
+			എങ്കിൽ (args[i].compare(0, 1, "-") == 0)
 				cmd_error(args, i, "Found option, expected arguments.");
 
-		if (argidx+1 < args.size()) {
-			if (next_args.empty())
-				next_args.insert(next_args.end(), args.begin(), args.begin()+argidx);
-			next_args.insert(next_args.end(), args.begin()+argidx+1, args.end());
+		എങ്കിൽ (argidx+1 < args.size()) {
+			എങ്കിൽ (next_args.empty())
+				next_args.തിരുകുക(next_args.end(), args.begin(), args.begin()+argidx);
+			next_args.തിരുകുക(next_args.end(), args.begin()+argidx+1, args.end());
 			args.erase(args.begin()+argidx+1, args.end());
 		}
 	}
 
-	if (f == NULL)
+	എങ്കിൽ (f == ശൂന്യ)
 		cmd_error(args, argidx, "No filename given.");
 
-	if (called_with_fp)
-		args.push_back(filename);
+	എങ്കിൽ (called_with_fp)
+		args.തള്ളുക_back(filename);
 	args[0] = pass_name;
 	// cmd_log_args(args);
 }
 
-void Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command)
+ശൂന്യം Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command)
 {
 	std::vector<std::string> args;
-	char *s = strdup(command.c_str());
-	for (char *p = strtok(s, " \t\r\n"); p; p = strtok(NULL, " \t\r\n"))
-		args.push_back(p);
-	free(s);
+	അക്ഷരം *s = strdup(command.c_str());
+	വേണ്ടി (അക്ഷരം *p = strtok(s, " \t\r\n"); p; p = strtok(ശൂന്യ, " \t\r\n"))
+		args.തള്ളുക_back(p);
+	സ്വതന്ത്രം(s);
 	frontend_call(design, f, filename, args);
 }
 
-void Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> args)
+ശൂന്യം Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> args)
 {
-	if (args.size() == 0)
-		return;
-	if (frontend_register.count(args[0]) == 0)
+	എങ്കിൽ (args.size() == 0)
+		തിരികെ;
+	എങ്കിൽ (frontend_register.എണ്ണം(args[0]) == 0)
 		log_cmd_error("No such frontend: %s\n", args[0]);
 
-	if (f != NULL) {
+	എങ്കിൽ (f != ശൂന്യ) {
 		auto state = frontend_register[args[0]]->pre_execute();
 		frontend_register[args[0]]->execute(f, filename, args, design);
 		frontend_register[args[0]]->post_execute(state);
-	} else if (filename == "-") {
+	} അല്ലെങ്കിൽ എങ്കിൽ (filename == "-") {
 		std::istream *f_cin = &std::cin;
 		auto state = frontend_register[args[0]]->pre_execute();
 		frontend_register[args[0]]->execute(f_cin, "<stdin>", args, design);
 		frontend_register[args[0]]->post_execute(state);
-	} else {
-		if (!filename.empty())
-			args.push_back(filename);
+	} അല്ലെങ്കിൽ {
+		എങ്കിൽ (!filename.empty())
+			args.തള്ളുക_back(filename);
 		frontend_register[args[0]]->execute(args, design);
 	}
 }
@@ -579,69 +579,69 @@ Backend::Backend(std::string name, std::string short_help, source_location locat
 {
 }
 
-void Backend::run_register()
+ശൂന്യം Backend::run_register()
 {
-	if (pass_register.count(pass_name))
+	എങ്കിൽ (pass_register.എണ്ണം(pass_name))
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
-	pass_register[pass_name] = this;
+	pass_register[pass_name] = ഇത്;
 
-	if (backend_register.count(backend_name))
+	എങ്കിൽ (backend_register.എണ്ണം(backend_name))
 		log_error("Unable to register backend '%s', backend already exists!\n", backend_name);
-	backend_register[backend_name] = this;
+	backend_register[backend_name] = ഇത്;
 }
 
 Backend::~Backend()
 {
 }
 
-void Backend::execute(std::vector<std::string> args, RTLIL::Design *design)
+ശൂന്യം Backend::execute(std::vector<std::string> args, RTLIL::Design *design)
 {
-	std::ostream *f = NULL;
+	std::ostream *f = ശൂന്യ;
 	auto state = pre_execute();
 	execute(f, std::string(), args, design);
 	post_execute(state);
-	if (f != &std::cout)
+	എങ്കിൽ (f != &std::cout)
 		delete f;
 }
 
-void Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_output)
+ശൂന്യം Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, തർക്കം bin_output)
 {
-	bool called_with_fp = f != NULL;
+	തർക്കം called_with_fp = f != ശൂന്യ;
 
-	for (; argidx < args.size(); argidx++)
+	വേണ്ടി (; argidx < args.size(); argidx++)
 	{
 		std::string arg = args[argidx];
 
-		if (arg.compare(0, 1, "-") == 0 && arg != "-")
+		എങ്കിൽ (arg.compare(0, 1, "-") == 0 && arg != "-")
 			cmd_error(args, argidx, "Unknown option or option in arguments.");
-		if (f != NULL)
+		എങ്കിൽ (f != ശൂന്യ)
 			cmd_error(args, argidx, "Extra filename argument in direct file mode.");
 
-		if (arg == "-") {
+		എങ്കിൽ (arg == "-") {
 			filename = "<stdout>";
 			f = &std::cout;
-			continue;
+			തുടരുക;
 		}
 
 		filename = arg;
 		rewrite_filename(filename);
-		if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".gz") == 0) {
+		എങ്കിൽ (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".gz") == 0) {
 #ifdef YOSYS_ENABLE_ZLIB
-			gzip_ostream *gf = new gzip_ostream;
-			if (!gf->open(filename)) {
+			gzip_ostream *gf = പുതിയ gzip_ostream;
+			എങ്കിൽ (!gf->open(filename)) {
 				delete gf;
 				log_cmd_error("Can't open output file `%s' for writing: %s\n", filename, strerror(errno));
 			}
-			yosys_output_files.insert(filename);
+			yosys_output_files.തിരുകുക(filename);
 			f = gf;
-#else
+#അല്ലെങ്കിൽ
 			log_cmd_error("Yosys is compiled without zlib support, unable to write gzip output.\n");
 #endif
-		} else {
-			std::ofstream *ff = new std::ofstream;
-			ff->open(filename.c_str(), bin_output ? (std::ofstream::trunc | std::ofstream::binary) : std::ofstream::trunc);
-			yosys_output_files.insert(filename);
-			if (ff->fail()) {
+		} അല്ലെങ്കിൽ {
+			std::ofstream *ff = പുതിയ std::ofstream;
+			ff->open(filename.c_str(), bin_output ? (std::ofstream::trunc | std::ofstream::ദ്വിമാന) : std::ofstream::trunc);
+			yosys_output_files.തിരുകുക(filename);
+			എങ്കിൽ (ff->fail()) {
 				delete ff;
 				log_cmd_error("Can't open output file `%s' for writing: %s\n", filename, strerror(errno));
 			}
@@ -649,65 +649,65 @@ void Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<st
 		}
 	}
 
-	if (called_with_fp)
-		args.push_back(filename);
+	എങ്കിൽ (called_with_fp)
+		args.തള്ളുക_back(filename);
 	args[0] = pass_name;
 	// cmd_log_args(args);
 
-	if (f == NULL) {
+	എങ്കിൽ (f == ശൂന്യ) {
 		filename = "<stdout>";
 		f = &std::cout;
 	}
 }
 
-void Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command)
+ശൂന്യം Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command)
 {
 	std::vector<std::string> args;
-	char *s = strdup(command.c_str());
-	for (char *p = strtok(s, " \t\r\n"); p; p = strtok(NULL, " \t\r\n"))
-		args.push_back(p);
-	free(s);
+	അക്ഷരം *s = strdup(command.c_str());
+	വേണ്ടി (അക്ഷരം *p = strtok(s, " \t\r\n"); p; p = strtok(ശൂന്യ, " \t\r\n"))
+		args.തള്ളുക_back(p);
+	സ്വതന്ത്രം(s);
 	backend_call(design, f, filename, args);
 }
 
-void Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> args)
+ശൂന്യം Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> args)
 {
-	if (args.size() == 0)
-		return;
-	if (backend_register.count(args[0]) == 0)
+	എങ്കിൽ (args.size() == 0)
+		തിരികെ;
+	എങ്കിൽ (backend_register.എണ്ണം(args[0]) == 0)
 		log_cmd_error("No such backend: %s\n", args[0]);
 
-	size_t orig_sel_stack_pos = design->selection_stack.size();
+	size_t orig_sel_അട്ടി_pos = design->selection_അട്ടി.size();
 
-	if (f != NULL) {
+	എങ്കിൽ (f != ശൂന്യ) {
 		auto state = backend_register[args[0]]->pre_execute();
 		backend_register[args[0]]->execute(f, filename, args, design);
 		backend_register[args[0]]->post_execute(state);
-	} else if (filename == "-") {
+	} അല്ലെങ്കിൽ എങ്കിൽ (filename == "-") {
 		std::ostream *f_cout = &std::cout;
 		auto state = backend_register[args[0]]->pre_execute();
 		backend_register[args[0]]->execute(f_cout, "<stdout>", args, design);
 		backend_register[args[0]]->post_execute(state);
-	} else {
-		if (!filename.empty())
-			args.push_back(filename);
+	} അല്ലെങ്കിൽ {
+		എങ്കിൽ (!filename.empty())
+			args.തള്ളുക_back(filename);
 		backend_register[args[0]]->execute(args, design);
 	}
 
-	while (design->selection_stack.size() > orig_sel_stack_pos)
-		design->pop_selection();
+	ആകുമ്പോൾ (design->selection_അട്ടി.size() > orig_sel_അട്ടി_pos)
+		design->എടുക്കുക_selection();
 }
 
-struct SimHelper {
+ഘടന SimHelper {
 	string name;
-	inline string filesafe_name() {
-		if (name.at(0) == '$')
-			if (name.at(1) == '_')
-				return "gate" + name.substr(1);
-			else
-				return "word_" + name.substr(1);
-		else
-			return name;
+	വരിയിൽ string filesafe_name() {
+		എങ്കിൽ (name.at(0) == '$')
+			എങ്കിൽ (name.at(1) == '_')
+				തിരികെ "gate" + name.substr(1);
+			അല്ലെങ്കിൽ
+				തിരികെ "word_" + name.substr(1);
+		അല്ലെങ്കിൽ
+			തിരികെ name;
 	}
 	string title;
 	string ports;
@@ -719,45 +719,45 @@ struct SimHelper {
 	string tags;
 };
 
-static bool is_code_getter(string name) {
-	return *(--(name.end())) == '+';
+സ്ഥിതം തർക്കം is_code_getter(string name) {
+	തിരികെ *(--(name.end())) == '+';
 }
 
-static string get_cell_name(string name) {
-	return is_code_getter(name) ? name.substr(0, name.length()-1) : name;
+സ്ഥിതം string get_cell_name(string name) {
+	തിരികെ is_code_getter(name) ? name.substr(0, name.length()-1) : name;
 }
 
-static void log_warning_flags(Pass *pass) {
-	bool has_warnings = false;
-	const string name = pass->pass_name;
-	if (pass->experimental_flag) {
-		if (!has_warnings) log("\n");
-		has_warnings = true;
+സ്ഥിതം ശൂന്യം log_warning_flags(Pass *pass) {
+	തർക്കം has_warnings = അസത്യം;
+	സ്ഥിരം string name = pass->pass_name;
+	എങ്കിൽ (pass->experimental_flag) {
+		എങ്കിൽ (!has_warnings) log("\n");
+		has_warnings = സത്യം;
 		log("WARNING: THE '%s' COMMAND IS EXPERIMENTAL.\n", name);
 	}
-	if (pass->internal_flag) {
-		if (!has_warnings) log("\n");
-		has_warnings = true;
+	എങ്കിൽ (pass->internal_flag) {
+		എങ്കിൽ (!has_warnings) log("\n");
+		has_warnings = സത്യം;
 		log("WARNING: THE '%s' COMMAND IS INTENDED FOR INTERNAL DEVELOPER USE ONLY.\n", name);
 	}
-	if (has_warnings)
+	എങ്കിൽ (has_warnings)
 		log("\n");
 }
 
-static struct CellHelpMessages {
+സ്ഥിതം ഘടന CellHelpMessages {
 	dict<string, SimHelper> cell_help;
 	CellHelpMessages() {
-#include "kernel/simlib_help.inc"
-#include "kernel/simcells_help.inc"
+#അന്തര്ഭാവ "kernel/simlib_help.inc"
+#അന്തര്ഭാവ "kernel/simcells_help.inc"
 		cell_help.sort();
 	}
-	bool contains(string name) { return cell_help.count(get_cell_name(name)) > 0; }
-	SimHelper get(string name) { return cell_help[get_cell_name(name)]; }
+	തർക്കം contains(string name) { തിരികെ cell_help.എണ്ണം(get_cell_name(name)) > 0; }
+	SimHelper get(string name) { തിരികെ cell_help[get_cell_name(name)]; }
 } cell_help_messages;
 
-struct HelpPass : public Pass {
+ഘടന HelpPass : പൊതു Pass {
 	HelpPass() : Pass("help", "display help messages") { }
-	void help() override
+	ശൂന്യം help() override
 	{
 		log("\n");
 		log("    help  ................  list all commands\n");
@@ -769,22 +769,22 @@ struct HelpPass : public Pass {
 		log("    help <celltype>+  ....  print verilog code for given cell type\n");
 		log("\n");
 	}
-	bool dump_cmds_json(PrettyJson &json) {
+	തർക്കം dump_cmds_json(PrettyJson &json) {
 		// init json
 		json.begin_object();
 		json.entry("version", "Yosys command reference");
 		json.entry("generator", yosys_version_str);
 
-		bool raise_error = false;
+		തർക്കം raise_error = അസത്യം;
 		std::map<string, vector<string>> groups;
 
 		// get root path
 		auto this_path = std::filesystem::path(source_location::current().file_name());
-		auto source_root = this_path.parent_path().parent_path();
+		auto source_വേര് = this_path.parent_path().parent_path();
 
 		json.name("cmds"); json.begin_object();
 		// iterate over commands
-		for (auto &it : pass_register) {
+		വേണ്ടി (auto &it : pass_register) {
 			auto name = it.first;
 			auto pass = it.second;
 			auto title = pass->short_help;
@@ -792,8 +792,8 @@ struct HelpPass : public Pass {
 			auto cmd_help = PrettyHelp();
 			auto has_pretty_help = pass->formatted_help();
 
-			if (!has_pretty_help) {
-				enum PassUsageState {
+			എങ്കിൽ (!has_pretty_help) {
+				എണ്ണൽ PassUsageState {
 					PUState_none,
 					PUState_signature,
 					PUState_options,
@@ -802,8 +802,8 @@ struct HelpPass : public Pass {
 
 				source_location null_source;
 				string current_buffer = "";
-				auto root_listing = cmd_help.get_root();
-				auto current_listing = root_listing;
+				auto വേര്_listing_2 = cmd_help.get_വേര്();
+				auto current_listing = വേര്_listing_2;
 
 				// dump command help
 				std::ostringstream buf;
@@ -816,109 +816,109 @@ struct HelpPass : public Pass {
 				ss << buf.str();
 
 				// parse command help
-				size_t def_strip_count = 0;
+				size_t def_strip_എണ്ണം = 0;
 				auto current_state = PUState_none;
-				auto catch_verific = false;
-				auto blank_lines = 2;
-				for (string line; std::getline(ss, line, '\n');) {
+				auto catch_verific = അസത്യം;
+				auto blank_വരികൾ = 2;
+				വേണ്ടി (string വരി; std::getline(ss, വരി, '\n');) {
 					// find position of first non space character
-					std::size_t first_pos = line.find_first_not_of(" \t");
-					std::size_t last_pos = line.find_last_not_of(" \t");
-					if (first_pos == std::string::npos) {
-						switch (current_state)
+					std::size_t first_pos = വരി.find_first_not_of(" \t");
+					std::size_t last_pos = വരി.find_last_not_of(" \t");
+					എങ്കിൽ (first_pos == std::string::npos) {
+						തിരഞ്ഞെടുപ്പ് (current_state)
 						{
-						case PUState_signature:
-							root_listing->usage(current_buffer, null_source);
-							current_listing = root_listing;
+						അവസ്ഥ PUState_signature:
+							വേര്_listing_2->usage(current_buffer, null_source);
+							current_listing = വേര്_listing_2;
 							current_state = PUState_none;
 							current_buffer = "";
-							break;
-						case PUState_none:
-						case PUState_optionbody:
-							blank_lines += 1;
-							break;
-						default:
-							break;
+							നിർത്തുക;
+						അവസ്ഥ PUState_none:
+						അവസ്ഥ PUState_optionbody:
+							blank_വരികൾ += 1;
+							നിർത്തുക;
+						സ്ഥിരസ്ഥിതി:
+							നിർത്തുക;
 						}
 						// skip empty lines
-						continue;
+						തുടരുക;
 					}
 
 					// strip leading and trailing whitespace
-					std::string stripped_line = line.substr(first_pos, last_pos - first_pos +1);
-					bool IsDefinition = stripped_line[0] == '-';
-					IsDefinition &= stripped_line[1] != ' ' && stripped_line[1] != '>';
-					bool IsDedent = def_strip_count && first_pos < def_strip_count;
-					bool IsIndent = def_strip_count < first_pos;
+					std::string stripped_വരി = വരി.substr(first_pos, last_pos - first_pos +1);
+					തർക്കം IsDefinition = stripped_വരി[0] == '-';
+					IsDefinition &= stripped_വരി[1] != ' ' && stripped_വരി[1] != '>';
+					തർക്കം IsDedent = def_strip_എണ്ണം && first_pos < def_strip_എണ്ണം;
+					തർക്കം IsIndent = def_strip_എണ്ണം < first_pos;
 
 					// line looks like a signature
-					bool IsSignature = stripped_line.find(name) == 0 && (stripped_line.length() == name.length() || stripped_line.at(name.size()) == ' ');
+					തർക്കം IsSignature = stripped_വരി.find(name) == 0 && (stripped_വരി.length() == name.length() || stripped_വരി.at(name.size()) == ' ');
 
-					if (IsSignature && first_pos <= 4 && (blank_lines >= 2 || current_state == PUState_signature)) {
-						if (current_state == PUState_options || current_state == PUState_optionbody) {
+					എങ്കിൽ (IsSignature && first_pos <= 4 && (blank_വരികൾ >= 2 || current_state == PUState_signature)) {
+						എങ്കിൽ (current_state == PUState_options || current_state == PUState_optionbody) {
 							current_listing->codeblock(current_buffer, "none", null_source);
 							current_buffer = "";
-						} else if (current_state == PUState_signature) {
-							root_listing->usage(current_buffer, null_source);
+						} അല്ലെങ്കിൽ എങ്കിൽ (current_state == PUState_signature) {
+							വേര്_listing_2->usage(current_buffer, null_source);
 							current_buffer = "";
-						} else if (current_state == PUState_none && !current_buffer.empty()) {
+						} അല്ലെങ്കിൽ എങ്കിൽ (current_state == PUState_none && !current_buffer.empty()) {
 							current_listing->codeblock(current_buffer, "none", null_source);
 							current_buffer = "";
 						}
-						current_listing = root_listing;
+						current_listing = വേര്_listing_2;
 						current_state = PUState_signature;
-						def_strip_count = first_pos;
-						catch_verific = false;
-					} else if (IsDedent) {
-						def_strip_count = first_pos;
-						if (current_state == PUState_optionbody) {
-							if (!current_buffer.empty()) {
+						def_strip_എണ്ണം = first_pos;
+						catch_verific = അസത്യം;
+					} അല്ലെങ്കിൽ എങ്കിൽ (IsDedent) {
+						def_strip_എണ്ണം = first_pos;
+						എങ്കിൽ (current_state == PUState_optionbody) {
+							എങ്കിൽ (!current_buffer.empty()) {
 								current_listing->codeblock(current_buffer, "none", null_source);
 								current_buffer = "";
 							}
-							if (IsIndent) {
+							എങ്കിൽ (IsIndent) {
 								current_state = PUState_options;
-								current_listing = root_listing->back();
-							} else {
+								current_listing = വേര്_listing_2->back();
+							} അല്ലെങ്കിൽ {
 								current_state = PUState_none;
-								current_listing = root_listing;
+								current_listing = വേര്_listing_2;
 							}
-						} else {
+						} അല്ലെങ്കിൽ {
 							current_state = PUState_none;
 						}
 					}
 
-					if (IsDefinition && !catch_verific && current_state != PUState_signature) {
-						if (!current_buffer.empty()) {
+					എങ്കിൽ (IsDefinition && !catch_verific && current_state != PUState_signature) {
+						എങ്കിൽ (!current_buffer.empty()) {
 							current_listing->codeblock(current_buffer, "none", null_source);
 							current_buffer = "";
 						}
 						current_state = PUState_options;
-						current_listing = root_listing->open_option(stripped_line, null_source);
-						def_strip_count = first_pos;
-					} else {
-						if (current_state == PUState_options) {
+						current_listing = വേര്_listing_2->open_option(stripped_വരി, null_source);
+						def_strip_എണ്ണം = first_pos;
+					} അല്ലെങ്കിൽ {
+						എങ്കിൽ (current_state == PUState_options) {
 							current_state = PUState_optionbody;
 						}
-						if (current_buffer.empty())
-							current_buffer = stripped_line;
-						else if (current_state == PUState_signature && IsIndent)
-							current_buffer += stripped_line;
-						else if (current_state == PUState_none) {
-							current_buffer += (blank_lines > 0 ? "\n\n" : "\n") + line;
-						} else
-							current_buffer += (blank_lines > 0 ? "\n\n" : "\n") + stripped_line;
-						if (stripped_line.compare("Command file parser supports following commands in file:") == 0)
-							catch_verific = true;
+						എങ്കിൽ (current_buffer.empty())
+							current_buffer = stripped_വരി;
+						അല്ലെങ്കിൽ എങ്കിൽ (current_state == PUState_signature && IsIndent)
+							current_buffer += stripped_വരി;
+						അല്ലെങ്കിൽ എങ്കിൽ (current_state == PUState_none) {
+							current_buffer += (blank_വരികൾ > 0 ? "\n\n" : "\n") + വരി;
+						} അല്ലെങ്കിൽ
+							current_buffer += (blank_വരികൾ > 0 ? "\n\n" : "\n") + stripped_വരി;
+						എങ്കിൽ (stripped_വരി.compare("Command file parser supports following commands in file:") == 0)
+							catch_verific = സത്യം;
 					}
-					blank_lines = 0;
+					blank_വരികൾ = 0;
 				}
 
-				if (!current_buffer.empty()) {
-					if (current_buffer.size() > 64 && current_buffer.substr(0, 64).compare("The following commands are executed by this synthesis command:\n\n") == 0) {
+				എങ്കിൽ (!current_buffer.empty()) {
+					എങ്കിൽ (current_buffer.size() > 64 && current_buffer.substr(0, 64).compare("The following commands are executed by this synthesis command:\n\n") == 0) {
 						current_listing->paragraph(current_buffer.substr(0, 62), null_source);
 						current_listing->codeblock(current_buffer.substr(64), "yoscrypt", null_source);
-					} else
+					} അല്ലെങ്കിൽ
 						current_listing->codeblock(current_buffer, "none", null_source);
 					current_buffer = "";
 				}
@@ -926,55 +926,55 @@ struct HelpPass : public Pass {
 
 			// fix path
 			string source_file = pass->location.file_name();
-			bool has_source = source_file.compare("unknown") != 0;
+			തർക്കം has_source = source_file.compare("unknown") != 0;
 			std::filesystem::path source_path;
-			auto skip_source_group = false;
+			auto skip_source_group = അസത്യം;
 
-			if (has_source) {
-				source_path = fixup_source_path(pass->location.file_name(), source_root, &skip_source_group);
+			എങ്കിൽ (has_source) {
+				source_path = fixup_source_path(pass->location.file_name(), source_വേര്, &skip_source_group);
 				source_file = source_path.string();
 			}
 
 			// attempt auto group
-			if (!cmd_help.has_group()) {
-				if (pass->internal_flag)
+			എങ്കിൽ (!cmd_help.has_group()) {
+				എങ്കിൽ (pass->internal_flag)
 					cmd_help.group = "internal";
-				else if (source_file.find("backends/") == 0 || (!has_source && name.find("read_") == 0))
+				അല്ലെങ്കിൽ എങ്കിൽ (source_file.find("backends/") == 0 || (!has_source && name.find("read_") == 0))
 					cmd_help.group = "backends";
-				else if (source_file.find("frontends/") == 0 || (!has_source && name.find("write_") == 0))
+				അല്ലെങ്കിൽ എങ്കിൽ (source_file.find("frontends/") == 0 || (!has_source && name.find("write_") == 0))
 					cmd_help.group = "frontends";
-				else if (has_source) {
-					if (source_path.has_parent_path() && !skip_source_group)
+				അല്ലെങ്കിൽ എങ്കിൽ (has_source) {
+					എങ്കിൽ (source_path.has_parent_path() && !skip_source_group)
 						cmd_help.group = source_path.parent_path().string();
 				}
 				// implicit !has_source
-				else if (name.find("equiv") == 0)
+				അല്ലെങ്കിൽ എങ്കിൽ (name.find("equiv") == 0)
 					cmd_help.group = "passes/equiv";
-				else if (name.find("fsm") == 0)
+				അല്ലെങ്കിൽ എങ്കിൽ (name.find("fsm") == 0)
 					cmd_help.group = "passes/fsm";
-				else if (name.find("memory") == 0)
+				അല്ലെങ്കിൽ എങ്കിൽ (name.find("memory") == 0)
 					cmd_help.group = "passes/memory";
-				else if (name.find("opt") == 0)
+				അല്ലെങ്കിൽ എങ്കിൽ (name.find("opt") == 0)
 					cmd_help.group = "passes/opt";
-				else if (name.find("proc") == 0)
+				അല്ലെങ്കിൽ എങ്കിൽ (name.find("proc") == 0)
 					cmd_help.group = "passes/proc";
 			}
 
-			if (groups.count(cmd_help.group) == 0) {
+			എങ്കിൽ (groups.എണ്ണം(cmd_help.group) == 0) {
 				groups[cmd_help.group] = vector<string>();
 			}
-			groups[cmd_help.group].push_back(name);
+			groups[cmd_help.group].തള്ളുക_back(name);
 
 			// write to json
 			json.name(name.c_str()); json.begin_object();
 			json.entry("title", title);
 			json.name("content"); json.begin_array();
-			for (auto &content : cmd_help)
-				json.value(content.to_json(source_root));
+			വേണ്ടി (auto &content : cmd_help)
+				json.മൂല്യം(content.to_json(source_വേര്));
 			json.end_array();
 			json.entry("group", cmd_help.group);
 			json.entry("source_file", source_file);
-			json.entry("source_line", pass->location.line());
+			json.entry("source_line", pass->location.വരി());
 			json.entry("source_func", pass->location.function_name());
 			json.entry("experimental_flag", pass->experimental_flag);
 			json.entry("internal_flag", pass->internal_flag);
@@ -985,9 +985,9 @@ struct HelpPass : public Pass {
 		json.entry("groups", groups);
 
 		json.end_object();
-		return raise_error;
+		തിരികെ raise_error;
 	}
-	bool dump_cells_json(PrettyJson &json) {
+	തർക്കം dump_cells_json(PrettyJson &json) {
 		// init json
 		json.begin_object();
 		json.entry("version", "Yosys internal cells");
@@ -997,23 +997,23 @@ struct HelpPass : public Pass {
 		dict<string, pair<SimHelper, StaticCellTypes::CellTableBuilder::CellInfo>> cells;
 
 		// iterate over cells
-		bool raise_error = false;
-		for (auto it : StaticCellTypes::builder.cells) {
-			if (!StaticCellTypes::categories.is_known(it.type))
-				continue;
+		തർക്കം raise_error = അസത്യം;
+		വേണ്ടി (auto it : StaticCellTypes::builder.cells) {
+			എങ്കിൽ (!StaticCellTypes::categories.is_known(it.type))
+				തുടരുക;
 			auto name = ID::str(it.type);
-			if (cell_help_messages.contains(name)) {
+			എങ്കിൽ (cell_help_messages.contains(name)) {
 				auto cell_help = cell_help_messages.get(name);
 				groups[cell_help.group].emplace_back(name);
 				auto cell_pair = pair<SimHelper, StaticCellTypes::CellTableBuilder::CellInfo>(cell_help, it);
 				cells.emplace(name, cell_pair);
-			} else {
+			} അല്ലെങ്കിൽ {
 				log("ERROR: Missing cell help for cell '%s'.\n", name);
-				raise_error |= true;
+				raise_error |= സത്യം;
 			}
 		}
-		for (auto &it : cell_help_messages.cell_help) {
-			if (cells.count(it.first) == 0) {
+		വേണ്ടി (auto &it : cell_help_messages.cell_help) {
+			എങ്കിൽ (cells.എണ്ണം(it.first) == 0) {
 				log_warning("Found cell model '%s' without matching cell type.\n", it.first);
 			}
 		}
@@ -1021,111 +1021,111 @@ struct HelpPass : public Pass {
 		// write to json
 		json.name("groups"); json.begin_object();
 		groups.sort();
-		for (auto &it : groups) {
-			json.name(it.first.c_str()); json.value(it.second);
+		വേണ്ടി (auto &it : groups) {
+			json.name(it.first.c_str()); json.മൂല്യം(it.second);
 		}
 		json.end_object();
 
 		json.name("cells"); json.begin_object();
 		cells.sort();
-		for (auto &it : cells) {
+		വേണ്ടി (auto &it : cells) {
 			auto ch = it.second.first;
 			auto ct = it.second.second;
 			json.name(ch.name.c_str()); json.begin_object();
-			json.name("title"); json.value(ch.title);
-			json.name("ports"); json.value(ch.ports);
-			json.name("source"); json.value(ch.source);
-			json.name("desc"); json.value(ch.desc);
-			json.name("code"); json.value(ch.code);
+			json.name("title"); json.മൂല്യം(ch.title);
+			json.name("ports"); json.മൂല്യം(ch.ports);
+			json.name("source"); json.മൂല്യം(ch.source);
+			json.name("desc"); json.മൂല്യം(ch.desc);
+			json.name("code"); json.മൂല്യം(ch.code);
 			vector<string> inputs, outputs;
-			for (auto &input : ct.inputs)
-				inputs.push_back(ID::str(input));
-			json.name("inputs"); json.value(inputs);
-			for (auto &output : ct.outputs)
-				outputs.push_back(ID::str(output));
-			json.name("outputs"); json.value(outputs);
+			വേണ്ടി (auto &നിവേശം : ct.inputs)
+				inputs.തള്ളുക_back(ID::str(നിവേശം));
+			json.name("inputs"); json.മൂല്യം(inputs);
+			വേണ്ടി (auto &output : ct.outputs)
+				outputs.തള്ളുക_back(ID::str(output));
+			json.name("outputs"); json.മൂല്യം(outputs);
 			vector<string> properties;
 			// CellType properties
-			if (ct.features.is_evaluable) properties.push_back("is_evaluable");
-			if (ct.features.is_combinatorial) properties.push_back("is_combinatorial");
-			if (ct.features.is_synthesizable) properties.push_back("is_synthesizable");
+			എങ്കിൽ (ct.features.is_evaluable) properties.തള്ളുക_back("is_evaluable");
+			എങ്കിൽ (ct.features.is_combinatorial) properties.തള്ളുക_back("is_combinatorial");
+			എങ്കിൽ (ct.features.is_synthesizable) properties.തള്ളുക_back("is_synthesizable");
 			// SimHelper properties
 			size_t last = 0; size_t next = 0;
-			while ((next = ch.tags.find(", ", last)) != string::npos) {
-				properties.push_back(ch.tags.substr(last, next-last));
+			ആകുമ്പോൾ ((next = ch.tags.find(", ", last)) != string::npos) {
+				properties.തള്ളുക_back(ch.tags.substr(last, next-last));
 				last = next + 2;
 			}
 			auto final_tag = ch.tags.substr(last);
-			if (final_tag.size()) properties.push_back(final_tag);
-			json.name("properties"); json.value(properties);
+			എങ്കിൽ (final_tag.size()) properties.തള്ളുക_back(final_tag);
+			json.name("properties"); json.മൂല്യം(properties);
 			json.end_object();
 		}
 		json.end_object();
 
 		json.end_object();
-		return raise_error;
+		തിരികെ raise_error;
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design*) override
+	ശൂന്യം execute(std::vector<std::string> args, RTLIL::Design*) override
 	{
-		if (args.size() == 1) {
+		എങ്കിൽ (args.size() == 1) {
 			log("\n");
-			for (auto &it : pass_register)
+			വേണ്ടി (auto &it : pass_register)
 				log("    %-20s %s\n", it.first, it.second->short_help);
 			log("\n");
 			log("Type 'help <command>' for more information on a command.\n");
 			log("Type 'help -cells' for a list of all cell types.\n");
 			log("\n");
-			return;
+			തിരികെ;
 		}
 
-		if (args.size() == 2) {
-			if (args[1] == "-all") {
-				for (auto &it : pass_register) {
+		എങ്കിൽ (args.size() == 2) {
+			എങ്കിൽ (args[1] == "-all") {
+				വേണ്ടി (auto &it : pass_register) {
 					log("\n");
 					log("\n");
 					log("%s  --  %s\n", it.first, it.second->short_help);
-					std::string msg;
-					for (size_t i = 0; i < it.first.size() + it.second->short_help.size() + 6; i++)
-						msg += '=';
-					log("%s\n", msg);
+					std::string സന്ദേശം;
+					വേണ്ടി (size_t i = 0; i < it.first.size() + it.second->short_help.size() + 6; i++)
+						സന്ദേശം += '=';
+					log("%s\n", സന്ദേശം);
 					it.second->help();
 					log_warning_flags(it.second);
 				}
 			}
-			else if (args[1] == "-cells") {
+			അല്ലെങ്കിൽ എങ്കിൽ (args[1] == "-cells") {
 				log("\n");
-				for (auto &it : cell_help_messages.cell_help) {
+				വേണ്ടി (auto &it : cell_help_messages.cell_help) {
 					SimHelper help_cell = it.second;
 					log("    %-15s %s\n", help_cell.name, help_cell.ports);
 				}
 				log("\n");
 				log("Type 'help <cell_type>' for more information on a cell type.\n");
 				log("\n");
-				return;
+				തിരികെ;
 			}
-			else if (pass_register.count(args[1])) {
+			അല്ലെങ്കിൽ എങ്കിൽ (pass_register.എണ്ണം(args[1])) {
 				pass_register.at(args[1])->help();
 				log_warning_flags(pass_register.at(args[1]));
 			}
-			else if (cell_help_messages.contains(args[1])) {
+			അല്ലെങ്കിൽ എങ്കിൽ (cell_help_messages.contains(args[1])) {
 				auto help_cell = cell_help_messages.get(args[1]);
-				if (is_code_getter(args[1])) {
+				എങ്കിൽ (is_code_getter(args[1])) {
 						log("\n");
 						log("%s\n", help_cell.code);
-				} else {
+				} അല്ലെങ്കിൽ {
 					log("\n");
 					log("    %s %s\n", help_cell.name, help_cell.ports);
 					log("\n");
-					if (help_cell.ver == "2" || help_cell.ver == "2a") {
-						if (help_cell.title != "") log("%s:\n", help_cell.title);
+					എങ്കിൽ (help_cell.ver == "2" || help_cell.ver == "2a") {
+						എങ്കിൽ (help_cell.title != "") log("%s:\n", help_cell.title);
 						std::stringstream ss;
 						ss << help_cell.desc;
-						for (std::string line; std::getline(ss, line, '\n');) {
-							if (line != "::") log("%s\n", line);
+						വേണ്ടി (std::string വരി; std::getline(ss, വരി, '\n');) {
+							എങ്കിൽ (വരി != "::") log("%s\n", വരി);
 						}
-					} else if (help_cell.desc.length()) {
+					} അല്ലെങ്കിൽ എങ്കിൽ (help_cell.desc.length()) {
 						log("%s\n", help_cell.desc);
-					} else {
+					} അല്ലെങ്കിൽ {
 						log("No help message for this cell type found.\n");
 					}
 					log("\n");
@@ -1133,40 +1133,40 @@ struct HelpPass : public Pass {
 					log("\n");
 				}
 			}
-			else
+			അല്ലെങ്കിൽ
 				log("No such command or cell type: %s\n", args[1]);
-			return;
-		} else if (args.size() == 3) {
+			തിരികെ;
+		} അല്ലെങ്കിൽ എങ്കിൽ (args.size() == 3) {
 			// this option is undocumented as it is for internal use only
-			if (args[1] == "-dump-cmds-json") {
+			എങ്കിൽ (args[1] == "-dump-cmds-json") {
 				PrettyJson json;
-				if (!json.write_to_file(args[2]))
+				എങ്കിൽ (!json.write_to_file(args[2]))
 					log_error("Can't open file `%s' for writing: %s\n", args[2], strerror(errno));
-				if (dump_cmds_json(json)) {
+				എങ്കിൽ (dump_cmds_json(json)) {
 					log_abort();
 				}
 			}
 			// this option is undocumented as it is for internal use only
-			else if (args[1] == "-dump-cells-json") {
+			അല്ലെങ്കിൽ എങ്കിൽ (args[1] == "-dump-cells-json") {
 				PrettyJson json;
-				if (!json.write_to_file(args[2]))
+				എങ്കിൽ (!json.write_to_file(args[2]))
 					log_error("Can't open file `%s' for writing: %s\n", args[2], strerror(errno));
-				if (dump_cells_json(json)) {
+				എങ്കിൽ (dump_cells_json(json)) {
 					log_error("One or more cells defined in celltypes.h are missing help documentation.\n");
 				}
 			}
-			else
+			അല്ലെങ്കിൽ
 				log("Unknown help command: `%s %s'\n", args[1], args[2]);
-			return;
+			തിരികെ;
 		}
 
 		help();
 	}
 } HelpPass;
 
-struct EchoPass : public Pass {
+ഘടന EchoPass : പൊതു Pass {
 	EchoPass() : Pass("echo", "turning echoing back of commands on and off") { }
-	void help() override
+	ശൂന്യം help() override
 	{
 		log("\n");
 		log("    echo on\n");
@@ -1179,17 +1179,17 @@ struct EchoPass : public Pass {
 		log("Do not print all commands to log before executing them. (default)\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design*) override
+	ശൂന്യം execute(std::vector<std::string> args, RTLIL::Design*) override
 	{
-		if (args.size() > 2)
+		എങ്കിൽ (args.size() > 2)
 			cmd_error(args, 2, "Unexpected argument.");
 
-		if (args.size() == 2) {
-			if (args[1] == "on")
-				echo_mode = true;
-			else if (args[1] == "off")
-				echo_mode = false;
-			else
+		എങ്കിൽ (args.size() == 2) {
+			എങ്കിൽ (args[1] == "on")
+				echo_mode = സത്യം;
+			അല്ലെങ്കിൽ എങ്കിൽ (args[1] == "off")
+				echo_mode = അസത്യം;
+			അല്ലെങ്കിൽ
 				cmd_error(args, 1, "Unexpected argument.");
 		}
 
@@ -1200,18 +1200,18 @@ struct EchoPass : public Pass {
 SatSolver *yosys_satsolver_list;
 SatSolver *yosys_satsolver;
 
-struct MinisatSatSolver : public SatSolver {
+ഘടന MinisatSatSolver : പൊതു SatSolver {
 	MinisatSatSolver() : SatSolver("minisat") {
-		yosys_satsolver = this;
+		yosys_satsolver = ഇത്;
 	}
 	ezSAT *create() override {
-		return new ezMiniSAT();
+		തിരികെ പുതിയ ezMiniSAT();
 	}
 } MinisatSatSolver;
 
-struct LicensePass : public Pass {
+ഘടന LicensePass : പൊതു Pass {
 	LicensePass() : Pass("license", "print license terms") { }
-	void help() override
+	ശൂന്യം help() override
 	{
 		log("\n");
 		log("    license\n");
@@ -1219,11 +1219,11 @@ struct LicensePass : public Pass {
 		log("This command produces the following notice.\n");
 		notice();
 	}
-	void execute(std::vector<std::string>, RTLIL::Design*) override
+	ശൂന്യം execute(std::vector<std::string>, RTLIL::Design*) override
 	{
 		notice();
 	}
-	void notice()
+	ശൂന്യം notice()
 	{
 		log("\n");
 		log(" /----------------------------------------------------------------------------\\\n");

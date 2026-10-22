@@ -17,12 +17,12 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/hashlib.h"
+#അന്തര്ഭാവ "kernel/yosys.h"
+#അന്തര്ഭാവ "kernel/hashlib.h"
 #define CXXOPTS_VECTOR_DELIMITER '\0'
-#include "libs/cxxopts/include/cxxopts.hpp"
-#include <iostream>
-#include <chrono>
+#അന്തര്ഭാവ "libs/cxxopts/include/cxxopts.hpp"
+#അന്തര്ഭാവ <iostream>
+#അന്തര്ഭാവ <chrono>
 
 #ifdef YOSYS_ENABLE_READLINE
 #  include <readline/readline.h>
@@ -40,20 +40,20 @@
 #ifdef YOSYS_ENABLE_PYTHON
 #  include <Python.h>
 #  include <pybind11/pybind11.h>
-namespace py = pybind11;
+നാമാകാശ py = pybind11;
 #endif
 
-#include <stdio.h>
-#include <string.h>
-#include <limits.h>
-#include <errno.h>
-#include <fcntl.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <limits.h>
+#അന്തര്ഭാവ <errno.h>
+#അന്തര്ഭാവ <fcntl.h>
 #ifndef __STDC_FORMAT_MACROS
 #  define __STDC_FORMAT_MACROS
 #endif
-#include <inttypes.h>
+#അന്തര്ഭാവ <inttypes.h>
 
-#if defined (__linux__) || defined(__FreeBSD__)
+#എങ്കിൽ defined (__linux__) || defined(__FreeBSD__)
 #  include <sys/resource.h>
 #  include <sys/types.h>
 #  include <unistd.h>
@@ -64,160 +64,160 @@ namespace py = pybind11;
 #  include <sys/user.h>
 #endif
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#എങ്കിൽ !defined(_WIN32) || defined(__MINGW32__)
 #  include <unistd.h>
 #endif
 
-#include <fmt/color.h>
-#include <fmt/format.h>
+#അന്തര്ഭാവ <fmt/color.h>
+#അന്തര്ഭാവ <fmt/format.h>
 
 USING_YOSYS_NAMESPACE
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-int yosys_history_offset = 0;
+#എങ്കിൽ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+പൂർണ്ണസംഖ്യ yosys_history_offset = 0;
 std::string yosys_history_file;
 #endif
 
-void yosys_atexit()
+ശൂന്യം yosys_atexit()
 {
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	if (!yosys_history_file.empty()) {
-#if defined(YOSYS_ENABLE_READLINE)
-		if (yosys_history_offset > 0) {
+#എങ്കിൽ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	എങ്കിൽ (!yosys_history_file.empty()) {
+#എങ്കിൽ defined(YOSYS_ENABLE_READLINE)
+		എങ്കിൽ (yosys_history_offset > 0) {
 			history_truncate_file(yosys_history_file.c_str(), 100);
 			append_history(where_history() - yosys_history_offset, yosys_history_file.c_str());
-		} else
+		} അല്ലെങ്കിൽ
 			write_history(yosys_history_file.c_str());
-#else
+#അല്ലെങ്കിൽ
 		write_history(yosys_history_file.c_str());
 #endif
 	}
 
 	clear_history();
-#if defined(YOSYS_ENABLE_READLINE)
+#എങ്കിൽ defined(YOSYS_ENABLE_READLINE)
 	HIST_ENTRY **hist_list = history_list();
-	if (hist_list != NULL)
-		free(hist_list);
+	എങ്കിൽ (hist_list != ശൂന്യ)
+		സ്വതന്ത്രം(hist_list);
 #endif
 #endif
 }
 
-#if defined(__OpenBSD__)
-namespace Yosys {
-extern char *yosys_argv0;
-extern char yosys_path[PATH_MAX];
+#എങ്കിൽ defined(__OpenBSD__)
+നാമാകാശ Yosys {
+ബാഹ്യ അക്ഷരം *yosys_argv0;
+ബാഹ്യ അക്ഷരം yosys_path[PATH_MAX];
 };
 #endif
 #ifdef YOSYS_ENABLE_TCL
-namespace Yosys {
-	extern int yosys_tcl_interp_init(Tcl_Interp *interp);
-	extern void yosys_tcl_activate_repl();
+നാമാകാശ Yosys {
+	ബാഹ്യ പൂർണ്ണസംഖ്യ yosys_tcl_interp_init(Tcl_Interp *interp);
+	ബാഹ്യ ശൂന്യം yosys_tcl_activate_repl();
 };
 #endif
 
-namespace Yosys {
-	extern bool log_stderr_sink_forced;
+നാമാകാശ Yosys {
+	ബാഹ്യ തർക്കം log_stderr_sink_forced;
 };
 
-class ColorConsoleLogSink : public LogSink
+വർഗ്ഗം ColorConsoleLogSink : പൊതു LogSink
 {
-public:
-	explicit ColorConsoleLogSink(bool err, bool quiet) : error_output(err), quiet_warnings(quiet) {}
-	void log(const LogMessage &msg) override;
-	bool should_log(const LogMessage &msg) const override;
-	void flush() override;
-	FILE *file_handle() override { return error_output ? nullptr : stdout; }
-private:
-	bool error_output;
-	bool quiet_warnings;
+പൊതു:
+	explicit ColorConsoleLogSink(തർക്കം err, തർക്കം quiet) : error_output(err), quiet_warnings(quiet) {}
+	ശൂന്യം log(സ്ഥിരം LogMessage &സന്ദേശം) override;
+	തർക്കം should_log(സ്ഥിരം LogMessage &സന്ദേശം) സ്ഥിരം override;
+	ശൂന്യം flush() override;
+	FILE *file_handle() override { തിരികെ error_output ? nullptr : stdout; }
+സ്വകാര്യ:
+	തർക്കം error_output;
+	തർക്കം quiet_warnings;
 };
 
-bool no_color = false;
+തർക്കം no_color = അസത്യം;
 
-bool is_colored(FILE *file)
+തർക്കം is_colored(FILE *file)
 {
-	if (no_color)
-		return false;
+	എങ്കിൽ (no_color)
+		തിരികെ അസത്യം;
 
-#if defined(_WIN32)
+#എങ്കിൽ defined(_WIN32)
 	HANDLE handle = reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(file)));
 	DWORD mode;
-	return handle != INVALID_HANDLE_VALUE &&
+	തിരികെ handle != INVALID_HANDLE_മൂല്യം &&
 			GetConsoleMode(handle, &mode);
-#else
-	return isatty(fileno(file));
+#അല്ലെങ്കിൽ
+	തിരികെ isatty(fileno(file));
 #endif
 }
 
-void ColorConsoleLogSink::flush()
+ശൂന്യം ColorConsoleLogSink::flush()
 {
 	fflush(stdout);
 	fflush(stderr);
 }
 
-bool next_print_log = true;
+തർക്കം next_print_log = സത്യം;
 
-void ColorConsoleLogSink::log(const LogMessage &msg)
+ശൂന്യം ColorConsoleLogSink::log(സ്ഥിരം LogMessage &സന്ദേശം)
 {
-	FILE *f = (error_output || msg.severity == LogSeverity::Error) ? stderr : stdout;
+	FILE *f = (error_output || സന്ദേശം.severity == LogSeverity::Error) ? stderr : stdout;
 
-	if (logger().get_log_time() && next_print_log) {
-		auto elapsed = msg.timestamp - logger().get_initial_time();
+	എങ്കിൽ (logger().get_log_time() && next_print_log) {
+		auto elapsed = സന്ദേശം.timestamp - logger().get_initial_time();
 		auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-		std::string time_str = stringf("[%05d.%06d] ", int(us.count() / 1'000'000),int(us.count() % 1'000'000));
+		std::string time_str = stringf("[%05d.%06d] ", പൂർണ്ണസംഖ്യ(us.എണ്ണം() / 1'000'000),പൂർണ്ണസംഖ്യ(us.എണ്ണം() % 1'000'000));
 		fmt::print(f, fg(fmt::terminal_color::blue), "{}", time_str);
-		next_print_log = false;
+		next_print_log = അസത്യം;
 	}
 
-	if (!msg.src.filename.empty())
-		fmt::print(f, fg(fmt::terminal_color::bright_cyan), "{}:{}: ", msg.src.filename, msg.src.start_line);
+	എങ്കിൽ (!സന്ദേശം.src.filename.empty())
+		fmt::print(f, fg(fmt::terminal_color::bright_cyan), "{}:{}: ", സന്ദേശം.src.filename, സന്ദേശം.src.start_വരി);
 
-	switch (msg.severity) {
-		case LogSeverity::Warning:
-			fmt::print(f, fg(fmt::terminal_color::bright_yellow), "{}", msg.prefix);
-			fmt::print(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", msg.message);
-			break;
+	തിരഞ്ഞെടുപ്പ് (സന്ദേശം.severity) {
+		അവസ്ഥ LogSeverity::Warning:
+			fmt::print(f, fg(fmt::terminal_color::bright_yellow), "{}", സന്ദേശം.prefix);
+			fmt::print(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", സന്ദേശം.message);
+			നിർത്തുക;
 
-		case LogSeverity::Error:
-		case LogSeverity::NonFatalError:
-			fmt::print(f, fg(fmt::terminal_color::bright_red), "{}", msg.prefix);
-			fmt::print(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", msg.message);
-			break;
+		അവസ്ഥ LogSeverity::Error:
+		അവസ്ഥ LogSeverity::NonFatalError:
+			fmt::print(f, fg(fmt::terminal_color::bright_red), "{}", സന്ദേശം.prefix);
+			fmt::print(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", സന്ദേശം.message);
+			നിർത്തുക;
 
-		case LogSeverity::Header:
-			fmt::print(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}", msg.prefix);
-			fmt::print(f, fg(fmt::terminal_color::white) | fmt::emphasis::bold, "{}", msg.message);
-			break;
+		അവസ്ഥ LogSeverity::Header:
+			fmt::print(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}", സന്ദേശം.prefix);
+			fmt::print(f, fg(fmt::terminal_color::white) | fmt::emphasis::bold, "{}", സന്ദേശം.message);
+			നിർത്തുക;
 
-		case LogSeverity::Highlight:
-			fmt::print(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}{}", msg.prefix, msg.message);
-			break;
+		അവസ്ഥ LogSeverity::Highlight:
+			fmt::print(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}{}", സന്ദേശം.prefix, സന്ദേശം.message);
+			നിർത്തുക;
 
-		case LogSeverity::Comment:
-		case LogSeverity::Debug:
-			fmt::print(f, fg(fmt::terminal_color::bright_black), "{}{}", msg.prefix, msg.message);
-			break;
+		അവസ്ഥ LogSeverity::Comment:
+		അവസ്ഥ LogSeverity::Debug:
+			fmt::print(f, fg(fmt::terminal_color::bright_black), "{}{}", സന്ദേശം.prefix, സന്ദേശം.message);
+			നിർത്തുക;
 
-		case LogSeverity::Info:
-		default:
-			if (!msg.prefix.empty())
-				fmt::print(f, fg(fmt::terminal_color::bright_black), "{}", msg.prefix);
-			fmt::print(f, "{}", msg.message);
-			break;
+		അവസ്ഥ LogSeverity::Info:
+		സ്ഥിരസ്ഥിതി:
+			എങ്കിൽ (!സന്ദേശം.prefix.empty())
+				fmt::print(f, fg(fmt::terminal_color::bright_black), "{}", സന്ദേശം.prefix);
+			fmt::print(f, "{}", സന്ദേശം.message);
+			നിർത്തുക;
 	}
-	if (!msg.message.empty())
-		next_print_log = msg.message.back() == '\n';
+	എങ്കിൽ (!സന്ദേശം.message.empty())
+		next_print_log = സന്ദേശം.message.back() == '\n';
 }
 
-bool ColorConsoleLogSink::should_log(const LogMessage &msg) const
+തർക്കം ColorConsoleLogSink::should_log(സ്ഥിരം LogMessage &സന്ദേശം) സ്ഥിരം
 {
-	return (!error_output) || (msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
-			(msg.severity == LogSeverity::Warning && !quiet_warnings) ||
+	തിരികെ (!error_output) || (സന്ദേശം.severity == LogSeverity::Error || സന്ദേശം.severity == LogSeverity::NonFatalError ||
+			(സന്ദേശം.severity == LogSeverity::Warning && !quiet_warnings) ||
 			log_stderr_sink_forced);
 }
 
 #ifdef _WIN32
-int wmain(int argc, wchar_t **wargv)
+പൂർണ്ണസംഖ്യ wmain(പൂർണ്ണസംഖ്യ argc, wchar_t **wargv)
 {
 	// Configure ASCII functions like fopen() to use UTF-8 filenames.
 	// See https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=msvc-170#utf-8-support
@@ -228,17 +228,17 @@ int wmain(int argc, wchar_t **wargv)
 	SetConsoleCP(CP_UTF8);
 	SetConsoleOutputCP(CP_UTF8);
 
-	std::vector<char*> uargs;
-	for (int i = 0; i < argc; i++) {
-		int usize = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, NULL, 0, NULL, NULL);
-		char *uarg = (char *)malloc(usize);
-		WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, uarg, usize, NULL, NULL);
-		uargs.push_back(uarg);
+	std::vector<അക്ഷരം*> uargs;
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < argc; i++) {
+		പൂർണ്ണസംഖ്യ usize = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, ശൂന്യ, 0, ശൂന്യ, ശൂന്യ);
+		അക്ഷരം *uarg = (അക്ഷരം *)malloc(usize);
+		WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, uarg, usize, ശൂന്യ, ശൂന്യ);
+		uargs.തള്ളുക_back(uarg);
 	}
-	uargs.push_back(NULL);
-	char **argv = uargs.data();
-#else
-int main(int argc, char **argv)
+	uargs.തള്ളുക_back(ശൂന്യ);
+	അക്ഷരം **argv = uargs.data();
+#അല്ലെങ്കിൽ
+പൂർണ്ണസംഖ്യ പ്രധാന(പൂർണ്ണസംഖ്യ argc, അക്ഷരം **argv)
 {
 #endif
 	auto wall_clock_start = std::chrono::steady_clock::now();
@@ -254,18 +254,18 @@ int main(int argc, char **argv)
 	std::string depsfile = "";
 	std::string topmodule = "";
 	std::string perffile = "";
-	bool scriptfile_tcl = false;
-	bool scriptfile_python = false;
-	bool print_banner = true;
-	bool print_stats = true;
-	bool call_abort = false;
-	bool timing_details = false;
-	bool run_shell = true;
-	bool run_tcl_shell = false;
-	bool mode_v = false;
-	bool mode_q = false;
-	bool quiet_warnings = false;
-	bool log_stderr = false;
+	തർക്കം scriptfile_tcl = അസത്യം;
+	തർക്കം scriptfile_python = അസത്യം;
+	തർക്കം print_banner = സത്യം;
+	തർക്കം print_stats = സത്യം;
+	തർക്കം call_abort = അസത്യം;
+	തർക്കം timing_details = അസത്യം;
+	തർക്കം run_shell = സത്യം;
+	തർക്കം run_tcl_shell = അസത്യം;
+	തർക്കം mode_v = അസത്യം;
+	തർക്കം mode_q = അസത്യം;
+	തർക്കം quiet_warnings = അസത്യം;
+	തർക്കം log_stderr = അസത്യം;
 	no_color = std::getenv("NO_COLOR") != nullptr;
 
 	cxxopts::Options options(argv[0], "Yosys Open SYnthesis Suite");
@@ -273,28 +273,28 @@ int main(int argc, char **argv)
 
 	options.add_options("operation")
 		("b,backend", "use <backend> for the output file specified on the command line",
-			cxxopts::value<std::string>(), "<backend>")
+			cxxopts::മൂല്യം<std::string>(), "<backend>")
 		("f,frontend", "use <frontend> for the input files on the command line",
-			cxxopts::value<std::string>(), "<frontend>")
+			cxxopts::മൂല്യം<std::string>(), "<frontend>")
 		("s,scriptfile", "execute the commands in <scriptfile>",
-			cxxopts::value<std::string>(), "<scriptfile>")
+			cxxopts::മൂല്യം<std::string>(), "<scriptfile>")
 #ifdef YOSYS_ENABLE_TCL
 		("c,tcl-scriptfile", "execute the commands in the TCL <tcl_scriptfile> (see 'help tcl' for details)",
-			cxxopts::value<std::string>(),"<tcl_scriptfile>")
+			cxxopts::മൂല്യം<std::string>(),"<tcl_scriptfile>")
 		("C,tcl-interactive", "enters TCL interactive shell mode")
 #endif // YOSYS_ENABLE_TCL
 #ifdef YOSYS_ENABLE_PYTHON
 		("y,py-scriptfile", "execute the Python <script>",
-			cxxopts::value<std::string>(), "<script>")
+			cxxopts::മൂല്യം<std::string>(), "<script>")
 #endif // YOSYS_ENABLE_PYTHON
 		("p,commands", "execute <commands> (to chain commands, separate them with semicolon + whitespace: 'cmd1; cmd2')",
-			cxxopts::value<std::vector<std::string>>(), "<commands>")
+			cxxopts::മൂല്യം<std::vector<std::string>>(), "<commands>")
 		("r,top", "elaborate the specified HDL <top> module",
-			cxxopts::value<std::string>(), "<top>")
+			cxxopts::മൂല്യം<std::string>(), "<top>")
 		("m,plugin", "load the specified <plugin> module",
-			cxxopts::value<std::vector<std::string>>(), "<plugin>")
+			cxxopts::മൂല്യം<std::vector<std::string>>(), "<plugin>")
 		("D,define", "set the specified Verilog define to <value> if supplied via command \"read -define\"",
-			cxxopts::value<std::vector<std::string>>(), "<define>[=<value>]")
+			cxxopts::മൂല്യം<std::vector<std::string>>(), "<define>[=<value>]")
 		("S,synth", "shortcut for calling the \"synth\" command, a default script for transforming " \
 					"the Verilog input to a gate-level netlist. For example: " \
 					"yosys -o output.blif -S input.v " \
@@ -303,10 +303,10 @@ int main(int argc, char **argv)
 					"command line.")
 		("H", "print the command list")
 		("h,help", "print this help message. If given, print help for <command>.",
-			cxxopts::value<std::string>(), "[<command>]")
+			cxxopts::മൂല്യം<std::string>(), "[<command>]")
 		("V,version", "print version information and exit")
 		("git-hash", "print git commit hash and exit")
-		("infile", "input files", cxxopts::value<std::vector<std::string>>())
+		("infile", "input files", cxxopts::മൂല്യം<std::vector<std::string>>())
 	;
 	options.add_options("logging")
 		("Q", "suppress printing of banner (copyright, disclaimer, version)")
@@ -316,39 +316,39 @@ int main(int argc, char **argv)
 					"Use this option twice to also quiet warning messages")
 		("v,verbose", "print log headers up to <level> to the console. " \
                       "Implies -q for everything except the 'End of script.' message.",
-			cxxopts::value<int>(), "<level>")
+			cxxopts::മൂല്യം<പൂർണ്ണസംഖ്യ>(), "<level>")
 		("t,timestamp", "annotate all log messages with a time stamp")
 		("d,detailed-timing", "print more detailed timing stats at exit")
 		("l,logfile", "write log messages to <logfile>",
-			cxxopts::value<std::vector<std::string>>(), "<logfile>")
+			cxxopts::മൂല്യം<std::vector<std::string>>(), "<logfile>")
 		("L,line-buffered-logfile", "like -l but open <logfile> in line buffered mode",
-			cxxopts::value<std::vector<std::string>>(), "<logfile>")
+			cxxopts::മൂല്യം<std::vector<std::string>>(), "<logfile>")
 		("o,outfile", "write the design to <outfile> on exit",
-			cxxopts::value<std::string>(), "<outfile>")
+			cxxopts::മൂല്യം<std::string>(), "<outfile>")
 		("P,dump-design", "dump the design when printing the specified log header to a file. " \
 						   "yosys_dump_<header_id>.il is used as filename if none is specified. " \
 						   "Use 'ALL' as <header_id> to dump at every header.",
-						   cxxopts::value<std::vector<std::string>>(), "<header_id>[:<filename>]")
+						   cxxopts::മൂല്യം<std::vector<std::string>>(), "<header_id>[:<filename>]")
 		("W,warning-as-warning", "print a warning for all log messages matching <regex>",
-			cxxopts::value<std::vector<std::string>>(), "<regex>")
+			cxxopts::മൂല്യം<std::vector<std::string>>(), "<regex>")
 		("w,warning-as-message", "if a warning message matches <regex>, it is printed as regular message instead",
-			cxxopts::value<std::vector<std::string>>(), "<regex>")
+			cxxopts::മൂല്യം<std::vector<std::string>>(), "<regex>")
 		("e,warning-as-error", "if a warning message matches <regex>, it is printed as error message instead",
-			cxxopts::value<std::vector<std::string>>(), "<regex>")
+			cxxopts::മൂല്യം<std::vector<std::string>>(), "<regex>")
 		("E,deps-file", "write a Makefile dependencies file <depsfile> with input and output file names",
-			cxxopts::value<std::string>(), "<depsfile>")
+			cxxopts::മൂല്യം<std::string>(), "<depsfile>")
 		("no-color", "disable colored output");
 	;
 	options.add_options("developer")
 		("X,trace", "enable tracing of core data structure changes. for debugging")
 		("M,randomize-pointers", "will slightly randomize allocated pointer addresses. for debugging")
 		("autoidx", "start counting autoidx up from <seed>",
-			cxxopts::value<uint64_t>(), "<idx>")
+			cxxopts::മൂല്യം<uint64_t>(), "<idx>")
 		("A,abort", "will call abort() at the end of the script. for debugging")
 		("x,experimental", "do not print warnings for the experimental <feature>",
-			cxxopts::value<std::vector<std::string>>(), "<feature>")
+			cxxopts::മൂല്യം<std::vector<std::string>>(), "<feature>")
 		("g,debug", "globally enable debug log messages")
-		("perffile", "write a JSON performance log to <perffile>", cxxopts::value<std::string>(), "<perffile>")
+		("perffile", "write a JSON performance log to <perffile>", cxxopts::മൂല്യം<std::string>(), "<perffile>")
 	;
 
 	options.parse_positional({"infile"});
@@ -357,14 +357,14 @@ int main(int argc, char **argv)
 	// We can't have -h optionally require an argument
 	// cxxopts does have an implit argument concept but that doesn't work for us
 	// cxxopts is therefore instructed allowed to only handle the command help case
-	if (argc == 2 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "-help") || !strcmp(argv[1], "--help"))) {
+	എങ്കിൽ (argc == 2 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "-help") || !strcmp(argv[1], "--help"))) {
 		std::cout << options.help() << std::endl;
 		exit(0);
 	}
-	try {
+	ശ്രമിക്കുക {
 		// Check for "--" in arguments
 		auto it = std::find(argv, argv + argc, std::string("--"));
-		if (it != argv + argc) {
+		എങ്കിൽ (it != argv + argc) {
 			special_args.assign(it + 1, argv + argc);
 			// Remove these arguments from cxxopts parsing
 			argc = std::distance(argv, it);
@@ -372,118 +372,118 @@ int main(int argc, char **argv)
 
 		auto result = options.parse(argc, argv);
 
-		if (result.count("M")) memhasher_on();
-		if (result.count("X")) yosys_xtrace += result.count("X");
-		if (result.count("A")) call_abort = true;
-		if (result.count("Q")) print_banner = false;
-		if (result.count("T")) print_stats = false;
-		if (result.count("no-version")) yosys_write_versions = false;
-		if (result.count("V")) {
+		എങ്കിൽ (result.എണ്ണം("M")) memhasher_on();
+		എങ്കിൽ (result.എണ്ണം("X")) yosys_xtrace += result.എണ്ണം("X");
+		എങ്കിൽ (result.എണ്ണം("A")) call_abort = സത്യം;
+		എങ്കിൽ (result.എണ്ണം("Q")) print_banner = അസത്യം;
+		എങ്കിൽ (result.എണ്ണം("T")) print_stats = അസത്യം;
+		എങ്കിൽ (result.എണ്ണം("no-version")) yosys_write_versions = അസത്യം;
+		എങ്കിൽ (result.എണ്ണം("V")) {
 			std::cout << yosys_version_str << std::endl;
 			exit(0);
 		}
-		if (result.count("git-hash")) {
+		എങ്കിൽ (result.എണ്ണം("git-hash")) {
 			std::cout << yosys_git_hash_str << std::endl;
 			exit(0);
 		}
-		if (result.count("S")) {
-			passes_commands.push_back("synth");
-			run_shell = false;
+		എങ്കിൽ (result.എണ്ണം("S")) {
+			passes_commands.തള്ളുക_back("synth");
+			run_shell = അസത്യം;
 		}
-		if (result.count("C")) run_tcl_shell = true;
-		if (result.count("g")) logger().force_debug_on();
-		if (result.count("m")) plugin_filenames = result["m"].as<std::vector<std::string>>();
-		if (result.count("f")) frontend_command = result["f"].as<std::string>();
-		if (result.count("H")) {
-			passes_commands.push_back("help");
-			run_shell = false;
+		എങ്കിൽ (result.എണ്ണം("C")) run_tcl_shell = സത്യം;
+		എങ്കിൽ (result.എണ്ണം("g")) logger().force_debug_on();
+		എങ്കിൽ (result.എണ്ണം("m")) plugin_filenames = result["m"].as<std::vector<std::string>>();
+		എങ്കിൽ (result.എണ്ണം("f")) frontend_command = result["f"].as<std::string>();
+		എങ്കിൽ (result.എണ്ണം("H")) {
+			passes_commands.തള്ളുക_back("help");
+			run_shell = അസത്യം;
 		}
-		if (result.count("h")) {
+		എങ്കിൽ (result.എണ്ണം("h")) {
 			std::string res = result["h"].as<std::string>();
-			passes_commands.push_back("help " + res);
-			run_shell = false;
+			passes_commands.തള്ളുക_back("help " + res);
+			run_shell = അസത്യം;
 		}
-		if (result.count("b")) {
+		എങ്കിൽ (result.എണ്ണം("b")) {
 			backend_command = result["b"].as<std::string>();
-			run_shell = false;
+			run_shell = അസത്യം;
 		}
-		if (result.count("p")) {
+		എങ്കിൽ (result.എണ്ണം("p")) {
 			auto cmds = result["p"].as<std::vector<std::string>>();
-			passes_commands.insert(passes_commands.end(), cmds.begin(), cmds.end());
-			run_shell = false;
+			passes_commands.തിരുകുക(passes_commands.end(), cmds.begin(), cmds.end());
+			run_shell = അസത്യം;
 		}
-		if (result.count("o")) {
+		എങ്കിൽ (result.എണ്ണം("o")) {
 			output_filename = result["o"].as<std::string>();
-			run_shell = false;
+			run_shell = അസത്യം;
 		}
-		for (const auto& key : {"l", "L"}) {
-			if (result.count(key)) {
-				for (const auto& filename : result[key].as<std::vector<std::string>>()) {
-					try {
-						logger().add_sink<FileLogSink>(filename, key[0] == 'L', false);
-					} catch (const std::runtime_error &e) {
+		വേണ്ടി (സ്ഥിരം auto& താക്കോൽ : {"l", "L"}) {
+			എങ്കിൽ (result.എണ്ണം(താക്കോൽ)) {
+				വേണ്ടി (സ്ഥിരം auto& filename : result[താക്കോൽ].as<std::vector<std::string>>()) {
+					ശ്രമിക്കുക {
+						logger().add_sink<FileLogSink>(filename, താക്കോൽ[0] == 'L', അസത്യം);
+					} പിടിക്കുക (സ്ഥിരം std::runtime_error &e) {
  					   std::cerr << e.what();
 					   exit(1);
 					}
 				}
 			}
 		}
-		if (result.count("q")) {
-			mode_q = true;
-			if (log_stderr) quiet_warnings = true;
-			log_stderr = true;
+		എങ്കിൽ (result.എണ്ണം("q")) {
+			mode_q = സത്യം;
+			എങ്കിൽ (log_stderr) quiet_warnings = സത്യം;
+			log_stderr = സത്യം;
 		}
-		if (result.count("v")) {
-			mode_v = true;
-			log_stderr = true;
-			logger().set_verbose_level(result["v"].as<int>());
+		എങ്കിൽ (result.എണ്ണം("v")) {
+			mode_v = സത്യം;
+			log_stderr = സത്യം;
+			logger().set_verbose_level(result["v"].as<പൂർണ്ണസംഖ്യ>());
 		}
-		if (result.count("t")) logger().set_log_time(true);
-		if (result.count("no-color")) no_color = true;
-		if (result.count("d")) timing_details = true;
-		for (const auto& key : {"s", "c"}) {
-			if (result.count(key)) {
-				scriptfile = result[key].as<std::string>();
-				scriptfile_tcl = std::string(key) == "c";
-				run_shell = false;
+		എങ്കിൽ (result.എണ്ണം("t")) logger().set_log_time(സത്യം);
+		എങ്കിൽ (result.എണ്ണം("no-color")) no_color = സത്യം;
+		എങ്കിൽ (result.എണ്ണം("d")) timing_details = സത്യം;
+		വേണ്ടി (സ്ഥിരം auto& താക്കോൽ : {"s", "c"}) {
+			എങ്കിൽ (result.എണ്ണം(താക്കോൽ)) {
+				scriptfile = result[താക്കോൽ].as<std::string>();
+				scriptfile_tcl = std::string(താക്കോൽ) == "c";
+				run_shell = അസത്യം;
 			}
 		}
-		if (result.count("y")) {
+		എങ്കിൽ (result.എണ്ണം("y")) {
 			scriptfile = result["y"].as<std::string>();
-			scriptfile_python = true;
-			run_shell = false;
+			scriptfile_python = സത്യം;
+			run_shell = അസത്യം;
 		}
-		for (const auto& key : {"W", "w", "e"}) {
-			if (result.count(key)) {
-				auto regexes = result[key].as<std::vector<std::string>>();
-				for (const auto& regex : regexes) {
-					if (std::string(key) == "W")
+		വേണ്ടി (സ്ഥിരം auto& താക്കോൽ : {"W", "w", "e"}) {
+			എങ്കിൽ (result.എണ്ണം(താക്കോൽ)) {
+				auto regexes = result[താക്കോൽ].as<std::vector<std::string>>();
+				വേണ്ടി (സ്ഥിരം auto& regex : regexes) {
+					എങ്കിൽ (std::string(താക്കോൽ) == "W")
 						logger().add_warn(regex);
-					if (std::string(key) == "w")
+					എങ്കിൽ (std::string(താക്കോൽ) == "w")
 						logger().add_nowarn(regex);
-					if (std::string(key) == "e")
+					എങ്കിൽ (std::string(താക്കോൽ) == "e")
 						logger().add_werror(regex);
 				}
 			}
 		}
-		if (result.count("r")) topmodule = result["r"].as<std::string>();
-		if (result.count("D")) vlog_defines = result["D"].as<std::vector<std::string>>();
-		if (result.count("P")) {
+		എങ്കിൽ (result.എണ്ണം("r")) topmodule = result["r"].as<std::string>();
+		എങ്കിൽ (result.എണ്ണം("D")) vlog_defines = result["D"].as<std::vector<std::string>>();
+		എങ്കിൽ (result.എണ്ണം("P")) {
 			auto dump_args = result["P"].as<std::vector<std::string>>();
-			for (const auto& arg : dump_args) {
+			വേണ്ടി (സ്ഥിരം auto& arg : dump_args) {
 				auto tokens = split_tokens(arg, ":");
-				if (!tokens.empty() && tokens[0] == "ALL") {
-					if (tokens.size() != 1) {
+				എങ്കിൽ (!tokens.empty() && tokens[0] == "ALL") {
+					എങ്കിൽ (tokens.size() != 1) {
 						std::cerr << "Invalid number of tokens in -P ALL." << std::endl;
 						exit(1);
 					}
-					logger().set_hdump_all(true);
-				} else {
-					if (!tokens.empty() && !tokens[0].empty() && tokens[0].back() == '.')
-						tokens[0].pop_back();
-					if (tokens.size() == 1)
-						tokens.push_back("yosys_dump_" + tokens[0] + ".il");
-					if (tokens.size() != 2) {
+					logger().set_hdump_all(സത്യം);
+				} അല്ലെങ്കിൽ {
+					എങ്കിൽ (!tokens.empty() && !tokens[0].empty() && tokens[0].back() == '.')
+						tokens[0].എടുക്കുക_back();
+					എങ്കിൽ (tokens.size() == 1)
+						tokens.തള്ളുക_back("yosys_dump_" + tokens[0] + ".il");
+					എങ്കിൽ (tokens.size() != 2) {
 						std::cerr << "Invalid number of tokens in -P." << std::endl;
 						exit(1);
 					}
@@ -491,60 +491,60 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		if (result.count("E")) depsfile = result["E"].as<std::string>();
-		if (result.count("x")) {
-			for (const auto &ignore : result["x"].as<std::vector<std::string>>())
+		എങ്കിൽ (result.എണ്ണം("E")) depsfile = result["E"].as<std::string>();
+		എങ്കിൽ (result.എണ്ണം("x")) {
+			വേണ്ടി (സ്ഥിരം auto &ignore : result["x"].as<std::vector<std::string>>())
     			logger().add_experimental_ignore(ignore);
 		}
-		if (result.count("perffile")) perffile = result["perffile"].as<std::string>();
-		if (result.count("infile")) {
+		എങ്കിൽ (result.എണ്ണം("perffile")) perffile = result["perffile"].as<std::string>();
+		എങ്കിൽ (result.എണ്ണം("infile")) {
 			frontend_files = result["infile"].as<std::vector<std::string>>();
 		}
-		if (result.count("autoidx")) {
-			int idx = result["autoidx"].as<uint64_t>();
+		എങ്കിൽ (result.എണ്ണം("autoidx")) {
+			പൂർണ്ണസംഖ്യ idx = result["autoidx"].as<uint64_t>();
 			autoidx = idx;
 		}
 
-		if (!is_colored(stdout) || !is_colored(stderr)) {
-			if (!log_stderr) {
+		എങ്കിൽ (!is_colored(stdout) || !is_colored(stderr)) {
+			എങ്കിൽ (!log_stderr) {
 				logger().add_sink<ConsoleLogSink>();
-			} else {
+			} അല്ലെങ്കിൽ {
 				logger().add_sink<StderrLogSink>(quiet_warnings);
 			}
-		} else
+		} അല്ലെങ്കിൽ
 			logger().add_sink<ColorConsoleLogSink>(log_stderr, quiet_warnings);
 
-		if (print_banner)
+		എങ്കിൽ (print_banner)
 			yosys_banner();
 
 	}
-	catch (const cxxopts::exceptions::parsing& e) {
+	പിടിക്കുക (സ്ഥിരം cxxopts::exceptions::parsing& e) {
 		std::cerr << "Error parsing options: " << e.what() << std::endl;
 		std::cerr << "Run '" << argv[0] << " --help' for help." << std::endl;
 		exit(1);
 	}
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+#എങ്കിൽ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
 	std::string state_dir;
-	#if defined(_WIN32)
-		if (getenv("HOMEDRIVE") != NULL && getenv("HOMEPATH") != NULL) {
+	#എങ്കിൽ defined(_WIN32)
+		എങ്കിൽ (getenv("HOMEDRIVE") != ശൂന്യ && getenv("HOMEPATH") != ശൂന്യ) {
 			state_dir = stringf("%s%s/.local/state", getenv("HOMEDRIVE"), getenv("HOMEPATH"));
-		} else {
+		} അല്ലെങ്കിൽ {
 			log_debug("$HOMEDRIVE and/or $HOMEPATH is empty. No history file will be created.\n");
 		}
-	#else
-		if (getenv("XDG_STATE_HOME") == NULL || getenv("XDG_STATE_HOME")[0] == '\0') {
-			if (getenv("HOME") != NULL) {
+	#അല്ലെങ്കിൽ
+		എങ്കിൽ (getenv("XDG_STATE_HOME") == ശൂന്യ || getenv("XDG_STATE_HOME")[0] == '\0') {
+			എങ്കിൽ (getenv("HOME") != ശൂന്യ) {
 				state_dir = stringf("%s/.local/state", getenv("HOME"));
-			} else {
+			} അല്ലെങ്കിൽ {
 				log_debug("$HOME is empty. No history file will be created.\n");
 			}
-		} else {
+		} അല്ലെങ്കിൽ {
 			state_dir = stringf("%s", getenv("XDG_STATE_HOME"));
 		}
 	#endif
 
-	if (!state_dir.empty()) {
+	എങ്കിൽ (!state_dir.empty()) {
 		std::string yosys_dir = state_dir + "/yosys";
 		create_directory(yosys_dir);
 
@@ -554,23 +554,23 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	if (print_stats)
+	എങ്കിൽ (print_stats)
 		logger().start_hasher();
 
-#if defined(__OpenBSD__)
+#എങ്കിൽ defined(__OpenBSD__)
 	// save the executable origin for proc_self_dirname()
 	yosys_argv0 = argv[0];
 	realpath(yosys_argv0, yosys_path);
 #endif
 
-#if defined(__linux__)
+#എങ്കിൽ defined(__linux__)
 	// set stack size to >= 128 MB
 	{
-		struct rlimit rl;
-		const rlim_t stack_size = 128L * 1024L * 1024L;
-		if (getrlimit(RLIMIT_STACK, &rl) == 0 && rl.rlim_cur < stack_size) {
-			rl.rlim_cur = stack_size;
-			setrlimit(RLIMIT_STACK, &rl);
+		ഘടന rlimit rl;
+		സ്ഥിരം rlim_t അട്ടി_size = 128L * 1024L * 1024L;
+		എങ്കിൽ (getrlimit(RLIMIT_അട്ടി, &rl) == 0 && rl.rlim_cur < അട്ടി_size) {
+			rl.rlim_cur = അട്ടി_size;
+			setrlimit(RLIMIT_അട്ടി, &rl);
 		}
 	}
 #endif
@@ -583,56 +583,56 @@ int main(int argc, char **argv)
 #endif
 	log_error_atexit = yosys_atexit;
 
-	for (auto &fn : plugin_filenames)
+	വേണ്ടി (auto &fn : plugin_filenames)
 		load_plugin(fn, {});
 
 	log_suppressed();
 
-	if (!vlog_defines.empty()) {
+	എങ്കിൽ (!vlog_defines.empty()) {
 		std::string vdef_cmd = "read -define";
-		for (auto vdef : vlog_defines)
+		വേണ്ടി (auto vdef : vlog_defines)
 			vdef_cmd += " " + vdef;
 		run_pass(vdef_cmd);
 	}
 
-	if (scriptfile.empty() || (!scriptfile_tcl && !scriptfile_python)) {
+	എങ്കിൽ (scriptfile.empty() || (!scriptfile_tcl && !scriptfile_python)) {
 		// Without a TCL or Python script, arguments following '--'
 		// are also treated as frontend files
-		for (auto special_arg : special_args)
-			frontend_files.push_back(special_arg);
+		വേണ്ടി (auto special_arg : special_args)
+			frontend_files.തള്ളുക_back(special_arg);
 	}
 
-	for (auto it = frontend_files.begin(); it != frontend_files.end(); ++it) {
-		if (run_frontend((*it).c_str(), frontend_command))
-			run_shell = false;
+	വേണ്ടി (auto it = frontend_files.begin(); it != frontend_files.end(); ++it) {
+		എങ്കിൽ (run_frontend((*it).c_str(), frontend_command))
+			run_shell = അസത്യം;
 	}
 
-	if (!topmodule.empty())
+	എങ്കിൽ (!topmodule.empty())
 		run_pass("hierarchy -top " + topmodule);
-	if (!scriptfile.empty()) {
-		if (scriptfile_tcl) {
+	എങ്കിൽ (!scriptfile.empty()) {
+		എങ്കിൽ (scriptfile_tcl) {
 #ifdef YOSYS_ENABLE_TCL
-			int tcl_argc = special_args.size();
+			പൂർണ്ണസംഖ്യ tcl_argc = special_args.size();
 			std::vector<Tcl_Obj*> script_args;
 			Tcl_Interp *interp = yosys_get_tcl_interp();
-			for (auto arg : special_args)
-				script_args.push_back(Tcl_NewStringObj(arg.c_str(), arg.length()));
+			വേണ്ടി (auto arg : special_args)
+				script_args.തള്ളുക_back(Tcl_NewStringObj(arg.c_str(), arg.length()));
 
-			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), NULL, Tcl_NewIntObj(tcl_argc), 0);
-			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), NULL, Tcl_NewListObj(tcl_argc, script_args.data()), 0);
-			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), NULL, Tcl_NewStringObj(scriptfile.c_str(), scriptfile.length()), 0);
+			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), ശൂന്യ, Tcl_NewIntObj(tcl_argc), 0);
+			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), ശൂന്യ, Tcl_NewListObj(tcl_argc, script_args.data()), 0);
+			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), ശൂന്യ, Tcl_NewStringObj(scriptfile.c_str(), scriptfile.length()), 0);
 
-			if (Tcl_EvalFile(interp, scriptfile.c_str()) != TCL_OK)
+			എങ്കിൽ (Tcl_EvalFile(interp, scriptfile.c_str()) != TCL_OK)
 				log_error("TCL interpreter returned an error: %s\n", Tcl_GetStringResult(yosys_get_tcl_interp()));
-#else
+#അല്ലെങ്കിൽ
 			log_error("Can't execute TCL script: this version of yosys is not built with TCL support enabled.\n");
 #endif
-		} else if (scriptfile_python) {
+		} അല്ലെങ്കിൽ എങ്കിൽ (scriptfile_python) {
 #ifdef YOSYS_ENABLE_PYTHON
 			py::list new_argv;
-			int py_argc = special_args.size() + 1;
+			പൂർണ്ണസംഖ്യ py_argc = special_args.size() + 1;
 			new_argv.append(scriptfile);
-			for (int i = 1; i < py_argc; ++i)
+			വേണ്ടി (പൂർണ്ണസംഖ്യ i = 1; i < py_argc; ++i)
 				new_argv.append(special_args[i - 1]);
 
 			py::setattr(sys, "argv", new_argv);
@@ -643,57 +643,57 @@ int main(int argc, char **argv)
 			sys.attr("path").attr("insert")(0, py::str(scriptfile_python_path));
 
 			FILE *scriptfp = fopen(scriptfile.c_str(), "r");
-			if (scriptfp == nullptr) {
+			എങ്കിൽ (scriptfp == nullptr) {
 				log_error("Failed to open file '%s' for reading.\n", scriptfile);
 			}
-			if (PyRun_SimpleFile(scriptfp, scriptfile.c_str()) != 0) {
+			എങ്കിൽ (PyRun_SimpleFile(scriptfp, scriptfile.c_str()) != 0) {
 				log_flush();
 				PyErr_Print();
 				log_error("Python interpreter encountered an exception.\n");
 			}
-#else
+#അല്ലെങ്കിൽ
 			log_error("Can't execute Python script: this version of yosys is not built with Python support enabled.\n");
 #endif
-		} else
+		} അല്ലെങ്കിൽ
 			run_frontend(scriptfile, "script");
 	}
 
-	for (auto it = passes_commands.begin(); it != passes_commands.end(); it++)
+	വേണ്ടി (auto it = passes_commands.begin(); it != passes_commands.end(); it++)
 		run_pass(*it);
 
-	if (run_tcl_shell) {
+	എങ്കിൽ (run_tcl_shell) {
 #ifdef YOSYS_ENABLE_TCL
 		yosys_tcl_activate_repl();
 		Tcl_Main(argc, argv, yosys_tcl_interp_init);
-#else
+#അല്ലെങ്കിൽ
 		log_error("Can't exectue TCL shell: this version of yosys is not built with TCL support enabled.\n");
 #endif
-	} else {
-		if (run_shell)
+	} അല്ലെങ്കിൽ {
+		എങ്കിൽ (run_shell)
 			shell(yosys_design);
-		else
+		അല്ലെങ്കിൽ
 			run_backend(output_filename, backend_command);
 	}
 
 	yosys_design->check();
-	for (auto it : saved_designs)
+	വേണ്ടി (auto it : saved_designs)
 		it.second->check();
-	for (auto it : pushed_designs)
+	വേണ്ടി (auto it : pushed_designs)
 		it->check();
 
-	if (!depsfile.empty())
+	എങ്കിൽ (!depsfile.empty())
 	{
 		FILE *f = fopen(depsfile.c_str(), "wt");
-		if (f == nullptr)
+		എങ്കിൽ (f == nullptr)
 			log_error("Can't open dependencies file for writing: %s\n", strerror(errno));
-		bool first = true;
-		for (auto fn : yosys_output_files) {
+		തർക്കം first = സത്യം;
+		വേണ്ടി (auto fn : yosys_output_files) {
 			fprintf(f, "%s%s", first ? "" : " ", escape_filename_spaces(fn).c_str());
-			first = false;
+			first = അസത്യം;
 		}
 		fprintf(f, ":");
-		for (auto fn : yosys_input_files) {
-			if (yosys_output_files.count(fn) == 0)
+		വേണ്ടി (auto fn : yosys_നിവേശം_files) {
+			എങ്കിൽ (yosys_output_files.എണ്ണം(fn) == 0)
 				fprintf(f, " %s", escape_filename_spaces(fn).c_str());
 		}
 		fprintf(f, "\n");
@@ -701,58 +701,58 @@ int main(int argc, char **argv)
 
 	logger().report_unexpected_error();
 
-	if (print_stats)
+	എങ്കിൽ (print_stats)
 	{
 		std::string hash = logger().finish_hasher();
-		logger().set_log_time(false);
+		logger().set_log_time(അസത്യം);
 		yosys_xtrace = 0;
 		log_spacer();
 
 		log_stderr_sink_forced = mode_v && !mode_q;
-		if (logger().get_warnings_total())
+		എങ്കിൽ (logger().get_warnings_total())
 			log("Warnings: %d unique messages, %d total\n", logger().get_warnings_unique(), logger().get_warnings_total());
 
-		if (GetSize(logger().get_experimental()) != 0)
+		എങ്കിൽ (GetSize(logger().get_experimental()) != 0)
 			log("Warnings: %d experimental features used (not excluded with -x).\n", GetSize(logger().get_experimental()));
 
-		if (GetSize(logger().get_deprecated()) != 0) {
+		എങ്കിൽ (GetSize(logger().get_deprecated()) != 0) {
 			log("Deprecated features used:\n");
-			for (auto &[feature, earliest_removal] : logger().get_deprecated())
-				if (earliest_removal.empty())
+			വേണ്ടി (auto &[feature, earliest_removal] : logger().get_deprecated())
+				എങ്കിൽ (earliest_removal.empty())
 					log("    %s\n", feature);
-				else
+				അല്ലെങ്കിൽ
 					log("    %s (may be removed as soon as Yosys %s)\n", feature, earliest_removal);
 		}
 #ifdef _WIN32
 		log("End of script. Logfile hash: %s\n", hash);
-		(void)wall_clock_start;
-#else
+		(ശൂന്യം)wall_clock_start;
+#അല്ലെങ്കിൽ
 		std::string meminfo;
 		std::string stats_divider = ", ";
 
-		struct rusage ru_buffer;
+		ഘടന rusage ru_buffer;
 		getrusage(RUSAGE_SELF, &ru_buffer);
-		if (yosys_design->scratchpad_get_bool("print_stats.include_children")) {
-			struct rusage ru_buffer_children;
+		എങ്കിൽ (yosys_design->scratchpad_get_bool("print_stats.include_children")) {
+			ഘടന rusage ru_buffer_children;
 			getrusage(RUSAGE_CHILDREN, &ru_buffer_children);
 			ru_buffer.ru_utime.tv_sec += ru_buffer_children.ru_utime.tv_sec;
 			ru_buffer.ru_utime.tv_usec += ru_buffer_children.ru_utime.tv_usec;
 			ru_buffer.ru_stime.tv_sec += ru_buffer_children.ru_stime.tv_sec;
 			ru_buffer.ru_stime.tv_usec += ru_buffer_children.ru_stime.tv_usec;
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
+#എങ്കിൽ defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
 			ru_buffer.ru_maxrss = std::max(ru_buffer.ru_maxrss, ru_buffer_children.ru_maxrss);
 #endif
 		}
-#if defined(__linux__) || defined(__FreeBSD__)
+#എങ്കിൽ defined(__linux__) || defined(__FreeBSD__)
 		meminfo = stringf(", MEM: %.2f MB peak",
 				ru_buffer.ru_maxrss / 1024.0);
-#elif defined(__APPLE__)
+#അല്ലെങ്കിലെങ്കിൽ defined(__APPLE__)
 // https://stackoverflow.com/questions/59913657/strange-values-of-get-rusage-maxrss-on-macos-and-linux
 		meminfo = stringf(", MEM: %.2f MB peak",
 				ru_buffer.ru_maxrss / (1024.0 * 1024.0));
 #endif
-		double wall_seconds = std::chrono::duration<double>(
-				std::chrono::steady_clock::now() - wall_clock_start).count();
+		ഇരട്ട wall_seconds = std::chrono::duration<ഇരട്ട>(
+				std::chrono::steady_clock::now() - wall_clock_start).എണ്ണം();
 
 		log("End of script. Logfile hash: %s%stime: %.2fs, user: %.2fs, system: %.2fs%s\n", hash,
 				stats_divider.c_str(), wall_seconds, ru_buffer.ru_utime.tv_sec + 1e-6 * ru_buffer.ru_utime.tv_usec,
@@ -761,46 +761,46 @@ int main(int argc, char **argv)
 		log("%s\n", yosys_maybe_version());
 
 		int64_t total_ns = 0;
-		std::set<tuple<int64_t, int, std::string>> timedat;
+		std::set<tuple<int64_t, പൂർണ്ണസംഖ്യ, std::string>> timedat;
 
-		for (auto &it : pass_register)
-			if (it.second->call_counter) {
+		വേണ്ടി (auto &it : pass_register)
+			എങ്കിൽ (it.second->call_counter) {
 				auto pass_ns = it.second->runtime_ns + 1;
 				total_ns += pass_ns;
-				timedat.insert(make_tuple(pass_ns, it.second->call_counter, it.first));
+				timedat.തിരുകുക(make_tuple(pass_ns, it.second->call_counter, it.first));
 			}
-		if (twine_gc_count) {
+		എങ്കിൽ (twine_gc_എണ്ണം) {
 			total_ns += twine_gc_ns;
-			timedat.insert(make_tuple(twine_gc_ns, twine_gc_count, "twine_gc"));
+			timedat.തിരുകുക(make_tuple(twine_gc_ns, twine_gc_എണ്ണം, "twine_gc"));
 		}
 
-		if (timing_details)
+		എങ്കിൽ (timing_details)
 		{
 			log("Time spent:\n");
-			for (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
-				log("%5d%% %5d calls %8.3f sec %s\n", int(100*std::get<0>(*it) / total_ns),
+			വേണ്ടി (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
+				log("%5d%% %5d calls %8.3f sec %s\n", പൂർണ്ണസംഖ്യ(100*std::get<0>(*it) / total_ns),
 						std::get<1>(*it), std::get<0>(*it) / 1000000000.0, std::get<2>(*it).c_str());
 			}
 		}
-		else
+		അല്ലെങ്കിൽ
 		{
-			int out_count = 0;
+			പൂർണ്ണസംഖ്യ out_എണ്ണം = 0;
 			std::string message = "Time spent:";
-			for (auto it = timedat.rbegin(); it != timedat.rend() && out_count < 4; it++, out_count++) {
-				if (out_count >= 2 && (std::get<0>(*it) < 1000000000 || int(100*std::get<0>(*it) / total_ns) < 20)) {
+			വേണ്ടി (auto it = timedat.rbegin(); it != timedat.rend() && out_എണ്ണം < 4; it++, out_എണ്ണം++) {
+				എങ്കിൽ (out_എണ്ണം >= 2 && (std::get<0>(*it) < 1000000000 || പൂർണ്ണസംഖ്യ(100*std::get<0>(*it) / total_ns) < 20)) {
 					message += ", ...";
-					break;
+					നിർത്തുക;
 				}
-				message += stringf("%s %d%% %dx %s (%d sec)", out_count ? "," : "", int(100*std::get<0>(*it) / total_ns),
-						std::get<1>(*it), std::get<2>(*it).c_str(), int(std::get<0>(*it) / 1000000000));
+				message += stringf("%s %d%% %dx %s (%d sec)", out_എണ്ണം ? "," : "", പൂർണ്ണസംഖ്യ(100*std::get<0>(*it) / total_ns),
+						std::get<1>(*it), std::get<2>(*it).c_str(), പൂർണ്ണസംഖ്യ(std::get<0>(*it) / 1000000000));
 			}
-			message += out_count ? "" : " no commands executed";
+			message += out_എണ്ണം ? "" : " no commands executed";
 			log("%s\n", message);
 		}
-		if(!perffile.empty())
+		എങ്കിൽ(!perffile.empty())
 		{
 			FILE *f = fopen(perffile.c_str(), "wt");
-			if (f == nullptr)
+			എങ്കിൽ (f == nullptr)
 				log_error("Can't open performance log file for writing: %s\n", strerror(errno));
 
 			fprintf(f, "{\n");
@@ -808,15 +808,15 @@ int main(int argc, char **argv)
 			fprintf(f, "  \"total_ns\": %" PRIu64 ",\n", total_ns);
 			fprintf(f, "  \"passes\": {");
 
-			bool first = true;
-			for (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
-				if (!first)
+			തർക്കം first = സത്യം;
+			വേണ്ടി (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
+				എങ്കിൽ (!first)
 					fprintf(f, ",");
 				fprintf(f, "\n	\"%s\": {\n", std::get<2>(*it).c_str());
 				fprintf(f, "	  \"runtime_ns\": %" PRIu64 ",\n", std::get<0>(*it));
 				fprintf(f, "	  \"num_calls\": %u\n", std::get<1>(*it));
 				fprintf(f, "	}");
-				first = false;
+				first = അസത്യം;
 			}
 			fprintf(f, "\n  }\n}\n");
 		}
@@ -827,17 +827,17 @@ int main(int argc, char **argv)
 	yosys_atexit();
 
 	memhasher_off();
-	if (call_abort)
+	എങ്കിൽ (call_abort)
 		abort();
 
 	log_flush();
 
 	yosys_shutdown();
 
-#if defined(_MSC_VER)
+#എങ്കിൽ defined(_MSC_VER)
 	_exit(0);
-#elif defined(_WIN32)
+#അല്ലെങ്കിലെങ്കിൽ defined(_WIN32)
 	_Exit(0);
 #endif
-	return 0;
+	തിരികെ 0;
 }

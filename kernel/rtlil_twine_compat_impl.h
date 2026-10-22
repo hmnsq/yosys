@@ -2,54 +2,54 @@
 #define RTLIL_TWINE_COMPAT_IMPL_H
 
 #ifdef __GNUC__
-#pragma GCC diagnostic push
+#pragma GCC diagnostic തള്ളുക
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 #endif
 
 namespace RTLIL {
 
-struct NameSlot {};
-struct CellTypeSlot {};
+ഘടന NameSlot {};
+ഘടന CellTypeSlot {};
 
 template<typename Owner, typename Slot>
-inline const Owner *OwnedId<Owner, Slot>::owner() const {
+വരിയിൽ സ്ഥിരം Owner *OwnedId<Owner, Slot>::owner() സ്ഥിരം {
 	size_t offset;
-	if constexpr (std::is_same_v<Slot, NameSlot>) {
+	എങ്കിൽ constexpr (std::is_same_v<Slot, NameSlot>) {
 		offset = offsetof(Owner, name);
-	} else {
+	} അല്ലെങ്കിൽ {
 		static_assert(std::is_same_v<Owner, Cell> && std::is_same_v<Slot, CellTypeSlot>);
 		offset = offsetof(Cell, type);
 	}
-	return reinterpret_cast<const Owner *>(reinterpret_cast<const char *>(this) - offset);
+	തിരികെ reinterpret_cast<സ്ഥിരം Owner *>(reinterpret_cast<സ്ഥിരം അക്ഷരം *>(this) - offset);
 }
 
 template<typename Owner, typename Slot>
-inline const TwinePool *OwnedId<Owner, Slot>::pool() const {
-	const Owner *o = owner();
-	if constexpr (std::is_same_v<Owner, Module>) {
-		return o->design ? &o->design->twines() : nullptr;
-	} else {
+വരിയിൽ സ്ഥിരം TwinePool *OwnedId<Owner, Slot>::pool() സ്ഥിരം {
+	സ്ഥിരം Owner *o = owner();
+	എങ്കിൽ constexpr (std::is_same_v<Owner, Module>) {
+		തിരികെ o->design ? &o->design->twines() : nullptr;
+	} അല്ലെങ്കിൽ {
 		static_assert(std::is_same_v<Owner, Wire> || std::is_same_v<Owner, Cell>
 				|| std::is_same_v<Owner, Memory> || std::is_same_v<Owner, Process>);
-		return o->module && o->module->design ? &o->module->design->twines() : nullptr;
+		തിരികെ o->module && o->module->design ? &o->module->design->twines() : nullptr;
 	}
 }
 
-inline PooledName::PooledName(const Design *design, IdString id)
+വരിയിൽ PooledName::PooledName(സ്ഥിരം Design *design, IdString id)
 	: pool_(design ? &design->twines() : nullptr), id_(id) { }
 
-inline PooledName::PooledName(const Module *module, IdString id)
+വരിയിൽ PooledName::PooledName(സ്ഥിരം Module *module, IdString id)
 	: PooledName(module ? module->design : nullptr, id) { }
 
 }
 
 #ifdef __GNUC__
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic എടുക്കുക
 #endif
 
 template<typename Derived>
-inline void log_dump_val_worker(const RTLIL::WrappedIdBase<Derived> &name) {
-	log("%s", static_cast<const Derived &>(name).unescape());
+വരിയിൽ ശൂന്യം log_dump_val_worker(സ്ഥിരം RTLIL::WrappedIdBase<Derived> &name) {
+	log("%s", static_cast<സ്ഥിരം Derived &>(name).unescape());
 }
 
 #endif

@@ -17,9 +17,9 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/log.h"
-#include "kernel/newcelltypes.h"
+#അന്തര്ഭാവ "kernel/yosys.h"
+#അന്തര്ഭാവ "kernel/log.h"
+#അന്തര്ഭാവ "kernel/newcelltypes.h"
 
 #ifdef YOSYS_ENABLE_READLINE
 #  include <readline/readline.h>
@@ -41,134 +41,134 @@
 #ifdef YOSYS_ENABLE_PYTHON
 #  include <Python.h>
 #  include <pybind11/pybind11.h>
-namespace py = pybind11;
+നാമാകാശ py = pybind11;
 #endif
 
-#if defined(_WIN32)
+#എങ്കിൽ defined(_WIN32)
 #  include <windows.h>
 #  include <io.h>
-#elif defined(__APPLE__)
+#അല്ലെങ്കിലെങ്കിൽ defined(__APPLE__)
 #  include <mach-o/dyld.h>
 #  include <unistd.h>
 #  include <dirent.h>
 #  include <sys/stat.h>
-#else
+#അല്ലെങ്കിൽ
 #  include <unistd.h>
 #  include <dirent.h>
 #  include <sys/types.h>
 #  include <sys/stat.h>
-#  if defined(YOSYS_ENABLE_SPAWN)
+#  എങ്കിൽ defined(YOSYS_ENABLE_SPAWN)
 #    include <sys/wait.h>
 #  endif
 #endif
 
-#if !defined(_WIN32) && defined(YOSYS_ENABLE_GLOB)
+#എങ്കിൽ !defined(_WIN32) && defined(YOSYS_ENABLE_GLOB)
 #  include <glob.h>
 #endif
 
-#if defined(__FreeBSD__) || defined(__NetBSD__)
+#എങ്കിൽ defined(__FreeBSD__) || defined(__NetBSD__)
 #  include <sys/sysctl.h>
 #endif
 
 #ifdef YOSYS_ENABLE_PYTHON
-extern "C" PyObject* PyInit_libyosys();
-extern "C" PyObject* PyInit_pyosys();
-#include <signal.h>
+ബാഹ്യ "C" PyObject* PyInit_libyosys();
+ബാഹ്യ "C" PyObject* PyInit_pyosys();
+#അന്തര്ഭാവ <signal.h>
 #endif
 
-#include <limits.h>
-#include <errno.h>
+#അന്തര്ഭാവ <limits.h>
+#അന്തര്ഭാവ <errno.h>
 
 YOSYS_NAMESPACE_BEGIN
 
 Autoidx autoidx(1);
-int yosys_xtrace = 0;
-bool yosys_write_versions = true;
-const char* yosys_maybe_version() {
-	if (yosys_write_versions)
-		return yosys_version_str;
-	else
-		return "Yosys";
+പൂർണ്ണസംഖ്യ yosys_xtrace = 0;
+തർക്കം yosys_write_versions = സത്യം;
+സ്ഥിരം അക്ഷരം* yosys_maybe_version() {
+	എങ്കിൽ (yosys_write_versions)
+		തിരികെ yosys_version_str;
+	അല്ലെങ്കിൽ
+		തിരികെ "Yosys";
 }
 
-RTLIL::Design *yosys_design = NULL;
+RTLIL::Design *yosys_design = ശൂന്യ;
 NewCellTypes yosys_celltypes;
 
 #ifdef YOSYS_ENABLE_TCL
-Tcl_Interp *yosys_tcl_interp = NULL;
-Tcl_Interp *yosys_sdc_interp = NULL;
+Tcl_Interp *yosys_tcl_interp = ശൂന്യ;
+Tcl_Interp *yosys_sdc_interp = ശൂന്യ;
 #endif
 
-std::set<std::string> yosys_input_files, yosys_output_files;
+std::set<std::string> yosys_നിവേശം_files, yosys_output_files;
 
-bool memhasher_active = false;
+തർക്കം memhasher_active = അസത്യം;
 uint32_t memhasher_rng = 123456;
-std::vector<void*> memhasher_store;
+std::vector<ശൂന്യം*> memhasher_store;
 
 std::string yosys_share_dirname;
 std::string yosys_abc_executable;
 
-bool Multithreading::active_ = false;
+തർക്കം Multithreading::active_ = അസത്യം;
 
-void init_share_dirname();
-void init_abc_executable_name();
+ശൂന്യം init_share_dirname();
+ശൂന്യം init_abc_executable_name();
 
 Multithreading::Multithreading() {
 	log_assert(!active_);
-	active_ = true;
+	active_ = സത്യം;
 }
 
 Multithreading::~Multithreading() {
 	log_assert(active_);
-	active_ = false;
+	active_ = അസത്യം;
 }
 
-void Autoidx::ensure_at_least(int v) {
+ശൂന്യം Autoidx::ensure_at_least(പൂർണ്ണസംഖ്യ v) {
 	log_assert(!Multithreading::active());
-	value = std::max(value, v);
+	മൂല്യം = std::max(മൂല്യം, v);
 }
 
-int Autoidx::operator++(int) {
+പൂർണ്ണസംഖ്യ Autoidx::operator++(പൂർണ്ണസംഖ്യ) {
 	log_assert(!Multithreading::active());
-	return value++;
+	തിരികെ മൂല്യം++;
 }
 
-void memhasher_on()
+ശൂന്യം memhasher_on()
 {
-#if defined(__linux__) || defined(__FreeBSD__)
-	memhasher_rng += time(NULL) << 16 ^ getpid();
+#എങ്കിൽ defined(__linux__) || defined(__FreeBSD__)
+	memhasher_rng += time(ശൂന്യ) << 16 ^ getpid();
 #endif
 	memhasher_store.resize(0x10000);
-	memhasher_active = true;
+	memhasher_active = സത്യം;
 }
 
-void memhasher_off()
+ശൂന്യം memhasher_off()
 {
-	for (auto p : memhasher_store)
-		if (p) free(p);
+	വേണ്ടി (auto p : memhasher_store)
+		എങ്കിൽ (p) സ്വതന്ത്രം(p);
 	memhasher_store.clear();
-	memhasher_active = false;
+	memhasher_active = അസത്യം;
 }
 
-void memhasher_do()
+ശൂന്യം memhasher_do()
 {
 	memhasher_rng ^= memhasher_rng << 13;
 	memhasher_rng ^= memhasher_rng >> 17;
 	memhasher_rng ^= memhasher_rng << 5;
 
-	int size, index = (memhasher_rng >> 4) & 0xffff;
-	switch (memhasher_rng & 7) {
-		case 0: size =   16; break;
-		case 1: size =  256; break;
-		case 2: size = 1024; break;
-		case 3: size = 4096; break;
-		default: size = 0;
+	പൂർണ്ണസംഖ്യ size, index = (memhasher_rng >> 4) & 0xffff;
+	തിരഞ്ഞെടുപ്പ് (memhasher_rng & 7) {
+		അവസ്ഥ 0: size =   16; നിർത്തുക;
+		അവസ്ഥ 1: size =  256; നിർത്തുക;
+		അവസ്ഥ 2: size = 1024; നിർത്തുക;
+		അവസ്ഥ 3: size = 4096; നിർത്തുക;
+		സ്ഥിരസ്ഥിതി: size = 0;
 	}
-	if (index < 16) size *= 16;
+	എങ്കിൽ (index < 16) size *= 16;
 	memhasher_store[index] = realloc(memhasher_store[index], size);
 }
 
-void yosys_banner()
+ശൂന്യം yosys_banner()
 {
 	log("\n");
 	log(" /----------------------------------------------------------------------------\\\n");
@@ -179,48 +179,48 @@ void yosys_banner()
 	log(" %s\n", yosys_maybe_version());
 }
 
-#if defined(YOSYS_ENABLE_SPAWN)
-int run_command(const std::string &command, std::function<void(const std::string&)> process_line)
+#എങ്കിൽ defined(YOSYS_ENABLE_SPAWN)
+പൂർണ്ണസംഖ്യ run_command(സ്ഥിരം std::string &command, std::function<ശൂന്യം(സ്ഥിരം std::string&)> process_വരി)
 {
-	if (!process_line)
-		return system(command.c_str());
+	എങ്കിൽ (!process_വരി)
+		തിരികെ system(command.c_str());
 
 	FILE *f = popen(command.c_str(), "r");
-	if (f == nullptr)
-		return -1;
+	എങ്കിൽ (f == nullptr)
+		തിരികെ -1;
 
-	std::string line;
-	char logbuf[128];
-	while (true) {
-		if (fgets(logbuf, 128, f) != NULL) {
-			line += logbuf;
-			if (!line.empty() && line.back() == '\n')
-				process_line(line), line.clear();
-		} else if (ferror(f) && errno == EINTR) {
+	std::string വരി;
+	അക്ഷരം logbuf[128];
+	ആകുമ്പോൾ (സത്യം) {
+		എങ്കിൽ (fgets(logbuf, 128, f) != ശൂന്യ) {
+			വരി += logbuf;
+			എങ്കിൽ (!വരി.empty() && വരി.back() == '\n')
+				process_വരി(വരി), വരി.clear();
+		} അല്ലെങ്കിൽ എങ്കിൽ (ferror(f) && errno == EINTR) {
 			clearerr(f);
-			continue;
-		} else {
-			break;
+			തുടരുക;
+		} അല്ലെങ്കിൽ {
+			നിർത്തുക;
 		}
 	}
-	if (!line.empty())
-		process_line(line);
+	എങ്കിൽ (!വരി.empty())
+		process_വരി(വരി);
 
-	int ret = pclose(f);
-	if (ret < 0)
-		return -2;
+	പൂർണ്ണസംഖ്യ ret = pclose(f);
+	എങ്കിൽ (ret < 0)
+		തിരികെ -2;
 #ifdef _WIN32
-	return ret;
-#else
-	if (!WIFEXITED(ret))
-		return -1;
-	return WEXITSTATUS(ret);
+	തിരികെ ret;
+#അല്ലെങ്കിൽ
+	എങ്കിൽ (!WIFEXITED(ret))
+		തിരികെ -1;
+	തിരികെ WEXITSTATUS(ret);
 #endif
 }
 #endif
 
-bool already_setup = false;
-bool already_shutdown = false;
+തർക്കം already_setup = അസത്യം;
+തർക്കം already_shutdown = അസത്യം;
 
 #ifdef YOSYS_ENABLE_PYTHON
 // Include pyosys as a package for some compatibility with wheels.
@@ -237,17 +237,17 @@ PYBIND11_MODULE(pyosys, m) {
 // This should not affect using wheels as the dylib has to actually be called
 // libyosys_dummy.so for this function to be interacted with at all.
 PYBIND11_MODULE(libyosys_dummy, _) {
-	(void)_;
-	throw py::import_error("Change your import from 'import libyosys' to 'from pyosys import libyosys'.");
+	(ശൂന്യം)_;
+	എറിയുക py::import_error("Change your import from 'import libyosys' to 'from pyosys import libyosys'.");
 }
 #endif
 
-void yosys_setup()
+ശൂന്യം yosys_setup()
 {
-	if(already_setup)
-		return;
-	already_setup = true;
-	already_shutdown = false;
+	എങ്കിൽ(already_setup)
+		തിരികെ;
+	already_setup = സത്യം;
+	already_shutdown = അസത്യം;
 
 	StaticTwines::init();
 
@@ -255,15 +255,15 @@ void yosys_setup()
 	// Starting Python 3.12, calling PyImport_AppendInittab on an already
 	// initialized platform fails (such as when libyosys is imported
 	// from a Python interpreter)
-	if (!Py_IsInitialized()) {
-		PyImport_AppendInittab((char*)"pyosys.libyosys", PyInit_libyosys);
+	എങ്കിൽ (!Py_IsInitialized()) {
+		PyImport_AppendInittab((അക്ഷരം*)"pyosys.libyosys", PyInit_libyosys);
 		// compatibility with wheels
-		PyImport_AppendInittab((char*)"pyosys", PyInit_pyosys);
+		PyImport_AppendInittab((അക്ഷരം*)"pyosys", PyInit_pyosys);
 		// prevent catastrophes
-		PyImport_AppendInittab((char*)"libyosys", PyInit_libyosys_dummy);
+		PyImport_AppendInittab((അക്ഷരം*)"libyosys", PyInit_libyosys_dummy);
 		Py_Initialize();
 		PyRun_SimpleString("import sys");
-		signal(SIGINT, SIG_DFL);
+		സൂചന(SIGINT, SIG_DFL);
 	}
 #endif
 
@@ -271,43 +271,43 @@ void yosys_setup()
 	init_abc_executable_name();
 
 	Pass::init_register();
-	yosys_design = new RTLIL::Design;
+	yosys_design = പുതിയ RTLIL::Design;
 	yosys_celltypes.static_cell_types = StaticCellTypes::categories.is_known;
-	log_push();
+	log_തള്ളുക();
 }
 
-bool yosys_already_setup()
+തർക്കം yosys_already_setup()
 {
-	return already_setup;
+	തിരികെ already_setup;
 }
 
-void yosys_shutdown()
+ശൂന്യം yosys_shutdown()
 {
-	if(already_shutdown)
-		return;
-	already_setup = false;
-	already_shutdown = true;
-	log_pop();
+	എങ്കിൽ(already_shutdown)
+		തിരികെ;
+	already_setup = അസത്യം;
+	already_shutdown = സത്യം;
+	log_എടുക്കുക();
 
 	Pass::done_register();
 
 	delete yosys_design;
-	yosys_design = NULL;
+	yosys_design = ശൂന്യ;
 
 	logger().clear();
 
 #ifdef YOSYS_ENABLE_TCL
-	if (yosys_tcl_interp != NULL) {
-		if (!Tcl_InterpDeleted(yosys_tcl_interp)) {
+	എങ്കിൽ (yosys_tcl_interp != ശൂന്യ) {
+		എങ്കിൽ (!Tcl_InterpDeleted(yosys_tcl_interp)) {
 			Tcl_DeleteInterp(yosys_tcl_interp);
 		}
 		Tcl_Finalize();
-		yosys_tcl_interp = NULL;
+		yosys_tcl_interp = ശൂന്യ;
 	}
 #endif
 
 #ifdef YOSYS_ENABLE_PLUGINS
-	for (auto &it : loaded_plugins)
+	വേണ്ടി (auto &it : loaded_plugins)
 		dlclose(it.second);
 
 	loaded_plugins.clear();
@@ -322,79 +322,79 @@ void yosys_shutdown()
 #endif
 }
 
-const std::string *create_id_prefix(std::string_view file, int line, std::string_view func)
+സ്ഥിരം std::string *create_id_prefix(std::string_view file, പൂർണ്ണസംഖ്യ വരി, std::string_view func)
 {
 #ifdef _WIN32
 	size_t pos = file.find_last_of("/\\");
-#else
+#അല്ലെങ്കിൽ
 	size_t pos = file.find_last_of('/');
 #endif
-	if (pos != std::string_view::npos)
+	എങ്കിൽ (pos != std::string_view::npos)
 		file = file.substr(pos+1);
 
 	pos = func.find_last_of(':');
-	if (pos != std::string_view::npos)
+	എങ്കിൽ (pos != std::string_view::npos)
 		func = func.substr(pos+1);
 
-	return new std::string(stringf("$auto$%s:%d:%s$", file, line, func));
+	തിരികെ പുതിയ std::string(stringf("$auto$%s:%d:%s$", file, വരി, func));
 }
 
 RTLIL::Design *yosys_get_design()
 {
-	return yosys_design;
+	തിരികെ yosys_design;
 }
 
-const char *create_prompt(RTLIL::Design *design, int recursion_counter, bool newline)
+സ്ഥിരം അക്ഷരം *create_prompt(RTLIL::Design *design, പൂർണ്ണസംഖ്യ recursion_counter, തർക്കം newline)
 {
-	static char buffer[100];
+	സ്ഥിതം അക്ഷരം buffer[100];
 	std::string str = newline ? "\n" : "";
-	if (recursion_counter > 1)
+	എങ്കിൽ (recursion_counter > 1)
 		str += stringf("(%d) ", recursion_counter);
 	str += "yosys";
-	if (!design->selected_active_module.empty())
+	എങ്കിൽ (!design->selected_active_module.empty())
 		str += stringf(" [%s]", RTLIL::unescape_id(design->twines().str(design->selected_active_module)).c_str());
-	if (!design->full_selection()) {
-		if (design->selected_active_module.empty())
+	എങ്കിൽ (!design->full_selection()) {
+		എങ്കിൽ (design->selected_active_module.empty())
 			str += "*";
-		else if (design->selection().selected_modules.size() != 1 || design->selection().selected_members.size() != 0 ||
-				design->selection().selected_modules.count(design->selected_active_module) == 0)
+		അല്ലെങ്കിൽ എങ്കിൽ (design->selection().selected_modules.size() != 1 || design->selection().selected_members.size() != 0 ||
+				design->selection().selected_modules.എണ്ണം(design->selected_active_module) == 0)
 			str += "*";
 	}
 	snprintf(buffer, 100, "%s> ", str.c_str());
-	return buffer;
+	തിരികെ buffer;
 }
 
-std::vector<std::string> glob_filename(const std::string &filename_pattern)
+std::vector<std::string> glob_filename(സ്ഥിരം std::string &filename_pattern)
 {
 	std::vector<std::string> results;
 
-#if defined(_WIN32) || !defined(YOSYS_ENABLE_GLOB)
-	results.push_back(filename_pattern);
-#else
+#എങ്കിൽ defined(_WIN32) || !defined(YOSYS_ENABLE_GLOB)
+	results.തള്ളുക_back(filename_pattern);
+#അല്ലെങ്കിൽ
 	glob_t globbuf;
 
-	int err = glob(filename_pattern.c_str(), 0, NULL, &globbuf);
+	പൂർണ്ണസംഖ്യ err = glob(filename_pattern.c_str(), 0, ശൂന്യ, &globbuf);
 
-	if(err == 0) {
-		for (size_t i = 0; i < globbuf.gl_pathc; i++)
-			results.push_back(globbuf.gl_pathv[i]);
+	എങ്കിൽ(err == 0) {
+		വേണ്ടി (size_t i = 0; i < globbuf.gl_pathc; i++)
+			results.തള്ളുക_back(globbuf.gl_pathv[i]);
 		globfree(&globbuf);
-	} else {
-		results.push_back(filename_pattern);
+	} അല്ലെങ്കിൽ {
+		results.തള്ളുക_back(filename_pattern);
 	}
 #endif
 
-	return results;
+	തിരികെ results;
 }
 
-void rewrite_filename(std::string &filename)
+ശൂന്യം rewrite_filename(std::string &filename)
 {
-	if (filename.compare(0, 1, "\"") == 0 && filename.compare(GetSize(filename)-1, std::string::npos, "\"") == 0)
+	എങ്കിൽ (filename.compare(0, 1, "\"") == 0 && filename.compare(GetSize(filename)-1, std::string::npos, "\"") == 0)
 		filename = filename.substr(1, GetSize(filename)-2);
-	if (filename.compare(0, 2, "+/") == 0)
+	എങ്കിൽ (filename.compare(0, 2, "+/") == 0)
 		filename = proc_share_dirname() + filename.substr(2);
 #ifndef _WIN32
-	if (filename.compare(0, 2, "~/") == 0)
+	എങ്കിൽ (filename.compare(0, 2, "~/") == 0)
 		filename = filename.replace(0, 1, getenv("HOME"));
 #endif
 }
@@ -402,21 +402,21 @@ void rewrite_filename(std::string &filename)
 #ifdef YOSYS_ENABLE_TCL
 
 // defined in tclapi.cc
-extern int yosys_tcl_interp_init(Tcl_Interp *interp);
+ബാഹ്യ പൂർണ്ണസംഖ്യ yosys_tcl_interp_init(Tcl_Interp *interp);
 
-extern Tcl_Interp *yosys_get_tcl_interp()
+ബാഹ്യ Tcl_Interp *yosys_get_tcl_interp()
 {
-	if (yosys_tcl_interp == NULL) {
+	എങ്കിൽ (yosys_tcl_interp == ശൂന്യ) {
 		yosys_tcl_interp = Tcl_CreateInterp();
 		yosys_tcl_interp_init(yosys_tcl_interp);
 	}
-	return yosys_tcl_interp;
+	തിരികെ yosys_tcl_interp;
 }
 
 // Also see SdcPass
-struct TclPass : public Pass {
+ഘടന TclPass : പൊതു Pass {
 	TclPass() : Pass("tcl", "execute a TCL script file") { }
-	void help() override {
+	ശൂന്യം help() override {
 		//   |---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|
 		log("\n");
 		log("    tcl <filename> [args]\n");
@@ -438,20 +438,20 @@ struct TclPass : public Pass {
 		log("The 'result.string' value is then used as the tcl output value of the command.\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *) override {
-		if (args.size() < 2)
+	ശൂന്യം execute(std::vector<std::string> args, RTLIL::Design *) override {
+		എങ്കിൽ (args.size() < 2)
 			log_cmd_error("Missing script file.\n");
 
 		std::vector<Tcl_Obj*> script_args;
-		for (auto it = args.begin() + 2; it != args.end(); ++it)
-			script_args.push_back(Tcl_NewStringObj((*it).c_str(), (*it).size()));
+		വേണ്ടി (auto it = args.begin() + 2; it != args.end(); ++it)
+			script_args.തള്ളുക_back(Tcl_NewStringObj((*it).c_str(), (*it).size()));
 
 		Tcl_Interp *interp = yosys_get_tcl_interp();
 		Tcl_Preserve(interp);
-		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), NULL, Tcl_NewIntObj(script_args.size()), 0);
-		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), NULL, Tcl_NewListObj(script_args.size(), script_args.data()), 0);
-		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), NULL, Tcl_NewStringObj(args[1].c_str(), args[1].size()), 0);
-		if (Tcl_EvalFile(interp, args[1].c_str()) != TCL_OK)
+		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), ശൂന്യ, Tcl_NewIntObj(script_args.size()), 0);
+		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), ശൂന്യ, Tcl_NewListObj(script_args.size(), script_args.data()), 0);
+		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), ശൂന്യ, Tcl_NewStringObj(args[1].c_str(), args[1].size()), 0);
+		എങ്കിൽ (Tcl_EvalFile(interp, args[1].c_str()) != TCL_OK)
 			log_cmd_error("TCL interpreter returned an error: %s\n", Tcl_GetStringResult(interp));
 		Tcl_Release(interp);
 	}
@@ -459,7 +459,7 @@ struct TclPass : public Pass {
 
 #endif
 
-#if defined(__linux__) || defined(__CYGWIN__) || defined(__gnu_hurd__)
+#എങ്കിൽ defined(__linux__) || defined(__CYGWIN__) || defined(__gnu_hurd__)
 std::string proc_self_dirname()
 {
 	std::string path(4096, '\0');
@@ -467,190 +467,190 @@ std::string proc_self_dirname()
 	// Double until sucess, while avoiding endless loop.  Give up
 	// when symlink is longer than 4096*(2^30) = 4398046511104
 	// bytes.
-	for (int tries = 30; 0 < tries; tries--) {
+	വേണ്ടി (പൂർണ്ണസംഖ്യ tries = 30; 0 < tries; tries--) {
 		buflen = readlink("/proc/self/exe", path.data(), path.size());
-		if (buflen < (ssize_t)path.size())
-			break;
-		else
+		എങ്കിൽ (buflen < (ssize_t)path.size())
+			നിർത്തുക;
+		അല്ലെങ്കിൽ
 			path.resize(path.size() * 2);
 	}
-	if (buflen < 0) {
+	എങ്കിൽ (buflen < 0) {
 		log_error("readlink(\"/proc/self/exe\") failed: %s\n", strerror(errno));
 		path.resize(0);
-	} else {
-		while (buflen > 0 && path[buflen-1] != '/')
+	} അല്ലെങ്കിൽ {
+		ആകുമ്പോൾ (buflen > 0 && path[buflen-1] != '/')
 			buflen--;
 		path.resize(buflen);
 	}
-	return path;
+	തിരികെ path;
 }
-#elif defined(__FreeBSD__) || defined(__NetBSD__)
+#അല്ലെങ്കിലെങ്കിൽ defined(__FreeBSD__) || defined(__NetBSD__)
 std::string proc_self_dirname()
 {
 #ifdef __NetBSD__
-	int mib[4] = {CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_PATHNAME};
-#else
-	int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+	പൂർണ്ണസംഖ്യ mib[4] = {CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_PATHNAME};
+#അല്ലെങ്കിൽ
+	പൂർണ്ണസംഖ്യ mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
 #endif
 	size_t buflen;
-	char *buffer;
+	അക്ഷരം *buffer;
 	std::string path;
-	if (sysctl(mib, 4, NULL, &buflen, NULL, 0) != 0)
+	എങ്കിൽ (sysctl(mib, 4, ശൂന്യ, &buflen, ശൂന്യ, 0) != 0)
 		log_error("sysctl failed: %s\n", strerror(errno));
-	buffer = (char*)malloc(buflen);
-	if (buffer == NULL)
+	buffer = (അക്ഷരം*)malloc(buflen);
+	എങ്കിൽ (buffer == ശൂന്യ)
 		log_error("malloc failed: %s\n", strerror(errno));
-	if (sysctl(mib, 4, buffer, &buflen, NULL, 0) != 0)
+	എങ്കിൽ (sysctl(mib, 4, buffer, &buflen, ശൂന്യ, 0) != 0)
 		log_error("sysctl failed: %s\n", strerror(errno));
-	while (buflen > 0 && buffer[buflen-1] != '/')
+	ആകുമ്പോൾ (buflen > 0 && buffer[buflen-1] != '/')
 		buflen--;
 	path.assign(buffer, buflen);
-	free(buffer);
-	return path;
+	സ്വതന്ത്രം(buffer);
+	തിരികെ path;
 }
-#elif defined(__APPLE__)
+#അല്ലെങ്കിലെങ്കിൽ defined(__APPLE__)
 std::string proc_self_dirname()
 {
-	char *path = NULL;
+	അക്ഷരം *path = ശൂന്യ;
 	uint32_t buflen = 0;
-	while (_NSGetExecutablePath(path, &buflen) != 0)
-		path = (char *) realloc((void *) path, buflen);
-	char resolved[PATH_MAX];
-	if (realpath(path, resolved) != NULL) {
-		free(path);
+	ആകുമ്പോൾ (_NSGetExecutablePath(path, &buflen) != 0)
+		path = (അക്ഷരം *) realloc((ശൂന്യം *) path, buflen);
+	അക്ഷരം resolved[PATH_MAX];
+	എങ്കിൽ (realpath(path, resolved) != ശൂന്യ) {
+		സ്വതന്ത്രം(path);
 		path = strdup(resolved);
 		buflen = strlen(path);
 	}
-	while (buflen > 0 && path[buflen-1] != '/')
+	ആകുമ്പോൾ (buflen > 0 && path[buflen-1] != '/')
 		buflen--;
 	std::string str(path, buflen);
-	free(path);
-	return str;
+	സ്വതന്ത്രം(path);
+	തിരികെ str;
 }
-#elif defined(_WIN32)
+#അല്ലെങ്കിലെങ്കിൽ defined(_WIN32)
 std::string proc_self_dirname()
 {
 	std::wstring wbinpath(4096, L'\0');
-	if (!GetModuleFileNameW(0, &wbinpath[0], wbinpath.size()))
+	എങ്കിൽ (!GetModuleFileNameW(0, &wbinpath[0], wbinpath.size()))
 	fprintf(stderr, "GetModuleFileNameW() failed.\n");
 	wbinpath.resize(wbinpath.rfind(L'\\') + 1); // remove filename
 	std::string ubinpath;
-	ubinpath.resize(WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), &ubinpath[0], ubinpath.size(), NULL, NULL) == 0)
+	ubinpath.resize(WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), ശൂന്യ, 0, ശൂന്യ, ശൂന്യ));
+	എങ്കിൽ (WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), &ubinpath[0], ubinpath.size(), ശൂന്യ, ശൂന്യ) == 0)
 	fprintf(stderr, "WideCharToMultiByte() failed.\n");
-	return ubinpath;
+	തിരികെ ubinpath;
 
 }
-#elif defined(__wasm)
+#അല്ലെങ്കിലെങ്കിൽ defined(__wasm)
 std::string proc_self_dirname()
 {
-	return "/";
+	തിരികെ "/";
 }
-#elif defined(__OpenBSD__) || defined(__HAIKU__)
-char yosys_path[PATH_MAX];
-char *yosys_argv0;
+#അല്ലെങ്കിലെങ്കിൽ defined(__OpenBSD__) || defined(__HAIKU__)
+അക്ഷരം yosys_path[PATH_MAX];
+അക്ഷരം *yosys_argv0;
 
-std::string proc_self_dirname(void)
+std::string proc_self_dirname(ശൂന്യം)
 {
-	char buf[PATH_MAX + 1] = "", *path, *p;
+	അക്ഷരം buf[PATH_MAX + 1] = "", *path, *p;
 	// if case argv[0] contains a valid path, return it
-	if (strlen(yosys_path) > 0) {
+	എങ്കിൽ (strlen(yosys_path) > 0) {
 		p = strrchr(yosys_path, '/');
-		snprintf(buf, sizeof buf, "%*s/", (int)(yosys_path - p), yosys_path);
-		return buf;
+		snprintf(buf, വലുപ്പം buf, "%*s/", (പൂർണ്ണസംഖ്യ)(yosys_path - p), yosys_path);
+		തിരികെ buf;
 	}
 	// if argv[0] does not, reconstruct the path out of $PATH
 	path = strdup(getenv("PATH"));
-	if (!path)
+	എങ്കിൽ (!path)
 		log_error("getenv(\"PATH\") failed: %s\n",  strerror(errno));
-	for (p = strtok(path, ":"); p; p = strtok(NULL, ":")) {
-		snprintf(buf, sizeof buf, "%s/%s", p, yosys_argv0);
-		if (access(buf, X_OK) == 0) {
+	വേണ്ടി (p = strtok(path, ":"); p; p = strtok(ശൂന്യ, ":")) {
+		snprintf(buf, വലുപ്പം buf, "%s/%s", p, yosys_argv0);
+		എങ്കിൽ (access(buf, X_OK) == 0) {
 			*(strrchr(buf, '/') + 1) = '\0';
-			free(path);
-			return buf;
+			സ്വതന്ത്രം(path);
+			തിരികെ buf;
 		}
 	}
-	free(path);
+	സ്വതന്ത്രം(path);
 	log_error("Can't determine yosys executable path.\n");
-	return NULL;
+	തിരികെ ശൂന്യ;
 }
-#else
+#അല്ലെങ്കിൽ
 	#error "Don't know how to determine process executable base path!"
 #endif
 
-#if defined(__wasm)
-void init_share_dirname()
+#എങ്കിൽ defined(__wasm)
+ശൂന്യം init_share_dirname()
 {
 	yosys_share_dirname = "/share/";
 }
-#else
-void init_share_dirname()
+#അല്ലെങ്കിൽ
+ശൂന്യം init_share_dirname()
 {
 #  ifdef YOSYS_ENABLE_PYTHON
 	PyObject *sys_obj = PyImport_ImportModule("sys");
 
-	if (PyObject_HasAttrString(sys_obj, "_pyosys_share_dirname")) {
+	എങ്കിൽ (PyObject_HasAttrString(sys_obj, "_pyosys_share_dirname")) {
 		PyObject *share_path_obj = PyObject_GetAttrString(sys_obj, "_pyosys_share_dirname");
-		const char *share_path = PyUnicode_AsUTF8(share_path_obj);
+		സ്ഥിരം അക്ഷരം *share_path = PyUnicode_AsUTF8(share_path_obj);
 		yosys_share_dirname = std::string(share_path);
-		return;
+		തിരികെ;
 	}
 #  endif
 	std::string proc_self_path = proc_self_dirname();
-#  if defined(_WIN32) && !defined(YOSYS_WIN32_UNIX_DIR)
+#  എങ്കിൽ defined(_WIN32) && !defined(YOSYS_WIN32_UNIX_DIR)
 	std::string proc_share_path = proc_self_path + "share\\";
-	if (check_directory_exists(proc_share_path, true)) {
+	എങ്കിൽ (check_directory_exists(proc_share_path, സത്യം)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		തിരികെ;
 	}
 	proc_share_path = proc_self_path + "..\\share\\";
-	if (check_directory_exists(proc_share_path, true)) {
+	എങ്കിൽ (check_directory_exists(proc_share_path, സത്യം)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		തിരികെ;
 	}
-#  else
+#  അല്ലെങ്കിൽ
 	std::string proc_share_path = proc_self_path + "share/";
-	if (check_directory_exists(proc_share_path, true)) {
+	എങ്കിൽ (check_directory_exists(proc_share_path, സത്യം)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		തിരികെ;
 	}
 	proc_share_path = proc_self_path + "../share/" + proc_program_prefix()+ "yosys/";
-	if (check_directory_exists(proc_share_path, true)) {
+	എങ്കിൽ (check_directory_exists(proc_share_path, സത്യം)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		തിരികെ;
 	}
 	proc_share_path = YOSYS_DATDIR "/";
-	if (check_directory_exists(proc_share_path, true)) {
+	എങ്കിൽ (check_directory_exists(proc_share_path, സത്യം)) {
 		yosys_share_dirname = proc_share_path;
-		return;
+		തിരികെ;
 	}
 #  endif
 }
 #endif
 
-void init_abc_executable_name()
+ശൂന്യം init_abc_executable_name()
 {
 #ifdef ABCEXTERNAL
 	std::string exe_file;
-	if (std::getenv("ABC")) {
+	എങ്കിൽ (std::getenv("ABC")) {
 		yosys_abc_executable = std::getenv("ABC");
-	} else {
+	} അല്ലെങ്കിൽ {
 		yosys_abc_executable = ABCEXTERNAL;
 	}
-#else
+#അല്ലെങ്കിൽ
 	yosys_abc_executable = proc_self_dirname() + proc_program_prefix()+ "yosys-abc";
 #  ifdef _WIN32
-	if (!check_file_exists(yosys_abc_executable + ".exe") && check_file_exists(proc_self_dirname() + "..\\" + proc_program_prefix() + "yosys-abc.exe"))
+	എങ്കിൽ (!check_file_exists(yosys_abc_executable + ".exe") && check_file_exists(proc_self_dirname() + "..\\" + proc_program_prefix() + "yosys-abc.exe"))
 		yosys_abc_executable = proc_self_dirname() + "..\\" + proc_program_prefix() + "yosys-abc";
 #  endif
 
 #  ifdef YOSYS_ENABLE_PYTHON
 	PyObject *sys_obj = PyImport_ImportModule("sys");
 
-	if (PyObject_HasAttrString(sys_obj, "_pyosys_abc")) {
+	എങ്കിൽ (PyObject_HasAttrString(sys_obj, "_pyosys_abc")) {
 		PyObject *abc_path_obj = PyObject_GetAttrString(sys_obj, "_pyosys_abc");
-		const char *abc_path = PyUnicode_AsUTF8(abc_path_obj);
+		സ്ഥിരം അക്ഷരം *abc_path = PyUnicode_AsUTF8(abc_path_obj);
 		yosys_abc_executable = std::string(abc_path);
 	}
 #  endif
@@ -659,111 +659,111 @@ void init_abc_executable_name()
 
 std::string proc_share_dirname()
 {
-	if (yosys_share_dirname.empty())
+	എങ്കിൽ (yosys_share_dirname.empty())
 		log_error("init_share_dirname: unable to determine share/ directory!\n");
-	return yosys_share_dirname;
+	തിരികെ yosys_share_dirname;
 }
 
 std::string proc_program_prefix()
 {
-	return YOSYS_PROGRAM_PREFIX;
+	തിരികെ YOSYS_PROGRAM_PREFIX;
 }
 
-bool fgetline(FILE *f, std::string &buffer)
+തർക്കം fgetline(FILE *f, std::string &buffer)
 {
 	buffer = "";
-	char block[4096];
-	while (1) {
-		if (fgets(block, 4096, f) == NULL)
-			return false;
+	അക്ഷരം block[4096];
+	ആകുമ്പോൾ (1) {
+		എങ്കിൽ (fgets(block, 4096, f) == ശൂന്യ)
+			തിരികെ അസത്യം;
 		buffer += block;
-		if (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r')) {
-			while (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r'))
+		എങ്കിൽ (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r')) {
+			ആകുമ്പോൾ (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r'))
 				buffer.resize(buffer.size()-1);
-			return true;
+			തിരികെ സത്യം;
 		}
 	}
 }
 
-static void handle_label(std::string &command, bool &from_to_active, const std::string &run_from, const std::string &run_to)
+സ്ഥിതം ശൂന്യം handle_label(std::string &command, തർക്കം &from_to_active, സ്ഥിരം std::string &run_from, സ്ഥിരം std::string &run_to)
 {
-	int pos = 0;
+	പൂർണ്ണസംഖ്യ pos = 0;
 	std::string label;
 
-	while (pos < GetSize(command) && (command[pos] == ' ' || command[pos] == '\t'))
+	ആകുമ്പോൾ (pos < GetSize(command) && (command[pos] == ' ' || command[pos] == '\t'))
 		pos++;
 
-	if (pos < GetSize(command) && command[pos] == '#')
-		return;
+	എങ്കിൽ (pos < GetSize(command) && command[pos] == '#')
+		തിരികെ;
 
-	while (pos < GetSize(command) && command[pos] != ' ' && command[pos] != '\t' && command[pos] != '\r' && command[pos] != '\n')
+	ആകുമ്പോൾ (pos < GetSize(command) && command[pos] != ' ' && command[pos] != '\t' && command[pos] != '\r' && command[pos] != '\n')
 		label += command[pos++];
 
-	if (GetSize(label) > 1 && label.back() == ':')
+	എങ്കിൽ (GetSize(label) > 1 && label.back() == ':')
 	{
 		label = label.substr(0, GetSize(label)-1);
 		command = command.substr(pos);
 
-		if (label == run_from)
-			from_to_active = true;
-		else if (label == run_to || (run_from == run_to && !run_from.empty()))
-			from_to_active = false;
+		എങ്കിൽ (label == run_from)
+			from_to_active = സത്യം;
+		അല്ലെങ്കിൽ എങ്കിൽ (label == run_to || (run_from == run_to && !run_from.empty()))
+			from_to_active = അസത്യം;
 	}
 }
 
-bool run_frontend(std::string filename, std::string command, RTLIL::Design *design, std::string *from_to_label)
+തർക്കം run_frontend(std::string filename, std::string command, RTLIL::Design *design, std::string *from_to_label)
 {
-	if (design == nullptr)
+	എങ്കിൽ (design == nullptr)
 		design = yosys_design;
 
-	if (command == "auto") {
+	എങ്കിൽ (command == "auto") {
 	  std::string filename_trim = filename;
 
-	  auto has_extension = [](const std::string& filename, const std::string& extension) {
-	    if (filename.size() >= extension.size()) {
-	      return filename.compare(filename.size() - extension.size(), extension.size(), extension) == 0;
+	  auto has_extension = [](സ്ഥിരം std::string& filename, സ്ഥിരം std::string& extension) {
+	    എങ്കിൽ (filename.size() >= extension.size()) {
+	      തിരികെ filename.compare(filename.size() - extension.size(), extension.size(), extension) == 0;
 	    }
-	    return false;
+	    തിരികെ അസത്യം;
 	  };
 
-	  if (has_extension(filename_trim, ".gz")) {
+	  എങ്കിൽ (has_extension(filename_trim, ".gz")) {
 	    filename_trim.erase(filename_trim.size() - 3);
 	  }
 
-	  if (has_extension(filename_trim, ".v")) {
+	  എങ്കിൽ (has_extension(filename_trim, ".v")) {
 	    command = " -vlog2k";
-	  } else if (has_extension(filename_trim, ".sv")) {
+	  } അല്ലെങ്കിൽ എങ്കിൽ (has_extension(filename_trim, ".sv")) {
 	    command = " -sv";
-	  } else if (has_extension(filename_trim, ".vhd") || has_extension(filename_trim, ".vhdl")) {
+	  } അല്ലെങ്കിൽ എങ്കിൽ (has_extension(filename_trim, ".vhd") || has_extension(filename_trim, ".vhdl")) {
 	    command = " -vhdl";
-	  } else if (has_extension(filename_trim, ".blif") || has_extension(filename_trim, ".eblif")) {
+	  } അല്ലെങ്കിൽ എങ്കിൽ (has_extension(filename_trim, ".blif") || has_extension(filename_trim, ".eblif")) {
 	    command = "blif";
-	  } else if (has_extension(filename_trim, ".json")) {
+	  } അല്ലെങ്കിൽ എങ്കിൽ (has_extension(filename_trim, ".json")) {
 	    command = "json";
-	  } else if (has_extension(filename_trim, ".il")) {
+	  } അല്ലെങ്കിൽ എങ്കിൽ (has_extension(filename_trim, ".il")) {
 	    command = "rtlil";
-	  } else if (has_extension(filename_trim, ".ys")) {
+	  } അല്ലെങ്കിൽ എങ്കിൽ (has_extension(filename_trim, ".ys")) {
 	    command = "script";
-	  } else if (has_extension(filename_trim, ".tcl")) {
+	  } അല്ലെങ്കിൽ എങ്കിൽ (has_extension(filename_trim, ".tcl")) {
 	    command = "tcl";
-	  } else if (filename == "-") {
+	  } അല്ലെങ്കിൽ എങ്കിൽ (filename == "-") {
 	    command = "script";
-	  } else {
+	  } അല്ലെങ്കിൽ {
 	    log_error("Can't guess frontend for input file `%s' (missing -f option)!\n", filename);
 	  }
 	}
 
-	if (command == "script")
+	എങ്കിൽ (command == "script")
 	{
 		std::string run_from, run_to;
-		bool from_to_active = true;
+		തർക്കം from_to_active = സത്യം;
 
-		if (from_to_label != NULL) {
+		എങ്കിൽ (from_to_label != ശൂന്യ) {
 			size_t pos = from_to_label->find(':');
-			if (pos == std::string::npos) {
+			എങ്കിൽ (pos == std::string::npos) {
 				run_from = *from_to_label;
 				run_to = *from_to_label;
-			} else {
+			} അല്ലെങ്കിൽ {
 				run_from = from_to_label->substr(0, pos);
 				run_to = from_to_label->substr(pos+1);
 			}
@@ -775,92 +775,92 @@ bool run_frontend(std::string filename, std::string command, RTLIL::Design *desi
 
 		FILE *f = stdin;
 
-		if (filename != "-") {
+		എങ്കിൽ (filename != "-") {
 			f = fopen(filename.c_str(), "r");
-			yosys_input_files.insert(filename);
+			yosys_നിവേശം_files.തിരുകുക(filename);
 		}
 
-		if (f == NULL)
+		എങ്കിൽ (f == ശൂന്യ)
 			log_error("Can't open script file `%s' for reading: %s\n", filename, strerror(errno));
 
 		FILE *backup_script_file = Frontend::current_script_file;
 		std::string backup_script_filename = Frontend::current_script_filename;
-		int backup_script_lineno = Frontend::current_script_lineno;
+		പൂർണ്ണസംഖ്യ backup_script_lineno = Frontend::current_script_lineno;
 		Frontend::current_script_file = f;
 		Frontend::current_script_filename = filename;
 		Frontend::current_script_lineno = 0;
 
-		try {
+		ശ്രമിക്കുക {
 			std::string command;
-			while (fgetline(f, command)) {
+			ആകുമ്പോൾ (fgetline(f, command)) {
 				Frontend::current_script_lineno++;
-				while (!command.empty() && command[command.size()-1] == '\\') {
-					std::string next_line;
-					if (!fgetline(f, next_line))
-						break;
+				ആകുമ്പോൾ (!command.empty() && command[command.size()-1] == '\\') {
+					std::string next_വരി;
+					എങ്കിൽ (!fgetline(f, next_വരി))
+						നിർത്തുക;
 					Frontend::current_script_lineno++;
 					command.resize(command.size()-1);
-					command += next_line;
+					command += next_വരി;
 				}
 				handle_label(command, from_to_active, run_from, run_to);
-				if (from_to_active) {
+				എങ്കിൽ (from_to_active) {
 					Pass::call(design, command);
 					design->check();
 				}
 			}
 
-			if (!command.empty()) {
+			എങ്കിൽ (!command.empty()) {
 				handle_label(command, from_to_active, run_from, run_to);
-				if (from_to_active) {
+				എങ്കിൽ (from_to_active) {
 					Frontend::current_script_lineno++;
 					Pass::call(design, command);
 					design->check();
 				}
 			}
 		}
-		catch (...) {
+		പിടിക്കുക (...) {
 			Frontend::current_script_file = backup_script_file;
 			Frontend::current_script_filename = backup_script_filename;
 			Frontend::current_script_lineno = backup_script_lineno;
-			throw;
+			എറിയുക;
 		}
 
 		Frontend::current_script_file = backup_script_file;
 		Frontend::current_script_filename = backup_script_filename;
 		Frontend::current_script_lineno = backup_script_lineno;
 
-		if (filename != "-")
+		എങ്കിൽ (filename != "-")
 			fclose(f);
 
-		return true;
+		തിരികെ സത്യം;
 	}
 
-	if (command == "tcl") {
+	എങ്കിൽ (command == "tcl") {
 		Pass::call(design, vector<string>({command, filename}));
-		return true;
+		തിരികെ സത്യം;
 	}
 
 	log("\n");
-	if (filename == "-") {
+	എങ്കിൽ (filename == "-") {
 		log_comment("-- Parsing stdin using frontend `%s' --\n", command);
-	} else {
+	} അല്ലെങ്കിൽ {
 		log_comment("-- Parsing `%s' using frontend `%s' --\n", filename, command);
 	}
 
-	if (command[0] == ' ') {
+	എങ്കിൽ (command[0] == ' ') {
 		auto argv = split_tokens("read" + command);
-		argv.push_back(filename);
+		argv.തള്ളുക_back(filename);
 		Pass::call(design, argv);
-	} else
-		Frontend::frontend_call(design, NULL, filename, command);
+	} അല്ലെങ്കിൽ
+		Frontend::frontend_call(design, ശൂന്യ, filename, command);
 
 	design->check();
-	return false;
+	തിരികെ അസത്യം;
 }
 
-void run_pass(std::string command, RTLIL::Design *design)
+ശൂന്യം run_pass(std::string command, RTLIL::Design *design)
 {
-	if (design == nullptr)
+	എങ്കിൽ (design == nullptr)
 		design = yosys_design;
 
 	log("\n");
@@ -869,204 +869,204 @@ void run_pass(std::string command, RTLIL::Design *design)
 	Pass::call(design, command);
 }
 
-void run_backend(std::string filename, std::string command, RTLIL::Design *design)
+ശൂന്യം run_backend(std::string filename, std::string command, RTLIL::Design *design)
 {
-	if (design == nullptr)
+	എങ്കിൽ (design == nullptr)
 		design = yosys_design;
 
-	if (command == "auto") {
-		if (filename.size() > 2 && filename.compare(filename.size()-2, std::string::npos, ".v") == 0)
+	എങ്കിൽ (command == "auto") {
+		എങ്കിൽ (filename.size() > 2 && filename.compare(filename.size()-2, std::string::npos, ".v") == 0)
 			command = "verilog";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".sv") == 0)
+		അല്ലെങ്കിൽ എങ്കിൽ (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".sv") == 0)
 			command = "verilog -sv";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".il") == 0)
+		അല്ലെങ്കിൽ എങ്കിൽ (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".il") == 0)
 			command = "rtlil";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".cc") == 0)
+		അല്ലെങ്കിൽ എങ്കിൽ (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".cc") == 0)
 			command = "cxxrtl";
-		else if (filename.size() > 4 && filename.compare(filename.size()-4, std::string::npos, ".aig") == 0)
+		അല്ലെങ്കിൽ എങ്കിൽ (filename.size() > 4 && filename.compare(filename.size()-4, std::string::npos, ".aig") == 0)
 			command = "aiger";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".blif") == 0)
+		അല്ലെങ്കിൽ എങ്കിൽ (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".blif") == 0)
 			command = "blif";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".edif") == 0)
+		അല്ലെങ്കിൽ എങ്കിൽ (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".edif") == 0)
 			command = "edif";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".json") == 0)
+		അല്ലെങ്കിൽ എങ്കിൽ (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".json") == 0)
 			command = "json";
-		else if (filename == "-")
+		അല്ലെങ്കിൽ എങ്കിൽ (filename == "-")
 			command = "rtlil";
-		else if (filename.empty())
-			return;
-		else
+		അല്ലെങ്കിൽ എങ്കിൽ (filename.empty())
+			തിരികെ;
+		അല്ലെങ്കിൽ
 			log_error("Can't guess backend for output file `%s' (missing -b option)!\n", filename);
 	}
 
-	if (filename.empty())
+	എങ്കിൽ (filename.empty())
 		filename = "-";
 
 	log("\n");
-	if (filename == "-") {
+	എങ്കിൽ (filename == "-") {
 		log_comment("-- Writing to stdout using backend `%s' --\n", command);
-	} else {
+	} അല്ലെങ്കിൽ {
 		log_comment("-- Writing to `%s' using backend `%s' --\n", filename, command);
 	}
 
-	Backend::backend_call(design, NULL, filename, command);
+	Backend::backend_call(design, ശൂന്യ, filename, command);
 }
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-static char *readline_cmd_generator(const char *text, int state)
+#എങ്കിൽ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+സ്ഥിതം അക്ഷരം *readline_cmd_generator(സ്ഥിരം അക്ഷരം *text, പൂർണ്ണസംഖ്യ state)
 {
-	static std::map<std::string, Pass*>::iterator it;
-	static int len;
+	സ്ഥിതം std::map<std::string, Pass*>::iterator it;
+	സ്ഥിതം പൂർണ്ണസംഖ്യ len;
 
-	if (!state) {
+	എങ്കിൽ (!state) {
 		it = pass_register.begin();
 		len = strlen(text);
 	}
 
-	for (; it != pass_register.end(); it++) {
-		if (it->first.compare(0, len, text) == 0)
-			return strdup((it++)->first.c_str());
+	വേണ്ടി (; it != pass_register.end(); it++) {
+		എങ്കിൽ (it->first.compare(0, len, text) == 0)
+			തിരികെ strdup((it++)->first.c_str());
 	}
-	return NULL;
+	തിരികെ ശൂന്യ;
 }
 
-static char *readline_obj_generator(const char *text, int state)
+സ്ഥിതം അക്ഷരം *readline_obj_generator(സ്ഥിരം അക്ഷരം *text, പൂർണ്ണസംഖ്യ state)
 {
-	static std::vector<char*> obj_names;
-	static size_t idx;
+	സ്ഥിതം std::vector<അക്ഷരം*> obj_names;
+	സ്ഥിതം size_t idx;
 
-	if (!state)
+	എങ്കിൽ (!state)
 	{
 		idx = 0;
 		obj_names.clear();
 
 		RTLIL::Design *design = yosys_get_design();
-		int len = strlen(text);
+		പൂർണ്ണസംഖ്യ len = strlen(text);
 
-		if (design->selected_active_module.empty())
+		എങ്കിൽ (design->selected_active_module.empty())
 		{
-			for (auto mod : design->modules()) {
+			വേണ്ടി (auto mod : design->modules()) {
 				std::string mod_name = mod->name.unescape();
-				if (mod_name.compare(0, len, text) == 0)
-					obj_names.push_back(strdup(mod_name.c_str()));
+				എങ്കിൽ (mod_name.compare(0, len, text) == 0)
+					obj_names.തള്ളുക_back(strdup(mod_name.c_str()));
 			}
 		}
-		else if (design->module(design->selected_active_module) != nullptr)
+		അല്ലെങ്കിൽ എങ്കിൽ (design->module(design->selected_active_module) != nullptr)
 		{
 			RTLIL::Module *module = design->module(design->selected_active_module);
 
-			for (auto w : module->wires())
-				if (w->name.unescape().compare(0, len, text) == 0)
-					obj_names.push_back(strdup(w->name.unescape().c_str()));
+			വേണ്ടി (auto w : module->wires())
+				എങ്കിൽ (w->name.unescape().compare(0, len, text) == 0)
+					obj_names.തള്ളുക_back(strdup(w->name.unescape().c_str()));
 
-			for (auto &it : module->memories) {
+			വേണ്ടി (auto &it : module->memories) {
 				std::string mem_name = design->twines().unescaped_str(it.first);
-				if (mem_name.compare(0, len, text) == 0)
-					obj_names.push_back(strdup(mem_name.c_str()));
+				എങ്കിൽ (mem_name.compare(0, len, text) == 0)
+					obj_names.തള്ളുക_back(strdup(mem_name.c_str()));
 			}
 
-			for (auto cell : module->cells())
-				if (cell->name.unescape().compare(0, len, text) == 0)
-					obj_names.push_back(strdup(cell->name.unescape().c_str()));
+			വേണ്ടി (auto cell : module->cells())
+				എങ്കിൽ (cell->name.unescape().compare(0, len, text) == 0)
+					obj_names.തള്ളുക_back(strdup(cell->name.unescape().c_str()));
 
-			for (auto &it : module->processes) {
+			വേണ്ടി (auto &it : module->processes) {
 				std::string proc_name = design->twines().unescaped_str(it.first);
-				if (proc_name.compare(0, len, text) == 0)
-					obj_names.push_back(strdup(proc_name.c_str()));
+				എങ്കിൽ (proc_name.compare(0, len, text) == 0)
+					obj_names.തള്ളുക_back(strdup(proc_name.c_str()));
 			}
 		}
 
 		std::sort(obj_names.begin(), obj_names.end());
 	}
 
-	if (idx < obj_names.size())
-		return strdup(obj_names[idx++]);
+	എങ്കിൽ (idx < obj_names.size())
+		തിരികെ strdup(obj_names[idx++]);
 
 	idx = 0;
 	obj_names.clear();
-	return NULL;
+	തിരികെ ശൂന്യ;
 }
 
-static char **readline_completion(const char *text, int start, int)
+സ്ഥിതം അക്ഷരം **readline_completion(സ്ഥിരം അക്ഷരം *text, പൂർണ്ണസംഖ്യ start, പൂർണ്ണസംഖ്യ)
 {
-	if (start == 0)
-		return rl_completion_matches(text, readline_cmd_generator);
-	if (strncmp(rl_line_buffer, "read_", 5) && strncmp(rl_line_buffer, "write_", 6))
-		return rl_completion_matches(text, readline_obj_generator);
-	return NULL;
+	എങ്കിൽ (start == 0)
+		തിരികെ rl_completion_matches(text, readline_cmd_generator);
+	എങ്കിൽ (strncmp(rl_വരി_buffer, "read_", 5) && strncmp(rl_വരി_buffer, "write_", 6))
+		തിരികെ rl_completion_matches(text, readline_obj_generator);
+	തിരികെ ശൂന്യ;
 }
 #endif
 
-void shell(RTLIL::Design *design)
+ശൂന്യം shell(RTLIL::Design *design)
 {
-	static int recursion_counter = 0;
+	സ്ഥിതം പൂർണ്ണസംഖ്യ recursion_counter = 0;
 
 	recursion_counter++;
 	auto guard = logger().error_throw_scope();
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	rl_readline_name = (char*)"yosys";
+#എങ്കിൽ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	rl_readline_name = (അക്ഷരം*)"yosys";
 	rl_attempted_completion_function = readline_completion;
-	rl_basic_word_break_characters = (char*)" \t\n";
+	rl_basic_word_break_characters = (അക്ഷരം*)" \t\n";
 #endif
 
-	char *command = NULL;
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	while ((command = readline(create_prompt(design, recursion_counter))) != NULL)
+	അക്ഷരം *command = ശൂന്യ;
+#എങ്കിൽ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	ആകുമ്പോൾ ((command = readline(create_prompt(design, recursion_counter))) != ശൂന്യ)
 	{
-#else
-	char command_buffer[4096];
-	while (1)
+#അല്ലെങ്കിൽ
+	അക്ഷരം command_buffer[4096];
+	ആകുമ്പോൾ (1)
 	{
 		fputs(create_prompt(design, recursion_counter), stdout);
 		fflush(stdout);
-		if ((command = fgets(command_buffer, 4096, stdin)) == NULL)
-			break;
+		എങ്കിൽ ((command = fgets(command_buffer, 4096, stdin)) == ശൂന്യ)
+			നിർത്തുക;
 #endif
-		if (command[strspn(command, " \t\r\n")] == 0) {
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-			free(command);
+		എങ്കിൽ (command[strspn(command, " \t\r\n")] == 0) {
+#എങ്കിൽ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+			സ്വതന്ത്രം(command);
 #endif
-			continue;
+			തുടരുക;
 		}
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+#എങ്കിൽ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
 		add_history(command);
 #endif
 
-		char *p = command + strspn(command, " \t\r\n");
-		if (!strncmp(p, "exit", 4)) {
+		അക്ഷരം *p = command + strspn(command, " \t\r\n");
+		എങ്കിൽ (!strncmp(p, "exit", 4)) {
 			p += 4;
 			p += strspn(p, " \t\r\n");
-			if (*p == 0)
-				break;
+			എങ്കിൽ (*p == 0)
+				നിർത്തുക;
 		}
 
-		try {
-			log_assert(design->selection_stack.size() == 1);
+		ശ്രമിക്കുക {
+			log_assert(design->selection_അട്ടി.size() == 1);
 			Pass::call(design, command);
-		} catch (log_cmd_error_exception) {
-			while (design->selection_stack.size() > 1)
-				design->pop_selection();
-			log_reset_stack();
+		} പിടിക്കുക (log_cmd_error_exception) {
+			ആകുമ്പോൾ (design->selection_അട്ടി.size() > 1)
+				design->എടുക്കുക_selection();
+			log_reset_അട്ടി();
 		}
 		design->check();
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-		if (command)
-			free(command);
+#എങ്കിൽ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+		എങ്കിൽ (command)
+			സ്വതന്ത്രം(command);
 #endif
 	}
-	if (command == NULL)
+	എങ്കിൽ (command == ശൂന്യ)
 		printf("exit\n");
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	else
-		free(command);
+#എങ്കിൽ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	അല്ലെങ്കിൽ
+		സ്വതന്ത്രം(command);
 #endif
 	recursion_counter--;
 }
 
-struct ShellPass : public Pass {
+ഘടന ShellPass : പൊതു Pass {
 	ShellPass() : Pass("shell", "enter interactive command mode") { }
-	void help() override {
+	ശൂന്യം help() override {
 		log("\n");
 		log("    shell\n");
 		log("\n");
@@ -1098,16 +1098,16 @@ struct ShellPass : public Pass {
 		log("Press Ctrl-D or type 'exit' to leave the interactive shell.\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override {
-		extra_args(args, 1, design, false);
+	ശൂന്യം execute(std::vector<std::string> args, RTLIL::Design *design) override {
+		extra_args(args, 1, design, അസത്യം);
 		shell(design);
 	}
 } ShellPass;
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-struct HistoryPass : public Pass {
+#എങ്കിൽ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+ഘടന HistoryPass : പൊതു Pass {
 	HistoryPass() : Pass("history", "show last interactive commands") { }
-	void help() override {
+	ശൂന്യം help() override {
 		log("\n");
 		log("    history\n");
 		log("\n");
@@ -1116,22 +1116,22 @@ struct HistoryPass : public Pass {
 		log("from executed scripts.\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override {
-		extra_args(args, 1, design, false);
+	ശൂന്യം execute(std::vector<std::string> args, RTLIL::Design *design) override {
+		extra_args(args, 1, design, അസത്യം);
 #ifdef YOSYS_ENABLE_READLINE
-		for(HIST_ENTRY **list = history_list(); *list != NULL; list++)
-			log("%s\n", (*list)->line);
-#else
-		for (int i = where_history(); history_get(i); i++)
-			log("%s\n", history_get(i)->line);
+		വേണ്ടി(HIST_ENTRY **list = history_list(); *list != ശൂന്യ; list++)
+			log("%s\n", (*list)->വരി);
+#അല്ലെങ്കിൽ
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = where_history(); history_get(i); i++)
+			log("%s\n", history_get(i)->വരി);
 #endif
 	}
 } HistoryPass;
 #endif
 
-struct ScriptCmdPass : public Pass {
+ഘടന ScriptCmdPass : പൊതു Pass {
 	ScriptCmdPass() : Pass("script", "execute commands from file or wire") { }
-	void help() override {
+	ശൂന്യം help() override {
 		//   |---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|
 		log("\n");
 		log("    script <filename> [<from_label>:<to_label>]\n");
@@ -1154,42 +1154,42 @@ struct ScriptCmdPass : public Pass {
 		log("'-module' mode can be exited by using the 'cd' command.\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override
+	ശൂന്യം execute(std::vector<std::string> args, RTLIL::Design *design) override
 	{
-		bool scriptwire = false;
+		തർക്കം scriptwire = അസത്യം;
 
 		size_t argidx;
-		for (argidx = 1; argidx < args.size(); argidx++) {
-			if (args[argidx] == "-scriptwire") {
-				scriptwire = true;
-				continue;
+		വേണ്ടി (argidx = 1; argidx < args.size(); argidx++) {
+			എങ്കിൽ (args[argidx] == "-scriptwire") {
+				scriptwire = സത്യം;
+				തുടരുക;
 			}
-			break;
+			നിർത്തുക;
 		}
-		if (scriptwire) {
+		എങ്കിൽ (scriptwire) {
 			extra_args(args, argidx, design);
 
-			for (auto mod : design->selected_modules())
-				for (auto &c : mod->connections()) {
-					if (!c.first.is_wire())
-						continue;
+			വേണ്ടി (auto mod : design->selected_modules())
+				വേണ്ടി (auto &c : mod->connections()) {
+					എങ്കിൽ (!c.first.is_wire())
+						തുടരുക;
 					auto w = c.first.as_wire();
-					if (!mod->selected(w))
-						continue;
-					if (!c.second.is_fully_const())
+					എങ്കിൽ (!mod->selected(w))
+						തുടരുക;
+					എങ്കിൽ (!c.second.is_fully_const())
 						log_error("RHS of selected wire %s.%s is not constant.\n", mod, w);
 					auto v = c.second.as_const();
 					Pass::call_on_module(design, mod, v.decode_string());
 				}
 		}
-		else if (args.size() < 2)
+		അല്ലെങ്കിൽ എങ്കിൽ (args.size() < 2)
 			log_cmd_error("Missing script file.\n");
-		else if (args.size() == 2)
+		അല്ലെങ്കിൽ എങ്കിൽ (args.size() == 2)
 			run_frontend(args[1], "script", design);
-		else if (args.size() == 3)
+		അല്ലെങ്കിൽ എങ്കിൽ (args.size() == 3)
 			run_frontend(args[1], "script", design, &args[2]);
-		else
-			extra_args(args, 2, design, false);
+		അല്ലെങ്കിൽ
+			extra_args(args, 2, design, അസത്യം);
 	}
 } ScriptCmdPass;
 

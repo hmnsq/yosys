@@ -17,118 +17,118 @@
  *
  */
 
-#include "kernel/log_help.h"
+#അന്തര്ഭാവ "kernel/log_help.h"
 
 USING_YOSYS_NAMESPACE
 
-std::filesystem::path Yosys::fixup_source_path (const char* source_file,
-	const std::filesystem::path &source_root, bool* skip_source_group)
+std::filesystem::path Yosys::fixup_source_path (സ്ഥിരം അക്ഷരം* source_file,
+	സ്ഥിരം std::filesystem::path &source_വേര്, തർക്കം* skip_source_group)
 {
 	std::filesystem::path source_path(source_file);
-	if (source_path.is_absolute()) {
+	എങ്കിൽ (source_path.is_absolute()) {
 		// using proximate instead of relative means that we
 		// still get the source path if they aren't relative
-		auto proximate_path = std::filesystem::proximate(source_path, source_root);
-		if (proximate_path == proximate_path.lexically_normal()) {
+		auto proximate_path = std::filesystem::proximate(source_path, source_വേര്);
+		എങ്കിൽ (proximate_path == proximate_path.lexically_normal()) {
 			// we're only interested if it's a subpath of our root dir
 			// if the normal form differs, then the proximate path includes ".."
-			return proximate_path;
-		} else if (skip_source_group != nullptr) {
+			തിരികെ proximate_path;
+		} അല്ലെങ്കിൽ എങ്കിൽ (skip_source_group != nullptr) {
 			// don't try to group external paths
-			*skip_source_group = true;
+			*skip_source_group = സത്യം;
 		}
 	}
-	return source_path;
+	തിരികെ source_path;
 }
 
-Json ContentListing::to_json(const std::filesystem::path &source_root) const {
+Json ContentListing::to_json(സ്ഥിരം std::filesystem::path &source_വേര്) സ്ഥിരം {
 	Json::object object;
 
 	object["type"] = type;
-	if (body.length())
+	എങ്കിൽ (body.length())
 		object["body"] = body;
 
-	if (has_source())
-		object["source_file"] = fixup_source_path(source_file, source_root).string();
-	if (source_line != 0)
-		object["source_line"] = source_line;
+	എങ്കിൽ (has_source())
+		object["source_file"] = fixup_source_path(source_file, source_വേര്).string();
+	എങ്കിൽ (source_വരി != 0)
+		object["source_line"] = source_വരി;
 
 	object["options"] = Json(options);
 
 	Json::array content_array;
-	for (auto child : _content)
-		content_array.push_back(child.to_json(source_root));
+	വേണ്ടി (auto child : _content)
+		content_array.തള്ളുക_back(child.to_json(source_വേര്));
 	object["content"] = content_array;
 
-	return object;
+	തിരികെ object;
 }
 
-void ContentListing::usage(const string &text,
-	const source_location location)
+ശൂന്യം ContentListing::usage(സ്ഥിരം string &text,
+	സ്ഥിരം source_location location)
 {
 	log_assert(type.compare("root") == 0);
 	add_content("usage", text, location);
 }
 
-void ContentListing::option(const string &text, const string &description,
-	const source_location location)
+ശൂന്യം ContentListing::option(സ്ഥിരം string &text, സ്ഥിരം string &description,
+	സ്ഥിരം source_location location)
 {
 	auto option = open_option(text, source_location());
-	if (description.length())
+	എങ്കിൽ (description.length())
 		option->add_content("text", description, location);
 }
 
-void ContentListing::codeblock(const string &code, const string &language,
-	const source_location location)
+ശൂന്യം ContentListing::codeblock(സ്ഥിരം string &code, സ്ഥിരം string &language,
+	സ്ഥിരം source_location location)
 {
 	add_content("code", code, location);
 	back()->set_option("language", language);
 }
 
-void ContentListing::paragraph(const string &text,
-	const source_location location)
+ശൂന്യം ContentListing::paragraph(സ്ഥിരം string &text,
+	സ്ഥിരം source_location location)
 {
 	add_content("text", text, location);
 }
 
-ContentListing* ContentListing::open_usage(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_usage(സ്ഥിരം string &text,
+	സ്ഥിരം source_location location)
 {
 	usage(text, location);
-	return back();
+	തിരികെ back();
 }
 
-ContentListing* ContentListing::open_option(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_option(സ്ഥിരം string &text,
+	സ്ഥിരം source_location location)
 {
 	log_assert(type.compare("root") == 0 || type.compare("usage") == 0);
 	add_content("option", text, location);
-	return back();
+	തിരികെ back();
 }
 
-#define MAX_LINE_LEN 80
-void log_body_str(const std::string &pass_str, std::string indent_str, bool leading_newline=false, bool is_formatted=false) {
-	if (pass_str.empty())
-		return;
+#define MAX_വരി_LEN 80
+ശൂന്യം log_body_str(സ്ഥിരം std::string &pass_str, std::string indent_str, തർക്കം leading_newline=അസത്യം, തർക്കം is_formatted=അസത്യം) {
+	എങ്കിൽ (pass_str.empty())
+		തിരികെ;
 	std::istringstream iss(pass_str);
-	if (leading_newline)
+	എങ്കിൽ (leading_newline)
 		log("\n");
-	for (std::string line; std::getline(iss, line);) {
+	വേണ്ടി (std::string വരി; std::getline(iss, വരി);) {
 		std::string message = indent_str;
-		if (is_formatted) {
-			message += line;
-		} else {
+		എങ്കിൽ (is_formatted) {
+			message += വരി;
+		} അല്ലെങ്കിൽ {
 			auto curr_len = indent_str.length();
-			std::istringstream lss(line);
-			for (std::string word; std::getline(lss, word, ' ');) {
-				while (word[0] == '`' && word.back() == '`')
+			std::istringstream lss(വരി);
+			വേണ്ടി (std::string word; std::getline(lss, word, ' ');) {
+				ആകുമ്പോൾ (word[0] == '`' && word.back() == '`')
 					word = word.substr(1, word.length()-2);
-				if (curr_len + word.length() >= MAX_LINE_LEN-1) {
+				എങ്കിൽ (curr_len + word.length() >= MAX_വരി_LEN-1) {
 					curr_len = 0;
 					log("%s\n", message);
 					message = indent_str;
 				}
-				if (word.length()) {
+				എങ്കിൽ (word.length()) {
 					message += word + " ";
 					curr_len += word.length() + 1;
 				}
@@ -137,7 +137,7 @@ void log_body_str(const std::string &pass_str, std::string indent_str, bool lead
 		log("%s\n", message);
 	}
 }
-void log_body(const ContentListing &content, int indent=0, bool leading_newline=false) {
+ശൂന്യം log_body(സ്ഥിരം ContentListing &content, പൂർണ്ണസംഖ്യ indent=0, തർക്കം leading_newline=അസത്യം) {
 	std::string indent_str(indent*4, ' ');
 	log_body_str(content.body, indent_str, leading_newline, content.type.compare("code") == 0);
 }
@@ -147,9 +147,9 @@ PrettyHelp *current_help = nullptr;
 PrettyHelp::PrettyHelp()
 {
 	_prior = current_help;
-	_root_listing = ContentListing("root", "");
+	വേര്_listing = ContentListing("root", "");
 
-	current_help = this;
+	current_help = ഇത്;
 }
 
 PrettyHelp::~PrettyHelp()
@@ -159,24 +159,24 @@ PrettyHelp::~PrettyHelp()
 
 PrettyHelp *PrettyHelp::get_current()
 {
-	if (current_help == nullptr)
-		new PrettyHelp();
-	return current_help;
+	എങ്കിൽ (current_help == nullptr)
+		പുതിയ PrettyHelp();
+	തിരികെ current_help;
 }
 
-void PrettyHelp::log_help() const
+ശൂന്യം PrettyHelp::log_help() സ്ഥിരം
 {
-	for (auto &content : _root_listing) {
-		if (content.type.compare("usage") == 0) {
-			log_body(content, 1, true);
+	വേണ്ടി (auto &content : വേര്_listing) {
+		എങ്കിൽ (content.type.compare("usage") == 0) {
+			log_body(content, 1, സത്യം);
 			log("\n");
-		} else if (content.type.compare("option") == 0) {
+		} അല്ലെങ്കിൽ എങ്കിൽ (content.type.compare("option") == 0) {
 			log_body(content, 1);
-			for (auto text : content) {
+			വേണ്ടി (auto text : content) {
 				log_body(text, 2);
 				log("\n");
 			}
-		} else {
+		} അല്ലെങ്കിൽ {
 			log_body(content, 0);
 			log("\n");
 		}

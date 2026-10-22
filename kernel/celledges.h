@@ -20,41 +20,41 @@
 #ifndef CELLEDGES_H
 #define CELLEDGES_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
+#അന്തര്ഭാവ "kernel/yosys.h"
+#അന്തര്ഭാവ "kernel/sigtools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AbstractCellEdgesDatabase
+ഘടന AbstractCellEdgesDatabase
 {
-	virtual ~AbstractCellEdgesDatabase() { }
-	virtual void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int delay) = 0;
+	മായാ ~AbstractCellEdgesDatabase() { }
+	മായാ ശൂന്യം add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, പൂർണ്ണസംഖ്യ from_bit, RTLIL::IdString to_port, പൂർണ്ണസംഖ്യ to_bit, പൂർണ്ണസംഖ്യ delay) = 0;
 	bool add_edges_from_cell(RTLIL::Cell *cell);
 };
 
-struct FwdCellEdgesDatabase : AbstractCellEdgesDatabase
+ഘടന FwdCellEdgesDatabase : AbstractCellEdgesDatabase
 {
 	SigMap &sigmap;
 	dict<SigBit, pool<SigBit>> db;
 	FwdCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
+	ശൂന്യം add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, പൂർണ്ണസംഖ്യ from_bit, RTLIL::IdString to_port, പൂർണ്ണസംഖ്യ to_bit, പൂർണ്ണസംഖ്യ) override {
 		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
 		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[from_sigbit].insert(to_sigbit);
+		db[from_sigbit].തിരുകുക(to_sigbit);
 	}
 };
 
-struct RevCellEdgesDatabase : AbstractCellEdgesDatabase
+ഘടന RevCellEdgesDatabase : AbstractCellEdgesDatabase
 {
 	SigMap &sigmap;
 	dict<SigBit, pool<SigBit>> db;
 	RevCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
+	ശൂന്യം add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, പൂർണ്ണസംഖ്യ from_bit, RTLIL::IdString to_port, പൂർണ്ണസംഖ്യ to_bit, പൂർണ്ണസംഖ്യ) override {
 		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
 		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[to_sigbit].insert(from_sigbit);
+		db[to_sigbit].തിരുകുക(from_sigbit);
 	}
 };
 

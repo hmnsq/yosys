@@ -1,59 +1,59 @@
-#include <string>
-#include <stdarg.h>
-#include <type_traits>
-#include "kernel/yosys_common.h"
+#അന്തര്ഭാവ <string>
+#അന്തര്ഭാവ <stdarg.h>
+#അന്തര്ഭാവ <type_traits>
+#അന്തര്ഭാവ "kernel/yosys_common.h"
 
 #ifndef YOSYS_IO_H
 #define YOSYS_IO_H
 
 YOSYS_NAMESPACE_BEGIN
 
-struct IdString;
+ഘടന IdString;
 
-inline std::string vstringf(const char *fmt, va_list ap)
+വരിയിൽ std::string vstringf(സ്ഥിരം അക്ഷരം *fmt, va_list ap)
 {
 	// For the common case of strings shorter than 128, save a heap
 	// allocation by using a stack allocated buffer.
-	const int kBufSize = 128;
-	char buf[kBufSize];
+	സ്ഥിരം പൂർണ്ണസംഖ്യ kBufSize = 128;
+	അക്ഷരം buf[kBufSize];
 	buf[0] = '\0';
 	va_list apc;
 	va_copy(apc, ap);
-	int n = vsnprintf(buf, kBufSize, fmt, apc);
+	പൂർണ്ണസംഖ്യ n = vsnprintf(buf, kBufSize, fmt, apc);
 	va_end(apc);
-	if (n < kBufSize)
-		return std::string(buf);
+	എങ്കിൽ (n < kBufSize)
+		തിരികെ std::string(buf);
 
 	std::string string;
-	char *str = NULL;
-#if defined(_WIN32) || defined(__CYGWIN__)
-	int sz = 2 * kBufSize, rc;
-	while (1) {
+	അക്ഷരം *str = ശൂന്യ;
+#എങ്കിൽ defined(_WIN32) || defined(__CYGWIN__)
+	പൂർണ്ണസംഖ്യ sz = 2 * kBufSize, rc;
+	ആകുമ്പോൾ (1) {
 		va_copy(apc, ap);
-		str = (char *)realloc(str, sz);
+		str = (അക്ഷരം *)realloc(str, sz);
 		rc = vsnprintf(str, sz, fmt, apc);
 		va_end(apc);
-		if (rc >= 0 && rc < sz)
-			break;
+		എങ്കിൽ (rc >= 0 && rc < sz)
+			നിർത്തുക;
 		sz *= 2;
 	}
-	if (str != NULL) {
+	എങ്കിൽ (str != ശൂന്യ) {
 		string = str;
-		free(str);
+		സ്വതന്ത്രം(str);
 	}
-	return string;
-#else
-	if (vasprintf(&str, fmt, ap) < 0)
-		str = NULL;
-	if (str != NULL) {
+	തിരികെ string;
+#അല്ലെങ്കിൽ
+	എങ്കിൽ (vasprintf(&str, fmt, ap) < 0)
+		str = ശൂന്യ;
+	എങ്കിൽ (str != ശൂന്യ) {
 		string = str;
-		free(str);
+		സ്വതന്ത്രം(str);
 	}
-	return string;
+	തിരികെ string;
 #endif
 }
 
-enum ConversionSpecifier : uint8_t
+എണ്ണൽ ConversionSpecifier : uint8_t
 {
 	CONVSPEC_NONE,
 	// Specifier not understood/supported
@@ -70,79 +70,79 @@ enum ConversionSpecifier : uint8_t
 	CONVSPEC_VOID_PTR,
 };
 
-constexpr ConversionSpecifier parse_conversion_specifier(char ch, char prev_ch)
+constexpr ConversionSpecifier parse_conversion_specifier(അക്ഷരം ch, അക്ഷരം prev_ch)
 {
-	switch (ch) {
-	case 'd':
-	case 'i':
-		return CONVSPEC_SIGNED_INT;
-	case 'o':
-	case 'u':
-	case 'x':
-	case 'X':
-	case 'm':
-		return CONVSPEC_UNSIGNED_INT;
-	case 'c':
-		if (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
+	തിരഞ്ഞെടുപ്പ് (ch) {
+	അവസ്ഥ 'd':
+	അവസ്ഥ 'i':
+		തിരികെ CONVSPEC_SIGNED_INT;
+	അവസ്ഥ 'o':
+	അവസ്ഥ 'u':
+	അവസ്ഥ 'x':
+	അവസ്ഥ 'X':
+	അവസ്ഥ 'm':
+		തിരികെ CONVSPEC_UNSIGNED_INT;
+	അവസ്ഥ 'c':
+		എങ്കിൽ (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
 			// wchar not supported
-			return CONVSPEC_ERROR;
+			തിരികെ CONVSPEC_ERROR;
 		}
-		return CONVSPEC_UNSIGNED_INT;
-	case 'e':
-	case 'E':
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-	case 'a':
-	case 'A':
-		return CONVSPEC_DOUBLE;
-	case 's':
-		if (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
+		തിരികെ CONVSPEC_UNSIGNED_INT;
+	അവസ്ഥ 'e':
+	അവസ്ഥ 'E':
+	അവസ്ഥ 'f':
+	അവസ്ഥ 'F':
+	അവസ്ഥ 'g':
+	അവസ്ഥ 'G':
+	അവസ്ഥ 'a':
+	അവസ്ഥ 'A':
+		തിരികെ CONVSPEC_DOUBLE;
+	അവസ്ഥ 's':
+		എങ്കിൽ (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
 			// wchar not supported
-			return CONVSPEC_ERROR;
+			തിരികെ CONVSPEC_ERROR;
 		}
-		return CONVSPEC_CHAR_PTR;
-	case 'p':
-		return CONVSPEC_VOID_PTR;
-	case '$': // positional parameters
-	case 'n':
-	case 'S':
-		return CONVSPEC_ERROR;
-	default:
-		return CONVSPEC_NONE;
+		തിരികെ CONVSPEC_CHAR_PTR;
+	അവസ്ഥ 'p':
+		തിരികെ CONVSPEC_VOID_PTR;
+	അവസ്ഥ '$': // positional parameters
+	അവസ്ഥ 'n':
+	അവസ്ഥ 'S':
+		തിരികെ CONVSPEC_ERROR;
+	സ്ഥിരസ്ഥിതി:
+		തിരികെ CONVSPEC_NONE;
 	}
 }
 
-enum class DynamicIntCount : uint8_t {
+എണ്ണൽ class Dynamic_Int_എണ്ണം : uint8_t {
 	NONE = 0,
 	ONE = 1,
 	TWO = 2,
 };
 
 // Describes a printf-style format conversion specifier found in a format string.
-struct FoundFormatSpec
+ഘടന FoundFormatSpec
 {
 	// The start offset of the conversion spec in the format string.
-	int start;
+	പൂർണ്ണസംഖ്യ start;
 	// The end offset of the conversion spec in the format string.
-	int end;
+	പൂർണ്ണസംഖ്യ end;
 	ConversionSpecifier spec;
 	// Number of int args consumed by '*' dynamic width/precision args.
-	DynamicIntCount num_dynamic_ints;
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints;
 };
 
 // Ensure there is no format spec.
-constexpr void ensure_no_format_spec(std::string_view fmt, int index, bool *has_escapes)
+constexpr ശൂന്യം ensure_no_format_spec(std::string_view fmt, പൂർണ്ണസംഖ്യ index, bool *has_escapes)
 {
-	int fmt_size = static_cast<int>(fmt.size());
+	പൂർണ്ണസംഖ്യ fmt_size = static_cast<പൂർണ്ണസംഖ്യ>(fmt.size());
 	// A trailing '%' is not a format spec.
-	while (index + 1 < fmt_size) {
-		if (fmt[index] != '%') {
+	ആകുമ്പോൾ (index + 1 < fmt_size) {
+		എങ്കിൽ (fmt[index] != '%') {
 			++index;
-			continue;
+			തുടരുക;
 		}
-		if (fmt[index + 1] != '%') {
+		എങ്കിൽ (fmt[index + 1] != '%') {
 			YOSYS_ABORT("More format conversion specifiers than arguments");
 		}
 		*has_escapes = true;
@@ -152,245 +152,245 @@ constexpr void ensure_no_format_spec(std::string_view fmt, int index, bool *has_
 
 // Returns the next format conversion specifier (starting with '%').
 // Returns CONVSPEC_NONE if there isn't a format conversion specifier.
-constexpr FoundFormatSpec find_next_format_spec(std::string_view fmt, int fmt_start, bool *has_escapes)
+constexpr FoundFormatSpec find_next_format_spec(std::string_view fmt, പൂർണ്ണസംഖ്യ fmt_start, bool *has_escapes)
 {
-	int index = fmt_start;
-	int fmt_size = static_cast<int>(fmt.size());
-	while (index < fmt_size) {
-		if (fmt[index] != '%') {
+	പൂർണ്ണസംഖ്യ index = fmt_start;
+	പൂർണ്ണസംഖ്യ fmt_size = static_cast<പൂർണ്ണസംഖ്യ>(fmt.size());
+	ആകുമ്പോൾ (index < fmt_size) {
+		എങ്കിൽ (fmt[index] != '%') {
 			++index;
-			continue;
+			തുടരുക;
 		}
-		int p = index + 1;
-		uint8_t num_dynamic_ints = 0;
-		while (true) {
-			if (p == fmt_size) {
-				return {0, 0, CONVSPEC_NONE, DynamicIntCount::NONE};
+		പൂർണ്ണസംഖ്യ p = index + 1;
+		uint8_t അക്കം_dynamic_ints = 0;
+		ആകുമ്പോൾ (true) {
+			എങ്കിൽ (p == fmt_size) {
+				തിരികെ {0, 0, CONVSPEC_NONE, Dynamic_Int_എണ്ണം::NONE};
 			}
-			if (fmt[p] == '%') {
+			എങ്കിൽ (fmt[p] == '%') {
 				*has_escapes = true;
 				index = p + 1;
-				break;
+				നിർത്തുക;
 			}
-			if (fmt[p] == '*') {
-				if (num_dynamic_ints >= 2) {
-					return {0, 0, CONVSPEC_ERROR, DynamicIntCount::NONE};
+			എങ്കിൽ (fmt[p] == '*') {
+				എങ്കിൽ (അക്കം_dynamic_ints >= 2) {
+					തിരികെ {0, 0, CONVSPEC_ERROR, Dynamic_Int_എണ്ണം::NONE};
 				}
-				++num_dynamic_ints;
+				++അക്കം_dynamic_ints;
 			}
 			ConversionSpecifier spec = parse_conversion_specifier(fmt[p], fmt[p - 1]);
-			if (spec != CONVSPEC_NONE) {
-				return {index, p + 1, spec, static_cast<DynamicIntCount>(num_dynamic_ints)};
+			എങ്കിൽ (spec != CONVSPEC_NONE) {
+				തിരികെ {index, p + 1, spec, static_cast<Dynamic_Int_എണ്ണം>(അക്കം_dynamic_ints)};
 			}
 			++p;
 		}
 	}
-	return {0, 0, CONVSPEC_NONE, DynamicIntCount::NONE};
+	തിരികെ {0, 0, CONVSPEC_NONE, Dynamic_Int_എണ്ണം::NONE};
 }
 
 template <typename... Args>
-constexpr typename std::enable_if<sizeof...(Args) == 0>::type
-check_format(std::string_view fmt, int fmt_start, bool *has_escapes, FoundFormatSpec*, DynamicIntCount)
+constexpr typename std::enable_if<വലുപ്പം...(Args) == 0>::type
+check_format(std::string_view fmt, പൂർണ്ണസംഖ്യ fmt_start, bool *has_escapes, FoundFormatSpec*, Dynamic_Int_എണ്ണം)
 {
 	ensure_no_format_spec(fmt, fmt_start, has_escapes);
 }
 
 template <class T>
-static auto has_name_member_imp(int)
-	-> decltype(static_cast<const IdString>(std::declval<T>().name), std::true_type{});
+സ്ഥിതം auto has_name_member_imp(പൂർണ്ണസംഖ്യ)
+	-> decltype(static_cast<സ്ഥിരം IdString>(std::declval<T>().name), std::true_type{});
 
 template <class T>
-static auto has_name_member_imp(long)
+സ്ഥിതം auto has_name_member_imp(long)
 	-> std::false_type;
 
 template <class T>
-struct has_name_member : decltype(has_name_member_imp<T>(0)){};
+ഘടന has_name_member : decltype(has_name_member_imp<T>(0)){};
 
 template <class T>
-static auto ptr_has_name_member_imp(int)
-	-> decltype(static_cast<const IdString>(std::declval<T>()->name), std::true_type{});
+സ്ഥിതം auto ptr_has_name_member_imp(പൂർണ്ണസംഖ്യ)
+	-> decltype(static_cast<സ്ഥിരം IdString>(std::declval<T>()->name), std::true_type{});
 
 template <class T>
-static auto ptr_has_name_member_imp(long)
+സ്ഥിതം auto ptr_has_name_member_imp(long)
 	-> std::false_type;
 
 template <class T>
-struct ptr_has_name_member : decltype(ptr_has_name_member_imp<T>(0)){};
+ഘടന ptr_has_name_member : decltype(ptr_has_name_member_imp<T>(0)){};
 
 // Check that the format string `fmt.substr(fmt_start)` is valid for the given type arguments.
 // Fills `specs` with the FoundFormatSpecs found in the format string.
 // `int_args_consumed` is the number of int arguments already consumed to satisfy the
 // dynamic width/precision args for the next format conversion specifier.
 template <typename Arg, typename... Args>
-constexpr void check_format(std::string_view fmt, int fmt_start, bool *has_escapes, FoundFormatSpec* specs,
-        DynamicIntCount int_args_consumed)
+constexpr ശൂന്യം check_format(std::string_view fmt, പൂർണ്ണസംഖ്യ fmt_start, bool *has_escapes, FoundFormatSpec* specs,
+        Dynamic_Int_എണ്ണം int_args_consumed)
 {
 	FoundFormatSpec found = find_next_format_spec(fmt, fmt_start, has_escapes);
-	if (found.num_dynamic_ints > int_args_consumed) {
+	എങ്കിൽ (found.അക്കം_dynamic_ints > int_args_consumed) {
 		// We need to consume at least one more int for the dynamic
 		// width/precision of this format conversion specifier.
-		if constexpr (!std::is_convertible_v<Arg, int>) {
+		എങ്കിൽ constexpr (!std::is_convertible_v<Arg, പൂർണ്ണസംഖ്യ>) {
 			YOSYS_ABORT("Expected dynamic int argument");
 		}
 		check_format<Args...>(fmt, fmt_start, has_escapes, specs,
-			static_cast<DynamicIntCount>(static_cast<uint8_t>(int_args_consumed) + 1));
-		return;
+			static_cast<Dynamic_Int_എണ്ണം>(static_cast<uint8_t>(int_args_consumed) + 1));
+		തിരികെ;
 	}
-	switch (found.spec) {
-	case CONVSPEC_NONE:
+	തിരഞ്ഞെടുപ്പ് (found.spec) {
+	അവസ്ഥ CONVSPEC_NONE:
 		YOSYS_ABORT("Expected format conversion specifier for argument");
-		break;
-	case CONVSPEC_ERROR:
+		നിർത്തുക;
+	അവസ്ഥ CONVSPEC_ERROR:
 		YOSYS_ABORT("Found unsupported format conversion specifier");
-		break;
-	case CONVSPEC_SIGNED_INT:
-		if constexpr (!std::is_convertible_v<Arg, long long>) {
+		നിർത്തുക;
+	അവസ്ഥ CONVSPEC_SIGNED_INT:
+		എങ്കിൽ constexpr (!std::is_convertible_v<Arg, long long>) {
 			YOSYS_ABORT("Expected type convertible to signed integer");
 		}
 		*specs = found;
-		break;
-	case CONVSPEC_UNSIGNED_INT:
-		if constexpr (!std::is_convertible_v<Arg, unsigned long long>) {
+		നിർത്തുക;
+	അവസ്ഥ CONVSPEC_UNSIGNED_INT:
+		എങ്കിൽ constexpr (!std::is_convertible_v<Arg, unsigned long long>) {
 			YOSYS_ABORT("Expected type convertible to unsigned integer");
 		}
 		*specs = found;
-		break;
-	case CONVSPEC_DOUBLE:
-		if constexpr (!std::is_convertible_v<Arg, double>) {
+		നിർത്തുക;
+	അവസ്ഥ CONVSPEC_DOUBLE:
+		എങ്കിൽ constexpr (!std::is_convertible_v<Arg, ഇരട്ട>) {
 			YOSYS_ABORT("Expected type convertible to double");
 		}
 		*specs = found;
-		break;
-	case CONVSPEC_CHAR_PTR:
-		if constexpr (!std::is_convertible_v<Arg, const char *> &&
-		        !std::is_convertible_v<Arg, const std::string &> &&
-			!std::is_convertible_v<Arg, const std::string_view &> &&
+		നിർത്തുക;
+	അവസ്ഥ CONVSPEC_CHAR_PTR:
+		എങ്കിൽ constexpr (!std::is_convertible_v<Arg, സ്ഥിരം അക്ഷരം *> &&
+		        !std::is_convertible_v<Arg, സ്ഥിരം std::string &> &&
+			!std::is_convertible_v<Arg, സ്ഥിരം std::string_view &> &&
 			!has_name_member<Arg>() &&
 			!ptr_has_name_member<Arg>()) {
 			YOSYS_ABORT("Expected type convertible to char *");
 		}
 		*specs = found;
-		break;
-	case CONVSPEC_VOID_PTR:
-		if constexpr (!std::is_convertible_v<Arg, const void *>) {
+		നിർത്തുക;
+	അവസ്ഥ CONVSPEC_VOID_PTR:
+		എങ്കിൽ constexpr (!std::is_convertible_v<Arg, സ്ഥിരം ശൂന്യം *>) {
 			YOSYS_ABORT("Expected pointer type");
 		}
 		*specs = found;
-		break;
+		നിർത്തുക;
 	}
-	check_format<Args...>(fmt, found.end, has_escapes, specs + 1, DynamicIntCount::NONE);
+	check_format<Args...>(fmt, found.end, has_escapes, specs + 1, Dynamic_Int_എണ്ണം::NONE);
 }
 
 // Emit the string representation of `arg` that has been converted to a `long long'.
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, long long arg);
+ശൂന്യം format_emit_long_long(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, long long arg);
 
 // Emit the string representation of `arg` that has been converted to a `unsigned long long'.
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, unsigned long long arg);
+ശൂന്യം format_emit_unsigned_long_long(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, unsigned long long arg);
 
 // Emit the string representation of `arg` that has been converted to a `double'.
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, double arg);
+ശൂന്യം format_emit_double(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, ഇരട്ട arg);
 
 // Emit the string representation of `arg` that has been converted to a `const char*'.
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const char *arg);
+ശൂന്യം format_emit_char_ptr(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, സ്ഥിരം അക്ഷരം *arg);
 
 // Emit the string representation of `arg` that has been converted to a `std::string'.
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const std::string &arg);
+ശൂന്യം format_emit_string(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, സ്ഥിരം std::string &arg);
 
 // Emit the string representation of `arg` that has been converted to a `std::string_view'.
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, std::string_view arg);
+ശൂന്യം format_emit_string_view(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, std::string_view arg);
 
 // Emit the string representation of `arg` that has been converted to a `double'.
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const void *arg);
+ശൂന്യം format_emit_void_ptr(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, സ്ഥിരം ശൂന്യം *arg);
 
 // Emit the string representation of `arg` according to the given `FoundFormatSpec`,
 // appending it to `result`.
 template <typename Arg>
-inline void format_emit_one(std::string &result, std::string_view fmt, const FoundFormatSpec &ffspec,
-	int *dynamic_ints, const Arg& arg)
+വരിയിൽ ശൂന്യം format_emit_one(std::string &result, std::string_view fmt, സ്ഥിരം FoundFormatSpec &ffspec,
+	പൂർണ്ണസംഖ്യ *dynamic_ints, സ്ഥിരം Arg& arg)
 {
 	std::string_view spec = fmt.substr(ffspec.start, ffspec.end - ffspec.start);
-	DynamicIntCount num_dynamic_ints = ffspec.num_dynamic_ints;
-	switch (ffspec.spec) {
-	case CONVSPEC_SIGNED_INT:
-		if constexpr (std::is_convertible_v<Arg, long long>) {
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints = ffspec.അക്കം_dynamic_ints;
+	തിരഞ്ഞെടുപ്പ് (ffspec.spec) {
+	അവസ്ഥ CONVSPEC_SIGNED_INT:
+		എങ്കിൽ constexpr (std::is_convertible_v<Arg, long long>) {
 			long long s = arg;
-			format_emit_long_long(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+			format_emit_long_long(result, spec, dynamic_ints, അക്കം_dynamic_ints, s);
+			തിരികെ;
 		}
-		break;
-	case CONVSPEC_UNSIGNED_INT:
-		if constexpr (std::is_convertible_v<Arg, unsigned long long>) {
+		നിർത്തുക;
+	അവസ്ഥ CONVSPEC_UNSIGNED_INT:
+		എങ്കിൽ constexpr (std::is_convertible_v<Arg, unsigned long long>) {
 			unsigned long long s = arg;
-			format_emit_unsigned_long_long(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+			format_emit_unsigned_long_long(result, spec, dynamic_ints, അക്കം_dynamic_ints, s);
+			തിരികെ;
 		}
-		break;
-	case CONVSPEC_DOUBLE:
-		if constexpr (std::is_convertible_v<Arg, double>) {
-			double s = arg;
-			format_emit_double(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		നിർത്തുക;
+	അവസ്ഥ CONVSPEC_DOUBLE:
+		എങ്കിൽ constexpr (std::is_convertible_v<Arg, ഇരട്ട>) {
+			ഇരട്ട s = arg;
+			format_emit_double(result, spec, dynamic_ints, അക്കം_dynamic_ints, s);
+			തിരികെ;
 		}
-		break;
-	case CONVSPEC_CHAR_PTR:
-		if constexpr (std::is_convertible_v<Arg, const char *>) {
-			const char *s = arg;
-			format_emit_char_ptr(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		നിർത്തുക;
+	അവസ്ഥ CONVSPEC_CHAR_PTR:
+		എങ്കിൽ constexpr (std::is_convertible_v<Arg, സ്ഥിരം അക്ഷരം *>) {
+			സ്ഥിരം അക്ഷരം *s = arg;
+			format_emit_char_ptr(result, spec, dynamic_ints, അക്കം_dynamic_ints, s);
+			തിരികെ;
 		}
-		if constexpr (std::is_convertible_v<Arg, const std::string &>) {
-			const std::string &s = arg;
-			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		എങ്കിൽ constexpr (std::is_convertible_v<Arg, സ്ഥിരം std::string &>) {
+			സ്ഥിരം std::string &s = arg;
+			format_emit_string(result, spec, dynamic_ints, അക്കം_dynamic_ints, s);
+			തിരികെ;
 		}
-		if constexpr (std::is_convertible_v<Arg, const std::string_view &>) {
-			const std::string_view &s = arg;
-			format_emit_string_view(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		എങ്കിൽ constexpr (std::is_convertible_v<Arg, സ്ഥിരം std::string_view &>) {
+			സ്ഥിരം std::string_view &s = arg;
+			format_emit_string_view(result, spec, dynamic_ints, അക്കം_dynamic_ints, s);
+			തിരികെ;
 		}
-		if constexpr (has_name_member<Arg>()) {
-			const std::string &s = arg.name.unescape();
-			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		എങ്കിൽ constexpr (has_name_member<Arg>()) {
+			സ്ഥിരം std::string &s = arg.name.unescape();
+			format_emit_string(result, spec, dynamic_ints, അക്കം_dynamic_ints, s);
+			തിരികെ;
 		}
-		if constexpr (ptr_has_name_member<Arg>()) {
-			const std::string &s = arg->name.unescape();
-			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		എങ്കിൽ constexpr (ptr_has_name_member<Arg>()) {
+			സ്ഥിരം std::string &s = arg->name.unescape();
+			format_emit_string(result, spec, dynamic_ints, അക്കം_dynamic_ints, s);
+			തിരികെ;
 		}
-		break;
-	case CONVSPEC_VOID_PTR:
-		if constexpr (std::is_convertible_v<Arg, const void *>) {
-			const void *s = arg;
-			format_emit_void_ptr(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		നിർത്തുക;
+	അവസ്ഥ CONVSPEC_VOID_PTR:
+		എങ്കിൽ constexpr (std::is_convertible_v<Arg, സ്ഥിരം ശൂന്യം *>) {
+			സ്ഥിരം ശൂന്യം *s = arg;
+			format_emit_void_ptr(result, spec, dynamic_ints, അക്കം_dynamic_ints, s);
+			തിരികെ;
 		}
-		break;
-	default:
-		break;
+		നിർത്തുക;
+	സ്ഥിരസ്ഥിതി:
+		നിർത്തുക;
 	}
 	YOSYS_ABORT("Internal error");
 }
 
 // Append the format string `fmt` to `result`, assuming there are no format conversion
 // specifiers other than "%%" and therefore no arguments. Unescape "%%".
-void format_emit_unescaped(std::string &result, std::string_view fmt);
+ശൂന്യം format_emit_unescaped(std::string &result, std::string_view fmt);
 std::string unescape_format_string(std::string_view fmt);
 
-inline void format_emit(std::string &result, std::string_view fmt, int fmt_start,
-	bool has_escapes, const FoundFormatSpec*, int*, DynamicIntCount)
+വരിയിൽ ശൂന്യം format_emit(std::string &result, std::string_view fmt, പൂർണ്ണസംഖ്യ fmt_start,
+	bool has_escapes, സ്ഥിരം FoundFormatSpec*, പൂർണ്ണസംഖ്യ*, Dynamic_Int_എണ്ണം)
 {
 	fmt = fmt.substr(fmt_start);
-	if (has_escapes) {
+	എങ്കിൽ (has_escapes) {
 		format_emit_unescaped(result, fmt);
-	} else {
+	} അല്ലെങ്കിൽ {
 		result += fmt;
 	}
 }
@@ -398,47 +398,47 @@ inline void format_emit(std::string &result, std::string_view fmt, int fmt_start
 // `num_dynamic_ints` in `dynamic_ints[]` have already been collected to provide as
 // dynamic width/precision args for the next format conversion specifier.
 template <typename Arg, typename... Args>
-inline void format_emit(std::string &result, std::string_view fmt, int fmt_start, bool has_escapes,
-	const FoundFormatSpec* specs, int *dynamic_ints, DynamicIntCount num_dynamic_ints,
-	const Arg &arg, const Args &... args)
+വരിയിൽ ശൂന്യം format_emit(std::string &result, std::string_view fmt, പൂർണ്ണസംഖ്യ fmt_start, bool has_escapes,
+	സ്ഥിരം FoundFormatSpec* specs, പൂർണ്ണസംഖ്യ *dynamic_ints, Dynamic_Int_എണ്ണം അക്കം_dynamic_ints,
+	സ്ഥിരം Arg &arg, സ്ഥിരം Args &... args)
 {
-	if (specs->num_dynamic_ints > num_dynamic_ints) {
+	എങ്കിൽ (specs->അക്കം_dynamic_ints > അക്കം_dynamic_ints) {
 		// Collect another int for the dynamic width precision/args
 		// for the next format conversion specifier.
-		if constexpr (std::is_convertible_v<Arg, int>) {
-			dynamic_ints[static_cast<uint8_t>(num_dynamic_ints)] = arg;
-		} else {
+		എങ്കിൽ constexpr (std::is_convertible_v<Arg, പൂർണ്ണസംഖ്യ>) {
+			dynamic_ints[static_cast<uint8_t>(അക്കം_dynamic_ints)] = arg;
+		} അല്ലെങ്കിൽ {
 			YOSYS_ABORT("Internal error");
 		}
 		format_emit(result, fmt, fmt_start, has_escapes, specs, dynamic_ints,
-		            static_cast<DynamicIntCount>(static_cast<uint8_t>(num_dynamic_ints) + 1), args...);
-		return;
+		            static_cast<Dynamic_Int_എണ്ണം>(static_cast<uint8_t>(അക്കം_dynamic_ints) + 1), args...);
+		തിരികെ;
 	}
 	std::string_view str = fmt.substr(fmt_start, specs->start - fmt_start);
-	if (has_escapes) {
+	എങ്കിൽ (has_escapes) {
 		format_emit_unescaped(result, str);
-	} else {
+	} അല്ലെങ്കിൽ {
 		result += str;
 	}
 	format_emit_one(result, fmt, *specs, dynamic_ints, arg);
-	format_emit(result, fmt, specs->end, has_escapes, specs + 1, dynamic_ints, DynamicIntCount::NONE, args...);
+	format_emit(result, fmt, specs->end, has_escapes, specs + 1, dynamic_ints, Dynamic_Int_എണ്ണം::NONE, args...);
 }
 
 template <typename... Args>
-inline std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, const FoundFormatSpec* specs, const Args &... args)
+വരിയിൽ std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, സ്ഥിരം FoundFormatSpec* specs, സ്ഥിരം Args &... args)
 {
 	std::string result;
-	int dynamic_ints[2] = { 0, 0 };
-	format_emit(result, fmt, 0, has_escapes, specs, dynamic_ints, DynamicIntCount::NONE, args...);
-	return result;
+	പൂർണ്ണസംഖ്യ dynamic_ints[2] = { 0, 0 };
+	format_emit(result, fmt, 0, has_escapes, specs, dynamic_ints, Dynamic_Int_എണ്ണം::NONE, args...);
+	തിരികെ result;
 }
 template <>
-inline std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, const FoundFormatSpec*)
+വരിയിൽ std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, സ്ഥിരം FoundFormatSpec*)
 {
-	if (!has_escapes) {
-		return std::string(fmt);
+	എങ്കിൽ (!has_escapes) {
+		തിരികെ std::string(fmt);
 	}
-	return unescape_format_string(fmt);
+	തിരികെ unescape_format_string(fmt);
 }
 
 // This class parses format strings to build a list of `FoundFormatSpecs` in `specs`.
@@ -448,69 +448,69 @@ inline std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, 
 template <typename... Args>
 class FmtString
 {
-public:
+പൊതു:
 	// Implicit conversion from const char * means that users can pass
 	// C string constants which are automatically parsed.
-	YOSYS_CONSTEVAL FmtString(const char *p) : fmt(p)
+	YOSYS_CONSTEVAL FmtString(സ്ഥിരം അക്ഷരം *p) : fmt(p)
 	{
-		check_format<Args...>(fmt, 0, &has_escapes, specs, DynamicIntCount::NONE);
+		check_format<Args...>(fmt, 0, &has_escapes, specs, Dynamic_Int_എണ്ണം::NONE);
 	}
-	std::string format(const Args &... args)
+	std::string format(സ്ഥിരം Args &... args)
 	{
-		return format_emit_toplevel(fmt, has_escapes, specs, args...);
+		തിരികെ format_emit_toplevel(fmt, has_escapes, specs, args...);
 	}
-	std::string_view format_string() const { return fmt; }
-private:
+	std::string_view format_string() സ്ഥിരം { തിരികെ fmt; }
+സ്വകാര്യ:
 	std::string_view fmt;
 	bool has_escapes = false;
 	// Making array at least size of one to make MSVC happy and strict to standards
-	FoundFormatSpec specs[sizeof...(Args) ? sizeof...(Args) : 1] = {};
+	FoundFormatSpec specs[വലുപ്പം...(Args) ? വലുപ്പം...(Args) : 1] = {};
 };
 
-template <typename T> struct WrapType { using type = T; };
+template <typename T> ഘടന WrapType { using type = T; };
 template <typename T> using TypeIdentity = typename WrapType<T>::type;
 
 template <typename... Args>
-inline std::string stringf(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+വരിയിൽ std::string stringf(FmtString<TypeIdentity<Args>...> fmt, സ്ഥിരം Args &... args)
 {
-	return fmt.format(args...);
+	തിരികെ fmt.format(args...);
 }
 
-int readsome(std::istream &f, char *s, int n);
-std::string next_token(std::string &text, const char *sep = " \t\r\n", bool long_strings = false);
-std::vector<std::string> split_tokens(const std::string &text, const char *sep = " \t\r\n");
-bool patmatch(const char *pattern, const char *string);
-#if !defined(YOSYS_DISABLE_SPAWN)
-int run_command(const std::string &command, std::function<void(const std::string&)> process_line = std::function<void(const std::string&)>());
+പൂർണ്ണസംഖ്യ readsome(std::istream &f, അക്ഷരം *s, പൂർണ്ണസംഖ്യ n);
+std::string next_token(std::string &text, സ്ഥിരം അക്ഷരം *sep = " \t\r\n", bool long_strings = false);
+std::vector<std::string> split_tokens(സ്ഥിരം std::string &text, സ്ഥിരം അക്ഷരം *sep = " \t\r\n");
+bool patmatch(സ്ഥിരം അക്ഷരം *pattern, സ്ഥിരം അക്ഷരം *string);
+#എങ്കിൽ !defined(YOSYS_DISABLE_SPAWN)
+പൂർണ്ണസംഖ്യ run_command(സ്ഥിരം std::string &command, std::function<ശൂന്യം(സ്ഥിരം std::string&)> process_വരി = std::function<ശൂന്യം(സ്ഥിരം std::string&)>());
 #endif
 std::string get_base_tmpdir();
 std::string make_temp_file(std::string template_str = get_base_tmpdir() + "/yosys_XXXXXX");
 std::string make_temp_dir(std::string template_str = get_base_tmpdir() + "/yosys_XXXXXX");
-bool check_file_exists(const std::string& filename, bool is_exec = false);
-bool check_directory_exists(const std::string& dirname, bool is_exec = false);
+bool check_file_exists(സ്ഥിരം std::string& filename, bool is_exec = false);
+bool check_directory_exists(സ്ഥിരം std::string& dirname, bool is_exec = false);
 bool is_absolute_path(std::string filename);
-void remove_directory(std::string dirname);
-bool create_directory(const std::string& dirname);
-bool make_private_directory(const std::string& dirname);
-std::string make_user_tmpdir(const std::string& name);
-std::string escape_filename_spaces(const std::string& filename);
-void append_globbed(std::vector<std::string>& paths, std::string pattern);
+ശൂന്യം remove_directory(std::string dirname);
+bool create_directory(സ്ഥിരം std::string& dirname);
+bool make_private_directory(സ്ഥിരം std::string& dirname);
+std::string make_user_tmpdir(സ്ഥിരം std::string& name);
+std::string escape_filename_spaces(സ്ഥിരം std::string& filename);
+ശൂന്യം append_globbed(std::vector<std::string>& paths, std::string pattern);
 std::string name_from_file_path(std::string path);
-std::string absolute_path(const std::string& path);
+std::string absolute_path(സ്ഥിരം std::string& path);
 std::string parent_from_file_path(std::string path);
 
 // Exclusive inter-process file lock (flock/LockFileEx, no-op on WASI),
 // released on destruction. Never unlinks the lock file: that would reopen the race.
-struct ScopedFileLock {
-	ScopedFileLock(const std::string &path);
+ഘടന ScopedFileLock {
+	ScopedFileLock(സ്ഥിരം std::string &path);
 	~ScopedFileLock();
-	ScopedFileLock(const ScopedFileLock &) = delete;
-	ScopedFileLock &operator=(const ScopedFileLock &) = delete;
-private:
-#if defined(_WIN32)
-	void *handle = nullptr;
-#elif !defined(__wasi__)
-	int fd = -1;
+	ScopedFileLock(സ്ഥിരം ScopedFileLock &) = delete;
+	ScopedFileLock &operator=(സ്ഥിരം ScopedFileLock &) = delete;
+സ്വകാര്യ:
+#എങ്കിൽ defined(_WIN32)
+	ശൂന്യം *handle = nullptr;
+#അല്ലെങ്കിലെങ്കിൽ !defined(__wasi__)
+	പൂർണ്ണസംഖ്യ fd = -1;
 #endif
 };
 

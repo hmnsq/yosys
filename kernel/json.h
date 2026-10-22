@@ -20,9 +20,9 @@
 #ifndef JSON_H
 #define JSON_H
 
-#include "kernel/yosys.h"
-#include "libs/json11/json11.hpp"
-#include <functional>
+#അന്തര്ഭാവ "kernel/yosys.h"
+#അന്തര്ഭാവ "libs/json11/json11.hpp"
+#അന്തര്ഭാവ <functional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -30,69 +30,69 @@ using json11::Json;
 
 class PrettyJson
 {
-    enum Scope {
-        VALUE,
+    എണ്ണൽ Scope {
+        മൂല്യം_2,
         OBJECT_FIRST,
         OBJECT,
         ARRAY_FIRST,
         ARRAY,
     };
 
-    struct Target {
-        virtual void emit(const char *data) = 0;
-        virtual void flush() {};
-        virtual ~Target() {};
+    ഘടന Target {
+        മായാ ശൂന്യം emit(സ്ഥിരം അക്ഷരം *data) = 0;
+        മായാ ശൂന്യം flush() {};
+        മായാ ~Target() {};
     };
 
     std::string newline_indent = "\n";
     std::vector<std::unique_ptr<Target>> targets;
-    std::vector<Scope> state = {VALUE};
-    int compact_depth = INT_MAX;
-public:
+    std::vector<Scope> state = {മൂല്യം_2};
+    പൂർണ്ണസംഖ്യ compact_depth = INT_MAX;
+പൊതു:
 
-    void emit_to_log();
-    void append_to_string(std::string &target);
-    bool write_to_file(const std::string &path);
+    ശൂന്യം emit_to_log();
+    ശൂന്യം append_to_string(std::string &target);
+    bool write_to_file(സ്ഥിരം std::string &path);
 
-    bool active() { return !targets.empty(); }
+    bool active() { തിരികെ !targets.empty(); }
 
-    void compact() { compact_depth = GetSize(state); }
+    ശൂന്യം compact() { compact_depth = GetSize(state); }
 
-    void line(bool space_if_inline = true);
-    void raw(const char *raw_json);
-    void flush();
-    void begin_object();
-    void begin_array();
-    void end_object();
-    void end_array();
-    void name(const char *name);
-    void begin_value();
-    void end_value();
-    void value_json(const Json &value);
-    void value(unsigned int value) { value_json(Json((int)value)); }
+    ശൂന്യം വരി(bool space_if_inline = true);
+    ശൂന്യം raw(സ്ഥിരം അക്ഷരം *raw_json);
+    ശൂന്യം flush();
+    ശൂന്യം begin_object();
+    ശൂന്യം begin_array();
+    ശൂന്യം end_object();
+    ശൂന്യം end_array();
+    ശൂന്യം name(സ്ഥിരം അക്ഷരം *name);
+    ശൂന്യം begin_മൂല്യം();
+    ശൂന്യം end_മൂല്യം();
+    ശൂന്യം മൂല്യം_json(സ്ഥിരം Json &മൂല്യം);
+    ശൂന്യം മൂല്യം(unsigned പൂർണ്ണസംഖ്യ മൂല്യം) { മൂല്യം_json(Json((പൂർണ്ണസംഖ്യ)മൂല്യം)); }
     template<typename T>
-    void value(T &&value) { value_json(Json(std::forward<T>(value))); };
+    ശൂന്യം മൂല്യം(T &&മൂല്യം) { മൂല്യം_json(Json(std::forward<T>(മൂല്യം))); };
 
-    void entry_json(const char *name, const Json &value);
-    void entry(const char *name, unsigned int value) { entry_json(name, Json((int)value)); }
+    ശൂന്യം entry_json(സ്ഥിരം അക്ഷരം *name, സ്ഥിരം Json &മൂല്യം);
+    ശൂന്യം entry(സ്ഥിരം അക്ഷരം *name, unsigned പൂർണ്ണസംഖ്യ മൂല്യം) { entry_json(name, Json((പൂർണ്ണസംഖ്യ)മൂല്യം)); }
     template<typename T>
-    void entry(const char *name, T &&value) { entry_json(name, Json(std::forward<T>(value))); };
+    ശൂന്യം entry(സ്ഥിരം അക്ഷരം *name, T &&മൂല്യം) { entry_json(name, Json(std::forward<T>(മൂല്യം))); };
 
     template<typename T>
-    void object(const T &&values)
+    ശൂന്യം object(സ്ഥിരം T &&മൂല്യങ്ങൾ)
     {
         begin_object();
-        for (auto &item : values)
+        വേണ്ടി (auto &item : മൂല്യങ്ങൾ)
             entry(item.first, item.second);
         end_object();
     }
 
     template<typename T>
-    void array(const T &&values)
+    ശൂന്യം array(സ്ഥിരം T &&മൂല്യങ്ങൾ)
     {
         begin_array();
-        for (auto &item : values)
-            value(item);
+        വേണ്ടി (auto &item : മൂല്യങ്ങൾ)
+            മൂല്യം(item);
         end_array();
     }
 };

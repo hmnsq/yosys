@@ -20,256 +20,256 @@
 #ifndef SIGTOOLS_H
 #define SIGTOOLS_H
 
-#include "kernel/yosys.h"
+#അന്തര്ഭാവ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct SigPool
+ഘടന SigPool
 {
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+	ഘടന bitDef_t : പൊതു std::pair<RTLIL::Wire*, പൂർണ്ണസംഖ്യ> {
+		bitDef_t() : std::pair<RTLIL::Wire*, പൂർണ്ണസംഖ്യ>(ശൂന്യ, 0) { }
+		bitDef_t(സ്ഥിരം RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, പൂർണ്ണസംഖ്യ>(bit.wire, bit.offset) { }
+		[[nodiscard]] Hasher hash_into(Hasher h) സ്ഥിരം {
 			h.eat(first->name);
 			h.eat(second);
-			return h;
+			തിരികെ h;
 		}
 	};
 
 	pool<bitDef_t> bits;
 
-	void clear()
+	ശൂന്യം clear()
 	{
 		bits.clear();
 	}
 
-	void add(const RTLIL::SigSpec &sig)
+	ശൂന്യം add(സ്ഥിരം RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
-				bits.insert(bit);
+		വേണ്ടി (auto &bit : sig)
+			എങ്കിൽ (bit.wire != ശൂന്യ)
+				bits.തിരുകുക(bit);
 	}
 
-	void add(const SigPool &other)
+	ശൂന്യം add(സ്ഥിരം SigPool &other)
 	{
-		for (auto &bit : other.bits)
-			bits.insert(bit);
+		വേണ്ടി (auto &bit : other.bits)
+			bits.തിരുകുക(bit);
 	}
 
-	void del(const RTLIL::SigSpec &sig)
+	ശൂന്യം del(സ്ഥിരം RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
+		വേണ്ടി (auto &bit : sig)
+			എങ്കിൽ (bit.wire != ശൂന്യ)
 				bits.erase(bit);
 	}
 
-	void del(const SigPool &other)
+	ശൂന്യം del(സ്ഥിരം SigPool &other)
 	{
-		for (auto &bit : other.bits)
+		വേണ്ടി (auto &bit : other.bits)
 			bits.erase(bit);
 	}
 
-	void expand(const RTLIL::SigSpec &from, const RTLIL::SigSpec &to)
+	ശൂന്യം expand(സ്ഥിരം RTLIL::SigSpec &from, സ്ഥിരം RTLIL::SigSpec &to)
 	{
 		log_assert(GetSize(from) == GetSize(to));
-		for (int i = 0; i < GetSize(from); i++) {
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < GetSize(from); i++) {
 			bitDef_t bit_from(from[i]), bit_to(to[i]);
-			if (bit_from.first != NULL && bit_to.first != NULL && bits.count(bit_from) > 0)
-				bits.insert(bit_to);
+			എങ്കിൽ (bit_from.first != ശൂന്യ && bit_to.first != ശൂന്യ && bits.എണ്ണം(bit_from) > 0)
+				bits.തിരുകുക(bit_to);
 		}
 	}
 
-	RTLIL::SigSpec extract(const RTLIL::SigSpec &sig) const
+	RTLIL::SigSpec extract(സ്ഥിരം RTLIL::SigSpec &sig) സ്ഥിരം
 	{
 		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
+		വേണ്ടി (auto &bit : sig)
+			എങ്കിൽ (bit.wire != ശൂന്യ && bits.എണ്ണം(bit))
 				result.append(bit);
-		return result;
+		തിരികെ result;
 	}
 
-	RTLIL::SigSpec remove(const RTLIL::SigSpec &sig) const
+	RTLIL::SigSpec remove(സ്ഥിരം RTLIL::SigSpec &sig) സ്ഥിരം
 	{
 		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
+		വേണ്ടി (auto &bit : sig)
+			എങ്കിൽ (bit.wire != ശൂന്യ && bits.എണ്ണം(bit) == 0)
 				result.append(bit);
-		return result;
+		തിരികെ result;
 	}
 
-	bool check(const RTLIL::SigBit &bit) const
+	bool check(സ്ഥിരം RTLIL::SigBit &bit) സ്ഥിരം
 	{
-		return bit.wire != NULL && bits.count(bit);
+		തിരികെ bit.wire != ശൂന്യ && bits.എണ്ണം(bit);
 	}
 
-	bool check_any(const RTLIL::SigSpec &sig) const
+	bool check_any(സ്ഥിരം RTLIL::SigSpec &sig) സ്ഥിരം
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		വേണ്ടി (auto &bit : sig)
+			എങ്കിൽ (bit.wire != ശൂന്യ && bits.എണ്ണം(bit))
+				തിരികെ true;
+		തിരികെ false;
 	}
 
-	bool check_all(const RTLIL::SigSpec &sig) const
+	bool check_all(സ്ഥിരം RTLIL::SigSpec &sig) സ്ഥിരം
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
-				return false;
-		return true;
+		വേണ്ടി (auto &bit : sig)
+			എങ്കിൽ (bit.wire != ശൂന്യ && bits.എണ്ണം(bit) == 0)
+				തിരികെ false;
+		തിരികെ true;
 	}
 
-	RTLIL::SigSpec export_one() const
+	RTLIL::SigSpec export_one() സ്ഥിരം
 	{
-		for (auto &bit : bits)
-			return RTLIL::SigSpec(bit.first, bit.second);
-		return RTLIL::SigSpec();
+		വേണ്ടി (auto &bit : bits)
+			തിരികെ RTLIL::SigSpec(bit.first, bit.second);
+		തിരികെ RTLIL::SigSpec();
 	}
 
-	RTLIL::SigSpec export_all() const
+	RTLIL::SigSpec export_all() സ്ഥിരം
 	{
 		pool<RTLIL::SigBit> sig;
-		for (auto &bit : bits)
-			sig.insert(RTLIL::SigBit(bit.first, bit.second));
-		return sig;
+		വേണ്ടി (auto &bit : bits)
+			sig.തിരുകുക(RTLIL::SigBit(bit.first, bit.second));
+		തിരികെ sig;
 	}
 
-	size_t size() const
+	size_t size() സ്ഥിരം
 	{
-		return bits.size();
+		തിരികെ bits.size();
 	}
 };
 
-template <typename T, class Compare = void>
-struct SigSet
+template <typename T, class Compare = ശൂന്യം>
+ഘടന SigSet
 {
-	static_assert(!std::is_same<Compare,void>::value, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
+	static_assert(!std::is_same<Compare,ശൂന്യം>::മൂല്യം, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
 
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+	ഘടന bitDef_t : പൊതു std::pair<RTLIL::Wire*, പൂർണ്ണസംഖ്യ> {
+		bitDef_t() : std::pair<RTLIL::Wire*, പൂർണ്ണസംഖ്യ>(ശൂന്യ, 0) { }
+		bitDef_t(സ്ഥിരം RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, പൂർണ്ണസംഖ്യ>(bit.wire, bit.offset) { }
+		[[nodiscard]] Hasher hash_into(Hasher h) സ്ഥിരം {
 			h.eat(first->name);
 			h.eat(second);
-			return h;
+			തിരികെ h;
 		}
 	};
 
 	dict<bitDef_t, std::set<T, Compare>> bits;
 
-	void clear()
+	ശൂന്യം clear()
 	{
 		bits.clear();
 	}
 
-	void insert(const RTLIL::SigSpec &sig, T data)
+	ശൂന്യം തിരുകുക(സ്ഥിരം RTLIL::SigSpec &sig, T data)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].insert(data);
+		വേണ്ടി (സ്ഥിരം auto &bit : sig)
+			എങ്കിൽ (bit.wire != ശൂന്യ)
+				bits[bit].തിരുകുക(data);
 	}
 
-	void insert(const RTLIL::SigSpec& sig, const std::set<T> &data)
+	ശൂന്യം തിരുകുക(സ്ഥിരം RTLIL::SigSpec& sig, സ്ഥിരം std::set<T> &data)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].insert(data.begin(), data.end());
+		വേണ്ടി (സ്ഥിരം auto &bit : sig)
+			എങ്കിൽ (bit.wire != ശൂന്യ)
+				bits[bit].തിരുകുക(data.begin(), data.end());
 	}
 
-	void erase(const RTLIL::SigSpec& sig)
+	ശൂന്യം erase(സ്ഥിരം RTLIL::SigSpec& sig)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
+		വേണ്ടി (സ്ഥിരം auto &bit : sig)
+			എങ്കിൽ (bit.wire != ശൂന്യ)
 				bits[bit].clear();
 	}
 
-	void erase(const RTLIL::SigSpec &sig, T data)
+	ശൂന്യം erase(സ്ഥിരം RTLIL::SigSpec &sig, T data)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
+		വേണ്ടി (സ്ഥിരം auto &bit : sig)
+			എങ്കിൽ (bit.wire != ശൂന്യ)
 				bits[bit].erase(data);
 	}
 
-	void erase(const RTLIL::SigSpec &sig, const std::set<T> &data)
+	ശൂന്യം erase(സ്ഥിരം RTLIL::SigSpec &sig, സ്ഥിരം std::set<T> &data)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
+		വേണ്ടി (സ്ഥിരം auto &bit : sig)
+			എങ്കിൽ (bit.wire != ശൂന്യ)
 				bits[bit].erase(data.begin(), data.end());
 	}
 
-	void find(const RTLIL::SigSpec &sig, std::set<T> &result)
+	ശൂന്യം find(സ്ഥിരം RTLIL::SigSpec &sig, std::set<T> &result)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
+		വേണ്ടി (സ്ഥിരം auto &bit : sig)
+			എങ്കിൽ (bit.wire != ശൂന്യ) {
 				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+				result.തിരുകുക(data.begin(), data.end());
 			}
 	}
 
-	void find(const RTLIL::SigSpec &sig, pool<T> &result)
+	ശൂന്യം find(സ്ഥിരം RTLIL::SigSpec &sig, pool<T> &result)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
+		വേണ്ടി (സ്ഥിരം auto &bit : sig)
+			എങ്കിൽ (bit.wire != ശൂന്യ) {
 				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+				result.തിരുകുക(data.begin(), data.end());
 			}
 	}
 
-	std::set<T> find(const RTLIL::SigSpec &sig)
+	std::set<T> find(സ്ഥിരം RTLIL::SigSpec &sig)
 	{
 		std::set<T> result;
 		find(sig, result);
-		return result;
+		തിരികെ result;
 	}
 
-	bool has(const RTLIL::SigSpec &sig)
+	bool has(സ്ഥിരം RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		വേണ്ടി (auto &bit : sig)
+			എങ്കിൽ (bit.wire != ശൂന്യ && bits.എണ്ണം(bit))
+				തിരികെ true;
+		തിരികെ false;
 	}
 };
 
 template<typename T>
-class SigSet<T, typename std::enable_if<!std::is_pointer<T>::value>::type> : public SigSet<T, std::less<T>> {};
+class SigSet<T, typename std::enable_if<!std::is_pointer<T>::മൂല്യം>::type> : പൊതു SigSet<T, std::less<T>> {};
 template<typename T>
-using sort_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::value>::type;
+using sort_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::മൂല്യം>::type;
 template<typename T>
-class SigSet<T, sort_by_name_id_guard<T>> : public SigSet<T, RTLIL::sort_by_name_id<typename std::remove_pointer<T>::type>> {};
+class SigSet<T, sort_by_name_id_guard<T>> : പൊതു SigSet<T, RTLIL::sort_by_name_id<typename std::remove_pointer<T>::type>> {};
 
-struct SigMapView
+ഘടന SigMapView
 {
 	mfp<SigBit> database;
 
 	// Modify bit to its representative
-	void apply(RTLIL::SigBit &bit) const
+	ശൂന്യം apply(RTLIL::SigBit &bit) സ്ഥിരം
 	{
 		bit = database.find(bit);
 	}
 
-	void apply(RTLIL::SigSpec &sig) const
+	ശൂന്യം apply(RTLIL::SigSpec &sig) സ്ഥിരം
 	{
-		for (auto &bit : sig)
+		വേണ്ടി (auto &bit : sig)
 			apply(bit);
 	}
 
-	RTLIL::SigBit operator()(RTLIL::SigBit bit) const
+	RTLIL::SigBit operator()(RTLIL::SigBit bit) സ്ഥിരം
 	{
 		apply(bit);
-		return bit;
+		തിരികെ bit;
 	}
 
-	RTLIL::SigSpec operator()(RTLIL::SigSpec sig) const
+	RTLIL::SigSpec operator()(RTLIL::SigSpec sig) സ്ഥിരം
 	{
 		apply(sig);
-		return sig;
+		തിരികെ sig;
 	}
 
-	RTLIL::SigSpec operator()(RTLIL::Wire *wire) const
+	RTLIL::SigSpec operator()(RTLIL::Wire *wire) സ്ഥിരം
 	{
 		SigSpec sig(wire);
 		apply(sig);
-		return sig;
+		തിരികെ sig;
 	}
 };
 
@@ -280,88 +280,88 @@ struct SigMapView
  * If a SigBit has a const state (impl: bit.wire is nullptr),
  * it's promoted to a representative.
  */
-struct SigMap final : public SigMapView
+ഘടന SigMap final : പൊതു SigMapView
 {
-	SigMap(RTLIL::Module *module = NULL)
+	SigMap(RTLIL::Module *module = ശൂന്യ)
 	{
-		if (module != NULL)
+		എങ്കിൽ (module != ശൂന്യ)
 			set(module);
 	}
 
-	void swap(SigMap &other)
+	ശൂന്യം swap(SigMap &other)
 	{
 		database.swap(other.database);
 	}
 
-	void clear()
+	ശൂന്യം clear()
 	{
 		database.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
-	void set(RTLIL::Module *module)
+	ശൂന്യം set(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
+		പൂർണ്ണസംഖ്യ bitcount = 0;
+		വേണ്ടി (auto &it : module->connections())
 			bitcount += it.first.size();
 
 		database.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
+		വേണ്ടി (auto &it : module->connections())
 			add(it.first, it.second);
 	}
 
 	// Add connections from "from" to "to", bit-by-bit
-	void add(const RTLIL::SigSpec& from, const RTLIL::SigSpec& to)
+	ശൂന്യം add(സ്ഥിരം RTLIL::SigSpec& from, സ്ഥിരം RTLIL::SigSpec& to)
 	{
 		log_assert(GetSize(from) == GetSize(to));
 
-		for (int i = 0; i < GetSize(from); i++)
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < GetSize(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
+			പൂർണ്ണസംഖ്യ bfi = database.lookup(from[i]);
+			പൂർണ്ണസംഖ്യ bti = database.lookup(to[i]);
 
-			const RTLIL::SigBit &bf = database[bfi];
-			const RTLIL::SigBit &bt = database[bti];
+			സ്ഥിരം RTLIL::SigBit &bf = database[bfi];
+			സ്ഥിരം RTLIL::SigBit &bt = database[bti];
 
-			if (bf.wire || bt.wire)
+			എങ്കിൽ (bf.wire || bt.wire)
 			{
 				database.imerge(bfi, bti);
 
-				if (bf.wire == nullptr)
+				എങ്കിൽ (bf.wire == nullptr)
 					database.ipromote(bfi);
 
-				if (bt.wire == nullptr)
+				എങ്കിൽ (bt.wire == nullptr)
 					database.ipromote(bti);
 			}
 		}
 	}
 
 	// Add sig as disconnected from anything
-	void add(const RTLIL::SigBit &bit)
+	ശൂന്യം add(സ്ഥിരം RTLIL::SigBit &bit)
 	{
-		const auto &b = database.find(bit);
-		if (b.wire != nullptr)
+		സ്ഥിരം auto &b = database.find(bit);
+		എങ്കിൽ (b.wire != nullptr)
 			database.promote(bit);
 	}
 
-	void add(const RTLIL::SigSpec &sig)
+	ശൂന്യം add(സ്ഥിരം RTLIL::SigSpec &sig)
 	{
-		for (const auto &bit : sig)
+		വേണ്ടി (സ്ഥിരം auto &bit : sig)
 			add(bit);
 	}
 
-	inline void add(Wire *wire) { return add(RTLIL::SigSpec(wire)); }
+	വരിയിൽ ശൂന്യം add(Wire *wire) { തിരികെ add(RTLIL::SigSpec(wire)); }
 
 	// All non-const bits
-	RTLIL::SigSpec allbits() const
+	RTLIL::SigSpec allbits() സ്ഥിരം
 	{
 		RTLIL::SigSpec sig;
-		for (const auto &bit : database)
-			if (bit.wire != nullptr)
+		വേണ്ടി (സ്ഥിരം auto &bit : database)
+			എങ്കിൽ (bit.wire != nullptr)
 				sig.append(bit);
-		return sig;
+		തിരികെ sig;
 	}
 };
 
@@ -375,94 +375,94 @@ struct SigMap final : public SigMapView
  * If any of the SigBits in a set are a constant, the canonical SigBit is a constant.
  */
 template <class Val>
-struct SigValMap final : public SigMapView
+ഘടന SigValMap final : പൊതു SigMapView
 {
-	dict<SigBit, Val> values;
+	dict<SigBit, Val> മൂല്യങ്ങൾ;
 
-	void swap(SigValMap<Val> &other)
+	ശൂന്യം swap(SigValMap<Val> &other)
 	{
 		database.swap(other.database);
-		values.swap(other.values);
+		മൂല്യങ്ങൾ.swap(other.മൂല്യങ്ങൾ);
 	}
 
-	void clear()
+	ശൂന്യം clear()
 	{
 		database.clear();
-		values.clear();
+		മൂല്യങ്ങൾ.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
-	void set(RTLIL::Module *module)
+	ശൂന്യം set(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
+		പൂർണ്ണസംഖ്യ bitcount = 0;
+		വേണ്ടി (auto &it : module->connections())
 			bitcount += it.first.size();
 
 		database.clear();
-		values.clear();
+		മൂല്യങ്ങൾ.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
+		വേണ്ടി (auto &it : module->connections())
 			add(it.first, it.second);
 	}
 
 	// Add connections from "from" to "to", bit-by-bit.
-	void add(const RTLIL::SigSpec& from, const RTLIL::SigSpec& to)
+	ശൂന്യം add(സ്ഥിരം RTLIL::SigSpec& from, സ്ഥിരം RTLIL::SigSpec& to)
 	{
 		log_assert(GetSize(from) == GetSize(to));
 
-		for (int i = 0; i < GetSize(from); i++)
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < GetSize(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
-			if (bfi == bti) {
-				continue;
+			പൂർണ്ണസംഖ്യ bfi = database.lookup(from[i]);
+			പൂർണ്ണസംഖ്യ bti = database.lookup(to[i]);
+			എങ്കിൽ (bfi == bti) {
+				തുടരുക;
 			}
 
-			const RTLIL::SigBit &bf = database[bfi];
-			const RTLIL::SigBit &bt = database[bti];
-			if (bf.wire == nullptr) {
+			സ്ഥിരം RTLIL::SigBit &bf = database[bfi];
+			സ്ഥിരം RTLIL::SigBit &bt = database[bti];
+			എങ്കിൽ (bf.wire == nullptr) {
 				// bf is constant so make it the canonical representative.
 				database.imerge(bti, bfi);
-				merge_value(bt, bf);
-			} else {
+				merge_മൂല്യം(bt, bf);
+			} അല്ലെങ്കിൽ {
 				// Make bt the canonical representative.
 				database.imerge(bfi, bti);
-				merge_value(bf, bt);
+				merge_മൂല്യം(bf, bt);
 			}
 		}
 	}
 
-	void addVal(const RTLIL::SigBit &bit, const Val &val)
+	ശൂന്യം addVal(സ്ഥിരം RTLIL::SigBit &bit, സ്ഥിരം Val &val)
 	{
-		values[database.find(bit)] |= val;
+		മൂല്യങ്ങൾ[database.find(bit)] |= val;
 	}
 
-	void addVal(const RTLIL::SigSpec &sig, const Val &val)
+	ശൂന്യം addVal(സ്ഥിരം RTLIL::SigSpec &sig, സ്ഥിരം Val &val)
 	{
-		for (const auto &bit : sig)
+		വേണ്ടി (സ്ഥിരം auto &bit : sig)
 			addVal(bit, val);
 	}
 
-	Val apply_and_get_value(RTLIL::SigBit &bit) const
+	Val apply_and_get_മൂല്യം(RTLIL::SigBit &bit) സ്ഥിരം
 	{
 		bit = database.find(bit);
-		auto it = values.find(bit);
-		return it == values.end() ? Val() : it->second;
+		auto it = മൂല്യങ്ങൾ.find(bit);
+		തിരികെ it == മൂല്യങ്ങൾ.end() ? Val() : it->second;
 	}
 
-private:
-	void merge_value(const RTLIL::SigBit &from, const RTLIL::SigBit &to)
+സ്വകാര്യ:
+	ശൂന്യം merge_മൂല്യം(സ്ഥിരം RTLIL::SigBit &from, സ്ഥിരം RTLIL::SigBit &to)
 	{
-		auto it = values.find(from);
-		if (it == values.end()) {
-			return;
+		auto it = മൂല്യങ്ങൾ.find(from);
+		എങ്കിൽ (it == മൂല്യങ്ങൾ.end()) {
+			തിരികെ;
 		}
 		// values[to] could resize the underlying `entries` so
 		// finish using `it` first.
 		Val v = it->second;
-		values.erase(it);
-		values[to] |= v;
+		മൂല്യങ്ങൾ.erase(it);
+		മൂല്യങ്ങൾ[to] |= v;
 	}
 };
 

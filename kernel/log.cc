@@ -17,98 +17,98 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "libs/sha1/sha1.h"
-#include "backends/rtlil/rtlil_backend.h"
+#അന്തര്ഭാവ "kernel/yosys.h"
+#അന്തര്ഭാവ "libs/sha1/sha1.h"
+#അന്തര്ഭാവ "backends/rtlil/rtlil_backend.h"
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#എങ്കിൽ !defined(_WIN32) || defined(__MINGW32__)
 #  include <sys/time.h>
 #endif
 
-#if defined(YOSYS_ENABLE_DLOPEN)
+#എങ്കിൽ defined(YOSYS_ENABLE_DLOPEN)
 #  include <dlfcn.h>
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-#include <vector>
-#include <list>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <stdarg.h>
+#അന്തര്ഭാവ <vector>
+#അന്തര്ഭാവ <list>
 
 YOSYS_NAMESPACE_BEGIN
 
-bool log_stderr_sink_forced = false;
+തർക്കം log_stderr_sink_forced = അസത്യം;
 
 LogManager &logger()
 {
-	static LogManager instance;
-	return instance;
+	സ്ഥിതം LogManager instance;
+	തിരികെ instance;
 }
 
-std::chrono::steady_clock::time_point LogManager::get_initial_time() const
+std::chrono::steady_clock::time_point LogManager::get_initial_time() സ്ഥിരം
 {
-	static const auto initial_time = std::chrono::steady_clock::now();
-	return initial_time;
+	സ്ഥിതം സ്ഥിരം auto initial_time = std::chrono::steady_clock::now();
+	തിരികെ initial_time;
 }
 
-void (*log_error_atexit)() = nullptr;
-void (*log_verific_callback)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg) = nullptr;
+ശൂന്യം (*log_error_atexit)() = nullptr;
+ശൂന്യം (*log_verific_callback)(പൂർണ്ണസംഖ്യ സന്ദേശം_type, സ്ഥിരം അക്ഷരം *message_id, LogSourceLocation src, സ്ഥിരം അക്ഷരം *സന്ദേശം) = nullptr;
 
-static bool next_print_log = true;
+സ്ഥിതം തർക്കം next_print_log = സത്യം;
 
-FileLogSink::FileLogSink(const std::string &filename, bool line_buffered, bool append)
+FileLogSink::FileLogSink(സ്ഥിരം std::string &filename, തർക്കം വരി_buffered, തർക്കം append)
 	: file(fopen(filename.c_str(), append ? "at" : "wt"))
 {
-	if (!file)
-		throw std::runtime_error("Can't open log file `" + filename + "' for writing!\n");
+	എങ്കിൽ (!file)
+		എറിയുക std::runtime_error("Can't open log file `" + filename + "' for writing!\n");
 
-	if (line_buffered)
+	എങ്കിൽ (വരി_buffered)
 		setvbuf(file, nullptr, _IOLBF, 0);
 }
 
 FileLogSink::~FileLogSink()
 {
 	flush();
-	if (file)
+	എങ്കിൽ (file)
 		fclose(file);
 }
 
-void FileLogSink::log(const LogMessage &msg)
+ശൂന്യം FileLogSink::log(സ്ഥിരം LogMessage &സന്ദേശം)
 {
-	fputs(msg.cached_msg.c_str(), file);
+	fputs(സന്ദേശം.cached_സന്ദേശം.c_str(), file);
 }
 
-void FileLogSink::flush()
+ശൂന്യം FileLogSink::flush()
 {
 	fflush(file);
 }
 
-void ConsoleLogSink::log(const LogMessage &msg)
+ശൂന്യം ConsoleLogSink::log(സ്ഥിരം LogMessage &സന്ദേശം)
 {
-	FILE *file = (msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError) ? stderr : stdout;
-	fputs(msg.cached_msg.c_str(), file);
+	FILE *file = (സന്ദേശം.severity == LogSeverity::Error || സന്ദേശം.severity == LogSeverity::NonFatalError) ? stderr : stdout;
+	fputs(സന്ദേശം.cached_സന്ദേശം.c_str(), file);
 }
 
-void ConsoleLogSink::flush()
+ശൂന്യം ConsoleLogSink::flush()
 {
 	fflush(stdout);
 	fflush(stderr);
 }
 
-bool StderrLogSink::should_log(const LogMessage &msg) const
+തർക്കം StderrLogSink::should_log(സ്ഥിരം LogMessage &സന്ദേശം) സ്ഥിരം
 {
-	return msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
-			(msg.severity == LogSeverity::Warning && !quiet_warnings) ||
+	തിരികെ സന്ദേശം.severity == LogSeverity::Error || സന്ദേശം.severity == LogSeverity::NonFatalError ||
+			(സന്ദേശം.severity == LogSeverity::Warning && !quiet_warnings) ||
 			log_stderr_sink_forced;
 }
 
-void StderrLogSink::log(const LogMessage &msg)
+ശൂന്യം StderrLogSink::log(സ്ഥിരം LogMessage &സന്ദേശം)
 {
-	fputs(msg.cached_msg.c_str(), stderr);
+	fputs(സന്ദേശം.cached_സന്ദേശം.c_str(), stderr);
 }
 
-void StderrLogSink::flush()
+ശൂന്യം StderrLogSink::flush()
 {
 	fflush(stderr);
 }
@@ -118,13 +118,13 @@ ScratchPadLogSink::ScratchPadLogSink(std::string scratchpad)
 {
 }
 
-void ScratchPadLogSink::log(const LogMessage &msg)
+ശൂന്യം ScratchPadLogSink::log(സ്ഥിരം LogMessage &സന്ദേശം)
 {
 	RTLIL::Design *design = yosys_get_design();
-	if (!design)
-		return;
+	എങ്കിൽ (!design)
+		തിരികെ;
 
-	design->scratchpad[scratchpad].append(msg.cached_msg);
+	design->scratchpad[scratchpad].append(സന്ദേശം.cached_സന്ദേശം);
 }
 
 LogMessage::LogMessage(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string_view message) :
@@ -136,205 +136,205 @@ LogMessage::LogMessage(LogSeverity severity, LogSourceLocation src, std::string_
 	src(src)
 {
 	std::string time_str;
-	if (logger().get_log_time())
+	എങ്കിൽ (logger().get_log_time())
 	{
-		if (next_print_log) {
-			next_print_log = false;
+		എങ്കിൽ (next_print_log) {
+			next_print_log = അസത്യം;
 			auto elapsed = std::chrono::steady_clock::now() - logger().get_initial_time();
 			auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-			time_str += stringf("[%05d.%06d] ", int(us.count() / 1'000'000),int(us.count() % 1'000'000));
+			time_str += stringf("[%05d.%06d] ", പൂർണ്ണസംഖ്യ(us.എണ്ണം() / 1'000'000),പൂർണ്ണസംഖ്യ(us.എണ്ണം() % 1'000'000));
 		}
 
-		if (!format.empty() && format.back() == '\n')
-			next_print_log = true;
+		എങ്കിൽ (!format.empty() && format.back() == '\n')
+			next_print_log = സത്യം;
 
 		// Special case to detect newlines in Python log output, since
 		// the binding always calls `log("%s", payload)` and the newline
 		// is then in the first formatted argument
-		if (format == "%s" && !message.empty() && message.back() == '\n')
-			next_print_log = true;
+		എങ്കിൽ (format == "%s" && !message.empty() && message.back() == '\n')
+			next_print_log = സത്യം;
 	}
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	cached_msg = stringf("%s%s%s%s", time_str, loc, prefix, message);
+	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_വരി) : "";
+	cached_സന്ദേശം = stringf("%s%s%s%s", time_str, loc, prefix, message);
 }
 
-void LogManager::logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in) {
+ശൂന്യം LogManager::logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in) {
 	size_t remove_leading = 0;
-	while (format.size() > 1 && format[0] == '\n') {
+	ആകുമ്പോൾ (format.size() > 1 && format[0] == '\n') {
 		logv_string(severity, src, prefix, "\n", "\n");
 		format = format.substr(1);
 		++remove_leading;
 	}
-	if (remove_leading > 0) {
+	എങ്കിൽ (remove_leading > 0) {
 		str_in = str_in.substr(remove_leading);
 	}
 
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
+	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_വരി) : "";
 	std::string str = stringf("%s%s%s",loc,prefix,str_in);
 
-	if (str.empty())
-		return;
+	എങ്കിൽ (str.empty())
+		തിരികെ;
 
 	size_t nnl_pos = str.find_last_not_of('\n');
-	if (nnl_pos == std::string::npos)
-		newline_count += GetSize(str);
-	else
-		newline_count = GetSize(str) - nnl_pos - 1;
+	എങ്കിൽ (nnl_pos == std::string::npos)
+		newline_എണ്ണം += GetSize(str);
+	അല്ലെങ്കിൽ
+		newline_എണ്ണം = GetSize(str) - nnl_pos - 1;
 
-	if (hasher)
+	എങ്കിൽ (hasher)
 		hasher->update(str);
 
-	auto msg = LogMessage(severity, src, prefix, format, str_in);
-	for (auto &sink : sinks) {
-		if (sink->should_log(msg))
-			sink->log(msg);
+	auto സന്ദേശം = LogMessage(severity, src, prefix, format, str_in);
+	വേണ്ടി (auto &sink : sinks) {
+		എങ്കിൽ (sink->should_log(സന്ദേശം))
+			sink->log(സന്ദേശം);
 	}
 
-	if (severity == LogSeverity::Header)
+	എങ്കിൽ (severity == LogSeverity::Header)
 		str = str_in;
 
-	static std::string linebuffer;
-	static bool warn_regex_recusion_guard = false;
+	സ്ഥിതം std::string linebuffer;
+	സ്ഥിതം തർക്കം warn_regex_recusion_guard = അസത്യം;
 
-	if (!warn_regex_recusion_guard)
+	എങ്കിൽ (!warn_regex_recusion_guard)
 	{
-		warn_regex_recusion_guard = true;
+		warn_regex_recusion_guard = സത്യം;
 
-		if (warn_regexes.empty() && expect_log.empty() && expect_prefix_log.empty())
+		എങ്കിൽ (warn_regexes.empty() && expect_log.empty() && expect_prefix_log.empty())
 		{
 			linebuffer.clear();
 		}
-		else
+		അല്ലെങ്കിൽ
 		{
 			linebuffer += str;
 
-			if (!linebuffer.empty() && linebuffer.back() == '\n') {
-				for (auto &re : warn_regexes)
-					if (std::regex_search(linebuffer, re))
+			എങ്കിൽ (!linebuffer.empty() && linebuffer.back() == '\n') {
+				വേണ്ടി (auto &re : warn_regexes)
+					എങ്കിൽ (std::regex_തിരയൽ(linebuffer, re))
 						log_warning("Found log message matching -W regex:\n%s", str);
 
-				for (auto &[_, item] : expect_log)
-					if (std::regex_search(linebuffer, item.pattern))
-						item.current_count++;
+				വേണ്ടി (auto &[_, item] : expect_log)
+					എങ്കിൽ (std::regex_തിരയൽ(linebuffer, item.pattern))
+						item.current_എണ്ണം++;
 
 				linebuffer.clear();
 			}
 		}
 
-		warn_regex_recusion_guard = false;
+		warn_regex_recusion_guard = അസത്യം;
 	}
 }
 
-void LogManager::formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str)
+ശൂന്യം LogManager::formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str)
 {
 	log_assert(!Multithreading::active());
 
-	if (make_debug && !is_debug(1))
-		return;
+	എങ്കിൽ (make_debug && !is_debug(1))
+		തിരികെ;
 	logv_string(severity, src, prefix, format, std::move(str));
 }
 
-void LogManager::formatted_header(RTLIL::Design *design, std::string_view format, std::string str)
+ശൂന്യം LogManager::formatted_header(RTLIL::Design *design, std::string_view format, std::string str)
 {
 	log_assert(!Multithreading::active());
 
 	spacer();
-	if (header_count.size() > 0)
-		header_count.back()++;
+	എങ്കിൽ (header_എണ്ണം.size() > 0)
+		header_എണ്ണം.back()++;
 
-	if (int(header_count.size()) <= verbose_level) {
-		log_stderr_sink_forced = true;
+	എങ്കിൽ (പൂർണ്ണസംഖ്യ(header_എണ്ണം.size()) <= verbose_level) {
+		log_stderr_sink_forced = സത്യം;
 	}
 
 	std::string header_id;
 
-	for (int c : header_count)
+	വേണ്ടി (പൂർണ്ണസംഖ്യ c : header_എണ്ണം)
 		header_id += stringf("%s%d", header_id.empty() ? "" : ".", c);
 
 	formatted_string(LogSeverity::Header, LogSourceLocation{}, stringf("%s. ", header_id), format, std::move(str));
 	flush();
 
-	if (hdump_all)
-		hdump[header_id].insert("yosys_dump_" + header_id + ".il");
+	എങ്കിൽ (hdump_all)
+		hdump[header_id].തിരുകുക("yosys_dump_" + header_id + ".il");
 
-	if (hdump.count(header_id) && design != nullptr)
-		for (auto &filename : hdump.at(header_id)) {
+	എങ്കിൽ (hdump.എണ്ണം(header_id) && design != nullptr)
+		വേണ്ടി (auto &filename : hdump.at(header_id)) {
 			log("Dumping current design to '%s'.\n", filename);
 			Pass::call(design, {"dump", "-o", filename});
 		}
-	log_stderr_sink_forced = false;
+	log_stderr_sink_forced = അസത്യം;
 }
 
-void LogManager::formatted_warning(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+ശൂന്യം LogManager::formatted_warning(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
 {
 	log_assert(!Multithreading::active());
 
-	bool suppressed = false;
+	തർക്കം suppressed = അസത്യം;
 
-	for (auto &re : nowarn_regexes)
-		if (std::regex_search(message, re))
-			suppressed = true;
+	വേണ്ടി (auto &re : nowarn_regexes)
+		എങ്കിൽ (std::regex_തിരയൽ(message, re))
+			suppressed = സത്യം;
 
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
-	if (suppressed)
+	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_വരി) : "";
+	എങ്കിൽ (suppressed)
 	{
 		log("Suppressed %s%s%s", loc, prefix, message);
 	}
-	else
+	അല്ലെങ്കിൽ
 	{
-		int bak_make_debug = make_debug;
+		പൂർണ്ണസംഖ്യ bak_make_debug = make_debug;
 		make_debug = 0;
 
-		for (auto &re : werror_regexes)
-			if (std::regex_search(message, re))
+		വേണ്ടി (auto &re : werror_regexes)
+			എങ്കിൽ (std::regex_തിരയൽ(message, re))
 				formatted_error(src, "ERROR: ", format, message);
 
-		bool warning_match = false;
-		for (auto &[_, item] : expect_warning)
-			if (std::regex_search(message, item.pattern)) {
-				item.current_count++;
-				warning_match = true;
+		തർക്കം warning_match = അസത്യം;
+		വേണ്ടി (auto &[_, item] : expect_warning)
+			എങ്കിൽ (std::regex_തിരയൽ(message, item.pattern)) {
+				item.current_എണ്ണം++;
+				warning_match = സത്യം;
 			}
 
 		std::string pattern = loc + string(prefix) + message;
-		for (auto &[_, item] : expect_prefix_warning)
-			if (std::regex_search(pattern, item.pattern)) {
-				item.current_count++;
-				warning_match = true;
+		വേണ്ടി (auto &[_, item] : expect_prefix_warning)
+			എങ്കിൽ (std::regex_തിരയൽ(pattern, item.pattern)) {
+				item.current_എണ്ണം++;
+				warning_match = സത്യം;
 			}
 
-		if (warnings.count(message))
+		എങ്കിൽ (warnings.എണ്ണം(message))
 		{
 			formatted_string(LogSeverity::Info, src, prefix, format, message);
 			flush();
 		}
-		else
+		അല്ലെങ്കിൽ
 		{
 			formatted_string(LogSeverity::Warning, src, prefix, format, message);
 			flush();
-			warnings.insert(message);
+			warnings.തിരുകുക(message);
 		}
 
-		if (!warning_match)
-			warnings_count_noexpect++;
-		warnings_count++;
+		എങ്കിൽ (!warning_match)
+			warnings_എണ്ണം_noexpect++;
+		warnings_എണ്ണം++;
 		make_debug = bak_make_debug;
 	}
 }
 
-void LogManager::suppressed() {
-	if (debug_suppressed && !make_debug) {
-		constexpr const char* format = "<suppressed ~%d debug messages>\n";
+ശൂന്യം LogManager::suppressed() {
+	എങ്കിൽ (debug_suppressed && !make_debug) {
+		constexpr സ്ഥിരം അക്ഷരം* format = "<suppressed ~%d debug messages>\n";
 		logv_string(LogSeverity::Info, LogSourceLocation{}, {}, format, stringf(format, debug_suppressed));
 		debug_suppressed = 0;
 	}
 }
 
-void LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+ശൂന്യം LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
 {
-	int bak_make_debug = make_debug;
+	പൂർണ്ണസംഖ്യ bak_make_debug = make_debug;
 	make_debug = 0;
-	if (severity == LogSeverity::Error)
+	എങ്കിൽ (severity == LogSeverity::Error)
 		suppressed();
 
 	logv_string(severity, src, prefix, format, message);
@@ -342,274 +342,274 @@ void LogManager::error_with_prefix(LogSeverity severity, LogSourceLocation src, 
 
 	make_debug = bak_make_debug;
 
-	for (auto &[_, item] : expect_error)
-		if (std::regex_search(message, item.pattern))
-			item.current_count++;
+	വേണ്ടി (auto &[_, item] : expect_error)
+		എങ്കിൽ (std::regex_തിരയൽ(message, item.pattern))
+			item.current_എണ്ണം++;
 
-	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_line) : "";
+	std::string loc = !src.filename.empty() ? stringf("%s:%d: ", src.filename, src.start_വരി) : "";
 	std::string pattern = loc + string(prefix) + message;
-	for (auto &[_, item] : expect_prefix_error)
-		if (std::regex_search(pattern, item.pattern))
-			item.current_count++;
+	വേണ്ടി (auto &[_, item] : expect_prefix_error)
+		എങ്കിൽ (std::regex_തിരയൽ(pattern, item.pattern))
+			item.current_എണ്ണം++;
 
-	errors_count++;
+	errors_എണ്ണം++;
 }
 
 [[noreturn]]
-void LogManager::formatted_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+ശൂന്യം LogManager::formatted_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
 {
 	error_with_prefix(LogSeverity::Error, src, prefix, format, message);
 
 	check_expected();
 
-	if (log_error_atexit)
+	എങ്കിൽ (log_error_atexit)
 		log_error_atexit();
 
 	YS_DEBUGTRAP_IF_DEBUGGING;
-	const char *e = getenv("YOSYS_ABORT_ON_LOG_ERROR");
-	if (e && atoi(e))
+	സ്ഥിരം അക്ഷരം *e = getenv("YOSYS_ABORT_ON_LOG_ERROR");
+	എങ്കിൽ (e && atoi(e))
 		abort();
 
-#if defined(_MSC_VER)
+#എങ്കിൽ defined(_MSC_VER)
 	_exit(1);
-#else
+#അല്ലെങ്കിൽ
 	_Exit(1);
 #endif
 }
 
-void LogManager::formatted_nonfatal_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
+ശൂന്യം LogManager::formatted_nonfatal_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message)
 {
 	error_with_prefix(LogSeverity::NonFatalError, src, prefix, format, message);
 }
 
-void LogManager::add_experimental(const std::string &str)
+ശൂന്യം LogManager::add_experimental(സ്ഥിരം std::string &str)
 {
-	if (experimental_ignored.count(str) == 0 && experimental.count(str) == 0) {
+	എങ്കിൽ (experimental_ignored.എണ്ണം(str) == 0 && experimental.എണ്ണം(str) == 0) {
 		log_warning("Feature '%s' is experimental.\n", str);
-		experimental.insert(str);
+		experimental.തിരുകുക(str);
 	}
 }
 
-void LogManager::add_deprecated(const std::string &feature, const std::string &earliest_removal)
+ശൂന്യം LogManager::add_deprecated(സ്ഥിരം std::string &feature, സ്ഥിരം std::string &earliest_removal)
 {
-	if (deprecated.count(feature) == 0) {
-		if (earliest_removal.empty())
+	എങ്കിൽ (deprecated.എണ്ണം(feature) == 0) {
+		എങ്കിൽ (earliest_removal.empty())
 			log_warning("Feature '%s' is deprecated.\n", feature);
-		else
+		അല്ലെങ്കിൽ
 			log_warning("Feature '%s' is deprecated and may be removed as soon as Yosys %s.\n", feature, earliest_removal);
 		deprecated[feature] = earliest_removal;
 	}
 }
 
-void log_assert_failure(const char *expr, source_location location)
+ശൂന്യം log_assert_failure(സ്ഥിരം അക്ഷരം *വ്യഞ്ജകം, source_location location)
 {
-	log_error("Assert `%s' failed in %s:%d.\n", expr, location.file_name(), location.line());
+	log_error("Assert `%s' failed in %s:%d.\n", വ്യഞ്ജകം, location.file_name(), location.വരി());
 }
 
-void log_abort_internal(const char *file, int line)
+ശൂന്യം log_abort_internal(സ്ഥിരം അക്ഷരം *file, പൂർണ്ണസംഖ്യ വരി)
 {
-	log_error("Abort in %s:%d.\n", file, line);
+	log_error("Abort in %s:%d.\n", file, വരി);
 }
 
-void log_yosys_abort_message(std::string_view file, int line, std::string_view func, std::string_view message)
+ശൂന്യം log_yosys_abort_message(std::string_view file, പൂർണ്ണസംഖ്യ വരി, std::string_view func, std::string_view message)
 {
-	log_error("Abort in %s:%d (%s): %s\n", file, line, func, message);
+	log_error("Abort in %s:%d (%s): %s\n", file, വരി, func, message);
 }
 
-void LogManager::formatted_cmd_error(std::string_view format, std::string message)
+ശൂന്യം LogManager::formatted_cmd_error(std::string_view format, std::string message)
 {
-	if (cmd_error_throw) {
+	എങ്കിൽ (cmd_error_throw) {
 		formatted_string(LogSeverity::Error, LogSourceLocation{}, "ERROR: ", format, message);
 		flush();
 
-		throw log_cmd_error_exception();
+		എറിയുക log_cmd_error_exception();
 	}
 
 	formatted_error(LogSourceLocation{}, "ERROR: ", format, message);
 }
 
-void LogManager::spacer()
+ശൂന്യം LogManager::spacer()
 {
-	if (newline_count < 2) log("\n");
-	if (newline_count < 2) log("\n");
+	എങ്കിൽ (newline_എണ്ണം < 2) log("\n");
+	എങ്കിൽ (newline_എണ്ണം < 2) log("\n");
 }
 
-void LogManager::clear_original()
+ശൂന്യം LogManager::clear_original()
 {
-	std::erase_if(sinks, [](const auto &sink) { return dynamic_cast<LogSinkRef *>(sink.get()) != nullptr; });
+	std::erase_if(sinks, [](സ്ഥിരം auto &sink) { തിരികെ dynamic_cast<LogSinkRef *>(sink.get()) != nullptr; });
 }
 
-void LogManager::push()
+ശൂന്യം LogManager::തള്ളുക()
 {
-	header_count.push_back(0);
+	header_എണ്ണം.തള്ളുക_back(0);
 }
 
-void LogManager::pop()
+ശൂന്യം LogManager::എടുക്കുക()
 {
-	header_count.pop_back();
+	header_എണ്ണം.എടുക്കുക_back();
 	flush();
 }
 
-#if defined(YOSYS_ENABLE_DLOPEN)
-void log_backtrace(const char *prefix, int levels)
+#എങ്കിൽ defined(YOSYS_ENABLE_DLOPEN)
+ശൂന്യം log_backtrace(സ്ഥിരം അക്ഷരം *prefix, പൂർണ്ണസംഖ്യ levels)
 {
-	if (levels <= 0) return;
+	എങ്കിൽ (levels <= 0) തിരികെ;
 
 	Dl_info dli;
-	void *p;
+	ശൂന്യം *p;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(0))) && dladdr(p, &dli)) {
+	എങ്കിൽ ((p = __builtin_extract_return_addr(__builtin_return_address(0))) && dladdr(p, &dli)) {
 		log("%sframe #1: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} അല്ലെങ്കിൽ {
 		log("%sframe #1: ---\n", prefix);
-		return;
+		തിരികെ;
 	}
 
-	if (levels <= 1) return;
+	എങ്കിൽ (levels <= 1) തിരികെ;
 
 #ifndef DEBUG
 	log("%sframe #2: [build Yosys with ENABLE_DEBUG for deeper backtraces]\n", prefix);
-#else
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(1))) && dladdr(p, &dli)) {
+#അല്ലെങ്കിൽ
+	എങ്കിൽ ((p = __builtin_extract_return_addr(__builtin_return_address(1))) && dladdr(p, &dli)) {
 		log("%sframe #2: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} അല്ലെങ്കിൽ {
 		log("%sframe #2: ---\n", prefix);
-		return;
+		തിരികെ;
 	}
 
-	if (levels <= 2) return;
+	എങ്കിൽ (levels <= 2) തിരികെ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(2))) && dladdr(p, &dli)) {
+	എങ്കിൽ ((p = __builtin_extract_return_addr(__builtin_return_address(2))) && dladdr(p, &dli)) {
 		log("%sframe #3: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} അല്ലെങ്കിൽ {
 		log("%sframe #3: ---\n", prefix);
-		return;
+		തിരികെ;
 	}
 
-	if (levels <= 3) return;
+	എങ്കിൽ (levels <= 3) തിരികെ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(3))) && dladdr(p, &dli)) {
+	എങ്കിൽ ((p = __builtin_extract_return_addr(__builtin_return_address(3))) && dladdr(p, &dli)) {
 		log("%sframe #4: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} അല്ലെങ്കിൽ {
 		log("%sframe #4: ---\n", prefix);
-		return;
+		തിരികെ;
 	}
 
-	if (levels <= 4) return;
+	എങ്കിൽ (levels <= 4) തിരികെ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(4))) && dladdr(p, &dli)) {
+	എങ്കിൽ ((p = __builtin_extract_return_addr(__builtin_return_address(4))) && dladdr(p, &dli)) {
 		log("%sframe #5: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} അല്ലെങ്കിൽ {
 		log("%sframe #5: ---\n", prefix);
-		return;
+		തിരികെ;
 	}
 
-	if (levels <= 5) return;
+	എങ്കിൽ (levels <= 5) തിരികെ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(5))) && dladdr(p, &dli)) {
+	എങ്കിൽ ((p = __builtin_extract_return_addr(__builtin_return_address(5))) && dladdr(p, &dli)) {
 		log("%sframe #6: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} അല്ലെങ്കിൽ {
 		log("%sframe #6: ---\n", prefix);
-		return;
+		തിരികെ;
 	}
 
-	if (levels <= 6) return;
+	എങ്കിൽ (levels <= 6) തിരികെ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(6))) && dladdr(p, &dli)) {
+	എങ്കിൽ ((p = __builtin_extract_return_addr(__builtin_return_address(6))) && dladdr(p, &dli)) {
 		log("%sframe #7: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} അല്ലെങ്കിൽ {
 		log("%sframe #7: ---\n", prefix);
-		return;
+		തിരികെ;
 	}
 
-	if (levels <= 7) return;
+	എങ്കിൽ (levels <= 7) തിരികെ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(7))) && dladdr(p, &dli)) {
+	എങ്കിൽ ((p = __builtin_extract_return_addr(__builtin_return_address(7))) && dladdr(p, &dli)) {
 		log("%sframe #8: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} അല്ലെങ്കിൽ {
 		log("%sframe #8: ---\n", prefix);
-		return;
+		തിരികെ;
 	}
 
-	if (levels <= 8) return;
+	എങ്കിൽ (levels <= 8) തിരികെ;
 
-	if ((p = __builtin_extract_return_addr(__builtin_return_address(8))) && dladdr(p, &dli)) {
+	എങ്കിൽ ((p = __builtin_extract_return_addr(__builtin_return_address(8))) && dladdr(p, &dli)) {
 		log("%sframe #9: %p %s(%p) %s(%p)\n", prefix, p, dli.dli_fname, dli.dli_fbase, dli.dli_sname, dli.dli_saddr);
-	} else {
+	} അല്ലെങ്കിൽ {
 		log("%sframe #9: ---\n", prefix);
-		return;
+		തിരികെ;
 	}
 
-	if (levels <= 9) return;
+	എങ്കിൽ (levels <= 9) തിരികെ;
 #endif
 }
-#else
-void log_backtrace(const char*, int) { }
+#അല്ലെങ്കിൽ
+ശൂന്യം log_backtrace(സ്ഥിരം അക്ഷരം*, പൂർണ്ണസംഖ്യ) { }
 #endif
 
-void LogManager::reset_stack()
+ശൂന്യം LogManager::reset_അട്ടി()
 {
-	while (header_count.size() > 1)
-		header_count.pop_back();
+	ആകുമ്പോൾ (header_എണ്ണം.size() > 1)
+		header_എണ്ണം.എടുക്കുക_back();
 	flush();
 }
 
-void log_dump_val_worker(RTLIL::IdString v) {
-	if (v == IdString::Null)
+ശൂന്യം log_dump_val_worker(RTLIL::IdString v) {
+	എങ്കിൽ (v == IdString::Null)
 		log("(null)");
-	else if (ID::is_static(v))
+	അല്ലെങ്കിൽ എങ്കിൽ (ID::is_static(v))
 		log("%s", ID::unescaped_str(v));
-	else if (yosys_design && yosys_design->twines().is_live(v))
+	അല്ലെങ്കിൽ എങ്കിൽ (yosys_design && yosys_design->twines().is_live(v))
 		log("%s", yosys_design->twines().unescaped_str(v));
-	else
+	അല്ലെങ്കിൽ
 		log("%s", v.handle_token());
 }
 
-void log_dump_val_worker(RTLIL::SigSpec v) {
+ശൂന്യം log_dump_val_worker(RTLIL::SigSpec v) {
 	log("%s", log_signal(v));
 }
 
-void log_dump_val_worker(RTLIL::State v) {
+ശൂന്യം log_dump_val_worker(RTLIL::State v) {
 	log("%s", log_signal(v));
 }
 
-std::string log_signal(const RTLIL::SigSpec &sig, bool autoint)
+std::string log_signal(സ്ഥിരം RTLIL::SigSpec &sig, തർക്കം autoint)
 {
 	std::stringstream buf;
 	RTLIL_BACKEND::dump_sigspec(buf, sig, autoint, RTLIL_BACKEND::DumpMode::Readable);
-	return buf.str();
+	തിരികെ buf.str();
 }
 
-std::string log_const(const RTLIL::Const &value, bool autoint)
+std::string log_const(സ്ഥിരം RTLIL::Const &മൂല്യം, തർക്കം autoint)
 {
-	if ((value.flags & RTLIL::CONST_FLAG_STRING) == 0)
-		return log_signal(value, autoint);
+	എങ്കിൽ ((മൂല്യം.flags & RTLIL::CONST_FLAG_STRING) == 0)
+		തിരികെ log_signal(മൂല്യം, autoint);
 
-	return "\"" + value.decode_string() + "\"";
+	തിരികെ "\"" + മൂല്യം.decode_string() + "\"";
 }
 
-void log_module(RTLIL::Module *module, std::string indent)
+ശൂന്യം log_module(RTLIL::Module *module, std::string indent)
 {
 	std::stringstream buf;
-	RTLIL_BACKEND::dump_module(buf, indent, module, module->design, false, true, false, RTLIL_BACKEND::DumpMode::Readable);
+	RTLIL_BACKEND::dump_module(buf, indent, module, module->design, അസത്യം, സത്യം, അസത്യം, RTLIL_BACKEND::DumpMode::Readable);
 	log("%s", buf.str());
 }
 
-void log_cell(RTLIL::Cell *cell, std::string indent)
+ശൂന്യം log_cell(RTLIL::Cell *cell, std::string indent)
 {
 	std::stringstream buf;
 	RTLIL_BACKEND::dump_cell(buf, indent, cell, cell->module ? cell->module->design : nullptr, RTLIL_BACKEND::DumpMode::Readable);
 	log("%s", buf.str());
 }
 
-void log_wire(RTLIL::Wire *wire, std::string indent)
+ശൂന്യം log_wire(RTLIL::Wire *wire, std::string indent)
 {
 	std::stringstream buf;
 	RTLIL_BACKEND::dump_wire(buf, indent, wire, wire->module ? wire->module->design : nullptr, RTLIL_BACKEND::DumpMode::Readable);
 	log("%s", buf.str());
 }
 
-void LogManager::check_expected()
+ശൂന്യം LogManager::check_expected()
 {
 	// copy out all of the expected logs so that they cannot be re-checked
 	// or match against themselves
@@ -622,85 +622,85 @@ void LogManager::check_expected()
 	std::swap(expect_prefix_log_copy, expect_prefix_log);
 	std::swap(expect_prefix_error_copy, expect_prefix_error);
 
-	auto check = [&](const std::string kind, std::string pattern, LogExpectedItem item) {
-		if (item.current_count == 0) {
+	auto check = [&](സ്ഥിരം std::string kind, std::string pattern, LogExpectedItem item) {
+		എങ്കിൽ (item.current_എണ്ണം == 0) {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' not found !\n", kind, pattern);
 		}
-		if (item.current_count != item.expected_count) {
+		എങ്കിൽ (item.current_എണ്ണം != item.expected_എണ്ണം) {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' found %d time(s), instead of %d time(s) !\n",
-				kind.c_str(), pattern.c_str(), item.current_count, item.expected_count);
+				kind.c_str(), pattern.c_str(), item.current_എണ്ണം, item.expected_എണ്ണം);
 		}
 	};
 
-	for (auto &[pattern, item] : expect_warning_copy)
+	വേണ്ടി (auto &[pattern, item] : expect_warning_copy)
 		check("warning", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_warning_copy)
+	വേണ്ടി (auto &[pattern, item] : expect_prefix_warning_copy)
 		check("prefixed warning", pattern, item);
-	for (auto &[pattern, item] : expect_log_copy)
+	വേണ്ടി (auto &[pattern, item] : expect_log_copy)
 		check("log", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_log_copy)
+	വേണ്ടി (auto &[pattern, item] : expect_prefix_log_copy)
 		check("prefixed log", pattern, item);
 
-	auto check_err = [&](const std::string kind, std::string pattern, LogExpectedItem item) {
-		if (item.current_count == item.expected_count) {
+	auto check_err = [&](സ്ഥിരം std::string kind, std::string pattern, LogExpectedItem item) {
+		എങ്കിൽ (item.current_എണ്ണം == item.expected_എണ്ണം) {
 			warn_regexes.clear();
 			log("Expected %s pattern '%s' found !!!\n", kind, pattern);
 			yosys_shutdown();
-			#if defined(_MSC_VER)
+			#എങ്കിൽ defined(_MSC_VER)
 				_exit(0);
-			#else
+			#അല്ലെങ്കിൽ
 				_Exit(0);
 			#endif
-		} else {
+		} അല്ലെങ്കിൽ {
 			warn_regexes.clear();
 			log_error("Expected %s pattern '%s' not found !\n", kind, pattern);
 		}
 	};
-	for (auto &[pattern, item] : expect_error_copy)
+	വേണ്ടി (auto &[pattern, item] : expect_error_copy)
 		check_err("error", pattern, item);
-	for (auto &[pattern, item] : expect_prefix_error_copy)
+	വേണ്ടി (auto &[pattern, item] : expect_prefix_error_copy)
 		check_err("prefixed error", pattern, item);
 }
 
-void LogManager::report_unexpected_error()
+ശൂന്യം LogManager::report_unexpected_error()
 {
-	if (expect_no_warnings && warnings_count_noexpect)
+	എങ്കിൽ (expect_no_warnings && warnings_എണ്ണം_noexpect)
 		log_error("Unexpected warnings found: %d unique messages, %d total, %d expected\n", GetSize(warnings),
-					warnings_count, warnings_count - warnings_count_noexpect);
+					warnings_എണ്ണം, warnings_എണ്ണം - warnings_എണ്ണം_noexpect);
 }
 
-void LogManager::add_expect(std::string type, std::string pattern, int count)
+ശൂന്യം LogManager::add_expect(std::string type, std::string pattern, പൂർണ്ണസംഖ്യ എണ്ണം)
 {
-	if (type == "error")
-		expect_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-error")
-		expect_prefix_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "warning")
-		expect_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-warning")
-		expect_prefix_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "log")
-		expect_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else if (type == "prefix-log")
-		expect_prefix_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), count);
-	else log_abort();
+	എങ്കിൽ (type == "error")
+		expect_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), എണ്ണം);
+	അല്ലെങ്കിൽ എങ്കിൽ (type == "prefix-error")
+		expect_prefix_error[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), എണ്ണം);
+	അല്ലെങ്കിൽ എങ്കിൽ (type == "warning")
+		expect_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), എണ്ണം);
+	അല്ലെങ്കിൽ എങ്കിൽ (type == "prefix-warning")
+		expect_prefix_warning[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), എണ്ണം);
+	അല്ലെങ്കിൽ എങ്കിൽ (type == "log")
+		expect_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), എണ്ണം);
+	അല്ലെങ്കിൽ എങ്കിൽ (type == "prefix-log")
+		expect_prefix_log[pattern] = LogExpectedItem(YS_REGEX_COMPILE(pattern), എണ്ണം);
+	അല്ലെങ്കിൽ log_abort();
 }
 
-void LogManager::start_hasher()
+ശൂന്യം LogManager::start_hasher()
 {
 	hasher = std::make_unique<SHA1>();
 }
 
 std::string LogManager::finish_hasher()
 {
-	if (!hasher)
-		return {};
+	എങ്കിൽ (!hasher)
+		തിരികെ {};
 
 	std::string hash = hasher->final().substr(0, 10);
 	hasher.reset();
-	return hash;
+	തിരികെ hash;
 }
 
 YOSYS_NAMESPACE_END

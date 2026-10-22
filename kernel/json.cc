@@ -17,155 +17,155 @@
  *
  */
 
-#include "kernel/json.h"
+#അന്തര്ഭാവ "kernel/json.h"
 
 USING_YOSYS_NAMESPACE
 
-void PrettyJson::emit_to_log()
+ശൂന്യം PrettyJson::emit_to_log()
 {
-    struct LogTarget : public Target {
-        void emit(const char *data) override { log("%s", data); }
+    ഘടന LogTarget : പൊതു Target {
+        ശൂന്യം emit(സ്ഥിരം അക്ഷരം *data) override { log("%s", data); }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new LogTarget));
+    targets.തള്ളുക_back(std::unique_ptr<Target>(പുതിയ LogTarget));
 }
 
-void PrettyJson::append_to_string(std::string &target)
+ശൂന്യം PrettyJson::append_to_string(std::string &target)
 {
-    struct AppendStringTarget : public Target {
+    ഘടന AppendStringTarget : പൊതു Target {
         std::string &target;
         AppendStringTarget(std::string &target) : target(target) {}
-        void emit(const char *data) override { target += data; }
+        ശൂന്യം emit(സ്ഥിരം അക്ഷരം *data) override { target += data; }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new AppendStringTarget(target)));
+    targets.തള്ളുക_back(std::unique_ptr<Target>(പുതിയ AppendStringTarget(target)));
 }
 
-bool PrettyJson::write_to_file(const std::string &path)
+തർക്കം PrettyJson::write_to_file(സ്ഥിരം std::string &path)
 {
-    struct WriteFileTarget : public Target {
+    ഘടന WriteFileTarget : പൊതു Target {
         std::ofstream target;
-        void emit(const char *data) override { target << data; }
-        void flush() override { target.flush(); }
+        ശൂന്യം emit(സ്ഥിരം അക്ഷരം *data) override { target << data; }
+        ശൂന്യം flush() override { target.flush(); }
     };
 
-    auto target = std::unique_ptr<WriteFileTarget>(new WriteFileTarget);
+    auto target = std::unique_ptr<WriteFileTarget>(പുതിയ WriteFileTarget);
     target->target.open(path);
-    if (target->target.fail())
-        return false;
-    targets.push_back(std::unique_ptr<Target>(target.release()));
-    return true;
+    എങ്കിൽ (target->target.fail())
+        തിരികെ അസത്യം;
+    targets.തള്ളുക_back(std::unique_ptr<Target>(target.release()));
+    തിരികെ സത്യം;
 }
 
-void PrettyJson::line(bool space_if_inline)
+ശൂന്യം PrettyJson::വരി(തർക്കം space_if_inline)
 {
-    if (compact_depth != INT_MAX) {
-        if (space_if_inline)
+    എങ്കിൽ (compact_depth != INT_MAX) {
+        എങ്കിൽ (space_if_inline)
             raw(" ");
-        return;
+        തിരികെ;
     }
-    int indent = state.size() - (state.empty() ? 0 : state.back() == VALUE);
+    പൂർണ്ണസംഖ്യ indent = state.size() - (state.empty() ? 0 : state.back() == മൂല്യം_2);
     newline_indent.resize(1 + 2 * indent, ' ');
     raw(newline_indent.c_str());
 }
 
-void PrettyJson::raw(const char *raw_json)
+ശൂന്യം PrettyJson::raw(സ്ഥിരം അക്ഷരം *raw_json)
 {
-    for (auto &target : targets)
+    വേണ്ടി (auto &target : targets)
         target->emit(raw_json);
 }
 
-void PrettyJson::flush()
+ശൂന്യം PrettyJson::flush()
 {
-    for (auto &target : targets)
+    വേണ്ടി (auto &target : targets)
         target->flush();
 }
 
-void PrettyJson::begin_object()
+ശൂന്യം PrettyJson::begin_object()
 {
-    begin_value();
+    begin_മൂല്യം();
     raw("{");
-    state.push_back(OBJECT_FIRST);
+    state.തള്ളുക_back(OBJECT_FIRST);
 }
 
-void PrettyJson::begin_array()
+ശൂന്യം PrettyJson::begin_array()
 {
-    begin_value();
+    begin_മൂല്യം();
     raw("[");
-    state.push_back(ARRAY_FIRST);
+    state.തള്ളുക_back(ARRAY_FIRST);
 }
 
-void PrettyJson::end_object()
+ശൂന്യം PrettyJson::end_object()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == OBJECT)
-        line(false);
-    else
-        log_assert(top_scope == OBJECT_FIRST);
+    Scope മുകൾ_scope = state.back();
+    state.എടുക്കുക_back();
+    എങ്കിൽ (മുകൾ_scope == OBJECT)
+        വരി(അസത്യം);
+    അല്ലെങ്കിൽ
+        log_assert(മുകൾ_scope == OBJECT_FIRST);
     raw("}");
-    end_value();
+    end_മൂല്യം();
 }
 
-void PrettyJson::end_array()
+ശൂന്യം PrettyJson::end_array()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == ARRAY)
-        line(false);
-    else
-        log_assert(top_scope == ARRAY_FIRST);
+    Scope മുകൾ_scope = state.back();
+    state.എടുക്കുക_back();
+    എങ്കിൽ (മുകൾ_scope == ARRAY)
+        വരി(അസത്യം);
+    അല്ലെങ്കിൽ
+        log_assert(മുകൾ_scope == ARRAY_FIRST);
     raw("]");
-    end_value();
+    end_മൂല്യം();
 }
 
-void PrettyJson::name(const char *name)
+ശൂന്യം PrettyJson::name(സ്ഥിരം അക്ഷരം *name)
 {
-    if (state.back() == OBJECT_FIRST) {
+    എങ്കിൽ (state.back() == OBJECT_FIRST) {
         state.back() = OBJECT;
-        line(false);
-    } else {
+        വരി(അസത്യം);
+    } അല്ലെങ്കിൽ {
         raw(",");
-        line();
+        വരി();
     }
     raw(Json(name).dump().c_str());
     raw(": ");
-    state.push_back(VALUE);
+    state.തള്ളുക_back(മൂല്യം_2);
 }
 
-void PrettyJson::begin_value()
+ശൂന്യം PrettyJson::begin_മൂല്യം()
 {
-    if (state.back() == ARRAY_FIRST) {
-        line(false);
+    എങ്കിൽ (state.back() == ARRAY_FIRST) {
+        വരി(അസത്യം);
         state.back() = ARRAY;
-    } else if (state.back() == ARRAY) {
+    } അല്ലെങ്കിൽ എങ്കിൽ (state.back() == ARRAY) {
         raw(",");
-        line();
-    } else {
-        log_assert(state.back() == VALUE);
-        state.pop_back();
+        വരി();
+    } അല്ലെങ്കിൽ {
+        log_assert(state.back() == മൂല്യം_2);
+        state.എടുക്കുക_back();
     }
 }
 
-void PrettyJson::end_value()
+ശൂന്യം PrettyJson::end_മൂല്യം()
 {
-    if (state.empty()) {
+    എങ്കിൽ (state.empty()) {
         raw("\n");
         flush();
     }
-    if (GetSize(state) < compact_depth)
+    എങ്കിൽ (GetSize(state) < compact_depth)
         compact_depth = INT_MAX;
 }
 
-void PrettyJson::value_json(const Json &value)
+ശൂന്യം PrettyJson::മൂല്യം_json(സ്ഥിരം Json &മൂല്യം)
 {
-    begin_value();
-    raw(value.dump().c_str());
-    end_value();
+    begin_മൂല്യം();
+    raw(മൂല്യം.dump().c_str());
+    end_മൂല്യം();
 }
 
-void PrettyJson::entry_json(const char *name, const Json &value)
+ശൂന്യം PrettyJson::entry_json(സ്ഥിരം അക്ഷരം *name, സ്ഥിരം Json &മൂല്യം)
 {
-    this->name(name);
-    this->value(value);
+    ഇത്->name(name);
+    ഇത്->മൂല്യം(മൂല്യം);
 }

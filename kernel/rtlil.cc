@@ -17,463 +17,463 @@
  *
  */
 
-#include "kernel/rtlil.h"
-#include "kernel/yosys.h"
-#include "kernel/macc.h"
-#include "kernel/newcelltypes.h"
-#include "kernel/sigtools.h"
-#include "kernel/threading.h"
-#include "frontends/verilog/verilog_frontend.h"
-#include "frontends/verilog/preproc.h"
-#include "backends/rtlil/rtlil_backend.h"
+#അന്തര്ഭാവ "kernel/rtlil.h"
+#അന്തര്ഭാവ "kernel/yosys.h"
+#അന്തര്ഭാവ "kernel/macc.h"
+#അന്തര്ഭാവ "kernel/newcelltypes.h"
+#അന്തര്ഭാവ "kernel/sigtools.h"
+#അന്തര്ഭാവ "kernel/threading.h"
+#അന്തര്ഭാവ "frontends/verilog/verilog_frontend.h"
+#അന്തര്ഭാവ "frontends/verilog/preproc.h"
+#അന്തര്ഭാവ "backends/rtlil/rtlil_backend.h"
 
-#include <string.h>
-#include <algorithm>
-#include <charconv>
-#include <optional>
-#include <string_view>
-#include <sstream>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <algorithm>
+#അന്തര്ഭാവ <charconv>
+#അന്തര്ഭാവ <optional>
+#അന്തര്ഭാവ <string_view>
+#അന്തര്ഭാവ <sstream>
 
 YOSYS_NAMESPACE_BEGIN
 
 dict<std::string, std::string> RTLIL::constpad;
 
-const pool<IdString> &RTLIL::builtin_ff_cell_types() {
-	static const pool<IdString> res = []() {
+സ്ഥിരം pool<IdString> &RTLIL::builtin_ff_cell_types() {
+	സ്ഥിതം സ്ഥിരം pool<IdString> res = []() {
 		pool<IdString> r;
-		for (size_t i = 0; i < StaticCellTypes::builder.count; i++) {
+		വേണ്ടി (size_t i = 0; i < StaticCellTypes::builder.എണ്ണം; i++) {
 			auto &cell = StaticCellTypes::builder.cells[i];
-			if (cell.features.is_ff)
-				r.insert(cell.type);
+			എങ്കിൽ (cell.features.is_ff)
+				r.തിരുകുക(cell.type);
 		}
-		return r;
+		തിരികെ r;
 	}();
-	return res;
+	തിരികെ res;
 }
 
 #define check(condition) log_assert(condition && "malformed Const union")
 
-const Const::bitvectype& Const::get_bits() const {
+സ്ഥിരം Const::bitvectype& Const::get_bits() സ്ഥിരം {
 	check(is_bits());
-	return *get_if_bits();
+	തിരികെ *get_if_bits();
 }
 
-const std::string& Const::get_str() const {
+സ്ഥിരം std::string& Const::get_str() സ്ഥിരം {
 	check(is_str());
-	return *get_if_str();
+	തിരികെ *get_if_str();
 }
 
 Const::bitvectype& Const::get_bits() {
 	check(is_bits());
-	return *get_if_bits();
+	തിരികെ *get_if_bits();
 }
 
 std::string& Const::get_str() {
 	check(is_str());
-	return *get_if_str();
+	തിരികെ *get_if_str();
 }
 
 RTLIL::Const::Const(std::string str)
 {
 	flags = RTLIL::CONST_FLAG_STRING;
-	new ((void*)&str_) std::string(std::move(str));
+	പുതിയ ((ശൂന്യം*)&str_) std::string(std::move(str));
 	tag = backing_tag::string;
 }
 
 RTLIL::Const::Const(long long val) // default width 32
 {
 	flags = RTLIL::CONST_FLAG_NONE;
-	char bytes[] = {
-		(char)(val >> 24), (char)(val >> 16), (char)(val >> 8), (char)val
+	അക്ഷരം bytes[] = {
+		(അക്ഷരം)(val >> 24), (അക്ഷരം)(val >> 16), (അക്ഷരം)(val >> 8), (അക്ഷരം)val
 	};
-	new ((void*)&str_) std::string(bytes, 4);
+	പുതിയ ((ശൂന്യം*)&str_) std::string(bytes, 4);
 	tag = backing_tag::string;
 }
 
-RTLIL::Const::Const(long long val, int width)
+RTLIL::Const::Const(long long val, പൂർണ്ണസംഖ്യ width)
 {
 	log_assert(width >= 0 && width < RTLIL::WIDTH_LIMIT);
 	flags = RTLIL::CONST_FLAG_NONE;
-	if ((width & 7) == 0) {
-		new ((void*)&str_) std::string();
+	എങ്കിൽ ((width & 7) == 0) {
+		പുതിയ ((ശൂന്യം*)&str_) std::string();
 		tag = backing_tag::string;
 		std::string& str = get_str();
-		int bytes = width >> 3;
-		signed char sign_byte = val < 0 ? -1 : 0;
+		പൂർണ്ണസംഖ്യ bytes = width >> 3;
+		signed അക്ഷരം sign_byte = val < 0 ? -1 : 0;
 		str.resize(bytes, sign_byte);
-		bytes = std::min<int>(bytes, sizeof(val));
-		for (int i = 0; i < bytes; i++) {
+		bytes = std::min<പൂർണ്ണസംഖ്യ>(bytes, വലുപ്പം(val));
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < bytes; i++) {
 			str[str.size() - 1 - i] = val;
 			val = val >> 8;
 		}
-		return;
+		തിരികെ;
 	}
 
-	new ((void*)&bits_) bitvectype();
+	പുതിയ ((ശൂന്യം*)&bits_) bitvectype();
 	tag = backing_tag::bits;
 	bitvectype& bv = get_bits();
 	bv.reserve(width);
-	for (int i = 0; i < width; i++) {
-		bv.push_back((val & 1) != 0 ? State::S1 : State::S0);
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < width; i++) {
+		bv.തള്ളുക_back((val & 1) != 0 ? State::S1 : State::S0);
 		val = val >> 1;
 	}
 }
 
-RTLIL::Const::Const(RTLIL::State bit, int width)
+RTLIL::Const::Const(RTLIL::State bit, പൂർണ്ണസംഖ്യ width)
 {
 	log_assert(width >= 0 && width < RTLIL::WIDTH_LIMIT);
 	flags = RTLIL::CONST_FLAG_NONE;
-	new ((void*)&bits_) bitvectype();
+	പുതിയ ((ശൂന്യം*)&bits_) bitvectype();
 	tag = backing_tag::bits;
 	bitvectype& bv = get_bits();
 	bv.reserve(width);
-	for (int i = 0; i < width; i++)
-		bv.push_back(bit);
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < width; i++)
+		bv.തള്ളുക_back(bit);
 }
 
-RTLIL::Const::Const(const std::vector<bool> &bits)
+RTLIL::Const::Const(സ്ഥിരം std::vector<തർക്കം> &bits)
 {
 	flags = RTLIL::CONST_FLAG_NONE;
-	new ((void*)&bits_) bitvectype();
+	പുതിയ ((ശൂന്യം*)&bits_) bitvectype();
 	tag = backing_tag::bits;
 	bitvectype& bv = get_bits();
 	bv.reserve(bits.size());
-	for (const auto &b : bits)
+	വേണ്ടി (സ്ഥിരം auto &b : bits)
 		bv.emplace_back(b ? State::S1 : State::S0);
 }
 
-RTLIL::Const::Const(const RTLIL::Const &other) {
+RTLIL::Const::Const(സ്ഥിരം RTLIL::Const &other) {
 	tag = other.tag;
 	flags = other.flags;
-	if (is_str())
-		new ((void*)&str_) std::string(other.get_str());
-	else if (is_bits())
-		new ((void*)&bits_) bitvectype(other.get_bits());
-	else
-		check(false);
+	എങ്കിൽ (is_str())
+		പുതിയ ((ശൂന്യം*)&str_) std::string(other.get_str());
+	അല്ലെങ്കിൽ എങ്കിൽ (is_bits())
+		പുതിയ ((ശൂന്യം*)&bits_) bitvectype(other.get_bits());
+	അല്ലെങ്കിൽ
+		check(അസത്യം);
 }
 
 RTLIL::Const::Const(RTLIL::Const &&other) {
 	tag = other.tag;
 	flags = other.flags;
-	if (is_str())
-		new ((void*)&str_) std::string(std::move(other.get_str()));
-	else if (is_bits())
-		new ((void*)&bits_) bitvectype(std::move(other.get_bits()));
-	else
-		check(false);
+	എങ്കിൽ (is_str())
+		പുതിയ ((ശൂന്യം*)&str_) std::string(std::move(other.get_str()));
+	അല്ലെങ്കിൽ എങ്കിൽ (is_bits())
+		പുതിയ ((ശൂന്യം*)&bits_) bitvectype(std::move(other.get_bits()));
+	അല്ലെങ്കിൽ
+		check(അസത്യം);
 }
 
-RTLIL::Const &RTLIL::Const::operator =(const RTLIL::Const &other) {
+RTLIL::Const &RTLIL::Const::operator =(സ്ഥിരം RTLIL::Const &other) {
 	flags = other.flags;
-	if (other.is_str()) {
-		if (!is_str()) {
+	എങ്കിൽ (other.is_str()) {
+		എങ്കിൽ (!is_str()) {
 			// sketchy zone
 			check(is_bits());
 			bits_.~bitvectype();
-			(void)new ((void*)&str_) std::string();
+			(ശൂന്യം)പുതിയ ((ശൂന്യം*)&str_) std::string();
 		}
 		tag = other.tag;
 		get_str() = other.get_str();
-	} else if (other.is_bits()) {
-		if (!is_bits()) {
+	} അല്ലെങ്കിൽ എങ്കിൽ (other.is_bits()) {
+		എങ്കിൽ (!is_bits()) {
 			// sketchy zone
 			check(is_str());
 			str_.~string();
-			(void)new ((void*)&bits_) bitvectype();
+			(ശൂന്യം)പുതിയ ((ശൂന്യം*)&bits_) bitvectype();
 		}
 		tag = other.tag;
 		get_bits() = other.get_bits();
-	} else {
-		check(false);
+	} അല്ലെങ്കിൽ {
+		check(അസത്യം);
 	}
-	return *this;
+	തിരികെ *ഇത്;
 }
 
 RTLIL::Const::~Const() {
-	if (is_bits())
+	എങ്കിൽ (is_bits())
 		bits_.~bitvectype();
-	else if (is_str())
+	അല്ലെങ്കിൽ എങ്കിൽ (is_str())
 		str_.~string();
-	else
-		check(false);
+	അല്ലെങ്കിൽ
+		check(അസത്യം);
 }
 
-bool RTLIL::Const::operator<(const RTLIL::Const &other) const
+തർക്കം RTLIL::Const::operator<(സ്ഥിരം RTLIL::Const &other) സ്ഥിരം
 {
-	if (size() != other.size())
-		return size() < other.size();
+	എങ്കിൽ (size() != other.size())
+		തിരികെ size() < other.size();
 
-	for (int i = 0; i < size(); i++)
-		if ((*this)[i] != other[i])
-			return (*this)[i] < other[i];
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < size(); i++)
+		എങ്കിൽ ((*ഇത്)[i] != other[i])
+			തിരികെ (*ഇത്)[i] < other[i];
 
-	return false;
+	തിരികെ അസത്യം;
 }
 
-bool RTLIL::Const::operator ==(const RTLIL::Const &other) const
+തർക്കം RTLIL::Const::operator ==(സ്ഥിരം RTLIL::Const &other) സ്ഥിരം
 {
-	if (is_str() && other.is_str())
-		return get_str() == other.get_str();
-	if (is_bits() && other.is_bits())
-		return get_bits() == other.get_bits();
+	എങ്കിൽ (is_str() && other.is_str())
+		തിരികെ get_str() == other.get_str();
+	എങ്കിൽ (is_bits() && other.is_bits())
+		തിരികെ get_bits() == other.get_bits();
 
-	if (size() != other.size())
-		return false;
+	എങ്കിൽ (size() != other.size())
+		തിരികെ അസത്യം;
 
-	for (int i = 0; i < size(); i++)
-	if ((*this)[i] != other[i])
-		return false;
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < size(); i++)
+	എങ്കിൽ ((*ഇത്)[i] != other[i])
+		തിരികെ അസത്യം;
 
-	return true;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::Const::operator !=(const RTLIL::Const &other) const
+തർക്കം RTLIL::Const::operator !=(സ്ഥിരം RTLIL::Const &other) സ്ഥിരം
 {
-	return !(*this == other);
+	തിരികെ !(*ഇത് == other);
 }
 
 std::vector<RTLIL::State>& RTLIL::Const::bits_internal()
 {
 	bitvectorize_internal();
-	return get_bits();
+	തിരികെ get_bits();
 }
 
-std::vector<RTLIL::State> RTLIL::Const::to_bits() const
+std::vector<RTLIL::State> RTLIL::Const::to_bits() സ്ഥിരം
 {
 	std::vector<State> v;
-	for (auto bit : *this)
-		v.push_back(bit);
-	return v;
+	വേണ്ടി (auto bit : *ഇത്)
+		v.തള്ളുക_back(bit);
+	തിരികെ v;
 }
 
-bool RTLIL::Const::as_bool() const
+തർക്കം RTLIL::Const::as_bool() സ്ഥിരം
 {
-	if (is_str()) {
-		for (char ch : get_str())
-			if (ch != 0)
-				return true;
-		return false;
+	എങ്കിൽ (is_str()) {
+		വേണ്ടി (അക്ഷരം ch : get_str())
+			എങ്കിൽ (ch != 0)
+				തിരികെ സത്യം;
+		തിരികെ അസത്യം;
 	}
 
-	const bitvectype& bv = get_bits();
-	for (size_t i = 0; i < bv.size(); i++)
-		if (bv[i] == State::S1)
-			return true;
-	return false;
+	സ്ഥിരം bitvectype& bv = get_bits();
+	വേണ്ടി (size_t i = 0; i < bv.size(); i++)
+		എങ്കിൽ (bv[i] == State::S1)
+			തിരികെ സത്യം;
+	തിരികെ അസത്യം;
 }
 
-int RTLIL::Const::as_int(bool is_signed) const
+പൂർണ്ണസംഖ്യ RTLIL::Const::as_int(തർക്കം is_signed) സ്ഥിരം
 {
 	int32_t ret = 0;
-	if (const std::string *s = get_if_str()) {
-		int size = GetSize(*s);
+	എങ്കിൽ (സ്ഥിരം std::string *s = get_if_str()) {
+		പൂർണ്ണസംഖ്യ size = GetSize(*s);
 		// Ignore any bytes after the first 4 since bits beyond 32 are truncated.
-		for (int i = std::min(4, size); i > 0; i--)
-			ret |= static_cast<unsigned char>((*s)[size - i]) << ((i - 1) * 8);
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = std::min(4, size); i > 0; i--)
+			ret |= static_cast<unsigned അക്ഷരം>((*s)[size - i]) << ((i - 1) * 8);
 		// If is_signed and the string is shorter than 4 bytes then apply sign extension.
-		if (is_signed && size > 0 && size < 4 && ((*s)[0] & 0x80))
+		എങ്കിൽ (is_signed && size > 0 && size < 4 && ((*s)[0] & 0x80))
 			ret |= UINT32_MAX << size*8;
-		return ret;
+		തിരികെ ret;
 	}
 
-	const bitvectype& bv = get_bits();
-	int significant_bits = std::min(GetSize(bv), 32);
-	for (int i = 0; i < significant_bits; i++)
-		if (bv[i] == State::S1)
+	സ്ഥിരം bitvectype& bv = get_bits();
+	പൂർണ്ണസംഖ്യ significant_bits = std::min(GetSize(bv), 32);
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < significant_bits; i++)
+		എങ്കിൽ (bv[i] == State::S1)
 			ret |= 1 << i;
-	if (is_signed && significant_bits > 0 && significant_bits < 32 && bv.back() == State::S1 )
+	എങ്കിൽ (is_signed && significant_bits > 0 && significant_bits < 32 && bv.back() == State::S1 )
 		ret |= UINT32_MAX << significant_bits;
-	return ret;
+	തിരികെ ret;
 }
 
-bool RTLIL::Const::convertible_to_int(bool is_signed) const
+തർക്കം RTLIL::Const::convertible_to_int(തർക്കം is_signed) സ്ഥിരം
 {
 	auto size = get_min_size(is_signed);
 
-	if (size < 0)
-		return false;
+	എങ്കിൽ (size < 0)
+		തിരികെ അസത്യം;
 
 	// If it fits in 31 bits it is definitely convertible
-	if (size <= 31)
-		return true;
+	എങ്കിൽ (size <= 31)
+		തിരികെ സത്യം;
 
 	// If it fits in 32 bits, it is convertible if signed or if unsigned and the
 	// leading bit is not 1
-	if (size == 32) {
-		if (is_signed)
-			return true;
-		return (*this)[size - 1] != State::S1;
+	എങ്കിൽ (size == 32) {
+		എങ്കിൽ (is_signed)
+			തിരികെ സത്യം;
+		തിരികെ (*ഇത്)[size - 1] != State::S1;
 	}
 
-	return false;
+	തിരികെ അസത്യം;
 }
 
-std::optional<int> RTLIL::Const::try_as_int(bool is_signed) const
+std::optional<പൂർണ്ണസംഖ്യ> RTLIL::Const::try_as_int(തർക്കം is_signed) സ്ഥിരം
 {
-	if (!convertible_to_int(is_signed))
-		return std::nullopt;
-	return as_int(is_signed);
+	എങ്കിൽ (!convertible_to_int(is_signed))
+		തിരികെ std::nullopt;
+	തിരികെ as_int(is_signed);
 }
 
-int RTLIL::Const::as_int_saturating(bool is_signed) const
+പൂർണ്ണസംഖ്യ RTLIL::Const::as_int_saturating(തർക്കം is_signed) സ്ഥിരം
 {
-	if (!convertible_to_int(is_signed)) {
-		if (!is_signed)
-			return std::numeric_limits<int>::max();
+	എങ്കിൽ (!convertible_to_int(is_signed)) {
+		എങ്കിൽ (!is_signed)
+			തിരികെ std::numeric_limits<പൂർണ്ണസംഖ്യ>::max();
 
-		const auto min_size = get_min_size(is_signed);
+		സ്ഥിരം auto min_size = get_min_size(is_signed);
 		log_assert(min_size > 0);
-		const auto neg = (*this)[min_size - 1];
-		return neg ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
+		സ്ഥിരം auto neg = (*ഇത്)[min_size - 1];
+		തിരികെ neg ? std::numeric_limits<പൂർണ്ണസംഖ്യ>::min() : std::numeric_limits<പൂർണ്ണസംഖ്യ>::max();
 	}
-	return as_int(is_signed);
+	തിരികെ as_int(is_signed);
 }
 
-void RTLIL::Const::tag_bare_integer_const(const std::string &value)
+ശൂന്യം RTLIL::Const::tag_bare_integer_const(സ്ഥിരം std::string &മൂല്യം)
 {
-	if (value.empty() || value.find('\'') != std::string::npos)
-		return;
-	size_t start = (value[0] == '-' || value[0] == '+') ? 1 : 0;
-	if (start < value.size() && std::all_of(value.begin() + start, value.end(), ::isdigit))
+	എങ്കിൽ (മൂല്യം.empty() || മൂല്യം.find('\'') != std::string::npos)
+		തിരികെ;
+	size_t start = (മൂല്യം[0] == '-' || മൂല്യം[0] == '+') ? 1 : 0;
+	എങ്കിൽ (start < മൂല്യം.size() && std::all_of(മൂല്യം.begin() + start, മൂല്യം.end(), ::isdigit))
 		flags |= RTLIL::CONST_FLAG_SIGNED;
 }
 
-int RTLIL::Const::get_min_size(bool is_signed) const
+പൂർണ്ണസംഖ്യ RTLIL::Const::get_min_size(തർക്കം is_signed) സ്ഥിരം
 {
-	if (empty()) return 0;
+	എങ്കിൽ (empty()) തിരികെ 0;
 
 	// back to front (MSB to LSB)
 	RTLIL::State leading_bit;
-	if (is_signed)
+	എങ്കിൽ (is_signed)
 		leading_bit = (back() == RTLIL::State::Sx) ? RTLIL::State::S0 : back();
-	else
+	അല്ലെങ്കിൽ
 		leading_bit = RTLIL::State::S0;
 
 	auto idx = size();
-	while (idx > 0 && (*this)[idx -1] == leading_bit) {
+	ആകുമ്പോൾ (idx > 0 && (*ഇത്)[idx -1] == leading_bit) {
 		idx--;
 	}
 
 	// signed needs one leading bit
-	if (is_signed && idx < size()) {
+	എങ്കിൽ (is_signed && idx < size()) {
 		idx++;
 	}
 	// must be at least one bit
-	return (idx == 0) ? 1 : idx;
+	തിരികെ (idx == 0) ? 1 : idx;
 }
 
-void RTLIL::Const::compress(bool is_signed)
+ശൂന്യം RTLIL::Const::compress(തർക്കം is_signed)
 {
 	auto idx = get_min_size(is_signed);
 	resize(idx, RTLIL::State::S0);
 }
 
-std::optional<int> RTLIL::Const::as_int_compress(bool is_signed) const
+std::optional<പൂർണ്ണസംഖ്യ> RTLIL::Const::as_int_compress(തർക്കം is_signed) സ്ഥിരം
 {
-	return try_as_int(is_signed);
+	തിരികെ try_as_int(is_signed);
 }
 
-std::string RTLIL::Const::as_string(const char* any) const
+std::string RTLIL::Const::as_string(സ്ഥിരം അക്ഷരം* any) സ്ഥിരം
 {
-	int sz = size();
+	പൂർണ്ണസംഖ്യ sz = size();
 	std::string ret;
 	ret.reserve(sz);
-	for (int i = sz - 1; i >= 0; --i)
-		switch ((*this)[i]) {
-			case S0: ret.push_back('0'); break;
-			case S1: ret.push_back('1'); break;
-			case Sx: ret.push_back('x'); break;
-			case Sz: ret.push_back('z'); break;
-			case Sa: ret += any; break;
-			case Sm: ret.push_back('m'); break;
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = sz - 1; i >= 0; --i)
+		തിരഞ്ഞെടുപ്പ് ((*ഇത്)[i]) {
+			അവസ്ഥ S0: ret.തള്ളുക_back('0'); നിർത്തുക;
+			അവസ്ഥ S1: ret.തള്ളുക_back('1'); നിർത്തുക;
+			അവസ്ഥ Sx: ret.തള്ളുക_back('x'); നിർത്തുക;
+			അവസ്ഥ Sz: ret.തള്ളുക_back('z'); നിർത്തുക;
+			അവസ്ഥ Sa: ret += any; നിർത്തുക;
+			അവസ്ഥ Sm: ret.തള്ളുക_back('m'); നിർത്തുക;
 		}
-	return ret;
+	തിരികെ ret;
 }
 
-RTLIL::Const RTLIL::Const::from_string(const std::string &str)
+RTLIL::Const RTLIL::Const::from_string(സ്ഥിരം std::string &str)
 {
 	Const c;
 	bitvectype& bv = c.get_bits();
 	bv.reserve(str.size());
-	for (auto it = str.rbegin(); it != str.rend(); it++)
-		switch (*it) {
-			case '0': bv.push_back(State::S0); break;
-			case '1': bv.push_back(State::S1); break;
-			case 'x': bv.push_back(State::Sx); break;
-			case 'z': bv.push_back(State::Sz); break;
-			case 'm': bv.push_back(State::Sm); break;
-			default: bv.push_back(State::Sa);
+	വേണ്ടി (auto it = str.rbegin(); it != str.rend(); it++)
+		തിരഞ്ഞെടുപ്പ് (*it) {
+			അവസ്ഥ '0': bv.തള്ളുക_back(State::S0); നിർത്തുക;
+			അവസ്ഥ '1': bv.തള്ളുക_back(State::S1); നിർത്തുക;
+			അവസ്ഥ 'x': bv.തള്ളുക_back(State::Sx); നിർത്തുക;
+			അവസ്ഥ 'z': bv.തള്ളുക_back(State::Sz); നിർത്തുക;
+			അവസ്ഥ 'm': bv.തള്ളുക_back(State::Sm); നിർത്തുക;
+			സ്ഥിരസ്ഥിതി: bv.തള്ളുക_back(State::Sa);
 		}
-	return c;
+	തിരികെ c;
 }
 
-std::string RTLIL::Const::decode_string() const
+std::string RTLIL::Const::decode_string() സ്ഥിരം
 {
-	if (auto str = get_if_str())
-		return *str;
+	എങ്കിൽ (auto str = get_if_str())
+		തിരികെ *str;
 
-	const bitvectype& bv = get_bits();
-	const int n = GetSize(bv);
-	const int n_over_8 = n / 8;
+	സ്ഥിരം bitvectype& bv = get_bits();
+	സ്ഥിരം പൂർണ്ണസംഖ്യ n = GetSize(bv);
+	സ്ഥിരം പൂർണ്ണസംഖ്യ n_over_8 = n / 8;
 	std::string s;
 	s.reserve(n_over_8);
-	int i = n_over_8 * 8;
-	if (i < n) {
-		char ch = 0;
-		for (int j = 0; j < (n - i); j++) {
-			if (bv[i + j] == RTLIL::State::S1) {
+	പൂർണ്ണസംഖ്യ i = n_over_8 * 8;
+	എങ്കിൽ (i < n) {
+		അക്ഷരം ch = 0;
+		വേണ്ടി (പൂർണ്ണസംഖ്യ j = 0; j < (n - i); j++) {
+			എങ്കിൽ (bv[i + j] == RTLIL::State::S1) {
 				ch |= 1 << j;
 			}
 		}
-		if (ch != 0)
+		എങ്കിൽ (ch != 0)
 			s.append({ch});
 	}
 	i -= 8;
-	for (; i >= 0; i -= 8) {
-		char ch = 0;
-		for (int j = 0; j < 8; j++) {
-			if (bv[i + j] == RTLIL::State::S1) {
+	വേണ്ടി (; i >= 0; i -= 8) {
+		അക്ഷരം ch = 0;
+		വേണ്ടി (പൂർണ്ണസംഖ്യ j = 0; j < 8; j++) {
+			എങ്കിൽ (bv[i + j] == RTLIL::State::S1) {
 				ch |= 1 << j;
 			}
 		}
-		if (ch != 0)
+		എങ്കിൽ (ch != 0)
 			s.append({ch});
 	}
-	return s;
+	തിരികെ s;
 }
 
-int RTLIL::Const::size() const {
-	if (is_str())
-		return 8 * str_.size();
-	else {
+പൂർണ്ണസംഖ്യ RTLIL::Const::size() സ്ഥിരം {
+	എങ്കിൽ (is_str())
+		തിരികെ 8 * str_.size();
+	അല്ലെങ്കിൽ {
 		check(is_bits());
-		return bits_.size();
+		തിരികെ bits_.size();
 	}
 }
 
-bool RTLIL::Const::empty() const {
-	if (is_str())
-		return str_.empty();
-	else {
+തർക്കം RTLIL::Const::empty() സ്ഥിരം {
+	എങ്കിൽ (is_str())
+		തിരികെ str_.empty();
+	അല്ലെങ്കിൽ {
 		check(is_bits());
-		return bits_.empty();
+		തിരികെ bits_.empty();
 	}
 }
 
-void RTLIL::Const::bitvectorize_internal() {
-	if (tag == backing_tag::bits)
-		return;
+ശൂന്യം RTLIL::Const::bitvectorize_internal() {
+	എങ്കിൽ (tag == backing_tag::bits)
+		തിരികെ;
 
 	check(is_str());
 
 	bitvectype new_bits;
 
 	new_bits.reserve(str_.size() * 8);
-	for (int i = str_.size() - 1; i >= 0; i--) {
-		unsigned char ch = str_[i];
-		for (int j = 0; j < 8; j++) {
-			new_bits.push_back((ch & 1) != 0 ? State::S1 : State::S0);
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = str_.size() - 1; i >= 0; i--) {
+		unsigned അക്ഷരം ch = str_[i];
+		വേണ്ടി (പൂർണ്ണസംഖ്യ j = 0; j < 8; j++) {
+			new_bits.തള്ളുക_back((ch & 1) != 0 ? State::S1 : State::S0);
 			ch = ch >> 1;
 		}
 	}
@@ -481,255 +481,255 @@ void RTLIL::Const::bitvectorize_internal() {
 	{
 		// sketchy zone
 		str_.~string();
-		(void)new ((void*)&bits_) bitvectype(std::move(new_bits));
+		(ശൂന്യം)പുതിയ ((ശൂന്യം*)&bits_) bitvectype(std::move(new_bits));
 		tag = backing_tag::bits;
 	}
 }
 
-void RTLIL::Const::append(const RTLIL::Const &other) {
+ശൂന്യം RTLIL::Const::append(സ്ഥിരം RTLIL::Const &other) {
 	bitvectorize_internal();
 	bitvectype& bv = get_bits();
-	bv.insert(bv.end(), other.begin(), other.end());
+	bv.തിരുകുക(bv.end(), other.begin(), other.end());
 }
 
-RTLIL::State RTLIL::Const::const_iterator::operator*() const {
-	if (auto bv = parent->get_if_bits())
-		return (*bv)[idx];
+RTLIL::State RTLIL::Const::const_iterator::operator*() സ്ഥിരം {
+	എങ്കിൽ (auto bv = parent->get_if_bits())
+		തിരികെ (*bv)[idx];
 
-	int char_idx = parent->get_str().size() - idx / 8 - 1;
-	bool bit = (parent->get_str()[char_idx] & (1 << (idx % 8)));
-	return bit ? State::S1 : State::S0;
+	പൂർണ്ണസംഖ്യ char_idx = parent->get_str().size() - idx / 8 - 1;
+	തർക്കം bit = (parent->get_str()[char_idx] & (1 << (idx % 8)));
+	തിരികെ bit ? State::S1 : State::S0;
 }
 
-bool RTLIL::Const::is_fully_zero() const
+തർക്കം RTLIL::Const::is_fully_zero() സ്ഥിരം
 {
-	if (auto str = get_if_str()) {
-		for (char ch : *str)
-			if (ch != 0)
-				return false;
-		return true;
+	എങ്കിൽ (auto str = get_if_str()) {
+		വേണ്ടി (അക്ഷരം ch : *str)
+			എങ്കിൽ (ch != 0)
+				തിരികെ അസത്യം;
+		തിരികെ സത്യം;
 	}
 
-	const bitvectype& bv = get_bits();
+	സ്ഥിരം bitvectype& bv = get_bits();
 
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::S0)
-			return false;
+	വേണ്ടി (സ്ഥിരം auto &bit : bv)
+		എങ്കിൽ (bit != RTLIL::State::S0)
+			തിരികെ അസത്യം;
 
-	return true;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::Const::is_fully_ones() const
+തർക്കം RTLIL::Const::is_fully_ones() സ്ഥിരം
 {
-	if (auto str = get_if_str()) {
-		for (char ch : *str)
-			if (ch != (char)0xff)
-				return false;
-		return true;
+	എങ്കിൽ (auto str = get_if_str()) {
+		വേണ്ടി (അക്ഷരം ch : *str)
+			എങ്കിൽ (ch != (അക്ഷരം)0xff)
+				തിരികെ അസത്യം;
+		തിരികെ സത്യം;
 	}
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::S1)
-			return false;
+	സ്ഥിരം bitvectype& bv = get_bits();
+	വേണ്ടി (സ്ഥിരം auto &bit : bv)
+		എങ്കിൽ (bit != RTLIL::State::S1)
+			തിരികെ അസത്യം;
 
-	return true;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::Const::is_fully_def() const
+തർക്കം RTLIL::Const::is_fully_def() സ്ഥിരം
 {
-	if (is_str())
-		return true;
+	എങ്കിൽ (is_str())
+		തിരികെ സത്യം;
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::S0 && bit != RTLIL::State::S1)
-			return false;
+	സ്ഥിരം bitvectype& bv = get_bits();
+	വേണ്ടി (സ്ഥിരം auto &bit : bv)
+		എങ്കിൽ (bit != RTLIL::State::S0 && bit != RTLIL::State::S1)
+			തിരികെ അസത്യം;
 
-	return true;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::Const::is_fully_undef() const
+തർക്കം RTLIL::Const::is_fully_undef() സ്ഥിരം
 {
-	if (auto str = get_if_str())
-		return str->empty();
+	എങ്കിൽ (auto str = get_if_str())
+		തിരികെ str->empty();
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::Sx && bit != RTLIL::State::Sz)
-			return false;
+	സ്ഥിരം bitvectype& bv = get_bits();
+	വേണ്ടി (സ്ഥിരം auto &bit : bv)
+		എങ്കിൽ (bit != RTLIL::State::Sx && bit != RTLIL::State::Sz)
+			തിരികെ അസത്യം;
 
-	return true;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::Const::is_fully_undef_x_only() const
+തർക്കം RTLIL::Const::is_fully_undef_x_only() സ്ഥിരം
 {
-	if (auto str = get_if_str())
-		return str->empty();
+	എങ്കിൽ (auto str = get_if_str())
+		തിരികെ str->empty();
 
-	const bitvectype& bv = get_bits();
-	for (const auto &bit : bv)
-		if (bit != RTLIL::State::Sx)
-			return false;
+	സ്ഥിരം bitvectype& bv = get_bits();
+	വേണ്ടി (സ്ഥിരം auto &bit : bv)
+		എങ്കിൽ (bit != RTLIL::State::Sx)
+			തിരികെ അസത്യം;
 
-	return true;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::Const::is_onehot(int *pos) const
+തർക്കം RTLIL::Const::is_onehot(പൂർണ്ണസംഖ്യ *pos) സ്ഥിരം
 {
-	bool found = false;
-	int size = GetSize(*this);
-	for (int i = 0; i < size; i++) {
-		State bit = (*this)[i];
-		if (bit != RTLIL::State::S0 && bit != RTLIL::State::S1)
-			return false;
-		if (bit == RTLIL::State::S1) {
-			if (found)
-				return false;
-			if (pos)
+	തർക്കം found = അസത്യം;
+	പൂർണ്ണസംഖ്യ size = GetSize(*ഇത്);
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < size; i++) {
+		State bit = (*ഇത്)[i];
+		എങ്കിൽ (bit != RTLIL::State::S0 && bit != RTLIL::State::S1)
+			തിരികെ അസത്യം;
+		എങ്കിൽ (bit == RTLIL::State::S1) {
+			എങ്കിൽ (found)
+				തിരികെ അസത്യം;
+			എങ്കിൽ (pos)
 				*pos = i;
-			found = true;
+			found = സത്യം;
 		}
 	}
-	return found;
+	തിരികെ found;
 }
 
-Hasher RTLIL::Const::hash_into(Hasher h) const
+Hasher RTLIL::Const::hash_into(Hasher h) സ്ഥിരം
 {
-	if (auto str = get_if_str())
-		return hashlib::hash_ops<std::string>::hash_into(*str, h);
+	എങ്കിൽ (auto str = get_if_str())
+		തിരികെ hashlib::hash_ops<std::string>::hash_into(*str, h);
 
 	// If the bits are all 0/1, hash packed bits using the string hash.
 	// Otherwise hash the leading packed bits with the rest of the bits individually.
-	const bitvectype &bv = get_bits();
-	int size = GetSize(bv);
+	സ്ഥിരം bitvectype &bv = get_bits();
+	പൂർണ്ണസംഖ്യ size = GetSize(bv);
 	std::string packed;
-	int packed_size = (size + 7) >> 3;
+	പൂർണ്ണസംഖ്യ packed_size = (size + 7) >> 3;
 	packed.resize(packed_size, 0);
-	for (int bi = 0; bi < packed_size; ++bi) {
-		char ch = 0;
-		int end = std::min((bi + 1)*8, size);
-		for (int i = bi*8; i < end; ++i) {
+	വേണ്ടി (പൂർണ്ണസംഖ്യ bi = 0; bi < packed_size; ++bi) {
+		അക്ഷരം ch = 0;
+		പൂർണ്ണസംഖ്യ end = std::min((bi + 1)*8, size);
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = bi*8; i < end; ++i) {
 			RTLIL::State b = bv[i];
-			if (b > RTLIL::State::S1) {
+			എങ്കിൽ (b > RTLIL::State::S1) {
 				// Hash the packed bits we've seen so far, plus the remaining bits.
 				h = hashlib::hash_ops<std::string>::hash_into(packed, h);
-				h = hashlib::hash_ops<char>::hash_into(ch, h);
-				for (; i < size; ++i) {
+				h = hashlib::hash_ops<അക്ഷരം>::hash_into(ch, h);
+				വേണ്ടി (; i < size; ++i) {
 					h = hashlib::hash_ops<RTLIL::State>::hash_into(bv[i], h);
 				}
 				h.eat(size);
-				return h;
+				തിരികെ h;
 			}
-			ch |= static_cast<int>(b) << (i & 7);
+			ch |= static_cast<പൂർണ്ണസംഖ്യ>(b) << (i & 7);
 		}
 		packed[packed_size - 1 - bi] = ch;
 	}
-	return hashlib::hash_ops<std::string>::hash_into(packed, h);
+	തിരികെ hashlib::hash_ops<std::string>::hash_into(packed, h);
 }
 
-RTLIL::Const RTLIL::Const::extract(int offset, int len, RTLIL::State padding) const {
+RTLIL::Const RTLIL::Const::extract(പൂർണ്ണസംഖ്യ offset, പൂർണ്ണസംഖ്യ len, RTLIL::State padding) സ്ഥിരം {
 	bitvectype ret_bv;
 	ret_bv.reserve(len);
-	for (int i = offset; i < offset + len; i++)
-		ret_bv.push_back(i < GetSize(*this) ? (*this)[i] : padding);
-	return RTLIL::Const(ret_bv);
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = offset; i < offset + len; i++)
+		ret_bv.തള്ളുക_back(i < GetSize(*ഇത്) ? (*ഇത്)[i] : padding);
+	തിരികെ RTLIL::Const(ret_bv);
 }
 #undef check /* check(condition) for Const */
 
-bool RTLIL::AttrObject::has_attribute(RTLIL::IdString id) const
+തർക്കം RTLIL::AttrObject::has_attribute(RTLIL::IdString id) സ്ഥിരം
 {
-	return attributes.count(id);
+	തിരികെ attributes.എണ്ണം(id);
 }
 
-void RTLIL::AttrObject::set_bool_attribute(RTLIL::IdString id, bool value)
+ശൂന്യം RTLIL::AttrObject::set_bool_attribute(RTLIL::IdString id, തർക്കം മൂല്യം)
 {
-	if (value)
+	എങ്കിൽ (മൂല്യം)
 		attributes[id] = RTLIL::Const(1);
-	else
+	അല്ലെങ്കിൽ
 		attributes.erase(id);
 }
 
-bool RTLIL::AttrObject::get_bool_attribute(RTLIL::IdString id) const
+തർക്കം RTLIL::AttrObject::get_bool_attribute(RTLIL::IdString id) സ്ഥിരം
 {
-	const auto it = attributes.find(id);
-	if (it == attributes.end())
-		return false;
-	return it->second.as_bool();
+	സ്ഥിരം auto it = attributes.find(id);
+	എങ്കിൽ (it == attributes.end())
+		തിരികെ അസത്യം;
+	തിരികെ it->second.as_bool();
 }
 
-void RTLIL::AttrObject::set_string_attribute(RTLIL::IdString id, string value)
+ശൂന്യം RTLIL::AttrObject::set_string_attribute(RTLIL::IdString id, string മൂല്യം)
 {
-	if (value.empty())
+	എങ്കിൽ (മൂല്യം.empty())
 		attributes.erase(id);
-	else
-		attributes[id] = value;
+	അല്ലെങ്കിൽ
+		attributes[id] = മൂല്യം;
 }
 
-string RTLIL::AttrObject::get_string_attribute(RTLIL::IdString id) const
+string RTLIL::AttrObject::get_string_attribute(RTLIL::IdString id) സ്ഥിരം
 {
-	std::string value;
-	const auto it = attributes.find(id);
-	if (it != attributes.end())
-		value = it->second.decode_string();
-	return value;
+	std::string മൂല്യം;
+	സ്ഥിരം auto it = attributes.find(id);
+	എങ്കിൽ (it != attributes.end())
+		മൂല്യം = it->second.decode_string();
+	തിരികെ മൂല്യം;
 }
 
-void RTLIL::AttrObject::set_strpool_attribute(RTLIL::IdString id, const pool<string> &data)
+ശൂന്യം RTLIL::AttrObject::set_strpool_attribute(RTLIL::IdString id, സ്ഥിരം pool<string> &data)
 {
 	string attrval;
-	for (const auto &s : data) {
-		if (!attrval.empty())
+	വേണ്ടി (സ്ഥിരം auto &s : data) {
+		എങ്കിൽ (!attrval.empty())
 			attrval += "|";
 		attrval += s;
 	}
 	set_string_attribute(id, attrval);
 }
 
-void RTLIL::AttrObject::add_strpool_attribute(RTLIL::IdString id, const pool<string> &data)
+ശൂന്യം RTLIL::AttrObject::add_strpool_attribute(RTLIL::IdString id, സ്ഥിരം pool<string> &data)
 {
 	pool<string> union_data = get_strpool_attribute(id);
-	union_data.insert(data.begin(), data.end());
-	if (!union_data.empty())
+	union_data.തിരുകുക(data.begin(), data.end());
+	എങ്കിൽ (!union_data.empty())
 		set_strpool_attribute(id, union_data);
 }
 
-void RTLIL::Design::absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf)
+ശൂന്യം RTLIL::Design::absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf)
 {
 	obj->attributes = std::move(buf);
 }
 
-namespace {
+നാമാകാശ {
 	template<typename F>
-	void walk_process_attr_objects(RTLIL::Process *process, F visit) {
+	ശൂന്യം walk_process_attr_objects(RTLIL::Process *process, F visit) {
 		visit(process);
-		std::vector<RTLIL::CaseRule*> case_stack{&process->root_case};
-		while (!case_stack.empty()) {
-			RTLIL::CaseRule *cs = case_stack.back();
-			case_stack.pop_back();
+		std::vector<RTLIL::CaseRule*> case_അട്ടി{&process->വേര്_case};
+		ആകുമ്പോൾ (!case_അട്ടി.empty()) {
+			RTLIL::CaseRule *cs = case_അട്ടി.back();
+			case_അട്ടി.എടുക്കുക_back();
 			visit(cs);
-			for (auto *sw : cs->switches) {
+			വേണ്ടി (auto *sw : cs->switches) {
 				visit(sw);
-				for (auto *case_ : sw->cases)
-					case_stack.push_back(case_);
+				വേണ്ടി (auto *case_ : sw->cases)
+					case_അട്ടി.തള്ളുക_back(case_);
 			}
 		}
-		for (auto *sync : process->syncs)
-			for (auto &mwa : sync->mem_write_actions)
+		വേണ്ടി (auto *സമന്വയം : process->syncs)
+			വേണ്ടി (auto &mwa : സമന്വയം->mem_write_actions)
 				visit(&mwa);
 	}
 
 	template<typename F>
-	void walk_attr_objects(RTLIL::Design *design, F visit) {
-		for (auto &[_, module] : design->modules_) {
+	ശൂന്യം walk_attr_objects(RTLIL::Design *design, F visit) {
+		വേണ്ടി (auto &[_, module] : design->modules_) {
 			visit(module);
-			for (auto &[_, wire] : module->wires_)
+			വേണ്ടി (auto &[_, wire] : module->wires_)
 				visit(wire);
-			for (auto &[_, mem] : module->memories)
+			വേണ്ടി (auto &[_, mem] : module->memories)
 				visit(mem);
-			for (auto &[_, cell] : module->cells_)
+			വേണ്ടി (auto &[_, cell] : module->cells_)
 				visit(cell);
-			for (auto &[_, process] : module->processes)
+			വേണ്ടി (auto &[_, process] : module->processes)
 				walk_process_attr_objects(process, visit);
 		}
 	}
@@ -740,426 +740,426 @@ size_t RTLIL::Design::gc_twines()
 {
 	int64_t start = PerformanceTimer::query();
 	pool<IdString> live;
-	auto root = [&](IdString ref) {
-		if (ref != IdString::Null)
-			live.insert(ref);
+	auto വേര് = [&](IdString ref) {
+		എങ്കിൽ (ref != IdString::Null)
+			live.തിരുകുക(ref);
 	};
 
-	walk_attr_objects(this, [&](const RTLIL::AttrObject *obj) {
-		for (auto &attr : obj->attributes)
-			root(attr.first);
+	walk_attr_objects(ഇത്, [&](സ്ഥിരം RTLIL::AttrObject *obj) {
+		വേണ്ടി (auto &attr : obj->attributes)
+			വേര്(attr.first);
 	});
 
-	root(selected_active_module);
+	വേര്(selected_active_module);
 
-	for (auto &[name, module] : modules_) {
-		root(name);
-		for (IdString port : module->ports)
-			root(port);
-		for (IdString param : module->avail_parameters)
-			root(param);
-		for (auto &[param, _] : module->parameter_default_values)
-			root(param);
-		for (auto &[name, _] : module->memories)
-			root(name);
-		for (auto &[name, _] : module->processes)
-			root(name);
-		for (auto &[name, wire] : module->wires_) {
-			root(name);
-			if (wire->known_driver())
-				root(wire->driverPort());
+	വേണ്ടി (auto &[name, module] : modules_) {
+		വേര്(name);
+		വേണ്ടി (IdString port : module->ports)
+			വേര്(port);
+		വേണ്ടി (IdString param : module->avail_parameters)
+			വേര്(param);
+		വേണ്ടി (auto &[param, _] : module->parameter_default_മൂല്യങ്ങൾ)
+			വേര്(param);
+		വേണ്ടി (auto &[name, _] : module->memories)
+			വേര്(name);
+		വേണ്ടി (auto &[name, _] : module->processes)
+			വേര്(name);
+		വേണ്ടി (auto &[name, wire] : module->wires_) {
+			വേര്(name);
+			എങ്കിൽ (wire->known_driver())
+				വേര്(wire->driverPort());
 		}
-		for (auto &[name, cell] : module->cells_) {
-			root(name);
-			root(cell->type);
-			for (auto &conn : cell->connections())
-				root(conn.first);
-			for (auto &param : cell->parameters)
-				root(param.first);
+		വേണ്ടി (auto &[name, cell] : module->cells_) {
+			വേര്(name);
+			വേര്(cell->type);
+			വേണ്ടി (auto &conn : cell->connections())
+				വേര്(conn.first);
+			വേണ്ടി (auto &param : cell->parameters)
+				വേര്(param.first);
 		}
-		for (auto &[_, process] : module->processes) {
-			std::vector<RTLIL::CaseRule*> case_stack{&process->root_case};
-			while (!case_stack.empty()) {
-				RTLIL::CaseRule *cs = case_stack.back();
-				case_stack.pop_back();
-				for (auto *sw : cs->switches) {
-					for (auto *case_ : sw->cases)
-						case_stack.push_back(case_);
+		വേണ്ടി (auto &[_, process] : module->processes) {
+			std::vector<RTLIL::CaseRule*> case_അട്ടി{&process->വേര്_case};
+			ആകുമ്പോൾ (!case_അട്ടി.empty()) {
+				RTLIL::CaseRule *cs = case_അട്ടി.back();
+				case_അട്ടി.എടുക്കുക_back();
+				വേണ്ടി (auto *sw : cs->switches) {
+					വേണ്ടി (auto *case_ : sw->cases)
+						case_അട്ടി.തള്ളുക_back(case_);
 				}
 			}
-			for (auto *sync : process->syncs) {
-				for (auto &mwa : sync->mem_write_actions)
-					root(mwa.memid);
+			വേണ്ടി (auto *സമന്വയം : process->syncs) {
+				വേണ്ടി (auto &mwa : സമന്വയം->mem_write_actions)
+					വേര്(mwa.memid);
 			}
 		}
 	}
 
-	auto root_selection = [&](const RTLIL::Selection &sel) {
-		for (IdString m : sel.selected_modules)
-			root(m);
-		for (auto &[m, members] : sel.selected_members) {
-			root(m);
-			for (IdString member : members)
-				root(member);
+	auto വേര്_selection = [&](സ്ഥിരം RTLIL::Selection &sel) {
+		വേണ്ടി (IdString m : sel.selected_modules)
+			വേര്(m);
+		വേണ്ടി (auto &[m, members] : sel.selected_members) {
+			വേര്(m);
+			വേണ്ടി (IdString member : members)
+				വേര്(member);
 		}
 	};
 
-	for (auto &[name, sel] : selection_vars) {
-		root(name);
-		root_selection(sel);
+	വേണ്ടി (auto &[name, sel] : selection_vars) {
+		വേര്(name);
+		വേര്_selection(sel);
 	}
 
-	for (auto &sel : selection_stack)
-		root_selection(sel);
+	വേണ്ടി (auto &sel : selection_അട്ടി)
+		വേര്_selection(sel);
 
 	size_t erased = twines_.gc(live);
 
 	int64_t time_ns = PerformanceTimer::query() - start;
 	Pass::subtract_from_current_runtime_ns(time_ns);
 	twine_gc_ns += time_ns;
-	++twine_gc_count;
-	return erased;
+	++twine_gc_എണ്ണം;
+	തിരികെ erased;
 }
 
 
 
 
-pool<string> RTLIL::AttrObject::get_strpool_attribute(RTLIL::IdString id) const
+pool<string> RTLIL::AttrObject::get_strpool_attribute(RTLIL::IdString id) സ്ഥിരം
 {
 	pool<string> data;
-	if (attributes.count(id) != 0)
-		for (auto s : split_tokens(get_string_attribute(id), "|"))
-			data.insert(s);
-	return data;
+	എങ്കിൽ (attributes.എണ്ണം(id) != 0)
+		വേണ്ടി (auto s : split_tokens(get_string_attribute(id), "|"))
+			data.തിരുകുക(s);
+	തിരികെ data;
 }
 
-void RTLIL::AttrObject::set_hdlname_attribute(const vector<string> &hierarchy)
+ശൂന്യം RTLIL::AttrObject::set_hdlname_attribute(സ്ഥിരം vector<string> &hierarchy)
 {
 	string attrval;
-	for (const auto &ident : hierarchy) {
-		if (!attrval.empty())
+	വേണ്ടി (സ്ഥിരം auto &ident : hierarchy) {
+		എങ്കിൽ (!attrval.empty())
 			attrval += " ";
 		attrval += ident;
 	}
 	set_string_attribute(ID::hdlname, attrval);
 }
 
-vector<string> RTLIL::AttrObject::get_hdlname_attribute() const
+vector<string> RTLIL::AttrObject::get_hdlname_attribute() സ്ഥിരം
 {
-	return split_tokens(get_string_attribute(ID::hdlname), " ");
+	തിരികെ split_tokens(get_string_attribute(ID::hdlname), " ");
 }
 
-void RTLIL::AttrObject::set_intvec_attribute(RTLIL::IdString id, const vector<int> &data)
+ശൂന്യം RTLIL::AttrObject::set_intvec_attribute(RTLIL::IdString id, സ്ഥിരം vector<പൂർണ്ണസംഖ്യ> &data)
 {
 	std::stringstream attrval;
-	for (auto &i : data) {
-		if (attrval.tellp() > 0)
+	വേണ്ടി (auto &i : data) {
+		എങ്കിൽ (attrval.tellp() > 0)
 			attrval << " ";
 		attrval << i;
 	}
 	attributes[id] = RTLIL::Const(attrval.str());
 }
 
-vector<int> RTLIL::AttrObject::get_intvec_attribute(RTLIL::IdString id) const
+vector<പൂർണ്ണസംഖ്യ> RTLIL::AttrObject::get_intvec_attribute(RTLIL::IdString id) സ്ഥിരം
 {
-	vector<int> data;
+	vector<പൂർണ്ണസംഖ്യ> data;
 	auto it = attributes.find(id);
-	if (it != attributes.end())
-		for (const auto &s : split_tokens(attributes.at(id).decode_string())) {
-			char *end = nullptr;
+	എങ്കിൽ (it != attributes.end())
+		വേണ്ടി (സ്ഥിരം auto &s : split_tokens(attributes.at(id).decode_string())) {
+			അക്ഷരം *end = nullptr;
 			errno = 0;
-			long value = strtol(s.c_str(), &end, 10);
-			if (end != s.c_str() + s.size())
+			long മൂല്യം = strtol(s.c_str(), &end, 10);
+			എങ്കിൽ (end != s.c_str() + s.size())
 				log_cmd_error("Literal for intvec attribute has invalid format\n");
-			if (errno == ERANGE || value < INT_MIN || value > INT_MAX)
+			എങ്കിൽ (errno == ERANGE || മൂല്യം < INT_MIN || മൂല്യം > INT_MAX)
 				log_cmd_error("Literal for intvec attribute is out of range\n");
-			data.push_back(value);
+			data.തള്ളുക_back(മൂല്യം);
 		}
-	return data;
+	തിരികെ data;
 }
 
-bool RTLIL::Selection::boxed_module(RTLIL::IdString mod_name) const
+തർക്കം RTLIL::Selection::boxed_module(RTLIL::IdString mod_name) സ്ഥിരം
 {
-	if (current_design != nullptr) {
+	എങ്കിൽ (current_design != nullptr) {
 		auto module = current_design->module(mod_name);
-		return module && module->get_blackbox_attribute();
-	} else {
+		തിരികെ module && module->get_blackbox_attribute();
+	} അല്ലെങ്കിൽ {
 		log_warning("Unable to check if module is boxed for null design.\n");
-		return false;
+		തിരികെ അസത്യം;
 	}
 }
 
-bool RTLIL::Selection::selected_module(RTLIL::IdString mod_name) const
+തർക്കം RTLIL::Selection::selected_module(RTLIL::IdString mod_name) സ്ഥിരം
 {
-	if (complete_selection)
-		return true;
-	if (!selects_boxes && boxed_module(mod_name))
-		return false;
-	if (full_selection)
-		return true;
-	if (selected_modules.count(mod_name) > 0)
-		return true;
-	if (selected_members.count(mod_name) > 0)
-		return true;
-	return false;
+	എങ്കിൽ (complete_selection)
+		തിരികെ സത്യം;
+	എങ്കിൽ (!selects_boxes && boxed_module(mod_name))
+		തിരികെ അസത്യം;
+	എങ്കിൽ (full_selection)
+		തിരികെ സത്യം;
+	എങ്കിൽ (selected_modules.എണ്ണം(mod_name) > 0)
+		തിരികെ സത്യം;
+	എങ്കിൽ (selected_members.എണ്ണം(mod_name) > 0)
+		തിരികെ സത്യം;
+	തിരികെ അസത്യം;
 }
 
-bool RTLIL::Selection::selected_whole_module(RTLIL::IdString mod_name) const
+തർക്കം RTLIL::Selection::selected_whole_module(RTLIL::IdString mod_name) സ്ഥിരം
 {
-	if (complete_selection)
-		return true;
-	if (!selects_boxes && boxed_module(mod_name))
-		return false;
-	if (full_selection)
-		return true;
-	if (selected_modules.count(mod_name) > 0)
-		return true;
-	return false;
+	എങ്കിൽ (complete_selection)
+		തിരികെ സത്യം;
+	എങ്കിൽ (!selects_boxes && boxed_module(mod_name))
+		തിരികെ അസത്യം;
+	എങ്കിൽ (full_selection)
+		തിരികെ സത്യം;
+	എങ്കിൽ (selected_modules.എണ്ണം(mod_name) > 0)
+		തിരികെ സത്യം;
+	തിരികെ അസത്യം;
 }
 
-bool RTLIL::Selection::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) const
+തർക്കം RTLIL::Selection::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) സ്ഥിരം
 {
-	if (complete_selection)
-		return true;
-	if (!selects_boxes && boxed_module(mod_name))
-		return false;
-	if (full_selection)
-		return true;
-	if (selected_modules.count(mod_name) > 0)
-		return true;
-	if (selected_members.count(mod_name) > 0)
-		if (selected_members.at(mod_name).count(memb_name) > 0)
-			return true;
-	return false;
+	എങ്കിൽ (complete_selection)
+		തിരികെ സത്യം;
+	എങ്കിൽ (!selects_boxes && boxed_module(mod_name))
+		തിരികെ അസത്യം;
+	എങ്കിൽ (full_selection)
+		തിരികെ സത്യം;
+	എങ്കിൽ (selected_modules.എണ്ണം(mod_name) > 0)
+		തിരികെ സത്യം;
+	എങ്കിൽ (selected_members.എണ്ണം(mod_name) > 0)
+		എങ്കിൽ (selected_members.at(mod_name).എണ്ണം(memb_name) > 0)
+			തിരികെ സത്യം;
+	തിരികെ അസത്യം;
 }
 
-void RTLIL::Selection::optimize(RTLIL::Design *design)
+ശൂന്യം RTLIL::Selection::optimize(RTLIL::Design *design)
 {
-	if (design != current_design) {
+	എങ്കിൽ (design != current_design) {
 		current_design = design;
 	}
 
-	if (selects_boxes && full_selection)
-		complete_selection = true;
-	if (complete_selection) {
-		full_selection = false;
-		selects_boxes = true;
+	എങ്കിൽ (selects_boxes && full_selection)
+		complete_selection = സത്യം;
+	എങ്കിൽ (complete_selection) {
+		full_selection = അസത്യം;
+		selects_boxes = സത്യം;
 	}
-	if (selects_all()) {
+	എങ്കിൽ (selects_all()) {
 		selected_modules.clear();
 		selected_members.clear();
-		return;
+		തിരികെ;
 	}
 
 	std::vector<RTLIL::IdString> del_list, add_list;
 
 	del_list.clear();
-	for (auto mod_name : selected_modules) {
-		if (current_design->module(mod_name) == nullptr || (!selects_boxes && boxed_module(mod_name)))
-			del_list.push_back(mod_name);
+	വേണ്ടി (auto mod_name : selected_modules) {
+		എങ്കിൽ (current_design->module(mod_name) == nullptr || (!selects_boxes && boxed_module(mod_name)))
+			del_list.തള്ളുക_back(mod_name);
 		selected_members.erase(mod_name);
 	}
-	for (auto mod_name : del_list)
+	വേണ്ടി (auto mod_name : del_list)
 		selected_modules.erase(mod_name);
 
 	del_list.clear();
-	for (auto &it : selected_members)
-		if (current_design->module(it.first) == nullptr || (!selects_boxes && boxed_module(it.first)))
-			del_list.push_back(it.first);
-	for (auto mod_name : del_list)
+	വേണ്ടി (auto &it : selected_members)
+		എങ്കിൽ (current_design->module(it.first) == nullptr || (!selects_boxes && boxed_module(it.first)))
+			del_list.തള്ളുക_back(it.first);
+	വേണ്ടി (auto mod_name : del_list)
 		selected_members.erase(mod_name);
 
-	for (auto &it : selected_members) {
+	വേണ്ടി (auto &it : selected_members) {
 		del_list.clear();
-		for (auto memb_name : it.second)
-			if (current_design->module(it.first)->count_id(memb_name) == 0)
-				del_list.push_back(memb_name);
-		for (auto memb_name : del_list)
+		വേണ്ടി (auto memb_name : it.second)
+			എങ്കിൽ (current_design->module(it.first)->എണ്ണം_id(memb_name) == 0)
+				del_list.തള്ളുക_back(memb_name);
+		വേണ്ടി (auto memb_name : del_list)
 			it.second.erase(memb_name);
 	}
 
 	del_list.clear();
 	add_list.clear();
-	for (auto &it : selected_members)
-		if (it.second.size() == 0)
-			del_list.push_back(it.first);
-		else if (it.second.size() == current_design->module(it.first)->wires_.size() + current_design->module(it.first)->memories.size() +
+	വേണ്ടി (auto &it : selected_members)
+		എങ്കിൽ (it.second.size() == 0)
+			del_list.തള്ളുക_back(it.first);
+		അല്ലെങ്കിൽ എങ്കിൽ (it.second.size() == current_design->module(it.first)->wires_.size() + current_design->module(it.first)->memories.size() +
 				current_design->module(it.first)->cells_.size() + current_design->module(it.first)->processes.size())
-			add_list.push_back(it.first);
-	for (auto mod_name : del_list)
+			add_list.തള്ളുക_back(it.first);
+	വേണ്ടി (auto mod_name : del_list)
 		selected_members.erase(mod_name);
-	for (auto mod_name : add_list) {
+	വേണ്ടി (auto mod_name : add_list) {
 		selected_members.erase(mod_name);
-		selected_modules.insert(mod_name);
+		selected_modules.തിരുകുക(mod_name);
 	}
 
-	if (selected_modules.size() == current_design->modules_.size()) {
+	എങ്കിൽ (selected_modules.size() == current_design->modules_.size()) {
 		selected_modules.clear();
 		selected_members.clear();
-		if (selects_boxes)
-			complete_selection = true;
-		else
-			full_selection = true;
+		എങ്കിൽ (selects_boxes)
+			complete_selection = സത്യം;
+		അല്ലെങ്കിൽ
+			full_selection = സത്യം;
 	}
 }
 
-void RTLIL::Selection::clear()
+ശൂന്യം RTLIL::Selection::clear()
 {
-	full_selection = false;
-	complete_selection = false;
+	full_selection = അസത്യം;
+	complete_selection = അസത്യം;
 	selected_modules.clear();
 	selected_members.clear();
 }
 
 RTLIL::Design::Design()
-  : verilog_defines (new define_map_t)
+  : verilog_defines (പുതിയ define_map_t)
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	സ്ഥിതം unsigned പൂർണ്ണസംഖ്യ hashidx_എണ്ണം = 123456789;
+	hashidx_എണ്ണം = mkhash_xorshift(hashidx_എണ്ണം);
+	hashidx_ = hashidx_എണ്ണം;
 
 	refcount_modules_ = 0;
 	selected_active_module.clear();
-	push_full_selection();
+	തള്ളുക_full_selection();
 
-	RTLIL::Design::get_all_designs()->insert(std::pair<unsigned int, RTLIL::Design*>(hashidx_, this));
+	RTLIL::Design::get_all_designs()->തിരുകുക(std::pair<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Design*>(hashidx_, ഇത്));
 }
 
 RTLIL::Design::~Design()
 {
-	for (auto &pr : modules_)
+	വേണ്ടി (auto &pr : modules_)
 		delete pr.second;
 	RTLIL::Design::get_all_designs()->erase(hashidx_);
 }
 
-static std::map<unsigned int, RTLIL::Design*> all_designs;
-std::map<unsigned int, RTLIL::Design*> *RTLIL::Design::get_all_designs(void)
+സ്ഥിതം std::map<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Design*> all_designs;
+std::map<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Design*> *RTLIL::Design::get_all_designs(ശൂന്യം)
 {
-	return &all_designs;
+	തിരികെ &all_designs;
 }
 
 RTLIL::ObjRange<RTLIL::Module*, IdString> RTLIL::Design::modules()
 {
-	return RTLIL::ObjRange<RTLIL::Module*, IdString>(&modules_, &refcount_modules_);
+	തിരികെ RTLIL::ObjRange<RTLIL::Module*, IdString>(&modules_, &refcount_modules_);
 }
 
-const RTLIL::Module *RTLIL::Design::module(IdString id) const {
+സ്ഥിരം RTLIL::Module *RTLIL::Design::module(IdString id) സ്ഥിരം {
 	twines_.check_owned(id);
-	return modules_.count(id) ? modules_.at(id) : NULL;
+	തിരികെ modules_.എണ്ണം(id) ? modules_.at(id) : ശൂന്യ;
 }
 RTLIL::Module *RTLIL::Design::module(IdString id) {
 	twines_.check_owned(id);
-	return modules_.count(id) ? modules_.at(id) : NULL;
+	തിരികെ modules_.എണ്ണം(id) ? modules_.at(id) : ശൂന്യ;
 }
 
-RTLIL::Module *RTLIL::Design::top_module() const
+RTLIL::Module *RTLIL::Design::മുകൾ_module() സ്ഥിരം
 {
 	RTLIL::Module *module = nullptr;
-	int module_count = 0;
+	പൂർണ്ണസംഖ്യ module_എണ്ണം = 0;
 
-	for (auto mod : selected_modules()) {
-		if (mod->get_bool_attribute(ID::top))
-			return mod;
-		module_count++;
+	വേണ്ടി (auto mod : selected_modules()) {
+		എങ്കിൽ (mod->get_bool_attribute(ID::മുകൾ))
+			തിരികെ mod;
+		module_എണ്ണം++;
 		module = mod;
 	}
 
-	return module_count == 1 ? module : nullptr;
+	തിരികെ module_എണ്ണം == 1 ? module : nullptr;
 }
 
 RTLIL::Module *RTLIL::Design::addModule(RTLIL::IdString name)
 {
-	if (modules_.count(name) != 0)
+	എങ്കിൽ (modules_.എണ്ണം(name) != 0)
 		log_error("Attempted to add new module named '%s', but a module by that name already exists\n", twines_.str(name));
 	log_assert(refcount_modules_ == 0);
 
-	RTLIL::Module *module = new RTLIL::Module;
+	RTLIL::Module *module = പുതിയ RTLIL::Module;
 	modules_[name] = module;
-	module->design = this;
+	module->design = ഇത്;
 	module->name = name;
 
-	for (auto mon : monitors)
+	വേണ്ടി (auto mon : monitors)
 		mon->notify_module_add(module);
 
-	if (yosys_xtrace) {
+	എങ്കിൽ (yosys_xtrace) {
 		log("#X# New Module: %s\n", twines_.str(name));
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
-	return module;
+	തിരികെ module;
 }
 
-void RTLIL::Design::scratchpad_unset(const std::string &varname)
+ശൂന്യം RTLIL::Design::scratchpad_unset(സ്ഥിരം std::string &varname)
 {
 	scratchpad.erase(varname);
 }
 
-void RTLIL::Design::scratchpad_set_int(const std::string &varname, int value)
+ശൂന്യം RTLIL::Design::scratchpad_set_int(സ്ഥിരം std::string &varname, പൂർണ്ണസംഖ്യ മൂല്യം)
 {
-	scratchpad[varname] = stringf("%d", value);
+	scratchpad[varname] = stringf("%d", മൂല്യം);
 }
 
-void RTLIL::Design::scratchpad_set_bool(const std::string &varname, bool value)
+ശൂന്യം RTLIL::Design::scratchpad_set_bool(സ്ഥിരം std::string &varname, തർക്കം മൂല്യം)
 {
-	scratchpad[varname] = value ? "true" : "false";
+	scratchpad[varname] = മൂല്യം ? "true" : "false";
 }
 
-void RTLIL::Design::scratchpad_set_string(const std::string &varname, std::string value)
+ശൂന്യം RTLIL::Design::scratchpad_set_string(സ്ഥിരം std::string &varname, std::string മൂല്യം)
 {
-	scratchpad[varname] = std::move(value);
+	scratchpad[varname] = std::move(മൂല്യം);
 }
 
-int RTLIL::Design::scratchpad_get_int(const std::string &varname, int default_value) const
+പൂർണ്ണസംഖ്യ RTLIL::Design::scratchpad_get_int(സ്ഥിരം std::string &varname, പൂർണ്ണസംഖ്യ default_മൂല്യം_2) സ്ഥിരം
 {
 	auto it = scratchpad.find(varname);
-	if (it == scratchpad.end())
-		return default_value;
+	എങ്കിൽ (it == scratchpad.end())
+		തിരികെ default_മൂല്യം_2;
 
-	const std::string &str = it->second;
+	സ്ഥിരം std::string &str = it->second;
 
-	if (str == "0" || str == "false")
-		return 0;
+	എങ്കിൽ (str == "0" || str == "false")
+		തിരികെ 0;
 
-	if (str == "1" || str == "true")
-		return 1;
+	എങ്കിൽ (str == "1" || str == "true")
+		തിരികെ 1;
 
-	char *endptr = nullptr;
-	long int parsed_value = strtol(str.c_str(), &endptr, 10);
-	return *endptr ? default_value : parsed_value;
+	അക്ഷരം *endptr = nullptr;
+	long പൂർണ്ണസംഖ്യ parsed_മൂല്യം = strtol(str.c_str(), &endptr, 10);
+	തിരികെ *endptr ? default_മൂല്യം_2 : parsed_മൂല്യം;
 }
 
-bool RTLIL::Design::scratchpad_get_bool(const std::string &varname, bool default_value) const
+തർക്കം RTLIL::Design::scratchpad_get_bool(സ്ഥിരം std::string &varname, തർക്കം default_മൂല്യം_2) സ്ഥിരം
 {
 	auto it = scratchpad.find(varname);
-	if (it == scratchpad.end())
-		return default_value;
+	എങ്കിൽ (it == scratchpad.end())
+		തിരികെ default_മൂല്യം_2;
 
-	const std::string &str = it->second;
+	സ്ഥിരം std::string &str = it->second;
 
-	if (str == "0" || str == "false")
-		return false;
+	എങ്കിൽ (str == "0" || str == "false")
+		തിരികെ അസത്യം;
 
-	if (str == "1" || str == "true")
-		return true;
+	എങ്കിൽ (str == "1" || str == "true")
+		തിരികെ സത്യം;
 
-	return default_value;
+	തിരികെ default_മൂല്യം_2;
 }
 
-std::string RTLIL::Design::scratchpad_get_string(const std::string &varname, const std::string &default_value) const
+std::string RTLIL::Design::scratchpad_get_string(സ്ഥിരം std::string &varname, സ്ഥിരം std::string &default_മൂല്യം_2) സ്ഥിരം
 {
 	auto it = scratchpad.find(varname);
-	if (it == scratchpad.end())
-		return default_value;
+	എങ്കിൽ (it == scratchpad.end())
+		തിരികെ default_മൂല്യം_2;
 
-	return it->second;
+	തിരികെ it->second;
 }
 
-void RTLIL::Design::remove(RTLIL::Module *module)
+ശൂന്യം RTLIL::Design::remove(RTLIL::Module *module)
 {
-	for (auto mon : monitors)
+	വേണ്ടി (auto mon : monitors)
 		mon->notify_module_del(module);
 
-	if (yosys_xtrace) {
+	എങ്കിൽ (yosys_xtrace) {
 		log("#X# Remove Module: %s\n", module);
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
@@ -1170,209 +1170,209 @@ void RTLIL::Design::remove(RTLIL::Module *module)
 	delete module;
 }
 
-void RTLIL::Design::rename(RTLIL::Module *module, RTLIL::IdString new_name)
+ശൂന്യം RTLIL::Design::rename(RTLIL::Module *module, RTLIL::IdString new_name)
 {
 	modules_.erase(module->name);
 	module->name = new_name;
 	add(module);
 }
 
-void RTLIL::Design::sort()
+ശൂന്യം RTLIL::Design::sort()
 {
 	scratchpad.sort();
 	modules_.sort(sort_by_id_str(twines_));
-	for (auto &it : modules_)
+	വേണ്ടി (auto &it : modules_)
 		it.second->sort();
 }
 
-void RTLIL::Design::sort_modules()
+ശൂന്യം RTLIL::Design::sort_modules()
 {
 	scratchpad.sort();
 	modules_.sort(sort_by_id_str(twines_));
 }
 
-void check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool);
+ശൂന്യം check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool);
 
-void RTLIL::Design::check()
+ശൂന്യം RTLIL::Design::check()
 {
 #ifndef NDEBUG
-	log_assert(!selection_stack.empty());
-	int pool_size = 0;
-	for (auto &it : modules_)
+	log_assert(!selection_അട്ടി.empty());
+	പൂർണ്ണസംഖ്യ pool_size = 0;
+	വേണ്ടി (auto &it : modules_)
 		pool_size = std::max(pool_size, ThreadPool::work_pool_size(0, it.second->cells_size(), 1000));
 	ParallelDispatchThreadPool thread_pool(pool_size);
-	for (auto &it : modules_) {
-		log_assert(this == it.second->design);
+	വേണ്ടി (auto &it : modules_) {
+		log_assert(ഇത് == it.second->design);
 		log_assert(it.first == it.second->name);
 		check_module(it.second, thread_pool);
 	}
 #endif
 }
 
-void RTLIL::Design::optimize()
+ശൂന്യം RTLIL::Design::optimize()
 {
-	for (auto &it : modules_)
+	വേണ്ടി (auto &it : modules_)
 		it.second->optimize();
-	for (auto &it : selection_stack)
-		it.optimize(this);
-	for (auto &it : selection_vars)
-		it.second.optimize(this);
+	വേണ്ടി (auto &it : selection_അട്ടി)
+		it.optimize(ഇത്);
+	വേണ്ടി (auto &it : selection_vars)
+		it.second.optimize(ഇത്);
 }
 
-void RTLIL::Design::clone_into(RTLIL::Design *dst) const
+ശൂന്യം RTLIL::Design::clone_into(RTLIL::Design *dst) സ്ഥിരം
 {
 	log_assert(dst->modules_.empty());
 	dst->twines_ = twines_;
-	for (auto it = modules_.rbegin(); it != modules_.rend(); ++it)
+	വേണ്ടി (auto it = modules_.rbegin(); it != modules_.rend(); ++it)
 		it->second->clone(dst);
 }
 
-bool RTLIL::Design::selected_module(IdString mod_name) const
+തർക്കം RTLIL::Design::selected_module(IdString mod_name) സ്ഥിരം
 {
-	if (!selected_active_module.empty() && mod_name != selected_active_module)
-		return false;
-	return selection().selected_module(mod_name);
+	എങ്കിൽ (!selected_active_module.empty() && mod_name != selected_active_module)
+		തിരികെ അസത്യം;
+	തിരികെ selection().selected_module(mod_name);
 }
 
-bool RTLIL::Design::selected_whole_module(RTLIL::IdString mod_name) const
+തർക്കം RTLIL::Design::selected_whole_module(RTLIL::IdString mod_name) സ്ഥിരം
 {
-	if (!selected_active_module.empty() && mod_name != selected_active_module)
-		return false;
-	return selection().selected_whole_module(mod_name);
+	എങ്കിൽ (!selected_active_module.empty() && mod_name != selected_active_module)
+		തിരികെ അസത്യം;
+	തിരികെ selection().selected_whole_module(mod_name);
 }
 
-bool RTLIL::Design::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) const
+തർക്കം RTLIL::Design::selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) സ്ഥിരം
 {
-	if (!selected_active_module.empty() && mod_name != selected_active_module)
-		return false;
-	return selection().selected_member(mod_name, memb_name);
+	എങ്കിൽ (!selected_active_module.empty() && mod_name != selected_active_module)
+		തിരികെ അസത്യം;
+	തിരികെ selection().selected_member(mod_name, memb_name);
 }
 
-bool RTLIL::Design::selected_module(RTLIL::Module *mod) const
+തർക്കം RTLIL::Design::selected_module(RTLIL::Module *mod) സ്ഥിരം
 {
-	return selected_module(mod->name);
+	തിരികെ selected_module(mod->name);
 }
 
-bool RTLIL::Design::selected_whole_module(RTLIL::Module *mod) const
+തർക്കം RTLIL::Design::selected_whole_module(RTLIL::Module *mod) സ്ഥിരം
 {
-	return selected_whole_module(mod->name);
+	തിരികെ selected_whole_module(mod->name);
 }
 
-void RTLIL::Design::push_selection(RTLIL::Selection sel)
+ശൂന്യം RTLIL::Design::തള്ളുക_selection(RTLIL::Selection sel)
 {
-	sel.current_design = this;
-	selection_stack.push_back(sel);
+	sel.current_design = ഇത്;
+	selection_അട്ടി.തള്ളുക_back(sel);
 }
 
-void RTLIL::Design::push_empty_selection()
+ശൂന്യം RTLIL::Design::തള്ളുക_empty_selection()
 {
-	push_selection(RTLIL::Selection::EmptySelection(this));
+	തള്ളുക_selection(RTLIL::Selection::EmptySelection(ഇത്));
 }
 
-void RTLIL::Design::push_full_selection()
+ശൂന്യം RTLIL::Design::തള്ളുക_full_selection()
 {
-	push_selection(RTLIL::Selection::FullSelection(this));
+	തള്ളുക_selection(RTLIL::Selection::FullSelection(ഇത്));
 }
 
-void RTLIL::Design::push_complete_selection()
+ശൂന്യം RTLIL::Design::തള്ളുക_complete_selection()
 {
-	push_selection(RTLIL::Selection::CompleteSelection(this));
+	തള്ളുക_selection(RTLIL::Selection::CompleteSelection(ഇത്));
 }
 
-void RTLIL::Design::pop_selection()
+ശൂന്യം RTLIL::Design::എടുക്കുക_selection()
 {
-	selection_stack.pop_back();
+	selection_അട്ടി.എടുക്കുക_back();
 	// Default to a full_selection if we ran out of stack
-	if (selection_stack.empty())
-		push_full_selection();
+	എങ്കിൽ (selection_അട്ടി.empty())
+		തള്ളുക_full_selection();
 }
 
-std::string RTLIL::Design::to_rtlil_str(bool only_selected) const
+std::string RTLIL::Design::to_rtlil_str(തർക്കം only_selected) സ്ഥിരം
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_design(f, const_cast<RTLIL::Design*>(this), only_selected, true, false, RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_design(f, const_cast<RTLIL::Design*>(ഇത്), only_selected, സത്യം, അസത്യം, RTLIL_BACKEND::DumpMode::Readable);
+	തിരികെ f.str();
 }
 
-std::vector<RTLIL::Module*> RTLIL::Design::selected_modules(RTLIL::SelectPartials partials, RTLIL::SelectBoxes boxes) const
+std::vector<RTLIL::Module*> RTLIL::Design::selected_modules(RTLIL::SelectPartials partials, RTLIL::SelectBoxes boxes) സ്ഥിരം
 {
-	bool include_partials = partials == RTLIL::SELECT_ALL;
-	bool exclude_boxes = (boxes & RTLIL::SB_UNBOXED_ONLY) != 0;
-	bool ignore_wb = (boxes & RTLIL::SB_INCL_WB) != 0;
+	തർക്കം include_partials = partials == RTLIL::SELECT_ALL;
+	തർക്കം exclude_boxes = (boxes & RTLIL::SB_UNBOXED_ONLY) != 0;
+	തർക്കം ignore_wb = (boxes & RTLIL::SB_INCL_WB) != 0;
 	std::vector<RTLIL::Module*> result;
 	result.reserve(modules_.size());
-	for (auto &it : modules_) {
-		if (selected_whole_module(it.first) || (include_partials && selected_module(it.first))) {
-			if (!(exclude_boxes && it.second->get_blackbox_attribute(ignore_wb)))
-				result.push_back(it.second);
-			else
-				switch (boxes)
+	വേണ്ടി (auto &it : modules_) {
+		എങ്കിൽ (selected_whole_module(it.first) || (include_partials && selected_module(it.first))) {
+			എങ്കിൽ (!(exclude_boxes && it.second->get_blackbox_attribute(ignore_wb)))
+				result.തള്ളുക_back(it.second);
+			അല്ലെങ്കിൽ
+				തിരഞ്ഞെടുപ്പ് (boxes)
 				{
-				case RTLIL::SB_UNBOXED_WARN:
+				അവസ്ഥ RTLIL::SB_UNBOXED_WARN:
 					log_warning("Ignoring boxed module %s.\n", it.second);
-					break;
-				case RTLIL::SB_EXCL_BB_WARN:
+					നിർത്തുക;
+				അവസ്ഥ RTLIL::SB_EXCL_BB_WARN:
 					log_warning("Ignoring blackbox module %s.\n", it.second);
-					break;
-				case RTLIL::SB_UNBOXED_ERR:
+					നിർത്തുക;
+				അവസ്ഥ RTLIL::SB_UNBOXED_ERR:
 					log_error("Unsupported boxed module %s.\n", it.second);
-					break;
-				case RTLIL::SB_EXCL_BB_ERR:
+					നിർത്തുക;
+				അവസ്ഥ RTLIL::SB_EXCL_BB_ERR:
 					log_error("Unsupported blackbox module %s.\n", it.second);
-					break;
-				case RTLIL::SB_UNBOXED_CMDERR:
+					നിർത്തുക;
+				അവസ്ഥ RTLIL::SB_UNBOXED_CMDERR:
 					log_cmd_error("Unsupported boxed module %s.\n", it.second);
-					break;
-				case RTLIL::SB_EXCL_BB_CMDERR:
+					നിർത്തുക;
+				അവസ്ഥ RTLIL::SB_EXCL_BB_CMDERR:
 					log_cmd_error("Unsupported blackbox module %s.\n", it.second);
-					break;
-				default:
-					break;
+					നിർത്തുക;
+				സ്ഥിരസ്ഥിതി:
+					നിർത്തുക;
 				}
-		} else if (!include_partials && selected_module(it.first)) {
-			switch(partials)
+		} അല്ലെങ്കിൽ എങ്കിൽ (!include_partials && selected_module(it.first)) {
+			തിരഞ്ഞെടുപ്പ്(partials)
 			{
-			case RTLIL::SELECT_WHOLE_WARN:
+			അവസ്ഥ RTLIL::SELECT_WHOLE_WARN:
 				log_warning("Ignoring partially selected module %s.\n", it.second);
-				break;
-			case RTLIL::SELECT_WHOLE_ERR:
+				നിർത്തുക;
+			അവസ്ഥ RTLIL::SELECT_WHOLE_ERR:
 				log_error("Unsupported partially selected module %s.\n", it.second);
-				break;
-			case RTLIL::SELECT_WHOLE_CMDERR:
+				നിർത്തുക;
+			അവസ്ഥ RTLIL::SELECT_WHOLE_CMDERR:
 				log_cmd_error("Unsupported partially selected module %s.\n", it.second);
-				break;
-			default:
-				break;
+				നിർത്തുക;
+			സ്ഥിരസ്ഥിതി:
+				നിർത്തുക;
 			}
 		}
 	}
-	return result;
+	തിരികെ result;
 }
 
 RTLIL::Module::Module()
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	സ്ഥിതം unsigned പൂർണ്ണസംഖ്യ hashidx_എണ്ണം = 123456789;
+	hashidx_എണ്ണം = mkhash_xorshift(hashidx_എണ്ണം);
+	hashidx_ = hashidx_എണ്ണം;
 
 	design = nullptr;
 	refcount_wires_ = 0;
 	refcount_cells_ = 0;
 
 #ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Module::get_all_modules()->insert(std::pair<unsigned int, RTLIL::Module*>(hashidx_, this));
+	RTLIL::Module::get_all_modules()->തിരുകുക(std::pair<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Module*>(hashidx_, ഇത്));
 #endif
 }
 
 RTLIL::Module::~Module()
 {
-	for (auto &pr : wires_)
+	വേണ്ടി (auto &pr : wires_)
 		delete pr.second;
-	for (auto &pr : memories)
+	വേണ്ടി (auto &pr : memories)
 		delete pr.second;
-	for (auto &pr : cells_)
+	വേണ്ടി (auto &pr : cells_)
 		delete pr.second;
-	for (auto &pr : processes)
+	വേണ്ടി (auto &pr : processes)
 		delete pr.second;
 #ifdef YOSYS_ENABLE_PYTHON
 	RTLIL::Module::get_all_modules()->erase(hashidx_);
@@ -1380,30 +1380,30 @@ RTLIL::Module::~Module()
 }
 
 #ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Module*> all_modules;
-std::map<unsigned int, RTLIL::Module*> *RTLIL::Module::get_all_modules(void)
+സ്ഥിതം std::map<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Module*> all_modules;
+std::map<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Module*> *RTLIL::Module::get_all_modules(ശൂന്യം)
 {
-	return &all_modules;
+	തിരികെ &all_modules;
 }
 #endif
 
-void RTLIL::Module::makeblackbox()
+ശൂന്യം RTLIL::Module::makeblackbox()
 {
 	pool<RTLIL::Wire*> delwires;
 
-	for (auto it = wires_.begin(); it != wires_.end(); ++it)
-		if (!it->second->port_input && !it->second->port_output)
-			delwires.insert(it->second);
+	വേണ്ടി (auto it = wires_.begin(); it != wires_.end(); ++it)
+		എങ്കിൽ (!it->second->port_നിവേശം && !it->second->port_output)
+			delwires.തിരുകുക(it->second);
 
-	for (auto it = memories.begin(); it != memories.end(); ++it)
+	വേണ്ടി (auto it = memories.begin(); it != memories.end(); ++it)
 		delete it->second;
 	memories.clear();
 
-	for (auto it = cells_.begin(); it != cells_.end(); ++it)
+	വേണ്ടി (auto it = cells_.begin(); it != cells_.end(); ++it)
 		delete it->second;
 	cells_.clear();
 
-	for (auto it = processes.begin(); it != processes.end(); ++it)
+	വേണ്ടി (auto it = processes.begin(); it != processes.end(); ++it)
 		delete it->second;
 	processes.clear();
 
@@ -1413,48 +1413,48 @@ void RTLIL::Module::makeblackbox()
 	set_bool_attribute(ID::blackbox);
 }
 
-void RTLIL::Module::expand_interfaces(RTLIL::Design *, const dict<RTLIL::IdString, RTLIL::Module *> &)
+ശൂന്യം RTLIL::Module::expand_interfaces(RTLIL::Design *, സ്ഥിരം dict<RTLIL::IdString, RTLIL::Module *> &)
 {
 	log_error("Class doesn't support expand_interfaces (module: `%s')!\n", name.unescape());
 }
 
-bool RTLIL::Module::reprocess_if_necessary(RTLIL::Design *)
+തർക്കം RTLIL::Module::reprocess_if_necessary(RTLIL::Design *)
 {
-	return false;
+	തിരികെ അസത്യം;
 }
 
-RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, const dict<RTLIL::IdString, RTLIL::Const> &, bool mayfail)
+RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, സ്ഥിരം dict<RTLIL::IdString, RTLIL::Const> &, തർക്കം mayfail)
 {
-	if (mayfail)
-		return IdString::Null;
+	എങ്കിൽ (mayfail)
+		തിരികെ IdString::Null;
 	log_error("Module `%s' is used with parameters but is not parametric!\n", name.unescape());
 }
 
 
-RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, const dict<RTLIL::IdString, RTLIL::Const> &, const dict<RTLIL::IdString, RTLIL::Module*> &, const dict<RTLIL::IdString, RTLIL::IdString> &, bool mayfail)
+RTLIL::IdString RTLIL::Module::derive(RTLIL::Design*, സ്ഥിരം dict<RTLIL::IdString, RTLIL::Const> &, സ്ഥിരം dict<RTLIL::IdString, RTLIL::Module*> &, സ്ഥിരം dict<RTLIL::IdString, RTLIL::IdString> &, തർക്കം mayfail)
 {
-	if (mayfail)
-		return IdString::Null;
+	എങ്കിൽ (mayfail)
+		തിരികെ IdString::Null;
 	log_error("Module `%s' is used with parameters but is not parametric!\n", name.unescape());
 }
 
-size_t RTLIL::Module::count_id(RTLIL::IdString id)
+size_t RTLIL::Module::എണ്ണം_id(RTLIL::IdString id)
 {
-	return wires_.count(id) + cells_.count(id) + memories.count(id) + processes.count(id);
+	തിരികെ wires_.എണ്ണം(id) + cells_.എണ്ണം(id) + memories.എണ്ണം(id) + processes.എണ്ണം(id);
 }
 
 #ifndef NDEBUG
-namespace {
-	struct InternalCellChecker
+നാമാകാശ {
+	ഘടന InternalCellChecker
 	{
-		const RTLIL::Module *module;
+		സ്ഥിരം RTLIL::Module *module;
 		RTLIL::Cell *cell;
 		pool<IdString> expected_params;
 		pool<IdString> expected_ports;
 
-		InternalCellChecker(const RTLIL::Module *module, RTLIL::Cell *cell) : module(module), cell(cell) { }
+		InternalCellChecker(സ്ഥിരം RTLIL::Module *module, RTLIL::Cell *cell) : module(module), cell(cell) { }
 
-		void error(int linenr, std::optional<std::string> error_msg = std::nullopt)
+		ശൂന്യം error(പൂർണ്ണസംഖ്യ linenr, std::optional<std::string> error_സന്ദേശം = std::nullopt)
 		{
 			std::stringstream buf;
 			RTLIL_BACKEND::dump_cell(buf, "  ", cell, cell->module->design);
@@ -1464,190 +1464,190 @@ namespace {
 			std::string cell_loc = stringf("%s%s%s (%s) at %s:%d:\n%s", mod_name, module ? "." : "",
 							   cell_name, cell->type.str(), __FILE__, linenr, buf.str());
 
-			if (error_msg) {
-				log_error("%s in internal cell %s\n", *error_msg, cell_loc);
-			} else {
+			എങ്കിൽ (error_സന്ദേശം) {
+				log_error("%s in internal cell %s\n", *error_സന്ദേശം, cell_loc);
+			} അല്ലെങ്കിൽ {
 				log_error("Found error in internal cell %s\n", cell_loc);
 			}
 		}
 
-		int param(RTLIL::IdString name)
+		പൂർണ്ണസംഖ്യ param(RTLIL::IdString name)
 		{
 			auto it = cell->parameters.find(name);
-			if (it == cell->parameters.end()) {
+			എങ്കിൽ (it == cell->parameters.end()) {
 				std::string err = stringf("Expected to find parameter %s", cell->module->design->twines().str(name));
 				error(__LINE__, err);
 			}
-			expected_params.insert(name);
-			return it->second.as_int();
+			expected_params.തിരുകുക(name);
+			തിരികെ it->second.as_int();
 		}
 
-		int param_bool(RTLIL::IdString name)
+		പൂർണ്ണസംഖ്യ param_bool(RTLIL::IdString name)
 		{
-			int v = param(name);
-			if (GetSize(cell->parameters.at(name)) > 32)
+			പൂർണ്ണസംഖ്യ v = param(name);
+			എങ്കിൽ (GetSize(cell->parameters.at(name)) > 32)
 				error(__LINE__);
-			if (v != 0 && v != 1)
+			എങ്കിൽ (v != 0 && v != 1)
 				error(__LINE__);
-			return v;
+			തിരികെ v;
 		}
 
-		int param_bool(RTLIL::IdString name, bool expected)
+		പൂർണ്ണസംഖ്യ param_bool(RTLIL::IdString name, തർക്കം expected)
 		{
-			int v = param_bool(name);
-			if (v != expected)
+			പൂർണ്ണസംഖ്യ v = param_bool(name);
+			എങ്കിൽ (v != expected)
 				error(__LINE__);
-			return v;
+			തിരികെ v;
 		}
 
-		void param_bits(RTLIL::IdString name, int width)
+		ശൂന്യം param_bits(RTLIL::IdString name, പൂർണ്ണസംഖ്യ width)
 		{
 			param(name);
-			if (GetSize(cell->parameters.at(name)) != width)
+			എങ്കിൽ (GetSize(cell->parameters.at(name)) != width)
 				error(__LINE__);
 		}
 
 		std::string param_string(RTLIL::IdString name)
 		{
 			param(name);
-			return cell->parameters.at(name).decode_string();
+			തിരികെ cell->parameters.at(name).decode_string();
 		}
 
-		void port(RTLIL::IdString name, int width)
+		ശൂന്യം port(RTLIL::IdString name, പൂർണ്ണസംഖ്യ width)
 		{
 			auto it = cell->connections_.find(name);
-			if (it == cell->connections_.end()) {
+			എങ്കിൽ (it == cell->connections_.end()) {
 				std::string err = stringf("Expected to find port %s", cell->module->design->twines().str(name));
 				error(__LINE__, err);
 			}
-			if (GetSize(it->second) != width) {
+			എങ്കിൽ (GetSize(it->second) != width) {
 				std::string err = stringf("Expected port to have width %d", width);
 				error(__LINE__, err);
 			}
-			expected_ports.insert(name);
+			expected_ports.തിരുകുക(name);
 		}
 
-		void check_expected(bool check_matched_sign = false)
+		ശൂന്യം check_expected(തർക്കം check_matched_sign = അസത്യം)
 		{
-			for (auto &para : cell->parameters)
-				if (expected_params.count(para.first) == 0)
+			വേണ്ടി (auto &para : cell->parameters)
+				എങ്കിൽ (expected_params.എണ്ണം(para.first) == 0)
 					error(__LINE__);
-			for (auto &conn : cell->connections())
-				if (expected_ports.count(conn.first) == 0)
+			വേണ്ടി (auto &conn : cell->connections())
+				എങ്കിൽ (expected_ports.എണ്ണം(conn.first) == 0)
 					error(__LINE__);
 
-			if (check_matched_sign) {
-				log_assert(expected_params.count(ID::A_SIGNED) != 0 && expected_params.count(ID::B_SIGNED) != 0);
-				bool a_is_signed = cell->parameters.at(ID::A_SIGNED).as_bool();
-				bool b_is_signed = cell->parameters.at(ID::B_SIGNED).as_bool();
-				if (a_is_signed != b_is_signed)
+			എങ്കിൽ (check_matched_sign) {
+				log_assert(expected_params.എണ്ണം(ID::A_SIGNED) != 0 && expected_params.എണ്ണം(ID::B_SIGNED) != 0);
+				തർക്കം a_is_signed = cell->parameters.at(ID::A_SIGNED).as_bool();
+				തർക്കം b_is_signed = cell->parameters.at(ID::B_SIGNED).as_bool();
+				എങ്കിൽ (a_is_signed != b_is_signed)
 					error(__LINE__);
 			}
 		}
 
-		void check()
+		ശൂന്യം check()
 		{
-			if (cell->type.isPublic() || cell->type.begins_with("$__") || cell->type.begins_with("$paramod") || cell->type.begins_with("$fmcombine") ||
+			എങ്കിൽ (cell->type.isPublic() || cell->type.begins_with("$__") || cell->type.begins_with("$paramod") || cell->type.begins_with("$fmcombine") ||
 					cell->type.begins_with("$verific$") || cell->type.begins_with("$array:") || cell->type.begins_with("$extern:"))
-				return;
+				തിരികെ;
 
-			if (cell->type.in(ID($buf), ID($barrier))) {
+			എങ്കിൽ (cell->type.in(ID($buf), ID($barrier))) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type.in(ID($not), ID($pos), ID($neg))) {
+			എങ്കിൽ (cell->type.in(ID($not), ID($pos), ID($neg))) {
 				param_bool(ID::A_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type.in(ID($and), ID($or), ID($xor), ID($xnor))) {
+			എങ്കിൽ (cell->type.in(ID($and), ID($or), ID($xor), ID($xnor))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::B, param(ID::B_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(true);
-				return;
+				check_expected(സത്യം);
+				തിരികെ;
 			}
 
-			if (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool))) {
+			എങ്കിൽ (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool))) {
 				param_bool(ID::A_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr))) {
+			എങ്കിൽ (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr))) {
 				param_bool(ID::A_SIGNED);
-				param_bool(ID::B_SIGNED, /*expected=*/false);
+				param_bool(ID::B_SIGNED, /*expected=*/അസത്യം);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::B, param(ID::B_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(/*check_matched_sign=*/false);
-				return;
+				check_expected(/*check_matched_sign=*/അസത്യം);
+				തിരികെ;
 			}
 
-			if (cell->type.in(ID($shift), ID($shiftx))) {
-				if (cell->type == ID($shiftx)) {
-					param_bool(ID::A_SIGNED, /*expected=*/false);
-				} else {
+			എങ്കിൽ (cell->type.in(ID($shift), ID($shiftx))) {
+				എങ്കിൽ (cell->type == ID($shiftx)) {
+					param_bool(ID::A_SIGNED, /*expected=*/അസത്യം);
+				} അല്ലെങ്കിൽ {
 					param_bool(ID::A_SIGNED);
 				}
 				param_bool(ID::B_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::B, param(ID::B_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(/*check_matched_sign=*/false);
-				return;
+				check_expected(/*check_matched_sign=*/അസത്യം);
+				തിരികെ;
 			}
 
-			if (cell->type.in(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt))) {
+			എങ്കിൽ (cell->type.in(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::B, param(ID::B_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(true);
-				return;
+				check_expected(സത്യം);
+				തിരികെ;
 			}
 
-			if (cell->type.in(ID($add), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow))) {
+			എങ്കിൽ (cell->type.in(ID($add), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::B, param(ID::B_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected(cell->type != ID($pow));
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($fa)) {
+			എങ്കിൽ (cell->type == ID($fa)) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::B, param(ID::WIDTH));
 				port(ID::C, param(ID::WIDTH));
 				port(ID::X, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($lcu)) {
+			എങ്കിൽ (cell->type == ID($lcu)) {
 				port(ID::P, param(ID::WIDTH));
 				port(ID::G, param(ID::WIDTH));
 				port(ID::CI, 1);
 				port(ID::CO, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($alu)) {
+			എങ്കിൽ (cell->type == ID($alu)) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
@@ -1657,11 +1657,11 @@ namespace {
 				port(ID::X, param(ID::Y_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
 				port(ID::CO, param(ID::Y_WIDTH));
-				check_expected(true);
-				return;
+				check_expected(സത്യം);
+				തിരികെ;
 			}
 
-			if (cell->type == ID($macc)) {
+			എങ്കിൽ (cell->type == ID($macc)) {
 				param(ID::CONFIG);
 				param(ID::CONFIG_WIDTH);
 				port(ID::A, param(ID::A_WIDTH));
@@ -1669,157 +1669,157 @@ namespace {
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected();
 				Macc().from_cell(cell);
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($macc_v2)) {
-				if (param(ID::NPRODUCTS) < 0)
+			എങ്കിൽ (cell->type == ID($macc_v2)) {
+				എങ്കിൽ (param(ID::NPRODUCTS) < 0)
 					error(__LINE__);
-				if (param(ID::NADDENDS) < 0)
+				എങ്കിൽ (param(ID::NADDENDS) < 0)
 					error(__LINE__);
 				param_bits(ID::PRODUCT_NEGATED, max(param(ID::NPRODUCTS), 1));
 				param_bits(ID::ADDEND_NEGATED, max(param(ID::NADDENDS), 1));
 				param_bits(ID::A_SIGNED, max(param(ID::NPRODUCTS), 1));
 				param_bits(ID::B_SIGNED, max(param(ID::NPRODUCTS), 1));
 				param_bits(ID::C_SIGNED, max(param(ID::NADDENDS), 1));
-				if (cell->getParam(ID::A_SIGNED) != cell->getParam(ID::B_SIGNED))
+				എങ്കിൽ (cell->getParam(ID::A_SIGNED) != cell->getParam(ID::B_SIGNED))
 					error(__LINE__);
 				param_bits(ID::A_WIDTHS, max(param(ID::NPRODUCTS) * 16, 1));
 				param_bits(ID::B_WIDTHS, max(param(ID::NPRODUCTS) * 16, 1));
 				param_bits(ID::C_WIDTHS, max(param(ID::NADDENDS) * 16, 1));
-				const Const &a_width = cell->getParam(ID::A_WIDTHS);
-				const Const &b_width = cell->getParam(ID::B_WIDTHS);
-				const Const &c_width = cell->getParam(ID::C_WIDTHS);
-				int a_width_sum = 0, b_width_sum = 0, c_width_sum = 0;
-				for (int i = 0; i < param(ID::NPRODUCTS); i++) {
-					a_width_sum += a_width.extract(16 * i, 16).as_int(false);
-					b_width_sum += b_width.extract(16 * i, 16).as_int(false);
+				സ്ഥിരം Const &a_width = cell->getParam(ID::A_WIDTHS);
+				സ്ഥിരം Const &b_width = cell->getParam(ID::B_WIDTHS);
+				സ്ഥിരം Const &c_width = cell->getParam(ID::C_WIDTHS);
+				പൂർണ്ണസംഖ്യ a_width_sum = 0, b_width_sum = 0, c_width_sum = 0;
+				വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < param(ID::NPRODUCTS); i++) {
+					a_width_sum += a_width.extract(16 * i, 16).as_int(അസത്യം);
+					b_width_sum += b_width.extract(16 * i, 16).as_int(അസത്യം);
 				}
-				for (int i = 0; i < param(ID::NADDENDS); i++) {
-					c_width_sum += c_width.extract(16 * i, 16).as_int(false);
+				വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < param(ID::NADDENDS); i++) {
+					c_width_sum += c_width.extract(16 * i, 16).as_int(അസത്യം);
 				}
 				port(ID::A, a_width_sum);
 				port(ID::B, b_width_sum);
 				port(ID::C, c_width_sum);
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($logic_not)) {
+			എങ്കിൽ (cell->type == ID($logic_not)) {
 				param_bool(ID::A_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type.in(ID($logic_and), ID($logic_or))) {
+			എങ്കിൽ (cell->type.in(ID($logic_and), ID($logic_or))) {
 				param_bool(ID::A_SIGNED);
 				param_bool(ID::B_SIGNED);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::B, param(ID::B_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
-				check_expected(/*check_matched_sign=*/false);
-				return;
+				check_expected(/*check_matched_sign=*/അസത്യം);
+				തിരികെ;
 			}
 
-			if (cell->type == ID($slice)) {
+			എങ്കിൽ (cell->type == ID($slice)) {
 				param(ID::OFFSET);
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::Y, param(ID::Y_WIDTH));
-				if (param(ID::OFFSET) + param(ID::Y_WIDTH) > param(ID::A_WIDTH))
+				എങ്കിൽ (param(ID::OFFSET) + param(ID::Y_WIDTH) > param(ID::A_WIDTH))
 					error(__LINE__);
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($concat)) {
+			എങ്കിൽ (cell->type == ID($concat)) {
 				port(ID::A, param(ID::A_WIDTH));
 				port(ID::B, param(ID::B_WIDTH));
 				port(ID::Y, param(ID::A_WIDTH) + param(ID::B_WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($mux)) {
+			എങ്കിൽ (cell->type == ID($mux)) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::B, param(ID::WIDTH));
 				port(ID::S, 1);
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($pmux)) {
+			എങ്കിൽ (cell->type == ID($pmux)) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::B, param(ID::WIDTH) * param(ID::S_WIDTH));
 				port(ID::S, param(ID::S_WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($bmux)) {
+			എങ്കിൽ (cell->type == ID($bmux)) {
 				port(ID::A, param(ID::WIDTH) << param(ID::S_WIDTH));
 				port(ID::S, param(ID::S_WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($demux)) {
+			എങ്കിൽ (cell->type == ID($demux)) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::S, param(ID::S_WIDTH));
 				port(ID::Y, param(ID::WIDTH) << param(ID::S_WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($lut)) {
+			എങ്കിൽ (cell->type == ID($lut)) {
 				param(ID::LUT);
 				port(ID::A, param(ID::WIDTH));
 				port(ID::Y, 1);
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($sop)) {
+			എങ്കിൽ (cell->type == ID($sop)) {
 				param(ID::DEPTH);
 				param(ID::TABLE);
 				port(ID::A, param(ID::WIDTH));
 				port(ID::Y, 1);
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($sr)) {
+			എങ്കിൽ (cell->type == ID($sr)) {
 				param_bool(ID::SET_POLARITY);
 				param_bool(ID::CLR_POLARITY);
 				port(ID::SET, param(ID::WIDTH));
 				port(ID::CLR, param(ID::WIDTH));
 				port(ID::Q,   param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($ff)) {
+			എങ്കിൽ (cell->type == ID($ff)) {
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($dff)) {
+			എങ്കിൽ (cell->type == ID($dff)) {
 				param_bool(ID::CLK_POLARITY);
 				port(ID::CLK, 1);
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($dffe)) {
+			എങ്കിൽ (cell->type == ID($dffe)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
 				port(ID::CLK, 1);
@@ -1827,10 +1827,10 @@ namespace {
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($dffsr)) {
+			എങ്കിൽ (cell->type == ID($dffsr)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::SET_POLARITY);
 				param_bool(ID::CLR_POLARITY);
@@ -1840,10 +1840,10 @@ namespace {
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($dffsre)) {
+			എങ്കിൽ (cell->type == ID($dffsre)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::SET_POLARITY);
 				param_bool(ID::CLR_POLARITY);
@@ -1855,62 +1855,62 @@ namespace {
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($adff)) {
+			എങ്കിൽ (cell->type == ID($adff)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::ARST_POLARITY);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
+				param_bits(ID::ARST_മൂല്യം, param(ID::WIDTH));
 				port(ID::CLK, 1);
 				port(ID::ARST, 1);
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($sdff)) {
+			എങ്കിൽ (cell->type == ID($sdff)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::SRST_POLARITY);
-				param_bits(ID::SRST_VALUE, param(ID::WIDTH));
+				param_bits(ID::SRST_മൂല്യം, param(ID::WIDTH));
 				port(ID::CLK, 1);
 				port(ID::SRST, 1);
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type.in(ID($sdffe), ID($sdffce))) {
+			എങ്കിൽ (cell->type.in(ID($sdffe), ID($sdffce))) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::SRST_POLARITY);
-				param_bits(ID::SRST_VALUE, param(ID::WIDTH));
+				param_bits(ID::SRST_മൂല്യം, param(ID::WIDTH));
 				port(ID::CLK, 1);
 				port(ID::EN, 1);
 				port(ID::SRST, 1);
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($adffe)) {
+			എങ്കിൽ (cell->type == ID($adffe)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::ARST_POLARITY);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
+				param_bits(ID::ARST_മൂല്യം, param(ID::WIDTH));
 				port(ID::CLK, 1);
 				port(ID::EN, 1);
 				port(ID::ARST, 1);
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($aldff)) {
+			എങ്കിൽ (cell->type == ID($aldff)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::ALOAD_POLARITY);
 				port(ID::CLK, 1);
@@ -1919,10 +1919,10 @@ namespace {
 				port(ID::AD, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($aldffe)) {
+			എങ്കിൽ (cell->type == ID($aldffe)) {
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::ALOAD_POLARITY);
@@ -1933,31 +1933,31 @@ namespace {
 				port(ID::AD, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($dlatch)) {
+			എങ്കിൽ (cell->type == ID($dlatch)) {
 				param_bool(ID::EN_POLARITY);
 				port(ID::EN, 1);
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($adlatch)) {
+			എങ്കിൽ (cell->type == ID($adlatch)) {
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::ARST_POLARITY);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
+				param_bits(ID::ARST_മൂല്യം, param(ID::WIDTH));
 				port(ID::EN, 1);
 				port(ID::ARST, 1);
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($dlatchsr)) {
+			എങ്കിൽ (cell->type == ID($dlatchsr)) {
 				param_bool(ID::EN_POLARITY);
 				param_bool(ID::SET_POLARITY);
 				param_bool(ID::CLR_POLARITY);
@@ -1967,29 +1967,29 @@ namespace {
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($fsm)) {
+			എങ്കിൽ (cell->type == ID($fsm)) {
 				param(ID::NAME);
 				param_bool(ID::CLK_POLARITY);
 				param_bool(ID::ARST_POLARITY);
 				param(ID::STATE_BITS);
-				param(ID::STATE_NUM);
-				param(ID::STATE_NUM_LOG2);
+				param(ID::STATE_അക്കം);
+				param(ID::STATE_അക്കം_LOG2);
 				param(ID::STATE_RST);
-				param_bits(ID::STATE_TABLE, param(ID::STATE_BITS) * param(ID::STATE_NUM));
-				param(ID::TRANS_NUM);
-				param_bits(ID::TRANS_TABLE, param(ID::TRANS_NUM) * (2*param(ID::STATE_NUM_LOG2) + param(ID::CTRL_IN_WIDTH) + param(ID::CTRL_OUT_WIDTH)));
+				param_bits(ID::STATE_TABLE, param(ID::STATE_BITS) * param(ID::STATE_അക്കം));
+				param(ID::TRANS_അക്കം);
+				param_bits(ID::TRANS_TABLE, param(ID::TRANS_അക്കം) * (2*param(ID::STATE_അക്കം_LOG2) + param(ID::CTRL_IN_WIDTH) + param(ID::CTRL_OUT_WIDTH)));
 				port(ID::CLK, 1);
 				port(ID::ARST, 1);
 				port(ID::CTRL_IN, param(ID::CTRL_IN_WIDTH));
 				port(ID::CTRL_OUT, param(ID::CTRL_OUT_WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($memrd)) {
+			എങ്കിൽ (cell->type == ID($memrd)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
@@ -1999,19 +1999,19 @@ namespace {
 				port(ID::ADDR, param(ID::ABITS));
 				port(ID::DATA, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($memrd_v2)) {
+			എങ്കിൽ (cell->type == ID($memrd_v2)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
 				param(ID::TRANSPARENCY_MASK);
 				param(ID::COLLISION_X_MASK);
 				param_bool(ID::CE_OVER_SRST);
-				param_bits(ID::ARST_VALUE, param(ID::WIDTH));
-				param_bits(ID::SRST_VALUE, param(ID::WIDTH));
-				param_bits(ID::INIT_VALUE, param(ID::WIDTH));
+				param_bits(ID::ARST_മൂല്യം, param(ID::WIDTH));
+				param_bits(ID::SRST_മൂല്യം, param(ID::WIDTH));
+				param_bits(ID::INIT_മൂല്യം, param(ID::WIDTH));
 				port(ID::CLK, 1);
 				port(ID::EN, 1);
 				port(ID::ARST, 1);
@@ -2019,10 +2019,10 @@ namespace {
 				port(ID::ADDR, param(ID::ABITS));
 				port(ID::DATA, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($memwr)) {
+			എങ്കിൽ (cell->type == ID($memwr)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
@@ -2032,10 +2032,10 @@ namespace {
 				port(ID::ADDR, param(ID::ABITS));
 				port(ID::DATA, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($memwr_v2)) {
+			എങ്കിൽ (cell->type == ID($memwr_v2)) {
 				param(ID::MEMID);
 				param_bool(ID::CLK_ENABLE);
 				param_bool(ID::CLK_POLARITY);
@@ -2046,29 +2046,29 @@ namespace {
 				port(ID::ADDR, param(ID::ABITS));
 				port(ID::DATA, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($meminit)) {
+			എങ്കിൽ (cell->type == ID($meminit)) {
 				param(ID::MEMID);
 				param(ID::PRIORITY);
 				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH) * param(ID::WORDS));
+				port(ID::DATA, param(ID::WIDTH) * param(ID::വാക്കുകൾ));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($meminit_v2)) {
+			എങ്കിൽ (cell->type == ID($meminit_v2)) {
 				param(ID::MEMID);
 				param(ID::PRIORITY);
 				port(ID::ADDR, param(ID::ABITS));
-				port(ID::DATA, param(ID::WIDTH) * param(ID::WORDS));
+				port(ID::DATA, param(ID::WIDTH) * param(ID::വാക്കുകൾ));
 				port(ID::EN, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($mem)) {
+			എങ്കിൽ (cell->type == ID($mem)) {
 				param(ID::MEMID);
 				param(ID::SIZE);
 				param(ID::OFFSET);
@@ -2087,10 +2087,10 @@ namespace {
 				port(ID::WR_ADDR, param(ID::WR_PORTS) * param(ID::ABITS));
 				port(ID::WR_DATA, param(ID::WR_PORTS) * param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($mem_v2)) {
+			എങ്കിൽ (cell->type == ID($mem_v2)) {
 				param(ID::MEMID);
 				param(ID::SIZE);
 				param(ID::OFFSET);
@@ -2101,9 +2101,9 @@ namespace {
 				param_bits(ID::RD_COLLISION_X_MASK, max(1, param(ID::RD_PORTS) * param(ID::WR_PORTS)));
 				param_bits(ID::RD_WIDE_CONTINUATION, max(1, param(ID::RD_PORTS)));
 				param_bits(ID::RD_CE_OVER_SRST, max(1, param(ID::RD_PORTS)));
-				param_bits(ID::RD_ARST_VALUE, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
-				param_bits(ID::RD_SRST_VALUE, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
-				param_bits(ID::RD_INIT_VALUE, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
+				param_bits(ID::RD_ARST_മൂല്യം, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
+				param_bits(ID::RD_SRST_മൂല്യം, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
+				param_bits(ID::RD_INIT_മൂല്യം, max(1, param(ID::RD_PORTS) * param(ID::WIDTH)));
 				param_bits(ID::WR_CLK_ENABLE, max(1, param(ID::WR_PORTS)));
 				param_bits(ID::WR_CLK_POLARITY, max(1, param(ID::WR_PORTS)));
 				param_bits(ID::WR_WIDE_CONTINUATION, max(1, param(ID::WR_PORTS)));
@@ -2119,69 +2119,69 @@ namespace {
 				port(ID::WR_ADDR, param(ID::WR_PORTS) * param(ID::ABITS));
 				port(ID::WR_DATA, param(ID::WR_PORTS) * param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($tribuf)) {
+			എങ്കിൽ (cell->type == ID($tribuf)) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				port(ID::EN, 1);
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($bweqx)) {
+			എങ്കിൽ (cell->type == ID($bweqx)) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::B, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($bwmux)) {
+			എങ്കിൽ (cell->type == ID($bwmux)) {
 				port(ID::A, param(ID::WIDTH));
 				port(ID::B, param(ID::WIDTH));
 				port(ID::S, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover))) {
+			എങ്കിൽ (cell->type.in(ID($പ്രതിജ്ഞാ), ID($assume), ID($live), ID($fair), ID($cover))) {
 				port(ID::A, 1);
 				port(ID::EN, 1);
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($initstate)) {
+			എങ്കിൽ (cell->type == ID($initstate)) {
 				port(ID::Y, 1);
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type.in(ID($anyconst), ID($anyseq), ID($allconst), ID($allseq))) {
+			എങ്കിൽ (cell->type.in(ID($anyconst), ID($anyseq), ID($allconst), ID($allseq))) {
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type.in(ID($anyinit))) {
+			എങ്കിൽ (cell->type.in(ID($anyinit))) {
 				port(ID::D, param(ID::WIDTH));
 				port(ID::Q, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($equiv)) {
+			എങ്കിൽ (cell->type == ID($equiv)) {
 				port(ID::A, 1);
 				port(ID::B, 1);
 				port(ID::Y, 1);
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type.in(ID($specify2), ID($specify3))) {
+			എങ്കിൽ (cell->type.in(ID($specify2), ID($specify3))) {
 				param_bool(ID::FULL);
 				param_bool(ID::SRC_DST_PEN);
 				param_bool(ID::SRC_DST_POL);
@@ -2194,7 +2194,7 @@ namespace {
 				port(ID::EN, 1);
 				port(ID::SRC, param(ID::SRC_WIDTH));
 				port(ID::DST, param(ID::DST_WIDTH));
-				if (cell->type == ID($specify3)) {
+				എങ്കിൽ (cell->type == ID($specify3)) {
 					param_bool(ID::EDGE_EN);
 					param_bool(ID::EDGE_POL);
 					param_bool(ID::DAT_DST_PEN);
@@ -2202,10 +2202,10 @@ namespace {
 					port(ID::DAT, param(ID::DST_WIDTH));
 				}
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($specrule)) {
+			എങ്കിൽ (cell->type == ID($specrule)) {
 				param(ID::TYPE);
 				param_bool(ID::SRC_PEN);
 				param_bool(ID::SRC_POL);
@@ -2222,10 +2222,10 @@ namespace {
 				port(ID::SRC, param(ID::SRC_WIDTH));
 				port(ID::DST, param(ID::DST_WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($print)) {
+			എങ്കിൽ (cell->type == ID($print)) {
 				param(ID(FORMAT));
 				param_bool(ID::TRG_ENABLE);
 				param(ID::TRG_POLARITY);
@@ -2234,12 +2234,12 @@ namespace {
 				port(ID::TRG, param(ID::TRG_WIDTH));
 				port(ID::ARGS, param(ID::ARGS_WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($check)) {
+			എങ്കിൽ (cell->type == ID($check)) {
 				std::string flavor = param_string(ID(FLAVOR));
-				if (!(flavor == "assert" || flavor == "assume" || flavor == "live" || flavor == "fair" || flavor == "cover"))
+				എങ്കിൽ (!(flavor == "assert" || flavor == "assume" || flavor == "live" || flavor == "fair" || flavor == "cover"))
 					error(__LINE__);
 				param(ID(FORMAT));
 				param_bool(ID::TRG_ENABLE);
@@ -2250,91 +2250,91 @@ namespace {
 				port(ID::TRG, param(ID::TRG_WIDTH));
 				port(ID::ARGS, param(ID::ARGS_WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($scopeinfo)) {
+			എങ്കിൽ (cell->type == ID($scopeinfo)) {
 				param(ID::TYPE);
 				check_expected();
 				std::string scope_type = cell->getParam(ID::TYPE).decode_string();
-				if (scope_type != "module" && scope_type != "struct" && scope_type != "blackbox")
+				എങ്കിൽ (scope_type != "module" && scope_type != "struct" && scope_type != "blackbox")
 					error(__LINE__);
-				return;
+				തിരികെ;
 			}
 
-			if (cell->type == ID($_BUF_))    { port(ID::A,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NOT_))    { port(ID::A,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_AND_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NAND_))   { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_OR_))     { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NOR_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_XOR_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_XNOR_))   { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_ANDNOT_)) { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_ORNOT_))  { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_MUX_))    { port(ID::A,1); port(ID::B,1); port(ID::S,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_NMUX_))   { port(ID::A,1); port(ID::B,1); port(ID::S,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_AOI3_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_OAI3_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_AOI4_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_OAI4_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::Y,1); check_expected(); return; }
+			എങ്കിൽ (cell->type == ID($_BUF_))    { port(ID::A,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_NOT_))    { port(ID::A,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_AND_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_NAND_))   { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_OR_))     { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_NOR_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_XOR_))    { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_XNOR_))   { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_ANDNOT_)) { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_ORNOT_))  { port(ID::A,1); port(ID::B,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_MUX_))    { port(ID::A,1); port(ID::B,1); port(ID::S,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_NMUX_))   { port(ID::A,1); port(ID::B,1); port(ID::S,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_AOI3_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_OAI3_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_AOI4_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_OAI4_))   { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::Y,1); check_expected(); തിരികെ; }
 
-			if (cell->type == ID($_TBUF_))  { port(ID::A,1); port(ID::Y,1); port(ID::E,1); check_expected(); return; }
+			എങ്കിൽ (cell->type == ID($_TBUF_))  { port(ID::A,1); port(ID::Y,1); port(ID::E,1); check_expected(); തിരികെ; }
 
-			if (cell->type == ID($_MUX4_))  { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::S,1); port(ID::T,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_MUX8_))  { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::E,1); port(ID::F,1); port(ID::G,1); port(ID::H,1); port(ID::S,1); port(ID::T,1); port(ID::U,1); port(ID::Y,1); check_expected(); return; }
-			if (cell->type == ID($_MUX16_)) { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::E,1); port(ID::F,1); port(ID::G,1); port(ID::H,1); port(ID::I,1); port(ID::J,1); port(ID::K,1); port(ID::L,1); port(ID::M,1); port(ID::N,1); port(ID::O,1); port(ID::P,1); port(ID::S,1); port(ID::T,1); port(ID::U,1); port(ID::V,1); port(ID::Y,1); check_expected(); return; }
+			എങ്കിൽ (cell->type == ID($_MUX4_))  { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::S,1); port(ID::T,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_MUX8_))  { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::E,1); port(ID::F,1); port(ID::G,1); port(ID::H,1); port(ID::S,1); port(ID::T,1); port(ID::U,1); port(ID::Y,1); check_expected(); തിരികെ; }
+			എങ്കിൽ (cell->type == ID($_MUX16_)) { port(ID::A,1); port(ID::B,1); port(ID::C,1); port(ID::D,1); port(ID::E,1); port(ID::F,1); port(ID::G,1); port(ID::H,1); port(ID::I,1); port(ID::J,1); port(ID::K,1); port(ID::L,1); port(ID::M,1); port(ID::N,1); port(ID::O,1); port(ID::P,1); port(ID::S,1); port(ID::T,1); port(ID::U,1); port(ID::V,1); port(ID::Y,1); check_expected(); തിരികെ; }
 
-			if (cell->type.in(ID($_SR_NN_), ID($_SR_NP_), ID($_SR_PN_), ID($_SR_PP_)))
-				{ port(ID::S,1); port(ID::R,1); port(ID::Q,1); check_expected(); return; }
+			എങ്കിൽ (cell->type.in(ID($_SR_NN_), ID($_SR_NP_), ID($_SR_PN_), ID($_SR_PP_)))
+				{ port(ID::S,1); port(ID::R,1); port(ID::Q,1); check_expected(); തിരികെ; }
 
-			if (cell->type == ID($_FF_)) { port(ID::D,1); port(ID::Q,1); check_expected();  return; }
+			എങ്കിൽ (cell->type == ID($_FF_)) { port(ID::D,1); port(ID::Q,1); check_expected();  തിരികെ; }
 
-			if (cell->type.in(ID($_DFF_N_), ID($_DFF_P_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); check_expected(); return; }
+			എങ്കിൽ (cell->type.in(ID($_DFF_N_), ID($_DFF_P_)))
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); check_expected(); തിരികെ; }
 
-			if (cell->type.in(ID($_DFFE_NN_), ID($_DFFE_NP_), ID($_DFFE_PN_), ID($_DFFE_PP_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::E,1); check_expected(); return; }
+			എങ്കിൽ (cell->type.in(ID($_DFFE_NN_), ID($_DFFE_NP_), ID($_DFFE_PN_), ID($_DFFE_PP_)))
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::E,1); check_expected(); തിരികെ; }
 
-			if (cell->type.in(
+			എങ്കിൽ (cell->type.in(
 					ID($_DFF_NN0_), ID($_DFF_NN1_), ID($_DFF_NP0_), ID($_DFF_NP1_),
 					ID($_DFF_PN0_), ID($_DFF_PN1_), ID($_DFF_PP0_), ID($_DFF_PP1_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); check_expected(); return; }
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); check_expected(); തിരികെ; }
 
-			if (cell->type.in(
+			എങ്കിൽ (cell->type.in(
 					ID($_DFFE_NN0N_), ID($_DFFE_NN0P_), ID($_DFFE_NN1N_), ID($_DFFE_NN1P_),
 					ID($_DFFE_NP0N_), ID($_DFFE_NP0P_), ID($_DFFE_NP1N_), ID($_DFFE_NP1P_),
 					ID($_DFFE_PN0N_), ID($_DFFE_PN0P_), ID($_DFFE_PN1N_), ID($_DFFE_PN1P_),
 					ID($_DFFE_PP0N_), ID($_DFFE_PP0P_), ID($_DFFE_PP1N_), ID($_DFFE_PP1P_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); port(ID::E,1); check_expected(); return; }
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); port(ID::E,1); check_expected(); തിരികെ; }
 
-			if (cell->type.in(
+			എങ്കിൽ (cell->type.in(
 					ID($_ALDFF_NN_), ID($_ALDFF_NP_), ID($_ALDFF_PN_), ID($_ALDFF_PP_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::L,1); port(ID::AD,1); check_expected(); return; }
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::L,1); port(ID::AD,1); check_expected(); തിരികെ; }
 
-			if (cell->type.in(
+			എങ്കിൽ (cell->type.in(
 					ID($_ALDFFE_NNN_), ID($_ALDFFE_NNP_), ID($_ALDFFE_NPN_), ID($_ALDFFE_NPP_),
 					ID($_ALDFFE_PNN_), ID($_ALDFFE_PNP_), ID($_ALDFFE_PPN_), ID($_ALDFFE_PPP_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::L,1); port(ID::AD,1); port(ID::E,1); check_expected(); return; }
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::L,1); port(ID::AD,1); port(ID::E,1); check_expected(); തിരികെ; }
 
-			if (cell->type.in(
+			എങ്കിൽ (cell->type.in(
 					ID($_DFFSR_NNN_), ID($_DFFSR_NNP_), ID($_DFFSR_NPN_), ID($_DFFSR_NPP_),
 					ID($_DFFSR_PNN_), ID($_DFFSR_PNP_), ID($_DFFSR_PPN_), ID($_DFFSR_PPP_)))
-				{ port(ID::C,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+				{ port(ID::C,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); തിരികെ; }
 
-			if (cell->type.in(
+			എങ്കിൽ (cell->type.in(
 					ID($_DFFSRE_NNNN_), ID($_DFFSRE_NNNP_), ID($_DFFSRE_NNPN_), ID($_DFFSRE_NNPP_),
 					ID($_DFFSRE_NPNN_), ID($_DFFSRE_NPNP_), ID($_DFFSRE_NPPN_), ID($_DFFSRE_NPPP_),
 					ID($_DFFSRE_PNNN_), ID($_DFFSRE_PNNP_), ID($_DFFSRE_PNPN_), ID($_DFFSRE_PNPP_),
 					ID($_DFFSRE_PPNN_), ID($_DFFSRE_PPNP_), ID($_DFFSRE_PPPN_), ID($_DFFSRE_PPPP_)))
-				{ port(ID::C,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::E,1); port(ID::Q,1); check_expected(); return; }
+				{ port(ID::C,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::E,1); port(ID::Q,1); check_expected(); തിരികെ; }
 
-			if (cell->type.in(
+			എങ്കിൽ (cell->type.in(
 					ID($_SDFF_NN0_), ID($_SDFF_NN1_), ID($_SDFF_NP0_), ID($_SDFF_NP1_),
 					ID($_SDFF_PN0_), ID($_SDFF_PN1_), ID($_SDFF_PP0_), ID($_SDFF_PP1_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); check_expected(); return; }
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); check_expected(); തിരികെ; }
 
-			if (cell->type.in(
+			എങ്കിൽ (cell->type.in(
 					ID($_SDFFE_NN0N_), ID($_SDFFE_NN0P_), ID($_SDFFE_NN1N_), ID($_SDFFE_NN1P_),
 					ID($_SDFFE_NP0N_), ID($_SDFFE_NP0P_), ID($_SDFFE_NP1N_), ID($_SDFFE_NP1P_),
 					ID($_SDFFE_PN0N_), ID($_SDFFE_PN0P_), ID($_SDFFE_PN1N_), ID($_SDFFE_PN1P_),
@@ -2343,22 +2343,22 @@ namespace {
 					ID($_SDFFCE_NP0N_), ID($_SDFFCE_NP0P_), ID($_SDFFCE_NP1N_), ID($_SDFFCE_NP1P_),
 					ID($_SDFFCE_PN0N_), ID($_SDFFCE_PN0P_), ID($_SDFFCE_PN1N_), ID($_SDFFCE_PN1P_),
 					ID($_SDFFCE_PP0N_), ID($_SDFFCE_PP0P_), ID($_SDFFCE_PP1N_), ID($_SDFFCE_PP1P_)))
-				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); port(ID::E,1); check_expected(); return; }
+				{ port(ID::D,1); port(ID::Q,1); port(ID::C,1); port(ID::R,1); port(ID::E,1); check_expected(); തിരികെ; }
 
-			if (cell->type.in(ID($_DLATCH_N_), ID($_DLATCH_P_)))
-				{ port(ID::E,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+			എങ്കിൽ (cell->type.in(ID($_DLATCH_N_), ID($_DLATCH_P_)))
+				{ port(ID::E,1); port(ID::D,1); port(ID::Q,1); check_expected(); തിരികെ; }
 
-			if (cell->type.in(
+			എങ്കിൽ (cell->type.in(
 					ID($_DLATCH_NN0_), ID($_DLATCH_NN1_), ID($_DLATCH_NP0_), ID($_DLATCH_NP1_),
 					ID($_DLATCH_PN0_), ID($_DLATCH_PN1_), ID($_DLATCH_PP0_), ID($_DLATCH_PP1_)))
-				{ port(ID::E,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+				{ port(ID::E,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); തിരികെ; }
 
-			if (cell->type.in(
+			എങ്കിൽ (cell->type.in(
 					ID($_DLATCHSR_NNN_), ID($_DLATCHSR_NNP_), ID($_DLATCHSR_NPN_), ID($_DLATCHSR_NPP_),
 					ID($_DLATCHSR_PNN_), ID($_DLATCHSR_PNP_), ID($_DLATCHSR_PPN_), ID($_DLATCHSR_PPP_)))
-				{ port(ID::E,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); return; }
+				{ port(ID::E,1); port(ID::S,1); port(ID::R,1); port(ID::D,1); port(ID::Q,1); check_expected(); തിരികെ; }
 
-			if (cell->type.in(ID($set_tag))) {
+			എങ്കിൽ (cell->type.in(ID($set_tag))) {
 				param(ID::WIDTH);
 				param(ID::TAG);
 				port(ID::A, param(ID::WIDTH));
@@ -2366,44 +2366,44 @@ namespace {
 				port(ID::CLR, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
-			if (cell->type.in(ID($get_tag),ID($original_tag))) {
+			എങ്കിൽ (cell->type.in(ID($get_tag),ID($original_tag))) {
 				param(ID::WIDTH);
 				param(ID::TAG);
 				port(ID::A, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
-			if (cell->type.in(ID($overwrite_tag))) {
+			എങ്കിൽ (cell->type.in(ID($overwrite_tag))) {
 				param(ID::WIDTH);
 				param(ID::TAG);
 				port(ID::A, param(ID::WIDTH));
 				port(ID::SET, param(ID::WIDTH));
 				port(ID::CLR, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
-			if (cell->type.in(ID($future_ff))) {
+			എങ്കിൽ (cell->type.in(ID($future_ff))) {
 				param(ID::WIDTH);
 				port(ID::A, param(ID::WIDTH));
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
-			if (cell->type.in(ID($input_port))) {
+			എങ്കിൽ (cell->type.in(ID($നിവേശം_port))) {
 				param(ID::WIDTH);
 				port(ID::Y, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
-			if (cell->type.in(ID($connect))) {
+			എങ്കിൽ (cell->type.in(ID($connect))) {
 				param(ID::WIDTH);
 				port(ID::A, param(ID::WIDTH));
 				port(ID::B, param(ID::WIDTH));
 				check_expected();
-				return;
+				തിരികെ;
 			}
 			/*
 			 * Checklist for adding internal cell types
@@ -2426,166 +2426,166 @@ namespace {
 }
 #endif
 
-void RTLIL::Module::sort()
+ശൂന്യം RTLIL::Module::sort()
 {
 	wires_.sort(sort_by_id_str(design->twines()));
 	cells_.sort(sort_by_id_str(design->twines()));
-	parameter_default_values.sort(sort_by_id_str(design->twines()));
+	parameter_default_മൂല്യങ്ങൾ.sort(sort_by_id_str(design->twines()));
 	memories.sort(sort_by_id_str(design->twines()));
 	processes.sort(sort_by_id_str(design->twines()));
-	for (auto &it : cells_)
+	വേണ്ടി (auto &it : cells_)
 		it.second->sort();
-	for (auto &it : wires_)
+	വേണ്ടി (auto &it : wires_)
 		it.second->attributes.sort(sort_by_id_str(design->twines()));
-	for (auto &it : memories)
+	വേണ്ടി (auto &it : memories)
 		it.second->attributes.sort(sort_by_id_str(design->twines()));
 }
 
 #ifndef NDEBUG
-static void check_id_keys(const dict<RTLIL::IdString, RTLIL::Const> &keyed)
+സ്ഥിതം ശൂന്യം check_id_താക്കോലുകൾ(സ്ഥിരം dict<RTLIL::IdString, RTLIL::Const> &keyed)
 {
-	for (auto &it : keyed)
+	വേണ്ടി (auto &it : keyed)
 		log_assert(!it.first.empty());
 }
 #endif
 
-void check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool)
+ശൂന്യം check_module(RTLIL::Module *module, ParallelDispatchThreadPool &thread_pool)
 {
 #ifndef NDEBUG
 	ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_size(0, module->cells_size(), 1000));
-	const RTLIL::Module *const_module = module;
+	സ്ഥിരം RTLIL::Module *const_module = module;
 
 	pool<std::string> memory_strings;
-	for (auto &it : module->memories) {
+	വേണ്ടി (auto &it : module->memories) {
 		log_assert(it.first == it.second->name);
 		log_assert(it.first != IdString::Null);
 		log_assert(it.second->width >= 0);
 		log_assert(it.second->size >= 0);
-		check_id_keys(it.second->attributes);
-		memory_strings.insert(it.second->name.str());
+		check_id_താക്കോലുകൾ(it.second->attributes);
+		memory_strings.തിരുകുക(it.second->name.str());
 	}
 
 	std::vector<MonotonicFlag> ports_declared(GetSize(module->ports));
 	ShardedVector<std::string> memids(subpool);
-	subpool.run([const_module, &ports_declared, &memory_strings, &memids](const ParallelDispatchThreadPool::RunCtx &ctx) {
-		for (int i : ctx.item_range(const_module->cells_size())) {
+	subpool.run([const_module, &ports_declared, &memory_strings, &memids](സ്ഥിരം ParallelDispatchThreadPool::RunCtx &ctx) {
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i : ctx.item_range(const_module->cells_size())) {
 			auto it = *const_module->cells_.element(i);
 			log_assert(const_module == it.second->module);
 			log_assert(it.first == it.second->name);
 			log_assert(it.first != IdString::Null);
 			log_assert(!it.second->type.empty());
-			for (auto &it2 : it.second->connections()) {
+			വേണ്ടി (auto &it2 : it.second->connections()) {
 				log_assert(it2.first != IdString::Null);
 				it2.second.check(const_module);
 			}
-			check_id_keys(it.second->attributes);
-			check_id_keys(it.second->parameters);
+			check_id_താക്കോലുകൾ(it.second->attributes);
+			check_id_താക്കോലുകൾ(it.second->parameters);
 			InternalCellChecker checker(const_module, it.second);
 			checker.check();
-			if (it.second->has_memid()) {
-				log_assert(memory_strings.count(it.second->parameters.at(ID::MEMID).decode_string()));
-			} else if (it.second->is_mem_cell()) {
+			എങ്കിൽ (it.second->has_memid()) {
+				log_assert(memory_strings.എണ്ണം(it.second->parameters.at(ID::MEMID).decode_string()));
+			} അല്ലെങ്കിൽ എങ്കിൽ (it.second->is_mem_cell()) {
 				std::string memid = it.second->parameters.at(ID::MEMID).decode_string();
-				log_assert(!memory_strings.count(memid));
-				memids.insert(ctx, std::move(memid));
+				log_assert(!memory_strings.എണ്ണം(memid));
+				memids.തിരുകുക(ctx, std::move(memid));
 			}
 			auto cell_mod = const_module->design->module(it.second->name);
-			if (cell_mod != nullptr) {
+			എങ്കിൽ (cell_mod != nullptr) {
 				// assertion check below to make sure that there are no
 				// cases where a cell has a blackbox attribute since
 				// that is deprecated
 				#ifdef __GNUC__
-				#pragma GCC diagnostic push
+				#pragma GCC diagnostic തള്ളുക
 				#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 				#endif
 				log_assert(!it.second->get_blackbox_attribute());
 				#ifdef __GNUC__
-				#pragma GCC diagnostic pop
+				#pragma GCC diagnostic എടുക്കുക
 				#endif
 			}
 		}
 
-		for (int i : ctx.item_range(const_module->wires_size())) {
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i : ctx.item_range(const_module->wires_size())) {
 			auto it = *const_module->wires_.element(i);
 			log_assert(const_module == it.second->module);
 			log_assert(it.first == it.second->name);
 			log_assert(it.first != IdString::Null);
 			log_assert(it.second->width >= 0);
 			log_assert(it.second->port_id >= 0);
-			check_id_keys(it.second->attributes);
-			if (it.second->port_id) {
+			check_id_താക്കോലുകൾ(it.second->attributes);
+			എങ്കിൽ (it.second->port_id) {
 				log_assert(GetSize(const_module->ports) >= it.second->port_id);
 				log_assert(const_module->ports.at(it.second->port_id-1) == it.second->name);
-				log_assert(it.second->port_input || it.second->port_output);
+				log_assert(it.second->port_നിവേശം || it.second->port_output);
 				log_assert(it.second->port_id <= GetSize(ports_declared));
-				bool previously_declared = ports_declared[it.second->port_id-1].set_and_return_old();
-				log_assert(previously_declared == false);
-			} else
-				log_assert(!it.second->port_input && !it.second->port_output);
+				തർക്കം previously_declared = ports_declared[it.second->port_id-1].set_and_return_old();
+				log_assert(previously_declared == അസത്യം);
+			} അല്ലെങ്കിൽ
+				log_assert(!it.second->port_നിവേശം && !it.second->port_output);
 		}
 	});
-	for (const MonotonicFlag &port_declared : ports_declared)
-		log_assert(port_declared.load() == true);
+	വേണ്ടി (സ്ഥിരം MonotonicFlag &port_declared : ports_declared)
+		log_assert(port_declared.load() == സത്യം);
 	pool<std::string> memids_pool;
-	for (std::string &memid : memids)
-		log_assert(memids_pool.insert(memid).second);
+	വേണ്ടി (std::string &memid : memids)
+		log_assert(memids_pool.തിരുകുക(memid).second);
 
-	for (auto &it : module->processes) {
+	വേണ്ടി (auto &it : module->processes) {
 		log_assert(it.first == it.second->name);
 		log_assert(it.first != IdString::Null);
-		log_assert(it.second->root_case.compare.empty());
-		std::vector<RTLIL::CaseRule*> all_cases = {&it.second->root_case};
-		for (size_t i = 0; i < all_cases.size(); i++) {
-			for (auto &switch_it : all_cases[i]->switches) {
-				for (auto &case_it : switch_it->cases) {
-					for (auto &compare_it : case_it->compare) {
-						log_assert(switch_it->signal.size() == compare_it.size());
+		log_assert(it.second->വേര്_case.compare.empty());
+		std::vector<RTLIL::CaseRule*> all_cases = {&it.second->വേര്_case};
+		വേണ്ടി (size_t i = 0; i < all_cases.size(); i++) {
+			വേണ്ടി (auto &switch_it : all_cases[i]->switches) {
+				വേണ്ടി (auto &case_it : switch_it->cases) {
+					വേണ്ടി (auto &compare_it : case_it->compare) {
+						log_assert(switch_it->സൂചന.size() == compare_it.size());
 					}
-					all_cases.push_back(case_it);
+					all_cases.തള്ളുക_back(case_it);
 				}
 			}
 		}
-		for (auto &sync_it : it.second->syncs) {
-			switch (sync_it->type) {
-				case RTLIL::SyncType::ST0:
-				case RTLIL::SyncType::ST1:
-				case RTLIL::SyncType::STp:
-				case RTLIL::SyncType::STn:
-				case RTLIL::SyncType::STe:
-					log_assert(!sync_it->signal.empty());
-					break;
-				case RTLIL::SyncType::STa:
-				case RTLIL::SyncType::STg:
-				case RTLIL::SyncType::STi:
-					log_assert(sync_it->signal.empty());
-					break;
+		വേണ്ടി (auto &sync_it : it.second->syncs) {
+			തിരഞ്ഞെടുപ്പ് (sync_it->type) {
+				അവസ്ഥ RTLIL::SyncType::ST0:
+				അവസ്ഥ RTLIL::SyncType::ST1:
+				അവസ്ഥ RTLIL::SyncType::STp:
+				അവസ്ഥ RTLIL::SyncType::STn:
+				അവസ്ഥ RTLIL::SyncType::STe:
+					log_assert(!sync_it->സൂചന.empty());
+					നിർത്തുക;
+				അവസ്ഥ RTLIL::SyncType::STa:
+				അവസ്ഥ RTLIL::SyncType::STg:
+				അവസ്ഥ RTLIL::SyncType::STi:
+					log_assert(sync_it->സൂചന.empty());
+					നിർത്തുക;
 			}
 		}
 	}
 
-	for (auto &it : module->connections_) {
+	വേണ്ടി (auto &it : module->connections_) {
 		log_assert(it.first.size() == it.second.size());
 		log_assert(!it.first.has_const());
 		it.first.check(module);
 		it.second.check(module);
 	}
 
-	check_id_keys(module->attributes);
+	check_id_താക്കോലുകൾ(module->attributes);
 #endif
 }
 
-void RTLIL::Module::check()
+ശൂന്യം RTLIL::Module::check()
 {
-	int pool_size = ThreadPool::work_pool_size(0, cells_size(), 1000);
+	പൂർണ്ണസംഖ്യ pool_size = ThreadPool::work_pool_size(0, cells_size(), 1000);
 	ParallelDispatchThreadPool thread_pool(pool_size);
-	check_module(this, thread_pool);
+	check_module(ഇത്, thread_pool);
 }
 
-void RTLIL::Module::optimize()
+ശൂന്യം RTLIL::Module::optimize()
 {
 }
 
-void RTLIL::Module::cloneInto(RTLIL::Module *new_mod) const
+ശൂന്യം RTLIL::Module::cloneInto(RTLIL::Module *new_mod) സ്ഥിരം
 {
 	log_assert(new_mod->refcount_wires_ == 0);
 	log_assert(new_mod->refcount_cells_ == 0);
@@ -2593,50 +2593,50 @@ void RTLIL::Module::cloneInto(RTLIL::Module *new_mod) const
 	TwinePool &dst_twines = new_mod->twines();
 
 	new_mod->avail_parameters.clear();
-	for (IdString param : avail_parameters)
+	വേണ്ടി (IdString param : avail_parameters)
 		new_mod->avail_parameters(dst_twines.copy_from(design->twines(), param));
-	new_mod->parameter_default_values.clear();
-	for (auto &it : parameter_default_values)
-		new_mod->parameter_default_values[dst_twines.copy_from(design->twines(), it.first)] = it.second;
+	new_mod->parameter_default_മൂല്യങ്ങൾ.clear();
+	വേണ്ടി (auto &it : parameter_default_മൂല്യങ്ങൾ)
+		new_mod->parameter_default_മൂല്യങ്ങൾ[dst_twines.copy_from(design->twines(), it.first)] = it.second;
 
-	for (auto &conn : connections())
+	വേണ്ടി (auto &conn : connections())
 		new_mod->connect(conn);
 
 	RTLIL::copy_attr_dict(new_mod->attributes, attributes, design, new_mod->design);
 
 	dict<RTLIL::Wire*, RTLIL::Wire*> wire_map;
 
-	for (auto it = wires_.rbegin(); it != wires_.rend(); ++it) {
+	വേണ്ടി (auto it = wires_.rbegin(); it != wires_.rend(); ++it) {
 		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
 		wire_map[it->second] = new_mod->addWire(dst_id, it->second);
 	}
 
-	for (auto it = memories.rbegin(); it != memories.rend(); ++it) {
+	വേണ്ടി (auto it = memories.rbegin(); it != memories.rend(); ++it) {
 		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
 		new_mod->addMemory(dst_id, it->second);
 	}
 
-	for (auto it = cells_.rbegin(); it != cells_.rend(); ++it) {
+	വേണ്ടി (auto it = cells_.rbegin(); it != cells_.rend(); ++it) {
 		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
 		new_mod->addCell(dst_id, it->second);
 	}
 
-	for (auto it = processes.rbegin(); it != processes.rend(); ++it) {
+	വേണ്ടി (auto it = processes.rbegin(); it != processes.rend(); ++it) {
 		IdString dst_id = dst_twines.copy_from(design->twines(), it->first);
 		new_mod->addProcess(dst_id, it->second);
 	}
 
-	struct RewriteSigSpecWorker
+	ഘടന RewriteSigSpecWorker
 	{
-		const dict<RTLIL::Wire*, RTLIL::Wire*> &wire_map;
-		const RTLIL::Module *new_mod;
-		void operator()(RTLIL::SigSpec &sig)
+		സ്ഥിരം dict<RTLIL::Wire*, RTLIL::Wire*> &wire_map;
+		സ്ഥിരം RTLIL::Module *new_mod;
+		ശൂന്യം operator()(RTLIL::SigSpec &sig)
 		{
-			sig.rewrite_wires([this](RTLIL::Wire *&wire) {
+			sig.rewrite_wires([ഇത്](RTLIL::Wire *&wire) {
 				auto it = wire_map.find(wire);
-				if (it != wire_map.end())
+				എങ്കിൽ (it != wire_map.end())
 					wire = it->second;
-				else
+				അല്ലെങ്കിൽ
 					log_assert(wire->module == new_mod);
 			});
 		}
@@ -2647,170 +2647,170 @@ void RTLIL::Module::cloneInto(RTLIL::Module *new_mod) const
 	new_mod->fixup_ports();
 }
 
-RTLIL::Module *RTLIL::Module::clone() const
+RTLIL::Module *RTLIL::Module::clone() സ്ഥിരം
 {
-	RTLIL::Module *new_mod = new RTLIL::Module;
+	RTLIL::Module *new_mod = പുതിയ RTLIL::Module;
 	new_mod->design = design;
 	new_mod->name = name;
 	cloneInto(new_mod);
-	return new_mod;
+	തിരികെ new_mod;
 }
 
-RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst) const
+RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst) സ്ഥിരം
 {
-	RTLIL::Module *new_mod = new RTLIL::Module;
+	RTLIL::Module *new_mod = പുതിയ RTLIL::Module;
 	new_mod->design = dst;
 	new_mod->name = dst->twines().copy_from(design->twines(), name);
 	cloneInto(new_mod);
 	dst->add(new_mod);
-	return new_mod;
+	തിരികെ new_mod;
 }
 
-RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst, IdString target_name) const
+RTLIL::Module *RTLIL::Module::clone(RTLIL::Design *dst, IdString target_name) സ്ഥിരം
 {
-	RTLIL::Module *new_mod = new RTLIL::Module;
+	RTLIL::Module *new_mod = പുതിയ RTLIL::Module;
 	new_mod->design = dst;
 	new_mod->name = target_name;
 	cloneInto(new_mod);
 	dst->add(new_mod);
-	return new_mod;
+	തിരികെ new_mod;
 }
 
-bool RTLIL::Module::has_memories() const
+തർക്കം RTLIL::Module::has_memories() സ്ഥിരം
 {
-	return !memories.empty();
+	തിരികെ !memories.empty();
 }
 
-bool RTLIL::Module::has_processes() const
+തർക്കം RTLIL::Module::has_processes() സ്ഥിരം
 {
-	return !processes.empty();
+	തിരികെ !processes.empty();
 }
 
-bool RTLIL::Module::has_memories_warn() const
+തർക്കം RTLIL::Module::has_memories_warn() സ്ഥിരം
 {
-	if (!memories.empty())
-		log_warning("Ignoring module %s because it contains memories (run 'memory' command first).\n", this);
-	return !memories.empty();
+	എങ്കിൽ (!memories.empty())
+		log_warning("Ignoring module %s because it contains memories (run 'memory' command first).\n", ഇത്);
+	തിരികെ !memories.empty();
 }
 
-bool RTLIL::Module::has_processes_warn() const
+തർക്കം RTLIL::Module::has_processes_warn() സ്ഥിരം
 {
-	if (!processes.empty())
-		log_warning("Ignoring module %s because it contains processes (run 'proc' command first).\n", this);
-	return !processes.empty();
+	എങ്കിൽ (!processes.empty())
+		log_warning("Ignoring module %s because it contains processes (run 'proc' command first).\n", ഇത്);
+	തിരികെ !processes.empty();
 }
 
-bool RTLIL::Module::is_selected() const
+തർക്കം RTLIL::Module::is_selected() സ്ഥിരം
 {
-	return design->selected_module(this->name);
+	തിരികെ design->selected_module(ഇത്->name);
 }
 
-bool RTLIL::Module::is_selected_whole() const
+തർക്കം RTLIL::Module::is_selected_whole() സ്ഥിരം
 {
-	return design->selected_whole_module(this->name);
+	തിരികെ design->selected_whole_module(ഇത്->name);
 }
 
-std::vector<RTLIL::Wire*> RTLIL::Module::selected_wires() const
+std::vector<RTLIL::Wire*> RTLIL::Module::selected_wires() സ്ഥിരം
 {
 	std::vector<RTLIL::Wire*> result;
 	result.reserve(wires_.size());
-	for (auto &it : wires_)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	വേണ്ടി (auto &it : wires_)
+		എങ്കിൽ (design->selected(ഇത്, it.second))
+			result.തള്ളുക_back(it.second);
+	തിരികെ result;
 }
 
-std::vector<RTLIL::Cell*> RTLIL::Module::selected_cells() const
+std::vector<RTLIL::Cell*> RTLIL::Module::selected_cells() സ്ഥിരം
 {
 	std::vector<RTLIL::Cell*> result;
 	result.reserve(cells_.size());
-	for (auto &it : cells_)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	വേണ്ടി (auto &it : cells_)
+		എങ്കിൽ (design->selected(ഇത്, it.second))
+			result.തള്ളുക_back(it.second);
+	തിരികെ result;
 }
 
-std::vector<RTLIL::Memory*> RTLIL::Module::selected_memories() const
+std::vector<RTLIL::Memory*> RTLIL::Module::selected_memories() സ്ഥിരം
 {
 	std::vector<RTLIL::Memory*> result;
 	result.reserve(memories.size());
-	for (auto &it : memories)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	വേണ്ടി (auto &it : memories)
+		എങ്കിൽ (design->selected(ഇത്, it.second))
+			result.തള്ളുക_back(it.second);
+	തിരികെ result;
 }
 
-std::vector<RTLIL::Process*> RTLIL::Module::selected_processes() const
+std::vector<RTLIL::Process*> RTLIL::Module::selected_processes() സ്ഥിരം
 {
 	std::vector<RTLIL::Process*> result;
 	result.reserve(processes.size());
-	for (auto &it : processes)
-		if (design->selected(this, it.second))
-			result.push_back(it.second);
-	return result;
+	വേണ്ടി (auto &it : processes)
+		എങ്കിൽ (design->selected(ഇത്, it.second))
+			result.തള്ളുക_back(it.second);
+	തിരികെ result;
 }
 
-std::vector<RTLIL::SelectedMember> RTLIL::Module::selected_members() const
+std::vector<RTLIL::SelectedMember> RTLIL::Module::selected_members() സ്ഥിരം
 {
 	std::vector<RTLIL::SelectedMember> result;
-	for (auto cell : selected_cells())
-		result.push_back({cell, cell->name});
-	for (auto memory : selected_memories())
-		result.push_back({memory, memory->name});
-	for (auto wire : selected_wires())
-		result.push_back({wire, wire->name});
-	for (auto process : selected_processes())
-		result.push_back({process, process->name});
-	return result;
+	വേണ്ടി (auto cell : selected_cells())
+		result.തള്ളുക_back({cell, cell->name});
+	വേണ്ടി (auto memory : selected_memories())
+		result.തള്ളുക_back({memory, memory->name});
+	വേണ്ടി (auto wire : selected_wires())
+		result.തള്ളുക_back({wire, wire->name});
+	വേണ്ടി (auto process : selected_processes())
+		result.തള്ളുക_back({process, process->name});
+	തിരികെ result;
 }
 
-void RTLIL::Module::add(RTLIL::Wire *wire)
+ശൂന്യം RTLIL::Module::add(RTLIL::Wire *wire)
 {
 	log_assert(wire->name != IdString::Null);
 	IdString id = wire->name;
-	log_assert(count_id(id) == 0);
+	log_assert(എണ്ണം_id(id) == 0);
 	log_assert(refcount_wires_ == 0);
 	wires_[id] = wire;
-	wire->module = this;
+	wire->module = ഇത്;
 }
 
-void RTLIL::Module::add(RTLIL::Cell *cell)
+ശൂന്യം RTLIL::Module::add(RTLIL::Cell *cell)
 {
 	log_assert(cell->name != IdString::Null);
 	IdString id = cell->name;
-	log_assert(count_id(id) == 0);
+	log_assert(എണ്ണം_id(id) == 0);
 	log_assert(refcount_cells_ == 0);
 	cells_[id] = cell;
-	cell->module = this;
+	cell->module = ഇത്;
 }
 
-void RTLIL::Module::add(RTLIL::Process *process)
+ശൂന്യം RTLIL::Module::add(RTLIL::Process *process)
 {
 	log_assert(process->name != IdString::Null);
-	log_assert(count_id(process->name) == 0);
+	log_assert(എണ്ണം_id(process->name) == 0);
 	processes[process->name] = process;
-	process->module = this;
+	process->module = ഇത്;
 }
 
-void RTLIL::Module::remove(const pool<RTLIL::Wire*> &wires)
+ശൂന്യം RTLIL::Module::remove(സ്ഥിരം pool<RTLIL::Wire*> &wires)
 {
 	log_assert(refcount_wires_ == 0);
-	if (wires.empty())
-		return;
+	എങ്കിൽ (wires.empty())
+		തിരികെ;
 
-	struct DeleteWireWorker
+	ഘടന DeleteWireWorker
 	{
 		RTLIL::Module *module;
-		const pool<RTLIL::Wire*> *wires_p;
+		സ്ഥിരം pool<RTLIL::Wire*> *wires_p;
 
-		void operator()(RTLIL::SigSpec &sig) {
-			sig.rewrite_wires([this](RTLIL::Wire *&wire) {
-				if (wires_p->count(wire))
-					wire = module->addWire(stringf("$delete_wire$%d", (int)autoidx++), wire->width);
+		ശൂന്യം operator()(RTLIL::SigSpec &sig) {
+			sig.rewrite_wires([ഇത്](RTLIL::Wire *&wire) {
+				എങ്കിൽ (wires_p->എണ്ണം(wire))
+					wire = module->addWire(stringf("$delete_wire$%d", (പൂർണ്ണസംഖ്യ)autoidx++), wire->width);
 			});
 		}
 
-		void operator()(RTLIL::SigSpec &lhs, RTLIL::SigSpec &rhs) {
+		ശൂന്യം operator()(RTLIL::SigSpec &lhs, RTLIL::SigSpec &rhs) {
 			// If a deleted wire occurs on the lhs or rhs we just remove that part
 			// of the assignment
 			lhs.remove2(*wires_p, &rhs);
@@ -2819,58 +2819,58 @@ void RTLIL::Module::remove(const pool<RTLIL::Wire*> &wires)
 	};
 
 	DeleteWireWorker delete_wire_worker;
-	delete_wire_worker.module = this;
+	delete_wire_worker.module = ഇത്;
 	delete_wire_worker.wires_p = &wires;
 	rewrite_sigspecs2(delete_wire_worker);
 
-	if (design->flagBufferedNormalized) {
-		for (auto wire : wires) {
+	എങ്കിൽ (design->flagBufferedNormalized) {
+		വേണ്ടി (auto wire : wires) {
 			buf_norm_wire_queue.erase(wire);
 			buf_norm_connect_index.erase(wire);
 		}
 	}
 
-	for (auto &it : wires) {
+	വേണ്ടി (auto &it : wires) {
 		log_assert(it->name != IdString::Null);
 		IdString id = it->name;
-		log_assert(wires_.count(id) != 0);
+		log_assert(wires_.എണ്ണം(id) != 0);
 		wires_.erase(id);
 		delete it;
 	}
 }
 
-void RTLIL::Module::remove(RTLIL::Cell *cell)
+ശൂന്യം RTLIL::Module::remove(RTLIL::Cell *cell)
 {
-	while (!cell->connections_.empty())
+	ആകുമ്പോൾ (!cell->connections_.empty())
 		cell->unsetPort(cell->connections_.begin()->first);
 
-	log_assert(cells_.count(cell->name) != 0);
+	log_assert(cells_.എണ്ണം(cell->name) != 0);
 	log_assert(refcount_cells_ == 0);
 	cells_.erase(cell->name);
-	if (design && design->flagBufferedNormalized && buf_norm_cell_queue.count(cell)) {
+	എങ്കിൽ (design && design->flagBufferedNormalized && buf_norm_cell_queue.എണ്ണം(cell)) {
 		cell->type = IdString::Null;
 		cell->name = IdString::Null;
-		pending_deleted_cells.insert(cell);
-	} else {
+		pending_deleted_cells.തിരുകുക(cell);
+	} അല്ലെങ്കിൽ {
 		delete cell;
 	}
 }
 
-void RTLIL::Module::remove(RTLIL::Memory *memory)
+ശൂന്യം RTLIL::Module::remove(RTLIL::Memory *memory)
 {
-	log_assert(memories.count(memory->name) != 0);
+	log_assert(memories.എണ്ണം(memory->name) != 0);
 	memories.erase(memory->name);
 	delete memory;
 }
 
-void RTLIL::Module::remove(RTLIL::Process *process)
+ശൂന്യം RTLIL::Module::remove(RTLIL::Process *process)
 {
-	log_assert(processes.count(process->name) != 0);
+	log_assert(processes.എണ്ണം(process->name) != 0);
 	processes.erase(process->name);
 	delete process;
 }
 
-void RTLIL::Module::rename(RTLIL::Wire *wire, RTLIL::IdString new_name)
+ശൂന്യം RTLIL::Module::rename(RTLIL::Wire *wire, RTLIL::IdString new_name)
 {
 	log_assert(wire->name != IdString::Null);
 	IdString old_id = wire->name;
@@ -2881,7 +2881,7 @@ void RTLIL::Module::rename(RTLIL::Wire *wire, RTLIL::IdString new_name)
 	add(wire);
 }
 
-void RTLIL::Module::rename(RTLIL::Cell *cell, RTLIL::IdString new_name)
+ശൂന്യം RTLIL::Module::rename(RTLIL::Cell *cell, RTLIL::IdString new_name)
 {
 	log_assert(cell->name != IdString::Null);
 	IdString old_id = cell->name;
@@ -2892,18 +2892,18 @@ void RTLIL::Module::rename(RTLIL::Cell *cell, RTLIL::IdString new_name)
 	add(cell);
 }
 
-void RTLIL::Module::rename(RTLIL::IdString old_name, RTLIL::IdString new_name)
+ശൂന്യം RTLIL::Module::rename(RTLIL::IdString old_name, RTLIL::IdString new_name)
 {
 	IdString old_id = old_name;
-	if (old_id != IdString::Null && wires_.count(old_id))
+	എങ്കിൽ (old_id != IdString::Null && wires_.എണ്ണം(old_id))
 		rename(wires_.at(old_id), new_name);
-	else if (old_id != IdString::Null && cells_.count(old_id))
+	അല്ലെങ്കിൽ എങ്കിൽ (old_id != IdString::Null && cells_.എണ്ണം(old_id))
 		rename(cells_.at(old_id), new_name);
-	else
+	അല്ലെങ്കിൽ
 		log_abort();
 }
 
-void RTLIL::Module::swap_names(RTLIL::Wire *w1, RTLIL::Wire *w2)
+ശൂന്യം RTLIL::Module::swap_names(RTLIL::Wire *w1, RTLIL::Wire *w2)
 {
 	log_assert(w1->name != IdString::Null);
 	log_assert(w2->name != IdString::Null);
@@ -2918,7 +2918,7 @@ void RTLIL::Module::swap_names(RTLIL::Wire *w1, RTLIL::Wire *w2)
 	swap(w1->name, w2->name);
 }
 
-void RTLIL::Module::swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2)
+ശൂന്യം RTLIL::Module::swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2)
 {
 	log_assert(c1->name != IdString::Null);
 	log_assert(c2->name != IdString::Null);
@@ -2935,86 +2935,86 @@ void RTLIL::Module::swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2)
 
 RTLIL::IdString RTLIL::Module::uniquify(RTLIL::IdString name)
 {
-	int index = 0;
-	return uniquify(name, index);
+	പൂർണ്ണസംഖ്യ index = 0;
+	തിരികെ uniquify(name, index);
 }
 
-IdString RTLIL::Module::uniquify(IdString name, int &index)
+IdString RTLIL::Module::uniquify(IdString name, പൂർണ്ണസംഖ്യ &index)
 {
-	if (index == 0) {
-		if (count_id(name) == 0)
-			return name;
+	എങ്കിൽ (index == 0) {
+		എങ്കിൽ (എണ്ണം_id(name) == 0)
+			തിരികെ name;
 		index++;
 	}
 
-	while (1) {
+	ആകുമ്പോൾ (1) {
 		IdString new_name = design->twines().add(TwineSpec::Suffix{name, stringf("_%d", index)});
-		if (count_id(new_name) == 0)
-			return new_name;
+		എങ്കിൽ (എണ്ണം_id(new_name) == 0)
+			തിരികെ new_name;
 		index++;
 	}
 }
 
-static bool fixup_ports_compare(const RTLIL::Wire *a, const RTLIL::Wire *b)
+സ്ഥിതം തർക്കം fixup_ports_compare(സ്ഥിരം RTLIL::Wire *a, സ്ഥിരം RTLIL::Wire *b)
 {
-	if (a->port_id && !b->port_id)
-		return true;
-	if (!a->port_id && b->port_id)
-		return false;
+	എങ്കിൽ (a->port_id && !b->port_id)
+		തിരികെ സത്യം;
+	എങ്കിൽ (!a->port_id && b->port_id)
+		തിരികെ അസത്യം;
 
-	if (a->port_id == b->port_id)
-		return a->name < b->name;
-	return a->port_id < b->port_id;
+	എങ്കിൽ (a->port_id == b->port_id)
+		തിരികെ a->name < b->name;
+	തിരികെ a->port_id < b->port_id;
 }
 
-void RTLIL::Module::connect(const RTLIL::SigSig &conn)
+ശൂന്യം RTLIL::Module::connect(സ്ഥിരം RTLIL::SigSig &conn)
 {
-	for (auto mon : monitors)
-		mon->notify_connect(this, conn);
+	വേണ്ടി (auto mon : monitors)
+		mon->notify_connect(ഇത്, conn);
 
-	if (design)
-		for (auto mon : design->monitors)
-			mon->notify_connect(this, conn);
+	എങ്കിൽ (design)
+		വേണ്ടി (auto mon : design->monitors)
+			mon->notify_connect(ഇത്, conn);
 
 	// ignore all attempts to assign constants to other constants
-	if (conn.first.has_const()) {
+	എങ്കിൽ (conn.first.has_const()) {
 		RTLIL::SigSig new_conn;
-		for (int i = 0; i < GetSize(conn.first); i++)
-			if (conn.first[i].wire) {
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < GetSize(conn.first); i++)
+			എങ്കിൽ (conn.first[i].wire) {
 				new_conn.first.append(conn.first[i]);
 				new_conn.second.append(conn.second[i]);
 			}
-		if (GetSize(new_conn.first))
+		എങ്കിൽ (GetSize(new_conn.first))
 			connect(new_conn);
-		return;
+		തിരികെ;
 	}
 
-	if (yosys_xtrace) {
-		log("#X# Connect (SigSig) in %s: %s = %s (%d bits)\n", this, log_signal(conn.first), log_signal(conn.second), GetSize(conn.first));
+	എങ്കിൽ (yosys_xtrace) {
+		log("#X# Connect (SigSig) in %s: %s = %s (%d bits)\n", ഇത്, log_signal(conn.first), log_signal(conn.second), GetSize(conn.first));
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
 	log_assert(GetSize(conn.first) == GetSize(conn.second));
-	connections_.push_back(conn);
+	connections_.തള്ളുക_back(conn);
 }
 
-void RTLIL::Module::connect(const RTLIL::SigSpec &lhs, const RTLIL::SigSpec &rhs)
+ശൂന്യം RTLIL::Module::connect(സ്ഥിരം RTLIL::SigSpec &lhs, സ്ഥിരം RTLIL::SigSpec &rhs)
 {
 	connect(RTLIL::SigSig(lhs, rhs));
 }
 
-void RTLIL::Module::new_connections(const std::vector<RTLIL::SigSig> &new_conn)
+ശൂന്യം RTLIL::Module::new_connections(സ്ഥിരം std::vector<RTLIL::SigSig> &new_conn)
 {
-	for (auto mon : monitors)
-		mon->notify_connect(this, new_conn);
+	വേണ്ടി (auto mon : monitors)
+		mon->notify_connect(ഇത്, new_conn);
 
-	if (design)
-		for (auto mon : design->monitors)
-			mon->notify_connect(this, new_conn);
+	എങ്കിൽ (design)
+		വേണ്ടി (auto mon : design->monitors)
+			mon->notify_connect(ഇത്, new_conn);
 
-	if (yosys_xtrace) {
-		log("#X# New connections vector in %s:\n", this);
-		for (auto &conn: new_conn)
+	എങ്കിൽ (yosys_xtrace) {
+		log("#X# New connections vector in %s:\n", ഇത്);
+		വേണ്ടി (auto &conn: new_conn)
 			log("#X#    %s = %s (%d bits)\n", log_signal(conn.first), log_signal(conn.second), GetSize(conn.first));
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
@@ -3022,129 +3022,129 @@ void RTLIL::Module::new_connections(const std::vector<RTLIL::SigSig> &new_conn)
 	connections_ = new_conn;
 }
 
-const std::vector<RTLIL::SigSig> &RTLIL::Module::connections() const
+സ്ഥിരം std::vector<RTLIL::SigSig> &RTLIL::Module::connections() സ്ഥിരം
 {
-	return connections_;
+	തിരികെ connections_;
 }
 
-void RTLIL::Module::fixup_ports()
+ശൂന്യം RTLIL::Module::fixup_ports()
 {
 	std::vector<RTLIL::Wire*> all_ports;
 
-	for (auto &w : wires_)
-		if (w.second->port_input || w.second->port_output)
-			all_ports.push_back(w.second);
-		else
+	വേണ്ടി (auto &w : wires_)
+		എങ്കിൽ (w.second->port_നിവേശം || w.second->port_output)
+			all_ports.തള്ളുക_back(w.second);
+		അല്ലെങ്കിൽ
 			w.second->port_id = 0;
 
 	std::sort(all_ports.begin(), all_ports.end(), fixup_ports_compare);
 
-	if (design && design->flagBufferedNormalized) {
-		for (auto &w : wires_)
-			if (w.second->driverCell_ && w.second->driverCell_->type == ID($input_port))
-				buf_norm_wire_queue.insert(w.second);
+	എങ്കിൽ (design && design->flagBufferedNormalized) {
+		വേണ്ടി (auto &w : wires_)
+			എങ്കിൽ (w.second->driverCell_ && w.second->driverCell_->type == ID($നിവേശം_port))
+				buf_norm_wire_queue.തിരുകുക(w.second);
 
-		buf_norm_wire_queue.insert(all_ports.begin(), all_ports.end());
+		buf_norm_wire_queue.തിരുകുക(all_ports.begin(), all_ports.end());
 	}
 
 	ports.clear();
-	for (size_t i = 0; i < all_ports.size(); i++) {
-		ports.push_back(all_ports[i]->name);
+	വേണ്ടി (size_t i = 0; i < all_ports.size(); i++) {
+		ports.തള്ളുക_back(all_ports[i]->name);
 		all_ports[i]->port_id = i+1;
 	}
 }
 
-void RTLIL::copy_attr_dict(dict<IdString, RTLIL::Const> &dst,
-		const dict<IdString, RTLIL::Const> &src,
-		const RTLIL::Design *src_design, RTLIL::Design *dst_design)
+ശൂന്യം RTLIL::copy_attr_dict(dict<IdString, RTLIL::Const> &dst,
+		സ്ഥിരം dict<IdString, RTLIL::Const> &src,
+		സ്ഥിരം RTLIL::Design *src_design, RTLIL::Design *dst_design)
 {
-	if (!src_design || !dst_design || src_design == dst_design) {
+	എങ്കിൽ (!src_design || !dst_design || src_design == dst_design) {
 		dst = src;
-		return;
+		തിരികെ;
 	}
 	dst.clear();
-	for (int i = GetSize(src) - 1; i >= 0; i--) {
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = GetSize(src) - 1; i >= 0; i--) {
 		auto &it = *src.element(i);
 		dst[dst_design->twines().copy_from(src_design->twines(), it.first)] = it.second;
 	}
 }
 
-RTLIL::Wire *RTLIL::Module::addWire(RTLIL::IdString name, int width)
+RTLIL::Wire *RTLIL::Module::addWire(RTLIL::IdString name, പൂർണ്ണസംഖ്യ width)
 {
 	log_assert(design);
 	log_assert(width >= 0 && width < RTLIL::WIDTH_LIMIT);
-	RTLIL::Wire *wire = new RTLIL::Wire;
+	RTLIL::Wire *wire = പുതിയ RTLIL::Wire;
 	wire->width = width;
 	wire->name = name;
 	add(wire);
-	return wire;
+	തിരികെ wire;
 }
 
-RTLIL::Wire *RTLIL::Module::addWire(IdString name, const RTLIL::Wire *other)
+RTLIL::Wire *RTLIL::Module::addWire(IdString name, സ്ഥിരം RTLIL::Wire *other)
 {
 	RTLIL::Wire *wire = addWire(name);
 	wire->width = other->width;
 	wire->start_offset = other->start_offset;
 	wire->port_id = other->port_id;
-	wire->port_input = other->port_input;
+	wire->port_നിവേശം = other->port_നിവേശം;
 	wire->port_output = other->port_output;
 	wire->upto = other->upto;
 	wire->is_signed = other->is_signed;
 	{
-		const RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
-		RTLIL::copy_attr_dict(wire->attributes, other->attributes, src_design, this->design);
+		സ്ഥിരം RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
+		RTLIL::copy_attr_dict(wire->attributes, other->attributes, src_design, ഇത്->design);
 	}
-	return wire;
+	തിരികെ wire;
 }
 
 RTLIL::Cell *RTLIL::Module::addCell(IdString name, IdString type)
 {
 	log_assert(design);
-	RTLIL::Cell *cell = new RTLIL::Cell;
+	RTLIL::Cell *cell = പുതിയ RTLIL::Cell;
 	cell->type = type;
 	cell->name = name;
 	add(cell);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell *RTLIL::Module::addCell(IdString name, const RTLIL::Cell *other)
+RTLIL::Cell *RTLIL::Module::addCell(IdString name, സ്ഥിരം RTLIL::Cell *other)
 {
-	const RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
-	bool cross_pool = src_design && this->design && src_design != this->design;
+	സ്ഥിരം RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
+	തർക്കം cross_pool = src_design && ഇത്->design && src_design != ഇത്->design;
 
 	IdString type = other->type.ref();
-	if (cross_pool)
+	എങ്കിൽ (cross_pool)
 		type = twines().copy_from(src_design->twines(), other->type.ref());
 
 	RTLIL::Cell *cell = addCell(name, type);
-	RTLIL::copy_attr_dict(cell->parameters, other->parameters, src_design, this->design);
-	RTLIL::copy_attr_dict(cell->attributes, other->attributes, src_design, this->design);
+	RTLIL::copy_attr_dict(cell->parameters, other->parameters, src_design, ഇത്->design);
+	RTLIL::copy_attr_dict(cell->attributes, other->attributes, src_design, ഇത്->design);
 
-	if (!cross_pool)
+	എങ്കിൽ (!cross_pool)
 		cell->connections_ = other->connections_;
-	else
-		for (int i = GetSize(other->connections_) - 1; i >= 0; i--) {
+	അല്ലെങ്കിൽ
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = GetSize(other->connections_) - 1; i >= 0; i--) {
 			auto &c = *other->connections_.element(i);
 			cell->connections_[twines().copy_from(src_design->twines(), c.first)] = c.second;
 		}
-	return cell;
+	തിരികെ cell;
 }
 
 RTLIL::Memory *RTLIL::Module::addMemory(IdString name)
 {
 	log_assert(design);
-	RTLIL::Memory *mem = new RTLIL::Memory;
-	mem->module = this;
+	RTLIL::Memory *mem = പുതിയ RTLIL::Memory;
+	mem->module = ഇത്;
 	mem->name = name;
 	memories[name] = mem;
-	return mem;
+	തിരികെ mem;
 }
 
-RTLIL::Memory *RTLIL::Module::addMemory(IdString name, const RTLIL::Memory *other)
+RTLIL::Memory *RTLIL::Module::addMemory(IdString name, സ്ഥിരം RTLIL::Memory *other)
 {
 	log_assert(design);
-	RTLIL::Memory *mem = new RTLIL::Memory;
-	mem->module = this;
+	RTLIL::Memory *mem = പുതിയ RTLIL::Memory;
+	mem->module = ഇത്;
 	mem->name = name;
 	mem->width = other->width;
 	mem->start_offset = other->start_offset;
@@ -3152,40 +3152,40 @@ RTLIL::Memory *RTLIL::Module::addMemory(IdString name, const RTLIL::Memory *othe
 	RTLIL::copy_attr_dict(mem->attributes, other->attributes,
 			other->module ? other->module->design : nullptr, design);
 	memories[name] = mem;
-	return mem;
+	തിരികെ mem;
 }
 
 RTLIL::Process *RTLIL::Module::addProcess(IdString name)
 {
 	log_assert(design);
-	RTLIL::Process *proc = new RTLIL::Process;
+	RTLIL::Process *proc = പുതിയ RTLIL::Process;
 	proc->name = name;
 	add(proc);
-	return proc;
+	തിരികെ proc;
 }
 
-RTLIL::Process *RTLIL::Module::addProcess(RTLIL::IdString name, const RTLIL::Process *other)
+RTLIL::Process *RTLIL::Module::addProcess(RTLIL::IdString name, സ്ഥിരം RTLIL::Process *other)
 {
 	log_assert(design);
 	RTLIL::Process *proc = other->clone();
 	proc->name = name;
-	const RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
-	if (src_design && src_design != design) {
+	സ്ഥിരം RTLIL::Design *src_design = other->module ? other->module->design : nullptr;
+	എങ്കിൽ (src_design && src_design != design) {
 		walk_process_attr_objects(proc, [&](RTLIL::AttrObject *obj) {
 			dict<IdString, RTLIL::Const> attributes;
 			RTLIL::copy_attr_dict(attributes, obj->attributes, src_design, design);
 			obj->attributes = std::move(attributes);
 		});
-		for (auto *sync : proc->syncs)
-			for (auto &mwa : sync->mem_write_actions)
+		വേണ്ടി (auto *സമന്വയം : proc->syncs)
+			വേണ്ടി (auto &mwa : സമന്വയം->mem_write_actions)
 				mwa.memid = design->twines().copy_from(src_design->twines(), mwa.memid);
 	}
 	add(proc);
-	return proc;
+	തിരികെ proc;
 }
 
 #define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_y, തർക്കം is_signed, സ്ഥിരം std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);           \
 		cell->parameters[ID::A_SIGNED] = is_signed;         \
 		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
@@ -3193,12 +3193,12 @@ RTLIL::Process *RTLIL::Module::addProcess(RTLIL::IdString name, const RTLIL::Pro
 		cell->setPort(ID::A, sig_a);                        \
 		cell->setPort(ID::Y, sig_y);                        \
 		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		തിരികെ cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed, const std::string &src) { \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, തർക്കം is_signed, സ്ഥിരം std::string &src) { \
 		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);    \
 		add ## _func(name, sig_a, sig_y, is_signed, src);   \
-		return sig_y;                                       \
+		തിരികെ sig_y;                                       \
 	}
 DEF_METHOD(Not,        sig_a.size(), ID($not))
 DEF_METHOD(Pos,        sig_a.size(), ID($pos))
@@ -3212,25 +3212,25 @@ DEF_METHOD(LogicNot,   1, ID($logic_not))
 #undef DEF_METHOD
 
 #define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool /* is_signed */, const std::string &src) { \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_y, തർക്കം /* is_signed */, സ്ഥിരം std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);           \
 		cell->parameters[ID::WIDTH] = sig_a.size();         \
 		cell->setPort(ID::A, sig_a);                        \
 		cell->setPort(ID::Y, sig_y);                        \
 		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		തിരികെ cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed, const std::string &src) { \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, തർക്കം is_signed, സ്ഥിരം std::string &src) { \
 		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);    \
 		add ## _func(name, sig_a, sig_y, is_signed, src);   \
-		return sig_y;                                       \
+		തിരികെ sig_y;                                       \
 	}
 DEF_METHOD(Buf,     sig_a.size(), ID($buf))
 DEF_METHOD(Barrier, sig_a.size(), ID($barrier))
 #undef DEF_METHOD
 
 #define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_b, സ്ഥിരം RTLIL::SigSpec &sig_y, തർക്കം is_signed, സ്ഥിരം std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);           \
 		cell->parameters[ID::A_SIGNED] = is_signed;         \
 		cell->parameters[ID::B_SIGNED] = is_signed;         \
@@ -3241,12 +3241,12 @@ DEF_METHOD(Barrier, sig_a.size(), ID($barrier))
 		cell->setPort(ID::B, sig_b);                        \
 		cell->setPort(ID::Y, sig_y);                        \
 		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		തിരികെ cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed, const std::string &src) { \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_b, തർക്കം is_signed, സ്ഥിരം std::string &src) { \
 		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);         \
 		add ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
-		return sig_y;                                            \
+		തിരികെ sig_y;                                            \
 	}
 DEF_METHOD(And,      max(sig_a.size(), sig_b.size()), ID($and))
 DEF_METHOD(Or,       max(sig_a.size(), sig_b.size()), ID($or))
@@ -3273,10 +3273,10 @@ DEF_METHOD(LogicOr,  1, ID($logic_or))
 #undef DEF_METHOD
 
 #define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_b, സ്ഥിരം RTLIL::SigSpec &sig_y, തർക്കം is_signed, സ്ഥിരം std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);           \
 		cell->parameters[ID::A_SIGNED] = is_signed;         \
-		cell->parameters[ID::B_SIGNED] = false;             \
+		cell->parameters[ID::B_SIGNED] = അസത്യം;             \
 		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
 		cell->parameters[ID::B_WIDTH] = sig_b.size();       \
 		cell->parameters[ID::Y_WIDTH] = sig_y.size();       \
@@ -3284,12 +3284,12 @@ DEF_METHOD(LogicOr,  1, ID($logic_or))
 		cell->setPort(ID::B, sig_b);                        \
 		cell->setPort(ID::Y, sig_y);                        \
 		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		തിരികെ cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed, const std::string &src) { \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_b, തർക്കം is_signed, സ്ഥിരം std::string &src) { \
 		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);         \
 		add ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
-		return sig_y;                                            \
+		തിരികെ sig_y;                                            \
 	}
 DEF_METHOD(Shl,      sig_a.size(), ID($shl))
 DEF_METHOD(Shr,      sig_a.size(), ID($shr))
@@ -3298,9 +3298,9 @@ DEF_METHOD(Sshr,     sig_a.size(), ID($sshr))
 #undef DEF_METHOD
 
 #define DEF_METHOD(_func, _y_size, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed, const std::string &src) { \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_b, സ്ഥിരം RTLIL::SigSpec &sig_y, തർക്കം is_signed, സ്ഥിരം std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);           \
-		cell->parameters[ID::A_SIGNED] = false;             \
+		cell->parameters[ID::A_SIGNED] = അസത്യം;             \
 		cell->parameters[ID::B_SIGNED] = is_signed;         \
 		cell->parameters[ID::A_WIDTH] = sig_a.size();       \
 		cell->parameters[ID::B_WIDTH] = sig_b.size();       \
@@ -3309,32 +3309,32 @@ DEF_METHOD(Sshr,     sig_a.size(), ID($sshr))
 		cell->setPort(ID::B, sig_b);                        \
 		cell->setPort(ID::Y, sig_y);                        \
 		cell->set_src_attribute(src);                       \
-		return cell;                                        \
+		തിരികെ cell;                                        \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed, const std::string &src) { \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_b, തർക്കം is_signed, സ്ഥിരം std::string &src) { \
 		RTLIL::SigSpec sig_y = addWire(NEW_ID, _y_size);         \
 		add ## _func(name, sig_a, sig_b, sig_y, is_signed, src); \
-		return sig_y;                                            \
+		തിരികെ sig_y;                                            \
 	}
 DEF_METHOD(Shiftx,      sig_a.size(), ID($shiftx))
 #undef DEF_METHOD
 
 #define DEF_METHOD(_func, _type, _pmux) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src) { \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_b, സ്ഥിരം RTLIL::SigSpec &sig_s, സ്ഥിരം RTLIL::SigSpec &sig_y, സ്ഥിരം std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);                 \
 		cell->parameters[ID::WIDTH] = sig_a.size();               \
-		if (_pmux) cell->parameters[ID::S_WIDTH] = sig_s.size();  \
+		എങ്കിൽ (_pmux) cell->parameters[ID::S_WIDTH] = sig_s.size();  \
 		cell->setPort(ID::A, sig_a);                              \
 		cell->setPort(ID::B, sig_b);                              \
 		cell->setPort(ID::S, sig_s);                              \
 		cell->setPort(ID::Y, sig_y);                              \
 		cell->set_src_attribute(src);                             \
-		return cell;                                              \
+		തിരികെ cell;                                              \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const std::string &src) { \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_b, സ്ഥിരം RTLIL::SigSpec &sig_s, സ്ഥിരം std::string &src) { \
 		RTLIL::SigSpec sig_y = addWire(NEW_ID, sig_a.size());     \
 		add ## _func(name, sig_a, sig_b, sig_s, sig_y, src);      \
-		return sig_y;                                             \
+		തിരികെ sig_y;                                             \
 	}
 DEF_METHOD(Mux,      ID($mux),        0)
 DEF_METHOD(Bwmux,    ID($bwmux),      0)
@@ -3342,7 +3342,7 @@ DEF_METHOD(Pmux,     ID($pmux),       1)
 #undef DEF_METHOD
 
 #define DEF_METHOD(_func, _type, _demux) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src) { \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_s, സ്ഥിരം RTLIL::SigSpec &sig_y, സ്ഥിരം std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);                 \
 		cell->parameters[ID::WIDTH] = _demux ? sig_a.size() : sig_y.size(); \
 		cell->parameters[ID::S_WIDTH] = sig_s.size();             \
@@ -3350,79 +3350,79 @@ DEF_METHOD(Pmux,     ID($pmux),       1)
 		cell->setPort(ID::S, sig_s);                              \
 		cell->setPort(ID::Y, sig_y);                              \
 		cell->set_src_attribute(src);                             \
-		return cell;                                              \
+		തിരികെ cell;                                              \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const std::string &src) { \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_s, സ്ഥിരം std::string &src) { \
 		RTLIL::SigSpec sig_y = addWire(NEW_ID, _demux ? sig_a.size() << sig_s.size() : sig_a.size() >> sig_s.size()); \
 		add ## _func(name, sig_a, sig_s, sig_y, src);             \
-		return sig_y;                                             \
+		തിരികെ sig_y;                                             \
 	}
 DEF_METHOD(Bmux,     ID($bmux),       0)
 DEF_METHOD(Demux,    ID($demux),      1)
 #undef DEF_METHOD
 
 #define DEF_METHOD(_func, _type) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src) { \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_b, സ്ഥിരം RTLIL::SigSpec &sig_y, സ്ഥിരം std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);                 \
 		cell->parameters[ID::WIDTH] = sig_a.size();               \
 		cell->setPort(ID::A, sig_a);                              \
 		cell->setPort(ID::B, sig_b);                              \
 		cell->setPort(ID::Y, sig_y);                              \
 		cell->set_src_attribute(src);                             \
-		return cell;                                              \
+		തിരികെ cell;                                              \
 	} \
-	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const std::string &src) { \
+	RTLIL::SigSpec RTLIL::Module::_func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_s, സ്ഥിരം std::string &src) { \
 		RTLIL::SigSpec sig_y = addWire(NEW_ID, sig_a.size());     \
 		add ## _func(name, sig_a, sig_s, sig_y, src);             \
-		return sig_y;                                             \
+		തിരികെ sig_y;                                             \
 	}
 DEF_METHOD(Bweqx,    ID($bweqx))
 #undef DEF_METHOD
 
 #define DEF_METHOD_2(_func, _type, _P1, _P2) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const std::string &src) { \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigBit &sig1, സ്ഥിരം RTLIL::SigBit &sig2, സ്ഥിരം std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);         \
 		cell->setPort("\\" #_P1, sig1);                   \
 		cell->setPort("\\" #_P2, sig2);                   \
 		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+		തിരികെ cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const std::string &src) { \
+	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigBit &sig1, സ്ഥിരം std::string &src) { \
 		RTLIL::SigBit sig2 = addWire(NEW_ID);             \
 		add ## _func(name, sig1, sig2, src);              \
-		return sig2;                                      \
+		തിരികെ sig2;                                      \
 	}
 #define DEF_METHOD_3(_func, _type, _P1, _P2, _P3) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const std::string &src) { \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigBit &sig1, സ്ഥിരം RTLIL::SigBit &sig2, സ്ഥിരം RTLIL::SigBit &sig3, സ്ഥിരം std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);         \
 		cell->setPort("\\" #_P1, sig1);                   \
 		cell->setPort("\\" #_P2, sig2);                   \
 		cell->setPort("\\" #_P3, sig3);                   \
 		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+		തിരികെ cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const std::string &src) { \
+	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigBit &sig1, സ്ഥിരം RTLIL::SigBit &sig2, സ്ഥിരം std::string &src) { \
 		RTLIL::SigBit sig3 = addWire(NEW_ID);             \
 		add ## _func(name, sig1, sig2, sig3, src);        \
-		return sig3;                                      \
+		തിരികെ sig3;                                      \
 	}
 #define DEF_METHOD_4(_func, _type, _P1, _P2, _P3, _P4) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const RTLIL::SigBit &sig4, const std::string &src) { \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigBit &sig1, സ്ഥിരം RTLIL::SigBit &sig2, സ്ഥിരം RTLIL::SigBit &sig3, സ്ഥിരം RTLIL::SigBit &sig4, സ്ഥിരം std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);         \
 		cell->setPort("\\" #_P1, sig1);                   \
 		cell->setPort("\\" #_P2, sig2);                   \
 		cell->setPort("\\" #_P3, sig3);                   \
 		cell->setPort("\\" #_P4, sig4);                   \
 		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+		തിരികെ cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const std::string &src) { \
+	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigBit &sig1, സ്ഥിരം RTLIL::SigBit &sig2, സ്ഥിരം RTLIL::SigBit &sig3, സ്ഥിരം std::string &src) { \
 		RTLIL::SigBit sig4 = addWire(NEW_ID);             \
 		add ## _func(name, sig1, sig2, sig3, sig4, src);  \
-		return sig4;                                      \
+		തിരികെ sig4;                                      \
 	}
 #define DEF_METHOD_5(_func, _type, _P1, _P2, _P3, _P4, _P5) \
-	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const RTLIL::SigBit &sig4, const RTLIL::SigBit &sig5, const std::string &src) { \
+	RTLIL::Cell* RTLIL::Module::add ## _func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigBit &sig1, സ്ഥിരം RTLIL::SigBit &sig2, സ്ഥിരം RTLIL::SigBit &sig3, സ്ഥിരം RTLIL::SigBit &sig4, സ്ഥിരം RTLIL::SigBit &sig5, സ്ഥിരം std::string &src) { \
 		RTLIL::Cell *cell = addCell(name, _type);         \
 		cell->setPort("\\" #_P1, sig1);                   \
 		cell->setPort("\\" #_P2, sig2);                   \
@@ -3430,12 +3430,12 @@ DEF_METHOD(Bweqx,    ID($bweqx))
 		cell->setPort("\\" #_P4, sig4);                   \
 		cell->setPort("\\" #_P5, sig5);                   \
 		cell->set_src_attribute(src);                     \
-		return cell;                                      \
+		തിരികെ cell;                                      \
 	} \
-	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, const RTLIL::SigBit &sig1, const RTLIL::SigBit &sig2, const RTLIL::SigBit &sig3, const RTLIL::SigBit &sig4, const std::string &src) { \
+	RTLIL::SigBit RTLIL::Module::_func(RTLIL::IdString name, സ്ഥിരം RTLIL::SigBit &sig1, സ്ഥിരം RTLIL::SigBit &sig2, സ്ഥിരം RTLIL::SigBit &sig3, സ്ഥിരം RTLIL::SigBit &sig4, സ്ഥിരം std::string &src) { \
 		RTLIL::SigBit sig5 = addWire(NEW_ID);                  \
 		add ## _func(name, sig1, sig2, sig3, sig4, sig5, src); \
-		return sig5;                                           \
+		തിരികെ sig5;                                           \
 	}
 DEF_METHOD_2(BufGate,    ID($_BUF_),    A, Y)
 DEF_METHOD_2(NotGate,    ID($_NOT_),    A, Y)
@@ -3458,7 +3458,7 @@ DEF_METHOD_5(Oai4Gate,   ID($_OAI4_),   A, B, C, D, Y)
 #undef DEF_METHOD_4
 #undef DEF_METHOD_5
 
-RTLIL::Cell* RTLIL::Module::addPow(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool a_signed, bool b_signed, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addPow(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_b, സ്ഥിരം RTLIL::SigSpec &sig_y, തർക്കം a_signed, തർക്കം b_signed, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($pow));
 	cell->parameters[ID::A_SIGNED] = a_signed;
@@ -3470,10 +3470,10 @@ RTLIL::Cell* RTLIL::Module::addPow(RTLIL::IdString name, const RTLIL::SigSpec &s
 	cell->setPort(ID::B, sig_b);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFa(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_c, const RTLIL::SigSpec &sig_x, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addFa(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_b, സ്ഥിരം RTLIL::SigSpec &sig_c, സ്ഥിരം RTLIL::SigSpec &sig_x, സ്ഥിരം RTLIL::SigSpec &sig_y, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($fa));
 	cell->parameters[ID::WIDTH] = sig_a.size();
@@ -3483,10 +3483,10 @@ RTLIL::Cell* RTLIL::Module::addFa(RTLIL::IdString name, const RTLIL::SigSpec &si
 	cell->setPort(ID::X, sig_x);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSlice(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, RTLIL::Const offset, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSlice(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_y, RTLIL::Const offset, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($slice));
 	cell->parameters[ID::A_WIDTH] = sig_a.size();
@@ -3495,10 +3495,10 @@ RTLIL::Cell* RTLIL::Module::addSlice(RTLIL::IdString name, const RTLIL::SigSpec 
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addConcat(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addConcat(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_b, സ്ഥിരം RTLIL::SigSpec &sig_y, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($concat));
 	cell->parameters[ID::A_WIDTH] = sig_a.size();
@@ -3507,10 +3507,10 @@ RTLIL::Cell* RTLIL::Module::addConcat(RTLIL::IdString name, const RTLIL::SigSpec
 	cell->setPort(ID::B, sig_b);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addLut(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, RTLIL::Const lut, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addLut(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_y, RTLIL::Const lut, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($lut));
 	cell->parameters[ID::LUT] = lut;
@@ -3518,10 +3518,10 @@ RTLIL::Cell* RTLIL::Module::addLut(RTLIL::IdString name, const RTLIL::SigSpec &s
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addTribuf(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addTribuf(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_y, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($tribuf));
 	cell->parameters[ID::WIDTH] = sig_a.size();
@@ -3529,65 +3529,65 @@ RTLIL::Cell* RTLIL::Module::addTribuf(RTLIL::IdString name, const RTLIL::SigSpec
 	cell->setPort(ID::EN, sig_en);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAssert(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAssert(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, ID($assert));
+	RTLIL::Cell *cell = addCell(name, ID($പ്രതിജ്ഞാ));
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::EN, sig_en);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAssume(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAssume(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($assume));
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::EN, sig_en);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addLive(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addLive(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($live));
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::EN, sig_en);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFair(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addFair(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($fair));
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::EN, sig_en);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addCover(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addCover(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($cover));
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::EN, sig_en);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addEquiv(RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addEquiv(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_b, സ്ഥിരം RTLIL::SigSpec &sig_y, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($equiv));
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::B, sig_b);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSr(RTLIL::IdString name, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, const RTLIL::SigSpec &sig_q, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSr(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_set, സ്ഥിരം RTLIL::SigSpec &sig_clr, സ്ഥിരം RTLIL::SigSpec &sig_q, തർക്കം set_polarity, തർക്കം clr_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($sr));
 	cell->parameters[ID::SET_POLARITY] = set_polarity;
@@ -3597,20 +3597,20 @@ RTLIL::Cell* RTLIL::Module::addSr(RTLIL::IdString name, const RTLIL::SigSpec &si
 	cell->setPort(ID::CLR, sig_clr);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFf(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addFf(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($ff));
 	cell->parameters[ID::WIDTH] = sig_q.size();
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDff(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, തർക്കം clk_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($dff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
@@ -3619,10 +3619,10 @@ RTLIL::Cell* RTLIL::Module::addDff(RTLIL::IdString name, const RTLIL::SigSpec &s
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDffe(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, തർക്കം clk_polarity, തർക്കം en_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($dffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
@@ -3633,11 +3633,11 @@ RTLIL::Cell* RTLIL::Module::addDffe(RTLIL::IdString name, const RTLIL::SigSpec &
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsr(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDffsr(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_set, സ്ഥിരം RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, തർക്കം clk_polarity, തർക്കം set_polarity, തർക്കം clr_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($dffsr));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
@@ -3650,11 +3650,11 @@ RTLIL::Cell* RTLIL::Module::addDffsr(RTLIL::IdString name, const RTLIL::SigSpec 
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsre(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDffsre(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_set, സ്ഥിരം RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, തർക്കം clk_polarity, തർക്കം en_polarity, തർക്കം set_polarity, തർക്കം clr_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($dffsre));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
@@ -3669,33 +3669,33 @@ RTLIL::Cell* RTLIL::Module::addDffsre(RTLIL::IdString name, const RTLIL::SigSpec
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const arst_value, bool clk_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAdff(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_arst, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		RTLIL::Const arst_മൂല്യം, തർക്കം clk_polarity, തർക്കം arst_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($adff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::ARST_POLARITY] = arst_polarity;
-	cell->parameters[ID::ARST_VALUE] = arst_value;
+	cell->parameters[ID::ARST_മൂല്യം] = arst_മൂല്യം;
 	cell->parameters[ID::WIDTH] = sig_q.size();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::ARST, sig_arst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const arst_value, bool clk_polarity, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAdffe(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_arst, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		RTLIL::Const arst_മൂല്യം, തർക്കം clk_polarity, തർക്കം en_polarity, തർക്കം arst_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($adffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::ARST_POLARITY] = arst_polarity;
-	cell->parameters[ID::ARST_VALUE] = arst_value;
+	cell->parameters[ID::ARST_മൂല്യം] = arst_മൂല്യം;
 	cell->parameters[ID::WIDTH] = sig_q.size();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::EN, sig_en);
@@ -3703,11 +3703,11 @@ RTLIL::Cell* RTLIL::Module::addAdffe(RTLIL::IdString name, const RTLIL::SigSpec 
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAldff(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_aload, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		സ്ഥിരം RTLIL::SigSpec &sig_ad, തർക്കം clk_polarity, തർക്കം aload_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($aldff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
@@ -3719,11 +3719,11 @@ RTLIL::Cell* RTLIL::Module::addAldff(RTLIL::IdString name, const RTLIL::SigSpec 
 	cell->setPort(ID::AD, sig_ad);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool en_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAldffe(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_aload, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		സ്ഥിരം RTLIL::SigSpec &sig_ad, തർക്കം clk_polarity, തർക്കം en_polarity, തർക്കം aload_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($aldffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
@@ -3737,33 +3737,33 @@ RTLIL::Cell* RTLIL::Module::addAldffe(RTLIL::IdString name, const RTLIL::SigSpec
 	cell->setPort(ID::AD, sig_ad);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdff(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const srst_value, bool clk_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSdff(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_srst, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		RTLIL::Const srst_മൂല്യം, തർക്കം clk_polarity, തർക്കം srst_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($sdff));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::SRST_POLARITY] = srst_polarity;
-	cell->parameters[ID::SRST_VALUE] = srst_value;
+	cell->parameters[ID::SRST_മൂല്യം] = srst_മൂല്യം;
 	cell->parameters[ID::WIDTH] = sig_q.size();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::SRST, sig_srst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffe(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSdffe(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_srst, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		RTLIL::Const srst_മൂല്യം, തർക്കം clk_polarity, തർക്കം en_polarity, തർക്കം srst_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($sdffe));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::SRST_POLARITY] = srst_polarity;
-	cell->parameters[ID::SRST_VALUE] = srst_value;
+	cell->parameters[ID::SRST_മൂല്യം] = srst_മൂല്യം;
 	cell->parameters[ID::WIDTH] = sig_q.size();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::EN, sig_en);
@@ -3771,17 +3771,17 @@ RTLIL::Cell* RTLIL::Module::addSdffe(RTLIL::IdString name, const RTLIL::SigSpec 
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffce(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSdffce(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_srst, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		RTLIL::Const srst_മൂല്യം, തർക്കം clk_polarity, തർക്കം en_polarity, തർക്കം srst_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($sdffce));
 	cell->parameters[ID::CLK_POLARITY] = clk_polarity;
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::SRST_POLARITY] = srst_polarity;
-	cell->parameters[ID::SRST_VALUE] = srst_value;
+	cell->parameters[ID::SRST_മൂല്യം] = srst_മൂല്യം;
 	cell->parameters[ID::WIDTH] = sig_q.size();
 	cell->setPort(ID::CLK, sig_clk);
 	cell->setPort(ID::EN, sig_en);
@@ -3789,10 +3789,10 @@ RTLIL::Cell* RTLIL::Module::addSdffce(RTLIL::IdString name, const RTLIL::SigSpec
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatch(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDlatch(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, തർക്കം en_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($dlatch));
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
@@ -3801,27 +3801,27 @@ RTLIL::Cell* RTLIL::Module::addDlatch(RTLIL::IdString name, const RTLIL::SigSpec
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdlatch(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		RTLIL::Const arst_value, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAdlatch(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_arst, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		RTLIL::Const arst_മൂല്യം, തർക്കം en_polarity, തർക്കം arst_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($adlatch));
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
 	cell->parameters[ID::ARST_POLARITY] = arst_polarity;
-	cell->parameters[ID::ARST_VALUE] = arst_value;
+	cell->parameters[ID::ARST_മൂല്യം] = arst_മൂല്യം;
 	cell->parameters[ID::WIDTH] = sig_q.size();
 	cell->setPort(ID::EN, sig_en);
 	cell->setPort(ID::ARST, sig_arst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatchsr(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDlatchsr(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_set, സ്ഥിരം RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, തർക്കം en_polarity, തർക്കം set_polarity, തർക്കം clr_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($dlatchsr));
 	cell->parameters[ID::EN_POLARITY] = en_polarity;
@@ -3834,40 +3834,40 @@ RTLIL::Cell* RTLIL::Module::addDlatchsr(RTLIL::IdString name, const RTLIL::SigSp
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSrGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		const RTLIL::SigSpec &sig_q, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSrGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_set, സ്ഥിരം RTLIL::SigSpec &sig_clr,
+		സ്ഥിരം RTLIL::SigSpec &sig_q, തർക്കം set_polarity, തർക്കം clr_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_SR_%c%c_", set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
 	cell->setPort(ID::S, sig_set);
 	cell->setPort(ID::R, sig_clr);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addFfGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addFfGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($_FF_));
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDffGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, തർക്കം clk_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_DFF_%c_", clk_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDffeGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, തർക്കം clk_polarity, തർക്കം en_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_DFFE_%c%c_", clk_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
@@ -3875,11 +3875,11 @@ RTLIL::Cell* RTLIL::Module::addDffeGate(RTLIL::IdString name, const RTLIL::SigSp
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsrGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDffsrGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_set, സ്ഥിരം RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, തർക്കം clk_polarity, തർക്കം set_polarity, തർക്കം clr_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_DFFSR_%c%c%c_", clk_polarity ? 'P' : 'N', set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
@@ -3888,11 +3888,11 @@ RTLIL::Cell* RTLIL::Module::addDffsrGate(RTLIL::IdString name, const RTLIL::SigS
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDffsreGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDffsreGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_set, സ്ഥിരം RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, തർക്കം clk_polarity, തർക്കം en_polarity, തർക്കം set_polarity, തർക്കം clr_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_DFFSRE_%c%c%c%c_", clk_polarity ? 'P' : 'N', set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
@@ -3902,36 +3902,36 @@ RTLIL::Cell* RTLIL::Module::addDffsreGate(RTLIL::IdString name, const RTLIL::Sig
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool arst_value, bool clk_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAdffGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_arst, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		തർക്കം arst_മൂല്യം, തർക്കം clk_polarity, തർക്കം arst_polarity, സ്ഥിരം std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFF_%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_value ? '1' : '0'));
+	RTLIL::Cell *cell = addCell(name, stringf("$_DFF_%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_മൂല്യം ? '1' : '0'));
 	cell->setPort(ID::C, sig_clk);
 	cell->setPort(ID::R, sig_arst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool arst_value, bool clk_polarity, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAdffeGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_arst, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		തർക്കം arst_മൂല്യം, തർക്കം clk_polarity, തർക്കം en_polarity, തർക്കം arst_polarity, സ്ഥിരം std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_value ? '1' : '0', en_polarity ? 'P' : 'N'));
+	RTLIL::Cell *cell = addCell(name, stringf("$_DFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_മൂല്യം ? '1' : '0', en_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
 	cell->setPort(ID::R, sig_arst);
 	cell->setPort(ID::E, sig_en);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAldffGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_aload, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		സ്ഥിരം RTLIL::SigSpec &sig_ad, തർക്കം clk_polarity, തർക്കം aload_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_ALDFF_%c%c_", clk_polarity ? 'P' : 'N', aload_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
@@ -3940,11 +3940,11 @@ RTLIL::Cell* RTLIL::Module::addAldffGate(RTLIL::IdString name, const RTLIL::SigS
 	cell->setPort(ID::AD, sig_ad);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAldffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		const RTLIL::SigSpec &sig_ad, bool clk_polarity, bool en_polarity, bool aload_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAldffeGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_aload, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		സ്ഥിരം RTLIL::SigSpec &sig_ad, തർക്കം clk_polarity, തർക്കം en_polarity, തർക്കം aload_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_ALDFFE_%c%c%c_", clk_polarity ? 'P' : 'N', aload_polarity ? 'P' : 'N', en_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
@@ -3954,71 +3954,71 @@ RTLIL::Cell* RTLIL::Module::addAldffeGate(RTLIL::IdString name, const RTLIL::Sig
 	cell->setPort(ID::AD, sig_ad);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool srst_value, bool clk_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSdffGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_srst, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		തർക്കം srst_മൂല്യം, തർക്കം clk_polarity, തർക്കം srst_polarity, സ്ഥിരം std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_SDFF_%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_value ? '1' : '0'));
+	RTLIL::Cell *cell = addCell(name, stringf("$_SDFF_%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_മൂല്യം ? '1' : '0'));
 	cell->setPort(ID::C, sig_clk);
 	cell->setPort(ID::R, sig_srst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addSdffeGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSdffeGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_srst, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		തർക്കം srst_മൂല്യം, തർക്കം clk_polarity, തർക്കം en_polarity, തർക്കം srst_polarity, സ്ഥിരം std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_SDFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_value ? '1' : '0', en_polarity ? 'P' : 'N'));
-	cell->setPort(ID::C, sig_clk);
-	cell->setPort(ID::R, sig_srst);
-	cell->setPort(ID::E, sig_en);
-	cell->setPort(ID::D, sig_d);
-	cell->setPort(ID::Q, sig_q);
-	cell->set_src_attribute(src);
-	return cell;
-}
-
-RTLIL::Cell* RTLIL::Module::addSdffceGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool srst_value, bool clk_polarity, bool en_polarity, bool srst_polarity, const std::string &src)
-{
-	RTLIL::Cell *cell = addCell(name, stringf("$_SDFFCE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_value ? '1' : '0', en_polarity ? 'P' : 'N'));
+	RTLIL::Cell *cell = addCell(name, stringf("$_SDFFE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_മൂല്യം ? '1' : '0', en_polarity ? 'P' : 'N'));
 	cell->setPort(ID::C, sig_clk);
 	cell->setPort(ID::R, sig_srst);
 	cell->setPort(ID::E, sig_en);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatchGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSdffceGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_clk, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_srst, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		തർക്കം srst_മൂല്യം, തർക്കം clk_polarity, തർക്കം en_polarity, തർക്കം srst_polarity, സ്ഥിരം std::string &src)
+{
+	RTLIL::Cell *cell = addCell(name, stringf("$_SDFFCE_%c%c%c%c_", clk_polarity ? 'P' : 'N', srst_polarity ? 'P' : 'N', srst_മൂല്യം ? '1' : '0', en_polarity ? 'P' : 'N'));
+	cell->setPort(ID::C, sig_clk);
+	cell->setPort(ID::R, sig_srst);
+	cell->setPort(ID::E, sig_en);
+	cell->setPort(ID::D, sig_d);
+	cell->setPort(ID::Q, sig_q);
+	cell->set_src_attribute(src);
+	തിരികെ cell;
+}
+
+RTLIL::Cell* RTLIL::Module::addDlatchGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, തർക്കം en_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_DLATCH_%c_", en_polarity ? 'P' : 'N'));
 	cell->setPort(ID::E, sig_en);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAdlatchGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-		bool arst_value, bool en_polarity, bool arst_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAdlatchGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_arst, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q,
+		തർക്കം arst_മൂല്യം, തർക്കം en_polarity, തർക്കം arst_polarity, സ്ഥിരം std::string &src)
 {
-	RTLIL::Cell *cell = addCell(name, stringf("$_DLATCH_%c%c%c_", en_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_value ? '1' : '0'));
+	RTLIL::Cell *cell = addCell(name, stringf("$_DLATCH_%c%c%c_", en_polarity ? 'P' : 'N', arst_polarity ? 'P' : 'N', arst_മൂല്യം ? '1' : '0'));
 	cell->setPort(ID::E, sig_en);
 	cell->setPort(ID::R, sig_arst);
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addDlatchsrGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-		RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity, bool set_polarity, bool clr_polarity, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addDlatchsrGate(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_en, സ്ഥിരം RTLIL::SigSpec &sig_set, സ്ഥിരം RTLIL::SigSpec &sig_clr,
+		RTLIL::SigSpec sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, തർക്കം en_polarity, തർക്കം set_polarity, തർക്കം clr_polarity, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, stringf("$_DLATCHSR_%c%c%c_", en_polarity ? 'P' : 'N', set_polarity ? 'P' : 'N', clr_polarity ? 'P' : 'N'));
 	cell->setPort(ID::E, sig_en);
@@ -4027,69 +4027,69 @@ RTLIL::Cell* RTLIL::Module::addDlatchsrGate(RTLIL::IdString name, const RTLIL::S
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::Cell* RTLIL::Module::addAnyinit(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addAnyinit(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_d, സ്ഥിരം RTLIL::SigSpec &sig_q, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($anyinit));
 	cell->parameters[ID::WIDTH] = sig_q.size();
 	cell->setPort(ID::D, sig_d);
 	cell->setPort(ID::Q, sig_q);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::SigSpec RTLIL::Module::Anyconst(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Anyconst(RTLIL::IdString name, പൂർണ്ണസംഖ്യ width, സ്ഥിരം std::string &src)
 {
 	RTLIL::SigSpec sig = addWire(NEW_ID, width);
 	Cell *cell = addCell(name, ID($anyconst));
 	cell->setParam(ID::WIDTH, width);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	തിരികെ sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Anyseq(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Anyseq(RTLIL::IdString name, പൂർണ്ണസംഖ്യ width, സ്ഥിരം std::string &src)
 {
 	RTLIL::SigSpec sig = addWire(NEW_ID, width);
 	Cell *cell = addCell(name, ID($anyseq));
 	cell->setParam(ID::WIDTH, width);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	തിരികെ sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Allconst(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Allconst(RTLIL::IdString name, പൂർണ്ണസംഖ്യ width, സ്ഥിരം std::string &src)
 {
 	RTLIL::SigSpec sig = addWire(NEW_ID, width);
 	Cell *cell = addCell(name, ID($allconst));
 	cell->setParam(ID::WIDTH, width);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	തിരികെ sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Allseq(RTLIL::IdString name, int width, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Allseq(RTLIL::IdString name, പൂർണ്ണസംഖ്യ width, സ്ഥിരം std::string &src)
 {
 	RTLIL::SigSpec sig = addWire(NEW_ID, width);
 	Cell *cell = addCell(name, ID($allseq));
 	cell->setParam(ID::WIDTH, width);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	തിരികെ sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::Initstate(RTLIL::IdString name, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::Initstate(RTLIL::IdString name, സ്ഥിരം std::string &src)
 {
 	RTLIL::SigSpec sig = addWire(NEW_ID);
 	Cell *cell = addCell(name, ID($initstate));
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	തിരികെ sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::SetTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::SetTag(RTLIL::IdString name, സ്ഥിരം std::string &tag, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_s, സ്ഥിരം RTLIL::SigSpec &sig_c, സ്ഥിരം std::string &src)
 {
 	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.size());
 	Cell *cell = addCell(name, ID($set_tag));
@@ -4100,10 +4100,10 @@ RTLIL::SigSpec RTLIL::Module::SetTag(RTLIL::IdString name, const std::string &ta
 	cell->setPort(ID::CLR, sig_c);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	തിരികെ sig;
 }
 
-RTLIL::Cell* RTLIL::Module::addSetTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const RTLIL::SigSpec &sig_y, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addSetTag(RTLIL::IdString name, സ്ഥിരം std::string &tag, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_s, സ്ഥിരം RTLIL::SigSpec &sig_c, സ്ഥിരം RTLIL::SigSpec &sig_y, സ്ഥിരം std::string &src)
 {
 	Cell *cell = addCell(name, ID($set_tag));
 	cell->parameters[ID::WIDTH] = sig_a.size();
@@ -4113,10 +4113,10 @@ RTLIL::Cell* RTLIL::Module::addSetTag(RTLIL::IdString name, const std::string &t
 	cell->setPort(ID::CLR, sig_c);
 	cell->setPort(ID::Y, sig_y);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::SigSpec RTLIL::Module::GetTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::GetTag(RTLIL::IdString name, സ്ഥിരം std::string &tag, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം std::string &src)
 {
 	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.size());
 	Cell *cell = addCell(name, ID($get_tag));
@@ -4125,10 +4125,10 @@ RTLIL::SigSpec RTLIL::Module::GetTag(RTLIL::IdString name, const std::string &ta
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	തിരികെ sig;
 }
 
-RTLIL::Cell* RTLIL::Module::addOverwriteTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src)
+RTLIL::Cell* RTLIL::Module::addOverwriteTag(RTLIL::IdString name, സ്ഥിരം std::string &tag, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം RTLIL::SigSpec &sig_s, സ്ഥിരം RTLIL::SigSpec &sig_c, സ്ഥിരം std::string &src)
 {
 	RTLIL::Cell *cell = addCell(name, ID($overwrite_tag));
 	cell->parameters[ID::WIDTH] = sig_a.size();
@@ -4137,10 +4137,10 @@ RTLIL::Cell* RTLIL::Module::addOverwriteTag(RTLIL::IdString name, const std::str
 	cell->setPort(ID::SET, sig_s);
 	cell->setPort(ID::CLR, sig_c);
 	cell->set_src_attribute(src);
-	return cell;
+	തിരികെ cell;
 }
 
-RTLIL::SigSpec RTLIL::Module::OriginalTag(RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::OriginalTag(RTLIL::IdString name, സ്ഥിരം std::string &tag, സ്ഥിരം RTLIL::SigSpec &sig_a, സ്ഥിരം std::string &src)
 {
 	RTLIL::SigSpec sig = addWire(NEW_ID, sig_a.size());
 	Cell *cell = addCell(name, ID($original_tag));
@@ -4149,10 +4149,10 @@ RTLIL::SigSpec RTLIL::Module::OriginalTag(RTLIL::IdString name, const std::strin
 	cell->setPort(ID::A, sig_a);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	തിരികെ sig;
 }
 
-RTLIL::SigSpec RTLIL::Module::FutureFF(RTLIL::IdString name, const RTLIL::SigSpec &sig_e, const std::string &src)
+RTLIL::SigSpec RTLIL::Module::FutureFF(RTLIL::IdString name, സ്ഥിരം RTLIL::SigSpec &sig_e, സ്ഥിരം std::string &src)
 {
 	RTLIL::SigSpec sig = addWire(NEW_ID, sig_e.size());
 	Cell *cell = addCell(name, ID($future_ff));
@@ -4160,33 +4160,33 @@ RTLIL::SigSpec RTLIL::Module::FutureFF(RTLIL::IdString name, const RTLIL::SigSpe
 	cell->setPort(ID::A, sig_e);
 	cell->setPort(ID::Y, sig);
 	cell->set_src_attribute(src);
-	return sig;
+	തിരികെ sig;
 }
 
-std::string RTLIL::Module::to_rtlil_str() const
+std::string RTLIL::Module::to_rtlil_str() സ്ഥിരം
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_module(f, "", const_cast<RTLIL::Module*>(this), design, false, true, false, RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_module(f, "", const_cast<RTLIL::Module*>(ഇത്), design, അസത്യം, സത്യം, അസത്യം, RTLIL_BACKEND::DumpMode::Readable);
+	തിരികെ f.str();
 }
 
 RTLIL::Wire::Wire()
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	സ്ഥിതം unsigned പൂർണ്ണസംഖ്യ hashidx_എണ്ണം = 123456789;
+	hashidx_എണ്ണം = mkhash_xorshift(hashidx_എണ്ണം);
+	hashidx_ = hashidx_എണ്ണം;
 
 	module = nullptr;
 	width = 1;
 	start_offset = 0;
 	port_id = 0;
-	port_input = false;
-	port_output = false;
-	upto = false;
-	is_signed = false;
+	port_നിവേശം = അസത്യം;
+	port_output = അസത്യം;
+	upto = അസത്യം;
+	is_signed = അസത്യം;
 
 #ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Wire::get_all_wires()->insert(std::pair<unsigned int, RTLIL::Wire*>(hashidx_, this));
+	RTLIL::Wire::get_all_wires()->തിരുകുക(std::pair<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Wire*>(hashidx_, ഇത്));
 #endif
 }
 
@@ -4197,67 +4197,67 @@ RTLIL::Wire::~Wire()
 #endif
 }
 
-std::string RTLIL::Wire::to_rtlil_str() const
+std::string RTLIL::Wire::to_rtlil_str() സ്ഥിരം
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_wire(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_wire(f, "", ഇത്, design(), RTLIL_BACKEND::DumpMode::Readable);
+	തിരികെ f.str();
 }
 
 #ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Wire*> all_wires;
-std::map<unsigned int, RTLIL::Wire*> *RTLIL::Wire::get_all_wires(void)
+സ്ഥിതം std::map<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Wire*> all_wires;
+std::map<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Wire*> *RTLIL::Wire::get_all_wires(ശൂന്യം)
 {
-	return &all_wires;
+	തിരികെ &all_wires;
 }
 #endif
 
 RTLIL::Memory::Memory()
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	സ്ഥിതം unsigned പൂർണ്ണസംഖ്യ hashidx_എണ്ണം = 123456789;
+	hashidx_എണ്ണം = mkhash_xorshift(hashidx_എണ്ണം);
+	hashidx_ = hashidx_എണ്ണം;
 
 	width = 1;
 	start_offset = 0;
 	size = 0;
 #ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Memory::get_all_memorys()->insert(std::pair<unsigned int, RTLIL::Memory*>(hashidx_, this));
+	RTLIL::Memory::get_all_memorys()->തിരുകുക(std::pair<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Memory*>(hashidx_, ഇത്));
 #endif
 }
 
-std::string RTLIL::Memory::to_rtlil_str() const
+std::string RTLIL::Memory::to_rtlil_str() സ്ഥിരം
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_memory(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_memory(f, "", ഇത്, design(), RTLIL_BACKEND::DumpMode::Readable);
+	തിരികെ f.str();
 }
 
 RTLIL::Process::Process() : module(nullptr)
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	സ്ഥിതം unsigned പൂർണ്ണസംഖ്യ hashidx_എണ്ണം = 123456789;
+	hashidx_എണ്ണം = mkhash_xorshift(hashidx_എണ്ണം);
+	hashidx_ = hashidx_എണ്ണം;
 }
 
-std::string RTLIL::Process::to_rtlil_str() const
+std::string RTLIL::Process::to_rtlil_str() സ്ഥിരം
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_proc(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_proc(f, "", ഇത്, design(), RTLIL_BACKEND::DumpMode::Readable);
+	തിരികെ f.str();
 }
 
 RTLIL::Cell::Cell() : module(nullptr)
 {
-	static unsigned int hashidx_count = 123456789;
-	hashidx_count = mkhash_xorshift(hashidx_count);
-	hashidx_ = hashidx_count;
+	സ്ഥിതം unsigned പൂർണ്ണസംഖ്യ hashidx_എണ്ണം = 123456789;
+	hashidx_എണ്ണം = mkhash_xorshift(hashidx_എണ്ണം);
+	hashidx_ = hashidx_എണ്ണം;
 
 	// log("#memtrace# %p\n", this);
 	memhasher();
 
 #ifdef YOSYS_ENABLE_PYTHON
-	RTLIL::Cell::get_all_cells()->insert(std::pair<unsigned int, RTLIL::Cell*>(hashidx_, this));
+	RTLIL::Cell::get_all_cells()->തിരുകുക(std::pair<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Cell*>(hashidx_, ഇത്));
 #endif
 }
 
@@ -4268,292 +4268,292 @@ RTLIL::Cell::~Cell()
 #endif
 }
 
-std::string RTLIL::Cell::to_rtlil_str() const
+std::string RTLIL::Cell::to_rtlil_str() സ്ഥിരം
 {
 	std::ostringstream f;
-	RTLIL_BACKEND::dump_cell(f, "", this, design(), RTLIL_BACKEND::DumpMode::Readable);
-	return f.str();
+	RTLIL_BACKEND::dump_cell(f, "", ഇത്, design(), RTLIL_BACKEND::DumpMode::Readable);
+	തിരികെ f.str();
 }
 
 #ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Cell*> all_cells;
-std::map<unsigned int, RTLIL::Cell*> *RTLIL::Cell::get_all_cells(void)
+സ്ഥിതം std::map<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Cell*> all_cells;
+std::map<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Cell*> *RTLIL::Cell::get_all_cells(ശൂന്യം)
 {
-	return &all_cells;
+	തിരികെ &all_cells;
 }
 #endif
 
-bool RTLIL::Cell::hasPort(RTLIL::IdString portname) const
+തർക്കം RTLIL::Cell::hasPort(RTLIL::IdString portname) സ്ഥിരം
 {
-	return connections_.count(portname) != 0;
+	തിരികെ connections_.എണ്ണം(portname) != 0;
 }
 
 // bufnorm
 
-const RTLIL::SigSpec &RTLIL::Cell::getPort(RTLIL::IdString portname) const
+സ്ഥിരം RTLIL::SigSpec &RTLIL::Cell::getPort(RTLIL::IdString portname) സ്ഥിരം
 {
-	return connections_.at(portname);
+	തിരികെ connections_.at(portname);
 }
 
-const dict<RTLIL::IdString, RTLIL::SigSpec> &RTLIL::Cell::connections() const
+സ്ഥിരം dict<RTLIL::IdString, RTLIL::SigSpec> &RTLIL::Cell::connections() സ്ഥിരം
 {
-	return connections_;
+	തിരികെ connections_;
 }
 
-bool RTLIL::Cell::known() const
+തർക്കം RTLIL::Cell::known() സ്ഥിരം
 {
-	if (yosys_celltypes.cell_known(type))
-		return true;
-	if (module && module->design && module->design->module(type))
-		return true;
-	return false;
+	എങ്കിൽ (yosys_celltypes.cell_known(type))
+		തിരികെ സത്യം;
+	എങ്കിൽ (module && module->design && module->design->module(type))
+		തിരികെ സത്യം;
+	തിരികെ അസത്യം;
 }
 
-bool RTLIL::Cell::input(IdString portname) const
+തർക്കം RTLIL::Cell::നിവേശം(IdString portname) സ്ഥിരം
 {
-	if (yosys_celltypes.cell_known(type))
-		return yosys_celltypes.cell_input(type.ref(), portname);
-	if (module && module->design) {
+	എങ്കിൽ (yosys_celltypes.cell_known(type))
+		തിരികെ yosys_celltypes.cell_നിവേശം(type.ref(), portname);
+	എങ്കിൽ (module && module->design) {
 		RTLIL::Module *m = module->design->module(type.ref());
 		RTLIL::Wire *w = m ? m->wire(portname) : nullptr;
-		return w && w->port_input;
+		തിരികെ w && w->port_നിവേശം;
 	}
-	return false;
+	തിരികെ അസത്യം;
 }
 
-bool RTLIL::Cell::output(RTLIL::IdString portname) const
+തർക്കം RTLIL::Cell::output(RTLIL::IdString portname) സ്ഥിരം
 {
-	if (yosys_celltypes.cell_known(type))
-		return yosys_celltypes.cell_output(type, portname);
-	if (module && module->design) {
+	എങ്കിൽ (yosys_celltypes.cell_known(type))
+		തിരികെ yosys_celltypes.cell_output(type, portname);
+	എങ്കിൽ (module && module->design) {
 		RTLIL::Module *m = module->design->module(type.ref());
 		RTLIL::Wire *w = m ? m->wire(portname) : nullptr;
-		return w && w->port_output;
+		തിരികെ w && w->port_output;
 	}
-	return false;
+	തിരികെ അസത്യം;
 }
 
-RTLIL::PortDir RTLIL::Cell::port_dir(RTLIL::IdString portname) const
+RTLIL::PortDir RTLIL::Cell::port_dir(RTLIL::IdString portname) സ്ഥിരം
 {
-	if (yosys_celltypes.cell_known(type.ref()))
-		return yosys_celltypes.cell_port_dir(type, portname);
-	if (module && module->design) {
+	എങ്കിൽ (yosys_celltypes.cell_known(type.ref()))
+		തിരികെ yosys_celltypes.cell_port_dir(type, portname);
+	എങ്കിൽ (module && module->design) {
 		RTLIL::Module *m = module->design->module(type.ref());
-		if (m == nullptr)
-			return PortDir::PD_UNKNOWN;
+		എങ്കിൽ (m == nullptr)
+			തിരികെ PortDir::PD_UNKNOWN;
 		RTLIL::Wire *w = m->wire(portname);
-		if (w == nullptr)
-			return PortDir::PD_UNKNOWN;
-		return PortDir(w->port_input + w->port_output * 2);
+		എങ്കിൽ (w == nullptr)
+			തിരികെ PortDir::PD_UNKNOWN;
+		തിരികെ PortDir(w->port_നിവേശം + w->port_output * 2);
 	}
-	return PortDir::PD_UNKNOWN;
+	തിരികെ PortDir::PD_UNKNOWN;
 }
 
-bool RTLIL::Cell::hasParam(RTLIL::IdString paramname) const
+തർക്കം RTLIL::Cell::hasParam(RTLIL::IdString paramname) സ്ഥിരം
 {
-	return parameters.count(paramname) != 0;
+	തിരികെ parameters.എണ്ണം(paramname) != 0;
 }
 
-void RTLIL::Cell::unsetParam(RTLIL::IdString paramname)
+ശൂന്യം RTLIL::Cell::unsetParam(RTLIL::IdString paramname)
 {
 	parameters.erase(paramname);
 }
 
-void RTLIL::Cell::setParam(RTLIL::IdString paramname, RTLIL::Const value)
+ശൂന്യം RTLIL::Cell::setParam(RTLIL::IdString paramname, RTLIL::Const മൂല്യം)
 {
-	parameters[paramname] = std::move(value);
+	parameters[paramname] = std::move(മൂല്യം);
 }
 
-const RTLIL::Const &RTLIL::Cell::getParam(RTLIL::IdString paramname) const
+സ്ഥിരം RTLIL::Const &RTLIL::Cell::getParam(RTLIL::IdString paramname) സ്ഥിരം
 {
-	const auto &it = parameters.find(paramname);
-	if (it != parameters.end())
-		return it->second;
-	if (module && module->design) {
+	സ്ഥിരം auto &it = parameters.find(paramname);
+	എങ്കിൽ (it != parameters.end())
+		തിരികെ it->second;
+	എങ്കിൽ (module && module->design) {
 		RTLIL::Module *m = module->design->module(type);
-		if (m)
-			return m->parameter_default_values.at(paramname);
+		എങ്കിൽ (m)
+			തിരികെ m->parameter_default_മൂല്യങ്ങൾ.at(paramname);
 	}
-	throw std::out_of_range("Cell::getParam()");
+	എറിയുക std::out_of_range("Cell::getParam()");
 }
 
-void RTLIL::Cell::sort()
+ശൂന്യം RTLIL::Cell::sort()
 {
 	connections_.sort(sort_by_id_str(module->twines()));
 	parameters.sort(sort_by_id_str(module->twines()));
 	attributes.sort(sort_by_id_str(module->twines()));
 }
 
-void RTLIL::Cell::check()
+ശൂന്യം RTLIL::Cell::check()
 {
 #ifndef NDEBUG
-	InternalCellChecker checker(NULL, this);
+	InternalCellChecker checker(ശൂന്യ, ഇത്);
 	checker.check();
 #endif
 }
 
-void RTLIL::Cell::fixup_parameters(bool set_a_signed, bool set_b_signed)
+ശൂന്യം RTLIL::Cell::fixup_parameters(തർക്കം set_a_signed, തർക്കം set_b_signed)
 {
-	if (type.isPublic() || type.begins_with("$_") || type.begins_with("$paramod") || type.begins_with("$fmcombine") ||
+	എങ്കിൽ (type.isPublic() || type.begins_with("$_") || type.begins_with("$paramod") || type.begins_with("$fmcombine") ||
 			type.begins_with("$verific$") || type.begins_with("$array:") || type.begins_with("$extern:"))
-		return;
+		തിരികെ;
 
-	if (type == ID($buf) || type == ID($barrier) || type == ID($mux) || type == ID($pmux) || type == ID($bmux) || type == ID($bwmux) || type == ID($bweqx)) {
+	എങ്കിൽ (type == ID($buf) || type == ID($barrier) || type == ID($mux) || type == ID($pmux) || type == ID($bmux) || type == ID($bwmux) || type == ID($bweqx)) {
 		parameters[ID::WIDTH] = GetSize(connections_[ID::Y]);
-		if (type.in(ID($pmux), ID($bmux)))
+		എങ്കിൽ (type.in(ID($pmux), ID($bmux)))
 			parameters[ID::S_WIDTH] = GetSize(connections_[ID::S]);
 		check();
-		return;
+		തിരികെ;
 	}
 
-	if (type == ID($demux)) {
+	എങ്കിൽ (type == ID($demux)) {
 		parameters[ID::WIDTH] = GetSize(connections_[ID::A]);
 		parameters[ID::S_WIDTH] = GetSize(connections_[ID::S]);
 		check();
-		return;
+		തിരികെ;
 	}
 
-	if (type == ID($lut) || type == ID($sop)) {
+	എങ്കിൽ (type == ID($lut) || type == ID($sop)) {
 		parameters[ID::WIDTH] = GetSize(connections_[ID::A]);
-		return;
+		തിരികെ;
 	}
 
-	if (type == ID($fa)) {
+	എങ്കിൽ (type == ID($fa)) {
 		parameters[ID::WIDTH] = GetSize(connections_[ID::Y]);
-		return;
+		തിരികെ;
 	}
 
-	if (type == ID($lcu)) {
+	എങ്കിൽ (type == ID($lcu)) {
 		parameters[ID::WIDTH] = GetSize(connections_[ID::CO]);
-		return;
+		തിരികെ;
 	}
 
-	if (type == ID($macc_v2)) {
+	എങ്കിൽ (type == ID($macc_v2)) {
 		parameters[ID::Y_WIDTH] = GetSize(connections_[ID::Y]);
-		return;
+		തിരികെ;
 	}
 
-	bool signedness_ab = !type.in(ID($slice), ID($concat), ID($macc));
+	തർക്കം signedness_ab = !type.in(ID($slice), ID($concat), ID($macc));
 
-	if (connections_.count(ID::A)) {
-		if (signedness_ab) {
-			if (set_a_signed)
-				parameters[ID::A_SIGNED] = true;
-			else if (parameters.count(ID::A_SIGNED) == 0)
-				parameters[ID::A_SIGNED] = false;
+	എങ്കിൽ (connections_.എണ്ണം(ID::A)) {
+		എങ്കിൽ (signedness_ab) {
+			എങ്കിൽ (set_a_signed)
+				parameters[ID::A_SIGNED] = സത്യം;
+			അല്ലെങ്കിൽ എങ്കിൽ (parameters.എണ്ണം(ID::A_SIGNED) == 0)
+				parameters[ID::A_SIGNED] = അസത്യം;
 		}
 		parameters[ID::A_WIDTH] = GetSize(connections_[ID::A]);
 	}
 
-	if (connections_.count(ID::B)) {
-		if (signedness_ab) {
-			if (set_b_signed)
-				parameters[ID::B_SIGNED] = true;
-			else if (parameters.count(ID::B_SIGNED) == 0)
-				parameters[ID::B_SIGNED] = false;
+	എങ്കിൽ (connections_.എണ്ണം(ID::B)) {
+		എങ്കിൽ (signedness_ab) {
+			എങ്കിൽ (set_b_signed)
+				parameters[ID::B_SIGNED] = സത്യം;
+			അല്ലെങ്കിൽ എങ്കിൽ (parameters.എണ്ണം(ID::B_SIGNED) == 0)
+				parameters[ID::B_SIGNED] = അസത്യം;
 		}
 		parameters[ID::B_WIDTH] = GetSize(connections_[ID::B]);
 	}
 
-	if (connections_.count(ID::Y) && type != ID($concat))
+	എങ്കിൽ (connections_.എണ്ണം(ID::Y) && type != ID($concat))
 		parameters[ID::Y_WIDTH] = GetSize(connections_[ID::Y]);
 
-	if (connections_.count(ID::Q))
+	എങ്കിൽ (connections_.എണ്ണം(ID::Q))
 		parameters[ID::WIDTH] = GetSize(connections_[ID::Q]);
 
 	check();
 }
 
-bool RTLIL::Cell::has_keep_attr() const {
-	return get_bool_attribute(ID::keep) || (module && module->design && module->design->module(type.ref()) &&
+തർക്കം RTLIL::Cell::has_keep_attr() സ്ഥിരം {
+	തിരികെ get_bool_attribute(ID::keep) || (module && module->design && module->design->module(type.ref()) &&
 			module->design->module(type.ref())->get_bool_attribute(ID::keep));
 }
 
-bool RTLIL::Cell::has_memid() const
+തർക്കം RTLIL::Cell::has_memid() സ്ഥിരം
 {
-	return type.in(ID($memwr), ID($memwr_v2), ID($memrd), ID($memrd_v2), ID($meminit), ID($meminit_v2));
+	തിരികെ type.in(ID($memwr), ID($memwr_v2), ID($memrd), ID($memrd_v2), ID($meminit), ID($meminit_v2));
 }
 
-bool RTLIL::Cell::is_mem_cell() const
+തർക്കം RTLIL::Cell::is_mem_cell() സ്ഥിരം
 {
-	return type.in(ID($mem), ID($mem_v2)) || has_memid();
+	തിരികെ type.in(ID($mem), ID($mem_v2)) || has_memid();
 }
 
-bool RTLIL::Cell::is_builtin_ff() const {
-	return StaticCellTypes::categories.is_ff(type);
+തർക്കം RTLIL::Cell::is_builtin_ff() സ്ഥിരം {
+	തിരികെ StaticCellTypes::categories.is_ff(type);
 }
 
-RTLIL::SigChunk::SigChunk(const RTLIL::SigBit &bit)
+RTLIL::SigChunk::SigChunk(സ്ഥിരം RTLIL::SigBit &bit)
 {
 	wire = bit.wire;
 	offset = 0;
-	if (wire == NULL)
+	എങ്കിൽ (wire == ശൂന്യ)
 		data = {bit.data};
-	else
+	അല്ലെങ്കിൽ
 		offset = bit.offset;
 	width = 1;
 }
 
-RTLIL::SigChunk RTLIL::SigChunk::extract(int offset, int length) const
+RTLIL::SigChunk RTLIL::SigChunk::extract(പൂർണ്ണസംഖ്യ offset, പൂർണ്ണസംഖ്യ length) സ്ഥിരം
 {
 	log_assert(offset >= 0);
 	log_assert(length >= 0);
 	log_assert(offset + length <= width);
 	RTLIL::SigChunk ret;
-	if (wire) {
+	എങ്കിൽ (wire) {
 		ret.wire = wire;
-		ret.offset = this->offset + offset;
+		ret.offset = ഇത്->offset + offset;
 		ret.width = length;
-	} else {
-		for (int i = 0; i < length; i++)
-			ret.data.push_back(data[offset+i]);
+	} അല്ലെങ്കിൽ {
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < length; i++)
+			ret.data.തള്ളുക_back(data[offset+i]);
 		ret.width = length;
 	}
-	return ret;
+	തിരികെ ret;
 }
 
-RTLIL::SigBit RTLIL::SigChunk::operator[](int offset) const
+RTLIL::SigBit RTLIL::SigChunk::operator[](പൂർണ്ണസംഖ്യ offset) സ്ഥിരം
 {
 	log_assert(offset >= 0);
 	log_assert(offset < width);
 	RTLIL::SigBit ret;
-	if (wire) {
+	എങ്കിൽ (wire) {
 		ret.wire = wire;
-		ret.offset = this->offset + offset;
-	} else {
+		ret.offset = ഇത്->offset + offset;
+	} അല്ലെങ്കിൽ {
 		ret.data = data[offset];
 	}
-	return ret;
+	തിരികെ ret;
 }
 
-bool RTLIL::SigChunk::operator <(const RTLIL::SigChunk &other) const
+തർക്കം RTLIL::SigChunk::operator <(സ്ഥിരം RTLIL::SigChunk &other) സ്ഥിരം
 {
-	if (wire && other.wire)
-		if (wire->name != other.wire->name)
-			return wire->name < other.wire->name;
+	എങ്കിൽ (wire && other.wire)
+		എങ്കിൽ (wire->name != other.wire->name)
+			തിരികെ wire->name < other.wire->name;
 
-	if (wire != other.wire)
-		return wire < other.wire;
+	എങ്കിൽ (wire != other.wire)
+		തിരികെ wire < other.wire;
 
-	if (offset != other.offset)
-		return offset < other.offset;
+	എങ്കിൽ (offset != other.offset)
+		തിരികെ offset < other.offset;
 
-	if (width != other.width)
-		return width < other.width;
+	എങ്കിൽ (width != other.width)
+		തിരികെ width < other.width;
 
-	return data < other.data;
+	തിരികെ data < other.data;
 }
 
-bool RTLIL::SigChunk::operator ==(const RTLIL::SigChunk &other) const
+തർക്കം RTLIL::SigChunk::operator ==(സ്ഥിരം RTLIL::SigChunk &other) സ്ഥിരം
 {
-	return wire == other.wire && width == other.width && offset == other.offset && data == other.data;
+	തിരികെ wire == other.wire && width == other.width && offset == other.offset && data == other.data;
 }
 
-bool RTLIL::SigChunk::operator !=(const RTLIL::SigChunk &other) const
+തർക്കം RTLIL::SigChunk::operator !=(സ്ഥിരം RTLIL::SigChunk &other) സ്ഥിരം
 {
-	if (*this == other)
-		return false;
-	return true;
+	എങ്കിൽ (*ഇത് == other)
+		തിരികെ അസത്യം;
+	തിരികെ സത്യം;
 }
 
 RTLIL::SigSpec::SigSpec(std::initializer_list<RTLIL::SigSpec> parts)
@@ -4562,38 +4562,38 @@ RTLIL::SigSpec::SigSpec(std::initializer_list<RTLIL::SigSpec> parts)
 	log_assert(parts.size() > 0);
 	auto ie = parts.begin();
 	auto it = ie + parts.size() - 1;
-	while (it >= ie)
+	ആകുമ്പോൾ (it >= ie)
 		append(*it--);
 }
 
-RTLIL::SigSpec::SigSpec(const RTLIL::Const &value)
+RTLIL::SigSpec::SigSpec(സ്ഥിരം RTLIL::Const &മൂല്യം)
 {
-	if (GetSize(value) != 0) {
+	എങ്കിൽ (GetSize(മൂല്യം) != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(value);
-	} else {
+		പുതിയ (&chunk_) RTLIL::SigChunk(മൂല്യം);
+	} അല്ലെങ്കിൽ {
 		init_empty_bits();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(RTLIL::Const &&value)
+RTLIL::SigSpec::SigSpec(RTLIL::Const &&മൂല്യം)
 {
-	if (GetSize(value) != 0) {
+	എങ്കിൽ (GetSize(മൂല്യം) != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(value);
-	} else {
+		പുതിയ (&chunk_) RTLIL::SigChunk(മൂല്യം);
+	} അല്ലെങ്കിൽ {
 		init_empty_bits();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const RTLIL::SigChunk &chunk)
+RTLIL::SigSpec::SigSpec(സ്ഥിരം RTLIL::SigChunk &chunk)
 {
-	if (chunk.width != 0) {
+	എങ്കിൽ (chunk.width != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(chunk);
-	} else {
+		പുതിയ (&chunk_) RTLIL::SigChunk(chunk);
+	} അല്ലെങ്കിൽ {
 		init_empty_bits();
 	}
 	check();
@@ -4601,10 +4601,10 @@ RTLIL::SigSpec::SigSpec(const RTLIL::SigChunk &chunk)
 
 RTLIL::SigSpec::SigSpec(RTLIL::SigChunk &&chunk)
 {
-	if (chunk.width != 0) {
+	എങ്കിൽ (chunk.width != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(chunk);
-	} else {
+		പുതിയ (&chunk_) RTLIL::SigChunk(chunk);
+	} അല്ലെങ്കിൽ {
 		init_empty_bits();
 	}
 	check();
@@ -4612,207 +4612,207 @@ RTLIL::SigSpec::SigSpec(RTLIL::SigChunk &&chunk)
 
 RTLIL::SigSpec::SigSpec(RTLIL::Wire *wire)
 {
-	if (wire->width != 0) {
+	എങ്കിൽ (wire->width != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(wire);
-	} else {
+		പുതിയ (&chunk_) RTLIL::SigChunk(wire);
+	} അല്ലെങ്കിൽ {
 		init_empty_bits();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(RTLIL::Wire *wire, int offset, int width)
+RTLIL::SigSpec::SigSpec(RTLIL::Wire *wire, പൂർണ്ണസംഖ്യ offset, പൂർണ്ണസംഖ്യ width)
 {
-	if (width != 0) {
+	എങ്കിൽ (width != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(wire, offset, width);
-	} else {
+		പുതിയ (&chunk_) RTLIL::SigChunk(wire, offset, width);
+	} അല്ലെങ്കിൽ {
 		init_empty_bits();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::string &str)
+RTLIL::SigSpec::SigSpec(സ്ഥിരം std::string &str)
 {
-	if (str.size() != 0) {
+	എങ്കിൽ (str.size() != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(str);
-	} else {
+		പുതിയ (&chunk_) RTLIL::SigChunk(str);
+	} അല്ലെങ്കിൽ {
 		init_empty_bits();
 	}
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(int val, int width)
+RTLIL::SigSpec::SigSpec(പൂർണ്ണസംഖ്യ val, പൂർണ്ണസംഖ്യ width)
 {
-	if (width != 0) {
+	എങ്കിൽ (width != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(val, width);
-	} else
+		പുതിയ (&chunk_) RTLIL::SigChunk(val, width);
+	} അല്ലെങ്കിൽ
 		init_empty_bits();
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(RTLIL::State bit, int width)
+RTLIL::SigSpec::SigSpec(RTLIL::State bit, പൂർണ്ണസംഖ്യ width)
 {
-	if (width != 0) {
+	എങ്കിൽ (width != 0) {
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(bit, width);
-	} else
+		പുതിയ (&chunk_) RTLIL::SigChunk(bit, width);
+	} അല്ലെങ്കിൽ
 		init_empty_bits();
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const RTLIL::SigBit &bit, int width)
+RTLIL::SigSpec::SigSpec(സ്ഥിരം RTLIL::SigBit &bit, പൂർണ്ണസംഖ്യ width)
 {
-	if (width != 0) {
-		if (bit.wire == NULL) {
+	എങ്കിൽ (width != 0) {
+		എങ്കിൽ (bit.wire == ശൂന്യ) {
 			rep_ = CHUNK;
-			new (&chunk_) RTLIL::SigChunk(bit.data, width);
-		} else if (width == 1) {
+			പുതിയ (&chunk_) RTLIL::SigChunk(bit.data, width);
+		} അല്ലെങ്കിൽ എങ്കിൽ (width == 1) {
 			rep_ = CHUNK;
-			new (&chunk_) RTLIL::SigChunk(bit);
-		} else {
+			പുതിയ (&chunk_) RTLIL::SigChunk(bit);
+		} അല്ലെങ്കിൽ {
 			init_empty_bits();
 			bits_.reserve(width);
-			for (int i = 0; i < width; i++)
-				bits_.push_back(bit);
+			വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < width; i++)
+				bits_.തള്ളുക_back(bit);
 		}
-	} else
+	} അല്ലെങ്കിൽ
 		init_empty_bits();
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::vector<RTLIL::SigChunk> &chunks)
+RTLIL::SigSpec::SigSpec(സ്ഥിരം std::vector<RTLIL::SigChunk> &chunks)
 {
 	init_empty_bits();
-	for (const auto &c : chunks)
+	വേണ്ടി (സ്ഥിരം auto &c : chunks)
 		append(c);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::vector<RTLIL::SigBit> &bits)
+RTLIL::SigSpec::SigSpec(സ്ഥിരം std::vector<RTLIL::SigBit> &bits)
 {
 	init_empty_bits();
-	for (const auto &bit : bits)
+	വേണ്ടി (സ്ഥിരം auto &bit : bits)
 		append(bit);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const pool<RTLIL::SigBit> &bits)
+RTLIL::SigSpec::SigSpec(സ്ഥിരം pool<RTLIL::SigBit> &bits)
 {
 	init_empty_bits();
-	for (const auto &bit : bits)
+	വേണ്ടി (സ്ഥിരം auto &bit : bits)
 		append(bit);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(const std::set<RTLIL::SigBit> &bits)
+RTLIL::SigSpec::SigSpec(സ്ഥിരം std::set<RTLIL::SigBit> &bits)
 {
 	init_empty_bits();
-	for (const auto &bit : bits)
+	വേണ്ടി (സ്ഥിരം auto &bit : bits)
 		append(bit);
 	check();
 }
 
-RTLIL::SigSpec::SigSpec(bool bit)
+RTLIL::SigSpec::SigSpec(തർക്കം bit)
 {
 	rep_ = CHUNK;
-	new (&chunk_) RTLIL::SigChunk(bit ? RTLIL::S1 : RTLIL::S0);
+	പുതിയ (&chunk_) RTLIL::SigChunk(bit ? RTLIL::S1 : RTLIL::S0);
 	check();
 }
 
-void RTLIL::SigSpec::Chunks::const_iterator::next_chunk_bits()
+ശൂന്യം RTLIL::SigSpec::Chunks::const_iterator::next_chunk_bits()
 {
-	int bits_size = GetSize(spec.bits_);
-	if (bit_index >= bits_size)
-		return;
-	int i = bit_index;
-	const SigBit &bit = spec.bits_[i++];
+	പൂർണ്ണസംഖ്യ bits_size = GetSize(spec.bits_);
+	എങ്കിൽ (bit_index >= bits_size)
+		തിരികെ;
+	പൂർണ്ണസംഖ്യ i = bit_index;
+	സ്ഥിരം SigBit &bit = spec.bits_[i++];
 	chunk.wire = bit.wire;
 	chunk.data.clear();
-	if (bit.is_wire()) {
+	എങ്കിൽ (bit.is_wire()) {
 		chunk.offset = bit.offset;
-		while (i < bits_size && spec.bits_[i].wire == bit.wire &&
+		ആകുമ്പോൾ (i < bits_size && spec.bits_[i].wire == bit.wire &&
 			spec.bits_[i].offset == bit.offset + i - bit_index)
 			++i;
-	} else {
+	} അല്ലെങ്കിൽ {
 		chunk.offset = 0;
-		chunk.data.push_back(bit.data);
-		while (i < bits_size && !spec.bits_[i].is_wire()) {
-			chunk.data.push_back(spec.bits_[i].data);
+		chunk.data.തള്ളുക_back(bit.data);
+		ആകുമ്പോൾ (i < bits_size && !spec.bits_[i].is_wire()) {
+			chunk.data.തള്ളുക_back(spec.bits_[i].data);
 			++i;
 		}
 	}
 	chunk.width = i - bit_index;
 }
 
-void RTLIL::SigSpec::unpack()
+ശൂന്യം RTLIL::SigSpec::unpack()
 {
-	if (rep_ == BITS)
-		return;
+	എങ്കിൽ (rep_ == BITS)
+		തിരികെ;
 
 	std::vector<RTLIL::SigBit> bits;
 	bits.reserve(chunk_.width);
-	for (int i = 0; i < chunk_.width; i++)
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < chunk_.width; i++)
 		bits.emplace_back(chunk_, i);
 
 	chunk_.~SigChunk();
 	rep_ = BITS;
-	new (&bits_) std::vector<RTLIL::SigBit>(std::move(bits));
+	പുതിയ (&bits_) std::vector<RTLIL::SigBit>(std::move(bits));
 }
 
-void RTLIL::SigSpec::try_repack()
+ശൂന്യം RTLIL::SigSpec::try_repack()
 {
-	if (rep_ != BITS)
-		return;
+	എങ്കിൽ (rep_ != BITS)
+		തിരികെ;
 
-	int bits_size = GetSize(bits_);
-	if (bits_size == 0)
-		return;
-	if (bits_[0].is_wire()) {
-		for (int i = 1; i < bits_size; i++)
-			if (bits_[0].wire != bits_[i].wire || bits_[0].offset + i != bits_[i].offset)
-				return;
+	പൂർണ്ണസംഖ്യ bits_size = GetSize(bits_);
+	എങ്കിൽ (bits_size == 0)
+		തിരികെ;
+	എങ്കിൽ (bits_[0].is_wire()) {
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = 1; i < bits_size; i++)
+			എങ്കിൽ (bits_[0].wire != bits_[i].wire || bits_[0].offset + i != bits_[i].offset)
+				തിരികെ;
 		SigChunk chunk(bits_[0].wire, bits_[0].offset, bits_size);
 		bits_.~vector();
 		rep_ = CHUNK;
-		new (&chunk_) SigChunk(std::move(chunk));
-		return;
+		പുതിയ (&chunk_) SigChunk(std::move(chunk));
+		തിരികെ;
 	}
 	std::vector<RTLIL::State> bits;
 	bits.reserve(bits_size);
-	bits.push_back(bits_[0].data);
-	for (int i = 1; i < bits_size; i++) {
-		if (bits_[i].is_wire())
-			return;
-		bits.push_back(bits_[i].data);
+	bits.തള്ളുക_back(bits_[0].data);
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 1; i < bits_size; i++) {
+		എങ്കിൽ (bits_[i].is_wire())
+			തിരികെ;
+		bits.തള്ളുക_back(bits_[i].data);
 	}
 	bits_.~vector();
 	rep_ = CHUNK;
-	new (&chunk_) SigChunk(std::move(bits));
+	പുതിയ (&chunk_) SigChunk(std::move(bits));
 }
 
-Hasher::hash_t RTLIL::SigSpec::updhash() const
+Hasher::hash_t RTLIL::SigSpec::updhash() സ്ഥിരം
 {
 	Hasher h;
-	for (auto &c : chunks())
-		if (c.wire == NULL) {
-			for (auto &v : c.data)
+	വേണ്ടി (auto &c : chunks())
+		എങ്കിൽ (c.wire == ശൂന്യ) {
+			വേണ്ടി (auto &v : c.data)
 				h.eat(v);
-		} else {
+		} അല്ലെങ്കിൽ {
 			h.eat(c.wire->name.ref());
 			h.eat(c.offset);
 			h.eat(c.width);
 		}
 	Hasher::hash_t result = h.yield();
-	if (result == 0)
+	എങ്കിൽ (result == 0)
 		result = 1;
 	hash_.set(result);
-	return result;
+	തിരികെ result;
 }
 
-void RTLIL::SigSpec::sort()
+ശൂന്യം RTLIL::SigSpec::sort()
 {
 	unpack();
 	std::sort(bits_.begin(), bits_.end());
@@ -4820,7 +4820,7 @@ void RTLIL::SigSpec::sort()
 	try_repack();
 }
 
-void RTLIL::SigSpec::sort_and_unify()
+ശൂന്യം RTLIL::SigSpec::sort_and_unify()
 {
 	unpack();
 	// A copy of the bits vector is used to prevent duplicating the logic from
@@ -4831,115 +4831,115 @@ void RTLIL::SigSpec::sort_and_unify()
 	auto last = std::unique(unique_bits.begin(), unique_bits.end());
 	unique_bits.erase(last, unique_bits.end());
 
-	*this = unique_bits;
+	*ഇത് = unique_bits;
 	hash_.clear();
 	try_repack();
 }
 
-void RTLIL::SigSpec::replace(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec &with)
+ശൂന്യം RTLIL::SigSpec::replace(സ്ഥിരം RTLIL::SigSpec &pattern, സ്ഥിരം RTLIL::SigSpec &with)
 {
-	replace(pattern, with, this);
+	replace(pattern, with, ഇത്);
 }
 
-void RTLIL::SigSpec::replace(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec &with, RTLIL::SigSpec *other) const
+ശൂന്യം RTLIL::SigSpec::replace(സ്ഥിരം RTLIL::SigSpec &pattern, സ്ഥിരം RTLIL::SigSpec &with, RTLIL::SigSpec *other) സ്ഥിരം
 {
-	log_assert(other != NULL);
+	log_assert(other != ശൂന്യ);
 	log_assert(size() == other->size());
 	log_assert(pattern.size() == with.size());
 
-	dict<RTLIL::SigBit, int> pattern_to_with;
-	int pattern_size = pattern.size();
-	for (int i = 0; i < pattern_size; i++) {
+	dict<RTLIL::SigBit, പൂർണ്ണസംഖ്യ> pattern_to_with;
+	പൂർണ്ണസംഖ്യ pattern_size = pattern.size();
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < pattern_size; i++) {
 		SigBit pattern_bit = pattern[i];
-		if (pattern_bit.wire != NULL) {
+		എങ്കിൽ (pattern_bit.wire != ശൂന്യ) {
 			pattern_to_with.emplace(pattern_bit, i);
 		}
 	}
 
-	int this_size = size();
-	bool other_modified = false;
-	for (int j = 0; j < this_size; j++) {
-		auto it = pattern_to_with.find((*this)[j]);
-		if (it != pattern_to_with.end()) {
-			other_modified = true;
+	പൂർണ്ണസംഖ്യ this_size = size();
+	തർക്കം other_modified = അസത്യം;
+	വേണ്ടി (പൂർണ്ണസംഖ്യ j = 0; j < this_size; j++) {
+		auto it = pattern_to_with.find((*ഇത്)[j]);
+		എങ്കിൽ (it != pattern_to_with.end()) {
+			other_modified = സത്യം;
 			(*other)[j] = with[it->second];
 		}
 	}
 
-	if (other_modified)
+	എങ്കിൽ (other_modified)
 		other->try_repack();
 	other->check();
 }
 
-void RTLIL::SigSpec::replace(const dict<RTLIL::SigBit, RTLIL::SigBit> &rules)
+ശൂന്യം RTLIL::SigSpec::replace(സ്ഥിരം dict<RTLIL::SigBit, RTLIL::SigBit> &rules)
 {
-	replace(rules, this);
+	replace(rules, ഇത്);
 }
 
-void RTLIL::SigSpec::replace(const dict<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const
+ശൂന്യം RTLIL::SigSpec::replace(സ്ഥിരം dict<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) സ്ഥിരം
 {
-	log_assert(other != NULL);
+	log_assert(other != ശൂന്യ);
 	log_assert(size() == other->size());
 
-	if (rules.empty()) return;
+	എങ്കിൽ (rules.empty()) തിരികെ;
 
-	int this_size = size();
-	bool other_modified = false;
-	for (int i = 0; i < this_size; i++) {
-		auto it = rules.find((*this)[i]);
-		if (it != rules.end()) {
-			other_modified = true;
+	പൂർണ്ണസംഖ്യ this_size = size();
+	തർക്കം other_modified = അസത്യം;
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < this_size; i++) {
+		auto it = rules.find((*ഇത്)[i]);
+		എങ്കിൽ (it != rules.end()) {
+			other_modified = സത്യം;
 			(*other)[i] = it->second;
 		}
 	}
 
-	if (other_modified)
+	എങ്കിൽ (other_modified)
 		other->try_repack();
 	other->check();
 }
 
-void RTLIL::SigSpec::replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules)
+ശൂന്യം RTLIL::SigSpec::replace(സ്ഥിരം std::map<RTLIL::SigBit, RTLIL::SigBit> &rules)
 {
-	replace(rules, this);
+	replace(rules, ഇത്);
 }
 
-void RTLIL::SigSpec::replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const
+ശൂന്യം RTLIL::SigSpec::replace(സ്ഥിരം std::map<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) സ്ഥിരം
 {
-	log_assert(other != NULL);
+	log_assert(other != ശൂന്യ);
 	log_assert(size() == other->size());
 
-	if (rules.empty()) return;
+	എങ്കിൽ (rules.empty()) തിരികെ;
 
-	int this_size = size();
-	bool other_modified = false;
-	for (int i = 0; i < this_size; i++) {
-		auto it = rules.find((*this)[i]);
-		if (it != rules.end()) {
-			other_modified = true;
+	പൂർണ്ണസംഖ്യ this_size = size();
+	തർക്കം other_modified = അസത്യം;
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < this_size; i++) {
+		auto it = rules.find((*ഇത്)[i]);
+		എങ്കിൽ (it != rules.end()) {
+			other_modified = സത്യം;
 			(*other)[i] = it->second;
 		}
 	}
 
-	if (other_modified)
+	എങ്കിൽ (other_modified)
 		other->try_repack();
 	other->check();
 }
 
-void RTLIL::SigSpec::remove(const RTLIL::SigSpec &pattern)
+ശൂന്യം RTLIL::SigSpec::remove(സ്ഥിരം RTLIL::SigSpec &pattern)
 {
-	remove2(pattern, NULL);
+	remove2(pattern, ശൂന്യ);
 }
 
-void RTLIL::SigSpec::remove(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other) const
+ശൂന്യം RTLIL::SigSpec::remove(സ്ഥിരം RTLIL::SigSpec &pattern, RTLIL::SigSpec *other) സ്ഥിരം
 {
-	RTLIL::SigSpec tmp = *this;
+	RTLIL::SigSpec tmp = *ഇത്;
 	tmp.remove2(pattern, other);
 }
 
-void RTLIL::SigSpec::remove2(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other)
+ശൂന്യം RTLIL::SigSpec::remove2(സ്ഥിരം RTLIL::SigSpec &pattern, RTLIL::SigSpec *other)
 {
 	unpack();
-	if (other != NULL) {
+	എങ്കിൽ (other != ശൂന്യ) {
 		log_assert(size() == other->size());
 		other->unpack();
 	}
@@ -4947,31 +4947,31 @@ void RTLIL::SigSpec::remove2(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *othe
 	//  Convert pattern to pool for O(1) lookup, avoiding O(n*m) chunk iteration
 	pool<SigBit> pattern_bits;
 	pattern_bits.reserve(pattern.size());
-	for (auto &bit : pattern)
-		if (bit.wire != NULL)
-			pattern_bits.insert(bit);
+	വേണ്ടി (auto &bit : pattern)
+		എങ്കിൽ (bit.wire != ശൂന്യ)
+			pattern_bits.തിരുകുക(bit);
 
 	// Compact in-place to avoid O(n^2) erase operations
 	size_t write_idx = 0;
-	for (size_t read_idx = 0; read_idx < bits_.size(); read_idx++)
+	വേണ്ടി (size_t read_idx = 0; read_idx < bits_.size(); read_idx++)
 	{
-		if (!(bits_[read_idx].wire != NULL && pattern_bits.count(bits_[read_idx]))) {
-			if (write_idx != read_idx) {
+		എങ്കിൽ (!(bits_[read_idx].wire != ശൂന്യ && pattern_bits.എണ്ണം(bits_[read_idx]))) {
+			എങ്കിൽ (write_idx != read_idx) {
 				bits_[write_idx] = bits_[read_idx];
-				if (other != NULL)
+				എങ്കിൽ (other != ശൂന്യ)
 					other->bits_[write_idx] = other->bits_[read_idx];
 			}
 			write_idx++;
 		}
 	}
 
-	bool modified = (write_idx < bits_.size());
-	if (modified) {
+	തർക്കം modified = (write_idx < bits_.size());
+	എങ്കിൽ (modified) {
 		bits_.resize(write_idx);
 		hash_.clear();
 		try_repack();
 	}
-	if (other != NULL && modified) {
+	എങ്കിൽ (other != ശൂന്യ && modified) {
 		other->bits_.resize(write_idx);
 		other->hash_.clear();
 		other->try_repack();
@@ -4979,46 +4979,46 @@ void RTLIL::SigSpec::remove2(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *othe
 	check();
 }
 
-void RTLIL::SigSpec::remove(const pool<RTLIL::SigBit> &pattern)
+ശൂന്യം RTLIL::SigSpec::remove(സ്ഥിരം pool<RTLIL::SigBit> &pattern)
 {
-	remove2(pattern, NULL);
+	remove2(pattern, ശൂന്യ);
 }
 
-void RTLIL::SigSpec::remove(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other) const
+ശൂന്യം RTLIL::SigSpec::remove(സ്ഥിരം pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other) സ്ഥിരം
 {
-	RTLIL::SigSpec tmp = *this;
+	RTLIL::SigSpec tmp = *ഇത്;
 	tmp.remove2(pattern, other);
 }
 
-void RTLIL::SigSpec::remove2(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other)
+ശൂന്യം RTLIL::SigSpec::remove2(സ്ഥിരം pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other)
 {
 	unpack();
 
-	if (other != NULL) {
+	എങ്കിൽ (other != ശൂന്യ) {
 		log_assert(size() == other->size());
 		other->unpack();
 	}
 
 	// Avoid O(n^2) complexity by compacting in-place
 	size_t write_idx = 0;
-	for (size_t read_idx = 0; read_idx < bits_.size(); read_idx++) {
-		if (!(bits_[read_idx].wire != NULL && pattern.count(bits_[read_idx]))) {
-			if (write_idx != read_idx) {
+	വേണ്ടി (size_t read_idx = 0; read_idx < bits_.size(); read_idx++) {
+		എങ്കിൽ (!(bits_[read_idx].wire != ശൂന്യ && pattern.എണ്ണം(bits_[read_idx]))) {
+			എങ്കിൽ (write_idx != read_idx) {
 				bits_[write_idx] = bits_[read_idx];
-				if (other != NULL)
+				എങ്കിൽ (other != ശൂന്യ)
 					other->bits_[write_idx] = other->bits_[read_idx];
 			}
 			write_idx++;
 		}
 	}
 
-	bool modified = (write_idx < bits_.size());
-	if (modified) {
+	തർക്കം modified = (write_idx < bits_.size());
+	എങ്കിൽ (modified) {
 		bits_.resize(write_idx);
 		hash_.clear();
 		try_repack();
 	}
-	if (other != NULL && modified) {
+	എങ്കിൽ (other != ശൂന്യ && modified) {
 		other->bits_.resize(write_idx);
 		other->hash_.clear();
 		other->try_repack();
@@ -5026,35 +5026,35 @@ void RTLIL::SigSpec::remove2(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec 
 	check();
 }
 
-void RTLIL::SigSpec::remove2(const std::set<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other)
+ശൂന്യം RTLIL::SigSpec::remove2(സ്ഥിരം std::set<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other)
 {
 	unpack();
 
-	if (other != NULL) {
+	എങ്കിൽ (other != ശൂന്യ) {
 		log_assert(size() == other->size());
 		other->unpack();
 	}
 
 	// Avoid O(n^2) complexity by compacting in-place
 	size_t write_idx = 0;
-	for (size_t read_idx = 0; read_idx < bits_.size(); read_idx++) {
-		if (!(bits_[read_idx].wire != NULL && pattern.count(bits_[read_idx]))) {
-			if (write_idx != read_idx) {
+	വേണ്ടി (size_t read_idx = 0; read_idx < bits_.size(); read_idx++) {
+		എങ്കിൽ (!(bits_[read_idx].wire != ശൂന്യ && pattern.എണ്ണം(bits_[read_idx]))) {
+			എങ്കിൽ (write_idx != read_idx) {
 				bits_[write_idx] = bits_[read_idx];
-				if (other != NULL)
+				എങ്കിൽ (other != ശൂന്യ)
 					other->bits_[write_idx] = other->bits_[read_idx];
 			}
 			write_idx++;
 		}
 	}
 
-	bool modified = (write_idx < bits_.size());
-	if (modified) {
+	തർക്കം modified = (write_idx < bits_.size());
+	എങ്കിൽ (modified) {
 		bits_.resize(write_idx);
 		hash_.clear();
 		try_repack();
 	}
-	if (other != NULL && modified) {
+	എങ്കിൽ (other != ശൂന്യ && modified) {
 		other->bits_.resize(write_idx);
 		other->hash_.clear();
 		other->try_repack();
@@ -5062,61 +5062,61 @@ void RTLIL::SigSpec::remove2(const std::set<RTLIL::SigBit> &pattern, RTLIL::SigS
 	check();
 }
 
-void RTLIL::SigSpec::remove2(const pool<RTLIL::Wire*> &pattern, RTLIL::SigSpec *other)
+ശൂന്യം RTLIL::SigSpec::remove2(സ്ഥിരം pool<RTLIL::Wire*> &pattern, RTLIL::SigSpec *other)
 {
 	unpack();
 
-	if (other != NULL) {
+	എങ്കിൽ (other != ശൂന്യ) {
 		log_assert(size() == other->size());
 		other->unpack();
 	}
 
-	bool modified = false;
-	bool other_modified = false;
-	for (int i = GetSize(bits_) - 1; i >= 0; i--) {
-		if (bits_[i].wire != NULL && pattern.count(bits_[i].wire)) {
-			modified = true;
+	തർക്കം modified = അസത്യം;
+	തർക്കം other_modified = അസത്യം;
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = GetSize(bits_) - 1; i >= 0; i--) {
+		എങ്കിൽ (bits_[i].wire != ശൂന്യ && pattern.എണ്ണം(bits_[i].wire)) {
+			modified = സത്യം;
 			bits_.erase(bits_.begin() + i);
-			if (other != NULL) {
-				other_modified = true;
+			എങ്കിൽ (other != ശൂന്യ) {
+				other_modified = സത്യം;
 				other->bits_.erase(other->bits_.begin() + i);
 			}
 		}
 	}
 
-	if (modified) {
+	എങ്കിൽ (modified) {
 		hash_.clear();
 		try_repack();
 	}
-	if (other_modified) {
+	എങ്കിൽ (other_modified) {
 		other->hash_.clear();
 		other->try_repack();
 	}
 	check();
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::extract(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec *other) const
+RTLIL::SigSpec RTLIL::SigSpec::extract(സ്ഥിരം RTLIL::SigSpec &pattern, സ്ഥിരം RTLIL::SigSpec *other) സ്ഥിരം
 {
-	log_assert(other == NULL || size() == other->size());
+	log_assert(other == ശൂന്യ || size() == other->size());
 
 	RTLIL::SigSpec ret;
 	std::vector<RTLIL::SigBit> bits_match = to_sigbit_vector();
 
-	for (auto& pattern_chunk : pattern.chunks()) {
-		if (other) {
+	വേണ്ടി (auto& pattern_chunk : pattern.chunks()) {
+		എങ്കിൽ (other) {
 			std::vector<RTLIL::SigBit> bits_other = other->to_sigbit_vector();
-			int i = 0;
-			for (const RTLIL::SigBit &bit : bits_match) {
-				if (bit.wire &&
+			പൂർണ്ണസംഖ്യ i = 0;
+			വേണ്ടി (സ്ഥിരം RTLIL::SigBit &bit : bits_match) {
+				എങ്കിൽ (bit.wire &&
 					bit.wire == pattern_chunk.wire &&
 					bit.offset >= pattern_chunk.offset &&
 					bit.offset < pattern_chunk.offset + pattern_chunk.width)
 					ret.append(bits_other[i]);
 				++i;
 			}
-		} else {
-			for (const RTLIL::SigBit &bit : bits_match)
-				if (bit.wire &&
+		} അല്ലെങ്കിൽ {
+			വേണ്ടി (സ്ഥിരം RTLIL::SigBit &bit : bits_match)
+				എങ്കിൽ (bit.wire &&
 					bit.wire == pattern_chunk.wire &&
 					bit.offset >= pattern_chunk.offset &&
 					bit.offset < pattern_chunk.offset + pattern_chunk.width)
@@ -5125,38 +5125,38 @@ RTLIL::SigSpec RTLIL::SigSpec::extract(const RTLIL::SigSpec &pattern, const RTLI
 	}
 
 	ret.check();
-	return ret;
+	തിരികെ ret;
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::extract(const pool<RTLIL::SigBit> &pattern, const RTLIL::SigSpec *other) const
+RTLIL::SigSpec RTLIL::SigSpec::extract(സ്ഥിരം pool<RTLIL::SigBit> &pattern, സ്ഥിരം RTLIL::SigSpec *other) സ്ഥിരം
 {
-	log_assert(other == NULL || size() == other->size());
+	log_assert(other == ശൂന്യ || size() == other->size());
 
 	std::vector<RTLIL::SigBit> bits_match = to_sigbit_vector();
 	RTLIL::SigSpec ret;
 
-	if (other) {
+	എങ്കിൽ (other) {
 		std::vector<RTLIL::SigBit> bits_other = other->to_sigbit_vector();
-		int i = 0;
-		for (const RTLIL::SigBit &bit : bits_match) {
-			if (bit.wire && pattern.count(bit))
+		പൂർണ്ണസംഖ്യ i = 0;
+		വേണ്ടി (സ്ഥിരം RTLIL::SigBit &bit : bits_match) {
+			എങ്കിൽ (bit.wire && pattern.എണ്ണം(bit))
 				ret.append(bits_other[i]);
 			++i;
 		}
-	} else {
-		for (const RTLIL::SigBit &bit : bits_match)
-			if (bit.wire && pattern.count(bit))
+	} അല്ലെങ്കിൽ {
+		വേണ്ടി (സ്ഥിരം RTLIL::SigBit &bit : bits_match)
+			എങ്കിൽ (bit.wire && pattern.എണ്ണം(bit))
 				ret.append(bit);
 	}
 
 	ret.check();
-	return ret;
+	തിരികെ ret;
 }
 
-void RTLIL::SigSpec::replace(int offset, const RTLIL::SigSpec &with)
+ശൂന്യം RTLIL::SigSpec::replace(പൂർണ്ണസംഖ്യ offset, സ്ഥിരം RTLIL::SigSpec &with)
 {
-	if (with.size() == 0)
-		return;
+	എങ്കിൽ (with.size() == 0)
+		തിരികെ;
 
 	unpack();
 
@@ -5164,8 +5164,8 @@ void RTLIL::SigSpec::replace(int offset, const RTLIL::SigSpec &with)
 	log_assert(with.size() >= 0);
 	log_assert(offset+with.size() <= size());
 
-	int i = 0;
-	for (const RTLIL::SigBit &bit : with.bits()) {
+	പൂർണ്ണസംഖ്യ i = 0;
+	വേണ്ടി (സ്ഥിരം RTLIL::SigBit &bit : with.bits()) {
 		bits_.at(offset + i) = bit;
 		++i;
 	}
@@ -5175,24 +5175,24 @@ void RTLIL::SigSpec::replace(int offset, const RTLIL::SigSpec &with)
 	check();
 }
 
-void RTLIL::SigSpec::remove_const()
+ശൂന്യം RTLIL::SigSpec::remove_const()
 {
-	if (rep_ == CHUNK)
+	എങ്കിൽ (rep_ == CHUNK)
 	{
-		if (chunk_.wire == NULL) {
+		എങ്കിൽ (chunk_.wire == ശൂന്യ) {
 			chunk_.~SigChunk();
 			init_empty_bits();
 			hash_.clear();
 		}
 	}
-	else
+	അല്ലെങ്കിൽ
 	{
 		std::vector<RTLIL::SigBit> new_bits;
 		new_bits.reserve(bits_.size());
-		for (auto &bit : bits_)
-			if (bit.wire != NULL)
-				new_bits.push_back(bit);
-		if (GetSize(new_bits) != GetSize(bits_)) {
+		വേണ്ടി (auto &bit : bits_)
+			എങ്കിൽ (bit.wire != ശൂന്യ)
+				new_bits.തള്ളുക_back(bit);
+		എങ്കിൽ (GetSize(new_bits) != GetSize(bits_)) {
 			bits_.swap(new_bits);
 			hash_.clear();
 			try_repack();
@@ -5202,10 +5202,10 @@ void RTLIL::SigSpec::remove_const()
 	check();
 }
 
-void RTLIL::SigSpec::remove(int offset, int length)
+ശൂന്യം RTLIL::SigSpec::remove(പൂർണ്ണസംഖ്യ offset, പൂർണ്ണസംഖ്യ length)
 {
-	if (length == 0)
-		return;
+	എങ്കിൽ (length == 0)
+		തിരികെ;
 
 	unpack();
 
@@ -5220,7 +5220,7 @@ void RTLIL::SigSpec::remove(int offset, int length)
 	check();
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::extract(int offset, int length) const
+RTLIL::SigSpec RTLIL::SigSpec::extract(പൂർണ്ണസംഖ്യ offset, പൂർണ്ണസംഖ്യ length) സ്ഥിരം
 {
 	log_assert(offset >= 0);
 	log_assert(length >= 0);
@@ -5228,549 +5228,549 @@ RTLIL::SigSpec RTLIL::SigSpec::extract(int offset, int length) const
 
 	std::vector<SigBit> extracted;
 	SigBit first;
-	bool is_packing = true;
-	for (int i = offset; i < offset + length; i++) {
-		bool was_packing_before = is_packing;
-		SigBit bit = (*this)[i];
-		if (i == offset) {
+	തർക്കം is_packing = സത്യം;
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = offset; i < offset + length; i++) {
+		തർക്കം was_packing_before = is_packing;
+		SigBit bit = (*ഇത്)[i];
+		എങ്കിൽ (i == offset) {
 			first = bit;
-			if (!bit.wire)
-				is_packing = false;
-		} else {
-			if (bit.wire != first.wire)
-				is_packing = false;
-			if (bit.wire)
-				if (bit.offset != first.offset + (i - offset))
-					is_packing = false;
+			എങ്കിൽ (!bit.wire)
+				is_packing = അസത്യം;
+		} അല്ലെങ്കിൽ {
+			എങ്കിൽ (bit.wire != first.wire)
+				is_packing = അസത്യം;
+			എങ്കിൽ (bit.wire)
+				എങ്കിൽ (bit.offset != first.offset + (i - offset))
+					is_packing = അസത്യം;
 		}
-		if (was_packing_before && !is_packing)
-			for (int j = offset; j < i; j++)
-				extracted.push_back((*this)[j]);
-		if (!is_packing)
-			extracted.push_back((*this)[i]);
+		എങ്കിൽ (was_packing_before && !is_packing)
+			വേണ്ടി (പൂർണ്ണസംഖ്യ j = offset; j < i; j++)
+				extracted.തള്ളുക_back((*ഇത്)[j]);
+		എങ്കിൽ (!is_packing)
+			extracted.തള്ളുക_back((*ഇത്)[i]);
 	}
-	if (is_packing)
-		return SigChunk(first.wire, first.offset, length);
+	എങ്കിൽ (is_packing)
+		തിരികെ SigChunk(first.wire, first.offset, length);
 
-	return extracted;
+	തിരികെ extracted;
 }
 
-void RTLIL::SigSpec::rewrite_wires(std::function<void(RTLIL::Wire*& wire)> rewrite)
+ശൂന്യം RTLIL::SigSpec::rewrite_wires(std::function<ശൂന്യം(RTLIL::Wire*& wire)> rewrite)
 {
-	if (rep_ == CHUNK) {
-		if (chunk_.wire != nullptr)
+	എങ്കിൽ (rep_ == CHUNK) {
+		എങ്കിൽ (chunk_.wire != nullptr)
 			rewrite(chunk_.wire);
-		return;
+		തിരികെ;
 	}
 
 	std::vector<RTLIL::SigBit> new_bits;
-	for (const RTLIL::SigChunk &chunk : chunks()) {
+	വേണ്ടി (സ്ഥിരം RTLIL::SigChunk &chunk : chunks()) {
 		RTLIL::SigChunk c = chunk;
-		if (c.wire != nullptr)
+		എങ്കിൽ (c.wire != nullptr)
 			rewrite(c.wire);
-		for (int i = 0; i < c.width; i++)
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < c.width; i++)
 			new_bits.emplace_back(c, i);
 	}
 	bits_ = std::move(new_bits);
 	hash_.clear();
 }
 
-void RTLIL::SigSpec::append(const RTLIL::SigSpec &signal)
+ശൂന്യം RTLIL::SigSpec::append(സ്ഥിരം RTLIL::SigSpec &സൂചന)
 {
-	if (signal.size() == 0)
-		return;
+	എങ്കിൽ (സൂചന.size() == 0)
+		തിരികെ;
 
-	if (size() == 0) {
-		*this = signal;
-		return;
+	എങ്കിൽ (size() == 0) {
+		*ഇത് = സൂചന;
+		തിരികെ;
 	}
 
 	hash_.clear();
-	if (rep_ == CHUNK && signal.rep_ == CHUNK && chunk_.wire == signal.chunk_.wire) {
-		if (chunk_.wire == NULL) {
-			chunk_.data.insert(chunk_.data.end(), signal.chunk_.data.begin(), signal.chunk_.data.end());
+	എങ്കിൽ (rep_ == CHUNK && സൂചന.rep_ == CHUNK && chunk_.wire == സൂചന.chunk_.wire) {
+		എങ്കിൽ (chunk_.wire == ശൂന്യ) {
+			chunk_.data.തിരുകുക(chunk_.data.end(), സൂചന.chunk_.data.begin(), സൂചന.chunk_.data.end());
 			chunk_.width = GetSize(chunk_.data);
-			return;
+			തിരികെ;
 		}
-		if (chunk_.offset + chunk_.width == signal.chunk_.offset) {
-			chunk_.width += signal.chunk_.width;
-			return;
+		എങ്കിൽ (chunk_.offset + chunk_.width == സൂചന.chunk_.offset) {
+			chunk_.width += സൂചന.chunk_.width;
+			തിരികെ;
 		}
 	}
 
 	unpack();
-	for (const SigBit &bit : signal.bits())
-		bits_.push_back(bit);
+	വേണ്ടി (സ്ഥിരം SigBit &bit : സൂചന.bits())
+		bits_.തള്ളുക_back(bit);
 	check();
 }
 
-void RTLIL::SigSpec::append(const RTLIL::SigBit &bit)
+ശൂന്യം RTLIL::SigSpec::append(സ്ഥിരം RTLIL::SigBit &bit)
 {
 	hash_.clear();
 
-	if (size() == 0) {
+	എങ്കിൽ (size() == 0) {
 		destroy();
 		rep_ = CHUNK;
-		new (&chunk_) RTLIL::SigChunk(bit);
-		return;
+		പുതിയ (&chunk_) RTLIL::SigChunk(bit);
+		തിരികെ;
 	}
 
-	if (rep_ == CHUNK && chunk_.wire == bit.wire) {
-		if (chunk_.wire == NULL) {
-			chunk_.data.push_back(bit.data);
+	എങ്കിൽ (rep_ == CHUNK && chunk_.wire == bit.wire) {
+		എങ്കിൽ (chunk_.wire == ശൂന്യ) {
+			chunk_.data.തള്ളുക_back(bit.data);
 			chunk_.width++;
-			return;
+			തിരികെ;
 		}
-		if (chunk_.offset + chunk_.width == bit.offset) {
+		എങ്കിൽ (chunk_.offset + chunk_.width == bit.offset) {
 			chunk_.width++;
-			return;
+			തിരികെ;
 		}
 	}
 
 	unpack();
 
-	bits_.push_back(bit);
+	bits_.തള്ളുക_back(bit);
 	check();
 }
 
-void RTLIL::SigSpec::extend_u0(int width, bool is_signed)
+ശൂന്യം RTLIL::SigSpec::extend_u0(പൂർണ്ണസംഖ്യ width, തർക്കം is_signed)
 {
-	if (size() > width)
+	എങ്കിൽ (size() > width)
 		remove(width, size() - width);
 
-	if (size() < width) {
-		RTLIL::SigBit padding = size() > 0 ? (*this)[size() - 1] : RTLIL::State::Sx;
-		if (!is_signed)
+	എങ്കിൽ (size() < width) {
+		RTLIL::SigBit padding = size() > 0 ? (*ഇത്)[size() - 1] : RTLIL::State::Sx;
+		എങ്കിൽ (!is_signed)
 			padding = RTLIL::State::S0;
-		while (size() < width)
+		ആകുമ്പോൾ (size() < width)
 			append(padding);
 	}
 }
 
-RTLIL::SigSpec RTLIL::SigSpec::repeat(int num) const
+RTLIL::SigSpec RTLIL::SigSpec::repeat(പൂർണ്ണസംഖ്യ അക്കം) സ്ഥിരം
 {
 	RTLIL::SigSpec sig;
-	for (int i = 0; i < num; i++)
-		sig.append(*this);
-	return sig;
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < അക്കം; i++)
+		sig.append(*ഇത്);
+	തിരികെ sig;
 }
 
 #ifndef NDEBUG
-void RTLIL::SigSpec::check(const Module *mod) const
+ശൂന്യം RTLIL::SigSpec::check(സ്ഥിരം Module *mod) സ്ഥിരം
 {
-	if (rep_ == CHUNK)
+	എങ്കിൽ (rep_ == CHUNK)
 	{
 		log_assert(chunk_.width != 0);
-		if (chunk_.wire == NULL) {
+		എങ്കിൽ (chunk_.wire == ശൂന്യ) {
 			log_assert(chunk_.offset == 0);
 			log_assert(chunk_.data.size() == (size_t)chunk_.width);
-		} else {
+		} അല്ലെങ്കിൽ {
 			log_assert(chunk_.offset >= 0);
 			log_assert(chunk_.width >= 0);
 			log_assert(chunk_.offset + chunk_.width <= chunk_.wire->width);
 			log_assert(chunk_.data.size() == 0);
-			if (mod != nullptr)
+			എങ്കിൽ (mod != nullptr)
 				log_assert(chunk_.wire->module == mod);
 		}
 	}
-	else if (size() <= 64)
+	അല്ലെങ്കിൽ എങ്കിൽ (size() <= 64)
 	{
-		if (mod != nullptr) {
-			for (const RTLIL::SigBit &bit : bits_)
-				if (bit.wire != nullptr)
+		എങ്കിൽ (mod != nullptr) {
+			വേണ്ടി (സ്ഥിരം RTLIL::SigBit &bit : bits_)
+				എങ്കിൽ (bit.wire != nullptr)
 					log_assert(bit.wire->module == mod);
 		}
 	}
 }
 #endif
 
-bool RTLIL::SigSpec::operator <(const RTLIL::SigSpec &other) const
+തർക്കം RTLIL::SigSpec::operator <(സ്ഥിരം RTLIL::SigSpec &other) സ്ഥിരം
 {
-	if (this == &other)
-		return false;
+	എങ്കിൽ (ഇത് == &other)
+		തിരികെ അസത്യം;
 
-	if (size() != other.size())
-		return size() < other.size();
+	എങ്കിൽ (size() != other.size())
+		തിരികെ size() < other.size();
 
 	auto other_it = other.chunks().begin();
-	for (const SigChunk &c : chunks()) {
-		if (c != *other_it)
-			return c < *other_it;
+	വേണ്ടി (സ്ഥിരം SigChunk &c : chunks()) {
+		എങ്കിൽ (c != *other_it)
+			തിരികെ c < *other_it;
 		++other_it;
 	}
 
-	return false;
+	തിരികെ അസത്യം;
 }
 
-bool RTLIL::SigSpec::operator ==(const RTLIL::SigSpec &other) const
+തർക്കം RTLIL::SigSpec::operator ==(സ്ഥിരം RTLIL::SigSpec &other) സ്ഥിരം
 {
-	if (this == &other)
-		return true;
+	എങ്കിൽ (ഇത് == &other)
+		തിരികെ സത്യം;
 
-	if (size() != other.size())
-		return false;
+	എങ്കിൽ (size() != other.size())
+		തിരികെ അസത്യം;
 
 	auto other_it = other.chunks().begin();
-	for (const SigChunk &c : chunks()) {
-		if (c != *other_it)
-			return false;
+	വേണ്ടി (സ്ഥിരം SigChunk &c : chunks()) {
+		എങ്കിൽ (c != *other_it)
+			തിരികെ അസത്യം;
 		++other_it;
 	}
 
-	return true;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::SigSpec::is_wire() const
+തർക്കം RTLIL::SigSpec::is_wire() സ്ഥിരം
 {
 	Chunks cs = chunks();
 	auto it = cs.begin();
-	if (it == cs.end())
-		return false;
-	const RTLIL::SigChunk &chunk = *it;
-	return chunk.wire && chunk.wire->width == size() && ++it == cs.end();
+	എങ്കിൽ (it == cs.end())
+		തിരികെ അസത്യം;
+	സ്ഥിരം RTLIL::SigChunk &chunk = *it;
+	തിരികെ chunk.wire && chunk.wire->width == size() && ++it == cs.end();
 }
 
-bool RTLIL::SigSpec::is_chunk() const
+തർക്കം RTLIL::SigSpec::is_chunk() സ്ഥിരം
 {
 	Chunks cs = chunks();
 	auto it = cs.begin();
-	if (it == cs.end())
-		return false;
-	return ++it == cs.end();
+	എങ്കിൽ (it == cs.end())
+		തിരികെ അസത്യം;
+	തിരികെ ++it == cs.end();
 }
 
-bool RTLIL::SigSpec::known_driver() const
+തർക്കം RTLIL::SigSpec::known_driver() സ്ഥിരം
 {
-	for (auto &chunk : chunks())
-		if (chunk.is_wire() && !chunk.wire->known_driver())
-			return false;
-	return true;
+	വേണ്ടി (auto &chunk : chunks())
+		എങ്കിൽ (chunk.is_wire() && !chunk.wire->known_driver())
+			തിരികെ അസത്യം;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::SigSpec::is_fully_const() const
+തർക്കം RTLIL::SigSpec::is_fully_const() സ്ഥിരം
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-	return true;
+	വേണ്ടി (auto &chunk : chunks())
+		എങ്കിൽ (chunk.width > 0 && chunk.wire != ശൂന്യ)
+			തിരികെ അസത്യം;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::SigSpec::is_fully_zero() const
+തർക്കം RTLIL::SigSpec::is_fully_zero() സ്ഥിരം
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::S0)
-				return false;
+	വേണ്ടി (auto &chunk : chunks()) {
+		എങ്കിൽ (chunk.width > 0 && chunk.wire != ശൂന്യ)
+			തിരികെ അസത്യം;
+		വേണ്ടി (RTLIL::State d : chunk.data)
+			എങ്കിൽ (d != RTLIL::State::S0)
+				തിരികെ അസത്യം;
 	}
-	return true;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::SigSpec::is_fully_ones() const
+തർക്കം RTLIL::SigSpec::is_fully_ones() സ്ഥിരം
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::S1)
-				return false;
+	വേണ്ടി (auto &chunk : chunks()) {
+		എങ്കിൽ (chunk.width > 0 && chunk.wire != ശൂന്യ)
+			തിരികെ അസത്യം;
+		വേണ്ടി (RTLIL::State d : chunk.data)
+			എങ്കിൽ (d != RTLIL::State::S1)
+				തിരികെ അസത്യം;
 	}
-	return true;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::SigSpec::is_fully_def() const
+തർക്കം RTLIL::SigSpec::is_fully_def() സ്ഥിരം
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::S0 && d != RTLIL::State::S1)
-				return false;
+	വേണ്ടി (auto &chunk : chunks()) {
+		എങ്കിൽ (chunk.width > 0 && chunk.wire != ശൂന്യ)
+			തിരികെ അസത്യം;
+		വേണ്ടി (RTLIL::State d : chunk.data)
+			എങ്കിൽ (d != RTLIL::State::S0 && d != RTLIL::State::S1)
+				തിരികെ അസത്യം;
 	}
-	return true;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::SigSpec::is_fully_undef() const
+തർക്കം RTLIL::SigSpec::is_fully_undef() സ്ഥിരം
 {
-	for (auto &chunk : chunks()) {
-		if (chunk.width > 0 && chunk.wire != NULL)
-			return false;
-		for (RTLIL::State d : chunk.data)
-			if (d != RTLIL::State::Sx && d != RTLIL::State::Sz)
-				return false;
+	വേണ്ടി (auto &chunk : chunks()) {
+		എങ്കിൽ (chunk.width > 0 && chunk.wire != ശൂന്യ)
+			തിരികെ അസത്യം;
+		വേണ്ടി (RTLIL::State d : chunk.data)
+			എങ്കിൽ (d != RTLIL::State::Sx && d != RTLIL::State::Sz)
+				തിരികെ അസത്യം;
 	}
-	return true;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::SigSpec::has_const() const
+തർക്കം RTLIL::SigSpec::has_const() സ്ഥിരം
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire == NULL)
-			return true;
-	return false;
+	വേണ്ടി (auto &chunk : chunks())
+		എങ്കിൽ (chunk.width > 0 && chunk.wire == ശൂന്യ)
+			തിരികെ സത്യം;
+	തിരികെ അസത്യം;
 }
 
-bool RTLIL::SigSpec::has_const(State state) const
+തർക്കം RTLIL::SigSpec::has_const(State state) സ്ഥിരം
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire == NULL && std::find(chunk.data.begin(), chunk.data.end(), state) != chunk.data.end())
-			return true;
-	return false;
+	വേണ്ടി (auto &chunk : chunks())
+		എങ്കിൽ (chunk.width > 0 && chunk.wire == ശൂന്യ && std::find(chunk.data.begin(), chunk.data.end(), state) != chunk.data.end())
+			തിരികെ സത്യം;
+	തിരികെ അസത്യം;
 }
 
 
-bool RTLIL::SigSpec::has_marked_bits() const
+തർക്കം RTLIL::SigSpec::has_marked_bits() സ്ഥിരം
 {
-	for (auto &chunk : chunks())
-		if (chunk.width > 0 && chunk.wire == NULL) {
-			for (RTLIL::State d : chunk.data)
-				if (d == RTLIL::State::Sm)
-					return true;
+	വേണ്ടി (auto &chunk : chunks())
+		എങ്കിൽ (chunk.width > 0 && chunk.wire == ശൂന്യ) {
+			വേണ്ടി (RTLIL::State d : chunk.data)
+				എങ്കിൽ (d == RTLIL::State::Sm)
+					തിരികെ സത്യം;
 		}
-	return false;
+	തിരികെ അസത്യം;
 }
 
-bool RTLIL::SigSpec::is_onehot(int *pos) const
+തർക്കം RTLIL::SigSpec::is_onehot(പൂർണ്ണസംഖ്യ *pos) സ്ഥിരം
 {
-	if (std::optional<RTLIL::Const> c = try_as_const())
-		return c->is_onehot(pos);
-	return false;
+	എങ്കിൽ (std::optional<RTLIL::Const> c = try_as_const())
+		തിരികെ c->is_onehot(pos);
+	തിരികെ അസത്യം;
 }
 
-bool RTLIL::SigSpec::as_bool() const
-{
-	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return c->as_bool();
-}
-
-int RTLIL::SigSpec::as_int(bool is_signed) const
+തർക്കം RTLIL::SigSpec::as_bool() സ്ഥിരം
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return c->as_int(is_signed);
+	log_assert(c.has_മൂല്യം());
+	തിരികെ c->as_bool();
 }
 
-bool RTLIL::SigSpec::convertible_to_int(bool is_signed) const
+പൂർണ്ണസംഖ്യ RTLIL::SigSpec::as_int(തർക്കം is_signed) സ്ഥിരം
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	if (!c.has_value())
-		return false;
-	return c->convertible_to_int(is_signed);
+	log_assert(c.has_മൂല്യം());
+	തിരികെ c->as_int(is_signed);
 }
 
-std::optional<int> RTLIL::SigSpec::try_as_int(bool is_signed) const
+തർക്കം RTLIL::SigSpec::convertible_to_int(തർക്കം is_signed) സ്ഥിരം
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	if (!c.has_value())
-		return std::nullopt;
-	return c->try_as_int(is_signed);
+	എങ്കിൽ (!c.has_മൂല്യം())
+		തിരികെ അസത്യം;
+	തിരികെ c->convertible_to_int(is_signed);
 }
 
-int RTLIL::SigSpec::as_int_saturating(bool is_signed) const
+std::optional<പൂർണ്ണസംഖ്യ> RTLIL::SigSpec::try_as_int(തർക്കം is_signed) സ്ഥിരം
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return c->as_int_saturating(is_signed);
+	എങ്കിൽ (!c.has_മൂല്യം())
+		തിരികെ std::nullopt;
+	തിരികെ c->try_as_int(is_signed);
 }
 
-std::string RTLIL::SigSpec::as_string() const
+പൂർണ്ണസംഖ്യ RTLIL::SigSpec::as_int_saturating(തർക്കം is_signed) സ്ഥിരം
+{
+	std::optional<RTLIL::Const> c = try_as_const();
+	log_assert(c.has_മൂല്യം());
+	തിരികെ c->as_int_saturating(is_signed);
+}
+
+std::string RTLIL::SigSpec::as_string() സ്ഥിരം
 {
 	std::string str;
 	str.reserve(size());
-	std::vector<RTLIL::SigChunk> chunks = *this;
-	for (size_t i = chunks.size(); i > 0; i--) {
-		const RTLIL::SigChunk &chunk = chunks[i-1];
-		if (chunk.wire != NULL)
+	std::vector<RTLIL::SigChunk> chunks = *ഇത്;
+	വേണ്ടി (size_t i = chunks.size(); i > 0; i--) {
+		സ്ഥിരം RTLIL::SigChunk &chunk = chunks[i-1];
+		എങ്കിൽ (chunk.wire != ശൂന്യ)
 			str.append(chunk.width, '?');
-		else
+		അല്ലെങ്കിൽ
 			str += RTLIL::Const(chunk.data).as_string();
 	}
-	return str;
+	തിരികെ str;
 }
 
-std::optional<RTLIL::Const> RTLIL::SigSpec::try_as_const() const
+std::optional<RTLIL::Const> RTLIL::SigSpec::try_as_const() സ്ഥിരം
 {
 	Chunks cs = chunks();
 	auto it = cs.begin();
-	if (it == cs.end())
-		return RTLIL::Const();
+	എങ്കിൽ (it == cs.end())
+		തിരികെ RTLIL::Const();
 	SigChunk chunk = *it;
-	if (chunk.wire != NULL || ++it != cs.end())
-		return std::nullopt;
-	return RTLIL::Const(std::move(chunk.data));
+	എങ്കിൽ (chunk.wire != ശൂന്യ || ++it != cs.end())
+		തിരികെ std::nullopt;
+	തിരികെ RTLIL::Const(std::move(chunk.data));
 }
 
-RTLIL::Const RTLIL::SigSpec::as_const() const
+RTLIL::Const RTLIL::SigSpec::as_const() സ്ഥിരം
 {
 	std::optional<RTLIL::Const> c = try_as_const();
-	log_assert(c.has_value());
-	return *c;
+	log_assert(c.has_മൂല്യം());
+	തിരികെ *c;
 }
 
-RTLIL::Wire *RTLIL::SigSpec::as_wire() const
+RTLIL::Wire *RTLIL::SigSpec::as_wire() സ്ഥിരം
 {
 	Chunks cs = chunks();
 	auto it = cs.begin();
 	log_assert(it != cs.end());
 	RTLIL::SigChunk chunk = *it;
 	log_assert(++it == cs.end() && chunk.wire && chunk.wire->width == size());
-	return chunk.wire;
+	തിരികെ chunk.wire;
 }
 
-RTLIL::SigChunk RTLIL::SigSpec::as_chunk() const
+RTLIL::SigChunk RTLIL::SigSpec::as_chunk() സ്ഥിരം
 {
 	Chunks cs = chunks();
 	auto it = cs.begin();
 	log_assert(it != cs.end());
 	RTLIL::SigChunk chunk = *it;
 	log_assert(++it == cs.end());
-	return chunk;
+	തിരികെ chunk;
 }
 
-RTLIL::SigBit RTLIL::SigSpec::as_bit() const
+RTLIL::SigBit RTLIL::SigSpec::as_bit() സ്ഥിരം
 {
-	return RTLIL::SigBit(*this);
+	തിരികെ RTLIL::SigBit(*ഇത്);
 }
 
-bool RTLIL::SigSpec::match(const char* pattern) const
+തർക്കം RTLIL::SigSpec::match(സ്ഥിരം അക്ഷരം* pattern) സ്ഥിരം
 {
-	int pattern_len = strlen(pattern);
+	പൂർണ്ണസംഖ്യ pattern_len = strlen(pattern);
 	log_assert(pattern_len == size());
 
-	for (int i = 0; i < pattern_len; ++i) {
-		char ch = pattern[i];
-		if (ch == ' ')
-			continue;
-		RTLIL::SigBit bit = (*this)[pattern_len - 1 - i];
-		if (ch == '*') {
-			if (bit != State::Sz && bit != State::Sx)
-				return false;
-			continue;
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < pattern_len; ++i) {
+		അക്ഷരം ch = pattern[i];
+		എങ്കിൽ (ch == ' ')
+			തുടരുക;
+		RTLIL::SigBit bit = (*ഇത്)[pattern_len - 1 - i];
+		എങ്കിൽ (ch == '*') {
+			എങ്കിൽ (bit != State::Sz && bit != State::Sx)
+				തിരികെ അസത്യം;
+			തുടരുക;
 		}
-		if (ch == '0') {
-			if (bit != State::S0)
-				return false;
-		} else
-		if (ch == '1') {
-			if (bit != State::S1)
-				return false;
-		} else
+		എങ്കിൽ (ch == '0') {
+			എങ്കിൽ (bit != State::S0)
+				തിരികെ അസത്യം;
+		} അല്ലെങ്കിൽ
+		എങ്കിൽ (ch == '1') {
+			എങ്കിൽ (bit != State::S1)
+				തിരികെ അസത്യം;
+		} അല്ലെങ്കിൽ
 			log_abort();
 	}
 
-	return true;
+	തിരികെ സത്യം;
 }
 
-std::set<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_set() const
+std::set<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_set() സ്ഥിരം
 {
 	std::set<RTLIL::SigBit> sigbits;
-	for (auto &c : chunks())
-		for (int i = 0; i < c.width; i++)
-			sigbits.insert(RTLIL::SigBit(c, i));
-	return sigbits;
+	വേണ്ടി (auto &c : chunks())
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < c.width; i++)
+			sigbits.തിരുകുക(RTLIL::SigBit(c, i));
+	തിരികെ sigbits;
 }
 
-pool<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_pool() const
+pool<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_pool() സ്ഥിരം
 {
 	pool<RTLIL::SigBit> sigbits;
 	sigbits.reserve(size());
-	for (auto &c : chunks())
-		for (int i = 0; i < c.width; i++)
-			sigbits.insert(RTLIL::SigBit(c, i));
-	return sigbits;
+	വേണ്ടി (auto &c : chunks())
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < c.width; i++)
+			sigbits.തിരുകുക(RTLIL::SigBit(c, i));
+	തിരികെ sigbits;
 }
 
-std::vector<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_vector() const
+std::vector<RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_vector() സ്ഥിരം
 {
 	std::vector<RTLIL::SigBit> result;
 	result.reserve(size());
-	for (SigBit bit : *this)
-		result.push_back(bit);
-	return result;
+	വേണ്ടി (SigBit bit : *ഇത്)
+		result.തള്ളുക_back(bit);
+	തിരികെ result;
 }
 
-std::map<RTLIL::SigBit, RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_map(const RTLIL::SigSpec &other) const
+std::map<RTLIL::SigBit, RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_map(സ്ഥിരം RTLIL::SigSpec &other) സ്ഥിരം
 {
-	int this_size = size();
+	പൂർണ്ണസംഖ്യ this_size = size();
 	log_assert(this_size == other.size());
 
 	std::map<RTLIL::SigBit, RTLIL::SigBit> new_map;
-	for (int i = 0; i < this_size; i++)
-		new_map[(*this)[i]] = other[i];
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < this_size; i++)
+		new_map[(*ഇത്)[i]] = other[i];
 
-	return new_map;
+	തിരികെ new_map;
 }
 
-dict<RTLIL::SigBit, RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_dict(const RTLIL::SigSpec &other) const
+dict<RTLIL::SigBit, RTLIL::SigBit> RTLIL::SigSpec::to_sigbit_dict(സ്ഥിരം RTLIL::SigSpec &other) സ്ഥിരം
 {
-	int this_size = size();
+	പൂർണ്ണസംഖ്യ this_size = size();
 	log_assert(this_size == other.size());
 
 	dict<RTLIL::SigBit, RTLIL::SigBit> new_map;
 	new_map.reserve(this_size);
-	for (int i = 0; i < this_size; i++)
-		new_map[(*this)[i]] = other[i];
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < this_size; i++)
+		new_map[(*ഇത്)[i]] = other[i];
 
-	return new_map;
+	തിരികെ new_map;
 }
 
-static void sigspec_parse_split(std::vector<std::string> &tokens, const std::string &text, char sep)
+സ്ഥിതം ശൂന്യം sigspec_parse_split(std::vector<std::string> &tokens, സ്ഥിരം std::string &text, അക്ഷരം sep)
 {
 	size_t start = 0, end = 0;
-	while ((end = text.find(sep, start)) != std::string::npos) {
-		tokens.push_back(text.substr(start, end - start));
+	ആകുമ്പോൾ ((end = text.find(sep, start)) != std::string::npos) {
+		tokens.തള്ളുക_back(text.substr(start, end - start));
 		start = end + 1;
 	}
-	tokens.push_back(text.substr(start));
+	tokens.തള്ളുക_back(text.substr(start));
 }
 
-static RTLIL::Wire *sigspec_parse_wire(RTLIL::Module *module, const std::string &netname)
+സ്ഥിതം RTLIL::Wire *sigspec_parse_wire(RTLIL::Module *module, സ്ഥിരം std::string &netname)
 {
-	return module->wire(netname);
+	തിരികെ module->wire(netname);
 }
 
-bool RTLIL::SigSpec::parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
+തർക്കം RTLIL::SigSpec::parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
 {
 	std::vector<std::string> tokens;
 	sigspec_parse_split(tokens, str, ',');
 
 	sig = RTLIL::SigSpec();
-	for (int tokidx = int(tokens.size())-1; tokidx >= 0; tokidx--)
+	വേണ്ടി (പൂർണ്ണസംഖ്യ tokidx = പൂർണ്ണസംഖ്യ(tokens.size())-1; tokidx >= 0; tokidx--)
 	{
 		std::string netname = tokens[tokidx];
 		std::string indices;
 
-		if (netname.size() == 0)
-			continue;
+		എങ്കിൽ (netname.size() == 0)
+			തുടരുക;
 
-		if (('0' <= netname[0] && netname[0] <= '9') || netname[0] == '\'') {
+		എങ്കിൽ (('0' <= netname[0] && netname[0] <= '9') || netname[0] == '\'') {
 			VERILOG_FRONTEND::ConstParser p{Location()};
 			auto ast = p.const2ast(netname);
-			if (ast == nullptr)
-				return false;
+			എങ്കിൽ (ast == nullptr)
+				തിരികെ അസത്യം;
 			sig.append(RTLIL::Const(ast->bits));
-			continue;
+			തുടരുക;
 		}
 
-		if (module == NULL)
-			return false;
+		എങ്കിൽ (module == ശൂന്യ)
+			തിരികെ അസത്യം;
 
-		if (netname[0] != '$' && netname[0] != '\\')
+		എങ്കിൽ (netname[0] != '$' && netname[0] != '\\')
 			netname = "\\" + netname;
 
-		if (sigspec_parse_wire(module, netname) == nullptr) {
+		എങ്കിൽ (sigspec_parse_wire(module, netname) == nullptr) {
 			size_t indices_pos = netname.size()-1;
-			if (indices_pos > 2 && netname[indices_pos] == ']')
+			എങ്കിൽ (indices_pos > 2 && netname[indices_pos] == ']')
 			{
 				indices_pos--;
-				while (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
-				if (indices_pos > 0 && netname[indices_pos] == ':') {
+				ആകുമ്പോൾ (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
+				എങ്കിൽ (indices_pos > 0 && netname[indices_pos] == ':') {
 					indices_pos--;
-					while (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
+					ആകുമ്പോൾ (indices_pos > 0 && ('0' <= netname[indices_pos] && netname[indices_pos] <= '9')) indices_pos--;
 				}
-				if (indices_pos > 0 && netname[indices_pos] == '[') {
+				എങ്കിൽ (indices_pos > 0 && netname[indices_pos] == '[') {
 					indices = netname.substr(indices_pos);
 					netname = netname.substr(0, indices_pos);
 				}
@@ -5778,166 +5778,166 @@ bool RTLIL::SigSpec::parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::stri
 		}
 
 		RTLIL::Wire *wire = sigspec_parse_wire(module, netname);
-		if (wire == nullptr)
-			return false;
+		എങ്കിൽ (wire == nullptr)
+			തിരികെ അസത്യം;
 
-		if (!indices.empty()) {
+		എങ്കിൽ (!indices.empty()) {
 			std::vector<std::string> index_tokens;
 			sigspec_parse_split(index_tokens, indices.substr(1, indices.size()-2), ':');
-			if (index_tokens.size() == 1) {
-				int a = atoi(index_tokens.at(0).c_str());
-				if (a < 0 || a >= wire->width)
-					return false;
+			എങ്കിൽ (index_tokens.size() == 1) {
+				പൂർണ്ണസംഖ്യ a = atoi(index_tokens.at(0).c_str());
+				എങ്കിൽ (a < 0 || a >= wire->width)
+					തിരികെ അസത്യം;
 				sig.append(RTLIL::SigSpec(wire, a));
-			} else {
-				int a = atoi(index_tokens.at(0).c_str());
-				int b = atoi(index_tokens.at(1).c_str());
-				if (a > b) {
-					int tmp = a;
+			} അല്ലെങ്കിൽ {
+				പൂർണ്ണസംഖ്യ a = atoi(index_tokens.at(0).c_str());
+				പൂർണ്ണസംഖ്യ b = atoi(index_tokens.at(1).c_str());
+				എങ്കിൽ (a > b) {
+					പൂർണ്ണസംഖ്യ tmp = a;
 					a = b, b = tmp;
 				}
-				if (a < 0 || a >= wire->width)
-					return false;
-				if (b < 0 || b >= wire->width)
-					return false;
+				എങ്കിൽ (a < 0 || a >= wire->width)
+					തിരികെ അസത്യം;
+				എങ്കിൽ (b < 0 || b >= wire->width)
+					തിരികെ അസത്യം;
 				sig.append(RTLIL::SigSpec(wire, a, b-a+1));
 			}
-		} else
+		} അല്ലെങ്കിൽ
 			sig.append(wire);
 	}
 
-	return true;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::SigSpec::parse_sel(RTLIL::SigSpec &sig, RTLIL::Design *design, RTLIL::Module *module, std::string str)
+തർക്കം RTLIL::SigSpec::parse_sel(RTLIL::SigSpec &sig, RTLIL::Design *design, RTLIL::Module *module, std::string str)
 {
-	if (str.empty() || str[0] != '@')
-		return parse(sig, module, str);
+	എങ്കിൽ (str.empty() || str[0] != '@')
+		തിരികെ parse(sig, module, str);
 
 	IdString sel_name = design->twines().find(RTLIL::escape_id(str.substr(1)));
-	if (sel_name == IdString::Null || design->selection_vars.count(sel_name) == 0)
-		return false;
+	എങ്കിൽ (sel_name == IdString::Null || design->selection_vars.എണ്ണം(sel_name) == 0)
+		തിരികെ അസത്യം;
 
 	sig = RTLIL::SigSpec();
 	RTLIL::Selection &sel = design->selection_vars.at(sel_name);
-	for (auto &it : module->wires_)
-		if (sel.selected_member(module->name, it.second->name))
+	വേണ്ടി (auto &it : module->wires_)
+		എങ്കിൽ (sel.selected_member(module->name, it.second->name))
 			sig.append(it.second);
 
-	return true;
+	തിരികെ സത്യം;
 }
 
-bool RTLIL::SigSpec::parse_rhs(const RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
+തർക്കം RTLIL::SigSpec::parse_rhs(സ്ഥിരം RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str)
 {
-	if (str == "0") {
+	എങ്കിൽ (str == "0") {
 		sig = RTLIL::SigSpec(RTLIL::State::S0, lhs.size());
-		return true;
+		തിരികെ സത്യം;
 	}
 
-	if (str == "~0") {
+	എങ്കിൽ (str == "~0") {
 		sig = RTLIL::SigSpec(RTLIL::State::S1, lhs.size());
-		return true;
+		തിരികെ സത്യം;
 	}
 
-	if (lhs.is_chunk()) {
-		char *p = (char*)str.c_str(), *endptr;
-		long int val = strtol(p, &endptr, 10);
-		if (endptr && endptr != p && *endptr == 0) {
+	എങ്കിൽ (lhs.is_chunk()) {
+		അക്ഷരം *p = (അക്ഷരം*)str.c_str(), *endptr;
+		long പൂർണ്ണസംഖ്യ val = strtol(p, &endptr, 10);
+		എങ്കിൽ (endptr && endptr != p && *endptr == 0) {
 			sig = RTLIL::SigSpec(val, lhs.size());
-			return true;
+			തിരികെ സത്യം;
 		}
 	}
 
-	if (!parse(sig, module, str))
-		return false;
-	if (sig.size() > lhs.size())
+	എങ്കിൽ (!parse(sig, module, str))
+		തിരികെ അസത്യം;
+	എങ്കിൽ (sig.size() > lhs.size())
 		sig.remove(lhs.size(), sig.size() - lhs.size());
-	return true;
+	തിരികെ സത്യം;
 }
 
-RTLIL::SigSpec::operator std::vector<RTLIL::SigChunk>() const
+RTLIL::SigSpec::operator std::vector<RTLIL::SigChunk>() സ്ഥിരം
 {
 	std::vector<RTLIL::SigChunk> result;
-	for (const RTLIL::SigChunk &c : chunks())
-		result.push_back(c);
-	return result;
+	വേണ്ടി (സ്ഥിരം RTLIL::SigChunk &c : chunks())
+		result.തള്ളുക_back(c);
+	തിരികെ result;
 }
 
 RTLIL::CaseRule::~CaseRule()
 {
-	for (auto it = switches.begin(); it != switches.end(); it++)
+	വേണ്ടി (auto it = switches.begin(); it != switches.end(); it++)
 		delete *it;
 }
 
-bool RTLIL::CaseRule::empty() const
+തർക്കം RTLIL::CaseRule::empty() സ്ഥിരം
 {
-	return actions.empty() && switches.empty();
+	തിരികെ actions.empty() && switches.empty();
 }
 
-RTLIL::CaseRule *RTLIL::CaseRule::clone() const
+RTLIL::CaseRule *RTLIL::CaseRule::clone() സ്ഥിരം
 {
-	RTLIL::CaseRule *new_caserule = new RTLIL::CaseRule;
+	RTLIL::CaseRule *new_caserule = പുതിയ RTLIL::CaseRule;
 	new_caserule->compare = compare;
 	new_caserule->actions = actions;
 	new_caserule->attributes = attributes;
-	for (auto &it : switches)
-		new_caserule->switches.push_back(it->clone());
-	return new_caserule;
+	വേണ്ടി (auto &it : switches)
+		new_caserule->switches.തള്ളുക_back(it->clone());
+	തിരികെ new_caserule;
 }
 
 RTLIL::SwitchRule::~SwitchRule()
 {
-	for (auto it = cases.begin(); it != cases.end(); it++)
+	വേണ്ടി (auto it = cases.begin(); it != cases.end(); it++)
 		delete *it;
 }
 
-bool RTLIL::SwitchRule::empty() const
+തർക്കം RTLIL::SwitchRule::empty() സ്ഥിരം
 {
-	return cases.empty();
+	തിരികെ cases.empty();
 }
 
-RTLIL::SwitchRule *RTLIL::SwitchRule::clone() const
+RTLIL::SwitchRule *RTLIL::SwitchRule::clone() സ്ഥിരം
 {
-	RTLIL::SwitchRule *new_switchrule = new RTLIL::SwitchRule;
-	new_switchrule->signal = signal;
+	RTLIL::SwitchRule *new_switchrule = പുതിയ RTLIL::SwitchRule;
+	new_switchrule->സൂചന = സൂചന;
 	new_switchrule->attributes = attributes;
-	for (auto &it : cases)
-		new_switchrule->cases.push_back(it->clone());
-	return new_switchrule;
+	വേണ്ടി (auto &it : cases)
+		new_switchrule->cases.തള്ളുക_back(it->clone());
+	തിരികെ new_switchrule;
 
 }
 
-RTLIL::SyncRule *RTLIL::SyncRule::clone() const
+RTLIL::SyncRule *RTLIL::SyncRule::clone() സ്ഥിരം
 {
-	RTLIL::SyncRule *new_syncrule = new RTLIL::SyncRule;
+	RTLIL::SyncRule *new_syncrule = പുതിയ RTLIL::SyncRule;
 	new_syncrule->type = type;
-	new_syncrule->signal = signal;
+	new_syncrule->സൂചന = സൂചന;
 	new_syncrule->actions = actions;
 	new_syncrule->mem_write_actions = mem_write_actions;
-	return new_syncrule;
+	തിരികെ new_syncrule;
 }
 
 RTLIL::Process::~Process()
 {
-	for (auto it = syncs.begin(); it != syncs.end(); it++)
+	വേണ്ടി (auto it = syncs.begin(); it != syncs.end(); it++)
 		delete *it;
 }
 
-RTLIL::Process *RTLIL::Process::clone() const
+RTLIL::Process *RTLIL::Process::clone() സ്ഥിരം
 {
-	RTLIL::Process *new_proc = new RTLIL::Process;
+	RTLIL::Process *new_proc = പുതിയ RTLIL::Process;
 
 	new_proc->attributes = attributes;
 
-	RTLIL::CaseRule *rc_ptr = root_case.clone();
-	new_proc->root_case = *rc_ptr;
+	RTLIL::CaseRule *rc_ptr = വേര്_case.clone();
+	new_proc->വേര്_case = *rc_ptr;
 	rc_ptr->switches.clear();
 	delete rc_ptr;
 
-	for (auto &it : syncs)
-		new_proc->syncs.push_back(it->clone());
+	വേണ്ടി (auto &it : syncs)
+		new_proc->syncs.തള്ളുക_back(it->clone());
 
-	return new_proc;
+	തിരികെ new_proc;
 }
 
 RTLIL::Memory::~Memory()
@@ -5948,10 +5948,10 @@ RTLIL::Memory::~Memory()
 }
 
 #ifdef YOSYS_ENABLE_PYTHON
-static std::map<unsigned int, RTLIL::Memory*> all_memorys;
-std::map<unsigned int, RTLIL::Memory*> *RTLIL::Memory::get_all_memorys(void)
+സ്ഥിതം std::map<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Memory*> all_memorys;
+std::map<unsigned പൂർണ്ണസംഖ്യ, RTLIL::Memory*> *RTLIL::Memory::get_all_memorys(ശൂന്യം)
 {
-	return &all_memorys;
+	തിരികെ &all_memorys;
 }
 #endif
 YOSYS_NAMESPACE_END

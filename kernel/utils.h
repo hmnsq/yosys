@@ -20,8 +20,8 @@
 // This file contains various c++ utility routines and helper classes that
 // do not depend on any other components of yosys (except stuff like log_*).
 
-#include "kernel/yosys.h"
-#include <iterator>
+#അന്തര്ഭാവ "kernel/yosys.h"
+#അന്തര്ഭാവ <iterator>
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -32,94 +32,94 @@ YOSYS_NAMESPACE_BEGIN
 // A map-like container, but you can save and restore the state
 // ------------------------------------------------
 
-template<typename Key, typename T>
-struct stackmap
+template<typename താക്കോൽ_2, typename T>
+ഘടന stackmap
 {
-private:
-	std::vector<dict<Key, T*>> backup_state;
-	dict<Key, T> current_state;
-	static T empty_tuple;
+സ്വകാര്യ:
+	std::vector<dict<താക്കോൽ_2, T*>> backup_state;
+	dict<താക്കോൽ_2, T> current_state;
+	സ്ഥിതം T empty_tuple;
 
-public:
+പൊതു:
 	stackmap() { }
-	stackmap(const dict<Key, T> &other) : current_state(other) { }
+	stackmap(സ്ഥിരം dict<താക്കോൽ_2, T> &other) : current_state(other) { }
 
 	template<typename Other>
-	void operator=(const Other &other)
+	ശൂന്യം operator=(സ്ഥിരം Other &other)
 	{
-		for (auto &it : current_state)
-			if (!backup_state.empty() && backup_state.back().count(it.first) == 0)
+		വേണ്ടി (auto &it : current_state)
+			എങ്കിൽ (!backup_state.empty() && backup_state.back().എണ്ണം(it.first) == 0)
 				backup_state.back()[it.first] = new T(it.second);
 		current_state.clear();
 
-		for (auto &it : other)
+		വേണ്ടി (auto &it : other)
 			set(it.first, it.second);
 	}
 
-	bool has(const Key &k)
+	bool has(സ്ഥിരം താക്കോൽ_2 &k)
 	{
-		return current_state.count(k) != 0;
+		തിരികെ current_state.എണ്ണം(k) != 0;
 	}
 
-	void set(const Key &k, const T &v)
+	ശൂന്യം set(സ്ഥിരം താക്കോൽ_2 &k, സ്ഥിരം T &v)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
-			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
+		എങ്കിൽ (!backup_state.empty() && backup_state.back().എണ്ണം(k) == 0)
+			backup_state.back()[k] = current_state.എണ്ണം(k) ? new T(current_state.at(k)) : nullptr;
 		current_state[k] = v;
 	}
 
-	void unset(const Key &k)
+	ശൂന്യം unset(സ്ഥിരം താക്കോൽ_2 &k)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
-			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
+		എങ്കിൽ (!backup_state.empty() && backup_state.back().എണ്ണം(k) == 0)
+			backup_state.back()[k] = current_state.എണ്ണം(k) ? new T(current_state.at(k)) : nullptr;
 		current_state.erase(k);
 	}
 
-	const T &get(const Key &k)
+	സ്ഥിരം T &get(സ്ഥിരം താക്കോൽ_2 &k)
 	{
-		if (current_state.count(k) == 0)
-			return empty_tuple;
-		return current_state.at(k);
+		എങ്കിൽ (current_state.എണ്ണം(k) == 0)
+			തിരികെ empty_tuple;
+		തിരികെ current_state.at(k);
 	}
 
-	void reset(const Key &k)
+	ശൂന്യം reset(സ്ഥിരം താക്കോൽ_2 &k)
 	{
-		for (int i = GetSize(backup_state)-1; i >= 0; i--)
-			if (backup_state[i].count(k) != 0) {
-				if (backup_state[i].at(k) == nullptr)
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = GetSize(backup_state)-1; i >= 0; i--)
+			എങ്കിൽ (backup_state[i].എണ്ണം(k) != 0) {
+				എങ്കിൽ (backup_state[i].at(k) == nullptr)
 					current_state.erase(k);
-				else
+				അല്ലെങ്കിൽ
 					current_state[k] = *backup_state[i].at(k);
-				return;
+				തിരികെ;
 			}
 		current_state.erase(k);
 	}
 
-	const dict<Key, T> &stdmap()
+	സ്ഥിരം dict<താക്കോൽ_2, T> &stdmap()
 	{
-		return current_state;
+		തിരികെ current_state;
 	}
 
-	void save()
+	ശൂന്യം save()
 	{
 		backup_state.resize(backup_state.size()+1);
 	}
 
-	void restore()
+	ശൂന്യം restore()
 	{
 		log_assert(!backup_state.empty());
-		for (auto &it : backup_state.back())
-			if (it.second != nullptr) {
+		വേണ്ടി (auto &it : backup_state.back())
+			എങ്കിൽ (it.second != nullptr) {
 				current_state[it.first] = *it.second;
 				delete it.second;
-			} else
+			} അല്ലെങ്കിൽ
 				current_state.erase(it.first);
-		backup_state.pop_back();
+		backup_state.എടുക്കുക_back();
 	}
 
 	~stackmap()
 	{
-		while (!backup_state.empty())
+		ആകുമ്പോൾ (!backup_state.empty())
 			restore();
 	}
 };
@@ -131,198 +131,198 @@ public:
 
 template <typename T, typename C = std::less<T>> class TopoSort
 {
-	static_assert(!(std::is_pointer<T>::value && std::is_same<C, std::less<T>>::value),
+	static_assert(!(std::is_pointer<T>::മൂല്യം && std::is_same<C, std::less<T>>::മൂല്യം),
 			"std::less is run-to-run unstable for pointers");
-public:
+പൊതു:
 	// We use this ordering of the edges in the adjacency matrix for
 	// exact compatibility with an older implementation.
-	struct IndirectCmp {
-		IndirectCmp(const std::vector<T> &nodes, const C &node_cmp) : node_cmp_(node_cmp), nodes_(nodes) {}
-		bool operator()(int a, int b) const
+	ഘടന IndirectCmp {
+		IndirectCmp(സ്ഥിരം std::vector<T> &nodes, സ്ഥിരം C &കണ്ണി_cmp) : കണ്ണി_cmp_2(കണ്ണി_cmp), nodes_(nodes) {}
+		bool operator()(പൂർണ്ണസംഖ്യ a, പൂർണ്ണസംഖ്യ b) സ്ഥിരം
 		{
 			log_assert(static_cast<size_t>(a) < nodes_.size());
 			log_assert(static_cast<size_t>(b) < nodes_.size());
-			return node_cmp_(nodes_[a], nodes_[b]);
+			തിരികെ കണ്ണി_cmp_2(nodes_[a], nodes_[b]);
 		}
-		const C node_cmp_;
-		const std::vector<T> &nodes_;
+		സ്ഥിരം C കണ്ണി_cmp_2;
+		സ്ഥിരം std::vector<T> &nodes_;
 	};
 
 	bool analyze_loops;
 	// The stability doesn't rely on std::less of T, so pointers are safe
-	std::map<T, int, C> node_to_index;
+	std::map<T, പൂർണ്ണസംഖ്യ, C> കണ്ണി_to_index;
 	// edges[i] is the set of nodes with an edge into node i
-	std::vector<std::set<int, IndirectCmp>> edges;
+	std::vector<std::set<പൂർണ്ണസംഖ്യ, IndirectCmp>> edges;
 	std::vector<T> sorted;
 	std::set<std::vector<T>> loops;
 
 	TopoSort() requires std::is_default_constructible_v<C> : TopoSort(C()) {}
-	explicit TopoSort(const C &cmp) : node_to_index(cmp), indirect_cmp(nodes, cmp)
+	explicit TopoSort(സ്ഥിരം C &cmp) : കണ്ണി_to_index(cmp), indirect_cmp(nodes, cmp)
 	{
 		analyze_loops = true;
 		found_loops = false;
 	}
 
-	int node(T n)
+	പൂർണ്ണസംഖ്യ കണ്ണി(T n)
 	{
-		auto rv = node_to_index.emplace(n, static_cast<int>(nodes.size()));
-		if (rv.second) {
-			nodes.push_back(n);
-			edges.push_back(std::set<int, IndirectCmp>(indirect_cmp));
+		auto rv = കണ്ണി_to_index.emplace(n, static_cast<പൂർണ്ണസംഖ്യ>(nodes.size()));
+		എങ്കിൽ (rv.second) {
+			nodes.തള്ളുക_back(n);
+			edges.തള്ളുക_back(std::set<പൂർണ്ണസംഖ്യ, IndirectCmp>(indirect_cmp));
 		}
-		return rv.first->second;
+		തിരികെ rv.first->second;
 	}
 
-	void edge(int l_index, int r_index) { edges[r_index].insert(l_index); }
+	ശൂന്യം edge(പൂർണ്ണസംഖ്യ l_index, പൂർണ്ണസംഖ്യ r_index) { edges[r_index].തിരുകുക(l_index); }
 
-	void edge(T left, T right) { edge(node(left), node(right)); }
+	ശൂന്യം edge(T ഇടത്_2, T വലത്_2) { edge(കണ്ണി(ഇടത്_2), കണ്ണി(വലത്_2)); }
 
-	bool has_node(const T &node) { return node_to_index.find(node) != node_to_index.end(); }
+	bool has_കണ്ണി(സ്ഥിരം T &കണ്ണി) { തിരികെ കണ്ണി_to_index.find(കണ്ണി) != കണ്ണി_to_index.end(); }
 
 	bool sort()
 	{
-		log_assert(GetSize(node_to_index) == GetSize(edges));
+		log_assert(GetSize(കണ്ണി_to_index) == GetSize(edges));
 		log_assert(GetSize(nodes) == GetSize(edges));
 
 		loops.clear();
 		sorted.clear();
 		found_loops = false;
 
-		std::vector<bool> node_is_sorted(edges.size(), false);
-		std::vector<bool> node_is_on_stack(edges.size(), false);
+		std::vector<bool> കണ്ണി_is_sorted(edges.size(), false);
+		std::vector<bool> കണ്ണി_is_on_അട്ടി(edges.size(), false);
 		// Only used with analyze_loops
-		std::vector<int> stack;
+		std::vector<പൂർണ്ണസംഖ്യ> അട്ടി;
 		sorted.reserve(edges.size());
 
-		for (const auto &it : node_to_index)
-			sort_worker(it.second, node_is_sorted, node_is_on_stack, stack);
+		വേണ്ടി (സ്ഥിരം auto &it : കണ്ണി_to_index)
+			sort_worker(it.second, കണ്ണി_is_sorted, കണ്ണി_is_on_അട്ടി, അട്ടി);
 
 		log_assert(GetSize(sorted) == GetSize(nodes));
 
-		return !found_loops;
+		തിരികെ !found_loops;
 	}
 
 	// Build the more expensive representation of edges for
 	// a few passes that use it directly.
 	std::map<T, std::set<T, C>, C> get_database()
 	{
-		std::map<T, std::set<T, C>, C> database(node_to_index.key_comp());
-		for (size_t i = 0; i < nodes.size(); ++i) {
-			std::set<T, C> converted_edge_set(node_to_index.key_comp());
-			for (int other_node : edges[i]) {
-				converted_edge_set.insert(nodes[other_node]);
+		std::map<T, std::set<T, C>, C> database(കണ്ണി_to_index.താക്കോൽ_comp());
+		വേണ്ടി (size_t i = 0; i < nodes.size(); ++i) {
+			std::set<T, C> converted_edge_set(കണ്ണി_to_index.താക്കോൽ_comp());
+			വേണ്ടി (പൂർണ്ണസംഖ്യ other_കണ്ണി : edges[i]) {
+				converted_edge_set.തിരുകുക(nodes[other_കണ്ണി]);
 			}
 			database.emplace(nodes[i], converted_edge_set);
 		}
-		return database;
+		തിരികെ database;
 	}
 
-private:
+സ്വകാര്യ:
 	bool found_loops;
 	std::vector<T> nodes;
-	const IndirectCmp indirect_cmp;
+	സ്ഥിരം IndirectCmp indirect_cmp;
 
-	void sort_worker(const int root_index, std::vector<bool> &node_is_sorted, std::vector<bool> &node_is_on_stack, std::vector<int> &stack)
+	ശൂന്യം sort_worker(സ്ഥിരം പൂർണ്ണസംഖ്യ വേര്_index, std::vector<bool> &കണ്ണി_is_sorted, std::vector<bool> &കണ്ണി_is_on_അട്ടി, std::vector<പൂർണ്ണസംഖ്യ> &അട്ടി)
 	{
-		if (node_is_on_stack[root_index]) {
+		എങ്കിൽ (കണ്ണി_is_on_അട്ടി[വേര്_index]) {
 			// We've been here before, meaning we have a loop
 			found_loops = true;
-			if (analyze_loops) {
+			എങ്കിൽ (analyze_loops) {
 				std::vector<T> loop;
-				for (int i = GetSize(stack) - 1; i >= 0; i--) {
-					const int index = stack[i];
-					loop.push_back(nodes[index]);
-					if (index == root_index)
-						break;
+				വേണ്ടി (പൂർണ്ണസംഖ്യ i = GetSize(അട്ടി) - 1; i >= 0; i--) {
+					സ്ഥിരം പൂർണ്ണസംഖ്യ index = അട്ടി[i];
+					loop.തള്ളുക_back(nodes[index]);
+					എങ്കിൽ (index == വേര്_index)
+						നിർത്തുക;
 				}
-				loops.insert(loop);
+				loops.തിരുകുക(loop);
 			}
-			return;
+			തിരികെ;
 		}
 
 		// We're done if we've already sorted this subgraph
-		if (node_is_sorted[root_index])
-			return;
+		എങ്കിൽ (കണ്ണി_is_sorted[വേര്_index])
+			തിരികെ;
 
-		if (!edges[root_index].empty()) {
-			if (analyze_loops)
-				stack.push_back(root_index);
-			node_is_on_stack[root_index] = true;
+		എങ്കിൽ (!edges[വേര്_index].empty()) {
+			എങ്കിൽ (analyze_loops)
+				അട്ടി.തള്ളുക_back(വേര്_index);
+			കണ്ണി_is_on_അട്ടി[വേര്_index] = true;
 
-			for (int left_n : edges[root_index])
-				sort_worker(left_n, node_is_sorted, node_is_on_stack, stack);
+			വേണ്ടി (പൂർണ്ണസംഖ്യ ഇടത്_n : edges[വേര്_index])
+				sort_worker(ഇടത്_n, കണ്ണി_is_sorted, കണ്ണി_is_on_അട്ടി, അട്ടി);
 
-			if (analyze_loops)
-				stack.pop_back();
-			node_is_on_stack[root_index] = false;
+			എങ്കിൽ (analyze_loops)
+				അട്ടി.എടുക്കുക_back();
+			കണ്ണി_is_on_അട്ടി[വേര്_index] = false;
 		}
 
-		node_is_sorted[root_index] = true;
-		sorted.push_back(nodes[root_index]);
+		കണ്ണി_is_sorted[വേര്_index] = true;
+		sorted.തള്ളുക_back(nodes[വേര്_index]);
 	}
 };
 
 // this class is used for implementing operator-> on iterators that return values rather than references
 // it's necessary because in C++ operator-> is called recursively until a raw pointer is obtained
 template<class T>
-struct arrow_proxy {
+ഘടന arrow_proxy {
 	T v;
-	explicit arrow_proxy(T const & v) : v(v) {}
-	T* operator->() { return &v; }
+	explicit arrow_proxy(T സ്ഥിരം & v) : v(v) {}
+	T* operator->() { തിരികെ &v; }
 };
 
-inline int ceil_log2(int x)
+വരിയിൽ പൂർണ്ണസംഖ്യ ceil_log2(പൂർണ്ണസംഖ്യ x)
 {
-#if defined(__GNUC__)
-        return x > 1 ? (8*sizeof(int)) - __builtin_clz(x-1) : 0;
-#else
-	if (x <= 0)
-		return 0;
-	for (int i = 0; i < 32; i++)
-		if (((x-1) >> i) == 0)
-			return i;
+#എങ്കിൽ defined(__GNUC__)
+        തിരികെ x > 1 ? (8*വലുപ്പം(പൂർണ്ണസംഖ്യ)) - __builtin_clz(x-1) : 0;
+#അല്ലെങ്കിൽ
+	എങ്കിൽ (x <= 0)
+		തിരികെ 0;
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < 32; i++)
+		എങ്കിൽ (((x-1) >> i) == 0)
+			തിരികെ i;
 	log_abort();
 #endif
 }
 
 template <typename T>
 auto reversed(T& container) {
-	struct reverse_view {
+	ഘടന reverse_view {
 		reverse_view(T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
+		auto begin() സ്ഥിരം { തിരികെ container.rbegin(); }
+		auto end() സ്ഥിരം { തിരികെ container.rend(); }
 		T& container;
 	};
-	return reverse_view{container};
+	തിരികെ reverse_view{container};
 }
 
 template <typename T>
-auto reversed(const T& container) {
-	struct reverse_view {
-		reverse_view(const T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
-		const T& container;
+auto reversed(സ്ഥിരം T& container) {
+	ഘടന reverse_view {
+		reverse_view(സ്ഥിരം T& container) : container(container) {}
+		auto begin() സ്ഥിരം { തിരികെ container.rbegin(); }
+		auto end() സ്ഥിരം { തിരികെ container.rend(); }
+		സ്ഥിരം T& container;
 	};
-	return reverse_view{container};
+	തിരികെ reverse_view{container};
 }
 
 // A range of integers [start_, end_) that can be iterated over with a
 // C++ range-based for loop.
-struct IntRange {
-	int start_;
-	int end_;
-	struct Int {
-		int v;
-		int operator*() const { return v; }
-		Int &operator++() { ++v; return *this; }
-		bool operator!=(const Int &other) const { return v != other.v; }
+ഘടന IntRange {
+	പൂർണ്ണസംഖ്യ start_;
+	പൂർണ്ണസംഖ്യ end_;
+	ഘടന Int {
+		പൂർണ്ണസംഖ്യ v;
+		പൂർണ്ണസംഖ്യ operator*() സ്ഥിരം { തിരികെ v; }
+		Int &operator++() { ++v; തിരികെ *this; }
+		bool operator!=(സ്ഥിരം Int &other) സ്ഥിരം { തിരികെ v != other.v; }
 	};
-	Int begin() const { return {start_}; }
-	Int end() const { return {end_}; }
+	Int begin() സ്ഥിരം { തിരികെ {start_}; }
+	Int end() സ്ഥിരം { തിരികെ {end_}; }
 
-	bool operator==(const IntRange &other) const { return start_ == other.start_ && end_ == other.end_; }
-	bool operator!=(const IntRange &other) const { return !(*this == other); }
+	bool operator==(സ്ഥിരം IntRange &other) സ്ഥിരം { തിരികെ start_ == other.start_ && end_ == other.end_; }
+	bool operator!=(സ്ഥിരം IntRange &other) സ്ഥിരം { തിരികെ !(*this == other); }
 };
 
 YOSYS_NAMESPACE_END

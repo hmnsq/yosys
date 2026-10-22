@@ -20,9 +20,9 @@
 #ifndef FF_H
 #define FF_H
 
-#include "kernel/yosys.h"
-#include "kernel/ffinit.h"
-#include "kernel/twine.h"
+#അന്തര്ഭാവ "kernel/yosys.h"
+#അന്തര്ഭാവ "kernel/ffinit.h"
+#അന്തര്ഭാവ "kernel/twine.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -79,7 +79,7 @@ YOSYS_NAMESPACE_BEGIN
 // - has_arst [does not correspond to a native cell, represented as dlatch with const D input]
 // - empty set [not a cell — will be emitted as a simple direct connection]
 
-struct FfTypeData {
+ഘടന FfTypeData {
 	FfTypeData(IdString type);
 	FfTypeData() {
 		has_clk = false;
@@ -140,7 +140,7 @@ struct FfTypeData {
 	Const val_srst;
 };
 
-struct FfData : FfTypeData {
+ഘടന FfData : FfTypeData {
 	Module *module;
 	FfInitVals *initvals;
 	Cell *cell;
@@ -168,7 +168,7 @@ struct FfData : FfTypeData {
 	// The initial value at power-up.
 	Const val_init;
 	// The FF data width in bits.
-	int width;
+	പൂർണ്ണസംഖ്യ width;
 	dict<IdString, Const> attributes;
 
 	FfData(Module *module = nullptr, FfInitVals *initvals = nullptr, IdString name = IdString()) : module(module), initvals(initvals), cell(nullptr), name(name) {
@@ -188,28 +188,28 @@ struct FfData : FfTypeData {
 	FfData(FfInitVals *initvals, Cell *cell_);
 
 	// Returns a FF identical to this one, but only keeping bit indices from the argument.
-	FfData slice(const std::vector<int> &bits);
+	FfData slice(സ്ഥിരം std::vector<പൂർണ്ണസംഖ്യ> &bits);
 
-	void add_dummy_ce();
-	void add_dummy_srst();
-	void add_dummy_arst();
-	void add_dummy_aload();
-	void add_dummy_sr();
-	void add_dummy_clk();
+	ശൂന്യം add_dummy_ce();
+	ശൂന്യം add_dummy_srst();
+	ശൂന്യം add_dummy_arst();
+	ശൂന്യം add_dummy_aload();
+	ശൂന്യം add_dummy_sr();
+	ശൂന്യം add_dummy_clk();
 
-	void arst_to_aload();
-	void arst_to_sr();
+	ശൂന്യം arst_to_aload();
+	ശൂന്യം arst_to_sr();
 
-	void aload_to_sr();
+	ശൂന്യം aload_to_sr();
 
 	// Given a FF with both has_ce and has_srst, sets ce_over_srst to the given value and
 	// fixes up control signals appropriately to preserve semantics.
-	void convert_ce_over_srst(bool val);
+	ശൂന്യം convert_ce_over_srst(bool val);
 
-	void unmap_ce();
-	void unmap_srst();
+	ശൂന്യം unmap_ce();
+	ശൂന്യം unmap_srst();
 
-	void unmap_ce_srst() {
+	ശൂന്യം unmap_ce_srst() {
 		unmap_ce();
 		unmap_srst();
 	}
@@ -218,19 +218,19 @@ struct FfData : FfTypeData {
 
 	// Removes init attribute from the Q output, but keeps val_init unchanged.
 	// It will be automatically reattached on emit.  Use this before changing sig_q.
-	void remove_init() {
-		if (initvals)
+	ശൂന്യം remove_init() {
+		എങ്കിൽ (initvals)
 			initvals->remove_init(sig_q);
 	}
 
-	void remove();
+	ശൂന്യം remove();
 
 	// Flip the sense of the given bit slices of the FF: insert inverters on data
 	// inputs and output, flip the corresponding init/reset bits, swap clr/set
 	// inputs with proper priority fix.
-	void flip_bits(const pool<int> &bits);
+	ശൂന്യം flip_bits(സ്ഥിരം pool<പൂർണ്ണസംഖ്യ> &bits);
 
-	void flip_rst_bits(const pool<int> &bits);
+	ശൂന്യം flip_rst_bits(സ്ഥിരം pool<പൂർണ്ണസംഖ്യ> &bits);
 };
 
 YOSYS_NAMESPACE_END

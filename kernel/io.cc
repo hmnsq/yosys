@@ -1,94 +1,94 @@
-#include "kernel/yosys_common.h"
-#include "kernel/log.h"
-#include <iostream>
-#include <string>
-#include <filesystem>
-#include <system_error>
+#അന്തര്ഭാവ "kernel/yosys_common.h"
+#അന്തര്ഭാവ "kernel/log.h"
+#അന്തര്ഭാവ <iostream>
+#അന്തര്ഭാവ <string>
+#അന്തര്ഭാവ <filesystem>
+#അന്തര്ഭാവ <system_error>
 
-#if !defined(WIN32)
-#include <dirent.h>
-#include <unistd.h>
-#else
-#include <io.h>
+#എങ്കിൽ !defined(WIN32)
+#അന്തര്ഭാവ <dirent.h>
+#അന്തര്ഭാവ <unistd.h>
+#അല്ലെങ്കിൽ
+#അന്തര്ഭാവ <io.h>
 #endif
 
-#if !defined(_WIN32) && !defined(__wasi__)
-#include <sys/file.h>
-#include <fcntl.h>
-#include <cerrno>
+#എങ്കിൽ !defined(_WIN32) && !defined(__wasi__)
+#അന്തര്ഭാവ <sys/file.h>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <cerrno>
 #endif
 
 YOSYS_NAMESPACE_BEGIN
 
 // Set of utilities for handling files
 
-int readsome(std::istream &f, char *s, int n)
+പൂർണ്ണസംഖ്യ readsome(std::istream &f, അക്ഷരം *s, പൂർണ്ണസംഖ്യ n)
 {
-	int rc = int(f.readsome(s, n));
+	പൂർണ്ണസംഖ്യ rc = പൂർണ്ണസംഖ്യ(f.readsome(s, n));
 
 	// f.readsome() sometimes returns 0 on a non-empty stream..
-	if (rc == 0) {
-		int c = f.get();
-		if (c != EOF) {
+	എങ്കിൽ (rc == 0) {
+		പൂർണ്ണസംഖ്യ c = f.get();
+		എങ്കിൽ (c != EOF) {
 			*s = c;
 			rc = 1;
 		}
 	}
 
-	return rc;
+	തിരികെ rc;
 }
 
-std::string next_token(std::string &text, const char *sep, bool long_strings)
+std::string next_token(std::string &text, സ്ഥിരം അക്ഷരം *sep, തർക്കം long_strings)
 {
 	size_t pos_begin = text.find_first_not_of(sep);
 
-	if (pos_begin == std::string::npos)
+	എങ്കിൽ (pos_begin == std::string::npos)
 		pos_begin = text.size();
 
-	if (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
+	എങ്കിൽ (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
 		std::string sep_string = sep;
-		for (size_t i = pos_begin+1; i < text.size(); i++) {
-			if (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
+		വേണ്ടി (size_t i = pos_begin+1; i < text.size(); i++) {
+			എങ്കിൽ (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
 				std::string token = text.substr(pos_begin, i-pos_begin+1);
 				text = text.substr(i+1);
-				return token;
+				തിരികെ token;
 			}
-			if (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
+			എങ്കിൽ (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
 				std::string token = text.substr(pos_begin, i-pos_begin+1);
 				text = text.substr(i+2);
-				return token + ";";
+				തിരികെ token + ";";
 			}
 		}
 	}
 
 	size_t pos_end = text.find_first_of(sep, pos_begin);
 
-	if (pos_end == std::string::npos)
+	എങ്കിൽ (pos_end == std::string::npos)
 		pos_end = text.size();
 
 	std::string token = text.substr(pos_begin, pos_end-pos_begin);
 	text = text.substr(pos_end);
-	return token;
+	തിരികെ token;
 }
 
-std::vector<std::string> split_tokens(const std::string &text, const char *sep)
+std::vector<std::string> split_tokens(സ്ഥിരം std::string &text, സ്ഥിരം അക്ഷരം *sep)
 {
 	std::vector<std::string> tokens;
 	std::string current_token;
-	for (char c : text) {
-		if (strchr(sep, c)) {
-			if (!current_token.empty()) {
-				tokens.push_back(current_token);
+	വേണ്ടി (അക്ഷരം c : text) {
+		എങ്കിൽ (strchr(sep, c)) {
+			എങ്കിൽ (!current_token.empty()) {
+				tokens.തള്ളുക_back(current_token);
 				current_token.clear();
 			}
-		} else
+		} അല്ലെങ്കിൽ
 			current_token += c;
 	}
-	if (!current_token.empty()) {
-		tokens.push_back(current_token);
+	എങ്കിൽ (!current_token.empty()) {
+		tokens.തള്ളുക_back(current_token);
 		current_token.clear();
 	}
-	return tokens;
+	തിരികെ tokens;
 }
 
 // this is very similar to fnmatch(). the exact rules used by this
@@ -102,349 +102,349 @@ std::vector<std::string> split_tokens(const std::string &text, const char *sep)
 // a backslash may be used to escape the next characters in the
 // pattern. each special character can also simply match itself.
 //
-bool patmatch(const char *pattern, const char *string)
+തർക്കം patmatch(സ്ഥിരം അക്ഷരം *pattern, സ്ഥിരം അക്ഷരം *string)
 {
-	if (*pattern == 0)
-		return *string == 0;
+	എങ്കിൽ (*pattern == 0)
+		തിരികെ *string == 0;
 
-	if (*pattern == '\\') {
-		if (pattern[1] == string[0] && patmatch(pattern+2, string+1))
-			return true;
+	എങ്കിൽ (*pattern == '\\') {
+		എങ്കിൽ (pattern[1] == string[0] && patmatch(pattern+2, string+1))
+			തിരികെ സത്യം;
 	}
 
-	if (*pattern == '?') {
-		if (*string == 0)
-			return false;
-		return patmatch(pattern+1, string+1);
+	എങ്കിൽ (*pattern == '?') {
+		എങ്കിൽ (*string == 0)
+			തിരികെ അസത്യം;
+		തിരികെ patmatch(pattern+1, string+1);
 	}
 
-	if (*pattern == '*') {
-		while (*string) {
-			if (patmatch(pattern+1, string++))
-				return true;
+	എങ്കിൽ (*pattern == '*') {
+		ആകുമ്പോൾ (*string) {
+			എങ്കിൽ (patmatch(pattern+1, string++))
+				തിരികെ സത്യം;
 		}
-		return pattern[1] == 0;
+		തിരികെ pattern[1] == 0;
 	}
 
-	if (*pattern == '[') {
-		bool found_match = false;
-		bool inverted_list = pattern[1] == '!';
-		const char *p = pattern + (inverted_list ? 1 : 0);
+	എങ്കിൽ (*pattern == '[') {
+		തർക്കം found_match = അസത്യം;
+		തർക്കം inverted_list = pattern[1] == '!';
+		സ്ഥിരം അക്ഷരം *p = pattern + (inverted_list ? 1 : 0);
 
-		while (*++p) {
-			if (*p == ']') {
-				if (found_match != inverted_list && patmatch(p+1, string+1))
-					return true;
-				break;
+		ആകുമ്പോൾ (*++p) {
+			എങ്കിൽ (*p == ']') {
+				എങ്കിൽ (found_match != inverted_list && patmatch(p+1, string+1))
+					തിരികെ സത്യം;
+				നിർത്തുക;
 			}
 
-			if (*p == '\\') {
-				if (*++p == *string)
-					found_match = true;
-			} else
-			if (*p == *string)
-				found_match = true;
+			എങ്കിൽ (*p == '\\') {
+				എങ്കിൽ (*++p == *string)
+					found_match = സത്യം;
+			} അല്ലെങ്കിൽ
+			എങ്കിൽ (*p == *string)
+				found_match = സത്യം;
 		}
 	}
 
-	if (*pattern == *string)
-		return patmatch(pattern+1, string+1);
+	എങ്കിൽ (*pattern == *string)
+		തിരികെ patmatch(pattern+1, string+1);
 
-	return false;
+	തിരികെ അസത്യം;
 }
 
 std::string get_base_tmpdir()
 {
-	static std::string tmpdir;
+	സ്ഥിതം std::string tmpdir;
 
-	if (!tmpdir.empty()) {
-		return tmpdir;
+	എങ്കിൽ (!tmpdir.empty()) {
+		തിരികെ tmpdir;
 	}
 
-#if defined(_WIN32)
+#എങ്കിൽ defined(_WIN32)
 	std::wstring wtmppath(4096, L'\0');
 	// typically returns a 8.3 path, but this can be disabled via registry
-	if (!GetTempPathW(wtmppath.size(), wtmppath.data()))
+	എങ്കിൽ (!GetTempPathW(wtmppath.size(), wtmppath.data()))
 		log_error("GetTempPathW() failed.\n");
 	wtmppath.resize(wtmppath.find(L'\0'));
 	std::string utmppath;
-	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), NULL, NULL) == 0)
+	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), ശൂന്യ, 0, ശൂന്യ, ശൂന്യ));
+	എങ്കിൽ (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), ശൂന്യ, ശൂന്യ) == 0)
 		log_error("WideCharToMultiByte() failed.\n");
 	tmpdir += utmppath;
-#else
-	char * var = std::getenv("TMPDIR");
-	if (var && strlen(var)!=0) {
+#അല്ലെങ്കിൽ
+	അക്ഷരം * var = std::getenv("TMPDIR");
+	എങ്കിൽ (var && strlen(var)!=0) {
 		tmpdir.assign(var);
 		// We return the directory name without the trailing '/'
-		while (!tmpdir.empty() && (tmpdir.back() == '/')) {
-			tmpdir.pop_back();
+		ആകുമ്പോൾ (!tmpdir.empty() && (tmpdir.back() == '/')) {
+			tmpdir.എടുക്കുക_back();
 		}
-	} else {
+	} അല്ലെങ്കിൽ {
 		tmpdir.assign("/tmp");
 	}
 #endif
-	return tmpdir;
+	തിരികെ tmpdir;
 }
 
 std::string make_temp_file(std::string template_str)
 {
 	size_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
-#if defined(__wasm)
-	static size_t index = 0;
+#എങ്കിൽ defined(__wasm)
+	സ്ഥിതം size_t index = 0;
 	template_str.replace(pos, 6, stringf("%06zu", index++));
-#elif defined(_WIN32)
+#അല്ലെങ്കിലെങ്കിൽ defined(_WIN32)
 #ifndef YOSYS_WIN32_UNIX_DIR
 	std::replace(template_str.begin(), template_str.end(), '/', '\\');
 #endif
-	while (1) {
-		for (int i = 0; i < 6; i++) {
-			static std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-			static uint32_t x = 314159265 ^ uint32_t(time(NULL));
+	ആകുമ്പോൾ (1) {
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < 6; i++) {
+			സ്ഥിതം std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			സ്ഥിതം uint32_t x = 314159265 ^ uint32_t(time(ശൂന്യ));
 			x ^= x << 13, x ^= x >> 17, x ^= x << 5;
 			template_str[pos+i] = y[x % y.size()];
 		}
-		if (_access(template_str.c_str(), 0) != 0)
-			break;
+		എങ്കിൽ (_access(template_str.c_str(), 0) != 0)
+			നിർത്തുക;
 	}
-#else
-	int suffixlen = template_str.size() - pos - 6;
+#അല്ലെങ്കിൽ
+	പൂർണ്ണസംഖ്യ suffixlen = template_str.size() - pos - 6;
 
-	char *p = strdup(template_str.c_str());
+	അക്ഷരം *p = strdup(template_str.c_str());
 	close(mkstemps(p, suffixlen));
 	template_str = p;
-	free(p);
+	സ്വതന്ത്രം(p);
 #endif
 
-	return template_str;
+	തിരികെ template_str;
 }
 
 std::string make_temp_dir(std::string template_str)
 {
-#if defined(_WIN32)
+#എങ്കിൽ defined(_WIN32)
 	template_str = make_temp_file(template_str);
 	mkdir(template_str.c_str());
-	return template_str;
-#elif defined(__wasm)
+	തിരികെ template_str;
+#അല്ലെങ്കിലെങ്കിൽ defined(__wasm)
 	template_str = make_temp_file(template_str);
 	mkdir(template_str.c_str(), 0777);
-	return template_str;
-#else
+	തിരികെ template_str;
+#അല്ലെങ്കിൽ
 #  ifndef NDEBUG
 	size_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
 
-	int suffixlen = template_str.size() - pos - 6;
+	പൂർണ്ണസംഖ്യ suffixlen = template_str.size() - pos - 6;
 	log_assert(suffixlen == 0);
 #  endif
 
-	char *p = strdup(template_str.c_str());
+	അക്ഷരം *p = strdup(template_str.c_str());
 	log_assert(p);
-	char *res = mkdtemp(p);
-	if (!res)
+	അക്ഷരം *res = mkdtemp(p);
+	എങ്കിൽ (!res)
 		log_error("mkdtemp failed for '%s': %s [Error %d]\n",
 			p, strerror(errno), errno);
 	template_str = p;
-	free(p);
+	സ്വതന്ത്രം(p);
 
-	return template_str;
+	തിരികെ template_str;
 #endif
 }
 
-bool check_is_directory(const std::string& dirname)
+തർക്കം check_is_directory(സ്ഥിരം std::string& dirname)
 {
-#if defined(_WIN32)
-	struct _stat info;
+#എങ്കിൽ defined(_WIN32)
+	ഘടന _stat info;
 	auto dirname_ = dirname;
 
 	/* On old versions of Visual Studio and current versions on MinGW,
 	   _stat will fail if the path ends with a trailing slash. */
-	if (dirname.back() == '/' || dirname.back() == '\\') {
+	എങ്കിൽ (dirname.back() == '/' || dirname.back() == '\\') {
 		dirname_ = dirname.substr(0, dirname.length() - 1);
 	}
 
-	if (_stat(dirname_.c_str(), &info) != 0)
+	എങ്കിൽ (_stat(dirname_.c_str(), &info) != 0)
 	{
-		return false;
+		തിരികെ അസത്യം;
 	}
-	return (info.st_mode & _S_IFDIR) != 0;
-#else
-	struct stat info;
-	if (stat(dirname.c_str(), &info) != 0)
+	തിരികെ (info.st_mode & _S_IFDIR) != 0;
+#അല്ലെങ്കിൽ
+	ഘടന stat info;
+	എങ്കിൽ (stat(dirname.c_str(), &info) != 0)
 	{
-		return false;
+		തിരികെ അസത്യം;
 	}
-	return (info.st_mode & S_IFDIR) != 0;
+	തിരികെ (info.st_mode & S_IFDIR) != 0;
 #endif
 }
 
 #ifdef _WIN32
-bool check_accessible(const std::string& filename, bool)
+തർക്കം check_accessible(സ്ഥിരം std::string& filename, തർക്കം)
 {
-	return _access(filename.c_str(), 0) == 0;
+	തിരികെ _access(filename.c_str(), 0) == 0;
 }
-#else
-bool check_accessible(const std::string& filename, bool is_exec)
+#അല്ലെങ്കിൽ
+തർക്കം check_accessible(സ്ഥിരം std::string& filename, തർക്കം is_exec)
 {
-	return access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
+	തിരികെ access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
 }
 #endif
 
-bool check_file_exists(const std::string& filename, bool is_exec)
+തർക്കം check_file_exists(സ്ഥിരം std::string& filename, തർക്കം is_exec)
 {
-	return check_accessible(filename, is_exec) && !check_is_directory(filename);
+	തിരികെ check_accessible(filename, is_exec) && !check_is_directory(filename);
 }
-bool check_directory_exists(const std::string& filename, bool is_exec)
+തർക്കം check_directory_exists(സ്ഥിരം std::string& filename, തർക്കം is_exec)
 {
-	return check_accessible(filename, is_exec) && check_is_directory(filename);
+	തിരികെ check_accessible(filename, is_exec) && check_is_directory(filename);
 }
 
-bool is_absolute_path(std::string filename)
+തർക്കം is_absolute_path(std::string filename)
 {
 #ifdef _WIN32
-	return filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
-#else
-	return filename[0] == '/';
+	തിരികെ filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
+#അല്ലെങ്കിൽ
+	തിരികെ filename[0] == '/';
 #endif
 }
 
-void remove_directory(std::string dirname)
+ശൂന്യം remove_directory(std::string dirname)
 {
 #ifdef _WIN32
 	run_command(stringf("rmdir /s /q \"%s\"", dirname));
-#else
-	struct stat stbuf;
-	struct dirent **namelist;
-	int n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
+#അല്ലെങ്കിൽ
+	ഘടന stat stbuf;
+	ഘടന dirent **namelist;
+	പൂർണ്ണസംഖ്യ n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
 	log_assert(n >= 0);
-	for (int i = 0; i < n; i++) {
-		if (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
+	വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < n; i++) {
+		എങ്കിൽ (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
 			std::string buffer = stringf("%s/%s", dirname, namelist[i]->d_name);
-			if (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
+			എങ്കിൽ (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
 				remove(buffer.c_str());
-			} else
+			} അല്ലെങ്കിൽ
 				remove_directory(buffer);
 		}
-		free(namelist[i]);
+		സ്വതന്ത്രം(namelist[i]);
 	}
-	free(namelist);
+	സ്വതന്ത്രം(namelist);
 	rmdir(dirname.c_str());
 #endif
 }
 
-bool create_directory(const std::string& dirname)
+തർക്കം create_directory(സ്ഥിരം std::string& dirname)
 {
-#if defined(_WIN32)
-	int ret = _mkdir(dirname.c_str());
-#else
+#എങ്കിൽ defined(_WIN32)
+	പൂർണ്ണസംഖ്യ ret = _mkdir(dirname.c_str());
+#അല്ലെങ്കിൽ
 	mode_t mode = 0755;
-	int ret = mkdir(dirname.c_str(), mode);
+	പൂർണ്ണസംഖ്യ ret = mkdir(dirname.c_str(), mode);
 #endif
-	if (ret == 0)
-		return true;
+	എങ്കിൽ (ret == 0)
+		തിരികെ സത്യം;
 
-	switch (errno)
+	തിരഞ്ഞെടുപ്പ് (errno)
 	{
-	case ENOENT:
+	അവസ്ഥ ENOENT:
 		// parent didn't exist, try to create it
 		{
 			std::string::size_type pos = dirname.find_last_of('/');
-			if (pos == std::string::npos)
-#if defined(_WIN32)
+			എങ്കിൽ (pos == std::string::npos)
+#എങ്കിൽ defined(_WIN32)
 				pos = dirname.find_last_of('\\');
-			if (pos == std::string::npos)
+			എങ്കിൽ (pos == std::string::npos)
 #endif
-				return false;
-			if (!create_directory( dirname.substr(0, pos) ))
-				return false;
+				തിരികെ അസത്യം;
+			എങ്കിൽ (!create_directory( dirname.substr(0, pos) ))
+				തിരികെ അസത്യം;
 		}
 		// now, try to create again
-#if defined(_WIN32)
-		return 0 == _mkdir(dirname.c_str());
-#else
-		return 0 == mkdir(dirname.c_str(), mode);
+#എങ്കിൽ defined(_WIN32)
+		തിരികെ 0 == _mkdir(dirname.c_str());
+#അല്ലെങ്കിൽ
+		തിരികെ 0 == mkdir(dirname.c_str(), mode);
 #endif
 
-	case EEXIST:
+	അവസ്ഥ EEXIST:
 		// done!
-		return check_directory_exists(dirname);
+		തിരികെ check_directory_exists(dirname);
 
-	default:
-		return false;
+	സ്ഥിരസ്ഥിതി:
+		തിരികെ അസത്യം;
 	}
 }
 
-bool make_private_directory(const std::string& dirname)
+തർക്കം make_private_directory(സ്ഥിരം std::string& dirname)
 {
-#if defined(_WIN32) || defined(__wasi__)
-	if (!create_directory(dirname)) {
+#എങ്കിൽ defined(_WIN32) || defined(__wasi__)
+	എങ്കിൽ (!create_directory(dirname)) {
 		log_warning("Cannot create the directory %s\n", dirname.c_str());
-		return false;
+		തിരികെ അസത്യം;
 	}
-	return true;
-#else
-	if (mkdir(dirname.c_str(), 0700) == 0)
-		return true;
+	തിരികെ സത്യം;
+#അല്ലെങ്കിൽ
+	എങ്കിൽ (mkdir(dirname.c_str(), 0700) == 0)
+		തിരികെ സത്യം;
 
 	// Keep the errno of each mkdir(), create_directory() below makes its own calls
-	int err = errno;
+	പൂർണ്ണസംഖ്യ err = errno;
 	std::string parent = std::filesystem::path(dirname).parent_path().string();
 
-	if (err == ENOENT && !parent.empty() && create_directory(parent)) {
-		if (mkdir(dirname.c_str(), 0700) == 0)
-			return true;
+	എങ്കിൽ (err == ENOENT && !parent.empty() && create_directory(parent)) {
+		എങ്കിൽ (mkdir(dirname.c_str(), 0700) == 0)
+			തിരികെ സത്യം;
 		err = errno;
 	}
 
-	if (err != EEXIST) {
+	എങ്കിൽ (err != EEXIST) {
 		log_warning("Cannot create the directory %s: %s\n", dirname.c_str(), strerror(err));
-		return false;
+		തിരികെ അസത്യം;
 	}
 
 	// Do not use a leftover that isn't ours
-	struct stat st;
-	if (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
+	ഘടന stat st;
+	എങ്കിൽ (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
 		log_warning("%s is not a directory of this user\n", dirname.c_str());
-		return false;
+		തിരികെ അസത്യം;
 	}
 	// Repair the mode if something changed it
 	mode_t mode = st.st_mode & 0777;
-	if (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
+	എങ്കിൽ (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
 		log_warning("Cannot make the directory %s private: %s\n", dirname.c_str(), strerror(errno));
-		return false;
+		തിരികെ അസത്യം;
 	}
 
-	return true;
+	തിരികെ സത്യം;
 #endif
 }
 
-std::string make_user_tmpdir(const std::string& name)
+std::string make_user_tmpdir(സ്ഥിരം std::string& name)
 {
 	log_assert(!name.empty() && name.find('/') == std::string::npos);
-#if defined(_WIN32) || defined(__wasi__)
+#എങ്കിൽ defined(_WIN32) || defined(__wasi__)
 	std::string dirname = get_base_tmpdir() + "/" + name;
-#else
+#അല്ലെങ്കിൽ
 	std::string dirname = stringf("%s/%s-%u", get_base_tmpdir().c_str(), name.c_str(), (unsigned)geteuid());
 #endif
-	return make_private_directory(dirname) ? dirname : "";
+	തിരികെ make_private_directory(dirname) ? dirname : "";
 }
 
-std::string escape_filename_spaces(const std::string& filename)
+std::string escape_filename_spaces(സ്ഥിരം std::string& filename)
 {
 	std::string out;
 	out.reserve(filename.size());
-	for (auto c : filename)
+	വേണ്ടി (auto c : filename)
 	{
-		if (c == ' ')
+		എങ്കിൽ (c == ' ')
 			out += "\\ ";
-		else
-			out.push_back(c);
+		അല്ലെങ്കിൽ
+			out.തള്ളുക_back(c);
 	}
-	return out;
+	തിരികെ out;
 }
 
-void append_globbed(std::vector<std::string>& paths, std::string pattern)
+ശൂന്യം append_globbed(std::vector<std::string>& paths, std::string pattern)
 {
 	rewrite_filename(pattern);
 	std::vector<std::string> globbed = glob_filename(pattern);
@@ -452,46 +452,46 @@ void append_globbed(std::vector<std::string>& paths, std::string pattern)
 }
 
 std::string name_from_file_path(std::string path) {
-	return std::filesystem::path(path).filename().string();
+	തിരികെ std::filesystem::path(path).filename().string();
 }
 
-std::string absolute_path(const std::string& path)
+std::string absolute_path(സ്ഥിരം std::string& path)
 {
 	std::error_code ec;
 	std::filesystem::path result = std::filesystem::absolute(path, ec);
 
-	if (ec)
-		return "";
+	എങ്കിൽ (ec)
+		തിരികെ "";
 
 	result = std::filesystem::weakly_canonical(result, ec);
 
-	if (ec)
-		return "";
+	എങ്കിൽ (ec)
+		തിരികെ "";
 
-	return result.string();
+	തിരികെ result.string();
 }
 
 // Includes OS_PATH_SEP at the end if present
 std::string parent_from_file_path(std::string path) {
 	auto parent = std::filesystem::path(path).parent_path();
-	if (parent.empty()) {
-		return "";
+	എങ്കിൽ (parent.empty()) {
+		തിരികെ "";
 	}
 	// Add trailing separator to match original behavior
 	std::string result = parent.string();
-	if (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
+	എങ്കിൽ (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
 		result += std::filesystem::path::preferred_separator;
 	}
-	return result;
+	തിരികെ result;
 }
 
-void format_emit_unescaped(std::string &result, std::string_view fmt)
+ശൂന്യം format_emit_unescaped(std::string &result, std::string_view fmt)
 {
 	result.reserve(result.size() + fmt.size());
-	for (size_t i = 0; i < fmt.size(); ++i) {
-		char ch = fmt[i];
-		result.push_back(ch);
-		if (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
+	വേണ്ടി (size_t i = 0; i < fmt.size(); ++i) {
+		അക്ഷരം ch = fmt[i];
+		result.തള്ളുക_back(ch);
+		എങ്കിൽ (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
 			++i;
 		}
 	}
@@ -501,248 +501,248 @@ std::string unescape_format_string(std::string_view fmt)
 {
 	std::string result;
 	format_emit_unescaped(result, fmt);
-	return result;
+	തിരികെ result;
 }
 
-static std::string string_view_stringf(std::string_view spec, ...)
+സ്ഥിതം std::string string_view_stringf(std::string_view spec, ...)
 {
 	va_list ap;
 	va_start(ap, spec);
 	std::string result = vstringf(std::string(spec).c_str(), ap);
 	va_end(ap);
-	return result;
+	തിരികെ result;
 }
 
-static int spec_parameter_size(std::string_view spec)
+സ്ഥിതം പൂർണ്ണസംഖ്യ spec_parameter_size(std::string_view spec)
 {
 	// Every valid spec starts with '%' which means the code below
 	// won't look before the spec start.
-	switch (spec[spec.size() - 1]) {
-	case 'd':
-	case 'i':
-	case 'o':
-	case 'u':
-	case 'x':
-	case 'X':
-		switch (spec[spec.size() - 2]) {
-		case 'h':
-			if (spec[spec.size() - 3] == 'h')
-				return sizeof(char);
-			return sizeof(short);
-		case 'l':
-			if (spec[spec.size() - 3] == 'l')
-				return sizeof(long long);
-			return sizeof(long);
-		case 'L':
-		case 'q':
-			return sizeof(long long);
-		case 'j':
-			return sizeof(intmax_t);
-		case 'z':
-		case 'Z':
-			return sizeof(size_t);
-		case 't':
-			return sizeof(ptrdiff_t);
+	തിരഞ്ഞെടുപ്പ് (spec[spec.size() - 1]) {
+	അവസ്ഥ 'd':
+	അവസ്ഥ 'i':
+	അവസ്ഥ 'o':
+	അവസ്ഥ 'u':
+	അവസ്ഥ 'x':
+	അവസ്ഥ 'X':
+		തിരഞ്ഞെടുപ്പ് (spec[spec.size() - 2]) {
+		അവസ്ഥ 'h':
+			എങ്കിൽ (spec[spec.size() - 3] == 'h')
+				തിരികെ വലുപ്പം(അക്ഷരം);
+			തിരികെ വലുപ്പം(short);
+		അവസ്ഥ 'l':
+			എങ്കിൽ (spec[spec.size() - 3] == 'l')
+				തിരികെ വലുപ്പം(long long);
+			തിരികെ വലുപ്പം(long);
+		അവസ്ഥ 'L':
+		അവസ്ഥ 'q':
+			തിരികെ വലുപ്പം(long long);
+		അവസ്ഥ 'j':
+			തിരികെ വലുപ്പം(intmax_t);
+		അവസ്ഥ 'z':
+		അവസ്ഥ 'Z':
+			തിരികെ വലുപ്പം(size_t);
+		അവസ്ഥ 't':
+			തിരികെ വലുപ്പം(ptrdiff_t);
 		}
-		return sizeof(int);
-	case 'e':
-	case 'E':
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-	case 'a':
-	case 'A':
-		if (spec[spec.size() - 2] == 'L')
-			return sizeof(long double);
-		if (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
-			return sizeof(long double);
-		return sizeof(double);
-	case 'c':
-		if (spec[spec.size() - 2] == 'l') {
-			return sizeof(wchar_t);
+		തിരികെ വലുപ്പം(പൂർണ്ണസംഖ്യ);
+	അവസ്ഥ 'e':
+	അവസ്ഥ 'E':
+	അവസ്ഥ 'f':
+	അവസ്ഥ 'F':
+	അവസ്ഥ 'g':
+	അവസ്ഥ 'G':
+	അവസ്ഥ 'a':
+	അവസ്ഥ 'A':
+		എങ്കിൽ (spec[spec.size() - 2] == 'L')
+			തിരികെ വലുപ്പം(long ഇരട്ട);
+		എങ്കിൽ (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
+			തിരികെ വലുപ്പം(long ഇരട്ട);
+		തിരികെ വലുപ്പം(ഇരട്ട);
+	അവസ്ഥ 'c':
+		എങ്കിൽ (spec[spec.size() - 2] == 'l') {
+			തിരികെ വലുപ്പം(wchar_t);
 		}
-		return sizeof(unsigned char);
-	case 'C':
-		return sizeof(wchar_t);
-	case 's':
-	case 'p':
-	case 'S':
-	case 'n':
-		return sizeof(void *);
-	case 'm':
-		return sizeof(int);
-	default:
-		return -1;
+		തിരികെ വലുപ്പം(unsigned അക്ഷരം);
+	അവസ്ഥ 'C':
+		തിരികെ വലുപ്പം(wchar_t);
+	അവസ്ഥ 's':
+	അവസ്ഥ 'p':
+	അവസ്ഥ 'S':
+	അവസ്ഥ 'n':
+		തിരികെ വലുപ്പം(ശൂന്യം *);
+	അവസ്ഥ 'm':
+		തിരികെ വലുപ്പം(പൂർണ്ണസംഖ്യ);
+	സ്ഥിരസ്ഥിതി:
+		തിരികെ -1;
 	}
 }
 
 template <typename Arg>
-static void format_emit_stringf(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, Arg arg)
+സ്ഥിതം ശൂന്യം format_emit_stringf(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, Arg arg)
 {
 	// Delegate nontrivial formats to the C library.
-	switch (num_dynamic_ints) {
-	case DynamicIntCount::NONE:
+	തിരഞ്ഞെടുപ്പ് (അക്കം_dynamic_ints) {
+	അവസ്ഥ Dynamic_Int_എണ്ണം::NONE:
 		result += string_view_stringf(spec, arg);
-		return;
-	case DynamicIntCount::ONE:
+		തിരികെ;
+	അവസ്ഥ Dynamic_Int_എണ്ണം::ONE:
 		result += string_view_stringf(spec, dynamic_ints[0], arg);
-		return;
-	case DynamicIntCount::TWO:
+		തിരികെ;
+	അവസ്ഥ Dynamic_Int_എണ്ണം::TWO:
 		result += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
-		return;
+		തിരികെ;
 	}
 	YOSYS_ABORT("Internal error");
 }
 
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, long long arg)
+ശൂന്യം format_emit_long_long(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, long long arg)
 {
-	if (spec == "%d") {
+	എങ്കിൽ (spec == "%d") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<int>(arg));
-		return;
+		result += std::to_string(static_cast<പൂർണ്ണസംഖ്യ>(arg));
+		തിരികെ;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	എങ്കിൽ (spec_parameter_size(spec) <= 4) {
 		// On some platforms (Wasm) we must ensure that the arg is properly aligned
 		// after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(result, spec, dynamic_ints, അക്കം_dynamic_ints, (പൂർണ്ണസംഖ്യ)arg);
+	} അല്ലെങ്കിൽ {
+		format_emit_stringf(result, spec, dynamic_ints, അക്കം_dynamic_ints, arg);
 	}
 }
 
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, unsigned long long arg)
+ശൂന്യം format_emit_unsigned_long_long(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, unsigned long long arg)
 {
-	if (spec == "%u") {
+	എങ്കിൽ (spec == "%u") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<unsigned int>(arg));
-		return;
+		result += std::to_string(static_cast<unsigned പൂർണ്ണസംഖ്യ>(arg));
+		തിരികെ;
 	}
-	if (spec == "%c") {
-		result += static_cast<char>(arg);
-		return;
+	എങ്കിൽ (spec == "%c") {
+		result += static_cast<അക്ഷരം>(arg);
+		തിരികെ;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	എങ്കിൽ (spec_parameter_size(spec) <= 4) {
                 // On some platforms (Wasm) we must ensure that the arg is properly aligned
                 // after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (unsigned int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(result, spec, dynamic_ints, അക്കം_dynamic_ints, (unsigned പൂർണ്ണസംഖ്യ)arg);
+	} അല്ലെങ്കിൽ {
+		format_emit_stringf(result, spec, dynamic_ints, അക്കം_dynamic_ints, arg);
 	}
 }
 
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, double arg)
+ശൂന്യം format_emit_double(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, ഇരട്ട arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, അക്കം_dynamic_ints, arg);
 }
 
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const char *arg)
+ശൂന്യം format_emit_char_ptr(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, സ്ഥിരം അക്ഷരം *arg)
 {
-	if (spec == "%s") {
+	എങ്കിൽ (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		result += arg;
-		return;
+		തിരികെ;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, അക്കം_dynamic_ints, arg);
 }
 
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const std::string &arg)
+ശൂന്യം format_emit_string(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, സ്ഥിരം std::string &arg)
 {
-	if (spec == "%s") {
+	എങ്കിൽ (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		result += arg;
-		return;
+		തിരികെ;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg.c_str());
+	format_emit_stringf(result, spec, dynamic_ints, അക്കം_dynamic_ints, arg.c_str());
 }
 
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, std::string_view arg)
+ശൂന്യം format_emit_string_view(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, std::string_view arg)
 {
-	if (spec == "%s") {
+	എങ്കിൽ (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		// We can output the string without creating a temporary copy.
 		result += arg;
-		return;
+		തിരികെ;
 	}
 	// Delegate nontrivial formats to the C library. We need to construct
 	// a temporary string to ensure null termination.
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, std::string(arg).c_str());
+	format_emit_stringf(result, spec, dynamic_ints, അക്കം_dynamic_ints, std::string(arg).c_str());
 }
 
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const void *arg)
+ശൂന്യം format_emit_void_ptr(std::string &result, std::string_view spec, പൂർണ്ണസംഖ്യ *dynamic_ints,
+	Dynamic_Int_എണ്ണം അക്കം_dynamic_ints, സ്ഥിരം ശൂന്യം *arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(result, spec, dynamic_ints, അക്കം_dynamic_ints, arg);
 }
 
-#if defined(_WIN32)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#എങ്കിൽ defined(_WIN32)
+ScopedFileLock::ScopedFileLock(സ്ഥിരം std::string &path)
 {
 	HANDLE h = CreateFileA(path.c_str(), GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-			NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h == INVALID_HANDLE_VALUE) {
+			ശൂന്യ, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, ശൂന്യ);
+	എങ്കിൽ (h == INVALID_HANDLE_മൂല്യം) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+		തിരികെ;
 	}
 	OVERLAPPED ov = {};
-	if (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
+	എങ്കിൽ (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
 		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
 		CloseHandle(h);
-		return;
+		തിരികെ;
 	}
 	handle = h;
 }
 
 ScopedFileLock::~ScopedFileLock()
 {
-	if (handle != nullptr) {
+	എങ്കിൽ (handle != nullptr) {
 		OVERLAPPED ov = {};
 		UnlockFileEx(handle, 0, MAXDWORD, MAXDWORD, &ov);
 		CloseHandle(handle);
 	}
 }
-#elif !defined(__wasi__)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#അല്ലെങ്കിലെങ്കിൽ !defined(__wasi__)
+ScopedFileLock::ScopedFileLock(സ്ഥിരം std::string &path)
 {
 	fd = open(path.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0666);
-	if (fd < 0)
+	എങ്കിൽ (fd < 0)
 		fd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
-	if (fd < 0) {
+	എങ്കിൽ (fd < 0) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+		തിരികെ;
 	}
-	int ret;
-	while ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
-	if (ret != 0)
+	പൂർണ്ണസംഖ്യ ret;
+	ആകുമ്പോൾ ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
+	എങ്കിൽ (ret != 0)
 		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
 }
 
 ScopedFileLock::~ScopedFileLock()
 {
-	if (fd >= 0)
+	എങ്കിൽ (fd >= 0)
 		close(fd); // releases the flock
 }
-#else
-ScopedFileLock::ScopedFileLock(const std::string &) {}
+#അല്ലെങ്കിൽ
+ScopedFileLock::ScopedFileLock(സ്ഥിരം std::string &) {}
 ScopedFileLock::~ScopedFileLock() {}
 #endif
 
 unsigned get_process_id()
 {
-#if defined(_WIN32)
-	return GetCurrentProcessId();
-#elif defined(__wasi__)
-	return 0;
-#else
-	return getpid();
+#എങ്കിൽ defined(_WIN32)
+	തിരികെ GetCurrentProcessId();
+#അല്ലെങ്കിലെങ്കിൽ defined(__wasi__)
+	തിരികെ 0;
+#അല്ലെങ്കിൽ
+	തിരികെ getpid();
 #endif
 }
 

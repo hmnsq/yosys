@@ -20,113 +20,113 @@
 #ifndef LOG_HELP_H
 #define LOG_HELP_H
 
-#include "kernel/yosys_common.h"
-#include "kernel/json.h"
-#include <filesystem>
-#include <string_view>
+#അന്തര്ഭാവ "kernel/yosys_common.h"
+#അന്തര്ഭാവ "kernel/json.h"
+#അന്തര്ഭാവ <filesystem>
+#അന്തര്ഭാവ <string_view>
 
 YOSYS_NAMESPACE_BEGIN
 
-std::filesystem::path fixup_source_path (const char* source_file,
-	const std::filesystem::path &source_root, bool* skip_source_group = nullptr);
+std::filesystem::path fixup_source_path (സ്ഥിരം അക്ഷരം* source_file,
+	സ്ഥിരം std::filesystem::path &source_വേര്, bool* skip_source_group = nullptr);
 
 class ContentListing {
 	vector<ContentListing> _content;
-public:
+പൊതു:
 	string type;
 	string body;
-	const char* source_file;
-	int source_line;
+	സ്ഥിരം അക്ഷരം* source_file;
+	പൂർണ്ണസംഖ്യ source_വരി;
 	std::map<string, string> options;
 
 	ContentListing(
 		string type = "root", string body = "",
-		const char* source_file = "unknown", int source_line = 0
-	) : type(type), body(body), source_file(source_file), source_line(source_line) {
+		സ്ഥിരം അക്ഷരം* source_file = "unknown", പൂർണ്ണസംഖ്യ source_വരി = 0
+	) : type(type), body(body), source_file(source_file), source_വരി(source_വരി) {
 		_content = {};
 		options = {};
 	}
 
 	ContentListing(string type, string body, source_location location) :
-		ContentListing(type, body, location.file_name(), location.line()) { }
+		ContentListing(type, body, location.file_name(), location.വരി()) { }
 
-	void add_content(string type, string body, source_location location) {
-		_content.push_back({type, body, location});
+	ശൂന്യം add_content(string type, string body, source_location location) {
+		_content.തള്ളുക_back({type, body, location});
 	}
 
-	bool has_source() const { return strlen(source_file) && strcmp(source_file, "unknown") != 0; }
-	bool has_content() const { return _content.size() != 0; }
+	bool has_source() സ്ഥിരം { തിരികെ strlen(source_file) && strcmp(source_file, "unknown") != 0; }
+	bool has_content() സ്ഥിരം { തിരികെ _content.size() != 0; }
 
-	vector<ContentListing>::const_iterator begin() const { return _content.cbegin(); }
-	vector<ContentListing>::const_iterator end() const { return _content.cend(); }
+	vector<ContentListing>::const_iterator begin() സ്ഥിരം { തിരികെ _content.cbegin(); }
+	vector<ContentListing>::const_iterator end() സ്ഥിരം { തിരികെ _content.cend(); }
 
 	ContentListing* back() {
-		return &_content.back();
+		തിരികെ &_content.back();
 	}
 
-	void set_option(string key, string val = "") {
-		options[key] = val;
+	ശൂന്യം set_option(string താക്കോൽ, string val = "") {
+		options[താക്കോൽ] = val;
 	}
 
-	void usage(
-		const string &text,
-		const source_location location = source_location::current()
+	ശൂന്യം usage(
+		സ്ഥിരം string &text,
+		സ്ഥിരം source_location location = source_location::current()
 	);
-	void option(
-		const string &text,
-		const string &description = "",
-		const source_location location = source_location::current()
+	ശൂന്യം option(
+		സ്ഥിരം string &text,
+		സ്ഥിരം string &description = "",
+		സ്ഥിരം source_location location = source_location::current()
 	);
-	void codeblock(
-		const string &code,
-		const string &language = "none",
-		const source_location location = source_location::current()
+	ശൂന്യം codeblock(
+		സ്ഥിരം string &code,
+		സ്ഥിരം string &language = "none",
+		സ്ഥിരം source_location location = source_location::current()
 	);
-	void paragraph(
-		const string &text,
-		const source_location location = source_location::current()
+	ശൂന്യം paragraph(
+		സ്ഥിരം string &text,
+		സ്ഥിരം source_location location = source_location::current()
 	);
 
 	ContentListing* open_usage(
-		const string &text,
-		const source_location location = source_location::current()
+		സ്ഥിരം string &text,
+		സ്ഥിരം source_location location = source_location::current()
 	);
 	ContentListing* open_option(
-		const string &text,
-		const source_location location = source_location::current()
+		സ്ഥിരം string &text,
+		സ്ഥിരം source_location location = source_location::current()
 	);
 
-	Json to_json(const std::filesystem::path &source_root) const;
+	Json to_json(സ്ഥിരം std::filesystem::path &source_വേര്) സ്ഥിരം;
 };
 
 class PrettyHelp
 {
-public:
+പൊതു:
 	string group = "unknown";
 
-private:
+സ്വകാര്യ:
 	PrettyHelp *_prior;
-	ContentListing _root_listing;
+	ContentListing വേര്_listing;
 
-public:
+പൊതു:
 	PrettyHelp();
 	~PrettyHelp();
 
-	static PrettyHelp *get_current();
+	സ്ഥിതം PrettyHelp *get_current();
 
-	bool has_content() const { return _root_listing.has_content(); }
+	bool has_content() സ്ഥിരം { തിരികെ വേര്_listing.has_content(); }
 
-	vector<ContentListing>::const_iterator begin() const { return _root_listing.begin(); }
-	vector<ContentListing>::const_iterator end() const { return _root_listing.end(); }
+	vector<ContentListing>::const_iterator begin() സ്ഥിരം { തിരികെ വേര്_listing.begin(); }
+	vector<ContentListing>::const_iterator end() സ്ഥിരം { തിരികെ വേര്_listing.end(); }
 
-	ContentListing* get_root() {
-		return &_root_listing;
+	ContentListing* get_വേര്() {
+		തിരികെ &വേര്_listing;
 	}
 
-	void set_group(const string g) { group = g; }
-	bool has_group() const { return group.compare("unknown") != 0; }
+	ശൂന്യം set_group(സ്ഥിരം string g) { group = g; }
+	bool has_group() സ്ഥിരം { തിരികെ group.compare("unknown") != 0; }
 
-	void log_help() const;
+	ശൂന്യം log_help() സ്ഥിരം;
 };
 
 YOSYS_NAMESPACE_END
