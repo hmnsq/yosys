@@ -1,42 +1,42 @@
-#include "kernel/twine.h"
-#include "kernel/hashcons_impl.h"
-#include "kernel/log.h"
+#ضمن "kernel/twine.h"
+#ضمن "kernel/hashcons_impl.h"
+#ضمن "kernel/log.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template struct HashConsPool<TwinePool, TwineNode, IdString>;
+template بنية HashConsPool<TwinePool, TwineNode, IdString>;
 
 std::vector<TwineNode> StaticTwines::nodes_;
 
-void StaticTwines::init() {
-	if (ready())
-		return;
+فراغ StaticTwines::init() {
+	𐤀𐤌 (ready())
+		أرجع;
 	log_assert(nodes_.empty());
 	nodes_.reserve(STATIC_TWINE_END);
-	for (const char *name : ID::static_names)
+	لكل (ثابت حرف *name : ID::static_names)
 		nodes_.emplace_back(std::string_view(name));
 }
 
-const TwineNode &StaticTwines::node(size_t idx) { return nodes_[idx]; }
-bool StaticTwines::ready() { return nodes_.size() == STATIC_TWINE_END; }
+ثابت TwineNode &StaticTwines::node(size_t idx) { أرجع nodes_[idx]; }
+منطقي StaticTwines::ready() { أرجع nodes_.size() == STATIC_TWINE_END; }
 
 int64_t twine_gc_ns;
-int twine_gc_count;
+صحيح twine_gc_count;
 
-std::string IdString::handle_token() const {
-	return stringf("%s@%zu", isPublic() ? "$pub" : "$priv", untag().raw());
+std::string IdString::handle_token() ثابت {
+	أرجع stringf("%s@%zu", isPublic() ? "$pub" : "$priv", untag().raw());
 }
 
-size_t IdString::handle_token_prefix(std::string_view token, bool &is_public) {
-	if (token.substr(0, 5) == "$pub@") {
+size_t IdString::handle_token_prefix(std::string_view token, منطقي &is_public) {
+	𐤀𐤌 (token.substr(0, 5) == "$pub@") {
 		is_public = true;
-		return 5;
+		أرجع 5;
 	}
-	if (token.substr(0, 6) == "$priv@") {
-		is_public = false;
-		return 6;
+	𐤀𐤌 (token.substr(0, 6) == "$priv@") {
+		is_public = خطأ;
+		أرجع 6;
 	}
-	return 0;
+	أرجع 0;
 }
 
 std::string ID::str(IdString ref) {
@@ -44,42 +44,42 @@ std::string ID::str(IdString ref) {
 	log_assert(idx.raw() < STATIC_TWINE_END);
 	std::string result = ref.isPublic() ? "\\" : "";
 	result += static_names[idx.raw()];
-	return result;
+	أرجع result;
 }
 
 std::string ID::unescaped_str(IdString ref) {
 	IdString idx = ref.untag();
 	log_assert(idx.raw() < STATIC_TWINE_END);
-	return static_names[idx.raw()];
+	أرجع static_names[idx.raw()];
 }
 
 TwineSpec::TwineSpec(Leaf v) : data(std::move(v)) {}
 TwineSpec::TwineSpec(Suffix v) : data(std::move(v)) {}
 TwineSpec::TwineSpec(AutoSuffix v) : data(std::move(v)) {}
 
-void SmallString::store(std::string_view content)
+فراغ SmallString::store(std::string_view content)
 {
 	log_assert(content.size() <= MAX_LEN);
 	release();
 	len_ = content.size();
-	if (len_ > INLINE_CAP) {
-		ptr_ = new char[len_];
+	𐤀𐤌 (len_ > INLINE_CAP) {
+		ptr_ = جديد حرف[len_];
 		memcpy(ptr_, content.data(), len_);
-	} else {
+	} وإلا {
 		memcpy(inl_, content.data(), len_);
 	}
 }
 
-void SmallString::release()
+فراغ SmallString::release()
 {
-	if (len_ > INLINE_CAP)
+	𐤀𐤌 (len_ > INLINE_CAP)
 		delete[] ptr_;
 	len_ = 0;
 }
 
 SmallString::SmallString(std::string_view content) { store(content); }
 
-SmallString::SmallString(const SmallString &other) { store(other.view()); }
+SmallString::SmallString(ثابت SmallString &other) { store(other.view()); }
 
 SmallString::SmallString(SmallString &&other) noexcept : len_(other.len_)
 {
@@ -87,22 +87,22 @@ SmallString::SmallString(SmallString &&other) noexcept : len_(other.len_)
 	other.len_ = 0;
 }
 
-SmallString &SmallString::operator=(const SmallString &other)
+SmallString &SmallString::operator=(ثابت SmallString &other)
 {
-	if (this != &other)
+	𐤀𐤌 (هذا != &other)
 		store(other.view());
-	return *this;
+	أرجع *هذا;
 }
 
 SmallString &SmallString::operator=(SmallString &&other) noexcept
 {
-	if (this == &other)
-		return *this;
+	𐤀𐤌 (هذا == &other)
+		أرجع *هذا;
 	release();
 	memcpy(inl_, other.inl_, INLINE_CAP);
 	len_ = other.len_;
 	other.len_ = 0;
-	return *this;
+	أرجع *هذا;
 }
 
 SmallString::~SmallString() { release(); }
@@ -115,257 +115,257 @@ TwineNode::TwineNode(TwineNode &&other) noexcept
 
 TwineNode &TwineNode::operator=(TwineNode &&other) noexcept
 {
-	if (this == &other)
-		return *this;
+	𐤀𐤌 (هذا == &other)
+		أرجع *هذا;
 	text_ = std::move(other.text_);
 	prefix_ = other.prefix_;
 	hash_ = other.hash_;
 	other.prefix_ = DEAD;
-	return *this;
+	أرجع *هذا;
 }
 
-std::string TwineSpec::content_str() const {
-	if (auto *leaf = std::get_if<Leaf>(&data))
-		return leaf->s;
+std::string TwineSpec::content_str() ثابت {
+	𐤀𐤌 (auto *leaf = std::get_if<Leaf>(&data))
+		أرجع leaf->s;
 	auto &autosfx = std::get<AutoSuffix>(data);
-	return *autosfx.prefix + autosfx.tail;
+	أرجع *autosfx.prefix + autosfx.tail;
 }
 
-static std::pair<std::string_view, bool> unescape_name(std::string_view name) {
-	if (!name.empty() && name[0] == '\\')
-		return {name.substr(1), true};
-	return {name, false};
+ساكن std::pair<std::string_view, منطقي> unescape_name(std::string_view name) {
+	𐤀𐤌 (!name.empty() && name[0] == '\\')
+		أرجع {name.substr(1), true};
+	أرجع {name, خطأ};
 }
 
-static void check_name(std::string_view name) {
+ساكن فراغ check_name(std::string_view name) {
 	log_assert(name[0] == '$' || name[0] == '\\');
-	for (char ch : name)
-		if ((unsigned)ch <= (unsigned)' ')
+	لكل (حرف ch : name)
+		𐤀𐤌 ((unsigned)ch <= (unsigned)' ')
 			log_error("Found control character or space (0x%02x) in string '%s' which is not allowed in RTLIL identifiers\n", ch, std::string(name));
 }
 
 TwinePool::TwinePool() : serial_(next_serial()) {}
-TwinePool::TwinePool(const TwinePool& other)
+TwinePool::TwinePool(ثابت TwinePool& other)
 	: HashConsPool(other), auto_prefixes(other.auto_prefixes), serial_(next_serial()) {}
 TwinePool::TwinePool(TwinePool&& other)
 	: HashConsPool(std::move(other)), auto_prefixes(std::move(other.auto_prefixes)), serial_(next_serial()) {}
 
-TwinePool& TwinePool::operator=(const TwinePool& other) {
-	if (this == &other)
-		return *this;
+TwinePool& TwinePool::operator=(ثابت TwinePool& other) {
+	𐤀𐤌 (هذا == &other)
+		أرجع *هذا;
 	HashConsPool::operator=(other);
 	auto_prefixes = other.auto_prefixes;
 	serial_ = next_serial();
-	return *this;
+	أرجع *هذا;
 }
 
 TwinePool& TwinePool::operator=(TwinePool&& other) {
-	if (this == &other)
-		return *this;
+	𐤀𐤌 (هذا == &other)
+		أرجع *هذا;
 	HashConsPool::operator=(std::move(other));
 	auto_prefixes = std::move(other.auto_prefixes);
 	serial_ = next_serial();
-	return *this;
+	أرجع *هذا;
 }
 
-bool TwinePool::owns(IdString ref) const {
-	return ref.serial() == 0 || ref.serial() == serial_;
+منطقي TwinePool::owns(IdString ref) ثابت {
+	أرجع ref.serial() == 0 || ref.serial() == serial_;
 }
 
-IdString TwinePool::stamp(IdString ref) const {
-	if (ref == IdString::Null || ID::is_static(ref))
-		return ref;
-	return ref.stamped(serial_);
+IdString TwinePool::stamp(IdString ref) ثابت {
+	𐤀𐤌 (ref == IdString::Null || ID::is_static(ref))
+		أرجع ref;
+	أرجع ref.stamped(serial_);
 }
 
-void TwinePool::check_owned(IdString ref) const {
-	if constexpr (IdString::MAX_SERIAL != 0)
+فراغ TwinePool::check_owned(IdString ref) ثابت {
+	𐤀𐤌 constexpr (IdString::MAX_SERIAL != 0)
 		log_assert(owns(ref));
 }
 
-const TwineNode& TwinePool::operator[](IdString ref) const {
+ثابت TwineNode& TwinePool::operator[](IdString ref) ثابت {
 	check_owned(ref);
-	return HashConsPool::operator[](ref);
+	أرجع HashConsPool::operator[](ref);
 }
 
 size_t TwinePool::gc(pool<IdString>& roots) {
-	for (auto &it : auto_prefixes)
+	لكل (auto &it : auto_prefixes)
 		roots.insert(it.second);
-	return HashConsPool::gc(roots);
+	أرجع HashConsPool::gc(roots);
 }
 
-const TwineNode& TwinePool::static_node(size_t idx) { return StaticTwines::node(idx); }
-void TwinePool::check_ready() { log_assert(StaticTwines::ready()); }
+ثابت TwineNode& TwinePool::static_node(size_t idx) { أرجع StaticTwines::node(idx); }
+فراغ TwinePool::check_ready() { log_assert(StaticTwines::ready()); }
 
 size_t TwinePool::next_serial() {
-	static size_t counter = 0;
+	ساكن size_t counter = 0;
 	size_t serial = ++counter;
-	if constexpr (IdString::MAX_SERIAL == 0)
-		return serial;
-	else
-		return serial > IdString::MAX_SERIAL ? (serial % IdString::MAX_SERIAL) + 1 : serial;
+	𐤀𐤌 constexpr (IdString::MAX_SERIAL == 0)
+		أرجع serial;
+	وإلا
+		أرجع serial > IdString::MAX_SERIAL ? (serial % IdString::MAX_SERIAL) + 1 : serial;
 }
 
 IdString TwinePool::add_inner(TwineNode t) {
-	if (free_list.empty() && STATIC_COUNT + backing.size() > IdString::MAX_INDEX)
+	𐤀𐤌 (free_list.empty() && STATIC_COUNT + backing.size() > IdString::MAX_INDEX)
 		log_error("Out of twine handles: a design may name at most %zu distinct twines.\n",
 				IdString::MAX_INDEX - STATIC_COUNT);
-	return HashConsPool::add_inner(std::move(t));
+	أرجع HashConsPool::add_inner(std::move(t));
 }
 
-void TwinePool::dump(IdString ref, std::ostream& os) const {
-	const TwineNode& twine = (*this)[ref];
-	switch (twine.kind()) {
-	case TwineNode::Kind::Dead:
+فراغ TwinePool::dump(IdString ref, std::ostream& os) ثابت {
+	ثابت TwineNode& twine = (*هذا)[ref];
+	بدل (twine.kind()) {
+	حالة TwineNode::Kind::Dead:
 		os << "Dead()";
-		break;
-	case TwineNode::Kind::Leaf:
+		اكسر;
+	حالة TwineNode::Kind::Leaf:
 		os << "Leaf(\"" << twine.text() << "\")";
-		break;
-	case TwineNode::Kind::Suffix:
+		اكسر;
+	حالة TwineNode::Kind::Suffix:
 		os << "Suffix(prefix: ";
 		dump(twine.prefix(), os);
 		os << ", tail: \"" << twine.text() << "\")";
-		break;
+		اكسر;
 	}
-	if (ref.isPublic())
+	𐤀𐤌 (ref.isPublic())
 		os << " pub";
 }
 
-void TwinePool::append_str(IdString ref, std::string& out) const {
-	if (ref == IdString::Null)
-		return;
-	if (ref.isPublic())
+فراغ TwinePool::append_str(IdString ref, std::string& out) ثابت {
+	𐤀𐤌 (ref == IdString::Null)
+		أرجع;
+	𐤀𐤌 (ref.isPublic())
 		out += '\\';
-	const TwineNode& twine = (*this)[ref];
-	switch (twine.kind()) {
-	case TwineNode::Kind::Dead:
-		break;
-	case TwineNode::Kind::Suffix:
+	ثابت TwineNode& twine = (*هذا)[ref];
+	بدل (twine.kind()) {
+	حالة TwineNode::Kind::Dead:
+		اكسر;
+	حالة TwineNode::Kind::Suffix:
 		append_str(twine.prefix(), out);
 		[[fallthrough]];
-	case TwineNode::Kind::Leaf:
+	حالة TwineNode::Kind::Leaf:
 		out += twine.text();
-		break;
+		اكسر;
 	}
 }
 
-std::string TwinePool::str(IdString ref) const {
+std::string TwinePool::str(IdString ref) ثابت {
 	std::string out;
 	append_str(ref, out);
-	return out;
+	أرجع out;
 }
 
-std::string TwinePool::unescaped_str(IdString ref) const {
-	return str(ref.untag());
+std::string TwinePool::unescaped_str(IdString ref) ثابت {
+	أرجع str(ref.untag());
 }
 
-uint32_t TwinePool::content_hash(uint32_t prefix, std::string_view text) const {
-	uint32_t hash = prefix == TwineNode::NO_PREFIX ? 0 : (*this)[IdString(prefix)].hash();
-	return TwineNode::extend_hash(hash, text);
+uint32_t TwinePool::content_hash(uint32_t prefix, std::string_view text) ثابت {
+	uint32_t hash = prefix == TwineNode::NO_PREFIX ? 0 : (*هذا)[IdString(prefix)].hash();
+	أرجع TwineNode::extend_hash(hash, text);
 }
 
-IdString TwinePool::find_content(uint32_t prefix, std::string_view text) const {
-	return find_content(prefix, text, content_hash(prefix, text));
+IdString TwinePool::find_content(uint32_t prefix, std::string_view text) ثابت {
+	أرجع find_content(prefix, text, content_hash(prefix, text));
 }
 
 IdString TwinePool::intern(uint32_t prefix, std::string_view text) {
 	log_assert(!Multithreading::active());
 	uint32_t hash = content_hash(prefix, text);
 	IdString ref = find_content(prefix, text, hash);
-	if (ref != IdString::Null)
-		return ref;
-	return add_inner(TwineNode{prefix, text, hash});
+	𐤀𐤌 (ref != IdString::Null)
+		أرجع ref;
+	أرجع add_inner(TwineNode{prefix, text, hash});
 }
 
-IdString TwinePool::find(std::string_view name) const {
-	if (name.empty())
-		return IdString::Null;
+IdString TwinePool::find(std::string_view name) ثابت {
+	𐤀𐤌 (name.empty())
+		أرجع IdString::Null;
 	check_name(name);
 	auto [content, is_public] = unescape_name(name);
-	return stamp(find_content(TwineNode::NO_PREFIX, content).tag(is_public));
+	أرجع stamp(find_content(TwineNode::NO_PREFIX, content).tag(is_public));
 }
 
-IdString TwinePool::find(TwineSpec t) const {
-	if (std::holds_alternative<TwineSpec::AutoSuffix>(t.data))
-		return stamp(find_content(TwineNode::NO_PREFIX, t.content_str()));
-	if (auto *leaf = std::get_if<TwineSpec::Leaf>(&t.data))
-		return stamp(find_content(TwineNode::NO_PREFIX, leaf->s));
-	const TwineSpec::Suffix &sfx = std::get<TwineSpec::Suffix>(t.data);
-	return stamp(find_content((uint32_t)sfx.prefix.untag().raw(), sfx.tail).tag(sfx.prefix.isPublic()));
+IdString TwinePool::find(TwineSpec t) ثابت {
+	𐤀𐤌 (std::holds_alternative<TwineSpec::AutoSuffix>(t.data))
+		أرجع stamp(find_content(TwineNode::NO_PREFIX, t.content_str()));
+	𐤀𐤌 (auto *leaf = std::get_if<TwineSpec::Leaf>(&t.data))
+		أرجع stamp(find_content(TwineNode::NO_PREFIX, leaf->s));
+	ثابت TwineSpec::Suffix &sfx = std::get<TwineSpec::Suffix>(t.data);
+	أرجع stamp(find_content((uint32_t)sfx.prefix.untag().raw(), sfx.tail).tag(sfx.prefix.isPublic()));
 }
 
 IdString TwinePool::add(TwineSpec t) {
-	if (auto *ap = std::get_if<TwineSpec::AutoSuffix>(&t.data))
-		return add(auto_prefix(ap->prefix), ap->tail);
-	if (auto *leaf = std::get_if<TwineSpec::Leaf>(&t.data))
-		return stamp(intern(TwineNode::NO_PREFIX, leaf->s));
-	const TwineSpec::Suffix &sfx = std::get<TwineSpec::Suffix>(t.data);
-	return add(sfx.prefix, sfx.tail);
+	𐤀𐤌 (auto *ap = std::get_if<TwineSpec::AutoSuffix>(&t.data))
+		أرجع add(auto_prefix(ap->prefix), ap->tail);
+	𐤀𐤌 (auto *leaf = std::get_if<TwineSpec::Leaf>(&t.data))
+		أرجع stamp(intern(TwineNode::NO_PREFIX, leaf->s));
+	ثابت TwineSpec::Suffix &sfx = std::get<TwineSpec::Suffix>(t.data);
+	أرجع add(sfx.prefix, sfx.tail);
 }
 
-IdString TwinePool::auto_prefix(const std::string *prefix) {
+IdString TwinePool::auto_prefix(ثابت std::string *prefix) {
 	auto it = auto_prefixes.find(prefix);
-	if (it != auto_prefixes.end())
-		return it->second;
+	𐤀𐤌 (it != auto_prefixes.end())
+		أرجع it->second;
 	IdString ref = intern(TwineNode::NO_PREFIX, *prefix);
 	auto_prefixes[prefix] = ref;
-	return ref;
+	أرجع ref;
 }
 
 IdString TwinePool::add(IdString prefix, std::string_view tail) {
-	return stamp(intern((uint32_t)prefix.untag().raw(), tail).tag(prefix.isPublic()));
+	أرجع stamp(intern((uint32_t)prefix.untag().raw(), tail).tag(prefix.isPublic()));
 }
 
 IdString TwinePool::add(std::string_view s) {
-	if (s.empty())
-		return IdString::Null;
+	𐤀𐤌 (s.empty())
+		أرجع IdString::Null;
 	check_name(s);
 	auto [content, is_public] = unescape_name(s);
-	return stamp(intern(TwineNode::NO_PREFIX, content).tag(is_public));
+	أرجع stamp(intern(TwineNode::NO_PREFIX, content).tag(is_public));
 }
 
-IdString TwinePool::copy_from(const TwinePool& src, IdString ref) {
+IdString TwinePool::copy_from(ثابت TwinePool& src, IdString ref) {
 	IdString found = find_from(src, ref);
-	if (found != IdString::Null || ref == IdString::Null)
-		return found;
-	const TwineNode& t = src[ref.untag()];
-	if (t.is_dead())
-		return IdString::Null;
+	𐤀𐤌 (found != IdString::Null || ref == IdString::Null)
+		أرجع found;
+	ثابت TwineNode& t = src[ref.untag()];
+	𐤀𐤌 (t.is_dead())
+		أرجع IdString::Null;
 	uint32_t prefix = TwineNode::NO_PREFIX;
-	if (t.is_suffix())
+	𐤀𐤌 (t.is_suffix())
 		prefix = (uint32_t)copy_from(src, t.prefix()).untag().raw();
-	return stamp(intern(prefix, t.text()).tag(ref.isPublic()));
+	أرجع stamp(intern(prefix, t.text()).tag(ref.isPublic()));
 }
 
-std::string TwinePool::ref_token(IdString ref) const {
-	return "#" + std::to_string((uint64_t)serial_) + ":"
+std::string TwinePool::ref_token(IdString ref) ثابت {
+	أرجع "#" + std::to_string((uint64_t)serial_) + ":"
 		+ std::to_string((uint64_t)stamp(ref).bits());
 }
 
-IdString TwinePool::ref_from_token(std::string_view token) const {
-	if (token.size() < 2 || token[0] != '#')
-		return IdString::Null;
+IdString TwinePool::ref_from_token(std::string_view token) ثابت {
+	𐤀𐤌 (token.size() < 2 || token[0] != '#')
+		أرجع IdString::Null;
 	size_t sep = token.find(':');
-	if (sep == std::string_view::npos)
-		return IdString::Null;
+	𐤀𐤌 (sep == std::string_view::npos)
+		أرجع IdString::Null;
 	size_t fields[2] = {0, 0};
 	std::string_view parts[2] = {token.substr(1, sep - 1), token.substr(sep + 1)};
-	for (int i = 0; i < 2; i++) {
-		if (parts[i].empty())
-			return IdString::Null;
-		for (char c : parts[i]) {
-			if (c < '0' || c > '9')
-				return IdString::Null;
+	لكل (صحيح i = 0; i < 2; i++) {
+		𐤀𐤌 (parts[i].empty())
+			أرجع IdString::Null;
+		لكل (حرف c : parts[i]) {
+			𐤀𐤌 (c < '0' || c > '9')
+				أرجع IdString::Null;
 			fields[i] = fields[i] * 10 + (c - '0');
 		}
 	}
-	if (fields[0] != serial_)
-		return IdString::Null;
+	𐤀𐤌 (fields[0] != serial_)
+		أرجع IdString::Null;
 	IdString ref(fields[1]);
-	if (ref == IdString::Null)
-		return IdString::Null;
-	return is_live(ref) ? ref : IdString::Null;
+	𐤀𐤌 (ref == IdString::Null)
+		أرجع IdString::Null;
+	أرجع is_live(ref) ? ref : IdString::Null;
 }
 
 /**
@@ -375,17 +375,17 @@ IdString TwinePool::ref_from_token(std::string_view token) const {
  * so that IdStrings with few segments fit into the `inline_segs` field,
  * and anything beyond that is in `spill`.
  */
-struct TwineSegments {
-	static constexpr size_t SEGMENT_INLINE_DEPTH = 8;
-	TwineSegments(const TwinePool &pool, IdString ref);
-	TwineSegments(const TwinePool &pool, IdString head, std::string_view tail);
+بنية TwineSegments {
+	ساكن constexpr size_t SEGMENT_INLINE_DEPTH = 8;
+	TwineSegments(ثابت TwinePool &pool, IdString ref);
+	TwineSegments(ثابت TwinePool &pool, IdString head, std::string_view tail);
 	std::string_view peek();
-	void advance(size_t n);
-	size_t total_size() const;
-private:
-	void push(std::string_view seg);
+	فراغ advance(size_t n);
+	size_t total_size() ثابت;
+خاص:
+	فراغ push(std::string_view seg);
 	std::string_view *segs();
-	const std::string_view *segs() const;
+	ثابت std::string_view *segs() ثابت;
 	std::string_view inline_segs[SEGMENT_INLINE_DEPTH];
 	std::vector<std::string_view> spill;
 	size_t count = 0;
@@ -393,31 +393,31 @@ private:
 	size_t off = 0;
 };
 
-TwineSegments::TwineSegments(const TwinePool &pool, IdString ref)
+TwineSegments::TwineSegments(ثابت TwinePool &pool, IdString ref)
 {
-	if (ref == IdString::Null)
-		return;
-	for (IdString cur = ref.untag(); ;) {
-		const TwineNode &t = pool[cur];
-		switch (t.kind()) {
-		case TwineNode::Kind::Suffix:
+	𐤀𐤌 (ref == IdString::Null)
+		أرجع;
+	لكل (IdString cur = ref.untag(); ;) {
+		ثابت TwineNode &t = pool[cur];
+		بدل (t.kind()) {
+		حالة TwineNode::Kind::Suffix:
 			push(t.text());
 			cur = t.prefix();
-			continue;
-		case TwineNode::Kind::Leaf:
+			استمر;
+		حالة TwineNode::Kind::Leaf:
 			push(t.text());
-			break;
-		case TwineNode::Kind::Dead:
-			break;
+			اكسر;
+		حالة TwineNode::Kind::Dead:
+			اكسر;
 		}
-		break;
+		اكسر;
 	}
-	if (ref.isPublic())
+	𐤀𐤌 (ref.isPublic())
 		push("\\");
 	std::reverse(segs(), segs() + count);
 }
 
-TwineSegments::TwineSegments(const TwinePool &pool, IdString head, std::string_view tail)
+TwineSegments::TwineSegments(ثابت TwinePool &pool, IdString head, std::string_view tail)
 	: TwineSegments(pool, head)
 {
 	push(tail);
@@ -425,133 +425,133 @@ TwineSegments::TwineSegments(const TwinePool &pool, IdString head, std::string_v
 
 std::string_view TwineSegments::peek()
 {
-	while (pos < count) {
+	طالما (pos < count) {
 		std::string_view seg = segs()[pos];
-		if (off < seg.size())
-			return seg.substr(off);
+		𐤀𐤌 (off < seg.size())
+			أرجع seg.substr(off);
 		pos++;
 		off = 0;
 	}
-	return {};
+	أرجع {};
 }
 
-void TwineSegments::advance(size_t n) { off += n; }
+فراغ TwineSegments::advance(size_t n) { off += n; }
 
-size_t TwineSegments::total_size() const
+size_t TwineSegments::total_size() ثابت
 {
 	size_t total = 0;
-	for (size_t i = 0; i < count; i++)
+	لكل (size_t i = 0; i < count; i++)
 		total += segs()[i].size();
-	return total;
+	أرجع total;
 }
 
-void TwineSegments::push(std::string_view seg)
+فراغ TwineSegments::push(std::string_view seg)
 {
-	if (spill.empty() && count < SEGMENT_INLINE_DEPTH) {
+	𐤀𐤌 (spill.empty() && count < SEGMENT_INLINE_DEPTH) {
 		inline_segs[count++] = seg;
-		return;
+		أرجع;
 	}
-	if (spill.empty())
+	𐤀𐤌 (spill.empty())
 		spill.assign(inline_segs, inline_segs + count);
 	spill.push_back(seg);
 	count++;
 }
 
-std::string_view *TwineSegments::segs() { return spill.empty() ? inline_segs : spill.data(); }
-const std::string_view *TwineSegments::segs() const { return spill.empty() ? inline_segs : spill.data(); }
+std::string_view *TwineSegments::segs() { أرجع spill.empty() ? inline_segs : spill.data(); }
+ثابت std::string_view *TwineSegments::segs() ثابت { أرجع spill.empty() ? inline_segs : spill.data(); }
 
-size_t TwinePool::str_size(IdString ref) const
+size_t TwinePool::str_size(IdString ref) ثابت
 {
-	return TwineSegments(*this, ref).total_size();
+	أرجع TwineSegments(*هذا, ref).total_size();
 }
 
-bool TwinePool::begins_with(IdString ref, std::string_view prefix) const
+منطقي TwinePool::begins_with(IdString ref, std::string_view prefix) ثابت
 {
-	TwineSegments segs(*this, ref);
-	while (!prefix.empty()) {
+	TwineSegments segs(*هذا, ref);
+	طالما (!prefix.empty()) {
 		std::string_view seg = segs.peek();
-		if (seg.empty())
-			return false;
+		𐤀𐤌 (seg.empty())
+			أرجع خطأ;
 		size_t n = std::min(seg.size(), prefix.size());
-		if (std::memcmp(seg.data(), prefix.data(), n) != 0)
-			return false;
+		𐤀𐤌 (std::memcmp(seg.data(), prefix.data(), n) != 0)
+			أرجع خطأ;
 		segs.advance(n);
 		prefix.remove_prefix(n);
 	}
-	return true;
+	أرجع true;
 }
 
-bool TwinePool::name_equal(IdString ref, std::string_view name) const
+منطقي TwinePool::name_equal(IdString ref, std::string_view name) ثابت
 {
-	return str_size(ref) == name.size() && begins_with(ref, name);
+	أرجع str_size(ref) == name.size() && begins_with(ref, name);
 }
 
-static int compare_segments(TwineSegments &sa, TwineSegments &sb)
+ساكن صحيح compare_segments(TwineSegments &sa, TwineSegments &sb)
 {
-	while (true) {
+	طالما (true) {
 		std::string_view x = sa.peek(), y = sb.peek();
-		if (x.empty() || y.empty())
-			return x.empty() ? (y.empty() ? 0 : -1) : 1;
+		𐤀𐤌 (x.empty() || y.empty())
+			أرجع x.empty() ? (y.empty() ? 0 : -1) : 1;
 		size_t n = std::min(x.size(), y.size());
-		if (int diff = std::memcmp(x.data(), y.data(), n); diff != 0)
-			return diff;
+		𐤀𐤌 (صحيح diff = std::memcmp(x.data(), y.data(), n); diff != 0)
+			أرجع diff;
 		sa.advance(n);
 		sb.advance(n);
 	}
 }
 
-IdString TwinePool::find_content(uint32_t prefix, std::string_view text, uint32_t hash) const {
-	return find_hashed(hash, [&](IdString ref) {
-		const TwineNode &t = (*this)[ref];
-		if (t == TwineNode::Key{prefix, text})
-			return true;
+IdString TwinePool::find_content(uint32_t prefix, std::string_view text, uint32_t hash) ثابت {
+	أرجع find_hashed(hash, [&](IdString ref) {
+		ثابت TwineNode &t = (*هذا)[ref];
+		𐤀𐤌 (t == TwineNode::Key{prefix, text})
+			أرجع true;
 		IdString head = prefix == TwineNode::NO_PREFIX ? IdString::Null : IdString(prefix);
-		TwineSegments sa(*this, ref), sb(*this, head, text);
-		return compare_segments(sa, sb) == 0;
+		TwineSegments sa(*هذا, ref), sb(*هذا, head, text);
+		أرجع compare_segments(sa, sb) == 0;
 	});
 }
 
-IdString TwinePool::find_from(const TwinePool& src, IdString ref) const {
-	if (ref == IdString::Null || ID::is_static(ref))
-		return ref;
+IdString TwinePool::find_from(ثابت TwinePool& src, IdString ref) ثابت {
+	𐤀𐤌 (ref == IdString::Null || ID::is_static(ref))
+		أرجع ref;
 	IdString idx = ref.untag();
-	const TwineNode& t = src[idx];
-	if (t.is_dead())
-		return IdString::Null;
+	ثابت TwineNode& t = src[idx];
+	𐤀𐤌 (t.is_dead())
+		أرجع IdString::Null;
 	IdString found = find_hashed(t.hash(), [&](IdString cand) {
-		TwineSegments sa(*this, cand), sb(src, idx);
-		return compare_segments(sa, sb) == 0;
+		TwineSegments sa(*هذا, cand), sb(src, idx);
+		أرجع compare_segments(sa, sb) == 0;
 	});
-	return stamp(found.tag(ref.isPublic()));
+	أرجع stamp(found.tag(ref.isPublic()));
 }
 
-IdString TwinePool::prefix_of(IdString ref) const {
-	const TwineNode &t = (*this)[ref];
-	if (!t.is_suffix())
-		return IdString::Null;
-	return stamp(t.prefix().tag(ref.isPublic()));
+IdString TwinePool::prefix_of(IdString ref) ثابت {
+	ثابت TwineNode &t = (*هذا)[ref];
+	𐤀𐤌 (!t.is_suffix())
+		أرجع IdString::Null;
+	أرجع stamp(t.prefix().tag(ref.isPublic()));
 }
 
-int TwinePool::compare_by_name(IdString a, IdString b) const
+صحيح TwinePool::compare_by_name(IdString a, IdString b) ثابت
 {
-	if (a == b)
-		return 0;
-	if (a == IdString::Null)
-		return -1;
-	if (b == IdString::Null)
-		return 1;
+	𐤀𐤌 (a == b)
+		أرجع 0;
+	𐤀𐤌 (a == IdString::Null)
+		أرجع -1;
+	𐤀𐤌 (b == IdString::Null)
+		أرجع 1;
 
-	if (a.isPublic() == b.isPublic()) {
-		const TwineNode &ta = (*this)[a.untag()];
-		const TwineNode &tb = (*this)[b.untag()];
-		if (ta.is_leaf() && tb.is_leaf())
-			return ta.text().compare(tb.text());
-		if (ta.is_suffix() && tb.is_suffix() && ta.prefix() == tb.prefix())
-			return ta.text().compare(tb.text());
+	𐤀𐤌 (a.isPublic() == b.isPublic()) {
+		ثابت TwineNode &ta = (*هذا)[a.untag()];
+		ثابت TwineNode &tb = (*هذا)[b.untag()];
+		𐤀𐤌 (ta.is_leaf() && tb.is_leaf())
+			أرجع ta.text().compare(tb.text());
+		𐤀𐤌 (ta.is_suffix() && tb.is_suffix() && ta.prefix() == tb.prefix())
+			أرجع ta.text().compare(tb.text());
 	}
 
-	TwineSegments sa(*this, a), sb(*this, b);
-	return compare_segments(sa, sb);
+	TwineSegments sa(*هذا, a), sb(*هذا, b);
+	أرجع compare_segments(sa, sb);
 }
 
 YOSYS_NAMESPACE_END

@@ -20,12 +20,12 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include "kernel/yosys_common.h"
+#ضمن "kernel/yosys_common.h"
 
-#include <chrono>
-#include <time.h>
+#ضمن <chrono>
+#ضمن <time.h>
 
-#include <regex>
+#ضمن <regex>
 #define YS_REGEX_COMPILE(param) std::regex(param, \
 				std::regex_constants::nosubs | \
 				std::regex_constants::optimize | \
@@ -34,12 +34,12 @@
 				std::regex_constants::optimize | \
 				std::regex_constants::egrep)
 
-#if defined(_WIN32)
+#𐤀𐤌 defined(_WIN32)
 #  include <intrin.h>
-#else
+#وإلا
 #  include <sys/time.h>
 #  include <sys/resource.h>
-#  if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+#  𐤀𐤌 defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 #    include <signal.h>
 #  endif
 #endif
@@ -53,40 +53,40 @@ YOSYS_NAMESPACE_BEGIN
 // if the platform provides such functionality, and does nothing otherwise.
 // If no debugger is attached, it starts a just-in-time debugger if available,
 // and crashes the process otherwise.
-#if defined(_WIN32)
+#𐤀𐤌 defined(_WIN32)
 # define YS_DEBUGTRAP __debugbreak()
-#else
+#وإلا
 # ifndef __has_builtin
 // __has_builtin is a GCC/Clang extension; on a different compiler (or old enough GCC/Clang)
 // that does not have it, using __has_builtin(...) is a syntax error.
 #  define __has_builtin(x) 0
 # endif
-# if __has_builtin(__builtin_debugtrap)
+# 𐤀𐤌 __has_builtin(__builtin_debugtrap)
 #  define YS_DEBUGTRAP __builtin_debugtrap()
 # elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
-#  define YS_DEBUGTRAP raise(SIGTRAP)
-# else
-#  define YS_DEBUGTRAP do {} while(0)
+#  define YS_DEBUGTRAP ارفع(SIGTRAP)
+# وإلا
+#  define YS_DEBUGTRAP 𐤐𐤏𐤋 {} طالما(0)
 # endif
 #endif
 
 // YS_DEBUGTRAP_IF_DEBUGGING is a macro that is functionally equivalent to a breakpoint
 // if a debugger is attached, and does nothing otherwise.
-#if defined(_WIN32)
-# define YS_DEBUGTRAP_IF_DEBUGGING do { if (IsDebuggerPresent()) DebugBreak(); } while(0)
+#𐤀𐤌 defined(_WIN32)
+# define YS_DEBUGTRAP_IF_DEBUGGING 𐤐𐤏𐤋 { 𐤀𐤌 (IsDebuggerPresent()) DebugBreak(); } طالما(0)
 # elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 // There is no reliable (or portable) *nix equivalent of IsDebuggerPresent(). However,
 // debuggers will stop when SIGTRAP is raised, even if the action is set to ignore.
-# define YS_DEBUGTRAP_IF_DEBUGGING do { \
-		auto old = signal(SIGTRAP, SIG_IGN); raise(SIGTRAP); signal(SIGTRAP, old); \
-	} while(0)
-#else
-# define YS_DEBUGTRAP_IF_DEBUGGING do {} while(0)
+# define YS_DEBUGTRAP_IF_DEBUGGING 𐤐𐤏𐤋 { \
+		auto old = إشارة(SIGTRAP, SIG_IGN); ارفع(SIGTRAP); إشارة(SIGTRAP, old); \
+	} طالما(0)
+#وإلا
+# define YS_DEBUGTRAP_IF_DEBUGGING 𐤐𐤏𐤋 {} طالما(0)
 #endif
 
-struct log_cmd_error_exception { };
+بنية log_cmd_error_exception { };
 
-enum class LogSeverity {
+تعداد class LogSeverity {
 	Debug,
 	Comment,
 	Info,
@@ -97,20 +97,20 @@ enum class LogSeverity {
 	Error
 };
 
-struct LogSourceLocation {
+بنية LogSourceLocation {
 	LogSourceLocation() : filename({}),start_line(-1),start_col(-1),end_line(-1),end_col(-1) { }
 	LogSourceLocation(std::string filename) : filename(filename),start_line(-1),start_col(-1),end_line(-1),end_col(-1) { }
-	LogSourceLocation(std::string filename,int start_line) : filename(filename),start_line(start_line),start_col(-1),end_line(-1),end_col(-1) { }
-	LogSourceLocation(std::string filename,int start_line,int start_col,int end_line,int end_col) :
+	LogSourceLocation(std::string filename,صحيح start_line) : filename(filename),start_line(start_line),start_col(-1),end_line(-1),end_col(-1) { }
+	LogSourceLocation(std::string filename,صحيح start_line,صحيح start_col,صحيح end_line,صحيح end_col) :
 		filename(filename),start_line(start_line),start_col(start_col),end_line(end_line),end_col(end_col) { }
 	std::string filename;
-	int start_line;
-	int start_col;
-	int end_line;
-	int end_col;
+	صحيح start_line;
+	صحيح start_col;
+	صحيح end_line;
+	صحيح end_col;
 };
 
-struct LogMessage {
+بنية LogMessage {
 	LogMessage(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string_view message);
 	LogSeverity severity;
 	std::string prefix;
@@ -124,97 +124,97 @@ struct LogMessage {
 
 class LogSink
 {
-public:
-	virtual ~LogSink() = default;
+عام:
+	virtual ~LogSink() = افتراضي;
 
-	virtual bool should_log(const LogMessage &) const { return true; }
-	virtual void log(const LogMessage &msg) = 0;
-	virtual void flush() {}
+	virtual bool should_log(ثابت LogMessage &) ثابت { أرجع true; }
+	virtual فراغ log(ثابت LogMessage &msg) = 0;
+	virtual فراغ flush() {}
 	// TODO: Remove when AST/read_verilog removed
-	virtual FILE *file_handle() { return nullptr; }
+	virtual FILE *file_handle() { أرجع nullptr; }
 };
 
-class LogSinkRef : public LogSink
+class LogSinkRef : عام LogSink
 {
-public:
+عام:
 	explicit LogSinkRef(LogSink *sink) : sink(sink) {}
-	bool should_log(const LogMessage &msg) const override { return sink->should_log(msg); }
-	void log(const LogMessage &msg) override { sink->log(msg); }
-	void flush() override { sink->flush(); }
-	FILE *file_handle() override { return sink->file_handle(); }
-private:
+	bool should_log(ثابت LogMessage &msg) ثابت override { أرجع sink->should_log(msg); }
+	فراغ log(ثابت LogMessage &msg) override { sink->log(msg); }
+	فراغ flush() override { sink->flush(); }
+	FILE *file_handle() override { أرجع sink->file_handle(); }
+خاص:
 	LogSink *sink;
 };
 
-class FileLogSink : public LogSink
+class FileLogSink : عام LogSink
 {
-public:
-	explicit FileLogSink(const std::string &filename, bool line_buffered, bool append);
+عام:
+	explicit FileLogSink(ثابت std::string &filename, bool line_buffered, bool append);
 	~FileLogSink() override;
-	void log(const LogMessage &msg) override;
-	void flush() override;
-	FILE *file_handle() override { return file; }
+	فراغ log(ثابت LogMessage &msg) override;
+	فراغ flush() override;
+	FILE *file_handle() override { أرجع file; }
 
-private:
+خاص:
 	FILE *file;
 };
 
-class ConsoleLogSink : public LogSink
+class ConsoleLogSink : عام LogSink
 {
-public:
-	void log(const LogMessage &msg) override;
-	void flush() override;
-	FILE *file_handle() override { return stdout; }
+عام:
+	فراغ log(ثابت LogMessage &msg) override;
+	فراغ flush() override;
+	FILE *file_handle() override { أرجع stdout; }
 };
 
-class StderrLogSink : public LogSink
+class StderrLogSink : عام LogSink
 {
-public:
+عام:
 	explicit StderrLogSink(bool quiet) : quiet_warnings(quiet) {}
-	bool should_log(const LogMessage &msg) const override;
-	void log(const LogMessage &msg) override;
-	void flush() override;
-private:
+	bool should_log(ثابت LogMessage &msg) ثابت override;
+	فراغ log(ثابت LogMessage &msg) override;
+	فراغ flush() override;
+خاص:
 	bool quiet_warnings;
 };
 
-class StreamLogSink : public LogSink
+class StreamLogSink : عام LogSink
 {
-public:
+عام:
 	explicit StreamLogSink(std::ostream &stream) : stream(stream) {}
-	void log(const LogMessage &msg) override { stream << msg.cached_msg; }
-	void flush() override { stream.flush(); }
+	فراغ log(ثابت LogMessage &msg) override { stream << msg.cached_msg; }
+	فراغ flush() override { stream.flush(); }
 
-private:
+خاص:
 	std::ostream &stream;
 };
 
-class ScratchPadLogSink : public LogSink
+class ScratchPadLogSink : عام LogSink
 {
-public:
+عام:
 	explicit ScratchPadLogSink(std::string scratchpad);
-	void log(const LogMessage &msg) override;
+	فراغ log(ثابت LogMessage &msg) override;
 
-private:
+خاص:
 	std::string scratchpad;
 };
 
 class LogManager
 {
-private:
-	struct LogExpectedItem
+خاص:
+	بنية LogExpectedItem
 	{
-		LogExpectedItem(const std::regex &pat, int expected) :
+		LogExpectedItem(ثابت std::regex &pat, صحيح expected) :
 				pattern(pat), expected_count(expected), current_count(0) {}
 		LogExpectedItem() : expected_count(0), current_count(0) {}
 
 		std::regex pattern;
-		int expected_count;
-		int current_count;
+		صحيح expected_count;
+		صحيح current_count;
 	};
 
-public:
-	LogManager() = default;
+عام:
+	LogManager() = افتراضي;
 
 	template<typename T, typename... Args>
 	T &add_sink(Args&&... args)
@@ -222,24 +222,24 @@ public:
 		auto sink = std::make_unique<T>(std::forward<Args>(args)...);
 		T &ref = *sink;
 		sinks.push_back(std::move(sink));
-		return ref;
+		أرجع ref;
 	}
 
 	template<typename F>
-	void for_each_sink(F &&func)
+	فراغ for_each_sink(F &&func)
 	{
-		for (auto &sink : sinks)
+		لكل (auto &sink : sinks)
 			func(*sink);
 	}
 
-	bool empty() { return sinks.empty(); }
-	void clear() { sinks.clear(); }
-	void clear_original();
-	void flush() { for (auto &sink : sinks) sink->flush(); }
+	bool empty() { أرجع sinks.empty(); }
+	فراغ clear() { sinks.clear(); }
+	فراغ clear_original();
+	فراغ flush() { لكل (auto &sink : sinks) sink->flush(); }
 
 	class Scoped
 	{
-	public:
+	عام:
 		explicit Scoped(LogManager &manager) :
 			manager(manager),
 			backup_sinks(std::move(manager.sinks)),
@@ -247,7 +247,7 @@ public:
 		{
 			manager.sinks.reserve(backup_sinks.size());
 
-			for (const auto &sink : backup_sinks)
+			لكل (ثابت auto &sink : backup_sinks)
 				manager.sinks.push_back(std::make_unique<LogSinkRef>(sink.get()));
 		}
 
@@ -258,23 +258,23 @@ public:
 			manager.verbose_level = backup_verbose_level;
 		}
 
-		Scoped(const Scoped &) = delete;
-		Scoped &operator=(const Scoped &) = delete;
+		Scoped(ثابت Scoped &) = delete;
+		Scoped &operator=(ثابت Scoped &) = delete;
 
-	private:
+	خاص:
 		LogManager &manager;
 		std::vector<std::unique_ptr<LogSink>> backup_sinks;
-		int backup_verbose_level;
+		صحيح backup_verbose_level;
 	};
 
 	Scoped sink_scope()
 	{
-		return Scoped(*this);
+		أرجع Scoped(*this);
 	}
 
 	class ScopedCmdErrorThrow
 	{
-	public:
+	عام:
 		explicit ScopedCmdErrorThrow(LogManager &manager)
 			: manager(manager), previous(manager.cmd_error_throw)
 		{
@@ -286,23 +286,23 @@ public:
 			manager.cmd_error_throw = previous;
 		}
 
-	private:
+	خاص:
 		LogManager &manager;
 		bool previous;
 	};
 
 	ScopedCmdErrorThrow error_throw_scope()
 	{
-		return ScopedCmdErrorThrow(*this);
+		أرجع ScopedCmdErrorThrow(*this);
 	}
 
 	class LogMakeDebugHdl
 	{
-	public:
+	عام:
 		explicit LogMakeDebugHdl(LogManager &manager, bool start_on = false)
 			: manager(manager)
 		{
-			if (start_on)
+			𐤀𐤌 (start_on)
 				on();
 		}
 
@@ -311,43 +311,43 @@ public:
 			off();
 		}
 
-		void on()
+		فراغ on()
 		{
-			if (status)
-				return;
+			𐤀𐤌 (status)
+				أرجع;
 			status = true;
 			manager.make_debug++;
 		}
 
-		void off_silent()
+		فراغ off_silent()
 		{
-			if (!status)
-				return;
+			𐤀𐤌 (!status)
+				أرجع;
 			status = false;
 			manager.make_debug--;
 		}
 
-		void off()
+		فراغ off()
 		{
 			off_silent();
 		}
-	private:
+	خاص:
 		LogManager &manager;
 		bool status = false;
 	};
 
 	LogMakeDebugHdl make_debug_scope(bool start_on = false)
 	{
-		return LogMakeDebugHdl(*this, start_on);
+		أرجع LogMakeDebugHdl(*this, start_on);
 	}
 
 	class ForceDebug
 	{
-	public:
+	عام:
 		explicit ForceDebug(LogManager &manager, bool start_on = false)
 			: manager(manager)
 		{
-			if (start_on)
+			𐤀𐤌 (start_on)
 				on();
 		}
 
@@ -356,98 +356,98 @@ public:
 			off();
 		}
 
-		void on()
+		فراغ on()
 		{
-			if (active)
-				return;
+			𐤀𐤌 (active)
+				أرجع;
 
 			active = true;
 			manager.force_debug++;
 		}
 
-		void off()
+		فراغ off()
 		{
-			if (!active)
-				return;
+			𐤀𐤌 (!active)
+				أرجع;
 
 			active = false;
 			manager.force_debug--;
 		}
-	private:
+	خاص:
 		LogManager &manager;
 		bool active = false;
 	};
 
 	ForceDebug force_debug_scope(bool start_on = false)
 	{
-		return ForceDebug(*this, start_on);
+		أرجع ForceDebug(*this, start_on);
 	}
 
-	void force_debug_on() { force_debug++; }
-	void force_debug_off() { if (force_debug > 0) force_debug--; }
-	void set_force_debug(bool enabled) { force_debug = enabled ? 1 : 0;	}
+	فراغ force_debug_on() { force_debug++; }
+	فراغ force_debug_off() { 𐤀𐤌 (force_debug > 0) force_debug--; }
+	فراغ set_force_debug(bool enabled) { force_debug = enabled ? 1 : 0;	}
 
-	void report_unexpected_error();
+	فراغ report_unexpected_error();
 
-	void add_experimental_ignore(std::string name) { experimental_ignored.insert(name); }
-	void add_warn(std::string pattern) { warn_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_nowarn(std::string pattern) { nowarn_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_werror(std::string pattern) { werror_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_expect(std::string type, std::string pattern, int count);
+	فراغ add_experimental_ignore(std::string name) { experimental_ignored.insert(name); }
+	فراغ add_warn(std::string pattern) { warn_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
+	فراغ add_nowarn(std::string pattern) { nowarn_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
+	فراغ add_werror(std::string pattern) { werror_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
+	فراغ add_expect(std::string type, std::string pattern, صحيح count);
 
-	void set_verbose_level(int level) { verbose_level = level; }
-	void add_verbose_level(int level) { verbose_level += level; }
-	void set_expect_no_warnings(bool value) { expect_no_warnings = value; }
-	void set_log_time(bool value) { log_time = value; }
-	void set_cmd_error_throw(bool value) { cmd_error_throw = value; }
-	void set_hdump_all(bool value) { hdump_all = value; }
-	int get_verbose_level() const { return verbose_level; }
-	bool get_log_time() const { return log_time; }
-	int get_warnings_unique() const { return GetSize(warnings); }
-	int get_warnings_total() const { return warnings_count; }
-	int get_errors_total() const { return errors_count; }
-	const std::set<std::string> &get_experimental() const { return experimental; }
-	const std::map<std::string, std::string> &get_deprecated() const { return deprecated; }
-	std::chrono::steady_clock::time_point get_initial_time() const;
+	فراغ set_verbose_level(صحيح level) { verbose_level = level; }
+	فراغ add_verbose_level(صحيح level) { verbose_level += level; }
+	فراغ set_expect_no_warnings(bool value) { expect_no_warnings = value; }
+	فراغ set_log_time(bool value) { log_time = value; }
+	فراغ set_cmd_error_throw(bool value) { cmd_error_throw = value; }
+	فراغ set_hdump_all(bool value) { hdump_all = value; }
+	صحيح get_verbose_level() ثابت { أرجع verbose_level; }
+	bool get_log_time() ثابت { أرجع log_time; }
+	صحيح get_warnings_unique() ثابت { أرجع GetSize(warnings); }
+	صحيح get_warnings_total() ثابت { أرجع warnings_count; }
+	صحيح get_errors_total() ثابت { أرجع errors_count; }
+	ثابت std::set<std::string> &get_experimental() ثابت { أرجع experimental; }
+	ثابت std::map<std::string, std::string> &get_deprecated() ثابت { أرجع deprecated; }
+	std::chrono::steady_clock::time_point get_initial_time() ثابت;
 
-	void add_hdump(std::string name, std::string value) { hdump[name].insert(value); }
+	فراغ add_hdump(std::string name, std::string value) { hdump[name].insert(value); }
 
-	void formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str);
-	void formatted_header(RTLIL::Design *design, std::string_view format, std::string str);
-	void formatted_warning(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
-	[[noreturn]] void formatted_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
-	void formatted_nonfatal_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
-	[[noreturn]] void formatted_cmd_error(std::string_view format, std::string message);
-	void suppressed();
-	void add_experimental(const std::string &str);
-	void add_deprecated(const std::string &feature, const std::string &earliest_removal);
-	void spacer();
-	void push();
-	void pop();
+	فراغ formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str);
+	فراغ formatted_header(RTLIL::Design *design, std::string_view format, std::string str);
+	فراغ formatted_warning(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
+	[[noreturn]] فراغ formatted_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
+	فراغ formatted_nonfatal_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
+	[[noreturn]] فراغ formatted_cmd_error(std::string_view format, std::string message);
+	فراغ suppressed();
+	فراغ add_experimental(ثابت std::string &str);
+	فراغ add_deprecated(ثابت std::string &feature, ثابت std::string &earliest_removal);
+	فراغ spacer();
+	فراغ push();
+	فراغ pop();
 
-	void reset_stack();
+	فراغ reset_stack();
 
-	void check_expected();
-	bool expects_error() { return (expect_error.size() + expect_prefix_error.size())>0; }
+	فراغ check_expected();
+	bool expects_error() { أرجع (expect_error.size() + expect_prefix_error.size())>0; }
 #ifndef NDEBUG
-	bool is_debug(int n = 0) { if (force_debug) return true; debug_suppressed += n; return false; }
-#else
-	bool is_debug(int = 0) { return false; }
+	bool is_debug(صحيح n = 0) { 𐤀𐤌 (force_debug) أرجع true; debug_suppressed += n; أرجع false; }
+#وإلا
+	bool is_debug(صحيح = 0) { أرجع false; }
 #endif
-	void start_hasher();
+	فراغ start_hasher();
 	std::string finish_hasher();
 
-private:
-	void logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in);
-	void error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
+خاص:
+	فراغ logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in);
+	فراغ error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
 
 	std::vector<std::unique_ptr<LogSink>> sinks;
-	int verbose_level = 0;
-	int newline_count = 0;
-	vector<int> header_count;
-	int errors_count = 0;
-	int warnings_count = 0;
-	int warnings_count_noexpect = 0;
+	صحيح verbose_level = 0;
+	صحيح newline_count = 0;
+	vector<صحيح> header_count;
+	صحيح errors_count = 0;
+	صحيح warnings_count = 0;
+	صحيح warnings_count_noexpect = 0;
 	std::set<std::string> warnings, experimental, experimental_ignored;
 	std::map<std::string, std::string> deprecated;
 
@@ -460,141 +460,141 @@ private:
 	std::map<std::string, std::set<std::string>> hdump;
 	bool hdump_all = false;
 
-	int debug_suppressed = 0;
-	int make_debug = 0;
-	int force_debug = 0;
+	صحيح debug_suppressed = 0;
+	صحيح make_debug = 0;
+	صحيح force_debug = 0;
 	std::unique_ptr<SHA1> hasher;
 };
 
 LogManager &logger();
 
-extern void (*log_error_atexit)();
+خارجي فراغ (*log_error_atexit)();
 
-void set_verific_logging(void (*cb)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg));
-extern void (*log_verific_callback)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg);
+فراغ set_verific_logging(فراغ (*cb)(صحيح msg_type, ثابت حرف *message_id, LogSourceLocation src, ثابت حرف *msg));
+خارجي فراغ (*log_verific_callback)(صحيح msg_type, ثابت حرف *message_id, LogSourceLocation src, ثابت حرف *msg);
 
 #ifndef NDEBUG
-static inline bool ys_debug(int n = 0) { return logger().is_debug(n); }
-#else
-static inline bool ys_debug(int = 0) { return false; }
+ساكن مضمن bool ys_debug(صحيح n = 0) { أرجع logger().is_debug(n); }
+#وإلا
+ساكن مضمن bool ys_debug(صحيح = 0) { أرجع false; }
 #endif
 
 template <typename... Args>
-inline void log(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+مضمن فراغ log(FmtString<TypeIdentity<Args>...> fmt, ثابت Args &... args)
 {
 	logger().formatted_string(LogSeverity::Info, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
 }
 
 template <typename... Args>
-inline void log_comment(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+مضمن فراغ log_comment(FmtString<TypeIdentity<Args>...> fmt, ثابت Args &... args)
 {
 	logger().formatted_string(LogSeverity::Comment, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
 }
 
 template <typename... Args>
-inline void log_highlight(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+مضمن فراغ log_highlight(FmtString<TypeIdentity<Args>...> fmt, ثابت Args &... args)
 {
 	logger().formatted_string(LogSeverity::Highlight, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
 }
 
 template <typename... Args>
-inline void log_formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix,
-		FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+مضمن فراغ log_formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix,
+		FmtString<TypeIdentity<Args>...> fmt, ثابت Args &... args)
 {
 	logger().formatted_string(severity, src, prefix, fmt.format_string(), fmt.format(args...));
 }
 
-#define log_debug(...) do { if (ys_debug(1)) YOSYS_NAMESPACE_PREFIX log_formatted_string(YOSYS_NAMESPACE_PREFIX LogSeverity::Debug, {}, {}, __VA_ARGS__); } while (0)
+#define log_debug(...) 𐤐𐤏𐤋 { 𐤀𐤌 (ys_debug(1)) YOSYS_NAMESPACE_PREFIX log_formatted_string(YOSYS_NAMESPACE_PREFIX LogSeverity::Debug, {}, {}, __VA_ARGS__); } طالما (0)
 
 template <typename... Args>
-inline void log_header(RTLIL::Design *design, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+مضمن فراغ log_header(RTLIL::Design *design, FmtString<TypeIdentity<Args>...> fmt, ثابت Args &... args)
 {
 	logger().formatted_header(design, fmt.format_string(), fmt.format(args...));
 }
 
 template <typename... Args>
-inline void log_warning(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+مضمن فراغ log_warning(FmtString<TypeIdentity<Args>...> fmt, ثابت Args &... args)
 {
 	logger().formatted_warning(LogSourceLocation{}, "Warning: ", fmt.format_string(), fmt.format(args...));
 }
 
 template <typename... Args>
-inline void log_warning_noprefix(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+مضمن فراغ log_warning_noprefix(FmtString<TypeIdentity<Args>...> fmt, ثابت Args &... args)
 {
 	logger().formatted_warning(LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
 }
 
-inline void log_experimental(const std::string &str)
+مضمن فراغ log_experimental(ثابت std::string &str)
 {
 	logger().add_experimental(str);
 }
 
-inline void log_deprecated(const std::string &feature, const std::string &earliest_removal = "")
+مضمن فراغ log_deprecated(ثابت std::string &feature, ثابت std::string &earliest_removal = "")
 {
 	logger().add_deprecated(feature, earliest_removal);
 }
 
 // Log with filename to report a problem in a source file.
 template <typename... Args>
-void log_file_warning(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+فراغ log_file_warning(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, ثابت Args &... args)
 {
 	logger().formatted_warning(src, "Warning: ", fmt.format_string(), fmt.format(args...));
 }
 
 template <typename... Args>
-void log_file_info(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+فراغ log_file_info(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, ثابت Args &... args)
 {
 	logger().formatted_string(LogSeverity::Info, src, "NOTE: ", fmt.format_string(), fmt.format(args...));
 }
 
 template <typename... Args>
-[[noreturn]] void log_error(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+[[noreturn]] فراغ log_error(FmtString<TypeIdentity<Args>...> fmt, ثابت Args &... args)
 {
 	logger().formatted_error(LogSourceLocation{}, "ERROR: ", fmt.format_string(), fmt.format(args...));
 }
 
 template <typename... Args>
-[[noreturn]] void log_file_error(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+[[noreturn]] فراغ log_file_error(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, ثابت Args &... args)
 {
 	logger().formatted_error(src, "ERROR: ", fmt.format_string(), fmt.format(args...));
 }
 
 template <typename... Args>
-void log_file_nonfatal_error(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+فراغ log_file_nonfatal_error(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, ثابت Args &... args)
 {
 	logger().formatted_nonfatal_error(src, "ERROR: ", fmt.format_string(), fmt.format(args...));
 }
 
 template <typename... Args>
-[[noreturn]] void log_cmd_error(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+[[noreturn]] فراغ log_cmd_error(FmtString<TypeIdentity<Args>...> fmt, ثابت Args &... args)
 {
 	logger().formatted_cmd_error(fmt.format_string(), fmt.format(args...));
 }
 
-inline void log_suppressed()
+مضمن فراغ log_suppressed()
 {
 	logger().suppressed();
 }
 
-inline void log_spacer() { logger().spacer(); }
-inline void log_push() { logger().push(); }
-inline void log_pop() { logger().pop(); }
+مضمن فراغ log_spacer() { logger().spacer(); }
+مضمن فراغ log_push() { logger().push(); }
+مضمن فراغ log_pop() { logger().pop(); }
 
-inline void log_reset_stack() { logger().reset_stack(); }
-inline void log_flush() { logger().flush(); }
+مضمن فراغ log_reset_stack() { logger().reset_stack(); }
+مضمن فراغ log_flush() { logger().flush(); }
 
-void log_backtrace(const char *prefix, int levels);
+فراغ log_backtrace(ثابت حرف *prefix, صحيح levels);
 
 
-std::string log_signal(const RTLIL::SigSpec &sig, bool autoint = true);
-std::string log_const(const RTLIL::Const &value, bool autoint = true);
+std::string log_signal(ثابت RTLIL::SigSpec &sig, bool autoint = true);
+std::string log_const(ثابت RTLIL::Const &value, bool autoint = true);
 
-void log_module(RTLIL::Module *module, std::string indent = "");
-void log_cell(RTLIL::Cell *cell, std::string indent = "");
-void log_wire(RTLIL::Wire *wire, std::string indent = "");
+فراغ log_module(RTLIL::Module *module, std::string indent = "");
+فراغ log_cell(RTLIL::Cell *cell, std::string indent = "");
+فراغ log_wire(RTLIL::Wire *wire, std::string indent = "");
 
 [[noreturn]]
-void log_abort_internal(const char *file, int line);
+فراغ log_abort_internal(ثابت حرف *file, صحيح line);
 #define log_abort() YOSYS_NAMESPACE_PREFIX log_abort_internal(__FILE__, __LINE__)
 #define log_ping() YOSYS_NAMESPACE_PREFIX log("-- %s:%d %s --\n", __FILE__, __LINE__, __PRETTY_FUNCTION__)
 
@@ -605,108 +605,108 @@ void log_abort_internal(const char *file, int line);
 
 // simple timer for performance measurements
 // toggle the '#if 1' to get a baseline for the performance penalty added by the measurement
-struct PerformanceTimer
+بنية PerformanceTimer
 {
-#if 1
+#𐤀𐤌 1
 	int64_t total_ns;
 
 	PerformanceTimer() {
 		total_ns = 0;
 	}
 
-	static int64_t query() {
+	ساكن int64_t query() {
 #  ifdef _WIN32
-		return 0;
+		أرجع 0;
 #  elif defined(RUSAGE_SELF)
-		struct rusage rusage;
+		بنية rusage rusage;
 		int64_t t = 0;
-		for (int who : {RUSAGE_SELF, RUSAGE_CHILDREN}) {
-			if (getrusage(who, &rusage) == -1) {
+		لكل (صحيح who : {RUSAGE_SELF, RUSAGE_CHILDREN}) {
+			𐤀𐤌 (getrusage(who, &rusage) == -1) {
 				log_cmd_error("getrusage failed!\n");
 				log_abort();
 			}
 			t += 1000000000ULL * (int64_t) rusage.ru_utime.tv_sec + (int64_t) rusage.ru_utime.tv_usec * 1000ULL;
 			t += 1000000000ULL * (int64_t) rusage.ru_stime.tv_sec + (int64_t) rusage.ru_stime.tv_usec * 1000ULL;
 		}
-		return t;
-#  else
+		أرجع t;
+#  وإلا
 #    error "Don't know how to measure per-process CPU time. Need alternative method (times()/clocks()/gettimeofday()?)."
 #  endif
 	}
 
-	void reset() {
+	فراغ reset() {
 		total_ns = 0;
 	}
 
-	void begin() {
+	فراغ begin() {
 		total_ns -= query();
 	}
 
-	void end() {
+	فراغ end() {
 		total_ns += query();
 	}
 
-	float sec() const {
-		return total_ns * 1e-9f;
+	عائم sec() ثابت {
+		أرجع total_ns * 1e-9f;
 	}
-#else
-	static int64_t query() { return 0; }
-	void reset() { }
-	void begin() { }
-	void end() { }
-	float sec() const { return 0; }
+#وإلا
+	ساكن int64_t query() { أرجع 0; }
+	فراغ reset() { }
+	فراغ begin() { }
+	فراغ end() { }
+	عائم sec() ثابت { أرجع 0; }
 #endif
 };
 
 // simple API for quickly dumping values when debugging
 
-static inline void log_dump_val_worker(short v) { log("%d", v); }
-static inline void log_dump_val_worker(unsigned short v) { log("%u", v); }
-static inline void log_dump_val_worker(int v) { log("%d", v); }
-static inline void log_dump_val_worker(unsigned int v) { log("%u", v); }
-static inline void log_dump_val_worker(long int v) { log("%ld", v); }
-static inline void log_dump_val_worker(unsigned long int v) { log("%lu", v); }
+ساكن مضمن فراغ log_dump_val_worker(short v) { log("%d", v); }
+ساكن مضمن فراغ log_dump_val_worker(unsigned short v) { log("%u", v); }
+ساكن مضمن فراغ log_dump_val_worker(صحيح v) { log("%d", v); }
+ساكن مضمن فراغ log_dump_val_worker(unsigned صحيح v) { log("%u", v); }
+ساكن مضمن فراغ log_dump_val_worker(long صحيح v) { log("%ld", v); }
+ساكن مضمن فراغ log_dump_val_worker(unsigned long صحيح v) { log("%lu", v); }
 #ifndef _WIN32
-static inline void log_dump_val_worker(long long int v) { log("%lld", v); }
-static inline void log_dump_val_worker(unsigned long long int v) { log("%lld", v); }
+ساكن مضمن فراغ log_dump_val_worker(long long صحيح v) { log("%lld", v); }
+ساكن مضمن فراغ log_dump_val_worker(unsigned long long صحيح v) { log("%lld", v); }
 #endif
-static inline void log_dump_val_worker(char c)
+ساكن مضمن فراغ log_dump_val_worker(حرف c)
 {
-	if (c >= 32 && c < 127) {
+	𐤀𐤌 (c >= 32 && c < 127) {
 		log("'%c'", c);
-	} else {
+	} وإلا {
 		log("'\\x%02x'", c);
 	}
 }
-static inline void log_dump_val_worker(unsigned char c)
+ساكن مضمن فراغ log_dump_val_worker(unsigned حرف c)
 {
-	if (c >= 32 && c < 127) {
+	𐤀𐤌 (c >= 32 && c < 127) {
 		log("'%c'", c);
-	} else {
+	} وإلا {
 		log("'\\x%02x'", c);
 	}
 }
-static inline void log_dump_val_worker(bool v) { log("%s", v ? "true" : "false"); }
-static inline void log_dump_val_worker(double v) { log("%f", v); }
-static inline void log_dump_val_worker(char *v) { log("%s", v); }
-static inline void log_dump_val_worker(const char *v) { log("%s", v); }
-static inline void log_dump_val_worker(std::string v) { log("%s", v); }
-static inline void log_dump_val_worker(PerformanceTimer p) { log("%f seconds", p.sec()); }
-static inline void log_dump_args_worker(const char *p) { log_assert(*p == 0); }
-void log_dump_val_worker(IdString v);
-void log_dump_val_worker(RTLIL::SigSpec v);
-void log_dump_val_worker(RTLIL::State v);
+ساكن مضمن فراغ log_dump_val_worker(bool v) { log("%s", v ? "true" : "false"); }
+ساكن مضمن فراغ log_dump_val_worker(مزدوج v) { log("%f", v); }
+ساكن مضمن فراغ log_dump_val_worker(حرف *v) { log("%s", v); }
+ساكن مضمن فراغ log_dump_val_worker(ثابت حرف *v) { log("%s", v); }
+ساكن مضمن فراغ log_dump_val_worker(std::string v) { log("%s", v); }
+ساكن مضمن فراغ log_dump_val_worker(PerformanceTimer p) { log("%f seconds", p.sec()); }
+ساكن مضمن فراغ log_dump_args_worker(ثابت حرف *p) { log_assert(*p == 0); }
+فراغ log_dump_val_worker(IdString v);
+فراغ log_dump_val_worker(RTLIL::SigSpec v);
+فراغ log_dump_val_worker(RTLIL::State v);
 
-template<typename K, typename T> static inline void log_dump_val_worker(dict<K, T> &v);
-template<typename K> static inline void log_dump_val_worker(pool<K> &v);
-template<typename K> static inline void log_dump_val_worker(std::vector<K> &v);
-template<typename T> static inline void log_dump_val_worker(T *ptr);
+template<typename K, typename T> ساكن مضمن فراغ log_dump_val_worker(dict<K, T> &v);
+template<typename K> ساكن مضمن فراغ log_dump_val_worker(pool<K> &v);
+template<typename K> ساكن مضمن فراغ log_dump_val_worker(std::vector<K> &v);
+template<typename T> ساكن مضمن فراغ log_dump_val_worker(T *ptr);
 
 template<typename K, typename T>
-static inline void log_dump_val_worker(dict<K, T> &v) {
+ساكن مضمن فراغ log_dump_val_worker(dict<K, T> &v) {
 	log("{");
 	bool first = true;
-	for (auto &it : v) {
+	لكل (auto &it : v) {
 		log("%s ", first ? "" : ",");
 		log_dump_val_worker(it.first);
 		log(": ");
@@ -717,10 +717,10 @@ static inline void log_dump_val_worker(dict<K, T> &v) {
 }
 
 template<typename K>
-static inline void log_dump_val_worker(pool<K> &v) {
+ساكن مضمن فراغ log_dump_val_worker(pool<K> &v) {
 	log("{");
 	bool first = true;
-	for (auto &it : v) {
+	لكل (auto &it : v) {
 		log("%s ", first ? "" : ",");
 		log_dump_val_worker(it);
 		first = false;
@@ -729,10 +729,10 @@ static inline void log_dump_val_worker(pool<K> &v) {
 }
 
 template<typename K>
-static inline void log_dump_val_worker(std::vector<K> &v) {
+ساكن مضمن فراغ log_dump_val_worker(std::vector<K> &v) {
 	log("{");
 	bool first = true;
-	for (auto &it : v) {
+	لكل (auto &it : v) {
 		log("%s ", first ? "" : ",");
 		log_dump_val_worker(it);
 		first = false;
@@ -741,50 +741,50 @@ static inline void log_dump_val_worker(std::vector<K> &v) {
 }
 
 template<typename T>
-static inline void log_dump_val_worker(T *ptr) { log("%p", ptr); }
+ساكن مضمن فراغ log_dump_val_worker(T *ptr) { log("%p", ptr); }
 
 template<typename T, typename ... Args>
-void log_dump_args_worker(const char *p, T first, Args ... args)
+فراغ log_dump_args_worker(ثابت حرف *p, T first, Args ... args)
 {
-	int next_p_state = 0;
-	const char *next_p = p;
-	while (*next_p && (next_p_state != 0 || *next_p != ',')) {
-		if (*next_p == '"')
-			do {
+	صحيح next_p_state = 0;
+	ثابت حرف *next_p = p;
+	طالما (*next_p && (next_p_state != 0 || *next_p != ',')) {
+		𐤀𐤌 (*next_p == '"')
+			𐤐𐤏𐤋 {
 				next_p++;
-				while (*next_p == '\\' && *(next_p + 1))
+				طالما (*next_p == '\\' && *(next_p + 1))
 					next_p += 2;
-			} while (*next_p && *next_p != '"');
-		if (*next_p == '\'') {
+			} طالما (*next_p && *next_p != '"');
+		𐤀𐤌 (*next_p == '\'') {
 			next_p++;
-			if (*next_p == '\\')
+			𐤀𐤌 (*next_p == '\\')
 				next_p++;
-			if (*next_p)
+			𐤀𐤌 (*next_p)
 				next_p++;
 		}
-		if (*next_p == '(' || *next_p == '[' || *next_p == '{')
+		𐤀𐤌 (*next_p == '(' || *next_p == '[' || *next_p == '{')
 			next_p_state++;
-		if ((*next_p == ')' || *next_p == ']' || *next_p == '}') && next_p_state > 0)
+		𐤀𐤌 ((*next_p == ')' || *next_p == ']' || *next_p == '}') && next_p_state > 0)
 			next_p_state--;
 		next_p++;
 	}
-	log("\n\t%.*s => ", int(next_p - p), p);
-	if (*next_p == ',')
+	log("\n\t%.*s => ", صحيح(next_p - p), p);
+	𐤀𐤌 (*next_p == ',')
 		next_p++;
-	while (*next_p == ' ' || *next_p == '\t' || *next_p == '\r' || *next_p == '\n')
+	طالما (*next_p == ' ' || *next_p == '\t' || *next_p == '\r' || *next_p == '\n')
 		next_p++;
 	log_dump_val_worker(first);
 	log_dump_args_worker(next_p, args ...);
 }
 
-#define log_dump(...) do { \
+#define log_dump(...) 𐤐𐤏𐤋 { \
 	log("DEBUG DUMP IN %s AT %s:%d:", __PRETTY_FUNCTION__, __FILE__, __LINE__); \
 	log_dump_args_worker(#__VA_ARGS__, __VA_ARGS__); \
 	log("\n"); \
-} while (0)
+} طالما (0)
 
 YOSYS_NAMESPACE_END
 
-#include "kernel/yosys.h"
+#ضمن "kernel/yosys.h"
 
 #endif

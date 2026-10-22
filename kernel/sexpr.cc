@@ -17,50 +17,50 @@
  *
  */
 
-#include "sexpr.h"
+#ضمن "sexpr.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-std::ostream &operator<<(std::ostream &os, SExpr const &sexpr) {
-    if(sexpr.is_atom())
+std::ostream &operator<<(std::ostream &os, SExpr ثابت &sexpr) {
+    𐤀𐤌(sexpr.is_atom())
         os << sexpr.atom();
-    else if(sexpr.is_list()){
+    وإلا 𐤀𐤌(sexpr.is_list()){
         os << "(";
         auto l = sexpr.list();
-        for(size_t i = 0; i < l.size(); i++) {
-            if(i > 0) os << " ";
+        لكل(size_t i = 0; i < l.size(); i++) {
+            𐤀𐤌(i > 0) os << " ";
             os << l[i];
         }
         os << ")";
-    }else
+    }وإلا
         os << "<invalid>";
-    return os;
+    أرجع os;
 }
 
- std::string SExpr::to_string() const {
+ std::string SExpr::to_string() ثابت {
     std::stringstream ss;
-    ss << *this;
-    return ss.str();
+    ss << *هذا;
+    أرجع ss.str();
 }
 
-void SExprWriter::nl_if_pending() {
-    if(_pending_nl) {
+فراغ SExprWriter::nl_if_pending() {
+    𐤀𐤌(_pending_nl) {
         os << '\n';
         _pos = 0;
-        _pending_nl = false;
+        _pending_nl = خطأ;
     }
 }
 
-void SExprWriter::puts(std::string_view s) {
-    if(s.empty()) return;
+فراغ SExprWriter::puts(std::string_view s) {
+    𐤀𐤌(s.empty()) أرجع;
     nl_if_pending();
-    for(auto c : s) {
-        if(c == '\n') {
+    لكل(auto c : s) {
+        𐤀𐤌(c == '\n') {
             os << c;
             _pos = 0;
-        } else {
-            if(_pos == 0) {
-                for(int i = 0; i < _indent; i++)
+        } وإلا {
+            𐤀𐤌(_pos == 0) {
+                لكل(صحيح i = 0; i < _indent; i++)
                     os << "  ";
                 _pos = 2 * _indent;
             }
@@ -78,83 +78,83 @@ void SExprWriter::puts(std::string_view s) {
 // but I can't figure out how to store the widths. As an alternative,
 // we bail out of the calculation as soon as we can tell the expression
 // doesn't fit in the available space.)
-int SExprWriter::check_fit(SExpr const &sexpr, int space) {
-    if(sexpr.is_atom())
-        return space - sexpr.atom().size();
-    else if(sexpr.is_list()) {
+صحيح SExprWriter::check_fit(SExpr ثابت &sexpr, صحيح space) {
+    𐤀𐤌(sexpr.is_atom())
+        أرجع space - sexpr.atom().size();
+    وإلا 𐤀𐤌(sexpr.is_list()) {
         space -= 2;
-        if(sexpr.list().size() > 1)
+        𐤀𐤌(sexpr.list().size() > 1)
             space -= sexpr.list().size() - 1;
-        for(auto arg : sexpr.list()) {
-            if(space < 0) break;
+        لكل(auto arg : sexpr.list()) {
+            𐤀𐤌(space < 0) اكسر;
             space = check_fit(arg, space);
         }
-        return space;
-    } else
-        return -1;
+        أرجع space;
+    } وإلا
+        أرجع -1;
 }
 
-void SExprWriter::print(SExpr const &sexpr, bool close, bool indent_rest) {
-    if(sexpr.is_atom())
+فراغ SExprWriter::print(SExpr ثابت &sexpr, منطقي close, منطقي indent_rest) {
+    𐤀𐤌(sexpr.is_atom())
         puts(sexpr.atom());
-    else if(sexpr.is_list()) {
+    وإلا 𐤀𐤌(sexpr.is_list()) {
         auto args = sexpr.list();
         puts("(");
         // Expressions are printed horizontally if they fit on the line.
         // We do the check *after* puts("(") to make sure that _pos is accurate.
         // (Otherwise there could be a pending newline + indentation)
-        bool vertical = args.size() > 1 && check_fit(sexpr, _max_line_width - _pos + 1) < 0;
-        if(vertical) _indent++;
-        for(size_t i = 0; i < args.size(); i++) {
-            if(i > 0) puts(vertical ? "\n" : " ");
+        منطقي vertical = args.size() > 1 && check_fit(sexpr, _max_line_width - _pos + 1) < 0;
+        𐤀𐤌(vertical) _indent++;
+        لكل(size_t i = 0; i < args.size(); i++) {
+            𐤀𐤌(i > 0) puts(vertical ? "\n" : " ");
             print(args[i]);
         }
         // Any remaining arguments are currently always printed vertically,
         // but are not indented if indent_rest = false.
         _indent += (!close && indent_rest) - vertical;
-        if(close)
+        𐤀𐤌(close)
             puts(")");
-        else {
+        وإلا {
             _unclosed.push_back(indent_rest);
             _pending_nl = true;
         }
-    }else
+    }وإلا
         log_error("shouldn't happen: SExpr '%s' is neither an atom nor a list\n", sexpr.to_string());
 }
 
-void SExprWriter::close(size_t n) {
+فراغ SExprWriter::close(size_t n) {
     log_assert(_unclosed.size() - (_unclosed_stack.empty() ? 0 : _unclosed_stack.back()) >= n);
-    while(n-- > 0) {
-        bool indented = _unclosed[_unclosed.size() - 1];
+    طالما(n-- > 0) {
+        منطقي indented = _unclosed[_unclosed.size() - 1];
         _unclosed.pop_back();
         // Only print ) on the same line if it fits.
         _pending_nl = _pos >= _max_line_width;
-        if(indented)
+        𐤀𐤌(indented)
             _indent--;
         puts(")");
         _pending_nl = true;
     }
 }
 
-void SExprWriter::comment(std::string const &str, bool hanging) {
-    if(hanging) {
-        if(_pending_nl) {
-            _pending_nl = false;
+فراغ SExprWriter::comment(std::string ثابت &str, منطقي hanging) {
+    𐤀𐤌(hanging) {
+        𐤀𐤌(_pending_nl) {
+            _pending_nl = خطأ;
             puts(" ");
         }
     }
     size_t i = 0, e;
-    do{
+    𐤐𐤏𐤋{
         e = str.find('\n', i);
         puts("; ");
         puts(std::string_view(str).substr(i, e - i));
         puts("\n");
         i = e + 1;
-    }while(e != std::string::npos);
+    }طالما(e != std::string::npos);
 }
 
 SExprWriter::~SExprWriter() {
-    while(!_unclosed_stack.empty())
+    طالما(!_unclosed_stack.empty())
         pop();
     close(_unclosed.size());
     nl_if_pending();

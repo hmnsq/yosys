@@ -17,12 +17,12 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/hashlib.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/hashlib.h"
 #define CXXOPTS_VECTOR_DELIMITER '\0'
-#include "libs/cxxopts/include/cxxopts.hpp"
-#include <iostream>
-#include <chrono>
+#ضمن "libs/cxxopts/include/cxxopts.hpp"
+#ضمن <iostream>
+#ضمن <chrono>
 
 #ifdef YOSYS_ENABLE_READLINE
 #  include <readline/readline.h>
@@ -40,20 +40,20 @@
 #ifdef YOSYS_ENABLE_PYTHON
 #  include <Python.h>
 #  include <pybind11/pybind11.h>
-namespace py = pybind11;
+نطاق py = pybind11;
 #endif
 
-#include <stdio.h>
-#include <string.h>
-#include <limits.h>
-#include <errno.h>
-#include <fcntl.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
+#ضمن <limits.h>
+#ضمن <errno.h>
+#ضمن <fcntl.h>
 #ifndef __STDC_FORMAT_MACROS
 #  define __STDC_FORMAT_MACROS
 #endif
-#include <inttypes.h>
+#ضمن <inttypes.h>
 
-#if defined (__linux__) || defined(__FreeBSD__)
+#𐤀𐤌 defined (__linux__) || defined(__FreeBSD__)
 #  include <sys/resource.h>
 #  include <sys/types.h>
 #  include <unistd.h>
@@ -64,160 +64,160 @@ namespace py = pybind11;
 #  include <sys/user.h>
 #endif
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#𐤀𐤌 !defined(_WIN32) || defined(__MINGW32__)
 #  include <unistd.h>
 #endif
 
-#include <fmt/color.h>
-#include <fmt/format.h>
+#ضمن <fmt/color.h>
+#ضمن <fmt/format.h>
 
 USING_YOSYS_NAMESPACE
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-int yosys_history_offset = 0;
+#𐤀𐤌 defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+صحيح yosys_history_offset = 0;
 std::string yosys_history_file;
 #endif
 
-void yosys_atexit()
+فراغ yosys_atexit()
 {
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	if (!yosys_history_file.empty()) {
-#if defined(YOSYS_ENABLE_READLINE)
-		if (yosys_history_offset > 0) {
+#𐤀𐤌 defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	𐤀𐤌 (!yosys_history_file.empty()) {
+#𐤀𐤌 defined(YOSYS_ENABLE_READLINE)
+		𐤀𐤌 (yosys_history_offset > 0) {
 			history_truncate_file(yosys_history_file.c_str(), 100);
 			append_history(where_history() - yosys_history_offset, yosys_history_file.c_str());
-		} else
+		} وإلا
 			write_history(yosys_history_file.c_str());
-#else
+#وإلا
 		write_history(yosys_history_file.c_str());
 #endif
 	}
 
 	clear_history();
-#if defined(YOSYS_ENABLE_READLINE)
+#𐤀𐤌 defined(YOSYS_ENABLE_READLINE)
 	HIST_ENTRY **hist_list = history_list();
-	if (hist_list != NULL)
-		free(hist_list);
+	𐤀𐤌 (hist_list != عدم)
+		حرر(hist_list);
 #endif
 #endif
 }
 
-#if defined(__OpenBSD__)
-namespace Yosys {
-extern char *yosys_argv0;
-extern char yosys_path[PATH_MAX];
+#𐤀𐤌 defined(__OpenBSD__)
+نطاق Yosys {
+خارجي حرف *yosys_argv0;
+خارجي حرف yosys_path[PATH_MAX];
 };
 #endif
 #ifdef YOSYS_ENABLE_TCL
-namespace Yosys {
-	extern int yosys_tcl_interp_init(Tcl_Interp *interp);
-	extern void yosys_tcl_activate_repl();
+نطاق Yosys {
+	خارجي صحيح yosys_tcl_interp_init(Tcl_Interp *interp);
+	خارجي فراغ yosys_tcl_activate_repl();
 };
 #endif
 
-namespace Yosys {
-	extern bool log_stderr_sink_forced;
+نطاق Yosys {
+	خارجي منطقي log_stderr_sink_forced;
 };
 
-class ColorConsoleLogSink : public LogSink
+صنف ColorConsoleLogSink : عام LogSink
 {
-public:
-	explicit ColorConsoleLogSink(bool err, bool quiet) : error_output(err), quiet_warnings(quiet) {}
-	void log(const LogMessage &msg) override;
-	bool should_log(const LogMessage &msg) const override;
-	void flush() override;
-	FILE *file_handle() override { return error_output ? nullptr : stdout; }
-private:
-	bool error_output;
-	bool quiet_warnings;
+عام:
+	explicit ColorConsoleLogSink(منطقي err, منطقي quiet) : error_output(err), quiet_warnings(quiet) {}
+	فراغ log(ثابت LogMessage &msg) override;
+	منطقي should_log(ثابت LogMessage &msg) ثابت override;
+	فراغ flush() override;
+	FILE *file_handle() override { أرجع error_output ? nullptr : stdout; }
+خاص:
+	منطقي error_output;
+	منطقي quiet_warnings;
 };
 
-bool no_color = false;
+منطقي no_color = خطأ;
 
-bool is_colored(FILE *file)
+منطقي is_colored(FILE *file)
 {
-	if (no_color)
-		return false;
+	𐤀𐤌 (no_color)
+		أرجع خطأ;
 
-#if defined(_WIN32)
+#𐤀𐤌 defined(_WIN32)
 	HANDLE handle = reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(file)));
 	DWORD mode;
-	return handle != INVALID_HANDLE_VALUE &&
+	أرجع handle != INVALID_HANDLE_VALUE &&
 			GetConsoleMode(handle, &mode);
-#else
-	return isatty(fileno(file));
+#وإلا
+	أرجع isatty(fileno(file));
 #endif
 }
 
-void ColorConsoleLogSink::flush()
+فراغ ColorConsoleLogSink::flush()
 {
 	fflush(stdout);
 	fflush(stderr);
 }
 
-bool next_print_log = true;
+منطقي next_print_log = true;
 
-void ColorConsoleLogSink::log(const LogMessage &msg)
+فراغ ColorConsoleLogSink::log(ثابت LogMessage &msg)
 {
 	FILE *f = (error_output || msg.severity == LogSeverity::Error) ? stderr : stdout;
 
-	if (logger().get_log_time() && next_print_log) {
+	𐤀𐤌 (logger().get_log_time() && next_print_log) {
 		auto elapsed = msg.timestamp - logger().get_initial_time();
 		auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-		std::string time_str = stringf("[%05d.%06d] ", int(us.count() / 1'000'000),int(us.count() % 1'000'000));
+		std::string time_str = stringf("[%05d.%06d] ", صحيح(us.count() / 1'000'000),صحيح(us.count() % 1'000'000));
 		fmt::print(f, fg(fmt::terminal_color::blue), "{}", time_str);
-		next_print_log = false;
+		next_print_log = خطأ;
 	}
 
-	if (!msg.src.filename.empty())
+	𐤀𐤌 (!msg.src.filename.empty())
 		fmt::print(f, fg(fmt::terminal_color::bright_cyan), "{}:{}: ", msg.src.filename, msg.src.start_line);
 
-	switch (msg.severity) {
-		case LogSeverity::Warning:
+	بدل (msg.severity) {
+		حالة LogSeverity::Warning:
 			fmt::print(f, fg(fmt::terminal_color::bright_yellow), "{}", msg.prefix);
 			fmt::print(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", msg.message);
-			break;
+			اكسر;
 
-		case LogSeverity::Error:
-		case LogSeverity::NonFatalError:
+		حالة LogSeverity::Error:
+		حالة LogSeverity::NonFatalError:
 			fmt::print(f, fg(fmt::terminal_color::bright_red), "{}", msg.prefix);
 			fmt::print(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", msg.message);
-			break;
+			اكسر;
 
-		case LogSeverity::Header:
+		حالة LogSeverity::Header:
 			fmt::print(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}", msg.prefix);
 			fmt::print(f, fg(fmt::terminal_color::white) | fmt::emphasis::bold, "{}", msg.message);
-			break;
+			اكسر;
 
-		case LogSeverity::Highlight:
+		حالة LogSeverity::Highlight:
 			fmt::print(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}{}", msg.prefix, msg.message);
-			break;
+			اكسر;
 
-		case LogSeverity::Comment:
-		case LogSeverity::Debug:
+		حالة LogSeverity::Comment:
+		حالة LogSeverity::Debug:
 			fmt::print(f, fg(fmt::terminal_color::bright_black), "{}{}", msg.prefix, msg.message);
-			break;
+			اكسر;
 
-		case LogSeverity::Info:
-		default:
-			if (!msg.prefix.empty())
+		حالة LogSeverity::Info:
+		افتراضي:
+			𐤀𐤌 (!msg.prefix.empty())
 				fmt::print(f, fg(fmt::terminal_color::bright_black), "{}", msg.prefix);
 			fmt::print(f, "{}", msg.message);
-			break;
+			اكسر;
 	}
-	if (!msg.message.empty())
+	𐤀𐤌 (!msg.message.empty())
 		next_print_log = msg.message.back() == '\n';
 }
 
-bool ColorConsoleLogSink::should_log(const LogMessage &msg) const
+منطقي ColorConsoleLogSink::should_log(ثابت LogMessage &msg) ثابت
 {
-	return (!error_output) || (msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
+	أرجع (!error_output) || (msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
 			(msg.severity == LogSeverity::Warning && !quiet_warnings) ||
 			log_stderr_sink_forced);
 }
 
 #ifdef _WIN32
-int wmain(int argc, wchar_t **wargv)
+صحيح wmain(صحيح argc, wchar_t **wargv)
 {
 	// Configure ASCII functions like fopen() to use UTF-8 filenames.
 	// See https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=msvc-170#utf-8-support
@@ -228,17 +228,17 @@ int wmain(int argc, wchar_t **wargv)
 	SetConsoleCP(CP_UTF8);
 	SetConsoleOutputCP(CP_UTF8);
 
-	std::vector<char*> uargs;
-	for (int i = 0; i < argc; i++) {
-		int usize = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, NULL, 0, NULL, NULL);
-		char *uarg = (char *)malloc(usize);
-		WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, uarg, usize, NULL, NULL);
+	std::vector<حرف*> uargs;
+	لكل (صحيح i = 0; i < argc; i++) {
+		صحيح usize = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, عدم, 0, عدم, عدم);
+		حرف *uarg = (حرف *)malloc(usize);
+		WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, uarg, usize, عدم, عدم);
 		uargs.push_back(uarg);
 	}
-	uargs.push_back(NULL);
-	char **argv = uargs.data();
-#else
-int main(int argc, char **argv)
+	uargs.push_back(عدم);
+	حرف **argv = uargs.data();
+#وإلا
+صحيح main(صحيح argc, حرف **argv)
 {
 #endif
 	auto wall_clock_start = std::chrono::steady_clock::now();
@@ -254,18 +254,18 @@ int main(int argc, char **argv)
 	std::string depsfile = "";
 	std::string topmodule = "";
 	std::string perffile = "";
-	bool scriptfile_tcl = false;
-	bool scriptfile_python = false;
-	bool print_banner = true;
-	bool print_stats = true;
-	bool call_abort = false;
-	bool timing_details = false;
-	bool run_shell = true;
-	bool run_tcl_shell = false;
-	bool mode_v = false;
-	bool mode_q = false;
-	bool quiet_warnings = false;
-	bool log_stderr = false;
+	منطقي scriptfile_tcl = خطأ;
+	منطقي scriptfile_python = خطأ;
+	منطقي print_banner = true;
+	منطقي print_stats = true;
+	منطقي call_abort = خطأ;
+	منطقي timing_details = خطأ;
+	منطقي run_shell = true;
+	منطقي run_tcl_shell = خطأ;
+	منطقي mode_v = خطأ;
+	منطقي mode_q = خطأ;
+	منطقي quiet_warnings = خطأ;
+	منطقي log_stderr = خطأ;
 	no_color = std::getenv("NO_COLOR") != nullptr;
 
 	cxxopts::Options options(argv[0], "Yosys Open SYnthesis Suite");
@@ -316,7 +316,7 @@ int main(int argc, char **argv)
 					"Use this option twice to also quiet warning messages")
 		("v,verbose", "print log headers up to <level> to the console. " \
                       "Implies -q for everything except the 'End of script.' message.",
-			cxxopts::value<int>(), "<level>")
+			cxxopts::value<صحيح>(), "<level>")
 		("t,timestamp", "annotate all log messages with a time stamp")
 		("d,detailed-timing", "print more detailed timing stats at exit")
 		("l,logfile", "write log messages to <logfile>",
@@ -357,14 +357,14 @@ int main(int argc, char **argv)
 	// We can't have -h optionally require an argument
 	// cxxopts does have an implit argument concept but that doesn't work for us
 	// cxxopts is therefore instructed allowed to only handle the command help case
-	if (argc == 2 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "-help") || !strcmp(argv[1], "--help"))) {
+	𐤀𐤌 (argc == 2 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "-help") || !strcmp(argv[1], "--help"))) {
 		std::cout << options.help() << std::endl;
 		exit(0);
 	}
-	try {
+	حاول {
 		// Check for "--" in arguments
 		auto it = std::find(argv, argv + argc, std::string("--"));
-		if (it != argv + argc) {
+		𐤀𐤌 (it != argv + argc) {
 			special_args.assign(it + 1, argv + argc);
 			// Remove these arguments from cxxopts parsing
 			argc = std::distance(argv, it);
@@ -372,118 +372,118 @@ int main(int argc, char **argv)
 
 		auto result = options.parse(argc, argv);
 
-		if (result.count("M")) memhasher_on();
-		if (result.count("X")) yosys_xtrace += result.count("X");
-		if (result.count("A")) call_abort = true;
-		if (result.count("Q")) print_banner = false;
-		if (result.count("T")) print_stats = false;
-		if (result.count("no-version")) yosys_write_versions = false;
-		if (result.count("V")) {
+		𐤀𐤌 (result.count("M")) memhasher_on();
+		𐤀𐤌 (result.count("X")) yosys_xtrace += result.count("X");
+		𐤀𐤌 (result.count("A")) call_abort = true;
+		𐤀𐤌 (result.count("Q")) print_banner = خطأ;
+		𐤀𐤌 (result.count("T")) print_stats = خطأ;
+		𐤀𐤌 (result.count("no-version")) yosys_write_versions = خطأ;
+		𐤀𐤌 (result.count("V")) {
 			std::cout << yosys_version_str << std::endl;
 			exit(0);
 		}
-		if (result.count("git-hash")) {
+		𐤀𐤌 (result.count("git-hash")) {
 			std::cout << yosys_git_hash_str << std::endl;
 			exit(0);
 		}
-		if (result.count("S")) {
+		𐤀𐤌 (result.count("S")) {
 			passes_commands.push_back("synth");
-			run_shell = false;
+			run_shell = خطأ;
 		}
-		if (result.count("C")) run_tcl_shell = true;
-		if (result.count("g")) logger().force_debug_on();
-		if (result.count("m")) plugin_filenames = result["m"].as<std::vector<std::string>>();
-		if (result.count("f")) frontend_command = result["f"].as<std::string>();
-		if (result.count("H")) {
+		𐤀𐤌 (result.count("C")) run_tcl_shell = true;
+		𐤀𐤌 (result.count("g")) logger().force_debug_on();
+		𐤀𐤌 (result.count("m")) plugin_filenames = result["m"].as<std::vector<std::string>>();
+		𐤀𐤌 (result.count("f")) frontend_command = result["f"].as<std::string>();
+		𐤀𐤌 (result.count("H")) {
 			passes_commands.push_back("help");
-			run_shell = false;
+			run_shell = خطأ;
 		}
-		if (result.count("h")) {
+		𐤀𐤌 (result.count("h")) {
 			std::string res = result["h"].as<std::string>();
 			passes_commands.push_back("help " + res);
-			run_shell = false;
+			run_shell = خطأ;
 		}
-		if (result.count("b")) {
+		𐤀𐤌 (result.count("b")) {
 			backend_command = result["b"].as<std::string>();
-			run_shell = false;
+			run_shell = خطأ;
 		}
-		if (result.count("p")) {
+		𐤀𐤌 (result.count("p")) {
 			auto cmds = result["p"].as<std::vector<std::string>>();
 			passes_commands.insert(passes_commands.end(), cmds.begin(), cmds.end());
-			run_shell = false;
+			run_shell = خطأ;
 		}
-		if (result.count("o")) {
+		𐤀𐤌 (result.count("o")) {
 			output_filename = result["o"].as<std::string>();
-			run_shell = false;
+			run_shell = خطأ;
 		}
-		for (const auto& key : {"l", "L"}) {
-			if (result.count(key)) {
-				for (const auto& filename : result[key].as<std::vector<std::string>>()) {
-					try {
-						logger().add_sink<FileLogSink>(filename, key[0] == 'L', false);
-					} catch (const std::runtime_error &e) {
+		لكل (ثابت auto& key : {"l", "L"}) {
+			𐤀𐤌 (result.count(key)) {
+				لكل (ثابت auto& filename : result[key].as<std::vector<std::string>>()) {
+					حاول {
+						logger().add_sink<FileLogSink>(filename, key[0] == 'L', خطأ);
+					} امسك (ثابت std::runtime_error &e) {
  					   std::cerr << e.what();
 					   exit(1);
 					}
 				}
 			}
 		}
-		if (result.count("q")) {
+		𐤀𐤌 (result.count("q")) {
 			mode_q = true;
-			if (log_stderr) quiet_warnings = true;
+			𐤀𐤌 (log_stderr) quiet_warnings = true;
 			log_stderr = true;
 		}
-		if (result.count("v")) {
+		𐤀𐤌 (result.count("v")) {
 			mode_v = true;
 			log_stderr = true;
-			logger().set_verbose_level(result["v"].as<int>());
+			logger().set_verbose_level(result["v"].as<صحيح>());
 		}
-		if (result.count("t")) logger().set_log_time(true);
-		if (result.count("no-color")) no_color = true;
-		if (result.count("d")) timing_details = true;
-		for (const auto& key : {"s", "c"}) {
-			if (result.count(key)) {
+		𐤀𐤌 (result.count("t")) logger().set_log_time(true);
+		𐤀𐤌 (result.count("no-color")) no_color = true;
+		𐤀𐤌 (result.count("d")) timing_details = true;
+		لكل (ثابت auto& key : {"s", "c"}) {
+			𐤀𐤌 (result.count(key)) {
 				scriptfile = result[key].as<std::string>();
 				scriptfile_tcl = std::string(key) == "c";
-				run_shell = false;
+				run_shell = خطأ;
 			}
 		}
-		if (result.count("y")) {
+		𐤀𐤌 (result.count("y")) {
 			scriptfile = result["y"].as<std::string>();
 			scriptfile_python = true;
-			run_shell = false;
+			run_shell = خطأ;
 		}
-		for (const auto& key : {"W", "w", "e"}) {
-			if (result.count(key)) {
+		لكل (ثابت auto& key : {"W", "w", "e"}) {
+			𐤀𐤌 (result.count(key)) {
 				auto regexes = result[key].as<std::vector<std::string>>();
-				for (const auto& regex : regexes) {
-					if (std::string(key) == "W")
+				لكل (ثابت auto& regex : regexes) {
+					𐤀𐤌 (std::string(key) == "W")
 						logger().add_warn(regex);
-					if (std::string(key) == "w")
+					𐤀𐤌 (std::string(key) == "w")
 						logger().add_nowarn(regex);
-					if (std::string(key) == "e")
+					𐤀𐤌 (std::string(key) == "e")
 						logger().add_werror(regex);
 				}
 			}
 		}
-		if (result.count("r")) topmodule = result["r"].as<std::string>();
-		if (result.count("D")) vlog_defines = result["D"].as<std::vector<std::string>>();
-		if (result.count("P")) {
+		𐤀𐤌 (result.count("r")) topmodule = result["r"].as<std::string>();
+		𐤀𐤌 (result.count("D")) vlog_defines = result["D"].as<std::vector<std::string>>();
+		𐤀𐤌 (result.count("P")) {
 			auto dump_args = result["P"].as<std::vector<std::string>>();
-			for (const auto& arg : dump_args) {
+			لكل (ثابت auto& arg : dump_args) {
 				auto tokens = split_tokens(arg, ":");
-				if (!tokens.empty() && tokens[0] == "ALL") {
-					if (tokens.size() != 1) {
+				𐤀𐤌 (!tokens.empty() && tokens[0] == "ALL") {
+					𐤀𐤌 (tokens.size() != 1) {
 						std::cerr << "Invalid number of tokens in -P ALL." << std::endl;
 						exit(1);
 					}
 					logger().set_hdump_all(true);
-				} else {
-					if (!tokens.empty() && !tokens[0].empty() && tokens[0].back() == '.')
+				} وإلا {
+					𐤀𐤌 (!tokens.empty() && !tokens[0].empty() && tokens[0].back() == '.')
 						tokens[0].pop_back();
-					if (tokens.size() == 1)
+					𐤀𐤌 (tokens.size() == 1)
 						tokens.push_back("yosys_dump_" + tokens[0] + ".il");
-					if (tokens.size() != 2) {
+					𐤀𐤌 (tokens.size() != 2) {
 						std::cerr << "Invalid number of tokens in -P." << std::endl;
 						exit(1);
 					}
@@ -491,60 +491,60 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		if (result.count("E")) depsfile = result["E"].as<std::string>();
-		if (result.count("x")) {
-			for (const auto &ignore : result["x"].as<std::vector<std::string>>())
+		𐤀𐤌 (result.count("E")) depsfile = result["E"].as<std::string>();
+		𐤀𐤌 (result.count("x")) {
+			لكل (ثابت auto &ignore : result["x"].as<std::vector<std::string>>())
     			logger().add_experimental_ignore(ignore);
 		}
-		if (result.count("perffile")) perffile = result["perffile"].as<std::string>();
-		if (result.count("infile")) {
+		𐤀𐤌 (result.count("perffile")) perffile = result["perffile"].as<std::string>();
+		𐤀𐤌 (result.count("infile")) {
 			frontend_files = result["infile"].as<std::vector<std::string>>();
 		}
-		if (result.count("autoidx")) {
-			int idx = result["autoidx"].as<uint64_t>();
+		𐤀𐤌 (result.count("autoidx")) {
+			صحيح idx = result["autoidx"].as<uint64_t>();
 			autoidx = idx;
 		}
 
-		if (!is_colored(stdout) || !is_colored(stderr)) {
-			if (!log_stderr) {
+		𐤀𐤌 (!is_colored(stdout) || !is_colored(stderr)) {
+			𐤀𐤌 (!log_stderr) {
 				logger().add_sink<ConsoleLogSink>();
-			} else {
+			} وإلا {
 				logger().add_sink<StderrLogSink>(quiet_warnings);
 			}
-		} else
+		} وإلا
 			logger().add_sink<ColorConsoleLogSink>(log_stderr, quiet_warnings);
 
-		if (print_banner)
+		𐤀𐤌 (print_banner)
 			yosys_banner();
 
 	}
-	catch (const cxxopts::exceptions::parsing& e) {
+	امسك (ثابت cxxopts::exceptions::parsing& e) {
 		std::cerr << "Error parsing options: " << e.what() << std::endl;
 		std::cerr << "Run '" << argv[0] << " --help' for help." << std::endl;
 		exit(1);
 	}
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+#𐤀𐤌 defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
 	std::string state_dir;
-	#if defined(_WIN32)
-		if (getenv("HOMEDRIVE") != NULL && getenv("HOMEPATH") != NULL) {
+	#𐤀𐤌 defined(_WIN32)
+		𐤀𐤌 (getenv("HOMEDRIVE") != عدم && getenv("HOMEPATH") != عدم) {
 			state_dir = stringf("%s%s/.local/state", getenv("HOMEDRIVE"), getenv("HOMEPATH"));
-		} else {
+		} وإلا {
 			log_debug("$HOMEDRIVE and/or $HOMEPATH is empty. No history file will be created.\n");
 		}
-	#else
-		if (getenv("XDG_STATE_HOME") == NULL || getenv("XDG_STATE_HOME")[0] == '\0') {
-			if (getenv("HOME") != NULL) {
+	#وإلا
+		𐤀𐤌 (getenv("XDG_STATE_HOME") == عدم || getenv("XDG_STATE_HOME")[0] == '\0') {
+			𐤀𐤌 (getenv("HOME") != عدم) {
 				state_dir = stringf("%s/.local/state", getenv("HOME"));
-			} else {
+			} وإلا {
 				log_debug("$HOME is empty. No history file will be created.\n");
 			}
-		} else {
+		} وإلا {
 			state_dir = stringf("%s", getenv("XDG_STATE_HOME"));
 		}
 	#endif
 
-	if (!state_dir.empty()) {
+	𐤀𐤌 (!state_dir.empty()) {
 		std::string yosys_dir = state_dir + "/yosys";
 		create_directory(yosys_dir);
 
@@ -554,21 +554,21 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	if (print_stats)
+	𐤀𐤌 (print_stats)
 		logger().start_hasher();
 
-#if defined(__OpenBSD__)
+#𐤀𐤌 defined(__OpenBSD__)
 	// save the executable origin for proc_self_dirname()
 	yosys_argv0 = argv[0];
 	realpath(yosys_argv0, yosys_path);
 #endif
 
-#if defined(__linux__)
+#𐤀𐤌 defined(__linux__)
 	// set stack size to >= 128 MB
 	{
-		struct rlimit rl;
-		const rlim_t stack_size = 128L * 1024L * 1024L;
-		if (getrlimit(RLIMIT_STACK, &rl) == 0 && rl.rlim_cur < stack_size) {
+		بنية rlimit rl;
+		ثابت rlim_t stack_size = 128L * 1024L * 1024L;
+		𐤀𐤌 (getrlimit(RLIMIT_STACK, &rl) == 0 && rl.rlim_cur < stack_size) {
 			rl.rlim_cur = stack_size;
 			setrlimit(RLIMIT_STACK, &rl);
 		}
@@ -583,56 +583,56 @@ int main(int argc, char **argv)
 #endif
 	log_error_atexit = yosys_atexit;
 
-	for (auto &fn : plugin_filenames)
+	لكل (auto &fn : plugin_filenames)
 		load_plugin(fn, {});
 
 	log_suppressed();
 
-	if (!vlog_defines.empty()) {
+	𐤀𐤌 (!vlog_defines.empty()) {
 		std::string vdef_cmd = "read -define";
-		for (auto vdef : vlog_defines)
+		لكل (auto vdef : vlog_defines)
 			vdef_cmd += " " + vdef;
 		run_pass(vdef_cmd);
 	}
 
-	if (scriptfile.empty() || (!scriptfile_tcl && !scriptfile_python)) {
+	𐤀𐤌 (scriptfile.empty() || (!scriptfile_tcl && !scriptfile_python)) {
 		// Without a TCL or Python script, arguments following '--'
 		// are also treated as frontend files
-		for (auto special_arg : special_args)
+		لكل (auto special_arg : special_args)
 			frontend_files.push_back(special_arg);
 	}
 
-	for (auto it = frontend_files.begin(); it != frontend_files.end(); ++it) {
-		if (run_frontend((*it).c_str(), frontend_command))
-			run_shell = false;
+	لكل (auto it = frontend_files.begin(); it != frontend_files.end(); ++it) {
+		𐤀𐤌 (run_frontend((*it).c_str(), frontend_command))
+			run_shell = خطأ;
 	}
 
-	if (!topmodule.empty())
+	𐤀𐤌 (!topmodule.empty())
 		run_pass("hierarchy -top " + topmodule);
-	if (!scriptfile.empty()) {
-		if (scriptfile_tcl) {
+	𐤀𐤌 (!scriptfile.empty()) {
+		𐤀𐤌 (scriptfile_tcl) {
 #ifdef YOSYS_ENABLE_TCL
-			int tcl_argc = special_args.size();
+			صحيح tcl_argc = special_args.size();
 			std::vector<Tcl_Obj*> script_args;
 			Tcl_Interp *interp = yosys_get_tcl_interp();
-			for (auto arg : special_args)
+			لكل (auto arg : special_args)
 				script_args.push_back(Tcl_NewStringObj(arg.c_str(), arg.length()));
 
-			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), NULL, Tcl_NewIntObj(tcl_argc), 0);
-			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), NULL, Tcl_NewListObj(tcl_argc, script_args.data()), 0);
-			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), NULL, Tcl_NewStringObj(scriptfile.c_str(), scriptfile.length()), 0);
+			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), عدم, Tcl_NewIntObj(tcl_argc), 0);
+			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), عدم, Tcl_NewListObj(tcl_argc, script_args.data()), 0);
+			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), عدم, Tcl_NewStringObj(scriptfile.c_str(), scriptfile.length()), 0);
 
-			if (Tcl_EvalFile(interp, scriptfile.c_str()) != TCL_OK)
+			𐤀𐤌 (Tcl_EvalFile(interp, scriptfile.c_str()) != TCL_OK)
 				log_error("TCL interpreter returned an error: %s\n", Tcl_GetStringResult(yosys_get_tcl_interp()));
-#else
+#وإلا
 			log_error("Can't execute TCL script: this version of yosys is not built with TCL support enabled.\n");
 #endif
-		} else if (scriptfile_python) {
+		} وإلا 𐤀𐤌 (scriptfile_python) {
 #ifdef YOSYS_ENABLE_PYTHON
 			py::list new_argv;
-			int py_argc = special_args.size() + 1;
+			صحيح py_argc = special_args.size() + 1;
 			new_argv.append(scriptfile);
-			for (int i = 1; i < py_argc; ++i)
+			لكل (صحيح i = 1; i < py_argc; ++i)
 				new_argv.append(special_args[i - 1]);
 
 			py::setattr(sys, "argv", new_argv);
@@ -643,57 +643,57 @@ int main(int argc, char **argv)
 			sys.attr("path").attr("insert")(0, py::str(scriptfile_python_path));
 
 			FILE *scriptfp = fopen(scriptfile.c_str(), "r");
-			if (scriptfp == nullptr) {
+			𐤀𐤌 (scriptfp == nullptr) {
 				log_error("Failed to open file '%s' for reading.\n", scriptfile);
 			}
-			if (PyRun_SimpleFile(scriptfp, scriptfile.c_str()) != 0) {
+			𐤀𐤌 (PyRun_SimpleFile(scriptfp, scriptfile.c_str()) != 0) {
 				log_flush();
 				PyErr_Print();
 				log_error("Python interpreter encountered an exception.\n");
 			}
-#else
+#وإلا
 			log_error("Can't execute Python script: this version of yosys is not built with Python support enabled.\n");
 #endif
-		} else
+		} وإلا
 			run_frontend(scriptfile, "script");
 	}
 
-	for (auto it = passes_commands.begin(); it != passes_commands.end(); it++)
+	لكل (auto it = passes_commands.begin(); it != passes_commands.end(); it++)
 		run_pass(*it);
 
-	if (run_tcl_shell) {
+	𐤀𐤌 (run_tcl_shell) {
 #ifdef YOSYS_ENABLE_TCL
 		yosys_tcl_activate_repl();
 		Tcl_Main(argc, argv, yosys_tcl_interp_init);
-#else
+#وإلا
 		log_error("Can't exectue TCL shell: this version of yosys is not built with TCL support enabled.\n");
 #endif
-	} else {
-		if (run_shell)
+	} وإلا {
+		𐤀𐤌 (run_shell)
 			shell(yosys_design);
-		else
+		وإلا
 			run_backend(output_filename, backend_command);
 	}
 
 	yosys_design->check();
-	for (auto it : saved_designs)
+	لكل (auto it : saved_designs)
 		it.second->check();
-	for (auto it : pushed_designs)
+	لكل (auto it : pushed_designs)
 		it->check();
 
-	if (!depsfile.empty())
+	𐤀𐤌 (!depsfile.empty())
 	{
 		FILE *f = fopen(depsfile.c_str(), "wt");
-		if (f == nullptr)
+		𐤀𐤌 (f == nullptr)
 			log_error("Can't open dependencies file for writing: %s\n", strerror(errno));
-		bool first = true;
-		for (auto fn : yosys_output_files) {
+		منطقي first = true;
+		لكل (auto fn : yosys_output_files) {
 			fprintf(f, "%s%s", first ? "" : " ", escape_filename_spaces(fn).c_str());
-			first = false;
+			first = خطأ;
 		}
 		fprintf(f, ":");
-		for (auto fn : yosys_input_files) {
-			if (yosys_output_files.count(fn) == 0)
+		لكل (auto fn : yosys_input_files) {
+			𐤀𐤌 (yosys_output_files.count(fn) == 0)
 				fprintf(f, " %s", escape_filename_spaces(fn).c_str());
 		}
 		fprintf(f, "\n");
@@ -701,57 +701,57 @@ int main(int argc, char **argv)
 
 	logger().report_unexpected_error();
 
-	if (print_stats)
+	𐤀𐤌 (print_stats)
 	{
 		std::string hash = logger().finish_hasher();
-		logger().set_log_time(false);
+		logger().set_log_time(خطأ);
 		yosys_xtrace = 0;
 		log_spacer();
 
 		log_stderr_sink_forced = mode_v && !mode_q;
-		if (logger().get_warnings_total())
+		𐤀𐤌 (logger().get_warnings_total())
 			log("Warnings: %d unique messages, %d total\n", logger().get_warnings_unique(), logger().get_warnings_total());
 
-		if (GetSize(logger().get_experimental()) != 0)
+		𐤀𐤌 (GetSize(logger().get_experimental()) != 0)
 			log("Warnings: %d experimental features used (not excluded with -x).\n", GetSize(logger().get_experimental()));
 
-		if (GetSize(logger().get_deprecated()) != 0) {
+		𐤀𐤌 (GetSize(logger().get_deprecated()) != 0) {
 			log("Deprecated features used:\n");
-			for (auto &[feature, earliest_removal] : logger().get_deprecated())
-				if (earliest_removal.empty())
+			لكل (auto &[feature, earliest_removal] : logger().get_deprecated())
+				𐤀𐤌 (earliest_removal.empty())
 					log("    %s\n", feature);
-				else
+				وإلا
 					log("    %s (may be removed as soon as Yosys %s)\n", feature, earliest_removal);
 		}
 #ifdef _WIN32
 		log("End of script. Logfile hash: %s\n", hash);
-		(void)wall_clock_start;
-#else
+		(فراغ)wall_clock_start;
+#وإلا
 		std::string meminfo;
 		std::string stats_divider = ", ";
 
-		struct rusage ru_buffer;
+		بنية rusage ru_buffer;
 		getrusage(RUSAGE_SELF, &ru_buffer);
-		if (yosys_design->scratchpad_get_bool("print_stats.include_children")) {
-			struct rusage ru_buffer_children;
+		𐤀𐤌 (yosys_design->scratchpad_get_bool("print_stats.include_children")) {
+			بنية rusage ru_buffer_children;
 			getrusage(RUSAGE_CHILDREN, &ru_buffer_children);
 			ru_buffer.ru_utime.tv_sec += ru_buffer_children.ru_utime.tv_sec;
 			ru_buffer.ru_utime.tv_usec += ru_buffer_children.ru_utime.tv_usec;
 			ru_buffer.ru_stime.tv_sec += ru_buffer_children.ru_stime.tv_sec;
 			ru_buffer.ru_stime.tv_usec += ru_buffer_children.ru_stime.tv_usec;
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
+#𐤀𐤌 defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
 			ru_buffer.ru_maxrss = std::max(ru_buffer.ru_maxrss, ru_buffer_children.ru_maxrss);
 #endif
 		}
-#if defined(__linux__) || defined(__FreeBSD__)
+#𐤀𐤌 defined(__linux__) || defined(__FreeBSD__)
 		meminfo = stringf(", MEM: %.2f MB peak",
 				ru_buffer.ru_maxrss / 1024.0);
-#elif defined(__APPLE__)
+#وإلاإذا defined(__APPLE__)
 // https://stackoverflow.com/questions/59913657/strange-values-of-get-rusage-maxrss-on-macos-and-linux
 		meminfo = stringf(", MEM: %.2f MB peak",
 				ru_buffer.ru_maxrss / (1024.0 * 1024.0));
 #endif
-		double wall_seconds = std::chrono::duration<double>(
+		مزدوج wall_seconds = std::chrono::duration<مزدوج>(
 				std::chrono::steady_clock::now() - wall_clock_start).count();
 
 		log("End of script. Logfile hash: %s%stime: %.2fs, user: %.2fs, system: %.2fs%s\n", hash,
@@ -761,46 +761,46 @@ int main(int argc, char **argv)
 		log("%s\n", yosys_maybe_version());
 
 		int64_t total_ns = 0;
-		std::set<tuple<int64_t, int, std::string>> timedat;
+		std::set<tuple<int64_t, صحيح, std::string>> timedat;
 
-		for (auto &it : pass_register)
-			if (it.second->call_counter) {
+		لكل (auto &it : pass_register)
+			𐤀𐤌 (it.second->call_counter) {
 				auto pass_ns = it.second->runtime_ns + 1;
 				total_ns += pass_ns;
 				timedat.insert(make_tuple(pass_ns, it.second->call_counter, it.first));
 			}
-		if (twine_gc_count) {
+		𐤀𐤌 (twine_gc_count) {
 			total_ns += twine_gc_ns;
 			timedat.insert(make_tuple(twine_gc_ns, twine_gc_count, "twine_gc"));
 		}
 
-		if (timing_details)
+		𐤀𐤌 (timing_details)
 		{
 			log("Time spent:\n");
-			for (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
-				log("%5d%% %5d calls %8.3f sec %s\n", int(100*std::get<0>(*it) / total_ns),
+			لكل (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
+				log("%5d%% %5d calls %8.3f sec %s\n", صحيح(100*std::get<0>(*it) / total_ns),
 						std::get<1>(*it), std::get<0>(*it) / 1000000000.0, std::get<2>(*it).c_str());
 			}
 		}
-		else
+		وإلا
 		{
-			int out_count = 0;
+			صحيح out_count = 0;
 			std::string message = "Time spent:";
-			for (auto it = timedat.rbegin(); it != timedat.rend() && out_count < 4; it++, out_count++) {
-				if (out_count >= 2 && (std::get<0>(*it) < 1000000000 || int(100*std::get<0>(*it) / total_ns) < 20)) {
+			لكل (auto it = timedat.rbegin(); it != timedat.rend() && out_count < 4; it++, out_count++) {
+				𐤀𐤌 (out_count >= 2 && (std::get<0>(*it) < 1000000000 || صحيح(100*std::get<0>(*it) / total_ns) < 20)) {
 					message += ", ...";
-					break;
+					اكسر;
 				}
-				message += stringf("%s %d%% %dx %s (%d sec)", out_count ? "," : "", int(100*std::get<0>(*it) / total_ns),
-						std::get<1>(*it), std::get<2>(*it).c_str(), int(std::get<0>(*it) / 1000000000));
+				message += stringf("%s %d%% %dx %s (%d sec)", out_count ? "," : "", صحيح(100*std::get<0>(*it) / total_ns),
+						std::get<1>(*it), std::get<2>(*it).c_str(), صحيح(std::get<0>(*it) / 1000000000));
 			}
 			message += out_count ? "" : " no commands executed";
 			log("%s\n", message);
 		}
-		if(!perffile.empty())
+		𐤀𐤌(!perffile.empty())
 		{
 			FILE *f = fopen(perffile.c_str(), "wt");
-			if (f == nullptr)
+			𐤀𐤌 (f == nullptr)
 				log_error("Can't open performance log file for writing: %s\n", strerror(errno));
 
 			fprintf(f, "{\n");
@@ -808,15 +808,15 @@ int main(int argc, char **argv)
 			fprintf(f, "  \"total_ns\": %" PRIu64 ",\n", total_ns);
 			fprintf(f, "  \"passes\": {");
 
-			bool first = true;
-			for (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
-				if (!first)
+			منطقي first = true;
+			لكل (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
+				𐤀𐤌 (!first)
 					fprintf(f, ",");
 				fprintf(f, "\n	\"%s\": {\n", std::get<2>(*it).c_str());
 				fprintf(f, "	  \"runtime_ns\": %" PRIu64 ",\n", std::get<0>(*it));
 				fprintf(f, "	  \"num_calls\": %u\n", std::get<1>(*it));
 				fprintf(f, "	}");
-				first = false;
+				first = خطأ;
 			}
 			fprintf(f, "\n  }\n}\n");
 		}
@@ -827,17 +827,17 @@ int main(int argc, char **argv)
 	yosys_atexit();
 
 	memhasher_off();
-	if (call_abort)
+	𐤀𐤌 (call_abort)
 		abort();
 
 	log_flush();
 
 	yosys_shutdown();
 
-#if defined(_MSC_VER)
+#𐤀𐤌 defined(_MSC_VER)
 	_exit(0);
-#elif defined(_WIN32)
+#وإلاإذا defined(_WIN32)
 	_Exit(0);
 #endif
-	return 0;
+	أرجع 0;
 }

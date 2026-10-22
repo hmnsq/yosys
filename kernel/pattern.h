@@ -1,9 +1,9 @@
 #ifndef OPT_DFF_COMP_H
 #define OPT_DFF_COMP_H
 
-#include "kernel/rtlil.h"
-#include <map>
-#include <optional>
+#ضمن "kernel/rtlil.h"
+#ضمن <map>
+#ضمن <optional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -21,54 +21,54 @@ YOSYS_NAMESPACE_BEGIN
 
 // Pattern matching for clock enable
 // A pattern maps control signals to their required values for a MUX path
-typedef std::map<RTLIL::SigBit, bool> pattern_t; // Set of control signals that must ALL match required vals
-typedef std::set<pattern_t> patterns_t;          // Alternative patterns (OR)
-typedef std::pair<RTLIL::SigBit, bool> ctrl_t;   // Control signal
-typedef std::set<ctrl_t> ctrls_t;                // Set of control signals that must ALL be active
+تعريفنوع std::map<RTLIL::SigBit, bool> pattern_t; // Set of control signals that must ALL match required vals
+تعريفنوع std::set<pattern_t> patterns_t;          // Alternative patterns (OR)
+تعريفنوع std::pair<RTLIL::SigBit, bool> ctrl_t;   // Control signal
+تعريفنوع std::set<ctrl_t> ctrls_t;                // Set of control signals that must ALL be active
 
 /**
  * Find if two patterns differ in exactly one variable.
  * Example: {A=1,B=1} vs {A=1,B=0} returns B, allows simplification: (A&B) | (A&!B) => A
  */
-inline std::optional<RTLIL::SigBit> find_complementary_pattern_var(
-	const pattern_t& left,
-	const pattern_t& right
+مضمن std::optional<RTLIL::SigBit> find_complementary_pattern_var(
+	ثابت pattern_t& left,
+	ثابت pattern_t& right
 ) {
 	std::optional<RTLIL::SigBit> ret;
-	for (const auto &pt : left) {
+	لكل (ثابت auto &pt : left) {
 		// Left requires signal that right doesn't constrain - incompatible domains
-		if (right.count(pt.first) == 0)
-			return std::nullopt;
+		𐤀𐤌 (right.count(pt.first) == 0)
+			أرجع std::nullopt;
 		// Signal has same required value in both - not the complement variable
-		if (right.at(pt.first) == pt.second)
-			continue;
+		𐤀𐤌 (right.at(pt.first) == pt.second)
+			استمر;
 		// Already found one differing signal, now found another - not simplifiable
-		if (ret)
-			return std::nullopt;
+		𐤀𐤌 (ret)
+			أرجع std::nullopt;
 		// First differing signal - candidate complement variable
 		ret = pt.first;
 	}
-	return ret;
+	أرجع ret;
 }
 
 /**
  * Simplify a sum-of-products by merging complementary patterns: (A&B) | (A&!B) => A,
  * and removing redundant patterns: A | (A&B) => A
  */
-inline void simplify_patterns(patterns_t& patterns) {
+مضمن فراغ simplify_patterns(patterns_t& patterns) {
 	auto new_patterns = patterns;
 
 	// Merge complementary patterns
 	bool optimized;
-	do {
+	𐤐𐤏𐤋 {
 		optimized = false;
-		for (auto i = patterns.begin(); i != patterns.end(); i++) {
-			for (auto j = std::next(i, 1); j != patterns.end(); j++) {
-				const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
+		لكل (auto i = patterns.begin(); i != patterns.end(); i++) {
+			لكل (auto j = std::next(i, 1); j != patterns.end(); j++) {
+				ثابت auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
 				auto right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
-				const auto complementary_var = find_complementary_pattern_var(left, right);
+				ثابت auto complementary_var = find_complementary_pattern_var(left, right);
 
-				if (complementary_var && new_patterns.count(right)) {
+				𐤀𐤌 (complementary_var && new_patterns.count(right)) {
 					new_patterns.erase(right);
 					right.erase(complementary_var.value());
 					new_patterns.insert(right);
@@ -77,19 +77,19 @@ inline void simplify_patterns(patterns_t& patterns) {
 			}
 		}
 		patterns = new_patterns;
-	} while(optimized);
+	} طالما(optimized);
 
 	// Remove redundant patterns
-	for (auto i = patterns.begin(); i != patterns.end(); ++i) {
-		for (auto j = std::next(i, 1); j != patterns.end(); ++j) {
-			const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
-			const auto& right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
+	لكل (auto i = patterns.begin(); i != patterns.end(); ++i) {
+		لكل (auto j = std::next(i, 1); j != patterns.end(); ++j) {
+			ثابت auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
+			ثابت auto& right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
 			bool redundant = true;
 
-			for (const auto& pt : left)
-				if (right.count(pt.first) == 0 || right.at(pt.first) != pt.second)
+			لكل (ثابت auto& pt : left)
+				𐤀𐤌 (right.count(pt.first) == 0 || right.at(pt.first) != pt.second)
 					redundant = false;
-			if (redundant)
+			𐤀𐤌 (redundant)
 				new_patterns.erase(right);
 		}
 	}
