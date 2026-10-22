@@ -1,54 +1,54 @@
-#ifndef UNUSED_BITS_H
-#define UNUSED_BITS_H
+#اگر_غیر_تعریف_شدہ غیر_مستعمل_بٹ_H
+#تعریف_کرو غیر_مستعمل_بٹ_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/newcelltypes.h"
+#شامل "kernel/yosys.h"
+#شامل "kernel/sigtools.h"
+#شامل "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct UnusedBits
+ساخت غیر_مستعمل_بٹ
 {
 	SigMap sigmap;
-	pool<RTLIL::SigBit> used;
+	pool<RTLIL::Sig_ثنائی_ہندسہ> مستعمل;
 
-	UnusedBits(RTLIL::Module *module) : sigmap(module)
+	غیر_مستعمل_بٹ(RTLIL::Module *module) : sigmap(module)
 	{
 		NewCellTypes ct(module->design);
-		collect_used(module, ct);
+		collect_مستعمل(module, ct);
 	}
 
-	UnusedBits(RTLIL::Module *module, const NewCellTypes &ct) : sigmap(module)
+	غیر_مستعمل_بٹ(RTLIL::Module *module, ثابت NewCellTypes &ct) : sigmap(module)
 	{
-		collect_used(module, ct);
+		collect_مستعمل(module, ct);
 	}
 
-	void collect_used(RTLIL::Module *module, const NewCellTypes &ct)
+	خالی collect_مستعمل(RTLIL::Module *module, ثابت NewCellTypes &ct)
 	{
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				if (!ct.cell_output(cell->type, conn.first))
-					add_used(conn.second);
+		برائے (خودکار cell : module->cells())
+			برائے (خودکار &conn : cell->connections())
+				اگر (!ct.cell_output(cell->type, conn.پہلا))
+					جوڑو_مستعمل(conn.دوسرا);
 
-		for (auto wire : module->wires())
-			if (wire->port_output)
-				add_used(wire);
+		برائے (خودکار wire : module->wires())
+			اگر (wire->پورٹ_output)
+				جوڑو_مستعمل(wire);
 	}
 
-	void add_used(const RTLIL::SigSpec &sig)
+	خالی جوڑو_مستعمل(ثابت RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sigmap(sig))
-			if (bit.wire != nullptr)
-				used.insert(bit);
+		برائے (خودکار ثنائی_ہندسہ : sigmap(sig))
+			اگر (ثنائی_ہندسہ.wire != nullptr)
+				مستعمل.داخل_کرو(ثنائی_ہندسہ);
 	}
 
-	bool check(RTLIL::SigBit bit) const
+	bool check(RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ) ثابت
 	{
-		RTLIL::SigBit mapped = sigmap(bit);
-		return mapped.wire != nullptr && !used.count(mapped);
+		RTLIL::Sig_ثنائی_ہندسہ mapped = sigmap(ثنائی_ہندسہ);
+		واپس mapped.wire != nullptr && !مستعمل.گنتی(mapped);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتہا
 
-#endif
+#اگر_ختم

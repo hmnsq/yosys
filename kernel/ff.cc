@@ -17,324 +17,324 @@
  *
  */
 
-#include "kernel/ff.h"
+#شامل "kernel/ff.h"
 
 USING_YOSYS_NAMESPACE
 
 // sorry
-template<typename InputType, typename OutputType, typename = std::enable_if_t<std::is_base_of_v<FfTypeData, OutputType>>>
-void manufacture_info(InputType flop, OutputType& info, FfInitVals *initvals) {
-	Cell* cell = nullptr;
+سانچہ<قسم_نام داخلہ_Type, قسم_نام OutputType, قسم_نام = std::enable_if_t<std::is_بنیاد_کا_v<Ff_Type_ڈیٹا, OutputType>>>
+خالی manufacture_info(داخلہ_Type flop, OutputType& info, FfInitVals *initvals) {
+	Cell* cell = خالی_اشاریہ;
 	IdString type;
-	constexpr bool have_cell = std::is_same_v<InputType, Cell*>;
-	if constexpr (std::is_same_v<InputType, IdString>) {
+	constexpr منطقی have_cell = std::is_same_v<داخلہ_Type, Cell*>;
+	اگر constexpr (std::is_same_v<داخلہ_Type, IdString>) {
 		type = flop;
-	} else {
-		static_assert(std::is_same_v<InputType, Cell*>);
+	} ورنہ {
+		static_assert(std::is_same_v<داخلہ_Type, Cell*>);
 		cell = flop;
 		type = flop->type;
 	}
-	if constexpr (have_cell) {
-		info.sig_q = cell->getPort(ID::Q);
-		info.width = GetSize(info.sig_q);
-		info.attributes = cell->attributes;
-		if (initvals)
+	اگر constexpr (have_cell) {
+		info.sig_q = cell->get_پورٹ(ID::Q);
+		info.چوڑائی = Get_سائز(info.sig_q);
+		info.اوصاف = cell->اوصاف;
+		اگر (initvals)
 			info.val_init = (*initvals)(info.sig_q);
 	}
 
 
 	std::string type_str = ID::str(type);
 
-	if (type.in(ID($anyinit), ID($ff), ID($dff), ID($dffe), ID($dffsr), ID($dffsre), ID($adff), ID($adffe), ID($aldff), ID($aldffe), ID($sdff), ID($sdffe), ID($sdffce), ID($dlatch), ID($adlatch), ID($dlatchsr), ID($sr))) {
-		if (type.in(ID($anyinit), ID($ff))) {
-			info.has_gclk = true;
-			if constexpr (have_cell)
-				info.sig_d = cell->getPort(ID::D);
-			if (type == ID($anyinit)) {
-				info.is_anyinit = true;
-				if constexpr (have_cell)
+	اگر (type.اندر(ID($anyinit), ID($ff), ID($dff), ID($dffe), ID($dffsr), ID($dffsre), ID($adff), ID($adffe), ID($aldff), ID($aldffe), ID($sdff), ID($sdffe), ID($sdffce), ID($dlatch), ID($adlatch), ID($dlatchsr), ID($sr))) {
+		اگر (type.اندر(ID($anyinit), ID($ff))) {
+			info.has_gclk = سچ;
+			اگر constexpr (have_cell)
+				info.sig_d = cell->get_پورٹ(ID::D);
+			اگر (type == ID($anyinit)) {
+				info.is_anyinit = سچ;
+				اگر constexpr (have_cell)
 					log_assert(info.val_init.is_fully_undef());
 			}
-		} else if (type == ID($sr)) {
+		} ورنہ اگر (type == ID($sr)) {
 			// No data input at all.
-		} else if (type.in(ID($dlatch), ID($adlatch), ID($dlatchsr))) {
-			info.has_aload = true;
-			if constexpr (have_cell) {
-				info.sig_aload = cell->getPort(ID::EN);
+		} ورنہ اگر (type.اندر(ID($dlatch), ID($adlatch), ID($dlatchsr))) {
+			info.has_aload = سچ;
+			اگر constexpr (have_cell) {
+				info.sig_aload = cell->get_پورٹ(ID::EN);
 				info.pol_aload = cell->getParam(ID::EN_POLARITY).as_bool();
-				info.sig_ad = cell->getPort(ID::D);
+				info.sig_ad = cell->get_پورٹ(ID::D);
 			}
-		} else {
-			info.has_clk = true;
-			if constexpr (have_cell) {
-				info.sig_clk = cell->getPort(ID::CLK);
+		} ورنہ {
+			info.has_clk = سچ;
+			اگر constexpr (have_cell) {
+				info.sig_clk = cell->get_پورٹ(ID::CLK);
 				info.pol_clk = cell->getParam(ID::CLK_POLARITY).as_bool();
-				info.sig_d = cell->getPort(ID::D);
+				info.sig_d = cell->get_پورٹ(ID::D);
 			}
 		}
-		if (type.in(ID($dffe), ID($dffsre), ID($adffe), ID($aldffe), ID($sdffe), ID($sdffce))) {
-			info.has_ce = true;
-			if constexpr (have_cell) {
-				info.sig_ce = cell->getPort(ID::EN);
+		اگر (type.اندر(ID($dffe), ID($dffsre), ID($adffe), ID($aldffe), ID($sdffe), ID($sdffce))) {
+			info.has_ce = سچ;
+			اگر constexpr (have_cell) {
+				info.sig_ce = cell->get_پورٹ(ID::EN);
 				info.pol_ce = cell->getParam(ID::EN_POLARITY).as_bool();
 			}
 		}
-		if (type.in(ID($dffsr), ID($dffsre), ID($dlatchsr), ID($sr))) {
-			info.has_sr = true;
-			if constexpr (have_cell) {
-				info.sig_clr = cell->getPort(ID::CLR);
-				info.sig_set = cell->getPort(ID::SET);
+		اگر (type.اندر(ID($dffsr), ID($dffsre), ID($dlatchsr), ID($sr))) {
+			info.has_sr = سچ;
+			اگر constexpr (have_cell) {
+				info.sig_clr = cell->get_پورٹ(ID::CLR);
+				info.sig_سیٹ = cell->get_پورٹ(ID::سیٹ_2);
 				info.pol_clr = cell->getParam(ID::CLR_POLARITY).as_bool();
-				info.pol_set = cell->getParam(ID::SET_POLARITY).as_bool();
+				info.pol_سیٹ = cell->getParam(ID::سیٹ_POLARITY).as_bool();
 			}
 		}
-		if (type.in(ID($aldff), ID($aldffe))) {
-			info.has_aload = true;
-			if constexpr (have_cell) {
-				info.sig_aload = cell->getPort(ID::ALOAD);
+		اگر (type.اندر(ID($aldff), ID($aldffe))) {
+			info.has_aload = سچ;
+			اگر constexpr (have_cell) {
+				info.sig_aload = cell->get_پورٹ(ID::ALOAD);
 				info.pol_aload = cell->getParam(ID::ALOAD_POLARITY).as_bool();
-				info.sig_ad = cell->getPort(ID::AD);
+				info.sig_ad = cell->get_پورٹ(ID::AD);
 			}
 		}
-		if (type.in(ID($adff), ID($adffe), ID($adlatch))) {
-			info.has_arst = true;
-			if constexpr (have_cell) {
-				info.sig_arst = cell->getPort(ID::ARST);
+		اگر (type.اندر(ID($adff), ID($adffe), ID($adlatch))) {
+			info.has_arst = سچ;
+			اگر constexpr (have_cell) {
+				info.sig_arst = cell->get_پورٹ(ID::ARST);
 				info.pol_arst = cell->getParam(ID::ARST_POLARITY).as_bool();
-				info.val_arst = cell->getParam(ID::ARST_VALUE);
+				info.val_arst = cell->getParam(ID::ARST_قدر);
 			}
 		}
-		if (type.in(ID($sdff), ID($sdffe), ID($sdffce))) {
-			info.has_srst = true;
-			if constexpr (have_cell) {
-				info.sig_srst = cell->getPort(ID::SRST);
+		اگر (type.اندر(ID($sdff), ID($sdffe), ID($sdffce))) {
+			info.has_srst = سچ;
+			اگر constexpr (have_cell) {
+				info.sig_srst = cell->get_پورٹ(ID::SRST);
 				info.pol_srst = cell->getParam(ID::SRST_POLARITY).as_bool();
-				info.val_srst = cell->getParam(ID::SRST_VALUE);
+				info.val_srst = cell->getParam(ID::SRST_قدر);
 			}
 			info.ce_over_srst = type == ID($sdffce);
 		}
-	} else if (type == ID($_FF_)) {
-		info.is_fine = true;
-		info.has_gclk = true;
-		if constexpr (have_cell)
-			info.sig_d = cell->getPort(ID::D);
-	} else if (type_str.substr(0, 5) == "$_SR_") {
-		info.is_fine = true;
-		info.has_sr = true;
-		info.pol_set = type_str[5] == 'P';
+	} ورنہ اگر (type == ID($_FF_)) {
+		info.is_fine = سچ;
+		info.has_gclk = سچ;
+		اگر constexpr (have_cell)
+			info.sig_d = cell->get_پورٹ(ID::D);
+	} ورنہ اگر (type_str.substr(0, 5) == "$_SR_") {
+		info.is_fine = سچ;
+		info.has_sr = سچ;
+		info.pol_سیٹ = type_str[5] == 'P';
 		info.pol_clr = type_str[6] == 'P';
-		if constexpr (have_cell) {
-			info.sig_set = cell->getPort(ID::S);
-			info.sig_clr = cell->getPort(ID::R);
+		اگر constexpr (have_cell) {
+			info.sig_سیٹ = cell->get_پورٹ(ID::S);
+			info.sig_clr = cell->get_پورٹ(ID::R);
 		}
-	} else if (type_str.substr(0, 6) == "$_DFF_" && type_str.size() == 8) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ورنہ اگر (type_str.substr(0, 6) == "$_DFF_" && type_str.سائز() == 8) {
+		info.is_fine = سچ;
+		info.has_clk = سچ;
 		info.pol_clk = type_str[6] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
+		اگر constexpr (have_cell) {
+			info.sig_d = cell->get_پورٹ(ID::D);
+			info.sig_clk = cell->get_پورٹ(ID::C);
 		}
-	} else if (type_str.substr(0, 7) == "$_DFFE_" && type_str.size() == 10) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ورنہ اگر (type_str.substr(0, 7) == "$_DFFE_" && type_str.سائز() == 10) {
+		info.is_fine = سچ;
+		info.has_clk = سچ;
 		info.pol_clk = type_str[7] == 'P';
-		info.has_ce = true;
+		info.has_ce = سچ;
 		info.pol_ce = type_str[8] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_ce = cell->getPort(ID::E);
+		اگر constexpr (have_cell) {
+			info.sig_d = cell->get_پورٹ(ID::D);
+			info.sig_clk = cell->get_پورٹ(ID::C);
+			info.sig_ce = cell->get_پورٹ(ID::E);
 		}
-	} else if (type_str.substr(0, 6) == "$_DFF_" && type_str.size() == 10) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ورنہ اگر (type_str.substr(0, 6) == "$_DFF_" && type_str.سائز() == 10) {
+		info.is_fine = سچ;
+		info.has_clk = سچ;
 		info.pol_clk = type_str[6] == 'P';
-		info.has_arst = true;
+		info.has_arst = سچ;
 		info.pol_arst = type_str[7] == 'P';
 		info.val_arst = type_str[8] == '1' ? State::S1 : State::S0;
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_arst = cell->getPort(ID::R);
+		اگر constexpr (have_cell) {
+			info.sig_d = cell->get_پورٹ(ID::D);
+			info.sig_clk = cell->get_پورٹ(ID::C);
+			info.sig_arst = cell->get_پورٹ(ID::R);
 		}
-	} else if (type_str.substr(0, 7) == "$_DFFE_" && type_str.size() == 12) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ورنہ اگر (type_str.substr(0, 7) == "$_DFFE_" && type_str.سائز() == 12) {
+		info.is_fine = سچ;
+		info.has_clk = سچ;
 		info.pol_clk = type_str[7] == 'P';
-		info.has_arst = true;
+		info.has_arst = سچ;
 		info.pol_arst = type_str[8] == 'P';
 		info.val_arst = type_str[9] == '1' ? State::S1 : State::S0;
-		info.has_ce = true;
+		info.has_ce = سچ;
 		info.pol_ce = type_str[10] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_arst = cell->getPort(ID::R);
-			info.sig_ce = cell->getPort(ID::E);
+		اگر constexpr (have_cell) {
+			info.sig_d = cell->get_پورٹ(ID::D);
+			info.sig_clk = cell->get_پورٹ(ID::C);
+			info.sig_arst = cell->get_پورٹ(ID::R);
+			info.sig_ce = cell->get_پورٹ(ID::E);
 		}
-	} else if (type_str.substr(0, 8) == "$_ALDFF_" && type_str.size() == 11) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ورنہ اگر (type_str.substr(0, 8) == "$_ALDFF_" && type_str.سائز() == 11) {
+		info.is_fine = سچ;
+		info.has_clk = سچ;
 		info.pol_clk = type_str[8] == 'P';
-		info.has_aload = true;
+		info.has_aload = سچ;
 		info.pol_aload = type_str[9] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_aload = cell->getPort(ID::L);
-			info.sig_ad = cell->getPort(ID::AD);
+		اگر constexpr (have_cell) {
+			info.sig_d = cell->get_پورٹ(ID::D);
+			info.sig_clk = cell->get_پورٹ(ID::C);
+			info.sig_aload = cell->get_پورٹ(ID::L);
+			info.sig_ad = cell->get_پورٹ(ID::AD);
 		}
-	} else if (type_str.substr(0, 9) == "$_ALDFFE_" && type_str.size() == 13) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ورنہ اگر (type_str.substr(0, 9) == "$_ALDFFE_" && type_str.سائز() == 13) {
+		info.is_fine = سچ;
+		info.has_clk = سچ;
 		info.pol_clk = type_str[9] == 'P';
-		info.has_aload = true;
+		info.has_aload = سچ;
 		info.pol_aload = type_str[10] == 'P';
-		info.has_ce = true;
+		info.has_ce = سچ;
 		info.pol_ce = type_str[11] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_aload = cell->getPort(ID::L);
-			info.sig_ad = cell->getPort(ID::AD);
-			info.sig_ce = cell->getPort(ID::E);
+		اگر constexpr (have_cell) {
+			info.sig_d = cell->get_پورٹ(ID::D);
+			info.sig_clk = cell->get_پورٹ(ID::C);
+			info.sig_aload = cell->get_پورٹ(ID::L);
+			info.sig_ad = cell->get_پورٹ(ID::AD);
+			info.sig_ce = cell->get_پورٹ(ID::E);
 		}
-	} else if (type_str.substr(0, 8) == "$_DFFSR_" && type_str.size() == 12) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ورنہ اگر (type_str.substr(0, 8) == "$_DFFSR_" && type_str.سائز() == 12) {
+		info.is_fine = سچ;
+		info.has_clk = سچ;
 		info.pol_clk = type_str[8] == 'P';
-		info.has_sr = true;
-		info.pol_set = type_str[9] == 'P';
+		info.has_sr = سچ;
+		info.pol_سیٹ = type_str[9] == 'P';
 		info.pol_clr = type_str[10] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_set = cell->getPort(ID::S);
-			info.sig_clr = cell->getPort(ID::R);
+		اگر constexpr (have_cell) {
+			info.sig_d = cell->get_پورٹ(ID::D);
+			info.sig_clk = cell->get_پورٹ(ID::C);
+			info.sig_سیٹ = cell->get_پورٹ(ID::S);
+			info.sig_clr = cell->get_پورٹ(ID::R);
 		}
-	} else if (type_str.substr(0, 9) == "$_DFFSRE_" && type_str.size() == 14) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ورنہ اگر (type_str.substr(0, 9) == "$_DFFSRE_" && type_str.سائز() == 14) {
+		info.is_fine = سچ;
+		info.has_clk = سچ;
 		info.pol_clk = type_str[9] == 'P';
-		info.has_sr = true;
-		info.pol_set = type_str[10] == 'P';
+		info.has_sr = سچ;
+		info.pol_سیٹ = type_str[10] == 'P';
 		info.pol_clr = type_str[11] == 'P';
-		info.has_ce = true;
+		info.has_ce = سچ;
 		info.pol_ce = type_str[12] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_set = cell->getPort(ID::S);
-			info.sig_clr = cell->getPort(ID::R);
-			info.sig_ce = cell->getPort(ID::E);
+		اگر constexpr (have_cell) {
+			info.sig_d = cell->get_پورٹ(ID::D);
+			info.sig_clk = cell->get_پورٹ(ID::C);
+			info.sig_سیٹ = cell->get_پورٹ(ID::S);
+			info.sig_clr = cell->get_پورٹ(ID::R);
+			info.sig_ce = cell->get_پورٹ(ID::E);
 		}
-	} else if (type_str.substr(0, 7) == "$_SDFF_" && type_str.size() == 11) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ورنہ اگر (type_str.substr(0, 7) == "$_SDFF_" && type_str.سائز() == 11) {
+		info.is_fine = سچ;
+		info.has_clk = سچ;
 		info.pol_clk = type_str[7] == 'P';
-		info.has_srst = true;
+		info.has_srst = سچ;
 		info.pol_srst = type_str[8] == 'P';
 		info.val_srst = type_str[9] == '1' ? State::S1 : State::S0;
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_srst = cell->getPort(ID::R);
+		اگر constexpr (have_cell) {
+			info.sig_d = cell->get_پورٹ(ID::D);
+			info.sig_clk = cell->get_پورٹ(ID::C);
+			info.sig_srst = cell->get_پورٹ(ID::R);
 		}
-	} else if (type_str.substr(0, 8) == "$_SDFFE_" && type_str.size() == 13) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ورنہ اگر (type_str.substr(0, 8) == "$_SDFFE_" && type_str.سائز() == 13) {
+		info.is_fine = سچ;
+		info.has_clk = سچ;
 		info.pol_clk = type_str[8] == 'P';
-		info.has_srst = true;
+		info.has_srst = سچ;
 		info.pol_srst = type_str[9] == 'P';
 		info.val_srst = type_str[10] == '1' ? State::S1 : State::S0;
-		info.has_ce = true;
+		info.has_ce = سچ;
 		info.pol_ce = type_str[11] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_srst = cell->getPort(ID::R);
-			info.sig_ce = cell->getPort(ID::E);
+		اگر constexpr (have_cell) {
+			info.sig_d = cell->get_پورٹ(ID::D);
+			info.sig_clk = cell->get_پورٹ(ID::C);
+			info.sig_srst = cell->get_پورٹ(ID::R);
+			info.sig_ce = cell->get_پورٹ(ID::E);
 		}
-	} else if (type_str.substr(0, 9) == "$_SDFFCE_" && type_str.size() == 14) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ورنہ اگر (type_str.substr(0, 9) == "$_SDFFCE_" && type_str.سائز() == 14) {
+		info.is_fine = سچ;
+		info.has_clk = سچ;
 		info.pol_clk = type_str[9] == 'P';
-		info.has_srst = true;
+		info.has_srst = سچ;
 		info.pol_srst = type_str[10] == 'P';
 		info.val_srst = type_str[11] == '1' ? State::S1 : State::S0;
-		info.has_ce = true;
+		info.has_ce = سچ;
 		info.pol_ce = type_str[12] == 'P';
-		info.ce_over_srst = true;
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_srst = cell->getPort(ID::R);
-			info.sig_ce = cell->getPort(ID::E);
+		info.ce_over_srst = سچ;
+		اگر constexpr (have_cell) {
+			info.sig_d = cell->get_پورٹ(ID::D);
+			info.sig_clk = cell->get_پورٹ(ID::C);
+			info.sig_srst = cell->get_پورٹ(ID::R);
+			info.sig_ce = cell->get_پورٹ(ID::E);
 		}
-	} else if (type_str.substr(0, 9) == "$_DLATCH_" && type_str.size() == 11) {
-		info.is_fine = true;
-		info.has_aload = true;
-		info.has_aload = true;
+	} ورنہ اگر (type_str.substr(0, 9) == "$_DLATCH_" && type_str.سائز() == 11) {
+		info.is_fine = سچ;
+		info.has_aload = سچ;
+		info.has_aload = سچ;
 		info.pol_aload = type_str[9] == 'P';
-		if constexpr (have_cell) {
-			info.sig_ad = cell->getPort(ID::D);
-			info.sig_aload = cell->getPort(ID::E);
+		اگر constexpr (have_cell) {
+			info.sig_ad = cell->get_پورٹ(ID::D);
+			info.sig_aload = cell->get_پورٹ(ID::E);
 		}
-	} else if (type_str.substr(0, 9) == "$_DLATCH_" && type_str.size() == 13) {
-		info.is_fine = true;
-		info.has_aload = true;
-		info.has_aload = true;
+	} ورنہ اگر (type_str.substr(0, 9) == "$_DLATCH_" && type_str.سائز() == 13) {
+		info.is_fine = سچ;
+		info.has_aload = سچ;
+		info.has_aload = سچ;
 		info.pol_aload = type_str[9] == 'P';
-		info.has_arst = true;
+		info.has_arst = سچ;
 		info.pol_arst = type_str[10] == 'P';
 		info.val_arst = type_str[11] == '1' ? State::S1 : State::S0;
-		if constexpr (have_cell) {
-			info.sig_ad = cell->getPort(ID::D);
-			info.sig_aload = cell->getPort(ID::E);
-			info.sig_arst = cell->getPort(ID::R);
+		اگر constexpr (have_cell) {
+			info.sig_ad = cell->get_پورٹ(ID::D);
+			info.sig_aload = cell->get_پورٹ(ID::E);
+			info.sig_arst = cell->get_پورٹ(ID::R);
 		}
-	} else if (type_str.substr(0, 11) == "$_DLATCHSR_" && type_str.size() == 15) {
-		info.is_fine = true;
-		info.has_aload = true;
-		info.has_aload = true;
+	} ورنہ اگر (type_str.substr(0, 11) == "$_DLATCHSR_" && type_str.سائز() == 15) {
+		info.is_fine = سچ;
+		info.has_aload = سچ;
+		info.has_aload = سچ;
 		info.pol_aload = type_str[11] == 'P';
-		info.has_sr = true;
-		info.pol_set = type_str[12] == 'P';
+		info.has_sr = سچ;
+		info.pol_سیٹ = type_str[12] == 'P';
 		info.pol_clr = type_str[13] == 'P';
-		if constexpr (have_cell) {
-			info.sig_ad = cell->getPort(ID::D);
-			info.sig_aload = cell->getPort(ID::E);
-			info.sig_set = cell->getPort(ID::S);
-			info.sig_clr = cell->getPort(ID::R);
+		اگر constexpr (have_cell) {
+			info.sig_ad = cell->get_پورٹ(ID::D);
+			info.sig_aload = cell->get_پورٹ(ID::E);
+			info.sig_سیٹ = cell->get_پورٹ(ID::S);
+			info.sig_clr = cell->get_پورٹ(ID::R);
 		}
-	} else {
+	} ورنہ {
 		log_assert(0);
 	}
-	if constexpr (have_cell)
-		if (info.has_aload && !info.has_clk && !info.has_sr && !info.has_arst && info.sig_ad.is_fully_const()) {
+	اگر constexpr (have_cell)
+		اگر (info.has_aload && !info.has_clk && !info.has_sr && !info.has_arst && info.sig_ad.is_fully_const()) {
 			// Plain D latches with const D treated specially.
-			info.has_aload = false;
-			info.has_arst = true;
+			info.has_aload = جھوٹ;
+			info.has_arst = سچ;
 			info.sig_arst = info.sig_aload;
 			info.pol_arst = info.pol_aload;
 			info.val_arst = info.sig_ad.as_const();
 		}
 }
 
-FfTypeData::FfTypeData(IdString type) : FfTypeData()
+Ff_Type_ڈیٹا::Ff_Type_ڈیٹا(IdString type) : Ff_Type_ڈیٹا()
 {
-	manufacture_info(type, *this, nullptr);
+	manufacture_info(type, *یہ, خالی_اشاریہ);
 }
 
-FfData::FfData(FfInitVals *initvals, Cell *cell_) : FfData(cell_->module, initvals, cell_->name)
+Ff_ڈیٹا::Ff_ڈیٹا(FfInitVals *initvals, Cell *cell_) : Ff_ڈیٹا(cell_->module, initvals, cell_->name)
 {
 	cell = cell_;
-	manufacture_info(cell, *this, initvals);
+	manufacture_info(cell, *یہ, initvals);
 }
 
-FfData FfData::slice(const std::vector<int> &bits) {
-	FfData res(module, initvals, module->twines().add(NEW_ID));
+Ff_ڈیٹا Ff_ڈیٹا::قاش(ثابت std::سمتیہ<صحیح> &بٹ) {
+	Ff_ڈیٹا res(module, initvals, module->twines().جوڑو(NEW_ID));
 	res.sig_clk = sig_clk;
 	res.sig_ce = sig_ce;
 	res.sig_aload = sig_aload;
@@ -356,222 +356,222 @@ FfData FfData::slice(const std::vector<int> &bits) {
 	res.pol_arst = pol_arst;
 	res.pol_srst = pol_srst;
 	res.pol_clr = pol_clr;
-	res.pol_set = pol_set;
-	res.attributes = attributes;
-	std::optional<Const::Builder> arst_bits;
-	if (has_arst)
-		arst_bits.emplace(bits.size());
-	std::optional<Const::Builder> srst_bits;
-	if (has_srst)
-		srst_bits.emplace(bits.size());
-	std::optional<Const::Builder> init_bits;
-	if (initvals)
-		init_bits.emplace(bits.size());
+	res.pol_سیٹ = pol_سیٹ;
+	res.اوصاف = اوصاف;
+	std::optional<Const::Builder> arst_بٹ;
+	اگر (has_arst)
+		arst_بٹ.emplace(بٹ.سائز());
+	std::optional<Const::Builder> srst_بٹ;
+	اگر (has_srst)
+		srst_بٹ.emplace(بٹ.سائز());
+	std::optional<Const::Builder> init_بٹ;
+	اگر (initvals)
+		init_بٹ.emplace(بٹ.سائز());
 
-	for (int i : bits) {
+	برائے (صحیح i : بٹ) {
 		res.sig_q.append(sig_q[i]);
-		if (has_clk || has_gclk)
+		اگر (has_clk || has_gclk)
 			res.sig_d.append(sig_d[i]);
-		if (has_aload)
+		اگر (has_aload)
 			res.sig_ad.append(sig_ad[i]);
-		if (has_sr) {
+		اگر (has_sr) {
 			res.sig_clr.append(sig_clr[i]);
-			res.sig_set.append(sig_set[i]);
+			res.sig_سیٹ.append(sig_سیٹ[i]);
 		}
-		if (has_arst)
-			arst_bits->push_back(val_arst[i]);
-		if (has_srst)
-			srst_bits->push_back(val_srst[i]);
-		if (initvals)
-			init_bits->push_back(val_init[i]);
+		اگر (has_arst)
+			arst_بٹ->ڈالو_عقب(val_arst[i]);
+		اگر (has_srst)
+			srst_بٹ->ڈالو_عقب(val_srst[i]);
+		اگر (initvals)
+			init_بٹ->ڈالو_عقب(val_init[i]);
 	}
 
-	if (has_arst)
-		res.val_arst = arst_bits->build();
-	if (has_srst)
-		res.val_srst = srst_bits->build();
-	if (initvals)
-		res.val_init = init_bits->build();
-	res.width = GetSize(res.sig_q);
-	return res;
+	اگر (has_arst)
+		res.val_arst = arst_بٹ->build();
+	اگر (has_srst)
+		res.val_srst = srst_بٹ->build();
+	اگر (initvals)
+		res.val_init = init_بٹ->build();
+	res.چوڑائی = Get_سائز(res.sig_q);
+	واپس res;
 }
 
-void FfData::add_dummy_ce() {
-	if (has_ce)
-		return;
-	has_ce = true;
-	pol_ce = true;
+خالی Ff_ڈیٹا::جوڑو_dummy_ce() {
+	اگر (has_ce)
+		واپس;
+	has_ce = سچ;
+	pol_ce = سچ;
 	sig_ce = State::S1;
-	ce_over_srst = false;
+	ce_over_srst = جھوٹ;
 }
 
-void FfData::add_dummy_srst() {
-	if (has_srst)
-		return;
-	has_srst = true;
-	pol_srst = true;
+خالی Ff_ڈیٹا::جوڑو_dummy_srst() {
+	اگر (has_srst)
+		واپس;
+	has_srst = سچ;
+	pol_srst = سچ;
 	sig_srst = State::S0;
-	val_srst = Const(State::Sx, width);
-	ce_over_srst = false;
+	val_srst = Const(State::Sx, چوڑائی);
+	ce_over_srst = جھوٹ;
 }
 
-void FfData::add_dummy_arst() {
-	if (has_arst)
-		return;
-	has_arst = true;
-	pol_arst = true;
+خالی Ff_ڈیٹا::جوڑو_dummy_arst() {
+	اگر (has_arst)
+		واپس;
+	has_arst = سچ;
+	pol_arst = سچ;
 	sig_arst = State::S0;
-	val_arst = Const(State::Sx, width);
+	val_arst = Const(State::Sx, چوڑائی);
 }
 
-void FfData::add_dummy_aload() {
-	if (has_aload)
-		return;
-	has_aload = true;
-	pol_aload = true;
+خالی Ff_ڈیٹا::جوڑو_dummy_aload() {
+	اگر (has_aload)
+		واپس;
+	has_aload = سچ;
+	pol_aload = سچ;
 	sig_aload = State::S0;
-	sig_ad = Const(State::Sx, width);
+	sig_ad = Const(State::Sx, چوڑائی);
 }
 
-void FfData::add_dummy_sr() {
-	if (has_sr)
-		return;
-	has_sr = true;
-	pol_clr = true;
-	pol_set = true;
-	sig_clr = Const(State::S0, width);
-	sig_set = Const(State::S0, width);
+خالی Ff_ڈیٹا::جوڑو_dummy_sr() {
+	اگر (has_sr)
+		واپس;
+	has_sr = سچ;
+	pol_clr = سچ;
+	pol_سیٹ = سچ;
+	sig_clr = Const(State::S0, چوڑائی);
+	sig_سیٹ = Const(State::S0, چوڑائی);
 }
 
-void FfData::add_dummy_clk() {
-	if (has_clk)
-		return;
-	has_clk = true;
-	pol_clk = true;
+خالی Ff_ڈیٹا::جوڑو_dummy_clk() {
+	اگر (has_clk)
+		واپس;
+	has_clk = سچ;
+	pol_clk = سچ;
 	sig_clk = State::S0;
-	sig_d = Const(State::Sx, width);
+	sig_d = Const(State::Sx, چوڑائی);
 }
 
-void FfData::arst_to_aload() {
+خالی Ff_ڈیٹا::arst_مقصد_aload() {
 	log_assert(has_arst);
 	log_assert(!has_aload);
 	pol_aload = pol_arst;
 	sig_aload = sig_arst;
 	sig_ad = val_arst;
-	has_aload = true;
-	has_arst = false;
+	has_aload = سچ;
+	has_arst = جھوٹ;
 }
 
-void FfData::arst_to_sr() {
+خالی Ff_ڈیٹا::arst_مقصد_sr() {
 	log_assert(has_arst);
 	log_assert(!has_sr);
 	pol_clr = pol_arst;
-	pol_set = pol_arst;
-	sig_clr = Const(pol_arst ? State::S0 : State::S1, width);
-	sig_set = Const(pol_arst ? State::S0 : State::S1, width);
-	has_sr = true;
-	has_arst = false;
-	for (int i = 0; i < width; i++) {
-		if (val_arst[i] == State::S1)
-			sig_set[i] = sig_arst;
-		else
+	pol_سیٹ = pol_arst;
+	sig_clr = Const(pol_arst ? State::S0 : State::S1, چوڑائی);
+	sig_سیٹ = Const(pol_arst ? State::S0 : State::S1, چوڑائی);
+	has_sr = سچ;
+	has_arst = جھوٹ;
+	برائے (صحیح i = 0; i < چوڑائی; i++) {
+		اگر (val_arst[i] == State::S1)
+			sig_سیٹ[i] = sig_arst;
+		ورنہ
 			sig_clr[i] = sig_arst;
 	}
 }
 
-void FfData::aload_to_sr() {
+خالی Ff_ڈیٹا::aload_مقصد_sr() {
 	log_assert(has_aload);
 	log_assert(!has_sr);
-	has_sr = true;
-	has_aload = false;
-	if (!is_fine) {
-		pol_clr = false;
-		pol_set = true;
-		if (pol_aload) {
-			sig_clr = module->Mux(NEW_ID, Const(State::S1, width), sig_ad, sig_aload);
-			sig_set = module->Mux(NEW_ID, Const(State::S0, width), sig_ad, sig_aload);
-		} else {
-			sig_clr = module->Mux(NEW_ID, sig_ad, Const(State::S1, width), sig_aload);
-			sig_set = module->Mux(NEW_ID, sig_ad, Const(State::S0, width), sig_aload);
+	has_sr = سچ;
+	has_aload = جھوٹ;
+	اگر (!is_fine) {
+		pol_clr = جھوٹ;
+		pol_سیٹ = سچ;
+		اگر (pol_aload) {
+			sig_clr = module->Mux(NEW_ID, Const(State::S1, چوڑائی), sig_ad, sig_aload);
+			sig_سیٹ = module->Mux(NEW_ID, Const(State::S0, چوڑائی), sig_ad, sig_aload);
+		} ورنہ {
+			sig_clr = module->Mux(NEW_ID, sig_ad, Const(State::S1, چوڑائی), sig_aload);
+			sig_سیٹ = module->Mux(NEW_ID, sig_ad, Const(State::S0, چوڑائی), sig_aload);
 		}
-	} else {
+	} ورنہ {
 		pol_clr = pol_aload;
-		pol_set = pol_aload;
-		if (pol_aload) {
+		pol_سیٹ = pol_aload;
+		اگر (pol_aload) {
 			sig_clr = module->AndnotGate(NEW_ID, sig_aload, sig_ad);
-			sig_set = module->AndGate(NEW_ID, sig_aload, sig_ad);
-		} else {
+			sig_سیٹ = module->AndGate(NEW_ID, sig_aload, sig_ad);
+		} ورنہ {
 			sig_clr = module->OrGate(NEW_ID, sig_aload, sig_ad);
-			sig_set = module->OrnotGate(NEW_ID, sig_aload, sig_ad);
+			sig_سیٹ = module->OrnotGate(NEW_ID, sig_aload, sig_ad);
 		}
 	}
 }
 
-void FfData::convert_ce_over_srst(bool val) {
-	if (!has_ce || !has_srst || ce_over_srst == val)
-		return;
-	if (val) {
+خالی Ff_ڈیٹا::convert_ce_over_srst(منطقی val) {
+	اگر (!has_ce || !has_srst || ce_over_srst == val)
+		واپس;
+	اگر (val) {
 		// sdffe to sdffce
-		if (!is_fine) {
-			if (pol_ce) {
-				if (pol_srst) {
+		اگر (!is_fine) {
+			اگر (pol_ce) {
+				اگر (pol_srst) {
 					sig_ce = module->Or(NEW_ID, sig_ce, sig_srst);
-				} else {
+				} ورنہ {
 					SigSpec tmp = module->Not(NEW_ID, sig_srst);
 					sig_ce = module->Or(NEW_ID, sig_ce, tmp);
 				}
-			} else {
-				if (pol_srst) {
+			} ورنہ {
+				اگر (pol_srst) {
 					SigSpec tmp = module->Not(NEW_ID, sig_srst);
 					sig_ce = module->And(NEW_ID, sig_ce, tmp);
-				} else {
+				} ورنہ {
 					sig_ce = module->And(NEW_ID, sig_ce, sig_srst);
 				}
 			}
-		} else {
-			if (pol_ce) {
-				if (pol_srst) {
+		} ورنہ {
+			اگر (pol_ce) {
+				اگر (pol_srst) {
 					sig_ce = module->OrGate(NEW_ID, sig_ce, sig_srst);
-				} else {
+				} ورنہ {
 					sig_ce = module->OrnotGate(NEW_ID, sig_ce, sig_srst);
 				}
-			} else {
-				if (pol_srst) {
+			} ورنہ {
+				اگر (pol_srst) {
 					sig_ce = module->AndnotGate(NEW_ID, sig_ce, sig_srst);
-				} else {
+				} ورنہ {
 					sig_ce = module->AndGate(NEW_ID, sig_ce, sig_srst);
 				}
 			}
 		}
-	} else {
+	} ورنہ {
 		// sdffce to sdffe
-		if (!is_fine) {
-			if (pol_srst) {
-				if (pol_ce) {
+		اگر (!is_fine) {
+			اگر (pol_srst) {
+				اگر (pol_ce) {
 					sig_srst = cell->module->And(NEW_ID, sig_srst, sig_ce);
-				} else {
+				} ورنہ {
 					SigSpec tmp = module->Not(NEW_ID, sig_ce);
 					sig_srst = cell->module->And(NEW_ID, sig_srst, tmp);
 				}
-			} else {
-				if (pol_ce) {
+			} ورنہ {
+				اگر (pol_ce) {
 					SigSpec tmp = module->Not(NEW_ID, sig_ce);
 					sig_srst = cell->module->Or(NEW_ID, sig_srst, tmp);
-				} else {
+				} ورنہ {
 					sig_srst = cell->module->Or(NEW_ID, sig_srst, sig_ce);
 				}
 			}
-		} else {
-			if (pol_srst) {
-				if (pol_ce) {
+		} ورنہ {
+			اگر (pol_srst) {
+				اگر (pol_ce) {
 					sig_srst = cell->module->AndGate(NEW_ID, sig_srst, sig_ce);
-				} else {
+				} ورنہ {
 					sig_srst = cell->module->AndnotGate(NEW_ID, sig_srst, sig_ce);
 				}
-			} else {
-				if (pol_ce) {
+			} ورنہ {
+				اگر (pol_ce) {
 					sig_srst = cell->module->OrnotGate(NEW_ID, sig_srst, sig_ce);
-				} else {
+				} ورنہ {
 					sig_srst = cell->module->OrGate(NEW_ID, sig_srst, sig_ce);
 				}
 			}
@@ -580,121 +580,121 @@ void FfData::convert_ce_over_srst(bool val) {
 	ce_over_srst = val;
 }
 
-void FfData::unmap_ce() {
-	if (!has_ce)
-		return;
+خالی Ff_ڈیٹا::unmap_ce() {
+	اگر (!has_ce)
+		واپس;
 	log_assert(has_clk);
-	if (has_srst && ce_over_srst)
+	اگر (has_srst && ce_over_srst)
 		unmap_srst();
 
-	if (!is_fine) {
-		if (pol_ce)
+	اگر (!is_fine) {
+		اگر (pol_ce)
 			sig_d = module->Mux(NEW_ID, sig_q, sig_d, sig_ce);
-		else
+		ورنہ
 			sig_d = module->Mux(NEW_ID, sig_d, sig_q, sig_ce);
-	} else {
-		if (pol_ce)
+	} ورنہ {
+		اگر (pol_ce)
 			sig_d = module->MuxGate(NEW_ID, sig_q, sig_d, sig_ce);
-		else
+		ورنہ
 			sig_d = module->MuxGate(NEW_ID, sig_d, sig_q, sig_ce);
 	}
-	has_ce = false;
+	has_ce = جھوٹ;
 }
 
-void FfData::unmap_srst() {
-	if (!has_srst)
-		return;
-	if (has_ce && !ce_over_srst)
+خالی Ff_ڈیٹا::unmap_srst() {
+	اگر (!has_srst)
+		واپس;
+	اگر (has_ce && !ce_over_srst)
 		unmap_ce();
 
-	if (!is_fine) {
-		if (pol_srst)
+	اگر (!is_fine) {
+		اگر (pol_srst)
 			sig_d = module->Mux(NEW_ID, sig_d, val_srst, sig_srst);
-		else
+		ورنہ
 			sig_d = module->Mux(NEW_ID, val_srst, sig_d, sig_srst);
-	} else {
-		if (pol_srst)
+	} ورنہ {
+		اگر (pol_srst)
 			sig_d = module->MuxGate(NEW_ID, sig_d, val_srst[0], sig_srst);
-		else
+		ورنہ
 			sig_d = module->MuxGate(NEW_ID, val_srst[0], sig_d, sig_srst);
 	}
-	has_srst = false;
+	has_srst = جھوٹ;
 }
 
-Cell *FfData::emit() {
+Cell *Ff_ڈیٹا::emit() {
 	remove();
-	if (!width)
-		return nullptr;
-	if (!has_aload && !has_clk && !has_gclk && !has_sr) {
-		if (has_arst) {
+	اگر (!چوڑائی)
+		واپس خالی_اشاریہ;
+	اگر (!has_aload && !has_clk && !has_gclk && !has_sr) {
+		اگر (has_arst) {
 			// Convert this case to a D latch.
-			arst_to_aload();
-		} else {
+			arst_مقصد_aload();
+		} ورنہ {
 			// No control inputs left.  Turn into a const driver.
 			module->connect(sig_q, val_init);
-			return nullptr;
+			واپس خالی_اشاریہ;
 		}
 	}
-	if (initvals && !is_anyinit)
-		initvals->set_init(sig_q, val_init);
-	if (!is_fine) {
-		if (has_gclk) {
+	اگر (initvals && !is_anyinit)
+		initvals->سیٹ_init(sig_q, val_init);
+	اگر (!is_fine) {
+		اگر (has_gclk) {
 			log_assert(!has_clk);
 			log_assert(!has_ce);
 			log_assert(!has_aload);
 			log_assert(!has_arst);
 			log_assert(!has_srst);
 			log_assert(!has_sr);
-			if (is_anyinit) {
-				cell = module->addAnyinit(name, sig_d, sig_q);
+			اگر (is_anyinit) {
+				cell = module->جوڑو_Anyinit(name, sig_d, sig_q);
 				log_assert(val_init.is_fully_undef());
-			} else {
-				cell = module->addFf(name, sig_d, sig_q);
+			} ورنہ {
+				cell = module->جوڑو_Ff(name, sig_d, sig_q);
 			}
-		} else if (!has_aload && !has_clk) {
+		} ورنہ اگر (!has_aload && !has_clk) {
 			log_assert(has_sr);
-			cell = module->addSr(name, sig_set, sig_clr, sig_q, pol_set, pol_clr);
-		} else if (!has_clk) {
+			cell = module->جوڑو_Sr(name, sig_سیٹ, sig_clr, sig_q, pol_سیٹ, pol_clr);
+		} ورنہ اگر (!has_clk) {
 			log_assert(!has_srst);
-			if (has_sr)
-				cell = module->addDlatchsr(name, sig_aload, sig_set, sig_clr, sig_ad, sig_q, pol_aload, pol_set, pol_clr);
-			else if (has_arst)
-				cell = module->addAdlatch(name, sig_aload, sig_arst, sig_ad, sig_q, val_arst, pol_aload, pol_arst);
-			else
-				cell = module->addDlatch(name, sig_aload, sig_ad, sig_q, pol_aload);
-		} else {
-			if (has_sr) {
-				if (has_ce)
-					cell = module->addDffsre(name, sig_clk, sig_ce, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_ce, pol_set, pol_clr);
-				else
-					cell = module->addDffsr(name, sig_clk, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_set, pol_clr);
-			} else if (has_arst) {
-				if (has_ce)
-					cell = module->addAdffe(name, sig_clk, sig_ce, sig_arst, sig_d, sig_q, val_arst, pol_clk, pol_ce, pol_arst);
-				else
-					cell = module->addAdff(name, sig_clk, sig_arst, sig_d, sig_q, val_arst, pol_clk, pol_arst);
-			} else if (has_aload) {
-				if (has_ce)
-					cell = module->addAldffe(name, sig_clk, sig_ce, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_ce, pol_aload);
-				else
-					cell = module->addAldff(name, sig_clk, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_aload);
-			} else if (has_srst) {
-				if (has_ce)
-					if (ce_over_srst)
-						cell = module->addSdffce(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_ce, pol_srst);
-					else
-						cell = module->addSdffe(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_ce, pol_srst);
-				else
-					cell = module->addSdff(name, sig_clk, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_srst);
-			} else {
-				if (has_ce)
-					cell = module->addDffe(name, sig_clk, sig_ce, sig_d, sig_q, pol_clk, pol_ce);
-				else
-					cell = module->addDff(name, sig_clk, sig_d, sig_q, pol_clk);
+			اگر (has_sr)
+				cell = module->جوڑو_Dlatchsr(name, sig_aload, sig_سیٹ, sig_clr, sig_ad, sig_q, pol_aload, pol_سیٹ, pol_clr);
+			ورنہ اگر (has_arst)
+				cell = module->جوڑو_Adlatch(name, sig_aload, sig_arst, sig_ad, sig_q, val_arst, pol_aload, pol_arst);
+			ورنہ
+				cell = module->جوڑو_Dlatch(name, sig_aload, sig_ad, sig_q, pol_aload);
+		} ورنہ {
+			اگر (has_sr) {
+				اگر (has_ce)
+					cell = module->جوڑو_Dffsre(name, sig_clk, sig_ce, sig_سیٹ, sig_clr, sig_d, sig_q, pol_clk, pol_ce, pol_سیٹ, pol_clr);
+				ورنہ
+					cell = module->جوڑو_Dffsr(name, sig_clk, sig_سیٹ, sig_clr, sig_d, sig_q, pol_clk, pol_سیٹ, pol_clr);
+			} ورنہ اگر (has_arst) {
+				اگر (has_ce)
+					cell = module->جوڑو_Adffe(name, sig_clk, sig_ce, sig_arst, sig_d, sig_q, val_arst, pol_clk, pol_ce, pol_arst);
+				ورنہ
+					cell = module->جوڑو_Adff(name, sig_clk, sig_arst, sig_d, sig_q, val_arst, pol_clk, pol_arst);
+			} ورنہ اگر (has_aload) {
+				اگر (has_ce)
+					cell = module->جوڑو_Aldffe(name, sig_clk, sig_ce, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_ce, pol_aload);
+				ورنہ
+					cell = module->جوڑو_Aldff(name, sig_clk, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_aload);
+			} ورنہ اگر (has_srst) {
+				اگر (has_ce)
+					اگر (ce_over_srst)
+						cell = module->جوڑو_Sdffce(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_ce, pol_srst);
+					ورنہ
+						cell = module->جوڑو_Sdffe(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_ce, pol_srst);
+				ورنہ
+					cell = module->جوڑو_Sdff(name, sig_clk, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_srst);
+			} ورنہ {
+				اگر (has_ce)
+					cell = module->جوڑو_Dffe(name, sig_clk, sig_ce, sig_d, sig_q, pol_clk, pol_ce);
+				ورنہ
+					cell = module->جوڑو_Dff(name, sig_clk, sig_d, sig_q, pol_clk);
 			}
 		}
-	} else {
-		if (has_gclk) {
+	} ورنہ {
+		اگر (has_gclk) {
 			log_assert(!has_clk);
 			log_assert(!has_ce);
 			log_assert(!has_aload);
@@ -702,159 +702,159 @@ Cell *FfData::emit() {
 			log_assert(!has_srst);
 			log_assert(!has_sr);
 			log_assert(!is_anyinit);
-			cell = module->addFfGate(name, sig_d, sig_q);
-		} else if (!has_aload && !has_clk) {
+			cell = module->جوڑو_Ff_Gate(name, sig_d, sig_q);
+		} ورنہ اگر (!has_aload && !has_clk) {
 			log_assert(has_sr);
-			cell = module->addSrGate(name, sig_set, sig_clr, sig_q, pol_set, pol_clr);
-		} else if (!has_clk) {
+			cell = module->جوڑو_Sr_Gate(name, sig_سیٹ, sig_clr, sig_q, pol_سیٹ, pol_clr);
+		} ورنہ اگر (!has_clk) {
 			log_assert(!has_srst);
-			if (has_sr)
-				cell = module->addDlatchsrGate(name, sig_aload, sig_set, sig_clr, sig_ad, sig_q, pol_aload, pol_set, pol_clr);
-			else if (has_arst)
-				cell = module->addAdlatchGate(name, sig_aload, sig_arst, sig_ad, sig_q, val_arst.as_bool(), pol_aload, pol_arst);
-			else
-				cell = module->addDlatchGate(name, sig_aload, sig_ad, sig_q, pol_aload);
-		} else {
-			if (has_sr) {
-				if (has_ce)
-					cell = module->addDffsreGate(name, sig_clk, sig_ce, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_ce, pol_set, pol_clr);
-				else
-					cell = module->addDffsrGate(name, sig_clk, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_set, pol_clr);
-			} else if (has_arst) {
-				if (has_ce)
-					cell = module->addAdffeGate(name, sig_clk, sig_ce, sig_arst, sig_d, sig_q, val_arst.as_bool(), pol_clk, pol_ce, pol_arst);
-				else
-					cell = module->addAdffGate(name, sig_clk, sig_arst, sig_d, sig_q, val_arst.as_bool(), pol_clk, pol_arst);
-			} else if (has_aload) {
-				if (has_ce)
-					cell = module->addAldffeGate(name, sig_clk, sig_ce, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_ce, pol_aload);
-				else
-					cell = module->addAldffGate(name, sig_clk, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_aload);
-			} else if (has_srst) {
-				if (has_ce)
-					if (ce_over_srst)
-						cell = module->addSdffceGate(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_ce, pol_srst);
-					else
-						cell = module->addSdffeGate(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_ce, pol_srst);
-				else
-					cell = module->addSdffGate(name, sig_clk, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_srst);
-			} else {
-				if (has_ce)
-					cell = module->addDffeGate(name, sig_clk, sig_ce, sig_d, sig_q, pol_clk, pol_ce);
-				else
-					cell = module->addDffGate(name, sig_clk, sig_d, sig_q, pol_clk);
+			اگر (has_sr)
+				cell = module->جوڑو_Dlatchsr_Gate(name, sig_aload, sig_سیٹ, sig_clr, sig_ad, sig_q, pol_aload, pol_سیٹ, pol_clr);
+			ورنہ اگر (has_arst)
+				cell = module->جوڑو_Adlatch_Gate(name, sig_aload, sig_arst, sig_ad, sig_q, val_arst.as_bool(), pol_aload, pol_arst);
+			ورنہ
+				cell = module->جوڑو_Dlatch_Gate(name, sig_aload, sig_ad, sig_q, pol_aload);
+		} ورنہ {
+			اگر (has_sr) {
+				اگر (has_ce)
+					cell = module->جوڑو_Dffsre_Gate(name, sig_clk, sig_ce, sig_سیٹ, sig_clr, sig_d, sig_q, pol_clk, pol_ce, pol_سیٹ, pol_clr);
+				ورنہ
+					cell = module->جوڑو_Dffsr_Gate(name, sig_clk, sig_سیٹ, sig_clr, sig_d, sig_q, pol_clk, pol_سیٹ, pol_clr);
+			} ورنہ اگر (has_arst) {
+				اگر (has_ce)
+					cell = module->جوڑو_Adffe_Gate(name, sig_clk, sig_ce, sig_arst, sig_d, sig_q, val_arst.as_bool(), pol_clk, pol_ce, pol_arst);
+				ورنہ
+					cell = module->جوڑو_Adff_Gate(name, sig_clk, sig_arst, sig_d, sig_q, val_arst.as_bool(), pol_clk, pol_arst);
+			} ورنہ اگر (has_aload) {
+				اگر (has_ce)
+					cell = module->جوڑو_Aldffe_Gate(name, sig_clk, sig_ce, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_ce, pol_aload);
+				ورنہ
+					cell = module->جوڑو_Aldff_Gate(name, sig_clk, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_aload);
+			} ورنہ اگر (has_srst) {
+				اگر (has_ce)
+					اگر (ce_over_srst)
+						cell = module->جوڑو_Sdffce_Gate(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_ce, pol_srst);
+					ورنہ
+						cell = module->جوڑو_Sdffe_Gate(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_ce, pol_srst);
+				ورنہ
+					cell = module->جوڑو_Sdff_Gate(name, sig_clk, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_srst);
+			} ورنہ {
+				اگر (has_ce)
+					cell = module->جوڑو_Dffe_Gate(name, sig_clk, sig_ce, sig_d, sig_q, pol_clk, pol_ce);
+				ورنہ
+					cell = module->جوڑو_Dff_Gate(name, sig_clk, sig_d, sig_q, pol_clk);
 			}
 		}
 	}
-	cell->attributes = attributes;
-	return cell;
+	cell->اوصاف = اوصاف;
+	واپس cell;
 }
 
-void FfData::remove() {
-	if (cell) {
+خالی Ff_ڈیٹا::remove() {
+	اگر (cell) {
 		remove_init();
 		module->remove(cell);
-		cell = nullptr;
+		cell = خالی_اشاریہ;
 	}
 }
 
-namespace {
+نامخلا {
 	State invert(State s) {
-		switch (s) {
-			case State::S0: return State::S1;
-			case State::S1: return State::S0;
-			default: return s;
+		انتخاب (s) {
+			حالت State::S0: واپس State::S1;
+			حالت State::S1: واپس State::S0;
+			طےشدہ: واپس s;
 		}
 	}
 }
 
-void FfData::flip_rst_bits(const pool<int> &bits) {
-	if (!bits.size())
-		return;
+خالی Ff_ڈیٹا::flip_rst_بٹ(ثابت pool<صحیح> &بٹ) {
+	اگر (!بٹ.سائز())
+		واپس;
 
 	remove_init();
 
-	for (auto bit: bits) {
-		if (has_arst)
-			val_arst.set(bit, invert(val_arst[bit]));
-		if (has_srst)
-			val_srst.set(bit, invert(val_srst[bit]));
-		val_init.set(bit, invert(val_init[bit]));
+	برائے (خودکار ثنائی_ہندسہ: بٹ) {
+		اگر (has_arst)
+			val_arst.سیٹ(ثنائی_ہندسہ, invert(val_arst[ثنائی_ہندسہ]));
+		اگر (has_srst)
+			val_srst.سیٹ(ثنائی_ہندسہ, invert(val_srst[ثنائی_ہندسہ]));
+		val_init.سیٹ(ثنائی_ہندسہ, invert(val_init[ثنائی_ہندسہ]));
 	}
 }
 
-void FfData::flip_bits(const pool<int> &bits) {
-	if (!bits.size())
-		return;
+خالی Ff_ڈیٹا::flip_بٹ(ثابت pool<صحیح> &بٹ) {
+	اگر (!بٹ.سائز())
+		واپس;
 
-	flip_rst_bits(bits);
+	flip_rst_بٹ(بٹ);
 
-	Wire *new_q = module->addWire(NEW_ID, width);
+	Wire *new_q = module->جوڑو_Wire(NEW_ID, چوڑائی);
 
-	if (has_sr && cell) {
+	اگر (has_sr && cell) {
 		log_warning("Flipping D/Q/init and inserting priority fixup to legalize %s.%s [%s].\n", module->name.unescape(), cell->name.unescape(), cell->type.unescape());
 	}
 
-	if (is_fine) {
-		if (has_sr) {
-			bool new_pol_clr = pol_set;
+	اگر (is_fine) {
+		اگر (has_sr) {
+			منطقی new_pol_clr = pol_سیٹ;
 			SigSpec new_sig_clr;
-			if (pol_set) {
-				if (pol_clr) {
-					new_sig_clr = module->AndnotGate(NEW_ID, sig_set, sig_clr);
-				} else {
-					new_sig_clr = module->AndGate(NEW_ID, sig_set, sig_clr);
+			اگر (pol_سیٹ) {
+				اگر (pol_clr) {
+					new_sig_clr = module->AndnotGate(NEW_ID, sig_سیٹ, sig_clr);
+				} ورنہ {
+					new_sig_clr = module->AndGate(NEW_ID, sig_سیٹ, sig_clr);
 				}
-			} else {
-				if (pol_clr) {
-					new_sig_clr = module->OrGate(NEW_ID, sig_set, sig_clr);
-				} else {
-					new_sig_clr = module->OrnotGate(NEW_ID, sig_set, sig_clr);
+			} ورنہ {
+				اگر (pol_clr) {
+					new_sig_clr = module->OrGate(NEW_ID, sig_سیٹ, sig_clr);
+				} ورنہ {
+					new_sig_clr = module->OrnotGate(NEW_ID, sig_سیٹ, sig_clr);
 				}
 			}
-			pol_set = pol_clr;
-			sig_set = sig_clr;
+			pol_سیٹ = pol_clr;
+			sig_سیٹ = sig_clr;
 			pol_clr = new_pol_clr;
 			sig_clr = new_sig_clr;
 		}
-		if (has_clk || has_gclk)
+		اگر (has_clk || has_gclk)
 			sig_d = module->NotGate(NEW_ID, sig_d);
-		if (has_aload)
+		اگر (has_aload)
 			sig_ad = module->NotGate(NEW_ID, sig_ad);
-		module->addNotGate(NEW_ID, new_q, sig_q);
+		module->جوڑو_Not_Gate(NEW_ID, new_q, sig_q);
 	}
-	else
+	ورنہ
 	{
-		if (has_sr) {
+		اگر (has_sr) {
 			SigSpec not_clr;
-			if (!pol_clr) {
+			اگر (!pol_clr) {
 				not_clr = sig_clr;
 				sig_clr = module->Not(NEW_ID, sig_clr);
-				pol_clr = true;
-			} else {
+				pol_clr = سچ;
+			} ورنہ {
 				not_clr = module->Not(NEW_ID, sig_clr);
 			}
-			if (!pol_set) {
-				sig_set = module->Not(NEW_ID, sig_set);
-				pol_set = true;
+			اگر (!pol_سیٹ) {
+				sig_سیٹ = module->Not(NEW_ID, sig_سیٹ);
+				pol_سیٹ = سچ;
 			}
 
-			SigSpec masked_set = module->And(NEW_ID, sig_set, not_clr);
-			for (auto bit: bits) {
-				sig_set[bit] = sig_clr[bit];
-				sig_clr[bit] = masked_set[bit];
+			SigSpec masked_سیٹ = module->And(NEW_ID, sig_سیٹ, not_clr);
+			برائے (خودکار ثنائی_ہندسہ: بٹ) {
+				sig_سیٹ[ثنائی_ہندسہ] = sig_clr[ثنائی_ہندسہ];
+				sig_clr[ثنائی_ہندسہ] = masked_سیٹ[ثنائی_ہندسہ];
 			}
 		}
 
-		Const mask = Const(State::S0, width);
-		for (auto bit: bits)
-			mask.set(bit, State::S1);
+		Const نقاب = Const(State::S0, چوڑائی);
+		برائے (خودکار ثنائی_ہندسہ: بٹ)
+			نقاب.سیٹ(ثنائی_ہندسہ, State::S1);
 
-		if (has_clk || has_gclk)
-			sig_d = module->Xor(NEW_ID, sig_d, mask);
-		if (has_aload)
-			sig_ad = module->Xor(NEW_ID, sig_ad, mask);
-		module->addXor(NEW_ID, new_q, mask, sig_q);
+		اگر (has_clk || has_gclk)
+			sig_d = module->Xor(NEW_ID, sig_d, نقاب);
+		اگر (has_aload)
+			sig_ad = module->Xor(NEW_ID, sig_ad, نقاب);
+		module->جوڑو_Xor(NEW_ID, new_q, نقاب, sig_q);
 	}
 
 	sig_q = new_q;

@@ -17,47 +17,47 @@
  *
  */
 
-#ifndef CELLEDGES_H
-#define CELLEDGES_H
+#اگر_غیر_تعریف_شدہ CELLEDGES_H
+#تعریف_کرو CELLEDGES_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
+#شامل "kernel/yosys.h"
+#شامل "kernel/sigtools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AbstractCellEdgesDatabase
+ساخت Abstract_Cell_کنارے_Database
 {
-	virtual ~AbstractCellEdgesDatabase() { }
-	virtual void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int delay) = 0;
-	bool add_edges_from_cell(RTLIL::Cell *cell);
+	مجازی ~Abstract_Cell_کنارے_Database() { }
+	مجازی خالی جوڑو_کنارہ(RTLIL::Cell *cell, RTLIL::IdString from_پورٹ, صحیح from_ثنائی_ہندسہ, RTLIL::IdString مقصد_پورٹ, صحیح مقصد_ثنائی_ہندسہ, صحیح delay) = 0;
+	bool جوڑو_کنارے_from_cell(RTLIL::Cell *cell);
 };
 
-struct FwdCellEdgesDatabase : AbstractCellEdgesDatabase
+ساخت Fwd_Cell_کنارے_Database : Abstract_Cell_کنارے_Database
 {
 	SigMap &sigmap;
-	dict<SigBit, pool<SigBit>> db;
-	FwdCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
+	dict<Sig_ثنائی_ہندسہ, pool<Sig_ثنائی_ہندسہ>> db;
+	Fwd_Cell_کنارے_Database(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
-		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
-		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[from_sigbit].insert(to_sigbit);
+	خالی جوڑو_کنارہ(RTLIL::Cell *cell, RTLIL::IdString from_پورٹ, صحیح from_ثنائی_ہندسہ, RTLIL::IdString مقصد_پورٹ, صحیح مقصد_ثنائی_ہندسہ, صحیح) override {
+		Sig_ثنائی_ہندسہ from_sigbit = sigmap(cell->get_پورٹ(from_پورٹ)[from_ثنائی_ہندسہ]);
+		Sig_ثنائی_ہندسہ مقصد_sigbit = sigmap(cell->get_پورٹ(مقصد_پورٹ)[مقصد_ثنائی_ہندسہ]);
+		db[from_sigbit].داخل_کرو(مقصد_sigbit);
 	}
 };
 
-struct RevCellEdgesDatabase : AbstractCellEdgesDatabase
+ساخت Rev_Cell_کنارے_Database : Abstract_Cell_کنارے_Database
 {
 	SigMap &sigmap;
-	dict<SigBit, pool<SigBit>> db;
-	RevCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
+	dict<Sig_ثنائی_ہندسہ, pool<Sig_ثنائی_ہندسہ>> db;
+	Rev_Cell_کنارے_Database(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
-		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
-		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[to_sigbit].insert(from_sigbit);
+	خالی جوڑو_کنارہ(RTLIL::Cell *cell, RTLIL::IdString from_پورٹ, صحیح from_ثنائی_ہندسہ, RTLIL::IdString مقصد_پورٹ, صحیح مقصد_ثنائی_ہندسہ, صحیح) override {
+		Sig_ثنائی_ہندسہ from_sigbit = sigmap(cell->get_پورٹ(from_پورٹ)[from_ثنائی_ہندسہ]);
+		Sig_ثنائی_ہندسہ مقصد_sigbit = sigmap(cell->get_پورٹ(مقصد_پورٹ)[مقصد_ثنائی_ہندسہ]);
+		db[مقصد_sigbit].داخل_کرو(from_sigbit);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتہا
 
-#endif
+#اگر_ختم

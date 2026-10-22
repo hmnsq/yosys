@@ -1,59 +1,59 @@
-#include <string>
-#include <stdarg.h>
-#include <type_traits>
-#include "kernel/yosys_common.h"
+#شامل <string>
+#شامل <stdarg.h>
+#شامل <type_traits>
+#شامل "kernel/yosys_common.h"
 
-#ifndef YOSYS_IO_H
-#define YOSYS_IO_H
+#اگر_غیر_تعریف_شدہ YOSYS_IO_H
+#تعریف_کرو YOSYS_IO_H
 
 YOSYS_NAMESPACE_BEGIN
 
-struct IdString;
+ساخت IdString;
 
-inline std::string vstringf(const char *fmt, va_list ap)
+اندرونی std::string vstringf(ثابت حرف *fmt, va_list ap)
 {
 	// For the common case of strings shorter than 128, save a heap
 	// allocation by using a stack allocated buffer.
-	const int kBufSize = 128;
-	char buf[kBufSize];
+	ثابت صحیح k_Buf_سائز = 128;
+	حرف buf[k_Buf_سائز];
 	buf[0] = '\0';
 	va_list apc;
 	va_copy(apc, ap);
-	int n = vsnprintf(buf, kBufSize, fmt, apc);
-	va_end(apc);
-	if (n < kBufSize)
-		return std::string(buf);
+	صحیح n = vsnprintf(buf, k_Buf_سائز, fmt, apc);
+	va_انتہا(apc);
+	اگر (n < k_Buf_سائز)
+		واپس std::string(buf);
 
 	std::string string;
-	char *str = NULL;
-#if defined(_WIN32) || defined(__CYGWIN__)
-	int sz = 2 * kBufSize, rc;
-	while (1) {
+	حرف *str = تہی;
+#اگر defined(_WIN32) || defined(__CYGWIN__)
+	صحیح sz = 2 * k_Buf_سائز, rc;
+	جب (1) {
 		va_copy(apc, ap);
-		str = (char *)realloc(str, sz);
+		str = (حرف *)realloc(str, sz);
 		rc = vsnprintf(str, sz, fmt, apc);
-		va_end(apc);
-		if (rc >= 0 && rc < sz)
-			break;
+		va_انتہا(apc);
+		اگر (rc >= 0 && rc < sz)
+			توڑو;
 		sz *= 2;
 	}
-	if (str != NULL) {
+	اگر (str != تہی) {
 		string = str;
-		free(str);
+		آزاد(str);
 	}
-	return string;
-#else
-	if (vasprintf(&str, fmt, ap) < 0)
-		str = NULL;
-	if (str != NULL) {
+	واپس string;
+#ورنہ
+	اگر (vasprintf(&str, fmt, ap) < 0)
+		str = تہی;
+	اگر (str != تہی) {
 		string = str;
-		free(str);
+		آزاد(str);
 	}
-	return string;
-#endif
+	واپس string;
+#اگر_ختم
 }
 
-enum ConversionSpecifier : uint8_t
+شمار ConversionSpecifier : uint8_t
 {
 	CONVSPEC_NONE,
 	// Specifier not understood/supported
@@ -70,453 +70,453 @@ enum ConversionSpecifier : uint8_t
 	CONVSPEC_VOID_PTR,
 };
 
-constexpr ConversionSpecifier parse_conversion_specifier(char ch, char prev_ch)
+constexpr ConversionSpecifier parse_conversion_specifier(حرف ch, حرف پچھلا_ch)
 {
-	switch (ch) {
-	case 'd':
-	case 'i':
-		return CONVSPEC_SIGNED_INT;
-	case 'o':
-	case 'u':
-	case 'x':
-	case 'X':
-	case 'm':
-		return CONVSPEC_UNSIGNED_INT;
-	case 'c':
-		if (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
+	انتخاب (ch) {
+	حالت 'd':
+	حالت 'i':
+		واپس CONVSPEC_SIGNED_INT;
+	حالت 'o':
+	حالت 'u':
+	حالت 'x':
+	حالت 'X':
+	حالت 'm':
+		واپس CONVSPEC_UNSIGNED_INT;
+	حالت 'c':
+		اگر (پچھلا_ch == 'l' || پچھلا_ch == 'q' || پچھلا_ch == 'L') {
 			// wchar not supported
-			return CONVSPEC_ERROR;
+			واپس CONVSPEC_ERROR;
 		}
-		return CONVSPEC_UNSIGNED_INT;
-	case 'e':
-	case 'E':
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-	case 'a':
-	case 'A':
-		return CONVSPEC_DOUBLE;
-	case 's':
-		if (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
+		واپس CONVSPEC_UNSIGNED_INT;
+	حالت 'e':
+	حالت 'E':
+	حالت 'f':
+	حالت 'F':
+	حالت 'g':
+	حالت 'G':
+	حالت 'a':
+	حالت 'A':
+		واپس CONVSPEC_DOUBLE;
+	حالت 's':
+		اگر (پچھلا_ch == 'l' || پچھلا_ch == 'q' || پچھلا_ch == 'L') {
 			// wchar not supported
-			return CONVSPEC_ERROR;
+			واپس CONVSPEC_ERROR;
 		}
-		return CONVSPEC_CHAR_PTR;
-	case 'p':
-		return CONVSPEC_VOID_PTR;
-	case '$': // positional parameters
-	case 'n':
-	case 'S':
-		return CONVSPEC_ERROR;
-	default:
-		return CONVSPEC_NONE;
+		واپس CONVSPEC_CHAR_PTR;
+	حالت 'p':
+		واپس CONVSPEC_VOID_PTR;
+	حالت '$': // positional parameters
+	حالت 'n':
+	حالت 'S':
+		واپس CONVSPEC_ERROR;
+	طےشدہ:
+		واپس CONVSPEC_NONE;
 	}
 }
 
-enum class DynamicIntCount : uint8_t {
+شمار class Dynamic_Int_گنتی : uint8_t {
 	NONE = 0,
 	ONE = 1,
 	TWO = 2,
 };
 
 // Describes a printf-style format conversion specifier found in a format string.
-struct FoundFormatSpec
+ساخت ملا_Format_Spec
 {
 	// The start offset of the conversion spec in the format string.
-	int start;
+	صحیح آغاز;
 	// The end offset of the conversion spec in the format string.
-	int end;
+	صحیح انتہا;
 	ConversionSpecifier spec;
 	// Number of int args consumed by '*' dynamic width/precision args.
-	DynamicIntCount num_dynamic_ints;
+	Dynamic_Int_گنتی عدد_dynamic_ints;
 };
 
 // Ensure there is no format spec.
-constexpr void ensure_no_format_spec(std::string_view fmt, int index, bool *has_escapes)
+constexpr خالی ensure_no_format_spec(std::string_view fmt, صحیح اشاریہ, bool *has_escapes)
 {
-	int fmt_size = static_cast<int>(fmt.size());
+	صحیح fmt_سائز = static_cast<صحیح>(fmt.سائز());
 	// A trailing '%' is not a format spec.
-	while (index + 1 < fmt_size) {
-		if (fmt[index] != '%') {
-			++index;
-			continue;
+	جب (اشاریہ + 1 < fmt_سائز) {
+		اگر (fmt[اشاریہ] != '%') {
+			++اشاریہ;
+			جاری;
 		}
-		if (fmt[index + 1] != '%') {
+		اگر (fmt[اشاریہ + 1] != '%') {
 			YOSYS_ABORT("More format conversion specifiers than arguments");
 		}
 		*has_escapes = true;
-		index += 2;
+		اشاریہ += 2;
 	}
 }
 
 // Returns the next format conversion specifier (starting with '%').
 // Returns CONVSPEC_NONE if there isn't a format conversion specifier.
-constexpr FoundFormatSpec find_next_format_spec(std::string_view fmt, int fmt_start, bool *has_escapes)
+constexpr ملا_Format_Spec ڈھونڈو_اگلا_format_spec(std::string_view fmt, صحیح fmt_آغاز, bool *has_escapes)
 {
-	int index = fmt_start;
-	int fmt_size = static_cast<int>(fmt.size());
-	while (index < fmt_size) {
-		if (fmt[index] != '%') {
-			++index;
-			continue;
+	صحیح اشاریہ = fmt_آغاز;
+	صحیح fmt_سائز = static_cast<صحیح>(fmt.سائز());
+	جب (اشاریہ < fmt_سائز) {
+		اگر (fmt[اشاریہ] != '%') {
+			++اشاریہ;
+			جاری;
 		}
-		int p = index + 1;
-		uint8_t num_dynamic_ints = 0;
-		while (true) {
-			if (p == fmt_size) {
-				return {0, 0, CONVSPEC_NONE, DynamicIntCount::NONE};
+		صحیح p = اشاریہ + 1;
+		uint8_t عدد_dynamic_ints = 0;
+		جب (true) {
+			اگر (p == fmt_سائز) {
+				واپس {0, 0, CONVSPEC_NONE, Dynamic_Int_گنتی::NONE};
 			}
-			if (fmt[p] == '%') {
+			اگر (fmt[p] == '%') {
 				*has_escapes = true;
-				index = p + 1;
-				break;
+				اشاریہ = p + 1;
+				توڑو;
 			}
-			if (fmt[p] == '*') {
-				if (num_dynamic_ints >= 2) {
-					return {0, 0, CONVSPEC_ERROR, DynamicIntCount::NONE};
+			اگر (fmt[p] == '*') {
+				اگر (عدد_dynamic_ints >= 2) {
+					واپس {0, 0, CONVSPEC_ERROR, Dynamic_Int_گنتی::NONE};
 				}
-				++num_dynamic_ints;
+				++عدد_dynamic_ints;
 			}
 			ConversionSpecifier spec = parse_conversion_specifier(fmt[p], fmt[p - 1]);
-			if (spec != CONVSPEC_NONE) {
-				return {index, p + 1, spec, static_cast<DynamicIntCount>(num_dynamic_ints)};
+			اگر (spec != CONVSPEC_NONE) {
+				واپس {اشاریہ, p + 1, spec, static_cast<Dynamic_Int_گنتی>(عدد_dynamic_ints)};
 			}
 			++p;
 		}
 	}
-	return {0, 0, CONVSPEC_NONE, DynamicIntCount::NONE};
+	واپس {0, 0, CONVSPEC_NONE, Dynamic_Int_گنتی::NONE};
 }
 
-template <typename... Args>
-constexpr typename std::enable_if<sizeof...(Args) == 0>::type
-check_format(std::string_view fmt, int fmt_start, bool *has_escapes, FoundFormatSpec*, DynamicIntCount)
+سانچہ <typename... دلائل_3>
+constexpr typename std::enable_if<حجم...(دلائل_3) == 0>::type
+check_format(std::string_view fmt, صحیح fmt_آغاز, bool *has_escapes, ملا_Format_Spec*, Dynamic_Int_گنتی)
 {
-	ensure_no_format_spec(fmt, fmt_start, has_escapes);
+	ensure_no_format_spec(fmt, fmt_آغاز, has_escapes);
 }
 
-template <class T>
-static auto has_name_member_imp(int)
-	-> decltype(static_cast<const IdString>(std::declval<T>().name), std::true_type{});
+سانچہ <class T>
+ساکن خودکار has_name_member_imp(صحیح)
+	-> decltype(static_cast<ثابت IdString>(std::declval<T>().name), std::true_type{});
 
-template <class T>
-static auto has_name_member_imp(long)
+سانچہ <class T>
+ساکن خودکار has_name_member_imp(طویل)
 	-> std::false_type;
 
-template <class T>
-struct has_name_member : decltype(has_name_member_imp<T>(0)){};
+سانچہ <class T>
+ساخت has_name_member : decltype(has_name_member_imp<T>(0)){};
 
-template <class T>
-static auto ptr_has_name_member_imp(int)
-	-> decltype(static_cast<const IdString>(std::declval<T>()->name), std::true_type{});
+سانچہ <class T>
+ساکن خودکار ptr_has_name_member_imp(صحیح)
+	-> decltype(static_cast<ثابت IdString>(std::declval<T>()->name), std::true_type{});
 
-template <class T>
-static auto ptr_has_name_member_imp(long)
+سانچہ <class T>
+ساکن خودکار ptr_has_name_member_imp(طویل)
 	-> std::false_type;
 
-template <class T>
-struct ptr_has_name_member : decltype(ptr_has_name_member_imp<T>(0)){};
+سانچہ <class T>
+ساخت ptr_has_name_member : decltype(ptr_has_name_member_imp<T>(0)){};
 
 // Check that the format string `fmt.substr(fmt_start)` is valid for the given type arguments.
 // Fills `specs` with the FoundFormatSpecs found in the format string.
 // `int_args_consumed` is the number of int arguments already consumed to satisfy the
 // dynamic width/precision args for the next format conversion specifier.
-template <typename Arg, typename... Args>
-constexpr void check_format(std::string_view fmt, int fmt_start, bool *has_escapes, FoundFormatSpec* specs,
-        DynamicIntCount int_args_consumed)
+سانچہ <typename Arg, typename... دلائل_3>
+constexpr خالی check_format(std::string_view fmt, صحیح fmt_آغاز, bool *has_escapes, ملا_Format_Spec* specs,
+        Dynamic_Int_گنتی int_دلائل_consumed)
 {
-	FoundFormatSpec found = find_next_format_spec(fmt, fmt_start, has_escapes);
-	if (found.num_dynamic_ints > int_args_consumed) {
+	ملا_Format_Spec ملا = ڈھونڈو_اگلا_format_spec(fmt, fmt_آغاز, has_escapes);
+	اگر (ملا.عدد_dynamic_ints > int_دلائل_consumed) {
 		// We need to consume at least one more int for the dynamic
 		// width/precision of this format conversion specifier.
-		if constexpr (!std::is_convertible_v<Arg, int>) {
+		اگر constexpr (!std::is_convertible_v<Arg, صحیح>) {
 			YOSYS_ABORT("Expected dynamic int argument");
 		}
-		check_format<Args...>(fmt, fmt_start, has_escapes, specs,
-			static_cast<DynamicIntCount>(static_cast<uint8_t>(int_args_consumed) + 1));
-		return;
+		check_format<دلائل_3...>(fmt, fmt_آغاز, has_escapes, specs,
+			static_cast<Dynamic_Int_گنتی>(static_cast<uint8_t>(int_دلائل_consumed) + 1));
+		واپس;
 	}
-	switch (found.spec) {
-	case CONVSPEC_NONE:
+	انتخاب (ملا.spec) {
+	حالت CONVSPEC_NONE:
 		YOSYS_ABORT("Expected format conversion specifier for argument");
-		break;
-	case CONVSPEC_ERROR:
+		توڑو;
+	حالت CONVSPEC_ERROR:
 		YOSYS_ABORT("Found unsupported format conversion specifier");
-		break;
-	case CONVSPEC_SIGNED_INT:
-		if constexpr (!std::is_convertible_v<Arg, long long>) {
+		توڑو;
+	حالت CONVSPEC_SIGNED_INT:
+		اگر constexpr (!std::is_convertible_v<Arg, طویل طویل>) {
 			YOSYS_ABORT("Expected type convertible to signed integer");
 		}
-		*specs = found;
-		break;
-	case CONVSPEC_UNSIGNED_INT:
-		if constexpr (!std::is_convertible_v<Arg, unsigned long long>) {
+		*specs = ملا;
+		توڑو;
+	حالت CONVSPEC_UNSIGNED_INT:
+		اگر constexpr (!std::is_convertible_v<Arg, غیرعلامتی طویل طویل>) {
 			YOSYS_ABORT("Expected type convertible to unsigned integer");
 		}
-		*specs = found;
-		break;
-	case CONVSPEC_DOUBLE:
-		if constexpr (!std::is_convertible_v<Arg, double>) {
+		*specs = ملا;
+		توڑو;
+	حالت CONVSPEC_DOUBLE:
+		اگر constexpr (!std::is_convertible_v<Arg, دوہرا>) {
 			YOSYS_ABORT("Expected type convertible to double");
 		}
-		*specs = found;
-		break;
-	case CONVSPEC_CHAR_PTR:
-		if constexpr (!std::is_convertible_v<Arg, const char *> &&
-		        !std::is_convertible_v<Arg, const std::string &> &&
-			!std::is_convertible_v<Arg, const std::string_view &> &&
+		*specs = ملا;
+		توڑو;
+	حالت CONVSPEC_CHAR_PTR:
+		اگر constexpr (!std::is_convertible_v<Arg, ثابت حرف *> &&
+		        !std::is_convertible_v<Arg, ثابت std::string &> &&
+			!std::is_convertible_v<Arg, ثابت std::string_view &> &&
 			!has_name_member<Arg>() &&
 			!ptr_has_name_member<Arg>()) {
 			YOSYS_ABORT("Expected type convertible to char *");
 		}
-		*specs = found;
-		break;
-	case CONVSPEC_VOID_PTR:
-		if constexpr (!std::is_convertible_v<Arg, const void *>) {
+		*specs = ملا;
+		توڑو;
+	حالت CONVSPEC_VOID_PTR:
+		اگر constexpr (!std::is_convertible_v<Arg, ثابت خالی *>) {
 			YOSYS_ABORT("Expected pointer type");
 		}
-		*specs = found;
-		break;
+		*specs = ملا;
+		توڑو;
 	}
-	check_format<Args...>(fmt, found.end, has_escapes, specs + 1, DynamicIntCount::NONE);
+	check_format<دلائل_3...>(fmt, ملا.انتہا, has_escapes, specs + 1, Dynamic_Int_گنتی::NONE);
 }
 
 // Emit the string representation of `arg` that has been converted to a `long long'.
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, long long arg);
+خالی format_emit_long_long(std::string &نتیجہ, std::string_view spec, صحیح *dynamic_ints,
+	Dynamic_Int_گنتی عدد_dynamic_ints, طویل طویل arg);
 
 // Emit the string representation of `arg` that has been converted to a `unsigned long long'.
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, unsigned long long arg);
+خالی format_emit_unsigned_long_long(std::string &نتیجہ, std::string_view spec, صحیح *dynamic_ints,
+	Dynamic_Int_گنتی عدد_dynamic_ints, غیرعلامتی طویل طویل arg);
 
 // Emit the string representation of `arg` that has been converted to a `double'.
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, double arg);
+خالی format_emit_double(std::string &نتیجہ, std::string_view spec, صحیح *dynamic_ints,
+	Dynamic_Int_گنتی عدد_dynamic_ints, دوہرا arg);
 
 // Emit the string representation of `arg` that has been converted to a `const char*'.
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const char *arg);
+خالی format_emit_char_ptr(std::string &نتیجہ, std::string_view spec, صحیح *dynamic_ints,
+	Dynamic_Int_گنتی عدد_dynamic_ints, ثابت حرف *arg);
 
 // Emit the string representation of `arg` that has been converted to a `std::string'.
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const std::string &arg);
+خالی format_emit_string(std::string &نتیجہ, std::string_view spec, صحیح *dynamic_ints,
+	Dynamic_Int_گنتی عدد_dynamic_ints, ثابت std::string &arg);
 
 // Emit the string representation of `arg` that has been converted to a `std::string_view'.
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, std::string_view arg);
+خالی format_emit_string_view(std::string &نتیجہ, std::string_view spec, صحیح *dynamic_ints,
+	Dynamic_Int_گنتی عدد_dynamic_ints, std::string_view arg);
 
 // Emit the string representation of `arg` that has been converted to a `double'.
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const void *arg);
+خالی format_emit_void_ptr(std::string &نتیجہ, std::string_view spec, صحیح *dynamic_ints,
+	Dynamic_Int_گنتی عدد_dynamic_ints, ثابت خالی *arg);
 
 // Emit the string representation of `arg` according to the given `FoundFormatSpec`,
 // appending it to `result`.
-template <typename Arg>
-inline void format_emit_one(std::string &result, std::string_view fmt, const FoundFormatSpec &ffspec,
-	int *dynamic_ints, const Arg& arg)
+سانچہ <typename Arg>
+اندرونی خالی format_emit_one(std::string &نتیجہ, std::string_view fmt, ثابت ملا_Format_Spec &ffspec,
+	صحیح *dynamic_ints, ثابت Arg& arg)
 {
-	std::string_view spec = fmt.substr(ffspec.start, ffspec.end - ffspec.start);
-	DynamicIntCount num_dynamic_ints = ffspec.num_dynamic_ints;
-	switch (ffspec.spec) {
-	case CONVSPEC_SIGNED_INT:
-		if constexpr (std::is_convertible_v<Arg, long long>) {
-			long long s = arg;
-			format_emit_long_long(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+	std::string_view spec = fmt.substr(ffspec.آغاز, ffspec.انتہا - ffspec.آغاز);
+	Dynamic_Int_گنتی عدد_dynamic_ints = ffspec.عدد_dynamic_ints;
+	انتخاب (ffspec.spec) {
+	حالت CONVSPEC_SIGNED_INT:
+		اگر constexpr (std::is_convertible_v<Arg, طویل طویل>) {
+			طویل طویل s = arg;
+			format_emit_long_long(نتیجہ, spec, dynamic_ints, عدد_dynamic_ints, s);
+			واپس;
 		}
-		break;
-	case CONVSPEC_UNSIGNED_INT:
-		if constexpr (std::is_convertible_v<Arg, unsigned long long>) {
-			unsigned long long s = arg;
-			format_emit_unsigned_long_long(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		توڑو;
+	حالت CONVSPEC_UNSIGNED_INT:
+		اگر constexpr (std::is_convertible_v<Arg, غیرعلامتی طویل طویل>) {
+			غیرعلامتی طویل طویل s = arg;
+			format_emit_unsigned_long_long(نتیجہ, spec, dynamic_ints, عدد_dynamic_ints, s);
+			واپس;
 		}
-		break;
-	case CONVSPEC_DOUBLE:
-		if constexpr (std::is_convertible_v<Arg, double>) {
-			double s = arg;
-			format_emit_double(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		توڑو;
+	حالت CONVSPEC_DOUBLE:
+		اگر constexpr (std::is_convertible_v<Arg, دوہرا>) {
+			دوہرا s = arg;
+			format_emit_double(نتیجہ, spec, dynamic_ints, عدد_dynamic_ints, s);
+			واپس;
 		}
-		break;
-	case CONVSPEC_CHAR_PTR:
-		if constexpr (std::is_convertible_v<Arg, const char *>) {
-			const char *s = arg;
-			format_emit_char_ptr(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		توڑو;
+	حالت CONVSPEC_CHAR_PTR:
+		اگر constexpr (std::is_convertible_v<Arg, ثابت حرف *>) {
+			ثابت حرف *s = arg;
+			format_emit_char_ptr(نتیجہ, spec, dynamic_ints, عدد_dynamic_ints, s);
+			واپس;
 		}
-		if constexpr (std::is_convertible_v<Arg, const std::string &>) {
-			const std::string &s = arg;
-			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		اگر constexpr (std::is_convertible_v<Arg, ثابت std::string &>) {
+			ثابت std::string &s = arg;
+			format_emit_string(نتیجہ, spec, dynamic_ints, عدد_dynamic_ints, s);
+			واپس;
 		}
-		if constexpr (std::is_convertible_v<Arg, const std::string_view &>) {
-			const std::string_view &s = arg;
-			format_emit_string_view(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		اگر constexpr (std::is_convertible_v<Arg, ثابت std::string_view &>) {
+			ثابت std::string_view &s = arg;
+			format_emit_string_view(نتیجہ, spec, dynamic_ints, عدد_dynamic_ints, s);
+			واپس;
 		}
-		if constexpr (has_name_member<Arg>()) {
-			const std::string &s = arg.name.unescape();
-			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		اگر constexpr (has_name_member<Arg>()) {
+			ثابت std::string &s = arg.name.unescape();
+			format_emit_string(نتیجہ, spec, dynamic_ints, عدد_dynamic_ints, s);
+			واپس;
 		}
-		if constexpr (ptr_has_name_member<Arg>()) {
-			const std::string &s = arg->name.unescape();
-			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		اگر constexpr (ptr_has_name_member<Arg>()) {
+			ثابت std::string &s = arg->name.unescape();
+			format_emit_string(نتیجہ, spec, dynamic_ints, عدد_dynamic_ints, s);
+			واپس;
 		}
-		break;
-	case CONVSPEC_VOID_PTR:
-		if constexpr (std::is_convertible_v<Arg, const void *>) {
-			const void *s = arg;
-			format_emit_void_ptr(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+		توڑو;
+	حالت CONVSPEC_VOID_PTR:
+		اگر constexpr (std::is_convertible_v<Arg, ثابت خالی *>) {
+			ثابت خالی *s = arg;
+			format_emit_void_ptr(نتیجہ, spec, dynamic_ints, عدد_dynamic_ints, s);
+			واپس;
 		}
-		break;
-	default:
-		break;
+		توڑو;
+	طےشدہ:
+		توڑو;
 	}
 	YOSYS_ABORT("Internal error");
 }
 
 // Append the format string `fmt` to `result`, assuming there are no format conversion
 // specifiers other than "%%" and therefore no arguments. Unescape "%%".
-void format_emit_unescaped(std::string &result, std::string_view fmt);
+خالی format_emit_unescaped(std::string &نتیجہ, std::string_view fmt);
 std::string unescape_format_string(std::string_view fmt);
 
-inline void format_emit(std::string &result, std::string_view fmt, int fmt_start,
-	bool has_escapes, const FoundFormatSpec*, int*, DynamicIntCount)
+اندرونی خالی format_emit(std::string &نتیجہ, std::string_view fmt, صحیح fmt_آغاز,
+	bool has_escapes, ثابت ملا_Format_Spec*, صحیح*, Dynamic_Int_گنتی)
 {
-	fmt = fmt.substr(fmt_start);
-	if (has_escapes) {
-		format_emit_unescaped(result, fmt);
-	} else {
-		result += fmt;
+	fmt = fmt.substr(fmt_آغاز);
+	اگر (has_escapes) {
+		format_emit_unescaped(نتیجہ, fmt);
+	} ورنہ {
+		نتیجہ += fmt;
 	}
 }
 // Format `args` according to `fmt` (starting at `fmt_start`) and `specs` and append to `result`.
 // `num_dynamic_ints` in `dynamic_ints[]` have already been collected to provide as
 // dynamic width/precision args for the next format conversion specifier.
-template <typename Arg, typename... Args>
-inline void format_emit(std::string &result, std::string_view fmt, int fmt_start, bool has_escapes,
-	const FoundFormatSpec* specs, int *dynamic_ints, DynamicIntCount num_dynamic_ints,
-	const Arg &arg, const Args &... args)
+سانچہ <typename Arg, typename... دلائل_3>
+اندرونی خالی format_emit(std::string &نتیجہ, std::string_view fmt, صحیح fmt_آغاز, bool has_escapes,
+	ثابت ملا_Format_Spec* specs, صحیح *dynamic_ints, Dynamic_Int_گنتی عدد_dynamic_ints,
+	ثابت Arg &arg, ثابت دلائل_3 &... دلائل_2)
 {
-	if (specs->num_dynamic_ints > num_dynamic_ints) {
+	اگر (specs->عدد_dynamic_ints > عدد_dynamic_ints) {
 		// Collect another int for the dynamic width precision/args
 		// for the next format conversion specifier.
-		if constexpr (std::is_convertible_v<Arg, int>) {
-			dynamic_ints[static_cast<uint8_t>(num_dynamic_ints)] = arg;
-		} else {
+		اگر constexpr (std::is_convertible_v<Arg, صحیح>) {
+			dynamic_ints[static_cast<uint8_t>(عدد_dynamic_ints)] = arg;
+		} ورنہ {
 			YOSYS_ABORT("Internal error");
 		}
-		format_emit(result, fmt, fmt_start, has_escapes, specs, dynamic_ints,
-		            static_cast<DynamicIntCount>(static_cast<uint8_t>(num_dynamic_ints) + 1), args...);
-		return;
+		format_emit(نتیجہ, fmt, fmt_آغاز, has_escapes, specs, dynamic_ints,
+		            static_cast<Dynamic_Int_گنتی>(static_cast<uint8_t>(عدد_dynamic_ints) + 1), دلائل_2...);
+		واپس;
 	}
-	std::string_view str = fmt.substr(fmt_start, specs->start - fmt_start);
-	if (has_escapes) {
-		format_emit_unescaped(result, str);
-	} else {
-		result += str;
+	std::string_view str = fmt.substr(fmt_آغاز, specs->آغاز - fmt_آغاز);
+	اگر (has_escapes) {
+		format_emit_unescaped(نتیجہ, str);
+	} ورنہ {
+		نتیجہ += str;
 	}
-	format_emit_one(result, fmt, *specs, dynamic_ints, arg);
-	format_emit(result, fmt, specs->end, has_escapes, specs + 1, dynamic_ints, DynamicIntCount::NONE, args...);
+	format_emit_one(نتیجہ, fmt, *specs, dynamic_ints, arg);
+	format_emit(نتیجہ, fmt, specs->انتہا, has_escapes, specs + 1, dynamic_ints, Dynamic_Int_گنتی::NONE, دلائل_2...);
 }
 
-template <typename... Args>
-inline std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, const FoundFormatSpec* specs, const Args &... args)
+سانچہ <typename... دلائل_3>
+اندرونی std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, ثابت ملا_Format_Spec* specs, ثابت دلائل_3 &... دلائل_2)
 {
-	std::string result;
-	int dynamic_ints[2] = { 0, 0 };
-	format_emit(result, fmt, 0, has_escapes, specs, dynamic_ints, DynamicIntCount::NONE, args...);
-	return result;
+	std::string نتیجہ;
+	صحیح dynamic_ints[2] = { 0, 0 };
+	format_emit(نتیجہ, fmt, 0, has_escapes, specs, dynamic_ints, Dynamic_Int_گنتی::NONE, دلائل_2...);
+	واپس نتیجہ;
 }
-template <>
-inline std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, const FoundFormatSpec*)
+سانچہ <>
+اندرونی std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, ثابت ملا_Format_Spec*)
 {
-	if (!has_escapes) {
-		return std::string(fmt);
+	اگر (!has_escapes) {
+		واپس std::string(fmt);
 	}
-	return unescape_format_string(fmt);
+	واپس unescape_format_string(fmt);
 }
 
 // This class parses format strings to build a list of `FoundFormatSpecs` in `specs`.
 // When the compiler supports `consteval` (C++20), this parsing happens at compile time and
 // type errors will be reported at compile time. Otherwise the parsing happens at
 // runtime and type errors will trigger an `abort()` at runtime.
-template <typename... Args>
+سانچہ <typename... دلائل_3>
 class FmtString
 {
-public:
+عوامی:
 	// Implicit conversion from const char * means that users can pass
 	// C string constants which are automatically parsed.
-	YOSYS_CONSTEVAL FmtString(const char *p) : fmt(p)
+	YOSYS_CONSTEVAL FmtString(ثابت حرف *p) : fmt(p)
 	{
-		check_format<Args...>(fmt, 0, &has_escapes, specs, DynamicIntCount::NONE);
+		check_format<دلائل_3...>(fmt, 0, &has_escapes, specs, Dynamic_Int_گنتی::NONE);
 	}
-	std::string format(const Args &... args)
+	std::string format(ثابت دلائل_3 &... دلائل_2)
 	{
-		return format_emit_toplevel(fmt, has_escapes, specs, args...);
+		واپس format_emit_toplevel(fmt, has_escapes, specs, دلائل_2...);
 	}
-	std::string_view format_string() const { return fmt; }
-private:
+	std::string_view format_string() ثابت { واپس fmt; }
+نجی:
 	std::string_view fmt;
 	bool has_escapes = false;
 	// Making array at least size of one to make MSVC happy and strict to standards
-	FoundFormatSpec specs[sizeof...(Args) ? sizeof...(Args) : 1] = {};
+	ملا_Format_Spec specs[حجم...(دلائل_3) ? حجم...(دلائل_3) : 1] = {};
 };
 
-template <typename T> struct WrapType { using type = T; };
-template <typename T> using TypeIdentity = typename WrapType<T>::type;
+سانچہ <typename T> ساخت WrapType { using type = T; };
+سانچہ <typename T> using Type_شناختی_عنصر = typename WrapType<T>::type;
 
-template <typename... Args>
-inline std::string stringf(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+سانچہ <typename... دلائل_3>
+اندرونی std::string stringf(FmtString<Type_شناختی_عنصر<دلائل_3>...> fmt, ثابت دلائل_3 &... دلائل_2)
 {
-	return fmt.format(args...);
+	واپس fmt.format(دلائل_2...);
 }
 
-int readsome(std::istream &f, char *s, int n);
-std::string next_token(std::string &text, const char *sep = " \t\r\n", bool long_strings = false);
-std::vector<std::string> split_tokens(const std::string &text, const char *sep = " \t\r\n");
-bool patmatch(const char *pattern, const char *string);
-#if !defined(YOSYS_DISABLE_SPAWN)
-int run_command(const std::string &command, std::function<void(const std::string&)> process_line = std::function<void(const std::string&)>());
-#endif
-std::string get_base_tmpdir();
-std::string make_temp_file(std::string template_str = get_base_tmpdir() + "/yosys_XXXXXX");
-std::string make_temp_dir(std::string template_str = get_base_tmpdir() + "/yosys_XXXXXX");
-bool check_file_exists(const std::string& filename, bool is_exec = false);
-bool check_directory_exists(const std::string& dirname, bool is_exec = false);
-bool is_absolute_path(std::string filename);
-void remove_directory(std::string dirname);
-bool create_directory(const std::string& dirname);
-bool make_private_directory(const std::string& dirname);
-std::string make_user_tmpdir(const std::string& name);
-std::string escape_filename_spaces(const std::string& filename);
-void append_globbed(std::vector<std::string>& paths, std::string pattern);
-std::string name_from_file_path(std::string path);
-std::string absolute_path(const std::string& path);
-std::string parent_from_file_path(std::string path);
+صحیح readsome(std::istream &f, حرف *s, صحیح n);
+std::string اگلا_token(std::string &متن, ثابت حرف *sep = " \t\r\n", bool long_لڑیاں = false);
+std::سمتیہ<std::string> بانٹو_علامات(ثابت std::string &متن, ثابت حرف *sep = " \t\r\n");
+bool patmatch(ثابت حرف *نمونہ, ثابت حرف *string);
+#اگر !defined(YOSYS_DISABLE_SPAWN)
+صحیح تسلسل_command(ثابت std::string &command, std::function<خالی(ثابت std::string&)> process_سطر = std::function<خالی(ثابت std::string&)>());
+#اگر_ختم
+std::string get_بنیاد_tmpdir();
+std::string make_عارضی_file(std::string template_str = get_بنیاد_tmpdir() + "/yosys_XXXXXX");
+std::string make_عارضی_dir(std::string template_str = get_بنیاد_tmpdir() + "/yosys_XXXXXX");
+bool check_file_exists(ثابت std::string& filename, bool is_exec = false);
+bool check_directory_exists(ثابت std::string& dirname, bool is_exec = false);
+bool is_absolute_راستہ(std::string filename);
+خالی remove_directory(std::string dirname);
+bool create_directory(ثابت std::string& dirname);
+bool make_نجی_directory(ثابت std::string& dirname);
+std::string make_user_tmpdir(ثابت std::string& name);
+std::string escape_filename_spaces(ثابت std::string& filename);
+خالی append_globbed(std::سمتیہ<std::string>& paths, std::string نمونہ);
+std::string name_from_file_راستہ(std::string راستہ_2);
+std::string absolute_راستہ(ثابت std::string& راستہ_2);
+std::string والد_from_file_راستہ(std::string راستہ_2);
 
 // Exclusive inter-process file lock (flock/LockFileEx, no-op on WASI),
 // released on destruction. Never unlinks the lock file: that would reopen the race.
-struct ScopedFileLock {
-	ScopedFileLock(const std::string &path);
-	~ScopedFileLock();
-	ScopedFileLock(const ScopedFileLock &) = delete;
-	ScopedFileLock &operator=(const ScopedFileLock &) = delete;
-private:
-#if defined(_WIN32)
-	void *handle = nullptr;
-#elif !defined(__wasi__)
-	int fd = -1;
-#endif
+ساخت Scoped_File_تالا {
+	Scoped_File_تالا(ثابت std::string &راستہ_2);
+	~Scoped_File_تالا();
+	Scoped_File_تالا(ثابت Scoped_File_تالا &) = delete;
+	Scoped_File_تالا &عامل=(ثابت Scoped_File_تالا &) = delete;
+نجی:
+#اگر defined(_WIN32)
+	خالی *handle = nullptr;
+#وگرنہ_اگر !defined(__wasi__)
+	صحیح fd = -1;
+#اگر_ختم
 };
 
 // Current process id (0 on WASI).
-unsigned get_process_id();
+غیرعلامتی get_process_id();
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتہا
 
-#endif // YOSYS_IO_H
+#اگر_ختم // YOSYS_IO_H

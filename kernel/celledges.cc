@@ -17,203 +17,203 @@
  *
  */
 
-#include "kernel/celledges.h"
+#شامل "kernel/celledges.h"
 
 USING_YOSYS_NAMESPACE
-PRIVATE_NAMESPACE_BEGIN
+نجی_NAMESPACE_BEGIN
 
-void bitwise_unary_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی bitwise_unary_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	bool is_signed = !cell->type.in(ID($buf), ID($barrier)) && cell->getParam(ID::A_SIGNED).as_bool();
-	int a_width = GetSize(cell->getPort(ID::A));
-	int y_width = GetSize(cell->getPort(ID::Y));
+	منطقی is_signed = !cell->type.اندر(ID($buf), ID($barrier)) && cell->getParam(ID::A_SIGNED).as_bool();
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
+	صحیح y_چوڑائی = Get_سائز(cell->get_پورٹ(ID::Y));
 
-	for (int i = 0; i < y_width; i++)
+	برائے (صحیح i = 0; i < y_چوڑائی; i++)
 	{
-		if (i < a_width)
-			db->add_edge(cell, ID::A, i, ID::Y, i, -1);
-		else if (is_signed && a_width > 0)
-			db->add_edge(cell, ID::A, a_width-1, ID::Y, i, -1);
+		اگر (i < a_چوڑائی)
+			db->جوڑو_کنارہ(cell, ID::A, i, ID::Y, i, -1);
+		ورنہ اگر (is_signed && a_چوڑائی > 0)
+			db->جوڑو_کنارہ(cell, ID::A, a_چوڑائی-1, ID::Y, i, -1);
 	}
 }
 
-void bitwise_binary_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی bitwise_ثنائی_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	bool is_signed = cell->getParam(ID::A_SIGNED).as_bool();
-	int a_width = GetSize(cell->getPort(ID::A));
-	int b_width = GetSize(cell->getPort(ID::B));
-	int y_width = GetSize(cell->getPort(ID::Y));
+	منطقی is_signed = cell->getParam(ID::A_SIGNED).as_bool();
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
+	صحیح b_چوڑائی = Get_سائز(cell->get_پورٹ(ID::B));
+	صحیح y_چوڑائی = Get_سائز(cell->get_پورٹ(ID::Y));
 
-	if (cell->type == ID($and) && !is_signed) {
-		if (a_width > b_width)
-			a_width = b_width;
-		else
-			b_width = a_width;
+	اگر (cell->type == ID($and) && !is_signed) {
+		اگر (a_چوڑائی > b_چوڑائی)
+			a_چوڑائی = b_چوڑائی;
+		ورنہ
+			b_چوڑائی = a_چوڑائی;
 	}
 
-	for (int i = 0; i < y_width; i++)
+	برائے (صحیح i = 0; i < y_چوڑائی; i++)
 	{
-		if (i < a_width)
-			db->add_edge(cell, ID::A, i, ID::Y, i, -1);
-		else if (is_signed && a_width > 0)
-			db->add_edge(cell, ID::A, a_width-1, ID::Y, i, -1);
+		اگر (i < a_چوڑائی)
+			db->جوڑو_کنارہ(cell, ID::A, i, ID::Y, i, -1);
+		ورنہ اگر (is_signed && a_چوڑائی > 0)
+			db->جوڑو_کنارہ(cell, ID::A, a_چوڑائی-1, ID::Y, i, -1);
 
-		if (i < b_width)
-			db->add_edge(cell, ID::B, i, ID::Y, i, -1);
-		else if (is_signed && b_width > 0)
-			db->add_edge(cell, ID::B, b_width-1, ID::Y, i, -1);
+		اگر (i < b_چوڑائی)
+			db->جوڑو_کنارہ(cell, ID::B, i, ID::Y, i, -1);
+		ورنہ اگر (is_signed && b_چوڑائی > 0)
+			db->جوڑو_کنارہ(cell, ID::B, b_چوڑائی-1, ID::Y, i, -1);
 	}
 }
 
-void arith_neg_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی arith_neg_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	bool is_signed = cell->getParam(ID::A_SIGNED).as_bool();
-	int a_width = GetSize(cell->getPort(ID::A));
-	int y_width = GetSize(cell->getPort(ID::Y));
+	منطقی is_signed = cell->getParam(ID::A_SIGNED).as_bool();
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
+	صحیح y_چوڑائی = Get_سائز(cell->get_پورٹ(ID::Y));
 
-	if (is_signed && a_width == 1)
-		y_width = std::min(y_width, 1);
+	اگر (is_signed && a_چوڑائی == 1)
+		y_چوڑائی = std::min(y_چوڑائی, 1);
 
-	for (int i = 0; i < y_width; i++)
-	for (int k = 0; k <= i && k < a_width; k++)
-		db->add_edge(cell, ID::A, k, ID::Y, i, -1);
+	برائے (صحیح i = 0; i < y_چوڑائی; i++)
+	برائے (صحیح k = 0; k <= i && k < a_چوڑائی; k++)
+		db->جوڑو_کنارہ(cell, ID::A, k, ID::Y, i, -1);
 }
 
-void arith_binary_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی arith_ثنائی_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	bool is_signed = cell->getParam(ID::A_SIGNED).as_bool();
-	int a_width = GetSize(cell->getPort(ID::A));
-	int b_width = GetSize(cell->getPort(ID::B));
-	int y_width = GetSize(cell->getPort(ID::Y));
+	منطقی is_signed = cell->getParam(ID::A_SIGNED).as_bool();
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
+	صحیح b_چوڑائی = Get_سائز(cell->get_پورٹ(ID::B));
+	صحیح y_چوڑائی = Get_سائز(cell->get_پورٹ(ID::Y));
 
-	if (!is_signed && cell->type != ID($sub)) {
-		int ab_width = std::max(a_width, b_width);
-		y_width = std::min(y_width, ab_width+1);
+	اگر (!is_signed && cell->type != ID($sub)) {
+		صحیح ab_چوڑائی = std::max(a_چوڑائی, b_چوڑائی);
+		y_چوڑائی = std::min(y_چوڑائی, ab_چوڑائی+1);
 	}
 
-	for (int i = 0; i < y_width; i++)
+	برائے (صحیح i = 0; i < y_چوڑائی; i++)
 	{
-		for (int k = 0; k <= i; k++)
+		برائے (صحیح k = 0; k <= i; k++)
 		{
-			if (k < a_width)
-				db->add_edge(cell, ID::A, k, ID::Y, i, -1);
+			اگر (k < a_چوڑائی)
+				db->جوڑو_کنارہ(cell, ID::A, k, ID::Y, i, -1);
 
-			if (k < b_width)
-				db->add_edge(cell, ID::B, k, ID::Y, i, -1);
+			اگر (k < b_چوڑائی)
+				db->جوڑو_کنارہ(cell, ID::B, k, ID::Y, i, -1);
 		}
 	}
 }
 
-void reduce_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی reduce_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	int a_width = GetSize(cell->getPort(ID::A));
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
 
-	for (int i = 0; i < a_width; i++)
-		db->add_edge(cell, ID::A, i, ID::Y, 0, -1);
+	برائے (صحیح i = 0; i < a_چوڑائی; i++)
+		db->جوڑو_کنارہ(cell, ID::A, i, ID::Y, 0, -1);
 }
 
-void logic_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی logic_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	int a_width = GetSize(cell->getPort(ID::A));
-	int b_width = GetSize(cell->getPort(ID::B));
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
+	صحیح b_چوڑائی = Get_سائز(cell->get_پورٹ(ID::B));
 
-	for (int i = 0; i < a_width; i++)
-		db->add_edge(cell, ID::A, i, ID::Y, 0, -1);
-	for (int i = 0; i < b_width; i++)
-		db->add_edge(cell, ID::B, i, ID::Y, 0, -1);
+	برائے (صحیح i = 0; i < a_چوڑائی; i++)
+		db->جوڑو_کنارہ(cell, ID::A, i, ID::Y, 0, -1);
+	برائے (صحیح i = 0; i < b_چوڑائی; i++)
+		db->جوڑو_کنارہ(cell, ID::B, i, ID::Y, 0, -1);
 }
 
-void concat_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی concat_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	int a_width = GetSize(cell->getPort(ID::A));
-	int b_width = GetSize(cell->getPort(ID::B));
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
+	صحیح b_چوڑائی = Get_سائز(cell->get_پورٹ(ID::B));
 
-	for (int i = 0; i < a_width; i++)
-		db->add_edge(cell, ID::A, i, ID::Y, i, -1);
-	for (int i = 0; i < b_width; i++)
-		db->add_edge(cell, ID::B, i, ID::Y, a_width + i, -1);
+	برائے (صحیح i = 0; i < a_چوڑائی; i++)
+		db->جوڑو_کنارہ(cell, ID::A, i, ID::Y, i, -1);
+	برائے (صحیح i = 0; i < b_چوڑائی; i++)
+		db->جوڑو_کنارہ(cell, ID::B, i, ID::Y, a_چوڑائی + i, -1);
 }
 
-void slice_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی قاش_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	int offset = cell->getParam(ID::OFFSET).as_int();
-	int a_width = GetSize(cell->getPort(ID::A));
-	int y_width = GetSize(cell->getPort(ID::Y));
+	صحیح انحراف = cell->getParam(ID::انحراف_2).as_int();
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
+	صحیح y_چوڑائی = Get_سائز(cell->get_پورٹ(ID::Y));
 
-	for (int i = 0; i < y_width; i++) {
-		int a_bit = offset + i;
-		if (a_bit >= 0 && a_bit < a_width)
-			db->add_edge(cell, ID::A, a_bit, ID::Y, i, -1);
+	برائے (صحیح i = 0; i < y_چوڑائی; i++) {
+		صحیح a_ثنائی_ہندسہ = انحراف + i;
+		اگر (a_ثنائی_ہندسہ >= 0 && a_ثنائی_ہندسہ < a_چوڑائی)
+			db->جوڑو_کنارہ(cell, ID::A, a_ثنائی_ہندسہ, ID::Y, i, -1);
 	}
 }
 
-void compare_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی compare_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	int a_width = GetSize(cell->getPort(ID::A));
-	int b_width = GetSize(cell->getPort(ID::B));
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
+	صحیح b_چوڑائی = Get_سائز(cell->get_پورٹ(ID::B));
 
-	for (int i = 0; i < a_width; i++)
-		db->add_edge(cell, ID::A, i, ID::Y, 0, -1);
+	برائے (صحیح i = 0; i < a_چوڑائی; i++)
+		db->جوڑو_کنارہ(cell, ID::A, i, ID::Y, 0, -1);
 
-	for (int i = 0; i < b_width; i++)
-		db->add_edge(cell, ID::B, i, ID::Y, 0, -1);
+	برائے (صحیح i = 0; i < b_چوڑائی; i++)
+		db->جوڑو_کنارہ(cell, ID::B, i, ID::Y, 0, -1);
 }
 
-void mux_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی mux_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	int a_width = GetSize(cell->getPort(ID::A));
-	int b_width = GetSize(cell->getPort(ID::B));
-	int s_width = GetSize(cell->getPort(ID::S));
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
+	صحیح b_چوڑائی = Get_سائز(cell->get_پورٹ(ID::B));
+	صحیح s_چوڑائی = Get_سائز(cell->get_پورٹ(ID::S));
 
-	for (int i = 0; i < a_width; i++)
+	برائے (صحیح i = 0; i < a_چوڑائی; i++)
 	{
-		db->add_edge(cell, ID::A, i, ID::Y, i, -1);
+		db->جوڑو_کنارہ(cell, ID::A, i, ID::Y, i, -1);
 
-		for (int k = i; k < b_width; k += a_width)
-			db->add_edge(cell, ID::B, k, ID::Y, i, -1);
+		برائے (صحیح k = i; k < b_چوڑائی; k += a_چوڑائی)
+			db->جوڑو_کنارہ(cell, ID::B, k, ID::Y, i, -1);
 
-		for (int k = 0; k < s_width; k++)
-			db->add_edge(cell, ID::S, k, ID::Y, i, -1);
+		برائے (صحیح k = 0; k < s_چوڑائی; k++)
+			db->جوڑو_کنارہ(cell, ID::S, k, ID::Y, i, -1);
 	}
 }
 
-void bmux_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی bmux_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	int width = GetSize(cell->getPort(ID::Y));
-	int a_width = GetSize(cell->getPort(ID::A));
-	int s_width = GetSize(cell->getPort(ID::S));
+	صحیح چوڑائی = Get_سائز(cell->get_پورٹ(ID::Y));
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
+	صحیح s_چوڑائی = Get_سائز(cell->get_پورٹ(ID::S));
 
-	for (int i = 0; i < width; i++)
+	برائے (صحیح i = 0; i < چوڑائی; i++)
 	{
-		for (int k = i; k < a_width; k += width)
-			db->add_edge(cell, ID::A, k, ID::Y, i, -1);
+		برائے (صحیح k = i; k < a_چوڑائی; k += چوڑائی)
+			db->جوڑو_کنارہ(cell, ID::A, k, ID::Y, i, -1);
 
-		for (int k = 0; k < s_width; k++)
-			db->add_edge(cell, ID::S, k, ID::Y, i, -1);
+		برائے (صحیح k = 0; k < s_چوڑائی; k++)
+			db->جوڑو_کنارہ(cell, ID::S, k, ID::Y, i, -1);
 	}
 }
 
-void demux_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی demux_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	int width = GetSize(cell->getPort(ID::Y));
-	int a_width = GetSize(cell->getPort(ID::A));
-	int s_width = GetSize(cell->getPort(ID::S));
+	صحیح چوڑائی = Get_سائز(cell->get_پورٹ(ID::Y));
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
+	صحیح s_چوڑائی = Get_سائز(cell->get_پورٹ(ID::S));
 
-	for (int i = 0; i < width; i++)
+	برائے (صحیح i = 0; i < چوڑائی; i++)
 	{
-		db->add_edge(cell, ID::A, i % a_width, ID::Y, i, -1);
-		for (int k = 0; k < s_width; k++)
-			db->add_edge(cell, ID::S, k, ID::Y, i, -1);
+		db->جوڑو_کنارہ(cell, ID::A, i % a_چوڑائی, ID::Y, i, -1);
+		برائے (صحیح k = 0; k < s_چوڑائی; k++)
+			db->جوڑو_کنارہ(cell, ID::S, k, ID::Y, i, -1);
 	}
 }
 
-void shift_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی سرکاؤ_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	bool is_signed = cell->getParam(ID::A_SIGNED).as_bool();
-	bool is_b_signed = cell->getParam(ID::B_SIGNED).as_bool();
-	int a_width = GetSize(cell->getPort(ID::A));
-	int b_width = GetSize(cell->getPort(ID::B));
-	int y_width = GetSize(cell->getPort(ID::Y));
+	منطقی is_signed = cell->getParam(ID::A_SIGNED).as_bool();
+	منطقی is_b_signed = cell->getParam(ID::B_SIGNED).as_bool();
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
+	صحیح b_چوڑائی = Get_سائز(cell->get_پورٹ(ID::B));
+	صحیح y_چوڑائی = Get_سائز(cell->get_پورٹ(ID::Y));
 
 	// Behavior of the different shift cells:
 	//
@@ -233,367 +233,367 @@ void shift_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
 	// the cap below makes sure we don't overflow in the arithmetic further down, though
 	// it makes the edge data invalid once a_width approaches the order of 2**30
 	// (that ever happening is considered improbable)
-	int b_width_capped = min(b_width, 30);
+	صحیح b_چوڑائی_capped = min(b_چوڑائی, 30);
 
-	int b_high, b_low;
-	if (!is_b_signed) {
-		b_high = (1 << b_width_capped) - 1;
-		b_low = 0;
-	} else {
-		b_high = (1 << (b_width_capped - 1)) - 1;
-		b_low = -(1 << (b_width_capped - 1));
+	صحیح b_بلند, b_کم;
+	اگر (!is_b_signed) {
+		b_بلند = (1 << b_چوڑائی_capped) - 1;
+		b_کم = 0;
+	} ورنہ {
+		b_بلند = (1 << (b_چوڑائی_capped - 1)) - 1;
+		b_کم = -(1 << (b_چوڑائی_capped - 1));
 	}
 
-	for (int i = 0; i < y_width; i++){
+	برائے (صحیح i = 0; i < y_چوڑائی; i++){
 		// highest position of Y that can change with the value of B
-		int b_range_upper = 0;
+		صحیح b_range_بالائی = 0;
 		// 1 + highest position of A that can be moved to Y[i]
-		int a_range_upper;
+		صحیح a_range_بالائی;
 		// lowest position of A that can be moved to Y[i]
-		int a_range_lower;
+		صحیح a_range_زیریں;
 
-		if (cell->type.in(ID($shl), ID($sshl))) {
-			b_range_upper = a_width + b_high;
-			if (is_signed) b_range_upper -= 1;
-			a_range_lower = max(0, i - b_high);
-			a_range_upper = min(i+1, a_width);
-		} else if (cell->type.in(ID($shr), ID($sshr)) || (cell->type.in(ID($shift), ID($shiftx)) && !is_b_signed)) {
-			b_range_upper = a_width;
-			a_range_lower = min(i, a_width - 1);
-			a_range_upper = min(i+1 + b_high, a_width);
-		} else if (cell->type.in(ID($shift), ID($shiftx)) && is_b_signed) {
+		اگر (cell->type.اندر(ID($shl), ID($sshl))) {
+			b_range_بالائی = a_چوڑائی + b_بلند;
+			اگر (is_signed) b_range_بالائی -= 1;
+			a_range_زیریں = max(0, i - b_بلند);
+			a_range_بالائی = min(i+1, a_چوڑائی);
+		} ورنہ اگر (cell->type.اندر(ID($shr), ID($sshr)) || (cell->type.اندر(ID($سرکاؤ), ID($shiftx)) && !is_b_signed)) {
+			b_range_بالائی = a_چوڑائی;
+			a_range_زیریں = min(i, a_چوڑائی - 1);
+			a_range_بالائی = min(i+1 + b_بلند, a_چوڑائی);
+		} ورنہ اگر (cell->type.اندر(ID($سرکاؤ), ID($shiftx)) && is_b_signed) {
 			// can go both ways depending on sign of B
 			// 2's complement range is different depending on direction
-			b_range_upper = a_width - b_low;
-			a_range_lower = max(0, i + b_low);
-			if (is_signed)
-				a_range_lower = min(a_range_lower, a_width - 1);
-			a_range_upper = min(i+1 + b_high, a_width);
-		} else {
-			log_assert(false && "unreachable");
+			b_range_بالائی = a_چوڑائی - b_کم;
+			a_range_زیریں = max(0, i + b_کم);
+			اگر (is_signed)
+				a_range_زیریں = min(a_range_زیریں, a_چوڑائی - 1);
+			a_range_بالائی = min(i+1 + b_بلند, a_چوڑائی);
+		} ورنہ {
+			log_assert(جھوٹ && "unreachable");
 		}
 
-		if (i < b_range_upper) {
-			for (int k = a_range_lower; k < a_range_upper; k++)
-				db->add_edge(cell, ID::A, k, ID::Y, i, -1);
-		} else {
+		اگر (i < b_range_بالائی) {
+			برائے (صحیح k = a_range_زیریں; k < a_range_بالائی; k++)
+				db->جوڑو_کنارہ(cell, ID::A, k, ID::Y, i, -1);
+		} ورنہ {
 			// only influence is through sign extension
-			if (is_signed)
-				db->add_edge(cell, ID::A, a_width - 1, ID::Y, i, -1);
+			اگر (is_signed)
+				db->جوڑو_کنارہ(cell, ID::A, a_چوڑائی - 1, ID::Y, i, -1);
 		}
 
-		for (int k = 0; k < b_width_capped; k++) {
+		برائے (صحیح k = 0; k < b_چوڑائی_capped; k++) {
 			// left shifts
-			if (cell->type.in(ID($shl), ID($sshl))) {
-				if (a_width == 1 && is_signed) {
-					int skip = 1 << (k + 1);
-					int base = skip -1;
-					if (i % skip != base && i - a_width + 2 < 1 << b_width_capped)
-						db->add_edge(cell, ID::B, k, ID::Y, i, -1);
-				} else if (is_signed) {
-					if (i - a_width + 2 < 1 << b_width_capped)
-						db->add_edge(cell, ID::B, k, ID::Y, i, -1);
-				} else {
-					if (i - a_width + 1 < 1 << b_width_capped)
-						db->add_edge(cell, ID::B, k, ID::Y, i, -1);
+			اگر (cell->type.اندر(ID($shl), ID($sshl))) {
+				اگر (a_چوڑائی == 1 && is_signed) {
+					صحیح skip = 1 << (k + 1);
+					صحیح بنیاد = skip -1;
+					اگر (i % skip != بنیاد && i - a_چوڑائی + 2 < 1 << b_چوڑائی_capped)
+						db->جوڑو_کنارہ(cell, ID::B, k, ID::Y, i, -1);
+				} ورنہ اگر (is_signed) {
+					اگر (i - a_چوڑائی + 2 < 1 << b_چوڑائی_capped)
+						db->جوڑو_کنارہ(cell, ID::B, k, ID::Y, i, -1);
+				} ورنہ {
+					اگر (i - a_چوڑائی + 1 < 1 << b_چوڑائی_capped)
+						db->جوڑو_کنارہ(cell, ID::B, k, ID::Y, i, -1);
 				}
 			// right shifts
-			} else if (cell->type.in(ID($shr), ID($sshr)) || (cell->type.in(ID($shift), ID($shiftx)) && !is_b_signed)) {
-				if (is_signed) {
-					bool shift_in_bulk = i < a_width - 1;
+			} ورنہ اگر (cell->type.اندر(ID($shr), ID($sshr)) || (cell->type.اندر(ID($سرکاؤ), ID($shiftx)) && !is_b_signed)) {
+				اگر (is_signed) {
+					منطقی سرکاؤ_اندر_bulk = i < a_چوڑائی - 1;
 					// can we jump into the zero-padding by toggling B[k]?
-					bool zpad_jump = (((y_width - i) & ((1 << (k + 1)) - 1)) != 0 \
-									&& (((y_width - i) & ~(1 << k)) < (1 << b_width_capped)));
+					منطقی zpad_jump = (((y_چوڑائی - i) & ((1 << (k + 1)) - 1)) != 0 \
+									&& (((y_چوڑائی - i) & ~(1 << k)) < (1 << b_چوڑائی_capped)));
 
-					if (shift_in_bulk || (cell->type.in(ID($shr), ID($shift), ID($shiftx)) && zpad_jump))
-						db->add_edge(cell, ID::B, k, ID::Y, i, -1);
-				} else {
-					if (i < a_width)
-						db->add_edge(cell, ID::B, k, ID::Y, i, -1);
+					اگر (سرکاؤ_اندر_bulk || (cell->type.اندر(ID($shr), ID($سرکاؤ), ID($shiftx)) && zpad_jump))
+						db->جوڑو_کنارہ(cell, ID::B, k, ID::Y, i, -1);
+				} ورنہ {
+					اگر (i < a_چوڑائی)
+						db->جوڑو_کنارہ(cell, ID::B, k, ID::Y, i, -1);
 				}
 			// bidirectional shifts (positive B shifts right, negative left)
-			} else if (cell->type.in(ID($shift), ID($shiftx)) && is_b_signed) {
-				if (is_signed) {
-					if (k != b_width_capped - 1) {
-						bool r_shift_in_bulk = i < a_width - 1;
+			} ورنہ اگر (cell->type.اندر(ID($سرکاؤ), ID($shiftx)) && is_b_signed) {
+				اگر (is_signed) {
+					اگر (k != b_چوڑائی_capped - 1) {
+						منطقی r_سرکاؤ_اندر_bulk = i < a_چوڑائی - 1;
 						// assuming B is positive, can we jump into the upper zero-padding by toggling B[k]?
-						bool r_zpad_jump = (((y_width - i) & ((1 << (k + 1)) - 1)) != 0 \
-											&& (((y_width - i) & ~(1 << k)) <= b_high));
+						منطقی r_zpad_jump = (((y_چوڑائی - i) & ((1 << (k + 1)) - 1)) != 0 \
+											&& (((y_چوڑائی - i) & ~(1 << k)) <= b_بلند));
 						// assuming B is negative, can we influence Y[i] by toggling B[k]?
-						bool l = a_width - 2 - i >= b_low;
-						if (a_width == 1) {
+						منطقی l = a_چوڑائی - 2 - i >= b_کم;
+						اگر (a_چوڑائی == 1) {
 							// in case of a_width==1 we go into more detailed reasoning
-							l = l && (~(i - a_width) & ((1 << (k + 1)) - 1)) != 0;
+							l = l && (~(i - a_چوڑائی) & ((1 << (k + 1)) - 1)) != 0;
 						}
-						if (r_shift_in_bulk || r_zpad_jump || l)
-							db->add_edge(cell, ID::B, k, ID::Y, i, -1);
-					} else {
-						if (y_width - i <= b_high || a_width - 2 - i >= b_low)
-							db->add_edge(cell, ID::B, k, ID::Y, i, -1);
+						اگر (r_سرکاؤ_اندر_bulk || r_zpad_jump || l)
+							db->جوڑو_کنارہ(cell, ID::B, k, ID::Y, i, -1);
+					} ورنہ {
+						اگر (y_چوڑائی - i <= b_بلند || a_چوڑائی - 2 - i >= b_کم)
+							db->جوڑو_کنارہ(cell, ID::B, k, ID::Y, i, -1);
 					}
-				} else {
-					if (a_width - 1 - i >= b_low)
-						db->add_edge(cell, ID::B, k, ID::Y, i, -1);
+				} ورنہ {
+					اگر (a_چوڑائی - 1 - i >= b_کم)
+						db->جوڑو_کنارہ(cell, ID::B, k, ID::Y, i, -1);
 				}
-			} else {
-				log_assert(false && "unreachable");
+			} ورنہ {
+				log_assert(جھوٹ && "unreachable");
 			}
 		}
 	}
 }
 
-void packed_mem_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی packed_mem_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
 	log_assert(cell->type == ID($mem_v2));
 	Const rd_clk_enable = cell->getParam(ID::RD_CLK_ENABLE);
-	int n_rd_ports = cell->getParam(ID::RD_PORTS).as_int();
-	int abits = cell->getParam(ID::ABITS).as_int();
-	int width = cell->getParam(ID::WIDTH).as_int();
+	صحیح n_rd_ports = cell->getParam(ID::RD_PORTS).as_int();
+	صحیح abits = cell->getParam(ID::ABITS).as_int();
+	صحیح چوڑائی = cell->getParam(ID::چوڑائی_2).as_int();
 
-	for (int i = 0; i < n_rd_ports; i++) {
-		if (rd_clk_enable[i] != State::S0) {
-			for (int k = 0; k < width; k++)
-				db->add_edge(cell, ID::RD_ARST, i, ID::RD_DATA, i * width + k, -1);
-			continue;
+	برائے (صحیح i = 0; i < n_rd_ports; i++) {
+		اگر (rd_clk_enable[i] != State::S0) {
+			برائے (صحیح k = 0; k < چوڑائی; k++)
+				db->جوڑو_کنارہ(cell, ID::RD_ARST, i, ID::RD_ڈیٹا, i * چوڑائی + k, -1);
+			جاری;
 		}
 
-		for (int j = 0; j < abits; j++)
-			for (int k = 0; k < width; k++)
-				db->add_edge(cell, ID::RD_ADDR, i * abits + j,
-								   ID::RD_DATA, i * width + k, -1);
+		برائے (صحیح j = 0; j < abits; j++)
+			برائے (صحیح k = 0; k < چوڑائی; k++)
+				db->جوڑو_کنارہ(cell, ID::RD_ADDR, i * abits + j,
+								   ID::RD_ڈیٹا, i * چوڑائی + k, -1);
 	}
 }
 
-void memrd_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی memrd_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	log_assert(cell->type.in(ID($memrd), ID($memrd_v2)));
-	int abits = cell->getParam(ID::ABITS).as_int();
-	int width = cell->getParam(ID::WIDTH).as_int();
+	log_assert(cell->type.اندر(ID($memrd), ID($memrd_v2)));
+	صحیح abits = cell->getParam(ID::ABITS).as_int();
+	صحیح چوڑائی = cell->getParam(ID::چوڑائی_2).as_int();
 
-	if (cell->getParam(ID::CLK_ENABLE).as_bool()) {
-		if (cell->type == ID($memrd_v2)) {
-			for (int k = 0; k < width; k++)
-				db->add_edge(cell, ID::ARST, 0, ID::DATA, k, -1);
+	اگر (cell->getParam(ID::CLK_ENABLE).as_bool()) {
+		اگر (cell->type == ID($memrd_v2)) {
+			برائے (صحیح k = 0; k < چوڑائی; k++)
+				db->جوڑو_کنارہ(cell, ID::ARST, 0, ID::ڈیٹا_2, k, -1);
 		}
-		return;
+		واپس;
 	}
 
-	for (int j = 0; j < abits; j++)
-		for (int k = 0; k < width; k++)
-			db->add_edge(cell, ID::ADDR, j, ID::DATA, k, -1);
+	برائے (صحیح j = 0; j < abits; j++)
+		برائے (صحیح k = 0; k < چوڑائی; k++)
+			db->جوڑو_کنارہ(cell, ID::ADDR, j, ID::ڈیٹا_2, k, -1);
 }
 
-void mem_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی mem_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	if (cell->type == ID($mem_v2))
+	اگر (cell->type == ID($mem_v2))
 		packed_mem_op(db, cell);
-	else if (cell->type.in(ID($memrd), ID($memrd_v2)))
+	ورنہ اگر (cell->type.اندر(ID($memrd), ID($memrd_v2)))
 		memrd_op(db, cell);
-	else if (cell->type.in(ID($memwr), ID($memwr_v2), ID($meminit)))
-		return; /* no edges here */
-	else
+	ورنہ اگر (cell->type.اندر(ID($memwr), ID($memwr_v2), ID($meminit)))
+		واپس; /* no edges here */
+	ورنہ
 		log_abort();
 }
 
-void ff_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی ff_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	int width = cell->getPort(ID::Q).size();
+	صحیح چوڑائی = cell->get_پورٹ(ID::Q).سائز();
 
-	if (cell->type.in(ID($dlatch), ID($adlatch), ID($dlatchsr))) {
-		for (int k = 0; k < width; k++) {
-			db->add_edge(cell, ID::D, k, ID::Q, k, -1);
-			db->add_edge(cell, ID::EN, 0, ID::Q, k, -1);
+	اگر (cell->type.اندر(ID($dlatch), ID($adlatch), ID($dlatchsr))) {
+		برائے (صحیح k = 0; k < چوڑائی; k++) {
+			db->جوڑو_کنارہ(cell, ID::D, k, ID::Q, k, -1);
+			db->جوڑو_کنارہ(cell, ID::EN, 0, ID::Q, k, -1);
 		}
 	}
 
-	if (cell->hasPort(ID::CLR))
-		for (int k = 0; k < width; k++)
-			db->add_edge(cell, ID::CLR, 0, ID::Q, k, -1);
-	if (cell->hasPort(ID::SET))
-		for (int k = 0; k < width; k++)
-			db->add_edge(cell, ID::SET, 0, ID::Q, k, -1);
-	if (cell->hasPort(ID::ALOAD))
-		for (int k = 0; k < width; k++)
-			db->add_edge(cell, ID::ALOAD, 0, ID::Q, k, -1);
-	if (cell->hasPort(ID::AD))
-		for (int k = 0; k < width; k++)
-			db->add_edge(cell, ID::AD, k, ID::Q, k, -1);
-	if (cell->hasPort(ID::ARST))
-		for (int k = 0; k < width; k++)
-			db->add_edge(cell, ID::ARST, 0, ID::Q, k, -1);
+	اگر (cell->has_پورٹ(ID::CLR))
+		برائے (صحیح k = 0; k < چوڑائی; k++)
+			db->جوڑو_کنارہ(cell, ID::CLR, 0, ID::Q, k, -1);
+	اگر (cell->has_پورٹ(ID::سیٹ_2))
+		برائے (صحیح k = 0; k < چوڑائی; k++)
+			db->جوڑو_کنارہ(cell, ID::سیٹ_2, 0, ID::Q, k, -1);
+	اگر (cell->has_پورٹ(ID::ALOAD))
+		برائے (صحیح k = 0; k < چوڑائی; k++)
+			db->جوڑو_کنارہ(cell, ID::ALOAD, 0, ID::Q, k, -1);
+	اگر (cell->has_پورٹ(ID::AD))
+		برائے (صحیح k = 0; k < چوڑائی; k++)
+			db->جوڑو_کنارہ(cell, ID::AD, k, ID::Q, k, -1);
+	اگر (cell->has_پورٹ(ID::ARST))
+		برائے (صحیح k = 0; k < چوڑائی; k++)
+			db->جوڑو_کنارہ(cell, ID::ARST, 0, ID::Q, k, -1);
 }
 
-void full_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی بھرا_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	std::vector<RTLIL::IdString> input_ports;
-	std::vector<RTLIL::IdString> output_ports;
+	std::سمتیہ<RTLIL::IdString> داخلہ_ports;
+	std::سمتیہ<RTLIL::IdString> output_ports;
 
-	for (auto &conn : cell->connections())
+	برائے (خودکار &conn : cell->connections())
 	{
-		RTLIL::IdString port = conn.first;
-		RTLIL::PortDir dir = cell->port_dir(port);
-		if (cell->input(port) || dir == RTLIL::PortDir::PD_INOUT)
-			input_ports.push_back(port);
-		if (cell->output(port) || dir == RTLIL::PortDir::PD_INOUT)
-			output_ports.push_back(port);
+		RTLIL::IdString پورٹ = conn.پہلا;
+		RTLIL::پورٹ_Dir dir = cell->پورٹ_dir(پورٹ);
+		اگر (cell->داخلہ(پورٹ) || dir == RTLIL::پورٹ_Dir::PD_INOUT)
+			داخلہ_ports.ڈالو_عقب(پورٹ);
+		اگر (cell->output(پورٹ) || dir == RTLIL::پورٹ_Dir::PD_INOUT)
+			output_ports.ڈالو_عقب(پورٹ);
 	}
 
-	for (auto out_port : output_ports)
+	برائے (خودکار برآمد_پورٹ : output_ports)
 	{
-		int out_width = GetSize(cell->getPort(out_port));
-		for (int out_bit = 0; out_bit < out_width; out_bit++)
+		صحیح برآمد_چوڑائی = Get_سائز(cell->get_پورٹ(برآمد_پورٹ));
+		برائے (صحیح برآمد_ثنائی_ہندسہ = 0; برآمد_ثنائی_ہندسہ < برآمد_چوڑائی; برآمد_ثنائی_ہندسہ++)
 		{
-			for (auto in_port : input_ports)
+			برائے (خودکار اندر_پورٹ : داخلہ_ports)
 			{
-				int in_width = GetSize(cell->getPort(in_port));
-				for (int in_bit = 0; in_bit < in_width; in_bit++)
-					db->add_edge(cell, in_port, in_bit, out_port, out_bit, -1);
+				صحیح اندر_چوڑائی = Get_سائز(cell->get_پورٹ(اندر_پورٹ));
+				برائے (صحیح اندر_ثنائی_ہندسہ = 0; اندر_ثنائی_ہندسہ < اندر_چوڑائی; اندر_ثنائی_ہندسہ++)
+					db->جوڑو_کنارہ(cell, اندر_پورٹ, اندر_ثنائی_ہندسہ, برآمد_پورٹ, برآمد_ثنائی_ہندسہ, -1);
 			}
 		}
 	}
 }
 
-void bweqx_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی bweqx_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	int width = GetSize(cell->getPort(ID::Y));
-	int a_width = GetSize(cell->getPort(ID::A));
-	int b_width = GetSize(cell->getPort(ID::B));
-	int max_width = std::min(width, std::min(a_width, b_width));
+	صحیح چوڑائی = Get_سائز(cell->get_پورٹ(ID::Y));
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
+	صحیح b_چوڑائی = Get_سائز(cell->get_پورٹ(ID::B));
+	صحیح max_چوڑائی = std::min(چوڑائی, std::min(a_چوڑائی, b_چوڑائی));
 
-	for (int i = 0; i < max_width; i++) {
-		db->add_edge(cell, ID::A, i, ID::Y, i, -1);
-		db->add_edge(cell, ID::B, i, ID::Y, i, -1);
+	برائے (صحیح i = 0; i < max_چوڑائی; i++) {
+		db->جوڑو_کنارہ(cell, ID::A, i, ID::Y, i, -1);
+		db->جوڑو_کنارہ(cell, ID::B, i, ID::Y, i, -1);
 	}
 }
 
-void bwmux_op(AbstractCellEdgesDatabase *db, RTLIL::Cell *cell)
+خالی bwmux_op(Abstract_Cell_کنارے_Database *db, RTLIL::Cell *cell)
 {
-	int width = GetSize(cell->getPort(ID::Y));
-	int a_width = GetSize(cell->getPort(ID::A));
-	int b_width = GetSize(cell->getPort(ID::B));
-	int s_width = GetSize(cell->getPort(ID::S));
-	int max_width = std::min(width, std::min(a_width, std::min(b_width, s_width)));
+	صحیح چوڑائی = Get_سائز(cell->get_پورٹ(ID::Y));
+	صحیح a_چوڑائی = Get_سائز(cell->get_پورٹ(ID::A));
+	صحیح b_چوڑائی = Get_سائز(cell->get_پورٹ(ID::B));
+	صحیح s_چوڑائی = Get_سائز(cell->get_پورٹ(ID::S));
+	صحیح max_چوڑائی = std::min(چوڑائی, std::min(a_چوڑائی, std::min(b_چوڑائی, s_چوڑائی)));
 
-	for (int i = 0; i < max_width; i++) {
-		db->add_edge(cell, ID::A, i, ID::Y, i, -1);
-		db->add_edge(cell, ID::B, i, ID::Y, i, -1);
-		db->add_edge(cell, ID::S, i, ID::Y, i, -1);
+	برائے (صحیح i = 0; i < max_چوڑائی; i++) {
+		db->جوڑو_کنارہ(cell, ID::A, i, ID::Y, i, -1);
+		db->جوڑو_کنارہ(cell, ID::B, i, ID::Y, i, -1);
+		db->جوڑو_کنارہ(cell, ID::S, i, ID::Y, i, -1);
 	}
 }
 
-PRIVATE_NAMESPACE_END
+نجی_NAMESPACE_انتہا
 
-bool YOSYS_NAMESPACE_PREFIX AbstractCellEdgesDatabase::add_edges_from_cell(RTLIL::Cell *cell)
+منطقی YOSYS_NAMESPACE_سابقہ Abstract_Cell_کنارے_Database::جوڑو_کنارے_from_cell(RTLIL::Cell *cell)
 {
-	if (cell->type.in(ID($not), ID($pos), ID($buf), ID($barrier))) {
-		bitwise_unary_op(this, cell);
-		return true;
+	اگر (cell->type.اندر(ID($not), ID($pos), ID($buf), ID($barrier))) {
+		bitwise_unary_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type.in(ID($and), ID($or), ID($xor), ID($xnor))) {
-		bitwise_binary_op(this, cell);
-		return true;
+	اگر (cell->type.اندر(ID($and), ID($or), ID($xor), ID($xnor))) {
+		bitwise_ثنائی_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type == ID($neg)) {
-		arith_neg_op(this, cell);
-		return true;
+	اگر (cell->type == ID($neg)) {
+		arith_neg_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type.in(ID($add), ID($sub))) {
-		arith_binary_op(this, cell);
-		return true;
+	اگر (cell->type.اندر(ID($جوڑو), ID($sub))) {
+		arith_ثنائی_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool), ID($logic_not))) {
-		reduce_op(this, cell);
-		return true;
+	اگر (cell->type.اندر(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool), ID($logic_not))) {
+		reduce_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type.in(ID($logic_and), ID($logic_or))) {
-		logic_op(this, cell);
-		return true;
+	اگر (cell->type.اندر(ID($logic_and), ID($logic_or))) {
+		logic_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type == ID($slice)) {
-		slice_op(this, cell);
-		return true;
+	اگر (cell->type == ID($قاش)) {
+		قاش_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type == ID($concat)) {
-		concat_op(this, cell);
-		return true;
+	اگر (cell->type == ID($concat)) {
+		concat_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx))) {
-		shift_op(this, cell);
-		return true;
+	اگر (cell->type.اندر(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($سرکاؤ), ID($shiftx))) {
+		سرکاؤ_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type.in(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt))) {
-		compare_op(this, cell);
-		return true;
+	اگر (cell->type.اندر(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt))) {
+		compare_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type.in(ID($mux), ID($pmux))) {
-		mux_op(this, cell);
-		return true;
+	اگر (cell->type.اندر(ID($mux), ID($pmux))) {
+		mux_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type == ID($bmux)) {
-		bmux_op(this, cell);
-		return true;
+	اگر (cell->type == ID($bmux)) {
+		bmux_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type == ID($demux)) {
-		demux_op(this, cell);
-		return true;
+	اگر (cell->type == ID($demux)) {
+		demux_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type == ID($bweqx)) {
-		bweqx_op(this, cell);
-		return true;
+	اگر (cell->type == ID($bweqx)) {
+		bweqx_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type == ID($bwmux)) {
-		bwmux_op(this, cell);
-		return true;
+	اگر (cell->type == ID($bwmux)) {
+		bwmux_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type.in(ID($mem_v2), ID($memrd), ID($memrd_v2), ID($memwr), ID($memwr_v2), ID($meminit))) {
-		mem_op(this, cell);
-		return true;
+	اگر (cell->type.اندر(ID($mem_v2), ID($memrd), ID($memrd_v2), ID($memwr), ID($memwr_v2), ID($meminit))) {
+		mem_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->is_builtin_ff()) {
-		ff_op(this, cell);
-		return true;
+	اگر (cell->is_builtin_ff()) {
+		ff_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type.in(ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow))) {
-		full_op(this, cell);
-		return true;
+	اگر (cell->type.اندر(ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($قوت))) {
+		بھرا_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type.in(ID($lut), ID($sop), ID($alu), ID($lcu), ID($macc), ID($macc_v2))) {
-		full_op(this, cell);
-		return true;
+	اگر (cell->type.اندر(ID($lut), ID($sop), ID($alu), ID($lcu), ID($macc), ID($macc_v2))) {
+		بھرا_op(یہ, cell);
+		واپس سچ;
 	}
 
-	if (cell->type.in(
+	اگر (cell->type.اندر(
 			ID($_BUF_), ID($_NOT_), ID($_AND_), ID($_NAND_), ID($_OR_), ID($_NOR_),
 			ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_), ID($_MUX_), ID($_NMUX_),
 			ID($_MUX4_), ID($_MUX8_), ID($_MUX16_), ID($_AOI3_), ID($_OAI3_), ID($_AOI4_),
 			ID($_OAI4_), ID($_TBUF_))) {
-		full_op(this, cell);
-		return true;
+		بھرا_op(یہ, cell);
+		واپس سچ;
 	}
 
 	// FIXME: $specify2 $specify3 $specrule ???
 	// FIXME: $equiv $set_tag $get_tag $overwrite_tag $original_tag
 
-	if (cell->type.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover), ID($initstate), ID($anyconst), ID($anyseq), ID($allconst), ID($allseq)))
-		return true; // no-op: these have either no inputs or no outputs
+	اگر (cell->type.اندر(ID($أكد), ID($assume), ID($زندہ), ID($fair), ID($cover), ID($initstate), ID($anyconst), ID($anyseq), ID($allconst), ID($allseq)))
+		واپس سچ; // no-op: these have either no inputs or no outputs
 
-	return false;
+	واپس جھوٹ;
 }

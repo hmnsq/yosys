@@ -9,21 +9,21 @@
 // Written by Claire Xenia Wolf <claire@yosyshq.com> in 2014
 // -------------------------------------------------------
 
-#ifndef HASHLIB_H
-#define HASHLIB_H
+#اگر_غیر_تعریف_شدہ HASHLIB_H
+#تعریف_کرو HASHLIB_H
 
-#include <array>
-#include <atomic>
-#include <stdexcept>
-#include <algorithm>
-#include <optional>
-#include <string>
-#include <variant>
-#include <vector>
-#include <type_traits>
-#include <stdint.h>
+#شامل <array>
+#شامل <atomic>
+#شامل <stdexcept>
+#شامل <algorithm>
+#شامل <optional>
+#شامل <string>
+#شامل <variant>
+#شامل <vector>
+#شامل <type_traits>
+#شامل <stdint.h>
 
-#define YS_HASHING_VERSION 1
+#تعریف_کرو YS_HASHING_نسخہ 1
 
 namespace hashlib {
 
@@ -55,40 +55,40 @@ namespace hashlib {
  * instead of pointers.
  */
 
-#if defined(__GNUC__) || defined(__clang__)
-#  define HASHLIB_ATTRIBUTE_WARN_UNUSED __attribute__((warn_unused))
-#else
-#  define HASHLIB_ATTRIBUTE_WARN_UNUSED
-#endif
+#اگر defined(__GNUC__) || defined(__clang__)
+#  define HASHLIB_ATTRIBUTE_WARN_غیر_مستعمل __attribute__((warn_غیر_مستعمل))
+#ورنہ
+#  define HASHLIB_ATTRIBUTE_WARN_غیر_مستعمل
+#اگر_ختم
 
-const int hashtable_size_trigger = 2;
-const int hashtable_size_factor = 3;
+ثابت صحیح hashtable_سائز_trigger = 2;
+ثابت صحیح hashtable_سائز_ضربی_عدد = 3;
 
 namespace legacy {
-	inline uint32_t djb2_add(uint32_t a, uint32_t b) {
-		return ((a << 5) + a) + b;
+	اندرونی uint32_t djb2_جوڑو(uint32_t a, uint32_t b) {
+		واپس ((a << 5) + a) + b;
 	}
 };
 
-template<typename T>
-struct hash_ops;
+سانچہ<typename T>
+ساخت hash_ops;
 
-inline unsigned int mkhash_xorshift(unsigned int a) {
-	if (sizeof(a) == 4) {
+اندرونی غیرعلامتی صحیح mkhash_xorshift(غیرعلامتی صحیح a) {
+	اگر (حجم(a) == 4) {
 		a ^= a << 13;
 		a ^= a >> 17;
 		a ^= a << 5;
-	} else if (sizeof(a) == 8) {
+	} ورنہ اگر (حجم(a) == 8) {
 		a ^= a << 13;
 		a ^= a >> 7;
 		a ^= a << 17;
-	} else
+	} ورنہ
 		throw std::runtime_error("mkhash_xorshift() only implemented for 32 bit and 64 bit ints");
-	return a;
+	واپس a;
 }
 
 class HasherDJB32 {
-public:
+عوامی:
 	using hash_t = uint32_t;
 
 	HasherDJB32() {
@@ -96,47 +96,47 @@ public:
 		state = 5381;
 	}
 
-private:
+نجی:
 	uint32_t state;
 	// The XOR version of DJB2
 	[[nodiscard]]
-	static uint32_t djb2_xor(uint32_t a, uint32_t b) {
+	ساکن uint32_t djb2_xor(uint32_t a, uint32_t b) {
 		uint32_t hash = ((a << 5) + a) ^ b;
-		return hash;
+		واپس hash;
 	}
-public:
-	void hash32(uint32_t i) {
+عوامی:
+	خالی hash32(uint32_t i) {
 		state = djb2_xor(i, state);
 		state = mkhash_xorshift(state);
-		return;
+		واپس;
 	}
-	void hash64(uint64_t i) {
+	خالی hash64(uint64_t i) {
 		state = djb2_xor((uint32_t)(i & 0xFFFFFFFFULL), state);
 		state = djb2_xor((uint32_t)(i >> 32ULL), state);
 		state = mkhash_xorshift(state);
-		return;
+		واپس;
 	}
 	[[nodiscard]]
-	hash_t yield() const {
-		return (hash_t)state;
+	hash_t yield() ثابت {
+		واپس (hash_t)state;
 	}
 
-	template<typename T>
-	void eat(T&& t) {
+	سانچہ<typename T>
+	خالی eat(T&& t) {
 		*this = hash_ops<std::remove_cv_t<std::remove_reference_t<T>>>::hash_into(std::forward<T>(t), *this);
 	}
 
-	template<typename T>
-	void eat(const T& t) {
+	سانچہ<typename T>
+	خالی eat(ثابت T& t) {
 		*this = hash_ops<T>::hash_into(t, *this);
 	}
 
 	[[deprecated]]
-	void commutative_eat(hash_t t) {
+	خالی commutative_eat(hash_t t) {
 		state ^= t;
 	}
 
-	void force(hash_t new_state) {
+	خالی force(hash_t new_state) {
 		state = new_state;
 	}
 };
@@ -145,150 +145,150 @@ using Hasher = HasherDJB32;
 
 // Boilerplate compressor for trivially implementing
 // top-level hash method with hash_into
-#define HASH_TOP_LOOP_FST [[nodiscard]] static inline Hasher hash
-#define HASH_TOP_LOOP_SND { \
+#تعریف_کرو HASH_چوٹی_LOOP_FST [[nodiscard]] ساکن اندرونی Hasher hash
+#تعریف_کرو HASH_چوٹی_LOOP_SND { \
 	Hasher h; \
 	h = hash_into(a, h); \
-	return h; \
+	واپس h; \
 }
 
-template<typename T>
-struct hash_ops {
-	static inline bool cmp(const T &a, const T &b) {
-		return a == b;
+سانچہ<typename T>
+ساخت hash_ops {
+	ساکن اندرونی bool cmp(ثابت T &a, ثابت T &b) {
+		واپس a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const T &a, Hasher h) {
-		if constexpr (std::is_integral_v<T>) {
-			static_assert(sizeof(T) <= sizeof(uint64_t));
-			if (sizeof(T) == sizeof(uint64_t))
+	[[nodiscard]] ساکن اندرونی Hasher hash_into(ثابت T &a, Hasher h) {
+		اگر constexpr (std::is_integral_v<T>) {
+			static_assert(حجم(T) <= حجم(uint64_t));
+			اگر (حجم(T) == حجم(uint64_t))
 				h.hash64(a);
-			else
+			ورنہ
 				h.hash32(a);
-			return h;
-		} else if constexpr (std::is_enum_v<T>) {
+			واپس h;
+		} ورنہ اگر constexpr (std::is_enum_v<T>) {
 			using u_type = std::underlying_type_t<T>;
-			return hash_ops<u_type>::hash_into((u_type) a, h);
-		} else if constexpr (std::is_pointer_v<T>) {
-			return hash_ops<uintptr_t>::hash_into((uintptr_t) a, h);
-		} else if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>) {
-			int size = a.size();
-			int i = 0;
-			while (i + 8 < size) {
+			واپس hash_ops<u_type>::hash_into((u_type) a, h);
+		} ورنہ اگر constexpr (std::is_اشارہ_گر_v<T>) {
+			واپس hash_ops<uintptr_t>::hash_into((uintptr_t) a, h);
+		} ورنہ اگر constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>) {
+			صحیح سائز = a.سائز();
+			صحیح i = 0;
+			جب (i + 8 < سائز) {
 				uint64_t v;
-				memcpy(&v, a.data() + i, 8);
+				حافظہ_نقل(&v, a.ڈیٹا() + i, 8);
 				h.hash64(v);
 				i += 8;
 			}
 			uint64_t v = 0;
-			memcpy(&v, a.data() + i, size - i);
+			حافظہ_نقل(&v, a.ڈیٹا() + i, سائز - i);
 			h.hash64(v);
-			return h;
-		} else {
-			return a.hash_into(h);
+			واپس h;
+		} ورنہ {
+			واپس a.hash_into(h);
 		}
 	}
-	HASH_TOP_LOOP_FST (const T &a) HASH_TOP_LOOP_SND
+	HASH_چوٹی_LOOP_FST (ثابت T &a) HASH_چوٹی_LOOP_SND
 };
 
-template<typename P, typename Q> struct hash_ops<std::pair<P, Q>> {
-	static inline bool cmp(const std::pair<P, Q> &a, const std::pair<P, Q> &b) {
-		return a == b;
+سانچہ<typename P, typename Q> ساخت hash_ops<std::pair<P, Q>> {
+	ساکن اندرونی bool cmp(ثابت std::pair<P, Q> &a, ثابت std::pair<P, Q> &b) {
+		واپس a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const std::pair<P, Q> &a, Hasher h) {
-		h = hash_ops<P>::hash_into(a.first, h);
-		h = hash_ops<Q>::hash_into(a.second, h);
-		return h;
+	[[nodiscard]] ساکن اندرونی Hasher hash_into(ثابت std::pair<P, Q> &a, Hasher h) {
+		h = hash_ops<P>::hash_into(a.پہلا, h);
+		h = hash_ops<Q>::hash_into(a.دوسرا, h);
+		واپس h;
 	}
-	HASH_TOP_LOOP_FST (const std::pair<P, Q> &a) HASH_TOP_LOOP_SND
-	[[nodiscard]] static inline Hasher hash(const P &p, const Q &q) {
+	HASH_چوٹی_LOOP_FST (ثابت std::pair<P, Q> &a) HASH_چوٹی_LOOP_SND
+	[[nodiscard]] ساکن اندرونی Hasher hash(ثابت P &p, ثابت Q &q) {
 		Hasher h;
 		h = hash_ops<P>::hash_into(p, h);
 		h = hash_ops<Q>::hash_into(q, h);
-		return h;
+		واپس h;
 	}
 };
 
-template<typename... T> struct hash_ops<std::tuple<T...>> {
-	static inline bool cmp(const std::tuple<T...> &a, const std::tuple<T...> &b) {
-		return a == b;
+سانچہ<typename... T> ساخت hash_ops<std::tuple<T...>> {
+	ساکن اندرونی bool cmp(ثابت std::tuple<T...> &a, ثابت std::tuple<T...> &b) {
+		واپس a == b;
 	}
-	template<size_t I = 0>
-	static inline typename std::enable_if<I == sizeof...(T), Hasher>::type hash_into(const std::tuple<T...> &, Hasher h) {
-		return h;
+	سانچہ<سائز_t I = 0>
+	ساکن اندرونی typename std::enable_if<I == حجم...(T), Hasher>::type hash_into(ثابت std::tuple<T...> &, Hasher h) {
+		واپس h;
 	}
-	template<size_t I = 0>
-	static inline typename std::enable_if<I != sizeof...(T), Hasher>::type hash_into(const std::tuple<T...> &a, Hasher h) {
-		typedef hash_ops<typename std::tuple_element<I, std::tuple<T...>>::type> element_ops_t;
+	سانچہ<سائز_t I = 0>
+	ساکن اندرونی typename std::enable_if<I != حجم...(T), Hasher>::type hash_into(ثابت std::tuple<T...> &a, Hasher h) {
+		قسمتعریف hash_ops<typename std::tuple_element<I, std::tuple<T...>>::type> element_ops_t;
 		h = hash_into<I+1>(a, h);
 		h = element_ops_t::hash_into(std::get<I>(a), h);
-		return h;
+		واپس h;
 	}
-	HASH_TOP_LOOP_FST (const std::tuple<T...> &a) HASH_TOP_LOOP_SND
+	HASH_چوٹی_LOOP_FST (ثابت std::tuple<T...> &a) HASH_چوٹی_LOOP_SND
 };
 
-template<typename T> struct hash_ops<std::vector<T>> {
-	static inline bool cmp(const std::vector<T> &a, const std::vector<T> &b) {
-		return a == b;
+سانچہ<typename T> ساخت hash_ops<std::سمتیہ<T>> {
+	ساکن اندرونی bool cmp(ثابت std::سمتیہ<T> &a, ثابت std::سمتیہ<T> &b) {
+		واپس a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const std::vector<T> &a, Hasher h) {
-		h.eat((uint32_t)a.size());
-		for (auto k : a)
+	[[nodiscard]] ساکن اندرونی Hasher hash_into(ثابت std::سمتیہ<T> &a, Hasher h) {
+		h.eat((uint32_t)a.سائز());
+		برائے (خودکار k : a)
 			h.eat(k);
-		return h;
+		واپس h;
 	}
-	HASH_TOP_LOOP_FST (const std::vector<T> &a) HASH_TOP_LOOP_SND
+	HASH_چوٹی_LOOP_FST (ثابت std::سمتیہ<T> &a) HASH_چوٹی_LOOP_SND
 };
 
-template<typename T, size_t N> struct hash_ops<std::array<T, N>> {
-    static inline bool cmp(const std::array<T, N> &a, const std::array<T, N> &b) {
-        return a == b;
+سانچہ<typename T, سائز_t N> ساخت hash_ops<std::array<T, N>> {
+    ساکن اندرونی bool cmp(ثابت std::array<T, N> &a, ثابت std::array<T, N> &b) {
+        واپس a == b;
     }
-    [[nodiscard]] static inline Hasher hash_into(const std::array<T, N> &a, Hasher h) {
-        for (const auto& k : a)
+    [[nodiscard]] ساکن اندرونی Hasher hash_into(ثابت std::array<T, N> &a, Hasher h) {
+        برائے (ثابت خودکار& k : a)
             h = hash_ops<T>::hash_into(k, h);
-        return h;
+        واپس h;
     }
-	HASH_TOP_LOOP_FST (const std::array<T, N> &a) HASH_TOP_LOOP_SND
+	HASH_چوٹی_LOOP_FST (ثابت std::array<T, N> &a) HASH_چوٹی_LOOP_SND
 };
 
-struct hash_cstr_ops {
-	static inline bool cmp(const char *a, const char *b) {
-		return strcmp(a, b) == 0;
+ساخت hash_cstr_ops {
+	ساکن اندرونی bool cmp(ثابت حرف *a, ثابت حرف *b) {
+		واپس strcmp(a, b) == 0;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const char *a, Hasher h) {
-		while (*a)
+	[[nodiscard]] ساکن اندرونی Hasher hash_into(ثابت حرف *a, Hasher h) {
+		جب (*a)
 			h.hash32(*(a++));
-		return h;
+		واپس h;
 	}
-	HASH_TOP_LOOP_FST (const char *a) HASH_TOP_LOOP_SND
+	HASH_چوٹی_LOOP_FST (ثابت حرف *a) HASH_چوٹی_LOOP_SND
 };
 
-template <> struct hash_ops<char*> : hash_cstr_ops {};
+سانچہ <> ساخت hash_ops<حرف*> : hash_cstr_ops {};
 
-struct hash_ptr_ops {
-	static inline bool cmp(const void *a, const void *b) {
-		return a == b;
+ساخت hash_ptr_ops {
+	ساکن اندرونی bool cmp(ثابت خالی *a, ثابت خالی *b) {
+		واپس a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const void *a, Hasher h) {
-		return hash_ops<uintptr_t>::hash_into((uintptr_t)a, h);
+	[[nodiscard]] ساکن اندرونی Hasher hash_into(ثابت خالی *a, Hasher h) {
+		واپس hash_ops<uintptr_t>::hash_into((uintptr_t)a, h);
 	}
-	HASH_TOP_LOOP_FST (const void *a) HASH_TOP_LOOP_SND
+	HASH_چوٹی_LOOP_FST (ثابت خالی *a) HASH_چوٹی_LOOP_SND
 };
 
-struct hash_obj_ops {
-	static inline bool cmp(const void *a, const void *b) {
-		return a == b;
+ساخت hash_obj_ops {
+	ساکن اندرونی bool cmp(ثابت خالی *a, ثابت خالی *b) {
+		واپس a == b;
 	}
-	template<typename T>
-	[[nodiscard]] static inline Hasher hash_into(const T *a, Hasher h) {
-		if (a)
+	سانچہ<typename T>
+	[[nodiscard]] ساکن اندرونی Hasher hash_into(ثابت T *a, Hasher h) {
+		اگر (a)
 			h = a->hash_into(h);
-		else
+		ورنہ
 			h.eat(0);
-		return h;
+		واپس h;
 	}
-	template<typename T>
-	HASH_TOP_LOOP_FST (const T *a) HASH_TOP_LOOP_SND
+	سانچہ<typename T>
+	HASH_چوٹی_LOOP_FST (ثابت T *a) HASH_چوٹی_LOOP_SND
 };
 /**
  * If you find yourself using this function, think hard
@@ -296,57 +296,57 @@ struct hash_obj_ops {
  * hashes together with XORs or worse can destroy
  * desirable qualities of the hash function
  */
-template<typename T>
+سانچہ<typename T>
 [[nodiscard]]
-Hasher::hash_t run_hash(const T& obj) {
-	return hash_ops<T>::hash(obj).yield();
+Hasher::hash_t تسلسل_hash(ثابت T& obj) {
+	واپس hash_ops<T>::hash(obj).yield();
 }
 
 /** Refer to docs/source/yosys_internals/hashing.rst */
-template<typename T>
+سانچہ<typename T>
 [[nodiscard]]
 [[deprecated]]
-inline unsigned int mkhash(const T &v) {
-	return (unsigned int) run_hash<T>(v);
+اندرونی غیرعلامتی صحیح mkhash(ثابت T &v) {
+	واپس (غیرعلامتی صحیح) تسلسل_hash<T>(v);
 }
 
-template<> struct hash_ops<std::monostate> {
-	static inline bool cmp(std::monostate a, std::monostate b) {
-		return a == b;
+سانچہ<> ساخت hash_ops<std::monostate> {
+	ساکن اندرونی bool cmp(std::monostate a, std::monostate b) {
+		واپس a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(std::monostate, Hasher h) {
-		return h;
-	}
-};
-
-template<typename... T> struct hash_ops<std::variant<T...>> {
-	static inline bool cmp(const std::variant<T...> &a, const std::variant<T...> &b) {
-		return a == b;
-	}
-	[[nodiscard]] static inline Hasher hash_into(const std::variant<T...> &a, Hasher h) {
-		std::visit([& h](const auto &v) { h.eat(v); }, a);
-		h.eat(a.index());
-		return h;
+	[[nodiscard]] ساکن اندرونی Hasher hash_into(std::monostate, Hasher h) {
+		واپس h;
 	}
 };
 
-template<typename T> struct hash_ops<std::optional<T>> {
-	static inline bool cmp(const std::optional<T> &a, const std::optional<T> &b) {
-		return a == b;
+سانچہ<typename... T> ساخت hash_ops<std::variant<T...>> {
+	ساکن اندرونی bool cmp(ثابت std::variant<T...> &a, ثابت std::variant<T...> &b) {
+		واپس a == b;
 	}
-	[[nodiscard]] static inline Hasher hash_into(const std::optional<T> &a, Hasher h) {
-		if(a.has_value())
+	[[nodiscard]] ساکن اندرونی Hasher hash_into(ثابت std::variant<T...> &a, Hasher h) {
+		std::دورہ([& h](ثابت خودکار &v) { h.eat(v); }, a);
+		h.eat(a.اشاریہ());
+		واپس h;
+	}
+};
+
+سانچہ<typename T> ساخت hash_ops<std::optional<T>> {
+	ساکن اندرونی bool cmp(ثابت std::optional<T> &a, ثابت std::optional<T> &b) {
+		واپس a == b;
+	}
+	[[nodiscard]] ساکن اندرونی Hasher hash_into(ثابت std::optional<T> &a, Hasher h) {
+		اگر(a.has_قدر())
 			h.eat(*a);
-		else
+		ورنہ
 			h.eat(0);
-		return h;
+		واپس h;
 	}
 };
 
-inline unsigned int hashtable_size(unsigned int min_size)
+اندرونی غیرعلامتی صحیح hashtable_سائز(غیرعلامتی صحیح min_سائز)
 {
 	// Primes as generated by https://oeis.org/A175953
-	static std::vector<unsigned int> zero_and_some_primes = {
+	ساکن std::سمتیہ<غیرعلامتی صحیح> zero_and_some_مفرد_اعداد = {
 		0, 23, 29, 37, 47, 59, 79, 101, 127, 163, 211, 269, 337, 431, 541, 677,
 		853, 1069, 1361, 1709, 2137, 2677, 3347, 4201, 5261, 6577, 8231, 10289,
 		12889, 16127, 20161, 25219, 31531, 39419, 49277, 61603, 77017, 96281,
@@ -359,280 +359,280 @@ inline unsigned int hashtable_size(unsigned int min_size)
 		1769372713, 2211715897, 2764644887, 3455806139
 	};
 
-	for (auto p : zero_and_some_primes)
-		if (p >= min_size) return p;
+	برائے (خودکار p : zero_and_some_مفرد_اعداد)
+		اگر (p >= min_سائز) واپس p;
 
-	if (sizeof(unsigned int) == 4)
-		throw std::length_error("hash table exceeded maximum size.\nDesign is likely too large for yosys to handle, if possible try not to flatten the design.");
+	اگر (حجم(غیرعلامتی صحیح) == 4)
+		throw std::لمبائی_error("hash table exceeded maximum size.\nDesign is likely too large for yosys to handle, if possible try not to flatten the design.");
 
-	for (auto p : zero_and_some_primes)
-		if (100129 * p > min_size) return 100129 * p;
+	برائے (خودکار p : zero_and_some_مفرد_اعداد)
+		اگر (100129 * p > min_سائز) واپس 100129 * p;
 
-	throw std::length_error("hash table exceeded maximum size.");
+	throw std::لمبائی_error("hash table exceeded maximum size.");
 }
 
-template<typename K, typename T, typename OPS = hash_ops<K>> class dict;
-template<typename K, int offset = 0, typename OPS = hash_ops<K>> class idict;
-template<typename K, typename OPS = hash_ops<K>> class pool;
-template<typename K, typename OPS = hash_ops<K>> class mfp;
+سانچہ<typename K, typename T, typename OPS = hash_ops<K>> class dict;
+سانچہ<typename K, صحیح انحراف = 0, typename OPS = hash_ops<K>> class idict;
+سانچہ<typename K, typename OPS = hash_ops<K>> class pool;
+سانچہ<typename K, typename OPS = hash_ops<K>> class mfp;
 
 // Computes the hash value of an unordered set of elements.
 // See https://www.preprints.org/manuscript/201710.0192/v1/download.
 // This is the Sum(4) algorithm from that paper, which has good collision resistance,
 // much better than Sum(1) or Xor(1) (and somewhat better than Xor(4)).
 class commutative_hash {
-public:
+عوامی:
 	commutative_hash() {
 		buckets.fill(0);
 	}
-	template <typename T>
-	void eat(const T &obj) {
+	سانچہ <typename T>
+	خالی eat(ثابت T &obj) {
 		eat(hash_ops<T>::hash(obj));
 	}
-	void eat(const Hasher &h) {
+	خالی eat(ثابت Hasher &h) {
 		Hasher::hash_t v = h.yield();
-		size_t index = v & (buckets.size() - 1);
-		buckets[index] += v;
+		سائز_t اشاریہ = v & (buckets.سائز() - 1);
+		buckets[اشاریہ] += v;
 	}
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
-		for (auto b : buckets)
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
+		برائے (خودکار b : buckets)
 			h.eat(b);
-		return h;
+		واپس h;
 	}
-private:
+نجی:
 	std::array<Hasher::hash_t, 4> buckets;
 };
 
-template<typename K, typename T, typename OPS>
-class HASHLIB_ATTRIBUTE_WARN_UNUSED dict {
-	struct entry_t
+سانچہ<typename K, typename T, typename OPS>
+class HASHLIB_ATTRIBUTE_WARN_غیر_مستعمل dict {
+	ساخت اندراج_t
 	{
 		std::pair<K, T> udata;
-		int next;
+		صحیح اگلا;
 
-		entry_t() { }
-		entry_t(const std::pair<K, T> &udata, int next) : udata(udata), next(next) { }
-		entry_t(std::pair<K, T> &&udata, int next) : udata(std::move(udata)), next(next) { }
-		bool operator<(const entry_t &other) const { return udata.first < other.udata.first; }
+		اندراج_t() { }
+		اندراج_t(ثابت std::pair<K, T> &udata, صحیح اگلا) : udata(udata), اگلا(اگلا) { }
+		اندراج_t(std::pair<K, T> &&udata, صحیح اگلا) : udata(std::move(udata)), اگلا(اگلا) { }
+		bool عامل<(ثابت اندراج_t &other) ثابت { واپس udata.پہلا < other.udata.پہلا; }
 	};
 
-	std::vector<int> hashtable;
-	std::vector<entry_t> entries;
+	std::سمتیہ<صحیح> hashtable;
+	std::سمتیہ<اندراج_t> entries;
 	OPS ops;
 	static_assert(std::is_nothrow_default_constructible_v<OPS>, "move ops are noexcept and default-construct OPS");
 
-#ifdef NDEBUG
-	static inline void do_assert(bool) { }
-#else
-	static inline void do_assert(bool cond) {
-		if (!cond) throw std::runtime_error("dict<> assert failed.");
+#اگر_تعریف_شدہ NDEBUG
+	ساکن اندرونی خالی do_assert(bool) { }
+#ورنہ
+	ساکن اندرونی خالی do_assert(bool cond) {
+		اگر (!cond) throw std::runtime_error("dict<> assert failed.");
 	}
-#endif
+#اگر_ختم
 
-	Hasher::hash_t do_hash(const K &key) const
+	Hasher::hash_t do_hash(ثابت K &کلید) ثابت
 	{
 		Hasher::hash_t hash = 0;
-		if (!hashtable.empty())
-			hash = ops.hash(key).yield() % (unsigned int)(hashtable.size());
-		return hash;
+		اگر (!hashtable.خالی_خانے())
+			hash = ops.hash(کلید).yield() % (غیرعلامتی صحیح)(hashtable.سائز());
+		واپس hash;
 	}
 
-	void do_rehash()
+	خالی do_rehash()
 	{
 		hashtable.clear();
-		hashtable.resize(hashtable_size(entries.capacity() * hashtable_size_factor), -1);
+		hashtable.resize(hashtable_سائز(entries.استعداد() * hashtable_سائز_ضربی_عدد), -1);
 
-		for (int i = 0; i < int(entries.size()); i++) {
-			do_assert(-1 <= entries[i].next && entries[i].next < int(entries.size()));
-			Hasher::hash_t hash = do_hash(entries[i].udata.first);
-			entries[i].next = hashtable[hash];
+		برائے (صحیح i = 0; i < صحیح(entries.سائز()); i++) {
+			do_assert(-1 <= entries[i].اگلا && entries[i].اگلا < صحیح(entries.سائز()));
+			Hasher::hash_t hash = do_hash(entries[i].udata.پہلا);
+			entries[i].اگلا = hashtable[hash];
 			hashtable[hash] = i;
 		}
 	}
 
-	int do_erase(int index, Hasher::hash_t hash)
+	صحیح do_erase(صحیح اشاریہ, Hasher::hash_t hash)
 	{
-		do_assert(index < int(entries.size()));
-		if (hashtable.empty() || index < 0)
-			return 0;
+		do_assert(اشاریہ < صحیح(entries.سائز()));
+		اگر (hashtable.خالی_خانے() || اشاریہ < 0)
+			واپس 0;
 
-		int k = hashtable[hash];
-		do_assert(0 <= k && k < int(entries.size()));
+		صحیح k = hashtable[hash];
+		do_assert(0 <= k && k < صحیح(entries.سائز()));
 
-		if (k == index) {
-			hashtable[hash] = entries[index].next;
-		} else {
-			while (entries[k].next != index) {
-				k = entries[k].next;
-				do_assert(0 <= k && k < int(entries.size()));
+		اگر (k == اشاریہ) {
+			hashtable[hash] = entries[اشاریہ].اگلا;
+		} ورنہ {
+			جب (entries[k].اگلا != اشاریہ) {
+				k = entries[k].اگلا;
+				do_assert(0 <= k && k < صحیح(entries.سائز()));
 			}
-			entries[k].next = entries[index].next;
+			entries[k].اگلا = entries[اشاریہ].اگلا;
 		}
 
-		int back_idx = entries.size()-1;
+		صحیح عقب_idx = entries.سائز()-1;
 
-		if (index != back_idx)
+		اگر (اشاریہ != عقب_idx)
 		{
-			Hasher::hash_t back_hash = do_hash(entries[back_idx].udata.first);
+			Hasher::hash_t عقب_hash = do_hash(entries[عقب_idx].udata.پہلا);
 
-			k = hashtable[back_hash];
-			do_assert(0 <= k && k < int(entries.size()));
+			k = hashtable[عقب_hash];
+			do_assert(0 <= k && k < صحیح(entries.سائز()));
 
-			if (k == back_idx) {
-				hashtable[back_hash] = index;
-			} else {
-				while (entries[k].next != back_idx) {
-					k = entries[k].next;
-					do_assert(0 <= k && k < int(entries.size()));
+			اگر (k == عقب_idx) {
+				hashtable[عقب_hash] = اشاریہ;
+			} ورنہ {
+				جب (entries[k].اگلا != عقب_idx) {
+					k = entries[k].اگلا;
+					do_assert(0 <= k && k < صحیح(entries.سائز()));
 				}
-				entries[k].next = index;
+				entries[k].اگلا = اشاریہ;
 			}
 
-			entries[index] = std::move(entries[back_idx]);
+			entries[اشاریہ] = std::move(entries[عقب_idx]);
 		}
 
-		entries.pop_back();
+		entries.نکالو_عقب();
 
-		if (entries.empty())
+		اگر (entries.خالی_خانے())
 			hashtable.clear();
 
-		return 1;
+		واپس 1;
 	}
 
-	int do_lookup(const K &key, Hasher::hash_t &hash)
+	صحیح do_lookup(ثابت K &کلید, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty())
-			return -1;
+		اگر (hashtable.خالی_خانے())
+			واپس -1;
 
-		if (entries.size() * hashtable_size_trigger > hashtable.size()) {
+		اگر (entries.سائز() * hashtable_سائز_trigger > hashtable.سائز()) {
 			do_rehash();
-			hash = do_hash(key);
+			hash = do_hash(کلید);
 		}
 
-		return do_lookup_internal(key, hash);
+		واپس do_lookup_اندرونی(کلید, hash);
 	}
 
-	int do_lookup_internal(const K &key, Hasher::hash_t hash) const
+	صحیح do_lookup_اندرونی(ثابت K &کلید, Hasher::hash_t hash) ثابت
 	{
-		int index = hashtable[hash];
+		صحیح اشاریہ = hashtable[hash];
 
-		while (index >= 0 && !ops.cmp(entries[index].udata.first, key)) {
-			index = entries[index].next;
-			do_assert(-1 <= index && index < int(entries.size()));
+		جب (اشاریہ >= 0 && !ops.cmp(entries[اشاریہ].udata.پہلا, کلید)) {
+			اشاریہ = entries[اشاریہ].اگلا;
+			do_assert(-1 <= اشاریہ && اشاریہ < صحیح(entries.سائز()));
 		}
 
-		return index;
+		واپس اشاریہ;
 	}
 
-	int do_lookup_no_rehash(const K &key, Hasher::hash_t hash) const
+	صحیح do_lookup_no_rehash(ثابت K &کلید, Hasher::hash_t hash) ثابت
 	{
-		if (hashtable.empty())
-			return -1;
+		اگر (hashtable.خالی_خانے())
+			واپس -1;
 
-		return do_lookup_internal(key, hash);
+		واپس do_lookup_اندرونی(کلید, hash);
 	}
 
-	int do_insert(const K &key, const Hasher::hash_t &hash)
+	صحیح do_داخل_کرو(ثابت K &کلید, ثابت Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
-			entries.emplace_back(std::pair<K, T>(key, T()), -1);
+		اگر (hashtable.خالی_خانے()) {
+			entries.emplace_عقب(std::pair<K, T>(کلید, T()), -1);
 			do_rehash();
-		} else {
-			entries.emplace_back(std::pair<K, T>(key, T()), hashtable[hash]);
-			hashtable[hash] = entries.size() - 1;
+		} ورنہ {
+			entries.emplace_عقب(std::pair<K, T>(کلید, T()), hashtable[hash]);
+			hashtable[hash] = entries.سائز() - 1;
 		}
-		return entries.size() - 1;
+		واپس entries.سائز() - 1;
 	}
 
-	int do_insert(const std::pair<K, T> &value, const Hasher::hash_t &hash)
+	صحیح do_داخل_کرو(ثابت std::pair<K, T> &قدر, ثابت Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
-			entries.emplace_back(value, -1);
+		اگر (hashtable.خالی_خانے()) {
+			entries.emplace_عقب(قدر, -1);
 			do_rehash();
-		} else {
-			entries.emplace_back(value, hashtable[hash]);
-			hashtable[hash] = entries.size() - 1;
+		} ورنہ {
+			entries.emplace_عقب(قدر, hashtable[hash]);
+			hashtable[hash] = entries.سائز() - 1;
 		}
-		return entries.size() - 1;
+		واپس entries.سائز() - 1;
 	}
 
-	int do_insert(std::pair<K, T> &&rvalue, const Hasher::hash_t &hash)
+	صحیح do_داخل_کرو(std::pair<K, T> &&rvalue, ثابت Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
-			entries.emplace_back(std::forward<std::pair<K, T>>(rvalue), -1);
+		اگر (hashtable.خالی_خانے()) {
+			entries.emplace_عقب(std::forward<std::pair<K, T>>(rvalue), -1);
 			do_rehash();
-		} else {
-			entries.emplace_back(std::forward<std::pair<K, T>>(rvalue), hashtable[hash]);
-			hashtable[hash] = entries.size() - 1;
+		} ورنہ {
+			entries.emplace_عقب(std::forward<std::pair<K, T>>(rvalue), hashtable[hash]);
+			hashtable[hash] = entries.سائز() - 1;
 		}
-		return entries.size() - 1;
+		واپس entries.سائز() - 1;
 	}
 
-public:
+عوامی:
 	class const_iterator
 	{
-		friend class dict;
-	protected:
-		const dict *ptr;
-		int index;
-		const_iterator(const dict *ptr, int index) : ptr(ptr), index(index) { }
-	public:
-		typedef std::bidirectional_iterator_tag iterator_category;
-		typedef std::pair<K, T> value_type;
-		typedef ptrdiff_t difference_type;
-		typedef const std::pair<K, T>* pointer;
-		typedef const std::pair<K, T>& reference;
+		دوست class dict;
+	محفوظ:
+		ثابت dict *ptr;
+		صحیح اشاریہ;
+		const_iterator(ثابت dict *ptr, صحیح اشاریہ) : ptr(ptr), اشاریہ(اشاریہ) { }
+	عوامی:
+		قسمتعریف std::bidirectional_iterator_لیبل iterator_category;
+		قسمتعریف std::pair<K, T> قدر_type;
+		قسمتعریف ptrdiff_t difference_type;
+		قسمتعریف ثابت std::pair<K, T>* اشارہ_گر;
+		قسمتعریف ثابت std::pair<K, T>& reference;
 		const_iterator() { }
-		const_iterator operator++() { index--; return *this; }
-		const_iterator operator++(int) { const_iterator tmp = *this; index--; return tmp; }
-		const_iterator operator--() { index++; return *this; }
-		const_iterator operator--(int) { const_iterator tmp = *this; index++; return tmp; }
-		const_iterator operator+=(int amt) { index -= amt; return *this; }
-		bool operator<(const const_iterator &other) const { return index > other.index; }
-		bool operator==(const const_iterator &other) const { return index == other.index; }
-		bool operator!=(const const_iterator &other) const { return index != other.index; }
-		const std::pair<K, T> &operator*() const { return ptr->entries[index].udata; }
-		const std::pair<K, T> *operator->() const { return &ptr->entries[index].udata; }
+		const_iterator عامل++() { اشاریہ--; واپس *this; }
+		const_iterator عامل++(صحیح) { const_iterator tmp = *this; اشاریہ--; واپس tmp; }
+		const_iterator عامل--() { اشاریہ++; واپس *this; }
+		const_iterator عامل--(صحیح) { const_iterator tmp = *this; اشاریہ++; واپس tmp; }
+		const_iterator عامل+=(صحیح amt) { اشاریہ -= amt; واپس *this; }
+		bool عامل<(ثابت const_iterator &other) ثابت { واپس اشاریہ > other.اشاریہ; }
+		bool عامل==(ثابت const_iterator &other) ثابت { واپس اشاریہ == other.اشاریہ; }
+		bool عامل!=(ثابت const_iterator &other) ثابت { واپس اشاریہ != other.اشاریہ; }
+		ثابت std::pair<K, T> &عامل*() ثابت { واپس ptr->entries[اشاریہ].udata; }
+		ثابت std::pair<K, T> *عامل->() ثابت { واپس &ptr->entries[اشاریہ].udata; }
 	};
 
 	class iterator
 	{
-		friend class dict;
-	protected:
+		دوست class dict;
+	محفوظ:
 		dict *ptr;
-		int index;
-		iterator(dict *ptr, int index) : ptr(ptr), index(index) { }
-	public:
-		typedef std::forward_iterator_tag iterator_category;
-		typedef std::pair<K, T> value_type;
-		typedef ptrdiff_t difference_type;
-		typedef std::pair<K, T>* pointer;
-		typedef std::pair<K, T>& reference;
+		صحیح اشاریہ;
+		iterator(dict *ptr, صحیح اشاریہ) : ptr(ptr), اشاریہ(اشاریہ) { }
+	عوامی:
+		قسمتعریف std::forward_iterator_لیبل iterator_category;
+		قسمتعریف std::pair<K, T> قدر_type;
+		قسمتعریف ptrdiff_t difference_type;
+		قسمتعریف std::pair<K, T>* اشارہ_گر;
+		قسمتعریف std::pair<K, T>& reference;
 		iterator() { }
-		iterator operator++() { index--; return *this; }
-		iterator operator+=(int amt) { index -= amt; return *this; }
-		bool operator<(const iterator &other) const { return index > other.index; }
-		bool operator==(const iterator &other) const { return index == other.index; }
-		bool operator!=(const iterator &other) const { return index != other.index; }
-		std::pair<K, T> &operator*() { return ptr->entries[index].udata; }
-		std::pair<K, T> *operator->() { return &ptr->entries[index].udata; }
-		const std::pair<K, T> &operator*() const { return ptr->entries[index].udata; }
-		const std::pair<K, T> *operator->() const { return &ptr->entries[index].udata; }
-		operator const_iterator() const { return const_iterator(ptr, index); }
+		iterator عامل++() { اشاریہ--; واپس *this; }
+		iterator عامل+=(صحیح amt) { اشاریہ -= amt; واپس *this; }
+		bool عامل<(ثابت iterator &other) ثابت { واپس اشاریہ > other.اشاریہ; }
+		bool عامل==(ثابت iterator &other) ثابت { واپس اشاریہ == other.اشاریہ; }
+		bool عامل!=(ثابت iterator &other) ثابت { واپس اشاریہ != other.اشاریہ; }
+		std::pair<K, T> &عامل*() { واپس ptr->entries[اشاریہ].udata; }
+		std::pair<K, T> *عامل->() { واپس &ptr->entries[اشاریہ].udata; }
+		ثابت std::pair<K, T> &عامل*() ثابت { واپس ptr->entries[اشاریہ].udata; }
+		ثابت std::pair<K, T> *عامل->() ثابت { واپس &ptr->entries[اشاریہ].udata; }
+		عامل const_iterator() ثابت { واپس const_iterator(ptr, اشاریہ); }
 	};
-	using reverse_iterator = std::reverse_iterator<const_iterator>;
-	reverse_iterator rbegin() const {
-		return std::make_reverse_iterator(end());
+	using الٹ_iterator = std::الٹ_iterator<const_iterator>;
+	الٹ_iterator rbegin() ثابت {
+		واپس std::make_الٹ_iterator(انتہا());
 	}
-	reverse_iterator rend() const {
-		return std::make_reverse_iterator(begin());
+	الٹ_iterator rend() ثابت {
+		واپس std::make_الٹ_iterator(begin());
 	}
 
 	constexpr dict()
 	{
 	}
 
-	dict(const dict &other)
+	dict(ثابت dict &other)
 	{
 		entries = other.entries;
 		do_rehash();
@@ -640,450 +640,450 @@ public:
 
 	dict(dict &&other) noexcept
 	{
-		swap(other);
+		تبادلہ(other);
 	}
 
-	dict &operator=(const dict &other) {
+	dict &عامل=(ثابت dict &other) {
 		entries = other.entries;
 		do_rehash();
-		return *this;
+		واپس *this;
 	}
 
-	dict &operator=(dict &&other) noexcept {
+	dict &عامل=(dict &&other) noexcept {
 		clear();
-		swap(other);
-		return *this;
+		تبادلہ(other);
+		واپس *this;
 	}
 
-	dict(const std::initializer_list<std::pair<K, T>> &list)
+	dict(ثابت std::initializer_list<std::pair<K, T>> &list)
 	{
-		for (auto &it : list)
-			insert(it);
+		برائے (خودکار &it : list)
+			داخل_کرو(it);
 	}
 
-	template<class InputIterator>
-	dict(InputIterator first, InputIterator last)
+	سانچہ<class داخلہ_Iterator>
+	dict(داخلہ_Iterator پہلا, داخلہ_Iterator آخری)
 	{
-		insert(first, last);
+		داخل_کرو(پہلا, آخری);
 	}
 
-	template<class InputIterator>
-	void insert(InputIterator first, InputIterator last)
+	سانچہ<class داخلہ_Iterator>
+	خالی داخل_کرو(داخلہ_Iterator پہلا, داخلہ_Iterator آخری)
 	{
-		for (; first != last; ++first)
-			insert(*first);
+		برائے (; پہلا != آخری; ++پہلا)
+			داخل_کرو(*پہلا);
 	}
 
-	std::pair<iterator, bool> insert(const K &key)
+	std::pair<iterator, bool> داخل_کرو(ثابت K &کلید)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(key, hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup(کلید, hash);
+		اگر (i >= 0)
+			واپس std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_داخل_کرو(کلید, hash);
+		واپس std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> insert(const std::pair<K, T> &value)
+	std::pair<iterator, bool> داخل_کرو(ثابت std::pair<K, T> &قدر)
 	{
-		Hasher::hash_t hash = do_hash(value.first);
-		int i = do_lookup(value.first, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(value, hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		Hasher::hash_t hash = do_hash(قدر.پہلا);
+		صحیح i = do_lookup(قدر.پہلا, hash);
+		اگر (i >= 0)
+			واپس std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_داخل_کرو(قدر, hash);
+		واپس std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> insert(std::pair<K, T> &&rvalue)
+	std::pair<iterator, bool> داخل_کرو(std::pair<K, T> &&rvalue)
 	{
-		Hasher::hash_t hash = do_hash(rvalue.first);
-		int i = do_lookup(rvalue.first, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::forward<std::pair<K, T>>(rvalue), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		Hasher::hash_t hash = do_hash(rvalue.پہلا);
+		صحیح i = do_lookup(rvalue.پہلا, hash);
+		اگر (i >= 0)
+			واپس std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_داخل_کرو(std::forward<std::pair<K, T>>(rvalue), hash);
+		واپس std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> emplace(K const &key, T const &value)
+	std::pair<iterator, bool> emplace(K ثابت &کلید, T ثابت &قدر)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::make_pair(key, value), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup(کلید, hash);
+		اگر (i >= 0)
+			واپس std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_داخل_کرو(std::make_pair(کلید, قدر), hash);
+		واپس std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> emplace(K const &key, T &&rvalue)
+	std::pair<iterator, bool> emplace(K ثابت &کلید, T &&rvalue)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::make_pair(key, std::forward<T>(rvalue)), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup(کلید, hash);
+		اگر (i >= 0)
+			واپس std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_داخل_کرو(std::make_pair(کلید, std::forward<T>(rvalue)), hash);
+		واپس std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> emplace(K &&rkey, T const &value)
+	std::pair<iterator, bool> emplace(K &&rkey, T ثابت &قدر)
 	{
 		Hasher::hash_t hash = do_hash(rkey);
-		int i = do_lookup(rkey, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::make_pair(std::forward<K>(rkey), value), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		صحیح i = do_lookup(rkey, hash);
+		اگر (i >= 0)
+			واپس std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_داخل_کرو(std::make_pair(std::forward<K>(rkey), قدر), hash);
+		واپس std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> emplace(K &&rkey, T &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(rkey);
-		int i = do_lookup(rkey, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::make_pair(std::forward<K>(rkey), std::forward<T>(rvalue)), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		صحیح i = do_lookup(rkey, hash);
+		اگر (i >= 0)
+			واپس std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_داخل_کرو(std::make_pair(std::forward<K>(rkey), std::forward<T>(rvalue)), hash);
+		واپس std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	int erase(const K &key)
+	صحیح erase(ثابت K &کلید)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int index = do_lookup(key, hash);
-		return do_erase(index, hash);
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح اشاریہ = do_lookup(کلید, hash);
+		واپس do_erase(اشاریہ, hash);
 	}
 
 	iterator erase(iterator it)
 	{
-		Hasher::hash_t hash = do_hash(it->first);
-		do_erase(it.index, hash);
-		return ++it;
+		Hasher::hash_t hash = do_hash(it->پہلا);
+		do_erase(it.اشاریہ, hash);
+		واپس ++it;
 	}
 
-	int count(const K &key) const
+	صحیح گنتی(ثابت K &کلید) ثابت
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 ? 0 : 1;
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup_no_rehash(کلید, hash);
+		واپس i < 0 ? 0 : 1;
 	}
 
-	int count(const K &key, const_iterator it) const
+	صحیح گنتی(ثابت K &کلید, const_iterator it) ثابت
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 || i > it.index ? 0 : 1;
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup_no_rehash(کلید, hash);
+		واپس i < 0 || i > it.اشاریہ ? 0 : 1;
 	}
 
-	iterator find(const K &key)
+	iterator ڈھونڈو(ثابت K &کلید)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
-			return end();
-		return iterator(this, i);
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup(کلید, hash);
+		اگر (i < 0)
+			واپس انتہا();
+		واپس iterator(this, i);
 	}
 
-	const_iterator find(const K &key) const
+	const_iterator ڈھونڈو(ثابت K &کلید) ثابت
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return end();
-		return const_iterator(this, i);
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup_no_rehash(کلید, hash);
+		اگر (i < 0)
+			واپس انتہا();
+		واپس const_iterator(this, i);
 	}
 
-	T& at(const K &key)
+	T& at(ثابت K &کلید)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
-			throw std::out_of_range("dict::at()");
-		return entries[i].udata.second;
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup(کلید, hash);
+		اگر (i < 0)
+			throw std::برآمد_کا_range("dict::at()");
+		واپس entries[i].udata.دوسرا;
 	}
 
-	const T& at(const K &key) const
+	ثابت T& at(ثابت K &کلید) ثابت
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			throw std::out_of_range("dict::at()");
-		return entries[i].udata.second;
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup_no_rehash(کلید, hash);
+		اگر (i < 0)
+			throw std::برآمد_کا_range("dict::at()");
+		واپس entries[i].udata.دوسرا;
 	}
 
-	const T& at(const K &key, const T &defval) const
+	ثابت T& at(ثابت K &کلید, ثابت T &defval) ثابت
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return defval;
-		return entries[i].udata.second;
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup_no_rehash(کلید, hash);
+		اگر (i < 0)
+			واپس defval;
+		واپس entries[i].udata.دوسرا;
 	}
 
-	T& operator[](const K &key)
+	T& عامل[](ثابت K &کلید)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
-			i = do_insert(std::pair<K, T>(key, T()), hash);
-		return entries[i].udata.second;
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup(کلید, hash);
+		اگر (i < 0)
+			i = do_داخل_کرو(std::pair<K, T>(کلید, T()), hash);
+		واپس entries[i].udata.دوسرا;
 	}
 
-	template<typename Compare = std::less<K>>
-	void sort(Compare comp = Compare())
+	سانچہ<typename Compare = std::less<K>>
+	خالی ترتیب_دو(Compare comp = Compare())
 	{
-		std::sort(entries.begin(), entries.end(), [comp](const entry_t &a, const entry_t &b){ return comp(b.udata.first, a.udata.first); });
+		std::ترتیب_دو(entries.begin(), entries.انتہا(), [comp](ثابت اندراج_t &a, ثابت اندراج_t &b){ واپس comp(b.udata.پہلا, a.udata.پہلا); });
 		do_rehash();
 	}
 
-	void swap(dict &other)
+	خالی تبادلہ(dict &other)
 	{
-		hashtable.swap(other.hashtable);
-		entries.swap(other.entries);
+		hashtable.تبادلہ(other.hashtable);
+		entries.تبادلہ(other.entries);
 	}
 
-	bool operator==(const dict &other) const {
-		if (size() != other.size())
-			return false;
-		for (auto &it : entries) {
-			auto oit = other.find(it.udata.first);
-			if (oit == other.end() || !(oit->second == it.udata.second))
-				return false;
+	bool عامل==(ثابت dict &other) ثابت {
+		اگر (سائز() != other.سائز())
+			واپس false;
+		برائے (خودکار &it : entries) {
+			خودکار oit = other.ڈھونڈو(it.udata.پہلا);
+			اگر (oit == other.انتہا() || !(oit->دوسرا == it.udata.دوسرا))
+				واپس false;
 		}
-		return true;
+		واپس true;
 	}
 
-	bool operator!=(const dict &other) const {
-		return !operator==(other);
+	bool عامل!=(ثابت dict &other) ثابت {
+		واپس !عامل==(other);
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
 		commutative_hash comm;
-		for (auto &it : entries) {
-			Hasher entry_hash;
-			entry_hash.eat(it.udata.first);
-			entry_hash.eat(it.udata.second);
-			comm.eat(entry_hash);
+		برائے (خودکار &it : entries) {
+			Hasher اندراج_hash;
+			اندراج_hash.eat(it.udata.پہلا);
+			اندراج_hash.eat(it.udata.دوسرا);
+			comm.eat(اندراج_hash);
 		}
-		return comm.hash_into(h);
+		واپس comm.hash_into(h);
 	}
 
-	void reserve(size_t n) { entries.reserve(n); }
-	size_t size() const { return entries.size(); }
-	bool empty() const { return entries.empty(); }
-	void clear() { hashtable.clear(); entries.clear(); }
+	خالی reserve(سائز_t n) { entries.reserve(n); }
+	سائز_t سائز() ثابت { واپس entries.سائز(); }
+	bool خالی_خانے() ثابت { واپس entries.خالی_خانے(); }
+	خالی clear() { hashtable.clear(); entries.clear(); }
 
-	iterator begin() { return iterator(this, int(entries.size())-1); }
-	iterator element(int n) { return iterator(this, int(entries.size())-1-n); }
-	iterator end() { return iterator(nullptr, -1); }
+	iterator begin() { واپس iterator(this, صحیح(entries.سائز())-1); }
+	iterator element(صحیح n) { واپس iterator(this, صحیح(entries.سائز())-1-n); }
+	iterator انتہا() { واپس iterator(nullptr, -1); }
 
-	const_iterator begin() const { return const_iterator(this, int(entries.size())-1); }
-	const_iterator element(int n) const { return const_iterator(this, int(entries.size())-1-n); }
-	const_iterator end() const { return const_iterator(this, -1); }
+	const_iterator begin() ثابت { واپس const_iterator(this, صحیح(entries.سائز())-1); }
+	const_iterator element(صحیح n) ثابت { واپس const_iterator(this, صحیح(entries.سائز())-1-n); }
+	const_iterator انتہا() ثابت { واپس const_iterator(this, -1); }
 };
 
-template<typename K, typename OPS>
-class HASHLIB_ATTRIBUTE_WARN_UNUSED pool
+سانچہ<typename K, typename OPS>
+class HASHLIB_ATTRIBUTE_WARN_غیر_مستعمل pool
 {
-	template<typename, int, typename> friend class idict;
+	سانچہ<typename, صحیح, typename> دوست class idict;
 
-protected:
-	struct entry_t
+محفوظ:
+	ساخت اندراج_t
 	{
 		K udata;
-		int next;
+		صحیح اگلا;
 
-		entry_t() { }
-		entry_t(const K &udata, int next) : udata(udata), next(next) { }
-		entry_t(K &&udata, int next) : udata(std::move(udata)), next(next) { }
+		اندراج_t() { }
+		اندراج_t(ثابت K &udata, صحیح اگلا) : udata(udata), اگلا(اگلا) { }
+		اندراج_t(K &&udata, صحیح اگلا) : udata(std::move(udata)), اگلا(اگلا) { }
 	};
 
-	std::vector<int> hashtable;
-	std::vector<entry_t> entries;
+	std::سمتیہ<صحیح> hashtable;
+	std::سمتیہ<اندراج_t> entries;
 	OPS ops;
 	static_assert(std::is_nothrow_default_constructible_v<OPS>, "move ops are noexcept and default-construct OPS");
 
-#ifdef NDEBUG
-	static inline void do_assert(bool) { }
-#else
-	static inline void do_assert(bool cond) {
-		if (!cond) throw std::runtime_error("pool<> assert failed.");
+#اگر_تعریف_شدہ NDEBUG
+	ساکن اندرونی خالی do_assert(bool) { }
+#ورنہ
+	ساکن اندرونی خالی do_assert(bool cond) {
+		اگر (!cond) throw std::runtime_error("pool<> assert failed.");
 	}
-#endif
+#اگر_ختم
 
-	Hasher::hash_t do_hash(const K &key) const
+	Hasher::hash_t do_hash(ثابت K &کلید) ثابت
 	{
 		Hasher::hash_t hash = 0;
-		if (!hashtable.empty())
-			hash = ops.hash(key).yield() % (unsigned int)(hashtable.size());
-		return hash;
+		اگر (!hashtable.خالی_خانے())
+			hash = ops.hash(کلید).yield() % (غیرعلامتی صحیح)(hashtable.سائز());
+		واپس hash;
 	}
 
-	void do_rehash()
+	خالی do_rehash()
 	{
 		hashtable.clear();
-		hashtable.resize(hashtable_size(entries.capacity() * hashtable_size_factor), -1);
+		hashtable.resize(hashtable_سائز(entries.استعداد() * hashtable_سائز_ضربی_عدد), -1);
 
-		for (int i = 0; i < int(entries.size()); i++) {
-			do_assert(-1 <= entries[i].next && entries[i].next < int(entries.size()));
+		برائے (صحیح i = 0; i < صحیح(entries.سائز()); i++) {
+			do_assert(-1 <= entries[i].اگلا && entries[i].اگلا < صحیح(entries.سائز()));
 			Hasher::hash_t hash = do_hash(entries[i].udata);
-			entries[i].next = hashtable[hash];
+			entries[i].اگلا = hashtable[hash];
 			hashtable[hash] = i;
 		}
 	}
 
-	int do_erase(int index, Hasher::hash_t hash)
+	صحیح do_erase(صحیح اشاریہ, Hasher::hash_t hash)
 	{
-		do_assert(index < int(entries.size()));
-		if (hashtable.empty() || index < 0)
-			return 0;
+		do_assert(اشاریہ < صحیح(entries.سائز()));
+		اگر (hashtable.خالی_خانے() || اشاریہ < 0)
+			واپس 0;
 
-		int k = hashtable[hash];
-		if (k == index) {
-			hashtable[hash] = entries[index].next;
-		} else {
-			while (entries[k].next != index) {
-				k = entries[k].next;
-				do_assert(0 <= k && k < int(entries.size()));
+		صحیح k = hashtable[hash];
+		اگر (k == اشاریہ) {
+			hashtable[hash] = entries[اشاریہ].اگلا;
+		} ورنہ {
+			جب (entries[k].اگلا != اشاریہ) {
+				k = entries[k].اگلا;
+				do_assert(0 <= k && k < صحیح(entries.سائز()));
 			}
-			entries[k].next = entries[index].next;
+			entries[k].اگلا = entries[اشاریہ].اگلا;
 		}
 
-		int back_idx = entries.size()-1;
+		صحیح عقب_idx = entries.سائز()-1;
 
-		if (index != back_idx)
+		اگر (اشاریہ != عقب_idx)
 		{
-			Hasher::hash_t back_hash = do_hash(entries[back_idx].udata);
+			Hasher::hash_t عقب_hash = do_hash(entries[عقب_idx].udata);
 
-			k = hashtable[back_hash];
-			if (k == back_idx) {
-				hashtable[back_hash] = index;
-			} else {
-				while (entries[k].next != back_idx) {
-					k = entries[k].next;
-					do_assert(0 <= k && k < int(entries.size()));
+			k = hashtable[عقب_hash];
+			اگر (k == عقب_idx) {
+				hashtable[عقب_hash] = اشاریہ;
+			} ورنہ {
+				جب (entries[k].اگلا != عقب_idx) {
+					k = entries[k].اگلا;
+					do_assert(0 <= k && k < صحیح(entries.سائز()));
 				}
-				entries[k].next = index;
+				entries[k].اگلا = اشاریہ;
 			}
 
-			entries[index] = std::move(entries[back_idx]);
+			entries[اشاریہ] = std::move(entries[عقب_idx]);
 		}
 
-		entries.pop_back();
+		entries.نکالو_عقب();
 
-		if (entries.empty())
+		اگر (entries.خالی_خانے())
 			hashtable.clear();
 
-		return 1;
+		واپس 1;
 	}
 
-	int do_lookup(const K &key, Hasher::hash_t &hash)
+	صحیح do_lookup(ثابت K &کلید, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty())
-			return -1;
+		اگر (hashtable.خالی_خانے())
+			واپس -1;
 
-		if (entries.size() * hashtable_size_trigger > hashtable.size()) {
+		اگر (entries.سائز() * hashtable_سائز_trigger > hashtable.سائز()) {
 			do_rehash();
-			hash = do_hash(key);
+			hash = do_hash(کلید);
 		}
 
-		return do_lookup_internal(key, hash);
+		واپس do_lookup_اندرونی(کلید, hash);
 	}
 
-	int do_lookup_internal(const K &key, Hasher::hash_t hash) const
+	صحیح do_lookup_اندرونی(ثابت K &کلید, Hasher::hash_t hash) ثابت
 	{
-		int index = hashtable[hash];
+		صحیح اشاریہ = hashtable[hash];
 
-		while (index >= 0 && !ops.cmp(entries[index].udata, key)) {
-			index = entries[index].next;
-			do_assert(-1 <= index && index < int(entries.size()));
+		جب (اشاریہ >= 0 && !ops.cmp(entries[اشاریہ].udata, کلید)) {
+			اشاریہ = entries[اشاریہ].اگلا;
+			do_assert(-1 <= اشاریہ && اشاریہ < صحیح(entries.سائز()));
 		}
 
-		return index;
+		واپس اشاریہ;
 	}
 
-	int do_lookup_no_rehash(const K &key, Hasher::hash_t hash) const
+	صحیح do_lookup_no_rehash(ثابت K &کلید, Hasher::hash_t hash) ثابت
 	{
-		if (hashtable.empty())
-			return -1;
+		اگر (hashtable.خالی_خانے())
+			واپس -1;
 
-		return do_lookup_internal(key, hash);
+		واپس do_lookup_اندرونی(کلید, hash);
 	}
 
-	int do_insert(const K &value, Hasher::hash_t &hash)
+	صحیح do_داخل_کرو(ثابت K &قدر, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
-			entries.emplace_back(value, -1);
+		اگر (hashtable.خالی_خانے()) {
+			entries.emplace_عقب(قدر, -1);
 			do_rehash();
-			hash = do_hash(value);
-		} else {
-			entries.emplace_back(value, hashtable[hash]);
-			hashtable[hash] = entries.size() - 1;
+			hash = do_hash(قدر);
+		} ورنہ {
+			entries.emplace_عقب(قدر, hashtable[hash]);
+			hashtable[hash] = entries.سائز() - 1;
 		}
-		return entries.size() - 1;
+		واپس entries.سائز() - 1;
 	}
 
-	int do_insert(K &&rvalue, Hasher::hash_t &hash)
+	صحیح do_داخل_کرو(K &&rvalue, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
-			entries.emplace_back(std::forward<K>(rvalue), -1);
+		اگر (hashtable.خالی_خانے()) {
+			entries.emplace_عقب(std::forward<K>(rvalue), -1);
 			do_rehash();
-			hash = do_hash(entries.back().udata);
-		} else {
-			entries.emplace_back(std::forward<K>(rvalue), hashtable[hash]);
-			hashtable[hash] = entries.size() - 1;
+			hash = do_hash(entries.عقب().udata);
+		} ورنہ {
+			entries.emplace_عقب(std::forward<K>(rvalue), hashtable[hash]);
+			hashtable[hash] = entries.سائز() - 1;
 		}
-		return entries.size() - 1;
+		واپس entries.سائز() - 1;
 	}
 
-public:
+عوامی:
 	class const_iterator
 	{
-		friend class pool;
-	protected:
-		const pool *ptr;
-		int index;
-		const_iterator(const pool *ptr, int index) : ptr(ptr), index(index) { }
-	public:
-		typedef std::forward_iterator_tag iterator_category;
-		typedef K value_type;
-		typedef ptrdiff_t difference_type;
-		typedef K* pointer;
-		typedef K& reference;
+		دوست class pool;
+	محفوظ:
+		ثابت pool *ptr;
+		صحیح اشاریہ;
+		const_iterator(ثابت pool *ptr, صحیح اشاریہ) : ptr(ptr), اشاریہ(اشاریہ) { }
+	عوامی:
+		قسمتعریف std::forward_iterator_لیبل iterator_category;
+		قسمتعریف K قدر_type;
+		قسمتعریف ptrdiff_t difference_type;
+		قسمتعریف K* اشارہ_گر;
+		قسمتعریف K& reference;
 		const_iterator() { }
-		const_iterator operator++() { index--; return *this; }
-		bool operator==(const const_iterator &other) const { return index == other.index; }
-		bool operator!=(const const_iterator &other) const { return index != other.index; }
-		const K &operator*() const { return ptr->entries[index].udata; }
-		const K *operator->() const { return &ptr->entries[index].udata; }
+		const_iterator عامل++() { اشاریہ--; واپس *this; }
+		bool عامل==(ثابت const_iterator &other) ثابت { واپس اشاریہ == other.اشاریہ; }
+		bool عامل!=(ثابت const_iterator &other) ثابت { واپس اشاریہ != other.اشاریہ; }
+		ثابت K &عامل*() ثابت { واپس ptr->entries[اشاریہ].udata; }
+		ثابت K *عامل->() ثابت { واپس &ptr->entries[اشاریہ].udata; }
 	};
 
 	class iterator
 	{
-		friend class pool;
-	protected:
+		دوست class pool;
+	محفوظ:
 		pool *ptr;
-		int index;
-		iterator(pool *ptr, int index) : ptr(ptr), index(index) { }
-	public:
-		typedef std::forward_iterator_tag iterator_category;
-		typedef K value_type;
-		typedef ptrdiff_t difference_type;
-		typedef K* pointer;
-		typedef K& reference;
+		صحیح اشاریہ;
+		iterator(pool *ptr, صحیح اشاریہ) : ptr(ptr), اشاریہ(اشاریہ) { }
+	عوامی:
+		قسمتعریف std::forward_iterator_لیبل iterator_category;
+		قسمتعریف K قدر_type;
+		قسمتعریف ptrdiff_t difference_type;
+		قسمتعریف K* اشارہ_گر;
+		قسمتعریف K& reference;
 		iterator() { }
-		iterator operator++() { index--; return *this; }
-		bool operator==(const iterator &other) const { return index == other.index; }
-		bool operator!=(const iterator &other) const { return index != other.index; }
-		K &operator*() { return ptr->entries[index].udata; }
-		K *operator->() { return &ptr->entries[index].udata; }
-		const K &operator*() const { return ptr->entries[index].udata; }
-		const K *operator->() const { return &ptr->entries[index].udata; }
-		operator const_iterator() const { return const_iterator(ptr, index); }
+		iterator عامل++() { اشاریہ--; واپس *this; }
+		bool عامل==(ثابت iterator &other) ثابت { واپس اشاریہ == other.اشاریہ; }
+		bool عامل!=(ثابت iterator &other) ثابت { واپس اشاریہ != other.اشاریہ; }
+		K &عامل*() { واپس ptr->entries[اشاریہ].udata; }
+		K *عامل->() { واپس &ptr->entries[اشاریہ].udata; }
+		ثابت K &عامل*() ثابت { واپس ptr->entries[اشاریہ].udata; }
+		ثابت K *عامل->() ثابت { واپس &ptr->entries[اشاریہ].udata; }
+		عامل const_iterator() ثابت { واپس const_iterator(ptr, اشاریہ); }
 	};
 
 	constexpr pool()
 	{
 	}
 
-	pool(const pool &other)
+	pool(ثابت pool &other)
 	{
 		entries = other.entries;
 		do_rehash();
@@ -1091,271 +1091,271 @@ public:
 
 	pool(pool &&other) noexcept
 	{
-		swap(other);
+		تبادلہ(other);
 	}
 
-	pool &operator=(const pool &other) {
+	pool &عامل=(ثابت pool &other) {
 		entries = other.entries;
 		do_rehash();
-		return *this;
+		واپس *this;
 	}
 
-	pool &operator=(pool &&other) noexcept {
+	pool &عامل=(pool &&other) noexcept {
 		clear();
-		swap(other);
-		return *this;
+		تبادلہ(other);
+		واپس *this;
 	}
 
-	pool(const std::initializer_list<K> &list)
+	pool(ثابت std::initializer_list<K> &list)
 	{
-		for (auto &it : list)
-			insert(it);
+		برائے (خودکار &it : list)
+			داخل_کرو(it);
 	}
 
-	template<class InputIterator>
-	pool(InputIterator first, InputIterator last)
+	سانچہ<class داخلہ_Iterator>
+	pool(داخلہ_Iterator پہلا, داخلہ_Iterator آخری)
 	{
-		insert(first, last);
+		داخل_کرو(پہلا, آخری);
 	}
 
-	template<class InputIterator>
-	void insert(InputIterator first, InputIterator last)
+	سانچہ<class داخلہ_Iterator>
+	خالی داخل_کرو(داخلہ_Iterator پہلا, داخلہ_Iterator آخری)
 	{
-		for (; first != last; ++first)
-			insert(*first);
+		برائے (; پہلا != آخری; ++پہلا)
+			داخل_کرو(*پہلا);
 	}
 
-	std::pair<iterator, bool> insert(const K &value)
+	std::pair<iterator, bool> داخل_کرو(ثابت K &قدر)
 	{
-		Hasher::hash_t hash = do_hash(value);
-		int i = do_lookup(value, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(value, hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		Hasher::hash_t hash = do_hash(قدر);
+		صحیح i = do_lookup(قدر, hash);
+		اگر (i >= 0)
+			واپس std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_داخل_کرو(قدر, hash);
+		واپس std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	std::pair<iterator, bool> insert(K &&rvalue)
+	std::pair<iterator, bool> داخل_کرو(K &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(rvalue);
-		int i = do_lookup(rvalue, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
-		i = do_insert(std::forward<K>(rvalue), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		صحیح i = do_lookup(rvalue, hash);
+		اگر (i >= 0)
+			واپس std::pair<iterator, bool>(iterator(this, i), false);
+		i = do_داخل_کرو(std::forward<K>(rvalue), hash);
+		واپس std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	template<typename... Args>
-	std::pair<iterator, bool> emplace(Args&&... args)
+	سانچہ<typename... دلائل_3>
+	std::pair<iterator, bool> emplace(دلائل_3&&... دلائل_2)
 	{
-		return insert(K(std::forward<Args>(args)...));
+		واپس داخل_کرو(K(std::forward<دلائل_3>(دلائل_2)...));
 	}
 
-	int erase(const K &key)
+	صحیح erase(ثابت K &کلید)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int index = do_lookup(key, hash);
-		return do_erase(index, hash);
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح اشاریہ = do_lookup(کلید, hash);
+		واپس do_erase(اشاریہ, hash);
 	}
 
 	iterator erase(iterator it)
 	{
 		Hasher::hash_t hash = do_hash(*it);
-		do_erase(it.index, hash);
-		return ++it;
+		do_erase(it.اشاریہ, hash);
+		واپس ++it;
 	}
 
-	int count(const K &key) const
+	صحیح گنتی(ثابت K &کلید) ثابت
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 ? 0 : 1;
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup_no_rehash(کلید, hash);
+		واپس i < 0 ? 0 : 1;
 	}
 
-	int count(const K &key, const_iterator it) const
+	صحیح گنتی(ثابت K &کلید, const_iterator it) ثابت
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 || i > it.index ? 0 : 1;
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup_no_rehash(کلید, hash);
+		واپس i < 0 || i > it.اشاریہ ? 0 : 1;
 	}
 
-	iterator find(const K &key)
+	iterator ڈھونڈو(ثابت K &کلید)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
-			return end();
-		return iterator(this, i);
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup(کلید, hash);
+		اگر (i < 0)
+			واپس انتہا();
+		واپس iterator(this, i);
 	}
 
-	const_iterator find(const K &key) const
+	const_iterator ڈھونڈو(ثابت K &کلید) ثابت
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return end();
-		return const_iterator(this, i);
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup_no_rehash(کلید, hash);
+		اگر (i < 0)
+			واپس انتہا();
+		واپس const_iterator(this, i);
 	}
 
-	bool operator[](const K &key)
+	bool عامل[](ثابت K &کلید)
 	{
-		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		return i >= 0;
+		Hasher::hash_t hash = do_hash(کلید);
+		صحیح i = do_lookup(کلید, hash);
+		واپس i >= 0;
 	}
 
-	template<typename Compare = std::less<K>>
-	void sort(Compare comp = Compare())
+	سانچہ<typename Compare = std::less<K>>
+	خالی ترتیب_دو(Compare comp = Compare())
 	{
-		std::sort(entries.begin(), entries.end(), [comp](const entry_t &a, const entry_t &b){ return comp(b.udata, a.udata); });
+		std::ترتیب_دو(entries.begin(), entries.انتہا(), [comp](ثابت اندراج_t &a, ثابت اندراج_t &b){ واپس comp(b.udata, a.udata); });
 		do_rehash();
 	}
 
-	K pop()
+	K نکالو()
 	{
 		iterator it = begin();
 		K ret = *it;
 		erase(it);
-		return ret;
+		واپس ret;
 	}
 
-	void swap(pool &other)
+	خالی تبادلہ(pool &other)
 	{
-		hashtable.swap(other.hashtable);
-		entries.swap(other.entries);
+		hashtable.تبادلہ(other.hashtable);
+		entries.تبادلہ(other.entries);
 	}
 
-	bool operator==(const pool &other) const {
-		if (size() != other.size())
-			return false;
-		for (auto &it : entries)
-			if (!other.count(it.udata))
-				return false;
-		return true;
+	bool عامل==(ثابت pool &other) ثابت {
+		اگر (سائز() != other.سائز())
+			واپس false;
+		برائے (خودکار &it : entries)
+			اگر (!other.گنتی(it.udata))
+				واپس false;
+		واپس true;
 	}
 
-	bool operator!=(const pool &other) const {
-		return !operator==(other);
+	bool عامل!=(ثابت pool &other) ثابت {
+		واپس !عامل==(other);
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
 		commutative_hash comm;
-		for (auto &it : entries) {
+		برائے (خودکار &it : entries) {
 			comm.eat(ops.hash(it.udata));
 		}
-		return comm.hash_into(h);
+		واپس comm.hash_into(h);
 	}
 
-	void reserve(size_t n) { entries.reserve(n); }
-	size_t size() const { return entries.size(); }
-	bool empty() const { return entries.empty(); }
-	void clear() { hashtable.clear(); entries.clear(); }
+	خالی reserve(سائز_t n) { entries.reserve(n); }
+	سائز_t سائز() ثابت { واپس entries.سائز(); }
+	bool خالی_خانے() ثابت { واپس entries.خالی_خانے(); }
+	خالی clear() { hashtable.clear(); entries.clear(); }
 
-	iterator begin() { return iterator(this, int(entries.size())-1); }
-	iterator element(int n) { return iterator(this, int(entries.size())-1-n); }
-	iterator end() { return iterator(nullptr, -1); }
+	iterator begin() { واپس iterator(this, صحیح(entries.سائز())-1); }
+	iterator element(صحیح n) { واپس iterator(this, صحیح(entries.سائز())-1-n); }
+	iterator انتہا() { واپس iterator(nullptr, -1); }
 
-	const_iterator begin() const { return const_iterator(this, int(entries.size())-1); }
-	const_iterator element(int n) const { return const_iterator(this, int(entries.size())-1-n); }
-	const_iterator end() const { return const_iterator(nullptr, -1); }
+	const_iterator begin() ثابت { واپس const_iterator(this, صحیح(entries.سائز())-1); }
+	const_iterator element(صحیح n) ثابت { واپس const_iterator(this, صحیح(entries.سائز())-1-n); }
+	const_iterator انتہا() ثابت { واپس const_iterator(nullptr, -1); }
 };
 
-template<typename K, int offset, typename OPS>
-class HASHLIB_ATTRIBUTE_WARN_UNUSED idict
+سانچہ<typename K, صحیح انحراف, typename OPS>
+class HASHLIB_ATTRIBUTE_WARN_غیر_مستعمل idict
 {
 	pool<K, OPS> database;
 
-public:
+عوامی:
 	class const_iterator
 	{
-		friend class idict;
-	protected:
-		const idict &container;
-		int index;
-		const_iterator(const idict &container, int index) : container(container), index(index) { }
-	public:
-		typedef std::forward_iterator_tag iterator_category;
-		typedef K value_type;
-		typedef ptrdiff_t difference_type;
-		typedef K* pointer;
-		typedef K& reference;
+		دوست class idict;
+	محفوظ:
+		ثابت idict &container;
+		صحیح اشاریہ;
+		const_iterator(ثابت idict &container, صحیح اشاریہ) : container(container), اشاریہ(اشاریہ) { }
+	عوامی:
+		قسمتعریف std::forward_iterator_لیبل iterator_category;
+		قسمتعریف K قدر_type;
+		قسمتعریف ptrdiff_t difference_type;
+		قسمتعریف K* اشارہ_گر;
+		قسمتعریف K& reference;
 		const_iterator() { }
-		const_iterator operator++() { index++; return *this; }
-		bool operator==(const const_iterator &other) const { return index == other.index; }
-		bool operator!=(const const_iterator &other) const { return index != other.index; }
-		const K &operator*() const { return container[index]; }
-		const K *operator->() const { return &container[index]; }
+		const_iterator عامل++() { اشاریہ++; واپس *this; }
+		bool عامل==(ثابت const_iterator &other) ثابت { واپس اشاریہ == other.اشاریہ; }
+		bool عامل!=(ثابت const_iterator &other) ثابت { واپس اشاریہ != other.اشاریہ; }
+		ثابت K &عامل*() ثابت { واپس container[اشاریہ]; }
+		ثابت K *عامل->() ثابت { واپس &container[اشاریہ]; }
 	};
 
 	constexpr idict()
 	{
 	}
 
-	int operator()(const K &key)
+	صحیح عامل()(ثابت K &کلید)
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup(key, hash);
-		if (i < 0)
-			i = database.do_insert(key, hash);
-		return i + offset;
+		Hasher::hash_t hash = database.do_hash(کلید);
+		صحیح i = database.do_lookup(کلید, hash);
+		اگر (i < 0)
+			i = database.do_داخل_کرو(کلید, hash);
+		واپس i + انحراف;
 	}
 
-	int at(const K &key) const
+	صحیح at(ثابت K &کلید) ثابت
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			throw std::out_of_range("idict::at()");
-		return i + offset;
+		Hasher::hash_t hash = database.do_hash(کلید);
+		صحیح i = database.do_lookup_no_rehash(کلید, hash);
+		اگر (i < 0)
+			throw std::برآمد_کا_range("idict::at()");
+		واپس i + انحراف;
 	}
 
-	int at(const K &key, int defval) const
+	صحیح at(ثابت K &کلید, صحیح defval) ثابت
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return defval;
-		return i + offset;
+		Hasher::hash_t hash = database.do_hash(کلید);
+		صحیح i = database.do_lookup_no_rehash(کلید, hash);
+		اگر (i < 0)
+			واپس defval;
+		واپس i + انحراف;
 	}
 
-	int count(const K &key) const
+	صحیح گنتی(ثابت K &کلید) ثابت
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
-		return i < 0 ? 0 : 1;
+		Hasher::hash_t hash = database.do_hash(کلید);
+		صحیح i = database.do_lookup_no_rehash(کلید, hash);
+		واپس i < 0 ? 0 : 1;
 	}
 
-	int lookup(const K &key) const
+	صحیح lookup(ثابت K &کلید) ثابت
 	{
-		Hasher::hash_t hash = database.do_hash(key);
-		return database.do_lookup_no_rehash(key, hash);
+		Hasher::hash_t hash = database.do_hash(کلید);
+		واپس database.do_lookup_no_rehash(کلید, hash);
 	}
 
-	void expect(const K &key, int i)
+	خالی expect(ثابت K &کلید, صحیح i)
 	{
-		int j = (*this)(key);
-		if (i != j)
-			throw std::out_of_range("idict::expect()");
+		صحیح j = (*this)(کلید);
+		اگر (i != j)
+			throw std::برآمد_کا_range("idict::expect()");
 	}
 
-	const K &operator[](int index) const
+	ثابت K &عامل[](صحیح اشاریہ) ثابت
 	{
-		return database.entries.at(index - offset).udata;
+		واپس database.entries.at(اشاریہ - انحراف).udata;
 	}
 
-	void swap(idict &other)
+	خالی تبادلہ(idict &other)
 	{
-		database.swap(other.database);
+		database.تبادلہ(other.database);
 	}
 
-	void reserve(size_t n) { database.reserve(n); }
-	size_t size() const { return database.size(); }
-	bool empty() const { return database.empty(); }
-	void clear() { database.clear(); }
+	خالی reserve(سائز_t n) { database.reserve(n); }
+	سائز_t سائز() ثابت { واپس database.سائز(); }
+	bool خالی_خانے() ثابت { واپس database.خالی_خانے(); }
+	خالی clear() { database.clear(); }
 
-	const_iterator begin() const { return const_iterator(*this, offset); }
-	const_iterator element(int n) const { return const_iterator(*this, n); }
-	const_iterator end() const { return const_iterator(*this, offset + size()); }
+	const_iterator begin() ثابت { واپس const_iterator(*this, انحراف); }
+	const_iterator element(صحیح n) ثابت { واپس const_iterator(*this, n); }
+	const_iterator انتہا() ثابت { واپس const_iterator(*this, انحراف + سائز()); }
 };
 
 /**
@@ -1363,24 +1363,24 @@ public:
  * mfp stands for "merge, find, promote"
  * i-prefixed methods operate on indices in parents
 */
-template<typename K, typename OPS>
-class HASHLIB_ATTRIBUTE_WARN_UNUSED mfp
+سانچہ<typename K, typename OPS>
+class HASHLIB_ATTRIBUTE_WARN_غیر_مستعمل mfp
 {
 	idict<K, 0, OPS> database;
-	class AtomicParent {
-	public:
-		explicit AtomicParent(int p) : parent(p) {}
-		AtomicParent(const AtomicParent &other) : parent(other.get()) {}
-		AtomicParent &operator=(const AtomicParent &other) { set(other.get()); return *this; }
-		int get() const { return parent.load(std::memory_order_relaxed); }
-		void set(int p) { parent.store(p, std::memory_order_relaxed); }
-	private:
-		std::atomic<int> parent;
+	class Atomic_والد {
+	عوامی:
+		explicit Atomic_والد(صحیح p) : والد(p) {}
+		Atomic_والد(ثابت Atomic_والد &other) : والد(other.get()) {}
+		Atomic_والد &عامل=(ثابت Atomic_والد &other) { سیٹ(other.get()); واپس *this; }
+		صحیح get() ثابت { واپس والد.بھرو(std::حافظہ_ترتیب_relaxed); }
+		خالی سیٹ(صحیح p) { والد.store(p, std::حافظہ_ترتیب_relaxed); }
+	نجی:
+		std::atomic<صحیح> والد;
 	};
-	std::vector<AtomicParent> parents;
+	std::سمتیہ<Atomic_والد> parents;
 
-public:
-	typedef typename idict<K, 0>::const_iterator const_iterator;
+عوامی:
+	قسمتعریف typename idict<K, 0>::const_iterator const_iterator;
 
 	constexpr mfp()
 	{
@@ -1388,21 +1388,21 @@ public:
 
 	// Finds a given element's index. If it isn't in the data structure,
 	// it is added as its own set
-	int operator()(const K &key)
+	صحیح عامل()(ثابت K &کلید)
 	{
-		int i = database(key);
+		صحیح i = database(کلید);
 		// If the lookup caused the database to grow,
 		// also add a corresponding entry in parents initialized to -1 (no parent)
-		if (parents.size() < database.size()) {
-			parents.emplace_back(-1);
+		اگر (parents.سائز() < database.سائز()) {
+			parents.emplace_عقب(-1);
 		}
-		return i;
+		واپس i;
 	}
 
 	// Finds an element at given index
-	const K &operator[](int index) const
+	ثابت K &عامل[](صحیح اشاریہ) ثابت
 	{
-		return database[index];
+		واپس database[اشاریہ];
 	}
 
 	// Why this method is correct for concurent ifind() calls:
@@ -1419,14 +1419,14 @@ public:
 	// parents[p] reads either observe 'orig_parents[p]' or R (and observing R ends the first
 	// while loop immediately). Thus all parents[p] reads observe either 'orig_parents[p]'
 	// or R, so ifind() always returns R.
-	int ifind(int i) const
+	صحیح ifind(صحیح i) ثابت
 	{
-		int p = i, k = i;
+		صحیح p = i, k = i;
 
-		while (true) {
-			int pp = parents[p].get();
-			if (pp < 0)
-				break;
+		جب (true) {
+			صحیح pp = parents[p].get();
+			اگر (pp < 0)
+				توڑو;
 			p = pp;
 		}
 		// p is now the representative of i
@@ -1434,80 +1434,80 @@ public:
 		// and make p the parent of all the nodes along the way.
 		// This is a side effect and doesn't affect the return value.
 		// It speeds up future find operations
-		while (k != p) {
-			int next_k = parents[k].get();
-			const_cast<AtomicParent*>(&parents[k])->set(p);
-			k = next_k;
+		جب (k != p) {
+			صحیح اگلا_k = parents[k].get();
+			const_cast<Atomic_والد*>(&parents[k])->سیٹ(p);
+			k = اگلا_k;
 		}
 
-		return p;
+		واپس p;
 	}
 
 	// Merge sets if the given indices belong to different sets.
 	// Makes ifind(j) the root of the merged set.
-	void imerge(int i, int j)
+	خالی imerge(صحیح i, صحیح j)
 	{
 		i = ifind(i);
 		j = ifind(j);
 
-		if (i != j)
-			parents[i].set(j);
+		اگر (i != j)
+			parents[i].سیٹ(j);
 	}
 
-	void ipromote(int i)
+	خالی ipromote(صحیح i)
 	{
-		int k = i;
+		صحیح k = i;
 
-		while (k != -1) {
-			int next_k = parents[k].get();
-			parents[k].set(i);
-			k = next_k;
+		جب (k != -1) {
+			صحیح اگلا_k = parents[k].get();
+			parents[k].سیٹ(i);
+			k = اگلا_k;
 		}
 
-		parents[i].set(-1);
+		parents[i].سیٹ(-1);
 	}
 
-	int lookup(const K &a)
+	صحیح lookup(ثابت K &a)
 	{
-		return ifind((*this)(a));
+		واپس ifind((*this)(a));
 	}
 
-	const K &find(const K &a) const
+	ثابت K &ڈھونڈو(ثابت K &a) ثابت
 	{
-		int i = database.at(a, -1);
-		if (i < 0)
-			return a;
-		return (*this)[ifind(i)];
+		صحیح i = database.at(a, -1);
+		اگر (i < 0)
+			واپس a;
+		واپس (*this)[ifind(i)];
 	}
 
-	void merge(const K &a, const K &b)
+	خالی ملاؤ(ثابت K &a, ثابت K &b)
 	{
 		imerge((*this)(a), (*this)(b));
 	}
 
-	void promote(const K &a)
+	خالی promote(ثابت K &a)
 	{
-		int i = database.at(a, -1);
-		if (i >= 0)
+		صحیح i = database.at(a, -1);
+		اگر (i >= 0)
 			ipromote(i);
 	}
 
-	void swap(mfp &other)
+	خالی تبادلہ(mfp &other)
 	{
-		database.swap(other.database);
-		parents.swap(other.parents);
+		database.تبادلہ(other.database);
+		parents.تبادلہ(other.parents);
 	}
 
-	void reserve(size_t n) { database.reserve(n); }
-	size_t size() const { return database.size(); }
-	bool empty() const { return database.empty(); }
-	void clear() { database.clear(); parents.clear(); }
+	خالی reserve(سائز_t n) { database.reserve(n); }
+	سائز_t سائز() ثابت { واپس database.سائز(); }
+	bool خالی_خانے() ثابت { واپس database.خالی_خانے(); }
+	خالی clear() { database.clear(); parents.clear(); }
 
-	const_iterator begin() const { return database.begin(); }
-	const_iterator element(int n) const { return database.element(n); }
-	const_iterator end() const { return database.end(); }
+	const_iterator begin() ثابت { واپس database.begin(); }
+	const_iterator element(صحیح n) ثابت { واپس database.element(n); }
+	const_iterator انتہا() ثابت { واپس database.انتہا(); }
 };
 
 } /* namespace hashlib */
 
-#endif
+#اگر_ختم

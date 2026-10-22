@@ -17,64 +17,64 @@
  *
  */
 
-#ifndef YOSYS_COMMON_H
-#define YOSYS_COMMON_H
+#اگر_غیر_تعریف_شدہ YOSYS_COMMON_H
+#تعریف_کرو YOSYS_COMMON_H
 
-#include <array>
-#include <atomic>
-#include <map>
-#include <set>
-#include <tuple>
-#include <vector>
-#include <string>
-#include <algorithm>
-#include <functional>
-#include <unordered_map>
-#include <unordered_set>
-#include <initializer_list>
-#include <variant>
-#include <optional>
-#include <stdexcept>
-#include <memory>
-#include <cmath>
-#include <cstddef>
+#شامل <array>
+#شامل <atomic>
+#شامل <map>
+#شامل <set>
+#شامل <tuple>
+#شامل <vector>
+#شامل <string>
+#شامل <algorithm>
+#شامل <functional>
+#شامل <unordered_map>
+#شامل <unordered_set>
+#شامل <initializer_list>
+#شامل <variant>
+#شامل <optional>
+#شامل <stdexcept>
+#شامل <memory>
+#شامل <cmath>
+#شامل <cstddef>
 
-#include <sstream>
-#include <fstream>
-#include <istream>
-#include <ostream>
-#include <iostream>
+#شامل <sstream>
+#شامل <fstream>
+#شامل <istream>
+#شامل <ostream>
+#شامل <iostream>
 
-#include <version>
-#if __cpp_lib_source_location >= 201907L
-	#include <source_location>
-	using std::source_location;
-#else
-	#include <experimental/source_location>
-	using std::experimental::source_location;
-#endif
+#شامل <version>
+#اگر __cpp_lib_source_location >= 201907L
+	#شامل <source_location>
+	using std::ماخذ_location;
+#ورنہ
+	#شامل <experimental/source_location>
+	using std::experimental::ماخذ_location;
+#اگر_ختم
 
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <limits.h>
-#include <sys/stat.h>
-#include <errno.h>
+#شامل <stdarg.h>
+#شامل <stdlib.h>
+#شامل <string.h>
+#شامل <stdint.h>
+#شامل <stdio.h>
+#شامل <limits.h>
+#شامل <sys/stat.h>
+#شامل <errno.h>
 
-#ifndef _YOSYS_
-#  error It looks like you are trying to build Yosys without the config defines set. \
-         When building Yosys with a custom make system, make sure you set all the \
-         defines the Yosys Makefile would set for your build configuration.
-#endif
+#اگر_غیر_تعریف_شدہ _YOSYS_
+#  error It looks like you are trying مقصد build Yosys without the config متعین_کرتا سیٹ. \
+         When building Yosys with a custom make system, make sure you سیٹ all the \
+         متعین_کرتا the Yosys Makefile would سیٹ برائے your build configuration.
+#اگر_ختم
 
-#include "kernel/yosys_config.h"
+#شامل "kernel/yosys_config.h"
 
-#define FRIEND_TEST(test_case_name, test_name) \
-  friend class test_case_name##_##test_name##_Test
+#تعریف_کرو FRIEND_TEST(test_case_name, test_name) \
+  دوست class test_case_name##_##test_name##_Test
 
-#ifdef _WIN32
+#اگر_تعریف_شدہ _WIN32
 #  undef NOMINMAX
 #  define NOMINMAX 1
 #  undef YY_NO_UNISTD_H
@@ -92,7 +92,7 @@
 #  define pclose _pclose
 
 #  ifndef __MINGW32__
-#    define PATH_MAX MAX_PATH
+#    define راستہ_MAX MAX_راستہ
 #    define isatty _isatty
 #    define fileno _fileno
 #  endif
@@ -103,93 +103,93 @@
 #  undef TRANSPARENT
 // `wingdi.h` defines an ERROR macro that conflicts with `ERROR()` macro in kernel/tclapi.cc
 #  undef ERROR
-#endif
+#اگر_ختم
 
-#ifndef PATH_MAX
-#  define PATH_MAX 4096
-#endif
+#اگر_غیر_تعریف_شدہ راستہ_MAX
+#  define راستہ_MAX 4096
+#اگر_ختم
 
 
-#define YOSYS_NAMESPACE          Yosys
-#define PRIVATE_NAMESPACE_BEGIN  namespace {
-#define PRIVATE_NAMESPACE_END    }
-#define YOSYS_NAMESPACE_BEGIN    namespace Yosys {
-#define YOSYS_NAMESPACE_END      }
-#define YOSYS_NAMESPACE_PREFIX   Yosys::
-#define USING_YOSYS_NAMESPACE    using namespace Yosys;
+#تعریف_کرو YOSYS_NAMESPACE          Yosys
+#تعریف_کرو نجی_NAMESPACE_BEGIN  namespace {
+#تعریف_کرو نجی_NAMESPACE_انتہا    }
+#تعریف_کرو YOSYS_NAMESPACE_BEGIN    namespace Yosys {
+#تعریف_کرو YOSYS_NAMESPACE_انتہا      }
+#تعریف_کرو YOSYS_NAMESPACE_سابقہ   Yosys::
+#تعریف_کرو USING_YOSYS_NAMESPACE    using namespace Yosys;
 
-#if defined(__GNUC__) || defined(__clang__)
+#اگر defined(__GNUC__) || defined(__clang__)
 #  define YS_ATTRIBUTE(...) __attribute__((__VA_ARGS__))
-#elif defined(_MSC_VER)
+#وگرنہ_اگر defined(_MSC_VER)
 #  define YS_ATTRIBUTE(...)
-#else
+#ورنہ
 #  define YS_ATTRIBUTE(...)
-#endif
+#اگر_ختم
 
-#if defined(__GNUC__) || defined(__clang__)
-#  define YS_MAYBE_UNUSED __attribute__((__unused__))
-#else
-#  define YS_MAYBE_UNUSED
-#endif
+#اگر defined(__GNUC__) || defined(__clang__)
+#  define YS_MAYBE_غیر_مستعمل __attribute__((__unused__))
+#ورنہ
+#  define YS_MAYBE_غیر_مستعمل
+#اگر_ختم
 
-#if defined(_MSC_VER)
-#  define YS_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
-#else
-#  define YS_NO_UNIQUE_ADDRESS [[no_unique_address]]
-#endif
+#اگر defined(_MSC_VER)
+#  define YS_NO_UNIQUE_پتہ [[msvc::no_unique_پتہ]]
+#ورنہ
+#  define YS_NO_UNIQUE_پتہ [[no_unique_پتہ]]
+#اگر_ختم
 
-#if __cplusplus >= 202002L
+#اگر __cplusplus >= 202002L
 #  define YS_FALLTHROUGH [[fallthrough]];
-#else
+#ورنہ
 #  error "C++20 or later compatible compiler is required"
-#endif
+#اگر_ختم
 
-#if defined(__has_cpp_attribute) && __has_cpp_attribute(gnu::cold)
+#اگر defined(__has_cpp_attribute) && __has_cpp_attribute(gnu::cold)
 #  define YS_COLD [[gnu::cold]]
-#else
+#ورنہ
 #  define YS_COLD
-#endif
+#اگر_ختم
 
-#ifdef __cpp_consteval
-#define YOSYS_CONSTEVAL consteval
-#else
+#اگر_تعریف_شدہ __cpp_consteval
+#تعریف_کرو YOSYS_CONSTEVAL consteval
+#ورنہ
 // If we can't use consteval we can at least make it constexpr.
-#define YOSYS_CONSTEVAL constexpr
-#endif
+#تعریف_کرو YOSYS_CONSTEVAL constexpr
+#اگر_ختم
 
-#define YOSYS_ABORT(s) YOSYS_NAMESPACE_PREFIX log_yosys_abort_message(__FILE__, __LINE__, __FUNCTION__, s)
+#تعریف_کرو YOSYS_ABORT(s) YOSYS_NAMESPACE_سابقہ log_yosys_abort_پیغام(__FILE__, __LINE__, __FUNCTION__, s)
 
 // This has to precede including "kernel/io.h"
 YOSYS_NAMESPACE_BEGIN
-[[noreturn]] void log_yosys_abort_message(std::string_view file, int line, std::string_view func, std::string_view message);
+[[noreturn]] خالی log_yosys_abort_پیغام(std::string_view file, صحیح سطر, std::string_view func, std::string_view پیغام_2);
 
 [[noreturn]]
-void log_assert_failure(const char *expr, source_location location);
-#ifndef NDEBUG
-static inline void log_assert_worker(bool cond, const char *expr, source_location location = source_location::current()) {
-	if (!cond) log_assert_failure(expr, location);
+خالی log_assert_failure(ثابت حرف *اظہاریہ, ماخذ_location location);
+#اگر_غیر_تعریف_شدہ NDEBUG
+ساکن اندرونی خالی log_assert_کارکن(bool cond, ثابت حرف *اظہاریہ, ماخذ_location location = ماخذ_location::current()) {
+	اگر (!cond) log_assert_failure(اظہاریہ, location);
 }
-#  define log_assert(_assert_expr_) YOSYS_NAMESPACE_PREFIX log_assert_worker(_assert_expr_, #_assert_expr_)
-#else
-#  define log_assert(_assert_expr_) do { if (0) { (void)(_assert_expr_); } } while(0)
-#endif
-YOSYS_NAMESPACE_END
+#  define log_assert(assert_اظہاریہ) YOSYS_NAMESPACE_سابقہ log_assert_کارکن(assert_اظہاریہ, #_assert_expr_)
+#ورنہ
+#  define log_assert(assert_اظہاریہ) کرو { اگر (0) { (خالی)(assert_اظہاریہ); } } جب(0)
+#اگر_ختم
+YOSYS_NAMESPACE_انتہا
 
-#include "kernel/io.h"
+#شامل "kernel/io.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // Note: All headers included in hashlib.h must be included
 // outside of YOSYS_NAMESPACE before this or bad things will happen.
-#ifdef HASHLIB_H
+#اگر_تعریف_شدہ HASHLIB_H
 #  error "You've probably included hashlib.h under two namespace paths. Bad idea."
-#else
+#ورنہ
 #  include "kernel/hashlib.h"
 #  undef HASHLIB_H
-#endif
+#اگر_ختم
 
 
-using std::vector;
+using std::سمتیہ;
 using std::string;
 using std::tuple;
 using std::pair;
@@ -201,7 +201,7 @@ using std::min;
 using std::max;
 
 using hashlib::Hasher;
-using hashlib::run_hash;
+using hashlib::تسلسل_hash;
 using hashlib::hash_ops;
 using hashlib::mkhash_xorshift;
 using hashlib::dict;
@@ -211,45 +211,45 @@ using hashlib::mfp;
 
 // A primitive shared string implementation that does not
 // move its .c_str() when the object is copied or moved.
-struct shared_str {
+ساخت shared_str {
 	std::shared_ptr<string> content;
 	shared_str() { }
 	shared_str(string s) { content = std::shared_ptr<string>(new string(s)); }
-	shared_str(const char *s) { content = std::shared_ptr<string>(new string(s)); }
-	const char *c_str() const { return content->c_str(); }
-	const string &str() const { return *content; }
-	bool operator==(const shared_str &other) const { return *content == *other.content; }
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
+	shared_str(ثابت حرف *s) { content = std::shared_ptr<string>(new string(s)); }
+	ثابت حرف *c_str() ثابت { واپس content->c_str(); }
+	ثابت string &str() ثابت { واپس *content; }
+	bool عامل==(ثابت shared_str &other) ثابت { واپس *content == *other.content; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
 		h.eat(*content);
-		return h;
+		واپس h;
 	}
 };
 
 namespace RTLIL {
-	struct Const;
-	struct SigBit;
-	struct SigSpec;
-	struct Wire;
-	struct Cell;
-	struct Memory;
-	struct Process;
-	struct Module;
-	struct Design;
-	struct Monitor;
-	struct Selection;
-	struct SigChunk;
-	struct PooledName;
-	enum State : unsigned char;
+	ساخت Const;
+	ساخت Sig_ثنائی_ہندسہ;
+	ساخت SigSpec;
+	ساخت Wire;
+	ساخت Cell;
+	ساخت حافظہ;
+	ساخت Process;
+	ساخت Module;
+	ساخت Design;
+	ساخت Monitor;
+	ساخت Selection;
+	ساخت SigChunk;
+	ساخت PooledName;
+	شمار State : غیرعلامتی حرف;
 
-	typedef std::pair<SigSpec, SigSpec> SigSig;
+	قسمتعریف std::pair<SigSpec, SigSpec> SigSig;
 }
 
 namespace AST {
-	struct AstNode;
+	ساخت Ast_گرہ;
 }
 
 using RTLIL::Const;
-using RTLIL::SigBit;
+using RTLIL::Sig_ثنائی_ہندسہ;
 using RTLIL::SigSpec;
 using RTLIL::Wire;
 using RTLIL::Cell;
@@ -262,78 +262,78 @@ using RTLIL::SigSig;
 using RTLIL::PooledName;
 
 namespace hashlib {
-	template<> struct hash_ops<RTLIL::Wire*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Cell*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Memory*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Process*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Module*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Design*> : hash_obj_ops {};
-	template<> struct hash_ops<RTLIL::Monitor*> : hash_obj_ops {};
-	template<> struct hash_ops<AST::AstNode*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<RTLIL::Wire*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<RTLIL::Cell*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<RTLIL::حافظہ*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<RTLIL::Process*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<RTLIL::Module*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<RTLIL::Design*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<RTLIL::Monitor*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<AST::Ast_گرہ*> : hash_obj_ops {};
 
-	template<> struct hash_ops<const RTLIL::Wire*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Cell*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Memory*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Process*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Module*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Design*> : hash_obj_ops {};
-	template<> struct hash_ops<const RTLIL::Monitor*> : hash_obj_ops {};
-	template<> struct hash_ops<const AST::AstNode*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<ثابت RTLIL::Wire*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<ثابت RTLIL::Cell*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<ثابت RTLIL::حافظہ*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<ثابت RTLIL::Process*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<ثابت RTLIL::Module*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<ثابت RTLIL::Design*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<ثابت RTLIL::Monitor*> : hash_obj_ops {};
+	سانچہ<> ساخت hash_ops<ثابت AST::Ast_گرہ*> : hash_obj_ops {};
 }
 
-void memhasher_on();
-void memhasher_off();
-void memhasher_do();
+خالی memhasher_on();
+خالی memhasher_off();
+خالی memhasher_do();
 
-extern bool memhasher_active;
-inline void memhasher() { if (memhasher_active) memhasher_do(); }
+خارجی bool memhasher_فعال;
+اندرونی خالی memhasher() { اگر (memhasher_فعال) memhasher_do(); }
 
-void yosys_banner();
-int ceil_log2(int x) YS_ATTRIBUTE(const);
+خالی yosys_banner();
+صحیح ceil_log2(صحیح x) YS_ATTRIBUTE(ثابت);
 
-template<typename T> int GetSize(const T &obj) { return obj.size(); }
-inline int GetSize(RTLIL::Wire *wire);
+سانچہ<typename T> صحیح Get_سائز(ثابت T &obj) { واپس obj.سائز(); }
+اندرونی صحیح Get_سائز(RTLIL::Wire *wire);
 
 // When multiple threads are accessing RTLIL, one of these guard objects
 // must exist.
-struct Multithreading
+ساخت Multithreading
 {
 	Multithreading();
 	~Multithreading();
 	// Returns true when multiple threads are accessing RTLIL.
 	// autoidx cannot be used during such times.
 	// IdStrings cannot be created during such times.
-	static bool active() { return active_; }
-private:
-	static bool active_;
+	ساکن bool فعال() { واپس فعال_2; }
+نجی:
+	ساکن bool فعال_2;
 };
 
-struct Autoidx {
-	Autoidx(int value) : value(value) {}
-	operator int() const { return value; }
-	void ensure_at_least(int v);
-	int operator++(int);
-private:
-	int value;
+ساخت Autoidx {
+	Autoidx(صحیح قدر) : قدر(قدر) {}
+	عامل صحیح() ثابت { واپس قدر; }
+	خالی ensure_at_کم_سے_کم(صحیح v);
+	صحیح عامل++(صحیح);
+نجی:
+	صحیح قدر;
 };
 
-extern Autoidx autoidx;
-extern int yosys_xtrace;
-extern bool yosys_write_versions;
+خارجی Autoidx autoidx;
+خارجی صحیح yosys_xtrace;
+خارجی bool yosys_write_versions;
 
-const std::string *create_id_prefix(std::string_view file, int line, std::string_view func);
+ثابت std::string *create_id_سابقہ(std::string_view file, صحیح سطر, std::string_view func);
 
-#define NEW_ID \
-	YOSYS_NAMESPACE_PREFIX TwineSpec{YOSYS_NAMESPACE_PREFIX TwineSpec::AutoSuffix{[](source_location location, std::string_view func) -> const std::string * { \
-		static std::unique_ptr<const std::string> prefix(YOSYS_NAMESPACE_PREFIX create_id_prefix(location.file_name(), location.line(), func)); \
-		return prefix.get(); \
-	}(source_location::current(), __FUNCTION__), std::to_string(YOSYS_NAMESPACE_PREFIX autoidx++)}}
-#define NEW_ID_SUFFIX(suffix) \
-	YOSYS_NAMESPACE_PREFIX TwineSpec{YOSYS_NAMESPACE_PREFIX TwineSpec::AutoSuffix{[](source_location location, std::string_view func) -> const std::string * { \
-		static std::unique_ptr<const std::string> prefix(YOSYS_NAMESPACE_PREFIX create_id_prefix(location.file_name(), location.line(), func)); \
-		return prefix.get(); \
-	}(source_location::current(), __FUNCTION__), std::string(suffix) + "$" + std::to_string(YOSYS_NAMESPACE_PREFIX autoidx++)}}
+#تعریف_کرو NEW_ID \
+	YOSYS_NAMESPACE_سابقہ TwineSpec{YOSYS_NAMESPACE_سابقہ TwineSpec::AutoSuffix{[](ماخذ_location location, std::string_view func) -> ثابت std::string * { \
+		ساکن std::unique_ptr<ثابت std::string> سابقہ_2(YOSYS_NAMESPACE_سابقہ create_id_سابقہ(location.file_name(), location.سطر(), func)); \
+		واپس سابقہ_2.get(); \
+	}(ماخذ_location::current(), __FUNCTION__), std::مقصد_string(YOSYS_NAMESPACE_سابقہ autoidx++)}}
+#تعریف_کرو NEW_ID_SUFFIX(suffix) \
+	YOSYS_NAMESPACE_سابقہ TwineSpec{YOSYS_NAMESPACE_سابقہ TwineSpec::AutoSuffix{[](ماخذ_location location, std::string_view func) -> ثابت std::string * { \
+		ساکن std::unique_ptr<ثابت std::string> سابقہ_2(YOSYS_NAMESPACE_سابقہ create_id_سابقہ(location.file_name(), location.سطر(), func)); \
+		واپس سابقہ_2.get(); \
+	}(ماخذ_location::current(), __FUNCTION__), std::string(suffix) + "$" + std::مقصد_string(YOSYS_NAMESPACE_سابقہ autoidx++)}}
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتہا
 
-#endif
+#اگر_ختم

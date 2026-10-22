@@ -21,252 +21,252 @@
 // Schneier, Bruce (1996). Applied Cryptography: Protocols, Algorithms, and Source Code in C,
 // Second Edition (2nd ed.). Wiley. ISBN 978-0-471-11709-4, page 244
 
-#include "kernel/yosys.h"
-#include "libs/bigint/BigIntegerLibrary.hh"
+#شامل "kernel/yosys.h"
+#شامل "libs/bigint/BigIntegerLibrary.hh"
 
 YOSYS_NAMESPACE_BEGIN
 
-static void extend_u0(RTLIL::Const &arg, int width, bool is_signed)
+ساکن خالی extend_u0(RTLIL::Const &arg, صحیح چوڑائی, منطقی is_signed)
 {
 	RTLIL::State padding = RTLIL::State::S0;
 
-	if (arg.size() > 0 && is_signed)
-		padding = arg.back();
+	اگر (arg.سائز() > 0 && is_signed)
+		padding = arg.عقب();
 
-	arg.resize(width, padding);
+	arg.resize(چوڑائی, padding);
 }
 
-static BigInteger const2big(const RTLIL::Const &val, bool as_signed, int &undef_bit_pos)
+ساکن BigInteger const2big(ثابت RTLIL::Const &val, منطقی as_signed, صحیح &undef_ثنائی_ہندسہ_pos)
 {
 	BigUnsigned mag;
 
-	BigInteger::Sign sign = BigInteger::positive;
-	State inv_sign_bit = RTLIL::State::S1;
-	auto num_bits = val.size();
+	BigInteger::Sign sign = BigInteger::مثبت;
+	State inv_sign_ثنائی_ہندسہ = RTLIL::State::S1;
+	خودکار عدد_بٹ = val.سائز();
 
-	if (as_signed && num_bits && val[num_bits-1] == RTLIL::State::S1) {
-		inv_sign_bit = RTLIL::State::S0;
+	اگر (as_signed && عدد_بٹ && val[عدد_بٹ-1] == RTLIL::State::S1) {
+		inv_sign_ثنائی_ہندسہ = RTLIL::State::S0;
 		sign = BigInteger::negative;
-		num_bits--;
+		عدد_بٹ--;
 	}
 
-	for (auto i = 0; i < num_bits; i++)
-		if (val[i] == RTLIL::State::S0 || val[i] == RTLIL::State::S1)
-			mag.setBit(i, val[i] == inv_sign_bit);
-		else if (undef_bit_pos < 0)
-			undef_bit_pos = i;
+	برائے (خودکار i = 0; i < عدد_بٹ; i++)
+		اگر (val[i] == RTLIL::State::S0 || val[i] == RTLIL::State::S1)
+			mag.سیٹ_ثنائی_ہندسہ(i, val[i] == inv_sign_ثنائی_ہندسہ);
+		ورنہ اگر (undef_ثنائی_ہندسہ_pos < 0)
+			undef_ثنائی_ہندسہ_pos = i;
 
-	if (sign == BigInteger::negative)
+	اگر (sign == BigInteger::negative)
 		mag += 1;
 
-	return BigInteger(mag, sign);
+	واپس BigInteger(mag, sign);
 }
 
-static RTLIL::Const big2const(const BigInteger &val, int result_len, int undef_bit_pos)
+ساکن RTLIL::Const big2const(ثابت BigInteger &val, صحیح نتیجہ_len, صحیح undef_ثنائی_ہندسہ_pos)
 {
-	if (undef_bit_pos >= 0)
-		return RTLIL::Const(RTLIL::State::Sx, result_len);
+	اگر (undef_ثنائی_ہندسہ_pos >= 0)
+		واپس RTLIL::Const(RTLIL::State::Sx, نتیجہ_len);
 
 	BigUnsigned mag = val.getMagnitude();
-	RTLIL::Const result(0, result_len);
+	RTLIL::Const نتیجہ(0, نتیجہ_len);
 
-	if (!mag.isZero())
+	اگر (!mag.isZero())
 	{
-		if (val.getSign() < 0)
+		اگر (val.getSign() < 0)
 		{
 			mag--;
-			for (auto i = 0; i < result_len; i++)
-				result.set(i, mag.getBit(i) ? RTLIL::State::S0 : RTLIL::State::S1);
+			برائے (خودکار i = 0; i < نتیجہ_len; i++)
+				نتیجہ.سیٹ(i, mag.get_ثنائی_ہندسہ(i) ? RTLIL::State::S0 : RTLIL::State::S1);
 		}
-		else
+		ورنہ
 		{
-			for (auto i = 0; i < result_len; i++)
-				result.set(i, mag.getBit(i) ? RTLIL::State::S1 : RTLIL::State::S0);
+			برائے (خودکار i = 0; i < نتیجہ_len; i++)
+				نتیجہ.سیٹ(i, mag.get_ثنائی_ہندسہ(i) ? RTLIL::State::S1 : RTLIL::State::S0);
 		}
 	}
 
-#if 0
-	if (undef_bit_pos >= 0)
-		for (int i = undef_bit_pos; i < result_len; i++)
-			result[i] = RTLIL::State::Sx;
-#endif
+#اگر 0
+	اگر (undef_ثنائی_ہندسہ_pos >= 0)
+		برائے (صحیح i = undef_ثنائی_ہندسہ_pos; i < نتیجہ_len; i++)
+			نتیجہ[i] = RTLIL::State::Sx;
+#اگر_ختم
 
-	return result;
+	واپس نتیجہ;
 }
 
-static RTLIL::State logic_and(RTLIL::State a, RTLIL::State b)
+ساکن RTLIL::State logic_and(RTLIL::State a, RTLIL::State b)
 {
-	if (a == RTLIL::State::S0) return RTLIL::State::S0;
-	if (b == RTLIL::State::S0) return RTLIL::State::S0;
-	if (a != RTLIL::State::S1) return RTLIL::State::Sx;
-	if (b != RTLIL::State::S1) return RTLIL::State::Sx;
-	return RTLIL::State::S1;
+	اگر (a == RTLIL::State::S0) واپس RTLIL::State::S0;
+	اگر (b == RTLIL::State::S0) واپس RTLIL::State::S0;
+	اگر (a != RTLIL::State::S1) واپس RTLIL::State::Sx;
+	اگر (b != RTLIL::State::S1) واپس RTLIL::State::Sx;
+	واپس RTLIL::State::S1;
 }
 
-static RTLIL::State logic_or(RTLIL::State a, RTLIL::State b)
+ساکن RTLIL::State logic_or(RTLIL::State a, RTLIL::State b)
 {
-	if (a == RTLIL::State::S1) return RTLIL::State::S1;
-	if (b == RTLIL::State::S1) return RTLIL::State::S1;
-	if (a != RTLIL::State::S0) return RTLIL::State::Sx;
-	if (b != RTLIL::State::S0) return RTLIL::State::Sx;
-	return RTLIL::State::S0;
+	اگر (a == RTLIL::State::S1) واپس RTLIL::State::S1;
+	اگر (b == RTLIL::State::S1) واپس RTLIL::State::S1;
+	اگر (a != RTLIL::State::S0) واپس RTLIL::State::Sx;
+	اگر (b != RTLIL::State::S0) واپس RTLIL::State::Sx;
+	واپس RTLIL::State::S0;
 }
 
-static RTLIL::State logic_xor(RTLIL::State a, RTLIL::State b)
+ساکن RTLIL::State logic_xor(RTLIL::State a, RTLIL::State b)
 {
-	if (a != RTLIL::State::S0 && a != RTLIL::State::S1) return RTLIL::State::Sx;
-	if (b != RTLIL::State::S0 && b != RTLIL::State::S1) return RTLIL::State::Sx;
-	return a != b ? RTLIL::State::S1 : RTLIL::State::S0;
+	اگر (a != RTLIL::State::S0 && a != RTLIL::State::S1) واپس RTLIL::State::Sx;
+	اگر (b != RTLIL::State::S0 && b != RTLIL::State::S1) واپس RTLIL::State::Sx;
+	واپس a != b ? RTLIL::State::S1 : RTLIL::State::S0;
 }
 
-static RTLIL::State logic_xnor(RTLIL::State a, RTLIL::State b)
+ساکن RTLIL::State logic_xnor(RTLIL::State a, RTLIL::State b)
 {
-	if (a != RTLIL::State::S0 && a != RTLIL::State::S1) return RTLIL::State::Sx;
-	if (b != RTLIL::State::S0 && b != RTLIL::State::S1) return RTLIL::State::Sx;
-	return a == b ? RTLIL::State::S1 : RTLIL::State::S0;
+	اگر (a != RTLIL::State::S0 && a != RTLIL::State::S1) واپس RTLIL::State::Sx;
+	اگر (b != RTLIL::State::S0 && b != RTLIL::State::S1) واپس RTLIL::State::Sx;
+	واپس a == b ? RTLIL::State::S1 : RTLIL::State::S0;
 }
 
-RTLIL::Const RTLIL::const_not(const RTLIL::Const &arg1, const RTLIL::Const&, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_not(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const&, منطقی signed1, منطقی, صحیح نتیجہ_len)
 {
-	if (result_len < 0)
-		result_len = GetSize(arg1);
+	اگر (نتیجہ_len < 0)
+		نتیجہ_len = Get_سائز(arg1);
 
 	RTLIL::Const arg1_ext = arg1;
-	extend_u0(arg1_ext, result_len, signed1);
+	extend_u0(arg1_ext, نتیجہ_len, signed1);
 
-	RTLIL::Const result(RTLIL::State::Sx, result_len);
-	for (auto i = 0; i < result_len; i++) {
-		if (i >= GetSize(arg1_ext))
-			result.set(i, RTLIL::State::S0);
-		else if (arg1_ext[i] == RTLIL::State::S0)
-			result.set(i, RTLIL::State::S1);
-		else if (arg1_ext[i] == RTLIL::State::S1)
-			result.set(i, RTLIL::State::S0);
+	RTLIL::Const نتیجہ(RTLIL::State::Sx, نتیجہ_len);
+	برائے (خودکار i = 0; i < نتیجہ_len; i++) {
+		اگر (i >= Get_سائز(arg1_ext))
+			نتیجہ.سیٹ(i, RTLIL::State::S0);
+		ورنہ اگر (arg1_ext[i] == RTLIL::State::S0)
+			نتیجہ.سیٹ(i, RTLIL::State::S1);
+		ورنہ اگر (arg1_ext[i] == RTLIL::State::S1)
+			نتیجہ.سیٹ(i, RTLIL::State::S0);
 	}
 
-	return result;
+	واپس نتیجہ;
 }
 
-static RTLIL::Const logic_wrapper(RTLIL::State(*logic_func)(RTLIL::State, RTLIL::State),
-		RTLIL::Const arg1, RTLIL::Const arg2, bool signed1, bool signed2, int result_len = -1)
+ساکن RTLIL::Const logic_wrapper(RTLIL::State(*logic_func)(RTLIL::State, RTLIL::State),
+		RTLIL::Const arg1, RTLIL::Const arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len = -1)
 {
-	if (result_len < 0)
-		result_len = max(GetSize(arg1), GetSize(arg2));
+	اگر (نتیجہ_len < 0)
+		نتیجہ_len = max(Get_سائز(arg1), Get_سائز(arg2));
 
-	extend_u0(arg1, result_len, signed1);
-	extend_u0(arg2, result_len, signed2);
+	extend_u0(arg1, نتیجہ_len, signed1);
+	extend_u0(arg2, نتیجہ_len, signed2);
 
-	RTLIL::Const result(RTLIL::State::Sx, result_len);
-	for (auto i = 0; i < result_len; i++) {
-		RTLIL::State a = i < GetSize(arg1) ? arg1[i] : RTLIL::State::S0;
-		RTLIL::State b = i < GetSize(arg2) ? arg2[i] : RTLIL::State::S0;
-		result.set(i, logic_func(a, b));
+	RTLIL::Const نتیجہ(RTLIL::State::Sx, نتیجہ_len);
+	برائے (خودکار i = 0; i < نتیجہ_len; i++) {
+		RTLIL::State a = i < Get_سائز(arg1) ? arg1[i] : RTLIL::State::S0;
+		RTLIL::State b = i < Get_سائز(arg2) ? arg2[i] : RTLIL::State::S0;
+		نتیجہ.سیٹ(i, logic_func(a, b));
 	}
 
-	return result;
+	واپس نتیجہ;
 }
 
-RTLIL::Const RTLIL::const_and(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_and(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	return logic_wrapper(logic_and, arg1, arg2, signed1, signed2, result_len);
+	واپس logic_wrapper(logic_and, arg1, arg2, signed1, signed2, نتیجہ_len);
 }
 
-RTLIL::Const RTLIL::const_or(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_or(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	return logic_wrapper(logic_or, arg1, arg2, signed1, signed2, result_len);
+	واپس logic_wrapper(logic_or, arg1, arg2, signed1, signed2, نتیجہ_len);
 }
 
-RTLIL::Const RTLIL::const_xor(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_xor(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	return logic_wrapper(logic_xor, arg1, arg2, signed1, signed2, result_len);
+	واپس logic_wrapper(logic_xor, arg1, arg2, signed1, signed2, نتیجہ_len);
 }
 
-RTLIL::Const RTLIL::const_xnor(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_xnor(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	return logic_wrapper(logic_xnor, arg1, arg2, signed1, signed2, result_len);
+	واپس logic_wrapper(logic_xnor, arg1, arg2, signed1, signed2, نتیجہ_len);
 }
 
-static RTLIL::Const logic_reduce_wrapper(RTLIL::State initial, RTLIL::State(*logic_func)(RTLIL::State, RTLIL::State), const RTLIL::Const &arg1, int result_len)
+ساکن RTLIL::Const logic_reduce_wrapper(RTLIL::State initial, RTLIL::State(*logic_func)(RTLIL::State, RTLIL::State), ثابت RTLIL::Const &arg1, صحیح نتیجہ_len)
 {
-	RTLIL::State temp = initial;
+	RTLIL::State عارضی = initial;
 
-	for (auto i = 0; i < arg1.size(); i++)
-		temp = logic_func(temp, arg1[i]);
+	برائے (خودکار i = 0; i < arg1.سائز(); i++)
+		عارضی = logic_func(عارضی, arg1[i]);
 
-	RTLIL::Const result(temp);
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	RTLIL::Const نتیجہ(عارضی);
+	اگر (Get_سائز(نتیجہ) < نتیجہ_len)
+		نتیجہ.resize(نتیجہ_len, RTLIL::State::S0);
+	واپس نتیجہ;
 }
 
-RTLIL::Const RTLIL::const_reduce_and(const RTLIL::Const &arg1, const RTLIL::Const&, bool, bool, int result_len)
+RTLIL::Const RTLIL::const_reduce_and(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const&, منطقی, منطقی, صحیح نتیجہ_len)
 {
-	return logic_reduce_wrapper(RTLIL::State::S1, logic_and, arg1, result_len);
+	واپس logic_reduce_wrapper(RTLIL::State::S1, logic_and, arg1, نتیجہ_len);
 }
 
-RTLIL::Const RTLIL::const_reduce_or(const RTLIL::Const &arg1, const RTLIL::Const&, bool, bool, int result_len)
+RTLIL::Const RTLIL::const_reduce_or(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const&, منطقی, منطقی, صحیح نتیجہ_len)
 {
-	return logic_reduce_wrapper(RTLIL::State::S0, logic_or, arg1, result_len);
+	واپس logic_reduce_wrapper(RTLIL::State::S0, logic_or, arg1, نتیجہ_len);
 }
 
-RTLIL::Const RTLIL::const_reduce_xor(const RTLIL::Const &arg1, const RTLIL::Const&, bool, bool, int result_len)
+RTLIL::Const RTLIL::const_reduce_xor(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const&, منطقی, منطقی, صحیح نتیجہ_len)
 {
-	return logic_reduce_wrapper(RTLIL::State::S0, logic_xor, arg1, result_len);
+	واپس logic_reduce_wrapper(RTLIL::State::S0, logic_xor, arg1, نتیجہ_len);
 }
 
-RTLIL::Const RTLIL::const_reduce_xnor(const RTLIL::Const &arg1, const RTLIL::Const&, bool, bool, int result_len)
+RTLIL::Const RTLIL::const_reduce_xnor(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const&, منطقی, منطقی, صحیح نتیجہ_len)
 {
-	RTLIL::Const buffer = logic_reduce_wrapper(RTLIL::State::S0, logic_xor, arg1, result_len);
-	if (!buffer.empty()) {
-		if (buffer.front() == RTLIL::State::S0)
-			buffer.set(0, RTLIL::State::S1);
-		else if (buffer.front() == RTLIL::State::S1)
-			buffer.set(0, RTLIL::State::S0);
+	RTLIL::Const بفر = logic_reduce_wrapper(RTLIL::State::S0, logic_xor, arg1, نتیجہ_len);
+	اگر (!بفر.خالی_خانے()) {
+		اگر (بفر.front() == RTLIL::State::S0)
+			بفر.سیٹ(0, RTLIL::State::S1);
+		ورنہ اگر (بفر.front() == RTLIL::State::S1)
+			بفر.سیٹ(0, RTLIL::State::S0);
 	}
-	return buffer;
+	واپس بفر;
 }
 
-RTLIL::Const RTLIL::const_reduce_bool(const RTLIL::Const &arg1, const RTLIL::Const&, bool, bool, int result_len)
+RTLIL::Const RTLIL::const_reduce_bool(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const&, منطقی, منطقی, صحیح نتیجہ_len)
 {
-	return logic_reduce_wrapper(RTLIL::State::S0, logic_or, arg1, result_len);
+	واپس logic_reduce_wrapper(RTLIL::State::S0, logic_or, arg1, نتیجہ_len);
 }
 
-RTLIL::Const RTLIL::const_logic_not(const RTLIL::Const &arg1, const RTLIL::Const&, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_logic_not(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const&, منطقی signed1, منطقی, صحیح نتیجہ_len)
 {
-	int undef_bit_pos_a = -1;
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos_a);
-	RTLIL::Const result(a.isZero() ? undef_bit_pos_a >= 0 ? RTLIL::State::Sx : RTLIL::State::S1 : RTLIL::State::S0);
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	صحیح undef_ثنائی_ہندسہ_pos_a = -1;
+	BigInteger a = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos_a);
+	RTLIL::Const نتیجہ(a.isZero() ? undef_ثنائی_ہندسہ_pos_a >= 0 ? RTLIL::State::Sx : RTLIL::State::S1 : RTLIL::State::S0);
+	اگر (Get_سائز(نتیجہ) < نتیجہ_len)
+		نتیجہ.resize(نتیجہ_len, RTLIL::State::S0);
+	واپس نتیجہ;
 }
 
-RTLIL::Const RTLIL::const_logic_and(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_logic_and(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	int undef_bit_pos_a = -1, undef_bit_pos_b = -1;
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos_a);
-	BigInteger b = const2big(arg2, signed2, undef_bit_pos_b);
+	صحیح undef_ثنائی_ہندسہ_pos_a = -1, undef_ثنائی_ہندسہ_pos_b = -1;
+	BigInteger a = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos_a);
+	BigInteger b = const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos_b);
 
-	RTLIL::State bit_a = a.isZero() ? undef_bit_pos_a >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
-	RTLIL::State bit_b = b.isZero() ? undef_bit_pos_b >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
-	RTLIL::Const result(logic_and(bit_a, bit_b));
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	RTLIL::State ثنائی_ہندسہ_a = a.isZero() ? undef_ثنائی_ہندسہ_pos_a >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
+	RTLIL::State ثنائی_ہندسہ_b = b.isZero() ? undef_ثنائی_ہندسہ_pos_b >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
+	RTLIL::Const نتیجہ(logic_and(ثنائی_ہندسہ_a, ثنائی_ہندسہ_b));
+	اگر (Get_سائز(نتیجہ) < نتیجہ_len)
+		نتیجہ.resize(نتیجہ_len, RTLIL::State::S0);
+	واپس نتیجہ;
 }
 
-RTLIL::Const RTLIL::const_logic_or(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_logic_or(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	int undef_bit_pos_a = -1, undef_bit_pos_b = -1;
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos_a);
-	BigInteger b = const2big(arg2, signed2, undef_bit_pos_b);
+	صحیح undef_ثنائی_ہندسہ_pos_a = -1, undef_ثنائی_ہندسہ_pos_b = -1;
+	BigInteger a = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos_a);
+	BigInteger b = const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos_b);
 
-	RTLIL::State bit_a = a.isZero() ? undef_bit_pos_a >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
-	RTLIL::State bit_b = b.isZero() ? undef_bit_pos_b >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
-	RTLIL::Const result(logic_or(bit_a, bit_b));
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	RTLIL::State ثنائی_ہندسہ_a = a.isZero() ? undef_ثنائی_ہندسہ_pos_a >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
+	RTLIL::State ثنائی_ہندسہ_b = b.isZero() ? undef_ثنائی_ہندسہ_pos_b >= 0 ? RTLIL::State::Sx : RTLIL::State::S0 : RTLIL::State::S1;
+	RTLIL::Const نتیجہ(logic_or(ثنائی_ہندسہ_a, ثنائی_ہندسہ_b));
+	اگر (Get_سائز(نتیجہ) < نتیجہ_len)
+		نتیجہ.resize(نتیجہ_len, RTLIL::State::S0);
+	واپس نتیجہ;
 }
 
 // Shift `arg1` by `arg2` bits.
@@ -274,248 +274,248 @@ RTLIL::Const RTLIL::const_logic_or(const RTLIL::Const &arg1, const RTLIL::Const 
 // If `signed2` is true, `arg2` is interpreted as a signed integer; a negative `arg2` will cause a shift in the opposite direction.
 // Any required bits outside the bounds of `arg1` are padded with `vacant_bits` unless `sign_ext` is true, in which case any bits outside the left
 // bounds are filled with the leftmost bit of `arg1` (arithmetic shift).
-static RTLIL::Const const_shift_worker(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool sign_ext, bool signed2, int direction, int result_len, RTLIL::State vacant_bits = RTLIL::State::S0)
+ساکن RTLIL::Const const_سرکاؤ_کارکن(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی sign_ext, منطقی signed2, صحیح direction, صحیح نتیجہ_len, RTLIL::State vacant_بٹ = RTLIL::State::S0)
 {
-	int undef_bit_pos = -1;
-	BigInteger offset = const2big(arg2, signed2, undef_bit_pos) * direction;
+	صحیح undef_ثنائی_ہندسہ_pos = -1;
+	BigInteger انحراف = const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos) * direction;
 
-	if (result_len < 0)
-		result_len = GetSize(arg1);
+	اگر (نتیجہ_len < 0)
+		نتیجہ_len = Get_سائز(arg1);
 
-	RTLIL::Const result(RTLIL::State::Sx, result_len);
-	if (undef_bit_pos >= 0)
-		return result;
+	RTLIL::Const نتیجہ(RTLIL::State::Sx, نتیجہ_len);
+	اگر (undef_ثنائی_ہندسہ_pos >= 0)
+		واپس نتیجہ;
 
-	for (int i = 0; i < result_len; i++) {
-		BigInteger pos = BigInteger(i) + offset;
-		if (pos < 0)
-			result.set(i, vacant_bits);
-		else if (pos >= BigInteger(GetSize(arg1)))
-			result.set(i, sign_ext && !arg1.empty() ? arg1.back() : vacant_bits);
-		else
-			result.set(i, arg1[pos.toInt()]);
+	برائے (صحیح i = 0; i < نتیجہ_len; i++) {
+		BigInteger pos = BigInteger(i) + انحراف;
+		اگر (pos < 0)
+			نتیجہ.سیٹ(i, vacant_بٹ);
+		ورنہ اگر (pos >= BigInteger(Get_سائز(arg1)))
+			نتیجہ.سیٹ(i, sign_ext && !arg1.خالی_خانے() ? arg1.عقب() : vacant_بٹ);
+		ورنہ
+			نتیجہ.سیٹ(i, arg1[pos.مقصد_Int()]);
 	}
 
-	return result;
+	واپس نتیجہ;
 }
 
-RTLIL::Const RTLIL::const_shl(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_shl(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی, صحیح نتیجہ_len)
 {
 	RTLIL::Const arg1_ext = arg1;
-	extend_u0(arg1_ext, result_len, signed1);
-	return const_shift_worker(arg1_ext, arg2, false, false, -1, result_len);
+	extend_u0(arg1_ext, نتیجہ_len, signed1);
+	واپس const_سرکاؤ_کارکن(arg1_ext, arg2, جھوٹ, جھوٹ, -1, نتیجہ_len);
 }
 
-RTLIL::Const RTLIL::const_shr(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_shr(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی, صحیح نتیجہ_len)
 {
 	RTLIL::Const arg1_ext = arg1;
-	extend_u0(arg1_ext, max(result_len, GetSize(arg1)), signed1);
-	return const_shift_worker(arg1_ext, arg2, false, false, +1, result_len);
+	extend_u0(arg1_ext, max(نتیجہ_len, Get_سائز(arg1)), signed1);
+	واپس const_سرکاؤ_کارکن(arg1_ext, arg2, جھوٹ, جھوٹ, +1, نتیجہ_len);
 }
 
-RTLIL::Const RTLIL::const_sshl(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_sshl(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی, صحیح نتیجہ_len)
 {
-	return const_shift_worker(arg1, arg2, signed1, false, -1, result_len);
+	واپس const_سرکاؤ_کارکن(arg1, arg2, signed1, جھوٹ, -1, نتیجہ_len);
 }
 
-RTLIL::Const RTLIL::const_sshr(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_sshr(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی, صحیح نتیجہ_len)
 {
-	return const_shift_worker(arg1, arg2, signed1, false, +1, result_len);
+	واپس const_سرکاؤ_کارکن(arg1, arg2, signed1, جھوٹ, +1, نتیجہ_len);
 }
 
-RTLIL::Const RTLIL::const_shift(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_سرکاؤ(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
 	RTLIL::Const arg1_ext = arg1;
-	extend_u0(arg1_ext, max(result_len, GetSize(arg1)), signed1);
-	return const_shift_worker(arg1_ext, arg2, false, signed2, +1, result_len);
+	extend_u0(arg1_ext, max(نتیجہ_len, Get_سائز(arg1)), signed1);
+	واپس const_سرکاؤ_کارکن(arg1_ext, arg2, جھوٹ, signed2, +1, نتیجہ_len);
 }
 
-RTLIL::Const RTLIL::const_shiftx(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_shiftx(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی, منطقی signed2, صحیح نتیجہ_len)
 {
-	return const_shift_worker(arg1, arg2, false, signed2, +1, result_len, RTLIL::State::Sx);
+	واپس const_سرکاؤ_کارکن(arg1, arg2, جھوٹ, signed2, +1, نتیجہ_len, RTLIL::State::Sx);
 }
 
-RTLIL::Const RTLIL::const_lt(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_lt(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	int undef_bit_pos = -1;
-	bool y = const2big(arg1, signed1, undef_bit_pos) < const2big(arg2, signed2, undef_bit_pos);
-	RTLIL::Const result(undef_bit_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	صحیح undef_ثنائی_ہندسہ_pos = -1;
+	منطقی y = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos) < const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos);
+	RTLIL::Const نتیجہ(undef_ثنائی_ہندسہ_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
+	اگر (Get_سائز(نتیجہ) < نتیجہ_len)
+		نتیجہ.resize(نتیجہ_len, RTLIL::State::S0);
+	واپس نتیجہ;
 }
 
-RTLIL::Const RTLIL::const_le(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_le(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	int undef_bit_pos = -1;
-	bool y = const2big(arg1, signed1, undef_bit_pos) <= const2big(arg2, signed2, undef_bit_pos);
-	RTLIL::Const result(undef_bit_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	صحیح undef_ثنائی_ہندسہ_pos = -1;
+	منطقی y = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos) <= const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos);
+	RTLIL::Const نتیجہ(undef_ثنائی_ہندسہ_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
+	اگر (Get_سائز(نتیجہ) < نتیجہ_len)
+		نتیجہ.resize(نتیجہ_len, RTLIL::State::S0);
+	واپس نتیجہ;
 }
 
-RTLIL::Const RTLIL::const_eq(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_eq(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
 	RTLIL::Const arg1_ext = arg1;
 	RTLIL::Const arg2_ext = arg2;
-	RTLIL::Const result(RTLIL::State::S0, result_len);
+	RTLIL::Const نتیجہ(RTLIL::State::S0, نتیجہ_len);
 
-	int width = max(GetSize(arg1_ext), GetSize(arg2_ext));
-	extend_u0(arg1_ext, width, signed1 && signed2);
-	extend_u0(arg2_ext, width, signed1 && signed2);
+	صحیح چوڑائی = max(Get_سائز(arg1_ext), Get_سائز(arg2_ext));
+	extend_u0(arg1_ext, چوڑائی, signed1 && signed2);
+	extend_u0(arg2_ext, چوڑائی, signed1 && signed2);
 
-	RTLIL::State matched_status = RTLIL::State::S1;
-	for (auto i = 0; i < arg1_ext.size(); i++) {
-		if (arg1_ext.at(i) == RTLIL::State::S0 && arg2_ext.at(i) == RTLIL::State::S1)
-			return result;
-		if (arg1_ext.at(i) == RTLIL::State::S1 && arg2_ext.at(i) == RTLIL::State::S0)
-			return result;
-		if (arg1_ext.at(i) > RTLIL::State::S1 || arg2_ext.at(i) > RTLIL::State::S1)
-			matched_status = RTLIL::State::Sx;
+	RTLIL::State matched_حالت = RTLIL::State::S1;
+	برائے (خودکار i = 0; i < arg1_ext.سائز(); i++) {
+		اگر (arg1_ext.at(i) == RTLIL::State::S0 && arg2_ext.at(i) == RTLIL::State::S1)
+			واپس نتیجہ;
+		اگر (arg1_ext.at(i) == RTLIL::State::S1 && arg2_ext.at(i) == RTLIL::State::S0)
+			واپس نتیجہ;
+		اگر (arg1_ext.at(i) > RTLIL::State::S1 || arg2_ext.at(i) > RTLIL::State::S1)
+			matched_حالت = RTLIL::State::Sx;
 	}
 
-	result.set(0, matched_status);
-	return result;
+	نتیجہ.سیٹ(0, matched_حالت);
+	واپس نتیجہ;
 }
 
-RTLIL::Const RTLIL::const_ne(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_ne(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	RTLIL::Const result = RTLIL::const_eq(arg1, arg2, signed1, signed2, result_len);
-	if (result.front() == RTLIL::State::S0)
-		result.set(0, RTLIL::State::S1);
-	else if (result.front() == RTLIL::State::S1)
-		result.set(0, RTLIL::State::S0);
-	return result;
+	RTLIL::Const نتیجہ = RTLIL::const_eq(arg1, arg2, signed1, signed2, نتیجہ_len);
+	اگر (نتیجہ.front() == RTLIL::State::S0)
+		نتیجہ.سیٹ(0, RTLIL::State::S1);
+	ورنہ اگر (نتیجہ.front() == RTLIL::State::S1)
+		نتیجہ.سیٹ(0, RTLIL::State::S0);
+	واپس نتیجہ;
 }
 
-RTLIL::Const RTLIL::const_eqx(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_eqx(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
 	RTLIL::Const arg1_ext = arg1;
 	RTLIL::Const arg2_ext = arg2;
-	RTLIL::Const result(RTLIL::State::S0, result_len);
+	RTLIL::Const نتیجہ(RTLIL::State::S0, نتیجہ_len);
 
-	int width = max(GetSize(arg1_ext), GetSize(arg2_ext));
-	extend_u0(arg1_ext, width, signed1 && signed2);
-	extend_u0(arg2_ext, width, signed1 && signed2);
+	صحیح چوڑائی = max(Get_سائز(arg1_ext), Get_سائز(arg2_ext));
+	extend_u0(arg1_ext, چوڑائی, signed1 && signed2);
+	extend_u0(arg2_ext, چوڑائی, signed1 && signed2);
 
-	for (auto i = 0; i < arg1_ext.size(); i++) {
-		if (arg1_ext.at(i) != arg2_ext.at(i))
-			return result;
+	برائے (خودکار i = 0; i < arg1_ext.سائز(); i++) {
+		اگر (arg1_ext.at(i) != arg2_ext.at(i))
+			واپس نتیجہ;
 	}
 
-	result.set(0, RTLIL::State::S1);
-	return result;
+	نتیجہ.سیٹ(0, RTLIL::State::S1);
+	واپس نتیجہ;
 }
 
-RTLIL::Const RTLIL::const_nex(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_nex(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	RTLIL::Const result = RTLIL::const_eqx(arg1, arg2, signed1, signed2, result_len);
-	if (result.front() == RTLIL::State::S0)
-		result.set(0, RTLIL::State::S1);
-	else if (result.front() == RTLIL::State::S1)
-		result.set(0, RTLIL::State::S0);
-	return result;
+	RTLIL::Const نتیجہ = RTLIL::const_eqx(arg1, arg2, signed1, signed2, نتیجہ_len);
+	اگر (نتیجہ.front() == RTLIL::State::S0)
+		نتیجہ.سیٹ(0, RTLIL::State::S1);
+	ورنہ اگر (نتیجہ.front() == RTLIL::State::S1)
+		نتیجہ.سیٹ(0, RTLIL::State::S0);
+	واپس نتیجہ;
 }
 
-RTLIL::Const RTLIL::const_ge(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_ge(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	int undef_bit_pos = -1;
-	bool y = const2big(arg1, signed1, undef_bit_pos) >= const2big(arg2, signed2, undef_bit_pos);
-	RTLIL::Const result(undef_bit_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	صحیح undef_ثنائی_ہندسہ_pos = -1;
+	منطقی y = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos) >= const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos);
+	RTLIL::Const نتیجہ(undef_ثنائی_ہندسہ_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
+	اگر (Get_سائز(نتیجہ) < نتیجہ_len)
+		نتیجہ.resize(نتیجہ_len, RTLIL::State::S0);
+	واپس نتیجہ;
 }
 
-RTLIL::Const RTLIL::const_gt(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_gt(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	int undef_bit_pos = -1;
-	bool y = const2big(arg1, signed1, undef_bit_pos) > const2big(arg2, signed2, undef_bit_pos);
-	RTLIL::Const result(undef_bit_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
-	if (GetSize(result) < result_len)
-		result.resize(result_len, RTLIL::State::S0);
-	return result;
+	صحیح undef_ثنائی_ہندسہ_pos = -1;
+	منطقی y = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos) > const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos);
+	RTLIL::Const نتیجہ(undef_ثنائی_ہندسہ_pos >= 0 ? RTLIL::State::Sx : y ? RTLIL::State::S1 : RTLIL::State::S0);
+	اگر (Get_سائز(نتیجہ) < نتیجہ_len)
+		نتیجہ.resize(نتیجہ_len, RTLIL::State::S0);
+	واپس نتیجہ;
 }
 
-RTLIL::Const RTLIL::const_add(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_جوڑو(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	int undef_bit_pos = -1;
-	BigInteger y = const2big(arg1, signed1, undef_bit_pos) + const2big(arg2, signed2, undef_bit_pos);
-	return big2const(y, result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), undef_bit_pos);
+	صحیح undef_ثنائی_ہندسہ_pos = -1;
+	BigInteger y = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos) + const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos);
+	واپس big2const(y, نتیجہ_len >= 0 ? نتیجہ_len : max(Get_سائز(arg1), Get_سائز(arg2)), undef_ثنائی_ہندسہ_pos);
 }
 
-RTLIL::Const RTLIL::const_sub(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_sub(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	int undef_bit_pos = -1;
-	BigInteger y = const2big(arg1, signed1, undef_bit_pos) - const2big(arg2, signed2, undef_bit_pos);
-	return big2const(y, result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), undef_bit_pos);
+	صحیح undef_ثنائی_ہندسہ_pos = -1;
+	BigInteger y = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos) - const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos);
+	واپس big2const(y, نتیجہ_len >= 0 ? نتیجہ_len : max(Get_سائز(arg1), Get_سائز(arg2)), undef_ثنائی_ہندسہ_pos);
 }
 
-RTLIL::Const RTLIL::const_mul(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_mul(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	int undef_bit_pos = -1;
-	BigInteger y = const2big(arg1, signed1, undef_bit_pos) * const2big(arg2, signed2, undef_bit_pos);
-	return big2const(y, result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), min(undef_bit_pos, 0));
+	صحیح undef_ثنائی_ہندسہ_pos = -1;
+	BigInteger y = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos) * const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos);
+	واپس big2const(y, نتیجہ_len >= 0 ? نتیجہ_len : max(Get_سائز(arg1), Get_سائز(arg2)), min(undef_ثنائی_ہندسہ_pos, 0));
 }
 
 // truncating division
-RTLIL::Const RTLIL::const_div(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_div(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	int undef_bit_pos = -1;
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos);
-	BigInteger b = const2big(arg2, signed2, undef_bit_pos);
-	if (b.isZero())
-		return RTLIL::Const(RTLIL::State::Sx, result_len);
-	bool result_neg = (a.getSign() == BigInteger::negative) != (b.getSign() == BigInteger::negative);
+	صحیح undef_ثنائی_ہندسہ_pos = -1;
+	BigInteger a = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos);
+	BigInteger b = const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos);
+	اگر (b.isZero())
+		واپس RTLIL::Const(RTLIL::State::Sx, نتیجہ_len);
+	منطقی نتیجہ_neg = (a.getSign() == BigInteger::negative) != (b.getSign() == BigInteger::negative);
 	a = a.getSign() == BigInteger::negative ? -a : a;
 	b = b.getSign() == BigInteger::negative ? -b : b;
-	return big2const(result_neg ? -(a / b) : (a / b), result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), min(undef_bit_pos, 0));
+	واپس big2const(نتیجہ_neg ? -(a / b) : (a / b), نتیجہ_len >= 0 ? نتیجہ_len : max(Get_سائز(arg1), Get_سائز(arg2)), min(undef_ثنائی_ہندسہ_pos, 0));
 }
 
 // truncating modulo
-RTLIL::Const RTLIL::const_mod(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_mod(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	int undef_bit_pos = -1;
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos);
-	BigInteger b = const2big(arg2, signed2, undef_bit_pos);
-	if (b.isZero())
-		return RTLIL::Const(RTLIL::State::Sx, result_len);
-	bool result_neg = a.getSign() == BigInteger::negative;
+	صحیح undef_ثنائی_ہندسہ_pos = -1;
+	BigInteger a = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos);
+	BigInteger b = const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos);
+	اگر (b.isZero())
+		واپس RTLIL::Const(RTLIL::State::Sx, نتیجہ_len);
+	منطقی نتیجہ_neg = a.getSign() == BigInteger::negative;
 	a = a.getSign() == BigInteger::negative ? -a : a;
 	b = b.getSign() == BigInteger::negative ? -b : b;
-	return big2const(result_neg ? -(a % b) : (a % b), result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), min(undef_bit_pos, 0));
+	واپس big2const(نتیجہ_neg ? -(a % b) : (a % b), نتیجہ_len >= 0 ? نتیجہ_len : max(Get_سائز(arg1), Get_سائز(arg2)), min(undef_ثنائی_ہندسہ_pos, 0));
 }
 
-RTLIL::Const RTLIL::const_divfloor(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_divfloor(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	int undef_bit_pos = -1;
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos);
-	BigInteger b = const2big(arg2, signed2, undef_bit_pos);
-	if (b.isZero())
-		return RTLIL::Const(RTLIL::State::Sx, result_len);
+	صحیح undef_ثنائی_ہندسہ_pos = -1;
+	BigInteger a = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos);
+	BigInteger b = const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos);
+	اگر (b.isZero())
+		واپس RTLIL::Const(RTLIL::State::Sx, نتیجہ_len);
 
-	bool result_pos = (a.getSign() == BigInteger::negative) == (b.getSign() == BigInteger::negative);
+	منطقی نتیجہ_pos = (a.getSign() == BigInteger::negative) == (b.getSign() == BigInteger::negative);
 	a = a.getSign() == BigInteger::negative ? -a : a;
 	b = b.getSign() == BigInteger::negative ? -b : b;
-	BigInteger result;
+	BigInteger نتیجہ;
 
-	if (result_pos || a == 0) {
-		result = a / b;
-	} else {
+	اگر (نتیجہ_pos || a == 0) {
+		نتیجہ = a / b;
+	} ورنہ {
 		// bigint division with negative numbers is wonky, make sure we only negate at the very end
-		result = -((a + b - 1) / b);
+		نتیجہ = -((a + b - 1) / b);
 	}
-	return big2const(result, result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), min(undef_bit_pos, 0));
+	واپس big2const(نتیجہ, نتیجہ_len >= 0 ? نتیجہ_len : max(Get_سائز(arg1), Get_سائز(arg2)), min(undef_ثنائی_ہندسہ_pos, 0));
 }
 
-RTLIL::Const RTLIL::const_modfloor(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_modfloor(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	int undef_bit_pos = -1;
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos);
-	BigInteger b = const2big(arg2, signed2, undef_bit_pos);
-	if (b.isZero())
-		return RTLIL::Const(RTLIL::State::Sx, result_len);
+	صحیح undef_ثنائی_ہندسہ_pos = -1;
+	BigInteger a = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos);
+	BigInteger b = const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos);
+	اگر (b.isZero())
+		واپس RTLIL::Const(RTLIL::State::Sx, نتیجہ_len);
 
 	BigInteger::Sign a_sign = a.getSign();
 	BigInteger::Sign b_sign = b.getSign();
@@ -524,191 +524,191 @@ RTLIL::Const RTLIL::const_modfloor(const RTLIL::Const &arg1, const RTLIL::Const 
 	BigInteger truncated = a_sign == BigInteger::negative ? -(a % b) : (a % b);
 	BigInteger modulo;
 
-	if (truncated == 0 || (a_sign == b_sign)) {
+	اگر (truncated == 0 || (a_sign == b_sign)) {
 		modulo = truncated;
-	} else {
+	} ورنہ {
 		modulo = b_sign == BigInteger::negative ? truncated - b : truncated + b;
 	}
-	return big2const(modulo, result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), min(undef_bit_pos, 0));
+	واپس big2const(modulo, نتیجہ_len >= 0 ? نتیجہ_len : max(Get_سائز(arg1), Get_سائز(arg2)), min(undef_ثنائی_ہندسہ_pos, 0));
 }
 
-RTLIL::Const RTLIL::const_pow(const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len)
+RTLIL::Const RTLIL::const_pow(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, منطقی signed1, منطقی signed2, صحیح نتیجہ_len)
 {
-	int undef_bit_pos = -1;
+	صحیح undef_ثنائی_ہندسہ_pos = -1;
 
-	BigInteger a = const2big(arg1, signed1, undef_bit_pos);
-	BigInteger b = const2big(arg2, signed2, undef_bit_pos);
+	BigInteger a = const2big(arg1, signed1, undef_ثنائی_ہندسہ_pos);
+	BigInteger b = const2big(arg2, signed2, undef_ثنائی_ہندسہ_pos);
 	BigInteger y = 1;
 
-	if (a == 0 && b < 0)
-		return RTLIL::Const(RTLIL::State::Sx, result_len);
+	اگر (a == 0 && b < 0)
+		واپس RTLIL::Const(RTLIL::State::Sx, نتیجہ_len);
 
-	if (a == 0 && b > 0)
-		return RTLIL::Const(RTLIL::State::S0, result_len);
+	اگر (a == 0 && b > 0)
+		واپس RTLIL::Const(RTLIL::State::S0, نتیجہ_len);
 
-	if (b < 0)
+	اگر (b < 0)
 	{
-		if (a < -1 || a > 1)
+		اگر (a < -1 || a > 1)
 			y = 0;
-		if (a == -1)
+		اگر (a == -1)
 			y = (-b % 2) == 0 ? 1 : -1;
 	}
 
-	if (b > 0)
+	اگر (b > 0)
 	{
 		// Power-modulo with 2^result_len as modulus
 		BigInteger modulus = 1;
-		int modulus_bits = (result_len >= 0 ? result_len : 1024);
-		for (int i = 0; i < modulus_bits; i++)
+		صحیح modulus_بٹ = (نتیجہ_len >= 0 ? نتیجہ_len : 1024);
+		برائے (صحیح i = 0; i < modulus_بٹ; i++)
 			modulus *= 2;
 
-		bool flip_result_sign = false;
-		if (a < 0) {
+		منطقی flip_نتیجہ_sign = جھوٹ;
+		اگر (a < 0) {
 			a *= -1;
-			if (b % 2 == 1)
-				flip_result_sign = true;
+			اگر (b % 2 == 1)
+				flip_نتیجہ_sign = سچ;
 		}
 
-		while (b > 0) {
-			if (b % 2 == 1)
+		جب (b > 0) {
+			اگر (b % 2 == 1)
 				y = (y * a) % modulus;
 			b = b / 2;
 			a = (a * a) % modulus;
 		}
 
-		if (flip_result_sign)
+		اگر (flip_نتیجہ_sign)
 			y *= -1;
 	}
 
-	return big2const(y, result_len >= 0 ? result_len : max(GetSize(arg1), GetSize(arg2)), min(undef_bit_pos, 0));
+	واپس big2const(y, نتیجہ_len >= 0 ? نتیجہ_len : max(Get_سائز(arg1), Get_سائز(arg2)), min(undef_ثنائی_ہندسہ_pos, 0));
 }
 
-RTLIL::Const RTLIL::const_pos(const RTLIL::Const &arg1, const RTLIL::Const&, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_pos(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const&, منطقی signed1, منطقی, صحیح نتیجہ_len)
 {
 	RTLIL::Const arg1_ext = arg1;
-	extend_u0(arg1_ext, result_len, signed1);
+	extend_u0(arg1_ext, نتیجہ_len, signed1);
 
-	return arg1_ext;
+	واپس arg1_ext;
 }
 
-RTLIL::Const RTLIL::const_buf(const RTLIL::Const &arg1, const RTLIL::Const&, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_buf(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const&, منطقی signed1, منطقی, صحیح نتیجہ_len)
 {
 	RTLIL::Const arg1_ext = arg1;
-	extend_u0(arg1_ext, result_len, signed1);
+	extend_u0(arg1_ext, نتیجہ_len, signed1);
 
-	return arg1_ext;
+	واپس arg1_ext;
 }
 
-RTLIL::Const RTLIL::const_neg(const RTLIL::Const &arg1, const RTLIL::Const&, bool signed1, bool, int result_len)
+RTLIL::Const RTLIL::const_neg(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const&, منطقی signed1, منطقی, صحیح نتیجہ_len)
 {
 	RTLIL::Const arg1_ext = arg1;
 	RTLIL::Const zero(RTLIL::State::S0, 1);
 
-	return RTLIL::const_sub(zero, arg1_ext, true, signed1, result_len);
+	واپس RTLIL::const_sub(zero, arg1_ext, سچ, signed1, نتیجہ_len);
 }
 
-RTLIL::Const RTLIL::const_mux(const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3)
+RTLIL::Const RTLIL::const_mux(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, ثابت RTLIL::Const &arg3)
 {
-	log_assert(arg2.size() == arg1.size());
-	if (arg3[0] == State::S0)
-		return arg1;
-	else if (arg3[0] == State::S1)
-		return arg2;
+	log_assert(arg2.سائز() == arg1.سائز());
+	اگر (arg3[0] == State::S0)
+		واپس arg1;
+	ورنہ اگر (arg3[0] == State::S1)
+		واپس arg2;
 
 	RTLIL::Const ret = arg1;
-	for (auto i = 0; i < ret.size(); i++)
-		if (ret[i] != arg2[i])
-			ret.set(i, State::Sx);
-	return ret;
+	برائے (خودکار i = 0; i < ret.سائز(); i++)
+		اگر (ret[i] != arg2[i])
+			ret.سیٹ(i, State::Sx);
+	واپس ret;
 }
 
-RTLIL::Const RTLIL::const_pmux(const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3)
+RTLIL::Const RTLIL::const_pmux(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, ثابت RTLIL::Const &arg3)
 {
-	if (arg3.is_fully_zero())
-		return arg1;
+	اگر (arg3.is_fully_zero())
+		واپس arg1;
 
-	if (!arg3.is_onehot())
-		return RTLIL::Const(State::Sx, arg1.size());
+	اگر (!arg3.is_onehot())
+		واپس RTLIL::Const(State::Sx, arg1.سائز());
 
-	for (auto i = 0; i < arg3.size(); i++)
-		if (arg3[i] == State::S1)
-			return RTLIL::Const(std::vector<RTLIL::State>(arg2.begin() + i*arg1.size(), arg2.begin() + (i+1)*arg1.size()));
+	برائے (خودکار i = 0; i < arg3.سائز(); i++)
+		اگر (arg3[i] == State::S1)
+			واپس RTLIL::Const(std::سمتیہ<RTLIL::State>(arg2.begin() + i*arg1.سائز(), arg2.begin() + (i+1)*arg1.سائز()));
 
 	log_abort(); // unreachable
 }
 
-RTLIL::Const RTLIL::const_bmux(const RTLIL::Const &arg1, const RTLIL::Const &arg2)
+RTLIL::Const RTLIL::const_bmux(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2)
 {
-	std::vector<State> t = arg1.to_bits();
+	std::سمتیہ<State> t = arg1.مقصد_بٹ();
 
-	for (int i = GetSize(arg2)-1; i >= 0; i--)
+	برائے (صحیح i = Get_سائز(arg2)-1; i >= 0; i--)
 	{
 		RTLIL::State sel = arg2.at(i);
-		std::vector<RTLIL::State> new_t;
-		if (sel == State::S0)
-			new_t = std::vector<RTLIL::State>(t.begin(), t.begin() + GetSize(t)/2);
-		else if (sel == State::S1)
-			new_t = std::vector<RTLIL::State>(t.begin() + GetSize(t)/2, t.end());
-		else
-			for (int j = 0; j < GetSize(t)/2; j++)
-				new_t.push_back(t[j] == t[j + GetSize(t)/2] ? t[j] : RTLIL::Sx);
-		t.swap(new_t);
+		std::سمتیہ<RTLIL::State> new_t;
+		اگر (sel == State::S0)
+			new_t = std::سمتیہ<RTLIL::State>(t.begin(), t.begin() + Get_سائز(t)/2);
+		ورنہ اگر (sel == State::S1)
+			new_t = std::سمتیہ<RTLIL::State>(t.begin() + Get_سائز(t)/2, t.انتہا());
+		ورنہ
+			برائے (صحیح j = 0; j < Get_سائز(t)/2; j++)
+				new_t.ڈالو_عقب(t[j] == t[j + Get_سائز(t)/2] ? t[j] : RTLIL::Sx);
+		t.تبادلہ(new_t);
 	}
 
-	return t;
+	واپس t;
 }
 
-RTLIL::Const RTLIL::const_demux(const RTLIL::Const &arg1, const RTLIL::Const &arg2)
+RTLIL::Const RTLIL::const_demux(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2)
 {
-	int width = GetSize(arg1);
-	int s_width = GetSize(arg2);
-	std::vector<RTLIL::State> res;
-	for (int i = 0; i < (1 << s_width); i++)
+	صحیح چوڑائی = Get_سائز(arg1);
+	صحیح s_چوڑائی = Get_سائز(arg2);
+	std::سمتیہ<RTLIL::State> res;
+	برائے (صحیح i = 0; i < (1 << s_چوڑائی); i++)
 	{
-		bool ne = false;
-		bool x = false;
-		for (int j = 0; j < s_width; j++) {
-			bool bit = i & 1 << j;
-			if (arg2[j] == (bit ? RTLIL::S0 : RTLIL::S1))
-				ne = true;
-			else if (arg2[j] != RTLIL::S0 && arg2[j] != RTLIL::S1)
-				x = true;
+		منطقی ne = جھوٹ;
+		منطقی x = جھوٹ;
+		برائے (صحیح j = 0; j < s_چوڑائی; j++) {
+			منطقی ثنائی_ہندسہ = i & 1 << j;
+			اگر (arg2[j] == (ثنائی_ہندسہ ? RTLIL::S0 : RTLIL::S1))
+				ne = سچ;
+			ورنہ اگر (arg2[j] != RTLIL::S0 && arg2[j] != RTLIL::S1)
+				x = سچ;
 		}
-		if (ne) {
-			for (int j = 0; j < width; j++)
-				res.push_back(State::S0);
-		} else if (x) {
-			for (int j = 0; j < width; j++)
-				res.push_back(arg1[j] == State::S0 ? State::S0 : State::Sx);
-		} else {
-			for (int j = 0; j < width; j++)
-				res.push_back(arg1[j]);
+		اگر (ne) {
+			برائے (صحیح j = 0; j < چوڑائی; j++)
+				res.ڈالو_عقب(State::S0);
+		} ورنہ اگر (x) {
+			برائے (صحیح j = 0; j < چوڑائی; j++)
+				res.ڈالو_عقب(arg1[j] == State::S0 ? State::S0 : State::Sx);
+		} ورنہ {
+			برائے (صحیح j = 0; j < چوڑائی; j++)
+				res.ڈالو_عقب(arg1[j]);
 		}
 	}
-	return res;
+	واپس res;
 }
 
-RTLIL::Const RTLIL::const_bweqx(const RTLIL::Const &arg1, const RTLIL::Const &arg2)
+RTLIL::Const RTLIL::const_bweqx(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2)
 {
-	log_assert(arg2.size() == arg1.size());
-	RTLIL::Const result(RTLIL::State::S0, arg1.size());
-	for (auto i = 0; i < arg1.size(); i++)
-		result.set(i, arg1[i] == arg2[i] ? State::S1 : State::S0);
+	log_assert(arg2.سائز() == arg1.سائز());
+	RTLIL::Const نتیجہ(RTLIL::State::S0, arg1.سائز());
+	برائے (خودکار i = 0; i < arg1.سائز(); i++)
+		نتیجہ.سیٹ(i, arg1[i] == arg2[i] ? State::S1 : State::S0);
 
-	return result;
+	واپس نتیجہ;
 }
 
-RTLIL::Const RTLIL::const_bwmux(const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3)
+RTLIL::Const RTLIL::const_bwmux(ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, ثابت RTLIL::Const &arg3)
 {
-	log_assert(arg2.size() == arg1.size());
-	log_assert(arg3.size() == arg1.size());
-	RTLIL::Const result(RTLIL::State::Sx, arg1.size());
-	for (auto i = 0; i < arg1.size(); i++) {
-		if (arg3[i] != State::Sx || arg1[i] == arg2[i])
-			result.set(i, arg3[i] == State::S1 ? arg2[i] : arg1[i]);
+	log_assert(arg2.سائز() == arg1.سائز());
+	log_assert(arg3.سائز() == arg1.سائز());
+	RTLIL::Const نتیجہ(RTLIL::State::Sx, arg1.سائز());
+	برائے (خودکار i = 0; i < arg1.سائز(); i++) {
+		اگر (arg3[i] != State::Sx || arg1[i] == arg2[i])
+			نتیجہ.سیٹ(i, arg3[i] == State::S1 ? arg2[i] : arg1[i]);
 	}
 
-	return result;
+	واپس نتیجہ;
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتہا

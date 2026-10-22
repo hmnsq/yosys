@@ -17,27 +17,27 @@
  *
  */
 
-#ifndef COST_H
-#define COST_H
+#اگر_غیر_تعریف_شدہ لاگت_H
+#تعریف_کرو لاگت_H
 
-#include "kernel/yosys.h"
+#شامل "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct CellCosts
+ساخت CellCosts
 {
 
-	private:
-	dict<RTLIL::IdString, int> mod_cost_cache_;
+	نجی:
+	dict<RTLIL::IdString, صحیح> mod_لاگت_cache;
 	Design *design_ = nullptr;
 
-	public:
+	عوامی:
 	CellCosts(RTLIL::Design *design) : design_(design) { }
 
-	static const dict<RTLIL::IdString, int>& default_gate_cost() {
+	ساکن ثابت dict<RTLIL::IdString, صحیح>& default_gate_لاگت() {
 		// Default size heuristics for several common PDK standard cells
 		// used by abc and stat
-		static const dict<RTLIL::IdString, int> db = {
+		ساکن ثابت dict<RTLIL::IdString, صحیح> db = {
 			{ ID($_BUF_),    1 },
 			{ ID($_NOT_),    2 },
 			{ ID($_AND_),    4 },
@@ -55,13 +55,13 @@ struct CellCosts
 			{ ID($_MUX_),    4 },
 			{ ID($_NMUX_),   4 },
 		};
-		return db;
+		واپس db;
 	}
 
-	static const dict<RTLIL::IdString, int>& cmos_gate_cost() {
+	ساکن ثابت dict<RTLIL::IdString, صحیح>& cmos_gate_لاگت() {
 		// Estimated CMOS transistor counts for several common PDK standard cells
 		// used by stat and optionally by abc
-		static const dict<RTLIL::IdString, int> db = {
+		ساکن ثابت dict<RTLIL::IdString, صحیح> db = {
 			{ ID($_BUF_),     1 },
 			{ ID($_NOT_),     2 },
 			{ ID($_AND_),     6 },
@@ -81,19 +81,19 @@ struct CellCosts
 			{ ID($_DFF_P_),  16 },
 			{ ID($_DFF_N_),  16 },
 		};
-		return db;
+		واپس db;
 	}
 
 	// Get the cell cost for a cell based on its parameters.
 	// This cost is an *approximate* upper bound for the number of gates that
 	// the cell will get mapped to with "opt -fast; techmap"
 	// The intended usage is for flattening heuristics and similar situations
-	unsigned int get(RTLIL::Cell *cell);
+	غیرعلامتی صحیح get(RTLIL::Cell *cell);
 	// Sum up the cell costs of all cells in the module
 	// and all its submodules recursively
-	unsigned int get(RTLIL::Module *mod);
+	غیرعلامتی صحیح get(RTLIL::Module *mod);
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتہا
 
-#endif
+#اگر_ختم

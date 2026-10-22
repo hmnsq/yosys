@@ -17,58 +17,58 @@
  *
  */
 
-#include "kernel/ffmerge.h"
+#شامل "kernel/ffmerge.h"
 
 USING_YOSYS_NAMESPACE
 
-bool FfMergeHelper::is_output_unused(RTLIL::SigSpec sig) {
-	for (auto bit : (*sigmap)(sig))
-		if (sigbit_users_count[bit] != 0)
-			return false;
-	return true;
+منطقی Ff_ملاؤ_Helper::is_output_غیر_مستعمل(RTLIL::SigSpec sig) {
+	برائے (خودکار ثنائی_ہندسہ : (*sigmap)(sig))
+		اگر (sigbit_users_گنتی[ثنائی_ہندسہ] != 0)
+			واپس جھوٹ;
+	واپس سچ;
 }
 
-bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
-	ff = FfData(module, initvals, module->twines().add(NEW_ID));
+منطقی Ff_ملاؤ_Helper::ڈھونڈو_output_ff(RTLIL::SigSpec sig, Ff_ڈیٹا &ff, pool<std::pair<Cell *, صحیح>> &بٹ) {
+	ff = Ff_ڈیٹا(module, initvals, module->twines().جوڑو(NEW_ID));
 	sigmap->apply(sig);
 
-	bool found = false;
+	منطقی ملا = جھوٹ;
 
-	for (auto bit : sig)
+	برائے (خودکار ثنائی_ہندسہ : sig)
 	{
-		if (bit.wire == NULL || sigbit_users_count[bit] == 0) {
-			ff.width++;
-			ff.sig_q.append(bit);
-			ff.sig_d.append(bit);
+		اگر (ثنائی_ہندسہ.wire == تہی || sigbit_users_گنتی[ثنائی_ہندسہ] == 0) {
+			ff.چوڑائی++;
+			ff.sig_q.append(ثنائی_ہندسہ);
+			ff.sig_d.append(ثنائی_ہندسہ);
 			ff.sig_clr.append(State::Sx);
-			ff.sig_set.append(State::Sx);
+			ff.sig_سیٹ.append(State::Sx);
 			ff.val_init.append(RTLIL::Const(State::Sx));
 			ff.val_srst.append(RTLIL::Const(State::Sx));
 			ff.val_arst.append(RTLIL::Const(State::Sx));
-			continue;
+			جاری;
 		}
 
-		if (sigbit_users_count[bit] != 1)
-			return false;
+		اگر (sigbit_users_گنتی[ثنائی_ہندسہ] != 1)
+			واپس جھوٹ;
 
-		auto &sinks = dff_sink[bit];
-		if (sinks.size() != 1)
-			return false;
+		خودکار &sinks = dff_sink[ثنائی_ہندسہ];
+		اگر (sinks.سائز() != 1)
+			واپس جھوٹ;
 
 		Cell *cell;
-		int idx;
+		صحیح idx;
 		std::tie(cell, idx) = *sinks.begin();
-		bits.insert(std::make_pair(cell, idx));
+		بٹ.داخل_کرو(std::make_pair(cell, idx));
 
-		FfData cur_ff(initvals, cell);
+		Ff_ڈیٹا cur_ff(initvals, cell);
 
 		// Reject latches and $ff.
-		if (!cur_ff.has_clk)
-			return false;
+		اگر (!cur_ff.has_clk)
+			واپس جھوٹ;
 
-		log_assert((*sigmap)(cur_ff.sig_d[idx]) == bit);
+		log_assert((*sigmap)(cur_ff.sig_d[idx]) == ثنائی_ہندسہ);
 
-		if (!found) {
+		اگر (!ملا) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -87,112 +87,112 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			ff.pol_arst = cur_ff.pol_arst;
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
-			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+			ff.pol_سیٹ = cur_ff.pol_سیٹ;
+		} ورنہ {
+			اگر (ff.has_clk != cur_ff.has_clk)
+				واپس جھوٹ;
+			اگر (ff.has_ce != cur_ff.has_ce)
+				واپس جھوٹ;
+			اگر (ff.has_aload != cur_ff.has_aload)
+				واپس جھوٹ;
+			اگر (ff.has_srst != cur_ff.has_srst)
+				واپس جھوٹ;
+			اگر (ff.has_arst != cur_ff.has_arst)
+				واپس جھوٹ;
+			اگر (ff.has_sr != cur_ff.has_sr)
+				واپس جھوٹ;
+			اگر (ff.has_clk) {
+				اگر (ff.sig_clk != cur_ff.sig_clk)
+					واپس جھوٹ;
+				اگر (ff.pol_clk != cur_ff.pol_clk)
+					واپس جھوٹ;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			اگر (ff.has_ce) {
+				اگر (ff.sig_ce != cur_ff.sig_ce)
+					واپس جھوٹ;
+				اگر (ff.pol_ce != cur_ff.pol_ce)
+					واپس جھوٹ;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			اگر (ff.has_aload) {
+				اگر (ff.sig_aload != cur_ff.sig_aload)
+					واپس جھوٹ;
+				اگر (ff.pol_aload != cur_ff.pol_aload)
+					واپس جھوٹ;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			اگر (ff.has_srst) {
+				اگر (ff.sig_srst != cur_ff.sig_srst)
+					واپس جھوٹ;
+				اگر (ff.pol_srst != cur_ff.pol_srst)
+					واپس جھوٹ;
+				اگر (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					واپس جھوٹ;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			اگر (ff.has_arst) {
+				اگر (ff.sig_arst != cur_ff.sig_arst)
+					واپس جھوٹ;
+				اگر (ff.pol_arst != cur_ff.pol_arst)
+					واپس جھوٹ;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			اگر (ff.has_sr) {
+				اگر (ff.pol_clr != cur_ff.pol_clr)
+					واپس جھوٹ;
+				اگر (ff.pol_سیٹ != cur_ff.pol_سیٹ)
+					واپس جھوٹ;
 			}
 		}
 
-		ff.width++;
+		ff.چوڑائی++;
 		ff.sig_d.append(cur_ff.sig_d[idx]);
 		ff.sig_ad.append(ff.has_aload ? cur_ff.sig_ad[idx] : State::Sx);
 		ff.sig_q.append(cur_ff.sig_q[idx]);
 		ff.sig_clr.append(ff.has_sr ? cur_ff.sig_clr[idx] : State::S0);
-		ff.sig_set.append(ff.has_sr ? cur_ff.sig_set[idx] : State::S0);
+		ff.sig_سیٹ.append(ff.has_sr ? cur_ff.sig_سیٹ[idx] : State::S0);
 		ff.val_arst.append(RTLIL::Const(ff.has_arst ? cur_ff.val_arst[idx] : State::Sx));
 		ff.val_srst.append(RTLIL::Const(ff.has_srst ? cur_ff.val_srst[idx] : State::Sx));
 		ff.val_init.append(RTLIL::Const(cur_ff.val_init[idx]));
-		found = true;
+		ملا = سچ;
 	}
 
-	return found;
+	واپس ملا;
 }
 
-bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
-	ff = FfData(module, initvals, module->twines().add(NEW_ID));
+منطقی Ff_ملاؤ_Helper::ڈھونڈو_داخلہ_ff(RTLIL::SigSpec sig, Ff_ڈیٹا &ff, pool<std::pair<Cell *, صحیح>> &بٹ) {
+	ff = Ff_ڈیٹا(module, initvals, module->twines().جوڑو(NEW_ID));
 	sigmap->apply(sig);
 
-	bool found = false;
+	منطقی ملا = جھوٹ;
 
-	pool<int> const_bits;
+	pool<صحیح> const_بٹ;
 
-	for (auto bit : sig)
+	برائے (خودکار ثنائی_ہندسہ : sig)
 	{
-		if (bit.wire == NULL) {
-			const_bits.insert(ff.width);
-			ff.width++;
-			ff.sig_q.append(bit);
-			ff.sig_d.append(bit);
+		اگر (ثنائی_ہندسہ.wire == تہی) {
+			const_بٹ.داخل_کرو(ff.چوڑائی);
+			ff.چوڑائی++;
+			ff.sig_q.append(ثنائی_ہندسہ);
+			ff.sig_d.append(ثنائی_ہندسہ);
 			// These two will be fixed up later.
 			ff.sig_clr.append(State::Sx);
-			ff.sig_set.append(State::Sx);
-			ff.val_init.append(RTLIL::Const(bit.data));
-			ff.val_srst.append(RTLIL::Const(bit.data));
-			ff.val_arst.append(RTLIL::Const(bit.data));
-			continue;
+			ff.sig_سیٹ.append(State::Sx);
+			ff.val_init.append(RTLIL::Const(ثنائی_ہندسہ.ڈیٹا));
+			ff.val_srst.append(RTLIL::Const(ثنائی_ہندسہ.ڈیٹا));
+			ff.val_arst.append(RTLIL::Const(ثنائی_ہندسہ.ڈیٹا));
+			جاری;
 		}
 
-		if (!dff_driver.count(bit))
-			return false;
+		اگر (!dff_driver.گنتی(ثنائی_ہندسہ))
+			واپس جھوٹ;
 
 		Cell *cell;
-		int idx;
-		std::tie(cell, idx) = dff_driver[bit];
-		bits.insert(std::make_pair(cell, idx));
+		صحیح idx;
+		std::tie(cell, idx) = dff_driver[ثنائی_ہندسہ];
+		بٹ.داخل_کرو(std::make_pair(cell, idx));
 
-		FfData cur_ff(initvals, cell);
+		Ff_ڈیٹا cur_ff(initvals, cell);
 
-		log_assert((*sigmap)(cur_ff.sig_q[idx]) == bit);
+		log_assert((*sigmap)(cur_ff.sig_q[idx]) == ثنائی_ہندسہ);
 
-		if (!found) {
+		اگر (!ملا) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -212,149 +212,149 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			ff.pol_arst = cur_ff.pol_arst;
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
-			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_gclk != cur_ff.has_gclk)
-				return false;
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+			ff.pol_سیٹ = cur_ff.pol_سیٹ;
+		} ورنہ {
+			اگر (ff.has_gclk != cur_ff.has_gclk)
+				واپس جھوٹ;
+			اگر (ff.has_clk != cur_ff.has_clk)
+				واپس جھوٹ;
+			اگر (ff.has_ce != cur_ff.has_ce)
+				واپس جھوٹ;
+			اگر (ff.has_aload != cur_ff.has_aload)
+				واپس جھوٹ;
+			اگر (ff.has_srst != cur_ff.has_srst)
+				واپس جھوٹ;
+			اگر (ff.has_arst != cur_ff.has_arst)
+				واپس جھوٹ;
+			اگر (ff.has_sr != cur_ff.has_sr)
+				واپس جھوٹ;
+			اگر (ff.has_clk) {
+				اگر (ff.sig_clk != cur_ff.sig_clk)
+					واپس جھوٹ;
+				اگر (ff.pol_clk != cur_ff.pol_clk)
+					واپس جھوٹ;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			اگر (ff.has_ce) {
+				اگر (ff.sig_ce != cur_ff.sig_ce)
+					واپس جھوٹ;
+				اگر (ff.pol_ce != cur_ff.pol_ce)
+					واپس جھوٹ;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			اگر (ff.has_aload) {
+				اگر (ff.sig_aload != cur_ff.sig_aload)
+					واپس جھوٹ;
+				اگر (ff.pol_aload != cur_ff.pol_aload)
+					واپس جھوٹ;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			اگر (ff.has_srst) {
+				اگر (ff.sig_srst != cur_ff.sig_srst)
+					واپس جھوٹ;
+				اگر (ff.pol_srst != cur_ff.pol_srst)
+					واپس جھوٹ;
+				اگر (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					واپس جھوٹ;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			اگر (ff.has_arst) {
+				اگر (ff.sig_arst != cur_ff.sig_arst)
+					واپس جھوٹ;
+				اگر (ff.pol_arst != cur_ff.pol_arst)
+					واپس جھوٹ;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			اگر (ff.has_sr) {
+				اگر (ff.pol_clr != cur_ff.pol_clr)
+					واپس جھوٹ;
+				اگر (ff.pol_سیٹ != cur_ff.pol_سیٹ)
+					واپس جھوٹ;
 			}
 		}
 
-		ff.width++;
+		ff.چوڑائی++;
 		ff.sig_d.append((ff.has_clk || ff.has_gclk) ? cur_ff.sig_d[idx] : State::Sx);
 		ff.sig_ad.append(ff.has_aload ? cur_ff.sig_ad[idx] : State::Sx);
 		ff.sig_q.append(cur_ff.sig_q[idx]);
 		ff.sig_clr.append(ff.has_sr ? cur_ff.sig_clr[idx] : State::S0);
-		ff.sig_set.append(ff.has_sr ? cur_ff.sig_set[idx] : State::S0);
+		ff.sig_سیٹ.append(ff.has_sr ? cur_ff.sig_سیٹ[idx] : State::S0);
 		ff.val_arst.append(RTLIL::Const(ff.has_arst ? cur_ff.val_arst[idx] : State::Sx));
 		ff.val_srst.append(RTLIL::Const(ff.has_srst ? cur_ff.val_srst[idx] : State::Sx));
 		ff.val_init.append(RTLIL::Const(cur_ff.val_init[idx]));
-		found = true;
+		ملا = سچ;
 	}
 
-	if (found && ff.has_sr) {
-		for (auto i: const_bits) {
-			if (ff.sig_d[i] == State::S0) {
-				ff.sig_set[i] = ff.pol_set ? State::S0 : State::S1;
-			} else if (ff.sig_d[i] == State::S1) {
+	اگر (ملا && ff.has_sr) {
+		برائے (خودکار i: const_بٹ) {
+			اگر (ff.sig_d[i] == State::S0) {
+				ff.sig_سیٹ[i] = ff.pol_سیٹ ? State::S0 : State::S1;
+			} ورنہ اگر (ff.sig_d[i] == State::S1) {
 				ff.sig_clr[i] = ff.pol_clr ? State::S0 : State::S1;
 			}
 		}
 	}
 
-	return found;
+	واپس ملا;
 }
 
 
-void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
-		Cell *cell = it.first;
-		int idx = it.second;
-		SigSpec q = cell->getPort(ID::Q);
+خالی Ff_ملاؤ_Helper::remove_output_ff(ثابت pool<std::pair<Cell *, صحیح>> &بٹ) {
+	برائے (خودکار &it : بٹ) {
+		Cell *cell = it.پہلا;
+		صحیح idx = it.دوسرا;
+		SigSpec q = cell->get_پورٹ(ID::Q);
 		initvals->remove_init(q[idx]);
 		dff_driver.erase((*sigmap)(q[idx]));
-		q[idx] = module->addWire(stringf("$ffmerge_disconnected$%d", autoidx++));
-		cell->setPort(ID::Q, q);
-		initvals->set_init(cell->getPort(ID::Q), (*initvals)(q));
+		q[idx] = module->جوڑو_Wire(stringf("$ffmerge_disconnected$%d", autoidx++));
+		cell->سیٹ_پورٹ(ID::Q, q);
+		initvals->سیٹ_init(cell->get_پورٹ(ID::Q), (*initvals)(q));
 	}
 }
 
-void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
-		Cell *cell = it.first;
-		int idx = it.second;
-		if (cell->hasPort(ID::D)) {
-			SigSpec d = cell->getPort(ID::D);
+خالی Ff_ملاؤ_Helper::mark_داخلہ_ff(ثابت pool<std::pair<Cell *, صحیح>> &بٹ) {
+	برائے (خودکار &it : بٹ) {
+		Cell *cell = it.پہلا;
+		صحیح idx = it.دوسرا;
+		اگر (cell->has_پورٹ(ID::D)) {
+			SigSpec d = cell->get_پورٹ(ID::D);
 			// The user count was already at least 1
 			// (for the D port).  Bump it as it is now connected
 			// to the merged-to cell as well.  This suffices for
 			// it to not be considered for output merging.
-			sigbit_users_count[d[idx]]++;
+			sigbit_users_گنتی[d[idx]]++;
 		}
 	}
 }
 
-void FfMergeHelper::set(FfInitVals *initvals_, RTLIL::Module *module_)
+خالی Ff_ملاؤ_Helper::سیٹ(FfInitVals *initvals_, RTLIL::Module *module_)
 {
 	clear();
 	initvals = initvals_;
 	sigmap = initvals->sigmap;
 	module = module_;
 
-	for (auto wire : module->wires()) {
-		if (wire->port_output)
-			for (auto bit : (*sigmap)(wire))
-				sigbit_users_count[bit]++;
+	برائے (خودکار wire : module->wires()) {
+		اگر (wire->پورٹ_output)
+			برائے (خودکار ثنائی_ہندسہ : (*sigmap)(wire))
+				sigbit_users_گنتی[ثنائی_ہندسہ]++;
 	}
 
-	for (auto cell : module->cells()) {
-		if (cell->is_builtin_ff()) {
-			if (cell->hasPort(ID::D)) {
-				SigSpec d = (*sigmap)(cell->getPort(ID::D));
-				for (int i = 0; i < GetSize(d); i++)
-					dff_sink[d[i]].insert(std::make_pair(cell, i));
+	برائے (خودکار cell : module->cells()) {
+		اگر (cell->is_builtin_ff()) {
+			اگر (cell->has_پورٹ(ID::D)) {
+				SigSpec d = (*sigmap)(cell->get_پورٹ(ID::D));
+				برائے (صحیح i = 0; i < Get_سائز(d); i++)
+					dff_sink[d[i]].داخل_کرو(std::make_pair(cell, i));
 			}
-			SigSpec q = (*sigmap)(cell->getPort(ID::Q));
-			for (int i = 0; i < GetSize(q); i++)
+			SigSpec q = (*sigmap)(cell->get_پورٹ(ID::Q));
+			برائے (صحیح i = 0; i < Get_سائز(q); i++)
 				dff_driver[q[i]] = std::make_pair(cell, i);
 		}
-		for (auto &conn : cell->connections())
-			if (!cell->known() || cell->input(conn.first))
-				for (auto bit : (*sigmap)(conn.second))
-					sigbit_users_count[bit]++;
+		برائے (خودکار &conn : cell->connections())
+			اگر (!cell->معلوم() || cell->داخلہ(conn.پہلا))
+				برائے (خودکار ثنائی_ہندسہ : (*sigmap)(conn.دوسرا))
+					sigbit_users_گنتی[ثنائی_ہندسہ]++;
 	}
 }
 
-void FfMergeHelper::clear() {
+خالی Ff_ملاؤ_Helper::clear() {
 	dff_driver.clear();
 	dff_sink.clear();
-	sigbit_users_count.clear();
+	sigbit_users_گنتی.clear();
 }

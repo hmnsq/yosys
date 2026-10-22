@@ -17,123 +17,123 @@
  *
  */
 
-#include "kernel/scopeinfo.h"
+#شامل "kernel/scopeinfo.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template <typename I, typename Filter> void ModuleHdlnameIndex::index_items(I begin, I end, Filter filter)
+سانچہ <قسم_نام I, قسم_نام Filter> خالی Module_Hdlname_اشاریہ::اشاریہ_اشیاء(I begin, I انتہا, Filter filter)
 {
-	for (; begin != end; ++begin) {
-		auto const &item = *begin;
+	برائے (; begin != انتہا; ++begin) {
+		خودکار ثابت &شے_2 = *begin;
 
-		if (!filter(item))
-			continue;
-		std::vector<IdString> path = parse_hdlname(item);
-		if (!path.empty())
-			lookup.emplace(item, tree.insert(path, item));
+		اگر (!filter(شے_2))
+			جاری;
+		std::سمتیہ<IdString> راستہ_2 = parse_hdlname(شے_2);
+		اگر (!راستہ_2.خالی_خانے())
+			lookup.emplace(شے_2, درخت.داخل_کرو(راستہ_2, شے_2));
 	}
 }
 
-void ModuleHdlnameIndex::index()
+خالی Module_Hdlname_اشاریہ::اشاریہ()
 {
-	index_wires();
-	index_cells();
+	اشاریہ_wires();
+	اشاریہ_cells();
 }
 
-void ModuleHdlnameIndex::index_wires()
+خالی Module_Hdlname_اشاریہ::اشاریہ_wires()
 {
-	auto wires = module->wires();
-	index_items(wires.begin(), wires.end(), [](Wire *) { return true; });
+	خودکار wires = module->wires();
+	اشاریہ_اشیاء(wires.begin(), wires.انتہا(), [](Wire *) { واپس سچ; });
 }
 
-void ModuleHdlnameIndex::index_cells()
+خالی Module_Hdlname_اشاریہ::اشاریہ_cells()
 {
-	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *) { return true; });
+	خودکار cells = module->cells();
+	اشاریہ_اشیاء(cells.begin(), cells.انتہا(), [](Cell *) { واپس سچ; });
 }
 
-void ModuleHdlnameIndex::index_scopeinfo_cells()
+خالی Module_Hdlname_اشاریہ::اشاریہ_scopeinfo_cells()
 {
-	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *cell) { return cell->type == ID($scopeinfo); });
+	خودکار cells = module->cells();
+	اشاریہ_اشیاء(cells.begin(), cells.انتہا(), [](Cell *cell) { واپس cell->type == ID($scopeinfo); });
 }
 
-std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
+std::سمتیہ<std::string> Module_Hdlname_اشاریہ::scope_sources(Cursor cursor)
 {
-	std::vector<std::string> result;
+	std::سمتیہ<std::string> نتیجہ;
 
-	for (; !cursor.is_root(); cursor = cursor.parent()) {
-		if (!cursor.has_entry()) {
-			result.push_back("");
-			result.push_back("");
-			continue;
+	برائے (; !cursor.is_جڑ(); cursor = cursor.والد()) {
+		اگر (!cursor.has_اندراج()) {
+			نتیجہ.ڈالو_عقب("");
+			نتیجہ.ڈالو_عقب("");
+			جاری;
 		}
-		Cell *cell = cursor.entry().cell();
-		if (cell == nullptr || cell->type != ID($scopeinfo)) {
-			result.push_back("");
-			result.push_back("");
-			continue;
+		Cell *cell = cursor.اندراج_2().cell();
+		اگر (cell == خالی_اشاریہ || cell->type != ID($scopeinfo)) {
+			نتیجہ.ڈالو_عقب("");
+			نتیجہ.ڈالو_عقب("");
+			جاری;
 		}
-		result.push_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Module, ID::src).decode_string());
-		result.push_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Cell, ID::src).decode_string());
+		نتیجہ.ڈالو_عقب(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Module, ID::src).decode_string());
+		نتیجہ.ڈالو_عقب(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Cell, ID::src).decode_string());
 	}
 
-	result.push_back(module->get_src_attribute());
+	نتیجہ.ڈالو_عقب(module->get_src_attribute());
 
-	std::reverse(result.begin(), result.end());
+	std::الٹ(نتیجہ.begin(), نتیجہ.انتہا());
 
-	return result;
+	واپس نتیجہ;
 }
 
-static const char *attr_prefix(ScopeinfoAttrs attrs)
+ساکن ثابت حرف *attr_سابقہ(ScopeinfoAttrs attrs)
 {
-	switch (attrs) {
-	case ScopeinfoAttrs::Cell:
-		return "\\cell_";
-	case ScopeinfoAttrs::Module:
-		return "\\module_";
-	default:
+	انتخاب (attrs) {
+	حالت ScopeinfoAttrs::Cell:
+		واپس "\\cell_";
+	حالت ScopeinfoAttrs::Module:
+		واپس "\\module_";
+	طےشدہ:
 		log_abort();
 	}
 }
 
-bool scopeinfo_has_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
+منطقی scopeinfo_has_attribute(ثابت RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
 {
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
-	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	return key != IdString::Null && scopeinfo->has_attribute(key);
+	IdString کلید = twines.ڈھونڈو(attr_سابقہ(attrs) + twines.unescaped_str(id));
+	واپس کلید != IdString::Null && scopeinfo->has_attribute(کلید);
 }
 
-RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
+RTLIL::Const scopeinfo_get_attribute(ثابت RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
 {
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
-	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	if (key == IdString::Null)
-		return RTLIL::Const();
-	auto found = scopeinfo->attributes.find(key);
-	if (found == scopeinfo->attributes.end())
-		return RTLIL::Const();
-	return found->second;
+	IdString کلید = twines.ڈھونڈو(attr_سابقہ(attrs) + twines.unescaped_str(id));
+	اگر (کلید == IdString::Null)
+		واپس RTLIL::Const();
+	خودکار ملا = scopeinfo->اوصاف.ڈھونڈو(کلید);
+	اگر (ملا == scopeinfo->اوصاف.انتہا())
+		واپس RTLIL::Const();
+	واپس ملا->دوسرا;
 }
 
-dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs)
+dict<RTLIL::IdString, RTLIL::Const> scopeinfo_اوصاف(ثابت RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs)
 {
-	dict<RTLIL::IdString, RTLIL::Const> attributes;
+	dict<RTLIL::IdString, RTLIL::Const> اوصاف;
 
-	const char *prefix = attr_prefix(attrs);
-	size_t prefix_len = strlen(prefix);
+	ثابت حرف *سابقہ_2 = attr_سابقہ(attrs);
+	سائز_t سابقہ_len = لڑی_لمبائی(سابقہ_2);
 	TwinePool &twines = scopeinfo->twines();
 
-	for (auto const &entry : scopeinfo->attributes) {
-		std::string name = twines.str(entry.first);
-		if (name.compare(0, prefix_len, prefix) != 0)
-			continue;
-		attributes.emplace(twines.add(RTLIL::escape_id(name.substr(prefix_len))), entry.second);
+	برائے (خودکار ثابت &اندراج_2 : scopeinfo->اوصاف) {
+		std::string name = twines.str(اندراج_2.پہلا);
+		اگر (name.compare(0, سابقہ_len, سابقہ_2) != 0)
+			جاری;
+		اوصاف.emplace(twines.جوڑو(RTLIL::escape_id(name.substr(سابقہ_len))), اندراج_2.دوسرا);
 	}
 
-	return attributes;
+	واپس اوصاف;
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتہا

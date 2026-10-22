@@ -17,22 +17,22 @@
  *
  */
 
-#ifndef RTLIL_H
-#define RTLIL_H
+#اگر_غیر_تعریف_شدہ RTLIL_H
+#تعریف_کرو RTLIL_H
 
-#include "kernel/yosys_common.h"
-#include "kernel/yosys.h"
-#include "kernel/twine.h"
+#شامل "kernel/yosys_common.h"
+#شامل "kernel/yosys.h"
+#شامل "kernel/twine.h"
 
-#include <deque>
-#include <string_view>
-#include <unordered_map>
+#شامل <deque>
+#شامل <string_view>
+#شامل <unordered_map>
 
 YOSYS_NAMESPACE_BEGIN
 
 namespace RTLIL
 {
-	enum State : unsigned char {
+	شمار State : غیرعلامتی حرف {
 		S0 = 0,
 		S1 = 1,
 		Sx = 2, // undefined value or conflict
@@ -41,7 +41,7 @@ namespace RTLIL
 		Sm = 5  // marker (used internally by some passes)
 	};
 
-	enum SyncType : unsigned char {
+	شمار SyncType : غیرعلامتی حرف {
 		ST0 = 0, // level sensitive: 0
 		ST1 = 1, // level sensitive: 1
 		STp = 2, // edge sensitive: posedge
@@ -54,7 +54,7 @@ namespace RTLIL
 
 	// Semantic metadata - how can this constant be interpreted?
 	// Values may be generally non-exclusive
-	enum ConstFlags : unsigned char {
+	شمار ConstFlags : غیرعلامتی حرف {
 		CONST_FLAG_NONE    = 0,
 		CONST_FLAG_STRING  = 1,
 		CONST_FLAG_SIGNED  = 2,  // only used for parameters
@@ -62,15 +62,15 @@ namespace RTLIL
 		CONST_FLAG_UNSIZED = 8,  // only used for parameters
 	};
 
-	enum SelectPartials : unsigned char {
+	شمار SelectPartials : غیرعلامتی حرف {
 		SELECT_ALL = 0,          // include partial modules
-		SELECT_WHOLE_ONLY = 1,   // ignore partial modules
-		SELECT_WHOLE_WARN = 2,   // call log_warning on partial module
-		SELECT_WHOLE_ERR = 3,    // call log_error on partial module
-		SELECT_WHOLE_CMDERR = 4  // call log_cmd_error on partial module
+		SELECT_پورا_ONLY = 1,   // ignore partial modules
+		SELECT_پورا_WARN = 2,   // call log_warning on partial module
+		SELECT_پورا_ERR = 3,    // call log_error on partial module
+		SELECT_پورا_CMDERR = 4  // call log_cmd_error on partial module
 	};
 
-	enum SelectBoxes : unsigned char {
+	شمار SelectBoxes : غیرعلامتی حرف {
 		SB_ALL = 0,            // include boxed modules
 		SB_WARN = 1,           // helper for log_warning (not for direct use)
 		SB_ERR = 2,            // helper for log_error (not for direct use)
@@ -86,733 +86,733 @@ namespace RTLIL
 		SB_EXCL_BB_CMDERR = 15 // call log_cmd_error on black boxed module
 	};
 
-	enum PortDir : unsigned char  {
+	شمار پورٹ_Dir : غیرعلامتی حرف  {
 		PD_UNKNOWN = 0,
-		PD_INPUT = 1,
+		PD_داخلہ = 1,
 		PD_OUTPUT = 2,
 		PD_INOUT = 3
 	};
 
 	// Maximum width in bits of RTLIL::Wire or RTLIL::Const
-	constexpr int WIDTH_LIMIT = 1 << 30;
+	constexpr صحیح چوڑائی_حد_بندی = 1 << 30;
 
-	struct Const;
-	struct AttrObject;
-	struct SelectedMember;
-	struct Selection;
-	struct Monitor;
-	struct Design;
-	struct Module;
-	struct Wire;
-	struct Memory;
-	struct Cell;
-	struct SigChunk;
-	struct SigBit;
-	struct SigSpecIterator;
-	struct SigSpecConstIterator;
-	struct SigSpec;
-	struct CaseRule;
-	struct SwitchRule;
-	struct MemWriteAction;
-	struct SyncRule;
-	struct Process;
+	ساخت Const;
+	ساخت AttrObject;
+	ساخت SelectedMember;
+	ساخت Selection;
+	ساخت Monitor;
+	ساخت Design;
+	ساخت Module;
+	ساخت Wire;
+	ساخت حافظہ;
+	ساخت Cell;
+	ساخت SigChunk;
+	ساخت Sig_ثنائی_ہندسہ;
+	ساخت SigSpecIterator;
+	ساخت SigSpecConstIterator;
+	ساخت SigSpec;
+	ساخت Case_قاعدہ;
+	ساخت Switch_قاعدہ;
+	ساخت MemWriteAction;
+	ساخت Sync_قاعدہ;
+	ساخت Process;
 
-	typedef std::pair<SigSpec, SigSpec> SigSig;
+	قسمتعریف std::pair<SigSpec, SigSpec> SigSig;
 };
 
-struct SigMap;
+ساخت SigMap;
 
 
-namespace RTLIL { using YOSYS_NAMESPACE_PREFIX ID; }
-namespace RTLIL { using YOSYS_NAMESPACE_PREFIX IdString; }
+namespace RTLIL { using YOSYS_NAMESPACE_سابقہ ID; }
+namespace RTLIL { using YOSYS_NAMESPACE_سابقہ IdString; }
 
 namespace RTLIL {
-	void copy_attr_dict(dict<IdString, RTLIL::Const> &dst,
-			const dict<IdString, RTLIL::Const> &src,
-			const RTLIL::Design *src_design, RTLIL::Design *dst_design);
+	خالی copy_attr_dict(dict<IdString, RTLIL::Const> &dst,
+			ثابت dict<IdString, RTLIL::Const> &src,
+			ثابت RTLIL::Design *src_design, RTLIL::Design *dst_design);
 
-	extern dict<std::string, std::string> constpad;
+	خارجی dict<std::string, std::string> constpad;
 
 	[[deprecated("use StaticCellTypes::categories.is_ff() instead")]]
-	const pool<IdString> &builtin_ff_cell_types();
+	ثابت pool<IdString> &builtin_ff_cell_types();
 
-	static inline std::string escape_id(const std::string &str) {
-		if (str.size() > 0 && str[0] != '\\' && str[0] != '$')
-			return "\\" + str;
-		return str;
+	ساکن اندرونی std::string escape_id(ثابت std::string &str) {
+		اگر (str.سائز() > 0 && str[0] != '\\' && str[0] != '$')
+			واپس "\\" + str;
+		واپس str;
 	}
 
-	static inline std::string unescape_id(const std::string &str) {
-		if (str.size() < 2)
-			return str;
-		if (str[0] != '\\')
-			return str;
-		if (str[1] == '$' || str[1] == '\\')
-			return str;
-		if (str[1] >= '0' && str[1] <= '9')
-			return str;
-		return str.substr(1);
+	ساکن اندرونی std::string unescape_id(ثابت std::string &str) {
+		اگر (str.سائز() < 2)
+			واپس str;
+		اگر (str[0] != '\\')
+			واپس str;
+		اگر (str[1] == '$' || str[1] == '\\')
+			واپس str;
+		اگر (str[1] >= '0' && str[1] <= '9')
+			واپس str;
+		واپس str.substr(1);
 	}
 
-	template <typename T> using sort_by_name_id = IdString::compare_ptr_by_name<T>;
+	سانچہ <typename T> using ترتیب_دو_by_name_id = IdString::compare_ptr_by_name<T>;
 
-	template <typename T> struct sort_by_name_str {
-		bool operator()(T *a, T *b) const {
-			return a->name.lt_by_name(b->name);
+	سانچہ <typename T> ساخت ترتیب_دو_by_name_str {
+		bool عامل()(T *a, T *b) ثابت {
+			واپس a->name.lt_by_name(b->name);
 		}
 	};
 
-	struct sort_by_id_str {
-		const TwinePool& pool;
-		explicit sort_by_id_str(const TwinePool& pool) : pool(pool) {}
-		bool operator()(RTLIL::IdString a, RTLIL::IdString b) const {
-			return pool.compare_by_name(a, b) < 0;
+	ساخت ترتیب_دو_by_id_str {
+		ثابت TwinePool& pool;
+		explicit ترتیب_دو_by_id_str(ثابت TwinePool& pool) : pool(pool) {}
+		bool عامل()(RTLIL::IdString a, RTLIL::IdString b) ثابت {
+			واپس pool.compare_by_name(a, b) < 0;
 		}
 	};
 
-	static inline std::string encode_filename(const std::string &filename)
+	ساکن اندرونی std::string encode_filename(ثابت std::string &filename)
 	{
 		std::stringstream val;
-		if (!std::any_of(filename.begin(), filename.end(), [](char c) {
-			return static_cast<unsigned char>(c) < 33 || static_cast<unsigned char>(c) > 126;
-		})) return filename;
-		for (unsigned char const c : filename) {
-			if (c < 33 || c > 126)
+		اگر (!std::any_کا(filename.begin(), filename.انتہا(), [](حرف c) {
+			واپس static_cast<غیرعلامتی حرف>(c) < 33 || static_cast<غیرعلامتی حرف>(c) > 126;
+		})) واپس filename;
+		برائے (غیرعلامتی حرف ثابت c : filename) {
+			اگر (c < 33 || c > 126)
 				val << stringf("$%02x", c);
-			else
+			ورنہ
 				val << c;
 		}
-		return val.str();
+		واپس val.str();
 	}
 
 	// see calc.cc for the implementation of this functions
-	RTLIL::Const const_not         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_and         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_or          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_xor         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_xnor        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_not         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_and         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_or          (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_xor         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_xnor        (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
 
-	RTLIL::Const const_reduce_and  (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_or   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_xor  (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_xnor (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_bool (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_reduce_and  (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_reduce_or   (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_reduce_xor  (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_reduce_xnor (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_reduce_bool (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
 
-	RTLIL::Const const_logic_not   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_logic_and   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_logic_or    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_logic_not   (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_logic_and   (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_logic_or    (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
 
-	RTLIL::Const const_shl         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shr         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sshl        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sshr        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shift       (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shiftx      (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_shl         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_shr         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_sshl        (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_sshr        (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_سرکاؤ       (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_shiftx      (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
 
-	RTLIL::Const const_lt          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_le          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_eq          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_ne          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_eqx         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_nex         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_ge          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_gt          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_lt          (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_le          (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_eq          (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_ne          (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_eqx         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_nex         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_ge          (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_gt          (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
 
-	RTLIL::Const const_add         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sub         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_mul         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_div         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_divfloor    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_modfloor    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_mod         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_pow         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_جوڑو         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_sub         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_mul         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_div         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_divfloor    (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_modfloor    (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_mod         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_pow         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
 
-	RTLIL::Const const_pos         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_buf         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_neg         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_pos         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_buf         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
+	RTLIL::Const const_neg         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, bool signed1, bool signed2, صحیح نتیجہ_len);
 
-	RTLIL::Const const_mux         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3);
-	RTLIL::Const const_pmux        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3);
-	RTLIL::Const const_bmux        (const RTLIL::Const &arg1, const RTLIL::Const &arg2);
-	RTLIL::Const const_demux       (const RTLIL::Const &arg1, const RTLIL::Const &arg2);
+	RTLIL::Const const_mux         (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, ثابت RTLIL::Const &arg3);
+	RTLIL::Const const_pmux        (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, ثابت RTLIL::Const &arg3);
+	RTLIL::Const const_bmux        (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2);
+	RTLIL::Const const_demux       (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2);
 
-	RTLIL::Const const_bweqx       (const RTLIL::Const &arg1, const RTLIL::Const &arg2);
-	RTLIL::Const const_bwmux       (const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3);
+	RTLIL::Const const_bweqx       (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2);
+	RTLIL::Const const_bwmux       (ثابت RTLIL::Const &arg1, ثابت RTLIL::Const &arg2, ثابت RTLIL::Const &arg3);
 
 
 	// This iterator-range-pair is used for Design::modules(), Module::wires() and Module::cells().
 	// It maintains a reference counter that is used to make sure that the container is not modified while being iterated over.
 
-	template<typename T, typename Key = IdString>
-	struct ObjIterator {
-		using iterator_category = std::forward_iterator_tag;
-		using value_type = T;
+	سانچہ<typename T, typename کلید_2 = IdString>
+	ساخت ObjIterator {
+		using iterator_category = std::forward_iterator_لیبل;
+		using قدر_type = T;
 		using difference_type = ptrdiff_t;
-		using pointer = T*;
+		using اشارہ_گر = T*;
 		using reference = T&;
-		typename dict<Key, T>::iterator it;
-		dict<Key, T> *list_p;
-		int *refcount_p;
+		typename dict<کلید_2, T>::iterator it;
+		dict<کلید_2, T> *list_p;
+		صحیح *refcount_p;
 
 		ObjIterator() : list_p(nullptr), refcount_p(nullptr) {
 		}
 
-		ObjIterator(decltype(list_p) list_p, int *refcount_p) : list_p(list_p), refcount_p(refcount_p) {
-			if (list_p->empty()) {
+		ObjIterator(decltype(list_p) list_p, صحیح *refcount_p) : list_p(list_p), refcount_p(refcount_p) {
+			اگر (list_p->خالی_خانے()) {
 				this->list_p = nullptr;
 				this->refcount_p = nullptr;
-			} else {
+			} ورنہ {
 				it = list_p->begin();
 				(*refcount_p)++;
 			}
 		}
 
-		ObjIterator(const RTLIL::ObjIterator<T, Key> &other) {
+		ObjIterator(ثابت RTLIL::ObjIterator<T, کلید_2> &other) {
 			it = other.it;
 			list_p = other.list_p;
 			refcount_p = other.refcount_p;
-			if (refcount_p)
+			اگر (refcount_p)
 				(*refcount_p)++;
 		}
 
-		ObjIterator &operator=(const RTLIL::ObjIterator<T, Key> &other) {
-			if (refcount_p)
+		ObjIterator &عامل=(ثابت RTLIL::ObjIterator<T, کلید_2> &other) {
+			اگر (refcount_p)
 				(*refcount_p)--;
 			it = other.it;
 			list_p = other.list_p;
 			refcount_p = other.refcount_p;
-			if (refcount_p)
+			اگر (refcount_p)
 				(*refcount_p)++;
-			return *this;
+			واپس *this;
 		}
 
 		~ObjIterator() {
-			if (refcount_p)
+			اگر (refcount_p)
 				(*refcount_p)--;
 		}
 
-		inline T operator*() const {
+		اندرونی T عامل*() ثابت {
 			log_assert(list_p != nullptr);
-			return it->second;
+			واپس it->دوسرا;
 		}
 
-		inline bool operator!=(const RTLIL::ObjIterator<T, Key> &other) const {
-			if (list_p == nullptr || other.list_p == nullptr)
-				return list_p != other.list_p;
-			return it != other.it;
+		اندرونی bool عامل!=(ثابت RTLIL::ObjIterator<T, کلید_2> &other) ثابت {
+			اگر (list_p == nullptr || other.list_p == nullptr)
+				واپس list_p != other.list_p;
+			واپس it != other.it;
 		}
 
 
-		inline bool operator==(const RTLIL::ObjIterator<T, Key> &other) const {
-			return !(*this != other);
+		اندرونی bool عامل==(ثابت RTLIL::ObjIterator<T, کلید_2> &other) ثابت {
+			واپس !(*this != other);
 		}
 
-		inline ObjIterator<T, Key>& operator++() {
+		اندرونی ObjIterator<T, کلید_2>& عامل++() {
 			log_assert(list_p != nullptr);
-			if (++it == list_p->end()) {
+			اگر (++it == list_p->انتہا()) {
 				(*refcount_p)--;
 				list_p = nullptr;
 				refcount_p = nullptr;
 			}
-			return *this;
+			واپس *this;
 		}
 
-		inline ObjIterator<T, Key>& operator+=(int amt) {
+		اندرونی ObjIterator<T, کلید_2>& عامل+=(صحیح amt) {
 			log_assert(list_p != nullptr);
 			it += amt;
-			if (it == list_p->end()) {
+			اگر (it == list_p->انتہا()) {
 				(*refcount_p)--;
 				list_p = nullptr;
 				refcount_p = nullptr;
 			}
-			return *this;
+			واپس *this;
 		}
 
-		inline ObjIterator<T, Key> operator+(int amt) {
+		اندرونی ObjIterator<T, کلید_2> عامل+(صحیح amt) {
 			log_assert(list_p != nullptr);
-			ObjIterator<T, Key> new_obj(*this);
+			ObjIterator<T, کلید_2> new_obj(*this);
 			new_obj.it += amt;
-			if (new_obj.it == list_p->end()) {
+			اگر (new_obj.it == list_p->انتہا()) {
 				(*(new_obj.refcount_p))--;
 				new_obj.list_p = nullptr;
 				new_obj.refcount_p = nullptr;
 			}
-			return new_obj;
+			واپس new_obj;
 		}
 
-		inline const ObjIterator<T, Key> operator++(int) {
-			ObjIterator<T, Key> result(*this);
+		اندرونی ثابت ObjIterator<T, کلید_2> عامل++(صحیح) {
+			ObjIterator<T, کلید_2> نتیجہ(*this);
 			++(*this);
-			return result;
+			واپس نتیجہ;
 		}
 	};
 
-	template<typename T, typename Key = IdString>
-	struct ObjRange
+	سانچہ<typename T, typename کلید_2 = IdString>
+	ساخت ObjRange
 	{
-		dict<Key, T> *list_p;
-		int *refcount_p;
+		dict<کلید_2, T> *list_p;
+		صحیح *refcount_p;
 
-		ObjRange(decltype(list_p) list_p, int *refcount_p) : list_p(list_p), refcount_p(refcount_p) { }
-		RTLIL::ObjIterator<T, Key> begin() { return RTLIL::ObjIterator<T, Key>(list_p, refcount_p); }
-		RTLIL::ObjIterator<T, Key> end() { return RTLIL::ObjIterator<T, Key>(); }
+		ObjRange(decltype(list_p) list_p, صحیح *refcount_p) : list_p(list_p), refcount_p(refcount_p) { }
+		RTLIL::ObjIterator<T, کلید_2> begin() { واپس RTLIL::ObjIterator<T, کلید_2>(list_p, refcount_p); }
+		RTLIL::ObjIterator<T, کلید_2> انتہا() { واپس RTLIL::ObjIterator<T, کلید_2>(); }
 
-		size_t size() const {
-			return list_p->size();
+		سائز_t سائز() ثابت {
+			واپس list_p->سائز();
 		}
 
-		operator pool<T>() const {
-			pool<T> result;
-			for (auto &it : *list_p)
-				result.insert(it.second);
-			return result;
+		عامل pool<T>() ثابت {
+			pool<T> نتیجہ;
+			برائے (خودکار &it : *list_p)
+				نتیجہ.داخل_کرو(it.دوسرا);
+			واپس نتیجہ;
 		}
 
-		operator std::vector<T>() const {
-			std::vector<T> result;
-			result.reserve(list_p->size());
-			for (auto &it : *list_p)
-				result.push_back(it.second);
-			return result;
+		عامل std::سمتیہ<T>() ثابت {
+			std::سمتیہ<T> نتیجہ;
+			نتیجہ.reserve(list_p->سائز());
+			برائے (خودکار &it : *list_p)
+				نتیجہ.ڈالو_عقب(it.دوسرا);
+			واپس نتیجہ;
 		}
 
-		pool<T> to_pool() const { return *this; }
-		std::vector<T> to_vector() const { return *this; }
+		pool<T> مقصد_pool() ثابت { واپس *this; }
+		std::سمتیہ<T> مقصد_سمتیہ() ثابت { واپس *this; }
 	};
 };
 
-struct RTLIL::Const
+ساخت RTLIL::Const
 {
-	short int flags;
-private:
-	friend class KernelRtlilTest;
+	مختصر صحیح flags;
+نجی:
+	دوست class KernelRtlilTest;
 	FRIEND_TEST(KernelRtlilTest, ConstStr);
-	using bitvectype = std::vector<RTLIL::State>;
-	enum class backing_tag: bool { bits, string };
+	using bitvectype = std::سمتیہ<RTLIL::State>;
+	شمار class backing_لیبل: bool { بٹ, string };
 	// Do not access the union or tag even in Const methods unless necessary
-	backing_tag tag;
-	union {
-		bitvectype bits_;
+	backing_لیبل لیبل;
+	اتحاد {
+		bitvectype بٹ_2;
 		std::string str_;
 	};
 
 	// Use these private utilities instead
-	bool is_bits() const { return tag == backing_tag::bits; }
-	bool is_str() const { return tag == backing_tag::string; }
+	bool is_بٹ() ثابت { واپس لیبل == backing_لیبل::بٹ; }
+	bool is_str() ثابت { واپس لیبل == backing_لیبل::string; }
 
-	bitvectype* get_if_bits() { return is_bits() ? &bits_ : NULL; }
-	std::string* get_if_str() { return is_str() ? &str_ : NULL; }
-	const bitvectype* get_if_bits() const { return is_bits() ? &bits_ : NULL; }
-	const std::string* get_if_str() const { return is_str() ? &str_ : NULL; }
+	bitvectype* get_if_بٹ() { واپس is_بٹ() ? &بٹ_2 : تہی; }
+	std::string* get_if_str() { واپس is_str() ? &str_ : تہی; }
+	ثابت bitvectype* get_if_بٹ() ثابت { واپس is_بٹ() ? &بٹ_2 : تہی; }
+	ثابت std::string* get_if_str() ثابت { واپس is_str() ? &str_ : تہی; }
 
-	bitvectype& get_bits();
+	bitvectype& get_بٹ();
 	std::string& get_str();
-	const bitvectype& get_bits() const;
-	const std::string& get_str() const;
-	std::vector<RTLIL::State>& bits_internal();
-	void bitvectorize_internal();
+	ثابت bitvectype& get_بٹ() ثابت;
+	ثابت std::string& get_str() ثابت;
+	std::سمتیہ<RTLIL::State>& بٹ_اندرونی();
+	خالی bitvectorize_اندرونی();
 
-public:
-	Const() : flags(RTLIL::CONST_FLAG_NONE), tag(backing_tag::bits), bits_(std::vector<RTLIL::State>()) {}
+عوامی:
+	Const() : flags(RTLIL::CONST_FLAG_NONE), لیبل(backing_لیبل::بٹ), بٹ_2(std::سمتیہ<RTLIL::State>()) {}
 	Const(std::string str);
-	Const(long long val); // default width is 32
-	Const(long long val, int width);
-	Const(RTLIL::State bit, int width = 1);
-	Const(std::vector<RTLIL::State> bits) : flags(RTLIL::CONST_FLAG_NONE), tag(backing_tag::bits), bits_(std::move(bits)) {}
-	Const(const std::vector<bool> &bits);
-	Const(const RTLIL::Const &other);
+	Const(طویل طویل val); // default width is 32
+	Const(طویل طویل val, صحیح چوڑائی);
+	Const(RTLIL::State ثنائی_ہندسہ, صحیح چوڑائی = 1);
+	Const(std::سمتیہ<RTLIL::State> بٹ) : flags(RTLIL::CONST_FLAG_NONE), لیبل(backing_لیبل::بٹ), بٹ_2(std::move(بٹ)) {}
+	Const(ثابت std::سمتیہ<bool> &بٹ);
+	Const(ثابت RTLIL::Const &other);
 	Const(RTLIL::Const &&other);
-	RTLIL::Const &operator =(const RTLIL::Const &other);
+	RTLIL::Const &عامل =(ثابت RTLIL::Const &other);
 	~Const();
 
-	struct Builder
+	ساخت Builder
 	{
 		Builder() {}
-		Builder(int expected_width) { bits.reserve(expected_width); }
-		void push_back(RTLIL::State b) { bits.push_back(b); }
-		int size() const { return static_cast<int>(bits.size()); }
-		Const build() { return Const(std::move(bits)); }
-	private:
-		std::vector<RTLIL::State> bits;
+		Builder(صحیح expected_چوڑائی) { بٹ.reserve(expected_چوڑائی); }
+		خالی ڈالو_عقب(RTLIL::State b) { بٹ.ڈالو_عقب(b); }
+		صحیح سائز() ثابت { واپس static_cast<صحیح>(بٹ.سائز()); }
+		Const build() { واپس Const(std::move(بٹ)); }
+	نجی:
+		std::سمتیہ<RTLIL::State> بٹ;
 	};
 
-	bool operator <(const RTLIL::Const &other) const;
-	bool operator ==(const RTLIL::Const &other) const;
-	bool operator !=(const RTLIL::Const &other) const;
+	bool عامل <(ثابت RTLIL::Const &other) ثابت;
+	bool عامل ==(ثابت RTLIL::Const &other) ثابت;
+	bool عامل !=(ثابت RTLIL::Const &other) ثابت;
 
 	[[deprecated("Don't use direct access to the internal std::vector<State>, that's an implementation detail.")]]
-	std::vector<RTLIL::State>& bits() { return bits_internal(); }
+	std::سمتیہ<RTLIL::State>& بٹ() { واپس بٹ_اندرونی(); }
 	[[deprecated("Don't call bitvectorize() directly, it's an implementation detail.")]]
-	void bitvectorize() const { const_cast<Const*>(this)->bitvectorize_internal(); }
+	خالی bitvectorize() ثابت { const_cast<Const*>(this)->bitvectorize_اندرونی(); }
 
-	bool as_bool() const;
+	bool as_bool() ثابت;
 
 	// Convert the constant value to a C++ int.
 	// NOTE: If the constant is too wide to fit in int (32 bits) this will
 	// truncate any higher bits, potentially over/underflowing. Consider using
 	// try_as_int, as_int_saturating, or guarding behind convertible_to_int
 	// instead.
-	int as_int(bool is_signed = false) const;
+	صحیح as_int(bool is_signed = false) ثابت;
 
 	// Returns true iff the constant can be converted to an int without
 	// over/underflow.
-	bool convertible_to_int(bool is_signed = false) const;
+	bool convertible_مقصد_int(bool is_signed = false) ثابت;
 
 	// Returns the constant's value as an int if it can be represented without
 	// over/underflow, or std::nullopt otherwise.
-	std::optional<int> try_as_int(bool is_signed = false) const;
+	std::optional<صحیح> try_as_int(bool is_signed = false) ثابت;
 
 	// Returns the constant's value as an int if it can be represented without
 	// over/underflow, otherwise the max/min value for int depending on the sign.
-	int as_int_saturating(bool is_signed = false) const;
+	صحیح as_int_saturating(bool is_signed = false) ثابت;
 
-	void tag_bare_integer_const(const std::string &value);
+	خالی لیبل_bare_integer_const(ثابت std::string &قدر);
 
-	std::string as_string(const char* any = "-") const;
-	static Const from_string(const std::string &str);
-	std::vector<RTLIL::State> to_bits() const;
+	std::string as_string(ثابت حرف* any = "-") ثابت;
+	ساکن Const from_string(ثابت std::string &str);
+	std::سمتیہ<RTLIL::State> مقصد_بٹ() ثابت;
 
-	std::string decode_string() const;
-	int size() const;
-	bool empty() const;
+	std::string decode_string() ثابت;
+	صحیح سائز() ثابت;
+	bool خالی_خانے() ثابت;
 
-	void append(const RTLIL::Const &other);
-	void set(int i, RTLIL::State state) {
-		bits_internal()[i] = state;
+	خالی append(ثابت RTLIL::Const &other);
+	خالی سیٹ(صحیح i, RTLIL::State state) {
+		بٹ_اندرونی()[i] = state;
 	}
-	void resize(int size, RTLIL::State fill) {
-    log_assert(size >= 0 && size < RTLIL::WIDTH_LIMIT);
-		bits_internal().resize(size, fill);
+	خالی resize(صحیح سائز, RTLIL::State fill) {
+    log_assert(سائز >= 0 && سائز < RTLIL::چوڑائی_حد_بندی);
+		بٹ_اندرونی().resize(سائز, fill);
 	}
 
 	class const_iterator {
-	private:
-		const Const* parent;
-		size_t idx;
+	نجی:
+		ثابت Const* والد;
+		سائز_t idx;
 
-	public:
-		using iterator_category = std::bidirectional_iterator_tag;
-		using value_type = State;
+	عوامی:
+		using iterator_category = std::bidirectional_iterator_لیبل;
+		using قدر_type = State;
 		using difference_type = std::ptrdiff_t;
-		using pointer = const State*;
-		using reference = const State&;
+		using اشارہ_گر = ثابت State*;
+		using reference = ثابت State&;
 
-		const_iterator(const Const& c, size_t i) : parent(&c), idx(i) {}
+		const_iterator(ثابت Const& c, سائز_t i) : والد(&c), idx(i) {}
 
-		State operator*() const;
+		State عامل*() ثابت;
 
-		const_iterator& operator++() { ++idx; return *this; }
-		const_iterator& operator--() { --idx; return *this; }
-		const_iterator operator++(int) { const_iterator result(*this); ++idx; return result; }
-		const_iterator operator--(int) { const_iterator result(*this); --idx; return result; }
-		const_iterator& operator+=(int i) { idx += i; return *this; }
+		const_iterator& عامل++() { ++idx; واپس *this; }
+		const_iterator& عامل--() { --idx; واپس *this; }
+		const_iterator عامل++(صحیح) { const_iterator نتیجہ(*this); ++idx; واپس نتیجہ; }
+		const_iterator عامل--(صحیح) { const_iterator نتیجہ(*this); --idx; واپس نتیجہ; }
+		const_iterator& عامل+=(صحیح i) { idx += i; واپس *this; }
 
-		const_iterator operator+(int add) {
-			return const_iterator(*parent, idx + add);
+		const_iterator عامل+(صحیح جوڑو) {
+			واپس const_iterator(*والد, idx + جوڑو);
 		}
-		const_iterator operator-(int sub) {
-			return const_iterator(*parent, idx - sub);
+		const_iterator عامل-(صحیح sub) {
+			واپس const_iterator(*والد, idx - sub);
 		}
-		int operator-(const const_iterator& other) {
-			return idx - other.idx;
-		}
-
-		bool operator==(const const_iterator& other) const {
-			return idx == other.idx;
+		صحیح عامل-(ثابت const_iterator& other) {
+			واپس idx - other.idx;
 		}
 
-		bool operator!=(const const_iterator& other) const {
-			return !(*this == other);
+		bool عامل==(ثابت const_iterator& other) ثابت {
+			واپس idx == other.idx;
+		}
+
+		bool عامل!=(ثابت const_iterator& other) ثابت {
+			واپس !(*this == other);
 		}
 	};
 
 	class iterator {
-	private:
-		Const* parent;
-		size_t idx;
+	نجی:
+		Const* والد;
+		سائز_t idx;
 
-	public:
+	عوامی:
 		class proxy {
-		private:
-			Const* parent;
-			size_t idx;
-		public:
-			proxy(Const* parent, size_t idx) : parent(parent), idx(idx) {}
-			operator State() const { return (*parent)[idx]; }
-			proxy& operator=(State s) { parent->set(idx, s); return *this; }
-			proxy& operator=(const proxy& other) { parent->set(idx, (*other.parent)[other.idx]); return *this; }
+		نجی:
+			Const* والد;
+			سائز_t idx;
+		عوامی:
+			proxy(Const* والد, سائز_t idx) : والد(والد), idx(idx) {}
+			عامل State() ثابت { واپس (*والد)[idx]; }
+			proxy& عامل=(State s) { والد->سیٹ(idx, s); واپس *this; }
+			proxy& عامل=(ثابت proxy& other) { والد->سیٹ(idx, (*other.والد)[other.idx]); واپس *this; }
 		};
 
-		using iterator_category = std::bidirectional_iterator_tag;
-		using value_type = State;
+		using iterator_category = std::bidirectional_iterator_لیبل;
+		using قدر_type = State;
 		using difference_type = std::ptrdiff_t;
-		using pointer = proxy*;
+		using اشارہ_گر = proxy*;
 		using reference = proxy;
 
-		iterator(Const& c, size_t i) : parent(&c), idx(i) {}
+		iterator(Const& c, سائز_t i) : والد(&c), idx(i) {}
 
-		proxy operator*() const { return proxy(parent, idx); }
-		iterator& operator++() { ++idx; return *this; }
-		iterator& operator--() { --idx; return *this; }
-		iterator operator++(int) { iterator result(*this); ++idx; return result; }
-		iterator operator--(int) { iterator result(*this); --idx; return result; }
-		iterator& operator+=(int i) { idx += i; return *this; }
+		proxy عامل*() ثابت { واپس proxy(والد, idx); }
+		iterator& عامل++() { ++idx; واپس *this; }
+		iterator& عامل--() { --idx; واپس *this; }
+		iterator عامل++(صحیح) { iterator نتیجہ(*this); ++idx; واپس نتیجہ; }
+		iterator عامل--(صحیح) { iterator نتیجہ(*this); --idx; واپس نتیجہ; }
+		iterator& عامل+=(صحیح i) { idx += i; واپس *this; }
 
-		iterator operator+(int add) {
-			return iterator(*parent, idx + add);
+		iterator عامل+(صحیح جوڑو) {
+			واپس iterator(*والد, idx + جوڑو);
 		}
-		iterator operator-(int sub) {
-			return iterator(*parent, idx - sub);
+		iterator عامل-(صحیح sub) {
+			واپس iterator(*والد, idx - sub);
 		}
-		int operator-(const iterator& other) {
-			return idx - other.idx;
-		}
-
-		bool operator==(const iterator& other) const {
-			return idx == other.idx;
+		صحیح عامل-(ثابت iterator& other) {
+			واپس idx - other.idx;
 		}
 
-		bool operator!=(const iterator& other) const {
-			return !(*this == other);
+		bool عامل==(ثابت iterator& other) ثابت {
+			واپس idx == other.idx;
+		}
+
+		bool عامل!=(ثابت iterator& other) ثابت {
+			واپس !(*this == other);
 		}
 	};
 
-	const_iterator begin() const {
-		return const_iterator(*this, 0);
+	const_iterator begin() ثابت {
+		واپس const_iterator(*this, 0);
 	}
-	const_iterator end() const {
-		return const_iterator(*this, size());
+	const_iterator انتہا() ثابت {
+		واپس const_iterator(*this, سائز());
 	}
 	iterator begin() {
-		return iterator(*this, 0);
+		واپس iterator(*this, 0);
 	}
-	iterator end() {
-		return iterator(*this, size());
+	iterator انتہا() {
+		واپس iterator(*this, سائز());
 	}
-	State back() const {
-		return *(end() - 1);
+	State عقب() ثابت {
+		واپس *(انتہا() - 1);
 	}
-	State front() const {
-		return *begin();
+	State front() ثابت {
+		واپس *begin();
 	}
-	State at(size_t i) const {
-		return *const_iterator(*this, i);
+	State at(سائز_t i) ثابت {
+		واپس *const_iterator(*this, i);
 	}
-	State operator[](size_t i) const {
-		return *const_iterator(*this, i);
+	State عامل[](سائز_t i) ثابت {
+		واپس *const_iterator(*this, i);
 	}
 
-	bool is_fully_zero() const;
-	bool is_fully_ones() const;
-	bool is_fully_def() const;
-	bool is_fully_undef() const;
-	bool is_fully_undef_x_only() const;
-	bool is_onehot(int *pos = nullptr) const;
+	bool is_fully_zero() ثابت;
+	bool is_fully_ones() ثابت;
+	bool is_fully_def() ثابت;
+	bool is_fully_undef() ثابت;
+	bool is_fully_undef_x_only() ثابت;
+	bool is_onehot(صحیح *pos = nullptr) ثابت;
 
-	RTLIL::Const extract(int offset, int len = 1, RTLIL::State padding = RTLIL::State::S0) const;
+	RTLIL::Const نکالو_2(صحیح انحراف, صحیح len = 1, RTLIL::State padding = RTLIL::State::S0) ثابت;
 
 	// find the MSB without redundant leading bits
-	int get_min_size(bool is_signed) const;
+	صحیح get_min_سائز(bool is_signed) ثابت;
 
 	// compress representation to the minimum required bits
-	void compress(bool is_signed = false);
+	خالی compress(bool is_signed = false);
 
-	std::optional<int> as_int_compress(bool is_signed) const;
+	std::optional<صحیح> as_int_compress(bool is_signed) ثابت;
 
-	void extu(int width) {
-		resize(width, RTLIL::State::S0);
+	خالی extu(صحیح چوڑائی) {
+		resize(چوڑائی, RTLIL::State::S0);
 	}
 
-	void exts(int width) {
-		resize(width, empty() ? RTLIL::State::Sx : back());
+	خالی exts(صحیح چوڑائی) {
+		resize(چوڑائی, خالی_خانے() ? RTLIL::State::Sx : عقب());
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت;
 };
 
-struct RTLIL::AttrObject
+ساخت RTLIL::AttrObject
 {
-	dict<RTLIL::IdString, RTLIL::Const> attributes;
+	dict<RTLIL::IdString, RTLIL::Const> اوصاف;
 
-	bool has_attribute(RTLIL::IdString id) const;
+	bool has_attribute(RTLIL::IdString id) ثابت;
 
-	void set_bool_attribute(RTLIL::IdString id, bool value=true);
-	bool get_bool_attribute(RTLIL::IdString id) const;
+	خالی سیٹ_bool_attribute(RTLIL::IdString id, bool قدر=true);
+	bool get_bool_attribute(RTLIL::IdString id) ثابت;
 
 	[[deprecated("Use Module::get_blackbox_attribute() instead.")]]
-	bool get_blackbox_attribute(bool ignore_wb=false) const {
-		return get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
+	bool get_blackbox_attribute(bool ignore_wb=false) ثابت {
+		واپس get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
 	}
 
-	void set_string_attribute(RTLIL::IdString id, string value);
-	string get_string_attribute(RTLIL::IdString id) const;
+	خالی سیٹ_string_attribute(RTLIL::IdString id, string قدر);
+	string get_string_attribute(RTLIL::IdString id) ثابت;
 
-	void set_strpool_attribute(RTLIL::IdString id, const pool<string> &data);
-	void add_strpool_attribute(RTLIL::IdString id, const pool<string> &data);
-	pool<string> get_strpool_attribute(RTLIL::IdString id) const;
+	خالی سیٹ_strpool_attribute(RTLIL::IdString id, ثابت pool<string> &ڈیٹا);
+	خالی جوڑو_strpool_attribute(RTLIL::IdString id, ثابت pool<string> &ڈیٹا);
+	pool<string> get_strpool_attribute(RTLIL::IdString id) ثابت;
 
-	void set_src_attribute(const std::string &src) {
-		set_string_attribute(ID::src, src);
+	خالی سیٹ_src_attribute(ثابت std::string &src) {
+		سیٹ_string_attribute(ID::src, src);
 	}
-	std::string get_src_attribute() const {
-		return get_string_attribute(ID::src);
+	std::string get_src_attribute() ثابت {
+		واپس get_string_attribute(ID::src);
 	}
 
-	void set_hdlname_attribute(const vector<string> &hierarchy);
-	vector<string> get_hdlname_attribute() const;
+	خالی سیٹ_hdlname_attribute(ثابت سمتیہ<string> &hierarchy);
+	سمتیہ<string> get_hdlname_attribute() ثابت;
 
-	void set_intvec_attribute(RTLIL::IdString id, const vector<int> &data);
-	vector<int> get_intvec_attribute(RTLIL::IdString id) const;
+	خالی سیٹ_intvec_attribute(RTLIL::IdString id, ثابت سمتیہ<صحیح> &ڈیٹا);
+	سمتیہ<صحیح> get_intvec_attribute(RTLIL::IdString id) ثابت;
 };
 
-#include "kernel/rtlil_twine_compat.h"
+#شامل "kernel/rtlil_twine_compat.h"
 
-struct RTLIL::SelectedMember
+ساخت RTLIL::SelectedMember
 {
 	RTLIL::AttrObject *obj;
 	RTLIL::PooledName name;
 };
 
-struct RTLIL::SigChunk
+ساخت RTLIL::SigChunk
 {
 	RTLIL::Wire *wire;
-	std::vector<RTLIL::State> data; // only used if wire == NULL, LSB at index 0
-	int width, offset;
+	std::سمتیہ<RTLIL::State> ڈیٹا; // only used if wire == NULL, LSB at index 0
+	صحیح چوڑائی, انحراف;
 
-	SigChunk() : wire(nullptr), width(0), offset(0) {}
-	SigChunk(const RTLIL::Const &value) : wire(nullptr), data(value.to_bits()), width(GetSize(data)), offset(0) {}
-	SigChunk(RTLIL::Const &&value) : wire(nullptr), data(value.to_bits()), width(GetSize(data)), offset(0) {}
-	SigChunk(RTLIL::Wire *wire) : wire(wire), width(GetSize(wire)), offset(0) {}
-	SigChunk(RTLIL::Wire *wire, int offset, int width = 1) : wire(wire), width(width), offset(offset) {}
-	SigChunk(const std::string &str) : SigChunk(RTLIL::Const(str)) {}
-	SigChunk(int val) /*default width 32*/ : SigChunk(RTLIL::Const(val)) {}
-	SigChunk(int val, int width) : SigChunk(RTLIL::Const(val, width)) {}
-	SigChunk(RTLIL::State bit, int width = 1) : SigChunk(RTLIL::Const(bit, width)) {}
-	SigChunk(const RTLIL::SigBit &bit);
+	SigChunk() : wire(nullptr), چوڑائی(0), انحراف(0) {}
+	SigChunk(ثابت RTLIL::Const &قدر) : wire(nullptr), ڈیٹا(قدر.مقصد_بٹ()), چوڑائی(Get_سائز(ڈیٹا)), انحراف(0) {}
+	SigChunk(RTLIL::Const &&قدر) : wire(nullptr), ڈیٹا(قدر.مقصد_بٹ()), چوڑائی(Get_سائز(ڈیٹا)), انحراف(0) {}
+	SigChunk(RTLIL::Wire *wire) : wire(wire), چوڑائی(Get_سائز(wire)), انحراف(0) {}
+	SigChunk(RTLIL::Wire *wire, صحیح انحراف, صحیح چوڑائی = 1) : wire(wire), چوڑائی(چوڑائی), انحراف(انحراف) {}
+	SigChunk(ثابت std::string &str) : SigChunk(RTLIL::Const(str)) {}
+	SigChunk(صحیح val) /*default width 32*/ : SigChunk(RTLIL::Const(val)) {}
+	SigChunk(صحیح val, صحیح چوڑائی) : SigChunk(RTLIL::Const(val, چوڑائی)) {}
+	SigChunk(RTLIL::State ثنائی_ہندسہ, صحیح چوڑائی = 1) : SigChunk(RTLIL::Const(ثنائی_ہندسہ, چوڑائی)) {}
+	SigChunk(ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ);
 
-	RTLIL::SigChunk extract(int offset, int length) const;
-	RTLIL::SigBit operator[](int offset) const;
-	inline int size() const { return width; }
-	inline bool is_wire() const { return wire != NULL; }
+	RTLIL::SigChunk نکالو_2(صحیح انحراف, صحیح لمبائی_2) ثابت;
+	RTLIL::Sig_ثنائی_ہندسہ عامل[](صحیح انحراف) ثابت;
+	اندرونی صحیح سائز() ثابت { واپس چوڑائی; }
+	اندرونی bool is_wire() ثابت { واپس wire != تہی; }
 
-	bool operator <(const RTLIL::SigChunk &other) const;
-	bool operator ==(const RTLIL::SigChunk &other) const;
-	bool operator !=(const RTLIL::SigChunk &other) const;
+	bool عامل <(ثابت RTLIL::SigChunk &other) ثابت;
+	bool عامل ==(ثابت RTLIL::SigChunk &other) ثابت;
+	bool عامل !=(ثابت RTLIL::SigChunk &other) ثابت;
 };
 
-struct RTLIL::SigBit
+ساخت RTLIL::Sig_ثنائی_ہندسہ
 {
 	RTLIL::Wire *wire;
-	union {
-		RTLIL::State data; // used if wire == NULL
-		int offset;        // used if wire != NULL
+	اتحاد {
+		RTLIL::State ڈیٹا; // used if wire == NULL
+		صحیح انحراف;        // used if wire != NULL
 	};
 
-	SigBit();
-	SigBit(RTLIL::State bit);
-	explicit SigBit(bool bit);
-	SigBit(RTLIL::Wire *wire);
-	SigBit(RTLIL::Wire *wire, int offset);
-	SigBit(const RTLIL::SigChunk &chunk);
-	SigBit(const RTLIL::SigChunk &chunk, int index);
-	SigBit(const RTLIL::SigSpec &sig);
-	SigBit(const RTLIL::SigBit &sigbit) = default;
-	RTLIL::SigBit &operator =(const RTLIL::SigBit &other) = default;
+	Sig_ثنائی_ہندسہ();
+	Sig_ثنائی_ہندسہ(RTLIL::State ثنائی_ہندسہ);
+	explicit Sig_ثنائی_ہندسہ(bool ثنائی_ہندسہ);
+	Sig_ثنائی_ہندسہ(RTLIL::Wire *wire);
+	Sig_ثنائی_ہندسہ(RTLIL::Wire *wire, صحیح انحراف);
+	Sig_ثنائی_ہندسہ(ثابت RTLIL::SigChunk &chunk);
+	Sig_ثنائی_ہندسہ(ثابت RTLIL::SigChunk &chunk, صحیح اشاریہ);
+	Sig_ثنائی_ہندسہ(ثابت RTLIL::SigSpec &sig);
+	Sig_ثنائی_ہندسہ(ثابت RTLIL::Sig_ثنائی_ہندسہ &sigbit) = طےشدہ;
+	RTLIL::Sig_ثنائی_ہندسہ &عامل =(ثابت RTLIL::Sig_ثنائی_ہندسہ &other) = طےشدہ;
 
-	inline bool is_wire() const { return wire != NULL; }
+	اندرونی bool is_wire() ثابت { واپس wire != تہی; }
 
-	bool operator <(const RTLIL::SigBit &other) const;
-	bool operator ==(const RTLIL::SigBit &other) const;
-	bool operator !=(const RTLIL::SigBit &other) const;
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
-	[[nodiscard]] Hasher hash_top() const;
+	bool عامل <(ثابت RTLIL::Sig_ثنائی_ہندسہ &other) ثابت;
+	bool عامل ==(ثابت RTLIL::Sig_ثنائی_ہندسہ &other) ثابت;
+	bool عامل !=(ثابت RTLIL::Sig_ثنائی_ہندسہ &other) ثابت;
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت;
+	[[nodiscard]] Hasher hash_چوٹی() ثابت;
 };
 
 namespace hashlib {
-	template <>
-	struct hash_ops<RTLIL::SigBit> {
-		static inline bool cmp(const RTLIL::SigBit &a, const RTLIL::SigBit &b) {
-			return a == b;
+	سانچہ <>
+	ساخت hash_ops<RTLIL::Sig_ثنائی_ہندسہ> {
+		ساکن اندرونی bool cmp(ثابت RTLIL::Sig_ثنائی_ہندسہ &a, ثابت RTLIL::Sig_ثنائی_ہندسہ &b) {
+			واپس a == b;
 		}
-		[[nodiscard]] static inline Hasher hash(const RTLIL::SigBit sb) {
-			return sb.hash_top();
+		[[nodiscard]] ساکن اندرونی Hasher hash(ثابت RTLIL::Sig_ثنائی_ہندسہ sb) {
+			واپس sb.hash_چوٹی();
 		}
-		[[nodiscard]] static inline Hasher hash_into(const RTLIL::SigBit sb, Hasher h) {
-			return sb.hash_into(h);
+		[[nodiscard]] ساکن اندرونی Hasher hash_into(ثابت RTLIL::Sig_ثنائی_ہندسہ sb, Hasher h) {
+			واپس sb.hash_into(h);
 		}
 	};
 };
 
-struct RTLIL::SigSpecIterator
+ساخت RTLIL::SigSpecIterator
 {
-	typedef std::input_iterator_tag iterator_category;
-	typedef RTLIL::SigBit value_type;
-	typedef ptrdiff_t difference_type;
-	typedef RTLIL::SigBit* pointer;
-	typedef RTLIL::SigBit& reference;
+	قسمتعریف std::داخلہ_iterator_لیبل iterator_category;
+	قسمتعریف RTLIL::Sig_ثنائی_ہندسہ قدر_type;
+	قسمتعریف ptrdiff_t difference_type;
+	قسمتعریف RTLIL::Sig_ثنائی_ہندسہ* اشارہ_گر;
+	قسمتعریف RTLIL::Sig_ثنائی_ہندسہ& reference;
 
 	RTLIL::SigSpec *sig_p;
-	int index;
+	صحیح اشاریہ;
 
-	inline RTLIL::SigBit &operator*() const;
-	inline bool operator!=(const RTLIL::SigSpecIterator &other) const { return index != other.index; }
-	inline bool operator==(const RTLIL::SigSpecIterator &other) const { return index == other.index; }
-	inline void operator++() { index++; }
+	اندرونی RTLIL::Sig_ثنائی_ہندسہ &عامل*() ثابت;
+	اندرونی bool عامل!=(ثابت RTLIL::SigSpecIterator &other) ثابت { واپس اشاریہ != other.اشاریہ; }
+	اندرونی bool عامل==(ثابت RTLIL::SigSpecIterator &other) ثابت { واپس اشاریہ == other.اشاریہ; }
+	اندرونی خالی عامل++() { اشاریہ++; }
 };
 
-struct RTLIL::SigSpecConstIterator
+ساخت RTLIL::SigSpecConstIterator
 {
-	typedef std::input_iterator_tag iterator_category;
-	typedef RTLIL::SigBit value_type;
-	typedef ptrdiff_t difference_type;
-	typedef RTLIL::SigBit* pointer;
-	typedef RTLIL::SigBit& reference;
+	قسمتعریف std::داخلہ_iterator_لیبل iterator_category;
+	قسمتعریف RTLIL::Sig_ثنائی_ہندسہ قدر_type;
+	قسمتعریف ptrdiff_t difference_type;
+	قسمتعریف RTLIL::Sig_ثنائی_ہندسہ* اشارہ_گر;
+	قسمتعریف RTLIL::Sig_ثنائی_ہندسہ& reference;
 
-	const RTLIL::SigSpec *sig_p;
-	RTLIL::SigBit bit;
-	int index;
+	ثابت RTLIL::SigSpec *sig_p;
+	RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ;
+	صحیح اشاریہ;
 
-	inline const RTLIL::SigBit &operator*();
-	inline bool operator!=(const RTLIL::SigSpecConstIterator &other) const { return index != other.index; }
-	inline bool operator==(const RTLIL::SigSpecIterator &other) const { return index == other.index; }
-	inline void operator++() { index++; }
+	اندرونی ثابت RTLIL::Sig_ثنائی_ہندسہ &عامل*();
+	اندرونی bool عامل!=(ثابت RTLIL::SigSpecConstIterator &other) ثابت { واپس اشاریہ != other.اشاریہ; }
+	اندرونی bool عامل==(ثابت RTLIL::SigSpecIterator &other) ثابت { واپس اشاریہ == other.اشاریہ; }
+	اندرونی خالی عامل++() { اشاریہ++; }
 };
 
-struct RTLIL::SigSpec
+ساخت RTLIL::SigSpec
 {
-private:
-	friend class SigSpecRepTest;
-	FRIEND_TEST(SigSpecRepTest, Extract);
-	enum Representation : char {
+نجی:
+	دوست class SigSpecRepTest;
+	FRIEND_TEST(SigSpecRepTest, نکالو_3);
+	شمار Representation : حرف {
 		CHUNK,
-		BITS,
+		بٹ_3,
 	};
 	// An AtomicHash is either clear or a nonzero integer.
-	struct AtomicHash {
+	ساخت AtomicHash {
 		// Create an initially clear value.
 		AtomicHash() : atomic_(0) {}
-		AtomicHash(const AtomicHash &rhs) : atomic_(rhs.load()) {}
-		AtomicHash &operator=(const AtomicHash &rhs) { store(rhs.load()); return *this; }
+		AtomicHash(ثابت AtomicHash &rhs) : atomic_(rhs.بھرو()) {}
+		AtomicHash &عامل=(ثابت AtomicHash &rhs) { store(rhs.بھرو()); واپس *this; }
 		// Read the hash. Returns nullopt if the hash is clear.
-		std::optional<Hasher::hash_t> read() const {
-			Hasher::hash_t value = load();
-			if (value == 0)
-				return std::nullopt;
-			return value;
+		std::optional<Hasher::hash_t> اقرأ() ثابت {
+			Hasher::hash_t قدر = بھرو();
+			اگر (قدر == 0)
+				واپس std::nullopt;
+			واپس قدر;
 		}
 		// Set the hash. If the value is already set, then the new value must
 		// equal the current value.
-		void set(Hasher::hash_t value) const {
-			log_assert(value != 0);
+		خالی سیٹ(Hasher::hash_t قدر) ثابت {
+			log_assert(قدر != 0);
 			Hasher::hash_t old = const_cast<std::atomic<Hasher::hash_t>&>(atomic_)
-					.exchange(value, std::memory_order_relaxed);
-			log_assert(old == 0 || old == value);
+					.exchange(قدر, std::حافظہ_ترتیب_relaxed);
+			log_assert(old == 0 || old == قدر);
 		}
-		void clear() { store(0); }
-	private:
-		int load() const { return atomic_.load(std::memory_order_relaxed); }
-		void store(Hasher::hash_t value) const {
-			const_cast<std::atomic<Hasher::hash_t>&>(atomic_).store(value, std::memory_order_relaxed);
+		خالی clear() { store(0); }
+	نجی:
+		صحیح بھرو() ثابت { واپس atomic_.بھرو(std::حافظہ_ترتیب_relaxed); }
+		خالی store(Hasher::hash_t قدر) ثابت {
+			const_cast<std::atomic<Hasher::hash_t>&>(atomic_).store(قدر, std::حافظہ_ترتیب_relaxed);
 		}
 
 		std::atomic<Hasher::hash_t> atomic_;
@@ -820,343 +820,343 @@ private:
 
 	Representation rep_;
 	AtomicHash hash_;
-	union {
+	اتحاد {
 		RTLIL::SigChunk chunk_;
-		std::vector<RTLIL::SigBit> bits_; // LSB at index 0
+		std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> بٹ_2; // LSB at index 0
 	};
 
-	void init_empty_bits() {
-		rep_ = BITS;
-		new (&bits_) std::vector<RTLIL::SigBit>;
+	خالی init_خالی_خانے_بٹ() {
+		rep_ = بٹ_3;
+		new (&بٹ_2) std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ>;
 	}
 
-	void unpack();
-	inline void inline_unpack() {
-		if (rep_ == CHUNK)
+	خالی unpack();
+	اندرونی خالی inline_unpack() {
+		اگر (rep_ == CHUNK)
 			unpack();
 	}
-	void try_repack();
+	خالی try_repack();
 
-	Hasher::hash_t updhash() const;
-	void destroy() {
-		if (rep_ == CHUNK)
+	Hasher::hash_t updhash() ثابت;
+	خالی destroy() {
+		اگر (rep_ == CHUNK)
 			chunk_.~SigChunk();
-		else
-			bits_.~vector();
+		ورنہ
+			بٹ_2.~سمتیہ();
 	}
-	friend struct Chunks;
+	دوست ساخت Chunks;
 
-public:
-	SigSpec() { init_empty_bits(); }
+عوامی:
+	SigSpec() { init_خالی_خانے_بٹ(); }
 	SigSpec(std::initializer_list<RTLIL::SigSpec> parts);
-	SigSpec(const SigSpec &value) : rep_(value.rep_), hash_(value.hash_) {
-		if (value.rep_ == CHUNK)
-			new (&chunk_) RTLIL::SigChunk(value.chunk_);
-		else
-			new (&bits_) std::vector<RTLIL::SigBit>(value.bits_);
+	SigSpec(ثابت SigSpec &قدر) : rep_(قدر.rep_), hash_(قدر.hash_) {
+		اگر (قدر.rep_ == CHUNK)
+			new (&chunk_) RTLIL::SigChunk(قدر.chunk_);
+		ورنہ
+			new (&بٹ_2) std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ>(قدر.بٹ_2);
 	}
-	SigSpec(SigSpec &&value) : rep_(value.rep_), hash_(value.hash_) {
-		if (value.rep_ == CHUNK)
-			new (&chunk_) RTLIL::SigChunk(std::move(value.chunk_));
-		else
-			new (&bits_) std::vector<RTLIL::SigBit>(std::move(value.bits_));
+	SigSpec(SigSpec &&قدر) : rep_(قدر.rep_), hash_(قدر.hash_) {
+		اگر (قدر.rep_ == CHUNK)
+			new (&chunk_) RTLIL::SigChunk(std::move(قدر.chunk_));
+		ورنہ
+			new (&بٹ_2) std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ>(std::move(قدر.بٹ_2));
 	}
-	SigSpec(const RTLIL::Const &value);
-	SigSpec(RTLIL::Const &&value);
-	SigSpec(const RTLIL::SigChunk &chunk);
+	SigSpec(ثابت RTLIL::Const &قدر);
+	SigSpec(RTLIL::Const &&قدر);
+	SigSpec(ثابت RTLIL::SigChunk &chunk);
 	SigSpec(RTLIL::SigChunk &&chunk);
 	SigSpec(RTLIL::Wire *wire);
-	SigSpec(RTLIL::Wire *wire, int offset, int width = 1);
-	SigSpec(const std::string &str);
-	SigSpec(int val, int width = 32);
-	SigSpec(RTLIL::State bit, int width = 1);
-	SigSpec(const RTLIL::SigBit &bit, int width = 1);
-	SigSpec(const std::vector<RTLIL::SigChunk> &chunks);
-	SigSpec(const std::vector<RTLIL::SigBit> &bits);
-	SigSpec(const pool<RTLIL::SigBit> &bits);
-	SigSpec(const std::set<RTLIL::SigBit> &bits);
-	explicit SigSpec(bool bit);
+	SigSpec(RTLIL::Wire *wire, صحیح انحراف, صحیح چوڑائی = 1);
+	SigSpec(ثابت std::string &str);
+	SigSpec(صحیح val, صحیح چوڑائی = 32);
+	SigSpec(RTLIL::State ثنائی_ہندسہ, صحیح چوڑائی = 1);
+	SigSpec(ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ, صحیح چوڑائی = 1);
+	SigSpec(ثابت std::سمتیہ<RTLIL::SigChunk> &chunks);
+	SigSpec(ثابت std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> &بٹ);
+	SigSpec(ثابت pool<RTLIL::Sig_ثنائی_ہندسہ> &بٹ);
+	SigSpec(ثابت std::سیٹ<RTLIL::Sig_ثنائی_ہندسہ> &بٹ);
+	explicit SigSpec(bool ثنائی_ہندسہ);
 	~SigSpec() {
 		destroy();
 	}
 
-	SigSpec &operator=(const SigSpec &rhs) {
+	SigSpec &عامل=(ثابت SigSpec &rhs) {
 		destroy();
 		rep_ = rhs.rep_;
 		hash_ = rhs.hash_;
-		if (rep_ == CHUNK)
+		اگر (rep_ == CHUNK)
 			new (&chunk_) RTLIL::SigChunk(rhs.chunk_);
-		else
-			new (&bits_) std::vector<RTLIL::SigBit>(rhs.bits_);
-		return *this;
+		ورنہ
+			new (&بٹ_2) std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ>(rhs.بٹ_2);
+		واپس *this;
 	}
-	SigSpec &operator=(SigSpec &&rhs) {
+	SigSpec &عامل=(SigSpec &&rhs) {
 		destroy();
 		rep_ = rhs.rep_;
 		hash_ = rhs.hash_;
-		if (rep_ == CHUNK)
+		اگر (rep_ == CHUNK)
 			new (&chunk_) RTLIL::SigChunk(std::move(rhs.chunk_));
-		else
-			new (&bits_) std::vector<RTLIL::SigBit>(std::move(rhs.bits_));
-		return *this;
+		ورنہ
+			new (&بٹ_2) std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ>(std::move(rhs.بٹ_2));
+		واپس *this;
 	}
 
 	// SigSpec::Chunks holds one reconstructed chunk at a time
 	// to provide the SigSpec::chunks() read-only chunks view
 	// since vector<SigChunk> SigSpec::chunks_ has been removed
-	struct Chunks {
-		Chunks(const SigSpec &spec) : spec(spec) {}
-		struct const_iterator {
-			using iterator_category = std::forward_iterator_tag;
-			using value_type = const SigChunk &;
+	ساخت Chunks {
+		Chunks(ثابت SigSpec &spec) : spec(spec) {}
+		ساخت const_iterator {
+			using iterator_category = std::forward_iterator_لیبل;
+			using قدر_type = ثابت SigChunk &;
 			using difference_type = std::ptrdiff_t;
-			using pointer = const SigChunk *;
-			using reference = const SigChunk &;
+			using اشارہ_گر = ثابت SigChunk *;
+			using reference = ثابت SigChunk &;
 
-			const SigSpec &spec;
-			int bit_index;
+			ثابت SigSpec &spec;
+			صحیح ثنائی_ہندسہ_اشاریہ;
 			SigChunk chunk;
 
-			const_iterator(const SigSpec &spec) : spec(spec) {
-				bit_index = 0;
-				if (spec.rep_ == BITS)
-					next_chunk_bits();
+			const_iterator(ثابت SigSpec &spec) : spec(spec) {
+				ثنائی_ہندسہ_اشاریہ = 0;
+				اگر (spec.rep_ == بٹ_3)
+					اگلا_chunk_بٹ();
 			}
-			enum End { END };
-			const_iterator(const SigSpec &spec, End) : spec(spec) {
-				bit_index = spec.size();
+			شمار انتہا_2 { انتہا_3 };
+			const_iterator(ثابت SigSpec &spec, انتہا_2) : spec(spec) {
+				ثنائی_ہندسہ_اشاریہ = spec.سائز();
 			}
-			void next_chunk_bits();
+			خالی اگلا_chunk_بٹ();
 
-			const SigChunk &operator*() {
-				if (spec.rep_ == CHUNK)
-					return spec.chunk_;
-				return chunk;
+			ثابت SigChunk &عامل*() {
+				اگر (spec.rep_ == CHUNK)
+					واپس spec.chunk_;
+				واپس chunk;
 			};
-			const SigChunk *operator->() { return &**this; }
-			const_iterator &operator++() {
-				bit_index += (**this).width;
-				if (spec.rep_ == BITS)
-					next_chunk_bits();
-				return *this;
+			ثابت SigChunk *عامل->() { واپس &**this; }
+			const_iterator &عامل++() {
+				ثنائی_ہندسہ_اشاریہ += (**this).چوڑائی;
+				اگر (spec.rep_ == بٹ_3)
+					اگلا_chunk_بٹ();
+				واپس *this;
 			}
-			bool operator==(const const_iterator &rhs) const { return bit_index == rhs.bit_index; }
-			bool operator!=(const const_iterator &rhs) const { return !(*this == rhs); }
+			bool عامل==(ثابت const_iterator &rhs) ثابت { واپس ثنائی_ہندسہ_اشاریہ == rhs.ثنائی_ہندسہ_اشاریہ; }
+			bool عامل!=(ثابت const_iterator &rhs) ثابت { واپس !(*this == rhs); }
 		};
-		const_iterator begin() const { return const_iterator(spec); }
-		const_iterator end() const {
-			const_iterator it(spec, const_iterator::END);
-			return it;
+		const_iterator begin() ثابت { واپس const_iterator(spec); }
+		const_iterator انتہا() ثابت {
+			const_iterator it(spec, const_iterator::انتہا_3);
+			واپس it;
 		}
 		// Later we should deprecate these and remove their in-tree calls,
 		// so we can eventually remove chunk_vector.
-		std::vector<RTLIL::SigChunk>::const_reverse_iterator rbegin() {
-			ensure_chunk_vector();
-			return chunk_vector.rbegin();
+		std::سمتیہ<RTLIL::SigChunk>::const_الٹ_iterator rbegin() {
+			ensure_chunk_سمتیہ();
+			واپس chunk_سمتیہ.rbegin();
 		}
-		std::vector<RTLIL::SigChunk>::const_reverse_iterator rend() {
-			ensure_chunk_vector();
-			return chunk_vector.rend();
+		std::سمتیہ<RTLIL::SigChunk>::const_الٹ_iterator rend() {
+			ensure_chunk_سمتیہ();
+			واپس chunk_سمتیہ.rend();
 		}
-		int size() {
-			ensure_chunk_vector();
-			return chunk_vector.size();
+		صحیح سائز() {
+			ensure_chunk_سمتیہ();
+			واپس chunk_سمتیہ.سائز();
 		}
-		int size() const {
-			return std::distance(begin(), end());
+		صحیح سائز() ثابت {
+			واپس std::فاصلہ(begin(), انتہا());
 		}
-		const SigChunk &at(int index) {
-			ensure_chunk_vector();
-			return chunk_vector.at(index);
+		ثابت SigChunk &at(صحیح اشاریہ) {
+			ensure_chunk_سمتیہ();
+			واپس chunk_سمتیہ.at(اشاریہ);
 		}
-		operator const std::vector<RTLIL::SigChunk>&() {
-			ensure_chunk_vector();
-			return chunk_vector;
+		عامل ثابت std::سمتیہ<RTLIL::SigChunk>&() {
+			ensure_chunk_سمتیہ();
+			واپس chunk_سمتیہ;
 		}
-	private:
-		void ensure_chunk_vector() {
-			if (spec.size() > 0 && chunk_vector.empty()) {
-				for (const RTLIL::SigChunk &c : *this)
-					chunk_vector.push_back(c);
+	نجی:
+		خالی ensure_chunk_سمتیہ() {
+			اگر (spec.سائز() > 0 && chunk_سمتیہ.خالی_خانے()) {
+				برائے (ثابت RTLIL::SigChunk &c : *this)
+					chunk_سمتیہ.ڈالو_عقب(c);
 			}
 		}
-		const SigSpec &spec;
-		std::vector<RTLIL::SigChunk> chunk_vector;
+		ثابت SigSpec &spec;
+		std::سمتیہ<RTLIL::SigChunk> chunk_سمتیہ;
 	};
-	friend struct Chunks::const_iterator;
+	دوست ساخت Chunks::const_iterator;
 
-	inline Chunks chunks() const { return {*this}; }
-	inline const SigSpec &bits() const { return *this; }
+	اندرونی Chunks chunks() ثابت { واپس {*this}; }
+	اندرونی ثابت SigSpec &بٹ() ثابت { واپس *this; }
 
-	inline int size() const { return rep_ == CHUNK ? chunk_.width : GetSize(bits_); }
-	inline bool empty() const { return size() == 0; };
+	اندرونی صحیح سائز() ثابت { واپس rep_ == CHUNK ? chunk_.چوڑائی : Get_سائز(بٹ_2); }
+	اندرونی bool خالی_خانے() ثابت { واپس سائز() == 0; };
 
-	inline RTLIL::SigBit &operator[](int index) { inline_unpack(); hash_.clear(); return bits_.at(index); }
-	inline RTLIL::SigBit operator[](int index) const {
-		if (rep_ == CHUNK) {
-			if (index < 0 || index >= chunk_.width)
-				throw std::out_of_range("SigSpec::operator[]");
-			if (chunk_.wire)
-				return RTLIL::SigBit(chunk_.wire, chunk_.offset + index);
-			return RTLIL::SigBit(chunk_.data[index]);
+	اندرونی RTLIL::Sig_ثنائی_ہندسہ &عامل[](صحیح اشاریہ) { inline_unpack(); hash_.clear(); واپس بٹ_2.at(اشاریہ); }
+	اندرونی RTLIL::Sig_ثنائی_ہندسہ عامل[](صحیح اشاریہ) ثابت {
+		اگر (rep_ == CHUNK) {
+			اگر (اشاریہ < 0 || اشاریہ >= chunk_.چوڑائی)
+				throw std::برآمد_کا_range("SigSpec::operator[]");
+			اگر (chunk_.wire)
+				واپس RTLIL::Sig_ثنائی_ہندسہ(chunk_.wire, chunk_.انحراف + اشاریہ);
+			واپس RTLIL::Sig_ثنائی_ہندسہ(chunk_.ڈیٹا[اشاریہ]);
 		}
-		return bits_.at(index);
+		واپس بٹ_2.at(اشاریہ);
 	}
 
-	inline RTLIL::SigSpecIterator begin() { RTLIL::SigSpecIterator it; it.sig_p = this; it.index = 0; return it; }
-	inline RTLIL::SigSpecIterator end() { RTLIL::SigSpecIterator it; it.sig_p = this; it.index = size(); return it; }
+	اندرونی RTLIL::SigSpecIterator begin() { RTLIL::SigSpecIterator it; it.sig_p = this; it.اشاریہ = 0; واپس it; }
+	اندرونی RTLIL::SigSpecIterator انتہا() { RTLIL::SigSpecIterator it; it.sig_p = this; it.اشاریہ = سائز(); واپس it; }
 
-	inline RTLIL::SigSpecConstIterator begin() const { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.index = 0; return it; }
-	inline RTLIL::SigSpecConstIterator end() const { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.index = size(); return it; }
+	اندرونی RTLIL::SigSpecConstIterator begin() ثابت { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.اشاریہ = 0; واپس it; }
+	اندرونی RTLIL::SigSpecConstIterator انتہا() ثابت { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.اشاریہ = سائز(); واپس it; }
 
-	void sort();
-	void sort_and_unify();
+	خالی ترتیب_دو();
+	خالی ترتیب_دو_and_unify();
 
-	void replace(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec &with);
-	void replace(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec &with, RTLIL::SigSpec *other) const;
+	خالی replace(ثابت RTLIL::SigSpec &نمونہ, ثابت RTLIL::SigSpec &with);
+	خالی replace(ثابت RTLIL::SigSpec &نمونہ, ثابت RTLIL::SigSpec &with, RTLIL::SigSpec *other) ثابت;
 
-	void replace(const dict<RTLIL::SigBit, RTLIL::SigBit> &rules);
-	void replace(const dict<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const;
+	خالی replace(ثابت dict<RTLIL::Sig_ثنائی_ہندسہ, RTLIL::Sig_ثنائی_ہندسہ> &قواعد);
+	خالی replace(ثابت dict<RTLIL::Sig_ثنائی_ہندسہ, RTLIL::Sig_ثنائی_ہندسہ> &قواعد, RTLIL::SigSpec *other) ثابت;
 
-	void replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules);
-	void replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const;
+	خالی replace(ثابت std::map<RTLIL::Sig_ثنائی_ہندسہ, RTLIL::Sig_ثنائی_ہندسہ> &قواعد);
+	خالی replace(ثابت std::map<RTLIL::Sig_ثنائی_ہندسہ, RTLIL::Sig_ثنائی_ہندسہ> &قواعد, RTLIL::SigSpec *other) ثابت;
 
-	void replace(int offset, const RTLIL::SigSpec &with);
+	خالی replace(صحیح انحراف, ثابت RTLIL::SigSpec &with);
 
-	void remove(const RTLIL::SigSpec &pattern);
-	void remove(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other) const;
-	void remove2(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other);
+	خالی remove(ثابت RTLIL::SigSpec &نمونہ);
+	خالی remove(ثابت RTLIL::SigSpec &نمونہ, RTLIL::SigSpec *other) ثابت;
+	خالی remove2(ثابت RTLIL::SigSpec &نمونہ, RTLIL::SigSpec *other);
 
-	void remove(const pool<RTLIL::SigBit> &pattern);
-	void remove(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other) const;
-	void remove2(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other);
-	void remove2(const std::set<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other);
-	void remove2(const pool<RTLIL::Wire*> &pattern, RTLIL::SigSpec *other);
+	خالی remove(ثابت pool<RTLIL::Sig_ثنائی_ہندسہ> &نمونہ);
+	خالی remove(ثابت pool<RTLIL::Sig_ثنائی_ہندسہ> &نمونہ, RTLIL::SigSpec *other) ثابت;
+	خالی remove2(ثابت pool<RTLIL::Sig_ثنائی_ہندسہ> &نمونہ, RTLIL::SigSpec *other);
+	خالی remove2(ثابت std::سیٹ<RTLIL::Sig_ثنائی_ہندسہ> &نمونہ, RTLIL::SigSpec *other);
+	خالی remove2(ثابت pool<RTLIL::Wire*> &نمونہ, RTLIL::SigSpec *other);
 
-	void remove(int offset, int length = 1);
-	void remove_const();
+	خالی remove(صحیح انحراف, صحیح لمبائی_2 = 1);
+	خالی remove_const();
 
-	RTLIL::SigSpec extract(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec *other = NULL) const;
-	RTLIL::SigSpec extract(const pool<RTLIL::SigBit> &pattern, const RTLIL::SigSpec *other = NULL) const;
-	RTLIL::SigSpec extract(int offset, int length = 1) const;
-	RTLIL::SigSpec extract_end(int offset) const { return extract(offset, size() - offset); }
+	RTLIL::SigSpec نکالو_2(ثابت RTLIL::SigSpec &نمونہ, ثابت RTLIL::SigSpec *other = تہی) ثابت;
+	RTLIL::SigSpec نکالو_2(ثابت pool<RTLIL::Sig_ثنائی_ہندسہ> &نمونہ, ثابت RTLIL::SigSpec *other = تہی) ثابت;
+	RTLIL::SigSpec نکالو_2(صحیح انحراف, صحیح لمبائی_2 = 1) ثابت;
+	RTLIL::SigSpec نکالو_انتہا(صحیح انحراف) ثابت { واپس نکالو_2(انحراف, سائز() - انحراف); }
 
-	void rewrite_wires(std::function<void(RTLIL::Wire*& wire)> rewrite);
+	خالی rewrite_wires(std::function<خالی(RTLIL::Wire*& wire)> rewrite);
 
-	RTLIL::SigBit lsb() const { log_assert(size()); return (*this)[0]; };
-	RTLIL::SigBit msb() const { log_assert(size()); return (*this)[size() - 1]; };
-	RTLIL::SigBit front() const { return (*this)[0]; }
-	RTLIL::SigBit back() const { return (*this)[size() - 1]; }
+	RTLIL::Sig_ثنائی_ہندسہ lsb() ثابت { log_assert(سائز()); واپس (*this)[0]; };
+	RTLIL::Sig_ثنائی_ہندسہ msb() ثابت { log_assert(سائز()); واپس (*this)[سائز() - 1]; };
+	RTLIL::Sig_ثنائی_ہندسہ front() ثابت { واپس (*this)[0]; }
+	RTLIL::Sig_ثنائی_ہندسہ عقب() ثابت { واپس (*this)[سائز() - 1]; }
 
-	void append(const RTLIL::SigSpec &signal);
-	inline void append(Wire *wire) { append(RTLIL::SigSpec(wire)); }
-	inline void append(const RTLIL::SigChunk &chunk) { append(RTLIL::SigSpec(chunk)); }
-	inline void append(const RTLIL::Const &const_) { append(RTLIL::SigSpec(const_)); }
+	خالی append(ثابت RTLIL::SigSpec &اشارہ);
+	اندرونی خالی append(Wire *wire) { append(RTLIL::SigSpec(wire)); }
+	اندرونی خالی append(ثابت RTLIL::SigChunk &chunk) { append(RTLIL::SigSpec(chunk)); }
+	اندرونی خالی append(ثابت RTLIL::Const &const_) { append(RTLIL::SigSpec(const_)); }
 
-	void append(const RTLIL::SigBit &bit);
-	inline void append(RTLIL::State state) { append(RTLIL::SigBit(state)); }
-	inline void append(bool bool_) { append(RTLIL::SigBit(bool_)); }
+	خالی append(ثابت RTLIL::Sig_ثنائی_ہندسہ &ثنائی_ہندسہ);
+	اندرونی خالی append(RTLIL::State state) { append(RTLIL::Sig_ثنائی_ہندسہ(state)); }
+	اندرونی خالی append(bool bool_) { append(RTLIL::Sig_ثنائی_ہندسہ(bool_)); }
 
-	void extend_u0(int width, bool is_signed = false);
+	خالی extend_u0(صحیح چوڑائی, bool is_signed = false);
 
-	RTLIL::SigSpec repeat(int num) const;
+	RTLIL::SigSpec repeat(صحیح عدد) ثابت;
 
-	void reverse() { inline_unpack(); std::reverse(bits_.begin(), bits_.end()); }
+	خالی الٹ() { inline_unpack(); std::الٹ(بٹ_2.begin(), بٹ_2.انتہا()); }
 
-	bool operator <(const RTLIL::SigSpec &other) const;
-	bool operator ==(const RTLIL::SigSpec &other) const;
-	inline bool operator !=(const RTLIL::SigSpec &other) const { return !(*this == other); }
+	bool عامل <(ثابت RTLIL::SigSpec &other) ثابت;
+	bool عامل ==(ثابت RTLIL::SigSpec &other) ثابت;
+	اندرونی bool عامل !=(ثابت RTLIL::SigSpec &other) ثابت { واپس !(*this == other); }
 
-	bool is_wire() const;
-	bool is_chunk() const;
-	inline bool is_bit() const { return size() == 1; }
+	bool is_wire() ثابت;
+	bool is_chunk() ثابت;
+	اندرونی bool is_ثنائی_ہندسہ() ثابت { واپس سائز() == 1; }
 
-	bool known_driver() const;
+	bool معلوم_driver() ثابت;
 
-	bool is_fully_const() const;
-	bool is_fully_zero() const;
-	bool is_fully_ones() const;
-	bool is_fully_def() const;
-	bool is_fully_undef() const;
-	bool has_const() const;
-	bool has_const(State state) const;
-	bool has_marked_bits() const;
-	bool is_onehot(int *pos = nullptr) const;
+	bool is_fully_const() ثابت;
+	bool is_fully_zero() ثابت;
+	bool is_fully_ones() ثابت;
+	bool is_fully_def() ثابت;
+	bool is_fully_undef() ثابت;
+	bool has_const() ثابت;
+	bool has_const(State state) ثابت;
+	bool has_marked_بٹ() ثابت;
+	bool is_onehot(صحیح *pos = nullptr) ثابت;
 
-	bool as_bool() const;
+	bool as_bool() ثابت;
 
 	// Convert the SigSpec to a C++ int, assuming all bits are constant.
 	// NOTE: If the value is too wide to fit in int (32 bits) this will
 	// truncate any higher bits, potentially over/underflowing. Consider using
 	// try_as_int, as_int_saturating, or guarding behind convertible_to_int
 	// instead.
-	int as_int(bool is_signed = false) const;
+	صحیح as_int(bool is_signed = false) ثابت;
 
 	// Returns true iff the SigSpec is constant and can be converted to an int
 	// without over/underflow.
-	bool convertible_to_int(bool is_signed = false) const;
+	bool convertible_مقصد_int(bool is_signed = false) ثابت;
 
 	// Returns the SigSpec's value as an int if it is a constant and can be
 	// represented without over/underflow, or std::nullopt otherwise.
-	std::optional<int> try_as_int(bool is_signed = false) const;
+	std::optional<صحیح> try_as_int(bool is_signed = false) ثابت;
 
 	// Returns an all constant SigSpec's value as an int if it can be represented
 	// without over/underflow, otherwise the max/min value for int depending on
 	// the sign.
-	int as_int_saturating(bool is_signed = false) const;
+	صحیح as_int_saturating(bool is_signed = false) ثابت;
 
-	std::string as_string() const;
+	std::string as_string() ثابت;
 	// Returns std::nullopt if there are any non-constant bits. Returns an empty
 	// Const if this has zero width.
-	std::optional<RTLIL::Const> try_as_const() const;
-	RTLIL::Const as_const() const;
-	RTLIL::Wire *as_wire() const;
-	RTLIL::SigChunk as_chunk() const;
-	RTLIL::SigBit as_bit() const;
+	std::optional<RTLIL::Const> try_as_const() ثابت;
+	RTLIL::Const as_const() ثابت;
+	RTLIL::Wire *as_wire() ثابت;
+	RTLIL::SigChunk as_chunk() ثابت;
+	RTLIL::Sig_ثنائی_ہندسہ as_ثنائی_ہندسہ() ثابت;
 
-	bool match(const char* pattern) const;
+	bool مطابقت(ثابت حرف* نمونہ) ثابت;
 
-	std::set<RTLIL::SigBit> to_sigbit_set() const;
-	pool<RTLIL::SigBit> to_sigbit_pool() const;
-	std::vector<RTLIL::SigBit> to_sigbit_vector() const;
-	std::map<RTLIL::SigBit, RTLIL::SigBit> to_sigbit_map(const RTLIL::SigSpec &other) const;
-	dict<RTLIL::SigBit, RTLIL::SigBit> to_sigbit_dict(const RTLIL::SigSpec &other) const;
+	std::سیٹ<RTLIL::Sig_ثنائی_ہندسہ> مقصد_sigbit_سیٹ() ثابت;
+	pool<RTLIL::Sig_ثنائی_ہندسہ> مقصد_sigbit_pool() ثابت;
+	std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> مقصد_sigbit_سمتیہ() ثابت;
+	std::map<RTLIL::Sig_ثنائی_ہندسہ, RTLIL::Sig_ثنائی_ہندسہ> مقصد_sigbit_map(ثابت RTLIL::SigSpec &other) ثابت;
+	dict<RTLIL::Sig_ثنائی_ہندسہ, RTLIL::Sig_ثنائی_ہندسہ> مقصد_sigbit_dict(ثابت RTLIL::SigSpec &other) ثابت;
 
-	static bool parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str);
-	static bool parse_sel(RTLIL::SigSpec &sig, RTLIL::Design *design, RTLIL::Module *module, std::string str);
-	static bool parse_rhs(const RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str);
+	ساکن bool parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str);
+	ساکن bool parse_sel(RTLIL::SigSpec &sig, RTLIL::Design *design, RTLIL::Module *module, std::string str);
+	ساکن bool parse_rhs(ثابت RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str);
 
-	operator std::vector<RTLIL::SigChunk>() const;
-	operator std::vector<RTLIL::SigBit>() const { return to_sigbit_vector(); }
-	const RTLIL::SigBit &at(int offset, const RTLIL::SigBit &defval) { return offset < size() ? (*this)[offset] : defval; }
-	RTLIL::SigBit& at(int offset) { return (*this)[offset]; }
-	RTLIL::SigBit at(int offset) const { return (*this)[offset]; }
+	عامل std::سمتیہ<RTLIL::SigChunk>() ثابت;
+	عامل std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ>() ثابت { واپس مقصد_sigbit_سمتیہ(); }
+	ثابت RTLIL::Sig_ثنائی_ہندسہ &at(صحیح انحراف, ثابت RTLIL::Sig_ثنائی_ہندسہ &defval) { واپس انحراف < سائز() ? (*this)[انحراف] : defval; }
+	RTLIL::Sig_ثنائی_ہندسہ& at(صحیح انحراف) { واپس (*this)[انحراف]; }
+	RTLIL::Sig_ثنائی_ہندسہ at(صحیح انحراف) ثابت { واپس (*this)[انحراف]; }
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
 		Hasher::hash_t val;
-		if (std::optional<Hasher::hash_t> current = hash_.read())
+		اگر (std::optional<Hasher::hash_t> current = hash_.اقرأ())
 			val = *current;
-		else
+		ورنہ
 			val = updhash();
 		h.eat(val);
-		return h;
+		واپس h;
 	}
 
-#ifndef NDEBUG
-	void check(const Module *mod = nullptr) const;
-#else
-	void check(const Module *mod = nullptr) const { (void)mod; }
-#endif
+#اگر_غیر_تعریف_شدہ NDEBUG
+	خالی check(ثابت Module *mod = nullptr) ثابت;
+#ورنہ
+	خالی check(ثابت Module *mod = nullptr) ثابت { (خالی)mod; }
+#اگر_ختم
 };
 
-struct RTLIL::Selection
+ساخت RTLIL::Selection
 {
 	// selection includes boxed modules
 	bool selects_boxes;
 	// selection covers full design, including boxed modules
 	bool complete_selection;
 	// selection covers full design, not including boxed modules
-	bool full_selection;
+	bool بھرا_selection;
 	pool<RTLIL::IdString> selected_modules;
 	dict<RTLIL::IdString, pool<RTLIL::IdString>> selected_members;
 	RTLIL::Design *current_design;
@@ -1164,28 +1164,28 @@ struct RTLIL::Selection
 	// create a new selection
 	Selection(
 		// should the selection cover the full design
-		bool full = true,
+		bool بھرا_2 = true,
 		// should the selection include boxed modules
 		bool boxes = false,
 		// the design to select from
 		RTLIL::Design *design = nullptr
 	) :
-		selects_boxes(boxes), complete_selection(full && boxes), full_selection(full && !boxes), current_design(design) { }
+		selects_boxes(boxes), complete_selection(بھرا_2 && boxes), بھرا_selection(بھرا_2 && !boxes), current_design(design) { }
 
 	// checks if the given module exists in the current design and is a
 	// boxed module, warning the user if the current design is not set
-	bool boxed_module(RTLIL::IdString mod_name) const;
+	bool boxed_module(RTLIL::IdString mod_name) ثابت;
 
 	// checks if the given module is included in this selection
-	bool selected_module(RTLIL::IdString mod_name) const;
+	bool selected_module(RTLIL::IdString mod_name) ثابت;
 
 	// checks if the given module is wholly included in this selection,
 	// i.e. not partially selected
-	bool selected_whole_module(RTLIL::IdString mod_name) const;
+	bool selected_پورا_module(RTLIL::IdString mod_name) ثابت;
 
 	// checks if the given member from the given module is included in this
 	// selection
-	bool selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) const;
+	bool selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) ثابت;
 
 	// optimizes this selection for the given design by:
 	// - removing non-existent modules and members, any boxed modules and
@@ -1196,731 +1196,731 @@ struct RTLIL::Selection
 	// - marking selection as a complete_selection if all modules in the
 	//   given design are selected, or a full_selection if it does not
 	//   include boxes.
-	void optimize(RTLIL::Design *design);
+	خالی optimize(RTLIL::Design *design);
 
 	// checks if selection covers full design (may or may not include
 	// boxed-modules)
-	bool selects_all() const {
-		return full_selection || complete_selection;
+	bool selects_all() ثابت {
+		واپس بھرا_selection || complete_selection;
 	}
 
 	// add whole module to this selection
-	template<typename T1> void select(T1 *module) {
-		if (!selects_all() && selected_modules.count(module->name) == 0) {
+	سانچہ<typename T1> خالی select(T1 *module) {
+		اگر (!selects_all() && selected_modules.گنتی(module->name) == 0) {
 			IdString name = module->name;
-			selected_modules.insert(name);
+			selected_modules.داخل_کرو(name);
 			selected_members.erase(name);
-			if (module->get_blackbox_attribute())
+			اگر (module->get_blackbox_attribute())
 				selects_boxes = true;
 		}
 	}
 
 	// add member of module to this selection
-	template<typename T1, typename T2> void select(T1 *module, T2 *member) {
+	سانچہ<typename T1, typename T2> خالی select(T1 *module, T2 *member) {
 		select(module, member->name.ref());
 	}
 
-	template<typename T1> void select(T1 *module, RTLIL::IdString member) {
-		if (!selects_all() && selected_modules.count(module->name.ref()) == 0) {
-			selected_members[module->name.ref()].insert(member);
-			if (module->get_blackbox_attribute())
+	سانچہ<typename T1> خالی select(T1 *module, RTLIL::IdString member) {
+		اگر (!selects_all() && selected_modules.گنتی(module->name.ref()) == 0) {
+			selected_members[module->name.ref()].داخل_کرو(member);
+			اگر (module->get_blackbox_attribute())
 				selects_boxes = true;
 		}
 	}
 
 	// checks if selection is empty
-	bool empty() const {
-		return !selects_all() && selected_modules.empty() && selected_members.empty();
+	bool خالی_خانے() ثابت {
+		واپس !selects_all() && selected_modules.خالی_خانے() && selected_members.خالی_خانے();
 	}
 
 	// clear this selection, leaving it empty
-	void clear();
+	خالی clear();
 
 	// create a new selection which is empty
-	static Selection EmptySelection(RTLIL::Design *design = nullptr) { return Selection(false, false, design); };
+	ساکن Selection خالی_خانے_Selection(RTLIL::Design *design = nullptr) { واپس Selection(false, false, design); };
 
 	// create a new selection with all non-boxed modules
-	static Selection FullSelection(RTLIL::Design *design = nullptr) { return Selection(true, false, design); };
+	ساکن Selection بھرا_Selection(RTLIL::Design *design = nullptr) { واپس Selection(true, false, design); };
 
 	// create a new selection with all modules, including boxes
-	static Selection CompleteSelection(RTLIL::Design *design = nullptr) { return Selection(true, true, design); };
+	ساکن Selection CompleteSelection(RTLIL::Design *design = nullptr) { واپس Selection(true, true, design); };
 };
 
-struct RTLIL::Monitor
+ساخت RTLIL::Monitor
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت { h.eat(hashidx_); واپس h; }
 
 	Monitor() {
-		static unsigned int hashidx_count = 123456789;
-		hashidx_count = mkhash_xorshift(hashidx_count);
-		hashidx_ = hashidx_count;
+		ساکن غیرعلامتی صحیح hashidx_گنتی = 123456789;
+		hashidx_گنتی = mkhash_xorshift(hashidx_گنتی);
+		hashidx_ = hashidx_گنتی;
 	}
 
-	virtual ~Monitor() { }
-	virtual void notify_module_add(RTLIL::Module*) { }
-	virtual void notify_module_del(RTLIL::Module*) { }
-	virtual void notify_connect(RTLIL::Cell*, RTLIL::IdString, const RTLIL::SigSpec&, const RTLIL::SigSpec&) { }
-	virtual void notify_connect(RTLIL::Module*, const RTLIL::SigSig&) { }
-	virtual void notify_connect(RTLIL::Module*, const std::vector<RTLIL::SigSig>&) { }
-	virtual void notify_blackout(RTLIL::Module*) { }
+	مجازی ~Monitor() { }
+	مجازی خالی notify_module_جوڑو(RTLIL::Module*) { }
+	مجازی خالی notify_module_del(RTLIL::Module*) { }
+	مجازی خالی notify_connect(RTLIL::Cell*, RTLIL::IdString, ثابت RTLIL::SigSpec&, ثابت RTLIL::SigSpec&) { }
+	مجازی خالی notify_connect(RTLIL::Module*, ثابت RTLIL::SigSig&) { }
+	مجازی خالی notify_connect(RTLIL::Module*, ثابت std::سمتیہ<RTLIL::SigSig>&) { }
+	مجازی خالی notify_blackout(RTLIL::Module*) { }
 };
 
 // Forward declaration; defined in preproc.h.
-struct define_map_t;
+ساخت define_map_t;
 
-template<typename N>
-inline constexpr bool is_unpooled_name_v =
-	std::is_same_v<std::decay_t<N>, TwineSpec> || std::is_same_v<std::decay_t<N>, TwineSpec::Leaf> ||
+سانچہ<typename N>
+اندرونی constexpr bool is_unpooled_name_v =
+	std::is_same_v<std::decay_t<N>, TwineSpec> || std::is_same_v<std::decay_t<N>, TwineSpec::برگ> ||
 	std::is_same_v<std::decay_t<N>, TwineSpec::Suffix> || std::is_same_v<std::decay_t<N>, TwineSpec::AutoSuffix> ||
 	std::is_same_v<std::decay_t<N>, std::string> || std::is_same_v<std::decay_t<N>, std::string_view> ||
-	std::is_same_v<std::decay_t<N>, const char*> || std::is_same_v<std::decay_t<N>, char*>;
+	std::is_same_v<std::decay_t<N>, ثابت حرف*> || std::is_same_v<std::decay_t<N>, حرف*>;
 
-#define YS_UNPOOLED_NAME(N) std::enable_if_t<is_unpooled_name_v<N>, int> = 0
+#تعریف_کرو YS_UNPOOLED_NAME(N) std::enable_if_t<is_unpooled_name_v<N>, صحیح> = 0
 
-template<typename N>
-inline constexpr bool is_name_string_v =
+سانچہ<typename N>
+اندرونی constexpr bool is_name_string_v =
 	std::is_same_v<std::decay_t<N>, std::string> || std::is_same_v<std::decay_t<N>, std::string_view> ||
-	std::is_same_v<std::decay_t<N>, const char *> || std::is_same_v<std::decay_t<N>, char *>;
+	std::is_same_v<std::decay_t<N>, ثابت حرف *> || std::is_same_v<std::decay_t<N>, حرف *>;
 
-#define YS_NAME_STRING(N) std::enable_if_t<is_name_string_v<N>, int> = 0
+#تعریف_کرو YS_NAME_STRING(N) std::enable_if_t<is_name_string_v<N>, صحیح> = 0
 
 // Forwarders from various string-representing types into a canonical IdString method
 
 // Forwards _func(name, arg1...)
-#define YS_NAME_FWD_POOL(_func, _pool) \
-	template<typename N, typename... Rest, YS_UNPOOLED_NAME(N)> \
-	decltype(auto) _func(N name, Rest&&... rest) \
-		{ return _func(_pool.add(std::move(name)), std::forward<Rest>(rest)...); }
+#تعریف_کرو YS_NAME_FWD_POOL(_func, _pool) \
+	سانچہ<typename N, typename... Rest, YS_UNPOOLED_NAME(N)> \
+	decltype(خودکار) _func(N name, Rest&&... rest) \
+		{ واپس _func(_pool.جوڑو(std::move(name)), std::forward<Rest>(rest)...); }
 
 // Forwards _func(arg0, name, arg2...)
-#define YS_NAME_FWD_2ND_POOL(_func, _pool) \
-	template<typename T, typename N, YS_UNPOOLED_NAME(N)> \
-	decltype(auto) _func(T &&first, N name) \
-		{ return _func(std::forward<T>(first), _pool.add(std::move(name))); }
+#تعریف_کرو YS_NAME_FWD_2ND_POOL(_func, _pool) \
+	سانچہ<typename T, typename N, YS_UNPOOLED_NAME(N)> \
+	decltype(خودکار) _func(T &&پہلا, N name) \
+		{ واپس _func(std::forward<T>(پہلا), _pool.جوڑو(std::move(name))); }
 
-#define YS_NAME_FWD(_func) YS_NAME_FWD_POOL(_func, design->twines())
-#define YS_NAME_FWD_2ND(_func) YS_NAME_FWD_2ND_POOL(_func, design->twines())
+#تعریف_کرو YS_NAME_FWD(_func) YS_NAME_FWD_POOL(_func, design->twines())
+#تعریف_کرو YS_NAME_FWD_2ND(_func) YS_NAME_FWD_2ND_POOL(_func, design->twines())
 
-struct RTLIL::Design
+ساخت RTLIL::Design
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت { h.eat(hashidx_); واپس h; }
 
 	pool<RTLIL::Monitor*> monitors;
 	dict<std::string, std::string> scratchpad;
 
 	bool flagBufferedNormalized = false;
-	void bufNormalize(bool enable=true);
+	خالی bufNormalize(bool enable=true);
 
-	int refcount_modules_;
+	صحیح refcount_modules_;
 	dict<RTLIL::IdString, RTLIL::Module*> modules_;
 
-private:
+نجی:
 	TwinePool twines_;
 
-public:
-	TwinePool &twines() { return twines_; }
-	const TwinePool &twines() const { return twines_; }
+عوامی:
+	TwinePool &twines() { واپس twines_; }
+	ثابت TwinePool &twines() ثابت { واپس twines_; }
 
-	void absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf);
+	خالی absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf);
 
-	size_t gc_twines();
+	سائز_t gc_twines();
 
-	std::vector<std::unique_ptr<AST::AstNode>> verilog_packages, verilog_globals;
-	std::unique_ptr<define_map_t> verilog_defines;
+	std::سمتیہ<std::unique_ptr<AST::Ast_گرہ>> verilog_packages, verilog_globals;
+	std::unique_ptr<define_map_t> verilog_متعین_کرتا;
 
-	std::vector<RTLIL::Selection> selection_stack;
+	std::سمتیہ<RTLIL::Selection> selection_ڈھیر;
 	dict<RTLIL::IdString, RTLIL::Selection> selection_vars;
-	IdString selected_active_module;
+	IdString selected_فعال_module;
 
 	Design();
 	~Design();
 
 	RTLIL::ObjRange<RTLIL::Module*, IdString> modules();
 	RTLIL::Module *module(RTLIL::IdString name);
-	const RTLIL::Module *module(RTLIL::IdString name) const;
-	template<typename N, YS_NAME_STRING(N)> RTLIL::Module *module(N name)
-		{ return module(twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> const RTLIL::Module *module(N name) const
-		{ return module(twines().find(std::string_view(name))); }
-	RTLIL::Module *top_module() const;
+	ثابت RTLIL::Module *module(RTLIL::IdString name) ثابت;
+	سانچہ<typename N, YS_NAME_STRING(N)> RTLIL::Module *module(N name)
+		{ واپس module(twines().ڈھونڈو(std::string_view(name))); }
+	سانچہ<typename N, YS_NAME_STRING(N)> ثابت RTLIL::Module *module(N name) ثابت
+		{ واپس module(twines().ڈھونڈو(std::string_view(name))); }
+	RTLIL::Module *چوٹی_module() ثابت;
 
-	bool has(RTLIL::IdString id) const {
+	bool has(RTLIL::IdString id) ثابت {
 		twines_.check_owned(id);
-		return modules_.count(id) != 0;
+		واپس modules_.گنتی(id) != 0;
 	}
-	template<typename N, YS_NAME_STRING(N)> bool has(N name) const
-		{ return has(twines().find(std::string_view(name))); }
+	سانچہ<typename N, YS_NAME_STRING(N)> bool has(N name) ثابت
+		{ واپس has(twines().ڈھونڈو(std::string_view(name))); }
 
-	void add(RTLIL::Module *module);
+	خالی جوڑو(RTLIL::Module *module);
 
-	RTLIL::Module *addModule(RTLIL::IdString name);
-	YS_NAME_FWD_POOL(addModule, twines())
-	void remove(RTLIL::Module *module);
-	void rename(RTLIL::Module *module, RTLIL::IdString new_name);
+	RTLIL::Module *جوڑو_Module(RTLIL::IdString name);
+	YS_NAME_FWD_POOL(جوڑو_Module, twines())
+	خالی remove(RTLIL::Module *module);
+	خالی rename(RTLIL::Module *module, RTLIL::IdString new_name);
 	YS_NAME_FWD_2ND_POOL(rename, twines())
 
-	void scratchpad_unset(const std::string &varname);
+	خالی scratchpad_unset(ثابت std::string &varname);
 
-	void scratchpad_set_int(const std::string &varname, int value);
-	void scratchpad_set_bool(const std::string &varname, bool value);
-	void scratchpad_set_string(const std::string &varname, std::string value);
+	خالی scratchpad_سیٹ_int(ثابت std::string &varname, صحیح قدر);
+	خالی scratchpad_سیٹ_bool(ثابت std::string &varname, bool قدر);
+	خالی scratchpad_سیٹ_string(ثابت std::string &varname, std::string قدر);
 
-	int scratchpad_get_int(const std::string &varname, int default_value = 0) const;
-	bool scratchpad_get_bool(const std::string &varname, bool default_value = false) const;
-	std::string scratchpad_get_string(const std::string &varname, const std::string &default_value = std::string()) const;
+	صحیح scratchpad_get_int(ثابت std::string &varname, صحیح default_قدر_2 = 0) ثابت;
+	bool scratchpad_get_bool(ثابت std::string &varname, bool default_قدر_2 = false) ثابت;
+	std::string scratchpad_get_string(ثابت std::string &varname, ثابت std::string &default_قدر_2 = std::string()) ثابت;
 
-	void sort();
-	void sort_modules();
-	void check();
-	void optimize();
+	خالی ترتیب_دو();
+	خالی ترتیب_دو_modules();
+	خالی check();
+	خالی optimize();
 
-	void clone_into(RTLIL::Design *dst) const;
+	خالی clone_into(RTLIL::Design *dst) ثابت;
 
 	// checks if the given module is included in the current selection
-	bool selected_module(RTLIL::IdString mod_name) const;
+	bool selected_module(RTLIL::IdString mod_name) ثابت;
 
 	// checks if the given module is wholly included in the current
 	// selection, i.e. not partially selected
-	bool selected_whole_module(RTLIL::IdString mod_name) const;
+	bool selected_پورا_module(RTLIL::IdString mod_name) ثابت;
 
 	// checks if the given member from the given module is included in the
 	// current selection
-	bool selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) const;
+	bool selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) ثابت;
 
 	// checks if the given module is included in the current selection
-	bool selected_module(RTLIL::Module *mod) const;
+	bool selected_module(RTLIL::Module *mod) ثابت;
 
 	// checks if the given module is wholly included in the current
 	// selection, i.e. not partially selected
-	bool selected_whole_module(RTLIL::Module *mod) const;
+	bool selected_پورا_module(RTLIL::Module *mod) ثابت;
 
 	// push the given selection to the selection stack
-	void push_selection(RTLIL::Selection sel);
+	خالی ڈالو_selection(RTLIL::Selection sel);
 	// push a new selection to the selection stack, with nothing selected
-	void push_empty_selection();
+	خالی ڈالو_خالی_خانے_selection();
 	// push a new selection to the selection stack, with all non-boxed
 	// modules selected
-	void push_full_selection();
+	خالی ڈالو_بھرا_selection();
 	// push a new selection to the selection stack, with all modules
 	// selected including boxes
-	void push_complete_selection();
+	خالی ڈالو_complete_selection();
 	// pop the current selection from the stack, returning to a full
 	// selection (no boxes) if the stack is empty
-	void pop_selection();
+	خالی نکالو_selection();
 
 	// get the current selection
 	RTLIL::Selection &selection() {
-		return selection_stack.back();
+		واپس selection_ڈھیر.عقب();
 	}
 
 	// get the current selection
-	const RTLIL::Selection &selection() const {
-		return selection_stack.back();
+	ثابت RTLIL::Selection &selection() ثابت {
+		واپس selection_ڈھیر.عقب();
 	}
 
 	// is the current selection a full selection (no boxes)
-	bool full_selection() const {
-		return selection().full_selection;
+	bool بھرا_selection() ثابت {
+		واپس selection().بھرا_selection;
 	}
 
 	// is the given module in the current selection
-	template<typename T1> bool selected(T1 *module) const {
-		return selected_module(module->name);
+	سانچہ<typename T1> bool selected(T1 *module) ثابت {
+		واپس selected_module(module->name);
 	}
 
 	// is the given member of the given module in the current selection
-	template<typename T1, typename T2> bool selected(T1 *module, T2 *member) const {
-		return selected_member(module->name, member->name);
+	سانچہ<typename T1, typename T2> bool selected(T1 *module, T2 *member) ثابت {
+		واپس selected_member(module->name, member->name);
 	}
 
 	// add whole module to the current selection
-	template<typename T1> void select(T1 *module) {
+	سانچہ<typename T1> خالی select(T1 *module) {
 		RTLIL::Selection &sel = selection();
 		sel.select(module);
 	}
 
 	// add member of module to the current selection
-	template<typename T1, typename T2> void select(T1 *module, T2 *member) {
+	سانچہ<typename T1, typename T2> خالی select(T1 *module, T2 *member) {
 		RTLIL::Selection &sel = selection();
 		sel.select(module, member);
 	}
 
 
 	// returns all selected modules
-	std::vector<RTLIL::Module*> selected_modules(
+	std::سمتیہ<RTLIL::Module*> selected_modules(
 		// controls if partially selected modules are included
 		RTLIL::SelectPartials partials = SELECT_ALL,
 		// controls if boxed modules are included
 		RTLIL::SelectBoxes boxes = SB_UNBOXED_WARN
-	) const;
+	) ثابت;
 
 	// returns all selected modules, and may include boxes
-	std::vector<RTLIL::Module*> all_selected_modules() const { return selected_modules(SELECT_ALL, SB_ALL); }
+	std::سمتیہ<RTLIL::Module*> all_selected_modules() ثابت { واپس selected_modules(SELECT_ALL, SB_ALL); }
 	// returns all selected unboxed modules, silently ignoring any boxed
 	// modules in the selection
-	std::vector<RTLIL::Module*> selected_unboxed_modules() const { return selected_modules(SELECT_ALL, SB_UNBOXED_ONLY); }
+	std::سمتیہ<RTLIL::Module*> selected_unboxed_modules() ثابت { واپس selected_modules(SELECT_ALL, SB_UNBOXED_ONLY); }
 	// returns all selected unboxed modules, warning the user if any boxed
 	// modules have been ignored
-	std::vector<RTLIL::Module*> selected_unboxed_modules_warn() const { return selected_modules(SELECT_ALL, SB_UNBOXED_WARN); }
+	std::سمتیہ<RTLIL::Module*> selected_unboxed_modules_warn() ثابت { واپس selected_modules(SELECT_ALL, SB_UNBOXED_WARN); }
 
 	[[deprecated("Use select_unboxed_whole_modules() to maintain prior behaviour, or consider one of the other selected whole module helpers.")]]
-	std::vector<RTLIL::Module*> selected_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_UNBOXED_WARN); }
+	std::سمتیہ<RTLIL::Module*> selected_پورا_modules() ثابت { واپس selected_modules(SELECT_پورا_ONLY, SB_UNBOXED_WARN); }
 	// returns all selected whole modules, silently ignoring partially
 	// selected modules, and may include boxes
-	std::vector<RTLIL::Module*> all_selected_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_ALL); }
+	std::سمتیہ<RTLIL::Module*> all_selected_پورا_modules() ثابت { واپس selected_modules(SELECT_پورا_ONLY, SB_ALL); }
 	// returns all selected whole modules, warning the user if any partially
 	// selected or boxed modules have been ignored; optionally includes
 	// selected whole modules with the 'whitebox' attribute
-	std::vector<RTLIL::Module*> selected_whole_modules_warn(
+	std::سمتیہ<RTLIL::Module*> selected_پورا_modules_warn(
 		// should whole modules with the 'whitebox' attribute be
 		// included
 		bool include_wb = false
-	) const { return selected_modules(SELECT_WHOLE_WARN, include_wb ? SB_EXCL_BB_WARN : SB_UNBOXED_WARN); }
+	) ثابت { واپس selected_modules(SELECT_پورا_WARN, include_wb ? SB_EXCL_BB_WARN : SB_UNBOXED_WARN); }
 	// returns all selected unboxed whole modules, silently ignoring
 	// partially selected or boxed modules
-	std::vector<RTLIL::Module*> selected_unboxed_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_UNBOXED_ONLY); }
+	std::سمتیہ<RTLIL::Module*> selected_unboxed_پورا_modules() ثابت { واپس selected_modules(SELECT_پورا_ONLY, SB_UNBOXED_ONLY); }
 	// returns all selected unboxed whole modules, warning the user if any
 	// partially selected or boxed modules have been ignored
-	std::vector<RTLIL::Module*> selected_unboxed_whole_modules_warn() const { return selected_modules(SELECT_WHOLE_WARN, SB_UNBOXED_WARN); }
+	std::سمتیہ<RTLIL::Module*> selected_unboxed_پورا_modules_warn() ثابت { واپس selected_modules(SELECT_پورا_WARN, SB_UNBOXED_WARN); }
 
-	static std::map<unsigned int, RTLIL::Design*> *get_all_designs(void);
+	ساکن std::map<غیرعلامتی صحیح, RTLIL::Design*> *get_all_designs(خالی);
 
-	std::string to_rtlil_str(bool only_selected = true) const;
+	std::string مقصد_rtlil_str(bool only_selected = true) ثابت;
 };
 
-struct RTLIL::Module : public RTLIL::AttrObject
+ساخت RTLIL::Module : عوامی RTLIL::AttrObject
 {
-	friend struct RTLIL::Cell;
-	friend struct RTLIL::Design;
+	دوست ساخت RTLIL::Cell;
+	دوست ساخت RTLIL::Design;
 
 	RTLIL::ModuleNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت { h.eat(hashidx_); واپس h; }
 
-protected:
-	void add(RTLIL::Wire *wire);
-	void add(RTLIL::Cell *cell);
-	void add(RTLIL::Process *process);
+محفوظ:
+	خالی جوڑو(RTLIL::Wire *wire);
+	خالی جوڑو(RTLIL::Cell *cell);
+	خالی جوڑو(RTLIL::Process *process);
 
-public:
+عوامی:
 	RTLIL::Design *design;
 	pool<RTLIL::Monitor*> monitors;
 
-	TwinePool &twines() const { return design->twines(); }
+	TwinePool &twines() ثابت { واپس design->twines(); }
 
-	int refcount_wires_;
-	int refcount_cells_;
+	صحیح refcount_wires_;
+	صحیح refcount_cells_;
 
 	dict<RTLIL::IdString, RTLIL::Wire*> wires_;
 	dict<RTLIL::IdString, RTLIL::Cell*> cells_;
 
-	std::vector<RTLIL::SigSig>   connections_;
+	std::سمتیہ<RTLIL::SigSig>   connections_;
 
 	idict<RTLIL::IdString> avail_parameters;
-	dict<RTLIL::IdString, RTLIL::Const> parameter_default_values;
-	dict<RTLIL::IdString, RTLIL::Memory*> memories;
+	dict<RTLIL::IdString, RTLIL::Const> parameter_default_اقدار;
+	dict<RTLIL::IdString, RTLIL::حافظہ*> memories;
 	dict<RTLIL::IdString, RTLIL::Process*> processes;
 
 	Module();
-	virtual ~Module();
-	virtual RTLIL::IdString derive(RTLIL::Design *design, const dict<RTLIL::IdString, RTLIL::Const> &parameters, bool mayfail = false);
-	virtual RTLIL::IdString derive(RTLIL::Design *design, const dict<RTLIL::IdString, RTLIL::Const> &parameters, const dict<RTLIL::IdString, RTLIL::Module*> &interfaces, const dict<RTLIL::IdString, RTLIL::IdString> &modports, bool mayfail = false);
-	virtual size_t count_id(RTLIL::IdString id);
-	virtual void expand_interfaces(RTLIL::Design *design, const dict<RTLIL::IdString, RTLIL::Module *> &local_interfaces);
-	virtual bool reprocess_if_necessary(RTLIL::Design *design);
+	مجازی ~Module();
+	مجازی RTLIL::IdString derive(RTLIL::Design *design, ثابت dict<RTLIL::IdString, RTLIL::Const> &parameters, bool mayfail = false);
+	مجازی RTLIL::IdString derive(RTLIL::Design *design, ثابت dict<RTLIL::IdString, RTLIL::Const> &parameters, ثابت dict<RTLIL::IdString, RTLIL::Module*> &interfaces, ثابت dict<RTLIL::IdString, RTLIL::IdString> &modports, bool mayfail = false);
+	مجازی سائز_t گنتی_id(RTLIL::IdString id);
+	مجازی خالی expand_interfaces(RTLIL::Design *design, ثابت dict<RTLIL::IdString, RTLIL::Module *> &local_interfaces);
+	مجازی bool reprocess_if_necessary(RTLIL::Design *design);
 
-	virtual void sort();
-	virtual void check();
-	virtual void optimize();
-	virtual void makeblackbox();
+	مجازی خالی ترتیب_دو();
+	مجازی خالی check();
+	مجازی خالی optimize();
+	مجازی خالی makeblackbox();
 
-	bool get_blackbox_attribute(bool ignore_wb=false) const {
-		return get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
+	bool get_blackbox_attribute(bool ignore_wb=false) ثابت {
+		واپس get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
 	}
 
-	void connect(const RTLIL::SigSig &conn);
-	void connect(const RTLIL::SigSpec &lhs, const RTLIL::SigSpec &rhs);
-	void new_connections(const std::vector<RTLIL::SigSig> &new_conn);
-	const std::vector<RTLIL::SigSig> &connections() const;
+	خالی connect(ثابت RTLIL::SigSig &conn);
+	خالی connect(ثابت RTLIL::SigSpec &lhs, ثابت RTLIL::SigSpec &rhs);
+	خالی new_connections(ثابت std::سمتیہ<RTLIL::SigSig> &new_conn);
+	ثابت std::سمتیہ<RTLIL::SigSig> &connections() ثابت;
 
-	std::vector<RTLIL::IdString> ports;
-	void fixup_ports();
+	std::سمتیہ<RTLIL::IdString> ports;
+	خالی fixup_ports();
 
-	pool<RTLIL::Cell *> buf_norm_cell_queue;
-	pool<pair<RTLIL::Cell *, RTLIL::IdString>> buf_norm_cell_port_queue;
-	pool<RTLIL::Wire *> buf_norm_wire_queue;
+	pool<RTLIL::Cell *> buf_norm_cell_قطار;
+	pool<pair<RTLIL::Cell *, RTLIL::IdString>> buf_norm_cell_پورٹ_قطار;
+	pool<RTLIL::Wire *> buf_norm_wire_قطار;
 	pool<RTLIL::Cell *> pending_deleted_cells;
-	dict<RTLIL::Wire *, pool<RTLIL::Cell *>> buf_norm_connect_index;
-	void bufNormalize();
+	dict<RTLIL::Wire *, pool<RTLIL::Cell *>> buf_norm_connect_اشاریہ;
+	خالی bufNormalize();
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	void cloneInto(RTLIL::Module *new_mod) const;
-	virtual RTLIL::Module *clone() const;
-	virtual RTLIL::Module *clone(RTLIL::Design *dst) const;
-	virtual RTLIL::Module *clone(RTLIL::Design *dst, IdString target_name) const;
+	سانچہ<typename T> خالی rewrite_sigspecs(T &functor);
+	سانچہ<typename T> خالی rewrite_sigspecs2(T &functor);
+	خالی cloneInto(RTLIL::Module *new_mod) ثابت;
+	مجازی RTLIL::Module *clone() ثابت;
+	مجازی RTLIL::Module *clone(RTLIL::Design *dst) ثابت;
+	مجازی RTLIL::Module *clone(RTLIL::Design *dst, IdString ہدف_name) ثابت;
 
-	bool has_memories() const;
-	bool has_processes() const;
+	bool has_memories() ثابت;
+	bool has_processes() ثابت;
 
-	bool has_memories_warn() const;
-	bool has_processes_warn() const;
+	bool has_memories_warn() ثابت;
+	bool has_processes_warn() ثابت;
 
-	bool is_selected() const;
-	bool is_selected_whole() const;
+	bool is_selected() ثابت;
+	bool is_selected_پورا() ثابت;
 
-	std::vector<RTLIL::Wire*> selected_wires() const;
-	std::vector<RTLIL::Cell*> selected_cells() const;
-	std::vector<RTLIL::Memory*> selected_memories() const;
-	std::vector<RTLIL::Process*> selected_processes() const;
-	std::vector<RTLIL::SelectedMember> selected_members() const;
+	std::سمتیہ<RTLIL::Wire*> selected_wires() ثابت;
+	std::سمتیہ<RTLIL::Cell*> selected_cells() ثابت;
+	std::سمتیہ<RTLIL::حافظہ*> selected_memories() ثابت;
+	std::سمتیہ<RTLIL::Process*> selected_processes() ثابت;
+	std::سمتیہ<RTLIL::SelectedMember> selected_members() ثابت;
 
-	template<typename T> bool selected(T *member) const {
-		return design->selected_member(name.ref(), member->name.ref());
+	سانچہ<typename T> bool selected(T *member) ثابت {
+		واپس design->selected_member(name.ref(), member->name.ref());
 	}
 
 	RTLIL::Wire* wire(RTLIL::IdString id) {
-		if (design)
+		اگر (design)
 			design->twines().check_owned(id);
-		auto it = wires_.find(id);
-		return it == wires_.end() ? nullptr : it->second;
+		خودکار it = wires_.ڈھونڈو(id);
+		واپس it == wires_.انتہا() ? nullptr : it->دوسرا;
 	}
 	RTLIL::Cell* cell(RTLIL::IdString id) {
-		if (design)
+		اگر (design)
 			design->twines().check_owned(id);
-		auto it = cells_.find(id);
-		return it == cells_.end() ? nullptr : it->second;
+		خودکار it = cells_.ڈھونڈو(id);
+		واپس it == cells_.انتہا() ? nullptr : it->دوسرا;
 	}
 
-	const RTLIL::Wire* wire(RTLIL::IdString id) const{
-		if (design)
+	ثابت RTLIL::Wire* wire(RTLIL::IdString id) ثابت{
+		اگر (design)
 			design->twines().check_owned(id);
-		auto it = wires_.find(id);
-		return it == wires_.end() ? nullptr : it->second;
+		خودکار it = wires_.ڈھونڈو(id);
+		واپس it == wires_.انتہا() ? nullptr : it->دوسرا;
 	}
-	const RTLIL::Cell* cell(RTLIL::IdString id) const {
-		if (design)
+	ثابت RTLIL::Cell* cell(RTLIL::IdString id) ثابت {
+		اگر (design)
 			design->twines().check_owned(id);
-		auto it = cells_.find(id);
-		return it == cells_.end() ? nullptr : it->second;
+		خودکار it = cells_.ڈھونڈو(id);
+		واپس it == cells_.انتہا() ? nullptr : it->دوسرا;
 	}
 
-	template<typename N, YS_NAME_STRING(N)> RTLIL::Wire *wire(N name)
-		{ return wire(twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> RTLIL::Cell *cell(N name)
-		{ return cell(twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> const RTLIL::Wire *wire(N name) const
-		{ return wire(twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> const RTLIL::Cell *cell(N name) const
-		{ return cell(twines().find(std::string_view(name))); }
+	سانچہ<typename N, YS_NAME_STRING(N)> RTLIL::Wire *wire(N name)
+		{ واپس wire(twines().ڈھونڈو(std::string_view(name))); }
+	سانچہ<typename N, YS_NAME_STRING(N)> RTLIL::Cell *cell(N name)
+		{ واپس cell(twines().ڈھونڈو(std::string_view(name))); }
+	سانچہ<typename N, YS_NAME_STRING(N)> ثابت RTLIL::Wire *wire(N name) ثابت
+		{ واپس wire(twines().ڈھونڈو(std::string_view(name))); }
+	سانچہ<typename N, YS_NAME_STRING(N)> ثابت RTLIL::Cell *cell(N name) ثابت
+		{ واپس cell(twines().ڈھونڈو(std::string_view(name))); }
 
-	RTLIL::ObjRange<RTLIL::Wire*> wires() { return RTLIL::ObjRange<RTLIL::Wire*>(&wires_, &refcount_wires_); }
-	int wires_size() const { return wires_.size(); }
-	RTLIL::Wire* wire_at(int index) const { return wires_.element(index)->second; }
-	RTLIL::ObjRange<RTLIL::Cell*> cells() { return RTLIL::ObjRange<RTLIL::Cell*>(&cells_, &refcount_cells_); }
-	int cells_size() const { return cells_.size(); }
-	RTLIL::Cell* cell_at(int index) const { return cells_.element(index)->second; }
+	RTLIL::ObjRange<RTLIL::Wire*> wires() { واپس RTLIL::ObjRange<RTLIL::Wire*>(&wires_, &refcount_wires_); }
+	صحیح wires_سائز() ثابت { واپس wires_.سائز(); }
+	RTLIL::Wire* wire_at(صحیح اشاریہ) ثابت { واپس wires_.element(اشاریہ)->دوسرا; }
+	RTLIL::ObjRange<RTLIL::Cell*> cells() { واپس RTLIL::ObjRange<RTLIL::Cell*>(&cells_, &refcount_cells_); }
+	صحیح cells_سائز() ثابت { واپس cells_.سائز(); }
+	RTLIL::Cell* cell_at(صحیح اشاریہ) ثابت { واپس cells_.element(اشاریہ)->دوسرا; }
 
 	// Removing wires is expensive. If you have to remove wires, remove them all at once.
-	void remove(const pool<RTLIL::Wire*> &wires);
-	void remove(RTLIL::Cell *cell);
-	void remove(RTLIL::Memory *memory);
-	void remove(RTLIL::Process *process);
+	خالی remove(ثابت pool<RTLIL::Wire*> &wires);
+	خالی remove(RTLIL::Cell *cell);
+	خالی remove(RTLIL::حافظہ *حافظہ_3);
+	خالی remove(RTLIL::Process *process);
 
-	void rename(RTLIL::Wire *wire, RTLIL::IdString new_name);
-	void rename(RTLIL::Cell *cell, RTLIL::IdString new_name);
-	void rename(RTLIL::IdString old_name, RTLIL::IdString new_name);
+	خالی rename(RTLIL::Wire *wire, RTLIL::IdString new_name);
+	خالی rename(RTLIL::Cell *cell, RTLIL::IdString new_name);
+	خالی rename(RTLIL::IdString old_name, RTLIL::IdString new_name);
 	YS_NAME_FWD_2ND(rename)
 
-	void swap_names(RTLIL::Wire *w1, RTLIL::Wire *w2);
-	void swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2);
+	خالی تبادلہ_نام(RTLIL::Wire *w1, RTLIL::Wire *w2);
+	خالی تبادلہ_نام(RTLIL::Cell *c1, RTLIL::Cell *c2);
 
 	RTLIL::IdString uniquify(RTLIL::IdString name);
-	RTLIL::IdString uniquify(RTLIL::IdString name, int &index);
+	RTLIL::IdString uniquify(RTLIL::IdString name, صحیح &اشاریہ);
 	YS_NAME_FWD(uniquify)
 
-	RTLIL::Wire *addWire(RTLIL::IdString name, int width = 1);
-	RTLIL::Wire *addWire(RTLIL::IdString name, const RTLIL::Wire *other);
-	YS_NAME_FWD(addWire)
+	RTLIL::Wire *جوڑو_Wire(RTLIL::IdString name, صحیح چوڑائی = 1);
+	RTLIL::Wire *جوڑو_Wire(RTLIL::IdString name, ثابت RTLIL::Wire *other);
+	YS_NAME_FWD(جوڑو_Wire)
 
-	RTLIL::Cell *addCell(RTLIL::IdString name, RTLIL::IdString type);
-	RTLIL::Cell *addCell(RTLIL::IdString name, const RTLIL::Cell *other);
-	YS_NAME_FWD(addCell)
-	template<typename T, YS_UNPOOLED_NAME(T)>
-	RTLIL::Cell *addCell(RTLIL::IdString name, T type) { return addCell(name, design->twines().add(std::move(type))); }
+	RTLIL::Cell *جوڑو_Cell(RTLIL::IdString name, RTLIL::IdString type);
+	RTLIL::Cell *جوڑو_Cell(RTLIL::IdString name, ثابت RTLIL::Cell *other);
+	YS_NAME_FWD(جوڑو_Cell)
+	سانچہ<typename T, YS_UNPOOLED_NAME(T)>
+	RTLIL::Cell *جوڑو_Cell(RTLIL::IdString name, T type) { واپس جوڑو_Cell(name, design->twines().جوڑو(std::move(type))); }
 
-	RTLIL::Memory *addMemory(RTLIL::IdString name);
-	YS_NAME_FWD(addMemory)
-	RTLIL::Memory *addMemory(RTLIL::IdString name, const RTLIL::Memory *other);
+	RTLIL::حافظہ *جوڑو_حافظہ(RTLIL::IdString name);
+	YS_NAME_FWD(جوڑو_حافظہ)
+	RTLIL::حافظہ *جوڑو_حافظہ(RTLIL::IdString name, ثابت RTLIL::حافظہ *other);
 
-	RTLIL::Process *addProcess(RTLIL::IdString name);
-	YS_NAME_FWD(addProcess)
-	RTLIL::Process *addProcess(RTLIL::IdString name, const RTLIL::Process *other);
+	RTLIL::Process *جوڑو_Process(RTLIL::IdString name);
+	YS_NAME_FWD(جوڑو_Process)
+	RTLIL::Process *جوڑو_Process(RTLIL::IdString name, ثابت RTLIL::Process *other);
 
 	// The add* methods create a cell and return the created cell. All signals must exist in advance.
 
-	RTLIL::Cell* addNot     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addPos     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addBuf     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addBarrier (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addNeg     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* جوڑو_Not     (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Pos     (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Buf     (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Barrier (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Neg     (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
 
-	RTLIL::Cell* addAnd  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addOr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addXor  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addXnor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* جوڑو_And  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Or   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Xor  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Xnor (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
 
-	RTLIL::Cell* addReduceAnd  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addReduceOr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addReduceXor  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addReduceXnor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addReduceBool (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* جوڑو_Reduce_And  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Reduce_Or   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Reduce_Xor  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Reduce_Xnor (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Reduce_Bool (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
 
-	RTLIL::Cell* addShl    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addShr    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addSshl   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addSshr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addShift  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addShiftx (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* جوڑو_Shl    (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Shr    (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Sshl   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Sshr   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_سرکاؤ  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Shiftx (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
 
-	RTLIL::Cell* addLt  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addLe  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addEq  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addNe  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addEqx (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addNex (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addGe  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addGt  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* جوڑو_Lt  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Le  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Eq  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Ne  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Eqx (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Nex (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Ge  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Gt  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
 
-	RTLIL::Cell* addAdd (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addSub (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addMul (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* جوڑو_جوڑو (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Sub (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Mul (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
 	// truncating division
-	RTLIL::Cell* addDiv (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* جوڑو_Div (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
 	// truncating modulo
-	RTLIL::Cell* addMod (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addDivFloor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addModFloor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addPow (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool a_signed = false, bool b_signed = false, const std::string &src = "");
+	RTLIL::Cell* جوڑو_Mod (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Div_Floor (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Mod_Floor (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Pow (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool a_signed = false, bool b_signed = false, ثابت std::string &src = "");
 
-	RTLIL::Cell* addFa (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_c, const RTLIL::SigSpec &sig_x, const RTLIL::SigSpec &sig_y, const std::string &src = "");
+	RTLIL::Cell* جوڑو_Fa (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_c, ثابت RTLIL::SigSpec &sig_x, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src = "");
 
-	RTLIL::Cell* addLogicNot (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addLogicAnd (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addLogicOr  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* جوڑو_Logic_Not (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Logic_And (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Logic_Or  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, bool is_signed = false, ثابت std::string &src = "");
 
-	RTLIL::Cell* addMux  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addPmux (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addBmux (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addDemux (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
+	RTLIL::Cell* جوڑو_Mux  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_s, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Pmux (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_s, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Bmux (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_s, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Demux (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_s, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src = "");
 
-	RTLIL::Cell* addBweqx  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addBwmux  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
+	RTLIL::Cell* جوڑو_Bweqx  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Bwmux  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_s, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src = "");
 
-	RTLIL::Cell* addSlice  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, RTLIL::Const offset, const std::string &src = "");
-	RTLIL::Cell* addConcat (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addLut    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, RTLIL::Const lut, const std::string &src = "");
-	RTLIL::Cell* addTribuf (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAssert (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addAssume (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addLive   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addFair   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addCover  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addEquiv  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src = "");
+	RTLIL::Cell* جوڑو_قاش  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, RTLIL::Const انحراف, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Concat (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Lut    (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_y, RTLIL::Const lut, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Tribuf (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Assert (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_en, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Assume (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_en, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_زندہ   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_en, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Fair   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_en, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Cover  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_en, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Equiv  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src = "");
 
-	RTLIL::Cell* addSr    (RTLIL::IdString name, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, const RTLIL::SigSpec &sig_q, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addFf    (RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src = "");
-	RTLIL::Cell* addDff   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_d,   const RTLIL::SigSpec &sig_q, bool clk_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffe  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en,  const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffsr (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffsre (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdff (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const arst_value, bool clk_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdffe (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst,  const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const arst_value, bool clk_polarity = true, bool en_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAldff (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool aload_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAldffe (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_aload,  const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool en_polarity = true, bool aload_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdff (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const srst_value, bool clk_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffe (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst,  const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const srst_value, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffce (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const srst_value, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDlatch (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdlatch (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const arst_value, bool en_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDlatchsr (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
+	RTLIL::Cell* جوڑو_Sr    (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr, ثابت RTLIL::SigSpec &sig_q, bool سیٹ_polarity = true, bool clr_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Ff    (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Dff   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_d,   ثابت RTLIL::SigSpec &sig_q, bool clk_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Dffe  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en,  ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Dffsr (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, ثابت RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool سیٹ_polarity = true, bool clr_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Dffsre (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, ثابت RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, bool سیٹ_polarity = true, bool clr_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Adff (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_arst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, RTLIL::Const arst_قدر, bool clk_polarity = true, bool arst_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Adffe (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_arst,  ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, RTLIL::Const arst_قدر, bool clk_polarity = true, bool en_polarity = true, bool arst_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Aldff (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_aload, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, ثابت RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool aload_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Aldffe (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_aload,  ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, ثابت RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool en_polarity = true, bool aload_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Sdff (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_srst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, RTLIL::Const srst_قدر, bool clk_polarity = true, bool srst_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Sdffe (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_srst,  ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, RTLIL::Const srst_قدر, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Sdffce (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_srst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, RTLIL::Const srst_قدر, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Dlatch (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, bool en_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Adlatch (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_arst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, RTLIL::Const arst_قدر, bool en_polarity = true, bool arst_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Dlatchsr (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, ثابت RTLIL::SigSpec &sig_q, bool en_polarity = true, bool سیٹ_polarity = true, bool clr_polarity = true, ثابت std::string &src = "");
 
-	RTLIL::Cell* addBufGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addNotGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAndGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addNandGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addOrGate     (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addNorGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addXorGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addXnorGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAndnotGate (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addOrnotGate  (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addMuxGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_s, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addNmuxGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_s, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAoi3Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addOai3Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAoi4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addOai4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const RTLIL::SigBit &sig_y, const std::string &src = "");
+	RTLIL::Cell* جوڑو_Buf_Gate    (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Not_Gate    (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_And_Gate    (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Nand_Gate   (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Or_Gate     (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Nor_Gate    (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Xor_Gate    (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Xnor_Gate   (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Andnot_Gate (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Ornot_Gate  (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Mux_Gate    (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_s, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Nmux_Gate   (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_s, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Aoi3_Gate   (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_c, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Oai3_Gate   (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_c, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Aoi4_Gate   (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_c, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_d, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Oai4_Gate   (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_c, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_d, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_y, ثابت std::string &src = "");
 
-	RTLIL::Cell* addSrGate     (RTLIL::IdString name, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-			const RTLIL::SigSpec &sig_q, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addFfGate     (RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src = "");
-	RTLIL::Cell* addDffGate    (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffeGate   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffsrGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-			RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffsreGate (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-			RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdffGate   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool arst_value = false, bool clk_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdffeGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool arst_value = false, bool clk_polarity = true, bool en_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAldffGate   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			const RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool aload_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAldffeGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			const RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool en_polarity = true, bool aload_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffGate   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool srst_value = false, bool clk_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffeGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool srst_value = false, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffceGate (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool srst_value = false, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDlatchGate (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdlatchGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool arst_value = false, bool en_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDlatchsrGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-			RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
+	RTLIL::Cell* جوڑو_Sr_Gate     (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr,
+			ثابت RTLIL::SigSpec &sig_q, bool سیٹ_polarity = true, bool clr_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Ff_Gate     (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Dff_Gate    (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, bool clk_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Dffe_Gate   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Dffsr_Gate  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr,
+			RTLIL::SigSpec sig_d, ثابت RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool سیٹ_polarity = true, bool clr_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Dffsre_Gate (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr,
+			RTLIL::SigSpec sig_d, ثابت RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, bool سیٹ_polarity = true, bool clr_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Adff_Gate   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_arst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+			bool arst_قدر = false, bool clk_polarity = true, bool arst_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Adffe_Gate  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_arst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+			bool arst_قدر = false, bool clk_polarity = true, bool en_polarity = true, bool arst_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Aldff_Gate   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_aload, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+			ثابت RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool aload_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Aldffe_Gate  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_aload, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+			ثابت RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool en_polarity = true, bool aload_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Sdff_Gate   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_srst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+			bool srst_قدر = false, bool clk_polarity = true, bool srst_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Sdffe_Gate  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_srst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+			bool srst_قدر = false, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Sdffce_Gate (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_clk, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_srst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+			bool srst_قدر = false, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Dlatch_Gate (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, bool en_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Adlatch_Gate(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_arst, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q,
+			bool arst_قدر = false, bool en_polarity = true, bool arst_polarity = true, ثابت std::string &src = "");
+	RTLIL::Cell* جوڑو_Dlatchsr_Gate  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_en, ثابت RTLIL::SigSpec &sig_سیٹ, ثابت RTLIL::SigSpec &sig_clr,
+			RTLIL::SigSpec sig_d, ثابت RTLIL::SigSpec &sig_q, bool en_polarity = true, bool سیٹ_polarity = true, bool clr_polarity = true, ثابت std::string &src = "");
 
-	RTLIL::Cell* addAnyinit(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src = "");
+	RTLIL::Cell* جوڑو_Anyinit(RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_d, ثابت RTLIL::SigSpec &sig_q, ثابت std::string &src = "");
 
 	// The methods without the add* prefix create a cell and an output signal. They return the newly created output signal.
 
-	RTLIL::SigSpec Not     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Pos     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Buf     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Barrier (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Neg     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Not     (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Pos     (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Buf     (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Barrier (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Neg     (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, bool is_signed = false, ثابت std::string &src = "");
 
-	RTLIL::SigSpec And  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Or   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Xor  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Xnor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec And  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Or   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Xor  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Xnor (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
 
-	RTLIL::SigSpec ReduceAnd  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ReduceOr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ReduceXor  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ReduceXnor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ReduceBool (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec ReduceAnd  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec ReduceOr   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec ReduceXor  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec ReduceXnor (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec ReduceBool (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, bool is_signed = false, ثابت std::string &src = "");
 
-	RTLIL::SigSpec Shl    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Shr    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Sshl   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Sshr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Shift  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Shiftx (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Shl    (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Shr    (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Sshl   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Sshr   (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec سرکاؤ_2  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Shiftx (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
 
-	RTLIL::SigSpec Lt  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Le  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Eq  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Ne  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Eqx (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Nex (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Ge  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Gt  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Lt  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Le  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Eq  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Ne  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Eqx (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Nex (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Ge  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Gt  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
 
-	RTLIL::SigSpec Add (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Sub (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Mul (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec جوڑو_2 (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Sub (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Mul (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
 	// truncating division
-	RTLIL::SigSpec Div (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Div (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
 	// truncating modulo
-	RTLIL::SigSpec Mod (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec DivFloor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ModFloor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Pow (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool a_signed = false, bool b_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Mod (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec DivFloor (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec ModFloor (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec Pow (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool a_signed = false, bool b_signed = false, ثابت std::string &src = "");
 
-	RTLIL::SigSpec LogicNot (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec LogicAnd (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec LogicOr  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec LogicNot (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec LogicAnd (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
+	RTLIL::SigSpec LogicOr  (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, bool is_signed = false, ثابت std::string &src = "");
 
-	RTLIL::SigSpec Mux      (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const std::string &src = "");
-	RTLIL::SigSpec Pmux     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const std::string &src = "");
-	RTLIL::SigSpec Bmux     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const std::string &src = "");
-	RTLIL::SigSpec Demux     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const std::string &src = "");
+	RTLIL::SigSpec Mux      (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_s, ثابت std::string &src = "");
+	RTLIL::SigSpec Pmux     (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_s, ثابت std::string &src = "");
+	RTLIL::SigSpec Bmux     (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_s, ثابت std::string &src = "");
+	RTLIL::SigSpec Demux     (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_s, ثابت std::string &src = "");
 
-	RTLIL::SigSpec Bweqx      (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const std::string &src = "");
-	RTLIL::SigSpec Bwmux      (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const std::string &src = "");
+	RTLIL::SigSpec Bweqx      (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت std::string &src = "");
+	RTLIL::SigSpec Bwmux      (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_b, ثابت RTLIL::SigSpec &sig_s, ثابت std::string &src = "");
 
-	RTLIL::SigBit BufGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const std::string &src = "");
-	RTLIL::SigBit NotGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const std::string &src = "");
-	RTLIL::SigBit AndGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit NandGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit OrGate     (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit NorGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit XorGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit XnorGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit AndnotGate (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit OrnotGate  (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit MuxGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_s, const std::string &src = "");
-	RTLIL::SigBit NmuxGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_s, const std::string &src = "");
-	RTLIL::SigBit Aoi3Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const std::string &src = "");
-	RTLIL::SigBit Oai3Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const std::string &src = "");
-	RTLIL::SigBit Aoi4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const std::string &src = "");
-	RTLIL::SigBit Oai4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ BufGate    (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ NotGate    (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ AndGate    (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ NandGate   (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ OrGate     (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ NorGate    (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ XorGate    (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ XnorGate   (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ AndnotGate (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ OrnotGate  (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ MuxGate    (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_s, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ NmuxGate   (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_s, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ Aoi3Gate   (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_c, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ Oai3Gate   (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_c, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ Aoi4Gate   (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_c, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_d, ثابت std::string &src = "");
+	RTLIL::Sig_ثنائی_ہندسہ Oai4Gate   (RTLIL::IdString name, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_a, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_b, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_c, ثابت RTLIL::Sig_ثنائی_ہندسہ &sig_d, ثابت std::string &src = "");
 
-	RTLIL::SigSpec Anyconst  (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Anyseq    (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Allconst  (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Allseq    (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Initstate (RTLIL::IdString name, const std::string &src = "");
+	RTLIL::SigSpec Anyconst  (RTLIL::IdString name, صحیح چوڑائی = 1, ثابت std::string &src = "");
+	RTLIL::SigSpec Anyseq    (RTLIL::IdString name, صحیح چوڑائی = 1, ثابت std::string &src = "");
+	RTLIL::SigSpec Allconst  (RTLIL::IdString name, صحیح چوڑائی = 1, ثابت std::string &src = "");
+	RTLIL::SigSpec Allseq    (RTLIL::IdString name, صحیح چوڑائی = 1, ثابت std::string &src = "");
+	RTLIL::SigSpec Initstate (RTLIL::IdString name, ثابت std::string &src = "");
 
-	RTLIL::SigSpec SetTag          (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src = "");
-	RTLIL::Cell*   addSetTag       (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::SigSpec GetTag          (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const std::string &src = "");
-	RTLIL::Cell*   addOverwriteTag (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src = "");
-	RTLIL::SigSpec OriginalTag     (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const std::string &src = "");
-	RTLIL::SigSpec FutureFF        (RTLIL::IdString name, const RTLIL::SigSpec &sig_e, const std::string &src = "");
-	YS_NAME_FWD(addAnyinit)
+	RTLIL::SigSpec سیٹ_لیبل_2          (RTLIL::IdString name, ثابت std::string &لیبل, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_s, ثابت RTLIL::SigSpec &sig_c, ثابت std::string &src = "");
+	RTLIL::Cell*   جوڑو_سیٹ_لیبل       (RTLIL::IdString name, ثابت std::string &لیبل, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_s, ثابت RTLIL::SigSpec &sig_c, ثابت RTLIL::SigSpec &sig_y, ثابت std::string &src = "");
+	RTLIL::SigSpec Get_لیبل          (RTLIL::IdString name, ثابت std::string &لیبل, ثابت RTLIL::SigSpec &sig_a, ثابت std::string &src = "");
+	RTLIL::Cell*   جوڑو_Overwrite_لیبل (RTLIL::IdString name, ثابت std::string &لیبل, ثابت RTLIL::SigSpec &sig_a, ثابت RTLIL::SigSpec &sig_s, ثابت RTLIL::SigSpec &sig_c, ثابت std::string &src = "");
+	RTLIL::SigSpec Original_لیبل     (RTLIL::IdString name, ثابت std::string &لیبل, ثابت RTLIL::SigSpec &sig_a, ثابت std::string &src = "");
+	RTLIL::SigSpec FutureFF        (RTLIL::IdString name, ثابت RTLIL::SigSpec &sig_e, ثابت std::string &src = "");
+	YS_NAME_FWD(جوڑو_Anyinit)
 	YS_NAME_FWD(Anyconst) YS_NAME_FWD(Anyseq) YS_NAME_FWD(Allconst) YS_NAME_FWD(Allseq)
 	YS_NAME_FWD(Initstate)
-	YS_NAME_FWD(SetTag) YS_NAME_FWD(addSetTag) YS_NAME_FWD(GetTag)
-	YS_NAME_FWD(addOverwriteTag) YS_NAME_FWD(OriginalTag) YS_NAME_FWD(FutureFF)
-	YS_NAME_FWD(addNot) YS_NAME_FWD(addPos) YS_NAME_FWD(addBuf) YS_NAME_FWD(addBarrier) YS_NAME_FWD(addNeg)
-	YS_NAME_FWD(addAnd) YS_NAME_FWD(addOr) YS_NAME_FWD(addXor) YS_NAME_FWD(addXnor)
-	YS_NAME_FWD(addReduceAnd) YS_NAME_FWD(addReduceOr) YS_NAME_FWD(addReduceXor) YS_NAME_FWD(addReduceXnor)
-	YS_NAME_FWD(addReduceBool) YS_NAME_FWD(addShl) YS_NAME_FWD(addShr) YS_NAME_FWD(addSshl)
-	YS_NAME_FWD(addSshr) YS_NAME_FWD(addShift) YS_NAME_FWD(addShiftx) YS_NAME_FWD(addLt)
-	YS_NAME_FWD(addLe) YS_NAME_FWD(addEq) YS_NAME_FWD(addNe) YS_NAME_FWD(addEqx)
-	YS_NAME_FWD(addNex) YS_NAME_FWD(addGe) YS_NAME_FWD(addGt) YS_NAME_FWD(addAdd)
-	YS_NAME_FWD(addSub) YS_NAME_FWD(addMul) YS_NAME_FWD(addDiv) YS_NAME_FWD(addMod)
-	YS_NAME_FWD(addDivFloor) YS_NAME_FWD(addModFloor) YS_NAME_FWD(addPow) YS_NAME_FWD(addFa)
-	YS_NAME_FWD(addLogicNot) YS_NAME_FWD(addLogicAnd) YS_NAME_FWD(addLogicOr) YS_NAME_FWD(addMux)
-	YS_NAME_FWD(addPmux) YS_NAME_FWD(addBmux) YS_NAME_FWD(addDemux) YS_NAME_FWD(addBweqx)
-	YS_NAME_FWD(addBwmux) YS_NAME_FWD(addSlice) YS_NAME_FWD(addConcat) YS_NAME_FWD(addLut)
-	YS_NAME_FWD(addTribuf) YS_NAME_FWD(addAssert) YS_NAME_FWD(addAssume) YS_NAME_FWD(addLive)
-	YS_NAME_FWD(addFair) YS_NAME_FWD(addCover) YS_NAME_FWD(addEquiv) YS_NAME_FWD(addSr)
-	YS_NAME_FWD(addFf) YS_NAME_FWD(addDff) YS_NAME_FWD(addDffe) YS_NAME_FWD(addDffsr)
-	YS_NAME_FWD(addDffsre) YS_NAME_FWD(addAdff) YS_NAME_FWD(addAdffe) YS_NAME_FWD(addAldff)
-	YS_NAME_FWD(addAldffe) YS_NAME_FWD(addSdff) YS_NAME_FWD(addSdffe) YS_NAME_FWD(addSdffce)
-	YS_NAME_FWD(addDlatch) YS_NAME_FWD(addAdlatch) YS_NAME_FWD(addDlatchsr) YS_NAME_FWD(addBufGate)
-	YS_NAME_FWD(addNotGate) YS_NAME_FWD(addAndGate) YS_NAME_FWD(addNandGate) YS_NAME_FWD(addOrGate)
-	YS_NAME_FWD(addNorGate) YS_NAME_FWD(addXorGate) YS_NAME_FWD(addXnorGate) YS_NAME_FWD(addAndnotGate)
-	YS_NAME_FWD(addOrnotGate) YS_NAME_FWD(addMuxGate) YS_NAME_FWD(addNmuxGate) YS_NAME_FWD(addAoi3Gate)
-	YS_NAME_FWD(addOai3Gate) YS_NAME_FWD(addAoi4Gate) YS_NAME_FWD(addOai4Gate) YS_NAME_FWD(addSrGate)
-	YS_NAME_FWD(addFfGate) YS_NAME_FWD(addDffGate) YS_NAME_FWD(addDffeGate) YS_NAME_FWD(addDffsrGate)
-	YS_NAME_FWD(addDffsreGate) YS_NAME_FWD(addAdffGate) YS_NAME_FWD(addAdffeGate) YS_NAME_FWD(addAldffGate)
-	YS_NAME_FWD(addAldffeGate) YS_NAME_FWD(addSdffGate) YS_NAME_FWD(addSdffeGate) YS_NAME_FWD(addSdffceGate)
-	YS_NAME_FWD(addDlatchGate) YS_NAME_FWD(addAdlatchGate) YS_NAME_FWD(addDlatchsrGate) YS_NAME_FWD(Not)
+	YS_NAME_FWD(سیٹ_لیبل_2) YS_NAME_FWD(جوڑو_سیٹ_لیبل) YS_NAME_FWD(Get_لیبل)
+	YS_NAME_FWD(جوڑو_Overwrite_لیبل) YS_NAME_FWD(Original_لیبل) YS_NAME_FWD(FutureFF)
+	YS_NAME_FWD(جوڑو_Not) YS_NAME_FWD(جوڑو_Pos) YS_NAME_FWD(جوڑو_Buf) YS_NAME_FWD(جوڑو_Barrier) YS_NAME_FWD(جوڑو_Neg)
+	YS_NAME_FWD(جوڑو_And) YS_NAME_FWD(جوڑو_Or) YS_NAME_FWD(جوڑو_Xor) YS_NAME_FWD(جوڑو_Xnor)
+	YS_NAME_FWD(جوڑو_Reduce_And) YS_NAME_FWD(جوڑو_Reduce_Or) YS_NAME_FWD(جوڑو_Reduce_Xor) YS_NAME_FWD(جوڑو_Reduce_Xnor)
+	YS_NAME_FWD(جوڑو_Reduce_Bool) YS_NAME_FWD(جوڑو_Shl) YS_NAME_FWD(جوڑو_Shr) YS_NAME_FWD(جوڑو_Sshl)
+	YS_NAME_FWD(جوڑو_Sshr) YS_NAME_FWD(جوڑو_سرکاؤ) YS_NAME_FWD(جوڑو_Shiftx) YS_NAME_FWD(جوڑو_Lt)
+	YS_NAME_FWD(جوڑو_Le) YS_NAME_FWD(جوڑو_Eq) YS_NAME_FWD(جوڑو_Ne) YS_NAME_FWD(جوڑو_Eqx)
+	YS_NAME_FWD(جوڑو_Nex) YS_NAME_FWD(جوڑو_Ge) YS_NAME_FWD(جوڑو_Gt) YS_NAME_FWD(جوڑو_جوڑو)
+	YS_NAME_FWD(جوڑو_Sub) YS_NAME_FWD(جوڑو_Mul) YS_NAME_FWD(جوڑو_Div) YS_NAME_FWD(جوڑو_Mod)
+	YS_NAME_FWD(جوڑو_Div_Floor) YS_NAME_FWD(جوڑو_Mod_Floor) YS_NAME_FWD(جوڑو_Pow) YS_NAME_FWD(جوڑو_Fa)
+	YS_NAME_FWD(جوڑو_Logic_Not) YS_NAME_FWD(جوڑو_Logic_And) YS_NAME_FWD(جوڑو_Logic_Or) YS_NAME_FWD(جوڑو_Mux)
+	YS_NAME_FWD(جوڑو_Pmux) YS_NAME_FWD(جوڑو_Bmux) YS_NAME_FWD(جوڑو_Demux) YS_NAME_FWD(جوڑو_Bweqx)
+	YS_NAME_FWD(جوڑو_Bwmux) YS_NAME_FWD(جوڑو_قاش) YS_NAME_FWD(جوڑو_Concat) YS_NAME_FWD(جوڑو_Lut)
+	YS_NAME_FWD(جوڑو_Tribuf) YS_NAME_FWD(جوڑو_Assert) YS_NAME_FWD(جوڑو_Assume) YS_NAME_FWD(جوڑو_زندہ)
+	YS_NAME_FWD(جوڑو_Fair) YS_NAME_FWD(جوڑو_Cover) YS_NAME_FWD(جوڑو_Equiv) YS_NAME_FWD(جوڑو_Sr)
+	YS_NAME_FWD(جوڑو_Ff) YS_NAME_FWD(جوڑو_Dff) YS_NAME_FWD(جوڑو_Dffe) YS_NAME_FWD(جوڑو_Dffsr)
+	YS_NAME_FWD(جوڑو_Dffsre) YS_NAME_FWD(جوڑو_Adff) YS_NAME_FWD(جوڑو_Adffe) YS_NAME_FWD(جوڑو_Aldff)
+	YS_NAME_FWD(جوڑو_Aldffe) YS_NAME_FWD(جوڑو_Sdff) YS_NAME_FWD(جوڑو_Sdffe) YS_NAME_FWD(جوڑو_Sdffce)
+	YS_NAME_FWD(جوڑو_Dlatch) YS_NAME_FWD(جوڑو_Adlatch) YS_NAME_FWD(جوڑو_Dlatchsr) YS_NAME_FWD(جوڑو_Buf_Gate)
+	YS_NAME_FWD(جوڑو_Not_Gate) YS_NAME_FWD(جوڑو_And_Gate) YS_NAME_FWD(جوڑو_Nand_Gate) YS_NAME_FWD(جوڑو_Or_Gate)
+	YS_NAME_FWD(جوڑو_Nor_Gate) YS_NAME_FWD(جوڑو_Xor_Gate) YS_NAME_FWD(جوڑو_Xnor_Gate) YS_NAME_FWD(جوڑو_Andnot_Gate)
+	YS_NAME_FWD(جوڑو_Ornot_Gate) YS_NAME_FWD(جوڑو_Mux_Gate) YS_NAME_FWD(جوڑو_Nmux_Gate) YS_NAME_FWD(جوڑو_Aoi3_Gate)
+	YS_NAME_FWD(جوڑو_Oai3_Gate) YS_NAME_FWD(جوڑو_Aoi4_Gate) YS_NAME_FWD(جوڑو_Oai4_Gate) YS_NAME_FWD(جوڑو_Sr_Gate)
+	YS_NAME_FWD(جوڑو_Ff_Gate) YS_NAME_FWD(جوڑو_Dff_Gate) YS_NAME_FWD(جوڑو_Dffe_Gate) YS_NAME_FWD(جوڑو_Dffsr_Gate)
+	YS_NAME_FWD(جوڑو_Dffsre_Gate) YS_NAME_FWD(جوڑو_Adff_Gate) YS_NAME_FWD(جوڑو_Adffe_Gate) YS_NAME_FWD(جوڑو_Aldff_Gate)
+	YS_NAME_FWD(جوڑو_Aldffe_Gate) YS_NAME_FWD(جوڑو_Sdff_Gate) YS_NAME_FWD(جوڑو_Sdffe_Gate) YS_NAME_FWD(جوڑو_Sdffce_Gate)
+	YS_NAME_FWD(جوڑو_Dlatch_Gate) YS_NAME_FWD(جوڑو_Adlatch_Gate) YS_NAME_FWD(جوڑو_Dlatchsr_Gate) YS_NAME_FWD(Not)
 	YS_NAME_FWD(Pos) YS_NAME_FWD(Buf) YS_NAME_FWD(Barrier) YS_NAME_FWD(Neg) YS_NAME_FWD(And)
 	YS_NAME_FWD(Or) YS_NAME_FWD(Xor) YS_NAME_FWD(Xnor) YS_NAME_FWD(ReduceAnd)
 	YS_NAME_FWD(ReduceOr) YS_NAME_FWD(ReduceXor) YS_NAME_FWD(ReduceXnor) YS_NAME_FWD(ReduceBool)
 	YS_NAME_FWD(Shl) YS_NAME_FWD(Shr) YS_NAME_FWD(Sshl) YS_NAME_FWD(Sshr)
-	YS_NAME_FWD(Shift) YS_NAME_FWD(Shiftx) YS_NAME_FWD(Lt) YS_NAME_FWD(Le)
+	YS_NAME_FWD(سرکاؤ_2) YS_NAME_FWD(Shiftx) YS_NAME_FWD(Lt) YS_NAME_FWD(Le)
 	YS_NAME_FWD(Eq) YS_NAME_FWD(Ne) YS_NAME_FWD(Eqx) YS_NAME_FWD(Nex)
-	YS_NAME_FWD(Ge) YS_NAME_FWD(Gt) YS_NAME_FWD(Add) YS_NAME_FWD(Sub)
+	YS_NAME_FWD(Ge) YS_NAME_FWD(Gt) YS_NAME_FWD(جوڑو_2) YS_NAME_FWD(Sub)
 	YS_NAME_FWD(Mul) YS_NAME_FWD(Div) YS_NAME_FWD(Mod) YS_NAME_FWD(DivFloor)
 	YS_NAME_FWD(ModFloor) YS_NAME_FWD(Pow) YS_NAME_FWD(LogicNot) YS_NAME_FWD(LogicAnd)
 	YS_NAME_FWD(LogicOr) YS_NAME_FWD(Mux) YS_NAME_FWD(Pmux) YS_NAME_FWD(Bmux)
@@ -1930,436 +1930,436 @@ public:
 	YS_NAME_FWD(OrnotGate) YS_NAME_FWD(MuxGate) YS_NAME_FWD(NmuxGate) YS_NAME_FWD(Aoi3Gate)
 	YS_NAME_FWD(Oai3Gate) YS_NAME_FWD(Aoi4Gate) YS_NAME_FWD(Oai4Gate)
 
-	std::string to_rtlil_str() const;
-#ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Module*> *get_all_modules(void);
-#endif
+	std::string مقصد_rtlil_str() ثابت;
+#اگر_تعریف_شدہ YOSYS_ENABLE_PYTHON
+	ساکن std::map<غیرعلامتی صحیح, RTLIL::Module*> *get_all_modules(خالی);
+#اگر_ختم
 };
 
-struct RTLIL::Wire : public RTLIL::AttrObject
+ساخت RTLIL::Wire : عوامی RTLIL::AttrObject
 {
 	RTLIL::WireNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت { h.eat(hashidx_); واپس h; }
 
-protected:
+محفوظ:
 	// use module->addWire() and module->remove() to create or destroy wires
-	friend struct RTLIL::Module;
+	دوست ساخت RTLIL::Module;
 	Wire();
 	~Wire();
 
-	friend struct RTLIL::Design;
-	friend struct RTLIL::Cell;
+	دوست ساخت RTLIL::Design;
+	دوست ساخت RTLIL::Cell;
 	RTLIL::Cell *driverCell_ = nullptr;
-	RTLIL::IdString driverPort_;
+	RTLIL::IdString driver_پورٹ_2;
 
-public:
+عوامی:
 	// do not simply copy wires
 	Wire(RTLIL::Wire &other) = delete;
-	void operator=(RTLIL::Wire &other) = delete;
+	خالی عامل=(RTLIL::Wire &other) = delete;
 
 	RTLIL::Module *module;
-	int width, start_offset, port_id;
-	bool port_input, port_output, upto, is_signed;
+	صحیح چوڑائی, آغاز_انحراف, پورٹ_id;
+	bool پورٹ_داخلہ, پورٹ_output, upto, is_signed;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() ثابت { واپس module ? module->design : nullptr; }
+	TwinePool &twines() ثابت { واپس module->twines(); }
 
-	bool known_driver() const { return driverCell_ != nullptr; }
+	bool معلوم_driver() ثابت { واپس driverCell_ != nullptr; }
 
-	RTLIL::Cell *driverCell() const    { log_assert(driverCell_); return driverCell_; };
-	RTLIL::IdString driverPort() const { log_assert(driverCell_); return driverPort_; };
+	RTLIL::Cell *driverCell() ثابت    { log_assert(driverCell_); واپس driverCell_; };
+	RTLIL::IdString driver_پورٹ() ثابت { log_assert(driverCell_); واپس driver_پورٹ_2; };
 
-	int from_hdl_index(int hdl_index) {
-		int zero_index = hdl_index - start_offset;
-		int rtlil_index = upto ? width - 1 - zero_index : zero_index;
-		return rtlil_index >= 0 && rtlil_index < width ? rtlil_index : INT_MIN;
+	صحیح from_hdl_اشاریہ(صحیح hdl_اشاریہ) {
+		صحیح zero_اشاریہ = hdl_اشاریہ - آغاز_انحراف;
+		صحیح rtlil_اشاریہ = upto ? چوڑائی - 1 - zero_اشاریہ : zero_اشاریہ;
+		واپس rtlil_اشاریہ >= 0 && rtlil_اشاریہ < چوڑائی ? rtlil_اشاریہ : INT_MIN;
 	}
 
-	int to_hdl_index(int rtlil_index) {
-		if (rtlil_index < 0 || rtlil_index >= width)
-			return INT_MIN;
-		int zero_index = upto ? width - 1 - rtlil_index : rtlil_index;
-		return zero_index + start_offset;
+	صحیح مقصد_hdl_اشاریہ(صحیح rtlil_اشاریہ) {
+		اگر (rtlil_اشاریہ < 0 || rtlil_اشاریہ >= چوڑائی)
+			واپس INT_MIN;
+		صحیح zero_اشاریہ = upto ? چوڑائی - 1 - rtlil_اشاریہ : rtlil_اشاریہ;
+		واپس zero_اشاریہ + آغاز_انحراف;
 	}
 
-	std::string to_rtlil_str() const;
+	std::string مقصد_rtlil_str() ثابت;
 
-#ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Wire*> *get_all_wires(void);
-#endif
+#اگر_تعریف_شدہ YOSYS_ENABLE_PYTHON
+	ساکن std::map<غیرعلامتی صحیح, RTLIL::Wire*> *get_all_wires(خالی);
+#اگر_ختم
 };
 
-inline int GetSize(RTLIL::Wire *wire) {
-	return wire->width;
+اندرونی صحیح Get_سائز(RTLIL::Wire *wire) {
+	واپس wire->چوڑائی;
 }
 
-struct RTLIL::Memory : public RTLIL::AttrObject
+ساخت RTLIL::حافظہ : عوامی RTLIL::AttrObject
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت { h.eat(hashidx_); واپس h; }
 
-	Memory();
-	~Memory();
+	حافظہ();
+	~حافظہ();
 
 	RTLIL::Module *module = nullptr;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() ثابت { واپس module ? module->design : nullptr; }
+	TwinePool &twines() ثابت { واپس module->twines(); }
 
-	RTLIL::MemoryNameId name;
+	RTLIL::حافظہ_Name_Id name;
 
-	int width, start_offset, size;
-#ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Memory*> *get_all_memorys(void);
-#endif
+	صحیح چوڑائی, آغاز_انحراف, سائز;
+#اگر_تعریف_شدہ YOSYS_ENABLE_PYTHON
+	ساکن std::map<غیرعلامتی صحیح, RTLIL::حافظہ*> *get_all_memorys(خالی);
+#اگر_ختم
 
-	std::string to_rtlil_str() const;
+	std::string مقصد_rtlil_str() ثابت;
 };
 
-struct RTLIL::Cell : public RTLIL::AttrObject
+ساخت RTLIL::Cell : عوامی RTLIL::AttrObject
 {
-private:
-	void initIndex();
+نجی:
+	خالی init_اشاریہ();
 
-	bool bufnorm_handle_setPort(IdString portname, RTLIL::SigSpec &signal, dict<IdString, RTLIL::SigSpec>::iterator conn_it);
-public:
+	bool bufnorm_handle_سیٹ_پورٹ(IdString portname, RTLIL::SigSpec &اشارہ, dict<IdString, RTLIL::SigSpec>::iterator conn_it);
+عوامی:
 	RTLIL::CellNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت { h.eat(hashidx_); واپس h; }
 
-protected:
+محفوظ:
 	// use module->addCell() and module->remove() to create or destroy cells
-	friend struct RTLIL::Module;
+	دوست ساخت RTLIL::Module;
 	Cell();
 	~Cell();
 
-public:
+عوامی:
 	// do not simply copy cells
 	Cell(RTLIL::Cell &other) = delete;
-	void operator=(RTLIL::Cell &other) = delete;
+	خالی عامل=(RTLIL::Cell &other) = delete;
 
 	RTLIL::Module *module;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() ثابت { واپس module ? module->design : nullptr; }
+	TwinePool &twines() ثابت { واپس module->twines(); }
 
 	RTLIL::CellTypeId type;
 	dict<RTLIL::IdString, RTLIL::SigSpec> connections_;
 	dict<RTLIL::IdString, RTLIL::Const> parameters;
 
 	// access cell ports
-	bool hasPort(RTLIL::IdString portname) const;
-	void unsetPort(RTLIL::IdString portname);
-	void setPort(RTLIL::IdString portname, RTLIL::SigSpec signal);
-	template<typename N, YS_NAME_STRING(N)> void setPort(N portname, RTLIL::SigSpec signal)
-		{ setPort(module->twines().add(std::move(portname)), std::move(signal)); }
-	const RTLIL::SigSpec &getPort(RTLIL::IdString portname) const;
-	const dict<RTLIL::IdString, RTLIL::SigSpec> &connections() const;
+	bool has_پورٹ(RTLIL::IdString portname) ثابت;
+	خالی unset_پورٹ(RTLIL::IdString portname);
+	خالی سیٹ_پورٹ(RTLIL::IdString portname, RTLIL::SigSpec اشارہ);
+	سانچہ<typename N, YS_NAME_STRING(N)> خالی سیٹ_پورٹ(N portname, RTLIL::SigSpec اشارہ)
+		{ سیٹ_پورٹ(module->twines().جوڑو(std::move(portname)), std::move(اشارہ)); }
+	ثابت RTLIL::SigSpec &get_پورٹ(RTLIL::IdString portname) ثابت;
+	ثابت dict<RTLIL::IdString, RTLIL::SigSpec> &connections() ثابت;
 
-	bool known() const;
-	bool input(RTLIL::IdString portname) const;
-	bool output(RTLIL::IdString portname) const;
-	PortDir port_dir(RTLIL::IdString portname) const;
+	bool معلوم() ثابت;
+	bool داخلہ(RTLIL::IdString portname) ثابت;
+	bool output(RTLIL::IdString portname) ثابت;
+	پورٹ_Dir پورٹ_dir(RTLIL::IdString portname) ثابت;
 
-	bool hasParam(RTLIL::IdString paramname) const;
-	void unsetParam(RTLIL::IdString paramname);
-	void setParam(RTLIL::IdString paramname, RTLIL::Const value);
-	const RTLIL::Const &getParam(RTLIL::IdString paramname) const;
+	bool hasParam(RTLIL::IdString paramname) ثابت;
+	خالی unsetParam(RTLIL::IdString paramname);
+	خالی سیٹ_Param(RTLIL::IdString paramname, RTLIL::Const قدر);
+	ثابت RTLIL::Const &getParam(RTLIL::IdString paramname) ثابت;
 
-	template<typename N, YS_NAME_STRING(N)> bool hasParam(N name) const
-		{ return hasParam(module->twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> void unsetParam(N name)
-		{ unsetParam(module->twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> void setParam(N name, RTLIL::Const value)
-		{ setParam(module->twines().add(std::move(name)), std::move(value)); }
-	template<typename N, YS_NAME_STRING(N)> const RTLIL::Const &getParam(N name) const
-		{ return getParam(module->twines().find(std::string_view(name))); }
+	سانچہ<typename N, YS_NAME_STRING(N)> bool hasParam(N name) ثابت
+		{ واپس hasParam(module->twines().ڈھونڈو(std::string_view(name))); }
+	سانچہ<typename N, YS_NAME_STRING(N)> خالی unsetParam(N name)
+		{ unsetParam(module->twines().ڈھونڈو(std::string_view(name))); }
+	سانچہ<typename N, YS_NAME_STRING(N)> خالی سیٹ_Param(N name, RTLIL::Const قدر)
+		{ سیٹ_Param(module->twines().جوڑو(std::move(name)), std::move(قدر)); }
+	سانچہ<typename N, YS_NAME_STRING(N)> ثابت RTLIL::Const &getParam(N name) ثابت
+		{ واپس getParam(module->twines().ڈھونڈو(std::string_view(name))); }
 
-	void sort();
-	void check();
-	void fixup_parameters(bool set_a_signed = false, bool set_b_signed = false);
+	خالی ترتیب_دو();
+	خالی check();
+	خالی fixup_parameters(bool سیٹ_a_signed = false, bool سیٹ_b_signed = false);
 
-	bool has_keep_attr() const;
+	bool has_keep_attr() ثابت;
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
+	سانچہ<typename T> خالی rewrite_sigspecs(T &functor);
+	سانچہ<typename T> خالی rewrite_sigspecs2(T &functor);
 
-#ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Cell*> *get_all_cells(void);
-#endif
+#اگر_تعریف_شدہ YOSYS_ENABLE_PYTHON
+	ساکن std::map<غیرعلامتی صحیح, RTLIL::Cell*> *get_all_cells(خالی);
+#اگر_ختم
 
-	bool has_memid() const;
-	bool is_mem_cell() const;
-	bool is_builtin_ff() const;
+	bool has_memid() ثابت;
+	bool is_mem_cell() ثابت;
+	bool is_builtin_ff() ثابت;
 
-	std::string to_rtlil_str() const;
+	std::string مقصد_rtlil_str() ثابت;
 };
 
-struct RTLIL::CaseRule : public RTLIL::AttrObject
+ساخت RTLIL::Case_قاعدہ : عوامی RTLIL::AttrObject
 {
-	std::vector<RTLIL::SigSpec> compare;
-	std::vector<RTLIL::SigSig> actions;
-	std::vector<RTLIL::SwitchRule*> switches;
+	std::سمتیہ<RTLIL::SigSpec> compare;
+	std::سمتیہ<RTLIL::SigSig> actions;
+	std::سمتیہ<RTLIL::Switch_قاعدہ*> switches;
 
-	~CaseRule();
+	~Case_قاعدہ();
 
-	bool empty() const;
+	bool خالی_خانے() ثابت;
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	RTLIL::CaseRule *clone() const;
+	سانچہ<typename T> خالی rewrite_sigspecs(T &functor);
+	سانچہ<typename T> خالی rewrite_sigspecs2(T &functor);
+	RTLIL::Case_قاعدہ *clone() ثابت;
 };
 
-struct RTLIL::SwitchRule : public RTLIL::AttrObject
+ساخت RTLIL::Switch_قاعدہ : عوامی RTLIL::AttrObject
 {
-	RTLIL::SigSpec signal;
-	std::vector<RTLIL::CaseRule*> cases;
+	RTLIL::SigSpec اشارہ;
+	std::سمتیہ<RTLIL::Case_قاعدہ*> cases;
 
-	~SwitchRule();
+	~Switch_قاعدہ();
 
-	bool empty() const;
+	bool خالی_خانے() ثابت;
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	RTLIL::SwitchRule *clone() const;
+	سانچہ<typename T> خالی rewrite_sigspecs(T &functor);
+	سانچہ<typename T> خالی rewrite_sigspecs2(T &functor);
+	RTLIL::Switch_قاعدہ *clone() ثابت;
 };
 
-struct RTLIL::MemWriteAction : RTLIL::AttrObject
+ساخت RTLIL::MemWriteAction : RTLIL::AttrObject
 {
 	RTLIL::IdString memid;
-	RTLIL::SigSpec address;
-	RTLIL::SigSpec data;
+	RTLIL::SigSpec پتہ;
+	RTLIL::SigSpec ڈیٹا;
 	RTLIL::SigSpec enable;
-	RTLIL::Const priority_mask;
+	RTLIL::Const ترجیح_نقاب;
 };
 
-struct RTLIL::SyncRule
+ساخت RTLIL::Sync_قاعدہ
 {
 	RTLIL::SyncType type;
-	RTLIL::SigSpec signal;
-	std::vector<RTLIL::SigSig> actions;
-	std::vector<RTLIL::MemWriteAction> mem_write_actions;
+	RTLIL::SigSpec اشارہ;
+	std::سمتیہ<RTLIL::SigSig> actions;
+	std::سمتیہ<RTLIL::MemWriteAction> mem_write_actions;
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	RTLIL::SyncRule *clone() const;
+	سانچہ<typename T> خالی rewrite_sigspecs(T &functor);
+	سانچہ<typename T> خالی rewrite_sigspecs2(T &functor);
+	RTLIL::Sync_قاعدہ *clone() ثابت;
 };
 
-struct RTLIL::Process : public RTLIL::AttrObject
+ساخت RTLIL::Process : عوامی RTLIL::AttrObject
 {
 	Hasher::hash_t hashidx_;
 	RTLIL::ProcessNameId name;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ثابت { h.eat(hashidx_); واپس h; }
 
-protected:
+محفوظ:
 	// use module->addProcess() and module->remove() to create or destroy processes
-	friend struct RTLIL::Module;
+	دوست ساخت RTLIL::Module;
 	Process();
 	~Process();
 
-public:
+عوامی:
 	RTLIL::Module *module;
-	RTLIL::CaseRule root_case;
-	std::vector<RTLIL::SyncRule*> syncs;
+	RTLIL::Case_قاعدہ جڑ_case;
+	std::سمتیہ<RTLIL::Sync_قاعدہ*> syncs;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() ثابت { واپس module ? module->design : nullptr; }
+	TwinePool &twines() ثابت { واپس module->twines(); }
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	RTLIL::Process *clone() const;
+	سانچہ<typename T> خالی rewrite_sigspecs(T &functor);
+	سانچہ<typename T> خالی rewrite_sigspecs2(T &functor);
+	RTLIL::Process *clone() ثابت;
 
-	std::string to_rtlil_str() const;
+	std::string مقصد_rtlil_str() ثابت;
 };
 
-inline RTLIL::SigBit::SigBit() : wire(NULL), data(RTLIL::State::S0) { }
-inline RTLIL::SigBit::SigBit(RTLIL::State bit) : wire(NULL), data(bit) { }
-inline RTLIL::SigBit::SigBit(bool bit) : wire(NULL), data(bit ? State::S1 : State::S0) { }
-inline RTLIL::SigBit::SigBit(RTLIL::Wire *wire) : wire(wire), offset(0) { log_assert(wire && wire->width == 1); }
-inline RTLIL::SigBit::SigBit(RTLIL::Wire *wire, int offset) : wire(wire), offset(offset) { log_assert(wire != nullptr); }
-inline RTLIL::SigBit::SigBit(const RTLIL::SigChunk &chunk) : wire(chunk.wire) { log_assert(chunk.width == 1); if (wire) offset = chunk.offset; else data = chunk.data[0]; }
-inline RTLIL::SigBit::SigBit(const RTLIL::SigChunk &chunk, int index) : wire(chunk.wire) { if (wire) offset = chunk.offset + index; else data = chunk.data[index]; }
+اندرونی RTLIL::Sig_ثنائی_ہندسہ::Sig_ثنائی_ہندسہ() : wire(تہی), ڈیٹا(RTLIL::State::S0) { }
+اندرونی RTLIL::Sig_ثنائی_ہندسہ::Sig_ثنائی_ہندسہ(RTLIL::State ثنائی_ہندسہ) : wire(تہی), ڈیٹا(ثنائی_ہندسہ) { }
+اندرونی RTLIL::Sig_ثنائی_ہندسہ::Sig_ثنائی_ہندسہ(bool ثنائی_ہندسہ) : wire(تہی), ڈیٹا(ثنائی_ہندسہ ? State::S1 : State::S0) { }
+اندرونی RTLIL::Sig_ثنائی_ہندسہ::Sig_ثنائی_ہندسہ(RTLIL::Wire *wire) : wire(wire), انحراف(0) { log_assert(wire && wire->چوڑائی == 1); }
+اندرونی RTLIL::Sig_ثنائی_ہندسہ::Sig_ثنائی_ہندسہ(RTLIL::Wire *wire, صحیح انحراف) : wire(wire), انحراف(انحراف) { log_assert(wire != nullptr); }
+اندرونی RTLIL::Sig_ثنائی_ہندسہ::Sig_ثنائی_ہندسہ(ثابت RTLIL::SigChunk &chunk) : wire(chunk.wire) { log_assert(chunk.چوڑائی == 1); اگر (wire) انحراف = chunk.انحراف; ورنہ ڈیٹا = chunk.ڈیٹا[0]; }
+اندرونی RTLIL::Sig_ثنائی_ہندسہ::Sig_ثنائی_ہندسہ(ثابت RTLIL::SigChunk &chunk, صحیح اشاریہ) : wire(chunk.wire) { اگر (wire) انحراف = chunk.انحراف + اشاریہ; ورنہ ڈیٹا = chunk.ڈیٹا[اشاریہ]; }
 
-inline bool RTLIL::SigBit::operator<(const RTLIL::SigBit &other) const {
-	if (wire == other.wire)
-		return wire ? (offset < other.offset) : (data < other.data);
-	if (wire != nullptr && other.wire != nullptr)
-		return wire->name < other.wire->name;
-	return (wire != nullptr) < (other.wire != nullptr);
+اندرونی bool RTLIL::Sig_ثنائی_ہندسہ::عامل<(ثابت RTLIL::Sig_ثنائی_ہندسہ &other) ثابت {
+	اگر (wire == other.wire)
+		واپس wire ? (انحراف < other.انحراف) : (ڈیٹا < other.ڈیٹا);
+	اگر (wire != nullptr && other.wire != nullptr)
+		واپس wire->name < other.wire->name;
+	واپس (wire != nullptr) < (other.wire != nullptr);
 }
 
-inline bool RTLIL::SigBit::operator==(const RTLIL::SigBit &other) const {
-	return (wire == other.wire) && (wire ? (offset == other.offset) : (data == other.data));
+اندرونی bool RTLIL::Sig_ثنائی_ہندسہ::عامل==(ثابت RTLIL::Sig_ثنائی_ہندسہ &other) ثابت {
+	واپس (wire == other.wire) && (wire ? (انحراف == other.انحراف) : (ڈیٹا == other.ڈیٹا));
 }
 
-inline bool RTLIL::SigBit::operator!=(const RTLIL::SigBit &other) const {
-	return (wire != other.wire) || (wire ? (offset != other.offset) : (data != other.data));
+اندرونی bool RTLIL::Sig_ثنائی_ہندسہ::عامل!=(ثابت RTLIL::Sig_ثنائی_ہندسہ &other) ثابت {
+	واپس (wire != other.wire) || (wire ? (انحراف != other.انحراف) : (ڈیٹا != other.ڈیٹا));
 }
 
-inline Hasher RTLIL::SigBit::hash_into(Hasher h) const {
-	if (wire) {
-		h.eat(offset);
+اندرونی Hasher RTLIL::Sig_ثنائی_ہندسہ::hash_into(Hasher h) ثابت {
+	اگر (wire) {
+		h.eat(انحراف);
 		h.eat(wire->name);
-		return h;
+		واپس h;
 	}
-	h.eat(data);
-	return h;
+	h.eat(ڈیٹا);
+	واپس h;
 }
 
 
-inline Hasher RTLIL::SigBit::hash_top() const {
+اندرونی Hasher RTLIL::Sig_ثنائی_ہندسہ::hash_چوٹی() ثابت {
 	Hasher h;
-	if (wire) {
+	اگر (wire) {
 		IdString name = wire->name.ref();
-		uint32_t n = (uint32_t)name.bits();
-		h.force(hashlib::legacy::djb2_add(n, offset));
-		return h;
+		uint32_t n = (uint32_t)name.بٹ();
+		h.force(hashlib::legacy::djb2_جوڑو(n, انحراف));
+		واپس h;
 	}
-	h.force(data);
-	return h;
+	h.force(ڈیٹا);
+	واپس h;
 }
 
-inline RTLIL::SigBit &RTLIL::SigSpecIterator::operator*() const {
-	return (*sig_p)[index];
+اندرونی RTLIL::Sig_ثنائی_ہندسہ &RTLIL::SigSpecIterator::عامل*() ثابت {
+	واپس (*sig_p)[اشاریہ];
 }
 
-inline const RTLIL::SigBit &RTLIL::SigSpecConstIterator::operator*() {
-	bit = (*sig_p)[index];
-	return bit;
+اندرونی ثابت RTLIL::Sig_ثنائی_ہندسہ &RTLIL::SigSpecConstIterator::عامل*() {
+	ثنائی_ہندسہ = (*sig_p)[اشاریہ];
+	واپس ثنائی_ہندسہ;
 }
 
-inline RTLIL::SigBit::SigBit(const RTLIL::SigSpec &sig) {
-	log_assert(sig.size() == 1);
-	auto it = sig.chunks().begin();
-	*this = SigBit(*it);
+اندرونی RTLIL::Sig_ثنائی_ہندسہ::Sig_ثنائی_ہندسہ(ثابت RTLIL::SigSpec &sig) {
+	log_assert(sig.سائز() == 1);
+	خودکار it = sig.chunks().begin();
+	*this = Sig_ثنائی_ہندسہ(*it);
 }
 
-template<typename T>
-void RTLIL::Module::rewrite_sigspecs(T &functor)
+سانچہ<typename T>
+خالی RTLIL::Module::rewrite_sigspecs(T &functor)
 {
-	for (auto &it : cells_)
-		it.second->rewrite_sigspecs(functor);
-	for (auto &it : processes)
-		it.second->rewrite_sigspecs(functor);
-	for (auto &it : connections_) {
-		functor(it.first);
-		functor(it.second);
+	برائے (خودکار &it : cells_)
+		it.دوسرا->rewrite_sigspecs(functor);
+	برائے (خودکار &it : processes)
+		it.دوسرا->rewrite_sigspecs(functor);
+	برائے (خودکار &it : connections_) {
+		functor(it.پہلا);
+		functor(it.دوسرا);
 	}
 }
 
-template<typename T>
-void RTLIL::Module::rewrite_sigspecs2(T &functor)
+سانچہ<typename T>
+خالی RTLIL::Module::rewrite_sigspecs2(T &functor)
 {
-	for (auto &it : cells_)
-		it.second->rewrite_sigspecs2(functor);
-	for (auto &it : processes)
-		it.second->rewrite_sigspecs2(functor);
-	for (auto &it : connections_) {
-		functor(it.first, it.second);
+	برائے (خودکار &it : cells_)
+		it.دوسرا->rewrite_sigspecs2(functor);
+	برائے (خودکار &it : processes)
+		it.دوسرا->rewrite_sigspecs2(functor);
+	برائے (خودکار &it : connections_) {
+		functor(it.پہلا, it.دوسرا);
 	}
 }
 
-template<typename T>
-void RTLIL::Cell::rewrite_sigspecs(T &functor) {
-	for (auto &it : connections_)
-		functor(it.second);
+سانچہ<typename T>
+خالی RTLIL::Cell::rewrite_sigspecs(T &functor) {
+	برائے (خودکار &it : connections_)
+		functor(it.دوسرا);
 }
 
-template<typename T>
-void RTLIL::Cell::rewrite_sigspecs2(T &functor) {
-	for (auto &it : connections_)
-		functor(it.second);
+سانچہ<typename T>
+خالی RTLIL::Cell::rewrite_sigspecs2(T &functor) {
+	برائے (خودکار &it : connections_)
+		functor(it.دوسرا);
 }
 
-template<typename T>
-void RTLIL::CaseRule::rewrite_sigspecs(T &functor) {
-	for (auto &it : compare)
+سانچہ<typename T>
+خالی RTLIL::Case_قاعدہ::rewrite_sigspecs(T &functor) {
+	برائے (خودکار &it : compare)
 		functor(it);
-	for (auto &it : actions) {
-		functor(it.first);
-		functor(it.second);
+	برائے (خودکار &it : actions) {
+		functor(it.پہلا);
+		functor(it.دوسرا);
 	}
-	for (auto it : switches)
+	برائے (خودکار it : switches)
 		it->rewrite_sigspecs(functor);
 }
 
-template<typename T>
-void RTLIL::CaseRule::rewrite_sigspecs2(T &functor) {
-	for (auto &it : compare)
+سانچہ<typename T>
+خالی RTLIL::Case_قاعدہ::rewrite_sigspecs2(T &functor) {
+	برائے (خودکار &it : compare)
 		functor(it);
-	for (auto &it : actions) {
-		functor(it.first, it.second);
+	برائے (خودکار &it : actions) {
+		functor(it.پہلا, it.دوسرا);
 	}
-	for (auto it : switches)
+	برائے (خودکار it : switches)
 		it->rewrite_sigspecs2(functor);
 }
 
-template<typename T>
-void RTLIL::SwitchRule::rewrite_sigspecs(T &functor)
+سانچہ<typename T>
+خالی RTLIL::Switch_قاعدہ::rewrite_sigspecs(T &functor)
 {
-	functor(signal);
-	for (auto it : cases)
+	functor(اشارہ);
+	برائے (خودکار it : cases)
 		it->rewrite_sigspecs(functor);
 }
 
-template<typename T>
-void RTLIL::SwitchRule::rewrite_sigspecs2(T &functor)
+سانچہ<typename T>
+خالی RTLIL::Switch_قاعدہ::rewrite_sigspecs2(T &functor)
 {
-	functor(signal);
-	for (auto it : cases)
+	functor(اشارہ);
+	برائے (خودکار it : cases)
 		it->rewrite_sigspecs2(functor);
 }
 
-template<typename T>
-void RTLIL::SyncRule::rewrite_sigspecs(T &functor)
+سانچہ<typename T>
+خالی RTLIL::Sync_قاعدہ::rewrite_sigspecs(T &functor)
 {
-	functor(signal);
-	for (auto &it : actions) {
-		functor(it.first);
-		functor(it.second);
+	functor(اشارہ);
+	برائے (خودکار &it : actions) {
+		functor(it.پہلا);
+		functor(it.دوسرا);
 	}
-	for (auto &it : mem_write_actions) {
-		functor(it.address);
-		functor(it.data);
+	برائے (خودکار &it : mem_write_actions) {
+		functor(it.پتہ);
+		functor(it.ڈیٹا);
 		functor(it.enable);
 	}
 }
 
-template<typename T>
-void RTLIL::SyncRule::rewrite_sigspecs2(T &functor)
+سانچہ<typename T>
+خالی RTLIL::Sync_قاعدہ::rewrite_sigspecs2(T &functor)
 {
-	functor(signal);
-	for (auto &it : actions) {
-		functor(it.first, it.second);
+	functor(اشارہ);
+	برائے (خودکار &it : actions) {
+		functor(it.پہلا, it.دوسرا);
 	}
-	for (auto &it : mem_write_actions) {
-		functor(it.address);
-		functor(it.data);
+	برائے (خودکار &it : mem_write_actions) {
+		functor(it.پتہ);
+		functor(it.ڈیٹا);
 		functor(it.enable);
 	}
 }
 
-template<typename T>
-void RTLIL::Process::rewrite_sigspecs(T &functor)
+سانچہ<typename T>
+خالی RTLIL::Process::rewrite_sigspecs(T &functor)
 {
-	root_case.rewrite_sigspecs(functor);
-	for (auto it : syncs)
+	جڑ_case.rewrite_sigspecs(functor);
+	برائے (خودکار it : syncs)
 		it->rewrite_sigspecs(functor);
 }
 
-template<typename T>
-void RTLIL::Process::rewrite_sigspecs2(T &functor)
+سانچہ<typename T>
+خالی RTLIL::Process::rewrite_sigspecs2(T &functor)
 {
-	root_case.rewrite_sigspecs2(functor);
-	for (auto it : syncs)
+	جڑ_case.rewrite_sigspecs2(functor);
+	برائے (خودکار it : syncs)
 		it->rewrite_sigspecs2(functor);
 }
 
-#include "kernel/rtlil_twine_compat_impl.h"
+#شامل "kernel/rtlil_twine_compat_impl.h"
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتہا
 
-#endif
+#اگر_ختم

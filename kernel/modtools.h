@@ -17,136 +17,136 @@
  *
  */
 
-#ifndef MODTOOLS_H
-#define MODTOOLS_H
+#اگر_غیر_تعریف_شدہ MODTOOLS_H
+#تعریف_کرو MODTOOLS_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/celltypes.h"
-#include "kernel/newcelltypes.h"
+#شامل "kernel/yosys.h"
+#شامل "kernel/sigtools.h"
+#شامل "kernel/celltypes.h"
+#شامل "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct ModIndex : public RTLIL::Monitor
+ساخت Mod_اشاریہ : عوامی RTLIL::Monitor
 {
-	struct PointerOrderedSigBit : public RTLIL::SigBit {
-		PointerOrderedSigBit(SigBit s) {
+	ساخت اشارہ_گر_Ordered_Sig_ثنائی_ہندسہ : عوامی RTLIL::Sig_ثنائی_ہندسہ {
+		اشارہ_گر_Ordered_Sig_ثنائی_ہندسہ(Sig_ثنائی_ہندسہ s) {
 			wire = s.wire;
-			if (wire)
-				offset = s.offset;
-			else
-				data = s.data;
+			اگر (wire)
+				انحراف = s.انحراف;
+			ورنہ
+				ڈیٹا = s.ڈیٹا;
 		}
-		inline bool operator<(const RTLIL::SigBit &other) const {
-			if (wire == other.wire)
-				return wire ? (offset < other.offset) : (data < other.data);
-			if (wire != nullptr && other.wire != nullptr)
-				return wire < other.wire; // look here
-			return (wire != nullptr) < (other.wire != nullptr);
+		اندرونی bool عامل<(ثابت RTLIL::Sig_ثنائی_ہندسہ &other) ثابت {
+			اگر (wire == other.wire)
+				واپس wire ? (انحراف < other.انحراف) : (ڈیٹا < other.ڈیٹا);
+			اگر (wire != nullptr && other.wire != nullptr)
+				واپس wire < other.wire; // look here
+			واپس (wire != nullptr) < (other.wire != nullptr);
 		}
 	};
-	struct PortInfo {
+	ساخت پورٹ_Info {
 		RTLIL::Cell* cell;
-		RTLIL::IdString port;
-		int offset;
+		RTLIL::IdString پورٹ;
+		صحیح انحراف;
 
-		PortInfo() : cell(), port(), offset() { }
-		PortInfo(RTLIL::Cell* _c, RTLIL::IdString _p, int _o) : cell(_c), port(_p), offset(_o) { }
+		پورٹ_Info() : cell(), پورٹ(), انحراف() { }
+		پورٹ_Info(RTLIL::Cell* _c, RTLIL::IdString _p, صحیح _o) : cell(_c), پورٹ(_p), انحراف(_o) { }
 
-		bool operator<(const PortInfo &other) const {
-			if (cell != other.cell)
-				return cell < other.cell;
-			if (offset != other.offset)
-				return offset < other.offset;
-			return port < other.port;
+		bool عامل<(ثابت پورٹ_Info &other) ثابت {
+			اگر (cell != other.cell)
+				واپس cell < other.cell;
+			اگر (انحراف != other.انحراف)
+				واپس انحراف < other.انحراف;
+			واپس پورٹ < other.پورٹ;
 		}
 
-		bool operator==(const PortInfo &other) const {
-			return cell == other.cell && port == other.port && offset == other.offset;
+		bool عامل==(ثابت پورٹ_Info &other) ثابت {
+			واپس cell == other.cell && پورٹ == other.پورٹ && انحراف == other.انحراف;
 		}
 
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
 			h.eat(cell->name);
-			h.eat(port);
-			h.eat(offset);
-			return h;
+			h.eat(پورٹ);
+			h.eat(انحراف);
+			واپس h;
 		}
 	};
 
-	struct SigBitInfo
+	ساخت Sig_ثنائی_ہندسہ_Info
 	{
-		bool is_input, is_output;
-		pool<PortInfo> ports;
+		bool is_داخلہ, is_output;
+		pool<پورٹ_Info> ports;
 
-		SigBitInfo() : is_input(false), is_output(false) { }
+		Sig_ثنائی_ہندسہ_Info() : is_داخلہ(false), is_output(false) { }
 
-		bool operator==(const SigBitInfo &other) const {
-			return is_input == other.is_input && is_output == other.is_output && ports == other.ports;
+		bool عامل==(ثابت Sig_ثنائی_ہندسہ_Info &other) ثابت {
+			واپس is_داخلہ == other.is_داخلہ && is_output == other.is_output && ports == other.ports;
 		}
 
-		void merge(const SigBitInfo &other)
+		خالی ملاؤ(ثابت Sig_ثنائی_ہندسہ_Info &other)
 		{
-			is_input = is_input || other.is_input;
+			is_داخلہ = is_داخلہ || other.is_داخلہ;
 			is_output = is_output || other.is_output;
-			ports.insert(other.ports.begin(), other.ports.end());
+			ports.داخل_کرو(other.ports.begin(), other.ports.انتہا());
 		}
 	};
 
 	SigMap sigmap;
 	RTLIL::Module *module;
-	std::map<PointerOrderedSigBit, SigBitInfo> database;
-	int auto_reload_counter;
+	std::map<اشارہ_گر_Ordered_Sig_ثنائی_ہندسہ, Sig_ثنائی_ہندسہ_Info> database;
+	صحیح auto_reload_شمار;
 	bool auto_reload_module;
 
-	void port_add(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &sig)
+	خالی پورٹ_جوڑو(RTLIL::Cell *cell, RTLIL::IdString پورٹ, ثابت RTLIL::SigSpec &sig)
 	{
-		for (int i = 0; i < GetSize(sig); i++) {
-			RTLIL::SigBit bit = sigmap(sig[i]);
-			if (bit.wire)
-				database[bit].ports.insert(PortInfo(cell, port, i));
+		برائے (صحیح i = 0; i < Get_سائز(sig); i++) {
+			RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ = sigmap(sig[i]);
+			اگر (ثنائی_ہندسہ.wire)
+				database[ثنائی_ہندسہ].ports.داخل_کرو(پورٹ_Info(cell, پورٹ, i));
 		}
 	}
 
-	void port_del(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &sig)
+	خالی پورٹ_del(RTLIL::Cell *cell, RTLIL::IdString پورٹ, ثابت RTLIL::SigSpec &sig)
 	{
-		for (int i = 0; i < GetSize(sig); i++) {
-			RTLIL::SigBit bit = sigmap(sig[i]);
-			if (bit.wire) {
-				database[bit].ports.erase(PortInfo(cell, port, i));
-				if (!database[bit].is_input && !database[bit].is_output && database[bit].ports.empty())
-					database.erase(bit);
+		برائے (صحیح i = 0; i < Get_سائز(sig); i++) {
+			RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ = sigmap(sig[i]);
+			اگر (ثنائی_ہندسہ.wire) {
+				database[ثنائی_ہندسہ].ports.erase(پورٹ_Info(cell, پورٹ, i));
+				اگر (!database[ثنائی_ہندسہ].is_داخلہ && !database[ثنائی_ہندسہ].is_output && database[ثنائی_ہندسہ].ports.خالی_خانے())
+					database.erase(ثنائی_ہندسہ);
 			}
 		}
 	}
 
-	const SigBitInfo &info(RTLIL::SigBit bit)
+	ثابت Sig_ثنائی_ہندسہ_Info &info(RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ)
 	{
-		return database[sigmap(bit)];
+		واپس database[sigmap(ثنائی_ہندسہ)];
 	}
 
-	void reload_module(bool reset_sigmap = true)
+	خالی reload_module(bool reset_sigmap = true)
 	{
-		if (reset_sigmap) {
+		اگر (reset_sigmap) {
 			sigmap.clear();
-			sigmap.set(module);
+			sigmap.سیٹ(module);
 		}
 
 		database.clear();
-		for (auto wire : module->wires())
-			if (wire->port_input || wire->port_output)
-				for (int i = 0; i < GetSize(wire); i++) {
-					RTLIL::SigBit bit = sigmap(RTLIL::SigBit(wire, i));
-					if (bit.wire && wire->port_input)
-						database[bit].is_input = true;
-					if (bit.wire && wire->port_output)
-						database[bit].is_output = true;
+		برائے (خودکار wire : module->wires())
+			اگر (wire->پورٹ_داخلہ || wire->پورٹ_output)
+				برائے (صحیح i = 0; i < Get_سائز(wire); i++) {
+					RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ = sigmap(RTLIL::Sig_ثنائی_ہندسہ(wire, i));
+					اگر (ثنائی_ہندسہ.wire && wire->پورٹ_داخلہ)
+						database[ثنائی_ہندسہ].is_داخلہ = true;
+					اگر (ثنائی_ہندسہ.wire && wire->پورٹ_output)
+						database[ثنائی_ہندسہ].is_output = true;
 				}
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				port_add(cell, conn.first, conn.second);
+		برائے (خودکار cell : module->cells())
+			برائے (خودکار &conn : cell->connections())
+				پورٹ_جوڑو(cell, conn.پہلا, conn.دوسرا);
 
-		if (auto_reload_module) {
-			if (++auto_reload_counter > 2)
+		اگر (auto_reload_module) {
+			اگر (++auto_reload_شمار > 2)
 				log_warning("Auto-reload in ModIndex -- possible performance bug!\n");
 			auto_reload_module = false;
 		}
@@ -154,204 +154,204 @@ struct ModIndex : public RTLIL::Monitor
 
 	bool ok()
 	{
-#ifndef NDEBUG
-		if (auto_reload_module)
-			return true;
+#اگر_غیر_تعریف_شدہ NDEBUG
+		اگر (auto_reload_module)
+			واپس true;
 
-		for (auto it : database)
-			log_assert(it.first == sigmap(it.first));
+		برائے (خودکار it : database)
+			log_assert(it.پہلا == sigmap(it.پہلا));
 
-		auto database_bak = std::move(database);
+		خودکار database_bak = std::move(database);
 		reload_module(false);
 
-		if (!(database == database_bak))
+		اگر (!(database == database_bak))
 		{
-			for (auto &it : database_bak)
-				if (!database.count(it.first))
-					log("ModuleIndex::check(): Only in database_bak, not database: %s\n", log_signal(it.first));
+			برائے (خودکار &it : database_bak)
+				اگر (!database.گنتی(it.پہلا))
+					لوگارتھم("ModuleIndex::check(): Only in database_bak, not database: %s\n", log_signal(it.پہلا));
 
-			for (auto &it : database)
-				if (!database_bak.count(it.first))
-					log("ModuleIndex::check(): Only in database, not database_bak: %s\n", log_signal(it.first));
-				else if (!(it.second == database_bak.at(it.first)))
-					log("ModuleIndex::check(): Different content for database[%s].\n", log_signal(it.first));
+			برائے (خودکار &it : database)
+				اگر (!database_bak.گنتی(it.پہلا))
+					لوگارتھم("ModuleIndex::check(): Only in database, not database_bak: %s\n", log_signal(it.پہلا));
+				ورنہ اگر (!(it.دوسرا == database_bak.at(it.پہلا)))
+					لوگارتھم("ModuleIndex::check(): Different content for database[%s].\n", log_signal(it.پہلا));
 
-			return false;
+			واپس false;
 		}
-#endif
-		return true;
+#اگر_ختم
+		واپس true;
 	}
 
-	void check()
+	خالی check()
 	{
 		log_assert(ok());
 	}
 
-	void notify_connect(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &old_sig, const RTLIL::SigSpec &sig) override
+	خالی notify_connect(RTLIL::Cell *cell, RTLIL::IdString پورٹ, ثابت RTLIL::SigSpec &old_sig, ثابت RTLIL::SigSpec &sig) override
 	{
 		log_assert(module == cell->module);
 
-		if (auto_reload_module)
-			return;
+		اگر (auto_reload_module)
+			واپس;
 
-		port_del(cell, port, old_sig);
-		port_add(cell, port, sig);
+		پورٹ_del(cell, پورٹ, old_sig);
+		پورٹ_جوڑو(cell, پورٹ, sig);
 	}
 
-	void notify_connect(RTLIL::Module *mod, const RTLIL::SigSig &sigsig) override
+	خالی notify_connect(RTLIL::Module *mod, ثابت RTLIL::SigSig &sigsig) override
 	{
 		log_assert(module == mod);
 
-		if (auto_reload_module)
-			return;
+		اگر (auto_reload_module)
+			واپس;
 
-		for (int i = 0; i < GetSize(sigsig.first); i++)
+		برائے (صحیح i = 0; i < Get_سائز(sigsig.پہلا); i++)
 		{
-			RTLIL::SigBit lhs = sigmap(sigsig.first[i]);
-			RTLIL::SigBit rhs = sigmap(sigsig.second[i]);
-			bool has_lhs = database.count(lhs) != 0;
-			bool has_rhs = database.count(rhs) != 0;
+			RTLIL::Sig_ثنائی_ہندسہ lhs = sigmap(sigsig.پہلا[i]);
+			RTLIL::Sig_ثنائی_ہندسہ rhs = sigmap(sigsig.دوسرا[i]);
+			bool has_lhs = database.گنتی(lhs) != 0;
+			bool has_rhs = database.گنتی(rhs) != 0;
 
-			if (!has_lhs && !has_rhs) {
-				sigmap.add(lhs, rhs);
-			} else
-			if (!has_rhs) {
-				SigBitInfo new_info = database.at(lhs);
+			اگر (!has_lhs && !has_rhs) {
+				sigmap.جوڑو(lhs, rhs);
+			} ورنہ
+			اگر (!has_rhs) {
+				Sig_ثنائی_ہندسہ_Info new_info = database.at(lhs);
 				database.erase(lhs);
-				sigmap.add(lhs, rhs);
+				sigmap.جوڑو(lhs, rhs);
 				lhs = sigmap(lhs);
-				if (lhs.wire)
+				اگر (lhs.wire)
 					database[lhs] = new_info;
-			} else
-			if (!has_lhs) {
-				SigBitInfo new_info = database.at(rhs);
+			} ورنہ
+			اگر (!has_lhs) {
+				Sig_ثنائی_ہندسہ_Info new_info = database.at(rhs);
 				database.erase(rhs);
-				sigmap.add(lhs, rhs);
+				sigmap.جوڑو(lhs, rhs);
 				rhs = sigmap(rhs);
-				if (rhs.wire)
+				اگر (rhs.wire)
 					database[rhs] = new_info;
-			} else {
-				SigBitInfo new_info = database.at(lhs);
-				new_info.merge(database.at(rhs));
+			} ورنہ {
+				Sig_ثنائی_ہندسہ_Info new_info = database.at(lhs);
+				new_info.ملاؤ(database.at(rhs));
 				database.erase(lhs);
 				database.erase(rhs);
-				sigmap.add(lhs, rhs);
+				sigmap.جوڑو(lhs, rhs);
 				rhs = sigmap(rhs);
-				if (rhs.wire)
+				اگر (rhs.wire)
 					database[rhs] = new_info;
 			}
 		}
 	}
 
-	void notify_connect(RTLIL::Module *mod, const std::vector<RTLIL::SigSig>&) override
+	خالی notify_connect(RTLIL::Module *mod, ثابت std::سمتیہ<RTLIL::SigSig>&) override
 	{
 		log_assert(module == mod);
 		auto_reload_module = true;
 	}
 
-	void notify_blackout(RTLIL::Module *mod) override
+	خالی notify_blackout(RTLIL::Module *mod) override
 	{
 		log_assert(module == mod);
 		auto_reload_module = true;
 	}
 
-	ModIndex(RTLIL::Module *_m) : sigmap(_m), module(_m)
+	Mod_اشاریہ(RTLIL::Module *_m) : sigmap(_m), module(_m)
 	{
-		auto_reload_counter = 0;
+		auto_reload_شمار = 0;
 		auto_reload_module = true;
-		module->monitors.insert(this);
+		module->monitors.داخل_کرو(this);
 	}
 
-	~ModIndex()
+	~Mod_اشاریہ()
 	{
 		module->monitors.erase(this);
 	}
 
-	SigBitInfo *query(RTLIL::SigBit bit)
+	Sig_ثنائی_ہندسہ_Info *query(RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ)
 	{
-		if (auto_reload_module)
+		اگر (auto_reload_module)
 			reload_module();
 
-		auto it = database.find(sigmap(bit));
-		if (it == database.end())
-			return nullptr;
-		else
-			return &it->second;
+		خودکار it = database.ڈھونڈو(sigmap(ثنائی_ہندسہ));
+		اگر (it == database.انتہا())
+			واپس nullptr;
+		ورنہ
+			واپس &it->دوسرا;
 	}
 
-	bool query_is_input(RTLIL::SigBit bit)
+	bool query_is_داخلہ(RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ)
 	{
-		const SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return false;
-		return info->is_input;
+		ثابت Sig_ثنائی_ہندسہ_Info *info = query(ثنائی_ہندسہ);
+		اگر (info == nullptr)
+			واپس false;
+		واپس info->is_داخلہ;
 	}
 
-	bool query_is_output(RTLIL::SigBit bit)
+	bool query_is_output(RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ)
 	{
-		const SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return false;
-		return info->is_output;
+		ثابت Sig_ثنائی_ہندسہ_Info *info = query(ثنائی_ہندسہ);
+		اگر (info == nullptr)
+			واپس false;
+		واپس info->is_output;
 	}
 
-	pool<PortInfo> &query_ports(RTLIL::SigBit bit)
+	pool<پورٹ_Info> &query_ports(RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ)
 	{
-		static pool<PortInfo> empty_result_set;
-		SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return empty_result_set;
-		return info->ports;
+		ساکن pool<پورٹ_Info> خالی_خانے_نتیجہ_سیٹ;
+		Sig_ثنائی_ہندسہ_Info *info = query(ثنائی_ہندسہ);
+		اگر (info == nullptr)
+			واپس خالی_خانے_نتیجہ_سیٹ;
+		واپس info->ports;
 	}
 
-	void dump_db()
+	خالی dump_db()
 	{
-		log("--- ModIndex Dump ---\n");
+		لوگارتھم("--- ModIndex Dump ---\n");
 
-		if (auto_reload_module) {
-			log("AUTO-RELOAD\n");
+		اگر (auto_reload_module) {
+			لوگارتھم("AUTO-RELOAD\n");
 			reload_module();
 		}
 
-		for (auto &it : database) {
-			log("BIT %s:\n", log_signal(it.first));
-			if (it.second.is_input)
-				log("  PRIMARY INPUT\n");
-			if (it.second.is_output)
-				log("  PRIMARY OUTPUT\n");
-			for (auto &port : it.second.ports)
-				log("  PORT: %s.%s[%d] (%s)\n", port.cell,
-						PooledName(module, port.port).unescape(), port.offset, port.cell->type.unescape());
+		برائے (خودکار &it : database) {
+			لوگارتھم("BIT %s:\n", log_signal(it.پہلا));
+			اگر (it.دوسرا.is_داخلہ)
+				لوگارتھم("  PRIMARY INPUT\n");
+			اگر (it.دوسرا.is_output)
+				لوگارتھم("  PRIMARY OUTPUT\n");
+			برائے (خودکار &پورٹ : it.دوسرا.ports)
+				لوگارتھم("  PORT: %s.%s[%d] (%s)\n", پورٹ.cell,
+						PooledName(module, پورٹ.پورٹ).unescape(), پورٹ.انحراف, پورٹ.cell->type.unescape());
 		}
 	}
 };
 
-struct ModWalker
+ساخت ModWalker
 {
-	struct PortBit
+	ساخت پورٹ_ثنائی_ہندسہ_2
 	{
 		RTLIL::Cell *cell;
-		RTLIL::IdString port;
-		int offset;
-		PortBit(Cell* c, IdString p, int o) : cell(c), port(p), offset(o) {}
+		RTLIL::IdString پورٹ;
+		صحیح انحراف;
+		پورٹ_ثنائی_ہندسہ_2(Cell* c, IdString p, صحیح o) : cell(c), پورٹ(p), انحراف(o) {}
 
-		bool operator<(const PortBit &other) const {
-			if (cell != other.cell)
-				return cell < other.cell;
-			if (port != other.port)
-				return port < other.port;
-			return offset < other.offset;
+		bool عامل<(ثابت پورٹ_ثنائی_ہندسہ_2 &other) ثابت {
+			اگر (cell != other.cell)
+				واپس cell < other.cell;
+			اگر (پورٹ != other.پورٹ)
+				واپس پورٹ < other.پورٹ;
+			واپس انحراف < other.انحراف;
 		}
 
-		bool operator==(const PortBit &other) const {
-			return cell == other.cell && port == other.port && offset == other.offset;
+		bool عامل==(ثابت پورٹ_ثنائی_ہندسہ_2 &other) ثابت {
+			واپس cell == other.cell && پورٹ == other.پورٹ && انحراف == other.انحراف;
 		}
 
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
 			h.eat(cell->name);
-			h.eat(port);
-			h.eat(offset);
-			return h;
+			h.eat(پورٹ);
+			h.eat(انحراف);
+			واپس h;
 		}
 	};
 
@@ -361,70 +361,70 @@ struct ModWalker
 	NewCellTypes ct;
 	SigMap sigmap;
 
-	dict<RTLIL::SigBit, pool<PortBit>> signal_drivers;
-	dict<RTLIL::SigBit, pool<PortBit>> signal_consumers;
-	pool<RTLIL::SigBit> signal_inputs, signal_outputs;
+	dict<RTLIL::Sig_ثنائی_ہندسہ, pool<پورٹ_ثنائی_ہندسہ_2>> signal_drivers;
+	dict<RTLIL::Sig_ثنائی_ہندسہ, pool<پورٹ_ثنائی_ہندسہ_2>> signal_consumers;
+	pool<RTLIL::Sig_ثنائی_ہندسہ> signal_inputs, signal_outputs;
 
-	dict<RTLIL::Cell*, pool<RTLIL::SigBit>> cell_outputs, cell_inputs;
+	dict<RTLIL::Cell*, pool<RTLIL::Sig_ثنائی_ہندسہ>> cell_outputs, cell_inputs;
 
-	void add_wire(RTLIL::Wire *wire)
+	خالی جوڑو_wire(RTLIL::Wire *wire)
 	{
-		if (wire->port_input) {
-			std::vector<RTLIL::SigBit> bits = sigmap(wire);
-			for (auto bit : bits)
-				if (bit.wire != NULL)
-					signal_inputs.insert(bit);
+		اگر (wire->پورٹ_داخلہ) {
+			std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> بٹ = sigmap(wire);
+			برائے (خودکار ثنائی_ہندسہ : بٹ)
+				اگر (ثنائی_ہندسہ.wire != تہی)
+					signal_inputs.داخل_کرو(ثنائی_ہندسہ);
 		}
 
-		if (wire->port_output) {
-			std::vector<RTLIL::SigBit> bits = sigmap(wire);
-			for (auto bit : bits)
-				if (bit.wire != NULL)
-					signal_outputs.insert(bit);
+		اگر (wire->پورٹ_output) {
+			std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> بٹ = sigmap(wire);
+			برائے (خودکار ثنائی_ہندسہ : بٹ)
+				اگر (ثنائی_ہندسہ.wire != تہی)
+					signal_outputs.داخل_کرو(ثنائی_ہندسہ);
 		}
 	}
 
-	void add_cell_port(RTLIL::Cell *cell, RTLIL::IdString port, std::vector<RTLIL::SigBit> bits, bool is_output, bool is_input)
+	خالی جوڑو_cell_پورٹ(RTLIL::Cell *cell, RTLIL::IdString پورٹ, std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> بٹ, bool is_output, bool is_داخلہ)
 	{
-		for (int i = 0; i < int(bits.size()); i++)
-			if (bits[i].wire != NULL) {
-				PortBit pbit {cell, port, i};
-				if (is_output) {
-					signal_drivers[bits[i]].insert(pbit);
-					cell_outputs[cell].insert(bits[i]);
+		برائے (صحیح i = 0; i < صحیح(بٹ.سائز()); i++)
+			اگر (بٹ[i].wire != تہی) {
+				پورٹ_ثنائی_ہندسہ_2 pbit {cell, پورٹ, i};
+				اگر (is_output) {
+					signal_drivers[بٹ[i]].داخل_کرو(pbit);
+					cell_outputs[cell].داخل_کرو(بٹ[i]);
 				}
-				if (is_input) {
-					signal_consumers[bits[i]].insert(pbit);
-					cell_inputs[cell].insert(bits[i]);
+				اگر (is_داخلہ) {
+					signal_consumers[بٹ[i]].داخل_کرو(pbit);
+					cell_inputs[cell].داخل_کرو(بٹ[i]);
 				}
 			}
 	}
 
-	void add_cell(RTLIL::Cell *cell)
+	خالی جوڑو_cell(RTLIL::Cell *cell)
 	{
-		if (ct.cell_known(cell->type)) {
-			for (auto &conn : cell->connections())
-				add_cell_port(cell, conn.first, sigmap(conn.second),
-						ct.cell_output(cell->type, conn.first),
-						ct.cell_input(cell->type, conn.first));
-		} else {
-			for (auto &conn : cell->connections())
-				add_cell_port(cell, conn.first, sigmap(conn.second), true, true);
+		اگر (ct.cell_معلوم(cell->type)) {
+			برائے (خودکار &conn : cell->connections())
+				جوڑو_cell_پورٹ(cell, conn.پہلا, sigmap(conn.دوسرا),
+						ct.cell_output(cell->type, conn.پہلا),
+						ct.cell_داخلہ(cell->type, conn.پہلا));
+		} ورنہ {
+			برائے (خودکار &conn : cell->connections())
+				جوڑو_cell_پورٹ(cell, conn.پہلا, sigmap(conn.دوسرا), true, true);
 		}
 	}
 
-	ModWalker(RTLIL::Design *design, RTLIL::Module *module = nullptr) : design(design), module(NULL)
+	ModWalker(RTLIL::Design *design, RTLIL::Module *module = nullptr) : design(design), module(تہی)
 	{
-		ct.setup(design);
-		if (module)
-			setup(module);
+		ct.تیاری(design);
+		اگر (module)
+			تیاری(module);
 	}
 
-	void setup(RTLIL::Module *module, CellTypes *filter_ct = NULL)
+	خالی تیاری(RTLIL::Module *module, CellTypes *filter_ct = تہی)
 	{
 		this->module = module;
 
-		sigmap.set(module);
+		sigmap.سیٹ(module);
 
 		signal_drivers.clear();
 		signal_consumers.clear();
@@ -433,176 +433,176 @@ struct ModWalker
 		cell_inputs.clear();
 		cell_outputs.clear();
 
-		for (auto &it : module->wires_)
-			add_wire(it.second);
-		for (auto &it : module->cells_)
-			if (filter_ct == NULL || filter_ct->cell_known(it.second->type))
-				add_cell(it.second);
+		برائے (خودکار &it : module->wires_)
+			جوڑو_wire(it.دوسرا);
+		برائے (خودکار &it : module->cells_)
+			اگر (filter_ct == تہی || filter_ct->cell_معلوم(it.دوسرا->type))
+				جوڑو_cell(it.دوسرا);
 	}
 
 	// get_* methods -- single RTLIL::SigBit
 
-	inline bool get_drivers(pool<PortBit> &result, RTLIL::SigBit bit) const
+	اندرونی bool get_drivers(pool<پورٹ_ثنائی_ہندسہ_2> &نتیجہ, RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ) ثابت
 	{
-		bool found = false;
-		if (signal_drivers.count(bit)) {
-			const pool<PortBit> &r = signal_drivers.at(bit);
-			result.insert(r.begin(), r.end());
-			found = true;
+		bool ملا = false;
+		اگر (signal_drivers.گنتی(ثنائی_ہندسہ)) {
+			ثابت pool<پورٹ_ثنائی_ہندسہ_2> &r = signal_drivers.at(ثنائی_ہندسہ);
+			نتیجہ.داخل_کرو(r.begin(), r.انتہا());
+			ملا = true;
 		}
-		return found;
+		واپس ملا;
 	}
 
-	inline bool get_consumers(pool<PortBit> &result, RTLIL::SigBit bit) const
+	اندرونی bool get_consumers(pool<پورٹ_ثنائی_ہندسہ_2> &نتیجہ, RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ) ثابت
 	{
-		bool found = false;
-		if (signal_consumers.count(bit)) {
-			const pool<PortBit> &r = signal_consumers.at(bit);
-			result.insert(r.begin(), r.end());
-			found = true;
+		bool ملا = false;
+		اگر (signal_consumers.گنتی(ثنائی_ہندسہ)) {
+			ثابت pool<پورٹ_ثنائی_ہندسہ_2> &r = signal_consumers.at(ثنائی_ہندسہ);
+			نتیجہ.داخل_کرو(r.begin(), r.انتہا());
+			ملا = true;
 		}
-		return found;
+		واپس ملا;
 	}
 
-	inline bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
+	اندرونی bool get_inputs(pool<RTLIL::Sig_ثنائی_ہندسہ> &نتیجہ, RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ) ثابت
 	{
-		bool found = false;
-		if (signal_inputs.count(bit))
-			result.insert(bit), found = true;
-		return found;
+		bool ملا = false;
+		اگر (signal_inputs.گنتی(ثنائی_ہندسہ))
+			نتیجہ.داخل_کرو(ثنائی_ہندسہ), ملا = true;
+		واپس ملا;
 	}
 
-	inline bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
+	اندرونی bool get_outputs(pool<RTLIL::Sig_ثنائی_ہندسہ> &نتیجہ, RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ) ثابت
 	{
-		bool found = false;
-		if (signal_outputs.count(bit))
-			result.insert(bit), found = true;
-		return found;
+		bool ملا = false;
+		اگر (signal_outputs.گنتی(ثنائی_ہندسہ))
+			نتیجہ.داخل_کرو(ثنائی_ہندسہ), ملا = true;
+		واپس ملا;
 	}
 
 	// get_* methods -- container of RTLIL::SigBit's (always by reference)
 
-	template<typename T>
-	inline bool get_drivers(pool<PortBit> &result, const T &bits) const
+	سانچہ<typename T>
+	اندرونی bool get_drivers(pool<پورٹ_ثنائی_ہندسہ_2> &نتیجہ, ثابت T &بٹ) ثابت
 	{
-		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_drivers.count(bit)) {
-				const pool<PortBit> &r = signal_drivers.at(bit);
-				result.insert(r.begin(), r.end());
-				found = true;
+		bool ملا = false;
+		برائے (RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ : بٹ)
+			اگر (signal_drivers.گنتی(ثنائی_ہندسہ)) {
+				ثابت pool<پورٹ_ثنائی_ہندسہ_2> &r = signal_drivers.at(ثنائی_ہندسہ);
+				نتیجہ.داخل_کرو(r.begin(), r.انتہا());
+				ملا = true;
 			}
-		return found;
+		واپس ملا;
 	}
 
-	template<typename T>
-	inline bool get_consumers(pool<PortBit> &result, const T &bits) const
+	سانچہ<typename T>
+	اندرونی bool get_consumers(pool<پورٹ_ثنائی_ہندسہ_2> &نتیجہ, ثابت T &بٹ) ثابت
 	{
-		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_consumers.count(bit)) {
-				const pool<PortBit> &r = signal_consumers.at(bit);
-				result.insert(r.begin(), r.end());
-				found = true;
+		bool ملا = false;
+		برائے (RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ : بٹ)
+			اگر (signal_consumers.گنتی(ثنائی_ہندسہ)) {
+				ثابت pool<پورٹ_ثنائی_ہندسہ_2> &r = signal_consumers.at(ثنائی_ہندسہ);
+				نتیجہ.داخل_کرو(r.begin(), r.انتہا());
+				ملا = true;
 			}
-		return found;
+		واپس ملا;
 	}
 
-	template<typename T>
-	inline bool get_inputs(pool<RTLIL::SigBit> &result, const T &bits) const
+	سانچہ<typename T>
+	اندرونی bool get_inputs(pool<RTLIL::Sig_ثنائی_ہندسہ> &نتیجہ, ثابت T &بٹ) ثابت
 	{
-		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_inputs.count(bit))
-				result.insert(bit), found = true;
-		return found;
+		bool ملا = false;
+		برائے (RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ : بٹ)
+			اگر (signal_inputs.گنتی(ثنائی_ہندسہ))
+				نتیجہ.داخل_کرو(ثنائی_ہندسہ), ملا = true;
+		واپس ملا;
 	}
 
-	template<typename T>
-	inline bool get_outputs(pool<RTLIL::SigBit> &result, const T &bits) const
+	سانچہ<typename T>
+	اندرونی bool get_outputs(pool<RTLIL::Sig_ثنائی_ہندسہ> &نتیجہ, ثابت T &بٹ) ثابت
 	{
-		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_outputs.count(bit))
-				result.insert(bit), found = true;
-		return found;
+		bool ملا = false;
+		برائے (RTLIL::Sig_ثنائی_ہندسہ ثنائی_ہندسہ : بٹ)
+			اگر (signal_outputs.گنتی(ثنائی_ہندسہ))
+				نتیجہ.داخل_کرو(ثنائی_ہندسہ), ملا = true;
+		واپس ملا;
 	}
 
 	// get_* methods -- call by RTLIL::SigSpec (always by value)
 
-	bool get_drivers(pool<PortBit> &result, RTLIL::SigSpec signal) const
+	bool get_drivers(pool<پورٹ_ثنائی_ہندسہ_2> &نتیجہ, RTLIL::SigSpec اشارہ) ثابت
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_drivers(result, bits);
+		std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> بٹ = sigmap(اشارہ);
+		واپس get_drivers(نتیجہ, بٹ);
 	}
 
-	bool get_consumers(pool<PortBit> &result, RTLIL::SigSpec signal) const
+	bool get_consumers(pool<پورٹ_ثنائی_ہندسہ_2> &نتیجہ, RTLIL::SigSpec اشارہ) ثابت
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_consumers(result, bits);
+		std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> بٹ = sigmap(اشارہ);
+		واپس get_consumers(نتیجہ, بٹ);
 	}
 
-	bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
+	bool get_inputs(pool<RTLIL::Sig_ثنائی_ہندسہ> &نتیجہ, RTLIL::SigSpec اشارہ) ثابت
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_inputs(result, bits);
+		std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> بٹ = sigmap(اشارہ);
+		واپس get_inputs(نتیجہ, بٹ);
 	}
 
-	bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
+	bool get_outputs(pool<RTLIL::Sig_ثنائی_ہندسہ> &نتیجہ, RTLIL::SigSpec اشارہ) ثابت
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_outputs(result, bits);
+		std::سمتیہ<RTLIL::Sig_ثنائی_ہندسہ> بٹ = sigmap(اشارہ);
+		واپس get_outputs(نتیجہ, بٹ);
 	}
 
 	// has_* methods -- call by reference
 
-	template<typename T>
-	inline bool has_drivers(const T &sig) const {
-		pool<PortBit> result;
-		return get_drivers(result, sig);
+	سانچہ<typename T>
+	اندرونی bool has_drivers(ثابت T &sig) ثابت {
+		pool<پورٹ_ثنائی_ہندسہ_2> نتیجہ;
+		واپس get_drivers(نتیجہ, sig);
 	}
 
-	template<typename T>
-	inline bool has_consumers(const T &sig) const {
-		pool<PortBit> result;
-		return get_consumers(result, sig);
+	سانچہ<typename T>
+	اندرونی bool has_consumers(ثابت T &sig) ثابت {
+		pool<پورٹ_ثنائی_ہندسہ_2> نتیجہ;
+		واپس get_consumers(نتیجہ, sig);
 	}
 
-	template<typename T>
-	inline bool has_inputs(const T &sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+	سانچہ<typename T>
+	اندرونی bool has_inputs(ثابت T &sig) ثابت {
+		pool<RTLIL::Sig_ثنائی_ہندسہ> نتیجہ;
+		واپس get_inputs(نتیجہ, sig);
 	}
 
-	template<typename T>
-	inline bool has_outputs(const T &sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+	سانچہ<typename T>
+	اندرونی bool has_outputs(ثابت T &sig) ثابت {
+		pool<RTLIL::Sig_ثنائی_ہندسہ> نتیجہ;
+		واپس get_outputs(نتیجہ, sig);
 	}
 
 	// has_* methods -- call by value
 
-	inline bool has_drivers(RTLIL::SigSpec sig) const {
-		pool<PortBit> result;
-		return get_drivers(result, sig);
+	اندرونی bool has_drivers(RTLIL::SigSpec sig) ثابت {
+		pool<پورٹ_ثنائی_ہندسہ_2> نتیجہ;
+		واپس get_drivers(نتیجہ, sig);
 	}
 
-	inline bool has_consumers(RTLIL::SigSpec sig) const {
-		pool<PortBit> result;
-		return get_consumers(result, sig);
+	اندرونی bool has_consumers(RTLIL::SigSpec sig) ثابت {
+		pool<پورٹ_ثنائی_ہندسہ_2> نتیجہ;
+		واپس get_consumers(نتیجہ, sig);
 	}
 
-	inline bool has_inputs(RTLIL::SigSpec sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+	اندرونی bool has_inputs(RTLIL::SigSpec sig) ثابت {
+		pool<RTLIL::Sig_ثنائی_ہندسہ> نتیجہ;
+		واپس get_inputs(نتیجہ, sig);
 	}
 
-	inline bool has_outputs(RTLIL::SigSpec sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+	اندرونی bool has_outputs(RTLIL::SigSpec sig) ثابت {
+		pool<RTLIL::Sig_ثنائی_ہندسہ> نتیجہ;
+		واپس get_outputs(نتیجہ, sig);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتہا
 
-#endif
+#اگر_ختم

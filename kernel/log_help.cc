@@ -17,168 +17,168 @@
  *
  */
 
-#include "kernel/log_help.h"
+#شامل "kernel/log_help.h"
 
 USING_YOSYS_NAMESPACE
 
-std::filesystem::path Yosys::fixup_source_path (const char* source_file,
-	const std::filesystem::path &source_root, bool* skip_source_group)
+std::filesystem::راستہ_2 Yosys::fixup_ماخذ_راستہ (ثابت حرف* ماخذ_file,
+	ثابت std::filesystem::راستہ_2 &ماخذ_جڑ, منطقی* skip_ماخذ_گروہ)
 {
-	std::filesystem::path source_path(source_file);
-	if (source_path.is_absolute()) {
+	std::filesystem::راستہ_2 ماخذ_راستہ(ماخذ_file);
+	اگر (ماخذ_راستہ.is_absolute()) {
 		// using proximate instead of relative means that we
 		// still get the source path if they aren't relative
-		auto proximate_path = std::filesystem::proximate(source_path, source_root);
-		if (proximate_path == proximate_path.lexically_normal()) {
+		خودکار proximate_راستہ = std::filesystem::proximate(ماخذ_راستہ, ماخذ_جڑ);
+		اگر (proximate_راستہ == proximate_راستہ.lexically_معمول()) {
 			// we're only interested if it's a subpath of our root dir
 			// if the normal form differs, then the proximate path includes ".."
-			return proximate_path;
-		} else if (skip_source_group != nullptr) {
+			واپس proximate_راستہ;
+		} ورنہ اگر (skip_ماخذ_گروہ != خالی_اشاریہ) {
 			// don't try to group external paths
-			*skip_source_group = true;
+			*skip_ماخذ_گروہ = سچ;
 		}
 	}
-	return source_path;
+	واپس ماخذ_راستہ;
 }
 
-Json ContentListing::to_json(const std::filesystem::path &source_root) const {
+Json ContentListing::مقصد_json(ثابت std::filesystem::راستہ_2 &ماخذ_جڑ) ثابت {
 	Json::object object;
 
 	object["type"] = type;
-	if (body.length())
+	اگر (body.لمبائی_2())
 		object["body"] = body;
 
-	if (has_source())
-		object["source_file"] = fixup_source_path(source_file, source_root).string();
-	if (source_line != 0)
-		object["source_line"] = source_line;
+	اگر (has_ماخذ())
+		object["source_file"] = fixup_ماخذ_راستہ(ماخذ_file, ماخذ_جڑ).string();
+	اگر (ماخذ_سطر != 0)
+		object["source_line"] = ماخذ_سطر;
 
 	object["options"] = Json(options);
 
 	Json::array content_array;
-	for (auto child : _content)
-		content_array.push_back(child.to_json(source_root));
+	برائے (خودکار بچہ : _content)
+		content_array.ڈالو_عقب(بچہ.مقصد_json(ماخذ_جڑ));
 	object["content"] = content_array;
 
-	return object;
+	واپس object;
 }
 
-void ContentListing::usage(const string &text,
-	const source_location location)
+خالی ContentListing::usage(ثابت string &متن,
+	ثابت ماخذ_location location)
 {
 	log_assert(type.compare("root") == 0);
-	add_content("usage", text, location);
+	جوڑو_content("usage", متن, location);
 }
 
-void ContentListing::option(const string &text, const string &description,
-	const source_location location)
+خالی ContentListing::option(ثابت string &متن, ثابت string &description,
+	ثابت ماخذ_location location)
 {
-	auto option = open_option(text, source_location());
-	if (description.length())
-		option->add_content("text", description, location);
+	خودکار option = open_option(متن, ماخذ_location());
+	اگر (description.لمبائی_2())
+		option->جوڑو_content("text", description, location);
 }
 
-void ContentListing::codeblock(const string &code, const string &language,
-	const source_location location)
+خالی ContentListing::codeblock(ثابت string &رمز, ثابت string &language,
+	ثابت ماخذ_location location)
 {
-	add_content("code", code, location);
-	back()->set_option("language", language);
+	جوڑو_content("code", رمز, location);
+	عقب()->سیٹ_option("language", language);
 }
 
-void ContentListing::paragraph(const string &text,
-	const source_location location)
+خالی ContentListing::paragraph(ثابت string &متن,
+	ثابت ماخذ_location location)
 {
-	add_content("text", text, location);
+	جوڑو_content("text", متن, location);
 }
 
-ContentListing* ContentListing::open_usage(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_usage(ثابت string &متن,
+	ثابت ماخذ_location location)
 {
-	usage(text, location);
-	return back();
+	usage(متن, location);
+	واپس عقب();
 }
 
-ContentListing* ContentListing::open_option(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_option(ثابت string &متن,
+	ثابت ماخذ_location location)
 {
 	log_assert(type.compare("root") == 0 || type.compare("usage") == 0);
-	add_content("option", text, location);
-	return back();
+	جوڑو_content("option", متن, location);
+	واپس عقب();
 }
 
-#define MAX_LINE_LEN 80
-void log_body_str(const std::string &pass_str, std::string indent_str, bool leading_newline=false, bool is_formatted=false) {
-	if (pass_str.empty())
-		return;
+#تعریف_کرو MAX_سطر_LEN 80
+خالی log_body_str(ثابت std::string &pass_str, std::string indent_str, منطقی leading_newline=جھوٹ, منطقی is_formatted=جھوٹ) {
+	اگر (pass_str.خالی_خانے())
+		واپس;
 	std::istringstream iss(pass_str);
-	if (leading_newline)
-		log("\n");
-	for (std::string line; std::getline(iss, line);) {
-		std::string message = indent_str;
-		if (is_formatted) {
-			message += line;
-		} else {
-			auto curr_len = indent_str.length();
-			std::istringstream lss(line);
-			for (std::string word; std::getline(lss, word, ' ');) {
-				while (word[0] == '`' && word.back() == '`')
-					word = word.substr(1, word.length()-2);
-				if (curr_len + word.length() >= MAX_LINE_LEN-1) {
+	اگر (leading_newline)
+		لوگارتھم("\n");
+	برائے (std::string سطر; std::getline(iss, سطر);) {
+		std::string پیغام_2 = indent_str;
+		اگر (is_formatted) {
+			پیغام_2 += سطر;
+		} ورنہ {
+			خودکار curr_len = indent_str.لمبائی_2();
+			std::istringstream lss(سطر);
+			برائے (std::string لفظ; std::getline(lss, لفظ, ' ');) {
+				جب (لفظ[0] == '`' && لفظ.عقب() == '`')
+					لفظ = لفظ.substr(1, لفظ.لمبائی_2()-2);
+				اگر (curr_len + لفظ.لمبائی_2() >= MAX_سطر_LEN-1) {
 					curr_len = 0;
-					log("%s\n", message);
-					message = indent_str;
+					لوگارتھم("%s\n", پیغام_2);
+					پیغام_2 = indent_str;
 				}
-				if (word.length()) {
-					message += word + " ";
-					curr_len += word.length() + 1;
+				اگر (لفظ.لمبائی_2()) {
+					پیغام_2 += لفظ + " ";
+					curr_len += لفظ.لمبائی_2() + 1;
 				}
 			}
 		}
-		log("%s\n", message);
+		لوگارتھم("%s\n", پیغام_2);
 	}
 }
-void log_body(const ContentListing &content, int indent=0, bool leading_newline=false) {
+خالی log_body(ثابت ContentListing &content, صحیح indent=0, منطقی leading_newline=جھوٹ) {
 	std::string indent_str(indent*4, ' ');
 	log_body_str(content.body, indent_str, leading_newline, content.type.compare("code") == 0);
 }
 
-PrettyHelp *current_help = nullptr;
+PrettyHelp *current_help = خالی_اشاریہ;
 
 PrettyHelp::PrettyHelp()
 {
-	_prior = current_help;
-	_root_listing = ContentListing("root", "");
+	پیشگی = current_help;
+	جڑ_listing = ContentListing("root", "");
 
-	current_help = this;
+	current_help = یہ;
 }
 
 PrettyHelp::~PrettyHelp()
 {
-	current_help = _prior;
+	current_help = پیشگی;
 }
 
 PrettyHelp *PrettyHelp::get_current()
 {
-	if (current_help == nullptr)
-		new PrettyHelp();
-	return current_help;
+	اگر (current_help == خالی_اشاریہ)
+		نیا PrettyHelp();
+	واپس current_help;
 }
 
-void PrettyHelp::log_help() const
+خالی PrettyHelp::log_help() ثابت
 {
-	for (auto &content : _root_listing) {
-		if (content.type.compare("usage") == 0) {
-			log_body(content, 1, true);
-			log("\n");
-		} else if (content.type.compare("option") == 0) {
+	برائے (خودکار &content : جڑ_listing) {
+		اگر (content.type.compare("usage") == 0) {
+			log_body(content, 1, سچ);
+			لوگارتھم("\n");
+		} ورنہ اگر (content.type.compare("option") == 0) {
 			log_body(content, 1);
-			for (auto text : content) {
-				log_body(text, 2);
-				log("\n");
+			برائے (خودکار متن : content) {
+				log_body(متن, 2);
+				لوگارتھم("\n");
 			}
-		} else {
+		} ورنہ {
 			log_body(content, 0);
-			log("\n");
+			لوگارتھم("\n");
 		}
 	}
 }
