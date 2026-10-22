@@ -17,136 +17,136 @@
  *
  */
 
-#ifndef MODTOOLS_H
-#define MODTOOLS_H
+#यदि_अपरिभाषितम् MODTOOLS_H
+#परिभाषय MODTOOLS_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/celltypes.h"
-#include "kernel/newcelltypes.h"
+#अन्तर्भाव "kernel/yosys.h"
+#अन्तर्भाव "kernel/sigtools.h"
+#अन्तर्भाव "kernel/celltypes.h"
+#अन्तर्भाव "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct ModIndex : public RTLIL::Monitor
+संरचना Mod_सूचकांक : सार्वजनिक RTLIL::Monitor
 {
-	struct PointerOrderedSigBit : public RTLIL::SigBit {
+	संरचना PointerOrderedSigBit : सार्वजनिक RTLIL::SigBit {
 		PointerOrderedSigBit(SigBit s) {
 			wire = s.wire;
-			if (wire)
-				offset = s.offset;
-			else
-				data = s.data;
+			यदि (wire)
+				विस्थापनम् = s.विस्थापनम्;
+			अन्यथा
+				दत्त = s.दत्त;
 		}
-		inline bool operator<(const RTLIL::SigBit &other) const {
-			if (wire == other.wire)
-				return wire ? (offset < other.offset) : (data < other.data);
-			if (wire != nullptr && other.wire != nullptr)
-				return wire < other.wire; // look here
-			return (wire != nullptr) < (other.wire != nullptr);
+		अन्तःस्थ bool संक्रियकः<(ध्रुव RTLIL::SigBit &other) ध्रुव {
+			यदि (wire == other.wire)
+				प्रत्यागम wire ? (विस्थापनम् < other.विस्थापनम्) : (दत्त < other.दत्त);
+			यदि (wire != nullptr && other.wire != nullptr)
+				प्रत्यागम wire < other.wire; // look here
+			प्रत्यागम (wire != nullptr) < (other.wire != nullptr);
 		}
 	};
-	struct PortInfo {
+	संरचना पत्तनम्_Info {
 		RTLIL::Cell* cell;
-		RTLIL::IdString port;
-		int offset;
+		RTLIL::IdString पत्तनम्;
+		पूर्णाङ्क विस्थापनम्;
 
-		PortInfo() : cell(), port(), offset() { }
-		PortInfo(RTLIL::Cell* _c, RTLIL::IdString _p, int _o) : cell(_c), port(_p), offset(_o) { }
+		पत्तनम्_Info() : cell(), पत्तनम्(), विस्थापनम्() { }
+		पत्तनम्_Info(RTLIL::Cell* _c, RTLIL::IdString _p, पूर्णाङ्क _o) : cell(_c), पत्तनम्(_p), विस्थापनम्(_o) { }
 
-		bool operator<(const PortInfo &other) const {
-			if (cell != other.cell)
-				return cell < other.cell;
-			if (offset != other.offset)
-				return offset < other.offset;
-			return port < other.port;
+		bool संक्रियकः<(ध्रुव पत्तनम्_Info &other) ध्रुव {
+			यदि (cell != other.cell)
+				प्रत्यागम cell < other.cell;
+			यदि (विस्थापनम् != other.विस्थापनम्)
+				प्रत्यागम विस्थापनम् < other.विस्थापनम्;
+			प्रत्यागम पत्तनम् < other.पत्तनम्;
 		}
 
-		bool operator==(const PortInfo &other) const {
-			return cell == other.cell && port == other.port && offset == other.offset;
+		bool संक्रियकः==(ध्रुव पत्तनम्_Info &other) ध्रुव {
+			प्रत्यागम cell == other.cell && पत्तनम् == other.पत्तनम् && विस्थापनम् == other.विस्थापनम्;
 		}
 
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव {
 			h.eat(cell->name);
-			h.eat(port);
-			h.eat(offset);
-			return h;
+			h.eat(पत्तनम्);
+			h.eat(विस्थापनम्);
+			प्रत्यागम h;
 		}
 	};
 
-	struct SigBitInfo
+	संरचना SigBitInfo
 	{
-		bool is_input, is_output;
-		pool<PortInfo> ports;
+		bool is_निवेशः, is_output;
+		pool<पत्तनम्_Info> ports;
 
-		SigBitInfo() : is_input(false), is_output(false) { }
+		SigBitInfo() : is_निवेशः(false), is_output(false) { }
 
-		bool operator==(const SigBitInfo &other) const {
-			return is_input == other.is_input && is_output == other.is_output && ports == other.ports;
+		bool संक्रियकः==(ध्रुव SigBitInfo &other) ध्रुव {
+			प्रत्यागम is_निवेशः == other.is_निवेशः && is_output == other.is_output && ports == other.ports;
 		}
 
-		void merge(const SigBitInfo &other)
+		शून्य merge(ध्रुव SigBitInfo &other)
 		{
-			is_input = is_input || other.is_input;
+			is_निवेशः = is_निवेशः || other.is_निवेशः;
 			is_output = is_output || other.is_output;
-			ports.insert(other.ports.begin(), other.ports.end());
+			ports.निवेशय(other.ports.begin(), other.ports.अन्तः());
 		}
 	};
 
 	SigMap sigmap;
 	RTLIL::Module *module;
 	std::map<PointerOrderedSigBit, SigBitInfo> database;
-	int auto_reload_counter;
+	पूर्णाङ्क auto_reload_गणक;
 	bool auto_reload_module;
 
-	void port_add(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &sig)
+	शून्य पत्तनम्_सङ्कलय(RTLIL::Cell *cell, RTLIL::IdString पत्तनम्, ध्रुव RTLIL::SigSpec &sig)
 	{
-		for (int i = 0; i < GetSize(sig); i++) {
+		प्रति (पूर्णाङ्क i = 0; i < Get_आकार(sig); i++) {
 			RTLIL::SigBit bit = sigmap(sig[i]);
-			if (bit.wire)
-				database[bit].ports.insert(PortInfo(cell, port, i));
+			यदि (bit.wire)
+				database[bit].ports.निवेशय(पत्तनम्_Info(cell, पत्तनम्, i));
 		}
 	}
 
-	void port_del(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &sig)
+	शून्य पत्तनम्_del(RTLIL::Cell *cell, RTLIL::IdString पत्तनम्, ध्रुव RTLIL::SigSpec &sig)
 	{
-		for (int i = 0; i < GetSize(sig); i++) {
+		प्रति (पूर्णाङ्क i = 0; i < Get_आकार(sig); i++) {
 			RTLIL::SigBit bit = sigmap(sig[i]);
-			if (bit.wire) {
-				database[bit].ports.erase(PortInfo(cell, port, i));
-				if (!database[bit].is_input && !database[bit].is_output && database[bit].ports.empty())
+			यदि (bit.wire) {
+				database[bit].ports.erase(पत्तनम्_Info(cell, पत्तनम्, i));
+				यदि (!database[bit].is_निवेशः && !database[bit].is_output && database[bit].ports.रिक्तानि())
 					database.erase(bit);
 			}
 		}
 	}
 
-	const SigBitInfo &info(RTLIL::SigBit bit)
+	ध्रुव SigBitInfo &info(RTLIL::SigBit bit)
 	{
-		return database[sigmap(bit)];
+		प्रत्यागम database[sigmap(bit)];
 	}
 
-	void reload_module(bool reset_sigmap = true)
+	शून्य reload_module(bool reset_sigmap = true)
 	{
-		if (reset_sigmap) {
+		यदि (reset_sigmap) {
 			sigmap.clear();
-			sigmap.set(module);
+			sigmap.समुच्चयः(module);
 		}
 
 		database.clear();
-		for (auto wire : module->wires())
-			if (wire->port_input || wire->port_output)
-				for (int i = 0; i < GetSize(wire); i++) {
+		प्रति (स्वचालित wire : module->wires())
+			यदि (wire->पत्तनम्_निवेशः || wire->पत्तनम्_output)
+				प्रति (पूर्णाङ्क i = 0; i < Get_आकार(wire); i++) {
 					RTLIL::SigBit bit = sigmap(RTLIL::SigBit(wire, i));
-					if (bit.wire && wire->port_input)
-						database[bit].is_input = true;
-					if (bit.wire && wire->port_output)
+					यदि (bit.wire && wire->पत्तनम्_निवेशः)
+						database[bit].is_निवेशः = true;
+					यदि (bit.wire && wire->पत्तनम्_output)
 						database[bit].is_output = true;
 				}
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				port_add(cell, conn.first, conn.second);
+		प्रति (स्वचालित cell : module->cells())
+			प्रति (स्वचालित &conn : cell->connections())
+				पत्तनम्_सङ्कलय(cell, conn.first, conn.second);
 
-		if (auto_reload_module) {
-			if (++auto_reload_counter > 2)
+		यदि (auto_reload_module) {
+			यदि (++auto_reload_गणक > 2)
 				log_warning("Auto-reload in ModIndex -- possible performance bug!\n");
 			auto_reload_module = false;
 		}
@@ -154,204 +154,204 @@ struct ModIndex : public RTLIL::Monitor
 
 	bool ok()
 	{
-#ifndef NDEBUG
-		if (auto_reload_module)
-			return true;
+#यदि_अपरिभाषितम् NDEBUG
+		यदि (auto_reload_module)
+			प्रत्यागम true;
 
-		for (auto it : database)
+		प्रति (स्वचालित it : database)
 			log_assert(it.first == sigmap(it.first));
 
-		auto database_bak = std::move(database);
+		स्वचालित database_bak = std::move(database);
 		reload_module(false);
 
-		if (!(database == database_bak))
+		यदि (!(database == database_bak))
 		{
-			for (auto &it : database_bak)
-				if (!database.count(it.first))
-					log("ModuleIndex::check(): Only in database_bak, not database: %s\n", log_signal(it.first));
+			प्रति (स्वचालित &it : database_bak)
+				यदि (!database.गणनम्(it.first))
+					लघुगणकः("ModuleIndex::check(): Only in database_bak, not database: %s\n", log_signal(it.first));
 
-			for (auto &it : database)
-				if (!database_bak.count(it.first))
-					log("ModuleIndex::check(): Only in database, not database_bak: %s\n", log_signal(it.first));
-				else if (!(it.second == database_bak.at(it.first)))
-					log("ModuleIndex::check(): Different content for database[%s].\n", log_signal(it.first));
+			प्रति (स्वचालित &it : database)
+				यदि (!database_bak.गणनम्(it.first))
+					लघुगणकः("ModuleIndex::check(): Only in database, not database_bak: %s\n", log_signal(it.first));
+				अन्यथा यदि (!(it.second == database_bak.at(it.first)))
+					लघुगणकः("ModuleIndex::check(): Different content for database[%s].\n", log_signal(it.first));
 
-			return false;
+			प्रत्यागम false;
 		}
-#endif
-		return true;
+#यदि_अन्तः
+		प्रत्यागम true;
 	}
 
-	void check()
+	शून्य check()
 	{
 		log_assert(ok());
 	}
 
-	void notify_connect(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &old_sig, const RTLIL::SigSpec &sig) override
+	शून्य notify_connect(RTLIL::Cell *cell, RTLIL::IdString पत्तनम्, ध्रुव RTLIL::SigSpec &old_sig, ध्रुव RTLIL::SigSpec &sig) override
 	{
 		log_assert(module == cell->module);
 
-		if (auto_reload_module)
-			return;
+		यदि (auto_reload_module)
+			प्रत्यागम;
 
-		port_del(cell, port, old_sig);
-		port_add(cell, port, sig);
+		पत्तनम्_del(cell, पत्तनम्, old_sig);
+		पत्तनम्_सङ्कलय(cell, पत्तनम्, sig);
 	}
 
-	void notify_connect(RTLIL::Module *mod, const RTLIL::SigSig &sigsig) override
+	शून्य notify_connect(RTLIL::Module *mod, ध्रुव RTLIL::SigSig &sigsig) override
 	{
 		log_assert(module == mod);
 
-		if (auto_reload_module)
-			return;
+		यदि (auto_reload_module)
+			प्रत्यागम;
 
-		for (int i = 0; i < GetSize(sigsig.first); i++)
+		प्रति (पूर्णाङ्क i = 0; i < Get_आकार(sigsig.first); i++)
 		{
 			RTLIL::SigBit lhs = sigmap(sigsig.first[i]);
 			RTLIL::SigBit rhs = sigmap(sigsig.second[i]);
-			bool has_lhs = database.count(lhs) != 0;
-			bool has_rhs = database.count(rhs) != 0;
+			bool has_lhs = database.गणनम्(lhs) != 0;
+			bool has_rhs = database.गणनम्(rhs) != 0;
 
-			if (!has_lhs && !has_rhs) {
-				sigmap.add(lhs, rhs);
-			} else
-			if (!has_rhs) {
+			यदि (!has_lhs && !has_rhs) {
+				sigmap.सङ्कलय(lhs, rhs);
+			} अन्यथा
+			यदि (!has_rhs) {
 				SigBitInfo new_info = database.at(lhs);
 				database.erase(lhs);
-				sigmap.add(lhs, rhs);
+				sigmap.सङ्कलय(lhs, rhs);
 				lhs = sigmap(lhs);
-				if (lhs.wire)
+				यदि (lhs.wire)
 					database[lhs] = new_info;
-			} else
-			if (!has_lhs) {
+			} अन्यथा
+			यदि (!has_lhs) {
 				SigBitInfo new_info = database.at(rhs);
 				database.erase(rhs);
-				sigmap.add(lhs, rhs);
+				sigmap.सङ्कलय(lhs, rhs);
 				rhs = sigmap(rhs);
-				if (rhs.wire)
+				यदि (rhs.wire)
 					database[rhs] = new_info;
-			} else {
+			} अन्यथा {
 				SigBitInfo new_info = database.at(lhs);
 				new_info.merge(database.at(rhs));
 				database.erase(lhs);
 				database.erase(rhs);
-				sigmap.add(lhs, rhs);
+				sigmap.सङ्कलय(lhs, rhs);
 				rhs = sigmap(rhs);
-				if (rhs.wire)
+				यदि (rhs.wire)
 					database[rhs] = new_info;
 			}
 		}
 	}
 
-	void notify_connect(RTLIL::Module *mod, const std::vector<RTLIL::SigSig>&) override
+	शून्य notify_connect(RTLIL::Module *mod, ध्रुव std::सदिशम्<RTLIL::SigSig>&) override
 	{
 		log_assert(module == mod);
 		auto_reload_module = true;
 	}
 
-	void notify_blackout(RTLIL::Module *mod) override
+	शून्य notify_blackout(RTLIL::Module *mod) override
 	{
 		log_assert(module == mod);
 		auto_reload_module = true;
 	}
 
-	ModIndex(RTLIL::Module *_m) : sigmap(_m), module(_m)
+	Mod_सूचकांक(RTLIL::Module *_m) : sigmap(_m), module(_m)
 	{
-		auto_reload_counter = 0;
+		auto_reload_गणक = 0;
 		auto_reload_module = true;
-		module->monitors.insert(this);
+		module->monitors.निवेशय(this);
 	}
 
-	~ModIndex()
+	~Mod_सूचकांक()
 	{
 		module->monitors.erase(this);
 	}
 
 	SigBitInfo *query(RTLIL::SigBit bit)
 	{
-		if (auto_reload_module)
+		यदि (auto_reload_module)
 			reload_module();
 
-		auto it = database.find(sigmap(bit));
-		if (it == database.end())
-			return nullptr;
-		else
-			return &it->second;
+		स्वचालित it = database.find(sigmap(bit));
+		यदि (it == database.अन्तः())
+			प्रत्यागम nullptr;
+		अन्यथा
+			प्रत्यागम &it->second;
 	}
 
-	bool query_is_input(RTLIL::SigBit bit)
+	bool query_is_निवेशः(RTLIL::SigBit bit)
 	{
-		const SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return false;
-		return info->is_input;
+		ध्रुव SigBitInfo *info = query(bit);
+		यदि (info == nullptr)
+			प्रत्यागम false;
+		प्रत्यागम info->is_निवेशः;
 	}
 
 	bool query_is_output(RTLIL::SigBit bit)
 	{
-		const SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return false;
-		return info->is_output;
+		ध्रुव SigBitInfo *info = query(bit);
+		यदि (info == nullptr)
+			प्रत्यागम false;
+		प्रत्यागम info->is_output;
 	}
 
-	pool<PortInfo> &query_ports(RTLIL::SigBit bit)
+	pool<पत्तनम्_Info> &query_ports(RTLIL::SigBit bit)
 	{
-		static pool<PortInfo> empty_result_set;
+		स्थिर pool<पत्तनम्_Info> रिक्तानि_परिणाम_समुच्चयः;
 		SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return empty_result_set;
-		return info->ports;
+		यदि (info == nullptr)
+			प्रत्यागम रिक्तानि_परिणाम_समुच्चयः;
+		प्रत्यागम info->ports;
 	}
 
-	void dump_db()
+	शून्य dump_db()
 	{
-		log("--- ModIndex Dump ---\n");
+		लघुगणकः("--- ModIndex Dump ---\n");
 
-		if (auto_reload_module) {
-			log("AUTO-RELOAD\n");
+		यदि (auto_reload_module) {
+			लघुगणकः("AUTO-RELOAD\n");
 			reload_module();
 		}
 
-		for (auto &it : database) {
-			log("BIT %s:\n", log_signal(it.first));
-			if (it.second.is_input)
-				log("  PRIMARY INPUT\n");
-			if (it.second.is_output)
-				log("  PRIMARY OUTPUT\n");
-			for (auto &port : it.second.ports)
-				log("  PORT: %s.%s[%d] (%s)\n", port.cell,
-						PooledName(module, port.port).unescape(), port.offset, port.cell->type.unescape());
+		प्रति (स्वचालित &it : database) {
+			लघुगणकः("BIT %s:\n", log_signal(it.first));
+			यदि (it.second.is_निवेशः)
+				लघुगणकः("  PRIMARY INPUT\n");
+			यदि (it.second.is_output)
+				लघुगणकः("  PRIMARY OUTPUT\n");
+			प्रति (स्वचालित &पत्तनम् : it.second.ports)
+				लघुगणकः("  PORT: %s.%s[%d] (%s)\n", पत्तनम्.cell,
+						PooledName(module, पत्तनम्.पत्तनम्).unescape(), पत्तनम्.विस्थापनम्, पत्तनम्.cell->type.unescape());
 		}
 	}
 };
 
-struct ModWalker
+संरचना ModWalker
 {
-	struct PortBit
+	संरचना पत्तनम्_Bit
 	{
 		RTLIL::Cell *cell;
-		RTLIL::IdString port;
-		int offset;
-		PortBit(Cell* c, IdString p, int o) : cell(c), port(p), offset(o) {}
+		RTLIL::IdString पत्तनम्;
+		पूर्णाङ्क विस्थापनम्;
+		पत्तनम्_Bit(Cell* c, IdString p, पूर्णाङ्क o) : cell(c), पत्तनम्(p), विस्थापनम्(o) {}
 
-		bool operator<(const PortBit &other) const {
-			if (cell != other.cell)
-				return cell < other.cell;
-			if (port != other.port)
-				return port < other.port;
-			return offset < other.offset;
+		bool संक्रियकः<(ध्रुव पत्तनम्_Bit &other) ध्रुव {
+			यदि (cell != other.cell)
+				प्रत्यागम cell < other.cell;
+			यदि (पत्तनम् != other.पत्तनम्)
+				प्रत्यागम पत्तनम् < other.पत्तनम्;
+			प्रत्यागम विस्थापनम् < other.विस्थापनम्;
 		}
 
-		bool operator==(const PortBit &other) const {
-			return cell == other.cell && port == other.port && offset == other.offset;
+		bool संक्रियकः==(ध्रुव पत्तनम्_Bit &other) ध्रुव {
+			प्रत्यागम cell == other.cell && पत्तनम् == other.पत्तनम् && विस्थापनम् == other.विस्थापनम्;
 		}
 
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
+		[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव {
 			h.eat(cell->name);
-			h.eat(port);
-			h.eat(offset);
-			return h;
+			h.eat(पत्तनम्);
+			h.eat(विस्थापनम्);
+			प्रत्यागम h;
 		}
 	};
 
@@ -361,70 +361,70 @@ struct ModWalker
 	NewCellTypes ct;
 	SigMap sigmap;
 
-	dict<RTLIL::SigBit, pool<PortBit>> signal_drivers;
-	dict<RTLIL::SigBit, pool<PortBit>> signal_consumers;
+	dict<RTLIL::SigBit, pool<पत्तनम्_Bit>> signal_drivers;
+	dict<RTLIL::SigBit, pool<पत्तनम्_Bit>> signal_consumers;
 	pool<RTLIL::SigBit> signal_inputs, signal_outputs;
 
 	dict<RTLIL::Cell*, pool<RTLIL::SigBit>> cell_outputs, cell_inputs;
 
-	void add_wire(RTLIL::Wire *wire)
+	शून्य सङ्कलय_wire(RTLIL::Wire *wire)
 	{
-		if (wire->port_input) {
-			std::vector<RTLIL::SigBit> bits = sigmap(wire);
-			for (auto bit : bits)
-				if (bit.wire != NULL)
-					signal_inputs.insert(bit);
+		यदि (wire->पत्तनम्_निवेशः) {
+			std::सदिशम्<RTLIL::SigBit> द्वयङ्काः = sigmap(wire);
+			प्रति (स्वचालित bit : द्वयङ्काः)
+				यदि (bit.wire != रिक्त)
+					signal_inputs.निवेशय(bit);
 		}
 
-		if (wire->port_output) {
-			std::vector<RTLIL::SigBit> bits = sigmap(wire);
-			for (auto bit : bits)
-				if (bit.wire != NULL)
-					signal_outputs.insert(bit);
+		यदि (wire->पत्तनम्_output) {
+			std::सदिशम्<RTLIL::SigBit> द्वयङ्काः = sigmap(wire);
+			प्रति (स्वचालित bit : द्वयङ्काः)
+				यदि (bit.wire != रिक्त)
+					signal_outputs.निवेशय(bit);
 		}
 	}
 
-	void add_cell_port(RTLIL::Cell *cell, RTLIL::IdString port, std::vector<RTLIL::SigBit> bits, bool is_output, bool is_input)
+	शून्य सङ्कलय_cell_पत्तनम्(RTLIL::Cell *cell, RTLIL::IdString पत्तनम्, std::सदिशम्<RTLIL::SigBit> द्वयङ्काः, bool is_output, bool is_निवेशः)
 	{
-		for (int i = 0; i < int(bits.size()); i++)
-			if (bits[i].wire != NULL) {
-				PortBit pbit {cell, port, i};
-				if (is_output) {
-					signal_drivers[bits[i]].insert(pbit);
-					cell_outputs[cell].insert(bits[i]);
+		प्रति (पूर्णाङ्क i = 0; i < पूर्णाङ्क(द्वयङ्काः.आकार()); i++)
+			यदि (द्वयङ्काः[i].wire != रिक्त) {
+				पत्तनम्_Bit pbit {cell, पत्तनम्, i};
+				यदि (is_output) {
+					signal_drivers[द्वयङ्काः[i]].निवेशय(pbit);
+					cell_outputs[cell].निवेशय(द्वयङ्काः[i]);
 				}
-				if (is_input) {
-					signal_consumers[bits[i]].insert(pbit);
-					cell_inputs[cell].insert(bits[i]);
+				यदि (is_निवेशः) {
+					signal_consumers[द्वयङ्काः[i]].निवेशय(pbit);
+					cell_inputs[cell].निवेशय(द्वयङ्काः[i]);
 				}
 			}
 	}
 
-	void add_cell(RTLIL::Cell *cell)
+	शून्य सङ्कलय_cell(RTLIL::Cell *cell)
 	{
-		if (ct.cell_known(cell->type)) {
-			for (auto &conn : cell->connections())
-				add_cell_port(cell, conn.first, sigmap(conn.second),
+		यदि (ct.cell_ज्ञातम्(cell->type)) {
+			प्रति (स्वचालित &conn : cell->connections())
+				सङ्कलय_cell_पत्तनम्(cell, conn.first, sigmap(conn.second),
 						ct.cell_output(cell->type, conn.first),
-						ct.cell_input(cell->type, conn.first));
-		} else {
-			for (auto &conn : cell->connections())
-				add_cell_port(cell, conn.first, sigmap(conn.second), true, true);
+						ct.cell_निवेशः(cell->type, conn.first));
+		} अन्यथा {
+			प्रति (स्वचालित &conn : cell->connections())
+				सङ्कलय_cell_पत्तनम्(cell, conn.first, sigmap(conn.second), true, true);
 		}
 	}
 
-	ModWalker(RTLIL::Design *design, RTLIL::Module *module = nullptr) : design(design), module(NULL)
+	ModWalker(RTLIL::Design *design, RTLIL::Module *module = nullptr) : design(design), module(रिक्त)
 	{
-		ct.setup(design);
-		if (module)
-			setup(module);
+		ct.सज्जता(design);
+		यदि (module)
+			सज्जता(module);
 	}
 
-	void setup(RTLIL::Module *module, CellTypes *filter_ct = NULL)
+	शून्य सज्जता(RTLIL::Module *module, CellTypes *filter_ct = रिक्त)
 	{
 		this->module = module;
 
-		sigmap.set(module);
+		sigmap.समुच्चयः(module);
 
 		signal_drivers.clear();
 		signal_consumers.clear();
@@ -433,176 +433,176 @@ struct ModWalker
 		cell_inputs.clear();
 		cell_outputs.clear();
 
-		for (auto &it : module->wires_)
-			add_wire(it.second);
-		for (auto &it : module->cells_)
-			if (filter_ct == NULL || filter_ct->cell_known(it.second->type))
-				add_cell(it.second);
+		प्रति (स्वचालित &it : module->wires_)
+			सङ्कलय_wire(it.second);
+		प्रति (स्वचालित &it : module->cells_)
+			यदि (filter_ct == रिक्त || filter_ct->cell_ज्ञातम्(it.second->type))
+				सङ्कलय_cell(it.second);
 	}
 
 	// get_* methods -- single RTLIL::SigBit
 
-	inline bool get_drivers(pool<PortBit> &result, RTLIL::SigBit bit) const
+	अन्तःस्थ bool get_drivers(pool<पत्तनम्_Bit> &परिणाम, RTLIL::SigBit bit) ध्रुव
 	{
-		bool found = false;
-		if (signal_drivers.count(bit)) {
-			const pool<PortBit> &r = signal_drivers.at(bit);
-			result.insert(r.begin(), r.end());
-			found = true;
+		bool प्राप्तम् = false;
+		यदि (signal_drivers.गणनम्(bit)) {
+			ध्रुव pool<पत्तनम्_Bit> &r = signal_drivers.at(bit);
+			परिणाम.निवेशय(r.begin(), r.अन्तः());
+			प्राप्तम् = true;
 		}
-		return found;
+		प्रत्यागम प्राप्तम्;
 	}
 
-	inline bool get_consumers(pool<PortBit> &result, RTLIL::SigBit bit) const
+	अन्तःस्थ bool get_consumers(pool<पत्तनम्_Bit> &परिणाम, RTLIL::SigBit bit) ध्रुव
 	{
-		bool found = false;
-		if (signal_consumers.count(bit)) {
-			const pool<PortBit> &r = signal_consumers.at(bit);
-			result.insert(r.begin(), r.end());
-			found = true;
+		bool प्राप्तम् = false;
+		यदि (signal_consumers.गणनम्(bit)) {
+			ध्रुव pool<पत्तनम्_Bit> &r = signal_consumers.at(bit);
+			परिणाम.निवेशय(r.begin(), r.अन्तः());
+			प्राप्तम् = true;
 		}
-		return found;
+		प्रत्यागम प्राप्तम्;
 	}
 
-	inline bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
+	अन्तःस्थ bool get_inputs(pool<RTLIL::SigBit> &परिणाम, RTLIL::SigBit bit) ध्रुव
 	{
-		bool found = false;
-		if (signal_inputs.count(bit))
-			result.insert(bit), found = true;
-		return found;
+		bool प्राप्तम् = false;
+		यदि (signal_inputs.गणनम्(bit))
+			परिणाम.निवेशय(bit), प्राप्तम् = true;
+		प्रत्यागम प्राप्तम्;
 	}
 
-	inline bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
+	अन्तःस्थ bool get_outputs(pool<RTLIL::SigBit> &परिणाम, RTLIL::SigBit bit) ध्रुव
 	{
-		bool found = false;
-		if (signal_outputs.count(bit))
-			result.insert(bit), found = true;
-		return found;
+		bool प्राप्तम् = false;
+		यदि (signal_outputs.गणनम्(bit))
+			परिणाम.निवेशय(bit), प्राप्तम् = true;
+		प्रत्यागम प्राप्तम्;
 	}
 
 	// get_* methods -- container of RTLIL::SigBit's (always by reference)
 
-	template<typename T>
-	inline bool get_drivers(pool<PortBit> &result, const T &bits) const
+	प्रतिरूपम्<typename T>
+	अन्तःस्थ bool get_drivers(pool<पत्तनम्_Bit> &परिणाम, ध्रुव T &द्वयङ्काः) ध्रुव
 	{
-		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_drivers.count(bit)) {
-				const pool<PortBit> &r = signal_drivers.at(bit);
-				result.insert(r.begin(), r.end());
-				found = true;
+		bool प्राप्तम् = false;
+		प्रति (RTLIL::SigBit bit : द्वयङ्काः)
+			यदि (signal_drivers.गणनम्(bit)) {
+				ध्रुव pool<पत्तनम्_Bit> &r = signal_drivers.at(bit);
+				परिणाम.निवेशय(r.begin(), r.अन्तः());
+				प्राप्तम् = true;
 			}
-		return found;
+		प्रत्यागम प्राप्तम्;
 	}
 
-	template<typename T>
-	inline bool get_consumers(pool<PortBit> &result, const T &bits) const
+	प्रतिरूपम्<typename T>
+	अन्तःस्थ bool get_consumers(pool<पत्तनम्_Bit> &परिणाम, ध्रुव T &द्वयङ्काः) ध्रुव
 	{
-		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_consumers.count(bit)) {
-				const pool<PortBit> &r = signal_consumers.at(bit);
-				result.insert(r.begin(), r.end());
-				found = true;
+		bool प्राप्तम् = false;
+		प्रति (RTLIL::SigBit bit : द्वयङ्काः)
+			यदि (signal_consumers.गणनम्(bit)) {
+				ध्रुव pool<पत्तनम्_Bit> &r = signal_consumers.at(bit);
+				परिणाम.निवेशय(r.begin(), r.अन्तः());
+				प्राप्तम् = true;
 			}
-		return found;
+		प्रत्यागम प्राप्तम्;
 	}
 
-	template<typename T>
-	inline bool get_inputs(pool<RTLIL::SigBit> &result, const T &bits) const
+	प्रतिरूपम्<typename T>
+	अन्तःस्थ bool get_inputs(pool<RTLIL::SigBit> &परिणाम, ध्रुव T &द्वयङ्काः) ध्रुव
 	{
-		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_inputs.count(bit))
-				result.insert(bit), found = true;
-		return found;
+		bool प्राप्तम् = false;
+		प्रति (RTLIL::SigBit bit : द्वयङ्काः)
+			यदि (signal_inputs.गणनम्(bit))
+				परिणाम.निवेशय(bit), प्राप्तम् = true;
+		प्रत्यागम प्राप्तम्;
 	}
 
-	template<typename T>
-	inline bool get_outputs(pool<RTLIL::SigBit> &result, const T &bits) const
+	प्रतिरूपम्<typename T>
+	अन्तःस्थ bool get_outputs(pool<RTLIL::SigBit> &परिणाम, ध्रुव T &द्वयङ्काः) ध्रुव
 	{
-		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_outputs.count(bit))
-				result.insert(bit), found = true;
-		return found;
+		bool प्राप्तम् = false;
+		प्रति (RTLIL::SigBit bit : द्वयङ्काः)
+			यदि (signal_outputs.गणनम्(bit))
+				परिणाम.निवेशय(bit), प्राप्तम् = true;
+		प्रत्यागम प्राप्तम्;
 	}
 
 	// get_* methods -- call by RTLIL::SigSpec (always by value)
 
-	bool get_drivers(pool<PortBit> &result, RTLIL::SigSpec signal) const
+	bool get_drivers(pool<पत्तनम्_Bit> &परिणाम, RTLIL::SigSpec सङ्केत) ध्रुव
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_drivers(result, bits);
+		std::सदिशम्<RTLIL::SigBit> द्वयङ्काः = sigmap(सङ्केत);
+		प्रत्यागम get_drivers(परिणाम, द्वयङ्काः);
 	}
 
-	bool get_consumers(pool<PortBit> &result, RTLIL::SigSpec signal) const
+	bool get_consumers(pool<पत्तनम्_Bit> &परिणाम, RTLIL::SigSpec सङ्केत) ध्रुव
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_consumers(result, bits);
+		std::सदिशम्<RTLIL::SigBit> द्वयङ्काः = sigmap(सङ्केत);
+		प्रत्यागम get_consumers(परिणाम, द्वयङ्काः);
 	}
 
-	bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
+	bool get_inputs(pool<RTLIL::SigBit> &परिणाम, RTLIL::SigSpec सङ्केत) ध्रुव
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_inputs(result, bits);
+		std::सदिशम्<RTLIL::SigBit> द्वयङ्काः = sigmap(सङ्केत);
+		प्रत्यागम get_inputs(परिणाम, द्वयङ्काः);
 	}
 
-	bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
+	bool get_outputs(pool<RTLIL::SigBit> &परिणाम, RTLIL::SigSpec सङ्केत) ध्रुव
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_outputs(result, bits);
+		std::सदिशम्<RTLIL::SigBit> द्वयङ्काः = sigmap(सङ्केत);
+		प्रत्यागम get_outputs(परिणाम, द्वयङ्काः);
 	}
 
 	// has_* methods -- call by reference
 
-	template<typename T>
-	inline bool has_drivers(const T &sig) const {
-		pool<PortBit> result;
-		return get_drivers(result, sig);
+	प्रतिरूपम्<typename T>
+	अन्तःस्थ bool has_drivers(ध्रुव T &sig) ध्रुव {
+		pool<पत्तनम्_Bit> परिणाम;
+		प्रत्यागम get_drivers(परिणाम, sig);
 	}
 
-	template<typename T>
-	inline bool has_consumers(const T &sig) const {
-		pool<PortBit> result;
-		return get_consumers(result, sig);
+	प्रतिरूपम्<typename T>
+	अन्तःस्थ bool has_consumers(ध्रुव T &sig) ध्रुव {
+		pool<पत्तनम्_Bit> परिणाम;
+		प्रत्यागम get_consumers(परिणाम, sig);
 	}
 
-	template<typename T>
-	inline bool has_inputs(const T &sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+	प्रतिरूपम्<typename T>
+	अन्तःस्थ bool has_inputs(ध्रुव T &sig) ध्रुव {
+		pool<RTLIL::SigBit> परिणाम;
+		प्रत्यागम get_inputs(परिणाम, sig);
 	}
 
-	template<typename T>
-	inline bool has_outputs(const T &sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+	प्रतिरूपम्<typename T>
+	अन्तःस्थ bool has_outputs(ध्रुव T &sig) ध्रुव {
+		pool<RTLIL::SigBit> परिणाम;
+		प्रत्यागम get_outputs(परिणाम, sig);
 	}
 
 	// has_* methods -- call by value
 
-	inline bool has_drivers(RTLIL::SigSpec sig) const {
-		pool<PortBit> result;
-		return get_drivers(result, sig);
+	अन्तःस्थ bool has_drivers(RTLIL::SigSpec sig) ध्रुव {
+		pool<पत्तनम्_Bit> परिणाम;
+		प्रत्यागम get_drivers(परिणाम, sig);
 	}
 
-	inline bool has_consumers(RTLIL::SigSpec sig) const {
-		pool<PortBit> result;
-		return get_consumers(result, sig);
+	अन्तःस्थ bool has_consumers(RTLIL::SigSpec sig) ध्रुव {
+		pool<पत्तनम्_Bit> परिणाम;
+		प्रत्यागम get_consumers(परिणाम, sig);
 	}
 
-	inline bool has_inputs(RTLIL::SigSpec sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+	अन्तःस्थ bool has_inputs(RTLIL::SigSpec sig) ध्रुव {
+		pool<RTLIL::SigBit> परिणाम;
+		प्रत्यागम get_inputs(परिणाम, sig);
 	}
 
-	inline bool has_outputs(RTLIL::SigSpec sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+	अन्तःस्थ bool has_outputs(RTLIL::SigSpec sig) ध्रुव {
+		pool<RTLIL::SigBit> परिणाम;
+		प्रत्यागम get_outputs(परिणाम, sig);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_अन्तः
 
-#endif
+#यदि_अन्तः

@@ -17,12 +17,12 @@
  *
  */
 
-#ifndef FF_H
-#define FF_H
+#यदि_अपरिभाषितम् FF_H
+#परिभाषय FF_H
 
-#include "kernel/yosys.h"
-#include "kernel/ffinit.h"
-#include "kernel/twine.h"
+#अन्तर्भाव "kernel/yosys.h"
+#अन्तर्भाव "kernel/ffinit.h"
+#अन्तर्भाव "kernel/twine.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -79,9 +79,9 @@ YOSYS_NAMESPACE_BEGIN
 // - has_arst [does not correspond to a native cell, represented as dlatch with const D input]
 // - empty set [not a cell — will be emitted as a simple direct connection]
 
-struct FfTypeData {
-	FfTypeData(IdString type);
-	FfTypeData() {
+संरचना Ff_Type_दत्त {
+	Ff_Type_दत्त(IdString type);
+	Ff_Type_दत्त() {
 		has_clk = false;
 		has_gclk = false;
 		has_ce = false;
@@ -131,7 +131,7 @@ struct FfTypeData {
 	bool pol_arst;
 	bool pol_srst;
 	bool pol_clr;
-	bool pol_set;
+	bool pol_समुच्चयः;
 	// The value loaded by sig_arst.
 	// Zero length if unknowable from just type
 	Const val_arst;
@@ -140,7 +140,7 @@ struct FfTypeData {
 	Const val_srst;
 };
 
-struct FfData : FfTypeData {
+संरचना Ff_दत्त : Ff_Type_दत्त {
 	Module *module;
 	FfInitVals *initvals;
 	Cell *cell;
@@ -164,52 +164,52 @@ struct FfData : FfTypeData {
 	// The async clear (per-lane), present if has_sr.
 	SigSpec sig_clr;
 	// The async set (per-lane), present if has_sr.
-	SigSpec sig_set;
+	SigSpec sig_समुच्चयः;
 	// The initial value at power-up.
 	Const val_init;
 	// The FF data width in bits.
-	int width;
-	dict<IdString, Const> attributes;
+	पूर्णाङ्क विस्तारः;
+	dict<IdString, Const> गुणाः;
 
-	FfData(Module *module = nullptr, FfInitVals *initvals = nullptr, IdString name = IdString()) : module(module), initvals(initvals), cell(nullptr), name(name) {
-		width = 0;
+	Ff_दत्त(Module *module = nullptr, FfInitVals *initvals = nullptr, IdString name = IdString()) : module(module), initvals(initvals), cell(nullptr), name(name) {
+		विस्तारः = 0;
 		pol_clk = false;
 		pol_aload = false;
 		pol_ce = false;
 		pol_arst = false;
 		pol_srst = false;
 		pol_clr = false;
-		pol_set = false;
+		pol_समुच्चयः = false;
 	}
 
-	FfData(Module *module, FfInitVals *initvals, TwineSpec &&name)
-			: FfData(module, initvals, module->twines().add(std::move(name))) {}
+	Ff_दत्त(Module *module, FfInitVals *initvals, TwineSpec &&name)
+			: Ff_दत्त(module, initvals, module->twines().सङ्कलय(std::move(name))) {}
 
-	FfData(FfInitVals *initvals, Cell *cell_);
+	Ff_दत्त(FfInitVals *initvals, Cell *cell_);
 
 	// Returns a FF identical to this one, but only keeping bit indices from the argument.
-	FfData slice(const std::vector<int> &bits);
+	Ff_दत्त खण्डिका(ध्रुव std::सदिशम्<पूर्णाङ्क> &द्वयङ्काः);
 
-	void add_dummy_ce();
-	void add_dummy_srst();
-	void add_dummy_arst();
-	void add_dummy_aload();
-	void add_dummy_sr();
-	void add_dummy_clk();
+	शून्य सङ्कलय_dummy_ce();
+	शून्य सङ्कलय_dummy_srst();
+	शून्य सङ्कलय_dummy_arst();
+	शून्य सङ्कलय_dummy_aload();
+	शून्य सङ्कलय_dummy_sr();
+	शून्य सङ्कलय_dummy_clk();
 
-	void arst_to_aload();
-	void arst_to_sr();
+	शून्य arst_गन्तव्यम्_aload();
+	शून्य arst_गन्तव्यम्_sr();
 
-	void aload_to_sr();
+	शून्य aload_गन्तव्यम्_sr();
 
 	// Given a FF with both has_ce and has_srst, sets ce_over_srst to the given value and
 	// fixes up control signals appropriately to preserve semantics.
-	void convert_ce_over_srst(bool val);
+	शून्य convert_ce_over_srst(bool val);
 
-	void unmap_ce();
-	void unmap_srst();
+	शून्य unmap_ce();
+	शून्य unmap_srst();
 
-	void unmap_ce_srst() {
+	शून्य unmap_ce_srst() {
 		unmap_ce();
 		unmap_srst();
 	}
@@ -218,21 +218,21 @@ struct FfData : FfTypeData {
 
 	// Removes init attribute from the Q output, but keeps val_init unchanged.
 	// It will be automatically reattached on emit.  Use this before changing sig_q.
-	void remove_init() {
-		if (initvals)
+	शून्य remove_init() {
+		यदि (initvals)
 			initvals->remove_init(sig_q);
 	}
 
-	void remove();
+	शून्य remove();
 
 	// Flip the sense of the given bit slices of the FF: insert inverters on data
 	// inputs and output, flip the corresponding init/reset bits, swap clr/set
 	// inputs with proper priority fix.
-	void flip_bits(const pool<int> &bits);
+	शून्य flip_द्वयङ्काः(ध्रुव pool<पूर्णाङ्क> &द्वयङ्काः);
 
-	void flip_rst_bits(const pool<int> &bits);
+	शून्य flip_rst_द्वयङ्काः(ध्रुव pool<पूर्णाङ्क> &द्वयङ्काः);
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_अन्तः
 
-#endif
+#यदि_अन्तः

@@ -1,54 +1,54 @@
-#ifndef UNUSED_BITS_H
-#define UNUSED_BITS_H
+#यदि_अपरिभाषितम् अप्रयुक्तम्_द्वयङ्काः_H
+#परिभाषय अप्रयुक्तम्_द्वयङ्काः_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/newcelltypes.h"
+#अन्तर्भाव "kernel/yosys.h"
+#अन्तर्भाव "kernel/sigtools.h"
+#अन्तर्भाव "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct UnusedBits
+संरचना अप्रयुक्तम्_द्वयङ्काः
 {
 	SigMap sigmap;
-	pool<RTLIL::SigBit> used;
+	pool<RTLIL::SigBit> प्रयुक्तम्;
 
-	UnusedBits(RTLIL::Module *module) : sigmap(module)
+	अप्रयुक्तम्_द्वयङ्काः(RTLIL::Module *module) : sigmap(module)
 	{
 		NewCellTypes ct(module->design);
-		collect_used(module, ct);
+		collect_प्रयुक्तम्(module, ct);
 	}
 
-	UnusedBits(RTLIL::Module *module, const NewCellTypes &ct) : sigmap(module)
+	अप्रयुक्तम्_द्वयङ्काः(RTLIL::Module *module, ध्रुव NewCellTypes &ct) : sigmap(module)
 	{
-		collect_used(module, ct);
+		collect_प्रयुक्तम्(module, ct);
 	}
 
-	void collect_used(RTLIL::Module *module, const NewCellTypes &ct)
+	शून्य collect_प्रयुक्तम्(RTLIL::Module *module, ध्रुव NewCellTypes &ct)
 	{
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				if (!ct.cell_output(cell->type, conn.first))
-					add_used(conn.second);
+		प्रति (स्वचालित cell : module->cells())
+			प्रति (स्वचालित &conn : cell->connections())
+				यदि (!ct.cell_output(cell->type, conn.first))
+					सङ्कलय_प्रयुक्तम्(conn.second);
 
-		for (auto wire : module->wires())
-			if (wire->port_output)
-				add_used(wire);
+		प्रति (स्वचालित wire : module->wires())
+			यदि (wire->पत्तनम्_output)
+				सङ्कलय_प्रयुक्तम्(wire);
 	}
 
-	void add_used(const RTLIL::SigSpec &sig)
+	शून्य सङ्कलय_प्रयुक्तम्(ध्रुव RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sigmap(sig))
-			if (bit.wire != nullptr)
-				used.insert(bit);
+		प्रति (स्वचालित bit : sigmap(sig))
+			यदि (bit.wire != nullptr)
+				प्रयुक्तम्.निवेशय(bit);
 	}
 
-	bool check(RTLIL::SigBit bit) const
+	bool check(RTLIL::SigBit bit) ध्रुव
 	{
 		RTLIL::SigBit mapped = sigmap(bit);
-		return mapped.wire != nullptr && !used.count(mapped);
+		प्रत्यागम mapped.wire != nullptr && !प्रयुक्तम्.गणनम्(mapped);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_अन्तः
 
-#endif
+#यदि_अन्तः

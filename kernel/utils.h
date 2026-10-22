@@ -20,11 +20,11 @@
 // This file contains various c++ utility routines and helper classes that
 // do not depend on any other components of yosys (except stuff like log_*).
 
-#include "kernel/yosys.h"
-#include <iterator>
+#अन्तर्भाव "kernel/yosys.h"
+#अन्तर्भाव <iterator>
 
-#ifndef UTILS_H
-#define UTILS_H
+#यदि_अपरिभाषितम् UTILS_H
+#परिभाषय UTILS_H
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -32,94 +32,94 @@ YOSYS_NAMESPACE_BEGIN
 // A map-like container, but you can save and restore the state
 // ------------------------------------------------
 
-template<typename Key, typename T>
-struct stackmap
+प्रतिरूपम्<typename कुञ्चिका_2, typename T>
+संरचना stackmap
 {
-private:
-	std::vector<dict<Key, T*>> backup_state;
-	dict<Key, T> current_state;
-	static T empty_tuple;
+गुप्त:
+	std::सदिशम्<dict<कुञ्चिका_2, T*>> backup_state;
+	dict<कुञ्चिका_2, T> current_state;
+	स्थिर T रिक्तानि_tuple;
 
-public:
+सार्वजनिक:
 	stackmap() { }
-	stackmap(const dict<Key, T> &other) : current_state(other) { }
+	stackmap(ध्रुव dict<कुञ्चिका_2, T> &other) : current_state(other) { }
 
-	template<typename Other>
-	void operator=(const Other &other)
+	प्रतिरूपम्<typename Other>
+	शून्य संक्रियकः=(ध्रुव Other &other)
 	{
-		for (auto &it : current_state)
-			if (!backup_state.empty() && backup_state.back().count(it.first) == 0)
-				backup_state.back()[it.first] = new T(it.second);
+		प्रति (स्वचालित &it : current_state)
+			यदि (!backup_state.रिक्तानि() && backup_state.पृष्ठभागः().गणनम्(it.first) == 0)
+				backup_state.पृष्ठभागः()[it.first] = new T(it.second);
 		current_state.clear();
 
-		for (auto &it : other)
-			set(it.first, it.second);
+		प्रति (स्वचालित &it : other)
+			समुच्चयः(it.first, it.second);
 	}
 
-	bool has(const Key &k)
+	bool has(ध्रुव कुञ्चिका_2 &k)
 	{
-		return current_state.count(k) != 0;
+		प्रत्यागम current_state.गणनम्(k) != 0;
 	}
 
-	void set(const Key &k, const T &v)
+	शून्य समुच्चयः(ध्रुव कुञ्चिका_2 &k, ध्रुव T &v)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
-			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
+		यदि (!backup_state.रिक्तानि() && backup_state.पृष्ठभागः().गणनम्(k) == 0)
+			backup_state.पृष्ठभागः()[k] = current_state.गणनम्(k) ? new T(current_state.at(k)) : nullptr;
 		current_state[k] = v;
 	}
 
-	void unset(const Key &k)
+	शून्य unset(ध्रुव कुञ्चिका_2 &k)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
-			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
+		यदि (!backup_state.रिक्तानि() && backup_state.पृष्ठभागः().गणनम्(k) == 0)
+			backup_state.पृष्ठभागः()[k] = current_state.गणनम्(k) ? new T(current_state.at(k)) : nullptr;
 		current_state.erase(k);
 	}
 
-	const T &get(const Key &k)
+	ध्रुव T &get(ध्रुव कुञ्चिका_2 &k)
 	{
-		if (current_state.count(k) == 0)
-			return empty_tuple;
-		return current_state.at(k);
+		यदि (current_state.गणनम्(k) == 0)
+			प्रत्यागम रिक्तानि_tuple;
+		प्रत्यागम current_state.at(k);
 	}
 
-	void reset(const Key &k)
+	शून्य reset(ध्रुव कुञ्चिका_2 &k)
 	{
-		for (int i = GetSize(backup_state)-1; i >= 0; i--)
-			if (backup_state[i].count(k) != 0) {
-				if (backup_state[i].at(k) == nullptr)
+		प्रति (पूर्णाङ्क i = Get_आकार(backup_state)-1; i >= 0; i--)
+			यदि (backup_state[i].गणनम्(k) != 0) {
+				यदि (backup_state[i].at(k) == nullptr)
 					current_state.erase(k);
-				else
+				अन्यथा
 					current_state[k] = *backup_state[i].at(k);
-				return;
+				प्रत्यागम;
 			}
 		current_state.erase(k);
 	}
 
-	const dict<Key, T> &stdmap()
+	ध्रुव dict<कुञ्चिका_2, T> &stdmap()
 	{
-		return current_state;
+		प्रत्यागम current_state;
 	}
 
-	void save()
+	शून्य save()
 	{
-		backup_state.resize(backup_state.size()+1);
+		backup_state.resize(backup_state.आकार()+1);
 	}
 
-	void restore()
+	शून्य restore()
 	{
-		log_assert(!backup_state.empty());
-		for (auto &it : backup_state.back())
-			if (it.second != nullptr) {
+		log_assert(!backup_state.रिक्तानि());
+		प्रति (स्वचालित &it : backup_state.पृष्ठभागः())
+			यदि (it.second != nullptr) {
 				current_state[it.first] = *it.second;
 				delete it.second;
-			} else
+			} अन्यथा
 				current_state.erase(it.first);
-		backup_state.pop_back();
+		backup_state.निष्कासय_पृष्ठभागः();
 	}
 
 	~stackmap()
 	{
-		while (!backup_state.empty())
+		यावत् (!backup_state.रिक्तानि())
 			restore();
 	}
 };
@@ -129,202 +129,202 @@ public:
 // Best-effort topological sorting with loop detection
 // ---------------------------------------------------
 
-template <typename T, typename C = std::less<T>> class TopoSort
+प्रतिरूपम् <typename T, typename C = std::less<T>> class Topo_क्रमय
 {
-	static_assert(!(std::is_pointer<T>::value && std::is_same<C, std::less<T>>::value),
+	static_assert(!(std::is_pointer<T>::मानम् && std::is_same<C, std::less<T>>::मानम्),
 			"std::less is run-to-run unstable for pointers");
-public:
+सार्वजनिक:
 	// We use this ordering of the edges in the adjacency matrix for
 	// exact compatibility with an older implementation.
-	struct IndirectCmp {
-		IndirectCmp(const std::vector<T> &nodes, const C &node_cmp) : node_cmp_(node_cmp), nodes_(nodes) {}
-		bool operator()(int a, int b) const
+	संरचना परोक्षम्_Cmp {
+		परोक्षम्_Cmp(ध्रुव std::सदिशम्<T> &nodes, ध्रुव C &ग्रन्थिः_cmp) : ग्रन्थिः_cmp_2(ग्रन्थिः_cmp), nodes_(nodes) {}
+		bool संक्रियकः()(पूर्णाङ्क a, पूर्णाङ्क b) ध्रुव
 		{
-			log_assert(static_cast<size_t>(a) < nodes_.size());
-			log_assert(static_cast<size_t>(b) < nodes_.size());
-			return node_cmp_(nodes_[a], nodes_[b]);
+			log_assert(static_cast<आकार_t>(a) < nodes_.आकार());
+			log_assert(static_cast<आकार_t>(b) < nodes_.आकार());
+			प्रत्यागम ग्रन्थिः_cmp_2(nodes_[a], nodes_[b]);
 		}
-		const C node_cmp_;
-		const std::vector<T> &nodes_;
+		ध्रुव C ग्रन्थिः_cmp_2;
+		ध्रुव std::सदिशम्<T> &nodes_;
 	};
 
 	bool analyze_loops;
 	// The stability doesn't rely on std::less of T, so pointers are safe
-	std::map<T, int, C> node_to_index;
+	std::map<T, पूर्णाङ्क, C> ग्रन्थिः_गन्तव्यम्_सूचकांक;
 	// edges[i] is the set of nodes with an edge into node i
-	std::vector<std::set<int, IndirectCmp>> edges;
-	std::vector<T> sorted;
-	std::set<std::vector<T>> loops;
+	std::सदिशम्<std::समुच्चयः<पूर्णाङ्क, परोक्षम्_Cmp>> धाराः;
+	std::सदिशम्<T> sorted;
+	std::समुच्चयः<std::सदिशम्<T>> loops;
 
-	TopoSort() requires std::is_default_constructible_v<C> : TopoSort(C()) {}
-	explicit TopoSort(const C &cmp) : node_to_index(cmp), indirect_cmp(nodes, cmp)
+	Topo_क्रमय() requires std::is_default_constructible_v<C> : Topo_क्रमय(C()) {}
+	explicit Topo_क्रमय(ध्रुव C &cmp) : ग्रन्थिः_गन्तव्यम्_सूचकांक(cmp), परोक्षम्_cmp(nodes, cmp)
 	{
 		analyze_loops = true;
-		found_loops = false;
+		प्राप्तम्_loops = false;
 	}
 
-	int node(T n)
+	पूर्णाङ्क ग्रन्थिः(T n)
 	{
-		auto rv = node_to_index.emplace(n, static_cast<int>(nodes.size()));
-		if (rv.second) {
-			nodes.push_back(n);
-			edges.push_back(std::set<int, IndirectCmp>(indirect_cmp));
+		स्वचालित rv = ग्रन्थिः_गन्तव्यम्_सूचकांक.emplace(n, static_cast<पूर्णाङ्क>(nodes.आकार()));
+		यदि (rv.second) {
+			nodes.प्रक्षिप_पृष्ठभागः(n);
+			धाराः.प्रक्षिप_पृष्ठभागः(std::समुच्चयः<पूर्णाङ्क, परोक्षम्_Cmp>(परोक्षम्_cmp));
 		}
-		return rv.first->second;
+		प्रत्यागम rv.first->second;
 	}
 
-	void edge(int l_index, int r_index) { edges[r_index].insert(l_index); }
+	शून्य edge(पूर्णाङ्क l_सूचकांक, पूर्णाङ्क r_सूचकांक) { धाराः[r_सूचकांक].निवेशय(l_सूचकांक); }
 
-	void edge(T left, T right) { edge(node(left), node(right)); }
+	शून्य edge(T वामः_2, T दक्षिणः_2) { edge(ग्रन्थिः(वामः_2), ग्रन्थिः(दक्षिणः_2)); }
 
-	bool has_node(const T &node) { return node_to_index.find(node) != node_to_index.end(); }
+	bool has_ग्रन्थिः(ध्रुव T &ग्रन्थिः) { प्रत्यागम ग्रन्थिः_गन्तव्यम्_सूचकांक.find(ग्रन्थिः) != ग्रन्थिः_गन्तव्यम्_सूचकांक.अन्तः(); }
 
-	bool sort()
+	bool क्रमय()
 	{
-		log_assert(GetSize(node_to_index) == GetSize(edges));
-		log_assert(GetSize(nodes) == GetSize(edges));
+		log_assert(Get_आकार(ग्रन्थिः_गन्तव्यम्_सूचकांक) == Get_आकार(धाराः));
+		log_assert(Get_आकार(nodes) == Get_आकार(धाराः));
 
 		loops.clear();
 		sorted.clear();
-		found_loops = false;
+		प्राप्तम्_loops = false;
 
-		std::vector<bool> node_is_sorted(edges.size(), false);
-		std::vector<bool> node_is_on_stack(edges.size(), false);
+		std::सदिशम्<bool> ग्रन्थिः_is_sorted(धाराः.आकार(), false);
+		std::सदिशम्<bool> ग्रन्थिः_is_on_राशिः(धाराः.आकार(), false);
 		// Only used with analyze_loops
-		std::vector<int> stack;
-		sorted.reserve(edges.size());
+		std::सदिशम्<पूर्णाङ्क> राशिः;
+		sorted.reserve(धाराः.आकार());
 
-		for (const auto &it : node_to_index)
-			sort_worker(it.second, node_is_sorted, node_is_on_stack, stack);
+		प्रति (ध्रुव स्वचालित &it : ग्रन्थिः_गन्तव्यम्_सूचकांक)
+			क्रमय_कार्यकर्ता(it.second, ग्रन्थिः_is_sorted, ग्रन्थिः_is_on_राशिः, राशिः);
 
-		log_assert(GetSize(sorted) == GetSize(nodes));
+		log_assert(Get_आकार(sorted) == Get_आकार(nodes));
 
-		return !found_loops;
+		प्रत्यागम !प्राप्तम्_loops;
 	}
 
 	// Build the more expensive representation of edges for
 	// a few passes that use it directly.
-	std::map<T, std::set<T, C>, C> get_database()
+	std::map<T, std::समुच्चयः<T, C>, C> get_database()
 	{
-		std::map<T, std::set<T, C>, C> database(node_to_index.key_comp());
-		for (size_t i = 0; i < nodes.size(); ++i) {
-			std::set<T, C> converted_edge_set(node_to_index.key_comp());
-			for (int other_node : edges[i]) {
-				converted_edge_set.insert(nodes[other_node]);
+		std::map<T, std::समुच्चयः<T, C>, C> database(ग्रन्थिः_गन्तव्यम्_सूचकांक.कुञ्चिका_comp());
+		प्रति (आकार_t i = 0; i < nodes.आकार(); ++i) {
+			std::समुच्चयः<T, C> converted_edge_समुच्चयः(ग्रन्थिः_गन्तव्यम्_सूचकांक.कुञ्चिका_comp());
+			प्रति (पूर्णाङ्क other_ग्रन्थिः : धाराः[i]) {
+				converted_edge_समुच्चयः.निवेशय(nodes[other_ग्रन्थिः]);
 			}
-			database.emplace(nodes[i], converted_edge_set);
+			database.emplace(nodes[i], converted_edge_समुच्चयः);
 		}
-		return database;
+		प्रत्यागम database;
 	}
 
-private:
-	bool found_loops;
-	std::vector<T> nodes;
-	const IndirectCmp indirect_cmp;
+गुप्त:
+	bool प्राप्तम्_loops;
+	std::सदिशम्<T> nodes;
+	ध्रुव परोक्षम्_Cmp परोक्षम्_cmp;
 
-	void sort_worker(const int root_index, std::vector<bool> &node_is_sorted, std::vector<bool> &node_is_on_stack, std::vector<int> &stack)
+	शून्य क्रमय_कार्यकर्ता(ध्रुव पूर्णाङ्क मूलम्_सूचकांक, std::सदिशम्<bool> &ग्रन्थिः_is_sorted, std::सदिशम्<bool> &ग्रन्थिः_is_on_राशिः, std::सदिशम्<पूर्णाङ्क> &राशिः)
 	{
-		if (node_is_on_stack[root_index]) {
+		यदि (ग्रन्थिः_is_on_राशिः[मूलम्_सूचकांक]) {
 			// We've been here before, meaning we have a loop
-			found_loops = true;
-			if (analyze_loops) {
-				std::vector<T> loop;
-				for (int i = GetSize(stack) - 1; i >= 0; i--) {
-					const int index = stack[i];
-					loop.push_back(nodes[index]);
-					if (index == root_index)
-						break;
+			प्राप्तम्_loops = true;
+			यदि (analyze_loops) {
+				std::सदिशम्<T> loop;
+				प्रति (पूर्णाङ्क i = Get_आकार(राशिः) - 1; i >= 0; i--) {
+					ध्रुव पूर्णाङ्क सूचकांक = राशिः[i];
+					loop.प्रक्षिप_पृष्ठभागः(nodes[सूचकांक]);
+					यदि (सूचकांक == मूलम्_सूचकांक)
+						भङ्ग;
 				}
-				loops.insert(loop);
+				loops.निवेशय(loop);
 			}
-			return;
+			प्रत्यागम;
 		}
 
 		// We're done if we've already sorted this subgraph
-		if (node_is_sorted[root_index])
-			return;
+		यदि (ग्रन्थिः_is_sorted[मूलम्_सूचकांक])
+			प्रत्यागम;
 
-		if (!edges[root_index].empty()) {
-			if (analyze_loops)
-				stack.push_back(root_index);
-			node_is_on_stack[root_index] = true;
+		यदि (!धाराः[मूलम्_सूचकांक].रिक्तानि()) {
+			यदि (analyze_loops)
+				राशिः.प्रक्षिप_पृष्ठभागः(मूलम्_सूचकांक);
+			ग्रन्थिः_is_on_राशिः[मूलम्_सूचकांक] = true;
 
-			for (int left_n : edges[root_index])
-				sort_worker(left_n, node_is_sorted, node_is_on_stack, stack);
+			प्रति (पूर्णाङ्क वामः_n : धाराः[मूलम्_सूचकांक])
+				क्रमय_कार्यकर्ता(वामः_n, ग्रन्थिः_is_sorted, ग्रन्थिः_is_on_राशिः, राशिः);
 
-			if (analyze_loops)
-				stack.pop_back();
-			node_is_on_stack[root_index] = false;
+			यदि (analyze_loops)
+				राशिः.निष्कासय_पृष्ठभागः();
+			ग्रन्थिः_is_on_राशिः[मूलम्_सूचकांक] = false;
 		}
 
-		node_is_sorted[root_index] = true;
-		sorted.push_back(nodes[root_index]);
+		ग्रन्थिः_is_sorted[मूलम्_सूचकांक] = true;
+		sorted.प्रक्षिप_पृष्ठभागः(nodes[मूलम्_सूचकांक]);
 	}
 };
 
 // this class is used for implementing operator-> on iterators that return values rather than references
 // it's necessary because in C++ operator-> is called recursively until a raw pointer is obtained
-template<class T>
-struct arrow_proxy {
+प्रतिरूपम्<class T>
+संरचना arrow_proxy {
 	T v;
-	explicit arrow_proxy(T const & v) : v(v) {}
-	T* operator->() { return &v; }
+	explicit arrow_proxy(T ध्रुव & v) : v(v) {}
+	T* संक्रियकः->() { प्रत्यागम &v; }
 };
 
-inline int ceil_log2(int x)
+अन्तःस्थ पूर्णाङ्क ceil_log2(पूर्णाङ्क x)
 {
-#if defined(__GNUC__)
-        return x > 1 ? (8*sizeof(int)) - __builtin_clz(x-1) : 0;
-#else
-	if (x <= 0)
-		return 0;
-	for (int i = 0; i < 32; i++)
-		if (((x-1) >> i) == 0)
-			return i;
+#यदि defined(__GNUC__)
+        प्रत्यागम x > 1 ? (8*परिमाण(पूर्णाङ्क)) - __builtin_clz(x-1) : 0;
+#अन्यथा
+	यदि (x <= 0)
+		प्रत्यागम 0;
+	प्रति (पूर्णाङ्क i = 0; i < 32; i++)
+		यदि (((x-1) >> i) == 0)
+			प्रत्यागम i;
 	log_abort();
-#endif
+#यदि_अन्तः
 }
 
-template <typename T>
-auto reversed(T& container) {
-	struct reverse_view {
+प्रतिरूपम् <typename T>
+स्वचालित reversed(T& container) {
+	संरचना reverse_view {
 		reverse_view(T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
+		स्वचालित begin() ध्रुव { प्रत्यागम container.rbegin(); }
+		स्वचालित अन्तः() ध्रुव { प्रत्यागम container.rend(); }
 		T& container;
 	};
-	return reverse_view{container};
+	प्रत्यागम reverse_view{container};
 }
 
-template <typename T>
-auto reversed(const T& container) {
-	struct reverse_view {
-		reverse_view(const T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
-		const T& container;
+प्रतिरूपम् <typename T>
+स्वचालित reversed(ध्रुव T& container) {
+	संरचना reverse_view {
+		reverse_view(ध्रुव T& container) : container(container) {}
+		स्वचालित begin() ध्रुव { प्रत्यागम container.rbegin(); }
+		स्वचालित अन्तः() ध्रुव { प्रत्यागम container.rend(); }
+		ध्रुव T& container;
 	};
-	return reverse_view{container};
+	प्रत्यागम reverse_view{container};
 }
 
 // A range of integers [start_, end_) that can be iterated over with a
 // C++ range-based for loop.
-struct IntRange {
-	int start_;
-	int end_;
-	struct Int {
-		int v;
-		int operator*() const { return v; }
-		Int &operator++() { ++v; return *this; }
-		bool operator!=(const Int &other) const { return v != other.v; }
+संरचना IntRange {
+	पूर्णाङ्क start_;
+	पूर्णाङ्क अन्तः_4;
+	संरचना Int {
+		पूर्णाङ्क v;
+		पूर्णाङ्क संक्रियकः*() ध्रुव { प्रत्यागम v; }
+		Int &संक्रियकः++() { ++v; प्रत्यागम *this; }
+		bool संक्रियकः!=(ध्रुव Int &other) ध्रुव { प्रत्यागम v != other.v; }
 	};
-	Int begin() const { return {start_}; }
-	Int end() const { return {end_}; }
+	Int begin() ध्रुव { प्रत्यागम {start_}; }
+	Int अन्तः() ध्रुव { प्रत्यागम {अन्तः_4}; }
 
-	bool operator==(const IntRange &other) const { return start_ == other.start_ && end_ == other.end_; }
-	bool operator!=(const IntRange &other) const { return !(*this == other); }
+	bool संक्रियकः==(ध्रुव IntRange &other) ध्रुव { प्रत्यागम start_ == other.start_ && अन्तः_4 == other.अन्तः_4; }
+	bool संक्रियकः!=(ध्रुव IntRange &other) ध्रुव { प्रत्यागम !(*this == other); }
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_अन्तः
 
-#endif
+#यदि_अन्तः

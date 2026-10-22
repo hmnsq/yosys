@@ -17,47 +17,47 @@
  *
  */
 
-#ifndef CELLEDGES_H
-#define CELLEDGES_H
+#यदि_अपरिभाषितम् CELLEDGES_H
+#परिभाषय CELLEDGES_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
+#अन्तर्भाव "kernel/yosys.h"
+#अन्तर्भाव "kernel/sigtools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AbstractCellEdgesDatabase
+संरचना Abstract_Cell_धाराः_Database
 {
-	virtual ~AbstractCellEdgesDatabase() { }
-	virtual void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int delay) = 0;
-	bool add_edges_from_cell(RTLIL::Cell *cell);
+	आभास ~Abstract_Cell_धाराः_Database() { }
+	आभास शून्य सङ्कलय_edge(RTLIL::Cell *cell, RTLIL::IdString from_पत्तनम्, पूर्णाङ्क from_bit, RTLIL::IdString गन्तव्यम्_पत्तनम्, पूर्णाङ्क गन्तव्यम्_bit, पूर्णाङ्क delay) = 0;
+	bool सङ्कलय_धाराः_from_cell(RTLIL::Cell *cell);
 };
 
-struct FwdCellEdgesDatabase : AbstractCellEdgesDatabase
-{
-	SigMap &sigmap;
-	dict<SigBit, pool<SigBit>> db;
-	FwdCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
-
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
-		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
-		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[from_sigbit].insert(to_sigbit);
-	}
-};
-
-struct RevCellEdgesDatabase : AbstractCellEdgesDatabase
+संरचना Fwd_Cell_धाराः_Database : Abstract_Cell_धाराः_Database
 {
 	SigMap &sigmap;
 	dict<SigBit, pool<SigBit>> db;
-	RevCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
+	Fwd_Cell_धाराः_Database(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
-		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
-		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[to_sigbit].insert(from_sigbit);
+	शून्य सङ्कलय_edge(RTLIL::Cell *cell, RTLIL::IdString from_पत्तनम्, पूर्णाङ्क from_bit, RTLIL::IdString गन्तव्यम्_पत्तनम्, पूर्णाङ्क गन्तव्यम्_bit, पूर्णाङ्क) override {
+		SigBit from_sigbit = sigmap(cell->get_पत्तनम्(from_पत्तनम्)[from_bit]);
+		SigBit गन्तव्यम्_sigbit = sigmap(cell->get_पत्तनम्(गन्तव्यम्_पत्तनम्)[गन्तव्यम्_bit]);
+		db[from_sigbit].निवेशय(गन्तव्यम्_sigbit);
 	}
 };
 
-YOSYS_NAMESPACE_END
+संरचना Rev_Cell_धाराः_Database : Abstract_Cell_धाराः_Database
+{
+	SigMap &sigmap;
+	dict<SigBit, pool<SigBit>> db;
+	Rev_Cell_धाराः_Database(SigMap &sigmap) : sigmap(sigmap) { }
 
-#endif
+	शून्य सङ्कलय_edge(RTLIL::Cell *cell, RTLIL::IdString from_पत्तनम्, पूर्णाङ्क from_bit, RTLIL::IdString गन्तव्यम्_पत्तनम्, पूर्णाङ्क गन्तव्यम्_bit, पूर्णाङ्क) override {
+		SigBit from_sigbit = sigmap(cell->get_पत्तनम्(from_पत्तनम्)[from_bit]);
+		SigBit गन्तव्यम्_sigbit = sigmap(cell->get_पत्तनम्(गन्तव्यम्_पत्तनम्)[गन्तव्यम्_bit]);
+		db[गन्तव्यम्_sigbit].निवेशय(from_sigbit);
+	}
+};
+
+YOSYS_NAMESPACE_अन्तः
+
+#यदि_अन्तः

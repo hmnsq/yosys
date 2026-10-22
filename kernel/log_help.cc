@@ -17,168 +17,168 @@
  *
  */
 
-#include "kernel/log_help.h"
+#अन्तर्भाव "kernel/log_help.h"
 
 USING_YOSYS_NAMESPACE
 
-std::filesystem::path Yosys::fixup_source_path (const char* source_file,
-	const std::filesystem::path &source_root, bool* skip_source_group)
+std::filesystem::मार्गः_2 Yosys::fixup_source_मार्गः (ध्रुव वर्ण* source_file,
+	ध्रुव std::filesystem::मार्गः_2 &source_मूलम्, तार्किक* skip_source_गणः)
 {
-	std::filesystem::path source_path(source_file);
-	if (source_path.is_absolute()) {
+	std::filesystem::मार्गः_2 source_मार्गः(source_file);
+	यदि (source_मार्गः.is_absolute()) {
 		// using proximate instead of relative means that we
 		// still get the source path if they aren't relative
-		auto proximate_path = std::filesystem::proximate(source_path, source_root);
-		if (proximate_path == proximate_path.lexically_normal()) {
+		स्वचालित proximate_मार्गः = std::filesystem::proximate(source_मार्गः, source_मूलम्);
+		यदि (proximate_मार्गः == proximate_मार्गः.lexically_प्रसामान्यम्()) {
 			// we're only interested if it's a subpath of our root dir
 			// if the normal form differs, then the proximate path includes ".."
-			return proximate_path;
-		} else if (skip_source_group != nullptr) {
+			प्रत्यागम proximate_मार्गः;
+		} अन्यथा यदि (skip_source_गणः != शून्यसूचकः) {
 			// don't try to group external paths
-			*skip_source_group = true;
+			*skip_source_गणः = सत्य;
 		}
 	}
-	return source_path;
+	प्रत्यागम source_मार्गः;
 }
 
-Json ContentListing::to_json(const std::filesystem::path &source_root) const {
+Json ContentListing::गन्तव्यम्_json(ध्रुव std::filesystem::मार्गः_2 &source_मूलम्) ध्रुव {
 	Json::object object;
 
 	object["type"] = type;
-	if (body.length())
+	यदि (body.दीर्घता_2())
 		object["body"] = body;
 
-	if (has_source())
-		object["source_file"] = fixup_source_path(source_file, source_root).string();
-	if (source_line != 0)
-		object["source_line"] = source_line;
+	यदि (has_source())
+		object["source_file"] = fixup_source_मार्गः(source_file, source_मूलम्).string();
+	यदि (source_पङ्क्तिः != 0)
+		object["source_line"] = source_पङ्क्तिः;
 
 	object["options"] = Json(options);
 
 	Json::array content_array;
-	for (auto child : _content)
-		content_array.push_back(child.to_json(source_root));
+	प्रति (स्वचालित child : _content)
+		content_array.प्रक्षिप_पृष्ठभागः(child.गन्तव्यम्_json(source_मूलम्));
 	object["content"] = content_array;
 
-	return object;
+	प्रत्यागम object;
 }
 
-void ContentListing::usage(const string &text,
-	const source_location location)
+शून्य ContentListing::usage(ध्रुव string &text,
+	ध्रुव source_location location)
 {
 	log_assert(type.compare("root") == 0);
-	add_content("usage", text, location);
+	सङ्कलय_content("usage", text, location);
 }
 
-void ContentListing::option(const string &text, const string &description,
-	const source_location location)
+शून्य ContentListing::option(ध्रुव string &text, ध्रुव string &description,
+	ध्रुव source_location location)
 {
-	auto option = open_option(text, source_location());
-	if (description.length())
-		option->add_content("text", description, location);
+	स्वचालित option = open_option(text, source_location());
+	यदि (description.दीर्घता_2())
+		option->सङ्कलय_content("text", description, location);
 }
 
-void ContentListing::codeblock(const string &code, const string &language,
-	const source_location location)
+शून्य ContentListing::codeblock(ध्रुव string &संहिता, ध्रुव string &language,
+	ध्रुव source_location location)
 {
-	add_content("code", code, location);
-	back()->set_option("language", language);
+	सङ्कलय_content("code", संहिता, location);
+	पृष्ठभागः()->समुच्चयः_option("language", language);
 }
 
-void ContentListing::paragraph(const string &text,
-	const source_location location)
+शून्य ContentListing::paragraph(ध्रुव string &text,
+	ध्रुव source_location location)
 {
-	add_content("text", text, location);
+	सङ्कलय_content("text", text, location);
 }
 
-ContentListing* ContentListing::open_usage(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_usage(ध्रुव string &text,
+	ध्रुव source_location location)
 {
 	usage(text, location);
-	return back();
+	प्रत्यागम पृष्ठभागः();
 }
 
-ContentListing* ContentListing::open_option(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_option(ध्रुव string &text,
+	ध्रुव source_location location)
 {
 	log_assert(type.compare("root") == 0 || type.compare("usage") == 0);
-	add_content("option", text, location);
-	return back();
+	सङ्कलय_content("option", text, location);
+	प्रत्यागम पृष्ठभागः();
 }
 
-#define MAX_LINE_LEN 80
-void log_body_str(const std::string &pass_str, std::string indent_str, bool leading_newline=false, bool is_formatted=false) {
-	if (pass_str.empty())
-		return;
+#परिभाषय MAX_पङ्क्तिः_LEN 80
+शून्य log_body_str(ध्रुव std::string &pass_str, std::string indent_str, तार्किक leading_newline=असत्य, तार्किक is_formatted=असत्य) {
+	यदि (pass_str.रिक्तानि())
+		प्रत्यागम;
 	std::istringstream iss(pass_str);
-	if (leading_newline)
-		log("\n");
-	for (std::string line; std::getline(iss, line);) {
-		std::string message = indent_str;
-		if (is_formatted) {
-			message += line;
-		} else {
-			auto curr_len = indent_str.length();
-			std::istringstream lss(line);
-			for (std::string word; std::getline(lss, word, ' ');) {
-				while (word[0] == '`' && word.back() == '`')
-					word = word.substr(1, word.length()-2);
-				if (curr_len + word.length() >= MAX_LINE_LEN-1) {
+	यदि (leading_newline)
+		लघुगणकः("\n");
+	प्रति (std::string पङ्क्तिः; std::getline(iss, पङ्क्तिः);) {
+		std::string सन्देशः_2 = indent_str;
+		यदि (is_formatted) {
+			सन्देशः_2 += पङ्क्तिः;
+		} अन्यथा {
+			स्वचालित curr_len = indent_str.दीर्घता_2();
+			std::istringstream lss(पङ्क्तिः);
+			प्रति (std::string word; std::getline(lss, word, ' ');) {
+				यावत् (word[0] == '`' && word.पृष्ठभागः() == '`')
+					word = word.substr(1, word.दीर्घता_2()-2);
+				यदि (curr_len + word.दीर्घता_2() >= MAX_पङ्क्तिः_LEN-1) {
 					curr_len = 0;
-					log("%s\n", message);
-					message = indent_str;
+					लघुगणकः("%s\n", सन्देशः_2);
+					सन्देशः_2 = indent_str;
 				}
-				if (word.length()) {
-					message += word + " ";
-					curr_len += word.length() + 1;
+				यदि (word.दीर्घता_2()) {
+					सन्देशः_2 += word + " ";
+					curr_len += word.दीर्घता_2() + 1;
 				}
 			}
 		}
-		log("%s\n", message);
+		लघुगणकः("%s\n", सन्देशः_2);
 	}
 }
-void log_body(const ContentListing &content, int indent=0, bool leading_newline=false) {
+शून्य log_body(ध्रुव ContentListing &content, पूर्णाङ्क indent=0, तार्किक leading_newline=असत्य) {
 	std::string indent_str(indent*4, ' ');
 	log_body_str(content.body, indent_str, leading_newline, content.type.compare("code") == 0);
 }
 
-PrettyHelp *current_help = nullptr;
+PrettyHelp *current_help = शून्यसूचकः;
 
 PrettyHelp::PrettyHelp()
 {
-	_prior = current_help;
-	_root_listing = ContentListing("root", "");
+	प्राक् = current_help;
+	मूलम्_listing = ContentListing("root", "");
 
-	current_help = this;
+	current_help = एतत्;
 }
 
 PrettyHelp::~PrettyHelp()
 {
-	current_help = _prior;
+	current_help = प्राक्;
 }
 
 PrettyHelp *PrettyHelp::get_current()
 {
-	if (current_help == nullptr)
-		new PrettyHelp();
-	return current_help;
+	यदि (current_help == शून्यसूचकः)
+		नूतन PrettyHelp();
+	प्रत्यागम current_help;
 }
 
-void PrettyHelp::log_help() const
+शून्य PrettyHelp::log_help() ध्रुव
 {
-	for (auto &content : _root_listing) {
-		if (content.type.compare("usage") == 0) {
-			log_body(content, 1, true);
-			log("\n");
-		} else if (content.type.compare("option") == 0) {
+	प्रति (स्वचालित &content : मूलम्_listing) {
+		यदि (content.type.compare("usage") == 0) {
+			log_body(content, 1, सत्य);
+			लघुगणकः("\n");
+		} अन्यथा यदि (content.type.compare("option") == 0) {
 			log_body(content, 1);
-			for (auto text : content) {
+			प्रति (स्वचालित text : content) {
 				log_body(text, 2);
-				log("\n");
+				लघुगणकः("\n");
 			}
-		} else {
+		} अन्यथा {
 			log_body(content, 0);
-			log("\n");
+			लघुगणकः("\n");
 		}
 	}
 }

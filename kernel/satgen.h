@@ -17,285 +17,285 @@
  *
  */
 
-#ifndef SATGEN_H
-#define SATGEN_H
+#यदि_अपरिभाषितम् SATGEN_H
+#परिभाषय SATGEN_H
 
-#include "kernel/rtlil.h"
-#include "kernel/sigtools.h"
-#include "kernel/celltypes.h"
-#include "kernel/macc.h"
+#अन्तर्भाव "kernel/rtlil.h"
+#अन्तर्भाव "kernel/sigtools.h"
+#अन्तर्भाव "kernel/celltypes.h"
+#अन्तर्भाव "kernel/macc.h"
 
-#include "libs/ezsat/ezminisat.h"
+#अन्तर्भाव "libs/ezsat/ezminisat.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // defined in kernel/register.cc
-extern struct SatSolver *yosys_satsolver_list;
-extern struct SatSolver *yosys_satsolver;
+बाह्य संरचना SatSolver *yosys_satsolver_list;
+बाह्य संरचना SatSolver *yosys_satsolver;
 
-struct SatSolver
+संरचना SatSolver
 {
 	string name;
-	SatSolver *next;
-	virtual ezSAT *create() = 0;
+	SatSolver *अग्र;
+	आभास ezSAT *create() = 0;
 
 	SatSolver(string name) : name(name) {
-		next = yosys_satsolver_list;
+		अग्र = yosys_satsolver_list;
 		yosys_satsolver_list = this;
 	}
 
-	virtual ~SatSolver() {
-		auto p = &yosys_satsolver_list;
-		while (*p) {
-			if (*p == this)
-				*p = next;
-			else
-				p = &(*p)->next;
+	आभास ~SatSolver() {
+		स्वचालित p = &yosys_satsolver_list;
+		यावत् (*p) {
+			यदि (*p == this)
+				*p = अग्र;
+			अन्यथा
+				p = &(*p)->अग्र;
 		}
-		if (yosys_satsolver == this)
+		यदि (yosys_satsolver == this)
 			yosys_satsolver = yosys_satsolver_list;
 	}
 };
 
-struct ezSatPtr : public std::unique_ptr<ezSAT> {
+संरचना ezSatPtr : सार्वजनिक std::unique_ptr<ezSAT> {
 	ezSatPtr() : unique_ptr<ezSAT>(yosys_satsolver->create()) { }
 	explicit ezSatPtr(SatSolver *solver) : unique_ptr<ezSAT>((solver ? solver : yosys_satsolver)->create()) { }
 };
 
-struct SatGen
+संरचना SatGen
 {
 	ezSAT *ez;
-	const SigMap *sigmap;
-	std::string prefix;
+	ध्रुव SigMap *sigmap;
+	std::string उपसर्गः_2;
 	SigPool initial_state;
 	std::map<std::string, RTLIL::SigSpec> asserts_a, asserts_en;
 	std::map<std::string, RTLIL::SigSpec> assumes_a, assumes_en;
-	std::map<std::string, std::map<RTLIL::SigBit, int>> imported_signals;
-	std::map<std::pair<std::string, int>, bool> initstates;
+	std::map<std::string, std::map<RTLIL::SigBit, पूर्णाङ्क>> imported_सङ्केताः;
+	std::map<std::pair<std::string, पूर्णाङ्क>, bool> initstates;
 	bool ignore_div_by_zero;
 	bool model_undef;
 	bool def_formal = false;
 	bool model_barriers = false;
 
-	SatGen(ezSAT *ez, const SigMap *sigmap, std::string prefix = std::string()) :
-			ez(ez), sigmap(sigmap), prefix(prefix), ignore_div_by_zero(false), model_undef(false)
+	SatGen(ezSAT *ez, ध्रुव SigMap *sigmap, std::string उपसर्गः_2 = std::string()) :
+			ez(ez), sigmap(sigmap), उपसर्गः_2(उपसर्गः_2), ignore_div_by_zero(false), model_undef(false)
 	{
 	}
 
-	void setContext(const SigMap *sigmap, std::string prefix = std::string())
+	शून्य समुच्चयः_Context(ध्रुव SigMap *sigmap, std::string उपसर्गः_2 = std::string())
 	{
 		this->sigmap = sigmap;
-		this->prefix = prefix;
+		this->उपसर्गः_2 = उपसर्गः_2;
 	}
 
-	std::vector<int> importSigSpecWorker(RTLIL::SigSpec sig, std::string &pf, bool undef_mode, bool dup_undef)
+	std::सदिशम्<पूर्णाङ्क> import_Sig_Spec_कार्यकर्ता(RTLIL::SigSpec sig, std::string &pf, bool undef_बहुलकम्, bool dup_undef)
 	{
-		log_assert(!undef_mode || model_undef);
+		log_assert(!undef_बहुलकम् || model_undef);
 		sigmap->apply(sig);
 
-		std::vector<int> vec;
-		vec.reserve(GetSize(sig));
+		std::सदिशम्<पूर्णाङ्क> vec;
+		vec.reserve(Get_आकार(sig));
 
-		for (auto &bit : sig)
-			if (bit.wire == NULL) {
-				if (model_undef && dup_undef && bit == RTLIL::State::Sx)
-					vec.push_back(ez->frozen_literal());
-				else
-					vec.push_back(bit == (undef_mode ? RTLIL::State::Sx : RTLIL::State::S1) ? ez->CONST_TRUE : ez->CONST_FALSE);
-			} else {
+		प्रति (स्वचालित &bit : sig)
+			यदि (bit.wire == रिक्त) {
+				यदि (model_undef && dup_undef && bit == RTLIL::State::Sx)
+					vec.प्रक्षिप_पृष्ठभागः(ez->frozen_literal());
+				अन्यथा
+					vec.प्रक्षिप_पृष्ठभागः(bit == (undef_बहुलकम् ? RTLIL::State::Sx : RTLIL::State::S1) ? ez->CONST_TRUE : ez->CONST_FALSE);
+			} अन्यथा {
 				std::string wire_name = bit.wire->name.unescape();
 				std::string name = pf +
-					(bit.wire->width == 1 ? wire_name : stringf("%s [%d]", wire_name, bit.offset));
-				vec.push_back(ez->frozen_literal(name));
-				imported_signals[pf][bit] = vec.back();
+					(bit.wire->विस्तारः == 1 ? wire_name : stringf("%s [%d]", wire_name, bit.विस्थापनम्));
+				vec.प्रक्षिप_पृष्ठभागः(ez->frozen_literal(name));
+				imported_सङ्केताः[pf][bit] = vec.पृष्ठभागः();
 			}
-		return vec;
+		प्रत्यागम vec;
 	}
 
-	std::vector<int> importSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::सदिशम्<पूर्णाङ्क> importSigSpec(RTLIL::SigSpec sig, पूर्णाङ्क timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, false, false);
+		std::string pf = उपसर्गः_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		प्रत्यागम import_Sig_Spec_कार्यकर्ता(sig, pf, false, false);
 	}
 
-	std::vector<int> importDefSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::सदिशम्<पूर्णाङ्क> importDefSigSpec(RTLIL::SigSpec sig, पूर्णाङ्क timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, false, true);
+		std::string pf = उपसर्गः_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		प्रत्यागम import_Sig_Spec_कार्यकर्ता(sig, pf, false, true);
 	}
 
-	std::vector<int> importUndefSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::सदिशम्<पूर्णाङ्क> importUndefSigSpec(RTLIL::SigSpec sig, पूर्णाङ्क timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = "undef:" + prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, true, false);
+		std::string pf = "undef:" + उपसर्गः_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		प्रत्यागम import_Sig_Spec_कार्यकर्ता(sig, pf, true, false);
 	}
 
-	int importSigBit(RTLIL::SigBit bit, int timestep = -1)
+	पूर्णाङ्क importSigBit(RTLIL::SigBit bit, पूर्णाङ्क timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, false, false).front();
+		std::string pf = उपसर्गः_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		प्रत्यागम import_Sig_Spec_कार्यकर्ता(bit, pf, false, false).front();
 	}
 
-	int importDefSigBit(RTLIL::SigBit bit, int timestep = -1)
+	पूर्णाङ्क importDefSigBit(RTLIL::SigBit bit, पूर्णाङ्क timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, false, true).front();
+		std::string pf = उपसर्गः_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		प्रत्यागम import_Sig_Spec_कार्यकर्ता(bit, pf, false, true).front();
 	}
 
-	int importUndefSigBit(RTLIL::SigBit bit, int timestep = -1)
+	पूर्णाङ्क importUndefSigBit(RTLIL::SigBit bit, पूर्णाङ्क timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = "undef:" + prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, true, false).front();
+		std::string pf = "undef:" + उपसर्गः_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		प्रत्यागम import_Sig_Spec_कार्यकर्ता(bit, pf, true, false).front();
 	}
 
-	bool importedSigBit(RTLIL::SigBit bit, int timestep = -1)
+	bool importedSigBit(RTLIL::SigBit bit, पूर्णाङ्क timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return imported_signals[pf].count(bit) != 0;
+		std::string pf = उपसर्गः_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		प्रत्यागम imported_सङ्केताः[pf].गणनम्(bit) != 0;
 	}
 
-	void getAsserts(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, int timestep = -1)
+	शून्य getAsserts(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, पूर्णाङ्क timestep = -1)
 	{
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		std::string pf = उपसर्गः_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
 		sig_a = asserts_a[pf];
 		sig_en = asserts_en[pf];
 	}
 
-	void getAssumes(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, int timestep = -1)
+	शून्य getAssumes(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, पूर्णाङ्क timestep = -1)
 	{
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		std::string pf = उपसर्गः_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
 		sig_a = assumes_a[pf];
 		sig_en = assumes_en[pf];
 	}
 
-	int importAsserts(int timestep = -1)
+	पूर्णाङ्क importAsserts(पूर्णाङ्क timestep = -1)
 	{
-		std::vector<int> check_bits, enable_bits;
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		if (model_undef) {
-			check_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_a[pf], timestep)), importDefSigSpec(asserts_a[pf], timestep));
-			enable_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_en[pf], timestep)), importDefSigSpec(asserts_en[pf], timestep));
-		} else {
-			check_bits = importDefSigSpec(asserts_a[pf], timestep);
-			enable_bits = importDefSigSpec(asserts_en[pf], timestep);
+		std::सदिशम्<पूर्णाङ्क> check_द्वयङ्काः, enable_द्वयङ्काः;
+		std::string pf = उपसर्गः_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		यदि (model_undef) {
+			check_द्वयङ्काः = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_a[pf], timestep)), importDefSigSpec(asserts_a[pf], timestep));
+			enable_द्वयङ्काः = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_en[pf], timestep)), importDefSigSpec(asserts_en[pf], timestep));
+		} अन्यथा {
+			check_द्वयङ्काः = importDefSigSpec(asserts_a[pf], timestep);
+			enable_द्वयङ्काः = importDefSigSpec(asserts_en[pf], timestep);
 		}
-		return ez->vec_reduce_and(ez->vec_or(check_bits, ez->vec_not(enable_bits)));
+		प्रत्यागम ez->vec_reduce_and(ez->vec_or(check_द्वयङ्काः, ez->vec_not(enable_द्वयङ्काः)));
 	}
 
-	int importAssumes(int timestep = -1)
+	पूर्णाङ्क importAssumes(पूर्णाङ्क timestep = -1)
 	{
-		std::vector<int> check_bits, enable_bits;
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		if (model_undef) {
-			check_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_a[pf], timestep)), importDefSigSpec(assumes_a[pf], timestep));
-			enable_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_en[pf], timestep)), importDefSigSpec(assumes_en[pf], timestep));
-		} else {
-			check_bits = importDefSigSpec(assumes_a[pf], timestep);
-			enable_bits = importDefSigSpec(assumes_en[pf], timestep);
+		std::सदिशम्<पूर्णाङ्क> check_द्वयङ्काः, enable_द्वयङ्काः;
+		std::string pf = उपसर्गः_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		यदि (model_undef) {
+			check_द्वयङ्काः = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_a[pf], timestep)), importDefSigSpec(assumes_a[pf], timestep));
+			enable_द्वयङ्काः = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_en[pf], timestep)), importDefSigSpec(assumes_en[pf], timestep));
+		} अन्यथा {
+			check_द्वयङ्काः = importDefSigSpec(assumes_a[pf], timestep);
+			enable_द्वयङ्काः = importDefSigSpec(assumes_en[pf], timestep);
 		}
-		return ez->vec_reduce_and(ez->vec_or(check_bits, ez->vec_not(enable_bits)));
+		प्रत्यागम ez->vec_reduce_and(ez->vec_or(check_द्वयङ्काः, ez->vec_not(enable_द्वयङ्काः)));
 	}
 
-	int signals_eq(RTLIL::SigSpec lhs, RTLIL::SigSpec rhs, int timestep_lhs = -1, int timestep_rhs = -1)
+	पूर्णाङ्क सङ्केताः_eq(RTLIL::SigSpec lhs, RTLIL::SigSpec rhs, पूर्णाङ्क timestep_lhs = -1, पूर्णाङ्क timestep_rhs = -1)
 	{
-		if (timestep_rhs < 0)
+		यदि (timestep_rhs < 0)
 			timestep_rhs = timestep_lhs;
 
-		log_assert(lhs.size() == rhs.size());
+		log_assert(lhs.आकार() == rhs.आकार());
 
-		std::vector<int> vec_lhs = importSigSpec(lhs, timestep_lhs);
-		std::vector<int> vec_rhs = importSigSpec(rhs, timestep_rhs);
+		std::सदिशम्<पूर्णाङ्क> vec_lhs = importSigSpec(lhs, timestep_lhs);
+		std::सदिशम्<पूर्णाङ्क> vec_rhs = importSigSpec(rhs, timestep_rhs);
 
-		if (!model_undef)
-			return ez->vec_eq(vec_lhs, vec_rhs);
+		यदि (!model_undef)
+			प्रत्यागम ez->vec_eq(vec_lhs, vec_rhs);
 
-		std::vector<int> undef_lhs = importUndefSigSpec(lhs, timestep_lhs);
-		std::vector<int> undef_rhs = importUndefSigSpec(rhs, timestep_rhs);
+		std::सदिशम्<पूर्णाङ्क> undef_lhs = importUndefSigSpec(lhs, timestep_lhs);
+		std::सदिशम्<पूर्णाङ्क> undef_rhs = importUndefSigSpec(rhs, timestep_rhs);
 
-		std::vector<int> eq_bits;
-		for (int i = 0; i < lhs.size(); i++)
-			eq_bits.push_back(ez->AND(ez->IFF(undef_lhs.at(i), undef_rhs.at(i)),
+		std::सदिशम्<पूर्णाङ्क> eq_द्वयङ्काः;
+		प्रति (पूर्णाङ्क i = 0; i < lhs.आकार(); i++)
+			eq_द्वयङ्काः.प्रक्षिप_पृष्ठभागः(ez->AND(ez->IFF(undef_lhs.at(i), undef_rhs.at(i)),
 					ez->IFF(ez->OR(vec_lhs.at(i), undef_lhs.at(i)), ez->OR(vec_rhs.at(i), undef_rhs.at(i)))));
-		return ez->expression(ezSAT::OpAnd, eq_bits);
+		प्रत्यागम ez->expression(ezSAT::OpAnd, eq_द्वयङ्काः);
 	}
 
-	void extendSignalWidth(std::vector<int> &vec_a, std::vector<int> &vec_b, RTLIL::Cell *cell, size_t y_width = 0, bool forced_signed = false)
+	शून्य extend_Signal_विस्तारः(std::सदिशम्<पूर्णाङ्क> &vec_a, std::सदिशम्<पूर्णाङ्क> &vec_b, RTLIL::Cell *cell, आकार_t y_विस्तारः = 0, bool forced_signed = false)
 	{
 		bool is_signed = forced_signed;
-		if (!forced_signed && cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters.count(ID::B_SIGNED) > 0)
+		यदि (!forced_signed && cell->parameters.गणनम्(ID::A_SIGNED) > 0 && cell->parameters.गणनम्(ID::B_SIGNED) > 0)
 			is_signed = cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool();
-		while (vec_a.size() < vec_b.size() || vec_a.size() < y_width)
-			vec_a.push_back(is_signed && vec_a.size() > 0 ? vec_a.back() : ez->CONST_FALSE);
-		while (vec_b.size() < vec_a.size() || vec_b.size() < y_width)
-			vec_b.push_back(is_signed && vec_b.size() > 0 ? vec_b.back() : ez->CONST_FALSE);
+		यावत् (vec_a.आकार() < vec_b.आकार() || vec_a.आकार() < y_विस्तारः)
+			vec_a.प्रक्षिप_पृष्ठभागः(is_signed && vec_a.आकार() > 0 ? vec_a.पृष्ठभागः() : ez->CONST_FALSE);
+		यावत् (vec_b.आकार() < vec_a.आकार() || vec_b.आकार() < y_विस्तारः)
+			vec_b.प्रक्षिप_पृष्ठभागः(is_signed && vec_b.आकार() > 0 ? vec_b.पृष्ठभागः() : ez->CONST_FALSE);
 	}
 
-	void extendSignalWidth(std::vector<int> &vec_a, std::vector<int> &vec_b, std::vector<int> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
+	शून्य extend_Signal_विस्तारः(std::सदिशम्<पूर्णाङ्क> &vec_a, std::सदिशम्<पूर्णाङ्क> &vec_b, std::सदिशम्<पूर्णाङ्क> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
 	{
-		extendSignalWidth(vec_a, vec_b, cell, vec_y.size(), forced_signed);
-		while (vec_y.size() < vec_a.size())
-			vec_y.push_back(ez->literal());
+		extend_Signal_विस्तारः(vec_a, vec_b, cell, vec_y.आकार(), forced_signed);
+		यावत् (vec_y.आकार() < vec_a.आकार())
+			vec_y.प्रक्षिप_पृष्ठभागः(ez->literal());
 	}
 
-	void extendSignalWidthUnary(std::vector<int> &vec_a, std::vector<int> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
+	शून्य extend_Signal_विस्तारः_Unary(std::सदिशम्<पूर्णाङ्क> &vec_a, std::सदिशम्<पूर्णाङ्क> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
 	{
-		bool is_signed = forced_signed || (cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool());
-		while (vec_a.size() < vec_y.size())
-			vec_a.push_back(is_signed && vec_a.size() > 0 ? vec_a.back() : ez->CONST_FALSE);
-		while (vec_y.size() < vec_a.size())
-			vec_y.push_back(ez->literal());
+		bool is_signed = forced_signed || (cell->parameters.गणनम्(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool());
+		यावत् (vec_a.आकार() < vec_y.आकार())
+			vec_a.प्रक्षिप_पृष्ठभागः(is_signed && vec_a.आकार() > 0 ? vec_a.पृष्ठभागः() : ez->CONST_FALSE);
+		यावत् (vec_y.आकार() < vec_a.आकार())
+			vec_y.प्रक्षिप_पृष्ठभागः(ez->literal());
 	}
 
-	void undefGating(std::vector<int> &vec_y, std::vector<int> &vec_yy, std::vector<int> &vec_undef)
+	शून्य undefGating(std::सदिशम्<पूर्णाङ्क> &vec_y, std::सदिशम्<पूर्णाङ्क> &vec_yy, std::सदिशम्<पूर्णाङ्क> &vec_undef)
 	{
 		log_assert(model_undef);
-		log_assert(vec_y.size() == vec_yy.size());
-		if (vec_y.size() > vec_undef.size()) {
-			std::vector<int> trunc_y(vec_y.begin(), vec_y.begin() + vec_undef.size());
-			std::vector<int> trunc_yy(vec_yy.begin(), vec_yy.begin() + vec_undef.size());
+		log_assert(vec_y.आकार() == vec_yy.आकार());
+		यदि (vec_y.आकार() > vec_undef.आकार()) {
+			std::सदिशम्<पूर्णाङ्क> trunc_y(vec_y.begin(), vec_y.begin() + vec_undef.आकार());
+			std::सदिशम्<पूर्णाङ्क> trunc_yy(vec_yy.begin(), vec_yy.begin() + vec_undef.आकार());
 			ez->assume(ez->expression(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(trunc_y, trunc_yy))));
-		} else {
-			log_assert(vec_y.size() == vec_undef.size());
+		} अन्यथा {
+			log_assert(vec_y.आकार() == vec_undef.आकार());
 			ez->assume(ez->expression(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(vec_y, vec_yy))));
 		}
 	}
 
-	std::pair<std::vector<int>, std::vector<int>> mux(int s, int undef_s, const std::vector<int> &a, const std::vector<int> &undef_a, const std::vector<int> &b, const std::vector<int> &undef_b) {
-		std::vector<int> res;
-		std::vector<int> undef_res;
+	std::pair<std::सदिशम्<पूर्णाङ्क>, std::सदिशम्<पूर्णाङ्क>> mux(पूर्णाङ्क s, पूर्णाङ्क undef_s, ध्रुव std::सदिशम्<पूर्णाङ्क> &a, ध्रुव std::सदिशम्<पूर्णाङ्क> &undef_a, ध्रुव std::सदिशम्<पूर्णाङ्क> &b, ध्रुव std::सदिशम्<पूर्णाङ्क> &undef_b) {
+		std::सदिशम्<पूर्णाङ्क> res;
+		std::सदिशम्<पूर्णाङ्क> undef_res;
 		res = ez->vec_ite(s, b, a);
-		if (model_undef) {
-			std::vector<int> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
-			std::vector<int> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
+		यदि (model_undef) {
+			std::सदिशम्<पूर्णाङ्क> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
+			std::सदिशम्<पूर्णाङ्क> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
 			undef_res = ez->vec_ite(undef_s, undef_ab, ez->vec_ite(s, undef_b, undef_a));
 		}
-		return std::make_pair(res, undef_res);
+		प्रत्यागम std::make_pair(res, undef_res);
 	}
 
-	void undefGating(int y, int yy, int undef)
+	शून्य undefGating(पूर्णाङ्क y, पूर्णाङ्क yy, पूर्णाङ्क undef)
 	{
 		ez->assume(ez->OR(undef, ez->IFF(y, yy)));
 	}
 
-	void setInitState(int timestep)
+	शून्य समुच्चयः_Init_State(पूर्णाङ्क timestep)
 	{
-		auto key = make_pair(prefix, timestep);
-		log_assert(initstates.count(key) == 0 || initstates.at(key) == true);
-		initstates[key] = true;
+		स्वचालित कुञ्चिका = make_pair(उपसर्गः_2, timestep);
+		log_assert(initstates.गणनम्(कुञ्चिका) == 0 || initstates.at(कुञ्चिका) == true);
+		initstates[कुञ्चिका] = true;
 	}
 
-	bool importCell(RTLIL::Cell *cell, int timestep = -1);
+	bool importCell(RTLIL::Cell *cell, पूर्णाङ्क timestep = -1);
 };
 
-void report_missing_model(bool warn_only, RTLIL::Cell* cell);
+शून्य report_missing_model(bool warn_only, RTLIL::Cell* cell);
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_अन्तः
 
-#endif
+#यदि_अन्तः

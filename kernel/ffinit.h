@@ -17,207 +17,207 @@
  *
  */
 
-#ifndef FFINIT_H
-#define FFINIT_H
+#यदि_अपरिभाषितम् FFINIT_H
+#परिभाषय FFINIT_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/threading.h"
+#अन्तर्भाव "kernel/yosys.h"
+#अन्तर्भाव "kernel/sigtools.h"
+#अन्तर्भाव "kernel/threading.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct FfInitVals
+संरचना FfInitVals
 {
-	const SigMapView *sigmap;
+	ध्रुव SigMapView *sigmap;
 	dict<SigBit, std::pair<State,SigBit>> initbits;
 
-	void set(const SigMapView *sigmap_, RTLIL::Module *module)
+	शून्य समुच्चयः(ध्रुव SigMapView *sigmap_, RTLIL::Module *module)
 	{
 		sigmap = sigmap_;
 		initbits.clear();
-		for (auto wire : module->wires())
-			if (wire->attributes.count(ID::init))
+		प्रति (स्वचालित wire : module->wires())
+			यदि (wire->गुणाः.गणनम्(ID::init))
 				process_wire(wire);
 	}
 
-	void process_wire(RTLIL::Wire *wire)
+	शून्य process_wire(RTLIL::Wire *wire)
 	{
 		SigSpec wirebits = (*sigmap)(wire);
-		Const initval = wire->attributes.at(ID::init);
+		Const initval = wire->गुणाः.at(ID::init);
 
-		for (int i = 0; i < GetSize(wirebits) && i < GetSize(initval); i++)
+		प्रति (पूर्णाङ्क i = 0; i < Get_आकार(wirebits) && i < Get_आकार(initval); i++)
 		{
 			SigBit bit = wirebits[i];
 			State val = initval[i];
 
-			if (val != State::S0 && val != State::S1 && bit.wire != nullptr)
-				continue;
+			यदि (val != State::S0 && val != State::S1 && bit.wire != nullptr)
+				अनुवर्त;
 
-			if (initbits.count(bit)) {
-				if (initbits.at(bit).first != val)
+			यदि (initbits.गणनम्(bit)) {
+				यदि (initbits.at(bit).first != val)
 					log_error("Conflicting init values for signal %s (%s = %s != %s).\n",
 							log_signal(bit), log_signal(SigBit(wire, i)),
 							log_signal(val), log_signal(initbits.at(bit).first));
-				continue;
+				अनुवर्त;
 			}
 
 			initbits[bit] = std::make_pair(val,SigBit(wire,i));
 		}
 	}
 
-	void set_parallel(const SigMapView *sigmap_, ParallelDispatchThreadPool &thread_pool, RTLIL::Module *module)
+	शून्य समुच्चयः_parallel(ध्रुव SigMapView *sigmap_, ParallelDispatchThreadPool &thread_pool, RTLIL::Module *module)
 	{
 		sigmap = sigmap_;
 		initbits.clear();
 
-		const RTLIL::Module *const_module = module;
-		ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_size(0, module->wires_size(), 1000));
-		ShardedVector<RTLIL::Wire*> init_wires(subpool);
-		subpool.run([const_module, &init_wires](const ParallelDispatchThreadPool::RunCtx &ctx) {
-			for (int i : ctx.item_range(const_module->wires_size())) {
+		ध्रुव RTLIL::Module *const_module = module;
+		ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_आकार(0, module->wires_आकार(), 1000));
+		Sharded_सदिशम्<RTLIL::Wire*> init_wires(subpool);
+		subpool.सततम्([const_module, &init_wires](ध्रुव ParallelDispatchThreadPool::सततम्_Ctx &ctx) {
+			प्रति (पूर्णाङ्क i : ctx.item_range(const_module->wires_आकार())) {
 				RTLIL::Wire *wire = const_module->wire_at(i);
-				if (wire->attributes.count(ID::init))
-					init_wires.insert(ctx, wire);
+				यदि (wire->गुणाः.गणनम्(ID::init))
+					init_wires.निवेशय(ctx, wire);
 			}
 		});
 
-		for (RTLIL::Wire *wire : init_wires)
+		प्रति (RTLIL::Wire *wire : init_wires)
 			process_wire(wire);
 	}
 
-	RTLIL::State operator()(RTLIL::SigBit bit) const
+	RTLIL::State संक्रियकः()(RTLIL::SigBit bit) ध्रुव
 	{
-		auto it = initbits.find((*sigmap)(bit));
-		if (it != initbits.end())
-			return it->second.first;
-		else
-			return State::Sx;
+		स्वचालित it = initbits.find((*sigmap)(bit));
+		यदि (it != initbits.अन्तः())
+			प्रत्यागम it->second.first;
+		अन्यथा
+			प्रत्यागम State::Sx;
 	}
 
-	RTLIL::Const operator()(const RTLIL::SigSpec &sig) const
+	RTLIL::Const संक्रियकः()(ध्रुव RTLIL::SigSpec &sig) ध्रुव
 	{
-		RTLIL::Const::Builder res_bits(GetSize(sig));
-		for (auto bit : sig)
-			res_bits.push_back((*this)(bit));
-		return res_bits.build();
+		RTLIL::Const::Builder res_द्वयङ्काः(Get_आकार(sig));
+		प्रति (स्वचालित bit : sig)
+			res_द्वयङ्काः.प्रक्षिप_पृष्ठभागः((*this)(bit));
+		प्रत्यागम res_द्वयङ्काः.build();
 	}
 
-	void set_init(RTLIL::SigBit bit, RTLIL::State val)
+	शून्य समुच्चयः_init(RTLIL::SigBit bit, RTLIL::State val)
 	{
 		SigBit mbit = (*sigmap)(bit);
 		SigBit abit = bit;
-		auto it = initbits.find(mbit);
-		if (it != initbits.end())
+		स्वचालित it = initbits.find(mbit);
+		यदि (it != initbits.अन्तः())
 			abit = it->second.second;
-		else if (val == State::Sx)
-			return;
+		अन्यथा यदि (val == State::Sx)
+			प्रत्यागम;
 		log_assert(abit.wire);
 		initbits[mbit] = std::make_pair(val,abit);
-		auto it2 = abit.wire->attributes.find(ID::init);
-		if (it2 != abit.wire->attributes.end()) {
-			it2->second.set(abit.offset, val);
-			if (it2->second.is_fully_undef())
-				abit.wire->attributes.erase(it2);
-		} else if (val != State::Sx) {
-			Const cval(State::Sx, GetSize(abit.wire));
-			cval.set(abit.offset, val);
-			abit.wire->attributes[ID::init] = cval;
+		स्वचालित it2 = abit.wire->गुणाः.find(ID::init);
+		यदि (it2 != abit.wire->गुणाः.अन्तः()) {
+			it2->second.समुच्चयः(abit.विस्थापनम्, val);
+			यदि (it2->second.is_fully_undef())
+				abit.wire->गुणाः.erase(it2);
+		} अन्यथा यदि (val != State::Sx) {
+			Const cval(State::Sx, Get_आकार(abit.wire));
+			cval.समुच्चयः(abit.विस्थापनम्, val);
+			abit.wire->गुणाः[ID::init] = cval;
 		}
 	}
 
-	void set_init(const RTLIL::SigSpec &sig, RTLIL::Const val)
+	शून्य समुच्चयः_init(ध्रुव RTLIL::SigSpec &sig, RTLIL::Const val)
 	{
-		log_assert(GetSize(sig) == GetSize(val));
-		for (int i = 0; i < GetSize(sig); i++)
-			set_init(sig[i], val[i]);
+		log_assert(Get_आकार(sig) == Get_आकार(val));
+		प्रति (पूर्णाङ्क i = 0; i < Get_आकार(sig); i++)
+			समुच्चयः_init(sig[i], val[i]);
 	}
 
-	void remove_init(RTLIL::SigBit bit)
+	शून्य remove_init(RTLIL::SigBit bit)
 	{
-		set_init(bit, State::Sx);
+		समुच्चयः_init(bit, State::Sx);
 	}
 
-	void remove_init(const RTLIL::SigSpec &sig)
+	शून्य remove_init(ध्रुव RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sig)
+		प्रति (स्वचालित bit : sig)
 			remove_init(bit);
 	}
 
 	// Move $barrier output init value to it's input
-	void move_barrier_inits(RTLIL::Module *module)
+	शून्य move_barrier_inits(RTLIL::Module *module)
 	{
-		dict<RTLIL::SigBit, RTLIL::SigBit> next;
-		for (auto cell : module->cells()) {
-			if (cell->type != ID($barrier))
-				continue;
-			RTLIL::SigSpec sig_y = (*sigmap)(cell->getPort(ID::Y)), sig_a = cell->getPort(ID::A);
-			for (int i = 0; i < GetSize(sig_y); i++)
-				next[sig_y[i]] = sig_a[i];
+		dict<RTLIL::SigBit, RTLIL::SigBit> अग्र;
+		प्रति (स्वचालित cell : module->cells()) {
+			यदि (cell->type != ID($barrier))
+				अनुवर्त;
+			RTLIL::SigSpec sig_y = (*sigmap)(cell->get_पत्तनम्(ID::Y)), sig_a = cell->get_पत्तनम्(ID::A);
+			प्रति (पूर्णाङ्क i = 0; i < Get_आकार(sig_y); i++)
+				अग्र[sig_y[i]] = sig_a[i];
 		}
-		if (next.empty() || initbits.empty())
-			return;
-		pool<RTLIL::SigBit> inputs = input_nets(module), moved;
-		for (auto [from, to] : next) {
+		यदि (अग्र.रिक्तानि() || initbits.रिक्तानि())
+			प्रत्यागम;
+		pool<RTLIL::SigBit> inputs = निवेशः_nets(module), moved;
+		प्रति (स्वचालित [from, गन्तव्यम्] : अग्र) {
 			RTLIL::State val = (*this)(from);
-			if (val == State::Sx)
-				continue;
-			moved.insert(from);
-			for (int i = 0; i < GetSize(next) && next.count((*sigmap)(to)); i++)
-				to = next.at((*sigmap)(to));
-			RTLIL::SigBit to_net = (*sigmap)(to);
-			if (to_net.wire == nullptr || inputs.count(to_net))
-				continue;
-			RTLIL::State to_val = (*this)(to);
-			if (to_val == State::Sx)
-				set_init(to, val);
-			else if (to_val != val)
+			यदि (val == State::Sx)
+				अनुवर्त;
+			moved.निवेशय(from);
+			प्रति (पूर्णाङ्क i = 0; i < Get_आकार(अग्र) && अग्र.गणनम्((*sigmap)(गन्तव्यम्)); i++)
+				गन्तव्यम् = अग्र.at((*sigmap)(गन्तव्यम्));
+			RTLIL::SigBit गन्तव्यम्_net = (*sigmap)(गन्तव्यम्);
+			यदि (गन्तव्यम्_net.wire == nullptr || inputs.गणनम्(गन्तव्यम्_net))
+				अनुवर्त;
+			RTLIL::State गन्तव्यम्_val = (*this)(गन्तव्यम्);
+			यदि (गन्तव्यम्_val == State::Sx)
+				समुच्चयः_init(गन्तव्यम्, val);
+			अन्यथा यदि (गन्तव्यम्_val != val)
 				log_error("Conflicting init values for signal %s (%s = %s != %s).\n",
-						log_signal(to), log_signal(from), log_signal(val), log_signal(to_val));
+						log_signal(गन्तव्यम्), log_signal(from), log_signal(val), log_signal(गन्तव्यम्_val));
 		}
-		if (!moved.empty())
+		यदि (!moved.रिक्तानि())
 			remove_net_inits(module, moved);
 	}
 
-	pool<RTLIL::SigBit> input_nets(RTLIL::Module *module) const
+	pool<RTLIL::SigBit> निवेशः_nets(RTLIL::Module *module) ध्रुव
 	{
 		pool<RTLIL::SigBit> nets;
-		for (auto wire : module->wires())
-			if (wire->port_input)
-				for (auto bit : (*sigmap)(wire))
-					nets.insert(bit);
-		return nets;
+		प्रति (स्वचालित wire : module->wires())
+			यदि (wire->पत्तनम्_निवेशः)
+				प्रति (स्वचालित bit : (*sigmap)(wire))
+					nets.निवेशय(bit);
+		प्रत्यागम nets;
 	}
 
-	void remove_net_inits(RTLIL::Module *module, const pool<RTLIL::SigBit> &nets)
+	शून्य remove_net_inits(RTLIL::Module *module, ध्रुव pool<RTLIL::SigBit> &nets)
 	{
-		for (auto bit : nets)
+		प्रति (स्वचालित bit : nets)
 			initbits.erase(bit);
-		for (auto wire : module->wires()) {
-			auto it = wire->attributes.find(ID::init);
-			if (it == wire->attributes.end())
-				continue;
-			for (int i = 0; i < GetSize(wire) && i < GetSize(it->second); i++)
-				if (nets.count((*sigmap)(RTLIL::SigBit(wire, i))))
-					it->second.set(i, State::Sx);
-			if (it->second.is_fully_undef())
-				wire->attributes.erase(it);
+		प्रति (स्वचालित wire : module->wires()) {
+			स्वचालित it = wire->गुणाः.find(ID::init);
+			यदि (it == wire->गुणाः.अन्तः())
+				अनुवर्त;
+			प्रति (पूर्णाङ्क i = 0; i < Get_आकार(wire) && i < Get_आकार(it->second); i++)
+				यदि (nets.गणनम्((*sigmap)(RTLIL::SigBit(wire, i))))
+					it->second.समुच्चयः(i, State::Sx);
+			यदि (it->second.is_fully_undef())
+				wire->गुणाः.erase(it);
 		}
 	}
 
-	void clear()
+	शून्य clear()
 	{
 		initbits.clear();
 	}
 
-	FfInitVals (const SigMapView *sigmap, RTLIL::Module *module)
+	FfInitVals (ध्रुव SigMapView *sigmap, RTLIL::Module *module)
 	{
-		set(sigmap, module);
+		समुच्चयः(sigmap, module);
 	}
 
 	FfInitVals () {}
 };
 
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_अन्तः
 
-#endif
+#यदि_अन्तः

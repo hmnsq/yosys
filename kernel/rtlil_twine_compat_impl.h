@@ -1,55 +1,55 @@
-#ifndef RTLIL_TWINE_COMPAT_IMPL_H
-#define RTLIL_TWINE_COMPAT_IMPL_H
+#यदि_अपरिभाषितम् RTLIL_TWINE_COMPAT_IMPL_H
+#परिभाषय RTLIL_TWINE_COMPAT_IMPL_H
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Winvalid-offsetof"
-#endif
+#यदि_परिभाषितम् __GNUC__
+#निर्देशः GCC diagnostic प्रक्षिप
+#निर्देशः GCC diagnostic ignored "-Winvalid-offsetof"
+#यदि_अन्तः
 
 namespace RTLIL {
 
-struct NameSlot {};
-struct CellTypeSlot {};
+संरचना NameSlot {};
+संरचना CellTypeSlot {};
 
-template<typename Owner, typename Slot>
-inline const Owner *OwnedId<Owner, Slot>::owner() const {
-	size_t offset;
-	if constexpr (std::is_same_v<Slot, NameSlot>) {
-		offset = offsetof(Owner, name);
-	} else {
+प्रतिरूपम्<typename Owner, typename Slot>
+अन्तःस्थ ध्रुव Owner *OwnedId<Owner, Slot>::owner() ध्रुव {
+	आकार_t विस्थापनम्;
+	यदि constexpr (std::is_same_v<Slot, NameSlot>) {
+		विस्थापनम् = offsetof(Owner, name);
+	} अन्यथा {
 		static_assert(std::is_same_v<Owner, Cell> && std::is_same_v<Slot, CellTypeSlot>);
-		offset = offsetof(Cell, type);
+		विस्थापनम् = offsetof(Cell, type);
 	}
-	return reinterpret_cast<const Owner *>(reinterpret_cast<const char *>(this) - offset);
+	प्रत्यागम reinterpret_cast<ध्रुव Owner *>(reinterpret_cast<ध्रुव वर्ण *>(this) - विस्थापनम्);
 }
 
-template<typename Owner, typename Slot>
-inline const TwinePool *OwnedId<Owner, Slot>::pool() const {
-	const Owner *o = owner();
-	if constexpr (std::is_same_v<Owner, Module>) {
-		return o->design ? &o->design->twines() : nullptr;
-	} else {
+प्रतिरूपम्<typename Owner, typename Slot>
+अन्तःस्थ ध्रुव TwinePool *OwnedId<Owner, Slot>::pool() ध्रुव {
+	ध्रुव Owner *o = owner();
+	यदि constexpr (std::is_same_v<Owner, Module>) {
+		प्रत्यागम o->design ? &o->design->twines() : nullptr;
+	} अन्यथा {
 		static_assert(std::is_same_v<Owner, Wire> || std::is_same_v<Owner, Cell>
-				|| std::is_same_v<Owner, Memory> || std::is_same_v<Owner, Process>);
-		return o->module && o->module->design ? &o->module->design->twines() : nullptr;
+				|| std::is_same_v<Owner, स्मृतिः> || std::is_same_v<Owner, Process>);
+		प्रत्यागम o->module && o->module->design ? &o->module->design->twines() : nullptr;
 	}
 }
 
-inline PooledName::PooledName(const Design *design, IdString id)
+अन्तःस्थ PooledName::PooledName(ध्रुव Design *design, IdString id)
 	: pool_(design ? &design->twines() : nullptr), id_(id) { }
 
-inline PooledName::PooledName(const Module *module, IdString id)
+अन्तःस्थ PooledName::PooledName(ध्रुव Module *module, IdString id)
 	: PooledName(module ? module->design : nullptr, id) { }
 
 }
 
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
+#यदि_परिभाषितम् __GNUC__
+#निर्देशः GCC diagnostic निष्कासय
+#यदि_अन्तः
 
-template<typename Derived>
-inline void log_dump_val_worker(const RTLIL::WrappedIdBase<Derived> &name) {
-	log("%s", static_cast<const Derived &>(name).unescape());
+प्रतिरूपम्<typename Derived>
+अन्तःस्थ शून्य log_dump_val_कार्यकर्ता(ध्रुव RTLIL::Wrapped_Id_आधारः<Derived> &name) {
+	लघुगणकः("%s", static_cast<ध्रुव Derived &>(name).unescape());
 }
 
-#endif
+#यदि_अन्तः

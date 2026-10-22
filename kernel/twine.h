@@ -1,27 +1,27 @@
-#ifndef YOSYS_TWINE_H
-#define YOSYS_TWINE_H
+#यदि_अपरिभाषितम् YOSYS_TWINE_H
+#परिभाषय YOSYS_TWINE_H
 
-#include "kernel/hashcons.h"
-#include "kernel/yosys_common.h"
+#अन्तर्भाव "kernel/hashcons.h"
+#अन्तर्भाव "kernel/yosys_common.h"
 
-#include <algorithm>
-#include <bit>
-#include <cstdint>
-#include <cstring>
-#include <deque>
-#include <limits>
-#include <span>
-#include <string>
-#include <string_view>
-#include <unordered_set>
-#include <variant>
-#include <vector>
+#अन्तर्भाव <algorithm>
+#अन्तर्भाव <bit>
+#अन्तर्भाव <cstdint>
+#अन्तर्भाव <cstring>
+#अन्तर्भाव <deque>
+#अन्तर्भाव <limits>
+#अन्तर्भाव <span>
+#अन्तर्भाव <string>
+#अन्तर्भाव <string_view>
+#अन्तर्भाव <unordered_set>
+#अन्तर्भाव <variant>
+#अन्तर्भाव <vector>
 
 YOSYS_NAMESPACE_BEGIN
 
-struct TwineSpec;
-struct TwinePool;
-struct IdString;
+संरचना TwineSpec;
+संरचना TwinePool;
+संरचना IdString;
 
 /**
  * A twine is a data structure designed to deduplicate prefixes.
@@ -45,379 +45,379 @@ struct IdString;
  * live in a global read-only pool, so they're an exception to that.
  */
 
-struct NullIdString {
-	constexpr operator IdString() const;
-	constexpr bool operator==(IdString ref) const;
+संरचना NullIdString {
+	constexpr संक्रियकः IdString() ध्रुव;
+	constexpr bool संक्रियकः==(IdString ref) ध्रुव;
 };
 
-struct IdString {
-private:
-#ifdef YOSYS_ENABLE_TWINE_PROVENANCE
-	using bits_t = uint64_t;
-#else
-	using bits_t = uint32_t;
-#endif
-	bits_t value;
+संरचना IdString {
+गुप्त:
+#यदि_परिभाषितम् YOSYS_ENABLE_TWINE_PROVENANCE
+	using द्वयङ्काः_t = uint64_t;
+#अन्यथा
+	using द्वयङ्काः_t = uint32_t;
+#यदि_अन्तः
+	द्वयङ्काः_t मानम्;
 
-	static constexpr int TWINE_WIDTH = std::numeric_limits<bits_t>::digits;
-	static constexpr int TWINE_PUBLIC_SHIFT = TWINE_WIDTH - 1;
-	static constexpr bits_t TWINE_PUBLIC_BIT = bits_t{1} << TWINE_PUBLIC_SHIFT;
-	static constexpr bits_t TWINE_NULL_VAL = ~bits_t{0};
-	static constexpr int TWINE_SERIAL_SHIFT = TWINE_WIDTH == 64 ? 32 : TWINE_PUBLIC_SHIFT;
-	static constexpr bits_t TWINE_INDEX_MASK = (bits_t{1} << TWINE_SERIAL_SHIFT) - 1;
-	static constexpr bits_t TWINE_SERIAL_MASK = bits_t(~(TWINE_INDEX_MASK | TWINE_PUBLIC_BIT));
+	स्थिर constexpr पूर्णाङ्क TWINE_विस्तारः = std::numeric_limits<द्वयङ्काः_t>::digits;
+	स्थिर constexpr पूर्णाङ्क TWINE_लौकिकम्_सरणम् = TWINE_विस्तारः - 1;
+	स्थिर constexpr द्वयङ्काः_t TWINE_लौकिकम्_BIT = द्वयङ्काः_t{1} << TWINE_लौकिकम्_सरणम्;
+	स्थिर constexpr द्वयङ्काः_t TWINE_NULL_VAL = ~द्वयङ्काः_t{0};
+	स्थिर constexpr पूर्णाङ्क TWINE_SERIAL_सरणम् = TWINE_विस्तारः == 64 ? 32 : TWINE_लौकिकम्_सरणम्;
+	स्थिर constexpr द्वयङ्काः_t TWINE_सूचकांक_आवरणम् = (द्वयङ्काः_t{1} << TWINE_SERIAL_सरणम्) - 1;
+	स्थिर constexpr द्वयङ्काः_t TWINE_SERIAL_आवरणम् = द्वयङ्काः_t(~(TWINE_सूचकांक_आवरणम् | TWINE_लौकिकम्_BIT));
 
-public:
-	static constexpr NullIdString Null{};
+सार्वजनिक:
+	स्थिर constexpr NullIdString Null{};
 
-	static constexpr size_t MAX_INDEX = TWINE_INDEX_MASK;
-	static constexpr size_t MAX_SERIAL = TWINE_SERIAL_MASK >> TWINE_SERIAL_SHIFT;
+	स्थिर constexpr आकार_t MAX_सूचकांक = TWINE_सूचकांक_आवरणम्;
+	स्थिर constexpr आकार_t MAX_SERIAL = TWINE_SERIAL_आवरणम् >> TWINE_SERIAL_सरणम्;
 
-	constexpr size_t raw() const {
-		return value == TWINE_NULL_VAL ? value : (value & ~TWINE_SERIAL_MASK);
+	constexpr आकार_t raw() ध्रुव {
+		प्रत्यागम मानम् == TWINE_NULL_VAL ? मानम् : (मानम् & ~TWINE_SERIAL_आवरणम्);
 	}
 
 	// raw() with the pool serial kept
-	constexpr size_t bits() const { return value; }
+	constexpr आकार_t द्वयङ्काः() ध्रुव { प्रत्यागम मानम्; }
 
-	constexpr size_t order_key() const { return std::rotl((bits_t) eq_key(), 1); }
+	constexpr आकार_t क्रमः_कुञ्चिका() ध्रुव { प्रत्यागम std::rotl((द्वयङ्काः_t) eq_कुञ्चिका(), 1); }
 
-	constexpr size_t serial() const {
-		return value == TWINE_NULL_VAL ? 0 : ((value & TWINE_SERIAL_MASK) >> TWINE_SERIAL_SHIFT);
+	constexpr आकार_t serial() ध्रुव {
+		प्रत्यागम मानम् == TWINE_NULL_VAL ? 0 : ((मानम् & TWINE_SERIAL_आवरणम्) >> TWINE_SERIAL_सरणम्);
 	}
 
-	constexpr IdString stamped(size_t pool_serial) const {
-		return value == TWINE_NULL_VAL ? *this
-			: IdString((value & ~TWINE_SERIAL_MASK)
-					| (bits_t(pool_serial << TWINE_SERIAL_SHIFT) & TWINE_SERIAL_MASK));
+	constexpr IdString stamped(आकार_t pool_serial) ध्रुव {
+		प्रत्यागम मानम् == TWINE_NULL_VAL ? *this
+			: IdString((मानम् & ~TWINE_SERIAL_आवरणम्)
+					| (द्वयङ्काः_t(pool_serial << TWINE_SERIAL_सरणम्) & TWINE_SERIAL_आवरणम्));
 	}
 
-	constexpr IdString() : value(TWINE_NULL_VAL) {}
-	explicit constexpr IdString(size_t val) : value((bits_t) val) {}
+	constexpr IdString() : मानम्(TWINE_NULL_VAL) {}
+	explicit constexpr IdString(आकार_t val) : मानम्((द्वयङ्काः_t) val) {}
 
-	constexpr size_t eq_key() const { return value & ~TWINE_SERIAL_MASK; }
+	constexpr आकार_t eq_कुञ्चिका() ध्रुव { प्रत्यागम मानम् & ~TWINE_SERIAL_आवरणम्; }
 
-	constexpr bool operator==(const IdString &rhs) const { return eq_key() == rhs.eq_key(); }
-	constexpr bool operator!=(const IdString &rhs) const { return eq_key() != rhs.eq_key(); }
-	constexpr std::strong_ordering operator<=>(const IdString &rhs) const {
-		return order_key() <=> rhs.order_key();
+	constexpr bool संक्रियकः==(ध्रुव IdString &rhs) ध्रुव { प्रत्यागम eq_कुञ्चिका() == rhs.eq_कुञ्चिका(); }
+	constexpr bool संक्रियकः!=(ध्रुव IdString &rhs) ध्रुव { प्रत्यागम eq_कुञ्चिका() != rhs.eq_कुञ्चिका(); }
+	constexpr std::strong_ordering संक्रियकः<=>(ध्रुव IdString &rhs) ध्रुव {
+		प्रत्यागम क्रमः_कुञ्चिका() <=> rhs.क्रमः_कुञ्चिका();
 	}
 
-	template <typename... Args>
-	constexpr bool in(const Args&... args) const {
-		return (in_one(args) || ...);
+	प्रतिरूपम् <typename... तर्काः_3>
+	constexpr bool अन्तर्(ध्रुव तर्काः_3&... तर्काः_2) ध्रुव {
+		प्रत्यागम (अन्तर्_one(तर्काः_2) || ...);
 	}
-	bool in(const pool<IdString> &rhs) const;
+	bool अन्तर्(ध्रुव pool<IdString> &rhs) ध्रुव;
 
 	// Instead of for example std::set<Cell*>
 	// use std::set<Cell*, IdString::compare_ptr_by_name<Cell>> if the order of cells in the
 	// set has an influence on the algorithm.
-	template<typename T> struct compare_ptr_by_name {
-		bool operator()(const T *a, const T *b) const {
-			return (a == nullptr || b == nullptr) ? (a < b) : (a->name < b->name);
+	प्रतिरूपम्<typename T> संरचना compare_ptr_by_name {
+		bool संक्रियकः()(ध्रुव T *a, ध्रुव T *b) ध्रुव {
+			प्रत्यागम (a == nullptr || b == nullptr) ? (a < b) : (a->name < b->name);
 		}
 	};
 
 	// A ref is "empty" when it names nothing at all.
-	constexpr bool empty() const { return value == TWINE_NULL_VAL; }
-	constexpr void clear() { value = TWINE_NULL_VAL; }
-	constexpr bool isPublic() const { return value != TWINE_NULL_VAL && (value & TWINE_PUBLIC_BIT); }
+	constexpr bool रिक्तानि() ध्रुव { प्रत्यागम मानम् == TWINE_NULL_VAL; }
+	constexpr शून्य clear() { मानम् = TWINE_NULL_VAL; }
+	constexpr bool is_लौकिकम्() ध्रुव { प्रत्यागम मानम् != TWINE_NULL_VAL && (मानम् & TWINE_लौकिकम्_BIT); }
 
-	constexpr IdString untag() const {
-		return value == TWINE_NULL_VAL ? *this : IdString(value & ~TWINE_PUBLIC_BIT);
+	constexpr IdString untag() ध्रुव {
+		प्रत्यागम मानम् == TWINE_NULL_VAL ? *this : IdString(मानम् & ~TWINE_लौकिकम्_BIT);
 	}
-	constexpr IdString tag(bool pub) const {
-		return value == TWINE_NULL_VAL ? *this : IdString(pub ? (value | TWINE_PUBLIC_BIT) : (value & ~TWINE_PUBLIC_BIT));
+	constexpr IdString चिह्नकम्(bool pub) ध्रुव {
+		प्रत्यागम मानम् == TWINE_NULL_VAL ? *this : IdString(pub ? (मानम् | TWINE_लौकिकम्_BIT) : (मानम् & ~TWINE_लौकिकम्_BIT));
 	}
 
-	std::string handle_token() const;
-	static size_t handle_token_prefix(std::string_view token, bool &is_public);
+	std::string handle_token() ध्रुव;
+	स्थिर आकार_t handle_token_उपसर्गः(std::string_view token, bool &is_लौकिकम्_2);
 
-private:
-	constexpr bool in_one(IdString rhs) const { return *this == rhs; }
-	bool in_one(const pool<IdString> &rhs) const;
+गुप्त:
+	constexpr bool अन्तर्_one(IdString rhs) ध्रुव { प्रत्यागम *this == rhs; }
+	bool अन्तर्_one(ध्रुव pool<IdString> &rhs) ध्रुव;
 };
 
-constexpr NullIdString::operator IdString() const { return IdString(); }
-constexpr bool NullIdString::operator==(IdString ref) const { return ref.empty(); }
+constexpr NullIdString::संक्रियकः IdString() ध्रुव { प्रत्यागम IdString(); }
+constexpr bool NullIdString::संक्रियकः==(IdString ref) ध्रुव { प्रत्यागम ref.रिक्तानि(); }
 
 namespace hashlib {
-	template<>
-	struct hash_ops<IdString> {
-		static inline bool cmp(IdString a, IdString b) { return a == b; }
-		[[nodiscard]] static inline Hasher hash(IdString id) {
+	प्रतिरूपम्<>
+	संरचना hash_ops<IdString> {
+		स्थिर अन्तःस्थ bool cmp(IdString a, IdString b) { प्रत्यागम a == b; }
+		[[nodiscard]] स्थिर अन्तःस्थ Hasher hash(IdString id) {
 			Hasher h;
-			h.force((Hasher::hash_t) id.eq_key());
-			return h;
+			h.force((Hasher::hash_t) id.eq_कुञ्चिका());
+			प्रत्यागम h;
 		}
-		[[nodiscard]] static inline Hasher hash_into(IdString id, Hasher h) {
-			h.hash64(id.eq_key());
-			return h;
+		[[nodiscard]] स्थिर अन्तःस्थ Hasher hash_into(IdString id, Hasher h) {
+			h.hash64(id.eq_कुञ्चिका());
+			प्रत्यागम h;
 		}
 	};
 }
 
-inline bool IdString::in_one(const pool<IdString> &rhs) const { return rhs.count(*this) != 0; }
-inline bool IdString::in(const pool<IdString> &rhs) const { return in_one(rhs); }
+अन्तःस्थ bool IdString::अन्तर्_one(ध्रुव pool<IdString> &rhs) ध्रुव { प्रत्यागम rhs.गणनम्(*this) != 0; }
+अन्तःस्थ bool IdString::अन्तर्(ध्रुव pool<IdString> &rhs) ध्रुव { प्रत्यागम अन्तर्_one(rhs); }
 
 
-enum : short {
-#define X(N) IDX_##N,
-#include "kernel/constids.inc"
-#undef X
-	STATIC_TWINE_END
+गणना : ह्रस्व {
+#परिभाषय X(N) IDX_##N,
+#अन्तर्भाव "kernel/constids.inc"
+#अपरिभाषय X
+	STATIC_TWINE_अन्तः
 };
 
-struct ID {
+संरचना ID {
 // Static ids are name handles: non-'$' constids were '\'-escaped publics,
 // so their handles carry the publicity bit baked in at compile time.
-#define X(N) static constexpr IdString N = IdString(IDX_##N).tag((#N)[0] != '$');
-#include "kernel/constids.inc"
-#undef X
+#परिभाषय X(N) स्थिर constexpr IdString N = IdString(IDX_##N).चिह्नकम्((#N)[0] != '$');
+#अन्तर्भाव "kernel/constids.inc"
+#अपरिभाषय X
 
-	static constexpr const char* static_names[] = {
-#define X(N) #N,
-#include "kernel/constids.inc"
-#undef X
+	स्थिर constexpr ध्रुव वर्ण* static_नामानि[] = {
+#परिभाषय X(N) #N,
+#अन्तर्भाव "kernel/constids.inc"
+#अपरिभाषय X
 	};
 
-	static constexpr IdString lookup(std::string_view name)
+	स्थिर constexpr IdString lookup(std::string_view name)
 	{
-		int low = 0, high = STATIC_TWINE_END;
-		while (high - low >= 2) {
-			int mid = (low + high) / 2;
-			if (name < static_names[mid])
-				high = mid;
-			else
-				low = mid;
+		पूर्णाङ्क नीचः = 0, उच्चः = STATIC_TWINE_अन्तः;
+		यावत् (उच्चः - नीचः >= 2) {
+			पूर्णाङ्क mid = (नीचः + उच्चः) / 2;
+			यदि (name < static_नामानि[mid])
+				उच्चः = mid;
+			अन्यथा
+				नीचः = mid;
 		}
 
-		if (name != static_names[low])
+		यदि (name != static_नामानि[नीचः])
 			throw "unknown twine id, strings that aren't statically allocated in kernel/constids.inc must be interned into a TwinePool";
 
-		return IdString(low).tag(name[0] != '$');
+		प्रत्यागम IdString(नीचः).चिह्नकम्(name[0] != '$');
 	}
 
-	static constexpr bool is_static(IdString ref) {
-		return ref.untag().raw() < STATIC_TWINE_END;
+	स्थिर constexpr bool is_static(IdString ref) {
+		प्रत्यागम ref.untag().raw() < STATIC_TWINE_अन्तः;
 	}
 
-	static constexpr IdString static_ref(size_t raw) {
-		if (!is_static(IdString(raw)))
+	स्थिर constexpr IdString static_ref(आकार_t raw) {
+		यदि (!is_static(IdString(raw)))
 			throw "not a static twine id";
-		return IdString(raw);
+		प्रत्यागम IdString(raw);
 	}
 
 	// Static IdString can be constructed without a design pointer
-	static std::string str(IdString ref);
-	static std::string unescaped_str(IdString ref);
+	स्थिर std::string str(IdString ref);
+	स्थिर std::string unescaped_str(IdString ref);
 };
 
-template<size_t Raw> inline constexpr IdString constid = ID::static_ref(Raw);
+प्रतिरूपम्<आकार_t Raw> अन्तःस्थ constexpr IdString constid = ID::static_ref(Raw);
 
-#define ID(id) (YOSYS_NAMESPACE_PREFIX constid<YOSYS_NAMESPACE_PREFIX ID::lookup(#id).raw()>)
+#परिभाषय ID(id) (YOSYS_NAMESPACE_उपसर्गः constid<YOSYS_NAMESPACE_उपसर्गः ID::lookup(#id).raw()>)
 
 // TwineSpec is the object that lives in the TwinePool,
 // while IdString points to a TwineSpec and carries publicity information
-struct TwineSpec {
+संरचना TwineSpec {
 	// deduplicates shared prefixes
-	struct Suffix {
-		IdString prefix;
-		std::string tail;
-		auto operator<=>(const Suffix&) const = default;
+	संरचना Suffix {
+		IdString उपसर्गः_2;
+		std::string पुच्छ;
+		स्वचालित संक्रियकः<=>(ध्रुव Suffix&) ध्रुव = स्वभाव;
 	};
 
 	// transient suffix constructed with NEW_ID and NEW_ID_SUFFIX
 	// turned into a regular Suffix when added to a TwinePool
-	struct AutoSuffix {
-		const std::string *prefix;
-		std::string tail;
-		auto operator<=>(const AutoSuffix&) const = default;
+	संरचना AutoSuffix {
+		ध्रुव std::string *उपसर्गः_2;
+		std::string पुच्छ;
+		स्वचालित संक्रियकः<=>(ध्रुव AutoSuffix&) ध्रुव = स्वभाव;
 	};
 
 	// "leaf", regular deduplicated string
-	struct Leaf {
+	संरचना पर्णम् {
 		std::string s;
-		auto operator<=>(const Leaf&) const = default;
+		स्वचालित संक्रियकः<=>(ध्रुव पर्णम्&) ध्रुव = स्वभाव;
 	};
 
-	std::variant<Leaf, Suffix, AutoSuffix> data;
+	std::variant<पर्णम्, Suffix, AutoSuffix> दत्त;
 
-	TwineSpec(Leaf v);
+	TwineSpec(पर्णम् v);
 	TwineSpec(Suffix v);
 	TwineSpec(AutoSuffix v);
 
 	// Only for the pool-free variants, Leaf and AutoSuffix
-	std::string content_str() const;
+	std::string content_str() ध्रुव;
 };
 
-struct SmallString {
-	static constexpr uint32_t INLINE_CAP = 8;
-	static constexpr size_t MAX_LEN = std::numeric_limits<uint32_t>::max();
+संरचना SmallString {
+	स्थिर constexpr uint32_t INLINE_CAP = 8;
+	स्थिर constexpr आकार_t MAX_LEN = std::numeric_limits<uint32_t>::max();
 
-	SmallString() = default;
+	SmallString() = स्वभाव;
 	explicit SmallString(std::string_view content);
-	SmallString(const SmallString &other);
+	SmallString(ध्रुव SmallString &other);
 	SmallString(SmallString &&other) noexcept;
-	SmallString &operator=(const SmallString &other);
-	SmallString &operator=(SmallString &&other) noexcept;
+	SmallString &संक्रियकः=(ध्रुव SmallString &other);
+	SmallString &संक्रियकः=(SmallString &&other) noexcept;
 	~SmallString();
 
-	std::string_view view() const { return {len_ <= INLINE_CAP ? inl_ : ptr_, len_}; }
+	std::string_view view() ध्रुव { प्रत्यागम {len_ <= INLINE_CAP ? inl_ : ptr_, len_}; }
 
-private:
-	void store(std::string_view content);
-	void release();
+गुप्त:
+	शून्य store(std::string_view content);
+	शून्य release();
 
-	union {
-		char inl_[INLINE_CAP];
-		char *ptr_;
+	सङ्घ {
+		वर्ण inl_[INLINE_CAP];
+		वर्ण *ptr_;
 	};
 	uint32_t len_ = 0;
 };
 
 // TwineNode is the in-memory version of TwineSpec
-struct TwineNode {
-	static constexpr uint32_t NO_PREFIX = ~uint32_t{0};
-	static constexpr uint32_t DEAD = NO_PREFIX - 1;
+संरचना Twine_ग्रन्थिः {
+	स्थिर constexpr uint32_t NO_उपसर्गः = ~uint32_t{0};
+	स्थिर constexpr uint32_t DEAD = NO_उपसर्गः - 1;
 
-	struct Key {
-		uint32_t prefix;
+	संरचना कुञ्चिका_2 {
+		uint32_t उपसर्गः_2;
 		std::string_view text;
 	};
 
-	static constexpr uint32_t extend_hash(uint32_t hash, std::string_view tail) {
+	स्थिर constexpr uint32_t extend_hash(uint32_t hash, std::string_view पुच्छ) {
 		// Basically DJB2, but we're not doing it with hashlib.h hash64,
 		// so that we get the "content hashing" identity:
 		// hash(suffix(leaf("a"), "b")) == hash(leaf("ab"))
-		for (char c : tail)
-			hash = ((hash << 5) + hash) + static_cast<unsigned char>(c);
-		return hash;
+		प्रति (वर्ण c : पुच्छ)
+			hash = ((hash << 5) + hash) + static_cast<अचिह्नित वर्ण>(c);
+		प्रत्यागम hash;
 	}
 
-	TwineNode() = default;
-	explicit TwineNode(std::string_view content)
-		: text_(content), prefix_(NO_PREFIX), hash_(extend_hash(0, content)) {}
-	TwineNode(uint32_t prefix, std::string_view tail, uint32_t hash)
-		: text_(tail), prefix_(prefix), hash_(hash) {}
-	TwineNode(const TwineNode &other) = default;
-	TwineNode(TwineNode &&other) noexcept;
-	TwineNode &operator=(const TwineNode &other) = default;
-	TwineNode &operator=(TwineNode &&other) noexcept;
-	~TwineNode() = default;
+	Twine_ग्रन्थिः() = स्वभाव;
+	explicit Twine_ग्रन्थिः(std::string_view content)
+		: text_(content), उपसर्गः_3(NO_उपसर्गः), hash_(extend_hash(0, content)) {}
+	Twine_ग्रन्थिः(uint32_t उपसर्गः_2, std::string_view पुच्छ, uint32_t hash)
+		: text_(पुच्छ), उपसर्गः_3(उपसर्गः_2), hash_(hash) {}
+	Twine_ग्रन्थिः(ध्रुव Twine_ग्रन्थिः &other) = स्वभाव;
+	Twine_ग्रन्थिः(Twine_ग्रन्थिः &&other) noexcept;
+	Twine_ग्रन्थिः &संक्रियकः=(ध्रुव Twine_ग्रन्थिः &other) = स्वभाव;
+	Twine_ग्रन्थिः &संक्रियकः=(Twine_ग्रन्थिः &&other) noexcept;
+	~Twine_ग्रन्थिः() = स्वभाव;
 
-	enum class Kind { Dead, Leaf, Suffix };
+	गणना class विधा_2 { Dead, पर्णम्, Suffix };
 
-	constexpr bool is_dead() const { return prefix_ == DEAD; }
-	constexpr bool is_leaf() const { return prefix_ == NO_PREFIX; }
-	constexpr bool is_suffix() const { return prefix_ < DEAD; }
+	constexpr bool is_dead() ध्रुव { प्रत्यागम उपसर्गः_3 == DEAD; }
+	constexpr bool is_पर्णम्() ध्रुव { प्रत्यागम उपसर्गः_3 == NO_उपसर्गः; }
+	constexpr bool is_suffix() ध्रुव { प्रत्यागम उपसर्गः_3 < DEAD; }
 
-	constexpr Kind kind() const {
-		return prefix_ == DEAD ? Kind::Dead
-			: prefix_ == NO_PREFIX ? Kind::Leaf
-			: Kind::Suffix;
+	constexpr विधा_2 विधा() ध्रुव {
+		प्रत्यागम उपसर्गः_3 == DEAD ? विधा_2::Dead
+			: उपसर्गः_3 == NO_उपसर्गः ? विधा_2::पर्णम्
+			: विधा_2::Suffix;
 	}
 
-	std::string_view text() const { return text_.view(); }
-	IdString prefix() const { return IdString(prefix_); }
-	uint32_t hash() const { return hash_; }
-	Key key() const { return {prefix_, text()}; }
+	std::string_view text() ध्रुव { प्रत्यागम text_.view(); }
+	IdString उपसर्गः_2() ध्रुव { प्रत्यागम IdString(उपसर्गः_3); }
+	uint32_t hash() ध्रुव { प्रत्यागम hash_; }
+	कुञ्चिका_2 कुञ्चिका() ध्रुव { प्रत्यागम {उपसर्गः_3, text()}; }
 
-	bool operator==(const TwineNode &other) const
-		{ return prefix_ == other.prefix_ && text() == other.text(); }
-	bool operator==(const Key &other) const
-		{ return prefix_ == other.prefix && text() == other.text; }
+	bool संक्रियकः==(ध्रुव Twine_ग्रन्थिः &other) ध्रुव
+		{ प्रत्यागम उपसर्गः_3 == other.उपसर्गः_3 && text() == other.text(); }
+	bool संक्रियकः==(ध्रुव कुञ्चिका_2 &other) ध्रुव
+		{ प्रत्यागम उपसर्गः_3 == other.उपसर्गः_2 && text() == other.text; }
 
-private:
+गुप्त:
 	SmallString text_;
-	uint32_t prefix_ = DEAD;
+	uint32_t उपसर्गः_3 = DEAD;
 	uint32_t hash_ = 0;
 };
 
-static_assert(sizeof(TwineNode) == (sizeof(void *) == 8 ? 24 : 20));
+static_assert(परिमाण(Twine_ग्रन्थिः) == (परिमाण(शून्य *) == 8 ? 24 : 20));
 
-struct StaticTwines {
-	static void init();
-	static const TwineNode &node(size_t idx);
-	static bool ready();
+संरचना StaticTwines {
+	स्थिर शून्य init();
+	स्थिर ध्रुव Twine_ग्रन्थिः &ग्रन्थिः(आकार_t idx);
+	स्थिर bool ready();
 
-private:
-	static std::vector<TwineNode> nodes_;
+गुप्त:
+	स्थिर std::सदिशम्<Twine_ग्रन्थिः> nodes_;
 };
 
-extern int64_t twine_gc_ns;
-extern int twine_gc_count;
+बाह्य int64_t twine_gc_ns;
+बाह्य पूर्णाङ्क twine_gc_गणनम्;
 
-struct TwinePool : HashConsPool<TwinePool, TwineNode, IdString> {
-	static constexpr size_t STATIC_COUNT = STATIC_TWINE_END;
+संरचना TwinePool : HashConsPool<TwinePool, Twine_ग्रन्थिः, IdString> {
+	स्थिर constexpr आकार_t STATIC_गणनम् = STATIC_TWINE_अन्तः;
 
 	TwinePool();
-	TwinePool(const TwinePool& other);
+	TwinePool(ध्रुव TwinePool& other);
 	TwinePool(TwinePool&& other);
-	TwinePool& operator=(const TwinePool& other);
-	TwinePool& operator=(TwinePool&& other);
+	TwinePool& संक्रियकः=(ध्रुव TwinePool& other);
+	TwinePool& संक्रियकः=(TwinePool&& other);
 
-	const TwineNode& operator[](IdString ref) const;
+	ध्रुव Twine_ग्रन्थिः& संक्रियकः[](IdString ref) ध्रुव;
 
-	static const TwineNode& static_node(size_t idx);
+	स्थिर ध्रुव Twine_ग्रन्थिः& static_ग्रन्थिः(आकार_t idx);
 
-	static void check_ready();
-	static uint32_t hash_node(const TwineNode& t) { return t.hash(); }
+	स्थिर शून्य check_ready();
+	स्थिर uint32_t hash_ग्रन्थिः(ध्रुव Twine_ग्रन्थिः& t) { प्रत्यागम t.hash(); }
 
-	template<typename F>
-	static void for_each_child(const TwineNode& t, F&& f) {
-		if (t.is_suffix())
-			f(t.prefix());
+	प्रतिरूपम्<typename F>
+	स्थिर शून्य for_each_child(ध्रुव Twine_ग्रन्थिः& t, F&& f) {
+		यदि (t.is_suffix())
+			f(t.उपसर्गः_2());
 	}
 
-	size_t gc(pool<IdString>& roots);
+	आकार_t gc(pool<IdString>& roots);
 
-	void dump(IdString ref, std::ostream& os = std::cout) const;
+	शून्य dump(IdString ref, std::ostream& os = std::cout) ध्रुव;
 
 	// Publicity bit provides escaping
-	std::string str(IdString ref) const;
+	std::string str(IdString ref) ध्रुव;
 	// Publicity bit ignored
-	std::string unescaped_str(IdString ref) const;
+	std::string unescaped_str(IdString ref) ध्रुव;
 
-	size_t str_size(IdString ref) const;
-	bool begins_with(IdString ref, std::string_view prefix) const;
+	आकार_t str_आकार(IdString ref) ध्रुव;
+	bool begins_with(IdString ref, std::string_view उपसर्गः_2) ध्रुव;
 	// Publicity bit provides escaping, as in str()
-	bool name_equal(IdString ref, std::string_view name) const;
-	int compare_by_name(IdString a, IdString b) const;
-	IdString prefix_of(IdString ref) const;
+	bool name_equal(IdString ref, std::string_view name) ध्रुव;
+	पूर्णाङ्क compare_by_name(IdString a, IdString b) ध्रुव;
+	IdString उपसर्गः_सम्बन्धि(IdString ref) ध्रुव;
 
-	IdString find(std::string_view name) const;
-	IdString find(TwineSpec t) const;
+	IdString find(std::string_view name) ध्रुव;
+	IdString find(TwineSpec t) ध्रुव;
 	// Doesn't infer publicity
-	IdString add(TwineSpec t);
-	IdString add(IdString prefix, std::string_view tail);
+	IdString सङ्कलय(TwineSpec t);
+	IdString सङ्कलय(IdString उपसर्गः_2, std::string_view पुच्छ);
 	// Infers publicity from first character
-	IdString add(std::string_view s);
-	IdString copy_from(const TwinePool& src, IdString ref);
+	IdString सङ्कलय(std::string_view s);
+	IdString copy_from(ध्रुव TwinePool& src, IdString ref);
 	// Non-mutating counterpart of copy_from
-	IdString find_from(const TwinePool& src, IdString ref) const;
+	IdString find_from(ध्रुव TwinePool& src, IdString ref) ध्रुव;
 	// Opaque handle for files that never leave one run of yosys.
 	// Only valid until garbage collection reuses the slot.
-	std::string ref_token(IdString ref) const;
+	std::string ref_token(IdString ref) ध्रुव;
 	// Null unless the token names a live twine stamped by this pool
-	IdString ref_from_token(std::string_view token) const;
-	void check_owned(IdString ref) const;
+	IdString ref_from_token(std::string_view token) ध्रुव;
+	शून्य check_owned(IdString ref) ध्रुव;
 
-private:
-	bool owns(IdString ref) const;
-	IdString stamp(IdString ref) const;
-	void append_str(IdString ref, std::string& out) const;
-	IdString auto_prefix(const std::string *prefix);
-	IdString add_inner(TwineNode t);
-	IdString intern(uint32_t prefix, std::string_view text);
-	uint32_t content_hash(uint32_t prefix, std::string_view text) const;
-	IdString find_content(uint32_t prefix, std::string_view text, uint32_t hash) const;
-	IdString find_content(uint32_t prefix, std::string_view text) const;
-	static size_t next_serial();
-	dict<const std::string *, IdString> auto_prefixes;
-	size_t serial_;
+गुप्त:
+	bool owns(IdString ref) ध्रुव;
+	IdString stamp(IdString ref) ध्रुव;
+	शून्य append_str(IdString ref, std::string& बहिर्गमनम्) ध्रुव;
+	IdString auto_उपसर्गः(ध्रुव std::string *उपसर्गः_2);
+	IdString सङ्कलय_inner(Twine_ग्रन्थिः t);
+	IdString intern(uint32_t उपसर्गः_2, std::string_view text);
+	uint32_t content_hash(uint32_t उपसर्गः_2, std::string_view text) ध्रुव;
+	IdString find_content(uint32_t उपसर्गः_2, std::string_view text, uint32_t hash) ध्रुव;
+	IdString find_content(uint32_t उपसर्गः_2, std::string_view text) ध्रुव;
+	स्थिर आकार_t अग्र_serial();
+	dict<ध्रुव std::string *, IdString> auto_prefixes;
+	आकार_t serial_;
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_अन्तः
 
-#endif
+#यदि_अन्तः

@@ -17,875 +17,875 @@
  *
  */
 
-#include "kernel/mem.h"
-#include "kernel/ff.h"
+#अन्तर्भाव "kernel/mem.h"
+#अन्तर्भाव "kernel/ff.h"
 
 USING_YOSYS_NAMESPACE
 
-void Mem::remove() {
-	if (cell) {
+शून्य Mem::remove() {
+	यदि (cell) {
 		module->remove(cell);
-		cell = nullptr;
+		cell = शून्यसूचकः;
 	}
-	if (mem) {
+	यदि (mem) {
 		module->memories.erase(mem->name);
-		delete mem;
-		mem = nullptr;
+		विलोपय mem;
+		mem = शून्यसूचकः;
 	}
-	for (auto &port : rd_ports) {
-		if (port.cell) {
-			module->remove(port.cell);
-			port.cell = nullptr;
+	प्रति (स्वचालित &पत्तनम् : rd_ports) {
+		यदि (पत्तनम्.cell) {
+			module->remove(पत्तनम्.cell);
+			पत्तनम्.cell = शून्यसूचकः;
 		}
 	}
-	for (auto &port : wr_ports) {
-		if (port.cell) {
-			module->remove(port.cell);
-			port.cell = nullptr;
+	प्रति (स्वचालित &पत्तनम् : wr_ports) {
+		यदि (पत्तनम्.cell) {
+			module->remove(पत्तनम्.cell);
+			पत्तनम्.cell = शून्यसूचकः;
 		}
 	}
-	for (auto &init : inits) {
-		if (init.cell) {
+	प्रति (स्वचालित &init : inits) {
+		यदि (init.cell) {
 			module->remove(init.cell);
-			init.cell = nullptr;
+			init.cell = शून्यसूचकः;
 		}
 	}
 }
 
-void Mem::emit() {
+शून्य Mem::emit() {
 	check();
-	std::vector<int> rd_left;
-	for (int i = 0; i < GetSize(rd_ports); i++) {
-		auto &port = rd_ports[i];
-		if (port.removed) {
-			if (port.cell) {
-				module->remove(port.cell);
+	std::सदिशम्<पूर्णाङ्क> rd_वामः;
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(rd_ports); i++) {
+		स्वचालित &पत्तनम् = rd_ports[i];
+		यदि (पत्तनम्.removed) {
+			यदि (पत्तनम्.cell) {
+				module->remove(पत्तनम्.cell);
 			}
-		} else {
-			rd_left.push_back(i);
+		} अन्यथा {
+			rd_वामः.प्रक्षिप_पृष्ठभागः(i);
 		}
 	}
-	std::vector<int> wr_left;
-	for (int i = 0; i < GetSize(wr_ports); i++) {
-		auto &port = wr_ports[i];
-		if (port.removed) {
-			if (port.cell) {
-				module->remove(port.cell);
+	std::सदिशम्<पूर्णाङ्क> wr_वामः;
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(wr_ports); i++) {
+		स्वचालित &पत्तनम् = wr_ports[i];
+		यदि (पत्तनम्.removed) {
+			यदि (पत्तनम्.cell) {
+				module->remove(पत्तनम्.cell);
 			}
-		} else {
-			wr_left.push_back(i);
+		} अन्यथा {
+			wr_वामः.प्रक्षिप_पृष्ठभागः(i);
 		}
 	}
-	std::vector<int> init_left;
-	for (int i = 0; i < GetSize(inits); i++) {
-		auto &init = inits[i];
-		if (init.removed) {
-			if (init.cell) {
+	std::सदिशम्<पूर्णाङ्क> init_वामः;
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(inits); i++) {
+		स्वचालित &init = inits[i];
+		यदि (init.removed) {
+			यदि (init.cell) {
 				module->remove(init.cell);
 			}
-		} else {
-			init_left.push_back(i);
+		} अन्यथा {
+			init_वामः.प्रक्षिप_पृष्ठभागः(i);
 		}
 	}
-	for (int i = 0; i < GetSize(rd_left); i++)
-		if (i != rd_left[i])
-			std::swap(rd_ports[i], rd_ports[rd_left[i]]);
-	rd_ports.resize(GetSize(rd_left));
-	for (int i = 0; i < GetSize(wr_left); i++)
-		if (i != wr_left[i])
-			std::swap(wr_ports[i], wr_ports[wr_left[i]]);
-	wr_ports.resize(GetSize(wr_left));
-	for (int i = 0; i < GetSize(init_left); i++)
-		if (i != init_left[i])
-			std::swap(inits[i], inits[init_left[i]]);
-	inits.resize(GetSize(init_left));
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(rd_वामः); i++)
+		यदि (i != rd_वामः[i])
+			std::swap(rd_ports[i], rd_ports[rd_वामः[i]]);
+	rd_ports.resize(Get_आकार(rd_वामः));
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(wr_वामः); i++)
+		यदि (i != wr_वामः[i])
+			std::swap(wr_ports[i], wr_ports[wr_वामः[i]]);
+	wr_ports.resize(Get_आकार(wr_वामः));
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(init_वामः); i++)
+		यदि (i != init_वामः[i])
+			std::swap(inits[i], inits[init_वामः[i]]);
+	inits.resize(Get_आकार(init_वामः));
 
-	for (auto &port : rd_ports) {
-		for (int i = 0; i < GetSize(wr_left); i++) {
-			port.transparency_mask[i] = port.transparency_mask[wr_left[i]];
-			port.collision_x_mask[i] = port.collision_x_mask[wr_left[i]];
+	प्रति (स्वचालित &पत्तनम् : rd_ports) {
+		प्रति (पूर्णाङ्क i = 0; i < Get_आकार(wr_वामः); i++) {
+			पत्तनम्.transparency_आवरणम्[i] = पत्तनम्.transparency_आवरणम्[wr_वामः[i]];
+			पत्तनम्.collision_x_आवरणम्[i] = पत्तनम्.collision_x_आवरणम्[wr_वामः[i]];
 		}
-		port.transparency_mask.resize(GetSize(wr_left));
-		port.collision_x_mask.resize(GetSize(wr_left));
+		पत्तनम्.transparency_आवरणम्.resize(Get_आकार(wr_वामः));
+		पत्तनम्.collision_x_आवरणम्.resize(Get_आकार(wr_वामः));
 	}
-	for (auto &port : wr_ports) {
-		for (int i = 0; i < GetSize(wr_left); i++)
-			port.priority_mask[i] = port.priority_mask[wr_left[i]];
-		port.priority_mask.resize(GetSize(wr_left));
+	प्रति (स्वचालित &पत्तनम् : wr_ports) {
+		प्रति (पूर्णाङ्क i = 0; i < Get_आकार(wr_वामः); i++)
+			पत्तनम्.प्राथमिकता_आवरणम्[i] = पत्तनम्.प्राथमिकता_आवरणम्[wr_वामः[i]];
+		पत्तनम्.प्राथमिकता_आवरणम्.resize(Get_आकार(wr_वामः));
 	}
 
-	if (packed) {
-		if (mem) {
+	यदि (packed) {
+		यदि (mem) {
 			module->memories.erase(mem->name);
-			delete mem;
-			mem = nullptr;
+			विलोपय mem;
+			mem = शून्यसूचकः;
 		}
-		if (!cell) {
-			if (memid.empty())
-				memid = PooledName(module->design, module->twines().add(NEW_ID));
-			cell = module->addCell(memid, ID($mem_v2));
+		यदि (!cell) {
+			यदि (memid.रिक्तानि())
+				memid = PooledName(module->design, module->twines().सङ्कलय(NEW_ID));
+			cell = module->सङ्कलय_Cell(memid, ID($mem_v2));
 		}
 		cell->type = ID($mem_v2);
-		cell->attributes = attributes;
+		cell->गुणाः = गुणाः;
 		cell->parameters[ID::MEMID] = Const(memid.str());
-		cell->parameters[ID::WIDTH] = Const(width);
-		cell->parameters[ID::OFFSET] = Const(start_offset);
-		cell->parameters[ID::SIZE] = Const(size);
-		SigSpec rd_clk, rd_en, rd_addr, rd_data;
-		SigSpec wr_clk, wr_en, wr_addr, wr_data;
+		cell->parameters[ID::विस्तारः_2] = Const(विस्तारः);
+		cell->parameters[ID::विस्थापनम्_2] = Const(start_विस्थापनम्);
+		cell->parameters[ID::आकार_2] = Const(आकार);
+		SigSpec rd_clk, rd_en, rd_addr, rd_दत्त;
+		SigSpec wr_clk, wr_en, wr_addr, wr_दत्त;
 		SigSpec rd_arst, rd_srst;
-		int abits = 0;
-		for (auto &port : rd_ports)
-			abits = std::max(abits, GetSize(port.addr));
-		for (auto &port : wr_ports)
-			abits = std::max(abits, GetSize(port.addr));
+		पूर्णाङ्क abits = 0;
+		प्रति (स्वचालित &पत्तनम् : rd_ports)
+			abits = std::max(abits, Get_आकार(पत्तनम्.addr));
+		प्रति (स्वचालित &पत्तनम् : wr_ports)
+			abits = std::max(abits, Get_आकार(पत्तनम्.addr));
 		cell->parameters[ID::ABITS] = Const(abits);
-		std::vector<int> wr_port_xlat;
-		for (int i = 0; i < GetSize(wr_ports); i++)
-			for (int j = 0; j < (1 << wr_ports[i].wide_log2); j++)
-				wr_port_xlat.push_back(i);
+		std::सदिशम्<पूर्णाङ्क> wr_पत्तनम्_xlat;
+		प्रति (पूर्णाङ्क i = 0; i < Get_आकार(wr_ports); i++)
+			प्रति (पूर्णाङ्क j = 0; j < (1 << wr_ports[i].wide_log2); j++)
+				wr_पत्तनम्_xlat.प्रक्षिप_पृष्ठभागः(i);
 		Const::Builder rd_wide_continuation_builder;
 		Const::Builder rd_clk_enable_builder;
 		Const::Builder rd_clk_polarity_builder;
-		Const::Builder rd_transparency_mask_builder;
-		Const::Builder rd_collision_x_mask_builder;
+		Const::Builder rd_transparency_आवरणम्_builder;
+		Const::Builder rd_collision_x_आवरणम्_builder;
 		Const::Builder rd_ce_over_srst_builder;
-		Const::Builder rd_arst_value_builder;
-		Const::Builder rd_srst_value_builder;
-		Const::Builder rd_init_value_builder;
-		for (auto &port : rd_ports) {
-			for (auto attr: port.attributes)
-				if (!cell->has_attribute(attr.first))
-					cell->attributes.insert(attr);
-			if (port.cell) {
-				module->remove(port.cell);
-				port.cell = nullptr;
+		Const::Builder rd_arst_मानम्_builder;
+		Const::Builder rd_srst_मानम्_builder;
+		Const::Builder rd_init_मानम्_builder;
+		प्रति (स्वचालित &पत्तनम् : rd_ports) {
+			प्रति (स्वचालित attr: पत्तनम्.गुणाः)
+				यदि (!cell->has_attribute(attr.first))
+					cell->गुणाः.निवेशय(attr);
+			यदि (पत्तनम्.cell) {
+				module->remove(पत्तनम्.cell);
+				पत्तनम्.cell = शून्यसूचकः;
 			}
-			for (int sub = 0; sub < (1 << port.wide_log2); sub++)
+			प्रति (पूर्णाङ्क sub = 0; sub < (1 << पत्तनम्.wide_log2); sub++)
 			{
-				rd_wide_continuation_builder.push_back(State(sub != 0));
-				rd_clk_enable_builder.push_back(State(port.clk_enable));
-				rd_clk_polarity_builder.push_back(State(port.clk_polarity));
-				rd_ce_over_srst_builder.push_back(State(port.ce_over_srst));
-				rd_clk.append(port.clk);
-				rd_arst.append(port.arst);
-				rd_srst.append(port.srst);
-				rd_en.append(port.en);
-				SigSpec addr = port.sub_addr(sub);
-				addr.extend_u0(abits, false);
+				rd_wide_continuation_builder.प्रक्षिप_पृष्ठभागः(State(sub != 0));
+				rd_clk_enable_builder.प्रक्षिप_पृष्ठभागः(State(पत्तनम्.clk_enable));
+				rd_clk_polarity_builder.प्रक्षिप_पृष्ठभागः(State(पत्तनम्.clk_polarity));
+				rd_ce_over_srst_builder.प्रक्षिप_पृष्ठभागः(State(पत्तनम्.ce_over_srst));
+				rd_clk.append(पत्तनम्.clk);
+				rd_arst.append(पत्तनम्.arst);
+				rd_srst.append(पत्तनम्.srst);
+				rd_en.append(पत्तनम्.en);
+				SigSpec addr = पत्तनम्.sub_addr(sub);
+				addr.extend_u0(abits, असत्य);
 				rd_addr.append(addr);
-				log_assert(GetSize(addr) == abits);
-				for (auto idx : wr_port_xlat) {
-					rd_transparency_mask_builder.push_back(State(bool(port.transparency_mask[idx])));
-					rd_collision_x_mask_builder.push_back(State(bool(port.collision_x_mask[idx])));
+				log_assert(Get_आकार(addr) == abits);
+				प्रति (स्वचालित idx : wr_पत्तनम्_xlat) {
+					rd_transparency_आवरणम्_builder.प्रक्षिप_पृष्ठभागः(State(तार्किक(पत्तनम्.transparency_आवरणम्[idx])));
+					rd_collision_x_आवरणम्_builder.प्रक्षिप_पृष्ठभागः(State(तार्किक(पत्तनम्.collision_x_आवरणम्[idx])));
 				}
 			}
-			rd_data.append(port.data);
-			for (auto bit : port.arst_value)
-				rd_arst_value_builder.push_back(bit);
-			for (auto bit : port.srst_value)
-				rd_srst_value_builder.push_back(bit);
-			for (auto bit : port.init_value)
-				rd_init_value_builder.push_back(bit);
+			rd_दत्त.append(पत्तनम्.दत्त);
+			प्रति (स्वचालित bit : पत्तनम्.arst_मानम्)
+				rd_arst_मानम्_builder.प्रक्षिप_पृष्ठभागः(bit);
+			प्रति (स्वचालित bit : पत्तनम्.srst_मानम्)
+				rd_srst_मानम्_builder.प्रक्षिप_पृष्ठभागः(bit);
+			प्रति (स्वचालित bit : पत्तनम्.init_मानम्)
+				rd_init_मानम्_builder.प्रक्षिप_पृष्ठभागः(bit);
 		}
 		Const rd_wide_continuation = rd_wide_continuation_builder.build();
 		Const rd_clk_enable = rd_clk_enable_builder.build();
 		Const rd_clk_polarity = rd_clk_polarity_builder.build();
-		Const rd_transparency_mask = rd_transparency_mask_builder.build();
-		Const rd_collision_x_mask = rd_collision_x_mask_builder.build();
+		Const rd_transparency_आवरणम् = rd_transparency_आवरणम्_builder.build();
+		Const rd_collision_x_आवरणम् = rd_collision_x_आवरणम्_builder.build();
 		Const rd_ce_over_srst = rd_ce_over_srst_builder.build();
-		Const rd_arst_value = rd_arst_value_builder.build();
-		Const rd_srst_value = rd_srst_value_builder.build();
-		Const rd_init_value = rd_init_value_builder.build();
-		if (rd_ports.empty()) {
+		Const rd_arst_मानम् = rd_arst_मानम्_builder.build();
+		Const rd_srst_मानम् = rd_srst_मानम्_builder.build();
+		Const rd_init_मानम् = rd_init_मानम्_builder.build();
+		यदि (rd_ports.रिक्तानि()) {
 			rd_wide_continuation = State::S0;
 			rd_clk_enable = State::S0;
 			rd_clk_polarity = State::S0;
 			rd_ce_over_srst = State::S0;
-			rd_arst_value = State::S0;
-			rd_srst_value = State::S0;
-			rd_init_value = State::S0;
+			rd_arst_मानम् = State::S0;
+			rd_srst_मानम् = State::S0;
+			rd_init_मानम् = State::S0;
 		}
-		if (rd_ports.empty() || wr_ports.empty()) {
-			rd_transparency_mask = State::S0;
-			rd_collision_x_mask = State::S0;
+		यदि (rd_ports.रिक्तानि() || wr_ports.रिक्तानि()) {
+			rd_transparency_आवरणम् = State::S0;
+			rd_collision_x_आवरणम् = State::S0;
 		}
-		cell->parameters[ID::RD_PORTS] = Const(GetSize(rd_clk));
+		cell->parameters[ID::RD_PORTS] = Const(Get_आकार(rd_clk));
 		cell->parameters[ID::RD_CLK_ENABLE] = rd_clk_enable;
 		cell->parameters[ID::RD_CLK_POLARITY] = rd_clk_polarity;
-		cell->parameters[ID::RD_TRANSPARENCY_MASK] = rd_transparency_mask;
-		cell->parameters[ID::RD_COLLISION_X_MASK] = rd_collision_x_mask;
+		cell->parameters[ID::RD_TRANSPARENCY_आवरणम्] = rd_transparency_आवरणम्;
+		cell->parameters[ID::RD_COLLISION_X_आवरणम्] = rd_collision_x_आवरणम्;
 		cell->parameters[ID::RD_WIDE_CONTINUATION] = rd_wide_continuation;
 		cell->parameters[ID::RD_CE_OVER_SRST] = rd_ce_over_srst;
-		cell->parameters[ID::RD_ARST_VALUE] = rd_arst_value;
-		cell->parameters[ID::RD_SRST_VALUE] = rd_srst_value;
-		cell->parameters[ID::RD_INIT_VALUE] = rd_init_value;
+		cell->parameters[ID::RD_ARST_मानम्] = rd_arst_मानम्;
+		cell->parameters[ID::RD_SRST_मानम्] = rd_srst_मानम्;
+		cell->parameters[ID::RD_INIT_मानम्] = rd_init_मानम्;
 		cell->parameters.erase(ID::RD_TRANSPARENT);
-		cell->setPort(ID::RD_CLK, rd_clk);
-		cell->setPort(ID::RD_EN, rd_en);
-		cell->setPort(ID::RD_ARST, rd_arst);
-		cell->setPort(ID::RD_SRST, rd_srst);
-		cell->setPort(ID::RD_ADDR, rd_addr);
-		cell->setPort(ID::RD_DATA, rd_data);
+		cell->समुच्चयः_पत्तनम्(ID::RD_CLK, rd_clk);
+		cell->समुच्चयः_पत्तनम्(ID::RD_EN, rd_en);
+		cell->समुच्चयः_पत्तनम्(ID::RD_ARST, rd_arst);
+		cell->समुच्चयः_पत्तनम्(ID::RD_SRST, rd_srst);
+		cell->समुच्चयः_पत्तनम्(ID::RD_ADDR, rd_addr);
+		cell->समुच्चयः_पत्तनम्(ID::RD_दत्त, rd_दत्त);
 		Const::Builder wr_wide_continuation_builder;
 		Const::Builder wr_clk_enable_builder;
 		Const::Builder wr_clk_polarity_builder;
-		Const::Builder wr_priority_mask_builder;
-		for (auto &port : wr_ports) {
-			for (auto attr: port.attributes)
-				if (!cell->has_attribute(attr.first))
-					cell->attributes.insert(attr);
-			if (port.cell) {
-				module->remove(port.cell);
-				port.cell = nullptr;
+		Const::Builder wr_प्राथमिकता_आवरणम्_builder;
+		प्रति (स्वचालित &पत्तनम् : wr_ports) {
+			प्रति (स्वचालित attr: पत्तनम्.गुणाः)
+				यदि (!cell->has_attribute(attr.first))
+					cell->गुणाः.निवेशय(attr);
+			यदि (पत्तनम्.cell) {
+				module->remove(पत्तनम्.cell);
+				पत्तनम्.cell = शून्यसूचकः;
 			}
-			for (int sub = 0; sub < (1 << port.wide_log2); sub++)
+			प्रति (पूर्णाङ्क sub = 0; sub < (1 << पत्तनम्.wide_log2); sub++)
 			{
-				wr_wide_continuation_builder.push_back(State(sub != 0));
-				wr_clk_enable_builder.push_back(State(port.clk_enable));
-				wr_clk_polarity_builder.push_back(State(port.clk_polarity));
-				wr_clk.append(port.clk);
-				for (auto idx : wr_port_xlat)
-					wr_priority_mask_builder.push_back(State(bool(port.priority_mask[idx])));
-				SigSpec addr = port.sub_addr(sub);
-				addr.extend_u0(abits, false);
+				wr_wide_continuation_builder.प्रक्षिप_पृष्ठभागः(State(sub != 0));
+				wr_clk_enable_builder.प्रक्षिप_पृष्ठभागः(State(पत्तनम्.clk_enable));
+				wr_clk_polarity_builder.प्रक्षिप_पृष्ठभागः(State(पत्तनम्.clk_polarity));
+				wr_clk.append(पत्तनम्.clk);
+				प्रति (स्वचालित idx : wr_पत्तनम्_xlat)
+					wr_प्राथमिकता_आवरणम्_builder.प्रक्षिप_पृष्ठभागः(State(तार्किक(पत्तनम्.प्राथमिकता_आवरणम्[idx])));
+				SigSpec addr = पत्तनम्.sub_addr(sub);
+				addr.extend_u0(abits, असत्य);
 				wr_addr.append(addr);
-				log_assert(GetSize(addr) == abits);
+				log_assert(Get_आकार(addr) == abits);
 			}
-			wr_en.append(port.en);
-			wr_data.append(port.data);
+			wr_en.append(पत्तनम्.en);
+			wr_दत्त.append(पत्तनम्.दत्त);
 		}
 		Const wr_wide_continuation = wr_wide_continuation_builder.build();
 		Const wr_clk_enable = wr_clk_enable_builder.build();
 		Const wr_clk_polarity = wr_clk_polarity_builder.build();
-		Const wr_priority_mask = wr_priority_mask_builder.build();
-		if (wr_ports.empty()) {
+		Const wr_प्राथमिकता_आवरणम् = wr_प्राथमिकता_आवरणम्_builder.build();
+		यदि (wr_ports.रिक्तानि()) {
 			wr_wide_continuation = State::S0;
 			wr_clk_enable = State::S0;
 			wr_clk_polarity = State::S0;
-			wr_priority_mask = State::S0;
+			wr_प्राथमिकता_आवरणम् = State::S0;
 		}
-		cell->parameters[ID::WR_PORTS] = Const(GetSize(wr_clk));
+		cell->parameters[ID::WR_PORTS] = Const(Get_आकार(wr_clk));
 		cell->parameters[ID::WR_CLK_ENABLE] = wr_clk_enable;
 		cell->parameters[ID::WR_CLK_POLARITY] = wr_clk_polarity;
-		cell->parameters[ID::WR_PRIORITY_MASK] = wr_priority_mask;
+		cell->parameters[ID::WR_प्राथमिकता_आवरणम्] = wr_प्राथमिकता_आवरणम्;
 		cell->parameters[ID::WR_WIDE_CONTINUATION] = wr_wide_continuation;
-		cell->setPort(ID::WR_CLK, wr_clk);
-		cell->setPort(ID::WR_EN, wr_en);
-		cell->setPort(ID::WR_ADDR, wr_addr);
-		cell->setPort(ID::WR_DATA, wr_data);
-		for (auto &init : inits) {
-			for (auto attr: init.attributes)
-				if (!cell->has_attribute(attr.first))
-					cell->attributes.insert(attr);
-			if (init.cell) {
+		cell->समुच्चयः_पत्तनम्(ID::WR_CLK, wr_clk);
+		cell->समुच्चयः_पत्तनम्(ID::WR_EN, wr_en);
+		cell->समुच्चयः_पत्तनम्(ID::WR_ADDR, wr_addr);
+		cell->समुच्चयः_पत्तनम्(ID::WR_दत्त, wr_दत्त);
+		प्रति (स्वचालित &init : inits) {
+			प्रति (स्वचालित attr: init.गुणाः)
+				यदि (!cell->has_attribute(attr.first))
+					cell->गुणाः.निवेशय(attr);
+			यदि (init.cell) {
 				module->remove(init.cell);
-				init.cell = nullptr;
+				init.cell = शून्यसूचकः;
 			}
 		}
-		cell->parameters[ID::INIT] = get_init_data();
-	} else {
-		if (cell) {
+		cell->parameters[ID::INIT] = get_init_दत्त();
+	} अन्यथा {
+		यदि (cell) {
 			module->remove(cell);
-			cell = nullptr;
+			cell = शून्यसूचकः;
 		}
-		if (!mem) {
-			if (memid.empty())
-				memid = PooledName(module->design, module->twines().add(NEW_ID));
-			mem = module->addMemory(memid);
+		यदि (!mem) {
+			यदि (memid.रिक्तानि())
+				memid = PooledName(module->design, module->twines().सङ्कलय(NEW_ID));
+			mem = module->सङ्कलय_स्मृतिः(memid);
 		}
-		mem->width = width;
-		mem->start_offset = start_offset;
-		mem->size = size;
-		mem->attributes = attributes;
-		for (auto &port : rd_ports) {
-			if (!port.cell)
-				port.cell = module->addCell(NEW_ID, ID($memrd_v2));
-			port.cell->type = ID($memrd_v2);
-			port.cell->attributes = port.attributes;
-			port.cell->parameters[ID::MEMID] = memid.str();
-			port.cell->parameters[ID::ABITS] = GetSize(port.addr);
-			port.cell->parameters[ID::WIDTH] = width << port.wide_log2;
-			port.cell->parameters[ID::CLK_ENABLE] = port.clk_enable;
-			port.cell->parameters[ID::CLK_POLARITY] = port.clk_polarity;
-			port.cell->parameters[ID::CE_OVER_SRST] = port.ce_over_srst;
-			port.cell->parameters[ID::ARST_VALUE] = port.arst_value;
-			port.cell->parameters[ID::SRST_VALUE] = port.srst_value;
-			port.cell->parameters[ID::INIT_VALUE] = port.init_value;
-			port.cell->parameters[ID::TRANSPARENCY_MASK] = port.transparency_mask;
-			port.cell->parameters[ID::COLLISION_X_MASK] = port.collision_x_mask;
-			port.cell->parameters.erase(ID::TRANSPARENT);
-			port.cell->setPort(ID::CLK, port.clk);
-			port.cell->setPort(ID::EN, port.en);
-			port.cell->setPort(ID::ARST, port.arst);
-			port.cell->setPort(ID::SRST, port.srst);
-			port.cell->setPort(ID::ADDR, port.addr);
-			port.cell->setPort(ID::DATA, port.data);
+		mem->विस्तारः = विस्तारः;
+		mem->start_विस्थापनम् = start_विस्थापनम्;
+		mem->आकार = आकार;
+		mem->गुणाः = गुणाः;
+		प्रति (स्वचालित &पत्तनम् : rd_ports) {
+			यदि (!पत्तनम्.cell)
+				पत्तनम्.cell = module->सङ्कलय_Cell(NEW_ID, ID($memrd_v2));
+			पत्तनम्.cell->type = ID($memrd_v2);
+			पत्तनम्.cell->गुणाः = पत्तनम्.गुणाः;
+			पत्तनम्.cell->parameters[ID::MEMID] = memid.str();
+			पत्तनम्.cell->parameters[ID::ABITS] = Get_आकार(पत्तनम्.addr);
+			पत्तनम्.cell->parameters[ID::विस्तारः_2] = विस्तारः << पत्तनम्.wide_log2;
+			पत्तनम्.cell->parameters[ID::CLK_ENABLE] = पत्तनम्.clk_enable;
+			पत्तनम्.cell->parameters[ID::CLK_POLARITY] = पत्तनम्.clk_polarity;
+			पत्तनम्.cell->parameters[ID::CE_OVER_SRST] = पत्तनम्.ce_over_srst;
+			पत्तनम्.cell->parameters[ID::ARST_मानम्] = पत्तनम्.arst_मानम्;
+			पत्तनम्.cell->parameters[ID::SRST_मानम्] = पत्तनम्.srst_मानम्;
+			पत्तनम्.cell->parameters[ID::INIT_मानम्] = पत्तनम्.init_मानम्;
+			पत्तनम्.cell->parameters[ID::TRANSPARENCY_आवरणम्] = पत्तनम्.transparency_आवरणम्;
+			पत्तनम्.cell->parameters[ID::COLLISION_X_आवरणम्] = पत्तनम्.collision_x_आवरणम्;
+			पत्तनम्.cell->parameters.erase(ID::TRANSPARENT);
+			पत्तनम्.cell->समुच्चयः_पत्तनम्(ID::CLK, पत्तनम्.clk);
+			पत्तनम्.cell->समुच्चयः_पत्तनम्(ID::EN, पत्तनम्.en);
+			पत्तनम्.cell->समुच्चयः_पत्तनम्(ID::ARST, पत्तनम्.arst);
+			पत्तनम्.cell->समुच्चयः_पत्तनम्(ID::SRST, पत्तनम्.srst);
+			पत्तनम्.cell->समुच्चयः_पत्तनम्(ID::ADDR, पत्तनम्.addr);
+			पत्तनम्.cell->समुच्चयः_पत्तनम्(ID::दत्त_2, पत्तनम्.दत्त);
 		}
-		int idx = 0;
-		for (auto &port : wr_ports) {
-			if (!port.cell)
-				port.cell = module->addCell(NEW_ID, ID($memwr_v2));
-			port.cell->type = ID($memwr_v2);
-			port.cell->attributes = port.attributes;
-			if (port.cell->parameters.count(ID::PRIORITY))
-				port.cell->parameters.erase(ID::PRIORITY);
-			port.cell->parameters[ID::MEMID] = memid.str();
-			port.cell->parameters[ID::ABITS] = GetSize(port.addr);
-			port.cell->parameters[ID::WIDTH] = width << port.wide_log2;
-			port.cell->parameters[ID::CLK_ENABLE] = port.clk_enable;
-			port.cell->parameters[ID::CLK_POLARITY] = port.clk_polarity;
-			port.cell->parameters[ID::PORTID] = idx++;
-			port.cell->parameters[ID::PRIORITY_MASK] = port.priority_mask;
-			port.cell->setPort(ID::CLK, port.clk);
-			port.cell->setPort(ID::EN, port.en);
-			port.cell->setPort(ID::ADDR, port.addr);
-			port.cell->setPort(ID::DATA, port.data);
+		पूर्णाङ्क idx = 0;
+		प्रति (स्वचालित &पत्तनम् : wr_ports) {
+			यदि (!पत्तनम्.cell)
+				पत्तनम्.cell = module->सङ्कलय_Cell(NEW_ID, ID($memwr_v2));
+			पत्तनम्.cell->type = ID($memwr_v2);
+			पत्तनम्.cell->गुणाः = पत्तनम्.गुणाः;
+			यदि (पत्तनम्.cell->parameters.गणनम्(ID::प्राथमिकता))
+				पत्तनम्.cell->parameters.erase(ID::प्राथमिकता);
+			पत्तनम्.cell->parameters[ID::MEMID] = memid.str();
+			पत्तनम्.cell->parameters[ID::ABITS] = Get_आकार(पत्तनम्.addr);
+			पत्तनम्.cell->parameters[ID::विस्तारः_2] = विस्तारः << पत्तनम्.wide_log2;
+			पत्तनम्.cell->parameters[ID::CLK_ENABLE] = पत्तनम्.clk_enable;
+			पत्तनम्.cell->parameters[ID::CLK_POLARITY] = पत्तनम्.clk_polarity;
+			पत्तनम्.cell->parameters[ID::PORTID] = idx++;
+			पत्तनम्.cell->parameters[ID::प्राथमिकता_आवरणम्_2] = पत्तनम्.प्राथमिकता_आवरणम्;
+			पत्तनम्.cell->समुच्चयः_पत्तनम्(ID::CLK, पत्तनम्.clk);
+			पत्तनम्.cell->समुच्चयः_पत्तनम्(ID::EN, पत्तनम्.en);
+			पत्तनम्.cell->समुच्चयः_पत्तनम्(ID::ADDR, पत्तनम्.addr);
+			पत्तनम्.cell->समुच्चयः_पत्तनम्(ID::दत्त_2, पत्तनम्.दत्त);
 		}
 		idx = 0;
-		for (auto &init : inits) {
-			bool v2 = !init.en.is_fully_ones();
-			if (!init.cell)
-				init.cell = module->addCell(NEW_ID, v2 ? ID($meminit_v2) : ID($meminit));
-			else {
-				if (!v2)
-					init.cell->unsetPort(ID::EN);
+		प्रति (स्वचालित &init : inits) {
+			तार्किक v2 = !init.en.is_fully_ones();
+			यदि (!init.cell)
+				init.cell = module->सङ्कलय_Cell(NEW_ID, v2 ? ID($meminit_v2) : ID($meminit));
+			अन्यथा {
+				यदि (!v2)
+					init.cell->unset_पत्तनम्(ID::EN);
 				init.cell->type = v2 ? ID($meminit_v2) : ID($meminit);
 			}
-			init.cell->attributes = init.attributes;
+			init.cell->गुणाः = init.गुणाः;
 			init.cell->parameters[ID::MEMID] = memid.str();
-			init.cell->parameters[ID::ABITS] = GetSize(init.addr);
-			init.cell->parameters[ID::WIDTH] = width;
-			init.cell->parameters[ID::WORDS] = GetSize(init.data) / width;
-			init.cell->parameters[ID::PRIORITY] = idx++;
-			init.cell->setPort(ID::ADDR, init.addr);
-			init.cell->setPort(ID::DATA, init.data);
-			if (v2)
-				init.cell->setPort(ID::EN, init.en);
+			init.cell->parameters[ID::ABITS] = Get_आकार(init.addr);
+			init.cell->parameters[ID::विस्तारः_2] = विस्तारः;
+			init.cell->parameters[ID::शब्दाः] = Get_आकार(init.दत्त) / विस्तारः;
+			init.cell->parameters[ID::प्राथमिकता] = idx++;
+			init.cell->समुच्चयः_पत्तनम्(ID::ADDR, init.addr);
+			init.cell->समुच्चयः_पत्तनम्(ID::दत्त_2, init.दत्त);
+			यदि (v2)
+				init.cell->समुच्चयः_पत्तनम्(ID::EN, init.en);
 		}
 	}
 }
 
-void Mem::clear_inits() {
-	for (auto &init : inits)
-		init.removed = true;
+शून्य Mem::clear_inits() {
+	प्रति (स्वचालित &init : inits)
+		init.removed = सत्य;
 }
 
-void Mem::coalesce_inits() {
+शून्य Mem::coalesce_inits() {
 	// start address -> end address
-	std::map<int, int> chunks;
+	std::map<पूर्णाङ्क, पूर्णाङ्क> chunks;
 	// Figure out chunk boundaries.
-	for (auto &init : inits) {
-		if (init.removed)
-			continue;
-		bool valid = false;
-		for (auto bit : init.en)
-			if (bit == State::S1)
-				valid = true;
-		if (!valid) {
-			init.removed = true;
-			continue;
+	प्रति (स्वचालित &init : inits) {
+		यदि (init.removed)
+			अनुवर्त;
+		तार्किक valid = असत्य;
+		प्रति (स्वचालित bit : init.en)
+			यदि (bit == State::S1)
+				valid = सत्य;
+		यदि (!valid) {
+			init.removed = सत्य;
+			अनुवर्त;
 		}
-		int addr = init.addr.as_int();
-		int addr_e = addr + GetSize(init.data) / width;
-		auto it_e = chunks.upper_bound(addr_e);
-		auto it = it_e;
-		while (it != chunks.begin()) {
+		पूर्णाङ्क addr = init.addr.as_int();
+		पूर्णाङ्क addr_e = addr + Get_आकार(init.दत्त) / विस्तारः;
+		स्वचालित it_e = chunks.ऊर्ध्वस्थम्_bound(addr_e);
+		स्वचालित it = it_e;
+		यावत् (it != chunks.begin()) {
 			--it;
-			if (it->second < addr) {
+			यदि (it->second < addr) {
 				++it;
-				break;
+				भङ्ग;
 			}
 		}
-		if (it == it_e) {
+		यदि (it == it_e) {
 			// No overlapping inits — add this one to index.
 			chunks[addr] = addr_e;
-		} else {
+		} अन्यथा {
 			// We have an overlap — all chunks in the [it, it_e)
 			// range will be merged with this init.
-			if (it->first < addr)
+			यदि (it->first < addr)
 				addr = it->first;
-			auto it_last = it_e;
-			it_last--;
-			if (it_last->second > addr_e)
-				addr_e = it_last->second;
+			स्वचालित it_चरमः = it_e;
+			it_चरमः--;
+			यदि (it_चरमः->second > addr_e)
+				addr_e = it_चरमः->second;
 			chunks.erase(it, it_e);
 			chunks[addr] = addr_e;
 		}
 	}
 	// Group inits by the chunk they belong to.
-	dict<int, std::vector<int>> inits_by_chunk;
-	for (int i = 0; i < GetSize(inits); i++) {
-		auto &init = inits[i];
-		if (init.removed)
-			continue;
-		auto it = chunks.upper_bound(init.addr.as_int());
+	dict<पूर्णाङ्क, std::सदिशम्<पूर्णाङ्क>> inits_by_chunk;
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(inits); i++) {
+		स्वचालित &init = inits[i];
+		यदि (init.removed)
+			अनुवर्त;
+		स्वचालित it = chunks.ऊर्ध्वस्थम्_bound(init.addr.as_int());
 		--it;
-		inits_by_chunk[it->first].push_back(i);
-		int addr = init.addr.as_int();
-		int addr_e = addr + GetSize(init.data) / width;
+		inits_by_chunk[it->first].प्रक्षिप_पृष्ठभागः(i);
+		पूर्णाङ्क addr = init.addr.as_int();
+		पूर्णाङ्क addr_e = addr + Get_आकार(init.दत्त) / विस्तारः;
 		log_assert(addr >= it->first && addr_e <= it->second);
 	}
 	// Process each chunk.
-	for (auto &it : inits_by_chunk) {
-		int caddr = it.first;
-		int caddr_e = chunks[caddr];
-		auto &chunk_inits = it.second;
-		if (GetSize(chunk_inits) == 1) {
-			auto &init = inits[chunk_inits[0]];
-			if (!init.en.is_fully_ones()) {
-				for (int i = 0; i < GetSize(init.data); i++)
-					if (init.en[i % width] != State::S1)
-						init.data.set(i, State::Sx);
-				init.en = Const(State::S1, width);
+	प्रति (स्वचालित &it : inits_by_chunk) {
+		पूर्णाङ्क caddr = it.first;
+		पूर्णाङ्क caddr_e = chunks[caddr];
+		स्वचालित &chunk_inits = it.second;
+		यदि (Get_आकार(chunk_inits) == 1) {
+			स्वचालित &init = inits[chunk_inits[0]];
+			यदि (!init.en.is_fully_ones()) {
+				प्रति (पूर्णाङ्क i = 0; i < Get_आकार(init.दत्त); i++)
+					यदि (init.en[i % विस्तारः] != State::S1)
+						init.दत्त.समुच्चयः(i, State::Sx);
+				init.en = Const(State::S1, विस्तारः);
 			}
-			continue;
+			अनुवर्त;
 		}
-		Const cdata(State::Sx, (caddr_e - caddr) * width);
-		for (int idx : chunk_inits) {
-			auto &init = inits[idx];
-			int offset = (init.addr.as_int() - caddr) * width;
-			log_assert(offset >= 0);
-			log_assert(offset + GetSize(init.data) <= GetSize(cdata));
-			for (int i = 0; i < GetSize(init.data); i++)
-				if (init.en[i % width] == State::S1)
-					cdata.set(i+offset, init.data[i]);
-			init.removed = true;
+		Const cdata(State::Sx, (caddr_e - caddr) * विस्तारः);
+		प्रति (पूर्णाङ्क idx : chunk_inits) {
+			स्वचालित &init = inits[idx];
+			पूर्णाङ्क विस्थापनम् = (init.addr.as_int() - caddr) * विस्तारः;
+			log_assert(विस्थापनम् >= 0);
+			log_assert(विस्थापनम् + Get_आकार(init.दत्त) <= Get_आकार(cdata));
+			प्रति (पूर्णाङ्क i = 0; i < Get_आकार(init.दत्त); i++)
+				यदि (init.en[i % विस्तारः] == State::S1)
+					cdata.समुच्चयः(i+विस्थापनम्, init.दत्त[i]);
+			init.removed = सत्य;
 		}
 		MemInit new_init;
 		new_init.addr = caddr;
-		new_init.data = cdata;
-		new_init.en = Const(State::S1, width);
-		inits.push_back(new_init);
+		new_init.दत्त = cdata;
+		new_init.en = Const(State::S1, विस्तारः);
+		inits.प्रक्षिप_पृष्ठभागः(new_init);
 	}
 }
 
-Const Mem::get_init_data() const {
-	Const init_data(State::Sx, width * size);
-	for (auto &init : inits) {
-		if (init.removed)
-			continue;
-		int offset = (init.addr.as_int() - start_offset) * width;
-		for (int i = 0; i < GetSize(init.data); i++)
-			if (0 <= i+offset && i+offset < GetSize(init_data) && init.en[i % width] == State::S1)
-				init_data.set(i+offset, init.data[i]);
+Const Mem::get_init_दत्त() ध्रुव {
+	Const init_दत्त(State::Sx, विस्तारः * आकार);
+	प्रति (स्वचालित &init : inits) {
+		यदि (init.removed)
+			अनुवर्त;
+		पूर्णाङ्क विस्थापनम् = (init.addr.as_int() - start_विस्थापनम्) * विस्तारः;
+		प्रति (पूर्णाङ्क i = 0; i < Get_आकार(init.दत्त); i++)
+			यदि (0 <= i+विस्थापनम् && i+विस्थापनम् < Get_आकार(init_दत्त) && init.en[i % विस्तारः] == State::S1)
+				init_दत्त.समुच्चयः(i+विस्थापनम्, init.दत्त[i]);
 	}
-	return init_data;
+	प्रत्यागम init_दत्त;
 }
 
-void Mem::check() {
-	int max_wide_log2 = 0;
-	for (auto &port : rd_ports) {
-		if (port.removed)
-			continue;
-		log_assert(GetSize(port.clk) == 1);
-		log_assert(GetSize(port.en) == 1);
-		log_assert(GetSize(port.arst) == 1);
-		log_assert(GetSize(port.srst) == 1);
-		log_assert(GetSize(port.addr) >= port.wide_log2);
-		log_assert(GetSize(port.data) == (width << port.wide_log2));
-		log_assert(GetSize(port.init_value) == (width << port.wide_log2));
-		log_assert(GetSize(port.arst_value) == (width << port.wide_log2));
-		log_assert(GetSize(port.srst_value) == (width << port.wide_log2));
-		if (!port.clk_enable) {
-			log_assert(port.en == State::S1);
-			log_assert(port.arst == State::S0);
-			log_assert(port.srst == State::S0);
+शून्य Mem::check() {
+	पूर्णाङ्क max_wide_log2 = 0;
+	प्रति (स्वचालित &पत्तनम् : rd_ports) {
+		यदि (पत्तनम्.removed)
+			अनुवर्त;
+		log_assert(Get_आकार(पत्तनम्.clk) == 1);
+		log_assert(Get_आकार(पत्तनम्.en) == 1);
+		log_assert(Get_आकार(पत्तनम्.arst) == 1);
+		log_assert(Get_आकार(पत्तनम्.srst) == 1);
+		log_assert(Get_आकार(पत्तनम्.addr) >= पत्तनम्.wide_log2);
+		log_assert(Get_आकार(पत्तनम्.दत्त) == (विस्तारः << पत्तनम्.wide_log2));
+		log_assert(Get_आकार(पत्तनम्.init_मानम्) == (विस्तारः << पत्तनम्.wide_log2));
+		log_assert(Get_आकार(पत्तनम्.arst_मानम्) == (विस्तारः << पत्तनम्.wide_log2));
+		log_assert(Get_आकार(पत्तनम्.srst_मानम्) == (विस्तारः << पत्तनम्.wide_log2));
+		यदि (!पत्तनम्.clk_enable) {
+			log_assert(पत्तनम्.en == State::S1);
+			log_assert(पत्तनम्.arst == State::S0);
+			log_assert(पत्तनम्.srst == State::S0);
 		}
-		for (int j = 0; j < port.wide_log2; j++) {
-			log_assert(port.addr[j] == State::S0);
+		प्रति (पूर्णाङ्क j = 0; j < पत्तनम्.wide_log2; j++) {
+			log_assert(पत्तनम्.addr[j] == State::S0);
 		}
-		max_wide_log2 = std::max(max_wide_log2, port.wide_log2);
-		log_assert(GetSize(port.transparency_mask) == GetSize(wr_ports));
-		log_assert(GetSize(port.collision_x_mask) == GetSize(wr_ports));
-		for (int j = 0; j < GetSize(wr_ports); j++) {
-			auto &wport = wr_ports[j];
-			if ((port.transparency_mask[j] || port.collision_x_mask[j]) && !wport.removed) {
-				log_assert(port.clk_enable);
+		max_wide_log2 = std::max(max_wide_log2, पत्तनम्.wide_log2);
+		log_assert(Get_आकार(पत्तनम्.transparency_आवरणम्) == Get_आकार(wr_ports));
+		log_assert(Get_आकार(पत्तनम्.collision_x_आवरणम्) == Get_आकार(wr_ports));
+		प्रति (पूर्णाङ्क j = 0; j < Get_आकार(wr_ports); j++) {
+			स्वचालित &wport = wr_ports[j];
+			यदि ((पत्तनम्.transparency_आवरणम्[j] || पत्तनम्.collision_x_आवरणम्[j]) && !wport.removed) {
+				log_assert(पत्तनम्.clk_enable);
 				log_assert(wport.clk_enable);
-				log_assert(port.clk == wport.clk);
-				log_assert(port.clk_polarity == wport.clk_polarity);
+				log_assert(पत्तनम्.clk == wport.clk);
+				log_assert(पत्तनम्.clk_polarity == wport.clk_polarity);
 			}
-			log_assert(!port.transparency_mask[j] || !port.collision_x_mask[j]);
+			log_assert(!पत्तनम्.transparency_आवरणम्[j] || !पत्तनम्.collision_x_आवरणम्[j]);
 		}
 	}
-	for (int i = 0; i < GetSize(wr_ports); i++) {
-		auto &port = wr_ports[i];
-		if (port.removed)
-			continue;
-		log_assert(GetSize(port.clk) == 1);
-		log_assert(GetSize(port.en) == (width << port.wide_log2));
-		log_assert(GetSize(port.data) == (width << port.wide_log2));
-		log_assert(GetSize(port.addr) >= port.wide_log2);
-		for (int j = 0; j < port.wide_log2; j++) {
-			log_assert(port.addr[j] == State::S0);
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(wr_ports); i++) {
+		स्वचालित &पत्तनम् = wr_ports[i];
+		यदि (पत्तनम्.removed)
+			अनुवर्त;
+		log_assert(Get_आकार(पत्तनम्.clk) == 1);
+		log_assert(Get_आकार(पत्तनम्.en) == (विस्तारः << पत्तनम्.wide_log2));
+		log_assert(Get_आकार(पत्तनम्.दत्त) == (विस्तारः << पत्तनम्.wide_log2));
+		log_assert(Get_आकार(पत्तनम्.addr) >= पत्तनम्.wide_log2);
+		प्रति (पूर्णाङ्क j = 0; j < पत्तनम्.wide_log2; j++) {
+			log_assert(पत्तनम्.addr[j] == State::S0);
 		}
-		max_wide_log2 = std::max(max_wide_log2, port.wide_log2);
-		log_assert(GetSize(port.priority_mask) == GetSize(wr_ports));
-		for (int j = 0; j < GetSize(wr_ports); j++) {
-			auto &wport = wr_ports[j];
-			if (port.priority_mask[j] && !wport.removed) {
+		max_wide_log2 = std::max(max_wide_log2, पत्तनम्.wide_log2);
+		log_assert(Get_आकार(पत्तनम्.प्राथमिकता_आवरणम्) == Get_आकार(wr_ports));
+		प्रति (पूर्णाङ्क j = 0; j < Get_आकार(wr_ports); j++) {
+			स्वचालित &wport = wr_ports[j];
+			यदि (पत्तनम्.प्राथमिकता_आवरणम्[j] && !wport.removed) {
 				log_assert(j < i);
-				log_assert(port.clk_enable == wport.clk_enable);
-				if (port.clk_enable) {
-					log_assert(port.clk == wport.clk);
-					log_assert(port.clk_polarity == wport.clk_polarity);
+				log_assert(पत्तनम्.clk_enable == wport.clk_enable);
+				यदि (पत्तनम्.clk_enable) {
+					log_assert(पत्तनम्.clk == wport.clk);
+					log_assert(पत्तनम्.clk_polarity == wport.clk_polarity);
 				}
 			}
 		}
 	}
-	int mask = (1 << max_wide_log2) - 1;
-	log_assert(!(start_offset & mask));
-	log_assert(!(size & mask));
-	log_assert(width != 0);
+	पूर्णाङ्क आवरणम् = (1 << max_wide_log2) - 1;
+	log_assert(!(start_विस्थापनम् & आवरणम्));
+	log_assert(!(आकार & आवरणम्));
+	log_assert(विस्तारः != 0);
 }
 
-namespace {
+नामाकाश {
 
-	struct MemIndex {
+	संरचना Mem_सूचकांक {
 		dict<std::string, pool<Cell *>> rd_ports;
 		dict<std::string, pool<Cell *>> wr_ports;
 		dict<std::string, pool<Cell *>> inits;
-		MemIndex (Module *module) {
-			for (auto cell: module->cells()) {
-				if (cell->type.in(ID($memwr), ID($memwr_v2)))
-					wr_ports[cell->parameters.at(ID::MEMID).decode_string()].insert(cell);
-				else if (cell->type.in(ID($memrd), ID($memrd_v2)))
-					rd_ports[cell->parameters.at(ID::MEMID).decode_string()].insert(cell);
-				else if (cell->type.in(ID($meminit), ID($meminit_v2)))
-					inits[cell->parameters.at(ID::MEMID).decode_string()].insert(cell);
+		Mem_सूचकांक (Module *module) {
+			प्रति (स्वचालित cell: module->cells()) {
+				यदि (cell->type.अन्तर्(ID($memwr), ID($memwr_v2)))
+					wr_ports[cell->parameters.at(ID::MEMID).decode_string()].निवेशय(cell);
+				अन्यथा यदि (cell->type.अन्तर्(ID($memrd), ID($memrd_v2)))
+					rd_ports[cell->parameters.at(ID::MEMID).decode_string()].निवेशय(cell);
+				अन्यथा यदि (cell->type.अन्तर्(ID($meminit), ID($meminit_v2)))
+					inits[cell->parameters.at(ID::MEMID).decode_string()].निवेशय(cell);
 			}
 		}
 	};
 
-	Mem mem_from_memory(Module *module, RTLIL::Memory *mem, const MemIndex &index) {
+	Mem mem_from_स्मृतिः(Module *module, RTLIL::स्मृतिः *mem, ध्रुव Mem_सूचकांक &सूचकांक) {
 		std::string memid = mem->name.str();
-		Mem res(module, mem->name, mem->width, mem->start_offset, mem->size);
-		res.packed = false;
+		Mem res(module, mem->name, mem->विस्तारः, mem->start_विस्थापनम्, mem->आकार);
+		res.packed = असत्य;
 		res.mem = mem;
-		res.attributes = mem->attributes;
-		std::vector<bool> rd_transparent;
-		std::vector<int> wr_portid;
-		if (index.rd_ports.count(memid)) {
-			for (auto cell : index.rd_ports.at(memid)) {
+		res.गुणाः = mem->गुणाः;
+		std::सदिशम्<तार्किक> rd_transparent;
+		std::सदिशम्<पूर्णाङ्क> wr_portid;
+		यदि (सूचकांक.rd_ports.गणनम्(memid)) {
+			प्रति (स्वचालित cell : सूचकांक.rd_ports.at(memid)) {
 				MemRd mrd;
-				bool is_compat = cell->type == ID($memrd);
+				तार्किक is_compat = cell->type == ID($memrd);
 				mrd.cell = cell;
-				mrd.attributes = cell->attributes;
+				mrd.गुणाः = cell->गुणाः;
 				mrd.clk_enable = cell->parameters.at(ID::CLK_ENABLE).as_bool();
 				mrd.clk_polarity = cell->parameters.at(ID::CLK_POLARITY).as_bool();
-				mrd.clk = cell->getPort(ID::CLK);
-				mrd.en = cell->getPort(ID::EN);
-				mrd.addr = cell->getPort(ID::ADDR);
-				mrd.data = cell->getPort(ID::DATA);
-				mrd.wide_log2 = ceil_log2(GetSize(mrd.data) / mem->width);
-				bool transparent = false;
-				if (is_compat) {
+				mrd.clk = cell->get_पत्तनम्(ID::CLK);
+				mrd.en = cell->get_पत्तनम्(ID::EN);
+				mrd.addr = cell->get_पत्तनम्(ID::ADDR);
+				mrd.दत्त = cell->get_पत्तनम्(ID::दत्त_2);
+				mrd.wide_log2 = ceil_log2(Get_आकार(mrd.दत्त) / mem->विस्तारः);
+				तार्किक transparent = असत्य;
+				यदि (is_compat) {
 					transparent = cell->parameters.at(ID::TRANSPARENT).as_bool();
-					mrd.ce_over_srst = false;
-					mrd.arst_value = Const(State::Sx, mem->width << mrd.wide_log2);
-					mrd.srst_value = Const(State::Sx, mem->width << mrd.wide_log2);
-					mrd.init_value = Const(State::Sx, mem->width << mrd.wide_log2);
+					mrd.ce_over_srst = असत्य;
+					mrd.arst_मानम् = Const(State::Sx, mem->विस्तारः << mrd.wide_log2);
+					mrd.srst_मानम् = Const(State::Sx, mem->विस्तारः << mrd.wide_log2);
+					mrd.init_मानम् = Const(State::Sx, mem->विस्तारः << mrd.wide_log2);
 					mrd.srst = State::S0;
 					mrd.arst = State::S0;
-					if (!mrd.clk_enable) {
+					यदि (!mrd.clk_enable) {
 						// Fix some patterns that we'll allow for backwards compatibility,
 						// but don't want to see moving forwards: async transparent
 						// ports (inherently meaningless) and async ports without
 						// const 1 tied to EN bit (which may mean a latch in the future).
-						transparent = false;
-						if (mrd.en == State::Sx)
+						transparent = असत्य;
+						यदि (mrd.en == State::Sx)
 							mrd.en = State::S1;
 					}
-				} else {
+				} अन्यथा {
 					mrd.ce_over_srst = cell->parameters.at(ID::CE_OVER_SRST).as_bool();
-					mrd.arst_value = cell->parameters.at(ID::ARST_VALUE);
-					mrd.srst_value = cell->parameters.at(ID::SRST_VALUE);
-					mrd.init_value = cell->parameters.at(ID::INIT_VALUE);
-					mrd.arst = cell->getPort(ID::ARST);
-					mrd.srst = cell->getPort(ID::SRST);
+					mrd.arst_मानम् = cell->parameters.at(ID::ARST_मानम्);
+					mrd.srst_मानम् = cell->parameters.at(ID::SRST_मानम्);
+					mrd.init_मानम् = cell->parameters.at(ID::INIT_मानम्);
+					mrd.arst = cell->get_पत्तनम्(ID::ARST);
+					mrd.srst = cell->get_पत्तनम्(ID::SRST);
 				}
-				res.rd_ports.push_back(mrd);
-				rd_transparent.push_back(transparent);
+				res.rd_ports.प्रक्षिप_पृष्ठभागः(mrd);
+				rd_transparent.प्रक्षिप_पृष्ठभागः(transparent);
 			}
 		}
-		if (index.wr_ports.count(memid)) {
-			std::vector<std::pair<int, MemWr>> ports;
-			for (auto cell : index.wr_ports.at(memid)) {
+		यदि (सूचकांक.wr_ports.गणनम्(memid)) {
+			std::सदिशम्<std::pair<पूर्णाङ्क, MemWr>> ports;
+			प्रति (स्वचालित cell : सूचकांक.wr_ports.at(memid)) {
 				MemWr mwr;
-				bool is_compat = cell->type == ID($memwr);
+				तार्किक is_compat = cell->type == ID($memwr);
 				mwr.cell = cell;
-				mwr.attributes = cell->attributes;
+				mwr.गुणाः = cell->गुणाः;
 				mwr.clk_enable = cell->parameters.at(ID::CLK_ENABLE).as_bool();
 				mwr.clk_polarity = cell->parameters.at(ID::CLK_POLARITY).as_bool();
-				mwr.clk = cell->getPort(ID::CLK);
-				mwr.en = cell->getPort(ID::EN);
-				mwr.addr = cell->getPort(ID::ADDR);
-				mwr.data = cell->getPort(ID::DATA);
-				mwr.wide_log2 = ceil_log2(GetSize(mwr.data) / mem->width);
-				ports.push_back(std::make_pair(cell->parameters.at(is_compat ? ID::PRIORITY : ID::PORTID).as_int(), mwr));
+				mwr.clk = cell->get_पत्तनम्(ID::CLK);
+				mwr.en = cell->get_पत्तनम्(ID::EN);
+				mwr.addr = cell->get_पत्तनम्(ID::ADDR);
+				mwr.दत्त = cell->get_पत्तनम्(ID::दत्त_2);
+				mwr.wide_log2 = ceil_log2(Get_आकार(mwr.दत्त) / mem->विस्तारः);
+				ports.प्रक्षिप_पृष्ठभागः(std::make_pair(cell->parameters.at(is_compat ? ID::प्राथमिकता : ID::PORTID).as_int(), mwr));
 			}
-			std::sort(ports.begin(), ports.end(), [](const std::pair<int, MemWr> &a, const std::pair<int, MemWr> &b) { return a.first < b.first; });
-			for (auto &it : ports) {
-				res.wr_ports.push_back(it.second);
-				wr_portid.push_back(it.first);
+			std::क्रमय(ports.begin(), ports.अन्तः(), [](ध्रुव std::pair<पूर्णाङ्क, MemWr> &a, ध्रुव std::pair<पूर्णाङ्क, MemWr> &b) { प्रत्यागम a.first < b.first; });
+			प्रति (स्वचालित &it : ports) {
+				res.wr_ports.प्रक्षिप_पृष्ठभागः(it.second);
+				wr_portid.प्रक्षिप_पृष्ठभागः(it.first);
 			}
-			for (int i = 0; i < GetSize(res.wr_ports); i++) {
-				auto &port = res.wr_ports[i];
-				bool is_compat = port.cell->type == ID($memwr);
-				if (is_compat) {
-					port.priority_mask.resize(GetSize(res.wr_ports));
-					for (int j = 0; j < i; j++) {
-						auto &oport = res.wr_ports[j];
-						if (port.clk_enable != oport.clk_enable)
-							continue;
-						if (port.clk_enable && port.clk != oport.clk)
-							continue;
-						if (port.clk_enable && port.clk_polarity != oport.clk_polarity)
-							continue;
-						port.priority_mask[j] = true;
+			प्रति (पूर्णाङ्क i = 0; i < Get_आकार(res.wr_ports); i++) {
+				स्वचालित &पत्तनम् = res.wr_ports[i];
+				तार्किक is_compat = पत्तनम्.cell->type == ID($memwr);
+				यदि (is_compat) {
+					पत्तनम्.प्राथमिकता_आवरणम्.resize(Get_आकार(res.wr_ports));
+					प्रति (पूर्णाङ्क j = 0; j < i; j++) {
+						स्वचालित &oport = res.wr_ports[j];
+						यदि (पत्तनम्.clk_enable != oport.clk_enable)
+							अनुवर्त;
+						यदि (पत्तनम्.clk_enable && पत्तनम्.clk != oport.clk)
+							अनुवर्त;
+						यदि (पत्तनम्.clk_enable && पत्तनम्.clk_polarity != oport.clk_polarity)
+							अनुवर्त;
+						पत्तनम्.प्राथमिकता_आवरणम्[j] = सत्य;
 					}
-				} else {
-					Const orig_prio_mask = port.cell->parameters.at(ID::PRIORITY_MASK);
-					for (int orig_portid : wr_portid) {
-						bool has_prio = orig_portid < GetSize(orig_prio_mask) && orig_prio_mask[orig_portid] == State::S1;
-						port.priority_mask.push_back(has_prio);
+				} अन्यथा {
+					Const orig_prio_आवरणम् = पत्तनम्.cell->parameters.at(ID::प्राथमिकता_आवरणम्_2);
+					प्रति (पूर्णाङ्क orig_portid : wr_portid) {
+						तार्किक has_prio = orig_portid < Get_आकार(orig_prio_आवरणम्) && orig_prio_आवरणम्[orig_portid] == State::S1;
+						पत्तनम्.प्राथमिकता_आवरणम्.प्रक्षिप_पृष्ठभागः(has_prio);
 					}
 				}
 			}
 		}
-		if (index.inits.count(memid)) {
-			std::vector<std::pair<int, MemInit>> inits;
-			for (auto cell : index.inits.at(memid)) {
+		यदि (सूचकांक.inits.गणनम्(memid)) {
+			std::सदिशम्<std::pair<पूर्णाङ्क, MemInit>> inits;
+			प्रति (स्वचालित cell : सूचकांक.inits.at(memid)) {
 				MemInit init;
 				init.cell = cell;
-				init.attributes = cell->attributes;
-				auto addr = cell->getPort(ID::ADDR);
-				auto data = cell->getPort(ID::DATA);
-				if (!addr.is_fully_const())
+				init.गुणाः = cell->गुणाः;
+				स्वचालित addr = cell->get_पत्तनम्(ID::ADDR);
+				स्वचालित दत्त = cell->get_पत्तनम्(ID::दत्त_2);
+				यदि (!addr.is_fully_const())
 					log_error("Non-constant address %s in memory initialization %s.\n", log_signal(addr), cell);
-				if (!data.is_fully_const())
-					log_error("Non-constant data %s in memory initialization %s.\n", log_signal(data), cell);
+				यदि (!दत्त.is_fully_const())
+					log_error("Non-constant data %s in memory initialization %s.\n", log_signal(दत्त), cell);
 				init.addr = addr.as_const();
-				init.data = data.as_const();
-				if (cell->type == ID($meminit_v2)) {
-					auto en = cell->getPort(ID::EN);
-					if (!en.is_fully_const())
+				init.दत्त = दत्त.as_const();
+				यदि (cell->type == ID($meminit_v2)) {
+					स्वचालित en = cell->get_पत्तनम्(ID::EN);
+					यदि (!en.is_fully_const())
 						log_error("Non-constant enable %s in memory initialization %s.\n", log_signal(en), cell);
 					init.en = en.as_const();
-				} else {
-					init.en = RTLIL::Const(State::S1, mem->width);
+				} अन्यथा {
+					init.en = RTLIL::Const(State::S1, mem->विस्तारः);
 				}
-				inits.push_back(std::make_pair(cell->parameters.at(ID::PRIORITY).as_int(), init));
+				inits.प्रक्षिप_पृष्ठभागः(std::make_pair(cell->parameters.at(ID::प्राथमिकता).as_int(), init));
 			}
-			std::sort(inits.begin(), inits.end(), [](const std::pair<int, MemInit> &a, const std::pair<int, MemInit> &b) { return a.first < b.first; });
-			for (auto &it : inits)
-				res.inits.push_back(it.second);
+			std::क्रमय(inits.begin(), inits.अन्तः(), [](ध्रुव std::pair<पूर्णाङ्क, MemInit> &a, ध्रुव std::pair<पूर्णाङ्क, MemInit> &b) { प्रत्यागम a.first < b.first; });
+			प्रति (स्वचालित &it : inits)
+				res.inits.प्रक्षिप_पृष्ठभागः(it.second);
 		}
-		for (int i = 0; i < GetSize(res.rd_ports); i++) {
-			auto &port = res.rd_ports[i];
-			bool is_compat = port.cell->type == ID($memrd);
-			if (is_compat) {
-				port.transparency_mask.resize(GetSize(res.wr_ports));
-				port.collision_x_mask.resize(GetSize(res.wr_ports));
-				if (!rd_transparent[i])
-					continue;
-				if (!port.clk_enable)
-					continue;
-				for (int j = 0; j < GetSize(res.wr_ports); j++) {
-					auto &wport = res.wr_ports[j];
-					if (!wport.clk_enable)
-						continue;
-					if (port.clk != wport.clk)
-						continue;
-					if (port.clk_polarity != wport.clk_polarity)
-						continue;
-					port.transparency_mask[j] = true;
+		प्रति (पूर्णाङ्क i = 0; i < Get_आकार(res.rd_ports); i++) {
+			स्वचालित &पत्तनम् = res.rd_ports[i];
+			तार्किक is_compat = पत्तनम्.cell->type == ID($memrd);
+			यदि (is_compat) {
+				पत्तनम्.transparency_आवरणम्.resize(Get_आकार(res.wr_ports));
+				पत्तनम्.collision_x_आवरणम्.resize(Get_आकार(res.wr_ports));
+				यदि (!rd_transparent[i])
+					अनुवर्त;
+				यदि (!पत्तनम्.clk_enable)
+					अनुवर्त;
+				प्रति (पूर्णाङ्क j = 0; j < Get_आकार(res.wr_ports); j++) {
+					स्वचालित &wport = res.wr_ports[j];
+					यदि (!wport.clk_enable)
+						अनुवर्त;
+					यदि (पत्तनम्.clk != wport.clk)
+						अनुवर्त;
+					यदि (पत्तनम्.clk_polarity != wport.clk_polarity)
+						अनुवर्त;
+					पत्तनम्.transparency_आवरणम्[j] = सत्य;
 				}
-			} else {
-				Const orig_trans_mask = port.cell->parameters.at(ID::TRANSPARENCY_MASK);
-				Const orig_cx_mask = port.cell->parameters.at(ID::COLLISION_X_MASK);
-				for (int orig_portid : wr_portid) {
-					port.transparency_mask.push_back(orig_portid < GetSize(orig_trans_mask) && orig_trans_mask[orig_portid] == State::S1);
-					port.collision_x_mask.push_back(orig_portid < GetSize(orig_cx_mask) && orig_cx_mask[orig_portid] == State::S1);
+			} अन्यथा {
+				Const orig_trans_आवरणम् = पत्तनम्.cell->parameters.at(ID::TRANSPARENCY_आवरणम्);
+				Const orig_cx_आवरणम् = पत्तनम्.cell->parameters.at(ID::COLLISION_X_आवरणम्);
+				प्रति (पूर्णाङ्क orig_portid : wr_portid) {
+					पत्तनम्.transparency_आवरणम्.प्रक्षिप_पृष्ठभागः(orig_portid < Get_आकार(orig_trans_आवरणम्) && orig_trans_आवरणम्[orig_portid] == State::S1);
+					पत्तनम्.collision_x_आवरणम्.प्रक्षिप_पृष्ठभागः(orig_portid < Get_आकार(orig_cx_आवरणम्) && orig_cx_आवरणम्[orig_portid] == State::S1);
 				}
 			}
 		}
 		res.check();
-		return res;
+		प्रत्यागम res;
 	}
 
 	Mem mem_from_cell(Cell *cell) {
-		Mem res(cell->module, cell->twines().add(cell->parameters.at(ID::MEMID).decode_string()),
-			cell->parameters.at(ID::WIDTH).as_int(),
-			cell->parameters.at(ID::OFFSET).as_int(),
-			cell->parameters.at(ID::SIZE).as_int()
+		Mem res(cell->module, cell->twines().सङ्कलय(cell->parameters.at(ID::MEMID).decode_string()),
+			cell->parameters.at(ID::विस्तारः_2).as_int(),
+			cell->parameters.at(ID::विस्थापनम्_2).as_int(),
+			cell->parameters.at(ID::आकार_2).as_int()
 		);
-		bool is_compat = cell->type == ID($mem);
-		int abits = cell->parameters.at(ID::ABITS).as_int();
-		res.packed = true;
+		तार्किक is_compat = cell->type == ID($mem);
+		पूर्णाङ्क abits = cell->parameters.at(ID::ABITS).as_int();
+		res.packed = सत्य;
 		res.cell = cell;
-		res.attributes = cell->attributes;
+		res.गुणाः = cell->गुणाः;
 		Const &init = cell->parameters.at(ID::INIT);
-		if (!init.is_fully_undef()) {
-			int pos = 0;
-			while (pos < res.size) {
-				Const word = init.extract(pos * res.width, res.width, State::Sx);
-				if (word.is_fully_undef()) {
+		यदि (!init.is_fully_undef()) {
+			पूर्णाङ्क pos = 0;
+			यावत् (pos < res.आकार) {
+				Const word = init.extract(pos * res.विस्तारः, res.विस्तारः, State::Sx);
+				यदि (word.is_fully_undef()) {
 					pos++;
-				} else {
-					int epos;
-					for (epos = pos; epos < res.size; epos++) {
-						Const eword = init.extract(epos * res.width, res.width, State::Sx);
-						if (eword.is_fully_undef())
-							break;
+				} अन्यथा {
+					पूर्णाङ्क epos;
+					प्रति (epos = pos; epos < res.आकार; epos++) {
+						Const eword = init.extract(epos * res.विस्तारः, res.विस्तारः, State::Sx);
+						यदि (eword.is_fully_undef())
+							भङ्ग;
 					}
 					MemInit minit;
-					minit.addr = res.start_offset + pos;
-					minit.data = init.extract(pos * res.width, (epos - pos) * res.width, State::Sx);
-					minit.en = RTLIL::Const(State::S1, res.width);
-					res.inits.push_back(minit);
+					minit.addr = res.start_विस्थापनम् + pos;
+					minit.दत्त = init.extract(pos * res.विस्तारः, (epos - pos) * res.विस्तारः, State::Sx);
+					minit.en = RTLIL::Const(State::S1, res.विस्तारः);
+					res.inits.प्रक्षिप_पृष्ठभागः(minit);
 					pos = epos;
 				}
 			}
 		}
-		int n_rd_ports = cell->parameters.at(ID::RD_PORTS).as_int();
-		int n_wr_ports = cell->parameters.at(ID::WR_PORTS).as_int();
+		पूर्णाङ्क n_rd_ports = cell->parameters.at(ID::RD_PORTS).as_int();
+		पूर्णाङ्क n_wr_ports = cell->parameters.at(ID::WR_PORTS).as_int();
 		Const rd_wide_continuation = is_compat ? Const(State::S0, n_rd_ports) : cell->parameters.at(ID::RD_WIDE_CONTINUATION);
 		Const wr_wide_continuation = is_compat ? Const(State::S0, n_wr_ports) : cell->parameters.at(ID::WR_WIDE_CONTINUATION);
-		for (int i = 0, ni; i < n_rd_ports; i = ni) {
+		प्रति (पूर्णाङ्क i = 0, ni; i < n_rd_ports; i = ni) {
 			ni = i + 1;
-			while (ni < n_rd_ports && rd_wide_continuation[ni] == State::S1)
+			यावत् (ni < n_rd_ports && rd_wide_continuation[ni] == State::S1)
 				ni++;
 			MemRd mrd;
 			mrd.wide_log2 = ceil_log2(ni - i);
 			log_assert(ni - i == (1 << mrd.wide_log2));
 			mrd.clk_enable = cell->parameters.at(ID::RD_CLK_ENABLE).extract(i, 1).as_bool();
 			mrd.clk_polarity = cell->parameters.at(ID::RD_CLK_POLARITY).extract(i, 1).as_bool();
-			mrd.clk = cell->getPort(ID::RD_CLK).extract(i, 1);
-			mrd.en = cell->getPort(ID::RD_EN).extract(i, 1);
-			mrd.addr = cell->getPort(ID::RD_ADDR).extract(i * abits, abits);
-			mrd.data = cell->getPort(ID::RD_DATA).extract(i * res.width, (ni - i) * res.width);
-			if (is_compat) {
-				mrd.ce_over_srst = false;
-				mrd.arst_value = Const(State::Sx, res.width << mrd.wide_log2);
-				mrd.srst_value = Const(State::Sx, res.width << mrd.wide_log2);
-				mrd.init_value = Const(State::Sx, res.width << mrd.wide_log2);
+			mrd.clk = cell->get_पत्तनम्(ID::RD_CLK).extract(i, 1);
+			mrd.en = cell->get_पत्तनम्(ID::RD_EN).extract(i, 1);
+			mrd.addr = cell->get_पत्तनम्(ID::RD_ADDR).extract(i * abits, abits);
+			mrd.दत्त = cell->get_पत्तनम्(ID::RD_दत्त).extract(i * res.विस्तारः, (ni - i) * res.विस्तारः);
+			यदि (is_compat) {
+				mrd.ce_over_srst = असत्य;
+				mrd.arst_मानम् = Const(State::Sx, res.विस्तारः << mrd.wide_log2);
+				mrd.srst_मानम् = Const(State::Sx, res.विस्तारः << mrd.wide_log2);
+				mrd.init_मानम् = Const(State::Sx, res.विस्तारः << mrd.wide_log2);
 				mrd.arst = State::S0;
 				mrd.srst = State::S0;
-			} else {
+			} अन्यथा {
 				mrd.ce_over_srst = cell->parameters.at(ID::RD_CE_OVER_SRST).extract(i, 1).as_bool();
-				mrd.arst_value = cell->parameters.at(ID::RD_ARST_VALUE).extract(i * res.width, (ni - i) * res.width);
-				mrd.srst_value = cell->parameters.at(ID::RD_SRST_VALUE).extract(i * res.width, (ni - i) * res.width);
-				mrd.init_value = cell->parameters.at(ID::RD_INIT_VALUE).extract(i * res.width, (ni - i) * res.width);
-				mrd.arst = cell->getPort(ID::RD_ARST).extract(i, 1);
-				mrd.srst = cell->getPort(ID::RD_SRST).extract(i, 1);
+				mrd.arst_मानम् = cell->parameters.at(ID::RD_ARST_मानम्).extract(i * res.विस्तारः, (ni - i) * res.विस्तारः);
+				mrd.srst_मानम् = cell->parameters.at(ID::RD_SRST_मानम्).extract(i * res.विस्तारः, (ni - i) * res.विस्तारः);
+				mrd.init_मानम् = cell->parameters.at(ID::RD_INIT_मानम्).extract(i * res.विस्तारः, (ni - i) * res.विस्तारः);
+				mrd.arst = cell->get_पत्तनम्(ID::RD_ARST).extract(i, 1);
+				mrd.srst = cell->get_पत्तनम्(ID::RD_SRST).extract(i, 1);
 			}
-			if (!is_compat) {
-				Const transparency_mask = cell->parameters.at(ID::RD_TRANSPARENCY_MASK).extract(i * n_wr_ports, n_wr_ports);
-				Const collision_x_mask = cell->parameters.at(ID::RD_COLLISION_X_MASK).extract(i * n_wr_ports, n_wr_ports);
-				for (int j = 0; j < n_wr_ports; j++)
-					if (wr_wide_continuation[j] != State::S1) {
-						mrd.transparency_mask.push_back(transparency_mask[j] == State::S1);
-						mrd.collision_x_mask.push_back(collision_x_mask[j] == State::S1);
+			यदि (!is_compat) {
+				Const transparency_आवरणम् = cell->parameters.at(ID::RD_TRANSPARENCY_आवरणम्).extract(i * n_wr_ports, n_wr_ports);
+				Const collision_x_आवरणम् = cell->parameters.at(ID::RD_COLLISION_X_आवरणम्).extract(i * n_wr_ports, n_wr_ports);
+				प्रति (पूर्णाङ्क j = 0; j < n_wr_ports; j++)
+					यदि (wr_wide_continuation[j] != State::S1) {
+						mrd.transparency_आवरणम्.प्रक्षिप_पृष्ठभागः(transparency_आवरणम्[j] == State::S1);
+						mrd.collision_x_आवरणम्.प्रक्षिप_पृष्ठभागः(collision_x_आवरणम्[j] == State::S1);
 					}
 			}
-			res.rd_ports.push_back(mrd);
+			res.rd_ports.प्रक्षिप_पृष्ठभागः(mrd);
 		}
-		for (int i = 0, ni; i < n_wr_ports; i = ni) {
+		प्रति (पूर्णाङ्क i = 0, ni; i < n_wr_ports; i = ni) {
 			ni = i + 1;
-			while (ni < n_wr_ports && wr_wide_continuation[ni] == State::S1)
+			यावत् (ni < n_wr_ports && wr_wide_continuation[ni] == State::S1)
 				ni++;
 			MemWr mwr;
 			mwr.wide_log2 = ceil_log2(ni - i);
 			log_assert(ni - i == (1 << mwr.wide_log2));
 			mwr.clk_enable = cell->parameters.at(ID::WR_CLK_ENABLE).extract(i, 1).as_bool();
 			mwr.clk_polarity = cell->parameters.at(ID::WR_CLK_POLARITY).extract(i, 1).as_bool();
-			mwr.clk = cell->getPort(ID::WR_CLK).extract(i, 1);
-			mwr.en = cell->getPort(ID::WR_EN).extract(i * res.width, (ni - i) * res.width);
-			mwr.addr = cell->getPort(ID::WR_ADDR).extract(i * abits, abits);
-			mwr.data = cell->getPort(ID::WR_DATA).extract(i * res.width, (ni - i) * res.width);
-			if (!is_compat) {
-				Const priority_mask = cell->parameters.at(ID::WR_PRIORITY_MASK).extract(i * n_wr_ports, n_wr_ports);
-				for (int j = 0; j < n_wr_ports; j++)
-					if (wr_wide_continuation[j] != State::S1)
-						mwr.priority_mask.push_back(priority_mask[j] == State::S1);
+			mwr.clk = cell->get_पत्तनम्(ID::WR_CLK).extract(i, 1);
+			mwr.en = cell->get_पत्तनम्(ID::WR_EN).extract(i * res.विस्तारः, (ni - i) * res.विस्तारः);
+			mwr.addr = cell->get_पत्तनम्(ID::WR_ADDR).extract(i * abits, abits);
+			mwr.दत्त = cell->get_पत्तनम्(ID::WR_दत्त).extract(i * res.विस्तारः, (ni - i) * res.विस्तारः);
+			यदि (!is_compat) {
+				Const प्राथमिकता_आवरणम् = cell->parameters.at(ID::WR_प्राथमिकता_आवरणम्).extract(i * n_wr_ports, n_wr_ports);
+				प्रति (पूर्णाङ्क j = 0; j < n_wr_ports; j++)
+					यदि (wr_wide_continuation[j] != State::S1)
+						mwr.प्राथमिकता_आवरणम्.प्रक्षिप_पृष्ठभागः(प्राथमिकता_आवरणम्[j] == State::S1);
 			}
-			res.wr_ports.push_back(mwr);
+			res.wr_ports.प्रक्षिप_पृष्ठभागः(mwr);
 		}
-		if (is_compat) {
-			for (int i = 0; i < GetSize(res.wr_ports); i++) {
-				auto &port = res.wr_ports[i];
-				port.priority_mask.resize(GetSize(res.wr_ports));
-				for (int j = 0; j < i; j++) {
-					auto &oport = res.wr_ports[j];
-					if (port.clk_enable != oport.clk_enable)
-						continue;
-					if (port.clk_enable && port.clk != oport.clk)
-						continue;
-					if (port.clk_enable && port.clk_polarity != oport.clk_polarity)
-						continue;
-					port.priority_mask[j] = true;
+		यदि (is_compat) {
+			प्रति (पूर्णाङ्क i = 0; i < Get_आकार(res.wr_ports); i++) {
+				स्वचालित &पत्तनम् = res.wr_ports[i];
+				पत्तनम्.प्राथमिकता_आवरणम्.resize(Get_आकार(res.wr_ports));
+				प्रति (पूर्णाङ्क j = 0; j < i; j++) {
+					स्वचालित &oport = res.wr_ports[j];
+					यदि (पत्तनम्.clk_enable != oport.clk_enable)
+						अनुवर्त;
+					यदि (पत्तनम्.clk_enable && पत्तनम्.clk != oport.clk)
+						अनुवर्त;
+					यदि (पत्तनम्.clk_enable && पत्तनम्.clk_polarity != oport.clk_polarity)
+						अनुवर्त;
+					पत्तनम्.प्राथमिकता_आवरणम्[j] = सत्य;
 				}
 			}
-			for (int i = 0; i < GetSize(res.rd_ports); i++) {
-				auto &port = res.rd_ports[i];
-				port.transparency_mask.resize(GetSize(res.wr_ports));
-				port.collision_x_mask.resize(GetSize(res.wr_ports));
-				if (!cell->parameters.at(ID::RD_TRANSPARENT).extract(i, 1).as_bool())
-					continue;
-				if (!port.clk_enable)
-					continue;
-				for (int j = 0; j < GetSize(res.wr_ports); j++) {
-					auto &wport = res.wr_ports[j];
-					if (!wport.clk_enable)
-						continue;
-					if (port.clk != wport.clk)
-						continue;
-					if (port.clk_polarity != wport.clk_polarity)
-						continue;
-					port.transparency_mask[j] = true;
+			प्रति (पूर्णाङ्क i = 0; i < Get_आकार(res.rd_ports); i++) {
+				स्वचालित &पत्तनम् = res.rd_ports[i];
+				पत्तनम्.transparency_आवरणम्.resize(Get_आकार(res.wr_ports));
+				पत्तनम्.collision_x_आवरणम्.resize(Get_आकार(res.wr_ports));
+				यदि (!cell->parameters.at(ID::RD_TRANSPARENT).extract(i, 1).as_bool())
+					अनुवर्त;
+				यदि (!पत्तनम्.clk_enable)
+					अनुवर्त;
+				प्रति (पूर्णाङ्क j = 0; j < Get_आकार(res.wr_ports); j++) {
+					स्वचालित &wport = res.wr_ports[j];
+					यदि (!wport.clk_enable)
+						अनुवर्त;
+					यदि (पत्तनम्.clk != wport.clk)
+						अनुवर्त;
+					यदि (पत्तनम्.clk_polarity != wport.clk_polarity)
+						अनुवर्त;
+					पत्तनम्.transparency_आवरणम्[j] = सत्य;
 				}
 			}
 		}
 		res.check();
-		return res;
+		प्रत्यागम res;
 	}
 
 }
 
-std::vector<Mem> Mem::get_all_memories(Module *module) {
-	std::vector<Mem> res;
-	MemIndex index(module);
-	for (auto it: module->memories) {
-		res.push_back(mem_from_memory(module, it.second, index));
+std::सदिशम्<Mem> Mem::get_all_memories(Module *module) {
+	std::सदिशम्<Mem> res;
+	Mem_सूचकांक सूचकांक(module);
+	प्रति (स्वचालित it: module->memories) {
+		res.प्रक्षिप_पृष्ठभागः(mem_from_स्मृतिः(module, it.second, सूचकांक));
 	}
-	for (auto cell: module->cells()) {
-		if (cell->type.in(ID($mem), ID($mem_v2)))
-			res.push_back(mem_from_cell(cell));
+	प्रति (स्वचालित cell: module->cells()) {
+		यदि (cell->type.अन्तर्(ID($mem), ID($mem_v2)))
+			res.प्रक्षिप_पृष्ठभागः(mem_from_cell(cell));
 	}
-	return res;
+	प्रत्यागम res;
 }
 
-std::vector<Mem> Mem::get_selected_memories(Module *module) {
-	std::vector<Mem> res;
-	MemIndex index(module);
-	for (auto it: module->memories) {
-		if (module->design->selected(module, it.second))
-			res.push_back(mem_from_memory(module, it.second, index));
+std::सदिशम्<Mem> Mem::get_selected_memories(Module *module) {
+	std::सदिशम्<Mem> res;
+	Mem_सूचकांक सूचकांक(module);
+	प्रति (स्वचालित it: module->memories) {
+		यदि (module->design->selected(module, it.second))
+			res.प्रक्षिप_पृष्ठभागः(mem_from_स्मृतिः(module, it.second, सूचकांक));
 	}
-	for (auto cell: module->selected_cells()) {
-		if (cell->type.in(ID($mem), ID($mem_v2)))
-			res.push_back(mem_from_cell(cell));
+	प्रति (स्वचालित cell: module->selected_cells()) {
+		यदि (cell->type.अन्तर्(ID($mem), ID($mem_v2)))
+			res.प्रक्षिप_पृष्ठभागः(mem_from_cell(cell));
 	}
-	return res;
+	प्रत्यागम res;
 }
 
-Cell *Mem::extract_rdff(int idx, FfInitVals *initvals) {
-	MemRd &port = rd_ports[idx];
+Cell *Mem::extract_rdff(पूर्णाङ्क idx, FfInitVals *initvals) {
+	MemRd &पत्तनम् = rd_ports[idx];
 
-	if (!port.clk_enable)
-		return nullptr;
+	यदि (!पत्तनम्.clk_enable)
+		प्रत्यागम शून्यसूचकः;
 
 	log_assert(module && module->design);
 	std::string memid_str = memid.str();
@@ -902,1020 +902,1020 @@ Cell *Mem::extract_rdff(int idx, FfInitVals *initvals) {
 	//
 	// - otherwise, put the FF on the data output, and make bypass paths for
 	//   all write ports wrt which this port is transparent
-	bool trans_use_addr = true;
-	for (int i = 0; i < GetSize(wr_ports); i++)
-		if (!port.transparency_mask[i] && !wr_ports[i].removed)
-			trans_use_addr = false;
+	तार्किक trans_use_addr = सत्य;
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(wr_ports); i++)
+		यदि (!पत्तनम्.transparency_आवरणम्[i] && !wr_ports[i].removed)
+			trans_use_addr = असत्य;
 
 	// If there are no write ports at all, we could possibly use either way; do data
 	// FF in this case.
-	if (GetSize(wr_ports) == 0)
-		trans_use_addr = false;
+	यदि (Get_आकार(wr_ports) == 0)
+		trans_use_addr = असत्य;
 
-	if (port.en != State::S1 || port.srst != State::S0 || port.arst != State::S0 || !port.init_value.is_fully_undef())
-		trans_use_addr = false;
+	यदि (पत्तनम्.en != State::S1 || पत्तनम्.srst != State::S0 || पत्तनम्.arst != State::S0 || !पत्तनम्.init_मानम्.is_fully_undef())
+		trans_use_addr = असत्य;
 
-	if (trans_use_addr)
+	यदि (trans_use_addr)
 	{
 		// Do not put a register in front of constant address bits — this is both
 		// unnecessary and will break wide ports.
-		int width = 0;
-		for (int i = 0; i < GetSize(port.addr); i++)
-			if (port.addr[i].wire)
-				width++;
+		पूर्णाङ्क विस्तारः = 0;
+		प्रति (पूर्णाङ्क i = 0; i < Get_आकार(पत्तनम्.addr); i++)
+			यदि (पत्तनम्.addr[i].wire)
+				विस्तारः++;
 
-		if (width)
+		यदि (विस्तारः)
 		{
-			SigSpec sig_q = module->addWire(stringf("$%s$rdreg[%d]$q", memid_str, idx), width);
+			SigSpec sig_q = module->सङ्कलय_Wire(stringf("$%s$rdreg[%d]$q", memid_str, idx), विस्तारः);
 			SigSpec sig_d;
 
-			int pos = 0;
-			for (int i = 0; i < GetSize(port.addr); i++)
-				if (port.addr[i].wire) {
-					sig_d.append(port.addr[i]);
-					port.addr[i] = sig_q[pos++];
+			पूर्णाङ्क pos = 0;
+			प्रति (पूर्णाङ्क i = 0; i < Get_आकार(पत्तनम्.addr); i++)
+				यदि (पत्तनम्.addr[i].wire) {
+					sig_d.append(पत्तनम्.addr[i]);
+					पत्तनम्.addr[i] = sig_q[pos++];
 				}
 
-			c = module->addDff(stringf("$%s$rdreg[%d]", memid_str, idx), port.clk, sig_d, sig_q, port.clk_polarity);
-		} else {
-			c = nullptr;
+			c = module->सङ्कलय_Dff(stringf("$%s$rdreg[%d]", memid_str, idx), पत्तनम्.clk, sig_d, sig_q, पत्तनम्.clk_polarity);
+		} अन्यथा {
+			c = शून्यसूचकः;
 		}
 	}
-	else
+	अन्यथा
 	{
-		log_assert(port.arst == State::S0 || port.srst == State::S0);
+		log_assert(पत्तनम्.arst == State::S0 || पत्तनम्.srst == State::S0);
 
-		SigSpec async_d = module->addWire(stringf("$%s$rdreg[%d]$d", memid_str, idx), GetSize(port.data));
+		SigSpec async_d = module->सङ्कलय_Wire(stringf("$%s$rdreg[%d]$d", memid_str, idx), Get_आकार(पत्तनम्.दत्त));
 		SigSpec sig_d = async_d;
 
-		for (int i = 0; i < GetSize(wr_ports); i++) {
-			auto &wport = wr_ports[i];
-			if (wport.removed)
-				continue;
-			if (port.transparency_mask[i] || port.collision_x_mask[i]) {
+		प्रति (पूर्णाङ्क i = 0; i < Get_आकार(wr_ports); i++) {
+			स्वचालित &wport = wr_ports[i];
+			यदि (wport.removed)
+				अनुवर्त;
+			यदि (पत्तनम्.transparency_आवरणम्[i] || पत्तनम्.collision_x_आवरणम्[i]) {
 				log_assert(wport.clk_enable);
-				log_assert(wport.clk == port.clk);
-				log_assert(wport.clk_enable == port.clk_enable);
-				int min_wide_log2 = std::min(port.wide_log2, wport.wide_log2);
-				int max_wide_log2 = std::max(port.wide_log2, wport.wide_log2);
-				bool wide_write = wport.wide_log2 > port.wide_log2;
-				for (int sub = 0; sub < (1 << max_wide_log2); sub += (1 << min_wide_log2)) {
-					SigSpec raddr = port.addr;
+				log_assert(wport.clk == पत्तनम्.clk);
+				log_assert(wport.clk_enable == पत्तनम्.clk_enable);
+				पूर्णाङ्क min_wide_log2 = std::min(पत्तनम्.wide_log2, wport.wide_log2);
+				पूर्णाङ्क max_wide_log2 = std::max(पत्तनम्.wide_log2, wport.wide_log2);
+				तार्किक wide_write = wport.wide_log2 > पत्तनम्.wide_log2;
+				प्रति (पूर्णाङ्क sub = 0; sub < (1 << max_wide_log2); sub += (1 << min_wide_log2)) {
+					SigSpec raddr = पत्तनम्.addr;
 					SigSpec waddr = wport.addr;
-					if (wide_write)
+					यदि (wide_write)
 						waddr = wport.sub_addr(sub);
-					else
-						raddr = port.sub_addr(sub);
+					अन्यथा
+						raddr = पत्तनम्.sub_addr(sub);
 					SigSpec addr_eq;
-					if (raddr != waddr)
+					यदि (raddr != waddr)
 						addr_eq = module->Eq(stringf("$%s$rdtransen[%d][%d][%d]$d", memid_str, idx, i, sub), raddr, waddr);
-					int pos = 0;
-					int ewidth = width << min_wide_log2;
-					int wsub = wide_write ? sub : 0;
-					int rsub = wide_write ? 0 : sub;
-					while (pos < ewidth) {
-						int epos = pos;
-						while (epos < ewidth && wport.en[epos + wsub * width] == wport.en[pos + wsub * width])
+					पूर्णाङ्क pos = 0;
+					पूर्णाङ्क ewidth = विस्तारः << min_wide_log2;
+					पूर्णाङ्क wsub = wide_write ? sub : 0;
+					पूर्णाङ्क rsub = wide_write ? 0 : sub;
+					यावत् (pos < ewidth) {
+						पूर्णाङ्क epos = pos;
+						यावत् (epos < ewidth && wport.en[epos + wsub * विस्तारः] == wport.en[pos + wsub * विस्तारः])
 							epos++;
-						SigSpec cur = sig_d.extract(pos + rsub * width, epos-pos);
-						SigSpec other = port.transparency_mask[i] ? wport.data.extract(pos + wsub * width, epos-pos) : Const(State::Sx, epos-pos);
+						SigSpec cur = sig_d.extract(pos + rsub * विस्तारः, epos-pos);
+						SigSpec other = पत्तनम्.transparency_आवरणम्[i] ? wport.दत्त.extract(pos + wsub * विस्तारः, epos-pos) : Const(State::Sx, epos-pos);
 						SigSpec cond;
-						if (raddr != waddr)
-							cond = module->And(stringf("$%s$rdtransgate[%d][%d][%d][%d]$d", memid_str, idx, i, sub, pos), wport.en[pos + wsub * width], addr_eq);
-						else
-							cond = wport.en[pos + wsub * width];
+						यदि (raddr != waddr)
+							cond = module->And(stringf("$%s$rdtransgate[%d][%d][%d][%d]$d", memid_str, idx, i, sub, pos), wport.en[pos + wsub * विस्तारः], addr_eq);
+						अन्यथा
+							cond = wport.en[pos + wsub * विस्तारः];
 						SigSpec merged = module->Mux(stringf("$%s$rdtransmux[%d][%d][%d][%d]$d", memid_str, idx, i, sub, pos), cur, other, cond);
-						sig_d.replace(pos + rsub * width, merged);
+						sig_d.replace(pos + rsub * विस्तारः, merged);
 						pos = epos;
 					}
 				}
 			}
 		}
 
-		IdString name = module->twines().add(stringf("$%s$rdreg[%d]", memid_str, idx));
-		FfData ff(module, initvals, name);
-		ff.width = GetSize(port.data);
-		ff.has_clk = true;
-		ff.sig_clk = port.clk;
-		ff.pol_clk = port.clk_polarity;
-		if (port.en != State::S1) {
-			ff.has_ce = true;
-			ff.pol_ce = true;
-			ff.sig_ce = port.en;
+		IdString name = module->twines().सङ्कलय(stringf("$%s$rdreg[%d]", memid_str, idx));
+		Ff_दत्त ff(module, initvals, name);
+		ff.विस्तारः = Get_आकार(पत्तनम्.दत्त);
+		ff.has_clk = सत्य;
+		ff.sig_clk = पत्तनम्.clk;
+		ff.pol_clk = पत्तनम्.clk_polarity;
+		यदि (पत्तनम्.en != State::S1) {
+			ff.has_ce = सत्य;
+			ff.pol_ce = सत्य;
+			ff.sig_ce = पत्तनम्.en;
 		}
-		if (port.arst != State::S0) {
-			ff.has_arst = true;
-			ff.pol_arst = true;
-			ff.sig_arst = port.arst;
-			ff.val_arst = port.arst_value;
+		यदि (पत्तनम्.arst != State::S0) {
+			ff.has_arst = सत्य;
+			ff.pol_arst = सत्य;
+			ff.sig_arst = पत्तनम्.arst;
+			ff.val_arst = पत्तनम्.arst_मानम्;
 		}
-		if (port.srst != State::S0) {
-			ff.has_srst = true;
-			ff.pol_srst = true;
-			ff.sig_srst = port.srst;
-			ff.val_srst = port.srst_value;
-			ff.ce_over_srst = ff.has_ce && port.ce_over_srst;
+		यदि (पत्तनम्.srst != State::S0) {
+			ff.has_srst = सत्य;
+			ff.pol_srst = सत्य;
+			ff.sig_srst = पत्तनम्.srst;
+			ff.val_srst = पत्तनम्.srst_मानम्;
+			ff.ce_over_srst = ff.has_ce && पत्तनम्.ce_over_srst;
 		}
 		ff.sig_d = sig_d;
-		ff.sig_q = port.data;
-		ff.val_init = port.init_value;
-		port.data = async_d;
+		ff.sig_q = पत्तनम्.दत्त;
+		ff.val_init = पत्तनम्.init_मानम्;
+		पत्तनम्.दत्त = async_d;
 		c = ff.emit();
 	}
 
-	if (c)
-		log("Extracted %s FF from read port %d of %s.%s: %s\n", trans_use_addr ? "addr" : "data",
+	यदि (c)
+		लघुगणकः("Extracted %s FF from read port %d of %s.%s: %s\n", trans_use_addr ? "addr" : "data",
 			idx, module, memid.unescape(), c);
 
-	port.en = State::S1;
-	port.clk = State::S0;
-	port.arst = State::S0;
-	port.srst = State::S0;
-	port.clk_enable = false;
-	port.clk_polarity = true;
-	port.ce_over_srst = false;
-	port.arst_value = Const(State::Sx, GetSize(port.data));
-	port.srst_value = Const(State::Sx, GetSize(port.data));
-	port.init_value = Const(State::Sx, GetSize(port.data));
+	पत्तनम्.en = State::S1;
+	पत्तनम्.clk = State::S0;
+	पत्तनम्.arst = State::S0;
+	पत्तनम्.srst = State::S0;
+	पत्तनम्.clk_enable = असत्य;
+	पत्तनम्.clk_polarity = सत्य;
+	पत्तनम्.ce_over_srst = असत्य;
+	पत्तनम्.arst_मानम् = Const(State::Sx, Get_आकार(पत्तनम्.दत्त));
+	पत्तनम्.srst_मानम् = Const(State::Sx, Get_आकार(पत्तनम्.दत्त));
+	पत्तनम्.init_मानम् = Const(State::Sx, Get_आकार(पत्तनम्.दत्त));
 
-	for (int i = 0; i < GetSize(wr_ports); i++) {
-		port.transparency_mask[i] = false;
-		port.collision_x_mask[i] = false;
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(wr_ports); i++) {
+		पत्तनम्.transparency_आवरणम्[i] = असत्य;
+		पत्तनम्.collision_x_आवरणम्[i] = असत्य;
 	}
 
-	return c;
+	प्रत्यागम c;
 }
 
-void Mem::narrow() {
+शून्य Mem::narrow() {
 	// NOTE: several passes depend on this function not modifying
 	// the design at all until (and unless) emit() is called.
 	// Be careful to preserve this.
-	std::vector<MemRd> new_rd_ports;
-	std::vector<MemWr> new_wr_ports;
-	std::vector<std::pair<int, int>> new_rd_map;
-	std::vector<std::pair<int, int>> new_wr_map;
-	for (int i = 0; i < GetSize(rd_ports); i++) {
-		auto &port = rd_ports[i];
-		for (int sub = 0; sub < (1 << port.wide_log2); sub++) {
-			new_rd_map.push_back(std::make_pair(i, sub));
+	std::सदिशम्<MemRd> new_rd_ports;
+	std::सदिशम्<MemWr> new_wr_ports;
+	std::सदिशम्<std::pair<पूर्णाङ्क, पूर्णाङ्क>> new_rd_map;
+	std::सदिशम्<std::pair<पूर्णाङ्क, पूर्णाङ्क>> new_wr_map;
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(rd_ports); i++) {
+		स्वचालित &पत्तनम् = rd_ports[i];
+		प्रति (पूर्णाङ्क sub = 0; sub < (1 << पत्तनम्.wide_log2); sub++) {
+			new_rd_map.प्रक्षिप_पृष्ठभागः(std::make_pair(i, sub));
 		}
 	}
-	for (int i = 0; i < GetSize(wr_ports); i++) {
-		auto &port = wr_ports[i];
-		for (int sub = 0; sub < (1 << port.wide_log2); sub++) {
-			new_wr_map.push_back(std::make_pair(i, sub));
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(wr_ports); i++) {
+		स्वचालित &पत्तनम् = wr_ports[i];
+		प्रति (पूर्णाङ्क sub = 0; sub < (1 << पत्तनम्.wide_log2); sub++) {
+			new_wr_map.प्रक्षिप_पृष्ठभागः(std::make_pair(i, sub));
 		}
 	}
-	for (auto &it : new_rd_map) {
+	प्रति (स्वचालित &it : new_rd_map) {
 		MemRd &orig = rd_ports[it.first];
-		MemRd port = orig;
-		if (it.second != 0)
-			port.cell = nullptr;
-		if (port.wide_log2) {
-			port.data = port.data.extract(it.second * width, width);
-			port.init_value = port.init_value.extract(it.second * width, width);
-			port.arst_value = port.arst_value.extract(it.second * width, width);
-			port.srst_value = port.srst_value.extract(it.second * width, width);
-			port.addr = port.sub_addr(it.second);
-			port.wide_log2 = 0;
+		MemRd पत्तनम् = orig;
+		यदि (it.second != 0)
+			पत्तनम्.cell = शून्यसूचकः;
+		यदि (पत्तनम्.wide_log2) {
+			पत्तनम्.दत्त = पत्तनम्.दत्त.extract(it.second * विस्तारः, विस्तारः);
+			पत्तनम्.init_मानम् = पत्तनम्.init_मानम्.extract(it.second * विस्तारः, विस्तारः);
+			पत्तनम्.arst_मानम् = पत्तनम्.arst_मानम्.extract(it.second * विस्तारः, विस्तारः);
+			पत्तनम्.srst_मानम् = पत्तनम्.srst_मानम्.extract(it.second * विस्तारः, विस्तारः);
+			पत्तनम्.addr = पत्तनम्.sub_addr(it.second);
+			पत्तनम्.wide_log2 = 0;
 		}
-		port.transparency_mask.clear();
-		port.collision_x_mask.clear();
-		for (auto &it2 : new_wr_map)
-			port.transparency_mask.push_back(orig.transparency_mask[it2.first]);
-		for (auto &it2 : new_wr_map)
-			port.collision_x_mask.push_back(orig.collision_x_mask[it2.first]);
-		new_rd_ports.push_back(port);
+		पत्तनम्.transparency_आवरणम्.clear();
+		पत्तनम्.collision_x_आवरणम्.clear();
+		प्रति (स्वचालित &it2 : new_wr_map)
+			पत्तनम्.transparency_आवरणम्.प्रक्षिप_पृष्ठभागः(orig.transparency_आवरणम्[it2.first]);
+		प्रति (स्वचालित &it2 : new_wr_map)
+			पत्तनम्.collision_x_आवरणम्.प्रक्षिप_पृष्ठभागः(orig.collision_x_आवरणम्[it2.first]);
+		new_rd_ports.प्रक्षिप_पृष्ठभागः(पत्तनम्);
 	}
-	for (auto &it : new_wr_map) {
+	प्रति (स्वचालित &it : new_wr_map) {
 		MemWr &orig = wr_ports[it.first];
-		MemWr port = orig;
-		if (it.second != 0)
-			port.cell = nullptr;
-		if (port.wide_log2) {
-			port.data = port.data.extract(it.second * width, width);
-			port.en = port.en.extract(it.second * width, width);
-			port.addr = port.sub_addr(it.second);
-			port.wide_log2 = 0;
+		MemWr पत्तनम् = orig;
+		यदि (it.second != 0)
+			पत्तनम्.cell = शून्यसूचकः;
+		यदि (पत्तनम्.wide_log2) {
+			पत्तनम्.दत्त = पत्तनम्.दत्त.extract(it.second * विस्तारः, विस्तारः);
+			पत्तनम्.en = पत्तनम्.en.extract(it.second * विस्तारः, विस्तारः);
+			पत्तनम्.addr = पत्तनम्.sub_addr(it.second);
+			पत्तनम्.wide_log2 = 0;
 		}
-		port.priority_mask.clear();
-		for (auto &it2 : new_wr_map)
-			port.priority_mask.push_back(orig.priority_mask[it2.first]);
-		new_wr_ports.push_back(port);
+		पत्तनम्.प्राथमिकता_आवरणम्.clear();
+		प्रति (स्वचालित &it2 : new_wr_map)
+			पत्तनम्.प्राथमिकता_आवरणम्.प्रक्षिप_पृष्ठभागः(orig.प्राथमिकता_आवरणम्[it2.first]);
+		new_wr_ports.प्रक्षिप_पृष्ठभागः(पत्तनम्);
 	}
 	std::swap(rd_ports, new_rd_ports);
 	std::swap(wr_ports, new_wr_ports);
 }
 
-void Mem::emulate_priority(int idx1, int idx2, FfInitVals *initvals)
+शून्य Mem::emulate_प्राथमिकता(पूर्णाङ्क idx1, पूर्णाङ्क idx2, FfInitVals *initvals)
 {
-	auto &port1 = wr_ports[idx1];
-	auto &port2 = wr_ports[idx2];
-	if (!port2.priority_mask[idx1])
-		return;
-	for (int i = 0; i < GetSize(rd_ports); i++) {
-		auto &rport = rd_ports[i];
-		if (rport.removed)
-			continue;
-		if (rport.transparency_mask[idx1] && !(rport.transparency_mask[idx2] || rport.collision_x_mask[idx2]))
+	स्वचालित &port1 = wr_ports[idx1];
+	स्वचालित &port2 = wr_ports[idx2];
+	यदि (!port2.प्राथमिकता_आवरणम्[idx1])
+		प्रत्यागम;
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(rd_ports); i++) {
+		स्वचालित &rport = rd_ports[i];
+		यदि (rport.removed)
+			अनुवर्त;
+		यदि (rport.transparency_आवरणम्[idx1] && !(rport.transparency_आवरणम्[idx2] || rport.collision_x_आवरणम्[idx2]))
 			emulate_transparency(idx1, i, initvals);
 	}
-	int min_wide_log2 = std::min(port1.wide_log2, port2.wide_log2);
-	int max_wide_log2 = std::max(port1.wide_log2, port2.wide_log2);
-	bool wide1 = port1.wide_log2 > port2.wide_log2;
-	for (int sub = 0; sub < (1 << max_wide_log2); sub += (1 << min_wide_log2)) {
+	पूर्णाङ्क min_wide_log2 = std::min(port1.wide_log2, port2.wide_log2);
+	पूर्णाङ्क max_wide_log2 = std::max(port1.wide_log2, port2.wide_log2);
+	तार्किक wide1 = port1.wide_log2 > port2.wide_log2;
+	प्रति (पूर्णाङ्क sub = 0; sub < (1 << max_wide_log2); sub += (1 << min_wide_log2)) {
 		SigSpec addr1 = port1.addr;
 		SigSpec addr2 = port2.addr;
-		if (wide1)
+		यदि (wide1)
 			addr1 = port1.sub_addr(sub);
-		else
+		अन्यथा
 			addr2 = port2.sub_addr(sub);
 		SigSpec addr_eq = module->Eq(NEW_ID, addr1, addr2);
-		int ewidth = width << min_wide_log2;
-		int sub1 = wide1 ? sub : 0;
-		int sub2 = wide1 ? 0 : sub;
+		पूर्णाङ्क ewidth = विस्तारः << min_wide_log2;
+		पूर्णाङ्क sub1 = wide1 ? sub : 0;
+		पूर्णाङ्क sub2 = wide1 ? 0 : sub;
 		dict<std::pair<SigBit, SigBit>, SigBit> cache;
-		for (int pos = 0; pos < ewidth; pos++) {
-			SigBit &en1 = port1.en[pos + sub1 * width];
-			SigBit &en2 = port2.en[pos + sub2 * width];
-			std::pair<SigBit, SigBit> key(en1, en2);
-			if (cache.count(key)) {
-				en1 = cache[key];
-			} else {
+		प्रति (पूर्णाङ्क pos = 0; pos < ewidth; pos++) {
+			SigBit &en1 = port1.en[pos + sub1 * विस्तारः];
+			SigBit &en2 = port2.en[pos + sub2 * विस्तारः];
+			std::pair<SigBit, SigBit> कुञ्चिका(en1, en2);
+			यदि (cache.गणनम्(कुञ्चिका)) {
+				en1 = cache[कुञ्चिका];
+			} अन्यथा {
 				SigBit active2 = module->And(NEW_ID, addr_eq, en2);
 				SigBit nactive2 = module->Not(NEW_ID, active2);
-				en1 = cache[key] = module->And(NEW_ID, en1, nactive2);
+				en1 = cache[कुञ्चिका] = module->And(NEW_ID, en1, nactive2);
 			}
 		}
 	}
-	port2.priority_mask[idx1] = false;
+	port2.प्राथमिकता_आवरणम्[idx1] = असत्य;
 }
 
-void Mem::emulate_transparency(int widx, int ridx, FfInitVals *initvals) {
-	auto &wport = wr_ports[widx];
-	auto &rport = rd_ports[ridx];
-	log_assert(rport.transparency_mask[widx]);
+शून्य Mem::emulate_transparency(पूर्णाङ्क widx, पूर्णाङ्क ridx, FfInitVals *initvals) {
+	स्वचालित &wport = wr_ports[widx];
+	स्वचालित &rport = rd_ports[ridx];
+	log_assert(rport.transparency_आवरणम्[widx]);
 	// If other write ports have priority over this one, emulate their transparency too.
-	for (int i = GetSize(wr_ports) - 1; i > widx; i--) {
-		if (wr_ports[i].removed)
-			continue;
-		if (rport.transparency_mask[i] && wr_ports[i].priority_mask[widx])
+	प्रति (पूर्णाङ्क i = Get_आकार(wr_ports) - 1; i > widx; i--) {
+		यदि (wr_ports[i].removed)
+			अनुवर्त;
+		यदि (rport.transparency_आवरणम्[i] && wr_ports[i].प्राथमिकता_आवरणम्[widx])
 			emulate_transparency(i, ridx, initvals);
 	}
-	int min_wide_log2 = std::min(rport.wide_log2, wport.wide_log2);
-	int max_wide_log2 = std::max(rport.wide_log2, wport.wide_log2);
-	bool wide_write = wport.wide_log2 > rport.wide_log2;
+	पूर्णाङ्क min_wide_log2 = std::min(rport.wide_log2, wport.wide_log2);
+	पूर्णाङ्क max_wide_log2 = std::max(rport.wide_log2, wport.wide_log2);
+	तार्किक wide_write = wport.wide_log2 > rport.wide_log2;
 	// The write data FF doesn't need full reset/init behavior, as it'll be masked by
 	// the mux whenever this would be relevant.  It does, however, need to have the same
 	// clock enable signal as the read port.
-	SigSpec wdata_q = module->addWire(NEW_ID, GetSize(wport.data));
-	module->addDffe(NEW_ID, rport.clk, rport.en, wport.data, wdata_q, rport.clk_polarity, true);
-	for (int sub = 0; sub < (1 << max_wide_log2); sub += (1 << min_wide_log2)) {
+	SigSpec wdata_q = module->सङ्कलय_Wire(NEW_ID, Get_आकार(wport.दत्त));
+	module->सङ्कलय_Dffe(NEW_ID, rport.clk, rport.en, wport.दत्त, wdata_q, rport.clk_polarity, सत्य);
+	प्रति (पूर्णाङ्क sub = 0; sub < (1 << max_wide_log2); sub += (1 << min_wide_log2)) {
 		SigSpec raddr = rport.addr;
 		SigSpec waddr = wport.addr;
-		for (int j = min_wide_log2; j < max_wide_log2; j++)
-			if (wide_write)
+		प्रति (पूर्णाङ्क j = min_wide_log2; j < max_wide_log2; j++)
+			यदि (wide_write)
 				waddr = wport.sub_addr(sub);
-			else
+			अन्यथा
 				raddr = rport.sub_addr(sub);
 		SigSpec addr_eq;
-		if (raddr != waddr)
+		यदि (raddr != waddr)
 			addr_eq = module->Eq(NEW_ID, raddr, waddr);
-		int pos = 0;
-		int ewidth = width << min_wide_log2;
-		int wsub = wide_write ? sub : 0;
-		int rsub = wide_write ? 0 : sub;
-		SigSpec rdata_a = module->addWire(NEW_ID, ewidth);
-		while (pos < ewidth) {
-			int epos = pos;
-			while (epos < ewidth && wport.en[epos + wsub * width] == wport.en[pos + wsub * width])
+		पूर्णाङ्क pos = 0;
+		पूर्णाङ्क ewidth = विस्तारः << min_wide_log2;
+		पूर्णाङ्क wsub = wide_write ? sub : 0;
+		पूर्णाङ्क rsub = wide_write ? 0 : sub;
+		SigSpec rdata_a = module->सङ्कलय_Wire(NEW_ID, ewidth);
+		यावत् (pos < ewidth) {
+			पूर्णाङ्क epos = pos;
+			यावत् (epos < ewidth && wport.en[epos + wsub * विस्तारः] == wport.en[pos + wsub * विस्तारः])
 				epos++;
 			SigSpec cond;
-			if (raddr != waddr)
-				cond = module->And(NEW_ID, wport.en[pos + wsub * width], addr_eq);
-			else
-				cond = wport.en[pos + wsub * width];
-			SigSpec cond_q = module->addWire(NEW_ID);
+			यदि (raddr != waddr)
+				cond = module->And(NEW_ID, wport.en[pos + wsub * विस्तारः], addr_eq);
+			अन्यथा
+				cond = wport.en[pos + wsub * विस्तारः];
+			SigSpec cond_q = module->सङ्कलय_Wire(NEW_ID);
 			// The FF for storing the bypass enable signal must be carefully
 			// constructed to preserve the overall init/reset/enable behavior
 			// of the whole port.
-			FfData ff(module, initvals, NEW_ID);
-			ff.width = 1;
+			Ff_दत्त ff(module, initvals, NEW_ID);
+			ff.विस्तारः = 1;
 			ff.sig_q = cond_q;
 			ff.sig_d = cond;
-			ff.has_clk = true;
+			ff.has_clk = सत्य;
 			ff.sig_clk = rport.clk;
 			ff.pol_clk = rport.clk_polarity;
-			if (rport.en != State::S1) {
-				ff.has_ce = true;
+			यदि (rport.en != State::S1) {
+				ff.has_ce = सत्य;
 				ff.sig_ce = rport.en;
-				ff.pol_ce = true;
+				ff.pol_ce = सत्य;
 			}
-			if (rport.arst != State::S0) {
-				ff.has_arst = true;
+			यदि (rport.arst != State::S0) {
+				ff.has_arst = सत्य;
 				ff.sig_arst = rport.arst;
-				ff.pol_arst = true;
+				ff.pol_arst = सत्य;
 				ff.val_arst = State::S0;
 			}
-			if (rport.srst != State::S0) {
-				ff.has_srst = true;
+			यदि (rport.srst != State::S0) {
+				ff.has_srst = सत्य;
 				ff.sig_srst = rport.srst;
-				ff.pol_srst = true;
+				ff.pol_srst = सत्य;
 				ff.val_srst = State::S0;
 				ff.ce_over_srst = rport.ce_over_srst;
 			}
-			if (!rport.init_value.is_fully_undef())
+			यदि (!rport.init_मानम्.is_fully_undef())
 				ff.val_init = State::S0;
-			else
+			अन्यथा
 				ff.val_init = State::Sx;
 			ff.emit();
 			// And the final bypass mux.
 			SigSpec cur = rdata_a.extract(pos, epos-pos);
-			SigSpec other = wdata_q.extract(pos + wsub * width, epos-pos);
-			SigSpec dest = rport.data.extract(pos + rsub * width, epos-pos);
-			module->addMux(NEW_ID, cur, other, cond_q, dest);
+			SigSpec other = wdata_q.extract(pos + wsub * विस्तारः, epos-pos);
+			SigSpec dest = rport.दत्त.extract(pos + rsub * विस्तारः, epos-pos);
+			module->सङ्कलय_Mux(NEW_ID, cur, other, cond_q, dest);
 			pos = epos;
 		}
-		rport.data.replace(rsub * width, rdata_a);
+		rport.दत्त.replace(rsub * विस्तारः, rdata_a);
 	}
-	rport.transparency_mask[widx] = false;
-	rport.collision_x_mask[widx] = true;
+	rport.transparency_आवरणम्[widx] = असत्य;
+	rport.collision_x_आवरणम्[widx] = सत्य;
 }
 
-void Mem::prepare_wr_merge(int idx1, int idx2, FfInitVals *initvals) {
+शून्य Mem::prepare_wr_merge(पूर्णाङ्क idx1, पूर्णाङ्क idx2, FfInitVals *initvals) {
 	log_assert(idx1 < idx2);
-	auto &port1 = wr_ports[idx1];
-	auto &port2 = wr_ports[idx2];
+	स्वचालित &port1 = wr_ports[idx1];
+	स्वचालित &port2 = wr_ports[idx2];
 	// If port 2 has priority over a port before port 1, make port 1 have priority too.
-	for (int i = 0; i < idx1; i++)
-		if (port2.priority_mask[i])
-			port1.priority_mask[i] = true;
+	प्रति (पूर्णाङ्क i = 0; i < idx1; i++)
+		यदि (port2.प्राथमिकता_आवरणम्[i])
+			port1.प्राथमिकता_आवरणम्[i] = सत्य;
 	// If port 2 has priority over a port after port 1, emulate it.
-	for (int i = idx1 + 1; i < idx2; i++)
-		if (port2.priority_mask[i] && !wr_ports[i].removed)
-			emulate_priority(i, idx2, initvals);
+	प्रति (पूर्णाङ्क i = idx1 + 1; i < idx2; i++)
+		यदि (port2.प्राथमिकता_आवरणम्[i] && !wr_ports[i].removed)
+			emulate_प्राथमिकता(i, idx2, initvals);
 	// If some port had priority over port 2, make it have priority over the merged port too.
-	for (int i = idx2 + 1; i < GetSize(wr_ports); i++) {
-		auto &oport = wr_ports[i];
-		if (oport.priority_mask[idx2])
-			oport.priority_mask[idx1] = true;
+	प्रति (पूर्णाङ्क i = idx2 + 1; i < Get_आकार(wr_ports); i++) {
+		स्वचालित &oport = wr_ports[i];
+		यदि (oport.प्राथमिकता_आवरणम्[idx2])
+			oport.प्राथमिकता_आवरणम्[idx1] = सत्य;
 	}
 	// Make sure all read ports have identical collision/transparency behavior wrt both
 	// ports.
-	for (int i = 0; i < GetSize(rd_ports); i++) {
-		auto &rport = rd_ports[i];
-		if (rport.removed)
-			continue;
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(rd_ports); i++) {
+		स्वचालित &rport = rd_ports[i];
+		यदि (rport.removed)
+			अनुवर्त;
 		// If collision already undefined with both ports, it's fine.
-		if (rport.collision_x_mask[idx1] && rport.collision_x_mask[idx2])
-			continue;
+		यदि (rport.collision_x_आवरणम्[idx1] && rport.collision_x_आवरणम्[idx2])
+			अनुवर्त;
 		// If one port has undefined collision, change it to the behavior
 		// of the other port.
-		if (rport.collision_x_mask[idx1]) {
-			rport.collision_x_mask[idx1] = false;
-			rport.transparency_mask[idx1] = rport.transparency_mask[idx2];
-			continue;
+		यदि (rport.collision_x_आवरणम्[idx1]) {
+			rport.collision_x_आवरणम्[idx1] = असत्य;
+			rport.transparency_आवरणम्[idx1] = rport.transparency_आवरणम्[idx2];
+			अनुवर्त;
 		}
-		if (rport.collision_x_mask[idx2]) {
-			rport.collision_x_mask[idx2] = false;
-			rport.transparency_mask[idx2] = rport.transparency_mask[idx1];
-			continue;
+		यदि (rport.collision_x_आवरणम्[idx2]) {
+			rport.collision_x_आवरणम्[idx2] = असत्य;
+			rport.transparency_आवरणम्[idx2] = rport.transparency_आवरणम्[idx1];
+			अनुवर्त;
 		}
 		// If transparent with both ports, also fine.
-		if (rport.transparency_mask[idx1] && rport.transparency_mask[idx2])
-			continue;
+		यदि (rport.transparency_आवरणम्[idx1] && rport.transparency_आवरणम्[idx2])
+			अनुवर्त;
 		// If transparent with only one, emulate it, and remove the collision-X
 		// flag that emulate_transparency will set (to align with the other port).
-		if (rport.transparency_mask[idx1]) {
+		यदि (rport.transparency_आवरणम्[idx1]) {
 			emulate_transparency(idx1, i, initvals);
-			rport.collision_x_mask[idx1] = false;
-			continue;
+			rport.collision_x_आवरणम्[idx1] = असत्य;
+			अनुवर्त;
 		}
-		if (rport.transparency_mask[idx2]) {
+		यदि (rport.transparency_आवरणम्[idx2]) {
 			emulate_transparency(idx2, i, initvals);
-			rport.collision_x_mask[idx2] = false;
-			continue;
+			rport.collision_x_आवरणम्[idx2] = असत्य;
+			अनुवर्त;
 		}
 		// If we got here, it's transparent with neither port, which is fine.
 	}
 }
 
-void Mem::prepare_rd_merge(int idx1, int idx2, FfInitVals *initvals) {
-	auto &port1 = rd_ports[idx1];
-	auto &port2 = rd_ports[idx2];
+शून्य Mem::prepare_rd_merge(पूर्णाङ्क idx1, पूर्णाङ्क idx2, FfInitVals *initvals) {
+	स्वचालित &port1 = rd_ports[idx1];
+	स्वचालित &port2 = rd_ports[idx2];
 	// Note that going through write ports in order is important, since
 	// emulating transparency of a write port can change transparency
 	// mask for higher-numbered ports (due to transitive transparency
 	// emulation needed because of write port priority).
-	for (int i = 0; i < GetSize(wr_ports); i++) {
-		if (wr_ports[i].removed)
-			continue;
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(wr_ports); i++) {
+		यदि (wr_ports[i].removed)
+			अनुवर्त;
 		// Both ports undefined, OK.
-		if (port1.collision_x_mask[i] && port2.collision_x_mask[i])
-			continue;
+		यदि (port1.collision_x_आवरणम्[i] && port2.collision_x_आवरणम्[i])
+			अनुवर्त;
 		// Only one port undefined — change its behavior
 		// to align with the other port.
-		if (port1.collision_x_mask[i]) {
-			port1.collision_x_mask[i] = false;
-			port1.transparency_mask[i] = port2.transparency_mask[i];
-			continue;
+		यदि (port1.collision_x_आवरणम्[i]) {
+			port1.collision_x_आवरणम्[i] = असत्य;
+			port1.transparency_आवरणम्[i] = port2.transparency_आवरणम्[i];
+			अनुवर्त;
 		}
-		if (port2.collision_x_mask[i]) {
-			port2.collision_x_mask[i] = false;
-			port2.transparency_mask[i] = port1.transparency_mask[i];
-			continue;
+		यदि (port2.collision_x_आवरणम्[i]) {
+			port2.collision_x_आवरणम्[i] = असत्य;
+			port2.transparency_आवरणम्[i] = port1.transparency_आवरणम्[i];
+			अनुवर्त;
 		}
 		// Both ports transparent, OK.
-		if (port1.transparency_mask[i] && port2.transparency_mask[i])
-			continue;
+		यदि (port1.transparency_आवरणम्[i] && port2.transparency_आवरणम्[i])
+			अनुवर्त;
 		// Only one port transparent — emulate transparency
 		// on the other.
-		if (port1.transparency_mask[i]) {
+		यदि (port1.transparency_आवरणम्[i]) {
 			emulate_transparency(i, idx1, initvals);
-			port1.collision_x_mask[i] = false;
-			continue;
+			port1.collision_x_आवरणम्[i] = असत्य;
+			अनुवर्त;
 		}
-		if (port2.transparency_mask[i]) {
+		यदि (port2.transparency_आवरणम्[i]) {
 			emulate_transparency(i, idx2, initvals);
-			port2.collision_x_mask[i] = false;
-			continue;
+			port2.collision_x_आवरणम्[i] = असत्य;
+			अनुवर्त;
 		}
 		// No ports transparent, OK.
 	}
 
 }
 
-void Mem::widen_prep(int wide_log2) {
+शून्य Mem::widen_prep(पूर्णाङ्क wide_log2) {
 	// Make sure start_offset and size are aligned to the port width,
 	// adjust if necessary.
-	int mask = ((1 << wide_log2) - 1);
-	int delta = start_offset & mask;
-	start_offset -= delta;
-	size += delta;
-	if (size & mask) {
-		size |= mask;
-		size++;
+	पूर्णाङ्क आवरणम् = ((1 << wide_log2) - 1);
+	पूर्णाङ्क delta = start_विस्थापनम् & आवरणम्;
+	start_विस्थापनम् -= delta;
+	आकार += delta;
+	यदि (आकार & आवरणम्) {
+		आकार |= आवरणम्;
+		आकार++;
 	}
 }
 
-void Mem::widen_wr_port(int idx, int wide_log2) {
+शून्य Mem::widen_wr_पत्तनम्(पूर्णाङ्क idx, पूर्णाङ्क wide_log2) {
 	widen_prep(wide_log2);
-	auto &port = wr_ports[idx];
-	log_assert(port.wide_log2 <= wide_log2);
-	if (port.wide_log2 < wide_log2) {
-		SigSpec new_data, new_en;
-		SigSpec addr_lo = port.addr.extract(0, wide_log2);
-		for (int sub = 0; sub < (1 << wide_log2); sub += (1 << port.wide_log2))
+	स्वचालित &पत्तनम् = wr_ports[idx];
+	log_assert(पत्तनम्.wide_log2 <= wide_log2);
+	यदि (पत्तनम्.wide_log2 < wide_log2) {
+		SigSpec new_दत्त, new_en;
+		SigSpec addr_lo = पत्तनम्.addr.extract(0, wide_log2);
+		प्रति (पूर्णाङ्क sub = 0; sub < (1 << wide_log2); sub += (1 << पत्तनम्.wide_log2))
 		{
 			Const cur_addr_lo(sub, wide_log2);
-			if (addr_lo == cur_addr_lo) {
+			यदि (addr_lo == cur_addr_lo) {
 				// Always writes to this subword.
-				new_data.append(port.data);
-				new_en.append(port.en);
-			} else if (addr_lo.is_fully_const()) {
+				new_दत्त.append(पत्तनम्.दत्त);
+				new_en.append(पत्तनम्.en);
+			} अन्यथा यदि (addr_lo.is_fully_const()) {
 				// Never writes to this subword.
-				new_data.append(Const(State::Sx, GetSize(port.data)));
-				new_en.append(Const(State::S0, GetSize(port.data)));
-			} else {
+				new_दत्त.append(Const(State::Sx, Get_आकार(पत्तनम्.दत्त)));
+				new_en.append(Const(State::S0, Get_आकार(पत्तनम्.दत्त)));
+			} अन्यथा {
 				// May or may not write to this subword.
-				new_data.append(port.data);
+				new_दत्त.append(पत्तनम्.दत्त);
 				SigSpec addr_eq = module->Eq(NEW_ID, addr_lo, cur_addr_lo);
-				SigSpec en = module->Mux(NEW_ID, Const(State::S0, GetSize(port.data)), port.en, addr_eq);
+				SigSpec en = module->Mux(NEW_ID, Const(State::S0, Get_आकार(पत्तनम्.दत्त)), पत्तनम्.en, addr_eq);
 				new_en.append(en);
 			}
 		}
-		port.addr.replace(port.wide_log2, Const(State::S0, wide_log2 - port.wide_log2));
-		port.data = new_data;
-		port.en = new_en;
-		port.wide_log2 = wide_log2;
+		पत्तनम्.addr.replace(पत्तनम्.wide_log2, Const(State::S0, wide_log2 - पत्तनम्.wide_log2));
+		पत्तनम्.दत्त = new_दत्त;
+		पत्तनम्.en = new_en;
+		पत्तनम्.wide_log2 = wide_log2;
 	}
 }
 
-void Mem::emulate_rden(int idx, FfInitVals *initvals) {
-	auto &port = rd_ports[idx];
-	log_assert(port.clk_enable);
+शून्य Mem::emulate_rden(पूर्णाङ्क idx, FfInitVals *initvals) {
+	स्वचालित &पत्तनम् = rd_ports[idx];
+	log_assert(पत्तनम्.clk_enable);
 	emulate_rd_ce_over_srst(idx);
-	Wire *new_data = module->addWire(NEW_ID, GetSize(port.data));
-	Wire *prev_data = module->addWire(NEW_ID, GetSize(port.data));
-	Wire *sel = module->addWire(NEW_ID);
-	FfData ff_sel(module, initvals, NEW_ID);
-	FfData ff_data(module, initvals, NEW_ID);
-	ff_sel.width = 1;
-	ff_sel.has_clk = true;
-	ff_sel.sig_clk = port.clk;
-	ff_sel.pol_clk = port.clk_polarity;
-	ff_sel.sig_d = port.en;
+	Wire *new_दत्त = module->सङ्कलय_Wire(NEW_ID, Get_आकार(पत्तनम्.दत्त));
+	Wire *पूर्व_दत्त = module->सङ्कलय_Wire(NEW_ID, Get_आकार(पत्तनम्.दत्त));
+	Wire *sel = module->सङ्कलय_Wire(NEW_ID);
+	Ff_दत्त ff_sel(module, initvals, NEW_ID);
+	Ff_दत्त ff_दत्त(module, initvals, NEW_ID);
+	ff_sel.विस्तारः = 1;
+	ff_sel.has_clk = सत्य;
+	ff_sel.sig_clk = पत्तनम्.clk;
+	ff_sel.pol_clk = पत्तनम्.clk_polarity;
+	ff_sel.sig_d = पत्तनम्.en;
 	ff_sel.sig_q = sel;
-	ff_data.width = GetSize(port.data);
-	ff_data.has_clk = true;
-	ff_data.sig_clk = port.clk;
-	ff_data.pol_clk = port.clk_polarity;
-	ff_data.sig_d = port.data;
-	ff_data.sig_q = prev_data;
-	if (!port.init_value.is_fully_undef()) {
+	ff_दत्त.विस्तारः = Get_आकार(पत्तनम्.दत्त);
+	ff_दत्त.has_clk = सत्य;
+	ff_दत्त.sig_clk = पत्तनम्.clk;
+	ff_दत्त.pol_clk = पत्तनम्.clk_polarity;
+	ff_दत्त.sig_d = पत्तनम्.दत्त;
+	ff_दत्त.sig_q = पूर्व_दत्त;
+	यदि (!पत्तनम्.init_मानम्.is_fully_undef()) {
 		ff_sel.val_init = State::S0;
-		ff_data.val_init = port.init_value;
-		port.init_value = Const(State::Sx, GetSize(port.data));
-	} else {
+		ff_दत्त.val_init = पत्तनम्.init_मानम्;
+		पत्तनम्.init_मानम् = Const(State::Sx, Get_आकार(पत्तनम्.दत्त));
+	} अन्यथा {
 		ff_sel.val_init = State::Sx;
-		ff_data.val_init = Const(State::Sx, GetSize(port.data));
+		ff_दत्त.val_init = Const(State::Sx, Get_आकार(पत्तनम्.दत्त));
 	}
-	if (port.arst != State::S0) {
-		ff_sel.has_arst = true;
+	यदि (पत्तनम्.arst != State::S0) {
+		ff_sel.has_arst = सत्य;
 		ff_sel.val_arst = State::S0;
-		ff_sel.sig_arst = port.arst;
-		ff_sel.pol_arst = true;
-		ff_data.has_arst = true;
-		ff_data.val_arst = port.arst_value;
-		ff_data.sig_arst = port.arst;
-		ff_data.pol_arst = true;
-		port.arst = State::S0;
+		ff_sel.sig_arst = पत्तनम्.arst;
+		ff_sel.pol_arst = सत्य;
+		ff_दत्त.has_arst = सत्य;
+		ff_दत्त.val_arst = पत्तनम्.arst_मानम्;
+		ff_दत्त.sig_arst = पत्तनम्.arst;
+		ff_दत्त.pol_arst = सत्य;
+		पत्तनम्.arst = State::S0;
 	}
-	if (port.srst != State::S0) {
-		log_assert(!port.ce_over_srst);
-		ff_sel.has_srst = true;
+	यदि (पत्तनम्.srst != State::S0) {
+		log_assert(!पत्तनम्.ce_over_srst);
+		ff_sel.has_srst = सत्य;
 		ff_sel.val_srst = State::S0;
-		ff_sel.sig_srst = port.srst;
-		ff_sel.pol_srst = true;
-		ff_sel.ce_over_srst = false;
-		ff_data.has_srst = true;
-		ff_data.val_srst = port.srst_value;
-		ff_data.sig_srst = port.srst;
-		ff_data.pol_srst = true;
-		ff_data.ce_over_srst = false;
-		port.srst = State::S0;
+		ff_sel.sig_srst = पत्तनम्.srst;
+		ff_sel.pol_srst = सत्य;
+		ff_sel.ce_over_srst = असत्य;
+		ff_दत्त.has_srst = सत्य;
+		ff_दत्त.val_srst = पत्तनम्.srst_मानम्;
+		ff_दत्त.sig_srst = पत्तनम्.srst;
+		ff_दत्त.pol_srst = सत्य;
+		ff_दत्त.ce_over_srst = असत्य;
+		पत्तनम्.srst = State::S0;
 	}
 	ff_sel.emit();
-	ff_data.emit();
-	module->addMux(NEW_ID, prev_data, new_data, sel, port.data);
-	port.data = new_data;
-	port.en = State::S1;
+	ff_दत्त.emit();
+	module->सङ्कलय_Mux(NEW_ID, पूर्व_दत्त, new_दत्त, sel, पत्तनम्.दत्त);
+	पत्तनम्.दत्त = new_दत्त;
+	पत्तनम्.en = State::S1;
 }
 
-void Mem::emulate_reset(int idx, bool emu_init, bool emu_arst, bool emu_srst, FfInitVals *initvals) {
-	auto &port = rd_ports[idx];
-	if (emu_init && !port.init_value.is_fully_undef()) {
-		Wire *sel = module->addWire(NEW_ID);
-		FfData ff_sel(module, initvals, NEW_ID);
-		Wire *new_data = module->addWire(NEW_ID, GetSize(port.data));
-		ff_sel.width = 1;
-		ff_sel.has_clk = true;
-		ff_sel.sig_clk = port.clk;
-		ff_sel.pol_clk = port.clk_polarity;
+शून्य Mem::emulate_reset(पूर्णाङ्क idx, तार्किक emu_init, तार्किक emu_arst, तार्किक emu_srst, FfInitVals *initvals) {
+	स्वचालित &पत्तनम् = rd_ports[idx];
+	यदि (emu_init && !पत्तनम्.init_मानम्.is_fully_undef()) {
+		Wire *sel = module->सङ्कलय_Wire(NEW_ID);
+		Ff_दत्त ff_sel(module, initvals, NEW_ID);
+		Wire *new_दत्त = module->सङ्कलय_Wire(NEW_ID, Get_आकार(पत्तनम्.दत्त));
+		ff_sel.विस्तारः = 1;
+		ff_sel.has_clk = सत्य;
+		ff_sel.sig_clk = पत्तनम्.clk;
+		ff_sel.pol_clk = पत्तनम्.clk_polarity;
 		ff_sel.sig_d = State::S1;
 		ff_sel.sig_q = sel;
 		ff_sel.val_init = State::S0;
-		if (port.en != State::S1) {
-			ff_sel.has_ce = true;
-			ff_sel.sig_ce = port.en;
-			ff_sel.pol_ce = true;
-			ff_sel.ce_over_srst = port.ce_over_srst;
+		यदि (पत्तनम्.en != State::S1) {
+			ff_sel.has_ce = सत्य;
+			ff_sel.sig_ce = पत्तनम्.en;
+			ff_sel.pol_ce = सत्य;
+			ff_sel.ce_over_srst = पत्तनम्.ce_over_srst;
 		}
-		if (port.arst != State::S0) {
-			ff_sel.has_arst = true;
-			ff_sel.sig_arst = port.arst;
-			ff_sel.pol_arst = true;
-			if (emu_arst && port.arst_value == port.init_value) {
+		यदि (पत्तनम्.arst != State::S0) {
+			ff_sel.has_arst = सत्य;
+			ff_sel.sig_arst = पत्तनम्.arst;
+			ff_sel.pol_arst = सत्य;
+			यदि (emu_arst && पत्तनम्.arst_मानम् == पत्तनम्.init_मानम्) {
 				// If we're going to emulate async reset anyway, and the reset
 				// value is the same as init value, reuse the same mux.
 				ff_sel.val_arst = State::S0;
-				port.arst = State::S0;
-			} else {
+				पत्तनम्.arst = State::S0;
+			} अन्यथा {
 				ff_sel.val_arst = State::S1;
 			}
 		}
-		if (port.srst != State::S0) {
-			ff_sel.has_srst = true;
-			ff_sel.sig_srst = port.srst;
-			ff_sel.pol_srst = true;
-			if (emu_srst && port.srst_value == port.init_value) {
+		यदि (पत्तनम्.srst != State::S0) {
+			ff_sel.has_srst = सत्य;
+			ff_sel.sig_srst = पत्तनम्.srst;
+			ff_sel.pol_srst = सत्य;
+			यदि (emu_srst && पत्तनम्.srst_मानम् == पत्तनम्.init_मानम्) {
 				ff_sel.val_srst = State::S0;
-				port.srst = State::S0;
-			} else {
+				पत्तनम्.srst = State::S0;
+			} अन्यथा {
 				ff_sel.val_srst = State::S1;
 			}
 		}
 		ff_sel.emit();
-		module->addMux(NEW_ID, port.init_value, new_data, sel, port.data);
-		port.data = new_data;
-		port.init_value = Const(State::Sx, GetSize(port.data));
+		module->सङ्कलय_Mux(NEW_ID, पत्तनम्.init_मानम्, new_दत्त, sel, पत्तनम्.दत्त);
+		पत्तनम्.दत्त = new_दत्त;
+		पत्तनम्.init_मानम् = Const(State::Sx, Get_आकार(पत्तनम्.दत्त));
 	}
-	if (emu_arst && port.arst != State::S0) {
-		Wire *sel = module->addWire(NEW_ID);
-		FfData ff_sel(module, initvals, NEW_ID);
-		Wire *new_data = module->addWire(NEW_ID, GetSize(port.data));
-		ff_sel.width = 1;
-		ff_sel.has_clk = true;
-		ff_sel.sig_clk = port.clk;
-		ff_sel.pol_clk = port.clk_polarity;
+	यदि (emu_arst && पत्तनम्.arst != State::S0) {
+		Wire *sel = module->सङ्कलय_Wire(NEW_ID);
+		Ff_दत्त ff_sel(module, initvals, NEW_ID);
+		Wire *new_दत्त = module->सङ्कलय_Wire(NEW_ID, Get_आकार(पत्तनम्.दत्त));
+		ff_sel.विस्तारः = 1;
+		ff_sel.has_clk = सत्य;
+		ff_sel.sig_clk = पत्तनम्.clk;
+		ff_sel.pol_clk = पत्तनम्.clk_polarity;
 		ff_sel.sig_d = State::S1;
 		ff_sel.sig_q = sel;
-		if (port.init_value.is_fully_undef())
+		यदि (पत्तनम्.init_मानम्.is_fully_undef())
 			ff_sel.val_init = State::Sx;
-		else
+		अन्यथा
 			ff_sel.val_init = State::S1;
-		if (port.en != State::S1) {
-			ff_sel.has_ce = true;
-			ff_sel.sig_ce = port.en;
-			ff_sel.pol_ce = true;
-			ff_sel.ce_over_srst = port.ce_over_srst;
+		यदि (पत्तनम्.en != State::S1) {
+			ff_sel.has_ce = सत्य;
+			ff_sel.sig_ce = पत्तनम्.en;
+			ff_sel.pol_ce = सत्य;
+			ff_sel.ce_over_srst = पत्तनम्.ce_over_srst;
 		}
-		ff_sel.has_arst = true;
-		ff_sel.sig_arst = port.arst;
-		ff_sel.pol_arst = true;
+		ff_sel.has_arst = सत्य;
+		ff_sel.sig_arst = पत्तनम्.arst;
+		ff_sel.pol_arst = सत्य;
 		ff_sel.val_arst = State::S0;
-		if (port.srst != State::S0) {
-			ff_sel.has_srst = true;
-			ff_sel.sig_srst = port.srst;
-			ff_sel.pol_srst = true;
-			if (emu_srst && port.srst_value == port.arst_value) {
+		यदि (पत्तनम्.srst != State::S0) {
+			ff_sel.has_srst = सत्य;
+			ff_sel.sig_srst = पत्तनम्.srst;
+			ff_sel.pol_srst = सत्य;
+			यदि (emu_srst && पत्तनम्.srst_मानम् == पत्तनम्.arst_मानम्) {
 				ff_sel.val_srst = State::S0;
-				port.srst = State::S0;
-			} else {
+				पत्तनम्.srst = State::S0;
+			} अन्यथा {
 				ff_sel.val_srst = State::S1;
 			}
 		}
 		ff_sel.emit();
-		module->addMux(NEW_ID, port.arst_value, new_data, sel, port.data);
-		port.data = new_data;
-		port.arst = State::S0;
+		module->सङ्कलय_Mux(NEW_ID, पत्तनम्.arst_मानम्, new_दत्त, sel, पत्तनम्.दत्त);
+		पत्तनम्.दत्त = new_दत्त;
+		पत्तनम्.arst = State::S0;
 	}
-	if (emu_srst && port.srst != State::S0) {
-		Wire *sel = module->addWire(NEW_ID);
-		FfData ff_sel(module, initvals, NEW_ID);
-		Wire *new_data = module->addWire(NEW_ID, GetSize(port.data));
-		ff_sel.width = 1;
-		ff_sel.has_clk = true;
-		ff_sel.sig_clk = port.clk;
-		ff_sel.pol_clk = port.clk_polarity;
+	यदि (emu_srst && पत्तनम्.srst != State::S0) {
+		Wire *sel = module->सङ्कलय_Wire(NEW_ID);
+		Ff_दत्त ff_sel(module, initvals, NEW_ID);
+		Wire *new_दत्त = module->सङ्कलय_Wire(NEW_ID, Get_आकार(पत्तनम्.दत्त));
+		ff_sel.विस्तारः = 1;
+		ff_sel.has_clk = सत्य;
+		ff_sel.sig_clk = पत्तनम्.clk;
+		ff_sel.pol_clk = पत्तनम्.clk_polarity;
 		ff_sel.sig_d = State::S1;
 		ff_sel.sig_q = sel;
-		if (port.init_value.is_fully_undef())
+		यदि (पत्तनम्.init_मानम्.is_fully_undef())
 			ff_sel.val_init = State::Sx;
-		else
+		अन्यथा
 			ff_sel.val_init = State::S1;
-		if (port.en != State::S1) {
-			ff_sel.has_ce = true;
-			ff_sel.sig_ce = port.en;
-			ff_sel.pol_ce = true;
-			ff_sel.ce_over_srst = port.ce_over_srst;
+		यदि (पत्तनम्.en != State::S1) {
+			ff_sel.has_ce = सत्य;
+			ff_sel.sig_ce = पत्तनम्.en;
+			ff_sel.pol_ce = सत्य;
+			ff_sel.ce_over_srst = पत्तनम्.ce_over_srst;
 		}
-		ff_sel.has_srst = true;
-		ff_sel.sig_srst = port.srst;
-		ff_sel.pol_srst = true;
+		ff_sel.has_srst = सत्य;
+		ff_sel.sig_srst = पत्तनम्.srst;
+		ff_sel.pol_srst = सत्य;
 		ff_sel.val_srst = State::S0;
-		if (port.arst != State::S0) {
-			ff_sel.has_arst = true;
-			ff_sel.sig_arst = port.arst;
-			ff_sel.pol_arst = true;
+		यदि (पत्तनम्.arst != State::S0) {
+			ff_sel.has_arst = सत्य;
+			ff_sel.sig_arst = पत्तनम्.arst;
+			ff_sel.pol_arst = सत्य;
 			ff_sel.val_arst = State::S1;
 		}
 		ff_sel.emit();
-		module->addMux(NEW_ID, port.srst_value, new_data, sel, port.data);
-		port.data = new_data;
-		port.srst = State::S0;
+		module->सङ्कलय_Mux(NEW_ID, पत्तनम्.srst_मानम्, new_दत्त, sel, पत्तनम्.दत्त);
+		पत्तनम्.दत्त = new_दत्त;
+		पत्तनम्.srst = State::S0;
 	}
 }
 
-void Mem::emulate_rd_ce_over_srst(int idx) {
-	auto &port = rd_ports[idx];
-	log_assert(port.clk_enable);
-	if (port.en == State::S1 || port.srst == State::S0 || !port.ce_over_srst) {
-		port.ce_over_srst = false;
-		return;
+शून्य Mem::emulate_rd_ce_over_srst(पूर्णाङ्क idx) {
+	स्वचालित &पत्तनम् = rd_ports[idx];
+	log_assert(पत्तनम्.clk_enable);
+	यदि (पत्तनम्.en == State::S1 || पत्तनम्.srst == State::S0 || !पत्तनम्.ce_over_srst) {
+		पत्तनम्.ce_over_srst = असत्य;
+		प्रत्यागम;
 	}
-	port.ce_over_srst = false;
-	port.srst = module->And(NEW_ID, port.en, port.srst);
+	पत्तनम्.ce_over_srst = असत्य;
+	पत्तनम्.srst = module->And(NEW_ID, पत्तनम्.en, पत्तनम्.srst);
 }
 
-void Mem::emulate_rd_srst_over_ce(int idx) {
-	auto &port = rd_ports[idx];
-	log_assert(port.clk_enable);
-	if (port.en == State::S1 || port.srst == State::S0 || port.ce_over_srst) {
-		port.ce_over_srst = true;
-		return;
+शून्य Mem::emulate_rd_srst_over_ce(पूर्णाङ्क idx) {
+	स्वचालित &पत्तनम् = rd_ports[idx];
+	log_assert(पत्तनम्.clk_enable);
+	यदि (पत्तनम्.en == State::S1 || पत्तनम्.srst == State::S0 || पत्तनम्.ce_over_srst) {
+		पत्तनम्.ce_over_srst = सत्य;
+		प्रत्यागम;
 	}
-	port.ce_over_srst = true;
-	port.en = module->Or(NEW_ID, port.en, port.srst);
+	पत्तनम्.ce_over_srst = सत्य;
+	पत्तनम्.en = module->Or(NEW_ID, पत्तनम्.en, पत्तनम्.srst);
 }
 
-bool Mem::emulate_read_first_ok() {
-	if (wr_ports.empty())
-		return false;
+तार्किक Mem::emulate_read_first_ok() {
+	यदि (wr_ports.रिक्तानि())
+		प्रत्यागम असत्य;
 	SigSpec clk = wr_ports[0].clk;
-	bool clk_polarity = wr_ports[0].clk_polarity;
-	for (auto &port: wr_ports) {
-		if (!port.clk_enable)
-			return false;
-		if (port.clk != clk)
-			return false;
-		if (port.clk_polarity != clk_polarity)
-			return false;
+	तार्किक clk_polarity = wr_ports[0].clk_polarity;
+	प्रति (स्वचालित &पत्तनम्: wr_ports) {
+		यदि (!पत्तनम्.clk_enable)
+			प्रत्यागम असत्य;
+		यदि (पत्तनम्.clk != clk)
+			प्रत्यागम असत्य;
+		यदि (पत्तनम्.clk_polarity != clk_polarity)
+			प्रत्यागम असत्य;
 	}
-	bool found_read_first = false;
-	for (auto &port: rd_ports) {
-		if (!port.clk_enable)
-			return false;
-		if (port.clk != clk)
-			return false;
-		if (port.clk_polarity != clk_polarity)
-			return false;
+	तार्किक प्राप्तम्_read_first = असत्य;
+	प्रति (स्वचालित &पत्तनम्: rd_ports) {
+		यदि (!पत्तनम्.clk_enable)
+			प्रत्यागम असत्य;
+		यदि (पत्तनम्.clk != clk)
+			प्रत्यागम असत्य;
+		यदि (पत्तनम्.clk_polarity != clk_polarity)
+			प्रत्यागम असत्य;
 		// No point doing this operation if there is no read-first relationship
 		// in the first place.
-		for (int j = 0; j < GetSize(wr_ports); j++)
-			if (!port.transparency_mask[j] && !port.collision_x_mask[j])
-				found_read_first = true;
+		प्रति (पूर्णाङ्क j = 0; j < Get_आकार(wr_ports); j++)
+			यदि (!पत्तनम्.transparency_आवरणम्[j] && !पत्तनम्.collision_x_आवरणम्[j])
+				प्राप्तम्_read_first = सत्य;
 	}
-	return found_read_first;
+	प्रत्यागम प्राप्तम्_read_first;
 }
 
-void Mem::emulate_read_first(FfInitVals *initvals) {
+शून्य Mem::emulate_read_first(FfInitVals *initvals) {
 	log_assert(emulate_read_first_ok());
-	for (int i = 0; i < GetSize(rd_ports); i++)
-		for (int j = 0; j < GetSize(wr_ports); j++)
-			if (rd_ports[i].transparency_mask[j])
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(rd_ports); i++)
+		प्रति (पूर्णाङ्क j = 0; j < Get_आकार(wr_ports); j++)
+			यदि (rd_ports[i].transparency_आवरणम्[j])
 				emulate_transparency(j, i, initvals);
-	for (int i = 0; i < GetSize(rd_ports); i++)
-		for (int j = 0; j < GetSize(wr_ports); j++) {
-			log_assert(!rd_ports[i].transparency_mask[j]);
-			rd_ports[i].collision_x_mask[j] = false;
-			rd_ports[i].transparency_mask[j] = true;
+	प्रति (पूर्णाङ्क i = 0; i < Get_आकार(rd_ports); i++)
+		प्रति (पूर्णाङ्क j = 0; j < Get_आकार(wr_ports); j++) {
+			log_assert(!rd_ports[i].transparency_आवरणम्[j]);
+			rd_ports[i].collision_x_आवरणम्[j] = असत्य;
+			rd_ports[i].transparency_आवरणम्[j] = सत्य;
 		}
-	for (auto &port: wr_ports) {
-		Wire *new_data = module->addWire(NEW_ID, GetSize(port.data));
-		Wire *new_addr = module->addWire(NEW_ID, GetSize(port.addr));
-		auto compressed = port.compress_en();
-		Wire *new_en = module->addWire(NEW_ID, GetSize(compressed.first));
-		FfData ff_data(module, initvals, NEW_ID);
-		FfData ff_addr(module, initvals, NEW_ID);
-		FfData ff_en(module, initvals, NEW_ID);
-		ff_data.width = GetSize(port.data);
-		ff_data.has_clk = true;
-		ff_data.sig_clk = port.clk;
-		ff_data.pol_clk = port.clk_polarity;
-		ff_data.sig_d = port.data;
-		ff_data.sig_q = new_data;;
-		ff_data.val_init = Const(State::Sx, ff_data.width);
-		ff_data.emit();
-		ff_addr.width = GetSize(port.addr);
-		ff_addr.has_clk = true;
-		ff_addr.sig_clk = port.clk;
-		ff_addr.pol_clk = port.clk_polarity;
-		ff_addr.sig_d = port.addr;
+	प्रति (स्वचालित &पत्तनम्: wr_ports) {
+		Wire *new_दत्त = module->सङ्कलय_Wire(NEW_ID, Get_आकार(पत्तनम्.दत्त));
+		Wire *new_addr = module->सङ्कलय_Wire(NEW_ID, Get_आकार(पत्तनम्.addr));
+		स्वचालित compressed = पत्तनम्.compress_en();
+		Wire *new_en = module->सङ्कलय_Wire(NEW_ID, Get_आकार(compressed.first));
+		Ff_दत्त ff_दत्त(module, initvals, NEW_ID);
+		Ff_दत्त ff_addr(module, initvals, NEW_ID);
+		Ff_दत्त ff_en(module, initvals, NEW_ID);
+		ff_दत्त.विस्तारः = Get_आकार(पत्तनम्.दत्त);
+		ff_दत्त.has_clk = सत्य;
+		ff_दत्त.sig_clk = पत्तनम्.clk;
+		ff_दत्त.pol_clk = पत्तनम्.clk_polarity;
+		ff_दत्त.sig_d = पत्तनम्.दत्त;
+		ff_दत्त.sig_q = new_दत्त;;
+		ff_दत्त.val_init = Const(State::Sx, ff_दत्त.विस्तारः);
+		ff_दत्त.emit();
+		ff_addr.विस्तारः = Get_आकार(पत्तनम्.addr);
+		ff_addr.has_clk = सत्य;
+		ff_addr.sig_clk = पत्तनम्.clk;
+		ff_addr.pol_clk = पत्तनम्.clk_polarity;
+		ff_addr.sig_d = पत्तनम्.addr;
 		ff_addr.sig_q = new_addr;;
-		ff_addr.val_init = Const(State::Sx, ff_addr.width);
+		ff_addr.val_init = Const(State::Sx, ff_addr.विस्तारः);
 		ff_addr.emit();
-		ff_en.width = GetSize(compressed.first);
-		ff_en.has_clk = true;
-		ff_en.sig_clk = port.clk;
-		ff_en.pol_clk = port.clk_polarity;
+		ff_en.विस्तारः = Get_आकार(compressed.first);
+		ff_en.has_clk = सत्य;
+		ff_en.sig_clk = पत्तनम्.clk;
+		ff_en.pol_clk = पत्तनम्.clk_polarity;
 		ff_en.sig_d = compressed.first;
 		ff_en.sig_q = new_en;;
-		if (inits.empty())
-			ff_en.val_init = Const(State::Sx, ff_en.width);
-		else
-			ff_en.val_init = Const(State::S0, ff_en.width);
+		यदि (inits.रिक्तानि())
+			ff_en.val_init = Const(State::Sx, ff_en.विस्तारः);
+		अन्यथा
+			ff_en.val_init = Const(State::S0, ff_en.विस्तारः);
 		ff_en.emit();
-		port.data = new_data;
-		port.addr = new_addr;
-		port.en = port.decompress_en(compressed.second, new_en);
+		पत्तनम्.दत्त = new_दत्त;
+		पत्तनम्.addr = new_addr;
+		पत्तनम्.en = पत्तनम्.decompress_en(compressed.second, new_en);
 	}
 }
 
-std::pair<SigSpec, std::vector<int>> MemWr::compress_en() {
+std::pair<SigSpec, std::सदिशम्<पूर्णाङ्क>> MemWr::compress_en() {
 	SigSpec sig = en[0];
-	std::vector<int> swizzle;
-	SigBit prev_bit = en[0];
-	int idx = 0;
-	for (auto &bit: en) {
-		if (bit != prev_bit) {
+	std::सदिशम्<पूर्णाङ्क> swizzle;
+	SigBit पूर्व_bit = en[0];
+	पूर्णाङ्क idx = 0;
+	प्रति (स्वचालित &bit: en) {
+		यदि (bit != पूर्व_bit) {
 			sig.append(bit);
-			prev_bit = bit;
+			पूर्व_bit = bit;
 			idx++;
 		}
-		swizzle.push_back(idx);
+		swizzle.प्रक्षिप_पृष्ठभागः(idx);
 	}
-	log_assert(idx + 1 == GetSize(sig));
-	return {sig, swizzle};
+	log_assert(idx + 1 == Get_आकार(sig));
+	प्रत्यागम {sig, swizzle};
 }
 
-SigSpec MemWr::decompress_en(const std::vector<int> &swizzle, SigSpec sig) {
+SigSpec MemWr::decompress_en(ध्रुव std::सदिशम्<पूर्णाङ्क> &swizzle, SigSpec sig) {
 	SigSpec res;
-	for (int i: swizzle)
+	प्रति (पूर्णाङ्क i: swizzle)
 		res.append(sig[i]);
-	return res;
+	प्रत्यागम res;
 }
 
 MemContents::MemContents(Mem *mem) :
-	MemContents(ceil_log2(mem->size), mem->width)
+	MemContents(ceil_log2(mem->आकार), mem->विस्तारः)
 {
-	for(const auto &init : mem->inits) {
-		if(init.en.is_fully_zero()) continue;
-		log_assert(init.en.size() == _data_width);
-		if(init.en.is_fully_ones())
-			insert_concatenated(init.addr.as_int(), init.data);
-		else {
+	प्रति(ध्रुव स्वचालित &init : mem->inits) {
+		यदि(init.en.is_fully_zero()) अनुवर्त;
+		log_assert(init.en.आकार() == दत्त_विस्तारः_2);
+		यदि(init.en.is_fully_ones())
+			निवेशय_concatenated(init.addr.as_int(), init.दत्त);
+		अन्यथा {
 			// TODO: this case could be handled more efficiently by adding
 			// a flag to reserve_range that tells it to preserve
 			// previous contents
 			addr_t addr = init.addr.as_int();
-			addr_t words = init.data.size() / _data_width;
-			RTLIL::Const data = init.data;
-			log_assert(data.size() % _data_width == 0);
-			for(addr_t i = 0; i < words; i++) {
-				RTLIL::Const previous = (*this)[addr + i];
-				for(int j = 0; j < _data_width; j++)
-					if(init.en[j] != State::S1)
-						data.set(_data_width * i + j, previous[j]);
+			addr_t शब्दाः_2 = init.दत्त.आकार() / दत्त_विस्तारः_2;
+			RTLIL::Const दत्त = init.दत्त;
+			log_assert(दत्त.आकार() % दत्त_विस्तारः_2 == 0);
+			प्रति(addr_t i = 0; i < शब्दाः_2; i++) {
+				RTLIL::Const previous = (*एतत्)[addr + i];
+				प्रति(पूर्णाङ्क j = 0; j < दत्त_विस्तारः_2; j++)
+					यदि(init.en[j] != State::S1)
+						दत्त.समुच्चयः(दत्त_विस्तारः_2 * i + j, previous[j]);
 			}
-			insert_concatenated(init.addr.as_int(), data);
+			निवेशय_concatenated(init.addr.as_int(), दत्त);
 		}
 	}
 }
 
-MemContents::iterator & MemContents::iterator::operator++() {
-	auto it = _memory->_values.upper_bound(_addr);
-	if(it == _memory->_values.end()) {
-		_memory = nullptr;
+MemContents::iterator & MemContents::iterator::संक्रियकः++() {
+	स्वचालित it = स्मृतिः_2->मानानि_2.ऊर्ध्वस्थम्_bound(_addr);
+	यदि(it == स्मृतिः_2->मानानि_2.अन्तः()) {
+		स्मृतिः_2 = शून्यसूचकः;
 		_addr = ~(addr_t) 0;
-	} else
+	} अन्यथा
 		_addr = it->first;
-	return *this;
+	प्रत्यागम *एतत्;
 }
 
-void MemContents::check() {
-	log_assert(_addr_width > 0 && _addr_width < (int)sizeof(addr_t) * 8);
-	log_assert(_data_width > 0);
-	log_assert(_default_value.size() == _data_width);
-	if(_values.empty()) return;
-	auto it = _values.begin();
-	for(;;) {
-		log_assert(!it->second.empty());
-		log_assert(it->second.size() % _data_width == 0);
-		auto end1 = _range_end(it);
-		log_assert(_range_begin(it) < (addr_t)(1<<_addr_width));
-		log_assert(end1 <= (addr_t)(1<<_addr_width));
-		if(++it == _values.end())
-			break;
+शून्य MemContents::check() {
+	log_assert(addr_विस्तारः_2 > 0 && addr_विस्तारः_2 < (पूर्णाङ्क)परिमाण(addr_t) * 8);
+	log_assert(दत्त_विस्तारः_2 > 0);
+	log_assert(default_मानम्.आकार() == दत्त_विस्तारः_2);
+	यदि(मानानि_2.रिक्तानि()) प्रत्यागम;
+	स्वचालित it = मानानि_2.begin();
+	प्रति(;;) {
+		log_assert(!it->second.रिक्तानि());
+		log_assert(it->second.आकार() % दत्त_विस्तारः_2 == 0);
+		स्वचालित end1 = range_अन्तः(it);
+		log_assert(_range_begin(it) < (addr_t)(1<<addr_विस्तारः_2));
+		log_assert(end1 <= (addr_t)(1<<addr_विस्तारः_2));
+		यदि(++it == मानानि_2.अन्तः())
+			भङ्ग;
 		// check that ranges neither overlap nor touch
 		log_assert(_range_begin(it) > end1);
 	}
 }
 
-bool MemContents::_range_contains(std::map<addr_t, RTLIL::Const>::iterator it, addr_t addr) const {
+तार्किक MemContents::range_अन्तर्भवति(std::map<addr_t, RTLIL::Const>::iterator it, addr_t addr) ध्रुव {
 	// if addr < begin, the subtraction will overflow, and the comparison will always fail
 	// (since we have an invariant that begin + size <= 2^(addr_t bits))
-	return it != _values.end() && addr - _range_begin(it) < _range_size(it);
+	प्रत्यागम it != मानानि_2.अन्तः() && addr - _range_begin(it) < range_आकार(it);
 }
 
 
-bool MemContents::_range_contains(std::map<addr_t, RTLIL::Const>::iterator it, addr_t begin_addr, addr_t end_addr) const {
+तार्किक MemContents::range_अन्तर्भवति(std::map<addr_t, RTLIL::Const>::iterator it, addr_t begin_addr, addr_t अन्तः_addr) ध्रुव {
 	// note that we assume begin_addr <= end_addr
-	return it != _values.end() && _range_begin(it) <= begin_addr && end_addr - _range_begin(it) <= _range_size(it);
+	प्रत्यागम it != मानानि_2.अन्तः() && _range_begin(it) <= begin_addr && अन्तः_addr - _range_begin(it) <= range_आकार(it);
 }
 
-bool MemContents::_range_overlaps(std::map<addr_t, RTLIL::Const>::iterator it, addr_t begin_addr, addr_t end_addr) const {
-	if(it == _values.end() || begin_addr >= end_addr)
-		return false;
-	auto top1 = _range_end(it) - 1;
-	auto top2 = end_addr - 1;
-	return !(top1 < begin_addr || top2 < _range_begin(it));
+तार्किक MemContents::_range_overlaps(std::map<addr_t, RTLIL::Const>::iterator it, addr_t begin_addr, addr_t अन्तः_addr) ध्रुव {
+	यदि(it == मानानि_2.अन्तः() || begin_addr >= अन्तः_addr)
+		प्रत्यागम असत्य;
+	स्वचालित top1 = range_अन्तः(it) - 1;
+	स्वचालित top2 = अन्तः_addr - 1;
+	प्रत्यागम !(top1 < begin_addr || top2 < _range_begin(it));
 }
 
-std::map<MemContents::addr_t, RTLIL::Const>::iterator MemContents::_range_at(addr_t addr) const {
+std::map<MemContents::addr_t, RTLIL::Const>::iterator MemContents::_range_at(addr_t addr) ध्रुव {
 	// allow addr == 1<<_addr_width (which will just return end())
-	log_assert(addr <= (addr_t)(1<<_addr_width));
+	log_assert(addr <= (addr_t)(1<<addr_विस्तारः_2));
 	// get the first range with base > addr
 	// (we use const_cast since map::iterators are only passed around internally and not exposed to the user
 	// and using map::iterator in both the const and non-const case simplifies the code a little,
 	// at the cost of having to be a little careful when implementing const methods)
-	auto it = const_cast<std::map<addr_t, RTLIL::Const> &>(_values).upper_bound(addr);
+	स्वचालित it = const_cast<std::map<addr_t, RTLIL::Const> &>(मानानि_2).ऊर्ध्वस्थम्_bound(addr);
 	// if we get the very first range, all ranges are past the addr, so return the first one
-	if(it == _values.begin())
-		return it;
+	यदि(it == मानानि_2.begin())
+		प्रत्यागम it;
 	// otherwise, go back to the previous interval
 	// this must be the last interval with base <= addr
-	auto it_prev = std::next(it, -1);
-	if(_range_contains(it_prev, addr))
-		return it_prev;
-	else
-		return it;
+	स्वचालित it_पूर्व = std::अग्र(it, -1);
+	यदि(range_अन्तर्भवति(it_पूर्व, addr))
+		प्रत्यागम it_पूर्व;
+	अन्यथा
+		प्रत्यागम it;
 }
 
-RTLIL::Const MemContents::operator[](addr_t addr) const {
-	auto it = _range_at(addr);
-	if(_range_contains(it, addr))
-		return it->second.extract(_range_offset(it, addr), _data_width);
-	else
-		return _default_value;
+RTLIL::Const MemContents::संक्रियकः[](addr_t addr) ध्रुव {
+	स्वचालित it = _range_at(addr);
+	यदि(range_अन्तर्भवति(it, addr))
+		प्रत्यागम it->second.extract(range_विस्थापनम्(it, addr), दत्त_विस्तारः_2);
+	अन्यथा
+		प्रत्यागम default_मानम्;
 }
 
-MemContents::addr_t MemContents::count_range(addr_t begin_addr, addr_t end_addr) const {
-	addr_t count = 0;
-	for(auto it = _range_at(begin_addr); _range_overlaps(it, begin_addr, end_addr); it++) {
-		auto first = std::max(_range_begin(it), begin_addr);
-		auto last = std::min(_range_end(it), end_addr);
-		count += last - first;
+MemContents::addr_t MemContents::गणनम्_range(addr_t begin_addr, addr_t अन्तः_addr) ध्रुव {
+	addr_t गणनम् = 0;
+	प्रति(स्वचालित it = _range_at(begin_addr); _range_overlaps(it, begin_addr, अन्तः_addr); it++) {
+		स्वचालित first = std::max(_range_begin(it), begin_addr);
+		स्वचालित चरमः = std::min(range_अन्तः(it), अन्तः_addr);
+		गणनम् += चरमः - first;
 	}
-	return count;
+	प्रत्यागम गणनम्;
 }
 
-void MemContents::clear_range(addr_t begin_addr, addr_t end_addr) {
-	if(begin_addr >= end_addr) return;
+शून्य MemContents::clear_range(addr_t begin_addr, addr_t अन्तः_addr) {
+	यदि(begin_addr >= अन्तः_addr) प्रत्यागम;
 	// identify which ranges are affected by this operation
 	// the first iterator affected is the first one containing any addr >= begin_addr
-	auto begin_it = _range_at(begin_addr);
+	स्वचालित begin_it = _range_at(begin_addr);
 	// the first iterator *not* affected is the first one with base addr > end_addr - 1
-	auto end_it = _values.upper_bound(end_addr - 1);
-	if(begin_it == end_it)
-		return; // nothing to do
+	स्वचालित अन्तः_it = मानानि_2.ऊर्ध्वस्थम्_bound(अन्तः_addr - 1);
+	यदि(begin_it == अन्तः_it)
+		प्रत्यागम; // nothing to do
 	// the last iterator affected is one before the first one not affected
-	auto last_it = std::next(end_it, -1);
+	स्वचालित चरमः_it = std::अग्र(अन्तः_it, -1);
 	// the first and last range may need to be truncated, the rest can just be deleted
 	// to handle the begin_it == last_it case correctly, do the end case first by inserting a new range past the end
-	if(_range_contains(last_it, end_addr - 1)) {
-		auto new_begin = end_addr;
-		auto end = _range_end(last_it);
+	यदि(range_अन्तर्भवति(चरमः_it, अन्तः_addr - 1)) {
+		स्वचालित new_begin = अन्तः_addr;
+		स्वचालित अन्तः = range_अन्तः(चरमः_it);
 		// if there is data past the end address, preserve it by creating a new range
-		if(new_begin != end)
-			end_it = _values.emplace_hint(last_it, new_begin, last_it->second.extract(_range_offset(last_it, new_begin), (_range_end(last_it) - new_begin) * _data_width));
+		यदि(new_begin != अन्तः)
+			अन्तः_it = मानानि_2.emplace_hint(चरमः_it, new_begin, चरमः_it->second.extract(range_विस्थापनम्(चरमः_it, new_begin), (range_अन्तः(चरमः_it) - new_begin) * दत्त_विस्तारः_2));
 		// the original range will either be truncated in the next if() block or deleted in the erase, so we can leave it untruncated
 	}
-	if(_range_contains(begin_it, begin_addr)) {
-		auto new_end = begin_addr;
+	यदि(range_अन्तर्भवति(begin_it, begin_addr)) {
+		स्वचालित new_अन्तः = begin_addr;
 		// if there is data before the start address, truncate but don't delete
-		if(new_end != begin_it->first) {
-			begin_it->second.extu(_range_offset(begin_it, new_end));
+		यदि(new_अन्तः != begin_it->first) {
+			begin_it->second.extu(range_विस्थापनम्(begin_it, new_अन्तः));
 			++begin_it;
 		}
 		// else: begin_it will be deleted
 	}
-	_values.erase(begin_it, end_it);
+	मानानि_2.erase(begin_it, अन्तः_it);
 }
 
-std::map<MemContents::addr_t, RTLIL::Const>::iterator MemContents::_reserve_range(addr_t begin_addr, addr_t end_addr) {
-	if(begin_addr >= end_addr)
-		return _values.end(); // need a dummy value to return, end() is cheap
+std::map<MemContents::addr_t, RTLIL::Const>::iterator MemContents::_reserve_range(addr_t begin_addr, addr_t अन्तः_addr) {
+	यदि(begin_addr >= अन्तः_addr)
+		प्रत्यागम मानानि_2.अन्तः(); // need a dummy value to return, end() is cheap
 	// find the first range containing any addr >= begin_addr - 1
-	auto lower_it = begin_addr == 0 ? _values.begin() : _range_at(begin_addr - 1);
+	स्वचालित अधस्तनम्_it = begin_addr == 0 ? मानानि_2.begin() : _range_at(begin_addr - 1);
 	// check if our range is already covered by a single range
 	// note that since ranges are not allowed to touch, if any range contains begin_addr, lower_it equals that range
-	if (_range_contains(lower_it, begin_addr, end_addr))
-		return lower_it;
+	यदि (range_अन्तर्भवति(अधस्तनम्_it, begin_addr, अन्तः_addr))
+		प्रत्यागम अधस्तनम्_it;
 	// find the first range containing any addr >= end_addr
-	auto upper_it = _range_at(end_addr);
+	स्वचालित ऊर्ध्वस्थम्_it = _range_at(अन्तः_addr);
 	// check if either of the two ranges we just found touch our range
-	bool lower_touch = begin_addr > 0 && _range_contains(lower_it, begin_addr - 1);
-	bool upper_touch = _range_contains(upper_it, end_addr);
-	if (lower_touch && upper_touch) {
-		log_assert (lower_it != upper_it); // lower_it == upper_it should be excluded by the check above
+	तार्किक अधस्तनम्_touch = begin_addr > 0 && range_अन्तर्भवति(अधस्तनम्_it, begin_addr - 1);
+	तार्किक ऊर्ध्वस्थम्_touch = range_अन्तर्भवति(ऊर्ध्वस्थम्_it, अन्तः_addr);
+	यदि (अधस्तनम्_touch && ऊर्ध्वस्थम्_touch) {
+		log_assert (अधस्तनम्_it != ऊर्ध्वस्थम्_it); // lower_it == upper_it should be excluded by the check above
 		// we have two different ranges touching at either end, we need to merge them
-		auto upper_end = _range_end(upper_it);
+		स्वचालित ऊर्ध्वस्थम्_अन्तः = range_अन्तः(ऊर्ध्वस्थम्_it);
 		// make range bigger (maybe reserve here instead of resize?)
-		lower_it->second.resize(_range_offset(lower_it, upper_end), State::Sx);
+		अधस्तनम्_it->second.resize(range_विस्थापनम्(अधस्तनम्_it, ऊर्ध्वस्थम्_अन्तः), State::Sx);
 		// copy only the data beyond our range
-		std::copy(_range_data(upper_it, end_addr), _range_data(upper_it, upper_end), _range_data(lower_it, end_addr));
+		std::copy(range_दत्त(ऊर्ध्वस्थम्_it, अन्तः_addr), range_दत्त(ऊर्ध्वस्थम्_it, ऊर्ध्वस्थम्_अन्तः), range_दत्त(अधस्तनम्_it, अन्तः_addr));
 		// keep lower_it, but delete upper_it
-		_values.erase(std::next(lower_it), std::next(upper_it));
-		return lower_it;
-	} else if (lower_touch) {
+		मानानि_2.erase(std::अग्र(अधस्तनम्_it), std::अग्र(ऊर्ध्वस्थम्_it));
+		प्रत्यागम अधस्तनम्_it;
+	} अन्यथा यदि (अधस्तनम्_touch) {
 		// we have a range to the left, just make it bigger and delete any other that may exist.
-		lower_it->second.resize(_range_offset(lower_it, end_addr), State::Sx);
+		अधस्तनम्_it->second.resize(range_विस्थापनम्(अधस्तनम्_it, अन्तः_addr), State::Sx);
 		// keep lower_it and upper_it
-		_values.erase(std::next(lower_it), upper_it);
-		return lower_it;
-	} else if (upper_touch) {
+		मानानि_2.erase(std::अग्र(अधस्तनम्_it), ऊर्ध्वस्थम्_it);
+		प्रत्यागम अधस्तनम्_it;
+	} अन्यथा यदि (ऊर्ध्वस्थम्_touch) {
 		// we have a range to the right, we need to expand it
 		// since we need to erase and reinsert to a new address, steal the data
 		// note that begin_addr is not in upper_it, otherwise the whole range covered check would have tripped
-		RTLIL::Const data(State::Sx, (_range_begin(upper_it) - begin_addr) * _data_width);
-		data.append(std::move(upper_it->second));
+		RTLIL::Const दत्त(State::Sx, (_range_begin(ऊर्ध्वस्थम्_it) - begin_addr) * दत्त_विस्तारः_2);
+		दत्त.append(std::move(ऊर्ध्वस्थम्_it->second));
 		// delete lower_it and upper_it, then reinsert
-		_values.erase(lower_it, std::next(upper_it));
-		return _values.emplace(begin_addr, std::move(data)).first;
-	} else {
+		मानानि_2.erase(अधस्तनम्_it, std::अग्र(ऊर्ध्वस्थम्_it));
+		प्रत्यागम मानानि_2.emplace(begin_addr, std::move(दत्त)).first;
+	} अन्यथा {
 		// no ranges are touching, so just delete all ranges in our range and allocate a new one
 		// could try to resize an existing range but not sure if that actually helps
-		_values.erase(lower_it, upper_it);
-		return _values.emplace(begin_addr, RTLIL::Const(State::Sx, (end_addr - begin_addr) * _data_width)).first;
+		मानानि_2.erase(अधस्तनम्_it, ऊर्ध्वस्थम्_it);
+		प्रत्यागम मानानि_2.emplace(begin_addr, RTLIL::Const(State::Sx, (अन्तः_addr - begin_addr) * दत्त_विस्तारः_2)).first;
 	}
 }
 
-void MemContents::insert_concatenated(addr_t addr, RTLIL::Const const &values) {
-	addr_t words = (values.size() + _data_width - 1) / _data_width;
-	log_assert(addr < (addr_t)(1<<_addr_width));
-	log_assert(words <= (addr_t)(1<<_addr_width) - addr);
-	auto it = _reserve_range(addr, addr + words);
-	auto to_begin = _range_data(it, addr);
-	std::copy(values.begin(), values.end(), to_begin);
+शून्य MemContents::निवेशय_concatenated(addr_t addr, RTLIL::Const ध्रुव &मानानि) {
+	addr_t शब्दाः_2 = (मानानि.आकार() + दत्त_विस्तारः_2 - 1) / दत्त_विस्तारः_2;
+	log_assert(addr < (addr_t)(1<<addr_विस्तारः_2));
+	log_assert(शब्दाः_2 <= (addr_t)(1<<addr_विस्तारः_2) - addr);
+	स्वचालित it = _reserve_range(addr, addr + शब्दाः_2);
+	स्वचालित गन्तव्यम्_begin = range_दत्त(it, addr);
+	std::copy(मानानि.begin(), मानानि.अन्तः(), गन्तव्यम्_begin);
 	// if values is not word-aligned, fill any missing bits with 0
-	std::fill(to_begin + values.size(), to_begin + words * _data_width, State::S0);
+	std::fill(गन्तव्यम्_begin + मानानि.आकार(), गन्तव्यम्_begin + शब्दाः_2 * दत्त_विस्तारः_2, State::S0);
 }
 
-RTLIL::Const::iterator MemContents::_range_write(RTLIL::Const::iterator it, RTLIL::Const const &word) {
-	auto from_end = word.size() <= _data_width ? word.end() : word.begin() + _data_width;
-	auto to_end = std::copy(word.begin(), from_end, it);
-	auto it_next = std::next(it, _data_width);
-	std::fill(to_end, it_next, State::S0);
-	return it_next;
+RTLIL::Const::iterator MemContents::_range_write(RTLIL::Const::iterator it, RTLIL::Const ध्रुव &word) {
+	स्वचालित from_अन्तः = word.आकार() <= दत्त_विस्तारः_2 ? word.अन्तः() : word.begin() + दत्त_विस्तारः_2;
+	स्वचालित गन्तव्यम्_अन्तः = std::copy(word.begin(), from_अन्तः, it);
+	स्वचालित it_अग्र = std::अग्र(it, दत्त_विस्तारः_2);
+	std::fill(गन्तव्यम्_अन्तः, it_अग्र, State::S0);
+	प्रत्यागम it_अग्र;
 }

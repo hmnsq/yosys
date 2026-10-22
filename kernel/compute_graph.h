@@ -17,387 +17,387 @@
  *
  */
 
-#ifndef COMPUTE_GRAPH_H
-#define COMPUTE_GRAPH_H
+#यदि_अपरिभाषितम् COMPUTE_GRAPH_H
+#परिभाषय COMPUTE_GRAPH_H
 
-#include <tuple>
-#include "kernel/yosys.h"
+#अन्तर्भाव <tuple>
+#अन्तर्भाव "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template<
+प्रतिरूपम्<
     typename Fn, // Function type (deduplicated across whole graph)
     typename Attr = std::tuple<>, // Call attributes (present in every node)
     typename SparseAttr = std::tuple<>, // Sparse call attributes (optional per node)
-    typename Key = std::tuple<> // Stable keys to refer to nodes
+    typename कुञ्चिका_2 = std::tuple<> // Stable keys to refer to nodes
 >
-struct ComputeGraph
+संरचना ComputeGraph
 {
-    struct Ref;
-private:
+    संरचना Ref;
+गुप्त:
 
     // Functions are deduplicated by assigning unique ids
     idict<Fn> functions;
 
-    struct Node {
-        int fn_index;
-        int arg_offset;
-        int arg_count;
+    संरचना ग्रन्थिः_2 {
+        पूर्णाङ्क fn_सूचकांक;
+        पूर्णाङ्क arg_विस्थापनम्;
+        पूर्णाङ्क arg_गणनम्;
         Attr attr;
 
-        Node(int fn_index, Attr &&attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(std::move(attr)) {}
+        ग्रन्थिः_2(पूर्णाङ्क fn_सूचकांक, Attr &&attr, पूर्णाङ्क arg_विस्थापनम्, पूर्णाङ्क arg_गणनम् = 0)
+            : fn_सूचकांक(fn_सूचकांक), arg_विस्थापनम्(arg_विस्थापनम्), arg_गणनम्(arg_गणनम्), attr(std::move(attr)) {}
 
-        Node(int fn_index, Attr const &attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(attr) {}
+        ग्रन्थिः_2(पूर्णाङ्क fn_सूचकांक, Attr ध्रुव &attr, पूर्णाङ्क arg_विस्थापनम्, पूर्णाङ्क arg_गणनम् = 0)
+            : fn_सूचकांक(fn_सूचकांक), arg_विस्थापनम्(arg_विस्थापनम्), arg_गणनम्(arg_गणनम्), attr(attr) {}
     };
 
 
-    std::vector<Node> nodes;
-    std::vector<int> args;
-    dict<Key, int> keys_;
-    dict<int, SparseAttr> sparse_attrs;
+    std::सदिशम्<ग्रन्थिः_2> nodes;
+    std::सदिशम्<पूर्णाङ्क> तर्काः_2;
+    dict<कुञ्चिका_2, पूर्णाङ्क> कुञ्चिकाः;
+    dict<पूर्णाङ्क, SparseAttr> sparse_attrs;
 
-public:
-    template<typename Graph>
-    struct BaseRef
+सार्वजनिक:
+    प्रतिरूपम्<typename Graph>
+    संरचना आधारः_Ref
     {
-    protected:
-        friend struct ComputeGraph;
+    रक्षित:
+        मित्रम् संरचना ComputeGraph;
         Graph *graph_;
-        int index_;
-        BaseRef(Graph *graph, int index) : graph_(graph), index_(index) {
-            log_assert(index_ >= 0);
+        पूर्णाङ्क सूचकांक_2;
+        आधारः_Ref(Graph *graph, पूर्णाङ्क सूचकांक) : graph_(graph), सूचकांक_2(सूचकांक) {
+            log_assert(सूचकांक_2 >= 0);
             check();
         }
 
-        void check() const { log_assert(index_ < graph_->size()); }
+        शून्य check() ध्रुव { log_assert(सूचकांक_2 < graph_->आकार()); }
 
-        Node const &deref() const { check(); return graph_->nodes[index_]; }
+        ग्रन्थिः_2 ध्रुव &deref() ध्रुव { check(); प्रत्यागम graph_->nodes[सूचकांक_2]; }
 
-    public:
-        ComputeGraph const &graph() const { return graph_; }
-        int index() const { return index_; }
+    सार्वजनिक:
+        ComputeGraph ध्रुव &graph() ध्रुव { प्रत्यागम graph_; }
+        पूर्णाङ्क सूचकांक() ध्रुव { प्रत्यागम सूचकांक_2; }
 
-        int size() const { return deref().arg_count; }
+        पूर्णाङ्क आकार() ध्रुव { प्रत्यागम deref().arg_गणनम्; }
 
-        BaseRef arg(int n) const
+        आधारः_Ref arg(पूर्णाङ्क n) ध्रुव
         {
-            Node const &node = deref();
-            log_assert(n >= 0 && n < node.arg_count);
-            return BaseRef(graph_, graph_->args[node.arg_offset + n]);
+            ग्रन्थिः_2 ध्रुव &ग्रन्थिः = deref();
+            log_assert(n >= 0 && n < ग्रन्थिः.arg_गणनम्);
+            प्रत्यागम आधारः_Ref(graph_, graph_->तर्काः_2[ग्रन्थिः.arg_विस्थापनम् + n]);
         }
 
-        std::vector<int>::const_iterator arg_indices_cbegin() const
+        std::सदिशम्<पूर्णाङ्क>::const_iterator arg_indices_cbegin() ध्रुव
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset;
+            ग्रन्थिः_2 ध्रुव &ग्रन्थिः = deref();
+            प्रत्यागम graph_->तर्काः_2.cbegin() + ग्रन्थिः.arg_विस्थापनम्;
         }
 
-        std::vector<int>::const_iterator arg_indices_cend() const
+        std::सदिशम्<पूर्णाङ्क>::const_iterator arg_indices_cend() ध्रुव
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset + node.arg_count;
+            ग्रन्थिः_2 ध्रुव &ग्रन्थिः = deref();
+            प्रत्यागम graph_->तर्काः_2.cbegin() + ग्रन्थिः.arg_विस्थापनम् + ग्रन्थिः.arg_गणनम्;
         }
 
-        Fn const &function() const { return graph_->functions[deref().fn_index]; }
-        Attr const &attr() const { return deref().attr; }
+        Fn ध्रुव &function() ध्रुव { प्रत्यागम graph_->functions[deref().fn_सूचकांक]; }
+        Attr ध्रुव &attr() ध्रुव { प्रत्यागम deref().attr; }
 
-        bool has_sparse_attr() const { return graph_->sparse_attrs.count(index_); }
+        bool has_sparse_attr() ध्रुव { प्रत्यागम graph_->sparse_attrs.गणनम्(सूचकांक_2); }
 
-        SparseAttr const &sparse_attr() const
+        SparseAttr ध्रुव &sparse_attr() ध्रुव
         {
-            auto found = graph_->sparse_attrs.find(index_);
-            log_assert(found != graph_->sparse_attrs.end());
-            return found->second;
+            स्वचालित प्राप्तम् = graph_->sparse_attrs.find(सूचकांक_2);
+            log_assert(प्राप्तम् != graph_->sparse_attrs.अन्तः());
+            प्रत्यागम प्राप्तम्->second;
         }
     };
 
-    using ConstRef = BaseRef<ComputeGraph const>;
+    using ConstRef = आधारः_Ref<ComputeGraph ध्रुव>;
 
-    struct Ref : public BaseRef<ComputeGraph>
+    संरचना Ref : सार्वजनिक आधारः_Ref<ComputeGraph>
     {
-    private:
-        friend struct ComputeGraph;
-        Ref(ComputeGraph *graph, int index) : BaseRef<ComputeGraph>(graph, index) {}
-        Node &deref() const { this->check(); return this->graph_->nodes[this->index_]; }
+    गुप्त:
+        मित्रम् संरचना ComputeGraph;
+        Ref(ComputeGraph *graph, पूर्णाङ्क सूचकांक) : आधारः_Ref<ComputeGraph>(graph, सूचकांक) {}
+        ग्रन्थिः_2 &deref() ध्रुव { this->check(); प्रत्यागम this->graph_->nodes[this->सूचकांक_2]; }
 
-    public:
-        Ref(BaseRef<ComputeGraph> ref) : Ref(ref.graph_, ref.index_) {}
+    सार्वजनिक:
+        Ref(आधारः_Ref<ComputeGraph> ref) : Ref(ref.graph_, ref.सूचकांक_2) {}
 
-        void set_function(Fn const &function) const
+        शून्य समुच्चयः_function(Fn ध्रुव &function) ध्रुव
         {
-            deref().fn_index = this->graph_->functions(function);
+            deref().fn_सूचकांक = this->graph_->functions(function);
         }
 
-        Attr &attr() const { return deref().attr; }
+        Attr &attr() ध्रुव { प्रत्यागम deref().attr; }
 
-        void append_arg(ConstRef arg) const
+        शून्य append_arg(ConstRef arg) ध्रुव
         {
             log_assert(arg.graph_ == this->graph_);
-            append_arg(arg.index());
+            append_arg(arg.सूचकांक());
         }
 
-        void append_arg(int arg) const
+        शून्य append_arg(पूर्णाङ्क arg) ध्रुव
         {
-            log_assert(arg >= 0 && arg < this->graph_->size());
-            Node &node = deref();
-            if (node.arg_offset + node.arg_count != GetSize(this->graph_->args))
-                move_args(node);
-            this->graph_->args.push_back(arg);
-            node.arg_count++;
+            log_assert(arg >= 0 && arg < this->graph_->आकार());
+            ग्रन्थिः_2 &ग्रन्थिः = deref();
+            यदि (ग्रन्थिः.arg_विस्थापनम् + ग्रन्थिः.arg_गणनम् != Get_आकार(this->graph_->तर्काः_2))
+                move_तर्काः(ग्रन्थिः);
+            this->graph_->तर्काः_2.प्रक्षिप_पृष्ठभागः(arg);
+            ग्रन्थिः.arg_गणनम्++;
         }
 
-        operator ConstRef() const
+        संक्रियकः ConstRef() ध्रुव
         {
-            return ConstRef(this->graph_, this->index_);
+            प्रत्यागम ConstRef(this->graph_, this->सूचकांक_2);
         }
 
-        SparseAttr &sparse_attr() const
+        SparseAttr &sparse_attr() ध्रुव
         {
-            return this->graph_->sparse_attrs[this->index_];
+            प्रत्यागम this->graph_->sparse_attrs[this->सूचकांक_2];
         }
 
-        void clear_sparse_attr() const
+        शून्य clear_sparse_attr() ध्रुव
         {
-            this->graph_->sparse_attrs.erase(this->index_);
+            this->graph_->sparse_attrs.erase(this->सूचकांक_2);
         }
 
-        void assign_key(Key const &key) const
+        शून्य नियोजय_कुञ्चिका(कुञ्चिका_2 ध्रुव &कुञ्चिका) ध्रुव
         {
-            this->graph_->keys_.emplace(key, this->index_);
+            this->graph_->कुञ्चिकाः.emplace(कुञ्चिका, this->सूचकांक_2);
         }
 
-    private:
-        void move_args(Node &node) const
+    गुप्त:
+        शून्य move_तर्काः(ग्रन्थिः_2 &ग्रन्थिः) ध्रुव
         {
-            auto &args = this->graph_->args;
-            int old_offset = node.arg_offset;
-            node.arg_offset = GetSize(args);
-            for (int i = 0; i != node.arg_count; ++i)
-                args.push_back(args[old_offset + i]);
+            स्वचालित &तर्काः_2 = this->graph_->तर्काः_2;
+            पूर्णाङ्क old_विस्थापनम् = ग्रन्थिः.arg_विस्थापनम्;
+            ग्रन्थिः.arg_विस्थापनम् = Get_आकार(तर्काः_2);
+            प्रति (पूर्णाङ्क i = 0; i != ग्रन्थिः.arg_गणनम्; ++i)
+                तर्काः_2.प्रक्षिप_पृष्ठभागः(तर्काः_2[old_विस्थापनम् + i]);
         }
 
     };
 
-    bool has_key(Key const &key) const
+    bool has_कुञ्चिका(कुञ्चिका_2 ध्रुव &कुञ्चिका) ध्रुव
     {
-        return keys_.count(key);
+        प्रत्यागम कुञ्चिकाः.गणनम्(कुञ्चिका);
     }
 
-    dict<Key, int> const &keys() const
+    dict<कुञ्चिका_2, पूर्णाङ्क> ध्रुव &कुञ्चिकाः_2() ध्रुव
     {
-        return keys_;
+        प्रत्यागम कुञ्चिकाः;
     }
 
-    ConstRef operator()(Key const &key) const
+    ConstRef संक्रियकः()(कुञ्चिका_2 ध्रुव &कुञ्चिका) ध्रुव
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        स्वचालित it = कुञ्चिकाः.find(कुञ्चिका);
+        log_assert(it != कुञ्चिकाः.अन्तः());
+        प्रत्यागम (*this)[it->second];
     }
 
-    Ref operator()(Key const &key)
+    Ref संक्रियकः()(कुञ्चिका_2 ध्रुव &कुञ्चिका)
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        स्वचालित it = कुञ्चिकाः.find(कुञ्चिका);
+        log_assert(it != कुञ्चिकाः.अन्तः());
+        प्रत्यागम (*this)[it->second];
     }
 
-    int size() const { return GetSize(nodes); }
+    पूर्णाङ्क आकार() ध्रुव { प्रत्यागम Get_आकार(nodes); }
 
-    ConstRef operator[](int index) const { return ConstRef(this, index); }
-    Ref operator[](int index) { return Ref(this, index); }
+    ConstRef संक्रियकः[](पूर्णाङ्क सूचकांक) ध्रुव { प्रत्यागम ConstRef(this, सूचकांक); }
+    Ref संक्रियकः[](पूर्णाङ्क सूचकांक) { प्रत्यागम Ref(this, सूचकांक); }
 
-    Ref add(Fn const &function, Attr &&attr)
+    Ref सङ्कलय(Fn ध्रुव &function, Attr &&attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
-        nodes.emplace_back(fn_index, std::move(attr), GetSize(args));
-        return Ref(this, index);
+        पूर्णाङ्क सूचकांक = Get_आकार(nodes);
+        पूर्णाङ्क fn_सूचकांक = functions(function);
+        nodes.emplace_पृष्ठभागः(fn_सूचकांक, std::move(attr), Get_आकार(तर्काः_2));
+        प्रत्यागम Ref(this, सूचकांक);
     }
 
-    Ref add(Fn const &function, Attr const &attr)
+    Ref सङ्कलय(Fn ध्रुव &function, Attr ध्रुव &attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
-        nodes.emplace_back(fn_index, attr,  GetSize(args));
-        return Ref(this, index);
+        पूर्णाङ्क सूचकांक = Get_आकार(nodes);
+        पूर्णाङ्क fn_सूचकांक = functions(function);
+        nodes.emplace_पृष्ठभागः(fn_सूचकांक, attr,  Get_आकार(तर्काः_2));
+        प्रत्यागम Ref(this, सूचकांक);
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T &&args)
+    प्रतिरूपम्<typename T>
+    Ref सङ्कलय(Fn ध्रुव &function, Attr ध्रुव &attr, T &&तर्काः_2)
     {
-        Ref added = add(function, attr);
-        for (auto arg : args)
+        Ref added = सङ्कलय(function, attr);
+        प्रति (स्वचालित arg : तर्काः_2)
             added.append_arg(arg);
-        return added;
+        प्रत्यागम added;
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr &&attr, T &&args)
+    प्रतिरूपम्<typename T>
+    Ref सङ्कलय(Fn ध्रुव &function, Attr &&attr, T &&तर्काः_2)
     {
-        Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        Ref added = सङ्कलय(function, std::move(attr));
+        प्रति (स्वचालित arg : तर्काः_2)
             added.append_arg(arg);
-        return added;
+        प्रत्यागम added;
     }
 
-    Ref add(Fn const &function, Attr const &attr, std::initializer_list<Ref> args)
+    Ref सङ्कलय(Fn ध्रुव &function, Attr ध्रुव &attr, std::initializer_list<Ref> तर्काः_2)
     {
-        Ref added = add(function, attr);
-        for (auto arg : args)
+        Ref added = सङ्कलय(function, attr);
+        प्रति (स्वचालित arg : तर्काः_2)
             added.append_arg(arg);
-        return added;
+        प्रत्यागम added;
     }
 
-    Ref add(Fn const &function, Attr &&attr, std::initializer_list<Ref> args)
+    Ref सङ्कलय(Fn ध्रुव &function, Attr &&attr, std::initializer_list<Ref> तर्काः_2)
     {
-        Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        Ref added = सङ्कलय(function, std::move(attr));
+        प्रति (स्वचालित arg : तर्काः_2)
             added.append_arg(arg);
-        return added;
+        प्रत्यागम added;
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T begin, T end)
+    प्रतिरूपम्<typename T>
+    Ref सङ्कलय(Fn ध्रुव &function, Attr ध्रुव &attr, T begin, T अन्तः)
     {
-        Ref added = add(function, attr);
-        for (; begin != end; ++begin)
+        Ref added = सङ्कलय(function, attr);
+        प्रति (; begin != अन्तः; ++begin)
             added.append_arg(*begin);
-        return added;
+        प्रत्यागम added;
     }
 
-    void compact_args()
+    शून्य compact_तर्काः()
     {
-        std::vector<int> new_args;
-        for (auto &node : nodes)
+        std::सदिशम्<पूर्णाङ्क> new_तर्काः;
+        प्रति (स्वचालित &ग्रन्थिः : nodes)
         {
-            int new_offset = GetSize(new_args);
-            for (int i = 0; i < node.arg_count; i++)
-                new_args.push_back(args[node.arg_offset + i]);
-            node.arg_offset = new_offset;
+            पूर्णाङ्क new_विस्थापनम् = Get_आकार(new_तर्काः);
+            प्रति (पूर्णाङ्क i = 0; i < ग्रन्थिः.arg_गणनम्; i++)
+                new_तर्काः.प्रक्षिप_पृष्ठभागः(तर्काः_2[ग्रन्थिः.arg_विस्थापनम् + i]);
+            ग्रन्थिः.arg_विस्थापनम् = new_विस्थापनम्;
         }
-        std::swap(args, new_args);
+        std::swap(तर्काः_2, new_तर्काः);
     }
 
-    void permute(std::vector<int> const &perm)
+    शून्य permute(std::सदिशम्<पूर्णाङ्क> ध्रुव &perm)
     {
-        log_assert(perm.size() <= nodes.size());
-        std::vector<int> inv_perm;
-        inv_perm.resize(nodes.size(), -1);
-        for (int i = 0; i < GetSize(perm); ++i)
+        log_assert(perm.आकार() <= nodes.आकार());
+        std::सदिशम्<पूर्णाङ्क> inv_perm;
+        inv_perm.resize(nodes.आकार(), -1);
+        प्रति (पूर्णाङ्क i = 0; i < Get_आकार(perm); ++i)
         {
-            int j = perm[i];
-            log_assert(j >= 0 && j < GetSize(nodes));
+            पूर्णाङ्क j = perm[i];
+            log_assert(j >= 0 && j < Get_आकार(nodes));
             log_assert(inv_perm[j] == -1);
             inv_perm[j] = i;
         }
         permute(perm, inv_perm);
     }
 
-    void permute(std::vector<int> const &perm, std::vector<int> const &inv_perm)
+    शून्य permute(std::सदिशम्<पूर्णाङ्क> ध्रुव &perm, std::सदिशम्<पूर्णाङ्क> ध्रुव &inv_perm)
     {
-        log_assert(inv_perm.size() == nodes.size());
-        std::vector<Node> new_nodes;
-        new_nodes.reserve(perm.size());
-        dict<int, SparseAttr> new_sparse_attrs;
-        for (int i : perm)
+        log_assert(inv_perm.आकार() == nodes.आकार());
+        std::सदिशम्<ग्रन्थिः_2> new_nodes;
+        new_nodes.reserve(perm.आकार());
+        dict<पूर्णाङ्क, SparseAttr> new_sparse_attrs;
+        प्रति (पूर्णाङ्क i : perm)
         {
-            int j = GetSize(new_nodes);
-            new_nodes.emplace_back(std::move(nodes[i]));
-            auto found = sparse_attrs.find(i);
-            if (found != sparse_attrs.end())
-                new_sparse_attrs.emplace(j, std::move(found->second));
+            पूर्णाङ्क j = Get_आकार(new_nodes);
+            new_nodes.emplace_पृष्ठभागः(std::move(nodes[i]));
+            स्वचालित प्राप्तम् = sparse_attrs.find(i);
+            यदि (प्राप्तम् != sparse_attrs.अन्तः())
+                new_sparse_attrs.emplace(j, std::move(प्राप्तम्->second));
         }
 
         std::swap(nodes, new_nodes);
         std::swap(sparse_attrs, new_sparse_attrs);
 
-        compact_args();
-        for (int &arg : args)
+        compact_तर्काः();
+        प्रति (पूर्णाङ्क &arg : तर्काः_2)
         {
-            log_assert(arg < GetSize(inv_perm));
+            log_assert(arg < Get_आकार(inv_perm));
             log_assert(inv_perm[arg] >= 0);
             arg = inv_perm[arg];
         }
 
-        for (auto &key : keys_)
+        प्रति (स्वचालित &कुञ्चिका : कुञ्चिकाः)
         {
-            log_assert(key.second < GetSize(inv_perm));
-            log_assert(inv_perm[key.second] >= 0);
-            key.second = inv_perm[key.second];
+            log_assert(कुञ्चिका.second < Get_आकार(inv_perm));
+            log_assert(inv_perm[कुञ्चिका.second] >= 0);
+            कुञ्चिका.second = inv_perm[कुञ्चिका.second];
         }
     }
 
-    struct SccAdaptor
+    संरचना SccAdaptor
     {
-    private:
-        ComputeGraph const &graph_;
-        std::vector<int> indices_;
-    public:
-        SccAdaptor(ComputeGraph const &graph) : graph_(graph)
+    गुप्त:
+        ComputeGraph ध्रुव &graph_;
+        std::सदिशम्<पूर्णाङ्क> indices_;
+    सार्वजनिक:
+        SccAdaptor(ComputeGraph ध्रुव &graph) : graph_(graph)
         {
-            indices_.resize(graph.size(), -1);
+            indices_.resize(graph.आकार(), -1);
         }
 
 
-        typedef int node_type;
+        प्रकारनिर्देश पूर्णाङ्क ग्रन्थिः_type;
 
-        struct node_enumerator {
-        private:
-            friend struct SccAdaptor;
-            int current, end;
-            node_enumerator(int current, int end) : current(current), end(end) {}
+        संरचना ग्रन्थिः_enumerator {
+        गुप्त:
+            मित्रम् संरचना SccAdaptor;
+            पूर्णाङ्क current, अन्तः;
+            ग्रन्थिः_enumerator(पूर्णाङ्क current, पूर्णाङ्क अन्तः) : current(current), अन्तः(अन्तः) {}
 
-        public:
+        सार्वजनिक:
 
-            bool finished() const { return current == end; }
-            node_type next() {
-                log_assert(!finished());
-                node_type result = current;
+            bool परिसमाप्तम्() ध्रुव { प्रत्यागम current == अन्तः; }
+            ग्रन्थिः_type अग्र() {
+                log_assert(!परिसमाप्तम्());
+                ग्रन्थिः_type परिणाम = current;
                 ++current;
-                return result;
+                प्रत्यागम परिणाम;
             }
         };
 
-        node_enumerator enumerate_nodes() {
-            return node_enumerator(0, GetSize(indices_));
+        ग्रन्थिः_enumerator enumerate_nodes() {
+            प्रत्यागम ग्रन्थिः_enumerator(0, Get_आकार(indices_));
         }
 
 
-        struct successor_enumerator {
-        private:
-            friend struct SccAdaptor;
-            std::vector<int>::const_iterator current, end;
-            successor_enumerator(std::vector<int>::const_iterator current, std::vector<int>::const_iterator end) :
-                current(current), end(end) {}
+        संरचना successor_enumerator {
+        गुप्त:
+            मित्रम् संरचना SccAdaptor;
+            std::सदिशम्<पूर्णाङ्क>::const_iterator current, अन्तः;
+            successor_enumerator(std::सदिशम्<पूर्णाङ्क>::const_iterator current, std::सदिशम्<पूर्णाङ्क>::const_iterator अन्तः) :
+                current(current), अन्तः(अन्तः) {}
 
-        public:
-            bool finished() const { return current == end; }
-            node_type next() {
-                log_assert(!finished());
-                node_type result = *current;
+        सार्वजनिक:
+            bool परिसमाप्तम्() ध्रुव { प्रत्यागम current == अन्तः; }
+            ग्रन्थिः_type अग्र() {
+                log_assert(!परिसमाप्तम्());
+                ग्रन्थिः_type परिणाम = *current;
                 ++current;
-                return result;
+                प्रत्यागम परिणाम;
             }
         };
 
-        successor_enumerator enumerate_successors(int index) const {
-            auto const &ref = graph_[index];
-            return successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
+        successor_enumerator enumerate_उत्तराधिकारिणः(पूर्णाङ्क सूचकांक) ध्रुव {
+            स्वचालित ध्रुव &ref = graph_[सूचकांक];
+            प्रत्यागम successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
         }
 
-        int &dfs_index(node_type const &node) { return indices_[node]; }
+        पूर्णाङ्क &dfs_सूचकांक(ग्रन्थिः_type ध्रुव &ग्रन्थिः) { प्रत्यागम indices_[ग्रन्थिः]; }
 
-        std::vector<int> const &dfs_indices() { return indices_; }
+        std::सदिशम्<पूर्णाङ्क> ध्रुव &dfs_indices() { प्रत्यागम indices_; }
     };
 
 };
 
 
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_अन्तः
 
 
-#endif
+#यदि_अन्तः

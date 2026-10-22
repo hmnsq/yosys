@@ -17,435 +17,435 @@
  *
  */
 
-#ifndef SCOPEINFO_H
-#define SCOPEINFO_H
+#यदि_अपरिभाषितम् SCOPEINFO_H
+#परिभाषय SCOPEINFO_H
 
-#include <vector>
-#include <algorithm>
+#अन्तर्भाव <vector>
+#अन्तर्भाव <algorithm>
 
-#include "kernel/yosys.h"
-#include "kernel/celltypes.h"
+#अन्तर्भाव "kernel/yosys.h"
+#अन्तर्भाव "kernel/celltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template<typename T>
-class IdTree
+प्रतिरूपम्<typename T>
+class Id_वृक्षः
 {
-public:
-	struct Cursor;
+सार्वजनिक:
+	संरचना Cursor;
 
-protected:
-	IdTree *parent = nullptr;
+रक्षित:
+	Id_वृक्षः *parent = nullptr;
 	IdString scope_name;
-	int depth = 0;
+	पूर्णाङ्क गभीरता = 0;
 
-	pool<IdString> names;
+	pool<IdString> नामानि;
 	dict<IdString, T> entries;
-public: // XXX
-	dict<IdString, std::unique_ptr<IdTree>> subtrees;
+सार्वजनिक: // XXX
+	dict<IdString, std::unique_ptr<Id_वृक्षः>> subtrees;
 
-	template<typename P, typename T_ref>
-	static Cursor do_insert(IdTree *tree, P begin, P end, T_ref &&value)
+	प्रतिरूपम्<typename P, typename T_ref>
+	स्थिर Cursor do_निवेशय(Id_वृक्षः *वृक्षः, P begin, P अन्तः, T_ref &&मानम्)
 	{
-		log_assert(begin != end && "path must be non-empty");
-		while (true) {
+		log_assert(begin != अन्तः && "path must be non-empty");
+		यावत् (true) {
 			IdString name = *begin;
 			++begin;
-			log_assert(!name.empty());
-			tree->names.insert(name);
-			if (begin == end) {
-				tree->entries.emplace(name, std::forward<T_ref>(value));
-				return Cursor(tree, name);
+			log_assert(!name.रिक्तानि());
+			वृक्षः->नामानि.निवेशय(name);
+			यदि (begin == अन्तः) {
+				वृक्षः->entries.emplace(name, std::forward<T_ref>(मानम्));
+				प्रत्यागम Cursor(वृक्षः, name);
 			}
-			auto &unique = tree->subtrees[name];
-			if (!unique) {
-				unique.reset(new IdTree);
+			स्वचालित &unique = वृक्षः->subtrees[name];
+			यदि (!unique) {
+				unique.reset(new Id_वृक्षः);
 				unique->scope_name = name;
-				unique->parent = tree;
-				unique->depth = tree->depth + 1;
+				unique->parent = वृक्षः;
+				unique->गभीरता = वृक्षः->गभीरता + 1;
 			}
-			tree = unique.get();
+			वृक्षः = unique.get();
 		}
 	}
 
-public:
-	IdTree() = default;
-	IdTree(const IdTree &) = delete;
-	IdTree(IdTree &&) = delete;
+सार्वजनिक:
+	Id_वृक्षः() = स्वभाव;
+	Id_वृक्षः(ध्रुव Id_वृक्षः &) = delete;
+	Id_वृक्षः(Id_वृक्षः &&) = delete;
 
 	// A cursor remains valid as long as the (sub-)IdTree it points at is alive
-	struct Cursor
+	संरचना Cursor
 	{
-		friend class IdTree;
-	protected:
-	public:
-		IdTree *target;
+		मित्रम् class Id_वृक्षः;
+	रक्षित:
+	सार्वजनिक:
+		Id_वृक्षः *target;
 		IdString scope_name;
 
 		Cursor() : target(nullptr) {}
-		Cursor(IdTree *target, IdString scope_name) : target(target), scope_name(scope_name) {
-			if (scope_name.empty())
+		Cursor(Id_वृक्षः *target, IdString scope_name) : target(target), scope_name(scope_name) {
+			यदि (scope_name.रिक्तानि())
 				log_assert(target->parent == nullptr);
 		}
 
 		Cursor do_first_child() {
-			IdTree *tree = nullptr;
-			if (scope_name.empty()) {
-				tree = target;
-			} else {
-				auto found = target->subtrees.find(scope_name);
-				if (found != target->subtrees.end()) {
-					tree = found->second.get();
-				} else {
-					return Cursor();
+			Id_वृक्षः *वृक्षः = nullptr;
+			यदि (scope_name.रिक्तानि()) {
+				वृक्षः = target;
+			} अन्यथा {
+				स्वचालित प्राप्तम् = target->subtrees.find(scope_name);
+				यदि (प्राप्तम् != target->subtrees.अन्तः()) {
+					वृक्षः = प्राप्तम्->second.get();
+				} अन्यथा {
+					प्रत्यागम Cursor();
 				}
 			}
-			if (tree->names.empty()) {
-				return Cursor();
+			यदि (वृक्षः->नामानि.रिक्तानि()) {
+				प्रत्यागम Cursor();
 			}
-			return Cursor(tree, *tree->names.begin());
+			प्रत्यागम Cursor(वृक्षः, *वृक्षः->नामानि.begin());
 		}
 
-		Cursor do_next_sibling() {
-			if (scope_name.empty())
-				return Cursor();
-			auto found = target->names.find(scope_name);
-			if (found == target->names.end())
-				return Cursor();
-			++found;
-			if (found == target->names.end())
-				return Cursor();
-			return Cursor(target, *found);
+		Cursor do_अग्र_sibling() {
+			यदि (scope_name.रिक्तानि())
+				प्रत्यागम Cursor();
+			स्वचालित प्राप्तम् = target->नामानि.find(scope_name);
+			यदि (प्राप्तम् == target->नामानि.अन्तः())
+				प्रत्यागम Cursor();
+			++प्राप्तम्;
+			यदि (प्राप्तम् == target->नामानि.अन्तः())
+				प्रत्यागम Cursor();
+			प्रत्यागम Cursor(target, *प्राप्तम्);
 		}
 
 		Cursor do_parent() {
-			if (scope_name.empty())
-				return Cursor();
-			if (target->parent != nullptr)
-				return Cursor(target->parent, target->scope_name);
-			return Cursor(target, IdString());
+			यदि (scope_name.रिक्तानि())
+				प्रत्यागम Cursor();
+			यदि (target->parent != nullptr)
+				प्रत्यागम Cursor(target->parent, target->scope_name);
+			प्रत्यागम Cursor(target, IdString());
 		}
 
-		Cursor do_next_preorder() {
+		Cursor do_अग्र_पूर्वक्रमे() {
 			Cursor current = *this;
-			Cursor next = current.do_first_child();
-			if (next.valid())
-				return next;
-			while (current.valid()) {
-				if (next.valid())
-					return next;
-				next = current.do_next_sibling();
-				if (next.valid())
-					return next;
+			Cursor अग्र = current.do_first_child();
+			यदि (अग्र.valid())
+				प्रत्यागम अग्र;
+			यावत् (current.valid()) {
+				यदि (अग्र.valid())
+					प्रत्यागम अग्र;
+				अग्र = current.do_अग्र_sibling();
+				यदि (अग्र.valid())
+					प्रत्यागम अग्र;
 				current = current.do_parent();
 			}
-			return current;
+			प्रत्यागम current;
 		}
 
 		Cursor do_child(IdString name) {
-			IdTree *tree = nullptr;
-			if (scope_name.empty()) {
-				tree = target;
-			} else {
-				auto found = target->subtrees.find(scope_name);
-				if (found != target->subtrees.end()) {
-					tree = found->second.get();
-				} else {
-					return Cursor();
+			Id_वृक्षः *वृक्षः = nullptr;
+			यदि (scope_name.रिक्तानि()) {
+				वृक्षः = target;
+			} अन्यथा {
+				स्वचालित प्राप्तम् = target->subtrees.find(scope_name);
+				यदि (प्राप्तम् != target->subtrees.अन्तः()) {
+					वृक्षः = प्राप्तम्->second.get();
+				} अन्यथा {
+					प्रत्यागम Cursor();
 				}
 			}
-			auto found = tree->names.find(name);
-			if (found == tree->names.end()) {
-				return Cursor();
+			स्वचालित प्राप्तम् = वृक्षः->नामानि.find(name);
+			यदि (प्राप्तम् == वृक्षः->नामानि.अन्तः()) {
+				प्रत्यागम Cursor();
 			}
-			return Cursor(tree, *found);
+			प्रत्यागम Cursor(वृक्षः, *प्राप्तम्);
 		}
 
-	public:
-		bool operator==(const Cursor &other) const {
-			return target == other.target && scope_name == other.scope_name;
+	सार्वजनिक:
+		bool संक्रियकः==(ध्रुव Cursor &other) ध्रुव {
+			प्रत्यागम target == other.target && scope_name == other.scope_name;
 		}
-		bool operator!=(const Cursor &other) const {
-			return !(*this == other);
+		bool संक्रियकः!=(ध्रुव Cursor &other) ध्रुव {
+			प्रत्यागम !(*this == other);
 		}
 
-		[[nodiscard]] Hasher hash_into(Hasher h) const
+		[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव
 		{
 			h.eat(scope_name);
 			h.eat(target);
-			return h;
+			प्रत्यागम h;
 		}
 
-		bool valid() const {
-			return target != nullptr;
+		bool valid() ध्रुव {
+			प्रत्यागम target != nullptr;
 		}
 
-		int depth() const {
+		पूर्णाङ्क गभीरता() ध्रुव {
 			log_assert(valid());
-			return target->depth + !scope_name.empty();
+			प्रत्यागम target->गभीरता + !scope_name.रिक्तानि();
 		}
 
-		bool is_root() const {
-			return target != nullptr && scope_name.empty();
+		bool is_मूलम्() ध्रुव {
+			प्रत्यागम target != nullptr && scope_name.रिक्तानि();
 		}
 
-		bool has_entry() const {
+		bool has_प्रविष्टिः() ध्रुव {
 			log_assert(valid());
-			return !scope_name.empty() && target->entries.count(scope_name);
+			प्रत्यागम !scope_name.रिक्तानि() && target->entries.गणनम्(scope_name);
 		}
 
-		T &entry() {
-			log_assert(!scope_name.empty());
-			return target->entries.at(scope_name);
+		T &प्रविष्टिः() {
+			log_assert(!scope_name.रिक्तानि());
+			प्रत्यागम target->entries.at(scope_name);
 		}
 
-		void assign_path_to(std::vector<IdString> &out_path) {
+		शून्य नियोजय_मार्गः_गन्तव्यम्(std::सदिशम्<IdString> &बहिर्गमनम्_मार्गः) {
 			log_assert(valid());
-			out_path.clear();
-			if (scope_name.empty())
-				return;
-			out_path.push_back(scope_name);
-			IdTree *current = target;
-			while (current->parent) {
-				out_path.push_back(current->scope_name);
+			बहिर्गमनम्_मार्गः.clear();
+			यदि (scope_name.रिक्तानि())
+				प्रत्यागम;
+			बहिर्गमनम्_मार्गः.प्रक्षिप_पृष्ठभागः(scope_name);
+			Id_वृक्षः *current = target;
+			यावत् (current->parent) {
+				बहिर्गमनम्_मार्गः.प्रक्षिप_पृष्ठभागः(current->scope_name);
 				current = current->parent;
 			}
-			std::reverse(out_path.begin(), out_path.end());
+			std::reverse(बहिर्गमनम्_मार्गः.begin(), बहिर्गमनम्_मार्गः.अन्तः());
 		}
 
-		std::vector<IdString> path() {
-			std::vector<IdString> result;
-			assign_path_to(result);
-			return result;
+		std::सदिशम्<IdString> मार्गः_2() {
+			std::सदिशम्<IdString> परिणाम;
+			नियोजय_मार्गः_गन्तव्यम्(परिणाम);
+			प्रत्यागम परिणाम;
 		}
 
-		std::string path_str(const RTLIL::Design *design) {
-			std::string result;
-			for (const auto &item : path()) {
-				if (!result.empty())
-					result.push_back(' ');
-				result += design->twines().unescaped_str(item);
+		std::string मार्गः_str(ध्रुव RTLIL::Design *design) {
+			std::string परिणाम;
+			प्रति (ध्रुव स्वचालित &item : मार्गः_2()) {
+				यदि (!परिणाम.रिक्तानि())
+					परिणाम.प्रक्षिप_पृष्ठभागः(' ');
+				परिणाम += design->twines().unescaped_str(item);
 			}
-			return result;
+			प्रत्यागम परिणाम;
 		}
 
 		Cursor first_child() {
 			log_assert(valid());
-			return do_first_child();
+			प्रत्यागम do_first_child();
 		}
 
-		Cursor next_preorder() {
+		Cursor अग्र_पूर्वक्रमे() {
 			log_assert(valid());
-			return do_next_preorder();
+			प्रत्यागम do_अग्र_पूर्वक्रमे();
 		}
 
 		Cursor parent() {
 			log_assert(valid());
-			return do_parent();
+			प्रत्यागम do_parent();
 		}
 
 		Cursor child(IdString name) {
 			log_assert(valid());
-			return do_child(name);
+			प्रत्यागम do_child(name);
 		}
 
 		Cursor common_ancestor(Cursor other) {
 			Cursor current = *this;
 
-			while (current != other) {
-				if (!current.valid() || !other.valid())
-					return Cursor();
-				int delta = current.depth() - other.depth();
-				if (delta >= 0)
+			यावत् (current != other) {
+				यदि (!current.valid() || !other.valid())
+					प्रत्यागम Cursor();
+				पूर्णाङ्क delta = current.गभीरता() - other.गभीरता();
+				यदि (delta >= 0)
 					current = current.do_parent();
-				if (delta <= 0)
+				यदि (delta <= 0)
 					other = other.do_parent();
 			}
-			return current;
+			प्रत्यागम current;
 		}
 	};
 
-	template<typename P>
-	Cursor insert(P begin, P end, const T &value) {
-		return do_insert(this, begin, end, value);
+	प्रतिरूपम्<typename P>
+	Cursor निवेशय(P begin, P अन्तः, ध्रुव T &मानम्) {
+		प्रत्यागम do_निवेशय(this, begin, अन्तः, मानम्);
 	}
 
-	template<typename P>
-	Cursor insert(P begin, P end, T &&value) {
-		return do_insert(this, begin, end, std::move(value));
+	प्रतिरूपम्<typename P>
+	Cursor निवेशय(P begin, P अन्तः, T &&मानम्) {
+		प्रत्यागम do_निवेशय(this, begin, अन्तः, std::move(मानम्));
 	}
 
-	template<typename P>
-	Cursor insert(const P &path, const T &value) {
-		return do_insert(this, path.begin(), path.end(), value);
+	प्रतिरूपम्<typename P>
+	Cursor निवेशय(ध्रुव P &मार्गः_2, ध्रुव T &मानम्) {
+		प्रत्यागम do_निवेशय(this, मार्गः_2.begin(), मार्गः_2.अन्तः(), मानम्);
 	}
 
-	template<typename P>
-	Cursor insert(const P &path, T &&value) {
-		return do_insert(this, path.begin(), path.end(), std::move(value));
+	प्रतिरूपम्<typename P>
+	Cursor निवेशय(ध्रुव P &मार्गः_2, T &&मानम्) {
+		प्रत्यागम do_निवेशय(this, मार्गः_2.begin(), मार्गः_2.अन्तः(), std::move(मानम्));
 	}
 
 	Cursor cursor() {
-		return parent ? Cursor(this->parent, this->scope_name) : Cursor(this, IdString());
+		प्रत्यागम parent ? Cursor(this->parent, this->scope_name) : Cursor(this, IdString());
 	}
 
-	template<typename P>
-	Cursor cursor(P begin, P end) {
+	प्रतिरूपम्<typename P>
+	Cursor cursor(P begin, P अन्तः) {
 		Cursor current = cursor();
-		for (; begin != end; ++begin) {
+		प्रति (; begin != अन्तः; ++begin) {
 			current = current.do_child(*begin);
-			if (!current.valid())
-				break;
+			यदि (!current.valid())
+				भङ्ग;
 		}
-		return current;
+		प्रत्यागम current;
 	}
 
-	template<typename P>
-	Cursor cursor(const P &path) {
-		return cursor(path.begin(), path.end());
+	प्रतिरूपम्<typename P>
+	Cursor cursor(ध्रुव P &मार्गः_2) {
+		प्रत्यागम cursor(मार्गः_2.begin(), मार्गः_2.अन्तः());
 	}
 };
 
 
-struct ModuleItem {
-	enum class Type {
+संरचना ModuleItem {
+	गणना class Type {
 		Wire,
 		Cell,
 	};
 	Type type;
-	void *ptr;
+	शून्य *ptr;
 
 	ModuleItem(Wire *wire) : type(Type::Wire), ptr(wire) {}
 	ModuleItem(Cell *cell) : type(Type::Cell), ptr(cell) {}
 
-	bool is_wire() const { return type == Type::Wire; }
-	bool is_cell() const { return type == Type::Cell; }
+	bool is_wire() ध्रुव { प्रत्यागम type == Type::Wire; }
+	bool is_cell() ध्रुव { प्रत्यागम type == Type::Cell; }
 
-	Wire *wire() const { return type == Type::Wire ? static_cast<Wire *>(ptr) : nullptr; }
-	Cell *cell() const { return type == Type::Cell ? static_cast<Cell *>(ptr) : nullptr; }
+	Wire *wire() ध्रुव { प्रत्यागम type == Type::Wire ? static_cast<Wire *>(ptr) : nullptr; }
+	Cell *cell() ध्रुव { प्रत्यागम type == Type::Cell ? static_cast<Cell *>(ptr) : nullptr; }
 
-	bool operator==(const ModuleItem &other) const { return ptr == other.ptr && type == other.type; }
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(ptr); return h; }
+	bool संक्रियकः==(ध्रुव ModuleItem &other) ध्रुव { प्रत्यागम ptr == other.ptr && type == other.type; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव { h.eat(ptr); प्रत्यागम h; }
 };
 
-static inline void log_dump_val_worker(typename IdTree<ModuleItem>::Cursor cursor ) { log("%p ", cursor.target); log_dump_val_worker(cursor.scope_name); }
+स्थिर अन्तःस्थ शून्य log_dump_val_कार्यकर्ता(typename Id_वृक्षः<ModuleItem>::Cursor cursor ) { लघुगणकः("%p ", cursor.target); log_dump_val_कार्यकर्ता(cursor.scope_name); }
 
-template<typename T>
-static inline void log_dump_val_worker(const typename std::unique_ptr<T> &cursor ) { log("unique %p", cursor.get()); }
+प्रतिरूपम्<typename T>
+स्थिर अन्तःस्थ शून्य log_dump_val_कार्यकर्ता(ध्रुव typename std::unique_ptr<T> &cursor ) { लघुगणकः("unique %p", cursor.get()); }
 
-template<typename O>
-std::vector<IdString> parse_hdlname(const O* object)
+प्रतिरूपम्<typename O>
+std::सदिशम्<IdString> parse_hdlname(ध्रुव O* object)
 {
 	TwinePool &twines = object->design()->twines();
 	IdString name = object->name;
-	std::vector<IdString> path;
-	for (auto const &item : object->get_hdlname_attribute())
-		path.push_back(twines.add("\\" + item));
-	bool synthetic = !name.isPublic() && !object->name.begins_with("$paramod")
+	std::सदिशम्<IdString> मार्गः_2;
+	प्रति (स्वचालित ध्रुव &item : object->get_hdlname_attribute())
+		मार्गः_2.प्रक्षिप_पृष्ठभागः(twines.सङ्कलय("\\" + item));
+	bool synthetic = !name.is_लौकिकम्() && !object->name.begins_with("$paramod")
 			&& !object->name.begins_with("$abstract");
-	if (path.empty() && name.isPublic())
-		path.push_back(name);
-	if (!path.empty() && synthetic) {
-		path.pop_back();
-		path.push_back(name);
+	यदि (मार्गः_2.रिक्तानि() && name.is_लौकिकम्())
+		मार्गः_2.प्रक्षिप_पृष्ठभागः(name);
+	यदि (!मार्गः_2.रिक्तानि() && synthetic) {
+		मार्गः_2.निष्कासय_पृष्ठभागः();
+		मार्गः_2.प्रक्षिप_पृष्ठभागः(name);
 	}
-	return path;
+	प्रत्यागम मार्गः_2;
 }
 
-template<typename O>
-std::pair<std::vector<IdString>, IdString> parse_scopename(const O* object)
+प्रतिरूपम्<typename O>
+std::pair<std::सदिशम्<IdString>, IdString> parse_scopename(ध्रुव O* object)
 {
 	TwinePool &twines = object->design()->twines();
-	std::vector<IdString> path;
+	std::सदिशम्<IdString> मार्गः_2;
 	IdString trailing = object->name;
-	if (trailing.isPublic() || object->name.begins_with("$paramod") || object->name.begins_with("$abstract")) {
-		for (auto const &item : object->get_hdlname_attribute())
-			path.push_back(twines.add("\\" + item));
-		if (!path.empty()) {
-			trailing = path.back();
-			path.pop_back();
+	यदि (trailing.is_लौकिकम्() || object->name.begins_with("$paramod") || object->name.begins_with("$abstract")) {
+		प्रति (स्वचालित ध्रुव &item : object->get_hdlname_attribute())
+			मार्गः_2.प्रक्षिप_पृष्ठभागः(twines.सङ्कलय("\\" + item));
+		यदि (!मार्गः_2.रिक्तानि()) {
+			trailing = मार्गः_2.पृष्ठभागः();
+			मार्गः_2.निष्कासय_पृष्ठभागः();
 		}
-	} else if (object->has_attribute(ID::hdlname)) {
-		for (auto const &item : object->get_hdlname_attribute())
-			path.push_back(twines.add("\\" + item));
-		if (!path.empty()) {
-			path.pop_back();
+	} अन्यथा यदि (object->has_attribute(ID::hdlname)) {
+		प्रति (स्वचालित ध्रुव &item : object->get_hdlname_attribute())
+			मार्गः_2.प्रक्षिप_पृष्ठभागः(twines.सङ्कलय("\\" + item));
+		यदि (!मार्गः_2.रिक्तानि()) {
+			मार्गः_2.निष्कासय_पृष्ठभागः();
 		}
-	} else {
-		for (auto const &item : split_tokens(object->get_string_attribute(ID(scopename)), " "))
-			path.push_back(twines.add("\\" + item));
+	} अन्यथा {
+		प्रति (स्वचालित ध्रुव &item : विभज_tokens(object->get_string_attribute(ID(scopename)), " "))
+			मार्गः_2.प्रक्षिप_पृष्ठभागः(twines.सङ्कलय("\\" + item));
 	}
-	return {path, trailing};
+	प्रत्यागम {मार्गः_2, trailing};
 }
 
-struct ModuleHdlnameIndex {
-	typedef IdTree<ModuleItem>::Cursor Cursor;
+संरचना Module_Hdlname_सूचकांक {
+	प्रकारनिर्देश Id_वृक्षः<ModuleItem>::Cursor Cursor;
 
 	RTLIL::Module *module;
-	IdTree<ModuleItem> tree;
+	Id_वृक्षः<ModuleItem> वृक्षः;
 	dict<ModuleItem, Cursor> lookup;
 
-	ModuleHdlnameIndex(RTLIL::Module *module) : module(module) {}
+	Module_Hdlname_सूचकांक(RTLIL::Module *module) : module(module) {}
 
-private:
-	template<typename I, typename Filter>
-	void index_items(I begin, I end, Filter filter);
+गुप्त:
+	प्रतिरूपम्<typename I, typename Filter>
+	शून्य सूचकांक_वस्तूनि(I begin, I अन्तः, Filter filter);
 
-public:
+सार्वजनिक:
 	// Index all wires and cells of the module
-	void index();
+	शून्य सूचकांक();
 
 	// Index all wires of the module
-	void index_wires();
+	शून्य सूचकांक_wires();
 
 	// Index all cells of the module
-	void index_cells();
+	शून्य सूचकांक_cells();
 
 	// Index only the $scopeinfo cells of the module.
 	// This is sufficient when using `containing_scope`.
-	void index_scopeinfo_cells();
+	शून्य सूचकांक_scopeinfo_cells();
 
 
 	// Return the cursor for the containing scope of some RTLIL object (Wire/Cell/...)
-	template<typename O>
+	प्रतिरूपम्<typename O>
 	std::pair<Cursor, IdString> containing_scope(O *object) {
-		auto pair = parse_scopename(object);
-		return {tree.cursor(pair.first), pair.second};
+		स्वचालित pair = parse_scopename(object);
+		प्रत्यागम {वृक्षः.cursor(pair.first), pair.second};
 	}
 
 	// Return a vector of source locations starting from the indexed module to
 	// the scope represented by the cursor. The vector alternates module and
 	// module item source locations, using empty strings for missing src
 	// attributes.
-	std::vector<std::string> scope_sources(Cursor cursor);
+	std::सदिशम्<std::string> scope_sources(Cursor cursor);
 
 	// Return a vector of source locations starting from the indexed module to
 	// the passed RTLIL object (Wire/Cell/...). The vector alternates module
 	// and module item source locations, using empty strings for missing src
 	// attributes.
-	template<typename O>
-	std::vector<std::string> sources(O *object) {
-		auto pair = parse_scopename(object);
-		std::vector<std::string> result = scope_sources(tree.cursor(pair.first));
-		result.push_back(object->get_src_attribute());
-		return result;
+	प्रतिरूपम्<typename O>
+	std::सदिशम्<std::string> sources(O *object) {
+		स्वचालित pair = parse_scopename(object);
+		std::सदिशम्<std::string> परिणाम = scope_sources(वृक्षः.cursor(pair.first));
+		परिणाम.प्रक्षिप_पृष्ठभागः(object->get_src_attribute());
+		प्रत्यागम परिणाम;
 	}
 };
 
-enum class ScopeinfoAttrs {
+गणना class ScopeinfoAttrs {
 	Module,
 	Cell,
 };
 
 // Check whether the flattened module or flattened cell corresponding to a $scopeinfo cell had a specific attribute.
-bool scopeinfo_has_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
+bool scopeinfo_has_attribute(ध्रुव RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
 
 // Get a specific attribute from the flattened module or flattened cell corresponding to a $scopeinfo cell.
-RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
+RTLIL::Const scopeinfo_get_attribute(ध्रुव RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id);
 
 // Get all attribute from the flattened module or flattened cell corresponding to a $scopeinfo cell.
-dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs);
+dict<RTLIL::IdString, RTLIL::Const> scopeinfo_गुणाः(ध्रुव RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs);
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_अन्तः
 
-#endif
+#यदि_अन्तः

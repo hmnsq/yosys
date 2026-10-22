@@ -17,70 +17,70 @@
  *
  */
 
-#ifndef FSTDATA_H
-#define FSTDATA_H
+#यदि_अपरिभाषितम् FSTDATA_H
+#परिभाषय FSTDATA_H
 
-#include "kernel/yosys.h"
-#include "libs/fst/fstapi.h"
+#अन्तर्भाव "kernel/yosys.h"
+#अन्तर्भाव "libs/fst/fstapi.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-typedef std::function<void(uint64_t)> CallbackFunction;
-struct fst_end_of_data_exception { };
+प्रकारनिर्देश std::function<शून्य(uint64_t)> CallbackFunction;
+संरचना fst_अन्तः_सम्बन्धि_दत्त_exception { };
 
-struct FstVar
+संरचना FstVar
 {
 	fstHandle id;
 	std::string name;
 	bool is_alias;
 	bool is_reg;
 	std::string scope;
-	int width;
+	पूर्णाङ्क विस्तारः;
 };
 
-class FstData
+class Fst_दत्त
 {
-	public:
-	FstData(std::string filename);
-	~FstData();
+	सार्वजनिक:
+	Fst_दत्त(std::string filename);
+	~Fst_दत्त();
 
 	uint64_t getStartTime();
-	uint64_t getEndTime();
+	uint64_t get_अन्तः_Time();
 
-	std::vector<FstVar>& getVars() { return vars; };
+	std::सदिशम्<FstVar>& getVars() { प्रत्यागम vars; };
 
-	void reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t plen);
-	void reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start_time, uint64_t end_time, unsigned int end_cycle, CallbackFunction cb);
+	शून्य reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, ध्रुव अचिह्नित वर्ण *pnt_मानम्, uint32_t plen);
+	शून्य reconstructAllAtTimes(std::सदिशम्<fstHandle> &सङ्केत, uint64_t start_time, uint64_t अन्तः_time, अचिह्नित पूर्णाङ्क अन्तः_आवृत्तिः, CallbackFunction cb);
 
-	std::string valueOf(fstHandle signal);
+	std::string मानम्_सम्बन्धि(fstHandle सङ्केत);
 	fstHandle getHandle(std::string name);
-	dict<int,fstHandle> getMemoryHandles(std::string name);
-	int getScale() { return scale; }
-	const char *getTimescaleString() { return timescale_str.c_str(); }
-private:
-	void extractVarNames();
+	dict<पूर्णाङ्क,fstHandle> get_स्मृतिः_Handles(std::string name);
+	पूर्णाङ्क getScale() { प्रत्यागम scale; }
+	ध्रुव वर्ण *getTimescaleString() { प्रत्यागम timescale_str.c_str(); }
+गुप्त:
+	शून्य extract_Var_नामानि();
 
-	struct fstReaderContext *ctx;
-	std::vector<FstVar> vars;
-	std::map<fstHandle, FstVar> handle_to_var;
-	std::map<std::string, fstHandle> name_to_handle;
-	std::map<std::string, dict<int, fstHandle>> memory_to_handle;
-	std::map<fstHandle, std::string> last_data;
-	uint64_t last_time;
-	std::map<fstHandle, std::string> past_data;
+	संरचना fstReaderContext *ctx;
+	std::सदिशम्<FstVar> vars;
+	std::map<fstHandle, FstVar> handle_गन्तव्यम्_var;
+	std::map<std::string, fstHandle> name_गन्तव्यम्_handle;
+	std::map<std::string, dict<पूर्णाङ्क, fstHandle>> स्मृतिः_गन्तव्यम्_handle;
+	std::map<fstHandle, std::string> चरमः_दत्त;
+	uint64_t चरमः_time;
+	std::map<fstHandle, std::string> past_दत्त;
 	uint64_t past_time;
-	int scale; // exponent of 10, e.g. -6 = us, -9 = ns
+	पूर्णाङ्क scale; // exponent of 10, e.g. -6 = us, -9 = ns
 	std::string timescale_str;
 	uint64_t start_time;
-	uint64_t end_time;
-	unsigned int last_cycle;
-	unsigned int curr_cycle;
+	uint64_t अन्तः_time;
+	अचिह्नित पूर्णाङ्क चरमः_आवृत्तिः;
+	अचिह्नित पूर्णाङ्क curr_आवृत्तिः;
 	CallbackFunction callback;
-	std::vector<fstHandle> clk_signals;
+	std::सदिशम्<fstHandle> clk_सङ्केताः;
 	bool all_samples;
 	std::string tmp_file;
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_अन्तः
 
-#endif
+#यदि_अन्तः

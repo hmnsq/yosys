@@ -1,297 +1,297 @@
-#include "compressor_tree.h"
+#अन्तर्भाव "compressor_tree.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-namespace CompressorTree
+नामाकाश Compressor_वृक्षः
 {
 
-std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, int width)
+std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, पूर्णाङ्क विस्तारः)
 {
-	SigSpec sum = module->addWire(NEW_ID, width);
-	SigSpec cout = module->addWire(NEW_ID, width);
-	module->addFa(NEW_ID, a, b, c, cout, sum);
+	SigSpec योग = module->सङ्कलय_Wire(NEW_ID, विस्तारः);
+	SigSpec निर्गमः = module->सङ्कलय_Wire(NEW_ID, विस्तारः);
+	module->सङ्कलय_Fa(NEW_ID, a, b, c, निर्गमः, योग);
 
 	SigSpec carry;
 	carry.append(State::S0);
-	carry.append(cout.extract(0, width - 1));
-	return {sum, carry};
+	carry.append(निर्गमः.extract(0, विस्तारः - 1));
+	प्रत्यागम {योग, carry};
 }
 
-std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, int width)
+std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, पूर्णाङ्क विस्तारः)
 {
 	// First FA: a + b + c -> s0
-	SigSpec s0 = module->addWire(NEW_ID, width);
-	SigSpec cout_h_full = module->addWire(NEW_ID, width);
-	module->addFa(NEW_ID, a, b, c, cout_h_full, s0);
+	SigSpec s0 = module->सङ्कलय_Wire(NEW_ID, विस्तारः);
+	SigSpec cout_h_पूर्णम् = module->सङ्कलय_Wire(NEW_ID, विस्तारः);
+	module->सङ्कलय_Fa(NEW_ID, a, b, c, cout_h_पूर्णम्, s0);
 
 	// cin[0] = 0, cin[i] = cout_h_full[i-1]
-	SigSpec cin;
-	cin.append(State::S0);
-	if (width > 1)
-		cin.append(cout_h_full.extract(0, width - 1));
+	SigSpec आगमः;
+	आगमः.append(State::S0);
+	यदि (विस्तारः > 1)
+		आगमः.append(cout_h_पूर्णम्.extract(0, विस्तारः - 1));
 
 	// Second FA: s0 + d + cin -> sum
-	SigSpec sum = module->addWire(NEW_ID, width);
-	SigSpec carry_full = module->addWire(NEW_ID, width);
-	module->addFa(NEW_ID, s0, d, cin, carry_full, sum);
+	SigSpec योग = module->सङ्कलय_Wire(NEW_ID, विस्तारः);
+	SigSpec carry_पूर्णम् = module->सङ्कलय_Wire(NEW_ID, विस्तारः);
+	module->सङ्कलय_Fa(NEW_ID, s0, d, आगमः, carry_पूर्णम्, योग);
 
 	SigSpec carry;
 	carry.append(State::S0);
-	if (width > 1)
-		carry.append(carry_full.extract(0, width - 1));
+	यदि (विस्तारः > 1)
+		carry.append(carry_पूर्णम्.extract(0, विस्तारः - 1));
 
-	return {sum, carry};
+	प्रत्यागम {योग, carry};
 }
 
-std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSpec b, bool a_signed, bool b_signed, int width) {
-	int width_a = GetSize(a);
-	int width_b = GetSize(b);
-	std::vector<DepthSig> products;
-	products.reserve(width_a + 3);
+std::सदिशम्<गभीरता_Sig> generate_partial_products(Module *module, SigSpec a, SigSpec b, तार्किक a_signed, तार्किक b_signed, पूर्णाङ्क विस्तारः) {
+	पूर्णाङ्क विस्तारः_a = Get_आकार(a);
+	पूर्णाङ्क विस्तारः_b = Get_आकार(b);
+	std::सदिशम्<गभीरता_Sig> products;
+	products.reserve(विस्तारः_a + 3);
 
-	for (int i = 0; i < width_a; i++) {
+	प्रति (पूर्णाङ्क i = 0; i < विस्तारः_a; i++) {
 		SigBit ai = a[i];
 
 		// b_shifted = (0_i ## b)
 		SigSpec b_shifted = SigSpec(State::S0, i);
 		b_shifted.append(b);
-		b_shifted.extend_u0(width, false);
+		b_shifted.extend_u0(विस्तारः, असत्य);
 
 		// row = b_shifted & replicate(a[i], width)
-		SigSpec ai_rep = SigSpec(ai, width);
-		SigSpec row = module->addWire(NEW_ID, width);
-		module->addAnd(NEW_ID, b_shifted, ai_rep, row);
+		SigSpec ai_rep = SigSpec(ai, विस्तारः);
+		SigSpec row = module->सङ्कलय_Wire(NEW_ID, विस्तारः);
+		module->सङ्कलय_And(NEW_ID, b_shifted, ai_rep, row);
 
 		// Apply Modified Baugh-Wooley inversions for this row
-		bool row_is_bottom = (i == width_a - 1);
-		bool any_inversion = (row_is_bottom && b_signed) || a_signed;
+		तार्किक row_is_bottom = (i == विस्तारः_a - 1);
+		तार्किक any_inversion = (row_is_bottom && b_signed) || a_signed;
 
-		if (any_inversion) {
-			std::vector<RTLIL::State> mask(width, RTLIL::State::S0);
+		यदि (any_inversion) {
+			std::सदिशम्<RTLIL::State> आवरणम्(विस्तारः, RTLIL::State::S0);
 
-			for (int j = 0; j < width_b; j++) {
-				int col = i + j;
-				if (col < 0 || col >= width)
-					continue;
-				bool col_is_right = (j == width_b - 1);
+			प्रति (पूर्णाङ्क j = 0; j < विस्तारः_b; j++) {
+				पूर्णाङ्क col = i + j;
+				यदि (col < 0 || col >= विस्तारः)
+					अनुवर्त;
+				तार्किक col_is_दक्षिणः = (j == विस्तारः_b - 1);
 				// Flip masks
-				bool invert = (row_is_bottom && b_signed) ^ (col_is_right && a_signed);
-				if (invert)
-					mask[col] = RTLIL::State::S1;
+				तार्किक invert = (row_is_bottom && b_signed) ^ (col_is_दक्षिणः && a_signed);
+				यदि (invert)
+					आवरणम्[col] = RTLIL::State::S1;
 			}
 
 			// Skip the xor entirely if the mask is all zeroes
-			bool nonzero = false;
-			for (auto s : mask)
-				if (s == RTLIL::State::S1) {
-					nonzero = true;
-					break;
+			तार्किक nonzero = असत्य;
+			प्रति (स्वचालित s : आवरणम्)
+				यदि (s == RTLIL::State::S1) {
+					nonzero = सत्य;
+					भङ्ग;
 				}
-			if (nonzero) {
-				SigSpec inverted = module->addWire(NEW_ID, width);
-				module->addXor(NEW_ID, row, SigSpec(RTLIL::Const(mask)), inverted);
+			यदि (nonzero) {
+				SigSpec inverted = module->सङ्कलय_Wire(NEW_ID, विस्तारः);
+				module->सङ्कलय_Xor(NEW_ID, row, SigSpec(RTLIL::Const(आवरणम्)), inverted);
 				row = inverted;
 			}
 		}
 
-		products.push_back({row, 0});
+		products.प्रक्षिप_पृष्ठभागः({row, 0});
 	}
 
 	// Correction constants
-	auto push_one_at = [&](int col) {
-		if (col < 0 || col >= width)
-			return;
-		std::vector<RTLIL::State> v(width, RTLIL::State::S0);
+	स्वचालित प्रक्षिप_one_at = [&](पूर्णाङ्क col) {
+		यदि (col < 0 || col >= विस्तारः)
+			प्रत्यागम;
+		std::सदिशम्<RTLIL::State> v(विस्तारः, RTLIL::State::S0);
 		v[col] = RTLIL::State::S1;
-		products.push_back({SigSpec(RTLIL::Const(v)), 0});
+		products.प्रक्षिप_पृष्ठभागः({SigSpec(RTLIL::Const(v)), 0});
 	};
 
-	if (b_signed)
-		push_one_at(width_a - 1);
-	if (a_signed)
-		push_one_at(width_b - 1);
-	if (a_signed || b_signed) {
+	यदि (b_signed)
+		प्रक्षिप_one_at(विस्तारः_a - 1);
+	यदि (a_signed)
+		प्रक्षिप_one_at(विस्तारः_b - 1);
+	यदि (a_signed || b_signed) {
 		// Sign-extend the Baugh-Wooley correction to the accumulator width.
-		int sign_extension_start = width_a + width_b - 1;
-		if (sign_extension_start < width) {
-			std::vector<RTLIL::State> v(width, RTLIL::State::S0);
-			for (int i = sign_extension_start; i < width; i++)
+		पूर्णाङ्क sign_extension_start = विस्तारः_a + विस्तारः_b - 1;
+		यदि (sign_extension_start < विस्तारः) {
+			std::सदिशम्<RTLIL::State> v(विस्तारः, RTLIL::State::S0);
+			प्रति (पूर्णाङ्क i = sign_extension_start; i < विस्तारः; i++)
 				v[i] = RTLIL::State::S1;
-			products.push_back({SigSpec(RTLIL::Const(v)), 0});
+			products.प्रक्षिप_पृष्ठभागः({SigSpec(RTLIL::Const(v)), 0});
 		}
 	}
 
-	return products;
+	प्रत्यागम products;
 }
 
-std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, int width, Strategy strategy, int *out_compressor_count, int *out_final_depth) {
-	int levels = 0;
-	int fa_count = 0;
-	int c42_count = 0;
-	int final_depth = 0;
+std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::सदिशम्<गभीरता_Sig> operands, पूर्णाङ्क विस्तारः, Strategy strategy, पूर्णाङ्क *बहिर्गमनम्_compressor_गणनम्, पूर्णाङ्क *बहिर्गमनम्_final_गभीरता) {
+	पूर्णाङ्क स्तराः = 0;
+	पूर्णाङ्क fa_गणनम् = 0;
+	पूर्णाङ्क c42_गणनम् = 0;
+	पूर्णाङ्क final_गभीरता = 0;
 
-	for (auto &op : operands)
-		op.sig.extend_u0(width);
+	प्रति (स्वचालित &op : operands)
+		op.sig.extend_u0(विस्तारः);
 
 	// Only compress operands ready at current level
-	for (int level = 0; operands.size() > 2; level++) {
+	प्रति (पूर्णाङ्क level = 0; operands.आकार() > 2; level++) {
 		// Partition operands into ready and waiting
-		std::vector<DepthSig> ready;
-		std::vector<DepthSig> waiting;
-		ready.reserve(operands.size());
-		for (auto &op : operands) {
-			if (op.depth <= level)
-				ready.push_back(op);
-			else
-				waiting.push_back(op);
+		std::सदिशम्<गभीरता_Sig> ready;
+		std::सदिशम्<गभीरता_Sig> प्रतीक्षा;
+		ready.reserve(operands.आकार());
+		प्रति (स्वचालित &op : operands) {
+			यदि (op.गभीरता <= level)
+				ready.प्रक्षिप_पृष्ठभागः(op);
+			अन्यथा
+				प्रतीक्षा.प्रक्षिप_पृष्ठभागः(op);
 		}
 
-		if (ready.size() < 3) {
-			levels++;
-			continue;
+		यदि (ready.आकार() < 3) {
+			स्तराः++;
+			अनुवर्त;
 		}
 
 		// Apply compressors to ready operands
-		std::vector<DepthSig> compressed;
-		compressed.reserve(ready.size());
-		size_t i = 0;
+		std::सदिशम्<गभीरता_Sig> compressed;
+		compressed.reserve(ready.आकार());
+		आकार_t i = 0;
 
 		// PREFER_42 attempts 4:2 grouping greedily (falls back to 3:2 for the residual)
 		// FA_ONLY skips
 		// DADDA = PREFER_42 (TODO: inspect column heights?)
-		bool try_42 = (strategy == Strategy::PREFER_42 || strategy == Strategy::DADDA);
+		तार्किक try_42 = (strategy == Strategy::PREFER_42 || strategy == Strategy::DADDA);
 
-		while (i < ready.size()) {
-			size_t remaining = ready.size() - i;
+		यावत् (i < ready.आकार()) {
+			आकार_t remaining = ready.आकार() - i;
 
-			if (try_42 && remaining >= 4) {
-				DepthSig a = ready[i + 0];
-				DepthSig b = ready[i + 1];
-				DepthSig c = ready[i + 2];
-				DepthSig d = ready[i + 3];
+			यदि (try_42 && remaining >= 4) {
+				गभीरता_Sig a = ready[i + 0];
+				गभीरता_Sig b = ready[i + 1];
+				गभीरता_Sig c = ready[i + 2];
+				गभीरता_Sig d = ready[i + 3];
 
-				auto [sum, carry] = emit_compressor_42(module, a.sig, b.sig, c.sig, d.sig, width);
-				int dmax = std::max({a.depth, b.depth, c.depth, d.depth});
+				स्वचालित [योग, carry] = emit_compressor_42(module, a.sig, b.sig, c.sig, d.sig, विस्तारः);
+				पूर्णाङ्क dmax = std::max({a.गभीरता, b.गभीरता, c.गभीरता, d.गभीरता});
 
-				compressed.push_back({sum, dmax + 2});
-				compressed.push_back({carry, dmax + 2});
+				compressed.प्रक्षिप_पृष्ठभागः({योग, dmax + 2});
+				compressed.प्रक्षिप_पृष्ठभागः({carry, dmax + 2});
 
-				fa_count += 2;
-				c42_count += 1;
+				fa_गणनम् += 2;
+				c42_गणनम् += 1;
 				i += 4;
-			} else if (remaining >= 3) {
-				DepthSig a = ready[i + 0];
-				DepthSig b = ready[i + 1];
-				DepthSig c = ready[i + 2];
+			} अन्यथा यदि (remaining >= 3) {
+				गभीरता_Sig a = ready[i + 0];
+				गभीरता_Sig b = ready[i + 1];
+				गभीरता_Sig c = ready[i + 2];
 
-				auto [sum, carry] = emit_compressor_32(module, a.sig, b.sig, c.sig, width);
-				int dmax = std::max({a.depth, b.depth, c.depth});
+				स्वचालित [योग, carry] = emit_compressor_32(module, a.sig, b.sig, c.sig, विस्तारः);
+				पूर्णाङ्क dmax = std::max({a.गभीरता, b.गभीरता, c.गभीरता});
 
-				compressed.push_back({sum, dmax + 1});
-				compressed.push_back({carry, dmax + 1});
+				compressed.प्रक्षिप_पृष्ठभागः({योग, dmax + 1});
+				compressed.प्रक्षिप_पृष्ठभागः({carry, dmax + 1});
 
-				fa_count += 1;
+				fa_गणनम् += 1;
 				i += 3;
-			} else {
+			} अन्यथा {
 				// Uncompressed operands pass through to next level
-				for (; i < ready.size(); i++)
-					compressed.push_back(ready[i]);
-				break;
+				प्रति (; i < ready.आकार(); i++)
+					compressed.प्रक्षिप_पृष्ठभागः(ready[i]);
+				भङ्ग;
 			}
 		}
 
 		// Merge compressed with waiting operands
-		for (auto &op : waiting)
-			compressed.push_back(op);
+		प्रति (स्वचालित &op : प्रतीक्षा)
+			compressed.प्रक्षिप_पृष्ठभागः(op);
 
 		operands = std::move(compressed);
-		levels++;
+		स्तराः++;
 	}
 
-	if(out_compressor_count)
-		*out_compressor_count = fa_count;
-	if (operands.size() == 0) {
-		if (out_final_depth)
-			*out_final_depth = 0;
-		return {SigSpec(State::S0, width), SigSpec(State::S0, width)};
+	यदि(बहिर्गमनम्_compressor_गणनम्)
+		*बहिर्गमनम्_compressor_गणनम् = fa_गणनम्;
+	यदि (operands.आकार() == 0) {
+		यदि (बहिर्गमनम्_final_गभीरता)
+			*बहिर्गमनम्_final_गभीरता = 0;
+		प्रत्यागम {SigSpec(State::S0, विस्तारः), SigSpec(State::S0, विस्तारः)};
 	}
-	if (operands.size() == 1) {
-		if (out_final_depth)
-			*out_final_depth = operands[0].depth;
-		return {operands[0].sig, SigSpec(State::S0, width)};
+	यदि (operands.आकार() == 1) {
+		यदि (बहिर्गमनम्_final_गभीरता)
+			*बहिर्गमनम्_final_गभीरता = operands[0].गभीरता;
+		प्रत्यागम {operands[0].sig, SigSpec(State::S0, विस्तारः)};
 	}
 
-	final_depth = std::max(operands[0].depth, operands[1].depth);
-	if (out_final_depth)
-		*out_final_depth = final_depth;
-	log_assert(operands.size() == 2);
-	log("    CompressorTree::reduce_scheduled: %d levels, %d $fa (%d as 4:2), final depth %d\n", levels, fa_count, c42_count, final_depth);
-	return {operands[0].sig, operands[1].sig};
+	final_गभीरता = std::max(operands[0].गभीरता, operands[1].गभीरता);
+	यदि (बहिर्गमनम्_final_गभीरता)
+		*बहिर्गमनम्_final_गभीरता = final_गभीरता;
+	log_assert(operands.आकार() == 2);
+	लघुगणकः("    CompressorTree::reduce_scheduled: %d levels, %d $fa (%d as 4:2), final depth %d\n", स्तराः, fa_गणनम्, c42_गणनम्, final_गभीरता);
+	प्रत्यागम {operands[0].sig, operands[1].sig};
 }
 
-void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
+शून्य emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 {
-	int width = GetSize(y);
-	log_assert(GetSize(a) == width);
-	log_assert(GetSize(b) == width);
+	पूर्णाङ्क विस्तारः = Get_आकार(y);
+	log_assert(Get_आकार(a) == विस्तारः);
+	log_assert(Get_आकार(b) == विस्तारः);
 
-	if (width == 0)
-		return;
+	यदि (विस्तारः == 0)
+		प्रत्यागम;
 
-	if (width == 1) {
-		module->addXorGate(NEW_ID, a[0], b[0], y[0]);
-		return;
+	यदि (विस्तारः == 1) {
+		module->सङ्कलय_Xor_Gate(NEW_ID, a[0], b[0], y[0]);
+		प्रत्यागम;
 	}
 
 	// Bit level gen and prop
-	std::vector<SigBit> g_pre(width), p_pre(width);
-	for (int i = 0; i < width; i++) {
-		SigBit gi = module->addWire(NEW_ID);
-		SigBit pi = module->addWire(NEW_ID);
-		module->addAndGate(NEW_ID, a[i], b[i], gi);
-		module->addXorGate(NEW_ID, a[i], b[i], pi);
+	std::सदिशम्<SigBit> g_pre(विस्तारः), p_pre(विस्तारः);
+	प्रति (पूर्णाङ्क i = 0; i < विस्तारः; i++) {
+		SigBit gi = module->सङ्कलय_Wire(NEW_ID);
+		SigBit pi = module->सङ्कलय_Wire(NEW_ID);
+		module->सङ्कलय_And_Gate(NEW_ID, a[i], b[i], gi);
+		module->सङ्कलय_Xor_Gate(NEW_ID, a[i], b[i], pi);
 		g_pre[i] = gi;
 		p_pre[i] = pi;
 	}
 
 	// Propagate (g, p) through ceil(log2 W) levels
-	std::vector<SigBit> g = g_pre;
-	std::vector<SigBit> p = p_pre;
-	int num_levels = 0;
+	std::सदिशम्<SigBit> g = g_pre;
+	std::सदिशम्<SigBit> p = p_pre;
+	पूर्णाङ्क अङ्कः_स्तराः = 0;
 
-	while ((1 << num_levels) < width)
-		num_levels++;
+	यावत् ((1 << अङ्कः_स्तराः) < विस्तारः)
+		अङ्कः_स्तराः++;
 
-	for (int k = 1; k <= num_levels; k++) {
-		int s = 1 << (k - 1);
-		std::vector<SigBit> g_next(width), p_next(width);
-		for (int i = 0; i < width; i++) {
-			if (i < s) {
+	प्रति (पूर्णाङ्क k = 1; k <= अङ्कः_स्तराः; k++) {
+		पूर्णाङ्क s = 1 << (k - 1);
+		std::सदिशम्<SigBit> g_अग्र(विस्तारः), p_अग्र(विस्तारः);
+		प्रति (पूर्णाङ्क i = 0; i < विस्तारः; i++) {
+			यदि (i < s) {
 				// Nothing to do
-				g_next[i] = g[i];
-				p_next[i] = p[i];
-			} else {
+				g_अग्र[i] = g[i];
+				p_अग्र[i] = p[i];
+			} अन्यथा {
 				// g_i^k = g_i | (p_i & g_(i-s))
-				SigBit and_pg = module->addWire(NEW_ID);
-				module->addAndGate(NEW_ID, p[i], g[i - s], and_pg);
-				SigBit gnew = module->addWire(NEW_ID);
-				module->addOrGate(NEW_ID, g[i], and_pg, gnew);
-				g_next[i] = gnew;
+				SigBit and_pg = module->सङ्कलय_Wire(NEW_ID);
+				module->सङ्कलय_And_Gate(NEW_ID, p[i], g[i - s], and_pg);
+				SigBit gnew = module->सङ्कलय_Wire(NEW_ID);
+				module->सङ्कलय_Or_Gate(NEW_ID, g[i], and_pg, gnew);
+				g_अग्र[i] = gnew;
 
 				// p_i^k = p_i & p_(i-s)
-				if (k < num_levels) {
-					SigBit pnew = module->addWire(NEW_ID);
-					module->addAndGate(NEW_ID, p[i], p[i - s], pnew);
-					p_next[i] = pnew;
-				} else {
+				यदि (k < अङ्कः_स्तराः) {
+					SigBit pnew = module->सङ्कलय_Wire(NEW_ID);
+					module->सङ्कलय_And_Gate(NEW_ID, p[i], p[i - s], pnew);
+					p_अग्र[i] = pnew;
+				} अन्यथा {
 					// Skip last level
-					p_next[i] = State::Sx;
+					p_अग्र[i] = State::Sx;
 				}
 			}
 		}
 
-		g = std::move(g_next);
-		p = std::move(p_next);
+		g = std::move(g_अग्र);
+		p = std::move(p_अग्र);
 	}
 
 	// Sum layer, g[i] is COUT of bit i
@@ -299,38 +299,38 @@ void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 	//   sum[0] = p_pre[0]
 	//   sum[i] = p_pre[i] ^ g[i-1] ...
 	module->connect(y[0], p_pre[0]);
-	for (int i = 1; i < width; i++)
-		module->addXorGate(NEW_ID, p_pre[i], g[i - 1], y[i]);
+	प्रति (पूर्णाङ्क i = 1; i < विस्तारः; i++)
+		module->सङ्कलय_Xor_Gate(NEW_ID, p_pre[i], g[i - 1], y[i]);
 }
 
 Cell *emit_final_adder(Module *module, SigSpec a, SigSpec b, SigSpec y, FinalAdder choice) {
-	switch (choice) {
-		case FinalAdder::DEFAULT:
-		case FinalAdder::RIPPLE: {
-			return module->addAdd(NEW_ID, a, b, y, false);
+	विकल्प (choice) {
+		पक्ष FinalAdder::DEFAULT:
+		पक्ष FinalAdder::RIPPLE: {
+			प्रत्यागम module->सङ्कलय_सङ्कलय(NEW_ID, a, b, y, असत्य);
 		}
-		case FinalAdder::PARALLEL_PREFIX: {
+		पक्ष FinalAdder::PARALLEL_उपसर्गः: {
 			emit_kogge_stone(module, a, b, y);
-			return nullptr;
+			प्रत्यागम शून्यसूचकः;
 		}
 	}
-	log_assert(false && "CompressorTree::emit_final_adder: invalid choice");
-	return nullptr;
+	log_assert(असत्य && "CompressorTree::emit_final_adder: invalid choice");
+	प्रत्यागम शून्यसूचकः;
 }
 
-FinalAdder pick_final_adder(int width, int final_depth, FinalMode mode) {
-	switch (mode) {
-		case FinalMode::RIPPLE:  return FinalAdder::RIPPLE;
-		case FinalMode::PREFIX:  return FinalAdder::PARALLEL_PREFIX;
-		case FinalMode::AUTO:
-		default: {
-			bool wide = width >= RIPPLE_PREFIX_WIDTH_THRESHOLD;
-			bool deep = final_depth >= RIPPLE_PREFIX_DEPTH_THRESHOLD;
-			return (wide && deep) ? FinalAdder::PARALLEL_PREFIX : FinalAdder::DEFAULT;
+FinalAdder pick_final_adder(पूर्णाङ्क विस्तारः, पूर्णाङ्क final_गभीरता, Final_बहुलकम् बहुलकम्) {
+	विकल्प (बहुलकम्) {
+		पक्ष Final_बहुलकम्::RIPPLE:  प्रत्यागम FinalAdder::RIPPLE;
+		पक्ष Final_बहुलकम्::उपसर्गः:  प्रत्यागम FinalAdder::PARALLEL_उपसर्गः;
+		पक्ष Final_बहुलकम्::AUTO:
+		स्वभाव: {
+			तार्किक wide = विस्तारः >= RIPPLE_उपसर्गः_विस्तारः_देहली;
+			तार्किक deep = final_गभीरता >= RIPPLE_उपसर्गः_गभीरता_देहली;
+			प्रत्यागम (wide && deep) ? FinalAdder::PARALLEL_उपसर्गः : FinalAdder::DEFAULT;
 		}
 	}
 }
 
 } // namespace CompressorTree
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_अन्तः

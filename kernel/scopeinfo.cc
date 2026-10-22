@@ -17,123 +17,123 @@
  *
  */
 
-#include "kernel/scopeinfo.h"
+#अन्तर्भाव "kernel/scopeinfo.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template <typename I, typename Filter> void ModuleHdlnameIndex::index_items(I begin, I end, Filter filter)
+प्रतिरूपम् <प्रकारनाम I, प्रकारनाम Filter> शून्य Module_Hdlname_सूचकांक::सूचकांक_वस्तूनि(I begin, I अन्तः, Filter filter)
 {
-	for (; begin != end; ++begin) {
-		auto const &item = *begin;
+	प्रति (; begin != अन्तः; ++begin) {
+		स्वचालित ध्रुव &item = *begin;
 
-		if (!filter(item))
-			continue;
-		std::vector<IdString> path = parse_hdlname(item);
-		if (!path.empty())
-			lookup.emplace(item, tree.insert(path, item));
+		यदि (!filter(item))
+			अनुवर्त;
+		std::सदिशम्<IdString> मार्गः_2 = parse_hdlname(item);
+		यदि (!मार्गः_2.रिक्तानि())
+			lookup.emplace(item, वृक्षः.निवेशय(मार्गः_2, item));
 	}
 }
 
-void ModuleHdlnameIndex::index()
+शून्य Module_Hdlname_सूचकांक::सूचकांक()
 {
-	index_wires();
-	index_cells();
+	सूचकांक_wires();
+	सूचकांक_cells();
 }
 
-void ModuleHdlnameIndex::index_wires()
+शून्य Module_Hdlname_सूचकांक::सूचकांक_wires()
 {
-	auto wires = module->wires();
-	index_items(wires.begin(), wires.end(), [](Wire *) { return true; });
+	स्वचालित wires = module->wires();
+	सूचकांक_वस्तूनि(wires.begin(), wires.अन्तः(), [](Wire *) { प्रत्यागम सत्य; });
 }
 
-void ModuleHdlnameIndex::index_cells()
+शून्य Module_Hdlname_सूचकांक::सूचकांक_cells()
 {
-	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *) { return true; });
+	स्वचालित cells = module->cells();
+	सूचकांक_वस्तूनि(cells.begin(), cells.अन्तः(), [](Cell *) { प्रत्यागम सत्य; });
 }
 
-void ModuleHdlnameIndex::index_scopeinfo_cells()
+शून्य Module_Hdlname_सूचकांक::सूचकांक_scopeinfo_cells()
 {
-	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *cell) { return cell->type == ID($scopeinfo); });
+	स्वचालित cells = module->cells();
+	सूचकांक_वस्तूनि(cells.begin(), cells.अन्तः(), [](Cell *cell) { प्रत्यागम cell->type == ID($scopeinfo); });
 }
 
-std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
+std::सदिशम्<std::string> Module_Hdlname_सूचकांक::scope_sources(Cursor cursor)
 {
-	std::vector<std::string> result;
+	std::सदिशम्<std::string> परिणाम;
 
-	for (; !cursor.is_root(); cursor = cursor.parent()) {
-		if (!cursor.has_entry()) {
-			result.push_back("");
-			result.push_back("");
-			continue;
+	प्रति (; !cursor.is_मूलम्(); cursor = cursor.parent()) {
+		यदि (!cursor.has_प्रविष्टिः()) {
+			परिणाम.प्रक्षिप_पृष्ठभागः("");
+			परिणाम.प्रक्षिप_पृष्ठभागः("");
+			अनुवर्त;
 		}
-		Cell *cell = cursor.entry().cell();
-		if (cell == nullptr || cell->type != ID($scopeinfo)) {
-			result.push_back("");
-			result.push_back("");
-			continue;
+		Cell *cell = cursor.प्रविष्टिः().cell();
+		यदि (cell == शून्यसूचकः || cell->type != ID($scopeinfo)) {
+			परिणाम.प्रक्षिप_पृष्ठभागः("");
+			परिणाम.प्रक्षिप_पृष्ठभागः("");
+			अनुवर्त;
 		}
-		result.push_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Module, ID::src).decode_string());
-		result.push_back(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Cell, ID::src).decode_string());
+		परिणाम.प्रक्षिप_पृष्ठभागः(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Module, ID::src).decode_string());
+		परिणाम.प्रक्षिप_पृष्ठभागः(scopeinfo_get_attribute(cell, ScopeinfoAttrs::Cell, ID::src).decode_string());
 	}
 
-	result.push_back(module->get_src_attribute());
+	परिणाम.प्रक्षिप_पृष्ठभागः(module->get_src_attribute());
 
-	std::reverse(result.begin(), result.end());
+	std::reverse(परिणाम.begin(), परिणाम.अन्तः());
 
-	return result;
+	प्रत्यागम परिणाम;
 }
 
-static const char *attr_prefix(ScopeinfoAttrs attrs)
+स्थिर ध्रुव वर्ण *attr_उपसर्गः(ScopeinfoAttrs attrs)
 {
-	switch (attrs) {
-	case ScopeinfoAttrs::Cell:
-		return "\\cell_";
-	case ScopeinfoAttrs::Module:
-		return "\\module_";
-	default:
+	विकल्प (attrs) {
+	पक्ष ScopeinfoAttrs::Cell:
+		प्रत्यागम "\\cell_";
+	पक्ष ScopeinfoAttrs::Module:
+		प्रत्यागम "\\module_";
+	स्वभाव:
 		log_abort();
 	}
 }
 
-bool scopeinfo_has_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
+तार्किक scopeinfo_has_attribute(ध्रुव RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
 {
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
-	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	return key != IdString::Null && scopeinfo->has_attribute(key);
+	IdString कुञ्चिका = twines.find(attr_उपसर्गः(attrs) + twines.unescaped_str(id));
+	प्रत्यागम कुञ्चिका != IdString::Null && scopeinfo->has_attribute(कुञ्चिका);
 }
 
-RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
+RTLIL::Const scopeinfo_get_attribute(ध्रुव RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
 {
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
-	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	if (key == IdString::Null)
-		return RTLIL::Const();
-	auto found = scopeinfo->attributes.find(key);
-	if (found == scopeinfo->attributes.end())
-		return RTLIL::Const();
-	return found->second;
+	IdString कुञ्चिका = twines.find(attr_उपसर्गः(attrs) + twines.unescaped_str(id));
+	यदि (कुञ्चिका == IdString::Null)
+		प्रत्यागम RTLIL::Const();
+	स्वचालित प्राप्तम् = scopeinfo->गुणाः.find(कुञ्चिका);
+	यदि (प्राप्तम् == scopeinfo->गुणाः.अन्तः())
+		प्रत्यागम RTLIL::Const();
+	प्रत्यागम प्राप्तम्->second;
 }
 
-dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs)
+dict<RTLIL::IdString, RTLIL::Const> scopeinfo_गुणाः(ध्रुव RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs)
 {
-	dict<RTLIL::IdString, RTLIL::Const> attributes;
+	dict<RTLIL::IdString, RTLIL::Const> गुणाः;
 
-	const char *prefix = attr_prefix(attrs);
-	size_t prefix_len = strlen(prefix);
+	ध्रुव वर्ण *उपसर्गः_2 = attr_उपसर्गः(attrs);
+	आकार_t उपसर्गः_len = वाक्यदैर्घ्यम्(उपसर्गः_2);
 	TwinePool &twines = scopeinfo->twines();
 
-	for (auto const &entry : scopeinfo->attributes) {
-		std::string name = twines.str(entry.first);
-		if (name.compare(0, prefix_len, prefix) != 0)
-			continue;
-		attributes.emplace(twines.add(RTLIL::escape_id(name.substr(prefix_len))), entry.second);
+	प्रति (स्वचालित ध्रुव &प्रविष्टिः : scopeinfo->गुणाः) {
+		std::string name = twines.str(प्रविष्टिः.first);
+		यदि (name.compare(0, उपसर्गः_len, उपसर्गः_2) != 0)
+			अनुवर्त;
+		गुणाः.emplace(twines.सङ्कलय(RTLIL::escape_id(name.substr(उपसर्गः_len))), प्रविष्टिः.second);
 	}
 
-	return attributes;
+	प्रत्यागम गुणाः;
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_अन्तः

@@ -17,1118 +17,1118 @@
  *
  */
 
-#ifndef DRIVERTOOLS_H
-#define DRIVERTOOLS_H
+#यदि_अपरिभाषितम् DRIVERTOOLS_H
+#परिभाषय DRIVERTOOLS_H
 
-#include <string>
-#include <type_traits>
+#अन्तर्भाव <string>
+#अन्तर्भाव <type_traits>
 
-#include "kernel/rtlil.h"
-#include "kernel/sigtools.h"
-#include "kernel/newcelltypes.h"
+#अन्तर्भाव "kernel/rtlil.h"
+#अन्तर्भाव "kernel/sigtools.h"
+#अन्तर्भाव "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // TODO move implementation into a .cc file
 
-struct DriveBit;
+संरचना DriveBit;
 
-struct DriveChunkWire;
-struct DriveChunkPort;
-struct DriveChunkMarker;
-struct DriveChunk;
+संरचना DriveChunkWire;
+संरचना Drive_Chunk_पत्तनम्;
+संरचना DriveChunkMarker;
+संरचना DriveChunk;
 
-struct DriveSpec;
+संरचना DriveSpec;
 
-std::string log_signal(DriveChunkWire const &chunk);
-std::string log_signal(DriveChunkPort const &chunk);
-std::string log_signal(DriveChunkMarker const &chunk);
-std::string log_signal(DriveChunk const &chunk);
-std::string log_signal(DriveSpec const &chunk);
+std::string log_signal(DriveChunkWire ध्रुव &chunk);
+std::string log_signal(Drive_Chunk_पत्तनम् ध्रुव &chunk);
+std::string log_signal(DriveChunkMarker ध्रुव &chunk);
+std::string log_signal(DriveChunk ध्रुव &chunk);
+std::string log_signal(DriveSpec ध्रुव &chunk);
 
-enum class DriveType : unsigned char
+गणना class DriveType : अचिह्नित वर्ण
 {
 	NONE,
 	CONSTANT,
 	WIRE,
-	PORT,
-	MULTIPLE,
+	पत्तनम्_2,
+	गुणजः,
 	MARKER,
 };
 
-struct DriveBitWire
+संरचना DriveBitWire
 {
 	Wire *wire;
-	int offset;
+	पूर्णाङ्क विस्थापनम्;
 
-	DriveBitWire(Wire *wire, int offset) : wire(wire), offset(offset) {}
+	DriveBitWire(Wire *wire, पूर्णाङ्क विस्थापनम्) : wire(wire), विस्थापनम्(विस्थापनम्) {}
 
-	bool operator==(const DriveBitWire &other) const
+	bool संक्रियकः==(ध्रुव DriveBitWire &other) ध्रुव
 	{
-		return wire == other.wire && offset == other.offset;
+		प्रत्यागम wire == other.wire && विस्थापनम् == other.विस्थापनम्;
 	}
 
-	bool operator<(const DriveBitWire &other) const
+	bool संक्रियकः<(ध्रुव DriveBitWire &other) ध्रुव
 	{
-		if (wire != other.wire)
-			return wire->name < other.wire->name;
-		return offset < other.offset;
+		यदि (wire != other.wire)
+			प्रत्यागम wire->name < other.wire->name;
+		प्रत्यागम विस्थापनम् < other.विस्थापनम्;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव;
 
 
-	operator SigBit() const
+	संक्रियकः SigBit() ध्रुव
 	{
-		return SigBit(wire, offset);
+		प्रत्यागम SigBit(wire, विस्थापनम्);
 	}
 };
 
-struct DriveBitPort
+संरचना Drive_Bit_पत्तनम्
 {
 	Cell *cell;
-	IdString port;
-	int offset;
+	IdString पत्तनम्;
+	पूर्णाङ्क विस्थापनम्;
 
-	DriveBitPort(Cell *cell, IdString port, int offset) : cell(cell), port(port), offset(offset) {}
+	Drive_Bit_पत्तनम्(Cell *cell, IdString पत्तनम्, पूर्णाङ्क विस्थापनम्) : cell(cell), पत्तनम्(पत्तनम्), विस्थापनम्(विस्थापनम्) {}
 
-	bool operator==(const DriveBitPort &other) const
+	bool संक्रियकः==(ध्रुव Drive_Bit_पत्तनम् &other) ध्रुव
 	{
-		return cell == other.cell && port == other.port && offset == other.offset;
+		प्रत्यागम cell == other.cell && पत्तनम् == other.पत्तनम् && विस्थापनम् == other.विस्थापनम्;
 	}
 
-	bool operator<(const DriveBitPort &other) const
+	bool संक्रियकः<(ध्रुव Drive_Bit_पत्तनम् &other) ध्रुव
 	{
-		if (cell != other.cell)
-			return cell->name < other.cell->name;
-		if (port != other.port)
-			return port < other.port;
-		return offset < other.offset;
+		यदि (cell != other.cell)
+			प्रत्यागम cell->name < other.cell->name;
+		यदि (पत्तनम् != other.पत्तनम्)
+			प्रत्यागम पत्तनम् < other.पत्तनम्;
+		प्रत्यागम विस्थापनम् < other.विस्थापनम्;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव;
 
 };
 
 
-struct DriveBitMarker
+संरचना DriveBitMarker
 {
-	int marker;
-	int offset;
+	पूर्णाङ्क marker;
+	पूर्णाङ्क विस्थापनम्;
 
-	DriveBitMarker(int marker, int offset) : marker(marker), offset(offset) {}
+	DriveBitMarker(पूर्णाङ्क marker, पूर्णाङ्क विस्थापनम्) : marker(marker), विस्थापनम्(विस्थापनम्) {}
 
-	bool operator==(const DriveBitMarker &other) const
+	bool संक्रियकः==(ध्रुव DriveBitMarker &other) ध्रुव
 	{
-		return marker == other.marker && offset == other.offset;
+		प्रत्यागम marker == other.marker && विस्थापनम् == other.विस्थापनम्;
 	}
 
-	bool operator<(const DriveBitMarker &other) const
+	bool संक्रियकः<(ध्रुव DriveBitMarker &other) ध्रुव
 	{
-		if (marker != other.marker)
-			return marker < other.marker;
-		return offset < other.offset;
+		यदि (marker != other.marker)
+			प्रत्यागम marker < other.marker;
+		प्रत्यागम विस्थापनम् < other.विस्थापनम्;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव;
 
 };
 
-struct DriveBitMultiple
+संरचना Drive_Bit_गुणजः
 {
-private:
-	pool<DriveBit> multiple_;
+गुप्त:
+	pool<DriveBit> गुणजः_3;
 
-public:
-	DriveBitMultiple();
-	DriveBitMultiple(DriveBit const &single);
+सार्वजनिक:
+	Drive_Bit_गुणजः();
+	Drive_Bit_गुणजः(DriveBit ध्रुव &single);
 
-	pool<DriveBit> const &multiple() const { return multiple_; }
+	pool<DriveBit> ध्रुव &गुणजः_2() ध्रुव { प्रत्यागम गुणजः_3; }
 
-	void merge(DriveBitMultiple const &other)
+	शून्य merge(Drive_Bit_गुणजः ध्रुव &other)
 	{
-		for (DriveBit const &single : other.multiple_)
+		प्रति (DriveBit ध्रुव &single : other.गुणजः_3)
 			merge(single);
 	}
 
-	void merge(DriveBitMultiple &&other)
+	शून्य merge(Drive_Bit_गुणजः &&other)
 	{
-		for (DriveBit &single : other.multiple_)
+		प्रति (DriveBit &single : other.गुणजः_3)
 			merge(std::move(single));
 	}
 
-	void merge(DriveBit const &single);
-	void merge(DriveBit &&single);
+	शून्य merge(DriveBit ध्रुव &single);
+	शून्य merge(DriveBit &&single);
 
-	bool operator==(const DriveBitMultiple &other) const
+	bool संक्रियकः==(ध्रुव Drive_Bit_गुणजः &other) ध्रुव
 	{
-		return multiple_ == other.multiple_;
+		प्रत्यागम गुणजः_3 == other.गुणजः_3;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव;
 };
 
-struct DriveBit
+संरचना DriveBit
 {
-private:
+गुप्त:
 	DriveType type_ = DriveType::NONE;
-	union
+	सङ्घ
 	{
 		State constant_;
 		DriveBitWire wire_;
-		DriveBitPort port_;
+		Drive_Bit_पत्तनम् पत्तनम्_3;
 		DriveBitMarker marker_;
-		DriveBitMultiple multiple_;
+		Drive_Bit_गुणजः गुणजः_3;
 	};
-public:
+सार्वजनिक:
 	DriveBit()  {}
 
-	DriveBit(SigBit const &bit);
+	DriveBit(SigBit ध्रुव &bit);
 
-	DriveBit(DriveBit const &other) { *this = other; }
+	DriveBit(DriveBit ध्रुव &other) { *this = other; }
 	DriveBit(DriveBit &&other) { *this = other; }
 
 
 	DriveBit(State constant) { *this = constant; }
-	DriveBit(DriveBitWire const &wire) { *this = wire; }
+	DriveBit(DriveBitWire ध्रुव &wire) { *this = wire; }
 	DriveBit(DriveBitWire &&wire) { *this = wire; }
-	DriveBit(DriveBitPort const &port) { *this = port; }
-	DriveBit(DriveBitPort &&port) { *this = port; }
-	DriveBit(DriveBitMarker const &marker) { *this = marker; }
+	DriveBit(Drive_Bit_पत्तनम् ध्रुव &पत्तनम्) { *this = पत्तनम्; }
+	DriveBit(Drive_Bit_पत्तनम् &&पत्तनम्) { *this = पत्तनम्; }
+	DriveBit(DriveBitMarker ध्रुव &marker) { *this = marker; }
 	DriveBit(DriveBitMarker &&marker) { *this = marker; }
-	DriveBit(DriveBitMultiple const &multiple) { *this = multiple; }
-	DriveBit(DriveBitMultiple &&multiple) { *this = multiple; }
+	DriveBit(Drive_Bit_गुणजः ध्रुव &गुणजः_2) { *this = गुणजः_2; }
+	DriveBit(Drive_Bit_गुणजः &&गुणजः_2) { *this = गुणजः_2; }
 
-	~DriveBit() { set_none(); }
+	~DriveBit() { समुच्चयः_none(); }
 
-	void set_none()
+	शून्य समुच्चयः_none()
 	{
-		switch (type_)
+		विकल्प (type_)
 		{
-			case DriveType::NONE:
-				break;
-			case DriveType::CONSTANT:
-				break;
-			case DriveType::WIRE:
+			पक्ष DriveType::NONE:
+				भङ्ग;
+			पक्ष DriveType::CONSTANT:
+				भङ्ग;
+			पक्ष DriveType::WIRE:
 				wire_.~DriveBitWire();
-				break;
-			case DriveType::PORT:
-				port_.~DriveBitPort();
-				break;
-			case DriveType::MARKER:
+				भङ्ग;
+			पक्ष DriveType::पत्तनम्_2:
+				पत्तनम्_3.~Drive_Bit_पत्तनम्();
+				भङ्ग;
+			पक्ष DriveType::MARKER:
 				marker_.~DriveBitMarker();
-				break;
-			case DriveType::MULTIPLE:
-				multiple_.~DriveBitMultiple();
-				break;
+				भङ्ग;
+			पक्ष DriveType::गुणजः:
+				गुणजः_3.~Drive_Bit_गुणजः();
+				भङ्ग;
 		}
 		type_ = DriveType::NONE;
 	}
 
-	DriveBit &operator=(DriveBit const &other)
+	DriveBit &संक्रियकः=(DriveBit ध्रुव &other)
 	{
-		switch (other.type_)
+		विकल्प (other.type_)
 		{
-			case DriveType::NONE:
-				set_none();
-				break;
-			case DriveType::CONSTANT:
+			पक्ष DriveType::NONE:
+				समुच्चयः_none();
+				भङ्ग;
+			पक्ष DriveType::CONSTANT:
 				*this = other.constant_;
-				break;
-			case DriveType::WIRE:
+				भङ्ग;
+			पक्ष DriveType::WIRE:
 				*this = other.wire_;
-				break;
-			case DriveType::PORT:
-				*this = other.port_;
-				break;
-			case DriveType::MARKER:
+				भङ्ग;
+			पक्ष DriveType::पत्तनम्_2:
+				*this = other.पत्तनम्_3;
+				भङ्ग;
+			पक्ष DriveType::MARKER:
 				*this = other.marker_;
-				break;
-			case DriveType::MULTIPLE:
-				*this = other.multiple_;
-				break;
+				भङ्ग;
+			पक्ष DriveType::गुणजः:
+				*this = other.गुणजः_3;
+				भङ्ग;
 		}
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveBit &operator=(DriveBit &&other)
+	DriveBit &संक्रियकः=(DriveBit &&other)
 	{
-		switch (other.type_)
+		विकल्प (other.type_)
 		{
-			case DriveType::NONE:
-				set_none();
-				break;
-			case DriveType::CONSTANT:
+			पक्ष DriveType::NONE:
+				समुच्चयः_none();
+				भङ्ग;
+			पक्ष DriveType::CONSTANT:
 				*this = std::move(other.constant_);
-				break;
-			case DriveType::WIRE:
+				भङ्ग;
+			पक्ष DriveType::WIRE:
 				*this = std::move(other.wire_);
-				break;
-			case DriveType::PORT:
-				*this = std::move(other.port_);
-				break;
-			case DriveType::MARKER:
+				भङ्ग;
+			पक्ष DriveType::पत्तनम्_2:
+				*this = std::move(other.पत्तनम्_3);
+				भङ्ग;
+			पक्ष DriveType::MARKER:
 				*this = std::move(other.marker_);
-				break;
-			case DriveType::MULTIPLE:
-				*this = std::move(other.multiple_);
-				break;
+				भङ्ग;
+			पक्ष DriveType::गुणजः:
+				*this = std::move(other.गुणजः_3);
+				भङ्ग;
 		}
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveBit &operator=(State constant)
+	DriveBit &संक्रियकः=(State constant)
 	{
-		set_none();
+		समुच्चयः_none();
 		constant_ = constant;
 		type_ = DriveType::CONSTANT;
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveBit &operator=(DriveBitWire const &wire)
+	DriveBit &संक्रियकः=(DriveBitWire ध्रुव &wire)
 	{
-		set_none();
+		समुच्चयः_none();
 		new (&wire_) DriveBitWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveBit &operator=(DriveBitWire &&wire)
+	DriveBit &संक्रियकः=(DriveBitWire &&wire)
 	{
-		set_none();
+		समुच्चयः_none();
 		new (&wire_) DriveBitWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveBit &operator=(DriveBitPort const &port)
+	DriveBit &संक्रियकः=(Drive_Bit_पत्तनम् ध्रुव &पत्तनम्)
 	{
-		set_none();
-		new (&port_) DriveBitPort(port);
-		type_ = DriveType::PORT;
-		return *this;
+		समुच्चयः_none();
+		new (&पत्तनम्_3) Drive_Bit_पत्तनम्(पत्तनम्);
+		type_ = DriveType::पत्तनम्_2;
+		प्रत्यागम *this;
 	}
 
-	DriveBit &operator=(DriveBitPort &&port)
+	DriveBit &संक्रियकः=(Drive_Bit_पत्तनम् &&पत्तनम्)
 	{
-		set_none();
-		new (&port_) DriveBitPort(port);
-		type_ = DriveType::PORT;
-		return *this;
+		समुच्चयः_none();
+		new (&पत्तनम्_3) Drive_Bit_पत्तनम्(पत्तनम्);
+		type_ = DriveType::पत्तनम्_2;
+		प्रत्यागम *this;
 	}
 
-	DriveBit &operator=(DriveBitMarker const &marker)
+	DriveBit &संक्रियकः=(DriveBitMarker ध्रुव &marker)
 	{
-		set_none();
+		समुच्चयः_none();
 		new (&marker_) DriveBitMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveBit &operator=(DriveBitMarker &&marker)
+	DriveBit &संक्रियकः=(DriveBitMarker &&marker)
 	{
-		set_none();
+		समुच्चयः_none();
 		new (&marker_) DriveBitMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveBit &operator=(DriveBitMultiple const &multiple)
+	DriveBit &संक्रियकः=(Drive_Bit_गुणजः ध्रुव &गुणजः_2)
 	{
-		set_none();
-		if (multiple.multiple().empty())
-			return *this;
-		new (&multiple_) DriveBitMultiple(multiple);
-		type_ = DriveType::MULTIPLE;
-		return *this;
+		समुच्चयः_none();
+		यदि (गुणजः_2.गुणजः_2().रिक्तानि())
+			प्रत्यागम *this;
+		new (&गुणजः_3) Drive_Bit_गुणजः(गुणजः_2);
+		type_ = DriveType::गुणजः;
+		प्रत्यागम *this;
 	}
 
-	DriveBit &operator=(DriveBitMultiple &&multiple)
+	DriveBit &संक्रियकः=(Drive_Bit_गुणजः &&गुणजः_2)
 	{
-		set_none();
-		if (multiple.multiple().empty())
-			return *this;
-		new (&multiple_) DriveBitMultiple(multiple);
-		type_ = DriveType::MULTIPLE;
-		return *this;
+		समुच्चयः_none();
+		यदि (गुणजः_2.गुणजः_2().रिक्तानि())
+			प्रत्यागम *this;
+		new (&गुणजः_3) Drive_Bit_गुणजः(गुणजः_2);
+		type_ = DriveType::गुणजः;
+		प्रत्यागम *this;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव;
 
-	bool operator==(const DriveBit &other) const
+	bool संक्रियकः==(ध्रुव DriveBit &other) ध्रुव
 	{
-		if (type_ != other.type_)
-			return false;
+		यदि (type_ != other.type_)
+			प्रत्यागम false;
 
-		switch (type_)
+		विकल्प (type_)
 		{
-			case DriveType::NONE:
-				return true;
-			case DriveType::CONSTANT:
-				return constant_ == other.constant_;
-			case DriveType::WIRE:
-				return wire_ == other.wire_;
-			case DriveType::PORT:
-				return port_ == other.port_;
-			case DriveType::MARKER:
-				return marker_ == other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ == other.multiple_;
+			पक्ष DriveType::NONE:
+				प्रत्यागम true;
+			पक्ष DriveType::CONSTANT:
+				प्रत्यागम constant_ == other.constant_;
+			पक्ष DriveType::WIRE:
+				प्रत्यागम wire_ == other.wire_;
+			पक्ष DriveType::पत्तनम्_2:
+				प्रत्यागम पत्तनम्_3 == other.पत्तनम्_3;
+			पक्ष DriveType::MARKER:
+				प्रत्यागम marker_ == other.marker_;
+			पक्ष DriveType::गुणजः:
+				प्रत्यागम गुणजः_3 == other.गुणजः_3;
 		}
 		log_abort();
 	}
 
-	bool operator!=(const DriveBit &other) const
+	bool संक्रियकः!=(ध्रुव DriveBit &other) ध्रुव
 	{
-		return !(*this == other);
+		प्रत्यागम !(*this == other);
 	}
 
-	bool operator<(const DriveBit &other) const
+	bool संक्रियकः<(ध्रुव DriveBit &other) ध्रुव
 	{
-		if (type_ != other.type_)
-			return type_ < other.type_;
-		switch (type_)
+		यदि (type_ != other.type_)
+			प्रत्यागम type_ < other.type_;
+		विकल्प (type_)
 		{
-			case DriveType::NONE:
-				return false;
-			case DriveType::CONSTANT:
-				return constant_ < other.constant_;
-			case DriveType::WIRE:
-				return wire_ < other.wire_;
-			case DriveType::PORT:
-				return port_ < other.port_;
-			case DriveType::MARKER:
-				return marker_ < other.marker_;
-			case DriveType::MULTIPLE:
+			पक्ष DriveType::NONE:
+				प्रत्यागम false;
+			पक्ष DriveType::CONSTANT:
+				प्रत्यागम constant_ < other.constant_;
+			पक्ष DriveType::WIRE:
+				प्रत्यागम wire_ < other.wire_;
+			पक्ष DriveType::पत्तनम्_2:
+				प्रत्यागम पत्तनम्_3 < other.पत्तनम्_3;
+			पक्ष DriveType::MARKER:
+				प्रत्यागम marker_ < other.marker_;
+			पक्ष DriveType::गुणजः:
 				log_assert(!"TODO");
 		}
 		log_abort();
 	}
 
 
-	DriveType type() const { return type_; }
+	DriveType type() ध्रुव { प्रत्यागम type_; }
 
-	bool is_none() const { return type_ == DriveType::NONE; }
-	bool is_constant() const { return type_ == DriveType::CONSTANT; }
-	bool is_wire() const { return type_ == DriveType::WIRE; }
-	bool is_port() const { return type_ == DriveType::PORT; }
-	bool is_marker() const { return type_ == DriveType::MARKER; }
-	bool is_multiple() const { return type_ == DriveType::MULTIPLE; }
+	bool is_none() ध्रुव { प्रत्यागम type_ == DriveType::NONE; }
+	bool is_constant() ध्रुव { प्रत्यागम type_ == DriveType::CONSTANT; }
+	bool is_wire() ध्रुव { प्रत्यागम type_ == DriveType::WIRE; }
+	bool is_पत्तनम्() ध्रुव { प्रत्यागम type_ == DriveType::पत्तनम्_2; }
+	bool is_marker() ध्रुव { प्रत्यागम type_ == DriveType::MARKER; }
+	bool is_गुणजः() ध्रुव { प्रत्यागम type_ == DriveType::गुणजः; }
 
-	State &constant() { log_assert(is_constant()); return constant_; }
-	State const &constant() const { log_assert(is_constant()); return constant_; }
-	DriveBitWire &wire() { log_assert(is_wire()); return wire_; }
-	DriveBitWire const &wire() const { log_assert(is_wire()); return wire_; }
-	DriveBitPort &port() { log_assert(is_port()); return port_; }
-	DriveBitPort const &port() const { log_assert(is_port()); return port_; }
-	DriveBitMarker &marker() { log_assert(is_marker()); return marker_; }
-	DriveBitMarker const &marker() const { log_assert(is_marker()); return marker_; }
-	DriveBitMultiple &multiple() { log_assert(is_multiple()); return multiple_; }
-	DriveBitMultiple const &multiple() const { log_assert(is_multiple()); return multiple_; }
+	State &constant() { log_assert(is_constant()); प्रत्यागम constant_; }
+	State ध्रुव &constant() ध्रुव { log_assert(is_constant()); प्रत्यागम constant_; }
+	DriveBitWire &wire() { log_assert(is_wire()); प्रत्यागम wire_; }
+	DriveBitWire ध्रुव &wire() ध्रुव { log_assert(is_wire()); प्रत्यागम wire_; }
+	Drive_Bit_पत्तनम् &पत्तनम्() { log_assert(is_पत्तनम्()); प्रत्यागम पत्तनम्_3; }
+	Drive_Bit_पत्तनम् ध्रुव &पत्तनम्() ध्रुव { log_assert(is_पत्तनम्()); प्रत्यागम पत्तनम्_3; }
+	DriveBitMarker &marker() { log_assert(is_marker()); प्रत्यागम marker_; }
+	DriveBitMarker ध्रुव &marker() ध्रुव { log_assert(is_marker()); प्रत्यागम marker_; }
+	Drive_Bit_गुणजः &गुणजः_2() { log_assert(is_गुणजः()); प्रत्यागम गुणजः_3; }
+	Drive_Bit_गुणजः ध्रुव &गुणजः_2() ध्रुव { log_assert(is_गुणजः()); प्रत्यागम गुणजः_3; }
 
-	void merge(DriveBit const &other);
+	शून्य merge(DriveBit ध्रुव &other);
 
 };
 
-inline DriveBitMultiple::DriveBitMultiple() {}
-inline DriveBitMultiple::DriveBitMultiple(DriveBit const &single)
+अन्तःस्थ Drive_Bit_गुणजः::Drive_Bit_गुणजः() {}
+अन्तःस्थ Drive_Bit_गुणजः::Drive_Bit_गुणजः(DriveBit ध्रुव &single)
 {
-	multiple_.emplace(single);
+	गुणजः_3.emplace(single);
 }
 
-struct DriveChunkWire
+संरचना DriveChunkWire
 {
 	Wire *wire;
-	int offset;
-	int width;
+	पूर्णाङ्क विस्थापनम्;
+	पूर्णाङ्क विस्तारः;
 
-	DriveChunkWire(Wire *wire, int offset, int width) : wire(wire), offset(offset), width(width) {}
-	DriveChunkWire(DriveBitWire const &bit) : wire(bit.wire), offset(bit.offset), width(1) {}
+	DriveChunkWire(Wire *wire, पूर्णाङ्क विस्थापनम्, पूर्णाङ्क विस्तारः) : wire(wire), विस्थापनम्(विस्थापनम्), विस्तारः(विस्तारः) {}
+	DriveChunkWire(DriveBitWire ध्रुव &bit) : wire(bit.wire), विस्थापनम्(bit.विस्थापनम्), विस्तारः(1) {}
 
-	int size() const { return width; }
+	पूर्णाङ्क आकार() ध्रुव { प्रत्यागम विस्तारः; }
 
-	DriveBitWire operator[](int i) const
+	DriveBitWire संक्रियकः[](पूर्णाङ्क i) ध्रुव
 	{
-		log_assert(i >= 0 && i < width);
-		return DriveBitWire(wire, offset + i);
+		log_assert(i >= 0 && i < विस्तारः);
+		प्रत्यागम DriveBitWire(wire, विस्थापनम् + i);
 	}
 
-	bool can_append(DriveBitWire const &bit) const;
-	bool try_append(DriveBitWire const &bit);
-	bool try_append(DriveChunkWire const &chunk);
+	bool can_append(DriveBitWire ध्रुव &bit) ध्रुव;
+	bool try_append(DriveBitWire ध्रुव &bit);
+	bool try_append(DriveChunkWire ध्रुव &chunk);
 
 	// Whether this chunk is a whole wire
-	bool is_whole() const { return offset == 0 && width == wire->width; }
+	bool is_सम्पूर्णम्() ध्रुव { प्रत्यागम विस्थापनम् == 0 && विस्तारः == wire->विस्तारः; }
 
-	bool operator==(const DriveChunkWire &other) const
+	bool संक्रियकः==(ध्रुव DriveChunkWire &other) ध्रुव
 	{
-		return wire == other.wire && offset == other.offset && width == other.width;
+		प्रत्यागम wire == other.wire && विस्थापनम् == other.विस्थापनम् && विस्तारः == other.विस्तारः;
 	}
 
-	bool operator<(const DriveChunkWire &other) const
+	bool संक्रियकः<(ध्रुव DriveChunkWire &other) ध्रुव
 	{
-		if (wire != other.wire)
-			return wire->name < other.wire->name;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		यदि (wire != other.wire)
+			प्रत्यागम wire->name < other.wire->name;
+		यदि (विस्तारः != other.विस्तारः)
+			प्रत्यागम विस्तारः < other.विस्तारः;
+		प्रत्यागम विस्थापनम् < other.विस्थापनम्;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव;
 
-	explicit operator SigChunk() const
+	explicit संक्रियकः SigChunk() ध्रुव
 	{
-		return SigChunk(wire, offset, width);
+		प्रत्यागम SigChunk(wire, विस्थापनम्, विस्तारः);
 	}
 };
 
-struct DriveChunkPort
+संरचना Drive_Chunk_पत्तनम्
 {
 	Cell *cell;
-	IdString port;
-	int offset;
-	int width;
+	IdString पत्तनम्;
+	पूर्णाङ्क विस्थापनम्;
+	पूर्णाङ्क विस्तारः;
 
-	DriveChunkPort(Cell *cell, IdString port, int offset, int width) :
-		cell(cell), port(port), offset(offset), width(width) { }
-	DriveChunkPort(Cell *cell, IdString port) :
-		cell(cell), port(port), offset(0), width(GetSize(cell->connections().at(port))) { }
-	DriveChunkPort(Cell *cell, std::pair<IdString, SigSpec> const &conn) :
-		cell(cell), port(conn.first), offset(0), width(GetSize(conn.second)) { }
-	DriveChunkPort(DriveBitPort const &bit) :
-		cell(bit.cell), port(bit.port), offset(bit.offset), width(1) { }
+	Drive_Chunk_पत्तनम्(Cell *cell, IdString पत्तनम्, पूर्णाङ्क विस्थापनम्, पूर्णाङ्क विस्तारः) :
+		cell(cell), पत्तनम्(पत्तनम्), विस्थापनम्(विस्थापनम्), विस्तारः(विस्तारः) { }
+	Drive_Chunk_पत्तनम्(Cell *cell, IdString पत्तनम्) :
+		cell(cell), पत्तनम्(पत्तनम्), विस्थापनम्(0), विस्तारः(Get_आकार(cell->connections().at(पत्तनम्))) { }
+	Drive_Chunk_पत्तनम्(Cell *cell, std::pair<IdString, SigSpec> ध्रुव &conn) :
+		cell(cell), पत्तनम्(conn.first), विस्थापनम्(0), विस्तारः(Get_आकार(conn.second)) { }
+	Drive_Chunk_पत्तनम्(Drive_Bit_पत्तनम् ध्रुव &bit) :
+		cell(bit.cell), पत्तनम्(bit.पत्तनम्), विस्थापनम्(bit.विस्थापनम्), विस्तारः(1) { }
 
-	int size() const { return width; }
+	पूर्णाङ्क आकार() ध्रुव { प्रत्यागम विस्तारः; }
 
-	DriveBitPort operator[](int i) const
+	Drive_Bit_पत्तनम् संक्रियकः[](पूर्णाङ्क i) ध्रुव
 	{
-		log_assert(i >= 0 && i < width);
-		return DriveBitPort(cell, port, offset + i);
+		log_assert(i >= 0 && i < विस्तारः);
+		प्रत्यागम Drive_Bit_पत्तनम्(cell, पत्तनम्, विस्थापनम् + i);
 	}
 
-	bool can_append(DriveBitPort const &bit) const;
-	bool try_append(DriveBitPort const &bit);
-	bool try_append(DriveChunkPort const &chunk);
+	bool can_append(Drive_Bit_पत्तनम् ध्रुव &bit) ध्रुव;
+	bool try_append(Drive_Bit_पत्तनम् ध्रुव &bit);
+	bool try_append(Drive_Chunk_पत्तनम् ध्रुव &chunk);
 
 	// Whether this chunk is a whole port
-	bool is_whole() const
+	bool is_सम्पूर्णम्() ध्रुव
 	{
-		return offset == 0 && width == cell->connections().at(port).size();
+		प्रत्यागम विस्थापनम् == 0 && विस्तारः == cell->connections().at(पत्तनम्).आकार();
 	}
 
-	bool operator==(const DriveChunkPort &other) const
+	bool संक्रियकः==(ध्रुव Drive_Chunk_पत्तनम् &other) ध्रुव
 	{
-		return cell == other.cell && port == other.port && offset == other.offset && width == other.width;
+		प्रत्यागम cell == other.cell && पत्तनम् == other.पत्तनम् && विस्थापनम् == other.विस्थापनम् && विस्तारः == other.विस्तारः;
 	}
 
-	bool operator<(const DriveChunkPort &other) const
+	bool संक्रियकः<(ध्रुव Drive_Chunk_पत्तनम् &other) ध्रुव
 	{
-		if (cell != other.cell)
-			return cell->name < other.cell->name;
-		if (port != other.port)
-			return port < other.port;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		यदि (cell != other.cell)
+			प्रत्यागम cell->name < other.cell->name;
+		यदि (पत्तनम् != other.पत्तनम्)
+			प्रत्यागम पत्तनम् < other.पत्तनम्;
+		यदि (विस्तारः != other.विस्तारः)
+			प्रत्यागम विस्तारः < other.विस्तारः;
+		प्रत्यागम विस्थापनम् < other.विस्थापनम्;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव;
 };
 
 
-struct DriveChunkMarker
+संरचना DriveChunkMarker
 {
-	int marker;
-	int offset;
-	int width;
+	पूर्णाङ्क marker;
+	पूर्णाङ्क विस्थापनम्;
+	पूर्णाङ्क विस्तारः;
 
-	DriveChunkMarker(int marker, int offset, int width) :
-		marker(marker), offset(offset), width(width) {}
-	DriveChunkMarker(DriveBitMarker const &bit) :
-		marker(bit.marker), offset(bit.offset), width(1) {}
+	DriveChunkMarker(पूर्णाङ्क marker, पूर्णाङ्क विस्थापनम्, पूर्णाङ्क विस्तारः) :
+		marker(marker), विस्थापनम्(विस्थापनम्), विस्तारः(विस्तारः) {}
+	DriveChunkMarker(DriveBitMarker ध्रुव &bit) :
+		marker(bit.marker), विस्थापनम्(bit.विस्थापनम्), विस्तारः(1) {}
 
-	int size() const { return width; }
+	पूर्णाङ्क आकार() ध्रुव { प्रत्यागम विस्तारः; }
 
-	DriveBitMarker operator[](int i) const
+	DriveBitMarker संक्रियकः[](पूर्णाङ्क i) ध्रुव
 	{
-		log_assert(i >= 0 && i < width);
-		return DriveBitMarker(marker, offset + i);
+		log_assert(i >= 0 && i < विस्तारः);
+		प्रत्यागम DriveBitMarker(marker, विस्थापनम् + i);
 	}
 
-	bool can_append(DriveBitMarker const &bit) const;
-	bool try_append(DriveBitMarker const &bit);
-	bool try_append(DriveChunkMarker const &chunk);
+	bool can_append(DriveBitMarker ध्रुव &bit) ध्रुव;
+	bool try_append(DriveBitMarker ध्रुव &bit);
+	bool try_append(DriveChunkMarker ध्रुव &chunk);
 
-	bool operator==(const DriveChunkMarker &other) const
+	bool संक्रियकः==(ध्रुव DriveChunkMarker &other) ध्रुव
 	{
-		return marker == other.marker && offset == other.offset && width == other.width;
+		प्रत्यागम marker == other.marker && विस्थापनम् == other.विस्थापनम् && विस्तारः == other.विस्तारः;
 	}
 
-	bool operator<(const DriveChunkMarker &other) const
+	bool संक्रियकः<(ध्रुव DriveChunkMarker &other) ध्रुव
 	{
-		if (marker != other.marker)
-			return marker < other.marker;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		यदि (marker != other.marker)
+			प्रत्यागम marker < other.marker;
+		यदि (विस्तारः != other.विस्तारः)
+			प्रत्यागम विस्तारः < other.विस्तारः;
+		प्रत्यागम विस्थापनम् < other.विस्थापनम्;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव;
 };
 
-struct DriveChunkMultiple
+संरचना Drive_Chunk_गुणजः
 {
-private:
-	mutable pool<DriveChunk> multiple_;
-	int width_;
+गुप्त:
+	mutable pool<DriveChunk> गुणजः_3;
+	पूर्णाङ्क विस्तारः_3;
 
-public:
-	pool<DriveChunk> const &multiple() const { return multiple_; }
+सार्वजनिक:
+	pool<DriveChunk> ध्रुव &गुणजः_2() ध्रुव { प्रत्यागम गुणजः_3; }
 
-	DriveChunkMultiple(DriveBitMultiple const &bit);
+	Drive_Chunk_गुणजः(Drive_Bit_गुणजः ध्रुव &bit);
 
-	int size() const { return width_; }
+	पूर्णाङ्क आकार() ध्रुव { प्रत्यागम विस्तारः_3; }
 
-	DriveBitMultiple operator[](int i) const;
+	Drive_Bit_गुणजः संक्रियकः[](पूर्णाङ्क i) ध्रुव;
 
-	bool can_append(DriveBitMultiple const &bit) const;
+	bool can_append(Drive_Bit_गुणजः ध्रुव &bit) ध्रुव;
 
-	bool try_append(DriveBitMultiple const &bit);
+	bool try_append(Drive_Bit_गुणजः ध्रुव &bit);
 
 
-	bool can_append(DriveChunkMultiple const &bit) const;
+	bool can_append(Drive_Chunk_गुणजः ध्रुव &bit) ध्रुव;
 
-	bool try_append(DriveChunkMultiple const &bit);
+	bool try_append(Drive_Chunk_गुणजः ध्रुव &bit);
 
-	bool operator==(const DriveChunkMultiple &other) const
+	bool संक्रियकः==(ध्रुव Drive_Chunk_गुणजः &other) ध्रुव
 	{
-		return width_ == other.width_ && multiple_ == other.multiple_;
+		प्रत्यागम विस्तारः_3 == other.विस्तारः_3 && गुणजः_3 == other.गुणजः_3;
 	}
 
-	bool operator<(const DriveChunkMultiple &other) const
+	bool संक्रियकः<(ध्रुव Drive_Chunk_गुणजः &other) ध्रुव
 	{
-		if (multiple_.size() < other.multiple_.size())
+		यदि (गुणजः_3.आकार() < other.गुणजः_3.आकार())
 
-		multiple_.sort();
-		return false; // TODO implement, canonicalize order
+		गुणजः_3.क्रमय();
+		प्रत्यागम false; // TODO implement, canonicalize order
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव;
 };
 
-struct DriveChunk
+संरचना DriveChunk
 {
-private:
+गुप्त:
 	DriveType type_ = DriveType::NONE;
-	union
+	सङ्घ
 	{
-		int none_;
+		पूर्णाङ्क none_;
 		Const constant_;
 		DriveChunkWire wire_;
-		DriveChunkPort port_;
+		Drive_Chunk_पत्तनम् पत्तनम्_3;
 		DriveChunkMarker marker_;
-		DriveChunkMultiple multiple_;
+		Drive_Chunk_गुणजः गुणजः_3;
 	};
 
-public:
-	DriveChunk() { set_none(); }
+सार्वजनिक:
+	DriveChunk() { समुच्चयः_none(); }
 
-	DriveChunk(DriveChunk const &other) { *this = other; }
+	DriveChunk(DriveChunk ध्रुव &other) { *this = other; }
 	DriveChunk(DriveChunk &&other) { *this = other; }
 
-	DriveChunk(DriveBit const &other) { *this = other; }
+	DriveChunk(DriveBit ध्रुव &other) { *this = other; }
 
-	DriveChunk(Const const &constant) { *this = constant; }
+	DriveChunk(Const ध्रुव &constant) { *this = constant; }
 	DriveChunk(Const &&constant) { *this = constant; }
-	DriveChunk(DriveChunkWire const &wire) { *this = wire; }
+	DriveChunk(DriveChunkWire ध्रुव &wire) { *this = wire; }
 	DriveChunk(DriveChunkWire &&wire) { *this = wire; }
-	DriveChunk(DriveChunkPort const &port) { *this = port; }
-	DriveChunk(DriveChunkPort &&port) { *this = port; }
-	DriveChunk(DriveChunkMarker const &marker) { *this = marker; }
+	DriveChunk(Drive_Chunk_पत्तनम् ध्रुव &पत्तनम्) { *this = पत्तनम्; }
+	DriveChunk(Drive_Chunk_पत्तनम् &&पत्तनम्) { *this = पत्तनम्; }
+	DriveChunk(DriveChunkMarker ध्रुव &marker) { *this = marker; }
 	DriveChunk(DriveChunkMarker &&marker) { *this = marker; }
-	DriveChunk(DriveChunkMultiple const &multiple) { *this = multiple; }
-	DriveChunk(DriveChunkMultiple &&multiple) { *this = multiple; }
+	DriveChunk(Drive_Chunk_गुणजः ध्रुव &गुणजः_2) { *this = गुणजः_2; }
+	DriveChunk(Drive_Chunk_गुणजः &&गुणजः_2) { *this = गुणजः_2; }
 
-	~DriveChunk() { set_none(); }
+	~DriveChunk() { समुच्चयः_none(); }
 
-	DriveBit operator[](int i) const
+	DriveBit संक्रियकः[](पूर्णाङ्क i) ध्रुव
 	{
-		switch (type_)
+		विकल्प (type_)
 		{
-			case DriveType::NONE:
-				return DriveBit();
-			case DriveType::CONSTANT:
-				return constant_[i];
-			case DriveType::WIRE:
-				return wire_[i];
-			case DriveType::PORT:
-				return port_[i];
-			case DriveType::MARKER:
-				return marker_[i];
-			case DriveType::MULTIPLE:
-				return multiple_[i];
+			पक्ष DriveType::NONE:
+				प्रत्यागम DriveBit();
+			पक्ष DriveType::CONSTANT:
+				प्रत्यागम constant_[i];
+			पक्ष DriveType::WIRE:
+				प्रत्यागम wire_[i];
+			पक्ष DriveType::पत्तनम्_2:
+				प्रत्यागम पत्तनम्_3[i];
+			पक्ष DriveType::MARKER:
+				प्रत्यागम marker_[i];
+			पक्ष DriveType::गुणजः:
+				प्रत्यागम गुणजः_3[i];
 		}
 		log_abort();
 	}
 
-	void set_none(int width = 0)
+	शून्य समुच्चयः_none(पूर्णाङ्क विस्तारः = 0)
 	{
-		switch (type_)
+		विकल्प (type_)
 		{
-			case DriveType::NONE:
-				none_ = width;
-				break;
-			case DriveType::CONSTANT:
+			पक्ष DriveType::NONE:
+				none_ = विस्तारः;
+				भङ्ग;
+			पक्ष DriveType::CONSTANT:
 				constant_.~Const();
-				break;
-			case DriveType::WIRE:
+				भङ्ग;
+			पक्ष DriveType::WIRE:
 				wire_.~DriveChunkWire();
-				break;
-			case DriveType::PORT:
-				port_.~DriveChunkPort();
-				break;
-			case DriveType::MARKER:
+				भङ्ग;
+			पक्ष DriveType::पत्तनम्_2:
+				पत्तनम्_3.~Drive_Chunk_पत्तनम्();
+				भङ्ग;
+			पक्ष DriveType::MARKER:
 				marker_.~DriveChunkMarker();
-				break;
-			case DriveType::MULTIPLE:
-				multiple_.~DriveChunkMultiple();
-				break;
+				भङ्ग;
+			पक्ष DriveType::गुणजः:
+				गुणजः_3.~Drive_Chunk_गुणजः();
+				भङ्ग;
 		}
 		type_ = DriveType::NONE;
-		none_ = width;
+		none_ = विस्तारः;
 	}
 
-	DriveChunk &operator=(DriveChunk const &other)
+	DriveChunk &संक्रियकः=(DriveChunk ध्रुव &other)
 	{
-		switch (other.type_)
+		विकल्प (other.type_)
 		{
-			case DriveType::NONE:
-				set_none(other.none_);
-				break;
-			case DriveType::CONSTANT:
+			पक्ष DriveType::NONE:
+				समुच्चयः_none(other.none_);
+				भङ्ग;
+			पक्ष DriveType::CONSTANT:
 				*this = other.constant_;
-				break;
-			case DriveType::WIRE:
+				भङ्ग;
+			पक्ष DriveType::WIRE:
 				*this = other.wire_;
-				break;
-			case DriveType::PORT:
-				*this = other.port_;
-				break;
-			case DriveType::MARKER:
+				भङ्ग;
+			पक्ष DriveType::पत्तनम्_2:
+				*this = other.पत्तनम्_3;
+				भङ्ग;
+			पक्ष DriveType::MARKER:
 				*this = other.marker_;
-				break;
-			case DriveType::MULTIPLE:
-				*this = other.multiple_;
-				break;
+				भङ्ग;
+			पक्ष DriveType::गुणजः:
+				*this = other.गुणजः_3;
+				भङ्ग;
 		}
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveChunk &operator=(DriveChunk &&other)
+	DriveChunk &संक्रियकः=(DriveChunk &&other)
 	{
-		switch (other.type_)
+		विकल्प (other.type_)
 		{
-			case DriveType::NONE:
-				set_none(other.none_);
-				break;
-			case DriveType::CONSTANT:
+			पक्ष DriveType::NONE:
+				समुच्चयः_none(other.none_);
+				भङ्ग;
+			पक्ष DriveType::CONSTANT:
 				*this = std::move(other.constant_);
-				break;
-			case DriveType::WIRE:
+				भङ्ग;
+			पक्ष DriveType::WIRE:
 				*this = std::move(other.wire_);
-				break;
-			case DriveType::PORT:
-				*this = std::move(other.port_);
-				break;
-			case DriveType::MARKER:
+				भङ्ग;
+			पक्ष DriveType::पत्तनम्_2:
+				*this = std::move(other.पत्तनम्_3);
+				भङ्ग;
+			पक्ष DriveType::MARKER:
 				*this = std::move(other.marker_);
-				break;
-			case DriveType::MULTIPLE:
-				*this = std::move(other.multiple_);
-				break;
+				भङ्ग;
+			पक्ष DriveType::गुणजः:
+				*this = std::move(other.गुणजः_3);
+				भङ्ग;
 		}
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveChunk &operator=(Const const &constant)
+	DriveChunk &संक्रियकः=(Const ध्रुव &constant)
 	{
-		set_none();
+		समुच्चयः_none();
 		new (&constant_) Const(constant);
 		type_ = DriveType::CONSTANT;
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveChunk &operator=(Const &&constant)
+	DriveChunk &संक्रियकः=(Const &&constant)
 	{
-		set_none();
+		समुच्चयः_none();
 		new (&constant_) Const(std::move(constant));
 		type_ = DriveType::CONSTANT;
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveChunk &operator=(DriveChunkWire const &wire)
+	DriveChunk &संक्रियकः=(DriveChunkWire ध्रुव &wire)
 	{
-		set_none();
+		समुच्चयः_none();
 		new (&wire_) DriveChunkWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveChunk &operator=(DriveChunkWire &&wire)
+	DriveChunk &संक्रियकः=(DriveChunkWire &&wire)
 	{
-		set_none();
+		समुच्चयः_none();
 		new (&wire_) DriveChunkWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveChunk &operator=(DriveChunkPort const &port)
+	DriveChunk &संक्रियकः=(Drive_Chunk_पत्तनम् ध्रुव &पत्तनम्)
 	{
-		set_none();
-		new (&port_) DriveChunkPort(port);
-		type_ = DriveType::PORT;
-		return *this;
+		समुच्चयः_none();
+		new (&पत्तनम्_3) Drive_Chunk_पत्तनम्(पत्तनम्);
+		type_ = DriveType::पत्तनम्_2;
+		प्रत्यागम *this;
 	}
 
-	DriveChunk &operator=(DriveChunkPort &&port)
+	DriveChunk &संक्रियकः=(Drive_Chunk_पत्तनम् &&पत्तनम्)
 	{
-		set_none();
-		new (&port_) DriveChunkPort(port);
-		type_ = DriveType::PORT;
-		return *this;
+		समुच्चयः_none();
+		new (&पत्तनम्_3) Drive_Chunk_पत्तनम्(पत्तनम्);
+		type_ = DriveType::पत्तनम्_2;
+		प्रत्यागम *this;
 	}
 
-	DriveChunk &operator=(DriveChunkMarker const &marker)
+	DriveChunk &संक्रियकः=(DriveChunkMarker ध्रुव &marker)
 	{
-		set_none();
+		समुच्चयः_none();
 		new (&marker_) DriveChunkMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveChunk &operator=(DriveChunkMarker &&marker)
+	DriveChunk &संक्रियकः=(DriveChunkMarker &&marker)
 	{
-		set_none();
+		समुच्चयः_none();
 		new (&marker_) DriveChunkMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveChunk &operator=(DriveChunkMultiple const &multiple)
+	DriveChunk &संक्रियकः=(Drive_Chunk_गुणजः ध्रुव &गुणजः_2)
 	{
-		set_none(multiple.size());
-		if (multiple.multiple().empty())
-			return *this;
-		new (&multiple_) DriveChunkMultiple(multiple);
-		type_ = DriveType::MULTIPLE;
-		return *this;
+		समुच्चयः_none(गुणजः_2.आकार());
+		यदि (गुणजः_2.गुणजः_2().रिक्तानि())
+			प्रत्यागम *this;
+		new (&गुणजः_3) Drive_Chunk_गुणजः(गुणजः_2);
+		type_ = DriveType::गुणजः;
+		प्रत्यागम *this;
 	}
 
-	DriveChunk &operator=(DriveChunkMultiple &&multiple)
+	DriveChunk &संक्रियकः=(Drive_Chunk_गुणजः &&गुणजः_2)
 	{
-		set_none(multiple.size());
-		if (multiple.multiple().empty())
-			return *this;
-		new (&multiple_) DriveChunkMultiple(multiple);
-		type_ = DriveType::MULTIPLE;
-		return *this;
+		समुच्चयः_none(गुणजः_2.आकार());
+		यदि (गुणजः_2.गुणजः_2().रिक्तानि())
+			प्रत्यागम *this;
+		new (&गुणजः_3) Drive_Chunk_गुणजः(गुणजः_2);
+		type_ = DriveType::गुणजः;
+		प्रत्यागम *this;
 	}
 
-	DriveChunk &operator=(DriveBit const &other)
+	DriveChunk &संक्रियकः=(DriveBit ध्रुव &other)
 	{
-		switch (other.type())
+		विकल्प (other.type())
 		{
-			case DriveType::NONE:
-				set_none(1);
-				break;
-			case DriveType::CONSTANT:
+			पक्ष DriveType::NONE:
+				समुच्चयः_none(1);
+				भङ्ग;
+			पक्ष DriveType::CONSTANT:
 				*this = Const(other.constant());
-				break;
-			case DriveType::WIRE:
+				भङ्ग;
+			पक्ष DriveType::WIRE:
 				*this = DriveChunkWire(other.wire());
-				break;
-			case DriveType::PORT:
-				*this = DriveChunkPort(other.port());
-				break;
-			case DriveType::MARKER:
+				भङ्ग;
+			पक्ष DriveType::पत्तनम्_2:
+				*this = Drive_Chunk_पत्तनम्(other.पत्तनम्());
+				भङ्ग;
+			पक्ष DriveType::MARKER:
 				*this = DriveChunkMarker(other.marker());
-				break;
-			case DriveType::MULTIPLE:
-				*this = DriveChunkMultiple(other.multiple());
-				break;
+				भङ्ग;
+			पक्ष DriveType::गुणजः:
+				*this = Drive_Chunk_गुणजः(other.गुणजः_2());
+				भङ्ग;
 		}
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	bool can_append(DriveBit const &bit) const;
-	bool try_append(DriveBit const &bit);
-	bool try_append(DriveChunk const &chunk);
+	bool can_append(DriveBit ध्रुव &bit) ध्रुव;
+	bool try_append(DriveBit ध्रुव &bit);
+	bool try_append(DriveChunk ध्रुव &chunk);
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव;
 
-	bool operator==(const DriveChunk &other) const
+	bool संक्रियकः==(ध्रुव DriveChunk &other) ध्रुव
 	{
-		if (type_ != other.type_)
-			return false;
+		यदि (type_ != other.type_)
+			प्रत्यागम false;
 
-		switch (type_)
+		विकल्प (type_)
 		{
-			case DriveType::NONE:
-				return true;
-			case DriveType::CONSTANT:
-				return constant_ == other.constant_;
-			case DriveType::WIRE:
-				return wire_ == other.wire_;
-			case DriveType::PORT:
-				return port_ == other.port_;
-			case DriveType::MARKER:
-				return marker_ == other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ == other.multiple_;
-		}
-		log_abort();
-	}
-
-	bool operator!=(const DriveChunk &other) const
-	{
-		return !(*this == other);
-	}
-
-	bool operator<(const DriveChunk &other) const
-	{
-		if (type_ != other.type_)
-			return type_ < other.type_;
-		switch (type_)
-		{
-			case DriveType::NONE:
-				return false;
-			case DriveType::CONSTANT:
-				return constant_ < other.constant_;
-			case DriveType::WIRE:
-				return wire_ < other.wire_;
-			case DriveType::PORT:
-				return port_ < other.port_;
-			case DriveType::MARKER:
-				return marker_ < other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ < other.multiple_;
+			पक्ष DriveType::NONE:
+				प्रत्यागम true;
+			पक्ष DriveType::CONSTANT:
+				प्रत्यागम constant_ == other.constant_;
+			पक्ष DriveType::WIRE:
+				प्रत्यागम wire_ == other.wire_;
+			पक्ष DriveType::पत्तनम्_2:
+				प्रत्यागम पत्तनम्_3 == other.पत्तनम्_3;
+			पक्ष DriveType::MARKER:
+				प्रत्यागम marker_ == other.marker_;
+			पक्ष DriveType::गुणजः:
+				प्रत्यागम गुणजः_3 == other.गुणजः_3;
 		}
 		log_abort();
 	}
 
-	DriveType type() const { return type_; }
-
-	bool is_none() const { return type_ == DriveType::NONE; }
-	bool is_constant() const { return type_ == DriveType::CONSTANT; }
-	bool is_wire() const { return type_ == DriveType::WIRE; }
-	bool is_port() const { return type_ == DriveType::PORT; }
-	bool is_marker() const { return type_ == DriveType::MARKER; }
-	bool is_multiple() const { return type_ == DriveType::MULTIPLE; }
-
-	Const &constant() { log_assert(is_constant()); return constant_; }
-	Const const &constant() const { log_assert(is_constant()); return constant_; }
-	DriveChunkWire &wire() { log_assert(is_wire()); return wire_; }
-	DriveChunkWire const &wire() const { log_assert(is_wire()); return wire_; }
-	DriveChunkPort &port() { log_assert(is_port()); return port_; }
-	DriveChunkPort const &port() const { log_assert(is_port()); return port_; }
-	DriveChunkMarker &marker() { log_assert(is_marker()); return marker_; }
-	DriveChunkMarker const &marker() const { log_assert(is_marker()); return marker_; }
-	DriveChunkMultiple &multiple() { log_assert(is_multiple()); return multiple_; }
-	DriveChunkMultiple const &multiple() const { log_assert(is_multiple()); return multiple_; }
-
-
-	int size() const
+	bool संक्रियकः!=(ध्रुव DriveChunk &other) ध्रुव
 	{
-		switch (type_)
+		प्रत्यागम !(*this == other);
+	}
+
+	bool संक्रियकः<(ध्रुव DriveChunk &other) ध्रुव
+	{
+		यदि (type_ != other.type_)
+			प्रत्यागम type_ < other.type_;
+		विकल्प (type_)
 		{
-			case DriveType::NONE:
-				return none_;
-			case DriveType::CONSTANT:
-				return constant_.size();
-			case DriveType::WIRE:
-				return wire_.size();
-			case DriveType::PORT:
-				return port_.size();
-			case DriveType::MARKER:
-				return marker_.size();
-			case DriveType::MULTIPLE:
-				return multiple_.size();
+			पक्ष DriveType::NONE:
+				प्रत्यागम false;
+			पक्ष DriveType::CONSTANT:
+				प्रत्यागम constant_ < other.constant_;
+			पक्ष DriveType::WIRE:
+				प्रत्यागम wire_ < other.wire_;
+			पक्ष DriveType::पत्तनम्_2:
+				प्रत्यागम पत्तनम्_3 < other.पत्तनम्_3;
+			पक्ष DriveType::MARKER:
+				प्रत्यागम marker_ < other.marker_;
+			पक्ष DriveType::गुणजः:
+				प्रत्यागम गुणजः_3 < other.गुणजः_3;
+		}
+		log_abort();
+	}
+
+	DriveType type() ध्रुव { प्रत्यागम type_; }
+
+	bool is_none() ध्रुव { प्रत्यागम type_ == DriveType::NONE; }
+	bool is_constant() ध्रुव { प्रत्यागम type_ == DriveType::CONSTANT; }
+	bool is_wire() ध्रुव { प्रत्यागम type_ == DriveType::WIRE; }
+	bool is_पत्तनम्() ध्रुव { प्रत्यागम type_ == DriveType::पत्तनम्_2; }
+	bool is_marker() ध्रुव { प्रत्यागम type_ == DriveType::MARKER; }
+	bool is_गुणजः() ध्रुव { प्रत्यागम type_ == DriveType::गुणजः; }
+
+	Const &constant() { log_assert(is_constant()); प्रत्यागम constant_; }
+	Const ध्रुव &constant() ध्रुव { log_assert(is_constant()); प्रत्यागम constant_; }
+	DriveChunkWire &wire() { log_assert(is_wire()); प्रत्यागम wire_; }
+	DriveChunkWire ध्रुव &wire() ध्रुव { log_assert(is_wire()); प्रत्यागम wire_; }
+	Drive_Chunk_पत्तनम् &पत्तनम्() { log_assert(is_पत्तनम्()); प्रत्यागम पत्तनम्_3; }
+	Drive_Chunk_पत्तनम् ध्रुव &पत्तनम्() ध्रुव { log_assert(is_पत्तनम्()); प्रत्यागम पत्तनम्_3; }
+	DriveChunkMarker &marker() { log_assert(is_marker()); प्रत्यागम marker_; }
+	DriveChunkMarker ध्रुव &marker() ध्रुव { log_assert(is_marker()); प्रत्यागम marker_; }
+	Drive_Chunk_गुणजः &गुणजः_2() { log_assert(is_गुणजः()); प्रत्यागम गुणजः_3; }
+	Drive_Chunk_गुणजः ध्रुव &गुणजः_2() ध्रुव { log_assert(is_गुणजः()); प्रत्यागम गुणजः_3; }
+
+
+	पूर्णाङ्क आकार() ध्रुव
+	{
+		विकल्प (type_)
+		{
+			पक्ष DriveType::NONE:
+				प्रत्यागम none_;
+			पक्ष DriveType::CONSTANT:
+				प्रत्यागम constant_.आकार();
+			पक्ष DriveType::WIRE:
+				प्रत्यागम wire_.आकार();
+			पक्ष DriveType::पत्तनम्_2:
+				प्रत्यागम पत्तनम्_3.आकार();
+			पक्ष DriveType::MARKER:
+				प्रत्यागम marker_.आकार();
+			पक्ष DriveType::गुणजः:
+				प्रत्यागम गुणजः_3.आकार();
 		}
 		log_abort();
 	}
 };
 
-inline DriveChunkMultiple::DriveChunkMultiple(DriveBitMultiple const &bit)
-	: width_(1)
+अन्तःस्थ Drive_Chunk_गुणजः::Drive_Chunk_गुणजः(Drive_Bit_गुणजः ध्रुव &bit)
+	: विस्तारः_3(1)
 {
-	for (auto const &bit : bit.multiple())
-		multiple_.emplace(bit);
+	प्रति (स्वचालित ध्रुव &bit : bit.गुणजः_2())
+		गुणजः_3.emplace(bit);
 }
 
-struct DriveSpec
+संरचना DriveSpec
 {
-private:
-	int width_ = 0;
-	mutable std::vector<DriveChunk> chunks_;
-	mutable std::vector<DriveBit> bits_;
-	mutable unsigned int hash_ = 0;
-public:
+गुप्त:
+	पूर्णाङ्क विस्तारः_3 = 0;
+	mutable std::सदिशम्<DriveChunk> chunks_;
+	mutable std::सदिशम्<DriveBit> द्वयङ्काः_2;
+	mutable अचिह्नित पूर्णाङ्क hash_ = 0;
+सार्वजनिक:
 
-	inline bool packed() const {
-		return bits_.empty();
+	अन्तःस्थ bool packed() ध्रुव {
+		प्रत्यागम द्वयङ्काः_2.रिक्तानि();
 	}
 
 	DriveSpec() {}
 
-	DriveSpec(DriveChunk const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkWire const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkPort const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkMarker const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkMultiple const &chunk) { *this = chunk; }
+	DriveSpec(DriveChunk ध्रुव &chunk) { *this = chunk; }
+	DriveSpec(DriveChunkWire ध्रुव &chunk) { *this = chunk; }
+	DriveSpec(Drive_Chunk_पत्तनम् ध्रुव &chunk) { *this = chunk; }
+	DriveSpec(DriveChunkMarker ध्रुव &chunk) { *this = chunk; }
+	DriveSpec(Drive_Chunk_गुणजः ध्रुव &chunk) { *this = chunk; }
 
-	DriveSpec(DriveBit const &bit) { *this = bit; }
-	DriveSpec(DriveBitWire const &bit) { *this = bit; }
-	DriveSpec(DriveBitPort const &bit) { *this = bit; }
-	DriveSpec(DriveBitMarker const &bit) { *this = bit; }
-	DriveSpec(DriveBitMultiple const &bit) { *this = bit; }
+	DriveSpec(DriveBit ध्रुव &bit) { *this = bit; }
+	DriveSpec(DriveBitWire ध्रुव &bit) { *this = bit; }
+	DriveSpec(Drive_Bit_पत्तनम् ध्रुव &bit) { *this = bit; }
+	DriveSpec(DriveBitMarker ध्रुव &bit) { *this = bit; }
+	DriveSpec(Drive_Bit_गुणजः ध्रुव &bit) { *this = bit; }
 
-	DriveSpec(std::vector<DriveChunk> const &chunks) : chunks_(chunks) { compute_width(); }
+	DriveSpec(std::सदिशम्<DriveChunk> ध्रुव &chunks) : chunks_(chunks) { compute_विस्तारः(); }
 
-	DriveSpec(std::vector<DriveBit> const &bits)
+	DriveSpec(std::सदिशम्<DriveBit> ध्रुव &द्वयङ्काः)
 	{
-		for (auto const &bit : bits)
+		प्रति (स्वचालित ध्रुव &bit : द्वयङ्काः)
 			append(bit);
 	}
 
-	DriveSpec(SigSpec const &sig)
+	DriveSpec(SigSpec ध्रुव &sig)
 	{
 		// TODO: converting one chunk at a time would be faster
-		for (auto const &bit : sig.bits())
+		प्रति (स्वचालित ध्रुव &bit : sig.द्वयङ्काः())
 			append(bit);
 	}
 
-	std::vector<DriveChunk> const &chunks() const { pack(); return chunks_; }
-	std::vector<DriveBit> const &bits() const { unpack(); return bits_; }
+	std::सदिशम्<DriveChunk> ध्रुव &chunks() ध्रुव { pack(); प्रत्यागम chunks_; }
+	std::सदिशम्<DriveBit> ध्रुव &द्वयङ्काः() ध्रुव { unpack(); प्रत्यागम द्वयङ्काः_2; }
 
-	int size() const { return width_; }
+	पूर्णाङ्क आकार() ध्रुव { प्रत्यागम विस्तारः_3; }
 
-	void append(DriveBit const &bit);
+	शून्य append(DriveBit ध्रुव &bit);
 
-	void append(DriveChunk const &chunk);
+	शून्य append(DriveChunk ध्रुव &chunk);
 
-	void pack() const;
+	शून्य pack() ध्रुव;
 
-	void unpack() const;
+	शून्य unpack() ध्रुव;
 
-	DriveBit &operator[](int index)
+	DriveBit &संक्रियकः[](पूर्णाङ्क सूचकांक)
 	{
-		log_assert(index >= 0 && index < size());
+		log_assert(सूचकांक >= 0 && सूचकांक < आकार());
 		unpack();
-		return bits_[index];
+		प्रत्यागम द्वयङ्काः_2[सूचकांक];
 	}
 
-	const DriveBit &operator[](int index) const
+	ध्रुव DriveBit &संक्रियकः[](पूर्णाङ्क सूचकांक) ध्रुव
 	{
-		log_assert(index >= 0 && index < size());
+		log_assert(सूचकांक >= 0 && सूचकांक < आकार());
 		unpack();
-		return bits_[index];
+		प्रत्यागम द्वयङ्काः_2[सूचकांक];
 	}
 
-	void clear()
+	शून्य clear()
 	{
 		chunks_.clear();
-		bits_.clear();
-		width_ = 0;
+		द्वयङ्काः_2.clear();
+		विस्तारः_3 = 0;
 	}
 
-	DriveSpec &operator=(DriveChunk const &chunk)
+	DriveSpec &संक्रियकः=(DriveChunk ध्रुव &chunk)
 	{
 		chunks_.clear();
-		bits_.clear();
+		द्वयङ्काः_2.clear();
 		append(chunk);
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveSpec &operator=(DriveChunkWire const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkPort const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkMarker const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkMultiple const &chunk) { return *this = DriveChunk(chunk); }
+	DriveSpec &संक्रियकः=(DriveChunkWire ध्रुव &chunk) { प्रत्यागम *this = DriveChunk(chunk); }
+	DriveSpec &संक्रियकः=(Drive_Chunk_पत्तनम् ध्रुव &chunk) { प्रत्यागम *this = DriveChunk(chunk); }
+	DriveSpec &संक्रियकः=(DriveChunkMarker ध्रुव &chunk) { प्रत्यागम *this = DriveChunk(chunk); }
+	DriveSpec &संक्रियकः=(Drive_Chunk_गुणजः ध्रुव &chunk) { प्रत्यागम *this = DriveChunk(chunk); }
 
-	DriveSpec &operator=(DriveBit const &bit)
+	DriveSpec &संक्रियकः=(DriveBit ध्रुव &bit)
 	{
 		chunks_.clear();
-		bits_.clear();
+		द्वयङ्काः_2.clear();
 		append(bit);
-		return *this;
+		प्रत्यागम *this;
 	}
 
-	DriveSpec &operator=(DriveBitWire const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitPort const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitMarker const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitMultiple const &bit) { return *this = DriveBit(bit); }
+	DriveSpec &संक्रियकः=(DriveBitWire ध्रुव &bit) { प्रत्यागम *this = DriveBit(bit); }
+	DriveSpec &संक्रियकः=(Drive_Bit_पत्तनम् ध्रुव &bit) { प्रत्यागम *this = DriveBit(bit); }
+	DriveSpec &संक्रियकः=(DriveBitMarker ध्रुव &bit) { प्रत्यागम *this = DriveBit(bit); }
+	DriveSpec &संक्रियकः=(Drive_Bit_गुणजः ध्रुव &bit) { प्रत्यागम *this = DriveBit(bit); }
 
-	void updhash() const {
-		if (hash_ != 0)
-			return;
+	शून्य updhash() ध्रुव {
+		यदि (hash_ != 0)
+			प्रत्यागम;
 		pack();
-		hash_ = run_hash(chunks_);
+		hash_ = सततम्_hash(chunks_);
 		hash_ |= (hash_ == 0);
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव;
 
-	bool operator==(DriveSpec const &other) const {
+	bool संक्रियकः==(DriveSpec ध्रुव &other) ध्रुव {
 		updhash();
 		other.updhash();
-		if (size() != other.size() || hash_ != other.hash_)
-			return false;
-		return chunks() == other.chunks();
+		यदि (आकार() != other.आकार() || hash_ != other.hash_)
+			प्रत्यागम false;
+		प्रत्यागम chunks() == other.chunks();
 	}
 
-private:
-	void compute_width();
+गुप्त:
+	शून्य compute_विस्तारः();
 };
 
 
 
-struct DriverMap
+संरचना DriverMap
 {
 	NewCellTypes celltypes;
 
-	DriverMap() { celltypes.setup(); }
-	DriverMap(Design *design) { celltypes.setup(design); }
+	DriverMap() { celltypes.सज्जता(); }
+	DriverMap(Design *design) { celltypes.सज्जता(design); }
 
-private:
+गुप्त:
 
 	// Internally we represent all DriveBits by mapping them to DriveBitIds
 	// which use less memory and are cheaper to compare.
-	struct DriveBitId
+	संरचना DriveBitId
 	{
-		int id = -1;
+		पूर्णाङ्क id = -1;
 
 		DriveBitId() {};
 
-		DriveBitId(int id) : id(id) { }
+		DriveBitId(पूर्णाङ्क id) : id(id) { }
 
-		bool operator==(const DriveBitId &other) const { return id == other.id; }
-		bool operator!=(const DriveBitId &other) const { return id != other.id; }
-		bool operator<(const DriveBitId &other) const { return id < other.id; }
-		[[nodiscard]] Hasher hash_into(Hasher h) const;
+		bool संक्रियकः==(ध्रुव DriveBitId &other) ध्रुव { प्रत्यागम id == other.id; }
+		bool संक्रियकः!=(ध्रुव DriveBitId &other) ध्रुव { प्रत्यागम id != other.id; }
+		bool संक्रियकः<(ध्रुव DriveBitId &other) ध्रुव { प्रत्यागम id < other.id; }
+		[[nodiscard]] Hasher hash_into(Hasher h) ध्रुव;
 	};
 	// Essentially a dict<DriveBitId, pool<DriveBitId>> but using less memory
 	// and fewer allocations
-	struct DriveBitGraph {
-		dict<DriveBitId, DriveBitId> first_edges;
-		dict<DriveBitId, DriveBitId> second_edges;
-		dict<DriveBitId, pool<DriveBitId>> more_edges;
+	संरचना DriveBitGraph {
+		dict<DriveBitId, DriveBitId> first_धाराः;
+		dict<DriveBitId, DriveBitId> second_धाराः;
+		dict<DriveBitId, pool<DriveBitId>> अधिकम्_धाराः;
 
-		void add_edge(DriveBitId src, DriveBitId dst);
-		DriveBitId pop_edge(DriveBitId src);
-		void clear(DriveBitId src);
-		bool contains(DriveBitId src);
-		int count(DriveBitId src);
+		शून्य सङ्कलय_edge(DriveBitId src, DriveBitId dst);
+		DriveBitId निष्कासय_edge(DriveBitId src);
+		शून्य clear(DriveBitId src);
+		bool अन्तर्भवति(DriveBitId src);
+		पूर्णाङ्क गणनम्(DriveBitId src);
 
-		DriveBitId at(DriveBitId src, int index);
+		DriveBitId at(DriveBitId src, पूर्णाङ्क सूचकांक);
 	};
 
 	// The following two maps maintain a sparse DriveBit to DriveBitId mapping.
@@ -1141,22 +1141,22 @@ private:
 
 	// Maps cell ports to a the first DriveBitId of the consecutive range used
 	// for that cell port.
-	dict<pair<Cell *, IdString>, DriveBitId> port_offsets;
+	dict<pair<Cell *, IdString>, DriveBitId> पत्तनम्_offsets;
 
 	// For the inverse map that maps DriveBitIds back to DriveBits we use a
 	// sorted map containing only the first DriveBit for each wire and cell
 	// port.
-	std::map<DriveBitId, DriveBit> drive_bits;
+	std::map<DriveBitId, DriveBit> drive_द्वयङ्काः;
 
 	// As a memory optimization for gate level net lists we store single-bit
 	// wires and cell ports in a `dict` which requires less memory and fewer
 	// allocations than `std::map` but doesn't support the kind of lookups we
 	// need for a sparse coarse grained mapping.
-	dict<DriveBitId, DriveBit> isolated_drive_bits;
+	dict<DriveBitId, DriveBit> isolated_drive_द्वयङ्काः;
 
 	// Used for allocating DriveBitIds, none and constant states use a fixewd
 	// mapping to the first few ids, which we need to skip.
-	int next_offset = 1 + (int)State::Sm;
+	पूर्णाङ्क अग्र_विस्थापनम् = 1 + (पूर्णाङ्क)State::Sm;
 
 	// Union-Find over directly connected bits that share the same single
 	// driver or are undriven. We never merge connections between drivers
@@ -1185,7 +1185,7 @@ private:
 	pool<DriveBitId> oriented_present;
 
 
-	enum class BitMode {
+	गणना class Bit_बहुलकम् {
 		NONE = 0, // Not driven, no need to keep wire
 		DRIVEN = 1, // Not driven, uses a value driven elsewhere
 		DRIVEN_UNIQUE = 2, // Uses a value driven elsewhere, has at most one direct connection
@@ -1194,196 +1194,196 @@ private:
 		DRIVER = 5, // Drives a value
 	};
 
-	BitMode bit_mode(DriveBit const &bit);
-	DriveBitId id_from_drive_bit(DriveBit const &bit);
+	Bit_बहुलकम् bit_बहुलकम्(DriveBit ध्रुव &bit);
+	DriveBitId id_from_drive_bit(DriveBit ध्रुव &bit);
 	DriveBit drive_bit_from_id(DriveBitId id);
 
-	void connect_directed_merge(DriveBitId driven_id, DriveBitId driver_id);
-	void connect_directed_buffer(DriveBitId driven_id, DriveBitId driver_id);
-	void connect_undirected(DriveBitId a_id, DriveBitId b_id);
+	शून्य connect_directed_merge(DriveBitId driven_id, DriveBitId driver_id);
+	शून्य connect_directed_बफर(DriveBitId driven_id, DriveBitId driver_id);
+	शून्य connect_undirected(DriveBitId a_id, DriveBitId b_id);
 
-public:
+सार्वजनिक:
 
-	void add(Module *module);
+	शून्य सङ्कलय(Module *module);
 
 	// Add a single bit connection to the driver map.
-	void add(DriveBit const &a, DriveBit const &b);
+	शून्य सङ्कलय(DriveBit ध्रुव &a, DriveBit ध्रुव &b);
 
-	template<typename T>
-	static constexpr bool is_sig_type() {
-		return
-			std::is_same<T, SigSpec>::value ||
-			std::is_same<T, SigChunk>::value ||
-			std::is_same<T, DriveSpec>::value ||
-			std::is_same<T, DriveChunk>::value ||
-			std::is_same<T, DriveChunkPort>::value ||
-			std::is_same<T, DriveChunkWire>::value ||
-			std::is_same<T, Const>::value;
+	प्रतिरूपम्<typename T>
+	स्थिर constexpr bool is_sig_type() {
+		प्रत्यागम
+			std::is_same<T, SigSpec>::मानम् ||
+			std::is_same<T, SigChunk>::मानम् ||
+			std::is_same<T, DriveSpec>::मानम् ||
+			std::is_same<T, DriveChunk>::मानम् ||
+			std::is_same<T, Drive_Chunk_पत्तनम्>::मानम् ||
+			std::is_same<T, DriveChunkWire>::मानम् ||
+			std::is_same<T, Const>::मानम्;
 	}
 
 	// We use the enable_if to produce better compiler errors when unsupported
 	// types are used
-	template<typename T, typename U>
+	प्रतिरूपम्<typename T, typename U>
 	typename std::enable_if<is_sig_type<T>() && is_sig_type<U>()>::type
-	add(T const &a, U const &b)
+	सङ्कलय(T ध्रुव &a, U ध्रुव &b)
 	{
-		log_assert(a.size() == b.size());
-		for (int i = 0; i != GetSize(a); ++i)
-			add(DriveBit(a[i]), DriveBit(b[i]));
+		log_assert(a.आकार() == b.आकार());
+		प्रति (पूर्णाङ्क i = 0; i != Get_आकार(a); ++i)
+			सङ्कलय(DriveBit(a[i]), DriveBit(b[i]));
 	}
 
 
 	// Specialized version that avoids unpacking
-	void add(SigSpec const &a, SigSpec const &b);
+	शून्य सङ्कलय(SigSpec ध्रुव &a, SigSpec ध्रुव &b);
 
-private:
-	void add_port(Cell *cell, IdString port, SigSpec const &b);
+गुप्त:
+	शून्य सङ्कलय_पत्तनम्(Cell *cell, IdString पत्तनम्, SigSpec ध्रुव &b);
 
 	// Only used a local variables in `orient_undirected`, always cleared, only
 	// stored to reduce allocations.
-	pool<DriveBitId> orient_undirected_seen;
+	pool<DriveBitId> orient_undirected_आलोकितम्;
 	pool<DriveBitId> orient_undirected_drivers;
-	dict<DriveBitId, int> orient_undirected_distance;
+	dict<DriveBitId, पूर्णाङ्क> orient_undirected_distance;
 
-	void orient_undirected(DriveBitId id);
+	शून्य orient_undirected(DriveBitId id);
 
-public:
-	DriveBit operator()(DriveBit const &bit);
+सार्वजनिक:
+	DriveBit संक्रियकः()(DriveBit ध्रुव &bit);
 
-	DriveSpec operator()(DriveSpec spec);
+	DriveSpec संक्रियकः()(DriveSpec spec);
 
-private:
+गुप्त:
 	bool keep_wire(Wire *wire) {
 		// TODO configurable
-		return wire->has_attribute(ID(keep));
+		प्रत्यागम wire->has_attribute(ID(keep));
 	}
 };
 
-inline Hasher DriveBitWire::hash_into(Hasher h) const
+अन्तःस्थ Hasher DriveBitWire::hash_into(Hasher h) ध्रुव
 {
 	h.eat(wire->name);
-	h.eat(offset);
-	return h;
+	h.eat(विस्थापनम्);
+	प्रत्यागम h;
 }
 
-inline Hasher DriveBitPort::hash_into(Hasher h) const
+अन्तःस्थ Hasher Drive_Bit_पत्तनम्::hash_into(Hasher h) ध्रुव
 {
 	h.eat(cell->name);
-	h.eat(port);
-	h.eat(offset);
-	return h;
+	h.eat(पत्तनम्);
+	h.eat(विस्थापनम्);
+	प्रत्यागम h;
 }
 
-inline Hasher DriveBitMarker::hash_into(Hasher h) const
+अन्तःस्थ Hasher DriveBitMarker::hash_into(Hasher h) ध्रुव
 {
 	h.eat(marker);
-	h.eat(offset);
-	return h;
+	h.eat(विस्थापनम्);
+	प्रत्यागम h;
 }
 
-inline Hasher DriveBitMultiple::hash_into(Hasher h) const
+अन्तःस्थ Hasher Drive_Bit_गुणजः::hash_into(Hasher h) ध्रुव
 {
-	h.eat(multiple_);
-	return h;
+	h.eat(गुणजः_3);
+	प्रत्यागम h;
 }
 
-inline Hasher DriveBit::hash_into(Hasher h) const
+अन्तःस्थ Hasher DriveBit::hash_into(Hasher h) ध्रुव
 {
-	switch (type_) {
-	case DriveType::NONE:
+	विकल्प (type_) {
+	पक्ष DriveType::NONE:
 		h.eat(0);
-		break;
-	case DriveType::CONSTANT:
+		भङ्ग;
+	पक्ष DriveType::CONSTANT:
 		h.eat(constant_);
-		break;
-	case DriveType::WIRE:
+		भङ्ग;
+	पक्ष DriveType::WIRE:
 		h.eat(wire_);
-		break;
-	case DriveType::PORT:
-		h.eat(port_);
-		break;
-	case DriveType::MARKER:
+		भङ्ग;
+	पक्ष DriveType::पत्तनम्_2:
+		h.eat(पत्तनम्_3);
+		भङ्ग;
+	पक्ष DriveType::MARKER:
 		h.eat(marker_);
-		break;
-	case DriveType::MULTIPLE:
-		h.eat(multiple_);
-		break;
+		भङ्ग;
+	पक्ष DriveType::गुणजः:
+		h.eat(गुणजः_3);
+		भङ्ग;
 	}
 	h.eat(type_);
-	return h;
+	प्रत्यागम h;
 }
 
-inline Hasher DriveChunkWire::hash_into(Hasher h) const
+अन्तःस्थ Hasher DriveChunkWire::hash_into(Hasher h) ध्रुव
 {
 	h.eat(wire->name);
-	h.eat(width);
-	h.eat(offset);
-	return h;
+	h.eat(विस्तारः);
+	h.eat(विस्थापनम्);
+	प्रत्यागम h;
 }
 
-inline Hasher DriveChunkPort::hash_into(Hasher h) const
+अन्तःस्थ Hasher Drive_Chunk_पत्तनम्::hash_into(Hasher h) ध्रुव
 {
 	h.eat(cell->name);
-	h.eat(port);
-	h.eat(width);
-	h.eat(offset);
-	return h;
+	h.eat(पत्तनम्);
+	h.eat(विस्तारः);
+	h.eat(विस्थापनम्);
+	प्रत्यागम h;
 }
 
-inline Hasher DriveChunkMarker::hash_into(Hasher h) const
+अन्तःस्थ Hasher DriveChunkMarker::hash_into(Hasher h) ध्रुव
 {
 	h.eat(marker);
-	h.eat(width);
-	h.eat(offset);
-	return h;
+	h.eat(विस्तारः);
+	h.eat(विस्थापनम्);
+	प्रत्यागम h;
 }
 
-inline Hasher DriveChunkMultiple::hash_into(Hasher h) const
+अन्तःस्थ Hasher Drive_Chunk_गुणजः::hash_into(Hasher h) ध्रुव
 {
-	h.eat(width_);
-	h.eat(multiple_);
-	return h;
+	h.eat(विस्तारः_3);
+	h.eat(गुणजः_3);
+	प्रत्यागम h;
 }
 
-inline Hasher DriveChunk::hash_into(Hasher h) const
+अन्तःस्थ Hasher DriveChunk::hash_into(Hasher h) ध्रुव
 {
-	switch (type_) {
-	case DriveType::NONE:
+	विकल्प (type_) {
+	पक्ष DriveType::NONE:
 		h.eat(0);
-		break;
-	case DriveType::CONSTANT:
+		भङ्ग;
+	पक्ष DriveType::CONSTANT:
 		h.eat(constant_);
-		break;
-	case DriveType::WIRE:
+		भङ्ग;
+	पक्ष DriveType::WIRE:
 		h.eat(wire_);
-		break;
-	case DriveType::PORT:
-		h.eat(port_);
-		break;
-	case DriveType::MARKER:
+		भङ्ग;
+	पक्ष DriveType::पत्तनम्_2:
+		h.eat(पत्तनम्_3);
+		भङ्ग;
+	पक्ष DriveType::MARKER:
 		h.eat(marker_);
-		break;
-	case DriveType::MULTIPLE:
-		h.eat(multiple_);
-		break;
+		भङ्ग;
+	पक्ष DriveType::गुणजः:
+		h.eat(गुणजः_3);
+		भङ्ग;
 	}
 	h.eat(type_);
-	return h;
+	प्रत्यागम h;
 }
 
-inline Hasher DriveSpec::hash_into(Hasher h) const
+अन्तःस्थ Hasher DriveSpec::hash_into(Hasher h) ध्रुव
 {
 	updhash();
 	h.eat(hash_);
-	return h;
+	प्रत्यागम h;
 }
 
-inline Hasher DriverMap::DriveBitId::hash_into(Hasher h) const
+अन्तःस्थ Hasher DriverMap::DriveBitId::hash_into(Hasher h) ध्रुव
 {
 	h.eat(id);
-	return h;
+	प्रत्यागम h;
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_अन्तः
 
-#endif
+#यदि_अन्तः

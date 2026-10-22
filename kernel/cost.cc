@@ -1,215 +1,215 @@
-#include "kernel/cost.h"
-#include "kernel/macc.h"
+#अन्तर्भाव "kernel/cost.h"
+#अन्तर्भाव "kernel/macc.h"
 
 USING_YOSYS_NAMESPACE
 
-unsigned int CellCosts::get(RTLIL::Module *mod)
+अचिह्नित पूर्णाङ्क CellCosts::get(RTLIL::Module *mod)
 {
-	if (mod_cost_cache_.count(mod->name))
-		return mod_cost_cache_.at(mod->name);
+	यदि (mod_cost_cache_.गणनम्(mod->name))
+		प्रत्यागम mod_cost_cache_.at(mod->name);
 
-	unsigned int module_cost = 1;
-	for (auto c : mod->cells()) {
-		unsigned int new_cost = module_cost + get(c);
-		module_cost = new_cost >= module_cost ? new_cost : INT_MAX;
+	अचिह्नित पूर्णाङ्क module_cost = 1;
+	प्रति (स्वचालित c : mod->cells()) {
+		अचिह्नित पूर्णाङ्क new_cost = module_cost + get(c);
+		module_cost = new_cost >= module_cost ? new_cost : अधिकतम_पूर्णाङ्कः;
 	}
 
 	mod_cost_cache_[mod->name] = module_cost;
-	return module_cost;
+	प्रत्यागम module_cost;
 }
 
-static unsigned int y_coef(RTLIL::IdString type)
+स्थिर अचिह्नित पूर्णाङ्क y_coef(RTLIL::IdString type)
 {
-	if (
+	यदि (
 	  // equality
-	  type.in(ID($bweqx), ID($nex), ID($eqx)) ||
+	  type.अन्तर्(ID($bweqx), ID($nex), ID($eqx)) ||
 	  // basic logic
-	  type.in(ID($and), ID($or), ID($xor), ID($xnor), ID($not)) ||
+	  type.अन्तर्(ID($and), ID($or), ID($xor), ID($xnor), ID($not)) ||
 	  // mux
-	  type.in(ID($bwmux), ID($mux)) ||
+	  type.अन्तर्(ID($bwmux), ID($mux)) ||
 	  // others
 	  type == ID($tribuf)) {
-		return 1;
-	} else if (type == ID($neg)) {
-		return 4;
-	} else if (type == ID($demux)) {
-		return 2;
-	} else if (type == ID($fa)) {
-		return 5;
-	} else if (type.in(ID($add), ID($sub), ID($alu))) {
+		प्रत्यागम 1;
+	} अन्यथा यदि (type == ID($neg)) {
+		प्रत्यागम 4;
+	} अन्यथा यदि (type == ID($demux)) {
+		प्रत्यागम 2;
+	} अन्यथा यदि (type == ID($fa)) {
+		प्रत्यागम 5;
+	} अन्यथा यदि (type.अन्तर्(ID($सङ्कलय), ID($sub), ID($alu))) {
 		// multi-bit adders
-		return 8;
-	} else if (type.in(ID($shl), ID($sshl))) {
+		प्रत्यागम 8;
+	} अन्यथा यदि (type.अन्तर्(ID($shl), ID($sshl))) {
 		// left shift
-		return 10;
+		प्रत्यागम 10;
 	}
-	return 0;
+	प्रत्यागम 0;
 }
 
-static unsigned int max_inp_coef(RTLIL::IdString type)
+स्थिर अचिह्नित पूर्णाङ्क max_inp_coef(RTLIL::IdString type)
 {
-	if (
+	यदि (
 	  // binop reduce
-	  type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)) ||
+	  type.अन्तर्(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)) ||
 	  // others
-	  type.in(ID($logic_not), ID($pmux), ID($bmux))) {
-		return 1;
-	} else if (
+	  type.अन्तर्(ID($logic_not), ID($pmux), ID($bmux))) {
+		प्रत्यागम 1;
+	} अन्यथा यदि (
 	  // equality
-	  type.in(ID($eq), ID($ne)) ||
+	  type.अन्तर्(ID($eq), ID($ne)) ||
 	  // logic
-	  type.in(ID($logic_and), ID($logic_or))) {
-		return 2;
-	} else if (type == ID($lcu)) {
-		return 5;
-	} else if (type.in(ID($lt), ID($le), ID($ge), ID($gt))) {
+	  type.अन्तर्(ID($logic_and), ID($logic_or))) {
+		प्रत्यागम 2;
+	} अन्यथा यदि (type == ID($lcu)) {
+		प्रत्यागम 5;
+	} अन्यथा यदि (type.अन्तर्(ID($lt), ID($le), ID($ge), ID($gt))) {
 		// comparison
-		return 7;
+		प्रत्यागम 7;
 	}
-	return 0;
+	प्रत्यागम 0;
 }
 
-static unsigned int sum_coef(RTLIL::IdString type)
+स्थिर अचिह्नित पूर्णाङ्क योग_coef(RTLIL::IdString type)
 {
-	if (type.in(ID($shr), ID($sshr))) {
+	यदि (type.अन्तर्(ID($shr), ID($sshr))) {
 		// right shift
-		return 4;
-	} else if (type.in(ID($shift), ID($shiftx))) {
-		// shift
-		return 8;
+		प्रत्यागम 4;
+	} अन्यथा यदि (type.अन्तर्(ID($सरणम्), ID($shiftx))) {
+		//सरणम्
+		प्रत्यागम 8;
 	}
-	return 0;
+	प्रत्यागम 0;
 }
 
-static unsigned int is_div_mod(RTLIL::IdString type)
+स्थिर अचिह्नित पूर्णाङ्क is_div_mod(RTLIL::IdString type)
 {
-	return (type == ID($div) || type == ID($divfloor) || type == ID($mod) || type == ID($modfloor));
+	प्रत्यागम (type == ID($भाजय) || type == ID($divfloor) || type == ID($mod) || type == ID($modfloor));
 }
 
-static bool is_free(RTLIL::IdString type)
+स्थिर तार्किक is_free(RTLIL::IdString type)
 {
-	return (
-	  // tags
-	  type.in(ID($overwrite_tag), ID($set_tag), ID($original_tag), ID($get_tag)) ||
+	प्रत्यागम (
+	  //चिह्नकानि
+	  type.अन्तर्(ID($overwrite_चिह्नकम्), ID($समुच्चयः_चिह्नकम्), ID($original_चिह्नकम्), ID($get_चिह्नकम्)) ||
 	  // formal
-	  type.in(ID($check), ID($equiv), ID($initstate), ID($assert), ID($assume), ID($live), ID($cover), ID($fair)) ||
-	  type.in(ID($allseq), ID($allconst), ID($anyseq), ID($anyconst), ID($anyinit)) ||
+	  type.अन्तर्(ID($check), ID($equiv), ID($initstate), ID($प्रतिज्ञा), ID($assume), ID($जीवितम्), ID($cover), ID($fair)) ||
+	  type.अन्तर्(ID($allseq), ID($allconst), ID($anyseq), ID($anyconst), ID($anyinit)) ||
 	  // utilities
-	  type.in(ID($scopeinfo), ID($print)) ||
+	  type.अन्तर्(ID($scopeinfo), ID($print)) ||
 	  // real but free
-	  type.in(ID($concat), ID($slice), ID($pos)) ||
+	  type.अन्तर्(ID($concat), ID($खण्डिका), ID($pos)) ||
 	  // specify
-	  type.in(ID($specrule), ID($specify2), ID($specify3)));
+	  type.अन्तर्(ID($specrule), ID($specify2), ID($specify3)));
 }
 
-unsigned int max_inp_width(RTLIL::Cell *cell)
+अचिह्नित पूर्णाङ्क max_inp_विस्तारः(RTLIL::Cell *cell)
 {
-	unsigned int max = 0;
-	RTLIL::IdString input_width_params[] = {
-	  ID::WIDTH,
-	  ID::A_WIDTH,
-	  ID::B_WIDTH,
-	  ID::S_WIDTH,
+	अचिह्नित पूर्णाङ्क max = 0;
+	RTLIL::IdString निवेशः_विस्तारः_params[] = {
+	  ID::विस्तारः_2,
+	  ID::A_विस्तारः,
+	  ID::B_विस्तारः,
+	  ID::S_विस्तारः,
 	};
 
-	if (cell->type == ID($bmux))
-		return cell->getParam(ID::WIDTH).as_int() << cell->getParam(ID::S_WIDTH).as_int();
+	यदि (cell->type == ID($bmux))
+		प्रत्यागम cell->getParam(ID::विस्तारः_2).as_int() << cell->getParam(ID::S_विस्तारः).as_int();
 
-	for (RTLIL::IdString param : input_width_params)
-		if (cell->hasParam(param))
-			max = std::max(max, (unsigned int)cell->getParam(param).as_int());
-	return max;
+	प्रति (RTLIL::IdString param : निवेशः_विस्तारः_params)
+		यदि (cell->hasParam(param))
+			max = std::max(max, (अचिह्नित पूर्णाङ्क)cell->getParam(param).as_int());
+	प्रत्यागम max;
 }
 
-unsigned int port_width_sum(RTLIL::Cell *cell)
+अचिह्नित पूर्णाङ्क पत्तनम्_विस्तारः_योग(RTLIL::Cell *cell)
 {
-	unsigned int sum = 0;
-	RTLIL::IdString port_width_params[] = {
-	  ID::WIDTH, ID::A_WIDTH, ID::B_WIDTH, ID::S_WIDTH, ID::Y_WIDTH,
+	अचिह्नित पूर्णाङ्क योग = 0;
+	RTLIL::IdString पत्तनम्_विस्तारः_params[] = {
+	  ID::विस्तारः_2, ID::A_विस्तारः, ID::B_विस्तारः, ID::S_विस्तारः, ID::Y_विस्तारः,
 	};
 
-	for (auto param : port_width_params)
-		if (cell->hasParam(param))
-			sum += cell->getParam(param).as_int();
+	प्रति (स्वचालित param : पत्तनम्_विस्तारः_params)
+		यदि (cell->hasParam(param))
+			योग += cell->getParam(param).as_int();
 
-	return sum;
+	प्रत्यागम योग;
 }
 
-unsigned int CellCosts::get(RTLIL::Cell *cell)
+अचिह्नित पूर्णाङ्क CellCosts::get(RTLIL::Cell *cell)
 {
 
 	// simple 1-bit cells
-	if (cmos_gate_cost().count(cell->type))
-		return 1;
+	यदि (cmos_gate_cost().गणनम्(cell->type))
+		प्रत्यागम 1;
 
-	if (design_ && design_->module(cell->type) && cell->parameters.empty()) {
+	यदि (design_ && design_->module(cell->type) && cell->parameters.रिक्तानि()) {
 		log_debug("%s is a module, recurse\n", cell->name);
-		return get(design_->module(cell->type));
-	} else if (cell->is_builtin_ff()) {
-		log_assert(cell->hasPort(ID::Q) && "Weird flip flop");
+		प्रत्यागम get(design_->module(cell->type));
+	} अन्यथा यदि (cell->is_builtin_ff()) {
+		log_assert(cell->has_पत्तनम्(ID::Q) && "Weird flip flop");
 		log_debug("%s is ff\n", cell->name);
-		return cell->getParam(ID::WIDTH).as_int();
-	} else if (cell->type.in(ID($mem), ID($mem_v2))) {
+		प्रत्यागम cell->getParam(ID::विस्तारः_2).as_int();
+	} अन्यथा यदि (cell->type.अन्तर्(ID($mem), ID($mem_v2))) {
 		log_debug("%s is mem\n", cell->name);
-		return cell->getParam(ID::WIDTH).as_int() * cell->getParam(ID::SIZE).as_int();
-	} else if (y_coef(cell->type)) {
+		प्रत्यागम cell->getParam(ID::विस्तारः_2).as_int() * cell->getParam(ID::आकार_2).as_int();
+	} अन्यथा यदि (y_coef(cell->type)) {
 		// linear with Y_WIDTH or WIDTH
-		log_assert((cell->hasParam(ID::Y_WIDTH) || cell->hasParam(ID::WIDTH)) && "Unknown width");
-		auto param = cell->hasParam(ID::Y_WIDTH) ? ID::Y_WIDTH : ID::WIDTH;
-		int width = cell->getParam(param).as_int();
-		if (cell->type == ID($demux))
-			width <<= cell->getParam(ID::S_WIDTH).as_int();
-		log_debug("%s Y*coef %d * %d\n", cell->name, width, y_coef(cell->type));
-		return width * y_coef(cell->type);
-	} else if (sum_coef(cell->type)) {
+		log_assert((cell->hasParam(ID::Y_विस्तारः) || cell->hasParam(ID::विस्तारः_2)) && "Unknown width");
+		स्वचालित param = cell->hasParam(ID::Y_विस्तारः) ? ID::Y_विस्तारः : ID::विस्तारः_2;
+		पूर्णाङ्क विस्तारः = cell->getParam(param).as_int();
+		यदि (cell->type == ID($demux))
+			विस्तारः <<= cell->getParam(ID::S_विस्तारः).as_int();
+		log_debug("%s Y*coef %d * %d\n", cell->name, विस्तारः, y_coef(cell->type));
+		प्रत्यागम विस्तारः * y_coef(cell->type);
+	} अन्यथा यदि (योग_coef(cell->type)) {
 		// linear with sum of port widths
-		unsigned int sum = port_width_sum(cell);
-		log_debug("%s sum*coef %d * %d\n", cell->name, sum, sum_coef(cell->type));
-		return sum * sum_coef(cell->type);
-	} else if (max_inp_coef(cell->type)) {
+		अचिह्नित पूर्णाङ्क योग = पत्तनम्_विस्तारः_योग(cell);
+		log_debug("%s sum*coef %d * %d\n", cell->name, योग, योग_coef(cell->type));
+		प्रत्यागम योग * योग_coef(cell->type);
+	} अन्यथा यदि (max_inp_coef(cell->type)) {
 		// linear with largest input width
-		unsigned int max = max_inp_width(cell);
+		अचिह्नित पूर्णाङ्क max = max_inp_विस्तारः(cell);
 		log_debug("%s max*coef %d * %d\n", cell->name, max, max_inp_coef(cell->type));
-		return max * max_inp_coef(cell->type);
-	} else if (is_div_mod(cell->type) || cell->type == ID($mul)) {
+		प्रत्यागम max * max_inp_coef(cell->type);
+	} अन्यथा यदि (is_div_mod(cell->type) || cell->type == ID($mul)) {
 		// quadratic with sum of port widths
-		unsigned int sum = port_width_sum(cell);
-		unsigned int coef = cell->type == ID($mul) ? 3 : 5;
-		log_debug("%s coef*(sum**2) %d * %d\n", cell->name, coef, sum * sum);
-		return coef * sum * sum;
-	} else if (cell->type.in(ID($macc), ID($macc_v2))) {
+		अचिह्नित पूर्णाङ्क योग = पत्तनम्_विस्तारः_योग(cell);
+		अचिह्नित पूर्णाङ्क coef = cell->type == ID($mul) ? 3 : 5;
+		log_debug("%s coef*(sum**2) %d * %d\n", cell->name, coef, योग * योग);
+		प्रत्यागम coef * योग * योग;
+	} अन्यथा यदि (cell->type.अन्तर्(ID($macc), ID($macc_v2))) {
 		// quadratic per term
-		unsigned int cost_sum = 0;
+		अचिह्नित पूर्णाङ्क cost_योग = 0;
 		Macc macc;
 		macc.from_cell(cell);
-		unsigned int y_width = cell->getParam(ID::Y_WIDTH).as_int();
-		for (auto &term: macc.terms) {
-			if (term.in_b.empty()) {
+		अचिह्नित पूर्णाङ्क y_विस्तारः = cell->getParam(ID::Y_विस्तारः).as_int();
+		प्रति (स्वचालित &पदांशः: macc.terms) {
+			यदि (पदांशः.अन्तर्_b.रिक्तानि()) {
 				// neglect addends
-				continue;
+				अनुवर्त;
 			}
-			unsigned a_width = term.in_a.size(), b_width = term.in_b.size();
-			unsigned int sum = a_width + b_width + std::min(y_width, a_width + b_width);
-			cost_sum += 3 * sum * sum;
+			अचिह्नित a_विस्तारः = पदांशः.अन्तर्_a.आकार(), b_विस्तारः = पदांशः.अन्तर्_b.आकार();
+			अचिह्नित पूर्णाङ्क योग = a_विस्तारः + b_विस्तारः + std::min(y_विस्तारः, a_विस्तारः + b_विस्तारः);
+			cost_योग += 3 * योग * योग;
 		}
-		return cost_sum;
-	} else if (cell->type == ID($lut)) {
-		int width = cell->getParam(ID::WIDTH).as_int();
-		unsigned int cost = 1U << (unsigned int)width;
-		log_debug("%s is 2**%d\n", cell->name, width);
-		return cost;
-	} else if (cell->type == ID($sop)) {
-		int width = cell->getParam(ID::WIDTH).as_int();
-		int depth = cell->getParam(ID::DEPTH).as_int();
-		log_debug("%s is (2*%d + 1)*%d\n", cell->name, width, depth);
-		return (2 * width + 1) * depth;
-	} else if (is_free(cell->type)) {
+		प्रत्यागम cost_योग;
+	} अन्यथा यदि (cell->type == ID($lut)) {
+		पूर्णाङ्क विस्तारः = cell->getParam(ID::विस्तारः_2).as_int();
+		अचिह्नित पूर्णाङ्क cost = 1U << (अचिह्नित पूर्णाङ्क)विस्तारः;
+		log_debug("%s is 2**%d\n", cell->name, विस्तारः);
+		प्रत्यागम cost;
+	} अन्यथा यदि (cell->type == ID($sop)) {
+		पूर्णाङ्क विस्तारः = cell->getParam(ID::विस्तारः_2).as_int();
+		पूर्णाङ्क गभीरता = cell->getParam(ID::गभीरता_2).as_int();
+		log_debug("%s is (2*%d + 1)*%d\n", cell->name, विस्तारः, गभीरता);
+		प्रत्यागम (2 * विस्तारः + 1) * गभीरता;
+	} अन्यथा यदि (is_free(cell->type)) {
 		log_debug("%s is free\n", cell->name);
-		return 0;
+		प्रत्यागम 0;
 	}
 	// TODO: $fsm
 	// ignored: $pow $memrd $memwr $meminit (and v2 counterparts)
 
-	log_warning("Can't determine cost of %s cell (%d parameters).\n", cell->type.unescape(), GetSize(cell->parameters));
-	return 1;
+	log_warning("Can't determine cost of %s cell (%d parameters).\n", cell->type.unescape(), Get_आकार(cell->parameters));
+	प्रत्यागम 1;
 }

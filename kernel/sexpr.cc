@@ -17,50 +17,50 @@
  *
  */
 
-#include "sexpr.h"
+#अन्तर्भाव "sexpr.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-std::ostream &operator<<(std::ostream &os, SExpr const &sexpr) {
-    if(sexpr.is_atom())
+std::ostream &संक्रियकः<<(std::ostream &os, SExpr ध्रुव &sexpr) {
+    यदि(sexpr.is_atom())
         os << sexpr.atom();
-    else if(sexpr.is_list()){
+    अन्यथा यदि(sexpr.is_list()){
         os << "(";
-        auto l = sexpr.list();
-        for(size_t i = 0; i < l.size(); i++) {
-            if(i > 0) os << " ";
+        स्वचालित l = sexpr.list();
+        प्रति(आकार_t i = 0; i < l.आकार(); i++) {
+            यदि(i > 0) os << " ";
             os << l[i];
         }
         os << ")";
-    }else
+    }अन्यथा
         os << "<invalid>";
-    return os;
+    प्रत्यागम os;
 }
 
- std::string SExpr::to_string() const {
+ std::string SExpr::गन्तव्यम्_string() ध्रुव {
     std::stringstream ss;
-    ss << *this;
-    return ss.str();
+    ss << *एतत्;
+    प्रत्यागम ss.str();
 }
 
-void SExprWriter::nl_if_pending() {
-    if(_pending_nl) {
+शून्य SExprWriter::nl_if_pending() {
+    यदि(_pending_nl) {
         os << '\n';
         _pos = 0;
-        _pending_nl = false;
+        _pending_nl = असत्य;
     }
 }
 
-void SExprWriter::puts(std::string_view s) {
-    if(s.empty()) return;
+शून्य SExprWriter::पङ्क्तिं_लिख(std::string_view s) {
+    यदि(s.रिक्तानि()) प्रत्यागम;
     nl_if_pending();
-    for(auto c : s) {
-        if(c == '\n') {
+    प्रति(स्वचालित c : s) {
+        यदि(c == '\n') {
             os << c;
             _pos = 0;
-        } else {
-            if(_pos == 0) {
-                for(int i = 0; i < _indent; i++)
+        } अन्यथा {
+            यदि(_pos == 0) {
+                प्रति(पूर्णाङ्क i = 0; i < _indent; i++)
                     os << "  ";
                 _pos = 2 * _indent;
             }
@@ -78,86 +78,86 @@ void SExprWriter::puts(std::string_view s) {
 // but I can't figure out how to store the widths. As an alternative,
 // we bail out of the calculation as soon as we can tell the expression
 // doesn't fit in the available space.)
-int SExprWriter::check_fit(SExpr const &sexpr, int space) {
-    if(sexpr.is_atom())
-        return space - sexpr.atom().size();
-    else if(sexpr.is_list()) {
+पूर्णाङ्क SExprWriter::check_fit(SExpr ध्रुव &sexpr, पूर्णाङ्क space) {
+    यदि(sexpr.is_atom())
+        प्रत्यागम space - sexpr.atom().आकार();
+    अन्यथा यदि(sexpr.is_list()) {
         space -= 2;
-        if(sexpr.list().size() > 1)
-            space -= sexpr.list().size() - 1;
-        for(auto arg : sexpr.list()) {
-            if(space < 0) break;
+        यदि(sexpr.list().आकार() > 1)
+            space -= sexpr.list().आकार() - 1;
+        प्रति(स्वचालित arg : sexpr.list()) {
+            यदि(space < 0) भङ्ग;
             space = check_fit(arg, space);
         }
-        return space;
-    } else
-        return -1;
+        प्रत्यागम space;
+    } अन्यथा
+        प्रत्यागम -1;
 }
 
-void SExprWriter::print(SExpr const &sexpr, bool close, bool indent_rest) {
-    if(sexpr.is_atom())
-        puts(sexpr.atom());
-    else if(sexpr.is_list()) {
-        auto args = sexpr.list();
-        puts("(");
+शून्य SExprWriter::print(SExpr ध्रुव &sexpr, तार्किक close, तार्किक indent_rest) {
+    यदि(sexpr.is_atom())
+        पङ्क्तिं_लिख(sexpr.atom());
+    अन्यथा यदि(sexpr.is_list()) {
+        स्वचालित तर्काः_2 = sexpr.list();
+        पङ्क्तिं_लिख("(");
         // Expressions are printed horizontally if they fit on the line.
         // We do the check *after* puts("(") to make sure that _pos is accurate.
         // (Otherwise there could be a pending newline + indentation)
-        bool vertical = args.size() > 1 && check_fit(sexpr, _max_line_width - _pos + 1) < 0;
-        if(vertical) _indent++;
-        for(size_t i = 0; i < args.size(); i++) {
-            if(i > 0) puts(vertical ? "\n" : " ");
-            print(args[i]);
+        तार्किक vertical = तर्काः_2.आकार() > 1 && check_fit(sexpr, max_पङ्क्तिः_विस्तारः - _pos + 1) < 0;
+        यदि(vertical) _indent++;
+        प्रति(आकार_t i = 0; i < तर्काः_2.आकार(); i++) {
+            यदि(i > 0) पङ्क्तिं_लिख(vertical ? "\n" : " ");
+            print(तर्काः_2[i]);
         }
         // Any remaining arguments are currently always printed vertically,
         // but are not indented if indent_rest = false.
         _indent += (!close && indent_rest) - vertical;
-        if(close)
-            puts(")");
-        else {
-            _unclosed.push_back(indent_rest);
-            _pending_nl = true;
+        यदि(close)
+            पङ्क्तिं_लिख(")");
+        अन्यथा {
+            _unclosed.प्रक्षिप_पृष्ठभागः(indent_rest);
+            _pending_nl = सत्य;
         }
-    }else
-        log_error("shouldn't happen: SExpr '%s' is neither an atom nor a list\n", sexpr.to_string());
+    }अन्यथा
+        log_error("shouldn't happen: SExpr '%s' is neither an atom nor a list\n", sexpr.गन्तव्यम्_string());
 }
 
-void SExprWriter::close(size_t n) {
-    log_assert(_unclosed.size() - (_unclosed_stack.empty() ? 0 : _unclosed_stack.back()) >= n);
-    while(n-- > 0) {
-        bool indented = _unclosed[_unclosed.size() - 1];
-        _unclosed.pop_back();
+शून्य SExprWriter::close(आकार_t n) {
+    log_assert(_unclosed.आकार() - (unclosed_राशिः.रिक्तानि() ? 0 : unclosed_राशिः.पृष्ठभागः()) >= n);
+    यावत्(n-- > 0) {
+        तार्किक indented = _unclosed[_unclosed.आकार() - 1];
+        _unclosed.निष्कासय_पृष्ठभागः();
         // Only print ) on the same line if it fits.
-        _pending_nl = _pos >= _max_line_width;
-        if(indented)
+        _pending_nl = _pos >= max_पङ्क्तिः_विस्तारः;
+        यदि(indented)
             _indent--;
-        puts(")");
-        _pending_nl = true;
+        पङ्क्तिं_लिख(")");
+        _pending_nl = सत्य;
     }
 }
 
-void SExprWriter::comment(std::string const &str, bool hanging) {
-    if(hanging) {
-        if(_pending_nl) {
-            _pending_nl = false;
-            puts(" ");
+शून्य SExprWriter::comment(std::string ध्रुव &str, तार्किक hanging) {
+    यदि(hanging) {
+        यदि(_pending_nl) {
+            _pending_nl = असत्य;
+            पङ्क्तिं_लिख(" ");
         }
     }
-    size_t i = 0, e;
-    do{
+    आकार_t i = 0, e;
+    कुरु{
         e = str.find('\n', i);
-        puts("; ");
-        puts(std::string_view(str).substr(i, e - i));
-        puts("\n");
+        पङ्क्तिं_लिख("; ");
+        पङ्क्तिं_लिख(std::string_view(str).substr(i, e - i));
+        पङ्क्तिं_लिख("\n");
         i = e + 1;
-    }while(e != std::string::npos);
+    }यावत्(e != std::string::npos);
 }
 
 SExprWriter::~SExprWriter() {
-    while(!_unclosed_stack.empty())
-        pop();
-    close(_unclosed.size());
+    यावत्(!unclosed_राशिः.रिक्तानि())
+        निष्कासय();
+    close(_unclosed.आकार());
     nl_if_pending();
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_अन्तः
