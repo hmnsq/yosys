@@ -27,10 +27,10 @@ YOSYS_NAMESPACE_BEGIN
 struct AigNode
 {
 	IdString portname;
-	int portbit;
+	ціле portbit;
 	bool inverter;
-	int left_parent, right_parent;
-	vector<pair<IdString, int>> outports;
+	ціле left_parent, right_parent;
+	vector<pair<IdString, ціле>> outports;
 
 	AigNode();
 	bool operator==(const AigNode &other) const;

@@ -39,27 +39,27 @@ YOSYS_NAMESPACE_BEGIN
  */
 struct BitPatternPool
 {
-	int width;
+	ціле width;
 	struct bits_t {
 		std::vector<RTLIL::State> bitdata;
 		mutable Hasher::hash_t cached_hash;
-		bits_t(int width = 0) : bitdata(width), cached_hash(0) { }
-		RTLIL::State &operator[](int index) {
-			return bitdata[index];
+		bits_t(ціле width = 0) : bitdata(width), cached_hash(0) { }
+		RTLIL::State &operator[](ціле index) {
+			повернути bitdata[index];
 		}
-		const RTLIL::State &operator[](int index) const {
-			return bitdata[index];
+		const RTLIL::State &operator[](ціле index) const {
+			повернути bitdata[index];
 		}
 		bool operator==(const bits_t &other) const {
-			if (run_hash(*this) != run_hash(other))
-				return false;
-			return bitdata == other.bitdata;
+			якщо (run_hash(*this) != run_hash(other))
+				повернути false;
+			повернути bitdata == other.bitdata;
 		}
 		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			if (!cached_hash)
+			якщо (!cached_hash)
 				cached_hash = run_hash(bitdata);
 			h.eat(cached_hash);
-			return h;
+			повернути h;
 		}
 	};
 	pool<bits_t> database;
@@ -67,12 +67,12 @@ struct BitPatternPool
 	BitPatternPool(RTLIL::SigSpec sig)
 	{
 		width = sig.size();
-		if (width > 0) {
+		якщо (width > 0) {
 			bits_t pattern(width);
-			for (int i = 0; i < width; i++) {
-				if (sig[i].wire == NULL && sig[i].data <= RTLIL::State::S1)
+			для (ціле i = 0; i < width; i++) {
+				якщо (sig[i].wire == NULL && sig[i].data <= RTLIL::State::S1)
 					pattern[i] = sig[i].data;
-				else
+				інакше
 					pattern[i] = RTLIL::State::Sa;
 			}
 			database.insert(pattern);
@@ -82,12 +82,12 @@ struct BitPatternPool
 	/**
 	 * Constructs a pool of all possible patterns (all don't-care bits)
 	 */
-	BitPatternPool(int width)
+	BitPatternPool(ціле width)
 	{
 		this->width = width;
-		if (width > 0) {
+		якщо (width > 0) {
 			bits_t pattern(width);
-			for (int i = 0; i < width; i++)
+			для (ціле i = 0; i < width; i++)
 				pattern[i] = RTLIL::State::Sa;
 			database.insert(pattern);
 		}
@@ -101,10 +101,10 @@ struct BitPatternPool
 	{
 		bits_t bits;
 		bits.bitdata = sig.as_const().to_bits();
-		for (auto &b : bits.bitdata)
-			if (b > RTLIL::State::S1)
+		для (auto &b : bits.bitdata)
+			якщо (b > RTLIL::State::S1)
 				b = RTLIL::State::Sa;
-		return bits;
+		повернути bits;
 	}
 
 	/**
@@ -113,10 +113,10 @@ struct BitPatternPool
 	 */
 	static bool covers_nothing(RTLIL::SigSpec sig)
 	{
-		for (auto bit : sig)
-			if (bit.wire == NULL && (bit.data == RTLIL::State::Sx || bit.data == RTLIL::State::Sz))
-				return true;
-		return false;
+		для (auto bit : sig)
+			якщо (bit.wire == NULL && (bit.data == RTLIL::State::Sx || bit.data == RTLIL::State::Sz))
+				повернути true;
+		повернути false;
 	}
 
 	/**
@@ -124,12 +124,12 @@ struct BitPatternPool
 	 */
 	bool match(bits_t a, bits_t b)
 	{
-		log_assert(int(a.bitdata.size()) == width);
-		log_assert(int(b.bitdata.size()) == width);
-		for (int i = 0; i < width; i++)
-			if (a[i] <= RTLIL::State::S1 && b[i] <= RTLIL::State::S1 && a[i] != b[i])
-				return false;
-		return true;
+		log_assert(ціле(a.bitdata.size()) == width);
+		log_assert(ціле(b.bitdata.size()) == width);
+		для (ціле i = 0; i < width; i++)
+			якщо (a[i] <= RTLIL::State::S1 && b[i] <= RTLIL::State::S1 && a[i] != b[i])
+				повернути false;
+		повернути true;
 	}
 
 	/**
@@ -143,13 +143,13 @@ struct BitPatternPool
 	 */
 	bool has_any(RTLIL::SigSpec sig)
 	{
-		if (covers_nothing(sig))
-			return false;
+		якщо (covers_nothing(sig))
+			повернути false;
 		bits_t bits = sig2bits(sig);
-		for (auto &it : database)
-			if (match(it, bits))
-				return true;
-		return false;
+		для (auto &it : database)
+			якщо (match(it, bits))
+				повернути true;
+		повернути false;
 	}
 
 	/**
@@ -163,18 +163,18 @@ struct BitPatternPool
 	 */
 	bool has_all(RTLIL::SigSpec sig)
 	{
-		if (covers_nothing(sig))
-			return true;
+		якщо (covers_nothing(sig))
+			повернути true;
 		bits_t bits = sig2bits(sig);
-		for (auto &it : database)
-			if (match(it, bits)) {
-				for (int i = 0; i < width; i++)
-					if (bits[i] > RTLIL::State::S1 && it[i] <= RTLIL::State::S1)
+		для (auto &it : database)
+			якщо (match(it, bits)) {
+				для (ціле i = 0; i < width; i++)
+					якщо (bits[i] > RTLIL::State::S1 && it[i] <= RTLIL::State::S1)
 						goto next_database_entry;
-				return true;
+				повернути true;
 	next_database_entry:;
 			}
-		return false;
+		повернути false;
 	}
 
 	/**
@@ -186,13 +186,13 @@ struct BitPatternPool
 	bool take(RTLIL::SigSpec sig)
 	{
 		bool status = false;
-		if (covers_nothing(sig))
-			return false;
+		якщо (covers_nothing(sig))
+			повернути false;
 		bits_t bits = sig2bits(sig);
-		for (auto it = database.begin(); it != database.end();)
-			if (match(*it, bits)) {
-				for (int i = 0; i < width; i++) {
-					if ((*it)[i] != RTLIL::State::Sa || bits[i] == RTLIL::State::Sa)
+		для (auto it = database.begin(); it != database.end();)
+			якщо (match(*it, bits)) {
+				для (ціле i = 0; i < width; i++) {
+					якщо ((*it)[i] != RTLIL::State::Sa || bits[i] == RTLIL::State::Sa)
 						continue;
 					bits_t new_pattern;
 					new_pattern.bitdata = it->bitdata;
@@ -202,9 +202,9 @@ struct BitPatternPool
 				it = database.erase(it);
 				status = true;
 				continue;
-			} else
+			} інакше
 				++it;
-		return status;
+		повернути status;
 	}
 
 	/**
@@ -212,15 +212,15 @@ struct BitPatternPool
 	 */
 	bool take_all()
 	{
-		if (database.empty())
-			return false;
+		якщо (database.empty())
+			повернути false;
 		database.clear();
-		return true;
+		повернути true;
 	}
 
 	bool empty()
 	{
-		return database.empty();
+		повернути database.empty();
 	}
 };
 

@@ -94,7 +94,7 @@ namespace RTLIL
 	};
 
 	// Maximum width in bits of RTLIL::Wire or RTLIL::Const
-	constexpr int WIDTH_LIMIT = 1 << 30;
+	constexpr ціле WIDTH_LIMIT = 1 << 30;
 
 	struct Const;
 	struct AttrObject;
@@ -137,28 +137,28 @@ namespace RTLIL {
 	const pool<IdString> &builtin_ff_cell_types();
 
 	static inline std::string escape_id(const std::string &str) {
-		if (str.size() > 0 && str[0] != '\\' && str[0] != '$')
-			return "\\" + str;
-		return str;
+		якщо (str.size() > 0 && str[0] != '\\' && str[0] != '$')
+			повернути "\\" + str;
+		повернути str;
 	}
 
 	static inline std::string unescape_id(const std::string &str) {
-		if (str.size() < 2)
-			return str;
-		if (str[0] != '\\')
-			return str;
-		if (str[1] == '$' || str[1] == '\\')
-			return str;
-		if (str[1] >= '0' && str[1] <= '9')
-			return str;
-		return str.substr(1);
+		якщо (str.size() < 2)
+			повернути str;
+		якщо (str[0] != '\\')
+			повернути str;
+		якщо (str[1] == '$' || str[1] == '\\')
+			повернути str;
+		якщо (str[1] >= '0' && str[1] <= '9')
+			повернути str;
+		повернути str.substr(1);
 	}
 
 	template <typename T> using sort_by_name_id = IdString::compare_ptr_by_name<T>;
 
 	template <typename T> struct sort_by_name_str {
 		bool operator()(T *a, T *b) const {
-			return a->name.lt_by_name(b->name);
+			повернути a->name.lt_by_name(b->name);
 		}
 	};
 
@@ -166,70 +166,70 @@ namespace RTLIL {
 		const TwinePool& pool;
 		explicit sort_by_id_str(const TwinePool& pool) : pool(pool) {}
 		bool operator()(RTLIL::IdString a, RTLIL::IdString b) const {
-			return pool.compare_by_name(a, b) < 0;
+			повернути pool.compare_by_name(a, b) < 0;
 		}
 	};
 
 	static inline std::string encode_filename(const std::string &filename)
 	{
 		std::stringstream val;
-		if (!std::any_of(filename.begin(), filename.end(), [](char c) {
-			return static_cast<unsigned char>(c) < 33 || static_cast<unsigned char>(c) > 126;
-		})) return filename;
-		for (unsigned char const c : filename) {
-			if (c < 33 || c > 126)
+		якщо (!std::any_of(filename.begin(), filename.end(), [](char c) {
+			повернути static_cast<unsigned char>(c) < 33 || static_cast<unsigned char>(c) > 126;
+		})) повернути filename;
+		для (unsigned char const c : filename) {
+			якщо (c < 33 || c > 126)
 				val << stringf("$%02x", c);
-			else
+			інакше
 				val << c;
 		}
-		return val.str();
+		повернути val.str();
 	}
 
 	// see calc.cc for the implementation of this functions
-	RTLIL::Const const_not         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_and         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_or          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_xor         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_xnor        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_not         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_and         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_or          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_xor         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_xnor        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
 
-	RTLIL::Const const_reduce_and  (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_or   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_xor  (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_xnor (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_bool (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_reduce_and  (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_reduce_or   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_reduce_xor  (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_reduce_xnor (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_reduce_bool (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
 
-	RTLIL::Const const_logic_not   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_logic_and   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_logic_or    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_logic_not   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_logic_and   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_logic_or    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
 
-	RTLIL::Const const_shl         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shr         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sshl        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sshr        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shift       (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shiftx      (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_shl         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_shr         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_sshl        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_sshr        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_shift       (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_shiftx      (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
 
-	RTLIL::Const const_lt          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_le          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_eq          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_ne          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_eqx         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_nex         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_ge          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_gt          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_lt          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_le          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_eq          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_ne          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_eqx         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_nex         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_ge          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_gt          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
 
-	RTLIL::Const const_add         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sub         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_mul         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_div         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_divfloor    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_modfloor    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_mod         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_pow         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_add         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_sub         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_mul         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_div         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_divfloor    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_modfloor    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_mod         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_pow         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
 
-	RTLIL::Const const_pos         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_buf         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_neg         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_pos         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_buf         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
+	RTLIL::Const const_neg         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, ціле result_len);
 
 	RTLIL::Const const_mux         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3);
 	RTLIL::Const const_pmux        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3);
@@ -252,16 +252,16 @@ namespace RTLIL {
 		using reference = T&;
 		typename dict<Key, T>::iterator it;
 		dict<Key, T> *list_p;
-		int *refcount_p;
+		ціле *refcount_p;
 
 		ObjIterator() : list_p(nullptr), refcount_p(nullptr) {
 		}
 
-		ObjIterator(decltype(list_p) list_p, int *refcount_p) : list_p(list_p), refcount_p(refcount_p) {
-			if (list_p->empty()) {
+		ObjIterator(decltype(list_p) list_p, ціле *refcount_p) : list_p(list_p), refcount_p(refcount_p) {
+			якщо (list_p->empty()) {
 				this->list_p = nullptr;
 				this->refcount_p = nullptr;
-			} else {
+			} інакше {
 				it = list_p->begin();
 				(*refcount_p)++;
 			}
@@ -271,79 +271,79 @@ namespace RTLIL {
 			it = other.it;
 			list_p = other.list_p;
 			refcount_p = other.refcount_p;
-			if (refcount_p)
+			якщо (refcount_p)
 				(*refcount_p)++;
 		}
 
 		ObjIterator &operator=(const RTLIL::ObjIterator<T, Key> &other) {
-			if (refcount_p)
+			якщо (refcount_p)
 				(*refcount_p)--;
 			it = other.it;
 			list_p = other.list_p;
 			refcount_p = other.refcount_p;
-			if (refcount_p)
+			якщо (refcount_p)
 				(*refcount_p)++;
-			return *this;
+			повернути *this;
 		}
 
 		~ObjIterator() {
-			if (refcount_p)
+			якщо (refcount_p)
 				(*refcount_p)--;
 		}
 
 		inline T operator*() const {
 			log_assert(list_p != nullptr);
-			return it->second;
+			повернути it->second;
 		}
 
 		inline bool operator!=(const RTLIL::ObjIterator<T, Key> &other) const {
-			if (list_p == nullptr || other.list_p == nullptr)
-				return list_p != other.list_p;
-			return it != other.it;
+			якщо (list_p == nullptr || other.list_p == nullptr)
+				повернути list_p != other.list_p;
+			повернути it != other.it;
 		}
 
 
 		inline bool operator==(const RTLIL::ObjIterator<T, Key> &other) const {
-			return !(*this != other);
+			повернути !(*this != other);
 		}
 
 		inline ObjIterator<T, Key>& operator++() {
 			log_assert(list_p != nullptr);
-			if (++it == list_p->end()) {
+			якщо (++it == list_p->end()) {
 				(*refcount_p)--;
 				list_p = nullptr;
 				refcount_p = nullptr;
 			}
-			return *this;
+			повернути *this;
 		}
 
-		inline ObjIterator<T, Key>& operator+=(int amt) {
+		inline ObjIterator<T, Key>& operator+=(ціле amt) {
 			log_assert(list_p != nullptr);
 			it += amt;
-			if (it == list_p->end()) {
+			якщо (it == list_p->end()) {
 				(*refcount_p)--;
 				list_p = nullptr;
 				refcount_p = nullptr;
 			}
-			return *this;
+			повернути *this;
 		}
 
-		inline ObjIterator<T, Key> operator+(int amt) {
+		inline ObjIterator<T, Key> operator+(ціле amt) {
 			log_assert(list_p != nullptr);
 			ObjIterator<T, Key> new_obj(*this);
 			new_obj.it += amt;
-			if (new_obj.it == list_p->end()) {
+			якщо (new_obj.it == list_p->end()) {
 				(*(new_obj.refcount_p))--;
 				new_obj.list_p = nullptr;
 				new_obj.refcount_p = nullptr;
 			}
-			return new_obj;
+			повернути new_obj;
 		}
 
-		inline const ObjIterator<T, Key> operator++(int) {
+		inline const ObjIterator<T, Key> operator++(ціле) {
 			ObjIterator<T, Key> result(*this);
 			++(*this);
-			return result;
+			повернути result;
 		}
 	};
 
@@ -351,39 +351,39 @@ namespace RTLIL {
 	struct ObjRange
 	{
 		dict<Key, T> *list_p;
-		int *refcount_p;
+		ціле *refcount_p;
 
-		ObjRange(decltype(list_p) list_p, int *refcount_p) : list_p(list_p), refcount_p(refcount_p) { }
-		RTLIL::ObjIterator<T, Key> begin() { return RTLIL::ObjIterator<T, Key>(list_p, refcount_p); }
-		RTLIL::ObjIterator<T, Key> end() { return RTLIL::ObjIterator<T, Key>(); }
+		ObjRange(decltype(list_p) list_p, ціле *refcount_p) : list_p(list_p), refcount_p(refcount_p) { }
+		RTLIL::ObjIterator<T, Key> begin() { повернути RTLIL::ObjIterator<T, Key>(list_p, refcount_p); }
+		RTLIL::ObjIterator<T, Key> end() { повернути RTLIL::ObjIterator<T, Key>(); }
 
 		size_t size() const {
-			return list_p->size();
+			повернути list_p->size();
 		}
 
 		operator pool<T>() const {
 			pool<T> result;
-			for (auto &it : *list_p)
+			для (auto &it : *list_p)
 				result.insert(it.second);
-			return result;
+			повернути result;
 		}
 
 		operator std::vector<T>() const {
 			std::vector<T> result;
 			result.reserve(list_p->size());
-			for (auto &it : *list_p)
+			для (auto &it : *list_p)
 				result.push_back(it.second);
-			return result;
+			повернути result;
 		}
 
-		pool<T> to_pool() const { return *this; }
-		std::vector<T> to_vector() const { return *this; }
+		pool<T> to_pool() const { повернути *this; }
+		std::vector<T> to_vector() const { повернути *this; }
 	};
 };
 
 struct RTLIL::Const
 {
-	short int flags;
+	short ціле flags;
 private:
 	friend class KernelRtlilTest;
 	FRIEND_TEST(KernelRtlilTest, ConstStr);
@@ -397,13 +397,13 @@ private:
 	};
 
 	// Use these private utilities instead
-	bool is_bits() const { return tag == backing_tag::bits; }
-	bool is_str() const { return tag == backing_tag::string; }
+	bool is_bits() const { повернути tag == backing_tag::bits; }
+	bool is_str() const { повернути tag == backing_tag::string; }
 
-	bitvectype* get_if_bits() { return is_bits() ? &bits_ : NULL; }
-	std::string* get_if_str() { return is_str() ? &str_ : NULL; }
-	const bitvectype* get_if_bits() const { return is_bits() ? &bits_ : NULL; }
-	const std::string* get_if_str() const { return is_str() ? &str_ : NULL; }
+	bitvectype* get_if_bits() { повернути is_bits() ? &bits_ : NULL; }
+	std::string* get_if_str() { повернути is_str() ? &str_ : NULL; }
+	const bitvectype* get_if_bits() const { повернути is_bits() ? &bits_ : NULL; }
+	const std::string* get_if_str() const { повернути is_str() ? &str_ : NULL; }
 
 	bitvectype& get_bits();
 	std::string& get_str();
@@ -416,8 +416,8 @@ public:
 	Const() : flags(RTLIL::CONST_FLAG_NONE), tag(backing_tag::bits), bits_(std::vector<RTLIL::State>()) {}
 	Const(std::string str);
 	Const(long long val); // default width is 32
-	Const(long long val, int width);
-	Const(RTLIL::State bit, int width = 1);
+	Const(long long val, ціле width);
+	Const(RTLIL::State bit, ціле width = 1);
 	Const(std::vector<RTLIL::State> bits) : flags(RTLIL::CONST_FLAG_NONE), tag(backing_tag::bits), bits_(std::move(bits)) {}
 	Const(const std::vector<bool> &bits);
 	Const(const RTLIL::Const &other);
@@ -428,10 +428,10 @@ public:
 	struct Builder
 	{
 		Builder() {}
-		Builder(int expected_width) { bits.reserve(expected_width); }
+		Builder(ціле expected_width) { bits.reserve(expected_width); }
 		void push_back(RTLIL::State b) { bits.push_back(b); }
-		int size() const { return static_cast<int>(bits.size()); }
-		Const build() { return Const(std::move(bits)); }
+		ціле size() const { повернути static_cast<ціле>(bits.size()); }
+		Const build() { повернути Const(std::move(bits)); }
 	private:
 		std::vector<RTLIL::State> bits;
 	};
@@ -441,7 +441,7 @@ public:
 	bool operator !=(const RTLIL::Const &other) const;
 
 	[[deprecated("Don't use direct access to the internal std::vector<State>, that's an implementation detail.")]]
-	std::vector<RTLIL::State>& bits() { return bits_internal(); }
+	std::vector<RTLIL::State>& bits() { повернути bits_internal(); }
 	[[deprecated("Don't call bitvectorize() directly, it's an implementation detail.")]]
 	void bitvectorize() const { const_cast<Const*>(this)->bitvectorize_internal(); }
 
@@ -452,7 +452,7 @@ public:
 	// truncate any higher bits, potentially over/underflowing. Consider using
 	// try_as_int, as_int_saturating, or guarding behind convertible_to_int
 	// instead.
-	int as_int(bool is_signed = false) const;
+	ціле as_int(bool is_signed = false) const;
 
 	// Returns true iff the constant can be converted to an int without
 	// over/underflow.
@@ -460,11 +460,11 @@ public:
 
 	// Returns the constant's value as an int if it can be represented without
 	// over/underflow, or std::nullopt otherwise.
-	std::optional<int> try_as_int(bool is_signed = false) const;
+	std::optional<ціле> try_as_int(bool is_signed = false) const;
 
 	// Returns the constant's value as an int if it can be represented without
 	// over/underflow, otherwise the max/min value for int depending on the sign.
-	int as_int_saturating(bool is_signed = false) const;
+	ціле as_int_saturating(bool is_signed = false) const;
 
 	void tag_bare_integer_const(const std::string &value);
 
@@ -473,14 +473,14 @@ public:
 	std::vector<RTLIL::State> to_bits() const;
 
 	std::string decode_string() const;
-	int size() const;
+	ціле size() const;
 	bool empty() const;
 
 	void append(const RTLIL::Const &other);
-	void set(int i, RTLIL::State state) {
+	void set(ціле i, RTLIL::State state) {
 		bits_internal()[i] = state;
 	}
-	void resize(int size, RTLIL::State fill) {
+	void resize(ціле size, RTLIL::State fill) {
     log_assert(size >= 0 && size < RTLIL::WIDTH_LIMIT);
 		bits_internal().resize(size, fill);
 	}
@@ -501,28 +501,28 @@ public:
 
 		State operator*() const;
 
-		const_iterator& operator++() { ++idx; return *this; }
-		const_iterator& operator--() { --idx; return *this; }
-		const_iterator operator++(int) { const_iterator result(*this); ++idx; return result; }
-		const_iterator operator--(int) { const_iterator result(*this); --idx; return result; }
-		const_iterator& operator+=(int i) { idx += i; return *this; }
+		const_iterator& operator++() { ++idx; повернути *this; }
+		const_iterator& operator--() { --idx; повернути *this; }
+		const_iterator operator++(ціле) { const_iterator result(*this); ++idx; повернути result; }
+		const_iterator operator--(ціле) { const_iterator result(*this); --idx; повернути result; }
+		const_iterator& operator+=(ціле i) { idx += i; повернути *this; }
 
-		const_iterator operator+(int add) {
-			return const_iterator(*parent, idx + add);
+		const_iterator operator+(ціле add) {
+			повернути const_iterator(*parent, idx + add);
 		}
-		const_iterator operator-(int sub) {
-			return const_iterator(*parent, idx - sub);
+		const_iterator operator-(ціле sub) {
+			повернути const_iterator(*parent, idx - sub);
 		}
-		int operator-(const const_iterator& other) {
-			return idx - other.idx;
+		ціле operator-(const const_iterator& other) {
+			повернути idx - other.idx;
 		}
 
 		bool operator==(const const_iterator& other) const {
-			return idx == other.idx;
+			повернути idx == other.idx;
 		}
 
 		bool operator!=(const const_iterator& other) const {
-			return !(*this == other);
+			повернути !(*this == other);
 		}
 	};
 
@@ -538,9 +538,9 @@ public:
 			size_t idx;
 		public:
 			proxy(Const* parent, size_t idx) : parent(parent), idx(idx) {}
-			operator State() const { return (*parent)[idx]; }
-			proxy& operator=(State s) { parent->set(idx, s); return *this; }
-			proxy& operator=(const proxy& other) { parent->set(idx, (*other.parent)[other.idx]); return *this; }
+			operator State() const { повернути (*parent)[idx]; }
+			proxy& operator=(State s) { parent->set(idx, s); повернути *this; }
+			proxy& operator=(const proxy& other) { parent->set(idx, (*other.parent)[other.idx]); повернути *this; }
 		};
 
 		using iterator_category = std::bidirectional_iterator_tag;
@@ -551,55 +551,55 @@ public:
 
 		iterator(Const& c, size_t i) : parent(&c), idx(i) {}
 
-		proxy operator*() const { return proxy(parent, idx); }
-		iterator& operator++() { ++idx; return *this; }
-		iterator& operator--() { --idx; return *this; }
-		iterator operator++(int) { iterator result(*this); ++idx; return result; }
-		iterator operator--(int) { iterator result(*this); --idx; return result; }
-		iterator& operator+=(int i) { idx += i; return *this; }
+		proxy operator*() const { повернути proxy(parent, idx); }
+		iterator& operator++() { ++idx; повернути *this; }
+		iterator& operator--() { --idx; повернути *this; }
+		iterator operator++(ціле) { iterator result(*this); ++idx; повернути result; }
+		iterator operator--(ціле) { iterator result(*this); --idx; повернути result; }
+		iterator& operator+=(ціле i) { idx += i; повернути *this; }
 
-		iterator operator+(int add) {
-			return iterator(*parent, idx + add);
+		iterator operator+(ціле add) {
+			повернути iterator(*parent, idx + add);
 		}
-		iterator operator-(int sub) {
-			return iterator(*parent, idx - sub);
+		iterator operator-(ціле sub) {
+			повернути iterator(*parent, idx - sub);
 		}
-		int operator-(const iterator& other) {
-			return idx - other.idx;
+		ціле operator-(const iterator& other) {
+			повернути idx - other.idx;
 		}
 
 		bool operator==(const iterator& other) const {
-			return idx == other.idx;
+			повернути idx == other.idx;
 		}
 
 		bool operator!=(const iterator& other) const {
-			return !(*this == other);
+			повернути !(*this == other);
 		}
 	};
 
 	const_iterator begin() const {
-		return const_iterator(*this, 0);
+		повернути const_iterator(*this, 0);
 	}
 	const_iterator end() const {
-		return const_iterator(*this, size());
+		повернути const_iterator(*this, size());
 	}
 	iterator begin() {
-		return iterator(*this, 0);
+		повернути iterator(*this, 0);
 	}
 	iterator end() {
-		return iterator(*this, size());
+		повернути iterator(*this, size());
 	}
 	State back() const {
-		return *(end() - 1);
+		повернути *(end() - 1);
 	}
 	State front() const {
-		return *begin();
+		повернути *begin();
 	}
 	State at(size_t i) const {
-		return *const_iterator(*this, i);
+		повернути *const_iterator(*this, i);
 	}
 	State operator[](size_t i) const {
-		return *const_iterator(*this, i);
+		повернути *const_iterator(*this, i);
 	}
 
 	bool is_fully_zero() const;
@@ -607,23 +607,23 @@ public:
 	bool is_fully_def() const;
 	bool is_fully_undef() const;
 	bool is_fully_undef_x_only() const;
-	bool is_onehot(int *pos = nullptr) const;
+	bool is_onehot(ціле *pos = nullptr) const;
 
-	RTLIL::Const extract(int offset, int len = 1, RTLIL::State padding = RTLIL::State::S0) const;
+	RTLIL::Const extract(ціле offset, ціле len = 1, RTLIL::State padding = RTLIL::State::S0) const;
 
 	// find the MSB without redundant leading bits
-	int get_min_size(bool is_signed) const;
+	ціле get_min_size(bool is_signed) const;
 
 	// compress representation to the minimum required bits
 	void compress(bool is_signed = false);
 
-	std::optional<int> as_int_compress(bool is_signed) const;
+	std::optional<ціле> as_int_compress(bool is_signed) const;
 
-	void extu(int width) {
+	void extu(ціле width) {
 		resize(width, RTLIL::State::S0);
 	}
 
-	void exts(int width) {
+	void exts(ціле width) {
 		resize(width, empty() ? RTLIL::State::Sx : back());
 	}
 
@@ -641,7 +641,7 @@ struct RTLIL::AttrObject
 
 	[[deprecated("Use Module::get_blackbox_attribute() instead.")]]
 	bool get_blackbox_attribute(bool ignore_wb=false) const {
-		return get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
+		повернути get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
 	}
 
 	void set_string_attribute(RTLIL::IdString id, string value);
@@ -655,14 +655,14 @@ struct RTLIL::AttrObject
 		set_string_attribute(ID::src, src);
 	}
 	std::string get_src_attribute() const {
-		return get_string_attribute(ID::src);
+		повернути get_string_attribute(ID::src);
 	}
 
 	void set_hdlname_attribute(const vector<string> &hierarchy);
 	vector<string> get_hdlname_attribute() const;
 
-	void set_intvec_attribute(RTLIL::IdString id, const vector<int> &data);
-	vector<int> get_intvec_attribute(RTLIL::IdString id) const;
+	void set_intvec_attribute(RTLIL::IdString id, const vector<ціле> &data);
+	vector<ціле> get_intvec_attribute(RTLIL::IdString id) const;
 };
 
 #include "kernel/rtlil_twine_compat.h"
@@ -677,23 +677,23 @@ struct RTLIL::SigChunk
 {
 	RTLIL::Wire *wire;
 	std::vector<RTLIL::State> data; // only used if wire == NULL, LSB at index 0
-	int width, offset;
+	ціле width, offset;
 
 	SigChunk() : wire(nullptr), width(0), offset(0) {}
 	SigChunk(const RTLIL::Const &value) : wire(nullptr), data(value.to_bits()), width(GetSize(data)), offset(0) {}
 	SigChunk(RTLIL::Const &&value) : wire(nullptr), data(value.to_bits()), width(GetSize(data)), offset(0) {}
 	SigChunk(RTLIL::Wire *wire) : wire(wire), width(GetSize(wire)), offset(0) {}
-	SigChunk(RTLIL::Wire *wire, int offset, int width = 1) : wire(wire), width(width), offset(offset) {}
+	SigChunk(RTLIL::Wire *wire, ціле offset, ціле width = 1) : wire(wire), width(width), offset(offset) {}
 	SigChunk(const std::string &str) : SigChunk(RTLIL::Const(str)) {}
-	SigChunk(int val) /*default width 32*/ : SigChunk(RTLIL::Const(val)) {}
-	SigChunk(int val, int width) : SigChunk(RTLIL::Const(val, width)) {}
-	SigChunk(RTLIL::State bit, int width = 1) : SigChunk(RTLIL::Const(bit, width)) {}
+	SigChunk(ціле val) /*default width 32*/ : SigChunk(RTLIL::Const(val)) {}
+	SigChunk(ціле val, ціле width) : SigChunk(RTLIL::Const(val, width)) {}
+	SigChunk(RTLIL::State bit, ціле width = 1) : SigChunk(RTLIL::Const(bit, width)) {}
 	SigChunk(const RTLIL::SigBit &bit);
 
-	RTLIL::SigChunk extract(int offset, int length) const;
-	RTLIL::SigBit operator[](int offset) const;
-	inline int size() const { return width; }
-	inline bool is_wire() const { return wire != NULL; }
+	RTLIL::SigChunk extract(ціле offset, ціле length) const;
+	RTLIL::SigBit operator[](ціле offset) const;
+	inline ціле size() const { повернути width; }
+	inline bool is_wire() const { повернути wire != NULL; }
 
 	bool operator <(const RTLIL::SigChunk &other) const;
 	bool operator ==(const RTLIL::SigChunk &other) const;
@@ -705,21 +705,21 @@ struct RTLIL::SigBit
 	RTLIL::Wire *wire;
 	union {
 		RTLIL::State data; // used if wire == NULL
-		int offset;        // used if wire != NULL
+		ціле offset;        // used if wire != NULL
 	};
 
 	SigBit();
 	SigBit(RTLIL::State bit);
 	explicit SigBit(bool bit);
 	SigBit(RTLIL::Wire *wire);
-	SigBit(RTLIL::Wire *wire, int offset);
+	SigBit(RTLIL::Wire *wire, ціле offset);
 	SigBit(const RTLIL::SigChunk &chunk);
-	SigBit(const RTLIL::SigChunk &chunk, int index);
+	SigBit(const RTLIL::SigChunk &chunk, ціле index);
 	SigBit(const RTLIL::SigSpec &sig);
 	SigBit(const RTLIL::SigBit &sigbit) = default;
 	RTLIL::SigBit &operator =(const RTLIL::SigBit &other) = default;
 
-	inline bool is_wire() const { return wire != NULL; }
+	inline bool is_wire() const { повернути wire != NULL; }
 
 	bool operator <(const RTLIL::SigBit &other) const;
 	bool operator ==(const RTLIL::SigBit &other) const;
@@ -732,13 +732,13 @@ namespace hashlib {
 	template <>
 	struct hash_ops<RTLIL::SigBit> {
 		static inline bool cmp(const RTLIL::SigBit &a, const RTLIL::SigBit &b) {
-			return a == b;
+			повернути a == b;
 		}
 		[[nodiscard]] static inline Hasher hash(const RTLIL::SigBit sb) {
-			return sb.hash_top();
+			повернути sb.hash_top();
 		}
 		[[nodiscard]] static inline Hasher hash_into(const RTLIL::SigBit sb, Hasher h) {
-			return sb.hash_into(h);
+			повернути sb.hash_into(h);
 		}
 	};
 };
@@ -752,11 +752,11 @@ struct RTLIL::SigSpecIterator
 	typedef RTLIL::SigBit& reference;
 
 	RTLIL::SigSpec *sig_p;
-	int index;
+	ціле index;
 
 	inline RTLIL::SigBit &operator*() const;
-	inline bool operator!=(const RTLIL::SigSpecIterator &other) const { return index != other.index; }
-	inline bool operator==(const RTLIL::SigSpecIterator &other) const { return index == other.index; }
+	inline bool operator!=(const RTLIL::SigSpecIterator &other) const { повернути index != other.index; }
+	inline bool operator==(const RTLIL::SigSpecIterator &other) const { повернути index == other.index; }
 	inline void operator++() { index++; }
 };
 
@@ -770,11 +770,11 @@ struct RTLIL::SigSpecConstIterator
 
 	const RTLIL::SigSpec *sig_p;
 	RTLIL::SigBit bit;
-	int index;
+	ціле index;
 
 	inline const RTLIL::SigBit &operator*();
-	inline bool operator!=(const RTLIL::SigSpecConstIterator &other) const { return index != other.index; }
-	inline bool operator==(const RTLIL::SigSpecIterator &other) const { return index == other.index; }
+	inline bool operator!=(const RTLIL::SigSpecConstIterator &other) const { повернути index != other.index; }
+	inline bool operator==(const RTLIL::SigSpecIterator &other) const { повернути index == other.index; }
 	inline void operator++() { index++; }
 };
 
@@ -792,13 +792,13 @@ private:
 		// Create an initially clear value.
 		AtomicHash() : atomic_(0) {}
 		AtomicHash(const AtomicHash &rhs) : atomic_(rhs.load()) {}
-		AtomicHash &operator=(const AtomicHash &rhs) { store(rhs.load()); return *this; }
+		AtomicHash &operator=(const AtomicHash &rhs) { store(rhs.load()); повернути *this; }
 		// Read the hash. Returns nullopt if the hash is clear.
 		std::optional<Hasher::hash_t> read() const {
 			Hasher::hash_t value = load();
-			if (value == 0)
-				return std::nullopt;
-			return value;
+			якщо (value == 0)
+				повернути std::nullopt;
+			повернути value;
 		}
 		// Set the hash. If the value is already set, then the new value must
 		// equal the current value.
@@ -810,7 +810,7 @@ private:
 		}
 		void clear() { store(0); }
 	private:
-		int load() const { return atomic_.load(std::memory_order_relaxed); }
+		ціле load() const { повернути atomic_.load(std::memory_order_relaxed); }
 		void store(Hasher::hash_t value) const {
 			const_cast<std::atomic<Hasher::hash_t>&>(atomic_).store(value, std::memory_order_relaxed);
 		}
@@ -832,16 +832,16 @@ private:
 
 	void unpack();
 	inline void inline_unpack() {
-		if (rep_ == CHUNK)
+		якщо (rep_ == CHUNK)
 			unpack();
 	}
 	void try_repack();
 
 	Hasher::hash_t updhash() const;
 	void destroy() {
-		if (rep_ == CHUNK)
+		якщо (rep_ == CHUNK)
 			chunk_.~SigChunk();
-		else
+		інакше
 			bits_.~vector();
 	}
 	friend struct Chunks;
@@ -850,15 +850,15 @@ public:
 	SigSpec() { init_empty_bits(); }
 	SigSpec(std::initializer_list<RTLIL::SigSpec> parts);
 	SigSpec(const SigSpec &value) : rep_(value.rep_), hash_(value.hash_) {
-		if (value.rep_ == CHUNK)
+		якщо (value.rep_ == CHUNK)
 			new (&chunk_) RTLIL::SigChunk(value.chunk_);
-		else
+		інакше
 			new (&bits_) std::vector<RTLIL::SigBit>(value.bits_);
 	}
 	SigSpec(SigSpec &&value) : rep_(value.rep_), hash_(value.hash_) {
-		if (value.rep_ == CHUNK)
+		якщо (value.rep_ == CHUNK)
 			new (&chunk_) RTLIL::SigChunk(std::move(value.chunk_));
-		else
+		інакше
 			new (&bits_) std::vector<RTLIL::SigBit>(std::move(value.bits_));
 	}
 	SigSpec(const RTLIL::Const &value);
@@ -866,11 +866,11 @@ public:
 	SigSpec(const RTLIL::SigChunk &chunk);
 	SigSpec(RTLIL::SigChunk &&chunk);
 	SigSpec(RTLIL::Wire *wire);
-	SigSpec(RTLIL::Wire *wire, int offset, int width = 1);
+	SigSpec(RTLIL::Wire *wire, ціле offset, ціле width = 1);
 	SigSpec(const std::string &str);
-	SigSpec(int val, int width = 32);
-	SigSpec(RTLIL::State bit, int width = 1);
-	SigSpec(const RTLIL::SigBit &bit, int width = 1);
+	SigSpec(ціле val, ціле width = 32);
+	SigSpec(RTLIL::State bit, ціле width = 1);
+	SigSpec(const RTLIL::SigBit &bit, ціле width = 1);
 	SigSpec(const std::vector<RTLIL::SigChunk> &chunks);
 	SigSpec(const std::vector<RTLIL::SigBit> &bits);
 	SigSpec(const pool<RTLIL::SigBit> &bits);
@@ -884,21 +884,21 @@ public:
 		destroy();
 		rep_ = rhs.rep_;
 		hash_ = rhs.hash_;
-		if (rep_ == CHUNK)
+		якщо (rep_ == CHUNK)
 			new (&chunk_) RTLIL::SigChunk(rhs.chunk_);
-		else
+		інакше
 			new (&bits_) std::vector<RTLIL::SigBit>(rhs.bits_);
-		return *this;
+		повернути *this;
 	}
 	SigSpec &operator=(SigSpec &&rhs) {
 		destroy();
 		rep_ = rhs.rep_;
 		hash_ = rhs.hash_;
-		if (rep_ == CHUNK)
+		якщо (rep_ == CHUNK)
 			new (&chunk_) RTLIL::SigChunk(std::move(rhs.chunk_));
-		else
+		інакше
 			new (&bits_) std::vector<RTLIL::SigBit>(std::move(rhs.bits_));
-		return *this;
+		повернути *this;
 	}
 
 	// SigSpec::Chunks holds one reconstructed chunk at a time
@@ -914,12 +914,12 @@ public:
 			using reference = const SigChunk &;
 
 			const SigSpec &spec;
-			int bit_index;
+			ціле bit_index;
 			SigChunk chunk;
 
 			const_iterator(const SigSpec &spec) : spec(spec) {
 				bit_index = 0;
-				if (spec.rep_ == BITS)
+				якщо (spec.rep_ == BITS)
 					next_chunk_bits();
 			}
 			enum End { END };
@@ -929,54 +929,54 @@ public:
 			void next_chunk_bits();
 
 			const SigChunk &operator*() {
-				if (spec.rep_ == CHUNK)
-					return spec.chunk_;
-				return chunk;
+				якщо (spec.rep_ == CHUNK)
+					повернути spec.chunk_;
+				повернути chunk;
 			};
-			const SigChunk *operator->() { return &**this; }
+			const SigChunk *operator->() { повернути &**this; }
 			const_iterator &operator++() {
 				bit_index += (**this).width;
-				if (spec.rep_ == BITS)
+				якщо (spec.rep_ == BITS)
 					next_chunk_bits();
-				return *this;
+				повернути *this;
 			}
-			bool operator==(const const_iterator &rhs) const { return bit_index == rhs.bit_index; }
-			bool operator!=(const const_iterator &rhs) const { return !(*this == rhs); }
+			bool operator==(const const_iterator &rhs) const { повернути bit_index == rhs.bit_index; }
+			bool operator!=(const const_iterator &rhs) const { повернути !(*this == rhs); }
 		};
-		const_iterator begin() const { return const_iterator(spec); }
+		const_iterator begin() const { повернути const_iterator(spec); }
 		const_iterator end() const {
 			const_iterator it(spec, const_iterator::END);
-			return it;
+			повернути it;
 		}
 		// Later we should deprecate these and remove their in-tree calls,
 		// so we can eventually remove chunk_vector.
 		std::vector<RTLIL::SigChunk>::const_reverse_iterator rbegin() {
 			ensure_chunk_vector();
-			return chunk_vector.rbegin();
+			повернути chunk_vector.rbegin();
 		}
 		std::vector<RTLIL::SigChunk>::const_reverse_iterator rend() {
 			ensure_chunk_vector();
-			return chunk_vector.rend();
+			повернути chunk_vector.rend();
 		}
-		int size() {
+		ціле size() {
 			ensure_chunk_vector();
-			return chunk_vector.size();
+			повернути chunk_vector.size();
 		}
-		int size() const {
-			return std::distance(begin(), end());
+		ціле size() const {
+			повернути std::distance(begin(), end());
 		}
-		const SigChunk &at(int index) {
+		const SigChunk &at(ціле index) {
 			ensure_chunk_vector();
-			return chunk_vector.at(index);
+			повернути chunk_vector.at(index);
 		}
 		operator const std::vector<RTLIL::SigChunk>&() {
 			ensure_chunk_vector();
-			return chunk_vector;
+			повернути chunk_vector;
 		}
 	private:
 		void ensure_chunk_vector() {
-			if (spec.size() > 0 && chunk_vector.empty()) {
-				for (const RTLIL::SigChunk &c : *this)
+			якщо (spec.size() > 0 && chunk_vector.empty()) {
+				для (const RTLIL::SigChunk &c : *this)
 					chunk_vector.push_back(c);
 			}
 		}
@@ -985,29 +985,29 @@ public:
 	};
 	friend struct Chunks::const_iterator;
 
-	inline Chunks chunks() const { return {*this}; }
-	inline const SigSpec &bits() const { return *this; }
+	inline Chunks chunks() const { повернути {*this}; }
+	inline const SigSpec &bits() const { повернути *this; }
 
-	inline int size() const { return rep_ == CHUNK ? chunk_.width : GetSize(bits_); }
-	inline bool empty() const { return size() == 0; };
+	inline ціле size() const { повернути rep_ == CHUNK ? chunk_.width : GetSize(bits_); }
+	inline bool empty() const { повернути size() == 0; };
 
-	inline RTLIL::SigBit &operator[](int index) { inline_unpack(); hash_.clear(); return bits_.at(index); }
-	inline RTLIL::SigBit operator[](int index) const {
-		if (rep_ == CHUNK) {
-			if (index < 0 || index >= chunk_.width)
+	inline RTLIL::SigBit &operator[](ціле index) { inline_unpack(); hash_.clear(); повернути bits_.at(index); }
+	inline RTLIL::SigBit operator[](ціле index) const {
+		якщо (rep_ == CHUNK) {
+			якщо (index < 0 || index >= chunk_.width)
 				throw std::out_of_range("SigSpec::operator[]");
-			if (chunk_.wire)
-				return RTLIL::SigBit(chunk_.wire, chunk_.offset + index);
-			return RTLIL::SigBit(chunk_.data[index]);
+			якщо (chunk_.wire)
+				повернути RTLIL::SigBit(chunk_.wire, chunk_.offset + index);
+			повернути RTLIL::SigBit(chunk_.data[index]);
 		}
-		return bits_.at(index);
+		повернути bits_.at(index);
 	}
 
-	inline RTLIL::SigSpecIterator begin() { RTLIL::SigSpecIterator it; it.sig_p = this; it.index = 0; return it; }
-	inline RTLIL::SigSpecIterator end() { RTLIL::SigSpecIterator it; it.sig_p = this; it.index = size(); return it; }
+	inline RTLIL::SigSpecIterator begin() { RTLIL::SigSpecIterator it; it.sig_p = this; it.index = 0; повернути it; }
+	inline RTLIL::SigSpecIterator end() { RTLIL::SigSpecIterator it; it.sig_p = this; it.index = size(); повернути it; }
 
-	inline RTLIL::SigSpecConstIterator begin() const { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.index = 0; return it; }
-	inline RTLIL::SigSpecConstIterator end() const { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.index = size(); return it; }
+	inline RTLIL::SigSpecConstIterator begin() const { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.index = 0; повернути it; }
+	inline RTLIL::SigSpecConstIterator end() const { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.index = size(); повернути it; }
 
 	void sort();
 	void sort_and_unify();
@@ -1021,7 +1021,7 @@ public:
 	void replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules);
 	void replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const;
 
-	void replace(int offset, const RTLIL::SigSpec &with);
+	void replace(ціле offset, const RTLIL::SigSpec &with);
 
 	void remove(const RTLIL::SigSpec &pattern);
 	void remove(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other) const;
@@ -1033,20 +1033,20 @@ public:
 	void remove2(const std::set<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other);
 	void remove2(const pool<RTLIL::Wire*> &pattern, RTLIL::SigSpec *other);
 
-	void remove(int offset, int length = 1);
+	void remove(ціле offset, ціле length = 1);
 	void remove_const();
 
 	RTLIL::SigSpec extract(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec *other = NULL) const;
 	RTLIL::SigSpec extract(const pool<RTLIL::SigBit> &pattern, const RTLIL::SigSpec *other = NULL) const;
-	RTLIL::SigSpec extract(int offset, int length = 1) const;
-	RTLIL::SigSpec extract_end(int offset) const { return extract(offset, size() - offset); }
+	RTLIL::SigSpec extract(ціле offset, ціле length = 1) const;
+	RTLIL::SigSpec extract_end(ціле offset) const { повернути extract(offset, size() - offset); }
 
 	void rewrite_wires(std::function<void(RTLIL::Wire*& wire)> rewrite);
 
-	RTLIL::SigBit lsb() const { log_assert(size()); return (*this)[0]; };
-	RTLIL::SigBit msb() const { log_assert(size()); return (*this)[size() - 1]; };
-	RTLIL::SigBit front() const { return (*this)[0]; }
-	RTLIL::SigBit back() const { return (*this)[size() - 1]; }
+	RTLIL::SigBit lsb() const { log_assert(size()); повернути (*this)[0]; };
+	RTLIL::SigBit msb() const { log_assert(size()); повернути (*this)[size() - 1]; };
+	RTLIL::SigBit front() const { повернути (*this)[0]; }
+	RTLIL::SigBit back() const { повернути (*this)[size() - 1]; }
 
 	void append(const RTLIL::SigSpec &signal);
 	inline void append(Wire *wire) { append(RTLIL::SigSpec(wire)); }
@@ -1057,19 +1057,19 @@ public:
 	inline void append(RTLIL::State state) { append(RTLIL::SigBit(state)); }
 	inline void append(bool bool_) { append(RTLIL::SigBit(bool_)); }
 
-	void extend_u0(int width, bool is_signed = false);
+	void extend_u0(ціле width, bool is_signed = false);
 
-	RTLIL::SigSpec repeat(int num) const;
+	RTLIL::SigSpec repeat(ціле num) const;
 
 	void reverse() { inline_unpack(); std::reverse(bits_.begin(), bits_.end()); }
 
 	bool operator <(const RTLIL::SigSpec &other) const;
 	bool operator ==(const RTLIL::SigSpec &other) const;
-	inline bool operator !=(const RTLIL::SigSpec &other) const { return !(*this == other); }
+	inline bool operator !=(const RTLIL::SigSpec &other) const { повернути !(*this == other); }
 
 	bool is_wire() const;
 	bool is_chunk() const;
-	inline bool is_bit() const { return size() == 1; }
+	inline bool is_bit() const { повернути size() == 1; }
 
 	bool known_driver() const;
 
@@ -1081,7 +1081,7 @@ public:
 	bool has_const() const;
 	bool has_const(State state) const;
 	bool has_marked_bits() const;
-	bool is_onehot(int *pos = nullptr) const;
+	bool is_onehot(ціле *pos = nullptr) const;
 
 	bool as_bool() const;
 
@@ -1090,7 +1090,7 @@ public:
 	// truncate any higher bits, potentially over/underflowing. Consider using
 	// try_as_int, as_int_saturating, or guarding behind convertible_to_int
 	// instead.
-	int as_int(bool is_signed = false) const;
+	ціле as_int(bool is_signed = false) const;
 
 	// Returns true iff the SigSpec is constant and can be converted to an int
 	// without over/underflow.
@@ -1098,12 +1098,12 @@ public:
 
 	// Returns the SigSpec's value as an int if it is a constant and can be
 	// represented without over/underflow, or std::nullopt otherwise.
-	std::optional<int> try_as_int(bool is_signed = false) const;
+	std::optional<ціле> try_as_int(bool is_signed = false) const;
 
 	// Returns an all constant SigSpec's value as an int if it can be represented
 	// without over/underflow, otherwise the max/min value for int depending on
 	// the sign.
-	int as_int_saturating(bool is_signed = false) const;
+	ціле as_int_saturating(bool is_signed = false) const;
 
 	std::string as_string() const;
 	// Returns std::nullopt if there are any non-constant bits. Returns an empty
@@ -1127,24 +1127,24 @@ public:
 	static bool parse_rhs(const RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str);
 
 	operator std::vector<RTLIL::SigChunk>() const;
-	operator std::vector<RTLIL::SigBit>() const { return to_sigbit_vector(); }
-	const RTLIL::SigBit &at(int offset, const RTLIL::SigBit &defval) { return offset < size() ? (*this)[offset] : defval; }
-	RTLIL::SigBit& at(int offset) { return (*this)[offset]; }
-	RTLIL::SigBit at(int offset) const { return (*this)[offset]; }
+	operator std::vector<RTLIL::SigBit>() const { повернути to_sigbit_vector(); }
+	const RTLIL::SigBit &at(ціле offset, const RTLIL::SigBit &defval) { повернути offset < size() ? (*this)[offset] : defval; }
+	RTLIL::SigBit& at(ціле offset) { повернути (*this)[offset]; }
+	RTLIL::SigBit at(ціле offset) const { повернути (*this)[offset]; }
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const {
 		Hasher::hash_t val;
-		if (std::optional<Hasher::hash_t> current = hash_.read())
+		якщо (std::optional<Hasher::hash_t> current = hash_.read())
 			val = *current;
-		else
+		інакше
 			val = updhash();
 		h.eat(val);
-		return h;
+		повернути h;
 	}
 
 #ifndef NDEBUG
 	void check(const Module *mod = nullptr) const;
-#else
+#інакше
 	void check(const Module *mod = nullptr) const { (void)mod; }
 #endif
 };
@@ -1201,16 +1201,16 @@ struct RTLIL::Selection
 	// checks if selection covers full design (may or may not include
 	// boxed-modules)
 	bool selects_all() const {
-		return full_selection || complete_selection;
+		повернути full_selection || complete_selection;
 	}
 
 	// add whole module to this selection
 	template<typename T1> void select(T1 *module) {
-		if (!selects_all() && selected_modules.count(module->name) == 0) {
+		якщо (!selects_all() && selected_modules.count(module->name) == 0) {
 			IdString name = module->name;
 			selected_modules.insert(name);
 			selected_members.erase(name);
-			if (module->get_blackbox_attribute())
+			якщо (module->get_blackbox_attribute())
 				selects_boxes = true;
 		}
 	}
@@ -1221,38 +1221,38 @@ struct RTLIL::Selection
 	}
 
 	template<typename T1> void select(T1 *module, RTLIL::IdString member) {
-		if (!selects_all() && selected_modules.count(module->name.ref()) == 0) {
+		якщо (!selects_all() && selected_modules.count(module->name.ref()) == 0) {
 			selected_members[module->name.ref()].insert(member);
-			if (module->get_blackbox_attribute())
+			якщо (module->get_blackbox_attribute())
 				selects_boxes = true;
 		}
 	}
 
 	// checks if selection is empty
 	bool empty() const {
-		return !selects_all() && selected_modules.empty() && selected_members.empty();
+		повернути !selects_all() && selected_modules.empty() && selected_members.empty();
 	}
 
 	// clear this selection, leaving it empty
 	void clear();
 
 	// create a new selection which is empty
-	static Selection EmptySelection(RTLIL::Design *design = nullptr) { return Selection(false, false, design); };
+	static Selection EmptySelection(RTLIL::Design *design = nullptr) { повернути Selection(false, false, design); };
 
 	// create a new selection with all non-boxed modules
-	static Selection FullSelection(RTLIL::Design *design = nullptr) { return Selection(true, false, design); };
+	static Selection FullSelection(RTLIL::Design *design = nullptr) { повернути Selection(true, false, design); };
 
 	// create a new selection with all modules, including boxes
-	static Selection CompleteSelection(RTLIL::Design *design = nullptr) { return Selection(true, true, design); };
+	static Selection CompleteSelection(RTLIL::Design *design = nullptr) { повернути Selection(true, true, design); };
 };
 
 struct RTLIL::Monitor
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); повернути h; }
 
 	Monitor() {
-		static unsigned int hashidx_count = 123456789;
+		static unsigned ціле hashidx_count = 123456789;
 		hashidx_count = mkhash_xorshift(hashidx_count);
 		hashidx_ = hashidx_count;
 	}
@@ -1276,14 +1276,14 @@ inline constexpr bool is_unpooled_name_v =
 	std::is_same_v<std::decay_t<N>, std::string> || std::is_same_v<std::decay_t<N>, std::string_view> ||
 	std::is_same_v<std::decay_t<N>, const char*> || std::is_same_v<std::decay_t<N>, char*>;
 
-#define YS_UNPOOLED_NAME(N) std::enable_if_t<is_unpooled_name_v<N>, int> = 0
+#define YS_UNPOOLED_NAME(N) std::enable_if_t<is_unpooled_name_v<N>, ціле> = 0
 
 template<typename N>
 inline constexpr bool is_name_string_v =
 	std::is_same_v<std::decay_t<N>, std::string> || std::is_same_v<std::decay_t<N>, std::string_view> ||
 	std::is_same_v<std::decay_t<N>, const char *> || std::is_same_v<std::decay_t<N>, char *>;
 
-#define YS_NAME_STRING(N) std::enable_if_t<is_name_string_v<N>, int> = 0
+#define YS_NAME_STRING(N) std::enable_if_t<is_name_string_v<N>, ціле> = 0
 
 // Forwarders from various string-representing types into a canonical IdString method
 
@@ -1291,13 +1291,13 @@ inline constexpr bool is_name_string_v =
 #define YS_NAME_FWD_POOL(_func, _pool) \
 	template<typename N, typename... Rest, YS_UNPOOLED_NAME(N)> \
 	decltype(auto) _func(N name, Rest&&... rest) \
-		{ return _func(_pool.add(std::move(name)), std::forward<Rest>(rest)...); }
+		{ повернути _func(_pool.add(std::move(name)), std::forward<Rest>(rest)...); }
 
 // Forwards _func(arg0, name, arg2...)
 #define YS_NAME_FWD_2ND_POOL(_func, _pool) \
 	template<typename T, typename N, YS_UNPOOLED_NAME(N)> \
 	decltype(auto) _func(T &&first, N name) \
-		{ return _func(std::forward<T>(first), _pool.add(std::move(name))); }
+		{ повернути _func(std::forward<T>(first), _pool.add(std::move(name))); }
 
 #define YS_NAME_FWD(_func) YS_NAME_FWD_POOL(_func, design->twines())
 #define YS_NAME_FWD_2ND(_func) YS_NAME_FWD_2ND_POOL(_func, design->twines())
@@ -1305,7 +1305,7 @@ inline constexpr bool is_name_string_v =
 struct RTLIL::Design
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); повернути h; }
 
 	pool<RTLIL::Monitor*> monitors;
 	dict<std::string, std::string> scratchpad;
@@ -1313,15 +1313,15 @@ struct RTLIL::Design
 	bool flagBufferedNormalized = false;
 	void bufNormalize(bool enable=true);
 
-	int refcount_modules_;
+	ціле refcount_modules_;
 	dict<RTLIL::IdString, RTLIL::Module*> modules_;
 
 private:
 	TwinePool twines_;
 
 public:
-	TwinePool &twines() { return twines_; }
-	const TwinePool &twines() const { return twines_; }
+	TwinePool &twines() { повернути twines_; }
+	const TwinePool &twines() const { повернути twines_; }
 
 	void absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf);
 
@@ -1341,17 +1341,17 @@ public:
 	RTLIL::Module *module(RTLIL::IdString name);
 	const RTLIL::Module *module(RTLIL::IdString name) const;
 	template<typename N, YS_NAME_STRING(N)> RTLIL::Module *module(N name)
-		{ return module(twines().find(std::string_view(name))); }
+		{ повернути module(twines().find(std::string_view(name))); }
 	template<typename N, YS_NAME_STRING(N)> const RTLIL::Module *module(N name) const
-		{ return module(twines().find(std::string_view(name))); }
+		{ повернути module(twines().find(std::string_view(name))); }
 	RTLIL::Module *top_module() const;
 
 	bool has(RTLIL::IdString id) const {
 		twines_.check_owned(id);
-		return modules_.count(id) != 0;
+		повернути modules_.count(id) != 0;
 	}
 	template<typename N, YS_NAME_STRING(N)> bool has(N name) const
-		{ return has(twines().find(std::string_view(name))); }
+		{ повернути has(twines().find(std::string_view(name))); }
 
 	void add(RTLIL::Module *module);
 
@@ -1363,11 +1363,11 @@ public:
 
 	void scratchpad_unset(const std::string &varname);
 
-	void scratchpad_set_int(const std::string &varname, int value);
+	void scratchpad_set_int(const std::string &varname, ціле value);
 	void scratchpad_set_bool(const std::string &varname, bool value);
 	void scratchpad_set_string(const std::string &varname, std::string value);
 
-	int scratchpad_get_int(const std::string &varname, int default_value = 0) const;
+	ціле scratchpad_get_int(const std::string &varname, ціле default_value = 0) const;
 	bool scratchpad_get_bool(const std::string &varname, bool default_value = false) const;
 	std::string scratchpad_get_string(const std::string &varname, const std::string &default_value = std::string()) const;
 
@@ -1412,27 +1412,27 @@ public:
 
 	// get the current selection
 	RTLIL::Selection &selection() {
-		return selection_stack.back();
+		повернути selection_stack.back();
 	}
 
 	// get the current selection
 	const RTLIL::Selection &selection() const {
-		return selection_stack.back();
+		повернути selection_stack.back();
 	}
 
 	// is the current selection a full selection (no boxes)
 	bool full_selection() const {
-		return selection().full_selection;
+		повернути selection().full_selection;
 	}
 
 	// is the given module in the current selection
 	template<typename T1> bool selected(T1 *module) const {
-		return selected_module(module->name);
+		повернути selected_module(module->name);
 	}
 
 	// is the given member of the given module in the current selection
 	template<typename T1, typename T2> bool selected(T1 *module, T2 *member) const {
-		return selected_member(module->name, member->name);
+		повернути selected_member(module->name, member->name);
 	}
 
 	// add whole module to the current selection
@@ -1457,19 +1457,19 @@ public:
 	) const;
 
 	// returns all selected modules, and may include boxes
-	std::vector<RTLIL::Module*> all_selected_modules() const { return selected_modules(SELECT_ALL, SB_ALL); }
+	std::vector<RTLIL::Module*> all_selected_modules() const { повернути selected_modules(SELECT_ALL, SB_ALL); }
 	// returns all selected unboxed modules, silently ignoring any boxed
 	// modules in the selection
-	std::vector<RTLIL::Module*> selected_unboxed_modules() const { return selected_modules(SELECT_ALL, SB_UNBOXED_ONLY); }
+	std::vector<RTLIL::Module*> selected_unboxed_modules() const { повернути selected_modules(SELECT_ALL, SB_UNBOXED_ONLY); }
 	// returns all selected unboxed modules, warning the user if any boxed
 	// modules have been ignored
-	std::vector<RTLIL::Module*> selected_unboxed_modules_warn() const { return selected_modules(SELECT_ALL, SB_UNBOXED_WARN); }
+	std::vector<RTLIL::Module*> selected_unboxed_modules_warn() const { повернути selected_modules(SELECT_ALL, SB_UNBOXED_WARN); }
 
 	[[deprecated("Use select_unboxed_whole_modules() to maintain prior behaviour, or consider one of the other selected whole module helpers.")]]
-	std::vector<RTLIL::Module*> selected_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_UNBOXED_WARN); }
+	std::vector<RTLIL::Module*> selected_whole_modules() const { повернути selected_modules(SELECT_WHOLE_ONLY, SB_UNBOXED_WARN); }
 	// returns all selected whole modules, silently ignoring partially
 	// selected modules, and may include boxes
-	std::vector<RTLIL::Module*> all_selected_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_ALL); }
+	std::vector<RTLIL::Module*> all_selected_whole_modules() const { повернути selected_modules(SELECT_WHOLE_ONLY, SB_ALL); }
 	// returns all selected whole modules, warning the user if any partially
 	// selected or boxed modules have been ignored; optionally includes
 	// selected whole modules with the 'whitebox' attribute
@@ -1477,15 +1477,15 @@ public:
 		// should whole modules with the 'whitebox' attribute be
 		// included
 		bool include_wb = false
-	) const { return selected_modules(SELECT_WHOLE_WARN, include_wb ? SB_EXCL_BB_WARN : SB_UNBOXED_WARN); }
+	) const { повернути selected_modules(SELECT_WHOLE_WARN, include_wb ? SB_EXCL_BB_WARN : SB_UNBOXED_WARN); }
 	// returns all selected unboxed whole modules, silently ignoring
 	// partially selected or boxed modules
-	std::vector<RTLIL::Module*> selected_unboxed_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_UNBOXED_ONLY); }
+	std::vector<RTLIL::Module*> selected_unboxed_whole_modules() const { повернути selected_modules(SELECT_WHOLE_ONLY, SB_UNBOXED_ONLY); }
 	// returns all selected unboxed whole modules, warning the user if any
 	// partially selected or boxed modules have been ignored
-	std::vector<RTLIL::Module*> selected_unboxed_whole_modules_warn() const { return selected_modules(SELECT_WHOLE_WARN, SB_UNBOXED_WARN); }
+	std::vector<RTLIL::Module*> selected_unboxed_whole_modules_warn() const { повернути selected_modules(SELECT_WHOLE_WARN, SB_UNBOXED_WARN); }
 
-	static std::map<unsigned int, RTLIL::Design*> *get_all_designs(void);
+	static std::map<unsigned ціле, RTLIL::Design*> *get_all_designs(void);
 
 	std::string to_rtlil_str(bool only_selected = true) const;
 };
@@ -1498,7 +1498,7 @@ struct RTLIL::Module : public RTLIL::AttrObject
 	RTLIL::ModuleNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); повернути h; }
 
 protected:
 	void add(RTLIL::Wire *wire);
@@ -1509,10 +1509,10 @@ public:
 	RTLIL::Design *design;
 	pool<RTLIL::Monitor*> monitors;
 
-	TwinePool &twines() const { return design->twines(); }
+	TwinePool &twines() const { повернути design->twines(); }
 
-	int refcount_wires_;
-	int refcount_cells_;
+	ціле refcount_wires_;
+	ціле refcount_cells_;
 
 	dict<RTLIL::IdString, RTLIL::Wire*> wires_;
 	dict<RTLIL::IdString, RTLIL::Cell*> cells_;
@@ -1538,7 +1538,7 @@ public:
 	virtual void makeblackbox();
 
 	bool get_blackbox_attribute(bool ignore_wb=false) const {
-		return get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
+		повернути get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
 	}
 
 	void connect(const RTLIL::SigSig &conn);
@@ -1579,50 +1579,50 @@ public:
 	std::vector<RTLIL::SelectedMember> selected_members() const;
 
 	template<typename T> bool selected(T *member) const {
-		return design->selected_member(name.ref(), member->name.ref());
+		повернути design->selected_member(name.ref(), member->name.ref());
 	}
 
 	RTLIL::Wire* wire(RTLIL::IdString id) {
-		if (design)
+		якщо (design)
 			design->twines().check_owned(id);
 		auto it = wires_.find(id);
-		return it == wires_.end() ? nullptr : it->second;
+		повернути it == wires_.end() ? nullptr : it->second;
 	}
 	RTLIL::Cell* cell(RTLIL::IdString id) {
-		if (design)
+		якщо (design)
 			design->twines().check_owned(id);
 		auto it = cells_.find(id);
-		return it == cells_.end() ? nullptr : it->second;
+		повернути it == cells_.end() ? nullptr : it->second;
 	}
 
 	const RTLIL::Wire* wire(RTLIL::IdString id) const{
-		if (design)
+		якщо (design)
 			design->twines().check_owned(id);
 		auto it = wires_.find(id);
-		return it == wires_.end() ? nullptr : it->second;
+		повернути it == wires_.end() ? nullptr : it->second;
 	}
 	const RTLIL::Cell* cell(RTLIL::IdString id) const {
-		if (design)
+		якщо (design)
 			design->twines().check_owned(id);
 		auto it = cells_.find(id);
-		return it == cells_.end() ? nullptr : it->second;
+		повернути it == cells_.end() ? nullptr : it->second;
 	}
 
 	template<typename N, YS_NAME_STRING(N)> RTLIL::Wire *wire(N name)
-		{ return wire(twines().find(std::string_view(name))); }
+		{ повернути wire(twines().find(std::string_view(name))); }
 	template<typename N, YS_NAME_STRING(N)> RTLIL::Cell *cell(N name)
-		{ return cell(twines().find(std::string_view(name))); }
+		{ повернути cell(twines().find(std::string_view(name))); }
 	template<typename N, YS_NAME_STRING(N)> const RTLIL::Wire *wire(N name) const
-		{ return wire(twines().find(std::string_view(name))); }
+		{ повернути wire(twines().find(std::string_view(name))); }
 	template<typename N, YS_NAME_STRING(N)> const RTLIL::Cell *cell(N name) const
-		{ return cell(twines().find(std::string_view(name))); }
+		{ повернути cell(twines().find(std::string_view(name))); }
 
-	RTLIL::ObjRange<RTLIL::Wire*> wires() { return RTLIL::ObjRange<RTLIL::Wire*>(&wires_, &refcount_wires_); }
-	int wires_size() const { return wires_.size(); }
-	RTLIL::Wire* wire_at(int index) const { return wires_.element(index)->second; }
-	RTLIL::ObjRange<RTLIL::Cell*> cells() { return RTLIL::ObjRange<RTLIL::Cell*>(&cells_, &refcount_cells_); }
-	int cells_size() const { return cells_.size(); }
-	RTLIL::Cell* cell_at(int index) const { return cells_.element(index)->second; }
+	RTLIL::ObjRange<RTLIL::Wire*> wires() { повернути RTLIL::ObjRange<RTLIL::Wire*>(&wires_, &refcount_wires_); }
+	ціле wires_size() const { повернути wires_.size(); }
+	RTLIL::Wire* wire_at(ціле index) const { повернути wires_.element(index)->second; }
+	RTLIL::ObjRange<RTLIL::Cell*> cells() { повернути RTLIL::ObjRange<RTLIL::Cell*>(&cells_, &refcount_cells_); }
+	ціле cells_size() const { повернути cells_.size(); }
+	RTLIL::Cell* cell_at(ціле index) const { повернути cells_.element(index)->second; }
 
 	// Removing wires is expensive. If you have to remove wires, remove them all at once.
 	void remove(const pool<RTLIL::Wire*> &wires);
@@ -1639,10 +1639,10 @@ public:
 	void swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2);
 
 	RTLIL::IdString uniquify(RTLIL::IdString name);
-	RTLIL::IdString uniquify(RTLIL::IdString name, int &index);
+	RTLIL::IdString uniquify(RTLIL::IdString name, ціле &index);
 	YS_NAME_FWD(uniquify)
 
-	RTLIL::Wire *addWire(RTLIL::IdString name, int width = 1);
+	RTLIL::Wire *addWire(RTLIL::IdString name, ціле width = 1);
 	RTLIL::Wire *addWire(RTLIL::IdString name, const RTLIL::Wire *other);
 	YS_NAME_FWD(addWire)
 
@@ -1650,7 +1650,7 @@ public:
 	RTLIL::Cell *addCell(RTLIL::IdString name, const RTLIL::Cell *other);
 	YS_NAME_FWD(addCell)
 	template<typename T, YS_UNPOOLED_NAME(T)>
-	RTLIL::Cell *addCell(RTLIL::IdString name, T type) { return addCell(name, design->twines().add(std::move(type))); }
+	RTLIL::Cell *addCell(RTLIL::IdString name, T type) { повернути addCell(name, design->twines().add(std::move(type))); }
 
 	RTLIL::Memory *addMemory(RTLIL::IdString name);
 	YS_NAME_FWD(addMemory)
@@ -1871,10 +1871,10 @@ public:
 	RTLIL::SigBit Aoi4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const std::string &src = "");
 	RTLIL::SigBit Oai4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const std::string &src = "");
 
-	RTLIL::SigSpec Anyconst  (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Anyseq    (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Allconst  (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Allseq    (RTLIL::IdString name, int width = 1, const std::string &src = "");
+	RTLIL::SigSpec Anyconst  (RTLIL::IdString name, ціле width = 1, const std::string &src = "");
+	RTLIL::SigSpec Anyseq    (RTLIL::IdString name, ціле width = 1, const std::string &src = "");
+	RTLIL::SigSpec Allconst  (RTLIL::IdString name, ціле width = 1, const std::string &src = "");
+	RTLIL::SigSpec Allseq    (RTLIL::IdString name, ціле width = 1, const std::string &src = "");
 	RTLIL::SigSpec Initstate (RTLIL::IdString name, const std::string &src = "");
 
 	RTLIL::SigSpec SetTag          (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src = "");
@@ -1932,7 +1932,7 @@ public:
 
 	std::string to_rtlil_str() const;
 #ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Module*> *get_all_modules(void);
+	static std::map<unsigned ціле, RTLIL::Module*> *get_all_modules(void);
 #endif
 };
 
@@ -1941,7 +1941,7 @@ struct RTLIL::Wire : public RTLIL::AttrObject
 	RTLIL::WireNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); повернути h; }
 
 protected:
 	// use module->addWire() and module->remove() to create or destroy wires
@@ -1960,59 +1960,59 @@ public:
 	void operator=(RTLIL::Wire &other) = delete;
 
 	RTLIL::Module *module;
-	int width, start_offset, port_id;
+	ціле width, start_offset, port_id;
 	bool port_input, port_output, upto, is_signed;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() const { повернути module ? module->design : nullptr; }
+	TwinePool &twines() const { повернути module->twines(); }
 
-	bool known_driver() const { return driverCell_ != nullptr; }
+	bool known_driver() const { повернути driverCell_ != nullptr; }
 
-	RTLIL::Cell *driverCell() const    { log_assert(driverCell_); return driverCell_; };
-	RTLIL::IdString driverPort() const { log_assert(driverCell_); return driverPort_; };
+	RTLIL::Cell *driverCell() const    { log_assert(driverCell_); повернути driverCell_; };
+	RTLIL::IdString driverPort() const { log_assert(driverCell_); повернути driverPort_; };
 
-	int from_hdl_index(int hdl_index) {
-		int zero_index = hdl_index - start_offset;
-		int rtlil_index = upto ? width - 1 - zero_index : zero_index;
-		return rtlil_index >= 0 && rtlil_index < width ? rtlil_index : INT_MIN;
+	ціле from_hdl_index(ціле hdl_index) {
+		ціле zero_index = hdl_index - start_offset;
+		ціле rtlil_index = upto ? width - 1 - zero_index : zero_index;
+		повернути rtlil_index >= 0 && rtlil_index < width ? rtlil_index : INT_MIN;
 	}
 
-	int to_hdl_index(int rtlil_index) {
-		if (rtlil_index < 0 || rtlil_index >= width)
-			return INT_MIN;
-		int zero_index = upto ? width - 1 - rtlil_index : rtlil_index;
-		return zero_index + start_offset;
+	ціле to_hdl_index(ціле rtlil_index) {
+		якщо (rtlil_index < 0 || rtlil_index >= width)
+			повернути INT_MIN;
+		ціле zero_index = upto ? width - 1 - rtlil_index : rtlil_index;
+		повернути zero_index + start_offset;
 	}
 
 	std::string to_rtlil_str() const;
 
 #ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Wire*> *get_all_wires(void);
+	static std::map<unsigned ціле, RTLIL::Wire*> *get_all_wires(void);
 #endif
 };
 
-inline int GetSize(RTLIL::Wire *wire) {
-	return wire->width;
+inline ціле GetSize(RTLIL::Wire *wire) {
+	повернути wire->width;
 }
 
 struct RTLIL::Memory : public RTLIL::AttrObject
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); повернути h; }
 
 	Memory();
 	~Memory();
 
 	RTLIL::Module *module = nullptr;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() const { повернути module ? module->design : nullptr; }
+	TwinePool &twines() const { повернути module->twines(); }
 
 	RTLIL::MemoryNameId name;
 
-	int width, start_offset, size;
+	ціле width, start_offset, size;
 #ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Memory*> *get_all_memorys(void);
+	static std::map<unsigned ціле, RTLIL::Memory*> *get_all_memorys(void);
 #endif
 
 	std::string to_rtlil_str() const;
@@ -2028,7 +2028,7 @@ public:
 	RTLIL::CellNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); повернути h; }
 
 protected:
 	// use module->addCell() and module->remove() to create or destroy cells
@@ -2043,8 +2043,8 @@ public:
 
 	RTLIL::Module *module;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() const { повернути module ? module->design : nullptr; }
+	TwinePool &twines() const { повернути module->twines(); }
 
 	RTLIL::CellTypeId type;
 	dict<RTLIL::IdString, RTLIL::SigSpec> connections_;
@@ -2070,13 +2070,13 @@ public:
 	const RTLIL::Const &getParam(RTLIL::IdString paramname) const;
 
 	template<typename N, YS_NAME_STRING(N)> bool hasParam(N name) const
-		{ return hasParam(module->twines().find(std::string_view(name))); }
+		{ повернути hasParam(module->twines().find(std::string_view(name))); }
 	template<typename N, YS_NAME_STRING(N)> void unsetParam(N name)
 		{ unsetParam(module->twines().find(std::string_view(name))); }
 	template<typename N, YS_NAME_STRING(N)> void setParam(N name, RTLIL::Const value)
 		{ setParam(module->twines().add(std::move(name)), std::move(value)); }
 	template<typename N, YS_NAME_STRING(N)> const RTLIL::Const &getParam(N name) const
-		{ return getParam(module->twines().find(std::string_view(name))); }
+		{ повернути getParam(module->twines().find(std::string_view(name))); }
 
 	void sort();
 	void check();
@@ -2088,7 +2088,7 @@ public:
 	template<typename T> void rewrite_sigspecs2(T &functor);
 
 #ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Cell*> *get_all_cells(void);
+	static std::map<unsigned ціле, RTLIL::Cell*> *get_all_cells(void);
 #endif
 
 	bool has_memid() const;
@@ -2152,7 +2152,7 @@ struct RTLIL::Process : public RTLIL::AttrObject
 {
 	Hasher::hash_t hashidx_;
 	RTLIL::ProcessNameId name;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); повернути h; }
 
 protected:
 	// use module->addProcess() and module->remove() to create or destroy processes
@@ -2165,8 +2165,8 @@ public:
 	RTLIL::CaseRule root_case;
 	std::vector<RTLIL::SyncRule*> syncs;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() const { повернути module ? module->design : nullptr; }
+	TwinePool &twines() const { повернути module->twines(); }
 
 	template<typename T> void rewrite_sigspecs(T &functor);
 	template<typename T> void rewrite_sigspecs2(T &functor);
@@ -2179,56 +2179,56 @@ inline RTLIL::SigBit::SigBit() : wire(NULL), data(RTLIL::State::S0) { }
 inline RTLIL::SigBit::SigBit(RTLIL::State bit) : wire(NULL), data(bit) { }
 inline RTLIL::SigBit::SigBit(bool bit) : wire(NULL), data(bit ? State::S1 : State::S0) { }
 inline RTLIL::SigBit::SigBit(RTLIL::Wire *wire) : wire(wire), offset(0) { log_assert(wire && wire->width == 1); }
-inline RTLIL::SigBit::SigBit(RTLIL::Wire *wire, int offset) : wire(wire), offset(offset) { log_assert(wire != nullptr); }
-inline RTLIL::SigBit::SigBit(const RTLIL::SigChunk &chunk) : wire(chunk.wire) { log_assert(chunk.width == 1); if (wire) offset = chunk.offset; else data = chunk.data[0]; }
-inline RTLIL::SigBit::SigBit(const RTLIL::SigChunk &chunk, int index) : wire(chunk.wire) { if (wire) offset = chunk.offset + index; else data = chunk.data[index]; }
+inline RTLIL::SigBit::SigBit(RTLIL::Wire *wire, ціле offset) : wire(wire), offset(offset) { log_assert(wire != nullptr); }
+inline RTLIL::SigBit::SigBit(const RTLIL::SigChunk &chunk) : wire(chunk.wire) { log_assert(chunk.width == 1); якщо (wire) offset = chunk.offset; інакше data = chunk.data[0]; }
+inline RTLIL::SigBit::SigBit(const RTLIL::SigChunk &chunk, ціле index) : wire(chunk.wire) { якщо (wire) offset = chunk.offset + index; інакше data = chunk.data[index]; }
 
 inline bool RTLIL::SigBit::operator<(const RTLIL::SigBit &other) const {
-	if (wire == other.wire)
-		return wire ? (offset < other.offset) : (data < other.data);
-	if (wire != nullptr && other.wire != nullptr)
-		return wire->name < other.wire->name;
-	return (wire != nullptr) < (other.wire != nullptr);
+	якщо (wire == other.wire)
+		повернути wire ? (offset < other.offset) : (data < other.data);
+	якщо (wire != nullptr && other.wire != nullptr)
+		повернути wire->name < other.wire->name;
+	повернути (wire != nullptr) < (other.wire != nullptr);
 }
 
 inline bool RTLIL::SigBit::operator==(const RTLIL::SigBit &other) const {
-	return (wire == other.wire) && (wire ? (offset == other.offset) : (data == other.data));
+	повернути (wire == other.wire) && (wire ? (offset == other.offset) : (data == other.data));
 }
 
 inline bool RTLIL::SigBit::operator!=(const RTLIL::SigBit &other) const {
-	return (wire != other.wire) || (wire ? (offset != other.offset) : (data != other.data));
+	повернути (wire != other.wire) || (wire ? (offset != other.offset) : (data != other.data));
 }
 
 inline Hasher RTLIL::SigBit::hash_into(Hasher h) const {
-	if (wire) {
+	якщо (wire) {
 		h.eat(offset);
 		h.eat(wire->name);
-		return h;
+		повернути h;
 	}
 	h.eat(data);
-	return h;
+	повернути h;
 }
 
 
 inline Hasher RTLIL::SigBit::hash_top() const {
 	Hasher h;
-	if (wire) {
+	якщо (wire) {
 		IdString name = wire->name.ref();
 		uint32_t n = (uint32_t)name.bits();
 		h.force(hashlib::legacy::djb2_add(n, offset));
-		return h;
+		повернути h;
 	}
 	h.force(data);
-	return h;
+	повернути h;
 }
 
 inline RTLIL::SigBit &RTLIL::SigSpecIterator::operator*() const {
-	return (*sig_p)[index];
+	повернути (*sig_p)[index];
 }
 
 inline const RTLIL::SigBit &RTLIL::SigSpecConstIterator::operator*() {
 	bit = (*sig_p)[index];
-	return bit;
+	повернути bit;
 }
 
 inline RTLIL::SigBit::SigBit(const RTLIL::SigSpec &sig) {
@@ -2240,11 +2240,11 @@ inline RTLIL::SigBit::SigBit(const RTLIL::SigSpec &sig) {
 template<typename T>
 void RTLIL::Module::rewrite_sigspecs(T &functor)
 {
-	for (auto &it : cells_)
+	для (auto &it : cells_)
 		it.second->rewrite_sigspecs(functor);
-	for (auto &it : processes)
+	для (auto &it : processes)
 		it.second->rewrite_sigspecs(functor);
-	for (auto &it : connections_) {
+	для (auto &it : connections_) {
 		functor(it.first);
 		functor(it.second);
 	}
@@ -2253,47 +2253,47 @@ void RTLIL::Module::rewrite_sigspecs(T &functor)
 template<typename T>
 void RTLIL::Module::rewrite_sigspecs2(T &functor)
 {
-	for (auto &it : cells_)
+	для (auto &it : cells_)
 		it.second->rewrite_sigspecs2(functor);
-	for (auto &it : processes)
+	для (auto &it : processes)
 		it.second->rewrite_sigspecs2(functor);
-	for (auto &it : connections_) {
+	для (auto &it : connections_) {
 		functor(it.first, it.second);
 	}
 }
 
 template<typename T>
 void RTLIL::Cell::rewrite_sigspecs(T &functor) {
-	for (auto &it : connections_)
+	для (auto &it : connections_)
 		functor(it.second);
 }
 
 template<typename T>
 void RTLIL::Cell::rewrite_sigspecs2(T &functor) {
-	for (auto &it : connections_)
+	для (auto &it : connections_)
 		functor(it.second);
 }
 
 template<typename T>
 void RTLIL::CaseRule::rewrite_sigspecs(T &functor) {
-	for (auto &it : compare)
+	для (auto &it : compare)
 		functor(it);
-	for (auto &it : actions) {
+	для (auto &it : actions) {
 		functor(it.first);
 		functor(it.second);
 	}
-	for (auto it : switches)
+	для (auto it : switches)
 		it->rewrite_sigspecs(functor);
 }
 
 template<typename T>
 void RTLIL::CaseRule::rewrite_sigspecs2(T &functor) {
-	for (auto &it : compare)
+	для (auto &it : compare)
 		functor(it);
-	for (auto &it : actions) {
+	для (auto &it : actions) {
 		functor(it.first, it.second);
 	}
-	for (auto it : switches)
+	для (auto it : switches)
 		it->rewrite_sigspecs2(functor);
 }
 
@@ -2301,7 +2301,7 @@ template<typename T>
 void RTLIL::SwitchRule::rewrite_sigspecs(T &functor)
 {
 	functor(signal);
-	for (auto it : cases)
+	для (auto it : cases)
 		it->rewrite_sigspecs(functor);
 }
 
@@ -2309,7 +2309,7 @@ template<typename T>
 void RTLIL::SwitchRule::rewrite_sigspecs2(T &functor)
 {
 	functor(signal);
-	for (auto it : cases)
+	для (auto it : cases)
 		it->rewrite_sigspecs2(functor);
 }
 
@@ -2317,11 +2317,11 @@ template<typename T>
 void RTLIL::SyncRule::rewrite_sigspecs(T &functor)
 {
 	functor(signal);
-	for (auto &it : actions) {
+	для (auto &it : actions) {
 		functor(it.first);
 		functor(it.second);
 	}
-	for (auto &it : mem_write_actions) {
+	для (auto &it : mem_write_actions) {
 		functor(it.address);
 		functor(it.data);
 		functor(it.enable);
@@ -2332,10 +2332,10 @@ template<typename T>
 void RTLIL::SyncRule::rewrite_sigspecs2(T &functor)
 {
 	functor(signal);
-	for (auto &it : actions) {
+	для (auto &it : actions) {
 		functor(it.first, it.second);
 	}
-	for (auto &it : mem_write_actions) {
+	для (auto &it : mem_write_actions) {
 		functor(it.address);
 		functor(it.data);
 		functor(it.enable);
@@ -2346,7 +2346,7 @@ template<typename T>
 void RTLIL::Process::rewrite_sigspecs(T &functor)
 {
 	root_case.rewrite_sigspecs(functor);
-	for (auto it : syncs)
+	для (auto it : syncs)
 		it->rewrite_sigspecs(functor);
 }
 
@@ -2354,7 +2354,7 @@ template<typename T>
 void RTLIL::Process::rewrite_sigspecs2(T &functor)
 {
 	root_case.rewrite_sigspecs2(functor);
-	for (auto it : syncs)
+	для (auto it : syncs)
 		it->rewrite_sigspecs2(functor);
 }
 

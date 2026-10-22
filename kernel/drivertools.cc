@@ -23,21 +23,21 @@ YOSYS_NAMESPACE_BEGIN
 
 DriveBit::DriveBit(SigBit const &bit)
 {
-	if (bit.is_wire())
+	якщо (bit.is_wire())
 		*this = DriveBitWire(bit.wire, bit.offset);
-	else
+	інакше
 		*this = bit.data;
 }
 
 void DriveBit::merge(DriveBit const &other)
 {
-	if (other.type_ == DriveType::NONE)
-		return;
-	if (type_ == DriveType::NONE) {
+	якщо (other.type_ == DriveType::NONE)
+		повернути;
+	якщо (type_ == DriveType::NONE) {
 		*this = other;
-		return;
+		повернути;
 	}
-	if (type_ != DriveType::MULTIPLE) {
+	якщо (type_ != DriveType::MULTIPLE) {
 		DriveBitMultiple multi(std::move(*this));
 		*this = std::move(multi);
 	}
@@ -47,120 +47,120 @@ void DriveBit::merge(DriveBit const &other)
 
 void DriveBitMultiple::merge(DriveBit const &single)
 {
-	if (single.type() == DriveType::NONE)
-		return;
-	if (single.type() == DriveType::MULTIPLE) {
+	якщо (single.type() == DriveType::NONE)
+		повернути;
+	якщо (single.type() == DriveType::MULTIPLE) {
 		merge(single.multiple());
-		return;
+		повернути;
 	}
 	multiple_.emplace(single);
 }
 
 void DriveBitMultiple::merge(DriveBit &&single)
 {
-	if (single.type() == DriveType::NONE)
-		return;
-	if (single.type() == DriveType::MULTIPLE) {
+	якщо (single.type() == DriveType::NONE)
+		повернути;
+	якщо (single.type() == DriveType::MULTIPLE) {
 		merge(std::move(single.multiple()));
-		return;
+		повернути;
 	}
 	multiple_.emplace(std::move(single));
 }
 
-DriveBitMultiple DriveChunkMultiple::operator[](int i) const
+DriveBitMultiple DriveChunkMultiple::operator[](ціле i) const
 {
 	DriveBitMultiple result;
-	for (auto const &single : multiple_)
+	для (auto const &single : multiple_)
 		result.merge(single[i]);
-	return result;
+	повернути result;
 }
 
 
 bool DriveChunkWire::can_append(DriveBitWire const &bit) const
 {
-	return bit.wire == wire && bit.offset == offset + width;
+	повернути bit.wire == wire && bit.offset == offset + width;
 }
 
 bool DriveChunkWire::try_append(DriveBitWire const &bit)
 {
-	if (!can_append(bit))
-		return false;
+	якщо (!can_append(bit))
+		повернути false;
 	width += 1;
-	return true;
+	повернути true;
 }
 
 bool DriveChunkWire::try_append(DriveChunkWire const &chunk)
 {
-	if (chunk.wire != wire || chunk.offset != offset + width)
-		return false;
+	якщо (chunk.wire != wire || chunk.offset != offset + width)
+		повернути false;
 	width += chunk.width;
-	return true;
+	повернути true;
 }
 
 bool DriveChunkPort::can_append(DriveBitPort const &bit) const
 {
-	return bit.cell == cell && bit.port == port && bit.offset == offset + width;
+	повернути bit.cell == cell && bit.port == port && bit.offset == offset + width;
 }
 
 bool DriveChunkPort::try_append(DriveBitPort const &bit)
 {
-	if (!can_append(bit))
-		return false;
+	якщо (!can_append(bit))
+		повернути false;
 	width += 1;
-	return true;
+	повернути true;
 }
 
 bool DriveChunkPort::try_append(DriveChunkPort const &chunk)
 {
-	if (chunk.cell != cell || chunk.port != port || chunk.offset != offset + width)
-		return false;
+	якщо (chunk.cell != cell || chunk.port != port || chunk.offset != offset + width)
+		повернути false;
 	width += chunk.width;
-	return true;
+	повернути true;
 }
 
 bool DriveChunkMarker::can_append(DriveBitMarker const &bit) const
 {
-	return bit.marker == marker && bit.offset == offset + width;
+	повернути bit.marker == marker && bit.offset == offset + width;
 }
 
 bool DriveChunkMarker::try_append(DriveBitMarker const &bit)
 {
-	if (!can_append(bit))
-		return false;
+	якщо (!can_append(bit))
+		повернути false;
 	width += 1;
-	return true;
+	повернути true;
 }
 
 bool DriveChunkMarker::try_append(DriveChunkMarker const &chunk)
 {
-	if (chunk.marker != marker || chunk.offset != offset + width)
-		return false;
+	якщо (chunk.marker != marker || chunk.offset != offset + width)
+		повернути false;
 	width += chunk.width;
-	return true;
+	повернути true;
 }
 
 
 bool DriveChunkMultiple::can_append(DriveBitMultiple const &bit) const
 {
-	if (bit.multiple().size() != multiple_.size())
-		return false;
+	якщо (bit.multiple().size() != multiple_.size())
+		повернути false;
 
-	int const_drivers = 0;
-	for (DriveChunk const &single : multiple_)
-		if (single.is_constant())
+	ціле const_drivers = 0;
+	для (DriveChunk const &single : multiple_)
+		якщо (single.is_constant())
 			const_drivers += 1;
 
-	if (const_drivers > 1)
-		return false;
+	якщо (const_drivers > 1)
+		повернути false;
 
-	for (DriveBit const &single : bit.multiple())
-		if (single.is_constant())
+	для (DriveBit const &single : bit.multiple())
+		якщо (single.is_constant())
 			const_drivers -= 1;
 
-	if (const_drivers != 0)
-		return false;
+	якщо (const_drivers != 0)
+		повернути false;
 
-	for (DriveChunk const &single : multiple_)
+	для (DriveChunk const &single : multiple_)
 	{
 		switch (single.type())
 		{
@@ -169,50 +169,50 @@ bool DriveChunkMultiple::can_append(DriveBitMultiple const &bit) const
 			case DriveType::WIRE: {
 				auto const &wire = single.wire();
 				DriveBit next = DriveBitWire(wire.wire, wire.offset + wire.width);
-				if (!bit.multiple().count(next))
-					return false;
+				якщо (!bit.multiple().count(next))
+					повернути false;
 			} break;
 			case DriveType::PORT: {
 				auto const &port = single.port();
 				DriveBit next = DriveBitPort(port.cell, port.port, port.offset + port.width);
-				if (!bit.multiple().count(next))
-					return false;
+				якщо (!bit.multiple().count(next))
+					повернути false;
 			} break;
 			case DriveType::MARKER: {
 				auto const &marker = single.marker();
 				DriveBit next = DriveBitMarker(marker.marker, marker.offset + marker.width);
-				if (!bit.multiple().count(next))
-					return false;
+				якщо (!bit.multiple().count(next))
+					повернути false;
 			} break;
 			default:
-				return false;
+				повернути false;
 		}
 	}
 
-	return true;
+	повернути true;
 }
 
 bool DriveChunkMultiple::can_append(DriveChunkMultiple const &chunk) const
 {
-	if (chunk.multiple().size() != multiple_.size())
-		return false;
+	якщо (chunk.multiple().size() != multiple_.size())
+		повернути false;
 
-	int const_drivers = 0;
-	for (DriveChunk const &single : multiple_)
-		if (single.is_constant())
+	ціле const_drivers = 0;
+	для (DriveChunk const &single : multiple_)
+		якщо (single.is_constant())
 			const_drivers += 1;
 
-	if (const_drivers > 1)
-		return false;
+	якщо (const_drivers > 1)
+		повернути false;
 
-	for (DriveChunk const &single : chunk.multiple())
-		if (single.is_constant())
+	для (DriveChunk const &single : chunk.multiple())
+		якщо (single.is_constant())
 			const_drivers -= 1;
 
-	if (const_drivers != 0)
-		return false;
+	якщо (const_drivers != 0)
+		повернути false;
 
-	for (DriveChunk const &single : multiple_)
+	для (DriveChunk const &single : multiple_)
 	{
 		switch (single.type())
 		{
@@ -221,41 +221,41 @@ bool DriveChunkMultiple::can_append(DriveChunkMultiple const &chunk) const
 			case DriveType::WIRE: {
 				auto const &wire = single.wire();
 				DriveChunk next = DriveChunkWire(wire.wire, wire.offset + wire.width, chunk.size());
-				if (!chunk.multiple().count(next))
-					return false;
+				якщо (!chunk.multiple().count(next))
+					повернути false;
 			} break;
 			case DriveType::PORT: {
 				auto const &port = single.port();
 				DriveChunk next = DriveChunkPort(port.cell, port.port, port.offset + port.width, chunk.size());
-				if (!chunk.multiple().count(next))
-					return false;
+				якщо (!chunk.multiple().count(next))
+					повернути false;
 			} break;
 			case DriveType::MARKER: {
 				auto const &marker = single.marker();
 				DriveChunk next = DriveChunkMarker(marker.marker, marker.offset + marker.width, chunk.size());
-				if (!chunk.multiple().count(next))
-					return false;
+				якщо (!chunk.multiple().count(next))
+					повернути false;
 			} break;
 			default:
-				return false;
+				повернути false;
 		}
 	}
 
-	return true;
+	повернути true;
 }
 
 bool DriveChunkMultiple::try_append(DriveBitMultiple const &bit)
 {
-	if (!can_append(bit))
-		return false;
+	якщо (!can_append(bit))
+		повернути false;
 	width_ += 1;
 	State constant;
 
-	for (DriveBit const &single : bit.multiple())
-		if (single.is_constant())
+	для (DriveBit const &single : bit.multiple())
+		якщо (single.is_constant())
 			constant = single.constant();
 
-	for (DriveChunk &single : multiple_)
+	для (DriveChunk &single : multiple_)
 	{
 		switch (single.type())
 		{
@@ -275,22 +275,22 @@ bool DriveChunkMultiple::try_append(DriveBitMultiple const &bit)
 				log_abort();
 		}
 	}
-	return true;
+	повернути true;
 }
 
 bool DriveChunkMultiple::try_append(DriveChunkMultiple const &chunk)
 {
-	if (!can_append(chunk))
-		return false;
-	int width = chunk.size();
+	якщо (!can_append(chunk))
+		повернути false;
+	ціле width = chunk.size();
 	width_ += width;
 	Const constant;
 
-	for (DriveChunk const &single : chunk.multiple())
-		if (single.is_constant())
+	для (DriveChunk const &single : chunk.multiple())
+		якщо (single.is_constant())
 			constant = single.constant();
 
-	for (DriveChunk &single : multiple_)
+	для (DriveChunk &single : multiple_)
 	{
 		switch (single.type())
 		{
@@ -310,27 +310,27 @@ bool DriveChunkMultiple::try_append(DriveChunkMultiple const &chunk)
 				log_abort();
 		}
 	}
-	return true;
+	повернути true;
 }
 
 bool DriveChunk::can_append(DriveBit const &bit) const
 {
-	if (size() == 0)
-		return true;
-	if (bit.type() != type_)
-		return false;
+	якщо (size() == 0)
+		повернути true;
+	якщо (bit.type() != type_)
+		повернути false;
 	switch (type_)
 	{
 		case DriveType::NONE:
-			return true;
+			повернути true;
 		case DriveType::CONSTANT:
-			return true;
+			повернути true;
 		case DriveType::WIRE:
-			return wire_.can_append(bit.wire());
+			повернути wire_.can_append(bit.wire());
 		case DriveType::PORT:
-			return port_.can_append(bit.port());
+			повернути port_.can_append(bit.port());
 		case DriveType::MULTIPLE:
-			return multiple_.can_append(bit.multiple());
+			повернути multiple_.can_append(bit.multiple());
 		default:
 			log_abort();
 	}
@@ -338,24 +338,24 @@ bool DriveChunk::can_append(DriveBit const &bit) const
 
 bool DriveChunk::try_append(DriveBit const &bit)
 {
-	if (size() == 0)
+	якщо (size() == 0)
 		*this = bit;
-	if (bit.type() != type_)
-		return false;
+	якщо (bit.type() != type_)
+		повернути false;
 	switch (type_)
 	{
 		case DriveType::NONE:
 			none_ += 1;
-			return true;
+			повернути true;
 		case DriveType::CONSTANT:
 			constant_.append(RTLIL::Const(bit.constant()));
-			return true;
+			повернути true;
 		case DriveType::WIRE:
-			return wire_.try_append(bit.wire());
+			повернути wire_.try_append(bit.wire());
 		case DriveType::PORT:
-			return port_.try_append(bit.port());
+			повернути port_.try_append(bit.port());
 		case DriveType::MULTIPLE:
-			return multiple_.try_append(bit.multiple());
+			повернути multiple_.try_append(bit.multiple());
 		default:
 			log_abort();
 	}
@@ -364,26 +364,26 @@ bool DriveChunk::try_append(DriveBit const &bit)
 
 bool DriveChunk::try_append(DriveChunk const &chunk)
 {
-	if (size() == 0)
+	якщо (size() == 0)
 		*this = chunk;
-	if (chunk.type_ != type_)
-		return false;
+	якщо (chunk.type_ != type_)
+		повернути false;
 	switch (type_)
 	{
 		case DriveType::NONE:
 			none_ += chunk.none_;
-			return true;
+			повернути true;
 		case DriveType::CONSTANT:
 			constant_.append(chunk.constant_);
-			return true;
+			повернути true;
 		case DriveType::WIRE:
-			return wire_.try_append(chunk.wire());
+			повернути wire_.try_append(chunk.wire());
 		case DriveType::PORT:
-			return port_.try_append(chunk.port());
+			повернути port_.try_append(chunk.port());
 		case DriveType::MARKER:
-			return marker_.try_append(chunk.marker());
+			повернути marker_.try_append(chunk.marker());
 		case DriveType::MULTIPLE:
-			return multiple_.try_append(chunk.multiple());
+			повернути multiple_.try_append(chunk.multiple());
 	}
 	log_abort();
 }
@@ -391,13 +391,13 @@ bool DriveChunk::try_append(DriveChunk const &chunk)
 void DriveSpec::append(DriveBit const &bit)
 {
 	hash_ = 0;
-	if (!packed()) {
+	якщо (!packed()) {
 		bits_.push_back(bit);
 		width_ += 1;
-		return;
+		повернути;
 	}
 
-	if (chunks_.empty() || !chunks_.back().try_append(bit))
+	якщо (chunks_.empty() || !chunks_.back().try_append(bit))
 		chunks_.emplace_back(bit);
 	width_ += 1;
 }
@@ -406,26 +406,26 @@ void DriveSpec::append(DriveChunk const &chunk)
 {
 	hash_ = 0;
 	pack();
-	if (chunks_.empty() || !chunks_.back().try_append(chunk))
+	якщо (chunks_.empty() || !chunks_.back().try_append(chunk))
 		chunks_.emplace_back(chunk);
 	width_ += chunk.size();
 }
 
 void DriveSpec::pack() const {
-	if (bits_.empty())
-		return;
+	якщо (bits_.empty())
+		повернути;
 	std::vector<DriveBit> bits(std::move(bits_));
-	for (auto &bit : bits)
-		if (chunks_.empty() || !chunks_.back().try_append(bit))
+	для (auto &bit : bits)
+		якщо (chunks_.empty() || !chunks_.back().try_append(bit))
 			chunks_.emplace_back(std::move(bit));
 }
 
 void DriveSpec::unpack() const {
-	if (chunks_.empty())
-		return;
-	for (auto &chunk : chunks_)
+	якщо (chunks_.empty())
+		повернути;
+	для (auto &chunk : chunks_)
 	{
-		for (int i = 0, width = chunk.size(); i != width; ++i)
+		для (ціле i = 0, width = chunk.size(); i != width; ++i)
 		{
 			bits_.emplace_back(chunk[i]);
 		}
@@ -436,16 +436,16 @@ void DriveSpec::unpack() const {
 void DriveSpec::compute_width()
 {
 	width_ = 0;
-	for (auto const &chunk : chunks_)
+	для (auto const &chunk : chunks_)
 		width_ += chunk.size();
 }
 
 void DriverMap::DriveBitGraph::add_edge(DriveBitId src, DriveBitId dst)
 {
-	if (first_edges.emplace(src, dst).first->second == dst)
-		return;
-	if (second_edges.emplace(src, dst).first->second == dst)
-		return;
+	якщо (first_edges.emplace(src, dst).first->second == dst)
+		повернути;
+	якщо (second_edges.emplace(src, dst).first->second == dst)
+		повернути;
 	more_edges[src].emplace(dst);
 }
 
@@ -453,28 +453,28 @@ DriverMap::DriveBitId DriverMap::DriveBitGraph::pop_edge(DriveBitId src)
 {
 	// TODO unused I think?
 	auto found_more = more_edges.find(src);
-	if (found_more != more_edges.end()) {
+	якщо (found_more != more_edges.end()) {
 		auto result = found_more->second.pop();
-		if (found_more->second.empty())
+		якщо (found_more->second.empty())
 			more_edges.erase(found_more);
-		return result;
+		повернути result;
 	}
 
 	auto found_second = second_edges.find(src);
-	if (found_second != second_edges.end()) {
+	якщо (found_second != second_edges.end()) {
 		auto result = found_second->second;
 		second_edges.erase(found_second);
-		return result;
+		повернути result;
 	}
 
 	auto found_first = first_edges.find(src);
-	if (found_first != first_edges.end()) {
+	якщо (found_first != first_edges.end()) {
 		auto result = found_first->second;
 		first_edges.erase(found_first);
-		return result;
+		повернути result;
 	}
 
-	return DriveBitId();
+	повернути DriveBitId();
 }
 
 void DriverMap::DriveBitGraph::clear(DriveBitId src)
@@ -486,29 +486,29 @@ void DriverMap::DriveBitGraph::clear(DriveBitId src)
 
 bool DriverMap::DriveBitGraph::contains(DriveBitId src)
 {
-	return first_edges.count(src);
+	повернути first_edges.count(src);
 }
 
-int DriverMap::DriveBitGraph::count(DriveBitId src)
+ціле DriverMap::DriveBitGraph::count(DriveBitId src)
 {
-	if (!first_edges.count(src))
-		return 0;
-	if (!second_edges.count(src))
-		return 1;
+	якщо (!first_edges.count(src))
+		повернути 0;
+	якщо (!second_edges.count(src))
+		повернути 1;
 	auto found = more_edges.find(src);
-	if (found == more_edges.end())
-		return 2;
-	return GetSize(found->second) + 2;
+	якщо (found == more_edges.end())
+		повернути 2;
+	повернути GetSize(found->second) + 2;
 }
 
-DriverMap::DriveBitId DriverMap::DriveBitGraph::at(DriveBitId src, int index)
+DriverMap::DriveBitId DriverMap::DriveBitGraph::at(DriveBitId src, ціле index)
 {
-	if (index == 0)
-		return first_edges.at(src);
-	else if (index == 1)
-		return second_edges.at(src);
-	else
-		return *more_edges.at(src).element(index - 2);
+	якщо (index == 0)
+		повернути first_edges.at(src);
+	інакше якщо (index == 1)
+		повернути second_edges.at(src);
+	інакше
+		повернути *more_edges.at(src).element(index - 2);
 }
 
 
@@ -517,34 +517,34 @@ DriverMap::BitMode DriverMap::bit_mode(DriveBit const &bit)
 	switch (bit.type())
 	{
 		case DriveType::NONE:
-			return BitMode::NONE;
+			повернути BitMode::NONE;
 		case DriveType::CONSTANT:
 			// TODO how to handle Sx here?
-			return bit.constant() == State::Sz ? BitMode::NONE : BitMode::DRIVER;
+			повернути bit.constant() == State::Sz ? BitMode::NONE : BitMode::DRIVER;
 		case DriveType::WIRE: {
 			auto const &wire = bit.wire();
 			bool driver = wire.wire->port_input;
 			bool driven = wire.wire->port_output;
 
-			if (driver && !driven)
-				return BitMode::DRIVER;
-			else if (driven && !driver)
-				return BitMode::DRIVEN;
-			else if (driver && driven)
-				return BitMode::TRISTATE;
-			else
-				return keep_wire(bit.wire().wire) ? BitMode::KEEP : BitMode::NONE;
+			якщо (driver && !driven)
+				повернути BitMode::DRIVER;
+			інакше якщо (driven && !driver)
+				повернути BitMode::DRIVEN;
+			інакше якщо (driver && driven)
+				повернути BitMode::TRISTATE;
+			інакше
+				повернути keep_wire(bit.wire().wire) ? BitMode::KEEP : BitMode::NONE;
 		}
 		case DriveType::PORT: {
 			auto const &port = bit.port();
 			bool driver = celltypes.cell_output(port.cell->type, port.port);
 			bool driven = celltypes.cell_input(port.cell->type, port.port);
-			if (driver && !driven)
-				return BitMode::DRIVER;
-			else if (driven && !driver)
-				return BitMode::DRIVEN_UNIQUE;
-			else
-				return BitMode::TRISTATE;
+			якщо (driver && !driven)
+				повернути BitMode::DRIVER;
+			інакше якщо (driven && !driver)
+				повернути BitMode::DRIVEN_UNIQUE;
+			інакше
+				повернути BitMode::TRISTATE;
 		}
 		case DriveType::MARKER: {
 			// TODO user supplied classification
@@ -560,38 +560,38 @@ DriverMap::DriveBitId DriverMap::id_from_drive_bit(DriveBit const &bit)
 	switch (bit.type())
 	{
 		case DriveType::NONE:
-			return -1;
+			повернути -1;
 		case DriveType::CONSTANT:
-			return (int)bit.constant();
+			повернути (ціле)bit.constant();
 		case DriveType::WIRE: {
 			auto const &wire_bit = bit.wire();
-			int offset = next_offset;
+			ціле offset = next_offset;
 			auto insertion = wire_offsets.emplace(wire_bit.wire, offset);
-			if (insertion.second) {
-				if (wire_bit.wire->width == 1) {
+			якщо (insertion.second) {
+				якщо (wire_bit.wire->width == 1) {
 					log_assert(wire_bit.offset == 0);
 					isolated_drive_bits.emplace(offset, bit);
-				} else
+				} інакше
 					drive_bits.emplace(offset, DriveBitWire(wire_bit.wire, 0));
 				next_offset += wire_bit.wire->width;
 			}
-			return insertion.first->second.id + wire_bit.offset;
+			повернути insertion.first->second.id + wire_bit.offset;
 		}
 		case DriveType::PORT: {
 			auto const &port_bit = bit.port();
 			auto key = std::make_pair(port_bit.cell, port_bit.port);
-			int offset = next_offset;
+			ціле offset = next_offset;
 			auto insertion = port_offsets.emplace(key, offset);
-			if (insertion.second) {
-				int width = port_bit.cell->connections().at(port_bit.port).size();
-				if (width == 1 && offset == 0) {
+			якщо (insertion.second) {
+				ціле width = port_bit.cell->connections().at(port_bit.port).size();
+				якщо (width == 1 && offset == 0) {
 					log_assert(port_bit.offset == 0);
 					isolated_drive_bits.emplace(offset, bit);
-				} else
+				} інакше
 					drive_bits.emplace(offset, DriveBitPort(port_bit.cell, port_bit.port, 0));
 				next_offset += width;
 			}
-			return insertion.first->second.id + port_bit.offset;
+			повернути insertion.first->second.id + port_bit.offset;
 		}
 		default:
 			log_assert(false && "unsupported DriveType in DriverMap");
@@ -602,37 +602,37 @@ DriverMap::DriveBitId DriverMap::id_from_drive_bit(DriveBit const &bit)
 DriveBit DriverMap::drive_bit_from_id(DriveBitId id)
 {
 	auto found_isolated = isolated_drive_bits.find(id);
-	if (found_isolated != isolated_drive_bits.end())
-		return found_isolated->second;
+	якщо (found_isolated != isolated_drive_bits.end())
+		повернути found_isolated->second;
 
 	auto found = drive_bits.upper_bound(id);
-	if (found == drive_bits.begin()) {
-		return id < 0 ? DriveBit() : DriveBit((State) id.id);
+	якщо (found == drive_bits.begin()) {
+		повернути id < 0 ? DriveBit() : DriveBit((State) id.id);
 	}
 	--found;
 	DriveBit result = found->second;
-	if (result.is_wire()) {
+	якщо (result.is_wire()) {
 		result.wire().offset += id.id - found->first.id;
-	} else {
+	} інакше {
 		log_assert(result.is_port());
 		result.port().offset += id.id - found->first.id;
 	}
-	return result;
+	повернути result;
 }
 
 void DriverMap::connect_directed_merge(DriveBitId driven_id, DriveBitId driver_id)
 {
-	if (driven_id == driver_id)
-		return;
+	якщо (driven_id == driver_id)
+		повернути;
 
 	same_driver.merge(driven_id, driver_id);
 
-	for (int i = 0, end = connected_drivers.count(driven_id); i != end; ++i)
+	для (ціле i = 0, end = connected_drivers.count(driven_id); i != end; ++i)
 		connected_drivers.add_edge(driver_id, connected_drivers.at(driven_id, i));
 
 	connected_drivers.clear(driven_id);
 
-	for (int i = 0, end = connected_undirected.count(driven_id); i != end; ++i)
+	для (ціле i = 0, end = connected_undirected.count(driven_id); i != end; ++i)
 		connected_undirected.add_edge(driver_id, connected_undirected.at(driven_id, i));
 
 	connected_undirected.clear(driven_id);
@@ -651,11 +651,11 @@ void DriverMap::connect_undirected(DriveBitId a_id, DriveBitId b_id)
 
 void DriverMap::add(Module *module)
 {
-	for (auto const &conn : module->connections())
+	для (auto const &conn : module->connections())
 		add(conn.first, conn.second);
 
-	for (auto cell : module->cells())
-		for (auto const &conn : cell->connections())
+	для (auto cell : module->cells())
+		для (auto const &conn : cell->connections())
 			add_port(cell, conn.first, conn.second);
 }
 
@@ -671,36 +671,36 @@ void DriverMap::add(DriveBit const &a, DriveBit const &b)
 	a_id = same_driver.find(a_id);
 	b_id = same_driver.find(b_id);
 
-	if (a_id == b_id)
-		return;
+	якщо (a_id == b_id)
+		повернути;
 
 	BitMode a_mode = bit_mode(orig_a_id == a_id ? a : drive_bit_from_id(a_id));
 	BitMode b_mode = bit_mode(orig_b_id == b_id ? b : drive_bit_from_id(b_id));
 
 	// If either bit is just a wire that we don't need to keep, merge and
 	// use the other end as representative bit.
-	if (a_mode == BitMode::NONE && !(b_mode == BitMode::DRIVEN_UNIQUE || b_mode == BitMode::DRIVEN))
+	якщо (a_mode == BitMode::NONE && !(b_mode == BitMode::DRIVEN_UNIQUE || b_mode == BitMode::DRIVEN))
 		connect_directed_merge(a_id, b_id);
-	else if (b_mode == BitMode::NONE && !(a_mode == BitMode::DRIVEN_UNIQUE || a_mode == BitMode::DRIVEN))
+	інакше якщо (b_mode == BitMode::NONE && !(a_mode == BitMode::DRIVEN_UNIQUE || a_mode == BitMode::DRIVEN))
 		connect_directed_merge(b_id, a_id);
 	// If either bit requires a driven value and has a unique driver, merge
 	// and use the other end as representative bit.
-	else if (a_mode == BitMode::DRIVEN_UNIQUE && !(b_mode == BitMode::DRIVEN_UNIQUE || b_mode == BitMode::DRIVEN))
+	інакше якщо (a_mode == BitMode::DRIVEN_UNIQUE && !(b_mode == BitMode::DRIVEN_UNIQUE || b_mode == BitMode::DRIVEN))
 		connect_directed_buffer(a_id, b_id);
-	else if (b_mode == BitMode::DRIVEN_UNIQUE && !(a_mode == BitMode::DRIVEN_UNIQUE || a_mode == BitMode::DRIVEN))
+	інакше якщо (b_mode == BitMode::DRIVEN_UNIQUE && !(a_mode == BitMode::DRIVEN_UNIQUE || a_mode == BitMode::DRIVEN))
 		connect_directed_buffer(b_id, a_id);
 	// If either bit only drives a value, store a directed connection from
 	// it to the other bit.
-	else if (a_mode == BitMode::DRIVER)
+	інакше якщо (a_mode == BitMode::DRIVER)
 		connect_directed_buffer(b_id, a_id);
-	else if (b_mode == BitMode::DRIVER)
+	інакше якщо (b_mode == BitMode::DRIVER)
 		connect_directed_buffer(a_id, b_id);
 	// Otherwise we store an undirected connection which we will resolve
 	// during querying.
-	else
+	інакше
 		connect_undirected(a_id, b_id);
 
-	return;
+	повернути;
 }
 
 // Specialized version that avoids unpacking
@@ -712,26 +712,26 @@ void DriverMap::add(SigSpec const &a, SigSpec const &b)
 
 	auto a_chunk = a_chunks.begin();
 	auto a_end = a_chunks.end();
-	int a_offset = 0;
+	ціле a_offset = 0;
 
 	auto b_chunk = b_chunks.begin();
-	int b_offset = 0;
+	ціле b_offset = 0;
 
 	SigChunk tmp_a, tmp_b;
-	while (a_chunk != a_end) {
-		int a_width = a_chunk->width - a_offset;
-		if (a_width == 0) {
+	поки (a_chunk != a_end) {
+		ціле a_width = a_chunk->width - a_offset;
+		якщо (a_width == 0) {
 			a_offset = 0;
 			++a_chunk;
 			continue;
 		}
-		int b_width = b_chunk->width - b_offset;
-		if (b_width == 0) {
+		ціле b_width = b_chunk->width - b_offset;
+		якщо (b_width == 0) {
 			b_offset = 0;
 			++b_chunk;
 			continue;
 		}
-		int width = std::min(a_width, b_width);
+		ціле width = std::min(a_width, b_width);
 		log_assert(width > 0);
 
 		SigChunk const &a_subchunk =
@@ -748,8 +748,8 @@ void DriverMap::add(SigSpec const &a, SigSpec const &b)
 
 void DriverMap::add_port(Cell *cell, IdString port, SigSpec const &b)
 {
-	int offset = 0;
-	for (auto const &chunk : b.chunks()) {
+	ціле offset = 0;
+	для (auto const &chunk : b.chunks()) {
 		add(chunk, DriveChunkPort(cell, port, offset, chunk.width));
 		offset += chunk.size();
 	}
@@ -759,69 +759,69 @@ void DriverMap::orient_undirected(DriveBitId id)
 {
 	pool<DriveBitId> &seen = orient_undirected_seen;
 	pool<DriveBitId> &drivers = orient_undirected_drivers;
-	dict<DriveBitId, int> &distance = orient_undirected_distance;
+	dict<DriveBitId, ціле> &distance = orient_undirected_distance;
 	seen.clear();
 	drivers.clear();
 
 	seen.emplace(id);
 
-	for (int pos = 0; pos < GetSize(seen); ++pos) {
+	для (ціле pos = 0; pos < GetSize(seen); ++pos) {
 		DriveBitId current = *seen.element(seen.size() - 1 - pos);
 		DriveBit bit = drive_bit_from_id(current);
 
 		BitMode mode = bit_mode(bit);
 
-		if (mode == BitMode::DRIVER || mode == BitMode::TRISTATE)
+		якщо (mode == BitMode::DRIVER || mode == BitMode::TRISTATE)
 			drivers.emplace(current);
 
-		if (connected_drivers.contains(current))
+		якщо (connected_drivers.contains(current))
 			drivers.emplace(current);
 
-		int undirected_driver_count = connected_undirected.count(current);
+		ціле undirected_driver_count = connected_undirected.count(current);
 
-		for (int i = 0; i != undirected_driver_count; ++i)
+		для (ціле i = 0; i != undirected_driver_count; ++i)
 			seen.emplace(same_driver.find(connected_undirected.at(current, i)));
 	}
 
-	if (drivers.empty())
-		for (auto seen_id : seen)
+	якщо (drivers.empty())
+		для (auto seen_id : seen)
 			drivers.emplace(seen_id);
 
-	for (auto driver : drivers)
+	для (auto driver : drivers)
 	{
 		distance.clear();
 		distance.emplace(driver, 0);
 
-		for (int pos = 0; pos < GetSize(distance); ++pos) {
+		для (ціле pos = 0; pos < GetSize(distance); ++pos) {
 			auto current_it = distance.element(distance.size() - 1 - pos);
 
 			DriveBitId current = current_it->first;
-			int undirected_driver_count = connected_undirected.count(current);
+			ціле undirected_driver_count = connected_undirected.count(current);
 
-			for (int i = 0; i != undirected_driver_count; ++i)
+			для (ціле i = 0; i != undirected_driver_count; ++i)
 			{
 				DriveBitId next = same_driver.find(connected_undirected.at(current, i));
 				auto emplaced = distance.emplace(next, current_it->second + 1);
-				if (emplaced.first->second == current_it->second + 1)
+				якщо (emplaced.first->second == current_it->second + 1)
 					connected_oriented.add_edge(next, current);
 			}
 		}
 	}
 
-	for (auto seen_id : seen)
+	для (auto seen_id : seen)
 		oriented_present.emplace(seen_id);
 }
 
 DriveBit DriverMap::operator()(DriveBit const &bit)
 {
-	if (bit.type() == DriveType::MARKER || bit.type() == DriveType::NONE)
-		return bit;
-	if (bit.type() == DriveType::MULTIPLE)
+	якщо (bit.type() == DriveType::MARKER || bit.type() == DriveType::NONE)
+		повернути bit;
+	якщо (bit.type() == DriveType::MULTIPLE)
 	{
 		DriveBit result;
-		for (auto const &inner : bit.multiple().multiple())
+		для (auto const &inner : bit.multiple().multiple())
 			result.merge((*this)(inner));
-		return result;
+		повернути result;
 	}
 
 	DriveBitId bit_id = id_from_drive_bit(bit);
@@ -832,46 +832,46 @@ DriveBit DriverMap::operator()(DriveBit const &bit)
 
 	BitMode mode = bit_mode(bit_repr);
 
-	if (mode == BitMode::KEEP && bit_repr_id != bit_id)
-		return bit_repr;
+	якщо (mode == BitMode::KEEP && bit_repr_id != bit_id)
+		повернути bit_repr;
 
-	int implicit_driver_count = connected_drivers.count(bit_repr_id);
-	if (connected_undirected.contains(bit_repr_id) && !oriented_present.count(bit_repr_id))
+	ціле implicit_driver_count = connected_drivers.count(bit_repr_id);
+	якщо (connected_undirected.contains(bit_repr_id) && !oriented_present.count(bit_repr_id))
 		orient_undirected(bit_repr_id);
 
 	DriveBit driver;
 
-	if (mode == BitMode::DRIVER || mode == BitMode::TRISTATE)
+	якщо (mode == BitMode::DRIVER || mode == BitMode::TRISTATE)
 		driver = bit_repr;
 
-	for (int i = 0; i != implicit_driver_count; ++i)
+	для (ціле i = 0; i != implicit_driver_count; ++i)
 		driver.merge(drive_bit_from_id(connected_drivers.at(bit_repr_id, i)));
 
-	int oriented_driver_count = connected_oriented.count(bit_repr_id);
-	for (int i = 0; i != oriented_driver_count; ++i)
+	ціле oriented_driver_count = connected_oriented.count(bit_repr_id);
+	для (ціле i = 0; i != oriented_driver_count; ++i)
 		driver.merge(drive_bit_from_id(connected_oriented.at(bit_repr_id, i)));
 
-	return driver;
+	повернути driver;
 }
 
 DriveSpec DriverMap::operator()(DriveSpec spec)
 {
 	DriveSpec result;
 
-	for (int i = 0, width = spec.size(); i != width; ++i)
+	для (ціле i = 0, width = spec.size(); i != width; ++i)
 		result.append((*this)(spec[i]));
 
-	return result;
+	повернути result;
 }
 
 std::string log_signal(DriveChunkWire const &chunk)
 {
 	std::string id = chunk.wire->name.unescape();
-	if (chunk.is_whole())
-		return id;
-	if (chunk.width == 1)
-		return stringf("%s [%d]", id, chunk.offset);
-	return stringf("%s [%d:%d]", id, chunk.offset + chunk.width - 1, chunk.offset);
+	якщо (chunk.is_whole())
+		повернути id;
+	якщо (chunk.width == 1)
+		повернути stringf("%s [%d]", id, chunk.offset);
+	повернути stringf("%s [%d:%d]", id, chunk.offset + chunk.width - 1, chunk.offset);
 }
 
 
@@ -879,18 +879,18 @@ std::string log_signal(DriveChunkPort const &chunk)
 {
 	std::string cell_id = chunk.cell->name.unescape();
 	std::string port_id = chunk.cell->twines().unescaped_str(chunk.port);
-	if (chunk.is_whole())
-		return stringf("%s <%s>", cell_id, port_id);
-	if (chunk.width == 1)
-		return stringf("%s <%s> [%d]", cell_id, port_id, chunk.offset);
-	return stringf("%s <%s> [%d:%d]", cell_id, port_id, chunk.offset + chunk.width - 1, chunk.offset);
+	якщо (chunk.is_whole())
+		повернути stringf("%s <%s>", cell_id, port_id);
+	якщо (chunk.width == 1)
+		повернути stringf("%s <%s> [%d]", cell_id, port_id, chunk.offset);
+	повернути stringf("%s <%s> [%d:%d]", cell_id, port_id, chunk.offset + chunk.width - 1, chunk.offset);
 }
 
 std::string log_signal(DriveChunkMarker const &chunk)
 {
-	if (chunk.width == 1)
-		return stringf("<marker %d> [%d]", chunk.marker, chunk.offset);
-	return stringf("<marker %d> [%d:%d]", chunk.marker, chunk.offset + chunk.width - 1, chunk.offset);
+	якщо (chunk.width == 1)
+		повернути stringf("<marker %d> [%d]", chunk.marker, chunk.offset);
+	повернути stringf("<marker %d> [%d:%d]", chunk.marker, chunk.offset + chunk.width - 1, chunk.offset);
 }
 
 std::string log_signal(DriveChunk const &chunk)
@@ -898,25 +898,25 @@ std::string log_signal(DriveChunk const &chunk)
 	switch (chunk.type())
 	{
 		case DriveType::NONE:
-			return stringf("<none x%d>", chunk.size());
+			повернути stringf("<none x%d>", chunk.size());
 		case DriveType::CONSTANT:
-			return log_const(chunk.constant());
+			повернути log_const(chunk.constant());
 		case DriveType::WIRE:
-			return log_signal(chunk.wire());
+			повернути log_signal(chunk.wire());
 		case DriveType::PORT:
-			return log_signal(chunk.port());
+			повернути log_signal(chunk.port());
 		case DriveType::MARKER:
-			return log_signal(chunk.marker());
+			повернути log_signal(chunk.marker());
 		case DriveType::MULTIPLE: {
 			std::string str = "<multiple";
 			const char *sep = " ";
-			for (auto const &single : chunk.multiple().multiple()) {
+			для (auto const &single : chunk.multiple().multiple()) {
 				str += sep;
 				sep = ", ";
 				str += log_signal(single);
 			}
 			str += ">";
-			return str;
+			повернути str;
 		}
 		default:
 			log_abort();
@@ -926,15 +926,15 @@ std::string log_signal(DriveChunk const &chunk)
 std::string log_signal(DriveSpec const &spec)
 {
 	auto &chunks = spec.chunks();
-	if (chunks.empty())
-		return "{}";
-	if (chunks.size() == 1)
-		return log_signal(chunks[0]);
+	якщо (chunks.empty())
+		повернути "{}";
+	якщо (chunks.size() == 1)
+		повернути log_signal(chunks[0]);
 
 	std::string str;
 	const char *sep = "{ ";
 
-	for (auto i = chunks.rbegin(), end = chunks.rend(); i != end; ++i)
+	для (auto i = chunks.rbegin(), end = chunks.rend(); i != end; ++i)
 	{
 		str += sep;
 		sep = " ";
@@ -942,7 +942,7 @@ std::string log_signal(DriveSpec const &spec)
 	}
 	str += " }";
 
-	return str;
+	повернути str;
 }
 
 YOSYS_NAMESPACE_END
