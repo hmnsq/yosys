@@ -20,8 +20,8 @@
 #ifndef BITPATTERN_H
 #define BITPATTERN_H
 
-#include "kernel/log.h"
-#include "kernel/rtlil.h"
+#ضمن "kernel/log.h"
+#ضمن "kernel/rtlil.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -37,29 +37,29 @@ YOSYS_NAMESPACE_BEGIN
  * BitPatternPool does not permit adding new patterns, only removing.
  * Its intended use case is in analysing cases in case/match constructs in HDL.
  */
-struct BitPatternPool
+بنية BitPatternPool
 {
-	int width;
-	struct bits_t {
+	صحيح width;
+	بنية bits_t {
 		std::vector<RTLIL::State> bitdata;
 		mutable Hasher::hash_t cached_hash;
-		bits_t(int width = 0) : bitdata(width), cached_hash(0) { }
-		RTLIL::State &operator[](int index) {
-			return bitdata[index];
+		bits_t(صحيح width = 0) : bitdata(width), cached_hash(0) { }
+		RTLIL::State &operator[](صحيح index) {
+			أرجع bitdata[index];
 		}
-		const RTLIL::State &operator[](int index) const {
-			return bitdata[index];
+		ثابت RTLIL::State &operator[](صحيح index) ثابت {
+			أرجع bitdata[index];
 		}
-		bool operator==(const bits_t &other) const {
-			if (run_hash(*this) != run_hash(other))
-				return false;
-			return bitdata == other.bitdata;
+		bool operator==(ثابت bits_t &other) ثابت {
+			إذا (run_hash(*this) != run_hash(other))
+				أرجع false;
+			أرجع bitdata == other.bitdata;
 		}
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			if (!cached_hash)
+		[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
+			إذا (!cached_hash)
 				cached_hash = run_hash(bitdata);
 			h.eat(cached_hash);
-			return h;
+			أرجع h;
 		}
 	};
 	pool<bits_t> database;
@@ -67,29 +67,29 @@ struct BitPatternPool
 	BitPatternPool(RTLIL::SigSpec sig)
 	{
 		width = sig.size();
-		if (width > 0) {
+		إذا (width > 0) {
 			bits_t pattern(width);
-			for (int i = 0; i < width; i++) {
-				if (sig[i].wire == NULL && sig[i].data <= RTLIL::State::S1)
+			لكل (صحيح i = 0; i < width; i++) {
+				إذا (sig[i].wire == عدم && sig[i].data <= RTLIL::State::S1)
 					pattern[i] = sig[i].data;
-				else
+				وإلا
 					pattern[i] = RTLIL::State::Sa;
 			}
-			database.insert(pattern);
+			database.داخل_کرو(pattern);
 		}
 	}
 
 	/**
 	 * Constructs a pool of all possible patterns (all don't-care bits)
 	 */
-	BitPatternPool(int width)
+	BitPatternPool(صحيح width)
 	{
 		this->width = width;
-		if (width > 0) {
+		إذا (width > 0) {
 			bits_t pattern(width);
-			for (int i = 0; i < width; i++)
+			لكل (صحيح i = 0; i < width; i++)
 				pattern[i] = RTLIL::State::Sa;
-			database.insert(pattern);
+			database.داخل_کرو(pattern);
 		}
 	}
 
@@ -101,22 +101,22 @@ struct BitPatternPool
 	{
 		bits_t bits;
 		bits.bitdata = sig.as_const().to_bits();
-		for (auto &b : bits.bitdata)
-			if (b > RTLIL::State::S1)
+		لكل (auto &b : bits.bitdata)
+			إذا (b > RTLIL::State::S1)
 				b = RTLIL::State::Sa;
-		return bits;
+		أرجع bits;
 	}
 
 	/**
 	 * A literal x/z bit can never match a 2-valued selector, so a pattern containing
 	 * one covers nothing.
 	 */
-	static bool covers_nothing(RTLIL::SigSpec sig)
+	ساكن bool covers_nothing(RTLIL::SigSpec sig)
 	{
-		for (auto bit : sig)
-			if (bit.wire == NULL && (bit.data == RTLIL::State::Sx || bit.data == RTLIL::State::Sz))
-				return true;
-		return false;
+		لكل (auto bit : sig)
+			إذا (bit.wire == عدم && (bit.data == RTLIL::State::Sx || bit.data == RTLIL::State::Sz))
+				أرجع true;
+		أرجع false;
 	}
 
 	/**
@@ -124,12 +124,12 @@ struct BitPatternPool
 	 */
 	bool match(bits_t a, bits_t b)
 	{
-		log_assert(int(a.bitdata.size()) == width);
-		log_assert(int(b.bitdata.size()) == width);
-		for (int i = 0; i < width; i++)
-			if (a[i] <= RTLIL::State::S1 && b[i] <= RTLIL::State::S1 && a[i] != b[i])
-				return false;
-		return true;
+		log_assert(صحيح(a.bitdata.size()) == width);
+		log_assert(صحيح(b.bitdata.size()) == width);
+		لكل (صحيح i = 0; i < width; i++)
+			إذا (a[i] <= RTLIL::State::S1 && b[i] <= RTLIL::State::S1 && a[i] != b[i])
+				أرجع false;
+		أرجع true;
 	}
 
 	/**
@@ -143,13 +143,13 @@ struct BitPatternPool
 	 */
 	bool has_any(RTLIL::SigSpec sig)
 	{
-		if (covers_nothing(sig))
-			return false;
+		إذا (covers_nothing(sig))
+			أرجع false;
 		bits_t bits = sig2bits(sig);
-		for (auto &it : database)
-			if (match(it, bits))
-				return true;
-		return false;
+		لكل (auto &it : database)
+			إذا (match(it, bits))
+				أرجع true;
+		أرجع false;
 	}
 
 	/**
@@ -163,18 +163,18 @@ struct BitPatternPool
 	 */
 	bool has_all(RTLIL::SigSpec sig)
 	{
-		if (covers_nothing(sig))
-			return true;
+		إذا (covers_nothing(sig))
+			أرجع true;
 		bits_t bits = sig2bits(sig);
-		for (auto &it : database)
-			if (match(it, bits)) {
-				for (int i = 0; i < width; i++)
-					if (bits[i] > RTLIL::State::S1 && it[i] <= RTLIL::State::S1)
-						goto next_database_entry;
-				return true;
+		لكل (auto &it : database)
+			إذا (match(it, bits)) {
+				لكل (صحيح i = 0; i < width; i++)
+					إذا (bits[i] > RTLIL::State::S1 && it[i] <= RTLIL::State::S1)
+						اذهب next_database_entry;
+				أرجع true;
 	next_database_entry:;
 			}
-		return false;
+		أرجع false;
 	}
 
 	/**
@@ -186,25 +186,25 @@ struct BitPatternPool
 	bool take(RTLIL::SigSpec sig)
 	{
 		bool status = false;
-		if (covers_nothing(sig))
-			return false;
+		إذا (covers_nothing(sig))
+			أرجع false;
 		bits_t bits = sig2bits(sig);
-		for (auto it = database.begin(); it != database.end();)
-			if (match(*it, bits)) {
-				for (int i = 0; i < width; i++) {
-					if ((*it)[i] != RTLIL::State::Sa || bits[i] == RTLIL::State::Sa)
-						continue;
+		لكل (auto it = database.begin(); it != database.end();)
+			إذا (match(*it, bits)) {
+				لكل (صحيح i = 0; i < width; i++) {
+					إذا ((*it)[i] != RTLIL::State::Sa || bits[i] == RTLIL::State::Sa)
+						استمر;
 					bits_t new_pattern;
 					new_pattern.bitdata = it->bitdata;
 					new_pattern[i] = bits[i] == RTLIL::State::S1 ? RTLIL::State::S0 : RTLIL::State::S1;
-					database.insert(new_pattern);
+					database.داخل_کرو(new_pattern);
 				}
 				it = database.erase(it);
 				status = true;
-				continue;
-			} else
+				استمر;
+			} وإلا
 				++it;
-		return status;
+		أرجع status;
 	}
 
 	/**
@@ -212,15 +212,15 @@ struct BitPatternPool
 	 */
 	bool take_all()
 	{
-		if (database.empty())
-			return false;
+		إذا (database.empty())
+			أرجع false;
 		database.clear();
-		return true;
+		أرجع true;
 	}
 
 	bool empty()
 	{
-		return database.empty();
+		أرجع database.empty();
 	}
 };
 
