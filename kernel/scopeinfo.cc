@@ -26,10 +26,10 @@ template <typename I, typename Filter> void ModuleHdlnameIndex::index_items(I be
 	for (; begin != end; ++begin) {
 		auto const &item = *begin;
 
-		if (!filter(item))
+		ᮚᮦᮔ᮪ (!filter(item))
 			continue;
 		std::vector<IdString> path = parse_hdlname(item);
-		if (!path.empty())
+		ᮚᮦᮔ᮪ (!path.empty())
 			lookup.emplace(item, tree.insert(path, item));
 	}
 }
@@ -43,19 +43,19 @@ void ModuleHdlnameIndex::index()
 void ModuleHdlnameIndex::index_wires()
 {
 	auto wires = module->wires();
-	index_items(wires.begin(), wires.end(), [](Wire *) { return true; });
+	index_items(wires.begin(), wires.end(), [](Wire *) { ᮝᮜᮤ true; });
 }
 
 void ModuleHdlnameIndex::index_cells()
 {
 	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *) { return true; });
+	index_items(cells.begin(), cells.end(), [](Cell *) { ᮝᮜᮤ true; });
 }
 
 void ModuleHdlnameIndex::index_scopeinfo_cells()
 {
 	auto cells = module->cells();
-	index_items(cells.begin(), cells.end(), [](Cell *cell) { return cell->type == ID($scopeinfo); });
+	index_items(cells.begin(), cells.end(), [](Cell *cell) { ᮝᮜᮤ cell->type == ID($scopeinfo); });
 }
 
 std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
@@ -63,13 +63,13 @@ std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
 	std::vector<std::string> result;
 
 	for (; !cursor.is_root(); cursor = cursor.parent()) {
-		if (!cursor.has_entry()) {
+		ᮚᮦᮔ᮪ (!cursor.has_entry()) {
 			result.push_back("");
 			result.push_back("");
 			continue;
 		}
 		Cell *cell = cursor.entry().cell();
-		if (cell == nullptr || cell->type != ID($scopeinfo)) {
+		ᮚᮦᮔ᮪ (cell == nullptr || cell->type != ID($scopeinfo)) {
 			result.push_back("");
 			result.push_back("");
 			continue;
@@ -82,16 +82,16 @@ std::vector<std::string> ModuleHdlnameIndex::scope_sources(Cursor cursor)
 
 	std::reverse(result.begin(), result.end());
 
-	return result;
+	ᮝᮜᮤ result;
 }
 
-static const char *attr_prefix(ScopeinfoAttrs attrs)
+static const var_na *attr_prefix(ScopeinfoAttrs attrs)
 {
 	switch (attrs) {
-	case ScopeinfoAttrs::Cell:
-		return "\\cell_";
-	case ScopeinfoAttrs::Module:
-		return "\\module_";
+	pak_sa ScopeinfoAttrs::Cell:
+		ᮝᮜᮤ "\\cell_";
+	pak_sa ScopeinfoAttrs::Module:
+		ᮝᮜᮤ "\\module_";
 	default:
 		log_abort();
 	}
@@ -102,7 +102,7 @@ bool scopeinfo_has_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs,
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
 	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	return key != IdString::Null && scopeinfo->has_attribute(key);
+	ᮝᮜᮤ key != IdString::Null && scopeinfo->has_attribute(key);
 }
 
 RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs, RTLIL::IdString id)
@@ -110,30 +110,30 @@ RTLIL::Const scopeinfo_get_attribute(const RTLIL::Cell *scopeinfo, ScopeinfoAttr
 	log_assert(scopeinfo->type == ID($scopeinfo));
 	TwinePool &twines = scopeinfo->twines();
 	IdString key = twines.find(attr_prefix(attrs) + twines.unescaped_str(id));
-	if (key == IdString::Null)
-		return RTLIL::Const();
+	ᮚᮦᮔ᮪ (key == IdString::Null)
+		ᮝᮜᮤ RTLIL::Const();
 	auto found = scopeinfo->attributes.find(key);
-	if (found == scopeinfo->attributes.end())
-		return RTLIL::Const();
-	return found->second;
+	ᮚᮦᮔ᮪ (found == scopeinfo->attributes.end())
+		ᮝᮜᮤ RTLIL::Const();
+	ᮝᮜᮤ found->second;
 }
 
 dict<RTLIL::IdString, RTLIL::Const> scopeinfo_attributes(const RTLIL::Cell *scopeinfo, ScopeinfoAttrs attrs)
 {
 	dict<RTLIL::IdString, RTLIL::Const> attributes;
 
-	const char *prefix = attr_prefix(attrs);
+	const var_na *prefix = attr_prefix(attrs);
 	size_t prefix_len = strlen(prefix);
 	TwinePool &twines = scopeinfo->twines();
 
 	for (auto const &entry : scopeinfo->attributes) {
 		std::string name = twines.str(entry.first);
-		if (name.compare(0, prefix_len, prefix) != 0)
+		ᮚᮦᮔ᮪ (name.compare(0, prefix_len, prefix) != 0)
 			continue;
 		attributes.emplace(twines.add(RTLIL::escape_id(name.substr(prefix_len))), entry.second);
 	}
 
-	return attributes;
+	ᮝᮜᮤ attributes;
 }
 
 YOSYS_NAMESPACE_END
