@@ -55,36 +55,36 @@ namespace hashlib {
  * instead of pointers.
  */
 
-#if defined(__GNUC__) || defined(__clang__)
+#만약 defined(__GNUC__) || defined(__clang__)
 #  define HASHLIB_ATTRIBUTE_WARN_UNUSED __attribute__((warn_unused))
-#else
+#아니면
 #  define HASHLIB_ATTRIBUTE_WARN_UNUSED
 #endif
 
-const int hashtable_size_trigger = 2;
-const int hashtable_size_factor = 3;
+const 정수 hashtable_size_trigger = 2;
+const 정수 hashtable_size_factor = 3;
 
 namespace legacy {
 	inline uint32_t djb2_add(uint32_t a, uint32_t b) {
-		return ((a << 5) + a) + b;
+		반환 ((a << 5) + a) + b;
 	}
 };
 
 template<typename T>
 struct hash_ops;
 
-inline unsigned int mkhash_xorshift(unsigned int a) {
-	if (sizeof(a) == 4) {
+inline unsigned 정수 mkhash_xorshift(unsigned 정수 a) {
+	만약 (sizeof(a) == 4) {
 		a ^= a << 13;
 		a ^= a >> 17;
 		a ^= a << 5;
-	} else if (sizeof(a) == 8) {
+	} 아니면 만약 (sizeof(a) == 8) {
 		a ^= a << 13;
 		a ^= a >> 7;
 		a ^= a << 17;
-	} else
+	} 아니면
 		throw std::runtime_error("mkhash_xorshift() only implemented for 32 bit and 64 bit ints");
-	return a;
+	반환 a;
 }
 
 class HasherDJB32 {
@@ -102,23 +102,23 @@ private:
 	[[nodiscard]]
 	static uint32_t djb2_xor(uint32_t a, uint32_t b) {
 		uint32_t hash = ((a << 5) + a) ^ b;
-		return hash;
+		반환 hash;
 	}
 public:
 	void hash32(uint32_t i) {
 		state = djb2_xor(i, state);
 		state = mkhash_xorshift(state);
-		return;
+		반환;
 	}
 	void hash64(uint64_t i) {
 		state = djb2_xor((uint32_t)(i & 0xFFFFFFFFULL), state);
 		state = djb2_xor((uint32_t)(i >> 32ULL), state);
 		state = mkhash_xorshift(state);
-		return;
+		반환;
 	}
 	[[nodiscard]]
 	hash_t yield() const {
-		return (hash_t)state;
+		반환 (hash_t)state;
 	}
 
 	template<typename T>
@@ -149,31 +149,31 @@ using Hasher = HasherDJB32;
 #define HASH_TOP_LOOP_SND { \
 	Hasher h; \
 	h = hash_into(a, h); \
-	return h; \
+	반환 h; \
 }
 
 template<typename T>
 struct hash_ops {
 	static inline bool cmp(const T &a, const T &b) {
-		return a == b;
+		반환 a == b;
 	}
 	[[nodiscard]] static inline Hasher hash_into(const T &a, Hasher h) {
-		if constexpr (std::is_integral_v<T>) {
+		만약 constexpr (std::is_integral_v<T>) {
 			static_assert(sizeof(T) <= sizeof(uint64_t));
-			if (sizeof(T) == sizeof(uint64_t))
+			만약 (sizeof(T) == sizeof(uint64_t))
 				h.hash64(a);
-			else
+			아니면
 				h.hash32(a);
-			return h;
-		} else if constexpr (std::is_enum_v<T>) {
+			반환 h;
+		} 아니면 만약 constexpr (std::is_enum_v<T>) {
 			using u_type = std::underlying_type_t<T>;
-			return hash_ops<u_type>::hash_into((u_type) a, h);
-		} else if constexpr (std::is_pointer_v<T>) {
-			return hash_ops<uintptr_t>::hash_into((uintptr_t) a, h);
-		} else if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>) {
-			int size = a.size();
-			int i = 0;
-			while (i + 8 < size) {
+			반환 hash_ops<u_type>::hash_into((u_type) a, h);
+		} 아니면 만약 constexpr (std::is_pointer_v<T>) {
+			반환 hash_ops<uintptr_t>::hash_into((uintptr_t) a, h);
+		} 아니면 만약 constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>) {
+			정수 size = a.size();
+			정수 i = 0;
+			동안 (i + 8 < size) {
 				uint64_t v;
 				memcpy(&v, a.data() + i, 8);
 				h.hash64(v);
@@ -182,9 +182,9 @@ struct hash_ops {
 			uint64_t v = 0;
 			memcpy(&v, a.data() + i, size - i);
 			h.hash64(v);
-			return h;
-		} else {
-			return a.hash_into(h);
+			반환 h;
+		} 아니면 {
+			반환 a.hash_into(h);
 		}
 	}
 	HASH_TOP_LOOP_FST (const T &a) HASH_TOP_LOOP_SND
@@ -192,73 +192,73 @@ struct hash_ops {
 
 template<typename P, typename Q> struct hash_ops<std::pair<P, Q>> {
 	static inline bool cmp(const std::pair<P, Q> &a, const std::pair<P, Q> &b) {
-		return a == b;
+		반환 a == b;
 	}
 	[[nodiscard]] static inline Hasher hash_into(const std::pair<P, Q> &a, Hasher h) {
 		h = hash_ops<P>::hash_into(a.first, h);
 		h = hash_ops<Q>::hash_into(a.second, h);
-		return h;
+		반환 h;
 	}
 	HASH_TOP_LOOP_FST (const std::pair<P, Q> &a) HASH_TOP_LOOP_SND
 	[[nodiscard]] static inline Hasher hash(const P &p, const Q &q) {
 		Hasher h;
 		h = hash_ops<P>::hash_into(p, h);
 		h = hash_ops<Q>::hash_into(q, h);
-		return h;
+		반환 h;
 	}
 };
 
 template<typename... T> struct hash_ops<std::tuple<T...>> {
 	static inline bool cmp(const std::tuple<T...> &a, const std::tuple<T...> &b) {
-		return a == b;
+		반환 a == b;
 	}
 	template<size_t I = 0>
 	static inline typename std::enable_if<I == sizeof...(T), Hasher>::type hash_into(const std::tuple<T...> &, Hasher h) {
-		return h;
+		반환 h;
 	}
 	template<size_t I = 0>
 	static inline typename std::enable_if<I != sizeof...(T), Hasher>::type hash_into(const std::tuple<T...> &a, Hasher h) {
 		typedef hash_ops<typename std::tuple_element<I, std::tuple<T...>>::type> element_ops_t;
 		h = hash_into<I+1>(a, h);
 		h = element_ops_t::hash_into(std::get<I>(a), h);
-		return h;
+		반환 h;
 	}
 	HASH_TOP_LOOP_FST (const std::tuple<T...> &a) HASH_TOP_LOOP_SND
 };
 
 template<typename T> struct hash_ops<std::vector<T>> {
 	static inline bool cmp(const std::vector<T> &a, const std::vector<T> &b) {
-		return a == b;
+		반환 a == b;
 	}
 	[[nodiscard]] static inline Hasher hash_into(const std::vector<T> &a, Hasher h) {
 		h.eat((uint32_t)a.size());
-		for (auto k : a)
+		위해 (auto k : a)
 			h.eat(k);
-		return h;
+		반환 h;
 	}
 	HASH_TOP_LOOP_FST (const std::vector<T> &a) HASH_TOP_LOOP_SND
 };
 
 template<typename T, size_t N> struct hash_ops<std::array<T, N>> {
     static inline bool cmp(const std::array<T, N> &a, const std::array<T, N> &b) {
-        return a == b;
+        반환 a == b;
     }
     [[nodiscard]] static inline Hasher hash_into(const std::array<T, N> &a, Hasher h) {
-        for (const auto& k : a)
+        위해 (const auto& k : a)
             h = hash_ops<T>::hash_into(k, h);
-        return h;
+        반환 h;
     }
 	HASH_TOP_LOOP_FST (const std::array<T, N> &a) HASH_TOP_LOOP_SND
 };
 
 struct hash_cstr_ops {
 	static inline bool cmp(const char *a, const char *b) {
-		return strcmp(a, b) == 0;
+		반환 strcmp(a, b) == 0;
 	}
 	[[nodiscard]] static inline Hasher hash_into(const char *a, Hasher h) {
-		while (*a)
+		동안 (*a)
 			h.hash32(*(a++));
-		return h;
+		반환 h;
 	}
 	HASH_TOP_LOOP_FST (const char *a) HASH_TOP_LOOP_SND
 };
@@ -267,25 +267,25 @@ template <> struct hash_ops<char*> : hash_cstr_ops {};
 
 struct hash_ptr_ops {
 	static inline bool cmp(const void *a, const void *b) {
-		return a == b;
+		반환 a == b;
 	}
 	[[nodiscard]] static inline Hasher hash_into(const void *a, Hasher h) {
-		return hash_ops<uintptr_t>::hash_into((uintptr_t)a, h);
+		반환 hash_ops<uintptr_t>::hash_into((uintptr_t)a, h);
 	}
 	HASH_TOP_LOOP_FST (const void *a) HASH_TOP_LOOP_SND
 };
 
 struct hash_obj_ops {
 	static inline bool cmp(const void *a, const void *b) {
-		return a == b;
+		반환 a == b;
 	}
 	template<typename T>
 	[[nodiscard]] static inline Hasher hash_into(const T *a, Hasher h) {
-		if (a)
+		만약 (a)
 			h = a->hash_into(h);
-		else
+		아니면
 			h.eat(0);
-		return h;
+		반환 h;
 	}
 	template<typename T>
 	HASH_TOP_LOOP_FST (const T *a) HASH_TOP_LOOP_SND
@@ -299,54 +299,54 @@ struct hash_obj_ops {
 template<typename T>
 [[nodiscard]]
 Hasher::hash_t run_hash(const T& obj) {
-	return hash_ops<T>::hash(obj).yield();
+	반환 hash_ops<T>::hash(obj).yield();
 }
 
 /** Refer to docs/source/yosys_internals/hashing.rst */
 template<typename T>
 [[nodiscard]]
 [[deprecated]]
-inline unsigned int mkhash(const T &v) {
-	return (unsigned int) run_hash<T>(v);
+inline unsigned 정수 mkhash(const T &v) {
+	반환 (unsigned 정수) run_hash<T>(v);
 }
 
 template<> struct hash_ops<std::monostate> {
 	static inline bool cmp(std::monostate a, std::monostate b) {
-		return a == b;
+		반환 a == b;
 	}
 	[[nodiscard]] static inline Hasher hash_into(std::monostate, Hasher h) {
-		return h;
+		반환 h;
 	}
 };
 
 template<typename... T> struct hash_ops<std::variant<T...>> {
 	static inline bool cmp(const std::variant<T...> &a, const std::variant<T...> &b) {
-		return a == b;
+		반환 a == b;
 	}
 	[[nodiscard]] static inline Hasher hash_into(const std::variant<T...> &a, Hasher h) {
 		std::visit([& h](const auto &v) { h.eat(v); }, a);
 		h.eat(a.index());
-		return h;
+		반환 h;
 	}
 };
 
 template<typename T> struct hash_ops<std::optional<T>> {
 	static inline bool cmp(const std::optional<T> &a, const std::optional<T> &b) {
-		return a == b;
+		반환 a == b;
 	}
 	[[nodiscard]] static inline Hasher hash_into(const std::optional<T> &a, Hasher h) {
-		if(a.has_value())
+		만약(a.has_value())
 			h.eat(*a);
-		else
+		아니면
 			h.eat(0);
-		return h;
+		반환 h;
 	}
 };
 
-inline unsigned int hashtable_size(unsigned int min_size)
+inline unsigned 정수 hashtable_size(unsigned 정수 min_size)
 {
 	// Primes as generated by https://oeis.org/A175953
-	static std::vector<unsigned int> zero_and_some_primes = {
+	static std::vector<unsigned 정수> zero_and_some_primes = {
 		0, 23, 29, 37, 47, 59, 79, 101, 127, 163, 211, 269, 337, 431, 541, 677,
 		853, 1069, 1361, 1709, 2137, 2677, 3347, 4201, 5261, 6577, 8231, 10289,
 		12889, 16127, 20161, 25219, 31531, 39419, 49277, 61603, 77017, 96281,
@@ -359,20 +359,20 @@ inline unsigned int hashtable_size(unsigned int min_size)
 		1769372713, 2211715897, 2764644887, 3455806139
 	};
 
-	for (auto p : zero_and_some_primes)
-		if (p >= min_size) return p;
+	위해 (auto p : zero_and_some_primes)
+		만약 (p >= min_size) 반환 p;
 
-	if (sizeof(unsigned int) == 4)
+	만약 (sizeof(unsigned 정수) == 4)
 		throw std::length_error("hash table exceeded maximum size.\nDesign is likely too large for yosys to handle, if possible try not to flatten the design.");
 
-	for (auto p : zero_and_some_primes)
-		if (100129 * p > min_size) return 100129 * p;
+	위해 (auto p : zero_and_some_primes)
+		만약 (100129 * p > min_size) 반환 100129 * p;
 
 	throw std::length_error("hash table exceeded maximum size.");
 }
 
 template<typename K, typename T, typename OPS = hash_ops<K>> class dict;
-template<typename K, int offset = 0, typename OPS = hash_ops<K>> class idict;
+template<typename K, 정수 offset = 0, typename OPS = hash_ops<K>> class idict;
 template<typename K, typename OPS = hash_ops<K>> class pool;
 template<typename K, typename OPS = hash_ops<K>> class mfp;
 
@@ -395,9 +395,9 @@ public:
 		buckets[index] += v;
 	}
 	[[nodiscard]] Hasher hash_into(Hasher h) const {
-		for (auto b : buckets)
+		위해 (auto b : buckets)
 			h.eat(b);
-		return h;
+		반환 h;
 	}
 private:
 	std::array<Hasher::hash_t, 4> buckets;
@@ -408,33 +408,33 @@ class HASHLIB_ATTRIBUTE_WARN_UNUSED dict {
 	struct entry_t
 	{
 		std::pair<K, T> udata;
-		int next;
+		정수 next;
 
 		entry_t() { }
-		entry_t(const std::pair<K, T> &udata, int next) : udata(udata), next(next) { }
-		entry_t(std::pair<K, T> &&udata, int next) : udata(std::move(udata)), next(next) { }
-		bool operator<(const entry_t &other) const { return udata.first < other.udata.first; }
+		entry_t(const std::pair<K, T> &udata, 정수 next) : udata(udata), next(next) { }
+		entry_t(std::pair<K, T> &&udata, 정수 next) : udata(std::move(udata)), next(next) { }
+		bool operator<(const entry_t &other) const { 반환 udata.first < other.udata.first; }
 	};
 
-	std::vector<int> hashtable;
+	std::vector<정수> hashtable;
 	std::vector<entry_t> entries;
 	OPS ops;
 	static_assert(std::is_nothrow_default_constructible_v<OPS>, "move ops are noexcept and default-construct OPS");
 
 #ifdef NDEBUG
 	static inline void do_assert(bool) { }
-#else
+#아니면
 	static inline void do_assert(bool cond) {
-		if (!cond) throw std::runtime_error("dict<> assert failed.");
+		만약 (!cond) throw std::runtime_error("dict<> assert failed.");
 	}
 #endif
 
 	Hasher::hash_t do_hash(const K &key) const
 	{
 		Hasher::hash_t hash = 0;
-		if (!hashtable.empty())
-			hash = ops.hash(key).yield() % (unsigned int)(hashtable.size());
-		return hash;
+		만약 (!hashtable.empty())
+			hash = ops.hash(key).yield() % (unsigned 정수)(hashtable.size());
+		반환 hash;
 	}
 
 	void do_rehash()
@@ -442,48 +442,48 @@ class HASHLIB_ATTRIBUTE_WARN_UNUSED dict {
 		hashtable.clear();
 		hashtable.resize(hashtable_size(entries.capacity() * hashtable_size_factor), -1);
 
-		for (int i = 0; i < int(entries.size()); i++) {
-			do_assert(-1 <= entries[i].next && entries[i].next < int(entries.size()));
+		위해 (정수 i = 0; i < 정수(entries.size()); i++) {
+			do_assert(-1 <= entries[i].next && entries[i].next < 정수(entries.size()));
 			Hasher::hash_t hash = do_hash(entries[i].udata.first);
 			entries[i].next = hashtable[hash];
 			hashtable[hash] = i;
 		}
 	}
 
-	int do_erase(int index, Hasher::hash_t hash)
+	정수 do_erase(정수 index, Hasher::hash_t hash)
 	{
-		do_assert(index < int(entries.size()));
-		if (hashtable.empty() || index < 0)
-			return 0;
+		do_assert(index < 정수(entries.size()));
+		만약 (hashtable.empty() || index < 0)
+			반환 0;
 
-		int k = hashtable[hash];
-		do_assert(0 <= k && k < int(entries.size()));
+		정수 k = hashtable[hash];
+		do_assert(0 <= k && k < 정수(entries.size()));
 
-		if (k == index) {
+		만약 (k == index) {
 			hashtable[hash] = entries[index].next;
-		} else {
-			while (entries[k].next != index) {
+		} 아니면 {
+			동안 (entries[k].next != index) {
 				k = entries[k].next;
-				do_assert(0 <= k && k < int(entries.size()));
+				do_assert(0 <= k && k < 정수(entries.size()));
 			}
 			entries[k].next = entries[index].next;
 		}
 
-		int back_idx = entries.size()-1;
+		정수 back_idx = entries.size()-1;
 
-		if (index != back_idx)
+		만약 (index != back_idx)
 		{
 			Hasher::hash_t back_hash = do_hash(entries[back_idx].udata.first);
 
 			k = hashtable[back_hash];
-			do_assert(0 <= k && k < int(entries.size()));
+			do_assert(0 <= k && k < 정수(entries.size()));
 
-			if (k == back_idx) {
+			만약 (k == back_idx) {
 				hashtable[back_hash] = index;
-			} else {
-				while (entries[k].next != back_idx) {
+			} 아니면 {
+				동안 (entries[k].next != back_idx) {
 					k = entries[k].next;
-					do_assert(0 <= k && k < int(entries.size()));
+					do_assert(0 <= k && k < 정수(entries.size()));
 				}
 				entries[k].next = index;
 			}
@@ -493,79 +493,79 @@ class HASHLIB_ATTRIBUTE_WARN_UNUSED dict {
 
 		entries.pop_back();
 
-		if (entries.empty())
+		만약 (entries.empty())
 			hashtable.clear();
 
-		return 1;
+		반환 1;
 	}
 
-	int do_lookup(const K &key, Hasher::hash_t &hash)
+	정수 do_lookup(const K &key, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty())
-			return -1;
+		만약 (hashtable.empty())
+			반환 -1;
 
-		if (entries.size() * hashtable_size_trigger > hashtable.size()) {
+		만약 (entries.size() * hashtable_size_trigger > hashtable.size()) {
 			do_rehash();
 			hash = do_hash(key);
 		}
 
-		return do_lookup_internal(key, hash);
+		반환 do_lookup_internal(key, hash);
 	}
 
-	int do_lookup_internal(const K &key, Hasher::hash_t hash) const
+	정수 do_lookup_internal(const K &key, Hasher::hash_t hash) const
 	{
-		int index = hashtable[hash];
+		정수 index = hashtable[hash];
 
-		while (index >= 0 && !ops.cmp(entries[index].udata.first, key)) {
+		동안 (index >= 0 && !ops.cmp(entries[index].udata.first, key)) {
 			index = entries[index].next;
-			do_assert(-1 <= index && index < int(entries.size()));
+			do_assert(-1 <= index && index < 정수(entries.size()));
 		}
 
-		return index;
+		반환 index;
 	}
 
-	int do_lookup_no_rehash(const K &key, Hasher::hash_t hash) const
+	정수 do_lookup_no_rehash(const K &key, Hasher::hash_t hash) const
 	{
-		if (hashtable.empty())
-			return -1;
+		만약 (hashtable.empty())
+			반환 -1;
 
-		return do_lookup_internal(key, hash);
+		반환 do_lookup_internal(key, hash);
 	}
 
-	int do_insert(const K &key, const Hasher::hash_t &hash)
+	정수 do_insert(const K &key, const Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
+		만약 (hashtable.empty()) {
 			entries.emplace_back(std::pair<K, T>(key, T()), -1);
 			do_rehash();
-		} else {
+		} 아니면 {
 			entries.emplace_back(std::pair<K, T>(key, T()), hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		반환 entries.size() - 1;
 	}
 
-	int do_insert(const std::pair<K, T> &value, const Hasher::hash_t &hash)
+	정수 do_insert(const std::pair<K, T> &value, const Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
+		만약 (hashtable.empty()) {
 			entries.emplace_back(value, -1);
 			do_rehash();
-		} else {
+		} 아니면 {
 			entries.emplace_back(value, hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		반환 entries.size() - 1;
 	}
 
-	int do_insert(std::pair<K, T> &&rvalue, const Hasher::hash_t &hash)
+	정수 do_insert(std::pair<K, T> &&rvalue, const Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
+		만약 (hashtable.empty()) {
 			entries.emplace_back(std::forward<std::pair<K, T>>(rvalue), -1);
 			do_rehash();
-		} else {
+		} 아니면 {
 			entries.emplace_back(std::forward<std::pair<K, T>>(rvalue), hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		반환 entries.size() - 1;
 	}
 
 public:
@@ -574,8 +574,8 @@ public:
 		friend class dict;
 	protected:
 		const dict *ptr;
-		int index;
-		const_iterator(const dict *ptr, int index) : ptr(ptr), index(index) { }
+		정수 index;
+		const_iterator(const dict *ptr, 정수 index) : ptr(ptr), index(index) { }
 	public:
 		typedef std::bidirectional_iterator_tag iterator_category;
 		typedef std::pair<K, T> value_type;
@@ -583,16 +583,16 @@ public:
 		typedef const std::pair<K, T>* pointer;
 		typedef const std::pair<K, T>& reference;
 		const_iterator() { }
-		const_iterator operator++() { index--; return *this; }
-		const_iterator operator++(int) { const_iterator tmp = *this; index--; return tmp; }
-		const_iterator operator--() { index++; return *this; }
-		const_iterator operator--(int) { const_iterator tmp = *this; index++; return tmp; }
-		const_iterator operator+=(int amt) { index -= amt; return *this; }
-		bool operator<(const const_iterator &other) const { return index > other.index; }
-		bool operator==(const const_iterator &other) const { return index == other.index; }
-		bool operator!=(const const_iterator &other) const { return index != other.index; }
-		const std::pair<K, T> &operator*() const { return ptr->entries[index].udata; }
-		const std::pair<K, T> *operator->() const { return &ptr->entries[index].udata; }
+		const_iterator operator++() { index--; 반환 *this; }
+		const_iterator operator++(정수) { const_iterator tmp = *this; index--; 반환 tmp; }
+		const_iterator operator--() { index++; 반환 *this; }
+		const_iterator operator--(정수) { const_iterator tmp = *this; index++; 반환 tmp; }
+		const_iterator operator+=(정수 amt) { index -= amt; 반환 *this; }
+		bool operator<(const const_iterator &other) const { 반환 index > other.index; }
+		bool operator==(const const_iterator &other) const { 반환 index == other.index; }
+		bool operator!=(const const_iterator &other) const { 반환 index != other.index; }
+		const std::pair<K, T> &operator*() const { 반환 ptr->entries[index].udata; }
+		const std::pair<K, T> *operator->() const { 반환 &ptr->entries[index].udata; }
 	};
 
 	class iterator
@@ -600,8 +600,8 @@ public:
 		friend class dict;
 	protected:
 		dict *ptr;
-		int index;
-		iterator(dict *ptr, int index) : ptr(ptr), index(index) { }
+		정수 index;
+		iterator(dict *ptr, 정수 index) : ptr(ptr), index(index) { }
 	public:
 		typedef std::forward_iterator_tag iterator_category;
 		typedef std::pair<K, T> value_type;
@@ -609,23 +609,23 @@ public:
 		typedef std::pair<K, T>* pointer;
 		typedef std::pair<K, T>& reference;
 		iterator() { }
-		iterator operator++() { index--; return *this; }
-		iterator operator+=(int amt) { index -= amt; return *this; }
-		bool operator<(const iterator &other) const { return index > other.index; }
-		bool operator==(const iterator &other) const { return index == other.index; }
-		bool operator!=(const iterator &other) const { return index != other.index; }
-		std::pair<K, T> &operator*() { return ptr->entries[index].udata; }
-		std::pair<K, T> *operator->() { return &ptr->entries[index].udata; }
-		const std::pair<K, T> &operator*() const { return ptr->entries[index].udata; }
-		const std::pair<K, T> *operator->() const { return &ptr->entries[index].udata; }
-		operator const_iterator() const { return const_iterator(ptr, index); }
+		iterator operator++() { index--; 반환 *this; }
+		iterator operator+=(정수 amt) { index -= amt; 반환 *this; }
+		bool operator<(const iterator &other) const { 반환 index > other.index; }
+		bool operator==(const iterator &other) const { 반환 index == other.index; }
+		bool operator!=(const iterator &other) const { 반환 index != other.index; }
+		std::pair<K, T> &operator*() { 반환 ptr->entries[index].udata; }
+		std::pair<K, T> *operator->() { 반환 &ptr->entries[index].udata; }
+		const std::pair<K, T> &operator*() const { 반환 ptr->entries[index].udata; }
+		const std::pair<K, T> *operator->() const { 반환 &ptr->entries[index].udata; }
+		operator const_iterator() const { 반환 const_iterator(ptr, index); }
 	};
 	using reverse_iterator = std::reverse_iterator<const_iterator>;
 	reverse_iterator rbegin() const {
-		return std::make_reverse_iterator(end());
+		반환 std::make_reverse_iterator(end());
 	}
 	reverse_iterator rend() const {
-		return std::make_reverse_iterator(begin());
+		반환 std::make_reverse_iterator(begin());
 	}
 
 	constexpr dict()
@@ -646,18 +646,18 @@ public:
 	dict &operator=(const dict &other) {
 		entries = other.entries;
 		do_rehash();
-		return *this;
+		반환 *this;
 	}
 
 	dict &operator=(dict &&other) noexcept {
 		clear();
 		swap(other);
-		return *this;
+		반환 *this;
 	}
 
 	dict(const std::initializer_list<std::pair<K, T>> &list)
 	{
-		for (auto &it : list)
+		위해 (auto &it : list)
 			insert(it);
 	}
 
@@ -670,166 +670,166 @@ public:
 	template<class InputIterator>
 	void insert(InputIterator first, InputIterator last)
 	{
-		for (; first != last; ++first)
+		위해 (; first != last; ++first)
 			insert(*first);
 	}
 
 	std::pair<iterator, bool> insert(const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		정수 i = do_lookup(key, hash);
+		만약 (i >= 0)
+			반환 std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(key, hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		반환 std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> insert(const std::pair<K, T> &value)
 	{
 		Hasher::hash_t hash = do_hash(value.first);
-		int i = do_lookup(value.first, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		정수 i = do_lookup(value.first, hash);
+		만약 (i >= 0)
+			반환 std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(value, hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		반환 std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> insert(std::pair<K, T> &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(rvalue.first);
-		int i = do_lookup(rvalue.first, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		정수 i = do_lookup(rvalue.first, hash);
+		만약 (i >= 0)
+			반환 std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(std::forward<std::pair<K, T>>(rvalue), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		반환 std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> emplace(K const &key, T const &value)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		정수 i = do_lookup(key, hash);
+		만약 (i >= 0)
+			반환 std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(std::make_pair(key, value), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		반환 std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> emplace(K const &key, T &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		정수 i = do_lookup(key, hash);
+		만약 (i >= 0)
+			반환 std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(std::make_pair(key, std::forward<T>(rvalue)), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		반환 std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> emplace(K &&rkey, T const &value)
 	{
 		Hasher::hash_t hash = do_hash(rkey);
-		int i = do_lookup(rkey, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		정수 i = do_lookup(rkey, hash);
+		만약 (i >= 0)
+			반환 std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(std::make_pair(std::forward<K>(rkey), value), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		반환 std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> emplace(K &&rkey, T &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(rkey);
-		int i = do_lookup(rkey, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		정수 i = do_lookup(rkey, hash);
+		만약 (i >= 0)
+			반환 std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(std::make_pair(std::forward<K>(rkey), std::forward<T>(rvalue)), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		반환 std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
-	int erase(const K &key)
+	정수 erase(const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int index = do_lookup(key, hash);
-		return do_erase(index, hash);
+		정수 index = do_lookup(key, hash);
+		반환 do_erase(index, hash);
 	}
 
 	iterator erase(iterator it)
 	{
 		Hasher::hash_t hash = do_hash(it->first);
 		do_erase(it.index, hash);
-		return ++it;
+		반환 ++it;
 	}
 
-	int count(const K &key) const
+	정수 count(const K &key) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 ? 0 : 1;
+		정수 i = do_lookup_no_rehash(key, hash);
+		반환 i < 0 ? 0 : 1;
 	}
 
-	int count(const K &key, const_iterator it) const
+	정수 count(const K &key, const_iterator it) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 || i > it.index ? 0 : 1;
+		정수 i = do_lookup_no_rehash(key, hash);
+		반환 i < 0 || i > it.index ? 0 : 1;
 	}
 
 	iterator find(const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
-			return end();
-		return iterator(this, i);
+		정수 i = do_lookup(key, hash);
+		만약 (i < 0)
+			반환 end();
+		반환 iterator(this, i);
 	}
 
 	const_iterator find(const K &key) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return end();
-		return const_iterator(this, i);
+		정수 i = do_lookup_no_rehash(key, hash);
+		만약 (i < 0)
+			반환 end();
+		반환 const_iterator(this, i);
 	}
 
 	T& at(const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
+		정수 i = do_lookup(key, hash);
+		만약 (i < 0)
 			throw std::out_of_range("dict::at()");
-		return entries[i].udata.second;
+		반환 entries[i].udata.second;
 	}
 
 	const T& at(const K &key) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
+		정수 i = do_lookup_no_rehash(key, hash);
+		만약 (i < 0)
 			throw std::out_of_range("dict::at()");
-		return entries[i].udata.second;
+		반환 entries[i].udata.second;
 	}
 
 	const T& at(const K &key, const T &defval) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return defval;
-		return entries[i].udata.second;
+		정수 i = do_lookup_no_rehash(key, hash);
+		만약 (i < 0)
+			반환 defval;
+		반환 entries[i].udata.second;
 	}
 
 	T& operator[](const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
+		정수 i = do_lookup(key, hash);
+		만약 (i < 0)
 			i = do_insert(std::pair<K, T>(key, T()), hash);
-		return entries[i].udata.second;
+		반환 entries[i].udata.second;
 	}
 
 	template<typename Compare = std::less<K>>
 	void sort(Compare comp = Compare())
 	{
-		std::sort(entries.begin(), entries.end(), [comp](const entry_t &a, const entry_t &b){ return comp(b.udata.first, a.udata.first); });
+		std::sort(entries.begin(), entries.end(), [comp](const entry_t &a, const entry_t &b){ 반환 comp(b.udata.first, a.udata.first); });
 		do_rehash();
 	}
 
@@ -840,80 +840,80 @@ public:
 	}
 
 	bool operator==(const dict &other) const {
-		if (size() != other.size())
-			return false;
-		for (auto &it : entries) {
+		만약 (size() != other.size())
+			반환 false;
+		위해 (auto &it : entries) {
 			auto oit = other.find(it.udata.first);
-			if (oit == other.end() || !(oit->second == it.udata.second))
-				return false;
+			만약 (oit == other.end() || !(oit->second == it.udata.second))
+				반환 false;
 		}
-		return true;
+		반환 true;
 	}
 
 	bool operator!=(const dict &other) const {
-		return !operator==(other);
+		반환 !operator==(other);
 	}
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const {
 		commutative_hash comm;
-		for (auto &it : entries) {
+		위해 (auto &it : entries) {
 			Hasher entry_hash;
 			entry_hash.eat(it.udata.first);
 			entry_hash.eat(it.udata.second);
 			comm.eat(entry_hash);
 		}
-		return comm.hash_into(h);
+		반환 comm.hash_into(h);
 	}
 
 	void reserve(size_t n) { entries.reserve(n); }
-	size_t size() const { return entries.size(); }
-	bool empty() const { return entries.empty(); }
+	size_t size() const { 반환 entries.size(); }
+	bool empty() const { 반환 entries.empty(); }
 	void clear() { hashtable.clear(); entries.clear(); }
 
-	iterator begin() { return iterator(this, int(entries.size())-1); }
-	iterator element(int n) { return iterator(this, int(entries.size())-1-n); }
-	iterator end() { return iterator(nullptr, -1); }
+	iterator begin() { 반환 iterator(this, 정수(entries.size())-1); }
+	iterator element(정수 n) { 반환 iterator(this, 정수(entries.size())-1-n); }
+	iterator end() { 반환 iterator(nullptr, -1); }
 
-	const_iterator begin() const { return const_iterator(this, int(entries.size())-1); }
-	const_iterator element(int n) const { return const_iterator(this, int(entries.size())-1-n); }
-	const_iterator end() const { return const_iterator(this, -1); }
+	const_iterator begin() const { 반환 const_iterator(this, 정수(entries.size())-1); }
+	const_iterator element(정수 n) const { 반환 const_iterator(this, 정수(entries.size())-1-n); }
+	const_iterator end() const { 반환 const_iterator(this, -1); }
 };
 
 template<typename K, typename OPS>
 class HASHLIB_ATTRIBUTE_WARN_UNUSED pool
 {
-	template<typename, int, typename> friend class idict;
+	template<typename, 정수, typename> friend class idict;
 
 protected:
 	struct entry_t
 	{
 		K udata;
-		int next;
+		정수 next;
 
 		entry_t() { }
-		entry_t(const K &udata, int next) : udata(udata), next(next) { }
-		entry_t(K &&udata, int next) : udata(std::move(udata)), next(next) { }
+		entry_t(const K &udata, 정수 next) : udata(udata), next(next) { }
+		entry_t(K &&udata, 정수 next) : udata(std::move(udata)), next(next) { }
 	};
 
-	std::vector<int> hashtable;
+	std::vector<정수> hashtable;
 	std::vector<entry_t> entries;
 	OPS ops;
 	static_assert(std::is_nothrow_default_constructible_v<OPS>, "move ops are noexcept and default-construct OPS");
 
 #ifdef NDEBUG
 	static inline void do_assert(bool) { }
-#else
+#아니면
 	static inline void do_assert(bool cond) {
-		if (!cond) throw std::runtime_error("pool<> assert failed.");
+		만약 (!cond) throw std::runtime_error("pool<> assert failed.");
 	}
 #endif
 
 	Hasher::hash_t do_hash(const K &key) const
 	{
 		Hasher::hash_t hash = 0;
-		if (!hashtable.empty())
-			hash = ops.hash(key).yield() % (unsigned int)(hashtable.size());
-		return hash;
+		만약 (!hashtable.empty())
+			hash = ops.hash(key).yield() % (unsigned 정수)(hashtable.size());
+		반환 hash;
 	}
 
 	void do_rehash()
@@ -921,44 +921,44 @@ protected:
 		hashtable.clear();
 		hashtable.resize(hashtable_size(entries.capacity() * hashtable_size_factor), -1);
 
-		for (int i = 0; i < int(entries.size()); i++) {
-			do_assert(-1 <= entries[i].next && entries[i].next < int(entries.size()));
+		위해 (정수 i = 0; i < 정수(entries.size()); i++) {
+			do_assert(-1 <= entries[i].next && entries[i].next < 정수(entries.size()));
 			Hasher::hash_t hash = do_hash(entries[i].udata);
 			entries[i].next = hashtable[hash];
 			hashtable[hash] = i;
 		}
 	}
 
-	int do_erase(int index, Hasher::hash_t hash)
+	정수 do_erase(정수 index, Hasher::hash_t hash)
 	{
-		do_assert(index < int(entries.size()));
-		if (hashtable.empty() || index < 0)
-			return 0;
+		do_assert(index < 정수(entries.size()));
+		만약 (hashtable.empty() || index < 0)
+			반환 0;
 
-		int k = hashtable[hash];
-		if (k == index) {
+		정수 k = hashtable[hash];
+		만약 (k == index) {
 			hashtable[hash] = entries[index].next;
-		} else {
-			while (entries[k].next != index) {
+		} 아니면 {
+			동안 (entries[k].next != index) {
 				k = entries[k].next;
-				do_assert(0 <= k && k < int(entries.size()));
+				do_assert(0 <= k && k < 정수(entries.size()));
 			}
 			entries[k].next = entries[index].next;
 		}
 
-		int back_idx = entries.size()-1;
+		정수 back_idx = entries.size()-1;
 
-		if (index != back_idx)
+		만약 (index != back_idx)
 		{
 			Hasher::hash_t back_hash = do_hash(entries[back_idx].udata);
 
 			k = hashtable[back_hash];
-			if (k == back_idx) {
+			만약 (k == back_idx) {
 				hashtable[back_hash] = index;
-			} else {
-				while (entries[k].next != back_idx) {
+			} 아니면 {
+				동안 (entries[k].next != back_idx) {
 					k = entries[k].next;
-					do_assert(0 <= k && k < int(entries.size()));
+					do_assert(0 <= k && k < 정수(entries.size()));
 				}
 				entries[k].next = index;
 			}
@@ -968,69 +968,69 @@ protected:
 
 		entries.pop_back();
 
-		if (entries.empty())
+		만약 (entries.empty())
 			hashtable.clear();
 
-		return 1;
+		반환 1;
 	}
 
-	int do_lookup(const K &key, Hasher::hash_t &hash)
+	정수 do_lookup(const K &key, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty())
-			return -1;
+		만약 (hashtable.empty())
+			반환 -1;
 
-		if (entries.size() * hashtable_size_trigger > hashtable.size()) {
+		만약 (entries.size() * hashtable_size_trigger > hashtable.size()) {
 			do_rehash();
 			hash = do_hash(key);
 		}
 
-		return do_lookup_internal(key, hash);
+		반환 do_lookup_internal(key, hash);
 	}
 
-	int do_lookup_internal(const K &key, Hasher::hash_t hash) const
+	정수 do_lookup_internal(const K &key, Hasher::hash_t hash) const
 	{
-		int index = hashtable[hash];
+		정수 index = hashtable[hash];
 
-		while (index >= 0 && !ops.cmp(entries[index].udata, key)) {
+		동안 (index >= 0 && !ops.cmp(entries[index].udata, key)) {
 			index = entries[index].next;
-			do_assert(-1 <= index && index < int(entries.size()));
+			do_assert(-1 <= index && index < 정수(entries.size()));
 		}
 
-		return index;
+		반환 index;
 	}
 
-	int do_lookup_no_rehash(const K &key, Hasher::hash_t hash) const
+	정수 do_lookup_no_rehash(const K &key, Hasher::hash_t hash) const
 	{
-		if (hashtable.empty())
-			return -1;
+		만약 (hashtable.empty())
+			반환 -1;
 
-		return do_lookup_internal(key, hash);
+		반환 do_lookup_internal(key, hash);
 	}
 
-	int do_insert(const K &value, Hasher::hash_t &hash)
+	정수 do_insert(const K &value, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
+		만약 (hashtable.empty()) {
 			entries.emplace_back(value, -1);
 			do_rehash();
 			hash = do_hash(value);
-		} else {
+		} 아니면 {
 			entries.emplace_back(value, hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		반환 entries.size() - 1;
 	}
 
-	int do_insert(K &&rvalue, Hasher::hash_t &hash)
+	정수 do_insert(K &&rvalue, Hasher::hash_t &hash)
 	{
-		if (hashtable.empty()) {
+		만약 (hashtable.empty()) {
 			entries.emplace_back(std::forward<K>(rvalue), -1);
 			do_rehash();
 			hash = do_hash(entries.back().udata);
-		} else {
+		} 아니면 {
 			entries.emplace_back(std::forward<K>(rvalue), hashtable[hash]);
 			hashtable[hash] = entries.size() - 1;
 		}
-		return entries.size() - 1;
+		반환 entries.size() - 1;
 	}
 
 public:
@@ -1039,8 +1039,8 @@ public:
 		friend class pool;
 	protected:
 		const pool *ptr;
-		int index;
-		const_iterator(const pool *ptr, int index) : ptr(ptr), index(index) { }
+		정수 index;
+		const_iterator(const pool *ptr, 정수 index) : ptr(ptr), index(index) { }
 	public:
 		typedef std::forward_iterator_tag iterator_category;
 		typedef K value_type;
@@ -1048,11 +1048,11 @@ public:
 		typedef K* pointer;
 		typedef K& reference;
 		const_iterator() { }
-		const_iterator operator++() { index--; return *this; }
-		bool operator==(const const_iterator &other) const { return index == other.index; }
-		bool operator!=(const const_iterator &other) const { return index != other.index; }
-		const K &operator*() const { return ptr->entries[index].udata; }
-		const K *operator->() const { return &ptr->entries[index].udata; }
+		const_iterator operator++() { index--; 반환 *this; }
+		bool operator==(const const_iterator &other) const { 반환 index == other.index; }
+		bool operator!=(const const_iterator &other) const { 반환 index != other.index; }
+		const K &operator*() const { 반환 ptr->entries[index].udata; }
+		const K *operator->() const { 반환 &ptr->entries[index].udata; }
 	};
 
 	class iterator
@@ -1060,8 +1060,8 @@ public:
 		friend class pool;
 	protected:
 		pool *ptr;
-		int index;
-		iterator(pool *ptr, int index) : ptr(ptr), index(index) { }
+		정수 index;
+		iterator(pool *ptr, 정수 index) : ptr(ptr), index(index) { }
 	public:
 		typedef std::forward_iterator_tag iterator_category;
 		typedef K value_type;
@@ -1069,14 +1069,14 @@ public:
 		typedef K* pointer;
 		typedef K& reference;
 		iterator() { }
-		iterator operator++() { index--; return *this; }
-		bool operator==(const iterator &other) const { return index == other.index; }
-		bool operator!=(const iterator &other) const { return index != other.index; }
-		K &operator*() { return ptr->entries[index].udata; }
-		K *operator->() { return &ptr->entries[index].udata; }
-		const K &operator*() const { return ptr->entries[index].udata; }
-		const K *operator->() const { return &ptr->entries[index].udata; }
-		operator const_iterator() const { return const_iterator(ptr, index); }
+		iterator operator++() { index--; 반환 *this; }
+		bool operator==(const iterator &other) const { 반환 index == other.index; }
+		bool operator!=(const iterator &other) const { 반환 index != other.index; }
+		K &operator*() { 반환 ptr->entries[index].udata; }
+		K *operator->() { 반환 &ptr->entries[index].udata; }
+		const K &operator*() const { 반환 ptr->entries[index].udata; }
+		const K *operator->() const { 반환 &ptr->entries[index].udata; }
+		operator const_iterator() const { 반환 const_iterator(ptr, index); }
 	};
 
 	constexpr pool()
@@ -1097,18 +1097,18 @@ public:
 	pool &operator=(const pool &other) {
 		entries = other.entries;
 		do_rehash();
-		return *this;
+		반환 *this;
 	}
 
 	pool &operator=(pool &&other) noexcept {
 		clear();
 		swap(other);
-		return *this;
+		반환 *this;
 	}
 
 	pool(const std::initializer_list<K> &list)
 	{
-		for (auto &it : list)
+		위해 (auto &it : list)
 			insert(it);
 	}
 
@@ -1121,93 +1121,93 @@ public:
 	template<class InputIterator>
 	void insert(InputIterator first, InputIterator last)
 	{
-		for (; first != last; ++first)
+		위해 (; first != last; ++first)
 			insert(*first);
 	}
 
 	std::pair<iterator, bool> insert(const K &value)
 	{
 		Hasher::hash_t hash = do_hash(value);
-		int i = do_lookup(value, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		정수 i = do_lookup(value, hash);
+		만약 (i >= 0)
+			반환 std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(value, hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		반환 std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	std::pair<iterator, bool> insert(K &&rvalue)
 	{
 		Hasher::hash_t hash = do_hash(rvalue);
-		int i = do_lookup(rvalue, hash);
-		if (i >= 0)
-			return std::pair<iterator, bool>(iterator(this, i), false);
+		정수 i = do_lookup(rvalue, hash);
+		만약 (i >= 0)
+			반환 std::pair<iterator, bool>(iterator(this, i), false);
 		i = do_insert(std::forward<K>(rvalue), hash);
-		return std::pair<iterator, bool>(iterator(this, i), true);
+		반환 std::pair<iterator, bool>(iterator(this, i), true);
 	}
 
 	template<typename... Args>
 	std::pair<iterator, bool> emplace(Args&&... args)
 	{
-		return insert(K(std::forward<Args>(args)...));
+		반환 insert(K(std::forward<Args>(args)...));
 	}
 
-	int erase(const K &key)
+	정수 erase(const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int index = do_lookup(key, hash);
-		return do_erase(index, hash);
+		정수 index = do_lookup(key, hash);
+		반환 do_erase(index, hash);
 	}
 
 	iterator erase(iterator it)
 	{
 		Hasher::hash_t hash = do_hash(*it);
 		do_erase(it.index, hash);
-		return ++it;
+		반환 ++it;
 	}
 
-	int count(const K &key) const
+	정수 count(const K &key) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 ? 0 : 1;
+		정수 i = do_lookup_no_rehash(key, hash);
+		반환 i < 0 ? 0 : 1;
 	}
 
-	int count(const K &key, const_iterator it) const
+	정수 count(const K &key, const_iterator it) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		return i < 0 || i > it.index ? 0 : 1;
+		정수 i = do_lookup_no_rehash(key, hash);
+		반환 i < 0 || i > it.index ? 0 : 1;
 	}
 
 	iterator find(const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		if (i < 0)
-			return end();
-		return iterator(this, i);
+		정수 i = do_lookup(key, hash);
+		만약 (i < 0)
+			반환 end();
+		반환 iterator(this, i);
 	}
 
 	const_iterator find(const K &key) const
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return end();
-		return const_iterator(this, i);
+		정수 i = do_lookup_no_rehash(key, hash);
+		만약 (i < 0)
+			반환 end();
+		반환 const_iterator(this, i);
 	}
 
 	bool operator[](const K &key)
 	{
 		Hasher::hash_t hash = do_hash(key);
-		int i = do_lookup(key, hash);
-		return i >= 0;
+		정수 i = do_lookup(key, hash);
+		반환 i >= 0;
 	}
 
 	template<typename Compare = std::less<K>>
 	void sort(Compare comp = Compare())
 	{
-		std::sort(entries.begin(), entries.end(), [comp](const entry_t &a, const entry_t &b){ return comp(b.udata, a.udata); });
+		std::sort(entries.begin(), entries.end(), [comp](const entry_t &a, const entry_t &b){ 반환 comp(b.udata, a.udata); });
 		do_rehash();
 	}
 
@@ -1216,7 +1216,7 @@ public:
 		iterator it = begin();
 		K ret = *it;
 		erase(it);
-		return ret;
+		반환 ret;
 	}
 
 	void swap(pool &other)
@@ -1226,41 +1226,41 @@ public:
 	}
 
 	bool operator==(const pool &other) const {
-		if (size() != other.size())
-			return false;
-		for (auto &it : entries)
-			if (!other.count(it.udata))
-				return false;
-		return true;
+		만약 (size() != other.size())
+			반환 false;
+		위해 (auto &it : entries)
+			만약 (!other.count(it.udata))
+				반환 false;
+		반환 true;
 	}
 
 	bool operator!=(const pool &other) const {
-		return !operator==(other);
+		반환 !operator==(other);
 	}
 
 	[[nodiscard]] Hasher hash_into(Hasher h) const {
 		commutative_hash comm;
-		for (auto &it : entries) {
+		위해 (auto &it : entries) {
 			comm.eat(ops.hash(it.udata));
 		}
-		return comm.hash_into(h);
+		반환 comm.hash_into(h);
 	}
 
 	void reserve(size_t n) { entries.reserve(n); }
-	size_t size() const { return entries.size(); }
-	bool empty() const { return entries.empty(); }
+	size_t size() const { 반환 entries.size(); }
+	bool empty() const { 반환 entries.empty(); }
 	void clear() { hashtable.clear(); entries.clear(); }
 
-	iterator begin() { return iterator(this, int(entries.size())-1); }
-	iterator element(int n) { return iterator(this, int(entries.size())-1-n); }
-	iterator end() { return iterator(nullptr, -1); }
+	iterator begin() { 반환 iterator(this, 정수(entries.size())-1); }
+	iterator element(정수 n) { 반환 iterator(this, 정수(entries.size())-1-n); }
+	iterator end() { 반환 iterator(nullptr, -1); }
 
-	const_iterator begin() const { return const_iterator(this, int(entries.size())-1); }
-	const_iterator element(int n) const { return const_iterator(this, int(entries.size())-1-n); }
-	const_iterator end() const { return const_iterator(nullptr, -1); }
+	const_iterator begin() const { 반환 const_iterator(this, 정수(entries.size())-1); }
+	const_iterator element(정수 n) const { 반환 const_iterator(this, 정수(entries.size())-1-n); }
+	const_iterator end() const { 반환 const_iterator(nullptr, -1); }
 };
 
-template<typename K, int offset, typename OPS>
+template<typename K, 정수 offset, typename OPS>
 class HASHLIB_ATTRIBUTE_WARN_UNUSED idict
 {
 	pool<K, OPS> database;
@@ -1271,8 +1271,8 @@ public:
 		friend class idict;
 	protected:
 		const idict &container;
-		int index;
-		const_iterator(const idict &container, int index) : container(container), index(index) { }
+		정수 index;
+		const_iterator(const idict &container, 정수 index) : container(container), index(index) { }
 	public:
 		typedef std::forward_iterator_tag iterator_category;
 		typedef K value_type;
@@ -1280,67 +1280,67 @@ public:
 		typedef K* pointer;
 		typedef K& reference;
 		const_iterator() { }
-		const_iterator operator++() { index++; return *this; }
-		bool operator==(const const_iterator &other) const { return index == other.index; }
-		bool operator!=(const const_iterator &other) const { return index != other.index; }
-		const K &operator*() const { return container[index]; }
-		const K *operator->() const { return &container[index]; }
+		const_iterator operator++() { index++; 반환 *this; }
+		bool operator==(const const_iterator &other) const { 반환 index == other.index; }
+		bool operator!=(const const_iterator &other) const { 반환 index != other.index; }
+		const K &operator*() const { 반환 container[index]; }
+		const K *operator->() const { 반환 &container[index]; }
 	};
 
 	constexpr idict()
 	{
 	}
 
-	int operator()(const K &key)
+	정수 operator()(const K &key)
 	{
 		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup(key, hash);
-		if (i < 0)
+		정수 i = database.do_lookup(key, hash);
+		만약 (i < 0)
 			i = database.do_insert(key, hash);
-		return i + offset;
+		반환 i + offset;
 	}
 
-	int at(const K &key) const
+	정수 at(const K &key) const
 	{
 		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
-		if (i < 0)
+		정수 i = database.do_lookup_no_rehash(key, hash);
+		만약 (i < 0)
 			throw std::out_of_range("idict::at()");
-		return i + offset;
+		반환 i + offset;
 	}
 
-	int at(const K &key, int defval) const
+	정수 at(const K &key, 정수 defval) const
 	{
 		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
-		if (i < 0)
-			return defval;
-		return i + offset;
+		정수 i = database.do_lookup_no_rehash(key, hash);
+		만약 (i < 0)
+			반환 defval;
+		반환 i + offset;
 	}
 
-	int count(const K &key) const
+	정수 count(const K &key) const
 	{
 		Hasher::hash_t hash = database.do_hash(key);
-		int i = database.do_lookup_no_rehash(key, hash);
-		return i < 0 ? 0 : 1;
+		정수 i = database.do_lookup_no_rehash(key, hash);
+		반환 i < 0 ? 0 : 1;
 	}
 
-	int lookup(const K &key) const
+	정수 lookup(const K &key) const
 	{
 		Hasher::hash_t hash = database.do_hash(key);
-		return database.do_lookup_no_rehash(key, hash);
+		반환 database.do_lookup_no_rehash(key, hash);
 	}
 
-	void expect(const K &key, int i)
+	void expect(const K &key, 정수 i)
 	{
-		int j = (*this)(key);
-		if (i != j)
+		정수 j = (*this)(key);
+		만약 (i != j)
 			throw std::out_of_range("idict::expect()");
 	}
 
-	const K &operator[](int index) const
+	const K &operator[](정수 index) const
 	{
-		return database.entries.at(index - offset).udata;
+		반환 database.entries.at(index - offset).udata;
 	}
 
 	void swap(idict &other)
@@ -1349,13 +1349,13 @@ public:
 	}
 
 	void reserve(size_t n) { database.reserve(n); }
-	size_t size() const { return database.size(); }
-	bool empty() const { return database.empty(); }
+	size_t size() const { 반환 database.size(); }
+	bool empty() const { 반환 database.empty(); }
 	void clear() { database.clear(); }
 
-	const_iterator begin() const { return const_iterator(*this, offset); }
-	const_iterator element(int n) const { return const_iterator(*this, n); }
-	const_iterator end() const { return const_iterator(*this, offset + size()); }
+	const_iterator begin() const { 반환 const_iterator(*this, offset); }
+	const_iterator element(정수 n) const { 반환 const_iterator(*this, n); }
+	const_iterator end() const { 반환 const_iterator(*this, offset + size()); }
 };
 
 /**
@@ -1369,13 +1369,13 @@ class HASHLIB_ATTRIBUTE_WARN_UNUSED mfp
 	idict<K, 0, OPS> database;
 	class AtomicParent {
 	public:
-		explicit AtomicParent(int p) : parent(p) {}
+		explicit AtomicParent(정수 p) : parent(p) {}
 		AtomicParent(const AtomicParent &other) : parent(other.get()) {}
-		AtomicParent &operator=(const AtomicParent &other) { set(other.get()); return *this; }
-		int get() const { return parent.load(std::memory_order_relaxed); }
-		void set(int p) { parent.store(p, std::memory_order_relaxed); }
+		AtomicParent &operator=(const AtomicParent &other) { set(other.get()); 반환 *this; }
+		정수 get() const { 반환 parent.load(std::memory_order_relaxed); }
+		void set(정수 p) { parent.store(p, std::memory_order_relaxed); }
 	private:
-		std::atomic<int> parent;
+		std::atomic<정수> parent;
 	};
 	std::vector<AtomicParent> parents;
 
@@ -1388,21 +1388,21 @@ public:
 
 	// Finds a given element's index. If it isn't in the data structure,
 	// it is added as its own set
-	int operator()(const K &key)
+	정수 operator()(const K &key)
 	{
-		int i = database(key);
+		정수 i = database(key);
 		// If the lookup caused the database to grow,
 		// also add a corresponding entry in parents initialized to -1 (no parent)
-		if (parents.size() < database.size()) {
+		만약 (parents.size() < database.size()) {
 			parents.emplace_back(-1);
 		}
-		return i;
+		반환 i;
 	}
 
 	// Finds an element at given index
-	const K &operator[](int index) const
+	const K &operator[](정수 index) const
 	{
-		return database[index];
+		반환 database[index];
 	}
 
 	// Why this method is correct for concurent ifind() calls:
@@ -1419,13 +1419,13 @@ public:
 	// parents[p] reads either observe 'orig_parents[p]' or R (and observing R ends the first
 	// while loop immediately). Thus all parents[p] reads observe either 'orig_parents[p]'
 	// or R, so ifind() always returns R.
-	int ifind(int i) const
+	정수 ifind(정수 i) const
 	{
-		int p = i, k = i;
+		정수 p = i, k = i;
 
-		while (true) {
-			int pp = parents[p].get();
-			if (pp < 0)
+		동안 (true) {
+			정수 pp = parents[p].get();
+			만약 (pp < 0)
 				break;
 			p = pp;
 		}
@@ -1434,32 +1434,32 @@ public:
 		// and make p the parent of all the nodes along the way.
 		// This is a side effect and doesn't affect the return value.
 		// It speeds up future find operations
-		while (k != p) {
-			int next_k = parents[k].get();
+		동안 (k != p) {
+			정수 next_k = parents[k].get();
 			const_cast<AtomicParent*>(&parents[k])->set(p);
 			k = next_k;
 		}
 
-		return p;
+		반환 p;
 	}
 
 	// Merge sets if the given indices belong to different sets.
 	// Makes ifind(j) the root of the merged set.
-	void imerge(int i, int j)
+	void imerge(정수 i, 정수 j)
 	{
 		i = ifind(i);
 		j = ifind(j);
 
-		if (i != j)
+		만약 (i != j)
 			parents[i].set(j);
 	}
 
-	void ipromote(int i)
+	void ipromote(정수 i)
 	{
-		int k = i;
+		정수 k = i;
 
-		while (k != -1) {
-			int next_k = parents[k].get();
+		동안 (k != -1) {
+			정수 next_k = parents[k].get();
 			parents[k].set(i);
 			k = next_k;
 		}
@@ -1467,17 +1467,17 @@ public:
 		parents[i].set(-1);
 	}
 
-	int lookup(const K &a)
+	정수 lookup(const K &a)
 	{
-		return ifind((*this)(a));
+		반환 ifind((*this)(a));
 	}
 
 	const K &find(const K &a) const
 	{
-		int i = database.at(a, -1);
-		if (i < 0)
-			return a;
-		return (*this)[ifind(i)];
+		정수 i = database.at(a, -1);
+		만약 (i < 0)
+			반환 a;
+		반환 (*this)[ifind(i)];
 	}
 
 	void merge(const K &a, const K &b)
@@ -1487,8 +1487,8 @@ public:
 
 	void promote(const K &a)
 	{
-		int i = database.at(a, -1);
-		if (i >= 0)
+		정수 i = database.at(a, -1);
+		만약 (i >= 0)
 			ipromote(i);
 	}
 
@@ -1499,13 +1499,13 @@ public:
 	}
 
 	void reserve(size_t n) { database.reserve(n); }
-	size_t size() const { return database.size(); }
-	bool empty() const { return database.empty(); }
+	size_t size() const { 반환 database.size(); }
+	bool empty() const { 반환 database.empty(); }
 	void clear() { database.clear(); parents.clear(); }
 
-	const_iterator begin() const { return database.begin(); }
-	const_iterator element(int n) const { return database.element(n); }
-	const_iterator end() const { return database.end(); }
+	const_iterator begin() const { 반환 database.begin(); }
+	const_iterator element(정수 n) const { 반환 database.element(n); }
+	const_iterator end() const { 반환 database.end(); }
 };
 
 } /* namespace hashlib */

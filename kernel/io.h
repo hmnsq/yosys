@@ -14,42 +14,42 @@ inline std::string vstringf(const char *fmt, va_list ap)
 {
 	// For the common case of strings shorter than 128, save a heap
 	// allocation by using a stack allocated buffer.
-	const int kBufSize = 128;
+	const 정수 kBufSize = 128;
 	char buf[kBufSize];
 	buf[0] = '\0';
 	va_list apc;
 	va_copy(apc, ap);
-	int n = vsnprintf(buf, kBufSize, fmt, apc);
+	정수 n = vsnprintf(buf, kBufSize, fmt, apc);
 	va_end(apc);
-	if (n < kBufSize)
-		return std::string(buf);
+	만약 (n < kBufSize)
+		반환 std::string(buf);
 
 	std::string string;
 	char *str = NULL;
-#if defined(_WIN32) || defined(__CYGWIN__)
-	int sz = 2 * kBufSize, rc;
-	while (1) {
+#만약 defined(_WIN32) || defined(__CYGWIN__)
+	정수 sz = 2 * kBufSize, rc;
+	동안 (1) {
 		va_copy(apc, ap);
 		str = (char *)realloc(str, sz);
 		rc = vsnprintf(str, sz, fmt, apc);
 		va_end(apc);
-		if (rc >= 0 && rc < sz)
+		만약 (rc >= 0 && rc < sz)
 			break;
 		sz *= 2;
 	}
-	if (str != NULL) {
+	만약 (str != NULL) {
 		string = str;
 		free(str);
 	}
-	return string;
-#else
-	if (vasprintf(&str, fmt, ap) < 0)
+	반환 string;
+#아니면
+	만약 (vasprintf(&str, fmt, ap) < 0)
 		str = NULL;
-	if (str != NULL) {
+	만약 (str != NULL) {
 		string = str;
 		free(str);
 	}
-	return string;
+	반환 string;
 #endif
 }
 
@@ -75,19 +75,19 @@ constexpr ConversionSpecifier parse_conversion_specifier(char ch, char prev_ch)
 	switch (ch) {
 	case 'd':
 	case 'i':
-		return CONVSPEC_SIGNED_INT;
+		반환 CONVSPEC_SIGNED_INT;
 	case 'o':
 	case 'u':
 	case 'x':
 	case 'X':
 	case 'm':
-		return CONVSPEC_UNSIGNED_INT;
+		반환 CONVSPEC_UNSIGNED_INT;
 	case 'c':
-		if (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
+		만약 (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
 			// wchar not supported
-			return CONVSPEC_ERROR;
+			반환 CONVSPEC_ERROR;
 		}
-		return CONVSPEC_UNSIGNED_INT;
+		반환 CONVSPEC_UNSIGNED_INT;
 	case 'e':
 	case 'E':
 	case 'f':
@@ -96,21 +96,21 @@ constexpr ConversionSpecifier parse_conversion_specifier(char ch, char prev_ch)
 	case 'G':
 	case 'a':
 	case 'A':
-		return CONVSPEC_DOUBLE;
+		반환 CONVSPEC_DOUBLE;
 	case 's':
-		if (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
+		만약 (prev_ch == 'l' || prev_ch == 'q' || prev_ch == 'L') {
 			// wchar not supported
-			return CONVSPEC_ERROR;
+			반환 CONVSPEC_ERROR;
 		}
-		return CONVSPEC_CHAR_PTR;
+		반환 CONVSPEC_CHAR_PTR;
 	case 'p':
-		return CONVSPEC_VOID_PTR;
+		반환 CONVSPEC_VOID_PTR;
 	case '$': // positional parameters
 	case 'n':
 	case 'S':
-		return CONVSPEC_ERROR;
+		반환 CONVSPEC_ERROR;
 	default:
-		return CONVSPEC_NONE;
+		반환 CONVSPEC_NONE;
 	}
 }
 
@@ -124,25 +124,25 @@ enum class DynamicIntCount : uint8_t {
 struct FoundFormatSpec
 {
 	// The start offset of the conversion spec in the format string.
-	int start;
+	정수 start;
 	// The end offset of the conversion spec in the format string.
-	int end;
+	정수 end;
 	ConversionSpecifier spec;
 	// Number of int args consumed by '*' dynamic width/precision args.
 	DynamicIntCount num_dynamic_ints;
 };
 
 // Ensure there is no format spec.
-constexpr void ensure_no_format_spec(std::string_view fmt, int index, bool *has_escapes)
+constexpr void ensure_no_format_spec(std::string_view fmt, 정수 index, bool *has_escapes)
 {
-	int fmt_size = static_cast<int>(fmt.size());
+	정수 fmt_size = static_cast<정수>(fmt.size());
 	// A trailing '%' is not a format spec.
-	while (index + 1 < fmt_size) {
-		if (fmt[index] != '%') {
+	동안 (index + 1 < fmt_size) {
+		만약 (fmt[index] != '%') {
 			++index;
 			continue;
 		}
-		if (fmt[index + 1] != '%') {
+		만약 (fmt[index + 1] != '%') {
 			YOSYS_ABORT("More format conversion specifiers than arguments");
 		}
 		*has_escapes = true;
@@ -152,51 +152,51 @@ constexpr void ensure_no_format_spec(std::string_view fmt, int index, bool *has_
 
 // Returns the next format conversion specifier (starting with '%').
 // Returns CONVSPEC_NONE if there isn't a format conversion specifier.
-constexpr FoundFormatSpec find_next_format_spec(std::string_view fmt, int fmt_start, bool *has_escapes)
+constexpr FoundFormatSpec find_next_format_spec(std::string_view fmt, 정수 fmt_start, bool *has_escapes)
 {
-	int index = fmt_start;
-	int fmt_size = static_cast<int>(fmt.size());
-	while (index < fmt_size) {
-		if (fmt[index] != '%') {
+	정수 index = fmt_start;
+	정수 fmt_size = static_cast<정수>(fmt.size());
+	동안 (index < fmt_size) {
+		만약 (fmt[index] != '%') {
 			++index;
 			continue;
 		}
-		int p = index + 1;
+		정수 p = index + 1;
 		uint8_t num_dynamic_ints = 0;
-		while (true) {
-			if (p == fmt_size) {
-				return {0, 0, CONVSPEC_NONE, DynamicIntCount::NONE};
+		동안 (true) {
+			만약 (p == fmt_size) {
+				반환 {0, 0, CONVSPEC_NONE, DynamicIntCount::NONE};
 			}
-			if (fmt[p] == '%') {
+			만약 (fmt[p] == '%') {
 				*has_escapes = true;
 				index = p + 1;
 				break;
 			}
-			if (fmt[p] == '*') {
-				if (num_dynamic_ints >= 2) {
-					return {0, 0, CONVSPEC_ERROR, DynamicIntCount::NONE};
+			만약 (fmt[p] == '*') {
+				만약 (num_dynamic_ints >= 2) {
+					반환 {0, 0, CONVSPEC_ERROR, DynamicIntCount::NONE};
 				}
 				++num_dynamic_ints;
 			}
 			ConversionSpecifier spec = parse_conversion_specifier(fmt[p], fmt[p - 1]);
-			if (spec != CONVSPEC_NONE) {
-				return {index, p + 1, spec, static_cast<DynamicIntCount>(num_dynamic_ints)};
+			만약 (spec != CONVSPEC_NONE) {
+				반환 {index, p + 1, spec, static_cast<DynamicIntCount>(num_dynamic_ints)};
 			}
 			++p;
 		}
 	}
-	return {0, 0, CONVSPEC_NONE, DynamicIntCount::NONE};
+	반환 {0, 0, CONVSPEC_NONE, DynamicIntCount::NONE};
 }
 
 template <typename... Args>
 constexpr typename std::enable_if<sizeof...(Args) == 0>::type
-check_format(std::string_view fmt, int fmt_start, bool *has_escapes, FoundFormatSpec*, DynamicIntCount)
+check_format(std::string_view fmt, 정수 fmt_start, bool *has_escapes, FoundFormatSpec*, DynamicIntCount)
 {
 	ensure_no_format_spec(fmt, fmt_start, has_escapes);
 }
 
 template <class T>
-static auto has_name_member_imp(int)
+static auto has_name_member_imp(정수)
 	-> decltype(static_cast<const IdString>(std::declval<T>().name), std::true_type{});
 
 template <class T>
@@ -207,7 +207,7 @@ template <class T>
 struct has_name_member : decltype(has_name_member_imp<T>(0)){};
 
 template <class T>
-static auto ptr_has_name_member_imp(int)
+static auto ptr_has_name_member_imp(정수)
 	-> decltype(static_cast<const IdString>(std::declval<T>()->name), std::true_type{});
 
 template <class T>
@@ -222,19 +222,19 @@ struct ptr_has_name_member : decltype(ptr_has_name_member_imp<T>(0)){};
 // `int_args_consumed` is the number of int arguments already consumed to satisfy the
 // dynamic width/precision args for the next format conversion specifier.
 template <typename Arg, typename... Args>
-constexpr void check_format(std::string_view fmt, int fmt_start, bool *has_escapes, FoundFormatSpec* specs,
+constexpr void check_format(std::string_view fmt, 정수 fmt_start, bool *has_escapes, FoundFormatSpec* specs,
         DynamicIntCount int_args_consumed)
 {
 	FoundFormatSpec found = find_next_format_spec(fmt, fmt_start, has_escapes);
-	if (found.num_dynamic_ints > int_args_consumed) {
+	만약 (found.num_dynamic_ints > int_args_consumed) {
 		// We need to consume at least one more int for the dynamic
 		// width/precision of this format conversion specifier.
-		if constexpr (!std::is_convertible_v<Arg, int>) {
+		만약 constexpr (!std::is_convertible_v<Arg, 정수>) {
 			YOSYS_ABORT("Expected dynamic int argument");
 		}
 		check_format<Args...>(fmt, fmt_start, has_escapes, specs,
 			static_cast<DynamicIntCount>(static_cast<uint8_t>(int_args_consumed) + 1));
-		return;
+		반환;
 	}
 	switch (found.spec) {
 	case CONVSPEC_NONE:
@@ -244,25 +244,25 @@ constexpr void check_format(std::string_view fmt, int fmt_start, bool *has_escap
 		YOSYS_ABORT("Found unsupported format conversion specifier");
 		break;
 	case CONVSPEC_SIGNED_INT:
-		if constexpr (!std::is_convertible_v<Arg, long long>) {
+		만약 constexpr (!std::is_convertible_v<Arg, long long>) {
 			YOSYS_ABORT("Expected type convertible to signed integer");
 		}
 		*specs = found;
 		break;
 	case CONVSPEC_UNSIGNED_INT:
-		if constexpr (!std::is_convertible_v<Arg, unsigned long long>) {
+		만약 constexpr (!std::is_convertible_v<Arg, unsigned long long>) {
 			YOSYS_ABORT("Expected type convertible to unsigned integer");
 		}
 		*specs = found;
 		break;
 	case CONVSPEC_DOUBLE:
-		if constexpr (!std::is_convertible_v<Arg, double>) {
+		만약 constexpr (!std::is_convertible_v<Arg, double>) {
 			YOSYS_ABORT("Expected type convertible to double");
 		}
 		*specs = found;
 		break;
 	case CONVSPEC_CHAR_PTR:
-		if constexpr (!std::is_convertible_v<Arg, const char *> &&
+		만약 constexpr (!std::is_convertible_v<Arg, const char *> &&
 		        !std::is_convertible_v<Arg, const std::string &> &&
 			!std::is_convertible_v<Arg, const std::string_view &> &&
 			!has_name_member<Arg>() &&
@@ -272,7 +272,7 @@ constexpr void check_format(std::string_view fmt, int fmt_start, bool *has_escap
 		*specs = found;
 		break;
 	case CONVSPEC_VOID_PTR:
-		if constexpr (!std::is_convertible_v<Arg, const void *>) {
+		만약 constexpr (!std::is_convertible_v<Arg, const void *>) {
 			YOSYS_ABORT("Expected pointer type");
 		}
 		*specs = found;
@@ -282,95 +282,95 @@ constexpr void check_format(std::string_view fmt, int fmt_start, bool *has_escap
 }
 
 // Emit the string representation of `arg` that has been converted to a `long long'.
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_long_long(std::string &result, std::string_view spec, 정수 *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, long long arg);
 
 // Emit the string representation of `arg` that has been converted to a `unsigned long long'.
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_unsigned_long_long(std::string &result, std::string_view spec, 정수 *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, unsigned long long arg);
 
 // Emit the string representation of `arg` that has been converted to a `double'.
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_double(std::string &result, std::string_view spec, 정수 *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, double arg);
 
 // Emit the string representation of `arg` that has been converted to a `const char*'.
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_char_ptr(std::string &result, std::string_view spec, 정수 *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, const char *arg);
 
 // Emit the string representation of `arg` that has been converted to a `std::string'.
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_string(std::string &result, std::string_view spec, 정수 *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, const std::string &arg);
 
 // Emit the string representation of `arg` that has been converted to a `std::string_view'.
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_string_view(std::string &result, std::string_view spec, 정수 *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, std::string_view arg);
 
 // Emit the string representation of `arg` that has been converted to a `double'.
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
+void format_emit_void_ptr(std::string &result, std::string_view spec, 정수 *dynamic_ints,
 	DynamicIntCount num_dynamic_ints, const void *arg);
 
 // Emit the string representation of `arg` according to the given `FoundFormatSpec`,
 // appending it to `result`.
 template <typename Arg>
 inline void format_emit_one(std::string &result, std::string_view fmt, const FoundFormatSpec &ffspec,
-	int *dynamic_ints, const Arg& arg)
+	정수 *dynamic_ints, const Arg& arg)
 {
 	std::string_view spec = fmt.substr(ffspec.start, ffspec.end - ffspec.start);
 	DynamicIntCount num_dynamic_ints = ffspec.num_dynamic_ints;
 	switch (ffspec.spec) {
 	case CONVSPEC_SIGNED_INT:
-		if constexpr (std::is_convertible_v<Arg, long long>) {
+		만약 constexpr (std::is_convertible_v<Arg, long long>) {
 			long long s = arg;
 			format_emit_long_long(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+			반환;
 		}
 		break;
 	case CONVSPEC_UNSIGNED_INT:
-		if constexpr (std::is_convertible_v<Arg, unsigned long long>) {
+		만약 constexpr (std::is_convertible_v<Arg, unsigned long long>) {
 			unsigned long long s = arg;
 			format_emit_unsigned_long_long(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+			반환;
 		}
 		break;
 	case CONVSPEC_DOUBLE:
-		if constexpr (std::is_convertible_v<Arg, double>) {
+		만약 constexpr (std::is_convertible_v<Arg, double>) {
 			double s = arg;
 			format_emit_double(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+			반환;
 		}
 		break;
 	case CONVSPEC_CHAR_PTR:
-		if constexpr (std::is_convertible_v<Arg, const char *>) {
+		만약 constexpr (std::is_convertible_v<Arg, const char *>) {
 			const char *s = arg;
 			format_emit_char_ptr(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+			반환;
 		}
-		if constexpr (std::is_convertible_v<Arg, const std::string &>) {
+		만약 constexpr (std::is_convertible_v<Arg, const std::string &>) {
 			const std::string &s = arg;
 			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+			반환;
 		}
-		if constexpr (std::is_convertible_v<Arg, const std::string_view &>) {
+		만약 constexpr (std::is_convertible_v<Arg, const std::string_view &>) {
 			const std::string_view &s = arg;
 			format_emit_string_view(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+			반환;
 		}
-		if constexpr (has_name_member<Arg>()) {
+		만약 constexpr (has_name_member<Arg>()) {
 			const std::string &s = arg.name.unescape();
 			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+			반환;
 		}
-		if constexpr (ptr_has_name_member<Arg>()) {
+		만약 constexpr (ptr_has_name_member<Arg>()) {
 			const std::string &s = arg->name.unescape();
 			format_emit_string(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+			반환;
 		}
 		break;
 	case CONVSPEC_VOID_PTR:
-		if constexpr (std::is_convertible_v<Arg, const void *>) {
+		만약 constexpr (std::is_convertible_v<Arg, const void *>) {
 			const void *s = arg;
 			format_emit_void_ptr(result, spec, dynamic_ints, num_dynamic_ints, s);
-			return;
+			반환;
 		}
 		break;
 	default:
@@ -384,13 +384,13 @@ inline void format_emit_one(std::string &result, std::string_view fmt, const Fou
 void format_emit_unescaped(std::string &result, std::string_view fmt);
 std::string unescape_format_string(std::string_view fmt);
 
-inline void format_emit(std::string &result, std::string_view fmt, int fmt_start,
-	bool has_escapes, const FoundFormatSpec*, int*, DynamicIntCount)
+inline void format_emit(std::string &result, std::string_view fmt, 정수 fmt_start,
+	bool has_escapes, const FoundFormatSpec*, 정수*, DynamicIntCount)
 {
 	fmt = fmt.substr(fmt_start);
-	if (has_escapes) {
+	만약 (has_escapes) {
 		format_emit_unescaped(result, fmt);
-	} else {
+	} 아니면 {
 		result += fmt;
 	}
 }
@@ -398,26 +398,26 @@ inline void format_emit(std::string &result, std::string_view fmt, int fmt_start
 // `num_dynamic_ints` in `dynamic_ints[]` have already been collected to provide as
 // dynamic width/precision args for the next format conversion specifier.
 template <typename Arg, typename... Args>
-inline void format_emit(std::string &result, std::string_view fmt, int fmt_start, bool has_escapes,
-	const FoundFormatSpec* specs, int *dynamic_ints, DynamicIntCount num_dynamic_ints,
+inline void format_emit(std::string &result, std::string_view fmt, 정수 fmt_start, bool has_escapes,
+	const FoundFormatSpec* specs, 정수 *dynamic_ints, DynamicIntCount num_dynamic_ints,
 	const Arg &arg, const Args &... args)
 {
-	if (specs->num_dynamic_ints > num_dynamic_ints) {
+	만약 (specs->num_dynamic_ints > num_dynamic_ints) {
 		// Collect another int for the dynamic width precision/args
 		// for the next format conversion specifier.
-		if constexpr (std::is_convertible_v<Arg, int>) {
+		만약 constexpr (std::is_convertible_v<Arg, 정수>) {
 			dynamic_ints[static_cast<uint8_t>(num_dynamic_ints)] = arg;
-		} else {
+		} 아니면 {
 			YOSYS_ABORT("Internal error");
 		}
 		format_emit(result, fmt, fmt_start, has_escapes, specs, dynamic_ints,
 		            static_cast<DynamicIntCount>(static_cast<uint8_t>(num_dynamic_ints) + 1), args...);
-		return;
+		반환;
 	}
 	std::string_view str = fmt.substr(fmt_start, specs->start - fmt_start);
-	if (has_escapes) {
+	만약 (has_escapes) {
 		format_emit_unescaped(result, str);
-	} else {
+	} 아니면 {
 		result += str;
 	}
 	format_emit_one(result, fmt, *specs, dynamic_ints, arg);
@@ -428,17 +428,17 @@ template <typename... Args>
 inline std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, const FoundFormatSpec* specs, const Args &... args)
 {
 	std::string result;
-	int dynamic_ints[2] = { 0, 0 };
+	정수 dynamic_ints[2] = { 0, 0 };
 	format_emit(result, fmt, 0, has_escapes, specs, dynamic_ints, DynamicIntCount::NONE, args...);
-	return result;
+	반환 result;
 }
 template <>
 inline std::string format_emit_toplevel(std::string_view fmt, bool has_escapes, const FoundFormatSpec*)
 {
-	if (!has_escapes) {
-		return std::string(fmt);
+	만약 (!has_escapes) {
+		반환 std::string(fmt);
 	}
-	return unescape_format_string(fmt);
+	반환 unescape_format_string(fmt);
 }
 
 // This class parses format strings to build a list of `FoundFormatSpecs` in `specs`.
@@ -457,9 +457,9 @@ public:
 	}
 	std::string format(const Args &... args)
 	{
-		return format_emit_toplevel(fmt, has_escapes, specs, args...);
+		반환 format_emit_toplevel(fmt, has_escapes, specs, args...);
 	}
-	std::string_view format_string() const { return fmt; }
+	std::string_view format_string() const { 반환 fmt; }
 private:
 	std::string_view fmt;
 	bool has_escapes = false;
@@ -473,15 +473,15 @@ template <typename T> using TypeIdentity = typename WrapType<T>::type;
 template <typename... Args>
 inline std::string stringf(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
 {
-	return fmt.format(args...);
+	반환 fmt.format(args...);
 }
 
-int readsome(std::istream &f, char *s, int n);
+정수 readsome(std::istream &f, char *s, 정수 n);
 std::string next_token(std::string &text, const char *sep = " \t\r\n", bool long_strings = false);
 std::vector<std::string> split_tokens(const std::string &text, const char *sep = " \t\r\n");
 bool patmatch(const char *pattern, const char *string);
-#if !defined(YOSYS_DISABLE_SPAWN)
-int run_command(const std::string &command, std::function<void(const std::string&)> process_line = std::function<void(const std::string&)>());
+#만약 !defined(YOSYS_DISABLE_SPAWN)
+정수 run_command(const std::string &command, std::function<void(const std::string&)> process_line = std::function<void(const std::string&)>());
 #endif
 std::string get_base_tmpdir();
 std::string make_temp_file(std::string template_str = get_base_tmpdir() + "/yosys_XXXXXX");
@@ -507,10 +507,10 @@ struct ScopedFileLock {
 	ScopedFileLock(const ScopedFileLock &) = delete;
 	ScopedFileLock &operator=(const ScopedFileLock &) = delete;
 private:
-#if defined(_WIN32)
+#만약 defined(_WIN32)
 	void *handle = nullptr;
 #elif !defined(__wasi__)
-	int fd = -1;
+	정수 fd = -1;
 #endif
 };
 

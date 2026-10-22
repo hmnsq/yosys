@@ -22,21 +22,21 @@
 USING_YOSYS_NAMESPACE
 
 bool FfMergeHelper::is_output_unused(RTLIL::SigSpec sig) {
-	for (auto bit : (*sigmap)(sig))
-		if (sigbit_users_count[bit] != 0)
-			return false;
-	return true;
+	위해 (auto bit : (*sigmap)(sig))
+		만약 (sigbit_users_count[bit] != 0)
+			반환 false;
+	반환 true;
 }
 
-bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, 정수>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
 	bool found = false;
 
-	for (auto bit : sig)
+	위해 (auto bit : sig)
 	{
-		if (bit.wire == NULL || sigbit_users_count[bit] == 0) {
+		만약 (bit.wire == NULL || sigbit_users_count[bit] == 0) {
 			ff.width++;
 			ff.sig_q.append(bit);
 			ff.sig_d.append(bit);
@@ -48,27 +48,27 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			continue;
 		}
 
-		if (sigbit_users_count[bit] != 1)
-			return false;
+		만약 (sigbit_users_count[bit] != 1)
+			반환 false;
 
 		auto &sinks = dff_sink[bit];
-		if (sinks.size() != 1)
-			return false;
+		만약 (sinks.size() != 1)
+			반환 false;
 
 		Cell *cell;
-		int idx;
+		정수 idx;
 		std::tie(cell, idx) = *sinks.begin();
 		bits.insert(std::make_pair(cell, idx));
 
 		FfData cur_ff(initvals, cell);
 
 		// Reject latches and $ff.
-		if (!cur_ff.has_clk)
-			return false;
+		만약 (!cur_ff.has_clk)
+			반환 false;
 
 		log_assert((*sigmap)(cur_ff.sig_d[idx]) == bit);
 
-		if (!found) {
+		만약 (!found) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -88,56 +88,56 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
 			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+		} 아니면 {
+			만약 (ff.has_clk != cur_ff.has_clk)
+				반환 false;
+			만약 (ff.has_ce != cur_ff.has_ce)
+				반환 false;
+			만약 (ff.has_aload != cur_ff.has_aload)
+				반환 false;
+			만약 (ff.has_srst != cur_ff.has_srst)
+				반환 false;
+			만약 (ff.has_arst != cur_ff.has_arst)
+				반환 false;
+			만약 (ff.has_sr != cur_ff.has_sr)
+				반환 false;
+			만약 (ff.has_clk) {
+				만약 (ff.sig_clk != cur_ff.sig_clk)
+					반환 false;
+				만약 (ff.pol_clk != cur_ff.pol_clk)
+					반환 false;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			만약 (ff.has_ce) {
+				만약 (ff.sig_ce != cur_ff.sig_ce)
+					반환 false;
+				만약 (ff.pol_ce != cur_ff.pol_ce)
+					반환 false;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			만약 (ff.has_aload) {
+				만약 (ff.sig_aload != cur_ff.sig_aload)
+					반환 false;
+				만약 (ff.pol_aload != cur_ff.pol_aload)
+					반환 false;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			만약 (ff.has_srst) {
+				만약 (ff.sig_srst != cur_ff.sig_srst)
+					반환 false;
+				만약 (ff.pol_srst != cur_ff.pol_srst)
+					반환 false;
+				만약 (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					반환 false;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			만약 (ff.has_arst) {
+				만약 (ff.sig_arst != cur_ff.sig_arst)
+					반환 false;
+				만약 (ff.pol_arst != cur_ff.pol_arst)
+					반환 false;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			만약 (ff.has_sr) {
+				만약 (ff.pol_clr != cur_ff.pol_clr)
+					반환 false;
+				만약 (ff.pol_set != cur_ff.pol_set)
+					반환 false;
 			}
 		}
 
@@ -153,20 +153,20 @@ bool FfMergeHelper::find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pai
 		found = true;
 	}
 
-	return found;
+	반환 found;
 }
 
-bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits) {
+bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, 정수>> &bits) {
 	ff = FfData(module, initvals, module->twines().add(NEW_ID));
 	sigmap->apply(sig);
 
 	bool found = false;
 
-	pool<int> const_bits;
+	pool<정수> const_bits;
 
-	for (auto bit : sig)
+	위해 (auto bit : sig)
 	{
-		if (bit.wire == NULL) {
+		만약 (bit.wire == NULL) {
 			const_bits.insert(ff.width);
 			ff.width++;
 			ff.sig_q.append(bit);
@@ -180,11 +180,11 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			continue;
 		}
 
-		if (!dff_driver.count(bit))
-			return false;
+		만약 (!dff_driver.count(bit))
+			반환 false;
 
 		Cell *cell;
-		int idx;
+		정수 idx;
 		std::tie(cell, idx) = dff_driver[bit];
 		bits.insert(std::make_pair(cell, idx));
 
@@ -192,7 +192,7 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 
 		log_assert((*sigmap)(cur_ff.sig_q[idx]) == bit);
 
-		if (!found) {
+		만약 (!found) {
 			ff.sig_clk = cur_ff.sig_clk;
 			ff.sig_ce = cur_ff.sig_ce;
 			ff.sig_aload = cur_ff.sig_aload;
@@ -213,58 +213,58 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 			ff.pol_srst = cur_ff.pol_srst;
 			ff.pol_clr = cur_ff.pol_clr;
 			ff.pol_set = cur_ff.pol_set;
-		} else {
-			if (ff.has_gclk != cur_ff.has_gclk)
-				return false;
-			if (ff.has_clk != cur_ff.has_clk)
-				return false;
-			if (ff.has_ce != cur_ff.has_ce)
-				return false;
-			if (ff.has_aload != cur_ff.has_aload)
-				return false;
-			if (ff.has_srst != cur_ff.has_srst)
-				return false;
-			if (ff.has_arst != cur_ff.has_arst)
-				return false;
-			if (ff.has_sr != cur_ff.has_sr)
-				return false;
-			if (ff.has_clk) {
-				if (ff.sig_clk != cur_ff.sig_clk)
-					return false;
-				if (ff.pol_clk != cur_ff.pol_clk)
-					return false;
+		} 아니면 {
+			만약 (ff.has_gclk != cur_ff.has_gclk)
+				반환 false;
+			만약 (ff.has_clk != cur_ff.has_clk)
+				반환 false;
+			만약 (ff.has_ce != cur_ff.has_ce)
+				반환 false;
+			만약 (ff.has_aload != cur_ff.has_aload)
+				반환 false;
+			만약 (ff.has_srst != cur_ff.has_srst)
+				반환 false;
+			만약 (ff.has_arst != cur_ff.has_arst)
+				반환 false;
+			만약 (ff.has_sr != cur_ff.has_sr)
+				반환 false;
+			만약 (ff.has_clk) {
+				만약 (ff.sig_clk != cur_ff.sig_clk)
+					반환 false;
+				만약 (ff.pol_clk != cur_ff.pol_clk)
+					반환 false;
 			}
-			if (ff.has_ce) {
-				if (ff.sig_ce != cur_ff.sig_ce)
-					return false;
-				if (ff.pol_ce != cur_ff.pol_ce)
-					return false;
+			만약 (ff.has_ce) {
+				만약 (ff.sig_ce != cur_ff.sig_ce)
+					반환 false;
+				만약 (ff.pol_ce != cur_ff.pol_ce)
+					반환 false;
 			}
-			if (ff.has_aload) {
-				if (ff.sig_aload != cur_ff.sig_aload)
-					return false;
-				if (ff.pol_aload != cur_ff.pol_aload)
-					return false;
+			만약 (ff.has_aload) {
+				만약 (ff.sig_aload != cur_ff.sig_aload)
+					반환 false;
+				만약 (ff.pol_aload != cur_ff.pol_aload)
+					반환 false;
 			}
-			if (ff.has_srst) {
-				if (ff.sig_srst != cur_ff.sig_srst)
-					return false;
-				if (ff.pol_srst != cur_ff.pol_srst)
-					return false;
-				if (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
-					return false;
+			만약 (ff.has_srst) {
+				만약 (ff.sig_srst != cur_ff.sig_srst)
+					반환 false;
+				만약 (ff.pol_srst != cur_ff.pol_srst)
+					반환 false;
+				만약 (ff.has_ce && ff.ce_over_srst != cur_ff.ce_over_srst)
+					반환 false;
 			}
-			if (ff.has_arst) {
-				if (ff.sig_arst != cur_ff.sig_arst)
-					return false;
-				if (ff.pol_arst != cur_ff.pol_arst)
-					return false;
+			만약 (ff.has_arst) {
+				만약 (ff.sig_arst != cur_ff.sig_arst)
+					반환 false;
+				만약 (ff.pol_arst != cur_ff.pol_arst)
+					반환 false;
 			}
-			if (ff.has_sr) {
-				if (ff.pol_clr != cur_ff.pol_clr)
-					return false;
-				if (ff.pol_set != cur_ff.pol_set)
-					return false;
+			만약 (ff.has_sr) {
+				만약 (ff.pol_clr != cur_ff.pol_clr)
+					반환 false;
+				만약 (ff.pol_set != cur_ff.pol_set)
+					반환 false;
 			}
 		}
 
@@ -280,24 +280,24 @@ bool FfMergeHelper::find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair
 		found = true;
 	}
 
-	if (found && ff.has_sr) {
-		for (auto i: const_bits) {
-			if (ff.sig_d[i] == State::S0) {
+	만약 (found && ff.has_sr) {
+		위해 (auto i: const_bits) {
+			만약 (ff.sig_d[i] == State::S0) {
 				ff.sig_set[i] = ff.pol_set ? State::S0 : State::S1;
-			} else if (ff.sig_d[i] == State::S1) {
+			} 아니면 만약 (ff.sig_d[i] == State::S1) {
 				ff.sig_clr[i] = ff.pol_clr ? State::S0 : State::S1;
 			}
 		}
 	}
 
-	return found;
+	반환 found;
 }
 
 
-void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
+void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, 정수>> &bits) {
+	위해 (auto &it : bits) {
 		Cell *cell = it.first;
-		int idx = it.second;
+		정수 idx = it.second;
 		SigSpec q = cell->getPort(ID::Q);
 		initvals->remove_init(q[idx]);
 		dff_driver.erase((*sigmap)(q[idx]));
@@ -307,11 +307,11 @@ void FfMergeHelper::remove_output_ff(const pool<std::pair<Cell *, int>> &bits) {
 	}
 }
 
-void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, int>> &bits) {
-	for (auto &it : bits) {
+void FfMergeHelper::mark_input_ff(const pool<std::pair<Cell *, 정수>> &bits) {
+	위해 (auto &it : bits) {
 		Cell *cell = it.first;
-		int idx = it.second;
-		if (cell->hasPort(ID::D)) {
+		정수 idx = it.second;
+		만약 (cell->hasPort(ID::D)) {
 			SigSpec d = cell->getPort(ID::D);
 			// The user count was already at least 1
 			// (for the D port).  Bump it as it is now connected
@@ -329,26 +329,26 @@ void FfMergeHelper::set(FfInitVals *initvals_, RTLIL::Module *module_)
 	sigmap = initvals->sigmap;
 	module = module_;
 
-	for (auto wire : module->wires()) {
-		if (wire->port_output)
-			for (auto bit : (*sigmap)(wire))
+	위해 (auto wire : module->wires()) {
+		만약 (wire->port_output)
+			위해 (auto bit : (*sigmap)(wire))
 				sigbit_users_count[bit]++;
 	}
 
-	for (auto cell : module->cells()) {
-		if (cell->is_builtin_ff()) {
-			if (cell->hasPort(ID::D)) {
+	위해 (auto cell : module->cells()) {
+		만약 (cell->is_builtin_ff()) {
+			만약 (cell->hasPort(ID::D)) {
 				SigSpec d = (*sigmap)(cell->getPort(ID::D));
-				for (int i = 0; i < GetSize(d); i++)
+				위해 (정수 i = 0; i < GetSize(d); i++)
 					dff_sink[d[i]].insert(std::make_pair(cell, i));
 			}
 			SigSpec q = (*sigmap)(cell->getPort(ID::Q));
-			for (int i = 0; i < GetSize(q); i++)
+			위해 (정수 i = 0; i < GetSize(q); i++)
 				dff_driver[q[i]] = std::make_pair(cell, i);
 		}
-		for (auto &conn : cell->connections())
-			if (!cell->known() || cell->input(conn.first))
-				for (auto bit : (*sigmap)(conn.second))
+		위해 (auto &conn : cell->connections())
+			만약 (!cell->known() || cell->input(conn.first))
+				위해 (auto bit : (*sigmap)(conn.second))
 					sigbit_users_count[bit]++;
 	}
 }

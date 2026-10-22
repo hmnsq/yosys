@@ -35,29 +35,29 @@ static void buf_norm_seed_queues(RTLIL::Module *module)
 	// a cell or not) and about all used but undriven wires (whether represented by a
 	// cell or not). We ensure this by enqueing all cell output ports and all wires.
 
-	for (auto cell : module->cells())
-	for (auto &conn : cell->connections()) {
-		if (GetSize(conn.second) == 0 || (cell->port_dir(conn.first) != RTLIL::PD_OUTPUT && cell->port_dir(conn.first) != RTLIL::PD_INOUT))
+	위해 (auto cell : module->cells())
+	위해 (auto &conn : cell->connections()) {
+		만약 (GetSize(conn.second) == 0 || (cell->port_dir(conn.first) != RTLIL::PD_OUTPUT && cell->port_dir(conn.first) != RTLIL::PD_INOUT))
 			continue;
 		module->buf_norm_cell_queue.insert(cell);
 		module->buf_norm_cell_port_queue.emplace(cell, conn.first);
 	}
-	for (auto wire : module->wires())
+	위해 (auto wire : module->wires())
 		module->buf_norm_wire_queue.insert(wire);
 }
 
 void RTLIL::Design::bufNormalize(bool enable)
 {
-	if (!enable)
+	만약 (!enable)
 	{
-		if (!flagBufferedNormalized)
-			return;
+		만약 (!flagBufferedNormalized)
+			반환;
 
-		for (auto module : modules()) {
+		위해 (auto module : modules()) {
 			module->buf_norm_cell_queue.clear();
 			module->buf_norm_wire_queue.clear();
 			module->buf_norm_cell_port_queue.clear();
-			for (auto wire : module->wires()) {
+			위해 (auto wire : module->wires()) {
 				wire->driverCell_ = nullptr;
 				wire->driverPort_ = IdString();
 			}
@@ -65,25 +65,25 @@ void RTLIL::Design::bufNormalize(bool enable)
 		}
 
 		flagBufferedNormalized = false;
-		return;
+		반환;
 	}
 
-	if (!flagBufferedNormalized)
+	만약 (!flagBufferedNormalized)
 	{
-		for (auto module : modules())
+		위해 (auto module : modules())
 			buf_norm_seed_queues(module);
 
 		flagBufferedNormalized = true;
 	}
 
-	for (auto module : modules())
+	위해 (auto module : modules())
 		module->bufNormalize();
 }
 
 struct bit_drive_data_t {
-	int drivers = 0;
-	int inout = 0;
-	int users = 0;
+	정수 drivers = 0;
+	정수 inout = 0;
+	정수 users = 0;
 };
 
 typedef ModWalker::PortBit PortBit;
@@ -92,21 +92,21 @@ void RTLIL::Module::bufNormalize()
 {
 	// Since this is kernel code, we only log with yosys_xtrace set to not get
 	// in the way when using `debug` to debug specific passes.q
-#define xlog(...) do { if (yosys_xtrace) log("#X [bufnorm] " __VA_ARGS__); } while (0)
+#define xlog(...) do { 만약 (yosys_xtrace) log("#X [bufnorm] " __VA_ARGS__); } 동안 (0)
 
-	if (!design->flagBufferedNormalized)
-		return;
+	만약 (!design->flagBufferedNormalized)
+		반환;
 
-	if (!buf_norm_cell_queue.empty() || !buf_norm_wire_queue.empty() || !connections_.empty())
+	만약 (!buf_norm_cell_queue.empty() || !buf_norm_wire_queue.empty() || !connections_.empty())
 	{
 		// Ensure that every enqueued input port is represented by a cell
-		for (auto wire : buf_norm_wire_queue) {
-			if (wire->port_input && !wire->port_output && GetSize(wire) != 0) {
-				if (wire->driverCell_ != nullptr && wire->driverCell_->type != ID($input_port)) {
+		위해 (auto wire : buf_norm_wire_queue) {
+			만약 (wire->port_input && !wire->port_output && GetSize(wire) != 0) {
+				만약 (wire->driverCell_ != nullptr && wire->driverCell_->type != ID($input_port)) {
 					wire->driverCell_ = nullptr;
 					wire->driverPort_ = IdString::Null;
 				}
-				if (wire->driverCell_ == nullptr) {
+				만약 (wire->driverCell_ == nullptr) {
 					Cell *input_port_cell = addCell(NEW_ID, ID($input_port));
 					input_port_cell->setParam(ID::WIDTH, GetSize(wire));
 					input_port_cell->setPort(ID::Y, wire); // this hits the fast path that doesn't mutate the queues
@@ -127,7 +127,7 @@ void RTLIL::Module::bufNormalize()
 		// reconnected to a fresh intermediate wire to re-normalize the module.
 
 		idict<Wire *> wire_queue_entries; // Ordered queue of wires to process
-		int wire_queue_pos = 0; // Index up to which we processed the wires
+		정수 wire_queue_pos = 0; // Index up to which we processed the wires
 
 		// Wires with their unique driving cell port. We pick the first driver
 		// we encounter, with the exception that we ensure that a module input
@@ -151,19 +151,19 @@ void RTLIL::Module::bufNormalize()
 			xlog("processing cell port %s.%s\n", cell, design->twines().unescaped_str(port));
 
 			// An empty cell type means the cell got removed
-			if (cell->type.empty())
-				return;
+			만약 (cell->type.empty())
+				반환;
 
 
 			SigSpec const &sig = cell->getPort(port);
 
 			// Make sure all wires of the cell port are enqueued, ensuring we
 			// detect other connected drivers (output and inout).
-			for (auto chunk : sig.chunks())
-				if (chunk.is_wire())
+			위해 (auto chunk : sig.chunks())
+				만약 (chunk.is_wire())
 					wire_queue_entries(chunk.wire);
 
-			if (cell->type == ID($buf) && cell->attributes.empty() && !cell->name.isPublic()) {
+			만약 (cell->type == ID($buf) && cell->attributes.empty() && !cell->name.isPublic()) {
 				// For a plain `$buf` cell, we enqueue all wires on its input
 				// side, bypass it using module level connections (skipping 'z
 				// bits) and then remove the cell. Eventually the module level
@@ -179,17 +179,17 @@ void RTLIL::Module::bufNormalize()
 				SigSpec sig_a = cell->getPort(ID::A);
 				SigSpec sig_y = sig;
 
-				for (auto const &s : {sig_a, sig})
-					for (auto const &chunk : s.chunks())
-						if (chunk.wire)
+				위해 (auto const &s : {sig_a, sig})
+					위해 (auto const &chunk : s.chunks())
+						만약 (chunk.wire)
 							wire_queue_entries(chunk.wire);
 
-				if (sig_a.has_const(State::Sz)) {
+				만약 (sig_a.has_const(State::Sz)) {
 					SigSpec new_a;
 					SigSpec new_y;
-					for (int i = 0; i < GetSize(sig_a); ++i) {
+					위해 (정수 i = 0; i < GetSize(sig_a); ++i) {
 						SigBit b = sig_a[i];
-						if (b == State::Sz)
+						만약 (b == State::Sz)
 							continue;
 						new_a.append(b);
 						new_y.append(sig_y[i]);
@@ -198,21 +198,21 @@ void RTLIL::Module::bufNormalize()
 					sig_y = std::move(new_y);
 				}
 
-				if (!sig_y.empty())
+				만약 (!sig_y.empty())
 					connect(sig_y, sig_a);
 				remove(cell);
 				log_assert(GetSize(buf_norm_wire_queue) <= 1);
 				buf_norm_wire_queue.clear();
-				return;
-			} else if (cell->type == ID($input_port)) {
+				반환;
+			} 아니면 만약 (cell->type == ID($input_port)) {
 				log_assert(port == ID::Y);
-				if (sig.is_wire()) {
+				만약 (sig.is_wire()) {
 					Wire *w = sig.as_wire();
-					if (w->port_input && !w->port_output) {
+					만약 (w->port_input && !w->port_output) {
 						// An $input_port cell can only drive a full wire module input port
 						auto [found, inserted] = direct_driven_wires.emplace(w, {cell, port});
-						if (!inserted || (found->second.first == cell && found->second.second == port))
-							return;
+						만약 (!inserted || (found->second.first == cell && found->second.second == port))
+							반환;
 					}
 				}
 
@@ -224,16 +224,16 @@ void RTLIL::Module::bufNormalize()
 				remove(cell);
 				log_assert(GetSize(buf_norm_wire_queue) <= 1);
 				buf_norm_wire_queue.clear();
-				return;
+				반환;
 			}
 
-			if (sig.is_wire()) {
+			만약 (sig.is_wire()) {
 				Wire *w = sig.as_wire();
-				if (!w->port_input || w->port_output) {
+				만약 (!w->port_input || w->port_output) {
 					// If the full cell port is connected to a full non-input-port wire, pick it as driver
 					auto [found, inserted] = direct_driven_wires.emplace(w, {cell, port});
-					if (inserted || (found->second.first == cell && found->second.second == port))
-						return;
+					만약 (inserted || (found->second.first == cell && found->second.second == port))
+						반환;
 				}
 			}
 
@@ -244,7 +244,7 @@ void RTLIL::Module::bufNormalize()
 		};
 
 		// We enqueue all enqueued wires for `$buf`/`$connect` processing (clearing the module level queue).
-		for (auto wire : buf_norm_wire_queue)
+		위해 (auto wire : buf_norm_wire_queue)
 			wire_queue_entries(wire);
 		buf_norm_wire_queue.clear();
 
@@ -255,44 +255,44 @@ void RTLIL::Module::bufNormalize()
 		// pass.
 
 		// We process all explicitly enqueued cell ports (clearing the module level queue).
-		for (auto const &[cell, port_name] : buf_norm_cell_port_queue)
+		위해 (auto const &[cell, port_name] : buf_norm_cell_port_queue)
 			enqueue_cell_port(cell, port_name);
 		buf_norm_cell_port_queue.clear();
 
 		// We also enqueue all wires that saw newly added module level connections.
-		for (auto &[a, b] : connections_)
-			for (auto &sig : {a, b})
-				for (auto const &chunk : sig.chunks())
-					if (chunk.wire)
+		위해 (auto &[a, b] : connections_)
+			위해 (auto &sig : {a, b})
+				위해 (auto const &chunk : sig.chunks())
+					만약 (chunk.wire)
 						wire_queue_entries(chunk.wire);
 
 		// We then process all wires by processing known driving cell ports
 		// (previously buf normalized) and following all `$connect` cells (that
 		// have a dedicated module level index while the design is in buf
 		// normalized mode).
-		while (wire_queue_pos < GetSize(wire_queue_entries)) {
+		동안 (wire_queue_pos < GetSize(wire_queue_entries)) {
 			auto wire = wire_queue_entries[wire_queue_pos++];
 			xlog("processing wire %s\n", wire);
 
-			if (wire->driverCell_) {
+			만약 (wire->driverCell_) {
 				Cell *cell = wire->driverCell_;
 				IdString port = wire->driverPort_;
 				enqueue_cell_port(cell, port);
 			}
 
-			while (true) {
+			동안 (true) {
 				auto found = buf_norm_connect_index.find(wire);
-				if (found == buf_norm_connect_index.end())
+				만약 (found == buf_norm_connect_index.end())
 					break;
-				while (!found->second.empty()) {
+				동안 (!found->second.empty()) {
 					Cell *connect_cell = *found->second.begin();
 					log_assert(connect_cell->type == ID($connect));
 					SigSpec const &sig_a = connect_cell->getPort(ID::A);
 					SigSpec const &sig_b = connect_cell->getPort(ID::B);
 					xlog("found $connect cell %s: %s <-> %s\n", connect_cell, log_signal(sig_a), log_signal(sig_b));
-					for (auto &side : {sig_a, sig_b})
-						for (auto chunk : side.chunks())
-							if (chunk.wire)
+					위해 (auto &side : {sig_a, sig_b})
+						위해 (auto chunk : side.chunks())
+							만약 (chunk.wire)
 								wire_queue_entries(chunk.wire);
 					connect(sig_a, sig_b);
 
@@ -310,7 +310,7 @@ void RTLIL::Module::bufNormalize()
 
 		// As a first step for re-normalization we add all require intermediate
 		// wires for cell output and inout ports.
-		for (auto &[cell, port] : pending_ports) {
+		위해 (auto &[cell, port] : pending_ports) {
 			log_assert(cell->type != ID($input_port));
 			log_assert(!cell->type.empty());
 			log_assert(!pending_deleted_cells.count(cell));
@@ -333,7 +333,7 @@ void RTLIL::Module::bufNormalize()
 		// First we clear the bufnorm data for all processed wires, all of
 		// these will be reassigned later, but we use `driverCell_ == nullptr`
 		// to keep track of the wires that we still have to update.
-		for (auto wire : wire_queue_entries) {
+		위해 (auto wire : wire_queue_entries) {
 			wire->driverCell_ = nullptr;
 			wire->driverPort_ = IdString::Null;
 		}
@@ -341,7 +341,7 @@ void RTLIL::Module::bufNormalize()
 		// For the unique driving cell ports fully connected to a full wire, we
 		// can update the bufnorm data right away. For all other wires we will
 		// have to create new `$buf` cells.
-		for (auto const &[wire, cellport] : direct_driven_wires) {
+		위해 (auto const &[wire, cellport] : direct_driven_wires) {
 			wire->driverCell_ = cellport.first;
 			wire->driverPort_ = cellport.second;
 		}
@@ -353,8 +353,8 @@ void RTLIL::Module::bufNormalize()
 		// any `$connect` cells to represent bidirectional inout connections
 		// (or driver conflicts).
 
-		if (yosys_xtrace)
-			for (auto const &[lhs, rhs] : connections_)
+		만약 (yosys_xtrace)
+			위해 (auto const &[lhs, rhs] : connections_)
 				xlog("connection %s <-> %s\n", log_signal(lhs), log_signal(rhs));
 
 
@@ -367,10 +367,10 @@ void RTLIL::Module::bufNormalize()
 
 		// We pick SigMap representatives by prioritizing input ports over
 		// driven wires over other/unknown wires.
-		for (bool input_ports : {false, true}) {
-			for (auto const &[wire, cellport] : direct_driven_wires) {
-				if ((wire->port_input && !wire->port_output) == input_ports) {
-					for (int i = 0; i != GetSize(wire); ++i) {
+		위해 (bool input_ports : {false, true}) {
+			위해 (auto const &[wire, cellport] : direct_driven_wires) {
+				만약 ((wire->port_input && !wire->port_output) == input_ports) {
+					위해 (정수 i = 0; i != GetSize(wire); ++i) {
 						SigBit driver = SigBit(wire, i);
 						sigmap.database.promote(driver);
 					}
@@ -386,27 +386,27 @@ void RTLIL::Module::bufNormalize()
 		// Bits that are driven by an inout driver
 		pool<SigBit> weakly_driven;
 
-		for (auto const &[wire, cellport] : direct_driven_wires) {
+		위해 (auto const &[wire, cellport] : direct_driven_wires) {
 			auto const &[cell, port] = cellport;
-			for (int i = 0; i != GetSize(wire); ++i) {
+			위해 (정수 i = 0; i != GetSize(wire); ++i) {
 				SigBit driver = sigmap(SigBit(wire, i));
-				if (cell->type == ID($tribuf) || cell->port_dir(port) == RTLIL::PD_INOUT) {
+				만약 (cell->type == ID($tribuf) || cell->port_dir(port) == RTLIL::PD_INOUT) {
 					// We add inout drivers to `driven` in a separate loop below
 					weakly_driven.insert(driver);
-				} else {
+				} 아니면 {
 					// We remove driver conflicts from `driven` in a separate loop below
 					bool inserted = driven.insert(driver).second;
-					if (!inserted)
+					만약 (!inserted)
 						conflicted.insert(driver);
 				}
 			}
 		}
 
-		for (auto driver : weakly_driven)
+		위해 (auto driver : weakly_driven)
 			driven.insert(driver);
 
 		// This only leaves the drivers matching `driven`'s definition above
-		for (auto driver : conflicted)
+		위해 (auto driver : conflicted)
 			driven.erase(driver);
 
 		// Having picked representatives and checked whether they are unique
@@ -424,13 +424,13 @@ void RTLIL::Module::bufNormalize()
 		// that with `Sz`. If there are multiple drivers for a net, they become
 		// connected via `$connect` cells but every wire of the net has the
 		// corresponding bit still driven by a buffered `Sz`.
-		for (auto wire : wire_queue_entries) {
+		위해 (auto wire : wire_queue_entries) {
 			// A zero-width wire carries no bits and needs no driver
-			if (GetSize(wire) == 0)
+			만약 (GetSize(wire) == 0)
 				continue;
 
 			SigSpec wire_drivers;
-			for (int i = 0; i < GetSize(wire); ++i) {
+			위해 (정수 i = 0; i < GetSize(wire); ++i) {
 				SigBit bit(wire, i);
 				SigBit mapped = sigmap(bit);
 				xlog("bit %s -> mapped %s\n", log_signal(bit), log_signal(mapped));
@@ -440,22 +440,22 @@ void RTLIL::Module::bufNormalize()
 				buf_connected.add(bit, mapped);
 				buf_connected.database.promote(mapped);
 
-				if (wire->driverCell_ == nullptr) {
-					if (!mapped.is_wire() || driven.count(mapped)) {
+				만약 (wire->driverCell_ == nullptr) {
+					만약 (!mapped.is_wire() || driven.count(mapped)) {
 						wire_drivers.append(mapped);
 						continue;
-					} else {
+					} 아니면 {
 						wire_drivers.append(State::Sz);
 					}
 				}
 
-				if (bit < mapped)
+				만약 (bit < mapped)
 					undirected_connections.emplace(bit, mapped);
-				else if (mapped < bit)
+				아니면 만약 (mapped < bit)
 					undirected_connections.emplace(mapped, bit);
 			}
 
-			if (wire->driverCell_ == nullptr) {
+			만약 (wire->driverCell_ == nullptr) {
 				xlog("wire %s drivers %s\n", wire, log_signal(wire_drivers));
 				addBuf(NEW_ID, wire_drivers, wire);
 			}
@@ -464,18 +464,18 @@ void RTLIL::Module::bufNormalize()
 		// Finally we group the bitwise connections to emit word-level $connect cells
 
 		static auto sort_key = [](std::pair<SigBit, SigBit> const &p) {
-			int first_offset = p.first.is_wire() ? p.first.offset : 0;
-			int second_offset = p.second.is_wire() ? p.second.offset : 0;
-			return std::make_tuple(p.first.wire, p.second.wire, first_offset - second_offset, p);
+			정수 first_offset = p.first.is_wire() ? p.first.offset : 0;
+			정수 second_offset = p.second.is_wire() ? p.second.offset : 0;
+			반환 std::make_tuple(p.first.wire, p.second.wire, first_offset - second_offset, p);
 		};
 
 		undirected_connections.sort([](std::pair<SigBit, SigBit> const &p, std::pair<SigBit, SigBit> const &q) {
-			return sort_key(p) < sort_key(q);
+			반환 sort_key(p) < sort_key(q);
 		});
 
 		SigSpec tmp_a, tmp_b;
 
-		for (auto &[bit_a, bit_b] : undirected_connections) {
+		위해 (auto &[bit_a, bit_b] : undirected_connections) {
 			tmp_a.append(bit_a);
 			tmp_b.append(bit_b);
 		}
@@ -488,8 +488,8 @@ void RTLIL::Module::bufNormalize()
 		SigBit next_a, next_b;
 
 		auto emit_connect_cell = [&]() {
-			if (sig_a.empty())
-				return;
+			만약 (sig_a.empty())
+				반환;
 			xlog("connect %s <-> %s\n", log_signal(sig_a), log_signal(sig_b));
 			Cell *connect_cell = addCell(NEW_ID, ID($connect));
 			connect_cell->setParam(ID::WIDTH, GetSize(sig_a));
@@ -499,19 +499,19 @@ void RTLIL::Module::bufNormalize()
 			sig_b = SigSpec();
 		};
 
-		for (auto &[bit_a, bit_b] : undirected_connections) {
-			if (bit_a == bit_b)
+		위해 (auto &[bit_a, bit_b] : undirected_connections) {
+			만약 (bit_a == bit_b)
 				continue;
-			if (bit_a != next_a || bit_b != next_b)
+			만약 (bit_a != next_a || bit_b != next_b)
 				emit_connect_cell();
 
 			sig_a.append(bit_a);
 			sig_b.append(bit_b);
 			next_a = bit_a;
 			next_b = bit_b;
-			if (next_a.is_wire())
+			만약 (next_a.is_wire())
 				next_a.offset++;
-			if (next_b.is_wire())
+			만약 (next_b.is_wire())
 				next_b.offset++;
 
 		}
@@ -524,7 +524,7 @@ void RTLIL::Module::bufNormalize()
 		log_assert(connections_.empty());
 	}
 
-	for (auto cell : pending_deleted_cells) {
+	위해 (auto cell : pending_deleted_cells) {
 		delete cell;
 	}
 	pending_deleted_cells.clear();
@@ -535,54 +535,54 @@ void RTLIL::Cell::unsetPort(RTLIL::IdString portname)
 	RTLIL::SigSpec signal;
 	auto conn_it = connections_.find(portname);
 
-	if (conn_it != connections_.end())
+	만약 (conn_it != connections_.end())
 	{
-		for (auto mon : module->monitors)
+		위해 (auto mon : module->monitors)
 			mon->notify_connect(this, conn_it->first, conn_it->second, signal);
 
-		if (module->design)
-			for (auto mon : module->design->monitors)
+		만약 (module->design)
+			위해 (auto mon : module->design->monitors)
 				mon->notify_connect(this, conn_it->first, conn_it->second, signal);
 
-		if (yosys_xtrace) {
+		만약 (yosys_xtrace) {
 			log("#X# Unconnect %s.%s.%s\n", this->module, this, PooledName(module, portname).unescape());
 			log_backtrace("-X- ", yosys_xtrace-1);
 		}
 
-		if (module->design && module->design->flagBufferedNormalized) {
-			if (conn_it->second.is_wire()) {
+		만약 (module->design && module->design->flagBufferedNormalized) {
+			만약 (conn_it->second.is_wire()) {
 				Wire *w = conn_it->second.as_wire();
-				if (w->driverCell_ == this && w->driverPort_ == portname) {
+				만약 (w->driverCell_ == this && w->driverPort_ == portname) {
 					w->driverCell_ = nullptr;
 					w->driverPort_ = IdString();
 					module->buf_norm_wire_queue.insert(w);
-				} else if (w->driverCell_) {
+				} 아니면 만약 (w->driverCell_) {
 					log_assert(w->driverCell_->getPort(w->driverPort_) == w);
 				}
 			}
 
-			if (type == ID($connect)) {
-				for (auto &[port, sig] : connections_) {
-					for (auto &chunk : sig.chunks()) {
-						if (!chunk.wire)
+			만약 (type == ID($connect)) {
+				위해 (auto &[port, sig] : connections_) {
+					위해 (auto &chunk : sig.chunks()) {
+						만약 (!chunk.wire)
 							continue;
 						auto it = module->buf_norm_connect_index.find(chunk.wire);
-						if (it == module->buf_norm_connect_index.end())
+						만약 (it == module->buf_norm_connect_index.end())
 							continue;
 						it->second.erase(this);
-						if (it->second.empty())
+						만약 (it->second.empty())
 							module->buf_norm_connect_index.erase(it);
 					}
 				}
 				connections_.erase(conn_it);
-				for (auto &[port, sig] : connections_) {
-					for (auto &chunk : sig.chunks()) {
-						if (!chunk.wire)
+				위해 (auto &[port, sig] : connections_) {
+					위해 (auto &chunk : sig.chunks()) {
+						만약 (!chunk.wire)
 							continue;
 						module->buf_norm_connect_index[chunk.wire].insert(this);
 					}
 				}
-				return;
+				반환;
 			}
 		}
 
@@ -594,27 +594,27 @@ void RTLIL::Cell::setPort(RTLIL::IdString portname, RTLIL::SigSpec signal)
 {
 	auto r = connections_.insert(portname);
 	auto conn_it = r.first;
-	if (!r.second && conn_it->second == signal)
-		return;
+	만약 (!r.second && conn_it->second == signal)
+		반환;
 
-	for (auto mon : module->monitors)
+	위해 (auto mon : module->monitors)
 		mon->notify_connect(this, conn_it->first, conn_it->second, signal);
 
-	if (module->design)
-		for (auto mon : module->design->monitors)
+	만약 (module->design)
+		위해 (auto mon : module->design->monitors)
 			mon->notify_connect(this, conn_it->first, conn_it->second, signal);
 
-	if (yosys_xtrace) {
+	만약 (yosys_xtrace) {
 		log("#X# Connect %s.%s.%s = %s (%d)\n", this->module, this, PooledName(module, portname).unescape(), log_signal(signal), GetSize(signal));
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
-	if (module->design && module->design->flagBufferedNormalized)
+	만약 (module->design && module->design->flagBufferedNormalized)
 	{
 		// We eagerly clear a driver that got disconnected by changing this port connection
-		if (conn_it->second.is_wire()) {
+		만약 (conn_it->second.is_wire()) {
 			Wire *w = conn_it->second.as_wire();
-			if (w->driverCell_ == this && w->driverPort_ == portname) {
+			만약 (w->driverCell_ == this && w->driverPort_ == portname) {
 				w->driverCell_ = nullptr;
 				w->driverPort_ = IdString();
 				module->buf_norm_wire_queue.insert(w);
@@ -625,49 +625,49 @@ void RTLIL::Cell::setPort(RTLIL::IdString portname, RTLIL::SigSpec signal)
 		// This is a fast path that handles connecting a full driverless wire to an output port,
 		// everything else is goes through the bufnorm queues and is handled during the next
 		// bufNormalize call
-		if ((dir == RTLIL::PD_OUTPUT || dir == RTLIL::PD_INOUT) && signal.is_wire()) {
+		만약 ((dir == RTLIL::PD_OUTPUT || dir == RTLIL::PD_INOUT) && signal.is_wire()) {
 			Wire *w = signal.as_wire();
-			if (w->driverCell_ == nullptr && (
+			만약 (w->driverCell_ == nullptr && (
 						(w->port_input && !w->port_output) == (type == ID($input_port)))) {
 				w->driverCell_ = this;
 				w->driverPort_ = portname;
 
 				conn_it->second = std::move(signal);
-				return;
+				반환;
 			}
 		}
 
-		if (dir == RTLIL::PD_OUTPUT || dir == RTLIL::PD_INOUT) {
+		만약 (dir == RTLIL::PD_OUTPUT || dir == RTLIL::PD_INOUT) {
 			module->buf_norm_cell_queue.insert(this);
 			module->buf_norm_cell_port_queue.emplace(this, portname);
-		} else {
-			for (auto &chunk : signal.chunks())
-				if (chunk.wire != nullptr && chunk.wire->driverCell_ == nullptr)
+		} 아니면 {
+			위해 (auto &chunk : signal.chunks())
+				만약 (chunk.wire != nullptr && chunk.wire->driverCell_ == nullptr)
 					module->buf_norm_wire_queue.insert(chunk.wire);
 		}
 
-		if (type == ID($connect)) {
-			for (auto &[port, sig] : connections_) {
-				for (auto &chunk : sig.chunks()) {
-					if (!chunk.wire)
+		만약 (type == ID($connect)) {
+			위해 (auto &[port, sig] : connections_) {
+				위해 (auto &chunk : sig.chunks()) {
+					만약 (!chunk.wire)
 						continue;
 					auto it = module->buf_norm_connect_index.find(chunk.wire);
-					if (it == module->buf_norm_connect_index.end())
+					만약 (it == module->buf_norm_connect_index.end())
 						continue;
 					it->second.erase(this);
-					if (it->second.empty())
+					만약 (it->second.empty())
 						module->buf_norm_connect_index.erase(it);
 				}
 			}
 			conn_it->second = std::move(signal);
-			for (auto &[port, sig] : connections_) {
-				for (auto &chunk : sig.chunks()) {
-					if (!chunk.wire)
+			위해 (auto &[port, sig] : connections_) {
+				위해 (auto &chunk : sig.chunks()) {
+					만약 (!chunk.wire)
 						continue;
 					module->buf_norm_connect_index[chunk.wire].insert(this);
 				}
 			}
-			return;
+			반환;
 		}
 	}
 	conn_it->second = std::move(signal);
@@ -681,15 +681,15 @@ void RTLIL::Design::add(RTLIL::Module *module)
 	modules_[module->name] = module;
 	module->design = this;
 
-	for (auto mon : monitors)
+	위해 (auto mon : monitors)
 		mon->notify_module_add(module);
 
-	if (yosys_xtrace) {
+	만약 (yosys_xtrace) {
 		log("#X# New Module: %s\n", module);
 		log_backtrace("-X- ", yosys_xtrace-1);
 	}
 
-	if (flagBufferedNormalized) {
+	만약 (flagBufferedNormalized) {
 		buf_norm_seed_queues(module);
 		module->bufNormalize();
 	}

@@ -25,27 +25,27 @@ struct UnusedBits
 
 	void collect_used(RTLIL::Module *module, const NewCellTypes &ct)
 	{
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				if (!ct.cell_output(cell->type, conn.first))
+		위해 (auto cell : module->cells())
+			위해 (auto &conn : cell->connections())
+				만약 (!ct.cell_output(cell->type, conn.first))
 					add_used(conn.second);
 
-		for (auto wire : module->wires())
-			if (wire->port_output)
+		위해 (auto wire : module->wires())
+			만약 (wire->port_output)
 				add_used(wire);
 	}
 
 	void add_used(const RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sigmap(sig))
-			if (bit.wire != nullptr)
+		위해 (auto bit : sigmap(sig))
+			만약 (bit.wire != nullptr)
 				used.insert(bit);
 	}
 
 	bool check(RTLIL::SigBit bit) const
 	{
 		RTLIL::SigBit mapped = sigmap(bit);
-		return mapped.wire != nullptr && !used.count(mapped);
+		반환 mapped.wire != nullptr && !used.count(mapped);
 	}
 };
 

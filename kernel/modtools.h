@@ -32,44 +32,44 @@ struct ModIndex : public RTLIL::Monitor
 	struct PointerOrderedSigBit : public RTLIL::SigBit {
 		PointerOrderedSigBit(SigBit s) {
 			wire = s.wire;
-			if (wire)
+			만약 (wire)
 				offset = s.offset;
-			else
+			아니면
 				data = s.data;
 		}
 		inline bool operator<(const RTLIL::SigBit &other) const {
-			if (wire == other.wire)
-				return wire ? (offset < other.offset) : (data < other.data);
-			if (wire != nullptr && other.wire != nullptr)
-				return wire < other.wire; // look here
-			return (wire != nullptr) < (other.wire != nullptr);
+			만약 (wire == other.wire)
+				반환 wire ? (offset < other.offset) : (data < other.data);
+			만약 (wire != nullptr && other.wire != nullptr)
+				반환 wire < other.wire; // look here
+			반환 (wire != nullptr) < (other.wire != nullptr);
 		}
 	};
 	struct PortInfo {
 		RTLIL::Cell* cell;
 		RTLIL::IdString port;
-		int offset;
+		정수 offset;
 
 		PortInfo() : cell(), port(), offset() { }
-		PortInfo(RTLIL::Cell* _c, RTLIL::IdString _p, int _o) : cell(_c), port(_p), offset(_o) { }
+		PortInfo(RTLIL::Cell* _c, RTLIL::IdString _p, 정수 _o) : cell(_c), port(_p), offset(_o) { }
 
 		bool operator<(const PortInfo &other) const {
-			if (cell != other.cell)
-				return cell < other.cell;
-			if (offset != other.offset)
-				return offset < other.offset;
-			return port < other.port;
+			만약 (cell != other.cell)
+				반환 cell < other.cell;
+			만약 (offset != other.offset)
+				반환 offset < other.offset;
+			반환 port < other.port;
 		}
 
 		bool operator==(const PortInfo &other) const {
-			return cell == other.cell && port == other.port && offset == other.offset;
+			반환 cell == other.cell && port == other.port && offset == other.offset;
 		}
 
 		[[nodiscard]] Hasher hash_into(Hasher h) const {
 			h.eat(cell->name);
 			h.eat(port);
 			h.eat(offset);
-			return h;
+			반환 h;
 		}
 	};
 
@@ -81,7 +81,7 @@ struct ModIndex : public RTLIL::Monitor
 		SigBitInfo() : is_input(false), is_output(false) { }
 
 		bool operator==(const SigBitInfo &other) const {
-			return is_input == other.is_input && is_output == other.is_output && ports == other.ports;
+			반환 is_input == other.is_input && is_output == other.is_output && ports == other.ports;
 		}
 
 		void merge(const SigBitInfo &other)
@@ -95,25 +95,25 @@ struct ModIndex : public RTLIL::Monitor
 	SigMap sigmap;
 	RTLIL::Module *module;
 	std::map<PointerOrderedSigBit, SigBitInfo> database;
-	int auto_reload_counter;
+	정수 auto_reload_counter;
 	bool auto_reload_module;
 
 	void port_add(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &sig)
 	{
-		for (int i = 0; i < GetSize(sig); i++) {
+		위해 (정수 i = 0; i < GetSize(sig); i++) {
 			RTLIL::SigBit bit = sigmap(sig[i]);
-			if (bit.wire)
+			만약 (bit.wire)
 				database[bit].ports.insert(PortInfo(cell, port, i));
 		}
 	}
 
 	void port_del(RTLIL::Cell *cell, RTLIL::IdString port, const RTLIL::SigSpec &sig)
 	{
-		for (int i = 0; i < GetSize(sig); i++) {
+		위해 (정수 i = 0; i < GetSize(sig); i++) {
 			RTLIL::SigBit bit = sigmap(sig[i]);
-			if (bit.wire) {
+			만약 (bit.wire) {
 				database[bit].ports.erase(PortInfo(cell, port, i));
-				if (!database[bit].is_input && !database[bit].is_output && database[bit].ports.empty())
+				만약 (!database[bit].is_input && !database[bit].is_output && database[bit].ports.empty())
 					database.erase(bit);
 			}
 		}
@@ -121,32 +121,32 @@ struct ModIndex : public RTLIL::Monitor
 
 	const SigBitInfo &info(RTLIL::SigBit bit)
 	{
-		return database[sigmap(bit)];
+		반환 database[sigmap(bit)];
 	}
 
 	void reload_module(bool reset_sigmap = true)
 	{
-		if (reset_sigmap) {
+		만약 (reset_sigmap) {
 			sigmap.clear();
 			sigmap.set(module);
 		}
 
 		database.clear();
-		for (auto wire : module->wires())
-			if (wire->port_input || wire->port_output)
-				for (int i = 0; i < GetSize(wire); i++) {
+		위해 (auto wire : module->wires())
+			만약 (wire->port_input || wire->port_output)
+				위해 (정수 i = 0; i < GetSize(wire); i++) {
 					RTLIL::SigBit bit = sigmap(RTLIL::SigBit(wire, i));
-					if (bit.wire && wire->port_input)
+					만약 (bit.wire && wire->port_input)
 						database[bit].is_input = true;
-					if (bit.wire && wire->port_output)
+					만약 (bit.wire && wire->port_output)
 						database[bit].is_output = true;
 				}
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
+		위해 (auto cell : module->cells())
+			위해 (auto &conn : cell->connections())
 				port_add(cell, conn.first, conn.second);
 
-		if (auto_reload_module) {
-			if (++auto_reload_counter > 2)
+		만약 (auto_reload_module) {
+			만약 (++auto_reload_counter > 2)
 				log_warning("Auto-reload in ModIndex -- possible performance bug!\n");
 			auto_reload_module = false;
 		}
@@ -155,31 +155,31 @@ struct ModIndex : public RTLIL::Monitor
 	bool ok()
 	{
 #ifndef NDEBUG
-		if (auto_reload_module)
-			return true;
+		만약 (auto_reload_module)
+			반환 true;
 
-		for (auto it : database)
+		위해 (auto it : database)
 			log_assert(it.first == sigmap(it.first));
 
 		auto database_bak = std::move(database);
 		reload_module(false);
 
-		if (!(database == database_bak))
+		만약 (!(database == database_bak))
 		{
-			for (auto &it : database_bak)
-				if (!database.count(it.first))
+			위해 (auto &it : database_bak)
+				만약 (!database.count(it.first))
 					log("ModuleIndex::check(): Only in database_bak, not database: %s\n", log_signal(it.first));
 
-			for (auto &it : database)
-				if (!database_bak.count(it.first))
+			위해 (auto &it : database)
+				만약 (!database_bak.count(it.first))
 					log("ModuleIndex::check(): Only in database, not database_bak: %s\n", log_signal(it.first));
-				else if (!(it.second == database_bak.at(it.first)))
+				아니면 만약 (!(it.second == database_bak.at(it.first)))
 					log("ModuleIndex::check(): Different content for database[%s].\n", log_signal(it.first));
 
-			return false;
+			반환 false;
 		}
 #endif
-		return true;
+		반환 true;
 	}
 
 	void check()
@@ -191,8 +191,8 @@ struct ModIndex : public RTLIL::Monitor
 	{
 		log_assert(module == cell->module);
 
-		if (auto_reload_module)
-			return;
+		만약 (auto_reload_module)
+			반환;
 
 		port_del(cell, port, old_sig);
 		port_add(cell, port, sig);
@@ -202,42 +202,42 @@ struct ModIndex : public RTLIL::Monitor
 	{
 		log_assert(module == mod);
 
-		if (auto_reload_module)
-			return;
+		만약 (auto_reload_module)
+			반환;
 
-		for (int i = 0; i < GetSize(sigsig.first); i++)
+		위해 (정수 i = 0; i < GetSize(sigsig.first); i++)
 		{
 			RTLIL::SigBit lhs = sigmap(sigsig.first[i]);
 			RTLIL::SigBit rhs = sigmap(sigsig.second[i]);
 			bool has_lhs = database.count(lhs) != 0;
 			bool has_rhs = database.count(rhs) != 0;
 
-			if (!has_lhs && !has_rhs) {
+			만약 (!has_lhs && !has_rhs) {
 				sigmap.add(lhs, rhs);
-			} else
-			if (!has_rhs) {
+			} 아니면
+			만약 (!has_rhs) {
 				SigBitInfo new_info = database.at(lhs);
 				database.erase(lhs);
 				sigmap.add(lhs, rhs);
 				lhs = sigmap(lhs);
-				if (lhs.wire)
+				만약 (lhs.wire)
 					database[lhs] = new_info;
-			} else
-			if (!has_lhs) {
+			} 아니면
+			만약 (!has_lhs) {
 				SigBitInfo new_info = database.at(rhs);
 				database.erase(rhs);
 				sigmap.add(lhs, rhs);
 				rhs = sigmap(rhs);
-				if (rhs.wire)
+				만약 (rhs.wire)
 					database[rhs] = new_info;
-			} else {
+			} 아니면 {
 				SigBitInfo new_info = database.at(lhs);
 				new_info.merge(database.at(rhs));
 				database.erase(lhs);
 				database.erase(rhs);
 				sigmap.add(lhs, rhs);
 				rhs = sigmap(rhs);
-				if (rhs.wire)
+				만약 (rhs.wire)
 					database[rhs] = new_info;
 			}
 		}
@@ -269,57 +269,57 @@ struct ModIndex : public RTLIL::Monitor
 
 	SigBitInfo *query(RTLIL::SigBit bit)
 	{
-		if (auto_reload_module)
+		만약 (auto_reload_module)
 			reload_module();
 
 		auto it = database.find(sigmap(bit));
-		if (it == database.end())
-			return nullptr;
-		else
-			return &it->second;
+		만약 (it == database.end())
+			반환 nullptr;
+		아니면
+			반환 &it->second;
 	}
 
 	bool query_is_input(RTLIL::SigBit bit)
 	{
 		const SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return false;
-		return info->is_input;
+		만약 (info == nullptr)
+			반환 false;
+		반환 info->is_input;
 	}
 
 	bool query_is_output(RTLIL::SigBit bit)
 	{
 		const SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return false;
-		return info->is_output;
+		만약 (info == nullptr)
+			반환 false;
+		반환 info->is_output;
 	}
 
 	pool<PortInfo> &query_ports(RTLIL::SigBit bit)
 	{
 		static pool<PortInfo> empty_result_set;
 		SigBitInfo *info = query(bit);
-		if (info == nullptr)
-			return empty_result_set;
-		return info->ports;
+		만약 (info == nullptr)
+			반환 empty_result_set;
+		반환 info->ports;
 	}
 
 	void dump_db()
 	{
 		log("--- ModIndex Dump ---\n");
 
-		if (auto_reload_module) {
+		만약 (auto_reload_module) {
 			log("AUTO-RELOAD\n");
 			reload_module();
 		}
 
-		for (auto &it : database) {
+		위해 (auto &it : database) {
 			log("BIT %s:\n", log_signal(it.first));
-			if (it.second.is_input)
+			만약 (it.second.is_input)
 				log("  PRIMARY INPUT\n");
-			if (it.second.is_output)
+			만약 (it.second.is_output)
 				log("  PRIMARY OUTPUT\n");
-			for (auto &port : it.second.ports)
+			위해 (auto &port : it.second.ports)
 				log("  PORT: %s.%s[%d] (%s)\n", port.cell,
 						PooledName(module, port.port).unescape(), port.offset, port.cell->type.unescape());
 		}
@@ -332,26 +332,26 @@ struct ModWalker
 	{
 		RTLIL::Cell *cell;
 		RTLIL::IdString port;
-		int offset;
-		PortBit(Cell* c, IdString p, int o) : cell(c), port(p), offset(o) {}
+		정수 offset;
+		PortBit(Cell* c, IdString p, 정수 o) : cell(c), port(p), offset(o) {}
 
 		bool operator<(const PortBit &other) const {
-			if (cell != other.cell)
-				return cell < other.cell;
-			if (port != other.port)
-				return port < other.port;
-			return offset < other.offset;
+			만약 (cell != other.cell)
+				반환 cell < other.cell;
+			만약 (port != other.port)
+				반환 port < other.port;
+			반환 offset < other.offset;
 		}
 
 		bool operator==(const PortBit &other) const {
-			return cell == other.cell && port == other.port && offset == other.offset;
+			반환 cell == other.cell && port == other.port && offset == other.offset;
 		}
 
 		[[nodiscard]] Hasher hash_into(Hasher h) const {
 			h.eat(cell->name);
 			h.eat(port);
 			h.eat(offset);
-			return h;
+			반환 h;
 		}
 	};
 
@@ -369,31 +369,31 @@ struct ModWalker
 
 	void add_wire(RTLIL::Wire *wire)
 	{
-		if (wire->port_input) {
+		만약 (wire->port_input) {
 			std::vector<RTLIL::SigBit> bits = sigmap(wire);
-			for (auto bit : bits)
-				if (bit.wire != NULL)
+			위해 (auto bit : bits)
+				만약 (bit.wire != NULL)
 					signal_inputs.insert(bit);
 		}
 
-		if (wire->port_output) {
+		만약 (wire->port_output) {
 			std::vector<RTLIL::SigBit> bits = sigmap(wire);
-			for (auto bit : bits)
-				if (bit.wire != NULL)
+			위해 (auto bit : bits)
+				만약 (bit.wire != NULL)
 					signal_outputs.insert(bit);
 		}
 	}
 
 	void add_cell_port(RTLIL::Cell *cell, RTLIL::IdString port, std::vector<RTLIL::SigBit> bits, bool is_output, bool is_input)
 	{
-		for (int i = 0; i < int(bits.size()); i++)
-			if (bits[i].wire != NULL) {
+		위해 (정수 i = 0; i < 정수(bits.size()); i++)
+			만약 (bits[i].wire != NULL) {
 				PortBit pbit {cell, port, i};
-				if (is_output) {
+				만약 (is_output) {
 					signal_drivers[bits[i]].insert(pbit);
 					cell_outputs[cell].insert(bits[i]);
 				}
-				if (is_input) {
+				만약 (is_input) {
 					signal_consumers[bits[i]].insert(pbit);
 					cell_inputs[cell].insert(bits[i]);
 				}
@@ -402,13 +402,13 @@ struct ModWalker
 
 	void add_cell(RTLIL::Cell *cell)
 	{
-		if (ct.cell_known(cell->type)) {
-			for (auto &conn : cell->connections())
+		만약 (ct.cell_known(cell->type)) {
+			위해 (auto &conn : cell->connections())
 				add_cell_port(cell, conn.first, sigmap(conn.second),
 						ct.cell_output(cell->type, conn.first),
 						ct.cell_input(cell->type, conn.first));
-		} else {
-			for (auto &conn : cell->connections())
+		} 아니면 {
+			위해 (auto &conn : cell->connections())
 				add_cell_port(cell, conn.first, sigmap(conn.second), true, true);
 		}
 	}
@@ -416,7 +416,7 @@ struct ModWalker
 	ModWalker(RTLIL::Design *design, RTLIL::Module *module = nullptr) : design(design), module(NULL)
 	{
 		ct.setup(design);
-		if (module)
+		만약 (module)
 			setup(module);
 	}
 
@@ -433,10 +433,10 @@ struct ModWalker
 		cell_inputs.clear();
 		cell_outputs.clear();
 
-		for (auto &it : module->wires_)
+		위해 (auto &it : module->wires_)
 			add_wire(it.second);
-		for (auto &it : module->cells_)
-			if (filter_ct == NULL || filter_ct->cell_known(it.second->type))
+		위해 (auto &it : module->cells_)
+			만약 (filter_ct == NULL || filter_ct->cell_known(it.second->type))
 				add_cell(it.second);
 	}
 
@@ -445,39 +445,39 @@ struct ModWalker
 	inline bool get_drivers(pool<PortBit> &result, RTLIL::SigBit bit) const
 	{
 		bool found = false;
-		if (signal_drivers.count(bit)) {
+		만약 (signal_drivers.count(bit)) {
 			const pool<PortBit> &r = signal_drivers.at(bit);
 			result.insert(r.begin(), r.end());
 			found = true;
 		}
-		return found;
+		반환 found;
 	}
 
 	inline bool get_consumers(pool<PortBit> &result, RTLIL::SigBit bit) const
 	{
 		bool found = false;
-		if (signal_consumers.count(bit)) {
+		만약 (signal_consumers.count(bit)) {
 			const pool<PortBit> &r = signal_consumers.at(bit);
 			result.insert(r.begin(), r.end());
 			found = true;
 		}
-		return found;
+		반환 found;
 	}
 
 	inline bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
 	{
 		bool found = false;
-		if (signal_inputs.count(bit))
+		만약 (signal_inputs.count(bit))
 			result.insert(bit), found = true;
-		return found;
+		반환 found;
 	}
 
 	inline bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
 	{
 		bool found = false;
-		if (signal_outputs.count(bit))
+		만약 (signal_outputs.count(bit))
 			result.insert(bit), found = true;
-		return found;
+		반환 found;
 	}
 
 	// get_* methods -- container of RTLIL::SigBit's (always by reference)
@@ -486,46 +486,46 @@ struct ModWalker
 	inline bool get_drivers(pool<PortBit> &result, const T &bits) const
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_drivers.count(bit)) {
+		위해 (RTLIL::SigBit bit : bits)
+			만약 (signal_drivers.count(bit)) {
 				const pool<PortBit> &r = signal_drivers.at(bit);
 				result.insert(r.begin(), r.end());
 				found = true;
 			}
-		return found;
+		반환 found;
 	}
 
 	template<typename T>
 	inline bool get_consumers(pool<PortBit> &result, const T &bits) const
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_consumers.count(bit)) {
+		위해 (RTLIL::SigBit bit : bits)
+			만약 (signal_consumers.count(bit)) {
 				const pool<PortBit> &r = signal_consumers.at(bit);
 				result.insert(r.begin(), r.end());
 				found = true;
 			}
-		return found;
+		반환 found;
 	}
 
 	template<typename T>
 	inline bool get_inputs(pool<RTLIL::SigBit> &result, const T &bits) const
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_inputs.count(bit))
+		위해 (RTLIL::SigBit bit : bits)
+			만약 (signal_inputs.count(bit))
 				result.insert(bit), found = true;
-		return found;
+		반환 found;
 	}
 
 	template<typename T>
 	inline bool get_outputs(pool<RTLIL::SigBit> &result, const T &bits) const
 	{
 		bool found = false;
-		for (RTLIL::SigBit bit : bits)
-			if (signal_outputs.count(bit))
+		위해 (RTLIL::SigBit bit : bits)
+			만약 (signal_outputs.count(bit))
 				result.insert(bit), found = true;
-		return found;
+		반환 found;
 	}
 
 	// get_* methods -- call by RTLIL::SigSpec (always by value)
@@ -533,25 +533,25 @@ struct ModWalker
 	bool get_drivers(pool<PortBit> &result, RTLIL::SigSpec signal) const
 	{
 		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_drivers(result, bits);
+		반환 get_drivers(result, bits);
 	}
 
 	bool get_consumers(pool<PortBit> &result, RTLIL::SigSpec signal) const
 	{
 		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_consumers(result, bits);
+		반환 get_consumers(result, bits);
 	}
 
 	bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
 	{
 		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_inputs(result, bits);
+		반환 get_inputs(result, bits);
 	}
 
 	bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
 	{
 		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_outputs(result, bits);
+		반환 get_outputs(result, bits);
 	}
 
 	// has_* methods -- call by reference
@@ -559,47 +559,47 @@ struct ModWalker
 	template<typename T>
 	inline bool has_drivers(const T &sig) const {
 		pool<PortBit> result;
-		return get_drivers(result, sig);
+		반환 get_drivers(result, sig);
 	}
 
 	template<typename T>
 	inline bool has_consumers(const T &sig) const {
 		pool<PortBit> result;
-		return get_consumers(result, sig);
+		반환 get_consumers(result, sig);
 	}
 
 	template<typename T>
 	inline bool has_inputs(const T &sig) const {
 		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+		반환 get_inputs(result, sig);
 	}
 
 	template<typename T>
 	inline bool has_outputs(const T &sig) const {
 		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+		반환 get_outputs(result, sig);
 	}
 
 	// has_* methods -- call by value
 
 	inline bool has_drivers(RTLIL::SigSpec sig) const {
 		pool<PortBit> result;
-		return get_drivers(result, sig);
+		반환 get_drivers(result, sig);
 	}
 
 	inline bool has_consumers(RTLIL::SigSpec sig) const {
 		pool<PortBit> result;
-		return get_consumers(result, sig);
+		반환 get_consumers(result, sig);
 	}
 
 	inline bool has_inputs(RTLIL::SigSpec sig) const {
 		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+		반환 get_inputs(result, sig);
 	}
 
 	inline bool has_outputs(RTLIL::SigSpec sig) const {
 		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+		반환 get_outputs(result, sig);
 	}
 };
 

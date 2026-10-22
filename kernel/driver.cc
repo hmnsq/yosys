@@ -53,7 +53,7 @@ namespace py = pybind11;
 #endif
 #include <inttypes.h>
 
-#if defined (__linux__) || defined(__FreeBSD__)
+#만약 defined (__linux__) || defined(__FreeBSD__)
 #  include <sys/resource.h>
 #  include <sys/types.h>
 #  include <unistd.h>
@@ -64,7 +64,7 @@ namespace py = pybind11;
 #  include <sys/user.h>
 #endif
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#만약 !defined(_WIN32) || defined(__MINGW32__)
 #  include <unistd.h>
 #endif
 
@@ -73,36 +73,36 @@ namespace py = pybind11;
 
 USING_YOSYS_NAMESPACE
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-int yosys_history_offset = 0;
+#만약 defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+정수 yosys_history_offset = 0;
 std::string yosys_history_file;
 #endif
 
 void yosys_atexit()
 {
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	if (!yosys_history_file.empty()) {
-#if defined(YOSYS_ENABLE_READLINE)
-		if (yosys_history_offset > 0) {
+#만약 defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	만약 (!yosys_history_file.empty()) {
+#만약 defined(YOSYS_ENABLE_READLINE)
+		만약 (yosys_history_offset > 0) {
 			history_truncate_file(yosys_history_file.c_str(), 100);
 			append_history(where_history() - yosys_history_offset, yosys_history_file.c_str());
-		} else
+		} 아니면
 			write_history(yosys_history_file.c_str());
-#else
+#아니면
 		write_history(yosys_history_file.c_str());
 #endif
 	}
 
 	clear_history();
-#if defined(YOSYS_ENABLE_READLINE)
+#만약 defined(YOSYS_ENABLE_READLINE)
 	HIST_ENTRY **hist_list = history_list();
-	if (hist_list != NULL)
+	만약 (hist_list != NULL)
 		free(hist_list);
 #endif
 #endif
 }
 
-#if defined(__OpenBSD__)
+#만약 defined(__OpenBSD__)
 namespace Yosys {
 extern char *yosys_argv0;
 extern char yosys_path[PATH_MAX];
@@ -110,7 +110,7 @@ extern char yosys_path[PATH_MAX];
 #endif
 #ifdef YOSYS_ENABLE_TCL
 namespace Yosys {
-	extern int yosys_tcl_interp_init(Tcl_Interp *interp);
+	extern 정수 yosys_tcl_interp_init(Tcl_Interp *interp);
 	extern void yosys_tcl_activate_repl();
 };
 #endif
@@ -126,7 +126,7 @@ public:
 	void log(const LogMessage &msg) override;
 	bool should_log(const LogMessage &msg) const override;
 	void flush() override;
-	FILE *file_handle() override { return error_output ? nullptr : stdout; }
+	FILE *file_handle() override { 반환 error_output ? nullptr : stdout; }
 private:
 	bool error_output;
 	bool quiet_warnings;
@@ -136,16 +136,16 @@ bool no_color = false;
 
 bool is_colored(FILE *file)
 {
-	if (no_color)
-		return false;
+	만약 (no_color)
+		반환 false;
 
-#if defined(_WIN32)
+#만약 defined(_WIN32)
 	HANDLE handle = reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(file)));
 	DWORD mode;
-	return handle != INVALID_HANDLE_VALUE &&
+	반환 handle != INVALID_HANDLE_VALUE &&
 			GetConsoleMode(handle, &mode);
-#else
-	return isatty(fileno(file));
+#아니면
+	반환 isatty(fileno(file));
 #endif
 }
 
@@ -161,15 +161,15 @@ void ColorConsoleLogSink::log(const LogMessage &msg)
 {
 	FILE *f = (error_output || msg.severity == LogSeverity::Error) ? stderr : stdout;
 
-	if (logger().get_log_time() && next_print_log) {
+	만약 (logger().get_log_time() && next_print_log) {
 		auto elapsed = msg.timestamp - logger().get_initial_time();
 		auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-		std::string time_str = stringf("[%05d.%06d] ", int(us.count() / 1'000'000),int(us.count() % 1'000'000));
+		std::string time_str = stringf("[%05d.%06d] ", 정수(us.count() / 1'000'000),정수(us.count() % 1'000'000));
 		fmt::print(f, fg(fmt::terminal_color::blue), "{}", time_str);
 		next_print_log = false;
 	}
 
-	if (!msg.src.filename.empty())
+	만약 (!msg.src.filename.empty())
 		fmt::print(f, fg(fmt::terminal_color::bright_cyan), "{}:{}: ", msg.src.filename, msg.src.start_line);
 
 	switch (msg.severity) {
@@ -200,24 +200,24 @@ void ColorConsoleLogSink::log(const LogMessage &msg)
 
 		case LogSeverity::Info:
 		default:
-			if (!msg.prefix.empty())
+			만약 (!msg.prefix.empty())
 				fmt::print(f, fg(fmt::terminal_color::bright_black), "{}", msg.prefix);
 			fmt::print(f, "{}", msg.message);
 			break;
 	}
-	if (!msg.message.empty())
+	만약 (!msg.message.empty())
 		next_print_log = msg.message.back() == '\n';
 }
 
 bool ColorConsoleLogSink::should_log(const LogMessage &msg) const
 {
-	return (!error_output) || (msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
+	반환 (!error_output) || (msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
 			(msg.severity == LogSeverity::Warning && !quiet_warnings) ||
 			log_stderr_sink_forced);
 }
 
 #ifdef _WIN32
-int wmain(int argc, wchar_t **wargv)
+정수 wmain(정수 argc, wchar_t **wargv)
 {
 	// Configure ASCII functions like fopen() to use UTF-8 filenames.
 	// See https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=msvc-170#utf-8-support
@@ -229,16 +229,16 @@ int wmain(int argc, wchar_t **wargv)
 	SetConsoleOutputCP(CP_UTF8);
 
 	std::vector<char*> uargs;
-	for (int i = 0; i < argc; i++) {
-		int usize = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, NULL, 0, NULL, NULL);
+	위해 (정수 i = 0; i < argc; i++) {
+		정수 usize = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, NULL, 0, NULL, NULL);
 		char *uarg = (char *)malloc(usize);
 		WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, uarg, usize, NULL, NULL);
 		uargs.push_back(uarg);
 	}
 	uargs.push_back(NULL);
 	char **argv = uargs.data();
-#else
-int main(int argc, char **argv)
+#아니면
+정수 main(정수 argc, char **argv)
 {
 #endif
 	auto wall_clock_start = std::chrono::steady_clock::now();
@@ -316,7 +316,7 @@ int main(int argc, char **argv)
 					"Use this option twice to also quiet warning messages")
 		("v,verbose", "print log headers up to <level> to the console. " \
                       "Implies -q for everything except the 'End of script.' message.",
-			cxxopts::value<int>(), "<level>")
+			cxxopts::value<정수>(), "<level>")
 		("t,timestamp", "annotate all log messages with a time stamp")
 		("d,detailed-timing", "print more detailed timing stats at exit")
 		("l,logfile", "write log messages to <logfile>",
@@ -357,14 +357,14 @@ int main(int argc, char **argv)
 	// We can't have -h optionally require an argument
 	// cxxopts does have an implit argument concept but that doesn't work for us
 	// cxxopts is therefore instructed allowed to only handle the command help case
-	if (argc == 2 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "-help") || !strcmp(argv[1], "--help"))) {
+	만약 (argc == 2 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "-help") || !strcmp(argv[1], "--help"))) {
 		std::cout << options.help() << std::endl;
 		exit(0);
 	}
 	try {
 		// Check for "--" in arguments
 		auto it = std::find(argv, argv + argc, std::string("--"));
-		if (it != argv + argc) {
+		만약 (it != argv + argc) {
 			special_args.assign(it + 1, argv + argc);
 			// Remove these arguments from cxxopts parsing
 			argc = std::distance(argv, it);
@@ -372,53 +372,53 @@ int main(int argc, char **argv)
 
 		auto result = options.parse(argc, argv);
 
-		if (result.count("M")) memhasher_on();
-		if (result.count("X")) yosys_xtrace += result.count("X");
-		if (result.count("A")) call_abort = true;
-		if (result.count("Q")) print_banner = false;
-		if (result.count("T")) print_stats = false;
-		if (result.count("no-version")) yosys_write_versions = false;
-		if (result.count("V")) {
+		만약 (result.count("M")) memhasher_on();
+		만약 (result.count("X")) yosys_xtrace += result.count("X");
+		만약 (result.count("A")) call_abort = true;
+		만약 (result.count("Q")) print_banner = false;
+		만약 (result.count("T")) print_stats = false;
+		만약 (result.count("no-version")) yosys_write_versions = false;
+		만약 (result.count("V")) {
 			std::cout << yosys_version_str << std::endl;
 			exit(0);
 		}
-		if (result.count("git-hash")) {
+		만약 (result.count("git-hash")) {
 			std::cout << yosys_git_hash_str << std::endl;
 			exit(0);
 		}
-		if (result.count("S")) {
+		만약 (result.count("S")) {
 			passes_commands.push_back("synth");
 			run_shell = false;
 		}
-		if (result.count("C")) run_tcl_shell = true;
-		if (result.count("g")) logger().force_debug_on();
-		if (result.count("m")) plugin_filenames = result["m"].as<std::vector<std::string>>();
-		if (result.count("f")) frontend_command = result["f"].as<std::string>();
-		if (result.count("H")) {
+		만약 (result.count("C")) run_tcl_shell = true;
+		만약 (result.count("g")) logger().force_debug_on();
+		만약 (result.count("m")) plugin_filenames = result["m"].as<std::vector<std::string>>();
+		만약 (result.count("f")) frontend_command = result["f"].as<std::string>();
+		만약 (result.count("H")) {
 			passes_commands.push_back("help");
 			run_shell = false;
 		}
-		if (result.count("h")) {
+		만약 (result.count("h")) {
 			std::string res = result["h"].as<std::string>();
 			passes_commands.push_back("help " + res);
 			run_shell = false;
 		}
-		if (result.count("b")) {
+		만약 (result.count("b")) {
 			backend_command = result["b"].as<std::string>();
 			run_shell = false;
 		}
-		if (result.count("p")) {
+		만약 (result.count("p")) {
 			auto cmds = result["p"].as<std::vector<std::string>>();
 			passes_commands.insert(passes_commands.end(), cmds.begin(), cmds.end());
 			run_shell = false;
 		}
-		if (result.count("o")) {
+		만약 (result.count("o")) {
 			output_filename = result["o"].as<std::string>();
 			run_shell = false;
 		}
-		for (const auto& key : {"l", "L"}) {
-			if (result.count(key)) {
-				for (const auto& filename : result[key].as<std::vector<std::string>>()) {
+		위해 (const auto& key : {"l", "L"}) {
+			만약 (result.count(key)) {
+				위해 (const auto& filename : result[key].as<std::vector<std::string>>()) {
 					try {
 						logger().add_sink<FileLogSink>(filename, key[0] == 'L', false);
 					} catch (const std::runtime_error &e) {
@@ -428,62 +428,62 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		if (result.count("q")) {
+		만약 (result.count("q")) {
 			mode_q = true;
-			if (log_stderr) quiet_warnings = true;
+			만약 (log_stderr) quiet_warnings = true;
 			log_stderr = true;
 		}
-		if (result.count("v")) {
+		만약 (result.count("v")) {
 			mode_v = true;
 			log_stderr = true;
-			logger().set_verbose_level(result["v"].as<int>());
+			logger().set_verbose_level(result["v"].as<정수>());
 		}
-		if (result.count("t")) logger().set_log_time(true);
-		if (result.count("no-color")) no_color = true;
-		if (result.count("d")) timing_details = true;
-		for (const auto& key : {"s", "c"}) {
-			if (result.count(key)) {
+		만약 (result.count("t")) logger().set_log_time(true);
+		만약 (result.count("no-color")) no_color = true;
+		만약 (result.count("d")) timing_details = true;
+		위해 (const auto& key : {"s", "c"}) {
+			만약 (result.count(key)) {
 				scriptfile = result[key].as<std::string>();
 				scriptfile_tcl = std::string(key) == "c";
 				run_shell = false;
 			}
 		}
-		if (result.count("y")) {
+		만약 (result.count("y")) {
 			scriptfile = result["y"].as<std::string>();
 			scriptfile_python = true;
 			run_shell = false;
 		}
-		for (const auto& key : {"W", "w", "e"}) {
-			if (result.count(key)) {
+		위해 (const auto& key : {"W", "w", "e"}) {
+			만약 (result.count(key)) {
 				auto regexes = result[key].as<std::vector<std::string>>();
-				for (const auto& regex : regexes) {
-					if (std::string(key) == "W")
+				위해 (const auto& regex : regexes) {
+					만약 (std::string(key) == "W")
 						logger().add_warn(regex);
-					if (std::string(key) == "w")
+					만약 (std::string(key) == "w")
 						logger().add_nowarn(regex);
-					if (std::string(key) == "e")
+					만약 (std::string(key) == "e")
 						logger().add_werror(regex);
 				}
 			}
 		}
-		if (result.count("r")) topmodule = result["r"].as<std::string>();
-		if (result.count("D")) vlog_defines = result["D"].as<std::vector<std::string>>();
-		if (result.count("P")) {
+		만약 (result.count("r")) topmodule = result["r"].as<std::string>();
+		만약 (result.count("D")) vlog_defines = result["D"].as<std::vector<std::string>>();
+		만약 (result.count("P")) {
 			auto dump_args = result["P"].as<std::vector<std::string>>();
-			for (const auto& arg : dump_args) {
+			위해 (const auto& arg : dump_args) {
 				auto tokens = split_tokens(arg, ":");
-				if (!tokens.empty() && tokens[0] == "ALL") {
-					if (tokens.size() != 1) {
+				만약 (!tokens.empty() && tokens[0] == "ALL") {
+					만약 (tokens.size() != 1) {
 						std::cerr << "Invalid number of tokens in -P ALL." << std::endl;
 						exit(1);
 					}
 					logger().set_hdump_all(true);
-				} else {
-					if (!tokens.empty() && !tokens[0].empty() && tokens[0].back() == '.')
+				} 아니면 {
+					만약 (!tokens.empty() && !tokens[0].empty() && tokens[0].back() == '.')
 						tokens[0].pop_back();
-					if (tokens.size() == 1)
+					만약 (tokens.size() == 1)
 						tokens.push_back("yosys_dump_" + tokens[0] + ".il");
-					if (tokens.size() != 2) {
+					만약 (tokens.size() != 2) {
 						std::cerr << "Invalid number of tokens in -P." << std::endl;
 						exit(1);
 					}
@@ -491,30 +491,30 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		if (result.count("E")) depsfile = result["E"].as<std::string>();
-		if (result.count("x")) {
-			for (const auto &ignore : result["x"].as<std::vector<std::string>>())
+		만약 (result.count("E")) depsfile = result["E"].as<std::string>();
+		만약 (result.count("x")) {
+			위해 (const auto &ignore : result["x"].as<std::vector<std::string>>())
     			logger().add_experimental_ignore(ignore);
 		}
-		if (result.count("perffile")) perffile = result["perffile"].as<std::string>();
-		if (result.count("infile")) {
+		만약 (result.count("perffile")) perffile = result["perffile"].as<std::string>();
+		만약 (result.count("infile")) {
 			frontend_files = result["infile"].as<std::vector<std::string>>();
 		}
-		if (result.count("autoidx")) {
-			int idx = result["autoidx"].as<uint64_t>();
+		만약 (result.count("autoidx")) {
+			정수 idx = result["autoidx"].as<uint64_t>();
 			autoidx = idx;
 		}
 
-		if (!is_colored(stdout) || !is_colored(stderr)) {
-			if (!log_stderr) {
+		만약 (!is_colored(stdout) || !is_colored(stderr)) {
+			만약 (!log_stderr) {
 				logger().add_sink<ConsoleLogSink>();
-			} else {
+			} 아니면 {
 				logger().add_sink<StderrLogSink>(quiet_warnings);
 			}
-		} else
+		} 아니면
 			logger().add_sink<ColorConsoleLogSink>(log_stderr, quiet_warnings);
 
-		if (print_banner)
+		만약 (print_banner)
 			yosys_banner();
 
 	}
@@ -524,27 +524,27 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+#만약 defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
 	std::string state_dir;
-	#if defined(_WIN32)
-		if (getenv("HOMEDRIVE") != NULL && getenv("HOMEPATH") != NULL) {
+	#만약 defined(_WIN32)
+		만약 (getenv("HOMEDRIVE") != NULL && getenv("HOMEPATH") != NULL) {
 			state_dir = stringf("%s%s/.local/state", getenv("HOMEDRIVE"), getenv("HOMEPATH"));
-		} else {
+		} 아니면 {
 			log_debug("$HOMEDRIVE and/or $HOMEPATH is empty. No history file will be created.\n");
 		}
-	#else
-		if (getenv("XDG_STATE_HOME") == NULL || getenv("XDG_STATE_HOME")[0] == '\0') {
-			if (getenv("HOME") != NULL) {
+	#아니면
+		만약 (getenv("XDG_STATE_HOME") == NULL || getenv("XDG_STATE_HOME")[0] == '\0') {
+			만약 (getenv("HOME") != NULL) {
 				state_dir = stringf("%s/.local/state", getenv("HOME"));
-			} else {
+			} 아니면 {
 				log_debug("$HOME is empty. No history file will be created.\n");
 			}
-		} else {
+		} 아니면 {
 			state_dir = stringf("%s", getenv("XDG_STATE_HOME"));
 		}
 	#endif
 
-	if (!state_dir.empty()) {
+	만약 (!state_dir.empty()) {
 		std::string yosys_dir = state_dir + "/yosys";
 		create_directory(yosys_dir);
 
@@ -554,21 +554,21 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	if (print_stats)
+	만약 (print_stats)
 		logger().start_hasher();
 
-#if defined(__OpenBSD__)
+#만약 defined(__OpenBSD__)
 	// save the executable origin for proc_self_dirname()
 	yosys_argv0 = argv[0];
 	realpath(yosys_argv0, yosys_path);
 #endif
 
-#if defined(__linux__)
+#만약 defined(__linux__)
 	// set stack size to >= 128 MB
 	{
 		struct rlimit rl;
 		const rlim_t stack_size = 128L * 1024L * 1024L;
-		if (getrlimit(RLIMIT_STACK, &rl) == 0 && rl.rlim_cur < stack_size) {
+		만약 (getrlimit(RLIMIT_STACK, &rl) == 0 && rl.rlim_cur < stack_size) {
 			rl.rlim_cur = stack_size;
 			setrlimit(RLIMIT_STACK, &rl);
 		}
@@ -583,56 +583,56 @@ int main(int argc, char **argv)
 #endif
 	log_error_atexit = yosys_atexit;
 
-	for (auto &fn : plugin_filenames)
+	위해 (auto &fn : plugin_filenames)
 		load_plugin(fn, {});
 
 	log_suppressed();
 
-	if (!vlog_defines.empty()) {
+	만약 (!vlog_defines.empty()) {
 		std::string vdef_cmd = "read -define";
-		for (auto vdef : vlog_defines)
+		위해 (auto vdef : vlog_defines)
 			vdef_cmd += " " + vdef;
 		run_pass(vdef_cmd);
 	}
 
-	if (scriptfile.empty() || (!scriptfile_tcl && !scriptfile_python)) {
+	만약 (scriptfile.empty() || (!scriptfile_tcl && !scriptfile_python)) {
 		// Without a TCL or Python script, arguments following '--'
 		// are also treated as frontend files
-		for (auto special_arg : special_args)
+		위해 (auto special_arg : special_args)
 			frontend_files.push_back(special_arg);
 	}
 
-	for (auto it = frontend_files.begin(); it != frontend_files.end(); ++it) {
-		if (run_frontend((*it).c_str(), frontend_command))
+	위해 (auto it = frontend_files.begin(); it != frontend_files.end(); ++it) {
+		만약 (run_frontend((*it).c_str(), frontend_command))
 			run_shell = false;
 	}
 
-	if (!topmodule.empty())
+	만약 (!topmodule.empty())
 		run_pass("hierarchy -top " + topmodule);
-	if (!scriptfile.empty()) {
-		if (scriptfile_tcl) {
+	만약 (!scriptfile.empty()) {
+		만약 (scriptfile_tcl) {
 #ifdef YOSYS_ENABLE_TCL
-			int tcl_argc = special_args.size();
+			정수 tcl_argc = special_args.size();
 			std::vector<Tcl_Obj*> script_args;
 			Tcl_Interp *interp = yosys_get_tcl_interp();
-			for (auto arg : special_args)
+			위해 (auto arg : special_args)
 				script_args.push_back(Tcl_NewStringObj(arg.c_str(), arg.length()));
 
 			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), NULL, Tcl_NewIntObj(tcl_argc), 0);
 			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), NULL, Tcl_NewListObj(tcl_argc, script_args.data()), 0);
 			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), NULL, Tcl_NewStringObj(scriptfile.c_str(), scriptfile.length()), 0);
 
-			if (Tcl_EvalFile(interp, scriptfile.c_str()) != TCL_OK)
+			만약 (Tcl_EvalFile(interp, scriptfile.c_str()) != TCL_OK)
 				log_error("TCL interpreter returned an error: %s\n", Tcl_GetStringResult(yosys_get_tcl_interp()));
-#else
+#아니면
 			log_error("Can't execute TCL script: this version of yosys is not built with TCL support enabled.\n");
 #endif
-		} else if (scriptfile_python) {
+		} 아니면 만약 (scriptfile_python) {
 #ifdef YOSYS_ENABLE_PYTHON
 			py::list new_argv;
-			int py_argc = special_args.size() + 1;
+			정수 py_argc = special_args.size() + 1;
 			new_argv.append(scriptfile);
-			for (int i = 1; i < py_argc; ++i)
+			위해 (정수 i = 1; i < py_argc; ++i)
 				new_argv.append(special_args[i - 1]);
 
 			py::setattr(sys, "argv", new_argv);
@@ -643,57 +643,57 @@ int main(int argc, char **argv)
 			sys.attr("path").attr("insert")(0, py::str(scriptfile_python_path));
 
 			FILE *scriptfp = fopen(scriptfile.c_str(), "r");
-			if (scriptfp == nullptr) {
+			만약 (scriptfp == nullptr) {
 				log_error("Failed to open file '%s' for reading.\n", scriptfile);
 			}
-			if (PyRun_SimpleFile(scriptfp, scriptfile.c_str()) != 0) {
+			만약 (PyRun_SimpleFile(scriptfp, scriptfile.c_str()) != 0) {
 				log_flush();
 				PyErr_Print();
 				log_error("Python interpreter encountered an exception.\n");
 			}
-#else
+#아니면
 			log_error("Can't execute Python script: this version of yosys is not built with Python support enabled.\n");
 #endif
-		} else
+		} 아니면
 			run_frontend(scriptfile, "script");
 	}
 
-	for (auto it = passes_commands.begin(); it != passes_commands.end(); it++)
+	위해 (auto it = passes_commands.begin(); it != passes_commands.end(); it++)
 		run_pass(*it);
 
-	if (run_tcl_shell) {
+	만약 (run_tcl_shell) {
 #ifdef YOSYS_ENABLE_TCL
 		yosys_tcl_activate_repl();
 		Tcl_Main(argc, argv, yosys_tcl_interp_init);
-#else
+#아니면
 		log_error("Can't exectue TCL shell: this version of yosys is not built with TCL support enabled.\n");
 #endif
-	} else {
-		if (run_shell)
+	} 아니면 {
+		만약 (run_shell)
 			shell(yosys_design);
-		else
+		아니면
 			run_backend(output_filename, backend_command);
 	}
 
 	yosys_design->check();
-	for (auto it : saved_designs)
+	위해 (auto it : saved_designs)
 		it.second->check();
-	for (auto it : pushed_designs)
+	위해 (auto it : pushed_designs)
 		it->check();
 
-	if (!depsfile.empty())
+	만약 (!depsfile.empty())
 	{
 		FILE *f = fopen(depsfile.c_str(), "wt");
-		if (f == nullptr)
+		만약 (f == nullptr)
 			log_error("Can't open dependencies file for writing: %s\n", strerror(errno));
 		bool first = true;
-		for (auto fn : yosys_output_files) {
+		위해 (auto fn : yosys_output_files) {
 			fprintf(f, "%s%s", first ? "" : " ", escape_filename_spaces(fn).c_str());
 			first = false;
 		}
 		fprintf(f, ":");
-		for (auto fn : yosys_input_files) {
-			if (yosys_output_files.count(fn) == 0)
+		위해 (auto fn : yosys_input_files) {
+			만약 (yosys_output_files.count(fn) == 0)
 				fprintf(f, " %s", escape_filename_spaces(fn).c_str());
 		}
 		fprintf(f, "\n");
@@ -701,7 +701,7 @@ int main(int argc, char **argv)
 
 	logger().report_unexpected_error();
 
-	if (print_stats)
+	만약 (print_stats)
 	{
 		std::string hash = logger().finish_hasher();
 		logger().set_log_time(false);
@@ -709,41 +709,41 @@ int main(int argc, char **argv)
 		log_spacer();
 
 		log_stderr_sink_forced = mode_v && !mode_q;
-		if (logger().get_warnings_total())
+		만약 (logger().get_warnings_total())
 			log("Warnings: %d unique messages, %d total\n", logger().get_warnings_unique(), logger().get_warnings_total());
 
-		if (GetSize(logger().get_experimental()) != 0)
+		만약 (GetSize(logger().get_experimental()) != 0)
 			log("Warnings: %d experimental features used (not excluded with -x).\n", GetSize(logger().get_experimental()));
 
-		if (GetSize(logger().get_deprecated()) != 0) {
+		만약 (GetSize(logger().get_deprecated()) != 0) {
 			log("Deprecated features used:\n");
-			for (auto &[feature, earliest_removal] : logger().get_deprecated())
-				if (earliest_removal.empty())
+			위해 (auto &[feature, earliest_removal] : logger().get_deprecated())
+				만약 (earliest_removal.empty())
 					log("    %s\n", feature);
-				else
+				아니면
 					log("    %s (may be removed as soon as Yosys %s)\n", feature, earliest_removal);
 		}
 #ifdef _WIN32
 		log("End of script. Logfile hash: %s\n", hash);
 		(void)wall_clock_start;
-#else
+#아니면
 		std::string meminfo;
 		std::string stats_divider = ", ";
 
 		struct rusage ru_buffer;
 		getrusage(RUSAGE_SELF, &ru_buffer);
-		if (yosys_design->scratchpad_get_bool("print_stats.include_children")) {
+		만약 (yosys_design->scratchpad_get_bool("print_stats.include_children")) {
 			struct rusage ru_buffer_children;
 			getrusage(RUSAGE_CHILDREN, &ru_buffer_children);
 			ru_buffer.ru_utime.tv_sec += ru_buffer_children.ru_utime.tv_sec;
 			ru_buffer.ru_utime.tv_usec += ru_buffer_children.ru_utime.tv_usec;
 			ru_buffer.ru_stime.tv_sec += ru_buffer_children.ru_stime.tv_sec;
 			ru_buffer.ru_stime.tv_usec += ru_buffer_children.ru_stime.tv_usec;
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
+#만약 defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
 			ru_buffer.ru_maxrss = std::max(ru_buffer.ru_maxrss, ru_buffer_children.ru_maxrss);
 #endif
 		}
-#if defined(__linux__) || defined(__FreeBSD__)
+#만약 defined(__linux__) || defined(__FreeBSD__)
 		meminfo = stringf(", MEM: %.2f MB peak",
 				ru_buffer.ru_maxrss / 1024.0);
 #elif defined(__APPLE__)
@@ -761,46 +761,46 @@ int main(int argc, char **argv)
 		log("%s\n", yosys_maybe_version());
 
 		int64_t total_ns = 0;
-		std::set<tuple<int64_t, int, std::string>> timedat;
+		std::set<tuple<int64_t, 정수, std::string>> timedat;
 
-		for (auto &it : pass_register)
-			if (it.second->call_counter) {
+		위해 (auto &it : pass_register)
+			만약 (it.second->call_counter) {
 				auto pass_ns = it.second->runtime_ns + 1;
 				total_ns += pass_ns;
 				timedat.insert(make_tuple(pass_ns, it.second->call_counter, it.first));
 			}
-		if (twine_gc_count) {
+		만약 (twine_gc_count) {
 			total_ns += twine_gc_ns;
 			timedat.insert(make_tuple(twine_gc_ns, twine_gc_count, "twine_gc"));
 		}
 
-		if (timing_details)
+		만약 (timing_details)
 		{
 			log("Time spent:\n");
-			for (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
-				log("%5d%% %5d calls %8.3f sec %s\n", int(100*std::get<0>(*it) / total_ns),
+			위해 (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
+				log("%5d%% %5d calls %8.3f sec %s\n", 정수(100*std::get<0>(*it) / total_ns),
 						std::get<1>(*it), std::get<0>(*it) / 1000000000.0, std::get<2>(*it).c_str());
 			}
 		}
-		else
+		아니면
 		{
-			int out_count = 0;
+			정수 out_count = 0;
 			std::string message = "Time spent:";
-			for (auto it = timedat.rbegin(); it != timedat.rend() && out_count < 4; it++, out_count++) {
-				if (out_count >= 2 && (std::get<0>(*it) < 1000000000 || int(100*std::get<0>(*it) / total_ns) < 20)) {
+			위해 (auto it = timedat.rbegin(); it != timedat.rend() && out_count < 4; it++, out_count++) {
+				만약 (out_count >= 2 && (std::get<0>(*it) < 1000000000 || 정수(100*std::get<0>(*it) / total_ns) < 20)) {
 					message += ", ...";
 					break;
 				}
-				message += stringf("%s %d%% %dx %s (%d sec)", out_count ? "," : "", int(100*std::get<0>(*it) / total_ns),
-						std::get<1>(*it), std::get<2>(*it).c_str(), int(std::get<0>(*it) / 1000000000));
+				message += stringf("%s %d%% %dx %s (%d sec)", out_count ? "," : "", 정수(100*std::get<0>(*it) / total_ns),
+						std::get<1>(*it), std::get<2>(*it).c_str(), 정수(std::get<0>(*it) / 1000000000));
 			}
 			message += out_count ? "" : " no commands executed";
 			log("%s\n", message);
 		}
-		if(!perffile.empty())
+		만약(!perffile.empty())
 		{
 			FILE *f = fopen(perffile.c_str(), "wt");
-			if (f == nullptr)
+			만약 (f == nullptr)
 				log_error("Can't open performance log file for writing: %s\n", strerror(errno));
 
 			fprintf(f, "{\n");
@@ -809,8 +809,8 @@ int main(int argc, char **argv)
 			fprintf(f, "  \"passes\": {");
 
 			bool first = true;
-			for (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
-				if (!first)
+			위해 (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
+				만약 (!first)
 					fprintf(f, ",");
 				fprintf(f, "\n	\"%s\": {\n", std::get<2>(*it).c_str());
 				fprintf(f, "	  \"runtime_ns\": %" PRIu64 ",\n", std::get<0>(*it));
@@ -827,17 +827,17 @@ int main(int argc, char **argv)
 	yosys_atexit();
 
 	memhasher_off();
-	if (call_abort)
+	만약 (call_abort)
 		abort();
 
 	log_flush();
 
 	yosys_shutdown();
 
-#if defined(_MSC_VER)
+#만약 defined(_MSC_VER)
 	_exit(0);
 #elif defined(_WIN32)
 	_Exit(0);
 #endif
-	return 0;
+	반환 0;
 }

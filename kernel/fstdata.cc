@@ -22,92 +22,92 @@
 USING_YOSYS_NAMESPACE
 
 
-#if defined(YOSYS_ENABLE_SPAWN)
+#만약 defined(YOSYS_ENABLE_SPAWN)
 static std::string file_base_name(std::string const & path)
 {
-	return path.substr(path.find_last_of("/\\") + 1);
+	반환 path.substr(path.find_last_of("/\\") + 1);
 }
 #endif
 
 FstData::FstData(std::string filename) : ctx(nullptr)
 {
-	#if defined(YOSYS_ENABLE_SPAWN)
+	#만약 defined(YOSYS_ENABLE_SPAWN)
 	std::string filename_trim = file_base_name(filename);
-	if (filename_trim.size() > 4 && filename_trim.compare(filename_trim.size()-4, std::string::npos, ".vcd") == 0) {
+	만약 (filename_trim.size() > 4 && filename_trim.compare(filename_trim.size()-4, std::string::npos, ".vcd") == 0) {
 		filename_trim.erase(filename_trim.size()-4);
 		tmp_file = stringf("%s/converted_%s.fst", get_base_tmpdir(), filename_trim);
 		std::string cmd = stringf("vcd2fst %s %s", filename, tmp_file);
 		log("Exec: %s\n", cmd);
-		if (run_command(cmd) != 0)
+		만약 (run_command(cmd) != 0)
 			log_cmd_error("Shell command failed!\n");
 		filename = tmp_file;
 	}
 	#endif
 	const std::vector<std::string> g_units = { "s", "ms", "us", "ns", "ps", "fs", "as", "zs" };
 	ctx = (fstReaderContext *)fstReaderOpen(filename.c_str());
-	if (!ctx)
+	만약 (!ctx)
 		log_error("Error opening '%s' as FST file\n", filename);
-	scale = (int)fstReaderGetTimescale(ctx);
+	scale = (정수)fstReaderGetTimescale(ctx);
 	timescale_str = "";
-	int unit = 0;
-	int zeros = 0;
-	if (scale > 0)  {
+	정수 unit = 0;
+	정수 zeros = 0;
+	만약 (scale > 0)  {
 		zeros = scale;
-	} else {
-		if ((scale % 3) == 0) {
+	} 아니면 {
+		만약 ((scale % 3) == 0) {
 			zeros = (-scale % 3);
 			unit = (-scale / 3);
-		} else {
+		} 아니면 {
 			zeros = 3 - (-scale % 3);
 			unit = (-scale / 3) + 1;
 		}
 	}
-	for (int i=0;i<zeros; i++) timescale_str += "0";
+	위해 (정수 i=0;i<zeros; i++) timescale_str += "0";
 	timescale_str += g_units[unit];
 	extractVarNames();
 }
 
 FstData::~FstData()
 {
-	if (ctx)
+	만약 (ctx)
 		fstReaderClose(ctx);
-	if (!tmp_file.empty())
+	만약 (!tmp_file.empty())
 		remove(tmp_file.c_str());
 }
 
-uint64_t FstData::getStartTime() { return fstReaderGetStartTime(ctx); }
+uint64_t FstData::getStartTime() { 반환 fstReaderGetStartTime(ctx); }
 
-uint64_t FstData::getEndTime() { return fstReaderGetEndTime(ctx); }
+uint64_t FstData::getEndTime() { 반환 fstReaderGetEndTime(ctx); }
 
 static void normalize_brackets(std::string &str)
 {
-	for (auto &c : str) {
-		if (c == '<')
+	위해 (auto &c : str) {
+		만약 (c == '<')
 			c = '[';
-		else if (c == '>')
+		아니면 만약 (c == '>')
 			c = ']';
 	}
 }
 
 fstHandle FstData::getHandle(std::string name) {
 	normalize_brackets(name);
-	if (name_to_handle.find(name) != name_to_handle.end())
-		return name_to_handle[name];
-	else
-		return 0;
+	만약 (name_to_handle.find(name) != name_to_handle.end())
+		반환 name_to_handle[name];
+	아니면
+		반환 0;
 };
 
-dict<int,fstHandle> FstData::getMemoryHandles(std::string name) {
-	if (memory_to_handle.find(name) != memory_to_handle.end())
-		return memory_to_handle[name];
-	else
-		return dict<int,fstHandle>();
+dict<정수,fstHandle> FstData::getMemoryHandles(std::string name) {
+	만약 (memory_to_handle.find(name) != memory_to_handle.end())
+		반환 memory_to_handle[name];
+	아니면
+		반환 dict<정수,fstHandle>();
 };
 
 static std::string remove_spaces(std::string str)
 {
 	str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
-	return str;
+	반환 str;
 }
 
 void FstData::extractVarNames()
@@ -115,7 +115,7 @@ void FstData::extractVarNames()
 	struct fstHier *h;
 	std::string fst_scope_name;
 
-	while ((h = fstReaderIterateHier(ctx))) {
+	동안 ((h = fstReaderIterateHier(ctx))) {
 		switch (h->htyp) {
 			case FST_HT_SCOPE: {
 				fst_scope_name = fstReaderPushScope(ctx, h->u.scope.name, NULL);
@@ -135,50 +135,50 @@ void FstData::extractVarNames()
 				normalize_brackets(var.scope);
 				var.width = h->u.var.length;
 				vars.push_back(var);
-				if (!var.is_alias)
+				만약 (!var.is_alias)
 					handle_to_var[h->u.var.handle] = var;
 				std::string clean_name;
 				bool has_space = false;
-				for(size_t i=0;i<strlen(h->u.var.name);i++)
+				위해(size_t i=0;i<strlen(h->u.var.name);i++)
 				{
 					char c = h->u.var.name[i];
-					if(c==' ') { has_space = true; break; }
+					만약(c==' ') { has_space = true; break; }
 					clean_name += c;
 				}
-				if (clean_name[0]=='\\')
+				만약 (clean_name[0]=='\\')
 					clean_name = clean_name.substr(1);
-				if (!has_space) {
+				만약 (!has_space) {
 					size_t pos = clean_name.find_last_of("[");
 					std::string index_or_range = clean_name.substr(pos+1);
-					if (index_or_range.find(":") != std::string::npos) {
+					만약 (index_or_range.find(":") != std::string::npos) {
 						clean_name = clean_name.substr(0,pos);
 					}
 				}
 				size_t pos = clean_name.find_last_of("<");
-				if (pos != std::string::npos && clean_name.back() == '>') {
+				만약 (pos != std::string::npos && clean_name.back() == '>') {
 					std::string mem_cell = clean_name.substr(0, pos);
 					normalize_brackets(mem_cell);
 					std::string addr = clean_name.substr(pos+1);
 					addr.pop_back(); // remove closing bracket
 					char *endptr;
-					int mem_addr = strtol(addr.c_str(), &endptr, 16);
-					if (*endptr) {
+					정수 mem_addr = strtol(addr.c_str(), &endptr, 16);
+					만약 (*endptr) {
 						log_debug("Error parsing memory address in : %s\n", clean_name);
-					} else {
+					} 아니면 {
 						memory_to_handle[var.scope+"."+mem_cell][mem_addr] = var.id;
 					}
 				}
 				pos = clean_name.find_last_of("[");
-				if (pos != std::string::npos && clean_name.back() == ']') {
+				만약 (pos != std::string::npos && clean_name.back() == ']') {
 					std::string mem_cell = clean_name.substr(0, pos);
 					normalize_brackets(mem_cell);
 					std::string addr = clean_name.substr(pos+1);
 					addr.pop_back(); // remove closing bracket
 					char *endptr;
-					int mem_addr = strtol(addr.c_str(), &endptr, 10);
-					if (*endptr) {
+					정수 mem_addr = strtol(addr.c_str(), &endptr, 10);
+					만약 (*endptr) {
 						log_debug("Error parsing memory address in : %s\n", clean_name);
-					} else {
+					} 아니면 {
 						memory_to_handle[var.scope+"."+mem_cell][mem_addr] = var.id;
 					}
 				}
@@ -206,34 +206,34 @@ static void reconstruct_clb_attimes(void *user_data, uint64_t pnt_time, fstHandl
 
 void FstData::reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t /* plen */)
 {
-	if (pnt_time > end_time || !pnt_value) return;
-	if (curr_cycle > last_cycle) return;
+	만약 (pnt_time > end_time || !pnt_value) 반환;
+	만약 (curr_cycle > last_cycle) 반환;
 	// if we are past the timestamp
 	bool is_clock = false;
-	if (!all_samples) {
-		for(auto &s : clk_signals) {
-			if (s==pnt_facidx)  {
+	만약 (!all_samples) {
+		위해(auto &s : clk_signals) {
+			만약 (s==pnt_facidx)  {
 				is_clock=true;
 				break;
 			}
 		}
 	}
 
-	if (pnt_time > past_time) {
+	만약 (pnt_time > past_time) {
 		past_data = last_data;
 		past_time = pnt_time;
 	}
 
-	if (pnt_time > last_time) {
-		if (all_samples) {
+	만약 (pnt_time > last_time) {
+		만약 (all_samples) {
 			callback(last_time);
 			curr_cycle++;
 			last_time = pnt_time;
-		} else {
-			if (is_clock) {
+		} 아니면 {
+			만약 (is_clock) {
 				std::string val = std::string((const char *)pnt_value);
 				std::string prev = past_data[pnt_facidx];
-				if ((prev!="1" && val=="1") || (prev!="0" && val=="0")) {
+				만약 ((prev!="1" && val=="1") || (prev!="0" && val=="0")) {
 					callback(last_time);
 					curr_cycle++;
 					last_time = pnt_time;
@@ -245,7 +245,7 @@ void FstData::reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_faci
 	last_data[pnt_facidx] =  std::string((const char *)pnt_value);
 }
 
-void FstData::reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start, uint64_t end, unsigned int end_cycle, CallbackFunction cb)
+void FstData::reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start, uint64_t end, unsigned 정수 end_cycle, CallbackFunction cb)
 {
 	clk_signals = signal;
 	callback = cb;
@@ -262,12 +262,12 @@ void FstData::reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t sta
 	fstReaderSetUnlimitedTimeRange(ctx);
 	fstReaderSetFacProcessMaskAll(ctx);
 	fstReaderIterBlocks2(ctx, reconstruct_clb_attimes, reconstruct_clb_varlen_attimes, this, nullptr);
-	if (last_time!=end_time && curr_cycle <= last_cycle) {
+	만약 (last_time!=end_time && curr_cycle <= last_cycle) {
 		past_data = last_data;
 		callback(last_time);
 		curr_cycle++;
 	}
-	if (curr_cycle <= last_cycle) {
+	만약 (curr_cycle <= last_cycle) {
 		past_data = last_data;
 		callback(end_time);
 		curr_cycle++;
@@ -276,8 +276,8 @@ void FstData::reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t sta
 
 std::string FstData::valueOf(fstHandle signal)
 {
-	if (past_data.find(signal) == past_data.end()) {
-		return std::string(handle_to_var[signal].width, 'x');
+	만약 (past_data.find(signal) == past_data.end()) {
+		반환 std::string(handle_to_var[signal].width, 'x');
 	}
-	return past_data[signal];
+	반환 past_data[signal];
 }
