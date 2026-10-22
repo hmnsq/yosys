@@ -20,46 +20,46 @@
 #ifndef TOPO_SCC_H
 #define TOPO_SCC_H
 
-#include "kernel/yosys.h"
+#ضمن "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 class SigCellGraph {
-public:
-    typedef int node_type;
+عام:
+    تعريفنوع صحيح عقدة_type;
 
-    struct successor_enumerator {
-        std::vector<std::pair<int, int>>::const_iterator current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
+    بنية successor_enumerator {
+        std::vector<std::pair<صحيح, صحيح>>::const_iterator current, end;
+        bool finished() ثابت { إرجاع current == end; }
+        عقدة_type next() {
             log_assert(!finished());
-            node_type result = current->second;
+            عقدة_type result = current->second;
             ++current;
-            return result;
+            إرجاع result;
         }
     };
 
-    struct node_enumerator {
-        int current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
+    بنية عقدة_enumerator {
+        صحيح current, end;
+        bool finished() ثابت { إرجاع current == end; }
+        عقدة_type next() {
             log_assert(!finished());
-            node_type result = current;
+            عقدة_type result = current;
             ++current;
-            return result;
+            إرجاع result;
         }
     };
 
-private:
+خاص:
     idict<RTLIL::Cell *> cell_ids;
     idict<RTLIL::SigBit> sig_ids;
-    std::vector<std::pair<int, int>> edges;
-    std::vector<std::pair<int, int>> edge_ranges;
-    std::vector<int> indices_;
-    int offset;
+    std::vector<std::pair<صحيح, صحيح>> edges;
+    std::vector<std::pair<صحيح, صحيح>> edge_ranges;
+    std::vector<صحيح> indices_;
+    صحيح offset;
     bool computed = false;
 
-    void compute() {
+    فراغ compute() {
         offset = GetSize(sig_ids);
         edge_ranges.clear();
         indices_.clear();
@@ -70,208 +70,208 @@ private:
         edges.erase(last, edges.end());
         auto edge = edges.begin();
         auto edge_end = edges.end();
-        int range_begin = 0;
-        for (int node = -offset, node_end = GetSize(cell_ids); node != node_end; ++node) {
-            while (edge != edge_end && edge->first <= node)
+        صحيح range_begin = 0;
+        لكل (صحيح عقدة = -offset, عقدة_end = GetSize(cell_ids); عقدة != عقدة_end; ++عقدة) {
+            بينما (edge != edge_end && edge->first <= عقدة)
                 ++edge;
-            int range_end = edge - edges.begin();
+            صحيح range_end = edge - edges.begin();
             edge_ranges.emplace_back(std::make_pair(range_begin, range_end));
             range_begin = range_end;
         }
     }
 
-public:
-    node_type node(RTLIL::Cell *cell) { return cell_ids(cell); }
-    node_type node(SigBit const &bit) { return ~sig_ids(bit); }
+عام:
+    عقدة_type عقدة(RTLIL::Cell *cell) { إرجاع cell_ids(cell); }
+    عقدة_type عقدة(SigBit ثابت &bit) { إرجاع ~sig_ids(bit); }
 
-    bool is_cell(node_type node) { return node >= 0; }
-    bool is_sig(node_type node) { return node < 0; }
+    bool is_cell(عقدة_type عقدة) { إرجاع عقدة >= 0; }
+    bool is_sig(عقدة_type عقدة) { إرجاع عقدة < 0; }
 
-    Cell *cell(node_type node) { return node >= 0 ? cell_ids[node] : nullptr; }
-    SigBit sig(node_type node) { return node < 0 ? sig_ids[~node] : SigBit(); }
+    Cell *cell(عقدة_type عقدة) { إرجاع عقدة >= 0 ? cell_ids[عقدة] : nullptr; }
+    SigBit sig(عقدة_type عقدة) { إرجاع عقدة < 0 ? sig_ids[~عقدة] : SigBit(); }
 
     template<typename Src, typename Dst>
-    void add_edge(Src &&src, Dst &&dst) {
+    فراغ add_edge(Src &&src, Dst &&dst) {
         computed = false;
-        node_type src_node = node(std::forward<Src>(src));
-        node_type dst_node = node(std::forward<Dst>(dst));
-        edges.emplace_back(std::make_pair(src_node, dst_node));
+        عقدة_type src_عقدة = عقدة(std::forward<Src>(src));
+        عقدة_type dst_عقدة = عقدة(std::forward<Dst>(dst));
+        edges.emplace_back(std::make_pair(src_عقدة, dst_عقدة));
     }
 
-    node_enumerator enumerate_nodes() {
-        if (!computed) compute();
-        return {-GetSize(sig_ids), GetSize(cell_ids)};
+    عقدة_enumerator enumerate_nodes() {
+        إذا (!computed) compute();
+        إرجاع {-GetSize(sig_ids), GetSize(cell_ids)};
     }
 
-    successor_enumerator enumerate_successors(node_type const &node) const {
-        auto range = edge_ranges[node + offset];
-        return {edges.begin() + range.first, edges.begin() + range.second};
+    successor_enumerator enumerate_successors(عقدة_type ثابت &عقدة) ثابت {
+        auto range = edge_ranges[عقدة + offset];
+        إرجاع {edges.begin() + range.first, edges.begin() + range.second};
     }
 
-    int &dfs_index(node_type const &node) {
-        return indices_[node + offset];
+    صحيح &dfs_index(عقدة_type ثابت &عقدة) {
+        إرجاع indices_[عقدة + offset];
     }
 };
 
 
 class IntGraph {
-public:
-    typedef int node_type;
+عام:
+    تعريفنوع صحيح عقدة_type;
 
-    struct successor_enumerator {
-        std::vector<std::pair<int, int>>::const_iterator current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
+    بنية successor_enumerator {
+        std::vector<std::pair<صحيح, صحيح>>::const_iterator current, end;
+        bool finished() ثابت { إرجاع current == end; }
+        عقدة_type next() {
             log_assert(!finished());
-            node_type result = current->second;
+            عقدة_type result = current->second;
             ++current;
-            return result;
+            إرجاع result;
         }
     };
 
-    struct node_enumerator {
-        int current, end;
-        bool finished() const { return current == end; }
-        node_type next() {
+    بنية عقدة_enumerator {
+        صحيح current, end;
+        bool finished() ثابت { إرجاع current == end; }
+        عقدة_type next() {
             log_assert(!finished());
-            node_type result = current;
+            عقدة_type result = current;
             ++current;
-            return result;
+            إرجاع result;
         }
     };
 
-private:
-    std::vector<std::pair<int, int>> edges;
-    std::vector<std::pair<int, int>> edge_ranges;
-    std::vector<int> indices_;
+خاص:
+    std::vector<std::pair<صحيح, صحيح>> edges;
+    std::vector<std::pair<صحيح, صحيح>> edge_ranges;
+    std::vector<صحيح> indices_;
     bool computed = false;
 
-    void compute() {
+    فراغ compute() {
         edge_ranges.clear();
 
-        int node_end = 0;
-        for (auto const &edge : edges)
-            node_end = std::max(node_end, std::max(edge.first, edge.second) + 1);
+        صحيح عقدة_end = 0;
+        لكل (auto ثابت &edge : edges)
+            عقدة_end = std::max(عقدة_end, std::max(edge.first, edge.second) + 1);
         indices_.clear();
-        indices_.resize(node_end, -1);
+        indices_.resize(عقدة_end, -1);
 
         std::sort(edges.begin(), edges.end());
         auto last = std::unique(edges.begin(), edges.end());
         edges.erase(last, edges.end());
         auto edge = edges.begin();
         auto edge_end = edges.end();
-        int range_begin = 0;
-        for (int node = 0; node != node_end; ++node) {
-            while (edge != edge_end && edge->first <= node)
+        صحيح range_begin = 0;
+        لكل (صحيح عقدة = 0; عقدة != عقدة_end; ++عقدة) {
+            بينما (edge != edge_end && edge->first <= عقدة)
                 ++edge;
-            int range_end = edge - edges.begin();
+            صحيح range_end = edge - edges.begin();
             edge_ranges.emplace_back(std::make_pair(range_begin, range_end));
             range_begin = range_end;
         }
     }
 
-public:
-    void add_edge(int src, int dst) {
+عام:
+    فراغ add_edge(صحيح src, صحيح dst) {
         log_assert(src >= 0);
         log_assert(dst >= 0);
         computed = false;
         edges.emplace_back(std::make_pair(src, dst));
     }
 
-    node_enumerator enumerate_nodes() {
-        if (!computed) compute();
-        return {0, GetSize(indices_)};
+    عقدة_enumerator enumerate_nodes() {
+        إذا (!computed) compute();
+        إرجاع {0, GetSize(indices_)};
     }
 
-    successor_enumerator enumerate_successors(int node) const {
-        auto range = edge_ranges[node];
-        return {edges.begin() + range.first, edges.begin() + range.second};
+    successor_enumerator enumerate_successors(صحيح عقدة) ثابت {
+        auto range = edge_ranges[عقدة];
+        إرجاع {edges.begin() + range.first, edges.begin() + range.second};
     }
 
-    int &dfs_index(node_type const &node) {
-        return indices_[node];
+    صحيح &dfs_index(عقدة_type ثابت &عقدة) {
+        إرجاع indices_[عقدة];
     }
 };
 
 template<typename G, typename ComponentCallback>
 class TopoSortedSccs
 {
-    typedef typename G::node_enumerator node_enumerator;
-    typedef typename G::successor_enumerator successor_enumerator;
-    typedef typename G::node_type node_type;
+    تعريفنوع typename G::عقدة_enumerator عقدة_enumerator;
+    تعريفنوع typename G::successor_enumerator successor_enumerator;
+    تعريفنوع typename G::عقدة_type عقدة_type;
 
-    struct dfs_entry {
-        node_type node;
+    بنية dfs_entry {
+        عقدة_type عقدة;
         successor_enumerator successors;
-        int lowlink;
+        صحيح lowlink;
 
-        dfs_entry(node_type node, successor_enumerator successors, int lowlink) :
-            node(node), successors(successors), lowlink(lowlink)
+        dfs_entry(عقدة_type عقدة, successor_enumerator successors, صحيح lowlink) :
+            عقدة(عقدة), successors(successors), lowlink(lowlink)
         {}
     };
 
     G &graph;
     ComponentCallback component;
 
-    std::vector<dfs_entry> dfs_stack;
-    std::vector<node_type> component_stack;
-    int next_index = 0;
+    std::vector<dfs_entry> dfs_مكدس;
+    std::vector<عقدة_type> component_مكدس;
+    صحيح next_index = 0;
 
-public:
+عام:
     TopoSortedSccs(G &graph, ComponentCallback component)
     : graph(graph), component(component) {}
 
     // process all sources (nodes without a successor)
     TopoSortedSccs &process_sources() {
-        node_enumerator nodes = graph.enumerate_nodes();
-        while (!nodes.finished()) {
-            node_type node = nodes.next();
-            successor_enumerator successors = graph.enumerate_successors(node);
-            if (successors.finished())
+        عقدة_enumerator nodes = graph.enumerate_nodes();
+        بينما (!nodes.finished()) {
+            عقدة_type عقدة = nodes.next();
+            successor_enumerator successors = graph.enumerate_successors(عقدة);
+            إذا (successors.finished())
             {
-                graph.dfs_index(node) = next_index;
+                graph.dfs_index(عقدة) = next_index;
                 next_index++;
-                component_stack.push_back(node);
-                component(component_stack.data(), component_stack.data() + 1);
-                component_stack.clear();
-                graph.dfs_index(node) = INT_MAX;
+                component_مكدس.ادفع_back(عقدة);
+                component(component_مكدس.data(), component_مكدس.data() + 1);
+                component_مكدس.clear();
+                graph.dfs_index(عقدة) = INT_MAX;
             }
         }
-        return *this;
+        إرجاع *this;
     }
 
     // process all remaining nodes in the graph
     TopoSortedSccs &process_all() {
-        node_enumerator nodes = graph.enumerate_nodes();
+        عقدة_enumerator nodes = graph.enumerate_nodes();
         // iterate over all nodes to ensure we process the whole graph
-        while (!nodes.finished())
+        بينما (!nodes.finished())
             process(nodes.next());
-        return *this;
+        إرجاع *this;
     }
 
     // process all nodes that are reachable from a given start node
-    TopoSortedSccs &process(node_type node) {
+    TopoSortedSccs &process(عقدة_type عقدة) {
         // only start a new search if the node wasn't visited yet
-        if (graph.dfs_index(node) >= 0)
-            return *this;
-        while (true) {
+        إذا (graph.dfs_index(عقدة) >= 0)
+            إرجاع *this;
+        بينما (true) {
             // at this point we're visiting the node for the first time during
             // the DFS search
 
             // we record the timestamp of when we first visited the node as the
             // dfs_index
-            int lowlink = next_index;
+            صحيح lowlink = next_index;
             next_index++;
-            graph.dfs_index(node) = lowlink;
+            graph.dfs_index(عقدة) = lowlink;
 
             // and we add the node to the component stack where it will remain
             // until all nodes of the component containing this node are popped
-            component_stack.push_back(node);
+            component_مكدس.ادفع_back(عقدة);
 
             // then we start iterating over the successors of this node
-            successor_enumerator successors = graph.enumerate_successors(node);
-            while (true) {
-                if (successors.finished()) {
+            successor_enumerator successors = graph.enumerate_successors(عقدة);
+            بينما (true) {
+                إذا (successors.finished()) {
                     // when we processed all successors, i.e. when we visited
                     // the complete DFS subtree rooted at the current node, we
                     // first check whether the current node is a SCC root
@@ -279,20 +279,20 @@ public:
                     // (why this check identifies SCC roots is out of scope for
                     // this comment, see other material on Tarjan's SCC
                     // algorithm)
-                    if (lowlink == graph.dfs_index(node)) {
+                    إذا (lowlink == graph.dfs_index(عقدة)) {
                         // the SCC containing the current node is at the top of
                         // the component stack, with the current node at the bottom
-                        int current = GetSize(component_stack);
-                        do {
+                        صحيح current = GetSize(component_مكدس);
+                        افعل {
                             --current;
-                        } while (component_stack[current] != node);
+                        } بينما (component_مكدس[current] != عقدة);
 
                         // we invoke the callback with a pointer range of the
                         // nodes in the SCC
 
-                        node_type *stack_ptr = component_stack.data();
-                        node_type *component_begin = stack_ptr + current;
-                        node_type *component_end = stack_ptr + component_stack.size();
+                        عقدة_type *مكدس_ptr = component_مكدس.data();
+                        عقدة_type *component_begin = مكدس_ptr + current;
+                        عقدة_type *component_end = مكدس_ptr + component_مكدس.size();
 
                         // note that we allow the callback to permute the nodes
                         // in this range as well as to modify dfs_index of the
@@ -303,40 +303,40 @@ public:
                         // nodes to INT_MAX, we don't need a separate check for
                         // whether successor nodes are still on the component
                         // stack before updating the lowlink value
-                        for (; component_begin != component_end; ++component_begin)
+                        لكل (; component_begin != component_end; ++component_begin)
                             graph.dfs_index(*component_begin) = INT_MAX;
-                        component_stack.resize(current);
+                        component_مكدس.resize(current);
                     }
 
                     // after checking for a completed SCC the DFS either
                     // continues the search at the parent node or returns to
                     // the outer loop if we already are at the root node.
-                    if (dfs_stack.empty())
-                        return *this;
-                    auto &dfs_top = dfs_stack.back();
+                    إذا (dfs_مكدس.empty())
+                        إرجاع *this;
+                    auto &dfs_قمة = dfs_مكدس.back();
 
-                    node = dfs_top.node;
-                    successors = std::move(dfs_top.successors);
+                    عقدة = dfs_قمة.عقدة;
+                    successors = std::move(dfs_قمة.successors);
 
                     // the parent's lowlink is updated when returning
-                    lowlink = min(lowlink, dfs_top.lowlink);
-                    dfs_stack.pop_back();
+                    lowlink = min(lowlink, dfs_قمة.lowlink);
+                    dfs_مكدس.اسحب_back();
                     // continue checking the remaining successors of the parent node.
-                } else {
-                    node_type succ = successors.next();
-                    if (graph.dfs_index(succ) < 0) {
+                } وإلا {
+                    عقدة_type succ = successors.next();
+                    إذا (graph.dfs_index(succ) < 0) {
                         // if the successor wasn't visted yet, the DFS recurses
                         // into the successor
 
                         // we save the state for this node and make the
                         // successor the current node.
-                        dfs_stack.emplace_back(node, std::move(successors), lowlink);
-                        node = succ;
+                        dfs_مكدس.emplace_back(عقدة, std::move(successors), lowlink);
+                        عقدة = succ;
 
                         // this break gets us to the section corresponding to
                         // the function entry in the recursive version
-                        break;
-                    } else {
+                        اكسر;
+                    } وإلا {
                         // the textbook version guards this update with a check
                         // whether the successor is still on the component
                         // stack. If the successor node was already visisted
