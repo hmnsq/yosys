@@ -17,218 +17,218 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/log.h"
-#include "kernel/newcelltypes.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/log.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/newcelltypes.h"
 
-#ifdef YOSYS_ENABLE_READLINE
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_READLINE
 #  include <readline/readline.h>
 #  include <readline/history.h>
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef YOSYS_ENABLE_EDITLINE
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_EDITLINE
 #  include <editline/readline.h>
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef YOSYS_ENABLE_TCL
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_TCL
 #  include <tcl.h>
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef YOSYS_ENABLE_PLUGINS
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_PLUGINS
 #  include <dlfcn.h>
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef YOSYS_ENABLE_PYTHON
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_PYTHON
 #  include <Python.h>
 #  include <pybind11/pybind11.h>
-namespace py = pybind11;
-#endif
+ਨਾਮਾਕਾਸ਼ py = pybind11;
+#ਜੇ_ਅੰਤ
 
-#if defined(_WIN32)
+#ਜੇ defined(_WIN32)
 #  include <windows.h>
 #  include <io.h>
-#elif defined(__APPLE__)
+#ਜਾਂਜੇ defined(__APPLE__)
 #  include <mach-o/dyld.h>
 #  include <unistd.h>
 #  include <dirent.h>
 #  include <sys/stat.h>
-#else
+#ਨਹੀਂਤਾਂ
 #  include <unistd.h>
 #  include <dirent.h>
 #  include <sys/types.h>
 #  include <sys/stat.h>
-#  if defined(YOSYS_ENABLE_SPAWN)
+#  ਜੇ defined(YOSYS_ENABLE_SPAWN)
 #    include <sys/wait.h>
 #  endif
-#endif
+#ਜੇ_ਅੰਤ
 
-#if !defined(_WIN32) && defined(YOSYS_ENABLE_GLOB)
+#ਜੇ !defined(_WIN32) && defined(YOSYS_ENABLE_GLOB)
 #  include <glob.h>
-#endif
+#ਜੇ_ਅੰਤ
 
-#if defined(__FreeBSD__) || defined(__NetBSD__)
+#ਜੇ defined(__FreeBSD__) || defined(__NetBSD__)
 #  include <sys/sysctl.h>
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef YOSYS_ENABLE_PYTHON
-extern "C" PyObject* PyInit_libyosys();
-extern "C" PyObject* PyInit_pyosys();
-#include <signal.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_PYTHON
+ਬਾਹਰੀ "C" PyObject* PyInit_libyosys();
+ਬਾਹਰੀ "C" PyObject* PyInit_pyosys();
+#ਅਨ੍ਤਰ੍ਭਾਵ <signal.h>
+#ਜੇ_ਅੰਤ
 
-#include <limits.h>
-#include <errno.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <limits.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <errno.h>
 
 YOSYS_NAMESPACE_BEGIN
 
 Autoidx autoidx(1);
-int yosys_xtrace = 0;
-bool yosys_write_versions = true;
-const char* yosys_maybe_version() {
-	if (yosys_write_versions)
-		return yosys_version_str;
-	else
-		return "Yosys";
+ਪੂਰਨ yosys_xtrace = 0;
+ਤਾਰਕਿਕ yosys_write_versions = ਸੱਚ;
+ਅਚਲ ਅੱਖਰ* yosys_maybe_ਸੰਸਕਰਣ() {
+	ਜੇ (yosys_write_versions)
+		ਵਾਪਸ yosys_ਸੰਸਕਰਣ_str;
+	ਨਹੀਂਤਾਂ
+		ਵਾਪਸ "Yosys";
 }
 
-RTLIL::Design *yosys_design = NULL;
+RTLIL::Design *yosys_design = ਨਿਰਾ;
 NewCellTypes yosys_celltypes;
 
-#ifdef YOSYS_ENABLE_TCL
-Tcl_Interp *yosys_tcl_interp = NULL;
-Tcl_Interp *yosys_sdc_interp = NULL;
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_TCL
+Tcl_Interp *yosys_tcl_interp = ਨਿਰਾ;
+Tcl_Interp *yosys_sdc_interp = ਨਿਰਾ;
+#ਜੇ_ਅੰਤ
 
-std::set<std::string> yosys_input_files, yosys_output_files;
+std::ਸੈੱਟ<std::string> yosys_ਨਿਵੇਸ਼_files, yosys_output_files;
 
-bool memhasher_active = false;
+ਤਾਰਕਿਕ memhasher_ਸਰਗਰਮ = ਝੂਠ;
 uint32_t memhasher_rng = 123456;
-std::vector<void*> memhasher_store;
+std::ਸਦਿਸ਼<ਖਾਲੀ*> memhasher_store;
 
 std::string yosys_share_dirname;
 std::string yosys_abc_executable;
 
-bool Multithreading::active_ = false;
+ਤਾਰਕਿਕ Multithreading::ਸਰਗਰਮ_2 = ਝੂਠ;
 
-void init_share_dirname();
-void init_abc_executable_name();
+ਖਾਲੀ init_share_dirname();
+ਖਾਲੀ init_abc_executable_name();
 
 Multithreading::Multithreading() {
-	log_assert(!active_);
-	active_ = true;
+	log_assert(!ਸਰਗਰਮ_2);
+	ਸਰਗਰਮ_2 = ਸੱਚ;
 }
 
 Multithreading::~Multithreading() {
-	log_assert(active_);
-	active_ = false;
+	log_assert(ਸਰਗਰਮ_2);
+	ਸਰਗਰਮ_2 = ਝੂਠ;
 }
 
-void Autoidx::ensure_at_least(int v) {
-	log_assert(!Multithreading::active());
-	value = std::max(value, v);
+ਖਾਲੀ Autoidx::ensure_at_ਘੱਟ_ਤੋਂ_ਘੱਟ(ਪੂਰਨ v) {
+	log_assert(!Multithreading::ਸਰਗਰਮ());
+	ਮੁੱਲ = std::max(ਮੁੱਲ, v);
 }
 
-int Autoidx::operator++(int) {
-	log_assert(!Multithreading::active());
-	return value++;
+ਪੂਰਨ Autoidx::ਸੰਚਾਲਕ++(ਪੂਰਨ) {
+	log_assert(!Multithreading::ਸਰਗਰਮ());
+	ਵਾਪਸ ਮੁੱਲ++;
 }
 
-void memhasher_on()
+ਖਾਲੀ memhasher_on()
 {
-#if defined(__linux__) || defined(__FreeBSD__)
-	memhasher_rng += time(NULL) << 16 ^ getpid();
-#endif
+#ਜੇ defined(__linux__) || defined(__FreeBSD__)
+	memhasher_rng += ਸਮਾਂ_2(ਨਿਰਾ) << 16 ^ getpid();
+#ਜੇ_ਅੰਤ
 	memhasher_store.resize(0x10000);
-	memhasher_active = true;
+	memhasher_ਸਰਗਰਮ = ਸੱਚ;
 }
 
-void memhasher_off()
+ਖਾਲੀ memhasher_off()
 {
-	for (auto p : memhasher_store)
-		if (p) free(p);
+	ਲਈ (ਸਵੈਚਾਲਿਤ p : memhasher_store)
+		ਜੇ (p) ਮੁਕਤ(p);
 	memhasher_store.clear();
-	memhasher_active = false;
+	memhasher_ਸਰਗਰਮ = ਝੂਠ;
 }
 
-void memhasher_do()
+ਖਾਲੀ memhasher_do()
 {
 	memhasher_rng ^= memhasher_rng << 13;
 	memhasher_rng ^= memhasher_rng >> 17;
 	memhasher_rng ^= memhasher_rng << 5;
 
-	int size, index = (memhasher_rng >> 4) & 0xffff;
-	switch (memhasher_rng & 7) {
-		case 0: size =   16; break;
-		case 1: size =  256; break;
-		case 2: size = 1024; break;
-		case 3: size = 4096; break;
-		default: size = 0;
+	ਪੂਰਨ ਮਾਪ, ਸੂਚਕਾਂਕ = (memhasher_rng >> 4) & 0xffff;
+	ਚੋਣ (memhasher_rng & 7) {
+		ਹਾਲਤ 0: ਮਾਪ =   16; ਰੋਕੋ;
+		ਹਾਲਤ 1: ਮਾਪ =  256; ਰੋਕੋ;
+		ਹਾਲਤ 2: ਮਾਪ = 1024; ਰੋਕੋ;
+		ਹਾਲਤ 3: ਮਾਪ = 4096; ਰੋਕੋ;
+		ਮੂਲ: ਮਾਪ = 0;
 	}
-	if (index < 16) size *= 16;
-	memhasher_store[index] = realloc(memhasher_store[index], size);
+	ਜੇ (ਸੂਚਕਾਂਕ < 16) ਮਾਪ *= 16;
+	memhasher_store[ਸੂਚਕਾਂਕ] = realloc(memhasher_store[ਸੂਚਕਾਂਕ], ਮਾਪ);
 }
 
-void yosys_banner()
+ਖਾਲੀ yosys_banner()
 {
-	log("\n");
-	log(" /----------------------------------------------------------------------------\\\n");
-	log(" |  yosys -- Yosys Open SYnthesis Suite                                       |\n");
-	log(" |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |\n");
-	log(" |  Distributed under an ISC-like license, type \"license\" to see terms        |\n");
-	log(" \\----------------------------------------------------------------------------/\n");
-	log(" %s\n", yosys_maybe_version());
+	ਲਘੂਗਣਕ("\n");
+	ਲਘੂਗਣਕ(" /----------------------------------------------------------------------------\\\n");
+	ਲਘੂਗਣਕ(" |  yosys -- Yosys Open SYnthesis Suite                                       |\n");
+	ਲਘੂਗਣਕ(" |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |\n");
+	ਲਘੂਗਣਕ(" |  Distributed under an ISC-like license, type \"license\" to see terms        |\n");
+	ਲਘੂਗਣਕ(" \\----------------------------------------------------------------------------/\n");
+	ਲਘੂਗਣਕ(" %s\n", yosys_maybe_ਸੰਸਕਰਣ());
 }
 
-#if defined(YOSYS_ENABLE_SPAWN)
-int run_command(const std::string &command, std::function<void(const std::string&)> process_line)
+#ਜੇ defined(YOSYS_ENABLE_SPAWN)
+ਪੂਰਨ ਲੜੀਵਾਰ_command(ਅਚਲ std::string &command, std::function<ਖਾਲੀ(ਅਚਲ std::string&)> process_ਸਤਰ)
 {
-	if (!process_line)
-		return system(command.c_str());
+	ਜੇ (!process_ਸਤਰ)
+		ਵਾਪਸ system(command.c_str());
 
 	FILE *f = popen(command.c_str(), "r");
-	if (f == nullptr)
-		return -1;
+	ਜੇ (f == ਖਾਲੀ_ਸੂਚਕ)
+		ਵਾਪਸ -1;
 
-	std::string line;
-	char logbuf[128];
-	while (true) {
-		if (fgets(logbuf, 128, f) != NULL) {
-			line += logbuf;
-			if (!line.empty() && line.back() == '\n')
-				process_line(line), line.clear();
-		} else if (ferror(f) && errno == EINTR) {
+	std::string ਸਤਰ;
+	ਅੱਖਰ logbuf[128];
+	ਜਦੋਂ (ਸੱਚ) {
+		ਜੇ (fgets(logbuf, 128, f) != ਨਿਰਾ) {
+			ਸਤਰ += logbuf;
+			ਜੇ (!ਸਤਰ.ਖਾਲੀ_ਥਾਵਾਂ() && ਸਤਰ.ਪਿੱਠ() == '\n')
+				process_ਸਤਰ(ਸਤਰ), ਸਤਰ.clear();
+		} ਨਹੀਂਤਾਂ ਜੇ (ferror(f) && errno == EINTR) {
 			clearerr(f);
-			continue;
-		} else {
-			break;
+			ਜਾਰੀ;
+		} ਨਹੀਂਤਾਂ {
+			ਰੋਕੋ;
 		}
 	}
-	if (!line.empty())
-		process_line(line);
+	ਜੇ (!ਸਤਰ.ਖਾਲੀ_ਥਾਵਾਂ())
+		process_ਸਤਰ(ਸਤਰ);
 
-	int ret = pclose(f);
-	if (ret < 0)
-		return -2;
-#ifdef _WIN32
-	return ret;
-#else
-	if (!WIFEXITED(ret))
-		return -1;
-	return WEXITSTATUS(ret);
-#endif
+	ਪੂਰਨ ret = pclose(f);
+	ਜੇ (ret < 0)
+		ਵਾਪਸ -2;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
+	ਵਾਪਸ ret;
+#ਨਹੀਂਤਾਂ
+	ਜੇ (!WIFEXITED(ret))
+		ਵਾਪਸ -1;
+	ਵਾਪਸ WEXITSTATUS(ret);
+#ਜੇ_ਅੰਤ
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-bool already_setup = false;
-bool already_shutdown = false;
+ਤਾਰਕਿਕ already_ਤਿਆਰੀ = ਝੂਠ;
+ਤਾਰਕਿਕ already_shutdown = ਝੂਠ;
 
-#ifdef YOSYS_ENABLE_PYTHON
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_PYTHON
 // Include pyosys as a package for some compatibility with wheels.
 //
 // This should not affect using wheels as the dylib has to actually be called
 // pyosys.so for this function to be interacted with at all.
 PYBIND11_MODULE(pyosys, m) {
-	m.add_object("__path__", py::list());
+	m.ਜੋੜੋ_object("__path__", py::list());
 }
 
 // Catch uses of 'import libyosys' which can import libyosys.so, causing a ton
@@ -237,960 +237,960 @@ PYBIND11_MODULE(pyosys, m) {
 // This should not affect using wheels as the dylib has to actually be called
 // libyosys_dummy.so for this function to be interacted with at all.
 PYBIND11_MODULE(libyosys_dummy, _) {
-	(void)_;
-	throw py::import_error("Change your import from 'import libyosys' to 'from pyosys import libyosys'.");
+	(ਖਾਲੀ)_;
+	ਸੁੱਟੋ py::import_error("Change your import from 'import libyosys' to 'from pyosys import libyosys'.");
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-void yosys_setup()
+ਖਾਲੀ yosys_ਤਿਆਰੀ()
 {
-	if(already_setup)
-		return;
-	already_setup = true;
-	already_shutdown = false;
+	ਜੇ(already_ਤਿਆਰੀ)
+		ਵਾਪਸ;
+	already_ਤਿਆਰੀ = ਸੱਚ;
+	already_shutdown = ਝੂਠ;
 
 	StaticTwines::init();
 
-#ifdef YOSYS_ENABLE_PYTHON
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_PYTHON
 	// Starting Python 3.12, calling PyImport_AppendInittab on an already
 	// initialized platform fails (such as when libyosys is imported
 	// from a Python interpreter)
-	if (!Py_IsInitialized()) {
-		PyImport_AppendInittab((char*)"pyosys.libyosys", PyInit_libyosys);
+	ਜੇ (!Py_IsInitialized()) {
+		PyImport_AppendInittab((ਅੱਖਰ*)"pyosys.libyosys", PyInit_libyosys);
 		// compatibility with wheels
-		PyImport_AppendInittab((char*)"pyosys", PyInit_pyosys);
+		PyImport_AppendInittab((ਅੱਖਰ*)"pyosys", PyInit_pyosys);
 		// prevent catastrophes
-		PyImport_AppendInittab((char*)"libyosys", PyInit_libyosys_dummy);
+		PyImport_AppendInittab((ਅੱਖਰ*)"libyosys", PyInit_libyosys_dummy);
 		Py_Initialize();
-		PyRun_SimpleString("import sys");
-		signal(SIGINT, SIG_DFL);
+		Py_ਲੜੀਵਾਰ_Simple_String("import sys");
+		ਸੰਕੇਤ(SIGINT, SIG_DFL);
 	}
-#endif
+#ਜੇ_ਅੰਤ
 
 	init_share_dirname();
 	init_abc_executable_name();
 
-	Pass::init_register();
-	yosys_design = new RTLIL::Design;
-	yosys_celltypes.static_cell_types = StaticCellTypes::categories.is_known;
-	log_push();
+	Pass::init_ਰਜਿਸਟਰ();
+	yosys_design = ਨਵਾਂ RTLIL::Design;
+	yosys_celltypes.static_cell_types = StaticCellTypes::categories.is_ਗਿਆਤ;
+	log_ਧੱਕੋ();
 }
 
-bool yosys_already_setup()
+ਤਾਰਕਿਕ yosys_already_ਤਿਆਰੀ()
 {
-	return already_setup;
+	ਵਾਪਸ already_ਤਿਆਰੀ;
 }
 
-void yosys_shutdown()
+ਖਾਲੀ yosys_shutdown()
 {
-	if(already_shutdown)
-		return;
-	already_setup = false;
-	already_shutdown = true;
-	log_pop();
+	ਜੇ(already_shutdown)
+		ਵਾਪਸ;
+	already_ਤਿਆਰੀ = ਝੂਠ;
+	already_shutdown = ਸੱਚ;
+	log_ਕੱਢੋ();
 
-	Pass::done_register();
+	Pass::ਪੂਰਾ_ਰਜਿਸਟਰ();
 
-	delete yosys_design;
-	yosys_design = NULL;
+	ਮਿਟਾਓ yosys_design;
+	yosys_design = ਨਿਰਾ;
 
 	logger().clear();
 
-#ifdef YOSYS_ENABLE_TCL
-	if (yosys_tcl_interp != NULL) {
-		if (!Tcl_InterpDeleted(yosys_tcl_interp)) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_TCL
+	ਜੇ (yosys_tcl_interp != ਨਿਰਾ) {
+		ਜੇ (!Tcl_InterpDeleted(yosys_tcl_interp)) {
 			Tcl_DeleteInterp(yosys_tcl_interp);
 		}
 		Tcl_Finalize();
-		yosys_tcl_interp = NULL;
+		yosys_tcl_interp = ਨਿਰਾ;
 	}
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef YOSYS_ENABLE_PLUGINS
-	for (auto &it : loaded_plugins)
-		dlclose(it.second);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_PLUGINS
+	ਲਈ (ਸਵੈਚਾਲਿਤ &it : loaded_plugins)
+		dlclose(it.ਦੂਜਾ);
 
 	loaded_plugins.clear();
-#ifdef YOSYS_ENABLE_PYTHON
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_PYTHON
 	loaded_python_plugins.clear();
-#endif
+#ਜੇ_ਅੰਤ
 	loaded_plugin_aliases.clear();
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef YOSYS_ENABLE_PYTHON
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_PYTHON
 	Py_Finalize();
-#endif
+#ਜੇ_ਅੰਤ
 }
 
-const std::string *create_id_prefix(std::string_view file, int line, std::string_view func)
+ਅਚਲ std::string *create_id_ਅਗੇਤਰ(std::string_view file, ਪੂਰਨ ਸਤਰ, std::string_view func)
 {
-#ifdef _WIN32
-	size_t pos = file.find_last_of("/\\");
-#else
-	size_t pos = file.find_last_of('/');
-#endif
-	if (pos != std::string_view::npos)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
+	ਮਾਪ_t pos = file.ਲੱਭੋ_ਆਖਰੀ_ਦਾ("/\\");
+#ਨਹੀਂਤਾਂ
+	ਮਾਪ_t pos = file.ਲੱਭੋ_ਆਖਰੀ_ਦਾ('/');
+#ਜੇ_ਅੰਤ
+	ਜੇ (pos != std::string_view::npos)
 		file = file.substr(pos+1);
 
-	pos = func.find_last_of(':');
-	if (pos != std::string_view::npos)
+	pos = func.ਲੱਭੋ_ਆਖਰੀ_ਦਾ(':');
+	ਜੇ (pos != std::string_view::npos)
 		func = func.substr(pos+1);
 
-	return new std::string(stringf("$auto$%s:%d:%s$", file, line, func));
+	ਵਾਪਸ ਨਵਾਂ std::string(stringf("$auto$%s:%d:%s$", file, ਸਤਰ, func));
 }
 
 RTLIL::Design *yosys_get_design()
 {
-	return yosys_design;
+	ਵਾਪਸ yosys_design;
 }
 
-const char *create_prompt(RTLIL::Design *design, int recursion_counter, bool newline)
+ਅਚਲ ਅੱਖਰ *create_prompt(RTLIL::Design *design, ਪੂਰਨ recursion_counter, ਤਾਰਕਿਕ newline)
 {
-	static char buffer[100];
+	ਸਥਿਰ ਅੱਖਰ ਬਫਰ[100];
 	std::string str = newline ? "\n" : "";
-	if (recursion_counter > 1)
+	ਜੇ (recursion_counter > 1)
 		str += stringf("(%d) ", recursion_counter);
 	str += "yosys";
-	if (!design->selected_active_module.empty())
-		str += stringf(" [%s]", RTLIL::unescape_id(design->twines().str(design->selected_active_module)).c_str());
-	if (!design->full_selection()) {
-		if (design->selected_active_module.empty())
+	ਜੇ (!design->selected_ਸਰਗਰਮ_module.ਖਾਲੀ_ਥਾਵਾਂ())
+		str += stringf(" [%s]", RTLIL::unescape_id(design->twines().str(design->selected_ਸਰਗਰਮ_module)).c_str());
+	ਜੇ (!design->ਭਰਿਆ_selection()) {
+		ਜੇ (design->selected_ਸਰਗਰਮ_module.ਖਾਲੀ_ਥਾਵਾਂ())
 			str += "*";
-		else if (design->selection().selected_modules.size() != 1 || design->selection().selected_members.size() != 0 ||
-				design->selection().selected_modules.count(design->selected_active_module) == 0)
+		ਨਹੀਂਤਾਂ ਜੇ (design->selection().selected_modules.ਮਾਪ() != 1 || design->selection().selected_members.ਮਾਪ() != 0 ||
+				design->selection().selected_modules.ਗਿਣਤੀ_2(design->selected_ਸਰਗਰਮ_module) == 0)
 			str += "*";
 	}
-	snprintf(buffer, 100, "%s> ", str.c_str());
-	return buffer;
+	snprintf(ਬਫਰ, 100, "%s> ", str.c_str());
+	ਵਾਪਸ ਬਫਰ;
 }
 
-std::vector<std::string> glob_filename(const std::string &filename_pattern)
+std::ਸਦਿਸ਼<std::string> glob_filename(ਅਚਲ std::string &filename_ਨਮੂਨਾ)
 {
-	std::vector<std::string> results;
+	std::ਸਦਿਸ਼<std::string> results;
 
-#if defined(_WIN32) || !defined(YOSYS_ENABLE_GLOB)
-	results.push_back(filename_pattern);
-#else
+#ਜੇ defined(_WIN32) || !defined(YOSYS_ENABLE_GLOB)
+	results.ਧੱਕੋ_ਪਿੱਠ(filename_ਨਮੂਨਾ);
+#ਨਹੀਂਤਾਂ
 	glob_t globbuf;
 
-	int err = glob(filename_pattern.c_str(), 0, NULL, &globbuf);
+	ਪੂਰਨ err = glob(filename_ਨਮੂਨਾ.c_str(), 0, ਨਿਰਾ, &globbuf);
 
-	if(err == 0) {
-		for (size_t i = 0; i < globbuf.gl_pathc; i++)
-			results.push_back(globbuf.gl_pathv[i]);
+	ਜੇ(err == 0) {
+		ਲਈ (ਮਾਪ_t i = 0; i < globbuf.gl_pathc; i++)
+			results.ਧੱਕੋ_ਪਿੱਠ(globbuf.gl_pathv[i]);
 		globfree(&globbuf);
-	} else {
-		results.push_back(filename_pattern);
+	} ਨਹੀਂਤਾਂ {
+		results.ਧੱਕੋ_ਪਿੱਠ(filename_ਨਮੂਨਾ);
 	}
-#endif
+#ਜੇ_ਅੰਤ
 
-	return results;
+	ਵਾਪਸ results;
 }
 
-void rewrite_filename(std::string &filename)
+ਖਾਲੀ rewrite_filename(std::string &filename)
 {
-	if (filename.compare(0, 1, "\"") == 0 && filename.compare(GetSize(filename)-1, std::string::npos, "\"") == 0)
-		filename = filename.substr(1, GetSize(filename)-2);
-	if (filename.compare(0, 2, "+/") == 0)
+	ਜੇ (filename.compare(0, 1, "\"") == 0 && filename.compare(Get_ਮਾਪ(filename)-1, std::string::npos, "\"") == 0)
+		filename = filename.substr(1, Get_ਮਾਪ(filename)-2);
+	ਜੇ (filename.compare(0, 2, "+/") == 0)
 		filename = proc_share_dirname() + filename.substr(2);
-#ifndef _WIN32
-	if (filename.compare(0, 2, "~/") == 0)
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ _WIN32
+	ਜੇ (filename.compare(0, 2, "~/") == 0)
 		filename = filename.replace(0, 1, getenv("HOME"));
-#endif
+#ਜੇ_ਅੰਤ
 }
 
-#ifdef YOSYS_ENABLE_TCL
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_TCL
 
 // defined in tclapi.cc
-extern int yosys_tcl_interp_init(Tcl_Interp *interp);
+ਬਾਹਰੀ ਪੂਰਨ yosys_tcl_interp_init(Tcl_Interp *interp);
 
-extern Tcl_Interp *yosys_get_tcl_interp()
+ਬਾਹਰੀ Tcl_Interp *yosys_get_tcl_interp()
 {
-	if (yosys_tcl_interp == NULL) {
+	ਜੇ (yosys_tcl_interp == ਨਿਰਾ) {
 		yosys_tcl_interp = Tcl_CreateInterp();
 		yosys_tcl_interp_init(yosys_tcl_interp);
 	}
-	return yosys_tcl_interp;
+	ਵਾਪਸ yosys_tcl_interp;
 }
 
 // Also see SdcPass
-struct TclPass : public Pass {
+ਬਣਤਰ TclPass : ਜਨਤਕ Pass {
 	TclPass() : Pass("tcl", "execute a TCL script file") { }
-	void help() override {
+	ਖਾਲੀ help() override {
 		//   |---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|
-		log("\n");
-		log("    tcl <filename> [args]\n");
-		log("\n");
-		log("This command executes the tcl commands in the specified file.\n");
-		log("Use 'yosys cmd' to run the yosys command 'cmd' from tcl.\n");
-		log("\n");
-		log("The tcl command 'yosys -import' can be used to import all yosys\n");
-		log("commands directly as tcl commands to the tcl shell. Yosys commands\n");
-		log("'proc' and 'rename' are wrapped to tcl commands 'procs' and 'renames'\n");
-		log("in order to avoid a name collision with the built in commands.\n");
-		log("\n");
-		log("If any arguments are specified, these arguments are provided to the script via\n");
-		log("the standard $argc and $argv variables.\n");
-		log("\n");
-		log("Note, tcl will not receive the output of any yosys command. If the output\n");
-		log("of the tcl commands are needed, use the yosys command 'tee -s result.string'\n");
-		log("to redirect yosys's output to the 'result.string' scratchpad value.\n");
-		log("The 'result.string' value is then used as the tcl output value of the command.\n");
-		log("\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("    tcl <filename> [args]\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("This command executes the tcl commands in the specified file.\n");
+		ਲਘੂਗਣਕ("Use 'yosys cmd' to run the yosys command 'cmd' from tcl.\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("The tcl command 'yosys -import' can be used to import all yosys\n");
+		ਲਘੂਗਣਕ("commands directly as tcl commands to the tcl shell. Yosys commands\n");
+		ਲਘੂਗਣਕ("'proc' and 'rename' are wrapped to tcl commands 'procs' and 'renames'\n");
+		ਲਘੂਗਣਕ("in order to avoid a name collision with the built in commands.\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("If any arguments are specified, these arguments are provided to the script via\n");
+		ਲਘੂਗਣਕ("the standard $argc and $argv variables.\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("Note, tcl will not receive the output of any yosys command. If the output\n");
+		ਲਘੂਗਣਕ("of the tcl commands are needed, use the yosys command 'tee -s result.string'\n");
+		ਲਘੂਗਣਕ("to redirect yosys's output to the 'result.string' scratchpad value.\n");
+		ਲਘੂਗਣਕ("The 'result.string' value is then used as the tcl output value of the command.\n");
+		ਲਘੂਗਣਕ("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *) override {
-		if (args.size() < 2)
+	ਖਾਲੀ execute(std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2, RTLIL::Design *) override {
+		ਜੇ (ਦਲੀਲਾਂ_2.ਮਾਪ() < 2)
 			log_cmd_error("Missing script file.\n");
 
-		std::vector<Tcl_Obj*> script_args;
-		for (auto it = args.begin() + 2; it != args.end(); ++it)
-			script_args.push_back(Tcl_NewStringObj((*it).c_str(), (*it).size()));
+		std::ਸਦਿਸ਼<Tcl_Obj*> script_ਦਲੀਲਾਂ;
+		ਲਈ (ਸਵੈਚਾਲਿਤ it = ਦਲੀਲਾਂ_2.begin() + 2; it != ਦਲੀਲਾਂ_2.ਸਿਰਾ(); ++it)
+			script_ਦਲੀਲਾਂ.ਧੱਕੋ_ਪਿੱਠ(Tcl_NewStringObj((*it).c_str(), (*it).ਮਾਪ()));
 
 		Tcl_Interp *interp = yosys_get_tcl_interp();
 		Tcl_Preserve(interp);
-		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), NULL, Tcl_NewIntObj(script_args.size()), 0);
-		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), NULL, Tcl_NewListObj(script_args.size(), script_args.data()), 0);
-		Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), NULL, Tcl_NewStringObj(args[1].c_str(), args[1].size()), 0);
-		if (Tcl_EvalFile(interp, args[1].c_str()) != TCL_OK)
-			log_cmd_error("TCL interpreter returned an error: %s\n", Tcl_GetStringResult(interp));
+		Tcl_Obj_ਸੈੱਟ_Var2(interp, Tcl_NewStringObj("argc", 4), ਨਿਰਾ, Tcl_NewIntObj(script_ਦਲੀਲਾਂ.ਮਾਪ()), 0);
+		Tcl_Obj_ਸੈੱਟ_Var2(interp, Tcl_NewStringObj("argv", 4), ਨਿਰਾ, Tcl_NewListObj(script_ਦਲੀਲਾਂ.ਮਾਪ(), script_ਦਲੀਲਾਂ.ਅੰਕੜੇ()), 0);
+		Tcl_Obj_ਸੈੱਟ_Var2(interp, Tcl_NewStringObj("argv0", 5), ਨਿਰਾ, Tcl_NewStringObj(ਦਲੀਲਾਂ_2[1].c_str(), ਦਲੀਲਾਂ_2[1].ਮਾਪ()), 0);
+		ਜੇ (Tcl_EvalFile(interp, ਦਲੀਲਾਂ_2[1].c_str()) != TCL_OK)
+			log_cmd_error("TCL interpreter returned an error: %s\n", Tcl_Get_String_ਨਤੀਜਾ(interp));
 		Tcl_Release(interp);
 	}
 } TclPass;
 
-#endif
+#ਜੇ_ਅੰਤ
 
-#if defined(__linux__) || defined(__CYGWIN__) || defined(__gnu_hurd__)
+#ਜੇ defined(__linux__) || defined(__CYGWIN__) || defined(__gnu_hurd__)
 std::string proc_self_dirname()
 {
-	std::string path(4096, '\0');
+	std::string ਰਸਤਾ_2(4096, '\0');
 	ssize_t buflen = -1;
 	// Double until sucess, while avoiding endless loop.  Give up
 	// when symlink is longer than 4096*(2^30) = 4398046511104
 	// bytes.
-	for (int tries = 30; 0 < tries; tries--) {
-		buflen = readlink("/proc/self/exe", path.data(), path.size());
-		if (buflen < (ssize_t)path.size())
-			break;
-		else
-			path.resize(path.size() * 2);
+	ਲਈ (ਪੂਰਨ tries = 30; 0 < tries; tries--) {
+		buflen = readlink("/proc/self/exe", ਰਸਤਾ_2.ਅੰਕੜੇ(), ਰਸਤਾ_2.ਮਾਪ());
+		ਜੇ (buflen < (ssize_t)ਰਸਤਾ_2.ਮਾਪ())
+			ਰੋਕੋ;
+		ਨਹੀਂਤਾਂ
+			ਰਸਤਾ_2.resize(ਰਸਤਾ_2.ਮਾਪ() * 2);
 	}
-	if (buflen < 0) {
+	ਜੇ (buflen < 0) {
 		log_error("readlink(\"/proc/self/exe\") failed: %s\n", strerror(errno));
-		path.resize(0);
-	} else {
-		while (buflen > 0 && path[buflen-1] != '/')
+		ਰਸਤਾ_2.resize(0);
+	} ਨਹੀਂਤਾਂ {
+		ਜਦੋਂ (buflen > 0 && ਰਸਤਾ_2[buflen-1] != '/')
 			buflen--;
-		path.resize(buflen);
+		ਰਸਤਾ_2.resize(buflen);
 	}
-	return path;
+	ਵਾਪਸ ਰਸਤਾ_2;
 }
-#elif defined(__FreeBSD__) || defined(__NetBSD__)
+#ਜਾਂਜੇ defined(__FreeBSD__) || defined(__NetBSD__)
 std::string proc_self_dirname()
 {
-#ifdef __NetBSD__
-	int mib[4] = {CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_PATHNAME};
-#else
-	int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
-#endif
-	size_t buflen;
-	char *buffer;
-	std::string path;
-	if (sysctl(mib, 4, NULL, &buflen, NULL, 0) != 0)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ __NetBSD__
+	ਪੂਰਨ mib[4] = {CTL_KERN, KERN_PROC_ਦਲੀਲਾਂ, getpid(), KERN_PROC_PATHNAME};
+#ਨਹੀਂਤਾਂ
+	ਪੂਰਨ mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+#ਜੇ_ਅੰਤ
+	ਮਾਪ_t buflen;
+	ਅੱਖਰ *ਬਫਰ;
+	std::string ਰਸਤਾ_2;
+	ਜੇ (sysctl(mib, 4, ਨਿਰਾ, &buflen, ਨਿਰਾ, 0) != 0)
 		log_error("sysctl failed: %s\n", strerror(errno));
-	buffer = (char*)malloc(buflen);
-	if (buffer == NULL)
+	ਬਫਰ = (ਅੱਖਰ*)ਸਮ੍ਰਿਤੀ_ਦਿਓ(buflen);
+	ਜੇ (ਬਫਰ == ਨਿਰਾ)
 		log_error("malloc failed: %s\n", strerror(errno));
-	if (sysctl(mib, 4, buffer, &buflen, NULL, 0) != 0)
+	ਜੇ (sysctl(mib, 4, ਬਫਰ, &buflen, ਨਿਰਾ, 0) != 0)
 		log_error("sysctl failed: %s\n", strerror(errno));
-	while (buflen > 0 && buffer[buflen-1] != '/')
+	ਜਦੋਂ (buflen > 0 && ਬਫਰ[buflen-1] != '/')
 		buflen--;
-	path.assign(buffer, buflen);
-	free(buffer);
-	return path;
+	ਰਸਤਾ_2.ਸੌਂਪੋ(ਬਫਰ, buflen);
+	ਮੁਕਤ(ਬਫਰ);
+	ਵਾਪਸ ਰਸਤਾ_2;
 }
-#elif defined(__APPLE__)
+#ਜਾਂਜੇ defined(__APPLE__)
 std::string proc_self_dirname()
 {
-	char *path = NULL;
+	ਅੱਖਰ *ਰਸਤਾ_2 = ਨਿਰਾ;
 	uint32_t buflen = 0;
-	while (_NSGetExecutablePath(path, &buflen) != 0)
-		path = (char *) realloc((void *) path, buflen);
-	char resolved[PATH_MAX];
-	if (realpath(path, resolved) != NULL) {
-		free(path);
-		path = strdup(resolved);
-		buflen = strlen(path);
+	ਜਦੋਂ (NSGet_Executable_ਰਸਤਾ(ਰਸਤਾ_2, &buflen) != 0)
+		ਰਸਤਾ_2 = (ਅੱਖਰ *) realloc((ਖਾਲੀ *) ਰਸਤਾ_2, buflen);
+	ਅੱਖਰ resolved[ਰਸਤਾ_MAX];
+	ਜੇ (realpath(ਰਸਤਾ_2, resolved) != ਨਿਰਾ) {
+		ਮੁਕਤ(ਰਸਤਾ_2);
+		ਰਸਤਾ_2 = strdup(resolved);
+		buflen = ਲੜੀ_ਲੰਬਾਈ(ਰਸਤਾ_2);
 	}
-	while (buflen > 0 && path[buflen-1] != '/')
+	ਜਦੋਂ (buflen > 0 && ਰਸਤਾ_2[buflen-1] != '/')
 		buflen--;
-	std::string str(path, buflen);
-	free(path);
-	return str;
+	std::string str(ਰਸਤਾ_2, buflen);
+	ਮੁਕਤ(ਰਸਤਾ_2);
+	ਵਾਪਸ str;
 }
-#elif defined(_WIN32)
+#ਜਾਂਜੇ defined(_WIN32)
 std::string proc_self_dirname()
 {
 	std::wstring wbinpath(4096, L'\0');
-	if (!GetModuleFileNameW(0, &wbinpath[0], wbinpath.size()))
+	ਜੇ (!GetModuleFileNameW(0, &wbinpath[0], wbinpath.ਮਾਪ()))
 	fprintf(stderr, "GetModuleFileNameW() failed.\n");
 	wbinpath.resize(wbinpath.rfind(L'\\') + 1); // remove filename
 	std::string ubinpath;
-	ubinpath.resize(WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wbinpath.data(), wbinpath.size(), &ubinpath[0], ubinpath.size(), NULL, NULL) == 0)
+	ubinpath.resize(Wide_Char_ਮੰਜ਼ਿਲ_Multi_Byte(CP_UTF8, 0, wbinpath.ਅੰਕੜੇ(), wbinpath.ਮਾਪ(), ਨਿਰਾ, 0, ਨਿਰਾ, ਨਿਰਾ));
+	ਜੇ (Wide_Char_ਮੰਜ਼ਿਲ_Multi_Byte(CP_UTF8, 0, wbinpath.ਅੰਕੜੇ(), wbinpath.ਮਾਪ(), &ubinpath[0], ubinpath.ਮਾਪ(), ਨਿਰਾ, ਨਿਰਾ) == 0)
 	fprintf(stderr, "WideCharToMultiByte() failed.\n");
-	return ubinpath;
+	ਵਾਪਸ ubinpath;
 
 }
-#elif defined(__wasm)
+#ਜਾਂਜੇ defined(__wasm)
 std::string proc_self_dirname()
 {
-	return "/";
+	ਵਾਪਸ "/";
 }
-#elif defined(__OpenBSD__) || defined(__HAIKU__)
-char yosys_path[PATH_MAX];
-char *yosys_argv0;
+#ਜਾਂਜੇ defined(__OpenBSD__) || defined(__HAIKU__)
+ਅੱਖਰ yosys_ਰਸਤਾ[ਰਸਤਾ_MAX];
+ਅੱਖਰ *yosys_argv0;
 
-std::string proc_self_dirname(void)
+std::string proc_self_dirname(ਖਾਲੀ)
 {
-	char buf[PATH_MAX + 1] = "", *path, *p;
+	ਅੱਖਰ buf[ਰਸਤਾ_MAX + 1] = "", *ਰਸਤਾ_2, *p;
 	// if case argv[0] contains a valid path, return it
-	if (strlen(yosys_path) > 0) {
-		p = strrchr(yosys_path, '/');
-		snprintf(buf, sizeof buf, "%*s/", (int)(yosys_path - p), yosys_path);
-		return buf;
+	ਜੇ (ਲੜੀ_ਲੰਬਾਈ(yosys_ਰਸਤਾ) > 0) {
+		p = strrchr(yosys_ਰਸਤਾ, '/');
+		snprintf(buf, ਆਕਾਰ buf, "%*s/", (ਪੂਰਨ)(yosys_ਰਸਤਾ - p), yosys_ਰਸਤਾ);
+		ਵਾਪਸ buf;
 	}
 	// if argv[0] does not, reconstruct the path out of $PATH
-	path = strdup(getenv("PATH"));
-	if (!path)
+	ਰਸਤਾ_2 = strdup(getenv("PATH"));
+	ਜੇ (!ਰਸਤਾ_2)
 		log_error("getenv(\"PATH\") failed: %s\n",  strerror(errno));
-	for (p = strtok(path, ":"); p; p = strtok(NULL, ":")) {
-		snprintf(buf, sizeof buf, "%s/%s", p, yosys_argv0);
-		if (access(buf, X_OK) == 0) {
+	ਲਈ (p = strtok(ਰਸਤਾ_2, ":"); p; p = strtok(ਨਿਰਾ, ":")) {
+		snprintf(buf, ਆਕਾਰ buf, "%s/%s", p, yosys_argv0);
+		ਜੇ (access(buf, X_OK) == 0) {
 			*(strrchr(buf, '/') + 1) = '\0';
-			free(path);
-			return buf;
+			ਮੁਕਤ(ਰਸਤਾ_2);
+			ਵਾਪਸ buf;
 		}
 	}
-	free(path);
+	ਮੁਕਤ(ਰਸਤਾ_2);
 	log_error("Can't determine yosys executable path.\n");
-	return NULL;
+	ਵਾਪਸ ਨਿਰਾ;
 }
-#else
-	#error "Don't know how to determine process executable base path!"
-#endif
+#ਨਹੀਂਤਾਂ
+	#ਗਲਤੀ "Don't know how to determine process executable base path!"
+#ਜੇ_ਅੰਤ
 
-#if defined(__wasm)
-void init_share_dirname()
+#ਜੇ defined(__wasm)
+ਖਾਲੀ init_share_dirname()
 {
 	yosys_share_dirname = "/share/";
 }
-#else
-void init_share_dirname()
+#ਨਹੀਂਤਾਂ
+ਖਾਲੀ init_share_dirname()
 {
 #  ifdef YOSYS_ENABLE_PYTHON
 	PyObject *sys_obj = PyImport_ImportModule("sys");
 
-	if (PyObject_HasAttrString(sys_obj, "_pyosys_share_dirname")) {
-		PyObject *share_path_obj = PyObject_GetAttrString(sys_obj, "_pyosys_share_dirname");
-		const char *share_path = PyUnicode_AsUTF8(share_path_obj);
-		yosys_share_dirname = std::string(share_path);
-		return;
+	ਜੇ (PyObject_HasAttrString(sys_obj, "_pyosys_share_dirname")) {
+		PyObject *share_ਰਸਤਾ_obj = PyObject_GetAttrString(sys_obj, "_pyosys_share_dirname");
+		ਅਚਲ ਅੱਖਰ *share_ਰਸਤਾ = PyUnicode_AsUTF8(share_ਰਸਤਾ_obj);
+		yosys_share_dirname = std::string(share_ਰਸਤਾ);
+		ਵਾਪਸ;
 	}
 #  endif
-	std::string proc_self_path = proc_self_dirname();
-#  if defined(_WIN32) && !defined(YOSYS_WIN32_UNIX_DIR)
-	std::string proc_share_path = proc_self_path + "share\\";
-	if (check_directory_exists(proc_share_path, true)) {
-		yosys_share_dirname = proc_share_path;
-		return;
+	std::string proc_self_ਰਸਤਾ = proc_self_dirname();
+#  ਜੇ defined(_WIN32) && !defined(YOSYS_WIN32_UNIX_DIR)
+	std::string proc_share_ਰਸਤਾ = proc_self_ਰਸਤਾ + "share\\";
+	ਜੇ (check_directory_exists(proc_share_ਰਸਤਾ, ਸੱਚ)) {
+		yosys_share_dirname = proc_share_ਰਸਤਾ;
+		ਵਾਪਸ;
 	}
-	proc_share_path = proc_self_path + "..\\share\\";
-	if (check_directory_exists(proc_share_path, true)) {
-		yosys_share_dirname = proc_share_path;
-		return;
+	proc_share_ਰਸਤਾ = proc_self_ਰਸਤਾ + "..\\share\\";
+	ਜੇ (check_directory_exists(proc_share_ਰਸਤਾ, ਸੱਚ)) {
+		yosys_share_dirname = proc_share_ਰਸਤਾ;
+		ਵਾਪਸ;
 	}
-#  else
-	std::string proc_share_path = proc_self_path + "share/";
-	if (check_directory_exists(proc_share_path, true)) {
-		yosys_share_dirname = proc_share_path;
-		return;
+#  ਨਹੀਂਤਾਂ
+	std::string proc_share_ਰਸਤਾ = proc_self_ਰਸਤਾ + "share/";
+	ਜੇ (check_directory_exists(proc_share_ਰਸਤਾ, ਸੱਚ)) {
+		yosys_share_dirname = proc_share_ਰਸਤਾ;
+		ਵਾਪਸ;
 	}
-	proc_share_path = proc_self_path + "../share/" + proc_program_prefix()+ "yosys/";
-	if (check_directory_exists(proc_share_path, true)) {
-		yosys_share_dirname = proc_share_path;
-		return;
+	proc_share_ਰਸਤਾ = proc_self_ਰਸਤਾ + "../share/" + proc_ਪ੍ਰੋਗਰਾਮ_ਅਗੇਤਰ()+ "yosys/";
+	ਜੇ (check_directory_exists(proc_share_ਰਸਤਾ, ਸੱਚ)) {
+		yosys_share_dirname = proc_share_ਰਸਤਾ;
+		ਵਾਪਸ;
 	}
-	proc_share_path = YOSYS_DATDIR "/";
-	if (check_directory_exists(proc_share_path, true)) {
-		yosys_share_dirname = proc_share_path;
-		return;
+	proc_share_ਰਸਤਾ = YOSYS_DATDIR "/";
+	ਜੇ (check_directory_exists(proc_share_ਰਸਤਾ, ਸੱਚ)) {
+		yosys_share_dirname = proc_share_ਰਸਤਾ;
+		ਵਾਪਸ;
 	}
 #  endif
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-void init_abc_executable_name()
+ਖਾਲੀ init_abc_executable_name()
 {
-#ifdef ABCEXTERNAL
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ ABCEXTERNAL
 	std::string exe_file;
-	if (std::getenv("ABC")) {
+	ਜੇ (std::getenv("ABC")) {
 		yosys_abc_executable = std::getenv("ABC");
-	} else {
+	} ਨਹੀਂਤਾਂ {
 		yosys_abc_executable = ABCEXTERNAL;
 	}
-#else
-	yosys_abc_executable = proc_self_dirname() + proc_program_prefix()+ "yosys-abc";
+#ਨਹੀਂਤਾਂ
+	yosys_abc_executable = proc_self_dirname() + proc_ਪ੍ਰੋਗਰਾਮ_ਅਗੇਤਰ()+ "yosys-abc";
 #  ifdef _WIN32
-	if (!check_file_exists(yosys_abc_executable + ".exe") && check_file_exists(proc_self_dirname() + "..\\" + proc_program_prefix() + "yosys-abc.exe"))
-		yosys_abc_executable = proc_self_dirname() + "..\\" + proc_program_prefix() + "yosys-abc";
+	ਜੇ (!check_file_exists(yosys_abc_executable + ".exe") && check_file_exists(proc_self_dirname() + "..\\" + proc_ਪ੍ਰੋਗਰਾਮ_ਅਗੇਤਰ() + "yosys-abc.exe"))
+		yosys_abc_executable = proc_self_dirname() + "..\\" + proc_ਪ੍ਰੋਗਰਾਮ_ਅਗੇਤਰ() + "yosys-abc";
 #  endif
 
 #  ifdef YOSYS_ENABLE_PYTHON
 	PyObject *sys_obj = PyImport_ImportModule("sys");
 
-	if (PyObject_HasAttrString(sys_obj, "_pyosys_abc")) {
-		PyObject *abc_path_obj = PyObject_GetAttrString(sys_obj, "_pyosys_abc");
-		const char *abc_path = PyUnicode_AsUTF8(abc_path_obj);
-		yosys_abc_executable = std::string(abc_path);
+	ਜੇ (PyObject_HasAttrString(sys_obj, "_pyosys_abc")) {
+		PyObject *abc_ਰਸਤਾ_obj = PyObject_GetAttrString(sys_obj, "_pyosys_abc");
+		ਅਚਲ ਅੱਖਰ *abc_ਰਸਤਾ = PyUnicode_AsUTF8(abc_ਰਸਤਾ_obj);
+		yosys_abc_executable = std::string(abc_ਰਸਤਾ);
 	}
 #  endif
-#endif
+#ਜੇ_ਅੰਤ
 }
 
 std::string proc_share_dirname()
 {
-	if (yosys_share_dirname.empty())
+	ਜੇ (yosys_share_dirname.ਖਾਲੀ_ਥਾਵਾਂ())
 		log_error("init_share_dirname: unable to determine share/ directory!\n");
-	return yosys_share_dirname;
+	ਵਾਪਸ yosys_share_dirname;
 }
 
-std::string proc_program_prefix()
+std::string proc_ਪ੍ਰੋਗਰਾਮ_ਅਗੇਤਰ()
 {
-	return YOSYS_PROGRAM_PREFIX;
+	ਵਾਪਸ YOSYS_ਪ੍ਰੋਗਰਾਮ_ਅਗੇਤਰ;
 }
 
-bool fgetline(FILE *f, std::string &buffer)
+ਤਾਰਕਿਕ fgetline(FILE *f, std::string &ਬਫਰ)
 {
-	buffer = "";
-	char block[4096];
-	while (1) {
-		if (fgets(block, 4096, f) == NULL)
-			return false;
-		buffer += block;
-		if (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r')) {
-			while (buffer.size() > 0 && (buffer[buffer.size()-1] == '\n' ||  buffer[buffer.size()-1] == '\r'))
-				buffer.resize(buffer.size()-1);
-			return true;
+	ਬਫਰ = "";
+	ਅੱਖਰ ਖੰਡ[4096];
+	ਜਦੋਂ (1) {
+		ਜੇ (fgets(ਖੰਡ, 4096, f) == ਨਿਰਾ)
+			ਵਾਪਸ ਝੂਠ;
+		ਬਫਰ += ਖੰਡ;
+		ਜੇ (ਬਫਰ.ਮਾਪ() > 0 && (ਬਫਰ[ਬਫਰ.ਮਾਪ()-1] == '\n' ||  ਬਫਰ[ਬਫਰ.ਮਾਪ()-1] == '\r')) {
+			ਜਦੋਂ (ਬਫਰ.ਮਾਪ() > 0 && (ਬਫਰ[ਬਫਰ.ਮਾਪ()-1] == '\n' ||  ਬਫਰ[ਬਫਰ.ਮਾਪ()-1] == '\r'))
+				ਬਫਰ.resize(ਬਫਰ.ਮਾਪ()-1);
+			ਵਾਪਸ ਸੱਚ;
 		}
 	}
 }
 
-static void handle_label(std::string &command, bool &from_to_active, const std::string &run_from, const std::string &run_to)
+ਸਥਿਰ ਖਾਲੀ handle_label(std::string &command, ਤਾਰਕਿਕ &from_ਮੰਜ਼ਿਲ_ਸਰਗਰਮ, ਅਚਲ std::string &ਲੜੀਵਾਰ_from, ਅਚਲ std::string &ਲੜੀਵਾਰ_ਮੰਜ਼ਿਲ)
 {
-	int pos = 0;
+	ਪੂਰਨ pos = 0;
 	std::string label;
 
-	while (pos < GetSize(command) && (command[pos] == ' ' || command[pos] == '\t'))
+	ਜਦੋਂ (pos < Get_ਮਾਪ(command) && (command[pos] == ' ' || command[pos] == '\t'))
 		pos++;
 
-	if (pos < GetSize(command) && command[pos] == '#')
-		return;
+	ਜੇ (pos < Get_ਮਾਪ(command) && command[pos] == '#')
+		ਵਾਪਸ;
 
-	while (pos < GetSize(command) && command[pos] != ' ' && command[pos] != '\t' && command[pos] != '\r' && command[pos] != '\n')
+	ਜਦੋਂ (pos < Get_ਮਾਪ(command) && command[pos] != ' ' && command[pos] != '\t' && command[pos] != '\r' && command[pos] != '\n')
 		label += command[pos++];
 
-	if (GetSize(label) > 1 && label.back() == ':')
+	ਜੇ (Get_ਮਾਪ(label) > 1 && label.ਪਿੱਠ() == ':')
 	{
-		label = label.substr(0, GetSize(label)-1);
+		label = label.substr(0, Get_ਮਾਪ(label)-1);
 		command = command.substr(pos);
 
-		if (label == run_from)
-			from_to_active = true;
-		else if (label == run_to || (run_from == run_to && !run_from.empty()))
-			from_to_active = false;
+		ਜੇ (label == ਲੜੀਵਾਰ_from)
+			from_ਮੰਜ਼ਿਲ_ਸਰਗਰਮ = ਸੱਚ;
+		ਨਹੀਂਤਾਂ ਜੇ (label == ਲੜੀਵਾਰ_ਮੰਜ਼ਿਲ || (ਲੜੀਵਾਰ_from == ਲੜੀਵਾਰ_ਮੰਜ਼ਿਲ && !ਲੜੀਵਾਰ_from.ਖਾਲੀ_ਥਾਵਾਂ()))
+			from_ਮੰਜ਼ਿਲ_ਸਰਗਰਮ = ਝੂਠ;
 	}
 }
 
-bool run_frontend(std::string filename, std::string command, RTLIL::Design *design, std::string *from_to_label)
+ਤਾਰਕਿਕ ਲੜੀਵਾਰ_frontend(std::string filename, std::string command, RTLIL::Design *design, std::string *from_ਮੰਜ਼ਿਲ_label)
 {
-	if (design == nullptr)
+	ਜੇ (design == ਖਾਲੀ_ਸੂਚਕ)
 		design = yosys_design;
 
-	if (command == "auto") {
+	ਜੇ (command == "auto") {
 	  std::string filename_trim = filename;
 
-	  auto has_extension = [](const std::string& filename, const std::string& extension) {
-	    if (filename.size() >= extension.size()) {
-	      return filename.compare(filename.size() - extension.size(), extension.size(), extension) == 0;
+	  ਸਵੈਚਾਲਿਤ has_extension = [](ਅਚਲ std::string& filename, ਅਚਲ std::string& extension) {
+	    ਜੇ (filename.ਮਾਪ() >= extension.ਮਾਪ()) {
+	      ਵਾਪਸ filename.compare(filename.ਮਾਪ() - extension.ਮਾਪ(), extension.ਮਾਪ(), extension) == 0;
 	    }
-	    return false;
+	    ਵਾਪਸ ਝੂਠ;
 	  };
 
-	  if (has_extension(filename_trim, ".gz")) {
-	    filename_trim.erase(filename_trim.size() - 3);
+	  ਜੇ (has_extension(filename_trim, ".gz")) {
+	    filename_trim.erase(filename_trim.ਮਾਪ() - 3);
 	  }
 
-	  if (has_extension(filename_trim, ".v")) {
+	  ਜੇ (has_extension(filename_trim, ".v")) {
 	    command = " -vlog2k";
-	  } else if (has_extension(filename_trim, ".sv")) {
+	  } ਨਹੀਂਤਾਂ ਜੇ (has_extension(filename_trim, ".sv")) {
 	    command = " -sv";
-	  } else if (has_extension(filename_trim, ".vhd") || has_extension(filename_trim, ".vhdl")) {
+	  } ਨਹੀਂਤਾਂ ਜੇ (has_extension(filename_trim, ".vhd") || has_extension(filename_trim, ".vhdl")) {
 	    command = " -vhdl";
-	  } else if (has_extension(filename_trim, ".blif") || has_extension(filename_trim, ".eblif")) {
+	  } ਨਹੀਂਤਾਂ ਜੇ (has_extension(filename_trim, ".blif") || has_extension(filename_trim, ".eblif")) {
 	    command = "blif";
-	  } else if (has_extension(filename_trim, ".json")) {
+	  } ਨਹੀਂਤਾਂ ਜੇ (has_extension(filename_trim, ".json")) {
 	    command = "json";
-	  } else if (has_extension(filename_trim, ".il")) {
+	  } ਨਹੀਂਤਾਂ ਜੇ (has_extension(filename_trim, ".il")) {
 	    command = "rtlil";
-	  } else if (has_extension(filename_trim, ".ys")) {
+	  } ਨਹੀਂਤਾਂ ਜੇ (has_extension(filename_trim, ".ys")) {
 	    command = "script";
-	  } else if (has_extension(filename_trim, ".tcl")) {
+	  } ਨਹੀਂਤਾਂ ਜੇ (has_extension(filename_trim, ".tcl")) {
 	    command = "tcl";
-	  } else if (filename == "-") {
+	  } ਨਹੀਂਤਾਂ ਜੇ (filename == "-") {
 	    command = "script";
-	  } else {
+	  } ਨਹੀਂਤਾਂ {
 	    log_error("Can't guess frontend for input file `%s' (missing -f option)!\n", filename);
 	  }
 	}
 
-	if (command == "script")
+	ਜੇ (command == "script")
 	{
-		std::string run_from, run_to;
-		bool from_to_active = true;
+		std::string ਲੜੀਵਾਰ_from, ਲੜੀਵਾਰ_ਮੰਜ਼ਿਲ;
+		ਤਾਰਕਿਕ from_ਮੰਜ਼ਿਲ_ਸਰਗਰਮ = ਸੱਚ;
 
-		if (from_to_label != NULL) {
-			size_t pos = from_to_label->find(':');
-			if (pos == std::string::npos) {
-				run_from = *from_to_label;
-				run_to = *from_to_label;
-			} else {
-				run_from = from_to_label->substr(0, pos);
-				run_to = from_to_label->substr(pos+1);
+		ਜੇ (from_ਮੰਜ਼ਿਲ_label != ਨਿਰਾ) {
+			ਮਾਪ_t pos = from_ਮੰਜ਼ਿਲ_label->ਲੱਭੋ(':');
+			ਜੇ (pos == std::string::npos) {
+				ਲੜੀਵਾਰ_from = *from_ਮੰਜ਼ਿਲ_label;
+				ਲੜੀਵਾਰ_ਮੰਜ਼ਿਲ = *from_ਮੰਜ਼ਿਲ_label;
+			} ਨਹੀਂਤਾਂ {
+				ਲੜੀਵਾਰ_from = from_ਮੰਜ਼ਿਲ_label->substr(0, pos);
+				ਲੜੀਵਾਰ_ਮੰਜ਼ਿਲ = from_ਮੰਜ਼ਿਲ_label->substr(pos+1);
 			}
-			from_to_active = run_from.empty();
+			from_ਮੰਜ਼ਿਲ_ਸਰਗਰਮ = ਲੜੀਵਾਰ_from.ਖਾਲੀ_ਥਾਵਾਂ();
 		}
 
-		log("\n");
+		ਲਘੂਗਣਕ("\n");
 		log_comment("-- Executing script file `%s' --\n", filename);
 
 		FILE *f = stdin;
 
-		if (filename != "-") {
+		ਜੇ (filename != "-") {
 			f = fopen(filename.c_str(), "r");
-			yosys_input_files.insert(filename);
+			yosys_ਨਿਵੇਸ਼_files.ਪਾਓ(filename);
 		}
 
-		if (f == NULL)
+		ਜੇ (f == ਨਿਰਾ)
 			log_error("Can't open script file `%s' for reading: %s\n", filename, strerror(errno));
 
 		FILE *backup_script_file = Frontend::current_script_file;
 		std::string backup_script_filename = Frontend::current_script_filename;
-		int backup_script_lineno = Frontend::current_script_lineno;
+		ਪੂਰਨ backup_script_lineno = Frontend::current_script_lineno;
 		Frontend::current_script_file = f;
 		Frontend::current_script_filename = filename;
 		Frontend::current_script_lineno = 0;
 
-		try {
+		ਕੋਸ਼ਿਸ਼ {
 			std::string command;
-			while (fgetline(f, command)) {
+			ਜਦੋਂ (fgetline(f, command)) {
 				Frontend::current_script_lineno++;
-				while (!command.empty() && command[command.size()-1] == '\\') {
-					std::string next_line;
-					if (!fgetline(f, next_line))
-						break;
+				ਜਦੋਂ (!command.ਖਾਲੀ_ਥਾਵਾਂ() && command[command.ਮਾਪ()-1] == '\\') {
+					std::string ਅਗਲਾ_ਸਤਰ;
+					ਜੇ (!fgetline(f, ਅਗਲਾ_ਸਤਰ))
+						ਰੋਕੋ;
 					Frontend::current_script_lineno++;
-					command.resize(command.size()-1);
-					command += next_line;
+					command.resize(command.ਮਾਪ()-1);
+					command += ਅਗਲਾ_ਸਤਰ;
 				}
-				handle_label(command, from_to_active, run_from, run_to);
-				if (from_to_active) {
+				handle_label(command, from_ਮੰਜ਼ਿਲ_ਸਰਗਰਮ, ਲੜੀਵਾਰ_from, ਲੜੀਵਾਰ_ਮੰਜ਼ਿਲ);
+				ਜੇ (from_ਮੰਜ਼ਿਲ_ਸਰਗਰਮ) {
 					Pass::call(design, command);
 					design->check();
 				}
 			}
 
-			if (!command.empty()) {
-				handle_label(command, from_to_active, run_from, run_to);
-				if (from_to_active) {
+			ਜੇ (!command.ਖਾਲੀ_ਥਾਵਾਂ()) {
+				handle_label(command, from_ਮੰਜ਼ਿਲ_ਸਰਗਰਮ, ਲੜੀਵਾਰ_from, ਲੜੀਵਾਰ_ਮੰਜ਼ਿਲ);
+				ਜੇ (from_ਮੰਜ਼ਿਲ_ਸਰਗਰਮ) {
 					Frontend::current_script_lineno++;
 					Pass::call(design, command);
 					design->check();
 				}
 			}
 		}
-		catch (...) {
+		ਫੜੋ (...) {
 			Frontend::current_script_file = backup_script_file;
 			Frontend::current_script_filename = backup_script_filename;
 			Frontend::current_script_lineno = backup_script_lineno;
-			throw;
+			ਸੁੱਟੋ;
 		}
 
 		Frontend::current_script_file = backup_script_file;
 		Frontend::current_script_filename = backup_script_filename;
 		Frontend::current_script_lineno = backup_script_lineno;
 
-		if (filename != "-")
+		ਜੇ (filename != "-")
 			fclose(f);
 
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (command == "tcl") {
-		Pass::call(design, vector<string>({command, filename}));
-		return true;
+	ਜੇ (command == "tcl") {
+		Pass::call(design, ਸਦਿਸ਼<string>({command, filename}));
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	log("\n");
-	if (filename == "-") {
+	ਲਘੂਗਣਕ("\n");
+	ਜੇ (filename == "-") {
 		log_comment("-- Parsing stdin using frontend `%s' --\n", command);
-	} else {
+	} ਨਹੀਂਤਾਂ {
 		log_comment("-- Parsing `%s' using frontend `%s' --\n", filename, command);
 	}
 
-	if (command[0] == ' ') {
-		auto argv = split_tokens("read" + command);
-		argv.push_back(filename);
+	ਜੇ (command[0] == ' ') {
+		ਸਵੈਚਾਲਿਤ argv = ਵੰਡੋ_ਟੋਕਨ("read" + command);
+		argv.ਧੱਕੋ_ਪਿੱਠ(filename);
 		Pass::call(design, argv);
-	} else
-		Frontend::frontend_call(design, NULL, filename, command);
+	} ਨਹੀਂਤਾਂ
+		Frontend::frontend_call(design, ਨਿਰਾ, filename, command);
 
 	design->check();
-	return false;
+	ਵਾਪਸ ਝੂਠ;
 }
 
-void run_pass(std::string command, RTLIL::Design *design)
+ਖਾਲੀ ਲੜੀਵਾਰ_pass(std::string command, RTLIL::Design *design)
 {
-	if (design == nullptr)
+	ਜੇ (design == ਖਾਲੀ_ਸੂਚਕ)
 		design = yosys_design;
 
-	log("\n");
+	ਲਘੂਗਣਕ("\n");
 	log_comment("-- Running command `%s' --\n", command);
 
 	Pass::call(design, command);
 }
 
-void run_backend(std::string filename, std::string command, RTLIL::Design *design)
+ਖਾਲੀ ਲੜੀਵਾਰ_backend(std::string filename, std::string command, RTLIL::Design *design)
 {
-	if (design == nullptr)
+	ਜੇ (design == ਖਾਲੀ_ਸੂਚਕ)
 		design = yosys_design;
 
-	if (command == "auto") {
-		if (filename.size() > 2 && filename.compare(filename.size()-2, std::string::npos, ".v") == 0)
+	ਜੇ (command == "auto") {
+		ਜੇ (filename.ਮਾਪ() > 2 && filename.compare(filename.ਮਾਪ()-2, std::string::npos, ".v") == 0)
 			command = "verilog";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".sv") == 0)
+		ਨਹੀਂਤਾਂ ਜੇ (filename.ਮਾਪ() > 3 && filename.compare(filename.ਮਾਪ()-3, std::string::npos, ".sv") == 0)
 			command = "verilog -sv";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".il") == 0)
+		ਨਹੀਂਤਾਂ ਜੇ (filename.ਮਾਪ() > 3 && filename.compare(filename.ਮਾਪ()-3, std::string::npos, ".il") == 0)
 			command = "rtlil";
-		else if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".cc") == 0)
+		ਨਹੀਂਤਾਂ ਜੇ (filename.ਮਾਪ() > 3 && filename.compare(filename.ਮਾਪ()-3, std::string::npos, ".cc") == 0)
 			command = "cxxrtl";
-		else if (filename.size() > 4 && filename.compare(filename.size()-4, std::string::npos, ".aig") == 0)
+		ਨਹੀਂਤਾਂ ਜੇ (filename.ਮਾਪ() > 4 && filename.compare(filename.ਮਾਪ()-4, std::string::npos, ".aig") == 0)
 			command = "aiger";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".blif") == 0)
+		ਨਹੀਂਤਾਂ ਜੇ (filename.ਮਾਪ() > 5 && filename.compare(filename.ਮਾਪ()-5, std::string::npos, ".blif") == 0)
 			command = "blif";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".edif") == 0)
+		ਨਹੀਂਤਾਂ ਜੇ (filename.ਮਾਪ() > 5 && filename.compare(filename.ਮਾਪ()-5, std::string::npos, ".edif") == 0)
 			command = "edif";
-		else if (filename.size() > 5 && filename.compare(filename.size()-5, std::string::npos, ".json") == 0)
+		ਨਹੀਂਤਾਂ ਜੇ (filename.ਮਾਪ() > 5 && filename.compare(filename.ਮਾਪ()-5, std::string::npos, ".json") == 0)
 			command = "json";
-		else if (filename == "-")
+		ਨਹੀਂਤਾਂ ਜੇ (filename == "-")
 			command = "rtlil";
-		else if (filename.empty())
-			return;
-		else
+		ਨਹੀਂਤਾਂ ਜੇ (filename.ਖਾਲੀ_ਥਾਵਾਂ())
+			ਵਾਪਸ;
+		ਨਹੀਂਤਾਂ
 			log_error("Can't guess backend for output file `%s' (missing -b option)!\n", filename);
 	}
 
-	if (filename.empty())
+	ਜੇ (filename.ਖਾਲੀ_ਥਾਵਾਂ())
 		filename = "-";
 
-	log("\n");
-	if (filename == "-") {
+	ਲਘੂਗਣਕ("\n");
+	ਜੇ (filename == "-") {
 		log_comment("-- Writing to stdout using backend `%s' --\n", command);
-	} else {
+	} ਨਹੀਂਤਾਂ {
 		log_comment("-- Writing to `%s' using backend `%s' --\n", filename, command);
 	}
 
-	Backend::backend_call(design, NULL, filename, command);
+	Backend::backend_call(design, ਨਿਰਾ, filename, command);
 }
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-static char *readline_cmd_generator(const char *text, int state)
+#ਜੇ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+ਸਥਿਰ ਅੱਖਰ *readline_cmd_generator(ਅਚਲ ਅੱਖਰ *ਪਾਠ, ਪੂਰਨ state)
 {
-	static std::map<std::string, Pass*>::iterator it;
-	static int len;
+	ਸਥਿਰ std::map<std::string, Pass*>::iterator it;
+	ਸਥਿਰ ਪੂਰਨ len;
 
-	if (!state) {
-		it = pass_register.begin();
-		len = strlen(text);
+	ਜੇ (!state) {
+		it = pass_ਰਜਿਸਟਰ.begin();
+		len = ਲੜੀ_ਲੰਬਾਈ(ਪਾਠ);
 	}
 
-	for (; it != pass_register.end(); it++) {
-		if (it->first.compare(0, len, text) == 0)
-			return strdup((it++)->first.c_str());
+	ਲਈ (; it != pass_ਰਜਿਸਟਰ.ਸਿਰਾ(); it++) {
+		ਜੇ (it->ਪਹਿਲਾ.compare(0, len, ਪਾਠ) == 0)
+			ਵਾਪਸ strdup((it++)->ਪਹਿਲਾ.c_str());
 	}
-	return NULL;
+	ਵਾਪਸ ਨਿਰਾ;
 }
 
-static char *readline_obj_generator(const char *text, int state)
+ਸਥਿਰ ਅੱਖਰ *readline_obj_generator(ਅਚਲ ਅੱਖਰ *ਪਾਠ, ਪੂਰਨ state)
 {
-	static std::vector<char*> obj_names;
-	static size_t idx;
+	ਸਥਿਰ std::ਸਦਿਸ਼<ਅੱਖਰ*> obj_ਨਾਂ;
+	ਸਥਿਰ ਮਾਪ_t idx;
 
-	if (!state)
+	ਜੇ (!state)
 	{
 		idx = 0;
-		obj_names.clear();
+		obj_ਨਾਂ.clear();
 
 		RTLIL::Design *design = yosys_get_design();
-		int len = strlen(text);
+		ਪੂਰਨ len = ਲੜੀ_ਲੰਬਾਈ(ਪਾਠ);
 
-		if (design->selected_active_module.empty())
+		ਜੇ (design->selected_ਸਰਗਰਮ_module.ਖਾਲੀ_ਥਾਵਾਂ())
 		{
-			for (auto mod : design->modules()) {
+			ਲਈ (ਸਵੈਚਾਲਿਤ mod : design->modules()) {
 				std::string mod_name = mod->name.unescape();
-				if (mod_name.compare(0, len, text) == 0)
-					obj_names.push_back(strdup(mod_name.c_str()));
+				ਜੇ (mod_name.compare(0, len, ਪਾਠ) == 0)
+					obj_ਨਾਂ.ਧੱਕੋ_ਪਿੱਠ(strdup(mod_name.c_str()));
 			}
 		}
-		else if (design->module(design->selected_active_module) != nullptr)
+		ਨਹੀਂਤਾਂ ਜੇ (design->module(design->selected_ਸਰਗਰਮ_module) != ਖਾਲੀ_ਸੂਚਕ)
 		{
-			RTLIL::Module *module = design->module(design->selected_active_module);
+			RTLIL::Module *module = design->module(design->selected_ਸਰਗਰਮ_module);
 
-			for (auto w : module->wires())
-				if (w->name.unescape().compare(0, len, text) == 0)
-					obj_names.push_back(strdup(w->name.unescape().c_str()));
+			ਲਈ (ਸਵੈਚਾਲਿਤ w : module->wires())
+				ਜੇ (w->name.unescape().compare(0, len, ਪਾਠ) == 0)
+					obj_ਨਾਂ.ਧੱਕੋ_ਪਿੱਠ(strdup(w->name.unescape().c_str()));
 
-			for (auto &it : module->memories) {
-				std::string mem_name = design->twines().unescaped_str(it.first);
-				if (mem_name.compare(0, len, text) == 0)
-					obj_names.push_back(strdup(mem_name.c_str()));
+			ਲਈ (ਸਵੈਚਾਲਿਤ &it : module->memories) {
+				std::string mem_name = design->twines().unescaped_str(it.ਪਹਿਲਾ);
+				ਜੇ (mem_name.compare(0, len, ਪਾਠ) == 0)
+					obj_ਨਾਂ.ਧੱਕੋ_ਪਿੱਠ(strdup(mem_name.c_str()));
 			}
 
-			for (auto cell : module->cells())
-				if (cell->name.unescape().compare(0, len, text) == 0)
-					obj_names.push_back(strdup(cell->name.unescape().c_str()));
+			ਲਈ (ਸਵੈਚਾਲਿਤ cell : module->cells())
+				ਜੇ (cell->name.unescape().compare(0, len, ਪਾਠ) == 0)
+					obj_ਨਾਂ.ਧੱਕੋ_ਪਿੱਠ(strdup(cell->name.unescape().c_str()));
 
-			for (auto &it : module->processes) {
-				std::string proc_name = design->twines().unescaped_str(it.first);
-				if (proc_name.compare(0, len, text) == 0)
-					obj_names.push_back(strdup(proc_name.c_str()));
+			ਲਈ (ਸਵੈਚਾਲਿਤ &it : module->processes) {
+				std::string proc_name = design->twines().unescaped_str(it.ਪਹਿਲਾ);
+				ਜੇ (proc_name.compare(0, len, ਪਾਠ) == 0)
+					obj_ਨਾਂ.ਧੱਕੋ_ਪਿੱਠ(strdup(proc_name.c_str()));
 			}
 		}
 
-		std::sort(obj_names.begin(), obj_names.end());
+		std::ਛਾਂਟੋ(obj_ਨਾਂ.begin(), obj_ਨਾਂ.ਸਿਰਾ());
 	}
 
-	if (idx < obj_names.size())
-		return strdup(obj_names[idx++]);
+	ਜੇ (idx < obj_ਨਾਂ.ਮਾਪ())
+		ਵਾਪਸ strdup(obj_ਨਾਂ[idx++]);
 
 	idx = 0;
-	obj_names.clear();
-	return NULL;
+	obj_ਨਾਂ.clear();
+	ਵਾਪਸ ਨਿਰਾ;
 }
 
-static char **readline_completion(const char *text, int start, int)
+ਸਥਿਰ ਅੱਖਰ **readline_completion(ਅਚਲ ਅੱਖਰ *ਪਾਠ, ਪੂਰਨ ਸ਼ੁਰੂ, ਪੂਰਨ)
 {
-	if (start == 0)
-		return rl_completion_matches(text, readline_cmd_generator);
-	if (strncmp(rl_line_buffer, "read_", 5) && strncmp(rl_line_buffer, "write_", 6))
-		return rl_completion_matches(text, readline_obj_generator);
-	return NULL;
+	ਜੇ (ਸ਼ੁਰੂ == 0)
+		ਵਾਪਸ rl_completion_matches(ਪਾਠ, readline_cmd_generator);
+	ਜੇ (ਲੜੀ_ਤੁਲਨਾ(rl_ਸਤਰ_ਬਫਰ, "read_", 5) && ਲੜੀ_ਤੁਲਨਾ(rl_ਸਤਰ_ਬਫਰ, "write_", 6))
+		ਵਾਪਸ rl_completion_matches(ਪਾਠ, readline_obj_generator);
+	ਵਾਪਸ ਨਿਰਾ;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-void shell(RTLIL::Design *design)
+ਖਾਲੀ shell(RTLIL::Design *design)
 {
-	static int recursion_counter = 0;
+	ਸਥਿਰ ਪੂਰਨ recursion_counter = 0;
 
 	recursion_counter++;
-	auto guard = logger().error_throw_scope();
+	ਸਵੈਚਾਲਿਤ guard = logger().error_throw_scope();
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	rl_readline_name = (char*)"yosys";
+#ਜੇ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	rl_readline_name = (ਅੱਖਰ*)"yosys";
 	rl_attempted_completion_function = readline_completion;
-	rl_basic_word_break_characters = (char*)" \t\n";
-#endif
+	rl_basic_ਸ਼ਬਦ_break_characters = (ਅੱਖਰ*)" \t\n";
+#ਜੇ_ਅੰਤ
 
-	char *command = NULL;
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	while ((command = readline(create_prompt(design, recursion_counter))) != NULL)
+	ਅੱਖਰ *command = ਨਿਰਾ;
+#ਜੇ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	ਜਦੋਂ ((command = readline(create_prompt(design, recursion_counter))) != ਨਿਰਾ)
 	{
-#else
-	char command_buffer[4096];
-	while (1)
+#ਨਹੀਂਤਾਂ
+	ਅੱਖਰ command_ਬਫਰ[4096];
+	ਜਦੋਂ (1)
 	{
 		fputs(create_prompt(design, recursion_counter), stdout);
 		fflush(stdout);
-		if ((command = fgets(command_buffer, 4096, stdin)) == NULL)
-			break;
-#endif
-		if (command[strspn(command, " \t\r\n")] == 0) {
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-			free(command);
-#endif
-			continue;
+		ਜੇ ((command = fgets(command_ਬਫਰ, 4096, stdin)) == ਨਿਰਾ)
+			ਰੋਕੋ;
+#ਜੇ_ਅੰਤ
+		ਜੇ (command[strspn(command, " \t\r\n")] == 0) {
+#ਜੇ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+			ਮੁਕਤ(command);
+#ਜੇ_ਅੰਤ
+			ਜਾਰੀ;
 		}
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-		add_history(command);
-#endif
+#ਜੇ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+		ਜੋੜੋ_history(command);
+#ਜੇ_ਅੰਤ
 
-		char *p = command + strspn(command, " \t\r\n");
-		if (!strncmp(p, "exit", 4)) {
+		ਅੱਖਰ *p = command + strspn(command, " \t\r\n");
+		ਜੇ (!ਲੜੀ_ਤੁਲਨਾ(p, "exit", 4)) {
 			p += 4;
 			p += strspn(p, " \t\r\n");
-			if (*p == 0)
-				break;
+			ਜੇ (*p == 0)
+				ਰੋਕੋ;
 		}
 
-		try {
-			log_assert(design->selection_stack.size() == 1);
+		ਕੋਸ਼ਿਸ਼ {
+			log_assert(design->selection_ਢੇਰ.ਮਾਪ() == 1);
 			Pass::call(design, command);
-		} catch (log_cmd_error_exception) {
-			while (design->selection_stack.size() > 1)
-				design->pop_selection();
-			log_reset_stack();
+		} ਫੜੋ (log_cmd_error_exception) {
+			ਜਦੋਂ (design->selection_ਢੇਰ.ਮਾਪ() > 1)
+				design->ਕੱਢੋ_selection();
+			log_reset_ਢੇਰ();
 		}
 		design->check();
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-		if (command)
-			free(command);
-#endif
+#ਜੇ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+		ਜੇ (command)
+			ਮੁਕਤ(command);
+#ਜੇ_ਅੰਤ
 	}
-	if (command == NULL)
-		printf("exit\n");
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	else
-		free(command);
-#endif
+	ਜੇ (command == ਨਿਰਾ)
+		ਲਿਖੋ("exit\n");
+#ਜੇ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	ਨਹੀਂਤਾਂ
+		ਮੁਕਤ(command);
+#ਜੇ_ਅੰਤ
 	recursion_counter--;
 }
 
-struct ShellPass : public Pass {
+ਬਣਤਰ ShellPass : ਜਨਤਕ Pass {
 	ShellPass() : Pass("shell", "enter interactive command mode") { }
-	void help() override {
-		log("\n");
-		log("    shell\n");
-		log("\n");
-		log("This command enters the interactive command mode. This can be useful\n");
-		log("in a script to interrupt the script at a certain point and allow for\n");
-		log("interactive inspection or manual synthesis of the design at this point.\n");
-		log("\n");
-		log("The command prompt of the interactive shell indicates the current\n");
-		log("selection (see 'help select'):\n");
-		log("\n");
-		log("    yosys>\n");
-		log("        the entire design is selected\n");
-		log("\n");
-		log("    yosys*>\n");
-		log("        only part of the design is selected\n");
-		log("\n");
-		log("    yosys [modname]>\n");
-		log("        the entire module 'modname' is selected using 'select -module modname'\n");
-		log("\n");
-		log("    yosys [modname]*>\n");
-		log("        only part of current module 'modname' is selected\n");
-		log("\n");
-		log("When in interactive shell, some errors (e.g. invalid command arguments)\n");
-		log("do not terminate yosys but return to the command prompt.\n");
-		log("\n");
-		log("This command is the default action if nothing else has been specified\n");
-		log("on the command line.\n");
-		log("\n");
-		log("Press Ctrl-D or type 'exit' to leave the interactive shell.\n");
-		log("\n");
+	ਖਾਲੀ help() override {
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("    shell\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("This command enters the interactive command mode. This can be useful\n");
+		ਲਘੂਗਣਕ("in a script to interrupt the script at a certain point and allow for\n");
+		ਲਘੂਗਣਕ("interactive inspection or manual synthesis of the design at this point.\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("The command prompt of the interactive shell indicates the current\n");
+		ਲਘੂਗਣਕ("selection (see 'help select'):\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("    yosys>\n");
+		ਲਘੂਗਣਕ("        the entire design is selected\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("    yosys*>\n");
+		ਲਘੂਗਣਕ("        only part of the design is selected\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("    yosys [modname]>\n");
+		ਲਘੂਗਣਕ("        the entire module 'modname' is selected using 'select -module modname'\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("    yosys [modname]*>\n");
+		ਲਘੂਗਣਕ("        only part of current module 'modname' is selected\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("When in interactive shell, some errors (e.g. invalid command arguments)\n");
+		ਲਘੂਗਣਕ("do not terminate yosys but return to the command prompt.\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("This command is the default action if nothing else has been specified\n");
+		ਲਘੂਗਣਕ("on the command line.\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("Press Ctrl-D or type 'exit' to leave the interactive shell.\n");
+		ਲਘੂਗਣਕ("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override {
-		extra_args(args, 1, design, false);
+	ਖਾਲੀ execute(std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2, RTLIL::Design *design) override {
+		extra_ਦਲੀਲਾਂ(ਦਲੀਲਾਂ_2, 1, design, ਝੂਠ);
 		shell(design);
 	}
 } ShellPass;
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-struct HistoryPass : public Pass {
+#ਜੇ defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+ਬਣਤਰ HistoryPass : ਜਨਤਕ Pass {
 	HistoryPass() : Pass("history", "show last interactive commands") { }
-	void help() override {
-		log("\n");
-		log("    history\n");
-		log("\n");
-		log("This command prints all commands in the shell history buffer. This are\n");
-		log("all commands executed in an interactive session, but not the commands\n");
-		log("from executed scripts.\n");
-		log("\n");
+	ਖਾਲੀ help() override {
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("    history\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("This command prints all commands in the shell history buffer. This are\n");
+		ਲਘੂਗਣਕ("all commands executed in an interactive session, but not the commands\n");
+		ਲਘੂਗਣਕ("from executed scripts.\n");
+		ਲਘੂਗਣਕ("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override {
-		extra_args(args, 1, design, false);
-#ifdef YOSYS_ENABLE_READLINE
-		for(HIST_ENTRY **list = history_list(); *list != NULL; list++)
-			log("%s\n", (*list)->line);
-#else
-		for (int i = where_history(); history_get(i); i++)
-			log("%s\n", history_get(i)->line);
-#endif
+	ਖਾਲੀ execute(std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2, RTLIL::Design *design) override {
+		extra_ਦਲੀਲਾਂ(ਦਲੀਲਾਂ_2, 1, design, ਝੂਠ);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_READLINE
+		ਲਈ(HIST_ਇੰਦਰਾਜ **list = history_list(); *list != ਨਿਰਾ; list++)
+			ਲਘੂਗਣਕ("%s\n", (*list)->ਸਤਰ);
+#ਨਹੀਂਤਾਂ
+		ਲਈ (ਪੂਰਨ i = where_history(); history_get(i); i++)
+			ਲਘੂਗਣਕ("%s\n", history_get(i)->ਸਤਰ);
+#ਜੇ_ਅੰਤ
 	}
 } HistoryPass;
-#endif
+#ਜੇ_ਅੰਤ
 
-struct ScriptCmdPass : public Pass {
+ਬਣਤਰ ScriptCmdPass : ਜਨਤਕ Pass {
 	ScriptCmdPass() : Pass("script", "execute commands from file or wire") { }
-	void help() override {
+	ਖਾਲੀ help() override {
 		//   |---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|
-		log("\n");
-		log("    script <filename> [<from_label>:<to_label>]\n");
-		log("    script -scriptwire [selection]\n");
-		log("\n");
-		log("This command executes the yosys commands in the specified file (default\n");
-		log("behaviour), or commands embedded in the constant text value connected to the\n");
-		log("selected wires.\n");
-		log("\n");
-		log("In the default (file) case, the 2nd argument can be used to only execute the\n");
-		log("section of the file between the specified labels. An empty from label is\n");
-		log("synonymous with the beginning of the file and an empty to label is synonymous\n");
-		log("with the end of the file.\n");
-		log("\n");
-		log("If only one label is specified (without ':') then only the block\n");
-		log("marked with that label (until the next label) is executed.\n");
-		log("\n");
-		log("In \"-scriptwire\" mode, the commands on the selected wire(s) will be executed\n");
-		log("in the scope of (and thus, relative to) the wires' owning module(s). This\n");
-		log("'-module' mode can be exited by using the 'cd' command.\n");
-		log("\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("    script <filename> [<from_label>:<to_label>]\n");
+		ਲਘੂਗਣਕ("    script -scriptwire [selection]\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("This command executes the yosys commands in the specified file (default\n");
+		ਲਘੂਗਣਕ("behaviour), or commands embedded in the constant text value connected to the\n");
+		ਲਘੂਗਣਕ("selected wires.\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("In the default (file) case, the 2nd argument can be used to only execute the\n");
+		ਲਘੂਗਣਕ("section of the file between the specified labels. An empty from label is\n");
+		ਲਘੂਗਣਕ("synonymous with the beginning of the file and an empty to label is synonymous\n");
+		ਲਘੂਗਣਕ("with the end of the file.\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("If only one label is specified (without ':') then only the block\n");
+		ਲਘੂਗਣਕ("marked with that label (until the next label) is executed.\n");
+		ਲਘੂਗਣਕ("\n");
+		ਲਘੂਗਣਕ("In \"-scriptwire\" mode, the commands on the selected wire(s) will be executed\n");
+		ਲਘੂਗਣਕ("in the scope of (and thus, relative to) the wires' owning module(s). This\n");
+		ਲਘੂਗਣਕ("'-module' mode can be exited by using the 'cd' command.\n");
+		ਲਘੂਗਣਕ("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override
+	ਖਾਲੀ execute(std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2, RTLIL::Design *design) override
 	{
-		bool scriptwire = false;
+		ਤਾਰਕਿਕ scriptwire = ਝੂਠ;
 
-		size_t argidx;
-		for (argidx = 1; argidx < args.size(); argidx++) {
-			if (args[argidx] == "-scriptwire") {
-				scriptwire = true;
-				continue;
+		ਮਾਪ_t argidx;
+		ਲਈ (argidx = 1; argidx < ਦਲੀਲਾਂ_2.ਮਾਪ(); argidx++) {
+			ਜੇ (ਦਲੀਲਾਂ_2[argidx] == "-scriptwire") {
+				scriptwire = ਸੱਚ;
+				ਜਾਰੀ;
 			}
-			break;
+			ਰੋਕੋ;
 		}
-		if (scriptwire) {
-			extra_args(args, argidx, design);
+		ਜੇ (scriptwire) {
+			extra_ਦਲੀਲਾਂ(ਦਲੀਲਾਂ_2, argidx, design);
 
-			for (auto mod : design->selected_modules())
-				for (auto &c : mod->connections()) {
-					if (!c.first.is_wire())
-						continue;
-					auto w = c.first.as_wire();
-					if (!mod->selected(w))
-						continue;
-					if (!c.second.is_fully_const())
+			ਲਈ (ਸਵੈਚਾਲਿਤ mod : design->selected_modules())
+				ਲਈ (ਸਵੈਚਾਲਿਤ &c : mod->connections()) {
+					ਜੇ (!c.ਪਹਿਲਾ.is_wire())
+						ਜਾਰੀ;
+					ਸਵੈਚਾਲਿਤ w = c.ਪਹਿਲਾ.as_wire();
+					ਜੇ (!mod->selected(w))
+						ਜਾਰੀ;
+					ਜੇ (!c.ਦੂਜਾ.is_fully_const())
 						log_error("RHS of selected wire %s.%s is not constant.\n", mod, w);
-					auto v = c.second.as_const();
+					ਸਵੈਚਾਲਿਤ v = c.ਦੂਜਾ.as_const();
 					Pass::call_on_module(design, mod, v.decode_string());
 				}
 		}
-		else if (args.size() < 2)
+		ਨਹੀਂਤਾਂ ਜੇ (ਦਲੀਲਾਂ_2.ਮਾਪ() < 2)
 			log_cmd_error("Missing script file.\n");
-		else if (args.size() == 2)
-			run_frontend(args[1], "script", design);
-		else if (args.size() == 3)
-			run_frontend(args[1], "script", design, &args[2]);
-		else
-			extra_args(args, 2, design, false);
+		ਨਹੀਂਤਾਂ ਜੇ (ਦਲੀਲਾਂ_2.ਮਾਪ() == 2)
+			ਲੜੀਵਾਰ_frontend(ਦਲੀਲਾਂ_2[1], "script", design);
+		ਨਹੀਂਤਾਂ ਜੇ (ਦਲੀਲਾਂ_2.ਮਾਪ() == 3)
+			ਲੜੀਵਾਰ_frontend(ਦਲੀਲਾਂ_2[1], "script", design, &ਦਲੀਲਾਂ_2[2]);
+		ਨਹੀਂਤਾਂ
+			extra_ਦਲੀਲਾਂ(ਦਲੀਲਾਂ_2, 2, design, ਝੂਠ);
 	}
 } ScriptCmdPass;
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ

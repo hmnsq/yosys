@@ -1,8 +1,8 @@
-#ifndef NEWCELLTYPES_H
-#define NEWCELLTYPES_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ NEWCELLTYPES_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ NEWCELLTYPES_H
 
-#include "kernel/rtlil.h"
-#include "kernel/yosys.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/rtlil.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -14,32 +14,32 @@ YOSYS_NAMESPACE_BEGIN
 namespace StaticCellTypes {
 
 // Given by last internal cell type IdString constids.inc, compilation error if too low
-constexpr int MAX_CELLS = 300;
+constexpr ਪੂਰਨ MAX_CELLS = 300;
 // Currently given by _MUX16_, compilation error if too low
-constexpr int MAX_PORTS = 20;
-struct CellTableBuilder {
-	struct PortList {
+constexpr ਪੂਰਨ MAX_PORTS = 20;
+ਬਣਤਰ Cell_ਸਾਰਣੀ_Builder {
+	ਬਣਤਰ ਪੋਰਟ_List {
 		std::array<RTLIL::IdString, MAX_PORTS> ports{};
-		size_t count = 0;
-		constexpr PortList() = default;
-		constexpr PortList(std::initializer_list<RTLIL::IdString> init) {
-			for (auto p : init) {
-				ports[count++] = p;
+		ਮਾਪ_t ਗਿਣਤੀ_2 = 0;
+		constexpr ਪੋਰਟ_List() = ਮੂਲ;
+		constexpr ਪੋਰਟ_List(std::initializer_list<RTLIL::IdString> init) {
+			ਲਈ (ਸਵੈਚਾਲਿਤ p : init) {
+				ports[ਗਿਣਤੀ_2++] = p;
 			}
 		}
-		constexpr auto begin() const { return ports.begin(); }
-		constexpr auto end() const { return ports.begin() + count; }
-		constexpr bool contains(RTLIL::IdString port) const {
-			for (size_t i = 0; i < count; i++) {
-				if (port == ports[i])
-					return true;
+		constexpr ਸਵੈਚਾਲਿਤ begin() ਅਚਲ { ਵਾਪਸ ports.begin(); }
+		constexpr ਸਵੈਚਾਲਿਤ ਸਿਰਾ() ਅਚਲ { ਵਾਪਸ ports.begin() + ਗਿਣਤੀ_2; }
+		constexpr bool ਸ਼ਾਮਲ_ਹੈ(RTLIL::IdString ਪੋਰਟ) ਅਚਲ {
+			ਲਈ (ਮਾਪ_t i = 0; i < ਗਿਣਤੀ_2; i++) {
+				ਜੇ (ਪੋਰਟ == ports[i])
+					ਵਾਪਸ true;
 			}
 
-			return false;
+			ਵਾਪਸ false;
 		}
-		constexpr size_t size() const { return count; }
+		constexpr ਮਾਪ_t ਮਾਪ() ਅਚਲ { ਵਾਪਸ ਗਿਣਤੀ_2; }
 	};
-	struct Features {
+	ਬਣਤਰ Features {
 		bool is_evaluable = false;
 		bool is_combinatorial = false;
 		bool is_synthesizable = false;
@@ -49,168 +49,168 @@ struct CellTableBuilder {
 		bool is_anyinit = false;
 		bool is_tristate = false;
 	};
-	struct CellInfo {
+	ਬਣਤਰ CellInfo {
 		RTLIL::IdString type;
-		PortList inputs, outputs;
+		ਪੋਰਟ_List inputs, outputs;
 		Features features;
 	};
 	std::array<CellInfo, MAX_CELLS> cells{};
-	size_t count = 0;
+	ਮਾਪ_t ਗਿਣਤੀ_2 = 0;
 
-	constexpr void setup_type(RTLIL::IdString type, std::initializer_list<RTLIL::IdString> inputs, std::initializer_list<RTLIL::IdString> outputs, const Features& features) {
-		cells[count++] = {type, PortList(inputs), PortList(outputs), features};
+	constexpr ਖਾਲੀ ਤਿਆਰੀ_type(RTLIL::IdString type, std::initializer_list<RTLIL::IdString> inputs, std::initializer_list<RTLIL::IdString> outputs, ਅਚਲ Features& features) {
+		cells[ਗਿਣਤੀ_2++] = {type, ਪੋਰਟ_List(inputs), ਪੋਰਟ_List(outputs), features};
 	}
-	constexpr void setup_internals_other()
+	constexpr ਖਾਲੀ ਤਿਆਰੀ_internals_other()
 	{
 		Features features {};
 		features.is_tristate = true;
-		setup_type(ID($tribuf), {ID::A, ID::EN}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($tribuf), {ID::A, ID::EN}, {ID::Y}, features);
 
 		features = {};
-		setup_type(ID($barrier), {ID::A}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($barrier), {ID::A}, {ID::Y}, features);
 
 		features = {};
-		setup_type(ID($assert), {ID::A, ID::EN}, {}, features);
-		setup_type(ID($assume), {ID::A, ID::EN}, {}, features);
-		setup_type(ID($live), {ID::A, ID::EN}, {}, features);
-		setup_type(ID($fair), {ID::A, ID::EN}, {}, features);
-		setup_type(ID($cover), {ID::A, ID::EN}, {}, features);
-		setup_type(ID($initstate), {}, {ID::Y}, features);
-		setup_type(ID($anyconst), {}, {ID::Y}, features);
-		setup_type(ID($anyseq), {}, {ID::Y}, features);
-		setup_type(ID($allconst), {}, {ID::Y}, features);
-		setup_type(ID($allseq), {}, {ID::Y}, features);
-		setup_type(ID($equiv), {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($specify2), {ID::EN, ID::SRC, ID::DST}, {}, features);
-		setup_type(ID($specify3), {ID::EN, ID::SRC, ID::DST, ID::DAT}, {}, features);
-		setup_type(ID($specrule), {ID::SRC_EN, ID::DST_EN, ID::SRC, ID::DST}, {}, features);
-		setup_type(ID($print), {ID::EN, ID::ARGS, ID::TRG}, {}, features);
-		setup_type(ID($check), {ID::A, ID::EN, ID::ARGS, ID::TRG}, {}, features);
-		setup_type(ID($set_tag), {ID::A, ID::SET, ID::CLR}, {ID::Y}, features);
-		setup_type(ID($get_tag), {ID::A}, {ID::Y}, features);
-		setup_type(ID($overwrite_tag), {ID::A, ID::SET, ID::CLR}, {}, features);
-		setup_type(ID($original_tag), {ID::A}, {ID::Y}, features);
-		setup_type(ID($future_ff), {ID::A}, {ID::Y}, features);
-		setup_type(ID($scopeinfo), {}, {}, features);
-		setup_type(ID($input_port), {}, {ID::Y}, features);
-		setup_type(ID($connect), {ID::A, ID::B}, {}, features);
+		ਤਿਆਰੀ_type(ID($ਪ੍ਰਤਿਜ੍ਞਾ), {ID::A, ID::EN}, {}, features);
+		ਤਿਆਰੀ_type(ID($assume), {ID::A, ID::EN}, {}, features);
+		ਤਿਆਰੀ_type(ID($ਜੀਵਤ), {ID::A, ID::EN}, {}, features);
+		ਤਿਆਰੀ_type(ID($fair), {ID::A, ID::EN}, {}, features);
+		ਤਿਆਰੀ_type(ID($cover), {ID::A, ID::EN}, {}, features);
+		ਤਿਆਰੀ_type(ID($initstate), {}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($anyconst), {}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($anyseq), {}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($allconst), {}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($allseq), {}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($equiv), {ID::A, ID::B}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($specify2), {ID::EN, ID::SRC, ID::DST}, {}, features);
+		ਤਿਆਰੀ_type(ID($specify3), {ID::EN, ID::SRC, ID::DST, ID::DAT}, {}, features);
+		ਤਿਆਰੀ_type(ID($specrule), {ID::SRC_EN, ID::DST_EN, ID::SRC, ID::DST}, {}, features);
+		ਤਿਆਰੀ_type(ID($print), {ID::EN, ID::ਦਲੀਲਾਂ, ID::TRG}, {}, features);
+		ਤਿਆਰੀ_type(ID($check), {ID::A, ID::EN, ID::ਦਲੀਲਾਂ, ID::TRG}, {}, features);
+		ਤਿਆਰੀ_type(ID($ਸੈੱਟ_ਟੈਗ), {ID::A, ID::ਸੈੱਟ_2, ID::CLR}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($get_ਟੈਗ), {ID::A}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($overwrite_ਟੈਗ), {ID::A, ID::ਸੈੱਟ_2, ID::CLR}, {}, features);
+		ਤਿਆਰੀ_type(ID($original_ਟੈਗ), {ID::A}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($future_ff), {ID::A}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($scopeinfo), {}, {}, features);
+		ਤਿਆਰੀ_type(ID($ਨਿਵੇਸ਼_ਪੋਰਟ), {}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($connect), {ID::A, ID::B}, {}, features);
 	}
-	constexpr void setup_internals_eval()
+	constexpr ਖਾਲੀ ਤਿਆਰੀ_internals_eval()
 	{
 		Features features {};
 		features.is_evaluable = true;
 		std::initializer_list<RTLIL::IdString> unary_ops = {
 			ID($not), ID($pos), ID($buf), ID($neg),
 			ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool),
-			ID($logic_not), ID($slice), ID($lut), ID($sop)
+			ID($logic_not), ID($ਟੁਕੜਾ), ID($lut), ID($sop)
 		};
 
-		std::initializer_list<RTLIL::IdString> binary_ops = {
+		std::initializer_list<RTLIL::IdString> ਦੁਆਧਾਰੀ_ops = {
 			ID($and), ID($or), ID($xor), ID($xnor),
-			ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx),
+			ID($shl), ID($shr), ID($sshl), ID($sshr), ID($ਖਿਸਕਾਓ), ID($shiftx),
 			ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt),
-			ID($add), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($pow),
+			ID($ਜੋੜੋ), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor), ID($ਘਾਤ),
 			ID($logic_and), ID($logic_or), ID($concat), ID($macc),
 			ID($bweqx)
 		};
 
-		for (auto type : unary_ops)
-			setup_type(type, {ID::A}, {ID::Y}, features);
+		ਲਈ (ਸਵੈਚਾਲਿਤ type : unary_ops)
+			ਤਿਆਰੀ_type(type, {ID::A}, {ID::Y}, features);
 
-		for (auto type : binary_ops)
-			setup_type(type, {ID::A, ID::B}, {ID::Y}, features);
+		ਲਈ (ਸਵੈਚਾਲਿਤ type : ਦੁਆਧਾਰੀ_ops)
+			ਤਿਆਰੀ_type(type, {ID::A, ID::B}, {ID::Y}, features);
 
-		for (auto type : {ID($mux), ID($pmux), ID($bwmux)})
-			setup_type(type, {ID::A, ID::B, ID::S}, {ID::Y}, features);
+		ਲਈ (ਸਵੈਚਾਲਿਤ type : {ID($mux), ID($pmux), ID($bwmux)})
+			ਤਿਆਰੀ_type(type, {ID::A, ID::B, ID::S}, {ID::Y}, features);
 
-		for (auto type : {ID($bmux), ID($demux)})
-			setup_type(type, {ID::A, ID::S}, {ID::Y}, features);
+		ਲਈ (ਸਵੈਚਾਲਿਤ type : {ID($bmux), ID($demux)})
+			ਤਿਆਰੀ_type(type, {ID::A, ID::S}, {ID::Y}, features);
 
-		setup_type(ID($lcu), {ID::P, ID::G, ID::CI}, {ID::CO}, features);
-		setup_type(ID($alu), {ID::A, ID::B, ID::CI, ID::BI}, {ID::X, ID::Y, ID::CO}, features);
-		setup_type(ID($macc_v2), {ID::A, ID::B, ID::C}, {ID::Y}, features);
-		setup_type(ID($fa), {ID::A, ID::B, ID::C}, {ID::X, ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($lcu), {ID::P, ID::G, ID::CI}, {ID::CO}, features);
+		ਤਿਆਰੀ_type(ID($alu), {ID::A, ID::B, ID::CI, ID::BI}, {ID::X, ID::Y, ID::CO}, features);
+		ਤਿਆਰੀ_type(ID($macc_v2), {ID::A, ID::B, ID::C}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($fa), {ID::A, ID::B, ID::C}, {ID::X, ID::Y}, features);
 	}
-	constexpr void setup_internals_ff()
+	constexpr ਖਾਲੀ ਤਿਆਰੀ_internals_ff()
 	{
 		Features features {};
 		features.is_ff = true;
-		setup_type(ID($sr), {ID::SET, ID::CLR}, {ID::Q}, features);
-		setup_type(ID($ff), {ID::D}, {ID::Q}, features);
-		setup_type(ID($dff), {ID::CLK, ID::D}, {ID::Q}, features);
-		setup_type(ID($dffe), {ID::CLK, ID::EN, ID::D}, {ID::Q}, features);
-		setup_type(ID($dffsr), {ID::CLK, ID::SET, ID::CLR, ID::D}, {ID::Q}, features);
-		setup_type(ID($dffsre), {ID::CLK, ID::SET, ID::CLR, ID::D, ID::EN}, {ID::Q}, features);
-		setup_type(ID($adff), {ID::CLK, ID::ARST, ID::D}, {ID::Q}, features);
-		setup_type(ID($adffe), {ID::CLK, ID::ARST, ID::D, ID::EN}, {ID::Q}, features);
-		setup_type(ID($aldff), {ID::CLK, ID::ALOAD, ID::AD, ID::D}, {ID::Q}, features);
-		setup_type(ID($aldffe), {ID::CLK, ID::ALOAD, ID::AD, ID::D, ID::EN}, {ID::Q}, features);
-		setup_type(ID($sdff), {ID::CLK, ID::SRST, ID::D}, {ID::Q}, features);
-		setup_type(ID($sdffe), {ID::CLK, ID::SRST, ID::D, ID::EN}, {ID::Q}, features);
-		setup_type(ID($sdffce), {ID::CLK, ID::SRST, ID::D, ID::EN}, {ID::Q}, features);
-		setup_type(ID($dlatch), {ID::EN, ID::D}, {ID::Q}, features);
-		setup_type(ID($adlatch), {ID::EN, ID::D, ID::ARST}, {ID::Q}, features);
-		setup_type(ID($dlatchsr), {ID::EN, ID::SET, ID::CLR, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($sr), {ID::ਸੈੱਟ_2, ID::CLR}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($ff), {ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($dff), {ID::CLK, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($dffe), {ID::CLK, ID::EN, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($dffsr), {ID::CLK, ID::ਸੈੱਟ_2, ID::CLR, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($dffsre), {ID::CLK, ID::ਸੈੱਟ_2, ID::CLR, ID::D, ID::EN}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($adff), {ID::CLK, ID::ARST, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($adffe), {ID::CLK, ID::ARST, ID::D, ID::EN}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($aldff), {ID::CLK, ID::ALOAD, ID::AD, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($aldffe), {ID::CLK, ID::ALOAD, ID::AD, ID::D, ID::EN}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($sdff), {ID::CLK, ID::SRST, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($sdffe), {ID::CLK, ID::SRST, ID::D, ID::EN}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($sdffce), {ID::CLK, ID::SRST, ID::D, ID::EN}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($dlatch), {ID::EN, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($adlatch), {ID::EN, ID::D, ID::ARST}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($dlatchsr), {ID::EN, ID::ਸੈੱਟ_2, ID::CLR, ID::D}, {ID::Q}, features);
 	}
-	constexpr void setup_internals_anyinit()
+	constexpr ਖਾਲੀ ਤਿਆਰੀ_internals_anyinit()
 	{
 		Features features {};
 		features.is_anyinit = true;
-		setup_type(ID($anyinit), {ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($anyinit), {ID::D}, {ID::Q}, features);
 	}
-	constexpr void setup_internals_mem_noff()
+	constexpr ਖਾਲੀ ਤਿਆਰੀ_internals_mem_noff()
 	{
 		Features features {};
 		features.is_mem_noff = true;
 		// NOT setup_internals_ff()
 
-		setup_type(ID($memrd), {ID::CLK, ID::EN, ID::ADDR}, {ID::DATA}, features);
-		setup_type(ID($memrd_v2), {ID::CLK, ID::EN, ID::ARST, ID::SRST, ID::ADDR}, {ID::DATA}, features);
-		setup_type(ID($memwr), {ID::CLK, ID::EN, ID::ADDR, ID::DATA}, {}, features);
-		setup_type(ID($memwr_v2), {ID::CLK, ID::EN, ID::ADDR, ID::DATA}, {}, features);
-		setup_type(ID($meminit), {ID::ADDR, ID::DATA}, {}, features);
-		setup_type(ID($meminit_v2), {ID::ADDR, ID::DATA, ID::EN}, {}, features);
-		setup_type(ID($mem), {ID::RD_CLK, ID::RD_EN, ID::RD_ADDR, ID::WR_CLK, ID::WR_EN, ID::WR_ADDR, ID::WR_DATA}, {ID::RD_DATA}, features);
-		setup_type(ID($mem_v2), {ID::RD_CLK, ID::RD_EN, ID::RD_ARST, ID::RD_SRST, ID::RD_ADDR, ID::WR_CLK, ID::WR_EN, ID::WR_ADDR, ID::WR_DATA}, {ID::RD_DATA}, features);
+		ਤਿਆਰੀ_type(ID($memrd), {ID::CLK, ID::EN, ID::ADDR}, {ID::ਅੰਕੜੇ_2}, features);
+		ਤਿਆਰੀ_type(ID($memrd_v2), {ID::CLK, ID::EN, ID::ARST, ID::SRST, ID::ADDR}, {ID::ਅੰਕੜੇ_2}, features);
+		ਤਿਆਰੀ_type(ID($memwr), {ID::CLK, ID::EN, ID::ADDR, ID::ਅੰਕੜੇ_2}, {}, features);
+		ਤਿਆਰੀ_type(ID($memwr_v2), {ID::CLK, ID::EN, ID::ADDR, ID::ਅੰਕੜੇ_2}, {}, features);
+		ਤਿਆਰੀ_type(ID($meminit), {ID::ADDR, ID::ਅੰਕੜੇ_2}, {}, features);
+		ਤਿਆਰੀ_type(ID($meminit_v2), {ID::ADDR, ID::ਅੰਕੜੇ_2, ID::EN}, {}, features);
+		ਤਿਆਰੀ_type(ID($mem), {ID::RD_CLK, ID::RD_EN, ID::RD_ADDR, ID::WR_CLK, ID::WR_EN, ID::WR_ADDR, ID::WR_ਅੰਕੜੇ}, {ID::RD_ਅੰਕੜੇ}, features);
+		ਤਿਆਰੀ_type(ID($mem_v2), {ID::RD_CLK, ID::RD_EN, ID::RD_ARST, ID::RD_SRST, ID::RD_ADDR, ID::WR_CLK, ID::WR_EN, ID::WR_ADDR, ID::WR_ਅੰਕੜੇ}, {ID::RD_ਅੰਕੜੇ}, features);
 
 		// What?
-		setup_type(ID($fsm), {ID::CLK, ID::ARST, ID::CTRL_IN}, {ID::CTRL_OUT}, features);
+		ਤਿਆਰੀ_type(ID($fsm), {ID::CLK, ID::ARST, ID::CTRL_ਵਿੱਚ}, {ID::CTRL_ਬਾਹਰਲਾ}, features);
 	}
-	constexpr void setup_stdcells_tristate()
+	constexpr ਖਾਲੀ ਤਿਆਰੀ_stdcells_tristate()
 	{
 		Features features {};
 		features.is_stdcell = true;
 		features.is_tristate = true;
-		setup_type(ID($_TBUF_), {ID::A, ID::E}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_TBUF_), {ID::A, ID::E}, {ID::Y}, features);
 	}
 
-	constexpr void setup_stdcells_eval()
+	constexpr ਖਾਲੀ ਤਿਆਰੀ_stdcells_eval()
 	{
 		Features features {};
 		features.is_stdcell = true;
 		features.is_evaluable = true;
-		setup_type(ID($_BUF_), {ID::A}, {ID::Y}, features);
-		setup_type(ID($_NOT_), {ID::A}, {ID::Y}, features);
-		setup_type(ID($_AND_), {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_NAND_), {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_OR_),  {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_NOR_),  {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_XOR_), {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_XNOR_), {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_ANDNOT_), {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_ORNOT_), {ID::A, ID::B}, {ID::Y}, features);
-		setup_type(ID($_MUX_), {ID::A, ID::B, ID::S}, {ID::Y}, features);
-		setup_type(ID($_NMUX_), {ID::A, ID::B, ID::S}, {ID::Y}, features);
-		setup_type(ID($_MUX4_), {ID::A, ID::B, ID::C, ID::D, ID::S, ID::T}, {ID::Y}, features);
-		setup_type(ID($_MUX8_), {ID::A, ID::B, ID::C, ID::D, ID::E, ID::F, ID::G, ID::H, ID::S, ID::T, ID::U}, {ID::Y}, features);
-		setup_type(ID($_MUX16_), {ID::A, ID::B, ID::C, ID::D, ID::E, ID::F, ID::G, ID::H, ID::I, ID::J, ID::K, ID::L, ID::M, ID::N, ID::O, ID::P, ID::S, ID::T, ID::U, ID::V}, {ID::Y}, features);
-		setup_type(ID($_AOI3_), {ID::A, ID::B, ID::C}, {ID::Y}, features);
-		setup_type(ID($_OAI3_), {ID::A, ID::B, ID::C}, {ID::Y}, features);
-		setup_type(ID($_AOI4_), {ID::A, ID::B, ID::C, ID::D}, {ID::Y}, features);
-		setup_type(ID($_OAI4_), {ID::A, ID::B, ID::C, ID::D}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_BUF_), {ID::A}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_NOT_), {ID::A}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_AND_), {ID::A, ID::B}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_NAND_), {ID::A, ID::B}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_OR_),  {ID::A, ID::B}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_NOR_),  {ID::A, ID::B}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_XOR_), {ID::A, ID::B}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_XNOR_), {ID::A, ID::B}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_ANDNOT_), {ID::A, ID::B}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_ORNOT_), {ID::A, ID::B}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_MUX_), {ID::A, ID::B, ID::S}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_NMUX_), {ID::A, ID::B, ID::S}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_MUX4_), {ID::A, ID::B, ID::C, ID::D, ID::S, ID::T}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_MUX8_), {ID::A, ID::B, ID::C, ID::D, ID::E, ID::F, ID::G, ID::H, ID::S, ID::T, ID::U}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_MUX16_), {ID::A, ID::B, ID::C, ID::D, ID::E, ID::F, ID::G, ID::H, ID::I, ID::J, ID::K, ID::L, ID::M, ID::N, ID::O, ID::P, ID::S, ID::T, ID::U, ID::V}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_AOI3_), {ID::A, ID::B, ID::C}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_OAI3_), {ID::A, ID::B, ID::C}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_AOI4_), {ID::A, ID::B, ID::C, ID::D}, {ID::Y}, features);
+		ਤਿਆਰੀ_type(ID($_OAI4_), {ID::A, ID::B, ID::C, ID::D}, {ID::Y}, features);
 	}
 
-	constexpr void setup_stdcells_ff() {
+	constexpr ਖਾਲੀ ਤਿਆਰੀ_stdcells_ff() {
 		Features features {};
 		features.is_stdcell = true;
 		features.is_ff = true;
@@ -218,260 +218,260 @@ struct CellTableBuilder {
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// 	setup_type(std::string("$_SR_") + c1 + c2 + "_", {ID::S, ID::R}, {ID::Q}, features);
-		setup_type(ID($_SR_NN_), {ID::S, ID::R}, {ID::Q}, features);
-		setup_type(ID($_SR_NP_), {ID::S, ID::R}, {ID::Q}, features);
-		setup_type(ID($_SR_PN_), {ID::S, ID::R}, {ID::Q}, features);
-		setup_type(ID($_SR_PP_), {ID::S, ID::R}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SR_NN_), {ID::S, ID::R}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SR_NP_), {ID::S, ID::R}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SR_PN_), {ID::S, ID::R}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SR_PP_), {ID::S, ID::R}, {ID::Q}, features);
 
-		setup_type(ID($_FF_), {ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_FF_), {ID::D}, {ID::Q}, features);
 
 		// for (auto c1 : list_np)
 		// 	setup_type(std::string("$_DFF_") + c1 + "_", {ID::C, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_N_), {ID::C, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_P_), {ID::C, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFF_N_), {ID::C, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFF_P_), {ID::C, ID::D}, {ID::Q}, features);
 
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// 	setup_type(std::string("$_DFFE_") + c1 + c2 + "_", {ID::C, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NN_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NP_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PN_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PP_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_NN_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_NP_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_PN_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_PP_), {ID::C, ID::D, ID::E}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_01)
 		// 	setup_type(std::string("$_DFF_") + c1 + c2 + c3 + "_", {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_NN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_NN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_NP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_NP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_PN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_PN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_PP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFF_PP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFF_NN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFF_NN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFF_NP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFF_NP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFF_PN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFF_PN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFF_PP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFF_PP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_01)
 		// for (auto c4 : list_np)
 		// 	setup_type(std::string("$_DFFE_") + c1 + c2 + c3 + c4 + "_", {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_NP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFE_PP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_NN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_NN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_NN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_NN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_NP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_NP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_NP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_NP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_PN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_PN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_PN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_PN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_PP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_PP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_PP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFE_PP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// 	setup_type(std::string("$_ALDFF_") + c1 + c2 + "_", {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
-		setup_type(ID($_ALDFF_NN_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
-		setup_type(ID($_ALDFF_NP_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
-		setup_type(ID($_ALDFF_PN_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
-		setup_type(ID($_ALDFF_PP_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_ALDFF_NN_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_ALDFF_NP_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_ALDFF_PN_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_ALDFF_PP_), {ID::C, ID::L, ID::AD, ID::D}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_np)
 		// 	setup_type(std::string("$_ALDFFE_") + c1 + c2 + c3 + "_", {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_NNN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_NNP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_NPN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_NPP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_PNN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_PNP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_PPN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_ALDFFE_PPP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_ALDFFE_NNN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_ALDFFE_NNP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_ALDFFE_NPN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_ALDFFE_NPP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_ALDFFE_PNN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_ALDFFE_PNP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_ALDFFE_PPN_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_ALDFFE_PPP_), {ID::C, ID::L, ID::AD, ID::D, ID::E}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_np)
 		// 	setup_type(std::string("$_DFFSR_") + c1 + c2 + c3 + "_", {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_NNN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_NNP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_NPN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_NPP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_PNN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_PNP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_PPN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DFFSR_PPP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSR_NNN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSR_NNP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSR_NPN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSR_NPP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSR_PNN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSR_PNP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSR_PPN_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSR_PPP_), {ID::C, ID::S, ID::R, ID::D}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_np)
 		// for (auto c4 : list_np)
 		// 	setup_type(std::string("$_DFFSRE_") + c1 + c2 + c3 + c4 + "_", {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NNNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NNNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NNPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NNPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NPNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NPNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NPPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_NPPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PNNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PNNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PNPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PNPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PPNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PPNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PPPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_DFFSRE_PPPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_NNNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_NNNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_NNPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_NNPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_NPNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_NPNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_NPPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_NPPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_PNNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_PNNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_PNPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_PNPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_PPNN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_PPNP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_PPPN_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DFFSRE_PPPP_), {ID::C, ID::S, ID::R, ID::D, ID::E}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_01)
 		// 	setup_type(std::string("$_SDFF_") + c1 + c2 + c3 + "_", {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_NN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_NN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_NP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_NP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_PN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_PN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_PP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_SDFF_PP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFF_NN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFF_NN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFF_NP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFF_NP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFF_PN0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFF_PN1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFF_PP0_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFF_PP1_), {ID::C, ID::R, ID::D}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_01)
 		// for (auto c4 : list_np)
 		// 	setup_type(std::string("$_SDFFE_") + c1 + c2 + c3 + c4 + "_", {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_NP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFE_PP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_NN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_NN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_NN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_NN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_NP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_NP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_NP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_NP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_PN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_PN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_PN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_PN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_PP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_PP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_PP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFE_PP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_01)
 		// for (auto c4 : list_np)
 		// 	setup_type(std::string("$_SDFFCE_") + c1 + c2 + c3 + c4 + "_", {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_NP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
-		setup_type(ID($_SDFFCE_PP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_NN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_NN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_NN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_NN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_NP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_NP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_NP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_NP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_PN0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_PN0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_PN1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_PN1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_PP0N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_PP0P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_PP1N_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_SDFFCE_PP1P_), {ID::C, ID::R, ID::D, ID::E}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// 	setup_type(std::string("$_DLATCH_") + c1 + "_", {ID::E, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_N_), {ID::E, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_P_), {ID::E, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCH_N_), {ID::E, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCH_P_), {ID::E, ID::D}, {ID::Q}, features);
 
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_01)
 		// 	setup_type(std::string("$_DLATCH_") + c1 + c2 + c3 + "_", {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_NN0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_NN1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_NP0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_NP1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_PN0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_PN1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_PP0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCH_PP1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCH_NN0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCH_NN1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCH_NP0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCH_NP1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCH_PN0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCH_PN1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCH_PP0_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCH_PP1_), {ID::E, ID::R, ID::D}, {ID::Q}, features);
 		// for (auto c1 : list_np)
 		// for (auto c2 : list_np)
 		// for (auto c3 : list_np)
 		// 	setup_type(std::string("$_DLATCHSR_") + c1 + c2 + c3 + "_", {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_NNN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_NNP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_NPN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_NPP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_PNN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_PNP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_PPN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
-		setup_type(ID($_DLATCHSR_PPP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCHSR_NNN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCHSR_NNP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCHSR_NPN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCHSR_NPP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCHSR_PNN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCHSR_PNP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCHSR_PPN_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
+		ਤਿਆਰੀ_type(ID($_DLATCHSR_PPP_), {ID::E, ID::S, ID::R, ID::D}, {ID::Q}, features);
 	}
-	constexpr CellTableBuilder() {
-		setup_internals_other();
-		setup_internals_eval();
-		setup_internals_ff();
-		setup_internals_anyinit();
-		setup_internals_mem_noff();
-		setup_stdcells_tristate();
-		setup_stdcells_eval();
-		setup_stdcells_ff();
+	constexpr Cell_ਸਾਰਣੀ_Builder() {
+		ਤਿਆਰੀ_internals_other();
+		ਤਿਆਰੀ_internals_eval();
+		ਤਿਆਰੀ_internals_ff();
+		ਤਿਆਰੀ_internals_anyinit();
+		ਤਿਆਰੀ_internals_mem_noff();
+		ਤਿਆਰੀ_stdcells_tristate();
+		ਤਿਆਰੀ_stdcells_eval();
+		ਤਿਆਰੀ_stdcells_ff();
 	}
 
 };
 
-constexpr CellTableBuilder builder {};
+constexpr Cell_ਸਾਰਣੀ_Builder builder {};
 
-struct PortInfo {
-	struct PortLists {
-		std::array<CellTableBuilder::PortList, MAX_CELLS> data{};
-		constexpr CellTableBuilder::PortList operator()(IdString type) const {
-			return data[type.raw()];
+ਬਣਤਰ ਪੋਰਟ_Info {
+	ਬਣਤਰ ਪੋਰਟ_Lists {
+		std::array<Cell_ਸਾਰਣੀ_Builder::ਪੋਰਟ_List, MAX_CELLS> ਅੰਕੜੇ{};
+		constexpr Cell_ਸਾਰਣੀ_Builder::ਪੋਰਟ_List ਸੰਚਾਲਕ()(IdString type) ਅਚਲ {
+			ਵਾਪਸ ਅੰਕੜੇ[type.raw()];
 		}
-		constexpr CellTableBuilder::PortList& operator[](size_t idx) {
-			return data[idx];
+		constexpr Cell_ਸਾਰਣੀ_Builder::ਪੋਰਟ_List& ਸੰਚਾਲਕ[](ਮਾਪ_t idx) {
+			ਵਾਪਸ ਅੰਕੜੇ[idx];
 		}
-		constexpr size_t size() const { return data.size(); }
+		constexpr ਮਾਪ_t ਮਾਪ() ਅਚਲ { ਵਾਪਸ ਅੰਕੜੇ.ਮਾਪ(); }
 	};
-	PortLists inputs {};
-	PortLists outputs {};
-	constexpr PortInfo() {
-		for (size_t i = 0; i < builder.count; ++i) {
-			auto& cell = builder.cells[i];
-			size_t idx = cell.type.raw();
+	ਪੋਰਟ_Lists inputs {};
+	ਪੋਰਟ_Lists outputs {};
+	constexpr ਪੋਰਟ_Info() {
+		ਲਈ (ਮਾਪ_t i = 0; i < builder.ਗਿਣਤੀ_2; ++i) {
+			ਸਵੈਚਾਲਿਤ& cell = builder.cells[i];
+			ਮਾਪ_t idx = cell.type.raw();
 			inputs[idx] = cell.inputs;
 			outputs[idx] = cell.outputs;
 		}
 	}
 };
 
-struct Categories {
-	struct Category {
-		std::array<bool, MAX_CELLS> data{};
-		constexpr bool operator()(IdString type) const {
-			size_t idx = type.raw();
-			if (idx >= MAX_CELLS)
-				return false;
-			return data[idx];
+ਬਣਤਰ Categories {
+	ਬਣਤਰ Category {
+		std::array<bool, MAX_CELLS> ਅੰਕੜੇ{};
+		constexpr bool ਸੰਚਾਲਕ()(IdString type) ਅਚਲ {
+			ਮਾਪ_t idx = type.raw();
+			ਜੇ (idx >= MAX_CELLS)
+				ਵਾਪਸ false;
+			ਵਾਪਸ ਅੰਕੜੇ[idx];
 		}
-		constexpr bool operator[](size_t idx) {
-			return data[idx];
+		constexpr bool ਸੰਚਾਲਕ[](ਮਾਪ_t idx) {
+			ਵਾਪਸ ਅੰਕੜੇ[idx];
 		}
-		constexpr void set_id(IdString type, bool val = true) {
-			size_t idx = type.raw();
-			if (idx >= MAX_CELLS) {
-				if (std::is_constant_evaluated())
+		constexpr ਖਾਲੀ ਸੈੱਟ_id(IdString type, bool val = true) {
+			ਮਾਪ_t idx = type.raw();
+			ਜੇ (idx >= MAX_CELLS) {
+				ਜੇ (std::is_constant_evaluated())
 					throw "cell type index out of range";
 				log_abort();
 			}
-			data[idx] = val;
+			ਅੰਕੜੇ[idx] = val;
 		}
-		constexpr void set(size_t idx, bool val = true) {
-			data[idx] = val;
+		constexpr ਖਾਲੀ ਸੈੱਟ(ਮਾਪ_t idx, bool val = true) {
+			ਅੰਕੜੇ[idx] = val;
 		}
-		constexpr size_t size() const { return data.size(); }
+		constexpr ਮਾਪ_t ਮਾਪ() ਅਚਲ { ਵਾਪਸ ਅੰਕੜੇ.ਮਾਪ(); }
 	};
-	Category empty {};
-	Category is_known {};
+	Category ਖਾਲੀ_ਥਾਵਾਂ {};
+	Category is_ਗਿਆਤ {};
 	Category is_evaluable {};
 	Category is_combinatorial {};
 	Category is_synthesizable {};
@@ -481,61 +481,61 @@ struct Categories {
 	Category is_anyinit {};
 	Category is_tristate {};
 	constexpr Categories() {
-		for (size_t i = 0; i < builder.count; ++i) {
-			auto& cell = builder.cells[i];
-			size_t idx = cell.type.raw();
-			is_known.set(idx);
-			is_evaluable.set(idx, cell.features.is_evaluable);
-			is_combinatorial.set(idx, cell.features.is_combinatorial);
-			is_synthesizable.set(idx, cell.features.is_synthesizable);
-			is_stdcell.set(idx, cell.features.is_stdcell);
-			is_ff.set(idx, cell.features.is_ff);
-			is_mem_noff.set(idx, cell.features.is_mem_noff);
-			is_anyinit.set(idx, cell.features.is_anyinit);
-			is_tristate.set(idx, cell.features.is_tristate);
+		ਲਈ (ਮਾਪ_t i = 0; i < builder.ਗਿਣਤੀ_2; ++i) {
+			ਸਵੈਚਾਲਿਤ& cell = builder.cells[i];
+			ਮਾਪ_t idx = cell.type.raw();
+			is_ਗਿਆਤ.ਸੈੱਟ(idx);
+			is_evaluable.ਸੈੱਟ(idx, cell.features.is_evaluable);
+			is_combinatorial.ਸੈੱਟ(idx, cell.features.is_combinatorial);
+			is_synthesizable.ਸੈੱਟ(idx, cell.features.is_synthesizable);
+			is_stdcell.ਸੈੱਟ(idx, cell.features.is_stdcell);
+			is_ff.ਸੈੱਟ(idx, cell.features.is_ff);
+			is_mem_noff.ਸੈੱਟ(idx, cell.features.is_mem_noff);
+			is_anyinit.ਸੈੱਟ(idx, cell.features.is_anyinit);
+			is_tristate.ਸੈੱਟ(idx, cell.features.is_tristate);
 		}
 	}
-	constexpr static Category join(Category left, Category right) {
+	constexpr ਸਥਿਰ Category join(Category ਖੱਬਾ_2, Category ਸੱਜਾ_2) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
-			c.set(i, left[i] || right[i]);
+		ਲਈ (ਮਾਪ_t i = 0; i < MAX_CELLS; ++i) {
+			c.ਸੈੱਟ(i, ਖੱਬਾ_2[i] || ਸੱਜਾ_2[i]);
 		}
-		return c;
+		ਵਾਪਸ c;
 	}
-	constexpr static Category meet(Category left, Category right) {
+	constexpr ਸਥਿਰ Category meet(Category ਖੱਬਾ_2, Category ਸੱਜਾ_2) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
-			c.set(i, left[i] && right[i]);
+		ਲਈ (ਮਾਪ_t i = 0; i < MAX_CELLS; ++i) {
+			c.ਸੈੱਟ(i, ਖੱਬਾ_2[i] && ਸੱਜਾ_2[i]);
 		}
-		return c;
+		ਵਾਪਸ c;
 	}
 	// Sketchy! Make sure to always meet with only the known universe.
 	// In other words, no modus tollens allowed
-	constexpr static Category complement(Category arg) {
+	constexpr ਸਥਿਰ Category complement(Category arg) {
 		Category c {};
-		for (size_t i = 0; i < MAX_CELLS; ++i) {
-			c.set(i, !arg[i]);
+		ਲਈ (ਮਾਪ_t i = 0; i < MAX_CELLS; ++i) {
+			c.ਸੈੱਟ(i, !arg[i]);
 		}
-		return c;
+		ਵਾਪਸ c;
 	}
 };
 
-// Pure
-static constexpr PortInfo port_info;
-static constexpr Categories categories;
+//ਸ਼ੁੱਧ
+ਸਥਿਰ constexpr ਪੋਰਟ_Info ਪੋਰਟ_info;
+ਸਥਿਰ constexpr Categories categories;
 
 // Legacy
 namespace Compat {
-	static constexpr auto internals_all = Categories::meet(categories.is_known, Categories::complement(categories.is_stdcell));
-	static constexpr auto mem_ff = Categories::join(categories.is_ff, categories.is_mem_noff);
+	ਸਥਿਰ constexpr ਸਵੈਚਾਲਿਤ internals_all = Categories::meet(categories.is_ਗਿਆਤ, Categories::complement(categories.is_stdcell));
+	ਸਥਿਰ constexpr ਸਵੈਚਾਲਿਤ mem_ff = Categories::join(categories.is_ff, categories.is_mem_noff);
 	// old setup_internals + setup_stdcells
-	static constexpr auto nomem_noff = Categories::meet(categories.is_known, Categories::complement(mem_ff));
-	static constexpr auto internals_mem_ff = Categories::meet(internals_all, mem_ff);
+	ਸਥਿਰ constexpr ਸਵੈਚਾਲਿਤ nomem_noff = Categories::meet(categories.is_ਗਿਆਤ, Categories::complement(mem_ff));
+	ਸਥਿਰ constexpr ਸਵੈਚਾਲਿਤ internals_mem_ff = Categories::meet(internals_all, mem_ff);
 	// old setup_internals
-	static constexpr auto internals_nomem_noff = Categories::meet(internals_all, nomem_noff);
+	ਸਥਿਰ constexpr ਸਵੈਚਾਲਿਤ internals_nomem_noff = Categories::meet(internals_all, nomem_noff);
 	// old setup_stdcells
-	static constexpr auto stdcells_nomem_noff = Categories::meet(categories.is_stdcell, nomem_noff);
-	static constexpr auto stdcells_mem = Categories::meet(categories.is_stdcell, categories.is_mem_noff);
+	ਸਥਿਰ constexpr ਸਵੈਚਾਲਿਤ stdcells_nomem_noff = Categories::meet(categories.is_stdcell, nomem_noff);
+	ਸਥਿਰ constexpr ਸਵੈਚਾਲਿਤ stdcells_mem = Categories::meet(categories.is_stdcell, categories.is_mem_noff);
 	// old setup_internals_eval
 	// static constexpr auto internals_eval = Categories::meet(internals_all, categories.is_evaluable);
 };
@@ -550,7 +550,7 @@ namespace {
 
 };
 
-struct NewCellType {
+ਬਣਤਰ NewCellType {
 	RTLIL::IdString type;
 	pool<RTLIL::IdString> inputs, outputs;
 	bool is_evaluable;
@@ -558,95 +558,95 @@ struct NewCellType {
 	bool is_synthesizable;
 };
 
-struct NewCellTypes {
-	StaticCellTypes::Categories::Category static_cell_types = StaticCellTypes::categories.empty;
+ਬਣਤਰ NewCellTypes {
+	StaticCellTypes::Categories::Category static_cell_types = StaticCellTypes::categories.ਖਾਲੀ_ਥਾਵਾਂ;
 	dict<IdString, NewCellType> custom_cell_types {};
 
 	NewCellTypes() {
-		static_cell_types = StaticCellTypes::categories.empty;
+		static_cell_types = StaticCellTypes::categories.ਖਾਲੀ_ਥਾਵਾਂ;
 	}
 
 	NewCellTypes(RTLIL::Design *design) {
-		static_cell_types = StaticCellTypes::categories.empty;
-		setup(design);
+		static_cell_types = StaticCellTypes::categories.ਖਾਲੀ_ਥਾਵਾਂ;
+		ਤਿਆਰੀ(design);
 	}
-	void setup(RTLIL::Design *design = NULL) {
-		if (design)
-			setup_design(design);
-		static_cell_types = StaticCellTypes::categories.is_known;
+	ਖਾਲੀ ਤਿਆਰੀ(RTLIL::Design *design = ਨਿਰਾ) {
+		ਜੇ (design)
+			ਤਿਆਰੀ_design(design);
+		static_cell_types = StaticCellTypes::categories.is_ਗਿਆਤ;
 	}
-	void setup_design(RTLIL::Design *design) {
-		for (auto module : design->modules())
-			setup_module(module);
+	ਖਾਲੀ ਤਿਆਰੀ_design(RTLIL::Design *design) {
+		ਲਈ (ਸਵੈਚਾਲਿਤ module : design->modules())
+			ਤਿਆਰੀ_module(module);
 	}
 
-	void setup_module(RTLIL::Module *module) {
+	ਖਾਲੀ ਤਿਆਰੀ_module(RTLIL::Module *module) {
 		pool<IdString> inputs, outputs;
-		for (auto wire_name : module->ports) {
+		ਲਈ (ਸਵੈਚਾਲਿਤ wire_name : module->ports) {
 			RTLIL::Wire *wire = module->wire(wire_name);
-			if (wire->port_input)
-				inputs.insert(wire->name);
-			if (wire->port_output)
-				outputs.insert(wire->name);
+			ਜੇ (wire->ਪੋਰਟ_ਨਿਵੇਸ਼)
+				inputs.ਪਾਓ(wire->name);
+			ਜੇ (wire->ਪੋਰਟ_output)
+				outputs.ਪਾਓ(wire->name);
 		}
-		setup_type(module->name, inputs, outputs);
+		ਤਿਆਰੀ_type(module->name, inputs, outputs);
 	}
 
-	void setup_type(RTLIL::IdString type, const pool<RTLIL::IdString> &inputs, const pool<RTLIL::IdString> &outputs, bool is_evaluable = false, bool is_combinatorial = false, bool is_synthesizable = false) {
+	ਖਾਲੀ ਤਿਆਰੀ_type(RTLIL::IdString type, ਅਚਲ pool<RTLIL::IdString> &inputs, ਅਚਲ pool<RTLIL::IdString> &outputs, bool is_evaluable = false, bool is_combinatorial = false, bool is_synthesizable = false) {
 		NewCellType ct = {type, inputs, outputs, is_evaluable, is_combinatorial, is_synthesizable};
 		custom_cell_types[ct.type] = ct;
 	}
 
-	void clear() {
+	ਖਾਲੀ clear() {
 		custom_cell_types.clear();
-		static_cell_types = StaticCellTypes::categories.empty;
+		static_cell_types = StaticCellTypes::categories.ਖਾਲੀ_ਥਾਵਾਂ;
 	}
 
-	bool cell_known(IdString type) const {
-		return static_cell_types(type) || custom_cell_types.count(type) != 0;
+	bool cell_ਗਿਆਤ(IdString type) ਅਚਲ {
+		ਵਾਪਸ static_cell_types(type) || custom_cell_types.ਗਿਣਤੀ_2(type) != 0;
 	}
 
-	bool cell_output(IdString type, IdString port) const
+	bool cell_output(IdString type, IdString ਪੋਰਟ) ਅਚਲ
 	{
-		if (static_cell_types(type) && StaticCellTypes::port_info.outputs(type).contains(port)) {
-			return true;
+		ਜੇ (static_cell_types(type) && StaticCellTypes::ਪੋਰਟ_info.outputs(type).ਸ਼ਾਮਲ_ਹੈ(ਪੋਰਟ)) {
+			ਵਾਪਸ true;
 		}
-		auto it = custom_cell_types.find(type);
-		return it != custom_cell_types.end() && it->second.outputs.count(port) != 0;
+		ਸਵੈਚਾਲਿਤ it = custom_cell_types.ਲੱਭੋ(type);
+		ਵਾਪਸ it != custom_cell_types.ਸਿਰਾ() && it->ਦੂਜਾ.outputs.ਗਿਣਤੀ_2(ਪੋਰਟ) != 0;
 	}
 
-	bool cell_input(IdString type, IdString port) const
+	bool cell_ਨਿਵੇਸ਼(IdString type, IdString ਪੋਰਟ) ਅਚਲ
 	{
-		if (static_cell_types(type) && StaticCellTypes::port_info.inputs(type).contains(port)) {
-			return true;
+		ਜੇ (static_cell_types(type) && StaticCellTypes::ਪੋਰਟ_info.inputs(type).ਸ਼ਾਮਲ_ਹੈ(ਪੋਰਟ)) {
+			ਵਾਪਸ true;
 		}
-		auto it = custom_cell_types.find(type);
-		return it != custom_cell_types.end() && it->second.inputs.count(port) != 0;
+		ਸਵੈਚਾਲਿਤ it = custom_cell_types.ਲੱਭੋ(type);
+		ਵਾਪਸ it != custom_cell_types.ਸਿਰਾ() && it->ਦੂਜਾ.inputs.ਗਿਣਤੀ_2(ਪੋਰਟ) != 0;
 	}
 
-	RTLIL::PortDir cell_port_dir(RTLIL::IdString type, RTLIL::IdString port) const
+	RTLIL::ਪੋਰਟ_Dir cell_ਪੋਰਟ_dir(RTLIL::IdString type, RTLIL::IdString ਪੋਰਟ) ਅਚਲ
 	{
-		bool is_input, is_output;
-		if (static_cell_types(type)) {
-			is_input = StaticCellTypes::port_info.inputs(type).contains(port);
-			is_output = StaticCellTypes::port_info.outputs(type).contains(port);
-		} else {
-			auto it = custom_cell_types.find(type);
-			if (it == custom_cell_types.end())
-				return RTLIL::PD_UNKNOWN;
-			is_input = it->second.inputs.count(port);
-			is_output = it->second.outputs.count(port);
+		bool is_ਨਿਵੇਸ਼, is_output;
+		ਜੇ (static_cell_types(type)) {
+			is_ਨਿਵੇਸ਼ = StaticCellTypes::ਪੋਰਟ_info.inputs(type).ਸ਼ਾਮਲ_ਹੈ(ਪੋਰਟ);
+			is_output = StaticCellTypes::ਪੋਰਟ_info.outputs(type).ਸ਼ਾਮਲ_ਹੈ(ਪੋਰਟ);
+		} ਨਹੀਂਤਾਂ {
+			ਸਵੈਚਾਲਿਤ it = custom_cell_types.ਲੱਭੋ(type);
+			ਜੇ (it == custom_cell_types.ਸਿਰਾ())
+				ਵਾਪਸ RTLIL::PD_UNKNOWN;
+			is_ਨਿਵੇਸ਼ = it->ਦੂਜਾ.inputs.ਗਿਣਤੀ_2(ਪੋਰਟ);
+			is_output = it->ਦੂਜਾ.outputs.ਗਿਣਤੀ_2(ਪੋਰਟ);
 		}
-		return RTLIL::PortDir(is_input + is_output * 2);
+		ਵਾਪਸ RTLIL::ਪੋਰਟ_Dir(is_ਨਿਵੇਸ਼ + is_output * 2);
 	}
-	bool cell_evaluable(IdString type) const
+	bool cell_evaluable(IdString type) ਅਚਲ
 	{
-		return static_cell_types(type) && StaticCellTypes::categories.is_evaluable(type);
+		ਵਾਪਸ static_cell_types(type) && StaticCellTypes::categories.is_evaluable(type);
 	}
 };
 
-extern NewCellTypes yosys_celltypes;
+ਬਾਹਰੀ NewCellTypes yosys_celltypes;
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif
+#ਜੇ_ਅੰਤ

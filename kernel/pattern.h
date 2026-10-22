@@ -1,9 +1,9 @@
-#ifndef OPT_DFF_COMP_H
-#define OPT_DFF_COMP_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ OPT_DFF_COMP_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ OPT_DFF_COMP_H
 
-#include "kernel/rtlil.h"
-#include <map>
-#include <optional>
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/rtlil.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <map>
+#ਅਨ੍ਤਰ੍ਭਾਵ <optional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -21,82 +21,82 @@ YOSYS_NAMESPACE_BEGIN
 
 // Pattern matching for clock enable
 // A pattern maps control signals to their required values for a MUX path
-typedef std::map<RTLIL::SigBit, bool> pattern_t; // Set of control signals that must ALL match required vals
-typedef std::set<pattern_t> patterns_t;          // Alternative patterns (OR)
-typedef std::pair<RTLIL::SigBit, bool> ctrl_t;   // Control signal
-typedef std::set<ctrl_t> ctrls_t;                // Set of control signals that must ALL be active
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ std::map<RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ, bool> ਨਮੂਨਾ_t; // Set of control signals that must ALL match required vals
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ std::ਸੈੱਟ<ਨਮੂਨਾ_t> patterns_t;          // Alternative patterns (OR)
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ std::pair<RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ, bool> ctrl_t;   // Control signal
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ std::ਸੈੱਟ<ctrl_t> ctrls_t;                // Set of control signals that must ALL be active
 
 /**
  * Find if two patterns differ in exactly one variable.
  * Example: {A=1,B=1} vs {A=1,B=0} returns B, allows simplification: (A&B) | (A&!B) => A
  */
-inline std::optional<RTLIL::SigBit> find_complementary_pattern_var(
-	const pattern_t& left,
-	const pattern_t& right
+ਸਤਰਅੰਦਰ std::optional<RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ> ਲੱਭੋ_complementary_ਨਮੂਨਾ_var(
+	ਅਚਲ ਨਮੂਨਾ_t& ਖੱਬਾ_2,
+	ਅਚਲ ਨਮੂਨਾ_t& ਸੱਜਾ_2
 ) {
-	std::optional<RTLIL::SigBit> ret;
-	for (const auto &pt : left) {
+	std::optional<RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ> ret;
+	ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &pt : ਖੱਬਾ_2) {
 		// Left requires signal that right doesn't constrain - incompatible domains
-		if (right.count(pt.first) == 0)
-			return std::nullopt;
+		ਜੇ (ਸੱਜਾ_2.ਗਿਣਤੀ_2(pt.ਪਹਿਲਾ) == 0)
+			ਵਾਪਸ std::nullopt;
 		// Signal has same required value in both - not the complement variable
-		if (right.at(pt.first) == pt.second)
-			continue;
+		ਜੇ (ਸੱਜਾ_2.at(pt.ਪਹਿਲਾ) == pt.ਦੂਜਾ)
+			ਜਾਰੀ;
 		// Already found one differing signal, now found another - not simplifiable
-		if (ret)
-			return std::nullopt;
+		ਜੇ (ret)
+			ਵਾਪਸ std::nullopt;
 		// First differing signal - candidate complement variable
-		ret = pt.first;
+		ret = pt.ਪਹਿਲਾ;
 	}
-	return ret;
+	ਵਾਪਸ ret;
 }
 
 /**
  * Simplify a sum-of-products by merging complementary patterns: (A&B) | (A&!B) => A,
  * and removing redundant patterns: A | (A&B) => A
  */
-inline void simplify_patterns(patterns_t& patterns) {
-	auto new_patterns = patterns;
+ਸਤਰਅੰਦਰ ਖਾਲੀ simplify_patterns(patterns_t& patterns) {
+	ਸਵੈਚਾਲਿਤ new_patterns = patterns;
 
 	// Merge complementary patterns
 	bool optimized;
-	do {
+	ਕਰੋ {
 		optimized = false;
-		for (auto i = patterns.begin(); i != patterns.end(); i++) {
-			for (auto j = std::next(i, 1); j != patterns.end(); j++) {
-				const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
-				auto right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
-				const auto complementary_var = find_complementary_pattern_var(left, right);
+		ਲਈ (ਸਵੈਚਾਲਿਤ i = patterns.begin(); i != patterns.ਸਿਰਾ(); i++) {
+			ਲਈ (ਸਵੈਚਾਲਿਤ j = std::ਅਗਲਾ(i, 1); j != patterns.ਸਿਰਾ(); j++) {
+				ਅਚਲ ਸਵੈਚਾਲਿਤ& ਖੱਬਾ_2 = (Get_ਮਾਪ(*j) <= Get_ਮਾਪ(*i)) ? *j : *i;
+				ਸਵੈਚਾਲਿਤ ਸੱਜਾ_2 = (Get_ਮਾਪ(*i) < Get_ਮਾਪ(*j)) ? *j : *i;
+				ਅਚਲ ਸਵੈਚਾਲਿਤ complementary_var = ਲੱਭੋ_complementary_ਨਮੂਨਾ_var(ਖੱਬਾ_2, ਸੱਜਾ_2);
 
-				if (complementary_var && new_patterns.count(right)) {
-					new_patterns.erase(right);
-					right.erase(complementary_var.value());
-					new_patterns.insert(right);
+				ਜੇ (complementary_var && new_patterns.ਗਿਣਤੀ_2(ਸੱਜਾ_2)) {
+					new_patterns.erase(ਸੱਜਾ_2);
+					ਸੱਜਾ_2.erase(complementary_var.ਮੁੱਲ());
+					new_patterns.ਪਾਓ(ਸੱਜਾ_2);
 					optimized = true;
 				}
 			}
 		}
 		patterns = new_patterns;
-	} while(optimized);
+	} ਜਦੋਂ(optimized);
 
 	// Remove redundant patterns
-	for (auto i = patterns.begin(); i != patterns.end(); ++i) {
-		for (auto j = std::next(i, 1); j != patterns.end(); ++j) {
-			const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
-			const auto& right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
+	ਲਈ (ਸਵੈਚਾਲਿਤ i = patterns.begin(); i != patterns.ਸਿਰਾ(); ++i) {
+		ਲਈ (ਸਵੈਚਾਲਿਤ j = std::ਅਗਲਾ(i, 1); j != patterns.ਸਿਰਾ(); ++j) {
+			ਅਚਲ ਸਵੈਚਾਲਿਤ& ਖੱਬਾ_2 = (Get_ਮਾਪ(*j) <= Get_ਮਾਪ(*i)) ? *j : *i;
+			ਅਚਲ ਸਵੈਚਾਲਿਤ& ਸੱਜਾ_2 = (Get_ਮਾਪ(*i) < Get_ਮਾਪ(*j)) ? *j : *i;
 			bool redundant = true;
 
-			for (const auto& pt : left)
-				if (right.count(pt.first) == 0 || right.at(pt.first) != pt.second)
+			ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& pt : ਖੱਬਾ_2)
+				ਜੇ (ਸੱਜਾ_2.ਗਿਣਤੀ_2(pt.ਪਹਿਲਾ) == 0 || ਸੱਜਾ_2.at(pt.ਪਹਿਲਾ) != pt.ਦੂਜਾ)
 					redundant = false;
-			if (redundant)
-				new_patterns.erase(right);
+			ਜੇ (redundant)
+				new_patterns.erase(ਸੱਜਾ_2);
 		}
 	}
 
 	patterns = std::move(new_patterns);
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif
+#ਜੇ_ਅੰਤ

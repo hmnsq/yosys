@@ -1,242 +1,242 @@
-#ifndef YOSYS_HASHCONS_IMPL_H
-#define YOSYS_HASHCONS_IMPL_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ YOSYS_HASHCONS_IMPL_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ YOSYS_HASHCONS_IMPL_H
 
-#include "kernel/hashcons.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/hashcons.h"
 
-#include <algorithm>
+#ਅਨ੍ਤਰ੍ਭਾਵ <algorithm>
 
 YOSYS_NAMESPACE_BEGIN
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::is_live(Ref ref) const {
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+bool HashConsPool<Derived, ਗੰਢ_2, Ref>::is_ਜੀਵਤ(Ref ref) ਅਚਲ {
 	Ref idx = ref.untag();
-	if (is_static(idx))
-		return true;
-	size_t slot = idx.raw() - Derived::STATIC_COUNT;
-	return slot < backing.size() && !backing[slot].is_dead();
+	ਜੇ (is_static(idx))
+		ਵਾਪਸ true;
+	ਮਾਪ_t ਥਾਂ = idx.raw() - Derived::STATIC_ਗਿਣਤੀ;
+	ਵਾਪਸ ਥਾਂ < backing.ਮਾਪ() && !backing[ਥਾਂ].is_dead();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::check_ready() {}
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਖਾਲੀ HashConsPool<Derived, ਗੰਢ_2, Ref>::check_ready() {}
 
-template<typename Derived, typename Node, typename Ref>
-const Node& HashConsPool<Derived, Node, Ref>::operator[] (Ref ref) const {
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਅਚਲ ਗੰਢ_2& HashConsPool<Derived, ਗੰਢ_2, Ref>::ਸੰਚਾਲਕ[] (Ref ref) ਅਚਲ {
 	Ref idx = ref.untag();
-	if constexpr (Derived::STATIC_COUNT != 0) {
-		if (is_static(idx))
-			return Derived::static_node(idx.raw());
+	ਜੇ constexpr (Derived::STATIC_ਗਿਣਤੀ != 0) {
+		ਜੇ (is_static(idx))
+			ਵਾਪਸ Derived::static_ਗੰਢ(idx.raw());
 	}
-	return backing[idx.raw() - Derived::STATIC_COUNT];
+	ਵਾਪਸ backing[idx.raw() - Derived::STATIC_ਗਿਣਤੀ];
 }
 
-template<typename Derived, typename Node, typename Ref>
-Derived* HashConsPool<Derived, Node, Ref>::self() { return static_cast<Derived*>(this); }
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+Derived* HashConsPool<Derived, ਗੰਢ_2, Ref>::self() { ਵਾਪਸ static_cast<Derived*>(this); }
 
-template<typename Derived, typename Node, typename Ref>
-const Derived* HashConsPool<Derived, Node, Ref>::self() const { return static_cast<const Derived*>(this); }
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਅਚਲ Derived* HashConsPool<Derived, ਗੰਢ_2, Ref>::self() ਅਚਲ { ਵਾਪਸ static_cast<ਅਚਲ Derived*>(this); }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::is_static(Ref ref) {
-	if constexpr (Derived::STATIC_COUNT == 0)
-		return false;
-	else
-		return ref.raw() < Derived::STATIC_COUNT;
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+bool HashConsPool<Derived, ਗੰਢ_2, Ref>::is_static(Ref ref) {
+	ਜੇ constexpr (Derived::STATIC_ਗਿਣਤੀ == 0)
+		ਵਾਪਸ false;
+	ਨਹੀਂਤਾਂ
+		ਵਾਪਸ ref.raw() < Derived::STATIC_ਗਿਣਤੀ;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::RefIterator::settle() {
-	while (skip_dead && idx < stop && !pool->slot_live(idx))
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਖਾਲੀ HashConsPool<Derived, ਗੰਢ_2, Ref>::RefIterator::settle() {
+	ਜਦੋਂ (skip_dead && idx < stop && !pool->ਥਾਂ_ਜੀਵਤ(idx))
 		idx++;
 }
 
-template<typename Derived, typename Node, typename Ref>
-Ref HashConsPool<Derived, Node, Ref>::RefIterator::operator*() const { return Ref(idx); }
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+Ref HashConsPool<Derived, ਗੰਢ_2, Ref>::RefIterator::ਸੰਚਾਲਕ*() ਅਚਲ { ਵਾਪਸ Ref(idx); }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefIterator::operator++() -> RefIterator& { idx++; settle(); return *this; }
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਸਵੈਚਾਲਿਤ HashConsPool<Derived, ਗੰਢ_2, Ref>::RefIterator::ਸੰਚਾਲਕ++() -> RefIterator& { idx++; settle(); ਵਾਪਸ *this; }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::RefIterator::operator!=(const RefIterator& other) const { return idx != other.idx; }
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+bool HashConsPool<Derived, ਗੰਢ_2, Ref>::RefIterator::ਸੰਚਾਲਕ!=(ਅਚਲ RefIterator& other) ਅਚਲ { ਵਾਪਸ idx != other.idx; }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefRange::begin() const -> RefIterator {
-	RefIterator it{pool, first, stop, skip_dead};
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਸਵੈਚਾਲਿਤ HashConsPool<Derived, ਗੰਢ_2, Ref>::RefRange::begin() ਅਚਲ -> RefIterator {
+	RefIterator it{pool, ਪਹਿਲਾ, stop, skip_dead};
 	it.settle();
-	return it;
+	ਵਾਪਸ it;
 }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefRange::end() const -> RefIterator { return RefIterator{pool, stop, stop, skip_dead}; }
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਸਵੈਚਾਲਿਤ HashConsPool<Derived, ਗੰਢ_2, Ref>::RefRange::ਸਿਰਾ() ਅਚਲ -> RefIterator { ਵਾਪਸ RefIterator{pool, stop, stop, skip_dead}; }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::refs(bool include_statics) const -> RefRange {
-	return RefRange{this, include_statics ? 0 : Derived::STATIC_COUNT,
-			Derived::STATIC_COUNT + backing.size(), true};
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਸਵੈਚਾਲਿਤ HashConsPool<Derived, ਗੰਢ_2, Ref>::refs(bool include_statics) ਅਚਲ -> RefRange {
+	ਵਾਪਸ RefRange{this, include_statics ? 0 : Derived::STATIC_ਗਿਣਤੀ,
+			Derived::STATIC_ਗਿਣਤੀ + backing.ਮਾਪ(), true};
 }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::slots() const -> RefRange {
-	return RefRange{this, Derived::STATIC_COUNT,
-			Derived::STATIC_COUNT + backing.size(), false};
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਸਵੈਚਾਲਿਤ HashConsPool<Derived, ਗੰਢ_2, Ref>::slots() ਅਚਲ -> RefRange {
+	ਵਾਪਸ RefRange{this, Derived::STATIC_ਗਿਣਤੀ,
+			Derived::STATIC_ਗਿਣਤੀ + backing.ਮਾਪ(), false};
 }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::home_slot(uint64_t hash) const {
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਮਾਪ_t HashConsPool<Derived, ਗੰਢ_2, Ref>::home_ਥਾਂ(uint64_t hash) ਅਚਲ {
 	// Knuth's Fibonacci hashing saves us from how bad DJB2 is
-	return (hash * 0x9e3779b97f4a7c15ull) >> (64 - std::countr_zero(table.size()));
+	ਵਾਪਸ (hash * 0x9e3779b97f4a7c15ull) >> (64 - std::countr_zero(ਸਾਰਣੀ_2.ਮਾਪ()));
 }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::next_slot(size_t slot) const { return (slot + 1) & (table.size() - 1); }
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਮਾਪ_t HashConsPool<Derived, ਗੰਢ_2, Ref>::ਅਗਲਾ_ਥਾਂ(ਮਾਪ_t ਥਾਂ) ਅਚਲ { ਵਾਪਸ (ਥਾਂ + 1) & (ਸਾਰਣੀ_2.ਮਾਪ() - 1); }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::size() const { return backing.size() - free_list.size(); }
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਮਾਪ_t HashConsPool<Derived, ਗੰਢ_2, Ref>::ਮਾਪ() ਅਚਲ { ਵਾਪਸ backing.ਮਾਪ() - free_list.ਮਾਪ(); }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::slot_live(size_t abs) const {
-	if (abs < Derived::STATIC_COUNT)
-		return true;
-	return !backing[abs - Derived::STATIC_COUNT].is_dead();
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+bool HashConsPool<Derived, ਗੰਢ_2, Ref>::ਥਾਂ_ਜੀਵਤ(ਮਾਪ_t ਨਿਰਪੇਖ) ਅਚਲ {
+	ਜੇ (ਨਿਰਪੇਖ < Derived::STATIC_ਗਿਣਤੀ)
+		ਵਾਪਸ true;
+	ਵਾਪਸ !backing[ਨਿਰਪੇਖ - Derived::STATIC_ਗਿਣਤੀ].is_dead();
 }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>::HashConsPool() { rebuild_index(); }
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+HashConsPool<Derived, ਗੰਢ_2, Ref>::HashConsPool() { rebuild_ਸੂਚਕਾਂਕ(); }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>::HashConsPool(HashConsPool&& other)
-	: backing(std::move(other.backing)), table(std::move(other.table)), free_list(std::move(other.free_list)) {
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+HashConsPool<Derived, ਗੰਢ_2, Ref>::HashConsPool(HashConsPool&& other)
+	: backing(std::move(other.backing)), ਸਾਰਣੀ_2(std::move(other.ਸਾਰਣੀ_2)), free_list(std::move(other.free_list)) {
 	other.reset();
 }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>& HashConsPool<Derived, Node, Ref>::operator=(HashConsPool&& other) {
-	if (this != &other) {
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+HashConsPool<Derived, ਗੰਢ_2, Ref>& HashConsPool<Derived, ਗੰਢ_2, Ref>::ਸੰਚਾਲਕ=(HashConsPool&& other) {
+	ਜੇ (this != &other) {
 		backing = std::move(other.backing);
-		table = std::move(other.table);
+		ਸਾਰਣੀ_2 = std::move(other.ਸਾਰਣੀ_2);
 		free_list = std::move(other.free_list);
 		other.reset();
 	}
-	return *this;
+	ਵਾਪਸ *this;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::reset() {
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਖਾਲੀ HashConsPool<Derived, ਗੰਢ_2, Ref>::reset() {
 	backing.clear();
 	free_list.clear();
-	rebuild_index();
+	rebuild_ਸੂਚਕਾਂਕ();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::rebuild_index() {
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਖਾਲੀ HashConsPool<Derived, ਗੰਢ_2, Ref>::rebuild_ਸੂਚਕਾਂਕ() {
 	Derived::check_ready();
 	free_list.clear();
-	for (size_t idx = 0; idx < backing.size(); ++idx)
-		if (backing[idx].is_dead())
-			free_list.push_back(idx);
-	std::sort(free_list.begin(), free_list.end(), std::greater<size_t>());
-	table.assign(std::bit_ceil((Derived::STATIC_COUNT + size()) * 2 + 2), Ref());
-	for (Ref ref : refs())
-		index_insert(ref);
+	ਲਈ (ਮਾਪ_t idx = 0; idx < backing.ਮਾਪ(); ++idx)
+		ਜੇ (backing[idx].is_dead())
+			free_list.ਧੱਕੋ_ਪਿੱਠ(idx);
+	std::ਛਾਂਟੋ(free_list.begin(), free_list.ਸਿਰਾ(), std::greater<ਮਾਪ_t>());
+	ਸਾਰਣੀ_2.ਸੌਂਪੋ(std::ਦੋਆਧਾਰੀ_ਅੰਕ_ceil((Derived::STATIC_ਗਿਣਤੀ + ਮਾਪ()) * 2 + 2), Ref());
+	ਲਈ (Ref ref : refs())
+		ਸੂਚਕਾਂਕ_ਪਾਓ(ref);
 }
 
-template<typename Derived, typename Node, typename Ref>
-template<typename Eq>
-Ref HashConsPool<Derived, Node, Ref>::find_hashed(uint64_t hash, Eq&& eq) const {
-	for (size_t slot = home_slot(hash); table[slot] != Ref(); slot = next_slot(slot)) {
-		Ref ref = table[slot];
-		if (Derived::hash_node((*this)[ref]) == hash && eq(ref))
-			return ref;
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਸਾਂਚਾ<typename Eq>
+Ref HashConsPool<Derived, ਗੰਢ_2, Ref>::ਲੱਭੋ_hashed(uint64_t hash, Eq&& eq) ਅਚਲ {
+	ਲਈ (ਮਾਪ_t ਥਾਂ = home_ਥਾਂ(hash); ਸਾਰਣੀ_2[ਥਾਂ] != Ref(); ਥਾਂ = ਅਗਲਾ_ਥਾਂ(ਥਾਂ)) {
+		Ref ref = ਸਾਰਣੀ_2[ਥਾਂ];
+		ਜੇ (Derived::hash_ਗੰਢ((*this)[ref]) == hash && eq(ref))
+			ਵਾਪਸ ref;
 	}
-	return Ref();
+	ਵਾਪਸ Ref();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::index_insert(Ref ref) {
-	size_t slot = home_slot(Derived::hash_node((*this)[ref]));
-	while (table[slot] != Ref())
-		slot = next_slot(slot);
-	table[slot] = ref;
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਖਾਲੀ HashConsPool<Derived, ਗੰਢ_2, Ref>::ਸੂਚਕਾਂਕ_ਪਾਓ(Ref ref) {
+	ਮਾਪ_t ਥਾਂ = home_ਥਾਂ(Derived::hash_ਗੰਢ((*this)[ref]));
+	ਜਦੋਂ (ਸਾਰਣੀ_2[ਥਾਂ] != Ref())
+		ਥਾਂ = ਅਗਲਾ_ਥਾਂ(ਥਾਂ);
+	ਸਾਰਣੀ_2[ਥਾਂ] = ref;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::index_erase(Ref ref) {
-	size_t hole = home_slot(Derived::hash_node((*this)[ref]));
-	while (table[hole] != ref)
-		hole = next_slot(hole);
-	size_t mask = table.size() - 1;
-	for (size_t slot = next_slot(hole); table[slot] != Ref(); slot = next_slot(slot)) {
-		size_t home = home_slot(Derived::hash_node((*this)[table[slot]]));
-		if (((slot - home) & mask) >= ((slot - hole) & mask)) {
-			table[hole] = table[slot];
-			hole = slot;
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਖਾਲੀ HashConsPool<Derived, ਗੰਢ_2, Ref>::ਸੂਚਕਾਂਕ_erase(Ref ref) {
+	ਮਾਪ_t hole = home_ਥਾਂ(Derived::hash_ਗੰਢ((*this)[ref]));
+	ਜਦੋਂ (ਸਾਰਣੀ_2[hole] != ref)
+		hole = ਅਗਲਾ_ਥਾਂ(hole);
+	ਮਾਪ_t ਨਕਾਬ = ਸਾਰਣੀ_2.ਮਾਪ() - 1;
+	ਲਈ (ਮਾਪ_t ਥਾਂ = ਅਗਲਾ_ਥਾਂ(hole); ਸਾਰਣੀ_2[ਥਾਂ] != Ref(); ਥਾਂ = ਅਗਲਾ_ਥਾਂ(ਥਾਂ)) {
+		ਮਾਪ_t home = home_ਥਾਂ(Derived::hash_ਗੰਢ((*this)[ਸਾਰਣੀ_2[ਥਾਂ]]));
+		ਜੇ (((ਥਾਂ - home) & ਨਕਾਬ) >= ((ਥਾਂ - hole) & ਨਕਾਬ)) {
+			ਸਾਰਣੀ_2[hole] = ਸਾਰਣੀ_2[ਥਾਂ];
+			hole = ਥਾਂ;
 		}
 	}
-	table[hole] = Ref();
+	ਸਾਰਣੀ_2[hole] = Ref();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::grow_index() {
-	std::vector<Ref> old(table.size() * 2, Ref());
-	std::swap(old, table);
-	for (Ref ref : old)
-		if (ref != Ref())
-			index_insert(ref);
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਖਾਲੀ HashConsPool<Derived, ਗੰਢ_2, Ref>::grow_ਸੂਚਕਾਂਕ() {
+	std::ਸਦਿਸ਼<Ref> old(ਸਾਰਣੀ_2.ਮਾਪ() * 2, Ref());
+	std::ਅਦਲਾ_ਬਦਲੀ(old, ਸਾਰਣੀ_2);
+	ਲਈ (Ref ref : old)
+		ਜੇ (ref != Ref())
+			ਸੂਚਕਾਂਕ_ਪਾਓ(ref);
 }
 
-template<typename Derived, typename Node, typename Ref>
-Ref HashConsPool<Derived, Node, Ref>::add_inner(Node t) {
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+Ref HashConsPool<Derived, ਗੰਢ_2, Ref>::ਜੋੜੋ_inner(ਗੰਢ_2 t) {
 	Ref ref;
-	if (!free_list.empty()) {
-		size_t idx = free_list.back();
-		free_list.pop_back();
+	ਜੇ (!free_list.ਖਾਲੀ_ਥਾਵਾਂ()) {
+		ਮਾਪ_t idx = free_list.ਪਿੱਠ();
+		free_list.ਕੱਢੋ_ਪਿੱਠ();
 		backing[idx] = std::move(t);
-		ref = Ref(Derived::STATIC_COUNT + idx);
-	} else {
-		ref = Ref(Derived::STATIC_COUNT + backing.size());
-		backing.push_back(std::move(t));
+		ref = Ref(Derived::STATIC_ਗਿਣਤੀ + idx);
+	} ਨਹੀਂਤਾਂ {
+		ref = Ref(Derived::STATIC_ਗਿਣਤੀ + backing.ਮਾਪ());
+		backing.ਧੱਕੋ_ਪਿੱਠ(std::move(t));
 	}
-	if ((Derived::STATIC_COUNT + size()) * 3 > table.size() * 2)
-		grow_index();
-	index_insert(ref);
-	if (yosys_xtrace) {
+	ਜੇ ((Derived::STATIC_ਗਿਣਤੀ + ਮਾਪ()) * 3 > ਸਾਰਣੀ_2.ਮਾਪ() * 2)
+		grow_ਸੂਚਕਾਂਕ();
+	ਸੂਚਕਾਂਕ_ਪਾਓ(ref);
+	ਜੇ (yosys_xtrace) {
 		std::cout << "#X# add_inner added ";
 		self()->dump(ref);
 		std::cout << "\n";
 		std::cout << "#X# as integer " << ref.raw() << "\n";
 	}
-	return ref;
+	ਵਾਪਸ ref;
 }
 
-template<typename Derived, typename Node, typename Ref>
-template<typename Roots>
-size_t HashConsPool<Derived, Node, Ref>::gc(const Roots& roots) {
-	pool<Ref> live;
-	for (Ref ref : roots)
-		mark_live(ref, live);
-	size_t erased = 0;
-	for (size_t idx = 0; idx < backing.size(); ++idx) {
-		if (backing[idx].is_dead())
-			continue;
-		if (!live.count(Ref(Derived::STATIC_COUNT + idx))) {
-			index_erase(Ref(Derived::STATIC_COUNT + idx));
-			free_list.push_back(idx);
-			backing[idx] = Node{};
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਸਾਂਚਾ<typename Roots>
+ਮਾਪ_t HashConsPool<Derived, ਗੰਢ_2, Ref>::gc(ਅਚਲ Roots& roots) {
+	pool<Ref> ਜੀਵਤ;
+	ਲਈ (Ref ref : roots)
+		mark_ਜੀਵਤ(ref, ਜੀਵਤ);
+	ਮਾਪ_t erased = 0;
+	ਲਈ (ਮਾਪ_t idx = 0; idx < backing.ਮਾਪ(); ++idx) {
+		ਜੇ (backing[idx].is_dead())
+			ਜਾਰੀ;
+		ਜੇ (!ਜੀਵਤ.ਗਿਣਤੀ_2(Ref(Derived::STATIC_ਗਿਣਤੀ + idx))) {
+			ਸੂਚਕਾਂਕ_erase(Ref(Derived::STATIC_ਗਿਣਤੀ + idx));
+			free_list.ਧੱਕੋ_ਪਿੱਠ(idx);
+			backing[idx] = ਗੰਢ_2{};
 			erased++;
 		}
 	}
 	// TODO something like YOSYS_SORT_ID_FREE_LIST to make it optional?
-	std::sort(free_list.begin(), free_list.end(), std::greater<size_t>());
-	return erased;
+	std::ਛਾਂਟੋ(free_list.begin(), free_list.ਸਿਰਾ(), std::greater<ਮਾਪ_t>());
+	ਵਾਪਸ erased;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::mark_live(Ref ref, pool<Ref>& live) const {
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਖਾਲੀ HashConsPool<Derived, ਗੰਢ_2, Ref>::mark_ਜੀਵਤ(Ref ref, pool<Ref>& ਜੀਵਤ) ਅਚਲ {
 	ref = ref.untag();
-	if (ref == Ref() || is_static(ref) || !live.insert(ref).second)
-		return;
-	Derived::for_each_child((*this)[ref], [&](Ref child) { mark_live(child, live); });
+	ਜੇ (ref == Ref() || is_static(ref) || !ਜੀਵਤ.ਪਾਓ(ref).ਦੂਜਾ)
+		ਵਾਪਸ;
+	Derived::for_each_ਬੱਚਾ((*this)[ref], [&](Ref ਬੱਚਾ) { mark_ਜੀਵਤ(ਬੱਚਾ, ਜੀਵਤ); });
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif
+#ਜੇ_ਅੰਤ

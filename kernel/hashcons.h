@@ -1,11 +1,11 @@
-#ifndef YOSYS_HASHCONS_H
-#define YOSYS_HASHCONS_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ YOSYS_HASHCONS_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ YOSYS_HASHCONS_H
 
-#include "kernel/yosys_common.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys_common.h"
 
-#include <bit>
-#include <deque>
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <bit>
+#ਅਨ੍ਤਰ੍ਭਾਵ <deque>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
 /**
  * Implements deduplicating backing storage indexed by content hash
@@ -13,79 +13,79 @@
 
 YOSYS_NAMESPACE_BEGIN
 
-template<typename Derived, typename Node, typename Ref>
-struct HashConsPool {
-public:
-	bool is_live(Ref ref) const;
+ਸਾਂਚਾ<typename Derived, typename ਗੰਢ_2, typename Ref>
+ਬਣਤਰ HashConsPool {
+ਜਨਤਕ:
+	bool is_ਜੀਵਤ(Ref ref) ਅਚਲ;
 
-protected:
-	std::deque<Node> backing;
-	std::vector<Ref> table;
-	std::vector<size_t> free_list;
+ਸੁਰੱਖਿਅਤ:
+	std::deque<ਗੰਢ_2> backing;
+	std::ਸਦਿਸ਼<Ref> ਸਾਰਣੀ_2;
+	std::ਸਦਿਸ਼<ਮਾਪ_t> free_list;
 
 	HashConsPool();
-	HashConsPool(const HashConsPool& other) = default;
+	HashConsPool(ਅਚਲ HashConsPool& other) = ਮੂਲ;
 	HashConsPool(HashConsPool&& other);
-	HashConsPool& operator=(const HashConsPool& other) = default;
-	HashConsPool& operator=(HashConsPool&& other);
+	HashConsPool& ਸੰਚਾਲਕ=(ਅਚਲ HashConsPool& other) = ਮੂਲ;
+	HashConsPool& ਸੰਚਾਲਕ=(HashConsPool&& other);
 
-	static void check_ready();
+	ਸਥਿਰ ਖਾਲੀ check_ready();
 
-	const Node& operator[] (Ref ref) const;
+	ਅਚਲ ਗੰਢ_2& ਸੰਚਾਲਕ[] (Ref ref) ਅਚਲ;
 
-	template<typename Eq>
-	Ref find_hashed(uint64_t hash, Eq&& eq) const;
-	Ref add_inner(Node t);
+	ਸਾਂਚਾ<typename Eq>
+	Ref ਲੱਭੋ_hashed(uint64_t hash, Eq&& eq) ਅਚਲ;
+	Ref ਜੋੜੋ_inner(ਗੰਢ_2 t);
 
-	template<typename Roots>
-	size_t gc(const Roots& roots);
+	ਸਾਂਚਾ<typename Roots>
+	ਮਾਪ_t gc(ਅਚਲ Roots& roots);
 
-private:
+ਨਿਜੀ:
 	Derived* self();
-	const Derived* self() const;
+	ਅਚਲ Derived* self() ਅਚਲ;
 
-	void reset();
+	ਖਾਲੀ reset();
 
-	static bool is_static(Ref ref);
+	ਸਥਿਰ bool is_static(Ref ref);
 
-	struct RefIterator {
-		const HashConsPool* pool;
-		size_t idx;
-		size_t stop;
+	ਬਣਤਰ RefIterator {
+		ਅਚਲ HashConsPool* pool;
+		ਮਾਪ_t idx;
+		ਮਾਪ_t stop;
 		bool skip_dead;
 
-		void settle();
-		Ref operator*() const;
-		RefIterator& operator++();
-		bool operator!=(const RefIterator& other) const;
+		ਖਾਲੀ settle();
+		Ref ਸੰਚਾਲਕ*() ਅਚਲ;
+		RefIterator& ਸੰਚਾਲਕ++();
+		bool ਸੰਚਾਲਕ!=(ਅਚਲ RefIterator& other) ਅਚਲ;
 	};
 
-	struct RefRange {
-		const HashConsPool* pool;
-		size_t first;
-		size_t stop;
+	ਬਣਤਰ RefRange {
+		ਅਚਲ HashConsPool* pool;
+		ਮਾਪ_t ਪਹਿਲਾ;
+		ਮਾਪ_t stop;
 		bool skip_dead;
 
-		RefIterator begin() const;
-		RefIterator end() const;
+		RefIterator begin() ਅਚਲ;
+		RefIterator ਸਿਰਾ() ਅਚਲ;
 	};
 
-	RefRange refs(bool include_statics = true) const;
+	RefRange refs(bool include_statics = true) ਅਚਲ;
 	// Includes the dead
-	RefRange slots() const;
+	RefRange slots() ਅਚਲ;
 
-	void rebuild_index();
-	size_t home_slot(uint64_t hash) const;
-	size_t next_slot(size_t slot) const;
-	void index_insert(Ref ref);
-	void index_erase(Ref ref);
-	void grow_index();
+	ਖਾਲੀ rebuild_ਸੂਚਕਾਂਕ();
+	ਮਾਪ_t home_ਥਾਂ(uint64_t hash) ਅਚਲ;
+	ਮਾਪ_t ਅਗਲਾ_ਥਾਂ(ਮਾਪ_t ਥਾਂ) ਅਚਲ;
+	ਖਾਲੀ ਸੂਚਕਾਂਕ_ਪਾਓ(Ref ref);
+	ਖਾਲੀ ਸੂਚਕਾਂਕ_erase(Ref ref);
+	ਖਾਲੀ grow_ਸੂਚਕਾਂਕ();
 
-	size_t size() const;
-	bool slot_live(size_t abs) const;
-	void mark_live(Ref ref, pool<Ref>& live) const;
+	ਮਾਪ_t ਮਾਪ() ਅਚਲ;
+	bool ਥਾਂ_ਜੀਵਤ(ਮਾਪ_t ਨਿਰਪੇਖ) ਅਚਲ;
+	ਖਾਲੀ mark_ਜੀਵਤ(Ref ref, pool<Ref>& ਜੀਵਤ) ਅਚਲ;
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif
+#ਜੇ_ਅੰਤ

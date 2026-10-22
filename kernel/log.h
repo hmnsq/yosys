@@ -17,32 +17,32 @@
  *
  */
 
-#ifndef LOG_H
-#define LOG_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ LOG_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ LOG_H
 
-#include "kernel/yosys_common.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys_common.h"
 
-#include <chrono>
-#include <time.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <chrono>
+#ਅਨ੍ਤਰ੍ਭਾਵ <time.h>
 
-#include <regex>
-#define YS_REGEX_COMPILE(param) std::regex(param, \
+#ਅਨ੍ਤਰ੍ਭਾਵ <regex>
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ YS_REGEX_COMPILE(param) std::regex(param, \
 				std::regex_constants::nosubs | \
 				std::regex_constants::optimize | \
 				std::regex_constants::egrep)
-#define YS_REGEX_COMPILE_WITH_SUBS(param) std::regex(param, \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ YS_REGEX_COMPILE_WITH_SUBS(param) std::regex(param, \
 				std::regex_constants::optimize | \
 				std::regex_constants::egrep)
 
-#if defined(_WIN32)
+#ਜੇ defined(_WIN32)
 #  include <intrin.h>
-#else
+#ਨਹੀਂਤਾਂ
 #  include <sys/time.h>
 #  include <sys/resource.h>
-#  if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+#  ਜੇ defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 #    include <signal.h>
 #  endif
-#endif
+#ਜੇ_ਅੰਤ
 
 // from libs/sha1/sha1.h
 class SHA1;
@@ -53,202 +53,202 @@ YOSYS_NAMESPACE_BEGIN
 // if the platform provides such functionality, and does nothing otherwise.
 // If no debugger is attached, it starts a just-in-time debugger if available,
 // and crashes the process otherwise.
-#if defined(_WIN32)
+#ਜੇ defined(_WIN32)
 # define YS_DEBUGTRAP __debugbreak()
-#else
+#ਨਹੀਂਤਾਂ
 # ifndef __has_builtin
 // __has_builtin is a GCC/Clang extension; on a different compiler (or old enough GCC/Clang)
 // that does not have it, using __has_builtin(...) is a syntax error.
 #  define __has_builtin(x) 0
 # endif
-# if __has_builtin(__builtin_debugtrap)
+# ਜੇ __has_builtin(__builtin_debugtrap)
 #  define YS_DEBUGTRAP __builtin_debugtrap()
 # elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
-#  define YS_DEBUGTRAP raise(SIGTRAP)
-# else
-#  define YS_DEBUGTRAP do {} while(0)
+#  define YS_DEBUGTRAP ਉਠਾਓ(SIGTRAP)
+# ਨਹੀਂਤਾਂ
+#  define YS_DEBUGTRAP ਕਰੋ {} ਜਦੋਂ(0)
 # endif
-#endif
+#ਜੇ_ਅੰਤ
 
 // YS_DEBUGTRAP_IF_DEBUGGING is a macro that is functionally equivalent to a breakpoint
 // if a debugger is attached, and does nothing otherwise.
-#if defined(_WIN32)
-# define YS_DEBUGTRAP_IF_DEBUGGING do { if (IsDebuggerPresent()) DebugBreak(); } while(0)
+#ਜੇ defined(_WIN32)
+# define YS_DEBUGTRAP_IF_DEBUGGING ਕਰੋ { ਜੇ (IsDebuggerPresent()) DebugBreak(); } ਜਦੋਂ(0)
 # elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 // There is no reliable (or portable) *nix equivalent of IsDebuggerPresent(). However,
 // debuggers will stop when SIGTRAP is raised, even if the action is set to ignore.
-# define YS_DEBUGTRAP_IF_DEBUGGING do { \
-		auto old = signal(SIGTRAP, SIG_IGN); raise(SIGTRAP); signal(SIGTRAP, old); \
-	} while(0)
-#else
-# define YS_DEBUGTRAP_IF_DEBUGGING do {} while(0)
-#endif
+# define YS_DEBUGTRAP_IF_DEBUGGING ਕਰੋ { \
+		ਸਵੈਚਾਲਿਤ old = ਸੰਕੇਤ(SIGTRAP, SIG_IGN); ਉਠਾਓ(SIGTRAP); ਸੰਕੇਤ(SIGTRAP, old); \
+	} ਜਦੋਂ(0)
+#ਨਹੀਂਤਾਂ
+# define YS_DEBUGTRAP_IF_DEBUGGING ਕਰੋ {} ਜਦੋਂ(0)
+#ਜੇ_ਅੰਤ
 
-struct log_cmd_error_exception { };
+ਬਣਤਰ log_cmd_error_exception { };
 
-enum class LogSeverity {
+ਗਿਣਤੀ class LogSeverity {
 	Debug,
 	Comment,
 	Info,
 	Highlight,
-	Header,
+	ਸਿਰਲੇਖ,
 	Warning,
 	NonFatalError,
 	Error
 };
 
-struct LogSourceLocation {
-	LogSourceLocation() : filename({}),start_line(-1),start_col(-1),end_line(-1),end_col(-1) { }
-	LogSourceLocation(std::string filename) : filename(filename),start_line(-1),start_col(-1),end_line(-1),end_col(-1) { }
-	LogSourceLocation(std::string filename,int start_line) : filename(filename),start_line(start_line),start_col(-1),end_line(-1),end_col(-1) { }
-	LogSourceLocation(std::string filename,int start_line,int start_col,int end_line,int end_col) :
-		filename(filename),start_line(start_line),start_col(start_col),end_line(end_line),end_col(end_col) { }
+ਬਣਤਰ Log_ਸਰੋਤ_Location {
+	Log_ਸਰੋਤ_Location() : filename({}),ਸ਼ੁਰੂ_ਸਤਰ(-1),ਸ਼ੁਰੂ_ਖਾਨਾ(-1),ਸਿਰਾ_ਸਤਰ(-1),ਸਿਰਾ_ਖਾਨਾ(-1) { }
+	Log_ਸਰੋਤ_Location(std::string filename) : filename(filename),ਸ਼ੁਰੂ_ਸਤਰ(-1),ਸ਼ੁਰੂ_ਖਾਨਾ(-1),ਸਿਰਾ_ਸਤਰ(-1),ਸਿਰਾ_ਖਾਨਾ(-1) { }
+	Log_ਸਰੋਤ_Location(std::string filename,ਪੂਰਨ ਸ਼ੁਰੂ_ਸਤਰ) : filename(filename),ਸ਼ੁਰੂ_ਸਤਰ(ਸ਼ੁਰੂ_ਸਤਰ),ਸ਼ੁਰੂ_ਖਾਨਾ(-1),ਸਿਰਾ_ਸਤਰ(-1),ਸਿਰਾ_ਖਾਨਾ(-1) { }
+	Log_ਸਰੋਤ_Location(std::string filename,ਪੂਰਨ ਸ਼ੁਰੂ_ਸਤਰ,ਪੂਰਨ ਸ਼ੁਰੂ_ਖਾਨਾ,ਪੂਰਨ ਸਿਰਾ_ਸਤਰ,ਪੂਰਨ ਸਿਰਾ_ਖਾਨਾ) :
+		filename(filename),ਸ਼ੁਰੂ_ਸਤਰ(ਸ਼ੁਰੂ_ਸਤਰ),ਸ਼ੁਰੂ_ਖਾਨਾ(ਸ਼ੁਰੂ_ਖਾਨਾ),ਸਿਰਾ_ਸਤਰ(ਸਿਰਾ_ਸਤਰ),ਸਿਰਾ_ਖਾਨਾ(ਸਿਰਾ_ਖਾਨਾ) { }
 	std::string filename;
-	int start_line;
-	int start_col;
-	int end_line;
-	int end_col;
+	ਪੂਰਨ ਸ਼ੁਰੂ_ਸਤਰ;
+	ਪੂਰਨ ਸ਼ੁਰੂ_ਖਾਨਾ;
+	ਪੂਰਨ ਸਿਰਾ_ਸਤਰ;
+	ਪੂਰਨ ਸਿਰਾ_ਖਾਨਾ;
 };
 
-struct LogMessage {
-	LogMessage(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string_view message);
+ਬਣਤਰ Log_ਸੁਨੇਹਾ {
+	Log_ਸੁਨੇਹਾ(LogSeverity severity, Log_ਸਰੋਤ_Location src, std::string_view ਅਗੇਤਰ_2, std::string_view format, std::string_view ਸੁਨੇਹਾ_2);
 	LogSeverity severity;
-	std::string prefix;
+	std::string ਅਗੇਤਰ_2;
 	std::string format;
-	std::string message;
-	std::chrono::steady_clock::time_point timestamp;
-	LogSourceLocation src;
+	std::string ਸੁਨੇਹਾ_2;
+	std::chrono::steady_clock::ਸਮਾਂ_ਬਿੰਦੂ timestamp;
+	Log_ਸਰੋਤ_Location src;
 
-	std::string cached_msg;
+	std::string cached_ਸੁਨੇਹਾ;
 };
 
 class LogSink
 {
-public:
-	virtual ~LogSink() = default;
+ਜਨਤਕ:
+	ਆਭਾਸੀ ~LogSink() = ਮੂਲ;
 
-	virtual bool should_log(const LogMessage &) const { return true; }
-	virtual void log(const LogMessage &msg) = 0;
-	virtual void flush() {}
+	ਆਭਾਸੀ bool should_log(ਅਚਲ Log_ਸੁਨੇਹਾ &) ਅਚਲ { ਵਾਪਸ true; }
+	ਆਭਾਸੀ ਖਾਲੀ ਲਘੂਗਣਕ(ਅਚਲ Log_ਸੁਨੇਹਾ &ਸੁਨੇਹਾ) = 0;
+	ਆਭਾਸੀ ਖਾਲੀ flush() {}
 	// TODO: Remove when AST/read_verilog removed
-	virtual FILE *file_handle() { return nullptr; }
+	ਆਭਾਸੀ FILE *file_handle() { ਵਾਪਸ nullptr; }
 };
 
-class LogSinkRef : public LogSink
+class LogSinkRef : ਜਨਤਕ LogSink
 {
-public:
+ਜਨਤਕ:
 	explicit LogSinkRef(LogSink *sink) : sink(sink) {}
-	bool should_log(const LogMessage &msg) const override { return sink->should_log(msg); }
-	void log(const LogMessage &msg) override { sink->log(msg); }
-	void flush() override { sink->flush(); }
-	FILE *file_handle() override { return sink->file_handle(); }
-private:
+	bool should_log(ਅਚਲ Log_ਸੁਨੇਹਾ &ਸੁਨੇਹਾ) ਅਚਲ override { ਵਾਪਸ sink->should_log(ਸੁਨੇਹਾ); }
+	ਖਾਲੀ ਲਘੂਗਣਕ(ਅਚਲ Log_ਸੁਨੇਹਾ &ਸੁਨੇਹਾ) override { sink->ਲਘੂਗਣਕ(ਸੁਨੇਹਾ); }
+	ਖਾਲੀ flush() override { sink->flush(); }
+	FILE *file_handle() override { ਵਾਪਸ sink->file_handle(); }
+ਨਿਜੀ:
 	LogSink *sink;
 };
 
-class FileLogSink : public LogSink
+class FileLogSink : ਜਨਤਕ LogSink
 {
-public:
-	explicit FileLogSink(const std::string &filename, bool line_buffered, bool append);
+ਜਨਤਕ:
+	explicit FileLogSink(ਅਚਲ std::string &filename, bool ਸਤਰ_buffered, bool append);
 	~FileLogSink() override;
-	void log(const LogMessage &msg) override;
-	void flush() override;
-	FILE *file_handle() override { return file; }
+	ਖਾਲੀ ਲਘੂਗਣਕ(ਅਚਲ Log_ਸੁਨੇਹਾ &ਸੁਨੇਹਾ) override;
+	ਖਾਲੀ flush() override;
+	FILE *file_handle() override { ਵਾਪਸ file; }
 
-private:
+ਨਿਜੀ:
 	FILE *file;
 };
 
-class ConsoleLogSink : public LogSink
+class ConsoleLogSink : ਜਨਤਕ LogSink
 {
-public:
-	void log(const LogMessage &msg) override;
-	void flush() override;
-	FILE *file_handle() override { return stdout; }
+ਜਨਤਕ:
+	ਖਾਲੀ ਲਘੂਗਣਕ(ਅਚਲ Log_ਸੁਨੇਹਾ &ਸੁਨੇਹਾ) override;
+	ਖਾਲੀ flush() override;
+	FILE *file_handle() override { ਵਾਪਸ stdout; }
 };
 
-class StderrLogSink : public LogSink
+class StderrLogSink : ਜਨਤਕ LogSink
 {
-public:
+ਜਨਤਕ:
 	explicit StderrLogSink(bool quiet) : quiet_warnings(quiet) {}
-	bool should_log(const LogMessage &msg) const override;
-	void log(const LogMessage &msg) override;
-	void flush() override;
-private:
+	bool should_log(ਅਚਲ Log_ਸੁਨੇਹਾ &ਸੁਨੇਹਾ) ਅਚਲ override;
+	ਖਾਲੀ ਲਘੂਗਣਕ(ਅਚਲ Log_ਸੁਨੇਹਾ &ਸੁਨੇਹਾ) override;
+	ਖਾਲੀ flush() override;
+ਨਿਜੀ:
 	bool quiet_warnings;
 };
 
-class StreamLogSink : public LogSink
+class ਧਾਰਾ_Log_Sink : ਜਨਤਕ LogSink
 {
-public:
-	explicit StreamLogSink(std::ostream &stream) : stream(stream) {}
-	void log(const LogMessage &msg) override { stream << msg.cached_msg; }
-	void flush() override { stream.flush(); }
+ਜਨਤਕ:
+	explicit ਧਾਰਾ_Log_Sink(std::ostream &ਧਾਰਾ) : ਧਾਰਾ(ਧਾਰਾ) {}
+	ਖਾਲੀ ਲਘੂਗਣਕ(ਅਚਲ Log_ਸੁਨੇਹਾ &ਸੁਨੇਹਾ) override { ਧਾਰਾ << ਸੁਨੇਹਾ.cached_ਸੁਨੇਹਾ; }
+	ਖਾਲੀ flush() override { ਧਾਰਾ.flush(); }
 
-private:
-	std::ostream &stream;
+ਨਿਜੀ:
+	std::ostream &ਧਾਰਾ;
 };
 
-class ScratchPadLogSink : public LogSink
+class ScratchPadLogSink : ਜਨਤਕ LogSink
 {
-public:
+ਜਨਤਕ:
 	explicit ScratchPadLogSink(std::string scratchpad);
-	void log(const LogMessage &msg) override;
+	ਖਾਲੀ ਲਘੂਗਣਕ(ਅਚਲ Log_ਸੁਨੇਹਾ &ਸੁਨੇਹਾ) override;
 
-private:
+ਨਿਜੀ:
 	std::string scratchpad;
 };
 
 class LogManager
 {
-private:
-	struct LogExpectedItem
+ਨਿਜੀ:
+	ਬਣਤਰ Log_Expected_ਵਸਤੂ
 	{
-		LogExpectedItem(const std::regex &pat, int expected) :
-				pattern(pat), expected_count(expected), current_count(0) {}
-		LogExpectedItem() : expected_count(0), current_count(0) {}
+		Log_Expected_ਵਸਤੂ(ਅਚਲ std::regex &pat, ਪੂਰਨ expected) :
+				ਨਮੂਨਾ(pat), expected_ਗਿਣਤੀ(expected), current_ਗਿਣਤੀ(0) {}
+		Log_Expected_ਵਸਤੂ() : expected_ਗਿਣਤੀ(0), current_ਗਿਣਤੀ(0) {}
 
-		std::regex pattern;
-		int expected_count;
-		int current_count;
+		std::regex ਨਮੂਨਾ;
+		ਪੂਰਨ expected_ਗਿਣਤੀ;
+		ਪੂਰਨ current_ਗਿਣਤੀ;
 	};
 
-public:
-	LogManager() = default;
+ਜਨਤਕ:
+	LogManager() = ਮੂਲ;
 
-	template<typename T, typename... Args>
-	T &add_sink(Args&&... args)
+	ਸਾਂਚਾ<typename T, typename... ਦਲੀਲਾਂ_3>
+	T &ਜੋੜੋ_sink(ਦਲੀਲਾਂ_3&&... ਦਲੀਲਾਂ_2)
 	{
-		auto sink = std::make_unique<T>(std::forward<Args>(args)...);
+		ਸਵੈਚਾਲਿਤ sink = std::make_unique<T>(std::forward<ਦਲੀਲਾਂ_3>(ਦਲੀਲਾਂ_2)...);
 		T &ref = *sink;
-		sinks.push_back(std::move(sink));
-		return ref;
+		sinks.ਧੱਕੋ_ਪਿੱਠ(std::move(sink));
+		ਵਾਪਸ ref;
 	}
 
-	template<typename F>
-	void for_each_sink(F &&func)
+	ਸਾਂਚਾ<typename F>
+	ਖਾਲੀ for_each_sink(F &&func)
 	{
-		for (auto &sink : sinks)
+		ਲਈ (ਸਵੈਚਾਲਿਤ &sink : sinks)
 			func(*sink);
 	}
 
-	bool empty() { return sinks.empty(); }
-	void clear() { sinks.clear(); }
-	void clear_original();
-	void flush() { for (auto &sink : sinks) sink->flush(); }
+	bool ਖਾਲੀ_ਥਾਵਾਂ() { ਵਾਪਸ sinks.ਖਾਲੀ_ਥਾਵਾਂ(); }
+	ਖਾਲੀ clear() { sinks.clear(); }
+	ਖਾਲੀ clear_original();
+	ਖਾਲੀ flush() { ਲਈ (ਸਵੈਚਾਲਿਤ &sink : sinks) sink->flush(); }
 
 	class Scoped
 	{
-	public:
+	ਜਨਤਕ:
 		explicit Scoped(LogManager &manager) :
 			manager(manager),
 			backup_sinks(std::move(manager.sinks)),
 			backup_verbose_level(manager.verbose_level)
 		{
-			manager.sinks.reserve(backup_sinks.size());
+			manager.sinks.reserve(backup_sinks.ਮਾਪ());
 
-			for (const auto &sink : backup_sinks)
-				manager.sinks.push_back(std::make_unique<LogSinkRef>(sink.get()));
+			ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &sink : backup_sinks)
+				manager.sinks.ਧੱਕੋ_ਪਿੱਠ(std::make_unique<LogSinkRef>(sink.get()));
 		}
 
 		~Scoped()
@@ -258,51 +258,51 @@ public:
 			manager.verbose_level = backup_verbose_level;
 		}
 
-		Scoped(const Scoped &) = delete;
-		Scoped &operator=(const Scoped &) = delete;
+		Scoped(ਅਚਲ Scoped &) = delete;
+		Scoped &ਸੰਚਾਲਕ=(ਅਚਲ Scoped &) = delete;
 
-	private:
+	ਨਿਜੀ:
 		LogManager &manager;
-		std::vector<std::unique_ptr<LogSink>> backup_sinks;
-		int backup_verbose_level;
+		std::ਸਦਿਸ਼<std::unique_ptr<LogSink>> backup_sinks;
+		ਪੂਰਨ backup_verbose_level;
 	};
 
 	Scoped sink_scope()
 	{
-		return Scoped(*this);
+		ਵਾਪਸ Scoped(*this);
 	}
 
 	class ScopedCmdErrorThrow
 	{
-	public:
+	ਜਨਤਕ:
 		explicit ScopedCmdErrorThrow(LogManager &manager)
-			: manager(manager), previous(manager.cmd_error_throw)
+			: manager(manager), ਪਿਛਲਾ(manager.cmd_error_throw)
 		{
 			manager.cmd_error_throw = true;
 		}
 
 		~ScopedCmdErrorThrow()
 		{
-			manager.cmd_error_throw = previous;
+			manager.cmd_error_throw = ਪਿਛਲਾ;
 		}
 
-	private:
+	ਨਿਜੀ:
 		LogManager &manager;
-		bool previous;
+		bool ਪਿਛਲਾ;
 	};
 
 	ScopedCmdErrorThrow error_throw_scope()
 	{
-		return ScopedCmdErrorThrow(*this);
+		ਵਾਪਸ ScopedCmdErrorThrow(*this);
 	}
 
 	class LogMakeDebugHdl
 	{
-	public:
-		explicit LogMakeDebugHdl(LogManager &manager, bool start_on = false)
+	ਜਨਤਕ:
+		explicit LogMakeDebugHdl(LogManager &manager, bool ਸ਼ੁਰੂ_on = false)
 			: manager(manager)
 		{
-			if (start_on)
+			ਜੇ (ਸ਼ੁਰੂ_on)
 				on();
 		}
 
@@ -311,43 +311,43 @@ public:
 			off();
 		}
 
-		void on()
+		ਖਾਲੀ on()
 		{
-			if (status)
-				return;
-			status = true;
+			ਜੇ (ਸਥਿਤੀ)
+				ਵਾਪਸ;
+			ਸਥਿਤੀ = true;
 			manager.make_debug++;
 		}
 
-		void off_silent()
+		ਖਾਲੀ off_silent()
 		{
-			if (!status)
-				return;
-			status = false;
+			ਜੇ (!ਸਥਿਤੀ)
+				ਵਾਪਸ;
+			ਸਥਿਤੀ = false;
 			manager.make_debug--;
 		}
 
-		void off()
+		ਖਾਲੀ off()
 		{
 			off_silent();
 		}
-	private:
+	ਨਿਜੀ:
 		LogManager &manager;
-		bool status = false;
+		bool ਸਥਿਤੀ = false;
 	};
 
-	LogMakeDebugHdl make_debug_scope(bool start_on = false)
+	LogMakeDebugHdl make_debug_scope(bool ਸ਼ੁਰੂ_on = false)
 	{
-		return LogMakeDebugHdl(*this, start_on);
+		ਵਾਪਸ LogMakeDebugHdl(*this, ਸ਼ੁਰੂ_on);
 	}
 
 	class ForceDebug
 	{
-	public:
-		explicit ForceDebug(LogManager &manager, bool start_on = false)
+	ਜਨਤਕ:
+		explicit ForceDebug(LogManager &manager, bool ਸ਼ੁਰੂ_on = false)
 			: manager(manager)
 		{
-			if (start_on)
+			ਜੇ (ਸ਼ੁਰੂ_on)
 				on();
 		}
 
@@ -356,247 +356,247 @@ public:
 			off();
 		}
 
-		void on()
+		ਖਾਲੀ on()
 		{
-			if (active)
-				return;
+			ਜੇ (ਸਰਗਰਮ)
+				ਵਾਪਸ;
 
-			active = true;
+			ਸਰਗਰਮ = true;
 			manager.force_debug++;
 		}
 
-		void off()
+		ਖਾਲੀ off()
 		{
-			if (!active)
-				return;
+			ਜੇ (!ਸਰਗਰਮ)
+				ਵਾਪਸ;
 
-			active = false;
+			ਸਰਗਰਮ = false;
 			manager.force_debug--;
 		}
-	private:
+	ਨਿਜੀ:
 		LogManager &manager;
-		bool active = false;
+		bool ਸਰਗਰਮ = false;
 	};
 
-	ForceDebug force_debug_scope(bool start_on = false)
+	ForceDebug force_debug_scope(bool ਸ਼ੁਰੂ_on = false)
 	{
-		return ForceDebug(*this, start_on);
+		ਵਾਪਸ ForceDebug(*this, ਸ਼ੁਰੂ_on);
 	}
 
-	void force_debug_on() { force_debug++; }
-	void force_debug_off() { if (force_debug > 0) force_debug--; }
-	void set_force_debug(bool enabled) { force_debug = enabled ? 1 : 0;	}
+	ਖਾਲੀ force_debug_on() { force_debug++; }
+	ਖਾਲੀ force_debug_off() { ਜੇ (force_debug > 0) force_debug--; }
+	ਖਾਲੀ ਸੈੱਟ_force_debug(bool enabled) { force_debug = enabled ? 1 : 0;	}
 
-	void report_unexpected_error();
+	ਖਾਲੀ report_unexpected_error();
 
-	void add_experimental_ignore(std::string name) { experimental_ignored.insert(name); }
-	void add_warn(std::string pattern) { warn_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_nowarn(std::string pattern) { nowarn_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_werror(std::string pattern) { werror_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_expect(std::string type, std::string pattern, int count);
+	ਖਾਲੀ ਜੋੜੋ_experimental_ignore(std::string name) { experimental_ignored.ਪਾਓ(name); }
+	ਖਾਲੀ ਜੋੜੋ_warn(std::string ਨਮੂਨਾ) { warn_regexes.ਧੱਕੋ_ਪਿੱਠ(YS_REGEX_COMPILE(ਨਮੂਨਾ)); }
+	ਖਾਲੀ ਜੋੜੋ_nowarn(std::string ਨਮੂਨਾ) { nowarn_regexes.ਧੱਕੋ_ਪਿੱਠ(YS_REGEX_COMPILE(ਨਮੂਨਾ)); }
+	ਖਾਲੀ ਜੋੜੋ_werror(std::string ਨਮੂਨਾ) { werror_regexes.ਧੱਕੋ_ਪਿੱਠ(YS_REGEX_COMPILE(ਨਮੂਨਾ)); }
+	ਖਾਲੀ ਜੋੜੋ_expect(std::string type, std::string ਨਮੂਨਾ, ਪੂਰਨ ਗਿਣਤੀ_2);
 
-	void set_verbose_level(int level) { verbose_level = level; }
-	void add_verbose_level(int level) { verbose_level += level; }
-	void set_expect_no_warnings(bool value) { expect_no_warnings = value; }
-	void set_log_time(bool value) { log_time = value; }
-	void set_cmd_error_throw(bool value) { cmd_error_throw = value; }
-	void set_hdump_all(bool value) { hdump_all = value; }
-	int get_verbose_level() const { return verbose_level; }
-	bool get_log_time() const { return log_time; }
-	int get_warnings_unique() const { return GetSize(warnings); }
-	int get_warnings_total() const { return warnings_count; }
-	int get_errors_total() const { return errors_count; }
-	const std::set<std::string> &get_experimental() const { return experimental; }
-	const std::map<std::string, std::string> &get_deprecated() const { return deprecated; }
-	std::chrono::steady_clock::time_point get_initial_time() const;
+	ਖਾਲੀ ਸੈੱਟ_verbose_level(ਪੂਰਨ level) { verbose_level = level; }
+	ਖਾਲੀ ਜੋੜੋ_verbose_level(ਪੂਰਨ level) { verbose_level += level; }
+	ਖਾਲੀ ਸੈੱਟ_expect_no_warnings(bool ਮੁੱਲ) { expect_no_warnings = ਮੁੱਲ; }
+	ਖਾਲੀ ਸੈੱਟ_log_ਸਮਾਂ(bool ਮੁੱਲ) { log_ਸਮਾਂ = ਮੁੱਲ; }
+	ਖਾਲੀ ਸੈੱਟ_cmd_error_throw(bool ਮੁੱਲ) { cmd_error_throw = ਮੁੱਲ; }
+	ਖਾਲੀ ਸੈੱਟ_hdump_all(bool ਮੁੱਲ) { hdump_all = ਮੁੱਲ; }
+	ਪੂਰਨ get_verbose_level() ਅਚਲ { ਵਾਪਸ verbose_level; }
+	bool get_log_ਸਮਾਂ() ਅਚਲ { ਵਾਪਸ log_ਸਮਾਂ; }
+	ਪੂਰਨ get_warnings_unique() ਅਚਲ { ਵਾਪਸ Get_ਮਾਪ(warnings); }
+	ਪੂਰਨ get_warnings_ਕੁੱਲ() ਅਚਲ { ਵਾਪਸ warnings_ਗਿਣਤੀ; }
+	ਪੂਰਨ get_errors_ਕੁੱਲ() ਅਚਲ { ਵਾਪਸ errors_ਗਿਣਤੀ; }
+	ਅਚਲ std::ਸੈੱਟ<std::string> &get_experimental() ਅਚਲ { ਵਾਪਸ experimental; }
+	ਅਚਲ std::map<std::string, std::string> &get_deprecated() ਅਚਲ { ਵਾਪਸ deprecated; }
+	std::chrono::steady_clock::ਸਮਾਂ_ਬਿੰਦੂ get_initial_ਸਮਾਂ() ਅਚਲ;
 
-	void add_hdump(std::string name, std::string value) { hdump[name].insert(value); }
+	ਖਾਲੀ ਜੋੜੋ_hdump(std::string name, std::string ਮੁੱਲ) { hdump[name].ਪਾਓ(ਮੁੱਲ); }
 
-	void formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str);
-	void formatted_header(RTLIL::Design *design, std::string_view format, std::string str);
-	void formatted_warning(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
-	[[noreturn]] void formatted_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
-	void formatted_nonfatal_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
-	[[noreturn]] void formatted_cmd_error(std::string_view format, std::string message);
-	void suppressed();
-	void add_experimental(const std::string &str);
-	void add_deprecated(const std::string &feature, const std::string &earliest_removal);
-	void spacer();
-	void push();
-	void pop();
+	ਖਾਲੀ formatted_string(LogSeverity severity, Log_ਸਰੋਤ_Location src, std::string_view ਅਗੇਤਰ_2, std::string_view format, std::string str);
+	ਖਾਲੀ formatted_ਸਿਰਲੇਖ(RTLIL::Design *design, std::string_view format, std::string str);
+	ਖਾਲੀ formatted_warning(Log_ਸਰੋਤ_Location src, std::string_view ਅਗੇਤਰ_2, std::string_view format, std::string ਸੁਨੇਹਾ_2);
+	[[noreturn]] ਖਾਲੀ formatted_error(Log_ਸਰੋਤ_Location src, std::string_view ਅਗੇਤਰ_2, std::string_view format, std::string ਸੁਨੇਹਾ_2);
+	ਖਾਲੀ formatted_nonfatal_error(Log_ਸਰੋਤ_Location src, std::string_view ਅਗੇਤਰ_2, std::string_view format, std::string ਸੁਨੇਹਾ_2);
+	[[noreturn]] ਖਾਲੀ formatted_cmd_error(std::string_view format, std::string ਸੁਨੇਹਾ_2);
+	ਖਾਲੀ suppressed();
+	ਖਾਲੀ ਜੋੜੋ_experimental(ਅਚਲ std::string &str);
+	ਖਾਲੀ ਜੋੜੋ_deprecated(ਅਚਲ std::string &feature, ਅਚਲ std::string &earliest_removal);
+	ਖਾਲੀ spacer();
+	ਖਾਲੀ ਧੱਕੋ();
+	ਖਾਲੀ ਕੱਢੋ();
 
-	void reset_stack();
+	ਖਾਲੀ reset_ਢੇਰ();
 
-	void check_expected();
-	bool expects_error() { return (expect_error.size() + expect_prefix_error.size())>0; }
-#ifndef NDEBUG
-	bool is_debug(int n = 0) { if (force_debug) return true; debug_suppressed += n; return false; }
-#else
-	bool is_debug(int = 0) { return false; }
-#endif
-	void start_hasher();
-	std::string finish_hasher();
+	ਖਾਲੀ check_expected();
+	bool expects_error() { ਵਾਪਸ (expect_error.ਮਾਪ() + expect_ਅਗੇਤਰ_error.ਮਾਪ())>0; }
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ NDEBUG
+	bool is_debug(ਪੂਰਨ n = 0) { ਜੇ (force_debug) ਵਾਪਸ true; debug_suppressed += n; ਵਾਪਸ false; }
+#ਨਹੀਂਤਾਂ
+	bool is_debug(ਪੂਰਨ = 0) { ਵਾਪਸ false; }
+#ਜੇ_ਅੰਤ
+	ਖਾਲੀ ਸ਼ੁਰੂ_hasher();
+	std::string ਅੰਤ_hasher();
 
-private:
-	void logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in);
-	void error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
+ਨਿਜੀ:
+	ਖਾਲੀ logv_string(LogSeverity severity, Log_ਸਰੋਤ_Location src, std::string_view ਅਗੇਤਰ_2, std::string_view format, std::string str_ਵਿੱਚ);
+	ਖਾਲੀ error_with_ਅਗੇਤਰ(LogSeverity severity, Log_ਸਰੋਤ_Location src, std::string_view ਅਗੇਤਰ_2, std::string_view format, std::string ਸੁਨੇਹਾ_2);
 
-	std::vector<std::unique_ptr<LogSink>> sinks;
-	int verbose_level = 0;
-	int newline_count = 0;
-	vector<int> header_count;
-	int errors_count = 0;
-	int warnings_count = 0;
-	int warnings_count_noexpect = 0;
-	std::set<std::string> warnings, experimental, experimental_ignored;
+	std::ਸਦਿਸ਼<std::unique_ptr<LogSink>> sinks;
+	ਪੂਰਨ verbose_level = 0;
+	ਪੂਰਨ newline_ਗਿਣਤੀ = 0;
+	ਸਦਿਸ਼<ਪੂਰਨ> ਸਿਰਲੇਖ_ਗਿਣਤੀ;
+	ਪੂਰਨ errors_ਗਿਣਤੀ = 0;
+	ਪੂਰਨ warnings_ਗਿਣਤੀ = 0;
+	ਪੂਰਨ warnings_ਗਿਣਤੀ_noexpect = 0;
+	std::ਸੈੱਟ<std::string> warnings, experimental, experimental_ignored;
 	std::map<std::string, std::string> deprecated;
 
-	std::vector<std::regex> warn_regexes, nowarn_regexes, werror_regexes;
-	dict<std::string, LogExpectedItem> expect_log, expect_warning, expect_error;
-	dict<std::string, LogExpectedItem> expect_prefix_log, expect_prefix_warning, expect_prefix_error;
+	std::ਸਦਿਸ਼<std::regex> warn_regexes, nowarn_regexes, werror_regexes;
+	dict<std::string, Log_Expected_ਵਸਤੂ> expect_log, expect_warning, expect_error;
+	dict<std::string, Log_Expected_ਵਸਤੂ> expect_ਅਗੇਤਰ_log, expect_ਅਗੇਤਰ_warning, expect_ਅਗੇਤਰ_error;
 	bool expect_no_warnings = false;
-	bool log_time = false;
+	bool log_ਸਮਾਂ = false;
 	bool cmd_error_throw = false;
-	std::map<std::string, std::set<std::string>> hdump;
+	std::map<std::string, std::ਸੈੱਟ<std::string>> hdump;
 	bool hdump_all = false;
 
-	int debug_suppressed = 0;
-	int make_debug = 0;
-	int force_debug = 0;
+	ਪੂਰਨ debug_suppressed = 0;
+	ਪੂਰਨ make_debug = 0;
+	ਪੂਰਨ force_debug = 0;
 	std::unique_ptr<SHA1> hasher;
 };
 
 LogManager &logger();
 
-extern void (*log_error_atexit)();
+ਬਾਹਰੀ ਖਾਲੀ (*log_error_atexit)();
 
-void set_verific_logging(void (*cb)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg));
-extern void (*log_verific_callback)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg);
+ਖਾਲੀ ਸੈੱਟ_verific_logging(ਖਾਲੀ (*cb)(ਪੂਰਨ ਸੁਨੇਹਾ_type, ਅਚਲ ਅੱਖਰ *ਸੁਨੇਹਾ_id, Log_ਸਰੋਤ_Location src, ਅਚਲ ਅੱਖਰ *ਸੁਨੇਹਾ));
+ਬਾਹਰੀ ਖਾਲੀ (*log_verific_callback)(ਪੂਰਨ ਸੁਨੇਹਾ_type, ਅਚਲ ਅੱਖਰ *ਸੁਨੇਹਾ_id, Log_ਸਰੋਤ_Location src, ਅਚਲ ਅੱਖਰ *ਸੁਨੇਹਾ);
 
-#ifndef NDEBUG
-static inline bool ys_debug(int n = 0) { return logger().is_debug(n); }
-#else
-static inline bool ys_debug(int = 0) { return false; }
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ NDEBUG
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ys_debug(ਪੂਰਨ n = 0) { ਵਾਪਸ logger().is_debug(n); }
+#ਨਹੀਂਤਾਂ
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ys_debug(ਪੂਰਨ = 0) { ਵਾਪਸ false; }
+#ਜੇ_ਅੰਤ
 
-template <typename... Args>
-inline void log(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_3>
+ਸਤਰਅੰਦਰ ਖਾਲੀ ਲਘੂਗਣਕ(FmtString<Type_ਪਛਾਣ_ਤੱਤ<ਦਲੀਲਾਂ_3>...> fmt, ਅਚਲ ਦਲੀਲਾਂ_3 &... ਦਲੀਲਾਂ_2)
 {
-	logger().formatted_string(LogSeverity::Info, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Info, Log_ਸਰੋਤ_Location{}, {}, fmt.format_string(), fmt.format(ਦਲੀਲਾਂ_2...));
 }
 
-template <typename... Args>
-inline void log_comment(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_3>
+ਸਤਰਅੰਦਰ ਖਾਲੀ log_comment(FmtString<Type_ਪਛਾਣ_ਤੱਤ<ਦਲੀਲਾਂ_3>...> fmt, ਅਚਲ ਦਲੀਲਾਂ_3 &... ਦਲੀਲਾਂ_2)
 {
-	logger().formatted_string(LogSeverity::Comment, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Comment, Log_ਸਰੋਤ_Location{}, {}, fmt.format_string(), fmt.format(ਦਲੀਲਾਂ_2...));
 }
 
-template <typename... Args>
-inline void log_highlight(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_3>
+ਸਤਰਅੰਦਰ ਖਾਲੀ log_highlight(FmtString<Type_ਪਛਾਣ_ਤੱਤ<ਦਲੀਲਾਂ_3>...> fmt, ਅਚਲ ਦਲੀਲਾਂ_3 &... ਦਲੀਲਾਂ_2)
 {
-	logger().formatted_string(LogSeverity::Highlight, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Highlight, Log_ਸਰੋਤ_Location{}, {}, fmt.format_string(), fmt.format(ਦਲੀਲਾਂ_2...));
 }
 
-template <typename... Args>
-inline void log_formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix,
-		FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_3>
+ਸਤਰਅੰਦਰ ਖਾਲੀ log_formatted_string(LogSeverity severity, Log_ਸਰੋਤ_Location src, std::string_view ਅਗੇਤਰ_2,
+		FmtString<Type_ਪਛਾਣ_ਤੱਤ<ਦਲੀਲਾਂ_3>...> fmt, ਅਚਲ ਦਲੀਲਾਂ_3 &... ਦਲੀਲਾਂ_2)
 {
-	logger().formatted_string(severity, src, prefix, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(severity, src, ਅਗੇਤਰ_2, fmt.format_string(), fmt.format(ਦਲੀਲਾਂ_2...));
 }
 
-#define log_debug(...) do { if (ys_debug(1)) YOSYS_NAMESPACE_PREFIX log_formatted_string(YOSYS_NAMESPACE_PREFIX LogSeverity::Debug, {}, {}, __VA_ARGS__); } while (0)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ log_debug(...) ਕਰੋ { ਜੇ (ys_debug(1)) YOSYS_NAMESPACE_ਅਗੇਤਰ log_formatted_string(YOSYS_NAMESPACE_ਅਗੇਤਰ LogSeverity::Debug, {}, {}, __VA_ARGS__); } ਜਦੋਂ (0)
 
-template <typename... Args>
-inline void log_header(RTLIL::Design *design, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_3>
+ਸਤਰਅੰਦਰ ਖਾਲੀ log_ਸਿਰਲੇਖ(RTLIL::Design *design, FmtString<Type_ਪਛਾਣ_ਤੱਤ<ਦਲੀਲਾਂ_3>...> fmt, ਅਚਲ ਦਲੀਲਾਂ_3 &... ਦਲੀਲਾਂ_2)
 {
-	logger().formatted_header(design, fmt.format_string(), fmt.format(args...));
+	logger().formatted_ਸਿਰਲੇਖ(design, fmt.format_string(), fmt.format(ਦਲੀਲਾਂ_2...));
 }
 
-template <typename... Args>
-inline void log_warning(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_3>
+ਸਤਰਅੰਦਰ ਖਾਲੀ log_warning(FmtString<Type_ਪਛਾਣ_ਤੱਤ<ਦਲੀਲਾਂ_3>...> fmt, ਅਚਲ ਦਲੀਲਾਂ_3 &... ਦਲੀਲਾਂ_2)
 {
-	logger().formatted_warning(LogSourceLocation{}, "Warning: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_warning(Log_ਸਰੋਤ_Location{}, "Warning: ", fmt.format_string(), fmt.format(ਦਲੀਲਾਂ_2...));
 }
 
-template <typename... Args>
-inline void log_warning_noprefix(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_3>
+ਸਤਰਅੰਦਰ ਖਾਲੀ log_warning_noprefix(FmtString<Type_ਪਛਾਣ_ਤੱਤ<ਦਲੀਲਾਂ_3>...> fmt, ਅਚਲ ਦਲੀਲਾਂ_3 &... ਦਲੀਲਾਂ_2)
 {
-	logger().formatted_warning(LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_warning(Log_ਸਰੋਤ_Location{}, {}, fmt.format_string(), fmt.format(ਦਲੀਲਾਂ_2...));
 }
 
-inline void log_experimental(const std::string &str)
+ਸਤਰਅੰਦਰ ਖਾਲੀ log_experimental(ਅਚਲ std::string &str)
 {
-	logger().add_experimental(str);
+	logger().ਜੋੜੋ_experimental(str);
 }
 
-inline void log_deprecated(const std::string &feature, const std::string &earliest_removal = "")
+ਸਤਰਅੰਦਰ ਖਾਲੀ log_deprecated(ਅਚਲ std::string &feature, ਅਚਲ std::string &earliest_removal = "")
 {
-	logger().add_deprecated(feature, earliest_removal);
+	logger().ਜੋੜੋ_deprecated(feature, earliest_removal);
 }
 
 // Log with filename to report a problem in a source file.
-template <typename... Args>
-void log_file_warning(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_3>
+ਖਾਲੀ log_file_warning(Log_ਸਰੋਤ_Location src, FmtString<Type_ਪਛਾਣ_ਤੱਤ<ਦਲੀਲਾਂ_3>...> fmt, ਅਚਲ ਦਲੀਲਾਂ_3 &... ਦਲੀਲਾਂ_2)
 {
-	logger().formatted_warning(src, "Warning: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_warning(src, "Warning: ", fmt.format_string(), fmt.format(ਦਲੀਲਾਂ_2...));
 }
 
-template <typename... Args>
-void log_file_info(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_3>
+ਖਾਲੀ log_file_info(Log_ਸਰੋਤ_Location src, FmtString<Type_ਪਛਾਣ_ਤੱਤ<ਦਲੀਲਾਂ_3>...> fmt, ਅਚਲ ਦਲੀਲਾਂ_3 &... ਦਲੀਲਾਂ_2)
 {
-	logger().formatted_string(LogSeverity::Info, src, "NOTE: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Info, src, "NOTE: ", fmt.format_string(), fmt.format(ਦਲੀਲਾਂ_2...));
 }
 
-template <typename... Args>
-[[noreturn]] void log_error(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_3>
+[[noreturn]] ਖਾਲੀ log_error(FmtString<Type_ਪਛਾਣ_ਤੱਤ<ਦਲੀਲਾਂ_3>...> fmt, ਅਚਲ ਦਲੀਲਾਂ_3 &... ਦਲੀਲਾਂ_2)
 {
-	logger().formatted_error(LogSourceLocation{}, "ERROR: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_error(Log_ਸਰੋਤ_Location{}, "ERROR: ", fmt.format_string(), fmt.format(ਦਲੀਲਾਂ_2...));
 }
 
-template <typename... Args>
-[[noreturn]] void log_file_error(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_3>
+[[noreturn]] ਖਾਲੀ log_file_error(Log_ਸਰੋਤ_Location src, FmtString<Type_ਪਛਾਣ_ਤੱਤ<ਦਲੀਲਾਂ_3>...> fmt, ਅਚਲ ਦਲੀਲਾਂ_3 &... ਦਲੀਲਾਂ_2)
 {
-	logger().formatted_error(src, "ERROR: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_error(src, "ERROR: ", fmt.format_string(), fmt.format(ਦਲੀਲਾਂ_2...));
 }
 
-template <typename... Args>
-void log_file_nonfatal_error(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_3>
+ਖਾਲੀ log_file_nonfatal_error(Log_ਸਰੋਤ_Location src, FmtString<Type_ਪਛਾਣ_ਤੱਤ<ਦਲੀਲਾਂ_3>...> fmt, ਅਚਲ ਦਲੀਲਾਂ_3 &... ਦਲੀਲਾਂ_2)
 {
-	logger().formatted_nonfatal_error(src, "ERROR: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_nonfatal_error(src, "ERROR: ", fmt.format_string(), fmt.format(ਦਲੀਲਾਂ_2...));
 }
 
-template <typename... Args>
-[[noreturn]] void log_cmd_error(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_3>
+[[noreturn]] ਖਾਲੀ log_cmd_error(FmtString<Type_ਪਛਾਣ_ਤੱਤ<ਦਲੀਲਾਂ_3>...> fmt, ਅਚਲ ਦਲੀਲਾਂ_3 &... ਦਲੀਲਾਂ_2)
 {
-	logger().formatted_cmd_error(fmt.format_string(), fmt.format(args...));
+	logger().formatted_cmd_error(fmt.format_string(), fmt.format(ਦਲੀਲਾਂ_2...));
 }
 
-inline void log_suppressed()
+ਸਤਰਅੰਦਰ ਖਾਲੀ log_suppressed()
 {
 	logger().suppressed();
 }
 
-inline void log_spacer() { logger().spacer(); }
-inline void log_push() { logger().push(); }
-inline void log_pop() { logger().pop(); }
+ਸਤਰਅੰਦਰ ਖਾਲੀ log_spacer() { logger().spacer(); }
+ਸਤਰਅੰਦਰ ਖਾਲੀ log_ਧੱਕੋ() { logger().ਧੱਕੋ(); }
+ਸਤਰਅੰਦਰ ਖਾਲੀ log_ਕੱਢੋ() { logger().ਕੱਢੋ(); }
 
-inline void log_reset_stack() { logger().reset_stack(); }
-inline void log_flush() { logger().flush(); }
+ਸਤਰਅੰਦਰ ਖਾਲੀ log_reset_ਢੇਰ() { logger().reset_ਢੇਰ(); }
+ਸਤਰਅੰਦਰ ਖਾਲੀ log_flush() { logger().flush(); }
 
-void log_backtrace(const char *prefix, int levels);
+ਖਾਲੀ log_backtrace(ਅਚਲ ਅੱਖਰ *ਅਗੇਤਰ_2, ਪੂਰਨ ਪੱਧਰ);
 
 
-std::string log_signal(const RTLIL::SigSpec &sig, bool autoint = true);
-std::string log_const(const RTLIL::Const &value, bool autoint = true);
+std::string log_signal(ਅਚਲ RTLIL::SigSpec &sig, bool autoint = true);
+std::string log_const(ਅਚਲ RTLIL::Const &ਮੁੱਲ, bool autoint = true);
 
-void log_module(RTLIL::Module *module, std::string indent = "");
-void log_cell(RTLIL::Cell *cell, std::string indent = "");
-void log_wire(RTLIL::Wire *wire, std::string indent = "");
+ਖਾਲੀ log_module(RTLIL::Module *module, std::string indent = "");
+ਖਾਲੀ log_cell(RTLIL::Cell *cell, std::string indent = "");
+ਖਾਲੀ log_wire(RTLIL::Wire *wire, std::string indent = "");
 
 [[noreturn]]
-void log_abort_internal(const char *file, int line);
-#define log_abort() YOSYS_NAMESPACE_PREFIX log_abort_internal(__FILE__, __LINE__)
-#define log_ping() YOSYS_NAMESPACE_PREFIX log("-- %s:%d %s --\n", __FILE__, __LINE__, __PRETTY_FUNCTION__)
+ਖਾਲੀ log_abort_ਅੰਦਰੂਨੀ(ਅਚਲ ਅੱਖਰ *file, ਪੂਰਨ ਸਤਰ);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ log_abort() YOSYS_NAMESPACE_ਅਗੇਤਰ log_abort_ਅੰਦਰੂਨੀ(__FILE__, __LINE__)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ log_ping() YOSYS_NAMESPACE_ਅਗੇਤਰ ਲਘੂਗਣਕ("-- %s:%d %s --\n", __FILE__, __LINE__, __PRETTY_FUNCTION__)
 
 
 // ------------------------------------------------------------
@@ -605,186 +605,186 @@ void log_abort_internal(const char *file, int line);
 
 // simple timer for performance measurements
 // toggle the '#if 1' to get a baseline for the performance penalty added by the measurement
-struct PerformanceTimer
+ਬਣਤਰ PerformanceTimer
 {
-#if 1
-	int64_t total_ns;
+#ਜੇ 1
+	int64_t ਕੁੱਲ_ns;
 
 	PerformanceTimer() {
-		total_ns = 0;
+		ਕੁੱਲ_ns = 0;
 	}
 
-	static int64_t query() {
+	ਸਥਿਰ int64_t query() {
 #  ifdef _WIN32
-		return 0;
+		ਵਾਪਸ 0;
 #  elif defined(RUSAGE_SELF)
-		struct rusage rusage;
+		ਬਣਤਰ rusage rusage;
 		int64_t t = 0;
-		for (int who : {RUSAGE_SELF, RUSAGE_CHILDREN}) {
-			if (getrusage(who, &rusage) == -1) {
+		ਲਈ (ਪੂਰਨ who : {RUSAGE_SELF, RUSAGE_CHILDREN}) {
+			ਜੇ (getrusage(who, &rusage) == -1) {
 				log_cmd_error("getrusage failed!\n");
 				log_abort();
 			}
 			t += 1000000000ULL * (int64_t) rusage.ru_utime.tv_sec + (int64_t) rusage.ru_utime.tv_usec * 1000ULL;
 			t += 1000000000ULL * (int64_t) rusage.ru_stime.tv_sec + (int64_t) rusage.ru_stime.tv_usec * 1000ULL;
 		}
-		return t;
-#  else
+		ਵਾਪਸ t;
+#  ਨਹੀਂਤਾਂ
 #    error "Don't know how to measure per-process CPU time. Need alternative method (times()/clocks()/gettimeofday()?)."
 #  endif
 	}
 
-	void reset() {
-		total_ns = 0;
+	ਖਾਲੀ reset() {
+		ਕੁੱਲ_ns = 0;
 	}
 
-	void begin() {
-		total_ns -= query();
+	ਖਾਲੀ begin() {
+		ਕੁੱਲ_ns -= query();
 	}
 
-	void end() {
-		total_ns += query();
+	ਖਾਲੀ ਸਿਰਾ() {
+		ਕੁੱਲ_ns += query();
 	}
 
-	float sec() const {
-		return total_ns * 1e-9f;
+	ਦਸ਼ਮਲਵ sec() ਅਚਲ {
+		ਵਾਪਸ ਕੁੱਲ_ns * 1e-9f;
 	}
-#else
-	static int64_t query() { return 0; }
-	void reset() { }
-	void begin() { }
-	void end() { }
-	float sec() const { return 0; }
-#endif
+#ਨਹੀਂਤਾਂ
+	ਸਥਿਰ int64_t query() { ਵਾਪਸ 0; }
+	ਖਾਲੀ reset() { }
+	ਖਾਲੀ begin() { }
+	ਖਾਲੀ ਸਿਰਾ() { }
+	ਦਸ਼ਮਲਵ sec() ਅਚਲ { ਵਾਪਸ 0; }
+#ਜੇ_ਅੰਤ
 };
 
 // simple API for quickly dumping values when debugging
 
-static inline void log_dump_val_worker(short v) { log("%d", v); }
-static inline void log_dump_val_worker(unsigned short v) { log("%u", v); }
-static inline void log_dump_val_worker(int v) { log("%d", v); }
-static inline void log_dump_val_worker(unsigned int v) { log("%u", v); }
-static inline void log_dump_val_worker(long int v) { log("%ld", v); }
-static inline void log_dump_val_worker(unsigned long int v) { log("%lu", v); }
-#ifndef _WIN32
-static inline void log_dump_val_worker(long long int v) { log("%lld", v); }
-static inline void log_dump_val_worker(unsigned long long int v) { log("%lld", v); }
-#endif
-static inline void log_dump_val_worker(char c)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(ਛੋਟਾ v) { ਲਘੂਗਣਕ("%d", v); }
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(ਬਿਨਾਨਿਸ਼ਾਨੀ ਛੋਟਾ v) { ਲਘੂਗਣਕ("%u", v); }
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(ਪੂਰਨ v) { ਲਘੂਗਣਕ("%d", v); }
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ v) { ਲਘੂਗਣਕ("%u", v); }
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(ਲੰਮਾ ਪੂਰਨ v) { ਲਘੂਗਣਕ("%ld", v); }
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਪੂਰਨ v) { ਲਘੂਗਣਕ("%lu", v); }
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ _WIN32
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(ਲੰਮਾ ਲੰਮਾ ਪੂਰਨ v) { ਲਘੂਗਣਕ("%lld", v); }
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਲੰਮਾ ਪੂਰਨ v) { ਲਘੂਗਣਕ("%lld", v); }
+#ਜੇ_ਅੰਤ
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(ਅੱਖਰ c)
 {
-	if (c >= 32 && c < 127) {
-		log("'%c'", c);
-	} else {
-		log("'\\x%02x'", c);
+	ਜੇ (c >= 32 && c < 127) {
+		ਲਘੂਗਣਕ("'%c'", c);
+	} ਨਹੀਂਤਾਂ {
+		ਲਘੂਗਣਕ("'\\x%02x'", c);
 	}
 }
-static inline void log_dump_val_worker(unsigned char c)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ c)
 {
-	if (c >= 32 && c < 127) {
-		log("'%c'", c);
-	} else {
-		log("'\\x%02x'", c);
+	ਜੇ (c >= 32 && c < 127) {
+		ਲਘੂਗਣਕ("'%c'", c);
+	} ਨਹੀਂਤਾਂ {
+		ਲਘੂਗਣਕ("'\\x%02x'", c);
 	}
 }
-static inline void log_dump_val_worker(bool v) { log("%s", v ? "true" : "false"); }
-static inline void log_dump_val_worker(double v) { log("%f", v); }
-static inline void log_dump_val_worker(char *v) { log("%s", v); }
-static inline void log_dump_val_worker(const char *v) { log("%s", v); }
-static inline void log_dump_val_worker(std::string v) { log("%s", v); }
-static inline void log_dump_val_worker(PerformanceTimer p) { log("%f seconds", p.sec()); }
-static inline void log_dump_args_worker(const char *p) { log_assert(*p == 0); }
-void log_dump_val_worker(IdString v);
-void log_dump_val_worker(RTLIL::SigSpec v);
-void log_dump_val_worker(RTLIL::State v);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(bool v) { ਲਘੂਗਣਕ("%s", v ? "true" : "false"); }
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(ਦੁੱਗਣਾ v) { ਲਘੂਗਣਕ("%f", v); }
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(ਅੱਖਰ *v) { ਲਘੂਗਣਕ("%s", v); }
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(ਅਚਲ ਅੱਖਰ *v) { ਲਘੂਗਣਕ("%s", v); }
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(std::string v) { ਲਘੂਗਣਕ("%s", v); }
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(PerformanceTimer p) { ਲਘੂਗਣਕ("%f seconds", p.sec()); }
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_ਦਲੀਲਾਂ_ਕਾਮਾ(ਅਚਲ ਅੱਖਰ *p) { log_assert(*p == 0); }
+ਖਾਲੀ log_dump_val_ਕਾਮਾ(IdString v);
+ਖਾਲੀ log_dump_val_ਕਾਮਾ(RTLIL::SigSpec v);
+ਖਾਲੀ log_dump_val_ਕਾਮਾ(RTLIL::State v);
 
-template<typename K, typename T> static inline void log_dump_val_worker(dict<K, T> &v);
-template<typename K> static inline void log_dump_val_worker(pool<K> &v);
-template<typename K> static inline void log_dump_val_worker(std::vector<K> &v);
-template<typename T> static inline void log_dump_val_worker(T *ptr);
+ਸਾਂਚਾ<typename K, typename T> ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(dict<K, T> &v);
+ਸਾਂਚਾ<typename K> ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(pool<K> &v);
+ਸਾਂਚਾ<typename K> ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(std::ਸਦਿਸ਼<K> &v);
+ਸਾਂਚਾ<typename T> ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(T *ptr);
 
-template<typename K, typename T>
-static inline void log_dump_val_worker(dict<K, T> &v) {
-	log("{");
-	bool first = true;
-	for (auto &it : v) {
-		log("%s ", first ? "" : ",");
-		log_dump_val_worker(it.first);
-		log(": ");
-		log_dump_val_worker(it.second);
-		first = false;
+ਸਾਂਚਾ<typename K, typename T>
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(dict<K, T> &v) {
+	ਲਘੂਗਣਕ("{");
+	bool ਪਹਿਲਾ = true;
+	ਲਈ (ਸਵੈਚਾਲਿਤ &it : v) {
+		ਲਘੂਗਣਕ("%s ", ਪਹਿਲਾ ? "" : ",");
+		log_dump_val_ਕਾਮਾ(it.ਪਹਿਲਾ);
+		ਲਘੂਗਣਕ(": ");
+		log_dump_val_ਕਾਮਾ(it.ਦੂਜਾ);
+		ਪਹਿਲਾ = false;
 	}
-	log(" }");
+	ਲਘੂਗਣਕ(" }");
 }
 
-template<typename K>
-static inline void log_dump_val_worker(pool<K> &v) {
-	log("{");
-	bool first = true;
-	for (auto &it : v) {
-		log("%s ", first ? "" : ",");
-		log_dump_val_worker(it);
-		first = false;
+ਸਾਂਚਾ<typename K>
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(pool<K> &v) {
+	ਲਘੂਗਣਕ("{");
+	bool ਪਹਿਲਾ = true;
+	ਲਈ (ਸਵੈਚਾਲਿਤ &it : v) {
+		ਲਘੂਗਣਕ("%s ", ਪਹਿਲਾ ? "" : ",");
+		log_dump_val_ਕਾਮਾ(it);
+		ਪਹਿਲਾ = false;
 	}
-	log(" }");
+	ਲਘੂਗਣਕ(" }");
 }
 
-template<typename K>
-static inline void log_dump_val_worker(std::vector<K> &v) {
-	log("{");
-	bool first = true;
-	for (auto &it : v) {
-		log("%s ", first ? "" : ",");
-		log_dump_val_worker(it);
-		first = false;
+ਸਾਂਚਾ<typename K>
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(std::ਸਦਿਸ਼<K> &v) {
+	ਲਘੂਗਣਕ("{");
+	bool ਪਹਿਲਾ = true;
+	ਲਈ (ਸਵੈਚਾਲਿਤ &it : v) {
+		ਲਘੂਗਣਕ("%s ", ਪਹਿਲਾ ? "" : ",");
+		log_dump_val_ਕਾਮਾ(it);
+		ਪਹਿਲਾ = false;
 	}
-	log(" }");
+	ਲਘੂਗਣਕ(" }");
 }
 
-template<typename T>
-static inline void log_dump_val_worker(T *ptr) { log("%p", ptr); }
+ਸਾਂਚਾ<typename T>
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ log_dump_val_ਕਾਮਾ(T *ptr) { ਲਘੂਗਣਕ("%p", ptr); }
 
-template<typename T, typename ... Args>
-void log_dump_args_worker(const char *p, T first, Args ... args)
+ਸਾਂਚਾ<typename T, typename ... ਦਲੀਲਾਂ_3>
+ਖਾਲੀ log_dump_ਦਲੀਲਾਂ_ਕਾਮਾ(ਅਚਲ ਅੱਖਰ *p, T ਪਹਿਲਾ, ਦਲੀਲਾਂ_3 ... ਦਲੀਲਾਂ_2)
 {
-	int next_p_state = 0;
-	const char *next_p = p;
-	while (*next_p && (next_p_state != 0 || *next_p != ',')) {
-		if (*next_p == '"')
-			do {
-				next_p++;
-				while (*next_p == '\\' && *(next_p + 1))
-					next_p += 2;
-			} while (*next_p && *next_p != '"');
-		if (*next_p == '\'') {
-			next_p++;
-			if (*next_p == '\\')
-				next_p++;
-			if (*next_p)
-				next_p++;
+	ਪੂਰਨ ਅਗਲਾ_p_state = 0;
+	ਅਚਲ ਅੱਖਰ *ਅਗਲਾ_p = p;
+	ਜਦੋਂ (*ਅਗਲਾ_p && (ਅਗਲਾ_p_state != 0 || *ਅਗਲਾ_p != ',')) {
+		ਜੇ (*ਅਗਲਾ_p == '"')
+			ਕਰੋ {
+				ਅਗਲਾ_p++;
+				ਜਦੋਂ (*ਅਗਲਾ_p == '\\' && *(ਅਗਲਾ_p + 1))
+					ਅਗਲਾ_p += 2;
+			} ਜਦੋਂ (*ਅਗਲਾ_p && *ਅਗਲਾ_p != '"');
+		ਜੇ (*ਅਗਲਾ_p == '\'') {
+			ਅਗਲਾ_p++;
+			ਜੇ (*ਅਗਲਾ_p == '\\')
+				ਅਗਲਾ_p++;
+			ਜੇ (*ਅਗਲਾ_p)
+				ਅਗਲਾ_p++;
 		}
-		if (*next_p == '(' || *next_p == '[' || *next_p == '{')
-			next_p_state++;
-		if ((*next_p == ')' || *next_p == ']' || *next_p == '}') && next_p_state > 0)
-			next_p_state--;
-		next_p++;
+		ਜੇ (*ਅਗਲਾ_p == '(' || *ਅਗਲਾ_p == '[' || *ਅਗਲਾ_p == '{')
+			ਅਗਲਾ_p_state++;
+		ਜੇ ((*ਅਗਲਾ_p == ')' || *ਅਗਲਾ_p == ']' || *ਅਗਲਾ_p == '}') && ਅਗਲਾ_p_state > 0)
+			ਅਗਲਾ_p_state--;
+		ਅਗਲਾ_p++;
 	}
-	log("\n\t%.*s => ", int(next_p - p), p);
-	if (*next_p == ',')
-		next_p++;
-	while (*next_p == ' ' || *next_p == '\t' || *next_p == '\r' || *next_p == '\n')
-		next_p++;
-	log_dump_val_worker(first);
-	log_dump_args_worker(next_p, args ...);
+	ਲਘੂਗਣਕ("\n\t%.*s => ", ਪੂਰਨ(ਅਗਲਾ_p - p), p);
+	ਜੇ (*ਅਗਲਾ_p == ',')
+		ਅਗਲਾ_p++;
+	ਜਦੋਂ (*ਅਗਲਾ_p == ' ' || *ਅਗਲਾ_p == '\t' || *ਅਗਲਾ_p == '\r' || *ਅਗਲਾ_p == '\n')
+		ਅਗਲਾ_p++;
+	log_dump_val_ਕਾਮਾ(ਪਹਿਲਾ);
+	log_dump_ਦਲੀਲਾਂ_ਕਾਮਾ(ਅਗਲਾ_p, ਦਲੀਲਾਂ_2 ...);
 }
 
-#define log_dump(...) do { \
-	log("DEBUG DUMP IN %s AT %s:%d:", __PRETTY_FUNCTION__, __FILE__, __LINE__); \
-	log_dump_args_worker(#__VA_ARGS__, __VA_ARGS__); \
-	log("\n"); \
-} while (0)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ log_dump(...) ਕਰੋ { \
+	ਲਘੂਗਣਕ("DEBUG DUMP IN %s AT %s:%d:", __PRETTY_FUNCTION__, __FILE__, __LINE__); \
+	log_dump_ਦਲੀਲਾਂ_ਕਾਮਾ(#__VA_ARGS__, __VA_ARGS__); \
+	ਲਘੂਗਣਕ("\n"); \
+} ਜਦੋਂ (0)
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#include "kernel/yosys.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys.h"
 
-#endif
+#ਜੇ_ਅੰਤ

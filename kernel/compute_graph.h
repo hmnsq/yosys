@@ -17,387 +17,387 @@
  *
  */
 
-#ifndef COMPUTE_GRAPH_H
-#define COMPUTE_GRAPH_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ COMPUTE_ਗ੍ਰਾਫ_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ COMPUTE_ਗ੍ਰਾਫ_H
 
-#include <tuple>
-#include "kernel/yosys.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <tuple>
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template<
+ਸਾਂਚਾ<
     typename Fn, // Function type (deduplicated across whole graph)
     typename Attr = std::tuple<>, // Call attributes (present in every node)
     typename SparseAttr = std::tuple<>, // Sparse call attributes (optional per node)
-    typename Key = std::tuple<> // Stable keys to refer to nodes
+    typename ਕੁੰਜੀ_2 = std::tuple<> // Stable keys to refer to nodes
 >
-struct ComputeGraph
+ਬਣਤਰ Compute_ਗ੍ਰਾਫ
 {
-    struct Ref;
-private:
+    ਬਣਤਰ Ref;
+ਨਿਜੀ:
 
     // Functions are deduplicated by assigning unique ids
     idict<Fn> functions;
 
-    struct Node {
-        int fn_index;
-        int arg_offset;
-        int arg_count;
+    ਬਣਤਰ ਗੰਢ_2 {
+        ਪੂਰਨ fn_ਸੂਚਕਾਂਕ;
+        ਪੂਰਨ arg_ਵਿੱਥ;
+        ਪੂਰਨ arg_ਗਿਣਤੀ;
         Attr attr;
 
-        Node(int fn_index, Attr &&attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(std::move(attr)) {}
+        ਗੰਢ_2(ਪੂਰਨ fn_ਸੂਚਕਾਂਕ, Attr &&attr, ਪੂਰਨ arg_ਵਿੱਥ, ਪੂਰਨ arg_ਗਿਣਤੀ = 0)
+            : fn_ਸੂਚਕਾਂਕ(fn_ਸੂਚਕਾਂਕ), arg_ਵਿੱਥ(arg_ਵਿੱਥ), arg_ਗਿਣਤੀ(arg_ਗਿਣਤੀ), attr(std::move(attr)) {}
 
-        Node(int fn_index, Attr const &attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(attr) {}
+        ਗੰਢ_2(ਪੂਰਨ fn_ਸੂਚਕਾਂਕ, Attr ਅਚਲ &attr, ਪੂਰਨ arg_ਵਿੱਥ, ਪੂਰਨ arg_ਗਿਣਤੀ = 0)
+            : fn_ਸੂਚਕਾਂਕ(fn_ਸੂਚਕਾਂਕ), arg_ਵਿੱਥ(arg_ਵਿੱਥ), arg_ਗਿਣਤੀ(arg_ਗਿਣਤੀ), attr(attr) {}
     };
 
 
-    std::vector<Node> nodes;
-    std::vector<int> args;
-    dict<Key, int> keys_;
-    dict<int, SparseAttr> sparse_attrs;
+    std::ਸਦਿਸ਼<ਗੰਢ_2> nodes;
+    std::ਸਦਿਸ਼<ਪੂਰਨ> ਦਲੀਲਾਂ_2;
+    dict<ਕੁੰਜੀ_2, ਪੂਰਨ> ਕੁੰਜੀਆਂ;
+    dict<ਪੂਰਨ, SparseAttr> sparse_attrs;
 
-public:
-    template<typename Graph>
-    struct BaseRef
+ਜਨਤਕ:
+    ਸਾਂਚਾ<typename ਗ੍ਰਾਫ>
+    ਬਣਤਰ ਅਧਾਰ_Ref
     {
-    protected:
-        friend struct ComputeGraph;
-        Graph *graph_;
-        int index_;
-        BaseRef(Graph *graph, int index) : graph_(graph), index_(index) {
-            log_assert(index_ >= 0);
+    ਸੁਰੱਖਿਅਤ:
+        ਮਿੱਤਰ ਬਣਤਰ Compute_ਗ੍ਰਾਫ;
+        ਗ੍ਰਾਫ *ਗ੍ਰਾਫ_2;
+        ਪੂਰਨ ਸੂਚਕਾਂਕ_2;
+        ਅਧਾਰ_Ref(ਗ੍ਰਾਫ *ਗ੍ਰਾਫ_3, ਪੂਰਨ ਸੂਚਕਾਂਕ) : ਗ੍ਰਾਫ_2(ਗ੍ਰਾਫ_3), ਸੂਚਕਾਂਕ_2(ਸੂਚਕਾਂਕ) {
+            log_assert(ਸੂਚਕਾਂਕ_2 >= 0);
             check();
         }
 
-        void check() const { log_assert(index_ < graph_->size()); }
+        ਖਾਲੀ check() ਅਚਲ { log_assert(ਸੂਚਕਾਂਕ_2 < ਗ੍ਰਾਫ_2->ਮਾਪ()); }
 
-        Node const &deref() const { check(); return graph_->nodes[index_]; }
+        ਗੰਢ_2 ਅਚਲ &deref() ਅਚਲ { check(); ਵਾਪਸ ਗ੍ਰਾਫ_2->nodes[ਸੂਚਕਾਂਕ_2]; }
 
-    public:
-        ComputeGraph const &graph() const { return graph_; }
-        int index() const { return index_; }
+    ਜਨਤਕ:
+        Compute_ਗ੍ਰਾਫ ਅਚਲ &ਗ੍ਰਾਫ_3() ਅਚਲ { ਵਾਪਸ ਗ੍ਰਾਫ_2; }
+        ਪੂਰਨ ਸੂਚਕਾਂਕ() ਅਚਲ { ਵਾਪਸ ਸੂਚਕਾਂਕ_2; }
 
-        int size() const { return deref().arg_count; }
+        ਪੂਰਨ ਮਾਪ() ਅਚਲ { ਵਾਪਸ deref().arg_ਗਿਣਤੀ; }
 
-        BaseRef arg(int n) const
+        ਅਧਾਰ_Ref arg(ਪੂਰਨ n) ਅਚਲ
         {
-            Node const &node = deref();
-            log_assert(n >= 0 && n < node.arg_count);
-            return BaseRef(graph_, graph_->args[node.arg_offset + n]);
+            ਗੰਢ_2 ਅਚਲ &ਗੰਢ = deref();
+            log_assert(n >= 0 && n < ਗੰਢ.arg_ਗਿਣਤੀ);
+            ਵਾਪਸ ਅਧਾਰ_Ref(ਗ੍ਰਾਫ_2, ਗ੍ਰਾਫ_2->ਦਲੀਲਾਂ_2[ਗੰਢ.arg_ਵਿੱਥ + n]);
         }
 
-        std::vector<int>::const_iterator arg_indices_cbegin() const
+        std::ਸਦਿਸ਼<ਪੂਰਨ>::const_iterator arg_indices_cbegin() ਅਚਲ
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset;
+            ਗੰਢ_2 ਅਚਲ &ਗੰਢ = deref();
+            ਵਾਪਸ ਗ੍ਰਾਫ_2->ਦਲੀਲਾਂ_2.cbegin() + ਗੰਢ.arg_ਵਿੱਥ;
         }
 
-        std::vector<int>::const_iterator arg_indices_cend() const
+        std::ਸਦਿਸ਼<ਪੂਰਨ>::const_iterator arg_indices_cend() ਅਚਲ
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset + node.arg_count;
+            ਗੰਢ_2 ਅਚਲ &ਗੰਢ = deref();
+            ਵਾਪਸ ਗ੍ਰਾਫ_2->ਦਲੀਲਾਂ_2.cbegin() + ਗੰਢ.arg_ਵਿੱਥ + ਗੰਢ.arg_ਗਿਣਤੀ;
         }
 
-        Fn const &function() const { return graph_->functions[deref().fn_index]; }
-        Attr const &attr() const { return deref().attr; }
+        Fn ਅਚਲ &function() ਅਚਲ { ਵਾਪਸ ਗ੍ਰਾਫ_2->functions[deref().fn_ਸੂਚਕਾਂਕ]; }
+        Attr ਅਚਲ &attr() ਅਚਲ { ਵਾਪਸ deref().attr; }
 
-        bool has_sparse_attr() const { return graph_->sparse_attrs.count(index_); }
+        bool has_sparse_attr() ਅਚਲ { ਵਾਪਸ ਗ੍ਰਾਫ_2->sparse_attrs.ਗਿਣਤੀ_2(ਸੂਚਕਾਂਕ_2); }
 
-        SparseAttr const &sparse_attr() const
+        SparseAttr ਅਚਲ &sparse_attr() ਅਚਲ
         {
-            auto found = graph_->sparse_attrs.find(index_);
-            log_assert(found != graph_->sparse_attrs.end());
-            return found->second;
+            ਸਵੈਚਾਲਿਤ ਮਿਲਿਆ = ਗ੍ਰਾਫ_2->sparse_attrs.ਲੱਭੋ(ਸੂਚਕਾਂਕ_2);
+            log_assert(ਮਿਲਿਆ != ਗ੍ਰਾਫ_2->sparse_attrs.ਸਿਰਾ());
+            ਵਾਪਸ ਮਿਲਿਆ->ਦੂਜਾ;
         }
     };
 
-    using ConstRef = BaseRef<ComputeGraph const>;
+    using ConstRef = ਅਧਾਰ_Ref<Compute_ਗ੍ਰਾਫ ਅਚਲ>;
 
-    struct Ref : public BaseRef<ComputeGraph>
+    ਬਣਤਰ Ref : ਜਨਤਕ ਅਧਾਰ_Ref<Compute_ਗ੍ਰਾਫ>
     {
-    private:
-        friend struct ComputeGraph;
-        Ref(ComputeGraph *graph, int index) : BaseRef<ComputeGraph>(graph, index) {}
-        Node &deref() const { this->check(); return this->graph_->nodes[this->index_]; }
+    ਨਿਜੀ:
+        ਮਿੱਤਰ ਬਣਤਰ Compute_ਗ੍ਰਾਫ;
+        Ref(Compute_ਗ੍ਰਾਫ *ਗ੍ਰਾਫ_3, ਪੂਰਨ ਸੂਚਕਾਂਕ) : ਅਧਾਰ_Ref<Compute_ਗ੍ਰਾਫ>(ਗ੍ਰਾਫ_3, ਸੂਚਕਾਂਕ) {}
+        ਗੰਢ_2 &deref() ਅਚਲ { this->check(); ਵਾਪਸ this->ਗ੍ਰਾਫ_2->nodes[this->ਸੂਚਕਾਂਕ_2]; }
 
-    public:
-        Ref(BaseRef<ComputeGraph> ref) : Ref(ref.graph_, ref.index_) {}
+    ਜਨਤਕ:
+        Ref(ਅਧਾਰ_Ref<Compute_ਗ੍ਰਾਫ> ref) : Ref(ref.ਗ੍ਰਾਫ_2, ref.ਸੂਚਕਾਂਕ_2) {}
 
-        void set_function(Fn const &function) const
+        ਖਾਲੀ ਸੈੱਟ_function(Fn ਅਚਲ &function) ਅਚਲ
         {
-            deref().fn_index = this->graph_->functions(function);
+            deref().fn_ਸੂਚਕਾਂਕ = this->ਗ੍ਰਾਫ_2->functions(function);
         }
 
-        Attr &attr() const { return deref().attr; }
+        Attr &attr() ਅਚਲ { ਵਾਪਸ deref().attr; }
 
-        void append_arg(ConstRef arg) const
+        ਖਾਲੀ append_arg(ConstRef arg) ਅਚਲ
         {
-            log_assert(arg.graph_ == this->graph_);
-            append_arg(arg.index());
+            log_assert(arg.ਗ੍ਰਾਫ_2 == this->ਗ੍ਰਾਫ_2);
+            append_arg(arg.ਸੂਚਕਾਂਕ());
         }
 
-        void append_arg(int arg) const
+        ਖਾਲੀ append_arg(ਪੂਰਨ arg) ਅਚਲ
         {
-            log_assert(arg >= 0 && arg < this->graph_->size());
-            Node &node = deref();
-            if (node.arg_offset + node.arg_count != GetSize(this->graph_->args))
-                move_args(node);
-            this->graph_->args.push_back(arg);
-            node.arg_count++;
+            log_assert(arg >= 0 && arg < this->ਗ੍ਰਾਫ_2->ਮਾਪ());
+            ਗੰਢ_2 &ਗੰਢ = deref();
+            ਜੇ (ਗੰਢ.arg_ਵਿੱਥ + ਗੰਢ.arg_ਗਿਣਤੀ != Get_ਮਾਪ(this->ਗ੍ਰਾਫ_2->ਦਲੀਲਾਂ_2))
+                move_ਦਲੀਲਾਂ(ਗੰਢ);
+            this->ਗ੍ਰਾਫ_2->ਦਲੀਲਾਂ_2.ਧੱਕੋ_ਪਿੱਠ(arg);
+            ਗੰਢ.arg_ਗਿਣਤੀ++;
         }
 
-        operator ConstRef() const
+        ਸੰਚਾਲਕ ConstRef() ਅਚਲ
         {
-            return ConstRef(this->graph_, this->index_);
+            ਵਾਪਸ ConstRef(this->ਗ੍ਰਾਫ_2, this->ਸੂਚਕਾਂਕ_2);
         }
 
-        SparseAttr &sparse_attr() const
+        SparseAttr &sparse_attr() ਅਚਲ
         {
-            return this->graph_->sparse_attrs[this->index_];
+            ਵਾਪਸ this->ਗ੍ਰਾਫ_2->sparse_attrs[this->ਸੂਚਕਾਂਕ_2];
         }
 
-        void clear_sparse_attr() const
+        ਖਾਲੀ clear_sparse_attr() ਅਚਲ
         {
-            this->graph_->sparse_attrs.erase(this->index_);
+            this->ਗ੍ਰਾਫ_2->sparse_attrs.erase(this->ਸੂਚਕਾਂਕ_2);
         }
 
-        void assign_key(Key const &key) const
+        ਖਾਲੀ ਸੌਂਪੋ_ਕੁੰਜੀ(ਕੁੰਜੀ_2 ਅਚਲ &ਕੁੰਜੀ) ਅਚਲ
         {
-            this->graph_->keys_.emplace(key, this->index_);
+            this->ਗ੍ਰਾਫ_2->ਕੁੰਜੀਆਂ.emplace(ਕੁੰਜੀ, this->ਸੂਚਕਾਂਕ_2);
         }
 
-    private:
-        void move_args(Node &node) const
+    ਨਿਜੀ:
+        ਖਾਲੀ move_ਦਲੀਲਾਂ(ਗੰਢ_2 &ਗੰਢ) ਅਚਲ
         {
-            auto &args = this->graph_->args;
-            int old_offset = node.arg_offset;
-            node.arg_offset = GetSize(args);
-            for (int i = 0; i != node.arg_count; ++i)
-                args.push_back(args[old_offset + i]);
+            ਸਵੈਚਾਲਿਤ &ਦਲੀਲਾਂ_2 = this->ਗ੍ਰਾਫ_2->ਦਲੀਲਾਂ_2;
+            ਪੂਰਨ old_ਵਿੱਥ = ਗੰਢ.arg_ਵਿੱਥ;
+            ਗੰਢ.arg_ਵਿੱਥ = Get_ਮਾਪ(ਦਲੀਲਾਂ_2);
+            ਲਈ (ਪੂਰਨ i = 0; i != ਗੰਢ.arg_ਗਿਣਤੀ; ++i)
+                ਦਲੀਲਾਂ_2.ਧੱਕੋ_ਪਿੱਠ(ਦਲੀਲਾਂ_2[old_ਵਿੱਥ + i]);
         }
 
     };
 
-    bool has_key(Key const &key) const
+    bool has_ਕੁੰਜੀ(ਕੁੰਜੀ_2 ਅਚਲ &ਕੁੰਜੀ) ਅਚਲ
     {
-        return keys_.count(key);
+        ਵਾਪਸ ਕੁੰਜੀਆਂ.ਗਿਣਤੀ_2(ਕੁੰਜੀ);
     }
 
-    dict<Key, int> const &keys() const
+    dict<ਕੁੰਜੀ_2, ਪੂਰਨ> ਅਚਲ &ਕੁੰਜੀਆਂ_2() ਅਚਲ
     {
-        return keys_;
+        ਵਾਪਸ ਕੁੰਜੀਆਂ;
     }
 
-    ConstRef operator()(Key const &key) const
+    ConstRef ਸੰਚਾਲਕ()(ਕੁੰਜੀ_2 ਅਚਲ &ਕੁੰਜੀ) ਅਚਲ
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        ਸਵੈਚਾਲਿਤ it = ਕੁੰਜੀਆਂ.ਲੱਭੋ(ਕੁੰਜੀ);
+        log_assert(it != ਕੁੰਜੀਆਂ.ਸਿਰਾ());
+        ਵਾਪਸ (*this)[it->ਦੂਜਾ];
     }
 
-    Ref operator()(Key const &key)
+    Ref ਸੰਚਾਲਕ()(ਕੁੰਜੀ_2 ਅਚਲ &ਕੁੰਜੀ)
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        ਸਵੈਚਾਲਿਤ it = ਕੁੰਜੀਆਂ.ਲੱਭੋ(ਕੁੰਜੀ);
+        log_assert(it != ਕੁੰਜੀਆਂ.ਸਿਰਾ());
+        ਵਾਪਸ (*this)[it->ਦੂਜਾ];
     }
 
-    int size() const { return GetSize(nodes); }
+    ਪੂਰਨ ਮਾਪ() ਅਚਲ { ਵਾਪਸ Get_ਮਾਪ(nodes); }
 
-    ConstRef operator[](int index) const { return ConstRef(this, index); }
-    Ref operator[](int index) { return Ref(this, index); }
+    ConstRef ਸੰਚਾਲਕ[](ਪੂਰਨ ਸੂਚਕਾਂਕ) ਅਚਲ { ਵਾਪਸ ConstRef(this, ਸੂਚਕਾਂਕ); }
+    Ref ਸੰਚਾਲਕ[](ਪੂਰਨ ਸੂਚਕਾਂਕ) { ਵਾਪਸ Ref(this, ਸੂਚਕਾਂਕ); }
 
-    Ref add(Fn const &function, Attr &&attr)
+    Ref ਜੋੜੋ(Fn ਅਚਲ &function, Attr &&attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
-        nodes.emplace_back(fn_index, std::move(attr), GetSize(args));
-        return Ref(this, index);
+        ਪੂਰਨ ਸੂਚਕਾਂਕ = Get_ਮਾਪ(nodes);
+        ਪੂਰਨ fn_ਸੂਚਕਾਂਕ = functions(function);
+        nodes.emplace_ਪਿੱਠ(fn_ਸੂਚਕਾਂਕ, std::move(attr), Get_ਮਾਪ(ਦਲੀਲਾਂ_2));
+        ਵਾਪਸ Ref(this, ਸੂਚਕਾਂਕ);
     }
 
-    Ref add(Fn const &function, Attr const &attr)
+    Ref ਜੋੜੋ(Fn ਅਚਲ &function, Attr ਅਚਲ &attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
-        nodes.emplace_back(fn_index, attr,  GetSize(args));
-        return Ref(this, index);
+        ਪੂਰਨ ਸੂਚਕਾਂਕ = Get_ਮਾਪ(nodes);
+        ਪੂਰਨ fn_ਸੂਚਕਾਂਕ = functions(function);
+        nodes.emplace_ਪਿੱਠ(fn_ਸੂਚਕਾਂਕ, attr,  Get_ਮਾਪ(ਦਲੀਲਾਂ_2));
+        ਵਾਪਸ Ref(this, ਸੂਚਕਾਂਕ);
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T &&args)
+    ਸਾਂਚਾ<typename T>
+    Ref ਜੋੜੋ(Fn ਅਚਲ &function, Attr ਅਚਲ &attr, T &&ਦਲੀਲਾਂ_2)
     {
-        Ref added = add(function, attr);
-        for (auto arg : args)
+        Ref added = ਜੋੜੋ(function, attr);
+        ਲਈ (ਸਵੈਚਾਲਿਤ arg : ਦਲੀਲਾਂ_2)
             added.append_arg(arg);
-        return added;
+        ਵਾਪਸ added;
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr &&attr, T &&args)
+    ਸਾਂਚਾ<typename T>
+    Ref ਜੋੜੋ(Fn ਅਚਲ &function, Attr &&attr, T &&ਦਲੀਲਾਂ_2)
     {
-        Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        Ref added = ਜੋੜੋ(function, std::move(attr));
+        ਲਈ (ਸਵੈਚਾਲਿਤ arg : ਦਲੀਲਾਂ_2)
             added.append_arg(arg);
-        return added;
+        ਵਾਪਸ added;
     }
 
-    Ref add(Fn const &function, Attr const &attr, std::initializer_list<Ref> args)
+    Ref ਜੋੜੋ(Fn ਅਚਲ &function, Attr ਅਚਲ &attr, std::initializer_list<Ref> ਦਲੀਲਾਂ_2)
     {
-        Ref added = add(function, attr);
-        for (auto arg : args)
+        Ref added = ਜੋੜੋ(function, attr);
+        ਲਈ (ਸਵੈਚਾਲਿਤ arg : ਦਲੀਲਾਂ_2)
             added.append_arg(arg);
-        return added;
+        ਵਾਪਸ added;
     }
 
-    Ref add(Fn const &function, Attr &&attr, std::initializer_list<Ref> args)
+    Ref ਜੋੜੋ(Fn ਅਚਲ &function, Attr &&attr, std::initializer_list<Ref> ਦਲੀਲਾਂ_2)
     {
-        Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        Ref added = ਜੋੜੋ(function, std::move(attr));
+        ਲਈ (ਸਵੈਚਾਲਿਤ arg : ਦਲੀਲਾਂ_2)
             added.append_arg(arg);
-        return added;
+        ਵਾਪਸ added;
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T begin, T end)
+    ਸਾਂਚਾ<typename T>
+    Ref ਜੋੜੋ(Fn ਅਚਲ &function, Attr ਅਚਲ &attr, T begin, T ਸਿਰਾ)
     {
-        Ref added = add(function, attr);
-        for (; begin != end; ++begin)
+        Ref added = ਜੋੜੋ(function, attr);
+        ਲਈ (; begin != ਸਿਰਾ; ++begin)
             added.append_arg(*begin);
-        return added;
+        ਵਾਪਸ added;
     }
 
-    void compact_args()
+    ਖਾਲੀ compact_ਦਲੀਲਾਂ()
     {
-        std::vector<int> new_args;
-        for (auto &node : nodes)
+        std::ਸਦਿਸ਼<ਪੂਰਨ> new_ਦਲੀਲਾਂ;
+        ਲਈ (ਸਵੈਚਾਲਿਤ &ਗੰਢ : nodes)
         {
-            int new_offset = GetSize(new_args);
-            for (int i = 0; i < node.arg_count; i++)
-                new_args.push_back(args[node.arg_offset + i]);
-            node.arg_offset = new_offset;
+            ਪੂਰਨ new_ਵਿੱਥ = Get_ਮਾਪ(new_ਦਲੀਲਾਂ);
+            ਲਈ (ਪੂਰਨ i = 0; i < ਗੰਢ.arg_ਗਿਣਤੀ; i++)
+                new_ਦਲੀਲਾਂ.ਧੱਕੋ_ਪਿੱਠ(ਦਲੀਲਾਂ_2[ਗੰਢ.arg_ਵਿੱਥ + i]);
+            ਗੰਢ.arg_ਵਿੱਥ = new_ਵਿੱਥ;
         }
-        std::swap(args, new_args);
+        std::ਅਦਲਾ_ਬਦਲੀ(ਦਲੀਲਾਂ_2, new_ਦਲੀਲਾਂ);
     }
 
-    void permute(std::vector<int> const &perm)
+    ਖਾਲੀ ਕ੍ਰਮ_ਬਦਲੋ(std::ਸਦਿਸ਼<ਪੂਰਨ> ਅਚਲ &perm)
     {
-        log_assert(perm.size() <= nodes.size());
-        std::vector<int> inv_perm;
-        inv_perm.resize(nodes.size(), -1);
-        for (int i = 0; i < GetSize(perm); ++i)
+        log_assert(perm.ਮਾਪ() <= nodes.ਮਾਪ());
+        std::ਸਦਿਸ਼<ਪੂਰਨ> inv_perm;
+        inv_perm.resize(nodes.ਮਾਪ(), -1);
+        ਲਈ (ਪੂਰਨ i = 0; i < Get_ਮਾਪ(perm); ++i)
         {
-            int j = perm[i];
-            log_assert(j >= 0 && j < GetSize(nodes));
+            ਪੂਰਨ j = perm[i];
+            log_assert(j >= 0 && j < Get_ਮਾਪ(nodes));
             log_assert(inv_perm[j] == -1);
             inv_perm[j] = i;
         }
-        permute(perm, inv_perm);
+        ਕ੍ਰਮ_ਬਦਲੋ(perm, inv_perm);
     }
 
-    void permute(std::vector<int> const &perm, std::vector<int> const &inv_perm)
+    ਖਾਲੀ ਕ੍ਰਮ_ਬਦਲੋ(std::ਸਦਿਸ਼<ਪੂਰਨ> ਅਚਲ &perm, std::ਸਦਿਸ਼<ਪੂਰਨ> ਅਚਲ &inv_perm)
     {
-        log_assert(inv_perm.size() == nodes.size());
-        std::vector<Node> new_nodes;
-        new_nodes.reserve(perm.size());
-        dict<int, SparseAttr> new_sparse_attrs;
-        for (int i : perm)
+        log_assert(inv_perm.ਮਾਪ() == nodes.ਮਾਪ());
+        std::ਸਦਿਸ਼<ਗੰਢ_2> new_nodes;
+        new_nodes.reserve(perm.ਮਾਪ());
+        dict<ਪੂਰਨ, SparseAttr> new_sparse_attrs;
+        ਲਈ (ਪੂਰਨ i : perm)
         {
-            int j = GetSize(new_nodes);
-            new_nodes.emplace_back(std::move(nodes[i]));
-            auto found = sparse_attrs.find(i);
-            if (found != sparse_attrs.end())
-                new_sparse_attrs.emplace(j, std::move(found->second));
+            ਪੂਰਨ j = Get_ਮਾਪ(new_nodes);
+            new_nodes.emplace_ਪਿੱਠ(std::move(nodes[i]));
+            ਸਵੈਚਾਲਿਤ ਮਿਲਿਆ = sparse_attrs.ਲੱਭੋ(i);
+            ਜੇ (ਮਿਲਿਆ != sparse_attrs.ਸਿਰਾ())
+                new_sparse_attrs.emplace(j, std::move(ਮਿਲਿਆ->ਦੂਜਾ));
         }
 
-        std::swap(nodes, new_nodes);
-        std::swap(sparse_attrs, new_sparse_attrs);
+        std::ਅਦਲਾ_ਬਦਲੀ(nodes, new_nodes);
+        std::ਅਦਲਾ_ਬਦਲੀ(sparse_attrs, new_sparse_attrs);
 
-        compact_args();
-        for (int &arg : args)
+        compact_ਦਲੀਲਾਂ();
+        ਲਈ (ਪੂਰਨ &arg : ਦਲੀਲਾਂ_2)
         {
-            log_assert(arg < GetSize(inv_perm));
+            log_assert(arg < Get_ਮਾਪ(inv_perm));
             log_assert(inv_perm[arg] >= 0);
             arg = inv_perm[arg];
         }
 
-        for (auto &key : keys_)
+        ਲਈ (ਸਵੈਚਾਲਿਤ &ਕੁੰਜੀ : ਕੁੰਜੀਆਂ)
         {
-            log_assert(key.second < GetSize(inv_perm));
-            log_assert(inv_perm[key.second] >= 0);
-            key.second = inv_perm[key.second];
+            log_assert(ਕੁੰਜੀ.ਦੂਜਾ < Get_ਮਾਪ(inv_perm));
+            log_assert(inv_perm[ਕੁੰਜੀ.ਦੂਜਾ] >= 0);
+            ਕੁੰਜੀ.ਦੂਜਾ = inv_perm[ਕੁੰਜੀ.ਦੂਜਾ];
         }
     }
 
-    struct SccAdaptor
+    ਬਣਤਰ SccAdaptor
     {
-    private:
-        ComputeGraph const &graph_;
-        std::vector<int> indices_;
-    public:
-        SccAdaptor(ComputeGraph const &graph) : graph_(graph)
+    ਨਿਜੀ:
+        Compute_ਗ੍ਰਾਫ ਅਚਲ &ਗ੍ਰਾਫ_2;
+        std::ਸਦਿਸ਼<ਪੂਰਨ> indices_;
+    ਜਨਤਕ:
+        SccAdaptor(Compute_ਗ੍ਰਾਫ ਅਚਲ &ਗ੍ਰਾਫ_3) : ਗ੍ਰਾਫ_2(ਗ੍ਰਾਫ_3)
         {
-            indices_.resize(graph.size(), -1);
+            indices_.resize(ਗ੍ਰਾਫ_3.ਮਾਪ(), -1);
         }
 
 
-        typedef int node_type;
+        ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਪੂਰਨ ਗੰਢ_type;
 
-        struct node_enumerator {
-        private:
-            friend struct SccAdaptor;
-            int current, end;
-            node_enumerator(int current, int end) : current(current), end(end) {}
+        ਬਣਤਰ ਗੰਢ_enumerator {
+        ਨਿਜੀ:
+            ਮਿੱਤਰ ਬਣਤਰ SccAdaptor;
+            ਪੂਰਨ current, ਸਿਰਾ;
+            ਗੰਢ_enumerator(ਪੂਰਨ current, ਪੂਰਨ ਸਿਰਾ) : current(current), ਸਿਰਾ(ਸਿਰਾ) {}
 
-        public:
+        ਜਨਤਕ:
 
-            bool finished() const { return current == end; }
-            node_type next() {
-                log_assert(!finished());
-                node_type result = current;
+            bool ਮੁਕੰਮਲ() ਅਚਲ { ਵਾਪਸ current == ਸਿਰਾ; }
+            ਗੰਢ_type ਅਗਲਾ() {
+                log_assert(!ਮੁਕੰਮਲ());
+                ਗੰਢ_type ਨਤੀਜਾ = current;
                 ++current;
-                return result;
+                ਵਾਪਸ ਨਤੀਜਾ;
             }
         };
 
-        node_enumerator enumerate_nodes() {
-            return node_enumerator(0, GetSize(indices_));
+        ਗੰਢ_enumerator enumerate_nodes() {
+            ਵਾਪਸ ਗੰਢ_enumerator(0, Get_ਮਾਪ(indices_));
         }
 
 
-        struct successor_enumerator {
-        private:
-            friend struct SccAdaptor;
-            std::vector<int>::const_iterator current, end;
-            successor_enumerator(std::vector<int>::const_iterator current, std::vector<int>::const_iterator end) :
-                current(current), end(end) {}
+        ਬਣਤਰ successor_enumerator {
+        ਨਿਜੀ:
+            ਮਿੱਤਰ ਬਣਤਰ SccAdaptor;
+            std::ਸਦਿਸ਼<ਪੂਰਨ>::const_iterator current, ਸਿਰਾ;
+            successor_enumerator(std::ਸਦਿਸ਼<ਪੂਰਨ>::const_iterator current, std::ਸਦਿਸ਼<ਪੂਰਨ>::const_iterator ਸਿਰਾ) :
+                current(current), ਸਿਰਾ(ਸਿਰਾ) {}
 
-        public:
-            bool finished() const { return current == end; }
-            node_type next() {
-                log_assert(!finished());
-                node_type result = *current;
+        ਜਨਤਕ:
+            bool ਮੁਕੰਮਲ() ਅਚਲ { ਵਾਪਸ current == ਸਿਰਾ; }
+            ਗੰਢ_type ਅਗਲਾ() {
+                log_assert(!ਮੁਕੰਮਲ());
+                ਗੰਢ_type ਨਤੀਜਾ = *current;
                 ++current;
-                return result;
+                ਵਾਪਸ ਨਤੀਜਾ;
             }
         };
 
-        successor_enumerator enumerate_successors(int index) const {
-            auto const &ref = graph_[index];
-            return successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
+        successor_enumerator enumerate_ਉੱਤਰਾਧਿਕਾਰੀ(ਪੂਰਨ ਸੂਚਕਾਂਕ) ਅਚਲ {
+            ਸਵੈਚਾਲਿਤ ਅਚਲ &ref = ਗ੍ਰਾਫ_2[ਸੂਚਕਾਂਕ];
+            ਵਾਪਸ successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
         }
 
-        int &dfs_index(node_type const &node) { return indices_[node]; }
+        ਪੂਰਨ &dfs_ਸੂਚਕਾਂਕ(ਗੰਢ_type ਅਚਲ &ਗੰਢ) { ਵਾਪਸ indices_[ਗੰਢ]; }
 
-        std::vector<int> const &dfs_indices() { return indices_; }
+        std::ਸਦਿਸ਼<ਪੂਰਨ> ਅਚਲ &dfs_indices() { ਵਾਪਸ indices_; }
     };
 
 };
 
 
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
 
-#endif
+#ਜੇ_ਅੰਤ

@@ -34,72 +34,72 @@
 // belong nowhere else and includes the interesting headers.
 
 
-#ifndef YOSYS_H
-#define YOSYS_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ YOSYS_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ YOSYS_H
 
-#include "kernel/yosys_common.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys_common.h"
 
-#include "kernel/log.h"
-#include "kernel/rtlil.h"
-#include "kernel/register.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/log.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/rtlil.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/register.h"
 
-#ifdef YOSYS_ENABLE_TCL
-struct Tcl_Interp;
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_TCL
+ਬਣਤਰ Tcl_Interp;
+#ਜੇ_ਅੰਤ
 
 YOSYS_NAMESPACE_BEGIN
 
-void yosys_setup();
+ਖਾਲੀ yosys_ਤਿਆਰੀ();
 
-#ifdef YOSYS_ENABLE_PYTHON
-bool yosys_already_setup();
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_PYTHON
+bool yosys_already_ਤਿਆਰੀ();
+#ਜੇ_ਅੰਤ
 
-void yosys_shutdown();
+ਖਾਲੀ yosys_shutdown();
 
-#ifdef YOSYS_ENABLE_TCL
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_TCL
 Tcl_Interp *yosys_get_tcl_interp();
-#endif
+#ਜੇ_ਅੰਤ
 
-extern RTLIL::Design *yosys_design;
+ਬਾਹਰੀ RTLIL::Design *yosys_design;
 
 RTLIL::Design *yosys_get_design();
 std::string proc_self_dirname();
 std::string proc_share_dirname();
-std::string proc_program_prefix();
-const char *create_prompt(RTLIL::Design *design, int recursion_counter, bool newline = true);
-std::vector<std::string> glob_filename(const std::string &filename_pattern);
-void rewrite_filename(std::string &filename);
+std::string proc_ਪ੍ਰੋਗਰਾਮ_ਅਗੇਤਰ();
+ਅਚਲ ਅੱਖਰ *create_prompt(RTLIL::Design *design, ਪੂਰਨ recursion_counter, bool newline = true);
+std::ਸਦਿਸ਼<std::string> glob_filename(ਅਚਲ std::string &filename_ਨਮੂਨਾ);
+ਖਾਲੀ rewrite_filename(std::string &filename);
 
-void run_pass(std::string command, RTLIL::Design *design = nullptr);
-bool run_frontend(std::string filename, std::string command, RTLIL::Design *design = nullptr, std::string *from_to_label = nullptr);
-void run_backend(std::string filename, std::string command, RTLIL::Design *design = nullptr);
-void shell(RTLIL::Design *design);
+ਖਾਲੀ ਲੜੀਵਾਰ_pass(std::string command, RTLIL::Design *design = nullptr);
+bool ਲੜੀਵਾਰ_frontend(std::string filename, std::string command, RTLIL::Design *design = nullptr, std::string *from_ਮੰਜ਼ਿਲ_label = nullptr);
+ਖਾਲੀ ਲੜੀਵਾਰ_backend(std::string filename, std::string command, RTLIL::Design *design = nullptr);
+ਖਾਲੀ shell(RTLIL::Design *design);
 
 // journal of all input and output files read (for "yosys -E")
-extern std::set<std::string> yosys_input_files, yosys_output_files;
+ਬਾਹਰੀ std::ਸੈੱਟ<std::string> yosys_ਨਿਵੇਸ਼_files, yosys_output_files;
 
 // from kernel/version_*.o (cc source generated from Makefile)
-extern const char *yosys_version_str;
-extern const char *yosys_git_hash_str;
-extern const char *yosys_build_datetime_str;
-const char* yosys_maybe_version();
+ਬਾਹਰੀ ਅਚਲ ਅੱਖਰ *yosys_ਸੰਸਕਰਣ_str;
+ਬਾਹਰੀ ਅਚਲ ਅੱਖਰ *yosys_git_hash_str;
+ਬਾਹਰੀ ਅਚਲ ਅੱਖਰ *yosys_build_datetime_str;
+ਅਚਲ ਅੱਖਰ* yosys_maybe_ਸੰਸਕਰਣ();
 
 // from passes/cmds/design.cc
-extern std::map<std::string, RTLIL::Design*> saved_designs;
-extern std::vector<RTLIL::Design*> pushed_designs;
+ਬਾਹਰੀ std::map<std::string, RTLIL::Design*> saved_designs;
+ਬਾਹਰੀ std::ਸਦਿਸ਼<RTLIL::Design*> pushed_designs;
 
 // from passes/cmds/pluginc.cc
-extern std::map<std::string, void*> loaded_plugins;
-#ifdef YOSYS_ENABLE_PYTHON
-extern std::map<std::string, void*> loaded_python_plugins;
-#endif
-extern std::map<std::string, std::string> loaded_plugin_aliases;
-void load_plugin(std::string filename, std::vector<std::string> aliases);
+ਬਾਹਰੀ std::map<std::string, ਖਾਲੀ*> loaded_plugins;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_PYTHON
+ਬਾਹਰੀ std::map<std::string, ਖਾਲੀ*> loaded_python_plugins;
+#ਜੇ_ਅੰਤ
+ਬਾਹਰੀ std::map<std::string, std::string> loaded_plugin_aliases;
+ਖਾਲੀ ਲੱਦੋ_plugin(std::string filename, std::ਸਦਿਸ਼<std::string> aliases);
 
-extern std::string yosys_share_dirname;
-extern std::string yosys_abc_executable;
+ਬਾਹਰੀ std::string yosys_share_dirname;
+ਬਾਹਰੀ std::string yosys_abc_executable;
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif
+#ਜੇ_ਅੰਤ

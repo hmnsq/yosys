@@ -17,169 +17,169 @@
  *
  */
 
-#ifndef YW_H
-#define YW_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ YW_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ YW_H
 
-#include "kernel/yosys.h"
-#include "kernel/mem.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/mem.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct IdPath : public std::vector<std::string>
+ਬਣਤਰ Id_ਰਸਤਾ : ਜਨਤਕ std::ਸਦਿਸ਼<std::string>
 {
-	template<typename... T>
-	IdPath(T&&... args) : std::vector<std::string>(std::forward<T>(args)...) { }
-	IdPath prefix() const { return {begin(), end() - !empty()}; }
-	std::string str() const;
+	ਸਾਂਚਾ<typename... T>
+	Id_ਰਸਤਾ(T&&... ਦਲੀਲਾਂ_2) : std::ਸਦਿਸ਼<std::string>(std::forward<T>(ਦਲੀਲਾਂ_2)...) { }
+	Id_ਰਸਤਾ ਅਗੇਤਰ_2() ਅਚਲ { ਵਾਪਸ {begin(), ਸਿਰਾ() - !ਖਾਲੀ_ਥਾਵਾਂ()}; }
+	std::string str() ਅਚਲ;
 
-	bool has_address() const { int tmp; return get_address(tmp); };
-	bool get_address(int &addr) const;
+	bool has_ਪਤਾ() ਅਚਲ { ਪੂਰਨ tmp; ਵਾਪਸ get_ਪਤਾ(tmp); };
+	bool get_ਪਤਾ(ਪੂਰਨ &addr) ਅਚਲ;
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
-		h.eat(static_cast<const std::vector<std::string>&&>(*this));
-		return h;
+	[[nodiscard]] Hasher hash_into(Hasher h) ਅਚਲ {
+		h.eat(static_cast<ਅਚਲ std::ਸਦਿਸ਼<std::string>&&>(*this));
+		ਵਾਪਸ h;
 	}
 };
 
-struct WitnessHierarchyItem {
+ਬਣਤਰ Witness_Hierarchy_ਵਸਤੂ {
 	RTLIL::Module *module;
 	RTLIL::Wire *wire = nullptr;
 	RTLIL::Cell *cell = nullptr;
 	Mem *mem = nullptr;
 
-	WitnessHierarchyItem(RTLIL::Module *module, RTLIL::Wire *wire) : module(module), wire(wire) {}
-	WitnessHierarchyItem(RTLIL::Module *module, RTLIL::Cell *cell) : module(module), cell(cell) {}
-	WitnessHierarchyItem(RTLIL::Module *module, Mem *mem) : module(module), mem(mem) {}
+	Witness_Hierarchy_ਵਸਤੂ(RTLIL::Module *module, RTLIL::Wire *wire) : module(module), wire(wire) {}
+	Witness_Hierarchy_ਵਸਤੂ(RTLIL::Module *module, RTLIL::Cell *cell) : module(module), cell(cell) {}
+	Witness_Hierarchy_ਵਸਤੂ(RTLIL::Module *module, Mem *mem) : module(module), mem(mem) {}
 };
 
-template<typename D, typename T>
-void witness_hierarchy(RTLIL::Module *module, D data, T callback);
+ਸਾਂਚਾ<typename D, typename T>
+ਖਾਲੀ witness_hierarchy(RTLIL::Module *module, D ਅੰਕੜੇ, T callback);
 
-template<class T> static std::vector<std::string> witness_path(T *obj) {
-	std::vector<std::string> path;
-	if (obj->name.isPublic()) {
-		auto hdlname = obj->get_string_attribute(ID::hdlname);
-		for (auto token : split_tokens(hdlname))
-			path.push_back("\\" + token);
+ਸਾਂਚਾ<class T> ਸਥਿਰ std::ਸਦਿਸ਼<std::string> witness_ਰਸਤਾ(T *obj) {
+	std::ਸਦਿਸ਼<std::string> ਰਸਤਾ_2;
+	ਜੇ (obj->name.is_ਜਨਤਕ()) {
+		ਸਵੈਚਾਲਿਤ hdlname = obj->get_string_attribute(ID::hdlname);
+		ਲਈ (ਸਵੈਚਾਲਿਤ token : ਵੰਡੋ_ਟੋਕਨ(hdlname))
+			ਰਸਤਾ_2.ਧੱਕੋ_ਪਿੱਠ("\\" + token);
 	}
-	if (path.empty())
-		path.push_back(obj->name.str());
-	return path;
+	ਜੇ (ਰਸਤਾ_2.ਖਾਲੀ_ਥਾਵਾਂ())
+		ਰਸਤਾ_2.ਧੱਕੋ_ਪਿੱਠ(obj->name.str());
+	ਵਾਪਸ ਰਸਤਾ_2;
 }
 
-struct ReadWitness
+ਬਣਤਰ ReadWitness
 {
-	struct Clock {
-		IdPath path;
-		int offset;
+	ਬਣਤਰ Clock {
+		Id_ਰਸਤਾ ਰਸਤਾ_2;
+		ਪੂਰਨ ਵਿੱਥ;
 		bool is_posedge = false;
 		bool is_negedge = false;
 	};
 
-	struct Signal {
-		IdPath path;
-		int offset;
-		int width;
+	ਬਣਤਰ Signal {
+		Id_ਰਸਤਾ ਰਸਤਾ_2;
+		ਪੂਰਨ ਵਿੱਥ;
+		ਪੂਰਨ ਚੌੜਾਈ;
 		bool init_only;
 
-		int bits_offset;
+		ਪੂਰਨ ਬਿੱਟ_ਵਿੱਥ;
 	};
 
-	struct Step {
-		std::string bits;
+	ਬਣਤਰ ਕਦਮ_2 {
+		std::string ਬਿੱਟ;
 	};
 
 	std::string filename;
-	std::vector<Clock> clocks;
-	std::vector<Signal> signals;
-	std::vector<Step> steps;
+	std::ਸਦਿਸ਼<Clock> clocks;
+	std::ਸਦਿਸ਼<Signal> ਸੰਕੇਤ_2;
+	std::ਸਦਿਸ਼<ਕਦਮ_2> ਕਦਮਾਂ;
 
-	ReadWitness(const std::string &filename);
+	ReadWitness(ਅਚਲ std::string &filename);
 
-	RTLIL::Const get_bits(int t, int bits_offset, int width) const;
+	RTLIL::Const get_ਬਿੱਟ(ਪੂਰਨ t, ਪੂਰਨ ਬਿੱਟ_ਵਿੱਥ, ਪੂਰਨ ਚੌੜਾਈ) ਅਚਲ;
 };
 
-template<typename D, typename T>
-void witness_hierarchy_recursion(IdPath &path, int hdlname_mode, RTLIL::Module *module, D data, T &callback)
+ਸਾਂਚਾ<typename D, typename T>
+ਖਾਲੀ witness_hierarchy_recursion(Id_ਰਸਤਾ &ਰਸਤਾ_2, ਪੂਰਨ hdlname_ਬਹੁਲਕ, RTLIL::Module *module, D ਅੰਕੜੇ, T &callback)
 {
-	auto const &const_path = path;
-	size_t path_size = path.size();
-	for (auto wire : module->wires())
+	ਸਵੈਚਾਲਿਤ ਅਚਲ &const_ਰਸਤਾ = ਰਸਤਾ_2;
+	ਮਾਪ_t ਰਸਤਾ_ਮਾਪ = ਰਸਤਾ_2.ਮਾਪ();
+	ਲਈ (ਸਵੈਚਾਲਿਤ wire : module->wires())
 	{
-		auto hdlname = hdlname_mode < 0 ? std::vector<std::string>() : wire->get_hdlname_attribute();
-		for (auto item : hdlname)
-			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && wire->name == path.back())
+		ਸਵੈਚਾਲਿਤ hdlname = hdlname_ਬਹੁਲਕ < 0 ? std::ਸਦਿਸ਼<std::string>() : wire->get_hdlname_attribute();
+		ਲਈ (ਸਵੈਚਾਲਿਤ ਵਸਤੂ_2 : hdlname)
+			ਰਸਤਾ_2.ਧੱਕੋ_ਪਿੱਠ("\\" + ਵਸਤੂ_2);
+		ਜੇ (hdlname.ਮਾਪ() == 1 && wire->name == ਰਸਤਾ_2.ਪਿੱਠ())
 			hdlname.clear();
-		if (!hdlname.empty())
-			callback(const_path, WitnessHierarchyItem(module, wire), data);
-		path.resize(path_size);
-		if (hdlname.empty() || hdlname_mode <= 0) {
-			path.push_back(wire->name);
-			callback(const_path, WitnessHierarchyItem(module, wire), data);
-			path.pop_back();
+		ਜੇ (!hdlname.ਖਾਲੀ_ਥਾਵਾਂ())
+			callback(const_ਰਸਤਾ, Witness_Hierarchy_ਵਸਤੂ(module, wire), ਅੰਕੜੇ);
+		ਰਸਤਾ_2.resize(ਰਸਤਾ_ਮਾਪ);
+		ਜੇ (hdlname.ਖਾਲੀ_ਥਾਵਾਂ() || hdlname_ਬਹੁਲਕ <= 0) {
+			ਰਸਤਾ_2.ਧੱਕੋ_ਪਿੱਠ(wire->name);
+			callback(const_ਰਸਤਾ, Witness_Hierarchy_ਵਸਤੂ(module, wire), ਅੰਕੜੇ);
+			ਰਸਤਾ_2.ਕੱਢੋ_ਪਿੱਠ();
 		}
 	}
 
-	for (auto cell : module->cells())
+	ਲਈ (ਸਵੈਚਾਲਿਤ cell : module->cells())
 	{
-		Module *child = module->design->module(cell->type);
-		if (child == nullptr)
-			continue;
+		Module *ਬੱਚਾ = module->design->module(cell->type);
+		ਜੇ (ਬੱਚਾ == nullptr)
+			ਜਾਰੀ;
 
-		auto hdlname = hdlname_mode < 0 ? std::vector<std::string>() : cell->get_hdlname_attribute();
-		for (auto item : hdlname)
-			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && cell->name == path.back())
+		ਸਵੈਚਾਲਿਤ hdlname = hdlname_ਬਹੁਲਕ < 0 ? std::ਸਦਿਸ਼<std::string>() : cell->get_hdlname_attribute();
+		ਲਈ (ਸਵੈਚਾਲਿਤ ਵਸਤੂ_2 : hdlname)
+			ਰਸਤਾ_2.ਧੱਕੋ_ਪਿੱਠ("\\" + ਵਸਤੂ_2);
+		ਜੇ (hdlname.ਮਾਪ() == 1 && cell->name == ਰਸਤਾ_2.ਪਿੱਠ())
 			hdlname.clear();
-		if (!hdlname.empty()) {
-			D child_data = callback(const_path, WitnessHierarchyItem(module, cell), data);
-			witness_hierarchy_recursion<D, T>(path, 1, child, child_data, callback);
+		ਜੇ (!hdlname.ਖਾਲੀ_ਥਾਵਾਂ()) {
+			D ਬੱਚਾ_ਅੰਕੜੇ = callback(const_ਰਸਤਾ, Witness_Hierarchy_ਵਸਤੂ(module, cell), ਅੰਕੜੇ);
+			witness_hierarchy_recursion<D, T>(ਰਸਤਾ_2, 1, ਬੱਚਾ, ਬੱਚਾ_ਅੰਕੜੇ, callback);
 		}
-		path.resize(path_size);
-		if (hdlname.empty() || hdlname_mode <= 0) {
-			path.push_back(cell->name);
-			D child_data = callback(const_path, WitnessHierarchyItem(module, cell), data);
-			witness_hierarchy_recursion<D, T>(path, hdlname.empty() ? hdlname_mode : -1, child, child_data, callback);
-			path.pop_back();
+		ਰਸਤਾ_2.resize(ਰਸਤਾ_ਮਾਪ);
+		ਜੇ (hdlname.ਖਾਲੀ_ਥਾਵਾਂ() || hdlname_ਬਹੁਲਕ <= 0) {
+			ਰਸਤਾ_2.ਧੱਕੋ_ਪਿੱਠ(cell->name);
+			D ਬੱਚਾ_ਅੰਕੜੇ = callback(const_ਰਸਤਾ, Witness_Hierarchy_ਵਸਤੂ(module, cell), ਅੰਕੜੇ);
+			witness_hierarchy_recursion<D, T>(ਰਸਤਾ_2, hdlname.ਖਾਲੀ_ਥਾਵਾਂ() ? hdlname_ਬਹੁਲਕ : -1, ਬੱਚਾ, ਬੱਚਾ_ਅੰਕੜੇ, callback);
+			ਰਸਤਾ_2.ਕੱਢੋ_ਪਿੱਠ();
 		}
 	}
 
-	for (auto mem : Mem::get_all_memories(module)) {
-		std::vector<std::string> hdlname;
+	ਲਈ (ਸਵੈਚਾਲਿਤ mem : Mem::get_all_memories(module)) {
+		std::ਸਦਿਸ਼<std::string> hdlname;
 
-		if (hdlname_mode >= 0 && mem.cell != nullptr)
+		ਜੇ (hdlname_ਬਹੁਲਕ >= 0 && mem.cell != nullptr)
 			hdlname = mem.cell->get_hdlname_attribute();
-		for (auto item : hdlname)
-			path.push_back("\\" + item);
-		if (hdlname.size() == 1 && mem.cell->name == path.back())
+		ਲਈ (ਸਵੈਚਾਲਿਤ ਵਸਤੂ_2 : hdlname)
+			ਰਸਤਾ_2.ਧੱਕੋ_ਪਿੱਠ("\\" + ਵਸਤੂ_2);
+		ਜੇ (hdlname.ਮਾਪ() == 1 && mem.cell->name == ਰਸਤਾ_2.ਪਿੱਠ())
 			hdlname.clear();
-		if (!hdlname.empty()) {
-			callback(const_path, WitnessHierarchyItem(module, &mem), data);
+		ਜੇ (!hdlname.ਖਾਲੀ_ਥਾਵਾਂ()) {
+			callback(const_ਰਸਤਾ, Witness_Hierarchy_ਵਸਤੂ(module, &mem), ਅੰਕੜੇ);
 		}
-		path.resize(path_size);
+		ਰਸਤਾ_2.resize(ਰਸਤਾ_ਮਾਪ);
 
-		if (hdlname.empty() || hdlname_mode <= 0) {
-			path.push_back(mem.memid.str());
-			callback(const_path, WitnessHierarchyItem(module, &mem), data);
-			path.pop_back();
+		ਜੇ (hdlname.ਖਾਲੀ_ਥਾਵਾਂ() || hdlname_ਬਹੁਲਕ <= 0) {
+			ਰਸਤਾ_2.ਧੱਕੋ_ਪਿੱਠ(mem.memid.str());
+			callback(const_ਰਸਤਾ, Witness_Hierarchy_ਵਸਤੂ(module, &mem), ਅੰਕੜੇ);
+			ਰਸਤਾ_2.ਕੱਢੋ_ਪਿੱਠ();
 
-			if (mem.cell != nullptr && mem.cell->name != mem.memid) {
-				path.push_back(mem.cell->name);
-				callback(const_path, WitnessHierarchyItem(module, &mem), data);
-				path.pop_back();
+			ਜੇ (mem.cell != nullptr && mem.cell->name != mem.memid) {
+				ਰਸਤਾ_2.ਧੱਕੋ_ਪਿੱਠ(mem.cell->name);
+				callback(const_ਰਸਤਾ, Witness_Hierarchy_ਵਸਤੂ(module, &mem), ਅੰਕੜੇ);
+				ਰਸਤਾ_2.ਕੱਢੋ_ਪਿੱਠ();
 			}
 		}
 	}
 }
 
-template<typename D, typename T>
-void witness_hierarchy(RTLIL::Module *module, D data, T callback)
+ਸਾਂਚਾ<typename D, typename T>
+ਖਾਲੀ witness_hierarchy(RTLIL::Module *module, D ਅੰਕੜੇ, T callback)
 {
-	IdPath path;
-	witness_hierarchy_recursion<D, T>(path, 0, module, data, callback);
+	Id_ਰਸਤਾ ਰਸਤਾ_2;
+	witness_hierarchy_recursion<D, T>(ਰਸਤਾ_2, 0, module, ਅੰਕੜੇ, callback);
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif
+#ਜੇ_ਅੰਤ

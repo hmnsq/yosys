@@ -17,47 +17,47 @@
  *
  */
 
-#ifndef CELLEDGES_H
-#define CELLEDGES_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CELLEDGES_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CELLEDGES_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/sigtools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AbstractCellEdgesDatabase
+ਬਣਤਰ Abstract_Cell_ਕਿਨਾਰੇ_Database
 {
-	virtual ~AbstractCellEdgesDatabase() { }
-	virtual void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int delay) = 0;
-	bool add_edges_from_cell(RTLIL::Cell *cell);
+	ਆਭਾਸੀ ~Abstract_Cell_ਕਿਨਾਰੇ_Database() { }
+	ਆਭਾਸੀ ਖਾਲੀ ਜੋੜੋ_ਕਿਨਾਰਾ(RTLIL::Cell *cell, RTLIL::IdString from_ਪੋਰਟ, ਪੂਰਨ from_ਦੋਆਧਾਰੀ_ਅੰਕ, RTLIL::IdString ਮੰਜ਼ਿਲ_ਪੋਰਟ, ਪੂਰਨ ਮੰਜ਼ਿਲ_ਦੋਆਧਾਰੀ_ਅੰਕ, ਪੂਰਨ delay) = 0;
+	bool ਜੋੜੋ_ਕਿਨਾਰੇ_from_cell(RTLIL::Cell *cell);
 };
 
-struct FwdCellEdgesDatabase : AbstractCellEdgesDatabase
+ਬਣਤਰ Fwd_Cell_ਕਿਨਾਰੇ_Database : Abstract_Cell_ਕਿਨਾਰੇ_Database
 {
 	SigMap &sigmap;
-	dict<SigBit, pool<SigBit>> db;
-	FwdCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
+	dict<Sig_ਦੋਆਧਾਰੀ_ਅੰਕ, pool<Sig_ਦੋਆਧਾਰੀ_ਅੰਕ>> db;
+	Fwd_Cell_ਕਿਨਾਰੇ_Database(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
-		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
-		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[from_sigbit].insert(to_sigbit);
+	ਖਾਲੀ ਜੋੜੋ_ਕਿਨਾਰਾ(RTLIL::Cell *cell, RTLIL::IdString from_ਪੋਰਟ, ਪੂਰਨ from_ਦੋਆਧਾਰੀ_ਅੰਕ, RTLIL::IdString ਮੰਜ਼ਿਲ_ਪੋਰਟ, ਪੂਰਨ ਮੰਜ਼ਿਲ_ਦੋਆਧਾਰੀ_ਅੰਕ, ਪੂਰਨ) override {
+		Sig_ਦੋਆਧਾਰੀ_ਅੰਕ from_sigbit = sigmap(cell->get_ਪੋਰਟ(from_ਪੋਰਟ)[from_ਦੋਆਧਾਰੀ_ਅੰਕ]);
+		Sig_ਦੋਆਧਾਰੀ_ਅੰਕ ਮੰਜ਼ਿਲ_sigbit = sigmap(cell->get_ਪੋਰਟ(ਮੰਜ਼ਿਲ_ਪੋਰਟ)[ਮੰਜ਼ਿਲ_ਦੋਆਧਾਰੀ_ਅੰਕ]);
+		db[from_sigbit].ਪਾਓ(ਮੰਜ਼ਿਲ_sigbit);
 	}
 };
 
-struct RevCellEdgesDatabase : AbstractCellEdgesDatabase
+ਬਣਤਰ Rev_Cell_ਕਿਨਾਰੇ_Database : Abstract_Cell_ਕਿਨਾਰੇ_Database
 {
 	SigMap &sigmap;
-	dict<SigBit, pool<SigBit>> db;
-	RevCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
+	dict<Sig_ਦੋਆਧਾਰੀ_ਅੰਕ, pool<Sig_ਦੋਆਧਾਰੀ_ਅੰਕ>> db;
+	Rev_Cell_ਕਿਨਾਰੇ_Database(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
-		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
-		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[to_sigbit].insert(from_sigbit);
+	ਖਾਲੀ ਜੋੜੋ_ਕਿਨਾਰਾ(RTLIL::Cell *cell, RTLIL::IdString from_ਪੋਰਟ, ਪੂਰਨ from_ਦੋਆਧਾਰੀ_ਅੰਕ, RTLIL::IdString ਮੰਜ਼ਿਲ_ਪੋਰਟ, ਪੂਰਨ ਮੰਜ਼ਿਲ_ਦੋਆਧਾਰੀ_ਅੰਕ, ਪੂਰਨ) override {
+		Sig_ਦੋਆਧਾਰੀ_ਅੰਕ from_sigbit = sigmap(cell->get_ਪੋਰਟ(from_ਪੋਰਟ)[from_ਦੋਆਧਾਰੀ_ਅੰਕ]);
+		Sig_ਦੋਆਧਾਰੀ_ਅੰਕ ਮੰਜ਼ਿਲ_sigbit = sigmap(cell->get_ਪੋਰਟ(ਮੰਜ਼ਿਲ_ਪੋਰਟ)[ਮੰਜ਼ਿਲ_ਦੋਆਧਾਰੀ_ਅੰਕ]);
+		db[ਮੰਜ਼ਿਲ_sigbit].ਪਾਓ(from_sigbit);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif
+#ਜੇ_ਅੰਤ

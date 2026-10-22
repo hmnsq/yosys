@@ -17,285 +17,285 @@
  *
  */
 
-#ifndef SATGEN_H
-#define SATGEN_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ SATGEN_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SATGEN_H
 
-#include "kernel/rtlil.h"
-#include "kernel/sigtools.h"
-#include "kernel/celltypes.h"
-#include "kernel/macc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/rtlil.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/sigtools.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/celltypes.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/macc.h"
 
-#include "libs/ezsat/ezminisat.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "libs/ezsat/ezminisat.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // defined in kernel/register.cc
-extern struct SatSolver *yosys_satsolver_list;
-extern struct SatSolver *yosys_satsolver;
+ਬਾਹਰੀ ਬਣਤਰ SatSolver *yosys_satsolver_list;
+ਬਾਹਰੀ ਬਣਤਰ SatSolver *yosys_satsolver;
 
-struct SatSolver
+ਬਣਤਰ SatSolver
 {
 	string name;
-	SatSolver *next;
-	virtual ezSAT *create() = 0;
+	SatSolver *ਅਗਲਾ;
+	ਆਭਾਸੀ ezSAT *create() = 0;
 
 	SatSolver(string name) : name(name) {
-		next = yosys_satsolver_list;
+		ਅਗਲਾ = yosys_satsolver_list;
 		yosys_satsolver_list = this;
 	}
 
-	virtual ~SatSolver() {
-		auto p = &yosys_satsolver_list;
-		while (*p) {
-			if (*p == this)
-				*p = next;
-			else
-				p = &(*p)->next;
+	ਆਭਾਸੀ ~SatSolver() {
+		ਸਵੈਚਾਲਿਤ p = &yosys_satsolver_list;
+		ਜਦੋਂ (*p) {
+			ਜੇ (*p == this)
+				*p = ਅਗਲਾ;
+			ਨਹੀਂਤਾਂ
+				p = &(*p)->ਅਗਲਾ;
 		}
-		if (yosys_satsolver == this)
+		ਜੇ (yosys_satsolver == this)
 			yosys_satsolver = yosys_satsolver_list;
 	}
 };
 
-struct ezSatPtr : public std::unique_ptr<ezSAT> {
+ਬਣਤਰ ezSatPtr : ਜਨਤਕ std::unique_ptr<ezSAT> {
 	ezSatPtr() : unique_ptr<ezSAT>(yosys_satsolver->create()) { }
 	explicit ezSatPtr(SatSolver *solver) : unique_ptr<ezSAT>((solver ? solver : yosys_satsolver)->create()) { }
 };
 
-struct SatGen
+ਬਣਤਰ SatGen
 {
 	ezSAT *ez;
-	const SigMap *sigmap;
-	std::string prefix;
+	ਅਚਲ SigMap *sigmap;
+	std::string ਅਗੇਤਰ_2;
 	SigPool initial_state;
 	std::map<std::string, RTLIL::SigSpec> asserts_a, asserts_en;
 	std::map<std::string, RTLIL::SigSpec> assumes_a, assumes_en;
-	std::map<std::string, std::map<RTLIL::SigBit, int>> imported_signals;
-	std::map<std::pair<std::string, int>, bool> initstates;
+	std::map<std::string, std::map<RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ, ਪੂਰਨ>> imported_ਸੰਕੇਤ;
+	std::map<std::pair<std::string, ਪੂਰਨ>, bool> initstates;
 	bool ignore_div_by_zero;
 	bool model_undef;
 	bool def_formal = false;
 	bool model_barriers = false;
 
-	SatGen(ezSAT *ez, const SigMap *sigmap, std::string prefix = std::string()) :
-			ez(ez), sigmap(sigmap), prefix(prefix), ignore_div_by_zero(false), model_undef(false)
+	SatGen(ezSAT *ez, ਅਚਲ SigMap *sigmap, std::string ਅਗੇਤਰ_2 = std::string()) :
+			ez(ez), sigmap(sigmap), ਅਗੇਤਰ_2(ਅਗੇਤਰ_2), ignore_div_by_zero(false), model_undef(false)
 	{
 	}
 
-	void setContext(const SigMap *sigmap, std::string prefix = std::string())
+	ਖਾਲੀ ਸੈੱਟ_Context(ਅਚਲ SigMap *sigmap, std::string ਅਗੇਤਰ_2 = std::string())
 	{
 		this->sigmap = sigmap;
-		this->prefix = prefix;
+		this->ਅਗੇਤਰ_2 = ਅਗੇਤਰ_2;
 	}
 
-	std::vector<int> importSigSpecWorker(RTLIL::SigSpec sig, std::string &pf, bool undef_mode, bool dup_undef)
+	std::ਸਦਿਸ਼<ਪੂਰਨ> import_Sig_Spec_ਕਾਮਾ(RTLIL::SigSpec sig, std::string &pf, bool undef_ਬਹੁਲਕ, bool dup_undef)
 	{
-		log_assert(!undef_mode || model_undef);
+		log_assert(!undef_ਬਹੁਲਕ || model_undef);
 		sigmap->apply(sig);
 
-		std::vector<int> vec;
-		vec.reserve(GetSize(sig));
+		std::ਸਦਿਸ਼<ਪੂਰਨ> vec;
+		vec.reserve(Get_ਮਾਪ(sig));
 
-		for (auto &bit : sig)
-			if (bit.wire == NULL) {
-				if (model_undef && dup_undef && bit == RTLIL::State::Sx)
-					vec.push_back(ez->frozen_literal());
-				else
-					vec.push_back(bit == (undef_mode ? RTLIL::State::Sx : RTLIL::State::S1) ? ez->CONST_TRUE : ez->CONST_FALSE);
-			} else {
-				std::string wire_name = bit.wire->name.unescape();
+		ਲਈ (ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire == ਨਿਰਾ) {
+				ਜੇ (model_undef && dup_undef && ਦੋਆਧਾਰੀ_ਅੰਕ == RTLIL::State::Sx)
+					vec.ਧੱਕੋ_ਪਿੱਠ(ez->frozen_literal());
+				ਨਹੀਂਤਾਂ
+					vec.ਧੱਕੋ_ਪਿੱਠ(ਦੋਆਧਾਰੀ_ਅੰਕ == (undef_ਬਹੁਲਕ ? RTLIL::State::Sx : RTLIL::State::S1) ? ez->CONST_TRUE : ez->CONST_FALSE);
+			} ਨਹੀਂਤਾਂ {
+				std::string wire_name = ਦੋਆਧਾਰੀ_ਅੰਕ.wire->name.unescape();
 				std::string name = pf +
-					(bit.wire->width == 1 ? wire_name : stringf("%s [%d]", wire_name, bit.offset));
-				vec.push_back(ez->frozen_literal(name));
-				imported_signals[pf][bit] = vec.back();
+					(ਦੋਆਧਾਰੀ_ਅੰਕ.wire->ਚੌੜਾਈ == 1 ? wire_name : stringf("%s [%d]", wire_name, ਦੋਆਧਾਰੀ_ਅੰਕ.ਵਿੱਥ));
+				vec.ਧੱਕੋ_ਪਿੱਠ(ez->frozen_literal(name));
+				imported_ਸੰਕੇਤ[pf][ਦੋਆਧਾਰੀ_ਅੰਕ] = vec.ਪਿੱਠ();
 			}
-		return vec;
+		ਵਾਪਸ vec;
 	}
 
-	std::vector<int> importSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::ਸਦਿਸ਼<ਪੂਰਨ> importSigSpec(RTLIL::SigSpec sig, ਪੂਰਨ timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, false, false);
+		std::string pf = ਅਗੇਤਰ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ਵਾਪਸ import_Sig_Spec_ਕਾਮਾ(sig, pf, false, false);
 	}
 
-	std::vector<int> importDefSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::ਸਦਿਸ਼<ਪੂਰਨ> importDefSigSpec(RTLIL::SigSpec sig, ਪੂਰਨ timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, false, true);
+		std::string pf = ਅਗੇਤਰ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ਵਾਪਸ import_Sig_Spec_ਕਾਮਾ(sig, pf, false, true);
 	}
 
-	std::vector<int> importUndefSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::ਸਦਿਸ਼<ਪੂਰਨ> importUndefSigSpec(RTLIL::SigSpec sig, ਪੂਰਨ timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = "undef:" + prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, true, false);
+		std::string pf = "undef:" + ਅਗੇਤਰ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ਵਾਪਸ import_Sig_Spec_ਕਾਮਾ(sig, pf, true, false);
 	}
 
-	int importSigBit(RTLIL::SigBit bit, int timestep = -1)
+	ਪੂਰਨ import_Sig_ਦੋਆਧਾਰੀ_ਅੰਕ(RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ ਦੋਆਧਾਰੀ_ਅੰਕ, ਪੂਰਨ timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, false, false).front();
+		std::string pf = ਅਗੇਤਰ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ਵਾਪਸ import_Sig_Spec_ਕਾਮਾ(ਦੋਆਧਾਰੀ_ਅੰਕ, pf, false, false).front();
 	}
 
-	int importDefSigBit(RTLIL::SigBit bit, int timestep = -1)
+	ਪੂਰਨ import_Def_Sig_ਦੋਆਧਾਰੀ_ਅੰਕ(RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ ਦੋਆਧਾਰੀ_ਅੰਕ, ਪੂਰਨ timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, false, true).front();
+		std::string pf = ਅਗੇਤਰ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ਵਾਪਸ import_Sig_Spec_ਕਾਮਾ(ਦੋਆਧਾਰੀ_ਅੰਕ, pf, false, true).front();
 	}
 
-	int importUndefSigBit(RTLIL::SigBit bit, int timestep = -1)
+	ਪੂਰਨ import_Undef_Sig_ਦੋਆਧਾਰੀ_ਅੰਕ(RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ ਦੋਆਧਾਰੀ_ਅੰਕ, ਪੂਰਨ timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = "undef:" + prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, true, false).front();
+		std::string pf = "undef:" + ਅਗੇਤਰ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ਵਾਪਸ import_Sig_Spec_ਕਾਮਾ(ਦੋਆਧਾਰੀ_ਅੰਕ, pf, true, false).front();
 	}
 
-	bool importedSigBit(RTLIL::SigBit bit, int timestep = -1)
+	bool imported_Sig_ਦੋਆਧਾਰੀ_ਅੰਕ(RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ ਦੋਆਧਾਰੀ_ਅੰਕ, ਪੂਰਨ timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return imported_signals[pf].count(bit) != 0;
+		std::string pf = ਅਗੇਤਰ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ਵਾਪਸ imported_ਸੰਕੇਤ[pf].ਗਿਣਤੀ_2(ਦੋਆਧਾਰੀ_ਅੰਕ) != 0;
 	}
 
-	void getAsserts(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, int timestep = -1)
+	ਖਾਲੀ getAsserts(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, ਪੂਰਨ timestep = -1)
 	{
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		std::string pf = ਅਗੇਤਰ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
 		sig_a = asserts_a[pf];
 		sig_en = asserts_en[pf];
 	}
 
-	void getAssumes(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, int timestep = -1)
+	ਖਾਲੀ getAssumes(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, ਪੂਰਨ timestep = -1)
 	{
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		std::string pf = ਅਗੇਤਰ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
 		sig_a = assumes_a[pf];
 		sig_en = assumes_en[pf];
 	}
 
-	int importAsserts(int timestep = -1)
+	ਪੂਰਨ importAsserts(ਪੂਰਨ timestep = -1)
 	{
-		std::vector<int> check_bits, enable_bits;
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		if (model_undef) {
-			check_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_a[pf], timestep)), importDefSigSpec(asserts_a[pf], timestep));
-			enable_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_en[pf], timestep)), importDefSigSpec(asserts_en[pf], timestep));
-		} else {
-			check_bits = importDefSigSpec(asserts_a[pf], timestep);
-			enable_bits = importDefSigSpec(asserts_en[pf], timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> check_ਬਿੱਟ, enable_ਬਿੱਟ;
+		std::string pf = ਅਗੇਤਰ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ਜੇ (model_undef) {
+			check_ਬਿੱਟ = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_a[pf], timestep)), importDefSigSpec(asserts_a[pf], timestep));
+			enable_ਬਿੱਟ = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_en[pf], timestep)), importDefSigSpec(asserts_en[pf], timestep));
+		} ਨਹੀਂਤਾਂ {
+			check_ਬਿੱਟ = importDefSigSpec(asserts_a[pf], timestep);
+			enable_ਬਿੱਟ = importDefSigSpec(asserts_en[pf], timestep);
 		}
-		return ez->vec_reduce_and(ez->vec_or(check_bits, ez->vec_not(enable_bits)));
+		ਵਾਪਸ ez->vec_reduce_and(ez->vec_or(check_ਬਿੱਟ, ez->vec_not(enable_ਬਿੱਟ)));
 	}
 
-	int importAssumes(int timestep = -1)
+	ਪੂਰਨ importAssumes(ਪੂਰਨ timestep = -1)
 	{
-		std::vector<int> check_bits, enable_bits;
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		if (model_undef) {
-			check_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_a[pf], timestep)), importDefSigSpec(assumes_a[pf], timestep));
-			enable_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_en[pf], timestep)), importDefSigSpec(assumes_en[pf], timestep));
-		} else {
-			check_bits = importDefSigSpec(assumes_a[pf], timestep);
-			enable_bits = importDefSigSpec(assumes_en[pf], timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> check_ਬਿੱਟ, enable_ਬਿੱਟ;
+		std::string pf = ਅਗੇਤਰ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ਜੇ (model_undef) {
+			check_ਬਿੱਟ = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_a[pf], timestep)), importDefSigSpec(assumes_a[pf], timestep));
+			enable_ਬਿੱਟ = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_en[pf], timestep)), importDefSigSpec(assumes_en[pf], timestep));
+		} ਨਹੀਂਤਾਂ {
+			check_ਬਿੱਟ = importDefSigSpec(assumes_a[pf], timestep);
+			enable_ਬਿੱਟ = importDefSigSpec(assumes_en[pf], timestep);
 		}
-		return ez->vec_reduce_and(ez->vec_or(check_bits, ez->vec_not(enable_bits)));
+		ਵਾਪਸ ez->vec_reduce_and(ez->vec_or(check_ਬਿੱਟ, ez->vec_not(enable_ਬਿੱਟ)));
 	}
 
-	int signals_eq(RTLIL::SigSpec lhs, RTLIL::SigSpec rhs, int timestep_lhs = -1, int timestep_rhs = -1)
+	ਪੂਰਨ ਸੰਕੇਤ_eq(RTLIL::SigSpec lhs, RTLIL::SigSpec rhs, ਪੂਰਨ timestep_lhs = -1, ਪੂਰਨ timestep_rhs = -1)
 	{
-		if (timestep_rhs < 0)
+		ਜੇ (timestep_rhs < 0)
 			timestep_rhs = timestep_lhs;
 
-		log_assert(lhs.size() == rhs.size());
+		log_assert(lhs.ਮਾਪ() == rhs.ਮਾਪ());
 
-		std::vector<int> vec_lhs = importSigSpec(lhs, timestep_lhs);
-		std::vector<int> vec_rhs = importSigSpec(rhs, timestep_rhs);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> vec_lhs = importSigSpec(lhs, timestep_lhs);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> vec_rhs = importSigSpec(rhs, timestep_rhs);
 
-		if (!model_undef)
-			return ez->vec_eq(vec_lhs, vec_rhs);
+		ਜੇ (!model_undef)
+			ਵਾਪਸ ez->vec_eq(vec_lhs, vec_rhs);
 
-		std::vector<int> undef_lhs = importUndefSigSpec(lhs, timestep_lhs);
-		std::vector<int> undef_rhs = importUndefSigSpec(rhs, timestep_rhs);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> undef_lhs = importUndefSigSpec(lhs, timestep_lhs);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> undef_rhs = importUndefSigSpec(rhs, timestep_rhs);
 
-		std::vector<int> eq_bits;
-		for (int i = 0; i < lhs.size(); i++)
-			eq_bits.push_back(ez->AND(ez->IFF(undef_lhs.at(i), undef_rhs.at(i)),
+		std::ਸਦਿਸ਼<ਪੂਰਨ> eq_ਬਿੱਟ;
+		ਲਈ (ਪੂਰਨ i = 0; i < lhs.ਮਾਪ(); i++)
+			eq_ਬਿੱਟ.ਧੱਕੋ_ਪਿੱਠ(ez->AND(ez->IFF(undef_lhs.at(i), undef_rhs.at(i)),
 					ez->IFF(ez->OR(vec_lhs.at(i), undef_lhs.at(i)), ez->OR(vec_rhs.at(i), undef_rhs.at(i)))));
-		return ez->expression(ezSAT::OpAnd, eq_bits);
+		ਵਾਪਸ ez->ਵਿਅੰਜਕ_2(ezSAT::OpAnd, eq_ਬਿੱਟ);
 	}
 
-	void extendSignalWidth(std::vector<int> &vec_a, std::vector<int> &vec_b, RTLIL::Cell *cell, size_t y_width = 0, bool forced_signed = false)
+	ਖਾਲੀ extend_Signal_ਚੌੜਾਈ(std::ਸਦਿਸ਼<ਪੂਰਨ> &vec_a, std::ਸਦਿਸ਼<ਪੂਰਨ> &vec_b, RTLIL::Cell *cell, ਮਾਪ_t y_ਚੌੜਾਈ = 0, bool forced_signed = false)
 	{
 		bool is_signed = forced_signed;
-		if (!forced_signed && cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters.count(ID::B_SIGNED) > 0)
+		ਜੇ (!forced_signed && cell->parameters.ਗਿਣਤੀ_2(ID::A_SIGNED) > 0 && cell->parameters.ਗਿਣਤੀ_2(ID::B_SIGNED) > 0)
 			is_signed = cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool();
-		while (vec_a.size() < vec_b.size() || vec_a.size() < y_width)
-			vec_a.push_back(is_signed && vec_a.size() > 0 ? vec_a.back() : ez->CONST_FALSE);
-		while (vec_b.size() < vec_a.size() || vec_b.size() < y_width)
-			vec_b.push_back(is_signed && vec_b.size() > 0 ? vec_b.back() : ez->CONST_FALSE);
+		ਜਦੋਂ (vec_a.ਮਾਪ() < vec_b.ਮਾਪ() || vec_a.ਮਾਪ() < y_ਚੌੜਾਈ)
+			vec_a.ਧੱਕੋ_ਪਿੱਠ(is_signed && vec_a.ਮਾਪ() > 0 ? vec_a.ਪਿੱਠ() : ez->CONST_FALSE);
+		ਜਦੋਂ (vec_b.ਮਾਪ() < vec_a.ਮਾਪ() || vec_b.ਮਾਪ() < y_ਚੌੜਾਈ)
+			vec_b.ਧੱਕੋ_ਪਿੱਠ(is_signed && vec_b.ਮਾਪ() > 0 ? vec_b.ਪਿੱਠ() : ez->CONST_FALSE);
 	}
 
-	void extendSignalWidth(std::vector<int> &vec_a, std::vector<int> &vec_b, std::vector<int> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
+	ਖਾਲੀ extend_Signal_ਚੌੜਾਈ(std::ਸਦਿਸ਼<ਪੂਰਨ> &vec_a, std::ਸਦਿਸ਼<ਪੂਰਨ> &vec_b, std::ਸਦਿਸ਼<ਪੂਰਨ> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
 	{
-		extendSignalWidth(vec_a, vec_b, cell, vec_y.size(), forced_signed);
-		while (vec_y.size() < vec_a.size())
-			vec_y.push_back(ez->literal());
+		extend_Signal_ਚੌੜਾਈ(vec_a, vec_b, cell, vec_y.ਮਾਪ(), forced_signed);
+		ਜਦੋਂ (vec_y.ਮਾਪ() < vec_a.ਮਾਪ())
+			vec_y.ਧੱਕੋ_ਪਿੱਠ(ez->literal());
 	}
 
-	void extendSignalWidthUnary(std::vector<int> &vec_a, std::vector<int> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
+	ਖਾਲੀ extend_Signal_ਚੌੜਾਈ_Unary(std::ਸਦਿਸ਼<ਪੂਰਨ> &vec_a, std::ਸਦਿਸ਼<ਪੂਰਨ> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
 	{
-		bool is_signed = forced_signed || (cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool());
-		while (vec_a.size() < vec_y.size())
-			vec_a.push_back(is_signed && vec_a.size() > 0 ? vec_a.back() : ez->CONST_FALSE);
-		while (vec_y.size() < vec_a.size())
-			vec_y.push_back(ez->literal());
+		bool is_signed = forced_signed || (cell->parameters.ਗਿਣਤੀ_2(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool());
+		ਜਦੋਂ (vec_a.ਮਾਪ() < vec_y.ਮਾਪ())
+			vec_a.ਧੱਕੋ_ਪਿੱਠ(is_signed && vec_a.ਮਾਪ() > 0 ? vec_a.ਪਿੱਠ() : ez->CONST_FALSE);
+		ਜਦੋਂ (vec_y.ਮਾਪ() < vec_a.ਮਾਪ())
+			vec_y.ਧੱਕੋ_ਪਿੱਠ(ez->literal());
 	}
 
-	void undefGating(std::vector<int> &vec_y, std::vector<int> &vec_yy, std::vector<int> &vec_undef)
+	ਖਾਲੀ undefGating(std::ਸਦਿਸ਼<ਪੂਰਨ> &vec_y, std::ਸਦਿਸ਼<ਪੂਰਨ> &vec_yy, std::ਸਦਿਸ਼<ਪੂਰਨ> &vec_undef)
 	{
 		log_assert(model_undef);
-		log_assert(vec_y.size() == vec_yy.size());
-		if (vec_y.size() > vec_undef.size()) {
-			std::vector<int> trunc_y(vec_y.begin(), vec_y.begin() + vec_undef.size());
-			std::vector<int> trunc_yy(vec_yy.begin(), vec_yy.begin() + vec_undef.size());
-			ez->assume(ez->expression(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(trunc_y, trunc_yy))));
-		} else {
-			log_assert(vec_y.size() == vec_undef.size());
-			ez->assume(ez->expression(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(vec_y, vec_yy))));
+		log_assert(vec_y.ਮਾਪ() == vec_yy.ਮਾਪ());
+		ਜੇ (vec_y.ਮਾਪ() > vec_undef.ਮਾਪ()) {
+			std::ਸਦਿਸ਼<ਪੂਰਨ> trunc_y(vec_y.begin(), vec_y.begin() + vec_undef.ਮਾਪ());
+			std::ਸਦਿਸ਼<ਪੂਰਨ> trunc_yy(vec_yy.begin(), vec_yy.begin() + vec_undef.ਮਾਪ());
+			ez->assume(ez->ਵਿਅੰਜਕ_2(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(trunc_y, trunc_yy))));
+		} ਨਹੀਂਤਾਂ {
+			log_assert(vec_y.ਮਾਪ() == vec_undef.ਮਾਪ());
+			ez->assume(ez->ਵਿਅੰਜਕ_2(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(vec_y, vec_yy))));
 		}
 	}
 
-	std::pair<std::vector<int>, std::vector<int>> mux(int s, int undef_s, const std::vector<int> &a, const std::vector<int> &undef_a, const std::vector<int> &b, const std::vector<int> &undef_b) {
-		std::vector<int> res;
-		std::vector<int> undef_res;
+	std::pair<std::ਸਦਿਸ਼<ਪੂਰਨ>, std::ਸਦਿਸ਼<ਪੂਰਨ>> mux(ਪੂਰਨ s, ਪੂਰਨ undef_s, ਅਚਲ std::ਸਦਿਸ਼<ਪੂਰਨ> &a, ਅਚਲ std::ਸਦਿਸ਼<ਪੂਰਨ> &undef_a, ਅਚਲ std::ਸਦਿਸ਼<ਪੂਰਨ> &b, ਅਚਲ std::ਸਦਿਸ਼<ਪੂਰਨ> &undef_b) {
+		std::ਸਦਿਸ਼<ਪੂਰਨ> res;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> undef_res;
 		res = ez->vec_ite(s, b, a);
-		if (model_undef) {
-			std::vector<int> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
-			std::vector<int> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
+		ਜੇ (model_undef) {
+			std::ਸਦਿਸ਼<ਪੂਰਨ> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
 			undef_res = ez->vec_ite(undef_s, undef_ab, ez->vec_ite(s, undef_b, undef_a));
 		}
-		return std::make_pair(res, undef_res);
+		ਵਾਪਸ std::make_pair(res, undef_res);
 	}
 
-	void undefGating(int y, int yy, int undef)
+	ਖਾਲੀ undefGating(ਪੂਰਨ y, ਪੂਰਨ yy, ਪੂਰਨ undef)
 	{
 		ez->assume(ez->OR(undef, ez->IFF(y, yy)));
 	}
 
-	void setInitState(int timestep)
+	ਖਾਲੀ ਸੈੱਟ_Init_State(ਪੂਰਨ timestep)
 	{
-		auto key = make_pair(prefix, timestep);
-		log_assert(initstates.count(key) == 0 || initstates.at(key) == true);
-		initstates[key] = true;
+		ਸਵੈਚਾਲਿਤ ਕੁੰਜੀ = make_pair(ਅਗੇਤਰ_2, timestep);
+		log_assert(initstates.ਗਿਣਤੀ_2(ਕੁੰਜੀ) == 0 || initstates.at(ਕੁੰਜੀ) == true);
+		initstates[ਕੁੰਜੀ] = true;
 	}
 
-	bool importCell(RTLIL::Cell *cell, int timestep = -1);
+	bool importCell(RTLIL::Cell *cell, ਪੂਰਨ timestep = -1);
 };
 
-void report_missing_model(bool warn_only, RTLIL::Cell* cell);
+ਖਾਲੀ report_missing_model(bool warn_only, RTLIL::Cell* cell);
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif
+#ਜੇ_ਅੰਤ

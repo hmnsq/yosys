@@ -17,324 +17,324 @@
  *
  */
 
-#include "kernel/ff.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/ff.h"
 
 USING_YOSYS_NAMESPACE
 
 // sorry
-template<typename InputType, typename OutputType, typename = std::enable_if_t<std::is_base_of_v<FfTypeData, OutputType>>>
-void manufacture_info(InputType flop, OutputType& info, FfInitVals *initvals) {
-	Cell* cell = nullptr;
+ਸਾਂਚਾ<ਕਿਸਮ_ਨਾਂ ਨਿਵੇਸ਼_Type, ਕਿਸਮ_ਨਾਂ OutputType, ਕਿਸਮ_ਨਾਂ = std::enable_if_t<std::is_ਅਧਾਰ_ਦਾ_v<Ff_Type_ਅੰਕੜੇ, OutputType>>>
+ਖਾਲੀ manufacture_info(ਨਿਵੇਸ਼_Type flop, OutputType& info, FfInitVals *initvals) {
+	Cell* cell = ਖਾਲੀ_ਸੂਚਕ;
 	IdString type;
-	constexpr bool have_cell = std::is_same_v<InputType, Cell*>;
-	if constexpr (std::is_same_v<InputType, IdString>) {
+	constexpr ਤਾਰਕਿਕ have_cell = std::is_same_v<ਨਿਵੇਸ਼_Type, Cell*>;
+	ਜੇ constexpr (std::is_same_v<ਨਿਵੇਸ਼_Type, IdString>) {
 		type = flop;
-	} else {
-		static_assert(std::is_same_v<InputType, Cell*>);
+	} ਨਹੀਂਤਾਂ {
+		static_assert(std::is_same_v<ਨਿਵੇਸ਼_Type, Cell*>);
 		cell = flop;
 		type = flop->type;
 	}
-	if constexpr (have_cell) {
-		info.sig_q = cell->getPort(ID::Q);
-		info.width = GetSize(info.sig_q);
-		info.attributes = cell->attributes;
-		if (initvals)
+	ਜੇ constexpr (have_cell) {
+		info.sig_q = cell->get_ਪੋਰਟ(ID::Q);
+		info.ਚੌੜਾਈ = Get_ਮਾਪ(info.sig_q);
+		info.ਗੁਣ = cell->ਗੁਣ;
+		ਜੇ (initvals)
 			info.val_init = (*initvals)(info.sig_q);
 	}
 
 
 	std::string type_str = ID::str(type);
 
-	if (type.in(ID($anyinit), ID($ff), ID($dff), ID($dffe), ID($dffsr), ID($dffsre), ID($adff), ID($adffe), ID($aldff), ID($aldffe), ID($sdff), ID($sdffe), ID($sdffce), ID($dlatch), ID($adlatch), ID($dlatchsr), ID($sr))) {
-		if (type.in(ID($anyinit), ID($ff))) {
-			info.has_gclk = true;
-			if constexpr (have_cell)
-				info.sig_d = cell->getPort(ID::D);
-			if (type == ID($anyinit)) {
-				info.is_anyinit = true;
-				if constexpr (have_cell)
+	ਜੇ (type.ਵਿੱਚ(ID($anyinit), ID($ff), ID($dff), ID($dffe), ID($dffsr), ID($dffsre), ID($adff), ID($adffe), ID($aldff), ID($aldffe), ID($sdff), ID($sdffe), ID($sdffce), ID($dlatch), ID($adlatch), ID($dlatchsr), ID($sr))) {
+		ਜੇ (type.ਵਿੱਚ(ID($anyinit), ID($ff))) {
+			info.has_gclk = ਸੱਚ;
+			ਜੇ constexpr (have_cell)
+				info.sig_d = cell->get_ਪੋਰਟ(ID::D);
+			ਜੇ (type == ID($anyinit)) {
+				info.is_anyinit = ਸੱਚ;
+				ਜੇ constexpr (have_cell)
 					log_assert(info.val_init.is_fully_undef());
 			}
-		} else if (type == ID($sr)) {
+		} ਨਹੀਂਤਾਂ ਜੇ (type == ID($sr)) {
 			// No data input at all.
-		} else if (type.in(ID($dlatch), ID($adlatch), ID($dlatchsr))) {
-			info.has_aload = true;
-			if constexpr (have_cell) {
-				info.sig_aload = cell->getPort(ID::EN);
+		} ਨਹੀਂਤਾਂ ਜੇ (type.ਵਿੱਚ(ID($dlatch), ID($adlatch), ID($dlatchsr))) {
+			info.has_aload = ਸੱਚ;
+			ਜੇ constexpr (have_cell) {
+				info.sig_aload = cell->get_ਪੋਰਟ(ID::EN);
 				info.pol_aload = cell->getParam(ID::EN_POLARITY).as_bool();
-				info.sig_ad = cell->getPort(ID::D);
+				info.sig_ad = cell->get_ਪੋਰਟ(ID::D);
 			}
-		} else {
-			info.has_clk = true;
-			if constexpr (have_cell) {
-				info.sig_clk = cell->getPort(ID::CLK);
+		} ਨਹੀਂਤਾਂ {
+			info.has_clk = ਸੱਚ;
+			ਜੇ constexpr (have_cell) {
+				info.sig_clk = cell->get_ਪੋਰਟ(ID::CLK);
 				info.pol_clk = cell->getParam(ID::CLK_POLARITY).as_bool();
-				info.sig_d = cell->getPort(ID::D);
+				info.sig_d = cell->get_ਪੋਰਟ(ID::D);
 			}
 		}
-		if (type.in(ID($dffe), ID($dffsre), ID($adffe), ID($aldffe), ID($sdffe), ID($sdffce))) {
-			info.has_ce = true;
-			if constexpr (have_cell) {
-				info.sig_ce = cell->getPort(ID::EN);
+		ਜੇ (type.ਵਿੱਚ(ID($dffe), ID($dffsre), ID($adffe), ID($aldffe), ID($sdffe), ID($sdffce))) {
+			info.has_ce = ਸੱਚ;
+			ਜੇ constexpr (have_cell) {
+				info.sig_ce = cell->get_ਪੋਰਟ(ID::EN);
 				info.pol_ce = cell->getParam(ID::EN_POLARITY).as_bool();
 			}
 		}
-		if (type.in(ID($dffsr), ID($dffsre), ID($dlatchsr), ID($sr))) {
-			info.has_sr = true;
-			if constexpr (have_cell) {
-				info.sig_clr = cell->getPort(ID::CLR);
-				info.sig_set = cell->getPort(ID::SET);
+		ਜੇ (type.ਵਿੱਚ(ID($dffsr), ID($dffsre), ID($dlatchsr), ID($sr))) {
+			info.has_sr = ਸੱਚ;
+			ਜੇ constexpr (have_cell) {
+				info.sig_clr = cell->get_ਪੋਰਟ(ID::CLR);
+				info.sig_ਸੈੱਟ = cell->get_ਪੋਰਟ(ID::ਸੈੱਟ_2);
 				info.pol_clr = cell->getParam(ID::CLR_POLARITY).as_bool();
-				info.pol_set = cell->getParam(ID::SET_POLARITY).as_bool();
+				info.pol_ਸੈੱਟ = cell->getParam(ID::ਸੈੱਟ_POLARITY).as_bool();
 			}
 		}
-		if (type.in(ID($aldff), ID($aldffe))) {
-			info.has_aload = true;
-			if constexpr (have_cell) {
-				info.sig_aload = cell->getPort(ID::ALOAD);
+		ਜੇ (type.ਵਿੱਚ(ID($aldff), ID($aldffe))) {
+			info.has_aload = ਸੱਚ;
+			ਜੇ constexpr (have_cell) {
+				info.sig_aload = cell->get_ਪੋਰਟ(ID::ALOAD);
 				info.pol_aload = cell->getParam(ID::ALOAD_POLARITY).as_bool();
-				info.sig_ad = cell->getPort(ID::AD);
+				info.sig_ad = cell->get_ਪੋਰਟ(ID::AD);
 			}
 		}
-		if (type.in(ID($adff), ID($adffe), ID($adlatch))) {
-			info.has_arst = true;
-			if constexpr (have_cell) {
-				info.sig_arst = cell->getPort(ID::ARST);
+		ਜੇ (type.ਵਿੱਚ(ID($adff), ID($adffe), ID($adlatch))) {
+			info.has_arst = ਸੱਚ;
+			ਜੇ constexpr (have_cell) {
+				info.sig_arst = cell->get_ਪੋਰਟ(ID::ARST);
 				info.pol_arst = cell->getParam(ID::ARST_POLARITY).as_bool();
-				info.val_arst = cell->getParam(ID::ARST_VALUE);
+				info.val_arst = cell->getParam(ID::ARST_ਮੁੱਲ);
 			}
 		}
-		if (type.in(ID($sdff), ID($sdffe), ID($sdffce))) {
-			info.has_srst = true;
-			if constexpr (have_cell) {
-				info.sig_srst = cell->getPort(ID::SRST);
+		ਜੇ (type.ਵਿੱਚ(ID($sdff), ID($sdffe), ID($sdffce))) {
+			info.has_srst = ਸੱਚ;
+			ਜੇ constexpr (have_cell) {
+				info.sig_srst = cell->get_ਪੋਰਟ(ID::SRST);
 				info.pol_srst = cell->getParam(ID::SRST_POLARITY).as_bool();
-				info.val_srst = cell->getParam(ID::SRST_VALUE);
+				info.val_srst = cell->getParam(ID::SRST_ਮੁੱਲ);
 			}
 			info.ce_over_srst = type == ID($sdffce);
 		}
-	} else if (type == ID($_FF_)) {
-		info.is_fine = true;
-		info.has_gclk = true;
-		if constexpr (have_cell)
-			info.sig_d = cell->getPort(ID::D);
-	} else if (type_str.substr(0, 5) == "$_SR_") {
-		info.is_fine = true;
-		info.has_sr = true;
-		info.pol_set = type_str[5] == 'P';
+	} ਨਹੀਂਤਾਂ ਜੇ (type == ID($_FF_)) {
+		info.is_fine = ਸੱਚ;
+		info.has_gclk = ਸੱਚ;
+		ਜੇ constexpr (have_cell)
+			info.sig_d = cell->get_ਪੋਰਟ(ID::D);
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 5) == "$_SR_") {
+		info.is_fine = ਸੱਚ;
+		info.has_sr = ਸੱਚ;
+		info.pol_ਸੈੱਟ = type_str[5] == 'P';
 		info.pol_clr = type_str[6] == 'P';
-		if constexpr (have_cell) {
-			info.sig_set = cell->getPort(ID::S);
-			info.sig_clr = cell->getPort(ID::R);
+		ਜੇ constexpr (have_cell) {
+			info.sig_ਸੈੱਟ = cell->get_ਪੋਰਟ(ID::S);
+			info.sig_clr = cell->get_ਪੋਰਟ(ID::R);
 		}
-	} else if (type_str.substr(0, 6) == "$_DFF_" && type_str.size() == 8) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 6) == "$_DFF_" && type_str.ਮਾਪ() == 8) {
+		info.is_fine = ਸੱਚ;
+		info.has_clk = ਸੱਚ;
 		info.pol_clk = type_str[6] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
+		ਜੇ constexpr (have_cell) {
+			info.sig_d = cell->get_ਪੋਰਟ(ID::D);
+			info.sig_clk = cell->get_ਪੋਰਟ(ID::C);
 		}
-	} else if (type_str.substr(0, 7) == "$_DFFE_" && type_str.size() == 10) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 7) == "$_DFFE_" && type_str.ਮਾਪ() == 10) {
+		info.is_fine = ਸੱਚ;
+		info.has_clk = ਸੱਚ;
 		info.pol_clk = type_str[7] == 'P';
-		info.has_ce = true;
+		info.has_ce = ਸੱਚ;
 		info.pol_ce = type_str[8] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_ce = cell->getPort(ID::E);
+		ਜੇ constexpr (have_cell) {
+			info.sig_d = cell->get_ਪੋਰਟ(ID::D);
+			info.sig_clk = cell->get_ਪੋਰਟ(ID::C);
+			info.sig_ce = cell->get_ਪੋਰਟ(ID::E);
 		}
-	} else if (type_str.substr(0, 6) == "$_DFF_" && type_str.size() == 10) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 6) == "$_DFF_" && type_str.ਮਾਪ() == 10) {
+		info.is_fine = ਸੱਚ;
+		info.has_clk = ਸੱਚ;
 		info.pol_clk = type_str[6] == 'P';
-		info.has_arst = true;
+		info.has_arst = ਸੱਚ;
 		info.pol_arst = type_str[7] == 'P';
 		info.val_arst = type_str[8] == '1' ? State::S1 : State::S0;
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_arst = cell->getPort(ID::R);
+		ਜੇ constexpr (have_cell) {
+			info.sig_d = cell->get_ਪੋਰਟ(ID::D);
+			info.sig_clk = cell->get_ਪੋਰਟ(ID::C);
+			info.sig_arst = cell->get_ਪੋਰਟ(ID::R);
 		}
-	} else if (type_str.substr(0, 7) == "$_DFFE_" && type_str.size() == 12) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 7) == "$_DFFE_" && type_str.ਮਾਪ() == 12) {
+		info.is_fine = ਸੱਚ;
+		info.has_clk = ਸੱਚ;
 		info.pol_clk = type_str[7] == 'P';
-		info.has_arst = true;
+		info.has_arst = ਸੱਚ;
 		info.pol_arst = type_str[8] == 'P';
 		info.val_arst = type_str[9] == '1' ? State::S1 : State::S0;
-		info.has_ce = true;
+		info.has_ce = ਸੱਚ;
 		info.pol_ce = type_str[10] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_arst = cell->getPort(ID::R);
-			info.sig_ce = cell->getPort(ID::E);
+		ਜੇ constexpr (have_cell) {
+			info.sig_d = cell->get_ਪੋਰਟ(ID::D);
+			info.sig_clk = cell->get_ਪੋਰਟ(ID::C);
+			info.sig_arst = cell->get_ਪੋਰਟ(ID::R);
+			info.sig_ce = cell->get_ਪੋਰਟ(ID::E);
 		}
-	} else if (type_str.substr(0, 8) == "$_ALDFF_" && type_str.size() == 11) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 8) == "$_ALDFF_" && type_str.ਮਾਪ() == 11) {
+		info.is_fine = ਸੱਚ;
+		info.has_clk = ਸੱਚ;
 		info.pol_clk = type_str[8] == 'P';
-		info.has_aload = true;
+		info.has_aload = ਸੱਚ;
 		info.pol_aload = type_str[9] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_aload = cell->getPort(ID::L);
-			info.sig_ad = cell->getPort(ID::AD);
+		ਜੇ constexpr (have_cell) {
+			info.sig_d = cell->get_ਪੋਰਟ(ID::D);
+			info.sig_clk = cell->get_ਪੋਰਟ(ID::C);
+			info.sig_aload = cell->get_ਪੋਰਟ(ID::L);
+			info.sig_ad = cell->get_ਪੋਰਟ(ID::AD);
 		}
-	} else if (type_str.substr(0, 9) == "$_ALDFFE_" && type_str.size() == 13) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 9) == "$_ALDFFE_" && type_str.ਮਾਪ() == 13) {
+		info.is_fine = ਸੱਚ;
+		info.has_clk = ਸੱਚ;
 		info.pol_clk = type_str[9] == 'P';
-		info.has_aload = true;
+		info.has_aload = ਸੱਚ;
 		info.pol_aload = type_str[10] == 'P';
-		info.has_ce = true;
+		info.has_ce = ਸੱਚ;
 		info.pol_ce = type_str[11] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_aload = cell->getPort(ID::L);
-			info.sig_ad = cell->getPort(ID::AD);
-			info.sig_ce = cell->getPort(ID::E);
+		ਜੇ constexpr (have_cell) {
+			info.sig_d = cell->get_ਪੋਰਟ(ID::D);
+			info.sig_clk = cell->get_ਪੋਰਟ(ID::C);
+			info.sig_aload = cell->get_ਪੋਰਟ(ID::L);
+			info.sig_ad = cell->get_ਪੋਰਟ(ID::AD);
+			info.sig_ce = cell->get_ਪੋਰਟ(ID::E);
 		}
-	} else if (type_str.substr(0, 8) == "$_DFFSR_" && type_str.size() == 12) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 8) == "$_DFFSR_" && type_str.ਮਾਪ() == 12) {
+		info.is_fine = ਸੱਚ;
+		info.has_clk = ਸੱਚ;
 		info.pol_clk = type_str[8] == 'P';
-		info.has_sr = true;
-		info.pol_set = type_str[9] == 'P';
+		info.has_sr = ਸੱਚ;
+		info.pol_ਸੈੱਟ = type_str[9] == 'P';
 		info.pol_clr = type_str[10] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_set = cell->getPort(ID::S);
-			info.sig_clr = cell->getPort(ID::R);
+		ਜੇ constexpr (have_cell) {
+			info.sig_d = cell->get_ਪੋਰਟ(ID::D);
+			info.sig_clk = cell->get_ਪੋਰਟ(ID::C);
+			info.sig_ਸੈੱਟ = cell->get_ਪੋਰਟ(ID::S);
+			info.sig_clr = cell->get_ਪੋਰਟ(ID::R);
 		}
-	} else if (type_str.substr(0, 9) == "$_DFFSRE_" && type_str.size() == 14) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 9) == "$_DFFSRE_" && type_str.ਮਾਪ() == 14) {
+		info.is_fine = ਸੱਚ;
+		info.has_clk = ਸੱਚ;
 		info.pol_clk = type_str[9] == 'P';
-		info.has_sr = true;
-		info.pol_set = type_str[10] == 'P';
+		info.has_sr = ਸੱਚ;
+		info.pol_ਸੈੱਟ = type_str[10] == 'P';
 		info.pol_clr = type_str[11] == 'P';
-		info.has_ce = true;
+		info.has_ce = ਸੱਚ;
 		info.pol_ce = type_str[12] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_set = cell->getPort(ID::S);
-			info.sig_clr = cell->getPort(ID::R);
-			info.sig_ce = cell->getPort(ID::E);
+		ਜੇ constexpr (have_cell) {
+			info.sig_d = cell->get_ਪੋਰਟ(ID::D);
+			info.sig_clk = cell->get_ਪੋਰਟ(ID::C);
+			info.sig_ਸੈੱਟ = cell->get_ਪੋਰਟ(ID::S);
+			info.sig_clr = cell->get_ਪੋਰਟ(ID::R);
+			info.sig_ce = cell->get_ਪੋਰਟ(ID::E);
 		}
-	} else if (type_str.substr(0, 7) == "$_SDFF_" && type_str.size() == 11) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 7) == "$_SDFF_" && type_str.ਮਾਪ() == 11) {
+		info.is_fine = ਸੱਚ;
+		info.has_clk = ਸੱਚ;
 		info.pol_clk = type_str[7] == 'P';
-		info.has_srst = true;
+		info.has_srst = ਸੱਚ;
 		info.pol_srst = type_str[8] == 'P';
 		info.val_srst = type_str[9] == '1' ? State::S1 : State::S0;
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_srst = cell->getPort(ID::R);
+		ਜੇ constexpr (have_cell) {
+			info.sig_d = cell->get_ਪੋਰਟ(ID::D);
+			info.sig_clk = cell->get_ਪੋਰਟ(ID::C);
+			info.sig_srst = cell->get_ਪੋਰਟ(ID::R);
 		}
-	} else if (type_str.substr(0, 8) == "$_SDFFE_" && type_str.size() == 13) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 8) == "$_SDFFE_" && type_str.ਮਾਪ() == 13) {
+		info.is_fine = ਸੱਚ;
+		info.has_clk = ਸੱਚ;
 		info.pol_clk = type_str[8] == 'P';
-		info.has_srst = true;
+		info.has_srst = ਸੱਚ;
 		info.pol_srst = type_str[9] == 'P';
 		info.val_srst = type_str[10] == '1' ? State::S1 : State::S0;
-		info.has_ce = true;
+		info.has_ce = ਸੱਚ;
 		info.pol_ce = type_str[11] == 'P';
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_srst = cell->getPort(ID::R);
-			info.sig_ce = cell->getPort(ID::E);
+		ਜੇ constexpr (have_cell) {
+			info.sig_d = cell->get_ਪੋਰਟ(ID::D);
+			info.sig_clk = cell->get_ਪੋਰਟ(ID::C);
+			info.sig_srst = cell->get_ਪੋਰਟ(ID::R);
+			info.sig_ce = cell->get_ਪੋਰਟ(ID::E);
 		}
-	} else if (type_str.substr(0, 9) == "$_SDFFCE_" && type_str.size() == 14) {
-		info.is_fine = true;
-		info.has_clk = true;
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 9) == "$_SDFFCE_" && type_str.ਮਾਪ() == 14) {
+		info.is_fine = ਸੱਚ;
+		info.has_clk = ਸੱਚ;
 		info.pol_clk = type_str[9] == 'P';
-		info.has_srst = true;
+		info.has_srst = ਸੱਚ;
 		info.pol_srst = type_str[10] == 'P';
 		info.val_srst = type_str[11] == '1' ? State::S1 : State::S0;
-		info.has_ce = true;
+		info.has_ce = ਸੱਚ;
 		info.pol_ce = type_str[12] == 'P';
-		info.ce_over_srst = true;
-		if constexpr (have_cell) {
-			info.sig_d = cell->getPort(ID::D);
-			info.sig_clk = cell->getPort(ID::C);
-			info.sig_srst = cell->getPort(ID::R);
-			info.sig_ce = cell->getPort(ID::E);
+		info.ce_over_srst = ਸੱਚ;
+		ਜੇ constexpr (have_cell) {
+			info.sig_d = cell->get_ਪੋਰਟ(ID::D);
+			info.sig_clk = cell->get_ਪੋਰਟ(ID::C);
+			info.sig_srst = cell->get_ਪੋਰਟ(ID::R);
+			info.sig_ce = cell->get_ਪੋਰਟ(ID::E);
 		}
-	} else if (type_str.substr(0, 9) == "$_DLATCH_" && type_str.size() == 11) {
-		info.is_fine = true;
-		info.has_aload = true;
-		info.has_aload = true;
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 9) == "$_DLATCH_" && type_str.ਮਾਪ() == 11) {
+		info.is_fine = ਸੱਚ;
+		info.has_aload = ਸੱਚ;
+		info.has_aload = ਸੱਚ;
 		info.pol_aload = type_str[9] == 'P';
-		if constexpr (have_cell) {
-			info.sig_ad = cell->getPort(ID::D);
-			info.sig_aload = cell->getPort(ID::E);
+		ਜੇ constexpr (have_cell) {
+			info.sig_ad = cell->get_ਪੋਰਟ(ID::D);
+			info.sig_aload = cell->get_ਪੋਰਟ(ID::E);
 		}
-	} else if (type_str.substr(0, 9) == "$_DLATCH_" && type_str.size() == 13) {
-		info.is_fine = true;
-		info.has_aload = true;
-		info.has_aload = true;
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 9) == "$_DLATCH_" && type_str.ਮਾਪ() == 13) {
+		info.is_fine = ਸੱਚ;
+		info.has_aload = ਸੱਚ;
+		info.has_aload = ਸੱਚ;
 		info.pol_aload = type_str[9] == 'P';
-		info.has_arst = true;
+		info.has_arst = ਸੱਚ;
 		info.pol_arst = type_str[10] == 'P';
 		info.val_arst = type_str[11] == '1' ? State::S1 : State::S0;
-		if constexpr (have_cell) {
-			info.sig_ad = cell->getPort(ID::D);
-			info.sig_aload = cell->getPort(ID::E);
-			info.sig_arst = cell->getPort(ID::R);
+		ਜੇ constexpr (have_cell) {
+			info.sig_ad = cell->get_ਪੋਰਟ(ID::D);
+			info.sig_aload = cell->get_ਪੋਰਟ(ID::E);
+			info.sig_arst = cell->get_ਪੋਰਟ(ID::R);
 		}
-	} else if (type_str.substr(0, 11) == "$_DLATCHSR_" && type_str.size() == 15) {
-		info.is_fine = true;
-		info.has_aload = true;
-		info.has_aload = true;
+	} ਨਹੀਂਤਾਂ ਜੇ (type_str.substr(0, 11) == "$_DLATCHSR_" && type_str.ਮਾਪ() == 15) {
+		info.is_fine = ਸੱਚ;
+		info.has_aload = ਸੱਚ;
+		info.has_aload = ਸੱਚ;
 		info.pol_aload = type_str[11] == 'P';
-		info.has_sr = true;
-		info.pol_set = type_str[12] == 'P';
+		info.has_sr = ਸੱਚ;
+		info.pol_ਸੈੱਟ = type_str[12] == 'P';
 		info.pol_clr = type_str[13] == 'P';
-		if constexpr (have_cell) {
-			info.sig_ad = cell->getPort(ID::D);
-			info.sig_aload = cell->getPort(ID::E);
-			info.sig_set = cell->getPort(ID::S);
-			info.sig_clr = cell->getPort(ID::R);
+		ਜੇ constexpr (have_cell) {
+			info.sig_ad = cell->get_ਪੋਰਟ(ID::D);
+			info.sig_aload = cell->get_ਪੋਰਟ(ID::E);
+			info.sig_ਸੈੱਟ = cell->get_ਪੋਰਟ(ID::S);
+			info.sig_clr = cell->get_ਪੋਰਟ(ID::R);
 		}
-	} else {
+	} ਨਹੀਂਤਾਂ {
 		log_assert(0);
 	}
-	if constexpr (have_cell)
-		if (info.has_aload && !info.has_clk && !info.has_sr && !info.has_arst && info.sig_ad.is_fully_const()) {
+	ਜੇ constexpr (have_cell)
+		ਜੇ (info.has_aload && !info.has_clk && !info.has_sr && !info.has_arst && info.sig_ad.is_fully_const()) {
 			// Plain D latches with const D treated specially.
-			info.has_aload = false;
-			info.has_arst = true;
+			info.has_aload = ਝੂਠ;
+			info.has_arst = ਸੱਚ;
 			info.sig_arst = info.sig_aload;
 			info.pol_arst = info.pol_aload;
 			info.val_arst = info.sig_ad.as_const();
 		}
 }
 
-FfTypeData::FfTypeData(IdString type) : FfTypeData()
+Ff_Type_ਅੰਕੜੇ::Ff_Type_ਅੰਕੜੇ(IdString type) : Ff_Type_ਅੰਕੜੇ()
 {
-	manufacture_info(type, *this, nullptr);
+	manufacture_info(type, *ਇਹ, ਖਾਲੀ_ਸੂਚਕ);
 }
 
-FfData::FfData(FfInitVals *initvals, Cell *cell_) : FfData(cell_->module, initvals, cell_->name)
+Ff_ਅੰਕੜੇ::Ff_ਅੰਕੜੇ(FfInitVals *initvals, Cell *cell_) : Ff_ਅੰਕੜੇ(cell_->module, initvals, cell_->name)
 {
 	cell = cell_;
-	manufacture_info(cell, *this, initvals);
+	manufacture_info(cell, *ਇਹ, initvals);
 }
 
-FfData FfData::slice(const std::vector<int> &bits) {
-	FfData res(module, initvals, module->twines().add(NEW_ID));
+Ff_ਅੰਕੜੇ Ff_ਅੰਕੜੇ::ਟੁਕੜਾ(ਅਚਲ std::ਸਦਿਸ਼<ਪੂਰਨ> &ਬਿੱਟ) {
+	Ff_ਅੰਕੜੇ res(module, initvals, module->twines().ਜੋੜੋ(NEW_ID));
 	res.sig_clk = sig_clk;
 	res.sig_ce = sig_ce;
 	res.sig_aload = sig_aload;
@@ -356,222 +356,222 @@ FfData FfData::slice(const std::vector<int> &bits) {
 	res.pol_arst = pol_arst;
 	res.pol_srst = pol_srst;
 	res.pol_clr = pol_clr;
-	res.pol_set = pol_set;
-	res.attributes = attributes;
-	std::optional<Const::Builder> arst_bits;
-	if (has_arst)
-		arst_bits.emplace(bits.size());
-	std::optional<Const::Builder> srst_bits;
-	if (has_srst)
-		srst_bits.emplace(bits.size());
-	std::optional<Const::Builder> init_bits;
-	if (initvals)
-		init_bits.emplace(bits.size());
+	res.pol_ਸੈੱਟ = pol_ਸੈੱਟ;
+	res.ਗੁਣ = ਗੁਣ;
+	std::optional<Const::Builder> arst_ਬਿੱਟ;
+	ਜੇ (has_arst)
+		arst_ਬਿੱਟ.emplace(ਬਿੱਟ.ਮਾਪ());
+	std::optional<Const::Builder> srst_ਬਿੱਟ;
+	ਜੇ (has_srst)
+		srst_ਬਿੱਟ.emplace(ਬਿੱਟ.ਮਾਪ());
+	std::optional<Const::Builder> init_ਬਿੱਟ;
+	ਜੇ (initvals)
+		init_ਬਿੱਟ.emplace(ਬਿੱਟ.ਮਾਪ());
 
-	for (int i : bits) {
+	ਲਈ (ਪੂਰਨ i : ਬਿੱਟ) {
 		res.sig_q.append(sig_q[i]);
-		if (has_clk || has_gclk)
+		ਜੇ (has_clk || has_gclk)
 			res.sig_d.append(sig_d[i]);
-		if (has_aload)
+		ਜੇ (has_aload)
 			res.sig_ad.append(sig_ad[i]);
-		if (has_sr) {
+		ਜੇ (has_sr) {
 			res.sig_clr.append(sig_clr[i]);
-			res.sig_set.append(sig_set[i]);
+			res.sig_ਸੈੱਟ.append(sig_ਸੈੱਟ[i]);
 		}
-		if (has_arst)
-			arst_bits->push_back(val_arst[i]);
-		if (has_srst)
-			srst_bits->push_back(val_srst[i]);
-		if (initvals)
-			init_bits->push_back(val_init[i]);
+		ਜੇ (has_arst)
+			arst_ਬਿੱਟ->ਧੱਕੋ_ਪਿੱਠ(val_arst[i]);
+		ਜੇ (has_srst)
+			srst_ਬਿੱਟ->ਧੱਕੋ_ਪਿੱਠ(val_srst[i]);
+		ਜੇ (initvals)
+			init_ਬਿੱਟ->ਧੱਕੋ_ਪਿੱਠ(val_init[i]);
 	}
 
-	if (has_arst)
-		res.val_arst = arst_bits->build();
-	if (has_srst)
-		res.val_srst = srst_bits->build();
-	if (initvals)
-		res.val_init = init_bits->build();
-	res.width = GetSize(res.sig_q);
-	return res;
+	ਜੇ (has_arst)
+		res.val_arst = arst_ਬਿੱਟ->build();
+	ਜੇ (has_srst)
+		res.val_srst = srst_ਬਿੱਟ->build();
+	ਜੇ (initvals)
+		res.val_init = init_ਬਿੱਟ->build();
+	res.ਚੌੜਾਈ = Get_ਮਾਪ(res.sig_q);
+	ਵਾਪਸ res;
 }
 
-void FfData::add_dummy_ce() {
-	if (has_ce)
-		return;
-	has_ce = true;
-	pol_ce = true;
+ਖਾਲੀ Ff_ਅੰਕੜੇ::ਜੋੜੋ_dummy_ce() {
+	ਜੇ (has_ce)
+		ਵਾਪਸ;
+	has_ce = ਸੱਚ;
+	pol_ce = ਸੱਚ;
 	sig_ce = State::S1;
-	ce_over_srst = false;
+	ce_over_srst = ਝੂਠ;
 }
 
-void FfData::add_dummy_srst() {
-	if (has_srst)
-		return;
-	has_srst = true;
-	pol_srst = true;
+ਖਾਲੀ Ff_ਅੰਕੜੇ::ਜੋੜੋ_dummy_srst() {
+	ਜੇ (has_srst)
+		ਵਾਪਸ;
+	has_srst = ਸੱਚ;
+	pol_srst = ਸੱਚ;
 	sig_srst = State::S0;
-	val_srst = Const(State::Sx, width);
-	ce_over_srst = false;
+	val_srst = Const(State::Sx, ਚੌੜਾਈ);
+	ce_over_srst = ਝੂਠ;
 }
 
-void FfData::add_dummy_arst() {
-	if (has_arst)
-		return;
-	has_arst = true;
-	pol_arst = true;
+ਖਾਲੀ Ff_ਅੰਕੜੇ::ਜੋੜੋ_dummy_arst() {
+	ਜੇ (has_arst)
+		ਵਾਪਸ;
+	has_arst = ਸੱਚ;
+	pol_arst = ਸੱਚ;
 	sig_arst = State::S0;
-	val_arst = Const(State::Sx, width);
+	val_arst = Const(State::Sx, ਚੌੜਾਈ);
 }
 
-void FfData::add_dummy_aload() {
-	if (has_aload)
-		return;
-	has_aload = true;
-	pol_aload = true;
+ਖਾਲੀ Ff_ਅੰਕੜੇ::ਜੋੜੋ_dummy_aload() {
+	ਜੇ (has_aload)
+		ਵਾਪਸ;
+	has_aload = ਸੱਚ;
+	pol_aload = ਸੱਚ;
 	sig_aload = State::S0;
-	sig_ad = Const(State::Sx, width);
+	sig_ad = Const(State::Sx, ਚੌੜਾਈ);
 }
 
-void FfData::add_dummy_sr() {
-	if (has_sr)
-		return;
-	has_sr = true;
-	pol_clr = true;
-	pol_set = true;
-	sig_clr = Const(State::S0, width);
-	sig_set = Const(State::S0, width);
+ਖਾਲੀ Ff_ਅੰਕੜੇ::ਜੋੜੋ_dummy_sr() {
+	ਜੇ (has_sr)
+		ਵਾਪਸ;
+	has_sr = ਸੱਚ;
+	pol_clr = ਸੱਚ;
+	pol_ਸੈੱਟ = ਸੱਚ;
+	sig_clr = Const(State::S0, ਚੌੜਾਈ);
+	sig_ਸੈੱਟ = Const(State::S0, ਚੌੜਾਈ);
 }
 
-void FfData::add_dummy_clk() {
-	if (has_clk)
-		return;
-	has_clk = true;
-	pol_clk = true;
+ਖਾਲੀ Ff_ਅੰਕੜੇ::ਜੋੜੋ_dummy_clk() {
+	ਜੇ (has_clk)
+		ਵਾਪਸ;
+	has_clk = ਸੱਚ;
+	pol_clk = ਸੱਚ;
 	sig_clk = State::S0;
-	sig_d = Const(State::Sx, width);
+	sig_d = Const(State::Sx, ਚੌੜਾਈ);
 }
 
-void FfData::arst_to_aload() {
+ਖਾਲੀ Ff_ਅੰਕੜੇ::arst_ਮੰਜ਼ਿਲ_aload() {
 	log_assert(has_arst);
 	log_assert(!has_aload);
 	pol_aload = pol_arst;
 	sig_aload = sig_arst;
 	sig_ad = val_arst;
-	has_aload = true;
-	has_arst = false;
+	has_aload = ਸੱਚ;
+	has_arst = ਝੂਠ;
 }
 
-void FfData::arst_to_sr() {
+ਖਾਲੀ Ff_ਅੰਕੜੇ::arst_ਮੰਜ਼ਿਲ_sr() {
 	log_assert(has_arst);
 	log_assert(!has_sr);
 	pol_clr = pol_arst;
-	pol_set = pol_arst;
-	sig_clr = Const(pol_arst ? State::S0 : State::S1, width);
-	sig_set = Const(pol_arst ? State::S0 : State::S1, width);
-	has_sr = true;
-	has_arst = false;
-	for (int i = 0; i < width; i++) {
-		if (val_arst[i] == State::S1)
-			sig_set[i] = sig_arst;
-		else
+	pol_ਸੈੱਟ = pol_arst;
+	sig_clr = Const(pol_arst ? State::S0 : State::S1, ਚੌੜਾਈ);
+	sig_ਸੈੱਟ = Const(pol_arst ? State::S0 : State::S1, ਚੌੜਾਈ);
+	has_sr = ਸੱਚ;
+	has_arst = ਝੂਠ;
+	ਲਈ (ਪੂਰਨ i = 0; i < ਚੌੜਾਈ; i++) {
+		ਜੇ (val_arst[i] == State::S1)
+			sig_ਸੈੱਟ[i] = sig_arst;
+		ਨਹੀਂਤਾਂ
 			sig_clr[i] = sig_arst;
 	}
 }
 
-void FfData::aload_to_sr() {
+ਖਾਲੀ Ff_ਅੰਕੜੇ::aload_ਮੰਜ਼ਿਲ_sr() {
 	log_assert(has_aload);
 	log_assert(!has_sr);
-	has_sr = true;
-	has_aload = false;
-	if (!is_fine) {
-		pol_clr = false;
-		pol_set = true;
-		if (pol_aload) {
-			sig_clr = module->Mux(NEW_ID, Const(State::S1, width), sig_ad, sig_aload);
-			sig_set = module->Mux(NEW_ID, Const(State::S0, width), sig_ad, sig_aload);
-		} else {
-			sig_clr = module->Mux(NEW_ID, sig_ad, Const(State::S1, width), sig_aload);
-			sig_set = module->Mux(NEW_ID, sig_ad, Const(State::S0, width), sig_aload);
+	has_sr = ਸੱਚ;
+	has_aload = ਝੂਠ;
+	ਜੇ (!is_fine) {
+		pol_clr = ਝੂਠ;
+		pol_ਸੈੱਟ = ਸੱਚ;
+		ਜੇ (pol_aload) {
+			sig_clr = module->Mux(NEW_ID, Const(State::S1, ਚੌੜਾਈ), sig_ad, sig_aload);
+			sig_ਸੈੱਟ = module->Mux(NEW_ID, Const(State::S0, ਚੌੜਾਈ), sig_ad, sig_aload);
+		} ਨਹੀਂਤਾਂ {
+			sig_clr = module->Mux(NEW_ID, sig_ad, Const(State::S1, ਚੌੜਾਈ), sig_aload);
+			sig_ਸੈੱਟ = module->Mux(NEW_ID, sig_ad, Const(State::S0, ਚੌੜਾਈ), sig_aload);
 		}
-	} else {
+	} ਨਹੀਂਤਾਂ {
 		pol_clr = pol_aload;
-		pol_set = pol_aload;
-		if (pol_aload) {
+		pol_ਸੈੱਟ = pol_aload;
+		ਜੇ (pol_aload) {
 			sig_clr = module->AndnotGate(NEW_ID, sig_aload, sig_ad);
-			sig_set = module->AndGate(NEW_ID, sig_aload, sig_ad);
-		} else {
+			sig_ਸੈੱਟ = module->AndGate(NEW_ID, sig_aload, sig_ad);
+		} ਨਹੀਂਤਾਂ {
 			sig_clr = module->OrGate(NEW_ID, sig_aload, sig_ad);
-			sig_set = module->OrnotGate(NEW_ID, sig_aload, sig_ad);
+			sig_ਸੈੱਟ = module->OrnotGate(NEW_ID, sig_aload, sig_ad);
 		}
 	}
 }
 
-void FfData::convert_ce_over_srst(bool val) {
-	if (!has_ce || !has_srst || ce_over_srst == val)
-		return;
-	if (val) {
+ਖਾਲੀ Ff_ਅੰਕੜੇ::convert_ce_over_srst(ਤਾਰਕਿਕ val) {
+	ਜੇ (!has_ce || !has_srst || ce_over_srst == val)
+		ਵਾਪਸ;
+	ਜੇ (val) {
 		// sdffe to sdffce
-		if (!is_fine) {
-			if (pol_ce) {
-				if (pol_srst) {
+		ਜੇ (!is_fine) {
+			ਜੇ (pol_ce) {
+				ਜੇ (pol_srst) {
 					sig_ce = module->Or(NEW_ID, sig_ce, sig_srst);
-				} else {
+				} ਨਹੀਂਤਾਂ {
 					SigSpec tmp = module->Not(NEW_ID, sig_srst);
 					sig_ce = module->Or(NEW_ID, sig_ce, tmp);
 				}
-			} else {
-				if (pol_srst) {
+			} ਨਹੀਂਤਾਂ {
+				ਜੇ (pol_srst) {
 					SigSpec tmp = module->Not(NEW_ID, sig_srst);
 					sig_ce = module->And(NEW_ID, sig_ce, tmp);
-				} else {
+				} ਨਹੀਂਤਾਂ {
 					sig_ce = module->And(NEW_ID, sig_ce, sig_srst);
 				}
 			}
-		} else {
-			if (pol_ce) {
-				if (pol_srst) {
+		} ਨਹੀਂਤਾਂ {
+			ਜੇ (pol_ce) {
+				ਜੇ (pol_srst) {
 					sig_ce = module->OrGate(NEW_ID, sig_ce, sig_srst);
-				} else {
+				} ਨਹੀਂਤਾਂ {
 					sig_ce = module->OrnotGate(NEW_ID, sig_ce, sig_srst);
 				}
-			} else {
-				if (pol_srst) {
+			} ਨਹੀਂਤਾਂ {
+				ਜੇ (pol_srst) {
 					sig_ce = module->AndnotGate(NEW_ID, sig_ce, sig_srst);
-				} else {
+				} ਨਹੀਂਤਾਂ {
 					sig_ce = module->AndGate(NEW_ID, sig_ce, sig_srst);
 				}
 			}
 		}
-	} else {
+	} ਨਹੀਂਤਾਂ {
 		// sdffce to sdffe
-		if (!is_fine) {
-			if (pol_srst) {
-				if (pol_ce) {
+		ਜੇ (!is_fine) {
+			ਜੇ (pol_srst) {
+				ਜੇ (pol_ce) {
 					sig_srst = cell->module->And(NEW_ID, sig_srst, sig_ce);
-				} else {
+				} ਨਹੀਂਤਾਂ {
 					SigSpec tmp = module->Not(NEW_ID, sig_ce);
 					sig_srst = cell->module->And(NEW_ID, sig_srst, tmp);
 				}
-			} else {
-				if (pol_ce) {
+			} ਨਹੀਂਤਾਂ {
+				ਜੇ (pol_ce) {
 					SigSpec tmp = module->Not(NEW_ID, sig_ce);
 					sig_srst = cell->module->Or(NEW_ID, sig_srst, tmp);
-				} else {
+				} ਨਹੀਂਤਾਂ {
 					sig_srst = cell->module->Or(NEW_ID, sig_srst, sig_ce);
 				}
 			}
-		} else {
-			if (pol_srst) {
-				if (pol_ce) {
+		} ਨਹੀਂਤਾਂ {
+			ਜੇ (pol_srst) {
+				ਜੇ (pol_ce) {
 					sig_srst = cell->module->AndGate(NEW_ID, sig_srst, sig_ce);
-				} else {
+				} ਨਹੀਂਤਾਂ {
 					sig_srst = cell->module->AndnotGate(NEW_ID, sig_srst, sig_ce);
 				}
-			} else {
-				if (pol_ce) {
+			} ਨਹੀਂਤਾਂ {
+				ਜੇ (pol_ce) {
 					sig_srst = cell->module->OrnotGate(NEW_ID, sig_srst, sig_ce);
-				} else {
+				} ਨਹੀਂਤਾਂ {
 					sig_srst = cell->module->OrGate(NEW_ID, sig_srst, sig_ce);
 				}
 			}
@@ -580,121 +580,121 @@ void FfData::convert_ce_over_srst(bool val) {
 	ce_over_srst = val;
 }
 
-void FfData::unmap_ce() {
-	if (!has_ce)
-		return;
+ਖਾਲੀ Ff_ਅੰਕੜੇ::unmap_ce() {
+	ਜੇ (!has_ce)
+		ਵਾਪਸ;
 	log_assert(has_clk);
-	if (has_srst && ce_over_srst)
+	ਜੇ (has_srst && ce_over_srst)
 		unmap_srst();
 
-	if (!is_fine) {
-		if (pol_ce)
+	ਜੇ (!is_fine) {
+		ਜੇ (pol_ce)
 			sig_d = module->Mux(NEW_ID, sig_q, sig_d, sig_ce);
-		else
+		ਨਹੀਂਤਾਂ
 			sig_d = module->Mux(NEW_ID, sig_d, sig_q, sig_ce);
-	} else {
-		if (pol_ce)
+	} ਨਹੀਂਤਾਂ {
+		ਜੇ (pol_ce)
 			sig_d = module->MuxGate(NEW_ID, sig_q, sig_d, sig_ce);
-		else
+		ਨਹੀਂਤਾਂ
 			sig_d = module->MuxGate(NEW_ID, sig_d, sig_q, sig_ce);
 	}
-	has_ce = false;
+	has_ce = ਝੂਠ;
 }
 
-void FfData::unmap_srst() {
-	if (!has_srst)
-		return;
-	if (has_ce && !ce_over_srst)
+ਖਾਲੀ Ff_ਅੰਕੜੇ::unmap_srst() {
+	ਜੇ (!has_srst)
+		ਵਾਪਸ;
+	ਜੇ (has_ce && !ce_over_srst)
 		unmap_ce();
 
-	if (!is_fine) {
-		if (pol_srst)
+	ਜੇ (!is_fine) {
+		ਜੇ (pol_srst)
 			sig_d = module->Mux(NEW_ID, sig_d, val_srst, sig_srst);
-		else
+		ਨਹੀਂਤਾਂ
 			sig_d = module->Mux(NEW_ID, val_srst, sig_d, sig_srst);
-	} else {
-		if (pol_srst)
+	} ਨਹੀਂਤਾਂ {
+		ਜੇ (pol_srst)
 			sig_d = module->MuxGate(NEW_ID, sig_d, val_srst[0], sig_srst);
-		else
+		ਨਹੀਂਤਾਂ
 			sig_d = module->MuxGate(NEW_ID, val_srst[0], sig_d, sig_srst);
 	}
-	has_srst = false;
+	has_srst = ਝੂਠ;
 }
 
-Cell *FfData::emit() {
+Cell *Ff_ਅੰਕੜੇ::emit() {
 	remove();
-	if (!width)
-		return nullptr;
-	if (!has_aload && !has_clk && !has_gclk && !has_sr) {
-		if (has_arst) {
+	ਜੇ (!ਚੌੜਾਈ)
+		ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
+	ਜੇ (!has_aload && !has_clk && !has_gclk && !has_sr) {
+		ਜੇ (has_arst) {
 			// Convert this case to a D latch.
-			arst_to_aload();
-		} else {
+			arst_ਮੰਜ਼ਿਲ_aload();
+		} ਨਹੀਂਤਾਂ {
 			// No control inputs left.  Turn into a const driver.
 			module->connect(sig_q, val_init);
-			return nullptr;
+			ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
 		}
 	}
-	if (initvals && !is_anyinit)
-		initvals->set_init(sig_q, val_init);
-	if (!is_fine) {
-		if (has_gclk) {
+	ਜੇ (initvals && !is_anyinit)
+		initvals->ਸੈੱਟ_init(sig_q, val_init);
+	ਜੇ (!is_fine) {
+		ਜੇ (has_gclk) {
 			log_assert(!has_clk);
 			log_assert(!has_ce);
 			log_assert(!has_aload);
 			log_assert(!has_arst);
 			log_assert(!has_srst);
 			log_assert(!has_sr);
-			if (is_anyinit) {
-				cell = module->addAnyinit(name, sig_d, sig_q);
+			ਜੇ (is_anyinit) {
+				cell = module->ਜੋੜੋ_Anyinit(name, sig_d, sig_q);
 				log_assert(val_init.is_fully_undef());
-			} else {
-				cell = module->addFf(name, sig_d, sig_q);
+			} ਨਹੀਂਤਾਂ {
+				cell = module->ਜੋੜੋ_Ff(name, sig_d, sig_q);
 			}
-		} else if (!has_aload && !has_clk) {
+		} ਨਹੀਂਤਾਂ ਜੇ (!has_aload && !has_clk) {
 			log_assert(has_sr);
-			cell = module->addSr(name, sig_set, sig_clr, sig_q, pol_set, pol_clr);
-		} else if (!has_clk) {
+			cell = module->ਜੋੜੋ_Sr(name, sig_ਸੈੱਟ, sig_clr, sig_q, pol_ਸੈੱਟ, pol_clr);
+		} ਨਹੀਂਤਾਂ ਜੇ (!has_clk) {
 			log_assert(!has_srst);
-			if (has_sr)
-				cell = module->addDlatchsr(name, sig_aload, sig_set, sig_clr, sig_ad, sig_q, pol_aload, pol_set, pol_clr);
-			else if (has_arst)
-				cell = module->addAdlatch(name, sig_aload, sig_arst, sig_ad, sig_q, val_arst, pol_aload, pol_arst);
-			else
-				cell = module->addDlatch(name, sig_aload, sig_ad, sig_q, pol_aload);
-		} else {
-			if (has_sr) {
-				if (has_ce)
-					cell = module->addDffsre(name, sig_clk, sig_ce, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_ce, pol_set, pol_clr);
-				else
-					cell = module->addDffsr(name, sig_clk, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_set, pol_clr);
-			} else if (has_arst) {
-				if (has_ce)
-					cell = module->addAdffe(name, sig_clk, sig_ce, sig_arst, sig_d, sig_q, val_arst, pol_clk, pol_ce, pol_arst);
-				else
-					cell = module->addAdff(name, sig_clk, sig_arst, sig_d, sig_q, val_arst, pol_clk, pol_arst);
-			} else if (has_aload) {
-				if (has_ce)
-					cell = module->addAldffe(name, sig_clk, sig_ce, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_ce, pol_aload);
-				else
-					cell = module->addAldff(name, sig_clk, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_aload);
-			} else if (has_srst) {
-				if (has_ce)
-					if (ce_over_srst)
-						cell = module->addSdffce(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_ce, pol_srst);
-					else
-						cell = module->addSdffe(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_ce, pol_srst);
-				else
-					cell = module->addSdff(name, sig_clk, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_srst);
-			} else {
-				if (has_ce)
-					cell = module->addDffe(name, sig_clk, sig_ce, sig_d, sig_q, pol_clk, pol_ce);
-				else
-					cell = module->addDff(name, sig_clk, sig_d, sig_q, pol_clk);
+			ਜੇ (has_sr)
+				cell = module->ਜੋੜੋ_Dlatchsr(name, sig_aload, sig_ਸੈੱਟ, sig_clr, sig_ad, sig_q, pol_aload, pol_ਸੈੱਟ, pol_clr);
+			ਨਹੀਂਤਾਂ ਜੇ (has_arst)
+				cell = module->ਜੋੜੋ_Adlatch(name, sig_aload, sig_arst, sig_ad, sig_q, val_arst, pol_aload, pol_arst);
+			ਨਹੀਂਤਾਂ
+				cell = module->ਜੋੜੋ_Dlatch(name, sig_aload, sig_ad, sig_q, pol_aload);
+		} ਨਹੀਂਤਾਂ {
+			ਜੇ (has_sr) {
+				ਜੇ (has_ce)
+					cell = module->ਜੋੜੋ_Dffsre(name, sig_clk, sig_ce, sig_ਸੈੱਟ, sig_clr, sig_d, sig_q, pol_clk, pol_ce, pol_ਸੈੱਟ, pol_clr);
+				ਨਹੀਂਤਾਂ
+					cell = module->ਜੋੜੋ_Dffsr(name, sig_clk, sig_ਸੈੱਟ, sig_clr, sig_d, sig_q, pol_clk, pol_ਸੈੱਟ, pol_clr);
+			} ਨਹੀਂਤਾਂ ਜੇ (has_arst) {
+				ਜੇ (has_ce)
+					cell = module->ਜੋੜੋ_Adffe(name, sig_clk, sig_ce, sig_arst, sig_d, sig_q, val_arst, pol_clk, pol_ce, pol_arst);
+				ਨਹੀਂਤਾਂ
+					cell = module->ਜੋੜੋ_Adff(name, sig_clk, sig_arst, sig_d, sig_q, val_arst, pol_clk, pol_arst);
+			} ਨਹੀਂਤਾਂ ਜੇ (has_aload) {
+				ਜੇ (has_ce)
+					cell = module->ਜੋੜੋ_Aldffe(name, sig_clk, sig_ce, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_ce, pol_aload);
+				ਨਹੀਂਤਾਂ
+					cell = module->ਜੋੜੋ_Aldff(name, sig_clk, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_aload);
+			} ਨਹੀਂਤਾਂ ਜੇ (has_srst) {
+				ਜੇ (has_ce)
+					ਜੇ (ce_over_srst)
+						cell = module->ਜੋੜੋ_Sdffce(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_ce, pol_srst);
+					ਨਹੀਂਤਾਂ
+						cell = module->ਜੋੜੋ_Sdffe(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_ce, pol_srst);
+				ਨਹੀਂਤਾਂ
+					cell = module->ਜੋੜੋ_Sdff(name, sig_clk, sig_srst, sig_d, sig_q, val_srst, pol_clk, pol_srst);
+			} ਨਹੀਂਤਾਂ {
+				ਜੇ (has_ce)
+					cell = module->ਜੋੜੋ_Dffe(name, sig_clk, sig_ce, sig_d, sig_q, pol_clk, pol_ce);
+				ਨਹੀਂਤਾਂ
+					cell = module->ਜੋੜੋ_Dff(name, sig_clk, sig_d, sig_q, pol_clk);
 			}
 		}
-	} else {
-		if (has_gclk) {
+	} ਨਹੀਂਤਾਂ {
+		ਜੇ (has_gclk) {
 			log_assert(!has_clk);
 			log_assert(!has_ce);
 			log_assert(!has_aload);
@@ -702,159 +702,159 @@ Cell *FfData::emit() {
 			log_assert(!has_srst);
 			log_assert(!has_sr);
 			log_assert(!is_anyinit);
-			cell = module->addFfGate(name, sig_d, sig_q);
-		} else if (!has_aload && !has_clk) {
+			cell = module->ਜੋੜੋ_Ff_Gate(name, sig_d, sig_q);
+		} ਨਹੀਂਤਾਂ ਜੇ (!has_aload && !has_clk) {
 			log_assert(has_sr);
-			cell = module->addSrGate(name, sig_set, sig_clr, sig_q, pol_set, pol_clr);
-		} else if (!has_clk) {
+			cell = module->ਜੋੜੋ_Sr_Gate(name, sig_ਸੈੱਟ, sig_clr, sig_q, pol_ਸੈੱਟ, pol_clr);
+		} ਨਹੀਂਤਾਂ ਜੇ (!has_clk) {
 			log_assert(!has_srst);
-			if (has_sr)
-				cell = module->addDlatchsrGate(name, sig_aload, sig_set, sig_clr, sig_ad, sig_q, pol_aload, pol_set, pol_clr);
-			else if (has_arst)
-				cell = module->addAdlatchGate(name, sig_aload, sig_arst, sig_ad, sig_q, val_arst.as_bool(), pol_aload, pol_arst);
-			else
-				cell = module->addDlatchGate(name, sig_aload, sig_ad, sig_q, pol_aload);
-		} else {
-			if (has_sr) {
-				if (has_ce)
-					cell = module->addDffsreGate(name, sig_clk, sig_ce, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_ce, pol_set, pol_clr);
-				else
-					cell = module->addDffsrGate(name, sig_clk, sig_set, sig_clr, sig_d, sig_q, pol_clk, pol_set, pol_clr);
-			} else if (has_arst) {
-				if (has_ce)
-					cell = module->addAdffeGate(name, sig_clk, sig_ce, sig_arst, sig_d, sig_q, val_arst.as_bool(), pol_clk, pol_ce, pol_arst);
-				else
-					cell = module->addAdffGate(name, sig_clk, sig_arst, sig_d, sig_q, val_arst.as_bool(), pol_clk, pol_arst);
-			} else if (has_aload) {
-				if (has_ce)
-					cell = module->addAldffeGate(name, sig_clk, sig_ce, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_ce, pol_aload);
-				else
-					cell = module->addAldffGate(name, sig_clk, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_aload);
-			} else if (has_srst) {
-				if (has_ce)
-					if (ce_over_srst)
-						cell = module->addSdffceGate(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_ce, pol_srst);
-					else
-						cell = module->addSdffeGate(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_ce, pol_srst);
-				else
-					cell = module->addSdffGate(name, sig_clk, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_srst);
-			} else {
-				if (has_ce)
-					cell = module->addDffeGate(name, sig_clk, sig_ce, sig_d, sig_q, pol_clk, pol_ce);
-				else
-					cell = module->addDffGate(name, sig_clk, sig_d, sig_q, pol_clk);
+			ਜੇ (has_sr)
+				cell = module->ਜੋੜੋ_Dlatchsr_Gate(name, sig_aload, sig_ਸੈੱਟ, sig_clr, sig_ad, sig_q, pol_aload, pol_ਸੈੱਟ, pol_clr);
+			ਨਹੀਂਤਾਂ ਜੇ (has_arst)
+				cell = module->ਜੋੜੋ_Adlatch_Gate(name, sig_aload, sig_arst, sig_ad, sig_q, val_arst.as_bool(), pol_aload, pol_arst);
+			ਨਹੀਂਤਾਂ
+				cell = module->ਜੋੜੋ_Dlatch_Gate(name, sig_aload, sig_ad, sig_q, pol_aload);
+		} ਨਹੀਂਤਾਂ {
+			ਜੇ (has_sr) {
+				ਜੇ (has_ce)
+					cell = module->ਜੋੜੋ_Dffsre_Gate(name, sig_clk, sig_ce, sig_ਸੈੱਟ, sig_clr, sig_d, sig_q, pol_clk, pol_ce, pol_ਸੈੱਟ, pol_clr);
+				ਨਹੀਂਤਾਂ
+					cell = module->ਜੋੜੋ_Dffsr_Gate(name, sig_clk, sig_ਸੈੱਟ, sig_clr, sig_d, sig_q, pol_clk, pol_ਸੈੱਟ, pol_clr);
+			} ਨਹੀਂਤਾਂ ਜੇ (has_arst) {
+				ਜੇ (has_ce)
+					cell = module->ਜੋੜੋ_Adffe_Gate(name, sig_clk, sig_ce, sig_arst, sig_d, sig_q, val_arst.as_bool(), pol_clk, pol_ce, pol_arst);
+				ਨਹੀਂਤਾਂ
+					cell = module->ਜੋੜੋ_Adff_Gate(name, sig_clk, sig_arst, sig_d, sig_q, val_arst.as_bool(), pol_clk, pol_arst);
+			} ਨਹੀਂਤਾਂ ਜੇ (has_aload) {
+				ਜੇ (has_ce)
+					cell = module->ਜੋੜੋ_Aldffe_Gate(name, sig_clk, sig_ce, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_ce, pol_aload);
+				ਨਹੀਂਤਾਂ
+					cell = module->ਜੋੜੋ_Aldff_Gate(name, sig_clk, sig_aload, sig_d, sig_q, sig_ad, pol_clk, pol_aload);
+			} ਨਹੀਂਤਾਂ ਜੇ (has_srst) {
+				ਜੇ (has_ce)
+					ਜੇ (ce_over_srst)
+						cell = module->ਜੋੜੋ_Sdffce_Gate(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_ce, pol_srst);
+					ਨਹੀਂਤਾਂ
+						cell = module->ਜੋੜੋ_Sdffe_Gate(name, sig_clk, sig_ce, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_ce, pol_srst);
+				ਨਹੀਂਤਾਂ
+					cell = module->ਜੋੜੋ_Sdff_Gate(name, sig_clk, sig_srst, sig_d, sig_q, val_srst.as_bool(), pol_clk, pol_srst);
+			} ਨਹੀਂਤਾਂ {
+				ਜੇ (has_ce)
+					cell = module->ਜੋੜੋ_Dffe_Gate(name, sig_clk, sig_ce, sig_d, sig_q, pol_clk, pol_ce);
+				ਨਹੀਂਤਾਂ
+					cell = module->ਜੋੜੋ_Dff_Gate(name, sig_clk, sig_d, sig_q, pol_clk);
 			}
 		}
 	}
-	cell->attributes = attributes;
-	return cell;
+	cell->ਗੁਣ = ਗੁਣ;
+	ਵਾਪਸ cell;
 }
 
-void FfData::remove() {
-	if (cell) {
+ਖਾਲੀ Ff_ਅੰਕੜੇ::remove() {
+	ਜੇ (cell) {
 		remove_init();
 		module->remove(cell);
-		cell = nullptr;
+		cell = ਖਾਲੀ_ਸੂਚਕ;
 	}
 }
 
-namespace {
+ਨਾਮਾਕਾਸ਼ {
 	State invert(State s) {
-		switch (s) {
-			case State::S0: return State::S1;
-			case State::S1: return State::S0;
-			default: return s;
+		ਚੋਣ (s) {
+			ਹਾਲਤ State::S0: ਵਾਪਸ State::S1;
+			ਹਾਲਤ State::S1: ਵਾਪਸ State::S0;
+			ਮੂਲ: ਵਾਪਸ s;
 		}
 	}
 }
 
-void FfData::flip_rst_bits(const pool<int> &bits) {
-	if (!bits.size())
-		return;
+ਖਾਲੀ Ff_ਅੰਕੜੇ::flip_rst_ਬਿੱਟ(ਅਚਲ pool<ਪੂਰਨ> &ਬਿੱਟ) {
+	ਜੇ (!ਬਿੱਟ.ਮਾਪ())
+		ਵਾਪਸ;
 
 	remove_init();
 
-	for (auto bit: bits) {
-		if (has_arst)
-			val_arst.set(bit, invert(val_arst[bit]));
-		if (has_srst)
-			val_srst.set(bit, invert(val_srst[bit]));
-		val_init.set(bit, invert(val_init[bit]));
+	ਲਈ (ਸਵੈਚਾਲਿਤ ਦੋਆਧਾਰੀ_ਅੰਕ: ਬਿੱਟ) {
+		ਜੇ (has_arst)
+			val_arst.ਸੈੱਟ(ਦੋਆਧਾਰੀ_ਅੰਕ, invert(val_arst[ਦੋਆਧਾਰੀ_ਅੰਕ]));
+		ਜੇ (has_srst)
+			val_srst.ਸੈੱਟ(ਦੋਆਧਾਰੀ_ਅੰਕ, invert(val_srst[ਦੋਆਧਾਰੀ_ਅੰਕ]));
+		val_init.ਸੈੱਟ(ਦੋਆਧਾਰੀ_ਅੰਕ, invert(val_init[ਦੋਆਧਾਰੀ_ਅੰਕ]));
 	}
 }
 
-void FfData::flip_bits(const pool<int> &bits) {
-	if (!bits.size())
-		return;
+ਖਾਲੀ Ff_ਅੰਕੜੇ::flip_ਬਿੱਟ(ਅਚਲ pool<ਪੂਰਨ> &ਬਿੱਟ) {
+	ਜੇ (!ਬਿੱਟ.ਮਾਪ())
+		ਵਾਪਸ;
 
-	flip_rst_bits(bits);
+	flip_rst_ਬਿੱਟ(ਬਿੱਟ);
 
-	Wire *new_q = module->addWire(NEW_ID, width);
+	Wire *new_q = module->ਜੋੜੋ_Wire(NEW_ID, ਚੌੜਾਈ);
 
-	if (has_sr && cell) {
+	ਜੇ (has_sr && cell) {
 		log_warning("Flipping D/Q/init and inserting priority fixup to legalize %s.%s [%s].\n", module->name.unescape(), cell->name.unescape(), cell->type.unescape());
 	}
 
-	if (is_fine) {
-		if (has_sr) {
-			bool new_pol_clr = pol_set;
+	ਜੇ (is_fine) {
+		ਜੇ (has_sr) {
+			ਤਾਰਕਿਕ new_pol_clr = pol_ਸੈੱਟ;
 			SigSpec new_sig_clr;
-			if (pol_set) {
-				if (pol_clr) {
-					new_sig_clr = module->AndnotGate(NEW_ID, sig_set, sig_clr);
-				} else {
-					new_sig_clr = module->AndGate(NEW_ID, sig_set, sig_clr);
+			ਜੇ (pol_ਸੈੱਟ) {
+				ਜੇ (pol_clr) {
+					new_sig_clr = module->AndnotGate(NEW_ID, sig_ਸੈੱਟ, sig_clr);
+				} ਨਹੀਂਤਾਂ {
+					new_sig_clr = module->AndGate(NEW_ID, sig_ਸੈੱਟ, sig_clr);
 				}
-			} else {
-				if (pol_clr) {
-					new_sig_clr = module->OrGate(NEW_ID, sig_set, sig_clr);
-				} else {
-					new_sig_clr = module->OrnotGate(NEW_ID, sig_set, sig_clr);
+			} ਨਹੀਂਤਾਂ {
+				ਜੇ (pol_clr) {
+					new_sig_clr = module->OrGate(NEW_ID, sig_ਸੈੱਟ, sig_clr);
+				} ਨਹੀਂਤਾਂ {
+					new_sig_clr = module->OrnotGate(NEW_ID, sig_ਸੈੱਟ, sig_clr);
 				}
 			}
-			pol_set = pol_clr;
-			sig_set = sig_clr;
+			pol_ਸੈੱਟ = pol_clr;
+			sig_ਸੈੱਟ = sig_clr;
 			pol_clr = new_pol_clr;
 			sig_clr = new_sig_clr;
 		}
-		if (has_clk || has_gclk)
+		ਜੇ (has_clk || has_gclk)
 			sig_d = module->NotGate(NEW_ID, sig_d);
-		if (has_aload)
+		ਜੇ (has_aload)
 			sig_ad = module->NotGate(NEW_ID, sig_ad);
-		module->addNotGate(NEW_ID, new_q, sig_q);
+		module->ਜੋੜੋ_Not_Gate(NEW_ID, new_q, sig_q);
 	}
-	else
+	ਨਹੀਂਤਾਂ
 	{
-		if (has_sr) {
+		ਜੇ (has_sr) {
 			SigSpec not_clr;
-			if (!pol_clr) {
+			ਜੇ (!pol_clr) {
 				not_clr = sig_clr;
 				sig_clr = module->Not(NEW_ID, sig_clr);
-				pol_clr = true;
-			} else {
+				pol_clr = ਸੱਚ;
+			} ਨਹੀਂਤਾਂ {
 				not_clr = module->Not(NEW_ID, sig_clr);
 			}
-			if (!pol_set) {
-				sig_set = module->Not(NEW_ID, sig_set);
-				pol_set = true;
+			ਜੇ (!pol_ਸੈੱਟ) {
+				sig_ਸੈੱਟ = module->Not(NEW_ID, sig_ਸੈੱਟ);
+				pol_ਸੈੱਟ = ਸੱਚ;
 			}
 
-			SigSpec masked_set = module->And(NEW_ID, sig_set, not_clr);
-			for (auto bit: bits) {
-				sig_set[bit] = sig_clr[bit];
-				sig_clr[bit] = masked_set[bit];
+			SigSpec masked_ਸੈੱਟ = module->And(NEW_ID, sig_ਸੈੱਟ, not_clr);
+			ਲਈ (ਸਵੈਚਾਲਿਤ ਦੋਆਧਾਰੀ_ਅੰਕ: ਬਿੱਟ) {
+				sig_ਸੈੱਟ[ਦੋਆਧਾਰੀ_ਅੰਕ] = sig_clr[ਦੋਆਧਾਰੀ_ਅੰਕ];
+				sig_clr[ਦੋਆਧਾਰੀ_ਅੰਕ] = masked_ਸੈੱਟ[ਦੋਆਧਾਰੀ_ਅੰਕ];
 			}
 		}
 
-		Const mask = Const(State::S0, width);
-		for (auto bit: bits)
-			mask.set(bit, State::S1);
+		Const ਨਕਾਬ = Const(State::S0, ਚੌੜਾਈ);
+		ਲਈ (ਸਵੈਚਾਲਿਤ ਦੋਆਧਾਰੀ_ਅੰਕ: ਬਿੱਟ)
+			ਨਕਾਬ.ਸੈੱਟ(ਦੋਆਧਾਰੀ_ਅੰਕ, State::S1);
 
-		if (has_clk || has_gclk)
-			sig_d = module->Xor(NEW_ID, sig_d, mask);
-		if (has_aload)
-			sig_ad = module->Xor(NEW_ID, sig_ad, mask);
-		module->addXor(NEW_ID, new_q, mask, sig_q);
+		ਜੇ (has_clk || has_gclk)
+			sig_d = module->Xor(NEW_ID, sig_d, ਨਕਾਬ);
+		ਜੇ (has_aload)
+			sig_ad = module->Xor(NEW_ID, sig_ad, ਨਕਾਬ);
+		module->ਜੋੜੋ_Xor(NEW_ID, new_q, ਨਕਾਬ, sig_q);
 	}
 
 	sig_q = new_q;

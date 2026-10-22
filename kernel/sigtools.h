@@ -17,259 +17,259 @@
  *
  */
 
-#ifndef SIGTOOLS_H
-#define SIGTOOLS_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ SIGTOOLS_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SIGTOOLS_H
 
-#include "kernel/yosys.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct SigPool
+ਬਣਤਰ SigPool
 {
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			h.eat(first->name);
-			h.eat(second);
-			return h;
+	ਬਣਤਰ ਦੋਆਧਾਰੀ_ਅੰਕ_Def_t : ਜਨਤਕ std::pair<RTLIL::Wire*, ਪੂਰਨ> {
+		ਦੋਆਧਾਰੀ_ਅੰਕ_Def_t() : std::pair<RTLIL::Wire*, ਪੂਰਨ>(ਨਿਰਾ, 0) { }
+		ਦੋਆਧਾਰੀ_ਅੰਕ_Def_t(ਅਚਲ RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ &ਦੋਆਧਾਰੀ_ਅੰਕ) : std::pair<RTLIL::Wire*, ਪੂਰਨ>(ਦੋਆਧਾਰੀ_ਅੰਕ.wire, ਦੋਆਧਾਰੀ_ਅੰਕ.ਵਿੱਥ) { }
+		[[nodiscard]] Hasher hash_into(Hasher h) ਅਚਲ {
+			h.eat(ਪਹਿਲਾ->name);
+			h.eat(ਦੂਜਾ);
+			ਵਾਪਸ h;
 		}
 	};
 
-	pool<bitDef_t> bits;
+	pool<ਦੋਆਧਾਰੀ_ਅੰਕ_Def_t> ਬਿੱਟ;
 
-	void clear()
+	ਖਾਲੀ clear()
 	{
-		bits.clear();
+		ਬਿੱਟ.clear();
 	}
 
-	void add(const RTLIL::SigSpec &sig)
+	ਖਾਲੀ ਜੋੜੋ(ਅਚਲ RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
-				bits.insert(bit);
+		ਲਈ (ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ)
+				ਬਿੱਟ.ਪਾਓ(ਦੋਆਧਾਰੀ_ਅੰਕ);
 	}
 
-	void add(const SigPool &other)
+	ਖਾਲੀ ਜੋੜੋ(ਅਚਲ SigPool &other)
 	{
-		for (auto &bit : other.bits)
-			bits.insert(bit);
+		ਲਈ (ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : other.ਬਿੱਟ)
+			ਬਿੱਟ.ਪਾਓ(ਦੋਆਧਾਰੀ_ਅੰਕ);
 	}
 
-	void del(const RTLIL::SigSpec &sig)
+	ਖਾਲੀ del(ਅਚਲ RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
-				bits.erase(bit);
+		ਲਈ (ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ)
+				ਬਿੱਟ.erase(ਦੋਆਧਾਰੀ_ਅੰਕ);
 	}
 
-	void del(const SigPool &other)
+	ਖਾਲੀ del(ਅਚਲ SigPool &other)
 	{
-		for (auto &bit : other.bits)
-			bits.erase(bit);
+		ਲਈ (ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : other.ਬਿੱਟ)
+			ਬਿੱਟ.erase(ਦੋਆਧਾਰੀ_ਅੰਕ);
 	}
 
-	void expand(const RTLIL::SigSpec &from, const RTLIL::SigSpec &to)
+	ਖਾਲੀ expand(ਅਚਲ RTLIL::SigSpec &from, ਅਚਲ RTLIL::SigSpec &ਮੰਜ਼ਿਲ)
 	{
-		log_assert(GetSize(from) == GetSize(to));
-		for (int i = 0; i < GetSize(from); i++) {
-			bitDef_t bit_from(from[i]), bit_to(to[i]);
-			if (bit_from.first != NULL && bit_to.first != NULL && bits.count(bit_from) > 0)
-				bits.insert(bit_to);
+		log_assert(Get_ਮਾਪ(from) == Get_ਮਾਪ(ਮੰਜ਼ਿਲ));
+		ਲਈ (ਪੂਰਨ i = 0; i < Get_ਮਾਪ(from); i++) {
+			ਦੋਆਧਾਰੀ_ਅੰਕ_Def_t ਦੋਆਧਾਰੀ_ਅੰਕ_from(from[i]), ਦੋਆਧਾਰੀ_ਅੰਕ_ਮੰਜ਼ਿਲ(ਮੰਜ਼ਿਲ[i]);
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ_from.ਪਹਿਲਾ != ਨਿਰਾ && ਦੋਆਧਾਰੀ_ਅੰਕ_ਮੰਜ਼ਿਲ.ਪਹਿਲਾ != ਨਿਰਾ && ਬਿੱਟ.ਗਿਣਤੀ_2(ਦੋਆਧਾਰੀ_ਅੰਕ_from) > 0)
+				ਬਿੱਟ.ਪਾਓ(ਦੋਆਧਾਰੀ_ਅੰਕ_ਮੰਜ਼ਿਲ);
 		}
 	}
 
-	RTLIL::SigSpec extract(const RTLIL::SigSpec &sig) const
+	RTLIL::SigSpec ਕੱਢੋ_2(ਅਚਲ RTLIL::SigSpec &sig) ਅਚਲ
 	{
-		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				result.append(bit);
-		return result;
+		RTLIL::SigSpec ਨਤੀਜਾ;
+		ਲਈ (ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ && ਬਿੱਟ.ਗਿਣਤੀ_2(ਦੋਆਧਾਰੀ_ਅੰਕ))
+				ਨਤੀਜਾ.append(ਦੋਆਧਾਰੀ_ਅੰਕ);
+		ਵਾਪਸ ਨਤੀਜਾ;
 	}
 
-	RTLIL::SigSpec remove(const RTLIL::SigSpec &sig) const
+	RTLIL::SigSpec remove(ਅਚਲ RTLIL::SigSpec &sig) ਅਚਲ
 	{
-		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
-				result.append(bit);
-		return result;
+		RTLIL::SigSpec ਨਤੀਜਾ;
+		ਲਈ (ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ && ਬਿੱਟ.ਗਿਣਤੀ_2(ਦੋਆਧਾਰੀ_ਅੰਕ) == 0)
+				ਨਤੀਜਾ.append(ਦੋਆਧਾਰੀ_ਅੰਕ);
+		ਵਾਪਸ ਨਤੀਜਾ;
 	}
 
-	bool check(const RTLIL::SigBit &bit) const
+	bool check(ਅਚਲ RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ &ਦੋਆਧਾਰੀ_ਅੰਕ) ਅਚਲ
 	{
-		return bit.wire != NULL && bits.count(bit);
+		ਵਾਪਸ ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ && ਬਿੱਟ.ਗਿਣਤੀ_2(ਦੋਆਧਾਰੀ_ਅੰਕ);
 	}
 
-	bool check_any(const RTLIL::SigSpec &sig) const
+	bool check_any(ਅਚਲ RTLIL::SigSpec &sig) ਅਚਲ
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		ਲਈ (ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ && ਬਿੱਟ.ਗਿਣਤੀ_2(ਦੋਆਧਾਰੀ_ਅੰਕ))
+				ਵਾਪਸ true;
+		ਵਾਪਸ false;
 	}
 
-	bool check_all(const RTLIL::SigSpec &sig) const
+	bool check_all(ਅਚਲ RTLIL::SigSpec &sig) ਅਚਲ
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
-				return false;
-		return true;
+		ਲਈ (ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ && ਬਿੱਟ.ਗਿਣਤੀ_2(ਦੋਆਧਾਰੀ_ਅੰਕ) == 0)
+				ਵਾਪਸ false;
+		ਵਾਪਸ true;
 	}
 
-	RTLIL::SigSpec export_one() const
+	RTLIL::SigSpec export_one() ਅਚਲ
 	{
-		for (auto &bit : bits)
-			return RTLIL::SigSpec(bit.first, bit.second);
-		return RTLIL::SigSpec();
+		ਲਈ (ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : ਬਿੱਟ)
+			ਵਾਪਸ RTLIL::SigSpec(ਦੋਆਧਾਰੀ_ਅੰਕ.ਪਹਿਲਾ, ਦੋਆਧਾਰੀ_ਅੰਕ.ਦੂਜਾ);
+		ਵਾਪਸ RTLIL::SigSpec();
 	}
 
-	RTLIL::SigSpec export_all() const
+	RTLIL::SigSpec export_all() ਅਚਲ
 	{
-		pool<RTLIL::SigBit> sig;
-		for (auto &bit : bits)
-			sig.insert(RTLIL::SigBit(bit.first, bit.second));
-		return sig;
+		pool<RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ> sig;
+		ਲਈ (ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : ਬਿੱਟ)
+			sig.ਪਾਓ(RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ(ਦੋਆਧਾਰੀ_ਅੰਕ.ਪਹਿਲਾ, ਦੋਆਧਾਰੀ_ਅੰਕ.ਦੂਜਾ));
+		ਵਾਪਸ sig;
 	}
 
-	size_t size() const
+	ਮਾਪ_t ਮਾਪ() ਅਚਲ
 	{
-		return bits.size();
+		ਵਾਪਸ ਬਿੱਟ.ਮਾਪ();
 	}
 };
 
-template <typename T, class Compare = void>
-struct SigSet
+ਸਾਂਚਾ <typename T, class Compare = ਖਾਲੀ>
+ਬਣਤਰ Sig_ਸੈੱਟ
 {
-	static_assert(!std::is_same<Compare,void>::value, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
+	static_assert(!std::is_same<Compare,ਖਾਲੀ>::ਮੁੱਲ, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
 
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			h.eat(first->name);
-			h.eat(second);
-			return h;
+	ਬਣਤਰ ਦੋਆਧਾਰੀ_ਅੰਕ_Def_t : ਜਨਤਕ std::pair<RTLIL::Wire*, ਪੂਰਨ> {
+		ਦੋਆਧਾਰੀ_ਅੰਕ_Def_t() : std::pair<RTLIL::Wire*, ਪੂਰਨ>(ਨਿਰਾ, 0) { }
+		ਦੋਆਧਾਰੀ_ਅੰਕ_Def_t(ਅਚਲ RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ &ਦੋਆਧਾਰੀ_ਅੰਕ) : std::pair<RTLIL::Wire*, ਪੂਰਨ>(ਦੋਆਧਾਰੀ_ਅੰਕ.wire, ਦੋਆਧਾਰੀ_ਅੰਕ.ਵਿੱਥ) { }
+		[[nodiscard]] Hasher hash_into(Hasher h) ਅਚਲ {
+			h.eat(ਪਹਿਲਾ->name);
+			h.eat(ਦੂਜਾ);
+			ਵਾਪਸ h;
 		}
 	};
 
-	dict<bitDef_t, std::set<T, Compare>> bits;
+	dict<ਦੋਆਧਾਰੀ_ਅੰਕ_Def_t, std::ਸੈੱਟ<T, Compare>> ਬਿੱਟ;
 
-	void clear()
+	ਖਾਲੀ clear()
 	{
-		bits.clear();
+		ਬਿੱਟ.clear();
 	}
 
-	void insert(const RTLIL::SigSpec &sig, T data)
+	ਖਾਲੀ ਪਾਓ(ਅਚਲ RTLIL::SigSpec &sig, T ਅੰਕੜੇ)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].insert(data);
+		ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ)
+				ਬਿੱਟ[ਦੋਆਧਾਰੀ_ਅੰਕ].ਪਾਓ(ਅੰਕੜੇ);
 	}
 
-	void insert(const RTLIL::SigSpec& sig, const std::set<T> &data)
+	ਖਾਲੀ ਪਾਓ(ਅਚਲ RTLIL::SigSpec& sig, ਅਚਲ std::ਸੈੱਟ<T> &ਅੰਕੜੇ)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].insert(data.begin(), data.end());
+		ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ)
+				ਬਿੱਟ[ਦੋਆਧਾਰੀ_ਅੰਕ].ਪਾਓ(ਅੰਕੜੇ.begin(), ਅੰਕੜੇ.ਸਿਰਾ());
 	}
 
-	void erase(const RTLIL::SigSpec& sig)
+	ਖਾਲੀ erase(ਅਚਲ RTLIL::SigSpec& sig)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].clear();
+		ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ)
+				ਬਿੱਟ[ਦੋਆਧਾਰੀ_ਅੰਕ].clear();
 	}
 
-	void erase(const RTLIL::SigSpec &sig, T data)
+	ਖਾਲੀ erase(ਅਚਲ RTLIL::SigSpec &sig, T ਅੰਕੜੇ)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].erase(data);
+		ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ)
+				ਬਿੱਟ[ਦੋਆਧਾਰੀ_ਅੰਕ].erase(ਅੰਕੜੇ);
 	}
 
-	void erase(const RTLIL::SigSpec &sig, const std::set<T> &data)
+	ਖਾਲੀ erase(ਅਚਲ RTLIL::SigSpec &sig, ਅਚਲ std::ਸੈੱਟ<T> &ਅੰਕੜੇ)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].erase(data.begin(), data.end());
+		ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ)
+				ਬਿੱਟ[ਦੋਆਧਾਰੀ_ਅੰਕ].erase(ਅੰਕੜੇ.begin(), ਅੰਕੜੇ.ਸਿਰਾ());
 	}
 
-	void find(const RTLIL::SigSpec &sig, std::set<T> &result)
+	ਖਾਲੀ ਲੱਭੋ(ਅਚਲ RTLIL::SigSpec &sig, std::ਸੈੱਟ<T> &ਨਤੀਜਾ)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
-				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+		ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ) {
+				ਸਵੈਚਾਲਿਤ &ਅੰਕੜੇ = ਬਿੱਟ[ਦੋਆਧਾਰੀ_ਅੰਕ];
+				ਨਤੀਜਾ.ਪਾਓ(ਅੰਕੜੇ.begin(), ਅੰਕੜੇ.ਸਿਰਾ());
 			}
 	}
 
-	void find(const RTLIL::SigSpec &sig, pool<T> &result)
+	ਖਾਲੀ ਲੱਭੋ(ਅਚਲ RTLIL::SigSpec &sig, pool<T> &ਨਤੀਜਾ)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
-				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+		ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ) {
+				ਸਵੈਚਾਲਿਤ &ਅੰਕੜੇ = ਬਿੱਟ[ਦੋਆਧਾਰੀ_ਅੰਕ];
+				ਨਤੀਜਾ.ਪਾਓ(ਅੰਕੜੇ.begin(), ਅੰਕੜੇ.ਸਿਰਾ());
 			}
 	}
 
-	std::set<T> find(const RTLIL::SigSpec &sig)
+	std::ਸੈੱਟ<T> ਲੱਭੋ(ਅਚਲ RTLIL::SigSpec &sig)
 	{
-		std::set<T> result;
-		find(sig, result);
-		return result;
+		std::ਸੈੱਟ<T> ਨਤੀਜਾ;
+		ਲੱਭੋ(sig, ਨਤੀਜਾ);
+		ਵਾਪਸ ਨਤੀਜਾ;
 	}
 
-	bool has(const RTLIL::SigSpec &sig)
+	bool has(ਅਚਲ RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		ਲਈ (ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != ਨਿਰਾ && ਬਿੱਟ.ਗਿਣਤੀ_2(ਦੋਆਧਾਰੀ_ਅੰਕ))
+				ਵਾਪਸ true;
+		ਵਾਪਸ false;
 	}
 };
 
-template<typename T>
-class SigSet<T, typename std::enable_if<!std::is_pointer<T>::value>::type> : public SigSet<T, std::less<T>> {};
-template<typename T>
-using sort_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::value>::type;
-template<typename T>
-class SigSet<T, sort_by_name_id_guard<T>> : public SigSet<T, RTLIL::sort_by_name_id<typename std::remove_pointer<T>::type>> {};
+ਸਾਂਚਾ<typename T>
+class Sig_ਸੈੱਟ<T, typename std::enable_if<!std::is_ਸੂਚਕ<T>::ਮੁੱਲ>::type> : ਜਨਤਕ Sig_ਸੈੱਟ<T, std::less<T>> {};
+ਸਾਂਚਾ<typename T>
+using ਛਾਂਟੋ_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::ਮੁੱਲ>::type;
+ਸਾਂਚਾ<typename T>
+class Sig_ਸੈੱਟ<T, ਛਾਂਟੋ_by_name_id_guard<T>> : ਜਨਤਕ Sig_ਸੈੱਟ<T, RTLIL::ਛਾਂਟੋ_by_name_id<typename std::remove_ਸੂਚਕ<T>::type>> {};
 
-struct SigMapView
+ਬਣਤਰ SigMapView
 {
-	mfp<SigBit> database;
+	mfp<Sig_ਦੋਆਧਾਰੀ_ਅੰਕ> database;
 
 	// Modify bit to its representative
-	void apply(RTLIL::SigBit &bit) const
+	ਖਾਲੀ apply(RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ &ਦੋਆਧਾਰੀ_ਅੰਕ) ਅਚਲ
 	{
-		bit = database.find(bit);
+		ਦੋਆਧਾਰੀ_ਅੰਕ = database.ਲੱਭੋ(ਦੋਆਧਾਰੀ_ਅੰਕ);
 	}
 
-	void apply(RTLIL::SigSpec &sig) const
+	ਖਾਲੀ apply(RTLIL::SigSpec &sig) ਅਚਲ
 	{
-		for (auto &bit : sig)
-			apply(bit);
+		ਲਈ (ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			apply(ਦੋਆਧਾਰੀ_ਅੰਕ);
 	}
 
-	RTLIL::SigBit operator()(RTLIL::SigBit bit) const
+	RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ ਸੰਚਾਲਕ()(RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ ਦੋਆਧਾਰੀ_ਅੰਕ) ਅਚਲ
 	{
-		apply(bit);
-		return bit;
+		apply(ਦੋਆਧਾਰੀ_ਅੰਕ);
+		ਵਾਪਸ ਦੋਆਧਾਰੀ_ਅੰਕ;
 	}
 
-	RTLIL::SigSpec operator()(RTLIL::SigSpec sig) const
+	RTLIL::SigSpec ਸੰਚਾਲਕ()(RTLIL::SigSpec sig) ਅਚਲ
 	{
 		apply(sig);
-		return sig;
+		ਵਾਪਸ sig;
 	}
 
-	RTLIL::SigSpec operator()(RTLIL::Wire *wire) const
+	RTLIL::SigSpec ਸੰਚਾਲਕ()(RTLIL::Wire *wire) ਅਚਲ
 	{
 		SigSpec sig(wire);
 		apply(sig);
-		return sig;
+		ਵਾਪਸ sig;
 	}
 };
 
@@ -280,88 +280,88 @@ struct SigMapView
  * If a SigBit has a const state (impl: bit.wire is nullptr),
  * it's promoted to a representative.
  */
-struct SigMap final : public SigMapView
+ਬਣਤਰ SigMap final : ਜਨਤਕ SigMapView
 {
-	SigMap(RTLIL::Module *module = NULL)
+	SigMap(RTLIL::Module *module = ਨਿਰਾ)
 	{
-		if (module != NULL)
-			set(module);
+		ਜੇ (module != ਨਿਰਾ)
+			ਸੈੱਟ(module);
 	}
 
-	void swap(SigMap &other)
+	ਖਾਲੀ ਅਦਲਾ_ਬਦਲੀ(SigMap &other)
 	{
-		database.swap(other.database);
+		database.ਅਦਲਾ_ਬਦਲੀ(other.database);
 	}
 
-	void clear()
+	ਖਾਲੀ clear()
 	{
 		database.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
-	void set(RTLIL::Module *module)
+	ਖਾਲੀ ਸੈੱਟ(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
-			bitcount += it.first.size();
+		ਪੂਰਨ bitcount = 0;
+		ਲਈ (ਸਵੈਚਾਲਿਤ &it : module->connections())
+			bitcount += it.ਪਹਿਲਾ.ਮਾਪ();
 
 		database.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
-			add(it.first, it.second);
+		ਲਈ (ਸਵੈਚਾਲਿਤ &it : module->connections())
+			ਜੋੜੋ(it.ਪਹਿਲਾ, it.ਦੂਜਾ);
 	}
 
 	// Add connections from "from" to "to", bit-by-bit
-	void add(const RTLIL::SigSpec& from, const RTLIL::SigSpec& to)
+	ਖਾਲੀ ਜੋੜੋ(ਅਚਲ RTLIL::SigSpec& from, ਅਚਲ RTLIL::SigSpec& ਮੰਜ਼ਿਲ)
 	{
-		log_assert(GetSize(from) == GetSize(to));
+		log_assert(Get_ਮਾਪ(from) == Get_ਮਾਪ(ਮੰਜ਼ਿਲ));
 
-		for (int i = 0; i < GetSize(from); i++)
+		ਲਈ (ਪੂਰਨ i = 0; i < Get_ਮਾਪ(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
+			ਪੂਰਨ bfi = database.lookup(from[i]);
+			ਪੂਰਨ bti = database.lookup(ਮੰਜ਼ਿਲ[i]);
 
-			const RTLIL::SigBit &bf = database[bfi];
-			const RTLIL::SigBit &bt = database[bti];
+			ਅਚਲ RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ &bf = database[bfi];
+			ਅਚਲ RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ &bt = database[bti];
 
-			if (bf.wire || bt.wire)
+			ਜੇ (bf.wire || bt.wire)
 			{
 				database.imerge(bfi, bti);
 
-				if (bf.wire == nullptr)
+				ਜੇ (bf.wire == nullptr)
 					database.ipromote(bfi);
 
-				if (bt.wire == nullptr)
+				ਜੇ (bt.wire == nullptr)
 					database.ipromote(bti);
 			}
 		}
 	}
 
 	// Add sig as disconnected from anything
-	void add(const RTLIL::SigBit &bit)
+	ਖਾਲੀ ਜੋੜੋ(ਅਚਲ RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ &ਦੋਆਧਾਰੀ_ਅੰਕ)
 	{
-		const auto &b = database.find(bit);
-		if (b.wire != nullptr)
-			database.promote(bit);
+		ਅਚਲ ਸਵੈਚਾਲਿਤ &b = database.ਲੱਭੋ(ਦੋਆਧਾਰੀ_ਅੰਕ);
+		ਜੇ (b.wire != nullptr)
+			database.promote(ਦੋਆਧਾਰੀ_ਅੰਕ);
 	}
 
-	void add(const RTLIL::SigSpec &sig)
+	ਖਾਲੀ ਜੋੜੋ(ਅਚਲ RTLIL::SigSpec &sig)
 	{
-		for (const auto &bit : sig)
-			add(bit);
+		ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੋੜੋ(ਦੋਆਧਾਰੀ_ਅੰਕ);
 	}
 
-	inline void add(Wire *wire) { return add(RTLIL::SigSpec(wire)); }
+	ਸਤਰਅੰਦਰ ਖਾਲੀ ਜੋੜੋ(Wire *wire) { ਵਾਪਸ ਜੋੜੋ(RTLIL::SigSpec(wire)); }
 
 	// All non-const bits
-	RTLIL::SigSpec allbits() const
+	RTLIL::SigSpec allbits() ਅਚਲ
 	{
 		RTLIL::SigSpec sig;
-		for (const auto &bit : database)
-			if (bit.wire != nullptr)
-				sig.append(bit);
-		return sig;
+		ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : database)
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != nullptr)
+				sig.append(ਦੋਆਧਾਰੀ_ਅੰਕ);
+		ਵਾਪਸ sig;
 	}
 };
 
@@ -374,98 +374,98 @@ struct SigMap final : public SigMapView
  * the associated value is the "sum" of all the values associated with the contributing bits.
  * If any of the SigBits in a set are a constant, the canonical SigBit is a constant.
  */
-template <class Val>
-struct SigValMap final : public SigMapView
+ਸਾਂਚਾ <class Val>
+ਬਣਤਰ SigValMap final : ਜਨਤਕ SigMapView
 {
-	dict<SigBit, Val> values;
+	dict<Sig_ਦੋਆਧਾਰੀ_ਅੰਕ, Val> ਮੁੱਲਾਂ;
 
-	void swap(SigValMap<Val> &other)
+	ਖਾਲੀ ਅਦਲਾ_ਬਦਲੀ(SigValMap<Val> &other)
 	{
-		database.swap(other.database);
-		values.swap(other.values);
+		database.ਅਦਲਾ_ਬਦਲੀ(other.database);
+		ਮੁੱਲਾਂ.ਅਦਲਾ_ਬਦਲੀ(other.ਮੁੱਲਾਂ);
 	}
 
-	void clear()
+	ਖਾਲੀ clear()
 	{
 		database.clear();
-		values.clear();
+		ਮੁੱਲਾਂ.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
-	void set(RTLIL::Module *module)
+	ਖਾਲੀ ਸੈੱਟ(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
-			bitcount += it.first.size();
+		ਪੂਰਨ bitcount = 0;
+		ਲਈ (ਸਵੈਚਾਲਿਤ &it : module->connections())
+			bitcount += it.ਪਹਿਲਾ.ਮਾਪ();
 
 		database.clear();
-		values.clear();
+		ਮੁੱਲਾਂ.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
-			add(it.first, it.second);
+		ਲਈ (ਸਵੈਚਾਲਿਤ &it : module->connections())
+			ਜੋੜੋ(it.ਪਹਿਲਾ, it.ਦੂਜਾ);
 	}
 
 	// Add connections from "from" to "to", bit-by-bit.
-	void add(const RTLIL::SigSpec& from, const RTLIL::SigSpec& to)
+	ਖਾਲੀ ਜੋੜੋ(ਅਚਲ RTLIL::SigSpec& from, ਅਚਲ RTLIL::SigSpec& ਮੰਜ਼ਿਲ)
 	{
-		log_assert(GetSize(from) == GetSize(to));
+		log_assert(Get_ਮਾਪ(from) == Get_ਮਾਪ(ਮੰਜ਼ਿਲ));
 
-		for (int i = 0; i < GetSize(from); i++)
+		ਲਈ (ਪੂਰਨ i = 0; i < Get_ਮਾਪ(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
-			if (bfi == bti) {
-				continue;
+			ਪੂਰਨ bfi = database.lookup(from[i]);
+			ਪੂਰਨ bti = database.lookup(ਮੰਜ਼ਿਲ[i]);
+			ਜੇ (bfi == bti) {
+				ਜਾਰੀ;
 			}
 
-			const RTLIL::SigBit &bf = database[bfi];
-			const RTLIL::SigBit &bt = database[bti];
-			if (bf.wire == nullptr) {
+			ਅਚਲ RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ &bf = database[bfi];
+			ਅਚਲ RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ &bt = database[bti];
+			ਜੇ (bf.wire == nullptr) {
 				// bf is constant so make it the canonical representative.
 				database.imerge(bti, bfi);
-				merge_value(bt, bf);
-			} else {
+				ਮਿਲਾਓ_ਮੁੱਲ(bt, bf);
+			} ਨਹੀਂਤਾਂ {
 				// Make bt the canonical representative.
 				database.imerge(bfi, bti);
-				merge_value(bf, bt);
+				ਮਿਲਾਓ_ਮੁੱਲ(bf, bt);
 			}
 		}
 	}
 
-	void addVal(const RTLIL::SigBit &bit, const Val &val)
+	ਖਾਲੀ ਜੋੜੋ_Val(ਅਚਲ RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ &ਦੋਆਧਾਰੀ_ਅੰਕ, ਅਚਲ Val &val)
 	{
-		values[database.find(bit)] |= val;
+		ਮੁੱਲਾਂ[database.ਲੱਭੋ(ਦੋਆਧਾਰੀ_ਅੰਕ)] |= val;
 	}
 
-	void addVal(const RTLIL::SigSpec &sig, const Val &val)
+	ਖਾਲੀ ਜੋੜੋ_Val(ਅਚਲ RTLIL::SigSpec &sig, ਅਚਲ Val &val)
 	{
-		for (const auto &bit : sig)
-			addVal(bit, val);
+		ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+			ਜੋੜੋ_Val(ਦੋਆਧਾਰੀ_ਅੰਕ, val);
 	}
 
-	Val apply_and_get_value(RTLIL::SigBit &bit) const
+	Val apply_and_get_ਮੁੱਲ(RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ &ਦੋਆਧਾਰੀ_ਅੰਕ) ਅਚਲ
 	{
-		bit = database.find(bit);
-		auto it = values.find(bit);
-		return it == values.end() ? Val() : it->second;
+		ਦੋਆਧਾਰੀ_ਅੰਕ = database.ਲੱਭੋ(ਦੋਆਧਾਰੀ_ਅੰਕ);
+		ਸਵੈਚਾਲਿਤ it = ਮੁੱਲਾਂ.ਲੱਭੋ(ਦੋਆਧਾਰੀ_ਅੰਕ);
+		ਵਾਪਸ it == ਮੁੱਲਾਂ.ਸਿਰਾ() ? Val() : it->ਦੂਜਾ;
 	}
 
-private:
-	void merge_value(const RTLIL::SigBit &from, const RTLIL::SigBit &to)
+ਨਿਜੀ:
+	ਖਾਲੀ ਮਿਲਾਓ_ਮੁੱਲ(ਅਚਲ RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ &from, ਅਚਲ RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ &ਮੰਜ਼ਿਲ)
 	{
-		auto it = values.find(from);
-		if (it == values.end()) {
-			return;
+		ਸਵੈਚਾਲਿਤ it = ਮੁੱਲਾਂ.ਲੱਭੋ(from);
+		ਜੇ (it == ਮੁੱਲਾਂ.ਸਿਰਾ()) {
+			ਵਾਪਸ;
 		}
 		// values[to] could resize the underlying `entries` so
 		// finish using `it` first.
-		Val v = it->second;
-		values.erase(it);
-		values[to] |= v;
+		Val v = it->ਦੂਜਾ;
+		ਮੁੱਲਾਂ.erase(it);
+		ਮੁੱਲਾਂ[ਮੰਜ਼ਿਲ] |= v;
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif /* SIGTOOLS_H */
+#ਜੇ_ਅੰਤ /* SIGTOOLS_H */

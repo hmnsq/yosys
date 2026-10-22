@@ -1,159 +1,159 @@
-#include "kernel/yosys_common.h"
-#include "kernel/threading.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys_common.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/threading.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-static int init_max_threads()
+ਸਥਿਰ ਪੂਰਨ init_max_ਧਾਗੇ()
 {
-	const char *v = getenv("YOSYS_MAX_THREADS");
-	if (v == nullptr)
-		return INT32_MAX;
-	return atoi(v);
+	ਅਚਲ ਅੱਖਰ *v = getenv("YOSYS_MAX_THREADS");
+	ਜੇ (v == ਖਾਲੀ_ਸੂਚਕ)
+		ਵਾਪਸ INT32_MAX;
+	ਵਾਪਸ atoi(v);
 }
 
-static int get_max_threads()
+ਸਥਿਰ ਪੂਰਨ get_max_ਧਾਗੇ()
 {
-	static int max_threads = init_max_threads();
-	return max_threads;
+	ਸਥਿਰ ਪੂਰਨ max_ਧਾਗੇ = init_max_ਧਾਗੇ();
+	ਵਾਪਸ max_ਧਾਗੇ;
 }
 
-static int init_work_units_per_thread_override()
+ਸਥਿਰ ਪੂਰਨ init_work_units_ਪ੍ਰਤੀ_thread_override()
 {
-	const char *v = getenv("YOSYS_WORK_UNITS_PER_THREAD");
-	if (v == nullptr)
-		return 0;
-	return atoi(v);
+	ਅਚਲ ਅੱਖਰ *v = getenv("YOSYS_WORK_UNITS_PER_THREAD");
+	ਜੇ (v == ਖਾਲੀ_ਸੂਚਕ)
+		ਵਾਪਸ 0;
+	ਵਾਪਸ atoi(v);
 }
 
-static int get_work_units_per_thread_override()
+ਸਥਿਰ ਪੂਰਨ get_work_units_ਪ੍ਰਤੀ_thread_override()
 {
-	static int work_units_per_thread = init_work_units_per_thread_override();
-	return work_units_per_thread;
+	ਸਥਿਰ ਪੂਰਨ work_units_ਪ੍ਰਤੀ_thread = init_work_units_ਪ੍ਰਤੀ_thread_override();
+	ਵਾਪਸ work_units_ਪ੍ਰਤੀ_thread;
 }
 
-void DeferredLogs::flush()
+ਖਾਲੀ DeferredLogs::flush()
 {
-	for (auto &m : logs)
-		if (m.error)
-			YOSYS_NAMESPACE_PREFIX log_error("%s", m.text.c_str());
-		else
-			YOSYS_NAMESPACE_PREFIX log("%s", m.text.c_str());
+	ਲਈ (ਸਵੈਚਾਲਿਤ &m : logs)
+		ਜੇ (m.error)
+			YOSYS_NAMESPACE_ਅਗੇਤਰ log_error("%s", m.ਪਾਠ.c_str());
+		ਨਹੀਂਤਾਂ
+			YOSYS_NAMESPACE_ਅਗੇਤਰ ਲਘੂਗਣਕ("%s", m.ਪਾਠ.c_str());
 }
 
-int ThreadPool::pool_size(int reserved_cores, int max_worker_threads)
+ਪੂਰਨ ThreadPool::pool_ਮਾਪ(ਪੂਰਨ reserved_cores, ਪੂਰਨ max_ਕਾਮਾ_ਧਾਗੇ)
 {
-#ifdef YOSYS_ENABLE_THREADS
-	int available_threads = std::min<int>(std::thread::hardware_concurrency(), get_max_threads());
-	int num_threads = std::min(available_threads - reserved_cores, max_worker_threads);
-	return std::max(0, num_threads);
-#else
-	(void)reserved_cores;
-	(void)max_worker_threads;
-	(void)get_max_threads();
-	return 0;
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_ਧਾਗੇ
+	ਪੂਰਨ ਉਪਲਬਧ_ਧਾਗੇ = std::min<ਪੂਰਨ>(std::thread::hardware_concurrency(), get_max_ਧਾਗੇ());
+	ਪੂਰਨ ਅੰਕ_ਧਾਗੇ = std::min(ਉਪਲਬਧ_ਧਾਗੇ - reserved_cores, max_ਕਾਮਾ_ਧਾਗੇ);
+	ਵਾਪਸ std::max(0, ਅੰਕ_ਧਾਗੇ);
+#ਨਹੀਂਤਾਂ
+	(ਖਾਲੀ)reserved_cores;
+	(ਖਾਲੀ)max_ਕਾਮਾ_ਧਾਗੇ;
+	(ਖਾਲੀ)get_max_ਧਾਗੇ();
+	ਵਾਪਸ 0;
+#ਜੇ_ਅੰਤ
 }
 
-int ThreadPool::work_pool_size(int reserved_cores, int work_units, int work_units_per_thread)
+ਪੂਰਨ ThreadPool::work_pool_ਮਾਪ(ਪੂਰਨ reserved_cores, ਪੂਰਨ work_units, ਪੂਰਨ work_units_ਪ੍ਰਤੀ_thread)
 {
-	int work_units_per_thread_override = get_work_units_per_thread_override();
-	if (work_units_per_thread_override > 0)
-		work_units_per_thread = work_units_per_thread_override;
-	return pool_size(reserved_cores, work_units / work_units_per_thread);
+	ਪੂਰਨ work_units_ਪ੍ਰਤੀ_thread_override = get_work_units_ਪ੍ਰਤੀ_thread_override();
+	ਜੇ (work_units_ਪ੍ਰਤੀ_thread_override > 0)
+		work_units_ਪ੍ਰਤੀ_thread = work_units_ਪ੍ਰਤੀ_thread_override;
+	ਵਾਪਸ pool_ਮਾਪ(reserved_cores, work_units / work_units_ਪ੍ਰਤੀ_thread);
 }
 
-ThreadPool::ThreadPool(int pool_size, std::function<void(int)> b)
+ThreadPool::ThreadPool(ਪੂਰਨ pool_ਮਾਪ, std::function<ਖਾਲੀ(ਪੂਰਨ)> b)
 	: body(std::move(b))
 {
-#ifdef YOSYS_ENABLE_THREADS
-	threads.reserve(pool_size);
-	for (int i = 0; i < pool_size; i++)
-		threads.emplace_back([i, this]{ body(i); });
-#else
-	(void)pool_size;
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_ਧਾਗੇ
+	ਧਾਗੇ.reserve(pool_ਮਾਪ);
+	ਲਈ (ਪੂਰਨ i = 0; i < pool_ਮਾਪ; i++)
+		ਧਾਗੇ.emplace_ਪਿੱਠ([i, ਇਹ]{ body(i); });
+#ਨਹੀਂਤਾਂ
+	(ਖਾਲੀ)pool_ਮਾਪ;
+#ਜੇ_ਅੰਤ
 }
 
 ThreadPool::~ThreadPool()
 {
-#ifdef YOSYS_ENABLE_THREADS
-	for (auto &t : threads)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_ਧਾਗੇ
+	ਲਈ (ਸਵੈਚਾਲਿਤ &t : ਧਾਗੇ)
 		t.join();
-#endif
+#ਜੇ_ਅੰਤ
 }
 
-IntRange item_range_for_worker(int num_items, int thread_num, int num_threads)
+IntRange ਵਸਤੂ_range_for_ਕਾਮਾ(ਪੂਰਨ ਅੰਕ_ਚੀਜ਼ਾਂ, ਪੂਰਨ thread_ਅੰਕ, ਪੂਰਨ ਅੰਕ_ਧਾਗੇ)
 {
-	if (num_threads <= 1) {
-		return {0, num_items};
+	ਜੇ (ਅੰਕ_ਧਾਗੇ <= 1) {
+		ਵਾਪਸ {0, ਅੰਕ_ਚੀਜ਼ਾਂ};
 	}
-	int items_per_thread = num_items / num_threads;
-	int extra_items = num_items % num_threads;
+	ਪੂਰਨ ਚੀਜ਼ਾਂ_ਪ੍ਰਤੀ_thread = ਅੰਕ_ਚੀਜ਼ਾਂ / ਅੰਕ_ਧਾਗੇ;
+	ਪੂਰਨ extra_ਚੀਜ਼ਾਂ = ਅੰਕ_ਚੀਜ਼ਾਂ % ਅੰਕ_ਧਾਗੇ;
 	// The first `extra_items` threads get one extra item.
-	int start = thread_num * items_per_thread + std::min(thread_num, extra_items);
-	int end = (thread_num + 1) * items_per_thread + std::min(thread_num + 1, extra_items);
-	return {start, end};
+	ਪੂਰਨ ਸ਼ੁਰੂ = thread_ਅੰਕ * ਚੀਜ਼ਾਂ_ਪ੍ਰਤੀ_thread + std::min(thread_ਅੰਕ, extra_ਚੀਜ਼ਾਂ);
+	ਪੂਰਨ ਸਿਰਾ = (thread_ਅੰਕ + 1) * ਚੀਜ਼ਾਂ_ਪ੍ਰਤੀ_thread + std::min(thread_ਅੰਕ + 1, extra_ਚੀਜ਼ਾਂ);
+	ਵਾਪਸ {ਸ਼ੁਰੂ, ਸਿਰਾ};
 }
 
-ParallelDispatchThreadPool::ParallelDispatchThreadPool(int pool_size)
-#ifdef YOSYS_ENABLE_THREADS
-		: num_worker_threads_(std::max(1, pool_size) - 1)
-#else
-		: num_worker_threads_(0)
-#endif
+ParallelDispatchThreadPool::ParallelDispatchThreadPool(ਪੂਰਨ pool_ਮਾਪ)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_ਧਾਗੇ
+		: ਅੰਕ_ਕਾਮਾ_ਧਾਗੇ(std::max(1, pool_ਮਾਪ) - 1)
+#ਨਹੀਂਤਾਂ
+		: ਅੰਕ_ਕਾਮਾ_ਧਾਗੇ(0)
+#ਜੇ_ਅੰਤ
 {
-#ifndef YOSYS_ENABLE_THREADS
-	(void)pool_size;
-#endif
-	main_to_workers_signal.resize(num_worker_threads_, 0);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_ਧਾਗੇ
+	(ਖਾਲੀ)pool_ਮਾਪ;
+#ਜੇ_ਅੰਤ
+	main_ਮੰਜ਼ਿਲ_workers_signal.resize(ਅੰਕ_ਕਾਮਾ_ਧਾਗੇ, 0);
 	// Don't start the threads until we've constructed all our data members.
-	thread_pool = std::make_unique<ThreadPool>(num_worker_threads_, [this](int thread_num){
-		run_worker(thread_num);
+	thread_pool = std::make_unique<ThreadPool>(ਅੰਕ_ਕਾਮਾ_ਧਾਗੇ, [ਇਹ](ਪੂਰਨ thread_ਅੰਕ){
+		ਲੜੀਵਾਰ_ਕਾਮਾ(thread_ਅੰਕ);
 	});
 }
 
 ParallelDispatchThreadPool::~ParallelDispatchThreadPool()
 {
-	if (num_worker_threads_ == 0)
-		return;
-	current_work = nullptr;
-	num_active_worker_threads_.store(num_worker_threads_, std::memory_order_relaxed);
-	signal_workers_start();
-	wait_for_workers_done();
+	ਜੇ (ਅੰਕ_ਕਾਮਾ_ਧਾਗੇ == 0)
+		ਵਾਪਸ;
+	current_work = ਖਾਲੀ_ਸੂਚਕ;
+	ਅੰਕ_ਸਰਗਰਮ_ਕਾਮਾ_ਧਾਗੇ.store(ਅੰਕ_ਕਾਮਾ_ਧਾਗੇ, std::ਸਮ੍ਰਿਤੀ_ਕ੍ਰਮ_relaxed);
+	signal_workers_ਸ਼ੁਰੂ();
+	wait_for_workers_ਪੂਰਾ();
 }
 
-void ParallelDispatchThreadPool::run(std::function<void(const RunCtx &)> work, int max_threads)
+ਖਾਲੀ ParallelDispatchThreadPool::ਲੜੀਵਾਰ(std::function<ਖਾਲੀ(ਅਚਲ ਲੜੀਵਾਰ_Ctx &)> work, ਪੂਰਨ max_ਧਾਗੇ)
 {
 	Multithreading multithreading;
-	int num_active_worker_threads = num_threads(max_threads) - 1;
-	if (num_active_worker_threads == 0) {
+	ਪੂਰਨ ਅੰਕ_ਸਰਗਰਮ_ਕਾਮਾ_ਧਾਗੇ_2 = ਅੰਕ_ਧਾਗੇ(max_ਧਾਗੇ) - 1;
+	ਜੇ (ਅੰਕ_ਸਰਗਰਮ_ਕਾਮਾ_ਧਾਗੇ_2 == 0) {
 		work({{0}, 1});
-		return;
+		ਵਾਪਸ;
 	}
-	num_active_worker_threads_.store(num_active_worker_threads, std::memory_order_relaxed);
+	ਅੰਕ_ਸਰਗਰਮ_ਕਾਮਾ_ਧਾਗੇ.store(ਅੰਕ_ਸਰਗਰਮ_ਕਾਮਾ_ਧਾਗੇ_2, std::ਸਮ੍ਰਿਤੀ_ਕ੍ਰਮ_relaxed);
 	current_work = &work;
-	signal_workers_start();
-	work({{0}, num_active_worker_threads + 1});
-	wait_for_workers_done();
+	signal_workers_ਸ਼ੁਰੂ();
+	work({{0}, ਅੰਕ_ਸਰਗਰਮ_ਕਾਮਾ_ਧਾਗੇ_2 + 1});
+	wait_for_workers_ਪੂਰਾ();
 }
 
-void ParallelDispatchThreadPool::run_worker(int thread_num)
+ਖਾਲੀ ParallelDispatchThreadPool::ਲੜੀਵਾਰ_ਕਾਮਾ(ਪੂਰਨ thread_ਅੰਕ)
 {
-#ifdef YOSYS_ENABLE_THREADS
-	while (true)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_ਧਾਗੇ
+	ਜਦੋਂ (ਸੱਚ)
 	{
-		worker_wait_for_start(thread_num);
-		if (current_work == nullptr)
-			break;
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-		(*current_work)({{thread_num + 1}, num_active_worker_threads + 1});
-		signal_worker_done();
+		ਕਾਮਾ_wait_for_ਸ਼ੁਰੂ(thread_ਅੰਕ);
+		ਜੇ (current_work == ਖਾਲੀ_ਸੂਚਕ)
+			ਰੋਕੋ;
+		ਪੂਰਨ ਅੰਕ_ਸਰਗਰਮ_ਕਾਮਾ_ਧਾਗੇ_2 = ਅੰਕ_ਸਰਗਰਮ_ਕਾਮਾ_ਧਾਗੇ.ਲੱਦੋ(std::ਸਮ੍ਰਿਤੀ_ਕ੍ਰਮ_relaxed);
+		(*current_work)({{thread_ਅੰਕ + 1}, ਅੰਕ_ਸਰਗਰਮ_ਕਾਮਾ_ਧਾਗੇ_2 + 1});
+		signal_ਕਾਮਾ_ਪੂਰਾ();
 	}
-	signal_worker_done();
-#else
-	(void)thread_num;
-	(void)current_work;
-#endif
+	signal_ਕਾਮਾ_ਪੂਰਾ();
+#ਨਹੀਂਤਾਂ
+	(ਖਾਲੀ)thread_ਅੰਕ;
+	(ਖਾਲੀ)current_work;
+#ਜੇ_ਅੰਤ
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ

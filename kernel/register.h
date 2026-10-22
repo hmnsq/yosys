@@ -17,11 +17,11 @@
  *
  */
 
-#ifndef REGISTER_H
-#define REGISTER_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਰਜਿਸਟਰ_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਰਜਿਸਟਰ_H
 
-#include "kernel/yosys_common.h"
-#include "kernel/yosys.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys_common.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -32,173 +32,173 @@ YOSYS_NAMESPACE_BEGIN
 class GarbageCollectionGuard
 {
 	bool was_enabled;
-	static bool is_enabled_;
-public:
+	ਸਥਿਰ bool is_enabled_;
+ਜਨਤਕ:
 	GarbageCollectionGuard(bool allow) : was_enabled(is_enabled_) {
 		is_enabled_ &= allow;
 	}
 	~GarbageCollectionGuard() {
 		is_enabled_ = was_enabled;
 	}
-	static bool is_enabled() { return is_enabled_; }
+	ਸਥਿਰ bool is_enabled() { ਵਾਪਸ is_enabled_; }
 };
 
 // Call from anywhere to request GC at the next safe point.
-void request_garbage_collection();
+ਖਾਲੀ request_garbage_collection();
 
 // GC the active design if GarbageCollectionGuard::is_enabled() and GC was requested.
-void try_collect_garbage();
+ਖਾਲੀ try_collect_garbage();
 
-struct Pass
+ਬਣਤਰ Pass
 {
 	std::string pass_name, short_help;
-	source_location location;
+	ਸਰੋਤ_location location;
 	Pass(std::string name, std::string short_help = "** document me **",
-		source_location location = source_location::current());
+		ਸਰੋਤ_location location = ਸਰੋਤ_location::current());
 	// Prefer overriding 'Pass::on_shutdown()' if possible
-	virtual ~Pass();
+	ਆਭਾਸੀ ~Pass();
 
 	// Makes calls to log() to generate help message
-	virtual void help();
+	ਆਭਾਸੀ ਖਾਲੀ help();
 	// Uses PrettyHelp::get_current() to produce a more portable formatted help message
-	virtual bool formatted_help();
-	virtual void clear_flags();
-	virtual void execute(std::vector<std::string> args, RTLIL::Design *design) = 0;
+	ਆਭਾਸੀ bool formatted_help();
+	ਆਭਾਸੀ ਖਾਲੀ clear_flags();
+	ਆਭਾਸੀ ਖਾਲੀ execute(std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2, RTLIL::Design *design) = 0;
 
-	int call_counter;
+	ਪੂਰਨ call_counter;
 	int64_t runtime_ns;
 	bool experimental_flag = false;
-	bool internal_flag = false;
+	bool ਅੰਦਰੂਨੀ_flag = false;
 
-	static void subtract_from_current_runtime_ns(int64_t time_ns);
+	ਸਥਿਰ ਖਾਲੀ ਘਟਾਓ_from_current_runtime_ns(int64_t ਸਮਾਂ_ns);
 
-	void experimental() {
+	ਖਾਲੀ experimental() {
 		experimental_flag = true;
 	}
 
-	void internal() {
-		internal_flag = true;
+	ਖਾਲੀ ਅੰਦਰੂਨੀ() {
+		ਅੰਦਰੂਨੀ_flag = true;
 	}
 
-	struct pre_post_exec_state_t {
-		Pass *parent_pass;
+	ਬਣਤਰ pre_post_exec_state_t {
+		Pass *ਮਾਪਾ_pass;
 		int64_t begin_ns;
 	};
 
 	pre_post_exec_state_t pre_execute();
-	void post_execute(pre_post_exec_state_t state);
+	ਖਾਲੀ post_execute(pre_post_exec_state_t state);
 
-	void cmd_log_args(const std::vector<std::string> &args);
-	void cmd_error(const std::vector<std::string> &args, size_t argidx, std::string msg);
-	void extra_args(std::vector<std::string> args, size_t argidx, RTLIL::Design *design, bool select = true);
+	ਖਾਲੀ cmd_log_ਦਲੀਲਾਂ(ਅਚਲ std::ਸਦਿਸ਼<std::string> &ਦਲੀਲਾਂ_2);
+	ਖਾਲੀ cmd_error(ਅਚਲ std::ਸਦਿਸ਼<std::string> &ਦਲੀਲਾਂ_2, ਮਾਪ_t argidx, std::string ਸੁਨੇਹਾ);
+	ਖਾਲੀ extra_ਦਲੀਲਾਂ(std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2, ਮਾਪ_t argidx, RTLIL::Design *design, bool select = true);
 
-	static void call(RTLIL::Design *design, std::string command);
-	static void call(RTLIL::Design *design, std::vector<std::string> args);
+	ਸਥਿਰ ਖਾਲੀ call(RTLIL::Design *design, std::string command);
+	ਸਥਿਰ ਖਾਲੀ call(RTLIL::Design *design, std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2);
 
-	static void call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::string command);
-	static void call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::vector<std::string> args);
+	ਸਥਿਰ ਖਾਲੀ call_on_selection(RTLIL::Design *design, ਅਚਲ RTLIL::Selection &selection, std::string command);
+	ਸਥਿਰ ਖਾਲੀ call_on_selection(RTLIL::Design *design, ਅਚਲ RTLIL::Selection &selection, std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2);
 
-	static void call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command);
-	static void call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vector<std::string> args);
+	ਸਥਿਰ ਖਾਲੀ call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command);
+	ਸਥਿਰ ਖਾਲੀ call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2);
 
-	Pass *next_queued_pass;
-	virtual void run_register();
-	static void init_register();
-	static void done_register();
+	Pass *ਅਗਲਾ_queued_pass;
+	ਆਭਾਸੀ ਖਾਲੀ ਲੜੀਵਾਰ_ਰਜਿਸਟਰ();
+	ਸਥਿਰ ਖਾਲੀ init_ਰਜਿਸਟਰ();
+	ਸਥਿਰ ਖਾਲੀ ਪੂਰਾ_ਰਜਿਸਟਰ();
 
-	virtual void on_register();
-	virtual void on_shutdown();
-	virtual bool replace_existing_pass() const { return false; }
+	ਆਭਾਸੀ ਖਾਲੀ on_ਰਜਿਸਟਰ();
+	ਆਭਾਸੀ ਖਾਲੀ on_shutdown();
+	ਆਭਾਸੀ bool replace_existing_pass() ਅਚਲ { ਵਾਪਸ false; }
 
 	// This should return false if the pass holds onto RTLIL objects outside a Design while it
 	// calls nested passes. For safety, we default to assuming the worst.
-	virtual bool allow_garbage_collection_during_pass() const { return false; }
+	ਆਭਾਸੀ bool allow_garbage_collection_during_pass() ਅਚਲ { ਵਾਪਸ false; }
 };
 
-struct ScriptPass : Pass
+ਬਣਤਰ ScriptPass : Pass
 {
-	bool block_active, help_mode;
-	RTLIL::Design *active_design;
-	std::string active_run_from, active_run_to;
+	bool ਖੰਡ_ਸਰਗਰਮ, help_ਬਹੁਲਕ;
+	RTLIL::Design *ਸਰਗਰਮ_design;
+	std::string ਸਰਗਰਮ_ਲੜੀਵਾਰ_from, ਸਰਗਰਮ_ਲੜੀਵਾਰ_ਮੰਜ਼ਿਲ;
 
-	ScriptPass(std::string name, std::string short_help = "** document me **", source_location location = source_location::current()) :
+	ScriptPass(std::string name, std::string short_help = "** document me **", ਸਰੋਤ_location location = ਸਰੋਤ_location::current()) :
 		Pass(name, short_help, location) { }
 
-	virtual void script() = 0;
+	ਆਭਾਸੀ ਖਾਲੀ script() = 0;
 
 	bool check_label(std::string label, std::string info = std::string());
-	void run(std::string command, std::string info = std::string());
-	void run_nocheck(std::string command, std::string info = std::string());
-	void run_script(RTLIL::Design *design, std::string run_from = std::string(), std::string run_to = std::string());
-	void help_script();
+	ਖਾਲੀ ਲੜੀਵਾਰ(std::string command, std::string info = std::string());
+	ਖਾਲੀ ਲੜੀਵਾਰ_nocheck(std::string command, std::string info = std::string());
+	ਖਾਲੀ ਲੜੀਵਾਰ_script(RTLIL::Design *design, std::string ਲੜੀਵਾਰ_from = std::string(), std::string ਲੜੀਵਾਰ_ਮੰਜ਼ਿਲ = std::string());
+	ਖਾਲੀ help_script();
 
-	bool allow_garbage_collection_during_pass() const override { return true; }
+	bool allow_garbage_collection_during_pass() ਅਚਲ override { ਵਾਪਸ true; }
 };
 
-struct Frontend : Pass
+ਬਣਤਰ Frontend : Pass
 {
 	// for reading of here documents
-	static FILE *current_script_file;
-	static std::string last_here_document;
+	ਸਥਿਰ FILE *current_script_file;
+	ਸਥਿਰ std::string ਆਖਰੀ_ਇੱਥੇ_document;
 
 	// script file and last line read from it
-	static std::string current_script_filename;
-	static int current_script_lineno;
+	ਸਥਿਰ std::string current_script_filename;
+	ਸਥਿਰ ਪੂਰਨ current_script_lineno;
 
 	std::string frontend_name;
 	Frontend(std::string name, std::string short_help = "** document me **",
-		source_location location = source_location::current());
-	void run_register() override;
+		ਸਰੋਤ_location location = ਸਰੋਤ_location::current());
+	ਖਾਲੀ ਲੜੀਵਾਰ_ਰਜਿਸਟਰ() override;
 	~Frontend() override;
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override final;
-	virtual void execute(std::istream *&f, std::string filename, std::vector<std::string> args, RTLIL::Design *design) = 0;
+	ਖਾਲੀ execute(std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2, RTLIL::Design *design) override final;
+	ਆਭਾਸੀ ਖਾਲੀ execute(std::istream *&f, std::string filename, std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2, RTLIL::Design *design) = 0;
 
-	static std::vector<std::string> next_args;
-	void extra_args(std::istream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_input = false);
+	ਸਥਿਰ std::ਸਦਿਸ਼<std::string> ਅਗਲਾ_ਦਲੀਲਾਂ;
+	ਖਾਲੀ extra_ਦਲੀਲਾਂ(std::istream *&f, std::string &filename, std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2, ਮਾਪ_t argidx, bool bin_ਨਿਵੇਸ਼ = false);
 
-	static void frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command);
-	static void frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> args);
+	ਸਥਿਰ ਖਾਲੀ frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command);
+	ਸਥਿਰ ਖਾਲੀ frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2);
 };
 
-struct Backend : Pass
+ਬਣਤਰ Backend : Pass
 {
 	std::string backend_name;
 	Backend(std::string name, std::string short_help = "** document me **",
-		source_location location = source_location::current());
-	void run_register() override;
+		ਸਰੋਤ_location location = ਸਰੋਤ_location::current());
+	ਖਾਲੀ ਲੜੀਵਾਰ_ਰਜਿਸਟਰ() override;
 	~Backend() override;
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override final;
-	virtual void execute(std::ostream *&f, std::string filename,  std::vector<std::string> args, RTLIL::Design *design) = 0;
+	ਖਾਲੀ execute(std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2, RTLIL::Design *design) override final;
+	ਆਭਾਸੀ ਖਾਲੀ execute(std::ostream *&f, std::string filename,  std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2, RTLIL::Design *design) = 0;
 
-	void extra_args(std::ostream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_output = false);
+	ਖਾਲੀ extra_ਦਲੀਲਾਂ(std::ostream *&f, std::string &filename, std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2, ਮਾਪ_t argidx, bool bin_output = false);
 
-	static void backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command);
-	static void backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> args);
+	ਸਥਿਰ ਖਾਲੀ backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command);
+	ਸਥਿਰ ਖਾਲੀ backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::ਸਦਿਸ਼<std::string> ਦਲੀਲਾਂ_2);
 };
 
 // implemented in passes/cmds/select.cc
-extern void handle_extra_select_args(Pass *pass, const std::vector<std::string> &args, size_t argidx, size_t args_size, RTLIL::Design *design);
-extern RTLIL::Selection eval_select_args(const vector<string> &args, RTLIL::Design *design);
-extern void eval_select_op(vector<RTLIL::Selection> &work, const string &op, RTLIL::Design *design);
+ਬਾਹਰੀ ਖਾਲੀ handle_extra_select_ਦਲੀਲਾਂ(Pass *pass, ਅਚਲ std::ਸਦਿਸ਼<std::string> &ਦਲੀਲਾਂ_2, ਮਾਪ_t argidx, ਮਾਪ_t ਦਲੀਲਾਂ_ਮਾਪ, RTLIL::Design *design);
+ਬਾਹਰੀ RTLIL::Selection eval_select_ਦਲੀਲਾਂ(ਅਚਲ ਸਦਿਸ਼<string> &ਦਲੀਲਾਂ_2, RTLIL::Design *design);
+ਬਾਹਰੀ ਖਾਲੀ eval_select_op(ਸਦਿਸ਼<RTLIL::Selection> &work, ਅਚਲ string &op, RTLIL::Design *design);
 
-extern std::map<std::string, Pass*> pass_register;
-extern std::map<std::string, Frontend*> frontend_register;
-extern std::map<std::string, Backend*> backend_register;
+ਬਾਹਰੀ std::map<std::string, Pass*> pass_ਰਜਿਸਟਰ;
+ਬਾਹਰੀ std::map<std::string, Frontend*> frontend_ਰਜਿਸਟਰ;
+ਬਾਹਰੀ std::map<std::string, Backend*> backend_ਰਜਿਸਟਰ;
 
-struct TargetFamily {
+ਬਣਤਰ ਨਿਸ਼ਾਨਾ_Family {
 	std::string description;
-	std::vector<std::string> files;
+	std::ਸਦਿਸ਼<std::string> files;
 };
 
-struct Target {
+ਬਣਤਰ ਨਿਸ਼ਾਨਾ {
 	std::string description;
-	std::map<std::string, TargetFamily> families;
+	std::map<std::string, ਨਿਸ਼ਾਨਾ_Family> families;
 };
 
-extern std::map<std::string, Target> target_register;
+ਬਾਹਰੀ std::map<std::string, ਨਿਸ਼ਾਨਾ> ਨਿਸ਼ਾਨਾ_ਰਜਿਸਟਰ;
 
-#define YOSYS_HAS_TARGET_REGISTER 1
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ YOSYS_HAS_ਨਿਸ਼ਾਨਾ_ਰਜਿਸਟਰ 1
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif
+#ਜੇ_ਅੰਤ

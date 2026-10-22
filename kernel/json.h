@@ -17,12 +17,12 @@
  *
  */
 
-#ifndef JSON_H
-#define JSON_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ JSON_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ JSON_H
 
-#include "kernel/yosys.h"
-#include "libs/json11/json11.hpp"
-#include <functional>
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "libs/json11/json11.hpp"
+#ਅਨ੍ਤਰ੍ਭਾਵ <functional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -30,75 +30,75 @@ using json11::Json;
 
 class PrettyJson
 {
-    enum Scope {
-        VALUE,
-        OBJECT_FIRST,
+    ਗਿਣਤੀ Scope {
+        ਮੁੱਲ_2,
+        OBJECT_ਪਹਿਲਾ,
         OBJECT,
-        ARRAY_FIRST,
+        ARRAY_ਪਹਿਲਾ,
         ARRAY,
     };
 
-    struct Target {
-        virtual void emit(const char *data) = 0;
-        virtual void flush() {};
-        virtual ~Target() {};
+    ਬਣਤਰ ਨਿਸ਼ਾਨਾ {
+        ਆਭਾਸੀ ਖਾਲੀ emit(ਅਚਲ ਅੱਖਰ *ਅੰਕੜੇ) = 0;
+        ਆਭਾਸੀ ਖਾਲੀ flush() {};
+        ਆਭਾਸੀ ~ਨਿਸ਼ਾਨਾ() {};
     };
 
     std::string newline_indent = "\n";
-    std::vector<std::unique_ptr<Target>> targets;
-    std::vector<Scope> state = {VALUE};
-    int compact_depth = INT_MAX;
-public:
+    std::ਸਦਿਸ਼<std::unique_ptr<ਨਿਸ਼ਾਨਾ>> targets;
+    std::ਸਦਿਸ਼<Scope> state = {ਮੁੱਲ_2};
+    ਪੂਰਨ compact_ਡੂੰਘਾਈ = ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ;
+ਜਨਤਕ:
 
-    void emit_to_log();
-    void append_to_string(std::string &target);
-    bool write_to_file(const std::string &path);
+    ਖਾਲੀ emit_ਮੰਜ਼ਿਲ_log();
+    ਖਾਲੀ append_ਮੰਜ਼ਿਲ_string(std::string &ਨਿਸ਼ਾਨਾ_2);
+    bool write_ਮੰਜ਼ਿਲ_file(ਅਚਲ std::string &ਰਸਤਾ_2);
 
-    bool active() { return !targets.empty(); }
+    bool ਸਰਗਰਮ() { ਵਾਪਸ !targets.ਖਾਲੀ_ਥਾਵਾਂ(); }
 
-    void compact() { compact_depth = GetSize(state); }
+    ਖਾਲੀ compact() { compact_ਡੂੰਘਾਈ = Get_ਮਾਪ(state); }
 
-    void line(bool space_if_inline = true);
-    void raw(const char *raw_json);
-    void flush();
-    void begin_object();
-    void begin_array();
-    void end_object();
-    void end_array();
-    void name(const char *name);
-    void begin_value();
-    void end_value();
-    void value_json(const Json &value);
-    void value(unsigned int value) { value_json(Json((int)value)); }
-    template<typename T>
-    void value(T &&value) { value_json(Json(std::forward<T>(value))); };
+    ਖਾਲੀ ਸਤਰ(bool space_if_inline = true);
+    ਖਾਲੀ raw(ਅਚਲ ਅੱਖਰ *raw_json);
+    ਖਾਲੀ flush();
+    ਖਾਲੀ begin_object();
+    ਖਾਲੀ begin_array();
+    ਖਾਲੀ ਸਿਰਾ_object();
+    ਖਾਲੀ ਸਿਰਾ_array();
+    ਖਾਲੀ name(ਅਚਲ ਅੱਖਰ *name);
+    ਖਾਲੀ begin_ਮੁੱਲ();
+    ਖਾਲੀ ਸਿਰਾ_ਮੁੱਲ();
+    ਖਾਲੀ ਮੁੱਲ_json(ਅਚਲ Json &ਮੁੱਲ);
+    ਖਾਲੀ ਮੁੱਲ(ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ਮੁੱਲ) { ਮੁੱਲ_json(Json((ਪੂਰਨ)ਮੁੱਲ)); }
+    ਸਾਂਚਾ<typename T>
+    ਖਾਲੀ ਮੁੱਲ(T &&ਮੁੱਲ) { ਮੁੱਲ_json(Json(std::forward<T>(ਮੁੱਲ))); };
 
-    void entry_json(const char *name, const Json &value);
-    void entry(const char *name, unsigned int value) { entry_json(name, Json((int)value)); }
-    template<typename T>
-    void entry(const char *name, T &&value) { entry_json(name, Json(std::forward<T>(value))); };
+    ਖਾਲੀ ਇੰਦਰਾਜ_json(ਅਚਲ ਅੱਖਰ *name, ਅਚਲ Json &ਮੁੱਲ);
+    ਖਾਲੀ ਇੰਦਰਾਜ(ਅਚਲ ਅੱਖਰ *name, ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ਮੁੱਲ) { ਇੰਦਰਾਜ_json(name, Json((ਪੂਰਨ)ਮੁੱਲ)); }
+    ਸਾਂਚਾ<typename T>
+    ਖਾਲੀ ਇੰਦਰਾਜ(ਅਚਲ ਅੱਖਰ *name, T &&ਮੁੱਲ) { ਇੰਦਰਾਜ_json(name, Json(std::forward<T>(ਮੁੱਲ))); };
 
-    template<typename T>
-    void object(const T &&values)
+    ਸਾਂਚਾ<typename T>
+    ਖਾਲੀ object(ਅਚਲ T &&ਮੁੱਲਾਂ)
     {
         begin_object();
-        for (auto &item : values)
-            entry(item.first, item.second);
-        end_object();
+        ਲਈ (ਸਵੈਚਾਲਿਤ &ਵਸਤੂ_2 : ਮੁੱਲਾਂ)
+            ਇੰਦਰਾਜ(ਵਸਤੂ_2.ਪਹਿਲਾ, ਵਸਤੂ_2.ਦੂਜਾ);
+        ਸਿਰਾ_object();
     }
 
-    template<typename T>
-    void array(const T &&values)
+    ਸਾਂਚਾ<typename T>
+    ਖਾਲੀ array(ਅਚਲ T &&ਮੁੱਲਾਂ)
     {
         begin_array();
-        for (auto &item : values)
-            value(item);
-        end_array();
+        ਲਈ (ਸਵੈਚਾਲਿਤ &ਵਸਤੂ_2 : ਮੁੱਲਾਂ)
+            ਮੁੱਲ(ਵਸਤੂ_2);
+        ਸਿਰਾ_array();
     }
 };
 
 
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif
+#ਜੇ_ਅੰਤ

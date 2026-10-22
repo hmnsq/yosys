@@ -17,106 +17,106 @@
  *
  */
 
-#ifndef SEXPR_H
-#define SEXPR_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ SEXPR_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SEXPR_H
 
-#include "kernel/yosys.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 class SExpr {
-public:
-	std::variant<std::vector<SExpr>, std::string> _v;
-public:
+ਜਨਤਕ:
+	std::variant<std::ਸਦਿਸ਼<SExpr>, std::string> _v;
+ਜਨਤਕ:
 	SExpr(std::string a) : _v(std::move(a)) {}
-    SExpr(const char *a) : _v(a) {}
+    SExpr(ਅਚਲ ਅੱਖਰ *a) : _v(a) {}
     // FIXME: should maybe be defined for all integral types
-	SExpr(int n) : _v(std::to_string(n)) {}
-	SExpr(std::vector<SExpr> const &l) : _v(l) {}
-	SExpr(std::vector<SExpr> &&l) : _v(std::move(l)) {}
+	SExpr(ਪੂਰਨ n) : _v(std::ਮੰਜ਼ਿਲ_string(n)) {}
+	SExpr(std::ਸਦਿਸ਼<SExpr> ਅਚਲ &l) : _v(l) {}
+	SExpr(std::ਸਦਿਸ਼<SExpr> &&l) : _v(std::move(l)) {}
     // It would be nicer to have an std::initializer_list constructor,
     // but that causes confusing issues with overload resolution sometimes.
-    template<typename... Args> static SExpr list(Args&&... args) {
-	    return SExpr(std::vector<SExpr>{std::forward<Args>(args)...});
+    ਸਾਂਚਾ<typename... ਦਲੀਲਾਂ_3> ਸਥਿਰ SExpr list(ਦਲੀਲਾਂ_3&&... ਦਲੀਲਾਂ_2) {
+	    ਵਾਪਸ SExpr(std::ਸਦਿਸ਼<SExpr>{std::forward<ਦਲੀਲਾਂ_3>(ਦਲੀਲਾਂ_2)...});
     }
-    bool is_atom() const { return std::holds_alternative<std::string>(_v); }
-    std::string const &atom() const { return std::get<std::string>(_v); }
-    bool is_list() const { return std::holds_alternative<std::vector<SExpr>>(_v); }
-    std::vector<SExpr> const &list() const { return std::get<std::vector<SExpr>>(_v); }
-	std::string to_string() const;
+    bool is_atom() ਅਚਲ { ਵਾਪਸ std::holds_alternative<std::string>(_v); }
+    std::string ਅਚਲ &atom() ਅਚਲ { ਵਾਪਸ std::get<std::string>(_v); }
+    bool is_list() ਅਚਲ { ਵਾਪਸ std::holds_alternative<std::ਸਦਿਸ਼<SExpr>>(_v); }
+    std::ਸਦਿਸ਼<SExpr> ਅਚਲ &list() ਅਚਲ { ਵਾਪਸ std::get<std::ਸਦਿਸ਼<SExpr>>(_v); }
+	std::string ਮੰਜ਼ਿਲ_string() ਅਚਲ;
 };
 
-std::ostream &operator<<(std::ostream &os, SExpr const &sexpr);
+std::ostream &ਸੰਚਾਲਕ<<(std::ostream &os, SExpr ਅਚਲ &sexpr);
 
 namespace SExprUtil {
     // A little hack so that `using SExprUtil::list` lets you import a shortcut to `SExpr::list`
-    template<typename... Args> SExpr list(Args&&... args) {
-	    return SExpr(std::vector<SExpr>{std::forward<Args>(args)...});
+    ਸਾਂਚਾ<typename... ਦਲੀਲਾਂ_3> SExpr list(ਦਲੀਲਾਂ_3&&... ਦਲੀਲਾਂ_2) {
+	    ਵਾਪਸ SExpr(std::ਸਦਿਸ਼<SExpr>{std::forward<ਦਲੀਲਾਂ_3>(ਦਲੀਲਾਂ_2)...});
     }
 }
 
 // SExprWriter is a pretty printer for s-expr. It does not try very hard to get a good layout.
 class SExprWriter {
     std::ostream &os;
-    int _max_line_width;
-    int _indent = 0;
-    int _pos = 0;
+    ਪੂਰਨ max_ਸਤਰ_ਚੌੜਾਈ;
+    ਪੂਰਨ _indent = 0;
+    ਪੂਰਨ _pos = 0;
     // If _pending_nl is set, print a newline before the next character.
     // This lets us "undo" the last newline so we can put
     // closing parentheses or a hanging comment on the same line.
     bool _pending_nl = false;
     // Unclosed parentheses (boolean stored is indent_rest)
-	vector<bool> _unclosed;
+	ਸਦਿਸ਼<bool> _unclosed;
     // Used only for push() and pop() (stores _unclosed.size())
-	vector<size_t> _unclosed_stack;
-	void nl_if_pending();
-    void puts(std::string_view s);
-    int check_fit(SExpr const &sexpr, int space);
-    void print(SExpr const &sexpr, bool close = true, bool indent_rest = true);
-public:
-    SExprWriter(std::ostream &os, int max_line_width = 80)
+	ਸਦਿਸ਼<ਮਾਪ_t> unclosed_ਢੇਰ;
+	ਖਾਲੀ nl_if_pending();
+    ਖਾਲੀ puts(std::string_view s);
+    ਪੂਰਨ check_fit(SExpr ਅਚਲ &sexpr, ਪੂਰਨ space);
+    ਖਾਲੀ print(SExpr ਅਚਲ &sexpr, bool close = true, bool indent_rest = true);
+ਜਨਤਕ:
+    SExprWriter(std::ostream &os, ਪੂਰਨ max_ਸਤਰ_ਚੌੜਾਈ_2 = 80)
         : os(os)
-        , _max_line_width(max_line_width)
+        , max_ਸਤਰ_ਚੌੜਾਈ(max_ਸਤਰ_ਚੌੜਾਈ_2)
     {}
     // Print an s-expr.
-    SExprWriter &operator <<(SExpr const &sexpr) {
+    SExprWriter &ਸੰਚਾਲਕ <<(SExpr ਅਚਲ &sexpr) {
         print(sexpr);
         _pending_nl = true;
-        return *this;
+        ਵਾਪਸ *this;
     }
     // Print an s-expr (which must be a list), but leave room for extra elements
     // which may be printed using either << or further calls to open.
     // If indent_rest = false, the remaining elements are not intended
     // (for avoiding unreasonable indentation on deeply nested structures).
-    void open(SExpr const &sexpr, bool indent_rest = true) {
+    ਖਾਲੀ open(SExpr ਅਚਲ &sexpr, bool indent_rest = true) {
         log_assert(sexpr.is_list());
         print(sexpr, false, indent_rest);
     }
     // Close the s-expr opened with the last call to open
     // (if an argument is given, close that many s-exprs).
-    void close(size_t n = 1);
+    ਖਾਲੀ close(ਮਾਪ_t n = 1);
     // push() remembers how many s-exprs are currently open
-	void push() {
-		_unclosed_stack.push_back(_unclosed.size());
+	ਖਾਲੀ ਧੱਕੋ() {
+		unclosed_ਢੇਰ.ਧੱਕੋ_ਪਿੱਠ(_unclosed.ਮਾਪ());
 	}
     // pop() closes all s-expr opened since the corresponding call to push()
-	void pop() {
-		auto t = _unclosed_stack.back();
-		log_assert(_unclosed.size() >= t);
-		close(_unclosed.size() - t);
-		_unclosed_stack.pop_back();
+	ਖਾਲੀ ਕੱਢੋ() {
+		ਸਵੈਚਾਲਿਤ t = unclosed_ਢੇਰ.ਪਿੱਠ();
+		log_assert(_unclosed.ਮਾਪ() >= t);
+		close(_unclosed.ਮਾਪ() - t);
+		unclosed_ਢੇਰ.ਕੱਢੋ_ਪਿੱਠ();
 	}
     // Print a comment.
     // If hanging = true, append it to the end of the last printed s-expr.
-	void comment(std::string const &str, bool hanging = false);
+	ਖਾਲੀ comment(std::string ਅਚਲ &str, bool hanging = false);
     // Flush any unprinted characters to the std::ostream, but does not close unclosed parentheses.
-    void flush() {
+    ਖਾਲੀ flush() {
         nl_if_pending();
     }
     // Destructor closes any unclosed parentheses and flushes.
     ~SExprWriter();
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif
+#ਜੇ_ਅੰਤ

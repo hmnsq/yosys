@@ -17,190 +17,190 @@
  *
  */
 
-#include "kernel/yw.h"
-#include "libs/json11/json11.hpp"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yw.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "libs/json11/json11.hpp"
 
 USING_YOSYS_NAMESPACE
 
 // Use the same formatting as witness.py uses
-static const char *pretty_name(const std::string &id)
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ *pretty_name(ਅਚਲ std::string &id)
 {
-	const char *c_str = id.c_str();
-	const char *p = c_str;
+	ਅਚਲ ਅੱਖਰ *c_str = id.c_str();
+	ਅਚਲ ਅੱਖਰ *p = c_str;
 
-	if (*p != '\\')
-		return c_str;
+	ਜੇ (*p != '\\')
+		ਵਾਪਸ c_str;
 	p++;
 
-	if (*p == '[') {
+	ਜੇ (*p == '[') {
 		p++;
-		while (*p >= '0' && *p <= '9')
+		ਜਦੋਂ (*p >= '0' && *p <= '9')
 			p++;
-		if (p[0] != ']' || p[1] != 0)
-			return c_str;
-		return c_str + 1;
+		ਜੇ (p[0] != ']' || p[1] != 0)
+			ਵਾਪਸ c_str;
+		ਵਾਪਸ c_str + 1;
 	}
 
-	if (!(*p >= 'a' && *p <= 'z') && !(*p >= 'A' && *p <= 'Z') && *p != '_')
-		return c_str;
+	ਜੇ (!(*p >= 'a' && *p <= 'z') && !(*p >= 'A' && *p <= 'Z') && *p != '_')
+		ਵਾਪਸ c_str;
 	p++;
-	while ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
+	ਜਦੋਂ ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
 		p++;
 
-	if (*p != 0)
-		return c_str;
-	return c_str + 1;
+	ਜੇ (*p != 0)
+		ਵਾਪਸ c_str;
+	ਵਾਪਸ c_str + 1;
 }
 
-std::string IdPath::str() const
+std::string Id_ਰਸਤਾ::str() ਅਚਲ
 {
-	std::string result;
+	std::string ਨਤੀਜਾ;
 
-	for (auto &item : *this) {
-		const char *pretty = pretty_name(item);
-		if (pretty[0] == '[') {
-			result += pretty;
-			continue;
+	ਲਈ (ਸਵੈਚਾਲਿਤ &ਵਸਤੂ_2 : *ਇਹ) {
+		ਅਚਲ ਅੱਖਰ *pretty = pretty_name(ਵਸਤੂ_2);
+		ਜੇ (pretty[0] == '[') {
+			ਨਤੀਜਾ += pretty;
+			ਜਾਰੀ;
 		}
-		if (!result.empty())
-			result += '.';
-		result += pretty;
-		if (pretty[0] == '\\' || pretty[0] == '$')
-			result += ' ';
+		ਜੇ (!ਨਤੀਜਾ.ਖਾਲੀ_ਥਾਵਾਂ())
+			ਨਤੀਜਾ += '.';
+		ਨਤੀਜਾ += pretty;
+		ਜੇ (pretty[0] == '\\' || pretty[0] == '$')
+			ਨਤੀਜਾ += ' ';
 	}
 
-	return result;
+	ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-bool IdPath::get_address(int &addr) const
+ਤਾਰਕਿਕ Id_ਰਸਤਾ::get_ਪਤਾ(ਪੂਰਨ &addr) ਅਚਲ
 {
-	if (empty())
-		return false;
-	auto &last = back();
-	if (!last.starts_with("\\["))
-		return false;
-	if (last == "\\[0]") {
+	ਜੇ (ਖਾਲੀ_ਥਾਵਾਂ())
+		ਵਾਪਸ ਝੂਠ;
+	ਸਵੈਚਾਲਿਤ &ਆਖਰੀ = ਪਿੱਠ();
+	ਜੇ (!ਆਖਰੀ.starts_with("\\["))
+		ਵਾਪਸ ਝੂਠ;
+	ਜੇ (ਆਖਰੀ == "\\[0]") {
 		addr = 0;
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
-	char first = last.c_str()[2];
-	if (first < '1' || first > '9')
-		return false;
-	char *endptr;
-	addr = std::strtol(last.c_str() + 2, &endptr, 10);
-	return endptr[0] == ']' && endptr[1] == 0;
+	ਅੱਖਰ ਪਹਿਲਾ = ਆਖਰੀ.c_str()[2];
+	ਜੇ (ਪਹਿਲਾ < '1' || ਪਹਿਲਾ > '9')
+		ਵਾਪਸ ਝੂਠ;
+	ਅੱਖਰ *endptr;
+	addr = std::strtol(ਆਖਰੀ.c_str() + 2, &endptr, 10);
+	ਵਾਪਸ endptr[0] == ']' && endptr[1] == 0;
 }
 
-static std::vector<std::string> get_path(const json11::Json &json)
+ਸਥਿਰ std::ਸਦਿਸ਼<std::string> get_ਰਸਤਾ(ਅਚਲ json11::Json &json)
 {
-	std::vector<std::string> result;
-	for (auto &path_item : json.array_items()) {
-		auto const &path_item_str = path_item.string_value();
-		if (path_item_str.empty())
-			return {};;
-		result.push_back(path_item_str);
+	std::ਸਦਿਸ਼<std::string> ਨਤੀਜਾ;
+	ਲਈ (ਸਵੈਚਾਲਿਤ &ਰਸਤਾ_ਵਸਤੂ : json.array_ਚੀਜ਼ਾਂ()) {
+		ਸਵੈਚਾਲਿਤ ਅਚਲ &ਰਸਤਾ_ਵਸਤੂ_str = ਰਸਤਾ_ਵਸਤੂ.string_ਮੁੱਲ();
+		ਜੇ (ਰਸਤਾ_ਵਸਤੂ_str.ਖਾਲੀ_ਥਾਵਾਂ())
+			ਵਾਪਸ {};;
+		ਨਤੀਜਾ.ਧੱਕੋ_ਪਿੱਠ(ਰਸਤਾ_ਵਸਤੂ_str);
 	}
-	return result;
+	ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-ReadWitness::ReadWitness(const std::string &filename) :
+ReadWitness::ReadWitness(ਅਚਲ std::string &filename) :
 	filename(filename)
 {
 	std::ifstream f(filename.c_str());
-	if (f.fail() || GetSize(filename) == 0)
+	ਜੇ (f.fail() || Get_ਮਾਪ(filename) == 0)
 		log_error("Cannot open file `%s`\n", filename);
 	std::stringstream buf;
 	buf << f.rdbuf();
 	std::string err;
 	json11::Json json = json11::Json::parse(buf.str(), err);
-	if (!err.empty())
+	ਜੇ (!err.ਖਾਲੀ_ਥਾਵਾਂ())
 		log_error("Failed to parse `%s`: %s\n", filename, err);
 
-	std::string format = json["format"].string_value();
+	std::string format = json["format"].string_ਮੁੱਲ();
 
-	if (format.empty())
+	ਜੇ (format.ਖਾਲੀ_ਥਾਵਾਂ())
 		log_error("Failed to parse `%s`: Unknown format\n", filename);
-	if (format != "Yosys Witness Trace")
+	ਜੇ (format != "Yosys Witness Trace")
 		log_error("Failed to parse `%s`: Unsupported format `%s`\n", filename, format);
 
-	for (auto &clock_json : json["clocks"].array_items()) {
+	ਲਈ (ਸਵੈਚਾਲਿਤ &clock_json : json["clocks"].array_ਚੀਜ਼ਾਂ()) {
 		Clock clock;
-		clock.path = get_path(clock_json["path"]);
-		if (clock.path.empty())
+		clock.ਰਸਤਾ_2 = get_ਰਸਤਾ(clock_json["path"]);
+		ਜੇ (clock.ਰਸਤਾ_2.ਖਾਲੀ_ਥਾਵਾਂ())
 			log_error("Failed to parse `%s`: Missing path for clock `%s`\n", filename, clock_json.dump());
-		auto edge_str = clock_json["edge"];
-		if (edge_str.string_value() == "posedge")
-			clock.is_posedge = true;
-		else if (edge_str.string_value() == "negedge")
-			clock.is_negedge = true;
-		else
+		ਸਵੈਚਾਲਿਤ ਕਿਨਾਰਾ_str = clock_json["edge"];
+		ਜੇ (ਕਿਨਾਰਾ_str.string_ਮੁੱਲ() == "posedge")
+			clock.is_posedge = ਸੱਚ;
+		ਨਹੀਂਤਾਂ ਜੇ (ਕਿਨਾਰਾ_str.string_ਮੁੱਲ() == "negedge")
+			clock.is_negedge = ਸੱਚ;
+		ਨਹੀਂਤਾਂ
 			log_error("Failed to parse `%s`: Unknown edge type for clock `%s`\n", filename, clock_json.dump());
-		if (!clock_json["offset"].is_number())
+		ਜੇ (!clock_json["offset"].is_ਸੰਖਿਆ())
 			log_error("Failed to parse `%s`: Unknown offset for clock `%s`\n", filename, clock_json.dump());
-		clock.offset = clock_json["offset"].int_value();
-		if (clock.offset < 0)
+		clock.ਵਿੱਥ = clock_json["offset"].int_ਮੁੱਲ();
+		ਜੇ (clock.ਵਿੱਥ < 0)
 			log_error("Failed to parse `%s`: Invalid offset for clock `%s`\n", filename, clock_json.dump());
-		clocks.push_back(clock);
+		clocks.ਧੱਕੋ_ਪਿੱਠ(clock);
 	}
 
-	int bits_offset = 0;
-	for (auto &signal_json : json["signals"].array_items()) {
-		Signal signal;
-		signal.bits_offset = bits_offset;
-		signal.path = get_path(signal_json["path"]);
-		if (signal.path.empty())
+	ਪੂਰਨ ਬਿੱਟ_ਵਿੱਥ = 0;
+	ਲਈ (ਸਵੈਚਾਲਿਤ &signal_json : json["signals"].array_ਚੀਜ਼ਾਂ()) {
+		Signal ਸੰਕੇਤ;
+		ਸੰਕੇਤ.ਬਿੱਟ_ਵਿੱਥ = ਬਿੱਟ_ਵਿੱਥ;
+		ਸੰਕੇਤ.ਰਸਤਾ_2 = get_ਰਸਤਾ(signal_json["path"]);
+		ਜੇ (ਸੰਕੇਤ.ਰਸਤਾ_2.ਖਾਲੀ_ਥਾਵਾਂ())
 			log_error("Failed to parse `%s`: Missing path for signal `%s`\n", filename, signal_json.dump());
-		if (!signal_json["width"].is_number())
+		ਜੇ (!signal_json["width"].is_ਸੰਖਿਆ())
 			log_error("Failed to parse `%s`: Unknown width for signal `%s`\n", filename, signal_json.dump());
-		signal.width = signal_json["width"].int_value();
-		if (signal.width < 0)
+		ਸੰਕੇਤ.ਚੌੜਾਈ = signal_json["width"].int_ਮੁੱਲ();
+		ਜੇ (ਸੰਕੇਤ.ਚੌੜਾਈ < 0)
 			log_error("Failed to parse `%s`: Invalid width for signal `%s`\n", filename, signal_json.dump());
-		bits_offset += signal.width;
-		if (!signal_json["offset"].is_number())
+		ਬਿੱਟ_ਵਿੱਥ += ਸੰਕੇਤ.ਚੌੜਾਈ;
+		ਜੇ (!signal_json["offset"].is_ਸੰਖਿਆ())
 			log_error("Failed to parse `%s`: Unknown offset for signal `%s`\n", filename, signal_json.dump());
-		signal.offset = signal_json["offset"].int_value();
-		if (signal.offset < 0)
+		ਸੰਕੇਤ.ਵਿੱਥ = signal_json["offset"].int_ਮੁੱਲ();
+		ਜੇ (ਸੰਕੇਤ.ਵਿੱਥ < 0)
 			log_error("Failed to parse `%s`: Invalid offset for signal `%s`\n", filename, signal_json.dump());
-		signal.init_only = signal_json["init_only"].bool_value();
-		signals.push_back(signal);
+		ਸੰਕੇਤ.init_only = signal_json["init_only"].bool_ਮੁੱਲ();
+		ਸੰਕੇਤ_2.ਧੱਕੋ_ਪਿੱਠ(ਸੰਕੇਤ);
 	}
 
-	for (auto &step_json : json["steps"].array_items()) {
-		Step step;
-		if (!step_json["bits"].is_string())
-			log_error("Failed to parse `%s`: Expected string as bits value for step %d\n", filename, GetSize(steps));
-		step.bits = step_json["bits"].string_value();
-		for (char c : step.bits) {
-			if (c != '0' && c != '1' && c != 'x' && c != '?')
-				log_error("Failed to parse `%s`: Invalid bit '%c' value for step %d\n", filename, c, GetSize(steps));
+	ਲਈ (ਸਵੈਚਾਲਿਤ &ਕਦਮ_json : json["steps"].array_ਚੀਜ਼ਾਂ()) {
+		ਕਦਮ_2 ਕਦਮ;
+		ਜੇ (!ਕਦਮ_json["bits"].is_string())
+			log_error("Failed to parse `%s`: Expected string as bits value for step %d\n", filename, Get_ਮਾਪ(ਕਦਮਾਂ));
+		ਕਦਮ.ਬਿੱਟ = ਕਦਮ_json["bits"].string_ਮੁੱਲ();
+		ਲਈ (ਅੱਖਰ c : ਕਦਮ.ਬਿੱਟ) {
+			ਜੇ (c != '0' && c != '1' && c != 'x' && c != '?')
+				log_error("Failed to parse `%s`: Invalid bit '%c' value for step %d\n", filename, c, Get_ਮਾਪ(ਕਦਮਾਂ));
 		}
-		steps.push_back(step);
+		ਕਦਮਾਂ.ਧੱਕੋ_ਪਿੱਠ(ਕਦਮ);
 	}
 }
 
-RTLIL::Const ReadWitness::get_bits(int t, int bits_offset, int width) const
+RTLIL::Const ReadWitness::get_ਬਿੱਟ(ਪੂਰਨ t, ਪੂਰਨ ਬਿੱਟ_ਵਿੱਥ, ਪੂਰਨ ਚੌੜਾਈ) ਅਚਲ
 {
-	log_assert(t >= 0 && t < GetSize(steps));
+	log_assert(t >= 0 && t < Get_ਮਾਪ(ਕਦਮਾਂ));
 
-	const std::string &bits = steps[t].bits;
+	ਅਚਲ std::string &ਬਿੱਟ = ਕਦਮਾਂ[t].ਬਿੱਟ;
 
-	RTLIL::Const result(State::Sa, width);
+	RTLIL::Const ਨਤੀਜਾ(State::Sa, ਚੌੜਾਈ);
 
-	int read_begin = GetSize(bits) - 1 - bits_offset;
-	int read_end = max(-1, read_begin - width);
+	ਪੂਰਨ read_begin = Get_ਮਾਪ(ਬਿੱਟ) - 1 - ਬਿੱਟ_ਵਿੱਥ;
+	ਪੂਰਨ read_ਸਿਰਾ = max(-1, read_begin - ਚੌੜਾਈ);
 
-	for (int i = read_begin, j = 0; i > read_end; i--, j++) {
-		RTLIL::State bit = State::Sa;
-		switch (bits[i]) {
-			case '0': bit = State::S0; break;
-			case '1': bit = State::S1; break;
-			case 'x': bit = State::Sx; break;
-			case '?': bit = State::Sa; break;
-			default:
+	ਲਈ (ਪੂਰਨ i = read_begin, j = 0; i > read_ਸਿਰਾ; i--, j++) {
+		RTLIL::State ਦੋਆਧਾਰੀ_ਅੰਕ = State::Sa;
+		ਚੋਣ (ਬਿੱਟ[i]) {
+			ਹਾਲਤ '0': ਦੋਆਧਾਰੀ_ਅੰਕ = State::S0; ਰੋਕੋ;
+			ਹਾਲਤ '1': ਦੋਆਧਾਰੀ_ਅੰਕ = State::S1; ਰੋਕੋ;
+			ਹਾਲਤ 'x': ਦੋਆਧਾਰੀ_ਅੰਕ = State::Sx; ਰੋਕੋ;
+			ਹਾਲਤ '?': ਦੋਆਧਾਰੀ_ਅੰਕ = State::Sa; ਰੋਕੋ;
+			ਮੂਲ:
 				log_abort();
 		}
-		result.set(j, bit);
+		ਨਤੀਜਾ.ਸੈੱਟ(j, ਦੋਆਧਾਰੀ_ਅੰਕ);
 	}
 
-	return result;
+	ਵਾਪਸ ਨਤੀਜਾ;
 }

@@ -1,54 +1,54 @@
-#ifndef UNUSED_BITS_H
-#define UNUSED_BITS_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਅਣਵਰਤਿਆ_ਬਿੱਟ_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਅਣਵਰਤਿਆ_ਬਿੱਟ_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/newcelltypes.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/sigtools.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct UnusedBits
+ਬਣਤਰ ਅਣਵਰਤਿਆ_ਬਿੱਟ
 {
 	SigMap sigmap;
-	pool<RTLIL::SigBit> used;
+	pool<RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ> ਵਰਤਿਆ;
 
-	UnusedBits(RTLIL::Module *module) : sigmap(module)
+	ਅਣਵਰਤਿਆ_ਬਿੱਟ(RTLIL::Module *module) : sigmap(module)
 	{
 		NewCellTypes ct(module->design);
-		collect_used(module, ct);
+		collect_ਵਰਤਿਆ(module, ct);
 	}
 
-	UnusedBits(RTLIL::Module *module, const NewCellTypes &ct) : sigmap(module)
+	ਅਣਵਰਤਿਆ_ਬਿੱਟ(RTLIL::Module *module, ਅਚਲ NewCellTypes &ct) : sigmap(module)
 	{
-		collect_used(module, ct);
+		collect_ਵਰਤਿਆ(module, ct);
 	}
 
-	void collect_used(RTLIL::Module *module, const NewCellTypes &ct)
+	ਖਾਲੀ collect_ਵਰਤਿਆ(RTLIL::Module *module, ਅਚਲ NewCellTypes &ct)
 	{
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				if (!ct.cell_output(cell->type, conn.first))
-					add_used(conn.second);
+		ਲਈ (ਸਵੈਚਾਲਿਤ cell : module->cells())
+			ਲਈ (ਸਵੈਚਾਲਿਤ &conn : cell->connections())
+				ਜੇ (!ct.cell_output(cell->type, conn.ਪਹਿਲਾ))
+					ਜੋੜੋ_ਵਰਤਿਆ(conn.ਦੂਜਾ);
 
-		for (auto wire : module->wires())
-			if (wire->port_output)
-				add_used(wire);
+		ਲਈ (ਸਵੈਚਾਲਿਤ wire : module->wires())
+			ਜੇ (wire->ਪੋਰਟ_output)
+				ਜੋੜੋ_ਵਰਤਿਆ(wire);
 	}
 
-	void add_used(const RTLIL::SigSpec &sig)
+	ਖਾਲੀ ਜੋੜੋ_ਵਰਤਿਆ(ਅਚਲ RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sigmap(sig))
-			if (bit.wire != nullptr)
-				used.insert(bit);
+		ਲਈ (ਸਵੈਚਾਲਿਤ ਦੋਆਧਾਰੀ_ਅੰਕ : sigmap(sig))
+			ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire != nullptr)
+				ਵਰਤਿਆ.ਪਾਓ(ਦੋਆਧਾਰੀ_ਅੰਕ);
 	}
 
-	bool check(RTLIL::SigBit bit) const
+	bool check(RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ ਦੋਆਧਾਰੀ_ਅੰਕ) ਅਚਲ
 	{
-		RTLIL::SigBit mapped = sigmap(bit);
-		return mapped.wire != nullptr && !used.count(mapped);
+		RTLIL::Sig_ਦੋਆਧਾਰੀ_ਅੰਕ mapped = sigmap(ਦੋਆਧਾਰੀ_ਅੰਕ);
+		ਵਾਪਸ mapped.wire != nullptr && !ਵਰਤਿਆ.ਗਿਣਤੀ_2(mapped);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif
+#ਜੇ_ਅੰਤ

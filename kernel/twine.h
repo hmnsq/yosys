@@ -1,27 +1,27 @@
-#ifndef YOSYS_TWINE_H
-#define YOSYS_TWINE_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ YOSYS_TWINE_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ YOSYS_TWINE_H
 
-#include "kernel/hashcons.h"
-#include "kernel/yosys_common.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/hashcons.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys_common.h"
 
-#include <algorithm>
-#include <bit>
-#include <cstdint>
-#include <cstring>
-#include <deque>
-#include <limits>
-#include <span>
-#include <string>
-#include <string_view>
-#include <unordered_set>
-#include <variant>
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <algorithm>
+#ਅਨ੍ਤਰ੍ਭਾਵ <bit>
+#ਅਨ੍ਤਰ੍ਭਾਵ <cstdint>
+#ਅਨ੍ਤਰ੍ਭਾਵ <cstring>
+#ਅਨ੍ਤਰ੍ਭਾਵ <deque>
+#ਅਨ੍ਤਰ੍ਭਾਵ <limits>
+#ਅਨ੍ਤਰ੍ਭਾਵ <span>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string_view>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unordered_set>
+#ਅਨ੍ਤਰ੍ਭਾਵ <variant>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
 YOSYS_NAMESPACE_BEGIN
 
-struct TwineSpec;
-struct TwinePool;
-struct IdString;
+ਬਣਤਰ TwineSpec;
+ਬਣਤਰ TwinePool;
+ਬਣਤਰ IdString;
 
 /**
  * A twine is a data structure designed to deduplicate prefixes.
@@ -45,379 +45,379 @@ struct IdString;
  * live in a global read-only pool, so they're an exception to that.
  */
 
-struct NullIdString {
-	constexpr operator IdString() const;
-	constexpr bool operator==(IdString ref) const;
+ਬਣਤਰ NullIdString {
+	constexpr ਸੰਚਾਲਕ IdString() ਅਚਲ;
+	constexpr bool ਸੰਚਾਲਕ==(IdString ref) ਅਚਲ;
 };
 
-struct IdString {
-private:
-#ifdef YOSYS_ENABLE_TWINE_PROVENANCE
-	using bits_t = uint64_t;
-#else
-	using bits_t = uint32_t;
-#endif
-	bits_t value;
+ਬਣਤਰ IdString {
+ਨਿਜੀ:
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ YOSYS_ENABLE_TWINE_PROVENANCE
+	using ਬਿੱਟ_t = uint64_t;
+#ਨਹੀਂਤਾਂ
+	using ਬਿੱਟ_t = uint32_t;
+#ਜੇ_ਅੰਤ
+	ਬਿੱਟ_t ਮੁੱਲ;
 
-	static constexpr int TWINE_WIDTH = std::numeric_limits<bits_t>::digits;
-	static constexpr int TWINE_PUBLIC_SHIFT = TWINE_WIDTH - 1;
-	static constexpr bits_t TWINE_PUBLIC_BIT = bits_t{1} << TWINE_PUBLIC_SHIFT;
-	static constexpr bits_t TWINE_NULL_VAL = ~bits_t{0};
-	static constexpr int TWINE_SERIAL_SHIFT = TWINE_WIDTH == 64 ? 32 : TWINE_PUBLIC_SHIFT;
-	static constexpr bits_t TWINE_INDEX_MASK = (bits_t{1} << TWINE_SERIAL_SHIFT) - 1;
-	static constexpr bits_t TWINE_SERIAL_MASK = bits_t(~(TWINE_INDEX_MASK | TWINE_PUBLIC_BIT));
+	ਸਥਿਰ constexpr ਪੂਰਨ TWINE_ਚੌੜਾਈ = std::numeric_limits<ਬਿੱਟ_t>::digits;
+	ਸਥਿਰ constexpr ਪੂਰਨ TWINE_ਜਨਤਕ_ਖਿਸਕਾਓ = TWINE_ਚੌੜਾਈ - 1;
+	ਸਥਿਰ constexpr ਬਿੱਟ_t TWINE_ਜਨਤਕ_ਦੋਆਧਾਰੀ_ਅੰਕ = ਬਿੱਟ_t{1} << TWINE_ਜਨਤਕ_ਖਿਸਕਾਓ;
+	ਸਥਿਰ constexpr ਬਿੱਟ_t TWINE_NULL_VAL = ~ਬਿੱਟ_t{0};
+	ਸਥਿਰ constexpr ਪੂਰਨ TWINE_SERIAL_ਖਿਸਕਾਓ = TWINE_ਚੌੜਾਈ == 64 ? 32 : TWINE_ਜਨਤਕ_ਖਿਸਕਾਓ;
+	ਸਥਿਰ constexpr ਬਿੱਟ_t TWINE_ਸੂਚਕਾਂਕ_ਨਕਾਬ = (ਬਿੱਟ_t{1} << TWINE_SERIAL_ਖਿਸਕਾਓ) - 1;
+	ਸਥਿਰ constexpr ਬਿੱਟ_t TWINE_SERIAL_ਨਕਾਬ = ਬਿੱਟ_t(~(TWINE_ਸੂਚਕਾਂਕ_ਨਕਾਬ | TWINE_ਜਨਤਕ_ਦੋਆਧਾਰੀ_ਅੰਕ));
 
-public:
-	static constexpr NullIdString Null{};
+ਜਨਤਕ:
+	ਸਥਿਰ constexpr NullIdString Null{};
 
-	static constexpr size_t MAX_INDEX = TWINE_INDEX_MASK;
-	static constexpr size_t MAX_SERIAL = TWINE_SERIAL_MASK >> TWINE_SERIAL_SHIFT;
+	ਸਥਿਰ constexpr ਮਾਪ_t MAX_ਸੂਚਕਾਂਕ = TWINE_ਸੂਚਕਾਂਕ_ਨਕਾਬ;
+	ਸਥਿਰ constexpr ਮਾਪ_t MAX_SERIAL = TWINE_SERIAL_ਨਕਾਬ >> TWINE_SERIAL_ਖਿਸਕਾਓ;
 
-	constexpr size_t raw() const {
-		return value == TWINE_NULL_VAL ? value : (value & ~TWINE_SERIAL_MASK);
+	constexpr ਮਾਪ_t raw() ਅਚਲ {
+		ਵਾਪਸ ਮੁੱਲ == TWINE_NULL_VAL ? ਮੁੱਲ : (ਮੁੱਲ & ~TWINE_SERIAL_ਨਕਾਬ);
 	}
 
 	// raw() with the pool serial kept
-	constexpr size_t bits() const { return value; }
+	constexpr ਮਾਪ_t ਬਿੱਟ() ਅਚਲ { ਵਾਪਸ ਮੁੱਲ; }
 
-	constexpr size_t order_key() const { return std::rotl((bits_t) eq_key(), 1); }
+	constexpr ਮਾਪ_t ਕ੍ਰਮ_ਕੁੰਜੀ() ਅਚਲ { ਵਾਪਸ std::rotl((ਬਿੱਟ_t) eq_ਕੁੰਜੀ(), 1); }
 
-	constexpr size_t serial() const {
-		return value == TWINE_NULL_VAL ? 0 : ((value & TWINE_SERIAL_MASK) >> TWINE_SERIAL_SHIFT);
+	constexpr ਮਾਪ_t serial() ਅਚਲ {
+		ਵਾਪਸ ਮੁੱਲ == TWINE_NULL_VAL ? 0 : ((ਮੁੱਲ & TWINE_SERIAL_ਨਕਾਬ) >> TWINE_SERIAL_ਖਿਸਕਾਓ);
 	}
 
-	constexpr IdString stamped(size_t pool_serial) const {
-		return value == TWINE_NULL_VAL ? *this
-			: IdString((value & ~TWINE_SERIAL_MASK)
-					| (bits_t(pool_serial << TWINE_SERIAL_SHIFT) & TWINE_SERIAL_MASK));
+	constexpr IdString stamped(ਮਾਪ_t pool_serial) ਅਚਲ {
+		ਵਾਪਸ ਮੁੱਲ == TWINE_NULL_VAL ? *this
+			: IdString((ਮੁੱਲ & ~TWINE_SERIAL_ਨਕਾਬ)
+					| (ਬਿੱਟ_t(pool_serial << TWINE_SERIAL_ਖਿਸਕਾਓ) & TWINE_SERIAL_ਨਕਾਬ));
 	}
 
-	constexpr IdString() : value(TWINE_NULL_VAL) {}
-	explicit constexpr IdString(size_t val) : value((bits_t) val) {}
+	constexpr IdString() : ਮੁੱਲ(TWINE_NULL_VAL) {}
+	explicit constexpr IdString(ਮਾਪ_t val) : ਮੁੱਲ((ਬਿੱਟ_t) val) {}
 
-	constexpr size_t eq_key() const { return value & ~TWINE_SERIAL_MASK; }
+	constexpr ਮਾਪ_t eq_ਕੁੰਜੀ() ਅਚਲ { ਵਾਪਸ ਮੁੱਲ & ~TWINE_SERIAL_ਨਕਾਬ; }
 
-	constexpr bool operator==(const IdString &rhs) const { return eq_key() == rhs.eq_key(); }
-	constexpr bool operator!=(const IdString &rhs) const { return eq_key() != rhs.eq_key(); }
-	constexpr std::strong_ordering operator<=>(const IdString &rhs) const {
-		return order_key() <=> rhs.order_key();
+	constexpr bool ਸੰਚਾਲਕ==(ਅਚਲ IdString &rhs) ਅਚਲ { ਵਾਪਸ eq_ਕੁੰਜੀ() == rhs.eq_ਕੁੰਜੀ(); }
+	constexpr bool ਸੰਚਾਲਕ!=(ਅਚਲ IdString &rhs) ਅਚਲ { ਵਾਪਸ eq_ਕੁੰਜੀ() != rhs.eq_ਕੁੰਜੀ(); }
+	constexpr std::strong_ordering ਸੰਚਾਲਕ<=>(ਅਚਲ IdString &rhs) ਅਚਲ {
+		ਵਾਪਸ ਕ੍ਰਮ_ਕੁੰਜੀ() <=> rhs.ਕ੍ਰਮ_ਕੁੰਜੀ();
 	}
 
-	template <typename... Args>
-	constexpr bool in(const Args&... args) const {
-		return (in_one(args) || ...);
+	ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_3>
+	constexpr bool ਵਿੱਚ(ਅਚਲ ਦਲੀਲਾਂ_3&... ਦਲੀਲਾਂ_2) ਅਚਲ {
+		ਵਾਪਸ (ਵਿੱਚ_one(ਦਲੀਲਾਂ_2) || ...);
 	}
-	bool in(const pool<IdString> &rhs) const;
+	bool ਵਿੱਚ(ਅਚਲ pool<IdString> &rhs) ਅਚਲ;
 
 	// Instead of for example std::set<Cell*>
 	// use std::set<Cell*, IdString::compare_ptr_by_name<Cell>> if the order of cells in the
 	// set has an influence on the algorithm.
-	template<typename T> struct compare_ptr_by_name {
-		bool operator()(const T *a, const T *b) const {
-			return (a == nullptr || b == nullptr) ? (a < b) : (a->name < b->name);
+	ਸਾਂਚਾ<typename T> ਬਣਤਰ compare_ptr_by_name {
+		bool ਸੰਚਾਲਕ()(ਅਚਲ T *a, ਅਚਲ T *b) ਅਚਲ {
+			ਵਾਪਸ (a == nullptr || b == nullptr) ? (a < b) : (a->name < b->name);
 		}
 	};
 
 	// A ref is "empty" when it names nothing at all.
-	constexpr bool empty() const { return value == TWINE_NULL_VAL; }
-	constexpr void clear() { value = TWINE_NULL_VAL; }
-	constexpr bool isPublic() const { return value != TWINE_NULL_VAL && (value & TWINE_PUBLIC_BIT); }
+	constexpr bool ਖਾਲੀ_ਥਾਵਾਂ() ਅਚਲ { ਵਾਪਸ ਮੁੱਲ == TWINE_NULL_VAL; }
+	constexpr ਖਾਲੀ clear() { ਮੁੱਲ = TWINE_NULL_VAL; }
+	constexpr bool is_ਜਨਤਕ() ਅਚਲ { ਵਾਪਸ ਮੁੱਲ != TWINE_NULL_VAL && (ਮੁੱਲ & TWINE_ਜਨਤਕ_ਦੋਆਧਾਰੀ_ਅੰਕ); }
 
-	constexpr IdString untag() const {
-		return value == TWINE_NULL_VAL ? *this : IdString(value & ~TWINE_PUBLIC_BIT);
+	constexpr IdString untag() ਅਚਲ {
+		ਵਾਪਸ ਮੁੱਲ == TWINE_NULL_VAL ? *this : IdString(ਮੁੱਲ & ~TWINE_ਜਨਤਕ_ਦੋਆਧਾਰੀ_ਅੰਕ);
 	}
-	constexpr IdString tag(bool pub) const {
-		return value == TWINE_NULL_VAL ? *this : IdString(pub ? (value | TWINE_PUBLIC_BIT) : (value & ~TWINE_PUBLIC_BIT));
+	constexpr IdString ਟੈਗ(bool pub) ਅਚਲ {
+		ਵਾਪਸ ਮੁੱਲ == TWINE_NULL_VAL ? *this : IdString(pub ? (ਮੁੱਲ | TWINE_ਜਨਤਕ_ਦੋਆਧਾਰੀ_ਅੰਕ) : (ਮੁੱਲ & ~TWINE_ਜਨਤਕ_ਦੋਆਧਾਰੀ_ਅੰਕ));
 	}
 
-	std::string handle_token() const;
-	static size_t handle_token_prefix(std::string_view token, bool &is_public);
+	std::string handle_token() ਅਚਲ;
+	ਸਥਿਰ ਮਾਪ_t handle_token_ਅਗੇਤਰ(std::string_view token, bool &is_ਜਨਤਕ_2);
 
-private:
-	constexpr bool in_one(IdString rhs) const { return *this == rhs; }
-	bool in_one(const pool<IdString> &rhs) const;
+ਨਿਜੀ:
+	constexpr bool ਵਿੱਚ_one(IdString rhs) ਅਚਲ { ਵਾਪਸ *this == rhs; }
+	bool ਵਿੱਚ_one(ਅਚਲ pool<IdString> &rhs) ਅਚਲ;
 };
 
-constexpr NullIdString::operator IdString() const { return IdString(); }
-constexpr bool NullIdString::operator==(IdString ref) const { return ref.empty(); }
+constexpr NullIdString::ਸੰਚਾਲਕ IdString() ਅਚਲ { ਵਾਪਸ IdString(); }
+constexpr bool NullIdString::ਸੰਚਾਲਕ==(IdString ref) ਅਚਲ { ਵਾਪਸ ref.ਖਾਲੀ_ਥਾਵਾਂ(); }
 
 namespace hashlib {
-	template<>
-	struct hash_ops<IdString> {
-		static inline bool cmp(IdString a, IdString b) { return a == b; }
-		[[nodiscard]] static inline Hasher hash(IdString id) {
+	ਸਾਂਚਾ<>
+	ਬਣਤਰ hash_ops<IdString> {
+		ਸਥਿਰ ਸਤਰਅੰਦਰ bool cmp(IdString a, IdString b) { ਵਾਪਸ a == b; }
+		[[nodiscard]] ਸਥਿਰ ਸਤਰਅੰਦਰ Hasher hash(IdString id) {
 			Hasher h;
-			h.force((Hasher::hash_t) id.eq_key());
-			return h;
+			h.force((Hasher::hash_t) id.eq_ਕੁੰਜੀ());
+			ਵਾਪਸ h;
 		}
-		[[nodiscard]] static inline Hasher hash_into(IdString id, Hasher h) {
-			h.hash64(id.eq_key());
-			return h;
+		[[nodiscard]] ਸਥਿਰ ਸਤਰਅੰਦਰ Hasher hash_into(IdString id, Hasher h) {
+			h.hash64(id.eq_ਕੁੰਜੀ());
+			ਵਾਪਸ h;
 		}
 	};
 }
 
-inline bool IdString::in_one(const pool<IdString> &rhs) const { return rhs.count(*this) != 0; }
-inline bool IdString::in(const pool<IdString> &rhs) const { return in_one(rhs); }
+ਸਤਰਅੰਦਰ bool IdString::ਵਿੱਚ_one(ਅਚਲ pool<IdString> &rhs) ਅਚਲ { ਵਾਪਸ rhs.ਗਿਣਤੀ_2(*this) != 0; }
+ਸਤਰਅੰਦਰ bool IdString::ਵਿੱਚ(ਅਚਲ pool<IdString> &rhs) ਅਚਲ { ਵਾਪਸ ਵਿੱਚ_one(rhs); }
 
 
-enum : short {
-#define X(N) IDX_##N,
-#include "kernel/constids.inc"
-#undef X
-	STATIC_TWINE_END
+ਗਿਣਤੀ : ਛੋਟਾ {
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ X(N) IDX_##N,
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/constids.inc"
+#ਪਰਿਭਾਸ਼ਾ_ਰੱਦ X
+	STATIC_TWINE_ਸਿਰਾ
 };
 
-struct ID {
+ਬਣਤਰ ID {
 // Static ids are name handles: non-'$' constids were '\'-escaped publics,
 // so their handles carry the publicity bit baked in at compile time.
-#define X(N) static constexpr IdString N = IdString(IDX_##N).tag((#N)[0] != '$');
-#include "kernel/constids.inc"
-#undef X
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ X(N) ਸਥਿਰ constexpr IdString N = IdString(IDX_##N).ਟੈਗ((#N)[0] != '$');
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/constids.inc"
+#ਪਰਿਭਾਸ਼ਾ_ਰੱਦ X
 
-	static constexpr const char* static_names[] = {
-#define X(N) #N,
-#include "kernel/constids.inc"
-#undef X
+	ਸਥਿਰ constexpr ਅਚਲ ਅੱਖਰ* static_ਨਾਂ[] = {
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ X(N) #N,
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/constids.inc"
+#ਪਰਿਭਾਸ਼ਾ_ਰੱਦ X
 	};
 
-	static constexpr IdString lookup(std::string_view name)
+	ਸਥਿਰ constexpr IdString lookup(std::string_view name)
 	{
-		int low = 0, high = STATIC_TWINE_END;
-		while (high - low >= 2) {
-			int mid = (low + high) / 2;
-			if (name < static_names[mid])
-				high = mid;
-			else
-				low = mid;
+		ਪੂਰਨ ਨੀਵਾਂ = 0, ਉੱਚਾ = STATIC_TWINE_ਸਿਰਾ;
+		ਜਦੋਂ (ਉੱਚਾ - ਨੀਵਾਂ >= 2) {
+			ਪੂਰਨ mid = (ਨੀਵਾਂ + ਉੱਚਾ) / 2;
+			ਜੇ (name < static_ਨਾਂ[mid])
+				ਉੱਚਾ = mid;
+			ਨਹੀਂਤਾਂ
+				ਨੀਵਾਂ = mid;
 		}
 
-		if (name != static_names[low])
+		ਜੇ (name != static_ਨਾਂ[ਨੀਵਾਂ])
 			throw "unknown twine id, strings that aren't statically allocated in kernel/constids.inc must be interned into a TwinePool";
 
-		return IdString(low).tag(name[0] != '$');
+		ਵਾਪਸ IdString(ਨੀਵਾਂ).ਟੈਗ(name[0] != '$');
 	}
 
-	static constexpr bool is_static(IdString ref) {
-		return ref.untag().raw() < STATIC_TWINE_END;
+	ਸਥਿਰ constexpr bool is_static(IdString ref) {
+		ਵਾਪਸ ref.untag().raw() < STATIC_TWINE_ਸਿਰਾ;
 	}
 
-	static constexpr IdString static_ref(size_t raw) {
-		if (!is_static(IdString(raw)))
+	ਸਥਿਰ constexpr IdString static_ref(ਮਾਪ_t raw) {
+		ਜੇ (!is_static(IdString(raw)))
 			throw "not a static twine id";
-		return IdString(raw);
+		ਵਾਪਸ IdString(raw);
 	}
 
 	// Static IdString can be constructed without a design pointer
-	static std::string str(IdString ref);
-	static std::string unescaped_str(IdString ref);
+	ਸਥਿਰ std::string str(IdString ref);
+	ਸਥਿਰ std::string unescaped_str(IdString ref);
 };
 
-template<size_t Raw> inline constexpr IdString constid = ID::static_ref(Raw);
+ਸਾਂਚਾ<ਮਾਪ_t Raw> ਸਤਰਅੰਦਰ constexpr IdString constid = ID::static_ref(Raw);
 
-#define ID(id) (YOSYS_NAMESPACE_PREFIX constid<YOSYS_NAMESPACE_PREFIX ID::lookup(#id).raw()>)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ID(id) (YOSYS_NAMESPACE_ਅਗੇਤਰ constid<YOSYS_NAMESPACE_ਅਗੇਤਰ ID::lookup(#id).raw()>)
 
 // TwineSpec is the object that lives in the TwinePool,
 // while IdString points to a TwineSpec and carries publicity information
-struct TwineSpec {
+ਬਣਤਰ TwineSpec {
 	// deduplicates shared prefixes
-	struct Suffix {
-		IdString prefix;
-		std::string tail;
-		auto operator<=>(const Suffix&) const = default;
+	ਬਣਤਰ Suffix {
+		IdString ਅਗੇਤਰ_2;
+		std::string ਪੂਛ;
+		ਸਵੈਚਾਲਿਤ ਸੰਚਾਲਕ<=>(ਅਚਲ Suffix&) ਅਚਲ = ਮੂਲ;
 	};
 
 	// transient suffix constructed with NEW_ID and NEW_ID_SUFFIX
 	// turned into a regular Suffix when added to a TwinePool
-	struct AutoSuffix {
-		const std::string *prefix;
-		std::string tail;
-		auto operator<=>(const AutoSuffix&) const = default;
+	ਬਣਤਰ AutoSuffix {
+		ਅਚਲ std::string *ਅਗੇਤਰ_2;
+		std::string ਪੂਛ;
+		ਸਵੈਚਾਲਿਤ ਸੰਚਾਲਕ<=>(ਅਚਲ AutoSuffix&) ਅਚਲ = ਮੂਲ;
 	};
 
 	// "leaf", regular deduplicated string
-	struct Leaf {
+	ਬਣਤਰ ਪੱਤੀ {
 		std::string s;
-		auto operator<=>(const Leaf&) const = default;
+		ਸਵੈਚਾਲਿਤ ਸੰਚਾਲਕ<=>(ਅਚਲ ਪੱਤੀ&) ਅਚਲ = ਮੂਲ;
 	};
 
-	std::variant<Leaf, Suffix, AutoSuffix> data;
+	std::variant<ਪੱਤੀ, Suffix, AutoSuffix> ਅੰਕੜੇ;
 
-	TwineSpec(Leaf v);
+	TwineSpec(ਪੱਤੀ v);
 	TwineSpec(Suffix v);
 	TwineSpec(AutoSuffix v);
 
 	// Only for the pool-free variants, Leaf and AutoSuffix
-	std::string content_str() const;
+	std::string content_str() ਅਚਲ;
 };
 
-struct SmallString {
-	static constexpr uint32_t INLINE_CAP = 8;
-	static constexpr size_t MAX_LEN = std::numeric_limits<uint32_t>::max();
+ਬਣਤਰ SmallString {
+	ਸਥਿਰ constexpr uint32_t INLINE_CAP = 8;
+	ਸਥਿਰ constexpr ਮਾਪ_t MAX_LEN = std::numeric_limits<uint32_t>::max();
 
-	SmallString() = default;
+	SmallString() = ਮੂਲ;
 	explicit SmallString(std::string_view content);
-	SmallString(const SmallString &other);
+	SmallString(ਅਚਲ SmallString &other);
 	SmallString(SmallString &&other) noexcept;
-	SmallString &operator=(const SmallString &other);
-	SmallString &operator=(SmallString &&other) noexcept;
+	SmallString &ਸੰਚਾਲਕ=(ਅਚਲ SmallString &other);
+	SmallString &ਸੰਚਾਲਕ=(SmallString &&other) noexcept;
 	~SmallString();
 
-	std::string_view view() const { return {len_ <= INLINE_CAP ? inl_ : ptr_, len_}; }
+	std::string_view view() ਅਚਲ { ਵਾਪਸ {len_ <= INLINE_CAP ? inl_ : ptr_, len_}; }
 
-private:
-	void store(std::string_view content);
-	void release();
+ਨਿਜੀ:
+	ਖਾਲੀ store(std::string_view content);
+	ਖਾਲੀ release();
 
-	union {
-		char inl_[INLINE_CAP];
-		char *ptr_;
+	ਸੰਘ {
+		ਅੱਖਰ inl_[INLINE_CAP];
+		ਅੱਖਰ *ptr_;
 	};
 	uint32_t len_ = 0;
 };
 
 // TwineNode is the in-memory version of TwineSpec
-struct TwineNode {
-	static constexpr uint32_t NO_PREFIX = ~uint32_t{0};
-	static constexpr uint32_t DEAD = NO_PREFIX - 1;
+ਬਣਤਰ Twine_ਗੰਢ {
+	ਸਥਿਰ constexpr uint32_t NO_ਅਗੇਤਰ = ~uint32_t{0};
+	ਸਥਿਰ constexpr uint32_t DEAD = NO_ਅਗੇਤਰ - 1;
 
-	struct Key {
-		uint32_t prefix;
-		std::string_view text;
+	ਬਣਤਰ ਕੁੰਜੀ_2 {
+		uint32_t ਅਗੇਤਰ_2;
+		std::string_view ਪਾਠ;
 	};
 
-	static constexpr uint32_t extend_hash(uint32_t hash, std::string_view tail) {
+	ਸਥਿਰ constexpr uint32_t extend_hash(uint32_t hash, std::string_view ਪੂਛ) {
 		// Basically DJB2, but we're not doing it with hashlib.h hash64,
 		// so that we get the "content hashing" identity:
 		// hash(suffix(leaf("a"), "b")) == hash(leaf("ab"))
-		for (char c : tail)
-			hash = ((hash << 5) + hash) + static_cast<unsigned char>(c);
-		return hash;
+		ਲਈ (ਅੱਖਰ c : ਪੂਛ)
+			hash = ((hash << 5) + hash) + static_cast<ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ>(c);
+		ਵਾਪਸ hash;
 	}
 
-	TwineNode() = default;
-	explicit TwineNode(std::string_view content)
-		: text_(content), prefix_(NO_PREFIX), hash_(extend_hash(0, content)) {}
-	TwineNode(uint32_t prefix, std::string_view tail, uint32_t hash)
-		: text_(tail), prefix_(prefix), hash_(hash) {}
-	TwineNode(const TwineNode &other) = default;
-	TwineNode(TwineNode &&other) noexcept;
-	TwineNode &operator=(const TwineNode &other) = default;
-	TwineNode &operator=(TwineNode &&other) noexcept;
-	~TwineNode() = default;
+	Twine_ਗੰਢ() = ਮੂਲ;
+	explicit Twine_ਗੰਢ(std::string_view content)
+		: ਪਾਠ_2(content), ਅਗੇਤਰ_3(NO_ਅਗੇਤਰ), hash_(extend_hash(0, content)) {}
+	Twine_ਗੰਢ(uint32_t ਅਗੇਤਰ_2, std::string_view ਪੂਛ, uint32_t hash)
+		: ਪਾਠ_2(ਪੂਛ), ਅਗੇਤਰ_3(ਅਗੇਤਰ_2), hash_(hash) {}
+	Twine_ਗੰਢ(ਅਚਲ Twine_ਗੰਢ &other) = ਮੂਲ;
+	Twine_ਗੰਢ(Twine_ਗੰਢ &&other) noexcept;
+	Twine_ਗੰਢ &ਸੰਚਾਲਕ=(ਅਚਲ Twine_ਗੰਢ &other) = ਮੂਲ;
+	Twine_ਗੰਢ &ਸੰਚਾਲਕ=(Twine_ਗੰਢ &&other) noexcept;
+	~Twine_ਗੰਢ() = ਮੂਲ;
 
-	enum class Kind { Dead, Leaf, Suffix };
+	ਗਿਣਤੀ class ਕਿਸਮ_2 { Dead, ਪੱਤੀ, Suffix };
 
-	constexpr bool is_dead() const { return prefix_ == DEAD; }
-	constexpr bool is_leaf() const { return prefix_ == NO_PREFIX; }
-	constexpr bool is_suffix() const { return prefix_ < DEAD; }
+	constexpr bool is_dead() ਅਚਲ { ਵਾਪਸ ਅਗੇਤਰ_3 == DEAD; }
+	constexpr bool is_ਪੱਤੀ() ਅਚਲ { ਵਾਪਸ ਅਗੇਤਰ_3 == NO_ਅਗੇਤਰ; }
+	constexpr bool is_suffix() ਅਚਲ { ਵਾਪਸ ਅਗੇਤਰ_3 < DEAD; }
 
-	constexpr Kind kind() const {
-		return prefix_ == DEAD ? Kind::Dead
-			: prefix_ == NO_PREFIX ? Kind::Leaf
-			: Kind::Suffix;
+	constexpr ਕਿਸਮ_2 ਕਿਸਮ() ਅਚਲ {
+		ਵਾਪਸ ਅਗੇਤਰ_3 == DEAD ? ਕਿਸਮ_2::Dead
+			: ਅਗੇਤਰ_3 == NO_ਅਗੇਤਰ ? ਕਿਸਮ_2::ਪੱਤੀ
+			: ਕਿਸਮ_2::Suffix;
 	}
 
-	std::string_view text() const { return text_.view(); }
-	IdString prefix() const { return IdString(prefix_); }
-	uint32_t hash() const { return hash_; }
-	Key key() const { return {prefix_, text()}; }
+	std::string_view ਪਾਠ() ਅਚਲ { ਵਾਪਸ ਪਾਠ_2.view(); }
+	IdString ਅਗੇਤਰ_2() ਅਚਲ { ਵਾਪਸ IdString(ਅਗੇਤਰ_3); }
+	uint32_t hash() ਅਚਲ { ਵਾਪਸ hash_; }
+	ਕੁੰਜੀ_2 ਕੁੰਜੀ() ਅਚਲ { ਵਾਪਸ {ਅਗੇਤਰ_3, ਪਾਠ()}; }
 
-	bool operator==(const TwineNode &other) const
-		{ return prefix_ == other.prefix_ && text() == other.text(); }
-	bool operator==(const Key &other) const
-		{ return prefix_ == other.prefix && text() == other.text; }
+	bool ਸੰਚਾਲਕ==(ਅਚਲ Twine_ਗੰਢ &other) ਅਚਲ
+		{ ਵਾਪਸ ਅਗੇਤਰ_3 == other.ਅਗੇਤਰ_3 && ਪਾਠ() == other.ਪਾਠ(); }
+	bool ਸੰਚਾਲਕ==(ਅਚਲ ਕੁੰਜੀ_2 &other) ਅਚਲ
+		{ ਵਾਪਸ ਅਗੇਤਰ_3 == other.ਅਗੇਤਰ_2 && ਪਾਠ() == other.ਪਾਠ; }
 
-private:
-	SmallString text_;
-	uint32_t prefix_ = DEAD;
+ਨਿਜੀ:
+	SmallString ਪਾਠ_2;
+	uint32_t ਅਗੇਤਰ_3 = DEAD;
 	uint32_t hash_ = 0;
 };
 
-static_assert(sizeof(TwineNode) == (sizeof(void *) == 8 ? 24 : 20));
+static_assert(ਆਕਾਰ(Twine_ਗੰਢ) == (ਆਕਾਰ(ਖਾਲੀ *) == 8 ? 24 : 20));
 
-struct StaticTwines {
-	static void init();
-	static const TwineNode &node(size_t idx);
-	static bool ready();
+ਬਣਤਰ StaticTwines {
+	ਸਥਿਰ ਖਾਲੀ init();
+	ਸਥਿਰ ਅਚਲ Twine_ਗੰਢ &ਗੰਢ(ਮਾਪ_t idx);
+	ਸਥਿਰ bool ready();
 
-private:
-	static std::vector<TwineNode> nodes_;
+ਨਿਜੀ:
+	ਸਥਿਰ std::ਸਦਿਸ਼<Twine_ਗੰਢ> nodes_;
 };
 
-extern int64_t twine_gc_ns;
-extern int twine_gc_count;
+ਬਾਹਰੀ int64_t twine_gc_ns;
+ਬਾਹਰੀ ਪੂਰਨ twine_gc_ਗਿਣਤੀ;
 
-struct TwinePool : HashConsPool<TwinePool, TwineNode, IdString> {
-	static constexpr size_t STATIC_COUNT = STATIC_TWINE_END;
+ਬਣਤਰ TwinePool : HashConsPool<TwinePool, Twine_ਗੰਢ, IdString> {
+	ਸਥਿਰ constexpr ਮਾਪ_t STATIC_ਗਿਣਤੀ = STATIC_TWINE_ਸਿਰਾ;
 
 	TwinePool();
-	TwinePool(const TwinePool& other);
+	TwinePool(ਅਚਲ TwinePool& other);
 	TwinePool(TwinePool&& other);
-	TwinePool& operator=(const TwinePool& other);
-	TwinePool& operator=(TwinePool&& other);
+	TwinePool& ਸੰਚਾਲਕ=(ਅਚਲ TwinePool& other);
+	TwinePool& ਸੰਚਾਲਕ=(TwinePool&& other);
 
-	const TwineNode& operator[](IdString ref) const;
+	ਅਚਲ Twine_ਗੰਢ& ਸੰਚਾਲਕ[](IdString ref) ਅਚਲ;
 
-	static const TwineNode& static_node(size_t idx);
+	ਸਥਿਰ ਅਚਲ Twine_ਗੰਢ& static_ਗੰਢ(ਮਾਪ_t idx);
 
-	static void check_ready();
-	static uint32_t hash_node(const TwineNode& t) { return t.hash(); }
+	ਸਥਿਰ ਖਾਲੀ check_ready();
+	ਸਥਿਰ uint32_t hash_ਗੰਢ(ਅਚਲ Twine_ਗੰਢ& t) { ਵਾਪਸ t.hash(); }
 
-	template<typename F>
-	static void for_each_child(const TwineNode& t, F&& f) {
-		if (t.is_suffix())
-			f(t.prefix());
+	ਸਾਂਚਾ<typename F>
+	ਸਥਿਰ ਖਾਲੀ for_each_ਬੱਚਾ(ਅਚਲ Twine_ਗੰਢ& t, F&& f) {
+		ਜੇ (t.is_suffix())
+			f(t.ਅਗੇਤਰ_2());
 	}
 
-	size_t gc(pool<IdString>& roots);
+	ਮਾਪ_t gc(pool<IdString>& roots);
 
-	void dump(IdString ref, std::ostream& os = std::cout) const;
+	ਖਾਲੀ dump(IdString ref, std::ostream& os = std::cout) ਅਚਲ;
 
 	// Publicity bit provides escaping
-	std::string str(IdString ref) const;
+	std::string str(IdString ref) ਅਚਲ;
 	// Publicity bit ignored
-	std::string unescaped_str(IdString ref) const;
+	std::string unescaped_str(IdString ref) ਅਚਲ;
 
-	size_t str_size(IdString ref) const;
-	bool begins_with(IdString ref, std::string_view prefix) const;
+	ਮਾਪ_t str_ਮਾਪ(IdString ref) ਅਚਲ;
+	bool begins_with(IdString ref, std::string_view ਅਗੇਤਰ_2) ਅਚਲ;
 	// Publicity bit provides escaping, as in str()
-	bool name_equal(IdString ref, std::string_view name) const;
-	int compare_by_name(IdString a, IdString b) const;
-	IdString prefix_of(IdString ref) const;
+	bool name_equal(IdString ref, std::string_view name) ਅਚਲ;
+	ਪੂਰਨ compare_by_name(IdString a, IdString b) ਅਚਲ;
+	IdString ਅਗੇਤਰ_ਦਾ(IdString ref) ਅਚਲ;
 
-	IdString find(std::string_view name) const;
-	IdString find(TwineSpec t) const;
+	IdString ਲੱਭੋ(std::string_view name) ਅਚਲ;
+	IdString ਲੱਭੋ(TwineSpec t) ਅਚਲ;
 	// Doesn't infer publicity
-	IdString add(TwineSpec t);
-	IdString add(IdString prefix, std::string_view tail);
+	IdString ਜੋੜੋ(TwineSpec t);
+	IdString ਜੋੜੋ(IdString ਅਗੇਤਰ_2, std::string_view ਪੂਛ);
 	// Infers publicity from first character
-	IdString add(std::string_view s);
-	IdString copy_from(const TwinePool& src, IdString ref);
+	IdString ਜੋੜੋ(std::string_view s);
+	IdString copy_from(ਅਚਲ TwinePool& src, IdString ref);
 	// Non-mutating counterpart of copy_from
-	IdString find_from(const TwinePool& src, IdString ref) const;
+	IdString ਲੱਭੋ_from(ਅਚਲ TwinePool& src, IdString ref) ਅਚਲ;
 	// Opaque handle for files that never leave one run of yosys.
 	// Only valid until garbage collection reuses the slot.
-	std::string ref_token(IdString ref) const;
+	std::string ref_token(IdString ref) ਅਚਲ;
 	// Null unless the token names a live twine stamped by this pool
-	IdString ref_from_token(std::string_view token) const;
-	void check_owned(IdString ref) const;
+	IdString ref_from_token(std::string_view token) ਅਚਲ;
+	ਖਾਲੀ check_owned(IdString ref) ਅਚਲ;
 
-private:
-	bool owns(IdString ref) const;
-	IdString stamp(IdString ref) const;
-	void append_str(IdString ref, std::string& out) const;
-	IdString auto_prefix(const std::string *prefix);
-	IdString add_inner(TwineNode t);
-	IdString intern(uint32_t prefix, std::string_view text);
-	uint32_t content_hash(uint32_t prefix, std::string_view text) const;
-	IdString find_content(uint32_t prefix, std::string_view text, uint32_t hash) const;
-	IdString find_content(uint32_t prefix, std::string_view text) const;
-	static size_t next_serial();
-	dict<const std::string *, IdString> auto_prefixes;
-	size_t serial_;
+ਨਿਜੀ:
+	bool owns(IdString ref) ਅਚਲ;
+	IdString stamp(IdString ref) ਅਚਲ;
+	ਖਾਲੀ append_str(IdString ref, std::string& ਬਾਹਰਲਾ) ਅਚਲ;
+	IdString auto_ਅਗੇਤਰ(ਅਚਲ std::string *ਅਗੇਤਰ_2);
+	IdString ਜੋੜੋ_inner(Twine_ਗੰਢ t);
+	IdString intern(uint32_t ਅਗੇਤਰ_2, std::string_view ਪਾਠ);
+	uint32_t content_hash(uint32_t ਅਗੇਤਰ_2, std::string_view ਪਾਠ) ਅਚਲ;
+	IdString ਲੱਭੋ_content(uint32_t ਅਗੇਤਰ_2, std::string_view ਪਾਠ, uint32_t hash) ਅਚਲ;
+	IdString ਲੱਭੋ_content(uint32_t ਅਗੇਤਰ_2, std::string_view ਪਾਠ) ਅਚਲ;
+	ਸਥਿਰ ਮਾਪ_t ਅਗਲਾ_serial();
+	dict<ਅਚਲ std::string *, IdString> auto_prefixes;
+	ਮਾਪ_t serial_;
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif
+#ਜੇ_ਅੰਤ

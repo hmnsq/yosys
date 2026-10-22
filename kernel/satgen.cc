@@ -17,184 +17,184 @@
  *
  */
 
-#include "kernel/satgen.h"
-#include "kernel/ff.h"
-#include "kernel/yosys_common.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/satgen.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/ff.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/yosys_common.h"
 
 USING_YOSYS_NAMESPACE
 
-bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
+ਤਾਰਕਿਕ SatGen::importCell(RTLIL::Cell *cell, ਪੂਰਨ timestep)
 {
-	bool arith_undef_handled = false;
-	bool is_arith_compare = cell->type.in(ID($lt), ID($le), ID($ge), ID($gt));
+	ਤਾਰਕਿਕ arith_undef_handled = ਝੂਠ;
+	ਤਾਰਕਿਕ is_arith_compare = cell->type.ਵਿੱਚ(ID($lt), ID($le), ID($ge), ID($gt));
 
-	if (model_undef && (cell->type.in(ID($add), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor)) || is_arith_compare))
+	ਜੇ (model_undef && (cell->type.ਵਿੱਚ(ID($ਜੋੜੋ), ID($sub), ID($mul), ID($div), ID($mod), ID($divfloor), ID($modfloor)) || is_arith_compare))
 	{
-		std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-		if (is_arith_compare)
-			extendSignalWidth(undef_a, undef_b, cell, true);
-		else
-			extendSignalWidth(undef_a, undef_b, undef_y, cell, true);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> undef_b = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+		ਜੇ (is_arith_compare)
+			extend_Signal_ਚੌੜਾਈ(undef_a, undef_b, cell, ਸੱਚ);
+		ਨਹੀਂਤਾਂ
+			extend_Signal_ਚੌੜਾਈ(undef_a, undef_b, undef_y, cell, ਸੱਚ);
 
-		int undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
-		int undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
-		int undef_y_bit = ez->OR(undef_any_a, undef_any_b);
+		ਪੂਰਨ undef_any_a = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_a);
+		ਪੂਰਨ undef_any_b = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_b);
+		ਪੂਰਨ undef_y_ਦੋਆਧਾਰੀ_ਅੰਕ = ez->OR(undef_any_a, undef_any_b);
 
-		if (cell->type.in(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
-			std::vector<int> b = importSigSpec(cell->getPort(ID::B), timestep);
-			undef_y_bit = ez->OR(undef_y_bit, ez->NOT(ez->expression(ezSAT::OpOr, b)));
+		ਜੇ (cell->type.ਵਿੱਚ(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
+			std::ਸਦਿਸ਼<ਪੂਰਨ> b = importSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+			undef_y_ਦੋਆਧਾਰੀ_ਅੰਕ = ez->OR(undef_y_ਦੋਆਧਾਰੀ_ਅੰਕ, ez->NOT(ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, b)));
 		}
 
-		if (is_arith_compare) {
-			for (size_t i = 1; i < undef_y.size(); i++)
-				ez->SET(ez->CONST_FALSE, undef_y.at(i));
-			ez->SET(undef_y_bit, undef_y.at(0));
-		} else {
-			std::vector<int> undef_y_bits(undef_y.size(), undef_y_bit);
-			ez->assume(ez->vec_eq(undef_y_bits, undef_y));
+		ਜੇ (is_arith_compare) {
+			ਲਈ (ਮਾਪ_t i = 1; i < undef_y.ਮਾਪ(); i++)
+				ez->ਸੈੱਟ_2(ez->CONST_FALSE, undef_y.at(i));
+			ez->ਸੈੱਟ_2(undef_y_ਦੋਆਧਾਰੀ_ਅੰਕ, undef_y.at(0));
+		} ਨਹੀਂਤਾਂ {
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y_ਬਿੱਟ(undef_y.ਮਾਪ(), undef_y_ਦੋਆਧਾਰੀ_ਅੰਕ);
+			ez->assume(ez->vec_eq(undef_y_ਬਿੱਟ, undef_y));
 		}
 
-		arith_undef_handled = true;
+		arith_undef_handled = ਸੱਚ;
 	}
 
-	if (cell->type.in(ID($_AND_), ID($_NAND_), ID($_OR_), ID($_NOR_), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_),
-			ID($and), ID($or), ID($xor), ID($xnor), ID($add), ID($sub)))
+	ਜੇ (cell->type.ਵਿੱਚ(ID($_AND_), ID($_NAND_), ID($_OR_), ID($_NOR_), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_),
+			ID($and), ID($or), ID($xor), ID($xnor), ID($ਜੋੜੋ), ID($sub)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		extendSignalWidth(a, b, y, cell);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> b = importDefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+		extend_Signal_ਚੌੜਾਈ(a, b, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
 
-		if (cell->type.in(ID($and), ID($_AND_)))
+		ਜੇ (cell->type.ਵਿੱਚ(ID($and), ID($_AND_)))
 			ez->assume(ez->vec_eq(ez->vec_and(a, b), yy));
-		if (cell->type == ID($_NAND_))
+		ਜੇ (cell->type == ID($_NAND_))
 			ez->assume(ez->vec_eq(ez->vec_not(ez->vec_and(a, b)), yy));
-		if (cell->type.in(ID($or), ID($_OR_)))
+		ਜੇ (cell->type.ਵਿੱਚ(ID($or), ID($_OR_)))
 			ez->assume(ez->vec_eq(ez->vec_or(a, b), yy));
-		if (cell->type == ID($_NOR_))
+		ਜੇ (cell->type == ID($_NOR_))
 			ez->assume(ez->vec_eq(ez->vec_not(ez->vec_or(a, b)), yy));
-		if (cell->type.in(ID($xor), ID($_XOR_)))
+		ਜੇ (cell->type.ਵਿੱਚ(ID($xor), ID($_XOR_)))
 			ez->assume(ez->vec_eq(ez->vec_xor(a, b), yy));
-		if (cell->type.in(ID($xnor), ID($_XNOR_)))
+		ਜੇ (cell->type.ਵਿੱਚ(ID($xnor), ID($_XNOR_)))
 			ez->assume(ez->vec_eq(ez->vec_not(ez->vec_xor(a, b)), yy));
-		if (cell->type == ID($_ANDNOT_))
+		ਜੇ (cell->type == ID($_ANDNOT_))
 			ez->assume(ez->vec_eq(ez->vec_and(a, ez->vec_not(b)), yy));
-		if (cell->type == ID($_ORNOT_))
+		ਜੇ (cell->type == ID($_ORNOT_))
 			ez->assume(ez->vec_eq(ez->vec_or(a, ez->vec_not(b)), yy));
-		if (cell->type == ID($add))
-			ez->assume(ez->vec_eq(ez->vec_add(a, b), yy));
-		if (cell->type == ID($sub))
+		ਜੇ (cell->type == ID($ਜੋੜੋ))
+			ez->assume(ez->vec_eq(ez->vec_ਜੋੜੋ(a, b), yy));
+		ਜੇ (cell->type == ID($sub))
 			ez->assume(ez->vec_eq(ez->vec_sub(a, b), yy));
 
-		if (model_undef && !arith_undef_handled)
+		ਜੇ (model_undef && !arith_undef_handled)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidth(undef_a, undef_b, undef_y, cell, false);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_b = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+			extend_Signal_ਚੌੜਾਈ(undef_a, undef_b, undef_y, cell, ਝੂਠ);
 
-			if (cell->type.in(ID($and), ID($_AND_), ID($_NAND_))) {
-				std::vector<int> a0 = ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a));
-				std::vector<int> b0 = ez->vec_and(ez->vec_not(b), ez->vec_not(undef_b));
-				std::vector<int> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a0, b0)));
+			ਜੇ (cell->type.ਵਿੱਚ(ID($and), ID($_AND_), ID($_NAND_))) {
+				std::ਸਦਿਸ਼<ਪੂਰਨ> a0 = ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a));
+				std::ਸਦਿਸ਼<ਪੂਰਨ> b0 = ez->vec_and(ez->vec_not(b), ez->vec_not(undef_b));
+				std::ਸਦਿਸ਼<ਪੂਰਨ> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a0, b0)));
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
-			else if (cell->type.in(ID($or), ID($_OR_), ID($_NOR_))) {
-				std::vector<int> a1 = ez->vec_and(a, ez->vec_not(undef_a));
-				std::vector<int> b1 = ez->vec_and(b, ez->vec_not(undef_b));
-				std::vector<int> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a1, b1)));
+			ਨਹੀਂਤਾਂ ਜੇ (cell->type.ਵਿੱਚ(ID($or), ID($_OR_), ID($_NOR_))) {
+				std::ਸਦਿਸ਼<ਪੂਰਨ> a1 = ez->vec_and(a, ez->vec_not(undef_a));
+				std::ਸਦਿਸ਼<ਪੂਰਨ> b1 = ez->vec_and(b, ez->vec_not(undef_b));
+				std::ਸਦਿਸ਼<ਪੂਰਨ> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a1, b1)));
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
-			else if (cell->type.in(ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_))) {
-				std::vector<int> yX = ez->vec_or(undef_a, undef_b);
+			ਨਹੀਂਤਾਂ ਜੇ (cell->type.ਵਿੱਚ(ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_))) {
+				std::ਸਦਿਸ਼<ਪੂਰਨ> yX = ez->vec_or(undef_a, undef_b);
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
-			else if (cell->type == ID($_ANDNOT_)) {
-				std::vector<int> a0 = ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a));
-				std::vector<int> b1 = ez->vec_and(b, ez->vec_not(undef_b));
-				std::vector<int> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a0, b1)));
+			ਨਹੀਂਤਾਂ ਜੇ (cell->type == ID($_ANDNOT_)) {
+				std::ਸਦਿਸ਼<ਪੂਰਨ> a0 = ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a));
+				std::ਸਦਿਸ਼<ਪੂਰਨ> b1 = ez->vec_and(b, ez->vec_not(undef_b));
+				std::ਸਦਿਸ਼<ਪੂਰਨ> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a0, b1)));
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
 
-			else if (cell->type == ID($_ORNOT_)) {
-				std::vector<int> a1 = ez->vec_and(a, ez->vec_not(undef_a));
-				std::vector<int> b0 = ez->vec_and(ez->vec_not(b), ez->vec_not(undef_b));
-				std::vector<int> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a1, b0)));
+			ਨਹੀਂਤਾਂ ਜੇ (cell->type == ID($_ORNOT_)) {
+				std::ਸਦਿਸ਼<ਪੂਰਨ> a1 = ez->vec_and(a, ez->vec_not(undef_a));
+				std::ਸਦਿਸ਼<ਪੂਰਨ> b0 = ez->vec_and(ez->vec_not(b), ez->vec_not(undef_b));
+				std::ਸਦਿਸ਼<ਪੂਰਨ> yX = ez->vec_and(ez->vec_or(undef_a, undef_b), ez->vec_not(ez->vec_or(a1, b0)));
 				ez->assume(ez->vec_eq(yX, undef_y));
 			}
-			else
+			ਨਹੀਂਤਾਂ
 				log_abort();
 
 			undefGating(y, yy, undef_y);
 		}
-		else if (model_undef)
+		ਨਹੀਂਤਾਂ ਜੇ (model_undef)
 		{
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type.in(ID($_AOI3_), ID($_OAI3_), ID($_AOI4_), ID($_OAI4_)))
+	ਜੇ (cell->type.ਵਿੱਚ(ID($_AOI3_), ID($_OAI3_), ID($_AOI4_), ID($_OAI4_)))
 	{
-		bool aoi_mode = cell->type.in(ID($_AOI3_), ID($_AOI4_));
-		bool three_mode = cell->type.in(ID($_AOI3_), ID($_OAI3_));
+		ਤਾਰਕਿਕ aoi_ਬਹੁਲਕ = cell->type.ਵਿੱਚ(ID($_AOI3_), ID($_AOI4_));
+		ਤਾਰਕਿਕ three_ਬਹੁਲਕ = cell->type.ਵਿੱਚ(ID($_AOI3_), ID($_OAI3_));
 
-		int a = importDefSigSpec(cell->getPort(ID::A), timestep).at(0);
-		int b = importDefSigSpec(cell->getPort(ID::B), timestep).at(0);
-		int c = importDefSigSpec(cell->getPort(ID::C), timestep).at(0);
-		int d = three_mode ? (aoi_mode ? ez->CONST_TRUE : ez->CONST_FALSE) : importDefSigSpec(cell->getPort(ID::D), timestep).at(0);
-		int y = importDefSigSpec(cell->getPort(ID::Y), timestep).at(0);
-		int yy = model_undef ? ez->literal() : y;
+		ਪੂਰਨ a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep).at(0);
+		ਪੂਰਨ b = importDefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep).at(0);
+		ਪੂਰਨ c = importDefSigSpec(cell->get_ਪੋਰਟ(ID::C), timestep).at(0);
+		ਪੂਰਨ d = three_ਬਹੁਲਕ ? (aoi_ਬਹੁਲਕ ? ez->CONST_TRUE : ez->CONST_FALSE) : importDefSigSpec(cell->get_ਪੋਰਟ(ID::D), timestep).at(0);
+		ਪੂਰਨ y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep).at(0);
+		ਪੂਰਨ yy = model_undef ? ez->literal() : y;
 
-		if (cell->type.in(ID($_AOI3_), ID($_AOI4_)))
+		ਜੇ (cell->type.ਵਿੱਚ(ID($_AOI3_), ID($_AOI4_)))
 			ez->assume(ez->IFF(ez->NOT(ez->OR(ez->AND(a, b), ez->AND(c, d))), yy));
-		else
+		ਨਹੀਂਤਾਂ
 			ez->assume(ez->IFF(ez->NOT(ez->AND(ez->OR(a, b), ez->OR(c, d))), yy));
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			int undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep).at(0);
-			int undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep).at(0);
-			int undef_c = importUndefSigSpec(cell->getPort(ID::C), timestep).at(0);
-			int undef_d = three_mode ? ez->CONST_FALSE : importUndefSigSpec(cell->getPort(ID::D), timestep).at(0);
-			int undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep).at(0);
+			ਪੂਰਨ undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep).at(0);
+			ਪੂਰਨ undef_b = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep).at(0);
+			ਪੂਰਨ undef_c = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::C), timestep).at(0);
+			ਪੂਰਨ undef_d = three_ਬਹੁਲਕ ? ez->CONST_FALSE : importUndefSigSpec(cell->get_ਪੋਰਟ(ID::D), timestep).at(0);
+			ਪੂਰਨ undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep).at(0);
 
-			if (aoi_mode)
+			ਜੇ (aoi_ਬਹੁਲਕ)
 			{
-				int a0 = ez->AND(ez->NOT(a), ez->NOT(undef_a));
-				int b0 = ez->AND(ez->NOT(b), ez->NOT(undef_b));
-				int c0 = ez->AND(ez->NOT(c), ez->NOT(undef_c));
-				int d0 = ez->AND(ez->NOT(d), ez->NOT(undef_d));
+				ਪੂਰਨ a0 = ez->AND(ez->NOT(a), ez->NOT(undef_a));
+				ਪੂਰਨ b0 = ez->AND(ez->NOT(b), ez->NOT(undef_b));
+				ਪੂਰਨ c0 = ez->AND(ez->NOT(c), ez->NOT(undef_c));
+				ਪੂਰਨ d0 = ez->AND(ez->NOT(d), ez->NOT(undef_d));
 
-				int ab = ez->AND(a, b), cd = ez->AND(c, d);
-				int undef_ab = ez->AND(ez->OR(undef_a, undef_b), ez->NOT(ez->OR(a0, b0)));
-				int undef_cd = ez->AND(ez->OR(undef_c, undef_d), ez->NOT(ez->OR(c0, d0)));
+				ਪੂਰਨ ab = ez->AND(a, b), cd = ez->AND(c, d);
+				ਪੂਰਨ undef_ab = ez->AND(ez->OR(undef_a, undef_b), ez->NOT(ez->OR(a0, b0)));
+				ਪੂਰਨ undef_cd = ez->AND(ez->OR(undef_c, undef_d), ez->NOT(ez->OR(c0, d0)));
 
-				int ab1 = ez->AND(ab, ez->NOT(undef_ab));
-				int cd1 = ez->AND(cd, ez->NOT(undef_cd));
-				int yX = ez->AND(ez->OR(undef_ab, undef_cd), ez->NOT(ez->OR(ab1, cd1)));
+				ਪੂਰਨ ab1 = ez->AND(ab, ez->NOT(undef_ab));
+				ਪੂਰਨ cd1 = ez->AND(cd, ez->NOT(undef_cd));
+				ਪੂਰਨ yX = ez->AND(ez->OR(undef_ab, undef_cd), ez->NOT(ez->OR(ab1, cd1)));
 
 				ez->assume(ez->IFF(yX, undef_y));
 			}
-			else
+			ਨਹੀਂਤਾਂ
 			{
-				int a1 = ez->AND(a, ez->NOT(undef_a));
-				int b1 = ez->AND(b, ez->NOT(undef_b));
-				int c1 = ez->AND(c, ez->NOT(undef_c));
-				int d1 = ez->AND(d, ez->NOT(undef_d));
+				ਪੂਰਨ a1 = ez->AND(a, ez->NOT(undef_a));
+				ਪੂਰਨ b1 = ez->AND(b, ez->NOT(undef_b));
+				ਪੂਰਨ c1 = ez->AND(c, ez->NOT(undef_c));
+				ਪੂਰਨ d1 = ez->AND(d, ez->NOT(undef_d));
 
-				int ab = ez->OR(a, b), cd = ez->OR(c, d);
-				int undef_ab = ez->AND(ez->OR(undef_a, undef_b), ez->NOT(ez->OR(a1, b1)));
-				int undef_cd = ez->AND(ez->OR(undef_c, undef_d), ez->NOT(ez->OR(c1, d1)));
+				ਪੂਰਨ ab = ez->OR(a, b), cd = ez->OR(c, d);
+				ਪੂਰਨ undef_ab = ez->AND(ez->OR(undef_a, undef_b), ez->NOT(ez->OR(a1, b1)));
+				ਪੂਰਨ undef_cd = ez->AND(ez->OR(undef_c, undef_d), ez->NOT(ez->OR(c1, d1)));
 
-				int ab0 = ez->AND(ez->NOT(ab), ez->NOT(undef_ab));
-				int cd0 = ez->AND(ez->NOT(cd), ez->NOT(undef_cd));
-				int yX = ez->AND(ez->OR(undef_ab, undef_cd), ez->NOT(ez->OR(ab0, cd0)));
+				ਪੂਰਨ ab0 = ez->AND(ez->NOT(ab), ez->NOT(undef_ab));
+				ਪੂਰਨ cd0 = ez->AND(ez->NOT(cd), ez->NOT(undef_cd));
+				ਪੂਰਨ yX = ez->AND(ez->OR(undef_ab, undef_cd), ez->NOT(ez->OR(ab0, cd0)));
 
 				ez->assume(ez->IFF(yX, undef_y));
 			}
@@ -202,878 +202,878 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 			undefGating(y, yy, undef_y);
 		}
 
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type.in(ID($_NOT_), ID($not)))
+	ਜੇ (cell->type.ਵਿੱਚ(ID($_NOT_), ID($not)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		extendSignalWidthUnary(a, y, cell);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+		extend_Signal_ਚੌੜਾਈ_Unary(a, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
 		ez->assume(ez->vec_eq(ez->vec_not(a), yy));
 
-		if (model_undef) {
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidthUnary(undef_a, undef_y, cell, false);
+		ਜੇ (model_undef) {
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+			extend_Signal_ਚੌੜਾਈ_Unary(undef_a, undef_y, cell, ਝੂਠ);
 			ez->assume(ez->vec_eq(undef_a, undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($bweqx))
+	ਜੇ (cell->type == ID($bweqx))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> b = importDefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 
-		std::vector<int> bweqx = ez->vec_not(ez->vec_xor(a, b));
+		std::ਸਦਿਸ਼<ਪੂਰਨ> bweqx = ez->vec_not(ez->vec_xor(a, b));
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_b = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 
-			std::vector<int> both_undef = ez->vec_and(undef_a, undef_b);
-			std::vector<int> both_def = ez->vec_and(ez->vec_not(undef_a), ez->vec_not(undef_b));
+			std::ਸਦਿਸ਼<ਪੂਰਨ> both_undef = ez->vec_and(undef_a, undef_b);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> both_def = ez->vec_and(ez->vec_not(undef_a), ez->vec_not(undef_b));
 
 			bweqx = ez->vec_or(both_undef, ez->vec_and(both_def, bweqx));
 
-			for (int yx : undef_y)
+			ਲਈ (ਪੂਰਨ yx : undef_y)
 				ez->assume(ez->NOT(yx));
 		}
 		ez->assume(ez->vec_eq(bweqx, y));
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type.in(ID($_MUX_), ID($mux), ID($_NMUX_), ID($bwmux)))
+	ਜੇ (cell->type.ਵਿੱਚ(ID($_MUX_), ID($mux), ID($_NMUX_), ID($bwmux)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> s = importDefSigSpec(cell->getPort(ID::S), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> b = importDefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> s = importDefSigSpec(cell->get_ਪੋਰਟ(ID::S), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
-		if (cell->type == ID($_NMUX_))
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
+		ਜੇ (cell->type == ID($_NMUX_))
 			ez->assume(ez->vec_eq(ez->vec_not(ez->vec_ite(s.at(0), b, a)), yy));
-		else if (cell->type == ID($bwmux))
+		ਨਹੀਂਤਾਂ ਜੇ (cell->type == ID($bwmux))
 			ez->assume(ez->vec_eq(ez->vec_ite(s, b, a), yy));
-		else
+		ਨਹੀਂਤਾਂ
 			ez->assume(ez->vec_eq(ez->vec_ite(s.at(0), b, a), yy));
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_s = importUndefSigSpec(cell->getPort(ID::S), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_b = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_s = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::S), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 
-			std::vector<int> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
-			std::vector<int> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
-			std::vector<int> yX;
-			if (cell->type == ID($bwmux))
+			std::ਸਦਿਸ਼<ਪੂਰਨ> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
+			std::ਸਦਿਸ਼<ਪੂਰਨ> yX;
+			ਜੇ (cell->type == ID($bwmux))
 				yX = ez->vec_ite(undef_s, undef_ab, ez->vec_ite(s, undef_b, undef_a));
-			else
+			ਨਹੀਂਤਾਂ
 				yX = ez->vec_ite(undef_s.at(0), undef_ab, ez->vec_ite(s.at(0), undef_b, undef_a));
 			ez->assume(ez->vec_eq(yX, undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($bmux))
+	ਜੇ (cell->type == ID($bmux))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> s = importDefSigSpec(cell->getPort(ID::S), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		std::vector<int> undef_a, undef_s, undef_y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> s = importDefSigSpec(cell->get_ਪੋਰਟ(ID::S), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a, undef_s, undef_y;
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			undef_s = importUndefSigSpec(cell->getPort(ID::S), timestep);
-			undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			undef_s = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::S), timestep);
+			undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 		}
 
-		if (GetSize(s) == 0) {
-			ez->vec_set(a, y);
-			if (model_undef)
-				ez->vec_set(undef_a, undef_y);
-		} else {
-			for (int i = GetSize(s)-1; i >= 0; i--)
+		ਜੇ (Get_ਮਾਪ(s) == 0) {
+			ez->vec_ਸੈੱਟ(a, y);
+			ਜੇ (model_undef)
+				ez->vec_ਸੈੱਟ(undef_a, undef_y);
+		} ਨਹੀਂਤਾਂ {
+			ਲਈ (ਪੂਰਨ i = Get_ਮਾਪ(s)-1; i >= 0; i--)
 			{
-				std::vector<int> out = (i == 0) ? y : ez->vec_var(a.size() / 2);
-				std::vector<int> yy = model_undef ? ez->vec_var(out.size()) : out;
+				std::ਸਦਿਸ਼<ਪੂਰਨ> ਬਾਹਰਲਾ = (i == 0) ? y : ez->vec_var(a.ਮਾਪ() / 2);
+				std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(ਬਾਹਰਲਾ.ਮਾਪ()) : ਬਾਹਰਲਾ;
 
-				std::vector<int> a0(a.begin(), a.begin() + a.size() / 2);
-				std::vector<int> a1(a.begin() + a.size() / 2, a.end());
+				std::ਸਦਿਸ਼<ਪੂਰਨ> a0(a.begin(), a.begin() + a.ਮਾਪ() / 2);
+				std::ਸਦਿਸ਼<ਪੂਰਨ> a1(a.begin() + a.ਮਾਪ() / 2, a.ਸਿਰਾ());
 				ez->assume(ez->vec_eq(ez->vec_ite(s.at(i), a1, a0), yy));
 
-				if (model_undef)
+				ਜੇ (model_undef)
 				{
-					std::vector<int> undef_out = (i == 0) ? undef_y : ez->vec_var(a.size() / 2);
-					std::vector<int> undef_a0(undef_a.begin(), undef_a.begin() + a.size() / 2);
-					std::vector<int> undef_a1(undef_a.begin() + a.size() / 2, undef_a.end());
-					std::vector<int> unequal_ab = ez->vec_not(ez->vec_iff(a0, a1));
-					std::vector<int> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a0, undef_a1));
-					std::vector<int> yX = ez->vec_ite(undef_s.at(i), undef_ab, ez->vec_ite(s.at(i), undef_a1, undef_a0));
-					ez->assume(ez->vec_eq(yX, undef_out));
-					undefGating(out, yy, undef_out);
+					std::ਸਦਿਸ਼<ਪੂਰਨ> undef_ਬਾਹਰਲਾ = (i == 0) ? undef_y : ez->vec_var(a.ਮਾਪ() / 2);
+					std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a0(undef_a.begin(), undef_a.begin() + a.ਮਾਪ() / 2);
+					std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a1(undef_a.begin() + a.ਮਾਪ() / 2, undef_a.ਸਿਰਾ());
+					std::ਸਦਿਸ਼<ਪੂਰਨ> unequal_ab = ez->vec_not(ez->vec_iff(a0, a1));
+					std::ਸਦਿਸ਼<ਪੂਰਨ> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a0, undef_a1));
+					std::ਸਦਿਸ਼<ਪੂਰਨ> yX = ez->vec_ite(undef_s.at(i), undef_ab, ez->vec_ite(s.at(i), undef_a1, undef_a0));
+					ez->assume(ez->vec_eq(yX, undef_ਬਾਹਰਲਾ));
+					undefGating(ਬਾਹਰਲਾ, yy, undef_ਬਾਹਰਲਾ);
 
-					undef_a = undef_out;
+					undef_a = undef_ਬਾਹਰਲਾ;
 				}
 
-				a = out;
+				a = ਬਾਹਰਲਾ;
 			}
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($demux))
+	ਜੇ (cell->type == ID($demux))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> s = importDefSigSpec(cell->getPort(ID::S), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
-		std::vector<int> undef_a, undef_s, undef_y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> s = importDefSigSpec(cell->get_ਪੋਰਟ(ID::S), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a, undef_s, undef_y;
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			undef_s = importUndefSigSpec(cell->getPort(ID::S), timestep);
-			undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			undef_s = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::S), timestep);
+			undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 		}
 
-		if (GetSize(s) == 0) {
-			ez->vec_set(a, y);
-			if (model_undef)
-				ez->vec_set(undef_a, undef_y);
-		} else {
-			for (int i = 0; i < (1 << GetSize(s)); i++)
+		ਜੇ (Get_ਮਾਪ(s) == 0) {
+			ez->vec_ਸੈੱਟ(a, y);
+			ਜੇ (model_undef)
+				ez->vec_ਸੈੱਟ(undef_a, undef_y);
+		} ਨਹੀਂਤਾਂ {
+			ਲਈ (ਪੂਰਨ i = 0; i < (1 << Get_ਮਾਪ(s)); i++)
 			{
-				std::vector<int> ss;
-				for (int j = 0; j < GetSize(s); j++) {
-					if (i & 1 << j)
-						ss.push_back(s[j]);
-					else
-						ss.push_back(ez->NOT(s[j]));
+				std::ਸਦਿਸ਼<ਪੂਰਨ> ss;
+				ਲਈ (ਪੂਰਨ j = 0; j < Get_ਮਾਪ(s); j++) {
+					ਜੇ (i & 1 << j)
+						ss.ਧੱਕੋ_ਪਿੱਠ(s[j]);
+					ਨਹੀਂਤਾਂ
+						ss.ਧੱਕੋ_ਪਿੱਠ(ez->NOT(s[j]));
 				}
-				int sss = ez->expression(ezSAT::OpAnd, ss);
+				ਪੂਰਨ sss = ez->ਵਿਅੰਜਕ_2(ezSAT::OpAnd, ss);
 
-				for (int j = 0; j < GetSize(a); j++) {
-					ez->SET(ez->AND(sss, a[j]), yy.at(i * GetSize(a) + j));
+				ਲਈ (ਪੂਰਨ j = 0; j < Get_ਮਾਪ(a); j++) {
+					ez->ਸੈੱਟ_2(ez->AND(sss, a[j]), yy.at(i * Get_ਮਾਪ(a) + j));
 				}
 
-				if (model_undef)
+				ਜੇ (model_undef)
 				{
-					int s0 = ez->expression(ezSAT::OpOr, ez->vec_and(ez->vec_not(ss), ez->vec_not(undef_s)));
-					int us = ez->AND(ez->NOT(s0), ez->expression(ezSAT::OpOr, undef_s));
-					for (int j = 0; j < GetSize(a); j++) {
-						int a0 = ez->AND(ez->NOT(a[j]), ez->NOT(undef_a[j]));
-						int yX = ez->AND(ez->OR(us, undef_a[j]), ez->NOT(ez->OR(s0, a0)));
-						ez->SET(yX, undef_y.at(i * GetSize(a) + j));
+					ਪੂਰਨ s0 = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, ez->vec_and(ez->vec_not(ss), ez->vec_not(undef_s)));
+					ਪੂਰਨ us = ez->AND(ez->NOT(s0), ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_s));
+					ਲਈ (ਪੂਰਨ j = 0; j < Get_ਮਾਪ(a); j++) {
+						ਪੂਰਨ a0 = ez->AND(ez->NOT(a[j]), ez->NOT(undef_a[j]));
+						ਪੂਰਨ yX = ez->AND(ez->OR(us, undef_a[j]), ez->NOT(ez->OR(s0, a0)));
+						ez->ਸੈੱਟ_2(yX, undef_y.at(i * Get_ਮਾਪ(a) + j));
 					}
 				}
 			}
-			if (model_undef)
+			ਜੇ (model_undef)
 				undefGating(y, yy, undef_y);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($pmux))
+	ਜੇ (cell->type == ID($pmux))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> s = importDefSigSpec(cell->getPort(ID::S), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> b = importDefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> s = importDefSigSpec(cell->get_ਪੋਰਟ(ID::S), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
 
-		std::vector<int> tmp = a;
-		for (size_t i = 0; i < s.size(); i++) {
-			std::vector<int> part_of_b(b.begin()+i*a.size(), b.begin()+(i+1)*a.size());
-			tmp = ez->vec_ite(s.at(i), part_of_b, tmp);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> tmp = a;
+		ਲਈ (ਮਾਪ_t i = 0; i < s.ਮਾਪ(); i++) {
+			std::ਸਦਿਸ਼<ਪੂਰਨ> part_ਦਾ_b(b.begin()+i*a.ਮਾਪ(), b.begin()+(i+1)*a.ਮਾਪ());
+			tmp = ez->vec_ite(s.at(i), part_ਦਾ_b, tmp);
 		}
 		ez->assume(ez->vec_eq(tmp, yy));
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_s = importUndefSigSpec(cell->getPort(ID::S), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_b = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_s = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::S), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 
-			int all_undef = ez->CONST_FALSE;
-			int found_active = ez->CONST_FALSE;
+			ਪੂਰਨ all_undef = ez->CONST_FALSE;
+			ਪੂਰਨ ਮਿਲਿਆ_ਸਰਗਰਮ = ez->CONST_FALSE;
 
-			std::vector<int> undef_tmp = undef_a;
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_tmp = undef_a;
 
-			for (size_t i = 0; i < s.size(); i++)
+			ਲਈ (ਮਾਪ_t i = 0; i < s.ਮਾਪ(); i++)
 			{
-				std::vector<int> part_of_undef_b(undef_b.begin()+i*a.size(), undef_b.begin()+(i+1)*a.size());
+				std::ਸਦਿਸ਼<ਪੂਰਨ> part_ਦਾ_undef_b(undef_b.begin()+i*a.ਮਾਪ(), undef_b.begin()+(i+1)*a.ਮਾਪ());
 
-				undef_tmp = ez->vec_ite(s.at(i), part_of_undef_b, undef_tmp);
+				undef_tmp = ez->vec_ite(s.at(i), part_ਦਾ_undef_b, undef_tmp);
 				all_undef = ez->OR(all_undef, undef_s.at(i));
-				all_undef = ez->OR(all_undef, ez->AND(s.at(i), found_active));
-				found_active = ez->OR(found_active, s.at(i));
+				all_undef = ez->OR(all_undef, ez->AND(s.at(i), ਮਿਲਿਆ_ਸਰਗਰਮ));
+				ਮਿਲਿਆ_ਸਰਗਰਮ = ez->OR(ਮਿਲਿਆ_ਸਰਗਰਮ, s.at(i));
 			}
 
-			undef_tmp = ez->vec_or(undef_tmp, std::vector<int>(a.size(), all_undef));
+			undef_tmp = ez->vec_or(undef_tmp, std::ਸਦਿਸ਼<ਪੂਰਨ>(a.ਮਾਪ(), all_undef));
 
 			ez->assume(ez->vec_eq(undef_tmp, undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type.in(ID($pos), ID($buf), ID($neg)))
+	ਜੇ (cell->type.ਵਿੱਚ(ID($pos), ID($buf), ID($neg)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		extendSignalWidthUnary(a, y, cell);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+		extend_Signal_ਚੌੜਾਈ_Unary(a, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
 
-		if (cell->type.in(ID($pos), ID($buf))) {
+		ਜੇ (cell->type.ਵਿੱਚ(ID($pos), ID($buf))) {
 			ez->assume(ez->vec_eq(a, yy));
-		} else {
-			std::vector<int> zero(a.size(), ez->CONST_FALSE);
+		} ਨਹੀਂਤਾਂ {
+			std::ਸਦਿਸ਼<ਪੂਰਨ> zero(a.ਮਾਪ(), ez->CONST_FALSE);
 			ez->assume(ez->vec_eq(ez->vec_sub(zero, a), yy));
 		}
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidthUnary(undef_a, undef_y, cell);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+			extend_Signal_ਚੌੜਾਈ_Unary(undef_a, undef_y, cell);
 
-			if (cell->type.in(ID($pos), ID($buf))) {
+			ਜੇ (cell->type.ਵਿੱਚ(ID($pos), ID($buf))) {
 				ez->assume(ez->vec_eq(undef_a, undef_y));
-			} else {
-				int undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
-				std::vector<int> undef_y_bits(undef_y.size(), undef_any_a);
-				ez->assume(ez->vec_eq(undef_y_bits, undef_y));
+			} ਨਹੀਂਤਾਂ {
+				ਪੂਰਨ undef_any_a = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_a);
+				std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y_ਬਿੱਟ(undef_y.ਮਾਪ(), undef_any_a);
+				ez->assume(ez->vec_eq(undef_y_ਬਿੱਟ, undef_y));
 			}
 
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool), ID($logic_not)))
+	ਜੇ (cell->type.ਵਿੱਚ(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool), ID($logic_not)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
 
-		if (cell->type == ID($reduce_and))
-			ez->SET(ez->expression(ez->OpAnd, a), yy.at(0));
-		if (cell->type.in(ID($reduce_or), ID($reduce_bool)))
-			ez->SET(ez->expression(ez->OpOr, a), yy.at(0));
-		if (cell->type == ID($reduce_xor))
-			ez->SET(ez->expression(ez->OpXor, a), yy.at(0));
-		if (cell->type == ID($reduce_xnor))
-			ez->SET(ez->NOT(ez->expression(ez->OpXor, a)), yy.at(0));
-		if (cell->type == ID($logic_not))
-			ez->SET(ez->NOT(ez->expression(ez->OpOr, a)), yy.at(0));
-		for (size_t i = 1; i < y.size(); i++)
-			ez->SET(ez->CONST_FALSE, yy.at(i));
+		ਜੇ (cell->type == ID($reduce_and))
+			ez->ਸੈੱਟ_2(ez->ਵਿਅੰਜਕ_2(ez->OpAnd, a), yy.at(0));
+		ਜੇ (cell->type.ਵਿੱਚ(ID($reduce_or), ID($reduce_bool)))
+			ez->ਸੈੱਟ_2(ez->ਵਿਅੰਜਕ_2(ez->OpOr, a), yy.at(0));
+		ਜੇ (cell->type == ID($reduce_xor))
+			ez->ਸੈੱਟ_2(ez->ਵਿਅੰਜਕ_2(ez->OpXor, a), yy.at(0));
+		ਜੇ (cell->type == ID($reduce_xnor))
+			ez->ਸੈੱਟ_2(ez->NOT(ez->ਵਿਅੰਜਕ_2(ez->OpXor, a)), yy.at(0));
+		ਜੇ (cell->type == ID($logic_not))
+			ez->ਸੈੱਟ_2(ez->NOT(ez->ਵਿਅੰਜਕ_2(ez->OpOr, a)), yy.at(0));
+		ਲਈ (ਮਾਪ_t i = 1; i < y.ਮਾਪ(); i++)
+			ez->ਸੈੱਟ_2(ez->CONST_FALSE, yy.at(i));
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			int aX = ez->expression(ezSAT::OpOr, undef_a);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+			ਪੂਰਨ aX = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_a);
 
-			if (cell->type == ID($reduce_and)) {
-				int a0 = ez->expression(ezSAT::OpOr, ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a)));
+			ਜੇ (cell->type == ID($reduce_and)) {
+				ਪੂਰਨ a0 = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, ez->vec_and(ez->vec_not(a), ez->vec_not(undef_a)));
 				ez->assume(ez->IFF(ez->AND(ez->NOT(a0), aX), undef_y.at(0)));
 			}
-			else if (cell->type.in(ID($reduce_or), ID($reduce_bool), ID($logic_not))) {
-				int a1 = ez->expression(ezSAT::OpOr, ez->vec_and(a, ez->vec_not(undef_a)));
+			ਨਹੀਂਤਾਂ ਜੇ (cell->type.ਵਿੱਚ(ID($reduce_or), ID($reduce_bool), ID($logic_not))) {
+				ਪੂਰਨ a1 = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, ez->vec_and(a, ez->vec_not(undef_a)));
 				ez->assume(ez->IFF(ez->AND(ez->NOT(a1), aX), undef_y.at(0)));
 			}
-			else if (cell->type.in(ID($reduce_xor), ID($reduce_xnor))) {
+			ਨਹੀਂਤਾਂ ਜੇ (cell->type.ਵਿੱਚ(ID($reduce_xor), ID($reduce_xnor))) {
 				ez->assume(ez->IFF(aX, undef_y.at(0)));
-			} else
+			} ਨਹੀਂਤਾਂ
 				log_abort();
 
-			for (size_t i = 1; i < undef_y.size(); i++)
-				ez->SET(ez->CONST_FALSE, undef_y.at(i));
+			ਲਈ (ਮਾਪ_t i = 1; i < undef_y.ਮਾਪ(); i++)
+				ez->ਸੈੱਟ_2(ez->CONST_FALSE, undef_y.at(i));
 
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type.in(ID($logic_and), ID($logic_or)))
+	ਜੇ (cell->type.ਵਿੱਚ(ID($logic_and), ID($logic_or)))
 	{
-		std::vector<int> vec_a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> vec_b = importDefSigSpec(cell->getPort(ID::B), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> vec_a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> vec_b = importDefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
 
-		int a = ez->expression(ez->OpOr, vec_a);
-		int b = ez->expression(ez->OpOr, vec_b);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		ਪੂਰਨ a = ez->ਵਿਅੰਜਕ_2(ez->OpOr, vec_a);
+		ਪੂਰਨ b = ez->ਵਿਅੰਜਕ_2(ez->OpOr, vec_b);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
 
-		if (cell->type == ID($logic_and))
-			ez->SET(ez->expression(ez->OpAnd, a, b), yy.at(0));
-		else
-			ez->SET(ez->expression(ez->OpOr, a, b), yy.at(0));
-		for (size_t i = 1; i < y.size(); i++)
-			ez->SET(ez->CONST_FALSE, yy.at(i));
+		ਜੇ (cell->type == ID($logic_and))
+			ez->ਸੈੱਟ_2(ez->ਵਿਅੰਜਕ_2(ez->OpAnd, a, b), yy.at(0));
+		ਨਹੀਂਤਾਂ
+			ez->ਸੈੱਟ_2(ez->ਵਿਅੰਜਕ_2(ez->OpOr, a, b), yy.at(0));
+		ਲਈ (ਮਾਪ_t i = 1; i < y.ਮਾਪ(); i++)
+			ez->ਸੈੱਟ_2(ez->CONST_FALSE, yy.at(i));
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_b = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 
-			int a0 = ez->NOT(ez->OR(ez->expression(ezSAT::OpOr, vec_a), ez->expression(ezSAT::OpOr, undef_a)));
-			int b0 = ez->NOT(ez->OR(ez->expression(ezSAT::OpOr, vec_b), ez->expression(ezSAT::OpOr, undef_b)));
-			int a1 = ez->expression(ezSAT::OpOr, ez->vec_and(vec_a, ez->vec_not(undef_a)));
-			int b1 = ez->expression(ezSAT::OpOr, ez->vec_and(vec_b, ez->vec_not(undef_b)));
-			int aX = ez->expression(ezSAT::OpOr, undef_a);
-			int bX = ez->expression(ezSAT::OpOr, undef_b);
+			ਪੂਰਨ a0 = ez->NOT(ez->OR(ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, vec_a), ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_a)));
+			ਪੂਰਨ b0 = ez->NOT(ez->OR(ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, vec_b), ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_b)));
+			ਪੂਰਨ a1 = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, ez->vec_and(vec_a, ez->vec_not(undef_a)));
+			ਪੂਰਨ b1 = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, ez->vec_and(vec_b, ez->vec_not(undef_b)));
+			ਪੂਰਨ aX = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_a);
+			ਪੂਰਨ bX = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_b);
 
-			if (cell->type == ID($logic_and))
-				ez->SET(ez->AND(ez->OR(aX, bX), ez->NOT(ez->AND(a1, b1)), ez->NOT(a0), ez->NOT(b0)), undef_y.at(0));
-			else if (cell->type == ID($logic_or))
-				ez->SET(ez->AND(ez->OR(aX, bX), ez->NOT(ez->AND(a0, b0)), ez->NOT(a1), ez->NOT(b1)), undef_y.at(0));
-			else
+			ਜੇ (cell->type == ID($logic_and))
+				ez->ਸੈੱਟ_2(ez->AND(ez->OR(aX, bX), ez->NOT(ez->AND(a1, b1)), ez->NOT(a0), ez->NOT(b0)), undef_y.at(0));
+			ਨਹੀਂਤਾਂ ਜੇ (cell->type == ID($logic_or))
+				ez->ਸੈੱਟ_2(ez->AND(ez->OR(aX, bX), ez->NOT(ez->AND(a0, b0)), ez->NOT(a1), ez->NOT(b1)), undef_y.at(0));
+			ਨਹੀਂਤਾਂ
 				log_abort();
 
-			for (size_t i = 1; i < undef_y.size(); i++)
-				ez->SET(ez->CONST_FALSE, undef_y.at(i));
+			ਲਈ (ਮਾਪ_t i = 1; i < undef_y.ਮਾਪ(); i++)
+				ez->ਸੈੱਟ_2(ez->CONST_FALSE, undef_y.at(i));
 
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type.in(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt)))
+	ਜੇ (cell->type.ਵਿੱਚ(ID($lt), ID($le), ID($eq), ID($ne), ID($eqx), ID($nex), ID($ge), ID($gt)))
 	{
-		bool is_signed = cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool();
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		extendSignalWidth(a, b, cell);
+		ਤਾਰਕਿਕ is_signed = cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool();
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> b = importDefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+		extend_Signal_ਚੌੜਾਈ(a, b, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
 
-		if (model_undef && cell->type.in(ID($eqx), ID($nex))) {
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			extendSignalWidth(undef_a, undef_b, cell, true);
+		ਜੇ (model_undef && cell->type.ਵਿੱਚ(ID($eqx), ID($nex))) {
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_b = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+			extend_Signal_ਚੌੜਾਈ(undef_a, undef_b, cell, ਸੱਚ);
 			a = ez->vec_or(a, undef_a);
 			b = ez->vec_or(b, undef_b);
 		}
 
-		if (cell->type == ID($lt))
-			ez->SET(is_signed ? ez->vec_lt_signed(a, b) : ez->vec_lt_unsigned(a, b), yy.at(0));
-		if (cell->type == ID($le))
-			ez->SET(is_signed ? ez->vec_le_signed(a, b) : ez->vec_le_unsigned(a, b), yy.at(0));
-		if (cell->type.in(ID($eq), ID($eqx)))
-			ez->SET(ez->vec_eq(a, b), yy.at(0));
-		if (cell->type.in(ID($ne), ID($nex)))
-			ez->SET(ez->vec_ne(a, b), yy.at(0));
-		if (cell->type == ID($ge))
-			ez->SET(is_signed ? ez->vec_ge_signed(a, b) : ez->vec_ge_unsigned(a, b), yy.at(0));
-		if (cell->type == ID($gt))
-			ez->SET(is_signed ? ez->vec_gt_signed(a, b) : ez->vec_gt_unsigned(a, b), yy.at(0));
-		for (size_t i = 1; i < y.size(); i++)
-			ez->SET(ez->CONST_FALSE, yy.at(i));
+		ਜੇ (cell->type == ID($lt))
+			ez->ਸੈੱਟ_2(is_signed ? ez->vec_lt_signed(a, b) : ez->vec_lt_unsigned(a, b), yy.at(0));
+		ਜੇ (cell->type == ID($le))
+			ez->ਸੈੱਟ_2(is_signed ? ez->vec_le_signed(a, b) : ez->vec_le_unsigned(a, b), yy.at(0));
+		ਜੇ (cell->type.ਵਿੱਚ(ID($eq), ID($eqx)))
+			ez->ਸੈੱਟ_2(ez->vec_eq(a, b), yy.at(0));
+		ਜੇ (cell->type.ਵਿੱਚ(ID($ne), ID($nex)))
+			ez->ਸੈੱਟ_2(ez->vec_ne(a, b), yy.at(0));
+		ਜੇ (cell->type == ID($ge))
+			ez->ਸੈੱਟ_2(is_signed ? ez->vec_ge_signed(a, b) : ez->vec_ge_unsigned(a, b), yy.at(0));
+		ਜੇ (cell->type == ID($gt))
+			ez->ਸੈੱਟ_2(is_signed ? ez->vec_gt_signed(a, b) : ez->vec_gt_unsigned(a, b), yy.at(0));
+		ਲਈ (ਮਾਪ_t i = 1; i < y.ਮਾਪ(); i++)
+			ez->ਸੈੱਟ_2(ez->CONST_FALSE, yy.at(i));
 
-		if (model_undef && cell->type.in(ID($eqx), ID($nex)))
+		ਜੇ (model_undef && cell->type.ਵਿੱਚ(ID($eqx), ID($nex)))
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidth(undef_a, undef_b, cell, true);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_b = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+			extend_Signal_ਚੌੜਾਈ(undef_a, undef_b, cell, ਸੱਚ);
 
-			if (cell->type == ID($eqx))
+			ਜੇ (cell->type == ID($eqx))
 				yy.at(0) = ez->AND(yy.at(0), ez->vec_eq(undef_a, undef_b));
-			else
+			ਨਹੀਂਤਾਂ
 				yy.at(0) = ez->OR(yy.at(0), ez->vec_ne(undef_a, undef_b));
 
-			for (size_t i = 0; i < y.size(); i++)
-				ez->SET(ez->CONST_FALSE, undef_y.at(i));
+			ਲਈ (ਮਾਪ_t i = 0; i < y.ਮਾਪ(); i++)
+				ez->ਸੈੱਟ_2(ez->CONST_FALSE, undef_y.at(i));
 
 			ez->assume(ez->vec_eq(y, yy));
 		}
-		else if (model_undef && cell->type.in(ID($eq), ID($ne)))
+		ਨਹੀਂਤਾਂ ਜੇ (model_undef && cell->type.ਵਿੱਚ(ID($eq), ID($ne)))
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidth(undef_a, undef_b, cell, true);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_b = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+			extend_Signal_ਚੌੜਾਈ(undef_a, undef_b, cell, ਸੱਚ);
 
-			int undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
-			int undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
-			int undef_any = ez->OR(undef_any_a, undef_any_b);
+			ਪੂਰਨ undef_any_a = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_a);
+			ਪੂਰਨ undef_any_b = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_b);
+			ਪੂਰਨ undef_any = ez->OR(undef_any_a, undef_any_b);
 
-			std::vector<int> masked_a_bits = ez->vec_or(a, ez->vec_or(undef_a, undef_b));
-			std::vector<int> masked_b_bits = ez->vec_or(b, ez->vec_or(undef_a, undef_b));
+			std::ਸਦਿਸ਼<ਪੂਰਨ> masked_a_ਬਿੱਟ = ez->vec_or(a, ez->vec_or(undef_a, undef_b));
+			std::ਸਦਿਸ਼<ਪੂਰਨ> masked_b_ਬਿੱਟ = ez->vec_or(b, ez->vec_or(undef_a, undef_b));
 
-			int masked_ne = ez->vec_ne(masked_a_bits, masked_b_bits);
-			int undef_y_bit = ez->AND(undef_any, ez->NOT(masked_ne));
+			ਪੂਰਨ masked_ne = ez->vec_ne(masked_a_ਬਿੱਟ, masked_b_ਬਿੱਟ);
+			ਪੂਰਨ undef_y_ਦੋਆਧਾਰੀ_ਅੰਕ = ez->AND(undef_any, ez->NOT(masked_ne));
 
-			for (size_t i = 1; i < undef_y.size(); i++)
-				ez->SET(ez->CONST_FALSE, undef_y.at(i));
-			ez->SET(undef_y_bit, undef_y.at(0));
+			ਲਈ (ਮਾਪ_t i = 1; i < undef_y.ਮਾਪ(); i++)
+				ez->ਸੈੱਟ_2(ez->CONST_FALSE, undef_y.at(i));
+			ez->ਸੈੱਟ_2(undef_y_ਦੋਆਧਾਰੀ_ਅੰਕ, undef_y.at(0));
 
 			undefGating(y, yy, undef_y);
 		}
-		else
+		ਨਹੀਂਤਾਂ
 		{
-			if (model_undef) {
-				std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			ਜੇ (model_undef) {
+				std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 				undefGating(y, yy, undef_y);
 			}
 			log_assert(!model_undef || arith_undef_handled);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type.in(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($shift), ID($shiftx)))
+	ਜੇ (cell->type.ਵਿੱਚ(ID($shl), ID($shr), ID($sshl), ID($sshr), ID($ਖਿਸਕਾਓ), ID($shiftx)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> b = importDefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 
-		int extend_bit = ez->CONST_FALSE;
+		ਪੂਰਨ extend_ਦੋਆਧਾਰੀ_ਅੰਕ = ez->CONST_FALSE;
 
-		if (cell->parameters[ID::A_SIGNED].as_bool())
-			extend_bit = a.back();
+		ਜੇ (cell->parameters[ID::A_SIGNED].as_bool())
+			extend_ਦੋਆਧਾਰੀ_ਅੰਕ = a.ਪਿੱਠ();
 
-		while (y.size() < a.size())
-			y.push_back(ez->literal());
-		while (y.size() > a.size())
-			a.push_back(extend_bit);
+		ਜਦੋਂ (y.ਮਾਪ() < a.ਮਾਪ())
+			y.ਧੱਕੋ_ਪਿੱਠ(ez->literal());
+		ਜਦੋਂ (y.ਮਾਪ() > a.ਮਾਪ())
+			a.ਧੱਕੋ_ਪਿੱਠ(extend_ਦੋਆਧਾਰੀ_ਅੰਕ);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
-		std::vector<int> shifted_a;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> shifted_a;
 
-		if (cell->type.in( ID($shl), ID($sshl)))
-			shifted_a = ez->vec_shift_left(a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+		ਜੇ (cell->type.ਵਿੱਚ( ID($shl), ID($sshl)))
+			shifted_a = ez->vec_ਖਿਸਕਾਓ_ਖੱਬਾ(a, b, ਝੂਠ, ez->CONST_FALSE, ez->CONST_FALSE);
 
-		if (cell->type == ID($shr))
-			shifted_a = ez->vec_shift_right(a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+		ਜੇ (cell->type == ID($shr))
+			shifted_a = ez->vec_ਖਿਸਕਾਓ_ਸੱਜਾ(a, b, ਝੂਠ, ez->CONST_FALSE, ez->CONST_FALSE);
 
-		if (cell->type == ID($sshr))
-			shifted_a = ez->vec_shift_right(a, b, false, cell->parameters[ID::A_SIGNED].as_bool() ? a.back() : ez->CONST_FALSE, ez->CONST_FALSE);
+		ਜੇ (cell->type == ID($sshr))
+			shifted_a = ez->vec_ਖਿਸਕਾਓ_ਸੱਜਾ(a, b, ਝੂਠ, cell->parameters[ID::A_SIGNED].as_bool() ? a.ਪਿੱਠ() : ez->CONST_FALSE, ez->CONST_FALSE);
 
-		if (cell->type.in(ID($shift), ID($shiftx)))
-			shifted_a = ez->vec_shift_right(a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
+		ਜੇ (cell->type.ਵਿੱਚ(ID($ਖਿਸਕਾਓ), ID($shiftx)))
+			shifted_a = ez->vec_ਖਿਸਕਾਓ_ਸੱਜਾ(a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
 
 		ez->assume(ez->vec_eq(shifted_a, yy));
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			std::vector<int> undef_a_shifted;
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_b = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a_shifted;
 
-			extend_bit = cell->type == ID($shiftx) ? ez->CONST_TRUE : ez->CONST_FALSE;
-			if (cell->parameters[ID::A_SIGNED].as_bool())
-				extend_bit = undef_a.back();
+			extend_ਦੋਆਧਾਰੀ_ਅੰਕ = cell->type == ID($shiftx) ? ez->CONST_TRUE : ez->CONST_FALSE;
+			ਜੇ (cell->parameters[ID::A_SIGNED].as_bool())
+				extend_ਦੋਆਧਾਰੀ_ਅੰਕ = undef_a.ਪਿੱਠ();
 
-			while (undef_y.size() < undef_a.size())
-				undef_y.push_back(ez->literal());
-			while (undef_y.size() > undef_a.size())
-				undef_a.push_back(extend_bit);
+			ਜਦੋਂ (undef_y.ਮਾਪ() < undef_a.ਮਾਪ())
+				undef_y.ਧੱਕੋ_ਪਿੱਠ(ez->literal());
+			ਜਦੋਂ (undef_y.ਮਾਪ() > undef_a.ਮਾਪ())
+				undef_a.ਧੱਕੋ_ਪਿੱਠ(extend_ਦੋਆਧਾਰੀ_ਅੰਕ);
 
-			if (cell->type.in(ID($shl), ID($sshl)))
-				undef_a_shifted = ez->vec_shift_left(undef_a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+			ਜੇ (cell->type.ਵਿੱਚ(ID($shl), ID($sshl)))
+				undef_a_shifted = ez->vec_ਖਿਸਕਾਓ_ਖੱਬਾ(undef_a, b, ਝੂਠ, ez->CONST_FALSE, ez->CONST_FALSE);
 
-			if (cell->type == ID($shr))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, false, ez->CONST_FALSE, ez->CONST_FALSE);
+			ਜੇ (cell->type == ID($shr))
+				undef_a_shifted = ez->vec_ਖਿਸਕਾਓ_ਸੱਜਾ(undef_a, b, ਝੂਠ, ez->CONST_FALSE, ez->CONST_FALSE);
 
-			if (cell->type == ID($sshr))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, false, cell->parameters[ID::A_SIGNED].as_bool() ? undef_a.back() : ez->CONST_FALSE, ez->CONST_FALSE);
+			ਜੇ (cell->type == ID($sshr))
+				undef_a_shifted = ez->vec_ਖਿਸਕਾਓ_ਸੱਜਾ(undef_a, b, ਝੂਠ, cell->parameters[ID::A_SIGNED].as_bool() ? undef_a.ਪਿੱਠ() : ez->CONST_FALSE, ez->CONST_FALSE);
 
-			if (cell->type == ID($shift))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
+			ਜੇ (cell->type == ID($ਖਿਸਕਾਓ))
+				undef_a_shifted = ez->vec_ਖਿਸਕਾਓ_ਸੱਜਾ(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_FALSE, ez->CONST_FALSE);
 
-			if (cell->type == ID($shiftx))
-				undef_a_shifted = ez->vec_shift_right(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_TRUE, ez->CONST_TRUE);
+			ਜੇ (cell->type == ID($shiftx))
+				undef_a_shifted = ez->vec_ਖਿਸਕਾਓ_ਸੱਜਾ(undef_a, b, cell->parameters[ID::B_SIGNED].as_bool(), ez->CONST_TRUE, ez->CONST_TRUE);
 
-			int undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
-			std::vector<int> undef_all_y_bits(undef_y.size(), undef_any_b);
-			ez->assume(ez->vec_eq(ez->vec_or(undef_a_shifted, undef_all_y_bits), undef_y));
+			ਪੂਰਨ undef_any_b = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_b);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_all_y_ਬਿੱਟ(undef_y.ਮਾਪ(), undef_any_b);
+			ez->assume(ez->vec_eq(ez->vec_or(undef_a_shifted, undef_all_y_ਬਿੱਟ), undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($mul))
+	ਜੇ (cell->type == ID($mul))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		extendSignalWidth(a, b, y, cell);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> b = importDefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+		extend_Signal_ਚੌੜਾਈ(a, b, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
 
-		std::vector<int> tmp(a.size(), ez->CONST_FALSE);
-		for (int i = 0; i < int(a.size()); i++)
+		std::ਸਦਿਸ਼<ਪੂਰਨ> tmp(a.ਮਾਪ(), ez->CONST_FALSE);
+		ਲਈ (ਪੂਰਨ i = 0; i < ਪੂਰਨ(a.ਮਾਪ()); i++)
 		{
-			std::vector<int> shifted_a(a.size(), ez->CONST_FALSE);
-			for (int j = i; j < int(a.size()); j++)
+			std::ਸਦਿਸ਼<ਪੂਰਨ> shifted_a(a.ਮਾਪ(), ez->CONST_FALSE);
+			ਲਈ (ਪੂਰਨ j = i; j < ਪੂਰਨ(a.ਮਾਪ()); j++)
 				shifted_a.at(j) = a.at(j-i);
-			tmp = ez->vec_ite(b.at(i), ez->vec_add(tmp, shifted_a), tmp);
+			tmp = ez->vec_ite(b.at(i), ez->vec_ਜੋੜੋ(tmp, shifted_a), tmp);
 		}
 		ez->assume(ez->vec_eq(tmp, yy));
 
-		if (model_undef) {
+		ਜੇ (model_undef) {
 			log_assert(arith_undef_handled);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type.in(ID($macc), ID($macc_v2)))
+	ਜੇ (cell->type.ਵਿੱਚ(ID($macc), ID($macc_v2)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 
 		Macc macc;
 		macc.from_cell(cell);
 
-		std::vector<int> tmp(GetSize(y), ez->CONST_FALSE);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> tmp(Get_ਮਾਪ(y), ez->CONST_FALSE);
 
-		for (auto &port : macc.terms)
+		ਲਈ (ਸਵੈਚਾਲਿਤ &ਪੋਰਟ : macc.terms)
 		{
-			std::vector<int> in_a = importDefSigSpec(port.in_a, timestep);
-			std::vector<int> in_b = importDefSigSpec(port.in_b, timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> ਵਿੱਚ_a = importDefSigSpec(ਪੋਰਟ.ਵਿੱਚ_a, timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> ਵਿੱਚ_b = importDefSigSpec(ਪੋਰਟ.ਵਿੱਚ_b, timestep);
 
-			while (GetSize(in_a) < GetSize(y))
-				in_a.push_back(port.is_signed && !in_a.empty() ? in_a.back() : ez->CONST_FALSE);
-			in_a.resize(GetSize(y));
+			ਜਦੋਂ (Get_ਮਾਪ(ਵਿੱਚ_a) < Get_ਮਾਪ(y))
+				ਵਿੱਚ_a.ਧੱਕੋ_ਪਿੱਠ(ਪੋਰਟ.is_signed && !ਵਿੱਚ_a.ਖਾਲੀ_ਥਾਵਾਂ() ? ਵਿੱਚ_a.ਪਿੱਠ() : ez->CONST_FALSE);
+			ਵਿੱਚ_a.resize(Get_ਮਾਪ(y));
 
-			if (GetSize(in_b))
+			ਜੇ (Get_ਮਾਪ(ਵਿੱਚ_b))
 			{
-				while (GetSize(in_b) < GetSize(y))
-					in_b.push_back(port.is_signed && !in_b.empty() ? in_b.back() : ez->CONST_FALSE);
-				in_b.resize(GetSize(y));
+				ਜਦੋਂ (Get_ਮਾਪ(ਵਿੱਚ_b) < Get_ਮਾਪ(y))
+					ਵਿੱਚ_b.ਧੱਕੋ_ਪਿੱਠ(ਪੋਰਟ.is_signed && !ਵਿੱਚ_b.ਖਾਲੀ_ਥਾਵਾਂ() ? ਵਿੱਚ_b.ਪਿੱਠ() : ez->CONST_FALSE);
+				ਵਿੱਚ_b.resize(Get_ਮਾਪ(y));
 
-				for (int i = 0; i < GetSize(in_b); i++) {
-					std::vector<int> shifted_a(in_a.size(), ez->CONST_FALSE);
-					for (int j = i; j < int(in_a.size()); j++)
-						shifted_a.at(j) = in_a.at(j-i);
-					if (port.do_subtract)
-						tmp = ez->vec_ite(in_b.at(i), ez->vec_sub(tmp, shifted_a), tmp);
-					else
-						tmp = ez->vec_ite(in_b.at(i), ez->vec_add(tmp, shifted_a), tmp);
+				ਲਈ (ਪੂਰਨ i = 0; i < Get_ਮਾਪ(ਵਿੱਚ_b); i++) {
+					std::ਸਦਿਸ਼<ਪੂਰਨ> shifted_a(ਵਿੱਚ_a.ਮਾਪ(), ez->CONST_FALSE);
+					ਲਈ (ਪੂਰਨ j = i; j < ਪੂਰਨ(ਵਿੱਚ_a.ਮਾਪ()); j++)
+						shifted_a.at(j) = ਵਿੱਚ_a.at(j-i);
+					ਜੇ (ਪੋਰਟ.do_ਘਟਾਓ)
+						tmp = ez->vec_ite(ਵਿੱਚ_b.at(i), ez->vec_sub(tmp, shifted_a), tmp);
+					ਨਹੀਂਤਾਂ
+						tmp = ez->vec_ite(ਵਿੱਚ_b.at(i), ez->vec_ਜੋੜੋ(tmp, shifted_a), tmp);
 				}
 			}
-			else
+			ਨਹੀਂਤਾਂ
 			{
-				if (port.do_subtract)
-					tmp = ez->vec_sub(tmp, in_a);
-				else
-					tmp = ez->vec_add(tmp, in_a);
+				ਜੇ (ਪੋਰਟ.do_ਘਟਾਓ)
+					tmp = ez->vec_sub(tmp, ਵਿੱਚ_a);
+				ਨਹੀਂਤਾਂ
+					tmp = ez->vec_ਜੋੜੋ(tmp, ਵਿੱਚ_a);
 			}
 		}
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_c;
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_b = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_c;
 
-			if (cell->type == ID($macc_v2))
-				undef_c = importUndefSigSpec(cell->getPort(ID::C), timestep);
+			ਜੇ (cell->type == ID($macc_v2))
+				undef_c = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::C), timestep);
 
-			int undef_any_a = ez->expression(ezSAT::OpOr, undef_a);
-			int undef_any_b = ez->expression(ezSAT::OpOr, undef_b);
-			int undef_any_c = ez->expression(ezSAT::OpOr, undef_c);
-			int undef_any = ez->OR(undef_any_a, ez->OR(undef_any_b, undef_any_c));
+			ਪੂਰਨ undef_any_a = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_a);
+			ਪੂਰਨ undef_any_b = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_b);
+			ਪੂਰਨ undef_any_c = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_c);
+			ਪੂਰਨ undef_any = ez->OR(undef_any_a, ez->OR(undef_any_b, undef_any_c));
 
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			ez->assume(ez->vec_eq(undef_y, std::vector<int>(GetSize(y), undef_any)));
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+			ez->assume(ez->vec_eq(undef_y, std::ਸਦਿਸ਼<ਪੂਰਨ>(Get_ਮਾਪ(y), undef_any)));
 
 			undefGating(y, tmp, undef_y);
 		}
-		else
+		ਨਹੀਂਤਾਂ
 			ez->assume(ez->vec_eq(y, tmp));
 
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type.in(ID($div), ID($mod), ID($divfloor), ID($modfloor)))
+	ਜੇ (cell->type.ਵਿੱਚ(ID($div), ID($mod), ID($divfloor), ID($modfloor)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		extendSignalWidth(a, b, y, cell);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> b = importDefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+		extend_Signal_ਚੌੜਾਈ(a, b, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
 
-		std::vector<int> a_u, b_u;
-		if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
-			a_u = ez->vec_ite(a.back(), ez->vec_neg(a), a);
-			b_u = ez->vec_ite(b.back(), ez->vec_neg(b), b);
-		} else {
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a_u, b_u;
+		ਜੇ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
+			a_u = ez->vec_ite(a.ਪਿੱਠ(), ez->vec_neg(a), a);
+			b_u = ez->vec_ite(b.ਪਿੱਠ(), ez->vec_neg(b), b);
+		} ਨਹੀਂਤਾਂ {
 			a_u = a;
 			b_u = b;
 		}
 
-		std::vector<int> chain_buf = a_u;
-		std::vector<int> y_u(a_u.size(), ez->CONST_FALSE);
-		for (int i = int(a.size())-1; i >= 0; i--)
+		std::ਸਦਿਸ਼<ਪੂਰਨ> chain_buf = a_u;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y_u(a_u.ਮਾਪ(), ez->CONST_FALSE);
+		ਲਈ (ਪੂਰਨ i = ਪੂਰਨ(a.ਮਾਪ())-1; i >= 0; i--)
 		{
-			chain_buf.insert(chain_buf.end(), chain_buf.size(), ez->CONST_FALSE);
+			chain_buf.ਪਾਓ(chain_buf.ਸਿਰਾ(), chain_buf.ਮਾਪ(), ez->CONST_FALSE);
 
-			std::vector<int> b_shl(i, ez->CONST_FALSE);
-			b_shl.insert(b_shl.end(), b_u.begin(), b_u.end());
-			b_shl.insert(b_shl.end(), chain_buf.size()-b_shl.size(), ez->CONST_FALSE);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> b_shl(i, ez->CONST_FALSE);
+			b_shl.ਪਾਓ(b_shl.ਸਿਰਾ(), b_u.begin(), b_u.ਸਿਰਾ());
+			b_shl.ਪਾਓ(b_shl.ਸਿਰਾ(), chain_buf.ਮਾਪ()-b_shl.ਮਾਪ(), ez->CONST_FALSE);
 
 			y_u.at(i) = ez->vec_ge_unsigned(chain_buf, b_shl);
 			chain_buf = ez->vec_ite(y_u.at(i), ez->vec_sub(chain_buf, b_shl), chain_buf);
 
-			chain_buf.erase(chain_buf.begin() + a_u.size(), chain_buf.end());
+			chain_buf.erase(chain_buf.begin() + a_u.ਮਾਪ(), chain_buf.ਸਿਰਾ());
 		}
 
-		std::vector<int> y_tmp = ignore_div_by_zero ? yy : ez->vec_var(y.size());
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y_tmp = ignore_div_by_zero ? yy : ez->vec_var(y.ਮਾਪ());
 
 		// modulo calculation
-		std::vector<int> modulo_trunc;
-		int floored_eq_trunc;
-		if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
-			modulo_trunc = ez->vec_ite(a.back(), ez->vec_neg(chain_buf), chain_buf);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> modulo_trunc;
+		ਪੂਰਨ floored_eq_trunc;
+		ਜੇ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
+			modulo_trunc = ez->vec_ite(a.ਪਿੱਠ(), ez->vec_neg(chain_buf), chain_buf);
 			// floor == trunc when sgn(a) == sgn(b) or trunc == 0
-			floored_eq_trunc = ez->OR(ez->IFF(a.back(), b.back()), ez->NOT(ez->expression(ezSAT::OpOr, modulo_trunc)));
-		} else {
+			floored_eq_trunc = ez->OR(ez->IFF(a.ਪਿੱਠ(), b.ਪਿੱਠ()), ez->NOT(ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, modulo_trunc)));
+		} ਨਹੀਂਤਾਂ {
 			modulo_trunc = chain_buf;
 			floored_eq_trunc = ez->CONST_TRUE;
 		}
 
-		if (cell->type == ID($div)) {
-			if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
-				ez->assume(ez->vec_eq(y_tmp, ez->vec_ite(ez->XOR(a.back(), b.back()), ez->vec_neg(y_u), y_u)));
-			else
+		ਜੇ (cell->type == ID($div)) {
+			ਜੇ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
+				ez->assume(ez->vec_eq(y_tmp, ez->vec_ite(ez->XOR(a.ਪਿੱਠ(), b.ਪਿੱਠ()), ez->vec_neg(y_u), y_u)));
+			ਨਹੀਂਤਾਂ
 				ez->assume(ez->vec_eq(y_tmp, y_u));
-		} else if (cell->type == ID($mod)) {
+		} ਨਹੀਂਤਾਂ ਜੇ (cell->type == ID($mod)) {
 			ez->assume(ez->vec_eq(y_tmp, modulo_trunc));
-		} else if (cell->type == ID($divfloor)) {
-			if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
+		} ਨਹੀਂਤਾਂ ਜੇ (cell->type == ID($divfloor)) {
+			ਜੇ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
 				ez->assume(ez->vec_eq(y_tmp, ez->vec_ite(
-					ez->XOR(a.back(), b.back()),
+					ez->XOR(a.ਪਿੱਠ(), b.ਪਿੱਠ()),
 					ez->vec_neg(ez->vec_ite(
 						ez->vec_reduce_or(modulo_trunc),
-						ez->vec_add(y_u, ez->vec_const_unsigned(1, y_u.size())),
+						ez->vec_ਜੋੜੋ(y_u, ez->vec_const_unsigned(1, y_u.ਮਾਪ())),
 						y_u
 					)),
 					y_u
 				)));
-			else
+			ਨਹੀਂਤਾਂ
 				ez->assume(ez->vec_eq(y_tmp, y_u));
-		} else if (cell->type == ID($modfloor)) {
-			ez->assume(ez->vec_eq(y_tmp, ez->vec_ite(floored_eq_trunc, modulo_trunc, ez->vec_add(modulo_trunc, b))));
+		} ਨਹੀਂਤਾਂ ਜੇ (cell->type == ID($modfloor)) {
+			ez->assume(ez->vec_eq(y_tmp, ez->vec_ite(floored_eq_trunc, modulo_trunc, ez->vec_ਜੋੜੋ(modulo_trunc, b))));
 		}
 
-		if (ignore_div_by_zero) {
-			ez->assume(ez->expression(ezSAT::OpOr, b));
-		} else {
-			std::vector<int> div_zero_result;
-			if (cell->type.in(ID($div), ID($divfloor))) {
-				if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
-					std::vector<int> all_ones(y.size(), ez->CONST_TRUE);
-					std::vector<int> only_first_one(y.size(), ez->CONST_FALSE);
-					only_first_one.at(0) = ez->CONST_TRUE;
-					div_zero_result = ez->vec_ite(a.back(), only_first_one, all_ones);
-				} else {
-					div_zero_result.insert(div_zero_result.end(), cell->getPort(ID::A).size(), ez->CONST_TRUE);
-					div_zero_result.insert(div_zero_result.end(), y.size() - div_zero_result.size(), ez->CONST_FALSE);
+		ਜੇ (ignore_div_by_zero) {
+			ez->assume(ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, b));
+		} ਨਹੀਂਤਾਂ {
+			std::ਸਦਿਸ਼<ਪੂਰਨ> div_zero_ਨਤੀਜਾ;
+			ਜੇ (cell->type.ਵਿੱਚ(ID($div), ID($divfloor))) {
+				ਜੇ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool()) {
+					std::ਸਦਿਸ਼<ਪੂਰਨ> all_ones(y.ਮਾਪ(), ez->CONST_TRUE);
+					std::ਸਦਿਸ਼<ਪੂਰਨ> only_ਪਹਿਲਾ_one(y.ਮਾਪ(), ez->CONST_FALSE);
+					only_ਪਹਿਲਾ_one.at(0) = ez->CONST_TRUE;
+					div_zero_ਨਤੀਜਾ = ez->vec_ite(a.ਪਿੱਠ(), only_ਪਹਿਲਾ_one, all_ones);
+				} ਨਹੀਂਤਾਂ {
+					div_zero_ਨਤੀਜਾ.ਪਾਓ(div_zero_ਨਤੀਜਾ.ਸਿਰਾ(), cell->get_ਪੋਰਟ(ID::A).ਮਾਪ(), ez->CONST_TRUE);
+					div_zero_ਨਤੀਜਾ.ਪਾਓ(div_zero_ਨਤੀਜਾ.ਸਿਰਾ(), y.ਮਾਪ() - div_zero_ਨਤੀਜਾ.ਮਾਪ(), ez->CONST_FALSE);
 				}
-			} else if (cell->type.in(ID($mod), ID($modfloor))) {
+			} ਨਹੀਂਤਾਂ ਜੇ (cell->type.ਵਿੱਚ(ID($mod), ID($modfloor))) {
 				// a mod 0 = a
-				int copy_a_bits = min(cell->getPort(ID::A).size(), cell->getPort(ID::B).size());
-				div_zero_result.insert(div_zero_result.end(), a.begin(), a.begin() + copy_a_bits);
-				if (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
-					div_zero_result.insert(div_zero_result.end(), y.size() - div_zero_result.size(), div_zero_result.back());
-				else
-					div_zero_result.insert(div_zero_result.end(), y.size() - div_zero_result.size(), ez->CONST_FALSE);
+				ਪੂਰਨ copy_a_ਬਿੱਟ = min(cell->get_ਪੋਰਟ(ID::A).ਮਾਪ(), cell->get_ਪੋਰਟ(ID::B).ਮਾਪ());
+				div_zero_ਨਤੀਜਾ.ਪਾਓ(div_zero_ਨਤੀਜਾ.ਸਿਰਾ(), a.begin(), a.begin() + copy_a_ਬਿੱਟ);
+				ਜੇ (cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool())
+					div_zero_ਨਤੀਜਾ.ਪਾਓ(div_zero_ਨਤੀਜਾ.ਸਿਰਾ(), y.ਮਾਪ() - div_zero_ਨਤੀਜਾ.ਮਾਪ(), div_zero_ਨਤੀਜਾ.ਪਿੱਠ());
+				ਨਹੀਂਤਾਂ
+					div_zero_ਨਤੀਜਾ.ਪਾਓ(div_zero_ਨਤੀਜਾ.ਸਿਰਾ(), y.ਮਾਪ() - div_zero_ਨਤੀਜਾ.ਮਾਪ(), ez->CONST_FALSE);
 			}
-			ez->assume(ez->vec_eq(yy, ez->vec_ite(ez->expression(ezSAT::OpOr, b), y_tmp, div_zero_result)));
+			ez->assume(ez->vec_eq(yy, ez->vec_ite(ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, b), y_tmp, div_zero_ਨਤੀਜਾ)));
 		}
 
-		if (model_undef) {
+		ਜੇ (model_undef) {
 			log_assert(arith_undef_handled);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($lut))
+	ਜੇ (cell->type == ID($lut))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 
-		std::vector<int> lut;
-		for (auto bit : cell->getParam(ID::LUT))
-			lut.push_back(bit == State::S1 ? ez->CONST_TRUE : ez->CONST_FALSE);
-		while (GetSize(lut) < (1 << GetSize(a)))
-			lut.push_back(ez->CONST_FALSE);
-		lut.resize(1 << GetSize(a));
+		std::ਸਦਿਸ਼<ਪੂਰਨ> lut;
+		ਲਈ (ਸਵੈਚਾਲਿਤ ਦੋਆਧਾਰੀ_ਅੰਕ : cell->getParam(ID::LUT))
+			lut.ਧੱਕੋ_ਪਿੱਠ(ਦੋਆਧਾਰੀ_ਅੰਕ == State::S1 ? ez->CONST_TRUE : ez->CONST_FALSE);
+		ਜਦੋਂ (Get_ਮਾਪ(lut) < (1 << Get_ਮਾਪ(a)))
+			lut.ਧੱਕੋ_ਪਿੱਠ(ez->CONST_FALSE);
+		lut.resize(1 << Get_ਮਾਪ(a));
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> t(lut), u(GetSize(t), ez->CONST_FALSE);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> t(lut), u(Get_ਮਾਪ(t), ez->CONST_FALSE);
 
-			for (int i = GetSize(a)-1; i >= 0; i--)
+			ਲਈ (ਪੂਰਨ i = Get_ਮਾਪ(a)-1; i >= 0; i--)
 			{
-				std::vector<int> t0(t.begin(), t.begin() + GetSize(t)/2);
-				std::vector<int> t1(t.begin() + GetSize(t)/2, t.end());
+				std::ਸਦਿਸ਼<ਪੂਰਨ> t0(t.begin(), t.begin() + Get_ਮਾਪ(t)/2);
+				std::ਸਦਿਸ਼<ਪੂਰਨ> t1(t.begin() + Get_ਮਾਪ(t)/2, t.ਸਿਰਾ());
 
-				std::vector<int> u0(u.begin(), u.begin() + GetSize(u)/2);
-				std::vector<int> u1(u.begin() + GetSize(u)/2, u.end());
+				std::ਸਦਿਸ਼<ਪੂਰਨ> u0(u.begin(), u.begin() + Get_ਮਾਪ(u)/2);
+				std::ਸਦਿਸ਼<ਪੂਰਨ> u1(u.begin() + Get_ਮਾਪ(u)/2, u.ਸਿਰਾ());
 
 				t = ez->vec_ite(a[i], t1, t0);
 				u = ez->vec_ite(undef_a[i], ez->vec_or(ez->vec_xor(t0, t1), ez->vec_or(u0, u1)), ez->vec_ite(a[i], u1, u0));
 			}
 
-			log_assert(GetSize(t) == 1);
-			log_assert(GetSize(u) == 1);
+			log_assert(Get_ਮਾਪ(t) == 1);
+			log_assert(Get_ਮਾਪ(u) == 1);
 			undefGating(y, t, u);
-			ez->assume(ez->vec_eq(importUndefSigSpec(cell->getPort(ID::Y), timestep), u));
+			ez->assume(ez->vec_eq(importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep), u));
 		}
-		else
+		ਨਹੀਂਤਾਂ
 		{
-			std::vector<int> t = lut;
-			for (int i = GetSize(a)-1; i >= 0; i--)
+			std::ਸਦਿਸ਼<ਪੂਰਨ> t = lut;
+			ਲਈ (ਪੂਰਨ i = Get_ਮਾਪ(a)-1; i >= 0; i--)
 			{
-				std::vector<int> t0(t.begin(), t.begin() + GetSize(t)/2);
-				std::vector<int> t1(t.begin() + GetSize(t)/2, t.end());
+				std::ਸਦਿਸ਼<ਪੂਰਨ> t0(t.begin(), t.begin() + Get_ਮਾਪ(t)/2);
+				std::ਸਦਿਸ਼<ਪੂਰਨ> t1(t.begin() + Get_ਮਾਪ(t)/2, t.ਸਿਰਾ());
 				t = ez->vec_ite(a[i], t1, t0);
 			}
 
-			log_assert(GetSize(t) == 1);
+			log_assert(Get_ਮਾਪ(t) == 1);
 			ez->assume(ez->vec_eq(y, t));
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($sop))
+	ਜੇ (cell->type == ID($sop))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		int y = importDefSigSpec(cell->getPort(ID::Y), timestep).at(0);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		ਪੂਰਨ y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep).at(0);
 
-		int width = cell->getParam(ID::WIDTH).as_int();
-		int depth = cell->getParam(ID::DEPTH).as_int();
+		ਪੂਰਨ ਚੌੜਾਈ = cell->getParam(ID::ਚੌੜਾਈ_2).as_int();
+		ਪੂਰਨ ਡੂੰਘਾਈ = cell->getParam(ID::ਡੂੰਘਾਈ_2).as_int();
 
-		vector<State> table_raw = cell->getParam(ID::TABLE).to_bits();
-		while (GetSize(table_raw) < 2*width*depth)
-			table_raw.push_back(State::S0);
+		ਸਦਿਸ਼<State> ਸਾਰਣੀ_raw = cell->getParam(ID::ਸਾਰਣੀ).ਮੰਜ਼ਿਲ_ਬਿੱਟ();
+		ਜਦੋਂ (Get_ਮਾਪ(ਸਾਰਣੀ_raw) < 2*ਚੌੜਾਈ*ਡੂੰਘਾਈ)
+			ਸਾਰਣੀ_raw.ਧੱਕੋ_ਪਿੱਠ(State::S0);
 
-		vector<vector<int>> table(depth);
+		ਸਦਿਸ਼<ਸਦਿਸ਼<ਪੂਰਨ>> ਸਾਰਣੀ_2(ਡੂੰਘਾਈ);
 
-		for (int i = 0; i < depth; i++)
-		for (int j = 0; j < width; j++)
+		ਲਈ (ਪੂਰਨ i = 0; i < ਡੂੰਘਾਈ; i++)
+		ਲਈ (ਪੂਰਨ j = 0; j < ਚੌੜਾਈ; j++)
 		{
-			bool pat0 = (table_raw[2*width*i + 2*j + 0] == State::S1);
-			bool pat1 = (table_raw[2*width*i + 2*j + 1] == State::S1);
+			ਤਾਰਕਿਕ pat0 = (ਸਾਰਣੀ_raw[2*ਚੌੜਾਈ*i + 2*j + 0] == State::S1);
+			ਤਾਰਕਿਕ pat1 = (ਸਾਰਣੀ_raw[2*ਚੌੜਾਈ*i + 2*j + 1] == State::S1);
 
-			if (pat0 && !pat1)
-				table.at(i).push_back(0);
-			else if (!pat0 && pat1)
-				table.at(i).push_back(1);
-			else
-				table.at(i).push_back(-1);
+			ਜੇ (pat0 && !pat1)
+				ਸਾਰਣੀ_2.at(i).ਧੱਕੋ_ਪਿੱਠ(0);
+			ਨਹੀਂਤਾਂ ਜੇ (!pat0 && pat1)
+				ਸਾਰਣੀ_2.at(i).ਧੱਕੋ_ਪਿੱਠ(1);
+			ਨਹੀਂਤਾਂ
+				ਸਾਰਣੀ_2.at(i).ਧੱਕੋ_ਪਿੱਠ(-1);
 		}
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			std::vector<int> products, undef_products;
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			int undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep).at(0);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> products, undef_products;
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			ਪੂਰਨ undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep).at(0);
 
-			for (int i = 0; i < depth; i++)
+			ਲਈ (ਪੂਰਨ i = 0; i < ਡੂੰਘਾਈ; i++)
 			{
-				std::vector<int> cmp_a, cmp_ua, cmp_b;
+				std::ਸਦਿਸ਼<ਪੂਰਨ> cmp_a, cmp_ua, cmp_b;
 
-				for (int j = 0; j < width; j++)
-					if (table.at(i).at(j) >= 0) {
-						cmp_a.push_back(a.at(j));
-						cmp_ua.push_back(undef_a.at(j));
-						cmp_b.push_back(table.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
+				ਲਈ (ਪੂਰਨ j = 0; j < ਚੌੜਾਈ; j++)
+					ਜੇ (ਸਾਰਣੀ_2.at(i).at(j) >= 0) {
+						cmp_a.ਧੱਕੋ_ਪਿੱਠ(a.at(j));
+						cmp_ua.ਧੱਕੋ_ਪਿੱਠ(undef_a.at(j));
+						cmp_b.ਧੱਕੋ_ਪਿੱਠ(ਸਾਰਣੀ_2.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
 					}
 
-				std::vector<int> masked_a = ez->vec_or(cmp_a, cmp_ua);
-				std::vector<int> masked_b = ez->vec_or(cmp_b, cmp_ua);
+				std::ਸਦਿਸ਼<ਪੂਰਨ> masked_a = ez->vec_or(cmp_a, cmp_ua);
+				std::ਸਦਿਸ਼<ਪੂਰਨ> masked_b = ez->vec_or(cmp_b, cmp_ua);
 
-				int masked_eq = ez->vec_eq(masked_a, masked_b);
-				int any_undef = ez->expression(ezSAT::OpOr, cmp_ua);
+				ਪੂਰਨ masked_eq = ez->vec_eq(masked_a, masked_b);
+				ਪੂਰਨ any_undef = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, cmp_ua);
 
-				undef_products.push_back(ez->AND(any_undef, masked_eq));
-				products.push_back(ez->AND(ez->NOT(any_undef), masked_eq));
+				undef_products.ਧੱਕੋ_ਪਿੱਠ(ez->AND(any_undef, masked_eq));
+				products.ਧੱਕੋ_ਪਿੱਠ(ez->AND(ez->NOT(any_undef), masked_eq));
 			}
 
-			int yy = ez->expression(ezSAT::OpOr, products);
-			ez->SET(undef_y, ez->AND(ez->NOT(yy), ez->expression(ezSAT::OpOr, undef_products)));
+			ਪੂਰਨ yy = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, products);
+			ez->ਸੈੱਟ_2(undef_y, ez->AND(ez->NOT(yy), ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_products)));
 			undefGating(y, yy, undef_y);
 		}
-		else
+		ਨਹੀਂਤਾਂ
 		{
-			std::vector<int> products;
+			std::ਸਦਿਸ਼<ਪੂਰਨ> products;
 
-			for (int i = 0; i < depth; i++)
+			ਲਈ (ਪੂਰਨ i = 0; i < ਡੂੰਘਾਈ; i++)
 			{
-				std::vector<int> cmp_a, cmp_b;
+				std::ਸਦਿਸ਼<ਪੂਰਨ> cmp_a, cmp_b;
 
-				for (int j = 0; j < width; j++)
-					if (table.at(i).at(j) >= 0) {
-						cmp_a.push_back(a.at(j));
-						cmp_b.push_back(table.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
+				ਲਈ (ਪੂਰਨ j = 0; j < ਚੌੜਾਈ; j++)
+					ਜੇ (ਸਾਰਣੀ_2.at(i).at(j) >= 0) {
+						cmp_a.ਧੱਕੋ_ਪਿੱਠ(a.at(j));
+						cmp_b.ਧੱਕੋ_ਪਿੱਠ(ਸਾਰਣੀ_2.at(i).at(j) ? ez->CONST_TRUE : ez->CONST_FALSE);
 					}
 
-				products.push_back(ez->vec_eq(cmp_a, cmp_b));
+				products.ਧੱਕੋ_ਪਿੱਠ(ez->vec_eq(cmp_a, cmp_b));
 			}
 
-			ez->SET(y, ez->expression(ezSAT::OpOr, products));
+			ez->ਸੈੱਟ_2(y, ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, products));
 		}
 
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($fa))
+	ਜੇ (cell->type == ID($fa))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> c = importDefSigSpec(cell->getPort(ID::C), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		std::vector<int> x = importDefSigSpec(cell->getPort(ID::X), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> b = importDefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> c = importDefSigSpec(cell->get_ਪੋਰਟ(ID::C), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> x = importDefSigSpec(cell->get_ਪੋਰਟ(ID::X), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
-		std::vector<int> xx = model_undef ? ez->vec_var(x.size()) : x;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> xx = model_undef ? ez->vec_var(x.ਮਾਪ()) : x;
 
-		std::vector<int> t1 = ez->vec_xor(a, b);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> t1 = ez->vec_xor(a, b);
 		ez->assume(ez->vec_eq(yy, ez->vec_xor(t1, c)));
 
-		std::vector<int> t2 = ez->vec_and(a, b);
-		std::vector<int> t3 = ez->vec_and(c, t1);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> t2 = ez->vec_and(a, b);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> t3 = ez->vec_and(c, t1);
 		ez->assume(ez->vec_eq(xx, ez->vec_or(t2, t3)));
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_c = importUndefSigSpec(cell->getPort(ID::C), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_b = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_c = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::C), timestep);
 
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			std::vector<int> undef_x = importUndefSigSpec(cell->getPort(ID::X), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_x = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::X), timestep);
 
 			ez->assume(ez->vec_eq(undef_y, ez->vec_or(ez->vec_or(undef_a, undef_b), undef_c)));
 			ez->assume(ez->vec_eq(undef_x, undef_y));
@@ -1081,330 +1081,330 @@ bool SatGen::importCell(RTLIL::Cell *cell, int timestep)
 			undefGating(y, yy, undef_y);
 			undefGating(x, xx, undef_x);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($lcu))
+	ਜੇ (cell->type == ID($lcu))
 	{
-		std::vector<int> p = importDefSigSpec(cell->getPort(ID::P), timestep);
-		std::vector<int> g = importDefSigSpec(cell->getPort(ID::G), timestep);
-		std::vector<int> ci = importDefSigSpec(cell->getPort(ID::CI), timestep);
-		std::vector<int> co = importDefSigSpec(cell->getPort(ID::CO), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> p = importDefSigSpec(cell->get_ਪੋਰਟ(ID::P), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> g = importDefSigSpec(cell->get_ਪੋਰਟ(ID::G), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> ci = importDefSigSpec(cell->get_ਪੋਰਟ(ID::CI), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> co = importDefSigSpec(cell->get_ਪੋਰਟ(ID::CO), timestep);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(co.size()) : co;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(co.ਮਾਪ()) : co;
 
-		for (int i = 0; i < GetSize(co); i++)
-			ez->SET(yy[i], ez->OR(g[i], ez->AND(p[i], i ? yy[i-1] : ci[0])));
+		ਲਈ (ਪੂਰਨ i = 0; i < Get_ਮਾਪ(co); i++)
+			ez->ਸੈੱਟ_2(yy[i], ez->OR(g[i], ez->AND(p[i], i ? yy[i-1] : ci[0])));
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			std::vector<int> undef_p = importUndefSigSpec(cell->getPort(ID::P), timestep);
-			std::vector<int> undef_g = importUndefSigSpec(cell->getPort(ID::G), timestep);
-			std::vector<int> undef_ci = importUndefSigSpec(cell->getPort(ID::CI), timestep);
-			std::vector<int> undef_co = importUndefSigSpec(cell->getPort(ID::CO), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_p = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::P), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_g = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::G), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_ci = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::CI), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_co = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::CO), timestep);
 
-			int undef_any_p = ez->expression(ezSAT::OpOr, undef_p);
-			int undef_any_g = ez->expression(ezSAT::OpOr, undef_g);
-			int undef_any_ci = ez->expression(ezSAT::OpOr, undef_ci);
-			int undef_co_bit = ez->OR(undef_any_p, undef_any_g, undef_any_ci);
+			ਪੂਰਨ undef_any_p = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_p);
+			ਪੂਰਨ undef_any_g = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_g);
+			ਪੂਰਨ undef_any_ci = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, undef_ci);
+			ਪੂਰਨ undef_co_ਦੋਆਧਾਰੀ_ਅੰਕ = ez->OR(undef_any_p, undef_any_g, undef_any_ci);
 
-			std::vector<int> undef_co_bits(undef_co.size(), undef_co_bit);
-			ez->assume(ez->vec_eq(undef_co_bits, undef_co));
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_co_ਬਿੱਟ(undef_co.ਮਾਪ(), undef_co_ਦੋਆਧਾਰੀ_ਅੰਕ);
+			ez->assume(ez->vec_eq(undef_co_ਬਿੱਟ, undef_co));
 
 			undefGating(co, yy, undef_co);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($alu))
+	ਜੇ (cell->type == ID($alu))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> b = importDefSigSpec(cell->getPort(ID::B), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		std::vector<int> x = importDefSigSpec(cell->getPort(ID::X), timestep);
-		std::vector<int> ci = importDefSigSpec(cell->getPort(ID::CI), timestep);
-		std::vector<int> bi = importDefSigSpec(cell->getPort(ID::BI), timestep);
-		std::vector<int> co = importDefSigSpec(cell->getPort(ID::CO), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> b = importDefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> x = importDefSigSpec(cell->get_ਪੋਰਟ(ID::X), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> ci = importDefSigSpec(cell->get_ਪੋਰਟ(ID::CI), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> bi = importDefSigSpec(cell->get_ਪੋਰਟ(ID::BI), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> co = importDefSigSpec(cell->get_ਪੋਰਟ(ID::CO), timestep);
 
-		extendSignalWidth(a, b, y, cell);
-		extendSignalWidth(a, b, x, cell);
-		extendSignalWidth(a, b, co, cell);
+		extend_Signal_ਚੌੜਾਈ(a, b, y, cell);
+		extend_Signal_ਚੌੜਾਈ(a, b, x, cell);
+		extend_Signal_ਚੌੜਾਈ(a, b, co, cell);
 
-		std::vector<int> def_y = model_undef ? ez->vec_var(y.size()) : y;
-		std::vector<int> def_x = model_undef ? ez->vec_var(x.size()) : x;
-		std::vector<int> def_co = model_undef ? ez->vec_var(co.size()) : co;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> def_y = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> def_x = model_undef ? ez->vec_var(x.ਮਾਪ()) : x;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> def_co = model_undef ? ez->vec_var(co.ਮਾਪ()) : co;
 
-		log_assert(GetSize(y) == GetSize(x));
-		log_assert(GetSize(y) == GetSize(co));
-		log_assert(GetSize(ci) == 1);
-		log_assert(GetSize(bi) == 1);
+		log_assert(Get_ਮਾਪ(y) == Get_ਮਾਪ(x));
+		log_assert(Get_ਮਾਪ(y) == Get_ਮਾਪ(co));
+		log_assert(Get_ਮਾਪ(ci) == 1);
+		log_assert(Get_ਮਾਪ(bi) == 1);
 
-		for (int i = 0; i < GetSize(y); i++)
+		ਲਈ (ਪੂਰਨ i = 0; i < Get_ਮਾਪ(y); i++)
 		{
-			int s1 = a.at(i), s2 = ez->XOR(b.at(i), bi.at(0)), s3 = i ? co.at(i-1) : ci.at(0);
-			ez->SET(def_x.at(i), ez->XOR(s1, s2));
-			ez->SET(def_y.at(i), ez->XOR(def_x.at(i), s3));
-			ez->SET(def_co.at(i), ez->OR(ez->AND(s1, s2), ez->AND(s1, s3), ez->AND(s2, s3)));
+			ਪੂਰਨ s1 = a.at(i), s2 = ez->XOR(b.at(i), bi.at(0)), s3 = i ? co.at(i-1) : ci.at(0);
+			ez->ਸੈੱਟ_2(def_x.at(i), ez->XOR(s1, s2));
+			ez->ਸੈੱਟ_2(def_y.at(i), ez->XOR(def_x.at(i), s3));
+			ez->ਸੈੱਟ_2(def_co.at(i), ez->OR(ez->AND(s1, s2), ez->AND(s1, s3), ez->AND(s2, s3)));
 		}
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_b = importUndefSigSpec(cell->getPort(ID::B), timestep);
-			std::vector<int> undef_ci = importUndefSigSpec(cell->getPort(ID::CI), timestep);
-			std::vector<int> undef_bi = importUndefSigSpec(cell->getPort(ID::BI), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_b = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::B), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_ci = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::CI), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_bi = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::BI), timestep);
 
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			std::vector<int> undef_x = importUndefSigSpec(cell->getPort(ID::X), timestep);
-			std::vector<int> undef_co = importUndefSigSpec(cell->getPort(ID::CO), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_x = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::X), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_co = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::CO), timestep);
 
-			extendSignalWidth(undef_a, undef_b, undef_y, cell);
-			extendSignalWidth(undef_a, undef_b, undef_x, cell);
-			extendSignalWidth(undef_a, undef_b, undef_co, cell);
+			extend_Signal_ਚੌੜਾਈ(undef_a, undef_b, undef_y, cell);
+			extend_Signal_ਚੌੜਾਈ(undef_a, undef_b, undef_x, cell);
+			extend_Signal_ਚੌੜਾਈ(undef_a, undef_b, undef_co, cell);
 
-			std::vector<int> all_inputs_undef;
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_a.begin(), undef_a.end());
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_b.begin(), undef_b.end());
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_ci.begin(), undef_ci.end());
-			all_inputs_undef.insert(all_inputs_undef.end(), undef_bi.begin(), undef_bi.end());
-			int undef_any = ez->expression(ezSAT::OpOr, all_inputs_undef);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> all_inputs_undef;
+			all_inputs_undef.ਪਾਓ(all_inputs_undef.ਸਿਰਾ(), undef_a.begin(), undef_a.ਸਿਰਾ());
+			all_inputs_undef.ਪਾਓ(all_inputs_undef.ਸਿਰਾ(), undef_b.begin(), undef_b.ਸਿਰਾ());
+			all_inputs_undef.ਪਾਓ(all_inputs_undef.ਸਿਰਾ(), undef_ci.begin(), undef_ci.ਸਿਰਾ());
+			all_inputs_undef.ਪਾਓ(all_inputs_undef.ਸਿਰਾ(), undef_bi.begin(), undef_bi.ਸਿਰਾ());
+			ਪੂਰਨ undef_any = ez->ਵਿਅੰਜਕ_2(ezSAT::OpOr, all_inputs_undef);
 
-			for (int i = 0; i < GetSize(undef_y); i++) {
-				ez->SET(undef_y.at(i), undef_any);
-				ez->SET(undef_x.at(i), ez->OR(undef_a.at(i), undef_b.at(i), undef_bi.at(0)));
-				ez->SET(undef_co.at(i), undef_any);
+			ਲਈ (ਪੂਰਨ i = 0; i < Get_ਮਾਪ(undef_y); i++) {
+				ez->ਸੈੱਟ_2(undef_y.at(i), undef_any);
+				ez->ਸੈੱਟ_2(undef_x.at(i), ez->OR(undef_a.at(i), undef_b.at(i), undef_bi.at(0)));
+				ez->ਸੈੱਟ_2(undef_co.at(i), undef_any);
 			}
 
 			undefGating(y, def_y, undef_y);
 			undefGating(x, def_x, undef_x);
 			undefGating(co, def_co, undef_co);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($slice))
+	ਜੇ (cell->type == ID($ਟੁਕੜਾ))
 	{
-		RTLIL::SigSpec a = cell->getPort(ID::A);
-		RTLIL::SigSpec y = cell->getPort(ID::Y);
-		ez->assume(signals_eq(a.extract(cell->parameters.at(ID::OFFSET).as_int(), y.size()), y, timestep));
-		return true;
+		RTLIL::SigSpec a = cell->get_ਪੋਰਟ(ID::A);
+		RTLIL::SigSpec y = cell->get_ਪੋਰਟ(ID::Y);
+		ez->assume(ਸੰਕੇਤ_eq(a.ਕੱਢੋ_2(cell->parameters.at(ID::ਵਿੱਥ_2).as_int(), y.ਮਾਪ()), y, timestep));
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($concat))
+	ਜੇ (cell->type == ID($concat))
 	{
-		RTLIL::SigSpec a = cell->getPort(ID::A);
-		RTLIL::SigSpec b = cell->getPort(ID::B);
-		RTLIL::SigSpec y = cell->getPort(ID::Y);
+		RTLIL::SigSpec a = cell->get_ਪੋਰਟ(ID::A);
+		RTLIL::SigSpec b = cell->get_ਪੋਰਟ(ID::B);
+		RTLIL::SigSpec y = cell->get_ਪੋਰਟ(ID::Y);
 
 		RTLIL::SigSpec ab = a;
 		ab.append(b);
 
-		ez->assume(signals_eq(ab, y, timestep));
-		return true;
+		ez->assume(ਸੰਕੇਤ_eq(ab, y, timestep));
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (timestep > 0 && (cell->is_builtin_ff() || cell->type == ID($anyinit)))
+	ਜੇ (timestep > 0 && (cell->is_builtin_ff() || cell->type == ID($anyinit)))
 	{
-		FfData ff(nullptr, cell);
+		Ff_ਅੰਕੜੇ ff(ਖਾਲੀ_ਸੂਚਕ, cell);
 
 		// Latches and FFs with async inputs are not supported — use clk2fflogic or async2sync first.
-		if (ff.has_aload || ff.has_arst || ff.has_sr)
-			return false;
+		ਜੇ (ff.has_aload || ff.has_arst || ff.has_sr)
+			ਵਾਪਸ ਝੂਠ;
 
-		if (timestep == 1)
+		ਜੇ (timestep == 1)
 		{
-			initial_state.add((*sigmap)(cell->getPort(ID::Q)));
-			if (model_undef && def_formal) {
-				std::vector<int> undef_q = importUndefSigSpec(cell->getPort(ID::Q), timestep);
+			initial_state.ਜੋੜੋ((*sigmap)(cell->get_ਪੋਰਟ(ID::Q)));
+			ਜੇ (model_undef && def_formal) {
+				std::ਸਦਿਸ਼<ਪੂਰਨ> undef_q = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Q), timestep);
 				ez->assume(ez->NOT(ez->vec_reduce_or(undef_q)));
 			}
 		}
-		else
+		ਨਹੀਂਤਾਂ
 		{
-			std::vector<int> d = importDefSigSpec(cell->getPort(ID::D), timestep-1);
-			std::vector<int> undef_d;
-			if (model_undef)
-				undef_d = importUndefSigSpec(cell->getPort(ID::D), timestep-1);
-			if (ff.has_srst && ff.has_ce && ff.ce_over_srst) {
-				int srst = importDefSigSpec(ff.sig_srst, timestep-1).at(0);
-				std::vector<int> rval = importDefSigSpec(ff.val_srst, timestep-1);
-				int undef_srst = -1;
-				std::vector<int> undef_rval;
-				if (model_undef) {
+			std::ਸਦਿਸ਼<ਪੂਰਨ> d = importDefSigSpec(cell->get_ਪੋਰਟ(ID::D), timestep-1);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_d;
+			ਜੇ (model_undef)
+				undef_d = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::D), timestep-1);
+			ਜੇ (ff.has_srst && ff.has_ce && ff.ce_over_srst) {
+				ਪੂਰਨ srst = importDefSigSpec(ff.sig_srst, timestep-1).at(0);
+				std::ਸਦਿਸ਼<ਪੂਰਨ> rval = importDefSigSpec(ff.val_srst, timestep-1);
+				ਪੂਰਨ undef_srst = -1;
+				std::ਸਦਿਸ਼<ਪੂਰਨ> undef_rval;
+				ਜੇ (model_undef) {
 					undef_srst = importUndefSigSpec(ff.sig_srst, timestep-1).at(0);
 					undef_rval = importUndefSigSpec(ff.val_srst, timestep-1);
 				}
-				if (ff.pol_srst)
+				ਜੇ (ff.pol_srst)
 					std::tie(d, undef_d) = mux(srst, undef_srst, d, undef_d, rval, undef_rval);
-				else
+				ਨਹੀਂਤਾਂ
 					std::tie(d, undef_d) = mux(srst, undef_srst, rval, undef_rval, d, undef_d);
 			}
-			if (ff.has_ce) {
-				int ce = importDefSigSpec(ff.sig_ce, timestep-1).at(0);
-				std::vector<int> old_q = importDefSigSpec(ff.sig_q, timestep-1);
-				int undef_ce = -1;
-				std::vector<int> undef_old_q;
-				if (model_undef) {
+			ਜੇ (ff.has_ce) {
+				ਪੂਰਨ ce = importDefSigSpec(ff.sig_ce, timestep-1).at(0);
+				std::ਸਦਿਸ਼<ਪੂਰਨ> old_q = importDefSigSpec(ff.sig_q, timestep-1);
+				ਪੂਰਨ undef_ce = -1;
+				std::ਸਦਿਸ਼<ਪੂਰਨ> undef_old_q;
+				ਜੇ (model_undef) {
 					undef_ce = importUndefSigSpec(ff.sig_ce, timestep-1).at(0);
 					undef_old_q = importUndefSigSpec(ff.sig_q, timestep-1);
 				}
-				if (ff.pol_ce)
+				ਜੇ (ff.pol_ce)
 					std::tie(d, undef_d) = mux(ce, undef_ce, old_q, undef_old_q, d, undef_d);
-				else
+				ਨਹੀਂਤਾਂ
 					std::tie(d, undef_d) = mux(ce, undef_ce, d, undef_d, old_q, undef_old_q);
 			}
-			if (ff.has_srst && !(ff.has_ce && ff.ce_over_srst)) {
-				int srst = importDefSigSpec(ff.sig_srst, timestep-1).at(0);
-				std::vector<int> rval = importDefSigSpec(ff.val_srst, timestep-1);
-				int undef_srst = -1;
-				std::vector<int> undef_rval;
-				if (model_undef) {
+			ਜੇ (ff.has_srst && !(ff.has_ce && ff.ce_over_srst)) {
+				ਪੂਰਨ srst = importDefSigSpec(ff.sig_srst, timestep-1).at(0);
+				std::ਸਦਿਸ਼<ਪੂਰਨ> rval = importDefSigSpec(ff.val_srst, timestep-1);
+				ਪੂਰਨ undef_srst = -1;
+				std::ਸਦਿਸ਼<ਪੂਰਨ> undef_rval;
+				ਜੇ (model_undef) {
 					undef_srst = importUndefSigSpec(ff.sig_srst, timestep-1).at(0);
 					undef_rval = importUndefSigSpec(ff.val_srst, timestep-1);
 				}
-				if (ff.pol_srst)
+				ਜੇ (ff.pol_srst)
 					std::tie(d, undef_d) = mux(srst, undef_srst, d, undef_d, rval, undef_rval);
-				else
+				ਨਹੀਂਤਾਂ
 					std::tie(d, undef_d) = mux(srst, undef_srst, rval, undef_rval, d, undef_d);
 			}
-			std::vector<int> q = importDefSigSpec(cell->getPort(ID::Q), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> q = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Q), timestep);
 
-			std::vector<int> qq = model_undef ? ez->vec_var(q.size()) : q;
+			std::ਸਦਿਸ਼<ਪੂਰਨ> qq = model_undef ? ez->vec_var(q.ਮਾਪ()) : q;
 			ez->assume(ez->vec_eq(d, qq));
 
-			if (model_undef)
+			ਜੇ (model_undef)
 			{
-				std::vector<int> undef_q = importUndefSigSpec(cell->getPort(ID::Q), timestep);
+				std::ਸਦਿਸ਼<ਪੂਰਨ> undef_q = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Q), timestep);
 
 				ez->assume(ez->vec_eq(undef_d, undef_q));
 				undefGating(q, qq, undef_q);
 			}
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($anyconst))
+	ਜੇ (cell->type == ID($anyconst))
 	{
-		if (timestep < 2) {
-			if (model_undef && def_formal) {
-				std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+		ਜੇ (timestep < 2) {
+			ਜੇ (model_undef && def_formal) {
+				std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 				ez->assume(ez->NOT(ez->vec_reduce_or(undef_y)));
 			}
-			return true;
+			ਵਾਪਸ ਸੱਚ;
 		}
 
-		std::vector<int> d = importDefSigSpec(cell->getPort(ID::Y), timestep-1);
-		std::vector<int> q = importDefSigSpec(cell->getPort(ID::Y), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> d = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep-1);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> q = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 
-		std::vector<int> qq = (model_undef && !def_formal) ? ez->vec_var(q.size()) : q;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> qq = (model_undef && !def_formal) ? ez->vec_var(q.ਮਾਪ()) : q;
 		ez->assume(ez->vec_eq(d, qq));
 
-		if (model_undef)
+		ਜੇ (model_undef)
 		{
-			std::vector<int> undef_d = importUndefSigSpec(cell->getPort(ID::Y), timestep-1);
-			std::vector<int> undef_q = importUndefSigSpec(cell->getPort(ID::Y), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_d = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep-1);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_q = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
 
-			if (def_formal) {
-				for (auto &undef_q_bit : undef_q)
-					ez->SET(ez->CONST_FALSE, undef_q_bit);
-			} else {
+			ਜੇ (def_formal) {
+				ਲਈ (ਸਵੈਚਾਲਿਤ &undef_q_ਦੋਆਧਾਰੀ_ਅੰਕ : undef_q)
+					ez->ਸੈੱਟ_2(ez->CONST_FALSE, undef_q_ਦੋਆਧਾਰੀ_ਅੰਕ);
+			} ਨਹੀਂਤਾਂ {
 				ez->assume(ez->vec_eq(undef_d, undef_q));
 				undefGating(q, qq, undef_q);
 			}
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($anyseq))
+	ਜੇ (cell->type == ID($anyseq))
 	{
-		if (model_undef && def_formal) {
-			std::vector<int> undef_q = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			for (auto &undef_q_bit : undef_q)
-				ez->SET(ez->CONST_FALSE, undef_q_bit);
+		ਜੇ (model_undef && def_formal) {
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_q = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+			ਲਈ (ਸਵੈਚਾਲਿਤ &undef_q_ਦੋਆਧਾਰੀ_ਅੰਕ : undef_q)
+				ez->ਸੈੱਟ_2(ez->CONST_FALSE, undef_q_ਦੋਆਧਾਰੀ_ਅੰਕ);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($barrier) && !model_barriers)
-		return true;
+	ਜੇ (cell->type == ID($barrier) && !model_barriers)
+		ਵਾਪਸ ਸੱਚ;
 
-	if (cell->type.in(ID($_BUF_), ID($equiv), ID($barrier)))
+	ਜੇ (cell->type.ਵਿੱਚ(ID($_BUF_), ID($equiv), ID($barrier)))
 	{
-		std::vector<int> a = importDefSigSpec(cell->getPort(ID::A), timestep);
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		extendSignalWidthUnary(a, y, cell);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> a = importDefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+		extend_Signal_ਚੌੜਾਈ_Unary(a, y, cell);
 
-		std::vector<int> yy = model_undef ? ez->vec_var(y.size()) : y;
+		std::ਸਦਿਸ਼<ਪੂਰਨ> yy = model_undef ? ez->vec_var(y.ਮਾਪ()) : y;
 		ez->assume(ez->vec_eq(a, yy));
 
-		if (model_undef) {
-			std::vector<int> undef_a = importUndefSigSpec(cell->getPort(ID::A), timestep);
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			extendSignalWidthUnary(undef_a, undef_y, cell, false);
+		ਜੇ (model_undef) {
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_a = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::A), timestep);
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+			extend_Signal_ਚੌੜਾਈ_Unary(undef_a, undef_y, cell, ਝੂਠ);
 			ez->assume(ez->vec_eq(undef_a, undef_y));
 			undefGating(y, yy, undef_y);
 		}
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($initstate))
+	ਜੇ (cell->type == ID($initstate))
 	{
-		auto key = make_pair(prefix, timestep);
-		if (initstates.count(key) == 0)
-			initstates[key] = false;
+		ਸਵੈਚਾਲਿਤ ਕੁੰਜੀ = make_pair(ਅਗੇਤਰ_2, timestep);
+		ਜੇ (initstates.ਗਿਣਤੀ_2(ਕੁੰਜੀ) == 0)
+			initstates[ਕੁੰਜੀ] = ਝੂਠ;
 
-		std::vector<int> y = importDefSigSpec(cell->getPort(ID::Y), timestep);
-		log_assert(GetSize(y) == 1);
-		ez->SET(y[0], initstates[key] ? ez->CONST_TRUE : ez->CONST_FALSE);
+		std::ਸਦਿਸ਼<ਪੂਰਨ> y = importDefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+		log_assert(Get_ਮਾਪ(y) == 1);
+		ez->ਸੈੱਟ_2(y[0], initstates[ਕੁੰਜੀ] ? ez->CONST_TRUE : ez->CONST_FALSE);
 
-		if (model_undef) {
-			std::vector<int> undef_y = importUndefSigSpec(cell->getPort(ID::Y), timestep);
-			log_assert(GetSize(undef_y) == 1);
-			ez->SET(undef_y[0], ez->CONST_FALSE);
+		ਜੇ (model_undef) {
+			std::ਸਦਿਸ਼<ਪੂਰਨ> undef_y = importUndefSigSpec(cell->get_ਪੋਰਟ(ID::Y), timestep);
+			log_assert(Get_ਮਾਪ(undef_y) == 1);
+			ez->ਸੈੱਟ_2(undef_y[0], ez->CONST_FALSE);
 		}
 
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($assert))
+	ਜੇ (cell->type == ID($ਪ੍ਰਤਿਜ੍ਞਾ))
 	{
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		asserts_a[pf].append((*sigmap)(cell->getPort(ID::A)));
-		asserts_en[pf].append((*sigmap)(cell->getPort(ID::EN)));
-		return true;
+		std::string pf = ਅਗੇਤਰ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		asserts_a[pf].append((*sigmap)(cell->get_ਪੋਰਟ(ID::A)));
+		asserts_en[pf].append((*sigmap)(cell->get_ਪੋਰਟ(ID::EN)));
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($assume))
+	ਜੇ (cell->type == ID($assume))
 	{
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		assumes_a[pf].append((*sigmap)(cell->getPort(ID::A)));
-		assumes_en[pf].append((*sigmap)(cell->getPort(ID::EN)));
-		return true;
+		std::string pf = ਅਗੇਤਰ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		assumes_a[pf].append((*sigmap)(cell->get_ਪੋਰਟ(ID::A)));
+		assumes_en[pf].append((*sigmap)(cell->get_ਪੋਰਟ(ID::EN)));
+		ਵਾਪਸ ਸੱਚ;
 	}
 
-	if (cell->type == ID($scopeinfo) || cell->type == ID($input_port))
+	ਜੇ (cell->type == ID($scopeinfo) || cell->type == ID($ਨਿਵੇਸ਼_ਪੋਰਟ))
 	{
-		return true;
+		ਵਾਪਸ ਸੱਚ;
 	}
 
 	// Unsupported internal cell types: $pow $fsm $mem*
 	// .. and all sequential cells with asynchronous inputs
-	return false;
+	ਵਾਪਸ ਝੂਠ;
 }
 
-namespace Yosys {
+ਨਾਮਾਕਾਸ਼ Yosys {
 
-void report_missing_model(bool warn_only, RTLIL::Cell* cell)
+ਖਾਲੀ report_missing_model(ਤਾਰਕਿਕ warn_only, RTLIL::Cell* cell)
 {
 	std::string s;
-	if (cell->is_builtin_ff())
+	ਜੇ (cell->is_builtin_ff())
 		s = stringf("No SAT model available for async FF cell %s (%s).  Consider running `async2sync` or `clk2fflogic` first.", cell, cell->type.unescape());
-	else
+	ਨਹੀਂਤਾਂ
 		s = stringf("No SAT model available for cell %s (%s).", cell, cell->type.unescape());
 
-	if (warn_only) {
+	ਜੇ (warn_only) {
 		log_warning_noprefix("%s\n", s);
-	} else {
+	} ਨਹੀਂਤਾਂ {
 		log_error("%s\n", s);
 	}
 }

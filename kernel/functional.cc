@@ -18,545 +18,545 @@
  *
  */
 
-#include "kernel/functional.h"
-#include "kernel/topo_scc.h"
-#include "ff.h"
-#include "ffinit.h"
-#include <deque>
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/functional.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/topo_scc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "ff.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "ffinit.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <deque>
 
 YOSYS_NAMESPACE_BEGIN
-namespace Functional {
+ਨਾਮਾਕਾਸ਼ Functional {
 
-const char *fn_to_string(Fn fn) {
-	switch(fn) {
-	case Fn::invalid: return "invalid";
-	case Fn::buf: return "buf";
-	case Fn::slice: return "slice";
-	case Fn::zero_extend: return "zero_extend";
-	case Fn::sign_extend: return "sign_extend";
-	case Fn::concat: return "concat";
-	case Fn::add: return "add";
-	case Fn::sub: return "sub";
-	case Fn::mul: return "mul";
-	case Fn::unsigned_div: return "unsigned_div";
-	case Fn::unsigned_mod: return "unsigned_mod";
-	case Fn::bitwise_and: return "bitwise_and";
-	case Fn::bitwise_or: return "bitwise_or";
-	case Fn::bitwise_xor: return "bitwise_xor";
-	case Fn::bitwise_not: return "bitwise_not";
-	case Fn::reduce_and: return "reduce_and";
-	case Fn::reduce_or: return "reduce_or";
-	case Fn::reduce_xor: return "reduce_xor";
-	case Fn::unary_minus: return "unary_minus";
-	case Fn::equal: return "equal";
-	case Fn::not_equal: return "not_equal";
-	case Fn::signed_greater_than: return "signed_greater_than";
-	case Fn::signed_greater_equal: return "signed_greater_equal";
-	case Fn::unsigned_greater_than: return "unsigned_greater_than";
-	case Fn::unsigned_greater_equal: return "unsigned_greater_equal";
-	case Fn::logical_shift_left: return "logical_shift_left";
-	case Fn::logical_shift_right: return "logical_shift_right";
-	case Fn::arithmetic_shift_right: return "arithmetic_shift_right";
-	case Fn::mux: return "mux";
-	case Fn::constant: return "constant";
-	case Fn::input: return "input";
-	case Fn::state: return "state";
-	case Fn::memory_read: return "memory_read";
-	case Fn::memory_write: return "memory_write";
+ਅਚਲ ਅੱਖਰ *fn_ਮੰਜ਼ਿਲ_string(Fn fn) {
+	ਚੋਣ(fn) {
+	ਹਾਲਤ Fn::invalid: ਵਾਪਸ "invalid";
+	ਹਾਲਤ Fn::buf: ਵਾਪਸ "buf";
+	ਹਾਲਤ Fn::ਟੁਕੜਾ: ਵਾਪਸ "slice";
+	ਹਾਲਤ Fn::zero_extend: ਵਾਪਸ "zero_extend";
+	ਹਾਲਤ Fn::sign_extend: ਵਾਪਸ "sign_extend";
+	ਹਾਲਤ Fn::concat: ਵਾਪਸ "concat";
+	ਹਾਲਤ Fn::ਜੋੜੋ: ਵਾਪਸ "add";
+	ਹਾਲਤ Fn::sub: ਵਾਪਸ "sub";
+	ਹਾਲਤ Fn::mul: ਵਾਪਸ "mul";
+	ਹਾਲਤ Fn::unsigned_div: ਵਾਪਸ "unsigned_div";
+	ਹਾਲਤ Fn::unsigned_mod: ਵਾਪਸ "unsigned_mod";
+	ਹਾਲਤ Fn::bitwise_and: ਵਾਪਸ "bitwise_and";
+	ਹਾਲਤ Fn::bitwise_or: ਵਾਪਸ "bitwise_or";
+	ਹਾਲਤ Fn::bitwise_xor: ਵਾਪਸ "bitwise_xor";
+	ਹਾਲਤ Fn::bitwise_not: ਵਾਪਸ "bitwise_not";
+	ਹਾਲਤ Fn::reduce_and: ਵਾਪਸ "reduce_and";
+	ਹਾਲਤ Fn::reduce_or: ਵਾਪਸ "reduce_or";
+	ਹਾਲਤ Fn::reduce_xor: ਵਾਪਸ "reduce_xor";
+	ਹਾਲਤ Fn::unary_minus: ਵਾਪਸ "unary_minus";
+	ਹਾਲਤ Fn::equal: ਵਾਪਸ "equal";
+	ਹਾਲਤ Fn::not_equal: ਵਾਪਸ "not_equal";
+	ਹਾਲਤ Fn::signed_greater_than: ਵਾਪਸ "signed_greater_than";
+	ਹਾਲਤ Fn::signed_greater_equal: ਵਾਪਸ "signed_greater_equal";
+	ਹਾਲਤ Fn::unsigned_greater_than: ਵਾਪਸ "unsigned_greater_than";
+	ਹਾਲਤ Fn::unsigned_greater_equal: ਵਾਪਸ "unsigned_greater_equal";
+	ਹਾਲਤ Fn::logical_ਖਿਸਕਾਓ_ਖੱਬਾ: ਵਾਪਸ "logical_shift_left";
+	ਹਾਲਤ Fn::logical_ਖਿਸਕਾਓ_ਸੱਜਾ: ਵਾਪਸ "logical_shift_right";
+	ਹਾਲਤ Fn::arithmetic_ਖਿਸਕਾਓ_ਸੱਜਾ: ਵਾਪਸ "arithmetic_shift_right";
+	ਹਾਲਤ Fn::mux: ਵਾਪਸ "mux";
+	ਹਾਲਤ Fn::constant: ਵਾਪਸ "constant";
+	ਹਾਲਤ Fn::ਨਿਵੇਸ਼: ਵਾਪਸ "input";
+	ਹਾਲਤ Fn::state: ਵਾਪਸ "state";
+	ਹਾਲਤ Fn::ਸਮ੍ਰਿਤੀ_read: ਵਾਪਸ "memory_read";
+	ਹਾਲਤ Fn::ਸਮ੍ਰਿਤੀ_write: ਵਾਪਸ "memory_write";
 	}
-	log_error("fn_to_string: unknown Functional::Fn value %d\n", (int)fn);
+	log_error("fn_to_string: unknown Functional::Fn value %d\n", (ਪੂਰਨ)fn);
 }
 
-vector<IRInput const*> IR::inputs(IdString kind) const {
-	vector<IRInput const*> ret;
-	for (const auto &[name, input] : _inputs)
-		if(input.kind == kind)
-			ret.push_back(&input);
-	return ret;
+ਸਦਿਸ਼<IRInput ਅਚਲ*> IR::inputs(IdString ਕਿਸਮ) ਅਚਲ {
+	ਸਦਿਸ਼<IRInput ਅਚਲ*> ret;
+	ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &[name, ਨਿਵੇਸ਼] : _inputs)
+		ਜੇ(ਨਿਵੇਸ਼.ਕਿਸਮ == ਕਿਸਮ)
+			ret.ਧੱਕੋ_ਪਿੱਠ(&ਨਿਵੇਸ਼);
+	ਵਾਪਸ ret;
 }
 
-vector<IROutput const*> IR::outputs(IdString kind) const {
-	vector<IROutput const*> ret;
-	for (const auto &[name, output] : _outputs)
-		if(output.kind == kind)
-			ret.push_back(&output);
-	return ret;
+ਸਦਿਸ਼<IROutput ਅਚਲ*> IR::outputs(IdString ਕਿਸਮ) ਅਚਲ {
+	ਸਦਿਸ਼<IROutput ਅਚਲ*> ret;
+	ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &[name, output] : _outputs)
+		ਜੇ(output.ਕਿਸਮ == ਕਿਸਮ)
+			ret.ਧੱਕੋ_ਪਿੱਠ(&output);
+	ਵਾਪਸ ret;
 }
 
-vector<IRState const*> IR::states(IdString kind) const {
-	vector<IRState const*> ret;
-	for (const auto &[name, state] : _states)
-		if(state.kind == kind)
-			ret.push_back(&state);
-	return ret;
+ਸਦਿਸ਼<IRState ਅਚਲ*> IR::ਹਾਲਤਾਂ(IdString ਕਿਸਮ) ਅਚਲ {
+	ਸਦਿਸ਼<IRState ਅਚਲ*> ret;
+	ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &[name, state] : ਹਾਲਤਾਂ_2)
+		ਜੇ(state.ਕਿਸਮ == ਕਿਸਮ)
+			ret.ਧੱਕੋ_ਪਿੱਠ(&state);
+	ਵਾਪਸ ret;
 }
 
-vector<IRInput const*> IR::all_inputs() const {
-	vector<IRInput const*> ret;
-	for (const auto &[name, input] : _inputs)
-		ret.push_back(&input);
-	return ret;
+ਸਦਿਸ਼<IRInput ਅਚਲ*> IR::all_inputs() ਅਚਲ {
+	ਸਦਿਸ਼<IRInput ਅਚਲ*> ret;
+	ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &[name, ਨਿਵੇਸ਼] : _inputs)
+		ret.ਧੱਕੋ_ਪਿੱਠ(&ਨਿਵੇਸ਼);
+	ਵਾਪਸ ret;
 }
 
-vector<IROutput const*> IR::all_outputs() const {
-	vector<IROutput const*> ret;
-	for (const auto &[name, output] : _outputs)
-		ret.push_back(&output);
-	return ret;
+ਸਦਿਸ਼<IROutput ਅਚਲ*> IR::all_outputs() ਅਚਲ {
+	ਸਦਿਸ਼<IROutput ਅਚਲ*> ret;
+	ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &[name, output] : _outputs)
+		ret.ਧੱਕੋ_ਪਿੱਠ(&output);
+	ਵਾਪਸ ret;
 }
 
-vector<IRState const*> IR::all_states() const {
-	vector<IRState const*> ret;
-	for (const auto &[name, state] : _states)
-		ret.push_back(&state);
-	return ret;
+ਸਦਿਸ਼<IRState ਅਚਲ*> IR::all_ਹਾਲਤਾਂ() ਅਚਲ {
+	ਸਦਿਸ਼<IRState ਅਚਲ*> ret;
+	ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ &[name, state] : ਹਾਲਤਾਂ_2)
+		ret.ਧੱਕੋ_ਪਿੱਠ(&state);
+	ਵਾਪਸ ret;
 }
 
-struct PrintVisitor : DefaultVisitor<std::string> {
-	std::function<std::string(Node)> np;
-	PrintVisitor(std::function<std::string(Node)> np) : np(np) { }
+ਬਣਤਰ PrintVisitor : DefaultVisitor<std::string> {
+	std::function<std::string(ਗੰਢ_2)> np;
+	PrintVisitor(std::function<std::string(ਗੰਢ_2)> np) : np(np) { }
 	// as a general rule the default handler is good enough iff the only arguments are of type Node
-	std::string slice(Node, Node a, int offset, int out_width) override { return "slice(" + np(a) + ", " + std::to_string(offset) + ", " + std::to_string(out_width) + ")"; }
-	std::string zero_extend(Node, Node a, int out_width) override { return "zero_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
-	std::string sign_extend(Node, Node a, int out_width) override { return "sign_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
-	std::string constant(Node, RTLIL::Const const& value) override { return "constant(" + value.as_string() + ")"; }
-	std::string input(Node self, IdString name, IdString kind) override { return "input(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
-	std::string state(Node self, IdString name, IdString kind) override { return "state(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
-	std::string default_handler(Node self) override {
-		std::string ret = fn_to_string(self.fn());
+	std::string ਟੁਕੜਾ(ਗੰਢ_2, ਗੰਢ_2 a, ਪੂਰਨ ਵਿੱਥ, ਪੂਰਨ ਬਾਹਰਲਾ_ਚੌੜਾਈ) override { ਵਾਪਸ "slice(" + np(a) + ", " + std::ਮੰਜ਼ਿਲ_string(ਵਿੱਥ) + ", " + std::ਮੰਜ਼ਿਲ_string(ਬਾਹਰਲਾ_ਚੌੜਾਈ) + ")"; }
+	std::string zero_extend(ਗੰਢ_2, ਗੰਢ_2 a, ਪੂਰਨ ਬਾਹਰਲਾ_ਚੌੜਾਈ) override { ਵਾਪਸ "zero_extend(" + np(a) + ", " + std::ਮੰਜ਼ਿਲ_string(ਬਾਹਰਲਾ_ਚੌੜਾਈ) + ")"; }
+	std::string sign_extend(ਗੰਢ_2, ਗੰਢ_2 a, ਪੂਰਨ ਬਾਹਰਲਾ_ਚੌੜਾਈ) override { ਵਾਪਸ "sign_extend(" + np(a) + ", " + std::ਮੰਜ਼ਿਲ_string(ਬਾਹਰਲਾ_ਚੌੜਾਈ) + ")"; }
+	std::string constant(ਗੰਢ_2, RTLIL::Const ਅਚਲ& ਮੁੱਲ) override { ਵਾਪਸ "constant(" + ਮੁੱਲ.as_string() + ")"; }
+	std::string ਨਿਵੇਸ਼(ਗੰਢ_2 self, IdString name, IdString ਕਿਸਮ) override { ਵਾਪਸ "input(" + self.design->twines().str(name) + ", " + self.design->twines().str(ਕਿਸਮ) + ")"; }
+	std::string state(ਗੰਢ_2 self, IdString name, IdString ਕਿਸਮ) override { ਵਾਪਸ "state(" + self.design->twines().str(name) + ", " + self.design->twines().str(ਕਿਸਮ) + ")"; }
+	std::string default_handler(ਗੰਢ_2 self) override {
+		std::string ret = fn_ਮੰਜ਼ਿਲ_string(self.fn());
 		ret += "(";
-		for(size_t i = 0; i < self.arg_count(); i++) {
-			if(i > 0) ret += ", ";
+		ਲਈ(ਮਾਪ_t i = 0; i < self.arg_ਗਿਣਤੀ(); i++) {
+			ਜੇ(i > 0) ret += ", ";
 			ret += np(self.arg(i));
 		}
 		ret += ")";
-		return ret;
+		ਵਾਪਸ ret;
 	}
 };
 
-std::string Node::to_string()
+std::string ਗੰਢ_2::ਮੰਜ਼ਿਲ_string()
 {
-	return to_string([](Node n) { return n.name().unescape(); });
+	ਵਾਪਸ ਮੰਜ਼ਿਲ_string([](ਗੰਢ_2 n) { ਵਾਪਸ n.name().unescape(); });
 }
 
-std::string Node::to_string(std::function<std::string(Node)> np)
+std::string ਗੰਢ_2::ਮੰਜ਼ਿਲ_string(std::function<std::string(ਗੰਢ_2)> np)
 {
-	return visit(PrintVisitor(np));
+	ਵਾਪਸ ਦੇਖੋ(PrintVisitor(np));
 }
 
-class CellSimplifier {
+ਵਰਗ CellSimplifier {
 	Factory &factory;
-	Node sign(Node a) {
-		return factory.slice(a, a.width() - 1, 1);
+	ਗੰਢ_2 sign(ਗੰਢ_2 a) {
+		ਵਾਪਸ factory.ਟੁਕੜਾ(a, a.ਚੌੜਾਈ() - 1, 1);
 	}
-	Node neg_if(Node a, Node s) {
-		return factory.mux(a, factory.unary_minus(a), s);
+	ਗੰਢ_2 neg_if(ਗੰਢ_2 a, ਗੰਢ_2 s) {
+		ਵਾਪਸ factory.mux(a, factory.unary_minus(a), s);
 	}
-	Node abs(Node a) {
-		return neg_if(a, sign(a));
+	ਗੰਢ_2 ਨਿਰਪੇਖ(ਗੰਢ_2 a) {
+		ਵਾਪਸ neg_if(a, sign(a));
 	}
-	Node handle_shift(Node a, Node b, bool is_right, bool is_signed) {
+	ਗੰਢ_2 handle_ਖਿਸਕਾਓ(ਗੰਢ_2 a, ਗੰਢ_2 b, ਤਾਰਕਿਕ is_ਸੱਜਾ, ਤਾਰਕਿਕ is_signed) {
 		// to prevent new_width == 0, we handle this case separately
-		if(a.width() == 1) {
-			if(!is_signed)
-				return factory.bitwise_and(a, factory.bitwise_not(factory.reduce_or(b)));
-			else
-				return a;
+		ਜੇ(a.ਚੌੜਾਈ() == 1) {
+			ਜੇ(!is_signed)
+				ਵਾਪਸ factory.bitwise_and(a, factory.bitwise_not(factory.reduce_or(b)));
+			ਨਹੀਂਤਾਂ
+				ਵਾਪਸ a;
 		}
-		int new_width = ceil_log2(a.width());
-		Node b_truncated = factory.extend(b, new_width, false);
-		Node y =
-			!is_right ? factory.logical_shift_left(a, b_truncated) :
-			!is_signed ? factory.logical_shift_right(a, b_truncated) :
-			factory.arithmetic_shift_right(a, b_truncated);
-		if(b.width() <= new_width)
-			return y;
-		Node overflow = factory.unsigned_greater_equal(b, factory.constant(RTLIL::Const(a.width(), b.width())));
-		Node y_if_overflow = is_signed ? factory.extend(sign(a), a.width(), true) : factory.constant(RTLIL::Const(State::S0, a.width()));
-		return factory.mux(y, y_if_overflow, overflow);
+		ਪੂਰਨ new_ਚੌੜਾਈ = ceil_log2(a.ਚੌੜਾਈ());
+		ਗੰਢ_2 b_truncated = factory.extend(b, new_ਚੌੜਾਈ, ਝੂਠ);
+		ਗੰਢ_2 y =
+			!is_ਸੱਜਾ ? factory.logical_ਖਿਸਕਾਓ_ਖੱਬਾ(a, b_truncated) :
+			!is_signed ? factory.logical_ਖਿਸਕਾਓ_ਸੱਜਾ(a, b_truncated) :
+			factory.arithmetic_ਖਿਸਕਾਓ_ਸੱਜਾ(a, b_truncated);
+		ਜੇ(b.ਚੌੜਾਈ() <= new_ਚੌੜਾਈ)
+			ਵਾਪਸ y;
+		ਗੰਢ_2 ਉਛਾਲ = factory.unsigned_greater_equal(b, factory.constant(RTLIL::Const(a.ਚੌੜਾਈ(), b.ਚੌੜਾਈ())));
+		ਗੰਢ_2 y_if_ਉਛਾਲ = is_signed ? factory.extend(sign(a), a.ਚੌੜਾਈ(), ਸੱਚ) : factory.constant(RTLIL::Const(State::S0, a.ਚੌੜਾਈ()));
+		ਵਾਪਸ factory.mux(y, y_if_ਉਛਾਲ, ਉਛਾਲ);
 	}
-public:
-	Node logical_shift_left(Node a, Node b) { return handle_shift(a, b, false, false); }
-	Node logical_shift_right(Node a, Node b) { return handle_shift(a, b, true, false); }
-	Node arithmetic_shift_right(Node a, Node b) { return handle_shift(a, b, true, true); }
-	Node bitwise_mux(Node a, Node b, Node s) {
-		Node aa = factory.bitwise_and(a, factory.bitwise_not(s));
-		Node bb = factory.bitwise_and(b, s);
-		return factory.bitwise_or(aa, bb);
+ਜਨਤਕ:
+	ਗੰਢ_2 logical_ਖਿਸਕਾਓ_ਖੱਬਾ(ਗੰਢ_2 a, ਗੰਢ_2 b) { ਵਾਪਸ handle_ਖਿਸਕਾਓ(a, b, ਝੂਠ, ਝੂਠ); }
+	ਗੰਢ_2 logical_ਖਿਸਕਾਓ_ਸੱਜਾ(ਗੰਢ_2 a, ਗੰਢ_2 b) { ਵਾਪਸ handle_ਖਿਸਕਾਓ(a, b, ਸੱਚ, ਝੂਠ); }
+	ਗੰਢ_2 arithmetic_ਖਿਸਕਾਓ_ਸੱਜਾ(ਗੰਢ_2 a, ਗੰਢ_2 b) { ਵਾਪਸ handle_ਖਿਸਕਾਓ(a, b, ਸੱਚ, ਸੱਚ); }
+	ਗੰਢ_2 bitwise_mux(ਗੰਢ_2 a, ਗੰਢ_2 b, ਗੰਢ_2 s) {
+		ਗੰਢ_2 aa = factory.bitwise_and(a, factory.bitwise_not(s));
+		ਗੰਢ_2 bb = factory.bitwise_and(b, s);
+		ਵਾਪਸ factory.bitwise_or(aa, bb);
 	}
 	CellSimplifier(Factory &f) : factory(f) {}
-private:
-	Node handle_pow(Node a0, Node b, int y_width, bool is_signed) {
-		Node a = factory.extend(a0, y_width, is_signed);
-		Node r = factory.constant(Const(1, y_width));
-		for(int i = 0; i < b.width(); i++) {
-			Node b_bit = factory.slice(b, i, 1);
-			r = factory.mux(r, factory.mul(r, a), b_bit);
+ਨਿਜੀ:
+	ਗੰਢ_2 handle_pow(ਗੰਢ_2 a0, ਗੰਢ_2 b, ਪੂਰਨ y_ਚੌੜਾਈ, ਤਾਰਕਿਕ is_signed) {
+		ਗੰਢ_2 a = factory.extend(a0, y_ਚੌੜਾਈ, is_signed);
+		ਗੰਢ_2 r = factory.constant(Const(1, y_ਚੌੜਾਈ));
+		ਲਈ(ਪੂਰਨ i = 0; i < b.ਚੌੜਾਈ(); i++) {
+			ਗੰਢ_2 b_ਦੋਆਧਾਰੀ_ਅੰਕ = factory.ਟੁਕੜਾ(b, i, 1);
+			r = factory.mux(r, factory.mul(r, a), b_ਦੋਆਧਾਰੀ_ਅੰਕ);
 			a = factory.mul(a, a);
 		}
-		if (is_signed) {
-			Node a_ge_1 = factory.unsigned_greater_than(abs(a0), factory.constant(Const(1, a0.width())));
-			Node zero_result = factory.bitwise_and(a_ge_1, sign(b));
-			r = factory.mux(r, factory.constant(Const(0, y_width)), zero_result);
+		ਜੇ (is_signed) {
+			ਗੰਢ_2 a_ge_1 = factory.unsigned_greater_than(ਨਿਰਪੇਖ(a0), factory.constant(Const(1, a0.ਚੌੜਾਈ())));
+			ਗੰਢ_2 zero_ਨਤੀਜਾ = factory.bitwise_and(a_ge_1, sign(b));
+			r = factory.mux(r, factory.constant(Const(0, y_ਚੌੜਾਈ)), zero_ਨਤੀਜਾ);
 		}
-		return r;
+		ਵਾਪਸ r;
 	}
-	Node handle_bmux(Node a, Node s, int a_offset, int width, int sn) {
-		if(sn < 1)
-			return factory.slice(a, a_offset, width);
-		else {
-			Node y0 = handle_bmux(a, s, a_offset, width, sn - 1);
-			Node y1 = handle_bmux(a, s, a_offset + (width << (sn - 1)), width, sn - 1);
-			return factory.mux(y0, y1, factory.slice(s, sn - 1, 1));
+	ਗੰਢ_2 handle_bmux(ਗੰਢ_2 a, ਗੰਢ_2 s, ਪੂਰਨ a_ਵਿੱਥ, ਪੂਰਨ ਚੌੜਾਈ, ਪੂਰਨ sn) {
+		ਜੇ(sn < 1)
+			ਵਾਪਸ factory.ਟੁਕੜਾ(a, a_ਵਿੱਥ, ਚੌੜਾਈ);
+		ਨਹੀਂਤਾਂ {
+			ਗੰਢ_2 y0 = handle_bmux(a, s, a_ਵਿੱਥ, ਚੌੜਾਈ, sn - 1);
+			ਗੰਢ_2 y1 = handle_bmux(a, s, a_ਵਿੱਥ + (ਚੌੜਾਈ << (sn - 1)), ਚੌੜਾਈ, sn - 1);
+			ਵਾਪਸ factory.mux(y0, y1, factory.ਟੁਕੜਾ(s, sn - 1, 1));
 		}
 	}
-	Node handle_pmux(Node a, Node b, Node s) {
+	ਗੰਢ_2 handle_pmux(ਗੰਢ_2 a, ਗੰਢ_2 b, ਗੰਢ_2 s) {
 		// TODO : what to do about multiple b bits set ?
-		log_assert(b.width() == a.width() * s.width());
-		Node y = a;
-		for(int i = 0; i < s.width(); i++)
-			y = factory.mux(y, factory.slice(b, a.width() * i, a.width()), factory.slice(s, i, 1));
-		return y;
+		log_assert(b.ਚੌੜਾਈ() == a.ਚੌੜਾਈ() * s.ਚੌੜਾਈ());
+		ਗੰਢ_2 y = a;
+		ਲਈ(ਪੂਰਨ i = 0; i < s.ਚੌੜਾਈ(); i++)
+			y = factory.mux(y, factory.ਟੁਕੜਾ(b, a.ਚੌੜਾਈ() * i, a.ਚੌੜਾਈ()), factory.ਟੁਕੜਾ(s, i, 1));
+		ਵਾਪਸ y;
 	}
-	dict<IdString, Node> handle_fa(Node a, Node b, Node c) {
-		Node t1 = factory.bitwise_xor(a, b);
-		Node t2 = factory.bitwise_and(a, b);
-		Node t3 = factory.bitwise_and(c, t1);
-		Node y = factory.bitwise_xor(c, t1);
-		Node x = factory.bitwise_or(t2, t3);
-		return {{ID(X), x}, {ID(Y), y}};
+	dict<IdString, ਗੰਢ_2> handle_fa(ਗੰਢ_2 a, ਗੰਢ_2 b, ਗੰਢ_2 c) {
+		ਗੰਢ_2 t1 = factory.bitwise_xor(a, b);
+		ਗੰਢ_2 t2 = factory.bitwise_and(a, b);
+		ਗੰਢ_2 t3 = factory.bitwise_and(c, t1);
+		ਗੰਢ_2 y = factory.bitwise_xor(c, t1);
+		ਗੰਢ_2 x = factory.bitwise_or(t2, t3);
+		ਵਾਪਸ {{ID(X), x}, {ID(Y), y}};
 	}
-	dict<IdString, Node> handle_alu(Node a_in, Node b_in, int y_width, bool is_signed, Node ci, Node bi) {
-		Node a = factory.extend(a_in, y_width, is_signed);
-		Node b_uninverted = factory.extend(b_in, y_width, is_signed);
-		Node b = factory.mux(b_uninverted, factory.bitwise_not(b_uninverted), bi);
-		Node x = factory.bitwise_xor(a, b);
+	dict<IdString, ਗੰਢ_2> handle_alu(ਗੰਢ_2 a_ਵਿੱਚ, ਗੰਢ_2 b_ਵਿੱਚ, ਪੂਰਨ y_ਚੌੜਾਈ, ਤਾਰਕਿਕ is_signed, ਗੰਢ_2 ci, ਗੰਢ_2 bi) {
+		ਗੰਢ_2 a = factory.extend(a_ਵਿੱਚ, y_ਚੌੜਾਈ, is_signed);
+		ਗੰਢ_2 b_uninverted = factory.extend(b_ਵਿੱਚ, y_ਚੌੜਾਈ, is_signed);
+		ਗੰਢ_2 b = factory.mux(b_uninverted, factory.bitwise_not(b_uninverted), bi);
+		ਗੰਢ_2 x = factory.bitwise_xor(a, b);
 		// we can compute the carry into each bit using (a+b+c)^a^b. since we want the carry out,
 		// i.e. the carry into the next bit, we have to add an extra bit to a and b, and
 		// then slice off the bottom bit of the result.
-		Node a_extra = factory.extend(a, y_width + 1, false);
-		Node b_extra = factory.extend(b, y_width + 1, false);
-		Node y_extra = factory.add(factory.add(a_extra, b_extra), factory.extend(ci, a.width() + 1, false));
-		Node y = factory.slice(y_extra, 0, y_width);
-		Node carries = factory.bitwise_xor(y_extra, factory.bitwise_xor(a_extra, b_extra));
-		Node co = factory.slice(carries, 1, y_width);
-		return {{ID(X), x}, {ID(Y), y}, {ID(CO), co}};
+		ਗੰਢ_2 a_extra = factory.extend(a, y_ਚੌੜਾਈ + 1, ਝੂਠ);
+		ਗੰਢ_2 b_extra = factory.extend(b, y_ਚੌੜਾਈ + 1, ਝੂਠ);
+		ਗੰਢ_2 y_extra = factory.ਜੋੜੋ(factory.ਜੋੜੋ(a_extra, b_extra), factory.extend(ci, a.ਚੌੜਾਈ() + 1, ਝੂਠ));
+		ਗੰਢ_2 y = factory.ਟੁਕੜਾ(y_extra, 0, y_ਚੌੜਾਈ);
+		ਗੰਢ_2 carries = factory.bitwise_xor(y_extra, factory.bitwise_xor(a_extra, b_extra));
+		ਗੰਢ_2 co = factory.ਟੁਕੜਾ(carries, 1, y_ਚੌੜਾਈ);
+		ਵਾਪਸ {{ID(X), x}, {ID(Y), y}, {ID(CO), co}};
 	}
-	Node handle_lcu(Node p, Node g, Node ci) {
-		return handle_alu(g, factory.bitwise_or(p, g), g.width(), false, ci, factory.constant(Const(State::S0, 1))).at(ID(CO));
+	ਗੰਢ_2 handle_lcu(ਗੰਢ_2 p, ਗੰਢ_2 g, ਗੰਢ_2 ci) {
+		ਵਾਪਸ handle_alu(g, factory.bitwise_or(p, g), g.ਚੌੜਾਈ(), ਝੂਠ, ci, factory.constant(Const(State::S0, 1))).at(ID(CO));
 	}
-public:
-	std::variant<dict<IdString, Node>, Node> handle(IdString cellName, IdString cellType, dict<IdString, Const> parameters, dict<IdString, Node> inputs)
+ਜਨਤਕ:
+	std::variant<dict<IdString, ਗੰਢ_2>, ਗੰਢ_2> handle(IdString cellName, IdString cellType, dict<IdString, Const> parameters, dict<IdString, ਗੰਢ_2> inputs)
 	{
-		int a_width = parameters.at(ID(A_WIDTH), Const(-1)).as_int();
-		int b_width = parameters.at(ID(B_WIDTH), Const(-1)).as_int();
-		int y_width = parameters.at(ID(Y_WIDTH), Const(-1)).as_int();
-		bool a_signed = parameters.at(ID(A_SIGNED), Const(0)).as_bool();
-		bool b_signed = parameters.at(ID(B_SIGNED), Const(0)).as_bool();
-		if(cellType.in(ID($add), ID($sub), ID($and), ID($or), ID($xor), ID($xnor), ID($mul))){
-			bool is_signed = a_signed && b_signed;
-			Node a = factory.extend(inputs.at(ID(A)), y_width, is_signed);
-			Node b = factory.extend(inputs.at(ID(B)), y_width, is_signed);
-			if(cellType == ID($add))
-				return factory.add(a, b);
-			else if(cellType == ID($sub))
-				return factory.sub(a, b);
-			else if(cellType == ID($mul))
-				return factory.mul(a, b);
-			else if(cellType == ID($and))
-				return factory.bitwise_and(a, b);
-			else if(cellType == ID($or))
-				return factory.bitwise_or(a, b);
-			else if(cellType == ID($xor))
-				return factory.bitwise_xor(a, b);
-			else if(cellType == ID($xnor))
-				return factory.bitwise_not(factory.bitwise_xor(a, b));
-			else
+		ਪੂਰਨ a_ਚੌੜਾਈ = parameters.at(ID(A_ਚੌੜਾਈ), Const(-1)).as_int();
+		ਪੂਰਨ b_ਚੌੜਾਈ = parameters.at(ID(B_ਚੌੜਾਈ), Const(-1)).as_int();
+		ਪੂਰਨ y_ਚੌੜਾਈ = parameters.at(ID(Y_ਚੌੜਾਈ), Const(-1)).as_int();
+		ਤਾਰਕਿਕ a_signed = parameters.at(ID(A_SIGNED), Const(0)).as_bool();
+		ਤਾਰਕਿਕ b_signed = parameters.at(ID(B_SIGNED), Const(0)).as_bool();
+		ਜੇ(cellType.ਵਿੱਚ(ID($ਜੋੜੋ), ID($sub), ID($and), ID($or), ID($xor), ID($xnor), ID($mul))){
+			ਤਾਰਕਿਕ is_signed = a_signed && b_signed;
+			ਗੰਢ_2 a = factory.extend(inputs.at(ID(A)), y_ਚੌੜਾਈ, is_signed);
+			ਗੰਢ_2 b = factory.extend(inputs.at(ID(B)), y_ਚੌੜਾਈ, is_signed);
+			ਜੇ(cellType == ID($ਜੋੜੋ))
+				ਵਾਪਸ factory.ਜੋੜੋ(a, b);
+			ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($sub))
+				ਵਾਪਸ factory.sub(a, b);
+			ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($mul))
+				ਵਾਪਸ factory.mul(a, b);
+			ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($and))
+				ਵਾਪਸ factory.bitwise_and(a, b);
+			ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($or))
+				ਵਾਪਸ factory.bitwise_or(a, b);
+			ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($xor))
+				ਵਾਪਸ factory.bitwise_xor(a, b);
+			ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($xnor))
+				ਵਾਪਸ factory.bitwise_not(factory.bitwise_xor(a, b));
+			ਨਹੀਂਤਾਂ
 				log_abort();
-		}else if(cellType.in(ID($eq), ID($ne), ID($eqx), ID($nex), ID($le), ID($lt), ID($ge), ID($gt))){
-			bool is_signed = a_signed && b_signed;
-			int width = max(a_width, b_width);
-			Node a = factory.extend(inputs.at(ID(A)), width, is_signed);
-			Node b = factory.extend(inputs.at(ID(B)), width, is_signed);
-			if(cellType.in(ID($eq), ID($eqx)))
-				return factory.extend(factory.equal(a, b), y_width, false);
-			else if(cellType.in(ID($ne), ID($nex)))
-				return factory.extend(factory.not_equal(a, b), y_width, false);
-			else if(cellType == ID($lt))
-				return factory.extend(is_signed ? factory.signed_greater_than(b, a) : factory.unsigned_greater_than(b, a), y_width, false);
-			else if(cellType == ID($le))
-				return factory.extend(is_signed ? factory.signed_greater_equal(b, a) : factory.unsigned_greater_equal(b, a), y_width, false);
-			else if(cellType == ID($gt))
-				return factory.extend(is_signed ? factory.signed_greater_than(a, b) : factory.unsigned_greater_than(a, b), y_width, false);
-			else if(cellType == ID($ge))
-				return factory.extend(is_signed ? factory.signed_greater_equal(a, b) : factory.unsigned_greater_equal(a, b), y_width, false);
-			else
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType.ਵਿੱਚ(ID($eq), ID($ne), ID($eqx), ID($nex), ID($le), ID($lt), ID($ge), ID($gt))){
+			ਤਾਰਕਿਕ is_signed = a_signed && b_signed;
+			ਪੂਰਨ ਚੌੜਾਈ = max(a_ਚੌੜਾਈ, b_ਚੌੜਾਈ);
+			ਗੰਢ_2 a = factory.extend(inputs.at(ID(A)), ਚੌੜਾਈ, is_signed);
+			ਗੰਢ_2 b = factory.extend(inputs.at(ID(B)), ਚੌੜਾਈ, is_signed);
+			ਜੇ(cellType.ਵਿੱਚ(ID($eq), ID($eqx)))
+				ਵਾਪਸ factory.extend(factory.equal(a, b), y_ਚੌੜਾਈ, ਝੂਠ);
+			ਨਹੀਂਤਾਂ ਜੇ(cellType.ਵਿੱਚ(ID($ne), ID($nex)))
+				ਵਾਪਸ factory.extend(factory.not_equal(a, b), y_ਚੌੜਾਈ, ਝੂਠ);
+			ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($lt))
+				ਵਾਪਸ factory.extend(is_signed ? factory.signed_greater_than(b, a) : factory.unsigned_greater_than(b, a), y_ਚੌੜਾਈ, ਝੂਠ);
+			ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($le))
+				ਵਾਪਸ factory.extend(is_signed ? factory.signed_greater_equal(b, a) : factory.unsigned_greater_equal(b, a), y_ਚੌੜਾਈ, ਝੂਠ);
+			ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($gt))
+				ਵਾਪਸ factory.extend(is_signed ? factory.signed_greater_than(a, b) : factory.unsigned_greater_than(a, b), y_ਚੌੜਾਈ, ਝੂਠ);
+			ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($ge))
+				ਵਾਪਸ factory.extend(is_signed ? factory.signed_greater_equal(a, b) : factory.unsigned_greater_equal(a, b), y_ਚੌੜਾਈ, ਝੂਠ);
+			ਨਹੀਂਤਾਂ
 				log_abort();
-		}else if(cellType.in(ID($logic_or), ID($logic_and))){
-			Node a = factory.reduce_or(inputs.at(ID(A)));
-			Node b = factory.reduce_or(inputs.at(ID(B)));
-			Node y = cellType == ID($logic_and) ? factory.bitwise_and(a, b) : factory.bitwise_or(a, b);
-			return factory.extend(y, y_width, false);
-		}else if(cellType == ID($not)){
-			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			return factory.bitwise_not(a);
-		}else if(cellType == ID($pos)){
-			return factory.extend(inputs.at(ID(A)), y_width, a_signed);
-		}else if(cellType == ID($barrier)){
-			return inputs.at(ID(A));
-		}else if(cellType == ID($neg)){
-			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			return factory.unary_minus(a);
-		}else if(cellType == ID($logic_not)){
-			Node a = factory.reduce_or(inputs.at(ID(A)));
-			Node y = factory.bitwise_not(a);
-			return factory.extend(y, y_width, false);
-		}else if(cellType.in(ID($reduce_or), ID($reduce_bool))){
-			Node a = factory.reduce_or(inputs.at(ID(A)));
-			return factory.extend(a, y_width, false);
-		}else if(cellType == ID($reduce_and)){
-			Node a = factory.reduce_and(inputs.at(ID(A)));
-			return factory.extend(a, y_width, false);
-		}else if(cellType.in(ID($reduce_xor), ID($reduce_xnor))){
-			Node a = factory.reduce_xor(inputs.at(ID(A)));
-			Node y = cellType == ID($reduce_xnor) ? factory.bitwise_not(a) : a;
-			return factory.extend(y, y_width, false);
-		}else if(cellType == ID($shl) || cellType == ID($sshl)){
-			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			Node b = inputs.at(ID(B));
-			return logical_shift_left(a, b);
-		}else if(cellType == ID($shr) || cellType == ID($sshr)){
-			int width = max(a_width, y_width);
-			Node a = factory.extend(inputs.at(ID(A)), width, a_signed);
-			Node b = inputs.at(ID(B));
-			Node y = a_signed && cellType == ID($sshr) ?
-				arithmetic_shift_right(a, b) :
-				logical_shift_right(a, b);
-			return factory.extend(y, y_width, a_signed);
-		}else if(cellType == ID($shiftx) || cellType == ID($shift)){
-			int width = max(a_width, y_width);
-			Node a = factory.extend(inputs.at(ID(A)), width, cellType == ID($shift) && a_signed);
-			Node b = inputs.at(ID(B));
-			Node shr = logical_shift_right(a, b);
-			if(b_signed) {
-				Node shl = logical_shift_left(a, factory.unary_minus(b));
-				Node y = factory.mux(shr, shl, sign(b));
-				return factory.extend(y, y_width, false);
-			} else {
-				return factory.extend(shr, y_width, false);
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType.ਵਿੱਚ(ID($logic_or), ID($logic_and))){
+			ਗੰਢ_2 a = factory.reduce_or(inputs.at(ID(A)));
+			ਗੰਢ_2 b = factory.reduce_or(inputs.at(ID(B)));
+			ਗੰਢ_2 y = cellType == ID($logic_and) ? factory.bitwise_and(a, b) : factory.bitwise_or(a, b);
+			ਵਾਪਸ factory.extend(y, y_ਚੌੜਾਈ, ਝੂਠ);
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($not)){
+			ਗੰਢ_2 a = factory.extend(inputs.at(ID(A)), y_ਚੌੜਾਈ, a_signed);
+			ਵਾਪਸ factory.bitwise_not(a);
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($pos)){
+			ਵਾਪਸ factory.extend(inputs.at(ID(A)), y_ਚੌੜਾਈ, a_signed);
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($barrier)){
+			ਵਾਪਸ inputs.at(ID(A));
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($neg)){
+			ਗੰਢ_2 a = factory.extend(inputs.at(ID(A)), y_ਚੌੜਾਈ, a_signed);
+			ਵਾਪਸ factory.unary_minus(a);
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($logic_not)){
+			ਗੰਢ_2 a = factory.reduce_or(inputs.at(ID(A)));
+			ਗੰਢ_2 y = factory.bitwise_not(a);
+			ਵਾਪਸ factory.extend(y, y_ਚੌੜਾਈ, ਝੂਠ);
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType.ਵਿੱਚ(ID($reduce_or), ID($reduce_bool))){
+			ਗੰਢ_2 a = factory.reduce_or(inputs.at(ID(A)));
+			ਵਾਪਸ factory.extend(a, y_ਚੌੜਾਈ, ਝੂਠ);
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($reduce_and)){
+			ਗੰਢ_2 a = factory.reduce_and(inputs.at(ID(A)));
+			ਵਾਪਸ factory.extend(a, y_ਚੌੜਾਈ, ਝੂਠ);
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType.ਵਿੱਚ(ID($reduce_xor), ID($reduce_xnor))){
+			ਗੰਢ_2 a = factory.reduce_xor(inputs.at(ID(A)));
+			ਗੰਢ_2 y = cellType == ID($reduce_xnor) ? factory.bitwise_not(a) : a;
+			ਵਾਪਸ factory.extend(y, y_ਚੌੜਾਈ, ਝੂਠ);
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($shl) || cellType == ID($sshl)){
+			ਗੰਢ_2 a = factory.extend(inputs.at(ID(A)), y_ਚੌੜਾਈ, a_signed);
+			ਗੰਢ_2 b = inputs.at(ID(B));
+			ਵਾਪਸ logical_ਖਿਸਕਾਓ_ਖੱਬਾ(a, b);
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($shr) || cellType == ID($sshr)){
+			ਪੂਰਨ ਚੌੜਾਈ = max(a_ਚੌੜਾਈ, y_ਚੌੜਾਈ);
+			ਗੰਢ_2 a = factory.extend(inputs.at(ID(A)), ਚੌੜਾਈ, a_signed);
+			ਗੰਢ_2 b = inputs.at(ID(B));
+			ਗੰਢ_2 y = a_signed && cellType == ID($sshr) ?
+				arithmetic_ਖਿਸਕਾਓ_ਸੱਜਾ(a, b) :
+				logical_ਖਿਸਕਾਓ_ਸੱਜਾ(a, b);
+			ਵਾਪਸ factory.extend(y, y_ਚੌੜਾਈ, a_signed);
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($shiftx) || cellType == ID($ਖਿਸਕਾਓ)){
+			ਪੂਰਨ ਚੌੜਾਈ = max(a_ਚੌੜਾਈ, y_ਚੌੜਾਈ);
+			ਗੰਢ_2 a = factory.extend(inputs.at(ID(A)), ਚੌੜਾਈ, cellType == ID($ਖਿਸਕਾਓ) && a_signed);
+			ਗੰਢ_2 b = inputs.at(ID(B));
+			ਗੰਢ_2 shr = logical_ਖਿਸਕਾਓ_ਸੱਜਾ(a, b);
+			ਜੇ(b_signed) {
+				ਗੰਢ_2 shl = logical_ਖਿਸਕਾਓ_ਖੱਬਾ(a, factory.unary_minus(b));
+				ਗੰਢ_2 y = factory.mux(shr, shl, sign(b));
+				ਵਾਪਸ factory.extend(y, y_ਚੌੜਾਈ, ਝੂਠ);
+			} ਨਹੀਂਤਾਂ {
+				ਵਾਪਸ factory.extend(shr, y_ਚੌੜਾਈ, ਝੂਠ);
 			}
-		}else if(cellType == ID($mux)){
-			return factory.mux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
-		}else if(cellType == ID($pmux)){
-			return handle_pmux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
-		}else if(cellType == ID($concat)){
-			Node a = inputs.at(ID(A));
-			Node b = inputs.at(ID(B));
-			return factory.concat(a, b);
-		}else if(cellType == ID($slice)){
-			int offset = parameters.at(ID(OFFSET)).as_int();
-			Node a = inputs.at(ID(A));
-			return factory.slice(a, offset, y_width);
-		}else if(cellType.in(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
-			int width = max(a_width, b_width);
-			bool is_signed = a_signed && b_signed;
-			Node a = factory.extend(inputs.at(ID(A)), width, is_signed);
-			Node b = factory.extend(inputs.at(ID(B)), width, is_signed);
-			if(is_signed) {
-				if(cellType == ID($div)) {
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($mux)){
+			ਵਾਪਸ factory.mux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($pmux)){
+			ਵਾਪਸ handle_pmux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($concat)){
+			ਗੰਢ_2 a = inputs.at(ID(A));
+			ਗੰਢ_2 b = inputs.at(ID(B));
+			ਵਾਪਸ factory.concat(a, b);
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($ਟੁਕੜਾ)){
+			ਪੂਰਨ ਵਿੱਥ = parameters.at(ID(ਵਿੱਥ_2)).as_int();
+			ਗੰਢ_2 a = inputs.at(ID(A));
+			ਵਾਪਸ factory.ਟੁਕੜਾ(a, ਵਿੱਥ, y_ਚੌੜਾਈ);
+		}ਨਹੀਂਤਾਂ ਜੇ(cellType.ਵਿੱਚ(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
+			ਪੂਰਨ ਚੌੜਾਈ = max(a_ਚੌੜਾਈ, b_ਚੌੜਾਈ);
+			ਤਾਰਕਿਕ is_signed = a_signed && b_signed;
+			ਗੰਢ_2 a = factory.extend(inputs.at(ID(A)), ਚੌੜਾਈ, is_signed);
+			ਗੰਢ_2 b = factory.extend(inputs.at(ID(B)), ਚੌੜਾਈ, is_signed);
+			ਜੇ(is_signed) {
+				ਜੇ(cellType == ID($div)) {
 					// divide absolute values, then flip the sign if input signs differ
 					// but extend the width first, to handle the case (most negative value) / (-1)
-					Node abs_y = factory.unsigned_div(abs(a), abs(b));
-					Node out_sign = factory.not_equal(sign(a), sign(b));
-					return neg_if(factory.extend(abs_y, y_width, false), out_sign);
-				} else if(cellType == ID($mod)) {
+					ਗੰਢ_2 abs_y = factory.unsigned_div(ਨਿਰਪੇਖ(a), ਨਿਰਪੇਖ(b));
+					ਗੰਢ_2 ਬਾਹਰਲਾ_sign = factory.not_equal(sign(a), sign(b));
+					ਵਾਪਸ neg_if(factory.extend(abs_y, y_ਚੌੜਾਈ, ਝੂਠ), ਬਾਹਰਲਾ_sign);
+				} ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($mod)) {
 					// similar to division but output sign == divisor sign
-					Node abs_y = factory.unsigned_mod(abs(a), abs(b));
-					return neg_if(factory.extend(abs_y, y_width, false), sign(a));
-				} else if(cellType == ID($divfloor)) {
+					ਗੰਢ_2 abs_y = factory.unsigned_mod(ਨਿਰਪੇਖ(a), ਨਿਰਪੇਖ(b));
+					ਵਾਪਸ neg_if(factory.extend(abs_y, y_ਚੌੜਾਈ, ਝੂਠ), sign(a));
+				} ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($divfloor)) {
 					// if b is negative, flip both signs so that b is positive
-					Node b_sign = sign(b);
-					Node a1 = neg_if(a, b_sign);
-					Node b1 = neg_if(b, b_sign);
+					ਗੰਢ_2 b_sign = sign(b);
+					ਗੰਢ_2 a1 = neg_if(a, b_sign);
+					ਗੰਢ_2 b1 = neg_if(b, b_sign);
 					// if a is now negative, calculate ~((~a) / b) = -((-a - 1) / b + 1)
 					// which equals the negative of (-a) / b with rounding up rather than down
 					// note that to handle the case where a = most negative value properly,
 					// we have to calculate a1_sign from the original values rather than using sign(a1)
-					Node a1_sign = factory.bitwise_and(factory.not_equal(sign(a), sign(b)), factory.reduce_or(a));
-					Node a2 = factory.mux(a1, factory.bitwise_not(a1), a1_sign);
-					Node y1 = factory.unsigned_div(a2, b1);
-					Node y2 = factory.extend(y1, y_width, false);
-					return factory.mux(y2, factory.bitwise_not(y2), a1_sign);
-				} else if(cellType == ID($modfloor)) {
+					ਗੰਢ_2 a1_sign = factory.bitwise_and(factory.not_equal(sign(a), sign(b)), factory.reduce_or(a));
+					ਗੰਢ_2 a2 = factory.mux(a1, factory.bitwise_not(a1), a1_sign);
+					ਗੰਢ_2 y1 = factory.unsigned_div(a2, b1);
+					ਗੰਢ_2 y2 = factory.extend(y1, y_ਚੌੜਾਈ, ਝੂਠ);
+					ਵਾਪਸ factory.mux(y2, factory.bitwise_not(y2), a1_sign);
+				} ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($modfloor)) {
 					// calculate |a| % |b| and then subtract from |b| if input signs differ and the remainder is non-zero
-					Node abs_b = abs(b);
-					Node abs_y = factory.unsigned_mod(abs(a), abs_b);
-					Node flip_y = factory.bitwise_and(factory.bitwise_xor(sign(a), sign(b)), factory.reduce_or(abs_y));
-					Node y_flipped = factory.mux(abs_y, factory.sub(abs_b, abs_y), flip_y);
+					ਗੰਢ_2 abs_b = ਨਿਰਪੇਖ(b);
+					ਗੰਢ_2 abs_y = factory.unsigned_mod(ਨਿਰਪੇਖ(a), abs_b);
+					ਗੰਢ_2 flip_y = factory.bitwise_and(factory.bitwise_xor(sign(a), sign(b)), factory.reduce_or(abs_y));
+					ਗੰਢ_2 y_flipped = factory.mux(abs_y, factory.sub(abs_b, abs_y), flip_y);
 					// since y_flipped is strictly less than |b|, the top bit is always 0 and we can just sign extend the flipped result
-					Node y = neg_if(y_flipped, sign(b));
-					return factory.extend(y, y_width, true);
-				} else
+					ਗੰਢ_2 y = neg_if(y_flipped, sign(b));
+					ਵਾਪਸ factory.extend(y, y_ਚੌੜਾਈ, ਸੱਚ);
+				} ਨਹੀਂਤਾਂ
 					log_error("unhandled cell in CellSimplifier %s\n", factory.ir().design->twines().str(cellType));
-			} else {
-				if(cellType.in(ID($mod), ID($modfloor)))
-					return factory.extend(factory.unsigned_mod(a, b), y_width, false);
-				else
-					return factory.extend(factory.unsigned_div(a, b), y_width, false);
+			} ਨਹੀਂਤਾਂ {
+				ਜੇ(cellType.ਵਿੱਚ(ID($mod), ID($modfloor)))
+					ਵਾਪਸ factory.extend(factory.unsigned_mod(a, b), y_ਚੌੜਾਈ, ਝੂਠ);
+				ਨਹੀਂਤਾਂ
+					ਵਾਪਸ factory.extend(factory.unsigned_div(a, b), y_ਚੌੜਾਈ, ਝੂਠ);
 			}
-		} else if(cellType == ID($pow)) {
-			return handle_pow(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed);
-		} else if (cellType == ID($lut)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			Const lut_table = parameters.at(ID(LUT));
-			lut_table.extu(1 << width);
-			return handle_bmux(factory.constant(lut_table), inputs.at(ID(A)), 0, 1, width);
-		} else if (cellType == ID($bwmux)) {
-			Node a = inputs.at(ID(A));
-			Node b = inputs.at(ID(B));
-			Node s = inputs.at(ID(S));
-			return factory.bitwise_or(
+		} ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($ਘਾਤ)) {
+			ਵਾਪਸ handle_pow(inputs.at(ID(A)), inputs.at(ID(B)), y_ਚੌੜਾਈ, a_signed && b_signed);
+		} ਨਹੀਂਤਾਂ ਜੇ (cellType == ID($lut)) {
+			ਪੂਰਨ ਚੌੜਾਈ = parameters.at(ID(ਚੌੜਾਈ_2)).as_int();
+			Const lut_ਸਾਰਣੀ = parameters.at(ID(LUT));
+			lut_ਸਾਰਣੀ.extu(1 << ਚੌੜਾਈ);
+			ਵਾਪਸ handle_bmux(factory.constant(lut_ਸਾਰਣੀ), inputs.at(ID(A)), 0, 1, ਚੌੜਾਈ);
+		} ਨਹੀਂਤਾਂ ਜੇ (cellType == ID($bwmux)) {
+			ਗੰਢ_2 a = inputs.at(ID(A));
+			ਗੰਢ_2 b = inputs.at(ID(B));
+			ਗੰਢ_2 s = inputs.at(ID(S));
+			ਵਾਪਸ factory.bitwise_or(
 				factory.bitwise_and(a, factory.bitwise_not(s)),
 				factory.bitwise_and(b, s));
-		} else if (cellType == ID($bweqx)) {
-			Node a = inputs.at(ID(A));
-			Node b = inputs.at(ID(B));
-			return factory.bitwise_not(factory.bitwise_xor(a, b));
-		} else if(cellType == ID($bmux)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			int s_width = parameters.at(ID(S_WIDTH)).as_int();
-			return handle_bmux(inputs.at(ID(A)), inputs.at(ID(S)), 0, width, s_width);
-		} else if(cellType == ID($demux)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			int s_width = parameters.at(ID(S_WIDTH)).as_int();
-			int y_width = width << s_width;
-			int b_width = ceil_log2(y_width);
-			Node a = factory.extend(inputs.at(ID(A)), y_width, false);
-			Node s = factory.extend(inputs.at(ID(S)), b_width, false);
-			Node b = factory.mul(s, factory.constant(Const(width, b_width)));
-			return factory.logical_shift_left(a, b);
-		} else if(cellType == ID($fa)) {
-			return handle_fa(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(C)));
-		} else if(cellType == ID($lcu)) {
-			return handle_lcu(inputs.at(ID(P)), inputs.at(ID(G)), inputs.at(ID(CI)));
-		} else if(cellType == ID($alu)) {
-			return handle_alu(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed, inputs.at(ID(CI)), inputs.at(ID(BI)));
-		} else if(cellType.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover))) {
-			Node a = factory.mux(factory.constant(Const(State::S1, 1)), inputs.at(ID(A)), inputs.at(ID(EN)));
-			auto &output = factory.add_output(cellName, cellType, Sort(1));
-			output.set_value(a);
-			return {};
-		} else if(cellType.in(ID($anyconst), ID($allconst), ID($anyseq), ID($allseq))) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			auto &input = factory.add_input(cellName, cellType, Sort(width));
-			return factory.value(input);
-		} else if(cellType == ID($initstate)) {
-			if(factory.ir().has_state(ID($initstate), ID($state)))
-				return factory.value(factory.ir().state(ID($initstate)));
-			else {
-				auto &state = factory.add_state(ID($initstate), ID($state), Sort(1));
-				state.set_initial_value(RTLIL::Const(State::S1, 1));
-				state.set_next_value(factory.constant(RTLIL::Const(State::S0, 1)));
-				return factory.value(state);
+		} ਨਹੀਂਤਾਂ ਜੇ (cellType == ID($bweqx)) {
+			ਗੰਢ_2 a = inputs.at(ID(A));
+			ਗੰਢ_2 b = inputs.at(ID(B));
+			ਵਾਪਸ factory.bitwise_not(factory.bitwise_xor(a, b));
+		} ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($bmux)) {
+			ਪੂਰਨ ਚੌੜਾਈ = parameters.at(ID(ਚੌੜਾਈ_2)).as_int();
+			ਪੂਰਨ s_ਚੌੜਾਈ = parameters.at(ID(S_ਚੌੜਾਈ)).as_int();
+			ਵਾਪਸ handle_bmux(inputs.at(ID(A)), inputs.at(ID(S)), 0, ਚੌੜਾਈ, s_ਚੌੜਾਈ);
+		} ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($demux)) {
+			ਪੂਰਨ ਚੌੜਾਈ = parameters.at(ID(ਚੌੜਾਈ_2)).as_int();
+			ਪੂਰਨ s_ਚੌੜਾਈ = parameters.at(ID(S_ਚੌੜਾਈ)).as_int();
+			ਪੂਰਨ y_ਚੌੜਾਈ = ਚੌੜਾਈ << s_ਚੌੜਾਈ;
+			ਪੂਰਨ b_ਚੌੜਾਈ = ceil_log2(y_ਚੌੜਾਈ);
+			ਗੰਢ_2 a = factory.extend(inputs.at(ID(A)), y_ਚੌੜਾਈ, ਝੂਠ);
+			ਗੰਢ_2 s = factory.extend(inputs.at(ID(S)), b_ਚੌੜਾਈ, ਝੂਠ);
+			ਗੰਢ_2 b = factory.mul(s, factory.constant(Const(ਚੌੜਾਈ, b_ਚੌੜਾਈ)));
+			ਵਾਪਸ factory.logical_ਖਿਸਕਾਓ_ਖੱਬਾ(a, b);
+		} ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($fa)) {
+			ਵਾਪਸ handle_fa(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(C)));
+		} ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($lcu)) {
+			ਵਾਪਸ handle_lcu(inputs.at(ID(P)), inputs.at(ID(G)), inputs.at(ID(CI)));
+		} ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($alu)) {
+			ਵਾਪਸ handle_alu(inputs.at(ID(A)), inputs.at(ID(B)), y_ਚੌੜਾਈ, a_signed && b_signed, inputs.at(ID(CI)), inputs.at(ID(BI)));
+		} ਨਹੀਂਤਾਂ ਜੇ(cellType.ਵਿੱਚ(ID($ਪ੍ਰਤਿਜ੍ਞਾ), ID($assume), ID($ਜੀਵਤ), ID($fair), ID($cover))) {
+			ਗੰਢ_2 a = factory.mux(factory.constant(Const(State::S1, 1)), inputs.at(ID(A)), inputs.at(ID(EN)));
+			ਸਵੈਚਾਲਿਤ &output = factory.ਜੋੜੋ_output(cellName, cellType, ਛਾਂਟੋ_2(1));
+			output.ਸੈੱਟ_ਮੁੱਲ(a);
+			ਵਾਪਸ {};
+		} ਨਹੀਂਤਾਂ ਜੇ(cellType.ਵਿੱਚ(ID($anyconst), ID($allconst), ID($anyseq), ID($allseq))) {
+			ਪੂਰਨ ਚੌੜਾਈ = parameters.at(ID(ਚੌੜਾਈ_2)).as_int();
+			ਸਵੈਚਾਲਿਤ &ਨਿਵੇਸ਼ = factory.ਜੋੜੋ_ਨਿਵੇਸ਼(cellName, cellType, ਛਾਂਟੋ_2(ਚੌੜਾਈ));
+			ਵਾਪਸ factory.ਮੁੱਲ(ਨਿਵੇਸ਼);
+		} ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($initstate)) {
+			ਜੇ(factory.ir().has_state(ID($initstate), ID($state)))
+				ਵਾਪਸ factory.ਮੁੱਲ(factory.ir().state(ID($initstate)));
+			ਨਹੀਂਤਾਂ {
+				ਸਵੈਚਾਲਿਤ &state = factory.ਜੋੜੋ_state(ID($initstate), ID($state), ਛਾਂਟੋ_2(1));
+				state.ਸੈੱਟ_initial_ਮੁੱਲ(RTLIL::Const(State::S1, 1));
+				state.ਸੈੱਟ_ਅਗਲਾ_ਮੁੱਲ(factory.constant(RTLIL::Const(State::S0, 1)));
+				ਵਾਪਸ factory.ਮੁੱਲ(state);
 			}
-		} else if(cellType == ID($check)) {
+		} ਨਹੀਂਤਾਂ ਜੇ(cellType == ID($check)) {
 			log_error("The design contains a $check cell `%s'. This is not supported by the functional backend. Call `chformal -lower' to avoid this error.\n", factory.ir().design->twines().str(cellName));
-		} else {
+		} ਨਹੀਂਤਾਂ {
 			log_error("`%s' cells are not supported by the functional backend\n", factory.ir().design->twines().str(cellType));
 		}
 	}
 };
 
-class FunctionalIRConstruction {
-	std::deque<std::variant<DriveSpec, Cell *>> queue;
-	dict<DriveSpec, Node> graph_nodes;
-	dict<std::pair<Cell *, IdString>, Node> cell_outputs;
+ਵਰਗ FunctionalIRConstruction {
+	std::deque<std::variant<DriveSpec, Cell *>> ਕਤਾਰ;
+	dict<DriveSpec, ਗੰਢ_2> ਗ੍ਰਾਫ_nodes;
+	dict<std::pair<Cell *, IdString>, ਗੰਢ_2> cell_outputs;
 	DriverMap driver_map;
 	Factory& factory;
 	CellSimplifier simplifier;
-	vector<Mem> memories_vector;
+	ਸਦਿਸ਼<Mem> memories_ਸਦਿਸ਼;
 	dict<Cell*, Mem*> memories;
 	SigMap sig_map; // TODO: this is only for FfInitVals, remove this once FfInitVals supports DriverMap
 	FfInitVals ff_initvals;
 
-	Node enqueue(DriveSpec const &spec)
+	ਗੰਢ_2 ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ(DriveSpec ਅਚਲ &spec)
 	{
-		auto it = graph_nodes.find(spec);
-		if(it == graph_nodes.end()){
-			auto node = factory.create_pending(spec.size());
-			graph_nodes.insert({spec, node});
-			queue.emplace_back(spec);
-			return node;
-		}else
-			return it->second;
+		ਸਵੈਚਾਲਿਤ it = ਗ੍ਰਾਫ_nodes.ਲੱਭੋ(spec);
+		ਜੇ(it == ਗ੍ਰਾਫ_nodes.ਸਿਰਾ()){
+			ਸਵੈਚਾਲਿਤ ਗੰਢ = factory.create_pending(spec.ਮਾਪ());
+			ਗ੍ਰਾਫ_nodes.ਪਾਓ({spec, ਗੰਢ});
+			ਕਤਾਰ.emplace_ਪਿੱਠ(spec);
+			ਵਾਪਸ ਗੰਢ;
+		}ਨਹੀਂਤਾਂ
+			ਵਾਪਸ it->ਦੂਜਾ;
 	}
-	Node enqueue_cell(Cell *cell, IdString port_name)
+	ਗੰਢ_2 ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ_cell(Cell *cell, IdString ਪੋਰਟ_name)
 	{
-		auto it = cell_outputs.find({cell, port_name});
-		if(it == cell_outputs.end()) {
-			queue.emplace_back(cell);
-			std::optional<Node> rv;
-			for(auto const &[name, sigspec] : cell->connections())
-				if(driver_map.celltypes.cell_output(cell->type, name)) {
-					auto node = factory.create_pending(sigspec.size());
-					factory.suggest_name(node, cell->name.str() + "$" + PooledName(cell->module, name).str());
-					cell_outputs.emplace({cell, name}, node);
-					if(name == port_name)
-						rv = node;
+		ਸਵੈਚਾਲਿਤ it = cell_outputs.ਲੱਭੋ({cell, ਪੋਰਟ_name});
+		ਜੇ(it == cell_outputs.ਸਿਰਾ()) {
+			ਕਤਾਰ.emplace_ਪਿੱਠ(cell);
+			std::optional<ਗੰਢ_2> rv;
+			ਲਈ(ਸਵੈਚਾਲਿਤ ਅਚਲ &[name, sigspec] : cell->connections())
+				ਜੇ(driver_map.celltypes.cell_output(cell->type, name)) {
+					ਸਵੈਚਾਲਿਤ ਗੰਢ = factory.create_pending(sigspec.ਮਾਪ());
+					factory.suggest_name(ਗੰਢ, cell->name.str() + "$" + PooledName(cell->module, name).str());
+					cell_outputs.emplace({cell, name}, ਗੰਢ);
+					ਜੇ(name == ਪੋਰਟ_name)
+						rv = ਗੰਢ;
 				}
-			return *rv;
-		} else
-			return it->second;
+			ਵਾਪਸ *rv;
+		} ਨਹੀਂਤਾਂ
+			ਵਾਪਸ it->ਦੂਜਾ;
 	}
-public:
+ਜਨਤਕ:
 	FunctionalIRConstruction(Module *module, Factory &f)
 		: factory(f)
 		, simplifier(f)
 		, sig_map(module)
 		, ff_initvals(&sig_map, module)
 	{
-		driver_map.add(module);
-		for (auto cell : module->cells()) {
-			if (cell->type.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover), ID($check)))
-				queue.emplace_back(cell);
+		driver_map.ਜੋੜੋ(module);
+		ਲਈ (ਸਵੈਚਾਲਿਤ cell : module->cells()) {
+			ਜੇ (cell->type.ਵਿੱਚ(ID($ਪ੍ਰਤਿਜ੍ਞਾ), ID($assume), ID($ਜੀਵਤ), ID($fair), ID($cover), ID($check)))
+				ਕਤਾਰ.emplace_ਪਿੱਠ(cell);
 		}
 		// we are relying here on unsorted pools iterating last-in-first-out
-		for (auto riter = module->ports.rbegin(); riter != module->ports.rend(); ++riter) {
-			auto *wire = module->wire(*riter);
-			if (wire && wire->port_input) {
-				factory.add_input(wire->name, ID($input), Sort(wire->width));
+		ਲਈ (ਸਵੈਚਾਲਿਤ riter = module->ports.rbegin(); riter != module->ports.rend(); ++riter) {
+			ਸਵੈਚਾਲਿਤ *wire = module->wire(*riter);
+			ਜੇ (wire && wire->ਪੋਰਟ_ਨਿਵੇਸ਼) {
+				factory.ਜੋੜੋ_ਨਿਵੇਸ਼(wire->name, ID($ਨਿਵੇਸ਼), ਛਾਂਟੋ_2(wire->ਚੌੜਾਈ));
 			}
-			if (wire && wire->port_output) {
-				auto &output = factory.add_output(wire->name, ID($output), Sort(wire->width));
-				output.set_value(enqueue(DriveChunk(DriveChunkWire(wire, 0, wire->width))));
+			ਜੇ (wire && wire->ਪੋਰਟ_output) {
+				ਸਵੈਚਾਲਿਤ &output = factory.ਜੋੜੋ_output(wire->name, ID($output), ਛਾਂਟੋ_2(wire->ਚੌੜਾਈ));
+				output.ਸੈੱਟ_ਮੁੱਲ(ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ(DriveChunk(DriveChunkWire(wire, 0, wire->ਚੌੜਾਈ))));
 			}
 		}
-		memories_vector = Mem::get_all_memories(module);
-		for (auto &mem : memories_vector) {
-			if (mem.cell != nullptr)
+		memories_ਸਦਿਸ਼ = Mem::get_all_memories(module);
+		ਲਈ (ਸਵੈਚਾਲਿਤ &mem : memories_ਸਦਿਸ਼) {
+			ਜੇ (mem.cell != ਖਾਲੀ_ਸੂਚਕ)
 				memories[mem.cell] = &mem;
 		}
 	}
-private:
-	Node concatenate_read_results(Mem *mem, vector<Node> results)
+ਨਿਜੀ:
+	ਗੰਢ_2 concatenate_read_results(Mem *mem, ਸਦਿਸ਼<ਗੰਢ_2> results)
 	{
 		// sanity check: all read ports concatenated should equal to the RD_DATA port
-		const SigSpec &rd_data = mem->cell->connections().at(ID(RD_DATA));
-		int current = 0;
-		for(size_t i = 0; i < mem->rd_ports.size(); i++) {
-			int width = mem->width << mem->rd_ports[i].wide_log2;
-			log_assert (results[i].width() == width);
-			log_assert (mem->rd_ports[i].data == rd_data.extract(current, width));
-			current += width;
+		ਅਚਲ SigSpec &rd_ਅੰਕੜੇ = mem->cell->connections().at(ID(RD_ਅੰਕੜੇ));
+		ਪੂਰਨ current = 0;
+		ਲਈ(ਮਾਪ_t i = 0; i < mem->rd_ports.ਮਾਪ(); i++) {
+			ਪੂਰਨ ਚੌੜਾਈ = mem->ਚੌੜਾਈ << mem->rd_ports[i].wide_log2;
+			log_assert (results[i].ਚੌੜਾਈ() == ਚੌੜਾਈ);
+			log_assert (mem->rd_ports[i].ਅੰਕੜੇ == rd_ਅੰਕੜੇ.ਕੱਢੋ_2(current, ਚੌੜਾਈ));
+			current += ਚੌੜਾਈ;
 		}
-		log_assert (current == rd_data.size());
-		log_assert (!results.empty());
-		Node node = results[0];
-		for(size_t i = 1; i < results.size(); i++)
-			node = factory.concat(node, results[i]);
-		return node;
+		log_assert (current == rd_ਅੰਕੜੇ.ਮਾਪ());
+		log_assert (!results.ਖਾਲੀ_ਥਾਵਾਂ());
+		ਗੰਢ_2 ਗੰਢ = results[0];
+		ਲਈ(ਮਾਪ_t i = 1; i < results.ਮਾਪ(); i++)
+			ਗੰਢ = factory.concat(ਗੰਢ, results[i]);
+		ਵਾਪਸ ਗੰਢ;
 	}
-	Node handle_memory(Mem *mem)
+	ਗੰਢ_2 handle_ਸਮ੍ਰਿਤੀ(Mem *mem)
 	{
 		// To simplify memory handling, the functional backend makes the following assumptions:
 		// - Since async2sync or clk2fflogic must be run to use the functional backend,
@@ -566,159 +566,159 @@ private:
 		// - We ignore collision_x_mask because x is a dont care value for us anyway.
 		// - Since wr port j can only have priority over wr port i if j > i, if we do writes in
 		//   ascending index order the result will obey the priorty relation.
-		vector<Node> read_results;
-		auto &state = factory.add_state(mem->cell->name, ID($state), Sort(ceil_log2(mem->size), mem->width));
-		state.set_initial_value(MemContents(mem));
-		Node node = factory.value(state);
-		for (size_t i = 0; i < mem->wr_ports.size(); i++) {
-			const auto &wr = mem->wr_ports[i];
-			if (wr.clk_enable)
+		ਸਦਿਸ਼<ਗੰਢ_2> read_results;
+		ਸਵੈਚਾਲਿਤ &state = factory.ਜੋੜੋ_state(mem->cell->name, ID($state), ਛਾਂਟੋ_2(ceil_log2(mem->ਮਾਪ), mem->ਚੌੜਾਈ));
+		state.ਸੈੱਟ_initial_ਮੁੱਲ(MemContents(mem));
+		ਗੰਢ_2 ਗੰਢ = factory.ਮੁੱਲ(state);
+		ਲਈ (ਮਾਪ_t i = 0; i < mem->wr_ports.ਮਾਪ(); i++) {
+			ਅਚਲ ਸਵੈਚਾਲਿਤ &wr = mem->wr_ports[i];
+			ਜੇ (wr.clk_enable)
 				log_error("Write port %zd of memory %s.%s is clocked. This is not supported by the functional backend. "
 					"Call async2sync or clk2fflogic to avoid this error.\n", i, mem->module, PooledName(mem->module, mem->memid).unescape());
-			Node en = enqueue(driver_map(DriveSpec(wr.en)));
-			Node addr = enqueue(driver_map(DriveSpec(wr.addr)));
-			Node new_data = enqueue(driver_map(DriveSpec(wr.data)));
-			Node old_data = factory.memory_read(node, addr);
-			Node wr_data = simplifier.bitwise_mux(old_data, new_data, en);
-			node = factory.memory_write(node, addr, wr_data);
+			ਗੰਢ_2 en = ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ(driver_map(DriveSpec(wr.en)));
+			ਗੰਢ_2 addr = ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ(driver_map(DriveSpec(wr.addr)));
+			ਗੰਢ_2 new_ਅੰਕੜੇ = ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ(driver_map(DriveSpec(wr.ਅੰਕੜੇ)));
+			ਗੰਢ_2 old_ਅੰਕੜੇ = factory.ਸਮ੍ਰਿਤੀ_read(ਗੰਢ, addr);
+			ਗੰਢ_2 wr_ਅੰਕੜੇ = simplifier.bitwise_mux(old_ਅੰਕੜੇ, new_ਅੰਕੜੇ, en);
+			ਗੰਢ = factory.ਸਮ੍ਰਿਤੀ_write(ਗੰਢ, addr, wr_ਅੰਕੜੇ);
 		}
-		if (mem->rd_ports.empty())
+		ਜੇ (mem->rd_ports.ਖਾਲੀ_ਥਾਵਾਂ())
 			log_error("Memory %s.%s has no read ports. This is not supported by the functional backend. "
 				"Call opt_clean to remove it.", mem->module, PooledName(mem->module, mem->memid).unescape());
-		for (size_t i = 0; i < mem->rd_ports.size(); i++) {
-			const auto &rd = mem->rd_ports[i];
-			if (rd.clk_enable)
+		ਲਈ (ਮਾਪ_t i = 0; i < mem->rd_ports.ਮਾਪ(); i++) {
+			ਅਚਲ ਸਵੈਚਾਲਿਤ &rd = mem->rd_ports[i];
+			ਜੇ (rd.clk_enable)
 				log_error("Read port %zd of memory %s.%s is clocked. This is not supported by the functional backend. "
 					"Call memory_nordff to avoid this error.\n", i, mem->module, PooledName(mem->module, mem->memid).unescape());
-			Node addr = enqueue(driver_map(DriveSpec(rd.addr)));
-			read_results.push_back(factory.memory_read(node, addr));
+			ਗੰਢ_2 addr = ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ(driver_map(DriveSpec(rd.addr)));
+			read_results.ਧੱਕੋ_ਪਿੱਠ(factory.ਸਮ੍ਰਿਤੀ_read(ਗੰਢ, addr));
 		}
-		state.set_next_value(node);
-		return concatenate_read_results(mem, read_results);
+		state.ਸੈੱਟ_ਅਗਲਾ_ਮੁੱਲ(ਗੰਢ);
+		ਵਾਪਸ concatenate_read_results(mem, read_results);
 	}
-	void process_cell(Cell *cell)
+	ਖਾਲੀ process_cell(Cell *cell)
 	{
-		if (cell->is_mem_cell()) {
-			Mem *mem = memories.at(cell, nullptr);
-			if (mem == nullptr) {
+		ਜੇ (cell->is_mem_cell()) {
+			Mem *mem = memories.at(cell, ਖਾਲੀ_ਸੂਚਕ);
+			ਜੇ (mem == ਖਾਲੀ_ਸੂਚਕ) {
 				log_assert(cell->has_memid());
 				log_error("The design contains an unpacked memory at %s. This is not supported by the functional backend. "
 					"Call memory_collect to avoid this error.\n", log_const(cell->parameters.at(ID(MEMID))));
 			}
-			Node node = handle_memory(mem);
-			factory.update_pending(cell_outputs.at({cell, ID(RD_DATA)}), node);
-		} else if (cell->is_builtin_ff()) {
-			FfData ff(&ff_initvals, cell);
-			if (!ff.has_gclk)
+			ਗੰਢ_2 ਗੰਢ = handle_ਸਮ੍ਰਿਤੀ(mem);
+			factory.update_pending(cell_outputs.at({cell, ID(RD_ਅੰਕੜੇ)}), ਗੰਢ);
+		} ਨਹੀਂਤਾਂ ਜੇ (cell->is_builtin_ff()) {
+			Ff_ਅੰਕੜੇ ff(&ff_initvals, cell);
+			ਜੇ (!ff.has_gclk)
 				log_error("The design contains a %s flip-flop at %s. This is not supported by the functional backend. "
 					"Call async2sync or clk2fflogic to avoid this error.\n", cell->type.unescape(), cell);
-			auto &state = factory.add_state(ff.name, ID($state), Sort(ff.width));
-			Node q_value = factory.value(state);
-			factory.suggest_name(q_value, ff.name);
-			factory.update_pending(cell_outputs.at({cell, ID(Q)}), q_value);
-			state.set_next_value(enqueue(ff.sig_d));
-			state.set_initial_value(ff.val_init);
-		} else {
-			dict<IdString, Node> connections;
+			ਸਵੈਚਾਲਿਤ &state = factory.ਜੋੜੋ_state(ff.name, ID($state), ਛਾਂਟੋ_2(ff.ਚੌੜਾਈ));
+			ਗੰਢ_2 q_ਮੁੱਲ = factory.ਮੁੱਲ(state);
+			factory.suggest_name(q_ਮੁੱਲ, ff.name);
+			factory.update_pending(cell_outputs.at({cell, ID(Q)}), q_ਮੁੱਲ);
+			state.ਸੈੱਟ_ਅਗਲਾ_ਮੁੱਲ(ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ(ff.sig_d));
+			state.ਸੈੱਟ_initial_ਮੁੱਲ(ff.val_init);
+		} ਨਹੀਂਤਾਂ {
+			dict<IdString, ਗੰਢ_2> connections;
 			IdString output_name; // for the single output case
-			int n_outputs = 0;
-			for(auto const &[name, sigspec] : cell->connections()) {
-				if(driver_map.celltypes.cell_input(cell->type, name) && sigspec.size() > 0)
-					connections.insert({ name, enqueue(DriveChunkPort(cell, {name, sigspec})) });
-				if(driver_map.celltypes.cell_output(cell->type, name)) {
+			ਪੂਰਨ n_outputs = 0;
+			ਲਈ(ਸਵੈਚਾਲਿਤ ਅਚਲ &[name, sigspec] : cell->connections()) {
+				ਜੇ(driver_map.celltypes.cell_ਨਿਵੇਸ਼(cell->type, name) && sigspec.ਮਾਪ() > 0)
+					connections.ਪਾਓ({ name, ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ(Drive_Chunk_ਪੋਰਟ(cell, {name, sigspec})) });
+				ਜੇ(driver_map.celltypes.cell_output(cell->type, name)) {
 					output_name = name;
 					n_outputs++;
 				}
 			}
-			std::variant<dict<IdString, Node>, Node> outputs = simplifier.handle(cell->name, cell->type, cell->parameters, connections);
-			if(auto *nodep = std::get_if<Node>(&outputs); nodep != nullptr) {
+			std::variant<dict<IdString, ਗੰਢ_2>, ਗੰਢ_2> outputs = simplifier.handle(cell->name, cell->type, cell->parameters, connections);
+			ਜੇ(ਸਵੈਚਾਲਿਤ *nodep = std::get_if<ਗੰਢ_2>(&outputs); nodep != ਖਾਲੀ_ਸੂਚਕ) {
 				log_assert(n_outputs == 1);
 				factory.update_pending(cell_outputs.at({cell, output_name}), *nodep);
-			} else {
-				for(auto [name, node] : std::get<dict<IdString, Node>>(outputs))
-					factory.update_pending(cell_outputs.at({cell, name}), node);
+			} ਨਹੀਂਤਾਂ {
+				ਲਈ(ਸਵੈਚਾਲਿਤ [name, ਗੰਢ] : std::get<dict<IdString, ਗੰਢ_2>>(outputs))
+					factory.update_pending(cell_outputs.at({cell, name}), ਗੰਢ);
 			}
 		}
 	}
-	void undriven(const std::string& name) {
+	ਖਾਲੀ undriven(ਅਚਲ std::string& name) {
 		log_error("The design contains an undriven signal %s. This is not supported by the functional backend. "
 			"Call setundef with appropriate options to avoid this error.\n", name);
 	}
 	// we perform this check separately to give better error messages that include the wire or port name
-	void check_undriven(DriveSpec const& spec, std::string const& name) {
-		for(auto const &chunk : spec.chunks())
-			if(chunk.is_none())
+	ਖਾਲੀ check_undriven(DriveSpec ਅਚਲ& spec, std::string ਅਚਲ& name) {
+		ਲਈ(ਸਵੈਚਾਲਿਤ ਅਚਲ &chunk : spec.chunks())
+			ਜੇ(chunk.is_none())
 				undriven(name);
 	}
-public:
-	void process_queue()
+ਜਨਤਕ:
+	ਖਾਲੀ process_ਕਤਾਰ()
 	{
-		for (; !queue.empty(); queue.pop_front()) {
-			if(auto p = std::get_if<Cell *>(&queue.front()); p != nullptr) {
+		ਲਈ (; !ਕਤਾਰ.ਖਾਲੀ_ਥਾਵਾਂ(); ਕਤਾਰ.ਕੱਢੋ_front()) {
+			ਜੇ(ਸਵੈਚਾਲਿਤ p = std::get_if<Cell *>(&ਕਤਾਰ.front()); p != ਖਾਲੀ_ਸੂਚਕ) {
 				process_cell(*p);
-				continue;
+				ਜਾਰੀ;
 			}
 
-			DriveSpec spec = std::get<DriveSpec>(queue.front());
-			Node pending = graph_nodes.at(spec);
+			DriveSpec spec = std::get<DriveSpec>(ਕਤਾਰ.front());
+			ਗੰਢ_2 pending = ਗ੍ਰਾਫ_nodes.at(spec);
 
-			if (spec.chunks().size() > 1) {
-				auto chunks = spec.chunks();
-				Node node = enqueue(chunks[0]);
-				for(size_t i = 1; i < chunks.size(); i++)
-					node = factory.concat(node, enqueue(chunks[i]));
-				factory.update_pending(pending, node);
-			} else if (spec.chunks().size() == 1) {
+			ਜੇ (spec.chunks().ਮਾਪ() > 1) {
+				ਸਵੈਚਾਲਿਤ chunks = spec.chunks();
+				ਗੰਢ_2 ਗੰਢ = ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ(chunks[0]);
+				ਲਈ(ਮਾਪ_t i = 1; i < chunks.ਮਾਪ(); i++)
+					ਗੰਢ = factory.concat(ਗੰਢ, ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ(chunks[i]));
+				factory.update_pending(pending, ਗੰਢ);
+			} ਨਹੀਂਤਾਂ ਜੇ (spec.chunks().ਮਾਪ() == 1) {
 				DriveChunk chunk = spec.chunks()[0];
-				if (chunk.is_wire()) {
+				ਜੇ (chunk.is_wire()) {
 					DriveChunkWire wire_chunk = chunk.wire();
-					if (wire_chunk.is_whole()) {
-						if (wire_chunk.wire->port_input) {
-							Node node = factory.value(factory.ir().input(wire_chunk.wire->name));
-							factory.suggest_name(node, wire_chunk.wire->name);
-							factory.update_pending(pending, node);
-						} else {
+					ਜੇ (wire_chunk.is_ਸਾਰਾ()) {
+						ਜੇ (wire_chunk.wire->ਪੋਰਟ_ਨਿਵੇਸ਼) {
+							ਗੰਢ_2 ਗੰਢ = factory.ਮੁੱਲ(factory.ir().ਨਿਵੇਸ਼(wire_chunk.wire->name));
+							factory.suggest_name(ਗੰਢ, wire_chunk.wire->name);
+							factory.update_pending(pending, ਗੰਢ);
+						} ਨਹੀਂਤਾਂ {
 							DriveSpec driver = driver_map(DriveSpec(wire_chunk));
 							check_undriven(driver, wire_chunk.wire->name.unescape());
-							Node node = enqueue(driver);
-							factory.suggest_name(node, wire_chunk.wire->name);
-							factory.update_pending(pending, node);
+							ਗੰਢ_2 ਗੰਢ = ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ(driver);
+							factory.suggest_name(ਗੰਢ, wire_chunk.wire->name);
+							factory.update_pending(pending, ਗੰਢ);
 						}
-					} else {
-						DriveChunkWire whole_wire(wire_chunk.wire, 0, wire_chunk.wire->width);
-						Node node = factory.slice(enqueue(whole_wire), wire_chunk.offset, wire_chunk.width);
-						factory.update_pending(pending, node);
+					} ਨਹੀਂਤਾਂ {
+						DriveChunkWire ਸਾਰਾ_wire(wire_chunk.wire, 0, wire_chunk.wire->ਚੌੜਾਈ);
+						ਗੰਢ_2 ਗੰਢ = factory.ਟੁਕੜਾ(ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ(ਸਾਰਾ_wire), wire_chunk.ਵਿੱਥ, wire_chunk.ਚੌੜਾਈ);
+						factory.update_pending(pending, ਗੰਢ);
 					}
-				} else if (chunk.is_port()) {
-					DriveChunkPort port_chunk = chunk.port();
-					if (port_chunk.is_whole()) {
-						if (driver_map.celltypes.cell_output(port_chunk.cell->type, port_chunk.port)) {
-							Node node = enqueue_cell(port_chunk.cell, port_chunk.port);
-							factory.update_pending(pending, node);
-						} else {
-							DriveSpec driver = driver_map(DriveSpec(port_chunk));
-							check_undriven(driver, port_chunk.cell->name.unescape() + " port " + PooledName(port_chunk.cell->module, port_chunk.port).unescape());
-							factory.update_pending(pending, enqueue(driver));
+				} ਨਹੀਂਤਾਂ ਜੇ (chunk.is_ਪੋਰਟ()) {
+					Drive_Chunk_ਪੋਰਟ ਪੋਰਟ_chunk = chunk.ਪੋਰਟ();
+					ਜੇ (ਪੋਰਟ_chunk.is_ਸਾਰਾ()) {
+						ਜੇ (driver_map.celltypes.cell_output(ਪੋਰਟ_chunk.cell->type, ਪੋਰਟ_chunk.ਪੋਰਟ)) {
+							ਗੰਢ_2 ਗੰਢ = ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ_cell(ਪੋਰਟ_chunk.cell, ਪੋਰਟ_chunk.ਪੋਰਟ);
+							factory.update_pending(pending, ਗੰਢ);
+						} ਨਹੀਂਤਾਂ {
+							DriveSpec driver = driver_map(DriveSpec(ਪੋਰਟ_chunk));
+							check_undriven(driver, ਪੋਰਟ_chunk.cell->name.unescape() + " port " + PooledName(ਪੋਰਟ_chunk.cell->module, ਪੋਰਟ_chunk.ਪੋਰਟ).unescape());
+							factory.update_pending(pending, ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ(driver));
 						}
-					} else {
-						DriveChunkPort whole_port(port_chunk.cell, port_chunk.port, 0, GetSize(port_chunk.cell->connections().at(port_chunk.port)));
-						Node node = factory.slice(enqueue(whole_port), port_chunk.offset, port_chunk.width);
-						factory.update_pending(pending, node);
+					} ਨਹੀਂਤਾਂ {
+						Drive_Chunk_ਪੋਰਟ ਸਾਰਾ_ਪੋਰਟ(ਪੋਰਟ_chunk.cell, ਪੋਰਟ_chunk.ਪੋਰਟ, 0, Get_ਮਾਪ(ਪੋਰਟ_chunk.cell->connections().at(ਪੋਰਟ_chunk.ਪੋਰਟ)));
+						ਗੰਢ_2 ਗੰਢ = factory.ਟੁਕੜਾ(ਕਤਾਰ_ਵਿੱਚ_ਪਾਓ(ਸਾਰਾ_ਪੋਰਟ), ਪੋਰਟ_chunk.ਵਿੱਥ, ਪੋਰਟ_chunk.ਚੌੜਾਈ);
+						factory.update_pending(pending, ਗੰਢ);
 					}
-				} else if (chunk.is_constant()) {
-					Node node = factory.constant(chunk.constant());
-					factory.suggest_name(node, "$const" + std::to_string(chunk.size()) + "b" + chunk.constant().as_string());
-					factory.update_pending(pending, node);
-				} else if (chunk.is_multiple()) {
+				} ਨਹੀਂਤਾਂ ਜੇ (chunk.is_constant()) {
+					ਗੰਢ_2 ਗੰਢ = factory.constant(chunk.constant());
+					factory.suggest_name(ਗੰਢ, "$const" + std::ਮੰਜ਼ਿਲ_string(chunk.ਮਾਪ()) + "b" + chunk.constant().as_string());
+					factory.update_pending(pending, ਗੰਢ);
+				} ਨਹੀਂਤਾਂ ਜੇ (chunk.is_ਗੁਣਜ()) {
 					log_error("Signal %s has multiple drivers. This is not supported by the functional backend. "
 						"If tristate drivers are used, call tristate -formal to avoid this error.\n", log_signal(chunk));
-				} else if (chunk.is_none()) {
+				} ਨਹੀਂਤਾਂ ਜੇ (chunk.is_none()) {
 					undriven(log_signal(chunk));
-				} else {
+				} ਨਹੀਂਤਾਂ {
 					log_error("unhandled drivespec: %s\n", log_signal(chunk));
 					log_abort();
 				}
-			} else {
+			} ਨਹੀਂਤਾਂ {
 				log_abort();
 			}
 		}
@@ -728,132 +728,132 @@ public:
 IR IR::from_module(Module *module) {
 	IR ir;
     ir.design = module->design;
-    auto factory = ir.factory();
+    ਸਵੈਚਾਲਿਤ factory = ir.factory();
     FunctionalIRConstruction ctor(module, factory);
-    ctor.process_queue();
-    ir.topological_sort();
+    ctor.process_ਕਤਾਰ();
+    ir.topological_ਛਾਂਟੋ();
     ir.forward_buf();
-    return ir;
+    ਵਾਪਸ ir;
 }
 
-void IR::topological_sort() {
-    Graph::SccAdaptor compute_graph_scc(_graph);
-    bool scc = false;
-    std::vector<int> perm;
-    TopoSortedSccs toposort(compute_graph_scc, [&](int *begin, int *end) {
-        perm.insert(perm.end(), begin, end);
-        if (end > begin + 1)
+ਖਾਲੀ IR::topological_ਛਾਂਟੋ() {
+    ਗ੍ਰਾਫ::SccAdaptor compute_ਗ੍ਰਾਫ_scc(ਗ੍ਰਾਫ_4);
+    ਤਾਰਕਿਕ scc = ਝੂਠ;
+    std::ਸਦਿਸ਼<ਪੂਰਨ> perm;
+    TopoSortedSccs toposort(compute_ਗ੍ਰਾਫ_scc, [&](ਪੂਰਨ *begin, ਪੂਰਨ *ਸਿਰਾ) {
+        perm.ਪਾਓ(perm.ਸਿਰਾ(), begin, ਸਿਰਾ);
+        ਜੇ (ਸਿਰਾ > begin + 1)
         {
             log_warning("Combinational loop:\n");
-            for (int *i = begin; i != end; ++i) {
-				Node node(_graph[*i], design);
-                log("- %s = %s\n", node.name().unescape(), node.to_string());
+            ਲਈ (ਪੂਰਨ *i = begin; i != ਸਿਰਾ; ++i) {
+				ਗੰਢ_2 ਗੰਢ(ਗ੍ਰਾਫ_4[*i], design);
+                ਲਘੂਗਣਕ("- %s = %s\n", ਗੰਢ.name().unescape(), ਗੰਢ.ਮੰਜ਼ਿਲ_string());
 			}
-            log("\n");
-            scc = true;
+            ਲਘੂਗਣਕ("\n");
+            scc = ਸੱਚ;
         }
     });
-	for(const auto &[name, state]: _states)
-		if(state.has_next_value())
-			toposort.process(state.next_value().id());
-	for(const auto &[name, output]: _outputs)
-		if(output.has_value())
-			toposort.process(output.value().id());
+	ਲਈ(ਅਚਲ ਸਵੈਚਾਲਿਤ &[name, state]: ਹਾਲਤਾਂ_2)
+		ਜੇ(state.has_ਅਗਲਾ_ਮੁੱਲ())
+			toposort.process(state.ਅਗਲਾ_ਮੁੱਲ().id());
+	ਲਈ(ਅਚਲ ਸਵੈਚਾਲਿਤ &[name, output]: _outputs)
+		ਜੇ(output.has_ਮੁੱਲ())
+			toposort.process(output.ਮੁੱਲ().id());
 	// any nodes untouched by this point are dead code and will be removed by permute
-    _graph.permute(perm);
-    if(scc) log_error("The design contains combinational loops. This is not supported by the functional backend. "
+    ਗ੍ਰਾਫ_4.ਕ੍ਰਮ_ਬਦਲੋ(perm);
+    ਜੇ(scc) log_error("The design contains combinational loops. This is not supported by the functional backend. "
 		"Try `scc -select; simplemap; select -clear` to avoid this error.\n");
 }
 
-static IdString merge_name(IdString a, IdString b) {
-	if(!a.isPublic() && b.isPublic())
-		return b;
-	else
-		return a;
+ਸਥਿਰ IdString ਮਿਲਾਓ_name(IdString a, IdString b) {
+	ਜੇ(!a.is_ਜਨਤਕ() && b.is_ਜਨਤਕ())
+		ਵਾਪਸ b;
+	ਨਹੀਂਤਾਂ
+		ਵਾਪਸ a;
 }
 
-void IR::forward_buf() {
-    std::vector<int> perm, alias;
+ਖਾਲੀ IR::forward_buf() {
+    std::ਸਦਿਸ਼<ਪੂਰਨ> perm, alias;
     perm.clear();
 
-    for (int i = 0; i < _graph.size(); ++i)
+    ਲਈ (ਪੂਰਨ i = 0; i < ਗ੍ਰਾਫ_4.ਮਾਪ(); ++i)
     {
-        auto node = _graph[i];
-        if (node.function().fn() == Fn::buf && node.arg(0).index() < i)
+        ਸਵੈਚਾਲਿਤ ਗੰਢ = ਗ੍ਰਾਫ_4[i];
+        ਜੇ (ਗੰਢ.function().fn() == Fn::buf && ਗੰਢ.arg(0).ਸੂਚਕਾਂਕ() < i)
         {
-            int target_index = alias[node.arg(0).index()];
-            auto target_node = _graph[perm[target_index]];
-			if(node.has_sparse_attr()) {
-				if(target_node.has_sparse_attr()) {
-					IdString id = merge_name(node.sparse_attr(), target_node.sparse_attr());
-					target_node.sparse_attr() = id;
-				} else {
-					IdString id = node.sparse_attr();
-					target_node.sparse_attr() = id;
+            ਪੂਰਨ ਨਿਸ਼ਾਨਾ_ਸੂਚਕਾਂਕ = alias[ਗੰਢ.arg(0).ਸੂਚਕਾਂਕ()];
+            ਸਵੈਚਾਲਿਤ ਨਿਸ਼ਾਨਾ_ਗੰਢ = ਗ੍ਰਾਫ_4[perm[ਨਿਸ਼ਾਨਾ_ਸੂਚਕਾਂਕ]];
+			ਜੇ(ਗੰਢ.has_sparse_attr()) {
+				ਜੇ(ਨਿਸ਼ਾਨਾ_ਗੰਢ.has_sparse_attr()) {
+					IdString id = ਮਿਲਾਓ_name(ਗੰਢ.sparse_attr(), ਨਿਸ਼ਾਨਾ_ਗੰਢ.sparse_attr());
+					ਨਿਸ਼ਾਨਾ_ਗੰਢ.sparse_attr() = id;
+				} ਨਹੀਂਤਾਂ {
+					IdString id = ਗੰਢ.sparse_attr();
+					ਨਿਸ਼ਾਨਾ_ਗੰਢ.sparse_attr() = id;
 				}
 			}
-            alias.push_back(target_index);
+            alias.ਧੱਕੋ_ਪਿੱਠ(ਨਿਸ਼ਾਨਾ_ਸੂਚਕਾਂਕ);
         }
-        else
+        ਨਹੀਂਤਾਂ
         {
-            alias.push_back(GetSize(perm));
-            perm.push_back(i);
+            alias.ਧੱਕੋ_ਪਿੱਠ(Get_ਮਾਪ(perm));
+            perm.ਧੱਕੋ_ਪਿੱਠ(i);
         }
     }
-    _graph.permute(perm, alias);
+    ਗ੍ਰਾਫ_4.ਕ੍ਰਮ_ਬਦਲੋ(perm, alias);
 }
 
 // Quoting routine to make error messages nicer
-static std::string quote_fmt(const char *fmt)
+ਸਥਿਰ std::string quote_fmt(ਅਚਲ ਅੱਖਰ *fmt)
 {
 	std::string r;
-	for(const char *p = fmt; *p != 0; p++) {
-		switch(*p) {
-		case '\n': r += "\\n"; break;
-		case '\t': r += "\\t"; break;
-		case '"': r += "\\\""; break;
-		case '\\': r += "\\\\"; break;
-		default: r += *p; break;
+	ਲਈ(ਅਚਲ ਅੱਖਰ *p = fmt; *p != 0; p++) {
+		ਚੋਣ(*p) {
+		ਹਾਲਤ '\n': r += "\\n"; ਰੋਕੋ;
+		ਹਾਲਤ '\t': r += "\\t"; ਰੋਕੋ;
+		ਹਾਲਤ '"': r += "\\\""; ਰੋਕੋ;
+		ਹਾਲਤ '\\': r += "\\\\"; ਰੋਕੋ;
+		ਮੂਲ: r += *p; ਰੋਕੋ;
 		}
 	}
-	return r;
+	ਵਾਪਸ r;
 }
 
-void Writer::print_impl(const char *fmt, vector<std::function<void()>> &fns)
+ਖਾਲੀ Writer::print_impl(ਅਚਲ ਅੱਖਰ *fmt, ਸਦਿਸ਼<std::function<ਖਾਲੀ()>> &fns)
 {
-	size_t next_index = 0;
-	for(const char *p = fmt; *p != 0; p++)
-		switch(*p) {
-		case '{':
-			if(*++p == '{') {
+	ਮਾਪ_t ਅਗਲਾ_ਸੂਚਕਾਂਕ = 0;
+	ਲਈ(ਅਚਲ ਅੱਖਰ *p = fmt; *p != 0; p++)
+		ਚੋਣ(*p) {
+		ਹਾਲਤ '{':
+			ਜੇ(*++p == '{') {
 				*os << '{';
-			} else {
-				char *pe;
-				size_t index = strtoul(p, &pe, 10);
-				if(*pe != '}')
+			} ਨਹੀਂਤਾਂ {
+				ਅੱਖਰ *pe;
+				ਮਾਪ_t ਸੂਚਕਾਂਕ = strtoul(p, &pe, 10);
+				ਜੇ(*pe != '}')
 					log_error("invalid format string: expected {<number>}, {} or {{, got \"%s\": \"%s\"\n",
 						quote_fmt(std::string(p - 1, pe - p + 2).c_str()).c_str(),
 						quote_fmt(fmt).c_str());
-				if(p == pe)
-					index = next_index;
-				else
+				ਜੇ(p == pe)
+					ਸੂਚਕਾਂਕ = ਅਗਲਾ_ਸੂਚਕਾਂਕ;
+				ਨਹੀਂਤਾਂ
 					p = pe;
-				if(index >= fns.size())
-					log_error("invalid format string: index %zu out of bounds (%zu): \"%s\"\n", index, fns.size(), quote_fmt(fmt));
-				fns[index]();
-				next_index = index + 1;
+				ਜੇ(ਸੂਚਕਾਂਕ >= fns.ਮਾਪ())
+					log_error("invalid format string: index %zu out of bounds (%zu): \"%s\"\n", ਸੂਚਕਾਂਕ, fns.ਮਾਪ(), quote_fmt(fmt));
+				fns[ਸੂਚਕਾਂਕ]();
+				ਅਗਲਾ_ਸੂਚਕਾਂਕ = ਸੂਚਕਾਂਕ + 1;
 			}
-			break;
-		case '}':
+			ਰੋਕੋ;
+		ਹਾਲਤ '}':
 			p++;
-			if(*p != '}')
+			ਜੇ(*p != '}')
 				log_error("invalid format string: unescaped }: \"%s\"\n", quote_fmt(fmt));
 			*os << '}';
-			break;
-		default:
+			ਰੋਕੋ;
+		ਮੂਲ:
 			*os << *p;
 		}
 }
 
 }
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ

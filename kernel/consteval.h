@@ -17,14 +17,14 @@
  *
  */
 
-#ifndef CONSTEVAL_H
-#define CONSTEVAL_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CONSTEVAL_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CONSTEVAL_H
 
-#include "kernel/rtlil.h"
-#include "kernel/sigtools.h"
-#include "kernel/celltypes.h"
-#include "kernel/macc.h"
-#include "kernel/newcelltypes.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/rtlil.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/sigtools.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/celltypes.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/macc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -32,413 +32,413 @@ YOSYS_NAMESPACE_BEGIN
  * ConstEval provides on-demand constant propagation by traversing input cones
  * with caching
  */
-struct ConstEval
+ਬਣਤਰ ConstEval
 {
 	RTLIL::Module *module;
-	SigMap assign_map;
-	SigMap values_map;
-	SigPool stop_signals;
-	SigSet<RTLIL::Cell*> sig2driver;
-	std::set<RTLIL::Cell*> busy;
-	std::vector<SigMap> stack;
+	SigMap ਸੌਂਪੋ_map;
+	SigMap ਮੁੱਲਾਂ_map;
+	SigPool stop_ਸੰਕੇਤ;
+	Sig_ਸੈੱਟ<RTLIL::Cell*> sig2driver;
+	std::ਸੈੱਟ<RTLIL::Cell*> busy;
+	std::ਸਦਿਸ਼<SigMap> ਢੇਰ;
 	RTLIL::State defaultval;
 	bool model_barriers = false; // Model $barrier as a buffer
 
-	ConstEval(RTLIL::Module *module, RTLIL::State defaultval = RTLIL::State::Sm) : module(module), assign_map(module), defaultval(defaultval)
+	ConstEval(RTLIL::Module *module, RTLIL::State defaultval = RTLIL::State::Sm) : module(module), ਸੌਂਪੋ_map(module), defaultval(defaultval)
 	{
-		auto ct = NewCellTypes();
+		ਸਵੈਚਾਲਿਤ ct = NewCellTypes();
 		ct.static_cell_types = StaticCellTypes::Compat::nomem_noff;
 
-		for (auto &it : module->cells_) {
-			if (!ct.cell_known(it.second->type))
-				continue;
-			for (auto &it2 : it.second->connections())
-				if (ct.cell_output(it.second->type, it2.first))
-					sig2driver.insert(assign_map(it2.second), it.second);
+		ਲਈ (ਸਵੈਚਾਲਿਤ &it : module->cells_) {
+			ਜੇ (!ct.cell_ਗਿਆਤ(it.ਦੂਜਾ->type))
+				ਜਾਰੀ;
+			ਲਈ (ਸਵੈਚਾਲਿਤ &it2 : it.ਦੂਜਾ->connections())
+				ਜੇ (ct.cell_output(it.ਦੂਜਾ->type, it2.ਪਹਿਲਾ))
+					sig2driver.ਪਾਓ(ਸੌਂਪੋ_map(it2.ਦੂਜਾ), it.ਦੂਜਾ);
 		}
 	}
 
-	void clear()
+	ਖਾਲੀ clear()
 	{
-		values_map.clear();
-		stop_signals.clear();
+		ਮੁੱਲਾਂ_map.clear();
+		stop_ਸੰਕੇਤ.clear();
 	}
 
-	void push()
+	ਖਾਲੀ ਧੱਕੋ()
 	{
-		stack.push_back(values_map);
+		ਢੇਰ.ਧੱਕੋ_ਪਿੱਠ(ਮੁੱਲਾਂ_map);
 	}
 
-	void pop()
+	ਖਾਲੀ ਕੱਢੋ()
 	{
-		values_map.swap(stack.back());
-		stack.pop_back();
+		ਮੁੱਲਾਂ_map.ਅਦਲਾ_ਬਦਲੀ(ਢੇਰ.ਪਿੱਠ());
+		ਢੇਰ.ਕੱਢੋ_ਪਿੱਠ();
 	}
 
-	void set(RTLIL::SigSpec sig, RTLIL::Const value)
+	ਖਾਲੀ ਸੈੱਟ(RTLIL::SigSpec sig, RTLIL::Const ਮੁੱਲ)
 	{
-		assign_map.apply(sig);
-#ifndef NDEBUG
-		RTLIL::SigSpec current_val = values_map(sig);
-		for (int i = 0; i < GetSize(current_val); i++)
-			log_assert(current_val[i].wire != NULL || current_val[i] == value[i]);
-#endif
-		values_map.add(sig, RTLIL::SigSpec(value));
+		ਸੌਂਪੋ_map.apply(sig);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ NDEBUG
+		RTLIL::SigSpec current_val = ਮੁੱਲਾਂ_map(sig);
+		ਲਈ (ਪੂਰਨ i = 0; i < Get_ਮਾਪ(current_val); i++)
+			log_assert(current_val[i].wire != ਨਿਰਾ || current_val[i] == ਮੁੱਲ[i]);
+#ਜੇ_ਅੰਤ
+		ਮੁੱਲਾਂ_map.ਜੋੜੋ(sig, RTLIL::SigSpec(ਮੁੱਲ));
 	}
 
-	void stop(RTLIL::SigSpec sig)
+	ਖਾਲੀ stop(RTLIL::SigSpec sig)
 	{
-		assign_map.apply(sig);
-		stop_signals.add(sig);
+		ਸੌਂਪੋ_map.apply(sig);
+		stop_ਸੰਕੇਤ.ਜੋੜੋ(sig);
 	}
 
 	bool eval(RTLIL::Cell *cell, RTLIL::SigSpec &undef)
 	{
-		if (cell->type == ID($lcu))
+		ਜੇ (cell->type == ID($lcu))
 		{
-			RTLIL::SigSpec sig_p = cell->getPort(ID::P);
-			RTLIL::SigSpec sig_g = cell->getPort(ID::G);
-			RTLIL::SigSpec sig_ci = cell->getPort(ID::CI);
-			RTLIL::SigSpec sig_co = values_map(assign_map(cell->getPort(ID::CO)));
+			RTLIL::SigSpec sig_p = cell->get_ਪੋਰਟ(ID::P);
+			RTLIL::SigSpec sig_g = cell->get_ਪੋਰਟ(ID::G);
+			RTLIL::SigSpec sig_ci = cell->get_ਪੋਰਟ(ID::CI);
+			RTLIL::SigSpec sig_co = ਮੁੱਲਾਂ_map(ਸੌਂਪੋ_map(cell->get_ਪੋਰਟ(ID::CO)));
 
-			if (sig_co.is_fully_const())
-				return true;
+			ਜੇ (sig_co.is_fully_const())
+				ਵਾਪਸ true;
 
-			if (!eval(sig_p, undef, cell))
-				return false;
+			ਜੇ (!eval(sig_p, undef, cell))
+				ਵਾਪਸ false;
 
-			if (!eval(sig_g, undef, cell))
-				return false;
+			ਜੇ (!eval(sig_g, undef, cell))
+				ਵਾਪਸ false;
 
-			if (!eval(sig_ci, undef, cell))
-				return false;
+			ਜੇ (!eval(sig_ci, undef, cell))
+				ਵਾਪਸ false;
 
-			if (sig_p.is_fully_def() && sig_g.is_fully_def() && sig_ci.is_fully_def())
+			ਜੇ (sig_p.is_fully_def() && sig_g.is_fully_def() && sig_ci.is_fully_def())
 			{
-				RTLIL::Const coval(RTLIL::Sx, GetSize(sig_co));
-				bool carry = sig_ci.as_bool();
+				RTLIL::Const coval(RTLIL::Sx, Get_ਮਾਪ(sig_co));
+				bool ਹਾਸਲ = sig_ci.as_bool();
 
-				for (int i = 0; i < GetSize(coval); i++) {
-					carry = (sig_g[i] == State::S1) || (sig_p[i] == RTLIL::S1 && carry);
-					coval.set(i, carry ? State::S1 : State::S0);
+				ਲਈ (ਪੂਰਨ i = 0; i < Get_ਮਾਪ(coval); i++) {
+					ਹਾਸਲ = (sig_g[i] == State::S1) || (sig_p[i] == RTLIL::S1 && ਹਾਸਲ);
+					coval.ਸੈੱਟ(i, ਹਾਸਲ ? State::S1 : State::S0);
 				}
 
-				set(sig_co, coval);
+				ਸੈੱਟ(sig_co, coval);
 			}
-			else
-				set(sig_co, RTLIL::Const(RTLIL::Sx, GetSize(sig_co)));
+			ਨਹੀਂਤਾਂ
+				ਸੈੱਟ(sig_co, RTLIL::Const(RTLIL::Sx, Get_ਮਾਪ(sig_co)));
 
-			return true;
+			ਵਾਪਸ true;
 		}
 
 		RTLIL::SigSpec sig_a, sig_b, sig_s, sig_y;
 
-		log_assert(cell->hasPort(ID::Y));
-		sig_y = values_map(assign_map(cell->getPort(ID::Y)));
-		if (sig_y.is_fully_const())
-			return true;
+		log_assert(cell->has_ਪੋਰਟ(ID::Y));
+		sig_y = ਮੁੱਲਾਂ_map(ਸੌਂਪੋ_map(cell->get_ਪੋਰਟ(ID::Y)));
+		ਜੇ (sig_y.is_fully_const())
+			ਵਾਪਸ true;
 
-		if (cell->type == ID($barrier))
+		ਜੇ (cell->type == ID($barrier))
 		{
-			if (!model_barriers) {
+			ਜੇ (!model_barriers) {
 				undef.append(sig_y);
-				return false;
+				ਵਾਪਸ false;
 			}
-			sig_a = cell->getPort(ID::A);
-			if (!eval(sig_a, undef, cell))
-				return false;
-			set(sig_y, sig_a.as_const());
-			return true;
+			sig_a = cell->get_ਪੋਰਟ(ID::A);
+			ਜੇ (!eval(sig_a, undef, cell))
+				ਵਾਪਸ false;
+			ਸੈੱਟ(sig_y, sig_a.as_const());
+			ਵਾਪਸ true;
 		}
 
-		if (cell->hasPort(ID::S)) {
-			sig_s = cell->getPort(ID::S);
+		ਜੇ (cell->has_ਪੋਰਟ(ID::S)) {
+			sig_s = cell->get_ਪੋਰਟ(ID::S);
 		}
 
-		if (cell->hasPort(ID::A))
-			sig_a = cell->getPort(ID::A);
+		ਜੇ (cell->has_ਪੋਰਟ(ID::A))
+			sig_a = cell->get_ਪੋਰਟ(ID::A);
 
-		if (cell->hasPort(ID::B))
-			sig_b = cell->getPort(ID::B);
+		ਜੇ (cell->has_ਪੋਰਟ(ID::B))
+			sig_b = cell->get_ਪੋਰਟ(ID::B);
 
-		if (cell->type.in(ID($mux), ID($pmux), ID($_MUX_), ID($_NMUX_)))
+		ਜੇ (cell->type.ਵਿੱਚ(ID($mux), ID($pmux), ID($_MUX_), ID($_NMUX_)))
 		{
-			std::vector<RTLIL::SigSpec> y_candidates;
-			int count_set_s_bits = 0;
+			std::ਸਦਿਸ਼<RTLIL::SigSpec> y_candidates;
+			ਪੂਰਨ ਗਿਣਤੀ_ਸੈੱਟ_s_ਬਿੱਟ = 0;
 
-			if (!eval(sig_s, undef, cell))
-				return false;
+			ਜੇ (!eval(sig_s, undef, cell))
+				ਵਾਪਸ false;
 
-			for (int i = 0; i < sig_s.size(); i++)
+			ਲਈ (ਪੂਰਨ i = 0; i < sig_s.ਮਾਪ(); i++)
 			{
-				RTLIL::State s_bit = sig_s.extract(i, 1).as_const().at(0);
-				RTLIL::SigSpec b_slice = sig_b.extract(sig_y.size()*i, sig_y.size());
+				RTLIL::State s_ਦੋਆਧਾਰੀ_ਅੰਕ = sig_s.ਕੱਢੋ_2(i, 1).as_const().at(0);
+				RTLIL::SigSpec b_ਟੁਕੜਾ = sig_b.ਕੱਢੋ_2(sig_y.ਮਾਪ()*i, sig_y.ਮਾਪ());
 
-				if (s_bit == RTLIL::State::Sx || s_bit == RTLIL::State::S1)
-					y_candidates.push_back(b_slice);
+				ਜੇ (s_ਦੋਆਧਾਰੀ_ਅੰਕ == RTLIL::State::Sx || s_ਦੋਆਧਾਰੀ_ਅੰਕ == RTLIL::State::S1)
+					y_candidates.ਧੱਕੋ_ਪਿੱਠ(b_ਟੁਕੜਾ);
 
-				if (s_bit == RTLIL::State::S1)
-					count_set_s_bits++;
+				ਜੇ (s_ਦੋਆਧਾਰੀ_ਅੰਕ == RTLIL::State::S1)
+					ਗਿਣਤੀ_ਸੈੱਟ_s_ਬਿੱਟ++;
 			}
 
-			if (count_set_s_bits == 0)
-				y_candidates.push_back(sig_a);
+			ਜੇ (ਗਿਣਤੀ_ਸੈੱਟ_s_ਬਿੱਟ == 0)
+				y_candidates.ਧੱਕੋ_ਪਿੱਠ(sig_a);
 
-			std::vector<RTLIL::Const> y_values;
+			std::ਸਦਿਸ਼<RTLIL::Const> y_ਮੁੱਲਾਂ;
 
-			log_assert(y_candidates.size() > 0);
-			for (auto &yc : y_candidates) {
-				if (!eval(yc, undef, cell))
-					return false;
-				if (cell->type == ID($_NMUX_))
-					y_values.push_back(RTLIL::const_not(yc.as_const(), Const(), false, false, GetSize(yc)));
-				else
-					y_values.push_back(yc.as_const());
+			log_assert(y_candidates.ਮਾਪ() > 0);
+			ਲਈ (ਸਵੈਚਾਲਿਤ &yc : y_candidates) {
+				ਜੇ (!eval(yc, undef, cell))
+					ਵਾਪਸ false;
+				ਜੇ (cell->type == ID($_NMUX_))
+					y_ਮੁੱਲਾਂ.ਧੱਕੋ_ਪਿੱਠ(RTLIL::const_not(yc.as_const(), Const(), false, false, Get_ਮਾਪ(yc)));
+				ਨਹੀਂਤਾਂ
+					y_ਮੁੱਲਾਂ.ਧੱਕੋ_ਪਿੱਠ(yc.as_const());
 			}
 
-			if (y_values.size() > 1)
+			ਜੇ (y_ਮੁੱਲਾਂ.ਮਾਪ() > 1)
 			{
-				std::vector<RTLIL::State> master_bits = y_values.at(0).to_bits();
+				std::ਸਦਿਸ਼<RTLIL::State> master_ਬਿੱਟ = y_ਮੁੱਲਾਂ.at(0).ਮੰਜ਼ਿਲ_ਬਿੱਟ();
 
-				for (size_t i = 1; i < y_values.size(); i++) {
-					std::vector<RTLIL::State> slave_bits = y_values.at(i).to_bits();
-					log_assert(master_bits.size() == slave_bits.size());
-					for (size_t j = 0; j < master_bits.size(); j++)
-						if (master_bits[j] != slave_bits[j])
-							master_bits[j] = RTLIL::State::Sx;
+				ਲਈ (ਮਾਪ_t i = 1; i < y_ਮੁੱਲਾਂ.ਮਾਪ(); i++) {
+					std::ਸਦਿਸ਼<RTLIL::State> slave_ਬਿੱਟ = y_ਮੁੱਲਾਂ.at(i).ਮੰਜ਼ਿਲ_ਬਿੱਟ();
+					log_assert(master_ਬਿੱਟ.ਮਾਪ() == slave_ਬਿੱਟ.ਮਾਪ());
+					ਲਈ (ਮਾਪ_t j = 0; j < master_ਬਿੱਟ.ਮਾਪ(); j++)
+						ਜੇ (master_ਬਿੱਟ[j] != slave_ਬਿੱਟ[j])
+							master_ਬਿੱਟ[j] = RTLIL::State::Sx;
 				}
 
-				set(sig_y, RTLIL::Const(master_bits));
+				ਸੈੱਟ(sig_y, RTLIL::Const(master_ਬਿੱਟ));
 			}
-			else
-				set(sig_y, y_values.front());
+			ਨਹੀਂਤਾਂ
+				ਸੈੱਟ(sig_y, y_ਮੁੱਲਾਂ.front());
 		}
-		else if (cell->type == ID($bmux))
+		ਨਹੀਂਤਾਂ ਜੇ (cell->type == ID($bmux))
 		{
-			if (!eval(sig_s, undef, cell))
-				return false;
+			ਜੇ (!eval(sig_s, undef, cell))
+				ਵਾਪਸ false;
 
-			if (sig_s.is_fully_def()) {
-				int sel = sig_s.as_int();
-				int width = GetSize(sig_y);
-				SigSpec res = sig_a.extract(sel * width, width);
-				if (!eval(res, undef, cell))
-					return false;
-				set(sig_y, res.as_const());
-			} else {
-				if (!eval(sig_a, undef, cell))
-					return false;
-				set(sig_y, const_bmux(sig_a.as_const(), sig_s.as_const()));
-			}
-		}
-		else if (cell->type == ID($demux))
-		{
-			if (!eval(sig_a, undef, cell))
-				return false;
-			if (sig_a.is_fully_zero()) {
-				set(sig_y, Const(0, GetSize(sig_y)));
-			} else {
-				if (!eval(sig_s, undef, cell))
-					return false;
-				set(sig_y, const_demux(sig_a.as_const(), sig_s.as_const()));
+			ਜੇ (sig_s.is_fully_def()) {
+				ਪੂਰਨ sel = sig_s.as_int();
+				ਪੂਰਨ ਚੌੜਾਈ = Get_ਮਾਪ(sig_y);
+				SigSpec res = sig_a.ਕੱਢੋ_2(sel * ਚੌੜਾਈ, ਚੌੜਾਈ);
+				ਜੇ (!eval(res, undef, cell))
+					ਵਾਪਸ false;
+				ਸੈੱਟ(sig_y, res.as_const());
+			} ਨਹੀਂਤਾਂ {
+				ਜੇ (!eval(sig_a, undef, cell))
+					ਵਾਪਸ false;
+				ਸੈੱਟ(sig_y, const_bmux(sig_a.as_const(), sig_s.as_const()));
 			}
 		}
-		else if (cell->type == ID($fa))
+		ਨਹੀਂਤਾਂ ਜੇ (cell->type == ID($demux))
 		{
-			RTLIL::SigSpec sig_c = cell->getPort(ID::C);
-			RTLIL::SigSpec sig_x = cell->getPort(ID::X);
-			int width = GetSize(sig_c);
-
-			if (!eval(sig_a, undef, cell))
-				return false;
-
-			if (!eval(sig_b, undef, cell))
-				return false;
-
-			if (!eval(sig_c, undef, cell))
-				return false;
-
-			RTLIL::Const t1 = const_xor(sig_a.as_const(), sig_b.as_const(), false, false, width);
-			RTLIL::Const val_y = const_xor(t1, sig_c.as_const(), false, false, width);
-
-			RTLIL::Const t2 = const_and(sig_a.as_const(), sig_b.as_const(), false, false, width);
-			RTLIL::Const t3 = const_and(sig_c.as_const(), t1, false, false, width);
-			RTLIL::Const val_x = const_or(t2, t3, false, false, width);
-
-			for (int i = 0; i < GetSize(val_y); i++)
-				if (val_y[i] == RTLIL::Sx)
-					val_x.set(i, RTLIL::Sx);
-
-			set(sig_y, val_y);
-			set(sig_x, val_x);
+			ਜੇ (!eval(sig_a, undef, cell))
+				ਵਾਪਸ false;
+			ਜੇ (sig_a.is_fully_zero()) {
+				ਸੈੱਟ(sig_y, Const(0, Get_ਮਾਪ(sig_y)));
+			} ਨਹੀਂਤਾਂ {
+				ਜੇ (!eval(sig_s, undef, cell))
+					ਵਾਪਸ false;
+				ਸੈੱਟ(sig_y, const_demux(sig_a.as_const(), sig_s.as_const()));
+			}
 		}
-		else if (cell->type == ID($alu))
+		ਨਹੀਂਤਾਂ ਜੇ (cell->type == ID($fa))
 		{
-			bool signed_a = cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool();
-			bool signed_b = cell->parameters.count(ID::B_SIGNED) > 0 && cell->parameters[ID::B_SIGNED].as_bool();
+			RTLIL::SigSpec sig_c = cell->get_ਪੋਰਟ(ID::C);
+			RTLIL::SigSpec sig_x = cell->get_ਪੋਰਟ(ID::X);
+			ਪੂਰਨ ਚੌੜਾਈ = Get_ਮਾਪ(sig_c);
 
-			RTLIL::SigSpec sig_ci = cell->getPort(ID::CI);
-			RTLIL::SigSpec sig_bi = cell->getPort(ID::BI);
+			ਜੇ (!eval(sig_a, undef, cell))
+				ਵਾਪਸ false;
 
-			if (!eval(sig_a, undef, cell))
-				return false;
+			ਜੇ (!eval(sig_b, undef, cell))
+				ਵਾਪਸ false;
 
-			if (!eval(sig_b, undef, cell))
-				return false;
+			ਜੇ (!eval(sig_c, undef, cell))
+				ਵਾਪਸ false;
 
-			if (!eval(sig_ci, undef, cell))
-				return false;
+			RTLIL::Const t1 = const_xor(sig_a.as_const(), sig_b.as_const(), false, false, ਚੌੜਾਈ);
+			RTLIL::Const val_y = const_xor(t1, sig_c.as_const(), false, false, ਚੌੜਾਈ);
 
-			if (!eval(sig_bi, undef, cell))
-				return false;
+			RTLIL::Const t2 = const_and(sig_a.as_const(), sig_b.as_const(), false, false, ਚੌੜਾਈ);
+			RTLIL::Const t3 = const_and(sig_c.as_const(), t1, false, false, ਚੌੜਾਈ);
+			RTLIL::Const val_x = const_or(t2, t3, false, false, ਚੌੜਾਈ);
 
-			RTLIL::SigSpec sig_x = cell->getPort(ID::X);
-			RTLIL::SigSpec sig_co = cell->getPort(ID::CO);
+			ਲਈ (ਪੂਰਨ i = 0; i < Get_ਮਾਪ(val_y); i++)
+				ਜੇ (val_y[i] == RTLIL::Sx)
+					val_x.ਸੈੱਟ(i, RTLIL::Sx);
 
-			bool any_input_undef = !(sig_a.is_fully_def() && sig_b.is_fully_def() && sig_ci.is_fully_def() && sig_bi.is_fully_def());
-			sig_a.extend_u0(GetSize(sig_y), signed_a);
-			sig_b.extend_u0(GetSize(sig_y), signed_b);
+			ਸੈੱਟ(sig_y, val_y);
+			ਸੈੱਟ(sig_x, val_x);
+		}
+		ਨਹੀਂਤਾਂ ਜੇ (cell->type == ID($alu))
+		{
+			bool signed_a = cell->parameters.ਗਿਣਤੀ_2(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool();
+			bool signed_b = cell->parameters.ਗਿਣਤੀ_2(ID::B_SIGNED) > 0 && cell->parameters[ID::B_SIGNED].as_bool();
 
-			bool carry = sig_ci[0] == State::S1;
+			RTLIL::SigSpec sig_ci = cell->get_ਪੋਰਟ(ID::CI);
+			RTLIL::SigSpec sig_bi = cell->get_ਪੋਰਟ(ID::BI);
+
+			ਜੇ (!eval(sig_a, undef, cell))
+				ਵਾਪਸ false;
+
+			ਜੇ (!eval(sig_b, undef, cell))
+				ਵਾਪਸ false;
+
+			ਜੇ (!eval(sig_ci, undef, cell))
+				ਵਾਪਸ false;
+
+			ਜੇ (!eval(sig_bi, undef, cell))
+				ਵਾਪਸ false;
+
+			RTLIL::SigSpec sig_x = cell->get_ਪੋਰਟ(ID::X);
+			RTLIL::SigSpec sig_co = cell->get_ਪੋਰਟ(ID::CO);
+
+			bool any_ਨਿਵੇਸ਼_undef = !(sig_a.is_fully_def() && sig_b.is_fully_def() && sig_ci.is_fully_def() && sig_bi.is_fully_def());
+			sig_a.extend_u0(Get_ਮਾਪ(sig_y), signed_a);
+			sig_b.extend_u0(Get_ਮਾਪ(sig_y), signed_b);
+
+			bool ਹਾਸਲ = sig_ci[0] == State::S1;
 			bool b_inv = sig_bi[0] == State::S1;
 
-			for (int i = 0; i < GetSize(sig_y); i++)
+			ਲਈ (ਪੂਰਨ i = 0; i < Get_ਮਾਪ(sig_y); i++)
 			{
 				RTLIL::SigSpec x_inputs = { sig_a[i], sig_b[i], sig_bi[0] };
 
-				if (!x_inputs.is_fully_def()) {
-					set(sig_x[i], RTLIL::Sx);
-				} else {
-					bool bit_a = sig_a[i] == State::S1;
-					bool bit_b = (sig_b[i] == State::S1) != b_inv;
-					bool bit_x = bit_a != bit_b;
-					set(sig_x[i], bit_x ? State::S1 : State::S0);
+				ਜੇ (!x_inputs.is_fully_def()) {
+					ਸੈੱਟ(sig_x[i], RTLIL::Sx);
+				} ਨਹੀਂਤਾਂ {
+					bool ਦੋਆਧਾਰੀ_ਅੰਕ_a = sig_a[i] == State::S1;
+					bool ਦੋਆਧਾਰੀ_ਅੰਕ_b = (sig_b[i] == State::S1) != b_inv;
+					bool ਦੋਆਧਾਰੀ_ਅੰਕ_x = ਦੋਆਧਾਰੀ_ਅੰਕ_a != ਦੋਆਧਾਰੀ_ਅੰਕ_b;
+					ਸੈੱਟ(sig_x[i], ਦੋਆਧਾਰੀ_ਅੰਕ_x ? State::S1 : State::S0);
 				}
 
-				if (any_input_undef) {
-					set(sig_y[i], RTLIL::Sx);
-					set(sig_co[i], RTLIL::Sx);
-				} else {
-					bool bit_a = sig_a[i] == State::S1;
-					bool bit_b = (sig_b[i] == State::S1) != b_inv;
-					bool bit_y = (bit_a != bit_b) != carry;
-					carry = (bit_a && bit_b) || (bit_a && carry) || (bit_b && carry);
-					set(sig_y[i], bit_y ? State::S1 : State::S0);
-					set(sig_co[i], carry ? State::S1 : State::S0);
+				ਜੇ (any_ਨਿਵੇਸ਼_undef) {
+					ਸੈੱਟ(sig_y[i], RTLIL::Sx);
+					ਸੈੱਟ(sig_co[i], RTLIL::Sx);
+				} ਨਹੀਂਤਾਂ {
+					bool ਦੋਆਧਾਰੀ_ਅੰਕ_a = sig_a[i] == State::S1;
+					bool ਦੋਆਧਾਰੀ_ਅੰਕ_b = (sig_b[i] == State::S1) != b_inv;
+					bool ਦੋਆਧਾਰੀ_ਅੰਕ_y = (ਦੋਆਧਾਰੀ_ਅੰਕ_a != ਦੋਆਧਾਰੀ_ਅੰਕ_b) != ਹਾਸਲ;
+					ਹਾਸਲ = (ਦੋਆਧਾਰੀ_ਅੰਕ_a && ਦੋਆਧਾਰੀ_ਅੰਕ_b) || (ਦੋਆਧਾਰੀ_ਅੰਕ_a && ਹਾਸਲ) || (ਦੋਆਧਾਰੀ_ਅੰਕ_b && ਹਾਸਲ);
+					ਸੈੱਟ(sig_y[i], ਦੋਆਧਾਰੀ_ਅੰਕ_y ? State::S1 : State::S0);
+					ਸੈੱਟ(sig_co[i], ਹਾਸਲ ? State::S1 : State::S0);
 				}
 			}
 		}
-		else if (cell->type.in(ID($macc), ID($macc_v2)))
+		ਨਹੀਂਤਾਂ ਜੇ (cell->type.ਵਿੱਚ(ID($macc), ID($macc_v2)))
 		{
 			Macc macc;
 			macc.from_cell(cell);
 
-			for (auto &port : macc.terms) {
-				if (!eval(port.in_a, undef, cell))
-					return false;
-				if (!eval(port.in_b, undef, cell))
-					return false;
+			ਲਈ (ਸਵੈਚਾਲਿਤ &ਪੋਰਟ : macc.terms) {
+				ਜੇ (!eval(ਪੋਰਟ.ਵਿੱਚ_a, undef, cell))
+					ਵਾਪਸ false;
+				ਜੇ (!eval(ਪੋਰਟ.ਵਿੱਚ_b, undef, cell))
+					ਵਾਪਸ false;
 			}
 
-			RTLIL::Const result(0, GetSize(cell->getPort(ID::Y)));
-			if (!macc.eval(result))
+			RTLIL::Const ਨਤੀਜਾ(0, Get_ਮਾਪ(cell->get_ਪੋਰਟ(ID::Y)));
+			ਜੇ (!macc.eval(ਨਤੀਜਾ))
 				log_abort();
 
-			set(cell->getPort(ID::Y), result);
+			ਸੈੱਟ(cell->get_ਪੋਰਟ(ID::Y), ਨਤੀਜਾ);
 		}
-		else
+		ਨਹੀਂਤਾਂ
 		{
 			RTLIL::SigSpec sig_c, sig_d;
 
-			if (cell->type.in(ID($_AOI3_), ID($_OAI3_), ID($_AOI4_), ID($_OAI4_))) {
-				if (cell->hasPort(ID::C))
-					sig_c = cell->getPort(ID::C);
-				if (cell->hasPort(ID::D))
-					sig_d = cell->getPort(ID::D);
+			ਜੇ (cell->type.ਵਿੱਚ(ID($_AOI3_), ID($_OAI3_), ID($_AOI4_), ID($_OAI4_))) {
+				ਜੇ (cell->has_ਪੋਰਟ(ID::C))
+					sig_c = cell->get_ਪੋਰਟ(ID::C);
+				ਜੇ (cell->has_ਪੋਰਟ(ID::D))
+					sig_d = cell->get_ਪੋਰਟ(ID::D);
 			}
 
-			if (sig_a.size() > 0 && !eval(sig_a, undef, cell))
-				return false;
-			if (sig_b.size() > 0 && !eval(sig_b, undef, cell))
-				return false;
-			if (sig_c.size() > 0 && !eval(sig_c, undef, cell))
-				return false;
-			if (sig_d.size() > 0 && !eval(sig_d, undef, cell))
-				return false;
+			ਜੇ (sig_a.ਮਾਪ() > 0 && !eval(sig_a, undef, cell))
+				ਵਾਪਸ false;
+			ਜੇ (sig_b.ਮਾਪ() > 0 && !eval(sig_b, undef, cell))
+				ਵਾਪਸ false;
+			ਜੇ (sig_c.ਮਾਪ() > 0 && !eval(sig_c, undef, cell))
+				ਵਾਪਸ false;
+			ਜੇ (sig_d.ਮਾਪ() > 0 && !eval(sig_d, undef, cell))
+				ਵਾਪਸ false;
 
 			bool eval_err = false;
 			RTLIL::Const eval_ret;
-			if (sig_s.size() > 0 && eval(sig_s, undef, cell)) {
+			ਜੇ (sig_s.ਮਾਪ() > 0 && eval(sig_s, undef, cell)) {
 				eval_ret = CellTypes::eval(cell, sig_a.as_const(), sig_b.as_const(), sig_s.as_const(), &eval_err);
-			} else
+			} ਨਹੀਂਤਾਂ
 				eval_ret = CellTypes::eval(cell, sig_a.as_const(), sig_b.as_const(), sig_c.as_const(), sig_d.as_const(), &eval_err);
 
-			if (eval_err)
-				return false;
+			ਜੇ (eval_err)
+				ਵਾਪਸ false;
 
-			set(sig_y, eval_ret);
+			ਸੈੱਟ(sig_y, eval_ret);
 		}
 
-		return true;
+		ਵਾਪਸ true;
 	}
 
-	bool eval(RTLIL::SigSpec &sig, RTLIL::SigSpec &undef, RTLIL::Cell *busy_cell = NULL)
+	bool eval(RTLIL::SigSpec &sig, RTLIL::SigSpec &undef, RTLIL::Cell *busy_cell = ਨਿਰਾ)
 	{
-		assign_map.apply(sig);
-		values_map.apply(sig);
+		ਸੌਂਪੋ_map.apply(sig);
+		ਮੁੱਲਾਂ_map.apply(sig);
 
-		if (sig.is_fully_const())
-			return true;
+		ਜੇ (sig.is_fully_const())
+			ਵਾਪਸ true;
 
-		if (stop_signals.check_any(sig)) {
-			undef = stop_signals.extract(sig);
-			return false;
+		ਜੇ (stop_ਸੰਕੇਤ.check_any(sig)) {
+			undef = stop_ਸੰਕੇਤ.ਕੱਢੋ_2(sig);
+			ਵਾਪਸ false;
 		}
 
-		if (busy_cell) {
-			if (busy.count(busy_cell) > 0) {
+		ਜੇ (busy_cell) {
+			ਜੇ (busy.ਗਿਣਤੀ_2(busy_cell) > 0) {
 				undef = sig;
-				return false;
+				ਵਾਪਸ false;
 			}
-			busy.insert(busy_cell);
+			busy.ਪਾਓ(busy_cell);
 		}
 
-		std::set<RTLIL::Cell*> driver_cells;
-		sig2driver.find(sig, driver_cells);
-		for (auto cell : driver_cells) {
-			if (!eval(cell, undef)) {
-				if (busy_cell)
+		std::ਸੈੱਟ<RTLIL::Cell*> driver_cells;
+		sig2driver.ਲੱਭੋ(sig, driver_cells);
+		ਲਈ (ਸਵੈਚਾਲਿਤ cell : driver_cells) {
+			ਜੇ (!eval(cell, undef)) {
+				ਜੇ (busy_cell)
 					busy.erase(busy_cell);
-				return false;
+				ਵਾਪਸ false;
 			}
 		}
 
-		if (busy_cell)
+		ਜੇ (busy_cell)
 			busy.erase(busy_cell);
 
-		values_map.apply(sig);
-		if (sig.is_fully_const())
-			return true;
+		ਮੁੱਲਾਂ_map.apply(sig);
+		ਜੇ (sig.is_fully_const())
+			ਵਾਪਸ true;
 
-		if (defaultval != RTLIL::State::Sm) {
-			for (auto &bit : sig)
-				if (bit.wire) bit = defaultval;
-			return true;
+		ਜੇ (defaultval != RTLIL::State::Sm) {
+			ਲਈ (ਸਵੈਚਾਲਿਤ &ਦੋਆਧਾਰੀ_ਅੰਕ : sig)
+				ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ.wire) ਦੋਆਧਾਰੀ_ਅੰਕ = defaultval;
+			ਵਾਪਸ true;
 		}
 
-		for (auto &c : sig.chunks())
-			if (c.wire != NULL)
+		ਲਈ (ਸਵੈਚਾਲਿਤ &c : sig.chunks())
+			ਜੇ (c.wire != ਨਿਰਾ)
 				undef.append(c);
-		return false;
+		ਵਾਪਸ false;
 	}
 
 	bool eval(RTLIL::SigSpec &sig)
 	{
 		RTLIL::SigSpec undef;
-		return eval(sig, undef);
+		ਵਾਪਸ eval(sig, undef);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ਸਿਰਾ
 
-#endif
+#ਜੇ_ਅੰਤ
