@@ -20,14 +20,14 @@
 #ifndef FMT_H
 #define FMT_H
 
-#include "kernel/yosys.h"
+#अन्तर्भाव "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // Verilog format argument, such as the arguments in:
 //   $display("foo %d bar %01x", 4'b0, $signed(2'b11))
-struct VerilogFmtArg {
-	enum {
+संरचना VerilogFmtArg {
+	गणना {
 		STRING  = 0,
 		INTEGER = 1,
 		TIME    = 2,
@@ -50,8 +50,8 @@ struct VerilogFmtArg {
 // RTLIL format part, such as the substitutions in:
 //   "foo {4:> 4du} bar {2:<01hs}"
 // Must be kept in sync with `struct fmt_part` in backends/cxxrtl/runtime/cxxrtl/cxxrtl.h!
-struct FmtPart {
-	enum {
+संरचना FmtPart {
+	गणना {
 		LITERAL  	= 0,
 		INTEGER 	= 1,
 		STRING    = 2,
@@ -66,18 +66,18 @@ struct FmtPart {
 	RTLIL::SigSpec sig;
 
 	// INTEGER/STRING/VLOG_TIME types
-	enum {
-		RIGHT	= 0,
-		LEFT	= 1,
+	गणना {
+		उजवा	= 0,
+		डावा	= 1,
 		NUMERIC	= 2,
-	} justify = RIGHT;
-	char padding = '\0';
-	size_t width = 0;
+	} justify = उजवा;
+	अक्षर padding = '\0';
+	माप_प्रकार width = 0;
 
 	// INTEGER type
-	unsigned base = 10;
+	अचिन्हित base = 10;
 	bool signed_ = false;
-	enum {
+	गणना {
 		MINUS		= 0,
 		PLUS_MINUS	= 1,
 		SPACE_MINUS	= 2,
@@ -90,24 +90,24 @@ struct FmtPart {
 	bool realtime = false;
 };
 
-struct Fmt {
-public:
+संरचना Fmt {
+सार्वजनिक:
 	std::vector<FmtPart> parts;
 
-	void append_literal(const std::string &str);
+	शून्य append_literal(स्थिरांक std::string &str);
 
-	void parse_rtlil(const RTLIL::Cell *cell);
-	void emit_rtlil(RTLIL::Cell *cell) const;
+	शून्य parse_rtlil(स्थिरांक RTLIL::Cell *cell);
+	शून्य emit_rtlil(RTLIL::Cell *cell) स्थिरांक;
 
-	void parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_like, int default_base, const std::string &task_name, const std::string &module_name);
-	std::vector<VerilogFmtArg> emit_verilog() const;
+	शून्य parse_verilog(स्थिरांक std::vector<VerilogFmtArg> &args, bool sformat_like, पूर्णांक default_base, स्थिरांक std::string &task_name, स्थिरांक std::string &module_name);
+	std::vector<VerilogFmtArg> emit_verilog() स्थिरांक;
 
-	void emit_cxxrtl(std::ostream &os, std::string indent, std::function<void(const RTLIL::SigSpec &)> emit_sig, const std::string &context) const;
+	शून्य emit_cxxrtl(std::ostream &os, std::string indent, std::function<शून्य(स्थिरांक RTLIL::SigSpec &)> emit_sig, स्थिरांक std::string &context) स्थिरांक;
 
-	std::string render() const;
+	std::string render() स्थिरांक;
 
-private:
-	void apply_verilog_automatic_sizing_and_add(FmtPart &part);
+खाजगी:
+	शून्य apply_verilog_automatic_sizing_and_add(FmtPart &part);
 };
 
 YOSYS_NAMESPACE_END

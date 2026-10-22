@@ -1,9 +1,9 @@
 #ifndef OPT_DFF_COMP_H
 #define OPT_DFF_COMP_H
 
-#include "kernel/rtlil.h"
-#include <map>
-#include <optional>
+#अन्तर्भाव "kernel/rtlil.h"
+#अन्तर्भाव <map>
+#अन्तर्भाव <optional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -21,76 +21,76 @@ YOSYS_NAMESPACE_BEGIN
 
 // Pattern matching for clock enable
 // A pattern maps control signals to their required values for a MUX path
-typedef std::map<RTLIL::SigBit, bool> pattern_t; // Set of control signals that must ALL match required vals
-typedef std::set<pattern_t> patterns_t;          // Alternative patterns (OR)
-typedef std::pair<RTLIL::SigBit, bool> ctrl_t;   // Control signal
-typedef std::set<ctrl_t> ctrls_t;                // Set of control signals that must ALL be active
+प्रकारव्याख्या std::map<RTLIL::SigBit, bool> pattern_t; // Set of control signals that must ALL match required vals
+प्रकारव्याख्या std::set<pattern_t> patterns_t;          // Alternative patterns (OR)
+प्रकारव्याख्या std::pair<RTLIL::SigBit, bool> ctrl_t;   // Control signal
+प्रकारव्याख्या std::set<ctrl_t> ctrls_t;                // Set of control signals that must ALL be active
 
 /**
  * Find if two patterns differ in exactly one variable.
  * Example: {A=1,B=1} vs {A=1,B=0} returns B, allows simplification: (A&B) | (A&!B) => A
  */
-inline std::optional<RTLIL::SigBit> find_complementary_pattern_var(
-	const pattern_t& left,
-	const pattern_t& right
+ओळीत std::optional<RTLIL::SigBit> find_complementary_pattern_var(
+	स्थिरांक pattern_t& डावा_2,
+	स्थिरांक pattern_t& उजवा_2
 ) {
 	std::optional<RTLIL::SigBit> ret;
-	for (const auto &pt : left) {
+	साठी (स्थिरांक स्वतः &pt : डावा_2) {
 		// Left requires signal that right doesn't constrain - incompatible domains
-		if (right.count(pt.first) == 0)
-			return std::nullopt;
+		जर (उजवा_2.मोजणी(pt.first) == 0)
+			परत std::nullopt;
 		// Signal has same required value in both - not the complement variable
-		if (right.at(pt.first) == pt.second)
-			continue;
+		जर (उजवा_2.at(pt.first) == pt.second)
+			सुरूठेवा;
 		// Already found one differing signal, now found another - not simplifiable
-		if (ret)
-			return std::nullopt;
+		जर (ret)
+			परत std::nullopt;
 		// First differing signal - candidate complement variable
 		ret = pt.first;
 	}
-	return ret;
+	परत ret;
 }
 
 /**
  * Simplify a sum-of-products by merging complementary patterns: (A&B) | (A&!B) => A,
  * and removing redundant patterns: A | (A&B) => A
  */
-inline void simplify_patterns(patterns_t& patterns) {
-	auto new_patterns = patterns;
+ओळीत शून्य simplify_patterns(patterns_t& patterns) {
+	स्वतः new_patterns = patterns;
 
 	// Merge complementary patterns
 	bool optimized;
-	do {
+	करा {
 		optimized = false;
-		for (auto i = patterns.begin(); i != patterns.end(); i++) {
-			for (auto j = std::next(i, 1); j != patterns.end(); j++) {
-				const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
-				auto right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
-				const auto complementary_var = find_complementary_pattern_var(left, right);
+		साठी (स्वतः i = patterns.begin(); i != patterns.end(); i++) {
+			साठी (स्वतः j = std::next(i, 1); j != patterns.end(); j++) {
+				स्थिरांक स्वतः& डावा_2 = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
+				स्वतः उजवा_2 = (GetSize(*i) < GetSize(*j)) ? *j : *i;
+				स्थिरांक स्वतः complementary_var = find_complementary_pattern_var(डावा_2, उजवा_2);
 
-				if (complementary_var && new_patterns.count(right)) {
-					new_patterns.erase(right);
-					right.erase(complementary_var.value());
-					new_patterns.insert(right);
+				जर (complementary_var && new_patterns.मोजणी(उजवा_2)) {
+					new_patterns.erase(उजवा_2);
+					उजवा_2.erase(complementary_var.मूल्य());
+					new_patterns.घाला(उजवा_2);
 					optimized = true;
 				}
 			}
 		}
 		patterns = new_patterns;
-	} while(optimized);
+	} पर्यंत(optimized);
 
 	// Remove redundant patterns
-	for (auto i = patterns.begin(); i != patterns.end(); ++i) {
-		for (auto j = std::next(i, 1); j != patterns.end(); ++j) {
-			const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
-			const auto& right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
+	साठी (स्वतः i = patterns.begin(); i != patterns.end(); ++i) {
+		साठी (स्वतः j = std::next(i, 1); j != patterns.end(); ++j) {
+			स्थिरांक स्वतः& डावा_2 = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
+			स्थिरांक स्वतः& उजवा_2 = (GetSize(*i) < GetSize(*j)) ? *j : *i;
 			bool redundant = true;
 
-			for (const auto& pt : left)
-				if (right.count(pt.first) == 0 || right.at(pt.first) != pt.second)
+			साठी (स्थिरांक स्वतः& pt : डावा_2)
+				जर (उजवा_2.मोजणी(pt.first) == 0 || उजवा_2.at(pt.first) != pt.second)
 					redundant = false;
-			if (redundant)
-				new_patterns.erase(right);
+			जर (redundant)
+				new_patterns.erase(उजवा_2);
 		}
 	}
 

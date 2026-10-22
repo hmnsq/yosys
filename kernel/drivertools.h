@@ -20,33 +20,33 @@
 #ifndef DRIVERTOOLS_H
 #define DRIVERTOOLS_H
 
-#include <string>
-#include <type_traits>
+#अन्तर्भाव <string>
+#अन्तर्भाव <type_traits>
 
-#include "kernel/rtlil.h"
-#include "kernel/sigtools.h"
-#include "kernel/newcelltypes.h"
+#अन्तर्भाव "kernel/rtlil.h"
+#अन्तर्भाव "kernel/sigtools.h"
+#अन्तर्भाव "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // TODO move implementation into a .cc file
 
-struct DriveBit;
+संरचना DriveBit;
 
-struct DriveChunkWire;
-struct DriveChunkPort;
-struct DriveChunkMarker;
-struct DriveChunk;
+संरचना DriveChunkWire;
+संरचना DriveChunkPort;
+संरचना DriveChunkMarker;
+संरचना DriveChunk;
 
-struct DriveSpec;
+संरचना DriveSpec;
 
-std::string log_signal(DriveChunkWire const &chunk);
-std::string log_signal(DriveChunkPort const &chunk);
-std::string log_signal(DriveChunkMarker const &chunk);
-std::string log_signal(DriveChunk const &chunk);
-std::string log_signal(DriveSpec const &chunk);
+std::string log_signal(DriveChunkWire स्थिरांक &chunk);
+std::string log_signal(DriveChunkPort स्थिरांक &chunk);
+std::string log_signal(DriveChunkMarker स्थिरांक &chunk);
+std::string log_signal(DriveChunk स्थिरांक &chunk);
+std::string log_signal(DriveSpec स्थिरांक &chunk);
 
-enum class DriveType : unsigned char
+गणना class DriveType : अचिन्हित अक्षर
 {
 	NONE,
 	CONSTANT,
@@ -56,123 +56,123 @@ enum class DriveType : unsigned char
 	MARKER,
 };
 
-struct DriveBitWire
+संरचना DriveBitWire
 {
 	Wire *wire;
-	int offset;
+	पूर्णांक offset;
 
-	DriveBitWire(Wire *wire, int offset) : wire(wire), offset(offset) {}
+	DriveBitWire(Wire *wire, पूर्णांक offset) : wire(wire), offset(offset) {}
 
-	bool operator==(const DriveBitWire &other) const
+	bool चालक==(स्थिरांक DriveBitWire &other) स्थिरांक
 	{
-		return wire == other.wire && offset == other.offset;
+		परत wire == other.wire && offset == other.offset;
 	}
 
-	bool operator<(const DriveBitWire &other) const
+	bool चालक<(स्थिरांक DriveBitWire &other) स्थिरांक
 	{
-		if (wire != other.wire)
-			return wire->name < other.wire->name;
-		return offset < other.offset;
+		जर (wire != other.wire)
+			परत wire->name < other.wire->name;
+		परत offset < other.offset;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) स्थिरांक;
 
 
-	operator SigBit() const
+	चालक SigBit() स्थिरांक
 	{
-		return SigBit(wire, offset);
+		परत SigBit(wire, offset);
 	}
 };
 
-struct DriveBitPort
+संरचना DriveBitPort
 {
 	Cell *cell;
 	IdString port;
-	int offset;
+	पूर्णांक offset;
 
-	DriveBitPort(Cell *cell, IdString port, int offset) : cell(cell), port(port), offset(offset) {}
+	DriveBitPort(Cell *cell, IdString port, पूर्णांक offset) : cell(cell), port(port), offset(offset) {}
 
-	bool operator==(const DriveBitPort &other) const
+	bool चालक==(स्थिरांक DriveBitPort &other) स्थिरांक
 	{
-		return cell == other.cell && port == other.port && offset == other.offset;
+		परत cell == other.cell && port == other.port && offset == other.offset;
 	}
 
-	bool operator<(const DriveBitPort &other) const
+	bool चालक<(स्थिरांक DriveBitPort &other) स्थिरांक
 	{
-		if (cell != other.cell)
-			return cell->name < other.cell->name;
-		if (port != other.port)
-			return port < other.port;
-		return offset < other.offset;
+		जर (cell != other.cell)
+			परत cell->name < other.cell->name;
+		जर (port != other.port)
+			परत port < other.port;
+		परत offset < other.offset;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) स्थिरांक;
 
 };
 
 
-struct DriveBitMarker
+संरचना DriveBitMarker
 {
-	int marker;
-	int offset;
+	पूर्णांक marker;
+	पूर्णांक offset;
 
-	DriveBitMarker(int marker, int offset) : marker(marker), offset(offset) {}
+	DriveBitMarker(पूर्णांक marker, पूर्णांक offset) : marker(marker), offset(offset) {}
 
-	bool operator==(const DriveBitMarker &other) const
+	bool चालक==(स्थिरांक DriveBitMarker &other) स्थिरांक
 	{
-		return marker == other.marker && offset == other.offset;
+		परत marker == other.marker && offset == other.offset;
 	}
 
-	bool operator<(const DriveBitMarker &other) const
+	bool चालक<(स्थिरांक DriveBitMarker &other) स्थिरांक
 	{
-		if (marker != other.marker)
-			return marker < other.marker;
-		return offset < other.offset;
+		जर (marker != other.marker)
+			परत marker < other.marker;
+		परत offset < other.offset;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) स्थिरांक;
 
 };
 
-struct DriveBitMultiple
+संरचना DriveBitMultiple
 {
-private:
+खाजगी:
 	pool<DriveBit> multiple_;
 
-public:
+सार्वजनिक:
 	DriveBitMultiple();
-	DriveBitMultiple(DriveBit const &single);
+	DriveBitMultiple(DriveBit स्थिरांक &single);
 
-	pool<DriveBit> const &multiple() const { return multiple_; }
+	pool<DriveBit> स्थिरांक &multiple() स्थिरांक { परत multiple_; }
 
-	void merge(DriveBitMultiple const &other)
+	शून्य merge(DriveBitMultiple स्थिरांक &other)
 	{
-		for (DriveBit const &single : other.multiple_)
+		साठी (DriveBit स्थिरांक &single : other.multiple_)
 			merge(single);
 	}
 
-	void merge(DriveBitMultiple &&other)
+	शून्य merge(DriveBitMultiple &&other)
 	{
-		for (DriveBit &single : other.multiple_)
+		साठी (DriveBit &single : other.multiple_)
 			merge(std::move(single));
 	}
 
-	void merge(DriveBit const &single);
-	void merge(DriveBit &&single);
+	शून्य merge(DriveBit स्थिरांक &single);
+	शून्य merge(DriveBit &&single);
 
-	bool operator==(const DriveBitMultiple &other) const
+	bool चालक==(स्थिरांक DriveBitMultiple &other) स्थिरांक
 	{
-		return multiple_ == other.multiple_;
+		परत multiple_ == other.multiple_;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) स्थिरांक;
 };
 
-struct DriveBit
+संरचना DriveBit
 {
-private:
+खाजगी:
 	DriveType type_ = DriveType::NONE;
-	union
+	संघ
 	{
 		State constant_;
 		DriveBitWire wire_;
@@ -180,449 +180,449 @@ private:
 		DriveBitMarker marker_;
 		DriveBitMultiple multiple_;
 	};
-public:
+सार्वजनिक:
 	DriveBit()  {}
 
-	DriveBit(SigBit const &bit);
+	DriveBit(SigBit स्थिरांक &bit);
 
-	DriveBit(DriveBit const &other) { *this = other; }
+	DriveBit(DriveBit स्थिरांक &other) { *this = other; }
 	DriveBit(DriveBit &&other) { *this = other; }
 
 
 	DriveBit(State constant) { *this = constant; }
-	DriveBit(DriveBitWire const &wire) { *this = wire; }
+	DriveBit(DriveBitWire स्थिरांक &wire) { *this = wire; }
 	DriveBit(DriveBitWire &&wire) { *this = wire; }
-	DriveBit(DriveBitPort const &port) { *this = port; }
+	DriveBit(DriveBitPort स्थिरांक &port) { *this = port; }
 	DriveBit(DriveBitPort &&port) { *this = port; }
-	DriveBit(DriveBitMarker const &marker) { *this = marker; }
+	DriveBit(DriveBitMarker स्थिरांक &marker) { *this = marker; }
 	DriveBit(DriveBitMarker &&marker) { *this = marker; }
-	DriveBit(DriveBitMultiple const &multiple) { *this = multiple; }
+	DriveBit(DriveBitMultiple स्थिरांक &multiple) { *this = multiple; }
 	DriveBit(DriveBitMultiple &&multiple) { *this = multiple; }
 
 	~DriveBit() { set_none(); }
 
-	void set_none()
+	शून्य set_none()
 	{
-		switch (type_)
+		निवड (type_)
 		{
-			case DriveType::NONE:
-				break;
-			case DriveType::CONSTANT:
-				break;
-			case DriveType::WIRE:
+			स्थिती DriveType::NONE:
+				थांबा;
+			स्थिती DriveType::CONSTANT:
+				थांबा;
+			स्थिती DriveType::WIRE:
 				wire_.~DriveBitWire();
-				break;
-			case DriveType::PORT:
+				थांबा;
+			स्थिती DriveType::PORT:
 				port_.~DriveBitPort();
-				break;
-			case DriveType::MARKER:
+				थांबा;
+			स्थिती DriveType::MARKER:
 				marker_.~DriveBitMarker();
-				break;
-			case DriveType::MULTIPLE:
+				थांबा;
+			स्थिती DriveType::MULTIPLE:
 				multiple_.~DriveBitMultiple();
-				break;
+				थांबा;
 		}
 		type_ = DriveType::NONE;
 	}
 
-	DriveBit &operator=(DriveBit const &other)
+	DriveBit &चालक=(DriveBit स्थिरांक &other)
 	{
-		switch (other.type_)
+		निवड (other.type_)
 		{
-			case DriveType::NONE:
+			स्थिती DriveType::NONE:
 				set_none();
-				break;
-			case DriveType::CONSTANT:
+				थांबा;
+			स्थिती DriveType::CONSTANT:
 				*this = other.constant_;
-				break;
-			case DriveType::WIRE:
+				थांबा;
+			स्थिती DriveType::WIRE:
 				*this = other.wire_;
-				break;
-			case DriveType::PORT:
+				थांबा;
+			स्थिती DriveType::PORT:
 				*this = other.port_;
-				break;
-			case DriveType::MARKER:
+				थांबा;
+			स्थिती DriveType::MARKER:
 				*this = other.marker_;
-				break;
-			case DriveType::MULTIPLE:
+				थांबा;
+			स्थिती DriveType::MULTIPLE:
 				*this = other.multiple_;
-				break;
+				थांबा;
 		}
-		return *this;
+		परत *this;
 	}
 
-	DriveBit &operator=(DriveBit &&other)
+	DriveBit &चालक=(DriveBit &&other)
 	{
-		switch (other.type_)
+		निवड (other.type_)
 		{
-			case DriveType::NONE:
+			स्थिती DriveType::NONE:
 				set_none();
-				break;
-			case DriveType::CONSTANT:
+				थांबा;
+			स्थिती DriveType::CONSTANT:
 				*this = std::move(other.constant_);
-				break;
-			case DriveType::WIRE:
+				थांबा;
+			स्थिती DriveType::WIRE:
 				*this = std::move(other.wire_);
-				break;
-			case DriveType::PORT:
+				थांबा;
+			स्थिती DriveType::PORT:
 				*this = std::move(other.port_);
-				break;
-			case DriveType::MARKER:
+				थांबा;
+			स्थिती DriveType::MARKER:
 				*this = std::move(other.marker_);
-				break;
-			case DriveType::MULTIPLE:
+				थांबा;
+			स्थिती DriveType::MULTIPLE:
 				*this = std::move(other.multiple_);
-				break;
+				थांबा;
 		}
-		return *this;
+		परत *this;
 	}
 
-	DriveBit &operator=(State constant)
+	DriveBit &चालक=(State constant)
 	{
 		set_none();
 		constant_ = constant;
 		type_ = DriveType::CONSTANT;
-		return *this;
+		परत *this;
 	}
 
-	DriveBit &operator=(DriveBitWire const &wire)
+	DriveBit &चालक=(DriveBitWire स्थिरांक &wire)
 	{
 		set_none();
 		new (&wire_) DriveBitWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		परत *this;
 	}
 
-	DriveBit &operator=(DriveBitWire &&wire)
+	DriveBit &चालक=(DriveBitWire &&wire)
 	{
 		set_none();
 		new (&wire_) DriveBitWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		परत *this;
 	}
 
-	DriveBit &operator=(DriveBitPort const &port)
+	DriveBit &चालक=(DriveBitPort स्थिरांक &port)
 	{
 		set_none();
 		new (&port_) DriveBitPort(port);
 		type_ = DriveType::PORT;
-		return *this;
+		परत *this;
 	}
 
-	DriveBit &operator=(DriveBitPort &&port)
+	DriveBit &चालक=(DriveBitPort &&port)
 	{
 		set_none();
 		new (&port_) DriveBitPort(port);
 		type_ = DriveType::PORT;
-		return *this;
+		परत *this;
 	}
 
-	DriveBit &operator=(DriveBitMarker const &marker)
+	DriveBit &चालक=(DriveBitMarker स्थिरांक &marker)
 	{
 		set_none();
 		new (&marker_) DriveBitMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		परत *this;
 	}
 
-	DriveBit &operator=(DriveBitMarker &&marker)
+	DriveBit &चालक=(DriveBitMarker &&marker)
 	{
 		set_none();
 		new (&marker_) DriveBitMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		परत *this;
 	}
 
-	DriveBit &operator=(DriveBitMultiple const &multiple)
+	DriveBit &चालक=(DriveBitMultiple स्थिरांक &multiple)
 	{
 		set_none();
-		if (multiple.multiple().empty())
-			return *this;
+		जर (multiple.multiple().empty())
+			परत *this;
 		new (&multiple_) DriveBitMultiple(multiple);
 		type_ = DriveType::MULTIPLE;
-		return *this;
+		परत *this;
 	}
 
-	DriveBit &operator=(DriveBitMultiple &&multiple)
+	DriveBit &चालक=(DriveBitMultiple &&multiple)
 	{
 		set_none();
-		if (multiple.multiple().empty())
-			return *this;
+		जर (multiple.multiple().empty())
+			परत *this;
 		new (&multiple_) DriveBitMultiple(multiple);
 		type_ = DriveType::MULTIPLE;
-		return *this;
+		परत *this;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) स्थिरांक;
 
-	bool operator==(const DriveBit &other) const
+	bool चालक==(स्थिरांक DriveBit &other) स्थिरांक
 	{
-		if (type_ != other.type_)
-			return false;
+		जर (type_ != other.type_)
+			परत false;
 
-		switch (type_)
+		निवड (type_)
 		{
-			case DriveType::NONE:
-				return true;
-			case DriveType::CONSTANT:
-				return constant_ == other.constant_;
-			case DriveType::WIRE:
-				return wire_ == other.wire_;
-			case DriveType::PORT:
-				return port_ == other.port_;
-			case DriveType::MARKER:
-				return marker_ == other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ == other.multiple_;
+			स्थिती DriveType::NONE:
+				परत true;
+			स्थिती DriveType::CONSTANT:
+				परत constant_ == other.constant_;
+			स्थिती DriveType::WIRE:
+				परत wire_ == other.wire_;
+			स्थिती DriveType::PORT:
+				परत port_ == other.port_;
+			स्थिती DriveType::MARKER:
+				परत marker_ == other.marker_;
+			स्थिती DriveType::MULTIPLE:
+				परत multiple_ == other.multiple_;
 		}
 		log_abort();
 	}
 
-	bool operator!=(const DriveBit &other) const
+	bool चालक!=(स्थिरांक DriveBit &other) स्थिरांक
 	{
-		return !(*this == other);
+		परत !(*this == other);
 	}
 
-	bool operator<(const DriveBit &other) const
+	bool चालक<(स्थिरांक DriveBit &other) स्थिरांक
 	{
-		if (type_ != other.type_)
-			return type_ < other.type_;
-		switch (type_)
+		जर (type_ != other.type_)
+			परत type_ < other.type_;
+		निवड (type_)
 		{
-			case DriveType::NONE:
-				return false;
-			case DriveType::CONSTANT:
-				return constant_ < other.constant_;
-			case DriveType::WIRE:
-				return wire_ < other.wire_;
-			case DriveType::PORT:
-				return port_ < other.port_;
-			case DriveType::MARKER:
-				return marker_ < other.marker_;
-			case DriveType::MULTIPLE:
+			स्थिती DriveType::NONE:
+				परत false;
+			स्थिती DriveType::CONSTANT:
+				परत constant_ < other.constant_;
+			स्थिती DriveType::WIRE:
+				परत wire_ < other.wire_;
+			स्थिती DriveType::PORT:
+				परत port_ < other.port_;
+			स्थिती DriveType::MARKER:
+				परत marker_ < other.marker_;
+			स्थिती DriveType::MULTIPLE:
 				log_assert(!"TODO");
 		}
 		log_abort();
 	}
 
 
-	DriveType type() const { return type_; }
+	DriveType type() स्थिरांक { परत type_; }
 
-	bool is_none() const { return type_ == DriveType::NONE; }
-	bool is_constant() const { return type_ == DriveType::CONSTANT; }
-	bool is_wire() const { return type_ == DriveType::WIRE; }
-	bool is_port() const { return type_ == DriveType::PORT; }
-	bool is_marker() const { return type_ == DriveType::MARKER; }
-	bool is_multiple() const { return type_ == DriveType::MULTIPLE; }
+	bool is_none() स्थिरांक { परत type_ == DriveType::NONE; }
+	bool is_constant() स्थिरांक { परत type_ == DriveType::CONSTANT; }
+	bool is_wire() स्थिरांक { परत type_ == DriveType::WIRE; }
+	bool is_port() स्थिरांक { परत type_ == DriveType::PORT; }
+	bool is_marker() स्थिरांक { परत type_ == DriveType::MARKER; }
+	bool is_multiple() स्थिरांक { परत type_ == DriveType::MULTIPLE; }
 
-	State &constant() { log_assert(is_constant()); return constant_; }
-	State const &constant() const { log_assert(is_constant()); return constant_; }
-	DriveBitWire &wire() { log_assert(is_wire()); return wire_; }
-	DriveBitWire const &wire() const { log_assert(is_wire()); return wire_; }
-	DriveBitPort &port() { log_assert(is_port()); return port_; }
-	DriveBitPort const &port() const { log_assert(is_port()); return port_; }
-	DriveBitMarker &marker() { log_assert(is_marker()); return marker_; }
-	DriveBitMarker const &marker() const { log_assert(is_marker()); return marker_; }
-	DriveBitMultiple &multiple() { log_assert(is_multiple()); return multiple_; }
-	DriveBitMultiple const &multiple() const { log_assert(is_multiple()); return multiple_; }
+	State &constant() { log_assert(is_constant()); परत constant_; }
+	State स्थिरांक &constant() स्थिरांक { log_assert(is_constant()); परत constant_; }
+	DriveBitWire &wire() { log_assert(is_wire()); परत wire_; }
+	DriveBitWire स्थिरांक &wire() स्थिरांक { log_assert(is_wire()); परत wire_; }
+	DriveBitPort &port() { log_assert(is_port()); परत port_; }
+	DriveBitPort स्थिरांक &port() स्थिरांक { log_assert(is_port()); परत port_; }
+	DriveBitMarker &marker() { log_assert(is_marker()); परत marker_; }
+	DriveBitMarker स्थिरांक &marker() स्थिरांक { log_assert(is_marker()); परत marker_; }
+	DriveBitMultiple &multiple() { log_assert(is_multiple()); परत multiple_; }
+	DriveBitMultiple स्थिरांक &multiple() स्थिरांक { log_assert(is_multiple()); परत multiple_; }
 
-	void merge(DriveBit const &other);
+	शून्य merge(DriveBit स्थिरांक &other);
 
 };
 
-inline DriveBitMultiple::DriveBitMultiple() {}
-inline DriveBitMultiple::DriveBitMultiple(DriveBit const &single)
+ओळीत DriveBitMultiple::DriveBitMultiple() {}
+ओळीत DriveBitMultiple::DriveBitMultiple(DriveBit स्थिरांक &single)
 {
 	multiple_.emplace(single);
 }
 
-struct DriveChunkWire
+संरचना DriveChunkWire
 {
 	Wire *wire;
-	int offset;
-	int width;
+	पूर्णांक offset;
+	पूर्णांक width;
 
-	DriveChunkWire(Wire *wire, int offset, int width) : wire(wire), offset(offset), width(width) {}
-	DriveChunkWire(DriveBitWire const &bit) : wire(bit.wire), offset(bit.offset), width(1) {}
+	DriveChunkWire(Wire *wire, पूर्णांक offset, पूर्णांक width) : wire(wire), offset(offset), width(width) {}
+	DriveChunkWire(DriveBitWire स्थिरांक &bit) : wire(bit.wire), offset(bit.offset), width(1) {}
 
-	int size() const { return width; }
+	पूर्णांक size() स्थिरांक { परत width; }
 
-	DriveBitWire operator[](int i) const
+	DriveBitWire चालक[](पूर्णांक i) स्थिरांक
 	{
 		log_assert(i >= 0 && i < width);
-		return DriveBitWire(wire, offset + i);
+		परत DriveBitWire(wire, offset + i);
 	}
 
-	bool can_append(DriveBitWire const &bit) const;
-	bool try_append(DriveBitWire const &bit);
-	bool try_append(DriveChunkWire const &chunk);
+	bool can_append(DriveBitWire स्थिरांक &bit) स्थिरांक;
+	bool try_append(DriveBitWire स्थिरांक &bit);
+	bool try_append(DriveChunkWire स्थिरांक &chunk);
 
 	// Whether this chunk is a whole wire
-	bool is_whole() const { return offset == 0 && width == wire->width; }
+	bool is_whole() स्थिरांक { परत offset == 0 && width == wire->width; }
 
-	bool operator==(const DriveChunkWire &other) const
+	bool चालक==(स्थिरांक DriveChunkWire &other) स्थिरांक
 	{
-		return wire == other.wire && offset == other.offset && width == other.width;
+		परत wire == other.wire && offset == other.offset && width == other.width;
 	}
 
-	bool operator<(const DriveChunkWire &other) const
+	bool चालक<(स्थिरांक DriveChunkWire &other) स्थिरांक
 	{
-		if (wire != other.wire)
-			return wire->name < other.wire->name;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		जर (wire != other.wire)
+			परत wire->name < other.wire->name;
+		जर (width != other.width)
+			परत width < other.width;
+		परत offset < other.offset;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) स्थिरांक;
 
-	explicit operator SigChunk() const
+	explicit चालक SigChunk() स्थिरांक
 	{
-		return SigChunk(wire, offset, width);
+		परत SigChunk(wire, offset, width);
 	}
 };
 
-struct DriveChunkPort
+संरचना DriveChunkPort
 {
 	Cell *cell;
 	IdString port;
-	int offset;
-	int width;
+	पूर्णांक offset;
+	पूर्णांक width;
 
-	DriveChunkPort(Cell *cell, IdString port, int offset, int width) :
+	DriveChunkPort(Cell *cell, IdString port, पूर्णांक offset, पूर्णांक width) :
 		cell(cell), port(port), offset(offset), width(width) { }
 	DriveChunkPort(Cell *cell, IdString port) :
 		cell(cell), port(port), offset(0), width(GetSize(cell->connections().at(port))) { }
-	DriveChunkPort(Cell *cell, std::pair<IdString, SigSpec> const &conn) :
+	DriveChunkPort(Cell *cell, std::pair<IdString, SigSpec> स्थिरांक &conn) :
 		cell(cell), port(conn.first), offset(0), width(GetSize(conn.second)) { }
-	DriveChunkPort(DriveBitPort const &bit) :
+	DriveChunkPort(DriveBitPort स्थिरांक &bit) :
 		cell(bit.cell), port(bit.port), offset(bit.offset), width(1) { }
 
-	int size() const { return width; }
+	पूर्णांक size() स्थिरांक { परत width; }
 
-	DriveBitPort operator[](int i) const
+	DriveBitPort चालक[](पूर्णांक i) स्थिरांक
 	{
 		log_assert(i >= 0 && i < width);
-		return DriveBitPort(cell, port, offset + i);
+		परत DriveBitPort(cell, port, offset + i);
 	}
 
-	bool can_append(DriveBitPort const &bit) const;
-	bool try_append(DriveBitPort const &bit);
-	bool try_append(DriveChunkPort const &chunk);
+	bool can_append(DriveBitPort स्थिरांक &bit) स्थिरांक;
+	bool try_append(DriveBitPort स्थिरांक &bit);
+	bool try_append(DriveChunkPort स्थिरांक &chunk);
 
 	// Whether this chunk is a whole port
-	bool is_whole() const
+	bool is_whole() स्थिरांक
 	{
-		return offset == 0 && width == cell->connections().at(port).size();
+		परत offset == 0 && width == cell->connections().at(port).size();
 	}
 
-	bool operator==(const DriveChunkPort &other) const
+	bool चालक==(स्थिरांक DriveChunkPort &other) स्थिरांक
 	{
-		return cell == other.cell && port == other.port && offset == other.offset && width == other.width;
+		परत cell == other.cell && port == other.port && offset == other.offset && width == other.width;
 	}
 
-	bool operator<(const DriveChunkPort &other) const
+	bool चालक<(स्थिरांक DriveChunkPort &other) स्थिरांक
 	{
-		if (cell != other.cell)
-			return cell->name < other.cell->name;
-		if (port != other.port)
-			return port < other.port;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		जर (cell != other.cell)
+			परत cell->name < other.cell->name;
+		जर (port != other.port)
+			परत port < other.port;
+		जर (width != other.width)
+			परत width < other.width;
+		परत offset < other.offset;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) स्थिरांक;
 };
 
 
-struct DriveChunkMarker
+संरचना DriveChunkMarker
 {
-	int marker;
-	int offset;
-	int width;
+	पूर्णांक marker;
+	पूर्णांक offset;
+	पूर्णांक width;
 
-	DriveChunkMarker(int marker, int offset, int width) :
+	DriveChunkMarker(पूर्णांक marker, पूर्णांक offset, पूर्णांक width) :
 		marker(marker), offset(offset), width(width) {}
-	DriveChunkMarker(DriveBitMarker const &bit) :
+	DriveChunkMarker(DriveBitMarker स्थिरांक &bit) :
 		marker(bit.marker), offset(bit.offset), width(1) {}
 
-	int size() const { return width; }
+	पूर्णांक size() स्थिरांक { परत width; }
 
-	DriveBitMarker operator[](int i) const
+	DriveBitMarker चालक[](पूर्णांक i) स्थिरांक
 	{
 		log_assert(i >= 0 && i < width);
-		return DriveBitMarker(marker, offset + i);
+		परत DriveBitMarker(marker, offset + i);
 	}
 
-	bool can_append(DriveBitMarker const &bit) const;
-	bool try_append(DriveBitMarker const &bit);
-	bool try_append(DriveChunkMarker const &chunk);
+	bool can_append(DriveBitMarker स्थिरांक &bit) स्थिरांक;
+	bool try_append(DriveBitMarker स्थिरांक &bit);
+	bool try_append(DriveChunkMarker स्थिरांक &chunk);
 
-	bool operator==(const DriveChunkMarker &other) const
+	bool चालक==(स्थिरांक DriveChunkMarker &other) स्थिरांक
 	{
-		return marker == other.marker && offset == other.offset && width == other.width;
+		परत marker == other.marker && offset == other.offset && width == other.width;
 	}
 
-	bool operator<(const DriveChunkMarker &other) const
+	bool चालक<(स्थिरांक DriveChunkMarker &other) स्थिरांक
 	{
-		if (marker != other.marker)
-			return marker < other.marker;
-		if (width != other.width)
-			return width < other.width;
-		return offset < other.offset;
+		जर (marker != other.marker)
+			परत marker < other.marker;
+		जर (width != other.width)
+			परत width < other.width;
+		परत offset < other.offset;
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) स्थिरांक;
 };
 
-struct DriveChunkMultiple
+संरचना DriveChunkMultiple
 {
-private:
+खाजगी:
 	mutable pool<DriveChunk> multiple_;
-	int width_;
+	पूर्णांक width_;
 
-public:
-	pool<DriveChunk> const &multiple() const { return multiple_; }
+सार्वजनिक:
+	pool<DriveChunk> स्थिरांक &multiple() स्थिरांक { परत multiple_; }
 
-	DriveChunkMultiple(DriveBitMultiple const &bit);
+	DriveChunkMultiple(DriveBitMultiple स्थिरांक &bit);
 
-	int size() const { return width_; }
+	पूर्णांक size() स्थिरांक { परत width_; }
 
-	DriveBitMultiple operator[](int i) const;
+	DriveBitMultiple चालक[](पूर्णांक i) स्थिरांक;
 
-	bool can_append(DriveBitMultiple const &bit) const;
+	bool can_append(DriveBitMultiple स्थिरांक &bit) स्थिरांक;
 
-	bool try_append(DriveBitMultiple const &bit);
+	bool try_append(DriveBitMultiple स्थिरांक &bit);
 
 
-	bool can_append(DriveChunkMultiple const &bit) const;
+	bool can_append(DriveChunkMultiple स्थिरांक &bit) स्थिरांक;
 
-	bool try_append(DriveChunkMultiple const &bit);
+	bool try_append(DriveChunkMultiple स्थिरांक &bit);
 
-	bool operator==(const DriveChunkMultiple &other) const
+	bool चालक==(स्थिरांक DriveChunkMultiple &other) स्थिरांक
 	{
-		return width_ == other.width_ && multiple_ == other.multiple_;
+		परत width_ == other.width_ && multiple_ == other.multiple_;
 	}
 
-	bool operator<(const DriveChunkMultiple &other) const
+	bool चालक<(स्थिरांक DriveChunkMultiple &other) स्थिरांक
 	{
-		if (multiple_.size() < other.multiple_.size())
+		जर (multiple_.size() < other.multiple_.size())
 
 		multiple_.sort();
-		return false; // TODO implement, canonicalize order
+		परत false; // TODO implement, canonicalize order
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) स्थिरांक;
 };
 
-struct DriveChunk
+संरचना DriveChunk
 {
-private:
+खाजगी:
 	DriveType type_ = DriveType::NONE;
-	union
+	संघ
 	{
-		int none_;
+		पूर्णांक none_;
 		Const constant_;
 		DriveChunkWire wire_;
 		DriveChunkPort port_;
@@ -630,505 +630,505 @@ private:
 		DriveChunkMultiple multiple_;
 	};
 
-public:
+सार्वजनिक:
 	DriveChunk() { set_none(); }
 
-	DriveChunk(DriveChunk const &other) { *this = other; }
+	DriveChunk(DriveChunk स्थिरांक &other) { *this = other; }
 	DriveChunk(DriveChunk &&other) { *this = other; }
 
-	DriveChunk(DriveBit const &other) { *this = other; }
+	DriveChunk(DriveBit स्थिरांक &other) { *this = other; }
 
-	DriveChunk(Const const &constant) { *this = constant; }
+	DriveChunk(Const स्थिरांक &constant) { *this = constant; }
 	DriveChunk(Const &&constant) { *this = constant; }
-	DriveChunk(DriveChunkWire const &wire) { *this = wire; }
+	DriveChunk(DriveChunkWire स्थिरांक &wire) { *this = wire; }
 	DriveChunk(DriveChunkWire &&wire) { *this = wire; }
-	DriveChunk(DriveChunkPort const &port) { *this = port; }
+	DriveChunk(DriveChunkPort स्थिरांक &port) { *this = port; }
 	DriveChunk(DriveChunkPort &&port) { *this = port; }
-	DriveChunk(DriveChunkMarker const &marker) { *this = marker; }
+	DriveChunk(DriveChunkMarker स्थिरांक &marker) { *this = marker; }
 	DriveChunk(DriveChunkMarker &&marker) { *this = marker; }
-	DriveChunk(DriveChunkMultiple const &multiple) { *this = multiple; }
+	DriveChunk(DriveChunkMultiple स्थिरांक &multiple) { *this = multiple; }
 	DriveChunk(DriveChunkMultiple &&multiple) { *this = multiple; }
 
 	~DriveChunk() { set_none(); }
 
-	DriveBit operator[](int i) const
+	DriveBit चालक[](पूर्णांक i) स्थिरांक
 	{
-		switch (type_)
+		निवड (type_)
 		{
-			case DriveType::NONE:
-				return DriveBit();
-			case DriveType::CONSTANT:
-				return constant_[i];
-			case DriveType::WIRE:
-				return wire_[i];
-			case DriveType::PORT:
-				return port_[i];
-			case DriveType::MARKER:
-				return marker_[i];
-			case DriveType::MULTIPLE:
-				return multiple_[i];
+			स्थिती DriveType::NONE:
+				परत DriveBit();
+			स्थिती DriveType::CONSTANT:
+				परत constant_[i];
+			स्थिती DriveType::WIRE:
+				परत wire_[i];
+			स्थिती DriveType::PORT:
+				परत port_[i];
+			स्थिती DriveType::MARKER:
+				परत marker_[i];
+			स्थिती DriveType::MULTIPLE:
+				परत multiple_[i];
 		}
 		log_abort();
 	}
 
-	void set_none(int width = 0)
+	शून्य set_none(पूर्णांक width = 0)
 	{
-		switch (type_)
+		निवड (type_)
 		{
-			case DriveType::NONE:
+			स्थिती DriveType::NONE:
 				none_ = width;
-				break;
-			case DriveType::CONSTANT:
+				थांबा;
+			स्थिती DriveType::CONSTANT:
 				constant_.~Const();
-				break;
-			case DriveType::WIRE:
+				थांबा;
+			स्थिती DriveType::WIRE:
 				wire_.~DriveChunkWire();
-				break;
-			case DriveType::PORT:
+				थांबा;
+			स्थिती DriveType::PORT:
 				port_.~DriveChunkPort();
-				break;
-			case DriveType::MARKER:
+				थांबा;
+			स्थिती DriveType::MARKER:
 				marker_.~DriveChunkMarker();
-				break;
-			case DriveType::MULTIPLE:
+				थांबा;
+			स्थिती DriveType::MULTIPLE:
 				multiple_.~DriveChunkMultiple();
-				break;
+				थांबा;
 		}
 		type_ = DriveType::NONE;
 		none_ = width;
 	}
 
-	DriveChunk &operator=(DriveChunk const &other)
+	DriveChunk &चालक=(DriveChunk स्थिरांक &other)
 	{
-		switch (other.type_)
+		निवड (other.type_)
 		{
-			case DriveType::NONE:
+			स्थिती DriveType::NONE:
 				set_none(other.none_);
-				break;
-			case DriveType::CONSTANT:
+				थांबा;
+			स्थिती DriveType::CONSTANT:
 				*this = other.constant_;
-				break;
-			case DriveType::WIRE:
+				थांबा;
+			स्थिती DriveType::WIRE:
 				*this = other.wire_;
-				break;
-			case DriveType::PORT:
+				थांबा;
+			स्थिती DriveType::PORT:
 				*this = other.port_;
-				break;
-			case DriveType::MARKER:
+				थांबा;
+			स्थिती DriveType::MARKER:
 				*this = other.marker_;
-				break;
-			case DriveType::MULTIPLE:
+				थांबा;
+			स्थिती DriveType::MULTIPLE:
 				*this = other.multiple_;
-				break;
+				थांबा;
 		}
-		return *this;
+		परत *this;
 	}
 
-	DriveChunk &operator=(DriveChunk &&other)
+	DriveChunk &चालक=(DriveChunk &&other)
 	{
-		switch (other.type_)
+		निवड (other.type_)
 		{
-			case DriveType::NONE:
+			स्थिती DriveType::NONE:
 				set_none(other.none_);
-				break;
-			case DriveType::CONSTANT:
+				थांबा;
+			स्थिती DriveType::CONSTANT:
 				*this = std::move(other.constant_);
-				break;
-			case DriveType::WIRE:
+				थांबा;
+			स्थिती DriveType::WIRE:
 				*this = std::move(other.wire_);
-				break;
-			case DriveType::PORT:
+				थांबा;
+			स्थिती DriveType::PORT:
 				*this = std::move(other.port_);
-				break;
-			case DriveType::MARKER:
+				थांबा;
+			स्थिती DriveType::MARKER:
 				*this = std::move(other.marker_);
-				break;
-			case DriveType::MULTIPLE:
+				थांबा;
+			स्थिती DriveType::MULTIPLE:
 				*this = std::move(other.multiple_);
-				break;
+				थांबा;
 		}
-		return *this;
+		परत *this;
 	}
 
-	DriveChunk &operator=(Const const &constant)
+	DriveChunk &चालक=(Const स्थिरांक &constant)
 	{
 		set_none();
 		new (&constant_) Const(constant);
 		type_ = DriveType::CONSTANT;
-		return *this;
+		परत *this;
 	}
 
-	DriveChunk &operator=(Const &&constant)
+	DriveChunk &चालक=(Const &&constant)
 	{
 		set_none();
 		new (&constant_) Const(std::move(constant));
 		type_ = DriveType::CONSTANT;
-		return *this;
+		परत *this;
 	}
 
-	DriveChunk &operator=(DriveChunkWire const &wire)
+	DriveChunk &चालक=(DriveChunkWire स्थिरांक &wire)
 	{
 		set_none();
 		new (&wire_) DriveChunkWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		परत *this;
 	}
 
-	DriveChunk &operator=(DriveChunkWire &&wire)
+	DriveChunk &चालक=(DriveChunkWire &&wire)
 	{
 		set_none();
 		new (&wire_) DriveChunkWire(wire);
 		type_ = DriveType::WIRE;
-		return *this;
+		परत *this;
 	}
 
-	DriveChunk &operator=(DriveChunkPort const &port)
+	DriveChunk &चालक=(DriveChunkPort स्थिरांक &port)
 	{
 		set_none();
 		new (&port_) DriveChunkPort(port);
 		type_ = DriveType::PORT;
-		return *this;
+		परत *this;
 	}
 
-	DriveChunk &operator=(DriveChunkPort &&port)
+	DriveChunk &चालक=(DriveChunkPort &&port)
 	{
 		set_none();
 		new (&port_) DriveChunkPort(port);
 		type_ = DriveType::PORT;
-		return *this;
+		परत *this;
 	}
 
-	DriveChunk &operator=(DriveChunkMarker const &marker)
+	DriveChunk &चालक=(DriveChunkMarker स्थिरांक &marker)
 	{
 		set_none();
 		new (&marker_) DriveChunkMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		परत *this;
 	}
 
-	DriveChunk &operator=(DriveChunkMarker &&marker)
+	DriveChunk &चालक=(DriveChunkMarker &&marker)
 	{
 		set_none();
 		new (&marker_) DriveChunkMarker(marker);
 		type_ = DriveType::MARKER;
-		return *this;
+		परत *this;
 	}
 
-	DriveChunk &operator=(DriveChunkMultiple const &multiple)
+	DriveChunk &चालक=(DriveChunkMultiple स्थिरांक &multiple)
 	{
 		set_none(multiple.size());
-		if (multiple.multiple().empty())
-			return *this;
+		जर (multiple.multiple().empty())
+			परत *this;
 		new (&multiple_) DriveChunkMultiple(multiple);
 		type_ = DriveType::MULTIPLE;
-		return *this;
+		परत *this;
 	}
 
-	DriveChunk &operator=(DriveChunkMultiple &&multiple)
+	DriveChunk &चालक=(DriveChunkMultiple &&multiple)
 	{
 		set_none(multiple.size());
-		if (multiple.multiple().empty())
-			return *this;
+		जर (multiple.multiple().empty())
+			परत *this;
 		new (&multiple_) DriveChunkMultiple(multiple);
 		type_ = DriveType::MULTIPLE;
-		return *this;
+		परत *this;
 	}
 
-	DriveChunk &operator=(DriveBit const &other)
+	DriveChunk &चालक=(DriveBit स्थिरांक &other)
 	{
-		switch (other.type())
+		निवड (other.type())
 		{
-			case DriveType::NONE:
+			स्थिती DriveType::NONE:
 				set_none(1);
-				break;
-			case DriveType::CONSTANT:
+				थांबा;
+			स्थिती DriveType::CONSTANT:
 				*this = Const(other.constant());
-				break;
-			case DriveType::WIRE:
+				थांबा;
+			स्थिती DriveType::WIRE:
 				*this = DriveChunkWire(other.wire());
-				break;
-			case DriveType::PORT:
+				थांबा;
+			स्थिती DriveType::PORT:
 				*this = DriveChunkPort(other.port());
-				break;
-			case DriveType::MARKER:
+				थांबा;
+			स्थिती DriveType::MARKER:
 				*this = DriveChunkMarker(other.marker());
-				break;
-			case DriveType::MULTIPLE:
+				थांबा;
+			स्थिती DriveType::MULTIPLE:
 				*this = DriveChunkMultiple(other.multiple());
-				break;
+				थांबा;
 		}
-		return *this;
+		परत *this;
 	}
 
-	bool can_append(DriveBit const &bit) const;
-	bool try_append(DriveBit const &bit);
-	bool try_append(DriveChunk const &chunk);
+	bool can_append(DriveBit स्थिरांक &bit) स्थिरांक;
+	bool try_append(DriveBit स्थिरांक &bit);
+	bool try_append(DriveChunk स्थिरांक &chunk);
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) स्थिरांक;
 
-	bool operator==(const DriveChunk &other) const
+	bool चालक==(स्थिरांक DriveChunk &other) स्थिरांक
 	{
-		if (type_ != other.type_)
-			return false;
+		जर (type_ != other.type_)
+			परत false;
 
-		switch (type_)
+		निवड (type_)
 		{
-			case DriveType::NONE:
-				return true;
-			case DriveType::CONSTANT:
-				return constant_ == other.constant_;
-			case DriveType::WIRE:
-				return wire_ == other.wire_;
-			case DriveType::PORT:
-				return port_ == other.port_;
-			case DriveType::MARKER:
-				return marker_ == other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ == other.multiple_;
-		}
-		log_abort();
-	}
-
-	bool operator!=(const DriveChunk &other) const
-	{
-		return !(*this == other);
-	}
-
-	bool operator<(const DriveChunk &other) const
-	{
-		if (type_ != other.type_)
-			return type_ < other.type_;
-		switch (type_)
-		{
-			case DriveType::NONE:
-				return false;
-			case DriveType::CONSTANT:
-				return constant_ < other.constant_;
-			case DriveType::WIRE:
-				return wire_ < other.wire_;
-			case DriveType::PORT:
-				return port_ < other.port_;
-			case DriveType::MARKER:
-				return marker_ < other.marker_;
-			case DriveType::MULTIPLE:
-				return multiple_ < other.multiple_;
+			स्थिती DriveType::NONE:
+				परत true;
+			स्थिती DriveType::CONSTANT:
+				परत constant_ == other.constant_;
+			स्थिती DriveType::WIRE:
+				परत wire_ == other.wire_;
+			स्थिती DriveType::PORT:
+				परत port_ == other.port_;
+			स्थिती DriveType::MARKER:
+				परत marker_ == other.marker_;
+			स्थिती DriveType::MULTIPLE:
+				परत multiple_ == other.multiple_;
 		}
 		log_abort();
 	}
 
-	DriveType type() const { return type_; }
-
-	bool is_none() const { return type_ == DriveType::NONE; }
-	bool is_constant() const { return type_ == DriveType::CONSTANT; }
-	bool is_wire() const { return type_ == DriveType::WIRE; }
-	bool is_port() const { return type_ == DriveType::PORT; }
-	bool is_marker() const { return type_ == DriveType::MARKER; }
-	bool is_multiple() const { return type_ == DriveType::MULTIPLE; }
-
-	Const &constant() { log_assert(is_constant()); return constant_; }
-	Const const &constant() const { log_assert(is_constant()); return constant_; }
-	DriveChunkWire &wire() { log_assert(is_wire()); return wire_; }
-	DriveChunkWire const &wire() const { log_assert(is_wire()); return wire_; }
-	DriveChunkPort &port() { log_assert(is_port()); return port_; }
-	DriveChunkPort const &port() const { log_assert(is_port()); return port_; }
-	DriveChunkMarker &marker() { log_assert(is_marker()); return marker_; }
-	DriveChunkMarker const &marker() const { log_assert(is_marker()); return marker_; }
-	DriveChunkMultiple &multiple() { log_assert(is_multiple()); return multiple_; }
-	DriveChunkMultiple const &multiple() const { log_assert(is_multiple()); return multiple_; }
-
-
-	int size() const
+	bool चालक!=(स्थिरांक DriveChunk &other) स्थिरांक
 	{
-		switch (type_)
+		परत !(*this == other);
+	}
+
+	bool चालक<(स्थिरांक DriveChunk &other) स्थिरांक
+	{
+		जर (type_ != other.type_)
+			परत type_ < other.type_;
+		निवड (type_)
 		{
-			case DriveType::NONE:
-				return none_;
-			case DriveType::CONSTANT:
-				return constant_.size();
-			case DriveType::WIRE:
-				return wire_.size();
-			case DriveType::PORT:
-				return port_.size();
-			case DriveType::MARKER:
-				return marker_.size();
-			case DriveType::MULTIPLE:
-				return multiple_.size();
+			स्थिती DriveType::NONE:
+				परत false;
+			स्थिती DriveType::CONSTANT:
+				परत constant_ < other.constant_;
+			स्थिती DriveType::WIRE:
+				परत wire_ < other.wire_;
+			स्थिती DriveType::PORT:
+				परत port_ < other.port_;
+			स्थिती DriveType::MARKER:
+				परत marker_ < other.marker_;
+			स्थिती DriveType::MULTIPLE:
+				परत multiple_ < other.multiple_;
+		}
+		log_abort();
+	}
+
+	DriveType type() स्थिरांक { परत type_; }
+
+	bool is_none() स्थिरांक { परत type_ == DriveType::NONE; }
+	bool is_constant() स्थिरांक { परत type_ == DriveType::CONSTANT; }
+	bool is_wire() स्थिरांक { परत type_ == DriveType::WIRE; }
+	bool is_port() स्थिरांक { परत type_ == DriveType::PORT; }
+	bool is_marker() स्थिरांक { परत type_ == DriveType::MARKER; }
+	bool is_multiple() स्थिरांक { परत type_ == DriveType::MULTIPLE; }
+
+	Const &constant() { log_assert(is_constant()); परत constant_; }
+	Const स्थिरांक &constant() स्थिरांक { log_assert(is_constant()); परत constant_; }
+	DriveChunkWire &wire() { log_assert(is_wire()); परत wire_; }
+	DriveChunkWire स्थिरांक &wire() स्थिरांक { log_assert(is_wire()); परत wire_; }
+	DriveChunkPort &port() { log_assert(is_port()); परत port_; }
+	DriveChunkPort स्थिरांक &port() स्थिरांक { log_assert(is_port()); परत port_; }
+	DriveChunkMarker &marker() { log_assert(is_marker()); परत marker_; }
+	DriveChunkMarker स्थिरांक &marker() स्थिरांक { log_assert(is_marker()); परत marker_; }
+	DriveChunkMultiple &multiple() { log_assert(is_multiple()); परत multiple_; }
+	DriveChunkMultiple स्थिरांक &multiple() स्थिरांक { log_assert(is_multiple()); परत multiple_; }
+
+
+	पूर्णांक size() स्थिरांक
+	{
+		निवड (type_)
+		{
+			स्थिती DriveType::NONE:
+				परत none_;
+			स्थिती DriveType::CONSTANT:
+				परत constant_.size();
+			स्थिती DriveType::WIRE:
+				परत wire_.size();
+			स्थिती DriveType::PORT:
+				परत port_.size();
+			स्थिती DriveType::MARKER:
+				परत marker_.size();
+			स्थिती DriveType::MULTIPLE:
+				परत multiple_.size();
 		}
 		log_abort();
 	}
 };
 
-inline DriveChunkMultiple::DriveChunkMultiple(DriveBitMultiple const &bit)
+ओळीत DriveChunkMultiple::DriveChunkMultiple(DriveBitMultiple स्थिरांक &bit)
 	: width_(1)
 {
-	for (auto const &bit : bit.multiple())
+	साठी (स्वतः स्थिरांक &bit : bit.multiple())
 		multiple_.emplace(bit);
 }
 
-struct DriveSpec
+संरचना DriveSpec
 {
-private:
-	int width_ = 0;
+खाजगी:
+	पूर्णांक width_ = 0;
 	mutable std::vector<DriveChunk> chunks_;
 	mutable std::vector<DriveBit> bits_;
-	mutable unsigned int hash_ = 0;
-public:
+	mutable अचिन्हित पूर्णांक hash_ = 0;
+सार्वजनिक:
 
-	inline bool packed() const {
-		return bits_.empty();
+	ओळीत bool packed() स्थिरांक {
+		परत bits_.empty();
 	}
 
 	DriveSpec() {}
 
-	DriveSpec(DriveChunk const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkWire const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkPort const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkMarker const &chunk) { *this = chunk; }
-	DriveSpec(DriveChunkMultiple const &chunk) { *this = chunk; }
+	DriveSpec(DriveChunk स्थिरांक &chunk) { *this = chunk; }
+	DriveSpec(DriveChunkWire स्थिरांक &chunk) { *this = chunk; }
+	DriveSpec(DriveChunkPort स्थिरांक &chunk) { *this = chunk; }
+	DriveSpec(DriveChunkMarker स्थिरांक &chunk) { *this = chunk; }
+	DriveSpec(DriveChunkMultiple स्थिरांक &chunk) { *this = chunk; }
 
-	DriveSpec(DriveBit const &bit) { *this = bit; }
-	DriveSpec(DriveBitWire const &bit) { *this = bit; }
-	DriveSpec(DriveBitPort const &bit) { *this = bit; }
-	DriveSpec(DriveBitMarker const &bit) { *this = bit; }
-	DriveSpec(DriveBitMultiple const &bit) { *this = bit; }
+	DriveSpec(DriveBit स्थिरांक &bit) { *this = bit; }
+	DriveSpec(DriveBitWire स्थिरांक &bit) { *this = bit; }
+	DriveSpec(DriveBitPort स्थिरांक &bit) { *this = bit; }
+	DriveSpec(DriveBitMarker स्थिरांक &bit) { *this = bit; }
+	DriveSpec(DriveBitMultiple स्थिरांक &bit) { *this = bit; }
 
-	DriveSpec(std::vector<DriveChunk> const &chunks) : chunks_(chunks) { compute_width(); }
+	DriveSpec(std::vector<DriveChunk> स्थिरांक &chunks) : chunks_(chunks) { compute_width(); }
 
-	DriveSpec(std::vector<DriveBit> const &bits)
+	DriveSpec(std::vector<DriveBit> स्थिरांक &bits)
 	{
-		for (auto const &bit : bits)
+		साठी (स्वतः स्थिरांक &bit : bits)
 			append(bit);
 	}
 
-	DriveSpec(SigSpec const &sig)
+	DriveSpec(SigSpec स्थिरांक &sig)
 	{
 		// TODO: converting one chunk at a time would be faster
-		for (auto const &bit : sig.bits())
+		साठी (स्वतः स्थिरांक &bit : sig.bits())
 			append(bit);
 	}
 
-	std::vector<DriveChunk> const &chunks() const { pack(); return chunks_; }
-	std::vector<DriveBit> const &bits() const { unpack(); return bits_; }
+	std::vector<DriveChunk> स्थिरांक &chunks() स्थिरांक { pack(); परत chunks_; }
+	std::vector<DriveBit> स्थिरांक &bits() स्थिरांक { unpack(); परत bits_; }
 
-	int size() const { return width_; }
+	पूर्णांक size() स्थिरांक { परत width_; }
 
-	void append(DriveBit const &bit);
+	शून्य append(DriveBit स्थिरांक &bit);
 
-	void append(DriveChunk const &chunk);
+	शून्य append(DriveChunk स्थिरांक &chunk);
 
-	void pack() const;
+	शून्य pack() स्थिरांक;
 
-	void unpack() const;
+	शून्य unpack() स्थिरांक;
 
-	DriveBit &operator[](int index)
+	DriveBit &चालक[](पूर्णांक index)
 	{
 		log_assert(index >= 0 && index < size());
 		unpack();
-		return bits_[index];
+		परत bits_[index];
 	}
 
-	const DriveBit &operator[](int index) const
+	स्थिरांक DriveBit &चालक[](पूर्णांक index) स्थिरांक
 	{
 		log_assert(index >= 0 && index < size());
 		unpack();
-		return bits_[index];
+		परत bits_[index];
 	}
 
-	void clear()
+	शून्य clear()
 	{
 		chunks_.clear();
 		bits_.clear();
 		width_ = 0;
 	}
 
-	DriveSpec &operator=(DriveChunk const &chunk)
+	DriveSpec &चालक=(DriveChunk स्थिरांक &chunk)
 	{
 		chunks_.clear();
 		bits_.clear();
 		append(chunk);
-		return *this;
+		परत *this;
 	}
 
-	DriveSpec &operator=(DriveChunkWire const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkPort const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkMarker const &chunk) { return *this = DriveChunk(chunk); }
-	DriveSpec &operator=(DriveChunkMultiple const &chunk) { return *this = DriveChunk(chunk); }
+	DriveSpec &चालक=(DriveChunkWire स्थिरांक &chunk) { परत *this = DriveChunk(chunk); }
+	DriveSpec &चालक=(DriveChunkPort स्थिरांक &chunk) { परत *this = DriveChunk(chunk); }
+	DriveSpec &चालक=(DriveChunkMarker स्थिरांक &chunk) { परत *this = DriveChunk(chunk); }
+	DriveSpec &चालक=(DriveChunkMultiple स्थिरांक &chunk) { परत *this = DriveChunk(chunk); }
 
-	DriveSpec &operator=(DriveBit const &bit)
+	DriveSpec &चालक=(DriveBit स्थिरांक &bit)
 	{
 		chunks_.clear();
 		bits_.clear();
 		append(bit);
-		return *this;
+		परत *this;
 	}
 
-	DriveSpec &operator=(DriveBitWire const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitPort const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitMarker const &bit) { return *this = DriveBit(bit); }
-	DriveSpec &operator=(DriveBitMultiple const &bit) { return *this = DriveBit(bit); }
+	DriveSpec &चालक=(DriveBitWire स्थिरांक &bit) { परत *this = DriveBit(bit); }
+	DriveSpec &चालक=(DriveBitPort स्थिरांक &bit) { परत *this = DriveBit(bit); }
+	DriveSpec &चालक=(DriveBitMarker स्थिरांक &bit) { परत *this = DriveBit(bit); }
+	DriveSpec &चालक=(DriveBitMultiple स्थिरांक &bit) { परत *this = DriveBit(bit); }
 
-	void updhash() const {
-		if (hash_ != 0)
-			return;
+	शून्य updhash() स्थिरांक {
+		जर (hash_ != 0)
+			परत;
 		pack();
 		hash_ = run_hash(chunks_);
 		hash_ |= (hash_ == 0);
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) स्थिरांक;
 
-	bool operator==(DriveSpec const &other) const {
+	bool चालक==(DriveSpec स्थिरांक &other) स्थिरांक {
 		updhash();
 		other.updhash();
-		if (size() != other.size() || hash_ != other.hash_)
-			return false;
-		return chunks() == other.chunks();
+		जर (size() != other.size() || hash_ != other.hash_)
+			परत false;
+		परत chunks() == other.chunks();
 	}
 
-private:
-	void compute_width();
+खाजगी:
+	शून्य compute_width();
 };
 
 
 
-struct DriverMap
+संरचना DriverMap
 {
 	NewCellTypes celltypes;
 
 	DriverMap() { celltypes.setup(); }
 	DriverMap(Design *design) { celltypes.setup(design); }
 
-private:
+खाजगी:
 
 	// Internally we represent all DriveBits by mapping them to DriveBitIds
 	// which use less memory and are cheaper to compare.
-	struct DriveBitId
+	संरचना DriveBitId
 	{
-		int id = -1;
+		पूर्णांक id = -1;
 
 		DriveBitId() {};
 
-		DriveBitId(int id) : id(id) { }
+		DriveBitId(पूर्णांक id) : id(id) { }
 
-		bool operator==(const DriveBitId &other) const { return id == other.id; }
-		bool operator!=(const DriveBitId &other) const { return id != other.id; }
-		bool operator<(const DriveBitId &other) const { return id < other.id; }
-		[[nodiscard]] Hasher hash_into(Hasher h) const;
+		bool चालक==(स्थिरांक DriveBitId &other) स्थिरांक { परत id == other.id; }
+		bool चालक!=(स्थिरांक DriveBitId &other) स्थिरांक { परत id != other.id; }
+		bool चालक<(स्थिरांक DriveBitId &other) स्थिरांक { परत id < other.id; }
+		[[nodiscard]] Hasher hash_into(Hasher h) स्थिरांक;
 	};
 	// Essentially a dict<DriveBitId, pool<DriveBitId>> but using less memory
 	// and fewer allocations
-	struct DriveBitGraph {
+	संरचना DriveBitGraph {
 		dict<DriveBitId, DriveBitId> first_edges;
 		dict<DriveBitId, DriveBitId> second_edges;
 		dict<DriveBitId, pool<DriveBitId>> more_edges;
 
-		void add_edge(DriveBitId src, DriveBitId dst);
-		DriveBitId pop_edge(DriveBitId src);
-		void clear(DriveBitId src);
+		शून्य add_edge(DriveBitId src, DriveBitId dst);
+		DriveBitId काढा_edge(DriveBitId src);
+		शून्य clear(DriveBitId src);
 		bool contains(DriveBitId src);
-		int count(DriveBitId src);
+		पूर्णांक मोजणी(DriveBitId src);
 
-		DriveBitId at(DriveBitId src, int index);
+		DriveBitId at(DriveBitId src, पूर्णांक index);
 	};
 
 	// The following two maps maintain a sparse DriveBit to DriveBitId mapping.
@@ -1156,7 +1156,7 @@ private:
 
 	// Used for allocating DriveBitIds, none and constant states use a fixewd
 	// mapping to the first few ids, which we need to skip.
-	int next_offset = 1 + (int)State::Sm;
+	पूर्णांक next_offset = 1 + (पूर्णांक)State::Sm;
 
 	// Union-Find over directly connected bits that share the same single
 	// driver or are undriven. We never merge connections between drivers
@@ -1185,7 +1185,7 @@ private:
 	pool<DriveBitId> oriented_present;
 
 
-	enum class BitMode {
+	गणना class BitMode {
 		NONE = 0, // Not driven, no need to keep wire
 		DRIVEN = 1, // Not driven, uses a value driven elsewhere
 		DRIVEN_UNIQUE = 2, // Uses a value driven elsewhere, has at most one direct connection
@@ -1194,194 +1194,194 @@ private:
 		DRIVER = 5, // Drives a value
 	};
 
-	BitMode bit_mode(DriveBit const &bit);
-	DriveBitId id_from_drive_bit(DriveBit const &bit);
+	BitMode bit_mode(DriveBit स्थिरांक &bit);
+	DriveBitId id_from_drive_bit(DriveBit स्थिरांक &bit);
 	DriveBit drive_bit_from_id(DriveBitId id);
 
-	void connect_directed_merge(DriveBitId driven_id, DriveBitId driver_id);
-	void connect_directed_buffer(DriveBitId driven_id, DriveBitId driver_id);
-	void connect_undirected(DriveBitId a_id, DriveBitId b_id);
+	शून्य connect_directed_merge(DriveBitId driven_id, DriveBitId driver_id);
+	शून्य connect_directed_buffer(DriveBitId driven_id, DriveBitId driver_id);
+	शून्य connect_undirected(DriveBitId a_id, DriveBitId b_id);
 
-public:
+सार्वजनिक:
 
-	void add(Module *module);
+	शून्य add(Module *module);
 
 	// Add a single bit connection to the driver map.
-	void add(DriveBit const &a, DriveBit const &b);
+	शून्य add(DriveBit स्थिरांक &a, DriveBit स्थिरांक &b);
 
-	template<typename T>
-	static constexpr bool is_sig_type() {
-		return
-			std::is_same<T, SigSpec>::value ||
-			std::is_same<T, SigChunk>::value ||
-			std::is_same<T, DriveSpec>::value ||
-			std::is_same<T, DriveChunk>::value ||
-			std::is_same<T, DriveChunkPort>::value ||
-			std::is_same<T, DriveChunkWire>::value ||
-			std::is_same<T, Const>::value;
+	ढाँचा<typename T>
+	स्थिर constexpr bool is_sig_type() {
+		परत
+			std::is_same<T, SigSpec>::मूल्य ||
+			std::is_same<T, SigChunk>::मूल्य ||
+			std::is_same<T, DriveSpec>::मूल्य ||
+			std::is_same<T, DriveChunk>::मूल्य ||
+			std::is_same<T, DriveChunkPort>::मूल्य ||
+			std::is_same<T, DriveChunkWire>::मूल्य ||
+			std::is_same<T, Const>::मूल्य;
 	}
 
 	// We use the enable_if to produce better compiler errors when unsupported
 	// types are used
-	template<typename T, typename U>
+	ढाँचा<typename T, typename U>
 	typename std::enable_if<is_sig_type<T>() && is_sig_type<U>()>::type
-	add(T const &a, U const &b)
+	add(T स्थिरांक &a, U स्थिरांक &b)
 	{
 		log_assert(a.size() == b.size());
-		for (int i = 0; i != GetSize(a); ++i)
+		साठी (पूर्णांक i = 0; i != GetSize(a); ++i)
 			add(DriveBit(a[i]), DriveBit(b[i]));
 	}
 
 
 	// Specialized version that avoids unpacking
-	void add(SigSpec const &a, SigSpec const &b);
+	शून्य add(SigSpec स्थिरांक &a, SigSpec स्थिरांक &b);
 
-private:
-	void add_port(Cell *cell, IdString port, SigSpec const &b);
+खाजगी:
+	शून्य add_port(Cell *cell, IdString port, SigSpec स्थिरांक &b);
 
 	// Only used a local variables in `orient_undirected`, always cleared, only
 	// stored to reduce allocations.
 	pool<DriveBitId> orient_undirected_seen;
 	pool<DriveBitId> orient_undirected_drivers;
-	dict<DriveBitId, int> orient_undirected_distance;
+	dict<DriveBitId, पूर्णांक> orient_undirected_distance;
 
-	void orient_undirected(DriveBitId id);
+	शून्य orient_undirected(DriveBitId id);
 
-public:
-	DriveBit operator()(DriveBit const &bit);
+सार्वजनिक:
+	DriveBit चालक()(DriveBit स्थिरांक &bit);
 
-	DriveSpec operator()(DriveSpec spec);
+	DriveSpec चालक()(DriveSpec spec);
 
-private:
+खाजगी:
 	bool keep_wire(Wire *wire) {
 		// TODO configurable
-		return wire->has_attribute(ID(keep));
+		परत wire->has_attribute(ID(keep));
 	}
 };
 
-inline Hasher DriveBitWire::hash_into(Hasher h) const
+ओळीत Hasher DriveBitWire::hash_into(Hasher h) स्थिरांक
 {
 	h.eat(wire->name);
 	h.eat(offset);
-	return h;
+	परत h;
 }
 
-inline Hasher DriveBitPort::hash_into(Hasher h) const
+ओळीत Hasher DriveBitPort::hash_into(Hasher h) स्थिरांक
 {
 	h.eat(cell->name);
 	h.eat(port);
 	h.eat(offset);
-	return h;
+	परत h;
 }
 
-inline Hasher DriveBitMarker::hash_into(Hasher h) const
+ओळीत Hasher DriveBitMarker::hash_into(Hasher h) स्थिरांक
 {
 	h.eat(marker);
 	h.eat(offset);
-	return h;
+	परत h;
 }
 
-inline Hasher DriveBitMultiple::hash_into(Hasher h) const
+ओळीत Hasher DriveBitMultiple::hash_into(Hasher h) स्थिरांक
 {
 	h.eat(multiple_);
-	return h;
+	परत h;
 }
 
-inline Hasher DriveBit::hash_into(Hasher h) const
+ओळीत Hasher DriveBit::hash_into(Hasher h) स्थिरांक
 {
-	switch (type_) {
-	case DriveType::NONE:
+	निवड (type_) {
+	स्थिती DriveType::NONE:
 		h.eat(0);
-		break;
-	case DriveType::CONSTANT:
+		थांबा;
+	स्थिती DriveType::CONSTANT:
 		h.eat(constant_);
-		break;
-	case DriveType::WIRE:
+		थांबा;
+	स्थिती DriveType::WIRE:
 		h.eat(wire_);
-		break;
-	case DriveType::PORT:
+		थांबा;
+	स्थिती DriveType::PORT:
 		h.eat(port_);
-		break;
-	case DriveType::MARKER:
+		थांबा;
+	स्थिती DriveType::MARKER:
 		h.eat(marker_);
-		break;
-	case DriveType::MULTIPLE:
+		थांबा;
+	स्थिती DriveType::MULTIPLE:
 		h.eat(multiple_);
-		break;
+		थांबा;
 	}
 	h.eat(type_);
-	return h;
+	परत h;
 }
 
-inline Hasher DriveChunkWire::hash_into(Hasher h) const
+ओळीत Hasher DriveChunkWire::hash_into(Hasher h) स्थिरांक
 {
 	h.eat(wire->name);
 	h.eat(width);
 	h.eat(offset);
-	return h;
+	परत h;
 }
 
-inline Hasher DriveChunkPort::hash_into(Hasher h) const
+ओळीत Hasher DriveChunkPort::hash_into(Hasher h) स्थिरांक
 {
 	h.eat(cell->name);
 	h.eat(port);
 	h.eat(width);
 	h.eat(offset);
-	return h;
+	परत h;
 }
 
-inline Hasher DriveChunkMarker::hash_into(Hasher h) const
+ओळीत Hasher DriveChunkMarker::hash_into(Hasher h) स्थिरांक
 {
 	h.eat(marker);
 	h.eat(width);
 	h.eat(offset);
-	return h;
+	परत h;
 }
 
-inline Hasher DriveChunkMultiple::hash_into(Hasher h) const
+ओळीत Hasher DriveChunkMultiple::hash_into(Hasher h) स्थिरांक
 {
 	h.eat(width_);
 	h.eat(multiple_);
-	return h;
+	परत h;
 }
 
-inline Hasher DriveChunk::hash_into(Hasher h) const
+ओळीत Hasher DriveChunk::hash_into(Hasher h) स्थिरांक
 {
-	switch (type_) {
-	case DriveType::NONE:
+	निवड (type_) {
+	स्थिती DriveType::NONE:
 		h.eat(0);
-		break;
-	case DriveType::CONSTANT:
+		थांबा;
+	स्थिती DriveType::CONSTANT:
 		h.eat(constant_);
-		break;
-	case DriveType::WIRE:
+		थांबा;
+	स्थिती DriveType::WIRE:
 		h.eat(wire_);
-		break;
-	case DriveType::PORT:
+		थांबा;
+	स्थिती DriveType::PORT:
 		h.eat(port_);
-		break;
-	case DriveType::MARKER:
+		थांबा;
+	स्थिती DriveType::MARKER:
 		h.eat(marker_);
-		break;
-	case DriveType::MULTIPLE:
+		थांबा;
+	स्थिती DriveType::MULTIPLE:
 		h.eat(multiple_);
-		break;
+		थांबा;
 	}
 	h.eat(type_);
-	return h;
+	परत h;
 }
 
-inline Hasher DriveSpec::hash_into(Hasher h) const
+ओळीत Hasher DriveSpec::hash_into(Hasher h) स्थिरांक
 {
 	updhash();
 	h.eat(hash_);
-	return h;
+	परत h;
 }
 
-inline Hasher DriverMap::DriveBitId::hash_into(Hasher h) const
+ओळीत Hasher DriverMap::DriveBitId::hash_into(Hasher h) स्थिरांक
 {
 	h.eat(id);
-	return h;
+	परत h;
 }
 
 YOSYS_NAMESPACE_END

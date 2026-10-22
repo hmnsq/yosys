@@ -20,275 +20,275 @@
 #ifndef COMPUTE_GRAPH_H
 #define COMPUTE_GRAPH_H
 
-#include <tuple>
-#include "kernel/yosys.h"
+#अन्तर्भाव <tuple>
+#अन्तर्भाव "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template<
+ढाँचा<
     typename Fn, // Function type (deduplicated across whole graph)
     typename Attr = std::tuple<>, // Call attributes (present in every node)
     typename SparseAttr = std::tuple<>, // Sparse call attributes (optional per node)
-    typename Key = std::tuple<> // Stable keys to refer to nodes
+    typename किल्ली_2 = std::tuple<> // Stable keys to refer to nodes
 >
-struct ComputeGraph
+संरचना ComputeGraph
 {
-    struct Ref;
-private:
+    संरचना Ref;
+खाजगी:
 
     // Functions are deduplicated by assigning unique ids
     idict<Fn> functions;
 
-    struct Node {
-        int fn_index;
-        int arg_offset;
-        int arg_count;
+    संरचना गाठ_2 {
+        पूर्णांक fn_index;
+        पूर्णांक arg_offset;
+        पूर्णांक arg_मोजणी;
         Attr attr;
 
-        Node(int fn_index, Attr &&attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(std::move(attr)) {}
+        गाठ_2(पूर्णांक fn_index, Attr &&attr, पूर्णांक arg_offset, पूर्णांक arg_मोजणी = 0)
+            : fn_index(fn_index), arg_offset(arg_offset), arg_मोजणी(arg_मोजणी), attr(std::move(attr)) {}
 
-        Node(int fn_index, Attr const &attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(attr) {}
+        गाठ_2(पूर्णांक fn_index, Attr स्थिरांक &attr, पूर्णांक arg_offset, पूर्णांक arg_मोजणी = 0)
+            : fn_index(fn_index), arg_offset(arg_offset), arg_मोजणी(arg_मोजणी), attr(attr) {}
     };
 
 
-    std::vector<Node> nodes;
-    std::vector<int> args;
-    dict<Key, int> keys_;
-    dict<int, SparseAttr> sparse_attrs;
+    std::vector<गाठ_2> nodes;
+    std::vector<पूर्णांक> args;
+    dict<किल्ली_2, पूर्णांक> किल्ल्या;
+    dict<पूर्णांक, SparseAttr> sparse_attrs;
 
-public:
-    template<typename Graph>
-    struct BaseRef
+सार्वजनिक:
+    ढाँचा<typename Graph>
+    संरचना BaseRef
     {
-    protected:
-        friend struct ComputeGraph;
+    संरक्षित:
+        मित्र संरचना ComputeGraph;
         Graph *graph_;
-        int index_;
-        BaseRef(Graph *graph, int index) : graph_(graph), index_(index) {
+        पूर्णांक index_;
+        BaseRef(Graph *graph, पूर्णांक index) : graph_(graph), index_(index) {
             log_assert(index_ >= 0);
             check();
         }
 
-        void check() const { log_assert(index_ < graph_->size()); }
+        शून्य check() स्थिरांक { log_assert(index_ < graph_->size()); }
 
-        Node const &deref() const { check(); return graph_->nodes[index_]; }
+        गाठ_2 स्थिरांक &deref() स्थिरांक { check(); परत graph_->nodes[index_]; }
 
-    public:
-        ComputeGraph const &graph() const { return graph_; }
-        int index() const { return index_; }
+    सार्वजनिक:
+        ComputeGraph स्थिरांक &graph() स्थिरांक { परत graph_; }
+        पूर्णांक index() स्थिरांक { परत index_; }
 
-        int size() const { return deref().arg_count; }
+        पूर्णांक size() स्थिरांक { परत deref().arg_मोजणी; }
 
-        BaseRef arg(int n) const
+        BaseRef arg(पूर्णांक n) स्थिरांक
         {
-            Node const &node = deref();
-            log_assert(n >= 0 && n < node.arg_count);
-            return BaseRef(graph_, graph_->args[node.arg_offset + n]);
+            गाठ_2 स्थिरांक &गाठ = deref();
+            log_assert(n >= 0 && n < गाठ.arg_मोजणी);
+            परत BaseRef(graph_, graph_->args[गाठ.arg_offset + n]);
         }
 
-        std::vector<int>::const_iterator arg_indices_cbegin() const
+        std::vector<पूर्णांक>::const_iterator arg_indices_cbegin() स्थिरांक
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset;
+            गाठ_2 स्थिरांक &गाठ = deref();
+            परत graph_->args.cbegin() + गाठ.arg_offset;
         }
 
-        std::vector<int>::const_iterator arg_indices_cend() const
+        std::vector<पूर्णांक>::const_iterator arg_indices_cend() स्थिरांक
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset + node.arg_count;
+            गाठ_2 स्थिरांक &गाठ = deref();
+            परत graph_->args.cbegin() + गाठ.arg_offset + गाठ.arg_मोजणी;
         }
 
-        Fn const &function() const { return graph_->functions[deref().fn_index]; }
-        Attr const &attr() const { return deref().attr; }
+        Fn स्थिरांक &function() स्थिरांक { परत graph_->functions[deref().fn_index]; }
+        Attr स्थिरांक &attr() स्थिरांक { परत deref().attr; }
 
-        bool has_sparse_attr() const { return graph_->sparse_attrs.count(index_); }
+        bool has_sparse_attr() स्थिरांक { परत graph_->sparse_attrs.मोजणी(index_); }
 
-        SparseAttr const &sparse_attr() const
+        SparseAttr स्थिरांक &sparse_attr() स्थिरांक
         {
-            auto found = graph_->sparse_attrs.find(index_);
+            स्वतः found = graph_->sparse_attrs.find(index_);
             log_assert(found != graph_->sparse_attrs.end());
-            return found->second;
+            परत found->second;
         }
     };
 
-    using ConstRef = BaseRef<ComputeGraph const>;
+    using ConstRef = BaseRef<ComputeGraph स्थिरांक>;
 
-    struct Ref : public BaseRef<ComputeGraph>
+    संरचना Ref : सार्वजनिक BaseRef<ComputeGraph>
     {
-    private:
-        friend struct ComputeGraph;
-        Ref(ComputeGraph *graph, int index) : BaseRef<ComputeGraph>(graph, index) {}
-        Node &deref() const { this->check(); return this->graph_->nodes[this->index_]; }
+    खाजगी:
+        मित्र संरचना ComputeGraph;
+        Ref(ComputeGraph *graph, पूर्णांक index) : BaseRef<ComputeGraph>(graph, index) {}
+        गाठ_2 &deref() स्थिरांक { this->check(); परत this->graph_->nodes[this->index_]; }
 
-    public:
+    सार्वजनिक:
         Ref(BaseRef<ComputeGraph> ref) : Ref(ref.graph_, ref.index_) {}
 
-        void set_function(Fn const &function) const
+        शून्य set_function(Fn स्थिरांक &function) स्थिरांक
         {
             deref().fn_index = this->graph_->functions(function);
         }
 
-        Attr &attr() const { return deref().attr; }
+        Attr &attr() स्थिरांक { परत deref().attr; }
 
-        void append_arg(ConstRef arg) const
+        शून्य append_arg(ConstRef arg) स्थिरांक
         {
             log_assert(arg.graph_ == this->graph_);
             append_arg(arg.index());
         }
 
-        void append_arg(int arg) const
+        शून्य append_arg(पूर्णांक arg) स्थिरांक
         {
             log_assert(arg >= 0 && arg < this->graph_->size());
-            Node &node = deref();
-            if (node.arg_offset + node.arg_count != GetSize(this->graph_->args))
-                move_args(node);
-            this->graph_->args.push_back(arg);
-            node.arg_count++;
+            गाठ_2 &गाठ = deref();
+            जर (गाठ.arg_offset + गाठ.arg_मोजणी != GetSize(this->graph_->args))
+                move_args(गाठ);
+            this->graph_->args.ढकला_back(arg);
+            गाठ.arg_मोजणी++;
         }
 
-        operator ConstRef() const
+        चालक ConstRef() स्थिरांक
         {
-            return ConstRef(this->graph_, this->index_);
+            परत ConstRef(this->graph_, this->index_);
         }
 
-        SparseAttr &sparse_attr() const
+        SparseAttr &sparse_attr() स्थिरांक
         {
-            return this->graph_->sparse_attrs[this->index_];
+            परत this->graph_->sparse_attrs[this->index_];
         }
 
-        void clear_sparse_attr() const
+        शून्य clear_sparse_attr() स्थिरांक
         {
             this->graph_->sparse_attrs.erase(this->index_);
         }
 
-        void assign_key(Key const &key) const
+        शून्य assign_किल्ली(किल्ली_2 स्थिरांक &किल्ली) स्थिरांक
         {
-            this->graph_->keys_.emplace(key, this->index_);
+            this->graph_->किल्ल्या.emplace(किल्ली, this->index_);
         }
 
-    private:
-        void move_args(Node &node) const
+    खाजगी:
+        शून्य move_args(गाठ_2 &गाठ) स्थिरांक
         {
-            auto &args = this->graph_->args;
-            int old_offset = node.arg_offset;
-            node.arg_offset = GetSize(args);
-            for (int i = 0; i != node.arg_count; ++i)
-                args.push_back(args[old_offset + i]);
+            स्वतः &args = this->graph_->args;
+            पूर्णांक old_offset = गाठ.arg_offset;
+            गाठ.arg_offset = GetSize(args);
+            साठी (पूर्णांक i = 0; i != गाठ.arg_मोजणी; ++i)
+                args.ढकला_back(args[old_offset + i]);
         }
 
     };
 
-    bool has_key(Key const &key) const
+    bool has_किल्ली(किल्ली_2 स्थिरांक &किल्ली) स्थिरांक
     {
-        return keys_.count(key);
+        परत किल्ल्या.मोजणी(किल्ली);
     }
 
-    dict<Key, int> const &keys() const
+    dict<किल्ली_2, पूर्णांक> स्थिरांक &किल्ल्या_2() स्थिरांक
     {
-        return keys_;
+        परत किल्ल्या;
     }
 
-    ConstRef operator()(Key const &key) const
+    ConstRef चालक()(किल्ली_2 स्थिरांक &किल्ली) स्थिरांक
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        स्वतः it = किल्ल्या.find(किल्ली);
+        log_assert(it != किल्ल्या.end());
+        परत (*this)[it->second];
     }
 
-    Ref operator()(Key const &key)
+    Ref चालक()(किल्ली_2 स्थिरांक &किल्ली)
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        स्वतः it = किल्ल्या.find(किल्ली);
+        log_assert(it != किल्ल्या.end());
+        परत (*this)[it->second];
     }
 
-    int size() const { return GetSize(nodes); }
+    पूर्णांक size() स्थिरांक { परत GetSize(nodes); }
 
-    ConstRef operator[](int index) const { return ConstRef(this, index); }
-    Ref operator[](int index) { return Ref(this, index); }
+    ConstRef चालक[](पूर्णांक index) स्थिरांक { परत ConstRef(this, index); }
+    Ref चालक[](पूर्णांक index) { परत Ref(this, index); }
 
-    Ref add(Fn const &function, Attr &&attr)
+    Ref add(Fn स्थिरांक &function, Attr &&attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
+        पूर्णांक index = GetSize(nodes);
+        पूर्णांक fn_index = functions(function);
         nodes.emplace_back(fn_index, std::move(attr), GetSize(args));
-        return Ref(this, index);
+        परत Ref(this, index);
     }
 
-    Ref add(Fn const &function, Attr const &attr)
+    Ref add(Fn स्थिरांक &function, Attr स्थिरांक &attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
+        पूर्णांक index = GetSize(nodes);
+        पूर्णांक fn_index = functions(function);
         nodes.emplace_back(fn_index, attr,  GetSize(args));
-        return Ref(this, index);
+        परत Ref(this, index);
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T &&args)
+    ढाँचा<typename T>
+    Ref add(Fn स्थिरांक &function, Attr स्थिरांक &attr, T &&args)
     {
         Ref added = add(function, attr);
-        for (auto arg : args)
+        साठी (स्वतः arg : args)
             added.append_arg(arg);
-        return added;
+        परत added;
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr &&attr, T &&args)
+    ढाँचा<typename T>
+    Ref add(Fn स्थिरांक &function, Attr &&attr, T &&args)
     {
         Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        साठी (स्वतः arg : args)
             added.append_arg(arg);
-        return added;
+        परत added;
     }
 
-    Ref add(Fn const &function, Attr const &attr, std::initializer_list<Ref> args)
+    Ref add(Fn स्थिरांक &function, Attr स्थिरांक &attr, std::initializer_list<Ref> args)
     {
         Ref added = add(function, attr);
-        for (auto arg : args)
+        साठी (स्वतः arg : args)
             added.append_arg(arg);
-        return added;
+        परत added;
     }
 
-    Ref add(Fn const &function, Attr &&attr, std::initializer_list<Ref> args)
+    Ref add(Fn स्थिरांक &function, Attr &&attr, std::initializer_list<Ref> args)
     {
         Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        साठी (स्वतः arg : args)
             added.append_arg(arg);
-        return added;
+        परत added;
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T begin, T end)
+    ढाँचा<typename T>
+    Ref add(Fn स्थिरांक &function, Attr स्थिरांक &attr, T begin, T end)
     {
         Ref added = add(function, attr);
-        for (; begin != end; ++begin)
+        साठी (; begin != end; ++begin)
             added.append_arg(*begin);
-        return added;
+        परत added;
     }
 
-    void compact_args()
+    शून्य compact_args()
     {
-        std::vector<int> new_args;
-        for (auto &node : nodes)
+        std::vector<पूर्णांक> new_args;
+        साठी (स्वतः &गाठ : nodes)
         {
-            int new_offset = GetSize(new_args);
-            for (int i = 0; i < node.arg_count; i++)
-                new_args.push_back(args[node.arg_offset + i]);
-            node.arg_offset = new_offset;
+            पूर्णांक new_offset = GetSize(new_args);
+            साठी (पूर्णांक i = 0; i < गाठ.arg_मोजणी; i++)
+                new_args.ढकला_back(args[गाठ.arg_offset + i]);
+            गाठ.arg_offset = new_offset;
         }
         std::swap(args, new_args);
     }
 
-    void permute(std::vector<int> const &perm)
+    शून्य permute(std::vector<पूर्णांक> स्थिरांक &perm)
     {
         log_assert(perm.size() <= nodes.size());
-        std::vector<int> inv_perm;
+        std::vector<पूर्णांक> inv_perm;
         inv_perm.resize(nodes.size(), -1);
-        for (int i = 0; i < GetSize(perm); ++i)
+        साठी (पूर्णांक i = 0; i < GetSize(perm); ++i)
         {
-            int j = perm[i];
+            पूर्णांक j = perm[i];
             log_assert(j >= 0 && j < GetSize(nodes));
             log_assert(inv_perm[j] == -1);
             inv_perm[j] = i;
@@ -296,18 +296,18 @@ public:
         permute(perm, inv_perm);
     }
 
-    void permute(std::vector<int> const &perm, std::vector<int> const &inv_perm)
+    शून्य permute(std::vector<पूर्णांक> स्थिरांक &perm, std::vector<पूर्णांक> स्थिरांक &inv_perm)
     {
         log_assert(inv_perm.size() == nodes.size());
-        std::vector<Node> new_nodes;
+        std::vector<गाठ_2> new_nodes;
         new_nodes.reserve(perm.size());
-        dict<int, SparseAttr> new_sparse_attrs;
-        for (int i : perm)
+        dict<पूर्णांक, SparseAttr> new_sparse_attrs;
+        साठी (पूर्णांक i : perm)
         {
-            int j = GetSize(new_nodes);
+            पूर्णांक j = GetSize(new_nodes);
             new_nodes.emplace_back(std::move(nodes[i]));
-            auto found = sparse_attrs.find(i);
-            if (found != sparse_attrs.end())
+            स्वतः found = sparse_attrs.find(i);
+            जर (found != sparse_attrs.end())
                 new_sparse_attrs.emplace(j, std::move(found->second));
         }
 
@@ -315,82 +315,82 @@ public:
         std::swap(sparse_attrs, new_sparse_attrs);
 
         compact_args();
-        for (int &arg : args)
+        साठी (पूर्णांक &arg : args)
         {
             log_assert(arg < GetSize(inv_perm));
             log_assert(inv_perm[arg] >= 0);
             arg = inv_perm[arg];
         }
 
-        for (auto &key : keys_)
+        साठी (स्वतः &किल्ली : किल्ल्या)
         {
-            log_assert(key.second < GetSize(inv_perm));
-            log_assert(inv_perm[key.second] >= 0);
-            key.second = inv_perm[key.second];
+            log_assert(किल्ली.second < GetSize(inv_perm));
+            log_assert(inv_perm[किल्ली.second] >= 0);
+            किल्ली.second = inv_perm[किल्ली.second];
         }
     }
 
-    struct SccAdaptor
+    संरचना SccAdaptor
     {
-    private:
-        ComputeGraph const &graph_;
-        std::vector<int> indices_;
-    public:
-        SccAdaptor(ComputeGraph const &graph) : graph_(graph)
+    खाजगी:
+        ComputeGraph स्थिरांक &graph_;
+        std::vector<पूर्णांक> indices_;
+    सार्वजनिक:
+        SccAdaptor(ComputeGraph स्थिरांक &graph) : graph_(graph)
         {
             indices_.resize(graph.size(), -1);
         }
 
 
-        typedef int node_type;
+        प्रकारव्याख्या पूर्णांक गाठ_type;
 
-        struct node_enumerator {
-        private:
-            friend struct SccAdaptor;
-            int current, end;
-            node_enumerator(int current, int end) : current(current), end(end) {}
+        संरचना गाठ_enumerator {
+        खाजगी:
+            मित्र संरचना SccAdaptor;
+            पूर्णांक current, end;
+            गाठ_enumerator(पूर्णांक current, पूर्णांक end) : current(current), end(end) {}
 
-        public:
+        सार्वजनिक:
 
-            bool finished() const { return current == end; }
-            node_type next() {
+            bool finished() स्थिरांक { परत current == end; }
+            गाठ_type next() {
                 log_assert(!finished());
-                node_type result = current;
+                गाठ_type result = current;
                 ++current;
-                return result;
+                परत result;
             }
         };
 
-        node_enumerator enumerate_nodes() {
-            return node_enumerator(0, GetSize(indices_));
+        गाठ_enumerator enumerate_nodes() {
+            परत गाठ_enumerator(0, GetSize(indices_));
         }
 
 
-        struct successor_enumerator {
-        private:
-            friend struct SccAdaptor;
-            std::vector<int>::const_iterator current, end;
-            successor_enumerator(std::vector<int>::const_iterator current, std::vector<int>::const_iterator end) :
+        संरचना successor_enumerator {
+        खाजगी:
+            मित्र संरचना SccAdaptor;
+            std::vector<पूर्णांक>::const_iterator current, end;
+            successor_enumerator(std::vector<पूर्णांक>::const_iterator current, std::vector<पूर्णांक>::const_iterator end) :
                 current(current), end(end) {}
 
-        public:
-            bool finished() const { return current == end; }
-            node_type next() {
+        सार्वजनिक:
+            bool finished() स्थिरांक { परत current == end; }
+            गाठ_type next() {
                 log_assert(!finished());
-                node_type result = *current;
+                गाठ_type result = *current;
                 ++current;
-                return result;
+                परत result;
             }
         };
 
-        successor_enumerator enumerate_successors(int index) const {
-            auto const &ref = graph_[index];
-            return successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
+        successor_enumerator enumerate_successors(पूर्णांक index) स्थिरांक {
+            स्वतः स्थिरांक &ref = graph_[index];
+            परत successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
         }
 
-        int &dfs_index(node_type const &node) { return indices_[node]; }
+        पूर्णांक &dfs_index(गाठ_type स्थिरांक &गाठ) { परत indices_[गाठ]; }
 
-        std::vector<int> const &dfs_indices() { return indices_; }
+        std::vector<पूर्णांक> स्थिरांक &dfs_indices() { परत indices_; }
     };
 
 };
