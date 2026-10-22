@@ -3,24 +3,24 @@
 
 USING_YOSYS_NAMESPACE
 
-unsigned int CellCosts::get(RTLIL::Module *mod)
+unsigned 整数 CellCosts::get(RTLIL::Module *mod)
 {
-	if (mod_cost_cache_.count(mod->name))
-		return mod_cost_cache_.at(mod->name);
+	如果 (mod_cost_cache_.count(mod->name))
+		返回 mod_cost_cache_.at(mod->name);
 
-	unsigned int module_cost = 1;
-	for (auto c : mod->cells()) {
-		unsigned int new_cost = module_cost + get(c);
+	unsigned 整数 module_cost = 1;
+	为 (auto c : mod->cells()) {
+		unsigned 整数 new_cost = module_cost + get(c);
 		module_cost = new_cost >= module_cost ? new_cost : INT_MAX;
 	}
 
 	mod_cost_cache_[mod->name] = module_cost;
-	return module_cost;
+	返回 module_cost;
 }
 
-static unsigned int y_coef(RTLIL::IdString type)
+static unsigned 整数 y_coef(RTLIL::IdString type)
 {
-	if (
+	如果 (
 	  // equality
 	  type.in(ID($bweqx), ID($nex), ID($eqx)) ||
 	  // basic logic
@@ -29,66 +29,66 @@ static unsigned int y_coef(RTLIL::IdString type)
 	  type.in(ID($bwmux), ID($mux)) ||
 	  // others
 	  type == ID($tribuf)) {
-		return 1;
-	} else if (type == ID($neg)) {
-		return 4;
-	} else if (type == ID($demux)) {
-		return 2;
-	} else if (type == ID($fa)) {
-		return 5;
-	} else if (type.in(ID($add), ID($sub), ID($alu))) {
+		返回 1;
+	} 否则 如果 (type == ID($neg)) {
+		返回 4;
+	} 否则 如果 (type == ID($demux)) {
+		返回 2;
+	} 否则 如果 (type == ID($fa)) {
+		返回 5;
+	} 否则 如果 (type.in(ID($add), ID($sub), ID($alu))) {
 		// multi-bit adders
-		return 8;
-	} else if (type.in(ID($shl), ID($sshl))) {
+		返回 8;
+	} 否则 如果 (type.in(ID($shl), ID($sshl))) {
 		// left shift
-		return 10;
+		返回 10;
 	}
-	return 0;
+	返回 0;
 }
 
-static unsigned int max_inp_coef(RTLIL::IdString type)
+static unsigned 整数 max_inp_coef(RTLIL::IdString type)
 {
-	if (
+	如果 (
 	  // binop reduce
 	  type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)) ||
 	  // others
 	  type.in(ID($logic_not), ID($pmux), ID($bmux))) {
-		return 1;
-	} else if (
+		返回 1;
+	} 否则 如果 (
 	  // equality
 	  type.in(ID($eq), ID($ne)) ||
 	  // logic
 	  type.in(ID($logic_and), ID($logic_or))) {
-		return 2;
-	} else if (type == ID($lcu)) {
-		return 5;
-	} else if (type.in(ID($lt), ID($le), ID($ge), ID($gt))) {
+		返回 2;
+	} 否则 如果 (type == ID($lcu)) {
+		返回 5;
+	} 否则 如果 (type.in(ID($lt), ID($le), ID($ge), ID($gt))) {
 		// comparison
-		return 7;
+		返回 7;
 	}
-	return 0;
+	返回 0;
 }
 
-static unsigned int sum_coef(RTLIL::IdString type)
+static unsigned 整数 sum_coef(RTLIL::IdString type)
 {
-	if (type.in(ID($shr), ID($sshr))) {
+	如果 (type.in(ID($shr), ID($sshr))) {
 		// right shift
-		return 4;
-	} else if (type.in(ID($shift), ID($shiftx))) {
+		返回 4;
+	} 否则 如果 (type.in(ID($shift), ID($shiftx))) {
 		// shift
-		return 8;
+		返回 8;
 	}
-	return 0;
+	返回 0;
 }
 
-static unsigned int is_div_mod(RTLIL::IdString type)
+static unsigned 整数 is_div_mod(RTLIL::IdString type)
 {
-	return (type == ID($div) || type == ID($divfloor) || type == ID($mod) || type == ID($modfloor));
+	返回 (type == ID($div) || type == ID($divfloor) || type == ID($mod) || type == ID($modfloor));
 }
 
 static bool is_free(RTLIL::IdString type)
 {
-	return (
+	返回 (
 	  // tags
 	  type.in(ID($overwrite_tag), ID($set_tag), ID($original_tag), ID($get_tag)) ||
 	  // formal
@@ -102,9 +102,9 @@ static bool is_free(RTLIL::IdString type)
 	  type.in(ID($specrule), ID($specify2), ID($specify3)));
 }
 
-unsigned int max_inp_width(RTLIL::Cell *cell)
+unsigned 整数 max_inp_width(RTLIL::Cell *cell)
 {
-	unsigned int max = 0;
+	unsigned 整数 max = 0;
 	RTLIL::IdString input_width_params[] = {
 	  ID::WIDTH,
 	  ID::A_WIDTH,
@@ -112,104 +112,104 @@ unsigned int max_inp_width(RTLIL::Cell *cell)
 	  ID::S_WIDTH,
 	};
 
-	if (cell->type == ID($bmux))
-		return cell->getParam(ID::WIDTH).as_int() << cell->getParam(ID::S_WIDTH).as_int();
+	如果 (cell->type == ID($bmux))
+		返回 cell->getParam(ID::WIDTH).as_int() << cell->getParam(ID::S_WIDTH).as_int();
 
-	for (RTLIL::IdString param : input_width_params)
-		if (cell->hasParam(param))
-			max = std::max(max, (unsigned int)cell->getParam(param).as_int());
-	return max;
+	为 (RTLIL::IdString param : input_width_params)
+		如果 (cell->hasParam(param))
+			max = std::max(max, (unsigned 整数)cell->getParam(param).as_int());
+	返回 max;
 }
 
-unsigned int port_width_sum(RTLIL::Cell *cell)
+unsigned 整数 port_width_sum(RTLIL::Cell *cell)
 {
-	unsigned int sum = 0;
+	unsigned 整数 sum = 0;
 	RTLIL::IdString port_width_params[] = {
 	  ID::WIDTH, ID::A_WIDTH, ID::B_WIDTH, ID::S_WIDTH, ID::Y_WIDTH,
 	};
 
-	for (auto param : port_width_params)
-		if (cell->hasParam(param))
+	为 (auto param : port_width_params)
+		如果 (cell->hasParam(param))
 			sum += cell->getParam(param).as_int();
 
-	return sum;
+	返回 sum;
 }
 
-unsigned int CellCosts::get(RTLIL::Cell *cell)
+unsigned 整数 CellCosts::get(RTLIL::Cell *cell)
 {
 
 	// simple 1-bit cells
-	if (cmos_gate_cost().count(cell->type))
-		return 1;
+	如果 (cmos_gate_cost().count(cell->type))
+		返回 1;
 
-	if (design_ && design_->module(cell->type) && cell->parameters.empty()) {
+	如果 (design_ && design_->module(cell->type) && cell->parameters.empty()) {
 		log_debug("%s is a module, recurse\n", cell->name);
-		return get(design_->module(cell->type));
-	} else if (cell->is_builtin_ff()) {
+		返回 get(design_->module(cell->type));
+	} 否则 如果 (cell->is_builtin_ff()) {
 		log_assert(cell->hasPort(ID::Q) && "Weird flip flop");
 		log_debug("%s is ff\n", cell->name);
-		return cell->getParam(ID::WIDTH).as_int();
-	} else if (cell->type.in(ID($mem), ID($mem_v2))) {
+		返回 cell->getParam(ID::WIDTH).as_int();
+	} 否则 如果 (cell->type.in(ID($mem), ID($mem_v2))) {
 		log_debug("%s is mem\n", cell->name);
-		return cell->getParam(ID::WIDTH).as_int() * cell->getParam(ID::SIZE).as_int();
-	} else if (y_coef(cell->type)) {
+		返回 cell->getParam(ID::WIDTH).as_int() * cell->getParam(ID::SIZE).as_int();
+	} 否则 如果 (y_coef(cell->type)) {
 		// linear with Y_WIDTH or WIDTH
 		log_assert((cell->hasParam(ID::Y_WIDTH) || cell->hasParam(ID::WIDTH)) && "Unknown width");
 		auto param = cell->hasParam(ID::Y_WIDTH) ? ID::Y_WIDTH : ID::WIDTH;
-		int width = cell->getParam(param).as_int();
-		if (cell->type == ID($demux))
+		整数 width = cell->getParam(param).as_int();
+		如果 (cell->type == ID($demux))
 			width <<= cell->getParam(ID::S_WIDTH).as_int();
 		log_debug("%s Y*coef %d * %d\n", cell->name, width, y_coef(cell->type));
-		return width * y_coef(cell->type);
-	} else if (sum_coef(cell->type)) {
+		返回 width * y_coef(cell->type);
+	} 否则 如果 (sum_coef(cell->type)) {
 		// linear with sum of port widths
-		unsigned int sum = port_width_sum(cell);
+		unsigned 整数 sum = port_width_sum(cell);
 		log_debug("%s sum*coef %d * %d\n", cell->name, sum, sum_coef(cell->type));
-		return sum * sum_coef(cell->type);
-	} else if (max_inp_coef(cell->type)) {
+		返回 sum * sum_coef(cell->type);
+	} 否则 如果 (max_inp_coef(cell->type)) {
 		// linear with largest input width
-		unsigned int max = max_inp_width(cell);
+		unsigned 整数 max = max_inp_width(cell);
 		log_debug("%s max*coef %d * %d\n", cell->name, max, max_inp_coef(cell->type));
-		return max * max_inp_coef(cell->type);
-	} else if (is_div_mod(cell->type) || cell->type == ID($mul)) {
+		返回 max * max_inp_coef(cell->type);
+	} 否则 如果 (is_div_mod(cell->type) || cell->type == ID($mul)) {
 		// quadratic with sum of port widths
-		unsigned int sum = port_width_sum(cell);
-		unsigned int coef = cell->type == ID($mul) ? 3 : 5;
+		unsigned 整数 sum = port_width_sum(cell);
+		unsigned 整数 coef = cell->type == ID($mul) ? 3 : 5;
 		log_debug("%s coef*(sum**2) %d * %d\n", cell->name, coef, sum * sum);
-		return coef * sum * sum;
-	} else if (cell->type.in(ID($macc), ID($macc_v2))) {
+		返回 coef * sum * sum;
+	} 否则 如果 (cell->type.in(ID($macc), ID($macc_v2))) {
 		// quadratic per term
-		unsigned int cost_sum = 0;
+		unsigned 整数 cost_sum = 0;
 		Macc macc;
 		macc.from_cell(cell);
-		unsigned int y_width = cell->getParam(ID::Y_WIDTH).as_int();
-		for (auto &term: macc.terms) {
-			if (term.in_b.empty()) {
+		unsigned 整数 y_width = cell->getParam(ID::Y_WIDTH).as_int();
+		为 (auto &term: macc.terms) {
+			如果 (term.in_b.empty()) {
 				// neglect addends
 				continue;
 			}
 			unsigned a_width = term.in_a.size(), b_width = term.in_b.size();
-			unsigned int sum = a_width + b_width + std::min(y_width, a_width + b_width);
+			unsigned 整数 sum = a_width + b_width + std::min(y_width, a_width + b_width);
 			cost_sum += 3 * sum * sum;
 		}
-		return cost_sum;
-	} else if (cell->type == ID($lut)) {
-		int width = cell->getParam(ID::WIDTH).as_int();
-		unsigned int cost = 1U << (unsigned int)width;
+		返回 cost_sum;
+	} 否则 如果 (cell->type == ID($lut)) {
+		整数 width = cell->getParam(ID::WIDTH).as_int();
+		unsigned 整数 cost = 1U << (unsigned 整数)width;
 		log_debug("%s is 2**%d\n", cell->name, width);
-		return cost;
-	} else if (cell->type == ID($sop)) {
-		int width = cell->getParam(ID::WIDTH).as_int();
-		int depth = cell->getParam(ID::DEPTH).as_int();
+		返回 cost;
+	} 否则 如果 (cell->type == ID($sop)) {
+		整数 width = cell->getParam(ID::WIDTH).as_int();
+		整数 depth = cell->getParam(ID::DEPTH).as_int();
 		log_debug("%s is (2*%d + 1)*%d\n", cell->name, width, depth);
-		return (2 * width + 1) * depth;
-	} else if (is_free(cell->type)) {
+		返回 (2 * width + 1) * depth;
+	} 否则 如果 (is_free(cell->type)) {
 		log_debug("%s is free\n", cell->name);
-		return 0;
+		返回 0;
 	}
 	// TODO: $fsm
 	// ignored: $pow $memrd $memwr $meminit (and v2 counterparts)
 
 	log_warning("Can't determine cost of %s cell (%d parameters).\n", cell->type.unescape(), GetSize(cell->parameters));
-	return 1;
+	返回 1;
 }

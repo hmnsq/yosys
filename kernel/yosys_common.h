@@ -46,10 +46,10 @@
 #include <iostream>
 
 #include <version>
-#if __cpp_lib_source_location >= 201907L
+#如果 __cpp_lib_source_location >= 201907L
 	#include <source_location>
 	using std::source_location;
-#else
+#否则
 	#include <experimental/source_location>
 	using std::experimental::source_location;
 #endif
@@ -66,7 +66,7 @@
 #ifndef _YOSYS_
 #  error It looks like you are trying to build Yosys without the config defines set. \
          When building Yosys with a custom make system, make sure you set all the \
-         defines the Yosys Makefile would set for your build configuration.
+         defines the Yosys Makefile would set 为 your build configuration.
 #endif
 
 #include "kernel/yosys_config.h"
@@ -118,41 +118,41 @@
 #define YOSYS_NAMESPACE_PREFIX   Yosys::
 #define USING_YOSYS_NAMESPACE    using namespace Yosys;
 
-#if defined(__GNUC__) || defined(__clang__)
+#如果 defined(__GNUC__) || defined(__clang__)
 #  define YS_ATTRIBUTE(...) __attribute__((__VA_ARGS__))
 #elif defined(_MSC_VER)
 #  define YS_ATTRIBUTE(...)
-#else
+#否则
 #  define YS_ATTRIBUTE(...)
 #endif
 
-#if defined(__GNUC__) || defined(__clang__)
+#如果 defined(__GNUC__) || defined(__clang__)
 #  define YS_MAYBE_UNUSED __attribute__((__unused__))
-#else
+#否则
 #  define YS_MAYBE_UNUSED
 #endif
 
-#if defined(_MSC_VER)
+#如果 defined(_MSC_VER)
 #  define YS_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
-#else
+#否则
 #  define YS_NO_UNIQUE_ADDRESS [[no_unique_address]]
 #endif
 
-#if __cplusplus >= 202002L
+#如果 __cplusplus >= 202002L
 #  define YS_FALLTHROUGH [[fallthrough]];
-#else
+#否则
 #  error "C++20 or later compatible compiler is required"
 #endif
 
-#if defined(__has_cpp_attribute) && __has_cpp_attribute(gnu::cold)
+#如果 defined(__has_cpp_attribute) && __has_cpp_attribute(gnu::cold)
 #  define YS_COLD [[gnu::cold]]
-#else
+#否则
 #  define YS_COLD
 #endif
 
 #ifdef __cpp_consteval
 #define YOSYS_CONSTEVAL consteval
-#else
+#否则
 // If we can't use consteval we can at least make it constexpr.
 #define YOSYS_CONSTEVAL constexpr
 #endif
@@ -161,17 +161,17 @@
 
 // This has to precede including "kernel/io.h"
 YOSYS_NAMESPACE_BEGIN
-[[noreturn]] void log_yosys_abort_message(std::string_view file, int line, std::string_view func, std::string_view message);
+[[noreturn]] void log_yosys_abort_message(std::string_view file, 整数 line, std::string_view func, std::string_view message);
 
 [[noreturn]]
 void log_assert_failure(const char *expr, source_location location);
 #ifndef NDEBUG
 static inline void log_assert_worker(bool cond, const char *expr, source_location location = source_location::current()) {
-	if (!cond) log_assert_failure(expr, location);
+	如果 (!cond) log_assert_failure(expr, location);
 }
 #  define log_assert(_assert_expr_) YOSYS_NAMESPACE_PREFIX log_assert_worker(_assert_expr_, #_assert_expr_)
-#else
-#  define log_assert(_assert_expr_) do { if (0) { (void)(_assert_expr_); } } while(0)
+#否则
+#  define log_assert(_assert_expr_) do { 如果 (0) { (void)(_assert_expr_); } } 当(0)
 #endif
 YOSYS_NAMESPACE_END
 
@@ -183,7 +183,7 @@ YOSYS_NAMESPACE_BEGIN
 // outside of YOSYS_NAMESPACE before this or bad things will happen.
 #ifdef HASHLIB_H
 #  error "You've probably included hashlib.h under two namespace paths. Bad idea."
-#else
+#否则
 #  include "kernel/hashlib.h"
 #  undef HASHLIB_H
 #endif
@@ -216,12 +216,12 @@ struct shared_str {
 	shared_str() { }
 	shared_str(string s) { content = std::shared_ptr<string>(new string(s)); }
 	shared_str(const char *s) { content = std::shared_ptr<string>(new string(s)); }
-	const char *c_str() const { return content->c_str(); }
-	const string &str() const { return *content; }
-	bool operator==(const shared_str &other) const { return *content == *other.content; }
+	const char *c_str() const { 返回 content->c_str(); }
+	const string &str() const { 返回 *content; }
+	bool operator==(const shared_str &other) const { 返回 *content == *other.content; }
 	[[nodiscard]] Hasher hash_into(Hasher h) const {
 		h.eat(*content);
-		return h;
+		返回 h;
 	}
 };
 
@@ -286,13 +286,13 @@ void memhasher_off();
 void memhasher_do();
 
 extern bool memhasher_active;
-inline void memhasher() { if (memhasher_active) memhasher_do(); }
+inline void memhasher() { 如果 (memhasher_active) memhasher_do(); }
 
 void yosys_banner();
-int ceil_log2(int x) YS_ATTRIBUTE(const);
+整数 ceil_log2(整数 x) YS_ATTRIBUTE(const);
 
-template<typename T> int GetSize(const T &obj) { return obj.size(); }
-inline int GetSize(RTLIL::Wire *wire);
+template<typename T> 整数 GetSize(const T &obj) { 返回 obj.size(); }
+inline 整数 GetSize(RTLIL::Wire *wire);
 
 // When multiple threads are accessing RTLIL, one of these guard objects
 // must exist.
@@ -303,35 +303,35 @@ struct Multithreading
 	// Returns true when multiple threads are accessing RTLIL.
 	// autoidx cannot be used during such times.
 	// IdStrings cannot be created during such times.
-	static bool active() { return active_; }
+	static bool active() { 返回 active_; }
 private:
 	static bool active_;
 };
 
 struct Autoidx {
-	Autoidx(int value) : value(value) {}
-	operator int() const { return value; }
-	void ensure_at_least(int v);
-	int operator++(int);
+	Autoidx(整数 value) : value(value) {}
+	operator 整数() const { 返回 value; }
+	void ensure_at_least(整数 v);
+	整数 operator++(整数);
 private:
-	int value;
+	整数 value;
 };
 
 extern Autoidx autoidx;
-extern int yosys_xtrace;
+extern 整数 yosys_xtrace;
 extern bool yosys_write_versions;
 
-const std::string *create_id_prefix(std::string_view file, int line, std::string_view func);
+const std::string *create_id_prefix(std::string_view file, 整数 line, std::string_view func);
 
 #define NEW_ID \
 	YOSYS_NAMESPACE_PREFIX TwineSpec{YOSYS_NAMESPACE_PREFIX TwineSpec::AutoSuffix{[](source_location location, std::string_view func) -> const std::string * { \
 		static std::unique_ptr<const std::string> prefix(YOSYS_NAMESPACE_PREFIX create_id_prefix(location.file_name(), location.line(), func)); \
-		return prefix.get(); \
+		返回 prefix.get(); \
 	}(source_location::current(), __FUNCTION__), std::to_string(YOSYS_NAMESPACE_PREFIX autoidx++)}}
 #define NEW_ID_SUFFIX(suffix) \
 	YOSYS_NAMESPACE_PREFIX TwineSpec{YOSYS_NAMESPACE_PREFIX TwineSpec::AutoSuffix{[](source_location location, std::string_view func) -> const std::string * { \
 		static std::unique_ptr<const std::string> prefix(YOSYS_NAMESPACE_PREFIX create_id_prefix(location.file_name(), location.line(), func)); \
-		return prefix.get(); \
+		返回 prefix.get(); \
 	}(source_location::current(), __FUNCTION__), std::string(suffix) + "$" + std::to_string(YOSYS_NAMESPACE_PREFIX autoidx++)}}
 
 YOSYS_NAMESPACE_END

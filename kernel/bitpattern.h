@@ -39,27 +39,27 @@ YOSYS_NAMESPACE_BEGIN
  */
 struct BitPatternPool
 {
-	int width;
+	整数 width;
 	struct bits_t {
 		std::vector<RTLIL::State> bitdata;
 		mutable Hasher::hash_t cached_hash;
-		bits_t(int width = 0) : bitdata(width), cached_hash(0) { }
-		RTLIL::State &operator[](int index) {
-			return bitdata[index];
+		bits_t(整数 width = 0) : bitdata(width), cached_hash(0) { }
+		RTLIL::State &operator[](整数 index) {
+			返回 bitdata[index];
 		}
-		const RTLIL::State &operator[](int index) const {
-			return bitdata[index];
+		const RTLIL::State &operator[](整数 index) const {
+			返回 bitdata[index];
 		}
 		bool operator==(const bits_t &other) const {
-			if (run_hash(*this) != run_hash(other))
-				return false;
-			return bitdata == other.bitdata;
+			如果 (run_hash(*this) != run_hash(other))
+				返回 false;
+			返回 bitdata == other.bitdata;
 		}
 		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			if (!cached_hash)
+			如果 (!cached_hash)
 				cached_hash = run_hash(bitdata);
 			h.eat(cached_hash);
-			return h;
+			返回 h;
 		}
 	};
 	pool<bits_t> database;
@@ -67,12 +67,12 @@ struct BitPatternPool
 	BitPatternPool(RTLIL::SigSpec sig)
 	{
 		width = sig.size();
-		if (width > 0) {
+		如果 (width > 0) {
 			bits_t pattern(width);
-			for (int i = 0; i < width; i++) {
-				if (sig[i].wire == NULL && sig[i].data <= RTLIL::State::S1)
+			为 (整数 i = 0; i < width; i++) {
+				如果 (sig[i].wire == NULL && sig[i].data <= RTLIL::State::S1)
 					pattern[i] = sig[i].data;
-				else
+				否则
 					pattern[i] = RTLIL::State::Sa;
 			}
 			database.insert(pattern);
@@ -82,12 +82,12 @@ struct BitPatternPool
 	/**
 	 * Constructs a pool of all possible patterns (all don't-care bits)
 	 */
-	BitPatternPool(int width)
+	BitPatternPool(整数 width)
 	{
 		this->width = width;
-		if (width > 0) {
+		如果 (width > 0) {
 			bits_t pattern(width);
-			for (int i = 0; i < width; i++)
+			为 (整数 i = 0; i < width; i++)
 				pattern[i] = RTLIL::State::Sa;
 			database.insert(pattern);
 		}
@@ -101,10 +101,10 @@ struct BitPatternPool
 	{
 		bits_t bits;
 		bits.bitdata = sig.as_const().to_bits();
-		for (auto &b : bits.bitdata)
-			if (b > RTLIL::State::S1)
+		为 (auto &b : bits.bitdata)
+			如果 (b > RTLIL::State::S1)
 				b = RTLIL::State::Sa;
-		return bits;
+		返回 bits;
 	}
 
 	/**
@@ -113,10 +113,10 @@ struct BitPatternPool
 	 */
 	static bool covers_nothing(RTLIL::SigSpec sig)
 	{
-		for (auto bit : sig)
-			if (bit.wire == NULL && (bit.data == RTLIL::State::Sx || bit.data == RTLIL::State::Sz))
-				return true;
-		return false;
+		为 (auto bit : sig)
+			如果 (bit.wire == NULL && (bit.data == RTLIL::State::Sx || bit.data == RTLIL::State::Sz))
+				返回 true;
+		返回 false;
 	}
 
 	/**
@@ -124,12 +124,12 @@ struct BitPatternPool
 	 */
 	bool match(bits_t a, bits_t b)
 	{
-		log_assert(int(a.bitdata.size()) == width);
-		log_assert(int(b.bitdata.size()) == width);
-		for (int i = 0; i < width; i++)
-			if (a[i] <= RTLIL::State::S1 && b[i] <= RTLIL::State::S1 && a[i] != b[i])
-				return false;
-		return true;
+		log_assert(整数(a.bitdata.size()) == width);
+		log_assert(整数(b.bitdata.size()) == width);
+		为 (整数 i = 0; i < width; i++)
+			如果 (a[i] <= RTLIL::State::S1 && b[i] <= RTLIL::State::S1 && a[i] != b[i])
+				返回 false;
+		返回 true;
 	}
 
 	/**
@@ -143,13 +143,13 @@ struct BitPatternPool
 	 */
 	bool has_any(RTLIL::SigSpec sig)
 	{
-		if (covers_nothing(sig))
-			return false;
+		如果 (covers_nothing(sig))
+			返回 false;
 		bits_t bits = sig2bits(sig);
-		for (auto &it : database)
-			if (match(it, bits))
-				return true;
-		return false;
+		为 (auto &it : database)
+			如果 (match(it, bits))
+				返回 true;
+		返回 false;
 	}
 
 	/**
@@ -163,18 +163,18 @@ struct BitPatternPool
 	 */
 	bool has_all(RTLIL::SigSpec sig)
 	{
-		if (covers_nothing(sig))
-			return true;
+		如果 (covers_nothing(sig))
+			返回 true;
 		bits_t bits = sig2bits(sig);
-		for (auto &it : database)
-			if (match(it, bits)) {
-				for (int i = 0; i < width; i++)
-					if (bits[i] > RTLIL::State::S1 && it[i] <= RTLIL::State::S1)
+		为 (auto &it : database)
+			如果 (match(it, bits)) {
+				为 (整数 i = 0; i < width; i++)
+					如果 (bits[i] > RTLIL::State::S1 && it[i] <= RTLIL::State::S1)
 						goto next_database_entry;
-				return true;
+				返回 true;
 	next_database_entry:;
 			}
-		return false;
+		返回 false;
 	}
 
 	/**
@@ -186,13 +186,13 @@ struct BitPatternPool
 	bool take(RTLIL::SigSpec sig)
 	{
 		bool status = false;
-		if (covers_nothing(sig))
-			return false;
+		如果 (covers_nothing(sig))
+			返回 false;
 		bits_t bits = sig2bits(sig);
-		for (auto it = database.begin(); it != database.end();)
-			if (match(*it, bits)) {
-				for (int i = 0; i < width; i++) {
-					if ((*it)[i] != RTLIL::State::Sa || bits[i] == RTLIL::State::Sa)
+		为 (auto it = database.begin(); it != database.end();)
+			如果 (match(*it, bits)) {
+				为 (整数 i = 0; i < width; i++) {
+					如果 ((*it)[i] != RTLIL::State::Sa || bits[i] == RTLIL::State::Sa)
 						continue;
 					bits_t new_pattern;
 					new_pattern.bitdata = it->bitdata;
@@ -202,9 +202,9 @@ struct BitPatternPool
 				it = database.erase(it);
 				status = true;
 				continue;
-			} else
+			} 否则
 				++it;
-		return status;
+		返回 status;
 	}
 
 	/**
@@ -212,15 +212,15 @@ struct BitPatternPool
 	 */
 	bool take_all()
 	{
-		if (database.empty())
-			return false;
+		如果 (database.empty())
+			返回 false;
 		database.clear();
-		return true;
+		返回 true;
 	}
 
 	bool empty()
 	{
-		return database.empty();
+		返回 database.empty();
 	}
 };
 

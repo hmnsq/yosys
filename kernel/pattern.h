@@ -35,20 +35,20 @@ inline std::optional<RTLIL::SigBit> find_complementary_pattern_var(
 	const pattern_t& right
 ) {
 	std::optional<RTLIL::SigBit> ret;
-	for (const auto &pt : left) {
+	为 (const auto &pt : left) {
 		// Left requires signal that right doesn't constrain - incompatible domains
-		if (right.count(pt.first) == 0)
-			return std::nullopt;
+		如果 (right.count(pt.first) == 0)
+			返回 std::nullopt;
 		// Signal has same required value in both - not the complement variable
-		if (right.at(pt.first) == pt.second)
+		如果 (right.at(pt.first) == pt.second)
 			continue;
 		// Already found one differing signal, now found another - not simplifiable
-		if (ret)
-			return std::nullopt;
+		如果 (ret)
+			返回 std::nullopt;
 		// First differing signal - candidate complement variable
 		ret = pt.first;
 	}
-	return ret;
+	返回 ret;
 }
 
 /**
@@ -62,13 +62,13 @@ inline void simplify_patterns(patterns_t& patterns) {
 	bool optimized;
 	do {
 		optimized = false;
-		for (auto i = patterns.begin(); i != patterns.end(); i++) {
-			for (auto j = std::next(i, 1); j != patterns.end(); j++) {
+		为 (auto i = patterns.begin(); i != patterns.end(); i++) {
+			为 (auto j = std::next(i, 1); j != patterns.end(); j++) {
 				const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
 				auto right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
 				const auto complementary_var = find_complementary_pattern_var(left, right);
 
-				if (complementary_var && new_patterns.count(right)) {
+				如果 (complementary_var && new_patterns.count(right)) {
 					new_patterns.erase(right);
 					right.erase(complementary_var.value());
 					new_patterns.insert(right);
@@ -77,19 +77,19 @@ inline void simplify_patterns(patterns_t& patterns) {
 			}
 		}
 		patterns = new_patterns;
-	} while(optimized);
+	} 当(optimized);
 
 	// Remove redundant patterns
-	for (auto i = patterns.begin(); i != patterns.end(); ++i) {
-		for (auto j = std::next(i, 1); j != patterns.end(); ++j) {
+	为 (auto i = patterns.begin(); i != patterns.end(); ++i) {
+		为 (auto j = std::next(i, 1); j != patterns.end(); ++j) {
 			const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
 			const auto& right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
 			bool redundant = true;
 
-			for (const auto& pt : left)
-				if (right.count(pt.first) == 0 || right.at(pt.first) != pt.second)
+			为 (const auto& pt : left)
+				如果 (right.count(pt.first) == 0 || right.at(pt.first) != pt.second)
 					redundant = false;
-			if (redundant)
+			如果 (redundant)
 				new_patterns.erase(right);
 		}
 	}

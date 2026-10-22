@@ -26,13 +26,13 @@ YOSYS_NAMESPACE_BEGIN
 
 struct SigPool
 {
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
+	struct bitDef_t : public std::pair<RTLIL::Wire*, 整数> {
+		bitDef_t() : std::pair<RTLIL::Wire*, 整数>(NULL, 0) { }
+		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, 整数>(bit.wire, bit.offset) { }
 		[[nodiscard]] Hasher hash_into(Hasher h) const {
 			h.eat(first->name);
 			h.eat(second);
-			return h;
+			返回 h;
 		}
 	};
 
@@ -45,36 +45,36 @@ struct SigPool
 
 	void add(const RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
+		为 (auto &bit : sig)
+			如果 (bit.wire != NULL)
 				bits.insert(bit);
 	}
 
 	void add(const SigPool &other)
 	{
-		for (auto &bit : other.bits)
+		为 (auto &bit : other.bits)
 			bits.insert(bit);
 	}
 
 	void del(const RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
+		为 (auto &bit : sig)
+			如果 (bit.wire != NULL)
 				bits.erase(bit);
 	}
 
 	void del(const SigPool &other)
 	{
-		for (auto &bit : other.bits)
+		为 (auto &bit : other.bits)
 			bits.erase(bit);
 	}
 
 	void expand(const RTLIL::SigSpec &from, const RTLIL::SigSpec &to)
 	{
 		log_assert(GetSize(from) == GetSize(to));
-		for (int i = 0; i < GetSize(from); i++) {
+		为 (整数 i = 0; i < GetSize(from); i++) {
 			bitDef_t bit_from(from[i]), bit_to(to[i]);
-			if (bit_from.first != NULL && bit_to.first != NULL && bits.count(bit_from) > 0)
+			如果 (bit_from.first != NULL && bit_to.first != NULL && bits.count(bit_from) > 0)
 				bits.insert(bit_to);
 		}
 	}
@@ -82,60 +82,60 @@ struct SigPool
 	RTLIL::SigSpec extract(const RTLIL::SigSpec &sig) const
 	{
 		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
+		为 (auto &bit : sig)
+			如果 (bit.wire != NULL && bits.count(bit))
 				result.append(bit);
-		return result;
+		返回 result;
 	}
 
 	RTLIL::SigSpec remove(const RTLIL::SigSpec &sig) const
 	{
 		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
+		为 (auto &bit : sig)
+			如果 (bit.wire != NULL && bits.count(bit) == 0)
 				result.append(bit);
-		return result;
+		返回 result;
 	}
 
 	bool check(const RTLIL::SigBit &bit) const
 	{
-		return bit.wire != NULL && bits.count(bit);
+		返回 bit.wire != NULL && bits.count(bit);
 	}
 
 	bool check_any(const RTLIL::SigSpec &sig) const
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		为 (auto &bit : sig)
+			如果 (bit.wire != NULL && bits.count(bit))
+				返回 true;
+		返回 false;
 	}
 
 	bool check_all(const RTLIL::SigSpec &sig) const
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
-				return false;
-		return true;
+		为 (auto &bit : sig)
+			如果 (bit.wire != NULL && bits.count(bit) == 0)
+				返回 false;
+		返回 true;
 	}
 
 	RTLIL::SigSpec export_one() const
 	{
-		for (auto &bit : bits)
-			return RTLIL::SigSpec(bit.first, bit.second);
-		return RTLIL::SigSpec();
+		为 (auto &bit : bits)
+			返回 RTLIL::SigSpec(bit.first, bit.second);
+		返回 RTLIL::SigSpec();
 	}
 
 	RTLIL::SigSpec export_all() const
 	{
 		pool<RTLIL::SigBit> sig;
-		for (auto &bit : bits)
+		为 (auto &bit : bits)
 			sig.insert(RTLIL::SigBit(bit.first, bit.second));
-		return sig;
+		返回 sig;
 	}
 
 	size_t size() const
 	{
-		return bits.size();
+		返回 bits.size();
 	}
 };
 
@@ -144,13 +144,13 @@ struct SigSet
 {
 	static_assert(!std::is_same<Compare,void>::value, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
 
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
+	struct bitDef_t : public std::pair<RTLIL::Wire*, 整数> {
+		bitDef_t() : std::pair<RTLIL::Wire*, 整数>(NULL, 0) { }
+		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, 整数>(bit.wire, bit.offset) { }
 		[[nodiscard]] Hasher hash_into(Hasher h) const {
 			h.eat(first->name);
 			h.eat(second);
-			return h;
+			返回 h;
 		}
 	};
 
@@ -163,43 +163,43 @@ struct SigSet
 
 	void insert(const RTLIL::SigSpec &sig, T data)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
+		为 (const auto &bit : sig)
+			如果 (bit.wire != NULL)
 				bits[bit].insert(data);
 	}
 
 	void insert(const RTLIL::SigSpec& sig, const std::set<T> &data)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
+		为 (const auto &bit : sig)
+			如果 (bit.wire != NULL)
 				bits[bit].insert(data.begin(), data.end());
 	}
 
 	void erase(const RTLIL::SigSpec& sig)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
+		为 (const auto &bit : sig)
+			如果 (bit.wire != NULL)
 				bits[bit].clear();
 	}
 
 	void erase(const RTLIL::SigSpec &sig, T data)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
+		为 (const auto &bit : sig)
+			如果 (bit.wire != NULL)
 				bits[bit].erase(data);
 	}
 
 	void erase(const RTLIL::SigSpec &sig, const std::set<T> &data)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
+		为 (const auto &bit : sig)
+			如果 (bit.wire != NULL)
 				bits[bit].erase(data.begin(), data.end());
 	}
 
 	void find(const RTLIL::SigSpec &sig, std::set<T> &result)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
+		为 (const auto &bit : sig)
+			如果 (bit.wire != NULL) {
 				auto &data = bits[bit];
 				result.insert(data.begin(), data.end());
 			}
@@ -207,8 +207,8 @@ struct SigSet
 
 	void find(const RTLIL::SigSpec &sig, pool<T> &result)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
+		为 (const auto &bit : sig)
+			如果 (bit.wire != NULL) {
 				auto &data = bits[bit];
 				result.insert(data.begin(), data.end());
 			}
@@ -218,15 +218,15 @@ struct SigSet
 	{
 		std::set<T> result;
 		find(sig, result);
-		return result;
+		返回 result;
 	}
 
 	bool has(const RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		为 (auto &bit : sig)
+			如果 (bit.wire != NULL && bits.count(bit))
+				返回 true;
+		返回 false;
 	}
 };
 
@@ -249,27 +249,27 @@ struct SigMapView
 
 	void apply(RTLIL::SigSpec &sig) const
 	{
-		for (auto &bit : sig)
+		为 (auto &bit : sig)
 			apply(bit);
 	}
 
 	RTLIL::SigBit operator()(RTLIL::SigBit bit) const
 	{
 		apply(bit);
-		return bit;
+		返回 bit;
 	}
 
 	RTLIL::SigSpec operator()(RTLIL::SigSpec sig) const
 	{
 		apply(sig);
-		return sig;
+		返回 sig;
 	}
 
 	RTLIL::SigSpec operator()(RTLIL::Wire *wire) const
 	{
 		SigSpec sig(wire);
 		apply(sig);
-		return sig;
+		返回 sig;
 	}
 };
 
@@ -284,7 +284,7 @@ struct SigMap final : public SigMapView
 {
 	SigMap(RTLIL::Module *module = NULL)
 	{
-		if (module != NULL)
+		如果 (module != NULL)
 			set(module);
 	}
 
@@ -301,14 +301,14 @@ struct SigMap final : public SigMapView
 	// Rebuild SigMap for all connections in module
 	void set(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
+		整数 bitcount = 0;
+		为 (auto &it : module->connections())
 			bitcount += it.first.size();
 
 		database.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
+		为 (auto &it : module->connections())
 			add(it.first, it.second);
 	}
 
@@ -317,22 +317,22 @@ struct SigMap final : public SigMapView
 	{
 		log_assert(GetSize(from) == GetSize(to));
 
-		for (int i = 0; i < GetSize(from); i++)
+		为 (整数 i = 0; i < GetSize(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
+			整数 bfi = database.lookup(from[i]);
+			整数 bti = database.lookup(to[i]);
 
 			const RTLIL::SigBit &bf = database[bfi];
 			const RTLIL::SigBit &bt = database[bti];
 
-			if (bf.wire || bt.wire)
+			如果 (bf.wire || bt.wire)
 			{
 				database.imerge(bfi, bti);
 
-				if (bf.wire == nullptr)
+				如果 (bf.wire == nullptr)
 					database.ipromote(bfi);
 
-				if (bt.wire == nullptr)
+				如果 (bt.wire == nullptr)
 					database.ipromote(bti);
 			}
 		}
@@ -342,26 +342,26 @@ struct SigMap final : public SigMapView
 	void add(const RTLIL::SigBit &bit)
 	{
 		const auto &b = database.find(bit);
-		if (b.wire != nullptr)
+		如果 (b.wire != nullptr)
 			database.promote(bit);
 	}
 
 	void add(const RTLIL::SigSpec &sig)
 	{
-		for (const auto &bit : sig)
+		为 (const auto &bit : sig)
 			add(bit);
 	}
 
-	inline void add(Wire *wire) { return add(RTLIL::SigSpec(wire)); }
+	inline void add(Wire *wire) { 返回 add(RTLIL::SigSpec(wire)); }
 
 	// All non-const bits
 	RTLIL::SigSpec allbits() const
 	{
 		RTLIL::SigSpec sig;
-		for (const auto &bit : database)
-			if (bit.wire != nullptr)
+		为 (const auto &bit : database)
+			如果 (bit.wire != nullptr)
 				sig.append(bit);
-		return sig;
+		返回 sig;
 	}
 };
 
@@ -394,15 +394,15 @@ struct SigValMap final : public SigMapView
 	// Rebuild SigMap for all connections in module
 	void set(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
+		整数 bitcount = 0;
+		为 (auto &it : module->connections())
 			bitcount += it.first.size();
 
 		database.clear();
 		values.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
+		为 (auto &it : module->connections())
 			add(it.first, it.second);
 	}
 
@@ -411,21 +411,21 @@ struct SigValMap final : public SigMapView
 	{
 		log_assert(GetSize(from) == GetSize(to));
 
-		for (int i = 0; i < GetSize(from); i++)
+		为 (整数 i = 0; i < GetSize(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
-			if (bfi == bti) {
+			整数 bfi = database.lookup(from[i]);
+			整数 bti = database.lookup(to[i]);
+			如果 (bfi == bti) {
 				continue;
 			}
 
 			const RTLIL::SigBit &bf = database[bfi];
 			const RTLIL::SigBit &bt = database[bti];
-			if (bf.wire == nullptr) {
+			如果 (bf.wire == nullptr) {
 				// bf is constant so make it the canonical representative.
 				database.imerge(bti, bfi);
 				merge_value(bt, bf);
-			} else {
+			} 否则 {
 				// Make bt the canonical representative.
 				database.imerge(bfi, bti);
 				merge_value(bf, bt);
@@ -440,7 +440,7 @@ struct SigValMap final : public SigMapView
 
 	void addVal(const RTLIL::SigSpec &sig, const Val &val)
 	{
-		for (const auto &bit : sig)
+		为 (const auto &bit : sig)
 			addVal(bit, val);
 	}
 
@@ -448,15 +448,15 @@ struct SigValMap final : public SigMapView
 	{
 		bit = database.find(bit);
 		auto it = values.find(bit);
-		return it == values.end() ? Val() : it->second;
+		返回 it == values.end() ? Val() : it->second;
 	}
 
 private:
 	void merge_value(const RTLIL::SigBit &from, const RTLIL::SigBit &to)
 	{
 		auto it = values.find(from);
-		if (it == values.end()) {
-			return;
+		如果 (it == values.end()) {
+			返回;
 		}
 		// values[to] could resize the underlying `entries` so
 		// finish using `it` first.

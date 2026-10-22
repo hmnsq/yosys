@@ -45,11 +45,11 @@ struct QuickConeSat {
 	// - 2: addition, subtraction, greater/less than comparisons, lcu
 	// - 3: shifts
 	// - 4: multiplication, division, power
-	int max_cell_complexity = 2;
+	整数 max_cell_complexity = 2;
 	// The maximum number of cells to import, or 0 for no limit.
-	int max_cell_count = 0;
+	整数 max_cell_count = 0;
 	// If non-0, skip importing cells with more than this number of output bits.
-	int max_cell_outs = 0;
+	整数 max_cell_outs = 0;
 
 	// Internal state.
 	pool<RTLIL::Cell*> imported_cells;
@@ -60,15 +60,15 @@ struct QuickConeSat {
 
 	// Imports a signal into the SAT solver, queues its input cone to be
 	// imported in the next prepare() call.
-	std::vector<int> importSig(SigSpec sig);
-	int importSigBit(SigBit bit);
+	std::vector<整数> importSig(SigSpec sig);
+	整数 importSigBit(SigBit bit);
 
 	// Imports the input cones of all previously importSig'd signals into
 	// the SAT solver.
 	void prepare();
 
 	// Returns the "complexity level" of a given cell.
-	static int cell_complexity(RTLIL::Cell *cell);
+	static 整数 cell_complexity(RTLIL::Cell *cell);
 };
 
 // A deterministic effort budget for SAT-based optimizations, measured in solver
@@ -91,20 +91,20 @@ struct SatEffortBudget {
 	SatEffortBudget() {}
 	explicit SatEffortBudget(int64_t total) : total(total), remaining(total) {}
 
-	bool enabled() const { return total > 0; }
+	bool enabled() const { 返回 total > 0; }
 
 	// True once the budget is used up
-	bool spent() const { return enabled() && remaining <= 0; }
+	bool spent() const { 返回 enabled() && remaining <= 0; }
 
 	// Charge for the cells imported into qcsat since the previous call (pricing the cells pulled in)
 	// cells_charged is how many of qcsat's imported cells are already paid for, returns the new count
 	int64_t charge_import(QuickConeSat &qcsat, int64_t cells_charged);
 
-	Result solve(QuickConeSat &qcsat, int64_t cap, const std::vector<int> &modelExprs,
-			std::vector<bool> &modelVals, const std::vector<int> &assumptions);
+	Result solve(QuickConeSat &qcsat, int64_t cap, const std::vector<整数> &modelExprs,
+			std::vector<bool> &modelVals, const std::vector<整数> &assumptions);
 
 	// Assumptions-only query without a model
-	Result solve(QuickConeSat &qcsat, int64_t cap, const std::vector<int> &assumptions);
+	Result solve(QuickConeSat &qcsat, int64_t cap, const std::vector<整数> &assumptions);
 };
 
 YOSYS_NAMESPACE_END

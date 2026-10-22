@@ -47,57 +47,57 @@ public:
 	template<typename Other>
 	void operator=(const Other &other)
 	{
-		for (auto &it : current_state)
-			if (!backup_state.empty() && backup_state.back().count(it.first) == 0)
+		为 (auto &it : current_state)
+			如果 (!backup_state.empty() && backup_state.back().count(it.first) == 0)
 				backup_state.back()[it.first] = new T(it.second);
 		current_state.clear();
 
-		for (auto &it : other)
+		为 (auto &it : other)
 			set(it.first, it.second);
 	}
 
 	bool has(const Key &k)
 	{
-		return current_state.count(k) != 0;
+		返回 current_state.count(k) != 0;
 	}
 
 	void set(const Key &k, const T &v)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
+		如果 (!backup_state.empty() && backup_state.back().count(k) == 0)
 			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
 		current_state[k] = v;
 	}
 
 	void unset(const Key &k)
 	{
-		if (!backup_state.empty() && backup_state.back().count(k) == 0)
+		如果 (!backup_state.empty() && backup_state.back().count(k) == 0)
 			backup_state.back()[k] = current_state.count(k) ? new T(current_state.at(k)) : nullptr;
 		current_state.erase(k);
 	}
 
 	const T &get(const Key &k)
 	{
-		if (current_state.count(k) == 0)
-			return empty_tuple;
-		return current_state.at(k);
+		如果 (current_state.count(k) == 0)
+			返回 empty_tuple;
+		返回 current_state.at(k);
 	}
 
 	void reset(const Key &k)
 	{
-		for (int i = GetSize(backup_state)-1; i >= 0; i--)
-			if (backup_state[i].count(k) != 0) {
-				if (backup_state[i].at(k) == nullptr)
+		为 (整数 i = GetSize(backup_state)-1; i >= 0; i--)
+			如果 (backup_state[i].count(k) != 0) {
+				如果 (backup_state[i].at(k) == nullptr)
 					current_state.erase(k);
-				else
+				否则
 					current_state[k] = *backup_state[i].at(k);
-				return;
+				返回;
 			}
 		current_state.erase(k);
 	}
 
 	const dict<Key, T> &stdmap()
 	{
-		return current_state;
+		返回 current_state;
 	}
 
 	void save()
@@ -108,18 +108,18 @@ public:
 	void restore()
 	{
 		log_assert(!backup_state.empty());
-		for (auto &it : backup_state.back())
-			if (it.second != nullptr) {
+		为 (auto &it : backup_state.back())
+			如果 (it.second != nullptr) {
 				current_state[it.first] = *it.second;
 				delete it.second;
-			} else
+			} 否则
 				current_state.erase(it.first);
 		backup_state.pop_back();
 	}
 
 	~stackmap()
 	{
-		while (!backup_state.empty())
+		当 (!backup_state.empty())
 			restore();
 	}
 };
@@ -138,11 +138,11 @@ public:
 	// exact compatibility with an older implementation.
 	struct IndirectCmp {
 		IndirectCmp(const std::vector<T> &nodes, const C &node_cmp) : node_cmp_(node_cmp), nodes_(nodes) {}
-		bool operator()(int a, int b) const
+		bool operator()(整数 a, 整数 b) const
 		{
 			log_assert(static_cast<size_t>(a) < nodes_.size());
 			log_assert(static_cast<size_t>(b) < nodes_.size());
-			return node_cmp_(nodes_[a], nodes_[b]);
+			返回 node_cmp_(nodes_[a], nodes_[b]);
 		}
 		const C node_cmp_;
 		const std::vector<T> &nodes_;
@@ -150,9 +150,9 @@ public:
 
 	bool analyze_loops;
 	// The stability doesn't rely on std::less of T, so pointers are safe
-	std::map<T, int, C> node_to_index;
+	std::map<T, 整数, C> node_to_index;
 	// edges[i] is the set of nodes with an edge into node i
-	std::vector<std::set<int, IndirectCmp>> edges;
+	std::vector<std::set<整数, IndirectCmp>> edges;
 	std::vector<T> sorted;
 	std::set<std::vector<T>> loops;
 
@@ -163,21 +163,21 @@ public:
 		found_loops = false;
 	}
 
-	int node(T n)
+	整数 node(T n)
 	{
-		auto rv = node_to_index.emplace(n, static_cast<int>(nodes.size()));
-		if (rv.second) {
+		auto rv = node_to_index.emplace(n, static_cast<整数>(nodes.size()));
+		如果 (rv.second) {
 			nodes.push_back(n);
-			edges.push_back(std::set<int, IndirectCmp>(indirect_cmp));
+			edges.push_back(std::set<整数, IndirectCmp>(indirect_cmp));
 		}
-		return rv.first->second;
+		返回 rv.first->second;
 	}
 
-	void edge(int l_index, int r_index) { edges[r_index].insert(l_index); }
+	void edge(整数 l_index, 整数 r_index) { edges[r_index].insert(l_index); }
 
 	void edge(T left, T right) { edge(node(left), node(right)); }
 
-	bool has_node(const T &node) { return node_to_index.find(node) != node_to_index.end(); }
+	bool has_node(const T &node) { 返回 node_to_index.find(node) != node_to_index.end(); }
 
 	bool sort()
 	{
@@ -191,15 +191,15 @@ public:
 		std::vector<bool> node_is_sorted(edges.size(), false);
 		std::vector<bool> node_is_on_stack(edges.size(), false);
 		// Only used with analyze_loops
-		std::vector<int> stack;
+		std::vector<整数> stack;
 		sorted.reserve(edges.size());
 
-		for (const auto &it : node_to_index)
+		为 (const auto &it : node_to_index)
 			sort_worker(it.second, node_is_sorted, node_is_on_stack, stack);
 
 		log_assert(GetSize(sorted) == GetSize(nodes));
 
-		return !found_loops;
+		返回 !found_loops;
 	}
 
 	// Build the more expensive representation of edges for
@@ -207,14 +207,14 @@ public:
 	std::map<T, std::set<T, C>, C> get_database()
 	{
 		std::map<T, std::set<T, C>, C> database(node_to_index.key_comp());
-		for (size_t i = 0; i < nodes.size(); ++i) {
+		为 (size_t i = 0; i < nodes.size(); ++i) {
 			std::set<T, C> converted_edge_set(node_to_index.key_comp());
-			for (int other_node : edges[i]) {
+			为 (整数 other_node : edges[i]) {
 				converted_edge_set.insert(nodes[other_node]);
 			}
 			database.emplace(nodes[i], converted_edge_set);
 		}
-		return database;
+		返回 database;
 	}
 
 private:
@@ -222,37 +222,37 @@ private:
 	std::vector<T> nodes;
 	const IndirectCmp indirect_cmp;
 
-	void sort_worker(const int root_index, std::vector<bool> &node_is_sorted, std::vector<bool> &node_is_on_stack, std::vector<int> &stack)
+	void sort_worker(const 整数 root_index, std::vector<bool> &node_is_sorted, std::vector<bool> &node_is_on_stack, std::vector<整数> &stack)
 	{
-		if (node_is_on_stack[root_index]) {
+		如果 (node_is_on_stack[root_index]) {
 			// We've been here before, meaning we have a loop
 			found_loops = true;
-			if (analyze_loops) {
+			如果 (analyze_loops) {
 				std::vector<T> loop;
-				for (int i = GetSize(stack) - 1; i >= 0; i--) {
-					const int index = stack[i];
+				为 (整数 i = GetSize(stack) - 1; i >= 0; i--) {
+					const 整数 index = stack[i];
 					loop.push_back(nodes[index]);
-					if (index == root_index)
+					如果 (index == root_index)
 						break;
 				}
 				loops.insert(loop);
 			}
-			return;
+			返回;
 		}
 
 		// We're done if we've already sorted this subgraph
-		if (node_is_sorted[root_index])
-			return;
+		如果 (node_is_sorted[root_index])
+			返回;
 
-		if (!edges[root_index].empty()) {
-			if (analyze_loops)
+		如果 (!edges[root_index].empty()) {
+			如果 (analyze_loops)
 				stack.push_back(root_index);
 			node_is_on_stack[root_index] = true;
 
-			for (int left_n : edges[root_index])
+			为 (整数 left_n : edges[root_index])
 				sort_worker(left_n, node_is_sorted, node_is_on_stack, stack);
 
-			if (analyze_loops)
+			如果 (analyze_loops)
 				stack.pop_back();
 			node_is_on_stack[root_index] = false;
 		}
@@ -268,19 +268,19 @@ template<class T>
 struct arrow_proxy {
 	T v;
 	explicit arrow_proxy(T const & v) : v(v) {}
-	T* operator->() { return &v; }
+	T* operator->() { 返回 &v; }
 };
 
-inline int ceil_log2(int x)
+inline 整数 ceil_log2(整数 x)
 {
-#if defined(__GNUC__)
-        return x > 1 ? (8*sizeof(int)) - __builtin_clz(x-1) : 0;
-#else
-	if (x <= 0)
-		return 0;
-	for (int i = 0; i < 32; i++)
-		if (((x-1) >> i) == 0)
-			return i;
+#如果 defined(__GNUC__)
+        返回 x > 1 ? (8*sizeof(整数)) - __builtin_clz(x-1) : 0;
+#否则
+	如果 (x <= 0)
+		返回 0;
+	为 (整数 i = 0; i < 32; i++)
+		如果 (((x-1) >> i) == 0)
+			返回 i;
 	log_abort();
 #endif
 }
@@ -289,40 +289,40 @@ template <typename T>
 auto reversed(T& container) {
 	struct reverse_view {
 		reverse_view(T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
+		auto begin() const { 返回 container.rbegin(); }
+		auto end() const { 返回 container.rend(); }
 		T& container;
 	};
-	return reverse_view{container};
+	返回 reverse_view{container};
 }
 
 template <typename T>
 auto reversed(const T& container) {
 	struct reverse_view {
 		reverse_view(const T& container) : container(container) {}
-		auto begin() const { return container.rbegin(); }
-		auto end() const { return container.rend(); }
+		auto begin() const { 返回 container.rbegin(); }
+		auto end() const { 返回 container.rend(); }
 		const T& container;
 	};
-	return reverse_view{container};
+	返回 reverse_view{container};
 }
 
 // A range of integers [start_, end_) that can be iterated over with a
 // C++ range-based for loop.
 struct IntRange {
-	int start_;
-	int end_;
+	整数 start_;
+	整数 end_;
 	struct Int {
-		int v;
-		int operator*() const { return v; }
-		Int &operator++() { ++v; return *this; }
-		bool operator!=(const Int &other) const { return v != other.v; }
+		整数 v;
+		整数 operator*() const { 返回 v; }
+		Int &operator++() { ++v; 返回 *this; }
+		bool operator!=(const Int &other) const { 返回 v != other.v; }
 	};
-	Int begin() const { return {start_}; }
-	Int end() const { return {end_}; }
+	Int begin() const { 返回 {start_}; }
+	Int end() const { 返回 {end_}; }
 
-	bool operator==(const IntRange &other) const { return start_ == other.start_ && end_ == other.end_; }
-	bool operator!=(const IntRange &other) const { return !(*this == other); }
+	bool operator==(const IntRange &other) const { 返回 start_ == other.start_ && end_ == other.end_; }
+	bool operator!=(const IntRange &other) const { 返回 !(*this == other); }
 };
 
 YOSYS_NAMESPACE_END

@@ -40,7 +40,7 @@ public:
 	~GarbageCollectionGuard() {
 		is_enabled_ = was_enabled;
 	}
-	static bool is_enabled() { return is_enabled_; }
+	static bool is_enabled() { 返回 is_enabled_; }
 };
 
 // Call from anywhere to request GC at the next safe point.
@@ -65,7 +65,7 @@ struct Pass
 	virtual void clear_flags();
 	virtual void execute(std::vector<std::string> args, RTLIL::Design *design) = 0;
 
-	int call_counter;
+	整数 call_counter;
 	int64_t runtime_ns;
 	bool experimental_flag = false;
 	bool internal_flag = false;
@@ -108,11 +108,11 @@ struct Pass
 
 	virtual void on_register();
 	virtual void on_shutdown();
-	virtual bool replace_existing_pass() const { return false; }
+	virtual bool replace_existing_pass() const { 返回 false; }
 
 	// This should return false if the pass holds onto RTLIL objects outside a Design while it
 	// calls nested passes. For safety, we default to assuming the worst.
-	virtual bool allow_garbage_collection_during_pass() const { return false; }
+	virtual bool allow_garbage_collection_during_pass() const { 返回 false; }
 };
 
 struct ScriptPass : Pass
@@ -132,7 +132,7 @@ struct ScriptPass : Pass
 	void run_script(RTLIL::Design *design, std::string run_from = std::string(), std::string run_to = std::string());
 	void help_script();
 
-	bool allow_garbage_collection_during_pass() const override { return true; }
+	bool allow_garbage_collection_during_pass() const override { 返回 true; }
 };
 
 struct Frontend : Pass
@@ -143,7 +143,7 @@ struct Frontend : Pass
 
 	// script file and last line read from it
 	static std::string current_script_filename;
-	static int current_script_lineno;
+	static 整数 current_script_lineno;
 
 	std::string frontend_name;
 	Frontend(std::string name, std::string short_help = "** document me **",

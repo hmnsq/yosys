@@ -36,12 +36,12 @@ public:
 	string type;
 	string body;
 	const char* source_file;
-	int source_line;
+	整数 source_line;
 	std::map<string, string> options;
 
 	ContentListing(
 		string type = "root", string body = "",
-		const char* source_file = "unknown", int source_line = 0
+		const char* source_file = "unknown", 整数 source_line = 0
 	) : type(type), body(body), source_file(source_file), source_line(source_line) {
 		_content = {};
 		options = {};
@@ -54,14 +54,14 @@ public:
 		_content.push_back({type, body, location});
 	}
 
-	bool has_source() const { return strlen(source_file) && strcmp(source_file, "unknown") != 0; }
-	bool has_content() const { return _content.size() != 0; }
+	bool has_source() const { 返回 strlen(source_file) && strcmp(source_file, "unknown") != 0; }
+	bool has_content() const { 返回 _content.size() != 0; }
 
-	vector<ContentListing>::const_iterator begin() const { return _content.cbegin(); }
-	vector<ContentListing>::const_iterator end() const { return _content.cend(); }
+	vector<ContentListing>::const_iterator begin() const { 返回 _content.cbegin(); }
+	vector<ContentListing>::const_iterator end() const { 返回 _content.cend(); }
 
 	ContentListing* back() {
-		return &_content.back();
+		返回 &_content.back();
 	}
 
 	void set_option(string key, string val = "") {
@@ -114,17 +114,17 @@ public:
 
 	static PrettyHelp *get_current();
 
-	bool has_content() const { return _root_listing.has_content(); }
+	bool has_content() const { 返回 _root_listing.has_content(); }
 
-	vector<ContentListing>::const_iterator begin() const { return _root_listing.begin(); }
-	vector<ContentListing>::const_iterator end() const { return _root_listing.end(); }
+	vector<ContentListing>::const_iterator begin() const { 返回 _root_listing.begin(); }
+	vector<ContentListing>::const_iterator end() const { 返回 _root_listing.end(); }
 
 	ContentListing* get_root() {
-		return &_root_listing;
+		返回 &_root_listing;
 	}
 
 	void set_group(const string g) { group = g; }
-	bool has_group() const { return group.compare("unknown") != 0; }
+	bool has_group() const { 返回 group.compare("unknown") != 0; }
 
 	void log_help() const;
 };
