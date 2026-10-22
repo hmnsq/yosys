@@ -20,8 +20,8 @@
 #ifndef COMPUTE_GRAPH_H
 #define COMPUTE_GRAPH_H
 
-#include <tuple>
-#include "kernel/yosys.h"
+#অন্তর্ভাব <tuple>
+#অন্তর্ভাব "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -29,285 +29,285 @@ template<
     typename Fn, // Function type (deduplicated across whole graph)
     typename Attr = std::tuple<>, // Call attributes (present in every node)
     typename SparseAttr = std::tuple<>, // Sparse call attributes (optional per node)
-    typename Key = std::tuple<> // Stable keys to refer to nodes
+    typename চাবি_2 = std::tuple<> // Stable keys to refer to nodes
 >
-struct ComputeGraph
+কাঠামো ComputeGraph
 {
-    struct Ref;
-private:
+    কাঠামো Ref;
+ব্যক্তিগত:
 
     // Functions are deduplicated by assigning unique ids
     idict<Fn> functions;
 
-    struct Node {
-        int fn_index;
-        int arg_offset;
-        int arg_count;
+    কাঠামো গ্রন্থি_2 {
+        পূর্ণসংখ্যা fn_সূচক;
+        পূর্ণসংখ্যা arg_offset;
+        পূর্ণসংখ্যা arg_গুনতি;
         Attr attr;
 
-        Node(int fn_index, Attr &&attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(std::move(attr)) {}
+        গ্রন্থি_2(পূর্ণসংখ্যা fn_সূচক, Attr &&attr, পূর্ণসংখ্যা arg_offset, পূর্ণসংখ্যা arg_গুনতি = 0)
+            : fn_সূচক(fn_সূচক), arg_offset(arg_offset), arg_গুনতি(arg_গুনতি), attr(std::move(attr)) {}
 
-        Node(int fn_index, Attr const &attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(attr) {}
+        গ্রন্থি_2(পূর্ণসংখ্যা fn_সূচক, Attr ধ্রুবক &attr, পূর্ণসংখ্যা arg_offset, পূর্ণসংখ্যা arg_গুনতি = 0)
+            : fn_সূচক(fn_সূচক), arg_offset(arg_offset), arg_গুনতি(arg_গুনতি), attr(attr) {}
     };
 
 
-    std::vector<Node> nodes;
-    std::vector<int> args;
-    dict<Key, int> keys_;
-    dict<int, SparseAttr> sparse_attrs;
+    std::vector<গ্রন্থি_2> nodes;
+    std::vector<পূর্ণসংখ্যা> args;
+    dict<চাবি_2, পূর্ণসংখ্যা> চাবিগুলি;
+    dict<পূর্ণসংখ্যা, SparseAttr> sparse_attrs;
 
-public:
+সর্বজনীন:
     template<typename Graph>
-    struct BaseRef
+    কাঠামো BaseRef
     {
-    protected:
-        friend struct ComputeGraph;
+    সুরক্ষিত:
+        friend কাঠামো ComputeGraph;
         Graph *graph_;
-        int index_;
-        BaseRef(Graph *graph, int index) : graph_(graph), index_(index) {
-            log_assert(index_ >= 0);
+        পূর্ণসংখ্যা সূচক_2;
+        BaseRef(Graph *graph, পূর্ণসংখ্যা সূচক) : graph_(graph), সূচক_2(সূচক) {
+            log_assert(সূচক_2 >= 0);
             check();
         }
 
-        void check() const { log_assert(index_ < graph_->size()); }
+        শূন্য check() ধ্রুবক { log_assert(সূচক_2 < graph_->আকার_2()); }
 
-        Node const &deref() const { check(); return graph_->nodes[index_]; }
+        গ্রন্থি_2 ধ্রুবক &deref() ধ্রুবক { check(); ফেরত graph_->nodes[সূচক_2]; }
 
-    public:
-        ComputeGraph const &graph() const { return graph_; }
-        int index() const { return index_; }
+    সর্বজনীন:
+        ComputeGraph ধ্রুবক &graph() ধ্রুবক { ফেরত graph_; }
+        পূর্ণসংখ্যা সূচক() ধ্রুবক { ফেরত সূচক_2; }
 
-        int size() const { return deref().arg_count; }
+        পূর্ণসংখ্যা আকার_2() ধ্রুবক { ফেরত deref().arg_গুনতি; }
 
-        BaseRef arg(int n) const
+        BaseRef arg(পূর্ণসংখ্যা n) ধ্রুবক
         {
-            Node const &node = deref();
-            log_assert(n >= 0 && n < node.arg_count);
-            return BaseRef(graph_, graph_->args[node.arg_offset + n]);
+            গ্রন্থি_2 ধ্রুবক &গ্রন্থি = deref();
+            log_assert(n >= 0 && n < গ্রন্থি.arg_গুনতি);
+            ফেরত BaseRef(graph_, graph_->args[গ্রন্থি.arg_offset + n]);
         }
 
-        std::vector<int>::const_iterator arg_indices_cbegin() const
+        std::vector<পূর্ণসংখ্যা>::const_iterator arg_indices_cbegin() ধ্রুবক
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset;
+            গ্রন্থি_2 ধ্রুবক &গ্রন্থি = deref();
+            ফেরত graph_->args.cbegin() + গ্রন্থি.arg_offset;
         }
 
-        std::vector<int>::const_iterator arg_indices_cend() const
+        std::vector<পূর্ণসংখ্যা>::const_iterator arg_indices_cend() ধ্রুবক
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset + node.arg_count;
+            গ্রন্থি_2 ধ্রুবক &গ্রন্থি = deref();
+            ফেরত graph_->args.cbegin() + গ্রন্থি.arg_offset + গ্রন্থি.arg_গুনতি;
         }
 
-        Fn const &function() const { return graph_->functions[deref().fn_index]; }
-        Attr const &attr() const { return deref().attr; }
+        Fn ধ্রুবক &function() ধ্রুবক { ফেরত graph_->functions[deref().fn_সূচক]; }
+        Attr ধ্রুবক &attr() ধ্রুবক { ফেরত deref().attr; }
 
-        bool has_sparse_attr() const { return graph_->sparse_attrs.count(index_); }
+        bool has_sparse_attr() ধ্রুবক { ফেরত graph_->sparse_attrs.গুনতি(সূচক_2); }
 
-        SparseAttr const &sparse_attr() const
+        SparseAttr ধ্রুবক &sparse_attr() ধ্রুবক
         {
-            auto found = graph_->sparse_attrs.find(index_);
+            auto found = graph_->sparse_attrs.find(সূচক_2);
             log_assert(found != graph_->sparse_attrs.end());
-            return found->second;
+            ফেরত found->second;
         }
     };
 
-    using ConstRef = BaseRef<ComputeGraph const>;
+    using ConstRef = BaseRef<ComputeGraph ধ্রুবক>;
 
-    struct Ref : public BaseRef<ComputeGraph>
+    কাঠামো Ref : সর্বজনীন BaseRef<ComputeGraph>
     {
-    private:
-        friend struct ComputeGraph;
-        Ref(ComputeGraph *graph, int index) : BaseRef<ComputeGraph>(graph, index) {}
-        Node &deref() const { this->check(); return this->graph_->nodes[this->index_]; }
+    ব্যক্তিগত:
+        friend কাঠামো ComputeGraph;
+        Ref(ComputeGraph *graph, পূর্ণসংখ্যা সূচক) : BaseRef<ComputeGraph>(graph, সূচক) {}
+        গ্রন্থি_2 &deref() ধ্রুবক { this->check(); ফেরত this->graph_->nodes[this->সূচক_2]; }
 
-    public:
-        Ref(BaseRef<ComputeGraph> ref) : Ref(ref.graph_, ref.index_) {}
+    সর্বজনীন:
+        Ref(BaseRef<ComputeGraph> ref) : Ref(ref.graph_, ref.সূচক_2) {}
 
-        void set_function(Fn const &function) const
+        শূন্য set_function(Fn ধ্রুবক &function) ধ্রুবক
         {
-            deref().fn_index = this->graph_->functions(function);
+            deref().fn_সূচক = this->graph_->functions(function);
         }
 
-        Attr &attr() const { return deref().attr; }
+        Attr &attr() ধ্রুবক { ফেরত deref().attr; }
 
-        void append_arg(ConstRef arg) const
+        শূন্য append_arg(ConstRef arg) ধ্রুবক
         {
             log_assert(arg.graph_ == this->graph_);
-            append_arg(arg.index());
+            append_arg(arg.সূচক());
         }
 
-        void append_arg(int arg) const
+        শূন্য append_arg(পূর্ণসংখ্যা arg) ধ্রুবক
         {
-            log_assert(arg >= 0 && arg < this->graph_->size());
-            Node &node = deref();
-            if (node.arg_offset + node.arg_count != GetSize(this->graph_->args))
-                move_args(node);
-            this->graph_->args.push_back(arg);
-            node.arg_count++;
+            log_assert(arg >= 0 && arg < this->graph_->আকার_2());
+            গ্রন্থি_2 &গ্রন্থি = deref();
+            যদি (গ্রন্থি.arg_offset + গ্রন্থি.arg_গুনতি != Get_আকার(this->graph_->args))
+                move_args(গ্রন্থি);
+            this->graph_->args.ঠেলো_back(arg);
+            গ্রন্থি.arg_গুনতি++;
         }
 
-        operator ConstRef() const
+        operator ConstRef() ধ্রুবক
         {
-            return ConstRef(this->graph_, this->index_);
+            ফেরত ConstRef(this->graph_, this->সূচক_2);
         }
 
-        SparseAttr &sparse_attr() const
+        SparseAttr &sparse_attr() ধ্রুবক
         {
-            return this->graph_->sparse_attrs[this->index_];
+            ফেরত this->graph_->sparse_attrs[this->সূচক_2];
         }
 
-        void clear_sparse_attr() const
+        শূন্য clear_sparse_attr() ধ্রুবক
         {
-            this->graph_->sparse_attrs.erase(this->index_);
+            this->graph_->sparse_attrs.erase(this->সূচক_2);
         }
 
-        void assign_key(Key const &key) const
+        শূন্য assign_চাবি(চাবি_2 ধ্রুবক &চাবি) ধ্রুবক
         {
-            this->graph_->keys_.emplace(key, this->index_);
+            this->graph_->চাবিগুলি.emplace(চাবি, this->সূচক_2);
         }
 
-    private:
-        void move_args(Node &node) const
+    ব্যক্তিগত:
+        শূন্য move_args(গ্রন্থি_2 &গ্রন্থি) ধ্রুবক
         {
             auto &args = this->graph_->args;
-            int old_offset = node.arg_offset;
-            node.arg_offset = GetSize(args);
-            for (int i = 0; i != node.arg_count; ++i)
-                args.push_back(args[old_offset + i]);
+            পূর্ণসংখ্যা old_offset = গ্রন্থি.arg_offset;
+            গ্রন্থি.arg_offset = Get_আকার(args);
+            জন্য (পূর্ণসংখ্যা i = 0; i != গ্রন্থি.arg_গুনতি; ++i)
+                args.ঠেলো_back(args[old_offset + i]);
         }
 
     };
 
-    bool has_key(Key const &key) const
+    bool has_চাবি(চাবি_2 ধ্রুবক &চাবি) ধ্রুবক
     {
-        return keys_.count(key);
+        ফেরত চাবিগুলি.গুনতি(চাবি);
     }
 
-    dict<Key, int> const &keys() const
+    dict<চাবি_2, পূর্ণসংখ্যা> ধ্রুবক &চাবিগুলি_2() ধ্রুবক
     {
-        return keys_;
+        ফেরত চাবিগুলি;
     }
 
-    ConstRef operator()(Key const &key) const
+    ConstRef operator()(চাবি_2 ধ্রুবক &চাবি) ধ্রুবক
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        auto it = চাবিগুলি.find(চাবি);
+        log_assert(it != চাবিগুলি.end());
+        ফেরত (*this)[it->second];
     }
 
-    Ref operator()(Key const &key)
+    Ref operator()(চাবি_2 ধ্রুবক &চাবি)
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        auto it = চাবিগুলি.find(চাবি);
+        log_assert(it != চাবিগুলি.end());
+        ফেরত (*this)[it->second];
     }
 
-    int size() const { return GetSize(nodes); }
+    পূর্ণসংখ্যা আকার_2() ধ্রুবক { ফেরত Get_আকার(nodes); }
 
-    ConstRef operator[](int index) const { return ConstRef(this, index); }
-    Ref operator[](int index) { return Ref(this, index); }
+    ConstRef operator[](পূর্ণসংখ্যা সূচক) ধ্রুবক { ফেরত ConstRef(this, সূচক); }
+    Ref operator[](পূর্ণসংখ্যা সূচক) { ফেরত Ref(this, সূচক); }
 
-    Ref add(Fn const &function, Attr &&attr)
+    Ref add(Fn ধ্রুবক &function, Attr &&attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
-        nodes.emplace_back(fn_index, std::move(attr), GetSize(args));
-        return Ref(this, index);
+        পূর্ণসংখ্যা সূচক = Get_আকার(nodes);
+        পূর্ণসংখ্যা fn_সূচক = functions(function);
+        nodes.emplace_back(fn_সূচক, std::move(attr), Get_আকার(args));
+        ফেরত Ref(this, সূচক);
     }
 
-    Ref add(Fn const &function, Attr const &attr)
+    Ref add(Fn ধ্রুবক &function, Attr ধ্রুবক &attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
-        nodes.emplace_back(fn_index, attr,  GetSize(args));
-        return Ref(this, index);
+        পূর্ণসংখ্যা সূচক = Get_আকার(nodes);
+        পূর্ণসংখ্যা fn_সূচক = functions(function);
+        nodes.emplace_back(fn_সূচক, attr,  Get_আকার(args));
+        ফেরত Ref(this, সূচক);
     }
 
     template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T &&args)
+    Ref add(Fn ধ্রুবক &function, Attr ধ্রুবক &attr, T &&args)
     {
         Ref added = add(function, attr);
-        for (auto arg : args)
+        জন্য (auto arg : args)
             added.append_arg(arg);
-        return added;
+        ফেরত added;
     }
 
     template<typename T>
-    Ref add(Fn const &function, Attr &&attr, T &&args)
+    Ref add(Fn ধ্রুবক &function, Attr &&attr, T &&args)
     {
         Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        জন্য (auto arg : args)
             added.append_arg(arg);
-        return added;
+        ফেরত added;
     }
 
-    Ref add(Fn const &function, Attr const &attr, std::initializer_list<Ref> args)
+    Ref add(Fn ধ্রুবক &function, Attr ধ্রুবক &attr, std::initializer_list<Ref> args)
     {
         Ref added = add(function, attr);
-        for (auto arg : args)
+        জন্য (auto arg : args)
             added.append_arg(arg);
-        return added;
+        ফেরত added;
     }
 
-    Ref add(Fn const &function, Attr &&attr, std::initializer_list<Ref> args)
+    Ref add(Fn ধ্রুবক &function, Attr &&attr, std::initializer_list<Ref> args)
     {
         Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        জন্য (auto arg : args)
             added.append_arg(arg);
-        return added;
+        ফেরত added;
     }
 
     template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T begin, T end)
+    Ref add(Fn ধ্রুবক &function, Attr ধ্রুবক &attr, T begin, T end)
     {
         Ref added = add(function, attr);
-        for (; begin != end; ++begin)
+        জন্য (; begin != end; ++begin)
             added.append_arg(*begin);
-        return added;
+        ফেরত added;
     }
 
-    void compact_args()
+    শূন্য compact_args()
     {
-        std::vector<int> new_args;
-        for (auto &node : nodes)
+        std::vector<পূর্ণসংখ্যা> new_args;
+        জন্য (auto &গ্রন্থি : nodes)
         {
-            int new_offset = GetSize(new_args);
-            for (int i = 0; i < node.arg_count; i++)
-                new_args.push_back(args[node.arg_offset + i]);
-            node.arg_offset = new_offset;
+            পূর্ণসংখ্যা new_offset = Get_আকার(new_args);
+            জন্য (পূর্ণসংখ্যা i = 0; i < গ্রন্থি.arg_গুনতি; i++)
+                new_args.ঠেলো_back(args[গ্রন্থি.arg_offset + i]);
+            গ্রন্থি.arg_offset = new_offset;
         }
         std::swap(args, new_args);
     }
 
-    void permute(std::vector<int> const &perm)
+    শূন্য permute(std::vector<পূর্ণসংখ্যা> ধ্রুবক &perm)
     {
-        log_assert(perm.size() <= nodes.size());
-        std::vector<int> inv_perm;
-        inv_perm.resize(nodes.size(), -1);
-        for (int i = 0; i < GetSize(perm); ++i)
+        log_assert(perm.আকার_2() <= nodes.আকার_2());
+        std::vector<পূর্ণসংখ্যা> inv_perm;
+        inv_perm.resize(nodes.আকার_2(), -1);
+        জন্য (পূর্ণসংখ্যা i = 0; i < Get_আকার(perm); ++i)
         {
-            int j = perm[i];
-            log_assert(j >= 0 && j < GetSize(nodes));
+            পূর্ণসংখ্যা j = perm[i];
+            log_assert(j >= 0 && j < Get_আকার(nodes));
             log_assert(inv_perm[j] == -1);
             inv_perm[j] = i;
         }
         permute(perm, inv_perm);
     }
 
-    void permute(std::vector<int> const &perm, std::vector<int> const &inv_perm)
+    শূন্য permute(std::vector<পূর্ণসংখ্যা> ধ্রুবক &perm, std::vector<পূর্ণসংখ্যা> ধ্রুবক &inv_perm)
     {
-        log_assert(inv_perm.size() == nodes.size());
-        std::vector<Node> new_nodes;
-        new_nodes.reserve(perm.size());
-        dict<int, SparseAttr> new_sparse_attrs;
-        for (int i : perm)
+        log_assert(inv_perm.আকার_2() == nodes.আকার_2());
+        std::vector<গ্রন্থি_2> new_nodes;
+        new_nodes.reserve(perm.আকার_2());
+        dict<পূর্ণসংখ্যা, SparseAttr> new_sparse_attrs;
+        জন্য (পূর্ণসংখ্যা i : perm)
         {
-            int j = GetSize(new_nodes);
+            পূর্ণসংখ্যা j = Get_আকার(new_nodes);
             new_nodes.emplace_back(std::move(nodes[i]));
             auto found = sparse_attrs.find(i);
-            if (found != sparse_attrs.end())
+            যদি (found != sparse_attrs.end())
                 new_sparse_attrs.emplace(j, std::move(found->second));
         }
 
@@ -315,82 +315,82 @@ public:
         std::swap(sparse_attrs, new_sparse_attrs);
 
         compact_args();
-        for (int &arg : args)
+        জন্য (পূর্ণসংখ্যা &arg : args)
         {
-            log_assert(arg < GetSize(inv_perm));
+            log_assert(arg < Get_আকার(inv_perm));
             log_assert(inv_perm[arg] >= 0);
             arg = inv_perm[arg];
         }
 
-        for (auto &key : keys_)
+        জন্য (auto &চাবি : চাবিগুলি)
         {
-            log_assert(key.second < GetSize(inv_perm));
-            log_assert(inv_perm[key.second] >= 0);
-            key.second = inv_perm[key.second];
+            log_assert(চাবি.second < Get_আকার(inv_perm));
+            log_assert(inv_perm[চাবি.second] >= 0);
+            চাবি.second = inv_perm[চাবি.second];
         }
     }
 
-    struct SccAdaptor
+    কাঠামো SccAdaptor
     {
-    private:
-        ComputeGraph const &graph_;
-        std::vector<int> indices_;
-    public:
-        SccAdaptor(ComputeGraph const &graph) : graph_(graph)
+    ব্যক্তিগত:
+        ComputeGraph ধ্রুবক &graph_;
+        std::vector<পূর্ণসংখ্যা> indices_;
+    সর্বজনীন:
+        SccAdaptor(ComputeGraph ধ্রুবক &graph) : graph_(graph)
         {
-            indices_.resize(graph.size(), -1);
+            indices_.resize(graph.আকার_2(), -1);
         }
 
 
-        typedef int node_type;
+        প্রকারলেখ পূর্ণসংখ্যা গ্রন্থি_type;
 
-        struct node_enumerator {
-        private:
-            friend struct SccAdaptor;
-            int current, end;
-            node_enumerator(int current, int end) : current(current), end(end) {}
+        কাঠামো গ্রন্থি_enumerator {
+        ব্যক্তিগত:
+            friend কাঠামো SccAdaptor;
+            পূর্ণসংখ্যা current, end;
+            গ্রন্থি_enumerator(পূর্ণসংখ্যা current, পূর্ণসংখ্যা end) : current(current), end(end) {}
 
-        public:
+        সর্বজনীন:
 
-            bool finished() const { return current == end; }
-            node_type next() {
+            bool finished() ধ্রুবক { ফেরত current == end; }
+            গ্রন্থি_type পরবর্তী() {
                 log_assert(!finished());
-                node_type result = current;
+                গ্রন্থি_type ফলাফল = current;
                 ++current;
-                return result;
+                ফেরত ফলাফল;
             }
         };
 
-        node_enumerator enumerate_nodes() {
-            return node_enumerator(0, GetSize(indices_));
+        গ্রন্থি_enumerator enumerate_nodes() {
+            ফেরত গ্রন্থি_enumerator(0, Get_আকার(indices_));
         }
 
 
-        struct successor_enumerator {
-        private:
-            friend struct SccAdaptor;
-            std::vector<int>::const_iterator current, end;
-            successor_enumerator(std::vector<int>::const_iterator current, std::vector<int>::const_iterator end) :
+        কাঠামো successor_enumerator {
+        ব্যক্তিগত:
+            friend কাঠামো SccAdaptor;
+            std::vector<পূর্ণসংখ্যা>::const_iterator current, end;
+            successor_enumerator(std::vector<পূর্ণসংখ্যা>::const_iterator current, std::vector<পূর্ণসংখ্যা>::const_iterator end) :
                 current(current), end(end) {}
 
-        public:
-            bool finished() const { return current == end; }
-            node_type next() {
+        সর্বজনীন:
+            bool finished() ধ্রুবক { ফেরত current == end; }
+            গ্রন্থি_type পরবর্তী() {
                 log_assert(!finished());
-                node_type result = *current;
+                গ্রন্থি_type ফলাফল = *current;
                 ++current;
-                return result;
+                ফেরত ফলাফল;
             }
         };
 
-        successor_enumerator enumerate_successors(int index) const {
-            auto const &ref = graph_[index];
-            return successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
+        successor_enumerator enumerate_successors(পূর্ণসংখ্যা সূচক) ধ্রুবক {
+            auto ধ্রুবক &ref = graph_[সূচক];
+            ফেরত successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
         }
 
-        int &dfs_index(node_type const &node) { return indices_[node]; }
+        পূর্ণসংখ্যা &dfs_সূচক(গ্রন্থি_type ধ্রুবক &গ্রন্থি) { ফেরত indices_[গ্রন্থি]; }
 
-        std::vector<int> const &dfs_indices() { return indices_; }
+        std::vector<পূর্ণসংখ্যা> ধ্রুবক &dfs_indices() { ফেরত indices_; }
     };
 
 };

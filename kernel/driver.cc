@@ -17,12 +17,12 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/hashlib.h"
+#অন্তর্ভাব "kernel/yosys.h"
+#অন্তর্ভাব "kernel/hashlib.h"
 #define CXXOPTS_VECTOR_DELIMITER '\0'
-#include "libs/cxxopts/include/cxxopts.hpp"
-#include <iostream>
-#include <chrono>
+#অন্তর্ভাব "libs/cxxopts/include/cxxopts.hpp"
+#অন্তর্ভাব <iostream>
+#অন্তর্ভাব <chrono>
 
 #ifdef YOSYS_ENABLE_READLINE
 #  include <readline/readline.h>
@@ -40,20 +40,20 @@
 #ifdef YOSYS_ENABLE_PYTHON
 #  include <Python.h>
 #  include <pybind11/pybind11.h>
-namespace py = pybind11;
+নামাকাশ py = pybind11;
 #endif
 
-#include <stdio.h>
-#include <string.h>
-#include <limits.h>
-#include <errno.h>
-#include <fcntl.h>
+#অন্তর্ভাব <stdio.h>
+#অন্তর্ভাব <string.h>
+#অন্তর্ভাব <limits.h>
+#অন্তর্ভাব <errno.h>
+#অন্তর্ভাব <fcntl.h>
 #ifndef __STDC_FORMAT_MACROS
 #  define __STDC_FORMAT_MACROS
 #endif
-#include <inttypes.h>
+#অন্তর্ভাব <inttypes.h>
 
-#if defined (__linux__) || defined(__FreeBSD__)
+#যদি defined (__linux__) || defined(__FreeBSD__)
 #  include <sys/resource.h>
 #  include <sys/types.h>
 #  include <unistd.h>
@@ -64,160 +64,160 @@ namespace py = pybind11;
 #  include <sys/user.h>
 #endif
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#যদি !defined(_WIN32) || defined(__MINGW32__)
 #  include <unistd.h>
 #endif
 
-#include <fmt/color.h>
-#include <fmt/format.h>
+#অন্তর্ভাব <fmt/color.h>
+#অন্তর্ভাব <fmt/format.h>
 
 USING_YOSYS_NAMESPACE
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-int yosys_history_offset = 0;
+#যদি defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+পূর্ণসংখ্যা yosys_history_offset = 0;
 std::string yosys_history_file;
 #endif
 
-void yosys_atexit()
+শূন্য yosys_atexit()
 {
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
-	if (!yosys_history_file.empty()) {
-#if defined(YOSYS_ENABLE_READLINE)
-		if (yosys_history_offset > 0) {
+#যদি defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+	যদি (!yosys_history_file.empty()) {
+#যদি defined(YOSYS_ENABLE_READLINE)
+		যদি (yosys_history_offset > 0) {
 			history_truncate_file(yosys_history_file.c_str(), 100);
 			append_history(where_history() - yosys_history_offset, yosys_history_file.c_str());
-		} else
+		} অন্যথা
 			write_history(yosys_history_file.c_str());
-#else
+#অন্যথা
 		write_history(yosys_history_file.c_str());
 #endif
 	}
 
 	clear_history();
-#if defined(YOSYS_ENABLE_READLINE)
+#যদি defined(YOSYS_ENABLE_READLINE)
 	HIST_ENTRY **hist_list = history_list();
-	if (hist_list != NULL)
-		free(hist_list);
+	যদি (hist_list != ফাঁকা)
+		মুক্ত(hist_list);
 #endif
 #endif
 }
 
-#if defined(__OpenBSD__)
-namespace Yosys {
-extern char *yosys_argv0;
-extern char yosys_path[PATH_MAX];
+#যদি defined(__OpenBSD__)
+নামাকাশ Yosys {
+বাহ্যিক অক্ষর *yosys_argv0;
+বাহ্যিক অক্ষর yosys_path[PATH_MAX];
 };
 #endif
 #ifdef YOSYS_ENABLE_TCL
-namespace Yosys {
-	extern int yosys_tcl_interp_init(Tcl_Interp *interp);
-	extern void yosys_tcl_activate_repl();
+নামাকাশ Yosys {
+	বাহ্যিক পূর্ণসংখ্যা yosys_tcl_interp_init(Tcl_Interp *interp);
+	বাহ্যিক শূন্য yosys_tcl_activate_repl();
 };
 #endif
 
-namespace Yosys {
-	extern bool log_stderr_sink_forced;
+নামাকাশ Yosys {
+	বাহ্যিক যৌক্তিক log_stderr_sink_forced;
 };
 
-class ColorConsoleLogSink : public LogSink
+শ্রেণী ColorConsoleLogSink : সর্বজনীন LogSink
 {
-public:
-	explicit ColorConsoleLogSink(bool err, bool quiet) : error_output(err), quiet_warnings(quiet) {}
-	void log(const LogMessage &msg) override;
-	bool should_log(const LogMessage &msg) const override;
-	void flush() override;
-	FILE *file_handle() override { return error_output ? nullptr : stdout; }
-private:
-	bool error_output;
-	bool quiet_warnings;
+সর্বজনীন:
+	explicit ColorConsoleLogSink(যৌক্তিক err, যৌক্তিক quiet) : error_output(err), quiet_warnings(quiet) {}
+	শূন্য log(ধ্রুবক LogMessage &বার্তা) override;
+	যৌক্তিক should_log(ধ্রুবক LogMessage &বার্তা) ধ্রুবক override;
+	শূন্য flush() override;
+	FILE *file_handle() override { ফেরত error_output ? nullptr : stdout; }
+ব্যক্তিগত:
+	যৌক্তিক error_output;
+	যৌক্তিক quiet_warnings;
 };
 
-bool no_color = false;
+যৌক্তিক no_color = মিথ্যা;
 
-bool is_colored(FILE *file)
+যৌক্তিক is_colored(FILE *file)
 {
-	if (no_color)
-		return false;
+	যদি (no_color)
+		ফেরত মিথ্যা;
 
-#if defined(_WIN32)
+#যদি defined(_WIN32)
 	HANDLE handle = reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(file)));
 	DWORD mode;
-	return handle != INVALID_HANDLE_VALUE &&
+	ফেরত handle != INVALID_HANDLE_মান &&
 			GetConsoleMode(handle, &mode);
-#else
-	return isatty(fileno(file));
+#অন্যথা
+	ফেরত isatty(fileno(file));
 #endif
 }
 
-void ColorConsoleLogSink::flush()
+শূন্য ColorConsoleLogSink::flush()
 {
 	fflush(stdout);
 	fflush(stderr);
 }
 
-bool next_print_log = true;
+যৌক্তিক পরবর্তী_print_log = সত্য;
 
-void ColorConsoleLogSink::log(const LogMessage &msg)
+শূন্য ColorConsoleLogSink::log(ধ্রুবক LogMessage &বার্তা)
 {
-	FILE *f = (error_output || msg.severity == LogSeverity::Error) ? stderr : stdout;
+	FILE *f = (error_output || বার্তা.severity == LogSeverity::Error) ? stderr : stdout;
 
-	if (logger().get_log_time() && next_print_log) {
-		auto elapsed = msg.timestamp - logger().get_initial_time();
+	যদি (logger().get_log_time() && পরবর্তী_print_log) {
+		auto elapsed = বার্তা.timestamp - logger().get_initial_time();
 		auto us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-		std::string time_str = stringf("[%05d.%06d] ", int(us.count() / 1'000'000),int(us.count() % 1'000'000));
+		std::string time_str = stringf("[%05d.%06d] ", পূর্ণসংখ্যা(us.গুনতি() / 1'000'000),পূর্ণসংখ্যা(us.গুনতি() % 1'000'000));
 		fmt::print(f, fg(fmt::terminal_color::blue), "{}", time_str);
-		next_print_log = false;
+		পরবর্তী_print_log = মিথ্যা;
 	}
 
-	if (!msg.src.filename.empty())
-		fmt::print(f, fg(fmt::terminal_color::bright_cyan), "{}:{}: ", msg.src.filename, msg.src.start_line);
+	যদি (!বার্তা.src.filename.empty())
+		fmt::print(f, fg(fmt::terminal_color::bright_cyan), "{}:{}: ", বার্তা.src.filename, বার্তা.src.start_সারি);
 
-	switch (msg.severity) {
-		case LogSeverity::Warning:
-			fmt::print(f, fg(fmt::terminal_color::bright_yellow), "{}", msg.prefix);
-			fmt::print(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", msg.message);
-			break;
+	নির্বাচন (বার্তা.severity) {
+		ক্ষেত্র LogSeverity::Warning:
+			fmt::print(f, fg(fmt::terminal_color::bright_yellow), "{}", বার্তা.prefix);
+			fmt::print(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", বার্তা.message);
+			বিরতি;
 
-		case LogSeverity::Error:
-		case LogSeverity::NonFatalError:
-			fmt::print(f, fg(fmt::terminal_color::bright_red), "{}", msg.prefix);
-			fmt::print(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", msg.message);
-			break;
+		ক্ষেত্র LogSeverity::Error:
+		ক্ষেত্র LogSeverity::NonFatalError:
+			fmt::print(f, fg(fmt::terminal_color::bright_red), "{}", বার্তা.prefix);
+			fmt::print(f, fg(fmt::terminal_color::blue) | fmt::emphasis::bold, "{}", বার্তা.message);
+			বিরতি;
 
-		case LogSeverity::Header:
-			fmt::print(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}", msg.prefix);
-			fmt::print(f, fg(fmt::terminal_color::white) | fmt::emphasis::bold, "{}", msg.message);
-			break;
+		ক্ষেত্র LogSeverity::Header:
+			fmt::print(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}", বার্তা.prefix);
+			fmt::print(f, fg(fmt::terminal_color::white) | fmt::emphasis::bold, "{}", বার্তা.message);
+			বিরতি;
 
-		case LogSeverity::Highlight:
-			fmt::print(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}{}", msg.prefix, msg.message);
-			break;
+		ক্ষেত্র LogSeverity::Highlight:
+			fmt::print(f, fg(fmt::terminal_color::cyan) | fmt::emphasis::bold, "{}{}", বার্তা.prefix, বার্তা.message);
+			বিরতি;
 
-		case LogSeverity::Comment:
-		case LogSeverity::Debug:
-			fmt::print(f, fg(fmt::terminal_color::bright_black), "{}{}", msg.prefix, msg.message);
-			break;
+		ক্ষেত্র LogSeverity::Comment:
+		ক্ষেত্র LogSeverity::Debug:
+			fmt::print(f, fg(fmt::terminal_color::bright_black), "{}{}", বার্তা.prefix, বার্তা.message);
+			বিরতি;
 
-		case LogSeverity::Info:
-		default:
-			if (!msg.prefix.empty())
-				fmt::print(f, fg(fmt::terminal_color::bright_black), "{}", msg.prefix);
-			fmt::print(f, "{}", msg.message);
-			break;
+		ক্ষেত্র LogSeverity::Info:
+		পূর্বনির্ধারিত:
+			যদি (!বার্তা.prefix.empty())
+				fmt::print(f, fg(fmt::terminal_color::bright_black), "{}", বার্তা.prefix);
+			fmt::print(f, "{}", বার্তা.message);
+			বিরতি;
 	}
-	if (!msg.message.empty())
-		next_print_log = msg.message.back() == '\n';
+	যদি (!বার্তা.message.empty())
+		পরবর্তী_print_log = বার্তা.message.back() == '\n';
 }
 
-bool ColorConsoleLogSink::should_log(const LogMessage &msg) const
+যৌক্তিক ColorConsoleLogSink::should_log(ধ্রুবক LogMessage &বার্তা) ধ্রুবক
 {
-	return (!error_output) || (msg.severity == LogSeverity::Error || msg.severity == LogSeverity::NonFatalError ||
-			(msg.severity == LogSeverity::Warning && !quiet_warnings) ||
+	ফেরত (!error_output) || (বার্তা.severity == LogSeverity::Error || বার্তা.severity == LogSeverity::NonFatalError ||
+			(বার্তা.severity == LogSeverity::Warning && !quiet_warnings) ||
 			log_stderr_sink_forced);
 }
 
 #ifdef _WIN32
-int wmain(int argc, wchar_t **wargv)
+পূর্ণসংখ্যা wmain(পূর্ণসংখ্যা argc, wchar_t **wargv)
 {
 	// Configure ASCII functions like fopen() to use UTF-8 filenames.
 	// See https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=msvc-170#utf-8-support
@@ -228,17 +228,17 @@ int wmain(int argc, wchar_t **wargv)
 	SetConsoleCP(CP_UTF8);
 	SetConsoleOutputCP(CP_UTF8);
 
-	std::vector<char*> uargs;
-	for (int i = 0; i < argc; i++) {
-		int usize = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, NULL, 0, NULL, NULL);
-		char *uarg = (char *)malloc(usize);
-		WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, uarg, usize, NULL, NULL);
-		uargs.push_back(uarg);
+	std::vector<অক্ষর*> uargs;
+	জন্য (পূর্ণসংখ্যা i = 0; i < argc; i++) {
+		পূর্ণসংখ্যা usize = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, ফাঁকা, 0, ফাঁকা, ফাঁকা);
+		অক্ষর *uarg = (অক্ষর *)malloc(usize);
+		WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, uarg, usize, ফাঁকা, ফাঁকা);
+		uargs.ঠেলো_back(uarg);
 	}
-	uargs.push_back(NULL);
-	char **argv = uargs.data();
-#else
-int main(int argc, char **argv)
+	uargs.ঠেলো_back(ফাঁকা);
+	অক্ষর **argv = uargs.তথ্য();
+#অন্যথা
+পূর্ণসংখ্যা প্রধান(পূর্ণসংখ্যা argc, অক্ষর **argv)
 {
 #endif
 	auto wall_clock_start = std::chrono::steady_clock::now();
@@ -254,18 +254,18 @@ int main(int argc, char **argv)
 	std::string depsfile = "";
 	std::string topmodule = "";
 	std::string perffile = "";
-	bool scriptfile_tcl = false;
-	bool scriptfile_python = false;
-	bool print_banner = true;
-	bool print_stats = true;
-	bool call_abort = false;
-	bool timing_details = false;
-	bool run_shell = true;
-	bool run_tcl_shell = false;
-	bool mode_v = false;
-	bool mode_q = false;
-	bool quiet_warnings = false;
-	bool log_stderr = false;
+	যৌক্তিক scriptfile_tcl = মিথ্যা;
+	যৌক্তিক scriptfile_python = মিথ্যা;
+	যৌক্তিক print_banner = সত্য;
+	যৌক্তিক print_stats = সত্য;
+	যৌক্তিক call_abort = মিথ্যা;
+	যৌক্তিক timing_details = মিথ্যা;
+	যৌক্তিক run_shell = সত্য;
+	যৌক্তিক run_tcl_shell = মিথ্যা;
+	যৌক্তিক mode_v = মিথ্যা;
+	যৌক্তিক mode_q = মিথ্যা;
+	যৌক্তিক quiet_warnings = মিথ্যা;
+	যৌক্তিক log_stderr = মিথ্যা;
 	no_color = std::getenv("NO_COLOR") != nullptr;
 
 	cxxopts::Options options(argv[0], "Yosys Open SYnthesis Suite");
@@ -273,28 +273,28 @@ int main(int argc, char **argv)
 
 	options.add_options("operation")
 		("b,backend", "use <backend> for the output file specified on the command line",
-			cxxopts::value<std::string>(), "<backend>")
+			cxxopts::মান<std::string>(), "<backend>")
 		("f,frontend", "use <frontend> for the input files on the command line",
-			cxxopts::value<std::string>(), "<frontend>")
+			cxxopts::মান<std::string>(), "<frontend>")
 		("s,scriptfile", "execute the commands in <scriptfile>",
-			cxxopts::value<std::string>(), "<scriptfile>")
+			cxxopts::মান<std::string>(), "<scriptfile>")
 #ifdef YOSYS_ENABLE_TCL
 		("c,tcl-scriptfile", "execute the commands in the TCL <tcl_scriptfile> (see 'help tcl' for details)",
-			cxxopts::value<std::string>(),"<tcl_scriptfile>")
+			cxxopts::মান<std::string>(),"<tcl_scriptfile>")
 		("C,tcl-interactive", "enters TCL interactive shell mode")
 #endif // YOSYS_ENABLE_TCL
 #ifdef YOSYS_ENABLE_PYTHON
 		("y,py-scriptfile", "execute the Python <script>",
-			cxxopts::value<std::string>(), "<script>")
+			cxxopts::মান<std::string>(), "<script>")
 #endif // YOSYS_ENABLE_PYTHON
 		("p,commands", "execute <commands> (to chain commands, separate them with semicolon + whitespace: 'cmd1; cmd2')",
-			cxxopts::value<std::vector<std::string>>(), "<commands>")
+			cxxopts::মান<std::vector<std::string>>(), "<commands>")
 		("r,top", "elaborate the specified HDL <top> module",
-			cxxopts::value<std::string>(), "<top>")
+			cxxopts::মান<std::string>(), "<top>")
 		("m,plugin", "load the specified <plugin> module",
-			cxxopts::value<std::vector<std::string>>(), "<plugin>")
+			cxxopts::মান<std::vector<std::string>>(), "<plugin>")
 		("D,define", "set the specified Verilog define to <value> if supplied via command \"read -define\"",
-			cxxopts::value<std::vector<std::string>>(), "<define>[=<value>]")
+			cxxopts::মান<std::vector<std::string>>(), "<define>[=<value>]")
 		("S,synth", "shortcut for calling the \"synth\" command, a default script for transforming " \
 					"the Verilog input to a gate-level netlist. For example: " \
 					"yosys -o output.blif -S input.v " \
@@ -303,10 +303,10 @@ int main(int argc, char **argv)
 					"command line.")
 		("H", "print the command list")
 		("h,help", "print this help message. If given, print help for <command>.",
-			cxxopts::value<std::string>(), "[<command>]")
+			cxxopts::মান<std::string>(), "[<command>]")
 		("V,version", "print version information and exit")
 		("git-hash", "print git commit hash and exit")
-		("infile", "input files", cxxopts::value<std::vector<std::string>>())
+		("infile", "input files", cxxopts::মান<std::vector<std::string>>())
 	;
 	options.add_options("logging")
 		("Q", "suppress printing of banner (copyright, disclaimer, version)")
@@ -316,39 +316,39 @@ int main(int argc, char **argv)
 					"Use this option twice to also quiet warning messages")
 		("v,verbose", "print log headers up to <level> to the console. " \
                       "Implies -q for everything except the 'End of script.' message.",
-			cxxopts::value<int>(), "<level>")
+			cxxopts::মান<পূর্ণসংখ্যা>(), "<level>")
 		("t,timestamp", "annotate all log messages with a time stamp")
 		("d,detailed-timing", "print more detailed timing stats at exit")
 		("l,logfile", "write log messages to <logfile>",
-			cxxopts::value<std::vector<std::string>>(), "<logfile>")
+			cxxopts::মান<std::vector<std::string>>(), "<logfile>")
 		("L,line-buffered-logfile", "like -l but open <logfile> in line buffered mode",
-			cxxopts::value<std::vector<std::string>>(), "<logfile>")
+			cxxopts::মান<std::vector<std::string>>(), "<logfile>")
 		("o,outfile", "write the design to <outfile> on exit",
-			cxxopts::value<std::string>(), "<outfile>")
+			cxxopts::মান<std::string>(), "<outfile>")
 		("P,dump-design", "dump the design when printing the specified log header to a file. " \
 						   "yosys_dump_<header_id>.il is used as filename if none is specified. " \
 						   "Use 'ALL' as <header_id> to dump at every header.",
-						   cxxopts::value<std::vector<std::string>>(), "<header_id>[:<filename>]")
+						   cxxopts::মান<std::vector<std::string>>(), "<header_id>[:<filename>]")
 		("W,warning-as-warning", "print a warning for all log messages matching <regex>",
-			cxxopts::value<std::vector<std::string>>(), "<regex>")
+			cxxopts::মান<std::vector<std::string>>(), "<regex>")
 		("w,warning-as-message", "if a warning message matches <regex>, it is printed as regular message instead",
-			cxxopts::value<std::vector<std::string>>(), "<regex>")
+			cxxopts::মান<std::vector<std::string>>(), "<regex>")
 		("e,warning-as-error", "if a warning message matches <regex>, it is printed as error message instead",
-			cxxopts::value<std::vector<std::string>>(), "<regex>")
+			cxxopts::মান<std::vector<std::string>>(), "<regex>")
 		("E,deps-file", "write a Makefile dependencies file <depsfile> with input and output file names",
-			cxxopts::value<std::string>(), "<depsfile>")
+			cxxopts::মান<std::string>(), "<depsfile>")
 		("no-color", "disable colored output");
 	;
 	options.add_options("developer")
 		("X,trace", "enable tracing of core data structure changes. for debugging")
 		("M,randomize-pointers", "will slightly randomize allocated pointer addresses. for debugging")
 		("autoidx", "start counting autoidx up from <seed>",
-			cxxopts::value<uint64_t>(), "<idx>")
+			cxxopts::মান<uint64_t>(), "<idx>")
 		("A,abort", "will call abort() at the end of the script. for debugging")
 		("x,experimental", "do not print warnings for the experimental <feature>",
-			cxxopts::value<std::vector<std::string>>(), "<feature>")
+			cxxopts::মান<std::vector<std::string>>(), "<feature>")
 		("g,debug", "globally enable debug log messages")
-		("perffile", "write a JSON performance log to <perffile>", cxxopts::value<std::string>(), "<perffile>")
+		("perffile", "write a JSON performance log to <perffile>", cxxopts::মান<std::string>(), "<perffile>")
 	;
 
 	options.parse_positional({"infile"});
@@ -357,133 +357,133 @@ int main(int argc, char **argv)
 	// We can't have -h optionally require an argument
 	// cxxopts does have an implit argument concept but that doesn't work for us
 	// cxxopts is therefore instructed allowed to only handle the command help case
-	if (argc == 2 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "-help") || !strcmp(argv[1], "--help"))) {
+	যদি (argc == 2 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "-help") || !strcmp(argv[1], "--help"))) {
 		std::cout << options.help() << std::endl;
 		exit(0);
 	}
-	try {
+	চেষ্টা {
 		// Check for "--" in arguments
 		auto it = std::find(argv, argv + argc, std::string("--"));
-		if (it != argv + argc) {
+		যদি (it != argv + argc) {
 			special_args.assign(it + 1, argv + argc);
 			// Remove these arguments from cxxopts parsing
 			argc = std::distance(argv, it);
 		}
 
-		auto result = options.parse(argc, argv);
+		auto ফলাফল = options.parse(argc, argv);
 
-		if (result.count("M")) memhasher_on();
-		if (result.count("X")) yosys_xtrace += result.count("X");
-		if (result.count("A")) call_abort = true;
-		if (result.count("Q")) print_banner = false;
-		if (result.count("T")) print_stats = false;
-		if (result.count("no-version")) yosys_write_versions = false;
-		if (result.count("V")) {
+		যদি (ফলাফল.গুনতি("M")) memhasher_on();
+		যদি (ফলাফল.গুনতি("X")) yosys_xtrace += ফলাফল.গুনতি("X");
+		যদি (ফলাফল.গুনতি("A")) call_abort = সত্য;
+		যদি (ফলাফল.গুনতি("Q")) print_banner = মিথ্যা;
+		যদি (ফলাফল.গুনতি("T")) print_stats = মিথ্যা;
+		যদি (ফলাফল.গুনতি("no-version")) yosys_write_versions = মিথ্যা;
+		যদি (ফলাফল.গুনতি("V")) {
 			std::cout << yosys_version_str << std::endl;
 			exit(0);
 		}
-		if (result.count("git-hash")) {
+		যদি (ফলাফল.গুনতি("git-hash")) {
 			std::cout << yosys_git_hash_str << std::endl;
 			exit(0);
 		}
-		if (result.count("S")) {
-			passes_commands.push_back("synth");
-			run_shell = false;
+		যদি (ফলাফল.গুনতি("S")) {
+			passes_commands.ঠেলো_back("synth");
+			run_shell = মিথ্যা;
 		}
-		if (result.count("C")) run_tcl_shell = true;
-		if (result.count("g")) logger().force_debug_on();
-		if (result.count("m")) plugin_filenames = result["m"].as<std::vector<std::string>>();
-		if (result.count("f")) frontend_command = result["f"].as<std::string>();
-		if (result.count("H")) {
-			passes_commands.push_back("help");
-			run_shell = false;
+		যদি (ফলাফল.গুনতি("C")) run_tcl_shell = সত্য;
+		যদি (ফলাফল.গুনতি("g")) logger().force_debug_on();
+		যদি (ফলাফল.গুনতি("m")) plugin_filenames = ফলাফল["m"].as<std::vector<std::string>>();
+		যদি (ফলাফল.গুনতি("f")) frontend_command = ফলাফল["f"].as<std::string>();
+		যদি (ফলাফল.গুনতি("H")) {
+			passes_commands.ঠেলো_back("help");
+			run_shell = মিথ্যা;
 		}
-		if (result.count("h")) {
-			std::string res = result["h"].as<std::string>();
-			passes_commands.push_back("help " + res);
-			run_shell = false;
+		যদি (ফলাফল.গুনতি("h")) {
+			std::string res = ফলাফল["h"].as<std::string>();
+			passes_commands.ঠেলো_back("help " + res);
+			run_shell = মিথ্যা;
 		}
-		if (result.count("b")) {
-			backend_command = result["b"].as<std::string>();
-			run_shell = false;
+		যদি (ফলাফল.গুনতি("b")) {
+			backend_command = ফলাফল["b"].as<std::string>();
+			run_shell = মিথ্যা;
 		}
-		if (result.count("p")) {
-			auto cmds = result["p"].as<std::vector<std::string>>();
-			passes_commands.insert(passes_commands.end(), cmds.begin(), cmds.end());
-			run_shell = false;
+		যদি (ফলাফল.গুনতি("p")) {
+			auto cmds = ফলাফল["p"].as<std::vector<std::string>>();
+			passes_commands.ঢোকাও(passes_commands.end(), cmds.begin(), cmds.end());
+			run_shell = মিথ্যা;
 		}
-		if (result.count("o")) {
-			output_filename = result["o"].as<std::string>();
-			run_shell = false;
+		যদি (ফলাফল.গুনতি("o")) {
+			output_filename = ফলাফল["o"].as<std::string>();
+			run_shell = মিথ্যা;
 		}
-		for (const auto& key : {"l", "L"}) {
-			if (result.count(key)) {
-				for (const auto& filename : result[key].as<std::vector<std::string>>()) {
-					try {
-						logger().add_sink<FileLogSink>(filename, key[0] == 'L', false);
-					} catch (const std::runtime_error &e) {
+		জন্য (ধ্রুবক auto& চাবি : {"l", "L"}) {
+			যদি (ফলাফল.গুনতি(চাবি)) {
+				জন্য (ধ্রুবক auto& filename : ফলাফল[চাবি].as<std::vector<std::string>>()) {
+					চেষ্টা {
+						logger().add_sink<FileLogSink>(filename, চাবি[0] == 'L', মিথ্যা);
+					} ধরো (ধ্রুবক std::runtime_error &e) {
  					   std::cerr << e.what();
 					   exit(1);
 					}
 				}
 			}
 		}
-		if (result.count("q")) {
-			mode_q = true;
-			if (log_stderr) quiet_warnings = true;
-			log_stderr = true;
+		যদি (ফলাফল.গুনতি("q")) {
+			mode_q = সত্য;
+			যদি (log_stderr) quiet_warnings = সত্য;
+			log_stderr = সত্য;
 		}
-		if (result.count("v")) {
-			mode_v = true;
-			log_stderr = true;
-			logger().set_verbose_level(result["v"].as<int>());
+		যদি (ফলাফল.গুনতি("v")) {
+			mode_v = সত্য;
+			log_stderr = সত্য;
+			logger().set_verbose_level(ফলাফল["v"].as<পূর্ণসংখ্যা>());
 		}
-		if (result.count("t")) logger().set_log_time(true);
-		if (result.count("no-color")) no_color = true;
-		if (result.count("d")) timing_details = true;
-		for (const auto& key : {"s", "c"}) {
-			if (result.count(key)) {
-				scriptfile = result[key].as<std::string>();
-				scriptfile_tcl = std::string(key) == "c";
-				run_shell = false;
+		যদি (ফলাফল.গুনতি("t")) logger().set_log_time(সত্য);
+		যদি (ফলাফল.গুনতি("no-color")) no_color = সত্য;
+		যদি (ফলাফল.গুনতি("d")) timing_details = সত্য;
+		জন্য (ধ্রুবক auto& চাবি : {"s", "c"}) {
+			যদি (ফলাফল.গুনতি(চাবি)) {
+				scriptfile = ফলাফল[চাবি].as<std::string>();
+				scriptfile_tcl = std::string(চাবি) == "c";
+				run_shell = মিথ্যা;
 			}
 		}
-		if (result.count("y")) {
-			scriptfile = result["y"].as<std::string>();
-			scriptfile_python = true;
-			run_shell = false;
+		যদি (ফলাফল.গুনতি("y")) {
+			scriptfile = ফলাফল["y"].as<std::string>();
+			scriptfile_python = সত্য;
+			run_shell = মিথ্যা;
 		}
-		for (const auto& key : {"W", "w", "e"}) {
-			if (result.count(key)) {
-				auto regexes = result[key].as<std::vector<std::string>>();
-				for (const auto& regex : regexes) {
-					if (std::string(key) == "W")
+		জন্য (ধ্রুবক auto& চাবি : {"W", "w", "e"}) {
+			যদি (ফলাফল.গুনতি(চাবি)) {
+				auto regexes = ফলাফল[চাবি].as<std::vector<std::string>>();
+				জন্য (ধ্রুবক auto& regex : regexes) {
+					যদি (std::string(চাবি) == "W")
 						logger().add_warn(regex);
-					if (std::string(key) == "w")
+					যদি (std::string(চাবি) == "w")
 						logger().add_nowarn(regex);
-					if (std::string(key) == "e")
+					যদি (std::string(চাবি) == "e")
 						logger().add_werror(regex);
 				}
 			}
 		}
-		if (result.count("r")) topmodule = result["r"].as<std::string>();
-		if (result.count("D")) vlog_defines = result["D"].as<std::vector<std::string>>();
-		if (result.count("P")) {
-			auto dump_args = result["P"].as<std::vector<std::string>>();
-			for (const auto& arg : dump_args) {
+		যদি (ফলাফল.গুনতি("r")) topmodule = ফলাফল["r"].as<std::string>();
+		যদি (ফলাফল.গুনতি("D")) vlog_defines = ফলাফল["D"].as<std::vector<std::string>>();
+		যদি (ফলাফল.গুনতি("P")) {
+			auto dump_args = ফলাফল["P"].as<std::vector<std::string>>();
+			জন্য (ধ্রুবক auto& arg : dump_args) {
 				auto tokens = split_tokens(arg, ":");
-				if (!tokens.empty() && tokens[0] == "ALL") {
-					if (tokens.size() != 1) {
+				যদি (!tokens.empty() && tokens[0] == "ALL") {
+					যদি (tokens.আকার_2() != 1) {
 						std::cerr << "Invalid number of tokens in -P ALL." << std::endl;
 						exit(1);
 					}
-					logger().set_hdump_all(true);
-				} else {
-					if (!tokens.empty() && !tokens[0].empty() && tokens[0].back() == '.')
-						tokens[0].pop_back();
-					if (tokens.size() == 1)
-						tokens.push_back("yosys_dump_" + tokens[0] + ".il");
-					if (tokens.size() != 2) {
+					logger().set_hdump_all(সত্য);
+				} অন্যথা {
+					যদি (!tokens.empty() && !tokens[0].empty() && tokens[0].back() == '.')
+						tokens[0].বের_করো_back();
+					যদি (tokens.আকার_2() == 1)
+						tokens.ঠেলো_back("yosys_dump_" + tokens[0] + ".il");
+					যদি (tokens.আকার_2() != 2) {
 						std::cerr << "Invalid number of tokens in -P." << std::endl;
 						exit(1);
 					}
@@ -491,60 +491,60 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		if (result.count("E")) depsfile = result["E"].as<std::string>();
-		if (result.count("x")) {
-			for (const auto &ignore : result["x"].as<std::vector<std::string>>())
+		যদি (ফলাফল.গুনতি("E")) depsfile = ফলাফল["E"].as<std::string>();
+		যদি (ফলাফল.গুনতি("x")) {
+			জন্য (ধ্রুবক auto &ignore : ফলাফল["x"].as<std::vector<std::string>>())
     			logger().add_experimental_ignore(ignore);
 		}
-		if (result.count("perffile")) perffile = result["perffile"].as<std::string>();
-		if (result.count("infile")) {
-			frontend_files = result["infile"].as<std::vector<std::string>>();
+		যদি (ফলাফল.গুনতি("perffile")) perffile = ফলাফল["perffile"].as<std::string>();
+		যদি (ফলাফল.গুনতি("infile")) {
+			frontend_files = ফলাফল["infile"].as<std::vector<std::string>>();
 		}
-		if (result.count("autoidx")) {
-			int idx = result["autoidx"].as<uint64_t>();
+		যদি (ফলাফল.গুনতি("autoidx")) {
+			পূর্ণসংখ্যা idx = ফলাফল["autoidx"].as<uint64_t>();
 			autoidx = idx;
 		}
 
-		if (!is_colored(stdout) || !is_colored(stderr)) {
-			if (!log_stderr) {
+		যদি (!is_colored(stdout) || !is_colored(stderr)) {
+			যদি (!log_stderr) {
 				logger().add_sink<ConsoleLogSink>();
-			} else {
+			} অন্যথা {
 				logger().add_sink<StderrLogSink>(quiet_warnings);
 			}
-		} else
+		} অন্যথা
 			logger().add_sink<ColorConsoleLogSink>(log_stderr, quiet_warnings);
 
-		if (print_banner)
+		যদি (print_banner)
 			yosys_banner();
 
 	}
-	catch (const cxxopts::exceptions::parsing& e) {
+	ধরো (ধ্রুবক cxxopts::exceptions::parsing& e) {
 		std::cerr << "Error parsing options: " << e.what() << std::endl;
 		std::cerr << "Run '" << argv[0] << " --help' for help." << std::endl;
 		exit(1);
 	}
 
-#if defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
+#যদি defined(YOSYS_ENABLE_READLINE) || defined(YOSYS_ENABLE_EDITLINE)
 	std::string state_dir;
-	#if defined(_WIN32)
-		if (getenv("HOMEDRIVE") != NULL && getenv("HOMEPATH") != NULL) {
+	#যদি defined(_WIN32)
+		যদি (getenv("HOMEDRIVE") != ফাঁকা && getenv("HOMEPATH") != ফাঁকা) {
 			state_dir = stringf("%s%s/.local/state", getenv("HOMEDRIVE"), getenv("HOMEPATH"));
-		} else {
+		} অন্যথা {
 			log_debug("$HOMEDRIVE and/or $HOMEPATH is empty. No history file will be created.\n");
 		}
-	#else
-		if (getenv("XDG_STATE_HOME") == NULL || getenv("XDG_STATE_HOME")[0] == '\0') {
-			if (getenv("HOME") != NULL) {
+	#অন্যথা
+		যদি (getenv("XDG_STATE_HOME") == ফাঁকা || getenv("XDG_STATE_HOME")[0] == '\0') {
+			যদি (getenv("HOME") != ফাঁকা) {
 				state_dir = stringf("%s/.local/state", getenv("HOME"));
-			} else {
+			} অন্যথা {
 				log_debug("$HOME is empty. No history file will be created.\n");
 			}
-		} else {
+		} অন্যথা {
 			state_dir = stringf("%s", getenv("XDG_STATE_HOME"));
 		}
 	#endif
 
-	if (!state_dir.empty()) {
+	যদি (!state_dir.empty()) {
 		std::string yosys_dir = state_dir + "/yosys";
 		create_directory(yosys_dir);
 
@@ -554,23 +554,23 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	if (print_stats)
+	যদি (print_stats)
 		logger().start_hasher();
 
-#if defined(__OpenBSD__)
+#যদি defined(__OpenBSD__)
 	// save the executable origin for proc_self_dirname()
 	yosys_argv0 = argv[0];
 	realpath(yosys_argv0, yosys_path);
 #endif
 
-#if defined(__linux__)
+#যদি defined(__linux__)
 	// set stack size to >= 128 MB
 	{
-		struct rlimit rl;
-		const rlim_t stack_size = 128L * 1024L * 1024L;
-		if (getrlimit(RLIMIT_STACK, &rl) == 0 && rl.rlim_cur < stack_size) {
-			rl.rlim_cur = stack_size;
-			setrlimit(RLIMIT_STACK, &rl);
+		কাঠামো rlimit rl;
+		ধ্রুবক rlim_t স্তূপ_আকার = 128L * 1024L * 1024L;
+		যদি (getrlimit(RLIMIT_স্তূপ, &rl) == 0 && rl.rlim_cur < স্তূপ_আকার) {
+			rl.rlim_cur = স্তূপ_আকার;
+			setrlimit(RLIMIT_স্তূপ, &rl);
 		}
 	}
 #endif
@@ -583,56 +583,56 @@ int main(int argc, char **argv)
 #endif
 	log_error_atexit = yosys_atexit;
 
-	for (auto &fn : plugin_filenames)
+	জন্য (auto &fn : plugin_filenames)
 		load_plugin(fn, {});
 
 	log_suppressed();
 
-	if (!vlog_defines.empty()) {
+	যদি (!vlog_defines.empty()) {
 		std::string vdef_cmd = "read -define";
-		for (auto vdef : vlog_defines)
+		জন্য (auto vdef : vlog_defines)
 			vdef_cmd += " " + vdef;
 		run_pass(vdef_cmd);
 	}
 
-	if (scriptfile.empty() || (!scriptfile_tcl && !scriptfile_python)) {
+	যদি (scriptfile.empty() || (!scriptfile_tcl && !scriptfile_python)) {
 		// Without a TCL or Python script, arguments following '--'
 		// are also treated as frontend files
-		for (auto special_arg : special_args)
-			frontend_files.push_back(special_arg);
+		জন্য (auto special_arg : special_args)
+			frontend_files.ঠেলো_back(special_arg);
 	}
 
-	for (auto it = frontend_files.begin(); it != frontend_files.end(); ++it) {
-		if (run_frontend((*it).c_str(), frontend_command))
-			run_shell = false;
+	জন্য (auto it = frontend_files.begin(); it != frontend_files.end(); ++it) {
+		যদি (run_frontend((*it).c_str(), frontend_command))
+			run_shell = মিথ্যা;
 	}
 
-	if (!topmodule.empty())
+	যদি (!topmodule.empty())
 		run_pass("hierarchy -top " + topmodule);
-	if (!scriptfile.empty()) {
-		if (scriptfile_tcl) {
+	যদি (!scriptfile.empty()) {
+		যদি (scriptfile_tcl) {
 #ifdef YOSYS_ENABLE_TCL
-			int tcl_argc = special_args.size();
+			পূর্ণসংখ্যা tcl_argc = special_args.আকার_2();
 			std::vector<Tcl_Obj*> script_args;
 			Tcl_Interp *interp = yosys_get_tcl_interp();
-			for (auto arg : special_args)
-				script_args.push_back(Tcl_NewStringObj(arg.c_str(), arg.length()));
+			জন্য (auto arg : special_args)
+				script_args.ঠেলো_back(Tcl_NewStringObj(arg.c_str(), arg.দৈর্ঘ্য()));
 
-			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), NULL, Tcl_NewIntObj(tcl_argc), 0);
-			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), NULL, Tcl_NewListObj(tcl_argc, script_args.data()), 0);
-			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), NULL, Tcl_NewStringObj(scriptfile.c_str(), scriptfile.length()), 0);
+			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argc", 4), ফাঁকা, Tcl_NewIntObj(tcl_argc), 0);
+			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv", 4), ফাঁকা, Tcl_NewListObj(tcl_argc, script_args.তথ্য()), 0);
+			Tcl_ObjSetVar2(interp, Tcl_NewStringObj("argv0", 5), ফাঁকা, Tcl_NewStringObj(scriptfile.c_str(), scriptfile.দৈর্ঘ্য()), 0);
 
-			if (Tcl_EvalFile(interp, scriptfile.c_str()) != TCL_OK)
-				log_error("TCL interpreter returned an error: %s\n", Tcl_GetStringResult(yosys_get_tcl_interp()));
-#else
+			যদি (Tcl_EvalFile(interp, scriptfile.c_str()) != TCL_OK)
+				log_error("TCL interpreter returned an error: %s\n", Tcl_Get_String_ফলাফল(yosys_get_tcl_interp()));
+#অন্যথা
 			log_error("Can't execute TCL script: this version of yosys is not built with TCL support enabled.\n");
 #endif
-		} else if (scriptfile_python) {
+		} অন্যথা যদি (scriptfile_python) {
 #ifdef YOSYS_ENABLE_PYTHON
 			py::list new_argv;
-			int py_argc = special_args.size() + 1;
+			পূর্ণসংখ্যা py_argc = special_args.আকার_2() + 1;
 			new_argv.append(scriptfile);
-			for (int i = 1; i < py_argc; ++i)
+			জন্য (পূর্ণসংখ্যা i = 1; i < py_argc; ++i)
 				new_argv.append(special_args[i - 1]);
 
 			py::setattr(sys, "argv", new_argv);
@@ -643,57 +643,57 @@ int main(int argc, char **argv)
 			sys.attr("path").attr("insert")(0, py::str(scriptfile_python_path));
 
 			FILE *scriptfp = fopen(scriptfile.c_str(), "r");
-			if (scriptfp == nullptr) {
+			যদি (scriptfp == nullptr) {
 				log_error("Failed to open file '%s' for reading.\n", scriptfile);
 			}
-			if (PyRun_SimpleFile(scriptfp, scriptfile.c_str()) != 0) {
+			যদি (PyRun_SimpleFile(scriptfp, scriptfile.c_str()) != 0) {
 				log_flush();
 				PyErr_Print();
 				log_error("Python interpreter encountered an exception.\n");
 			}
-#else
+#অন্যথা
 			log_error("Can't execute Python script: this version of yosys is not built with Python support enabled.\n");
 #endif
-		} else
+		} অন্যথা
 			run_frontend(scriptfile, "script");
 	}
 
-	for (auto it = passes_commands.begin(); it != passes_commands.end(); it++)
+	জন্য (auto it = passes_commands.begin(); it != passes_commands.end(); it++)
 		run_pass(*it);
 
-	if (run_tcl_shell) {
+	যদি (run_tcl_shell) {
 #ifdef YOSYS_ENABLE_TCL
 		yosys_tcl_activate_repl();
 		Tcl_Main(argc, argv, yosys_tcl_interp_init);
-#else
+#অন্যথা
 		log_error("Can't exectue TCL shell: this version of yosys is not built with TCL support enabled.\n");
 #endif
-	} else {
-		if (run_shell)
+	} অন্যথা {
+		যদি (run_shell)
 			shell(yosys_design);
-		else
+		অন্যথা
 			run_backend(output_filename, backend_command);
 	}
 
 	yosys_design->check();
-	for (auto it : saved_designs)
+	জন্য (auto it : saved_designs)
 		it.second->check();
-	for (auto it : pushed_designs)
+	জন্য (auto it : pushed_designs)
 		it->check();
 
-	if (!depsfile.empty())
+	যদি (!depsfile.empty())
 	{
 		FILE *f = fopen(depsfile.c_str(), "wt");
-		if (f == nullptr)
+		যদি (f == nullptr)
 			log_error("Can't open dependencies file for writing: %s\n", strerror(errno));
-		bool first = true;
-		for (auto fn : yosys_output_files) {
+		যৌক্তিক first = সত্য;
+		জন্য (auto fn : yosys_output_files) {
 			fprintf(f, "%s%s", first ? "" : " ", escape_filename_spaces(fn).c_str());
-			first = false;
+			first = মিথ্যা;
 		}
 		fprintf(f, ":");
-		for (auto fn : yosys_input_files) {
-			if (yosys_output_files.count(fn) == 0)
+		জন্য (auto fn : yosys_প্রবেশ_files) {
+			যদি (yosys_output_files.গুনতি(fn) == 0)
 				fprintf(f, " %s", escape_filename_spaces(fn).c_str());
 		}
 		fprintf(f, "\n");
@@ -701,122 +701,122 @@ int main(int argc, char **argv)
 
 	logger().report_unexpected_error();
 
-	if (print_stats)
+	যদি (print_stats)
 	{
 		std::string hash = logger().finish_hasher();
-		logger().set_log_time(false);
+		logger().set_log_time(মিথ্যা);
 		yosys_xtrace = 0;
 		log_spacer();
 
 		log_stderr_sink_forced = mode_v && !mode_q;
-		if (logger().get_warnings_total())
-			log("Warnings: %d unique messages, %d total\n", logger().get_warnings_unique(), logger().get_warnings_total());
+		যদি (logger().get_warnings_যোগ())
+			log("Warnings: %d unique messages, %d total\n", logger().get_warnings_unique(), logger().get_warnings_যোগ());
 
-		if (GetSize(logger().get_experimental()) != 0)
-			log("Warnings: %d experimental features used (not excluded with -x).\n", GetSize(logger().get_experimental()));
+		যদি (Get_আকার(logger().get_experimental()) != 0)
+			log("Warnings: %d experimental features used (not excluded with -x).\n", Get_আকার(logger().get_experimental()));
 
-		if (GetSize(logger().get_deprecated()) != 0) {
+		যদি (Get_আকার(logger().get_deprecated()) != 0) {
 			log("Deprecated features used:\n");
-			for (auto &[feature, earliest_removal] : logger().get_deprecated())
-				if (earliest_removal.empty())
+			জন্য (auto &[feature, earliest_removal] : logger().get_deprecated())
+				যদি (earliest_removal.empty())
 					log("    %s\n", feature);
-				else
+				অন্যথা
 					log("    %s (may be removed as soon as Yosys %s)\n", feature, earliest_removal);
 		}
 #ifdef _WIN32
 		log("End of script. Logfile hash: %s\n", hash);
-		(void)wall_clock_start;
-#else
+		(শূন্য)wall_clock_start;
+#অন্যথা
 		std::string meminfo;
 		std::string stats_divider = ", ";
 
-		struct rusage ru_buffer;
-		getrusage(RUSAGE_SELF, &ru_buffer);
-		if (yosys_design->scratchpad_get_bool("print_stats.include_children")) {
-			struct rusage ru_buffer_children;
-			getrusage(RUSAGE_CHILDREN, &ru_buffer_children);
-			ru_buffer.ru_utime.tv_sec += ru_buffer_children.ru_utime.tv_sec;
-			ru_buffer.ru_utime.tv_usec += ru_buffer_children.ru_utime.tv_usec;
-			ru_buffer.ru_stime.tv_sec += ru_buffer_children.ru_stime.tv_sec;
-			ru_buffer.ru_stime.tv_usec += ru_buffer_children.ru_stime.tv_usec;
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
-			ru_buffer.ru_maxrss = std::max(ru_buffer.ru_maxrss, ru_buffer_children.ru_maxrss);
+		কাঠামো rusage ru_বাফার;
+		getrusage(RUSAGE_SELF, &ru_বাফার);
+		যদি (yosys_design->scratchpad_get_bool("print_stats.include_children")) {
+			কাঠামো rusage ru_বাফার_children;
+			getrusage(RUSAGE_CHILDREN, &ru_বাফার_children);
+			ru_বাফার.ru_utime.tv_sec += ru_বাফার_children.ru_utime.tv_sec;
+			ru_বাফার.ru_utime.tv_usec += ru_বাফার_children.ru_utime.tv_usec;
+			ru_বাফার.ru_stime.tv_sec += ru_বাফার_children.ru_stime.tv_sec;
+			ru_বাফার.ru_stime.tv_usec += ru_বাফার_children.ru_stime.tv_usec;
+#যদি defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
+			ru_বাফার.ru_maxrss = std::max(ru_বাফার.ru_maxrss, ru_বাফার_children.ru_maxrss);
 #endif
 		}
-#if defined(__linux__) || defined(__FreeBSD__)
+#যদি defined(__linux__) || defined(__FreeBSD__)
 		meminfo = stringf(", MEM: %.2f MB peak",
-				ru_buffer.ru_maxrss / 1024.0);
-#elif defined(__APPLE__)
+				ru_বাফার.ru_maxrss / 1024.0);
+#নতুবা_যদি defined(__APPLE__)
 // https://stackoverflow.com/questions/59913657/strange-values-of-get-rusage-maxrss-on-macos-and-linux
 		meminfo = stringf(", MEM: %.2f MB peak",
-				ru_buffer.ru_maxrss / (1024.0 * 1024.0));
+				ru_বাফার.ru_maxrss / (1024.0 * 1024.0));
 #endif
-		double wall_seconds = std::chrono::duration<double>(
-				std::chrono::steady_clock::now() - wall_clock_start).count();
+		দ্বিগুণ wall_seconds = std::chrono::duration<দ্বিগুণ>(
+				std::chrono::steady_clock::now() - wall_clock_start).গুনতি();
 
 		log("End of script. Logfile hash: %s%stime: %.2fs, user: %.2fs, system: %.2fs%s\n", hash,
-				stats_divider.c_str(), wall_seconds, ru_buffer.ru_utime.tv_sec + 1e-6 * ru_buffer.ru_utime.tv_usec,
-				ru_buffer.ru_stime.tv_sec + 1e-6 * ru_buffer.ru_stime.tv_usec, meminfo.c_str());
+				stats_divider.c_str(), wall_seconds, ru_বাফার.ru_utime.tv_sec + 1e-6 * ru_বাফার.ru_utime.tv_usec,
+				ru_বাফার.ru_stime.tv_sec + 1e-6 * ru_বাফার.ru_stime.tv_usec, meminfo.c_str());
 #endif
 		log("%s\n", yosys_maybe_version());
 
-		int64_t total_ns = 0;
-		std::set<tuple<int64_t, int, std::string>> timedat;
+		int64_t যোগ_ns = 0;
+		std::set<tuple<int64_t, পূর্ণসংখ্যা, std::string>> timedat;
 
-		for (auto &it : pass_register)
-			if (it.second->call_counter) {
+		জন্য (auto &it : pass_register)
+			যদি (it.second->call_গণক) {
 				auto pass_ns = it.second->runtime_ns + 1;
-				total_ns += pass_ns;
-				timedat.insert(make_tuple(pass_ns, it.second->call_counter, it.first));
+				যোগ_ns += pass_ns;
+				timedat.ঢোকাও(make_tuple(pass_ns, it.second->call_গণক, it.first));
 			}
-		if (twine_gc_count) {
-			total_ns += twine_gc_ns;
-			timedat.insert(make_tuple(twine_gc_ns, twine_gc_count, "twine_gc"));
+		যদি (twine_gc_গুনতি) {
+			যোগ_ns += twine_gc_ns;
+			timedat.ঢোকাও(make_tuple(twine_gc_ns, twine_gc_গুনতি, "twine_gc"));
 		}
 
-		if (timing_details)
+		যদি (timing_details)
 		{
 			log("Time spent:\n");
-			for (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
-				log("%5d%% %5d calls %8.3f sec %s\n", int(100*std::get<0>(*it) / total_ns),
+			জন্য (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
+				log("%5d%% %5d calls %8.3f sec %s\n", পূর্ণসংখ্যা(100*std::get<0>(*it) / যোগ_ns),
 						std::get<1>(*it), std::get<0>(*it) / 1000000000.0, std::get<2>(*it).c_str());
 			}
 		}
-		else
+		অন্যথা
 		{
-			int out_count = 0;
+			পূর্ণসংখ্যা out_গুনতি = 0;
 			std::string message = "Time spent:";
-			for (auto it = timedat.rbegin(); it != timedat.rend() && out_count < 4; it++, out_count++) {
-				if (out_count >= 2 && (std::get<0>(*it) < 1000000000 || int(100*std::get<0>(*it) / total_ns) < 20)) {
+			জন্য (auto it = timedat.rbegin(); it != timedat.rend() && out_গুনতি < 4; it++, out_গুনতি++) {
+				যদি (out_গুনতি >= 2 && (std::get<0>(*it) < 1000000000 || পূর্ণসংখ্যা(100*std::get<0>(*it) / যোগ_ns) < 20)) {
 					message += ", ...";
-					break;
+					বিরতি;
 				}
-				message += stringf("%s %d%% %dx %s (%d sec)", out_count ? "," : "", int(100*std::get<0>(*it) / total_ns),
-						std::get<1>(*it), std::get<2>(*it).c_str(), int(std::get<0>(*it) / 1000000000));
+				message += stringf("%s %d%% %dx %s (%d sec)", out_গুনতি ? "," : "", পূর্ণসংখ্যা(100*std::get<0>(*it) / যোগ_ns),
+						std::get<1>(*it), std::get<2>(*it).c_str(), পূর্ণসংখ্যা(std::get<0>(*it) / 1000000000));
 			}
-			message += out_count ? "" : " no commands executed";
+			message += out_গুনতি ? "" : " no commands executed";
 			log("%s\n", message);
 		}
-		if(!perffile.empty())
+		যদি(!perffile.empty())
 		{
 			FILE *f = fopen(perffile.c_str(), "wt");
-			if (f == nullptr)
+			যদি (f == nullptr)
 				log_error("Can't open performance log file for writing: %s\n", strerror(errno));
 
 			fprintf(f, "{\n");
 			fprintf(f, "  \"generator\": \"%s\",\n", yosys_maybe_version());
-			fprintf(f, "  \"total_ns\": %" PRIu64 ",\n", total_ns);
+			fprintf(f, "  \"total_ns\": %" PRIu64 ",\n", যোগ_ns);
 			fprintf(f, "  \"passes\": {");
 
-			bool first = true;
-			for (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
-				if (!first)
+			যৌক্তিক first = সত্য;
+			জন্য (auto it = timedat.rbegin(); it != timedat.rend(); it++) {
+				যদি (!first)
 					fprintf(f, ",");
 				fprintf(f, "\n	\"%s\": {\n", std::get<2>(*it).c_str());
 				fprintf(f, "	  \"runtime_ns\": %" PRIu64 ",\n", std::get<0>(*it));
 				fprintf(f, "	  \"num_calls\": %u\n", std::get<1>(*it));
 				fprintf(f, "	}");
-				first = false;
+				first = মিথ্যা;
 			}
 			fprintf(f, "\n  }\n}\n");
 		}
@@ -827,17 +827,17 @@ int main(int argc, char **argv)
 	yosys_atexit();
 
 	memhasher_off();
-	if (call_abort)
+	যদি (call_abort)
 		abort();
 
 	log_flush();
 
 	yosys_shutdown();
 
-#if defined(_MSC_VER)
+#যদি defined(_MSC_VER)
 	_exit(0);
-#elif defined(_WIN32)
+#নতুবা_যদি defined(_WIN32)
 	_Exit(0);
 #endif
-	return 0;
+	ফেরত 0;
 }

@@ -1,23 +1,23 @@
-#include "compressor_tree.h"
+#অন্তর্ভাব "compressor_tree.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-namespace CompressorTree
+নামাকাশ Compressor_বৃক্ষ
 {
 
-std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, int width)
+std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, পূর্ণসংখ্যা width)
 {
-	SigSpec sum = module->addWire(NEW_ID, width);
+	SigSpec যোগ = module->addWire(NEW_ID, width);
 	SigSpec cout = module->addWire(NEW_ID, width);
-	module->addFa(NEW_ID, a, b, c, cout, sum);
+	module->addFa(NEW_ID, a, b, c, cout, যোগ);
 
 	SigSpec carry;
 	carry.append(State::S0);
 	carry.append(cout.extract(0, width - 1));
-	return {sum, carry};
+	ফেরত {যোগ, carry};
 }
 
-std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, int width)
+std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, পূর্ণসংখ্যা width)
 {
 	// First FA: a + b + c -> s0
 	SigSpec s0 = module->addWire(NEW_ID, width);
@@ -27,35 +27,35 @@ std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpe
 	// cin[0] = 0, cin[i] = cout_h_full[i-1]
 	SigSpec cin;
 	cin.append(State::S0);
-	if (width > 1)
+	যদি (width > 1)
 		cin.append(cout_h_full.extract(0, width - 1));
 
 	// Second FA: s0 + d + cin -> sum
-	SigSpec sum = module->addWire(NEW_ID, width);
+	SigSpec যোগ = module->addWire(NEW_ID, width);
 	SigSpec carry_full = module->addWire(NEW_ID, width);
-	module->addFa(NEW_ID, s0, d, cin, carry_full, sum);
+	module->addFa(NEW_ID, s0, d, cin, carry_full, যোগ);
 
 	SigSpec carry;
 	carry.append(State::S0);
-	if (width > 1)
+	যদি (width > 1)
 		carry.append(carry_full.extract(0, width - 1));
 
-	return {sum, carry};
+	ফেরত {যোগ, carry};
 }
 
-std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSpec b, bool a_signed, bool b_signed, int width) {
-	int width_a = GetSize(a);
-	int width_b = GetSize(b);
+std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSpec b, যৌক্তিক a_signed, যৌক্তিক b_signed, পূর্ণসংখ্যা width) {
+	পূর্ণসংখ্যা width_a = Get_আকার(a);
+	পূর্ণসংখ্যা width_b = Get_আকার(b);
 	std::vector<DepthSig> products;
 	products.reserve(width_a + 3);
 
-	for (int i = 0; i < width_a; i++) {
+	জন্য (পূর্ণসংখ্যা i = 0; i < width_a; i++) {
 		SigBit ai = a[i];
 
 		// b_shifted = (0_i ## b)
 		SigSpec b_shifted = SigSpec(State::S0, i);
 		b_shifted.append(b);
-		b_shifted.extend_u0(width, false);
+		b_shifted.extend_u0(width, মিথ্যা);
 
 		// row = b_shifted & replicate(a[i], width)
 		SigSpec ai_rep = SigSpec(ai, width);
@@ -63,189 +63,189 @@ std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSp
 		module->addAnd(NEW_ID, b_shifted, ai_rep, row);
 
 		// Apply Modified Baugh-Wooley inversions for this row
-		bool row_is_bottom = (i == width_a - 1);
-		bool any_inversion = (row_is_bottom && b_signed) || a_signed;
+		যৌক্তিক row_is_bottom = (i == width_a - 1);
+		যৌক্তিক any_inversion = (row_is_bottom && b_signed) || a_signed;
 
-		if (any_inversion) {
+		যদি (any_inversion) {
 			std::vector<RTLIL::State> mask(width, RTLIL::State::S0);
 
-			for (int j = 0; j < width_b; j++) {
-				int col = i + j;
-				if (col < 0 || col >= width)
-					continue;
-				bool col_is_right = (j == width_b - 1);
+			জন্য (পূর্ণসংখ্যা j = 0; j < width_b; j++) {
+				পূর্ণসংখ্যা col = i + j;
+				যদি (col < 0 || col >= width)
+					চালু;
+				যৌক্তিক col_is_ডান = (j == width_b - 1);
 				// Flip masks
-				bool invert = (row_is_bottom && b_signed) ^ (col_is_right && a_signed);
-				if (invert)
+				যৌক্তিক invert = (row_is_bottom && b_signed) ^ (col_is_ডান && a_signed);
+				যদি (invert)
 					mask[col] = RTLIL::State::S1;
 			}
 
 			// Skip the xor entirely if the mask is all zeroes
-			bool nonzero = false;
-			for (auto s : mask)
-				if (s == RTLIL::State::S1) {
-					nonzero = true;
-					break;
+			যৌক্তিক nonzero = মিথ্যা;
+			জন্য (auto s : mask)
+				যদি (s == RTLIL::State::S1) {
+					nonzero = সত্য;
+					বিরতি;
 				}
-			if (nonzero) {
+			যদি (nonzero) {
 				SigSpec inverted = module->addWire(NEW_ID, width);
 				module->addXor(NEW_ID, row, SigSpec(RTLIL::Const(mask)), inverted);
 				row = inverted;
 			}
 		}
 
-		products.push_back({row, 0});
+		products.ঠেলো_back({row, 0});
 	}
 
 	// Correction constants
-	auto push_one_at = [&](int col) {
-		if (col < 0 || col >= width)
-			return;
+	auto ঠেলো_one_at = [&](পূর্ণসংখ্যা col) {
+		যদি (col < 0 || col >= width)
+			ফেরত;
 		std::vector<RTLIL::State> v(width, RTLIL::State::S0);
 		v[col] = RTLIL::State::S1;
-		products.push_back({SigSpec(RTLIL::Const(v)), 0});
+		products.ঠেলো_back({SigSpec(RTLIL::Const(v)), 0});
 	};
 
-	if (b_signed)
-		push_one_at(width_a - 1);
-	if (a_signed)
-		push_one_at(width_b - 1);
-	if (a_signed || b_signed) {
+	যদি (b_signed)
+		ঠেলো_one_at(width_a - 1);
+	যদি (a_signed)
+		ঠেলো_one_at(width_b - 1);
+	যদি (a_signed || b_signed) {
 		// Sign-extend the Baugh-Wooley correction to the accumulator width.
-		int sign_extension_start = width_a + width_b - 1;
-		if (sign_extension_start < width) {
+		পূর্ণসংখ্যা sign_extension_start = width_a + width_b - 1;
+		যদি (sign_extension_start < width) {
 			std::vector<RTLIL::State> v(width, RTLIL::State::S0);
-			for (int i = sign_extension_start; i < width; i++)
+			জন্য (পূর্ণসংখ্যা i = sign_extension_start; i < width; i++)
 				v[i] = RTLIL::State::S1;
-			products.push_back({SigSpec(RTLIL::Const(v)), 0});
+			products.ঠেলো_back({SigSpec(RTLIL::Const(v)), 0});
 		}
 	}
 
-	return products;
+	ফেরত products;
 }
 
-std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, int width, Strategy strategy, int *out_compressor_count, int *out_final_depth) {
-	int levels = 0;
-	int fa_count = 0;
-	int c42_count = 0;
-	int final_depth = 0;
+std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, পূর্ণসংখ্যা width, Strategy strategy, পূর্ণসংখ্যা *out_compressor_গুনতি, পূর্ণসংখ্যা *out_final_depth) {
+	পূর্ণসংখ্যা levels = 0;
+	পূর্ণসংখ্যা fa_গুনতি = 0;
+	পূর্ণসংখ্যা c42_গুনতি = 0;
+	পূর্ণসংখ্যা final_depth = 0;
 
-	for (auto &op : operands)
+	জন্য (auto &op : operands)
 		op.sig.extend_u0(width);
 
 	// Only compress operands ready at current level
-	for (int level = 0; operands.size() > 2; level++) {
+	জন্য (পূর্ণসংখ্যা level = 0; operands.আকার_2() > 2; level++) {
 		// Partition operands into ready and waiting
 		std::vector<DepthSig> ready;
 		std::vector<DepthSig> waiting;
-		ready.reserve(operands.size());
-		for (auto &op : operands) {
-			if (op.depth <= level)
-				ready.push_back(op);
-			else
-				waiting.push_back(op);
+		ready.reserve(operands.আকার_2());
+		জন্য (auto &op : operands) {
+			যদি (op.depth <= level)
+				ready.ঠেলো_back(op);
+			অন্যথা
+				waiting.ঠেলো_back(op);
 		}
 
-		if (ready.size() < 3) {
+		যদি (ready.আকার_2() < 3) {
 			levels++;
-			continue;
+			চালু;
 		}
 
 		// Apply compressors to ready operands
 		std::vector<DepthSig> compressed;
-		compressed.reserve(ready.size());
-		size_t i = 0;
+		compressed.reserve(ready.আকার_2());
+		আকার_t i = 0;
 
 		// PREFER_42 attempts 4:2 grouping greedily (falls back to 3:2 for the residual)
 		// FA_ONLY skips
 		// DADDA = PREFER_42 (TODO: inspect column heights?)
-		bool try_42 = (strategy == Strategy::PREFER_42 || strategy == Strategy::DADDA);
+		যৌক্তিক try_42 = (strategy == Strategy::PREFER_42 || strategy == Strategy::DADDA);
 
-		while (i < ready.size()) {
-			size_t remaining = ready.size() - i;
+		যখন (i < ready.আকার_2()) {
+			আকার_t remaining = ready.আকার_2() - i;
 
-			if (try_42 && remaining >= 4) {
+			যদি (try_42 && remaining >= 4) {
 				DepthSig a = ready[i + 0];
 				DepthSig b = ready[i + 1];
 				DepthSig c = ready[i + 2];
 				DepthSig d = ready[i + 3];
 
-				auto [sum, carry] = emit_compressor_42(module, a.sig, b.sig, c.sig, d.sig, width);
-				int dmax = std::max({a.depth, b.depth, c.depth, d.depth});
+				auto [যোগ, carry] = emit_compressor_42(module, a.sig, b.sig, c.sig, d.sig, width);
+				পূর্ণসংখ্যা dmax = std::max({a.depth, b.depth, c.depth, d.depth});
 
-				compressed.push_back({sum, dmax + 2});
-				compressed.push_back({carry, dmax + 2});
+				compressed.ঠেলো_back({যোগ, dmax + 2});
+				compressed.ঠেলো_back({carry, dmax + 2});
 
-				fa_count += 2;
-				c42_count += 1;
+				fa_গুনতি += 2;
+				c42_গুনতি += 1;
 				i += 4;
-			} else if (remaining >= 3) {
+			} অন্যথা যদি (remaining >= 3) {
 				DepthSig a = ready[i + 0];
 				DepthSig b = ready[i + 1];
 				DepthSig c = ready[i + 2];
 
-				auto [sum, carry] = emit_compressor_32(module, a.sig, b.sig, c.sig, width);
-				int dmax = std::max({a.depth, b.depth, c.depth});
+				auto [যোগ, carry] = emit_compressor_32(module, a.sig, b.sig, c.sig, width);
+				পূর্ণসংখ্যা dmax = std::max({a.depth, b.depth, c.depth});
 
-				compressed.push_back({sum, dmax + 1});
-				compressed.push_back({carry, dmax + 1});
+				compressed.ঠেলো_back({যোগ, dmax + 1});
+				compressed.ঠেলো_back({carry, dmax + 1});
 
-				fa_count += 1;
+				fa_গুনতি += 1;
 				i += 3;
-			} else {
+			} অন্যথা {
 				// Uncompressed operands pass through to next level
-				for (; i < ready.size(); i++)
-					compressed.push_back(ready[i]);
-				break;
+				জন্য (; i < ready.আকার_2(); i++)
+					compressed.ঠেলো_back(ready[i]);
+				বিরতি;
 			}
 		}
 
 		// Merge compressed with waiting operands
-		for (auto &op : waiting)
-			compressed.push_back(op);
+		জন্য (auto &op : waiting)
+			compressed.ঠেলো_back(op);
 
 		operands = std::move(compressed);
 		levels++;
 	}
 
-	if(out_compressor_count)
-		*out_compressor_count = fa_count;
-	if (operands.size() == 0) {
-		if (out_final_depth)
+	যদি(out_compressor_গুনতি)
+		*out_compressor_গুনতি = fa_গুনতি;
+	যদি (operands.আকার_2() == 0) {
+		যদি (out_final_depth)
 			*out_final_depth = 0;
-		return {SigSpec(State::S0, width), SigSpec(State::S0, width)};
+		ফেরত {SigSpec(State::S0, width), SigSpec(State::S0, width)};
 	}
-	if (operands.size() == 1) {
-		if (out_final_depth)
+	যদি (operands.আকার_2() == 1) {
+		যদি (out_final_depth)
 			*out_final_depth = operands[0].depth;
-		return {operands[0].sig, SigSpec(State::S0, width)};
+		ফেরত {operands[0].sig, SigSpec(State::S0, width)};
 	}
 
 	final_depth = std::max(operands[0].depth, operands[1].depth);
-	if (out_final_depth)
+	যদি (out_final_depth)
 		*out_final_depth = final_depth;
-	log_assert(operands.size() == 2);
-	log("    CompressorTree::reduce_scheduled: %d levels, %d $fa (%d as 4:2), final depth %d\n", levels, fa_count, c42_count, final_depth);
-	return {operands[0].sig, operands[1].sig};
+	log_assert(operands.আকার_2() == 2);
+	log("    CompressorTree::reduce_scheduled: %d levels, %d $fa (%d as 4:2), final depth %d\n", levels, fa_গুনতি, c42_গুনতি, final_depth);
+	ফেরত {operands[0].sig, operands[1].sig};
 }
 
-void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
+শূন্য emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 {
-	int width = GetSize(y);
-	log_assert(GetSize(a) == width);
-	log_assert(GetSize(b) == width);
+	পূর্ণসংখ্যা width = Get_আকার(y);
+	log_assert(Get_আকার(a) == width);
+	log_assert(Get_আকার(b) == width);
 
-	if (width == 0)
-		return;
+	যদি (width == 0)
+		ফেরত;
 
-	if (width == 1) {
+	যদি (width == 1) {
 		module->addXorGate(NEW_ID, a[0], b[0], y[0]);
-		return;
+		ফেরত;
 	}
 
 	// Bit level gen and prop
 	std::vector<SigBit> g_pre(width), p_pre(width);
-	for (int i = 0; i < width; i++) {
+	জন্য (পূর্ণসংখ্যা i = 0; i < width; i++) {
 		SigBit gi = module->addWire(NEW_ID);
 		SigBit pi = module->addWire(NEW_ID);
 		module->addAndGate(NEW_ID, a[i], b[i], gi);
@@ -257,41 +257,41 @@ void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 	// Propagate (g, p) through ceil(log2 W) levels
 	std::vector<SigBit> g = g_pre;
 	std::vector<SigBit> p = p_pre;
-	int num_levels = 0;
+	পূর্ণসংখ্যা অঙ্ক_levels = 0;
 
-	while ((1 << num_levels) < width)
-		num_levels++;
+	যখন ((1 << অঙ্ক_levels) < width)
+		অঙ্ক_levels++;
 
-	for (int k = 1; k <= num_levels; k++) {
-		int s = 1 << (k - 1);
-		std::vector<SigBit> g_next(width), p_next(width);
-		for (int i = 0; i < width; i++) {
-			if (i < s) {
+	জন্য (পূর্ণসংখ্যা k = 1; k <= অঙ্ক_levels; k++) {
+		পূর্ণসংখ্যা s = 1 << (k - 1);
+		std::vector<SigBit> g_পরবর্তী(width), p_পরবর্তী(width);
+		জন্য (পূর্ণসংখ্যা i = 0; i < width; i++) {
+			যদি (i < s) {
 				// Nothing to do
-				g_next[i] = g[i];
-				p_next[i] = p[i];
-			} else {
+				g_পরবর্তী[i] = g[i];
+				p_পরবর্তী[i] = p[i];
+			} অন্যথা {
 				// g_i^k = g_i | (p_i & g_(i-s))
 				SigBit and_pg = module->addWire(NEW_ID);
 				module->addAndGate(NEW_ID, p[i], g[i - s], and_pg);
 				SigBit gnew = module->addWire(NEW_ID);
 				module->addOrGate(NEW_ID, g[i], and_pg, gnew);
-				g_next[i] = gnew;
+				g_পরবর্তী[i] = gnew;
 
 				// p_i^k = p_i & p_(i-s)
-				if (k < num_levels) {
+				যদি (k < অঙ্ক_levels) {
 					SigBit pnew = module->addWire(NEW_ID);
 					module->addAndGate(NEW_ID, p[i], p[i - s], pnew);
-					p_next[i] = pnew;
-				} else {
+					p_পরবর্তী[i] = pnew;
+				} অন্যথা {
 					// Skip last level
-					p_next[i] = State::Sx;
+					p_পরবর্তী[i] = State::Sx;
 				}
 			}
 		}
 
-		g = std::move(g_next);
-		p = std::move(p_next);
+		g = std::move(g_পরবর্তী);
+		p = std::move(p_পরবর্তী);
 	}
 
 	// Sum layer, g[i] is COUT of bit i
@@ -299,34 +299,34 @@ void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 	//   sum[0] = p_pre[0]
 	//   sum[i] = p_pre[i] ^ g[i-1] ...
 	module->connect(y[0], p_pre[0]);
-	for (int i = 1; i < width; i++)
+	জন্য (পূর্ণসংখ্যা i = 1; i < width; i++)
 		module->addXorGate(NEW_ID, p_pre[i], g[i - 1], y[i]);
 }
 
 Cell *emit_final_adder(Module *module, SigSpec a, SigSpec b, SigSpec y, FinalAdder choice) {
-	switch (choice) {
-		case FinalAdder::DEFAULT:
-		case FinalAdder::RIPPLE: {
-			return module->addAdd(NEW_ID, a, b, y, false);
+	নির্বাচন (choice) {
+		ক্ষেত্র FinalAdder::DEFAULT:
+		ক্ষেত্র FinalAdder::RIPPLE: {
+			ফেরত module->addAdd(NEW_ID, a, b, y, মিথ্যা);
 		}
-		case FinalAdder::PARALLEL_PREFIX: {
+		ক্ষেত্র FinalAdder::PARALLEL_PREFIX: {
 			emit_kogge_stone(module, a, b, y);
-			return nullptr;
+			ফেরত nullptr;
 		}
 	}
-	log_assert(false && "CompressorTree::emit_final_adder: invalid choice");
-	return nullptr;
+	log_assert(মিথ্যা && "CompressorTree::emit_final_adder: invalid choice");
+	ফেরত nullptr;
 }
 
-FinalAdder pick_final_adder(int width, int final_depth, FinalMode mode) {
-	switch (mode) {
-		case FinalMode::RIPPLE:  return FinalAdder::RIPPLE;
-		case FinalMode::PREFIX:  return FinalAdder::PARALLEL_PREFIX;
-		case FinalMode::AUTO:
-		default: {
-			bool wide = width >= RIPPLE_PREFIX_WIDTH_THRESHOLD;
-			bool deep = final_depth >= RIPPLE_PREFIX_DEPTH_THRESHOLD;
-			return (wide && deep) ? FinalAdder::PARALLEL_PREFIX : FinalAdder::DEFAULT;
+FinalAdder pick_final_adder(পূর্ণসংখ্যা width, পূর্ণসংখ্যা final_depth, FinalMode mode) {
+	নির্বাচন (mode) {
+		ক্ষেত্র FinalMode::RIPPLE:  ফেরত FinalAdder::RIPPLE;
+		ক্ষেত্র FinalMode::PREFIX:  ফেরত FinalAdder::PARALLEL_PREFIX;
+		ক্ষেত্র FinalMode::AUTO:
+		পূর্বনির্ধারিত: {
+			যৌক্তিক wide = width >= RIPPLE_PREFIX_WIDTH_THRESHOLD;
+			যৌক্তিক deep = final_depth >= RIPPLE_PREFIX_DEPTH_THRESHOLD;
+			ফেরত (wide && deep) ? FinalAdder::PARALLEL_PREFIX : FinalAdder::DEFAULT;
 		}
 	}
 }

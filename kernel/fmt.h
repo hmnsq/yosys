@@ -20,14 +20,14 @@
 #ifndef FMT_H
 #define FMT_H
 
-#include "kernel/yosys.h"
+#অন্তর্ভাব "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // Verilog format argument, such as the arguments in:
 //   $display("foo %d bar %01x", 4'b0, $signed(2'b11))
-struct VerilogFmtArg {
-	enum {
+কাঠামো VerilogFmtArg {
+	গণনা {
 		STRING  = 0,
 		INTEGER = 1,
 		TIME    = 2,
@@ -50,8 +50,8 @@ struct VerilogFmtArg {
 // RTLIL format part, such as the substitutions in:
 //   "foo {4:> 4du} bar {2:<01hs}"
 // Must be kept in sync with `struct fmt_part` in backends/cxxrtl/runtime/cxxrtl/cxxrtl.h!
-struct FmtPart {
-	enum {
+কাঠামো FmtPart {
+	গণনা {
 		LITERAL  	= 0,
 		INTEGER 	= 1,
 		STRING    = 2,
@@ -66,18 +66,18 @@ struct FmtPart {
 	RTLIL::SigSpec sig;
 
 	// INTEGER/STRING/VLOG_TIME types
-	enum {
-		RIGHT	= 0,
-		LEFT	= 1,
+	গণনা {
+		ডান	= 0,
+		বাম	= 1,
 		NUMERIC	= 2,
-	} justify = RIGHT;
-	char padding = '\0';
-	size_t width = 0;
+	} justify = ডান;
+	অক্ষর padding = '\0';
+	আকার_t width = 0;
 
 	// INTEGER type
 	unsigned base = 10;
 	bool signed_ = false;
-	enum {
+	গণনা {
 		MINUS		= 0,
 		PLUS_MINUS	= 1,
 		SPACE_MINUS	= 2,
@@ -90,24 +90,24 @@ struct FmtPart {
 	bool realtime = false;
 };
 
-struct Fmt {
-public:
+কাঠামো Fmt {
+সর্বজনীন:
 	std::vector<FmtPart> parts;
 
-	void append_literal(const std::string &str);
+	শূন্য append_literal(ধ্রুবক std::string &str);
 
-	void parse_rtlil(const RTLIL::Cell *cell);
-	void emit_rtlil(RTLIL::Cell *cell) const;
+	শূন্য parse_rtlil(ধ্রুবক RTLIL::Cell *cell);
+	শূন্য emit_rtlil(RTLIL::Cell *cell) ধ্রুবক;
 
-	void parse_verilog(const std::vector<VerilogFmtArg> &args, bool sformat_like, int default_base, const std::string &task_name, const std::string &module_name);
-	std::vector<VerilogFmtArg> emit_verilog() const;
+	শূন্য parse_verilog(ধ্রুবক std::vector<VerilogFmtArg> &args, bool sformat_like, পূর্ণসংখ্যা default_base, ধ্রুবক std::string &task_name, ধ্রুবক std::string &module_name);
+	std::vector<VerilogFmtArg> emit_verilog() ধ্রুবক;
 
-	void emit_cxxrtl(std::ostream &os, std::string indent, std::function<void(const RTLIL::SigSpec &)> emit_sig, const std::string &context) const;
+	শূন্য emit_cxxrtl(std::ostream &os, std::string indent, std::function<শূন্য(ধ্রুবক RTLIL::SigSpec &)> emit_sig, ধ্রুবক std::string &context) ধ্রুবক;
 
-	std::string render() const;
+	std::string render() ধ্রুবক;
 
-private:
-	void apply_verilog_automatic_sizing_and_add(FmtPart &part);
+ব্যক্তিগত:
+	শূন্য apply_verilog_automatic_sizing_and_add(FmtPart &part);
 };
 
 YOSYS_NAMESPACE_END

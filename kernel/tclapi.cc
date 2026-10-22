@@ -17,234 +17,234 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/rtlil.h"
-#include "libs/json11/json11.hpp"
+#অন্তর্ভাব "kernel/yosys.h"
+#অন্তর্ভাব "kernel/rtlil.h"
+#অন্তর্ভাব "libs/json11/json11.hpp"
 
 #ifdef YOSYS_ENABLE_TCL
-#include <tcl.h>
-#include <tclTomMath.h>
-#include <tclTomMathDecls.h>
+#অন্তর্ভাব <tcl.h>
+#অন্তর্ভাব <tclTomMath.h>
+#অন্তর্ভাব <tclTomMathDecls.h>
 #endif
 
 YOSYS_NAMESPACE_BEGIN
 
 #ifdef YOSYS_ENABLE_TCL
-bool yosys_tcl_repl_active = false;
+যৌক্তিক yosys_tcl_repl_active = মিথ্যা;
 
-void yosys_tcl_activate_repl()
+শূন্য yosys_tcl_activate_repl()
 {
-	yosys_tcl_repl_active = true;
+	yosys_tcl_repl_active = সত্য;
 }
 
-static Tcl_Obj *json_to_tcl(Tcl_Interp *interp, const json11::Json &json)
+স্থির Tcl_Obj *json_to_tcl(Tcl_Interp *interp, ধ্রুবক json11::Json &json)
 {
-	if (json.is_null())
-		return Tcl_NewStringObj("null", 4);
-	else if (json.is_string()) {
-		auto string = json.string_value();
-		return Tcl_NewStringObj(string.data(), string.size());
-	} else if (json.is_number()) {
-		double value = json.number_value();
-		double round_val = std::nearbyint(value);
-		if (std::isfinite(round_val) && value == round_val && value >= LONG_MIN && value < -double(LONG_MIN))
-			return Tcl_NewLongObj((long)round_val);
-		else
-			return Tcl_NewDoubleObj(value);
-	} else if (json.is_bool()) {
-		return Tcl_NewBooleanObj(json.bool_value());
-	} else if (json.is_array()) {
-		auto list = json.array_items();
-		Tcl_Obj *result = Tcl_NewListObj(list.size(), nullptr);
-		for (auto &item : list)
-			Tcl_ListObjAppendElement(interp, result, json_to_tcl(interp, item));
-		return result;
-	} else if (json.is_object()) {
-		auto map = json.object_items();
-		Tcl_Obj *result = Tcl_NewListObj(map.size() * 2, nullptr);
-		for (auto &item : map) {
-			Tcl_ListObjAppendElement(interp, result, Tcl_NewStringObj(item.first.data(), item.first.size()));
-			Tcl_ListObjAppendElement(interp, result, json_to_tcl(interp, item.second));
+	যদি (json.is_null())
+		ফেরত Tcl_NewStringObj("null", 4);
+	অন্যথা যদি (json.is_string()) {
+		auto string = json.string_মান();
+		ফেরত Tcl_NewStringObj(string.তথ্য(), string.আকার_2());
+	} অন্যথা যদি (json.is_সংখ্যা()) {
+		দ্বিগুণ মান = json.সংখ্যা_মান();
+		দ্বিগুণ round_val = std::nearbyint(মান);
+		যদি (std::isfinite(round_val) && মান == round_val && মান >= LONG_MIN && মান < -দ্বিগুণ(LONG_MIN))
+			ফেরত Tcl_NewLongObj((long)round_val);
+		অন্যথা
+			ফেরত Tcl_NewDoubleObj(মান);
+	} অন্যথা যদি (json.is_bool()) {
+		ফেরত Tcl_NewBooleanObj(json.bool_মান());
+	} অন্যথা যদি (json.is_array()) {
+		auto list = json.array_বস্তুসমূহ();
+		Tcl_Obj *ফলাফল = Tcl_NewListObj(list.আকার_2(), nullptr);
+		জন্য (auto &item : list)
+			Tcl_ListObjAppendElement(interp, ফলাফল, json_to_tcl(interp, item));
+		ফেরত ফলাফল;
+	} অন্যথা যদি (json.is_object()) {
+		auto map = json.object_বস্তুসমূহ();
+		Tcl_Obj *ফলাফল = Tcl_NewListObj(map.আকার_2() * 2, nullptr);
+		জন্য (auto &item : map) {
+			Tcl_ListObjAppendElement(interp, ফলাফল, Tcl_NewStringObj(item.first.তথ্য(), item.first.আকার_2()));
+			Tcl_ListObjAppendElement(interp, ফলাফল, json_to_tcl(interp, item.second));
 		}
-		return result;
-	} else {
+		ফেরত ফলাফল;
+	} অন্যথা {
 		log_abort();
 	}
 }
 
-static int tcl_yosys_cmd(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+স্থির পূর্ণসংখ্যা tcl_yosys_cmd(Client_তথ্য, Tcl_Interp *interp, পূর্ণসংখ্যা argc, ধ্রুবক অক্ষর *argv[])
 {
 	std::vector<std::string> args;
-	for (int i = 1; i < argc; i++)
-		args.push_back(argv[i]);
+	জন্য (পূর্ণসংখ্যা i = 1; i < argc; i++)
+		args.ঠেলো_back(argv[i]);
 
-	if (args.size() >= 1 && args[0] == "-import") {
-		for (auto &it : pass_register) {
+	যদি (args.আকার_2() >= 1 && args[0] == "-import") {
+		জন্য (auto &it : pass_register) {
 			std::string tcl_command_name = it.first;
-			if (tcl_command_name == "proc")
+			যদি (tcl_command_name == "proc")
 				tcl_command_name = "procs";
-			else if (tcl_command_name == "rename")
+			অন্যথা যদি (tcl_command_name == "rename")
 				tcl_command_name = "renames";
 			Tcl_CmdInfo info;
-			if (Tcl_GetCommandInfo(interp, tcl_command_name.c_str(), &info) != 0) {
+			যদি (Tcl_GetCommandInfo(interp, tcl_command_name.c_str(), &info) != 0) {
 				log("[TCL: yosys -import] Command name collision: found pre-existing command `%s' -> skip.\n", it.first);
-			} else {
+			} অন্যথা {
 				std::string tcl_script = stringf("proc %s args { yosys %s {*}$args }", tcl_command_name, it.first);
 				Tcl_Eval(interp, tcl_script.c_str());
 			}
 		}
-		return TCL_OK;
+		ফেরত TCL_OK;
 	}
 
 	yosys_get_design()->scratchpad_unset("result.json");
 	yosys_get_design()->scratchpad_unset("result.string");
 
-	bool in_repl = yosys_tcl_repl_active;
+	যৌক্তিক in_repl = yosys_tcl_repl_active;
 	auto guard = logger().error_throw_scope();
-	try {
-		if (args.size() == 1) {
+	চেষ্টা {
+		যদি (args.আকার_2() == 1) {
 			Pass::call(yosys_get_design(), args[0]);
-		} else {
+		} অন্যথা {
 			Pass::call(yosys_get_design(), args);
 		}
-	} catch (log_cmd_error_exception) {
-		if (in_repl) {
+	} ধরো (log_cmd_error_exception) {
+		যদি (in_repl) {
 			auto design = yosys_get_design();
-			while (design->selection_stack.size() > 1)
-				design->pop_selection();
-			log_reset_stack();
+			যখন (design->selection_স্তূপ.আকার_2() > 1)
+				design->বের_করো_selection();
+			log_reset_স্তূপ();
 		}
-		Tcl_SetResult(interp, (char *)"Yosys command produced an error", TCL_STATIC);
+		Tcl_Set_ফলাফল(interp, (অক্ষর *)"Yosys command produced an error", TCL_STATIC);
 
 		yosys_tcl_repl_active = in_repl;
-		return TCL_ERROR;
-	} catch (...) {
+		ফেরত TCL_ERROR;
+	} ধরো (...) {
 		log_error("uncaught exception during Yosys command invoked from TCL\n");
 	}
 
 	yosys_tcl_repl_active = in_repl;
 
 	auto &scratchpad = yosys_get_design()->scratchpad;
-	auto result = scratchpad.find("result.json");
-	if (result != scratchpad.end()) {
+	auto ফলাফল = scratchpad.find("result.json");
+	যদি (ফলাফল != scratchpad.end()) {
 		std::string err;
-		auto json = json11::Json::parse(result->second, err);
-		if (err.empty()) {
-			Tcl_SetObjResult(interp, json_to_tcl(interp, json));
-		} else
+		auto json = json11::Json::parse(ফলাফল->second, err);
+		যদি (err.empty()) {
+			Tcl_Set_Obj_ফলাফল(interp, json_to_tcl(interp, json));
+		} অন্যথা
 			log_warning("Ignoring result.json scratchpad value due to parse error: %s\n", err);
-	} else if ((result = scratchpad.find("result.string")) != scratchpad.end()) {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(result->second.data(), result->second.size()));
+	} অন্যথা যদি ((ফলাফল = scratchpad.find("result.string")) != scratchpad.end()) {
+		Tcl_Set_Obj_ফলাফল(interp, Tcl_NewStringObj(ফলাফল->second.তথ্য(), ফলাফল->second.আকার_2()));
 	}
 
-	return TCL_OK;
+	ফেরত TCL_OK;
 }
 
 #define FLAG(name) \
-	if (!strcmp(argv[i], "-" #name)) { \
-		name##_flag = true; \
-		continue; \
+	যদি (!strcmp(argv[i], "-" #name)) { \
+		name##_flag = সত্য; \
+		চালু; \
 	} \
 
 #define FLAG2(name) \
-	if (!strcmp(Tcl_GetString(objv[i]), "-" #name)) { \
-		name##_flag = true; \
-		continue; \
+	যদি (!strcmp(Tcl_GetString(objv[i]), "-" #name)) { \
+		name##_flag = সত্য; \
+		চালু; \
 	} \
 
 #define ERROR(str) \
 	{ \
-		Tcl_SetResult(interp, (char *)(str), TCL_STATIC); \
-		return TCL_ERROR; \
+		Tcl_Set_ফলাফল(interp, (অক্ষর *)(str), TCL_STATIC); \
+		ফেরত TCL_ERROR; \
 	}
 
-bool const_to_mp_int(const Const &a, mp_int *b, bool force_signed, bool force_unsigned)
+যৌক্তিক const_to_mp_int(ধ্রুবক Const &a, mp_int *b, যৌক্তিক force_signed, যৌক্তিক force_unsigned)
 {
-	if (!a.is_fully_def())
-		return false;
+	যদি (!a.is_fully_def())
+		ফেরত মিথ্যা;
 
-	if (mp_init(b))
-		return false;
+	যদি (mp_init(b))
+		ফেরত মিথ্যা;
 
-	bool negative = ((a.flags & RTLIL::CONST_FLAG_SIGNED) || force_signed) &&
+	যৌক্তিক negative = ((a.flags & RTLIL::CONST_FLAG_SIGNED) || force_signed) &&
 					!force_unsigned &&
 					!a.empty() && (a.back() == RTLIL::S1);
 
-	for (int i = a.size() - 1; i >= 0; i--) {
-		if (mp_mul_2d(b, 1, b)) {
+	জন্য (পূর্ণসংখ্যা i = a.আকার_2() - 1; i >= 0; i--) {
+		যদি (mp_mul_2d(b, 1, b)) {
 			mp_clear(b);
-			return false;
+			ফেরত মিথ্যা;
 		}
 
-		if ((a[i] == RTLIL::S1) ^ negative) {
-			if (mp_add_d(b, 1, b)) {
+		যদি ((a[i] == RTLIL::S1) ^ negative) {
+			যদি (mp_add_d(b, 1, b)) {
 				mp_clear(b);
-				return false;
+				ফেরত মিথ্যা;
 			}
 		}
 	}
 
-	if (negative) {
-		if (mp_add_d(b, 1, b) || mp_neg(b, b)) {
+	যদি (negative) {
+		যদি (mp_add_d(b, 1, b) || mp_neg(b, b)) {
 			mp_clear(b);
-			return false;
+			ফেরত মিথ্যা;
 		}
 	}
 
-	return true;
+	ফেরত সত্য;
 }
 
-bool mp_int_to_const(mp_int *a, Const &b, bool is_signed)
+যৌক্তিক mp_int_to_const(mp_int *a, Const &b, যৌক্তিক is_signed)
 {
-	bool negative = (mp_cmp_d(a, 0) == MP_LT);
-	if (negative && !is_signed)
-		return false;
+	যৌক্তিক negative = (mp_cmp_d(a, 0) == MP_LT);
+	যদি (negative && !is_signed)
+		ফেরত মিথ্যা;
 
-	if (negative) {
-		if (mp_neg(a, a) != MP_OKAY)
-			return false;
-		if (mp_sub_d(a, 1, a) != MP_OKAY)
-			return false;
+	যদি (negative) {
+		যদি (mp_neg(a, a) != MP_OKAY)
+			ফেরত মিথ্যা;
+		যদি (mp_sub_d(a, 1, a) != MP_OKAY)
+			ফেরত মিথ্যা;
 	}
 
-	std::vector<unsigned char> buf;
-	buf.resize(mp_unsigned_bin_size(a));
-	if (mp_to_unsigned_bin(a, buf.data()) != MP_OKAY)
-		return false;
+	std::vector<unsigned অক্ষর> buf;
+	buf.resize(mp_unsigned_bin_আকার(a));
+	যদি (mp_to_unsigned_bin(a, buf.তথ্য()) != MP_OKAY)
+		ফেরত মিথ্যা;
 
-	Const::Builder b_bits(mp_count_bits(a) + is_signed);
-	for (int i = 0; i < mp_count_bits(a);) {
-		for (int j = 0; j < 8 && i < mp_count_bits(a); j++, i++) {
-			bool bv = ((buf.back() & (1 << j)) != 0) ^ negative;
-			b_bits.push_back(bv ? RTLIL::S1 : RTLIL::S0);
+	Const::Builder b_bits(mp_গুনতি_bits(a) + is_signed);
+	জন্য (পূর্ণসংখ্যা i = 0; i < mp_গুনতি_bits(a);) {
+		জন্য (পূর্ণসংখ্যা j = 0; j < 8 && i < mp_গুনতি_bits(a); j++, i++) {
+			যৌক্তিক bv = ((buf.back() & (1 << j)) != 0) ^ negative;
+			b_bits.ঠেলো_back(bv ? RTLIL::S1 : RTLIL::S0);
 		}
-		buf.pop_back();
+		buf.বের_করো_back();
 	}
 
-	if (is_signed) {
-		b_bits.push_back(negative ? RTLIL::S1 : RTLIL::S0);
+	যদি (is_signed) {
+		b_bits.ঠেলো_back(negative ? RTLIL::S1 : RTLIL::S0);
 	}
 	b = b_bits.build();
 
-	return true;
+	ফেরত সত্য;
 }
 
-static int tcl_get_attr(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+স্থির পূর্ণসংখ্যা tcl_get_attr(Client_তথ্য, Tcl_Interp *interp, পূর্ণসংখ্যা argc, ধ্রুবক অক্ষর *argv[])
 {
-	int i;
-	bool mod_flag = false, string_flag = false, bool_flag = false;
-	bool int_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < argc; i++) {
+	পূর্ণসংখ্যা i;
+	যৌক্তিক mod_flag = মিথ্যা, string_flag = মিথ্যা, bool_flag = মিথ্যা;
+	যৌক্তিক int_flag = মিথ্যা, sint_flag = মিথ্যা, uint_flag = মিথ্যা;
+	জন্য (i = 1; i < argc; i++) {
 		FLAG(mod)
 		FLAG(string)
-		FLAG(int)
+		FLAG(পূর্ণসংখ্যা)
 		FLAG(sint)
 		FLAG(uint)
-		FLAG(bool)
-		break;
+		FLAG(যৌক্তিক)
+		বিরতি;
 	}
 
-	if ((mod_flag && i != argc - 2) ||
+	যদি ((mod_flag && i != argc - 2) ||
 			(!mod_flag && i != argc - 3) ||
 			(string_flag + int_flag + sint_flag + uint_flag + bool_flag > 1))
 		ERROR("bad usage: expected \"get_attr -mod [-string|-int|-sint|-uint|-bool] <module> <attrname>\""
@@ -252,120 +252,120 @@ static int tcl_get_attr(ClientData, Tcl_Interp *interp, int argc, const char *ar
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(argv[i++]);
-	if (!mod_flag)
+	যদি (!mod_flag)
 		obj_id = RTLIL::escape_id(argv[i++]);
 	attr_id = RTLIL::escape_id(argv[i++]);
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	যদি (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	যদি (mod_flag) {
 		obj = mod;
-	} else {
+	} অন্যথা {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		যদি (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		যদি (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		যদি (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	যদি (!obj)
 		ERROR("object not found")
 
 	IdString attr_twine = yosys_design->twines().find(attr_id);
 
-	if (string_flag) {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(obj->get_string_attribute(attr_twine).c_str(), -1));
-	} else if (int_flag || uint_flag || sint_flag) {
-		if (!obj->has_attribute(attr_twine))
+	যদি (string_flag) {
+		Tcl_Set_Obj_ফলাফল(interp, Tcl_NewStringObj(obj->get_string_attribute(attr_twine).c_str(), -1));
+	} অন্যথা যদি (int_flag || uint_flag || sint_flag) {
+		যদি (!obj->has_attribute(attr_twine))
 			ERROR("attribute missing (required for -int)");
-		RTLIL::Const &value = obj->attributes.at(attr_twine);
+		RTLIL::Const &মান = obj->attributes.at(attr_twine);
 
-		mp_int value_mp;
-		if (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
+		mp_int মান_mp;
+		যদি (!const_to_mp_int(মান, &মান_mp, sint_flag, uint_flag))
 			ERROR("bignum manipulation failed");
-		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&value_mp));
-	} else if (bool_flag) {
-		Tcl_SetObjResult(interp, Tcl_NewBooleanObj(obj->get_bool_attribute(attr_twine)));
-	} else {
-		if (!obj->has_attribute(attr_twine))
+		Tcl_Set_Obj_ফলাফল(interp, Tcl_NewBignumObj(&মান_mp));
+	} অন্যথা যদি (bool_flag) {
+		Tcl_Set_Obj_ফলাফল(interp, Tcl_NewBooleanObj(obj->get_bool_attribute(attr_twine)));
+	} অন্যথা {
+		যদি (!obj->has_attribute(attr_twine))
 			ERROR("attribute missing (required unless -bool or -string)")
 
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(obj->attributes.at(attr_twine).as_string().c_str(), -1));
+		Tcl_Set_Obj_ফলাফল(interp, Tcl_NewStringObj(obj->attributes.at(attr_twine).as_string().c_str(), -1));
 	}
 
-	return TCL_OK;
+	ফেরত TCL_OK;
 }
 
-static int tcl_has_attr(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+স্থির পূর্ণসংখ্যা tcl_has_attr(Client_তথ্য, Tcl_Interp *interp, পূর্ণসংখ্যা argc, ধ্রুবক অক্ষর *argv[])
 {
-	int i;
-	bool mod_flag = false;
-	for (i = 1; i < argc; i++) {
+	পূর্ণসংখ্যা i;
+	যৌক্তিক mod_flag = মিথ্যা;
+	জন্য (i = 1; i < argc; i++) {
 		FLAG(mod)
-		break;
+		বিরতি;
 	}
 
-	if ((mod_flag && i != argc - 2) ||
+	যদি ((mod_flag && i != argc - 2) ||
 			(!mod_flag && i != argc - 3))
 		ERROR("bad usage: expected \"has_attr -mod <module> <attrname>\""
 			  " or \"has_attr <module> <identifier> <attrname>\"")
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(argv[i++]);
-	if (!mod_flag)
+	যদি (!mod_flag)
 		obj_id = RTLIL::escape_id(argv[i++]);
 	attr_id = RTLIL::escape_id(argv[i++]);
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	যদি (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	যদি (mod_flag) {
 		obj = mod;
-	} else {
+	} অন্যথা {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		যদি (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		যদি (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		যদি (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	যদি (!obj)
 		ERROR("object not found")
 
-	Tcl_SetObjResult(interp, Tcl_NewStringObj(std::to_string(obj->has_attribute(yosys_design->twines().find(attr_id))).c_str(), -1));
-	return TCL_OK;
+	Tcl_Set_Obj_ফলাফল(interp, Tcl_NewStringObj(std::to_string(obj->has_attribute(yosys_design->twines().find(attr_id))).c_str(), -1));
+	ফেরত TCL_OK;
 }
 
-static int tcl_set_attr(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+স্থির পূর্ণসংখ্যা tcl_set_attr(Client_তথ্য, Tcl_Interp *interp, পূর্ণসংখ্যা objc, Tcl_Obj *ধ্রুবক objv[])
 {
-	int i;
-	bool mod_flag = false, string_flag = false, bool_flag = false;
-	bool true_flag = false, false_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < objc; i++) {
+	পূর্ণসংখ্যা i;
+	যৌক্তিক mod_flag = মিথ্যা, string_flag = মিথ্যা, bool_flag = মিথ্যা;
+	যৌক্তিক true_flag = মিথ্যা, false_flag = মিথ্যা, sint_flag = মিথ্যা, uint_flag = মিথ্যা;
+	জন্য (i = 1; i < objc; i++) {
 		FLAG2(mod)
 		FLAG2(string)
-		FLAG2(true)
-		FLAG2(false)
+		FLAG2(সত্য)
+		FLAG2(মিথ্যা)
 		FLAG2(sint)
 		FLAG2(uint)
-		FLAG2(bool)
-		break;
+		FLAG2(যৌক্তিক)
+		বিরতি;
 	}
 
-	if ((i != objc - (2 + !mod_flag + !(true_flag || false_flag))) ||
+	যদি ((i != objc - (2 + !mod_flag + !(true_flag || false_flag))) ||
 			(string_flag + sint_flag + uint_flag + bool_flag + true_flag + false_flag > 1))
 		ERROR("bad usage: expected \"set_attr -mod [-string|-sint|-uint|-bool] <module> <attrname> <value>\""
 			  " or \"set_attr [-string|-sint|-uint|-bool] <module> <identifier> <attrname> <value>\""
@@ -374,83 +374,83 @@ static int tcl_set_attr(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
 
 	std::string mod_id, obj_id, attr_id;
 	mod_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
-	if (!mod_flag)
+	যদি (!mod_flag)
 		obj_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
 	attr_id = RTLIL::escape_id(Tcl_GetString(objv[i++]));
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	যদি (!mod)
 		ERROR("module not found")
 
 	RTLIL::AttrObject *obj = nullptr;
-	if (mod_flag) {
+	যদি (mod_flag) {
 		obj = mod;
-	} else {
+	} অন্যথা {
 		auto obj_twine = yosys_design->twines().find(obj_id);
 		obj = mod->wire(obj_twine);
-		if (!obj)
+		যদি (!obj)
 			obj = mod->memories.at(obj_twine, nullptr);
-		if (!obj)
+		যদি (!obj)
 			obj = mod->cell(obj_twine);
-		if (!obj)
+		যদি (!obj)
 			obj = mod->processes.at(obj_twine, nullptr);
 	}
 
-	if (!obj)
+	যদি (!obj)
 		ERROR("object not found")
 
 	IdString attr_twine = yosys_design->twines().add(attr_id);
 
-	if (string_flag) {
+	যদি (string_flag) {
 		obj->set_string_attribute(attr_twine, Tcl_GetString(objv[i++]));
-	} else if (sint_flag || uint_flag) {
+	} অন্যথা যদি (sint_flag || uint_flag) {
 		RTLIL::Const const_;
-		mp_int value_mp;
+		mp_int মান_mp;
 
-		if (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
+		যদি (Tcl_TakeBignumFromObj(interp, objv[i++], &মান_mp))
 			ERROR("non-integral value")
 
-		if (!mp_int_to_const(&value_mp, const_, sint_flag))
+		যদি (!mp_int_to_const(&মান_mp, const_, sint_flag))
 			ERROR("bignum manipulation failed");
 
-		if (sint_flag) {
+		যদি (sint_flag) {
 			const_.flags |= RTLIL::CONST_FLAG_SIGNED;
-			if (const_.size() < 32)
+			যদি (const_.আকার_2() < 32)
 				const_.exts(32);
-		} else {
-			if (const_.size() < 32)
+		} অন্যথা {
+			যদি (const_.আকার_2() < 32)
 				const_.extu(32);
 		}
 
 		obj->attributes[attr_twine] = const_;
-	} else if (bool_flag) {
+	} অন্যথা যদি (bool_flag) {
 		obj->set_bool_attribute(attr_twine, atoi(Tcl_GetString(objv[i++])) != 0);
-	} else if (true_flag) {
-		obj->set_bool_attribute(attr_twine, true);
-	} else if (false_flag) {
-		obj->set_bool_attribute(attr_twine, false);
-	} else {
+	} অন্যথা যদি (true_flag) {
+		obj->set_bool_attribute(attr_twine, সত্য);
+	} অন্যথা যদি (false_flag) {
+		obj->set_bool_attribute(attr_twine, মিথ্যা);
+	} অন্যথা {
 		obj->attributes[attr_twine] = Const::from_string(std::string(Tcl_GetString(objv[i++])));
 	}
 
-	return TCL_OK;
+	ফেরত TCL_OK;
 }
 
-static int tcl_get_param(ClientData, Tcl_Interp *interp, int argc, const char *argv[])
+স্থির পূর্ণসংখ্যা tcl_get_param(Client_তথ্য, Tcl_Interp *interp, পূর্ণসংখ্যা argc, ধ্রুবক অক্ষর *argv[])
 {
-	int i;
-	bool string_flag = false;
-	bool int_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < argc; i++) {
+	পূর্ণসংখ্যা i;
+	যৌক্তিক string_flag = মিথ্যা;
+	যৌক্তিক int_flag = মিথ্যা, sint_flag = মিথ্যা, uint_flag = মিথ্যা;
+	জন্য (i = 1; i < argc; i++) {
 		FLAG(string)
-		FLAG(int)
+		FLAG(পূর্ণসংখ্যা)
 		FLAG(sint)
 		FLAG(uint)
-		break;
+		বিরতি;
 	}
 
-	if ((i != argc - 3) ||
+	যদি ((i != argc - 3) ||
 			(string_flag + int_flag > 1))
 		ERROR("bad usage: expected \"get_param [-string|-int|-sint|-uint] <module> <cellid> <paramname>")
 
@@ -461,45 +461,45 @@ static int tcl_get_param(ClientData, Tcl_Interp *interp, int argc, const char *a
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	যদি (!mod)
 		ERROR("module not found")
 
 	auto cell_twine = yosys_design->twines().find(cell_id);
 	Cell* cell = mod->cell(cell_twine);
-	if (!cell)
+	যদি (!cell)
 		ERROR("object not found")
 
 	IdString param_twine = yosys_design->twines().find(param_id);
-	if (!cell->hasParam(param_twine))
+	যদি (!cell->hasParam(param_twine))
 		ERROR("parameter missing")
 
-	const RTLIL::Const &value = cell->getParam(param_twine);
+	ধ্রুবক RTLIL::Const &মান = cell->getParam(param_twine);
 
-	if (string_flag) {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(value.decode_string().c_str(), -1));
-	} else if (int_flag || uint_flag || sint_flag) {
-		mp_int value_mp;
-		if (!const_to_mp_int(value, &value_mp, sint_flag, uint_flag))
+	যদি (string_flag) {
+		Tcl_Set_Obj_ফলাফল(interp, Tcl_NewStringObj(মান.decode_string().c_str(), -1));
+	} অন্যথা যদি (int_flag || uint_flag || sint_flag) {
+		mp_int মান_mp;
+		যদি (!const_to_mp_int(মান, &মান_mp, sint_flag, uint_flag))
 			ERROR("bignum manipulation failed");
-		Tcl_SetObjResult(interp, Tcl_NewBignumObj(&value_mp));
-	} else {
-		Tcl_SetObjResult(interp, Tcl_NewStringObj(value.as_string().c_str(), -1));
+		Tcl_Set_Obj_ফলাফল(interp, Tcl_NewBignumObj(&মান_mp));
+	} অন্যথা {
+		Tcl_Set_Obj_ফলাফল(interp, Tcl_NewStringObj(মান.as_string().c_str(), -1));
 	}
-	return TCL_OK;
+	ফেরত TCL_OK;
 }
 
-static int tcl_set_param(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+স্থির পূর্ণসংখ্যা tcl_set_param(Client_তথ্য, Tcl_Interp *interp, পূর্ণসংখ্যা objc, Tcl_Obj *ধ্রুবক objv[])
 {
-	int i;
-	bool string_flag = false, sint_flag = false, uint_flag = false;
-	for (i = 1; i < objc; i++) {
+	পূর্ণসংখ্যা i;
+	যৌক্তিক string_flag = মিথ্যা, sint_flag = মিথ্যা, uint_flag = মিথ্যা;
+	জন্য (i = 1; i < objc; i++) {
 		FLAG2(string)
 		FLAG2(sint)
 		FLAG2(uint)
-		break;
+		বিরতি;
 	}
 
-	if ((i != objc - 4) ||
+	যদি ((i != objc - 4) ||
 			(string_flag + sint_flag + uint_flag > 1))
 		ERROR("bad usage: expected \"set_param [-string|-sint|-uint] <module> <cellid> <paramname> <value>")
 
@@ -510,54 +510,54 @@ static int tcl_set_param(ClientData, Tcl_Interp *interp, int objc, Tcl_Obj *cons
 
 	auto mod_twine = yosys_design->twines().find(mod_id);
 	RTLIL::Module *mod = yosys_design->module(mod_twine);
-	if (!mod)
+	যদি (!mod)
 		ERROR("module not found")
 
 	auto cell_twine = yosys_design->twines().find(cell_id);
 	RTLIL::Cell *cell = mod->cell(cell_twine);
-	if (!cell)
+	যদি (!cell)
 		ERROR("object not found")
 
 	IdString param_twine = yosys_design->twines().add(param_id);
 
-	if (string_flag) {
+	যদি (string_flag) {
 		cell->setParam(param_twine, Const(std::string(Tcl_GetString(objv[i++]))));
-	} else if (sint_flag || uint_flag) {
+	} অন্যথা যদি (sint_flag || uint_flag) {
 		RTLIL::Const const_;
-		mp_int value_mp;
+		mp_int মান_mp;
 
-		if (Tcl_TakeBignumFromObj(interp, objv[i++], &value_mp))
+		যদি (Tcl_TakeBignumFromObj(interp, objv[i++], &মান_mp))
 			ERROR("non-integral value")
 
-		if (!mp_int_to_const(&value_mp, const_, sint_flag))
+		যদি (!mp_int_to_const(&মান_mp, const_, sint_flag))
 			ERROR("bignum manipulation failed");
 
-		if (sint_flag) {
+		যদি (sint_flag) {
 			const_.flags |= RTLIL::CONST_FLAG_SIGNED;
-			if (const_.size() < 32)
+			যদি (const_.আকার_2() < 32)
 				const_.exts(32);
-		} else {
-			if (const_.size() < 32)
+		} অন্যথা {
+			যদি (const_.আকার_2() < 32)
 				const_.extu(32);
 		}
 
 		cell->setParam(param_twine, const_);
-	} else {
+	} অন্যথা {
 		cell->setParam(param_twine, Const::from_string(std::string(Tcl_GetString(objv[i++]))));
 	}
-	return TCL_OK;
+	ফেরত TCL_OK;
 }
 
-int yosys_tcl_interp_init(Tcl_Interp *interp)
+পূর্ণসংখ্যা yosys_tcl_interp_init(Tcl_Interp *interp)
 {
-	if (Tcl_Init(interp)!=TCL_OK)
-		log_warning("Tcl_Init() call failed - %s\n",Tcl_ErrnoMsg(Tcl_GetErrno()));
-	Tcl_CreateCommand(interp, "yosys", tcl_yosys_cmd, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::get_attr", tcl_get_attr, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::has_attr", tcl_has_attr, NULL, NULL);
-	Tcl_CreateObjCommand(interp, "rtlil::set_attr", tcl_set_attr, NULL, NULL);
-	Tcl_CreateCommand(interp, "rtlil::get_param", tcl_get_param, NULL, NULL);
-	Tcl_CreateObjCommand(interp, "rtlil::set_param", tcl_set_param, NULL, NULL);
+	যদি (Tcl_Init(interp)!=TCL_OK)
+		log_warning("Tcl_Init() call failed - %s\n",Tcl_Errno_বার্তা(Tcl_GetErrno()));
+	Tcl_CreateCommand(interp, "yosys", tcl_yosys_cmd, ফাঁকা, ফাঁকা);
+	Tcl_CreateCommand(interp, "rtlil::get_attr", tcl_get_attr, ফাঁকা, ফাঁকা);
+	Tcl_CreateCommand(interp, "rtlil::has_attr", tcl_has_attr, ফাঁকা, ফাঁকা);
+	Tcl_CreateObjCommand(interp, "rtlil::set_attr", tcl_set_attr, ফাঁকা, ফাঁকা);
+	Tcl_CreateCommand(interp, "rtlil::get_param", tcl_get_param, ফাঁকা, ফাঁকা);
+	Tcl_CreateObjCommand(interp, "rtlil::set_param", tcl_set_param, ফাঁকা, ফাঁকা);
 
 	// TODO:
 	//
@@ -583,7 +583,7 @@ int yosys_tcl_interp_init(Tcl_Interp *interp)
 	// verilog identifier before adding any tcl API that returns IdString values
 	// to avoid -option injection
 
-	return TCL_OK ;
+	ফেরত TCL_OK ;
 }
 #endif
 

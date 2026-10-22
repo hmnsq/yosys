@@ -20,9 +20,9 @@
 #ifndef JSON_H
 #define JSON_H
 
-#include "kernel/yosys.h"
-#include "libs/json11/json11.hpp"
-#include <functional>
+#অন্তর্ভাব "kernel/yosys.h"
+#অন্তর্ভাব "libs/json11/json11.hpp"
+#অন্তর্ভাব <functional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -30,69 +30,69 @@ using json11::Json;
 
 class PrettyJson
 {
-    enum Scope {
-        VALUE,
+    গণনা Scope {
+        মান_2,
         OBJECT_FIRST,
         OBJECT,
         ARRAY_FIRST,
         ARRAY,
     };
 
-    struct Target {
-        virtual void emit(const char *data) = 0;
-        virtual void flush() {};
-        virtual ~Target() {};
+    কাঠামো Target {
+        আভাসী শূন্য emit(ধ্রুবক অক্ষর *তথ্য) = 0;
+        আভাসী শূন্য flush() {};
+        আভাসী ~Target() {};
     };
 
     std::string newline_indent = "\n";
     std::vector<std::unique_ptr<Target>> targets;
-    std::vector<Scope> state = {VALUE};
-    int compact_depth = INT_MAX;
-public:
+    std::vector<Scope> state = {মান_2};
+    পূর্ণসংখ্যা compact_depth = INT_MAX;
+সর্বজনীন:
 
-    void emit_to_log();
-    void append_to_string(std::string &target);
-    bool write_to_file(const std::string &path);
+    শূন্য emit_to_log();
+    শূন্য append_to_string(std::string &target);
+    bool write_to_file(ধ্রুবক std::string &path);
 
-    bool active() { return !targets.empty(); }
+    bool active() { ফেরত !targets.empty(); }
 
-    void compact() { compact_depth = GetSize(state); }
+    শূন্য compact() { compact_depth = Get_আকার(state); }
 
-    void line(bool space_if_inline = true);
-    void raw(const char *raw_json);
-    void flush();
-    void begin_object();
-    void begin_array();
-    void end_object();
-    void end_array();
-    void name(const char *name);
-    void begin_value();
-    void end_value();
-    void value_json(const Json &value);
-    void value(unsigned int value) { value_json(Json((int)value)); }
+    শূন্য সারি(bool space_if_inline = true);
+    শূন্য raw(ধ্রুবক অক্ষর *raw_json);
+    শূন্য flush();
+    শূন্য begin_object();
+    শূন্য begin_array();
+    শূন্য end_object();
+    শূন্য end_array();
+    শূন্য name(ধ্রুবক অক্ষর *name);
+    শূন্য begin_মান();
+    শূন্য end_মান();
+    শূন্য মান_json(ধ্রুবক Json &মান);
+    শূন্য মান(unsigned পূর্ণসংখ্যা মান) { মান_json(Json((পূর্ণসংখ্যা)মান)); }
     template<typename T>
-    void value(T &&value) { value_json(Json(std::forward<T>(value))); };
+    শূন্য মান(T &&মান) { মান_json(Json(std::forward<T>(মান))); };
 
-    void entry_json(const char *name, const Json &value);
-    void entry(const char *name, unsigned int value) { entry_json(name, Json((int)value)); }
+    শূন্য entry_json(ধ্রুবক অক্ষর *name, ধ্রুবক Json &মান);
+    শূন্য entry(ধ্রুবক অক্ষর *name, unsigned পূর্ণসংখ্যা মান) { entry_json(name, Json((পূর্ণসংখ্যা)মান)); }
     template<typename T>
-    void entry(const char *name, T &&value) { entry_json(name, Json(std::forward<T>(value))); };
+    শূন্য entry(ধ্রুবক অক্ষর *name, T &&মান) { entry_json(name, Json(std::forward<T>(মান))); };
 
     template<typename T>
-    void object(const T &&values)
+    শূন্য object(ধ্রুবক T &&মানসমূহ)
     {
         begin_object();
-        for (auto &item : values)
+        জন্য (auto &item : মানসমূহ)
             entry(item.first, item.second);
         end_object();
     }
 
     template<typename T>
-    void array(const T &&values)
+    শূন্য array(ধ্রুবক T &&মানসমূহ)
     {
         begin_array();
-        for (auto &item : values)
-            value(item);
+        জন্য (auto &item : মানসমূহ)
+            মান(item);
         end_array();
     }
 };

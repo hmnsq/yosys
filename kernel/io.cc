@@ -1,94 +1,94 @@
-#include "kernel/yosys_common.h"
-#include "kernel/log.h"
-#include <iostream>
-#include <string>
-#include <filesystem>
-#include <system_error>
+#অন্তর্ভাব "kernel/yosys_common.h"
+#অন্তর্ভাব "kernel/log.h"
+#অন্তর্ভাব <iostream>
+#অন্তর্ভাব <string>
+#অন্তর্ভাব <filesystem>
+#অন্তর্ভাব <system_error>
 
-#if !defined(WIN32)
-#include <dirent.h>
-#include <unistd.h>
-#else
-#include <io.h>
+#যদি !defined(WIN32)
+#অন্তর্ভাব <dirent.h>
+#অন্তর্ভাব <unistd.h>
+#অন্যথা
+#অন্তর্ভাব <io.h>
 #endif
 
-#if !defined(_WIN32) && !defined(__wasi__)
-#include <sys/file.h>
-#include <fcntl.h>
-#include <cerrno>
+#যদি !defined(_WIN32) && !defined(__wasi__)
+#অন্তর্ভাব <sys/file.h>
+#অন্তর্ভাব <fcntl.h>
+#অন্তর্ভাব <cerrno>
 #endif
 
 YOSYS_NAMESPACE_BEGIN
 
 // Set of utilities for handling files
 
-int readsome(std::istream &f, char *s, int n)
+পূর্ণসংখ্যা readsome(std::istream &f, অক্ষর *s, পূর্ণসংখ্যা n)
 {
-	int rc = int(f.readsome(s, n));
+	পূর্ণসংখ্যা rc = পূর্ণসংখ্যা(f.readsome(s, n));
 
 	// f.readsome() sometimes returns 0 on a non-empty stream..
-	if (rc == 0) {
-		int c = f.get();
-		if (c != EOF) {
+	যদি (rc == 0) {
+		পূর্ণসংখ্যা c = f.get();
+		যদি (c != EOF) {
 			*s = c;
 			rc = 1;
 		}
 	}
 
-	return rc;
+	ফেরত rc;
 }
 
-std::string next_token(std::string &text, const char *sep, bool long_strings)
+std::string পরবর্তী_token(std::string &text, ধ্রুবক অক্ষর *sep, যৌক্তিক long_strings)
 {
-	size_t pos_begin = text.find_first_not_of(sep);
+	আকার_t pos_begin = text.find_first_not_of(sep);
 
-	if (pos_begin == std::string::npos)
-		pos_begin = text.size();
+	যদি (pos_begin == std::string::npos)
+		pos_begin = text.আকার_2();
 
-	if (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
+	যদি (long_strings && pos_begin != text.আকার_2() && text[pos_begin] == '"') {
 		std::string sep_string = sep;
-		for (size_t i = pos_begin+1; i < text.size(); i++) {
-			if (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
+		জন্য (আকার_t i = pos_begin+1; i < text.আকার_2(); i++) {
+			যদি (text[i] == '"' && (i+1 == text.আকার_2() || sep_string.find(text[i+1]) != std::string::npos)) {
 				std::string token = text.substr(pos_begin, i-pos_begin+1);
 				text = text.substr(i+1);
-				return token;
+				ফেরত token;
 			}
-			if (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
+			যদি (i+1 < text.আকার_2() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.আকার_2() || sep_string.find(text[i+2]) != std::string::npos)) {
 				std::string token = text.substr(pos_begin, i-pos_begin+1);
 				text = text.substr(i+2);
-				return token + ";";
+				ফেরত token + ";";
 			}
 		}
 	}
 
-	size_t pos_end = text.find_first_of(sep, pos_begin);
+	আকার_t pos_end = text.find_first_of(sep, pos_begin);
 
-	if (pos_end == std::string::npos)
-		pos_end = text.size();
+	যদি (pos_end == std::string::npos)
+		pos_end = text.আকার_2();
 
 	std::string token = text.substr(pos_begin, pos_end-pos_begin);
 	text = text.substr(pos_end);
-	return token;
+	ফেরত token;
 }
 
-std::vector<std::string> split_tokens(const std::string &text, const char *sep)
+std::vector<std::string> split_tokens(ধ্রুবক std::string &text, ধ্রুবক অক্ষর *sep)
 {
 	std::vector<std::string> tokens;
 	std::string current_token;
-	for (char c : text) {
-		if (strchr(sep, c)) {
-			if (!current_token.empty()) {
-				tokens.push_back(current_token);
+	জন্য (অক্ষর c : text) {
+		যদি (strchr(sep, c)) {
+			যদি (!current_token.empty()) {
+				tokens.ঠেলো_back(current_token);
 				current_token.clear();
 			}
-		} else
+		} অন্যথা
 			current_token += c;
 	}
-	if (!current_token.empty()) {
-		tokens.push_back(current_token);
+	যদি (!current_token.empty()) {
+		tokens.ঠেলো_back(current_token);
 		current_token.clear();
 	}
-	return tokens;
+	ফেরত tokens;
 }
 
 // this is very similar to fnmatch(). the exact rules used by this
@@ -102,349 +102,349 @@ std::vector<std::string> split_tokens(const std::string &text, const char *sep)
 // a backslash may be used to escape the next characters in the
 // pattern. each special character can also simply match itself.
 //
-bool patmatch(const char *pattern, const char *string)
+যৌক্তিক patmatch(ধ্রুবক অক্ষর *pattern, ধ্রুবক অক্ষর *string)
 {
-	if (*pattern == 0)
-		return *string == 0;
+	যদি (*pattern == 0)
+		ফেরত *string == 0;
 
-	if (*pattern == '\\') {
-		if (pattern[1] == string[0] && patmatch(pattern+2, string+1))
-			return true;
+	যদি (*pattern == '\\') {
+		যদি (pattern[1] == string[0] && patmatch(pattern+2, string+1))
+			ফেরত সত্য;
 	}
 
-	if (*pattern == '?') {
-		if (*string == 0)
-			return false;
-		return patmatch(pattern+1, string+1);
+	যদি (*pattern == '?') {
+		যদি (*string == 0)
+			ফেরত মিথ্যা;
+		ফেরত patmatch(pattern+1, string+1);
 	}
 
-	if (*pattern == '*') {
-		while (*string) {
-			if (patmatch(pattern+1, string++))
-				return true;
+	যদি (*pattern == '*') {
+		যখন (*string) {
+			যদি (patmatch(pattern+1, string++))
+				ফেরত সত্য;
 		}
-		return pattern[1] == 0;
+		ফেরত pattern[1] == 0;
 	}
 
-	if (*pattern == '[') {
-		bool found_match = false;
-		bool inverted_list = pattern[1] == '!';
-		const char *p = pattern + (inverted_list ? 1 : 0);
+	যদি (*pattern == '[') {
+		যৌক্তিক found_match = মিথ্যা;
+		যৌক্তিক inverted_list = pattern[1] == '!';
+		ধ্রুবক অক্ষর *p = pattern + (inverted_list ? 1 : 0);
 
-		while (*++p) {
-			if (*p == ']') {
-				if (found_match != inverted_list && patmatch(p+1, string+1))
-					return true;
-				break;
+		যখন (*++p) {
+			যদি (*p == ']') {
+				যদি (found_match != inverted_list && patmatch(p+1, string+1))
+					ফেরত সত্য;
+				বিরতি;
 			}
 
-			if (*p == '\\') {
-				if (*++p == *string)
-					found_match = true;
-			} else
-			if (*p == *string)
-				found_match = true;
+			যদি (*p == '\\') {
+				যদি (*++p == *string)
+					found_match = সত্য;
+			} অন্যথা
+			যদি (*p == *string)
+				found_match = সত্য;
 		}
 	}
 
-	if (*pattern == *string)
-		return patmatch(pattern+1, string+1);
+	যদি (*pattern == *string)
+		ফেরত patmatch(pattern+1, string+1);
 
-	return false;
+	ফেরত মিথ্যা;
 }
 
 std::string get_base_tmpdir()
 {
-	static std::string tmpdir;
+	স্থির std::string tmpdir;
 
-	if (!tmpdir.empty()) {
-		return tmpdir;
+	যদি (!tmpdir.empty()) {
+		ফেরত tmpdir;
 	}
 
-#if defined(_WIN32)
+#যদি defined(_WIN32)
 	std::wstring wtmppath(4096, L'\0');
 	// typically returns a 8.3 path, but this can be disabled via registry
-	if (!GetTempPathW(wtmppath.size(), wtmppath.data()))
+	যদি (!Get_অস্থায়ী_Path_W(wtmppath.আকার_2(), wtmppath.তথ্য()))
 		log_error("GetTempPathW() failed.\n");
 	wtmppath.resize(wtmppath.find(L'\0'));
 	std::string utmppath;
-	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), NULL, NULL) == 0)
+	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.তথ্য(), wtmppath.আকার_2(), ফাঁকা, 0, ফাঁকা, ফাঁকা));
+	যদি (WideCharToMultiByte(CP_UTF8, 0, wtmppath.তথ্য(), wtmppath.আকার_2(), utmppath.তথ্য(), utmppath.আকার_2(), ফাঁকা, ফাঁকা) == 0)
 		log_error("WideCharToMultiByte() failed.\n");
 	tmpdir += utmppath;
-#else
-	char * var = std::getenv("TMPDIR");
-	if (var && strlen(var)!=0) {
+#অন্যথা
+	অক্ষর * var = std::getenv("TMPDIR");
+	যদি (var && strlen(var)!=0) {
 		tmpdir.assign(var);
 		// We return the directory name without the trailing '/'
-		while (!tmpdir.empty() && (tmpdir.back() == '/')) {
-			tmpdir.pop_back();
+		যখন (!tmpdir.empty() && (tmpdir.back() == '/')) {
+			tmpdir.বের_করো_back();
 		}
-	} else {
+	} অন্যথা {
 		tmpdir.assign("/tmp");
 	}
 #endif
-	return tmpdir;
+	ফেরত tmpdir;
 }
 
-std::string make_temp_file(std::string template_str)
+std::string make_অস্থায়ী_file(std::string template_str)
 {
-	size_t pos = template_str.rfind("XXXXXX");
+	আকার_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
-#if defined(__wasm)
-	static size_t index = 0;
-	template_str.replace(pos, 6, stringf("%06zu", index++));
-#elif defined(_WIN32)
+#যদি defined(__wasm)
+	স্থির আকার_t সূচক = 0;
+	template_str.replace(pos, 6, stringf("%06zu", সূচক++));
+#নতুবা_যদি defined(_WIN32)
 #ifndef YOSYS_WIN32_UNIX_DIR
 	std::replace(template_str.begin(), template_str.end(), '/', '\\');
 #endif
-	while (1) {
-		for (int i = 0; i < 6; i++) {
-			static std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-			static uint32_t x = 314159265 ^ uint32_t(time(NULL));
+	যখন (1) {
+		জন্য (পূর্ণসংখ্যা i = 0; i < 6; i++) {
+			স্থির std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			স্থির uint32_t x = 314159265 ^ uint32_t(time(ফাঁকা));
 			x ^= x << 13, x ^= x >> 17, x ^= x << 5;
-			template_str[pos+i] = y[x % y.size()];
+			template_str[pos+i] = y[x % y.আকার_2()];
 		}
-		if (_access(template_str.c_str(), 0) != 0)
-			break;
+		যদি (_access(template_str.c_str(), 0) != 0)
+			বিরতি;
 	}
-#else
-	int suffixlen = template_str.size() - pos - 6;
+#অন্যথা
+	পূর্ণসংখ্যা suffixlen = template_str.আকার_2() - pos - 6;
 
-	char *p = strdup(template_str.c_str());
+	অক্ষর *p = strdup(template_str.c_str());
 	close(mkstemps(p, suffixlen));
 	template_str = p;
-	free(p);
+	মুক্ত(p);
 #endif
 
-	return template_str;
+	ফেরত template_str;
 }
 
-std::string make_temp_dir(std::string template_str)
+std::string make_অস্থায়ী_dir(std::string template_str)
 {
-#if defined(_WIN32)
-	template_str = make_temp_file(template_str);
+#যদি defined(_WIN32)
+	template_str = make_অস্থায়ী_file(template_str);
 	mkdir(template_str.c_str());
-	return template_str;
-#elif defined(__wasm)
-	template_str = make_temp_file(template_str);
+	ফেরত template_str;
+#নতুবা_যদি defined(__wasm)
+	template_str = make_অস্থায়ী_file(template_str);
 	mkdir(template_str.c_str(), 0777);
-	return template_str;
-#else
+	ফেরত template_str;
+#অন্যথা
 #  ifndef NDEBUG
-	size_t pos = template_str.rfind("XXXXXX");
+	আকার_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
 
-	int suffixlen = template_str.size() - pos - 6;
+	পূর্ণসংখ্যা suffixlen = template_str.আকার_2() - pos - 6;
 	log_assert(suffixlen == 0);
 #  endif
 
-	char *p = strdup(template_str.c_str());
+	অক্ষর *p = strdup(template_str.c_str());
 	log_assert(p);
-	char *res = mkdtemp(p);
-	if (!res)
+	অক্ষর *res = mkdtemp(p);
+	যদি (!res)
 		log_error("mkdtemp failed for '%s': %s [Error %d]\n",
 			p, strerror(errno), errno);
 	template_str = p;
-	free(p);
+	মুক্ত(p);
 
-	return template_str;
+	ফেরত template_str;
 #endif
 }
 
-bool check_is_directory(const std::string& dirname)
+যৌক্তিক check_is_directory(ধ্রুবক std::string& dirname)
 {
-#if defined(_WIN32)
-	struct _stat info;
+#যদি defined(_WIN32)
+	কাঠামো _stat info;
 	auto dirname_ = dirname;
 
 	/* On old versions of Visual Studio and current versions on MinGW,
 	   _stat will fail if the path ends with a trailing slash. */
-	if (dirname.back() == '/' || dirname.back() == '\\') {
-		dirname_ = dirname.substr(0, dirname.length() - 1);
+	যদি (dirname.back() == '/' || dirname.back() == '\\') {
+		dirname_ = dirname.substr(0, dirname.দৈর্ঘ্য() - 1);
 	}
 
-	if (_stat(dirname_.c_str(), &info) != 0)
+	যদি (_stat(dirname_.c_str(), &info) != 0)
 	{
-		return false;
+		ফেরত মিথ্যা;
 	}
-	return (info.st_mode & _S_IFDIR) != 0;
-#else
-	struct stat info;
-	if (stat(dirname.c_str(), &info) != 0)
+	ফেরত (info.st_mode & _S_IFDIR) != 0;
+#অন্যথা
+	কাঠামো stat info;
+	যদি (stat(dirname.c_str(), &info) != 0)
 	{
-		return false;
+		ফেরত মিথ্যা;
 	}
-	return (info.st_mode & S_IFDIR) != 0;
+	ফেরত (info.st_mode & S_IFDIR) != 0;
 #endif
 }
 
 #ifdef _WIN32
-bool check_accessible(const std::string& filename, bool)
+যৌক্তিক check_accessible(ধ্রুবক std::string& filename, যৌক্তিক)
 {
-	return _access(filename.c_str(), 0) == 0;
+	ফেরত _access(filename.c_str(), 0) == 0;
 }
-#else
-bool check_accessible(const std::string& filename, bool is_exec)
+#অন্যথা
+যৌক্তিক check_accessible(ধ্রুবক std::string& filename, যৌক্তিক is_exec)
 {
-	return access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
+	ফেরত access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
 }
 #endif
 
-bool check_file_exists(const std::string& filename, bool is_exec)
+যৌক্তিক check_file_exists(ধ্রুবক std::string& filename, যৌক্তিক is_exec)
 {
-	return check_accessible(filename, is_exec) && !check_is_directory(filename);
+	ফেরত check_accessible(filename, is_exec) && !check_is_directory(filename);
 }
-bool check_directory_exists(const std::string& filename, bool is_exec)
+যৌক্তিক check_directory_exists(ধ্রুবক std::string& filename, যৌক্তিক is_exec)
 {
-	return check_accessible(filename, is_exec) && check_is_directory(filename);
+	ফেরত check_accessible(filename, is_exec) && check_is_directory(filename);
 }
 
-bool is_absolute_path(std::string filename)
+যৌক্তিক is_absolute_path(std::string filename)
 {
 #ifdef _WIN32
-	return filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
-#else
-	return filename[0] == '/';
+	ফেরত filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
+#অন্যথা
+	ফেরত filename[0] == '/';
 #endif
 }
 
-void remove_directory(std::string dirname)
+শূন্য remove_directory(std::string dirname)
 {
 #ifdef _WIN32
 	run_command(stringf("rmdir /s /q \"%s\"", dirname));
-#else
-	struct stat stbuf;
-	struct dirent **namelist;
-	int n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
+#অন্যথা
+	কাঠামো stat stbuf;
+	কাঠামো dirent **namelist;
+	পূর্ণসংখ্যা n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
 	log_assert(n >= 0);
-	for (int i = 0; i < n; i++) {
-		if (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
-			std::string buffer = stringf("%s/%s", dirname, namelist[i]->d_name);
-			if (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
-				remove(buffer.c_str());
-			} else
-				remove_directory(buffer);
+	জন্য (পূর্ণসংখ্যা i = 0; i < n; i++) {
+		যদি (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
+			std::string বাফার = stringf("%s/%s", dirname, namelist[i]->d_name);
+			যদি (!stat(বাফার.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
+				remove(বাফার.c_str());
+			} অন্যথা
+				remove_directory(বাফার);
 		}
-		free(namelist[i]);
+		মুক্ত(namelist[i]);
 	}
-	free(namelist);
+	মুক্ত(namelist);
 	rmdir(dirname.c_str());
 #endif
 }
 
-bool create_directory(const std::string& dirname)
+যৌক্তিক create_directory(ধ্রুবক std::string& dirname)
 {
-#if defined(_WIN32)
-	int ret = _mkdir(dirname.c_str());
-#else
+#যদি defined(_WIN32)
+	পূর্ণসংখ্যা ret = _mkdir(dirname.c_str());
+#অন্যথা
 	mode_t mode = 0755;
-	int ret = mkdir(dirname.c_str(), mode);
+	পূর্ণসংখ্যা ret = mkdir(dirname.c_str(), mode);
 #endif
-	if (ret == 0)
-		return true;
+	যদি (ret == 0)
+		ফেরত সত্য;
 
-	switch (errno)
+	নির্বাচন (errno)
 	{
-	case ENOENT:
+	ক্ষেত্র ENOENT:
 		// parent didn't exist, try to create it
 		{
-			std::string::size_type pos = dirname.find_last_of('/');
-			if (pos == std::string::npos)
-#if defined(_WIN32)
+			std::string::আকার_type pos = dirname.find_last_of('/');
+			যদি (pos == std::string::npos)
+#যদি defined(_WIN32)
 				pos = dirname.find_last_of('\\');
-			if (pos == std::string::npos)
+			যদি (pos == std::string::npos)
 #endif
-				return false;
-			if (!create_directory( dirname.substr(0, pos) ))
-				return false;
+				ফেরত মিথ্যা;
+			যদি (!create_directory( dirname.substr(0, pos) ))
+				ফেরত মিথ্যা;
 		}
 		// now, try to create again
-#if defined(_WIN32)
-		return 0 == _mkdir(dirname.c_str());
-#else
-		return 0 == mkdir(dirname.c_str(), mode);
+#যদি defined(_WIN32)
+		ফেরত 0 == _mkdir(dirname.c_str());
+#অন্যথা
+		ফেরত 0 == mkdir(dirname.c_str(), mode);
 #endif
 
-	case EEXIST:
+	ক্ষেত্র EEXIST:
 		// done!
-		return check_directory_exists(dirname);
+		ফেরত check_directory_exists(dirname);
 
-	default:
-		return false;
+	পূর্বনির্ধারিত:
+		ফেরত মিথ্যা;
 	}
 }
 
-bool make_private_directory(const std::string& dirname)
+যৌক্তিক make_private_directory(ধ্রুবক std::string& dirname)
 {
-#if defined(_WIN32) || defined(__wasi__)
-	if (!create_directory(dirname)) {
+#যদি defined(_WIN32) || defined(__wasi__)
+	যদি (!create_directory(dirname)) {
 		log_warning("Cannot create the directory %s\n", dirname.c_str());
-		return false;
+		ফেরত মিথ্যা;
 	}
-	return true;
-#else
-	if (mkdir(dirname.c_str(), 0700) == 0)
-		return true;
+	ফেরত সত্য;
+#অন্যথা
+	যদি (mkdir(dirname.c_str(), 0700) == 0)
+		ফেরত সত্য;
 
 	// Keep the errno of each mkdir(), create_directory() below makes its own calls
-	int err = errno;
+	পূর্ণসংখ্যা err = errno;
 	std::string parent = std::filesystem::path(dirname).parent_path().string();
 
-	if (err == ENOENT && !parent.empty() && create_directory(parent)) {
-		if (mkdir(dirname.c_str(), 0700) == 0)
-			return true;
+	যদি (err == ENOENT && !parent.empty() && create_directory(parent)) {
+		যদি (mkdir(dirname.c_str(), 0700) == 0)
+			ফেরত সত্য;
 		err = errno;
 	}
 
-	if (err != EEXIST) {
+	যদি (err != EEXIST) {
 		log_warning("Cannot create the directory %s: %s\n", dirname.c_str(), strerror(err));
-		return false;
+		ফেরত মিথ্যা;
 	}
 
 	// Do not use a leftover that isn't ours
-	struct stat st;
-	if (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
+	কাঠামো stat st;
+	যদি (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
 		log_warning("%s is not a directory of this user\n", dirname.c_str());
-		return false;
+		ফেরত মিথ্যা;
 	}
 	// Repair the mode if something changed it
 	mode_t mode = st.st_mode & 0777;
-	if (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
+	যদি (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
 		log_warning("Cannot make the directory %s private: %s\n", dirname.c_str(), strerror(errno));
-		return false;
+		ফেরত মিথ্যা;
 	}
 
-	return true;
+	ফেরত সত্য;
 #endif
 }
 
-std::string make_user_tmpdir(const std::string& name)
+std::string make_user_tmpdir(ধ্রুবক std::string& name)
 {
 	log_assert(!name.empty() && name.find('/') == std::string::npos);
-#if defined(_WIN32) || defined(__wasi__)
+#যদি defined(_WIN32) || defined(__wasi__)
 	std::string dirname = get_base_tmpdir() + "/" + name;
-#else
+#অন্যথা
 	std::string dirname = stringf("%s/%s-%u", get_base_tmpdir().c_str(), name.c_str(), (unsigned)geteuid());
 #endif
-	return make_private_directory(dirname) ? dirname : "";
+	ফেরত make_private_directory(dirname) ? dirname : "";
 }
 
-std::string escape_filename_spaces(const std::string& filename)
+std::string escape_filename_spaces(ধ্রুবক std::string& filename)
 {
 	std::string out;
-	out.reserve(filename.size());
-	for (auto c : filename)
+	out.reserve(filename.আকার_2());
+	জন্য (auto c : filename)
 	{
-		if (c == ' ')
+		যদি (c == ' ')
 			out += "\\ ";
-		else
-			out.push_back(c);
+		অন্যথা
+			out.ঠেলো_back(c);
 	}
-	return out;
+	ফেরত out;
 }
 
-void append_globbed(std::vector<std::string>& paths, std::string pattern)
+শূন্য append_globbed(std::vector<std::string>& paths, std::string pattern)
 {
 	rewrite_filename(pattern);
 	std::vector<std::string> globbed = glob_filename(pattern);
@@ -452,46 +452,46 @@ void append_globbed(std::vector<std::string>& paths, std::string pattern)
 }
 
 std::string name_from_file_path(std::string path) {
-	return std::filesystem::path(path).filename().string();
+	ফেরত std::filesystem::path(path).filename().string();
 }
 
-std::string absolute_path(const std::string& path)
+std::string absolute_path(ধ্রুবক std::string& path)
 {
 	std::error_code ec;
-	std::filesystem::path result = std::filesystem::absolute(path, ec);
+	std::filesystem::path ফলাফল = std::filesystem::absolute(path, ec);
 
-	if (ec)
-		return "";
+	যদি (ec)
+		ফেরত "";
 
-	result = std::filesystem::weakly_canonical(result, ec);
+	ফলাফল = std::filesystem::weakly_canonical(ফলাফল, ec);
 
-	if (ec)
-		return "";
+	যদি (ec)
+		ফেরত "";
 
-	return result.string();
+	ফেরত ফলাফল.string();
 }
 
 // Includes OS_PATH_SEP at the end if present
 std::string parent_from_file_path(std::string path) {
 	auto parent = std::filesystem::path(path).parent_path();
-	if (parent.empty()) {
-		return "";
+	যদি (parent.empty()) {
+		ফেরত "";
 	}
 	// Add trailing separator to match original behavior
-	std::string result = parent.string();
-	if (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
-		result += std::filesystem::path::preferred_separator;
+	std::string ফলাফল = parent.string();
+	যদি (!ফলাফল.empty() && ফলাফল.back() != std::filesystem::path::preferred_separator) {
+		ফলাফল += std::filesystem::path::preferred_separator;
 	}
-	return result;
+	ফেরত ফলাফল;
 }
 
-void format_emit_unescaped(std::string &result, std::string_view fmt)
+শূন্য format_emit_unescaped(std::string &ফলাফল, std::string_view fmt)
 {
-	result.reserve(result.size() + fmt.size());
-	for (size_t i = 0; i < fmt.size(); ++i) {
-		char ch = fmt[i];
-		result.push_back(ch);
-		if (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
+	ফলাফল.reserve(ফলাফল.আকার_2() + fmt.আকার_2());
+	জন্য (আকার_t i = 0; i < fmt.আকার_2(); ++i) {
+		অক্ষর ch = fmt[i];
+		ফলাফল.ঠেলো_back(ch);
+		যদি (ch == '%' && i + 1 < fmt.আকার_2() && fmt[i + 1] == '%') {
 			++i;
 		}
 	}
@@ -499,250 +499,250 @@ void format_emit_unescaped(std::string &result, std::string_view fmt)
 
 std::string unescape_format_string(std::string_view fmt)
 {
-	std::string result;
-	format_emit_unescaped(result, fmt);
-	return result;
+	std::string ফলাফল;
+	format_emit_unescaped(ফলাফল, fmt);
+	ফেরত ফলাফল;
 }
 
-static std::string string_view_stringf(std::string_view spec, ...)
+স্থির std::string string_view_stringf(std::string_view spec, ...)
 {
 	va_list ap;
 	va_start(ap, spec);
-	std::string result = vstringf(std::string(spec).c_str(), ap);
+	std::string ফলাফল = vstringf(std::string(spec).c_str(), ap);
 	va_end(ap);
-	return result;
+	ফেরত ফলাফল;
 }
 
-static int spec_parameter_size(std::string_view spec)
+স্থির পূর্ণসংখ্যা spec_parameter_আকার(std::string_view spec)
 {
 	// Every valid spec starts with '%' which means the code below
 	// won't look before the spec start.
-	switch (spec[spec.size() - 1]) {
-	case 'd':
-	case 'i':
-	case 'o':
-	case 'u':
-	case 'x':
-	case 'X':
-		switch (spec[spec.size() - 2]) {
-		case 'h':
-			if (spec[spec.size() - 3] == 'h')
-				return sizeof(char);
-			return sizeof(short);
-		case 'l':
-			if (spec[spec.size() - 3] == 'l')
-				return sizeof(long long);
-			return sizeof(long);
-		case 'L':
-		case 'q':
-			return sizeof(long long);
-		case 'j':
-			return sizeof(intmax_t);
-		case 'z':
-		case 'Z':
-			return sizeof(size_t);
-		case 't':
-			return sizeof(ptrdiff_t);
+	নির্বাচন (spec[spec.আকার_2() - 1]) {
+	ক্ষেত্র 'd':
+	ক্ষেত্র 'i':
+	ক্ষেত্র 'o':
+	ক্ষেত্র 'u':
+	ক্ষেত্র 'x':
+	ক্ষেত্র 'X':
+		নির্বাচন (spec[spec.আকার_2() - 2]) {
+		ক্ষেত্র 'h':
+			যদি (spec[spec.আকার_2() - 3] == 'h')
+				ফেরত আকার(অক্ষর);
+			ফেরত আকার(short);
+		ক্ষেত্র 'l':
+			যদি (spec[spec.আকার_2() - 3] == 'l')
+				ফেরত আকার(long long);
+			ফেরত আকার(long);
+		ক্ষেত্র 'L':
+		ক্ষেত্র 'q':
+			ফেরত আকার(long long);
+		ক্ষেত্র 'j':
+			ফেরত আকার(intmax_t);
+		ক্ষেত্র 'z':
+		ক্ষেত্র 'Z':
+			ফেরত আকার(আকার_t);
+		ক্ষেত্র 't':
+			ফেরত আকার(ptrdiff_t);
 		}
-		return sizeof(int);
-	case 'e':
-	case 'E':
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-	case 'a':
-	case 'A':
-		if (spec[spec.size() - 2] == 'L')
-			return sizeof(long double);
-		if (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
-			return sizeof(long double);
-		return sizeof(double);
-	case 'c':
-		if (spec[spec.size() - 2] == 'l') {
-			return sizeof(wchar_t);
+		ফেরত আকার(পূর্ণসংখ্যা);
+	ক্ষেত্র 'e':
+	ক্ষেত্র 'E':
+	ক্ষেত্র 'f':
+	ক্ষেত্র 'F':
+	ক্ষেত্র 'g':
+	ক্ষেত্র 'G':
+	ক্ষেত্র 'a':
+	ক্ষেত্র 'A':
+		যদি (spec[spec.আকার_2() - 2] == 'L')
+			ফেরত আকার(long দ্বিগুণ);
+		যদি (spec[spec.আকার_2() - 2] == 'l' && spec[spec.আকার_2() - 3] == 'l')
+			ফেরত আকার(long দ্বিগুণ);
+		ফেরত আকার(দ্বিগুণ);
+	ক্ষেত্র 'c':
+		যদি (spec[spec.আকার_2() - 2] == 'l') {
+			ফেরত আকার(wchar_t);
 		}
-		return sizeof(unsigned char);
-	case 'C':
-		return sizeof(wchar_t);
-	case 's':
-	case 'p':
-	case 'S':
-	case 'n':
-		return sizeof(void *);
-	case 'm':
-		return sizeof(int);
-	default:
-		return -1;
+		ফেরত আকার(unsigned অক্ষর);
+	ক্ষেত্র 'C':
+		ফেরত আকার(wchar_t);
+	ক্ষেত্র 's':
+	ক্ষেত্র 'p':
+	ক্ষেত্র 'S':
+	ক্ষেত্র 'n':
+		ফেরত আকার(শূন্য *);
+	ক্ষেত্র 'm':
+		ফেরত আকার(পূর্ণসংখ্যা);
+	পূর্বনির্ধারিত:
+		ফেরত -1;
 	}
 }
 
 template <typename Arg>
-static void format_emit_stringf(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, Arg arg)
+স্থির শূন্য format_emit_stringf(std::string &ফলাফল, std::string_view spec, পূর্ণসংখ্যা *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, Arg arg)
 {
 	// Delegate nontrivial formats to the C library.
-	switch (num_dynamic_ints) {
-	case DynamicIntCount::NONE:
-		result += string_view_stringf(spec, arg);
-		return;
-	case DynamicIntCount::ONE:
-		result += string_view_stringf(spec, dynamic_ints[0], arg);
-		return;
-	case DynamicIntCount::TWO:
-		result += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
-		return;
+	নির্বাচন (অঙ্ক_dynamic_ints) {
+	ক্ষেত্র Dynamic_Int_গুনতি::NONE:
+		ফলাফল += string_view_stringf(spec, arg);
+		ফেরত;
+	ক্ষেত্র Dynamic_Int_গুনতি::ONE:
+		ফলাফল += string_view_stringf(spec, dynamic_ints[0], arg);
+		ফেরত;
+	ক্ষেত্র Dynamic_Int_গুনতি::TWO:
+		ফলাফল += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
+		ফেরত;
 	}
 	YOSYS_ABORT("Internal error");
 }
 
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, long long arg)
+শূন্য format_emit_long_long(std::string &ফলাফল, std::string_view spec, পূর্ণসংখ্যা *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, long long arg)
 {
-	if (spec == "%d") {
+	যদি (spec == "%d") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<int>(arg));
-		return;
+		ফলাফল += std::to_string(static_cast<পূর্ণসংখ্যা>(arg));
+		ফেরত;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	যদি (spec_parameter_আকার(spec) <= 4) {
 		// On some platforms (Wasm) we must ensure that the arg is properly aligned
 		// after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(ফলাফল, spec, dynamic_ints, অঙ্ক_dynamic_ints, (পূর্ণসংখ্যা)arg);
+	} অন্যথা {
+		format_emit_stringf(ফলাফল, spec, dynamic_ints, অঙ্ক_dynamic_ints, arg);
 	}
 }
 
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, unsigned long long arg)
+শূন্য format_emit_unsigned_long_long(std::string &ফলাফল, std::string_view spec, পূর্ণসংখ্যা *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, unsigned long long arg)
 {
-	if (spec == "%u") {
+	যদি (spec == "%u") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<unsigned int>(arg));
-		return;
+		ফলাফল += std::to_string(static_cast<unsigned পূর্ণসংখ্যা>(arg));
+		ফেরত;
 	}
-	if (spec == "%c") {
-		result += static_cast<char>(arg);
-		return;
+	যদি (spec == "%c") {
+		ফলাফল += static_cast<অক্ষর>(arg);
+		ফেরত;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	যদি (spec_parameter_আকার(spec) <= 4) {
                 // On some platforms (Wasm) we must ensure that the arg is properly aligned
                 // after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (unsigned int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(ফলাফল, spec, dynamic_ints, অঙ্ক_dynamic_ints, (unsigned পূর্ণসংখ্যা)arg);
+	} অন্যথা {
+		format_emit_stringf(ফলাফল, spec, dynamic_ints, অঙ্ক_dynamic_ints, arg);
 	}
 }
 
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, double arg)
+শূন্য format_emit_double(std::string &ফলাফল, std::string_view spec, পূর্ণসংখ্যা *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, দ্বিগুণ arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(ফলাফল, spec, dynamic_ints, অঙ্ক_dynamic_ints, arg);
 }
 
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const char *arg)
+শূন্য format_emit_char_ptr(std::string &ফলাফল, std::string_view spec, পূর্ণসংখ্যা *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, ধ্রুবক অক্ষর *arg)
 {
-	if (spec == "%s") {
+	যদি (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += arg;
-		return;
+		ফলাফল += arg;
+		ফেরত;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(ফলাফল, spec, dynamic_ints, অঙ্ক_dynamic_ints, arg);
 }
 
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const std::string &arg)
+শূন্য format_emit_string(std::string &ফলাফল, std::string_view spec, পূর্ণসংখ্যা *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, ধ্রুবক std::string &arg)
 {
-	if (spec == "%s") {
+	যদি (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += arg;
-		return;
+		ফলাফল += arg;
+		ফেরত;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg.c_str());
+	format_emit_stringf(ফলাফল, spec, dynamic_ints, অঙ্ক_dynamic_ints, arg.c_str());
 }
 
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, std::string_view arg)
+শূন্য format_emit_string_view(std::string &ফলাফল, std::string_view spec, পূর্ণসংখ্যা *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, std::string_view arg)
 {
-	if (spec == "%s") {
+	যদি (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		// We can output the string without creating a temporary copy.
-		result += arg;
-		return;
+		ফলাফল += arg;
+		ফেরত;
 	}
 	// Delegate nontrivial formats to the C library. We need to construct
 	// a temporary string to ensure null termination.
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, std::string(arg).c_str());
+	format_emit_stringf(ফলাফল, spec, dynamic_ints, অঙ্ক_dynamic_ints, std::string(arg).c_str());
 }
 
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const void *arg)
+শূন্য format_emit_void_ptr(std::string &ফলাফল, std::string_view spec, পূর্ণসংখ্যা *dynamic_ints,
+	Dynamic_Int_গুনতি অঙ্ক_dynamic_ints, ধ্রুবক শূন্য *arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(ফলাফল, spec, dynamic_ints, অঙ্ক_dynamic_ints, arg);
 }
 
-#if defined(_WIN32)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#যদি defined(_WIN32)
+ScopedFileLock::ScopedFileLock(ধ্রুবক std::string &path)
 {
 	HANDLE h = CreateFileA(path.c_str(), GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-			NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h == INVALID_HANDLE_VALUE) {
+			ফাঁকা, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, ফাঁকা);
+	যদি (h == INVALID_HANDLE_মান) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+		ফেরত;
 	}
 	OVERLAPPED ov = {};
-	if (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
+	যদি (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
 		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
 		CloseHandle(h);
-		return;
+		ফেরত;
 	}
 	handle = h;
 }
 
 ScopedFileLock::~ScopedFileLock()
 {
-	if (handle != nullptr) {
+	যদি (handle != nullptr) {
 		OVERLAPPED ov = {};
 		UnlockFileEx(handle, 0, MAXDWORD, MAXDWORD, &ov);
 		CloseHandle(handle);
 	}
 }
-#elif !defined(__wasi__)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#নতুবা_যদি !defined(__wasi__)
+ScopedFileLock::ScopedFileLock(ধ্রুবক std::string &path)
 {
 	fd = open(path.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0666);
-	if (fd < 0)
+	যদি (fd < 0)
 		fd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
-	if (fd < 0) {
+	যদি (fd < 0) {
 		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+		ফেরত;
 	}
-	int ret;
-	while ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
-	if (ret != 0)
+	পূর্ণসংখ্যা ret;
+	যখন ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
+	যদি (ret != 0)
 		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
 }
 
 ScopedFileLock::~ScopedFileLock()
 {
-	if (fd >= 0)
+	যদি (fd >= 0)
 		close(fd); // releases the flock
 }
-#else
-ScopedFileLock::ScopedFileLock(const std::string &) {}
+#অন্যথা
+ScopedFileLock::ScopedFileLock(ধ্রুবক std::string &) {}
 ScopedFileLock::~ScopedFileLock() {}
 #endif
 
 unsigned get_process_id()
 {
-#if defined(_WIN32)
-	return GetCurrentProcessId();
-#elif defined(__wasi__)
-	return 0;
-#else
-	return getpid();
+#যদি defined(_WIN32)
+	ফেরত GetCurrentProcessId();
+#নতুবা_যদি defined(__wasi__)
+	ফেরত 0;
+#অন্যথা
+	ফেরত getpid();
 #endif
 }
 

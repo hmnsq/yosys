@@ -20,24 +20,24 @@
 #ifndef COST_H
 #define COST_H
 
-#include "kernel/yosys.h"
+#অন্তর্ভাব "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct CellCosts
+কাঠামো CellCosts
 {
 
-	private:
-	dict<RTLIL::IdString, int> mod_cost_cache_;
+	ব্যক্তিগত:
+	dict<RTLIL::IdString, পূর্ণসংখ্যা> mod_cost_cache_;
 	Design *design_ = nullptr;
 
-	public:
+	সর্বজনীন:
 	CellCosts(RTLIL::Design *design) : design_(design) { }
 
-	static const dict<RTLIL::IdString, int>& default_gate_cost() {
+	স্থির ধ্রুবক dict<RTLIL::IdString, পূর্ণসংখ্যা>& default_gate_cost() {
 		// Default size heuristics for several common PDK standard cells
 		// used by abc and stat
-		static const dict<RTLIL::IdString, int> db = {
+		স্থির ধ্রুবক dict<RTLIL::IdString, পূর্ণসংখ্যা> db = {
 			{ ID($_BUF_),    1 },
 			{ ID($_NOT_),    2 },
 			{ ID($_AND_),    4 },
@@ -55,13 +55,13 @@ struct CellCosts
 			{ ID($_MUX_),    4 },
 			{ ID($_NMUX_),   4 },
 		};
-		return db;
+		ফেরত db;
 	}
 
-	static const dict<RTLIL::IdString, int>& cmos_gate_cost() {
+	স্থির ধ্রুবক dict<RTLIL::IdString, পূর্ণসংখ্যা>& cmos_gate_cost() {
 		// Estimated CMOS transistor counts for several common PDK standard cells
 		// used by stat and optionally by abc
-		static const dict<RTLIL::IdString, int> db = {
+		স্থির ধ্রুবক dict<RTLIL::IdString, পূর্ণসংখ্যা> db = {
 			{ ID($_BUF_),     1 },
 			{ ID($_NOT_),     2 },
 			{ ID($_AND_),     6 },
@@ -81,17 +81,17 @@ struct CellCosts
 			{ ID($_DFF_P_),  16 },
 			{ ID($_DFF_N_),  16 },
 		};
-		return db;
+		ফেরত db;
 	}
 
 	// Get the cell cost for a cell based on its parameters.
 	// This cost is an *approximate* upper bound for the number of gates that
 	// the cell will get mapped to with "opt -fast; techmap"
 	// The intended usage is for flattening heuristics and similar situations
-	unsigned int get(RTLIL::Cell *cell);
+	unsigned পূর্ণসংখ্যা get(RTLIL::Cell *cell);
 	// Sum up the cell costs of all cells in the module
 	// and all its submodules recursively
-	unsigned int get(RTLIL::Module *mod);
+	unsigned পূর্ণসংখ্যা get(RTLIL::Module *mod);
 };
 
 YOSYS_NAMESPACE_END
