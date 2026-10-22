@@ -17,24 +17,24 @@
  *
  */
 
-#include "kernel/yosys.h"
-#include "kernel/satgen.h"
-#include "kernel/json.h"
-#include "kernel/gzip.h"
-#include "kernel/log_help.h"
-#include "kernel/newcelltypes.h"
+#अन्तर्भाव "kernel/yosys.h"
+#अन्तर्भाव "kernel/satgen.h"
+#अन्तर्भाव "kernel/json.h"
+#अन्तर्भाव "kernel/gzip.h"
+#अन्तर्भाव "kernel/log_help.h"
+#अन्तर्भाव "kernel/newcelltypes.h"
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <filesystem>
+#अन्तर्भाव <string.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <errno.h>
+#अन्तर्भाव <filesystem>
 
 YOSYS_NAMESPACE_BEGIN
 
-#define MAX_REG_COUNT 1000
+#define MAX_REG_मोजणी 1000
 
-bool echo_mode = false;
+तार्किक echo_mode = असत्य;
 Pass *first_queued_pass;
 Pass *current_pass;
 
@@ -45,21 +45,21 @@ std::map<std::string, Target> target_register;
 
 std::vector<std::string> Frontend::next_args;
 
-bool GarbageCollectionGuard::is_enabled_ = true;
+तार्किक GarbageCollectionGuard::is_enabled_ = सत्य;
 
-static bool garbage_collection_requested = false;
+स्थिर तार्किक garbage_collection_requested = असत्य;
 
-void request_garbage_collection()
+शून्य request_garbage_collection()
 {
-	garbage_collection_requested = true;
+	garbage_collection_requested = सत्य;
 }
 
-void try_collect_garbage()
+शून्य try_collect_garbage()
 {
-	if (!GarbageCollectionGuard::is_enabled() || !garbage_collection_requested)
-		return;
-	garbage_collection_requested = false;
-	if (yosys_design)
+	यदि (!GarbageCollectionGuard::is_enabled() || !garbage_collection_requested)
+		प्रत्यागम;
+	garbage_collection_requested = असत्य;
+	यदि (yosys_design)
 		yosys_design->gc_twines();
 }
 
@@ -67,46 +67,46 @@ Pass::Pass(std::string name, std::string short_help, source_location location) :
 	pass_name(name), short_help(short_help), location(location)
 {
 	next_queued_pass = first_queued_pass;
-	first_queued_pass = this;
+	first_queued_pass = एतत्;
 	call_counter = 0;
 	runtime_ns = 0;
 }
 
-void Pass::run_register()
+शून्य Pass::run_register()
 {
-	if (pass_register.count(pass_name) && !replace_existing_pass())
+	यदि (pass_register.मोजणी(pass_name) && !replace_existing_pass())
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
-	pass_register[pass_name] = this;
+	pass_register[pass_name] = एतत्;
 }
 
-void Pass::init_register()
+शून्य Pass::init_register()
 {
 	vector<Pass*> added_passes;
-	while (first_queued_pass) {
-		added_passes.push_back(first_queued_pass);
+	यावत् (first_queued_pass) {
+		added_passes.ढकला_back(first_queued_pass);
 		first_queued_pass->run_register();
 		first_queued_pass = first_queued_pass->next_queued_pass;
 	}
-	for (auto added_pass : added_passes)
+	प्रति (auto added_pass : added_passes)
 		added_pass->on_register();
 }
 
-void Pass::done_register()
+शून्य Pass::done_register()
 {
-	for (auto &it : pass_register)
+	प्रति (auto &it : pass_register)
 		it.second->on_shutdown();
 
 	frontend_register.clear();
 	pass_register.clear();
 	backend_register.clear();
-	log_assert(first_queued_pass == NULL);
+	log_assert(first_queued_pass == रिक्त);
 }
 
-void Pass::on_register()
+शून्य Pass::on_register()
 {
 }
 
-void Pass::on_shutdown()
+शून्य Pass::on_shutdown()
 {
 }
 
@@ -120,12 +120,12 @@ Pass::pre_post_exec_state_t Pass::pre_execute()
 	call_counter++;
 	state.begin_ns = PerformanceTimer::query();
 	state.parent_pass = current_pass;
-	current_pass = this;
+	current_pass = एतत्;
 	clear_flags();
-	return state;
+	प्रत्यागम state;
 }
 
-void Pass::post_execute(Pass::pre_post_exec_state_t state)
+शून्य Pass::post_execute(Pass::pre_post_exec_state_t state)
 {
 	log_suppressed();
 
@@ -135,50 +135,50 @@ void Pass::post_execute(Pass::pre_post_exec_state_t state)
 	subtract_from_current_runtime_ns(time_ns);
 }
 
-void Pass::subtract_from_current_runtime_ns(int64_t time_ns)
+शून्य Pass::subtract_from_current_runtime_ns(int64_t time_ns)
 {
-	if (current_pass)
+	यदि (current_pass)
 		current_pass->runtime_ns -= time_ns;
 }
 
-void Pass::help()
+शून्य Pass::help()
 {
 	auto prettyHelp = PrettyHelp();
-	if (formatted_help()) {
+	यदि (formatted_help()) {
 		prettyHelp.log_help();
-	} else {
+	} अन्यथा {
 		log("\n");
 		log("No help message for command `%s'.\n", pass_name);
 		log("\n");
 	}
 }
 
-bool Pass::formatted_help()
+तार्किक Pass::formatted_help()
 {
-	return false;
+	प्रत्यागम असत्य;
 }
 
-void Pass::clear_flags()
+शून्य Pass::clear_flags()
 {
 }
 
-void Pass::cmd_log_args(const std::vector<std::string> &args)
+शून्य Pass::cmd_log_args(ध्रुव std::vector<std::string> &args)
 {
-	if (args.size() <= 1)
-		return;
+	यदि (args.size() <= 1)
+		प्रत्यागम;
 	std::string message = "Full command line:";
-	for (size_t i = 0; i < args.size(); i++)
+	प्रति (size_t i = 0; i < args.size(); i++)
 		message += stringf(" %s", args[i]);
 	log("%s\n", message);
 }
 
-void Pass::cmd_error(const std::vector<std::string> &args, size_t argidx, std::string msg)
+शून्य Pass::cmd_error(ध्रुव std::vector<std::string> &args, size_t argidx, std::string संदेश)
 {
 	std::string command_text;
-	int error_pos = 0;
+	पूर्णाङ्क error_pos = 0;
 
-	for (size_t i = 0; i < args.size(); i++) {
-		if (i < argidx)
+	प्रति (size_t i = 0; i < args.size(); i++) {
+		यदि (i < argidx)
 			error_pos += args[i].size() + 1;
 		command_text = command_text + (command_text.empty() ? "" : " ") + args[i];
 	}
@@ -188,107 +188,107 @@ void Pass::cmd_error(const std::vector<std::string> &args, size_t argidx, std::s
 	help();
 
 	log_cmd_error("Command syntax error: %s\n> %s\n> %*s^\n",
-			msg.c_str(), command_text.c_str(), error_pos, "");
+			संदेश.c_str(), command_text.c_str(), error_pos, "");
 }
 
-void Pass::extra_args(std::vector<std::string> args, size_t argidx, RTLIL::Design *design, bool select)
+शून्य Pass::extra_args(std::vector<std::string> args, size_t argidx, RTLIL::Design *design, तार्किक select)
 {
-	for (; argidx < args.size(); argidx++)
+	प्रति (; argidx < args.size(); argidx++)
 	{
 		std::string arg = args[argidx];
 
-		if (arg.compare(0, 1, "-") == 0)
+		यदि (arg.compare(0, 1, "-") == 0)
 			cmd_error(args, argidx, "Unknown option or option in arguments.");
 
-		if (!select)
+		यदि (!select)
 			cmd_error(args, argidx, "Extra argument.");
 
-		handle_extra_select_args(this, args, argidx, args.size(), design);
-		break;
+		handle_extra_select_args(एतत्, args, argidx, args.size(), design);
+		भङ्ग;
 	}
 	// cmd_log_args(args);
 }
 
-void Pass::call(RTLIL::Design *design, std::string command)
+शून्य Pass::call(RTLIL::Design *design, std::string command)
 {
 	std::vector<std::string> args;
 
 	std::string cmd_buf = command;
-	std::string tok = next_token(cmd_buf, " \t\r\n", true);
+	std::string tok = next_token(cmd_buf, " \t\r\n", सत्य);
 
-	if (tok.empty())
-		return;
+	यदि (tok.empty())
+		प्रत्यागम;
 
-	if (tok[0] == '!') {
-#if defined(YOSYS_ENABLE_SPAWN)
+	यदि (tok[0] == '!') {
+#यदि defined(YOSYS_ENABLE_SPAWN)
 		cmd_buf = command.substr(command.find('!') + 1);
-		while (!cmd_buf.empty() && (cmd_buf.back() == ' ' || cmd_buf.back() == '\t' ||
+		यावत् (!cmd_buf.empty() && (cmd_buf.back() == ' ' || cmd_buf.back() == '\t' ||
 				cmd_buf.back() == '\r' || cmd_buf.back() == '\n'))
 			cmd_buf.resize(cmd_buf.size()-1);
 		log_header(design, "Shell command: %s\n", cmd_buf);
-		int retCode = run_command(cmd_buf);
-		if (retCode != 0)
+		पूर्णाङ्क retCode = run_command(cmd_buf);
+		यदि (retCode != 0)
 			log_cmd_error("Shell command returned error code %d.\n", retCode);
-		return;
-#else
+		प्रत्यागम;
+#अन्यथा
 		log_cmd_error("Shell is not available.\n");
 #endif
 	}
 
-	while (!tok.empty()) {
-		if (tok[0] == '#') {
-			int stop;
-			for (stop = 0; stop < GetSize(cmd_buf); stop++)
-				if (cmd_buf[stop] == '\r' || cmd_buf[stop] == '\n')
-					break;
+	यावत् (!tok.empty()) {
+		यदि (tok[0] == '#') {
+			पूर्णाङ्क stop;
+			प्रति (stop = 0; stop < GetSize(cmd_buf); stop++)
+				यदि (cmd_buf[stop] == '\r' || cmd_buf[stop] == '\n')
+					भङ्ग;
 			cmd_buf = cmd_buf.substr(stop);
-		} else
-		if (tok.back() == ';') {
-			int num_semikolon = 0;
-			while (!tok.empty() && tok.back() == ';')
-				tok.resize(tok.size()-1), num_semikolon++;
-			if (!tok.empty())
-				args.push_back(tok);
+		} अन्यथा
+		यदि (tok.back() == ';') {
+			पूर्णाङ्क अंक_semikolon = 0;
+			यावत् (!tok.empty() && tok.back() == ';')
+				tok.resize(tok.size()-1), अंक_semikolon++;
+			यदि (!tok.empty())
+				args.ढकला_back(tok);
 			call(design, args);
 			args.clear();
-			if (num_semikolon == 2)
+			यदि (अंक_semikolon == 2)
 				call(design, "clean");
-			if (num_semikolon == 3)
+			यदि (अंक_semikolon == 3)
 				call(design, "clean -purge");
-		} else
-			args.push_back(tok);
-		bool found_nl = false;
-		for (auto c : cmd_buf) {
-			if (c == ' ' || c == '\t')
-				continue;
-			if (c == '\r' || c == '\n')
-				found_nl = true;
-			break;
+		} अन्यथा
+			args.ढकला_back(tok);
+		तार्किक found_nl = असत्य;
+		प्रति (auto c : cmd_buf) {
+			यदि (c == ' ' || c == '\t')
+				अनुवर्त;
+			यदि (c == '\r' || c == '\n')
+				found_nl = सत्य;
+			भङ्ग;
 		}
-		if (found_nl) {
+		यदि (found_nl) {
 			call(design, args);
 			args.clear();
 		}
-		tok = next_token(cmd_buf, " \t\r\n", true);
+		tok = next_token(cmd_buf, " \t\r\n", सत्य);
 	}
 
 	call(design, args);
 }
 
-void Pass::call(RTLIL::Design *design, std::vector<std::string> args)
+शून्य Pass::call(RTLIL::Design *design, std::vector<std::string> args)
 {
-	if (args.size() == 0 || args[0][0] == '#' || args[0][0] == ':')
-		return;
+	यदि (args.size() == 0 || args[0][0] == '#' || args[0][0] == ':')
+		प्रत्यागम;
 
-	if (echo_mode) {
-		std::string message = stringf("%s", create_prompt(design, 0, false));
-		for (size_t i = 0; i < args.size(); i++)
+	यदि (echo_mode) {
+		std::string message = stringf("%s", create_prompt(design, 0, असत्य));
+		प्रति (size_t i = 0; i < args.size(); i++)
 			message += stringf("%s%s", i ? " " : "", args[i]);
 		log("\n");
 		log("%s\n", message);
 	}
 
-	if (pass_register.count(args[0]) == 0)
+	यदि (pass_register.मोजणी(args[0]) == 0)
 		log_cmd_error("No such command: %s (type 'help' for a command overview)\n", args[0]);
 	Pass *pass = pass_register[args[0]];
 
@@ -296,117 +296,117 @@ void Pass::call(RTLIL::Design *design, std::vector<std::string> args)
 	try_collect_garbage();
 	GarbageCollectionGuard gc_guard(pass->allow_garbage_collection_during_pass());
 
-	if (pass->experimental_flag)
+	यदि (pass->experimental_flag)
 		log_experimental(args[0]);
 
-	size_t orig_sel_stack_pos = design->selection_stack.size();
+	size_t orig_sel_चळत_pos = design->selection_चळत.size();
 	auto state = pass->pre_execute();
 	pass->execute(args, design);
 	pass->post_execute(state);
-	while (design->selection_stack.size() > orig_sel_stack_pos)
-		design->pop_selection();
+	यावत् (design->selection_चळत.size() > orig_sel_चळत_pos)
+		design->काढा_selection();
 }
 
-void Pass::call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::string command)
+शून्य Pass::call_on_selection(RTLIL::Design *design, ध्रुव RTLIL::Selection &selection, std::string command)
 {
 	IdString backup_selected_active_module = design->selected_active_module;
 	design->selected_active_module.clear();
-	design->push_selection(selection);
+	design->ढकला_selection(selection);
 
 	Pass::call(design, command);
 
-	design->pop_selection();
+	design->काढा_selection();
 	design->selected_active_module = backup_selected_active_module;
 }
 
-void Pass::call_on_selection(RTLIL::Design *design, const RTLIL::Selection &selection, std::vector<std::string> args)
+शून्य Pass::call_on_selection(RTLIL::Design *design, ध्रुव RTLIL::Selection &selection, std::vector<std::string> args)
 {
 	IdString backup_selected_active_module = design->selected_active_module;
 	design->selected_active_module.clear();
-	design->push_selection(selection);
+	design->ढकला_selection(selection);
 
 	Pass::call(design, args);
 
-	design->pop_selection();
+	design->काढा_selection();
 	design->selected_active_module = backup_selected_active_module;
 }
 
-void Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command)
+शून्य Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::string command)
 {
 	IdString backup_selected_active_module = design->selected_active_module;
 	design->selected_active_module = module->name;
-	design->push_empty_selection();
+	design->ढकला_empty_selection();
 	design->select(module);
 
 	Pass::call(design, command);
 
-	design->pop_selection();
+	design->काढा_selection();
 	design->selected_active_module = backup_selected_active_module;
 }
 
-void Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vector<std::string> args)
+शून्य Pass::call_on_module(RTLIL::Design *design, RTLIL::Module *module, std::vector<std::string> args)
 {
 	IdString backup_selected_active_module = design->selected_active_module;
 	design->selected_active_module = module->name;
-	design->push_empty_selection();
+	design->ढकला_empty_selection();
 	design->select(module);
 
 	Pass::call(design, args);
 
-	design->pop_selection();
+	design->काढा_selection();
 	design->selected_active_module = backup_selected_active_module;
 }
 
-bool ScriptPass::check_label(std::string label, std::string info)
+तार्किक ScriptPass::check_label(std::string label, std::string info)
 {
-	if (active_design == nullptr) {
+	यदि (active_design == nullptr) {
 		log("\n");
-		if (info.empty())
+		यदि (info.empty())
 			log("    %s:\n", label);
-		else
+		अन्यथा
 			log("    %s:    %s\n", label, info);
-		return true;
-	} else {
-		if (!active_run_from.empty() && active_run_from == active_run_to) {
+		प्रत्यागम सत्य;
+	} अन्यथा {
+		यदि (!active_run_from.empty() && active_run_from == active_run_to) {
 			block_active = (label == active_run_from);
-		} else {
-			if (label == active_run_from)
-				block_active = true;
-			if (label == active_run_to)
-				block_active = false;
+		} अन्यथा {
+			यदि (label == active_run_from)
+				block_active = सत्य;
+			यदि (label == active_run_to)
+				block_active = असत्य;
 		}
-		return block_active;
+		प्रत्यागम block_active;
 	}
 }
 
-void ScriptPass::run(std::string command, std::string info)
+शून्य ScriptPass::run(std::string command, std::string info)
 {
-	if (active_design == nullptr) {
-		if (info.empty())
+	यदि (active_design == nullptr) {
+		यदि (info.empty())
 			log("        %s\n", command);
-		else
+		अन्यथा
 			log("        %s    %s\n", command, info);
-	} else {
+	} अन्यथा {
 		Pass::call(active_design, command);
 		active_design->check();
 	}
 }
 
-void ScriptPass::run_nocheck(std::string command, std::string info)
+शून्य ScriptPass::run_nocheck(std::string command, std::string info)
 {
-	if (active_design == nullptr) {
-		if (info.empty())
+	यदि (active_design == nullptr) {
+		यदि (info.empty())
 			log("        %s\n", command);
-		else
+		अन्यथा
 			log("        %s    %s\n", command, info);
-	} else {
+	} अन्यथा {
 		Pass::call(active_design, command);
 	}
 }
 
-void ScriptPass::run_script(RTLIL::Design *design, std::string run_from, std::string run_to)
+शून्य ScriptPass::run_script(RTLIL::Design *design, std::string run_from, std::string run_to)
 {
-	help_mode = false;
+	help_mode = असत्य;
 	active_design = design;
 	block_active = run_from.empty();
 	active_run_from = run_from;
@@ -414,12 +414,12 @@ void ScriptPass::run_script(RTLIL::Design *design, std::string run_from, std::st
 	script();
 }
 
-void ScriptPass::help_script()
+शून्य ScriptPass::help_script()
 {
 	clear_flags();
-	help_mode = true;
+	help_mode = सत्य;
 	active_design = nullptr;
-	block_active = true;
+	block_active = सत्य;
 	active_run_from.clear();
 	active_run_to.clear();
 	script();
@@ -431,144 +431,144 @@ Frontend::Frontend(std::string name, std::string short_help, source_location loc
 {
 }
 
-void Frontend::run_register()
+शून्य Frontend::run_register()
 {
-	if (pass_register.count(pass_name) && !replace_existing_pass())
+	यदि (pass_register.मोजणी(pass_name) && !replace_existing_pass())
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
-	pass_register[pass_name] = this;
+	pass_register[pass_name] = एतत्;
 
-	if (frontend_register.count(frontend_name) && !replace_existing_pass())
+	यदि (frontend_register.मोजणी(frontend_name) && !replace_existing_pass())
 		log_error("Unable to register frontend '%s', frontend already exists!\n", frontend_name);
-	frontend_register[frontend_name] = this;
+	frontend_register[frontend_name] = एतत्;
 }
 
 Frontend::~Frontend()
 {
 }
 
-void Frontend::execute(std::vector<std::string> args, RTLIL::Design *design)
+शून्य Frontend::execute(std::vector<std::string> args, RTLIL::Design *design)
 {
 	log_assert(next_args.empty());
-	do {
-		std::istream *f = NULL;
+	कुरु {
+		std::istream *f = रिक्त;
 		next_args.clear();
 		auto state = pre_execute();
 		execute(f, std::string(), args, design);
 		post_execute(state);
 		args = next_args;
 		delete f;
-	} while (!args.empty());
+	} यावत् (!args.empty());
 }
 
-FILE *Frontend::current_script_file = NULL;
+FILE *Frontend::current_script_file = रिक्त;
 std::string Frontend::last_here_document;
 std::string Frontend::current_script_filename;
-int Frontend::current_script_lineno = 0;
+पूर्णाङ्क Frontend::current_script_lineno = 0;
 
-void Frontend::extra_args(std::istream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_input)
+शून्य Frontend::extra_args(std::istream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, तार्किक bin_आदान)
 {
-	bool called_with_fp = f != NULL;
+	तार्किक called_with_fp = f != रिक्त;
 
 	next_args.clear();
 
-	if (argidx < args.size())
+	यदि (argidx < args.size())
 	{
 		std::string arg = args[argidx];
 
-		if (arg.compare(0, 1, "-") == 0)
+		यदि (arg.compare(0, 1, "-") == 0)
 			cmd_error(args, argidx, "Unknown option or option in arguments.");
-		if (f != NULL)
+		यदि (f != रिक्त)
 			cmd_error(args, argidx, "Extra filename argument in direct file mode.");
 
 		filename = arg;
 		//Accommodate heredocs with EOT marker spaced out from "<<", e.g. "<< EOT" vs. "<<EOT"
-		if (filename == "<<" && argidx+1 < args.size())
+		यदि (filename == "<<" && argidx+1 < args.size())
 			filename += args[++argidx];
-		if (filename.compare(0, 2, "<<") == 0) {
-			if (filename.size() <= 2)
+		यदि (filename.compare(0, 2, "<<") == 0) {
+			यदि (filename.size() <= 2)
 				log_error("Missing EOT marker in here document!\n");
 			std::string eot_marker = filename.substr(2);
 			filename = (Frontend::current_script_file == nullptr) ?  "<stdin>" : "<inlined>";
 			last_here_document.clear();
-			while (1) {
+			यावत् (1) {
 				std::string buffer;
-				char block[4096];
-				while (1) {
-					if (fgets(block, 4096, Frontend::current_script_file == nullptr? stdin : Frontend::current_script_file) == nullptr)
+				वर्ण block[4096];
+				यावत् (1) {
+					यदि (fgets(block, 4096, Frontend::current_script_file == nullptr? stdin : Frontend::current_script_file) == nullptr)
 						log_error("Unexpected end of file in here document '%s'!\n", filename);
 					buffer += block;
-					if (buffer.size() > 0 && (buffer[buffer.size() - 1] == '\n' || buffer[buffer.size() - 1] == '\r'))
-						break;
+					यदि (buffer.size() > 0 && (buffer[buffer.size() - 1] == '\n' || buffer[buffer.size() - 1] == '\r'))
+						भङ्ग;
 				}
 				Frontend::current_script_lineno++;
 				size_t indent = buffer.find_first_not_of(" \t\r\n");
-				if (indent != std::string::npos && buffer.compare(indent, eot_marker.size(), eot_marker) == 0)
-					break;
+				यदि (indent != std::string::npos && buffer.compare(indent, eot_marker.size(), eot_marker) == 0)
+					भङ्ग;
 				last_here_document += buffer;
 			}
-			f = new std::istringstream(last_here_document);
-		} else {
+			f = नूतन std::istringstream(last_here_document);
+		} अन्यथा {
 			rewrite_filename(filename);
 			vector<string> filenames = glob_filename(filename);
 			filename = filenames.front();
-			if (GetSize(filenames) > 1) {
-				next_args.insert(next_args.end(), args.begin(), args.begin()+argidx);
-				next_args.insert(next_args.end(), filenames.begin()+1, filenames.end());
+			यदि (GetSize(filenames) > 1) {
+				next_args.घाला(next_args.end(), args.begin(), args.begin()+argidx);
+				next_args.घाला(next_args.end(), filenames.begin()+1, filenames.end());
 			}
-			yosys_input_files.insert(filename);
-			f = uncompressed(filename, bin_input ? std::ifstream::binary : std::ifstream::in);
+			yosys_आदान_files.घाला(filename);
+			f = uncompressed(filename, bin_आदान ? std::ifstream::द्विमान : std::ifstream::in);
 		}
 
-		for (size_t i = argidx+1; i < args.size(); i++)
-			if (args[i].compare(0, 1, "-") == 0)
+		प्रति (size_t i = argidx+1; i < args.size(); i++)
+			यदि (args[i].compare(0, 1, "-") == 0)
 				cmd_error(args, i, "Found option, expected arguments.");
 
-		if (argidx+1 < args.size()) {
-			if (next_args.empty())
-				next_args.insert(next_args.end(), args.begin(), args.begin()+argidx);
-			next_args.insert(next_args.end(), args.begin()+argidx+1, args.end());
+		यदि (argidx+1 < args.size()) {
+			यदि (next_args.empty())
+				next_args.घाला(next_args.end(), args.begin(), args.begin()+argidx);
+			next_args.घाला(next_args.end(), args.begin()+argidx+1, args.end());
 			args.erase(args.begin()+argidx+1, args.end());
 		}
 	}
 
-	if (f == NULL)
+	यदि (f == रिक्त)
 		cmd_error(args, argidx, "No filename given.");
 
-	if (called_with_fp)
-		args.push_back(filename);
+	यदि (called_with_fp)
+		args.ढकला_back(filename);
 	args[0] = pass_name;
 	// cmd_log_args(args);
 }
 
-void Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command)
+शून्य Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::string command)
 {
 	std::vector<std::string> args;
-	char *s = strdup(command.c_str());
-	for (char *p = strtok(s, " \t\r\n"); p; p = strtok(NULL, " \t\r\n"))
-		args.push_back(p);
-	free(s);
+	वर्ण *s = strdup(command.c_str());
+	प्रति (वर्ण *p = strtok(s, " \t\r\n"); p; p = strtok(रिक्त, " \t\r\n"))
+		args.ढकला_back(p);
+	मुक्त(s);
 	frontend_call(design, f, filename, args);
 }
 
-void Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> args)
+शून्य Frontend::frontend_call(RTLIL::Design *design, std::istream *f, std::string filename, std::vector<std::string> args)
 {
-	if (args.size() == 0)
-		return;
-	if (frontend_register.count(args[0]) == 0)
+	यदि (args.size() == 0)
+		प्रत्यागम;
+	यदि (frontend_register.मोजणी(args[0]) == 0)
 		log_cmd_error("No such frontend: %s\n", args[0]);
 
-	if (f != NULL) {
+	यदि (f != रिक्त) {
 		auto state = frontend_register[args[0]]->pre_execute();
 		frontend_register[args[0]]->execute(f, filename, args, design);
 		frontend_register[args[0]]->post_execute(state);
-	} else if (filename == "-") {
+	} अन्यथा यदि (filename == "-") {
 		std::istream *f_cin = &std::cin;
 		auto state = frontend_register[args[0]]->pre_execute();
 		frontend_register[args[0]]->execute(f_cin, "<stdin>", args, design);
 		frontend_register[args[0]]->post_execute(state);
-	} else {
-		if (!filename.empty())
-			args.push_back(filename);
+	} अन्यथा {
+		यदि (!filename.empty())
+			args.ढकला_back(filename);
 		frontend_register[args[0]]->execute(args, design);
 	}
 }
@@ -579,69 +579,69 @@ Backend::Backend(std::string name, std::string short_help, source_location locat
 {
 }
 
-void Backend::run_register()
+शून्य Backend::run_register()
 {
-	if (pass_register.count(pass_name))
+	यदि (pass_register.मोजणी(pass_name))
 		log_error("Unable to register pass '%s', pass already exists!\n", pass_name);
-	pass_register[pass_name] = this;
+	pass_register[pass_name] = एतत्;
 
-	if (backend_register.count(backend_name))
+	यदि (backend_register.मोजणी(backend_name))
 		log_error("Unable to register backend '%s', backend already exists!\n", backend_name);
-	backend_register[backend_name] = this;
+	backend_register[backend_name] = एतत्;
 }
 
 Backend::~Backend()
 {
 }
 
-void Backend::execute(std::vector<std::string> args, RTLIL::Design *design)
+शून्य Backend::execute(std::vector<std::string> args, RTLIL::Design *design)
 {
-	std::ostream *f = NULL;
+	std::ostream *f = रिक्त;
 	auto state = pre_execute();
 	execute(f, std::string(), args, design);
 	post_execute(state);
-	if (f != &std::cout)
+	यदि (f != &std::cout)
 		delete f;
 }
 
-void Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, bool bin_output)
+शून्य Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<std::string> args, size_t argidx, तार्किक bin_output)
 {
-	bool called_with_fp = f != NULL;
+	तार्किक called_with_fp = f != रिक्त;
 
-	for (; argidx < args.size(); argidx++)
+	प्रति (; argidx < args.size(); argidx++)
 	{
 		std::string arg = args[argidx];
 
-		if (arg.compare(0, 1, "-") == 0 && arg != "-")
+		यदि (arg.compare(0, 1, "-") == 0 && arg != "-")
 			cmd_error(args, argidx, "Unknown option or option in arguments.");
-		if (f != NULL)
+		यदि (f != रिक्त)
 			cmd_error(args, argidx, "Extra filename argument in direct file mode.");
 
-		if (arg == "-") {
+		यदि (arg == "-") {
 			filename = "<stdout>";
 			f = &std::cout;
-			continue;
+			अनुवर्त;
 		}
 
 		filename = arg;
 		rewrite_filename(filename);
-		if (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".gz") == 0) {
+		यदि (filename.size() > 3 && filename.compare(filename.size()-3, std::string::npos, ".gz") == 0) {
 #ifdef YOSYS_ENABLE_ZLIB
-			gzip_ostream *gf = new gzip_ostream;
-			if (!gf->open(filename)) {
+			gzip_ostream *gf = नूतन gzip_ostream;
+			यदि (!gf->open(filename)) {
 				delete gf;
 				log_cmd_error("Can't open output file `%s' for writing: %s\n", filename, strerror(errno));
 			}
-			yosys_output_files.insert(filename);
+			yosys_output_files.घाला(filename);
 			f = gf;
-#else
+#अन्यथा
 			log_cmd_error("Yosys is compiled without zlib support, unable to write gzip output.\n");
 #endif
-		} else {
-			std::ofstream *ff = new std::ofstream;
-			ff->open(filename.c_str(), bin_output ? (std::ofstream::trunc | std::ofstream::binary) : std::ofstream::trunc);
-			yosys_output_files.insert(filename);
-			if (ff->fail()) {
+		} अन्यथा {
+			std::ofstream *ff = नूतन std::ofstream;
+			ff->open(filename.c_str(), bin_output ? (std::ofstream::trunc | std::ofstream::द्विमान) : std::ofstream::trunc);
+			yosys_output_files.घाला(filename);
+			यदि (ff->fail()) {
 				delete ff;
 				log_cmd_error("Can't open output file `%s' for writing: %s\n", filename, strerror(errno));
 			}
@@ -649,65 +649,65 @@ void Backend::extra_args(std::ostream *&f, std::string &filename, std::vector<st
 		}
 	}
 
-	if (called_with_fp)
-		args.push_back(filename);
+	यदि (called_with_fp)
+		args.ढकला_back(filename);
 	args[0] = pass_name;
 	// cmd_log_args(args);
 
-	if (f == NULL) {
+	यदि (f == रिक्त) {
 		filename = "<stdout>";
 		f = &std::cout;
 	}
 }
 
-void Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command)
+शून्य Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::string command)
 {
 	std::vector<std::string> args;
-	char *s = strdup(command.c_str());
-	for (char *p = strtok(s, " \t\r\n"); p; p = strtok(NULL, " \t\r\n"))
-		args.push_back(p);
-	free(s);
+	वर्ण *s = strdup(command.c_str());
+	प्रति (वर्ण *p = strtok(s, " \t\r\n"); p; p = strtok(रिक्त, " \t\r\n"))
+		args.ढकला_back(p);
+	मुक्त(s);
 	backend_call(design, f, filename, args);
 }
 
-void Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> args)
+शून्य Backend::backend_call(RTLIL::Design *design, std::ostream *f, std::string filename, std::vector<std::string> args)
 {
-	if (args.size() == 0)
-		return;
-	if (backend_register.count(args[0]) == 0)
+	यदि (args.size() == 0)
+		प्रत्यागम;
+	यदि (backend_register.मोजणी(args[0]) == 0)
 		log_cmd_error("No such backend: %s\n", args[0]);
 
-	size_t orig_sel_stack_pos = design->selection_stack.size();
+	size_t orig_sel_चळत_pos = design->selection_चळत.size();
 
-	if (f != NULL) {
+	यदि (f != रिक्त) {
 		auto state = backend_register[args[0]]->pre_execute();
 		backend_register[args[0]]->execute(f, filename, args, design);
 		backend_register[args[0]]->post_execute(state);
-	} else if (filename == "-") {
+	} अन्यथा यदि (filename == "-") {
 		std::ostream *f_cout = &std::cout;
 		auto state = backend_register[args[0]]->pre_execute();
 		backend_register[args[0]]->execute(f_cout, "<stdout>", args, design);
 		backend_register[args[0]]->post_execute(state);
-	} else {
-		if (!filename.empty())
-			args.push_back(filename);
+	} अन्यथा {
+		यदि (!filename.empty())
+			args.ढकला_back(filename);
 		backend_register[args[0]]->execute(args, design);
 	}
 
-	while (design->selection_stack.size() > orig_sel_stack_pos)
-		design->pop_selection();
+	यावत् (design->selection_चळत.size() > orig_sel_चळत_pos)
+		design->काढा_selection();
 }
 
-struct SimHelper {
+संरचना SimHelper {
 	string name;
-	inline string filesafe_name() {
-		if (name.at(0) == '$')
-			if (name.at(1) == '_')
-				return "gate" + name.substr(1);
-			else
-				return "word_" + name.substr(1);
-		else
-			return name;
+	अन्तःस्थ string filesafe_name() {
+		यदि (name.at(0) == '$')
+			यदि (name.at(1) == '_')
+				प्रत्यागम "gate" + name.substr(1);
+			अन्यथा
+				प्रत्यागम "word_" + name.substr(1);
+		अन्यथा
+			प्रत्यागम name;
 	}
 	string title;
 	string ports;
@@ -719,45 +719,45 @@ struct SimHelper {
 	string tags;
 };
 
-static bool is_code_getter(string name) {
-	return *(--(name.end())) == '+';
+स्थिर तार्किक is_code_getter(string name) {
+	प्रत्यागम *(--(name.end())) == '+';
 }
 
-static string get_cell_name(string name) {
-	return is_code_getter(name) ? name.substr(0, name.length()-1) : name;
+स्थिर string get_cell_name(string name) {
+	प्रत्यागम is_code_getter(name) ? name.substr(0, name.length()-1) : name;
 }
 
-static void log_warning_flags(Pass *pass) {
-	bool has_warnings = false;
-	const string name = pass->pass_name;
-	if (pass->experimental_flag) {
-		if (!has_warnings) log("\n");
-		has_warnings = true;
+स्थिर शून्य log_warning_flags(Pass *pass) {
+	तार्किक has_warnings = असत्य;
+	ध्रुव string name = pass->pass_name;
+	यदि (pass->experimental_flag) {
+		यदि (!has_warnings) log("\n");
+		has_warnings = सत्य;
 		log("WARNING: THE '%s' COMMAND IS EXPERIMENTAL.\n", name);
 	}
-	if (pass->internal_flag) {
-		if (!has_warnings) log("\n");
-		has_warnings = true;
+	यदि (pass->internal_flag) {
+		यदि (!has_warnings) log("\n");
+		has_warnings = सत्य;
 		log("WARNING: THE '%s' COMMAND IS INTENDED FOR INTERNAL DEVELOPER USE ONLY.\n", name);
 	}
-	if (has_warnings)
+	यदि (has_warnings)
 		log("\n");
 }
 
-static struct CellHelpMessages {
+स्थिर संरचना CellHelpMessages {
 	dict<string, SimHelper> cell_help;
 	CellHelpMessages() {
-#include "kernel/simlib_help.inc"
-#include "kernel/simcells_help.inc"
+#अन्तर्भाव "kernel/simlib_help.inc"
+#अन्तर्भाव "kernel/simcells_help.inc"
 		cell_help.sort();
 	}
-	bool contains(string name) { return cell_help.count(get_cell_name(name)) > 0; }
-	SimHelper get(string name) { return cell_help[get_cell_name(name)]; }
+	तार्किक contains(string name) { प्रत्यागम cell_help.मोजणी(get_cell_name(name)) > 0; }
+	SimHelper get(string name) { प्रत्यागम cell_help[get_cell_name(name)]; }
 } cell_help_messages;
 
-struct HelpPass : public Pass {
+संरचना HelpPass : सार्वजनिक Pass {
 	HelpPass() : Pass("help", "display help messages") { }
-	void help() override
+	शून्य help() override
 	{
 		log("\n");
 		log("    help  ................  list all commands\n");
@@ -769,22 +769,22 @@ struct HelpPass : public Pass {
 		log("    help <celltype>+  ....  print verilog code for given cell type\n");
 		log("\n");
 	}
-	bool dump_cmds_json(PrettyJson &json) {
+	तार्किक dump_cmds_json(PrettyJson &json) {
 		// init json
 		json.begin_object();
 		json.entry("version", "Yosys command reference");
 		json.entry("generator", yosys_version_str);
 
-		bool raise_error = false;
+		तार्किक raise_error = असत्य;
 		std::map<string, vector<string>> groups;
 
 		// get root path
 		auto this_path = std::filesystem::path(source_location::current().file_name());
-		auto source_root = this_path.parent_path().parent_path();
+		auto source_मूळ = this_path.parent_path().parent_path();
 
 		json.name("cmds"); json.begin_object();
 		// iterate over commands
-		for (auto &it : pass_register) {
+		प्रति (auto &it : pass_register) {
 			auto name = it.first;
 			auto pass = it.second;
 			auto title = pass->short_help;
@@ -792,8 +792,8 @@ struct HelpPass : public Pass {
 			auto cmd_help = PrettyHelp();
 			auto has_pretty_help = pass->formatted_help();
 
-			if (!has_pretty_help) {
-				enum PassUsageState {
+			यदि (!has_pretty_help) {
+				गणना PassUsageState {
 					PUState_none,
 					PUState_signature,
 					PUState_options,
@@ -802,8 +802,8 @@ struct HelpPass : public Pass {
 
 				source_location null_source;
 				string current_buffer = "";
-				auto root_listing = cmd_help.get_root();
-				auto current_listing = root_listing;
+				auto मूळ_listing_2 = cmd_help.get_मूळ();
+				auto current_listing = मूळ_listing_2;
 
 				// dump command help
 				std::ostringstream buf;
@@ -816,109 +816,109 @@ struct HelpPass : public Pass {
 				ss << buf.str();
 
 				// parse command help
-				size_t def_strip_count = 0;
+				size_t def_strip_मोजणी = 0;
 				auto current_state = PUState_none;
-				auto catch_verific = false;
-				auto blank_lines = 2;
-				for (string line; std::getline(ss, line, '\n');) {
+				auto catch_verific = असत्य;
+				auto blank_ओळी = 2;
+				प्रति (string ओळ; std::getline(ss, ओळ, '\n');) {
 					// find position of first non space character
-					std::size_t first_pos = line.find_first_not_of(" \t");
-					std::size_t last_pos = line.find_last_not_of(" \t");
-					if (first_pos == std::string::npos) {
-						switch (current_state)
+					std::size_t first_pos = ओळ.find_first_not_of(" \t");
+					std::size_t last_pos = ओळ.find_last_not_of(" \t");
+					यदि (first_pos == std::string::npos) {
+						विकल्प (current_state)
 						{
-						case PUState_signature:
-							root_listing->usage(current_buffer, null_source);
-							current_listing = root_listing;
+						पक्ष PUState_signature:
+							मूळ_listing_2->usage(current_buffer, null_source);
+							current_listing = मूळ_listing_2;
 							current_state = PUState_none;
 							current_buffer = "";
-							break;
-						case PUState_none:
-						case PUState_optionbody:
-							blank_lines += 1;
-							break;
-						default:
-							break;
+							भङ्ग;
+						पक्ष PUState_none:
+						पक्ष PUState_optionbody:
+							blank_ओळी += 1;
+							भङ्ग;
+						स्वभाव:
+							भङ्ग;
 						}
 						// skip empty lines
-						continue;
+						अनुवर्त;
 					}
 
 					// strip leading and trailing whitespace
-					std::string stripped_line = line.substr(first_pos, last_pos - first_pos +1);
-					bool IsDefinition = stripped_line[0] == '-';
-					IsDefinition &= stripped_line[1] != ' ' && stripped_line[1] != '>';
-					bool IsDedent = def_strip_count && first_pos < def_strip_count;
-					bool IsIndent = def_strip_count < first_pos;
+					std::string stripped_ओळ = ओळ.substr(first_pos, last_pos - first_pos +1);
+					तार्किक IsDefinition = stripped_ओळ[0] == '-';
+					IsDefinition &= stripped_ओळ[1] != ' ' && stripped_ओळ[1] != '>';
+					तार्किक IsDedent = def_strip_मोजणी && first_pos < def_strip_मोजणी;
+					तार्किक IsIndent = def_strip_मोजणी < first_pos;
 
 					// line looks like a signature
-					bool IsSignature = stripped_line.find(name) == 0 && (stripped_line.length() == name.length() || stripped_line.at(name.size()) == ' ');
+					तार्किक IsSignature = stripped_ओळ.find(name) == 0 && (stripped_ओळ.length() == name.length() || stripped_ओळ.at(name.size()) == ' ');
 
-					if (IsSignature && first_pos <= 4 && (blank_lines >= 2 || current_state == PUState_signature)) {
-						if (current_state == PUState_options || current_state == PUState_optionbody) {
+					यदि (IsSignature && first_pos <= 4 && (blank_ओळी >= 2 || current_state == PUState_signature)) {
+						यदि (current_state == PUState_options || current_state == PUState_optionbody) {
 							current_listing->codeblock(current_buffer, "none", null_source);
 							current_buffer = "";
-						} else if (current_state == PUState_signature) {
-							root_listing->usage(current_buffer, null_source);
+						} अन्यथा यदि (current_state == PUState_signature) {
+							मूळ_listing_2->usage(current_buffer, null_source);
 							current_buffer = "";
-						} else if (current_state == PUState_none && !current_buffer.empty()) {
+						} अन्यथा यदि (current_state == PUState_none && !current_buffer.empty()) {
 							current_listing->codeblock(current_buffer, "none", null_source);
 							current_buffer = "";
 						}
-						current_listing = root_listing;
+						current_listing = मूळ_listing_2;
 						current_state = PUState_signature;
-						def_strip_count = first_pos;
-						catch_verific = false;
-					} else if (IsDedent) {
-						def_strip_count = first_pos;
-						if (current_state == PUState_optionbody) {
-							if (!current_buffer.empty()) {
+						def_strip_मोजणी = first_pos;
+						catch_verific = असत्य;
+					} अन्यथा यदि (IsDedent) {
+						def_strip_मोजणी = first_pos;
+						यदि (current_state == PUState_optionbody) {
+							यदि (!current_buffer.empty()) {
 								current_listing->codeblock(current_buffer, "none", null_source);
 								current_buffer = "";
 							}
-							if (IsIndent) {
+							यदि (IsIndent) {
 								current_state = PUState_options;
-								current_listing = root_listing->back();
-							} else {
+								current_listing = मूळ_listing_2->back();
+							} अन्यथा {
 								current_state = PUState_none;
-								current_listing = root_listing;
+								current_listing = मूळ_listing_2;
 							}
-						} else {
+						} अन्यथा {
 							current_state = PUState_none;
 						}
 					}
 
-					if (IsDefinition && !catch_verific && current_state != PUState_signature) {
-						if (!current_buffer.empty()) {
+					यदि (IsDefinition && !catch_verific && current_state != PUState_signature) {
+						यदि (!current_buffer.empty()) {
 							current_listing->codeblock(current_buffer, "none", null_source);
 							current_buffer = "";
 						}
 						current_state = PUState_options;
-						current_listing = root_listing->open_option(stripped_line, null_source);
-						def_strip_count = first_pos;
-					} else {
-						if (current_state == PUState_options) {
+						current_listing = मूळ_listing_2->open_option(stripped_ओळ, null_source);
+						def_strip_मोजणी = first_pos;
+					} अन्यथा {
+						यदि (current_state == PUState_options) {
 							current_state = PUState_optionbody;
 						}
-						if (current_buffer.empty())
-							current_buffer = stripped_line;
-						else if (current_state == PUState_signature && IsIndent)
-							current_buffer += stripped_line;
-						else if (current_state == PUState_none) {
-							current_buffer += (blank_lines > 0 ? "\n\n" : "\n") + line;
-						} else
-							current_buffer += (blank_lines > 0 ? "\n\n" : "\n") + stripped_line;
-						if (stripped_line.compare("Command file parser supports following commands in file:") == 0)
-							catch_verific = true;
+						यदि (current_buffer.empty())
+							current_buffer = stripped_ओळ;
+						अन्यथा यदि (current_state == PUState_signature && IsIndent)
+							current_buffer += stripped_ओळ;
+						अन्यथा यदि (current_state == PUState_none) {
+							current_buffer += (blank_ओळी > 0 ? "\n\n" : "\n") + ओळ;
+						} अन्यथा
+							current_buffer += (blank_ओळी > 0 ? "\n\n" : "\n") + stripped_ओळ;
+						यदि (stripped_ओळ.compare("Command file parser supports following commands in file:") == 0)
+							catch_verific = सत्य;
 					}
-					blank_lines = 0;
+					blank_ओळी = 0;
 				}
 
-				if (!current_buffer.empty()) {
-					if (current_buffer.size() > 64 && current_buffer.substr(0, 64).compare("The following commands are executed by this synthesis command:\n\n") == 0) {
+				यदि (!current_buffer.empty()) {
+					यदि (current_buffer.size() > 64 && current_buffer.substr(0, 64).compare("The following commands are executed by this synthesis command:\n\n") == 0) {
 						current_listing->paragraph(current_buffer.substr(0, 62), null_source);
 						current_listing->codeblock(current_buffer.substr(64), "yoscrypt", null_source);
-					} else
+					} अन्यथा
 						current_listing->codeblock(current_buffer, "none", null_source);
 					current_buffer = "";
 				}
@@ -926,55 +926,55 @@ struct HelpPass : public Pass {
 
 			// fix path
 			string source_file = pass->location.file_name();
-			bool has_source = source_file.compare("unknown") != 0;
+			तार्किक has_source = source_file.compare("unknown") != 0;
 			std::filesystem::path source_path;
-			auto skip_source_group = false;
+			auto skip_source_group = असत्य;
 
-			if (has_source) {
-				source_path = fixup_source_path(pass->location.file_name(), source_root, &skip_source_group);
+			यदि (has_source) {
+				source_path = fixup_source_path(pass->location.file_name(), source_मूळ, &skip_source_group);
 				source_file = source_path.string();
 			}
 
 			// attempt auto group
-			if (!cmd_help.has_group()) {
-				if (pass->internal_flag)
+			यदि (!cmd_help.has_group()) {
+				यदि (pass->internal_flag)
 					cmd_help.group = "internal";
-				else if (source_file.find("backends/") == 0 || (!has_source && name.find("read_") == 0))
+				अन्यथा यदि (source_file.find("backends/") == 0 || (!has_source && name.find("read_") == 0))
 					cmd_help.group = "backends";
-				else if (source_file.find("frontends/") == 0 || (!has_source && name.find("write_") == 0))
+				अन्यथा यदि (source_file.find("frontends/") == 0 || (!has_source && name.find("write_") == 0))
 					cmd_help.group = "frontends";
-				else if (has_source) {
-					if (source_path.has_parent_path() && !skip_source_group)
+				अन्यथा यदि (has_source) {
+					यदि (source_path.has_parent_path() && !skip_source_group)
 						cmd_help.group = source_path.parent_path().string();
 				}
 				// implicit !has_source
-				else if (name.find("equiv") == 0)
+				अन्यथा यदि (name.find("equiv") == 0)
 					cmd_help.group = "passes/equiv";
-				else if (name.find("fsm") == 0)
+				अन्यथा यदि (name.find("fsm") == 0)
 					cmd_help.group = "passes/fsm";
-				else if (name.find("memory") == 0)
+				अन्यथा यदि (name.find("memory") == 0)
 					cmd_help.group = "passes/memory";
-				else if (name.find("opt") == 0)
+				अन्यथा यदि (name.find("opt") == 0)
 					cmd_help.group = "passes/opt";
-				else if (name.find("proc") == 0)
+				अन्यथा यदि (name.find("proc") == 0)
 					cmd_help.group = "passes/proc";
 			}
 
-			if (groups.count(cmd_help.group) == 0) {
+			यदि (groups.मोजणी(cmd_help.group) == 0) {
 				groups[cmd_help.group] = vector<string>();
 			}
-			groups[cmd_help.group].push_back(name);
+			groups[cmd_help.group].ढकला_back(name);
 
 			// write to json
 			json.name(name.c_str()); json.begin_object();
 			json.entry("title", title);
 			json.name("content"); json.begin_array();
-			for (auto &content : cmd_help)
-				json.value(content.to_json(source_root));
+			प्रति (auto &content : cmd_help)
+				json.मूल्य(content.to_json(source_मूळ));
 			json.end_array();
 			json.entry("group", cmd_help.group);
 			json.entry("source_file", source_file);
-			json.entry("source_line", pass->location.line());
+			json.entry("source_line", pass->location.ओळ());
 			json.entry("source_func", pass->location.function_name());
 			json.entry("experimental_flag", pass->experimental_flag);
 			json.entry("internal_flag", pass->internal_flag);
@@ -985,9 +985,9 @@ struct HelpPass : public Pass {
 		json.entry("groups", groups);
 
 		json.end_object();
-		return raise_error;
+		प्रत्यागम raise_error;
 	}
-	bool dump_cells_json(PrettyJson &json) {
+	तार्किक dump_cells_json(PrettyJson &json) {
 		// init json
 		json.begin_object();
 		json.entry("version", "Yosys internal cells");
@@ -997,23 +997,23 @@ struct HelpPass : public Pass {
 		dict<string, pair<SimHelper, StaticCellTypes::CellTableBuilder::CellInfo>> cells;
 
 		// iterate over cells
-		bool raise_error = false;
-		for (auto it : StaticCellTypes::builder.cells) {
-			if (!StaticCellTypes::categories.is_known(it.type))
-				continue;
+		तार्किक raise_error = असत्य;
+		प्रति (auto it : StaticCellTypes::builder.cells) {
+			यदि (!StaticCellTypes::categories.is_known(it.type))
+				अनुवर्त;
 			auto name = ID::str(it.type);
-			if (cell_help_messages.contains(name)) {
+			यदि (cell_help_messages.contains(name)) {
 				auto cell_help = cell_help_messages.get(name);
 				groups[cell_help.group].emplace_back(name);
 				auto cell_pair = pair<SimHelper, StaticCellTypes::CellTableBuilder::CellInfo>(cell_help, it);
 				cells.emplace(name, cell_pair);
-			} else {
+			} अन्यथा {
 				log("ERROR: Missing cell help for cell '%s'.\n", name);
-				raise_error |= true;
+				raise_error |= सत्य;
 			}
 		}
-		for (auto &it : cell_help_messages.cell_help) {
-			if (cells.count(it.first) == 0) {
+		प्रति (auto &it : cell_help_messages.cell_help) {
+			यदि (cells.मोजणी(it.first) == 0) {
 				log_warning("Found cell model '%s' without matching cell type.\n", it.first);
 			}
 		}
@@ -1021,111 +1021,111 @@ struct HelpPass : public Pass {
 		// write to json
 		json.name("groups"); json.begin_object();
 		groups.sort();
-		for (auto &it : groups) {
-			json.name(it.first.c_str()); json.value(it.second);
+		प्रति (auto &it : groups) {
+			json.name(it.first.c_str()); json.मूल्य(it.second);
 		}
 		json.end_object();
 
 		json.name("cells"); json.begin_object();
 		cells.sort();
-		for (auto &it : cells) {
+		प्रति (auto &it : cells) {
 			auto ch = it.second.first;
 			auto ct = it.second.second;
 			json.name(ch.name.c_str()); json.begin_object();
-			json.name("title"); json.value(ch.title);
-			json.name("ports"); json.value(ch.ports);
-			json.name("source"); json.value(ch.source);
-			json.name("desc"); json.value(ch.desc);
-			json.name("code"); json.value(ch.code);
+			json.name("title"); json.मूल्य(ch.title);
+			json.name("ports"); json.मूल्य(ch.ports);
+			json.name("source"); json.मूल्य(ch.source);
+			json.name("desc"); json.मूल्य(ch.desc);
+			json.name("code"); json.मूल्य(ch.code);
 			vector<string> inputs, outputs;
-			for (auto &input : ct.inputs)
-				inputs.push_back(ID::str(input));
-			json.name("inputs"); json.value(inputs);
-			for (auto &output : ct.outputs)
-				outputs.push_back(ID::str(output));
-			json.name("outputs"); json.value(outputs);
+			प्रति (auto &आदान : ct.inputs)
+				inputs.ढकला_back(ID::str(आदान));
+			json.name("inputs"); json.मूल्य(inputs);
+			प्रति (auto &output : ct.outputs)
+				outputs.ढकला_back(ID::str(output));
+			json.name("outputs"); json.मूल्य(outputs);
 			vector<string> properties;
 			// CellType properties
-			if (ct.features.is_evaluable) properties.push_back("is_evaluable");
-			if (ct.features.is_combinatorial) properties.push_back("is_combinatorial");
-			if (ct.features.is_synthesizable) properties.push_back("is_synthesizable");
+			यदि (ct.features.is_evaluable) properties.ढकला_back("is_evaluable");
+			यदि (ct.features.is_combinatorial) properties.ढकला_back("is_combinatorial");
+			यदि (ct.features.is_synthesizable) properties.ढकला_back("is_synthesizable");
 			// SimHelper properties
 			size_t last = 0; size_t next = 0;
-			while ((next = ch.tags.find(", ", last)) != string::npos) {
-				properties.push_back(ch.tags.substr(last, next-last));
+			यावत् ((next = ch.tags.find(", ", last)) != string::npos) {
+				properties.ढकला_back(ch.tags.substr(last, next-last));
 				last = next + 2;
 			}
 			auto final_tag = ch.tags.substr(last);
-			if (final_tag.size()) properties.push_back(final_tag);
-			json.name("properties"); json.value(properties);
+			यदि (final_tag.size()) properties.ढकला_back(final_tag);
+			json.name("properties"); json.मूल्य(properties);
 			json.end_object();
 		}
 		json.end_object();
 
 		json.end_object();
-		return raise_error;
+		प्रत्यागम raise_error;
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design*) override
+	शून्य execute(std::vector<std::string> args, RTLIL::Design*) override
 	{
-		if (args.size() == 1) {
+		यदि (args.size() == 1) {
 			log("\n");
-			for (auto &it : pass_register)
+			प्रति (auto &it : pass_register)
 				log("    %-20s %s\n", it.first, it.second->short_help);
 			log("\n");
 			log("Type 'help <command>' for more information on a command.\n");
 			log("Type 'help -cells' for a list of all cell types.\n");
 			log("\n");
-			return;
+			प्रत्यागम;
 		}
 
-		if (args.size() == 2) {
-			if (args[1] == "-all") {
-				for (auto &it : pass_register) {
+		यदि (args.size() == 2) {
+			यदि (args[1] == "-all") {
+				प्रति (auto &it : pass_register) {
 					log("\n");
 					log("\n");
 					log("%s  --  %s\n", it.first, it.second->short_help);
-					std::string msg;
-					for (size_t i = 0; i < it.first.size() + it.second->short_help.size() + 6; i++)
-						msg += '=';
-					log("%s\n", msg);
+					std::string संदेश;
+					प्रति (size_t i = 0; i < it.first.size() + it.second->short_help.size() + 6; i++)
+						संदेश += '=';
+					log("%s\n", संदेश);
 					it.second->help();
 					log_warning_flags(it.second);
 				}
 			}
-			else if (args[1] == "-cells") {
+			अन्यथा यदि (args[1] == "-cells") {
 				log("\n");
-				for (auto &it : cell_help_messages.cell_help) {
+				प्रति (auto &it : cell_help_messages.cell_help) {
 					SimHelper help_cell = it.second;
 					log("    %-15s %s\n", help_cell.name, help_cell.ports);
 				}
 				log("\n");
 				log("Type 'help <cell_type>' for more information on a cell type.\n");
 				log("\n");
-				return;
+				प्रत्यागम;
 			}
-			else if (pass_register.count(args[1])) {
+			अन्यथा यदि (pass_register.मोजणी(args[1])) {
 				pass_register.at(args[1])->help();
 				log_warning_flags(pass_register.at(args[1]));
 			}
-			else if (cell_help_messages.contains(args[1])) {
+			अन्यथा यदि (cell_help_messages.contains(args[1])) {
 				auto help_cell = cell_help_messages.get(args[1]);
-				if (is_code_getter(args[1])) {
+				यदि (is_code_getter(args[1])) {
 						log("\n");
 						log("%s\n", help_cell.code);
-				} else {
+				} अन्यथा {
 					log("\n");
 					log("    %s %s\n", help_cell.name, help_cell.ports);
 					log("\n");
-					if (help_cell.ver == "2" || help_cell.ver == "2a") {
-						if (help_cell.title != "") log("%s:\n", help_cell.title);
+					यदि (help_cell.ver == "2" || help_cell.ver == "2a") {
+						यदि (help_cell.title != "") log("%s:\n", help_cell.title);
 						std::stringstream ss;
 						ss << help_cell.desc;
-						for (std::string line; std::getline(ss, line, '\n');) {
-							if (line != "::") log("%s\n", line);
+						प्रति (std::string ओळ; std::getline(ss, ओळ, '\n');) {
+							यदि (ओळ != "::") log("%s\n", ओळ);
 						}
-					} else if (help_cell.desc.length()) {
+					} अन्यथा यदि (help_cell.desc.length()) {
 						log("%s\n", help_cell.desc);
-					} else {
+					} अन्यथा {
 						log("No help message for this cell type found.\n");
 					}
 					log("\n");
@@ -1133,40 +1133,40 @@ struct HelpPass : public Pass {
 					log("\n");
 				}
 			}
-			else
+			अन्यथा
 				log("No such command or cell type: %s\n", args[1]);
-			return;
-		} else if (args.size() == 3) {
+			प्रत्यागम;
+		} अन्यथा यदि (args.size() == 3) {
 			// this option is undocumented as it is for internal use only
-			if (args[1] == "-dump-cmds-json") {
+			यदि (args[1] == "-dump-cmds-json") {
 				PrettyJson json;
-				if (!json.write_to_file(args[2]))
+				यदि (!json.write_to_file(args[2]))
 					log_error("Can't open file `%s' for writing: %s\n", args[2], strerror(errno));
-				if (dump_cmds_json(json)) {
+				यदि (dump_cmds_json(json)) {
 					log_abort();
 				}
 			}
 			// this option is undocumented as it is for internal use only
-			else if (args[1] == "-dump-cells-json") {
+			अन्यथा यदि (args[1] == "-dump-cells-json") {
 				PrettyJson json;
-				if (!json.write_to_file(args[2]))
+				यदि (!json.write_to_file(args[2]))
 					log_error("Can't open file `%s' for writing: %s\n", args[2], strerror(errno));
-				if (dump_cells_json(json)) {
+				यदि (dump_cells_json(json)) {
 					log_error("One or more cells defined in celltypes.h are missing help documentation.\n");
 				}
 			}
-			else
+			अन्यथा
 				log("Unknown help command: `%s %s'\n", args[1], args[2]);
-			return;
+			प्रत्यागम;
 		}
 
 		help();
 	}
 } HelpPass;
 
-struct EchoPass : public Pass {
+संरचना EchoPass : सार्वजनिक Pass {
 	EchoPass() : Pass("echo", "turning echoing back of commands on and off") { }
-	void help() override
+	शून्य help() override
 	{
 		log("\n");
 		log("    echo on\n");
@@ -1179,17 +1179,17 @@ struct EchoPass : public Pass {
 		log("Do not print all commands to log before executing them. (default)\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design*) override
+	शून्य execute(std::vector<std::string> args, RTLIL::Design*) override
 	{
-		if (args.size() > 2)
+		यदि (args.size() > 2)
 			cmd_error(args, 2, "Unexpected argument.");
 
-		if (args.size() == 2) {
-			if (args[1] == "on")
-				echo_mode = true;
-			else if (args[1] == "off")
-				echo_mode = false;
-			else
+		यदि (args.size() == 2) {
+			यदि (args[1] == "on")
+				echo_mode = सत्य;
+			अन्यथा यदि (args[1] == "off")
+				echo_mode = असत्य;
+			अन्यथा
 				cmd_error(args, 1, "Unexpected argument.");
 		}
 
@@ -1200,18 +1200,18 @@ struct EchoPass : public Pass {
 SatSolver *yosys_satsolver_list;
 SatSolver *yosys_satsolver;
 
-struct MinisatSatSolver : public SatSolver {
+संरचना MinisatSatSolver : सार्वजनिक SatSolver {
 	MinisatSatSolver() : SatSolver("minisat") {
-		yosys_satsolver = this;
+		yosys_satsolver = एतत्;
 	}
 	ezSAT *create() override {
-		return new ezMiniSAT();
+		प्रत्यागम नूतन ezMiniSAT();
 	}
 } MinisatSatSolver;
 
-struct LicensePass : public Pass {
+संरचना LicensePass : सार्वजनिक Pass {
 	LicensePass() : Pass("license", "print license terms") { }
-	void help() override
+	शून्य help() override
 	{
 		log("\n");
 		log("    license\n");
@@ -1219,11 +1219,11 @@ struct LicensePass : public Pass {
 		log("This command produces the following notice.\n");
 		notice();
 	}
-	void execute(std::vector<std::string>, RTLIL::Design*) override
+	शून्य execute(std::vector<std::string>, RTLIL::Design*) override
 	{
 		notice();
 	}
-	void notice()
+	शून्य notice()
 	{
 		log("\n");
 		log(" /----------------------------------------------------------------------------\\\n");

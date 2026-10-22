@@ -20,41 +20,41 @@
 #ifndef CELLEDGES_H
 #define CELLEDGES_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
+#अन्तर्भाव "kernel/yosys.h"
+#अन्तर्भाव "kernel/sigtools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AbstractCellEdgesDatabase
+संरचना AbstractCellEdgesDatabase
 {
-	virtual ~AbstractCellEdgesDatabase() { }
-	virtual void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int delay) = 0;
+	आभास ~AbstractCellEdgesDatabase() { }
+	आभास शून्य add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, पूर्णाङ्क from_bit, RTLIL::IdString to_port, पूर्णाङ्क to_bit, पूर्णाङ्क delay) = 0;
 	bool add_edges_from_cell(RTLIL::Cell *cell);
 };
 
-struct FwdCellEdgesDatabase : AbstractCellEdgesDatabase
+संरचना FwdCellEdgesDatabase : AbstractCellEdgesDatabase
 {
 	SigMap &sigmap;
 	dict<SigBit, pool<SigBit>> db;
 	FwdCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
+	शून्य add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, पूर्णाङ्क from_bit, RTLIL::IdString to_port, पूर्णाङ्क to_bit, पूर्णाङ्क) override {
 		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
 		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[from_sigbit].insert(to_sigbit);
+		db[from_sigbit].घाला(to_sigbit);
 	}
 };
 
-struct RevCellEdgesDatabase : AbstractCellEdgesDatabase
+संरचना RevCellEdgesDatabase : AbstractCellEdgesDatabase
 {
 	SigMap &sigmap;
 	dict<SigBit, pool<SigBit>> db;
 	RevCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
+	शून्य add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, पूर्णाङ्क from_bit, RTLIL::IdString to_port, पूर्णाङ्क to_bit, पूर्णाङ्क) override {
 		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
 		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[to_sigbit].insert(from_sigbit);
+		db[to_sigbit].घाला(from_sigbit);
 	}
 };
 

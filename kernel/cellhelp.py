@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-from __future__ import annotations
-import fileinput
-import json
-from pathlib import Path
+तः __future__ आनयन annotations
+आनयन fileinput
+आनयन json
+तः pathlib आनयन Path
 
-class SimHelper:
+वर्ग SimHelper:
     name: str = ""
     title: str = ""
     ports: str = ""
@@ -28,14 +28,14 @@ class SimHelper:
         # generate C++ struct
         val = f"cell_help[{json.dumps(self.name)}] = "
         val += "{\n"
-        for field in printed_fields:
+        प्रति field अन्तः printed_fields:
             field_val = getattr(self, field)
-            if isinstance(field_val, list):
+            यदि isinstance(field_val, list):
                 field_val = "\n".join(field_val)
             field_val = field_val.strip()
             val += f'  {json.dumps(field_val)},\n'
         val += "};\n"
-        return val
+        प्रत्यागम val
 
 def simcells_reparse(cell: SimHelper):
     # cut manual signature
@@ -44,12 +44,12 @@ def simcells_reparse(cell: SimHelper):
     # code-block truth table
     new_desc = []
     indent = ""
-    for line in cell.desc:
-        if line.startswith("Truth table:"):
+    प्रति ओळ अन्तः cell.desc:
+        यदि ओळ.startswith("Truth table:"):
             indent = "   "
-            new_desc.pop()
+            new_desc.काढा()
             new_desc.extend(["::", ""])
-        new_desc.append(indent + line)
+        new_desc.append(indent + ओळ)
     cell.desc = new_desc
 
     # set version
@@ -57,41 +57,41 @@ def simcells_reparse(cell: SimHelper):
 
 simHelper = SimHelper()
 
-for line in fileinput.input():
-    line = line.rstrip()
+प्रति ओळ अन्तः fileinput.आदान():
+    ओळ = ओळ.rstrip()
     # special comments
-    if line.startswith("//-"):
-        simHelper.desc.append(line[4:] if len(line) > 4 else "")
-    elif line.startswith("//* "):
-        _, key, val = line.split(maxsplit=2)
-        setattr(simHelper, key, val)
+    यदि ओळ.startswith("//-"):
+        simHelper.desc.append(ओळ[4:] यदि len(ओळ) > 4 अन्यथा "")
+    नोचेद्यदि ओळ.startswith("//* "):
+        _, किल्ली, val = ओळ.split(maxsplit=2)
+        setattr(simHelper, किल्ली, val)
 
     # code parsing
-    if line.startswith("module "):
-        clean_line = line[7:].replace("\\", "").replace(";", "")
-        simHelper.name, simHelper.ports = clean_line.split(maxsplit=1)
+    यदि ओळ.startswith("module "):
+        clean_ओळ = ओळ[7:].replace("\\", "").replace(";", "")
+        simHelper.name, simHelper.ports = clean_ओळ.split(maxsplit=1)
         simHelper.code = []
         short_filename = Path(fileinput.filename()).name
         simHelper.source = f'{short_filename}:{fileinput.filelineno()}'
-    elif not line.startswith("endmodule"):
-        line = "    " + line
-    try:
-        simHelper.code.append(line.replace("\t", "    "))
-    except AttributeError:
+    नोचेद्यदि न ओळ.startswith("endmodule"):
+        ओळ = "    " + ओळ
+    यत्न:
+        simHelper.code.append(ओळ.replace("\t", "    "))
+    अपवाद AttributeError:
         # no module definition, ignore line
         pass
-    if line.startswith("endmodule"):
+    यदि ओळ.startswith("endmodule"):
         short_filename = Path(fileinput.filename()).name
-        if simHelper.ver == "1" and short_filename == "simcells.v":
+        यदि simHelper.ver == "1" च short_filename == "simcells.v":
             # default simcells parsing
             simcells_reparse(simHelper)
 
         # check help
-        if simHelper.desc and simHelper.ver == "1" and short_filename == "simlib.v" and simHelper.desc[1].startswith('    '):
-            simHelper.desc.pop(1)
+        यदि simHelper.desc च simHelper.ver == "1" च short_filename == "simlib.v" च simHelper.desc[1].startswith('    '):
+            simHelper.desc.काढा(1)
 
         # check group
-        assert simHelper.group, f"techlibs/common/{simHelper.source}: {simHelper.name} cell missing group"
+        प्रतिज्ञा simHelper.group, f"techlibs/common/{simHelper.source}: {simHelper.name} cell missing group"
 
         # dump
         print(simHelper)
