@@ -3,11 +3,11 @@
 
 namespace RTLIL {
 
-template<typename Derived> struct WrappedIdBase;
-struct NameSlot;
-struct CellTypeSlot;
-template<typename Owner, typename Slot = NameSlot> struct OwnedId;
-struct PooledName;
+template<typename Derived> संरचना WrappedIdBase;
+संरचना NameSlot;
+संरचना CellTypeSlot;
+template<typename Owner, typename Slot = NameSlot> संरचना OwnedId;
+संरचना PooledName;
 
 using ModuleNameId = OwnedId<Module>;
 using WireNameId = OwnedId<Wire>;
@@ -18,63 +18,63 @@ using CellTypeId = OwnedId<Cell, CellTypeSlot>;
 
 namespace wrapped_idstring_detail {
 
-inline std::string render_escaped(const TwinePool *pool, IdString id) {
-	if (id == IdString::Null)
-		return std::string();
-	return pool ? pool->str(id) : ID::str(id);
+अन्तःस्थ std::string render_escaped(ध्रुव TwinePool *pool, IdString id) {
+	यदि (id == IdString::Null)
+		प्रत्यागम std::string();
+	प्रत्यागम pool ? pool->str(id) : ID::str(id);
 }
 
-inline std::string render_unescaped(const TwinePool *pool, IdString id) {
-	if (id == IdString::Null)
-		return std::string();
-	return pool ? pool->unescaped_str(id) : ID::unescaped_str(id);
+अन्तःस्थ std::string render_unescaped(ध्रुव TwinePool *pool, IdString id) {
+	यदि (id == IdString::Null)
+		प्रत्यागम std::string();
+	प्रत्यागम pool ? pool->unescaped_str(id) : ID::unescaped_str(id);
 }
 
 }
 
 template<typename Derived>
-struct WrappedIdBase {
-	operator IdString() const { return self().ref(); }
-	operator std::string() const { return self().escaped(); }
-	std::string escaped() const { return wrapped_idstring_detail::render_escaped(self().pool(), self().ref()); }
-	std::string unescape() const { return wrapped_idstring_detail::render_unescaped(self().pool(), self().ref()); }
-	bool isPublic() const { return self().ref().isPublic(); }
-	bool empty() const { return self().ref() == IdString::Null; }
-	std::string str() const { return self().escaped(); }
-	bool begins_with(const char *s) const {
-		const TwinePool *pool = self().pool();
-		return pool ? pool->begins_with(self().ref(), s) : str().starts_with(s);
+संरचना WrappedIdBase {
+	operator IdString() ध्रुव { प्रत्यागम self().ref(); }
+	operator std::string() ध्रुव { प्रत्यागम self().escaped(); }
+	std::string escaped() ध्रुव { प्रत्यागम wrapped_idstring_detail::render_escaped(self().pool(), self().ref()); }
+	std::string unescape() ध्रुव { प्रत्यागम wrapped_idstring_detail::render_unescaped(self().pool(), self().ref()); }
+	bool isPublic() ध्रुव { प्रत्यागम self().ref().isPublic(); }
+	bool empty() ध्रुव { प्रत्यागम self().ref() == IdString::Null; }
+	std::string str() ध्रुव { प्रत्यागम self().escaped(); }
+	bool begins_with(ध्रुव वर्ण *s) ध्रुव {
+		ध्रुव TwinePool *pool = self().pool();
+		प्रत्यागम pool ? pool->begins_with(self().ref(), s) : str().starts_with(s);
 	}
-	bool ends_with(const char *s) const { return str().ends_with(s); }
-	template<typename... Ts> bool in(Ts &&...args) const {
-		return self().ref().in(std::forward<Ts>(args)...);
+	bool ends_with(ध्रुव वर्ण *s) ध्रुव { प्रत्यागम str().ends_with(s); }
+	template<typename... Ts> bool in(Ts &&...args) ध्रुव {
+		प्रत्यागम self().ref().in(std::forward<Ts>(args)...);
 	}
-	bool in(const pool<IdString> &rhs) const { return self().ref().in(rhs); }
-	std::string substr(size_t pos = 0, size_t len = std::string::npos) const {
-		return self().escaped().substr(pos, len);
+	bool in(ध्रुव pool<IdString> &rhs) ध्रुव { प्रत्यागम self().ref().in(rhs); }
+	std::string substr(size_t pos = 0, size_t len = std::string::npos) ध्रुव {
+		प्रत्यागम self().escaped().substr(pos, len);
 	}
-	size_t size() const {
-		const TwinePool *pool = self().pool();
-		return pool ? pool->str_size(self().ref()) : self().escaped().size();
+	size_t size() ध्रुव {
+		ध्रुव TwinePool *pool = self().pool();
+		प्रत्यागम pool ? pool->str_size(self().ref()) : self().escaped().size();
 	}
-	bool contains(const char *p) const { return self().escaped().find(p) != std::string::npos; }
-	char operator[](int n) const { return self().escaped()[n]; }
-	bool lt_by_name(const Derived &rhs) const {
-		const TwinePool *pool = self().pool();
-		if (pool == nullptr)
-			return self().escaped() < rhs.escaped();
-		return pool->compare_by_name(self().ref(), rhs.ref()) < 0;
+	bool contains(ध्रुव वर्ण *p) ध्रुव { प्रत्यागम self().escaped().find(p) != std::string::npos; }
+	वर्ण operator[](पूर्णाङ्क n) ध्रुव { प्रत्यागम self().escaped()[n]; }
+	bool lt_by_name(ध्रुव Derived &rhs) ध्रुव {
+		ध्रुव TwinePool *pool = self().pool();
+		यदि (pool == nullptr)
+			प्रत्यागम self().escaped() < rhs.escaped();
+		प्रत्यागम pool->compare_by_name(self().ref(), rhs.ref()) < 0;
 	}
-	friend bool operator==(const Derived &lhs, const Derived &rhs) { return lhs.ref() == rhs.ref(); }
-	friend bool operator==(const Derived &lhs, IdString rhs) { return lhs.ref() == rhs; }
-	friend bool operator==(const Derived &lhs, NullIdString) { return lhs.ref() == IdString::Null; }
-	friend bool operator==(const Derived &lhs, const std::string &rhs) {
-		const TwinePool *pool = lhs.pool();
-		return pool ? pool->name_equal(lhs.ref(), rhs) : lhs.escaped() == rhs;
+	friend bool operator==(ध्रुव Derived &lhs, ध्रुव Derived &rhs) { प्रत्यागम lhs.ref() == rhs.ref(); }
+	friend bool operator==(ध्रुव Derived &lhs, IdString rhs) { प्रत्यागम lhs.ref() == rhs; }
+	friend bool operator==(ध्रुव Derived &lhs, NullIdString) { प्रत्यागम lhs.ref() == IdString::Null; }
+	friend bool operator==(ध्रुव Derived &lhs, ध्रुव std::string &rhs) {
+		ध्रुव TwinePool *pool = lhs.pool();
+		प्रत्यागम pool ? pool->name_equal(lhs.ref(), rhs) : lhs.escaped() == rhs;
 	}
-	friend bool operator<(const Derived &lhs, const Derived &rhs) { return lhs.ref() < rhs.ref(); }
-private:
-	const Derived &self() const { return *static_cast<const Derived *>(this); }
+	friend bool operator<(ध्रुव Derived &lhs, ध्रुव Derived &rhs) { प्रत्यागम lhs.ref() < rhs.ref(); }
+गुप्त:
+	ध्रुव Derived &self() ध्रुव { प्रत्यागम *static_cast<ध्रुव Derived *>(this); }
 };
 
 template<typename T>
@@ -83,47 +83,47 @@ concept IsWrappedId = std::is_base_of_v<WrappedIdBase<std::decay_t<T>>, std::dec
 // Two wrapped IdStrings can be compared for equality by comparing .ref()
 template<IsWrappedId A, IsWrappedId B>
 requires (!std::is_same_v<A, B>)
-inline bool operator==(const A &lhs, const B &rhs) { return lhs.ref() == rhs.ref(); }
+अन्तःस्थ bool operator==(ध्रुव A &lhs, ध्रुव B &rhs) { प्रत्यागम lhs.ref() == rhs.ref(); }
 
 // A pair can be created from wrapped IdStrings by unwrapping them to IdString
 // otherwise, you'd try to copy an OwnedId into the arguments of std::make_pair
 // which would error out as its copy constructor is deleted
 template<IsWrappedId A, typename B>
-auto make_pair(A &&a, B &&b) { return std::make_pair(a.ref(), std::forward<B>(b)); }
+auto make_pair(A &&a, B &&b) { प्रत्यागम std::make_pair(a.ref(), std::forward<B>(b)); }
 template<typename A, IsWrappedId B>
-auto make_pair(A &&a, B &&b) { return std::make_pair(std::forward<A>(a), b.ref()); }
+auto make_pair(A &&a, B &&b) { प्रत्यागम std::make_pair(std::forward<A>(a), b.ref()); }
 template<IsWrappedId A, IsWrappedId B>
-auto make_pair(A &&a, B &&b) { return std::make_pair(a.ref(), b.ref()); }
+auto make_pair(A &&a, B &&b) { प्रत्यागम std::make_pair(a.ref(), b.ref()); }
 
 template<typename Owner, typename Slot>
-struct OwnedId : WrappedIdBase<OwnedId<Owner, Slot>> {
-	OwnedId() = default;
-	OwnedId(const OwnedId &) = delete;
+संरचना OwnedId : WrappedIdBase<OwnedId<Owner, Slot>> {
+	OwnedId() = स्वभाव;
+	OwnedId(ध्रुव OwnedId &) = delete;
 	OwnedId(OwnedId &&) = delete;
-	IdString ref() const { return id_; }
-	const TwinePool *pool() const;
-	OwnedId &operator=(IdString id) { id_ = id; return *this; }
-	OwnedId &operator=(const OwnedId &other) { return *this = other.ref(); }
-	OwnedId &operator=(OwnedId &&other) { return *this = other.ref(); }
-	friend void swap(OwnedId &a, OwnedId &b) { std::swap(a.id_, b.id_); }
-private:
-	const Owner *owner() const;
+	IdString ref() ध्रुव { प्रत्यागम id_; }
+	ध्रुव TwinePool *pool() ध्रुव;
+	OwnedId &operator=(IdString id) { id_ = id; प्रत्यागम *this; }
+	OwnedId &operator=(ध्रुव OwnedId &other) { प्रत्यागम *this = other.ref(); }
+	OwnedId &operator=(OwnedId &&other) { प्रत्यागम *this = other.ref(); }
+	friend शून्य swap(OwnedId &a, OwnedId &b) { std::swap(a.id_, b.id_); }
+गुप्त:
+	ध्रुव Owner *owner() ध्रुव;
 	IdString id_;
 };
 
-struct PooledName : WrappedIdBase<PooledName> {
-	PooledName() = default;
+संरचना PooledName : WrappedIdBase<PooledName> {
+	PooledName() = स्वभाव;
 	explicit PooledName(IdString id) : id_(id) {}
-	PooledName(const TwinePool *pool, IdString id) : pool_(pool), id_(id) {}
-	PooledName(const Design *design, IdString id);
-	PooledName(const Module *module, IdString id);
-	template<typename D> PooledName(const WrappedIdBase<D> &masq)
-		: pool_(static_cast<const D &>(masq).pool()),
-		  id_(static_cast<const D &>(masq).ref()) {}
-	IdString ref() const { return id_; }
-	const TwinePool *pool() const { return pool_; }
-private:
-	const TwinePool *pool_ = nullptr;
+	PooledName(ध्रुव TwinePool *pool, IdString id) : pool_(pool), id_(id) {}
+	PooledName(ध्रुव Design *design, IdString id);
+	PooledName(ध्रुव Module *module, IdString id);
+	template<typename D> PooledName(ध्रुव WrappedIdBase<D> &masq)
+		: pool_(static_cast<ध्रुव D &>(masq).pool()),
+		  id_(static_cast<ध्रुव D &>(masq).ref()) {}
+	IdString ref() ध्रुव { प्रत्यागम id_; }
+	ध्रुव TwinePool *pool() ध्रुव { प्रत्यागम pool_; }
+गुप्त:
+	ध्रुव TwinePool *pool_ = nullptr;
 	IdString id_;
 };
 
@@ -131,19 +131,19 @@ private:
 
 namespace hashlib {
 	template<typename T>
-	struct masq_hash_ops {
-		static inline bool cmp(const T &a, const T &b) { return a == b; }
-		[[nodiscard]] static inline Hasher hash(const T &a) {
-			return hash_ops<IdString>::hash(a.ref());
+	संरचना masq_hash_ops {
+		स्थिर अन्तःस्थ bool cmp(ध्रुव T &a, ध्रुव T &b) { प्रत्यागम a == b; }
+		[[nodiscard]] स्थिर अन्तःस्थ Hasher hash(ध्रुव T &a) {
+			प्रत्यागम hash_ops<IdString>::hash(a.ref());
 		}
-		[[nodiscard]] static inline Hasher hash_into(const T &a, Hasher h) {
-			return hash_ops<IdString>::hash_into(a.ref(), h);
+		[[nodiscard]] स्थिर अन्तःस्थ Hasher hash_into(ध्रुव T &a, Hasher h) {
+			प्रत्यागम hash_ops<IdString>::hash_into(a.ref(), h);
 		}
 	};
 
 	template<typename Owner, typename Slot>
-	struct hash_ops<RTLIL::OwnedId<Owner, Slot>> : masq_hash_ops<RTLIL::OwnedId<Owner, Slot>> {};
-	template<> struct hash_ops<RTLIL::PooledName> : masq_hash_ops<RTLIL::PooledName> {};
+	संरचना hash_ops<RTLIL::OwnedId<Owner, Slot>> : masq_hash_ops<RTLIL::OwnedId<Owner, Slot>> {};
+	template<> संरचना hash_ops<RTLIL::PooledName> : masq_hash_ops<RTLIL::PooledName> {};
 }
 
 #endif
