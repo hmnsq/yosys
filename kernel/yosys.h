@@ -37,68 +37,68 @@
 #ifndef YOSYS_H
 #define YOSYS_H
 
-#include "kernel/yosys_common.h"
+#অন্তর্ভাৱ "kernel/yosys_common.h"
 
-#include "kernel/log.h"
-#include "kernel/rtlil.h"
-#include "kernel/register.h"
+#অন্তর্ভাৱ "kernel/log.h"
+#অন্তর্ভাৱ "kernel/rtlil.h"
+#অন্তর্ভাৱ "kernel/register.h"
 
 #ifdef YOSYS_ENABLE_TCL
-struct Tcl_Interp;
+সংরচনা Tcl_Interp;
 #endif
 
 YOSYS_NAMESPACE_BEGIN
 
-void yosys_setup();
+শূন্য yosys_setup();
 
 #ifdef YOSYS_ENABLE_PYTHON
 bool yosys_already_setup();
 #endif
 
-void yosys_shutdown();
+শূন্য yosys_shutdown();
 
 #ifdef YOSYS_ENABLE_TCL
 Tcl_Interp *yosys_get_tcl_interp();
 #endif
 
-extern RTLIL::Design *yosys_design;
+বাহ্য RTLIL::Design *yosys_design;
 
 RTLIL::Design *yosys_get_design();
 std::string proc_self_dirname();
 std::string proc_share_dirname();
 std::string proc_program_prefix();
-const char *create_prompt(RTLIL::Design *design, int recursion_counter, bool newline = true);
-std::vector<std::string> glob_filename(const std::string &filename_pattern);
-void rewrite_filename(std::string &filename);
+ধ্রুৱ ৱর্ণ *create_prompt(RTLIL::Design *design, পূর্ণাঙ্ক recursion_counter, bool newline = true);
+std::vector<std::string> glob_filename(ধ্রুৱ std::string &filename_pattern);
+শূন্য rewrite_filename(std::string &filename);
 
-void run_pass(std::string command, RTLIL::Design *design = nullptr);
+শূন্য run_pass(std::string command, RTLIL::Design *design = nullptr);
 bool run_frontend(std::string filename, std::string command, RTLIL::Design *design = nullptr, std::string *from_to_label = nullptr);
-void run_backend(std::string filename, std::string command, RTLIL::Design *design = nullptr);
-void shell(RTLIL::Design *design);
+শূন্য run_backend(std::string filename, std::string command, RTLIL::Design *design = nullptr);
+শূন্য shell(RTLIL::Design *design);
 
 // journal of all input and output files read (for "yosys -E")
-extern std::set<std::string> yosys_input_files, yosys_output_files;
+বাহ্য std::set<std::string> yosys_প্ৰবেশ_files, yosys_output_files;
 
 // from kernel/version_*.o (cc source generated from Makefile)
-extern const char *yosys_version_str;
-extern const char *yosys_git_hash_str;
-extern const char *yosys_build_datetime_str;
-const char* yosys_maybe_version();
+বাহ্য ধ্রুৱ ৱর্ণ *yosys_version_str;
+বাহ্য ধ্রুৱ ৱর্ণ *yosys_git_hash_str;
+বাহ্য ধ্রুৱ ৱর্ণ *yosys_build_datetime_str;
+ধ্রুৱ ৱর্ণ* yosys_maybe_version();
 
 // from passes/cmds/design.cc
-extern std::map<std::string, RTLIL::Design*> saved_designs;
-extern std::vector<RTLIL::Design*> pushed_designs;
+বাহ্য std::map<std::string, RTLIL::Design*> saved_designs;
+বাহ্য std::vector<RTLIL::Design*> pushed_designs;
 
 // from passes/cmds/pluginc.cc
-extern std::map<std::string, void*> loaded_plugins;
+বাহ্য std::map<std::string, শূন্য*> loaded_plugins;
 #ifdef YOSYS_ENABLE_PYTHON
-extern std::map<std::string, void*> loaded_python_plugins;
+বাহ্য std::map<std::string, শূন্য*> loaded_python_plugins;
 #endif
-extern std::map<std::string, std::string> loaded_plugin_aliases;
-void load_plugin(std::string filename, std::vector<std::string> aliases);
+বাহ্য std::map<std::string, std::string> loaded_plugin_aliases;
+শূন্য load_plugin(std::string filename, std::vector<std::string> aliases);
 
-extern std::string yosys_share_dirname;
-extern std::string yosys_abc_executable;
+বাহ্য std::string yosys_share_dirname;
+বাহ্য std::string yosys_abc_executable;
 
 YOSYS_NAMESPACE_END
 
