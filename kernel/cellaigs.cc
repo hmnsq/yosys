@@ -17,515 +17,515 @@
  *
  */
 
-#include "kernel/cellaigs.h"
+#ಅನ್ತರ್ಭಾವ "kernel/cellaigs.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-AigNode::AigNode()
+Aig_ಗಂಟು::Aig_ಗಂಟು()
 {
 	portbit = -1;
-	inverter = false;
-	left_parent = -1;
-	right_parent = -1;
+	inverter = ಸುಳ್ಳು;
+	ಎಡ_ಪೋಷಕ = -1;
+	ಬಲ_ಪೋಷಕ = -1;
 }
 
-bool AigNode::operator==(const AigNode &other) const
+ತಾರ್ಕಿಕ Aig_ಗಂಟು::ಕ್ರಿಯಾಕಾರಕ==(ಸ್ಥಿರಾಂಕ Aig_ಗಂಟು &other) ಸ್ಥಿರಾಂಕ
 {
-	if (portname != other.portname) return false;
-	if (portbit != other.portbit) return false;
-	if (inverter != other.inverter) return false;
-	if (left_parent != other.left_parent) return false;
-	if (right_parent != other.right_parent) return false;
-	return true;
+	ಆದರೆ (portname != other.portname) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+	ಆದರೆ (portbit != other.portbit) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+	ಆದರೆ (inverter != other.inverter) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+	ಆದರೆ (ಎಡ_ಪೋಷಕ != other.ಎಡ_ಪೋಷಕ) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+	ಆದರೆ (ಬಲ_ಪೋಷಕ != other.ಬಲ_ಪೋಷಕ) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+	ಹಿಂತಿರುಗಿ ನಿಜ;
 }
 
-Hasher AigNode::hash_into(Hasher h) const
+Hasher Aig_ಗಂಟು::hash_into(Hasher h) ಸ್ಥಿರಾಂಕ
 {
 	h.eat(portname);
 	h.eat(portbit);
 	h.eat(inverter);
-	h.eat(left_parent);
-	h.eat(right_parent);
-	return h;
+	h.eat(ಎಡ_ಪೋಷಕ);
+	h.eat(ಬಲ_ಪೋಷಕ);
+	ಹಿಂತಿರುಗಿ h;
 }
 
-bool Aig::operator==(const Aig &other) const
+ತಾರ್ಕಿಕ Aig::ಕ್ರಿಯಾಕಾರಕ==(ಸ್ಥಿರಾಂಕ Aig &other) ಸ್ಥಿರಾಂಕ
 {
-	return name == other.name;
+	ಹಿಂತಿರುಗಿ name == other.name;
 }
 
-Hasher Aig::hash_into(Hasher h) const
+Hasher Aig::hash_into(Hasher h) ಸ್ಥಿರಾಂಕ
 {
 	h.eat(name);
-	return h;
+	ಹಿಂತಿರುಗಿ h;
 }
 
-struct AigMaker
+ರಚನೆ AigMaker
 {
 	Aig *aig;
 	Cell *cell;
-	idict<AigNode> aig_indices;
+	idict<Aig_ಗಂಟು> aig_indices;
 
 	AigMaker(Aig *aig, Cell *cell) : aig(aig), cell(cell) {}
 
-	int node2index(const AigNode &node)
+	ಪೂರ್ಣಾಂಕ node2index(ಸ್ಥಿರಾಂಕ Aig_ಗಂಟು &ಗಂಟು)
 	{
-		if (node.left_parent > node.right_parent) {
-			AigNode n(node);
-			std::swap(n.left_parent, n.right_parent);
-			return node2index(n);
+		ಆದರೆ (ಗಂಟು.ಎಡ_ಪೋಷಕ > ಗಂಟು.ಬಲ_ಪೋಷಕ) {
+			Aig_ಗಂಟು n(ಗಂಟು);
+			std::ಅದಲುಬದಲು(n.ಎಡ_ಪೋಷಕ, n.ಬಲ_ಪೋಷಕ);
+			ಹಿಂತಿರುಗಿ node2index(n);
 		}
 
-		if (!aig_indices.count(node)) {
-			aig_indices.expect(node, GetSize(aig->nodes));
-			aig->nodes.push_back(node);
+		ಆದರೆ (!aig_indices.ಎಣಿಕೆ_2(ಗಂಟು)) {
+			aig_indices.expect(ಗಂಟು, Get_ಗಾತ್ರ(aig->nodes));
+			aig->nodes.ತಳ್ಳು_ಹಿಂಭಾಗ(ಗಂಟು);
 		}
 
-		return aig_indices.at(node);
+		ಹಿಂತಿರುಗಿ aig_indices.at(ಗಂಟು);
 	}
 
-	int bool_node(bool value)
+	ಪೂರ್ಣಾಂಕ bool_ಗಂಟು(ತಾರ್ಕಿಕ ಮೌಲ್ಯ)
 	{
-		AigNode node;
-		node.inverter = value;
-		return node2index(node);
+		Aig_ಗಂಟು ಗಂಟು;
+		ಗಂಟು.inverter = ಮೌಲ್ಯ;
+		ಹಿಂತಿರುಗಿ node2index(ಗಂಟು);
 	}
 
-	int inport(IdString portname, int portbit = 0, bool inverter = false)
+	ಪೂರ್ಣಾಂಕ inport(IdString portname, ಪೂರ್ಣಾಂಕ portbit = 0, ತಾರ್ಕಿಕ inverter = ಸುಳ್ಳು)
 	{
-		if (portbit >= GetSize(cell->getPort(portname))) {
-			IdString signed_param = cell->twines().find(
+		ಆದರೆ (portbit >= Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(portname))) {
+			IdString signed_param = cell->twines().ಕಂಡುಹಿಡಿ(
 				cell->twines().str(portname) + "_SIGNED");
-		if (signed_param != IdString::Null && cell->parameters.count(signed_param) && cell->getParam(signed_param).as_bool())
-				return inport(portname, GetSize(cell->getPort(portname))-1, inverter);
-			return bool_node(inverter);
+		ಆದರೆ (signed_param != IdString::Null && cell->parameters.ಎಣಿಕೆ_2(signed_param) && cell->getParam(signed_param).as_bool())
+				ಹಿಂತಿರುಗಿ inport(portname, Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(portname))-1, inverter);
+			ಹಿಂತಿರುಗಿ bool_ಗಂಟು(inverter);
 		}
 
-		AigNode node;
-		node.portname = portname;
-		node.portbit = portbit;
-		node.inverter = inverter;
-		return node2index(node);
+		Aig_ಗಂಟು ಗಂಟು;
+		ಗಂಟು.portname = portname;
+		ಗಂಟು.portbit = portbit;
+		ಗಂಟು.inverter = inverter;
+		ಹಿಂತಿರುಗಿ node2index(ಗಂಟು);
 	}
 
-	vector<int> inport_vec(IdString portname, int width)
+	ಸದಿಶ<ಪೂರ್ಣಾಂಕ> inport_vec(IdString portname, ಪೂರ್ಣಾಂಕ ಅಗಲ)
 	{
-		vector<int> vec;
-		for (int i = 0; i < width; i++)
-			vec.push_back(inport(portname, i));
-		return vec;
+		ಸದಿಶ<ಪೂರ್ಣಾಂಕ> vec;
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < ಅಗಲ; i++)
+			vec.ತಳ್ಳು_ಹಿಂಭಾಗ(inport(portname, i));
+		ಹಿಂತಿರುಗಿ vec;
 	}
 
-	int not_inport(IdString portname, int portbit = 0)
+	ಪೂರ್ಣಾಂಕ not_inport(IdString portname, ಪೂರ್ಣಾಂಕ portbit = 0)
 	{
-		return inport(portname, portbit, true);
+		ಹಿಂತಿರುಗಿ inport(portname, portbit, ನಿಜ);
 	}
 
-	int not_gate(int A)
+	ಪೂರ್ಣಾಂಕ not_gate(ಪೂರ್ಣಾಂಕ A)
 	{
-		AigNode node(aig_indices[A]);
-		node.outports.clear();
-		node.inverter = !node.inverter;
-		return node2index(node);
+		Aig_ಗಂಟು ಗಂಟು(aig_indices[A]);
+		ಗಂಟು.outports.clear();
+		ಗಂಟು.inverter = !ಗಂಟು.inverter;
+		ಹಿಂತಿರುಗಿ node2index(ಗಂಟು);
 	}
 
-	int and_gate(int A, int B, bool inverter = false)
+	ಪೂರ್ಣಾಂಕ and_gate(ಪೂರ್ಣಾಂಕ A, ಪೂರ್ಣಾಂಕ B, ತಾರ್ಕಿಕ inverter = ಸುಳ್ಳು)
 	{
-		if (A == B)
-			return inverter ? not_gate(A) : A;
+		ಆದರೆ (A == B)
+			ಹಿಂತಿರುಗಿ inverter ? not_gate(A) : A;
 
-		const AigNode &nA = aig_indices[A];
-		const AigNode &nB = aig_indices[B];
+		ಸ್ಥಿರಾಂಕ Aig_ಗಂಟು &nA = aig_indices[A];
+		ಸ್ಥಿರಾಂಕ Aig_ಗಂಟು &nB = aig_indices[B];
 
-		AigNode nB_inv(nB);
+		Aig_ಗಂಟು nB_inv(nB);
 		nB_inv.inverter = !nB_inv.inverter;
 
-		if (nA == nB_inv)
-			return bool_node(inverter);
+		ಆದರೆ (nA == nB_inv)
+			ಹಿಂತಿರುಗಿ bool_ಗಂಟು(inverter);
 
-		bool nA_bool = nA.portbit < 0 && nA.left_parent < 0 && nA.right_parent < 0;
-		bool nB_bool = nB.portbit < 0 && nB.left_parent < 0 && nB.right_parent < 0;
+		ತಾರ್ಕಿಕ nA_bool = nA.portbit < 0 && nA.ಎಡ_ಪೋಷಕ < 0 && nA.ಬಲ_ಪೋಷಕ < 0;
+		ತಾರ್ಕಿಕ nB_bool = nB.portbit < 0 && nB.ಎಡ_ಪೋಷಕ < 0 && nB.ಬಲ_ಪೋಷಕ < 0;
 
-		if (nA_bool && nB_bool) {
-			bool bA = nA.inverter;
-			bool bB = nB.inverter;
-			return bool_node(inverter != (bA && bB));
+		ಆದರೆ (nA_bool && nB_bool) {
+			ತಾರ್ಕಿಕ bA = nA.inverter;
+			ತಾರ್ಕಿಕ bB = nB.inverter;
+			ಹಿಂತಿರುಗಿ bool_ಗಂಟು(inverter != (bA && bB));
 		}
 
-		if (nA_bool) {
-			bool bA = nA.inverter;
-			if (inverter)
-				return bA ? not_gate(B) : bool_node(true);
-			return bA ? B : bool_node(false);
+		ಆದರೆ (nA_bool) {
+			ತಾರ್ಕಿಕ bA = nA.inverter;
+			ಆದರೆ (inverter)
+				ಹಿಂತಿರುಗಿ bA ? not_gate(B) : bool_ಗಂಟು(ನಿಜ);
+			ಹಿಂತಿರುಗಿ bA ? B : bool_ಗಂಟು(ಸುಳ್ಳು);
 		}
 
-		if (nB_bool) {
-			bool bB = nB.inverter;
-			if (inverter)
-				return bB ? not_gate(A) : bool_node(true);
-			return bB ? A : bool_node(false);
+		ಆದರೆ (nB_bool) {
+			ತಾರ್ಕಿಕ bB = nB.inverter;
+			ಆದರೆ (inverter)
+				ಹಿಂತಿರುಗಿ bB ? not_gate(A) : bool_ಗಂಟು(ನಿಜ);
+			ಹಿಂತಿರುಗಿ bB ? A : bool_ಗಂಟು(ಸುಳ್ಳು);
 		}
 
-		AigNode node;
-		node.inverter = inverter;
-		node.left_parent = A;
-		node.right_parent = B;
-		return node2index(node);
+		Aig_ಗಂಟು ಗಂಟು;
+		ಗಂಟು.inverter = inverter;
+		ಗಂಟು.ಎಡ_ಪೋಷಕ = A;
+		ಗಂಟು.ಬಲ_ಪೋಷಕ = B;
+		ಹಿಂತಿರುಗಿ node2index(ಗಂಟು);
 	}
 
-	int nand_gate(int A, int B)
+	ಪೂರ್ಣಾಂಕ nand_gate(ಪೂರ್ಣಾಂಕ A, ಪೂರ್ಣಾಂಕ B)
 	{
-		return and_gate(A, B, true);
+		ಹಿಂತಿರುಗಿ and_gate(A, B, ನಿಜ);
 	}
 
-	int or_gate(int A, int B)
+	ಪೂರ್ಣಾಂಕ or_gate(ಪೂರ್ಣಾಂಕ A, ಪೂರ್ಣಾಂಕ B)
 	{
-		int not_a = not_gate(A);
-		int not_b = not_gate(B);
-		return nand_gate(not_a, not_b);
+		ಪೂರ್ಣಾಂಕ not_a = not_gate(A);
+		ಪೂರ್ಣಾಂಕ not_b = not_gate(B);
+		ಹಿಂತಿರುಗಿ nand_gate(not_a, not_b);
 	}
 
-	int nor_gate(int A, int B)
+	ಪೂರ್ಣಾಂಕ nor_gate(ಪೂರ್ಣಾಂಕ A, ಪೂರ್ಣಾಂಕ B)
 	{
-		int not_a = not_gate(A);
-		int not_b = not_gate(B);
-		return and_gate(not_a, not_b);
+		ಪೂರ್ಣಾಂಕ not_a = not_gate(A);
+		ಪೂರ್ಣಾಂಕ not_b = not_gate(B);
+		ಹಿಂತಿರುಗಿ and_gate(not_a, not_b);
 	}
 
-	int xor_gate(int A, int B)
+	ಪೂರ್ಣಾಂಕ xor_gate(ಪೂರ್ಣಾಂಕ A, ಪೂರ್ಣಾಂಕ B)
 	{
-		int a_and_b = and_gate(A, B);
-		int a_nor_b = nor_gate(A, B);
-		return nor_gate(a_and_b, a_nor_b);
+		ಪೂರ್ಣಾಂಕ a_and_b = and_gate(A, B);
+		ಪೂರ್ಣಾಂಕ a_nor_b = nor_gate(A, B);
+		ಹಿಂತಿರುಗಿ nor_gate(a_and_b, a_nor_b);
 	}
 
-	int xnor_gate(int A, int B)
+	ಪೂರ್ಣಾಂಕ xnor_gate(ಪೂರ್ಣಾಂಕ A, ಪೂರ್ಣಾಂಕ B)
 	{
-		int a_and_b = and_gate(A, B);
-		int a_nor_b = nor_gate(A, B);
-		return or_gate(a_and_b, a_nor_b);
+		ಪೂರ್ಣಾಂಕ a_and_b = and_gate(A, B);
+		ಪೂರ್ಣಾಂಕ a_nor_b = nor_gate(A, B);
+		ಹಿಂತಿರುಗಿ or_gate(a_and_b, a_nor_b);
 	}
 
-	int andnot_gate(int A, int B)
+	ಪೂರ್ಣಾಂಕ andnot_gate(ಪೂರ್ಣಾಂಕ A, ಪೂರ್ಣಾಂಕ B)
 	{
-		int not_b = not_gate(B);
-		return and_gate(A, not_b);
+		ಪೂರ್ಣಾಂಕ not_b = not_gate(B);
+		ಹಿಂತಿರುಗಿ and_gate(A, not_b);
 	}
 
-	int ornot_gate(int A, int B)
+	ಪೂರ್ಣಾಂಕ ornot_gate(ಪೂರ್ಣಾಂಕ A, ಪೂರ್ಣಾಂಕ B)
 	{
-		int not_b = not_gate(B);
-		return or_gate(A, not_b);
+		ಪೂರ್ಣಾಂಕ not_b = not_gate(B);
+		ಹಿಂತಿರುಗಿ or_gate(A, not_b);
 	}
 
-	int mux_gate(int A, int B, int S)
+	ಪೂರ್ಣಾಂಕ mux_gate(ಪೂರ್ಣಾಂಕ A, ಪೂರ್ಣಾಂಕ B, ಪೂರ್ಣಾಂಕ S)
 	{
-		int not_s = not_gate(S);
-		int a_active = and_gate(A, not_s);
-		int b_active = and_gate(B, S);
-		return or_gate(a_active, b_active);
+		ಪೂರ್ಣಾಂಕ not_s = not_gate(S);
+		ಪೂರ್ಣಾಂಕ a_ಸಕ್ರಿಯ = and_gate(A, not_s);
+		ಪೂರ್ಣಾಂಕ b_ಸಕ್ರಿಯ = and_gate(B, S);
+		ಹಿಂತಿರುಗಿ or_gate(a_ಸಕ್ರಿಯ, b_ಸಕ್ರಿಯ);
 	}
 
-	vector<int> adder(const vector<int> &A, const vector<int> &B, int carry_in, vector<int> *X = nullptr, vector<int> *CO = nullptr)
+	ಸದಿಶ<ಪೂರ್ಣಾಂಕ> adder(ಸ್ಥಿರಾಂಕ ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &A, ಸ್ಥಿರಾಂಕ ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &B, ಪೂರ್ಣಾಂಕ ವಾಹಕ_ಒಳ, ಸದಿಶ<ಪೂರ್ಣಾಂಕ> *X = ಶೂನ್ಯಸೂಚಕ, ಸದಿಶ<ಪೂರ್ಣಾಂಕ> *CO = ಶೂನ್ಯಸೂಚಕ)
 	{
-		vector<int> Y(GetSize(A));
-		log_assert(GetSize(A) == GetSize(B));
-		for (int i = 0; i < GetSize(A); i++) {
-			int a_xor_b = xor_gate(A[i], B[i]);
-			int a_or_b = or_gate(A[i], B[i]);
-			int a_and_b = and_gate(A[i], B[i]);
-			Y[i] = xor_gate(a_xor_b, carry_in);
-			int tmp = and_gate(a_or_b, carry_in);
-			int carry_out = or_gate(a_and_b, tmp);
-			if (X != nullptr)
+		ಸದಿಶ<ಪೂರ್ಣಾಂಕ> Y(Get_ಗಾತ್ರ(A));
+		log_assert(Get_ಗಾತ್ರ(A) == Get_ಗಾತ್ರ(B));
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(A); i++) {
+			ಪೂರ್ಣಾಂಕ a_xor_b = xor_gate(A[i], B[i]);
+			ಪೂರ್ಣಾಂಕ a_or_b = or_gate(A[i], B[i]);
+			ಪೂರ್ಣಾಂಕ a_and_b = and_gate(A[i], B[i]);
+			Y[i] = xor_gate(a_xor_b, ವಾಹಕ_ಒಳ);
+			ಪೂರ್ಣಾಂಕ tmp = and_gate(a_or_b, ವಾಹಕ_ಒಳ);
+			ಪೂರ್ಣಾಂಕ ವಾಹಕ_ಹೊರಹೋಗು = or_gate(a_and_b, tmp);
+			ಆದರೆ (X != ಶೂನ್ಯಸೂಚಕ)
 				X->at(i) = a_xor_b;
-			if (CO != nullptr)
-				CO->at(i) = carry_out;
-			carry_in = carry_out;
+			ಆದರೆ (CO != ಶೂನ್ಯಸೂಚಕ)
+				CO->at(i) = ವಾಹಕ_ಹೊರಹೋಗು;
+			ವಾಹಕ_ಒಳ = ವಾಹಕ_ಹೊರಹೋಗು;
 		}
-		return Y;
+		ಹಿಂತಿರುಗಿ Y;
 	}
 
-	void outport(int node, IdString portname, int portbit = 0)
+	ಶೂನ್ಯ outport(ಪೂರ್ಣಾಂಕ ಗಂಟು, IdString portname, ಪೂರ್ಣಾಂಕ portbit = 0)
 	{
-		if (portbit < GetSize(cell->getPort(portname)))
-			aig->nodes.at(node).outports.push_back(pair<IdString, int>(portname, portbit));
+		ಆದರೆ (portbit < Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(portname)))
+			aig->nodes.at(ಗಂಟು).outports.ತಳ್ಳು_ಹಿಂಭಾಗ(pair<IdString, ಪೂರ್ಣಾಂಕ>(portname, portbit));
 	}
 
-	void outport_bool(int node, IdString portname)
+	ಶೂನ್ಯ outport_bool(ಪೂರ್ಣಾಂಕ ಗಂಟು, IdString portname)
 	{
-		outport(node, portname);
-		for (int i = 1; i < GetSize(cell->getPort(portname)); i++)
-			outport(bool_node(false), portname, i);
+		outport(ಗಂಟು, portname);
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 1; i < Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(portname)); i++)
+			outport(bool_ಗಂಟು(ಸುಳ್ಳು), portname, i);
 	}
 
-	void outport_vec(const vector<int> &vec, IdString portname)
+	ಶೂನ್ಯ outport_vec(ಸ್ಥಿರಾಂಕ ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &vec, IdString portname)
 	{
-		for (int i = 0; i < GetSize(vec); i++)
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(vec); i++)
 			outport(vec.at(i), portname, i);
 	}
 };
 
 Aig::Aig(Cell *cell)
 {
-	if (cell->type.isPublic())
-		return;
+	ಆದರೆ (cell->type.is_ಬಹಿರಂಗ())
+		ಹಿಂತಿರುಗಿ;
 
-	AigMaker mk(this, cell);
+	AigMaker mk(ಇದು, cell);
 	name = cell->type.str();
 
-	string mkname_last;
-	bool mkname_a_signed = false;
-	bool mkname_b_signed = false;
-	bool mkname_is_signed = false;
+	string mkname_ಕೊನೆಯ;
+	ತಾರ್ಕಿಕ mkname_a_signed = ಸುಳ್ಳು;
+	ತಾರ್ಕಿಕ mkname_b_signed = ಸುಳ್ಳು;
+	ತಾರ್ಕಿಕ mkname_is_signed = ಸುಳ್ಳು;
 
-	cell->parameters.sort();
-	for (auto p : cell->parameters)
+	cell->parameters.ವಿಂಗಡಿಸು();
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ p : cell->parameters)
 	{
-		if (p.first == ID::A_WIDTH && mkname_a_signed) {
-			name = mkname_last + stringf(":%d%c", p.second.as_int(), mkname_is_signed ? 'S' : 'U');
-		} else if (p.first == ID::B_WIDTH && mkname_b_signed) {
-			name = mkname_last + stringf(":%d%c", p.second.as_int(), mkname_is_signed ? 'S' : 'U');
-		} else {
-			mkname_last = name;
-			name += stringf(":%d", p.second.as_int());
+		ಆದರೆ (p.ಮೊದಲ == ID::A_ಅಗಲ && mkname_a_signed) {
+			name = mkname_ಕೊನೆಯ + stringf(":%d%c", p.ಎರಡನೇ.as_int(), mkname_is_signed ? 'S' : 'U');
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (p.ಮೊದಲ == ID::B_ಅಗಲ && mkname_b_signed) {
+			name = mkname_ಕೊನೆಯ + stringf(":%d%c", p.ಎರಡನೇ.as_int(), mkname_is_signed ? 'S' : 'U');
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			mkname_ಕೊನೆಯ = name;
+			name += stringf(":%d", p.ಎರಡನೇ.as_int());
 		}
 
-		mkname_a_signed = false;
-		mkname_b_signed = false;
-		mkname_is_signed = false;
-		if (p.first == ID::A_SIGNED) {
-			mkname_a_signed = true;
-			mkname_is_signed = p.second.as_bool();
+		mkname_a_signed = ಸುಳ್ಳು;
+		mkname_b_signed = ಸುಳ್ಳು;
+		mkname_is_signed = ಸುಳ್ಳು;
+		ಆದರೆ (p.ಮೊದಲ == ID::A_SIGNED) {
+			mkname_a_signed = ನಿಜ;
+			mkname_is_signed = p.ಎರಡನೇ.as_bool();
 		}
-		if (p.first == ID::B_SIGNED) {
-			mkname_b_signed = true;
-			mkname_is_signed = p.second.as_bool();
+		ಆದರೆ (p.ಮೊದಲ == ID::B_SIGNED) {
+			mkname_b_signed = ನಿಜ;
+			mkname_is_signed = p.ಎರಡನೇ.as_bool();
 		}
 	}
 
-	if (cell->type.in(ID($not), ID($_NOT_), ID($pos), ID($buf), ID($_BUF_)))
+	ಆದರೆ (cell->type.ಒಳ(ID($not), ID($_NOT_), ID($pos), ID($buf), ID($_BUF_)))
 	{
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int Y = cell->type.in(ID($not), ID($_NOT_)) ? mk.not_gate(A) : A;
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(ID::Y)); i++) {
+			ಪೂರ್ಣಾಂಕ A = mk.inport(ID::A, i);
+			ಪೂರ್ಣಾಂಕ Y = cell->type.ಒಳ(ID($not), ID($_NOT_)) ? mk.not_gate(A) : A;
 			mk.outport(Y, ID::Y, i);
 		}
-		goto optimize;
+		ಹೋಗು optimize;
 	}
 
-	if (cell->type.in(ID($and), ID($_AND_), ID($_NAND_), ID($or), ID($_OR_), ID($_NOR_), ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_)))
+	ಆದರೆ (cell->type.ಒಳ(ID($and), ID($_AND_), ID($_NAND_), ID($or), ID($_OR_), ID($_NOR_), ID($xor), ID($xnor), ID($_XOR_), ID($_XNOR_), ID($_ANDNOT_), ID($_ORNOT_)))
 	{
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int B = mk.inport(ID::B, i);
-			int Y = cell->type.in(ID($and), ID($_AND_))   ? mk.and_gate(A, B) :
-			        cell->type.in(ID($_NAND_))            ? mk.nand_gate(A, B) :
-			        cell->type.in(ID($or), ID($_OR_))     ? mk.or_gate(A, B) :
-			        cell->type.in(ID($_NOR_))             ? mk.nor_gate(A, B) :
-			        cell->type.in(ID($xor), ID($_XOR_))   ? mk.xor_gate(A, B) :
-			        cell->type.in(ID($xnor), ID($_XNOR_)) ? mk.xnor_gate(A, B) :
-			        cell->type.in(ID($_ANDNOT_))          ? mk.andnot_gate(A, B) :
-			        cell->type.in(ID($_ORNOT_))           ? mk.ornot_gate(A, B) : -1;
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(ID::Y)); i++) {
+			ಪೂರ್ಣಾಂಕ A = mk.inport(ID::A, i);
+			ಪೂರ್ಣಾಂಕ B = mk.inport(ID::B, i);
+			ಪೂರ್ಣಾಂಕ Y = cell->type.ಒಳ(ID($and), ID($_AND_))   ? mk.and_gate(A, B) :
+			        cell->type.ಒಳ(ID($_NAND_))            ? mk.nand_gate(A, B) :
+			        cell->type.ಒಳ(ID($or), ID($_OR_))     ? mk.or_gate(A, B) :
+			        cell->type.ಒಳ(ID($_NOR_))             ? mk.nor_gate(A, B) :
+			        cell->type.ಒಳ(ID($xor), ID($_XOR_))   ? mk.xor_gate(A, B) :
+			        cell->type.ಒಳ(ID($xnor), ID($_XNOR_)) ? mk.xnor_gate(A, B) :
+			        cell->type.ಒಳ(ID($_ANDNOT_))          ? mk.andnot_gate(A, B) :
+			        cell->type.ಒಳ(ID($_ORNOT_))           ? mk.ornot_gate(A, B) : -1;
 			mk.outport(Y, ID::Y, i);
 		}
-		goto optimize;
+		ಹೋಗು optimize;
 	}
 
-	if (cell->type.in(ID($mux), ID($_MUX_), ID($_NMUX_)))
+	ಆದರೆ (cell->type.ಒಳ(ID($mux), ID($_MUX_), ID($_NMUX_)))
 	{
-		int S = mk.inport(ID::S);
-		for (int i = 0; i < GetSize(cell->getPort(ID::Y)); i++) {
-			int A = mk.inport(ID::A, i);
-			int B = mk.inport(ID::B, i);
-			int Y = mk.mux_gate(A, B, S);
-			if (cell->type == ID($_NMUX_))
+		ಪೂರ್ಣಾಂಕ S = mk.inport(ID::S);
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(ID::Y)); i++) {
+			ಪೂರ್ಣಾಂಕ A = mk.inport(ID::A, i);
+			ಪೂರ್ಣಾಂಕ B = mk.inport(ID::B, i);
+			ಪೂರ್ಣಾಂಕ Y = mk.mux_gate(A, B, S);
+			ಆದರೆ (cell->type == ID($_NMUX_))
 				Y = mk.not_gate(Y);
 			mk.outport(Y, ID::Y, i);
 		}
-		goto optimize;
+		ಹೋಗು optimize;
 	}
 
-	if (cell->type.in(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)))
+	ಆದರೆ (cell->type.ಒಳ(ID($reduce_and), ID($reduce_or), ID($reduce_xor), ID($reduce_xnor), ID($reduce_bool)))
 	{
-		int Y = mk.inport(ID::A, 0);
-		for (int i = 1; i < GetSize(cell->getPort(ID::A)); i++) {
-			int A = mk.inport(ID::A, i);
-			if (cell->type == ID($reduce_and))  Y = mk.and_gate(A, Y);
-			if (cell->type == ID($reduce_or))   Y = mk.or_gate(A, Y);
-			if (cell->type == ID($reduce_bool)) Y = mk.or_gate(A, Y);
-			if (cell->type == ID($reduce_xor))  Y = mk.xor_gate(A, Y);
-			if (cell->type == ID($reduce_xnor)) Y = mk.xor_gate(A, Y);
+		ಪೂರ್ಣಾಂಕ Y = mk.inport(ID::A, 0);
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 1; i < Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(ID::A)); i++) {
+			ಪೂರ್ಣಾಂಕ A = mk.inport(ID::A, i);
+			ಆದರೆ (cell->type == ID($reduce_and))  Y = mk.and_gate(A, Y);
+			ಆದರೆ (cell->type == ID($reduce_or))   Y = mk.or_gate(A, Y);
+			ಆದರೆ (cell->type == ID($reduce_bool)) Y = mk.or_gate(A, Y);
+			ಆದರೆ (cell->type == ID($reduce_xor))  Y = mk.xor_gate(A, Y);
+			ಆದರೆ (cell->type == ID($reduce_xnor)) Y = mk.xor_gate(A, Y);
 		}
-		if (cell->type == ID($reduce_xnor))
+		ಆದರೆ (cell->type == ID($reduce_xnor))
 			Y = mk.not_gate(Y);
 		mk.outport(Y, ID::Y, 0);
-		for (int i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
-			mk.outport(mk.bool_node(false), ID::Y, i);
-		goto optimize;
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 1; i < Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(ID::Y)); i++)
+			mk.outport(mk.bool_ಗಂಟು(ಸುಳ್ಳು), ID::Y, i);
+		ಹೋಗು optimize;
 	}
 
-	if (cell->type.in(ID($logic_not), ID($logic_and), ID($logic_or)))
+	ಆದರೆ (cell->type.ಒಳ(ID($logic_not), ID($logic_and), ID($logic_or)))
 	{
-		int A = mk.inport(ID::A, 0), Y = -1;
-		for (int i = 1; i < GetSize(cell->getPort(ID::A)); i++)
+		ಪೂರ್ಣಾಂಕ A = mk.inport(ID::A, 0), Y = -1;
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 1; i < Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(ID::A)); i++)
 			A = mk.or_gate(mk.inport(ID::A, i), A);
-		if (cell->type.in(ID($logic_and), ID($logic_or))) {
-			int B = mk.inport(ID::B, 0);
-			for (int i = 1; i < GetSize(cell->getPort(ID::B)); i++)
+		ಆದರೆ (cell->type.ಒಳ(ID($logic_and), ID($logic_or))) {
+			ಪೂರ್ಣಾಂಕ B = mk.inport(ID::B, 0);
+			ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 1; i < Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(ID::B)); i++)
 				B = mk.or_gate(mk.inport(ID::B, i), B);
-			if (cell->type == ID($logic_and)) Y = mk.and_gate(A, B);
-			if (cell->type == ID($logic_or))  Y = mk.or_gate(A, B);
-		} else {
-			if (cell->type == ID($logic_not)) Y = mk.not_gate(A);
+			ಆದರೆ (cell->type == ID($logic_and)) Y = mk.and_gate(A, B);
+			ಆದರೆ (cell->type == ID($logic_or))  Y = mk.or_gate(A, B);
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			ಆದರೆ (cell->type == ID($logic_not)) Y = mk.not_gate(A);
 		}
 		mk.outport_bool(Y, ID::Y);
-		goto optimize;
+		ಹೋಗು optimize;
 	}
 
-	if (cell->type.in(ID($add), ID($sub)))
+	ಆದರೆ (cell->type.ಒಳ(ID($ಕೂಡಿಸು), ID($sub)))
 	{
-		int width = GetSize(cell->getPort(ID::Y));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int carry = mk.bool_node(false);
-		if (cell->type == ID($sub)) {
-			for (auto &n : B)
+		ಪೂರ್ಣಾಂಕ ಅಗಲ = Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(ID::Y));
+		ಸದಿಶ<ಪೂರ್ಣಾಂಕ> A = mk.inport_vec(ID::A, ಅಗಲ);
+		ಸದಿಶ<ಪೂರ್ಣಾಂಕ> B = mk.inport_vec(ID::B, ಅಗಲ);
+		ಪೂರ್ಣಾಂಕ ವಾಹಕ = mk.bool_ಗಂಟು(ಸುಳ್ಳು);
+		ಆದರೆ (cell->type == ID($sub)) {
+			ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &n : B)
 				n = mk.not_gate(n);
-			carry = mk.not_gate(carry);
+			ವಾಹಕ = mk.not_gate(ವಾಹಕ);
 		}
-		vector<int> Y = mk.adder(A, B, carry);
+		ಸದಿಶ<ಪೂರ್ಣಾಂಕ> Y = mk.adder(A, B, ವಾಹಕ);
 		mk.outport_vec(Y, ID::Y);
-		goto optimize;
+		ಹೋಗು optimize;
 	}
 
-	if (cell->type.in(ID($lt), ID($gt), ID($le), ID($ge)))
+	ಆದರೆ (cell->type.ಒಳ(ID($lt), ID($gt), ID($le), ID($ge)))
 	{
-		int width = std::max(GetSize(cell->getPort(ID::A)),
-							 GetSize(cell->getPort(ID::B))) + 1;
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
+		ಪೂರ್ಣಾಂಕ ಅಗಲ = std::max(Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(ID::A)),
+							 Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(ID::B))) + 1;
+		ಸದಿಶ<ಪೂರ್ಣಾಂಕ> A = mk.inport_vec(ID::A, ಅಗಲ);
+		ಸದಿಶ<ಪೂರ್ಣಾಂಕ> B = mk.inport_vec(ID::B, ಅಗಲ);
 
-		if (cell->type.in(ID($gt), ID($ge)))
-			std::swap(A, B);
+		ಆದರೆ (cell->type.ಒಳ(ID($gt), ID($ge)))
+			std::ಅದಲುಬದಲು(A, B);
 
-		int carry = mk.bool_node(!cell->type.in(ID($le), ID($ge)));
-		for (auto &n : B)
+		ಪೂರ್ಣಾಂಕ ವಾಹಕ = mk.bool_ಗಂಟು(!cell->type.ಒಳ(ID($le), ID($ge)));
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &n : B)
 			n = mk.not_gate(n);
-		vector<int> Y = mk.adder(A, B, carry);
-		mk.outport(Y.back(), ID::Y);
-		for (int i = 1; i < GetSize(cell->getPort(ID::Y)); i++)
-			mk.outport(mk.bool_node(false), ID::Y, i);
-		goto optimize;
+		ಸದಿಶ<ಪೂರ್ಣಾಂಕ> Y = mk.adder(A, B, ವಾಹಕ);
+		mk.outport(Y.ಹಿಂಭಾಗ(), ID::Y);
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 1; i < Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(ID::Y)); i++)
+			mk.outport(mk.bool_ಗಂಟು(ಸುಳ್ಳು), ID::Y, i);
+		ಹೋಗು optimize;
 	}
 
-	if (cell->type == ID($alu))
+	ಆದರೆ (cell->type == ID($alu))
 	{
-		int width = GetSize(cell->getPort(ID::Y));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int carry = mk.inport(ID::CI);
-		int binv = mk.inport(ID::BI);
-		for (auto &n : B)
+		ಪೂರ್ಣಾಂಕ ಅಗಲ = Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(ID::Y));
+		ಸದಿಶ<ಪೂರ್ಣಾಂಕ> A = mk.inport_vec(ID::A, ಅಗಲ);
+		ಸದಿಶ<ಪೂರ್ಣಾಂಕ> B = mk.inport_vec(ID::B, ಅಗಲ);
+		ಪೂರ್ಣಾಂಕ ವಾಹಕ = mk.inport(ID::CI);
+		ಪೂರ್ಣಾಂಕ binv = mk.inport(ID::BI);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &n : B)
 			n = mk.xor_gate(n, binv);
-		vector<int> X(width), CO(width);
-		vector<int> Y = mk.adder(A, B, carry, &X, &CO);
-		for (int i = 0; i < width; i++)
+		ಸದಿಶ<ಪೂರ್ಣಾಂಕ> X(ಅಗಲ), CO(ಅಗಲ);
+		ಸದಿಶ<ಪೂರ್ಣಾಂಕ> Y = mk.adder(A, B, ವಾಹಕ, &X, &CO);
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < ಅಗಲ; i++)
 			X[i] = mk.xor_gate(A[i], B[i]);
 		mk.outport_vec(Y, ID::Y);
 		mk.outport_vec(X, ID::X);
 		mk.outport_vec(CO, ID::CO);
-		goto optimize;
+		ಹೋಗು optimize;
 	}
 
-	if (cell->type.in(ID($eq), ID($ne)))
+	ಆದರೆ (cell->type.ಒಳ(ID($eq), ID($ne)))
 	{
-		int width = max(GetSize(cell->getPort(ID::A)), GetSize(cell->getPort(ID::B)));
-		vector<int> A = mk.inport_vec(ID::A, width);
-		vector<int> B = mk.inport_vec(ID::B, width);
-		int Y = mk.bool_node(false);
-		for (int i = 0; i < width; i++)
+		ಪೂರ್ಣಾಂಕ ಅಗಲ = max(Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(ID::A)), Get_ಗಾತ್ರ(cell->get_ಪೋರ್ಟ್(ID::B)));
+		ಸದಿಶ<ಪೂರ್ಣಾಂಕ> A = mk.inport_vec(ID::A, ಅಗಲ);
+		ಸದಿಶ<ಪೂರ್ಣಾಂಕ> B = mk.inport_vec(ID::B, ಅಗಲ);
+		ಪೂರ್ಣಾಂಕ Y = mk.bool_ಗಂಟು(ಸುಳ್ಳು);
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < ಅಗಲ; i++)
 			Y = mk.or_gate(Y, mk.xor_gate(A[i], B[i]));
-		if (cell->type == ID($eq))
+		ಆದರೆ (cell->type == ID($eq))
 			Y = mk.not_gate(Y);
 		mk.outport_bool(Y, ID::Y);
-		goto optimize;
+		ಹೋಗು optimize;
 	}
 
-	if (cell->type == ID($_AOI3_))
+	ಆದರೆ (cell->type == ID($_AOI3_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int Y = mk.nor_gate(mk.and_gate(A, B), C);
+		ಪೂರ್ಣಾಂಕ A = mk.inport(ID::A);
+		ಪೂರ್ಣಾಂಕ B = mk.inport(ID::B);
+		ಪೂರ್ಣಾಂಕ C = mk.inport(ID::C);
+		ಪೂರ್ಣಾಂಕ Y = mk.nor_gate(mk.and_gate(A, B), C);
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		ಹೋಗು optimize;
 	}
 
-	if (cell->type == ID($_OAI3_))
+	ಆದರೆ (cell->type == ID($_OAI3_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int Y = mk.nand_gate(mk.or_gate(A, B), C);
+		ಪೂರ್ಣಾಂಕ A = mk.inport(ID::A);
+		ಪೂರ್ಣಾಂಕ B = mk.inport(ID::B);
+		ಪೂರ್ಣಾಂಕ C = mk.inport(ID::C);
+		ಪೂರ್ಣಾಂಕ Y = mk.nand_gate(mk.or_gate(A, B), C);
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		ಹೋಗು optimize;
 	}
 
-	if (cell->type == ID($_AOI4_))
+	ಆದರೆ (cell->type == ID($_AOI4_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int D = mk.inport(ID::D);
-		int a_and_b = mk.and_gate(A, B);
-		int Y = mk.nor_gate(a_and_b, mk.and_gate(C, D));
+		ಪೂರ್ಣಾಂಕ A = mk.inport(ID::A);
+		ಪೂರ್ಣಾಂಕ B = mk.inport(ID::B);
+		ಪೂರ್ಣಾಂಕ C = mk.inport(ID::C);
+		ಪೂರ್ಣಾಂಕ D = mk.inport(ID::D);
+		ಪೂರ್ಣಾಂಕ a_and_b = mk.and_gate(A, B);
+		ಪೂರ್ಣಾಂಕ Y = mk.nor_gate(a_and_b, mk.and_gate(C, D));
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		ಹೋಗು optimize;
 	}
 
-	if (cell->type == ID($_OAI4_))
+	ಆದರೆ (cell->type == ID($_OAI4_))
 	{
-		int A = mk.inport(ID::A);
-		int B = mk.inport(ID::B);
-		int C = mk.inport(ID::C);
-		int D = mk.inport(ID::D);
-		int a_or_b = mk.or_gate(A, B);
-		int Y = mk.nand_gate(a_or_b, mk.or_gate(C, D));
+		ಪೂರ್ಣಾಂಕ A = mk.inport(ID::A);
+		ಪೂರ್ಣಾಂಕ B = mk.inport(ID::B);
+		ಪೂರ್ಣಾಂಕ C = mk.inport(ID::C);
+		ಪೂರ್ಣಾಂಕ D = mk.inport(ID::D);
+		ಪೂರ್ಣಾಂಕ a_or_b = mk.or_gate(A, B);
+		ಪೂರ್ಣಾಂಕ Y = mk.nand_gate(a_or_b, mk.or_gate(C, D));
 		mk.outport(Y, ID::Y);
-		goto optimize;
+		ಹೋಗು optimize;
 	}
 
 	name.clear();
-	return;
+	ಹಿಂತಿರುಗಿ;
 
 optimize:;
-	pool<int> used_old_ids;
-	vector<AigNode> new_nodes;
-	dict<int, int> old_to_new_ids;
-	old_to_new_ids[-1] = -1;
+	pool<ಪೂರ್ಣಾಂಕ> ಬಳಸಿದ_old_ids;
+	ಸದಿಶ<Aig_ಗಂಟು> new_nodes;
+	dict<ಪೂರ್ಣಾಂಕ, ಪೂರ್ಣಾಂಕ> old_ಗಮ್ಯ_new_ids;
+	old_ಗಮ್ಯ_new_ids[-1] = -1;
 
-	for (int i = GetSize(nodes)-1; i >= 0; i--) {
-		if (!nodes[i].outports.empty())
-			used_old_ids.insert(i);
-		if (!used_old_ids.count(i))
-			continue;
-		if (nodes[i].left_parent >= 0)
-			used_old_ids.insert(nodes[i].left_parent);
-		if (nodes[i].right_parent >= 0)
-			used_old_ids.insert(nodes[i].right_parent);
+	ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = Get_ಗಾತ್ರ(nodes)-1; i >= 0; i--) {
+		ಆದರೆ (!nodes[i].outports.ಖಾಲಿಗಳು())
+			ಬಳಸಿದ_old_ids.ಸೇರಿಸು(i);
+		ಆದರೆ (!ಬಳಸಿದ_old_ids.ಎಣಿಕೆ_2(i))
+			ಮುಂದುವರಿ;
+		ಆದರೆ (nodes[i].ಎಡ_ಪೋಷಕ >= 0)
+			ಬಳಸಿದ_old_ids.ಸೇರಿಸು(nodes[i].ಎಡ_ಪೋಷಕ);
+		ಆದರೆ (nodes[i].ಬಲ_ಪೋಷಕ >= 0)
+			ಬಳಸಿದ_old_ids.ಸೇರಿಸು(nodes[i].ಬಲ_ಪೋಷಕ);
 	}
 
-	for (int i = 0; i < GetSize(nodes); i++) {
-		if (!used_old_ids.count(i))
-			continue;
-		nodes[i].left_parent = old_to_new_ids.at(nodes[i].left_parent);
-		nodes[i].right_parent = old_to_new_ids.at(nodes[i].right_parent);
-		old_to_new_ids[i] = GetSize(new_nodes);
-		new_nodes.push_back(nodes[i]);
+	ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(nodes); i++) {
+		ಆದರೆ (!ಬಳಸಿದ_old_ids.ಎಣಿಕೆ_2(i))
+			ಮುಂದುವರಿ;
+		nodes[i].ಎಡ_ಪೋಷಕ = old_ಗಮ್ಯ_new_ids.at(nodes[i].ಎಡ_ಪೋಷಕ);
+		nodes[i].ಬಲ_ಪೋಷಕ = old_ಗಮ್ಯ_new_ids.at(nodes[i].ಬಲ_ಪೋಷಕ);
+		old_ಗಮ್ಯ_new_ids[i] = Get_ಗಾತ್ರ(new_nodes);
+		new_nodes.ತಳ್ಳು_ಹಿಂಭಾಗ(nodes[i]);
 	}
 
-	new_nodes.swap(nodes);
+	new_nodes.ಅದಲುಬದಲು(nodes);
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ

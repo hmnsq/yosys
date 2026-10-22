@@ -17,12 +17,12 @@
  *
  */
 
-#ifndef FF_H
-#define FF_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ FF_H
+#ವ್ಯಾಖ್ಯಾನಿಸು FF_H
 
-#include "kernel/yosys.h"
-#include "kernel/ffinit.h"
-#include "kernel/twine.h"
+#ಅನ್ತರ್ಭಾವ "kernel/yosys.h"
+#ಅನ್ತರ್ಭಾವ "kernel/ffinit.h"
+#ಅನ್ತರ್ಭಾವ "kernel/twine.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -79,9 +79,9 @@ YOSYS_NAMESPACE_BEGIN
 // - has_arst [does not correspond to a native cell, represented as dlatch with const D input]
 // - empty set [not a cell — will be emitted as a simple direct connection]
 
-struct FfTypeData {
-	FfTypeData(IdString type);
-	FfTypeData() {
+ರಚನೆ Ff_Type_ದತ್ತಾಂಶ {
+	Ff_Type_ದತ್ತಾಂಶ(IdString type);
+	Ff_Type_ದತ್ತಾಂಶ() {
 		has_clk = false;
 		has_gclk = false;
 		has_ce = false;
@@ -131,7 +131,7 @@ struct FfTypeData {
 	bool pol_arst;
 	bool pol_srst;
 	bool pol_clr;
-	bool pol_set;
+	bool pol_ಗಣ;
 	// The value loaded by sig_arst.
 	// Zero length if unknowable from just type
 	Const val_arst;
@@ -140,7 +140,7 @@ struct FfTypeData {
 	Const val_srst;
 };
 
-struct FfData : FfTypeData {
+ರಚನೆ Ff_ದತ್ತಾಂಶ : Ff_Type_ದತ್ತಾಂಶ {
 	Module *module;
 	FfInitVals *initvals;
 	Cell *cell;
@@ -164,52 +164,52 @@ struct FfData : FfTypeData {
 	// The async clear (per-lane), present if has_sr.
 	SigSpec sig_clr;
 	// The async set (per-lane), present if has_sr.
-	SigSpec sig_set;
+	SigSpec sig_ಗಣ;
 	// The initial value at power-up.
 	Const val_init;
 	// The FF data width in bits.
-	int width;
-	dict<IdString, Const> attributes;
+	ಪೂರ್ಣಾಂಕ ಅಗಲ;
+	dict<IdString, Const> ಗುಣಲಕ್ಷಣಗಳು;
 
-	FfData(Module *module = nullptr, FfInitVals *initvals = nullptr, IdString name = IdString()) : module(module), initvals(initvals), cell(nullptr), name(name) {
-		width = 0;
+	Ff_ದತ್ತಾಂಶ(Module *module = nullptr, FfInitVals *initvals = nullptr, IdString name = IdString()) : module(module), initvals(initvals), cell(nullptr), name(name) {
+		ಅಗಲ = 0;
 		pol_clk = false;
 		pol_aload = false;
 		pol_ce = false;
 		pol_arst = false;
 		pol_srst = false;
 		pol_clr = false;
-		pol_set = false;
+		pol_ಗಣ = false;
 	}
 
-	FfData(Module *module, FfInitVals *initvals, TwineSpec &&name)
-			: FfData(module, initvals, module->twines().add(std::move(name))) {}
+	Ff_ದತ್ತಾಂಶ(Module *module, FfInitVals *initvals, TwineSpec &&name)
+			: Ff_ದತ್ತಾಂಶ(module, initvals, module->twines().ಕೂಡಿಸು(std::move(name))) {}
 
-	FfData(FfInitVals *initvals, Cell *cell_);
+	Ff_ದತ್ತಾಂಶ(FfInitVals *initvals, Cell *cell_);
 
 	// Returns a FF identical to this one, but only keeping bit indices from the argument.
-	FfData slice(const std::vector<int> &bits);
+	Ff_ದತ್ತಾಂಶ ತುಂಡು(ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &ಬಿಟ್ಟುಗಳು);
 
-	void add_dummy_ce();
-	void add_dummy_srst();
-	void add_dummy_arst();
-	void add_dummy_aload();
-	void add_dummy_sr();
-	void add_dummy_clk();
+	ಶೂನ್ಯ ಕೂಡಿಸು_dummy_ce();
+	ಶೂನ್ಯ ಕೂಡಿಸು_dummy_srst();
+	ಶೂನ್ಯ ಕೂಡಿಸು_dummy_arst();
+	ಶೂನ್ಯ ಕೂಡಿಸು_dummy_aload();
+	ಶೂನ್ಯ ಕೂಡಿಸು_dummy_sr();
+	ಶೂನ್ಯ ಕೂಡಿಸು_dummy_clk();
 
-	void arst_to_aload();
-	void arst_to_sr();
+	ಶೂನ್ಯ arst_ಗಮ್ಯ_aload();
+	ಶೂನ್ಯ arst_ಗಮ್ಯ_sr();
 
-	void aload_to_sr();
+	ಶೂನ್ಯ aload_ಗಮ್ಯ_sr();
 
 	// Given a FF with both has_ce and has_srst, sets ce_over_srst to the given value and
 	// fixes up control signals appropriately to preserve semantics.
-	void convert_ce_over_srst(bool val);
+	ಶೂನ್ಯ convert_ce_over_srst(bool val);
 
-	void unmap_ce();
-	void unmap_srst();
+	ಶೂನ್ಯ unmap_ce();
+	ಶೂನ್ಯ unmap_srst();
 
-	void unmap_ce_srst() {
+	ಶೂನ್ಯ unmap_ce_srst() {
 		unmap_ce();
 		unmap_srst();
 	}
@@ -218,21 +218,21 @@ struct FfData : FfTypeData {
 
 	// Removes init attribute from the Q output, but keeps val_init unchanged.
 	// It will be automatically reattached on emit.  Use this before changing sig_q.
-	void remove_init() {
-		if (initvals)
+	ಶೂನ್ಯ remove_init() {
+		ಆದರೆ (initvals)
 			initvals->remove_init(sig_q);
 	}
 
-	void remove();
+	ಶೂನ್ಯ remove();
 
 	// Flip the sense of the given bit slices of the FF: insert inverters on data
 	// inputs and output, flip the corresponding init/reset bits, swap clr/set
 	// inputs with proper priority fix.
-	void flip_bits(const pool<int> &bits);
+	ಶೂನ್ಯ flip_ಬಿಟ್ಟುಗಳು(ಸ್ಥಿರಾಂಕ pool<ಪೂರ್ಣಾಂಕ> &ಬಿಟ್ಟುಗಳು);
 
-	void flip_rst_bits(const pool<int> &bits);
+	ಶೂನ್ಯ flip_rst_ಬಿಟ್ಟುಗಳು(ಸ್ಥಿರಾಂಕ pool<ಪೂರ್ಣಾಂಕ> &ಬಿಟ್ಟುಗಳು);
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

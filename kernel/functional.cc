@@ -18,545 +18,545 @@
  *
  */
 
-#include "kernel/functional.h"
-#include "kernel/topo_scc.h"
-#include "ff.h"
-#include "ffinit.h"
-#include <deque>
+#ಅನ್ತರ್ಭಾವ "kernel/functional.h"
+#ಅನ್ತರ್ಭಾವ "kernel/topo_scc.h"
+#ಅನ್ತರ್ಭಾವ "ff.h"
+#ಅನ್ತರ್ಭಾವ "ffinit.h"
+#ಅನ್ತರ್ಭಾವ <deque>
 
 YOSYS_NAMESPACE_BEGIN
-namespace Functional {
+ನಾಮಾಕಾಶ Functional {
 
-const char *fn_to_string(Fn fn) {
-	switch(fn) {
-	case Fn::invalid: return "invalid";
-	case Fn::buf: return "buf";
-	case Fn::slice: return "slice";
-	case Fn::zero_extend: return "zero_extend";
-	case Fn::sign_extend: return "sign_extend";
-	case Fn::concat: return "concat";
-	case Fn::add: return "add";
-	case Fn::sub: return "sub";
-	case Fn::mul: return "mul";
-	case Fn::unsigned_div: return "unsigned_div";
-	case Fn::unsigned_mod: return "unsigned_mod";
-	case Fn::bitwise_and: return "bitwise_and";
-	case Fn::bitwise_or: return "bitwise_or";
-	case Fn::bitwise_xor: return "bitwise_xor";
-	case Fn::bitwise_not: return "bitwise_not";
-	case Fn::reduce_and: return "reduce_and";
-	case Fn::reduce_or: return "reduce_or";
-	case Fn::reduce_xor: return "reduce_xor";
-	case Fn::unary_minus: return "unary_minus";
-	case Fn::equal: return "equal";
-	case Fn::not_equal: return "not_equal";
-	case Fn::signed_greater_than: return "signed_greater_than";
-	case Fn::signed_greater_equal: return "signed_greater_equal";
-	case Fn::unsigned_greater_than: return "unsigned_greater_than";
-	case Fn::unsigned_greater_equal: return "unsigned_greater_equal";
-	case Fn::logical_shift_left: return "logical_shift_left";
-	case Fn::logical_shift_right: return "logical_shift_right";
-	case Fn::arithmetic_shift_right: return "arithmetic_shift_right";
-	case Fn::mux: return "mux";
-	case Fn::constant: return "constant";
-	case Fn::input: return "input";
-	case Fn::state: return "state";
-	case Fn::memory_read: return "memory_read";
-	case Fn::memory_write: return "memory_write";
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fn_ಗಮ್ಯ_string(Fn fn) {
+	ಆಯ್ಕೆ(fn) {
+	ಸ್ಥಿತಿ Fn::invalid: ಹಿಂತಿರುಗಿ "invalid";
+	ಸ್ಥಿತಿ Fn::buf: ಹಿಂತಿರುಗಿ "buf";
+	ಸ್ಥಿತಿ Fn::ತುಂಡು: ಹಿಂತಿರುಗಿ "slice";
+	ಸ್ಥಿತಿ Fn::zero_extend: ಹಿಂತಿರುಗಿ "zero_extend";
+	ಸ್ಥಿತಿ Fn::sign_extend: ಹಿಂತಿರುಗಿ "sign_extend";
+	ಸ್ಥಿತಿ Fn::concat: ಹಿಂತಿರುಗಿ "concat";
+	ಸ್ಥಿತಿ Fn::ಕೂಡಿಸು: ಹಿಂತಿರುಗಿ "add";
+	ಸ್ಥಿತಿ Fn::sub: ಹಿಂತಿರುಗಿ "sub";
+	ಸ್ಥಿತಿ Fn::mul: ಹಿಂತಿರುಗಿ "mul";
+	ಸ್ಥಿತಿ Fn::unsigned_div: ಹಿಂತಿರುಗಿ "unsigned_div";
+	ಸ್ಥಿತಿ Fn::unsigned_mod: ಹಿಂತಿರುಗಿ "unsigned_mod";
+	ಸ್ಥಿತಿ Fn::bitwise_and: ಹಿಂತಿರುಗಿ "bitwise_and";
+	ಸ್ಥಿತಿ Fn::bitwise_or: ಹಿಂತಿರುಗಿ "bitwise_or";
+	ಸ್ಥಿತಿ Fn::bitwise_xor: ಹಿಂತಿರುಗಿ "bitwise_xor";
+	ಸ್ಥಿತಿ Fn::bitwise_not: ಹಿಂತಿರುಗಿ "bitwise_not";
+	ಸ್ಥಿತಿ Fn::reduce_and: ಹಿಂತಿರುಗಿ "reduce_and";
+	ಸ್ಥಿತಿ Fn::reduce_or: ಹಿಂತಿರುಗಿ "reduce_or";
+	ಸ್ಥಿತಿ Fn::reduce_xor: ಹಿಂತಿರುಗಿ "reduce_xor";
+	ಸ್ಥಿತಿ Fn::unary_minus: ಹಿಂತಿರುಗಿ "unary_minus";
+	ಸ್ಥಿತಿ Fn::equal: ಹಿಂತಿರುಗಿ "equal";
+	ಸ್ಥಿತಿ Fn::not_equal: ಹಿಂತಿರುಗಿ "not_equal";
+	ಸ್ಥಿತಿ Fn::signed_greater_than: ಹಿಂತಿರುಗಿ "signed_greater_than";
+	ಸ್ಥಿತಿ Fn::signed_greater_equal: ಹಿಂತಿರುಗಿ "signed_greater_equal";
+	ಸ್ಥಿತಿ Fn::unsigned_greater_than: ಹಿಂತಿರುಗಿ "unsigned_greater_than";
+	ಸ್ಥಿತಿ Fn::unsigned_greater_equal: ಹಿಂತಿರುಗಿ "unsigned_greater_equal";
+	ಸ್ಥಿತಿ Fn::logical_ಸರಿಸು_ಎಡ: ಹಿಂತಿರುಗಿ "logical_shift_left";
+	ಸ್ಥಿತಿ Fn::logical_ಸರಿಸು_ಬಲ: ಹಿಂತಿರುಗಿ "logical_shift_right";
+	ಸ್ಥಿತಿ Fn::arithmetic_ಸರಿಸು_ಬಲ: ಹಿಂತಿರುಗಿ "arithmetic_shift_right";
+	ಸ್ಥಿತಿ Fn::mux: ಹಿಂತಿರುಗಿ "mux";
+	ಸ್ಥಿತಿ Fn::constant: ಹಿಂತಿರುಗಿ "constant";
+	ಸ್ಥಿತಿ Fn::ಒಳಹರಿವು: ಹಿಂತಿರುಗಿ "input";
+	ಸ್ಥಿತಿ Fn::state: ಹಿಂತಿರುಗಿ "state";
+	ಸ್ಥಿತಿ Fn::ಸ್ಮರಣೆ_read: ಹಿಂತಿರುಗಿ "memory_read";
+	ಸ್ಥಿತಿ Fn::ಸ್ಮರಣೆ_write: ಹಿಂತಿರುಗಿ "memory_write";
 	}
-	log_error("fn_to_string: unknown Functional::Fn value %d\n", (int)fn);
+	log_error("fn_to_string: unknown Functional::Fn value %d\n", (ಪೂರ್ಣಾಂಕ)fn);
 }
 
-vector<IRInput const*> IR::inputs(IdString kind) const {
-	vector<IRInput const*> ret;
-	for (const auto &[name, input] : _inputs)
-		if(input.kind == kind)
-			ret.push_back(&input);
-	return ret;
+ಸದಿಶ<IRInput ಸ್ಥಿರಾಂಕ*> IR::inputs(IdString ಬಗೆ) ಸ್ಥಿರಾಂಕ {
+	ಸದಿಶ<IRInput ಸ್ಥಿರಾಂಕ*> ret;
+	ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &[name, ಒಳಹರಿವು] : _inputs)
+		ಆದರೆ(ಒಳಹರಿವು.ಬಗೆ == ಬಗೆ)
+			ret.ತಳ್ಳು_ಹಿಂಭಾಗ(&ಒಳಹರಿವು);
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-vector<IROutput const*> IR::outputs(IdString kind) const {
-	vector<IROutput const*> ret;
-	for (const auto &[name, output] : _outputs)
-		if(output.kind == kind)
-			ret.push_back(&output);
-	return ret;
+ಸದಿಶ<IROutput ಸ್ಥಿರಾಂಕ*> IR::outputs(IdString ಬಗೆ) ಸ್ಥಿರಾಂಕ {
+	ಸದಿಶ<IROutput ಸ್ಥಿರಾಂಕ*> ret;
+	ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &[name, output] : _outputs)
+		ಆದರೆ(output.ಬಗೆ == ಬಗೆ)
+			ret.ತಳ್ಳು_ಹಿಂಭಾಗ(&output);
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-vector<IRState const*> IR::states(IdString kind) const {
-	vector<IRState const*> ret;
-	for (const auto &[name, state] : _states)
-		if(state.kind == kind)
-			ret.push_back(&state);
-	return ret;
+ಸದಿಶ<IRState ಸ್ಥಿರಾಂಕ*> IR::ಸ್ಥಿತಿಗಳು(IdString ಬಗೆ) ಸ್ಥಿರಾಂಕ {
+	ಸದಿಶ<IRState ಸ್ಥಿರಾಂಕ*> ret;
+	ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &[name, state] : ಸ್ಥಿತಿಗಳು_2)
+		ಆದರೆ(state.ಬಗೆ == ಬಗೆ)
+			ret.ತಳ್ಳು_ಹಿಂಭಾಗ(&state);
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-vector<IRInput const*> IR::all_inputs() const {
-	vector<IRInput const*> ret;
-	for (const auto &[name, input] : _inputs)
-		ret.push_back(&input);
-	return ret;
+ಸದಿಶ<IRInput ಸ್ಥಿರಾಂಕ*> IR::all_inputs() ಸ್ಥಿರಾಂಕ {
+	ಸದಿಶ<IRInput ಸ್ಥಿರಾಂಕ*> ret;
+	ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &[name, ಒಳಹರಿವು] : _inputs)
+		ret.ತಳ್ಳು_ಹಿಂಭಾಗ(&ಒಳಹರಿವು);
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-vector<IROutput const*> IR::all_outputs() const {
-	vector<IROutput const*> ret;
-	for (const auto &[name, output] : _outputs)
-		ret.push_back(&output);
-	return ret;
+ಸದಿಶ<IROutput ಸ್ಥಿರಾಂಕ*> IR::all_outputs() ಸ್ಥಿರಾಂಕ {
+	ಸದಿಶ<IROutput ಸ್ಥಿರಾಂಕ*> ret;
+	ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &[name, output] : _outputs)
+		ret.ತಳ್ಳು_ಹಿಂಭಾಗ(&output);
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-vector<IRState const*> IR::all_states() const {
-	vector<IRState const*> ret;
-	for (const auto &[name, state] : _states)
-		ret.push_back(&state);
-	return ret;
+ಸದಿಶ<IRState ಸ್ಥಿರಾಂಕ*> IR::all_ಸ್ಥಿತಿಗಳು() ಸ್ಥಿರಾಂಕ {
+	ಸದಿಶ<IRState ಸ್ಥಿರಾಂಕ*> ret;
+	ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &[name, state] : ಸ್ಥಿತಿಗಳು_2)
+		ret.ತಳ್ಳು_ಹಿಂಭಾಗ(&state);
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-struct PrintVisitor : DefaultVisitor<std::string> {
-	std::function<std::string(Node)> np;
-	PrintVisitor(std::function<std::string(Node)> np) : np(np) { }
+ರಚನೆ PrintVisitor : DefaultVisitor<std::string> {
+	std::function<std::string(ಗಂಟು_2)> np;
+	PrintVisitor(std::function<std::string(ಗಂಟು_2)> np) : np(np) { }
 	// as a general rule the default handler is good enough iff the only arguments are of type Node
-	std::string slice(Node, Node a, int offset, int out_width) override { return "slice(" + np(a) + ", " + std::to_string(offset) + ", " + std::to_string(out_width) + ")"; }
-	std::string zero_extend(Node, Node a, int out_width) override { return "zero_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
-	std::string sign_extend(Node, Node a, int out_width) override { return "sign_extend(" + np(a) + ", " + std::to_string(out_width) + ")"; }
-	std::string constant(Node, RTLIL::Const const& value) override { return "constant(" + value.as_string() + ")"; }
-	std::string input(Node self, IdString name, IdString kind) override { return "input(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
-	std::string state(Node self, IdString name, IdString kind) override { return "state(" + self.design->twines().str(name) + ", " + self.design->twines().str(kind) + ")"; }
-	std::string default_handler(Node self) override {
-		std::string ret = fn_to_string(self.fn());
+	std::string ತುಂಡು(ಗಂಟು_2, ಗಂಟು_2 a, ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ, ಪೂರ್ಣಾಂಕ ಹೊರಹೋಗು_ಅಗಲ) override { ಹಿಂತಿರುಗಿ "slice(" + np(a) + ", " + std::ಗಮ್ಯ_string(ಸ್ಥಾನಾಂತರ) + ", " + std::ಗಮ್ಯ_string(ಹೊರಹೋಗು_ಅಗಲ) + ")"; }
+	std::string zero_extend(ಗಂಟು_2, ಗಂಟು_2 a, ಪೂರ್ಣಾಂಕ ಹೊರಹೋಗು_ಅಗಲ) override { ಹಿಂತಿರುಗಿ "zero_extend(" + np(a) + ", " + std::ಗಮ್ಯ_string(ಹೊರಹೋಗು_ಅಗಲ) + ")"; }
+	std::string sign_extend(ಗಂಟು_2, ಗಂಟು_2 a, ಪೂರ್ಣಾಂಕ ಹೊರಹೋಗು_ಅಗಲ) override { ಹಿಂತಿರುಗಿ "sign_extend(" + np(a) + ", " + std::ಗಮ್ಯ_string(ಹೊರಹೋಗು_ಅಗಲ) + ")"; }
+	std::string constant(ಗಂಟು_2, RTLIL::Const ಸ್ಥಿರಾಂಕ& ಮೌಲ್ಯ) override { ಹಿಂತಿರುಗಿ "constant(" + ಮೌಲ್ಯ.as_string() + ")"; }
+	std::string ಒಳಹರಿವು(ಗಂಟು_2 self, IdString name, IdString ಬಗೆ) override { ಹಿಂತಿರುಗಿ "input(" + self.design->twines().str(name) + ", " + self.design->twines().str(ಬಗೆ) + ")"; }
+	std::string state(ಗಂಟು_2 self, IdString name, IdString ಬಗೆ) override { ಹಿಂತಿರುಗಿ "state(" + self.design->twines().str(name) + ", " + self.design->twines().str(ಬಗೆ) + ")"; }
+	std::string default_handler(ಗಂಟು_2 self) override {
+		std::string ret = fn_ಗಮ್ಯ_string(self.fn());
 		ret += "(";
-		for(size_t i = 0; i < self.arg_count(); i++) {
-			if(i > 0) ret += ", ";
+		ಗಾಗಿ(ಗಾತ್ರ_t i = 0; i < self.arg_ಎಣಿಕೆ(); i++) {
+			ಆದರೆ(i > 0) ret += ", ";
 			ret += np(self.arg(i));
 		}
 		ret += ")";
-		return ret;
+		ಹಿಂತಿರುಗಿ ret;
 	}
 };
 
-std::string Node::to_string()
+std::string ಗಂಟು_2::ಗಮ್ಯ_string()
 {
-	return to_string([](Node n) { return n.name().unescape(); });
+	ಹಿಂತಿರುಗಿ ಗಮ್ಯ_string([](ಗಂಟು_2 n) { ಹಿಂತಿರುಗಿ n.name().unescape(); });
 }
 
-std::string Node::to_string(std::function<std::string(Node)> np)
+std::string ಗಂಟು_2::ಗಮ್ಯ_string(std::function<std::string(ಗಂಟು_2)> np)
 {
-	return visit(PrintVisitor(np));
+	ಹಿಂತಿರುಗಿ ಭೇಟಿ(PrintVisitor(np));
 }
 
-class CellSimplifier {
+ವರ್ಗ CellSimplifier {
 	Factory &factory;
-	Node sign(Node a) {
-		return factory.slice(a, a.width() - 1, 1);
+	ಗಂಟು_2 sign(ಗಂಟು_2 a) {
+		ಹಿಂತಿರುಗಿ factory.ತುಂಡು(a, a.ಅಗಲ() - 1, 1);
 	}
-	Node neg_if(Node a, Node s) {
-		return factory.mux(a, factory.unary_minus(a), s);
+	ಗಂಟು_2 neg_if(ಗಂಟು_2 a, ಗಂಟು_2 s) {
+		ಹಿಂತಿರುಗಿ factory.mux(a, factory.unary_minus(a), s);
 	}
-	Node abs(Node a) {
-		return neg_if(a, sign(a));
+	ಗಂಟು_2 ನಿರಪೇಕ್ಷ(ಗಂಟು_2 a) {
+		ಹಿಂತಿರುಗಿ neg_if(a, sign(a));
 	}
-	Node handle_shift(Node a, Node b, bool is_right, bool is_signed) {
+	ಗಂಟು_2 handle_ಸರಿಸು(ಗಂಟು_2 a, ಗಂಟು_2 b, ತಾರ್ಕಿಕ is_ಬಲ, ತಾರ್ಕಿಕ is_signed) {
 		// to prevent new_width == 0, we handle this case separately
-		if(a.width() == 1) {
-			if(!is_signed)
-				return factory.bitwise_and(a, factory.bitwise_not(factory.reduce_or(b)));
-			else
-				return a;
+		ಆದರೆ(a.ಅಗಲ() == 1) {
+			ಆದರೆ(!is_signed)
+				ಹಿಂತಿರುಗಿ factory.bitwise_and(a, factory.bitwise_not(factory.reduce_or(b)));
+			ಇಲ್ಲದಿದ್ದರೆ
+				ಹಿಂತಿರುಗಿ a;
 		}
-		int new_width = ceil_log2(a.width());
-		Node b_truncated = factory.extend(b, new_width, false);
-		Node y =
-			!is_right ? factory.logical_shift_left(a, b_truncated) :
-			!is_signed ? factory.logical_shift_right(a, b_truncated) :
-			factory.arithmetic_shift_right(a, b_truncated);
-		if(b.width() <= new_width)
-			return y;
-		Node overflow = factory.unsigned_greater_equal(b, factory.constant(RTLIL::Const(a.width(), b.width())));
-		Node y_if_overflow = is_signed ? factory.extend(sign(a), a.width(), true) : factory.constant(RTLIL::Const(State::S0, a.width()));
-		return factory.mux(y, y_if_overflow, overflow);
+		ಪೂರ್ಣಾಂಕ new_ಅಗಲ = ceil_log2(a.ಅಗಲ());
+		ಗಂಟು_2 b_truncated = factory.extend(b, new_ಅಗಲ, ಸುಳ್ಳು);
+		ಗಂಟು_2 y =
+			!is_ಬಲ ? factory.logical_ಸರಿಸು_ಎಡ(a, b_truncated) :
+			!is_signed ? factory.logical_ಸರಿಸು_ಬಲ(a, b_truncated) :
+			factory.arithmetic_ಸರಿಸು_ಬಲ(a, b_truncated);
+		ಆದರೆ(b.ಅಗಲ() <= new_ಅಗಲ)
+			ಹಿಂತಿರುಗಿ y;
+		ಗಂಟು_2 ಅತಿಪ್ರವಾಹ = factory.unsigned_greater_equal(b, factory.constant(RTLIL::Const(a.ಅಗಲ(), b.ಅಗಲ())));
+		ಗಂಟು_2 y_if_ಅತಿಪ್ರವಾಹ = is_signed ? factory.extend(sign(a), a.ಅಗಲ(), ನಿಜ) : factory.constant(RTLIL::Const(State::S0, a.ಅಗಲ()));
+		ಹಿಂತಿರುಗಿ factory.mux(y, y_if_ಅತಿಪ್ರವಾಹ, ಅತಿಪ್ರವಾಹ);
 	}
-public:
-	Node logical_shift_left(Node a, Node b) { return handle_shift(a, b, false, false); }
-	Node logical_shift_right(Node a, Node b) { return handle_shift(a, b, true, false); }
-	Node arithmetic_shift_right(Node a, Node b) { return handle_shift(a, b, true, true); }
-	Node bitwise_mux(Node a, Node b, Node s) {
-		Node aa = factory.bitwise_and(a, factory.bitwise_not(s));
-		Node bb = factory.bitwise_and(b, s);
-		return factory.bitwise_or(aa, bb);
+ಸಾರ್ವಜನಿಕ:
+	ಗಂಟು_2 logical_ಸರಿಸು_ಎಡ(ಗಂಟು_2 a, ಗಂಟು_2 b) { ಹಿಂತಿರುಗಿ handle_ಸರಿಸು(a, b, ಸುಳ್ಳು, ಸುಳ್ಳು); }
+	ಗಂಟು_2 logical_ಸರಿಸು_ಬಲ(ಗಂಟು_2 a, ಗಂಟು_2 b) { ಹಿಂತಿರುಗಿ handle_ಸರಿಸು(a, b, ನಿಜ, ಸುಳ್ಳು); }
+	ಗಂಟು_2 arithmetic_ಸರಿಸು_ಬಲ(ಗಂಟು_2 a, ಗಂಟು_2 b) { ಹಿಂತಿರುಗಿ handle_ಸರಿಸು(a, b, ನಿಜ, ನಿಜ); }
+	ಗಂಟು_2 bitwise_mux(ಗಂಟು_2 a, ಗಂಟು_2 b, ಗಂಟು_2 s) {
+		ಗಂಟು_2 aa = factory.bitwise_and(a, factory.bitwise_not(s));
+		ಗಂಟು_2 bb = factory.bitwise_and(b, s);
+		ಹಿಂತಿರುಗಿ factory.bitwise_or(aa, bb);
 	}
 	CellSimplifier(Factory &f) : factory(f) {}
-private:
-	Node handle_pow(Node a0, Node b, int y_width, bool is_signed) {
-		Node a = factory.extend(a0, y_width, is_signed);
-		Node r = factory.constant(Const(1, y_width));
-		for(int i = 0; i < b.width(); i++) {
-			Node b_bit = factory.slice(b, i, 1);
-			r = factory.mux(r, factory.mul(r, a), b_bit);
+ಖಾಸಗಿ:
+	ಗಂಟು_2 handle_pow(ಗಂಟು_2 a0, ಗಂಟು_2 b, ಪೂರ್ಣಾಂಕ y_ಅಗಲ, ತಾರ್ಕಿಕ is_signed) {
+		ಗಂಟು_2 a = factory.extend(a0, y_ಅಗಲ, is_signed);
+		ಗಂಟು_2 r = factory.constant(Const(1, y_ಅಗಲ));
+		ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i = 0; i < b.ಅಗಲ(); i++) {
+			ಗಂಟು_2 b_ಬಿಟ್ = factory.ತುಂಡು(b, i, 1);
+			r = factory.mux(r, factory.mul(r, a), b_ಬಿಟ್);
 			a = factory.mul(a, a);
 		}
-		if (is_signed) {
-			Node a_ge_1 = factory.unsigned_greater_than(abs(a0), factory.constant(Const(1, a0.width())));
-			Node zero_result = factory.bitwise_and(a_ge_1, sign(b));
-			r = factory.mux(r, factory.constant(Const(0, y_width)), zero_result);
+		ಆದರೆ (is_signed) {
+			ಗಂಟು_2 a_ge_1 = factory.unsigned_greater_than(ನಿರಪೇಕ್ಷ(a0), factory.constant(Const(1, a0.ಅಗಲ())));
+			ಗಂಟು_2 zero_ಫಲಿತಾಂಶ = factory.bitwise_and(a_ge_1, sign(b));
+			r = factory.mux(r, factory.constant(Const(0, y_ಅಗಲ)), zero_ಫಲಿತಾಂಶ);
 		}
-		return r;
+		ಹಿಂತಿರುಗಿ r;
 	}
-	Node handle_bmux(Node a, Node s, int a_offset, int width, int sn) {
-		if(sn < 1)
-			return factory.slice(a, a_offset, width);
-		else {
-			Node y0 = handle_bmux(a, s, a_offset, width, sn - 1);
-			Node y1 = handle_bmux(a, s, a_offset + (width << (sn - 1)), width, sn - 1);
-			return factory.mux(y0, y1, factory.slice(s, sn - 1, 1));
+	ಗಂಟು_2 handle_bmux(ಗಂಟು_2 a, ಗಂಟು_2 s, ಪೂರ್ಣಾಂಕ a_ಸ್ಥಾನಾಂತರ, ಪೂರ್ಣಾಂಕ ಅಗಲ, ಪೂರ್ಣಾಂಕ sn) {
+		ಆದರೆ(sn < 1)
+			ಹಿಂತಿರುಗಿ factory.ತುಂಡು(a, a_ಸ್ಥಾನಾಂತರ, ಅಗಲ);
+		ಇಲ್ಲದಿದ್ದರೆ {
+			ಗಂಟು_2 y0 = handle_bmux(a, s, a_ಸ್ಥಾನಾಂತರ, ಅಗಲ, sn - 1);
+			ಗಂಟು_2 y1 = handle_bmux(a, s, a_ಸ್ಥಾನಾಂತರ + (ಅಗಲ << (sn - 1)), ಅಗಲ, sn - 1);
+			ಹಿಂತಿರುಗಿ factory.mux(y0, y1, factory.ತುಂಡು(s, sn - 1, 1));
 		}
 	}
-	Node handle_pmux(Node a, Node b, Node s) {
+	ಗಂಟು_2 handle_pmux(ಗಂಟು_2 a, ಗಂಟು_2 b, ಗಂಟು_2 s) {
 		// TODO : what to do about multiple b bits set ?
-		log_assert(b.width() == a.width() * s.width());
-		Node y = a;
-		for(int i = 0; i < s.width(); i++)
-			y = factory.mux(y, factory.slice(b, a.width() * i, a.width()), factory.slice(s, i, 1));
-		return y;
+		log_assert(b.ಅಗಲ() == a.ಅಗಲ() * s.ಅಗಲ());
+		ಗಂಟು_2 y = a;
+		ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i = 0; i < s.ಅಗಲ(); i++)
+			y = factory.mux(y, factory.ತುಂಡು(b, a.ಅಗಲ() * i, a.ಅಗಲ()), factory.ತುಂಡು(s, i, 1));
+		ಹಿಂತಿರುಗಿ y;
 	}
-	dict<IdString, Node> handle_fa(Node a, Node b, Node c) {
-		Node t1 = factory.bitwise_xor(a, b);
-		Node t2 = factory.bitwise_and(a, b);
-		Node t3 = factory.bitwise_and(c, t1);
-		Node y = factory.bitwise_xor(c, t1);
-		Node x = factory.bitwise_or(t2, t3);
-		return {{ID(X), x}, {ID(Y), y}};
+	dict<IdString, ಗಂಟು_2> handle_fa(ಗಂಟು_2 a, ಗಂಟು_2 b, ಗಂಟು_2 c) {
+		ಗಂಟು_2 t1 = factory.bitwise_xor(a, b);
+		ಗಂಟು_2 t2 = factory.bitwise_and(a, b);
+		ಗಂಟು_2 t3 = factory.bitwise_and(c, t1);
+		ಗಂಟು_2 y = factory.bitwise_xor(c, t1);
+		ಗಂಟು_2 x = factory.bitwise_or(t2, t3);
+		ಹಿಂತಿರುಗಿ {{ID(X), x}, {ID(Y), y}};
 	}
-	dict<IdString, Node> handle_alu(Node a_in, Node b_in, int y_width, bool is_signed, Node ci, Node bi) {
-		Node a = factory.extend(a_in, y_width, is_signed);
-		Node b_uninverted = factory.extend(b_in, y_width, is_signed);
-		Node b = factory.mux(b_uninverted, factory.bitwise_not(b_uninverted), bi);
-		Node x = factory.bitwise_xor(a, b);
+	dict<IdString, ಗಂಟು_2> handle_alu(ಗಂಟು_2 a_ಒಳ, ಗಂಟು_2 b_ಒಳ, ಪೂರ್ಣಾಂಕ y_ಅಗಲ, ತಾರ್ಕಿಕ is_signed, ಗಂಟು_2 ci, ಗಂಟು_2 bi) {
+		ಗಂಟು_2 a = factory.extend(a_ಒಳ, y_ಅಗಲ, is_signed);
+		ಗಂಟು_2 b_uninverted = factory.extend(b_ಒಳ, y_ಅಗಲ, is_signed);
+		ಗಂಟು_2 b = factory.mux(b_uninverted, factory.bitwise_not(b_uninverted), bi);
+		ಗಂಟು_2 x = factory.bitwise_xor(a, b);
 		// we can compute the carry into each bit using (a+b+c)^a^b. since we want the carry out,
 		// i.e. the carry into the next bit, we have to add an extra bit to a and b, and
 		// then slice off the bottom bit of the result.
-		Node a_extra = factory.extend(a, y_width + 1, false);
-		Node b_extra = factory.extend(b, y_width + 1, false);
-		Node y_extra = factory.add(factory.add(a_extra, b_extra), factory.extend(ci, a.width() + 1, false));
-		Node y = factory.slice(y_extra, 0, y_width);
-		Node carries = factory.bitwise_xor(y_extra, factory.bitwise_xor(a_extra, b_extra));
-		Node co = factory.slice(carries, 1, y_width);
-		return {{ID(X), x}, {ID(Y), y}, {ID(CO), co}};
+		ಗಂಟು_2 a_extra = factory.extend(a, y_ಅಗಲ + 1, ಸುಳ್ಳು);
+		ಗಂಟು_2 b_extra = factory.extend(b, y_ಅಗಲ + 1, ಸುಳ್ಳು);
+		ಗಂಟು_2 y_extra = factory.ಕೂಡಿಸು(factory.ಕೂಡಿಸು(a_extra, b_extra), factory.extend(ci, a.ಅಗಲ() + 1, ಸುಳ್ಳು));
+		ಗಂಟು_2 y = factory.ತುಂಡು(y_extra, 0, y_ಅಗಲ);
+		ಗಂಟು_2 carries = factory.bitwise_xor(y_extra, factory.bitwise_xor(a_extra, b_extra));
+		ಗಂಟು_2 co = factory.ತುಂಡು(carries, 1, y_ಅಗಲ);
+		ಹಿಂತಿರುಗಿ {{ID(X), x}, {ID(Y), y}, {ID(CO), co}};
 	}
-	Node handle_lcu(Node p, Node g, Node ci) {
-		return handle_alu(g, factory.bitwise_or(p, g), g.width(), false, ci, factory.constant(Const(State::S0, 1))).at(ID(CO));
+	ಗಂಟು_2 handle_lcu(ಗಂಟು_2 p, ಗಂಟು_2 g, ಗಂಟು_2 ci) {
+		ಹಿಂತಿರುಗಿ handle_alu(g, factory.bitwise_or(p, g), g.ಅಗಲ(), ಸುಳ್ಳು, ci, factory.constant(Const(State::S0, 1))).at(ID(CO));
 	}
-public:
-	std::variant<dict<IdString, Node>, Node> handle(IdString cellName, IdString cellType, dict<IdString, Const> parameters, dict<IdString, Node> inputs)
+ಸಾರ್ವಜನಿಕ:
+	std::variant<dict<IdString, ಗಂಟು_2>, ಗಂಟು_2> handle(IdString cellName, IdString cellType, dict<IdString, Const> parameters, dict<IdString, ಗಂಟು_2> inputs)
 	{
-		int a_width = parameters.at(ID(A_WIDTH), Const(-1)).as_int();
-		int b_width = parameters.at(ID(B_WIDTH), Const(-1)).as_int();
-		int y_width = parameters.at(ID(Y_WIDTH), Const(-1)).as_int();
-		bool a_signed = parameters.at(ID(A_SIGNED), Const(0)).as_bool();
-		bool b_signed = parameters.at(ID(B_SIGNED), Const(0)).as_bool();
-		if(cellType.in(ID($add), ID($sub), ID($and), ID($or), ID($xor), ID($xnor), ID($mul))){
-			bool is_signed = a_signed && b_signed;
-			Node a = factory.extend(inputs.at(ID(A)), y_width, is_signed);
-			Node b = factory.extend(inputs.at(ID(B)), y_width, is_signed);
-			if(cellType == ID($add))
-				return factory.add(a, b);
-			else if(cellType == ID($sub))
-				return factory.sub(a, b);
-			else if(cellType == ID($mul))
-				return factory.mul(a, b);
-			else if(cellType == ID($and))
-				return factory.bitwise_and(a, b);
-			else if(cellType == ID($or))
-				return factory.bitwise_or(a, b);
-			else if(cellType == ID($xor))
-				return factory.bitwise_xor(a, b);
-			else if(cellType == ID($xnor))
-				return factory.bitwise_not(factory.bitwise_xor(a, b));
-			else
+		ಪೂರ್ಣಾಂಕ a_ಅಗಲ = parameters.at(ID(A_ಅಗಲ), Const(-1)).as_int();
+		ಪೂರ್ಣಾಂಕ b_ಅಗಲ = parameters.at(ID(B_ಅಗಲ), Const(-1)).as_int();
+		ಪೂರ್ಣಾಂಕ y_ಅಗಲ = parameters.at(ID(Y_ಅಗಲ), Const(-1)).as_int();
+		ತಾರ್ಕಿಕ a_signed = parameters.at(ID(A_SIGNED), Const(0)).as_bool();
+		ತಾರ್ಕಿಕ b_signed = parameters.at(ID(B_SIGNED), Const(0)).as_bool();
+		ಆದರೆ(cellType.ಒಳ(ID($ಕೂಡಿಸು), ID($sub), ID($and), ID($or), ID($xor), ID($xnor), ID($mul))){
+			ತಾರ್ಕಿಕ is_signed = a_signed && b_signed;
+			ಗಂಟು_2 a = factory.extend(inputs.at(ID(A)), y_ಅಗಲ, is_signed);
+			ಗಂಟು_2 b = factory.extend(inputs.at(ID(B)), y_ಅಗಲ, is_signed);
+			ಆದರೆ(cellType == ID($ಕೂಡಿಸು))
+				ಹಿಂತಿರುಗಿ factory.ಕೂಡಿಸು(a, b);
+			ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($sub))
+				ಹಿಂತಿರುಗಿ factory.sub(a, b);
+			ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($mul))
+				ಹಿಂತಿರುಗಿ factory.mul(a, b);
+			ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($and))
+				ಹಿಂತಿರುಗಿ factory.bitwise_and(a, b);
+			ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($or))
+				ಹಿಂತಿರುಗಿ factory.bitwise_or(a, b);
+			ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($xor))
+				ಹಿಂತಿರುಗಿ factory.bitwise_xor(a, b);
+			ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($xnor))
+				ಹಿಂತಿರುಗಿ factory.bitwise_not(factory.bitwise_xor(a, b));
+			ಇಲ್ಲದಿದ್ದರೆ
 				log_abort();
-		}else if(cellType.in(ID($eq), ID($ne), ID($eqx), ID($nex), ID($le), ID($lt), ID($ge), ID($gt))){
-			bool is_signed = a_signed && b_signed;
-			int width = max(a_width, b_width);
-			Node a = factory.extend(inputs.at(ID(A)), width, is_signed);
-			Node b = factory.extend(inputs.at(ID(B)), width, is_signed);
-			if(cellType.in(ID($eq), ID($eqx)))
-				return factory.extend(factory.equal(a, b), y_width, false);
-			else if(cellType.in(ID($ne), ID($nex)))
-				return factory.extend(factory.not_equal(a, b), y_width, false);
-			else if(cellType == ID($lt))
-				return factory.extend(is_signed ? factory.signed_greater_than(b, a) : factory.unsigned_greater_than(b, a), y_width, false);
-			else if(cellType == ID($le))
-				return factory.extend(is_signed ? factory.signed_greater_equal(b, a) : factory.unsigned_greater_equal(b, a), y_width, false);
-			else if(cellType == ID($gt))
-				return factory.extend(is_signed ? factory.signed_greater_than(a, b) : factory.unsigned_greater_than(a, b), y_width, false);
-			else if(cellType == ID($ge))
-				return factory.extend(is_signed ? factory.signed_greater_equal(a, b) : factory.unsigned_greater_equal(a, b), y_width, false);
-			else
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType.ಒಳ(ID($eq), ID($ne), ID($eqx), ID($nex), ID($le), ID($lt), ID($ge), ID($gt))){
+			ತಾರ್ಕಿಕ is_signed = a_signed && b_signed;
+			ಪೂರ್ಣಾಂಕ ಅಗಲ = max(a_ಅಗಲ, b_ಅಗಲ);
+			ಗಂಟು_2 a = factory.extend(inputs.at(ID(A)), ಅಗಲ, is_signed);
+			ಗಂಟು_2 b = factory.extend(inputs.at(ID(B)), ಅಗಲ, is_signed);
+			ಆದರೆ(cellType.ಒಳ(ID($eq), ID($eqx)))
+				ಹಿಂತಿರುಗಿ factory.extend(factory.equal(a, b), y_ಅಗಲ, ಸುಳ್ಳು);
+			ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType.ಒಳ(ID($ne), ID($nex)))
+				ಹಿಂತಿರುಗಿ factory.extend(factory.not_equal(a, b), y_ಅಗಲ, ಸುಳ್ಳು);
+			ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($lt))
+				ಹಿಂತಿರುಗಿ factory.extend(is_signed ? factory.signed_greater_than(b, a) : factory.unsigned_greater_than(b, a), y_ಅಗಲ, ಸುಳ್ಳು);
+			ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($le))
+				ಹಿಂತಿರುಗಿ factory.extend(is_signed ? factory.signed_greater_equal(b, a) : factory.unsigned_greater_equal(b, a), y_ಅಗಲ, ಸುಳ್ಳು);
+			ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($gt))
+				ಹಿಂತಿರುಗಿ factory.extend(is_signed ? factory.signed_greater_than(a, b) : factory.unsigned_greater_than(a, b), y_ಅಗಲ, ಸುಳ್ಳು);
+			ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($ge))
+				ಹಿಂತಿರುಗಿ factory.extend(is_signed ? factory.signed_greater_equal(a, b) : factory.unsigned_greater_equal(a, b), y_ಅಗಲ, ಸುಳ್ಳು);
+			ಇಲ್ಲದಿದ್ದರೆ
 				log_abort();
-		}else if(cellType.in(ID($logic_or), ID($logic_and))){
-			Node a = factory.reduce_or(inputs.at(ID(A)));
-			Node b = factory.reduce_or(inputs.at(ID(B)));
-			Node y = cellType == ID($logic_and) ? factory.bitwise_and(a, b) : factory.bitwise_or(a, b);
-			return factory.extend(y, y_width, false);
-		}else if(cellType == ID($not)){
-			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			return factory.bitwise_not(a);
-		}else if(cellType == ID($pos)){
-			return factory.extend(inputs.at(ID(A)), y_width, a_signed);
-		}else if(cellType == ID($barrier)){
-			return inputs.at(ID(A));
-		}else if(cellType == ID($neg)){
-			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			return factory.unary_minus(a);
-		}else if(cellType == ID($logic_not)){
-			Node a = factory.reduce_or(inputs.at(ID(A)));
-			Node y = factory.bitwise_not(a);
-			return factory.extend(y, y_width, false);
-		}else if(cellType.in(ID($reduce_or), ID($reduce_bool))){
-			Node a = factory.reduce_or(inputs.at(ID(A)));
-			return factory.extend(a, y_width, false);
-		}else if(cellType == ID($reduce_and)){
-			Node a = factory.reduce_and(inputs.at(ID(A)));
-			return factory.extend(a, y_width, false);
-		}else if(cellType.in(ID($reduce_xor), ID($reduce_xnor))){
-			Node a = factory.reduce_xor(inputs.at(ID(A)));
-			Node y = cellType == ID($reduce_xnor) ? factory.bitwise_not(a) : a;
-			return factory.extend(y, y_width, false);
-		}else if(cellType == ID($shl) || cellType == ID($sshl)){
-			Node a = factory.extend(inputs.at(ID(A)), y_width, a_signed);
-			Node b = inputs.at(ID(B));
-			return logical_shift_left(a, b);
-		}else if(cellType == ID($shr) || cellType == ID($sshr)){
-			int width = max(a_width, y_width);
-			Node a = factory.extend(inputs.at(ID(A)), width, a_signed);
-			Node b = inputs.at(ID(B));
-			Node y = a_signed && cellType == ID($sshr) ?
-				arithmetic_shift_right(a, b) :
-				logical_shift_right(a, b);
-			return factory.extend(y, y_width, a_signed);
-		}else if(cellType == ID($shiftx) || cellType == ID($shift)){
-			int width = max(a_width, y_width);
-			Node a = factory.extend(inputs.at(ID(A)), width, cellType == ID($shift) && a_signed);
-			Node b = inputs.at(ID(B));
-			Node shr = logical_shift_right(a, b);
-			if(b_signed) {
-				Node shl = logical_shift_left(a, factory.unary_minus(b));
-				Node y = factory.mux(shr, shl, sign(b));
-				return factory.extend(y, y_width, false);
-			} else {
-				return factory.extend(shr, y_width, false);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType.ಒಳ(ID($logic_or), ID($logic_and))){
+			ಗಂಟು_2 a = factory.reduce_or(inputs.at(ID(A)));
+			ಗಂಟು_2 b = factory.reduce_or(inputs.at(ID(B)));
+			ಗಂಟು_2 y = cellType == ID($logic_and) ? factory.bitwise_and(a, b) : factory.bitwise_or(a, b);
+			ಹಿಂತಿರುಗಿ factory.extend(y, y_ಅಗಲ, ಸುಳ್ಳು);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($not)){
+			ಗಂಟು_2 a = factory.extend(inputs.at(ID(A)), y_ಅಗಲ, a_signed);
+			ಹಿಂತಿರುಗಿ factory.bitwise_not(a);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($pos)){
+			ಹಿಂತಿರುಗಿ factory.extend(inputs.at(ID(A)), y_ಅಗಲ, a_signed);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($barrier)){
+			ಹಿಂತಿರುಗಿ inputs.at(ID(A));
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($neg)){
+			ಗಂಟು_2 a = factory.extend(inputs.at(ID(A)), y_ಅಗಲ, a_signed);
+			ಹಿಂತಿರುಗಿ factory.unary_minus(a);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($logic_not)){
+			ಗಂಟು_2 a = factory.reduce_or(inputs.at(ID(A)));
+			ಗಂಟು_2 y = factory.bitwise_not(a);
+			ಹಿಂತಿರುಗಿ factory.extend(y, y_ಅಗಲ, ಸುಳ್ಳು);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType.ಒಳ(ID($reduce_or), ID($reduce_bool))){
+			ಗಂಟು_2 a = factory.reduce_or(inputs.at(ID(A)));
+			ಹಿಂತಿರುಗಿ factory.extend(a, y_ಅಗಲ, ಸುಳ್ಳು);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($reduce_and)){
+			ಗಂಟು_2 a = factory.reduce_and(inputs.at(ID(A)));
+			ಹಿಂತಿರುಗಿ factory.extend(a, y_ಅಗಲ, ಸುಳ್ಳು);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType.ಒಳ(ID($reduce_xor), ID($reduce_xnor))){
+			ಗಂಟು_2 a = factory.reduce_xor(inputs.at(ID(A)));
+			ಗಂಟು_2 y = cellType == ID($reduce_xnor) ? factory.bitwise_not(a) : a;
+			ಹಿಂತಿರುಗಿ factory.extend(y, y_ಅಗಲ, ಸುಳ್ಳು);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($shl) || cellType == ID($sshl)){
+			ಗಂಟು_2 a = factory.extend(inputs.at(ID(A)), y_ಅಗಲ, a_signed);
+			ಗಂಟು_2 b = inputs.at(ID(B));
+			ಹಿಂತಿರುಗಿ logical_ಸರಿಸು_ಎಡ(a, b);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($shr) || cellType == ID($sshr)){
+			ಪೂರ್ಣಾಂಕ ಅಗಲ = max(a_ಅಗಲ, y_ಅಗಲ);
+			ಗಂಟು_2 a = factory.extend(inputs.at(ID(A)), ಅಗಲ, a_signed);
+			ಗಂಟು_2 b = inputs.at(ID(B));
+			ಗಂಟು_2 y = a_signed && cellType == ID($sshr) ?
+				arithmetic_ಸರಿಸು_ಬಲ(a, b) :
+				logical_ಸರಿಸು_ಬಲ(a, b);
+			ಹಿಂತಿರುಗಿ factory.extend(y, y_ಅಗಲ, a_signed);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($shiftx) || cellType == ID($ಸರಿಸು)){
+			ಪೂರ್ಣಾಂಕ ಅಗಲ = max(a_ಅಗಲ, y_ಅಗಲ);
+			ಗಂಟು_2 a = factory.extend(inputs.at(ID(A)), ಅಗಲ, cellType == ID($ಸರಿಸು) && a_signed);
+			ಗಂಟು_2 b = inputs.at(ID(B));
+			ಗಂಟು_2 shr = logical_ಸರಿಸು_ಬಲ(a, b);
+			ಆದರೆ(b_signed) {
+				ಗಂಟು_2 shl = logical_ಸರಿಸು_ಎಡ(a, factory.unary_minus(b));
+				ಗಂಟು_2 y = factory.mux(shr, shl, sign(b));
+				ಹಿಂತಿರುಗಿ factory.extend(y, y_ಅಗಲ, ಸುಳ್ಳು);
+			} ಇಲ್ಲದಿದ್ದರೆ {
+				ಹಿಂತಿರುಗಿ factory.extend(shr, y_ಅಗಲ, ಸುಳ್ಳು);
 			}
-		}else if(cellType == ID($mux)){
-			return factory.mux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
-		}else if(cellType == ID($pmux)){
-			return handle_pmux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
-		}else if(cellType == ID($concat)){
-			Node a = inputs.at(ID(A));
-			Node b = inputs.at(ID(B));
-			return factory.concat(a, b);
-		}else if(cellType == ID($slice)){
-			int offset = parameters.at(ID(OFFSET)).as_int();
-			Node a = inputs.at(ID(A));
-			return factory.slice(a, offset, y_width);
-		}else if(cellType.in(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
-			int width = max(a_width, b_width);
-			bool is_signed = a_signed && b_signed;
-			Node a = factory.extend(inputs.at(ID(A)), width, is_signed);
-			Node b = factory.extend(inputs.at(ID(B)), width, is_signed);
-			if(is_signed) {
-				if(cellType == ID($div)) {
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($mux)){
+			ಹಿಂತಿರುಗಿ factory.mux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($pmux)){
+			ಹಿಂತಿರುಗಿ handle_pmux(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(S)));
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($concat)){
+			ಗಂಟು_2 a = inputs.at(ID(A));
+			ಗಂಟು_2 b = inputs.at(ID(B));
+			ಹಿಂತಿರುಗಿ factory.concat(a, b);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($ತುಂಡು)){
+			ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ = parameters.at(ID(ಸ್ಥಾನಾಂತರ_2)).as_int();
+			ಗಂಟು_2 a = inputs.at(ID(A));
+			ಹಿಂತಿರುಗಿ factory.ತುಂಡು(a, ಸ್ಥಾನಾಂತರ, y_ಅಗಲ);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType.ಒಳ(ID($div), ID($mod), ID($divfloor), ID($modfloor))) {
+			ಪೂರ್ಣಾಂಕ ಅಗಲ = max(a_ಅಗಲ, b_ಅಗಲ);
+			ತಾರ್ಕಿಕ is_signed = a_signed && b_signed;
+			ಗಂಟು_2 a = factory.extend(inputs.at(ID(A)), ಅಗಲ, is_signed);
+			ಗಂಟು_2 b = factory.extend(inputs.at(ID(B)), ಅಗಲ, is_signed);
+			ಆದರೆ(is_signed) {
+				ಆದರೆ(cellType == ID($div)) {
 					// divide absolute values, then flip the sign if input signs differ
 					// but extend the width first, to handle the case (most negative value) / (-1)
-					Node abs_y = factory.unsigned_div(abs(a), abs(b));
-					Node out_sign = factory.not_equal(sign(a), sign(b));
-					return neg_if(factory.extend(abs_y, y_width, false), out_sign);
-				} else if(cellType == ID($mod)) {
+					ಗಂಟು_2 abs_y = factory.unsigned_div(ನಿರಪೇಕ್ಷ(a), ನಿರಪೇಕ್ಷ(b));
+					ಗಂಟು_2 ಹೊರಹೋಗು_sign = factory.not_equal(sign(a), sign(b));
+					ಹಿಂತಿರುಗಿ neg_if(factory.extend(abs_y, y_ಅಗಲ, ಸುಳ್ಳು), ಹೊರಹೋಗು_sign);
+				} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($mod)) {
 					// similar to division but output sign == divisor sign
-					Node abs_y = factory.unsigned_mod(abs(a), abs(b));
-					return neg_if(factory.extend(abs_y, y_width, false), sign(a));
-				} else if(cellType == ID($divfloor)) {
+					ಗಂಟು_2 abs_y = factory.unsigned_mod(ನಿರಪೇಕ್ಷ(a), ನಿರಪೇಕ್ಷ(b));
+					ಹಿಂತಿರುಗಿ neg_if(factory.extend(abs_y, y_ಅಗಲ, ಸುಳ್ಳು), sign(a));
+				} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($divfloor)) {
 					// if b is negative, flip both signs so that b is positive
-					Node b_sign = sign(b);
-					Node a1 = neg_if(a, b_sign);
-					Node b1 = neg_if(b, b_sign);
+					ಗಂಟು_2 b_sign = sign(b);
+					ಗಂಟು_2 a1 = neg_if(a, b_sign);
+					ಗಂಟು_2 b1 = neg_if(b, b_sign);
 					// if a is now negative, calculate ~((~a) / b) = -((-a - 1) / b + 1)
 					// which equals the negative of (-a) / b with rounding up rather than down
 					// note that to handle the case where a = most negative value properly,
 					// we have to calculate a1_sign from the original values rather than using sign(a1)
-					Node a1_sign = factory.bitwise_and(factory.not_equal(sign(a), sign(b)), factory.reduce_or(a));
-					Node a2 = factory.mux(a1, factory.bitwise_not(a1), a1_sign);
-					Node y1 = factory.unsigned_div(a2, b1);
-					Node y2 = factory.extend(y1, y_width, false);
-					return factory.mux(y2, factory.bitwise_not(y2), a1_sign);
-				} else if(cellType == ID($modfloor)) {
+					ಗಂಟು_2 a1_sign = factory.bitwise_and(factory.not_equal(sign(a), sign(b)), factory.reduce_or(a));
+					ಗಂಟು_2 a2 = factory.mux(a1, factory.bitwise_not(a1), a1_sign);
+					ಗಂಟು_2 y1 = factory.unsigned_div(a2, b1);
+					ಗಂಟು_2 y2 = factory.extend(y1, y_ಅಗಲ, ಸುಳ್ಳು);
+					ಹಿಂತಿರುಗಿ factory.mux(y2, factory.bitwise_not(y2), a1_sign);
+				} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($modfloor)) {
 					// calculate |a| % |b| and then subtract from |b| if input signs differ and the remainder is non-zero
-					Node abs_b = abs(b);
-					Node abs_y = factory.unsigned_mod(abs(a), abs_b);
-					Node flip_y = factory.bitwise_and(factory.bitwise_xor(sign(a), sign(b)), factory.reduce_or(abs_y));
-					Node y_flipped = factory.mux(abs_y, factory.sub(abs_b, abs_y), flip_y);
+					ಗಂಟು_2 abs_b = ನಿರಪೇಕ್ಷ(b);
+					ಗಂಟು_2 abs_y = factory.unsigned_mod(ನಿರಪೇಕ್ಷ(a), abs_b);
+					ಗಂಟು_2 flip_y = factory.bitwise_and(factory.bitwise_xor(sign(a), sign(b)), factory.reduce_or(abs_y));
+					ಗಂಟು_2 y_flipped = factory.mux(abs_y, factory.sub(abs_b, abs_y), flip_y);
 					// since y_flipped is strictly less than |b|, the top bit is always 0 and we can just sign extend the flipped result
-					Node y = neg_if(y_flipped, sign(b));
-					return factory.extend(y, y_width, true);
-				} else
+					ಗಂಟು_2 y = neg_if(y_flipped, sign(b));
+					ಹಿಂತಿರುಗಿ factory.extend(y, y_ಅಗಲ, ನಿಜ);
+				} ಇಲ್ಲದಿದ್ದರೆ
 					log_error("unhandled cell in CellSimplifier %s\n", factory.ir().design->twines().str(cellType));
-			} else {
-				if(cellType.in(ID($mod), ID($modfloor)))
-					return factory.extend(factory.unsigned_mod(a, b), y_width, false);
-				else
-					return factory.extend(factory.unsigned_div(a, b), y_width, false);
+			} ಇಲ್ಲದಿದ್ದರೆ {
+				ಆದರೆ(cellType.ಒಳ(ID($mod), ID($modfloor)))
+					ಹಿಂತಿರುಗಿ factory.extend(factory.unsigned_mod(a, b), y_ಅಗಲ, ಸುಳ್ಳು);
+				ಇಲ್ಲದಿದ್ದರೆ
+					ಹಿಂತಿರುಗಿ factory.extend(factory.unsigned_div(a, b), y_ಅಗಲ, ಸುಳ್ಳು);
 			}
-		} else if(cellType == ID($pow)) {
-			return handle_pow(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed);
-		} else if (cellType == ID($lut)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			Const lut_table = parameters.at(ID(LUT));
-			lut_table.extu(1 << width);
-			return handle_bmux(factory.constant(lut_table), inputs.at(ID(A)), 0, 1, width);
-		} else if (cellType == ID($bwmux)) {
-			Node a = inputs.at(ID(A));
-			Node b = inputs.at(ID(B));
-			Node s = inputs.at(ID(S));
-			return factory.bitwise_or(
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($ಘಾತ)) {
+			ಹಿಂತಿರುಗಿ handle_pow(inputs.at(ID(A)), inputs.at(ID(B)), y_ಅಗಲ, a_signed && b_signed);
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (cellType == ID($lut)) {
+			ಪೂರ್ಣಾಂಕ ಅಗಲ = parameters.at(ID(ಅಗಲ_2)).as_int();
+			Const lut_ಕೋಷ್ಟಕ = parameters.at(ID(LUT));
+			lut_ಕೋಷ್ಟಕ.extu(1 << ಅಗಲ);
+			ಹಿಂತಿರುಗಿ handle_bmux(factory.constant(lut_ಕೋಷ್ಟಕ), inputs.at(ID(A)), 0, 1, ಅಗಲ);
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (cellType == ID($bwmux)) {
+			ಗಂಟು_2 a = inputs.at(ID(A));
+			ಗಂಟು_2 b = inputs.at(ID(B));
+			ಗಂಟು_2 s = inputs.at(ID(S));
+			ಹಿಂತಿರುಗಿ factory.bitwise_or(
 				factory.bitwise_and(a, factory.bitwise_not(s)),
 				factory.bitwise_and(b, s));
-		} else if (cellType == ID($bweqx)) {
-			Node a = inputs.at(ID(A));
-			Node b = inputs.at(ID(B));
-			return factory.bitwise_not(factory.bitwise_xor(a, b));
-		} else if(cellType == ID($bmux)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			int s_width = parameters.at(ID(S_WIDTH)).as_int();
-			return handle_bmux(inputs.at(ID(A)), inputs.at(ID(S)), 0, width, s_width);
-		} else if(cellType == ID($demux)) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			int s_width = parameters.at(ID(S_WIDTH)).as_int();
-			int y_width = width << s_width;
-			int b_width = ceil_log2(y_width);
-			Node a = factory.extend(inputs.at(ID(A)), y_width, false);
-			Node s = factory.extend(inputs.at(ID(S)), b_width, false);
-			Node b = factory.mul(s, factory.constant(Const(width, b_width)));
-			return factory.logical_shift_left(a, b);
-		} else if(cellType == ID($fa)) {
-			return handle_fa(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(C)));
-		} else if(cellType == ID($lcu)) {
-			return handle_lcu(inputs.at(ID(P)), inputs.at(ID(G)), inputs.at(ID(CI)));
-		} else if(cellType == ID($alu)) {
-			return handle_alu(inputs.at(ID(A)), inputs.at(ID(B)), y_width, a_signed && b_signed, inputs.at(ID(CI)), inputs.at(ID(BI)));
-		} else if(cellType.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover))) {
-			Node a = factory.mux(factory.constant(Const(State::S1, 1)), inputs.at(ID(A)), inputs.at(ID(EN)));
-			auto &output = factory.add_output(cellName, cellType, Sort(1));
-			output.set_value(a);
-			return {};
-		} else if(cellType.in(ID($anyconst), ID($allconst), ID($anyseq), ID($allseq))) {
-			int width = parameters.at(ID(WIDTH)).as_int();
-			auto &input = factory.add_input(cellName, cellType, Sort(width));
-			return factory.value(input);
-		} else if(cellType == ID($initstate)) {
-			if(factory.ir().has_state(ID($initstate), ID($state)))
-				return factory.value(factory.ir().state(ID($initstate)));
-			else {
-				auto &state = factory.add_state(ID($initstate), ID($state), Sort(1));
-				state.set_initial_value(RTLIL::Const(State::S1, 1));
-				state.set_next_value(factory.constant(RTLIL::Const(State::S0, 1)));
-				return factory.value(state);
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (cellType == ID($bweqx)) {
+			ಗಂಟು_2 a = inputs.at(ID(A));
+			ಗಂಟು_2 b = inputs.at(ID(B));
+			ಹಿಂತಿರುಗಿ factory.bitwise_not(factory.bitwise_xor(a, b));
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($bmux)) {
+			ಪೂರ್ಣಾಂಕ ಅಗಲ = parameters.at(ID(ಅಗಲ_2)).as_int();
+			ಪೂರ್ಣಾಂಕ s_ಅಗಲ = parameters.at(ID(S_ಅಗಲ)).as_int();
+			ಹಿಂತಿರುಗಿ handle_bmux(inputs.at(ID(A)), inputs.at(ID(S)), 0, ಅಗಲ, s_ಅಗಲ);
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($demux)) {
+			ಪೂರ್ಣಾಂಕ ಅಗಲ = parameters.at(ID(ಅಗಲ_2)).as_int();
+			ಪೂರ್ಣಾಂಕ s_ಅಗಲ = parameters.at(ID(S_ಅಗಲ)).as_int();
+			ಪೂರ್ಣಾಂಕ y_ಅಗಲ = ಅಗಲ << s_ಅಗಲ;
+			ಪೂರ್ಣಾಂಕ b_ಅಗಲ = ceil_log2(y_ಅಗಲ);
+			ಗಂಟು_2 a = factory.extend(inputs.at(ID(A)), y_ಅಗಲ, ಸುಳ್ಳು);
+			ಗಂಟು_2 s = factory.extend(inputs.at(ID(S)), b_ಅಗಲ, ಸುಳ್ಳು);
+			ಗಂಟು_2 b = factory.mul(s, factory.constant(Const(ಅಗಲ, b_ಅಗಲ)));
+			ಹಿಂತಿರುಗಿ factory.logical_ಸರಿಸು_ಎಡ(a, b);
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($fa)) {
+			ಹಿಂತಿರುಗಿ handle_fa(inputs.at(ID(A)), inputs.at(ID(B)), inputs.at(ID(C)));
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($lcu)) {
+			ಹಿಂತಿರುಗಿ handle_lcu(inputs.at(ID(P)), inputs.at(ID(G)), inputs.at(ID(CI)));
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($alu)) {
+			ಹಿಂತಿರುಗಿ handle_alu(inputs.at(ID(A)), inputs.at(ID(B)), y_ಅಗಲ, a_signed && b_signed, inputs.at(ID(CI)), inputs.at(ID(BI)));
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType.ಒಳ(ID($ಪ್ರತಿಜ್ಞಾ), ID($assume), ID($ಜೀವಂತ), ID($fair), ID($cover))) {
+			ಗಂಟು_2 a = factory.mux(factory.constant(Const(State::S1, 1)), inputs.at(ID(A)), inputs.at(ID(EN)));
+			ಸ್ವಯಂಚಾಲಿತ &output = factory.ಕೂಡಿಸು_output(cellName, cellType, ವಿಂಗಡಿಸು_2(1));
+			output.ಗಣ_ಮೌಲ್ಯ(a);
+			ಹಿಂತಿರುಗಿ {};
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType.ಒಳ(ID($anyconst), ID($allconst), ID($anyseq), ID($allseq))) {
+			ಪೂರ್ಣಾಂಕ ಅಗಲ = parameters.at(ID(ಅಗಲ_2)).as_int();
+			ಸ್ವಯಂಚಾಲಿತ &ಒಳಹರಿವು = factory.ಕೂಡಿಸು_ಒಳಹರಿವು(cellName, cellType, ವಿಂಗಡಿಸು_2(ಅಗಲ));
+			ಹಿಂತಿರುಗಿ factory.ಮೌಲ್ಯ(ಒಳಹರಿವು);
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($initstate)) {
+			ಆದರೆ(factory.ir().has_state(ID($initstate), ID($state)))
+				ಹಿಂತಿರುಗಿ factory.ಮೌಲ್ಯ(factory.ir().state(ID($initstate)));
+			ಇಲ್ಲದಿದ್ದರೆ {
+				ಸ್ವಯಂಚಾಲಿತ &state = factory.ಕೂಡಿಸು_state(ID($initstate), ID($state), ವಿಂಗಡಿಸು_2(1));
+				state.ಗಣ_initial_ಮೌಲ್ಯ(RTLIL::Const(State::S1, 1));
+				state.ಗಣ_ಮುಂದಿನ_ಮೌಲ್ಯ(factory.constant(RTLIL::Const(State::S0, 1)));
+				ಹಿಂತಿರುಗಿ factory.ಮೌಲ್ಯ(state);
 			}
-		} else if(cellType == ID($check)) {
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cellType == ID($check)) {
 			log_error("The design contains a $check cell `%s'. This is not supported by the functional backend. Call `chformal -lower' to avoid this error.\n", factory.ir().design->twines().str(cellName));
-		} else {
+		} ಇಲ್ಲದಿದ್ದರೆ {
 			log_error("`%s' cells are not supported by the functional backend\n", factory.ir().design->twines().str(cellType));
 		}
 	}
 };
 
-class FunctionalIRConstruction {
-	std::deque<std::variant<DriveSpec, Cell *>> queue;
-	dict<DriveSpec, Node> graph_nodes;
-	dict<std::pair<Cell *, IdString>, Node> cell_outputs;
+ವರ್ಗ FunctionalIRConstruction {
+	std::deque<std::variant<DriveSpec, Cell *>> ಸರತಿ;
+	dict<DriveSpec, ಗಂಟು_2> ನಕ್ಷೆ_nodes;
+	dict<std::pair<Cell *, IdString>, ಗಂಟು_2> cell_outputs;
 	DriverMap driver_map;
 	Factory& factory;
 	CellSimplifier simplifier;
-	vector<Mem> memories_vector;
+	ಸದಿಶ<Mem> memories_ಸದಿಶ;
 	dict<Cell*, Mem*> memories;
 	SigMap sig_map; // TODO: this is only for FfInitVals, remove this once FfInitVals supports DriverMap
 	FfInitVals ff_initvals;
 
-	Node enqueue(DriveSpec const &spec)
+	ಗಂಟು_2 ಸರತಿಗೆ_ಸೇರಿಸು(DriveSpec ಸ್ಥಿರಾಂಕ &spec)
 	{
-		auto it = graph_nodes.find(spec);
-		if(it == graph_nodes.end()){
-			auto node = factory.create_pending(spec.size());
-			graph_nodes.insert({spec, node});
-			queue.emplace_back(spec);
-			return node;
-		}else
-			return it->second;
+		ಸ್ವಯಂಚಾಲಿತ it = ನಕ್ಷೆ_nodes.ಕಂಡುಹಿಡಿ(spec);
+		ಆದರೆ(it == ನಕ್ಷೆ_nodes.ಕೊನೆ()){
+			ಸ್ವಯಂಚಾಲಿತ ಗಂಟು = factory.create_pending(spec.ಗಾತ್ರ_2());
+			ನಕ್ಷೆ_nodes.ಸೇರಿಸು({spec, ಗಂಟು});
+			ಸರತಿ.emplace_ಹಿಂಭಾಗ(spec);
+			ಹಿಂತಿರುಗಿ ಗಂಟು;
+		}ಇಲ್ಲದಿದ್ದರೆ
+			ಹಿಂತಿರುಗಿ it->ಎರಡನೇ;
 	}
-	Node enqueue_cell(Cell *cell, IdString port_name)
+	ಗಂಟು_2 ಸರತಿಗೆ_ಸೇರಿಸು_cell(Cell *cell, IdString ಪೋರ್ಟ್_name)
 	{
-		auto it = cell_outputs.find({cell, port_name});
-		if(it == cell_outputs.end()) {
-			queue.emplace_back(cell);
-			std::optional<Node> rv;
-			for(auto const &[name, sigspec] : cell->connections())
-				if(driver_map.celltypes.cell_output(cell->type, name)) {
-					auto node = factory.create_pending(sigspec.size());
-					factory.suggest_name(node, cell->name.str() + "$" + PooledName(cell->module, name).str());
-					cell_outputs.emplace({cell, name}, node);
-					if(name == port_name)
-						rv = node;
+		ಸ್ವಯಂಚಾಲಿತ it = cell_outputs.ಕಂಡುಹಿಡಿ({cell, ಪೋರ್ಟ್_name});
+		ಆದರೆ(it == cell_outputs.ಕೊನೆ()) {
+			ಸರತಿ.emplace_ಹಿಂಭಾಗ(cell);
+			std::optional<ಗಂಟು_2> rv;
+			ಗಾಗಿ(ಸ್ವಯಂಚಾಲಿತ ಸ್ಥಿರಾಂಕ &[name, sigspec] : cell->connections())
+				ಆದರೆ(driver_map.celltypes.cell_output(cell->type, name)) {
+					ಸ್ವಯಂಚಾಲಿತ ಗಂಟು = factory.create_pending(sigspec.ಗಾತ್ರ_2());
+					factory.suggest_name(ಗಂಟು, cell->name.str() + "$" + PooledName(cell->module, name).str());
+					cell_outputs.emplace({cell, name}, ಗಂಟು);
+					ಆದರೆ(name == ಪೋರ್ಟ್_name)
+						rv = ಗಂಟು;
 				}
-			return *rv;
-		} else
-			return it->second;
+			ಹಿಂತಿರುಗಿ *rv;
+		} ಇಲ್ಲದಿದ್ದರೆ
+			ಹಿಂತಿರುಗಿ it->ಎರಡನೇ;
 	}
-public:
+ಸಾರ್ವಜನಿಕ:
 	FunctionalIRConstruction(Module *module, Factory &f)
 		: factory(f)
 		, simplifier(f)
 		, sig_map(module)
 		, ff_initvals(&sig_map, module)
 	{
-		driver_map.add(module);
-		for (auto cell : module->cells()) {
-			if (cell->type.in(ID($assert), ID($assume), ID($live), ID($fair), ID($cover), ID($check)))
-				queue.emplace_back(cell);
+		driver_map.ಕೂಡಿಸು(module);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ cell : module->cells()) {
+			ಆದರೆ (cell->type.ಒಳ(ID($ಪ್ರತಿಜ್ಞಾ), ID($assume), ID($ಜೀವಂತ), ID($fair), ID($cover), ID($check)))
+				ಸರತಿ.emplace_ಹಿಂಭಾಗ(cell);
 		}
 		// we are relying here on unsorted pools iterating last-in-first-out
-		for (auto riter = module->ports.rbegin(); riter != module->ports.rend(); ++riter) {
-			auto *wire = module->wire(*riter);
-			if (wire && wire->port_input) {
-				factory.add_input(wire->name, ID($input), Sort(wire->width));
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ riter = module->ports.rbegin(); riter != module->ports.rend(); ++riter) {
+			ಸ್ವಯಂಚಾಲಿತ *wire = module->wire(*riter);
+			ಆದರೆ (wire && wire->ಪೋರ್ಟ್_ಒಳಹರಿವು) {
+				factory.ಕೂಡಿಸು_ಒಳಹರಿವು(wire->name, ID($ಒಳಹರಿವು), ವಿಂಗಡಿಸು_2(wire->ಅಗಲ));
 			}
-			if (wire && wire->port_output) {
-				auto &output = factory.add_output(wire->name, ID($output), Sort(wire->width));
-				output.set_value(enqueue(DriveChunk(DriveChunkWire(wire, 0, wire->width))));
+			ಆದರೆ (wire && wire->ಪೋರ್ಟ್_output) {
+				ಸ್ವಯಂಚಾಲಿತ &output = factory.ಕೂಡಿಸು_output(wire->name, ID($output), ವಿಂಗಡಿಸು_2(wire->ಅಗಲ));
+				output.ಗಣ_ಮೌಲ್ಯ(ಸರತಿಗೆ_ಸೇರಿಸು(DriveChunk(DriveChunkWire(wire, 0, wire->ಅಗಲ))));
 			}
 		}
-		memories_vector = Mem::get_all_memories(module);
-		for (auto &mem : memories_vector) {
-			if (mem.cell != nullptr)
+		memories_ಸದಿಶ = Mem::get_all_memories(module);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &mem : memories_ಸದಿಶ) {
+			ಆದರೆ (mem.cell != ಶೂನ್ಯಸೂಚಕ)
 				memories[mem.cell] = &mem;
 		}
 	}
-private:
-	Node concatenate_read_results(Mem *mem, vector<Node> results)
+ಖಾಸಗಿ:
+	ಗಂಟು_2 concatenate_read_results(Mem *mem, ಸದಿಶ<ಗಂಟು_2> results)
 	{
 		// sanity check: all read ports concatenated should equal to the RD_DATA port
-		const SigSpec &rd_data = mem->cell->connections().at(ID(RD_DATA));
-		int current = 0;
-		for(size_t i = 0; i < mem->rd_ports.size(); i++) {
-			int width = mem->width << mem->rd_ports[i].wide_log2;
-			log_assert (results[i].width() == width);
-			log_assert (mem->rd_ports[i].data == rd_data.extract(current, width));
-			current += width;
+		ಸ್ಥಿರಾಂಕ SigSpec &rd_ದತ್ತಾಂಶ = mem->cell->connections().at(ID(RD_ದತ್ತಾಂಶ));
+		ಪೂರ್ಣಾಂಕ current = 0;
+		ಗಾಗಿ(ಗಾತ್ರ_t i = 0; i < mem->rd_ports.ಗಾತ್ರ_2(); i++) {
+			ಪೂರ್ಣಾಂಕ ಅಗಲ = mem->ಅಗಲ << mem->rd_ports[i].wide_log2;
+			log_assert (results[i].ಅಗಲ() == ಅಗಲ);
+			log_assert (mem->rd_ports[i].ದತ್ತಾಂಶ == rd_ದತ್ತಾಂಶ.ಹೊರತೆಗೆ(current, ಅಗಲ));
+			current += ಅಗಲ;
 		}
-		log_assert (current == rd_data.size());
-		log_assert (!results.empty());
-		Node node = results[0];
-		for(size_t i = 1; i < results.size(); i++)
-			node = factory.concat(node, results[i]);
-		return node;
+		log_assert (current == rd_ದತ್ತಾಂಶ.ಗಾತ್ರ_2());
+		log_assert (!results.ಖಾಲಿಗಳು());
+		ಗಂಟು_2 ಗಂಟು = results[0];
+		ಗಾಗಿ(ಗಾತ್ರ_t i = 1; i < results.ಗಾತ್ರ_2(); i++)
+			ಗಂಟು = factory.concat(ಗಂಟು, results[i]);
+		ಹಿಂತಿರುಗಿ ಗಂಟು;
 	}
-	Node handle_memory(Mem *mem)
+	ಗಂಟು_2 handle_ಸ್ಮರಣೆ(Mem *mem)
 	{
 		// To simplify memory handling, the functional backend makes the following assumptions:
 		// - Since async2sync or clk2fflogic must be run to use the functional backend,
@@ -566,159 +566,159 @@ private:
 		// - We ignore collision_x_mask because x is a dont care value for us anyway.
 		// - Since wr port j can only have priority over wr port i if j > i, if we do writes in
 		//   ascending index order the result will obey the priorty relation.
-		vector<Node> read_results;
-		auto &state = factory.add_state(mem->cell->name, ID($state), Sort(ceil_log2(mem->size), mem->width));
-		state.set_initial_value(MemContents(mem));
-		Node node = factory.value(state);
-		for (size_t i = 0; i < mem->wr_ports.size(); i++) {
-			const auto &wr = mem->wr_ports[i];
-			if (wr.clk_enable)
+		ಸದಿಶ<ಗಂಟು_2> read_results;
+		ಸ್ವಯಂಚಾಲಿತ &state = factory.ಕೂಡಿಸು_state(mem->cell->name, ID($state), ವಿಂಗಡಿಸು_2(ceil_log2(mem->ಗಾತ್ರ_2), mem->ಅಗಲ));
+		state.ಗಣ_initial_ಮೌಲ್ಯ(MemContents(mem));
+		ಗಂಟು_2 ಗಂಟು = factory.ಮೌಲ್ಯ(state);
+		ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < mem->wr_ports.ಗಾತ್ರ_2(); i++) {
+			ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &wr = mem->wr_ports[i];
+			ಆದರೆ (wr.clk_enable)
 				log_error("Write port %zd of memory %s.%s is clocked. This is not supported by the functional backend. "
 					"Call async2sync or clk2fflogic to avoid this error.\n", i, mem->module, PooledName(mem->module, mem->memid).unescape());
-			Node en = enqueue(driver_map(DriveSpec(wr.en)));
-			Node addr = enqueue(driver_map(DriveSpec(wr.addr)));
-			Node new_data = enqueue(driver_map(DriveSpec(wr.data)));
-			Node old_data = factory.memory_read(node, addr);
-			Node wr_data = simplifier.bitwise_mux(old_data, new_data, en);
-			node = factory.memory_write(node, addr, wr_data);
+			ಗಂಟು_2 en = ಸರತಿಗೆ_ಸೇರಿಸು(driver_map(DriveSpec(wr.en)));
+			ಗಂಟು_2 addr = ಸರತಿಗೆ_ಸೇರಿಸು(driver_map(DriveSpec(wr.addr)));
+			ಗಂಟು_2 new_ದತ್ತಾಂಶ = ಸರತಿಗೆ_ಸೇರಿಸು(driver_map(DriveSpec(wr.ದತ್ತಾಂಶ)));
+			ಗಂಟು_2 old_ದತ್ತಾಂಶ = factory.ಸ್ಮರಣೆ_read(ಗಂಟು, addr);
+			ಗಂಟು_2 wr_ದತ್ತಾಂಶ = simplifier.bitwise_mux(old_ದತ್ತಾಂಶ, new_ದತ್ತಾಂಶ, en);
+			ಗಂಟು = factory.ಸ್ಮರಣೆ_write(ಗಂಟು, addr, wr_ದತ್ತಾಂಶ);
 		}
-		if (mem->rd_ports.empty())
+		ಆದರೆ (mem->rd_ports.ಖಾಲಿಗಳು())
 			log_error("Memory %s.%s has no read ports. This is not supported by the functional backend. "
 				"Call opt_clean to remove it.", mem->module, PooledName(mem->module, mem->memid).unescape());
-		for (size_t i = 0; i < mem->rd_ports.size(); i++) {
-			const auto &rd = mem->rd_ports[i];
-			if (rd.clk_enable)
+		ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < mem->rd_ports.ಗಾತ್ರ_2(); i++) {
+			ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &rd = mem->rd_ports[i];
+			ಆದರೆ (rd.clk_enable)
 				log_error("Read port %zd of memory %s.%s is clocked. This is not supported by the functional backend. "
 					"Call memory_nordff to avoid this error.\n", i, mem->module, PooledName(mem->module, mem->memid).unescape());
-			Node addr = enqueue(driver_map(DriveSpec(rd.addr)));
-			read_results.push_back(factory.memory_read(node, addr));
+			ಗಂಟು_2 addr = ಸರತಿಗೆ_ಸೇರಿಸು(driver_map(DriveSpec(rd.addr)));
+			read_results.ತಳ್ಳು_ಹಿಂಭಾಗ(factory.ಸ್ಮರಣೆ_read(ಗಂಟು, addr));
 		}
-		state.set_next_value(node);
-		return concatenate_read_results(mem, read_results);
+		state.ಗಣ_ಮುಂದಿನ_ಮೌಲ್ಯ(ಗಂಟು);
+		ಹಿಂತಿರುಗಿ concatenate_read_results(mem, read_results);
 	}
-	void process_cell(Cell *cell)
+	ಶೂನ್ಯ process_cell(Cell *cell)
 	{
-		if (cell->is_mem_cell()) {
-			Mem *mem = memories.at(cell, nullptr);
-			if (mem == nullptr) {
+		ಆದರೆ (cell->is_mem_cell()) {
+			Mem *mem = memories.at(cell, ಶೂನ್ಯಸೂಚಕ);
+			ಆದರೆ (mem == ಶೂನ್ಯಸೂಚಕ) {
 				log_assert(cell->has_memid());
 				log_error("The design contains an unpacked memory at %s. This is not supported by the functional backend. "
 					"Call memory_collect to avoid this error.\n", log_const(cell->parameters.at(ID(MEMID))));
 			}
-			Node node = handle_memory(mem);
-			factory.update_pending(cell_outputs.at({cell, ID(RD_DATA)}), node);
-		} else if (cell->is_builtin_ff()) {
-			FfData ff(&ff_initvals, cell);
-			if (!ff.has_gclk)
+			ಗಂಟು_2 ಗಂಟು = handle_ಸ್ಮರಣೆ(mem);
+			factory.update_pending(cell_outputs.at({cell, ID(RD_ದತ್ತಾಂಶ)}), ಗಂಟು);
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (cell->is_builtin_ff()) {
+			Ff_ದತ್ತಾಂಶ ff(&ff_initvals, cell);
+			ಆದರೆ (!ff.has_gclk)
 				log_error("The design contains a %s flip-flop at %s. This is not supported by the functional backend. "
 					"Call async2sync or clk2fflogic to avoid this error.\n", cell->type.unescape(), cell);
-			auto &state = factory.add_state(ff.name, ID($state), Sort(ff.width));
-			Node q_value = factory.value(state);
-			factory.suggest_name(q_value, ff.name);
-			factory.update_pending(cell_outputs.at({cell, ID(Q)}), q_value);
-			state.set_next_value(enqueue(ff.sig_d));
-			state.set_initial_value(ff.val_init);
-		} else {
-			dict<IdString, Node> connections;
+			ಸ್ವಯಂಚಾಲಿತ &state = factory.ಕೂಡಿಸು_state(ff.name, ID($state), ವಿಂಗಡಿಸು_2(ff.ಅಗಲ));
+			ಗಂಟು_2 q_ಮೌಲ್ಯ = factory.ಮೌಲ್ಯ(state);
+			factory.suggest_name(q_ಮೌಲ್ಯ, ff.name);
+			factory.update_pending(cell_outputs.at({cell, ID(Q)}), q_ಮೌಲ್ಯ);
+			state.ಗಣ_ಮುಂದಿನ_ಮೌಲ್ಯ(ಸರತಿಗೆ_ಸೇರಿಸು(ff.sig_d));
+			state.ಗಣ_initial_ಮೌಲ್ಯ(ff.val_init);
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			dict<IdString, ಗಂಟು_2> connections;
 			IdString output_name; // for the single output case
-			int n_outputs = 0;
-			for(auto const &[name, sigspec] : cell->connections()) {
-				if(driver_map.celltypes.cell_input(cell->type, name) && sigspec.size() > 0)
-					connections.insert({ name, enqueue(DriveChunkPort(cell, {name, sigspec})) });
-				if(driver_map.celltypes.cell_output(cell->type, name)) {
+			ಪೂರ್ಣಾಂಕ n_outputs = 0;
+			ಗಾಗಿ(ಸ್ವಯಂಚಾಲಿತ ಸ್ಥಿರಾಂಕ &[name, sigspec] : cell->connections()) {
+				ಆದರೆ(driver_map.celltypes.cell_ಒಳಹರಿವು(cell->type, name) && sigspec.ಗಾತ್ರ_2() > 0)
+					connections.ಸೇರಿಸು({ name, ಸರತಿಗೆ_ಸೇರಿಸು(Drive_Chunk_ಪೋರ್ಟ್(cell, {name, sigspec})) });
+				ಆದರೆ(driver_map.celltypes.cell_output(cell->type, name)) {
 					output_name = name;
 					n_outputs++;
 				}
 			}
-			std::variant<dict<IdString, Node>, Node> outputs = simplifier.handle(cell->name, cell->type, cell->parameters, connections);
-			if(auto *nodep = std::get_if<Node>(&outputs); nodep != nullptr) {
+			std::variant<dict<IdString, ಗಂಟು_2>, ಗಂಟು_2> outputs = simplifier.handle(cell->name, cell->type, cell->parameters, connections);
+			ಆದರೆ(ಸ್ವಯಂಚಾಲಿತ *nodep = std::get_if<ಗಂಟು_2>(&outputs); nodep != ಶೂನ್ಯಸೂಚಕ) {
 				log_assert(n_outputs == 1);
 				factory.update_pending(cell_outputs.at({cell, output_name}), *nodep);
-			} else {
-				for(auto [name, node] : std::get<dict<IdString, Node>>(outputs))
-					factory.update_pending(cell_outputs.at({cell, name}), node);
+			} ಇಲ್ಲದಿದ್ದರೆ {
+				ಗಾಗಿ(ಸ್ವಯಂಚಾಲಿತ [name, ಗಂಟು] : std::get<dict<IdString, ಗಂಟು_2>>(outputs))
+					factory.update_pending(cell_outputs.at({cell, name}), ಗಂಟು);
 			}
 		}
 	}
-	void undriven(const std::string& name) {
+	ಶೂನ್ಯ undriven(ಸ್ಥಿರಾಂಕ std::string& name) {
 		log_error("The design contains an undriven signal %s. This is not supported by the functional backend. "
 			"Call setundef with appropriate options to avoid this error.\n", name);
 	}
 	// we perform this check separately to give better error messages that include the wire or port name
-	void check_undriven(DriveSpec const& spec, std::string const& name) {
-		for(auto const &chunk : spec.chunks())
-			if(chunk.is_none())
+	ಶೂನ್ಯ check_undriven(DriveSpec ಸ್ಥಿರಾಂಕ& spec, std::string ಸ್ಥಿರಾಂಕ& name) {
+		ಗಾಗಿ(ಸ್ವಯಂಚಾಲಿತ ಸ್ಥಿರಾಂಕ &chunk : spec.chunks())
+			ಆದರೆ(chunk.is_none())
 				undriven(name);
 	}
-public:
-	void process_queue()
+ಸಾರ್ವಜನಿಕ:
+	ಶೂನ್ಯ process_ಸರತಿ()
 	{
-		for (; !queue.empty(); queue.pop_front()) {
-			if(auto p = std::get_if<Cell *>(&queue.front()); p != nullptr) {
+		ಗಾಗಿ (; !ಸರತಿ.ಖಾಲಿಗಳು(); ಸರತಿ.ತೆಗೆ_front()) {
+			ಆದರೆ(ಸ್ವಯಂಚಾಲಿತ p = std::get_if<Cell *>(&ಸರತಿ.front()); p != ಶೂನ್ಯಸೂಚಕ) {
 				process_cell(*p);
-				continue;
+				ಮುಂದುವರಿ;
 			}
 
-			DriveSpec spec = std::get<DriveSpec>(queue.front());
-			Node pending = graph_nodes.at(spec);
+			DriveSpec spec = std::get<DriveSpec>(ಸರತಿ.front());
+			ಗಂಟು_2 pending = ನಕ್ಷೆ_nodes.at(spec);
 
-			if (spec.chunks().size() > 1) {
-				auto chunks = spec.chunks();
-				Node node = enqueue(chunks[0]);
-				for(size_t i = 1; i < chunks.size(); i++)
-					node = factory.concat(node, enqueue(chunks[i]));
-				factory.update_pending(pending, node);
-			} else if (spec.chunks().size() == 1) {
+			ಆದರೆ (spec.chunks().ಗಾತ್ರ_2() > 1) {
+				ಸ್ವಯಂಚಾಲಿತ chunks = spec.chunks();
+				ಗಂಟು_2 ಗಂಟು = ಸರತಿಗೆ_ಸೇರಿಸು(chunks[0]);
+				ಗಾಗಿ(ಗಾತ್ರ_t i = 1; i < chunks.ಗಾತ್ರ_2(); i++)
+					ಗಂಟು = factory.concat(ಗಂಟು, ಸರತಿಗೆ_ಸೇರಿಸು(chunks[i]));
+				factory.update_pending(pending, ಗಂಟು);
+			} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (spec.chunks().ಗಾತ್ರ_2() == 1) {
 				DriveChunk chunk = spec.chunks()[0];
-				if (chunk.is_wire()) {
+				ಆದರೆ (chunk.is_wire()) {
 					DriveChunkWire wire_chunk = chunk.wire();
-					if (wire_chunk.is_whole()) {
-						if (wire_chunk.wire->port_input) {
-							Node node = factory.value(factory.ir().input(wire_chunk.wire->name));
-							factory.suggest_name(node, wire_chunk.wire->name);
-							factory.update_pending(pending, node);
-						} else {
+					ಆದರೆ (wire_chunk.is_ಸಂಪೂರ್ಣ()) {
+						ಆದರೆ (wire_chunk.wire->ಪೋರ್ಟ್_ಒಳಹರಿವು) {
+							ಗಂಟು_2 ಗಂಟು = factory.ಮೌಲ್ಯ(factory.ir().ಒಳಹರಿವು(wire_chunk.wire->name));
+							factory.suggest_name(ಗಂಟು, wire_chunk.wire->name);
+							factory.update_pending(pending, ಗಂಟು);
+						} ಇಲ್ಲದಿದ್ದರೆ {
 							DriveSpec driver = driver_map(DriveSpec(wire_chunk));
 							check_undriven(driver, wire_chunk.wire->name.unescape());
-							Node node = enqueue(driver);
-							factory.suggest_name(node, wire_chunk.wire->name);
-							factory.update_pending(pending, node);
+							ಗಂಟು_2 ಗಂಟು = ಸರತಿಗೆ_ಸೇರಿಸು(driver);
+							factory.suggest_name(ಗಂಟು, wire_chunk.wire->name);
+							factory.update_pending(pending, ಗಂಟು);
 						}
-					} else {
-						DriveChunkWire whole_wire(wire_chunk.wire, 0, wire_chunk.wire->width);
-						Node node = factory.slice(enqueue(whole_wire), wire_chunk.offset, wire_chunk.width);
-						factory.update_pending(pending, node);
+					} ಇಲ್ಲದಿದ್ದರೆ {
+						DriveChunkWire ಸಂಪೂರ್ಣ_wire(wire_chunk.wire, 0, wire_chunk.wire->ಅಗಲ);
+						ಗಂಟು_2 ಗಂಟು = factory.ತುಂಡು(ಸರತಿಗೆ_ಸೇರಿಸು(ಸಂಪೂರ್ಣ_wire), wire_chunk.ಸ್ಥಾನಾಂತರ, wire_chunk.ಅಗಲ);
+						factory.update_pending(pending, ಗಂಟು);
 					}
-				} else if (chunk.is_port()) {
-					DriveChunkPort port_chunk = chunk.port();
-					if (port_chunk.is_whole()) {
-						if (driver_map.celltypes.cell_output(port_chunk.cell->type, port_chunk.port)) {
-							Node node = enqueue_cell(port_chunk.cell, port_chunk.port);
-							factory.update_pending(pending, node);
-						} else {
-							DriveSpec driver = driver_map(DriveSpec(port_chunk));
-							check_undriven(driver, port_chunk.cell->name.unescape() + " port " + PooledName(port_chunk.cell->module, port_chunk.port).unescape());
-							factory.update_pending(pending, enqueue(driver));
+				} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (chunk.is_ಪೋರ್ಟ್()) {
+					Drive_Chunk_ಪೋರ್ಟ್ ಪೋರ್ಟ್_chunk = chunk.ಪೋರ್ಟ್();
+					ಆದರೆ (ಪೋರ್ಟ್_chunk.is_ಸಂಪೂರ್ಣ()) {
+						ಆದರೆ (driver_map.celltypes.cell_output(ಪೋರ್ಟ್_chunk.cell->type, ಪೋರ್ಟ್_chunk.ಪೋರ್ಟ್)) {
+							ಗಂಟು_2 ಗಂಟು = ಸರತಿಗೆ_ಸೇರಿಸು_cell(ಪೋರ್ಟ್_chunk.cell, ಪೋರ್ಟ್_chunk.ಪೋರ್ಟ್);
+							factory.update_pending(pending, ಗಂಟು);
+						} ಇಲ್ಲದಿದ್ದರೆ {
+							DriveSpec driver = driver_map(DriveSpec(ಪೋರ್ಟ್_chunk));
+							check_undriven(driver, ಪೋರ್ಟ್_chunk.cell->name.unescape() + " port " + PooledName(ಪೋರ್ಟ್_chunk.cell->module, ಪೋರ್ಟ್_chunk.ಪೋರ್ಟ್).unescape());
+							factory.update_pending(pending, ಸರತಿಗೆ_ಸೇರಿಸು(driver));
 						}
-					} else {
-						DriveChunkPort whole_port(port_chunk.cell, port_chunk.port, 0, GetSize(port_chunk.cell->connections().at(port_chunk.port)));
-						Node node = factory.slice(enqueue(whole_port), port_chunk.offset, port_chunk.width);
-						factory.update_pending(pending, node);
+					} ಇಲ್ಲದಿದ್ದರೆ {
+						Drive_Chunk_ಪೋರ್ಟ್ ಸಂಪೂರ್ಣ_ಪೋರ್ಟ್(ಪೋರ್ಟ್_chunk.cell, ಪೋರ್ಟ್_chunk.ಪೋರ್ಟ್, 0, Get_ಗಾತ್ರ(ಪೋರ್ಟ್_chunk.cell->connections().at(ಪೋರ್ಟ್_chunk.ಪೋರ್ಟ್)));
+						ಗಂಟು_2 ಗಂಟು = factory.ತುಂಡು(ಸರತಿಗೆ_ಸೇರಿಸು(ಸಂಪೂರ್ಣ_ಪೋರ್ಟ್), ಪೋರ್ಟ್_chunk.ಸ್ಥಾನಾಂತರ, ಪೋರ್ಟ್_chunk.ಅಗಲ);
+						factory.update_pending(pending, ಗಂಟು);
 					}
-				} else if (chunk.is_constant()) {
-					Node node = factory.constant(chunk.constant());
-					factory.suggest_name(node, "$const" + std::to_string(chunk.size()) + "b" + chunk.constant().as_string());
-					factory.update_pending(pending, node);
-				} else if (chunk.is_multiple()) {
+				} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (chunk.is_constant()) {
+					ಗಂಟು_2 ಗಂಟು = factory.constant(chunk.constant());
+					factory.suggest_name(ಗಂಟು, "$const" + std::ಗಮ್ಯ_string(chunk.ಗಾತ್ರ_2()) + "b" + chunk.constant().as_string());
+					factory.update_pending(pending, ಗಂಟು);
+				} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (chunk.is_ಅಪವರ್ತ್ಯ()) {
 					log_error("Signal %s has multiple drivers. This is not supported by the functional backend. "
 						"If tristate drivers are used, call tristate -formal to avoid this error.\n", log_signal(chunk));
-				} else if (chunk.is_none()) {
+				} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (chunk.is_none()) {
 					undriven(log_signal(chunk));
-				} else {
+				} ಇಲ್ಲದಿದ್ದರೆ {
 					log_error("unhandled drivespec: %s\n", log_signal(chunk));
 					log_abort();
 				}
-			} else {
+			} ಇಲ್ಲದಿದ್ದರೆ {
 				log_abort();
 			}
 		}
@@ -728,132 +728,132 @@ public:
 IR IR::from_module(Module *module) {
 	IR ir;
     ir.design = module->design;
-    auto factory = ir.factory();
+    ಸ್ವಯಂಚಾಲಿತ factory = ir.factory();
     FunctionalIRConstruction ctor(module, factory);
-    ctor.process_queue();
-    ir.topological_sort();
+    ctor.process_ಸರತಿ();
+    ir.topological_ವಿಂಗಡಿಸು();
     ir.forward_buf();
-    return ir;
+    ಹಿಂತಿರುಗಿ ir;
 }
 
-void IR::topological_sort() {
-    Graph::SccAdaptor compute_graph_scc(_graph);
-    bool scc = false;
-    std::vector<int> perm;
-    TopoSortedSccs toposort(compute_graph_scc, [&](int *begin, int *end) {
-        perm.insert(perm.end(), begin, end);
-        if (end > begin + 1)
+ಶೂನ್ಯ IR::topological_ವಿಂಗಡಿಸು() {
+    ನಕ್ಷೆ::SccAdaptor compute_ನಕ್ಷೆ_scc(ನಕ್ಷೆ_4);
+    ತಾರ್ಕಿಕ scc = ಸುಳ್ಳು;
+    std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> perm;
+    TopoSortedSccs toposort(compute_ನಕ್ಷೆ_scc, [&](ಪೂರ್ಣಾಂಕ *begin, ಪೂರ್ಣಾಂಕ *ಕೊನೆ) {
+        perm.ಸೇರಿಸು(perm.ಕೊನೆ(), begin, ಕೊನೆ);
+        ಆದರೆ (ಕೊನೆ > begin + 1)
         {
             log_warning("Combinational loop:\n");
-            for (int *i = begin; i != end; ++i) {
-				Node node(_graph[*i], design);
-                log("- %s = %s\n", node.name().unescape(), node.to_string());
+            ಗಾಗಿ (ಪೂರ್ಣಾಂಕ *i = begin; i != ಕೊನೆ; ++i) {
+				ಗಂಟು_2 ಗಂಟು(ನಕ್ಷೆ_4[*i], design);
+                ಲಘುಗಣಕ("- %s = %s\n", ಗಂಟು.name().unescape(), ಗಂಟು.ಗಮ್ಯ_string());
 			}
-            log("\n");
-            scc = true;
+            ಲಘುಗಣಕ("\n");
+            scc = ನಿಜ;
         }
     });
-	for(const auto &[name, state]: _states)
-		if(state.has_next_value())
-			toposort.process(state.next_value().id());
-	for(const auto &[name, output]: _outputs)
-		if(output.has_value())
-			toposort.process(output.value().id());
+	ಗಾಗಿ(ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &[name, state]: ಸ್ಥಿತಿಗಳು_2)
+		ಆದರೆ(state.has_ಮುಂದಿನ_ಮೌಲ್ಯ())
+			toposort.process(state.ಮುಂದಿನ_ಮೌಲ್ಯ().id());
+	ಗಾಗಿ(ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &[name, output]: _outputs)
+		ಆದರೆ(output.has_ಮೌಲ್ಯ())
+			toposort.process(output.ಮೌಲ್ಯ().id());
 	// any nodes untouched by this point are dead code and will be removed by permute
-    _graph.permute(perm);
-    if(scc) log_error("The design contains combinational loops. This is not supported by the functional backend. "
+    ನಕ್ಷೆ_4.ಕ್ರಮಬದಲಾವಣೆ(perm);
+    ಆದರೆ(scc) log_error("The design contains combinational loops. This is not supported by the functional backend. "
 		"Try `scc -select; simplemap; select -clear` to avoid this error.\n");
 }
 
-static IdString merge_name(IdString a, IdString b) {
-	if(!a.isPublic() && b.isPublic())
-		return b;
-	else
-		return a;
+ಸ್ಥಿರ IdString ವಿಲೀನ_name(IdString a, IdString b) {
+	ಆದರೆ(!a.is_ಬಹಿರಂಗ() && b.is_ಬಹಿರಂಗ())
+		ಹಿಂತಿರುಗಿ b;
+	ಇಲ್ಲದಿದ್ದರೆ
+		ಹಿಂತಿರುಗಿ a;
 }
 
-void IR::forward_buf() {
-    std::vector<int> perm, alias;
+ಶೂನ್ಯ IR::forward_buf() {
+    std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> perm, alias;
     perm.clear();
 
-    for (int i = 0; i < _graph.size(); ++i)
+    ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < ನಕ್ಷೆ_4.ಗಾತ್ರ_2(); ++i)
     {
-        auto node = _graph[i];
-        if (node.function().fn() == Fn::buf && node.arg(0).index() < i)
+        ಸ್ವಯಂಚಾಲಿತ ಗಂಟು = ನಕ್ಷೆ_4[i];
+        ಆದರೆ (ಗಂಟು.function().fn() == Fn::buf && ಗಂಟು.arg(0).ಸೂಚ್ಯಂಕ() < i)
         {
-            int target_index = alias[node.arg(0).index()];
-            auto target_node = _graph[perm[target_index]];
-			if(node.has_sparse_attr()) {
-				if(target_node.has_sparse_attr()) {
-					IdString id = merge_name(node.sparse_attr(), target_node.sparse_attr());
-					target_node.sparse_attr() = id;
-				} else {
-					IdString id = node.sparse_attr();
-					target_node.sparse_attr() = id;
+            ಪೂರ್ಣಾಂಕ ಗುರಿ_ಸೂಚ್ಯಂಕ = alias[ಗಂಟು.arg(0).ಸೂಚ್ಯಂಕ()];
+            ಸ್ವಯಂಚಾಲಿತ ಗುರಿ_ಗಂಟು = ನಕ್ಷೆ_4[perm[ಗುರಿ_ಸೂಚ್ಯಂಕ]];
+			ಆದರೆ(ಗಂಟು.has_sparse_attr()) {
+				ಆದರೆ(ಗುರಿ_ಗಂಟು.has_sparse_attr()) {
+					IdString id = ವಿಲೀನ_name(ಗಂಟು.sparse_attr(), ಗುರಿ_ಗಂಟು.sparse_attr());
+					ಗುರಿ_ಗಂಟು.sparse_attr() = id;
+				} ಇಲ್ಲದಿದ್ದರೆ {
+					IdString id = ಗಂಟು.sparse_attr();
+					ಗುರಿ_ಗಂಟು.sparse_attr() = id;
 				}
 			}
-            alias.push_back(target_index);
+            alias.ತಳ್ಳು_ಹಿಂಭಾಗ(ಗುರಿ_ಸೂಚ್ಯಂಕ);
         }
-        else
+        ಇಲ್ಲದಿದ್ದರೆ
         {
-            alias.push_back(GetSize(perm));
-            perm.push_back(i);
+            alias.ತಳ್ಳು_ಹಿಂಭಾಗ(Get_ಗಾತ್ರ(perm));
+            perm.ತಳ್ಳು_ಹಿಂಭಾಗ(i);
         }
     }
-    _graph.permute(perm, alias);
+    ನಕ್ಷೆ_4.ಕ್ರಮಬದಲಾವಣೆ(perm, alias);
 }
 
 // Quoting routine to make error messages nicer
-static std::string quote_fmt(const char *fmt)
+ಸ್ಥಿರ std::string quote_fmt(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt)
 {
 	std::string r;
-	for(const char *p = fmt; *p != 0; p++) {
-		switch(*p) {
-		case '\n': r += "\\n"; break;
-		case '\t': r += "\\t"; break;
-		case '"': r += "\\\""; break;
-		case '\\': r += "\\\\"; break;
-		default: r += *p; break;
+	ಗಾಗಿ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p = fmt; *p != 0; p++) {
+		ಆಯ್ಕೆ(*p) {
+		ಸ್ಥಿತಿ '\n': r += "\\n"; ನಿಲ್ಲಿಸು;
+		ಸ್ಥಿತಿ '\t': r += "\\t"; ನಿಲ್ಲಿಸು;
+		ಸ್ಥಿತಿ '"': r += "\\\""; ನಿಲ್ಲಿಸು;
+		ಸ್ಥಿತಿ '\\': r += "\\\\"; ನಿಲ್ಲಿಸು;
+		ಪೂರ್ವನಿಯೋಜಿತ: r += *p; ನಿಲ್ಲಿಸು;
 		}
 	}
-	return r;
+	ಹಿಂತಿರುಗಿ r;
 }
 
-void Writer::print_impl(const char *fmt, vector<std::function<void()>> &fns)
+ಶೂನ್ಯ Writer::print_impl(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ಸದಿಶ<std::function<ಶೂನ್ಯ()>> &fns)
 {
-	size_t next_index = 0;
-	for(const char *p = fmt; *p != 0; p++)
-		switch(*p) {
-		case '{':
-			if(*++p == '{') {
+	ಗಾತ್ರ_t ಮುಂದಿನ_ಸೂಚ್ಯಂಕ = 0;
+	ಗಾಗಿ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p = fmt; *p != 0; p++)
+		ಆಯ್ಕೆ(*p) {
+		ಸ್ಥಿತಿ '{':
+			ಆದರೆ(*++p == '{') {
 				*os << '{';
-			} else {
-				char *pe;
-				size_t index = strtoul(p, &pe, 10);
-				if(*pe != '}')
+			} ಇಲ್ಲದಿದ್ದರೆ {
+				ಅಕ್ಷರ *pe;
+				ಗಾತ್ರ_t ಸೂಚ್ಯಂಕ = strtoul(p, &pe, 10);
+				ಆದರೆ(*pe != '}')
 					log_error("invalid format string: expected {<number>}, {} or {{, got \"%s\": \"%s\"\n",
 						quote_fmt(std::string(p - 1, pe - p + 2).c_str()).c_str(),
 						quote_fmt(fmt).c_str());
-				if(p == pe)
-					index = next_index;
-				else
+				ಆದರೆ(p == pe)
+					ಸೂಚ್ಯಂಕ = ಮುಂದಿನ_ಸೂಚ್ಯಂಕ;
+				ಇಲ್ಲದಿದ್ದರೆ
 					p = pe;
-				if(index >= fns.size())
-					log_error("invalid format string: index %zu out of bounds (%zu): \"%s\"\n", index, fns.size(), quote_fmt(fmt));
-				fns[index]();
-				next_index = index + 1;
+				ಆದರೆ(ಸೂಚ್ಯಂಕ >= fns.ಗಾತ್ರ_2())
+					log_error("invalid format string: index %zu out of bounds (%zu): \"%s\"\n", ಸೂಚ್ಯಂಕ, fns.ಗಾತ್ರ_2(), quote_fmt(fmt));
+				fns[ಸೂಚ್ಯಂಕ]();
+				ಮುಂದಿನ_ಸೂಚ್ಯಂಕ = ಸೂಚ್ಯಂಕ + 1;
 			}
-			break;
-		case '}':
+			ನಿಲ್ಲಿಸು;
+		ಸ್ಥಿತಿ '}':
 			p++;
-			if(*p != '}')
+			ಆದರೆ(*p != '}')
 				log_error("invalid format string: unescaped }: \"%s\"\n", quote_fmt(fmt));
 			*os << '}';
-			break;
-		default:
+			ನಿಲ್ಲಿಸು;
+		ಪೂರ್ವನಿಯೋಜಿತ:
 			*os << *p;
 		}
 }
 
 }
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ

@@ -1,55 +1,55 @@
-#ifndef RTLIL_TWINE_COMPAT_IMPL_H
-#define RTLIL_TWINE_COMPAT_IMPL_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ RTLIL_TWINE_COMPAT_IMPL_H
+#ವ್ಯಾಖ್ಯಾನಿಸು RTLIL_TWINE_COMPAT_IMPL_H
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Winvalid-offsetof"
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __GNUC__
+#ಸೂಚನೆ GCC diagnostic ತಳ್ಳು
+#ಸೂಚನೆ GCC diagnostic ignored "-Winvalid-offsetof"
+#ಆದರೆ_ಅಂತ್ಯ
 
 namespace RTLIL {
 
-struct NameSlot {};
-struct CellTypeSlot {};
+ರಚನೆ Name_ಸ್ಥಾನ {};
+ರಚನೆ Cell_Type_ಸ್ಥಾನ {};
 
-template<typename Owner, typename Slot>
-inline const Owner *OwnedId<Owner, Slot>::owner() const {
-	size_t offset;
-	if constexpr (std::is_same_v<Slot, NameSlot>) {
-		offset = offsetof(Owner, name);
-	} else {
-		static_assert(std::is_same_v<Owner, Cell> && std::is_same_v<Slot, CellTypeSlot>);
-		offset = offsetof(Cell, type);
+ಮಾದರಿ<typename Owner, typename ಸ್ಥಾನ_2>
+ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ Owner *OwnedId<Owner, ಸ್ಥಾನ_2>::owner() ಸ್ಥಿರಾಂಕ {
+	ಗಾತ್ರ_t ಸ್ಥಾನಾಂತರ;
+	ಆದರೆ constexpr (std::is_same_v<ಸ್ಥಾನ_2, Name_ಸ್ಥಾನ>) {
+		ಸ್ಥಾನಾಂತರ = offsetof(Owner, name);
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		static_assert(std::is_same_v<Owner, Cell> && std::is_same_v<ಸ್ಥಾನ_2, Cell_Type_ಸ್ಥಾನ>);
+		ಸ್ಥಾನಾಂತರ = offsetof(Cell, type);
 	}
-	return reinterpret_cast<const Owner *>(reinterpret_cast<const char *>(this) - offset);
+	ಹಿಂತಿರುಗಿ reinterpret_cast<ಸ್ಥಿರಾಂಕ Owner *>(reinterpret_cast<ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *>(this) - ಸ್ಥಾನಾಂತರ);
 }
 
-template<typename Owner, typename Slot>
-inline const TwinePool *OwnedId<Owner, Slot>::pool() const {
-	const Owner *o = owner();
-	if constexpr (std::is_same_v<Owner, Module>) {
-		return o->design ? &o->design->twines() : nullptr;
-	} else {
+ಮಾದರಿ<typename Owner, typename ಸ್ಥಾನ_2>
+ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ TwinePool *OwnedId<Owner, ಸ್ಥಾನ_2>::pool() ಸ್ಥಿರಾಂಕ {
+	ಸ್ಥಿರಾಂಕ Owner *o = owner();
+	ಆದರೆ constexpr (std::is_same_v<Owner, Module>) {
+		ಹಿಂತಿರುಗಿ o->design ? &o->design->twines() : nullptr;
+	} ಇಲ್ಲದಿದ್ದರೆ {
 		static_assert(std::is_same_v<Owner, Wire> || std::is_same_v<Owner, Cell>
-				|| std::is_same_v<Owner, Memory> || std::is_same_v<Owner, Process>);
-		return o->module && o->module->design ? &o->module->design->twines() : nullptr;
+				|| std::is_same_v<Owner, ಸ್ಮರಣೆ> || std::is_same_v<Owner, Process>);
+		ಹಿಂತಿರುಗಿ o->module && o->module->design ? &o->module->design->twines() : nullptr;
 	}
 }
 
-inline PooledName::PooledName(const Design *design, IdString id)
+ಸಾಲೊಳಗೆ PooledName::PooledName(ಸ್ಥಿರಾಂಕ Design *design, IdString id)
 	: pool_(design ? &design->twines() : nullptr), id_(id) { }
 
-inline PooledName::PooledName(const Module *module, IdString id)
+ಸಾಲೊಳಗೆ PooledName::PooledName(ಸ್ಥಿರಾಂಕ Module *module, IdString id)
 	: PooledName(module ? module->design : nullptr, id) { }
 
 }
 
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __GNUC__
+#ಸೂಚನೆ GCC diagnostic ತೆಗೆ_2
+#ಆದರೆ_ಅಂತ್ಯ
 
-template<typename Derived>
-inline void log_dump_val_worker(const RTLIL::WrappedIdBase<Derived> &name) {
-	log("%s", static_cast<const Derived &>(name).unescape());
+ಮಾದರಿ<typename Derived>
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(ಸ್ಥಿರಾಂಕ RTLIL::Wrapped_Id_ತಳ<Derived> &name) {
+	ಲಘುಗಣಕ("%s", static_cast<ಸ್ಥಿರಾಂಕ Derived &>(name).unescape());
 }
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

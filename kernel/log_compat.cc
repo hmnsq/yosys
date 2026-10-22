@@ -18,7 +18,7 @@
  */
 
 
-#include "kernel/log.h"
+#ಅನ್ತರ್ಭಾವ "kernel/log.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -31,7 +31,7 @@ YOSYS_NAMESPACE_BEGIN
 // provides ABI compatible versions of a subset of the old logging API used by
 // the extensions.
 
-void log_cmd_error(const char *format, ...)
+ಶೂನ್ಯ log_cmd_error(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -40,49 +40,49 @@ void log_cmd_error(const char *format, ...)
 	logger().formatted_cmd_error(format, formatted);
 }
 
-void log_warning(const char *format, ...)
+ಶೂನ್ಯ log_warning(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
 	std::string formatted = vstringf(format, ap);
 	va_end(ap);
-	logger().formatted_warning(LogSourceLocation{}, "Warning: ", format, formatted);
+	logger().formatted_warning(Log_ಮೂಲ_Location{}, "Warning: ", format, formatted);
 }
 
-void log_warning_noprefix(const char *format, ...)
+ಶೂನ್ಯ log_warning_noprefix(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
 	std::string formatted = vstringf(format, ap);
 	va_end(ap);
-	logger().formatted_warning(LogSourceLocation{}, {}, format, formatted);
+	logger().formatted_warning(Log_ಮೂಲ_Location{}, {}, format, formatted);
 }
 
-void log_error(const char *format, ...)
+ಶೂನ್ಯ log_error(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
 	std::string formatted = vstringf(format, ap);
 	va_end(ap);
-	logger().formatted_error(LogSourceLocation{}, "ERROR:", format, formatted);
+	logger().formatted_error(Log_ಮೂಲ_Location{}, "ERROR:", format, formatted);
 }
 
-void log(const char *format, ...)
+ಶೂನ್ಯ ಲಘುಗಣಕ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
 	std::string formatted = vstringf(format, ap);
 	va_end(ap);
-	logger().formatted_string(LogSeverity::Info, LogSourceLocation{}, {}, format, formatted);
+	logger().formatted_string(LogSeverity::Info, Log_ಮೂಲ_Location{}, {}, format, formatted);
 }
 
-void log_compat(const char *format, ...)
+ಶೂನ್ಯ log_compat(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
 	std::string formatted = vstringf(format, ap);
 	va_end(ap);
-	logger().formatted_string(LogSeverity::Info, LogSourceLocation{}, {}, format, formatted);
+	logger().formatted_string(LogSeverity::Info, Log_ಮೂಲ_Location{}, {}, format, formatted);
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ

@@ -17,12 +17,12 @@
  *
  */
 
-#ifndef JSON_H
-#define JSON_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ JSON_H
+#ವ್ಯಾಖ್ಯಾನಿಸು JSON_H
 
-#include "kernel/yosys.h"
-#include "libs/json11/json11.hpp"
-#include <functional>
+#ಅನ್ತರ್ಭಾವ "kernel/yosys.h"
+#ಅನ್ತರ್ಭಾವ "libs/json11/json11.hpp"
+#ಅನ್ತರ್ಭಾವ <functional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -30,75 +30,75 @@ using json11::Json;
 
 class PrettyJson
 {
-    enum Scope {
-        VALUE,
-        OBJECT_FIRST,
+    ಎಣಿಕೆ Scope {
+        ಮೌಲ್ಯ_2,
+        OBJECT_ಮೊದಲ,
         OBJECT,
-        ARRAY_FIRST,
+        ARRAY_ಮೊದಲ,
         ARRAY,
     };
 
-    struct Target {
-        virtual void emit(const char *data) = 0;
-        virtual void flush() {};
-        virtual ~Target() {};
+    ರಚನೆ ಗುರಿ {
+        ವಾಸ್ತವಿಕ ಶೂನ್ಯ emit(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ದತ್ತಾಂಶ) = 0;
+        ವಾಸ್ತವಿಕ ಶೂನ್ಯ flush() {};
+        ವಾಸ್ತವಿಕ ~ಗುರಿ() {};
     };
 
     std::string newline_indent = "\n";
-    std::vector<std::unique_ptr<Target>> targets;
-    std::vector<Scope> state = {VALUE};
-    int compact_depth = INT_MAX;
-public:
+    std::ಸದಿಶ<std::unique_ptr<ಗುರಿ>> targets;
+    std::ಸದಿಶ<Scope> state = {ಮೌಲ್ಯ_2};
+    ಪೂರ್ಣಾಂಕ compact_ಆಳ = ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ;
+ಸಾರ್ವಜನಿಕ:
 
-    void emit_to_log();
-    void append_to_string(std::string &target);
-    bool write_to_file(const std::string &path);
+    ಶೂನ್ಯ emit_ಗಮ್ಯ_log();
+    ಶೂನ್ಯ append_ಗಮ್ಯ_string(std::string &ಗುರಿ_2);
+    bool write_ಗಮ್ಯ_file(ಸ್ಥಿರಾಂಕ std::string &ಮಾರ್ಗ_2);
 
-    bool active() { return !targets.empty(); }
+    bool ಸಕ್ರಿಯ() { ಹಿಂತಿರುಗಿ !targets.ಖಾಲಿಗಳು(); }
 
-    void compact() { compact_depth = GetSize(state); }
+    ಶೂನ್ಯ compact() { compact_ಆಳ = Get_ಗಾತ್ರ(state); }
 
-    void line(bool space_if_inline = true);
-    void raw(const char *raw_json);
-    void flush();
-    void begin_object();
-    void begin_array();
-    void end_object();
-    void end_array();
-    void name(const char *name);
-    void begin_value();
-    void end_value();
-    void value_json(const Json &value);
-    void value(unsigned int value) { value_json(Json((int)value)); }
-    template<typename T>
-    void value(T &&value) { value_json(Json(std::forward<T>(value))); };
+    ಶೂನ್ಯ ಸಾಲು(bool space_if_inline = true);
+    ಶೂನ್ಯ raw(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *raw_json);
+    ಶೂನ್ಯ flush();
+    ಶೂನ್ಯ begin_object();
+    ಶೂನ್ಯ begin_array();
+    ಶೂನ್ಯ ಕೊನೆ_object();
+    ಶೂನ್ಯ ಕೊನೆ_array();
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name);
+    ಶೂನ್ಯ begin_ಮೌಲ್ಯ();
+    ಶೂನ್ಯ ಕೊನೆ_ಮೌಲ್ಯ();
+    ಶೂನ್ಯ ಮೌಲ್ಯ_json(ಸ್ಥಿರಾಂಕ Json &ಮೌಲ್ಯ);
+    ಶೂನ್ಯ ಮೌಲ್ಯ(ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ ಮೌಲ್ಯ) { ಮೌಲ್ಯ_json(Json((ಪೂರ್ಣಾಂಕ)ಮೌಲ್ಯ)); }
+    ಮಾದರಿ<typename T>
+    ಶೂನ್ಯ ಮೌಲ್ಯ(T &&ಮೌಲ್ಯ) { ಮೌಲ್ಯ_json(Json(std::forward<T>(ಮೌಲ್ಯ))); };
 
-    void entry_json(const char *name, const Json &value);
-    void entry(const char *name, unsigned int value) { entry_json(name, Json((int)value)); }
-    template<typename T>
-    void entry(const char *name, T &&value) { entry_json(name, Json(std::forward<T>(value))); };
+    ಶೂನ್ಯ ನಮೂದು_json(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, ಸ್ಥಿರಾಂಕ Json &ಮೌಲ್ಯ);
+    ಶೂನ್ಯ ನಮೂದು(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ ಮೌಲ್ಯ) { ನಮೂದು_json(name, Json((ಪೂರ್ಣಾಂಕ)ಮೌಲ್ಯ)); }
+    ಮಾದರಿ<typename T>
+    ಶೂನ್ಯ ನಮೂದು(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, T &&ಮೌಲ್ಯ) { ನಮೂದು_json(name, Json(std::forward<T>(ಮೌಲ್ಯ))); };
 
-    template<typename T>
-    void object(const T &&values)
+    ಮಾದರಿ<typename T>
+    ಶೂನ್ಯ object(ಸ್ಥಿರಾಂಕ T &&ಮೌಲ್ಯಗಳು)
     {
         begin_object();
-        for (auto &item : values)
-            entry(item.first, item.second);
-        end_object();
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಅಂಶ : ಮೌಲ್ಯಗಳು)
+            ನಮೂದು(ಅಂಶ.ಮೊದಲ, ಅಂಶ.ಎರಡನೇ);
+        ಕೊನೆ_object();
     }
 
-    template<typename T>
-    void array(const T &&values)
+    ಮಾದರಿ<typename T>
+    ಶೂನ್ಯ array(ಸ್ಥಿರಾಂಕ T &&ಮೌಲ್ಯಗಳು)
     {
         begin_array();
-        for (auto &item : values)
-            value(item);
-        end_array();
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಅಂಶ : ಮೌಲ್ಯಗಳು)
+            ಮೌಲ್ಯ(ಅಂಶ);
+        ಕೊನೆ_array();
     }
 };
 
 
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

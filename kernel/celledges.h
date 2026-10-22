@@ -17,47 +17,47 @@
  *
  */
 
-#ifndef CELLEDGES_H
-#define CELLEDGES_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CELLEDGES_H
+#ವ್ಯಾಖ್ಯಾನಿಸು CELLEDGES_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
+#ಅನ್ತರ್ಭಾವ "kernel/yosys.h"
+#ಅನ್ತರ್ಭಾವ "kernel/sigtools.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct AbstractCellEdgesDatabase
+ರಚನೆ Abstract_Cell_ಅಂಚುಗಳು_Database
 {
-	virtual ~AbstractCellEdgesDatabase() { }
-	virtual void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int delay) = 0;
-	bool add_edges_from_cell(RTLIL::Cell *cell);
+	ವಾಸ್ತವಿಕ ~Abstract_Cell_ಅಂಚುಗಳು_Database() { }
+	ವಾಸ್ತವಿಕ ಶೂನ್ಯ ಕೂಡಿಸು_ಅಂಚು(RTLIL::Cell *cell, RTLIL::IdString from_ಪೋರ್ಟ್, ಪೂರ್ಣಾಂಕ from_ಬಿಟ್, RTLIL::IdString ಗಮ್ಯ_ಪೋರ್ಟ್, ಪೂರ್ಣಾಂಕ ಗಮ್ಯ_ಬಿಟ್, ಪೂರ್ಣಾಂಕ delay) = 0;
+	bool ಕೂಡಿಸು_ಅಂಚುಗಳು_from_cell(RTLIL::Cell *cell);
 };
 
-struct FwdCellEdgesDatabase : AbstractCellEdgesDatabase
+ರಚನೆ Fwd_Cell_ಅಂಚುಗಳು_Database : Abstract_Cell_ಅಂಚುಗಳು_Database
 {
 	SigMap &sigmap;
-	dict<SigBit, pool<SigBit>> db;
-	FwdCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
+	dict<Sig_ಬಿಟ್, pool<Sig_ಬಿಟ್>> db;
+	Fwd_Cell_ಅಂಚುಗಳು_Database(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
-		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
-		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[from_sigbit].insert(to_sigbit);
+	ಶೂನ್ಯ ಕೂಡಿಸು_ಅಂಚು(RTLIL::Cell *cell, RTLIL::IdString from_ಪೋರ್ಟ್, ಪೂರ್ಣಾಂಕ from_ಬಿಟ್, RTLIL::IdString ಗಮ್ಯ_ಪೋರ್ಟ್, ಪೂರ್ಣಾಂಕ ಗಮ್ಯ_ಬಿಟ್, ಪೂರ್ಣಾಂಕ) override {
+		Sig_ಬಿಟ್ from_sigbit = sigmap(cell->get_ಪೋರ್ಟ್(from_ಪೋರ್ಟ್)[from_ಬಿಟ್]);
+		Sig_ಬಿಟ್ ಗಮ್ಯ_sigbit = sigmap(cell->get_ಪೋರ್ಟ್(ಗಮ್ಯ_ಪೋರ್ಟ್)[ಗಮ್ಯ_ಬಿಟ್]);
+		db[from_sigbit].ಸೇರಿಸು(ಗಮ್ಯ_sigbit);
 	}
 };
 
-struct RevCellEdgesDatabase : AbstractCellEdgesDatabase
+ರಚನೆ Rev_Cell_ಅಂಚುಗಳು_Database : Abstract_Cell_ಅಂಚುಗಳು_Database
 {
 	SigMap &sigmap;
-	dict<SigBit, pool<SigBit>> db;
-	RevCellEdgesDatabase(SigMap &sigmap) : sigmap(sigmap) { }
+	dict<Sig_ಬಿಟ್, pool<Sig_ಬಿಟ್>> db;
+	Rev_Cell_ಅಂಚುಗಳು_Database(SigMap &sigmap) : sigmap(sigmap) { }
 
-	void add_edge(RTLIL::Cell *cell, RTLIL::IdString from_port, int from_bit, RTLIL::IdString to_port, int to_bit, int) override {
-		SigBit from_sigbit = sigmap(cell->getPort(from_port)[from_bit]);
-		SigBit to_sigbit = sigmap(cell->getPort(to_port)[to_bit]);
-		db[to_sigbit].insert(from_sigbit);
+	ಶೂನ್ಯ ಕೂಡಿಸು_ಅಂಚು(RTLIL::Cell *cell, RTLIL::IdString from_ಪೋರ್ಟ್, ಪೂರ್ಣಾಂಕ from_ಬಿಟ್, RTLIL::IdString ಗಮ್ಯ_ಪೋರ್ಟ್, ಪೂರ್ಣಾಂಕ ಗಮ್ಯ_ಬಿಟ್, ಪೂರ್ಣಾಂಕ) override {
+		Sig_ಬಿಟ್ from_sigbit = sigmap(cell->get_ಪೋರ್ಟ್(from_ಪೋರ್ಟ್)[from_ಬಿಟ್]);
+		Sig_ಬಿಟ್ ಗಮ್ಯ_sigbit = sigmap(cell->get_ಪೋರ್ಟ್(ಗಮ್ಯ_ಪೋರ್ಟ್)[ಗಮ್ಯ_ಬಿಟ್]);
+		db[ಗಮ್ಯ_sigbit].ಸೇರಿಸು(from_sigbit);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

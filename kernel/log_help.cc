@@ -17,168 +17,168 @@
  *
  */
 
-#include "kernel/log_help.h"
+#ಅನ್ತರ್ಭಾವ "kernel/log_help.h"
 
 USING_YOSYS_NAMESPACE
 
-std::filesystem::path Yosys::fixup_source_path (const char* source_file,
-	const std::filesystem::path &source_root, bool* skip_source_group)
+std::filesystem::ಮಾರ್ಗ_2 Yosys::fixup_ಮೂಲ_ಮಾರ್ಗ (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಮೂಲ_file,
+	ಸ್ಥಿರಾಂಕ std::filesystem::ಮಾರ್ಗ_2 &ಮೂಲ_ಬೇರು, ತಾರ್ಕಿಕ* skip_ಮೂಲ_ಗುಂಪು)
 {
-	std::filesystem::path source_path(source_file);
-	if (source_path.is_absolute()) {
+	std::filesystem::ಮಾರ್ಗ_2 ಮೂಲ_ಮಾರ್ಗ(ಮೂಲ_file);
+	ಆದರೆ (ಮೂಲ_ಮಾರ್ಗ.is_absolute()) {
 		// using proximate instead of relative means that we
 		// still get the source path if they aren't relative
-		auto proximate_path = std::filesystem::proximate(source_path, source_root);
-		if (proximate_path == proximate_path.lexically_normal()) {
+		ಸ್ವಯಂಚಾಲಿತ proximate_ಮಾರ್ಗ = std::filesystem::proximate(ಮೂಲ_ಮಾರ್ಗ, ಮೂಲ_ಬೇರು);
+		ಆದರೆ (proximate_ಮಾರ್ಗ == proximate_ಮಾರ್ಗ.lexically_ಸಾಮಾನ್ಯ()) {
 			// we're only interested if it's a subpath of our root dir
 			// if the normal form differs, then the proximate path includes ".."
-			return proximate_path;
-		} else if (skip_source_group != nullptr) {
+			ಹಿಂತಿರುಗಿ proximate_ಮಾರ್ಗ;
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (skip_ಮೂಲ_ಗುಂಪು != ಶೂನ್ಯಸೂಚಕ) {
 			// don't try to group external paths
-			*skip_source_group = true;
+			*skip_ಮೂಲ_ಗುಂಪು = ನಿಜ;
 		}
 	}
-	return source_path;
+	ಹಿಂತಿರುಗಿ ಮೂಲ_ಮಾರ್ಗ;
 }
 
-Json ContentListing::to_json(const std::filesystem::path &source_root) const {
+Json ContentListing::ಗಮ್ಯ_json(ಸ್ಥಿರಾಂಕ std::filesystem::ಮಾರ್ಗ_2 &ಮೂಲ_ಬೇರು) ಸ್ಥಿರಾಂಕ {
 	Json::object object;
 
 	object["type"] = type;
-	if (body.length())
+	ಆದರೆ (body.ಉದ್ದಳತೆ())
 		object["body"] = body;
 
-	if (has_source())
-		object["source_file"] = fixup_source_path(source_file, source_root).string();
-	if (source_line != 0)
-		object["source_line"] = source_line;
+	ಆದರೆ (has_ಮೂಲ())
+		object["source_file"] = fixup_ಮೂಲ_ಮಾರ್ಗ(ಮೂಲ_file, ಮೂಲ_ಬೇರು).string();
+	ಆದರೆ (ಮೂಲ_ಸಾಲು != 0)
+		object["source_line"] = ಮೂಲ_ಸಾಲು;
 
 	object["options"] = Json(options);
 
 	Json::array content_array;
-	for (auto child : _content)
-		content_array.push_back(child.to_json(source_root));
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ ಮಗು : _content)
+		content_array.ತಳ್ಳು_ಹಿಂಭಾಗ(ಮಗು.ಗಮ್ಯ_json(ಮೂಲ_ಬೇರು));
 	object["content"] = content_array;
 
-	return object;
+	ಹಿಂತಿರುಗಿ object;
 }
 
-void ContentListing::usage(const string &text,
-	const source_location location)
+ಶೂನ್ಯ ContentListing::usage(ಸ್ಥಿರಾಂಕ string &ಪಠ್ಯ,
+	ಸ್ಥಿರಾಂಕ ಮೂಲ_location location)
 {
 	log_assert(type.compare("root") == 0);
-	add_content("usage", text, location);
+	ಕೂಡಿಸು_content("usage", ಪಠ್ಯ, location);
 }
 
-void ContentListing::option(const string &text, const string &description,
-	const source_location location)
+ಶೂನ್ಯ ContentListing::option(ಸ್ಥಿರಾಂಕ string &ಪಠ್ಯ, ಸ್ಥಿರಾಂಕ string &description,
+	ಸ್ಥಿರಾಂಕ ಮೂಲ_location location)
 {
-	auto option = open_option(text, source_location());
-	if (description.length())
-		option->add_content("text", description, location);
+	ಸ್ವಯಂಚಾಲಿತ option = open_option(ಪಠ್ಯ, ಮೂಲ_location());
+	ಆದರೆ (description.ಉದ್ದಳತೆ())
+		option->ಕೂಡಿಸು_content("text", description, location);
 }
 
-void ContentListing::codeblock(const string &code, const string &language,
-	const source_location location)
+ಶೂನ್ಯ ContentListing::codeblock(ಸ್ಥಿರಾಂಕ string &ಸಂಕೇತ_2, ಸ್ಥಿರಾಂಕ string &language,
+	ಸ್ಥಿರಾಂಕ ಮೂಲ_location location)
 {
-	add_content("code", code, location);
-	back()->set_option("language", language);
+	ಕೂಡಿಸು_content("code", ಸಂಕೇತ_2, location);
+	ಹಿಂಭಾಗ()->ಗಣ_option("language", language);
 }
 
-void ContentListing::paragraph(const string &text,
-	const source_location location)
+ಶೂನ್ಯ ContentListing::paragraph(ಸ್ಥಿರಾಂಕ string &ಪಠ್ಯ,
+	ಸ್ಥಿರಾಂಕ ಮೂಲ_location location)
 {
-	add_content("text", text, location);
+	ಕೂಡಿಸು_content("text", ಪಠ್ಯ, location);
 }
 
-ContentListing* ContentListing::open_usage(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_usage(ಸ್ಥಿರಾಂಕ string &ಪಠ್ಯ,
+	ಸ್ಥಿರಾಂಕ ಮೂಲ_location location)
 {
-	usage(text, location);
-	return back();
+	usage(ಪಠ್ಯ, location);
+	ಹಿಂತಿರುಗಿ ಹಿಂಭಾಗ();
 }
 
-ContentListing* ContentListing::open_option(const string &text,
-	const source_location location)
+ContentListing* ContentListing::open_option(ಸ್ಥಿರಾಂಕ string &ಪಠ್ಯ,
+	ಸ್ಥಿರಾಂಕ ಮೂಲ_location location)
 {
 	log_assert(type.compare("root") == 0 || type.compare("usage") == 0);
-	add_content("option", text, location);
-	return back();
+	ಕೂಡಿಸು_content("option", ಪಠ್ಯ, location);
+	ಹಿಂತಿರುಗಿ ಹಿಂಭಾಗ();
 }
 
-#define MAX_LINE_LEN 80
-void log_body_str(const std::string &pass_str, std::string indent_str, bool leading_newline=false, bool is_formatted=false) {
-	if (pass_str.empty())
-		return;
+#ವ್ಯಾಖ್ಯಾನಿಸು MAX_ಸಾಲು_LEN 80
+ಶೂನ್ಯ log_body_str(ಸ್ಥಿರಾಂಕ std::string &pass_str, std::string indent_str, ತಾರ್ಕಿಕ leading_newline=ಸುಳ್ಳು, ತಾರ್ಕಿಕ is_formatted=ಸುಳ್ಳು) {
+	ಆದರೆ (pass_str.ಖಾಲಿಗಳು())
+		ಹಿಂತಿರುಗಿ;
 	std::istringstream iss(pass_str);
-	if (leading_newline)
-		log("\n");
-	for (std::string line; std::getline(iss, line);) {
-		std::string message = indent_str;
-		if (is_formatted) {
-			message += line;
-		} else {
-			auto curr_len = indent_str.length();
-			std::istringstream lss(line);
-			for (std::string word; std::getline(lss, word, ' ');) {
-				while (word[0] == '`' && word.back() == '`')
-					word = word.substr(1, word.length()-2);
-				if (curr_len + word.length() >= MAX_LINE_LEN-1) {
+	ಆದರೆ (leading_newline)
+		ಲಘುಗಣಕ("\n");
+	ಗಾಗಿ (std::string ಸಾಲು; std::getline(iss, ಸಾಲು);) {
+		std::string ಸಂದೇಶ_2 = indent_str;
+		ಆದರೆ (is_formatted) {
+			ಸಂದೇಶ_2 += ಸಾಲು;
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			ಸ್ವಯಂಚಾಲಿತ curr_len = indent_str.ಉದ್ದಳತೆ();
+			std::istringstream lss(ಸಾಲು);
+			ಗಾಗಿ (std::string ಶಬ್ದ; std::getline(lss, ಶಬ್ದ, ' ');) {
+				ಆಗ (ಶಬ್ದ[0] == '`' && ಶಬ್ದ.ಹಿಂಭಾಗ() == '`')
+					ಶಬ್ದ = ಶಬ್ದ.substr(1, ಶಬ್ದ.ಉದ್ದಳತೆ()-2);
+				ಆದರೆ (curr_len + ಶಬ್ದ.ಉದ್ದಳತೆ() >= MAX_ಸಾಲು_LEN-1) {
 					curr_len = 0;
-					log("%s\n", message);
-					message = indent_str;
+					ಲಘುಗಣಕ("%s\n", ಸಂದೇಶ_2);
+					ಸಂದೇಶ_2 = indent_str;
 				}
-				if (word.length()) {
-					message += word + " ";
-					curr_len += word.length() + 1;
+				ಆದರೆ (ಶಬ್ದ.ಉದ್ದಳತೆ()) {
+					ಸಂದೇಶ_2 += ಶಬ್ದ + " ";
+					curr_len += ಶಬ್ದ.ಉದ್ದಳತೆ() + 1;
 				}
 			}
 		}
-		log("%s\n", message);
+		ಲಘುಗಣಕ("%s\n", ಸಂದೇಶ_2);
 	}
 }
-void log_body(const ContentListing &content, int indent=0, bool leading_newline=false) {
+ಶೂನ್ಯ log_body(ಸ್ಥಿರಾಂಕ ContentListing &content, ಪೂರ್ಣಾಂಕ indent=0, ತಾರ್ಕಿಕ leading_newline=ಸುಳ್ಳು) {
 	std::string indent_str(indent*4, ' ');
 	log_body_str(content.body, indent_str, leading_newline, content.type.compare("code") == 0);
 }
 
-PrettyHelp *current_help = nullptr;
+PrettyHelp *current_help = ಶೂನ್ಯಸೂಚಕ;
 
 PrettyHelp::PrettyHelp()
 {
-	_prior = current_help;
-	_root_listing = ContentListing("root", "");
+	ಪೂರ್ವ = current_help;
+	ಬೇರು_listing = ContentListing("root", "");
 
-	current_help = this;
+	current_help = ಇದು;
 }
 
 PrettyHelp::~PrettyHelp()
 {
-	current_help = _prior;
+	current_help = ಪೂರ್ವ;
 }
 
 PrettyHelp *PrettyHelp::get_current()
 {
-	if (current_help == nullptr)
-		new PrettyHelp();
-	return current_help;
+	ಆದರೆ (current_help == ಶೂನ್ಯಸೂಚಕ)
+		ಹೊಸ PrettyHelp();
+	ಹಿಂತಿರುಗಿ current_help;
 }
 
-void PrettyHelp::log_help() const
+ಶೂನ್ಯ PrettyHelp::log_help() ಸ್ಥಿರಾಂಕ
 {
-	for (auto &content : _root_listing) {
-		if (content.type.compare("usage") == 0) {
-			log_body(content, 1, true);
-			log("\n");
-		} else if (content.type.compare("option") == 0) {
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &content : ಬೇರು_listing) {
+		ಆದರೆ (content.type.compare("usage") == 0) {
+			log_body(content, 1, ನಿಜ);
+			ಲಘುಗಣಕ("\n");
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (content.type.compare("option") == 0) {
 			log_body(content, 1);
-			for (auto text : content) {
-				log_body(text, 2);
-				log("\n");
+			ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ ಪಠ್ಯ : content) {
+				log_body(ಪಠ್ಯ, 2);
+				ಲಘುಗಣಕ("\n");
 			}
-		} else {
+		} ಇಲ್ಲದಿದ್ದರೆ {
 			log_body(content, 0);
-			log("\n");
+			ಲಘುಗಣಕ("\n");
 		}
 	}
 }

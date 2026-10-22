@@ -17,259 +17,259 @@
  *
  */
 
-#ifndef SIGTOOLS_H
-#define SIGTOOLS_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ SIGTOOLS_H
+#ವ್ಯಾಖ್ಯಾನಿಸು SIGTOOLS_H
 
-#include "kernel/yosys.h"
+#ಅನ್ತರ್ಭಾವ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct SigPool
+ರಚನೆ SigPool
 {
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			h.eat(first->name);
-			h.eat(second);
-			return h;
+	ರಚನೆ ಬಿಟ್_Def_t : ಸಾರ್ವಜನಿಕ std::pair<RTLIL::Wire*, ಪೂರ್ಣಾಂಕ> {
+		ಬಿಟ್_Def_t() : std::pair<RTLIL::Wire*, ಪೂರ್ಣಾಂಕ>(ಖಾಲಿ, 0) { }
+		ಬಿಟ್_Def_t(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &ಬಿಟ್) : std::pair<RTLIL::Wire*, ಪೂರ್ಣಾಂಕ>(ಬಿಟ್.wire, ಬಿಟ್.ಸ್ಥಾನಾಂತರ) { }
+		[[nodiscard]] Hasher hash_into(Hasher h) ಸ್ಥಿರಾಂಕ {
+			h.eat(ಮೊದಲ->name);
+			h.eat(ಎರಡನೇ);
+			ಹಿಂತಿರುಗಿ h;
 		}
 	};
 
-	pool<bitDef_t> bits;
+	pool<ಬಿಟ್_Def_t> ಬಿಟ್ಟುಗಳು;
 
-	void clear()
+	ಶೂನ್ಯ clear()
 	{
-		bits.clear();
+		ಬಿಟ್ಟುಗಳು.clear();
 	}
 
-	void add(const RTLIL::SigSpec &sig)
+	ಶೂನ್ಯ ಕೂಡಿಸು(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
-				bits.insert(bit);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire != ಖಾಲಿ)
+				ಬಿಟ್ಟುಗಳು.ಸೇರಿಸು(ಬಿಟ್);
 	}
 
-	void add(const SigPool &other)
+	ಶೂನ್ಯ ಕೂಡಿಸು(ಸ್ಥಿರಾಂಕ SigPool &other)
 	{
-		for (auto &bit : other.bits)
-			bits.insert(bit);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : other.ಬಿಟ್ಟುಗಳು)
+			ಬಿಟ್ಟುಗಳು.ಸೇರಿಸು(ಬಿಟ್);
 	}
 
-	void del(const RTLIL::SigSpec &sig)
+	ಶೂನ್ಯ del(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL)
-				bits.erase(bit);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire != ಖಾಲಿ)
+				ಬಿಟ್ಟುಗಳು.erase(ಬಿಟ್);
 	}
 
-	void del(const SigPool &other)
+	ಶೂನ್ಯ del(ಸ್ಥಿರಾಂಕ SigPool &other)
 	{
-		for (auto &bit : other.bits)
-			bits.erase(bit);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : other.ಬಿಟ್ಟುಗಳು)
+			ಬಿಟ್ಟುಗಳು.erase(ಬಿಟ್);
 	}
 
-	void expand(const RTLIL::SigSpec &from, const RTLIL::SigSpec &to)
+	ಶೂನ್ಯ expand(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &from, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &ಗಮ್ಯ)
 	{
-		log_assert(GetSize(from) == GetSize(to));
-		for (int i = 0; i < GetSize(from); i++) {
-			bitDef_t bit_from(from[i]), bit_to(to[i]);
-			if (bit_from.first != NULL && bit_to.first != NULL && bits.count(bit_from) > 0)
-				bits.insert(bit_to);
+		log_assert(Get_ಗಾತ್ರ(from) == Get_ಗಾತ್ರ(ಗಮ್ಯ));
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(from); i++) {
+			ಬಿಟ್_Def_t ಬಿಟ್_from(from[i]), ಬಿಟ್_ಗಮ್ಯ(ಗಮ್ಯ[i]);
+			ಆದರೆ (ಬಿಟ್_from.ಮೊದಲ != ಖಾಲಿ && ಬಿಟ್_ಗಮ್ಯ.ಮೊದಲ != ಖಾಲಿ && ಬಿಟ್ಟುಗಳು.ಎಣಿಕೆ_2(ಬಿಟ್_from) > 0)
+				ಬಿಟ್ಟುಗಳು.ಸೇರಿಸು(ಬಿಟ್_ಗಮ್ಯ);
 		}
 	}
 
-	RTLIL::SigSpec extract(const RTLIL::SigSpec &sig) const
+	RTLIL::SigSpec ಹೊರತೆಗೆ(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig) ಸ್ಥಿರಾಂಕ
 	{
-		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				result.append(bit);
-		return result;
+		RTLIL::SigSpec ಫಲಿತಾಂಶ;
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire != ಖಾಲಿ && ಬಿಟ್ಟುಗಳು.ಎಣಿಕೆ_2(ಬಿಟ್))
+				ಫಲಿತಾಂಶ.append(ಬಿಟ್);
+		ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 	}
 
-	RTLIL::SigSpec remove(const RTLIL::SigSpec &sig) const
+	RTLIL::SigSpec remove(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig) ಸ್ಥಿರಾಂಕ
 	{
-		RTLIL::SigSpec result;
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
-				result.append(bit);
-		return result;
+		RTLIL::SigSpec ಫಲಿತಾಂಶ;
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire != ಖಾಲಿ && ಬಿಟ್ಟುಗಳು.ಎಣಿಕೆ_2(ಬಿಟ್) == 0)
+				ಫಲಿತಾಂಶ.append(ಬಿಟ್);
+		ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 	}
 
-	bool check(const RTLIL::SigBit &bit) const
+	bool check(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &ಬಿಟ್) ಸ್ಥಿರಾಂಕ
 	{
-		return bit.wire != NULL && bits.count(bit);
+		ಹಿಂತಿರುಗಿ ಬಿಟ್.wire != ಖಾಲಿ && ಬಿಟ್ಟುಗಳು.ಎಣಿಕೆ_2(ಬಿಟ್);
 	}
 
-	bool check_any(const RTLIL::SigSpec &sig) const
+	bool check_any(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig) ಸ್ಥಿರಾಂಕ
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire != ಖಾಲಿ && ಬಿಟ್ಟುಗಳು.ಎಣಿಕೆ_2(ಬಿಟ್))
+				ಹಿಂತಿರುಗಿ true;
+		ಹಿಂತಿರುಗಿ false;
 	}
 
-	bool check_all(const RTLIL::SigSpec &sig) const
+	bool check_all(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig) ಸ್ಥಿರಾಂಕ
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit) == 0)
-				return false;
-		return true;
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire != ಖಾಲಿ && ಬಿಟ್ಟುಗಳು.ಎಣಿಕೆ_2(ಬಿಟ್) == 0)
+				ಹಿಂತಿರುಗಿ false;
+		ಹಿಂತಿರುಗಿ true;
 	}
 
-	RTLIL::SigSpec export_one() const
+	RTLIL::SigSpec export_one() ಸ್ಥಿರಾಂಕ
 	{
-		for (auto &bit : bits)
-			return RTLIL::SigSpec(bit.first, bit.second);
-		return RTLIL::SigSpec();
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : ಬಿಟ್ಟುಗಳು)
+			ಹಿಂತಿರುಗಿ RTLIL::SigSpec(ಬಿಟ್.ಮೊದಲ, ಬಿಟ್.ಎರಡನೇ);
+		ಹಿಂತಿರುಗಿ RTLIL::SigSpec();
 	}
 
-	RTLIL::SigSpec export_all() const
+	RTLIL::SigSpec export_all() ಸ್ಥಿರಾಂಕ
 	{
-		pool<RTLIL::SigBit> sig;
-		for (auto &bit : bits)
-			sig.insert(RTLIL::SigBit(bit.first, bit.second));
-		return sig;
+		pool<RTLIL::Sig_ಬಿಟ್> sig;
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : ಬಿಟ್ಟುಗಳು)
+			sig.ಸೇರಿಸು(RTLIL::Sig_ಬಿಟ್(ಬಿಟ್.ಮೊದಲ, ಬಿಟ್.ಎರಡನೇ));
+		ಹಿಂತಿರುಗಿ sig;
 	}
 
-	size_t size() const
+	ಗಾತ್ರ_t ಗಾತ್ರ_2() ಸ್ಥಿರಾಂಕ
 	{
-		return bits.size();
+		ಹಿಂತಿರುಗಿ ಬಿಟ್ಟುಗಳು.ಗಾತ್ರ_2();
 	}
 };
 
-template <typename T, class Compare = void>
-struct SigSet
+ಮಾದರಿ <typename T, class Compare = ಶೂನ್ಯ>
+ರಚನೆ Sig_ಗಣ
 {
-	static_assert(!std::is_same<Compare,void>::value, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
+	static_assert(!std::is_same<Compare,ಶೂನ್ಯ>::ಮೌಲ್ಯ, "Default value for `Compare' class not found for SigSet<T>. Please specify.");
 
-	struct bitDef_t : public std::pair<RTLIL::Wire*, int> {
-		bitDef_t() : std::pair<RTLIL::Wire*, int>(NULL, 0) { }
-		bitDef_t(const RTLIL::SigBit &bit) : std::pair<RTLIL::Wire*, int>(bit.wire, bit.offset) { }
-		[[nodiscard]] Hasher hash_into(Hasher h) const {
-			h.eat(first->name);
-			h.eat(second);
-			return h;
+	ರಚನೆ ಬಿಟ್_Def_t : ಸಾರ್ವಜನಿಕ std::pair<RTLIL::Wire*, ಪೂರ್ಣಾಂಕ> {
+		ಬಿಟ್_Def_t() : std::pair<RTLIL::Wire*, ಪೂರ್ಣಾಂಕ>(ಖಾಲಿ, 0) { }
+		ಬಿಟ್_Def_t(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &ಬಿಟ್) : std::pair<RTLIL::Wire*, ಪೂರ್ಣಾಂಕ>(ಬಿಟ್.wire, ಬಿಟ್.ಸ್ಥಾನಾಂತರ) { }
+		[[nodiscard]] Hasher hash_into(Hasher h) ಸ್ಥಿರಾಂಕ {
+			h.eat(ಮೊದಲ->name);
+			h.eat(ಎರಡನೇ);
+			ಹಿಂತಿರುಗಿ h;
 		}
 	};
 
-	dict<bitDef_t, std::set<T, Compare>> bits;
+	dict<ಬಿಟ್_Def_t, std::ಗಣ<T, Compare>> ಬಿಟ್ಟುಗಳು;
 
-	void clear()
+	ಶೂನ್ಯ clear()
 	{
-		bits.clear();
+		ಬಿಟ್ಟುಗಳು.clear();
 	}
 
-	void insert(const RTLIL::SigSpec &sig, T data)
+	ಶೂನ್ಯ ಸೇರಿಸು(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig, T ದತ್ತಾಂಶ)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].insert(data);
+		ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire != ಖಾಲಿ)
+				ಬಿಟ್ಟುಗಳು[ಬಿಟ್].ಸೇರಿಸು(ದತ್ತಾಂಶ);
 	}
 
-	void insert(const RTLIL::SigSpec& sig, const std::set<T> &data)
+	ಶೂನ್ಯ ಸೇರಿಸು(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec& sig, ಸ್ಥಿರಾಂಕ std::ಗಣ<T> &ದತ್ತಾಂಶ)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].insert(data.begin(), data.end());
+		ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire != ಖಾಲಿ)
+				ಬಿಟ್ಟುಗಳು[ಬಿಟ್].ಸೇರಿಸು(ದತ್ತಾಂಶ.begin(), ದತ್ತಾಂಶ.ಕೊನೆ());
 	}
 
-	void erase(const RTLIL::SigSpec& sig)
+	ಶೂನ್ಯ erase(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec& sig)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].clear();
+		ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire != ಖಾಲಿ)
+				ಬಿಟ್ಟುಗಳು[ಬಿಟ್].clear();
 	}
 
-	void erase(const RTLIL::SigSpec &sig, T data)
+	ಶೂನ್ಯ erase(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig, T ದತ್ತಾಂಶ)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].erase(data);
+		ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire != ಖಾಲಿ)
+				ಬಿಟ್ಟುಗಳು[ಬಿಟ್].erase(ದತ್ತಾಂಶ);
 	}
 
-	void erase(const RTLIL::SigSpec &sig, const std::set<T> &data)
+	ಶೂನ್ಯ erase(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig, ಸ್ಥಿರಾಂಕ std::ಗಣ<T> &ದತ್ತಾಂಶ)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL)
-				bits[bit].erase(data.begin(), data.end());
+		ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire != ಖಾಲಿ)
+				ಬಿಟ್ಟುಗಳು[ಬಿಟ್].erase(ದತ್ತಾಂಶ.begin(), ದತ್ತಾಂಶ.ಕೊನೆ());
 	}
 
-	void find(const RTLIL::SigSpec &sig, std::set<T> &result)
+	ಶೂನ್ಯ ಕಂಡುಹಿಡಿ(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig, std::ಗಣ<T> &ಫಲಿತಾಂಶ)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
-				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+		ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire != ಖಾಲಿ) {
+				ಸ್ವಯಂಚಾಲಿತ &ದತ್ತಾಂಶ = ಬಿಟ್ಟುಗಳು[ಬಿಟ್];
+				ಫಲಿತಾಂಶ.ಸೇರಿಸು(ದತ್ತಾಂಶ.begin(), ದತ್ತಾಂಶ.ಕೊನೆ());
 			}
 	}
 
-	void find(const RTLIL::SigSpec &sig, pool<T> &result)
+	ಶೂನ್ಯ ಕಂಡುಹಿಡಿ(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig, pool<T> &ಫಲಿತಾಂಶ)
 	{
-		for (const auto &bit : sig)
-			if (bit.wire != NULL) {
-				auto &data = bits[bit];
-				result.insert(data.begin(), data.end());
+		ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire != ಖಾಲಿ) {
+				ಸ್ವಯಂಚಾಲಿತ &ದತ್ತಾಂಶ = ಬಿಟ್ಟುಗಳು[ಬಿಟ್];
+				ಫಲಿತಾಂಶ.ಸೇರಿಸು(ದತ್ತಾಂಶ.begin(), ದತ್ತಾಂಶ.ಕೊನೆ());
 			}
 	}
 
-	std::set<T> find(const RTLIL::SigSpec &sig)
+	std::ಗಣ<T> ಕಂಡುಹಿಡಿ(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig)
 	{
-		std::set<T> result;
-		find(sig, result);
-		return result;
+		std::ಗಣ<T> ಫಲಿತಾಂಶ;
+		ಕಂಡುಹಿಡಿ(sig, ಫಲಿತಾಂಶ);
+		ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 	}
 
-	bool has(const RTLIL::SigSpec &sig)
+	bool has(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig)
 	{
-		for (auto &bit : sig)
-			if (bit.wire != NULL && bits.count(bit))
-				return true;
-		return false;
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire != ಖಾಲಿ && ಬಿಟ್ಟುಗಳು.ಎಣಿಕೆ_2(ಬಿಟ್))
+				ಹಿಂತಿರುಗಿ true;
+		ಹಿಂತಿರುಗಿ false;
 	}
 };
 
-template<typename T>
-class SigSet<T, typename std::enable_if<!std::is_pointer<T>::value>::type> : public SigSet<T, std::less<T>> {};
-template<typename T>
-using sort_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::value>::type;
-template<typename T>
-class SigSet<T, sort_by_name_id_guard<T>> : public SigSet<T, RTLIL::sort_by_name_id<typename std::remove_pointer<T>::type>> {};
+ಮಾದರಿ<typename T>
+class Sig_ಗಣ<T, typename std::enable_if<!std::is_ಸೂಚಕ<T>::ಮೌಲ್ಯ>::type> : ಸಾರ್ವಜನಿಕ Sig_ಗಣ<T, std::less<T>> {};
+ಮಾದರಿ<typename T>
+using ವಿಂಗಡಿಸು_by_name_id_guard = typename std::enable_if<std::is_same<T,RTLIL::Cell*>::ಮೌಲ್ಯ>::type;
+ಮಾದರಿ<typename T>
+class Sig_ಗಣ<T, ವಿಂಗಡಿಸು_by_name_id_guard<T>> : ಸಾರ್ವಜನಿಕ Sig_ಗಣ<T, RTLIL::ವಿಂಗಡಿಸು_by_name_id<typename std::remove_ಸೂಚಕ<T>::type>> {};
 
-struct SigMapView
+ರಚನೆ SigMapView
 {
-	mfp<SigBit> database;
+	mfp<Sig_ಬಿಟ್> database;
 
 	// Modify bit to its representative
-	void apply(RTLIL::SigBit &bit) const
+	ಶೂನ್ಯ apply(RTLIL::Sig_ಬಿಟ್ &ಬಿಟ್) ಸ್ಥಿರಾಂಕ
 	{
-		bit = database.find(bit);
+		ಬಿಟ್ = database.ಕಂಡುಹಿಡಿ(ಬಿಟ್);
 	}
 
-	void apply(RTLIL::SigSpec &sig) const
+	ಶೂನ್ಯ apply(RTLIL::SigSpec &sig) ಸ್ಥಿರಾಂಕ
 	{
-		for (auto &bit : sig)
-			apply(bit);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			apply(ಬಿಟ್);
 	}
 
-	RTLIL::SigBit operator()(RTLIL::SigBit bit) const
+	RTLIL::Sig_ಬಿಟ್ ಕ್ರಿಯಾಕಾರಕ()(RTLIL::Sig_ಬಿಟ್ ಬಿಟ್) ಸ್ಥಿರಾಂಕ
 	{
-		apply(bit);
-		return bit;
+		apply(ಬಿಟ್);
+		ಹಿಂತಿರುಗಿ ಬಿಟ್;
 	}
 
-	RTLIL::SigSpec operator()(RTLIL::SigSpec sig) const
+	RTLIL::SigSpec ಕ್ರಿಯಾಕಾರಕ()(RTLIL::SigSpec sig) ಸ್ಥಿರಾಂಕ
 	{
 		apply(sig);
-		return sig;
+		ಹಿಂತಿರುಗಿ sig;
 	}
 
-	RTLIL::SigSpec operator()(RTLIL::Wire *wire) const
+	RTLIL::SigSpec ಕ್ರಿಯಾಕಾರಕ()(RTLIL::Wire *wire) ಸ್ಥಿರಾಂಕ
 	{
 		SigSpec sig(wire);
 		apply(sig);
-		return sig;
+		ಹಿಂತಿರುಗಿ sig;
 	}
 };
 
@@ -280,88 +280,88 @@ struct SigMapView
  * If a SigBit has a const state (impl: bit.wire is nullptr),
  * it's promoted to a representative.
  */
-struct SigMap final : public SigMapView
+ರಚನೆ SigMap final : ಸಾರ್ವಜನಿಕ SigMapView
 {
-	SigMap(RTLIL::Module *module = NULL)
+	SigMap(RTLIL::Module *module = ಖಾಲಿ)
 	{
-		if (module != NULL)
-			set(module);
+		ಆದರೆ (module != ಖಾಲಿ)
+			ಗಣ(module);
 	}
 
-	void swap(SigMap &other)
+	ಶೂನ್ಯ ಅದಲುಬದಲು(SigMap &other)
 	{
-		database.swap(other.database);
+		database.ಅದಲುಬದಲು(other.database);
 	}
 
-	void clear()
+	ಶೂನ್ಯ clear()
 	{
 		database.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
-	void set(RTLIL::Module *module)
+	ಶೂನ್ಯ ಗಣ(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
-			bitcount += it.first.size();
+		ಪೂರ್ಣಾಂಕ bitcount = 0;
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : module->connections())
+			bitcount += it.ಮೊದಲ.ಗಾತ್ರ_2();
 
 		database.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
-			add(it.first, it.second);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : module->connections())
+			ಕೂಡಿಸು(it.ಮೊದಲ, it.ಎರಡನೇ);
 	}
 
 	// Add connections from "from" to "to", bit-by-bit
-	void add(const RTLIL::SigSpec& from, const RTLIL::SigSpec& to)
+	ಶೂನ್ಯ ಕೂಡಿಸು(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec& from, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec& ಗಮ್ಯ)
 	{
-		log_assert(GetSize(from) == GetSize(to));
+		log_assert(Get_ಗಾತ್ರ(from) == Get_ಗಾತ್ರ(ಗಮ್ಯ));
 
-		for (int i = 0; i < GetSize(from); i++)
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
+			ಪೂರ್ಣಾಂಕ bfi = database.lookup(from[i]);
+			ಪೂರ್ಣಾಂಕ bti = database.lookup(ಗಮ್ಯ[i]);
 
-			const RTLIL::SigBit &bf = database[bfi];
-			const RTLIL::SigBit &bt = database[bti];
+			ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &bf = database[bfi];
+			ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &bt = database[bti];
 
-			if (bf.wire || bt.wire)
+			ಆದರೆ (bf.wire || bt.wire)
 			{
 				database.imerge(bfi, bti);
 
-				if (bf.wire == nullptr)
+				ಆದರೆ (bf.wire == nullptr)
 					database.ipromote(bfi);
 
-				if (bt.wire == nullptr)
+				ಆದರೆ (bt.wire == nullptr)
 					database.ipromote(bti);
 			}
 		}
 	}
 
 	// Add sig as disconnected from anything
-	void add(const RTLIL::SigBit &bit)
+	ಶೂನ್ಯ ಕೂಡಿಸು(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &ಬಿಟ್)
 	{
-		const auto &b = database.find(bit);
-		if (b.wire != nullptr)
-			database.promote(bit);
+		ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &b = database.ಕಂಡುಹಿಡಿ(ಬಿಟ್);
+		ಆದರೆ (b.wire != nullptr)
+			database.promote(ಬಿಟ್);
 	}
 
-	void add(const RTLIL::SigSpec &sig)
+	ಶೂನ್ಯ ಕೂಡಿಸು(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig)
 	{
-		for (const auto &bit : sig)
-			add(bit);
+		ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಕೂಡಿಸು(ಬಿಟ್);
 	}
 
-	inline void add(Wire *wire) { return add(RTLIL::SigSpec(wire)); }
+	ಸಾಲೊಳಗೆ ಶೂನ್ಯ ಕೂಡಿಸು(Wire *wire) { ಹಿಂತಿರುಗಿ ಕೂಡಿಸು(RTLIL::SigSpec(wire)); }
 
 	// All non-const bits
-	RTLIL::SigSpec allbits() const
+	RTLIL::SigSpec allbits() ಸ್ಥಿರಾಂಕ
 	{
 		RTLIL::SigSpec sig;
-		for (const auto &bit : database)
-			if (bit.wire != nullptr)
-				sig.append(bit);
-		return sig;
+		ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : database)
+			ಆದರೆ (ಬಿಟ್.wire != nullptr)
+				sig.append(ಬಿಟ್);
+		ಹಿಂತಿರುಗಿ sig;
 	}
 };
 
@@ -374,98 +374,98 @@ struct SigMap final : public SigMapView
  * the associated value is the "sum" of all the values associated with the contributing bits.
  * If any of the SigBits in a set are a constant, the canonical SigBit is a constant.
  */
-template <class Val>
-struct SigValMap final : public SigMapView
+ಮಾದರಿ <class Val>
+ರಚನೆ SigValMap final : ಸಾರ್ವಜನಿಕ SigMapView
 {
-	dict<SigBit, Val> values;
+	dict<Sig_ಬಿಟ್, Val> ಮೌಲ್ಯಗಳು;
 
-	void swap(SigValMap<Val> &other)
+	ಶೂನ್ಯ ಅದಲುಬದಲು(SigValMap<Val> &other)
 	{
-		database.swap(other.database);
-		values.swap(other.values);
+		database.ಅದಲುಬದಲು(other.database);
+		ಮೌಲ್ಯಗಳು.ಅದಲುಬದಲು(other.ಮೌಲ್ಯಗಳು);
 	}
 
-	void clear()
+	ಶೂನ್ಯ clear()
 	{
 		database.clear();
-		values.clear();
+		ಮೌಲ್ಯಗಳು.clear();
 	}
 
 	// Rebuild SigMap for all connections in module
-	void set(RTLIL::Module *module)
+	ಶೂನ್ಯ ಗಣ(RTLIL::Module *module)
 	{
-		int bitcount = 0;
-		for (auto &it : module->connections())
-			bitcount += it.first.size();
+		ಪೂರ್ಣಾಂಕ bitcount = 0;
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : module->connections())
+			bitcount += it.ಮೊದಲ.ಗಾತ್ರ_2();
 
 		database.clear();
-		values.clear();
+		ಮೌಲ್ಯಗಳು.clear();
 		database.reserve(bitcount);
 
-		for (auto &it : module->connections())
-			add(it.first, it.second);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : module->connections())
+			ಕೂಡಿಸು(it.ಮೊದಲ, it.ಎರಡನೇ);
 	}
 
 	// Add connections from "from" to "to", bit-by-bit.
-	void add(const RTLIL::SigSpec& from, const RTLIL::SigSpec& to)
+	ಶೂನ್ಯ ಕೂಡಿಸು(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec& from, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec& ಗಮ್ಯ)
 	{
-		log_assert(GetSize(from) == GetSize(to));
+		log_assert(Get_ಗಾತ್ರ(from) == Get_ಗಾತ್ರ(ಗಮ್ಯ));
 
-		for (int i = 0; i < GetSize(from); i++)
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(from); i++)
 		{
-			int bfi = database.lookup(from[i]);
-			int bti = database.lookup(to[i]);
-			if (bfi == bti) {
-				continue;
+			ಪೂರ್ಣಾಂಕ bfi = database.lookup(from[i]);
+			ಪೂರ್ಣಾಂಕ bti = database.lookup(ಗಮ್ಯ[i]);
+			ಆದರೆ (bfi == bti) {
+				ಮುಂದುವರಿ;
 			}
 
-			const RTLIL::SigBit &bf = database[bfi];
-			const RTLIL::SigBit &bt = database[bti];
-			if (bf.wire == nullptr) {
+			ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &bf = database[bfi];
+			ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &bt = database[bti];
+			ಆದರೆ (bf.wire == nullptr) {
 				// bf is constant so make it the canonical representative.
 				database.imerge(bti, bfi);
-				merge_value(bt, bf);
-			} else {
+				ವಿಲೀನ_ಮೌಲ್ಯ(bt, bf);
+			} ಇಲ್ಲದಿದ್ದರೆ {
 				// Make bt the canonical representative.
 				database.imerge(bfi, bti);
-				merge_value(bf, bt);
+				ವಿಲೀನ_ಮೌಲ್ಯ(bf, bt);
 			}
 		}
 	}
 
-	void addVal(const RTLIL::SigBit &bit, const Val &val)
+	ಶೂನ್ಯ ಕೂಡಿಸು_Val(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &ಬಿಟ್, ಸ್ಥಿರಾಂಕ Val &val)
 	{
-		values[database.find(bit)] |= val;
+		ಮೌಲ್ಯಗಳು[database.ಕಂಡುಹಿಡಿ(ಬಿಟ್)] |= val;
 	}
 
-	void addVal(const RTLIL::SigSpec &sig, const Val &val)
+	ಶೂನ್ಯ ಕೂಡಿಸು_Val(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig, ಸ್ಥಿರಾಂಕ Val &val)
 	{
-		for (const auto &bit : sig)
-			addVal(bit, val);
+		ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಕೂಡಿಸು_Val(ಬಿಟ್, val);
 	}
 
-	Val apply_and_get_value(RTLIL::SigBit &bit) const
+	Val apply_and_get_ಮೌಲ್ಯ(RTLIL::Sig_ಬಿಟ್ &ಬಿಟ್) ಸ್ಥಿರಾಂಕ
 	{
-		bit = database.find(bit);
-		auto it = values.find(bit);
-		return it == values.end() ? Val() : it->second;
+		ಬಿಟ್ = database.ಕಂಡುಹಿಡಿ(ಬಿಟ್);
+		ಸ್ವಯಂಚಾಲಿತ it = ಮೌಲ್ಯಗಳು.ಕಂಡುಹಿಡಿ(ಬಿಟ್);
+		ಹಿಂತಿರುಗಿ it == ಮೌಲ್ಯಗಳು.ಕೊನೆ() ? Val() : it->ಎರಡನೇ;
 	}
 
-private:
-	void merge_value(const RTLIL::SigBit &from, const RTLIL::SigBit &to)
+ಖಾಸಗಿ:
+	ಶೂನ್ಯ ವಿಲೀನ_ಮೌಲ್ಯ(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &from, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &ಗಮ್ಯ)
 	{
-		auto it = values.find(from);
-		if (it == values.end()) {
-			return;
+		ಸ್ವಯಂಚಾಲಿತ it = ಮೌಲ್ಯಗಳು.ಕಂಡುಹಿಡಿ(from);
+		ಆದರೆ (it == ಮೌಲ್ಯಗಳು.ಕೊನೆ()) {
+			ಹಿಂತಿರುಗಿ;
 		}
 		// values[to] could resize the underlying `entries` so
 		// finish using `it` first.
-		Val v = it->second;
-		values.erase(it);
-		values[to] |= v;
+		Val v = it->ಎರಡನೇ;
+		ಮೌಲ್ಯಗಳು.erase(it);
+		ಮೌಲ್ಯಗಳು[ಗಮ್ಯ] |= v;
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#endif /* SIGTOOLS_H */
+#ಆದರೆ_ಅಂತ್ಯ /* SIGTOOLS_H */

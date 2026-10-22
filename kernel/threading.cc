@@ -1,159 +1,159 @@
-#include "kernel/yosys_common.h"
-#include "kernel/threading.h"
+#ಅನ್ತರ್ಭಾವ "kernel/yosys_common.h"
+#ಅನ್ತರ್ಭಾವ "kernel/threading.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-static int init_max_threads()
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ init_max_ಎಳೆಗಳು()
 {
-	const char *v = getenv("YOSYS_MAX_THREADS");
-	if (v == nullptr)
-		return INT32_MAX;
-	return atoi(v);
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *v = getenv("YOSYS_MAX_THREADS");
+	ಆದರೆ (v == ಶೂನ್ಯಸೂಚಕ)
+		ಹಿಂತಿರುಗಿ INT32_MAX;
+	ಹಿಂತಿರುಗಿ atoi(v);
 }
 
-static int get_max_threads()
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ get_max_ಎಳೆಗಳು()
 {
-	static int max_threads = init_max_threads();
-	return max_threads;
+	ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ max_ಎಳೆಗಳು = init_max_ಎಳೆಗಳು();
+	ಹಿಂತಿರುಗಿ max_ಎಳೆಗಳು;
 }
 
-static int init_work_units_per_thread_override()
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ init_work_units_ಪ್ರತಿ_thread_override()
 {
-	const char *v = getenv("YOSYS_WORK_UNITS_PER_THREAD");
-	if (v == nullptr)
-		return 0;
-	return atoi(v);
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *v = getenv("YOSYS_WORK_UNITS_PER_THREAD");
+	ಆದರೆ (v == ಶೂನ್ಯಸೂಚಕ)
+		ಹಿಂತಿರುಗಿ 0;
+	ಹಿಂತಿರುಗಿ atoi(v);
 }
 
-static int get_work_units_per_thread_override()
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ get_work_units_ಪ್ರತಿ_thread_override()
 {
-	static int work_units_per_thread = init_work_units_per_thread_override();
-	return work_units_per_thread;
+	ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ work_units_ಪ್ರತಿ_thread = init_work_units_ಪ್ರತಿ_thread_override();
+	ಹಿಂತಿರುಗಿ work_units_ಪ್ರತಿ_thread;
 }
 
-void DeferredLogs::flush()
+ಶೂನ್ಯ DeferredLogs::flush()
 {
-	for (auto &m : logs)
-		if (m.error)
-			YOSYS_NAMESPACE_PREFIX log_error("%s", m.text.c_str());
-		else
-			YOSYS_NAMESPACE_PREFIX log("%s", m.text.c_str());
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &m : logs)
+		ಆದರೆ (m.error)
+			YOSYS_NAMESPACE_ಪೂರ್ವಪ್ರತ್ಯಯ log_error("%s", m.ಪಠ್ಯ.c_str());
+		ಇಲ್ಲದಿದ್ದರೆ
+			YOSYS_NAMESPACE_ಪೂರ್ವಪ್ರತ್ಯಯ ಲಘುಗಣಕ("%s", m.ಪಠ್ಯ.c_str());
 }
 
-int ThreadPool::pool_size(int reserved_cores, int max_worker_threads)
+ಪೂರ್ಣಾಂಕ ThreadPool::pool_ಗಾತ್ರ(ಪೂರ್ಣಾಂಕ reserved_cores, ಪೂರ್ಣಾಂಕ max_ಕೆಲಸಗಾರ_ಎಳೆಗಳು)
 {
-#ifdef YOSYS_ENABLE_THREADS
-	int available_threads = std::min<int>(std::thread::hardware_concurrency(), get_max_threads());
-	int num_threads = std::min(available_threads - reserved_cores, max_worker_threads);
-	return std::max(0, num_threads);
-#else
-	(void)reserved_cores;
-	(void)max_worker_threads;
-	(void)get_max_threads();
-	return 0;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ YOSYS_ENABLE_ಎಳೆಗಳು
+	ಪೂರ್ಣಾಂಕ ಲಭ್ಯ_ಎಳೆಗಳು = std::min<ಪೂರ್ಣಾಂಕ>(std::thread::hardware_concurrency(), get_max_ಎಳೆಗಳು());
+	ಪೂರ್ಣಾಂಕ ಅಂಕೆ_ಎಳೆಗಳು = std::min(ಲಭ್ಯ_ಎಳೆಗಳು - reserved_cores, max_ಕೆಲಸಗಾರ_ಎಳೆಗಳು);
+	ಹಿಂತಿರುಗಿ std::max(0, ಅಂಕೆ_ಎಳೆಗಳು);
+#ಇಲ್ಲದಿದ್ದರೆ
+	(ಶೂನ್ಯ)reserved_cores;
+	(ಶೂನ್ಯ)max_ಕೆಲಸಗಾರ_ಎಳೆಗಳು;
+	(ಶೂನ್ಯ)get_max_ಎಳೆಗಳು();
+	ಹಿಂತಿರುಗಿ 0;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-int ThreadPool::work_pool_size(int reserved_cores, int work_units, int work_units_per_thread)
+ಪೂರ್ಣಾಂಕ ThreadPool::work_pool_ಗಾತ್ರ(ಪೂರ್ಣಾಂಕ reserved_cores, ಪೂರ್ಣಾಂಕ work_units, ಪೂರ್ಣಾಂಕ work_units_ಪ್ರತಿ_thread)
 {
-	int work_units_per_thread_override = get_work_units_per_thread_override();
-	if (work_units_per_thread_override > 0)
-		work_units_per_thread = work_units_per_thread_override;
-	return pool_size(reserved_cores, work_units / work_units_per_thread);
+	ಪೂರ್ಣಾಂಕ work_units_ಪ್ರತಿ_thread_override = get_work_units_ಪ್ರತಿ_thread_override();
+	ಆದರೆ (work_units_ಪ್ರತಿ_thread_override > 0)
+		work_units_ಪ್ರತಿ_thread = work_units_ಪ್ರತಿ_thread_override;
+	ಹಿಂತಿರುಗಿ pool_ಗಾತ್ರ(reserved_cores, work_units / work_units_ಪ್ರತಿ_thread);
 }
 
-ThreadPool::ThreadPool(int pool_size, std::function<void(int)> b)
+ThreadPool::ThreadPool(ಪೂರ್ಣಾಂಕ pool_ಗಾತ್ರ, std::function<ಶೂನ್ಯ(ಪೂರ್ಣಾಂಕ)> b)
 	: body(std::move(b))
 {
-#ifdef YOSYS_ENABLE_THREADS
-	threads.reserve(pool_size);
-	for (int i = 0; i < pool_size; i++)
-		threads.emplace_back([i, this]{ body(i); });
-#else
-	(void)pool_size;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ YOSYS_ENABLE_ಎಳೆಗಳು
+	ಎಳೆಗಳು.reserve(pool_ಗಾತ್ರ);
+	ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < pool_ಗಾತ್ರ; i++)
+		ಎಳೆಗಳು.emplace_ಹಿಂಭಾಗ([i, ಇದು]{ body(i); });
+#ಇಲ್ಲದಿದ್ದರೆ
+	(ಶೂನ್ಯ)pool_ಗಾತ್ರ;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
 ThreadPool::~ThreadPool()
 {
-#ifdef YOSYS_ENABLE_THREADS
-	for (auto &t : threads)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ YOSYS_ENABLE_ಎಳೆಗಳು
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &t : ಎಳೆಗಳು)
 		t.join();
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-IntRange item_range_for_worker(int num_items, int thread_num, int num_threads)
+IntRange ಅಂಶ_range_for_ಕೆಲಸಗಾರ(ಪೂರ್ಣಾಂಕ ಅಂಕೆ_ವಸ್ತುಗಳು, ಪೂರ್ಣಾಂಕ thread_ಅಂಕೆ, ಪೂರ್ಣಾಂಕ ಅಂಕೆ_ಎಳೆಗಳು)
 {
-	if (num_threads <= 1) {
-		return {0, num_items};
+	ಆದರೆ (ಅಂಕೆ_ಎಳೆಗಳು <= 1) {
+		ಹಿಂತಿರುಗಿ {0, ಅಂಕೆ_ವಸ್ತುಗಳು};
 	}
-	int items_per_thread = num_items / num_threads;
-	int extra_items = num_items % num_threads;
+	ಪೂರ್ಣಾಂಕ ವಸ್ತುಗಳು_ಪ್ರತಿ_thread = ಅಂಕೆ_ವಸ್ತುಗಳು / ಅಂಕೆ_ಎಳೆಗಳು;
+	ಪೂರ್ಣಾಂಕ extra_ವಸ್ತುಗಳು = ಅಂಕೆ_ವಸ್ತುಗಳು % ಅಂಕೆ_ಎಳೆಗಳು;
 	// The first `extra_items` threads get one extra item.
-	int start = thread_num * items_per_thread + std::min(thread_num, extra_items);
-	int end = (thread_num + 1) * items_per_thread + std::min(thread_num + 1, extra_items);
-	return {start, end};
+	ಪೂರ್ಣಾಂಕ ಆರಂಭ = thread_ಅಂಕೆ * ವಸ್ತುಗಳು_ಪ್ರತಿ_thread + std::min(thread_ಅಂಕೆ, extra_ವಸ್ತುಗಳು);
+	ಪೂರ್ಣಾಂಕ ಕೊನೆ = (thread_ಅಂಕೆ + 1) * ವಸ್ತುಗಳು_ಪ್ರತಿ_thread + std::min(thread_ಅಂಕೆ + 1, extra_ವಸ್ತುಗಳು);
+	ಹಿಂತಿರುಗಿ {ಆರಂಭ, ಕೊನೆ};
 }
 
-ParallelDispatchThreadPool::ParallelDispatchThreadPool(int pool_size)
-#ifdef YOSYS_ENABLE_THREADS
-		: num_worker_threads_(std::max(1, pool_size) - 1)
-#else
-		: num_worker_threads_(0)
-#endif
+ParallelDispatchThreadPool::ParallelDispatchThreadPool(ಪೂರ್ಣಾಂಕ pool_ಗಾತ್ರ)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ YOSYS_ENABLE_ಎಳೆಗಳು
+		: ಅಂಕೆ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು(std::max(1, pool_ಗಾತ್ರ) - 1)
+#ಇಲ್ಲದಿದ್ದರೆ
+		: ಅಂಕೆ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು(0)
+#ಆದರೆ_ಅಂತ್ಯ
 {
-#ifndef YOSYS_ENABLE_THREADS
-	(void)pool_size;
-#endif
-	main_to_workers_signal.resize(num_worker_threads_, 0);
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ YOSYS_ENABLE_ಎಳೆಗಳು
+	(ಶೂನ್ಯ)pool_ಗಾತ್ರ;
+#ಆದರೆ_ಅಂತ್ಯ
+	main_ಗಮ್ಯ_workers_signal.resize(ಅಂಕೆ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು, 0);
 	// Don't start the threads until we've constructed all our data members.
-	thread_pool = std::make_unique<ThreadPool>(num_worker_threads_, [this](int thread_num){
-		run_worker(thread_num);
+	thread_pool = std::make_unique<ThreadPool>(ಅಂಕೆ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು, [ಇದು](ಪೂರ್ಣಾಂಕ thread_ಅಂಕೆ){
+		ಸತತ_ಕೆಲಸಗಾರ(thread_ಅಂಕೆ);
 	});
 }
 
 ParallelDispatchThreadPool::~ParallelDispatchThreadPool()
 {
-	if (num_worker_threads_ == 0)
-		return;
-	current_work = nullptr;
-	num_active_worker_threads_.store(num_worker_threads_, std::memory_order_relaxed);
-	signal_workers_start();
-	wait_for_workers_done();
+	ಆದರೆ (ಅಂಕೆ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು == 0)
+		ಹಿಂತಿರುಗಿ;
+	current_work = ಶೂನ್ಯಸೂಚಕ;
+	ಅಂಕೆ_ಸಕ್ರಿಯ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು.store(ಅಂಕೆ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು, std::ಸ್ಮರಣೆ_ಕ್ರಮ_relaxed);
+	signal_workers_ಆರಂಭ();
+	wait_for_workers_ಮುಗಿದ();
 }
 
-void ParallelDispatchThreadPool::run(std::function<void(const RunCtx &)> work, int max_threads)
+ಶೂನ್ಯ ParallelDispatchThreadPool::ಸತತ(std::function<ಶೂನ್ಯ(ಸ್ಥಿರಾಂಕ ಸತತ_Ctx &)> work, ಪೂರ್ಣಾಂಕ max_ಎಳೆಗಳು)
 {
 	Multithreading multithreading;
-	int num_active_worker_threads = num_threads(max_threads) - 1;
-	if (num_active_worker_threads == 0) {
+	ಪೂರ್ಣಾಂಕ ಅಂಕೆ_ಸಕ್ರಿಯ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು_2 = ಅಂಕೆ_ಎಳೆಗಳು(max_ಎಳೆಗಳು) - 1;
+	ಆದರೆ (ಅಂಕೆ_ಸಕ್ರಿಯ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು_2 == 0) {
 		work({{0}, 1});
-		return;
+		ಹಿಂತಿರುಗಿ;
 	}
-	num_active_worker_threads_.store(num_active_worker_threads, std::memory_order_relaxed);
+	ಅಂಕೆ_ಸಕ್ರಿಯ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು.store(ಅಂಕೆ_ಸಕ್ರಿಯ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು_2, std::ಸ್ಮರಣೆ_ಕ್ರಮ_relaxed);
 	current_work = &work;
-	signal_workers_start();
-	work({{0}, num_active_worker_threads + 1});
-	wait_for_workers_done();
+	signal_workers_ಆರಂಭ();
+	work({{0}, ಅಂಕೆ_ಸಕ್ರಿಯ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು_2 + 1});
+	wait_for_workers_ಮುಗಿದ();
 }
 
-void ParallelDispatchThreadPool::run_worker(int thread_num)
+ಶೂನ್ಯ ParallelDispatchThreadPool::ಸತತ_ಕೆಲಸಗಾರ(ಪೂರ್ಣಾಂಕ thread_ಅಂಕೆ)
 {
-#ifdef YOSYS_ENABLE_THREADS
-	while (true)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ YOSYS_ENABLE_ಎಳೆಗಳು
+	ಆಗ (ನಿಜ)
 	{
-		worker_wait_for_start(thread_num);
-		if (current_work == nullptr)
-			break;
-		int num_active_worker_threads = num_active_worker_threads_.load(std::memory_order_relaxed);
-		(*current_work)({{thread_num + 1}, num_active_worker_threads + 1});
-		signal_worker_done();
+		ಕೆಲಸಗಾರ_wait_for_ಆರಂಭ(thread_ಅಂಕೆ);
+		ಆದರೆ (current_work == ಶೂನ್ಯಸೂಚಕ)
+			ನಿಲ್ಲಿಸು;
+		ಪೂರ್ಣಾಂಕ ಅಂಕೆ_ಸಕ್ರಿಯ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು_2 = ಅಂಕೆ_ಸಕ್ರಿಯ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು.ತುಂಬು(std::ಸ್ಮರಣೆ_ಕ್ರಮ_relaxed);
+		(*current_work)({{thread_ಅಂಕೆ + 1}, ಅಂಕೆ_ಸಕ್ರಿಯ_ಕೆಲಸಗಾರ_ಎಳೆಗಳು_2 + 1});
+		signal_ಕೆಲಸಗಾರ_ಮುಗಿದ();
 	}
-	signal_worker_done();
-#else
-	(void)thread_num;
-	(void)current_work;
-#endif
+	signal_ಕೆಲಸಗಾರ_ಮುಗಿದ();
+#ಇಲ್ಲದಿದ್ದರೆ
+	(ಶೂನ್ಯ)thread_ಅಂಕೆ;
+	(ಶೂನ್ಯ)current_work;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ

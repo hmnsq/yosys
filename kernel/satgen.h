@@ -17,285 +17,285 @@
  *
  */
 
-#ifndef SATGEN_H
-#define SATGEN_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ SATGEN_H
+#ವ್ಯಾಖ್ಯಾನಿಸು SATGEN_H
 
-#include "kernel/rtlil.h"
-#include "kernel/sigtools.h"
-#include "kernel/celltypes.h"
-#include "kernel/macc.h"
+#ಅನ್ತರ್ಭಾವ "kernel/rtlil.h"
+#ಅನ್ತರ್ಭಾವ "kernel/sigtools.h"
+#ಅನ್ತರ್ಭಾವ "kernel/celltypes.h"
+#ಅನ್ತರ್ಭಾವ "kernel/macc.h"
 
-#include "libs/ezsat/ezminisat.h"
+#ಅನ್ತರ್ಭಾವ "libs/ezsat/ezminisat.h"
 
 YOSYS_NAMESPACE_BEGIN
 
 // defined in kernel/register.cc
-extern struct SatSolver *yosys_satsolver_list;
-extern struct SatSolver *yosys_satsolver;
+ಬಾಹ್ಯ ರಚನೆ SatSolver *yosys_satsolver_list;
+ಬಾಹ್ಯ ರಚನೆ SatSolver *yosys_satsolver;
 
-struct SatSolver
+ರಚನೆ SatSolver
 {
 	string name;
-	SatSolver *next;
-	virtual ezSAT *create() = 0;
+	SatSolver *ಮುಂದಿನ;
+	ವಾಸ್ತವಿಕ ezSAT *create() = 0;
 
 	SatSolver(string name) : name(name) {
-		next = yosys_satsolver_list;
+		ಮುಂದಿನ = yosys_satsolver_list;
 		yosys_satsolver_list = this;
 	}
 
-	virtual ~SatSolver() {
-		auto p = &yosys_satsolver_list;
-		while (*p) {
-			if (*p == this)
-				*p = next;
-			else
-				p = &(*p)->next;
+	ವಾಸ್ತವಿಕ ~SatSolver() {
+		ಸ್ವಯಂಚಾಲಿತ p = &yosys_satsolver_list;
+		ಆಗ (*p) {
+			ಆದರೆ (*p == this)
+				*p = ಮುಂದಿನ;
+			ಇಲ್ಲದಿದ್ದರೆ
+				p = &(*p)->ಮುಂದಿನ;
 		}
-		if (yosys_satsolver == this)
+		ಆದರೆ (yosys_satsolver == this)
 			yosys_satsolver = yosys_satsolver_list;
 	}
 };
 
-struct ezSatPtr : public std::unique_ptr<ezSAT> {
+ರಚನೆ ezSatPtr : ಸಾರ್ವಜನಿಕ std::unique_ptr<ezSAT> {
 	ezSatPtr() : unique_ptr<ezSAT>(yosys_satsolver->create()) { }
 	explicit ezSatPtr(SatSolver *solver) : unique_ptr<ezSAT>((solver ? solver : yosys_satsolver)->create()) { }
 };
 
-struct SatGen
+ರಚನೆ SatGen
 {
 	ezSAT *ez;
-	const SigMap *sigmap;
-	std::string prefix;
+	ಸ್ಥಿರಾಂಕ SigMap *sigmap;
+	std::string ಪೂರ್ವಪ್ರತ್ಯಯ_2;
 	SigPool initial_state;
 	std::map<std::string, RTLIL::SigSpec> asserts_a, asserts_en;
 	std::map<std::string, RTLIL::SigSpec> assumes_a, assumes_en;
-	std::map<std::string, std::map<RTLIL::SigBit, int>> imported_signals;
-	std::map<std::pair<std::string, int>, bool> initstates;
+	std::map<std::string, std::map<RTLIL::Sig_ಬಿಟ್, ಪೂರ್ಣಾಂಕ>> imported_ಸಂಕೇತಗಳು;
+	std::map<std::pair<std::string, ಪೂರ್ಣಾಂಕ>, bool> initstates;
 	bool ignore_div_by_zero;
 	bool model_undef;
 	bool def_formal = false;
 	bool model_barriers = false;
 
-	SatGen(ezSAT *ez, const SigMap *sigmap, std::string prefix = std::string()) :
-			ez(ez), sigmap(sigmap), prefix(prefix), ignore_div_by_zero(false), model_undef(false)
+	SatGen(ezSAT *ez, ಸ್ಥಿರಾಂಕ SigMap *sigmap, std::string ಪೂರ್ವಪ್ರತ್ಯಯ_2 = std::string()) :
+			ez(ez), sigmap(sigmap), ಪೂರ್ವಪ್ರತ್ಯಯ_2(ಪೂರ್ವಪ್ರತ್ಯಯ_2), ignore_div_by_zero(false), model_undef(false)
 	{
 	}
 
-	void setContext(const SigMap *sigmap, std::string prefix = std::string())
+	ಶೂನ್ಯ ಗಣ_Context(ಸ್ಥಿರಾಂಕ SigMap *sigmap, std::string ಪೂರ್ವಪ್ರತ್ಯಯ_2 = std::string())
 	{
 		this->sigmap = sigmap;
-		this->prefix = prefix;
+		this->ಪೂರ್ವಪ್ರತ್ಯಯ_2 = ಪೂರ್ವಪ್ರತ್ಯಯ_2;
 	}
 
-	std::vector<int> importSigSpecWorker(RTLIL::SigSpec sig, std::string &pf, bool undef_mode, bool dup_undef)
+	std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> import_Sig_Spec_ಕೆಲಸಗಾರ(RTLIL::SigSpec sig, std::string &pf, bool undef_ಬಹುಲಕ, bool dup_undef)
 	{
-		log_assert(!undef_mode || model_undef);
+		log_assert(!undef_ಬಹುಲಕ || model_undef);
 		sigmap->apply(sig);
 
-		std::vector<int> vec;
-		vec.reserve(GetSize(sig));
+		std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> vec;
+		vec.reserve(Get_ಗಾತ್ರ(sig));
 
-		for (auto &bit : sig)
-			if (bit.wire == NULL) {
-				if (model_undef && dup_undef && bit == RTLIL::State::Sx)
-					vec.push_back(ez->frozen_literal());
-				else
-					vec.push_back(bit == (undef_mode ? RTLIL::State::Sx : RTLIL::State::S1) ? ez->CONST_TRUE : ez->CONST_FALSE);
-			} else {
-				std::string wire_name = bit.wire->name.unescape();
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಬಿಟ್ : sig)
+			ಆದರೆ (ಬಿಟ್.wire == ಖಾಲಿ) {
+				ಆದರೆ (model_undef && dup_undef && ಬಿಟ್ == RTLIL::State::Sx)
+					vec.ತಳ್ಳು_ಹಿಂಭಾಗ(ez->frozen_literal());
+				ಇಲ್ಲದಿದ್ದರೆ
+					vec.ತಳ್ಳು_ಹಿಂಭಾಗ(ಬಿಟ್ == (undef_ಬಹುಲಕ ? RTLIL::State::Sx : RTLIL::State::S1) ? ez->CONST_TRUE : ez->CONST_FALSE);
+			} ಇಲ್ಲದಿದ್ದರೆ {
+				std::string wire_name = ಬಿಟ್.wire->name.unescape();
 				std::string name = pf +
-					(bit.wire->width == 1 ? wire_name : stringf("%s [%d]", wire_name, bit.offset));
-				vec.push_back(ez->frozen_literal(name));
-				imported_signals[pf][bit] = vec.back();
+					(ಬಿಟ್.wire->ಅಗಲ == 1 ? wire_name : stringf("%s [%d]", wire_name, ಬಿಟ್.ಸ್ಥಾನಾಂತರ));
+				vec.ತಳ್ಳು_ಹಿಂಭಾಗ(ez->frozen_literal(name));
+				imported_ಸಂಕೇತಗಳು[pf][ಬಿಟ್] = vec.ಹಿಂಭಾಗ();
 			}
-		return vec;
+		ಹಿಂತಿರುಗಿ vec;
 	}
 
-	std::vector<int> importSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> importSigSpec(RTLIL::SigSpec sig, ಪೂರ್ಣಾಂಕ timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, false, false);
+		std::string pf = ಪೂರ್ವಪ್ರತ್ಯಯ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ಹಿಂತಿರುಗಿ import_Sig_Spec_ಕೆಲಸಗಾರ(sig, pf, false, false);
 	}
 
-	std::vector<int> importDefSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> importDefSigSpec(RTLIL::SigSpec sig, ಪೂರ್ಣಾಂಕ timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, false, true);
+		std::string pf = ಪೂರ್ವಪ್ರತ್ಯಯ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ಹಿಂತಿರುಗಿ import_Sig_Spec_ಕೆಲಸಗಾರ(sig, pf, false, true);
 	}
 
-	std::vector<int> importUndefSigSpec(RTLIL::SigSpec sig, int timestep = -1)
+	std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> importUndefSigSpec(RTLIL::SigSpec sig, ಪೂರ್ಣಾಂಕ timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = "undef:" + prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(sig, pf, true, false);
+		std::string pf = "undef:" + ಪೂರ್ವಪ್ರತ್ಯಯ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ಹಿಂತಿರುಗಿ import_Sig_Spec_ಕೆಲಸಗಾರ(sig, pf, true, false);
 	}
 
-	int importSigBit(RTLIL::SigBit bit, int timestep = -1)
+	ಪೂರ್ಣಾಂಕ import_Sig_ಬಿಟ್(RTLIL::Sig_ಬಿಟ್ ಬಿಟ್, ಪೂರ್ಣಾಂಕ timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, false, false).front();
+		std::string pf = ಪೂರ್ವಪ್ರತ್ಯಯ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ಹಿಂತಿರುಗಿ import_Sig_Spec_ಕೆಲಸಗಾರ(ಬಿಟ್, pf, false, false).front();
 	}
 
-	int importDefSigBit(RTLIL::SigBit bit, int timestep = -1)
+	ಪೂರ್ಣಾಂಕ import_Def_Sig_ಬಿಟ್(RTLIL::Sig_ಬಿಟ್ ಬಿಟ್, ಪೂರ್ಣಾಂಕ timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, false, true).front();
+		std::string pf = ಪೂರ್ವಪ್ರತ್ಯಯ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ಹಿಂತಿರುಗಿ import_Sig_Spec_ಕೆಲಸಗಾರ(ಬಿಟ್, pf, false, true).front();
 	}
 
-	int importUndefSigBit(RTLIL::SigBit bit, int timestep = -1)
+	ಪೂರ್ಣಾಂಕ import_Undef_Sig_ಬಿಟ್(RTLIL::Sig_ಬಿಟ್ ಬಿಟ್, ಪೂರ್ಣಾಂಕ timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = "undef:" + prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return importSigSpecWorker(bit, pf, true, false).front();
+		std::string pf = "undef:" + ಪೂರ್ವಪ್ರತ್ಯಯ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ಹಿಂತಿರುಗಿ import_Sig_Spec_ಕೆಲಸಗಾರ(ಬಿಟ್, pf, true, false).front();
 	}
 
-	bool importedSigBit(RTLIL::SigBit bit, int timestep = -1)
+	bool imported_Sig_ಬಿಟ್(RTLIL::Sig_ಬಿಟ್ ಬಿಟ್, ಪೂರ್ಣಾಂಕ timestep = -1)
 	{
 		log_assert(timestep != 0);
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		return imported_signals[pf].count(bit) != 0;
+		std::string pf = ಪೂರ್ವಪ್ರತ್ಯಯ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ಹಿಂತಿರುಗಿ imported_ಸಂಕೇತಗಳು[pf].ಎಣಿಕೆ_2(ಬಿಟ್) != 0;
 	}
 
-	void getAsserts(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, int timestep = -1)
+	ಶೂನ್ಯ getAsserts(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, ಪೂರ್ಣಾಂಕ timestep = -1)
 	{
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		std::string pf = ಪೂರ್ವಪ್ರತ್ಯಯ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
 		sig_a = asserts_a[pf];
 		sig_en = asserts_en[pf];
 	}
 
-	void getAssumes(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, int timestep = -1)
+	ಶೂನ್ಯ getAssumes(RTLIL::SigSpec &sig_a, RTLIL::SigSpec &sig_en, ಪೂರ್ಣಾಂಕ timestep = -1)
 	{
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		std::string pf = ಪೂರ್ವಪ್ರತ್ಯಯ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
 		sig_a = assumes_a[pf];
 		sig_en = assumes_en[pf];
 	}
 
-	int importAsserts(int timestep = -1)
+	ಪೂರ್ಣಾಂಕ importAsserts(ಪೂರ್ಣಾಂಕ timestep = -1)
 	{
-		std::vector<int> check_bits, enable_bits;
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		if (model_undef) {
-			check_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_a[pf], timestep)), importDefSigSpec(asserts_a[pf], timestep));
-			enable_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_en[pf], timestep)), importDefSigSpec(asserts_en[pf], timestep));
-		} else {
-			check_bits = importDefSigSpec(asserts_a[pf], timestep);
-			enable_bits = importDefSigSpec(asserts_en[pf], timestep);
+		std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> check_ಬಿಟ್ಟುಗಳು, enable_ಬಿಟ್ಟುಗಳು;
+		std::string pf = ಪೂರ್ವಪ್ರತ್ಯಯ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ಆದರೆ (model_undef) {
+			check_ಬಿಟ್ಟುಗಳು = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_a[pf], timestep)), importDefSigSpec(asserts_a[pf], timestep));
+			enable_ಬಿಟ್ಟುಗಳು = ez->vec_and(ez->vec_not(importUndefSigSpec(asserts_en[pf], timestep)), importDefSigSpec(asserts_en[pf], timestep));
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			check_ಬಿಟ್ಟುಗಳು = importDefSigSpec(asserts_a[pf], timestep);
+			enable_ಬಿಟ್ಟುಗಳು = importDefSigSpec(asserts_en[pf], timestep);
 		}
-		return ez->vec_reduce_and(ez->vec_or(check_bits, ez->vec_not(enable_bits)));
+		ಹಿಂತಿರುಗಿ ez->vec_reduce_and(ez->vec_or(check_ಬಿಟ್ಟುಗಳು, ez->vec_not(enable_ಬಿಟ್ಟುಗಳು)));
 	}
 
-	int importAssumes(int timestep = -1)
+	ಪೂರ್ಣಾಂಕ importAssumes(ಪೂರ್ಣಾಂಕ timestep = -1)
 	{
-		std::vector<int> check_bits, enable_bits;
-		std::string pf = prefix + (timestep == -1 ? "" : stringf("@%d:", timestep));
-		if (model_undef) {
-			check_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_a[pf], timestep)), importDefSigSpec(assumes_a[pf], timestep));
-			enable_bits = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_en[pf], timestep)), importDefSigSpec(assumes_en[pf], timestep));
-		} else {
-			check_bits = importDefSigSpec(assumes_a[pf], timestep);
-			enable_bits = importDefSigSpec(assumes_en[pf], timestep);
+		std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> check_ಬಿಟ್ಟುಗಳು, enable_ಬಿಟ್ಟುಗಳು;
+		std::string pf = ಪೂರ್ವಪ್ರತ್ಯಯ_2 + (timestep == -1 ? "" : stringf("@%d:", timestep));
+		ಆದರೆ (model_undef) {
+			check_ಬಿಟ್ಟುಗಳು = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_a[pf], timestep)), importDefSigSpec(assumes_a[pf], timestep));
+			enable_ಬಿಟ್ಟುಗಳು = ez->vec_and(ez->vec_not(importUndefSigSpec(assumes_en[pf], timestep)), importDefSigSpec(assumes_en[pf], timestep));
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			check_ಬಿಟ್ಟುಗಳು = importDefSigSpec(assumes_a[pf], timestep);
+			enable_ಬಿಟ್ಟುಗಳು = importDefSigSpec(assumes_en[pf], timestep);
 		}
-		return ez->vec_reduce_and(ez->vec_or(check_bits, ez->vec_not(enable_bits)));
+		ಹಿಂತಿರುಗಿ ez->vec_reduce_and(ez->vec_or(check_ಬಿಟ್ಟುಗಳು, ez->vec_not(enable_ಬಿಟ್ಟುಗಳು)));
 	}
 
-	int signals_eq(RTLIL::SigSpec lhs, RTLIL::SigSpec rhs, int timestep_lhs = -1, int timestep_rhs = -1)
+	ಪೂರ್ಣಾಂಕ ಸಂಕೇತಗಳು_eq(RTLIL::SigSpec lhs, RTLIL::SigSpec rhs, ಪೂರ್ಣಾಂಕ timestep_lhs = -1, ಪೂರ್ಣಾಂಕ timestep_rhs = -1)
 	{
-		if (timestep_rhs < 0)
+		ಆದರೆ (timestep_rhs < 0)
 			timestep_rhs = timestep_lhs;
 
-		log_assert(lhs.size() == rhs.size());
+		log_assert(lhs.ಗಾತ್ರ_2() == rhs.ಗಾತ್ರ_2());
 
-		std::vector<int> vec_lhs = importSigSpec(lhs, timestep_lhs);
-		std::vector<int> vec_rhs = importSigSpec(rhs, timestep_rhs);
+		std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> vec_lhs = importSigSpec(lhs, timestep_lhs);
+		std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> vec_rhs = importSigSpec(rhs, timestep_rhs);
 
-		if (!model_undef)
-			return ez->vec_eq(vec_lhs, vec_rhs);
+		ಆದರೆ (!model_undef)
+			ಹಿಂತಿರುಗಿ ez->vec_eq(vec_lhs, vec_rhs);
 
-		std::vector<int> undef_lhs = importUndefSigSpec(lhs, timestep_lhs);
-		std::vector<int> undef_rhs = importUndefSigSpec(rhs, timestep_rhs);
+		std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> undef_lhs = importUndefSigSpec(lhs, timestep_lhs);
+		std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> undef_rhs = importUndefSigSpec(rhs, timestep_rhs);
 
-		std::vector<int> eq_bits;
-		for (int i = 0; i < lhs.size(); i++)
-			eq_bits.push_back(ez->AND(ez->IFF(undef_lhs.at(i), undef_rhs.at(i)),
+		std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> eq_ಬಿಟ್ಟುಗಳು;
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < lhs.ಗಾತ್ರ_2(); i++)
+			eq_ಬಿಟ್ಟುಗಳು.ತಳ್ಳು_ಹಿಂಭಾಗ(ez->AND(ez->IFF(undef_lhs.at(i), undef_rhs.at(i)),
 					ez->IFF(ez->OR(vec_lhs.at(i), undef_lhs.at(i)), ez->OR(vec_rhs.at(i), undef_rhs.at(i)))));
-		return ez->expression(ezSAT::OpAnd, eq_bits);
+		ಹಿಂತಿರುಗಿ ez->ಅಭಿವ್ಯಕ್ತಿ_2(ezSAT::OpAnd, eq_ಬಿಟ್ಟುಗಳು);
 	}
 
-	void extendSignalWidth(std::vector<int> &vec_a, std::vector<int> &vec_b, RTLIL::Cell *cell, size_t y_width = 0, bool forced_signed = false)
+	ಶೂನ್ಯ extend_Signal_ಅಗಲ(std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &vec_a, std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &vec_b, RTLIL::Cell *cell, ಗಾತ್ರ_t y_ಅಗಲ = 0, bool forced_signed = false)
 	{
 		bool is_signed = forced_signed;
-		if (!forced_signed && cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters.count(ID::B_SIGNED) > 0)
+		ಆದರೆ (!forced_signed && cell->parameters.ಎಣಿಕೆ_2(ID::A_SIGNED) > 0 && cell->parameters.ಎಣಿಕೆ_2(ID::B_SIGNED) > 0)
 			is_signed = cell->parameters[ID::A_SIGNED].as_bool() && cell->parameters[ID::B_SIGNED].as_bool();
-		while (vec_a.size() < vec_b.size() || vec_a.size() < y_width)
-			vec_a.push_back(is_signed && vec_a.size() > 0 ? vec_a.back() : ez->CONST_FALSE);
-		while (vec_b.size() < vec_a.size() || vec_b.size() < y_width)
-			vec_b.push_back(is_signed && vec_b.size() > 0 ? vec_b.back() : ez->CONST_FALSE);
+		ಆಗ (vec_a.ಗಾತ್ರ_2() < vec_b.ಗಾತ್ರ_2() || vec_a.ಗಾತ್ರ_2() < y_ಅಗಲ)
+			vec_a.ತಳ್ಳು_ಹಿಂಭಾಗ(is_signed && vec_a.ಗಾತ್ರ_2() > 0 ? vec_a.ಹಿಂಭಾಗ() : ez->CONST_FALSE);
+		ಆಗ (vec_b.ಗಾತ್ರ_2() < vec_a.ಗಾತ್ರ_2() || vec_b.ಗಾತ್ರ_2() < y_ಅಗಲ)
+			vec_b.ತಳ್ಳು_ಹಿಂಭಾಗ(is_signed && vec_b.ಗಾತ್ರ_2() > 0 ? vec_b.ಹಿಂಭಾಗ() : ez->CONST_FALSE);
 	}
 
-	void extendSignalWidth(std::vector<int> &vec_a, std::vector<int> &vec_b, std::vector<int> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
+	ಶೂನ್ಯ extend_Signal_ಅಗಲ(std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &vec_a, std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &vec_b, std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
 	{
-		extendSignalWidth(vec_a, vec_b, cell, vec_y.size(), forced_signed);
-		while (vec_y.size() < vec_a.size())
-			vec_y.push_back(ez->literal());
+		extend_Signal_ಅಗಲ(vec_a, vec_b, cell, vec_y.ಗಾತ್ರ_2(), forced_signed);
+		ಆಗ (vec_y.ಗಾತ್ರ_2() < vec_a.ಗಾತ್ರ_2())
+			vec_y.ತಳ್ಳು_ಹಿಂಭಾಗ(ez->literal());
 	}
 
-	void extendSignalWidthUnary(std::vector<int> &vec_a, std::vector<int> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
+	ಶೂನ್ಯ extend_Signal_ಅಗಲ_Unary(std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &vec_a, std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &vec_y, RTLIL::Cell *cell, bool forced_signed = false)
 	{
-		bool is_signed = forced_signed || (cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool());
-		while (vec_a.size() < vec_y.size())
-			vec_a.push_back(is_signed && vec_a.size() > 0 ? vec_a.back() : ez->CONST_FALSE);
-		while (vec_y.size() < vec_a.size())
-			vec_y.push_back(ez->literal());
+		bool is_signed = forced_signed || (cell->parameters.ಎಣಿಕೆ_2(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool());
+		ಆಗ (vec_a.ಗಾತ್ರ_2() < vec_y.ಗಾತ್ರ_2())
+			vec_a.ತಳ್ಳು_ಹಿಂಭಾಗ(is_signed && vec_a.ಗಾತ್ರ_2() > 0 ? vec_a.ಹಿಂಭಾಗ() : ez->CONST_FALSE);
+		ಆಗ (vec_y.ಗಾತ್ರ_2() < vec_a.ಗಾತ್ರ_2())
+			vec_y.ತಳ್ಳು_ಹಿಂಭಾಗ(ez->literal());
 	}
 
-	void undefGating(std::vector<int> &vec_y, std::vector<int> &vec_yy, std::vector<int> &vec_undef)
+	ಶೂನ್ಯ undefGating(std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &vec_y, std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &vec_yy, std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &vec_undef)
 	{
 		log_assert(model_undef);
-		log_assert(vec_y.size() == vec_yy.size());
-		if (vec_y.size() > vec_undef.size()) {
-			std::vector<int> trunc_y(vec_y.begin(), vec_y.begin() + vec_undef.size());
-			std::vector<int> trunc_yy(vec_yy.begin(), vec_yy.begin() + vec_undef.size());
-			ez->assume(ez->expression(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(trunc_y, trunc_yy))));
-		} else {
-			log_assert(vec_y.size() == vec_undef.size());
-			ez->assume(ez->expression(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(vec_y, vec_yy))));
+		log_assert(vec_y.ಗಾತ್ರ_2() == vec_yy.ಗಾತ್ರ_2());
+		ಆದರೆ (vec_y.ಗಾತ್ರ_2() > vec_undef.ಗಾತ್ರ_2()) {
+			std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> trunc_y(vec_y.begin(), vec_y.begin() + vec_undef.ಗಾತ್ರ_2());
+			std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> trunc_yy(vec_yy.begin(), vec_yy.begin() + vec_undef.ಗಾತ್ರ_2());
+			ez->assume(ez->ಅಭಿವ್ಯಕ್ತಿ_2(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(trunc_y, trunc_yy))));
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			log_assert(vec_y.ಗಾತ್ರ_2() == vec_undef.ಗಾತ್ರ_2());
+			ez->assume(ez->ಅಭಿವ್ಯಕ್ತಿ_2(ezSAT::OpAnd, ez->vec_or(vec_undef, ez->vec_iff(vec_y, vec_yy))));
 		}
 	}
 
-	std::pair<std::vector<int>, std::vector<int>> mux(int s, int undef_s, const std::vector<int> &a, const std::vector<int> &undef_a, const std::vector<int> &b, const std::vector<int> &undef_b) {
-		std::vector<int> res;
-		std::vector<int> undef_res;
+	std::pair<std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ>, std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ>> mux(ಪೂರ್ಣಾಂಕ s, ಪೂರ್ಣಾಂಕ undef_s, ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &a, ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &undef_a, ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &b, ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &undef_b) {
+		std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> res;
+		std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> undef_res;
 		res = ez->vec_ite(s, b, a);
-		if (model_undef) {
-			std::vector<int> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
-			std::vector<int> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
+		ಆದರೆ (model_undef) {
+			std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> unequal_ab = ez->vec_not(ez->vec_iff(a, b));
+			std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> undef_ab = ez->vec_or(unequal_ab, ez->vec_or(undef_a, undef_b));
 			undef_res = ez->vec_ite(undef_s, undef_ab, ez->vec_ite(s, undef_b, undef_a));
 		}
-		return std::make_pair(res, undef_res);
+		ಹಿಂತಿರುಗಿ std::make_pair(res, undef_res);
 	}
 
-	void undefGating(int y, int yy, int undef)
+	ಶೂನ್ಯ undefGating(ಪೂರ್ಣಾಂಕ y, ಪೂರ್ಣಾಂಕ yy, ಪೂರ್ಣಾಂಕ undef)
 	{
 		ez->assume(ez->OR(undef, ez->IFF(y, yy)));
 	}
 
-	void setInitState(int timestep)
+	ಶೂನ್ಯ ಗಣ_Init_State(ಪೂರ್ಣಾಂಕ timestep)
 	{
-		auto key = make_pair(prefix, timestep);
-		log_assert(initstates.count(key) == 0 || initstates.at(key) == true);
-		initstates[key] = true;
+		ಸ್ವಯಂಚಾಲಿತ ಕೀಲಿ = make_pair(ಪೂರ್ವಪ್ರತ್ಯಯ_2, timestep);
+		log_assert(initstates.ಎಣಿಕೆ_2(ಕೀಲಿ) == 0 || initstates.at(ಕೀಲಿ) == true);
+		initstates[ಕೀಲಿ] = true;
 	}
 
-	bool importCell(RTLIL::Cell *cell, int timestep = -1);
+	bool importCell(RTLIL::Cell *cell, ಪೂರ್ಣಾಂಕ timestep = -1);
 };
 
-void report_missing_model(bool warn_only, RTLIL::Cell* cell);
+ಶೂನ್ಯ report_missing_model(bool warn_only, RTLIL::Cell* cell);
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

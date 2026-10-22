@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 
-from __future__ import annotations
-import fileinput
-import json
-from pathlib import Path
+ತಃ __future__ ಆಮದು annotations
+ಆಮದು fileinput
+ಆಮದು json
+ತಃ pathlib ಆಮದು ಮಾರ್ಗ
 
-class SimHelper:
+ವರ್ಗ SimHelper:
     name: str = ""
     title: str = ""
     ports: str = ""
-    source: str = ""
+    ಮೂಲ: str = ""
     desc: list[str]
-    code: list[str]
-    group: str = ""
+    ಸಂಕೇತ_2: list[str]
+    ಗುಂಪು: str = ""
     ver: str = "1"
-    tags: list[str]
+    ಟ್ಯಾಗುಗಳು: list[str]
 
-    def __init__(self) -> None:
+    ವ್ಯಾಖ್ಯಾನ __init__(self) -> ಏನೂಇಲ್ಲ:
         self.desc = []
-        self.tags = []
+        self.ಟ್ಯಾಗುಗಳು = []
 
-    def __str__(self) -> str:
+    ವ್ಯಾಖ್ಯಾನ __str__(self) -> str:
         printed_fields = [
             "name", "title", "ports", "source", "desc", "code", "group", "ver",
             "tags",
@@ -28,28 +28,28 @@ class SimHelper:
         # generate C++ struct
         val = f"cell_help[{json.dumps(self.name)}] = "
         val += "{\n"
-        for field in printed_fields:
-            field_val = getattr(self, field)
-            if isinstance(field_val, list):
-                field_val = "\n".join(field_val)
-            field_val = field_val.strip()
+        ಗಾಗಿ ಕ್ಷೇತ್ರ ಒಳಗೆ printed_fields:
+            ಕ್ಷೇತ್ರ_val = getattr(self, ಕ್ಷೇತ್ರ)
+            ಆದರೆ isinstance(ಕ್ಷೇತ್ರ_val, list):
+                ಕ್ಷೇತ್ರ_val = "\n".join(ಕ್ಷೇತ್ರ_val)
+            ಕ್ಷೇತ್ರ_val = ಕ್ಷೇತ್ರ_val.strip()
             val += f'  {json.dumps(field_val)},\n'
         val += "};\n"
-        return val
+        ಹಿಂತಿರುಗಿ val
 
-def simcells_reparse(cell: SimHelper):
+ವ್ಯಾಖ್ಯಾನ simcells_reparse(cell: SimHelper):
     # cut manual signature
     cell.desc = cell.desc[3:]
 
     # code-block truth table
     new_desc = []
     indent = ""
-    for line in cell.desc:
-        if line.startswith("Truth table:"):
+    ಗಾಗಿ ಸಾಲು ಒಳಗೆ cell.desc:
+        ಆದರೆ ಸಾಲು.startswith("Truth table:"):
             indent = "   "
-            new_desc.pop()
+            new_desc.ತೆಗೆ_2()
             new_desc.extend(["::", ""])
-        new_desc.append(indent + line)
+        new_desc.append(indent + ಸಾಲು)
     cell.desc = new_desc
 
     # set version
@@ -57,43 +57,43 @@ def simcells_reparse(cell: SimHelper):
 
 simHelper = SimHelper()
 
-for line in fileinput.input():
-    line = line.rstrip()
+ಗಾಗಿ ಸಾಲು ಒಳಗೆ fileinput.ಒಳಹರಿವು():
+    ಸಾಲು = ಸಾಲು.rstrip()
     # special comments
-    if line.startswith("//-"):
-        simHelper.desc.append(line[4:] if len(line) > 4 else "")
-    elif line.startswith("//* "):
-        _, key, val = line.split(maxsplit=2)
-        setattr(simHelper, key, val)
+    ಆದರೆ ಸಾಲು.startswith("//-"):
+        simHelper.desc.append(ಸಾಲು[4:] ಆದರೆ ಉದ್ದ(ಸಾಲು) > 4 ಇಲ್ಲದಿದ್ದರೆ "")
+    ಅಥವಾಆದರೆ ಸಾಲು.startswith("//* "):
+        _, ಕೀಲಿ, val = ಸಾಲು.ವಿಭಜಿಸು(maxsplit=2)
+        setattr(simHelper, ಕೀಲಿ, val)
 
     # code parsing
-    if line.startswith("module "):
-        clean_line = line[7:].replace("\\", "").replace(";", "")
-        simHelper.name, simHelper.ports = clean_line.split(maxsplit=1)
-        simHelper.code = []
-        short_filename = Path(fileinput.filename()).name
-        simHelper.source = f'{short_filename}:{fileinput.filelineno()}'
-    elif not line.startswith("endmodule"):
-        line = "    " + line
-    try:
-        simHelper.code.append(line.replace("\t", "    "))
-    except AttributeError:
+    ಆದರೆ ಸಾಲು.startswith("module "):
+        clean_ಸಾಲು = ಸಾಲು[7:].replace("\\", "").replace(";", "")
+        simHelper.name, simHelper.ports = clean_ಸಾಲು.ವಿಭಜಿಸು(maxsplit=1)
+        simHelper.ಸಂಕೇತ_2 = []
+        short_filename = ಮಾರ್ಗ(fileinput.filename()).name
+        simHelper.ಮೂಲ = f'{short_filename}:{fileinput.filelineno()}'
+    ಅಥವಾಆದರೆ ಅಲ್ಲ ಸಾಲು.startswith("endmodule"):
+        ಸಾಲು = "    " + ಸಾಲು
+    ಪ್ರಯತ್ನಿಸು:
+        simHelper.ಸಂಕೇತ_2.append(ಸಾಲು.replace("\t", "    "))
+    ಅಪವಾದ AttributeError:
         # no module definition, ignore line
-        pass
-    if line.startswith("endmodule"):
-        short_filename = Path(fileinput.filename()).name
-        if simHelper.ver == "1" and short_filename == "simcells.v":
+        ದಾಟು
+    ಆದರೆ ಸಾಲು.startswith("endmodule"):
+        short_filename = ಮಾರ್ಗ(fileinput.filename()).name
+        ಆದರೆ simHelper.ver == "1" ಮತ್ತು short_filename == "simcells.v":
             # default simcells parsing
             simcells_reparse(simHelper)
 
         # check help
-        if simHelper.desc and simHelper.ver == "1" and short_filename == "simlib.v" and simHelper.desc[1].startswith('    '):
-            simHelper.desc.pop(1)
+        ಆದರೆ simHelper.desc ಮತ್ತು simHelper.ver == "1" ಮತ್ತು short_filename == "simlib.v" ಮತ್ತು simHelper.desc[1].startswith('    '):
+            simHelper.desc.ತೆಗೆ_2(1)
 
         # check group
-        assert simHelper.group, f"techlibs/common/{simHelper.source}: {simHelper.name} cell missing group"
+        ಪ್ರತಿಜ್ಞಾ simHelper.ಗುಂಪು, f"techlibs/common/{simHelper.source}: {simHelper.name} cell missing group"
 
         # dump
-        print(simHelper)
+        ಮುದ್ರಿಸು(simHelper)
         # new
         simHelper = SimHelper()

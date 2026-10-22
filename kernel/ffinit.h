@@ -17,207 +17,207 @@
  *
  */
 
-#ifndef FFINIT_H
-#define FFINIT_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ FFINIT_H
+#ವ್ಯಾಖ್ಯಾನಿಸು FFINIT_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/threading.h"
+#ಅನ್ತರ್ಭಾವ "kernel/yosys.h"
+#ಅನ್ತರ್ಭಾವ "kernel/sigtools.h"
+#ಅನ್ತರ್ಭಾವ "kernel/threading.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct FfInitVals
+ರಚನೆ FfInitVals
 {
-	const SigMapView *sigmap;
-	dict<SigBit, std::pair<State,SigBit>> initbits;
+	ಸ್ಥಿರಾಂಕ SigMapView *sigmap;
+	dict<Sig_ಬಿಟ್, std::pair<State,Sig_ಬಿಟ್>> initbits;
 
-	void set(const SigMapView *sigmap_, RTLIL::Module *module)
+	ಶೂನ್ಯ ಗಣ(ಸ್ಥಿರಾಂಕ SigMapView *sigmap_, RTLIL::Module *module)
 	{
 		sigmap = sigmap_;
 		initbits.clear();
-		for (auto wire : module->wires())
-			if (wire->attributes.count(ID::init))
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ wire : module->wires())
+			ಆದರೆ (wire->ಗುಣಲಕ್ಷಣಗಳು.ಎಣಿಕೆ_2(ID::init))
 				process_wire(wire);
 	}
 
-	void process_wire(RTLIL::Wire *wire)
+	ಶೂನ್ಯ process_wire(RTLIL::Wire *wire)
 	{
 		SigSpec wirebits = (*sigmap)(wire);
-		Const initval = wire->attributes.at(ID::init);
+		Const initval = wire->ಗುಣಲಕ್ಷಣಗಳು.at(ID::init);
 
-		for (int i = 0; i < GetSize(wirebits) && i < GetSize(initval); i++)
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(wirebits) && i < Get_ಗಾತ್ರ(initval); i++)
 		{
-			SigBit bit = wirebits[i];
+			Sig_ಬಿಟ್ ಬಿಟ್ = wirebits[i];
 			State val = initval[i];
 
-			if (val != State::S0 && val != State::S1 && bit.wire != nullptr)
-				continue;
+			ಆದರೆ (val != State::S0 && val != State::S1 && ಬಿಟ್.wire != nullptr)
+				ಮುಂದುವರಿ;
 
-			if (initbits.count(bit)) {
-				if (initbits.at(bit).first != val)
+			ಆದರೆ (initbits.ಎಣಿಕೆ_2(ಬಿಟ್)) {
+				ಆದರೆ (initbits.at(ಬಿಟ್).ಮೊದಲ != val)
 					log_error("Conflicting init values for signal %s (%s = %s != %s).\n",
-							log_signal(bit), log_signal(SigBit(wire, i)),
-							log_signal(val), log_signal(initbits.at(bit).first));
-				continue;
+							log_signal(ಬಿಟ್), log_signal(Sig_ಬಿಟ್(wire, i)),
+							log_signal(val), log_signal(initbits.at(ಬಿಟ್).ಮೊದಲ));
+				ಮುಂದುವರಿ;
 			}
 
-			initbits[bit] = std::make_pair(val,SigBit(wire,i));
+			initbits[ಬಿಟ್] = std::make_pair(val,Sig_ಬಿಟ್(wire,i));
 		}
 	}
 
-	void set_parallel(const SigMapView *sigmap_, ParallelDispatchThreadPool &thread_pool, RTLIL::Module *module)
+	ಶೂನ್ಯ ಗಣ_parallel(ಸ್ಥಿರಾಂಕ SigMapView *sigmap_, ParallelDispatchThreadPool &thread_pool, RTLIL::Module *module)
 	{
 		sigmap = sigmap_;
 		initbits.clear();
 
-		const RTLIL::Module *const_module = module;
-		ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_size(0, module->wires_size(), 1000));
-		ShardedVector<RTLIL::Wire*> init_wires(subpool);
-		subpool.run([const_module, &init_wires](const ParallelDispatchThreadPool::RunCtx &ctx) {
-			for (int i : ctx.item_range(const_module->wires_size())) {
+		ಸ್ಥಿರಾಂಕ RTLIL::Module *const_module = module;
+		ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_ಗಾತ್ರ(0, module->wires_ಗಾತ್ರ(), 1000));
+		Sharded_ಸದಿಶ<RTLIL::Wire*> init_wires(subpool);
+		subpool.ಸತತ([const_module, &init_wires](ಸ್ಥಿರಾಂಕ ParallelDispatchThreadPool::ಸತತ_Ctx &ctx) {
+			ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i : ctx.ಅಂಶ_range(const_module->wires_ಗಾತ್ರ())) {
 				RTLIL::Wire *wire = const_module->wire_at(i);
-				if (wire->attributes.count(ID::init))
-					init_wires.insert(ctx, wire);
+				ಆದರೆ (wire->ಗುಣಲಕ್ಷಣಗಳು.ಎಣಿಕೆ_2(ID::init))
+					init_wires.ಸೇರಿಸು(ctx, wire);
 			}
 		});
 
-		for (RTLIL::Wire *wire : init_wires)
+		ಗಾಗಿ (RTLIL::Wire *wire : init_wires)
 			process_wire(wire);
 	}
 
-	RTLIL::State operator()(RTLIL::SigBit bit) const
+	RTLIL::State ಕ್ರಿಯಾಕಾರಕ()(RTLIL::Sig_ಬಿಟ್ ಬಿಟ್) ಸ್ಥಿರಾಂಕ
 	{
-		auto it = initbits.find((*sigmap)(bit));
-		if (it != initbits.end())
-			return it->second.first;
-		else
-			return State::Sx;
+		ಸ್ವಯಂಚಾಲಿತ it = initbits.ಕಂಡುಹಿಡಿ((*sigmap)(ಬಿಟ್));
+		ಆದರೆ (it != initbits.ಕೊನೆ())
+			ಹಿಂತಿರುಗಿ it->ಎರಡನೇ.ಮೊದಲ;
+		ಇಲ್ಲದಿದ್ದರೆ
+			ಹಿಂತಿರುಗಿ State::Sx;
 	}
 
-	RTLIL::Const operator()(const RTLIL::SigSpec &sig) const
+	RTLIL::Const ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig) ಸ್ಥಿರಾಂಕ
 	{
-		RTLIL::Const::Builder res_bits(GetSize(sig));
-		for (auto bit : sig)
-			res_bits.push_back((*this)(bit));
-		return res_bits.build();
+		RTLIL::Const::Builder res_ಬಿಟ್ಟುಗಳು(Get_ಗಾತ್ರ(sig));
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ ಬಿಟ್ : sig)
+			res_ಬಿಟ್ಟುಗಳು.ತಳ್ಳು_ಹಿಂಭಾಗ((*this)(ಬಿಟ್));
+		ಹಿಂತಿರುಗಿ res_ಬಿಟ್ಟುಗಳು.build();
 	}
 
-	void set_init(RTLIL::SigBit bit, RTLIL::State val)
+	ಶೂನ್ಯ ಗಣ_init(RTLIL::Sig_ಬಿಟ್ ಬಿಟ್, RTLIL::State val)
 	{
-		SigBit mbit = (*sigmap)(bit);
-		SigBit abit = bit;
-		auto it = initbits.find(mbit);
-		if (it != initbits.end())
-			abit = it->second.second;
-		else if (val == State::Sx)
-			return;
+		Sig_ಬಿಟ್ mbit = (*sigmap)(ಬಿಟ್);
+		Sig_ಬಿಟ್ abit = ಬಿಟ್;
+		ಸ್ವಯಂಚಾಲಿತ it = initbits.ಕಂಡುಹಿಡಿ(mbit);
+		ಆದರೆ (it != initbits.ಕೊನೆ())
+			abit = it->ಎರಡನೇ.ಎರಡನೇ;
+		ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (val == State::Sx)
+			ಹಿಂತಿರುಗಿ;
 		log_assert(abit.wire);
 		initbits[mbit] = std::make_pair(val,abit);
-		auto it2 = abit.wire->attributes.find(ID::init);
-		if (it2 != abit.wire->attributes.end()) {
-			it2->second.set(abit.offset, val);
-			if (it2->second.is_fully_undef())
-				abit.wire->attributes.erase(it2);
-		} else if (val != State::Sx) {
-			Const cval(State::Sx, GetSize(abit.wire));
-			cval.set(abit.offset, val);
-			abit.wire->attributes[ID::init] = cval;
+		ಸ್ವಯಂಚಾಲಿತ it2 = abit.wire->ಗುಣಲಕ್ಷಣಗಳು.ಕಂಡುಹಿಡಿ(ID::init);
+		ಆದರೆ (it2 != abit.wire->ಗುಣಲಕ್ಷಣಗಳು.ಕೊನೆ()) {
+			it2->ಎರಡನೇ.ಗಣ(abit.ಸ್ಥಾನಾಂತರ, val);
+			ಆದರೆ (it2->ಎರಡನೇ.is_fully_undef())
+				abit.wire->ಗುಣಲಕ್ಷಣಗಳು.erase(it2);
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (val != State::Sx) {
+			Const cval(State::Sx, Get_ಗಾತ್ರ(abit.wire));
+			cval.ಗಣ(abit.ಸ್ಥಾನಾಂತರ, val);
+			abit.wire->ಗುಣಲಕ್ಷಣಗಳು[ID::init] = cval;
 		}
 	}
 
-	void set_init(const RTLIL::SigSpec &sig, RTLIL::Const val)
+	ಶೂನ್ಯ ಗಣ_init(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig, RTLIL::Const val)
 	{
-		log_assert(GetSize(sig) == GetSize(val));
-		for (int i = 0; i < GetSize(sig); i++)
-			set_init(sig[i], val[i]);
+		log_assert(Get_ಗಾತ್ರ(sig) == Get_ಗಾತ್ರ(val));
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(sig); i++)
+			ಗಣ_init(sig[i], val[i]);
 	}
 
-	void remove_init(RTLIL::SigBit bit)
+	ಶೂನ್ಯ remove_init(RTLIL::Sig_ಬಿಟ್ ಬಿಟ್)
 	{
-		set_init(bit, State::Sx);
+		ಗಣ_init(ಬಿಟ್, State::Sx);
 	}
 
-	void remove_init(const RTLIL::SigSpec &sig)
+	ಶೂನ್ಯ remove_init(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sig)
-			remove_init(bit);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ ಬಿಟ್ : sig)
+			remove_init(ಬಿಟ್);
 	}
 
 	// Move $barrier output init value to it's input
-	void move_barrier_inits(RTLIL::Module *module)
+	ಶೂನ್ಯ move_barrier_inits(RTLIL::Module *module)
 	{
-		dict<RTLIL::SigBit, RTLIL::SigBit> next;
-		for (auto cell : module->cells()) {
-			if (cell->type != ID($barrier))
-				continue;
-			RTLIL::SigSpec sig_y = (*sigmap)(cell->getPort(ID::Y)), sig_a = cell->getPort(ID::A);
-			for (int i = 0; i < GetSize(sig_y); i++)
-				next[sig_y[i]] = sig_a[i];
+		dict<RTLIL::Sig_ಬಿಟ್, RTLIL::Sig_ಬಿಟ್> ಮುಂದಿನ;
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ cell : module->cells()) {
+			ಆದರೆ (cell->type != ID($barrier))
+				ಮುಂದುವರಿ;
+			RTLIL::SigSpec sig_y = (*sigmap)(cell->get_ಪೋರ್ಟ್(ID::Y)), sig_a = cell->get_ಪೋರ್ಟ್(ID::A);
+			ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(sig_y); i++)
+				ಮುಂದಿನ[sig_y[i]] = sig_a[i];
 		}
-		if (next.empty() || initbits.empty())
-			return;
-		pool<RTLIL::SigBit> inputs = input_nets(module), moved;
-		for (auto [from, to] : next) {
+		ಆದರೆ (ಮುಂದಿನ.ಖಾಲಿಗಳು() || initbits.ಖಾಲಿಗಳು())
+			ಹಿಂತಿರುಗಿ;
+		pool<RTLIL::Sig_ಬಿಟ್> inputs = ಒಳಹರಿವು_nets(module), moved;
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ [from, ಗಮ್ಯ] : ಮುಂದಿನ) {
 			RTLIL::State val = (*this)(from);
-			if (val == State::Sx)
-				continue;
-			moved.insert(from);
-			for (int i = 0; i < GetSize(next) && next.count((*sigmap)(to)); i++)
-				to = next.at((*sigmap)(to));
-			RTLIL::SigBit to_net = (*sigmap)(to);
-			if (to_net.wire == nullptr || inputs.count(to_net))
-				continue;
-			RTLIL::State to_val = (*this)(to);
-			if (to_val == State::Sx)
-				set_init(to, val);
-			else if (to_val != val)
+			ಆದರೆ (val == State::Sx)
+				ಮುಂದುವರಿ;
+			moved.ಸೇರಿಸು(from);
+			ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(ಮುಂದಿನ) && ಮುಂದಿನ.ಎಣಿಕೆ_2((*sigmap)(ಗಮ್ಯ)); i++)
+				ಗಮ್ಯ = ಮುಂದಿನ.at((*sigmap)(ಗಮ್ಯ));
+			RTLIL::Sig_ಬಿಟ್ ಗಮ್ಯ_net = (*sigmap)(ಗಮ್ಯ);
+			ಆದರೆ (ಗಮ್ಯ_net.wire == nullptr || inputs.ಎಣಿಕೆ_2(ಗಮ್ಯ_net))
+				ಮುಂದುವರಿ;
+			RTLIL::State ಗಮ್ಯ_val = (*this)(ಗಮ್ಯ);
+			ಆದರೆ (ಗಮ್ಯ_val == State::Sx)
+				ಗಣ_init(ಗಮ್ಯ, val);
+			ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಗಮ್ಯ_val != val)
 				log_error("Conflicting init values for signal %s (%s = %s != %s).\n",
-						log_signal(to), log_signal(from), log_signal(val), log_signal(to_val));
+						log_signal(ಗಮ್ಯ), log_signal(from), log_signal(val), log_signal(ಗಮ್ಯ_val));
 		}
-		if (!moved.empty())
+		ಆದರೆ (!moved.ಖಾಲಿಗಳು())
 			remove_net_inits(module, moved);
 	}
 
-	pool<RTLIL::SigBit> input_nets(RTLIL::Module *module) const
+	pool<RTLIL::Sig_ಬಿಟ್> ಒಳಹರಿವು_nets(RTLIL::Module *module) ಸ್ಥಿರಾಂಕ
 	{
-		pool<RTLIL::SigBit> nets;
-		for (auto wire : module->wires())
-			if (wire->port_input)
-				for (auto bit : (*sigmap)(wire))
-					nets.insert(bit);
-		return nets;
+		pool<RTLIL::Sig_ಬಿಟ್> nets;
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ wire : module->wires())
+			ಆದರೆ (wire->ಪೋರ್ಟ್_ಒಳಹರಿವು)
+				ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ ಬಿಟ್ : (*sigmap)(wire))
+					nets.ಸೇರಿಸು(ಬಿಟ್);
+		ಹಿಂತಿರುಗಿ nets;
 	}
 
-	void remove_net_inits(RTLIL::Module *module, const pool<RTLIL::SigBit> &nets)
+	ಶೂನ್ಯ remove_net_inits(RTLIL::Module *module, ಸ್ಥಿರಾಂಕ pool<RTLIL::Sig_ಬಿಟ್> &nets)
 	{
-		for (auto bit : nets)
-			initbits.erase(bit);
-		for (auto wire : module->wires()) {
-			auto it = wire->attributes.find(ID::init);
-			if (it == wire->attributes.end())
-				continue;
-			for (int i = 0; i < GetSize(wire) && i < GetSize(it->second); i++)
-				if (nets.count((*sigmap)(RTLIL::SigBit(wire, i))))
-					it->second.set(i, State::Sx);
-			if (it->second.is_fully_undef())
-				wire->attributes.erase(it);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ ಬಿಟ್ : nets)
+			initbits.erase(ಬಿಟ್);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ wire : module->wires()) {
+			ಸ್ವಯಂಚಾಲಿತ it = wire->ಗುಣಲಕ್ಷಣಗಳು.ಕಂಡುಹಿಡಿ(ID::init);
+			ಆದರೆ (it == wire->ಗುಣಲಕ್ಷಣಗಳು.ಕೊನೆ())
+				ಮುಂದುವರಿ;
+			ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(wire) && i < Get_ಗಾತ್ರ(it->ಎರಡನೇ); i++)
+				ಆದರೆ (nets.ಎಣಿಕೆ_2((*sigmap)(RTLIL::Sig_ಬಿಟ್(wire, i))))
+					it->ಎರಡನೇ.ಗಣ(i, State::Sx);
+			ಆದರೆ (it->ಎರಡನೇ.is_fully_undef())
+				wire->ಗುಣಲಕ್ಷಣಗಳು.erase(it);
 		}
 	}
 
-	void clear()
+	ಶೂನ್ಯ clear()
 	{
 		initbits.clear();
 	}
 
-	FfInitVals (const SigMapView *sigmap, RTLIL::Module *module)
+	FfInitVals (ಸ್ಥಿರಾಂಕ SigMapView *sigmap, RTLIL::Module *module)
 	{
-		set(sigmap, module);
+		ಗಣ(sigmap, module);
 	}
 
 	FfInitVals () {}
 };
 
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

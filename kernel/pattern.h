@@ -1,9 +1,9 @@
-#ifndef OPT_DFF_COMP_H
-#define OPT_DFF_COMP_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ OPT_DFF_COMP_H
+#ವ್ಯಾಖ್ಯಾನಿಸು OPT_DFF_COMP_H
 
-#include "kernel/rtlil.h"
-#include <map>
-#include <optional>
+#ಅನ್ತರ್ಭಾವ "kernel/rtlil.h"
+#ಅನ್ತರ್ಭಾವ <map>
+#ಅನ್ತರ್ಭಾವ <optional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -21,82 +21,82 @@ YOSYS_NAMESPACE_BEGIN
 
 // Pattern matching for clock enable
 // A pattern maps control signals to their required values for a MUX path
-typedef std::map<RTLIL::SigBit, bool> pattern_t; // Set of control signals that must ALL match required vals
-typedef std::set<pattern_t> patterns_t;          // Alternative patterns (OR)
-typedef std::pair<RTLIL::SigBit, bool> ctrl_t;   // Control signal
-typedef std::set<ctrl_t> ctrls_t;                // Set of control signals that must ALL be active
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ std::map<RTLIL::Sig_ಬಿಟ್, bool> ನಮೂನೆ_t; // Set of control signals that must ALL match required vals
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ std::ಗಣ<ನಮೂನೆ_t> patterns_t;          // Alternative patterns (OR)
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ std::pair<RTLIL::Sig_ಬಿಟ್, bool> ctrl_t;   // Control signal
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ std::ಗಣ<ctrl_t> ctrls_t;                // Set of control signals that must ALL be active
 
 /**
  * Find if two patterns differ in exactly one variable.
  * Example: {A=1,B=1} vs {A=1,B=0} returns B, allows simplification: (A&B) | (A&!B) => A
  */
-inline std::optional<RTLIL::SigBit> find_complementary_pattern_var(
-	const pattern_t& left,
-	const pattern_t& right
+ಸಾಲೊಳಗೆ std::optional<RTLIL::Sig_ಬಿಟ್> ಕಂಡುಹಿಡಿ_complementary_ನಮೂನೆ_var(
+	ಸ್ಥಿರಾಂಕ ನಮೂನೆ_t& ಎಡ_3,
+	ಸ್ಥಿರಾಂಕ ನಮೂನೆ_t& ಬಲ_3
 ) {
-	std::optional<RTLIL::SigBit> ret;
-	for (const auto &pt : left) {
+	std::optional<RTLIL::Sig_ಬಿಟ್> ret;
+	ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &pt : ಎಡ_3) {
 		// Left requires signal that right doesn't constrain - incompatible domains
-		if (right.count(pt.first) == 0)
-			return std::nullopt;
+		ಆದರೆ (ಬಲ_3.ಎಣಿಕೆ_2(pt.ಮೊದಲ) == 0)
+			ಹಿಂತಿರುಗಿ std::nullopt;
 		// Signal has same required value in both - not the complement variable
-		if (right.at(pt.first) == pt.second)
-			continue;
+		ಆದರೆ (ಬಲ_3.at(pt.ಮೊದಲ) == pt.ಎರಡನೇ)
+			ಮುಂದುವರಿ;
 		// Already found one differing signal, now found another - not simplifiable
-		if (ret)
-			return std::nullopt;
+		ಆದರೆ (ret)
+			ಹಿಂತಿರುಗಿ std::nullopt;
 		// First differing signal - candidate complement variable
-		ret = pt.first;
+		ret = pt.ಮೊದಲ;
 	}
-	return ret;
+	ಹಿಂತಿರುಗಿ ret;
 }
 
 /**
  * Simplify a sum-of-products by merging complementary patterns: (A&B) | (A&!B) => A,
  * and removing redundant patterns: A | (A&B) => A
  */
-inline void simplify_patterns(patterns_t& patterns) {
-	auto new_patterns = patterns;
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ simplify_patterns(patterns_t& patterns) {
+	ಸ್ವಯಂಚಾಲಿತ new_patterns = patterns;
 
 	// Merge complementary patterns
 	bool optimized;
-	do {
+	ಮಾಡು {
 		optimized = false;
-		for (auto i = patterns.begin(); i != patterns.end(); i++) {
-			for (auto j = std::next(i, 1); j != patterns.end(); j++) {
-				const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
-				auto right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
-				const auto complementary_var = find_complementary_pattern_var(left, right);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ i = patterns.begin(); i != patterns.ಕೊನೆ(); i++) {
+			ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ j = std::ಮುಂದಿನ(i, 1); j != patterns.ಕೊನೆ(); j++) {
+				ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& ಎಡ_3 = (Get_ಗಾತ್ರ(*j) <= Get_ಗಾತ್ರ(*i)) ? *j : *i;
+				ಸ್ವಯಂಚಾಲಿತ ಬಲ_3 = (Get_ಗಾತ್ರ(*i) < Get_ಗಾತ್ರ(*j)) ? *j : *i;
+				ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ complementary_var = ಕಂಡುಹಿಡಿ_complementary_ನಮೂನೆ_var(ಎಡ_3, ಬಲ_3);
 
-				if (complementary_var && new_patterns.count(right)) {
-					new_patterns.erase(right);
-					right.erase(complementary_var.value());
-					new_patterns.insert(right);
+				ಆದರೆ (complementary_var && new_patterns.ಎಣಿಕೆ_2(ಬಲ_3)) {
+					new_patterns.erase(ಬಲ_3);
+					ಬಲ_3.erase(complementary_var.ಮೌಲ್ಯ());
+					new_patterns.ಸೇರಿಸು(ಬಲ_3);
 					optimized = true;
 				}
 			}
 		}
 		patterns = new_patterns;
-	} while(optimized);
+	} ಆಗ(optimized);
 
 	// Remove redundant patterns
-	for (auto i = patterns.begin(); i != patterns.end(); ++i) {
-		for (auto j = std::next(i, 1); j != patterns.end(); ++j) {
-			const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
-			const auto& right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ i = patterns.begin(); i != patterns.ಕೊನೆ(); ++i) {
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ j = std::ಮುಂದಿನ(i, 1); j != patterns.ಕೊನೆ(); ++j) {
+			ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& ಎಡ_3 = (Get_ಗಾತ್ರ(*j) <= Get_ಗಾತ್ರ(*i)) ? *j : *i;
+			ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& ಬಲ_3 = (Get_ಗಾತ್ರ(*i) < Get_ಗಾತ್ರ(*j)) ? *j : *i;
 			bool redundant = true;
 
-			for (const auto& pt : left)
-				if (right.count(pt.first) == 0 || right.at(pt.first) != pt.second)
+			ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& pt : ಎಡ_3)
+				ಆದರೆ (ಬಲ_3.ಎಣಿಕೆ_2(pt.ಮೊದಲ) == 0 || ಬಲ_3.at(pt.ಮೊದಲ) != pt.ಎರಡನೇ)
 					redundant = false;
-			if (redundant)
-				new_patterns.erase(right);
+			ಆದರೆ (redundant)
+				new_patterns.erase(ಬಲ_3);
 		}
 	}
 
 	patterns = std::move(new_patterns);
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

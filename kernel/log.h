@@ -17,32 +17,32 @@
  *
  */
 
-#ifndef LOG_H
-#define LOG_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ LOG_H
+#ವ್ಯಾಖ್ಯಾನಿಸು LOG_H
 
-#include "kernel/yosys_common.h"
+#ಅನ್ತರ್ಭಾವ "kernel/yosys_common.h"
 
-#include <chrono>
-#include <time.h>
+#ಅನ್ತರ್ಭಾವ <chrono>
+#ಅನ್ತರ್ಭಾವ <time.h>
 
-#include <regex>
-#define YS_REGEX_COMPILE(param) std::regex(param, \
+#ಅನ್ತರ್ಭಾವ <regex>
+#ವ್ಯಾಖ್ಯಾನಿಸು YS_REGEX_COMPILE(param) std::regex(param, \
 				std::regex_constants::nosubs | \
 				std::regex_constants::optimize | \
 				std::regex_constants::egrep)
-#define YS_REGEX_COMPILE_WITH_SUBS(param) std::regex(param, \
+#ವ್ಯಾಖ್ಯಾನಿಸು YS_REGEX_COMPILE_WITH_SUBS(param) std::regex(param, \
 				std::regex_constants::optimize | \
 				std::regex_constants::egrep)
 
-#if defined(_WIN32)
+#ಆದರೆ defined(_WIN32)
 #  include <intrin.h>
-#else
+#ಇಲ್ಲದಿದ್ದರೆ
 #  include <sys/time.h>
 #  include <sys/resource.h>
-#  if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+#  ಆದರೆ defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 #    include <signal.h>
 #  endif
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 // from libs/sha1/sha1.h
 class SHA1;
@@ -53,202 +53,202 @@ YOSYS_NAMESPACE_BEGIN
 // if the platform provides such functionality, and does nothing otherwise.
 // If no debugger is attached, it starts a just-in-time debugger if available,
 // and crashes the process otherwise.
-#if defined(_WIN32)
+#ಆದರೆ defined(_WIN32)
 # define YS_DEBUGTRAP __debugbreak()
-#else
+#ಇಲ್ಲದಿದ್ದರೆ
 # ifndef __has_builtin
 // __has_builtin is a GCC/Clang extension; on a different compiler (or old enough GCC/Clang)
 // that does not have it, using __has_builtin(...) is a syntax error.
 #  define __has_builtin(x) 0
 # endif
-# if __has_builtin(__builtin_debugtrap)
+# ಆದರೆ __has_builtin(__builtin_debugtrap)
 #  define YS_DEBUGTRAP __builtin_debugtrap()
 # elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
-#  define YS_DEBUGTRAP raise(SIGTRAP)
-# else
-#  define YS_DEBUGTRAP do {} while(0)
+#  define YS_DEBUGTRAP ಎತ್ತು(SIGTRAP)
+# ಇಲ್ಲದಿದ್ದರೆ
+#  define YS_DEBUGTRAP ಮಾಡು {} ಆಗ(0)
 # endif
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 // YS_DEBUGTRAP_IF_DEBUGGING is a macro that is functionally equivalent to a breakpoint
 // if a debugger is attached, and does nothing otherwise.
-#if defined(_WIN32)
-# define YS_DEBUGTRAP_IF_DEBUGGING do { if (IsDebuggerPresent()) DebugBreak(); } while(0)
+#ಆದರೆ defined(_WIN32)
+# define YS_DEBUGTRAP_IF_DEBUGGING ಮಾಡು { ಆದರೆ (IsDebuggerPresent()) DebugBreak(); } ಆಗ(0)
 # elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 // There is no reliable (or portable) *nix equivalent of IsDebuggerPresent(). However,
 // debuggers will stop when SIGTRAP is raised, even if the action is set to ignore.
-# define YS_DEBUGTRAP_IF_DEBUGGING do { \
-		auto old = signal(SIGTRAP, SIG_IGN); raise(SIGTRAP); signal(SIGTRAP, old); \
-	} while(0)
-#else
-# define YS_DEBUGTRAP_IF_DEBUGGING do {} while(0)
-#endif
+# define YS_DEBUGTRAP_IF_DEBUGGING ಮಾಡು { \
+		ಸ್ವಯಂಚಾಲಿತ old = ಸಂಕೇತ(SIGTRAP, SIG_IGN); ಎತ್ತು(SIGTRAP); ಸಂಕೇತ(SIGTRAP, old); \
+	} ಆಗ(0)
+#ಇಲ್ಲದಿದ್ದರೆ
+# define YS_DEBUGTRAP_IF_DEBUGGING ಮಾಡು {} ಆಗ(0)
+#ಆದರೆ_ಅಂತ್ಯ
 
-struct log_cmd_error_exception { };
+ರಚನೆ log_cmd_error_exception { };
 
-enum class LogSeverity {
+ಎಣಿಕೆ class LogSeverity {
 	Debug,
 	Comment,
 	Info,
 	Highlight,
-	Header,
+	ಶೀರ್ಷಿಕೆ,
 	Warning,
 	NonFatalError,
 	Error
 };
 
-struct LogSourceLocation {
-	LogSourceLocation() : filename({}),start_line(-1),start_col(-1),end_line(-1),end_col(-1) { }
-	LogSourceLocation(std::string filename) : filename(filename),start_line(-1),start_col(-1),end_line(-1),end_col(-1) { }
-	LogSourceLocation(std::string filename,int start_line) : filename(filename),start_line(start_line),start_col(-1),end_line(-1),end_col(-1) { }
-	LogSourceLocation(std::string filename,int start_line,int start_col,int end_line,int end_col) :
-		filename(filename),start_line(start_line),start_col(start_col),end_line(end_line),end_col(end_col) { }
+ರಚನೆ Log_ಮೂಲ_Location {
+	Log_ಮೂಲ_Location() : filename({}),ಆರಂಭ_ಸಾಲು(-1),ಆರಂಭ_ಲಂಬಸಾಲು(-1),ಕೊನೆ_ಸಾಲು(-1),ಕೊನೆ_ಲಂಬಸಾಲು(-1) { }
+	Log_ಮೂಲ_Location(std::string filename) : filename(filename),ಆರಂಭ_ಸಾಲು(-1),ಆರಂಭ_ಲಂಬಸಾಲು(-1),ಕೊನೆ_ಸಾಲು(-1),ಕೊನೆ_ಲಂಬಸಾಲು(-1) { }
+	Log_ಮೂಲ_Location(std::string filename,ಪೂರ್ಣಾಂಕ ಆರಂಭ_ಸಾಲು) : filename(filename),ಆರಂಭ_ಸಾಲು(ಆರಂಭ_ಸಾಲು),ಆರಂಭ_ಲಂಬಸಾಲು(-1),ಕೊನೆ_ಸಾಲು(-1),ಕೊನೆ_ಲಂಬಸಾಲು(-1) { }
+	Log_ಮೂಲ_Location(std::string filename,ಪೂರ್ಣಾಂಕ ಆರಂಭ_ಸಾಲು,ಪೂರ್ಣಾಂಕ ಆರಂಭ_ಲಂಬಸಾಲು,ಪೂರ್ಣಾಂಕ ಕೊನೆ_ಸಾಲು,ಪೂರ್ಣಾಂಕ ಕೊನೆ_ಲಂಬಸಾಲು) :
+		filename(filename),ಆರಂಭ_ಸಾಲು(ಆರಂಭ_ಸಾಲು),ಆರಂಭ_ಲಂಬಸಾಲು(ಆರಂಭ_ಲಂಬಸಾಲು),ಕೊನೆ_ಸಾಲು(ಕೊನೆ_ಸಾಲು),ಕೊನೆ_ಲಂಬಸಾಲು(ಕೊನೆ_ಲಂಬಸಾಲು) { }
 	std::string filename;
-	int start_line;
-	int start_col;
-	int end_line;
-	int end_col;
+	ಪೂರ್ಣಾಂಕ ಆರಂಭ_ಸಾಲು;
+	ಪೂರ್ಣಾಂಕ ಆರಂಭ_ಲಂಬಸಾಲು;
+	ಪೂರ್ಣಾಂಕ ಕೊನೆ_ಸಾಲು;
+	ಪೂರ್ಣಾಂಕ ಕೊನೆ_ಲಂಬಸಾಲು;
 };
 
-struct LogMessage {
-	LogMessage(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string_view message);
+ರಚನೆ Log_ಸಂದೇಶ {
+	Log_ಸಂದೇಶ(LogSeverity severity, Log_ಮೂಲ_Location src, std::string_view ಪೂರ್ವಪ್ರತ್ಯಯ_2, std::string_view format, std::string_view ಸಂದೇಶ_2);
 	LogSeverity severity;
-	std::string prefix;
+	std::string ಪೂರ್ವಪ್ರತ್ಯಯ_2;
 	std::string format;
-	std::string message;
-	std::chrono::steady_clock::time_point timestamp;
-	LogSourceLocation src;
+	std::string ಸಂದೇಶ_2;
+	std::chrono::steady_clock::ಸಮಯ_ಬಿಂದು timestamp;
+	Log_ಮೂಲ_Location src;
 
-	std::string cached_msg;
+	std::string cached_ಸಂದೇಶ;
 };
 
 class LogSink
 {
-public:
-	virtual ~LogSink() = default;
+ಸಾರ್ವಜನಿಕ:
+	ವಾಸ್ತವಿಕ ~LogSink() = ಪೂರ್ವನಿಯೋಜಿತ;
 
-	virtual bool should_log(const LogMessage &) const { return true; }
-	virtual void log(const LogMessage &msg) = 0;
-	virtual void flush() {}
+	ವಾಸ್ತವಿಕ bool should_log(ಸ್ಥಿರಾಂಕ Log_ಸಂದೇಶ &) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ true; }
+	ವಾಸ್ತವಿಕ ಶೂನ್ಯ ಲಘುಗಣಕ(ಸ್ಥಿರಾಂಕ Log_ಸಂದೇಶ &ಸಂದೇಶ) = 0;
+	ವಾಸ್ತವಿಕ ಶೂನ್ಯ flush() {}
 	// TODO: Remove when AST/read_verilog removed
-	virtual FILE *file_handle() { return nullptr; }
+	ವಾಸ್ತವಿಕ FILE *file_handle() { ಹಿಂತಿರುಗಿ nullptr; }
 };
 
-class LogSinkRef : public LogSink
+class LogSinkRef : ಸಾರ್ವಜನಿಕ LogSink
 {
-public:
+ಸಾರ್ವಜನಿಕ:
 	explicit LogSinkRef(LogSink *sink) : sink(sink) {}
-	bool should_log(const LogMessage &msg) const override { return sink->should_log(msg); }
-	void log(const LogMessage &msg) override { sink->log(msg); }
-	void flush() override { sink->flush(); }
-	FILE *file_handle() override { return sink->file_handle(); }
-private:
+	bool should_log(ಸ್ಥಿರಾಂಕ Log_ಸಂದೇಶ &ಸಂದೇಶ) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ sink->should_log(ಸಂದೇಶ); }
+	ಶೂನ್ಯ ಲಘುಗಣಕ(ಸ್ಥಿರಾಂಕ Log_ಸಂದೇಶ &ಸಂದೇಶ) override { sink->ಲಘುಗಣಕ(ಸಂದೇಶ); }
+	ಶೂನ್ಯ flush() override { sink->flush(); }
+	FILE *file_handle() override { ಹಿಂತಿರುಗಿ sink->file_handle(); }
+ಖಾಸಗಿ:
 	LogSink *sink;
 };
 
-class FileLogSink : public LogSink
+class FileLogSink : ಸಾರ್ವಜನಿಕ LogSink
 {
-public:
-	explicit FileLogSink(const std::string &filename, bool line_buffered, bool append);
+ಸಾರ್ವಜನಿಕ:
+	explicit FileLogSink(ಸ್ಥಿರಾಂಕ std::string &filename, bool ಸಾಲು_buffered, bool append);
 	~FileLogSink() override;
-	void log(const LogMessage &msg) override;
-	void flush() override;
-	FILE *file_handle() override { return file; }
+	ಶೂನ್ಯ ಲಘುಗಣಕ(ಸ್ಥಿರಾಂಕ Log_ಸಂದೇಶ &ಸಂದೇಶ) override;
+	ಶೂನ್ಯ flush() override;
+	FILE *file_handle() override { ಹಿಂತಿರುಗಿ file; }
 
-private:
+ಖಾಸಗಿ:
 	FILE *file;
 };
 
-class ConsoleLogSink : public LogSink
+class ConsoleLogSink : ಸಾರ್ವಜನಿಕ LogSink
 {
-public:
-	void log(const LogMessage &msg) override;
-	void flush() override;
-	FILE *file_handle() override { return stdout; }
+ಸಾರ್ವಜನಿಕ:
+	ಶೂನ್ಯ ಲಘುಗಣಕ(ಸ್ಥಿರಾಂಕ Log_ಸಂದೇಶ &ಸಂದೇಶ) override;
+	ಶೂನ್ಯ flush() override;
+	FILE *file_handle() override { ಹಿಂತಿರುಗಿ stdout; }
 };
 
-class StderrLogSink : public LogSink
+class StderrLogSink : ಸಾರ್ವಜನಿಕ LogSink
 {
-public:
+ಸಾರ್ವಜನಿಕ:
 	explicit StderrLogSink(bool quiet) : quiet_warnings(quiet) {}
-	bool should_log(const LogMessage &msg) const override;
-	void log(const LogMessage &msg) override;
-	void flush() override;
-private:
+	bool should_log(ಸ್ಥಿರಾಂಕ Log_ಸಂದೇಶ &ಸಂದೇಶ) ಸ್ಥಿರಾಂಕ override;
+	ಶೂನ್ಯ ಲಘುಗಣಕ(ಸ್ಥಿರಾಂಕ Log_ಸಂದೇಶ &ಸಂದೇಶ) override;
+	ಶೂನ್ಯ flush() override;
+ಖಾಸಗಿ:
 	bool quiet_warnings;
 };
 
-class StreamLogSink : public LogSink
+class ಹರಿವು_Log_Sink : ಸಾರ್ವಜನಿಕ LogSink
 {
-public:
-	explicit StreamLogSink(std::ostream &stream) : stream(stream) {}
-	void log(const LogMessage &msg) override { stream << msg.cached_msg; }
-	void flush() override { stream.flush(); }
+ಸಾರ್ವಜನಿಕ:
+	explicit ಹರಿವು_Log_Sink(std::ostream &ಹರಿವು) : ಹರಿವು(ಹರಿವು) {}
+	ಶೂನ್ಯ ಲಘುಗಣಕ(ಸ್ಥಿರಾಂಕ Log_ಸಂದೇಶ &ಸಂದೇಶ) override { ಹರಿವು << ಸಂದೇಶ.cached_ಸಂದೇಶ; }
+	ಶೂನ್ಯ flush() override { ಹರಿವು.flush(); }
 
-private:
-	std::ostream &stream;
+ಖಾಸಗಿ:
+	std::ostream &ಹರಿವು;
 };
 
-class ScratchPadLogSink : public LogSink
+class ScratchPadLogSink : ಸಾರ್ವಜನಿಕ LogSink
 {
-public:
+ಸಾರ್ವಜನಿಕ:
 	explicit ScratchPadLogSink(std::string scratchpad);
-	void log(const LogMessage &msg) override;
+	ಶೂನ್ಯ ಲಘುಗಣಕ(ಸ್ಥಿರಾಂಕ Log_ಸಂದೇಶ &ಸಂದೇಶ) override;
 
-private:
+ಖಾಸಗಿ:
 	std::string scratchpad;
 };
 
 class LogManager
 {
-private:
-	struct LogExpectedItem
+ಖಾಸಗಿ:
+	ರಚನೆ Log_Expected_ಅಂಶ
 	{
-		LogExpectedItem(const std::regex &pat, int expected) :
-				pattern(pat), expected_count(expected), current_count(0) {}
-		LogExpectedItem() : expected_count(0), current_count(0) {}
+		Log_Expected_ಅಂಶ(ಸ್ಥಿರಾಂಕ std::regex &pat, ಪೂರ್ಣಾಂಕ expected) :
+				ನಮೂನೆ(pat), expected_ಎಣಿಕೆ(expected), current_ಎಣಿಕೆ(0) {}
+		Log_Expected_ಅಂಶ() : expected_ಎಣಿಕೆ(0), current_ಎಣಿಕೆ(0) {}
 
-		std::regex pattern;
-		int expected_count;
-		int current_count;
+		std::regex ನಮೂನೆ;
+		ಪೂರ್ಣಾಂಕ expected_ಎಣಿಕೆ;
+		ಪೂರ್ಣಾಂಕ current_ಎಣಿಕೆ;
 	};
 
-public:
-	LogManager() = default;
+ಸಾರ್ವಜನಿಕ:
+	LogManager() = ಪೂರ್ವನಿಯೋಜಿತ;
 
-	template<typename T, typename... Args>
-	T &add_sink(Args&&... args)
+	ಮಾದರಿ<typename T, typename... ವಾದಗಳು_3>
+	T &ಕೂಡಿಸು_sink(ವಾದಗಳು_3&&... ವಾದಗಳು_2)
 	{
-		auto sink = std::make_unique<T>(std::forward<Args>(args)...);
+		ಸ್ವಯಂಚಾಲಿತ sink = std::make_unique<T>(std::forward<ವಾದಗಳು_3>(ವಾದಗಳು_2)...);
 		T &ref = *sink;
-		sinks.push_back(std::move(sink));
-		return ref;
+		sinks.ತಳ್ಳು_ಹಿಂಭಾಗ(std::move(sink));
+		ಹಿಂತಿರುಗಿ ref;
 	}
 
-	template<typename F>
-	void for_each_sink(F &&func)
+	ಮಾದರಿ<typename F>
+	ಶೂನ್ಯ for_each_sink(F &&func)
 	{
-		for (auto &sink : sinks)
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &sink : sinks)
 			func(*sink);
 	}
 
-	bool empty() { return sinks.empty(); }
-	void clear() { sinks.clear(); }
-	void clear_original();
-	void flush() { for (auto &sink : sinks) sink->flush(); }
+	bool ಖಾಲಿಗಳು() { ಹಿಂತಿರುಗಿ sinks.ಖಾಲಿಗಳು(); }
+	ಶೂನ್ಯ clear() { sinks.clear(); }
+	ಶೂನ್ಯ clear_original();
+	ಶೂನ್ಯ flush() { ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &sink : sinks) sink->flush(); }
 
 	class Scoped
 	{
-	public:
+	ಸಾರ್ವಜನಿಕ:
 		explicit Scoped(LogManager &manager) :
 			manager(manager),
 			backup_sinks(std::move(manager.sinks)),
 			backup_verbose_level(manager.verbose_level)
 		{
-			manager.sinks.reserve(backup_sinks.size());
+			manager.sinks.reserve(backup_sinks.ಗಾತ್ರ_2());
 
-			for (const auto &sink : backup_sinks)
-				manager.sinks.push_back(std::make_unique<LogSinkRef>(sink.get()));
+			ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ &sink : backup_sinks)
+				manager.sinks.ತಳ್ಳು_ಹಿಂಭಾಗ(std::make_unique<LogSinkRef>(sink.get()));
 		}
 
 		~Scoped()
@@ -258,51 +258,51 @@ public:
 			manager.verbose_level = backup_verbose_level;
 		}
 
-		Scoped(const Scoped &) = delete;
-		Scoped &operator=(const Scoped &) = delete;
+		Scoped(ಸ್ಥಿರಾಂಕ Scoped &) = delete;
+		Scoped &ಕ್ರಿಯಾಕಾರಕ=(ಸ್ಥಿರಾಂಕ Scoped &) = delete;
 
-	private:
+	ಖಾಸಗಿ:
 		LogManager &manager;
-		std::vector<std::unique_ptr<LogSink>> backup_sinks;
-		int backup_verbose_level;
+		std::ಸದಿಶ<std::unique_ptr<LogSink>> backup_sinks;
+		ಪೂರ್ಣಾಂಕ backup_verbose_level;
 	};
 
 	Scoped sink_scope()
 	{
-		return Scoped(*this);
+		ಹಿಂತಿರುಗಿ Scoped(*this);
 	}
 
 	class ScopedCmdErrorThrow
 	{
-	public:
+	ಸಾರ್ವಜನಿಕ:
 		explicit ScopedCmdErrorThrow(LogManager &manager)
-			: manager(manager), previous(manager.cmd_error_throw)
+			: manager(manager), ಹಿಂದಿನ(manager.cmd_error_throw)
 		{
 			manager.cmd_error_throw = true;
 		}
 
 		~ScopedCmdErrorThrow()
 		{
-			manager.cmd_error_throw = previous;
+			manager.cmd_error_throw = ಹಿಂದಿನ;
 		}
 
-	private:
+	ಖಾಸಗಿ:
 		LogManager &manager;
-		bool previous;
+		bool ಹಿಂದಿನ;
 	};
 
 	ScopedCmdErrorThrow error_throw_scope()
 	{
-		return ScopedCmdErrorThrow(*this);
+		ಹಿಂತಿರುಗಿ ScopedCmdErrorThrow(*this);
 	}
 
 	class LogMakeDebugHdl
 	{
-	public:
-		explicit LogMakeDebugHdl(LogManager &manager, bool start_on = false)
+	ಸಾರ್ವಜನಿಕ:
+		explicit LogMakeDebugHdl(LogManager &manager, bool ಆರಂಭ_on = false)
 			: manager(manager)
 		{
-			if (start_on)
+			ಆದರೆ (ಆರಂಭ_on)
 				on();
 		}
 
@@ -311,43 +311,43 @@ public:
 			off();
 		}
 
-		void on()
+		ಶೂನ್ಯ on()
 		{
-			if (status)
-				return;
-			status = true;
+			ಆದರೆ (ಸ್ಥಿತಿ_2)
+				ಹಿಂತಿರುಗಿ;
+			ಸ್ಥಿತಿ_2 = true;
 			manager.make_debug++;
 		}
 
-		void off_silent()
+		ಶೂನ್ಯ off_silent()
 		{
-			if (!status)
-				return;
-			status = false;
+			ಆದರೆ (!ಸ್ಥಿತಿ_2)
+				ಹಿಂತಿರುಗಿ;
+			ಸ್ಥಿತಿ_2 = false;
 			manager.make_debug--;
 		}
 
-		void off()
+		ಶೂನ್ಯ off()
 		{
 			off_silent();
 		}
-	private:
+	ಖಾಸಗಿ:
 		LogManager &manager;
-		bool status = false;
+		bool ಸ್ಥಿತಿ_2 = false;
 	};
 
-	LogMakeDebugHdl make_debug_scope(bool start_on = false)
+	LogMakeDebugHdl make_debug_scope(bool ಆರಂಭ_on = false)
 	{
-		return LogMakeDebugHdl(*this, start_on);
+		ಹಿಂತಿರುಗಿ LogMakeDebugHdl(*this, ಆರಂಭ_on);
 	}
 
 	class ForceDebug
 	{
-	public:
-		explicit ForceDebug(LogManager &manager, bool start_on = false)
+	ಸಾರ್ವಜನಿಕ:
+		explicit ForceDebug(LogManager &manager, bool ಆರಂಭ_on = false)
 			: manager(manager)
 		{
-			if (start_on)
+			ಆದರೆ (ಆರಂಭ_on)
 				on();
 		}
 
@@ -356,247 +356,247 @@ public:
 			off();
 		}
 
-		void on()
+		ಶೂನ್ಯ on()
 		{
-			if (active)
-				return;
+			ಆದರೆ (ಸಕ್ರಿಯ)
+				ಹಿಂತಿರುಗಿ;
 
-			active = true;
+			ಸಕ್ರಿಯ = true;
 			manager.force_debug++;
 		}
 
-		void off()
+		ಶೂನ್ಯ off()
 		{
-			if (!active)
-				return;
+			ಆದರೆ (!ಸಕ್ರಿಯ)
+				ಹಿಂತಿರುಗಿ;
 
-			active = false;
+			ಸಕ್ರಿಯ = false;
 			manager.force_debug--;
 		}
-	private:
+	ಖಾಸಗಿ:
 		LogManager &manager;
-		bool active = false;
+		bool ಸಕ್ರಿಯ = false;
 	};
 
-	ForceDebug force_debug_scope(bool start_on = false)
+	ForceDebug force_debug_scope(bool ಆರಂಭ_on = false)
 	{
-		return ForceDebug(*this, start_on);
+		ಹಿಂತಿರುಗಿ ForceDebug(*this, ಆರಂಭ_on);
 	}
 
-	void force_debug_on() { force_debug++; }
-	void force_debug_off() { if (force_debug > 0) force_debug--; }
-	void set_force_debug(bool enabled) { force_debug = enabled ? 1 : 0;	}
+	ಶೂನ್ಯ force_debug_on() { force_debug++; }
+	ಶೂನ್ಯ force_debug_off() { ಆದರೆ (force_debug > 0) force_debug--; }
+	ಶೂನ್ಯ ಗಣ_force_debug(bool enabled) { force_debug = enabled ? 1 : 0;	}
 
-	void report_unexpected_error();
+	ಶೂನ್ಯ report_unexpected_error();
 
-	void add_experimental_ignore(std::string name) { experimental_ignored.insert(name); }
-	void add_warn(std::string pattern) { warn_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_nowarn(std::string pattern) { nowarn_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_werror(std::string pattern) { werror_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_expect(std::string type, std::string pattern, int count);
+	ಶೂನ್ಯ ಕೂಡಿಸು_experimental_ignore(std::string name) { experimental_ignored.ಸೇರಿಸು(name); }
+	ಶೂನ್ಯ ಕೂಡಿಸು_warn(std::string ನಮೂನೆ) { warn_regexes.ತಳ್ಳು_ಹಿಂಭಾಗ(YS_REGEX_COMPILE(ನಮೂನೆ)); }
+	ಶೂನ್ಯ ಕೂಡಿಸು_nowarn(std::string ನಮೂನೆ) { nowarn_regexes.ತಳ್ಳು_ಹಿಂಭಾಗ(YS_REGEX_COMPILE(ನಮೂನೆ)); }
+	ಶೂನ್ಯ ಕೂಡಿಸು_werror(std::string ನಮೂನೆ) { werror_regexes.ತಳ್ಳು_ಹಿಂಭಾಗ(YS_REGEX_COMPILE(ನಮೂನೆ)); }
+	ಶೂನ್ಯ ಕೂಡಿಸು_expect(std::string type, std::string ನಮೂನೆ, ಪೂರ್ಣಾಂಕ ಎಣಿಕೆ_2);
 
-	void set_verbose_level(int level) { verbose_level = level; }
-	void add_verbose_level(int level) { verbose_level += level; }
-	void set_expect_no_warnings(bool value) { expect_no_warnings = value; }
-	void set_log_time(bool value) { log_time = value; }
-	void set_cmd_error_throw(bool value) { cmd_error_throw = value; }
-	void set_hdump_all(bool value) { hdump_all = value; }
-	int get_verbose_level() const { return verbose_level; }
-	bool get_log_time() const { return log_time; }
-	int get_warnings_unique() const { return GetSize(warnings); }
-	int get_warnings_total() const { return warnings_count; }
-	int get_errors_total() const { return errors_count; }
-	const std::set<std::string> &get_experimental() const { return experimental; }
-	const std::map<std::string, std::string> &get_deprecated() const { return deprecated; }
-	std::chrono::steady_clock::time_point get_initial_time() const;
+	ಶೂನ್ಯ ಗಣ_verbose_level(ಪೂರ್ಣಾಂಕ level) { verbose_level = level; }
+	ಶೂನ್ಯ ಕೂಡಿಸು_verbose_level(ಪೂರ್ಣಾಂಕ level) { verbose_level += level; }
+	ಶೂನ್ಯ ಗಣ_expect_no_warnings(bool ಮೌಲ್ಯ) { expect_no_warnings = ಮೌಲ್ಯ; }
+	ಶೂನ್ಯ ಗಣ_log_ಸಮಯ(bool ಮೌಲ್ಯ) { log_ಸಮಯ = ಮೌಲ್ಯ; }
+	ಶೂನ್ಯ ಗಣ_cmd_error_throw(bool ಮೌಲ್ಯ) { cmd_error_throw = ಮೌಲ್ಯ; }
+	ಶೂನ್ಯ ಗಣ_hdump_all(bool ಮೌಲ್ಯ) { hdump_all = ಮೌಲ್ಯ; }
+	ಪೂರ್ಣಾಂಕ get_verbose_level() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ verbose_level; }
+	bool get_log_ಸಮಯ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ log_ಸಮಯ; }
+	ಪೂರ್ಣಾಂಕ get_warnings_unique() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ Get_ಗಾತ್ರ(warnings); }
+	ಪೂರ್ಣಾಂಕ get_warnings_ಒಟ್ಟು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ warnings_ಎಣಿಕೆ; }
+	ಪೂರ್ಣಾಂಕ get_errors_ಒಟ್ಟು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ errors_ಎಣಿಕೆ; }
+	ಸ್ಥಿರಾಂಕ std::ಗಣ<std::string> &get_experimental() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ experimental; }
+	ಸ್ಥಿರಾಂಕ std::map<std::string, std::string> &get_deprecated() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ deprecated; }
+	std::chrono::steady_clock::ಸಮಯ_ಬಿಂದು get_initial_ಸಮಯ() ಸ್ಥಿರಾಂಕ;
 
-	void add_hdump(std::string name, std::string value) { hdump[name].insert(value); }
+	ಶೂನ್ಯ ಕೂಡಿಸು_hdump(std::string name, std::string ಮೌಲ್ಯ) { hdump[name].ಸೇರಿಸು(ಮೌಲ್ಯ); }
 
-	void formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str);
-	void formatted_header(RTLIL::Design *design, std::string_view format, std::string str);
-	void formatted_warning(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
-	[[noreturn]] void formatted_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
-	void formatted_nonfatal_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
-	[[noreturn]] void formatted_cmd_error(std::string_view format, std::string message);
-	void suppressed();
-	void add_experimental(const std::string &str);
-	void add_deprecated(const std::string &feature, const std::string &earliest_removal);
-	void spacer();
-	void push();
-	void pop();
+	ಶೂನ್ಯ formatted_string(LogSeverity severity, Log_ಮೂಲ_Location src, std::string_view ಪೂರ್ವಪ್ರತ್ಯಯ_2, std::string_view format, std::string str);
+	ಶೂನ್ಯ formatted_ಶೀರ್ಷಿಕೆ(RTLIL::Design *design, std::string_view format, std::string str);
+	ಶೂನ್ಯ formatted_warning(Log_ಮೂಲ_Location src, std::string_view ಪೂರ್ವಪ್ರತ್ಯಯ_2, std::string_view format, std::string ಸಂದೇಶ_2);
+	[[noreturn]] ಶೂನ್ಯ formatted_error(Log_ಮೂಲ_Location src, std::string_view ಪೂರ್ವಪ್ರತ್ಯಯ_2, std::string_view format, std::string ಸಂದೇಶ_2);
+	ಶೂನ್ಯ formatted_nonfatal_error(Log_ಮೂಲ_Location src, std::string_view ಪೂರ್ವಪ್ರತ್ಯಯ_2, std::string_view format, std::string ಸಂದೇಶ_2);
+	[[noreturn]] ಶೂನ್ಯ formatted_cmd_error(std::string_view format, std::string ಸಂದೇಶ_2);
+	ಶೂನ್ಯ suppressed();
+	ಶೂನ್ಯ ಕೂಡಿಸು_experimental(ಸ್ಥಿರಾಂಕ std::string &str);
+	ಶೂನ್ಯ ಕೂಡಿಸು_deprecated(ಸ್ಥಿರಾಂಕ std::string &feature, ಸ್ಥಿರಾಂಕ std::string &earliest_removal);
+	ಶೂನ್ಯ spacer();
+	ಶೂನ್ಯ ತಳ್ಳು();
+	ಶೂನ್ಯ ತೆಗೆ_2();
 
-	void reset_stack();
+	ಶೂನ್ಯ reset_ರಾಶಿ();
 
-	void check_expected();
-	bool expects_error() { return (expect_error.size() + expect_prefix_error.size())>0; }
-#ifndef NDEBUG
-	bool is_debug(int n = 0) { if (force_debug) return true; debug_suppressed += n; return false; }
-#else
-	bool is_debug(int = 0) { return false; }
-#endif
-	void start_hasher();
-	std::string finish_hasher();
+	ಶೂನ್ಯ check_expected();
+	bool expects_error() { ಹಿಂತಿರುಗಿ (expect_error.ಗಾತ್ರ_2() + expect_ಪೂರ್ವಪ್ರತ್ಯಯ_error.ಗಾತ್ರ_2())>0; }
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ NDEBUG
+	bool is_debug(ಪೂರ್ಣಾಂಕ n = 0) { ಆದರೆ (force_debug) ಹಿಂತಿರುಗಿ true; debug_suppressed += n; ಹಿಂತಿರುಗಿ false; }
+#ಇಲ್ಲದಿದ್ದರೆ
+	bool is_debug(ಪೂರ್ಣಾಂಕ = 0) { ಹಿಂತಿರುಗಿ false; }
+#ಆದರೆ_ಅಂತ್ಯ
+	ಶೂನ್ಯ ಆರಂಭ_hasher();
+	std::string ಮುಕ್ತಾಯ_hasher();
 
-private:
-	void logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in);
-	void error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
+ಖಾಸಗಿ:
+	ಶೂನ್ಯ logv_string(LogSeverity severity, Log_ಮೂಲ_Location src, std::string_view ಪೂರ್ವಪ್ರತ್ಯಯ_2, std::string_view format, std::string str_ಒಳ);
+	ಶೂನ್ಯ error_with_ಪೂರ್ವಪ್ರತ್ಯಯ(LogSeverity severity, Log_ಮೂಲ_Location src, std::string_view ಪೂರ್ವಪ್ರತ್ಯಯ_2, std::string_view format, std::string ಸಂದೇಶ_2);
 
-	std::vector<std::unique_ptr<LogSink>> sinks;
-	int verbose_level = 0;
-	int newline_count = 0;
-	vector<int> header_count;
-	int errors_count = 0;
-	int warnings_count = 0;
-	int warnings_count_noexpect = 0;
-	std::set<std::string> warnings, experimental, experimental_ignored;
+	std::ಸದಿಶ<std::unique_ptr<LogSink>> sinks;
+	ಪೂರ್ಣಾಂಕ verbose_level = 0;
+	ಪೂರ್ಣಾಂಕ newline_ಎಣಿಕೆ = 0;
+	ಸದಿಶ<ಪೂರ್ಣಾಂಕ> ಶೀರ್ಷಿಕೆ_ಎಣಿಕೆ;
+	ಪೂರ್ಣಾಂಕ errors_ಎಣಿಕೆ = 0;
+	ಪೂರ್ಣಾಂಕ warnings_ಎಣಿಕೆ = 0;
+	ಪೂರ್ಣಾಂಕ warnings_ಎಣಿಕೆ_noexpect = 0;
+	std::ಗಣ<std::string> warnings, experimental, experimental_ignored;
 	std::map<std::string, std::string> deprecated;
 
-	std::vector<std::regex> warn_regexes, nowarn_regexes, werror_regexes;
-	dict<std::string, LogExpectedItem> expect_log, expect_warning, expect_error;
-	dict<std::string, LogExpectedItem> expect_prefix_log, expect_prefix_warning, expect_prefix_error;
+	std::ಸದಿಶ<std::regex> warn_regexes, nowarn_regexes, werror_regexes;
+	dict<std::string, Log_Expected_ಅಂಶ> expect_log, expect_warning, expect_error;
+	dict<std::string, Log_Expected_ಅಂಶ> expect_ಪೂರ್ವಪ್ರತ್ಯಯ_log, expect_ಪೂರ್ವಪ್ರತ್ಯಯ_warning, expect_ಪೂರ್ವಪ್ರತ್ಯಯ_error;
 	bool expect_no_warnings = false;
-	bool log_time = false;
+	bool log_ಸಮಯ = false;
 	bool cmd_error_throw = false;
-	std::map<std::string, std::set<std::string>> hdump;
+	std::map<std::string, std::ಗಣ<std::string>> hdump;
 	bool hdump_all = false;
 
-	int debug_suppressed = 0;
-	int make_debug = 0;
-	int force_debug = 0;
+	ಪೂರ್ಣಾಂಕ debug_suppressed = 0;
+	ಪೂರ್ಣಾಂಕ make_debug = 0;
+	ಪೂರ್ಣಾಂಕ force_debug = 0;
 	std::unique_ptr<SHA1> hasher;
 };
 
 LogManager &logger();
 
-extern void (*log_error_atexit)();
+ಬಾಹ್ಯ ಶೂನ್ಯ (*log_error_atexit)();
 
-void set_verific_logging(void (*cb)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg));
-extern void (*log_verific_callback)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg);
+ಶೂನ್ಯ ಗಣ_verific_logging(ಶೂನ್ಯ (*cb)(ಪೂರ್ಣಾಂಕ ಸಂದೇಶ_type, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ_id, Log_ಮೂಲ_Location src, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ));
+ಬಾಹ್ಯ ಶೂನ್ಯ (*log_verific_callback)(ಪೂರ್ಣಾಂಕ ಸಂದೇಶ_type, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ_id, Log_ಮೂಲ_Location src, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ);
 
-#ifndef NDEBUG
-static inline bool ys_debug(int n = 0) { return logger().is_debug(n); }
-#else
-static inline bool ys_debug(int = 0) { return false; }
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ NDEBUG
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool ys_debug(ಪೂರ್ಣಾಂಕ n = 0) { ಹಿಂತಿರುಗಿ logger().is_debug(n); }
+#ಇಲ್ಲದಿದ್ದರೆ
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool ys_debug(ಪೂರ್ಣಾಂಕ = 0) { ಹಿಂತಿರುಗಿ false; }
+#ಆದರೆ_ಅಂತ್ಯ
 
-template <typename... Args>
-inline void log(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ಮಾದರಿ <typename... ವಾದಗಳು_3>
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ ಲಘುಗಣಕ(FmtString<Type_ತಟಸ್ಥ<ವಾದಗಳು_3>...> fmt, ಸ್ಥಿರಾಂಕ ವಾದಗಳು_3 &... ವಾದಗಳು_2)
 {
-	logger().formatted_string(LogSeverity::Info, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Info, Log_ಮೂಲ_Location{}, {}, fmt.format_string(), fmt.format(ವಾದಗಳು_2...));
 }
 
-template <typename... Args>
-inline void log_comment(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ಮಾದರಿ <typename... ವಾದಗಳು_3>
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_comment(FmtString<Type_ತಟಸ್ಥ<ವಾದಗಳು_3>...> fmt, ಸ್ಥಿರಾಂಕ ವಾದಗಳು_3 &... ವಾದಗಳು_2)
 {
-	logger().formatted_string(LogSeverity::Comment, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Comment, Log_ಮೂಲ_Location{}, {}, fmt.format_string(), fmt.format(ವಾದಗಳು_2...));
 }
 
-template <typename... Args>
-inline void log_highlight(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ಮಾದರಿ <typename... ವಾದಗಳು_3>
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_highlight(FmtString<Type_ತಟಸ್ಥ<ವಾದಗಳು_3>...> fmt, ಸ್ಥಿರಾಂಕ ವಾದಗಳು_3 &... ವಾದಗಳು_2)
 {
-	logger().formatted_string(LogSeverity::Highlight, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Highlight, Log_ಮೂಲ_Location{}, {}, fmt.format_string(), fmt.format(ವಾದಗಳು_2...));
 }
 
-template <typename... Args>
-inline void log_formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix,
-		FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ಮಾದರಿ <typename... ವಾದಗಳು_3>
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_formatted_string(LogSeverity severity, Log_ಮೂಲ_Location src, std::string_view ಪೂರ್ವಪ್ರತ್ಯಯ_2,
+		FmtString<Type_ತಟಸ್ಥ<ವಾದಗಳು_3>...> fmt, ಸ್ಥಿರಾಂಕ ವಾದಗಳು_3 &... ವಾದಗಳು_2)
 {
-	logger().formatted_string(severity, src, prefix, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(severity, src, ಪೂರ್ವಪ್ರತ್ಯಯ_2, fmt.format_string(), fmt.format(ವಾದಗಳು_2...));
 }
 
-#define log_debug(...) do { if (ys_debug(1)) YOSYS_NAMESPACE_PREFIX log_formatted_string(YOSYS_NAMESPACE_PREFIX LogSeverity::Debug, {}, {}, __VA_ARGS__); } while (0)
+#ವ್ಯಾಖ್ಯಾನಿಸು log_debug(...) ಮಾಡು { ಆದರೆ (ys_debug(1)) YOSYS_NAMESPACE_ಪೂರ್ವಪ್ರತ್ಯಯ log_formatted_string(YOSYS_NAMESPACE_ಪೂರ್ವಪ್ರತ್ಯಯ LogSeverity::Debug, {}, {}, __VA_ARGS__); } ಆಗ (0)
 
-template <typename... Args>
-inline void log_header(RTLIL::Design *design, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ಮಾದರಿ <typename... ವಾದಗಳು_3>
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_ಶೀರ್ಷಿಕೆ(RTLIL::Design *design, FmtString<Type_ತಟಸ್ಥ<ವಾದಗಳು_3>...> fmt, ಸ್ಥಿರಾಂಕ ವಾದಗಳು_3 &... ವಾದಗಳು_2)
 {
-	logger().formatted_header(design, fmt.format_string(), fmt.format(args...));
+	logger().formatted_ಶೀರ್ಷಿಕೆ(design, fmt.format_string(), fmt.format(ವಾದಗಳು_2...));
 }
 
-template <typename... Args>
-inline void log_warning(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ಮಾದರಿ <typename... ವಾದಗಳು_3>
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_warning(FmtString<Type_ತಟಸ್ಥ<ವಾದಗಳು_3>...> fmt, ಸ್ಥಿರಾಂಕ ವಾದಗಳು_3 &... ವಾದಗಳು_2)
 {
-	logger().formatted_warning(LogSourceLocation{}, "Warning: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_warning(Log_ಮೂಲ_Location{}, "Warning: ", fmt.format_string(), fmt.format(ವಾದಗಳು_2...));
 }
 
-template <typename... Args>
-inline void log_warning_noprefix(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ಮಾದರಿ <typename... ವಾದಗಳು_3>
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_warning_noprefix(FmtString<Type_ತಟಸ್ಥ<ವಾದಗಳು_3>...> fmt, ಸ್ಥಿರಾಂಕ ವಾದಗಳು_3 &... ವಾದಗಳು_2)
 {
-	logger().formatted_warning(LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_warning(Log_ಮೂಲ_Location{}, {}, fmt.format_string(), fmt.format(ವಾದಗಳು_2...));
 }
 
-inline void log_experimental(const std::string &str)
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_experimental(ಸ್ಥಿರಾಂಕ std::string &str)
 {
-	logger().add_experimental(str);
+	logger().ಕೂಡಿಸು_experimental(str);
 }
 
-inline void log_deprecated(const std::string &feature, const std::string &earliest_removal = "")
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_deprecated(ಸ್ಥಿರಾಂಕ std::string &feature, ಸ್ಥಿರಾಂಕ std::string &earliest_removal = "")
 {
-	logger().add_deprecated(feature, earliest_removal);
+	logger().ಕೂಡಿಸು_deprecated(feature, earliest_removal);
 }
 
 // Log with filename to report a problem in a source file.
-template <typename... Args>
-void log_file_warning(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ಮಾದರಿ <typename... ವಾದಗಳು_3>
+ಶೂನ್ಯ log_file_warning(Log_ಮೂಲ_Location src, FmtString<Type_ತಟಸ್ಥ<ವಾದಗಳು_3>...> fmt, ಸ್ಥಿರಾಂಕ ವಾದಗಳು_3 &... ವಾದಗಳು_2)
 {
-	logger().formatted_warning(src, "Warning: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_warning(src, "Warning: ", fmt.format_string(), fmt.format(ವಾದಗಳು_2...));
 }
 
-template <typename... Args>
-void log_file_info(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ಮಾದರಿ <typename... ವಾದಗಳು_3>
+ಶೂನ್ಯ log_file_info(Log_ಮೂಲ_Location src, FmtString<Type_ತಟಸ್ಥ<ವಾದಗಳು_3>...> fmt, ಸ್ಥಿರಾಂಕ ವಾದಗಳು_3 &... ವಾದಗಳು_2)
 {
-	logger().formatted_string(LogSeverity::Info, src, "NOTE: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Info, src, "NOTE: ", fmt.format_string(), fmt.format(ವಾದಗಳು_2...));
 }
 
-template <typename... Args>
-[[noreturn]] void log_error(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ಮಾದರಿ <typename... ವಾದಗಳು_3>
+[[noreturn]] ಶೂನ್ಯ log_error(FmtString<Type_ತಟಸ್ಥ<ವಾದಗಳು_3>...> fmt, ಸ್ಥಿರಾಂಕ ವಾದಗಳು_3 &... ವಾದಗಳು_2)
 {
-	logger().formatted_error(LogSourceLocation{}, "ERROR: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_error(Log_ಮೂಲ_Location{}, "ERROR: ", fmt.format_string(), fmt.format(ವಾದಗಳು_2...));
 }
 
-template <typename... Args>
-[[noreturn]] void log_file_error(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ಮಾದರಿ <typename... ವಾದಗಳು_3>
+[[noreturn]] ಶೂನ್ಯ log_file_error(Log_ಮೂಲ_Location src, FmtString<Type_ತಟಸ್ಥ<ವಾದಗಳು_3>...> fmt, ಸ್ಥಿರಾಂಕ ವಾದಗಳು_3 &... ವಾದಗಳು_2)
 {
-	logger().formatted_error(src, "ERROR: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_error(src, "ERROR: ", fmt.format_string(), fmt.format(ವಾದಗಳು_2...));
 }
 
-template <typename... Args>
-void log_file_nonfatal_error(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ಮಾದರಿ <typename... ವಾದಗಳು_3>
+ಶೂನ್ಯ log_file_nonfatal_error(Log_ಮೂಲ_Location src, FmtString<Type_ತಟಸ್ಥ<ವಾದಗಳು_3>...> fmt, ಸ್ಥಿರಾಂಕ ವಾದಗಳು_3 &... ವಾದಗಳು_2)
 {
-	logger().formatted_nonfatal_error(src, "ERROR: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_nonfatal_error(src, "ERROR: ", fmt.format_string(), fmt.format(ವಾದಗಳು_2...));
 }
 
-template <typename... Args>
-[[noreturn]] void log_cmd_error(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+ಮಾದರಿ <typename... ವಾದಗಳು_3>
+[[noreturn]] ಶೂನ್ಯ log_cmd_error(FmtString<Type_ತಟಸ್ಥ<ವಾದಗಳು_3>...> fmt, ಸ್ಥಿರಾಂಕ ವಾದಗಳು_3 &... ವಾದಗಳು_2)
 {
-	logger().formatted_cmd_error(fmt.format_string(), fmt.format(args...));
+	logger().formatted_cmd_error(fmt.format_string(), fmt.format(ವಾದಗಳು_2...));
 }
 
-inline void log_suppressed()
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_suppressed()
 {
 	logger().suppressed();
 }
 
-inline void log_spacer() { logger().spacer(); }
-inline void log_push() { logger().push(); }
-inline void log_pop() { logger().pop(); }
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_spacer() { logger().spacer(); }
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_ತಳ್ಳು() { logger().ತಳ್ಳು(); }
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_ತೆಗೆ() { logger().ತೆಗೆ_2(); }
 
-inline void log_reset_stack() { logger().reset_stack(); }
-inline void log_flush() { logger().flush(); }
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_reset_ರಾಶಿ() { logger().reset_ರಾಶಿ(); }
+ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_flush() { logger().flush(); }
 
-void log_backtrace(const char *prefix, int levels);
+ಶೂನ್ಯ log_backtrace(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ_2, ಪೂರ್ಣಾಂಕ ಮಟ್ಟಗಳು);
 
 
-std::string log_signal(const RTLIL::SigSpec &sig, bool autoint = true);
-std::string log_const(const RTLIL::Const &value, bool autoint = true);
+std::string log_signal(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig, bool autoint = true);
+std::string log_const(ಸ್ಥಿರಾಂಕ RTLIL::Const &ಮೌಲ್ಯ, bool autoint = true);
 
-void log_module(RTLIL::Module *module, std::string indent = "");
-void log_cell(RTLIL::Cell *cell, std::string indent = "");
-void log_wire(RTLIL::Wire *wire, std::string indent = "");
+ಶೂನ್ಯ log_module(RTLIL::Module *module, std::string indent = "");
+ಶೂನ್ಯ log_cell(RTLIL::Cell *cell, std::string indent = "");
+ಶೂನ್ಯ log_wire(RTLIL::Wire *wire, std::string indent = "");
 
 [[noreturn]]
-void log_abort_internal(const char *file, int line);
-#define log_abort() YOSYS_NAMESPACE_PREFIX log_abort_internal(__FILE__, __LINE__)
-#define log_ping() YOSYS_NAMESPACE_PREFIX log("-- %s:%d %s --\n", __FILE__, __LINE__, __PRETTY_FUNCTION__)
+ಶೂನ್ಯ log_abort_ಆಂತರಿಕ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *file, ಪೂರ್ಣಾಂಕ ಸಾಲು);
+#ವ್ಯಾಖ್ಯಾನಿಸು log_abort() YOSYS_NAMESPACE_ಪೂರ್ವಪ್ರತ್ಯಯ log_abort_ಆಂತರಿಕ(__FILE__, __LINE__)
+#ವ್ಯಾಖ್ಯಾನಿಸು log_ping() YOSYS_NAMESPACE_ಪೂರ್ವಪ್ರತ್ಯಯ ಲಘುಗಣಕ("-- %s:%d %s --\n", __FILE__, __LINE__, __PRETTY_FUNCTION__)
 
 
 // ------------------------------------------------------------
@@ -605,186 +605,186 @@ void log_abort_internal(const char *file, int line);
 
 // simple timer for performance measurements
 // toggle the '#if 1' to get a baseline for the performance penalty added by the measurement
-struct PerformanceTimer
+ರಚನೆ PerformanceTimer
 {
-#if 1
-	int64_t total_ns;
+#ಆದರೆ 1
+	int64_t ಒಟ್ಟು_ns;
 
 	PerformanceTimer() {
-		total_ns = 0;
+		ಒಟ್ಟು_ns = 0;
 	}
 
-	static int64_t query() {
+	ಸ್ಥಿರ int64_t query() {
 #  ifdef _WIN32
-		return 0;
+		ಹಿಂತಿರುಗಿ 0;
 #  elif defined(RUSAGE_SELF)
-		struct rusage rusage;
+		ರಚನೆ rusage rusage;
 		int64_t t = 0;
-		for (int who : {RUSAGE_SELF, RUSAGE_CHILDREN}) {
-			if (getrusage(who, &rusage) == -1) {
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ who : {RUSAGE_SELF, RUSAGE_CHILDREN}) {
+			ಆದರೆ (getrusage(who, &rusage) == -1) {
 				log_cmd_error("getrusage failed!\n");
 				log_abort();
 			}
 			t += 1000000000ULL * (int64_t) rusage.ru_utime.tv_sec + (int64_t) rusage.ru_utime.tv_usec * 1000ULL;
 			t += 1000000000ULL * (int64_t) rusage.ru_stime.tv_sec + (int64_t) rusage.ru_stime.tv_usec * 1000ULL;
 		}
-		return t;
-#  else
+		ಹಿಂತಿರುಗಿ t;
+#  ಇಲ್ಲದಿದ್ದರೆ
 #    error "Don't know how to measure per-process CPU time. Need alternative method (times()/clocks()/gettimeofday()?)."
 #  endif
 	}
 
-	void reset() {
-		total_ns = 0;
+	ಶೂನ್ಯ reset() {
+		ಒಟ್ಟು_ns = 0;
 	}
 
-	void begin() {
-		total_ns -= query();
+	ಶೂನ್ಯ begin() {
+		ಒಟ್ಟು_ns -= query();
 	}
 
-	void end() {
-		total_ns += query();
+	ಶೂನ್ಯ ಕೊನೆ() {
+		ಒಟ್ಟು_ns += query();
 	}
 
-	float sec() const {
-		return total_ns * 1e-9f;
+	ದಶಮಾಂಶ sec() ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ ಒಟ್ಟು_ns * 1e-9f;
 	}
-#else
-	static int64_t query() { return 0; }
-	void reset() { }
-	void begin() { }
-	void end() { }
-	float sec() const { return 0; }
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+	ಸ್ಥಿರ int64_t query() { ಹಿಂತಿರುಗಿ 0; }
+	ಶೂನ್ಯ reset() { }
+	ಶೂನ್ಯ begin() { }
+	ಶೂನ್ಯ ಕೊನೆ() { }
+	ದಶಮಾಂಶ sec() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ 0; }
+#ಆದರೆ_ಅಂತ್ಯ
 };
 
 // simple API for quickly dumping values when debugging
 
-static inline void log_dump_val_worker(short v) { log("%d", v); }
-static inline void log_dump_val_worker(unsigned short v) { log("%u", v); }
-static inline void log_dump_val_worker(int v) { log("%d", v); }
-static inline void log_dump_val_worker(unsigned int v) { log("%u", v); }
-static inline void log_dump_val_worker(long int v) { log("%ld", v); }
-static inline void log_dump_val_worker(unsigned long int v) { log("%lu", v); }
-#ifndef _WIN32
-static inline void log_dump_val_worker(long long int v) { log("%lld", v); }
-static inline void log_dump_val_worker(unsigned long long int v) { log("%lld", v); }
-#endif
-static inline void log_dump_val_worker(char c)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(ಗಿಡ್ಡ v) { ಲಘುಗಣಕ("%d", v); }
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ v) { ಲಘುಗಣಕ("%u", v); }
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(ಪೂರ್ಣಾಂಕ v) { ಲಘುಗಣಕ("%d", v); }
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ v) { ಲಘುಗಣಕ("%u", v); }
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(ದೀರ್ಘ ಪೂರ್ಣಾಂಕ v) { ಲಘುಗಣಕ("%ld", v); }
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಪೂರ್ಣಾಂಕ v) { ಲಘುಗಣಕ("%lu", v); }
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ _WIN32
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(ದೀರ್ಘ ದೀರ್ಘ ಪೂರ್ಣಾಂಕ v) { ಲಘುಗಣಕ("%lld", v); }
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ದೀರ್ಘ ಪೂರ್ಣಾಂಕ v) { ಲಘುಗಣಕ("%lld", v); }
+#ಆದರೆ_ಅಂತ್ಯ
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(ಅಕ್ಷರ c)
 {
-	if (c >= 32 && c < 127) {
-		log("'%c'", c);
-	} else {
-		log("'\\x%02x'", c);
+	ಆದರೆ (c >= 32 && c < 127) {
+		ಲಘುಗಣಕ("'%c'", c);
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		ಲಘುಗಣಕ("'\\x%02x'", c);
 	}
 }
-static inline void log_dump_val_worker(unsigned char c)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ c)
 {
-	if (c >= 32 && c < 127) {
-		log("'%c'", c);
-	} else {
-		log("'\\x%02x'", c);
+	ಆದರೆ (c >= 32 && c < 127) {
+		ಲಘುಗಣಕ("'%c'", c);
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		ಲಘುಗಣಕ("'\\x%02x'", c);
 	}
 }
-static inline void log_dump_val_worker(bool v) { log("%s", v ? "true" : "false"); }
-static inline void log_dump_val_worker(double v) { log("%f", v); }
-static inline void log_dump_val_worker(char *v) { log("%s", v); }
-static inline void log_dump_val_worker(const char *v) { log("%s", v); }
-static inline void log_dump_val_worker(std::string v) { log("%s", v); }
-static inline void log_dump_val_worker(PerformanceTimer p) { log("%f seconds", p.sec()); }
-static inline void log_dump_args_worker(const char *p) { log_assert(*p == 0); }
-void log_dump_val_worker(IdString v);
-void log_dump_val_worker(RTLIL::SigSpec v);
-void log_dump_val_worker(RTLIL::State v);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(bool v) { ಲಘುಗಣಕ("%s", v ? "true" : "false"); }
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(ದ್ವಿಗುಣ v) { ಲಘುಗಣಕ("%f", v); }
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(ಅಕ್ಷರ *v) { ಲಘುಗಣಕ("%s", v); }
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *v) { ಲಘುಗಣಕ("%s", v); }
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(std::string v) { ಲಘುಗಣಕ("%s", v); }
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(PerformanceTimer p) { ಲಘುಗಣಕ("%f seconds", p.sec()); }
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_ವಾದಗಳು_ಕೆಲಸಗಾರ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p) { log_assert(*p == 0); }
+ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(IdString v);
+ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(RTLIL::SigSpec v);
+ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(RTLIL::State v);
 
-template<typename K, typename T> static inline void log_dump_val_worker(dict<K, T> &v);
-template<typename K> static inline void log_dump_val_worker(pool<K> &v);
-template<typename K> static inline void log_dump_val_worker(std::vector<K> &v);
-template<typename T> static inline void log_dump_val_worker(T *ptr);
+ಮಾದರಿ<typename K, typename T> ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(dict<K, T> &v);
+ಮಾದರಿ<typename K> ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(pool<K> &v);
+ಮಾದರಿ<typename K> ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(std::ಸದಿಶ<K> &v);
+ಮಾದರಿ<typename T> ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(T *ptr);
 
-template<typename K, typename T>
-static inline void log_dump_val_worker(dict<K, T> &v) {
-	log("{");
-	bool first = true;
-	for (auto &it : v) {
-		log("%s ", first ? "" : ",");
-		log_dump_val_worker(it.first);
-		log(": ");
-		log_dump_val_worker(it.second);
-		first = false;
+ಮಾದರಿ<typename K, typename T>
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(dict<K, T> &v) {
+	ಲಘುಗಣಕ("{");
+	bool ಮೊದಲ = true;
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : v) {
+		ಲಘುಗಣಕ("%s ", ಮೊದಲ ? "" : ",");
+		log_dump_val_ಕೆಲಸಗಾರ(it.ಮೊದಲ);
+		ಲಘುಗಣಕ(": ");
+		log_dump_val_ಕೆಲಸಗಾರ(it.ಎರಡನೇ);
+		ಮೊದಲ = false;
 	}
-	log(" }");
+	ಲಘುಗಣಕ(" }");
 }
 
-template<typename K>
-static inline void log_dump_val_worker(pool<K> &v) {
-	log("{");
-	bool first = true;
-	for (auto &it : v) {
-		log("%s ", first ? "" : ",");
-		log_dump_val_worker(it);
-		first = false;
+ಮಾದರಿ<typename K>
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(pool<K> &v) {
+	ಲಘುಗಣಕ("{");
+	bool ಮೊದಲ = true;
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : v) {
+		ಲಘುಗಣಕ("%s ", ಮೊದಲ ? "" : ",");
+		log_dump_val_ಕೆಲಸಗಾರ(it);
+		ಮೊದಲ = false;
 	}
-	log(" }");
+	ಲಘುಗಣಕ(" }");
 }
 
-template<typename K>
-static inline void log_dump_val_worker(std::vector<K> &v) {
-	log("{");
-	bool first = true;
-	for (auto &it : v) {
-		log("%s ", first ? "" : ",");
-		log_dump_val_worker(it);
-		first = false;
+ಮಾದರಿ<typename K>
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(std::ಸದಿಶ<K> &v) {
+	ಲಘುಗಣಕ("{");
+	bool ಮೊದಲ = true;
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : v) {
+		ಲಘುಗಣಕ("%s ", ಮೊದಲ ? "" : ",");
+		log_dump_val_ಕೆಲಸಗಾರ(it);
+		ಮೊದಲ = false;
 	}
-	log(" }");
+	ಲಘುಗಣಕ(" }");
 }
 
-template<typename T>
-static inline void log_dump_val_worker(T *ptr) { log("%p", ptr); }
+ಮಾದರಿ<typename T>
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ log_dump_val_ಕೆಲಸಗಾರ(T *ptr) { ಲಘುಗಣಕ("%p", ptr); }
 
-template<typename T, typename ... Args>
-void log_dump_args_worker(const char *p, T first, Args ... args)
+ಮಾದರಿ<typename T, typename ... ವಾದಗಳು_3>
+ಶೂನ್ಯ log_dump_ವಾದಗಳು_ಕೆಲಸಗಾರ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, T ಮೊದಲ, ವಾದಗಳು_3 ... ವಾದಗಳು_2)
 {
-	int next_p_state = 0;
-	const char *next_p = p;
-	while (*next_p && (next_p_state != 0 || *next_p != ',')) {
-		if (*next_p == '"')
-			do {
-				next_p++;
-				while (*next_p == '\\' && *(next_p + 1))
-					next_p += 2;
-			} while (*next_p && *next_p != '"');
-		if (*next_p == '\'') {
-			next_p++;
-			if (*next_p == '\\')
-				next_p++;
-			if (*next_p)
-				next_p++;
+	ಪೂರ್ಣಾಂಕ ಮುಂದಿನ_p_state = 0;
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮುಂದಿನ_p = p;
+	ಆಗ (*ಮುಂದಿನ_p && (ಮುಂದಿನ_p_state != 0 || *ಮುಂದಿನ_p != ',')) {
+		ಆದರೆ (*ಮುಂದಿನ_p == '"')
+			ಮಾಡು {
+				ಮುಂದಿನ_p++;
+				ಆಗ (*ಮುಂದಿನ_p == '\\' && *(ಮುಂದಿನ_p + 1))
+					ಮುಂದಿನ_p += 2;
+			} ಆಗ (*ಮುಂದಿನ_p && *ಮುಂದಿನ_p != '"');
+		ಆದರೆ (*ಮುಂದಿನ_p == '\'') {
+			ಮುಂದಿನ_p++;
+			ಆದರೆ (*ಮುಂದಿನ_p == '\\')
+				ಮುಂದಿನ_p++;
+			ಆದರೆ (*ಮುಂದಿನ_p)
+				ಮುಂದಿನ_p++;
 		}
-		if (*next_p == '(' || *next_p == '[' || *next_p == '{')
-			next_p_state++;
-		if ((*next_p == ')' || *next_p == ']' || *next_p == '}') && next_p_state > 0)
-			next_p_state--;
-		next_p++;
+		ಆದರೆ (*ಮುಂದಿನ_p == '(' || *ಮುಂದಿನ_p == '[' || *ಮುಂದಿನ_p == '{')
+			ಮುಂದಿನ_p_state++;
+		ಆದರೆ ((*ಮುಂದಿನ_p == ')' || *ಮುಂದಿನ_p == ']' || *ಮುಂದಿನ_p == '}') && ಮುಂದಿನ_p_state > 0)
+			ಮುಂದಿನ_p_state--;
+		ಮುಂದಿನ_p++;
 	}
-	log("\n\t%.*s => ", int(next_p - p), p);
-	if (*next_p == ',')
-		next_p++;
-	while (*next_p == ' ' || *next_p == '\t' || *next_p == '\r' || *next_p == '\n')
-		next_p++;
-	log_dump_val_worker(first);
-	log_dump_args_worker(next_p, args ...);
+	ಲಘುಗಣಕ("\n\t%.*s => ", ಪೂರ್ಣಾಂಕ(ಮುಂದಿನ_p - p), p);
+	ಆದರೆ (*ಮುಂದಿನ_p == ',')
+		ಮುಂದಿನ_p++;
+	ಆಗ (*ಮುಂದಿನ_p == ' ' || *ಮುಂದಿನ_p == '\t' || *ಮುಂದಿನ_p == '\r' || *ಮುಂದಿನ_p == '\n')
+		ಮುಂದಿನ_p++;
+	log_dump_val_ಕೆಲಸಗಾರ(ಮೊದಲ);
+	log_dump_ವಾದಗಳು_ಕೆಲಸಗಾರ(ಮುಂದಿನ_p, ವಾದಗಳು_2 ...);
 }
 
-#define log_dump(...) do { \
-	log("DEBUG DUMP IN %s AT %s:%d:", __PRETTY_FUNCTION__, __FILE__, __LINE__); \
-	log_dump_args_worker(#__VA_ARGS__, __VA_ARGS__); \
-	log("\n"); \
-} while (0)
+#ವ್ಯಾಖ್ಯಾನಿಸು log_dump(...) ಮಾಡು { \
+	ಲಘುಗಣಕ("DEBUG DUMP IN %s AT %s:%d:", __PRETTY_FUNCTION__, __FILE__, __LINE__); \
+	log_dump_ವಾದಗಳು_ಕೆಲಸಗಾರ(#__VA_ARGS__, __VA_ARGS__); \
+	ಲಘುಗಣಕ("\n"); \
+} ಆಗ (0)
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#include "kernel/yosys.h"
+#ಅನ್ತರ್ಭಾವ "kernel/yosys.h"
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

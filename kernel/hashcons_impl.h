@@ -1,242 +1,242 @@
-#ifndef YOSYS_HASHCONS_IMPL_H
-#define YOSYS_HASHCONS_IMPL_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ YOSYS_HASHCONS_IMPL_H
+#ವ್ಯಾಖ್ಯಾನಿಸು YOSYS_HASHCONS_IMPL_H
 
-#include "kernel/hashcons.h"
+#ಅನ್ತರ್ಭಾವ "kernel/hashcons.h"
 
-#include <algorithm>
+#ಅನ್ತರ್ಭಾವ <algorithm>
 
 YOSYS_NAMESPACE_BEGIN
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::is_live(Ref ref) const {
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+bool HashConsPool<Derived, ಗಂಟು_2, Ref>::is_ಜೀವಂತ(Ref ref) ಸ್ಥಿರಾಂಕ {
 	Ref idx = ref.untag();
-	if (is_static(idx))
-		return true;
-	size_t slot = idx.raw() - Derived::STATIC_COUNT;
-	return slot < backing.size() && !backing[slot].is_dead();
+	ಆದರೆ (is_static(idx))
+		ಹಿಂತಿರುಗಿ true;
+	ಗಾತ್ರ_t ಸ್ಥಾನ = idx.raw() - Derived::STATIC_ಎಣಿಕೆ;
+	ಹಿಂತಿರುಗಿ ಸ್ಥಾನ < backing.ಗಾತ್ರ_2() && !backing[ಸ್ಥಾನ].is_dead();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::check_ready() {}
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಶೂನ್ಯ HashConsPool<Derived, ಗಂಟು_2, Ref>::check_ready() {}
 
-template<typename Derived, typename Node, typename Ref>
-const Node& HashConsPool<Derived, Node, Ref>::operator[] (Ref ref) const {
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಸ್ಥಿರಾಂಕ ಗಂಟು_2& HashConsPool<Derived, ಗಂಟು_2, Ref>::ಕ್ರಿಯಾಕಾರಕ[] (Ref ref) ಸ್ಥಿರಾಂಕ {
 	Ref idx = ref.untag();
-	if constexpr (Derived::STATIC_COUNT != 0) {
-		if (is_static(idx))
-			return Derived::static_node(idx.raw());
+	ಆದರೆ constexpr (Derived::STATIC_ಎಣಿಕೆ != 0) {
+		ಆದರೆ (is_static(idx))
+			ಹಿಂತಿರುಗಿ Derived::static_ಗಂಟು(idx.raw());
 	}
-	return backing[idx.raw() - Derived::STATIC_COUNT];
+	ಹಿಂತಿರುಗಿ backing[idx.raw() - Derived::STATIC_ಎಣಿಕೆ];
 }
 
-template<typename Derived, typename Node, typename Ref>
-Derived* HashConsPool<Derived, Node, Ref>::self() { return static_cast<Derived*>(this); }
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+Derived* HashConsPool<Derived, ಗಂಟು_2, Ref>::self() { ಹಿಂತಿರುಗಿ static_cast<Derived*>(this); }
 
-template<typename Derived, typename Node, typename Ref>
-const Derived* HashConsPool<Derived, Node, Ref>::self() const { return static_cast<const Derived*>(this); }
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಸ್ಥಿರಾಂಕ Derived* HashConsPool<Derived, ಗಂಟು_2, Ref>::self() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ static_cast<ಸ್ಥಿರಾಂಕ Derived*>(this); }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::is_static(Ref ref) {
-	if constexpr (Derived::STATIC_COUNT == 0)
-		return false;
-	else
-		return ref.raw() < Derived::STATIC_COUNT;
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+bool HashConsPool<Derived, ಗಂಟು_2, Ref>::is_static(Ref ref) {
+	ಆದರೆ constexpr (Derived::STATIC_ಎಣಿಕೆ == 0)
+		ಹಿಂತಿರುಗಿ false;
+	ಇಲ್ಲದಿದ್ದರೆ
+		ಹಿಂತಿರುಗಿ ref.raw() < Derived::STATIC_ಎಣಿಕೆ;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::RefIterator::settle() {
-	while (skip_dead && idx < stop && !pool->slot_live(idx))
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಶೂನ್ಯ HashConsPool<Derived, ಗಂಟು_2, Ref>::RefIterator::settle() {
+	ಆಗ (skip_dead && idx < stop && !pool->ಸ್ಥಾನ_ಜೀವಂತ(idx))
 		idx++;
 }
 
-template<typename Derived, typename Node, typename Ref>
-Ref HashConsPool<Derived, Node, Ref>::RefIterator::operator*() const { return Ref(idx); }
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+Ref HashConsPool<Derived, ಗಂಟು_2, Ref>::RefIterator::ಕ್ರಿಯಾಕಾರಕ*() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ Ref(idx); }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefIterator::operator++() -> RefIterator& { idx++; settle(); return *this; }
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಸ್ವಯಂಚಾಲಿತ HashConsPool<Derived, ಗಂಟು_2, Ref>::RefIterator::ಕ್ರಿಯಾಕಾರಕ++() -> RefIterator& { idx++; settle(); ಹಿಂತಿರುಗಿ *this; }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::RefIterator::operator!=(const RefIterator& other) const { return idx != other.idx; }
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+bool HashConsPool<Derived, ಗಂಟು_2, Ref>::RefIterator::ಕ್ರಿಯಾಕಾರಕ!=(ಸ್ಥಿರಾಂಕ RefIterator& other) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ idx != other.idx; }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefRange::begin() const -> RefIterator {
-	RefIterator it{pool, first, stop, skip_dead};
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಸ್ವಯಂಚಾಲಿತ HashConsPool<Derived, ಗಂಟು_2, Ref>::RefRange::begin() ಸ್ಥಿರಾಂಕ -> RefIterator {
+	RefIterator it{pool, ಮೊದಲ, stop, skip_dead};
 	it.settle();
-	return it;
+	ಹಿಂತಿರುಗಿ it;
 }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::RefRange::end() const -> RefIterator { return RefIterator{pool, stop, stop, skip_dead}; }
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಸ್ವಯಂಚಾಲಿತ HashConsPool<Derived, ಗಂಟು_2, Ref>::RefRange::ಕೊನೆ() ಸ್ಥಿರಾಂಕ -> RefIterator { ಹಿಂತಿರುಗಿ RefIterator{pool, stop, stop, skip_dead}; }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::refs(bool include_statics) const -> RefRange {
-	return RefRange{this, include_statics ? 0 : Derived::STATIC_COUNT,
-			Derived::STATIC_COUNT + backing.size(), true};
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಸ್ವಯಂಚಾಲಿತ HashConsPool<Derived, ಗಂಟು_2, Ref>::refs(bool include_statics) ಸ್ಥಿರಾಂಕ -> RefRange {
+	ಹಿಂತಿರುಗಿ RefRange{this, include_statics ? 0 : Derived::STATIC_ಎಣಿಕೆ,
+			Derived::STATIC_ಎಣಿಕೆ + backing.ಗಾತ್ರ_2(), true};
 }
 
-template<typename Derived, typename Node, typename Ref>
-auto HashConsPool<Derived, Node, Ref>::slots() const -> RefRange {
-	return RefRange{this, Derived::STATIC_COUNT,
-			Derived::STATIC_COUNT + backing.size(), false};
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಸ್ವಯಂಚಾಲಿತ HashConsPool<Derived, ಗಂಟು_2, Ref>::slots() ಸ್ಥಿರಾಂಕ -> RefRange {
+	ಹಿಂತಿರುಗಿ RefRange{this, Derived::STATIC_ಎಣಿಕೆ,
+			Derived::STATIC_ಎಣಿಕೆ + backing.ಗಾತ್ರ_2(), false};
 }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::home_slot(uint64_t hash) const {
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಗಾತ್ರ_t HashConsPool<Derived, ಗಂಟು_2, Ref>::home_ಸ್ಥಾನ(uint64_t hash) ಸ್ಥಿರಾಂಕ {
 	// Knuth's Fibonacci hashing saves us from how bad DJB2 is
-	return (hash * 0x9e3779b97f4a7c15ull) >> (64 - std::countr_zero(table.size()));
+	ಹಿಂತಿರುಗಿ (hash * 0x9e3779b97f4a7c15ull) >> (64 - std::countr_zero(ಕೋಷ್ಟಕ_2.ಗಾತ್ರ_2()));
 }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::next_slot(size_t slot) const { return (slot + 1) & (table.size() - 1); }
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಗಾತ್ರ_t HashConsPool<Derived, ಗಂಟು_2, Ref>::ಮುಂದಿನ_ಸ್ಥಾನ(ಗಾತ್ರ_t ಸ್ಥಾನ) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ (ಸ್ಥಾನ + 1) & (ಕೋಷ್ಟಕ_2.ಗಾತ್ರ_2() - 1); }
 
-template<typename Derived, typename Node, typename Ref>
-size_t HashConsPool<Derived, Node, Ref>::size() const { return backing.size() - free_list.size(); }
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಗಾತ್ರ_t HashConsPool<Derived, ಗಂಟು_2, Ref>::ಗಾತ್ರ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ backing.ಗಾತ್ರ_2() - free_list.ಗಾತ್ರ_2(); }
 
-template<typename Derived, typename Node, typename Ref>
-bool HashConsPool<Derived, Node, Ref>::slot_live(size_t abs) const {
-	if (abs < Derived::STATIC_COUNT)
-		return true;
-	return !backing[abs - Derived::STATIC_COUNT].is_dead();
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+bool HashConsPool<Derived, ಗಂಟು_2, Ref>::ಸ್ಥಾನ_ಜೀವಂತ(ಗಾತ್ರ_t ನಿರಪೇಕ್ಷ) ಸ್ಥಿರಾಂಕ {
+	ಆದರೆ (ನಿರಪೇಕ್ಷ < Derived::STATIC_ಎಣಿಕೆ)
+		ಹಿಂತಿರುಗಿ true;
+	ಹಿಂತಿರುಗಿ !backing[ನಿರಪೇಕ್ಷ - Derived::STATIC_ಎಣಿಕೆ].is_dead();
 }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>::HashConsPool() { rebuild_index(); }
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+HashConsPool<Derived, ಗಂಟು_2, Ref>::HashConsPool() { rebuild_ಸೂಚ್ಯಂಕ(); }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>::HashConsPool(HashConsPool&& other)
-	: backing(std::move(other.backing)), table(std::move(other.table)), free_list(std::move(other.free_list)) {
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+HashConsPool<Derived, ಗಂಟು_2, Ref>::HashConsPool(HashConsPool&& other)
+	: backing(std::move(other.backing)), ಕೋಷ್ಟಕ_2(std::move(other.ಕೋಷ್ಟಕ_2)), free_list(std::move(other.free_list)) {
 	other.reset();
 }
 
-template<typename Derived, typename Node, typename Ref>
-HashConsPool<Derived, Node, Ref>& HashConsPool<Derived, Node, Ref>::operator=(HashConsPool&& other) {
-	if (this != &other) {
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+HashConsPool<Derived, ಗಂಟು_2, Ref>& HashConsPool<Derived, ಗಂಟು_2, Ref>::ಕ್ರಿಯಾಕಾರಕ=(HashConsPool&& other) {
+	ಆದರೆ (this != &other) {
 		backing = std::move(other.backing);
-		table = std::move(other.table);
+		ಕೋಷ್ಟಕ_2 = std::move(other.ಕೋಷ್ಟಕ_2);
 		free_list = std::move(other.free_list);
 		other.reset();
 	}
-	return *this;
+	ಹಿಂತಿರುಗಿ *this;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::reset() {
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಶೂನ್ಯ HashConsPool<Derived, ಗಂಟು_2, Ref>::reset() {
 	backing.clear();
 	free_list.clear();
-	rebuild_index();
+	rebuild_ಸೂಚ್ಯಂಕ();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::rebuild_index() {
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಶೂನ್ಯ HashConsPool<Derived, ಗಂಟು_2, Ref>::rebuild_ಸೂಚ್ಯಂಕ() {
 	Derived::check_ready();
 	free_list.clear();
-	for (size_t idx = 0; idx < backing.size(); ++idx)
-		if (backing[idx].is_dead())
-			free_list.push_back(idx);
-	std::sort(free_list.begin(), free_list.end(), std::greater<size_t>());
-	table.assign(std::bit_ceil((Derived::STATIC_COUNT + size()) * 2 + 2), Ref());
-	for (Ref ref : refs())
-		index_insert(ref);
+	ಗಾಗಿ (ಗಾತ್ರ_t idx = 0; idx < backing.ಗಾತ್ರ_2(); ++idx)
+		ಆದರೆ (backing[idx].is_dead())
+			free_list.ತಳ್ಳು_ಹಿಂಭಾಗ(idx);
+	std::ವಿಂಗಡಿಸು(free_list.begin(), free_list.ಕೊನೆ(), std::greater<ಗಾತ್ರ_t>());
+	ಕೋಷ್ಟಕ_2.ನಿಯೋಜಿಸು(std::ಬಿಟ್_ceil((Derived::STATIC_ಎಣಿಕೆ + ಗಾತ್ರ_2()) * 2 + 2), Ref());
+	ಗಾಗಿ (Ref ref : refs())
+		ಸೂಚ್ಯಂಕ_ಸೇರಿಸು(ref);
 }
 
-template<typename Derived, typename Node, typename Ref>
-template<typename Eq>
-Ref HashConsPool<Derived, Node, Ref>::find_hashed(uint64_t hash, Eq&& eq) const {
-	for (size_t slot = home_slot(hash); table[slot] != Ref(); slot = next_slot(slot)) {
-		Ref ref = table[slot];
-		if (Derived::hash_node((*this)[ref]) == hash && eq(ref))
-			return ref;
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಮಾದರಿ<typename Eq>
+Ref HashConsPool<Derived, ಗಂಟು_2, Ref>::ಕಂಡುಹಿಡಿ_hashed(uint64_t hash, Eq&& eq) ಸ್ಥಿರಾಂಕ {
+	ಗಾಗಿ (ಗಾತ್ರ_t ಸ್ಥಾನ = home_ಸ್ಥಾನ(hash); ಕೋಷ್ಟಕ_2[ಸ್ಥಾನ] != Ref(); ಸ್ಥಾನ = ಮುಂದಿನ_ಸ್ಥಾನ(ಸ್ಥಾನ)) {
+		Ref ref = ಕೋಷ್ಟಕ_2[ಸ್ಥಾನ];
+		ಆದರೆ (Derived::hash_ಗಂಟು((*this)[ref]) == hash && eq(ref))
+			ಹಿಂತಿರುಗಿ ref;
 	}
-	return Ref();
+	ಹಿಂತಿರುಗಿ Ref();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::index_insert(Ref ref) {
-	size_t slot = home_slot(Derived::hash_node((*this)[ref]));
-	while (table[slot] != Ref())
-		slot = next_slot(slot);
-	table[slot] = ref;
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಶೂನ್ಯ HashConsPool<Derived, ಗಂಟು_2, Ref>::ಸೂಚ್ಯಂಕ_ಸೇರಿಸು(Ref ref) {
+	ಗಾತ್ರ_t ಸ್ಥಾನ = home_ಸ್ಥಾನ(Derived::hash_ಗಂಟು((*this)[ref]));
+	ಆಗ (ಕೋಷ್ಟಕ_2[ಸ್ಥಾನ] != Ref())
+		ಸ್ಥಾನ = ಮುಂದಿನ_ಸ್ಥಾನ(ಸ್ಥಾನ);
+	ಕೋಷ್ಟಕ_2[ಸ್ಥಾನ] = ref;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::index_erase(Ref ref) {
-	size_t hole = home_slot(Derived::hash_node((*this)[ref]));
-	while (table[hole] != ref)
-		hole = next_slot(hole);
-	size_t mask = table.size() - 1;
-	for (size_t slot = next_slot(hole); table[slot] != Ref(); slot = next_slot(slot)) {
-		size_t home = home_slot(Derived::hash_node((*this)[table[slot]]));
-		if (((slot - home) & mask) >= ((slot - hole) & mask)) {
-			table[hole] = table[slot];
-			hole = slot;
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಶೂನ್ಯ HashConsPool<Derived, ಗಂಟು_2, Ref>::ಸೂಚ್ಯಂಕ_erase(Ref ref) {
+	ಗಾತ್ರ_t hole = home_ಸ್ಥಾನ(Derived::hash_ಗಂಟು((*this)[ref]));
+	ಆಗ (ಕೋಷ್ಟಕ_2[hole] != ref)
+		hole = ಮುಂದಿನ_ಸ್ಥಾನ(hole);
+	ಗಾತ್ರ_t ಮುಖವಾಡ = ಕೋಷ್ಟಕ_2.ಗಾತ್ರ_2() - 1;
+	ಗಾಗಿ (ಗಾತ್ರ_t ಸ್ಥಾನ = ಮುಂದಿನ_ಸ್ಥಾನ(hole); ಕೋಷ್ಟಕ_2[ಸ್ಥಾನ] != Ref(); ಸ್ಥಾನ = ಮುಂದಿನ_ಸ್ಥಾನ(ಸ್ಥಾನ)) {
+		ಗಾತ್ರ_t home = home_ಸ್ಥಾನ(Derived::hash_ಗಂಟು((*this)[ಕೋಷ್ಟಕ_2[ಸ್ಥಾನ]]));
+		ಆದರೆ (((ಸ್ಥಾನ - home) & ಮುಖವಾಡ) >= ((ಸ್ಥಾನ - hole) & ಮುಖವಾಡ)) {
+			ಕೋಷ್ಟಕ_2[hole] = ಕೋಷ್ಟಕ_2[ಸ್ಥಾನ];
+			hole = ಸ್ಥಾನ;
 		}
 	}
-	table[hole] = Ref();
+	ಕೋಷ್ಟಕ_2[hole] = Ref();
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::grow_index() {
-	std::vector<Ref> old(table.size() * 2, Ref());
-	std::swap(old, table);
-	for (Ref ref : old)
-		if (ref != Ref())
-			index_insert(ref);
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಶೂನ್ಯ HashConsPool<Derived, ಗಂಟು_2, Ref>::grow_ಸೂಚ್ಯಂಕ() {
+	std::ಸದಿಶ<Ref> old(ಕೋಷ್ಟಕ_2.ಗಾತ್ರ_2() * 2, Ref());
+	std::ಅದಲುಬದಲು(old, ಕೋಷ್ಟಕ_2);
+	ಗಾಗಿ (Ref ref : old)
+		ಆದರೆ (ref != Ref())
+			ಸೂಚ್ಯಂಕ_ಸೇರಿಸು(ref);
 }
 
-template<typename Derived, typename Node, typename Ref>
-Ref HashConsPool<Derived, Node, Ref>::add_inner(Node t) {
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+Ref HashConsPool<Derived, ಗಂಟು_2, Ref>::ಕೂಡಿಸು_inner(ಗಂಟು_2 t) {
 	Ref ref;
-	if (!free_list.empty()) {
-		size_t idx = free_list.back();
-		free_list.pop_back();
+	ಆದರೆ (!free_list.ಖಾಲಿಗಳು()) {
+		ಗಾತ್ರ_t idx = free_list.ಹಿಂಭಾಗ();
+		free_list.ತೆಗೆ_ಹಿಂಭಾಗ();
 		backing[idx] = std::move(t);
-		ref = Ref(Derived::STATIC_COUNT + idx);
-	} else {
-		ref = Ref(Derived::STATIC_COUNT + backing.size());
-		backing.push_back(std::move(t));
+		ref = Ref(Derived::STATIC_ಎಣಿಕೆ + idx);
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		ref = Ref(Derived::STATIC_ಎಣಿಕೆ + backing.ಗಾತ್ರ_2());
+		backing.ತಳ್ಳು_ಹಿಂಭಾಗ(std::move(t));
 	}
-	if ((Derived::STATIC_COUNT + size()) * 3 > table.size() * 2)
-		grow_index();
-	index_insert(ref);
-	if (yosys_xtrace) {
+	ಆದರೆ ((Derived::STATIC_ಎಣಿಕೆ + ಗಾತ್ರ_2()) * 3 > ಕೋಷ್ಟಕ_2.ಗಾತ್ರ_2() * 2)
+		grow_ಸೂಚ್ಯಂಕ();
+	ಸೂಚ್ಯಂಕ_ಸೇರಿಸು(ref);
+	ಆದರೆ (yosys_xtrace) {
 		std::cout << "#X# add_inner added ";
 		self()->dump(ref);
 		std::cout << "\n";
 		std::cout << "#X# as integer " << ref.raw() << "\n";
 	}
-	return ref;
+	ಹಿಂತಿರುಗಿ ref;
 }
 
-template<typename Derived, typename Node, typename Ref>
-template<typename Roots>
-size_t HashConsPool<Derived, Node, Ref>::gc(const Roots& roots) {
-	pool<Ref> live;
-	for (Ref ref : roots)
-		mark_live(ref, live);
-	size_t erased = 0;
-	for (size_t idx = 0; idx < backing.size(); ++idx) {
-		if (backing[idx].is_dead())
-			continue;
-		if (!live.count(Ref(Derived::STATIC_COUNT + idx))) {
-			index_erase(Ref(Derived::STATIC_COUNT + idx));
-			free_list.push_back(idx);
-			backing[idx] = Node{};
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಮಾದರಿ<typename Roots>
+ಗಾತ್ರ_t HashConsPool<Derived, ಗಂಟು_2, Ref>::gc(ಸ್ಥಿರಾಂಕ Roots& roots) {
+	pool<Ref> ಜೀವಂತ;
+	ಗಾಗಿ (Ref ref : roots)
+		mark_ಜೀವಂತ(ref, ಜೀವಂತ);
+	ಗಾತ್ರ_t erased = 0;
+	ಗಾಗಿ (ಗಾತ್ರ_t idx = 0; idx < backing.ಗಾತ್ರ_2(); ++idx) {
+		ಆದರೆ (backing[idx].is_dead())
+			ಮುಂದುವರಿ;
+		ಆದರೆ (!ಜೀವಂತ.ಎಣಿಕೆ_2(Ref(Derived::STATIC_ಎಣಿಕೆ + idx))) {
+			ಸೂಚ್ಯಂಕ_erase(Ref(Derived::STATIC_ಎಣಿಕೆ + idx));
+			free_list.ತಳ್ಳು_ಹಿಂಭಾಗ(idx);
+			backing[idx] = ಗಂಟು_2{};
 			erased++;
 		}
 	}
 	// TODO something like YOSYS_SORT_ID_FREE_LIST to make it optional?
-	std::sort(free_list.begin(), free_list.end(), std::greater<size_t>());
-	return erased;
+	std::ವಿಂಗಡಿಸು(free_list.begin(), free_list.ಕೊನೆ(), std::greater<ಗಾತ್ರ_t>());
+	ಹಿಂತಿರುಗಿ erased;
 }
 
-template<typename Derived, typename Node, typename Ref>
-void HashConsPool<Derived, Node, Ref>::mark_live(Ref ref, pool<Ref>& live) const {
+ಮಾದರಿ<typename Derived, typename ಗಂಟು_2, typename Ref>
+ಶೂನ್ಯ HashConsPool<Derived, ಗಂಟು_2, Ref>::mark_ಜೀವಂತ(Ref ref, pool<Ref>& ಜೀವಂತ) ಸ್ಥಿರಾಂಕ {
 	ref = ref.untag();
-	if (ref == Ref() || is_static(ref) || !live.insert(ref).second)
-		return;
-	Derived::for_each_child((*this)[ref], [&](Ref child) { mark_live(child, live); });
+	ಆದರೆ (ref == Ref() || is_static(ref) || !ಜೀವಂತ.ಸೇರಿಸು(ref).ಎರಡನೇ)
+		ಹಿಂತಿರುಗಿ;
+	Derived::for_each_ಮಗು((*this)[ref], [&](Ref ಮಗು) { mark_ಜೀವಂತ(ಮಗು, ಜೀವಂತ); });
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

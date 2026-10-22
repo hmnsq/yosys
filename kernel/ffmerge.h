@@ -17,11 +17,11 @@
  *
  */
 
-#ifndef FFMERGE_H
-#define FFMERGE_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ FFMERGE_H
+#ವ್ಯಾಖ್ಯಾನಿಸು FFMERGE_H
 
-#include "kernel/ffinit.h"
-#include "kernel/ff.h"
+#ಅನ್ತರ್ಭಾವ "kernel/ffinit.h"
+#ಅನ್ತರ್ಭಾವ "kernel/ff.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -56,18 +56,18 @@ YOSYS_NAMESPACE_BEGIN
 // perhaps in different cells.  For this reason, it may be a good idea to separate
 // input and output merging.
 
-struct FfMergeHelper
+ರಚನೆ Ff_ವಿಲೀನ_Helper
 {
-	const SigMapView *sigmap;
+	ಸ್ಥಿರಾಂಕ SigMapView *sigmap;
 	RTLIL::Module *module;
 	FfInitVals *initvals;
 
-	dict<SigBit, std::pair<Cell*, int>> dff_driver;
-	dict<SigBit, pool<std::pair<Cell*, int>>> dff_sink;
-	dict<SigBit, int> sigbit_users_count;
+	dict<Sig_ಬಿಟ್, std::pair<Cell*, ಪೂರ್ಣಾಂಕ>> dff_driver;
+	dict<Sig_ಬಿಟ್, pool<std::pair<Cell*, ಪೂರ್ಣಾಂಕ>>> dff_sink;
+	dict<Sig_ಬಿಟ್, ಪೂರ್ಣಾಂಕ> sigbit_users_ಎಣಿಕೆ;
 
 	// Returns true if all bits in sig are completely unused.
-	bool is_output_unused(RTLIL::SigSpec sig);
+	bool is_output_ಬಳಸದ(RTLIL::SigSpec sig);
 
 	// Finds the FF to merge into a given cell output.  Takes sig, which
 	// is the current cell output — it will be the sig_d of the found FF.
@@ -95,7 +95,7 @@ struct FfMergeHelper
 	// the design — this is so that the caller can decide whether to accept
 	// this FF for merging or not.  If the result is accepted,
 	// remove_output_ff should be called on the second output argument.
-	bool find_output_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits);
+	bool ಕಂಡುಹಿಡಿ_output_ff(RTLIL::SigSpec sig, Ff_ದತ್ತಾಂಶ &ff, pool<std::pair<Cell *, ಪೂರ್ಣಾಂಕ>> &ಬಿಟ್ಟುಗಳು);
 
 	// Like above, but returns a FF to merge into a given cell input.  Takes
 	// sig_q, which is the current cell input — it will search for FFs with
@@ -110,32 +110,32 @@ struct FfMergeHelper
 	// a constant-input FF bit (with matching initial value and reset value).
 	// However, this will not work if the input is all-constant — if the caller
 	// cares about this case, it needs to check for it explicitely.
-	bool find_input_ff(RTLIL::SigSpec sig, FfData &ff, pool<std::pair<Cell *, int>> &bits);
+	bool ಕಂಡುಹಿಡಿ_ಒಳಹರಿವು_ff(RTLIL::SigSpec sig, Ff_ದತ್ತಾಂಶ &ff, pool<std::pair<Cell *, ಪೂರ್ಣಾಂಕ>> &ಬಿಟ್ಟುಗಳು);
 
 	// To be called on find_output_ff result that will be merged.  This
 	// marks the given FF bits as used up (and not to be considered for
 	// further merging as inputs), and reconnects their Q ports to a dummy
 	// wire (since the wire previously connected there will now be driven
 	// by the merged-to cell instead).
-	void remove_output_ff(const pool<std::pair<Cell *, int>> &bits);
+	ಶೂನ್ಯ remove_output_ff(ಸ್ಥಿರಾಂಕ pool<std::pair<Cell *, ಪೂರ್ಣಾಂಕ>> &ಬಿಟ್ಟುಗಳು);
 
 	// To be called on find_input_ff result that will be merged.  This
 	// marks the given FF bits as used, and disallows merging them as
 	// outputs.  They can, however, still be merged as inputs again
 	// (perhaps for another cell).
-	void mark_input_ff(const pool<std::pair<Cell *, int>> &bits);
+	ಶೂನ್ಯ mark_ಒಳಹರಿವು_ff(ಸ್ಥಿರಾಂಕ pool<std::pair<Cell *, ಪೂರ್ಣಾಂಕ>> &ಬಿಟ್ಟುಗಳು);
 
-	void set(FfInitVals *initvals_, RTLIL::Module *module_);
+	ಶೂನ್ಯ ಗಣ(FfInitVals *initvals_, RTLIL::Module *module_);
 
-	void clear();
+	ಶೂನ್ಯ clear();
 
-	FfMergeHelper(FfInitVals *initvals, RTLIL::Module *module) {
-		set(initvals, module);
+	Ff_ವಿಲೀನ_Helper(FfInitVals *initvals, RTLIL::Module *module) {
+		ಗಣ(initvals, module);
 	}
 
-	FfMergeHelper() {}
+	Ff_ವಿಲೀನ_Helper() {}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

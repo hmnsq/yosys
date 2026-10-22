@@ -17,22 +17,22 @@
  *
  */
 
-#ifndef RTLIL_H
-#define RTLIL_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ RTLIL_H
+#ವ್ಯಾಖ್ಯಾನಿಸು RTLIL_H
 
-#include "kernel/yosys_common.h"
-#include "kernel/yosys.h"
-#include "kernel/twine.h"
+#ಅನ್ತರ್ಭಾವ "kernel/yosys_common.h"
+#ಅನ್ತರ್ಭಾವ "kernel/yosys.h"
+#ಅನ್ತರ್ಭಾವ "kernel/twine.h"
 
-#include <deque>
-#include <string_view>
-#include <unordered_map>
+#ಅನ್ತರ್ಭಾವ <deque>
+#ಅನ್ತರ್ಭಾವ <string_view>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
 
 YOSYS_NAMESPACE_BEGIN
 
 namespace RTLIL
 {
-	enum State : unsigned char {
+	ಎಣಿಕೆ State : ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ {
 		S0 = 0,
 		S1 = 1,
 		Sx = 2, // undefined value or conflict
@@ -41,7 +41,7 @@ namespace RTLIL
 		Sm = 5  // marker (used internally by some passes)
 	};
 
-	enum SyncType : unsigned char {
+	ಎಣಿಕೆ SyncType : ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ {
 		ST0 = 0, // level sensitive: 0
 		ST1 = 1, // level sensitive: 1
 		STp = 2, // edge sensitive: posedge
@@ -54,7 +54,7 @@ namespace RTLIL
 
 	// Semantic metadata - how can this constant be interpreted?
 	// Values may be generally non-exclusive
-	enum ConstFlags : unsigned char {
+	ಎಣಿಕೆ ConstFlags : ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ {
 		CONST_FLAG_NONE    = 0,
 		CONST_FLAG_STRING  = 1,
 		CONST_FLAG_SIGNED  = 2,  // only used for parameters
@@ -62,15 +62,15 @@ namespace RTLIL
 		CONST_FLAG_UNSIZED = 8,  // only used for parameters
 	};
 
-	enum SelectPartials : unsigned char {
+	ಎಣಿಕೆ SelectPartials : ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ {
 		SELECT_ALL = 0,          // include partial modules
-		SELECT_WHOLE_ONLY = 1,   // ignore partial modules
-		SELECT_WHOLE_WARN = 2,   // call log_warning on partial module
-		SELECT_WHOLE_ERR = 3,    // call log_error on partial module
-		SELECT_WHOLE_CMDERR = 4  // call log_cmd_error on partial module
+		SELECT_ಸಂಪೂರ್ಣ_ONLY = 1,   // ignore partial modules
+		SELECT_ಸಂಪೂರ್ಣ_WARN = 2,   // call log_warning on partial module
+		SELECT_ಸಂಪೂರ್ಣ_ERR = 3,    // call log_error on partial module
+		SELECT_ಸಂಪೂರ್ಣ_CMDERR = 4  // call log_cmd_error on partial module
 	};
 
-	enum SelectBoxes : unsigned char {
+	ಎಣಿಕೆ SelectBoxes : ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ {
 		SB_ALL = 0,            // include boxed modules
 		SB_WARN = 1,           // helper for log_warning (not for direct use)
 		SB_ERR = 2,            // helper for log_error (not for direct use)
@@ -86,733 +86,733 @@ namespace RTLIL
 		SB_EXCL_BB_CMDERR = 15 // call log_cmd_error on black boxed module
 	};
 
-	enum PortDir : unsigned char  {
+	ಎಣಿಕೆ ಪೋರ್ಟ್_Dir : ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ  {
 		PD_UNKNOWN = 0,
-		PD_INPUT = 1,
+		PD_ಒಳಹರಿವು = 1,
 		PD_OUTPUT = 2,
 		PD_INOUT = 3
 	};
 
 	// Maximum width in bits of RTLIL::Wire or RTLIL::Const
-	constexpr int WIDTH_LIMIT = 1 << 30;
+	constexpr ಪೂರ್ಣಾಂಕ ಅಗಲ_ಎಲ್ಲೆ = 1 << 30;
 
-	struct Const;
-	struct AttrObject;
-	struct SelectedMember;
-	struct Selection;
-	struct Monitor;
-	struct Design;
-	struct Module;
-	struct Wire;
-	struct Memory;
-	struct Cell;
-	struct SigChunk;
-	struct SigBit;
-	struct SigSpecIterator;
-	struct SigSpecConstIterator;
-	struct SigSpec;
-	struct CaseRule;
-	struct SwitchRule;
-	struct MemWriteAction;
-	struct SyncRule;
-	struct Process;
+	ರಚನೆ Const;
+	ರಚನೆ AttrObject;
+	ರಚನೆ SelectedMember;
+	ರಚನೆ Selection;
+	ರಚನೆ Monitor;
+	ರಚನೆ Design;
+	ರಚನೆ Module;
+	ರಚನೆ Wire;
+	ರಚನೆ ಸ್ಮರಣೆ;
+	ರಚನೆ Cell;
+	ರಚನೆ SigChunk;
+	ರಚನೆ Sig_ಬಿಟ್;
+	ರಚನೆ SigSpecIterator;
+	ರಚನೆ SigSpecConstIterator;
+	ರಚನೆ SigSpec;
+	ರಚನೆ Case_ನಿಯಮ;
+	ರಚನೆ Switch_ನಿಯಮ;
+	ರಚನೆ MemWriteAction;
+	ರಚನೆ Sync_ನಿಯಮ;
+	ರಚನೆ Process;
 
-	typedef std::pair<SigSpec, SigSpec> SigSig;
+	ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ std::pair<SigSpec, SigSpec> SigSig;
 };
 
-struct SigMap;
+ರಚನೆ SigMap;
 
 
-namespace RTLIL { using YOSYS_NAMESPACE_PREFIX ID; }
-namespace RTLIL { using YOSYS_NAMESPACE_PREFIX IdString; }
+namespace RTLIL { using YOSYS_NAMESPACE_ಪೂರ್ವಪ್ರತ್ಯಯ ID; }
+namespace RTLIL { using YOSYS_NAMESPACE_ಪೂರ್ವಪ್ರತ್ಯಯ IdString; }
 
 namespace RTLIL {
-	void copy_attr_dict(dict<IdString, RTLIL::Const> &dst,
-			const dict<IdString, RTLIL::Const> &src,
-			const RTLIL::Design *src_design, RTLIL::Design *dst_design);
+	ಶೂನ್ಯ copy_attr_dict(dict<IdString, RTLIL::Const> &dst,
+			ಸ್ಥಿರಾಂಕ dict<IdString, RTLIL::Const> &src,
+			ಸ್ಥಿರಾಂಕ RTLIL::Design *src_design, RTLIL::Design *dst_design);
 
-	extern dict<std::string, std::string> constpad;
+	ಬಾಹ್ಯ dict<std::string, std::string> constpad;
 
 	[[deprecated("use StaticCellTypes::categories.is_ff() instead")]]
-	const pool<IdString> &builtin_ff_cell_types();
+	ಸ್ಥಿರಾಂಕ pool<IdString> &builtin_ff_cell_types();
 
-	static inline std::string escape_id(const std::string &str) {
-		if (str.size() > 0 && str[0] != '\\' && str[0] != '$')
-			return "\\" + str;
-		return str;
+	ಸ್ಥಿರ ಸಾಲೊಳಗೆ std::string escape_id(ಸ್ಥಿರಾಂಕ std::string &str) {
+		ಆದರೆ (str.ಗಾತ್ರ_2() > 0 && str[0] != '\\' && str[0] != '$')
+			ಹಿಂತಿರುಗಿ "\\" + str;
+		ಹಿಂತಿರುಗಿ str;
 	}
 
-	static inline std::string unescape_id(const std::string &str) {
-		if (str.size() < 2)
-			return str;
-		if (str[0] != '\\')
-			return str;
-		if (str[1] == '$' || str[1] == '\\')
-			return str;
-		if (str[1] >= '0' && str[1] <= '9')
-			return str;
-		return str.substr(1);
+	ಸ್ಥಿರ ಸಾಲೊಳಗೆ std::string unescape_id(ಸ್ಥಿರಾಂಕ std::string &str) {
+		ಆದರೆ (str.ಗಾತ್ರ_2() < 2)
+			ಹಿಂತಿರುಗಿ str;
+		ಆದರೆ (str[0] != '\\')
+			ಹಿಂತಿರುಗಿ str;
+		ಆದರೆ (str[1] == '$' || str[1] == '\\')
+			ಹಿಂತಿರುಗಿ str;
+		ಆದರೆ (str[1] >= '0' && str[1] <= '9')
+			ಹಿಂತಿರುಗಿ str;
+		ಹಿಂತಿರುಗಿ str.substr(1);
 	}
 
-	template <typename T> using sort_by_name_id = IdString::compare_ptr_by_name<T>;
+	ಮಾದರಿ <typename T> using ವಿಂಗಡಿಸು_by_name_id = IdString::compare_ptr_by_name<T>;
 
-	template <typename T> struct sort_by_name_str {
-		bool operator()(T *a, T *b) const {
-			return a->name.lt_by_name(b->name);
+	ಮಾದರಿ <typename T> ರಚನೆ ವಿಂಗಡಿಸು_by_name_str {
+		bool ಕ್ರಿಯಾಕಾರಕ()(T *a, T *b) ಸ್ಥಿರಾಂಕ {
+			ಹಿಂತಿರುಗಿ a->name.lt_by_name(b->name);
 		}
 	};
 
-	struct sort_by_id_str {
-		const TwinePool& pool;
-		explicit sort_by_id_str(const TwinePool& pool) : pool(pool) {}
-		bool operator()(RTLIL::IdString a, RTLIL::IdString b) const {
-			return pool.compare_by_name(a, b) < 0;
+	ರಚನೆ ವಿಂಗಡಿಸು_by_id_str {
+		ಸ್ಥಿರಾಂಕ TwinePool& pool;
+		explicit ವಿಂಗಡಿಸು_by_id_str(ಸ್ಥಿರಾಂಕ TwinePool& pool) : pool(pool) {}
+		bool ಕ್ರಿಯಾಕಾರಕ()(RTLIL::IdString a, RTLIL::IdString b) ಸ್ಥಿರಾಂಕ {
+			ಹಿಂತಿರುಗಿ pool.compare_by_name(a, b) < 0;
 		}
 	};
 
-	static inline std::string encode_filename(const std::string &filename)
+	ಸ್ಥಿರ ಸಾಲೊಳಗೆ std::string encode_filename(ಸ್ಥಿರಾಂಕ std::string &filename)
 	{
 		std::stringstream val;
-		if (!std::any_of(filename.begin(), filename.end(), [](char c) {
-			return static_cast<unsigned char>(c) < 33 || static_cast<unsigned char>(c) > 126;
-		})) return filename;
-		for (unsigned char const c : filename) {
-			if (c < 33 || c > 126)
+		ಆದರೆ (!std::any_ದ(filename.begin(), filename.ಕೊನೆ(), [](ಅಕ್ಷರ c) {
+			ಹಿಂತಿರುಗಿ static_cast<ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ>(c) < 33 || static_cast<ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ>(c) > 126;
+		})) ಹಿಂತಿರುಗಿ filename;
+		ಗಾಗಿ (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ ಸ್ಥಿರಾಂಕ c : filename) {
+			ಆದರೆ (c < 33 || c > 126)
 				val << stringf("$%02x", c);
-			else
+			ಇಲ್ಲದಿದ್ದರೆ
 				val << c;
 		}
-		return val.str();
+		ಹಿಂತಿರುಗಿ val.str();
 	}
 
 	// see calc.cc for the implementation of this functions
-	RTLIL::Const const_not         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_and         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_or          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_xor         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_xnor        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_not         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_and         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_or          (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_xor         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_xnor        (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
 
-	RTLIL::Const const_reduce_and  (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_or   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_xor  (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_xnor (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_reduce_bool (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_reduce_and  (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_reduce_or   (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_reduce_xor  (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_reduce_xnor (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_reduce_bool (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
 
-	RTLIL::Const const_logic_not   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_logic_and   (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_logic_or    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_logic_not   (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_logic_and   (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_logic_or    (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
 
-	RTLIL::Const const_shl         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shr         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sshl        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sshr        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shift       (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_shiftx      (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_shl         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_shr         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_sshl        (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_sshr        (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_ಸರಿಸು       (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_shiftx      (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
 
-	RTLIL::Const const_lt          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_le          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_eq          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_ne          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_eqx         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_nex         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_ge          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_gt          (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_lt          (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_le          (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_eq          (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_ne          (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_eqx         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_nex         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_ge          (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_gt          (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
 
-	RTLIL::Const const_add         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_sub         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_mul         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_div         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_divfloor    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_modfloor    (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_mod         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_pow         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_ಕೂಡಿಸು         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_sub         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_mul         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_div         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_divfloor    (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_modfloor    (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_mod         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_pow         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
 
-	RTLIL::Const const_pos         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_buf         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
-	RTLIL::Const const_neg         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, bool signed1, bool signed2, int result_len);
+	RTLIL::Const const_pos         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_buf         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
+	RTLIL::Const const_neg         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, bool signed1, bool signed2, ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_len);
 
-	RTLIL::Const const_mux         (const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3);
-	RTLIL::Const const_pmux        (const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3);
-	RTLIL::Const const_bmux        (const RTLIL::Const &arg1, const RTLIL::Const &arg2);
-	RTLIL::Const const_demux       (const RTLIL::Const &arg1, const RTLIL::Const &arg2);
+	RTLIL::Const const_mux         (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg3);
+	RTLIL::Const const_pmux        (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg3);
+	RTLIL::Const const_bmux        (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2);
+	RTLIL::Const const_demux       (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2);
 
-	RTLIL::Const const_bweqx       (const RTLIL::Const &arg1, const RTLIL::Const &arg2);
-	RTLIL::Const const_bwmux       (const RTLIL::Const &arg1, const RTLIL::Const &arg2, const RTLIL::Const &arg3);
+	RTLIL::Const const_bweqx       (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2);
+	RTLIL::Const const_bwmux       (ಸ್ಥಿರಾಂಕ RTLIL::Const &arg1, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg2, ಸ್ಥಿರಾಂಕ RTLIL::Const &arg3);
 
 
 	// This iterator-range-pair is used for Design::modules(), Module::wires() and Module::cells().
 	// It maintains a reference counter that is used to make sure that the container is not modified while being iterated over.
 
-	template<typename T, typename Key = IdString>
-	struct ObjIterator {
-		using iterator_category = std::forward_iterator_tag;
-		using value_type = T;
+	ಮಾದರಿ<typename T, typename ಕೀಲಿ_2 = IdString>
+	ರಚನೆ ObjIterator {
+		using iterator_category = std::forward_iterator_ಟ್ಯಾಗ್;
+		using ಮೌಲ್ಯ_type = T;
 		using difference_type = ptrdiff_t;
-		using pointer = T*;
+		using ಸೂಚಕ = T*;
 		using reference = T&;
-		typename dict<Key, T>::iterator it;
-		dict<Key, T> *list_p;
-		int *refcount_p;
+		typename dict<ಕೀಲಿ_2, T>::iterator it;
+		dict<ಕೀಲಿ_2, T> *list_p;
+		ಪೂರ್ಣಾಂಕ *refcount_p;
 
 		ObjIterator() : list_p(nullptr), refcount_p(nullptr) {
 		}
 
-		ObjIterator(decltype(list_p) list_p, int *refcount_p) : list_p(list_p), refcount_p(refcount_p) {
-			if (list_p->empty()) {
+		ObjIterator(decltype(list_p) list_p, ಪೂರ್ಣಾಂಕ *refcount_p) : list_p(list_p), refcount_p(refcount_p) {
+			ಆದರೆ (list_p->ಖಾಲಿಗಳು()) {
 				this->list_p = nullptr;
 				this->refcount_p = nullptr;
-			} else {
+			} ಇಲ್ಲದಿದ್ದರೆ {
 				it = list_p->begin();
 				(*refcount_p)++;
 			}
 		}
 
-		ObjIterator(const RTLIL::ObjIterator<T, Key> &other) {
+		ObjIterator(ಸ್ಥಿರಾಂಕ RTLIL::ObjIterator<T, ಕೀಲಿ_2> &other) {
 			it = other.it;
 			list_p = other.list_p;
 			refcount_p = other.refcount_p;
-			if (refcount_p)
+			ಆದರೆ (refcount_p)
 				(*refcount_p)++;
 		}
 
-		ObjIterator &operator=(const RTLIL::ObjIterator<T, Key> &other) {
-			if (refcount_p)
+		ObjIterator &ಕ್ರಿಯಾಕಾರಕ=(ಸ್ಥಿರಾಂಕ RTLIL::ObjIterator<T, ಕೀಲಿ_2> &other) {
+			ಆದರೆ (refcount_p)
 				(*refcount_p)--;
 			it = other.it;
 			list_p = other.list_p;
 			refcount_p = other.refcount_p;
-			if (refcount_p)
+			ಆದರೆ (refcount_p)
 				(*refcount_p)++;
-			return *this;
+			ಹಿಂತಿರುಗಿ *this;
 		}
 
 		~ObjIterator() {
-			if (refcount_p)
+			ಆದರೆ (refcount_p)
 				(*refcount_p)--;
 		}
 
-		inline T operator*() const {
+		ಸಾಲೊಳಗೆ T ಕ್ರಿಯಾಕಾರಕ*() ಸ್ಥಿರಾಂಕ {
 			log_assert(list_p != nullptr);
-			return it->second;
+			ಹಿಂತಿರುಗಿ it->ಎರಡನೇ;
 		}
 
-		inline bool operator!=(const RTLIL::ObjIterator<T, Key> &other) const {
-			if (list_p == nullptr || other.list_p == nullptr)
-				return list_p != other.list_p;
-			return it != other.it;
+		ಸಾಲೊಳಗೆ bool ಕ್ರಿಯಾಕಾರಕ!=(ಸ್ಥಿರಾಂಕ RTLIL::ObjIterator<T, ಕೀಲಿ_2> &other) ಸ್ಥಿರಾಂಕ {
+			ಆದರೆ (list_p == nullptr || other.list_p == nullptr)
+				ಹಿಂತಿರುಗಿ list_p != other.list_p;
+			ಹಿಂತಿರುಗಿ it != other.it;
 		}
 
 
-		inline bool operator==(const RTLIL::ObjIterator<T, Key> &other) const {
-			return !(*this != other);
+		ಸಾಲೊಳಗೆ bool ಕ್ರಿಯಾಕಾರಕ==(ಸ್ಥಿರಾಂಕ RTLIL::ObjIterator<T, ಕೀಲಿ_2> &other) ಸ್ಥಿರಾಂಕ {
+			ಹಿಂತಿರುಗಿ !(*this != other);
 		}
 
-		inline ObjIterator<T, Key>& operator++() {
+		ಸಾಲೊಳಗೆ ObjIterator<T, ಕೀಲಿ_2>& ಕ್ರಿಯಾಕಾರಕ++() {
 			log_assert(list_p != nullptr);
-			if (++it == list_p->end()) {
+			ಆದರೆ (++it == list_p->ಕೊನೆ()) {
 				(*refcount_p)--;
 				list_p = nullptr;
 				refcount_p = nullptr;
 			}
-			return *this;
+			ಹಿಂತಿರುಗಿ *this;
 		}
 
-		inline ObjIterator<T, Key>& operator+=(int amt) {
+		ಸಾಲೊಳಗೆ ObjIterator<T, ಕೀಲಿ_2>& ಕ್ರಿಯಾಕಾರಕ+=(ಪೂರ್ಣಾಂಕ amt) {
 			log_assert(list_p != nullptr);
 			it += amt;
-			if (it == list_p->end()) {
+			ಆದರೆ (it == list_p->ಕೊನೆ()) {
 				(*refcount_p)--;
 				list_p = nullptr;
 				refcount_p = nullptr;
 			}
-			return *this;
+			ಹಿಂತಿರುಗಿ *this;
 		}
 
-		inline ObjIterator<T, Key> operator+(int amt) {
+		ಸಾಲೊಳಗೆ ObjIterator<T, ಕೀಲಿ_2> ಕ್ರಿಯಾಕಾರಕ+(ಪೂರ್ಣಾಂಕ amt) {
 			log_assert(list_p != nullptr);
-			ObjIterator<T, Key> new_obj(*this);
+			ObjIterator<T, ಕೀಲಿ_2> new_obj(*this);
 			new_obj.it += amt;
-			if (new_obj.it == list_p->end()) {
+			ಆದರೆ (new_obj.it == list_p->ಕೊನೆ()) {
 				(*(new_obj.refcount_p))--;
 				new_obj.list_p = nullptr;
 				new_obj.refcount_p = nullptr;
 			}
-			return new_obj;
+			ಹಿಂತಿರುಗಿ new_obj;
 		}
 
-		inline const ObjIterator<T, Key> operator++(int) {
-			ObjIterator<T, Key> result(*this);
+		ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ObjIterator<T, ಕೀಲಿ_2> ಕ್ರಿಯಾಕಾರಕ++(ಪೂರ್ಣಾಂಕ) {
+			ObjIterator<T, ಕೀಲಿ_2> ಫಲಿತಾಂಶ(*this);
 			++(*this);
-			return result;
+			ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 		}
 	};
 
-	template<typename T, typename Key = IdString>
-	struct ObjRange
+	ಮಾದರಿ<typename T, typename ಕೀಲಿ_2 = IdString>
+	ರಚನೆ ObjRange
 	{
-		dict<Key, T> *list_p;
-		int *refcount_p;
+		dict<ಕೀಲಿ_2, T> *list_p;
+		ಪೂರ್ಣಾಂಕ *refcount_p;
 
-		ObjRange(decltype(list_p) list_p, int *refcount_p) : list_p(list_p), refcount_p(refcount_p) { }
-		RTLIL::ObjIterator<T, Key> begin() { return RTLIL::ObjIterator<T, Key>(list_p, refcount_p); }
-		RTLIL::ObjIterator<T, Key> end() { return RTLIL::ObjIterator<T, Key>(); }
+		ObjRange(decltype(list_p) list_p, ಪೂರ್ಣಾಂಕ *refcount_p) : list_p(list_p), refcount_p(refcount_p) { }
+		RTLIL::ObjIterator<T, ಕೀಲಿ_2> begin() { ಹಿಂತಿರುಗಿ RTLIL::ObjIterator<T, ಕೀಲಿ_2>(list_p, refcount_p); }
+		RTLIL::ObjIterator<T, ಕೀಲಿ_2> ಕೊನೆ() { ಹಿಂತಿರುಗಿ RTLIL::ObjIterator<T, ಕೀಲಿ_2>(); }
 
-		size_t size() const {
-			return list_p->size();
+		ಗಾತ್ರ_t ಗಾತ್ರ_2() ಸ್ಥಿರಾಂಕ {
+			ಹಿಂತಿರುಗಿ list_p->ಗಾತ್ರ_2();
 		}
 
-		operator pool<T>() const {
-			pool<T> result;
-			for (auto &it : *list_p)
-				result.insert(it.second);
-			return result;
+		ಕ್ರಿಯಾಕಾರಕ pool<T>() ಸ್ಥಿರಾಂಕ {
+			pool<T> ಫಲಿತಾಂಶ;
+			ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : *list_p)
+				ಫಲಿತಾಂಶ.ಸೇರಿಸು(it.ಎರಡನೇ);
+			ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 		}
 
-		operator std::vector<T>() const {
-			std::vector<T> result;
-			result.reserve(list_p->size());
-			for (auto &it : *list_p)
-				result.push_back(it.second);
-			return result;
+		ಕ್ರಿಯಾಕಾರಕ std::ಸದಿಶ<T>() ಸ್ಥಿರಾಂಕ {
+			std::ಸದಿಶ<T> ಫಲಿತಾಂಶ;
+			ಫಲಿತಾಂಶ.reserve(list_p->ಗಾತ್ರ_2());
+			ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : *list_p)
+				ಫಲಿತಾಂಶ.ತಳ್ಳು_ಹಿಂಭಾಗ(it.ಎರಡನೇ);
+			ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 		}
 
-		pool<T> to_pool() const { return *this; }
-		std::vector<T> to_vector() const { return *this; }
+		pool<T> ಗಮ್ಯ_pool() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ *this; }
+		std::ಸದಿಶ<T> ಗಮ್ಯ_ಸದಿಶ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ *this; }
 	};
 };
 
-struct RTLIL::Const
+ರಚನೆ RTLIL::Const
 {
-	short int flags;
-private:
-	friend class KernelRtlilTest;
+	ಗಿಡ್ಡ ಪೂರ್ಣಾಂಕ flags;
+ಖಾಸಗಿ:
+	ಮಿತ್ರ class KernelRtlilTest;
 	FRIEND_TEST(KernelRtlilTest, ConstStr);
-	using bitvectype = std::vector<RTLIL::State>;
-	enum class backing_tag: bool { bits, string };
+	using bitvectype = std::ಸದಿಶ<RTLIL::State>;
+	ಎಣಿಕೆ class backing_ಟ್ಯಾಗ್: bool { ಬಿಟ್ಟುಗಳು, string };
 	// Do not access the union or tag even in Const methods unless necessary
-	backing_tag tag;
-	union {
-		bitvectype bits_;
+	backing_ಟ್ಯಾಗ್ ಟ್ಯಾಗ್;
+	ಒಕ್ಕೂಟ {
+		bitvectype ಬಿಟ್ಟುಗಳು_2;
 		std::string str_;
 	};
 
 	// Use these private utilities instead
-	bool is_bits() const { return tag == backing_tag::bits; }
-	bool is_str() const { return tag == backing_tag::string; }
+	bool is_ಬಿಟ್ಟುಗಳು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಟ್ಯಾಗ್ == backing_ಟ್ಯಾಗ್::ಬಿಟ್ಟುಗಳು; }
+	bool is_str() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಟ್ಯಾಗ್ == backing_ಟ್ಯಾಗ್::string; }
 
-	bitvectype* get_if_bits() { return is_bits() ? &bits_ : NULL; }
-	std::string* get_if_str() { return is_str() ? &str_ : NULL; }
-	const bitvectype* get_if_bits() const { return is_bits() ? &bits_ : NULL; }
-	const std::string* get_if_str() const { return is_str() ? &str_ : NULL; }
+	bitvectype* get_if_ಬಿಟ್ಟುಗಳು() { ಹಿಂತಿರುಗಿ is_ಬಿಟ್ಟುಗಳು() ? &ಬಿಟ್ಟುಗಳು_2 : ಖಾಲಿ; }
+	std::string* get_if_str() { ಹಿಂತಿರುಗಿ is_str() ? &str_ : ಖಾಲಿ; }
+	ಸ್ಥಿರಾಂಕ bitvectype* get_if_ಬಿಟ್ಟುಗಳು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ is_ಬಿಟ್ಟುಗಳು() ? &ಬಿಟ್ಟುಗಳು_2 : ಖಾಲಿ; }
+	ಸ್ಥಿರಾಂಕ std::string* get_if_str() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ is_str() ? &str_ : ಖಾಲಿ; }
 
-	bitvectype& get_bits();
+	bitvectype& get_ಬಿಟ್ಟುಗಳು();
 	std::string& get_str();
-	const bitvectype& get_bits() const;
-	const std::string& get_str() const;
-	std::vector<RTLIL::State>& bits_internal();
-	void bitvectorize_internal();
+	ಸ್ಥಿರಾಂಕ bitvectype& get_ಬಿಟ್ಟುಗಳು() ಸ್ಥಿರಾಂಕ;
+	ಸ್ಥಿರಾಂಕ std::string& get_str() ಸ್ಥಿರಾಂಕ;
+	std::ಸದಿಶ<RTLIL::State>& ಬಿಟ್ಟುಗಳು_ಆಂತರಿಕ();
+	ಶೂನ್ಯ bitvectorize_ಆಂತರಿಕ();
 
-public:
-	Const() : flags(RTLIL::CONST_FLAG_NONE), tag(backing_tag::bits), bits_(std::vector<RTLIL::State>()) {}
+ಸಾರ್ವಜನಿಕ:
+	Const() : flags(RTLIL::CONST_FLAG_NONE), ಟ್ಯಾಗ್(backing_ಟ್ಯಾಗ್::ಬಿಟ್ಟುಗಳು), ಬಿಟ್ಟುಗಳು_2(std::ಸದಿಶ<RTLIL::State>()) {}
 	Const(std::string str);
-	Const(long long val); // default width is 32
-	Const(long long val, int width);
-	Const(RTLIL::State bit, int width = 1);
-	Const(std::vector<RTLIL::State> bits) : flags(RTLIL::CONST_FLAG_NONE), tag(backing_tag::bits), bits_(std::move(bits)) {}
-	Const(const std::vector<bool> &bits);
-	Const(const RTLIL::Const &other);
+	Const(ದೀರ್ಘ ದೀರ್ಘ val); // default width is 32
+	Const(ದೀರ್ಘ ದೀರ್ಘ val, ಪೂರ್ಣಾಂಕ ಅಗಲ);
+	Const(RTLIL::State ಬಿಟ್, ಪೂರ್ಣಾಂಕ ಅಗಲ = 1);
+	Const(std::ಸದಿಶ<RTLIL::State> ಬಿಟ್ಟುಗಳು) : flags(RTLIL::CONST_FLAG_NONE), ಟ್ಯಾಗ್(backing_ಟ್ಯಾಗ್::ಬಿಟ್ಟುಗಳು), ಬಿಟ್ಟುಗಳು_2(std::move(ಬಿಟ್ಟುಗಳು)) {}
+	Const(ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<bool> &ಬಿಟ್ಟುಗಳು);
+	Const(ಸ್ಥಿರಾಂಕ RTLIL::Const &other);
 	Const(RTLIL::Const &&other);
-	RTLIL::Const &operator =(const RTLIL::Const &other);
+	RTLIL::Const &ಕ್ರಿಯಾಕಾರಕ =(ಸ್ಥಿರಾಂಕ RTLIL::Const &other);
 	~Const();
 
-	struct Builder
+	ರಚನೆ Builder
 	{
 		Builder() {}
-		Builder(int expected_width) { bits.reserve(expected_width); }
-		void push_back(RTLIL::State b) { bits.push_back(b); }
-		int size() const { return static_cast<int>(bits.size()); }
-		Const build() { return Const(std::move(bits)); }
-	private:
-		std::vector<RTLIL::State> bits;
+		Builder(ಪೂರ್ಣಾಂಕ expected_ಅಗಲ) { ಬಿಟ್ಟುಗಳು.reserve(expected_ಅಗಲ); }
+		ಶೂನ್ಯ ತಳ್ಳು_ಹಿಂಭಾಗ(RTLIL::State b) { ಬಿಟ್ಟುಗಳು.ತಳ್ಳು_ಹಿಂಭಾಗ(b); }
+		ಪೂರ್ಣಾಂಕ ಗಾತ್ರ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ static_cast<ಪೂರ್ಣಾಂಕ>(ಬಿಟ್ಟುಗಳು.ಗಾತ್ರ_2()); }
+		Const build() { ಹಿಂತಿರುಗಿ Const(std::move(ಬಿಟ್ಟುಗಳು)); }
+	ಖಾಸಗಿ:
+		std::ಸದಿಶ<RTLIL::State> ಬಿಟ್ಟುಗಳು;
 	};
 
-	bool operator <(const RTLIL::Const &other) const;
-	bool operator ==(const RTLIL::Const &other) const;
-	bool operator !=(const RTLIL::Const &other) const;
+	bool ಕ್ರಿಯಾಕಾರಕ <(ಸ್ಥಿರಾಂಕ RTLIL::Const &other) ಸ್ಥಿರಾಂಕ;
+	bool ಕ್ರಿಯಾಕಾರಕ ==(ಸ್ಥಿರಾಂಕ RTLIL::Const &other) ಸ್ಥಿರಾಂಕ;
+	bool ಕ್ರಿಯಾಕಾರಕ !=(ಸ್ಥಿರಾಂಕ RTLIL::Const &other) ಸ್ಥಿರಾಂಕ;
 
 	[[deprecated("Don't use direct access to the internal std::vector<State>, that's an implementation detail.")]]
-	std::vector<RTLIL::State>& bits() { return bits_internal(); }
+	std::ಸದಿಶ<RTLIL::State>& ಬಿಟ್ಟುಗಳು() { ಹಿಂತಿರುಗಿ ಬಿಟ್ಟುಗಳು_ಆಂತರಿಕ(); }
 	[[deprecated("Don't call bitvectorize() directly, it's an implementation detail.")]]
-	void bitvectorize() const { const_cast<Const*>(this)->bitvectorize_internal(); }
+	ಶೂನ್ಯ bitvectorize() ಸ್ಥಿರಾಂಕ { const_cast<Const*>(this)->bitvectorize_ಆಂತರಿಕ(); }
 
-	bool as_bool() const;
+	bool as_bool() ಸ್ಥಿರಾಂಕ;
 
 	// Convert the constant value to a C++ int.
 	// NOTE: If the constant is too wide to fit in int (32 bits) this will
 	// truncate any higher bits, potentially over/underflowing. Consider using
 	// try_as_int, as_int_saturating, or guarding behind convertible_to_int
 	// instead.
-	int as_int(bool is_signed = false) const;
+	ಪೂರ್ಣಾಂಕ as_int(bool is_signed = false) ಸ್ಥಿರಾಂಕ;
 
 	// Returns true iff the constant can be converted to an int without
 	// over/underflow.
-	bool convertible_to_int(bool is_signed = false) const;
+	bool convertible_ಗಮ್ಯ_int(bool is_signed = false) ಸ್ಥಿರಾಂಕ;
 
 	// Returns the constant's value as an int if it can be represented without
 	// over/underflow, or std::nullopt otherwise.
-	std::optional<int> try_as_int(bool is_signed = false) const;
+	std::optional<ಪೂರ್ಣಾಂಕ> try_as_int(bool is_signed = false) ಸ್ಥಿರಾಂಕ;
 
 	// Returns the constant's value as an int if it can be represented without
 	// over/underflow, otherwise the max/min value for int depending on the sign.
-	int as_int_saturating(bool is_signed = false) const;
+	ಪೂರ್ಣಾಂಕ as_int_saturating(bool is_signed = false) ಸ್ಥಿರಾಂಕ;
 
-	void tag_bare_integer_const(const std::string &value);
+	ಶೂನ್ಯ ಟ್ಯಾಗ್_bare_integer_const(ಸ್ಥಿರಾಂಕ std::string &ಮೌಲ್ಯ);
 
-	std::string as_string(const char* any = "-") const;
-	static Const from_string(const std::string &str);
-	std::vector<RTLIL::State> to_bits() const;
+	std::string as_string(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* any = "-") ಸ್ಥಿರಾಂಕ;
+	ಸ್ಥಿರ Const from_string(ಸ್ಥಿರಾಂಕ std::string &str);
+	std::ಸದಿಶ<RTLIL::State> ಗಮ್ಯ_ಬಿಟ್ಟುಗಳು() ಸ್ಥಿರಾಂಕ;
 
-	std::string decode_string() const;
-	int size() const;
-	bool empty() const;
+	std::string decode_string() ಸ್ಥಿರಾಂಕ;
+	ಪೂರ್ಣಾಂಕ ಗಾತ್ರ_2() ಸ್ಥಿರಾಂಕ;
+	bool ಖಾಲಿಗಳು() ಸ್ಥಿರಾಂಕ;
 
-	void append(const RTLIL::Const &other);
-	void set(int i, RTLIL::State state) {
-		bits_internal()[i] = state;
+	ಶೂನ್ಯ append(ಸ್ಥಿರಾಂಕ RTLIL::Const &other);
+	ಶೂನ್ಯ ಗಣ(ಪೂರ್ಣಾಂಕ i, RTLIL::State state) {
+		ಬಿಟ್ಟುಗಳು_ಆಂತರಿಕ()[i] = state;
 	}
-	void resize(int size, RTLIL::State fill) {
-    log_assert(size >= 0 && size < RTLIL::WIDTH_LIMIT);
-		bits_internal().resize(size, fill);
+	ಶೂನ್ಯ resize(ಪೂರ್ಣಾಂಕ ಗಾತ್ರ_2, RTLIL::State fill) {
+    log_assert(ಗಾತ್ರ_2 >= 0 && ಗಾತ್ರ_2 < RTLIL::ಅಗಲ_ಎಲ್ಲೆ);
+		ಬಿಟ್ಟುಗಳು_ಆಂತರಿಕ().resize(ಗಾತ್ರ_2, fill);
 	}
 
 	class const_iterator {
-	private:
-		const Const* parent;
-		size_t idx;
+	ಖಾಸಗಿ:
+		ಸ್ಥಿರಾಂಕ Const* ಪೋಷಕ;
+		ಗಾತ್ರ_t idx;
 
-	public:
-		using iterator_category = std::bidirectional_iterator_tag;
-		using value_type = State;
+	ಸಾರ್ವಜನಿಕ:
+		using iterator_category = std::bidirectional_iterator_ಟ್ಯಾಗ್;
+		using ಮೌಲ್ಯ_type = State;
 		using difference_type = std::ptrdiff_t;
-		using pointer = const State*;
-		using reference = const State&;
+		using ಸೂಚಕ = ಸ್ಥಿರಾಂಕ State*;
+		using reference = ಸ್ಥಿರಾಂಕ State&;
 
-		const_iterator(const Const& c, size_t i) : parent(&c), idx(i) {}
+		const_iterator(ಸ್ಥಿರಾಂಕ Const& c, ಗಾತ್ರ_t i) : ಪೋಷಕ(&c), idx(i) {}
 
-		State operator*() const;
+		State ಕ್ರಿಯಾಕಾರಕ*() ಸ್ಥಿರಾಂಕ;
 
-		const_iterator& operator++() { ++idx; return *this; }
-		const_iterator& operator--() { --idx; return *this; }
-		const_iterator operator++(int) { const_iterator result(*this); ++idx; return result; }
-		const_iterator operator--(int) { const_iterator result(*this); --idx; return result; }
-		const_iterator& operator+=(int i) { idx += i; return *this; }
+		const_iterator& ಕ್ರಿಯಾಕಾರಕ++() { ++idx; ಹಿಂತಿರುಗಿ *this; }
+		const_iterator& ಕ್ರಿಯಾಕಾರಕ--() { --idx; ಹಿಂತಿರುಗಿ *this; }
+		const_iterator ಕ್ರಿಯಾಕಾರಕ++(ಪೂರ್ಣಾಂಕ) { const_iterator ಫಲಿತಾಂಶ(*this); ++idx; ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ; }
+		const_iterator ಕ್ರಿಯಾಕಾರಕ--(ಪೂರ್ಣಾಂಕ) { const_iterator ಫಲಿತಾಂಶ(*this); --idx; ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ; }
+		const_iterator& ಕ್ರಿಯಾಕಾರಕ+=(ಪೂರ್ಣಾಂಕ i) { idx += i; ಹಿಂತಿರುಗಿ *this; }
 
-		const_iterator operator+(int add) {
-			return const_iterator(*parent, idx + add);
+		const_iterator ಕ್ರಿಯಾಕಾರಕ+(ಪೂರ್ಣಾಂಕ ಕೂಡಿಸು) {
+			ಹಿಂತಿರುಗಿ const_iterator(*ಪೋಷಕ, idx + ಕೂಡಿಸು);
 		}
-		const_iterator operator-(int sub) {
-			return const_iterator(*parent, idx - sub);
+		const_iterator ಕ್ರಿಯಾಕಾರಕ-(ಪೂರ್ಣಾಂಕ sub) {
+			ಹಿಂತಿರುಗಿ const_iterator(*ಪೋಷಕ, idx - sub);
 		}
-		int operator-(const const_iterator& other) {
-			return idx - other.idx;
-		}
-
-		bool operator==(const const_iterator& other) const {
-			return idx == other.idx;
+		ಪೂರ್ಣಾಂಕ ಕ್ರಿಯಾಕಾರಕ-(ಸ್ಥಿರಾಂಕ const_iterator& other) {
+			ಹಿಂತಿರುಗಿ idx - other.idx;
 		}
 
-		bool operator!=(const const_iterator& other) const {
-			return !(*this == other);
+		bool ಕ್ರಿಯಾಕಾರಕ==(ಸ್ಥಿರಾಂಕ const_iterator& other) ಸ್ಥಿರಾಂಕ {
+			ಹಿಂತಿರುಗಿ idx == other.idx;
+		}
+
+		bool ಕ್ರಿಯಾಕಾರಕ!=(ಸ್ಥಿರಾಂಕ const_iterator& other) ಸ್ಥಿರಾಂಕ {
+			ಹಿಂತಿರುಗಿ !(*this == other);
 		}
 	};
 
 	class iterator {
-	private:
-		Const* parent;
-		size_t idx;
+	ಖಾಸಗಿ:
+		Const* ಪೋಷಕ;
+		ಗಾತ್ರ_t idx;
 
-	public:
+	ಸಾರ್ವಜನಿಕ:
 		class proxy {
-		private:
-			Const* parent;
-			size_t idx;
-		public:
-			proxy(Const* parent, size_t idx) : parent(parent), idx(idx) {}
-			operator State() const { return (*parent)[idx]; }
-			proxy& operator=(State s) { parent->set(idx, s); return *this; }
-			proxy& operator=(const proxy& other) { parent->set(idx, (*other.parent)[other.idx]); return *this; }
+		ಖಾಸಗಿ:
+			Const* ಪೋಷಕ;
+			ಗಾತ್ರ_t idx;
+		ಸಾರ್ವಜನಿಕ:
+			proxy(Const* ಪೋಷಕ, ಗಾತ್ರ_t idx) : ಪೋಷಕ(ಪೋಷಕ), idx(idx) {}
+			ಕ್ರಿಯಾಕಾರಕ State() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ (*ಪೋಷಕ)[idx]; }
+			proxy& ಕ್ರಿಯಾಕಾರಕ=(State s) { ಪೋಷಕ->ಗಣ(idx, s); ಹಿಂತಿರುಗಿ *this; }
+			proxy& ಕ್ರಿಯಾಕಾರಕ=(ಸ್ಥಿರಾಂಕ proxy& other) { ಪೋಷಕ->ಗಣ(idx, (*other.ಪೋಷಕ)[other.idx]); ಹಿಂತಿರುಗಿ *this; }
 		};
 
-		using iterator_category = std::bidirectional_iterator_tag;
-		using value_type = State;
+		using iterator_category = std::bidirectional_iterator_ಟ್ಯಾಗ್;
+		using ಮೌಲ್ಯ_type = State;
 		using difference_type = std::ptrdiff_t;
-		using pointer = proxy*;
+		using ಸೂಚಕ = proxy*;
 		using reference = proxy;
 
-		iterator(Const& c, size_t i) : parent(&c), idx(i) {}
+		iterator(Const& c, ಗಾತ್ರ_t i) : ಪೋಷಕ(&c), idx(i) {}
 
-		proxy operator*() const { return proxy(parent, idx); }
-		iterator& operator++() { ++idx; return *this; }
-		iterator& operator--() { --idx; return *this; }
-		iterator operator++(int) { iterator result(*this); ++idx; return result; }
-		iterator operator--(int) { iterator result(*this); --idx; return result; }
-		iterator& operator+=(int i) { idx += i; return *this; }
+		proxy ಕ್ರಿಯಾಕಾರಕ*() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ proxy(ಪೋಷಕ, idx); }
+		iterator& ಕ್ರಿಯಾಕಾರಕ++() { ++idx; ಹಿಂತಿರುಗಿ *this; }
+		iterator& ಕ್ರಿಯಾಕಾರಕ--() { --idx; ಹಿಂತಿರುಗಿ *this; }
+		iterator ಕ್ರಿಯಾಕಾರಕ++(ಪೂರ್ಣಾಂಕ) { iterator ಫಲಿತಾಂಶ(*this); ++idx; ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ; }
+		iterator ಕ್ರಿಯಾಕಾರಕ--(ಪೂರ್ಣಾಂಕ) { iterator ಫಲಿತಾಂಶ(*this); --idx; ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ; }
+		iterator& ಕ್ರಿಯಾಕಾರಕ+=(ಪೂರ್ಣಾಂಕ i) { idx += i; ಹಿಂತಿರುಗಿ *this; }
 
-		iterator operator+(int add) {
-			return iterator(*parent, idx + add);
+		iterator ಕ್ರಿಯಾಕಾರಕ+(ಪೂರ್ಣಾಂಕ ಕೂಡಿಸು) {
+			ಹಿಂತಿರುಗಿ iterator(*ಪೋಷಕ, idx + ಕೂಡಿಸು);
 		}
-		iterator operator-(int sub) {
-			return iterator(*parent, idx - sub);
+		iterator ಕ್ರಿಯಾಕಾರಕ-(ಪೂರ್ಣಾಂಕ sub) {
+			ಹಿಂತಿರುಗಿ iterator(*ಪೋಷಕ, idx - sub);
 		}
-		int operator-(const iterator& other) {
-			return idx - other.idx;
-		}
-
-		bool operator==(const iterator& other) const {
-			return idx == other.idx;
+		ಪೂರ್ಣಾಂಕ ಕ್ರಿಯಾಕಾರಕ-(ಸ್ಥಿರಾಂಕ iterator& other) {
+			ಹಿಂತಿರುಗಿ idx - other.idx;
 		}
 
-		bool operator!=(const iterator& other) const {
-			return !(*this == other);
+		bool ಕ್ರಿಯಾಕಾರಕ==(ಸ್ಥಿರಾಂಕ iterator& other) ಸ್ಥಿರಾಂಕ {
+			ಹಿಂತಿರುಗಿ idx == other.idx;
+		}
+
+		bool ಕ್ರಿಯಾಕಾರಕ!=(ಸ್ಥಿರಾಂಕ iterator& other) ಸ್ಥಿರಾಂಕ {
+			ಹಿಂತಿರುಗಿ !(*this == other);
 		}
 	};
 
-	const_iterator begin() const {
-		return const_iterator(*this, 0);
+	const_iterator begin() ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ const_iterator(*this, 0);
 	}
-	const_iterator end() const {
-		return const_iterator(*this, size());
+	const_iterator ಕೊನೆ() ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ const_iterator(*this, ಗಾತ್ರ_2());
 	}
 	iterator begin() {
-		return iterator(*this, 0);
+		ಹಿಂತಿರುಗಿ iterator(*this, 0);
 	}
-	iterator end() {
-		return iterator(*this, size());
+	iterator ಕೊನೆ() {
+		ಹಿಂತಿರುಗಿ iterator(*this, ಗಾತ್ರ_2());
 	}
-	State back() const {
-		return *(end() - 1);
+	State ಹಿಂಭಾಗ() ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ *(ಕೊನೆ() - 1);
 	}
-	State front() const {
-		return *begin();
+	State front() ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ *begin();
 	}
-	State at(size_t i) const {
-		return *const_iterator(*this, i);
+	State at(ಗಾತ್ರ_t i) ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ *const_iterator(*this, i);
 	}
-	State operator[](size_t i) const {
-		return *const_iterator(*this, i);
+	State ಕ್ರಿಯಾಕಾರಕ[](ಗಾತ್ರ_t i) ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ *const_iterator(*this, i);
 	}
 
-	bool is_fully_zero() const;
-	bool is_fully_ones() const;
-	bool is_fully_def() const;
-	bool is_fully_undef() const;
-	bool is_fully_undef_x_only() const;
-	bool is_onehot(int *pos = nullptr) const;
+	bool is_fully_zero() ಸ್ಥಿರಾಂಕ;
+	bool is_fully_ones() ಸ್ಥಿರಾಂಕ;
+	bool is_fully_def() ಸ್ಥಿರಾಂಕ;
+	bool is_fully_undef() ಸ್ಥಿರಾಂಕ;
+	bool is_fully_undef_x_only() ಸ್ಥಿರಾಂಕ;
+	bool is_onehot(ಪೂರ್ಣಾಂಕ *pos = nullptr) ಸ್ಥಿರಾಂಕ;
 
-	RTLIL::Const extract(int offset, int len = 1, RTLIL::State padding = RTLIL::State::S0) const;
+	RTLIL::Const ಹೊರತೆಗೆ(ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ, ಪೂರ್ಣಾಂಕ len = 1, RTLIL::State padding = RTLIL::State::S0) ಸ್ಥಿರಾಂಕ;
 
 	// find the MSB without redundant leading bits
-	int get_min_size(bool is_signed) const;
+	ಪೂರ್ಣಾಂಕ get_min_ಗಾತ್ರ(bool is_signed) ಸ್ಥಿರಾಂಕ;
 
 	// compress representation to the minimum required bits
-	void compress(bool is_signed = false);
+	ಶೂನ್ಯ compress(bool is_signed = false);
 
-	std::optional<int> as_int_compress(bool is_signed) const;
+	std::optional<ಪೂರ್ಣಾಂಕ> as_int_compress(bool is_signed) ಸ್ಥಿರಾಂಕ;
 
-	void extu(int width) {
-		resize(width, RTLIL::State::S0);
+	ಶೂನ್ಯ extu(ಪೂರ್ಣಾಂಕ ಅಗಲ) {
+		resize(ಅಗಲ, RTLIL::State::S0);
 	}
 
-	void exts(int width) {
-		resize(width, empty() ? RTLIL::State::Sx : back());
+	ಶೂನ್ಯ exts(ಪೂರ್ಣಾಂಕ ಅಗಲ) {
+		resize(ಅಗಲ, ಖಾಲಿಗಳು() ? RTLIL::State::Sx : ಹಿಂಭಾಗ());
 	}
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
+	[[nodiscard]] Hasher hash_into(Hasher h) ಸ್ಥಿರಾಂಕ;
 };
 
-struct RTLIL::AttrObject
+ರಚನೆ RTLIL::AttrObject
 {
-	dict<RTLIL::IdString, RTLIL::Const> attributes;
+	dict<RTLIL::IdString, RTLIL::Const> ಗುಣಲಕ್ಷಣಗಳು;
 
-	bool has_attribute(RTLIL::IdString id) const;
+	bool has_attribute(RTLIL::IdString id) ಸ್ಥಿರಾಂಕ;
 
-	void set_bool_attribute(RTLIL::IdString id, bool value=true);
-	bool get_bool_attribute(RTLIL::IdString id) const;
+	ಶೂನ್ಯ ಗಣ_bool_attribute(RTLIL::IdString id, bool ಮೌಲ್ಯ=true);
+	bool get_bool_attribute(RTLIL::IdString id) ಸ್ಥಿರಾಂಕ;
 
 	[[deprecated("Use Module::get_blackbox_attribute() instead.")]]
-	bool get_blackbox_attribute(bool ignore_wb=false) const {
-		return get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
+	bool get_blackbox_attribute(bool ignore_wb=false) ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
 	}
 
-	void set_string_attribute(RTLIL::IdString id, string value);
-	string get_string_attribute(RTLIL::IdString id) const;
+	ಶೂನ್ಯ ಗಣ_string_attribute(RTLIL::IdString id, string ಮೌಲ್ಯ);
+	string get_string_attribute(RTLIL::IdString id) ಸ್ಥಿರಾಂಕ;
 
-	void set_strpool_attribute(RTLIL::IdString id, const pool<string> &data);
-	void add_strpool_attribute(RTLIL::IdString id, const pool<string> &data);
-	pool<string> get_strpool_attribute(RTLIL::IdString id) const;
+	ಶೂನ್ಯ ಗಣ_strpool_attribute(RTLIL::IdString id, ಸ್ಥಿರಾಂಕ pool<string> &ದತ್ತಾಂಶ);
+	ಶೂನ್ಯ ಕೂಡಿಸು_strpool_attribute(RTLIL::IdString id, ಸ್ಥಿರಾಂಕ pool<string> &ದತ್ತಾಂಶ);
+	pool<string> get_strpool_attribute(RTLIL::IdString id) ಸ್ಥಿರಾಂಕ;
 
-	void set_src_attribute(const std::string &src) {
-		set_string_attribute(ID::src, src);
+	ಶೂನ್ಯ ಗಣ_src_attribute(ಸ್ಥಿರಾಂಕ std::string &src) {
+		ಗಣ_string_attribute(ID::src, src);
 	}
-	std::string get_src_attribute() const {
-		return get_string_attribute(ID::src);
+	std::string get_src_attribute() ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ get_string_attribute(ID::src);
 	}
 
-	void set_hdlname_attribute(const vector<string> &hierarchy);
-	vector<string> get_hdlname_attribute() const;
+	ಶೂನ್ಯ ಗಣ_hdlname_attribute(ಸ್ಥಿರಾಂಕ ಸದಿಶ<string> &hierarchy);
+	ಸದಿಶ<string> get_hdlname_attribute() ಸ್ಥಿರಾಂಕ;
 
-	void set_intvec_attribute(RTLIL::IdString id, const vector<int> &data);
-	vector<int> get_intvec_attribute(RTLIL::IdString id) const;
+	ಶೂನ್ಯ ಗಣ_intvec_attribute(RTLIL::IdString id, ಸ್ಥಿರಾಂಕ ಸದಿಶ<ಪೂರ್ಣಾಂಕ> &ದತ್ತಾಂಶ);
+	ಸದಿಶ<ಪೂರ್ಣಾಂಕ> get_intvec_attribute(RTLIL::IdString id) ಸ್ಥಿರಾಂಕ;
 };
 
-#include "kernel/rtlil_twine_compat.h"
+#ಅನ್ತರ್ಭಾವ "kernel/rtlil_twine_compat.h"
 
-struct RTLIL::SelectedMember
+ರಚನೆ RTLIL::SelectedMember
 {
 	RTLIL::AttrObject *obj;
 	RTLIL::PooledName name;
 };
 
-struct RTLIL::SigChunk
+ರಚನೆ RTLIL::SigChunk
 {
 	RTLIL::Wire *wire;
-	std::vector<RTLIL::State> data; // only used if wire == NULL, LSB at index 0
-	int width, offset;
+	std::ಸದಿಶ<RTLIL::State> ದತ್ತಾಂಶ; // only used if wire == NULL, LSB at index 0
+	ಪೂರ್ಣಾಂಕ ಅಗಲ, ಸ್ಥಾನಾಂತರ;
 
-	SigChunk() : wire(nullptr), width(0), offset(0) {}
-	SigChunk(const RTLIL::Const &value) : wire(nullptr), data(value.to_bits()), width(GetSize(data)), offset(0) {}
-	SigChunk(RTLIL::Const &&value) : wire(nullptr), data(value.to_bits()), width(GetSize(data)), offset(0) {}
-	SigChunk(RTLIL::Wire *wire) : wire(wire), width(GetSize(wire)), offset(0) {}
-	SigChunk(RTLIL::Wire *wire, int offset, int width = 1) : wire(wire), width(width), offset(offset) {}
-	SigChunk(const std::string &str) : SigChunk(RTLIL::Const(str)) {}
-	SigChunk(int val) /*default width 32*/ : SigChunk(RTLIL::Const(val)) {}
-	SigChunk(int val, int width) : SigChunk(RTLIL::Const(val, width)) {}
-	SigChunk(RTLIL::State bit, int width = 1) : SigChunk(RTLIL::Const(bit, width)) {}
-	SigChunk(const RTLIL::SigBit &bit);
+	SigChunk() : wire(nullptr), ಅಗಲ(0), ಸ್ಥಾನಾಂತರ(0) {}
+	SigChunk(ಸ್ಥಿರಾಂಕ RTLIL::Const &ಮೌಲ್ಯ) : wire(nullptr), ದತ್ತಾಂಶ(ಮೌಲ್ಯ.ಗಮ್ಯ_ಬಿಟ್ಟುಗಳು()), ಅಗಲ(Get_ಗಾತ್ರ(ದತ್ತಾಂಶ)), ಸ್ಥಾನಾಂತರ(0) {}
+	SigChunk(RTLIL::Const &&ಮೌಲ್ಯ) : wire(nullptr), ದತ್ತಾಂಶ(ಮೌಲ್ಯ.ಗಮ್ಯ_ಬಿಟ್ಟುಗಳು()), ಅಗಲ(Get_ಗಾತ್ರ(ದತ್ತಾಂಶ)), ಸ್ಥಾನಾಂತರ(0) {}
+	SigChunk(RTLIL::Wire *wire) : wire(wire), ಅಗಲ(Get_ಗಾತ್ರ(wire)), ಸ್ಥಾನಾಂತರ(0) {}
+	SigChunk(RTLIL::Wire *wire, ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ, ಪೂರ್ಣಾಂಕ ಅಗಲ = 1) : wire(wire), ಅಗಲ(ಅಗಲ), ಸ್ಥಾನಾಂತರ(ಸ್ಥಾನಾಂತರ) {}
+	SigChunk(ಸ್ಥಿರಾಂಕ std::string &str) : SigChunk(RTLIL::Const(str)) {}
+	SigChunk(ಪೂರ್ಣಾಂಕ val) /*default width 32*/ : SigChunk(RTLIL::Const(val)) {}
+	SigChunk(ಪೂರ್ಣಾಂಕ val, ಪೂರ್ಣಾಂಕ ಅಗಲ) : SigChunk(RTLIL::Const(val, ಅಗಲ)) {}
+	SigChunk(RTLIL::State ಬಿಟ್, ಪೂರ್ಣಾಂಕ ಅಗಲ = 1) : SigChunk(RTLIL::Const(ಬಿಟ್, ಅಗಲ)) {}
+	SigChunk(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &ಬಿಟ್);
 
-	RTLIL::SigChunk extract(int offset, int length) const;
-	RTLIL::SigBit operator[](int offset) const;
-	inline int size() const { return width; }
-	inline bool is_wire() const { return wire != NULL; }
+	RTLIL::SigChunk ಹೊರತೆಗೆ(ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ, ಪೂರ್ಣಾಂಕ ಉದ್ದಳತೆ) ಸ್ಥಿರಾಂಕ;
+	RTLIL::Sig_ಬಿಟ್ ಕ್ರಿಯಾಕಾರಕ[](ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ) ಸ್ಥಿರಾಂಕ;
+	ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ ಗಾತ್ರ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಅಗಲ; }
+	ಸಾಲೊಳಗೆ bool is_wire() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ wire != ಖಾಲಿ; }
 
-	bool operator <(const RTLIL::SigChunk &other) const;
-	bool operator ==(const RTLIL::SigChunk &other) const;
-	bool operator !=(const RTLIL::SigChunk &other) const;
+	bool ಕ್ರಿಯಾಕಾರಕ <(ಸ್ಥಿರಾಂಕ RTLIL::SigChunk &other) ಸ್ಥಿರಾಂಕ;
+	bool ಕ್ರಿಯಾಕಾರಕ ==(ಸ್ಥಿರಾಂಕ RTLIL::SigChunk &other) ಸ್ಥಿರಾಂಕ;
+	bool ಕ್ರಿಯಾಕಾರಕ !=(ಸ್ಥಿರಾಂಕ RTLIL::SigChunk &other) ಸ್ಥಿರಾಂಕ;
 };
 
-struct RTLIL::SigBit
+ರಚನೆ RTLIL::Sig_ಬಿಟ್
 {
 	RTLIL::Wire *wire;
-	union {
-		RTLIL::State data; // used if wire == NULL
-		int offset;        // used if wire != NULL
+	ಒಕ್ಕೂಟ {
+		RTLIL::State ದತ್ತಾಂಶ; // used if wire == NULL
+		ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ;        // used if wire != NULL
 	};
 
-	SigBit();
-	SigBit(RTLIL::State bit);
-	explicit SigBit(bool bit);
-	SigBit(RTLIL::Wire *wire);
-	SigBit(RTLIL::Wire *wire, int offset);
-	SigBit(const RTLIL::SigChunk &chunk);
-	SigBit(const RTLIL::SigChunk &chunk, int index);
-	SigBit(const RTLIL::SigSpec &sig);
-	SigBit(const RTLIL::SigBit &sigbit) = default;
-	RTLIL::SigBit &operator =(const RTLIL::SigBit &other) = default;
+	Sig_ಬಿಟ್();
+	Sig_ಬಿಟ್(RTLIL::State ಬಿಟ್);
+	explicit Sig_ಬಿಟ್(bool ಬಿಟ್);
+	Sig_ಬಿಟ್(RTLIL::Wire *wire);
+	Sig_ಬಿಟ್(RTLIL::Wire *wire, ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ);
+	Sig_ಬಿಟ್(ಸ್ಥಿರಾಂಕ RTLIL::SigChunk &chunk);
+	Sig_ಬಿಟ್(ಸ್ಥಿರಾಂಕ RTLIL::SigChunk &chunk, ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ);
+	Sig_ಬಿಟ್(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig);
+	Sig_ಬಿಟ್(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sigbit) = ಪೂರ್ವನಿಯೋಜಿತ;
+	RTLIL::Sig_ಬಿಟ್ &ಕ್ರಿಯಾಕಾರಕ =(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &other) = ಪೂರ್ವನಿಯೋಜಿತ;
 
-	inline bool is_wire() const { return wire != NULL; }
+	ಸಾಲೊಳಗೆ bool is_wire() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ wire != ಖಾಲಿ; }
 
-	bool operator <(const RTLIL::SigBit &other) const;
-	bool operator ==(const RTLIL::SigBit &other) const;
-	bool operator !=(const RTLIL::SigBit &other) const;
-	[[nodiscard]] Hasher hash_into(Hasher h) const;
-	[[nodiscard]] Hasher hash_top() const;
+	bool ಕ್ರಿಯಾಕಾರಕ <(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &other) ಸ್ಥಿರಾಂಕ;
+	bool ಕ್ರಿಯಾಕಾರಕ ==(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &other) ಸ್ಥಿರಾಂಕ;
+	bool ಕ್ರಿಯಾಕಾರಕ !=(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &other) ಸ್ಥಿರಾಂಕ;
+	[[nodiscard]] Hasher hash_into(Hasher h) ಸ್ಥಿರಾಂಕ;
+	[[nodiscard]] Hasher hash_ತುದಿ() ಸ್ಥಿರಾಂಕ;
 };
 
 namespace hashlib {
-	template <>
-	struct hash_ops<RTLIL::SigBit> {
-		static inline bool cmp(const RTLIL::SigBit &a, const RTLIL::SigBit &b) {
-			return a == b;
+	ಮಾದರಿ <>
+	ರಚನೆ hash_ops<RTLIL::Sig_ಬಿಟ್> {
+		ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool cmp(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &b) {
+			ಹಿಂತಿರುಗಿ a == b;
 		}
-		[[nodiscard]] static inline Hasher hash(const RTLIL::SigBit sb) {
-			return sb.hash_top();
+		[[nodiscard]] ಸ್ಥಿರ ಸಾಲೊಳಗೆ Hasher hash(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ sb) {
+			ಹಿಂತಿರುಗಿ sb.hash_ತುದಿ();
 		}
-		[[nodiscard]] static inline Hasher hash_into(const RTLIL::SigBit sb, Hasher h) {
-			return sb.hash_into(h);
+		[[nodiscard]] ಸ್ಥಿರ ಸಾಲೊಳಗೆ Hasher hash_into(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ sb, Hasher h) {
+			ಹಿಂತಿರುಗಿ sb.hash_into(h);
 		}
 	};
 };
 
-struct RTLIL::SigSpecIterator
+ರಚನೆ RTLIL::SigSpecIterator
 {
-	typedef std::input_iterator_tag iterator_category;
-	typedef RTLIL::SigBit value_type;
-	typedef ptrdiff_t difference_type;
-	typedef RTLIL::SigBit* pointer;
-	typedef RTLIL::SigBit& reference;
+	ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ std::ಒಳಹರಿವು_iterator_ಟ್ಯಾಗ್ iterator_category;
+	ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ RTLIL::Sig_ಬಿಟ್ ಮೌಲ್ಯ_type;
+	ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ptrdiff_t difference_type;
+	ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ RTLIL::Sig_ಬಿಟ್* ಸೂಚಕ;
+	ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ RTLIL::Sig_ಬಿಟ್& reference;
 
 	RTLIL::SigSpec *sig_p;
-	int index;
+	ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ;
 
-	inline RTLIL::SigBit &operator*() const;
-	inline bool operator!=(const RTLIL::SigSpecIterator &other) const { return index != other.index; }
-	inline bool operator==(const RTLIL::SigSpecIterator &other) const { return index == other.index; }
-	inline void operator++() { index++; }
+	ಸಾಲೊಳಗೆ RTLIL::Sig_ಬಿಟ್ &ಕ್ರಿಯಾಕಾರಕ*() ಸ್ಥಿರಾಂಕ;
+	ಸಾಲೊಳಗೆ bool ಕ್ರಿಯಾಕಾರಕ!=(ಸ್ಥಿರಾಂಕ RTLIL::SigSpecIterator &other) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಸೂಚ್ಯಂಕ != other.ಸೂಚ್ಯಂಕ; }
+	ಸಾಲೊಳಗೆ bool ಕ್ರಿಯಾಕಾರಕ==(ಸ್ಥಿರಾಂಕ RTLIL::SigSpecIterator &other) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಸೂಚ್ಯಂಕ == other.ಸೂಚ್ಯಂಕ; }
+	ಸಾಲೊಳಗೆ ಶೂನ್ಯ ಕ್ರಿಯಾಕಾರಕ++() { ಸೂಚ್ಯಂಕ++; }
 };
 
-struct RTLIL::SigSpecConstIterator
+ರಚನೆ RTLIL::SigSpecConstIterator
 {
-	typedef std::input_iterator_tag iterator_category;
-	typedef RTLIL::SigBit value_type;
-	typedef ptrdiff_t difference_type;
-	typedef RTLIL::SigBit* pointer;
-	typedef RTLIL::SigBit& reference;
+	ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ std::ಒಳಹರಿವು_iterator_ಟ್ಯಾಗ್ iterator_category;
+	ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ RTLIL::Sig_ಬಿಟ್ ಮೌಲ್ಯ_type;
+	ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ptrdiff_t difference_type;
+	ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ RTLIL::Sig_ಬಿಟ್* ಸೂಚಕ;
+	ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ RTLIL::Sig_ಬಿಟ್& reference;
 
-	const RTLIL::SigSpec *sig_p;
-	RTLIL::SigBit bit;
-	int index;
+	ಸ್ಥಿರಾಂಕ RTLIL::SigSpec *sig_p;
+	RTLIL::Sig_ಬಿಟ್ ಬಿಟ್;
+	ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ;
 
-	inline const RTLIL::SigBit &operator*();
-	inline bool operator!=(const RTLIL::SigSpecConstIterator &other) const { return index != other.index; }
-	inline bool operator==(const RTLIL::SigSpecIterator &other) const { return index == other.index; }
-	inline void operator++() { index++; }
+	ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &ಕ್ರಿಯಾಕಾರಕ*();
+	ಸಾಲೊಳಗೆ bool ಕ್ರಿಯಾಕಾರಕ!=(ಸ್ಥಿರಾಂಕ RTLIL::SigSpecConstIterator &other) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಸೂಚ್ಯಂಕ != other.ಸೂಚ್ಯಂಕ; }
+	ಸಾಲೊಳಗೆ bool ಕ್ರಿಯಾಕಾರಕ==(ಸ್ಥಿರಾಂಕ RTLIL::SigSpecIterator &other) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಸೂಚ್ಯಂಕ == other.ಸೂಚ್ಯಂಕ; }
+	ಸಾಲೊಳಗೆ ಶೂನ್ಯ ಕ್ರಿಯಾಕಾರಕ++() { ಸೂಚ್ಯಂಕ++; }
 };
 
-struct RTLIL::SigSpec
+ರಚನೆ RTLIL::SigSpec
 {
-private:
-	friend class SigSpecRepTest;
-	FRIEND_TEST(SigSpecRepTest, Extract);
-	enum Representation : char {
+ಖಾಸಗಿ:
+	ಮಿತ್ರ class SigSpecRepTest;
+	FRIEND_TEST(SigSpecRepTest, ಹೊರತೆಗೆ_2);
+	ಎಣಿಕೆ Representation : ಅಕ್ಷರ {
 		CHUNK,
-		BITS,
+		ಬಿಟ್ಟುಗಳು_3,
 	};
 	// An AtomicHash is either clear or a nonzero integer.
-	struct AtomicHash {
+	ರಚನೆ AtomicHash {
 		// Create an initially clear value.
 		AtomicHash() : atomic_(0) {}
-		AtomicHash(const AtomicHash &rhs) : atomic_(rhs.load()) {}
-		AtomicHash &operator=(const AtomicHash &rhs) { store(rhs.load()); return *this; }
+		AtomicHash(ಸ್ಥಿರಾಂಕ AtomicHash &rhs) : atomic_(rhs.ತುಂಬು()) {}
+		AtomicHash &ಕ್ರಿಯಾಕಾರಕ=(ಸ್ಥಿರಾಂಕ AtomicHash &rhs) { store(rhs.ತುಂಬು()); ಹಿಂತಿರುಗಿ *this; }
 		// Read the hash. Returns nullopt if the hash is clear.
-		std::optional<Hasher::hash_t> read() const {
-			Hasher::hash_t value = load();
-			if (value == 0)
-				return std::nullopt;
-			return value;
+		std::optional<Hasher::hash_t> ಪಠ() ಸ್ಥಿರಾಂಕ {
+			Hasher::hash_t ಮೌಲ್ಯ = ತುಂಬು();
+			ಆದರೆ (ಮೌಲ್ಯ == 0)
+				ಹಿಂತಿರುಗಿ std::nullopt;
+			ಹಿಂತಿರುಗಿ ಮೌಲ್ಯ;
 		}
 		// Set the hash. If the value is already set, then the new value must
 		// equal the current value.
-		void set(Hasher::hash_t value) const {
-			log_assert(value != 0);
+		ಶೂನ್ಯ ಗಣ(Hasher::hash_t ಮೌಲ್ಯ) ಸ್ಥಿರಾಂಕ {
+			log_assert(ಮೌಲ್ಯ != 0);
 			Hasher::hash_t old = const_cast<std::atomic<Hasher::hash_t>&>(atomic_)
-					.exchange(value, std::memory_order_relaxed);
-			log_assert(old == 0 || old == value);
+					.exchange(ಮೌಲ್ಯ, std::ಸ್ಮರಣೆ_ಕ್ರಮ_relaxed);
+			log_assert(old == 0 || old == ಮೌಲ್ಯ);
 		}
-		void clear() { store(0); }
-	private:
-		int load() const { return atomic_.load(std::memory_order_relaxed); }
-		void store(Hasher::hash_t value) const {
-			const_cast<std::atomic<Hasher::hash_t>&>(atomic_).store(value, std::memory_order_relaxed);
+		ಶೂನ್ಯ clear() { store(0); }
+	ಖಾಸಗಿ:
+		ಪೂರ್ಣಾಂಕ ತುಂಬು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ atomic_.ತುಂಬು(std::ಸ್ಮರಣೆ_ಕ್ರಮ_relaxed); }
+		ಶೂನ್ಯ store(Hasher::hash_t ಮೌಲ್ಯ) ಸ್ಥಿರಾಂಕ {
+			const_cast<std::atomic<Hasher::hash_t>&>(atomic_).store(ಮೌಲ್ಯ, std::ಸ್ಮರಣೆ_ಕ್ರಮ_relaxed);
 		}
 
 		std::atomic<Hasher::hash_t> atomic_;
@@ -820,343 +820,343 @@ private:
 
 	Representation rep_;
 	AtomicHash hash_;
-	union {
+	ಒಕ್ಕೂಟ {
 		RTLIL::SigChunk chunk_;
-		std::vector<RTLIL::SigBit> bits_; // LSB at index 0
+		std::ಸದಿಶ<RTLIL::Sig_ಬಿಟ್> ಬಿಟ್ಟುಗಳು_2; // LSB at index 0
 	};
 
-	void init_empty_bits() {
-		rep_ = BITS;
-		new (&bits_) std::vector<RTLIL::SigBit>;
+	ಶೂನ್ಯ init_ಖಾಲಿಗಳು_ಬಿಟ್ಟುಗಳು() {
+		rep_ = ಬಿಟ್ಟುಗಳು_3;
+		new (&ಬಿಟ್ಟುಗಳು_2) std::ಸದಿಶ<RTLIL::Sig_ಬಿಟ್>;
 	}
 
-	void unpack();
-	inline void inline_unpack() {
-		if (rep_ == CHUNK)
+	ಶೂನ್ಯ unpack();
+	ಸಾಲೊಳಗೆ ಶೂನ್ಯ inline_unpack() {
+		ಆದರೆ (rep_ == CHUNK)
 			unpack();
 	}
-	void try_repack();
+	ಶೂನ್ಯ try_repack();
 
-	Hasher::hash_t updhash() const;
-	void destroy() {
-		if (rep_ == CHUNK)
+	Hasher::hash_t updhash() ಸ್ಥಿರಾಂಕ;
+	ಶೂನ್ಯ destroy() {
+		ಆದರೆ (rep_ == CHUNK)
 			chunk_.~SigChunk();
-		else
-			bits_.~vector();
+		ಇಲ್ಲದಿದ್ದರೆ
+			ಬಿಟ್ಟುಗಳು_2.~ಸದಿಶ();
 	}
-	friend struct Chunks;
+	ಮಿತ್ರ ರಚನೆ Chunks;
 
-public:
-	SigSpec() { init_empty_bits(); }
+ಸಾರ್ವಜನಿಕ:
+	SigSpec() { init_ಖಾಲಿಗಳು_ಬಿಟ್ಟುಗಳು(); }
 	SigSpec(std::initializer_list<RTLIL::SigSpec> parts);
-	SigSpec(const SigSpec &value) : rep_(value.rep_), hash_(value.hash_) {
-		if (value.rep_ == CHUNK)
-			new (&chunk_) RTLIL::SigChunk(value.chunk_);
-		else
-			new (&bits_) std::vector<RTLIL::SigBit>(value.bits_);
+	SigSpec(ಸ್ಥಿರಾಂಕ SigSpec &ಮೌಲ್ಯ) : rep_(ಮೌಲ್ಯ.rep_), hash_(ಮೌಲ್ಯ.hash_) {
+		ಆದರೆ (ಮೌಲ್ಯ.rep_ == CHUNK)
+			new (&chunk_) RTLIL::SigChunk(ಮೌಲ್ಯ.chunk_);
+		ಇಲ್ಲದಿದ್ದರೆ
+			new (&ಬಿಟ್ಟುಗಳು_2) std::ಸದಿಶ<RTLIL::Sig_ಬಿಟ್>(ಮೌಲ್ಯ.ಬಿಟ್ಟುಗಳು_2);
 	}
-	SigSpec(SigSpec &&value) : rep_(value.rep_), hash_(value.hash_) {
-		if (value.rep_ == CHUNK)
-			new (&chunk_) RTLIL::SigChunk(std::move(value.chunk_));
-		else
-			new (&bits_) std::vector<RTLIL::SigBit>(std::move(value.bits_));
+	SigSpec(SigSpec &&ಮೌಲ್ಯ) : rep_(ಮೌಲ್ಯ.rep_), hash_(ಮೌಲ್ಯ.hash_) {
+		ಆದರೆ (ಮೌಲ್ಯ.rep_ == CHUNK)
+			new (&chunk_) RTLIL::SigChunk(std::move(ಮೌಲ್ಯ.chunk_));
+		ಇಲ್ಲದಿದ್ದರೆ
+			new (&ಬಿಟ್ಟುಗಳು_2) std::ಸದಿಶ<RTLIL::Sig_ಬಿಟ್>(std::move(ಮೌಲ್ಯ.ಬಿಟ್ಟುಗಳು_2));
 	}
-	SigSpec(const RTLIL::Const &value);
-	SigSpec(RTLIL::Const &&value);
-	SigSpec(const RTLIL::SigChunk &chunk);
+	SigSpec(ಸ್ಥಿರಾಂಕ RTLIL::Const &ಮೌಲ್ಯ);
+	SigSpec(RTLIL::Const &&ಮೌಲ್ಯ);
+	SigSpec(ಸ್ಥಿರಾಂಕ RTLIL::SigChunk &chunk);
 	SigSpec(RTLIL::SigChunk &&chunk);
 	SigSpec(RTLIL::Wire *wire);
-	SigSpec(RTLIL::Wire *wire, int offset, int width = 1);
-	SigSpec(const std::string &str);
-	SigSpec(int val, int width = 32);
-	SigSpec(RTLIL::State bit, int width = 1);
-	SigSpec(const RTLIL::SigBit &bit, int width = 1);
-	SigSpec(const std::vector<RTLIL::SigChunk> &chunks);
-	SigSpec(const std::vector<RTLIL::SigBit> &bits);
-	SigSpec(const pool<RTLIL::SigBit> &bits);
-	SigSpec(const std::set<RTLIL::SigBit> &bits);
-	explicit SigSpec(bool bit);
+	SigSpec(RTLIL::Wire *wire, ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ, ಪೂರ್ಣಾಂಕ ಅಗಲ = 1);
+	SigSpec(ಸ್ಥಿರಾಂಕ std::string &str);
+	SigSpec(ಪೂರ್ಣಾಂಕ val, ಪೂರ್ಣಾಂಕ ಅಗಲ = 32);
+	SigSpec(RTLIL::State ಬಿಟ್, ಪೂರ್ಣಾಂಕ ಅಗಲ = 1);
+	SigSpec(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &ಬಿಟ್, ಪೂರ್ಣಾಂಕ ಅಗಲ = 1);
+	SigSpec(ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<RTLIL::SigChunk> &chunks);
+	SigSpec(ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<RTLIL::Sig_ಬಿಟ್> &ಬಿಟ್ಟುಗಳು);
+	SigSpec(ಸ್ಥಿರಾಂಕ pool<RTLIL::Sig_ಬಿಟ್> &ಬಿಟ್ಟುಗಳು);
+	SigSpec(ಸ್ಥಿರಾಂಕ std::ಗಣ<RTLIL::Sig_ಬಿಟ್> &ಬಿಟ್ಟುಗಳು);
+	explicit SigSpec(bool ಬಿಟ್);
 	~SigSpec() {
 		destroy();
 	}
 
-	SigSpec &operator=(const SigSpec &rhs) {
+	SigSpec &ಕ್ರಿಯಾಕಾರಕ=(ಸ್ಥಿರಾಂಕ SigSpec &rhs) {
 		destroy();
 		rep_ = rhs.rep_;
 		hash_ = rhs.hash_;
-		if (rep_ == CHUNK)
+		ಆದರೆ (rep_ == CHUNK)
 			new (&chunk_) RTLIL::SigChunk(rhs.chunk_);
-		else
-			new (&bits_) std::vector<RTLIL::SigBit>(rhs.bits_);
-		return *this;
+		ಇಲ್ಲದಿದ್ದರೆ
+			new (&ಬಿಟ್ಟುಗಳು_2) std::ಸದಿಶ<RTLIL::Sig_ಬಿಟ್>(rhs.ಬಿಟ್ಟುಗಳು_2);
+		ಹಿಂತಿರುಗಿ *this;
 	}
-	SigSpec &operator=(SigSpec &&rhs) {
+	SigSpec &ಕ್ರಿಯಾಕಾರಕ=(SigSpec &&rhs) {
 		destroy();
 		rep_ = rhs.rep_;
 		hash_ = rhs.hash_;
-		if (rep_ == CHUNK)
+		ಆದರೆ (rep_ == CHUNK)
 			new (&chunk_) RTLIL::SigChunk(std::move(rhs.chunk_));
-		else
-			new (&bits_) std::vector<RTLIL::SigBit>(std::move(rhs.bits_));
-		return *this;
+		ಇಲ್ಲದಿದ್ದರೆ
+			new (&ಬಿಟ್ಟುಗಳು_2) std::ಸದಿಶ<RTLIL::Sig_ಬಿಟ್>(std::move(rhs.ಬಿಟ್ಟುಗಳು_2));
+		ಹಿಂತಿರುಗಿ *this;
 	}
 
 	// SigSpec::Chunks holds one reconstructed chunk at a time
 	// to provide the SigSpec::chunks() read-only chunks view
 	// since vector<SigChunk> SigSpec::chunks_ has been removed
-	struct Chunks {
-		Chunks(const SigSpec &spec) : spec(spec) {}
-		struct const_iterator {
-			using iterator_category = std::forward_iterator_tag;
-			using value_type = const SigChunk &;
+	ರಚನೆ Chunks {
+		Chunks(ಸ್ಥಿರಾಂಕ SigSpec &spec) : spec(spec) {}
+		ರಚನೆ const_iterator {
+			using iterator_category = std::forward_iterator_ಟ್ಯಾಗ್;
+			using ಮೌಲ್ಯ_type = ಸ್ಥಿರಾಂಕ SigChunk &;
 			using difference_type = std::ptrdiff_t;
-			using pointer = const SigChunk *;
-			using reference = const SigChunk &;
+			using ಸೂಚಕ = ಸ್ಥಿರಾಂಕ SigChunk *;
+			using reference = ಸ್ಥಿರಾಂಕ SigChunk &;
 
-			const SigSpec &spec;
-			int bit_index;
+			ಸ್ಥಿರಾಂಕ SigSpec &spec;
+			ಪೂರ್ಣಾಂಕ ಬಿಟ್_ಸೂಚ್ಯಂಕ;
 			SigChunk chunk;
 
-			const_iterator(const SigSpec &spec) : spec(spec) {
-				bit_index = 0;
-				if (spec.rep_ == BITS)
-					next_chunk_bits();
+			const_iterator(ಸ್ಥಿರಾಂಕ SigSpec &spec) : spec(spec) {
+				ಬಿಟ್_ಸೂಚ್ಯಂಕ = 0;
+				ಆದರೆ (spec.rep_ == ಬಿಟ್ಟುಗಳು_3)
+					ಮುಂದಿನ_chunk_ಬಿಟ್ಟುಗಳು();
 			}
-			enum End { END };
-			const_iterator(const SigSpec &spec, End) : spec(spec) {
-				bit_index = spec.size();
+			ಎಣಿಕೆ ಕೊನೆ_2 { ಕೊನೆ_3 };
+			const_iterator(ಸ್ಥಿರಾಂಕ SigSpec &spec, ಕೊನೆ_2) : spec(spec) {
+				ಬಿಟ್_ಸೂಚ್ಯಂಕ = spec.ಗಾತ್ರ_2();
 			}
-			void next_chunk_bits();
+			ಶೂನ್ಯ ಮುಂದಿನ_chunk_ಬಿಟ್ಟುಗಳು();
 
-			const SigChunk &operator*() {
-				if (spec.rep_ == CHUNK)
-					return spec.chunk_;
-				return chunk;
+			ಸ್ಥಿರಾಂಕ SigChunk &ಕ್ರಿಯಾಕಾರಕ*() {
+				ಆದರೆ (spec.rep_ == CHUNK)
+					ಹಿಂತಿರುಗಿ spec.chunk_;
+				ಹಿಂತಿರುಗಿ chunk;
 			};
-			const SigChunk *operator->() { return &**this; }
-			const_iterator &operator++() {
-				bit_index += (**this).width;
-				if (spec.rep_ == BITS)
-					next_chunk_bits();
-				return *this;
+			ಸ್ಥಿರಾಂಕ SigChunk *ಕ್ರಿಯಾಕಾರಕ->() { ಹಿಂತಿರುಗಿ &**this; }
+			const_iterator &ಕ್ರಿಯಾಕಾರಕ++() {
+				ಬಿಟ್_ಸೂಚ್ಯಂಕ += (**this).ಅಗಲ;
+				ಆದರೆ (spec.rep_ == ಬಿಟ್ಟುಗಳು_3)
+					ಮುಂದಿನ_chunk_ಬಿಟ್ಟುಗಳು();
+				ಹಿಂತಿರುಗಿ *this;
 			}
-			bool operator==(const const_iterator &rhs) const { return bit_index == rhs.bit_index; }
-			bool operator!=(const const_iterator &rhs) const { return !(*this == rhs); }
+			bool ಕ್ರಿಯಾಕಾರಕ==(ಸ್ಥಿರಾಂಕ const_iterator &rhs) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಬಿಟ್_ಸೂಚ್ಯಂಕ == rhs.ಬಿಟ್_ಸೂಚ್ಯಂಕ; }
+			bool ಕ್ರಿಯಾಕಾರಕ!=(ಸ್ಥಿರಾಂಕ const_iterator &rhs) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ !(*this == rhs); }
 		};
-		const_iterator begin() const { return const_iterator(spec); }
-		const_iterator end() const {
-			const_iterator it(spec, const_iterator::END);
-			return it;
+		const_iterator begin() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ const_iterator(spec); }
+		const_iterator ಕೊನೆ() ಸ್ಥಿರಾಂಕ {
+			const_iterator it(spec, const_iterator::ಕೊನೆ_3);
+			ಹಿಂತಿರುಗಿ it;
 		}
 		// Later we should deprecate these and remove their in-tree calls,
 		// so we can eventually remove chunk_vector.
-		std::vector<RTLIL::SigChunk>::const_reverse_iterator rbegin() {
-			ensure_chunk_vector();
-			return chunk_vector.rbegin();
+		std::ಸದಿಶ<RTLIL::SigChunk>::const_ಹಿಮ್ಮುಖ_iterator rbegin() {
+			ensure_chunk_ಸದಿಶ();
+			ಹಿಂತಿರುಗಿ chunk_ಸದಿಶ.rbegin();
 		}
-		std::vector<RTLIL::SigChunk>::const_reverse_iterator rend() {
-			ensure_chunk_vector();
-			return chunk_vector.rend();
+		std::ಸದಿಶ<RTLIL::SigChunk>::const_ಹಿಮ್ಮುಖ_iterator rend() {
+			ensure_chunk_ಸದಿಶ();
+			ಹಿಂತಿರುಗಿ chunk_ಸದಿಶ.rend();
 		}
-		int size() {
-			ensure_chunk_vector();
-			return chunk_vector.size();
+		ಪೂರ್ಣಾಂಕ ಗಾತ್ರ_2() {
+			ensure_chunk_ಸದಿಶ();
+			ಹಿಂತಿರುಗಿ chunk_ಸದಿಶ.ಗಾತ್ರ_2();
 		}
-		int size() const {
-			return std::distance(begin(), end());
+		ಪೂರ್ಣಾಂಕ ಗಾತ್ರ_2() ಸ್ಥಿರಾಂಕ {
+			ಹಿಂತಿರುಗಿ std::ದೂರ(begin(), ಕೊನೆ());
 		}
-		const SigChunk &at(int index) {
-			ensure_chunk_vector();
-			return chunk_vector.at(index);
+		ಸ್ಥಿರಾಂಕ SigChunk &at(ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ) {
+			ensure_chunk_ಸದಿಶ();
+			ಹಿಂತಿರುಗಿ chunk_ಸದಿಶ.at(ಸೂಚ್ಯಂಕ);
 		}
-		operator const std::vector<RTLIL::SigChunk>&() {
-			ensure_chunk_vector();
-			return chunk_vector;
+		ಕ್ರಿಯಾಕಾರಕ ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<RTLIL::SigChunk>&() {
+			ensure_chunk_ಸದಿಶ();
+			ಹಿಂತಿರುಗಿ chunk_ಸದಿಶ;
 		}
-	private:
-		void ensure_chunk_vector() {
-			if (spec.size() > 0 && chunk_vector.empty()) {
-				for (const RTLIL::SigChunk &c : *this)
-					chunk_vector.push_back(c);
+	ಖಾಸಗಿ:
+		ಶೂನ್ಯ ensure_chunk_ಸದಿಶ() {
+			ಆದರೆ (spec.ಗಾತ್ರ_2() > 0 && chunk_ಸದಿಶ.ಖಾಲಿಗಳು()) {
+				ಗಾಗಿ (ಸ್ಥಿರಾಂಕ RTLIL::SigChunk &c : *this)
+					chunk_ಸದಿಶ.ತಳ್ಳು_ಹಿಂಭಾಗ(c);
 			}
 		}
-		const SigSpec &spec;
-		std::vector<RTLIL::SigChunk> chunk_vector;
+		ಸ್ಥಿರಾಂಕ SigSpec &spec;
+		std::ಸದಿಶ<RTLIL::SigChunk> chunk_ಸದಿಶ;
 	};
-	friend struct Chunks::const_iterator;
+	ಮಿತ್ರ ರಚನೆ Chunks::const_iterator;
 
-	inline Chunks chunks() const { return {*this}; }
-	inline const SigSpec &bits() const { return *this; }
+	ಸಾಲೊಳಗೆ Chunks chunks() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ {*this}; }
+	ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ SigSpec &ಬಿಟ್ಟುಗಳು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ *this; }
 
-	inline int size() const { return rep_ == CHUNK ? chunk_.width : GetSize(bits_); }
-	inline bool empty() const { return size() == 0; };
+	ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ ಗಾತ್ರ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ rep_ == CHUNK ? chunk_.ಅಗಲ : Get_ಗಾತ್ರ(ಬಿಟ್ಟುಗಳು_2); }
+	ಸಾಲೊಳಗೆ bool ಖಾಲಿಗಳು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಗಾತ್ರ_2() == 0; };
 
-	inline RTLIL::SigBit &operator[](int index) { inline_unpack(); hash_.clear(); return bits_.at(index); }
-	inline RTLIL::SigBit operator[](int index) const {
-		if (rep_ == CHUNK) {
-			if (index < 0 || index >= chunk_.width)
-				throw std::out_of_range("SigSpec::operator[]");
-			if (chunk_.wire)
-				return RTLIL::SigBit(chunk_.wire, chunk_.offset + index);
-			return RTLIL::SigBit(chunk_.data[index]);
+	ಸಾಲೊಳಗೆ RTLIL::Sig_ಬಿಟ್ &ಕ್ರಿಯಾಕಾರಕ[](ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ) { inline_unpack(); hash_.clear(); ಹಿಂತಿರುಗಿ ಬಿಟ್ಟುಗಳು_2.at(ಸೂಚ್ಯಂಕ); }
+	ಸಾಲೊಳಗೆ RTLIL::Sig_ಬಿಟ್ ಕ್ರಿಯಾಕಾರಕ[](ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ) ಸ್ಥಿರಾಂಕ {
+		ಆದರೆ (rep_ == CHUNK) {
+			ಆದರೆ (ಸೂಚ್ಯಂಕ < 0 || ಸೂಚ್ಯಂಕ >= chunk_.ಅಗಲ)
+				throw std::ಹೊರಹೋಗು_ದ_range("SigSpec::operator[]");
+			ಆದರೆ (chunk_.wire)
+				ಹಿಂತಿರುಗಿ RTLIL::Sig_ಬಿಟ್(chunk_.wire, chunk_.ಸ್ಥಾನಾಂತರ + ಸೂಚ್ಯಂಕ);
+			ಹಿಂತಿರುಗಿ RTLIL::Sig_ಬಿಟ್(chunk_.ದತ್ತಾಂಶ[ಸೂಚ್ಯಂಕ]);
 		}
-		return bits_.at(index);
+		ಹಿಂತಿರುಗಿ ಬಿಟ್ಟುಗಳು_2.at(ಸೂಚ್ಯಂಕ);
 	}
 
-	inline RTLIL::SigSpecIterator begin() { RTLIL::SigSpecIterator it; it.sig_p = this; it.index = 0; return it; }
-	inline RTLIL::SigSpecIterator end() { RTLIL::SigSpecIterator it; it.sig_p = this; it.index = size(); return it; }
+	ಸಾಲೊಳಗೆ RTLIL::SigSpecIterator begin() { RTLIL::SigSpecIterator it; it.sig_p = this; it.ಸೂಚ್ಯಂಕ = 0; ಹಿಂತಿರುಗಿ it; }
+	ಸಾಲೊಳಗೆ RTLIL::SigSpecIterator ಕೊನೆ() { RTLIL::SigSpecIterator it; it.sig_p = this; it.ಸೂಚ್ಯಂಕ = ಗಾತ್ರ_2(); ಹಿಂತಿರುಗಿ it; }
 
-	inline RTLIL::SigSpecConstIterator begin() const { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.index = 0; return it; }
-	inline RTLIL::SigSpecConstIterator end() const { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.index = size(); return it; }
+	ಸಾಲೊಳಗೆ RTLIL::SigSpecConstIterator begin() ಸ್ಥಿರಾಂಕ { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.ಸೂಚ್ಯಂಕ = 0; ಹಿಂತಿರುಗಿ it; }
+	ಸಾಲೊಳಗೆ RTLIL::SigSpecConstIterator ಕೊನೆ() ಸ್ಥಿರಾಂಕ { RTLIL::SigSpecConstIterator it; it.sig_p = this; it.ಸೂಚ್ಯಂಕ = ಗಾತ್ರ_2(); ಹಿಂತಿರುಗಿ it; }
 
-	void sort();
-	void sort_and_unify();
+	ಶೂನ್ಯ ವಿಂಗಡಿಸು();
+	ಶೂನ್ಯ ವಿಂಗಡಿಸು_and_unify();
 
-	void replace(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec &with);
-	void replace(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec &with, RTLIL::SigSpec *other) const;
+	ಶೂನ್ಯ replace(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &ನಮೂನೆ, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &with);
+	ಶೂನ್ಯ replace(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &ನಮೂನೆ, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &with, RTLIL::SigSpec *other) ಸ್ಥಿರಾಂಕ;
 
-	void replace(const dict<RTLIL::SigBit, RTLIL::SigBit> &rules);
-	void replace(const dict<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const;
+	ಶೂನ್ಯ replace(ಸ್ಥಿರಾಂಕ dict<RTLIL::Sig_ಬಿಟ್, RTLIL::Sig_ಬಿಟ್> &ನಿಯಮಗಳು);
+	ಶೂನ್ಯ replace(ಸ್ಥಿರಾಂಕ dict<RTLIL::Sig_ಬಿಟ್, RTLIL::Sig_ಬಿಟ್> &ನಿಯಮಗಳು, RTLIL::SigSpec *other) ಸ್ಥಿರಾಂಕ;
 
-	void replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules);
-	void replace(const std::map<RTLIL::SigBit, RTLIL::SigBit> &rules, RTLIL::SigSpec *other) const;
+	ಶೂನ್ಯ replace(ಸ್ಥಿರಾಂಕ std::map<RTLIL::Sig_ಬಿಟ್, RTLIL::Sig_ಬಿಟ್> &ನಿಯಮಗಳು);
+	ಶೂನ್ಯ replace(ಸ್ಥಿರಾಂಕ std::map<RTLIL::Sig_ಬಿಟ್, RTLIL::Sig_ಬಿಟ್> &ನಿಯಮಗಳು, RTLIL::SigSpec *other) ಸ್ಥಿರಾಂಕ;
 
-	void replace(int offset, const RTLIL::SigSpec &with);
+	ಶೂನ್ಯ replace(ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &with);
 
-	void remove(const RTLIL::SigSpec &pattern);
-	void remove(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other) const;
-	void remove2(const RTLIL::SigSpec &pattern, RTLIL::SigSpec *other);
+	ಶೂನ್ಯ remove(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &ನಮೂನೆ);
+	ಶೂನ್ಯ remove(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &ನಮೂನೆ, RTLIL::SigSpec *other) ಸ್ಥಿರಾಂಕ;
+	ಶೂನ್ಯ remove2(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &ನಮೂನೆ, RTLIL::SigSpec *other);
 
-	void remove(const pool<RTLIL::SigBit> &pattern);
-	void remove(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other) const;
-	void remove2(const pool<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other);
-	void remove2(const std::set<RTLIL::SigBit> &pattern, RTLIL::SigSpec *other);
-	void remove2(const pool<RTLIL::Wire*> &pattern, RTLIL::SigSpec *other);
+	ಶೂನ್ಯ remove(ಸ್ಥಿರಾಂಕ pool<RTLIL::Sig_ಬಿಟ್> &ನಮೂನೆ);
+	ಶೂನ್ಯ remove(ಸ್ಥಿರಾಂಕ pool<RTLIL::Sig_ಬಿಟ್> &ನಮೂನೆ, RTLIL::SigSpec *other) ಸ್ಥಿರಾಂಕ;
+	ಶೂನ್ಯ remove2(ಸ್ಥಿರಾಂಕ pool<RTLIL::Sig_ಬಿಟ್> &ನಮೂನೆ, RTLIL::SigSpec *other);
+	ಶೂನ್ಯ remove2(ಸ್ಥಿರಾಂಕ std::ಗಣ<RTLIL::Sig_ಬಿಟ್> &ನಮೂನೆ, RTLIL::SigSpec *other);
+	ಶೂನ್ಯ remove2(ಸ್ಥಿರಾಂಕ pool<RTLIL::Wire*> &ನಮೂನೆ, RTLIL::SigSpec *other);
 
-	void remove(int offset, int length = 1);
-	void remove_const();
+	ಶೂನ್ಯ remove(ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ, ಪೂರ್ಣಾಂಕ ಉದ್ದಳತೆ = 1);
+	ಶೂನ್ಯ remove_const();
 
-	RTLIL::SigSpec extract(const RTLIL::SigSpec &pattern, const RTLIL::SigSpec *other = NULL) const;
-	RTLIL::SigSpec extract(const pool<RTLIL::SigBit> &pattern, const RTLIL::SigSpec *other = NULL) const;
-	RTLIL::SigSpec extract(int offset, int length = 1) const;
-	RTLIL::SigSpec extract_end(int offset) const { return extract(offset, size() - offset); }
+	RTLIL::SigSpec ಹೊರತೆಗೆ(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &ನಮೂನೆ, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec *other = ಖಾಲಿ) ಸ್ಥಿರಾಂಕ;
+	RTLIL::SigSpec ಹೊರತೆಗೆ(ಸ್ಥಿರಾಂಕ pool<RTLIL::Sig_ಬಿಟ್> &ನಮೂನೆ, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec *other = ಖಾಲಿ) ಸ್ಥಿರಾಂಕ;
+	RTLIL::SigSpec ಹೊರತೆಗೆ(ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ, ಪೂರ್ಣಾಂಕ ಉದ್ದಳತೆ = 1) ಸ್ಥಿರಾಂಕ;
+	RTLIL::SigSpec ಹೊರತೆಗೆ_ಕೊನೆ(ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಹೊರತೆಗೆ(ಸ್ಥಾನಾಂತರ, ಗಾತ್ರ_2() - ಸ್ಥಾನಾಂತರ); }
 
-	void rewrite_wires(std::function<void(RTLIL::Wire*& wire)> rewrite);
+	ಶೂನ್ಯ rewrite_wires(std::function<ಶೂನ್ಯ(RTLIL::Wire*& wire)> rewrite);
 
-	RTLIL::SigBit lsb() const { log_assert(size()); return (*this)[0]; };
-	RTLIL::SigBit msb() const { log_assert(size()); return (*this)[size() - 1]; };
-	RTLIL::SigBit front() const { return (*this)[0]; }
-	RTLIL::SigBit back() const { return (*this)[size() - 1]; }
+	RTLIL::Sig_ಬಿಟ್ lsb() ಸ್ಥಿರಾಂಕ { log_assert(ಗಾತ್ರ_2()); ಹಿಂತಿರುಗಿ (*this)[0]; };
+	RTLIL::Sig_ಬಿಟ್ msb() ಸ್ಥಿರಾಂಕ { log_assert(ಗಾತ್ರ_2()); ಹಿಂತಿರುಗಿ (*this)[ಗಾತ್ರ_2() - 1]; };
+	RTLIL::Sig_ಬಿಟ್ front() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ (*this)[0]; }
+	RTLIL::Sig_ಬಿಟ್ ಹಿಂಭಾಗ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ (*this)[ಗಾತ್ರ_2() - 1]; }
 
-	void append(const RTLIL::SigSpec &signal);
-	inline void append(Wire *wire) { append(RTLIL::SigSpec(wire)); }
-	inline void append(const RTLIL::SigChunk &chunk) { append(RTLIL::SigSpec(chunk)); }
-	inline void append(const RTLIL::Const &const_) { append(RTLIL::SigSpec(const_)); }
+	ಶೂನ್ಯ append(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &ಸಂಕೇತ);
+	ಸಾಲೊಳಗೆ ಶೂನ್ಯ append(Wire *wire) { append(RTLIL::SigSpec(wire)); }
+	ಸಾಲೊಳಗೆ ಶೂನ್ಯ append(ಸ್ಥಿರಾಂಕ RTLIL::SigChunk &chunk) { append(RTLIL::SigSpec(chunk)); }
+	ಸಾಲೊಳಗೆ ಶೂನ್ಯ append(ಸ್ಥಿರಾಂಕ RTLIL::Const &const_) { append(RTLIL::SigSpec(const_)); }
 
-	void append(const RTLIL::SigBit &bit);
-	inline void append(RTLIL::State state) { append(RTLIL::SigBit(state)); }
-	inline void append(bool bool_) { append(RTLIL::SigBit(bool_)); }
+	ಶೂನ್ಯ append(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &ಬಿಟ್);
+	ಸಾಲೊಳಗೆ ಶೂನ್ಯ append(RTLIL::State state) { append(RTLIL::Sig_ಬಿಟ್(state)); }
+	ಸಾಲೊಳಗೆ ಶೂನ್ಯ append(bool bool_) { append(RTLIL::Sig_ಬಿಟ್(bool_)); }
 
-	void extend_u0(int width, bool is_signed = false);
+	ಶೂನ್ಯ extend_u0(ಪೂರ್ಣಾಂಕ ಅಗಲ, bool is_signed = false);
 
-	RTLIL::SigSpec repeat(int num) const;
+	RTLIL::SigSpec repeat(ಪೂರ್ಣಾಂಕ ಅಂಕೆ) ಸ್ಥಿರಾಂಕ;
 
-	void reverse() { inline_unpack(); std::reverse(bits_.begin(), bits_.end()); }
+	ಶೂನ್ಯ ಹಿಮ್ಮುಖ() { inline_unpack(); std::ಹಿಮ್ಮುಖ(ಬಿಟ್ಟುಗಳು_2.begin(), ಬಿಟ್ಟುಗಳು_2.ಕೊನೆ()); }
 
-	bool operator <(const RTLIL::SigSpec &other) const;
-	bool operator ==(const RTLIL::SigSpec &other) const;
-	inline bool operator !=(const RTLIL::SigSpec &other) const { return !(*this == other); }
+	bool ಕ್ರಿಯಾಕಾರಕ <(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &other) ಸ್ಥಿರಾಂಕ;
+	bool ಕ್ರಿಯಾಕಾರಕ ==(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &other) ಸ್ಥಿರಾಂಕ;
+	ಸಾಲೊಳಗೆ bool ಕ್ರಿಯಾಕಾರಕ !=(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &other) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ !(*this == other); }
 
-	bool is_wire() const;
-	bool is_chunk() const;
-	inline bool is_bit() const { return size() == 1; }
+	bool is_wire() ಸ್ಥಿರಾಂಕ;
+	bool is_chunk() ಸ್ಥಿರಾಂಕ;
+	ಸಾಲೊಳಗೆ bool is_ಬಿಟ್() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಗಾತ್ರ_2() == 1; }
 
-	bool known_driver() const;
+	bool ತಿಳಿದ_driver() ಸ್ಥಿರಾಂಕ;
 
-	bool is_fully_const() const;
-	bool is_fully_zero() const;
-	bool is_fully_ones() const;
-	bool is_fully_def() const;
-	bool is_fully_undef() const;
-	bool has_const() const;
-	bool has_const(State state) const;
-	bool has_marked_bits() const;
-	bool is_onehot(int *pos = nullptr) const;
+	bool is_fully_const() ಸ್ಥಿರಾಂಕ;
+	bool is_fully_zero() ಸ್ಥಿರಾಂಕ;
+	bool is_fully_ones() ಸ್ಥಿರಾಂಕ;
+	bool is_fully_def() ಸ್ಥಿರಾಂಕ;
+	bool is_fully_undef() ಸ್ಥಿರಾಂಕ;
+	bool has_const() ಸ್ಥಿರಾಂಕ;
+	bool has_const(State state) ಸ್ಥಿರಾಂಕ;
+	bool has_marked_ಬಿಟ್ಟುಗಳು() ಸ್ಥಿರಾಂಕ;
+	bool is_onehot(ಪೂರ್ಣಾಂಕ *pos = nullptr) ಸ್ಥಿರಾಂಕ;
 
-	bool as_bool() const;
+	bool as_bool() ಸ್ಥಿರಾಂಕ;
 
 	// Convert the SigSpec to a C++ int, assuming all bits are constant.
 	// NOTE: If the value is too wide to fit in int (32 bits) this will
 	// truncate any higher bits, potentially over/underflowing. Consider using
 	// try_as_int, as_int_saturating, or guarding behind convertible_to_int
 	// instead.
-	int as_int(bool is_signed = false) const;
+	ಪೂರ್ಣಾಂಕ as_int(bool is_signed = false) ಸ್ಥಿರಾಂಕ;
 
 	// Returns true iff the SigSpec is constant and can be converted to an int
 	// without over/underflow.
-	bool convertible_to_int(bool is_signed = false) const;
+	bool convertible_ಗಮ್ಯ_int(bool is_signed = false) ಸ್ಥಿರಾಂಕ;
 
 	// Returns the SigSpec's value as an int if it is a constant and can be
 	// represented without over/underflow, or std::nullopt otherwise.
-	std::optional<int> try_as_int(bool is_signed = false) const;
+	std::optional<ಪೂರ್ಣಾಂಕ> try_as_int(bool is_signed = false) ಸ್ಥಿರಾಂಕ;
 
 	// Returns an all constant SigSpec's value as an int if it can be represented
 	// without over/underflow, otherwise the max/min value for int depending on
 	// the sign.
-	int as_int_saturating(bool is_signed = false) const;
+	ಪೂರ್ಣಾಂಕ as_int_saturating(bool is_signed = false) ಸ್ಥಿರಾಂಕ;
 
-	std::string as_string() const;
+	std::string as_string() ಸ್ಥಿರಾಂಕ;
 	// Returns std::nullopt if there are any non-constant bits. Returns an empty
 	// Const if this has zero width.
-	std::optional<RTLIL::Const> try_as_const() const;
-	RTLIL::Const as_const() const;
-	RTLIL::Wire *as_wire() const;
-	RTLIL::SigChunk as_chunk() const;
-	RTLIL::SigBit as_bit() const;
+	std::optional<RTLIL::Const> try_as_const() ಸ್ಥಿರಾಂಕ;
+	RTLIL::Const as_const() ಸ್ಥಿರಾಂಕ;
+	RTLIL::Wire *as_wire() ಸ್ಥಿರಾಂಕ;
+	RTLIL::SigChunk as_chunk() ಸ್ಥಿರಾಂಕ;
+	RTLIL::Sig_ಬಿಟ್ as_ಬಿಟ್() ಸ್ಥಿರಾಂಕ;
 
-	bool match(const char* pattern) const;
+	bool ಹೊಂದಿಕೆ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ನಮೂನೆ) ಸ್ಥಿರಾಂಕ;
 
-	std::set<RTLIL::SigBit> to_sigbit_set() const;
-	pool<RTLIL::SigBit> to_sigbit_pool() const;
-	std::vector<RTLIL::SigBit> to_sigbit_vector() const;
-	std::map<RTLIL::SigBit, RTLIL::SigBit> to_sigbit_map(const RTLIL::SigSpec &other) const;
-	dict<RTLIL::SigBit, RTLIL::SigBit> to_sigbit_dict(const RTLIL::SigSpec &other) const;
+	std::ಗಣ<RTLIL::Sig_ಬಿಟ್> ಗಮ್ಯ_sigbit_ಗಣ() ಸ್ಥಿರಾಂಕ;
+	pool<RTLIL::Sig_ಬಿಟ್> ಗಮ್ಯ_sigbit_pool() ಸ್ಥಿರಾಂಕ;
+	std::ಸದಿಶ<RTLIL::Sig_ಬಿಟ್> ಗಮ್ಯ_sigbit_ಸದಿಶ() ಸ್ಥಿರಾಂಕ;
+	std::map<RTLIL::Sig_ಬಿಟ್, RTLIL::Sig_ಬಿಟ್> ಗಮ್ಯ_sigbit_map(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &other) ಸ್ಥಿರಾಂಕ;
+	dict<RTLIL::Sig_ಬಿಟ್, RTLIL::Sig_ಬಿಟ್> ಗಮ್ಯ_sigbit_dict(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &other) ಸ್ಥಿರಾಂಕ;
 
-	static bool parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str);
-	static bool parse_sel(RTLIL::SigSpec &sig, RTLIL::Design *design, RTLIL::Module *module, std::string str);
-	static bool parse_rhs(const RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str);
+	ಸ್ಥಿರ bool parse(RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str);
+	ಸ್ಥಿರ bool parse_sel(RTLIL::SigSpec &sig, RTLIL::Design *design, RTLIL::Module *module, std::string str);
+	ಸ್ಥಿರ bool parse_rhs(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &lhs, RTLIL::SigSpec &sig, RTLIL::Module *module, std::string str);
 
-	operator std::vector<RTLIL::SigChunk>() const;
-	operator std::vector<RTLIL::SigBit>() const { return to_sigbit_vector(); }
-	const RTLIL::SigBit &at(int offset, const RTLIL::SigBit &defval) { return offset < size() ? (*this)[offset] : defval; }
-	RTLIL::SigBit& at(int offset) { return (*this)[offset]; }
-	RTLIL::SigBit at(int offset) const { return (*this)[offset]; }
+	ಕ್ರಿಯಾಕಾರಕ std::ಸದಿಶ<RTLIL::SigChunk>() ಸ್ಥಿರಾಂಕ;
+	ಕ್ರಿಯಾಕಾರಕ std::ಸದಿಶ<RTLIL::Sig_ಬಿಟ್>() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಗಮ್ಯ_sigbit_ಸದಿಶ(); }
+	ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &at(ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &defval) { ಹಿಂತಿರುಗಿ ಸ್ಥಾನಾಂತರ < ಗಾತ್ರ_2() ? (*this)[ಸ್ಥಾನಾಂತರ] : defval; }
+	RTLIL::Sig_ಬಿಟ್& at(ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ) { ಹಿಂತಿರುಗಿ (*this)[ಸ್ಥಾನಾಂತರ]; }
+	RTLIL::Sig_ಬಿಟ್ at(ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ (*this)[ಸ್ಥಾನಾಂತರ]; }
 
-	[[nodiscard]] Hasher hash_into(Hasher h) const {
+	[[nodiscard]] Hasher hash_into(Hasher h) ಸ್ಥಿರಾಂಕ {
 		Hasher::hash_t val;
-		if (std::optional<Hasher::hash_t> current = hash_.read())
+		ಆದರೆ (std::optional<Hasher::hash_t> current = hash_.ಪಠ())
 			val = *current;
-		else
+		ಇಲ್ಲದಿದ್ದರೆ
 			val = updhash();
 		h.eat(val);
-		return h;
+		ಹಿಂತಿರುಗಿ h;
 	}
 
-#ifndef NDEBUG
-	void check(const Module *mod = nullptr) const;
-#else
-	void check(const Module *mod = nullptr) const { (void)mod; }
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ NDEBUG
+	ಶೂನ್ಯ check(ಸ್ಥಿರಾಂಕ Module *mod = nullptr) ಸ್ಥಿರಾಂಕ;
+#ಇಲ್ಲದಿದ್ದರೆ
+	ಶೂನ್ಯ check(ಸ್ಥಿರಾಂಕ Module *mod = nullptr) ಸ್ಥಿರಾಂಕ { (ಶೂನ್ಯ)mod; }
+#ಆದರೆ_ಅಂತ್ಯ
 };
 
-struct RTLIL::Selection
+ರಚನೆ RTLIL::Selection
 {
 	// selection includes boxed modules
 	bool selects_boxes;
 	// selection covers full design, including boxed modules
 	bool complete_selection;
 	// selection covers full design, not including boxed modules
-	bool full_selection;
+	bool ತುಂಬಿದ_selection;
 	pool<RTLIL::IdString> selected_modules;
 	dict<RTLIL::IdString, pool<RTLIL::IdString>> selected_members;
 	RTLIL::Design *current_design;
@@ -1164,28 +1164,28 @@ struct RTLIL::Selection
 	// create a new selection
 	Selection(
 		// should the selection cover the full design
-		bool full = true,
+		bool ತುಂಬಿದ_2 = true,
 		// should the selection include boxed modules
 		bool boxes = false,
 		// the design to select from
 		RTLIL::Design *design = nullptr
 	) :
-		selects_boxes(boxes), complete_selection(full && boxes), full_selection(full && !boxes), current_design(design) { }
+		selects_boxes(boxes), complete_selection(ತುಂಬಿದ_2 && boxes), ತುಂಬಿದ_selection(ತುಂಬಿದ_2 && !boxes), current_design(design) { }
 
 	// checks if the given module exists in the current design and is a
 	// boxed module, warning the user if the current design is not set
-	bool boxed_module(RTLIL::IdString mod_name) const;
+	bool boxed_module(RTLIL::IdString mod_name) ಸ್ಥಿರಾಂಕ;
 
 	// checks if the given module is included in this selection
-	bool selected_module(RTLIL::IdString mod_name) const;
+	bool selected_module(RTLIL::IdString mod_name) ಸ್ಥಿರಾಂಕ;
 
 	// checks if the given module is wholly included in this selection,
 	// i.e. not partially selected
-	bool selected_whole_module(RTLIL::IdString mod_name) const;
+	bool selected_ಸಂಪೂರ್ಣ_module(RTLIL::IdString mod_name) ಸ್ಥಿರಾಂಕ;
 
 	// checks if the given member from the given module is included in this
 	// selection
-	bool selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) const;
+	bool selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) ಸ್ಥಿರಾಂಕ;
 
 	// optimizes this selection for the given design by:
 	// - removing non-existent modules and members, any boxed modules and
@@ -1196,731 +1196,731 @@ struct RTLIL::Selection
 	// - marking selection as a complete_selection if all modules in the
 	//   given design are selected, or a full_selection if it does not
 	//   include boxes.
-	void optimize(RTLIL::Design *design);
+	ಶೂನ್ಯ optimize(RTLIL::Design *design);
 
 	// checks if selection covers full design (may or may not include
 	// boxed-modules)
-	bool selects_all() const {
-		return full_selection || complete_selection;
+	bool selects_all() ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ ತುಂಬಿದ_selection || complete_selection;
 	}
 
 	// add whole module to this selection
-	template<typename T1> void select(T1 *module) {
-		if (!selects_all() && selected_modules.count(module->name) == 0) {
+	ಮಾದರಿ<typename T1> ಶೂನ್ಯ select(T1 *module) {
+		ಆದರೆ (!selects_all() && selected_modules.ಎಣಿಕೆ_2(module->name) == 0) {
 			IdString name = module->name;
-			selected_modules.insert(name);
+			selected_modules.ಸೇರಿಸು(name);
 			selected_members.erase(name);
-			if (module->get_blackbox_attribute())
+			ಆದರೆ (module->get_blackbox_attribute())
 				selects_boxes = true;
 		}
 	}
 
 	// add member of module to this selection
-	template<typename T1, typename T2> void select(T1 *module, T2 *member) {
+	ಮಾದರಿ<typename T1, typename T2> ಶೂನ್ಯ select(T1 *module, T2 *member) {
 		select(module, member->name.ref());
 	}
 
-	template<typename T1> void select(T1 *module, RTLIL::IdString member) {
-		if (!selects_all() && selected_modules.count(module->name.ref()) == 0) {
-			selected_members[module->name.ref()].insert(member);
-			if (module->get_blackbox_attribute())
+	ಮಾದರಿ<typename T1> ಶೂನ್ಯ select(T1 *module, RTLIL::IdString member) {
+		ಆದರೆ (!selects_all() && selected_modules.ಎಣಿಕೆ_2(module->name.ref()) == 0) {
+			selected_members[module->name.ref()].ಸೇರಿಸು(member);
+			ಆದರೆ (module->get_blackbox_attribute())
 				selects_boxes = true;
 		}
 	}
 
 	// checks if selection is empty
-	bool empty() const {
-		return !selects_all() && selected_modules.empty() && selected_members.empty();
+	bool ಖಾಲಿಗಳು() ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ !selects_all() && selected_modules.ಖಾಲಿಗಳು() && selected_members.ಖಾಲಿಗಳು();
 	}
 
 	// clear this selection, leaving it empty
-	void clear();
+	ಶೂನ್ಯ clear();
 
 	// create a new selection which is empty
-	static Selection EmptySelection(RTLIL::Design *design = nullptr) { return Selection(false, false, design); };
+	ಸ್ಥಿರ Selection ಖಾಲಿಗಳು_Selection(RTLIL::Design *design = nullptr) { ಹಿಂತಿರುಗಿ Selection(false, false, design); };
 
 	// create a new selection with all non-boxed modules
-	static Selection FullSelection(RTLIL::Design *design = nullptr) { return Selection(true, false, design); };
+	ಸ್ಥಿರ Selection ತುಂಬಿದ_Selection(RTLIL::Design *design = nullptr) { ಹಿಂತಿರುಗಿ Selection(true, false, design); };
 
 	// create a new selection with all modules, including boxes
-	static Selection CompleteSelection(RTLIL::Design *design = nullptr) { return Selection(true, true, design); };
+	ಸ್ಥಿರ Selection CompleteSelection(RTLIL::Design *design = nullptr) { ಹಿಂತಿರುಗಿ Selection(true, true, design); };
 };
 
-struct RTLIL::Monitor
+ರಚನೆ RTLIL::Monitor
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ಸ್ಥಿರಾಂಕ { h.eat(hashidx_); ಹಿಂತಿರುಗಿ h; }
 
 	Monitor() {
-		static unsigned int hashidx_count = 123456789;
-		hashidx_count = mkhash_xorshift(hashidx_count);
-		hashidx_ = hashidx_count;
+		ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ hashidx_ಎಣಿಕೆ = 123456789;
+		hashidx_ಎಣಿಕೆ = mkhash_xorshift(hashidx_ಎಣಿಕೆ);
+		hashidx_ = hashidx_ಎಣಿಕೆ;
 	}
 
-	virtual ~Monitor() { }
-	virtual void notify_module_add(RTLIL::Module*) { }
-	virtual void notify_module_del(RTLIL::Module*) { }
-	virtual void notify_connect(RTLIL::Cell*, RTLIL::IdString, const RTLIL::SigSpec&, const RTLIL::SigSpec&) { }
-	virtual void notify_connect(RTLIL::Module*, const RTLIL::SigSig&) { }
-	virtual void notify_connect(RTLIL::Module*, const std::vector<RTLIL::SigSig>&) { }
-	virtual void notify_blackout(RTLIL::Module*) { }
+	ವಾಸ್ತವಿಕ ~Monitor() { }
+	ವಾಸ್ತವಿಕ ಶೂನ್ಯ notify_module_ಕೂಡಿಸು(RTLIL::Module*) { }
+	ವಾಸ್ತವಿಕ ಶೂನ್ಯ notify_module_del(RTLIL::Module*) { }
+	ವಾಸ್ತವಿಕ ಶೂನ್ಯ notify_connect(RTLIL::Cell*, RTLIL::IdString, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec&, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec&) { }
+	ವಾಸ್ತವಿಕ ಶೂನ್ಯ notify_connect(RTLIL::Module*, ಸ್ಥಿರಾಂಕ RTLIL::SigSig&) { }
+	ವಾಸ್ತವಿಕ ಶೂನ್ಯ notify_connect(RTLIL::Module*, ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<RTLIL::SigSig>&) { }
+	ವಾಸ್ತವಿಕ ಶೂನ್ಯ notify_blackout(RTLIL::Module*) { }
 };
 
 // Forward declaration; defined in preproc.h.
-struct define_map_t;
+ರಚನೆ define_map_t;
 
-template<typename N>
-inline constexpr bool is_unpooled_name_v =
-	std::is_same_v<std::decay_t<N>, TwineSpec> || std::is_same_v<std::decay_t<N>, TwineSpec::Leaf> ||
+ಮಾದರಿ<typename N>
+ಸಾಲೊಳಗೆ constexpr bool is_unpooled_name_v =
+	std::is_same_v<std::decay_t<N>, TwineSpec> || std::is_same_v<std::decay_t<N>, TwineSpec::ಎಲೆ> ||
 	std::is_same_v<std::decay_t<N>, TwineSpec::Suffix> || std::is_same_v<std::decay_t<N>, TwineSpec::AutoSuffix> ||
 	std::is_same_v<std::decay_t<N>, std::string> || std::is_same_v<std::decay_t<N>, std::string_view> ||
-	std::is_same_v<std::decay_t<N>, const char*> || std::is_same_v<std::decay_t<N>, char*>;
+	std::is_same_v<std::decay_t<N>, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ*> || std::is_same_v<std::decay_t<N>, ಅಕ್ಷರ*>;
 
-#define YS_UNPOOLED_NAME(N) std::enable_if_t<is_unpooled_name_v<N>, int> = 0
+#ವ್ಯಾಖ್ಯಾನಿಸು YS_UNPOOLED_NAME(N) std::enable_if_t<is_unpooled_name_v<N>, ಪೂರ್ಣಾಂಕ> = 0
 
-template<typename N>
-inline constexpr bool is_name_string_v =
+ಮಾದರಿ<typename N>
+ಸಾಲೊಳಗೆ constexpr bool is_name_string_v =
 	std::is_same_v<std::decay_t<N>, std::string> || std::is_same_v<std::decay_t<N>, std::string_view> ||
-	std::is_same_v<std::decay_t<N>, const char *> || std::is_same_v<std::decay_t<N>, char *>;
+	std::is_same_v<std::decay_t<N>, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *> || std::is_same_v<std::decay_t<N>, ಅಕ್ಷರ *>;
 
-#define YS_NAME_STRING(N) std::enable_if_t<is_name_string_v<N>, int> = 0
+#ವ್ಯಾಖ್ಯಾನಿಸು YS_NAME_STRING(N) std::enable_if_t<is_name_string_v<N>, ಪೂರ್ಣಾಂಕ> = 0
 
 // Forwarders from various string-representing types into a canonical IdString method
 
 // Forwards _func(name, arg1...)
-#define YS_NAME_FWD_POOL(_func, _pool) \
-	template<typename N, typename... Rest, YS_UNPOOLED_NAME(N)> \
-	decltype(auto) _func(N name, Rest&&... rest) \
-		{ return _func(_pool.add(std::move(name)), std::forward<Rest>(rest)...); }
+#ವ್ಯಾಖ್ಯಾನಿಸು YS_NAME_FWD_POOL(_func, _pool) \
+	ಮಾದರಿ<typename N, typename... Rest, YS_UNPOOLED_NAME(N)> \
+	decltype(ಸ್ವಯಂಚಾಲಿತ) _func(N name, Rest&&... rest) \
+		{ ಹಿಂತಿರುಗಿ _func(_pool.ಕೂಡಿಸು(std::move(name)), std::forward<Rest>(rest)...); }
 
 // Forwards _func(arg0, name, arg2...)
-#define YS_NAME_FWD_2ND_POOL(_func, _pool) \
-	template<typename T, typename N, YS_UNPOOLED_NAME(N)> \
-	decltype(auto) _func(T &&first, N name) \
-		{ return _func(std::forward<T>(first), _pool.add(std::move(name))); }
+#ವ್ಯಾಖ್ಯಾನಿಸು YS_NAME_FWD_2ND_POOL(_func, _pool) \
+	ಮಾದರಿ<typename T, typename N, YS_UNPOOLED_NAME(N)> \
+	decltype(ಸ್ವಯಂಚಾಲಿತ) _func(T &&ಮೊದಲ, N name) \
+		{ ಹಿಂತಿರುಗಿ _func(std::forward<T>(ಮೊದಲ), _pool.ಕೂಡಿಸು(std::move(name))); }
 
-#define YS_NAME_FWD(_func) YS_NAME_FWD_POOL(_func, design->twines())
-#define YS_NAME_FWD_2ND(_func) YS_NAME_FWD_2ND_POOL(_func, design->twines())
+#ವ್ಯಾಖ್ಯಾನಿಸು YS_NAME_FWD(_func) YS_NAME_FWD_POOL(_func, design->twines())
+#ವ್ಯಾಖ್ಯಾನಿಸು YS_NAME_FWD_2ND(_func) YS_NAME_FWD_2ND_POOL(_func, design->twines())
 
-struct RTLIL::Design
+ರಚನೆ RTLIL::Design
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ಸ್ಥಿರಾಂಕ { h.eat(hashidx_); ಹಿಂತಿರುಗಿ h; }
 
 	pool<RTLIL::Monitor*> monitors;
 	dict<std::string, std::string> scratchpad;
 
 	bool flagBufferedNormalized = false;
-	void bufNormalize(bool enable=true);
+	ಶೂನ್ಯ bufNormalize(bool enable=true);
 
-	int refcount_modules_;
+	ಪೂರ್ಣಾಂಕ refcount_modules_;
 	dict<RTLIL::IdString, RTLIL::Module*> modules_;
 
-private:
+ಖಾಸಗಿ:
 	TwinePool twines_;
 
-public:
-	TwinePool &twines() { return twines_; }
-	const TwinePool &twines() const { return twines_; }
+ಸಾರ್ವಜನಿಕ:
+	TwinePool &twines() { ಹಿಂತಿರುಗಿ twines_; }
+	ಸ್ಥಿರಾಂಕ TwinePool &twines() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ twines_; }
 
-	void absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf);
+	ಶೂನ್ಯ absorb_attrs(RTLIL::AttrObject *obj, dict<IdString, RTLIL::Const> &&buf);
 
-	size_t gc_twines();
+	ಗಾತ್ರ_t gc_twines();
 
-	std::vector<std::unique_ptr<AST::AstNode>> verilog_packages, verilog_globals;
-	std::unique_ptr<define_map_t> verilog_defines;
+	std::ಸದಿಶ<std::unique_ptr<AST::Ast_ಗಂಟು>> verilog_packages, verilog_globals;
+	std::unique_ptr<define_map_t> verilog_ನಿರೂಪಿಸುತ್ತದೆ;
 
-	std::vector<RTLIL::Selection> selection_stack;
+	std::ಸದಿಶ<RTLIL::Selection> selection_ರಾಶಿ;
 	dict<RTLIL::IdString, RTLIL::Selection> selection_vars;
-	IdString selected_active_module;
+	IdString selected_ಸಕ್ರಿಯ_module;
 
 	Design();
 	~Design();
 
 	RTLIL::ObjRange<RTLIL::Module*, IdString> modules();
 	RTLIL::Module *module(RTLIL::IdString name);
-	const RTLIL::Module *module(RTLIL::IdString name) const;
-	template<typename N, YS_NAME_STRING(N)> RTLIL::Module *module(N name)
-		{ return module(twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> const RTLIL::Module *module(N name) const
-		{ return module(twines().find(std::string_view(name))); }
-	RTLIL::Module *top_module() const;
+	ಸ್ಥಿರಾಂಕ RTLIL::Module *module(RTLIL::IdString name) ಸ್ಥಿರಾಂಕ;
+	ಮಾದರಿ<typename N, YS_NAME_STRING(N)> RTLIL::Module *module(N name)
+		{ ಹಿಂತಿರುಗಿ module(twines().ಕಂಡುಹಿಡಿ(std::string_view(name))); }
+	ಮಾದರಿ<typename N, YS_NAME_STRING(N)> ಸ್ಥಿರಾಂಕ RTLIL::Module *module(N name) ಸ್ಥಿರಾಂಕ
+		{ ಹಿಂತಿರುಗಿ module(twines().ಕಂಡುಹಿಡಿ(std::string_view(name))); }
+	RTLIL::Module *ತುದಿ_module() ಸ್ಥಿರಾಂಕ;
 
-	bool has(RTLIL::IdString id) const {
+	bool has(RTLIL::IdString id) ಸ್ಥಿರಾಂಕ {
 		twines_.check_owned(id);
-		return modules_.count(id) != 0;
+		ಹಿಂತಿರುಗಿ modules_.ಎಣಿಕೆ_2(id) != 0;
 	}
-	template<typename N, YS_NAME_STRING(N)> bool has(N name) const
-		{ return has(twines().find(std::string_view(name))); }
+	ಮಾದರಿ<typename N, YS_NAME_STRING(N)> bool has(N name) ಸ್ಥಿರಾಂಕ
+		{ ಹಿಂತಿರುಗಿ has(twines().ಕಂಡುಹಿಡಿ(std::string_view(name))); }
 
-	void add(RTLIL::Module *module);
+	ಶೂನ್ಯ ಕೂಡಿಸು(RTLIL::Module *module);
 
-	RTLIL::Module *addModule(RTLIL::IdString name);
-	YS_NAME_FWD_POOL(addModule, twines())
-	void remove(RTLIL::Module *module);
-	void rename(RTLIL::Module *module, RTLIL::IdString new_name);
+	RTLIL::Module *ಕೂಡಿಸು_Module(RTLIL::IdString name);
+	YS_NAME_FWD_POOL(ಕೂಡಿಸು_Module, twines())
+	ಶೂನ್ಯ remove(RTLIL::Module *module);
+	ಶೂನ್ಯ rename(RTLIL::Module *module, RTLIL::IdString new_name);
 	YS_NAME_FWD_2ND_POOL(rename, twines())
 
-	void scratchpad_unset(const std::string &varname);
+	ಶೂನ್ಯ scratchpad_unset(ಸ್ಥಿರಾಂಕ std::string &varname);
 
-	void scratchpad_set_int(const std::string &varname, int value);
-	void scratchpad_set_bool(const std::string &varname, bool value);
-	void scratchpad_set_string(const std::string &varname, std::string value);
+	ಶೂನ್ಯ scratchpad_ಗಣ_int(ಸ್ಥಿರಾಂಕ std::string &varname, ಪೂರ್ಣಾಂಕ ಮೌಲ್ಯ);
+	ಶೂನ್ಯ scratchpad_ಗಣ_bool(ಸ್ಥಿರಾಂಕ std::string &varname, bool ಮೌಲ್ಯ);
+	ಶೂನ್ಯ scratchpad_ಗಣ_string(ಸ್ಥಿರಾಂಕ std::string &varname, std::string ಮೌಲ್ಯ);
 
-	int scratchpad_get_int(const std::string &varname, int default_value = 0) const;
-	bool scratchpad_get_bool(const std::string &varname, bool default_value = false) const;
-	std::string scratchpad_get_string(const std::string &varname, const std::string &default_value = std::string()) const;
+	ಪೂರ್ಣಾಂಕ scratchpad_get_int(ಸ್ಥಿರಾಂಕ std::string &varname, ಪೂರ್ಣಾಂಕ default_ಮೌಲ್ಯ_2 = 0) ಸ್ಥಿರಾಂಕ;
+	bool scratchpad_get_bool(ಸ್ಥಿರಾಂಕ std::string &varname, bool default_ಮೌಲ್ಯ_2 = false) ಸ್ಥಿರಾಂಕ;
+	std::string scratchpad_get_string(ಸ್ಥಿರಾಂಕ std::string &varname, ಸ್ಥಿರಾಂಕ std::string &default_ಮೌಲ್ಯ_2 = std::string()) ಸ್ಥಿರಾಂಕ;
 
-	void sort();
-	void sort_modules();
-	void check();
-	void optimize();
+	ಶೂನ್ಯ ವಿಂಗಡಿಸು();
+	ಶೂನ್ಯ ವಿಂಗಡಿಸು_modules();
+	ಶೂನ್ಯ check();
+	ಶೂನ್ಯ optimize();
 
-	void clone_into(RTLIL::Design *dst) const;
+	ಶೂನ್ಯ clone_into(RTLIL::Design *dst) ಸ್ಥಿರಾಂಕ;
 
 	// checks if the given module is included in the current selection
-	bool selected_module(RTLIL::IdString mod_name) const;
+	bool selected_module(RTLIL::IdString mod_name) ಸ್ಥಿರಾಂಕ;
 
 	// checks if the given module is wholly included in the current
 	// selection, i.e. not partially selected
-	bool selected_whole_module(RTLIL::IdString mod_name) const;
+	bool selected_ಸಂಪೂರ್ಣ_module(RTLIL::IdString mod_name) ಸ್ಥಿರಾಂಕ;
 
 	// checks if the given member from the given module is included in the
 	// current selection
-	bool selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) const;
+	bool selected_member(RTLIL::IdString mod_name, RTLIL::IdString memb_name) ಸ್ಥಿರಾಂಕ;
 
 	// checks if the given module is included in the current selection
-	bool selected_module(RTLIL::Module *mod) const;
+	bool selected_module(RTLIL::Module *mod) ಸ್ಥಿರಾಂಕ;
 
 	// checks if the given module is wholly included in the current
 	// selection, i.e. not partially selected
-	bool selected_whole_module(RTLIL::Module *mod) const;
+	bool selected_ಸಂಪೂರ್ಣ_module(RTLIL::Module *mod) ಸ್ಥಿರಾಂಕ;
 
 	// push the given selection to the selection stack
-	void push_selection(RTLIL::Selection sel);
+	ಶೂನ್ಯ ತಳ್ಳು_selection(RTLIL::Selection sel);
 	// push a new selection to the selection stack, with nothing selected
-	void push_empty_selection();
+	ಶೂನ್ಯ ತಳ್ಳು_ಖಾಲಿಗಳು_selection();
 	// push a new selection to the selection stack, with all non-boxed
 	// modules selected
-	void push_full_selection();
+	ಶೂನ್ಯ ತಳ್ಳು_ತುಂಬಿದ_selection();
 	// push a new selection to the selection stack, with all modules
 	// selected including boxes
-	void push_complete_selection();
+	ಶೂನ್ಯ ತಳ್ಳು_complete_selection();
 	// pop the current selection from the stack, returning to a full
 	// selection (no boxes) if the stack is empty
-	void pop_selection();
+	ಶೂನ್ಯ ತೆಗೆ_selection();
 
 	// get the current selection
 	RTLIL::Selection &selection() {
-		return selection_stack.back();
+		ಹಿಂತಿರುಗಿ selection_ರಾಶಿ.ಹಿಂಭಾಗ();
 	}
 
 	// get the current selection
-	const RTLIL::Selection &selection() const {
-		return selection_stack.back();
+	ಸ್ಥಿರಾಂಕ RTLIL::Selection &selection() ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ selection_ರಾಶಿ.ಹಿಂಭಾಗ();
 	}
 
 	// is the current selection a full selection (no boxes)
-	bool full_selection() const {
-		return selection().full_selection;
+	bool ತುಂಬಿದ_selection() ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ selection().ತುಂಬಿದ_selection;
 	}
 
 	// is the given module in the current selection
-	template<typename T1> bool selected(T1 *module) const {
-		return selected_module(module->name);
+	ಮಾದರಿ<typename T1> bool selected(T1 *module) ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ selected_module(module->name);
 	}
 
 	// is the given member of the given module in the current selection
-	template<typename T1, typename T2> bool selected(T1 *module, T2 *member) const {
-		return selected_member(module->name, member->name);
+	ಮಾದರಿ<typename T1, typename T2> bool selected(T1 *module, T2 *member) ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ selected_member(module->name, member->name);
 	}
 
 	// add whole module to the current selection
-	template<typename T1> void select(T1 *module) {
+	ಮಾದರಿ<typename T1> ಶೂನ್ಯ select(T1 *module) {
 		RTLIL::Selection &sel = selection();
 		sel.select(module);
 	}
 
 	// add member of module to the current selection
-	template<typename T1, typename T2> void select(T1 *module, T2 *member) {
+	ಮಾದರಿ<typename T1, typename T2> ಶೂನ್ಯ select(T1 *module, T2 *member) {
 		RTLIL::Selection &sel = selection();
 		sel.select(module, member);
 	}
 
 
 	// returns all selected modules
-	std::vector<RTLIL::Module*> selected_modules(
+	std::ಸದಿಶ<RTLIL::Module*> selected_modules(
 		// controls if partially selected modules are included
 		RTLIL::SelectPartials partials = SELECT_ALL,
 		// controls if boxed modules are included
 		RTLIL::SelectBoxes boxes = SB_UNBOXED_WARN
-	) const;
+	) ಸ್ಥಿರಾಂಕ;
 
 	// returns all selected modules, and may include boxes
-	std::vector<RTLIL::Module*> all_selected_modules() const { return selected_modules(SELECT_ALL, SB_ALL); }
+	std::ಸದಿಶ<RTLIL::Module*> all_selected_modules() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ selected_modules(SELECT_ALL, SB_ALL); }
 	// returns all selected unboxed modules, silently ignoring any boxed
 	// modules in the selection
-	std::vector<RTLIL::Module*> selected_unboxed_modules() const { return selected_modules(SELECT_ALL, SB_UNBOXED_ONLY); }
+	std::ಸದಿಶ<RTLIL::Module*> selected_unboxed_modules() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ selected_modules(SELECT_ALL, SB_UNBOXED_ONLY); }
 	// returns all selected unboxed modules, warning the user if any boxed
 	// modules have been ignored
-	std::vector<RTLIL::Module*> selected_unboxed_modules_warn() const { return selected_modules(SELECT_ALL, SB_UNBOXED_WARN); }
+	std::ಸದಿಶ<RTLIL::Module*> selected_unboxed_modules_warn() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ selected_modules(SELECT_ALL, SB_UNBOXED_WARN); }
 
 	[[deprecated("Use select_unboxed_whole_modules() to maintain prior behaviour, or consider one of the other selected whole module helpers.")]]
-	std::vector<RTLIL::Module*> selected_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_UNBOXED_WARN); }
+	std::ಸದಿಶ<RTLIL::Module*> selected_ಸಂಪೂರ್ಣ_modules() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ selected_modules(SELECT_ಸಂಪೂರ್ಣ_ONLY, SB_UNBOXED_WARN); }
 	// returns all selected whole modules, silently ignoring partially
 	// selected modules, and may include boxes
-	std::vector<RTLIL::Module*> all_selected_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_ALL); }
+	std::ಸದಿಶ<RTLIL::Module*> all_selected_ಸಂಪೂರ್ಣ_modules() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ selected_modules(SELECT_ಸಂಪೂರ್ಣ_ONLY, SB_ALL); }
 	// returns all selected whole modules, warning the user if any partially
 	// selected or boxed modules have been ignored; optionally includes
 	// selected whole modules with the 'whitebox' attribute
-	std::vector<RTLIL::Module*> selected_whole_modules_warn(
+	std::ಸದಿಶ<RTLIL::Module*> selected_ಸಂಪೂರ್ಣ_modules_warn(
 		// should whole modules with the 'whitebox' attribute be
 		// included
 		bool include_wb = false
-	) const { return selected_modules(SELECT_WHOLE_WARN, include_wb ? SB_EXCL_BB_WARN : SB_UNBOXED_WARN); }
+	) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ selected_modules(SELECT_ಸಂಪೂರ್ಣ_WARN, include_wb ? SB_EXCL_BB_WARN : SB_UNBOXED_WARN); }
 	// returns all selected unboxed whole modules, silently ignoring
 	// partially selected or boxed modules
-	std::vector<RTLIL::Module*> selected_unboxed_whole_modules() const { return selected_modules(SELECT_WHOLE_ONLY, SB_UNBOXED_ONLY); }
+	std::ಸದಿಶ<RTLIL::Module*> selected_unboxed_ಸಂಪೂರ್ಣ_modules() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ selected_modules(SELECT_ಸಂಪೂರ್ಣ_ONLY, SB_UNBOXED_ONLY); }
 	// returns all selected unboxed whole modules, warning the user if any
 	// partially selected or boxed modules have been ignored
-	std::vector<RTLIL::Module*> selected_unboxed_whole_modules_warn() const { return selected_modules(SELECT_WHOLE_WARN, SB_UNBOXED_WARN); }
+	std::ಸದಿಶ<RTLIL::Module*> selected_unboxed_ಸಂಪೂರ್ಣ_modules_warn() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ selected_modules(SELECT_ಸಂಪೂರ್ಣ_WARN, SB_UNBOXED_WARN); }
 
-	static std::map<unsigned int, RTLIL::Design*> *get_all_designs(void);
+	ಸ್ಥಿರ std::map<ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ, RTLIL::Design*> *get_all_designs(ಶೂನ್ಯ);
 
-	std::string to_rtlil_str(bool only_selected = true) const;
+	std::string ಗಮ್ಯ_rtlil_str(bool only_selected = true) ಸ್ಥಿರಾಂಕ;
 };
 
-struct RTLIL::Module : public RTLIL::AttrObject
+ರಚನೆ RTLIL::Module : ಸಾರ್ವಜನಿಕ RTLIL::AttrObject
 {
-	friend struct RTLIL::Cell;
-	friend struct RTLIL::Design;
+	ಮಿತ್ರ ರಚನೆ RTLIL::Cell;
+	ಮಿತ್ರ ರಚನೆ RTLIL::Design;
 
 	RTLIL::ModuleNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ಸ್ಥಿರಾಂಕ { h.eat(hashidx_); ಹಿಂತಿರುಗಿ h; }
 
-protected:
-	void add(RTLIL::Wire *wire);
-	void add(RTLIL::Cell *cell);
-	void add(RTLIL::Process *process);
+ಸಂರಕ್ಷಿತ:
+	ಶೂನ್ಯ ಕೂಡಿಸು(RTLIL::Wire *wire);
+	ಶೂನ್ಯ ಕೂಡಿಸು(RTLIL::Cell *cell);
+	ಶೂನ್ಯ ಕೂಡಿಸು(RTLIL::Process *process);
 
-public:
+ಸಾರ್ವಜನಿಕ:
 	RTLIL::Design *design;
 	pool<RTLIL::Monitor*> monitors;
 
-	TwinePool &twines() const { return design->twines(); }
+	TwinePool &twines() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ design->twines(); }
 
-	int refcount_wires_;
-	int refcount_cells_;
+	ಪೂರ್ಣಾಂಕ refcount_wires_;
+	ಪೂರ್ಣಾಂಕ refcount_cells_;
 
 	dict<RTLIL::IdString, RTLIL::Wire*> wires_;
 	dict<RTLIL::IdString, RTLIL::Cell*> cells_;
 
-	std::vector<RTLIL::SigSig>   connections_;
+	std::ಸದಿಶ<RTLIL::SigSig>   connections_;
 
 	idict<RTLIL::IdString> avail_parameters;
-	dict<RTLIL::IdString, RTLIL::Const> parameter_default_values;
-	dict<RTLIL::IdString, RTLIL::Memory*> memories;
+	dict<RTLIL::IdString, RTLIL::Const> parameter_default_ಮೌಲ್ಯಗಳು;
+	dict<RTLIL::IdString, RTLIL::ಸ್ಮರಣೆ*> memories;
 	dict<RTLIL::IdString, RTLIL::Process*> processes;
 
 	Module();
-	virtual ~Module();
-	virtual RTLIL::IdString derive(RTLIL::Design *design, const dict<RTLIL::IdString, RTLIL::Const> &parameters, bool mayfail = false);
-	virtual RTLIL::IdString derive(RTLIL::Design *design, const dict<RTLIL::IdString, RTLIL::Const> &parameters, const dict<RTLIL::IdString, RTLIL::Module*> &interfaces, const dict<RTLIL::IdString, RTLIL::IdString> &modports, bool mayfail = false);
-	virtual size_t count_id(RTLIL::IdString id);
-	virtual void expand_interfaces(RTLIL::Design *design, const dict<RTLIL::IdString, RTLIL::Module *> &local_interfaces);
-	virtual bool reprocess_if_necessary(RTLIL::Design *design);
+	ವಾಸ್ತವಿಕ ~Module();
+	ವಾಸ್ತವಿಕ RTLIL::IdString derive(RTLIL::Design *design, ಸ್ಥಿರಾಂಕ dict<RTLIL::IdString, RTLIL::Const> &parameters, bool mayfail = false);
+	ವಾಸ್ತವಿಕ RTLIL::IdString derive(RTLIL::Design *design, ಸ್ಥಿರಾಂಕ dict<RTLIL::IdString, RTLIL::Const> &parameters, ಸ್ಥಿರಾಂಕ dict<RTLIL::IdString, RTLIL::Module*> &interfaces, ಸ್ಥಿರಾಂಕ dict<RTLIL::IdString, RTLIL::IdString> &modports, bool mayfail = false);
+	ವಾಸ್ತವಿಕ ಗಾತ್ರ_t ಎಣಿಕೆ_id(RTLIL::IdString id);
+	ವಾಸ್ತವಿಕ ಶೂನ್ಯ expand_interfaces(RTLIL::Design *design, ಸ್ಥಿರಾಂಕ dict<RTLIL::IdString, RTLIL::Module *> &local_interfaces);
+	ವಾಸ್ತವಿಕ bool reprocess_if_necessary(RTLIL::Design *design);
 
-	virtual void sort();
-	virtual void check();
-	virtual void optimize();
-	virtual void makeblackbox();
+	ವಾಸ್ತವಿಕ ಶೂನ್ಯ ವಿಂಗಡಿಸು();
+	ವಾಸ್ತವಿಕ ಶೂನ್ಯ check();
+	ವಾಸ್ತವಿಕ ಶೂನ್ಯ optimize();
+	ವಾಸ್ತವಿಕ ಶೂನ್ಯ makeblackbox();
 
-	bool get_blackbox_attribute(bool ignore_wb=false) const {
-		return get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
+	bool get_blackbox_attribute(bool ignore_wb=false) ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ get_bool_attribute(ID::blackbox) || (!ignore_wb && get_bool_attribute(ID::whitebox));
 	}
 
-	void connect(const RTLIL::SigSig &conn);
-	void connect(const RTLIL::SigSpec &lhs, const RTLIL::SigSpec &rhs);
-	void new_connections(const std::vector<RTLIL::SigSig> &new_conn);
-	const std::vector<RTLIL::SigSig> &connections() const;
+	ಶೂನ್ಯ connect(ಸ್ಥಿರಾಂಕ RTLIL::SigSig &conn);
+	ಶೂನ್ಯ connect(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &lhs, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &rhs);
+	ಶೂನ್ಯ new_connections(ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<RTLIL::SigSig> &new_conn);
+	ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<RTLIL::SigSig> &connections() ಸ್ಥಿರಾಂಕ;
 
-	std::vector<RTLIL::IdString> ports;
-	void fixup_ports();
+	std::ಸದಿಶ<RTLIL::IdString> ports;
+	ಶೂನ್ಯ fixup_ports();
 
-	pool<RTLIL::Cell *> buf_norm_cell_queue;
-	pool<pair<RTLIL::Cell *, RTLIL::IdString>> buf_norm_cell_port_queue;
-	pool<RTLIL::Wire *> buf_norm_wire_queue;
+	pool<RTLIL::Cell *> buf_norm_cell_ಸರತಿ;
+	pool<pair<RTLIL::Cell *, RTLIL::IdString>> buf_norm_cell_ಪೋರ್ಟ್_ಸರತಿ;
+	pool<RTLIL::Wire *> buf_norm_wire_ಸರತಿ;
 	pool<RTLIL::Cell *> pending_deleted_cells;
-	dict<RTLIL::Wire *, pool<RTLIL::Cell *>> buf_norm_connect_index;
-	void bufNormalize();
+	dict<RTLIL::Wire *, pool<RTLIL::Cell *>> buf_norm_connect_ಸೂಚ್ಯಂಕ;
+	ಶೂನ್ಯ bufNormalize();
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	void cloneInto(RTLIL::Module *new_mod) const;
-	virtual RTLIL::Module *clone() const;
-	virtual RTLIL::Module *clone(RTLIL::Design *dst) const;
-	virtual RTLIL::Module *clone(RTLIL::Design *dst, IdString target_name) const;
+	ಮಾದರಿ<typename T> ಶೂನ್ಯ rewrite_sigspecs(T &functor);
+	ಮಾದರಿ<typename T> ಶೂನ್ಯ rewrite_sigspecs2(T &functor);
+	ಶೂನ್ಯ cloneInto(RTLIL::Module *new_mod) ಸ್ಥಿರಾಂಕ;
+	ವಾಸ್ತವಿಕ RTLIL::Module *clone() ಸ್ಥಿರಾಂಕ;
+	ವಾಸ್ತವಿಕ RTLIL::Module *clone(RTLIL::Design *dst) ಸ್ಥಿರಾಂಕ;
+	ವಾಸ್ತವಿಕ RTLIL::Module *clone(RTLIL::Design *dst, IdString ಗುರಿ_name) ಸ್ಥಿರಾಂಕ;
 
-	bool has_memories() const;
-	bool has_processes() const;
+	bool has_memories() ಸ್ಥಿರಾಂಕ;
+	bool has_processes() ಸ್ಥಿರಾಂಕ;
 
-	bool has_memories_warn() const;
-	bool has_processes_warn() const;
+	bool has_memories_warn() ಸ್ಥಿರಾಂಕ;
+	bool has_processes_warn() ಸ್ಥಿರಾಂಕ;
 
-	bool is_selected() const;
-	bool is_selected_whole() const;
+	bool is_selected() ಸ್ಥಿರಾಂಕ;
+	bool is_selected_ಸಂಪೂರ್ಣ() ಸ್ಥಿರಾಂಕ;
 
-	std::vector<RTLIL::Wire*> selected_wires() const;
-	std::vector<RTLIL::Cell*> selected_cells() const;
-	std::vector<RTLIL::Memory*> selected_memories() const;
-	std::vector<RTLIL::Process*> selected_processes() const;
-	std::vector<RTLIL::SelectedMember> selected_members() const;
+	std::ಸದಿಶ<RTLIL::Wire*> selected_wires() ಸ್ಥಿರಾಂಕ;
+	std::ಸದಿಶ<RTLIL::Cell*> selected_cells() ಸ್ಥಿರಾಂಕ;
+	std::ಸದಿಶ<RTLIL::ಸ್ಮರಣೆ*> selected_memories() ಸ್ಥಿರಾಂಕ;
+	std::ಸದಿಶ<RTLIL::Process*> selected_processes() ಸ್ಥಿರಾಂಕ;
+	std::ಸದಿಶ<RTLIL::SelectedMember> selected_members() ಸ್ಥಿರಾಂಕ;
 
-	template<typename T> bool selected(T *member) const {
-		return design->selected_member(name.ref(), member->name.ref());
+	ಮಾದರಿ<typename T> bool selected(T *member) ಸ್ಥಿರಾಂಕ {
+		ಹಿಂತಿರುಗಿ design->selected_member(name.ref(), member->name.ref());
 	}
 
 	RTLIL::Wire* wire(RTLIL::IdString id) {
-		if (design)
+		ಆದರೆ (design)
 			design->twines().check_owned(id);
-		auto it = wires_.find(id);
-		return it == wires_.end() ? nullptr : it->second;
+		ಸ್ವಯಂಚಾಲಿತ it = wires_.ಕಂಡುಹಿಡಿ(id);
+		ಹಿಂತಿರುಗಿ it == wires_.ಕೊನೆ() ? nullptr : it->ಎರಡನೇ;
 	}
 	RTLIL::Cell* cell(RTLIL::IdString id) {
-		if (design)
+		ಆದರೆ (design)
 			design->twines().check_owned(id);
-		auto it = cells_.find(id);
-		return it == cells_.end() ? nullptr : it->second;
+		ಸ್ವಯಂಚಾಲಿತ it = cells_.ಕಂಡುಹಿಡಿ(id);
+		ಹಿಂತಿರುಗಿ it == cells_.ಕೊನೆ() ? nullptr : it->ಎರಡನೇ;
 	}
 
-	const RTLIL::Wire* wire(RTLIL::IdString id) const{
-		if (design)
+	ಸ್ಥಿರಾಂಕ RTLIL::Wire* wire(RTLIL::IdString id) ಸ್ಥಿರಾಂಕ{
+		ಆದರೆ (design)
 			design->twines().check_owned(id);
-		auto it = wires_.find(id);
-		return it == wires_.end() ? nullptr : it->second;
+		ಸ್ವಯಂಚಾಲಿತ it = wires_.ಕಂಡುಹಿಡಿ(id);
+		ಹಿಂತಿರುಗಿ it == wires_.ಕೊನೆ() ? nullptr : it->ಎರಡನೇ;
 	}
-	const RTLIL::Cell* cell(RTLIL::IdString id) const {
-		if (design)
+	ಸ್ಥಿರಾಂಕ RTLIL::Cell* cell(RTLIL::IdString id) ಸ್ಥಿರಾಂಕ {
+		ಆದರೆ (design)
 			design->twines().check_owned(id);
-		auto it = cells_.find(id);
-		return it == cells_.end() ? nullptr : it->second;
+		ಸ್ವಯಂಚಾಲಿತ it = cells_.ಕಂಡುಹಿಡಿ(id);
+		ಹಿಂತಿರುಗಿ it == cells_.ಕೊನೆ() ? nullptr : it->ಎರಡನೇ;
 	}
 
-	template<typename N, YS_NAME_STRING(N)> RTLIL::Wire *wire(N name)
-		{ return wire(twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> RTLIL::Cell *cell(N name)
-		{ return cell(twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> const RTLIL::Wire *wire(N name) const
-		{ return wire(twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> const RTLIL::Cell *cell(N name) const
-		{ return cell(twines().find(std::string_view(name))); }
+	ಮಾದರಿ<typename N, YS_NAME_STRING(N)> RTLIL::Wire *wire(N name)
+		{ ಹಿಂತಿರುಗಿ wire(twines().ಕಂಡುಹಿಡಿ(std::string_view(name))); }
+	ಮಾದರಿ<typename N, YS_NAME_STRING(N)> RTLIL::Cell *cell(N name)
+		{ ಹಿಂತಿರುಗಿ cell(twines().ಕಂಡುಹಿಡಿ(std::string_view(name))); }
+	ಮಾದರಿ<typename N, YS_NAME_STRING(N)> ಸ್ಥಿರಾಂಕ RTLIL::Wire *wire(N name) ಸ್ಥಿರಾಂಕ
+		{ ಹಿಂತಿರುಗಿ wire(twines().ಕಂಡುಹಿಡಿ(std::string_view(name))); }
+	ಮಾದರಿ<typename N, YS_NAME_STRING(N)> ಸ್ಥಿರಾಂಕ RTLIL::Cell *cell(N name) ಸ್ಥಿರಾಂಕ
+		{ ಹಿಂತಿರುಗಿ cell(twines().ಕಂಡುಹಿಡಿ(std::string_view(name))); }
 
-	RTLIL::ObjRange<RTLIL::Wire*> wires() { return RTLIL::ObjRange<RTLIL::Wire*>(&wires_, &refcount_wires_); }
-	int wires_size() const { return wires_.size(); }
-	RTLIL::Wire* wire_at(int index) const { return wires_.element(index)->second; }
-	RTLIL::ObjRange<RTLIL::Cell*> cells() { return RTLIL::ObjRange<RTLIL::Cell*>(&cells_, &refcount_cells_); }
-	int cells_size() const { return cells_.size(); }
-	RTLIL::Cell* cell_at(int index) const { return cells_.element(index)->second; }
+	RTLIL::ObjRange<RTLIL::Wire*> wires() { ಹಿಂತಿರುಗಿ RTLIL::ObjRange<RTLIL::Wire*>(&wires_, &refcount_wires_); }
+	ಪೂರ್ಣಾಂಕ wires_ಗಾತ್ರ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ wires_.ಗಾತ್ರ_2(); }
+	RTLIL::Wire* wire_at(ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ wires_.element(ಸೂಚ್ಯಂಕ)->ಎರಡನೇ; }
+	RTLIL::ObjRange<RTLIL::Cell*> cells() { ಹಿಂತಿರುಗಿ RTLIL::ObjRange<RTLIL::Cell*>(&cells_, &refcount_cells_); }
+	ಪೂರ್ಣಾಂಕ cells_ಗಾತ್ರ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ cells_.ಗಾತ್ರ_2(); }
+	RTLIL::Cell* cell_at(ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ cells_.element(ಸೂಚ್ಯಂಕ)->ಎರಡನೇ; }
 
 	// Removing wires is expensive. If you have to remove wires, remove them all at once.
-	void remove(const pool<RTLIL::Wire*> &wires);
-	void remove(RTLIL::Cell *cell);
-	void remove(RTLIL::Memory *memory);
-	void remove(RTLIL::Process *process);
+	ಶೂನ್ಯ remove(ಸ್ಥಿರಾಂಕ pool<RTLIL::Wire*> &wires);
+	ಶೂನ್ಯ remove(RTLIL::Cell *cell);
+	ಶೂನ್ಯ remove(RTLIL::ಸ್ಮರಣೆ *ಸ್ಮರಣೆ_3);
+	ಶೂನ್ಯ remove(RTLIL::Process *process);
 
-	void rename(RTLIL::Wire *wire, RTLIL::IdString new_name);
-	void rename(RTLIL::Cell *cell, RTLIL::IdString new_name);
-	void rename(RTLIL::IdString old_name, RTLIL::IdString new_name);
+	ಶೂನ್ಯ rename(RTLIL::Wire *wire, RTLIL::IdString new_name);
+	ಶೂನ್ಯ rename(RTLIL::Cell *cell, RTLIL::IdString new_name);
+	ಶೂನ್ಯ rename(RTLIL::IdString old_name, RTLIL::IdString new_name);
 	YS_NAME_FWD_2ND(rename)
 
-	void swap_names(RTLIL::Wire *w1, RTLIL::Wire *w2);
-	void swap_names(RTLIL::Cell *c1, RTLIL::Cell *c2);
+	ಶೂನ್ಯ ಅದಲುಬದಲು_ಹೆಸರುಗಳು(RTLIL::Wire *w1, RTLIL::Wire *w2);
+	ಶೂನ್ಯ ಅದಲುಬದಲು_ಹೆಸರುಗಳು(RTLIL::Cell *c1, RTLIL::Cell *c2);
 
 	RTLIL::IdString uniquify(RTLIL::IdString name);
-	RTLIL::IdString uniquify(RTLIL::IdString name, int &index);
+	RTLIL::IdString uniquify(RTLIL::IdString name, ಪೂರ್ಣಾಂಕ &ಸೂಚ್ಯಂಕ);
 	YS_NAME_FWD(uniquify)
 
-	RTLIL::Wire *addWire(RTLIL::IdString name, int width = 1);
-	RTLIL::Wire *addWire(RTLIL::IdString name, const RTLIL::Wire *other);
-	YS_NAME_FWD(addWire)
+	RTLIL::Wire *ಕೂಡಿಸು_Wire(RTLIL::IdString name, ಪೂರ್ಣಾಂಕ ಅಗಲ = 1);
+	RTLIL::Wire *ಕೂಡಿಸು_Wire(RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Wire *other);
+	YS_NAME_FWD(ಕೂಡಿಸು_Wire)
 
-	RTLIL::Cell *addCell(RTLIL::IdString name, RTLIL::IdString type);
-	RTLIL::Cell *addCell(RTLIL::IdString name, const RTLIL::Cell *other);
-	YS_NAME_FWD(addCell)
-	template<typename T, YS_UNPOOLED_NAME(T)>
-	RTLIL::Cell *addCell(RTLIL::IdString name, T type) { return addCell(name, design->twines().add(std::move(type))); }
+	RTLIL::Cell *ಕೂಡಿಸು_Cell(RTLIL::IdString name, RTLIL::IdString type);
+	RTLIL::Cell *ಕೂಡಿಸು_Cell(RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Cell *other);
+	YS_NAME_FWD(ಕೂಡಿಸು_Cell)
+	ಮಾದರಿ<typename T, YS_UNPOOLED_NAME(T)>
+	RTLIL::Cell *ಕೂಡಿಸು_Cell(RTLIL::IdString name, T type) { ಹಿಂತಿರುಗಿ ಕೂಡಿಸು_Cell(name, design->twines().ಕೂಡಿಸು(std::move(type))); }
 
-	RTLIL::Memory *addMemory(RTLIL::IdString name);
-	YS_NAME_FWD(addMemory)
-	RTLIL::Memory *addMemory(RTLIL::IdString name, const RTLIL::Memory *other);
+	RTLIL::ಸ್ಮರಣೆ *ಕೂಡಿಸು_ಸ್ಮರಣೆ(RTLIL::IdString name);
+	YS_NAME_FWD(ಕೂಡಿಸು_ಸ್ಮರಣೆ)
+	RTLIL::ಸ್ಮರಣೆ *ಕೂಡಿಸು_ಸ್ಮರಣೆ(RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::ಸ್ಮರಣೆ *other);
 
-	RTLIL::Process *addProcess(RTLIL::IdString name);
-	YS_NAME_FWD(addProcess)
-	RTLIL::Process *addProcess(RTLIL::IdString name, const RTLIL::Process *other);
+	RTLIL::Process *ಕೂಡಿಸು_Process(RTLIL::IdString name);
+	YS_NAME_FWD(ಕೂಡಿಸು_Process)
+	RTLIL::Process *ಕೂಡಿಸು_Process(RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Process *other);
 
 	// The add* methods create a cell and return the created cell. All signals must exist in advance.
 
-	RTLIL::Cell* addNot     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addPos     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addBuf     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addBarrier (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addNeg     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Not     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Pos     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Buf     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Barrier (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Neg     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::Cell* addAnd  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addOr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addXor  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addXnor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_And  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Or   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Xor  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Xnor (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::Cell* addReduceAnd  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addReduceOr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addReduceXor  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addReduceXnor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addReduceBool (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Reduce_And  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Reduce_Or   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Reduce_Xor  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Reduce_Xnor (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Reduce_Bool (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::Cell* addShl    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addShr    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addSshl   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addSshr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addShift  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addShiftx (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Shl    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Shr    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Sshl   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Sshr   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_ಸರಿಸು  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Shiftx (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::Cell* addLt  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addLe  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addEq  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addNe  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addEqx (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addNex (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addGe  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addGt  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Lt  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Le  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Eq  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Ne  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Eqx (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Nex (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Ge  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Gt  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::Cell* addAdd (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addSub (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addMul (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_ಕೂಡಿಸು (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Sub (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Mul (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 	// truncating division
-	RTLIL::Cell* addDiv (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Div (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 	// truncating modulo
-	RTLIL::Cell* addMod (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addDivFloor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addModFloor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addPow (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool a_signed = false, bool b_signed = false, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Mod (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Div_Floor (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Mod_Floor (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Pow (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool a_signed = false, bool b_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::Cell* addFa (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_c, const RTLIL::SigSpec &sig_x, const RTLIL::SigSpec &sig_y, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Fa (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_c, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_x, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::Cell* addLogicNot (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addLogicAnd (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
-	RTLIL::Cell* addLogicOr  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, bool is_signed = false, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Logic_Not (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Logic_And (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Logic_Or  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::Cell* addMux  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addPmux (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addBmux (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addDemux (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Mux  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_s, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Pmux (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_s, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Bmux (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_s, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Demux (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_s, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::Cell* addBweqx  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addBwmux  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_y, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Bweqx  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Bwmux  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_s, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::Cell* addSlice  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, RTLIL::Const offset, const std::string &src = "");
-	RTLIL::Cell* addConcat (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addLut    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_y, RTLIL::Const lut, const std::string &src = "");
-	RTLIL::Cell* addTribuf (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAssert (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addAssume (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addLive   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addFair   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addCover  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_en, const std::string &src = "");
-	RTLIL::Cell* addEquiv  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_y, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_ತುಂಡು  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, RTLIL::Const ಸ್ಥಾನಾಂತರ, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Concat (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Lut    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, RTLIL::Const lut, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Tribuf (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Assert (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Assume (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_ಜೀವಂತ   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Fair   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Cover  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Equiv  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::Cell* addSr    (RTLIL::IdString name, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, const RTLIL::SigSpec &sig_q, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addFf    (RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src = "");
-	RTLIL::Cell* addDff   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_d,   const RTLIL::SigSpec &sig_q, bool clk_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffe  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en,  const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffsr (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffsre (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdff (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const arst_value, bool clk_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdffe (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst,  const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const arst_value, bool clk_polarity = true, bool en_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAldff (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool aload_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAldffe (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_aload,  const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool en_polarity = true, bool aload_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdff (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const srst_value, bool clk_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffe (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst,  const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const srst_value, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffce (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const srst_value, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDlatch (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdlatch (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, RTLIL::Const arst_value, bool en_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDlatchsr (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Sr    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_ಗಣ, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clr, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, bool ಗಣ_polarity = true, bool clr_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Ff    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Dff   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d,   ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, bool clk_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Dffe  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en,  ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Dffsr (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_ಗಣ, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool ಗಣ_polarity = true, bool clr_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Dffsre (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_ಗಣ, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, bool ಗಣ_polarity = true, bool clr_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Adff (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_arst, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, RTLIL::Const arst_ಮೌಲ್ಯ, bool clk_polarity = true, bool arst_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Adffe (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_arst,  ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, RTLIL::Const arst_ಮೌಲ್ಯ, bool clk_polarity = true, bool en_polarity = true, bool arst_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Aldff (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_aload, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool aload_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Aldffe (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_aload,  ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool en_polarity = true, bool aload_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Sdff (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_srst, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, RTLIL::Const srst_ಮೌಲ್ಯ, bool clk_polarity = true, bool srst_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Sdffe (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_srst,  ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, RTLIL::Const srst_ಮೌಲ್ಯ, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Sdffce (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_srst, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, RTLIL::Const srst_ಮೌಲ್ಯ, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Dlatch (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, bool en_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Adlatch (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_arst, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, RTLIL::Const arst_ಮೌಲ್ಯ, bool en_polarity = true, bool arst_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Dlatchsr (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_ಗಣ, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clr, RTLIL::SigSpec sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, bool en_polarity = true, bool ಗಣ_polarity = true, bool clr_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::Cell* addBufGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addNotGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAndGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addNandGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addOrGate     (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addNorGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addXorGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addXnorGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAndnotGate (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addOrnotGate  (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addMuxGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_s, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addNmuxGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_s, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAoi3Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addOai3Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addAoi4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const RTLIL::SigBit &sig_y, const std::string &src = "");
-	RTLIL::Cell* addOai4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const RTLIL::SigBit &sig_y, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Buf_Gate    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Not_Gate    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_And_Gate    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Nand_Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Or_Gate     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Nor_Gate    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Xor_Gate    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Xnor_Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Andnot_Gate (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Ornot_Gate  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Mux_Gate    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_s, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Nmux_Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_s, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Aoi3_Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_c, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Oai3_Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_c, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Aoi4_Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_c, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Oai4_Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_c, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::Cell* addSrGate     (RTLIL::IdString name, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-			const RTLIL::SigSpec &sig_q, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addFfGate     (RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src = "");
-	RTLIL::Cell* addDffGate    (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffeGate   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffsrGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-			RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDffsreGate (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-			RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdffGate   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool arst_value = false, bool clk_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdffeGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool arst_value = false, bool clk_polarity = true, bool en_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAldffGate   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			const RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool aload_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAldffeGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_aload, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			const RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool en_polarity = true, bool aload_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffGate   (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool srst_value = false, bool clk_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffeGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool srst_value = false, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addSdffceGate (RTLIL::IdString name, const RTLIL::SigSpec &sig_clk, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_srst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool srst_value = false, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDlatchGate (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addAdlatchGate(RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_arst, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q,
-			bool arst_value = false, bool en_polarity = true, bool arst_polarity = true, const std::string &src = "");
-	RTLIL::Cell* addDlatchsrGate  (RTLIL::IdString name, const RTLIL::SigSpec &sig_en, const RTLIL::SigSpec &sig_set, const RTLIL::SigSpec &sig_clr,
-			RTLIL::SigSpec sig_d, const RTLIL::SigSpec &sig_q, bool en_polarity = true, bool set_polarity = true, bool clr_polarity = true, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Sr_Gate     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_ಗಣ, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clr,
+			ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, bool ಗಣ_polarity = true, bool clr_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Ff_Gate     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Dff_Gate    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, bool clk_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Dffe_Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Dffsr_Gate  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_ಗಣ, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clr,
+			RTLIL::SigSpec sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool ಗಣ_polarity = true, bool clr_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Dffsre_Gate (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_ಗಣ, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clr,
+			RTLIL::SigSpec sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, bool clk_polarity = true, bool en_polarity = true, bool ಗಣ_polarity = true, bool clr_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Adff_Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_arst, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q,
+			bool arst_ಮೌಲ್ಯ = false, bool clk_polarity = true, bool arst_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Adffe_Gate  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_arst, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q,
+			bool arst_ಮೌಲ್ಯ = false, bool clk_polarity = true, bool en_polarity = true, bool arst_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Aldff_Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_aload, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q,
+			ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool aload_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Aldffe_Gate  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_aload, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q,
+			ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_ad, bool clk_polarity = true, bool en_polarity = true, bool aload_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Sdff_Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_srst, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q,
+			bool srst_ಮೌಲ್ಯ = false, bool clk_polarity = true, bool srst_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Sdffe_Gate  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_srst, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q,
+			bool srst_ಮೌಲ್ಯ = false, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Sdffce_Gate (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clk, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_srst, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q,
+			bool srst_ಮೌಲ್ಯ = false, bool clk_polarity = true, bool en_polarity = true, bool srst_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Dlatch_Gate (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, bool en_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Adlatch_Gate(RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_arst, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q,
+			bool arst_ಮೌಲ್ಯ = false, bool en_polarity = true, bool arst_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Dlatchsr_Gate  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_en, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_ಗಣ, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_clr,
+			RTLIL::SigSpec sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, bool en_polarity = true, bool ಗಣ_polarity = true, bool clr_polarity = true, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::Cell* addAnyinit(RTLIL::IdString name, const RTLIL::SigSpec &sig_d, const RTLIL::SigSpec &sig_q, const std::string &src = "");
+	RTLIL::Cell* ಕೂಡಿಸು_Anyinit(RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_d, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_q, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
 	// The methods without the add* prefix create a cell and an output signal. They return the newly created output signal.
 
-	RTLIL::SigSpec Not     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Pos     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Buf     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Barrier (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Neg     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Not     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Pos     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Buf     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Barrier (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Neg     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::SigSpec And  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Or   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Xor  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Xnor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec And  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Or   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Xor  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Xnor (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::SigSpec ReduceAnd  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ReduceOr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ReduceXor  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ReduceXnor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ReduceBool (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec ReduceAnd  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec ReduceOr   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec ReduceXor  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec ReduceXnor (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec ReduceBool (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::SigSpec Shl    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Shr    (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Sshl   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Sshr   (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Shift  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Shiftx (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Shl    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Shr    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Sshl   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Sshr   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec ಸರಿಸು_2  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Shiftx (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::SigSpec Lt  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Le  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Eq  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Ne  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Eqx (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Nex (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Ge  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Gt  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Lt  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Le  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Eq  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Ne  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Eqx (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Nex (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Ge  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Gt  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::SigSpec Add (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Sub (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Mul (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec ಕೂಡಿಸು_2 (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Sub (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Mul (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 	// truncating division
-	RTLIL::SigSpec Div (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Div (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 	// truncating modulo
-	RTLIL::SigSpec Mod (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec DivFloor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec ModFloor (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec Pow (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool a_signed = false, bool b_signed = false, const std::string &src = "");
+	RTLIL::SigSpec Mod (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec DivFloor (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec ModFloor (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Pow (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool a_signed = false, bool b_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::SigSpec LogicNot (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec LogicAnd (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
-	RTLIL::SigSpec LogicOr  (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, bool is_signed = false, const std::string &src = "");
+	RTLIL::SigSpec LogicNot (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec LogicAnd (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec LogicOr  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, bool is_signed = false, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::SigSpec Mux      (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const std::string &src = "");
-	RTLIL::SigSpec Pmux     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const std::string &src = "");
-	RTLIL::SigSpec Bmux     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const std::string &src = "");
-	RTLIL::SigSpec Demux     (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const std::string &src = "");
+	RTLIL::SigSpec Mux      (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_s, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Pmux     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_s, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Bmux     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_s, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Demux     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_s, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::SigSpec Bweqx      (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const std::string &src = "");
-	RTLIL::SigSpec Bwmux      (RTLIL::IdString name, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_b, const RTLIL::SigSpec &sig_s, const std::string &src = "");
+	RTLIL::SigSpec Bweqx      (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Bwmux      (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_s, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::SigBit BufGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const std::string &src = "");
-	RTLIL::SigBit NotGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const std::string &src = "");
-	RTLIL::SigBit AndGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit NandGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit OrGate     (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit NorGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit XorGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit XnorGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit AndnotGate (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit OrnotGate  (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const std::string &src = "");
-	RTLIL::SigBit MuxGate    (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_s, const std::string &src = "");
-	RTLIL::SigBit NmuxGate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_s, const std::string &src = "");
-	RTLIL::SigBit Aoi3Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const std::string &src = "");
-	RTLIL::SigBit Oai3Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const std::string &src = "");
-	RTLIL::SigBit Aoi4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const std::string &src = "");
-	RTLIL::SigBit Oai4Gate   (RTLIL::IdString name, const RTLIL::SigBit &sig_a, const RTLIL::SigBit &sig_b, const RTLIL::SigBit &sig_c, const RTLIL::SigBit &sig_d, const std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ BufGate    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ NotGate    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ AndGate    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ NandGate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ OrGate     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ NorGate    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ XorGate    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ XnorGate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ AndnotGate (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ OrnotGate  (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ MuxGate    (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_s, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ NmuxGate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_s, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ Aoi3Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_c, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ Oai3Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_c, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ Aoi4Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_c, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_d, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Sig_ಬಿಟ್ Oai4Gate   (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_b, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_c, ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &sig_d, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::SigSpec Anyconst  (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Anyseq    (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Allconst  (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Allseq    (RTLIL::IdString name, int width = 1, const std::string &src = "");
-	RTLIL::SigSpec Initstate (RTLIL::IdString name, const std::string &src = "");
+	RTLIL::SigSpec Anyconst  (RTLIL::IdString name, ಪೂರ್ಣಾಂಕ ಅಗಲ = 1, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Anyseq    (RTLIL::IdString name, ಪೂರ್ಣಾಂಕ ಅಗಲ = 1, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Allconst  (RTLIL::IdString name, ಪೂರ್ಣಾಂಕ ಅಗಲ = 1, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Allseq    (RTLIL::IdString name, ಪೂರ್ಣಾಂಕ ಅಗಲ = 1, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Initstate (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ std::string &src = "");
 
-	RTLIL::SigSpec SetTag          (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src = "");
-	RTLIL::Cell*   addSetTag       (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const RTLIL::SigSpec &sig_y, const std::string &src = "");
-	RTLIL::SigSpec GetTag          (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const std::string &src = "");
-	RTLIL::Cell*   addOverwriteTag (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const RTLIL::SigSpec &sig_s, const RTLIL::SigSpec &sig_c, const std::string &src = "");
-	RTLIL::SigSpec OriginalTag     (RTLIL::IdString name, const std::string &tag, const RTLIL::SigSpec &sig_a, const std::string &src = "");
-	RTLIL::SigSpec FutureFF        (RTLIL::IdString name, const RTLIL::SigSpec &sig_e, const std::string &src = "");
-	YS_NAME_FWD(addAnyinit)
+	RTLIL::SigSpec ಗಣ_ಟ್ಯಾಗ್_2          (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ std::string &ಟ್ಯಾಗ್, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_s, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_c, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell*   ಕೂಡಿಸು_ಗಣ_ಟ್ಯಾಗ್       (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ std::string &ಟ್ಯಾಗ್, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_s, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_c, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_y, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Get_ಟ್ಯಾಗ್          (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ std::string &ಟ್ಯಾಗ್, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::Cell*   ಕೂಡಿಸು_Overwrite_ಟ್ಯಾಗ್ (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ std::string &ಟ್ಯಾಗ್, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_s, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_c, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec Original_ಟ್ಯಾಗ್     (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ std::string &ಟ್ಯಾಗ್, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_a, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	RTLIL::SigSpec FutureFF        (RTLIL::IdString name, ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig_e, ಸ್ಥಿರಾಂಕ std::string &src = "");
+	YS_NAME_FWD(ಕೂಡಿಸು_Anyinit)
 	YS_NAME_FWD(Anyconst) YS_NAME_FWD(Anyseq) YS_NAME_FWD(Allconst) YS_NAME_FWD(Allseq)
 	YS_NAME_FWD(Initstate)
-	YS_NAME_FWD(SetTag) YS_NAME_FWD(addSetTag) YS_NAME_FWD(GetTag)
-	YS_NAME_FWD(addOverwriteTag) YS_NAME_FWD(OriginalTag) YS_NAME_FWD(FutureFF)
-	YS_NAME_FWD(addNot) YS_NAME_FWD(addPos) YS_NAME_FWD(addBuf) YS_NAME_FWD(addBarrier) YS_NAME_FWD(addNeg)
-	YS_NAME_FWD(addAnd) YS_NAME_FWD(addOr) YS_NAME_FWD(addXor) YS_NAME_FWD(addXnor)
-	YS_NAME_FWD(addReduceAnd) YS_NAME_FWD(addReduceOr) YS_NAME_FWD(addReduceXor) YS_NAME_FWD(addReduceXnor)
-	YS_NAME_FWD(addReduceBool) YS_NAME_FWD(addShl) YS_NAME_FWD(addShr) YS_NAME_FWD(addSshl)
-	YS_NAME_FWD(addSshr) YS_NAME_FWD(addShift) YS_NAME_FWD(addShiftx) YS_NAME_FWD(addLt)
-	YS_NAME_FWD(addLe) YS_NAME_FWD(addEq) YS_NAME_FWD(addNe) YS_NAME_FWD(addEqx)
-	YS_NAME_FWD(addNex) YS_NAME_FWD(addGe) YS_NAME_FWD(addGt) YS_NAME_FWD(addAdd)
-	YS_NAME_FWD(addSub) YS_NAME_FWD(addMul) YS_NAME_FWD(addDiv) YS_NAME_FWD(addMod)
-	YS_NAME_FWD(addDivFloor) YS_NAME_FWD(addModFloor) YS_NAME_FWD(addPow) YS_NAME_FWD(addFa)
-	YS_NAME_FWD(addLogicNot) YS_NAME_FWD(addLogicAnd) YS_NAME_FWD(addLogicOr) YS_NAME_FWD(addMux)
-	YS_NAME_FWD(addPmux) YS_NAME_FWD(addBmux) YS_NAME_FWD(addDemux) YS_NAME_FWD(addBweqx)
-	YS_NAME_FWD(addBwmux) YS_NAME_FWD(addSlice) YS_NAME_FWD(addConcat) YS_NAME_FWD(addLut)
-	YS_NAME_FWD(addTribuf) YS_NAME_FWD(addAssert) YS_NAME_FWD(addAssume) YS_NAME_FWD(addLive)
-	YS_NAME_FWD(addFair) YS_NAME_FWD(addCover) YS_NAME_FWD(addEquiv) YS_NAME_FWD(addSr)
-	YS_NAME_FWD(addFf) YS_NAME_FWD(addDff) YS_NAME_FWD(addDffe) YS_NAME_FWD(addDffsr)
-	YS_NAME_FWD(addDffsre) YS_NAME_FWD(addAdff) YS_NAME_FWD(addAdffe) YS_NAME_FWD(addAldff)
-	YS_NAME_FWD(addAldffe) YS_NAME_FWD(addSdff) YS_NAME_FWD(addSdffe) YS_NAME_FWD(addSdffce)
-	YS_NAME_FWD(addDlatch) YS_NAME_FWD(addAdlatch) YS_NAME_FWD(addDlatchsr) YS_NAME_FWD(addBufGate)
-	YS_NAME_FWD(addNotGate) YS_NAME_FWD(addAndGate) YS_NAME_FWD(addNandGate) YS_NAME_FWD(addOrGate)
-	YS_NAME_FWD(addNorGate) YS_NAME_FWD(addXorGate) YS_NAME_FWD(addXnorGate) YS_NAME_FWD(addAndnotGate)
-	YS_NAME_FWD(addOrnotGate) YS_NAME_FWD(addMuxGate) YS_NAME_FWD(addNmuxGate) YS_NAME_FWD(addAoi3Gate)
-	YS_NAME_FWD(addOai3Gate) YS_NAME_FWD(addAoi4Gate) YS_NAME_FWD(addOai4Gate) YS_NAME_FWD(addSrGate)
-	YS_NAME_FWD(addFfGate) YS_NAME_FWD(addDffGate) YS_NAME_FWD(addDffeGate) YS_NAME_FWD(addDffsrGate)
-	YS_NAME_FWD(addDffsreGate) YS_NAME_FWD(addAdffGate) YS_NAME_FWD(addAdffeGate) YS_NAME_FWD(addAldffGate)
-	YS_NAME_FWD(addAldffeGate) YS_NAME_FWD(addSdffGate) YS_NAME_FWD(addSdffeGate) YS_NAME_FWD(addSdffceGate)
-	YS_NAME_FWD(addDlatchGate) YS_NAME_FWD(addAdlatchGate) YS_NAME_FWD(addDlatchsrGate) YS_NAME_FWD(Not)
+	YS_NAME_FWD(ಗಣ_ಟ್ಯಾಗ್_2) YS_NAME_FWD(ಕೂಡಿಸು_ಗಣ_ಟ್ಯಾಗ್) YS_NAME_FWD(Get_ಟ್ಯಾಗ್)
+	YS_NAME_FWD(ಕೂಡಿಸು_Overwrite_ಟ್ಯಾಗ್) YS_NAME_FWD(Original_ಟ್ಯಾಗ್) YS_NAME_FWD(FutureFF)
+	YS_NAME_FWD(ಕೂಡಿಸು_Not) YS_NAME_FWD(ಕೂಡಿಸು_Pos) YS_NAME_FWD(ಕೂಡಿಸು_Buf) YS_NAME_FWD(ಕೂಡಿಸು_Barrier) YS_NAME_FWD(ಕೂಡಿಸು_Neg)
+	YS_NAME_FWD(ಕೂಡಿಸು_And) YS_NAME_FWD(ಕೂಡಿಸು_Or) YS_NAME_FWD(ಕೂಡಿಸು_Xor) YS_NAME_FWD(ಕೂಡಿಸು_Xnor)
+	YS_NAME_FWD(ಕೂಡಿಸು_Reduce_And) YS_NAME_FWD(ಕೂಡಿಸು_Reduce_Or) YS_NAME_FWD(ಕೂಡಿಸು_Reduce_Xor) YS_NAME_FWD(ಕೂಡಿಸು_Reduce_Xnor)
+	YS_NAME_FWD(ಕೂಡಿಸು_Reduce_Bool) YS_NAME_FWD(ಕೂಡಿಸು_Shl) YS_NAME_FWD(ಕೂಡಿಸು_Shr) YS_NAME_FWD(ಕೂಡಿಸು_Sshl)
+	YS_NAME_FWD(ಕೂಡಿಸು_Sshr) YS_NAME_FWD(ಕೂಡಿಸು_ಸರಿಸು) YS_NAME_FWD(ಕೂಡಿಸು_Shiftx) YS_NAME_FWD(ಕೂಡಿಸು_Lt)
+	YS_NAME_FWD(ಕೂಡಿಸು_Le) YS_NAME_FWD(ಕೂಡಿಸು_Eq) YS_NAME_FWD(ಕೂಡಿಸು_Ne) YS_NAME_FWD(ಕೂಡಿಸು_Eqx)
+	YS_NAME_FWD(ಕೂಡಿಸು_Nex) YS_NAME_FWD(ಕೂಡಿಸು_Ge) YS_NAME_FWD(ಕೂಡಿಸು_Gt) YS_NAME_FWD(ಕೂಡಿಸು_ಕೂಡಿಸು)
+	YS_NAME_FWD(ಕೂಡಿಸು_Sub) YS_NAME_FWD(ಕೂಡಿಸು_Mul) YS_NAME_FWD(ಕೂಡಿಸು_Div) YS_NAME_FWD(ಕೂಡಿಸು_Mod)
+	YS_NAME_FWD(ಕೂಡಿಸು_Div_Floor) YS_NAME_FWD(ಕೂಡಿಸು_Mod_Floor) YS_NAME_FWD(ಕೂಡಿಸು_Pow) YS_NAME_FWD(ಕೂಡಿಸು_Fa)
+	YS_NAME_FWD(ಕೂಡಿಸು_Logic_Not) YS_NAME_FWD(ಕೂಡಿಸು_Logic_And) YS_NAME_FWD(ಕೂಡಿಸು_Logic_Or) YS_NAME_FWD(ಕೂಡಿಸು_Mux)
+	YS_NAME_FWD(ಕೂಡಿಸು_Pmux) YS_NAME_FWD(ಕೂಡಿಸು_Bmux) YS_NAME_FWD(ಕೂಡಿಸು_Demux) YS_NAME_FWD(ಕೂಡಿಸು_Bweqx)
+	YS_NAME_FWD(ಕೂಡಿಸು_Bwmux) YS_NAME_FWD(ಕೂಡಿಸು_ತುಂಡು) YS_NAME_FWD(ಕೂಡಿಸು_Concat) YS_NAME_FWD(ಕೂಡಿಸು_Lut)
+	YS_NAME_FWD(ಕೂಡಿಸು_Tribuf) YS_NAME_FWD(ಕೂಡಿಸು_Assert) YS_NAME_FWD(ಕೂಡಿಸು_Assume) YS_NAME_FWD(ಕೂಡಿಸು_ಜೀವಂತ)
+	YS_NAME_FWD(ಕೂಡಿಸು_Fair) YS_NAME_FWD(ಕೂಡಿಸು_Cover) YS_NAME_FWD(ಕೂಡಿಸು_Equiv) YS_NAME_FWD(ಕೂಡಿಸು_Sr)
+	YS_NAME_FWD(ಕೂಡಿಸು_Ff) YS_NAME_FWD(ಕೂಡಿಸು_Dff) YS_NAME_FWD(ಕೂಡಿಸು_Dffe) YS_NAME_FWD(ಕೂಡಿಸು_Dffsr)
+	YS_NAME_FWD(ಕೂಡಿಸು_Dffsre) YS_NAME_FWD(ಕೂಡಿಸು_Adff) YS_NAME_FWD(ಕೂಡಿಸು_Adffe) YS_NAME_FWD(ಕೂಡಿಸು_Aldff)
+	YS_NAME_FWD(ಕೂಡಿಸು_Aldffe) YS_NAME_FWD(ಕೂಡಿಸು_Sdff) YS_NAME_FWD(ಕೂಡಿಸು_Sdffe) YS_NAME_FWD(ಕೂಡಿಸು_Sdffce)
+	YS_NAME_FWD(ಕೂಡಿಸು_Dlatch) YS_NAME_FWD(ಕೂಡಿಸು_Adlatch) YS_NAME_FWD(ಕೂಡಿಸು_Dlatchsr) YS_NAME_FWD(ಕೂಡಿಸು_Buf_Gate)
+	YS_NAME_FWD(ಕೂಡಿಸು_Not_Gate) YS_NAME_FWD(ಕೂಡಿಸು_And_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Nand_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Or_Gate)
+	YS_NAME_FWD(ಕೂಡಿಸು_Nor_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Xor_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Xnor_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Andnot_Gate)
+	YS_NAME_FWD(ಕೂಡಿಸು_Ornot_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Mux_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Nmux_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Aoi3_Gate)
+	YS_NAME_FWD(ಕೂಡಿಸು_Oai3_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Aoi4_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Oai4_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Sr_Gate)
+	YS_NAME_FWD(ಕೂಡಿಸು_Ff_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Dff_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Dffe_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Dffsr_Gate)
+	YS_NAME_FWD(ಕೂಡಿಸು_Dffsre_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Adff_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Adffe_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Aldff_Gate)
+	YS_NAME_FWD(ಕೂಡಿಸು_Aldffe_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Sdff_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Sdffe_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Sdffce_Gate)
+	YS_NAME_FWD(ಕೂಡಿಸು_Dlatch_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Adlatch_Gate) YS_NAME_FWD(ಕೂಡಿಸು_Dlatchsr_Gate) YS_NAME_FWD(Not)
 	YS_NAME_FWD(Pos) YS_NAME_FWD(Buf) YS_NAME_FWD(Barrier) YS_NAME_FWD(Neg) YS_NAME_FWD(And)
 	YS_NAME_FWD(Or) YS_NAME_FWD(Xor) YS_NAME_FWD(Xnor) YS_NAME_FWD(ReduceAnd)
 	YS_NAME_FWD(ReduceOr) YS_NAME_FWD(ReduceXor) YS_NAME_FWD(ReduceXnor) YS_NAME_FWD(ReduceBool)
 	YS_NAME_FWD(Shl) YS_NAME_FWD(Shr) YS_NAME_FWD(Sshl) YS_NAME_FWD(Sshr)
-	YS_NAME_FWD(Shift) YS_NAME_FWD(Shiftx) YS_NAME_FWD(Lt) YS_NAME_FWD(Le)
+	YS_NAME_FWD(ಸರಿಸು_2) YS_NAME_FWD(Shiftx) YS_NAME_FWD(Lt) YS_NAME_FWD(Le)
 	YS_NAME_FWD(Eq) YS_NAME_FWD(Ne) YS_NAME_FWD(Eqx) YS_NAME_FWD(Nex)
-	YS_NAME_FWD(Ge) YS_NAME_FWD(Gt) YS_NAME_FWD(Add) YS_NAME_FWD(Sub)
+	YS_NAME_FWD(Ge) YS_NAME_FWD(Gt) YS_NAME_FWD(ಕೂಡಿಸು_2) YS_NAME_FWD(Sub)
 	YS_NAME_FWD(Mul) YS_NAME_FWD(Div) YS_NAME_FWD(Mod) YS_NAME_FWD(DivFloor)
 	YS_NAME_FWD(ModFloor) YS_NAME_FWD(Pow) YS_NAME_FWD(LogicNot) YS_NAME_FWD(LogicAnd)
 	YS_NAME_FWD(LogicOr) YS_NAME_FWD(Mux) YS_NAME_FWD(Pmux) YS_NAME_FWD(Bmux)
@@ -1930,436 +1930,436 @@ public:
 	YS_NAME_FWD(OrnotGate) YS_NAME_FWD(MuxGate) YS_NAME_FWD(NmuxGate) YS_NAME_FWD(Aoi3Gate)
 	YS_NAME_FWD(Oai3Gate) YS_NAME_FWD(Aoi4Gate) YS_NAME_FWD(Oai4Gate)
 
-	std::string to_rtlil_str() const;
-#ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Module*> *get_all_modules(void);
-#endif
+	std::string ಗಮ್ಯ_rtlil_str() ಸ್ಥಿರಾಂಕ;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ YOSYS_ENABLE_PYTHON
+	ಸ್ಥಿರ std::map<ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ, RTLIL::Module*> *get_all_modules(ಶೂನ್ಯ);
+#ಆದರೆ_ಅಂತ್ಯ
 };
 
-struct RTLIL::Wire : public RTLIL::AttrObject
+ರಚನೆ RTLIL::Wire : ಸಾರ್ವಜನಿಕ RTLIL::AttrObject
 {
 	RTLIL::WireNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ಸ್ಥಿರಾಂಕ { h.eat(hashidx_); ಹಿಂತಿರುಗಿ h; }
 
-protected:
+ಸಂರಕ್ಷಿತ:
 	// use module->addWire() and module->remove() to create or destroy wires
-	friend struct RTLIL::Module;
+	ಮಿತ್ರ ರಚನೆ RTLIL::Module;
 	Wire();
 	~Wire();
 
-	friend struct RTLIL::Design;
-	friend struct RTLIL::Cell;
+	ಮಿತ್ರ ರಚನೆ RTLIL::Design;
+	ಮಿತ್ರ ರಚನೆ RTLIL::Cell;
 	RTLIL::Cell *driverCell_ = nullptr;
-	RTLIL::IdString driverPort_;
+	RTLIL::IdString driver_ಪೋರ್ಟ್_2;
 
-public:
+ಸಾರ್ವಜನಿಕ:
 	// do not simply copy wires
 	Wire(RTLIL::Wire &other) = delete;
-	void operator=(RTLIL::Wire &other) = delete;
+	ಶೂನ್ಯ ಕ್ರಿಯಾಕಾರಕ=(RTLIL::Wire &other) = delete;
 
 	RTLIL::Module *module;
-	int width, start_offset, port_id;
-	bool port_input, port_output, upto, is_signed;
+	ಪೂರ್ಣಾಂಕ ಅಗಲ, ಆರಂಭ_ಸ್ಥಾನಾಂತರ, ಪೋರ್ಟ್_id;
+	bool ಪೋರ್ಟ್_ಒಳಹರಿವು, ಪೋರ್ಟ್_output, upto, is_signed;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ module ? module->design : nullptr; }
+	TwinePool &twines() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ module->twines(); }
 
-	bool known_driver() const { return driverCell_ != nullptr; }
+	bool ತಿಳಿದ_driver() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ driverCell_ != nullptr; }
 
-	RTLIL::Cell *driverCell() const    { log_assert(driverCell_); return driverCell_; };
-	RTLIL::IdString driverPort() const { log_assert(driverCell_); return driverPort_; };
+	RTLIL::Cell *driverCell() ಸ್ಥಿರಾಂಕ    { log_assert(driverCell_); ಹಿಂತಿರುಗಿ driverCell_; };
+	RTLIL::IdString driver_ಪೋರ್ಟ್() ಸ್ಥಿರಾಂಕ { log_assert(driverCell_); ಹಿಂತಿರುಗಿ driver_ಪೋರ್ಟ್_2; };
 
-	int from_hdl_index(int hdl_index) {
-		int zero_index = hdl_index - start_offset;
-		int rtlil_index = upto ? width - 1 - zero_index : zero_index;
-		return rtlil_index >= 0 && rtlil_index < width ? rtlil_index : INT_MIN;
+	ಪೂರ್ಣಾಂಕ from_hdl_ಸೂಚ್ಯಂಕ(ಪೂರ್ಣಾಂಕ hdl_ಸೂಚ್ಯಂಕ) {
+		ಪೂರ್ಣಾಂಕ zero_ಸೂಚ್ಯಂಕ = hdl_ಸೂಚ್ಯಂಕ - ಆರಂಭ_ಸ್ಥಾನಾಂತರ;
+		ಪೂರ್ಣಾಂಕ rtlil_ಸೂಚ್ಯಂಕ = upto ? ಅಗಲ - 1 - zero_ಸೂಚ್ಯಂಕ : zero_ಸೂಚ್ಯಂಕ;
+		ಹಿಂತಿರುಗಿ rtlil_ಸೂಚ್ಯಂಕ >= 0 && rtlil_ಸೂಚ್ಯಂಕ < ಅಗಲ ? rtlil_ಸೂಚ್ಯಂಕ : INT_MIN;
 	}
 
-	int to_hdl_index(int rtlil_index) {
-		if (rtlil_index < 0 || rtlil_index >= width)
-			return INT_MIN;
-		int zero_index = upto ? width - 1 - rtlil_index : rtlil_index;
-		return zero_index + start_offset;
+	ಪೂರ್ಣಾಂಕ ಗಮ್ಯ_hdl_ಸೂಚ್ಯಂಕ(ಪೂರ್ಣಾಂಕ rtlil_ಸೂಚ್ಯಂಕ) {
+		ಆದರೆ (rtlil_ಸೂಚ್ಯಂಕ < 0 || rtlil_ಸೂಚ್ಯಂಕ >= ಅಗಲ)
+			ಹಿಂತಿರುಗಿ INT_MIN;
+		ಪೂರ್ಣಾಂಕ zero_ಸೂಚ್ಯಂಕ = upto ? ಅಗಲ - 1 - rtlil_ಸೂಚ್ಯಂಕ : rtlil_ಸೂಚ್ಯಂಕ;
+		ಹಿಂತಿರುಗಿ zero_ಸೂಚ್ಯಂಕ + ಆರಂಭ_ಸ್ಥಾನಾಂತರ;
 	}
 
-	std::string to_rtlil_str() const;
+	std::string ಗಮ್ಯ_rtlil_str() ಸ್ಥಿರಾಂಕ;
 
-#ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Wire*> *get_all_wires(void);
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ YOSYS_ENABLE_PYTHON
+	ಸ್ಥಿರ std::map<ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ, RTLIL::Wire*> *get_all_wires(ಶೂನ್ಯ);
+#ಆದರೆ_ಅಂತ್ಯ
 };
 
-inline int GetSize(RTLIL::Wire *wire) {
-	return wire->width;
+ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ Get_ಗಾತ್ರ(RTLIL::Wire *wire) {
+	ಹಿಂತಿರುಗಿ wire->ಅಗಲ;
 }
 
-struct RTLIL::Memory : public RTLIL::AttrObject
+ರಚನೆ RTLIL::ಸ್ಮರಣೆ : ಸಾರ್ವಜನಿಕ RTLIL::AttrObject
 {
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ಸ್ಥಿರಾಂಕ { h.eat(hashidx_); ಹಿಂತಿರುಗಿ h; }
 
-	Memory();
-	~Memory();
+	ಸ್ಮರಣೆ();
+	~ಸ್ಮರಣೆ();
 
 	RTLIL::Module *module = nullptr;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ module ? module->design : nullptr; }
+	TwinePool &twines() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ module->twines(); }
 
-	RTLIL::MemoryNameId name;
+	RTLIL::ಸ್ಮರಣೆ_Name_Id name;
 
-	int width, start_offset, size;
-#ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Memory*> *get_all_memorys(void);
-#endif
+	ಪೂರ್ಣಾಂಕ ಅಗಲ, ಆರಂಭ_ಸ್ಥಾನಾಂತರ, ಗಾತ್ರ_2;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ YOSYS_ENABLE_PYTHON
+	ಸ್ಥಿರ std::map<ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ, RTLIL::ಸ್ಮರಣೆ*> *get_all_memorys(ಶೂನ್ಯ);
+#ಆದರೆ_ಅಂತ್ಯ
 
-	std::string to_rtlil_str() const;
+	std::string ಗಮ್ಯ_rtlil_str() ಸ್ಥಿರಾಂಕ;
 };
 
-struct RTLIL::Cell : public RTLIL::AttrObject
+ರಚನೆ RTLIL::Cell : ಸಾರ್ವಜನಿಕ RTLIL::AttrObject
 {
-private:
-	void initIndex();
+ಖಾಸಗಿ:
+	ಶೂನ್ಯ init_ಸೂಚ್ಯಂಕ();
 
-	bool bufnorm_handle_setPort(IdString portname, RTLIL::SigSpec &signal, dict<IdString, RTLIL::SigSpec>::iterator conn_it);
-public:
+	bool bufnorm_handle_ಗಣ_ಪೋರ್ಟ್(IdString portname, RTLIL::SigSpec &ಸಂಕೇತ, dict<IdString, RTLIL::SigSpec>::iterator conn_it);
+ಸಾರ್ವಜನಿಕ:
 	RTLIL::CellNameId name;
 
 	Hasher::hash_t hashidx_;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ಸ್ಥಿರಾಂಕ { h.eat(hashidx_); ಹಿಂತಿರುಗಿ h; }
 
-protected:
+ಸಂರಕ್ಷಿತ:
 	// use module->addCell() and module->remove() to create or destroy cells
-	friend struct RTLIL::Module;
+	ಮಿತ್ರ ರಚನೆ RTLIL::Module;
 	Cell();
 	~Cell();
 
-public:
+ಸಾರ್ವಜನಿಕ:
 	// do not simply copy cells
 	Cell(RTLIL::Cell &other) = delete;
-	void operator=(RTLIL::Cell &other) = delete;
+	ಶೂನ್ಯ ಕ್ರಿಯಾಕಾರಕ=(RTLIL::Cell &other) = delete;
 
 	RTLIL::Module *module;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ module ? module->design : nullptr; }
+	TwinePool &twines() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ module->twines(); }
 
 	RTLIL::CellTypeId type;
 	dict<RTLIL::IdString, RTLIL::SigSpec> connections_;
 	dict<RTLIL::IdString, RTLIL::Const> parameters;
 
 	// access cell ports
-	bool hasPort(RTLIL::IdString portname) const;
-	void unsetPort(RTLIL::IdString portname);
-	void setPort(RTLIL::IdString portname, RTLIL::SigSpec signal);
-	template<typename N, YS_NAME_STRING(N)> void setPort(N portname, RTLIL::SigSpec signal)
-		{ setPort(module->twines().add(std::move(portname)), std::move(signal)); }
-	const RTLIL::SigSpec &getPort(RTLIL::IdString portname) const;
-	const dict<RTLIL::IdString, RTLIL::SigSpec> &connections() const;
+	bool has_ಪೋರ್ಟ್(RTLIL::IdString portname) ಸ್ಥಿರಾಂಕ;
+	ಶೂನ್ಯ unset_ಪೋರ್ಟ್(RTLIL::IdString portname);
+	ಶೂನ್ಯ ಗಣ_ಪೋರ್ಟ್(RTLIL::IdString portname, RTLIL::SigSpec ಸಂಕೇತ);
+	ಮಾದರಿ<typename N, YS_NAME_STRING(N)> ಶೂನ್ಯ ಗಣ_ಪೋರ್ಟ್(N portname, RTLIL::SigSpec ಸಂಕೇತ)
+		{ ಗಣ_ಪೋರ್ಟ್(module->twines().ಕೂಡಿಸು(std::move(portname)), std::move(ಸಂಕೇತ)); }
+	ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &get_ಪೋರ್ಟ್(RTLIL::IdString portname) ಸ್ಥಿರಾಂಕ;
+	ಸ್ಥಿರಾಂಕ dict<RTLIL::IdString, RTLIL::SigSpec> &connections() ಸ್ಥಿರಾಂಕ;
 
-	bool known() const;
-	bool input(RTLIL::IdString portname) const;
-	bool output(RTLIL::IdString portname) const;
-	PortDir port_dir(RTLIL::IdString portname) const;
+	bool ತಿಳಿದ() ಸ್ಥಿರಾಂಕ;
+	bool ಒಳಹರಿವು(RTLIL::IdString portname) ಸ್ಥಿರಾಂಕ;
+	bool output(RTLIL::IdString portname) ಸ್ಥಿರಾಂಕ;
+	ಪೋರ್ಟ್_Dir ಪೋರ್ಟ್_dir(RTLIL::IdString portname) ಸ್ಥಿರಾಂಕ;
 
-	bool hasParam(RTLIL::IdString paramname) const;
-	void unsetParam(RTLIL::IdString paramname);
-	void setParam(RTLIL::IdString paramname, RTLIL::Const value);
-	const RTLIL::Const &getParam(RTLIL::IdString paramname) const;
+	bool hasParam(RTLIL::IdString paramname) ಸ್ಥಿರಾಂಕ;
+	ಶೂನ್ಯ unsetParam(RTLIL::IdString paramname);
+	ಶೂನ್ಯ ಗಣ_Param(RTLIL::IdString paramname, RTLIL::Const ಮೌಲ್ಯ);
+	ಸ್ಥಿರಾಂಕ RTLIL::Const &getParam(RTLIL::IdString paramname) ಸ್ಥಿರಾಂಕ;
 
-	template<typename N, YS_NAME_STRING(N)> bool hasParam(N name) const
-		{ return hasParam(module->twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> void unsetParam(N name)
-		{ unsetParam(module->twines().find(std::string_view(name))); }
-	template<typename N, YS_NAME_STRING(N)> void setParam(N name, RTLIL::Const value)
-		{ setParam(module->twines().add(std::move(name)), std::move(value)); }
-	template<typename N, YS_NAME_STRING(N)> const RTLIL::Const &getParam(N name) const
-		{ return getParam(module->twines().find(std::string_view(name))); }
+	ಮಾದರಿ<typename N, YS_NAME_STRING(N)> bool hasParam(N name) ಸ್ಥಿರಾಂಕ
+		{ ಹಿಂತಿರುಗಿ hasParam(module->twines().ಕಂಡುಹಿಡಿ(std::string_view(name))); }
+	ಮಾದರಿ<typename N, YS_NAME_STRING(N)> ಶೂನ್ಯ unsetParam(N name)
+		{ unsetParam(module->twines().ಕಂಡುಹಿಡಿ(std::string_view(name))); }
+	ಮಾದರಿ<typename N, YS_NAME_STRING(N)> ಶೂನ್ಯ ಗಣ_Param(N name, RTLIL::Const ಮೌಲ್ಯ)
+		{ ಗಣ_Param(module->twines().ಕೂಡಿಸು(std::move(name)), std::move(ಮೌಲ್ಯ)); }
+	ಮಾದರಿ<typename N, YS_NAME_STRING(N)> ಸ್ಥಿರಾಂಕ RTLIL::Const &getParam(N name) ಸ್ಥಿರಾಂಕ
+		{ ಹಿಂತಿರುಗಿ getParam(module->twines().ಕಂಡುಹಿಡಿ(std::string_view(name))); }
 
-	void sort();
-	void check();
-	void fixup_parameters(bool set_a_signed = false, bool set_b_signed = false);
+	ಶೂನ್ಯ ವಿಂಗಡಿಸು();
+	ಶೂನ್ಯ check();
+	ಶೂನ್ಯ fixup_parameters(bool ಗಣ_a_signed = false, bool ಗಣ_b_signed = false);
 
-	bool has_keep_attr() const;
+	bool has_keep_attr() ಸ್ಥಿರಾಂಕ;
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
+	ಮಾದರಿ<typename T> ಶೂನ್ಯ rewrite_sigspecs(T &functor);
+	ಮಾದರಿ<typename T> ಶೂನ್ಯ rewrite_sigspecs2(T &functor);
 
-#ifdef YOSYS_ENABLE_PYTHON
-	static std::map<unsigned int, RTLIL::Cell*> *get_all_cells(void);
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ YOSYS_ENABLE_PYTHON
+	ಸ್ಥಿರ std::map<ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ, RTLIL::Cell*> *get_all_cells(ಶೂನ್ಯ);
+#ಆದರೆ_ಅಂತ್ಯ
 
-	bool has_memid() const;
-	bool is_mem_cell() const;
-	bool is_builtin_ff() const;
+	bool has_memid() ಸ್ಥಿರಾಂಕ;
+	bool is_mem_cell() ಸ್ಥಿರಾಂಕ;
+	bool is_builtin_ff() ಸ್ಥಿರಾಂಕ;
 
-	std::string to_rtlil_str() const;
+	std::string ಗಮ್ಯ_rtlil_str() ಸ್ಥಿರಾಂಕ;
 };
 
-struct RTLIL::CaseRule : public RTLIL::AttrObject
+ರಚನೆ RTLIL::Case_ನಿಯಮ : ಸಾರ್ವಜನಿಕ RTLIL::AttrObject
 {
-	std::vector<RTLIL::SigSpec> compare;
-	std::vector<RTLIL::SigSig> actions;
-	std::vector<RTLIL::SwitchRule*> switches;
+	std::ಸದಿಶ<RTLIL::SigSpec> compare;
+	std::ಸದಿಶ<RTLIL::SigSig> actions;
+	std::ಸದಿಶ<RTLIL::Switch_ನಿಯಮ*> switches;
 
-	~CaseRule();
+	~Case_ನಿಯಮ();
 
-	bool empty() const;
+	bool ಖಾಲಿಗಳು() ಸ್ಥಿರಾಂಕ;
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	RTLIL::CaseRule *clone() const;
+	ಮಾದರಿ<typename T> ಶೂನ್ಯ rewrite_sigspecs(T &functor);
+	ಮಾದರಿ<typename T> ಶೂನ್ಯ rewrite_sigspecs2(T &functor);
+	RTLIL::Case_ನಿಯಮ *clone() ಸ್ಥಿರಾಂಕ;
 };
 
-struct RTLIL::SwitchRule : public RTLIL::AttrObject
+ರಚನೆ RTLIL::Switch_ನಿಯಮ : ಸಾರ್ವಜನಿಕ RTLIL::AttrObject
 {
-	RTLIL::SigSpec signal;
-	std::vector<RTLIL::CaseRule*> cases;
+	RTLIL::SigSpec ಸಂಕೇತ;
+	std::ಸದಿಶ<RTLIL::Case_ನಿಯಮ*> cases;
 
-	~SwitchRule();
+	~Switch_ನಿಯಮ();
 
-	bool empty() const;
+	bool ಖಾಲಿಗಳು() ಸ್ಥಿರಾಂಕ;
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	RTLIL::SwitchRule *clone() const;
+	ಮಾದರಿ<typename T> ಶೂನ್ಯ rewrite_sigspecs(T &functor);
+	ಮಾದರಿ<typename T> ಶೂನ್ಯ rewrite_sigspecs2(T &functor);
+	RTLIL::Switch_ನಿಯಮ *clone() ಸ್ಥಿರಾಂಕ;
 };
 
-struct RTLIL::MemWriteAction : RTLIL::AttrObject
+ರಚನೆ RTLIL::MemWriteAction : RTLIL::AttrObject
 {
 	RTLIL::IdString memid;
-	RTLIL::SigSpec address;
-	RTLIL::SigSpec data;
+	RTLIL::SigSpec ವಿಳಾಸ;
+	RTLIL::SigSpec ದತ್ತಾಂಶ;
 	RTLIL::SigSpec enable;
-	RTLIL::Const priority_mask;
+	RTLIL::Const ಆದ್ಯತೆ_ಮುಖವಾಡ;
 };
 
-struct RTLIL::SyncRule
+ರಚನೆ RTLIL::Sync_ನಿಯಮ
 {
 	RTLIL::SyncType type;
-	RTLIL::SigSpec signal;
-	std::vector<RTLIL::SigSig> actions;
-	std::vector<RTLIL::MemWriteAction> mem_write_actions;
+	RTLIL::SigSpec ಸಂಕೇತ;
+	std::ಸದಿಶ<RTLIL::SigSig> actions;
+	std::ಸದಿಶ<RTLIL::MemWriteAction> mem_write_actions;
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	RTLIL::SyncRule *clone() const;
+	ಮಾದರಿ<typename T> ಶೂನ್ಯ rewrite_sigspecs(T &functor);
+	ಮಾದರಿ<typename T> ಶೂನ್ಯ rewrite_sigspecs2(T &functor);
+	RTLIL::Sync_ನಿಯಮ *clone() ಸ್ಥಿರಾಂಕ;
 };
 
-struct RTLIL::Process : public RTLIL::AttrObject
+ರಚನೆ RTLIL::Process : ಸಾರ್ವಜನಿಕ RTLIL::AttrObject
 {
 	Hasher::hash_t hashidx_;
 	RTLIL::ProcessNameId name;
-	[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(hashidx_); return h; }
+	[[nodiscard]] Hasher hash_into(Hasher h) ಸ್ಥಿರಾಂಕ { h.eat(hashidx_); ಹಿಂತಿರುಗಿ h; }
 
-protected:
+ಸಂರಕ್ಷಿತ:
 	// use module->addProcess() and module->remove() to create or destroy processes
-	friend struct RTLIL::Module;
+	ಮಿತ್ರ ರಚನೆ RTLIL::Module;
 	Process();
 	~Process();
 
-public:
+ಸಾರ್ವಜನಿಕ:
 	RTLIL::Module *module;
-	RTLIL::CaseRule root_case;
-	std::vector<RTLIL::SyncRule*> syncs;
+	RTLIL::Case_ನಿಯಮ ಬೇರು_case;
+	std::ಸದಿಶ<RTLIL::Sync_ನಿಯಮ*> syncs;
 
-	RTLIL::Design *design() const { return module ? module->design : nullptr; }
-	TwinePool &twines() const { return module->twines(); }
+	RTLIL::Design *design() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ module ? module->design : nullptr; }
+	TwinePool &twines() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ module->twines(); }
 
-	template<typename T> void rewrite_sigspecs(T &functor);
-	template<typename T> void rewrite_sigspecs2(T &functor);
-	RTLIL::Process *clone() const;
+	ಮಾದರಿ<typename T> ಶೂನ್ಯ rewrite_sigspecs(T &functor);
+	ಮಾದರಿ<typename T> ಶೂನ್ಯ rewrite_sigspecs2(T &functor);
+	RTLIL::Process *clone() ಸ್ಥಿರಾಂಕ;
 
-	std::string to_rtlil_str() const;
+	std::string ಗಮ್ಯ_rtlil_str() ಸ್ಥಿರಾಂಕ;
 };
 
-inline RTLIL::SigBit::SigBit() : wire(NULL), data(RTLIL::State::S0) { }
-inline RTLIL::SigBit::SigBit(RTLIL::State bit) : wire(NULL), data(bit) { }
-inline RTLIL::SigBit::SigBit(bool bit) : wire(NULL), data(bit ? State::S1 : State::S0) { }
-inline RTLIL::SigBit::SigBit(RTLIL::Wire *wire) : wire(wire), offset(0) { log_assert(wire && wire->width == 1); }
-inline RTLIL::SigBit::SigBit(RTLIL::Wire *wire, int offset) : wire(wire), offset(offset) { log_assert(wire != nullptr); }
-inline RTLIL::SigBit::SigBit(const RTLIL::SigChunk &chunk) : wire(chunk.wire) { log_assert(chunk.width == 1); if (wire) offset = chunk.offset; else data = chunk.data[0]; }
-inline RTLIL::SigBit::SigBit(const RTLIL::SigChunk &chunk, int index) : wire(chunk.wire) { if (wire) offset = chunk.offset + index; else data = chunk.data[index]; }
+ಸಾಲೊಳಗೆ RTLIL::Sig_ಬಿಟ್::Sig_ಬಿಟ್() : wire(ಖಾಲಿ), ದತ್ತಾಂಶ(RTLIL::State::S0) { }
+ಸಾಲೊಳಗೆ RTLIL::Sig_ಬಿಟ್::Sig_ಬಿಟ್(RTLIL::State ಬಿಟ್) : wire(ಖಾಲಿ), ದತ್ತಾಂಶ(ಬಿಟ್) { }
+ಸಾಲೊಳಗೆ RTLIL::Sig_ಬಿಟ್::Sig_ಬಿಟ್(bool ಬಿಟ್) : wire(ಖಾಲಿ), ದತ್ತಾಂಶ(ಬಿಟ್ ? State::S1 : State::S0) { }
+ಸಾಲೊಳಗೆ RTLIL::Sig_ಬಿಟ್::Sig_ಬಿಟ್(RTLIL::Wire *wire) : wire(wire), ಸ್ಥಾನಾಂತರ(0) { log_assert(wire && wire->ಅಗಲ == 1); }
+ಸಾಲೊಳಗೆ RTLIL::Sig_ಬಿಟ್::Sig_ಬಿಟ್(RTLIL::Wire *wire, ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ) : wire(wire), ಸ್ಥಾನಾಂತರ(ಸ್ಥಾನಾಂತರ) { log_assert(wire != nullptr); }
+ಸಾಲೊಳಗೆ RTLIL::Sig_ಬಿಟ್::Sig_ಬಿಟ್(ಸ್ಥಿರಾಂಕ RTLIL::SigChunk &chunk) : wire(chunk.wire) { log_assert(chunk.ಅಗಲ == 1); ಆದರೆ (wire) ಸ್ಥಾನಾಂತರ = chunk.ಸ್ಥಾನಾಂತರ; ಇಲ್ಲದಿದ್ದರೆ ದತ್ತಾಂಶ = chunk.ದತ್ತಾಂಶ[0]; }
+ಸಾಲೊಳಗೆ RTLIL::Sig_ಬಿಟ್::Sig_ಬಿಟ್(ಸ್ಥಿರಾಂಕ RTLIL::SigChunk &chunk, ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ) : wire(chunk.wire) { ಆದರೆ (wire) ಸ್ಥಾನಾಂತರ = chunk.ಸ್ಥಾನಾಂತರ + ಸೂಚ್ಯಂಕ; ಇಲ್ಲದಿದ್ದರೆ ದತ್ತಾಂಶ = chunk.ದತ್ತಾಂಶ[ಸೂಚ್ಯಂಕ]; }
 
-inline bool RTLIL::SigBit::operator<(const RTLIL::SigBit &other) const {
-	if (wire == other.wire)
-		return wire ? (offset < other.offset) : (data < other.data);
-	if (wire != nullptr && other.wire != nullptr)
-		return wire->name < other.wire->name;
-	return (wire != nullptr) < (other.wire != nullptr);
+ಸಾಲೊಳಗೆ bool RTLIL::Sig_ಬಿಟ್::ಕ್ರಿಯಾಕಾರಕ<(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &other) ಸ್ಥಿರಾಂಕ {
+	ಆದರೆ (wire == other.wire)
+		ಹಿಂತಿರುಗಿ wire ? (ಸ್ಥಾನಾಂತರ < other.ಸ್ಥಾನಾಂತರ) : (ದತ್ತಾಂಶ < other.ದತ್ತಾಂಶ);
+	ಆದರೆ (wire != nullptr && other.wire != nullptr)
+		ಹಿಂತಿರುಗಿ wire->name < other.wire->name;
+	ಹಿಂತಿರುಗಿ (wire != nullptr) < (other.wire != nullptr);
 }
 
-inline bool RTLIL::SigBit::operator==(const RTLIL::SigBit &other) const {
-	return (wire == other.wire) && (wire ? (offset == other.offset) : (data == other.data));
+ಸಾಲೊಳಗೆ bool RTLIL::Sig_ಬಿಟ್::ಕ್ರಿಯಾಕಾರಕ==(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &other) ಸ್ಥಿರಾಂಕ {
+	ಹಿಂತಿರುಗಿ (wire == other.wire) && (wire ? (ಸ್ಥಾನಾಂತರ == other.ಸ್ಥಾನಾಂತರ) : (ದತ್ತಾಂಶ == other.ದತ್ತಾಂಶ));
 }
 
-inline bool RTLIL::SigBit::operator!=(const RTLIL::SigBit &other) const {
-	return (wire != other.wire) || (wire ? (offset != other.offset) : (data != other.data));
+ಸಾಲೊಳಗೆ bool RTLIL::Sig_ಬಿಟ್::ಕ್ರಿಯಾಕಾರಕ!=(ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &other) ಸ್ಥಿರಾಂಕ {
+	ಹಿಂತಿರುಗಿ (wire != other.wire) || (wire ? (ಸ್ಥಾನಾಂತರ != other.ಸ್ಥಾನಾಂತರ) : (ದತ್ತಾಂಶ != other.ದತ್ತಾಂಶ));
 }
 
-inline Hasher RTLIL::SigBit::hash_into(Hasher h) const {
-	if (wire) {
-		h.eat(offset);
+ಸಾಲೊಳಗೆ Hasher RTLIL::Sig_ಬಿಟ್::hash_into(Hasher h) ಸ್ಥಿರಾಂಕ {
+	ಆದರೆ (wire) {
+		h.eat(ಸ್ಥಾನಾಂತರ);
 		h.eat(wire->name);
-		return h;
+		ಹಿಂತಿರುಗಿ h;
 	}
-	h.eat(data);
-	return h;
+	h.eat(ದತ್ತಾಂಶ);
+	ಹಿಂತಿರುಗಿ h;
 }
 
 
-inline Hasher RTLIL::SigBit::hash_top() const {
+ಸಾಲೊಳಗೆ Hasher RTLIL::Sig_ಬಿಟ್::hash_ತುದಿ() ಸ್ಥಿರಾಂಕ {
 	Hasher h;
-	if (wire) {
+	ಆದರೆ (wire) {
 		IdString name = wire->name.ref();
-		uint32_t n = (uint32_t)name.bits();
-		h.force(hashlib::legacy::djb2_add(n, offset));
-		return h;
+		uint32_t n = (uint32_t)name.ಬಿಟ್ಟುಗಳು();
+		h.force(hashlib::legacy::djb2_ಕೂಡಿಸು(n, ಸ್ಥಾನಾಂತರ));
+		ಹಿಂತಿರುಗಿ h;
 	}
-	h.force(data);
-	return h;
+	h.force(ದತ್ತಾಂಶ);
+	ಹಿಂತಿರುಗಿ h;
 }
 
-inline RTLIL::SigBit &RTLIL::SigSpecIterator::operator*() const {
-	return (*sig_p)[index];
+ಸಾಲೊಳಗೆ RTLIL::Sig_ಬಿಟ್ &RTLIL::SigSpecIterator::ಕ್ರಿಯಾಕಾರಕ*() ಸ್ಥಿರಾಂಕ {
+	ಹಿಂತಿರುಗಿ (*sig_p)[ಸೂಚ್ಯಂಕ];
 }
 
-inline const RTLIL::SigBit &RTLIL::SigSpecConstIterator::operator*() {
-	bit = (*sig_p)[index];
-	return bit;
+ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ RTLIL::Sig_ಬಿಟ್ &RTLIL::SigSpecConstIterator::ಕ್ರಿಯಾಕಾರಕ*() {
+	ಬಿಟ್ = (*sig_p)[ಸೂಚ್ಯಂಕ];
+	ಹಿಂತಿರುಗಿ ಬಿಟ್;
 }
 
-inline RTLIL::SigBit::SigBit(const RTLIL::SigSpec &sig) {
-	log_assert(sig.size() == 1);
-	auto it = sig.chunks().begin();
-	*this = SigBit(*it);
+ಸಾಲೊಳಗೆ RTLIL::Sig_ಬಿಟ್::Sig_ಬಿಟ್(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig) {
+	log_assert(sig.ಗಾತ್ರ_2() == 1);
+	ಸ್ವಯಂಚಾಲಿತ it = sig.chunks().begin();
+	*this = Sig_ಬಿಟ್(*it);
 }
 
-template<typename T>
-void RTLIL::Module::rewrite_sigspecs(T &functor)
+ಮಾದರಿ<typename T>
+ಶೂನ್ಯ RTLIL::Module::rewrite_sigspecs(T &functor)
 {
-	for (auto &it : cells_)
-		it.second->rewrite_sigspecs(functor);
-	for (auto &it : processes)
-		it.second->rewrite_sigspecs(functor);
-	for (auto &it : connections_) {
-		functor(it.first);
-		functor(it.second);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : cells_)
+		it.ಎರಡನೇ->rewrite_sigspecs(functor);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : processes)
+		it.ಎರಡನೇ->rewrite_sigspecs(functor);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : connections_) {
+		functor(it.ಮೊದಲ);
+		functor(it.ಎರಡನೇ);
 	}
 }
 
-template<typename T>
-void RTLIL::Module::rewrite_sigspecs2(T &functor)
+ಮಾದರಿ<typename T>
+ಶೂನ್ಯ RTLIL::Module::rewrite_sigspecs2(T &functor)
 {
-	for (auto &it : cells_)
-		it.second->rewrite_sigspecs2(functor);
-	for (auto &it : processes)
-		it.second->rewrite_sigspecs2(functor);
-	for (auto &it : connections_) {
-		functor(it.first, it.second);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : cells_)
+		it.ಎರಡನೇ->rewrite_sigspecs2(functor);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : processes)
+		it.ಎರಡನೇ->rewrite_sigspecs2(functor);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : connections_) {
+		functor(it.ಮೊದಲ, it.ಎರಡನೇ);
 	}
 }
 
-template<typename T>
-void RTLIL::Cell::rewrite_sigspecs(T &functor) {
-	for (auto &it : connections_)
-		functor(it.second);
+ಮಾದರಿ<typename T>
+ಶೂನ್ಯ RTLIL::Cell::rewrite_sigspecs(T &functor) {
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : connections_)
+		functor(it.ಎರಡನೇ);
 }
 
-template<typename T>
-void RTLIL::Cell::rewrite_sigspecs2(T &functor) {
-	for (auto &it : connections_)
-		functor(it.second);
+ಮಾದರಿ<typename T>
+ಶೂನ್ಯ RTLIL::Cell::rewrite_sigspecs2(T &functor) {
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : connections_)
+		functor(it.ಎರಡನೇ);
 }
 
-template<typename T>
-void RTLIL::CaseRule::rewrite_sigspecs(T &functor) {
-	for (auto &it : compare)
+ಮಾದರಿ<typename T>
+ಶೂನ್ಯ RTLIL::Case_ನಿಯಮ::rewrite_sigspecs(T &functor) {
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : compare)
 		functor(it);
-	for (auto &it : actions) {
-		functor(it.first);
-		functor(it.second);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : actions) {
+		functor(it.ಮೊದಲ);
+		functor(it.ಎರಡನೇ);
 	}
-	for (auto it : switches)
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ it : switches)
 		it->rewrite_sigspecs(functor);
 }
 
-template<typename T>
-void RTLIL::CaseRule::rewrite_sigspecs2(T &functor) {
-	for (auto &it : compare)
+ಮಾದರಿ<typename T>
+ಶೂನ್ಯ RTLIL::Case_ನಿಯಮ::rewrite_sigspecs2(T &functor) {
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : compare)
 		functor(it);
-	for (auto &it : actions) {
-		functor(it.first, it.second);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : actions) {
+		functor(it.ಮೊದಲ, it.ಎರಡನೇ);
 	}
-	for (auto it : switches)
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ it : switches)
 		it->rewrite_sigspecs2(functor);
 }
 
-template<typename T>
-void RTLIL::SwitchRule::rewrite_sigspecs(T &functor)
+ಮಾದರಿ<typename T>
+ಶೂನ್ಯ RTLIL::Switch_ನಿಯಮ::rewrite_sigspecs(T &functor)
 {
-	functor(signal);
-	for (auto it : cases)
+	functor(ಸಂಕೇತ);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ it : cases)
 		it->rewrite_sigspecs(functor);
 }
 
-template<typename T>
-void RTLIL::SwitchRule::rewrite_sigspecs2(T &functor)
+ಮಾದರಿ<typename T>
+ಶೂನ್ಯ RTLIL::Switch_ನಿಯಮ::rewrite_sigspecs2(T &functor)
 {
-	functor(signal);
-	for (auto it : cases)
+	functor(ಸಂಕೇತ);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ it : cases)
 		it->rewrite_sigspecs2(functor);
 }
 
-template<typename T>
-void RTLIL::SyncRule::rewrite_sigspecs(T &functor)
+ಮಾದರಿ<typename T>
+ಶೂನ್ಯ RTLIL::Sync_ನಿಯಮ::rewrite_sigspecs(T &functor)
 {
-	functor(signal);
-	for (auto &it : actions) {
-		functor(it.first);
-		functor(it.second);
+	functor(ಸಂಕೇತ);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : actions) {
+		functor(it.ಮೊದಲ);
+		functor(it.ಎರಡನೇ);
 	}
-	for (auto &it : mem_write_actions) {
-		functor(it.address);
-		functor(it.data);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : mem_write_actions) {
+		functor(it.ವಿಳಾಸ);
+		functor(it.ದತ್ತಾಂಶ);
 		functor(it.enable);
 	}
 }
 
-template<typename T>
-void RTLIL::SyncRule::rewrite_sigspecs2(T &functor)
+ಮಾದರಿ<typename T>
+ಶೂನ್ಯ RTLIL::Sync_ನಿಯಮ::rewrite_sigspecs2(T &functor)
 {
-	functor(signal);
-	for (auto &it : actions) {
-		functor(it.first, it.second);
+	functor(ಸಂಕೇತ);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : actions) {
+		functor(it.ಮೊದಲ, it.ಎರಡನೇ);
 	}
-	for (auto &it : mem_write_actions) {
-		functor(it.address);
-		functor(it.data);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &it : mem_write_actions) {
+		functor(it.ವಿಳಾಸ);
+		functor(it.ದತ್ತಾಂಶ);
 		functor(it.enable);
 	}
 }
 
-template<typename T>
-void RTLIL::Process::rewrite_sigspecs(T &functor)
+ಮಾದರಿ<typename T>
+ಶೂನ್ಯ RTLIL::Process::rewrite_sigspecs(T &functor)
 {
-	root_case.rewrite_sigspecs(functor);
-	for (auto it : syncs)
+	ಬೇರು_case.rewrite_sigspecs(functor);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ it : syncs)
 		it->rewrite_sigspecs(functor);
 }
 
-template<typename T>
-void RTLIL::Process::rewrite_sigspecs2(T &functor)
+ಮಾದರಿ<typename T>
+ಶೂನ್ಯ RTLIL::Process::rewrite_sigspecs2(T &functor)
 {
-	root_case.rewrite_sigspecs2(functor);
-	for (auto it : syncs)
+	ಬೇರು_case.rewrite_sigspecs2(functor);
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ it : syncs)
 		it->rewrite_sigspecs2(functor);
 }
 
-#include "kernel/rtlil_twine_compat_impl.h"
+#ಅನ್ತರ್ಭಾವ "kernel/rtlil_twine_compat_impl.h"
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

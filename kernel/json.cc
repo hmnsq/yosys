@@ -17,155 +17,155 @@
  *
  */
 
-#include "kernel/json.h"
+#ಅನ್ತರ್ಭಾವ "kernel/json.h"
 
 USING_YOSYS_NAMESPACE
 
-void PrettyJson::emit_to_log()
+ಶೂನ್ಯ PrettyJson::emit_ಗಮ್ಯ_log()
 {
-    struct LogTarget : public Target {
-        void emit(const char *data) override { log("%s", data); }
+    ರಚನೆ Log_ಗುರಿ : ಸಾರ್ವಜನಿಕ ಗುರಿ {
+        ಶೂನ್ಯ emit(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ದತ್ತಾಂಶ) override { ಲಘುಗಣಕ("%s", ದತ್ತಾಂಶ); }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new LogTarget));
+    targets.ತಳ್ಳು_ಹಿಂಭಾಗ(std::unique_ptr<ಗುರಿ>(ಹೊಸ Log_ಗುರಿ));
 }
 
-void PrettyJson::append_to_string(std::string &target)
+ಶೂನ್ಯ PrettyJson::append_ಗಮ್ಯ_string(std::string &ಗುರಿ_2)
 {
-    struct AppendStringTarget : public Target {
-        std::string &target;
-        AppendStringTarget(std::string &target) : target(target) {}
-        void emit(const char *data) override { target += data; }
+    ರಚನೆ Append_String_ಗುರಿ : ಸಾರ್ವಜನಿಕ ಗುರಿ {
+        std::string &ಗುರಿ_2;
+        Append_String_ಗುರಿ(std::string &ಗುರಿ_2) : ಗುರಿ_2(ಗುರಿ_2) {}
+        ಶೂನ್ಯ emit(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ದತ್ತಾಂಶ) override { ಗುರಿ_2 += ದತ್ತಾಂಶ; }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new AppendStringTarget(target)));
+    targets.ತಳ್ಳು_ಹಿಂಭಾಗ(std::unique_ptr<ಗುರಿ>(ಹೊಸ Append_String_ಗುರಿ(ಗುರಿ_2)));
 }
 
-bool PrettyJson::write_to_file(const std::string &path)
+ತಾರ್ಕಿಕ PrettyJson::write_ಗಮ್ಯ_file(ಸ್ಥಿರಾಂಕ std::string &ಮಾರ್ಗ_2)
 {
-    struct WriteFileTarget : public Target {
-        std::ofstream target;
-        void emit(const char *data) override { target << data; }
-        void flush() override { target.flush(); }
+    ರಚನೆ Write_File_ಗುರಿ : ಸಾರ್ವಜನಿಕ ಗುರಿ {
+        std::ofstream ಗುರಿ_2;
+        ಶೂನ್ಯ emit(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ದತ್ತಾಂಶ) override { ಗುರಿ_2 << ದತ್ತಾಂಶ; }
+        ಶೂನ್ಯ flush() override { ಗುರಿ_2.flush(); }
     };
 
-    auto target = std::unique_ptr<WriteFileTarget>(new WriteFileTarget);
-    target->target.open(path);
-    if (target->target.fail())
-        return false;
-    targets.push_back(std::unique_ptr<Target>(target.release()));
-    return true;
+    ಸ್ವಯಂಚಾಲಿತ ಗುರಿ_2 = std::unique_ptr<Write_File_ಗುರಿ>(ಹೊಸ Write_File_ಗುರಿ);
+    ಗುರಿ_2->ಗುರಿ_2.open(ಮಾರ್ಗ_2);
+    ಆದರೆ (ಗುರಿ_2->ಗುರಿ_2.fail())
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+    targets.ತಳ್ಳು_ಹಿಂಭಾಗ(std::unique_ptr<ಗುರಿ>(ಗುರಿ_2.release()));
+    ಹಿಂತಿರುಗಿ ನಿಜ;
 }
 
-void PrettyJson::line(bool space_if_inline)
+ಶೂನ್ಯ PrettyJson::ಸಾಲು(ತಾರ್ಕಿಕ space_if_inline)
 {
-    if (compact_depth != INT_MAX) {
-        if (space_if_inline)
+    ಆದರೆ (compact_ಆಳ != ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ) {
+        ಆದರೆ (space_if_inline)
             raw(" ");
-        return;
+        ಹಿಂತಿರುಗಿ;
     }
-    int indent = state.size() - (state.empty() ? 0 : state.back() == VALUE);
+    ಪೂರ್ಣಾಂಕ indent = state.ಗಾತ್ರ_2() - (state.ಖಾಲಿಗಳು() ? 0 : state.ಹಿಂಭಾಗ() == ಮೌಲ್ಯ_2);
     newline_indent.resize(1 + 2 * indent, ' ');
     raw(newline_indent.c_str());
 }
 
-void PrettyJson::raw(const char *raw_json)
+ಶೂನ್ಯ PrettyJson::raw(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *raw_json)
 {
-    for (auto &target : targets)
-        target->emit(raw_json);
+    ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಗುರಿ_2 : targets)
+        ಗುರಿ_2->emit(raw_json);
 }
 
-void PrettyJson::flush()
+ಶೂನ್ಯ PrettyJson::flush()
 {
-    for (auto &target : targets)
-        target->flush();
+    ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಗುರಿ_2 : targets)
+        ಗುರಿ_2->flush();
 }
 
-void PrettyJson::begin_object()
+ಶೂನ್ಯ PrettyJson::begin_object()
 {
-    begin_value();
+    begin_ಮೌಲ್ಯ();
     raw("{");
-    state.push_back(OBJECT_FIRST);
+    state.ತಳ್ಳು_ಹಿಂಭಾಗ(OBJECT_ಮೊದಲ);
 }
 
-void PrettyJson::begin_array()
+ಶೂನ್ಯ PrettyJson::begin_array()
 {
-    begin_value();
+    begin_ಮೌಲ್ಯ();
     raw("[");
-    state.push_back(ARRAY_FIRST);
+    state.ತಳ್ಳು_ಹಿಂಭಾಗ(ARRAY_ಮೊದಲ);
 }
 
-void PrettyJson::end_object()
+ಶೂನ್ಯ PrettyJson::ಕೊನೆ_object()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == OBJECT)
-        line(false);
-    else
-        log_assert(top_scope == OBJECT_FIRST);
+    Scope ತುದಿ_scope = state.ಹಿಂಭಾಗ();
+    state.ತೆಗೆ_ಹಿಂಭಾಗ();
+    ಆದರೆ (ತುದಿ_scope == OBJECT)
+        ಸಾಲು(ಸುಳ್ಳು);
+    ಇಲ್ಲದಿದ್ದರೆ
+        log_assert(ತುದಿ_scope == OBJECT_ಮೊದಲ);
     raw("}");
-    end_value();
+    ಕೊನೆ_ಮೌಲ್ಯ();
 }
 
-void PrettyJson::end_array()
+ಶೂನ್ಯ PrettyJson::ಕೊನೆ_array()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == ARRAY)
-        line(false);
-    else
-        log_assert(top_scope == ARRAY_FIRST);
+    Scope ತುದಿ_scope = state.ಹಿಂಭಾಗ();
+    state.ತೆಗೆ_ಹಿಂಭಾಗ();
+    ಆದರೆ (ತುದಿ_scope == ARRAY)
+        ಸಾಲು(ಸುಳ್ಳು);
+    ಇಲ್ಲದಿದ್ದರೆ
+        log_assert(ತುದಿ_scope == ARRAY_ಮೊದಲ);
     raw("]");
-    end_value();
+    ಕೊನೆ_ಮೌಲ್ಯ();
 }
 
-void PrettyJson::name(const char *name)
+ಶೂನ್ಯ PrettyJson::name(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name)
 {
-    if (state.back() == OBJECT_FIRST) {
-        state.back() = OBJECT;
-        line(false);
-    } else {
+    ಆದರೆ (state.ಹಿಂಭಾಗ() == OBJECT_ಮೊದಲ) {
+        state.ಹಿಂಭಾಗ() = OBJECT;
+        ಸಾಲು(ಸುಳ್ಳು);
+    } ಇಲ್ಲದಿದ್ದರೆ {
         raw(",");
-        line();
+        ಸಾಲು();
     }
     raw(Json(name).dump().c_str());
     raw(": ");
-    state.push_back(VALUE);
+    state.ತಳ್ಳು_ಹಿಂಭಾಗ(ಮೌಲ್ಯ_2);
 }
 
-void PrettyJson::begin_value()
+ಶೂನ್ಯ PrettyJson::begin_ಮೌಲ್ಯ()
 {
-    if (state.back() == ARRAY_FIRST) {
-        line(false);
-        state.back() = ARRAY;
-    } else if (state.back() == ARRAY) {
+    ಆದರೆ (state.ಹಿಂಭಾಗ() == ARRAY_ಮೊದಲ) {
+        ಸಾಲು(ಸುಳ್ಳು);
+        state.ಹಿಂಭಾಗ() = ARRAY;
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (state.ಹಿಂಭಾಗ() == ARRAY) {
         raw(",");
-        line();
-    } else {
-        log_assert(state.back() == VALUE);
-        state.pop_back();
+        ಸಾಲು();
+    } ಇಲ್ಲದಿದ್ದರೆ {
+        log_assert(state.ಹಿಂಭಾಗ() == ಮೌಲ್ಯ_2);
+        state.ತೆಗೆ_ಹಿಂಭಾಗ();
     }
 }
 
-void PrettyJson::end_value()
+ಶೂನ್ಯ PrettyJson::ಕೊನೆ_ಮೌಲ್ಯ()
 {
-    if (state.empty()) {
+    ಆದರೆ (state.ಖಾಲಿಗಳು()) {
         raw("\n");
         flush();
     }
-    if (GetSize(state) < compact_depth)
-        compact_depth = INT_MAX;
+    ಆದರೆ (Get_ಗಾತ್ರ(state) < compact_ಆಳ)
+        compact_ಆಳ = ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ;
 }
 
-void PrettyJson::value_json(const Json &value)
+ಶೂನ್ಯ PrettyJson::ಮೌಲ್ಯ_json(ಸ್ಥಿರಾಂಕ Json &ಮೌಲ್ಯ)
 {
-    begin_value();
-    raw(value.dump().c_str());
-    end_value();
+    begin_ಮೌಲ್ಯ();
+    raw(ಮೌಲ್ಯ.dump().c_str());
+    ಕೊನೆ_ಮೌಲ್ಯ();
 }
 
-void PrettyJson::entry_json(const char *name, const Json &value)
+ಶೂನ್ಯ PrettyJson::ನಮೂದು_json(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, ಸ್ಥಿರಾಂಕ Json &ಮೌಲ್ಯ)
 {
-    this->name(name);
-    this->value(value);
+    ಇದು->name(name);
+    ಇದು->ಮೌಲ್ಯ(ಮೌಲ್ಯ);
 }

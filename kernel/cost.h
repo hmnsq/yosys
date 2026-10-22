@@ -17,27 +17,27 @@
  *
  */
 
-#ifndef COST_H
-#define COST_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ವೆಚ್ಚ_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ವೆಚ್ಚ_H
 
-#include "kernel/yosys.h"
+#ಅನ್ತರ್ಭಾವ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct CellCosts
+ರಚನೆ CellCosts
 {
 
-	private:
-	dict<RTLIL::IdString, int> mod_cost_cache_;
+	ಖಾಸಗಿ:
+	dict<RTLIL::IdString, ಪೂರ್ಣಾಂಕ> mod_ವೆಚ್ಚ_cache;
 	Design *design_ = nullptr;
 
-	public:
+	ಸಾರ್ವಜನಿಕ:
 	CellCosts(RTLIL::Design *design) : design_(design) { }
 
-	static const dict<RTLIL::IdString, int>& default_gate_cost() {
+	ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ dict<RTLIL::IdString, ಪೂರ್ಣಾಂಕ>& default_gate_ವೆಚ್ಚ() {
 		// Default size heuristics for several common PDK standard cells
 		// used by abc and stat
-		static const dict<RTLIL::IdString, int> db = {
+		ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ dict<RTLIL::IdString, ಪೂರ್ಣಾಂಕ> db = {
 			{ ID($_BUF_),    1 },
 			{ ID($_NOT_),    2 },
 			{ ID($_AND_),    4 },
@@ -55,13 +55,13 @@ struct CellCosts
 			{ ID($_MUX_),    4 },
 			{ ID($_NMUX_),   4 },
 		};
-		return db;
+		ಹಿಂತಿರುಗಿ db;
 	}
 
-	static const dict<RTLIL::IdString, int>& cmos_gate_cost() {
+	ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ dict<RTLIL::IdString, ಪೂರ್ಣಾಂಕ>& cmos_gate_ವೆಚ್ಚ() {
 		// Estimated CMOS transistor counts for several common PDK standard cells
 		// used by stat and optionally by abc
-		static const dict<RTLIL::IdString, int> db = {
+		ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ dict<RTLIL::IdString, ಪೂರ್ಣಾಂಕ> db = {
 			{ ID($_BUF_),     1 },
 			{ ID($_NOT_),     2 },
 			{ ID($_AND_),     6 },
@@ -81,19 +81,19 @@ struct CellCosts
 			{ ID($_DFF_P_),  16 },
 			{ ID($_DFF_N_),  16 },
 		};
-		return db;
+		ಹಿಂತಿರುಗಿ db;
 	}
 
 	// Get the cell cost for a cell based on its parameters.
 	// This cost is an *approximate* upper bound for the number of gates that
 	// the cell will get mapped to with "opt -fast; techmap"
 	// The intended usage is for flattening heuristics and similar situations
-	unsigned int get(RTLIL::Cell *cell);
+	ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ get(RTLIL::Cell *cell);
 	// Sum up the cell costs of all cells in the module
 	// and all its submodules recursively
-	unsigned int get(RTLIL::Module *mod);
+	ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ get(RTLIL::Module *mod);
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

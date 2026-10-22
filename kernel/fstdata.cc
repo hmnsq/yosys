@@ -17,115 +17,115 @@
  *
  */
 
-#include "kernel/fstdata.h"
+#ಅನ್ತರ್ಭಾವ "kernel/fstdata.h"
 
 USING_YOSYS_NAMESPACE
 
 
-#if defined(YOSYS_ENABLE_SPAWN)
-static std::string file_base_name(std::string const & path)
+#ಆದರೆ defined(YOSYS_ENABLE_SPAWN)
+ಸ್ಥಿರ std::string file_ತಳ_name(std::string ಸ್ಥಿರಾಂಕ & ಮಾರ್ಗ_2)
 {
-	return path.substr(path.find_last_of("/\\") + 1);
+	ಹಿಂತಿರುಗಿ ಮಾರ್ಗ_2.substr(ಮಾರ್ಗ_2.ಕಂಡುಹಿಡಿ_ಕೊನೆಯ_ದ("/\\") + 1);
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-FstData::FstData(std::string filename) : ctx(nullptr)
+Fst_ದತ್ತಾಂಶ::Fst_ದತ್ತಾಂಶ(std::string filename) : ctx(ಶೂನ್ಯಸೂಚಕ)
 {
-	#if defined(YOSYS_ENABLE_SPAWN)
-	std::string filename_trim = file_base_name(filename);
-	if (filename_trim.size() > 4 && filename_trim.compare(filename_trim.size()-4, std::string::npos, ".vcd") == 0) {
-		filename_trim.erase(filename_trim.size()-4);
-		tmp_file = stringf("%s/converted_%s.fst", get_base_tmpdir(), filename_trim);
+	#ಆದರೆ defined(YOSYS_ENABLE_SPAWN)
+	std::string filename_trim = file_ತಳ_name(filename);
+	ಆದರೆ (filename_trim.ಗಾತ್ರ_2() > 4 && filename_trim.compare(filename_trim.ಗಾತ್ರ_2()-4, std::string::npos, ".vcd") == 0) {
+		filename_trim.erase(filename_trim.ಗಾತ್ರ_2()-4);
+		tmp_file = stringf("%s/converted_%s.fst", get_ತಳ_tmpdir(), filename_trim);
 		std::string cmd = stringf("vcd2fst %s %s", filename, tmp_file);
-		log("Exec: %s\n", cmd);
-		if (run_command(cmd) != 0)
+		ಲಘುಗಣಕ("Exec: %s\n", cmd);
+		ಆದರೆ (ಸತತ_command(cmd) != 0)
 			log_cmd_error("Shell command failed!\n");
 		filename = tmp_file;
 	}
-	#endif
-	const std::vector<std::string> g_units = { "s", "ms", "us", "ns", "ps", "fs", "as", "zs" };
+	#ಆದರೆ_ಅಂತ್ಯ
+	ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<std::string> g_units = { "s", "ms", "us", "ns", "ps", "fs", "as", "zs" };
 	ctx = (fstReaderContext *)fstReaderOpen(filename.c_str());
-	if (!ctx)
+	ಆದರೆ (!ctx)
 		log_error("Error opening '%s' as FST file\n", filename);
-	scale = (int)fstReaderGetTimescale(ctx);
+	scale = (ಪೂರ್ಣಾಂಕ)fstReaderGetTimescale(ctx);
 	timescale_str = "";
-	int unit = 0;
-	int zeros = 0;
-	if (scale > 0)  {
+	ಪೂರ್ಣಾಂಕ unit = 0;
+	ಪೂರ್ಣಾಂಕ zeros = 0;
+	ಆದರೆ (scale > 0)  {
 		zeros = scale;
-	} else {
-		if ((scale % 3) == 0) {
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		ಆದರೆ ((scale % 3) == 0) {
 			zeros = (-scale % 3);
 			unit = (-scale / 3);
-		} else {
+		} ಇಲ್ಲದಿದ್ದರೆ {
 			zeros = 3 - (-scale % 3);
 			unit = (-scale / 3) + 1;
 		}
 	}
-	for (int i=0;i<zeros; i++) timescale_str += "0";
+	ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i=0;i<zeros; i++) timescale_str += "0";
 	timescale_str += g_units[unit];
-	extractVarNames();
+	ಹೊರತೆಗೆ_Var_ಹೆಸರುಗಳು();
 }
 
-FstData::~FstData()
+Fst_ದತ್ತಾಂಶ::~Fst_ದತ್ತಾಂಶ()
 {
-	if (ctx)
+	ಆದರೆ (ctx)
 		fstReaderClose(ctx);
-	if (!tmp_file.empty())
+	ಆದರೆ (!tmp_file.ಖಾಲಿಗಳು())
 		remove(tmp_file.c_str());
 }
 
-uint64_t FstData::getStartTime() { return fstReaderGetStartTime(ctx); }
+uint64_t Fst_ದತ್ತಾಂಶ::get_ಆರಂಭ_ಸಮಯ() { ಹಿಂತಿರುಗಿ fst_Reader_Get_ಆರಂಭ_ಸಮಯ(ctx); }
 
-uint64_t FstData::getEndTime() { return fstReaderGetEndTime(ctx); }
+uint64_t Fst_ದತ್ತಾಂಶ::get_ಕೊನೆ_ಸಮಯ() { ಹಿಂತಿರುಗಿ fst_Reader_Get_ಕೊನೆ_ಸಮಯ(ctx); }
 
-static void normalize_brackets(std::string &str)
+ಸ್ಥಿರ ಶೂನ್ಯ normalize_brackets(std::string &str)
 {
-	for (auto &c : str) {
-		if (c == '<')
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &c : str) {
+		ಆದರೆ (c == '<')
 			c = '[';
-		else if (c == '>')
+		ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (c == '>')
 			c = ']';
 	}
 }
 
-fstHandle FstData::getHandle(std::string name) {
+fstHandle Fst_ದತ್ತಾಂಶ::getHandle(std::string name) {
 	normalize_brackets(name);
-	if (name_to_handle.find(name) != name_to_handle.end())
-		return name_to_handle[name];
-	else
-		return 0;
+	ಆದರೆ (name_ಗಮ್ಯ_handle.ಕಂಡುಹಿಡಿ(name) != name_ಗಮ್ಯ_handle.ಕೊನೆ())
+		ಹಿಂತಿರುಗಿ name_ಗಮ್ಯ_handle[name];
+	ಇಲ್ಲದಿದ್ದರೆ
+		ಹಿಂತಿರುಗಿ 0;
 };
 
-dict<int,fstHandle> FstData::getMemoryHandles(std::string name) {
-	if (memory_to_handle.find(name) != memory_to_handle.end())
-		return memory_to_handle[name];
-	else
-		return dict<int,fstHandle>();
+dict<ಪೂರ್ಣಾಂಕ,fstHandle> Fst_ದತ್ತಾಂಶ::get_ಸ್ಮರಣೆ_Handles(std::string name) {
+	ಆದರೆ (ಸ್ಮರಣೆ_ಗಮ್ಯ_handle.ಕಂಡುಹಿಡಿ(name) != ಸ್ಮರಣೆ_ಗಮ್ಯ_handle.ಕೊನೆ())
+		ಹಿಂತಿರುಗಿ ಸ್ಮರಣೆ_ಗಮ್ಯ_handle[name];
+	ಇಲ್ಲದಿದ್ದರೆ
+		ಹಿಂತಿರುಗಿ dict<ಪೂರ್ಣಾಂಕ,fstHandle>();
 };
 
-static std::string remove_spaces(std::string str)
+ಸ್ಥಿರ std::string remove_spaces(std::string str)
 {
-	str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
-	return str;
+	str.erase(std::remove(str.begin(), str.ಕೊನೆ(), ' '), str.ಕೊನೆ());
+	ಹಿಂತಿರುಗಿ str;
 }
 
-void FstData::extractVarNames()
+ಶೂನ್ಯ Fst_ದತ್ತಾಂಶ::ಹೊರತೆಗೆ_Var_ಹೆಸರುಗಳು()
 {
-	struct fstHier *h;
+	ರಚನೆ fstHier *h;
 	std::string fst_scope_name;
 
-	while ((h = fstReaderIterateHier(ctx))) {
-		switch (h->htyp) {
-			case FST_HT_SCOPE: {
-				fst_scope_name = fstReaderPushScope(ctx, h->u.scope.name, NULL);
-				break;
+	ಆಗ ((h = fstReaderIterateHier(ctx))) {
+		ಆಯ್ಕೆ (h->htyp) {
+			ಸ್ಥಿತಿ FST_HT_SCOPE: {
+				fst_scope_name = fst_Reader_ತಳ್ಳು_Scope(ctx, h->u.scope.name, ಖಾಲಿ);
+				ನಿಲ್ಲಿಸು;
 			}
-			case FST_HT_UPSCOPE: {
-				fst_scope_name = fstReaderPopScope(ctx);
-				break;
+			ಸ್ಥಿತಿ FST_HT_UPSCOPE: {
+				fst_scope_name = fst_Reader_ತೆಗೆ_Scope(ctx);
+				ನಿಲ್ಲಿಸು;
 			}
-			case FST_HT_VAR: {
+			ಸ್ಥಿತಿ FST_HT_VAR: {
 				FstVar var;
 				var.id = h->u.var.handle;
 				var.is_alias = h->u.var.is_alias;
@@ -133,151 +133,151 @@ void FstData::extractVarNames()
 				var.name = remove_spaces(h->u.var.name);
 				var.scope = fst_scope_name;
 				normalize_brackets(var.scope);
-				var.width = h->u.var.length;
-				vars.push_back(var);
-				if (!var.is_alias)
-					handle_to_var[h->u.var.handle] = var;
+				var.ಅಗಲ = h->u.var.ಉದ್ದಳತೆ;
+				vars.ತಳ್ಳು_ಹಿಂಭಾಗ(var);
+				ಆದರೆ (!var.is_alias)
+					handle_ಗಮ್ಯ_var[h->u.var.handle] = var;
 				std::string clean_name;
-				bool has_space = false;
-				for(size_t i=0;i<strlen(h->u.var.name);i++)
+				ತಾರ್ಕಿಕ has_space = ಸುಳ್ಳು;
+				ಗಾಗಿ(ಗಾತ್ರ_t i=0;i<ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(h->u.var.name);i++)
 				{
-					char c = h->u.var.name[i];
-					if(c==' ') { has_space = true; break; }
+					ಅಕ್ಷರ c = h->u.var.name[i];
+					ಆದರೆ(c==' ') { has_space = ನಿಜ; ನಿಲ್ಲಿಸು; }
 					clean_name += c;
 				}
-				if (clean_name[0]=='\\')
+				ಆದರೆ (clean_name[0]=='\\')
 					clean_name = clean_name.substr(1);
-				if (!has_space) {
-					size_t pos = clean_name.find_last_of("[");
-					std::string index_or_range = clean_name.substr(pos+1);
-					if (index_or_range.find(":") != std::string::npos) {
+				ಆದರೆ (!has_space) {
+					ಗಾತ್ರ_t pos = clean_name.ಕಂಡುಹಿಡಿ_ಕೊನೆಯ_ದ("[");
+					std::string ಸೂಚ್ಯಂಕ_or_range = clean_name.substr(pos+1);
+					ಆದರೆ (ಸೂಚ್ಯಂಕ_or_range.ಕಂಡುಹಿಡಿ(":") != std::string::npos) {
 						clean_name = clean_name.substr(0,pos);
 					}
 				}
-				size_t pos = clean_name.find_last_of("<");
-				if (pos != std::string::npos && clean_name.back() == '>') {
+				ಗಾತ್ರ_t pos = clean_name.ಕಂಡುಹಿಡಿ_ಕೊನೆಯ_ದ("<");
+				ಆದರೆ (pos != std::string::npos && clean_name.ಹಿಂಭಾಗ() == '>') {
 					std::string mem_cell = clean_name.substr(0, pos);
 					normalize_brackets(mem_cell);
 					std::string addr = clean_name.substr(pos+1);
-					addr.pop_back(); // remove closing bracket
-					char *endptr;
-					int mem_addr = strtol(addr.c_str(), &endptr, 16);
-					if (*endptr) {
+					addr.ತೆಗೆ_ಹಿಂಭಾಗ(); // remove closing bracket
+					ಅಕ್ಷರ *endptr;
+					ಪೂರ್ಣಾಂಕ mem_addr = strtol(addr.c_str(), &endptr, 16);
+					ಆದರೆ (*endptr) {
 						log_debug("Error parsing memory address in : %s\n", clean_name);
-					} else {
-						memory_to_handle[var.scope+"."+mem_cell][mem_addr] = var.id;
+					} ಇಲ್ಲದಿದ್ದರೆ {
+						ಸ್ಮರಣೆ_ಗಮ್ಯ_handle[var.scope+"."+mem_cell][mem_addr] = var.id;
 					}
 				}
-				pos = clean_name.find_last_of("[");
-				if (pos != std::string::npos && clean_name.back() == ']') {
+				pos = clean_name.ಕಂಡುಹಿಡಿ_ಕೊನೆಯ_ದ("[");
+				ಆದರೆ (pos != std::string::npos && clean_name.ಹಿಂಭಾಗ() == ']') {
 					std::string mem_cell = clean_name.substr(0, pos);
 					normalize_brackets(mem_cell);
 					std::string addr = clean_name.substr(pos+1);
-					addr.pop_back(); // remove closing bracket
-					char *endptr;
-					int mem_addr = strtol(addr.c_str(), &endptr, 10);
-					if (*endptr) {
+					addr.ತೆಗೆ_ಹಿಂಭಾಗ(); // remove closing bracket
+					ಅಕ್ಷರ *endptr;
+					ಪೂರ್ಣಾಂಕ mem_addr = strtol(addr.c_str(), &endptr, 10);
+					ಆದರೆ (*endptr) {
 						log_debug("Error parsing memory address in : %s\n", clean_name);
-					} else {
-						memory_to_handle[var.scope+"."+mem_cell][mem_addr] = var.id;
+					} ಇಲ್ಲದಿದ್ದರೆ {
+						ಸ್ಮರಣೆ_ಗಮ್ಯ_handle[var.scope+"."+mem_cell][mem_addr] = var.id;
 					}
 				}
 				normalize_brackets(clean_name);
-				name_to_handle[var.scope+"."+clean_name] = h->u.var.handle;
-				break;
+				name_ಗಮ್ಯ_handle[var.scope+"."+clean_name] = h->u.var.handle;
+				ನಿಲ್ಲಿಸು;
 			}
 		}
 	}
 }
 
 
-static void reconstruct_clb_varlen_attimes(void *user_data, uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t plen)
+ಸ್ಥಿರ ಶೂನ್ಯ reconstruct_clb_varlen_attimes(ಶೂನ್ಯ *user_ದತ್ತಾಂಶ, uint64_t pnt_ಸಮಯ, fstHandle pnt_facidx, ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *pnt_ಮೌಲ್ಯ, uint32_t plen)
 {
-	FstData *ptr = (FstData*)user_data;
-	ptr->reconstruct_callback_attimes(pnt_time, pnt_facidx, pnt_value, plen);
+	Fst_ದತ್ತಾಂಶ *ptr = (Fst_ದತ್ತಾಂಶ*)user_ದತ್ತಾಂಶ;
+	ptr->reconstruct_callback_attimes(pnt_ಸಮಯ, pnt_facidx, pnt_ಮೌಲ್ಯ, plen);
 }
 
-static void reconstruct_clb_attimes(void *user_data, uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value)
+ಸ್ಥಿರ ಶೂನ್ಯ reconstruct_clb_attimes(ಶೂನ್ಯ *user_ದತ್ತಾಂಶ, uint64_t pnt_ಸಮಯ, fstHandle pnt_facidx, ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *pnt_ಮೌಲ್ಯ)
 {
-	FstData *ptr = (FstData*)user_data;
-	uint32_t plen = (pnt_value) ?  strlen((const char *)pnt_value) : 0;
-	ptr->reconstruct_callback_attimes(pnt_time, pnt_facidx, pnt_value, plen);
+	Fst_ದತ್ತಾಂಶ *ptr = (Fst_ದತ್ತಾಂಶ*)user_ದತ್ತಾಂಶ;
+	uint32_t plen = (pnt_ಮೌಲ್ಯ) ?  ಅಕ್ಷರಸರಣಿ_ಉದ್ದ((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)pnt_ಮೌಲ್ಯ) : 0;
+	ptr->reconstruct_callback_attimes(pnt_ಸಮಯ, pnt_facidx, pnt_ಮೌಲ್ಯ, plen);
 }
 
-void FstData::reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t /* plen */)
+ಶೂನ್ಯ Fst_ದತ್ತಾಂಶ::reconstruct_callback_attimes(uint64_t pnt_ಸಮಯ, fstHandle pnt_facidx, ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *pnt_ಮೌಲ್ಯ, uint32_t /* plen */)
 {
-	if (pnt_time > end_time || !pnt_value) return;
-	if (curr_cycle > last_cycle) return;
+	ಆದರೆ (pnt_ಸಮಯ > ಕೊನೆ_ಸಮಯ || !pnt_ಮೌಲ್ಯ) ಹಿಂತಿರುಗಿ;
+	ಆದರೆ (curr_ಚಕ್ರ > ಕೊನೆಯ_ಚಕ್ರ) ಹಿಂತಿರುಗಿ;
 	// if we are past the timestamp
-	bool is_clock = false;
-	if (!all_samples) {
-		for(auto &s : clk_signals) {
-			if (s==pnt_facidx)  {
-				is_clock=true;
-				break;
+	ತಾರ್ಕಿಕ is_clock = ಸುಳ್ಳು;
+	ಆದರೆ (!all_samples) {
+		ಗಾಗಿ(ಸ್ವಯಂಚಾಲಿತ &s : clk_ಸಂಕೇತಗಳು) {
+			ಆದರೆ (s==pnt_facidx)  {
+				is_clock=ನಿಜ;
+				ನಿಲ್ಲಿಸು;
 			}
 		}
 	}
 
-	if (pnt_time > past_time) {
-		past_data = last_data;
-		past_time = pnt_time;
+	ಆದರೆ (pnt_ಸಮಯ > past_ಸಮಯ) {
+		past_ದತ್ತಾಂಶ = ಕೊನೆಯ_ದತ್ತಾಂಶ;
+		past_ಸಮಯ = pnt_ಸಮಯ;
 	}
 
-	if (pnt_time > last_time) {
-		if (all_samples) {
-			callback(last_time);
-			curr_cycle++;
-			last_time = pnt_time;
-		} else {
-			if (is_clock) {
-				std::string val = std::string((const char *)pnt_value);
-				std::string prev = past_data[pnt_facidx];
-				if ((prev!="1" && val=="1") || (prev!="0" && val=="0")) {
-					callback(last_time);
-					curr_cycle++;
-					last_time = pnt_time;
+	ಆದರೆ (pnt_ಸಮಯ > ಕೊನೆಯ_ಸಮಯ) {
+		ಆದರೆ (all_samples) {
+			callback(ಕೊನೆಯ_ಸಮಯ);
+			curr_ಚಕ್ರ++;
+			ಕೊನೆಯ_ಸಮಯ = pnt_ಸಮಯ;
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			ಆದರೆ (is_clock) {
+				std::string val = std::string((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)pnt_ಮೌಲ್ಯ);
+				std::string prev = past_ದತ್ತಾಂಶ[pnt_facidx];
+				ಆದರೆ ((prev!="1" && val=="1") || (prev!="0" && val=="0")) {
+					callback(ಕೊನೆಯ_ಸಮಯ);
+					curr_ಚಕ್ರ++;
+					ಕೊನೆಯ_ಸಮಯ = pnt_ಸಮಯ;
 				}
 			}
 		}
 	}
 	// always update last_data
-	last_data[pnt_facidx] =  std::string((const char *)pnt_value);
+	ಕೊನೆಯ_ದತ್ತಾಂಶ[pnt_facidx] =  std::string((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)pnt_ಮೌಲ್ಯ);
 }
 
-void FstData::reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start, uint64_t end, unsigned int end_cycle, CallbackFunction cb)
+ಶೂನ್ಯ Fst_ದತ್ತಾಂಶ::reconstructAllAtTimes(std::ಸದಿಶ<fstHandle> &ಸಂಕೇತ, uint64_t ಆರಂಭ, uint64_t ಕೊನೆ, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ ಕೊನೆ_ಚಕ್ರ, CallbackFunction cb)
 {
-	clk_signals = signal;
+	clk_ಸಂಕೇತಗಳು = ಸಂಕೇತ;
 	callback = cb;
-	start_time = start;
-	end_time = end;
-	curr_cycle = 0;
-	last_cycle = end_cycle;
-	last_data.clear();
-	last_time = start_time;
-	past_data.clear();
-	past_time = start_time;
-	all_samples = clk_signals.empty();
+	ಆರಂಭ_ಸಮಯ = ಆರಂಭ;
+	ಕೊನೆ_ಸಮಯ = ಕೊನೆ;
+	curr_ಚಕ್ರ = 0;
+	ಕೊನೆಯ_ಚಕ್ರ = ಕೊನೆ_ಚಕ್ರ;
+	ಕೊನೆಯ_ದತ್ತಾಂಶ.clear();
+	ಕೊನೆಯ_ಸಮಯ = ಆರಂಭ_ಸಮಯ;
+	past_ದತ್ತಾಂಶ.clear();
+	past_ಸಮಯ = ಆರಂಭ_ಸಮಯ;
+	all_samples = clk_ಸಂಕೇತಗಳು.ಖಾಲಿಗಳು();
 
-	fstReaderSetUnlimitedTimeRange(ctx);
-	fstReaderSetFacProcessMaskAll(ctx);
-	fstReaderIterBlocks2(ctx, reconstruct_clb_attimes, reconstruct_clb_varlen_attimes, this, nullptr);
-	if (last_time!=end_time && curr_cycle <= last_cycle) {
-		past_data = last_data;
-		callback(last_time);
-		curr_cycle++;
+	fst_Reader_ಗಣ_Unlimited_ಸಮಯ_Range(ctx);
+	fst_Reader_ಗಣ_Fac_Process_ಮುಖವಾಡ_All(ctx);
+	fstReaderIterBlocks2(ctx, reconstruct_clb_attimes, reconstruct_clb_varlen_attimes, ಇದು, ಶೂನ್ಯಸೂಚಕ);
+	ಆದರೆ (ಕೊನೆಯ_ಸಮಯ!=ಕೊನೆ_ಸಮಯ && curr_ಚಕ್ರ <= ಕೊನೆಯ_ಚಕ್ರ) {
+		past_ದತ್ತಾಂಶ = ಕೊನೆಯ_ದತ್ತಾಂಶ;
+		callback(ಕೊನೆಯ_ಸಮಯ);
+		curr_ಚಕ್ರ++;
 	}
-	if (curr_cycle <= last_cycle) {
-		past_data = last_data;
-		callback(end_time);
-		curr_cycle++;
+	ಆದರೆ (curr_ಚಕ್ರ <= ಕೊನೆಯ_ಚಕ್ರ) {
+		past_ದತ್ತಾಂಶ = ಕೊನೆಯ_ದತ್ತಾಂಶ;
+		callback(ಕೊನೆ_ಸಮಯ);
+		curr_ಚಕ್ರ++;
 	}
 }
 
-std::string FstData::valueOf(fstHandle signal)
+std::string Fst_ದತ್ತಾಂಶ::ಮೌಲ್ಯ_ದ(fstHandle ಸಂಕೇತ)
 {
-	if (past_data.find(signal) == past_data.end()) {
-		return std::string(handle_to_var[signal].width, 'x');
+	ಆದರೆ (past_ದತ್ತಾಂಶ.ಕಂಡುಹಿಡಿ(ಸಂಕೇತ) == past_ದತ್ತಾಂಶ.ಕೊನೆ()) {
+		ಹಿಂತಿರುಗಿ std::string(handle_ಗಮ್ಯ_var[ಸಂಕೇತ].ಅಗಲ, 'x');
 	}
-	return past_data[signal];
+	ಹಿಂತಿರುಗಿ past_ದತ್ತಾಂಶ[ಸಂಕೇತ];
 }

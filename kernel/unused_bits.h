@@ -1,54 +1,54 @@
-#ifndef UNUSED_BITS_H
-#define UNUSED_BITS_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಬಳಸದ_ಬಿಟ್ಟುಗಳು_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಬಳಸದ_ಬಿಟ್ಟುಗಳು_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/newcelltypes.h"
+#ಅನ್ತರ್ಭಾವ "kernel/yosys.h"
+#ಅನ್ತರ್ಭಾವ "kernel/sigtools.h"
+#ಅನ್ತರ್ಭಾವ "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct UnusedBits
+ರಚನೆ ಬಳಸದ_ಬಿಟ್ಟುಗಳು
 {
 	SigMap sigmap;
-	pool<RTLIL::SigBit> used;
+	pool<RTLIL::Sig_ಬಿಟ್> ಬಳಸಿದ;
 
-	UnusedBits(RTLIL::Module *module) : sigmap(module)
+	ಬಳಸದ_ಬಿಟ್ಟುಗಳು(RTLIL::Module *module) : sigmap(module)
 	{
 		NewCellTypes ct(module->design);
-		collect_used(module, ct);
+		collect_ಬಳಸಿದ(module, ct);
 	}
 
-	UnusedBits(RTLIL::Module *module, const NewCellTypes &ct) : sigmap(module)
+	ಬಳಸದ_ಬಿಟ್ಟುಗಳು(RTLIL::Module *module, ಸ್ಥಿರಾಂಕ NewCellTypes &ct) : sigmap(module)
 	{
-		collect_used(module, ct);
+		collect_ಬಳಸಿದ(module, ct);
 	}
 
-	void collect_used(RTLIL::Module *module, const NewCellTypes &ct)
+	ಶೂನ್ಯ collect_ಬಳಸಿದ(RTLIL::Module *module, ಸ್ಥಿರಾಂಕ NewCellTypes &ct)
 	{
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				if (!ct.cell_output(cell->type, conn.first))
-					add_used(conn.second);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ cell : module->cells())
+			ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &conn : cell->connections())
+				ಆದರೆ (!ct.cell_output(cell->type, conn.ಮೊದಲ))
+					ಕೂಡಿಸು_ಬಳಸಿದ(conn.ಎರಡನೇ);
 
-		for (auto wire : module->wires())
-			if (wire->port_output)
-				add_used(wire);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ wire : module->wires())
+			ಆದರೆ (wire->ಪೋರ್ಟ್_output)
+				ಕೂಡಿಸು_ಬಳಸಿದ(wire);
 	}
 
-	void add_used(const RTLIL::SigSpec &sig)
+	ಶೂನ್ಯ ಕೂಡಿಸು_ಬಳಸಿದ(ಸ್ಥಿರಾಂಕ RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sigmap(sig))
-			if (bit.wire != nullptr)
-				used.insert(bit);
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ ಬಿಟ್ : sigmap(sig))
+			ಆದರೆ (ಬಿಟ್.wire != nullptr)
+				ಬಳಸಿದ.ಸೇರಿಸು(ಬಿಟ್);
 	}
 
-	bool check(RTLIL::SigBit bit) const
+	bool check(RTLIL::Sig_ಬಿಟ್ ಬಿಟ್) ಸ್ಥಿರಾಂಕ
 	{
-		RTLIL::SigBit mapped = sigmap(bit);
-		return mapped.wire != nullptr && !used.count(mapped);
+		RTLIL::Sig_ಬಿಟ್ mapped = sigmap(ಬಿಟ್);
+		ಹಿಂತಿರುಗಿ mapped.wire != nullptr && !ಬಳಸಿದ.ಎಣಿಕೆ_2(mapped);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

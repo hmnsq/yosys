@@ -17,118 +17,118 @@
  *
  */
 
-#ifndef LOG_HELP_H
-#define LOG_HELP_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ LOG_HELP_H
+#ವ್ಯಾಖ್ಯಾನಿಸು LOG_HELP_H
 
-#include "kernel/yosys_common.h"
-#include "kernel/json.h"
-#include <filesystem>
-#include <string_view>
+#ಅನ್ತರ್ಭಾವ "kernel/yosys_common.h"
+#ಅನ್ತರ್ಭಾವ "kernel/json.h"
+#ಅನ್ತರ್ಭಾವ <filesystem>
+#ಅನ್ತರ್ಭಾವ <string_view>
 
 YOSYS_NAMESPACE_BEGIN
 
-std::filesystem::path fixup_source_path (const char* source_file,
-	const std::filesystem::path &source_root, bool* skip_source_group = nullptr);
+std::filesystem::ಮಾರ್ಗ_2 fixup_ಮೂಲ_ಮಾರ್ಗ (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಮೂಲ_file,
+	ಸ್ಥಿರಾಂಕ std::filesystem::ಮಾರ್ಗ_2 &ಮೂಲ_ಬೇರು, bool* skip_ಮೂಲ_ಗುಂಪು = nullptr);
 
 class ContentListing {
-	vector<ContentListing> _content;
-public:
+	ಸದಿಶ<ContentListing> _content;
+ಸಾರ್ವಜನಿಕ:
 	string type;
 	string body;
-	const char* source_file;
-	int source_line;
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಮೂಲ_file;
+	ಪೂರ್ಣಾಂಕ ಮೂಲ_ಸಾಲು;
 	std::map<string, string> options;
 
 	ContentListing(
 		string type = "root", string body = "",
-		const char* source_file = "unknown", int source_line = 0
-	) : type(type), body(body), source_file(source_file), source_line(source_line) {
+		ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಮೂಲ_file = "unknown", ಪೂರ್ಣಾಂಕ ಮೂಲ_ಸಾಲು = 0
+	) : type(type), body(body), ಮೂಲ_file(ಮೂಲ_file), ಮೂಲ_ಸಾಲು(ಮೂಲ_ಸಾಲು) {
 		_content = {};
 		options = {};
 	}
 
-	ContentListing(string type, string body, source_location location) :
-		ContentListing(type, body, location.file_name(), location.line()) { }
+	ContentListing(string type, string body, ಮೂಲ_location location) :
+		ContentListing(type, body, location.file_name(), location.ಸಾಲು()) { }
 
-	void add_content(string type, string body, source_location location) {
-		_content.push_back({type, body, location});
+	ಶೂನ್ಯ ಕೂಡಿಸು_content(string type, string body, ಮೂಲ_location location) {
+		_content.ತಳ್ಳು_ಹಿಂಭಾಗ({type, body, location});
 	}
 
-	bool has_source() const { return strlen(source_file) && strcmp(source_file, "unknown") != 0; }
-	bool has_content() const { return _content.size() != 0; }
+	bool has_ಮೂಲ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ಮೂಲ_file) && strcmp(ಮೂಲ_file, "unknown") != 0; }
+	bool has_content() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ _content.ಗಾತ್ರ_2() != 0; }
 
-	vector<ContentListing>::const_iterator begin() const { return _content.cbegin(); }
-	vector<ContentListing>::const_iterator end() const { return _content.cend(); }
+	ಸದಿಶ<ContentListing>::const_iterator begin() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ _content.cbegin(); }
+	ಸದಿಶ<ContentListing>::const_iterator ಕೊನೆ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ _content.cend(); }
 
-	ContentListing* back() {
-		return &_content.back();
+	ContentListing* ಹಿಂಭಾಗ() {
+		ಹಿಂತಿರುಗಿ &_content.ಹಿಂಭಾಗ();
 	}
 
-	void set_option(string key, string val = "") {
-		options[key] = val;
+	ಶೂನ್ಯ ಗಣ_option(string ಕೀಲಿ, string val = "") {
+		options[ಕೀಲಿ] = val;
 	}
 
-	void usage(
-		const string &text,
-		const source_location location = source_location::current()
+	ಶೂನ್ಯ usage(
+		ಸ್ಥಿರಾಂಕ string &ಪಠ್ಯ,
+		ಸ್ಥಿರಾಂಕ ಮೂಲ_location location = ಮೂಲ_location::current()
 	);
-	void option(
-		const string &text,
-		const string &description = "",
-		const source_location location = source_location::current()
+	ಶೂನ್ಯ option(
+		ಸ್ಥಿರಾಂಕ string &ಪಠ್ಯ,
+		ಸ್ಥಿರಾಂಕ string &description = "",
+		ಸ್ಥಿರಾಂಕ ಮೂಲ_location location = ಮೂಲ_location::current()
 	);
-	void codeblock(
-		const string &code,
-		const string &language = "none",
-		const source_location location = source_location::current()
+	ಶೂನ್ಯ codeblock(
+		ಸ್ಥಿರಾಂಕ string &ಸಂಕೇತ_2,
+		ಸ್ಥಿರಾಂಕ string &language = "none",
+		ಸ್ಥಿರಾಂಕ ಮೂಲ_location location = ಮೂಲ_location::current()
 	);
-	void paragraph(
-		const string &text,
-		const source_location location = source_location::current()
+	ಶೂನ್ಯ paragraph(
+		ಸ್ಥಿರಾಂಕ string &ಪಠ್ಯ,
+		ಸ್ಥಿರಾಂಕ ಮೂಲ_location location = ಮೂಲ_location::current()
 	);
 
 	ContentListing* open_usage(
-		const string &text,
-		const source_location location = source_location::current()
+		ಸ್ಥಿರಾಂಕ string &ಪಠ್ಯ,
+		ಸ್ಥಿರಾಂಕ ಮೂಲ_location location = ಮೂಲ_location::current()
 	);
 	ContentListing* open_option(
-		const string &text,
-		const source_location location = source_location::current()
+		ಸ್ಥಿರಾಂಕ string &ಪಠ್ಯ,
+		ಸ್ಥಿರಾಂಕ ಮೂಲ_location location = ಮೂಲ_location::current()
 	);
 
-	Json to_json(const std::filesystem::path &source_root) const;
+	Json ಗಮ್ಯ_json(ಸ್ಥಿರಾಂಕ std::filesystem::ಮಾರ್ಗ_2 &ಮೂಲ_ಬೇರು) ಸ್ಥಿರಾಂಕ;
 };
 
 class PrettyHelp
 {
-public:
-	string group = "unknown";
+ಸಾರ್ವಜನಿಕ:
+	string ಗುಂಪು = "unknown";
 
-private:
-	PrettyHelp *_prior;
-	ContentListing _root_listing;
+ಖಾಸಗಿ:
+	PrettyHelp *ಪೂರ್ವ;
+	ContentListing ಬೇರು_listing;
 
-public:
+ಸಾರ್ವಜನಿಕ:
 	PrettyHelp();
 	~PrettyHelp();
 
-	static PrettyHelp *get_current();
+	ಸ್ಥಿರ PrettyHelp *get_current();
 
-	bool has_content() const { return _root_listing.has_content(); }
+	bool has_content() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಬೇರು_listing.has_content(); }
 
-	vector<ContentListing>::const_iterator begin() const { return _root_listing.begin(); }
-	vector<ContentListing>::const_iterator end() const { return _root_listing.end(); }
+	ಸದಿಶ<ContentListing>::const_iterator begin() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಬೇರು_listing.begin(); }
+	ಸದಿಶ<ContentListing>::const_iterator ಕೊನೆ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಬೇರು_listing.ಕೊನೆ(); }
 
-	ContentListing* get_root() {
-		return &_root_listing;
+	ContentListing* get_ಬೇರು() {
+		ಹಿಂತಿರುಗಿ &ಬೇರು_listing;
 	}
 
-	void set_group(const string g) { group = g; }
-	bool has_group() const { return group.compare("unknown") != 0; }
+	ಶೂನ್ಯ ಗಣ_ಗುಂಪು(ಸ್ಥಿರಾಂಕ string g) { ಗುಂಪು = g; }
+	bool has_ಗುಂಪು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಗುಂಪು.compare("unknown") != 0; }
 
-	void log_help() const;
+	ಶೂನ್ಯ log_help() ಸ್ಥಿರಾಂಕ;
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

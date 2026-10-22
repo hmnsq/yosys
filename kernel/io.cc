@@ -1,94 +1,94 @@
-#include "kernel/yosys_common.h"
-#include "kernel/log.h"
-#include <iostream>
-#include <string>
-#include <filesystem>
-#include <system_error>
+#ಅನ್ತರ್ಭಾವ "kernel/yosys_common.h"
+#ಅನ್ತರ್ಭಾವ "kernel/log.h"
+#ಅನ್ತರ್ಭಾವ <iostream>
+#ಅನ್ತರ್ಭಾವ <string>
+#ಅನ್ತರ್ಭಾವ <filesystem>
+#ಅನ್ತರ್ಭಾವ <system_error>
 
-#if !defined(WIN32)
-#include <dirent.h>
-#include <unistd.h>
-#else
-#include <io.h>
-#endif
+#ಆದರೆ !defined(WIN32)
+#ಅನ್ತರ್ಭಾವ <dirent.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
+#ಇಲ್ಲದಿದ್ದರೆ
+#ಅನ್ತರ್ಭಾವ <io.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#if !defined(_WIN32) && !defined(__wasi__)
-#include <sys/file.h>
-#include <fcntl.h>
-#include <cerrno>
-#endif
+#ಆದರೆ !defined(_WIN32) && !defined(__wasi__)
+#ಅನ್ತರ್ಭಾವ <sys/file.h>
+#ಅನ್ತರ್ಭಾವ <fcntl.h>
+#ಅನ್ತರ್ಭಾವ <cerrno>
+#ಆದರೆ_ಅಂತ್ಯ
 
 YOSYS_NAMESPACE_BEGIN
 
 // Set of utilities for handling files
 
-int readsome(std::istream &f, char *s, int n)
+ಪೂರ್ಣಾಂಕ readsome(std::istream &f, ಅಕ್ಷರ *s, ಪೂರ್ಣಾಂಕ n)
 {
-	int rc = int(f.readsome(s, n));
+	ಪೂರ್ಣಾಂಕ rc = ಪೂರ್ಣಾಂಕ(f.readsome(s, n));
 
 	// f.readsome() sometimes returns 0 on a non-empty stream..
-	if (rc == 0) {
-		int c = f.get();
-		if (c != EOF) {
+	ಆದರೆ (rc == 0) {
+		ಪೂರ್ಣಾಂಕ c = f.get();
+		ಆದರೆ (c != EOF) {
 			*s = c;
 			rc = 1;
 		}
 	}
 
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
-std::string next_token(std::string &text, const char *sep, bool long_strings)
+std::string ಮುಂದಿನ_token(std::string &ಪಠ್ಯ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *sep, ತಾರ್ಕಿಕ long_ಅಕ್ಷರಸರಣಿಗಳು)
 {
-	size_t pos_begin = text.find_first_not_of(sep);
+	ಗಾತ್ರ_t pos_begin = ಪಠ್ಯ.ಕಂಡುಹಿಡಿ_ಮೊದಲ_not_ದ(sep);
 
-	if (pos_begin == std::string::npos)
-		pos_begin = text.size();
+	ಆದರೆ (pos_begin == std::string::npos)
+		pos_begin = ಪಠ್ಯ.ಗಾತ್ರ_2();
 
-	if (long_strings && pos_begin != text.size() && text[pos_begin] == '"') {
+	ಆದರೆ (long_ಅಕ್ಷರಸರಣಿಗಳು && pos_begin != ಪಠ್ಯ.ಗಾತ್ರ_2() && ಪಠ್ಯ[pos_begin] == '"') {
 		std::string sep_string = sep;
-		for (size_t i = pos_begin+1; i < text.size(); i++) {
-			if (text[i] == '"' && (i+1 == text.size() || sep_string.find(text[i+1]) != std::string::npos)) {
-				std::string token = text.substr(pos_begin, i-pos_begin+1);
-				text = text.substr(i+1);
-				return token;
+		ಗಾಗಿ (ಗಾತ್ರ_t i = pos_begin+1; i < ಪಠ್ಯ.ಗಾತ್ರ_2(); i++) {
+			ಆದರೆ (ಪಠ್ಯ[i] == '"' && (i+1 == ಪಠ್ಯ.ಗಾತ್ರ_2() || sep_string.ಕಂಡುಹಿಡಿ(ಪಠ್ಯ[i+1]) != std::string::npos)) {
+				std::string token = ಪಠ್ಯ.substr(pos_begin, i-pos_begin+1);
+				ಪಠ್ಯ = ಪಠ್ಯ.substr(i+1);
+				ಹಿಂತಿರುಗಿ token;
 			}
-			if (i+1 < text.size() && text[i] == '"' && text[i+1] == ';' && (i+2 == text.size() || sep_string.find(text[i+2]) != std::string::npos)) {
-				std::string token = text.substr(pos_begin, i-pos_begin+1);
-				text = text.substr(i+2);
-				return token + ";";
+			ಆದರೆ (i+1 < ಪಠ್ಯ.ಗಾತ್ರ_2() && ಪಠ್ಯ[i] == '"' && ಪಠ್ಯ[i+1] == ';' && (i+2 == ಪಠ್ಯ.ಗಾತ್ರ_2() || sep_string.ಕಂಡುಹಿಡಿ(ಪಠ್ಯ[i+2]) != std::string::npos)) {
+				std::string token = ಪಠ್ಯ.substr(pos_begin, i-pos_begin+1);
+				ಪಠ್ಯ = ಪಠ್ಯ.substr(i+2);
+				ಹಿಂತಿರುಗಿ token + ";";
 			}
 		}
 	}
 
-	size_t pos_end = text.find_first_of(sep, pos_begin);
+	ಗಾತ್ರ_t pos_ಕೊನೆ = ಪಠ್ಯ.ಕಂಡುಹಿಡಿ_ಮೊದಲ_ದ(sep, pos_begin);
 
-	if (pos_end == std::string::npos)
-		pos_end = text.size();
+	ಆದರೆ (pos_ಕೊನೆ == std::string::npos)
+		pos_ಕೊನೆ = ಪಠ್ಯ.ಗಾತ್ರ_2();
 
-	std::string token = text.substr(pos_begin, pos_end-pos_begin);
-	text = text.substr(pos_end);
-	return token;
+	std::string token = ಪಠ್ಯ.substr(pos_begin, pos_ಕೊನೆ-pos_begin);
+	ಪಠ್ಯ = ಪಠ್ಯ.substr(pos_ಕೊನೆ);
+	ಹಿಂತಿರುಗಿ token;
 }
 
-std::vector<std::string> split_tokens(const std::string &text, const char *sep)
+std::ಸದಿಶ<std::string> ವಿಭಜಿಸು_ಟೋಕನುಗಳು(ಸ್ಥಿರಾಂಕ std::string &ಪಠ್ಯ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *sep)
 {
-	std::vector<std::string> tokens;
+	std::ಸದಿಶ<std::string> ಟೋಕನುಗಳು;
 	std::string current_token;
-	for (char c : text) {
-		if (strchr(sep, c)) {
-			if (!current_token.empty()) {
-				tokens.push_back(current_token);
+	ಗಾಗಿ (ಅಕ್ಷರ c : ಪಠ್ಯ) {
+		ಆದರೆ (strchr(sep, c)) {
+			ಆದರೆ (!current_token.ಖಾಲಿಗಳು()) {
+				ಟೋಕನುಗಳು.ತಳ್ಳು_ಹಿಂಭಾಗ(current_token);
 				current_token.clear();
 			}
-		} else
+		} ಇಲ್ಲದಿದ್ದರೆ
 			current_token += c;
 	}
-	if (!current_token.empty()) {
-		tokens.push_back(current_token);
+	ಆದರೆ (!current_token.ಖಾಲಿಗಳು()) {
+		ಟೋಕನುಗಳು.ತಳ್ಳು_ಹಿಂಭಾಗ(current_token);
 		current_token.clear();
 	}
-	return tokens;
+	ಹಿಂತಿರುಗಿ ಟೋಕನುಗಳು;
 }
 
 // this is very similar to fnmatch(). the exact rules used by this
@@ -102,396 +102,396 @@ std::vector<std::string> split_tokens(const std::string &text, const char *sep)
 // a backslash may be used to escape the next characters in the
 // pattern. each special character can also simply match itself.
 //
-bool patmatch(const char *pattern, const char *string)
+ತಾರ್ಕಿಕ patmatch(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ನಮೂನೆ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *string)
 {
-	if (*pattern == 0)
-		return *string == 0;
+	ಆದರೆ (*ನಮೂನೆ == 0)
+		ಹಿಂತಿರುಗಿ *string == 0;
 
-	if (*pattern == '\\') {
-		if (pattern[1] == string[0] && patmatch(pattern+2, string+1))
-			return true;
+	ಆದರೆ (*ನಮೂನೆ == '\\') {
+		ಆದರೆ (ನಮೂನೆ[1] == string[0] && patmatch(ನಮೂನೆ+2, string+1))
+			ಹಿಂತಿರುಗಿ ನಿಜ;
 	}
 
-	if (*pattern == '?') {
-		if (*string == 0)
-			return false;
-		return patmatch(pattern+1, string+1);
+	ಆದರೆ (*ನಮೂನೆ == '?') {
+		ಆದರೆ (*string == 0)
+			ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+		ಹಿಂತಿರುಗಿ patmatch(ನಮೂನೆ+1, string+1);
 	}
 
-	if (*pattern == '*') {
-		while (*string) {
-			if (patmatch(pattern+1, string++))
-				return true;
+	ಆದರೆ (*ನಮೂನೆ == '*') {
+		ಆಗ (*string) {
+			ಆದರೆ (patmatch(ನಮೂನೆ+1, string++))
+				ಹಿಂತಿರುಗಿ ನಿಜ;
 		}
-		return pattern[1] == 0;
+		ಹಿಂತಿರುಗಿ ನಮೂನೆ[1] == 0;
 	}
 
-	if (*pattern == '[') {
-		bool found_match = false;
-		bool inverted_list = pattern[1] == '!';
-		const char *p = pattern + (inverted_list ? 1 : 0);
+	ಆದರೆ (*ನಮೂನೆ == '[') {
+		ತಾರ್ಕಿಕ ಸಿಕ್ಕಿತು_ಹೊಂದಿಕೆ = ಸುಳ್ಳು;
+		ತಾರ್ಕಿಕ inverted_list = ನಮೂನೆ[1] == '!';
+		ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p = ನಮೂನೆ + (inverted_list ? 1 : 0);
 
-		while (*++p) {
-			if (*p == ']') {
-				if (found_match != inverted_list && patmatch(p+1, string+1))
-					return true;
-				break;
+		ಆಗ (*++p) {
+			ಆದರೆ (*p == ']') {
+				ಆದರೆ (ಸಿಕ್ಕಿತು_ಹೊಂದಿಕೆ != inverted_list && patmatch(p+1, string+1))
+					ಹಿಂತಿರುಗಿ ನಿಜ;
+				ನಿಲ್ಲಿಸು;
 			}
 
-			if (*p == '\\') {
-				if (*++p == *string)
-					found_match = true;
-			} else
-			if (*p == *string)
-				found_match = true;
+			ಆದರೆ (*p == '\\') {
+				ಆದರೆ (*++p == *string)
+					ಸಿಕ್ಕಿತು_ಹೊಂದಿಕೆ = ನಿಜ;
+			} ಇಲ್ಲದಿದ್ದರೆ
+			ಆದರೆ (*p == *string)
+				ಸಿಕ್ಕಿತು_ಹೊಂದಿಕೆ = ನಿಜ;
 		}
 	}
 
-	if (*pattern == *string)
-		return patmatch(pattern+1, string+1);
+	ಆದರೆ (*ನಮೂನೆ == *string)
+		ಹಿಂತಿರುಗಿ patmatch(ನಮೂನೆ+1, string+1);
 
-	return false;
+	ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
 }
 
-std::string get_base_tmpdir()
+std::string get_ತಳ_tmpdir()
 {
-	static std::string tmpdir;
+	ಸ್ಥಿರ std::string tmpdir;
 
-	if (!tmpdir.empty()) {
-		return tmpdir;
+	ಆದರೆ (!tmpdir.ಖಾಲಿಗಳು()) {
+		ಹಿಂತಿರುಗಿ tmpdir;
 	}
 
-#if defined(_WIN32)
+#ಆದರೆ defined(_WIN32)
 	std::wstring wtmppath(4096, L'\0');
 	// typically returns a 8.3 path, but this can be disabled via registry
-	if (!GetTempPathW(wtmppath.size(), wtmppath.data()))
+	ಆದರೆ (!Get_ತಾತ್ಕಾಲಿಕ_ಮಾರ್ಗ_W(wtmppath.ಗಾತ್ರ_2(), wtmppath.ದತ್ತಾಂಶ()))
 		log_error("GetTempPathW() failed.\n");
-	wtmppath.resize(wtmppath.find(L'\0'));
+	wtmppath.resize(wtmppath.ಕಂಡುಹಿಡಿ(L'\0'));
 	std::string utmppath;
-	utmppath.resize(WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), NULL, 0, NULL, NULL));
-	if (WideCharToMultiByte(CP_UTF8, 0, wtmppath.data(), wtmppath.size(), utmppath.data(), utmppath.size(), NULL, NULL) == 0)
+	utmppath.resize(Wide_Char_ಗಮ್ಯ_Multi_Byte(CP_UTF8, 0, wtmppath.ದತ್ತಾಂಶ(), wtmppath.ಗಾತ್ರ_2(), ಖಾಲಿ, 0, ಖಾಲಿ, ಖಾಲಿ));
+	ಆದರೆ (Wide_Char_ಗಮ್ಯ_Multi_Byte(CP_UTF8, 0, wtmppath.ದತ್ತಾಂಶ(), wtmppath.ಗಾತ್ರ_2(), utmppath.ದತ್ತಾಂಶ(), utmppath.ಗಾತ್ರ_2(), ಖಾಲಿ, ಖಾಲಿ) == 0)
 		log_error("WideCharToMultiByte() failed.\n");
 	tmpdir += utmppath;
-#else
-	char * var = std::getenv("TMPDIR");
-	if (var && strlen(var)!=0) {
-		tmpdir.assign(var);
+#ಇಲ್ಲದಿದ್ದರೆ
+	ಅಕ್ಷರ * var = std::getenv("TMPDIR");
+	ಆದರೆ (var && ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(var)!=0) {
+		tmpdir.ನಿಯೋಜಿಸು(var);
 		// We return the directory name without the trailing '/'
-		while (!tmpdir.empty() && (tmpdir.back() == '/')) {
-			tmpdir.pop_back();
+		ಆಗ (!tmpdir.ಖಾಲಿಗಳು() && (tmpdir.ಹಿಂಭಾಗ() == '/')) {
+			tmpdir.ತೆಗೆ_ಹಿಂಭಾಗ();
 		}
-	} else {
-		tmpdir.assign("/tmp");
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		tmpdir.ನಿಯೋಜಿಸು("/tmp");
 	}
-#endif
-	return tmpdir;
+#ಆದರೆ_ಅಂತ್ಯ
+	ಹಿಂತಿರುಗಿ tmpdir;
 }
 
-std::string make_temp_file(std::string template_str)
+std::string make_ತಾತ್ಕಾಲಿಕ_file(std::string template_str)
 {
-	size_t pos = template_str.rfind("XXXXXX");
+	ಗಾತ್ರ_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
-#if defined(__wasm)
-	static size_t index = 0;
-	template_str.replace(pos, 6, stringf("%06zu", index++));
-#elif defined(_WIN32)
-#ifndef YOSYS_WIN32_UNIX_DIR
-	std::replace(template_str.begin(), template_str.end(), '/', '\\');
-#endif
-	while (1) {
-		for (int i = 0; i < 6; i++) {
-			static std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-			static uint32_t x = 314159265 ^ uint32_t(time(NULL));
+#ಆದರೆ defined(__wasm)
+	ಸ್ಥಿರ ಗಾತ್ರ_t ಸೂಚ್ಯಂಕ = 0;
+	template_str.replace(pos, 6, stringf("%06zu", ಸೂಚ್ಯಂಕ++));
+#ಅಥವಾಆದರೆ defined(_WIN32)
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ YOSYS_WIN32_UNIX_DIR
+	std::replace(template_str.begin(), template_str.ಕೊನೆ(), '/', '\\');
+#ಆದರೆ_ಅಂತ್ಯ
+	ಆಗ (1) {
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < 6; i++) {
+			ಸ್ಥಿರ std::string y = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			ಸ್ಥಿರ uint32_t x = 314159265 ^ uint32_t(ಸಮಯ_2(ಖಾಲಿ));
 			x ^= x << 13, x ^= x >> 17, x ^= x << 5;
-			template_str[pos+i] = y[x % y.size()];
+			template_str[pos+i] = y[x % y.ಗಾತ್ರ_2()];
 		}
-		if (_access(template_str.c_str(), 0) != 0)
-			break;
+		ಆದರೆ (_access(template_str.c_str(), 0) != 0)
+			ನಿಲ್ಲಿಸು;
 	}
-#else
-	int suffixlen = template_str.size() - pos - 6;
+#ಇಲ್ಲದಿದ್ದರೆ
+	ಪೂರ್ಣಾಂಕ suffixlen = template_str.ಗಾತ್ರ_2() - pos - 6;
 
-	char *p = strdup(template_str.c_str());
+	ಅಕ್ಷರ *p = strdup(template_str.c_str());
 	close(mkstemps(p, suffixlen));
 	template_str = p;
-	free(p);
-#endif
+	ಬಿಡುಗಡೆ(p);
+#ಆದರೆ_ಅಂತ್ಯ
 
-	return template_str;
+	ಹಿಂತಿರುಗಿ template_str;
 }
 
-std::string make_temp_dir(std::string template_str)
+std::string make_ತಾತ್ಕಾಲಿಕ_dir(std::string template_str)
 {
-#if defined(_WIN32)
-	template_str = make_temp_file(template_str);
+#ಆದರೆ defined(_WIN32)
+	template_str = make_ತಾತ್ಕಾಲಿಕ_file(template_str);
 	mkdir(template_str.c_str());
-	return template_str;
-#elif defined(__wasm)
-	template_str = make_temp_file(template_str);
+	ಹಿಂತಿರುಗಿ template_str;
+#ಅಥವಾಆದರೆ defined(__wasm)
+	template_str = make_ತಾತ್ಕಾಲಿಕ_file(template_str);
 	mkdir(template_str.c_str(), 0777);
-	return template_str;
-#else
+	ಹಿಂತಿರುಗಿ template_str;
+#ಇಲ್ಲದಿದ್ದರೆ
 #  ifndef NDEBUG
-	size_t pos = template_str.rfind("XXXXXX");
+	ಗಾತ್ರ_t pos = template_str.rfind("XXXXXX");
 	log_assert(pos != std::string::npos);
 
-	int suffixlen = template_str.size() - pos - 6;
+	ಪೂರ್ಣಾಂಕ suffixlen = template_str.ಗಾತ್ರ_2() - pos - 6;
 	log_assert(suffixlen == 0);
 #  endif
 
-	char *p = strdup(template_str.c_str());
+	ಅಕ್ಷರ *p = strdup(template_str.c_str());
 	log_assert(p);
-	char *res = mkdtemp(p);
-	if (!res)
+	ಅಕ್ಷರ *res = mkdtemp(p);
+	ಆದರೆ (!res)
 		log_error("mkdtemp failed for '%s': %s [Error %d]\n",
 			p, strerror(errno), errno);
 	template_str = p;
-	free(p);
+	ಬಿಡುಗಡೆ(p);
 
-	return template_str;
-#endif
+	ಹಿಂತಿರುಗಿ template_str;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-bool check_is_directory(const std::string& dirname)
+ತಾರ್ಕಿಕ check_is_directory(ಸ್ಥಿರಾಂಕ std::string& dirname)
 {
-#if defined(_WIN32)
-	struct _stat info;
-	auto dirname_ = dirname;
+#ಆದರೆ defined(_WIN32)
+	ರಚನೆ _stat info;
+	ಸ್ವಯಂಚಾಲಿತ dirname_ = dirname;
 
 	/* On old versions of Visual Studio and current versions on MinGW,
 	   _stat will fail if the path ends with a trailing slash. */
-	if (dirname.back() == '/' || dirname.back() == '\\') {
-		dirname_ = dirname.substr(0, dirname.length() - 1);
+	ಆದರೆ (dirname.ಹಿಂಭಾಗ() == '/' || dirname.ಹಿಂಭಾಗ() == '\\') {
+		dirname_ = dirname.substr(0, dirname.ಉದ್ದಳತೆ() - 1);
 	}
 
-	if (_stat(dirname_.c_str(), &info) != 0)
+	ಆದರೆ (_stat(dirname_.c_str(), &info) != 0)
 	{
-		return false;
+		ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
 	}
-	return (info.st_mode & _S_IFDIR) != 0;
-#else
-	struct stat info;
-	if (stat(dirname.c_str(), &info) != 0)
+	ಹಿಂತಿರುಗಿ (info.st_ಬಹುಲಕ & _S_IFDIR) != 0;
+#ಇಲ್ಲದಿದ್ದರೆ
+	ರಚನೆ stat info;
+	ಆದರೆ (stat(dirname.c_str(), &info) != 0)
 	{
-		return false;
+		ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
 	}
-	return (info.st_mode & S_IFDIR) != 0;
-#endif
+	ಹಿಂತಿರುಗಿ (info.st_ಬಹುಲಕ & S_IFDIR) != 0;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-#ifdef _WIN32
-bool check_accessible(const std::string& filename, bool)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _WIN32
+ತಾರ್ಕಿಕ check_accessible(ಸ್ಥಿರಾಂಕ std::string& filename, ತಾರ್ಕಿಕ)
 {
-	return _access(filename.c_str(), 0) == 0;
+	ಹಿಂತಿರುಗಿ _access(filename.c_str(), 0) == 0;
 }
-#else
-bool check_accessible(const std::string& filename, bool is_exec)
+#ಇಲ್ಲದಿದ್ದರೆ
+ತಾರ್ಕಿಕ check_accessible(ಸ್ಥಿರಾಂಕ std::string& filename, ತಾರ್ಕಿಕ is_exec)
 {
-	return access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
+	ಹಿಂತಿರುಗಿ access(filename.c_str(), is_exec ? X_OK : F_OK) == 0;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-bool check_file_exists(const std::string& filename, bool is_exec)
+ತಾರ್ಕಿಕ check_file_exists(ಸ್ಥಿರಾಂಕ std::string& filename, ತಾರ್ಕಿಕ is_exec)
 {
-	return check_accessible(filename, is_exec) && !check_is_directory(filename);
+	ಹಿಂತಿರುಗಿ check_accessible(filename, is_exec) && !check_is_directory(filename);
 }
-bool check_directory_exists(const std::string& filename, bool is_exec)
+ತಾರ್ಕಿಕ check_directory_exists(ಸ್ಥಿರಾಂಕ std::string& filename, ತಾರ್ಕಿಕ is_exec)
 {
-	return check_accessible(filename, is_exec) && check_is_directory(filename);
-}
-
-bool is_absolute_path(std::string filename)
-{
-#ifdef _WIN32
-	return filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
-#else
-	return filename[0] == '/';
-#endif
+	ಹಿಂತಿರುಗಿ check_accessible(filename, is_exec) && check_is_directory(filename);
 }
 
-void remove_directory(std::string dirname)
+ತಾರ್ಕಿಕ is_absolute_ಮಾರ್ಗ(std::string filename)
 {
-#ifdef _WIN32
-	run_command(stringf("rmdir /s /q \"%s\"", dirname));
-#else
-	struct stat stbuf;
-	struct dirent **namelist;
-	int n = scandir(dirname.c_str(), &namelist, nullptr, alphasort);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _WIN32
+	ಹಿಂತಿರುಗಿ filename[0] == '/' || filename[0] == '\\' || (filename[0] != 0 && filename[1] == ':');
+#ಇಲ್ಲದಿದ್ದರೆ
+	ಹಿಂತಿರುಗಿ filename[0] == '/';
+#ಆದರೆ_ಅಂತ್ಯ
+}
+
+ಶೂನ್ಯ remove_directory(std::string dirname)
+{
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _WIN32
+	ಸತತ_command(stringf("rmdir /s /q \"%s\"", dirname));
+#ಇಲ್ಲದಿದ್ದರೆ
+	ರಚನೆ stat stbuf;
+	ರಚನೆ dirent **namelist;
+	ಪೂರ್ಣಾಂಕ n = scandir(dirname.c_str(), &namelist, ಶೂನ್ಯಸೂಚಕ, alphasort);
 	log_assert(n >= 0);
-	for (int i = 0; i < n; i++) {
-		if (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
-			std::string buffer = stringf("%s/%s", dirname, namelist[i]->d_name);
-			if (!stat(buffer.c_str(), &stbuf) && S_ISREG(stbuf.st_mode)) {
-				remove(buffer.c_str());
-			} else
-				remove_directory(buffer);
+	ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < n; i++) {
+		ಆದರೆ (strcmp(namelist[i]->d_name, ".") && strcmp(namelist[i]->d_name, "..")) {
+			std::string ಬಫರ್ = stringf("%s/%s", dirname, namelist[i]->d_name);
+			ಆದರೆ (!stat(ಬಫರ್.c_str(), &stbuf) && S_ISREG(stbuf.st_ಬಹುಲಕ)) {
+				remove(ಬಫರ್.c_str());
+			} ಇಲ್ಲದಿದ್ದರೆ
+				remove_directory(ಬಫರ್);
 		}
-		free(namelist[i]);
+		ಬಿಡುಗಡೆ(namelist[i]);
 	}
-	free(namelist);
+	ಬಿಡುಗಡೆ(namelist);
 	rmdir(dirname.c_str());
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-bool create_directory(const std::string& dirname)
+ತಾರ್ಕಿಕ create_directory(ಸ್ಥಿರಾಂಕ std::string& dirname)
 {
-#if defined(_WIN32)
-	int ret = _mkdir(dirname.c_str());
-#else
-	mode_t mode = 0755;
-	int ret = mkdir(dirname.c_str(), mode);
-#endif
-	if (ret == 0)
-		return true;
+#ಆದರೆ defined(_WIN32)
+	ಪೂರ್ಣಾಂಕ ret = _mkdir(dirname.c_str());
+#ಇಲ್ಲದಿದ್ದರೆ
+	ಬಹುಲಕ_t ಬಹುಲಕ = 0755;
+	ಪೂರ್ಣಾಂಕ ret = mkdir(dirname.c_str(), ಬಹುಲಕ);
+#ಆದರೆ_ಅಂತ್ಯ
+	ಆದರೆ (ret == 0)
+		ಹಿಂತಿರುಗಿ ನಿಜ;
 
-	switch (errno)
+	ಆಯ್ಕೆ (errno)
 	{
-	case ENOENT:
+	ಸ್ಥಿತಿ ENOENT:
 		// parent didn't exist, try to create it
 		{
-			std::string::size_type pos = dirname.find_last_of('/');
-			if (pos == std::string::npos)
-#if defined(_WIN32)
-				pos = dirname.find_last_of('\\');
-			if (pos == std::string::npos)
-#endif
-				return false;
-			if (!create_directory( dirname.substr(0, pos) ))
-				return false;
+			std::string::ಗಾತ್ರ_type pos = dirname.ಕಂಡುಹಿಡಿ_ಕೊನೆಯ_ದ('/');
+			ಆದರೆ (pos == std::string::npos)
+#ಆದರೆ defined(_WIN32)
+				pos = dirname.ಕಂಡುಹಿಡಿ_ಕೊನೆಯ_ದ('\\');
+			ಆದರೆ (pos == std::string::npos)
+#ಆದರೆ_ಅಂತ್ಯ
+				ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+			ಆದರೆ (!create_directory( dirname.substr(0, pos) ))
+				ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
 		}
 		// now, try to create again
-#if defined(_WIN32)
-		return 0 == _mkdir(dirname.c_str());
-#else
-		return 0 == mkdir(dirname.c_str(), mode);
-#endif
+#ಆದರೆ defined(_WIN32)
+		ಹಿಂತಿರುಗಿ 0 == _mkdir(dirname.c_str());
+#ಇಲ್ಲದಿದ್ದರೆ
+		ಹಿಂತಿರುಗಿ 0 == mkdir(dirname.c_str(), ಬಹುಲಕ);
+#ಆದರೆ_ಅಂತ್ಯ
 
-	case EEXIST:
+	ಸ್ಥಿತಿ EEXIST:
 		// done!
-		return check_directory_exists(dirname);
+		ಹಿಂತಿರುಗಿ check_directory_exists(dirname);
 
-	default:
-		return false;
+	ಪೂರ್ವನಿಯೋಜಿತ:
+		ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
 	}
 }
 
-bool make_private_directory(const std::string& dirname)
+ತಾರ್ಕಿಕ make_ಖಾಸಗಿ_directory(ಸ್ಥಿರಾಂಕ std::string& dirname)
 {
-#if defined(_WIN32) || defined(__wasi__)
-	if (!create_directory(dirname)) {
+#ಆದರೆ defined(_WIN32) || defined(__wasi__)
+	ಆದರೆ (!create_directory(dirname)) {
 		log_warning("Cannot create the directory %s\n", dirname.c_str());
-		return false;
+		ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
 	}
-	return true;
-#else
-	if (mkdir(dirname.c_str(), 0700) == 0)
-		return true;
+	ಹಿಂತಿರುಗಿ ನಿಜ;
+#ಇಲ್ಲದಿದ್ದರೆ
+	ಆದರೆ (mkdir(dirname.c_str(), 0700) == 0)
+		ಹಿಂತಿರುಗಿ ನಿಜ;
 
 	// Keep the errno of each mkdir(), create_directory() below makes its own calls
-	int err = errno;
-	std::string parent = std::filesystem::path(dirname).parent_path().string();
+	ಪೂರ್ಣಾಂಕ err = errno;
+	std::string ಪೋಷಕ = std::filesystem::ಮಾರ್ಗ_2(dirname).ಪೋಷಕ_ಮಾರ್ಗ().string();
 
-	if (err == ENOENT && !parent.empty() && create_directory(parent)) {
-		if (mkdir(dirname.c_str(), 0700) == 0)
-			return true;
+	ಆದರೆ (err == ENOENT && !ಪೋಷಕ.ಖಾಲಿಗಳು() && create_directory(ಪೋಷಕ)) {
+		ಆದರೆ (mkdir(dirname.c_str(), 0700) == 0)
+			ಹಿಂತಿರುಗಿ ನಿಜ;
 		err = errno;
 	}
 
-	if (err != EEXIST) {
+	ಆದರೆ (err != EEXIST) {
 		log_warning("Cannot create the directory %s: %s\n", dirname.c_str(), strerror(err));
-		return false;
+		ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
 	}
 
 	// Do not use a leftover that isn't ours
-	struct stat st;
-	if (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid()) {
+	ರಚನೆ stat st;
+	ಆದರೆ (lstat(dirname.c_str(), &st) != 0 || !S_ISDIR(st.st_ಬಹುಲಕ) || st.st_uid != geteuid()) {
 		log_warning("%s is not a directory of this user\n", dirname.c_str());
-		return false;
+		ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
 	}
 	// Repair the mode if something changed it
-	mode_t mode = st.st_mode & 0777;
-	if (((mode & S_IRWXU) != S_IRWXU || (mode & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
+	ಬಹುಲಕ_t ಬಹುಲಕ = st.st_ಬಹುಲಕ & 0777;
+	ಆದರೆ (((ಬಹುಲಕ & S_IRWXU) != S_IRWXU || (ಬಹುಲಕ & (S_IWGRP | S_IWOTH)) != 0) && chmod(dirname.c_str(), 0700) != 0) {
 		log_warning("Cannot make the directory %s private: %s\n", dirname.c_str(), strerror(errno));
-		return false;
+		ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
 	}
 
-	return true;
-#endif
+	ಹಿಂತಿರುಗಿ ನಿಜ;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-std::string make_user_tmpdir(const std::string& name)
+std::string make_user_tmpdir(ಸ್ಥಿರಾಂಕ std::string& name)
 {
-	log_assert(!name.empty() && name.find('/') == std::string::npos);
-#if defined(_WIN32) || defined(__wasi__)
-	std::string dirname = get_base_tmpdir() + "/" + name;
-#else
-	std::string dirname = stringf("%s/%s-%u", get_base_tmpdir().c_str(), name.c_str(), (unsigned)geteuid());
-#endif
-	return make_private_directory(dirname) ? dirname : "";
+	log_assert(!name.ಖಾಲಿಗಳು() && name.ಕಂಡುಹಿಡಿ('/') == std::string::npos);
+#ಆದರೆ defined(_WIN32) || defined(__wasi__)
+	std::string dirname = get_ತಳ_tmpdir() + "/" + name;
+#ಇಲ್ಲದಿದ್ದರೆ
+	std::string dirname = stringf("%s/%s-%u", get_ತಳ_tmpdir().c_str(), name.c_str(), (ಚಿಹ್ನೆರಹಿತ)geteuid());
+#ಆದರೆ_ಅಂತ್ಯ
+	ಹಿಂತಿರುಗಿ make_ಖಾಸಗಿ_directory(dirname) ? dirname : "";
 }
 
-std::string escape_filename_spaces(const std::string& filename)
+std::string escape_filename_spaces(ಸ್ಥಿರಾಂಕ std::string& filename)
 {
-	std::string out;
-	out.reserve(filename.size());
-	for (auto c : filename)
+	std::string ಹೊರಹೋಗು;
+	ಹೊರಹೋಗು.reserve(filename.ಗಾತ್ರ_2());
+	ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ c : filename)
 	{
-		if (c == ' ')
-			out += "\\ ";
-		else
-			out.push_back(c);
+		ಆದರೆ (c == ' ')
+			ಹೊರಹೋಗು += "\\ ";
+		ಇಲ್ಲದಿದ್ದರೆ
+			ಹೊರಹೋಗು.ತಳ್ಳು_ಹಿಂಭಾಗ(c);
 	}
-	return out;
+	ಹಿಂತಿರುಗಿ ಹೊರಹೋಗು;
 }
 
-void append_globbed(std::vector<std::string>& paths, std::string pattern)
+ಶೂನ್ಯ append_globbed(std::ಸದಿಶ<std::string>& paths, std::string ನಮೂನೆ)
 {
-	rewrite_filename(pattern);
-	std::vector<std::string> globbed = glob_filename(pattern);
-	copy(globbed.begin(), globbed.end(), back_inserter(paths));
+	rewrite_filename(ನಮೂನೆ);
+	std::ಸದಿಶ<std::string> globbed = glob_filename(ನಮೂನೆ);
+	copy(globbed.begin(), globbed.ಕೊನೆ(), ಹಿಂಭಾಗ_inserter(paths));
 }
 
-std::string name_from_file_path(std::string path) {
-	return std::filesystem::path(path).filename().string();
+std::string name_from_file_ಮಾರ್ಗ(std::string ಮಾರ್ಗ_2) {
+	ಹಿಂತಿರುಗಿ std::filesystem::ಮಾರ್ಗ_2(ಮಾರ್ಗ_2).filename().string();
 }
 
-std::string absolute_path(const std::string& path)
+std::string absolute_ಮಾರ್ಗ(ಸ್ಥಿರಾಂಕ std::string& ಮಾರ್ಗ_2)
 {
-	std::error_code ec;
-	std::filesystem::path result = std::filesystem::absolute(path, ec);
+	std::error_ಸಂಕೇತ ec;
+	std::filesystem::ಮಾರ್ಗ_2 ಫಲಿತಾಂಶ = std::filesystem::absolute(ಮಾರ್ಗ_2, ec);
 
-	if (ec)
-		return "";
+	ಆದರೆ (ec)
+		ಹಿಂತಿರುಗಿ "";
 
-	result = std::filesystem::weakly_canonical(result, ec);
+	ಫಲಿತಾಂಶ = std::filesystem::weakly_canonical(ಫಲಿತಾಂಶ, ec);
 
-	if (ec)
-		return "";
+	ಆದರೆ (ec)
+		ಹಿಂತಿರುಗಿ "";
 
-	return result.string();
+	ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ.string();
 }
 
 // Includes OS_PATH_SEP at the end if present
-std::string parent_from_file_path(std::string path) {
-	auto parent = std::filesystem::path(path).parent_path();
-	if (parent.empty()) {
-		return "";
+std::string ಪೋಷಕ_from_file_ಮಾರ್ಗ(std::string ಮಾರ್ಗ_2) {
+	ಸ್ವಯಂಚಾಲಿತ ಪೋಷಕ = std::filesystem::ಮಾರ್ಗ_2(ಮಾರ್ಗ_2).ಪೋಷಕ_ಮಾರ್ಗ();
+	ಆದರೆ (ಪೋಷಕ.ಖಾಲಿಗಳು()) {
+		ಹಿಂತಿರುಗಿ "";
 	}
 	// Add trailing separator to match original behavior
-	std::string result = parent.string();
-	if (!result.empty() && result.back() != std::filesystem::path::preferred_separator) {
-		result += std::filesystem::path::preferred_separator;
+	std::string ಫಲಿತಾಂಶ = ಪೋಷಕ.string();
+	ಆದರೆ (!ಫಲಿತಾಂಶ.ಖಾಲಿಗಳು() && ಫಲಿತಾಂಶ.ಹಿಂಭಾಗ() != std::filesystem::ಮಾರ್ಗ_2::preferred_separator) {
+		ಫಲಿತಾಂಶ += std::filesystem::ಮಾರ್ಗ_2::preferred_separator;
 	}
-	return result;
+	ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-void format_emit_unescaped(std::string &result, std::string_view fmt)
+ಶೂನ್ಯ format_emit_unescaped(std::string &ಫಲಿತಾಂಶ, std::string_view fmt)
 {
-	result.reserve(result.size() + fmt.size());
-	for (size_t i = 0; i < fmt.size(); ++i) {
-		char ch = fmt[i];
-		result.push_back(ch);
-		if (ch == '%' && i + 1 < fmt.size() && fmt[i + 1] == '%') {
+	ಫಲಿತಾಂಶ.reserve(ಫಲಿತಾಂಶ.ಗಾತ್ರ_2() + fmt.ಗಾತ್ರ_2());
+	ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < fmt.ಗಾತ್ರ_2(); ++i) {
+		ಅಕ್ಷರ ch = fmt[i];
+		ಫಲಿತಾಂಶ.ತಳ್ಳು_ಹಿಂಭಾಗ(ch);
+		ಆದರೆ (ch == '%' && i + 1 < fmt.ಗಾತ್ರ_2() && fmt[i + 1] == '%') {
 			++i;
 		}
 	}
@@ -499,251 +499,251 @@ void format_emit_unescaped(std::string &result, std::string_view fmt)
 
 std::string unescape_format_string(std::string_view fmt)
 {
-	std::string result;
-	format_emit_unescaped(result, fmt);
-	return result;
+	std::string ಫಲಿತಾಂಶ;
+	format_emit_unescaped(ಫಲಿತಾಂಶ, fmt);
+	ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static std::string string_view_stringf(std::string_view spec, ...)
+ಸ್ಥಿರ std::string string_view_stringf(std::string_view spec, ...)
 {
 	va_list ap;
 	va_start(ap, spec);
-	std::string result = vstringf(std::string(spec).c_str(), ap);
+	std::string ಫಲಿತಾಂಶ = vstringf(std::string(spec).c_str(), ap);
 	va_end(ap);
-	return result;
+	ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static int spec_parameter_size(std::string_view spec)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ spec_parameter_ಗಾತ್ರ(std::string_view spec)
 {
 	// Every valid spec starts with '%' which means the code below
 	// won't look before the spec start.
-	switch (spec[spec.size() - 1]) {
-	case 'd':
-	case 'i':
-	case 'o':
-	case 'u':
-	case 'x':
-	case 'X':
-		switch (spec[spec.size() - 2]) {
-		case 'h':
-			if (spec[spec.size() - 3] == 'h')
-				return sizeof(char);
-			return sizeof(short);
-		case 'l':
-			if (spec[spec.size() - 3] == 'l')
-				return sizeof(long long);
-			return sizeof(long);
-		case 'L':
-		case 'q':
-			return sizeof(long long);
-		case 'j':
-			return sizeof(intmax_t);
-		case 'z':
-		case 'Z':
-			return sizeof(size_t);
-		case 't':
-			return sizeof(ptrdiff_t);
+	ಆಯ್ಕೆ (spec[spec.ಗಾತ್ರ_2() - 1]) {
+	ಸ್ಥಿತಿ 'd':
+	ಸ್ಥಿತಿ 'i':
+	ಸ್ಥಿತಿ 'o':
+	ಸ್ಥಿತಿ 'u':
+	ಸ್ಥಿತಿ 'x':
+	ಸ್ಥಿತಿ 'X':
+		ಆಯ್ಕೆ (spec[spec.ಗಾತ್ರ_2() - 2]) {
+		ಸ್ಥಿತಿ 'h':
+			ಆದರೆ (spec[spec.ಗಾತ್ರ_2() - 3] == 'h')
+				ಹಿಂತಿರುಗಿ ಗಾತ್ರ(ಅಕ್ಷರ);
+			ಹಿಂತಿರುಗಿ ಗಾತ್ರ(ಗಿಡ್ಡ);
+		ಸ್ಥಿತಿ 'l':
+			ಆದರೆ (spec[spec.ಗಾತ್ರ_2() - 3] == 'l')
+				ಹಿಂತಿರುಗಿ ಗಾತ್ರ(ದೀರ್ಘ ದೀರ್ಘ);
+			ಹಿಂತಿರುಗಿ ಗಾತ್ರ(ದೀರ್ಘ);
+		ಸ್ಥಿತಿ 'L':
+		ಸ್ಥಿತಿ 'q':
+			ಹಿಂತಿರುಗಿ ಗಾತ್ರ(ದೀರ್ಘ ದೀರ್ಘ);
+		ಸ್ಥಿತಿ 'j':
+			ಹಿಂತಿರುಗಿ ಗಾತ್ರ(intmax_t);
+		ಸ್ಥಿತಿ 'z':
+		ಸ್ಥಿತಿ 'Z':
+			ಹಿಂತಿರುಗಿ ಗಾತ್ರ(ಗಾತ್ರ_t);
+		ಸ್ಥಿತಿ 't':
+			ಹಿಂತಿರುಗಿ ಗಾತ್ರ(ptrdiff_t);
 		}
-		return sizeof(int);
-	case 'e':
-	case 'E':
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-	case 'a':
-	case 'A':
-		if (spec[spec.size() - 2] == 'L')
-			return sizeof(long double);
-		if (spec[spec.size() - 2] == 'l' && spec[spec.size() - 3] == 'l')
-			return sizeof(long double);
-		return sizeof(double);
-	case 'c':
-		if (spec[spec.size() - 2] == 'l') {
-			return sizeof(wchar_t);
+		ಹಿಂತಿರುಗಿ ಗಾತ್ರ(ಪೂರ್ಣಾಂಕ);
+	ಸ್ಥಿತಿ 'e':
+	ಸ್ಥಿತಿ 'E':
+	ಸ್ಥಿತಿ 'f':
+	ಸ್ಥಿತಿ 'F':
+	ಸ್ಥಿತಿ 'g':
+	ಸ್ಥಿತಿ 'G':
+	ಸ್ಥಿತಿ 'a':
+	ಸ್ಥಿತಿ 'A':
+		ಆದರೆ (spec[spec.ಗಾತ್ರ_2() - 2] == 'L')
+			ಹಿಂತಿರುಗಿ ಗಾತ್ರ(ದೀರ್ಘ ದ್ವಿಗುಣ);
+		ಆದರೆ (spec[spec.ಗಾತ್ರ_2() - 2] == 'l' && spec[spec.ಗಾತ್ರ_2() - 3] == 'l')
+			ಹಿಂತಿರುಗಿ ಗಾತ್ರ(ದೀರ್ಘ ದ್ವಿಗುಣ);
+		ಹಿಂತಿರುಗಿ ಗಾತ್ರ(ದ್ವಿಗುಣ);
+	ಸ್ಥಿತಿ 'c':
+		ಆದರೆ (spec[spec.ಗಾತ್ರ_2() - 2] == 'l') {
+			ಹಿಂತಿರುಗಿ ಗಾತ್ರ(wchar_t);
 		}
-		return sizeof(unsigned char);
-	case 'C':
-		return sizeof(wchar_t);
-	case 's':
-	case 'p':
-	case 'S':
-	case 'n':
-		return sizeof(void *);
-	case 'm':
-		return sizeof(int);
-	default:
-		return -1;
+		ಹಿಂತಿರುಗಿ ಗಾತ್ರ(ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ);
+	ಸ್ಥಿತಿ 'C':
+		ಹಿಂತಿರುಗಿ ಗಾತ್ರ(wchar_t);
+	ಸ್ಥಿತಿ 's':
+	ಸ್ಥಿತಿ 'p':
+	ಸ್ಥಿತಿ 'S':
+	ಸ್ಥಿತಿ 'n':
+		ಹಿಂತಿರುಗಿ ಗಾತ್ರ(ಶೂನ್ಯ *);
+	ಸ್ಥಿತಿ 'm':
+		ಹಿಂತಿರುಗಿ ಗಾತ್ರ(ಪೂರ್ಣಾಂಕ);
+	ಪೂರ್ವನಿಯೋಜಿತ:
+		ಹಿಂತಿರುಗಿ -1;
 	}
 }
 
-template <typename Arg>
-static void format_emit_stringf(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, Arg arg)
+ಮಾದರಿ <ಬಗೆ_ಹೆಸರು Arg>
+ಸ್ಥಿರ ಶೂನ್ಯ format_emit_stringf(std::string &ಫಲಿತಾಂಶ, std::string_view spec, ಪೂರ್ಣಾಂಕ *dynamic_ints,
+	Dynamic_Int_ಎಣಿಕೆ ಅಂಕೆ_dynamic_ints, Arg arg)
 {
 	// Delegate nontrivial formats to the C library.
-	switch (num_dynamic_ints) {
-	case DynamicIntCount::NONE:
-		result += string_view_stringf(spec, arg);
-		return;
-	case DynamicIntCount::ONE:
-		result += string_view_stringf(spec, dynamic_ints[0], arg);
-		return;
-	case DynamicIntCount::TWO:
-		result += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
-		return;
+	ಆಯ್ಕೆ (ಅಂಕೆ_dynamic_ints) {
+	ಸ್ಥಿತಿ Dynamic_Int_ಎಣಿಕೆ::NONE:
+		ಫಲಿತಾಂಶ += string_view_stringf(spec, arg);
+		ಹಿಂತಿರುಗಿ;
+	ಸ್ಥಿತಿ Dynamic_Int_ಎಣಿಕೆ::ONE:
+		ಫಲಿತಾಂಶ += string_view_stringf(spec, dynamic_ints[0], arg);
+		ಹಿಂತಿರುಗಿ;
+	ಸ್ಥಿತಿ Dynamic_Int_ಎಣಿಕೆ::TWO:
+		ಫಲಿತಾಂಶ += string_view_stringf(spec, dynamic_ints[0], dynamic_ints[1], arg);
+		ಹಿಂತಿರುಗಿ;
 	}
 	YOSYS_ABORT("Internal error");
 }
 
-void format_emit_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, long long arg)
+ಶೂನ್ಯ format_emit_long_long(std::string &ಫಲಿತಾಂಶ, std::string_view spec, ಪೂರ್ಣಾಂಕ *dynamic_ints,
+	Dynamic_Int_ಎಣಿಕೆ ಅಂಕೆ_dynamic_ints, ದೀರ್ಘ ದೀರ್ಘ arg)
 {
-	if (spec == "%d") {
+	ಆದರೆ (spec == "%d") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<int>(arg));
-		return;
+		ಫಲಿತಾಂಶ += std::ಗಮ್ಯ_string(static_cast<ಪೂರ್ಣಾಂಕ>(arg));
+		ಹಿಂತಿರುಗಿ;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	ಆದರೆ (spec_parameter_ಗಾತ್ರ(spec) <= 4) {
 		// On some platforms (Wasm) we must ensure that the arg is properly aligned
 		// after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(ಫಲಿತಾಂಶ, spec, dynamic_ints, ಅಂಕೆ_dynamic_ints, (ಪೂರ್ಣಾಂಕ)arg);
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		format_emit_stringf(ಫಲಿತಾಂಶ, spec, dynamic_ints, ಅಂಕೆ_dynamic_ints, arg);
 	}
 }
 
-void format_emit_unsigned_long_long(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, unsigned long long arg)
+ಶೂನ್ಯ format_emit_unsigned_long_long(std::string &ಫಲಿತಾಂಶ, std::string_view spec, ಪೂರ್ಣಾಂಕ *dynamic_ints,
+	Dynamic_Int_ಎಣಿಕೆ ಅಂಕೆ_dynamic_ints, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ದೀರ್ಘ arg)
 {
-	if (spec == "%u") {
+	ಆದರೆ (spec == "%u") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += std::to_string(static_cast<unsigned int>(arg));
-		return;
+		ಫಲಿತಾಂಶ += std::ಗಮ್ಯ_string(static_cast<ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ>(arg));
+		ಹಿಂತಿರುಗಿ;
 	}
-	if (spec == "%c") {
-		result += static_cast<char>(arg);
-		return;
+	ಆದರೆ (spec == "%c") {
+		ಫಲಿತಾಂಶ += static_cast<ಅಕ್ಷರ>(arg);
+		ಹಿಂತಿರುಗಿ;
 	}
-	if (spec_parameter_size(spec) <= 4) {
+	ಆದರೆ (spec_parameter_ಗಾತ್ರ(spec) <= 4) {
                 // On some platforms (Wasm) we must ensure that the arg is properly aligned
                 // after the dynamic `int` parameters.
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, (unsigned int)arg);
-	} else {
-		format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+		format_emit_stringf(ಫಲಿತಾಂಶ, spec, dynamic_ints, ಅಂಕೆ_dynamic_ints, (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)arg);
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		format_emit_stringf(ಫಲಿತಾಂಶ, spec, dynamic_ints, ಅಂಕೆ_dynamic_ints, arg);
 	}
 }
 
-void format_emit_double(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, double arg)
+ಶೂನ್ಯ format_emit_double(std::string &ಫಲಿತಾಂಶ, std::string_view spec, ಪೂರ್ಣಾಂಕ *dynamic_ints,
+	Dynamic_Int_ಎಣಿಕೆ ಅಂಕೆ_dynamic_ints, ದ್ವಿಗುಣ arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(ಫಲಿತಾಂಶ, spec, dynamic_ints, ಅಂಕೆ_dynamic_ints, arg);
 }
 
-void format_emit_char_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const char *arg)
+ಶೂನ್ಯ format_emit_char_ptr(std::string &ಫಲಿತಾಂಶ, std::string_view spec, ಪೂರ್ಣಾಂಕ *dynamic_ints,
+	Dynamic_Int_ಎಣಿಕೆ ಅಂಕೆ_dynamic_ints, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *arg)
 {
-	if (spec == "%s") {
+	ಆದರೆ (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += arg;
-		return;
+		ಫಲಿತಾಂಶ += arg;
+		ಹಿಂತಿರುಗಿ;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(ಫಲಿತಾಂಶ, spec, dynamic_ints, ಅಂಕೆ_dynamic_ints, arg);
 }
 
-void format_emit_string(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const std::string &arg)
+ಶೂನ್ಯ format_emit_string(std::string &ಫಲಿತಾಂಶ, std::string_view spec, ಪೂರ್ಣಾಂಕ *dynamic_ints,
+	Dynamic_Int_ಎಣಿಕೆ ಅಂಕೆ_dynamic_ints, ಸ್ಥಿರಾಂಕ std::string &arg)
 {
-	if (spec == "%s") {
+	ಆದರೆ (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
-		result += arg;
-		return;
+		ಫಲಿತಾಂಶ += arg;
+		ಹಿಂತಿರುಗಿ;
 	}
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg.c_str());
+	format_emit_stringf(ಫಲಿತಾಂಶ, spec, dynamic_ints, ಅಂಕೆ_dynamic_ints, arg.c_str());
 }
 
-void format_emit_string_view(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, std::string_view arg)
+ಶೂನ್ಯ format_emit_string_view(std::string &ಫಲಿತಾಂಶ, std::string_view spec, ಪೂರ್ಣಾಂಕ *dynamic_ints,
+	Dynamic_Int_ಎಣಿಕೆ ಅಂಕೆ_dynamic_ints, std::string_view arg)
 {
-	if (spec == "%s") {
+	ಆದರೆ (spec == "%s") {
 		// Format checking will have guaranteed num_dynamic_ints == 0.
 		// We can output the string without creating a temporary copy.
-		result += arg;
-		return;
+		ಫಲಿತಾಂಶ += arg;
+		ಹಿಂತಿರುಗಿ;
 	}
 	// Delegate nontrivial formats to the C library. We need to construct
 	// a temporary string to ensure null termination.
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, std::string(arg).c_str());
+	format_emit_stringf(ಫಲಿತಾಂಶ, spec, dynamic_ints, ಅಂಕೆ_dynamic_ints, std::string(arg).c_str());
 }
 
-void format_emit_void_ptr(std::string &result, std::string_view spec, int *dynamic_ints,
-	DynamicIntCount num_dynamic_ints, const void *arg)
+ಶೂನ್ಯ format_emit_void_ptr(std::string &ಫಲಿತಾಂಶ, std::string_view spec, ಪೂರ್ಣಾಂಕ *dynamic_ints,
+	Dynamic_Int_ಎಣಿಕೆ ಅಂಕೆ_dynamic_ints, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *arg)
 {
-	format_emit_stringf(result, spec, dynamic_ints, num_dynamic_ints, arg);
+	format_emit_stringf(ಫಲಿತಾಂಶ, spec, dynamic_ints, ಅಂಕೆ_dynamic_ints, arg);
 }
 
-#if defined(_WIN32)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#ಆದರೆ defined(_WIN32)
+Scoped_File_ಬೀಗ::Scoped_File_ಬೀಗ(ಸ್ಥಿರಾಂಕ std::string &ಮಾರ್ಗ_2)
 {
-	HANDLE h = CreateFileA(path.c_str(), GENERIC_READ | GENERIC_WRITE,
+	HANDLE h = CreateFileA(ಮಾರ್ಗ_2.c_str(), GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-			NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h == INVALID_HANDLE_VALUE) {
-		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+			ಖಾಲಿ, OPEN_ALWAYS, FILE_ATTRIBUTE_ಸಾಮಾನ್ಯ, ಖಾಲಿ);
+	ಆದರೆ (h == INVALID_HANDLE_ಮೌಲ್ಯ) {
+		log_warning("Cannot open lock file %s, proceeding without lock\n", ಮಾರ್ಗ_2.c_str());
+		ಹಿಂತಿರುಗಿ;
 	}
 	OVERLAPPED ov = {};
-	if (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK, 0, MAXDWORD, MAXDWORD, &ov)) {
-		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
+	ಆದರೆ (!ಬೀಗ_File_Ex(h, LOCKFILE_EXCLUSIVE_ಬೀಗ, 0, MAXDWORD, MAXDWORD, &ov)) {
+		log_warning("Cannot lock %s, proceeding without lock\n", ಮಾರ್ಗ_2.c_str());
 		CloseHandle(h);
-		return;
+		ಹಿಂತಿರುಗಿ;
 	}
 	handle = h;
 }
 
-ScopedFileLock::~ScopedFileLock()
+Scoped_File_ಬೀಗ::~Scoped_File_ಬೀಗ()
 {
-	if (handle != nullptr) {
+	ಆದರೆ (handle != ಶೂನ್ಯಸೂಚಕ) {
 		OVERLAPPED ov = {};
 		UnlockFileEx(handle, 0, MAXDWORD, MAXDWORD, &ov);
 		CloseHandle(handle);
 	}
 }
-#elif !defined(__wasi__)
-ScopedFileLock::ScopedFileLock(const std::string &path)
+#ಅಥವಾಆದರೆ !defined(__wasi__)
+Scoped_File_ಬೀಗ::Scoped_File_ಬೀಗ(ಸ್ಥಿರಾಂಕ std::string &ಮಾರ್ಗ_2)
 {
-	fd = open(path.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0666);
-	if (fd < 0)
-		fd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
-	if (fd < 0) {
-		log_warning("Cannot open lock file %s, proceeding without lock\n", path.c_str());
-		return;
+	fd = open(ಮಾರ್ಗ_2.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0666);
+	ಆದರೆ (fd < 0)
+		fd = open(ಮಾರ್ಗ_2.c_str(), O_RDONLY | O_CLOEXEC);
+	ಆದರೆ (fd < 0) {
+		log_warning("Cannot open lock file %s, proceeding without lock\n", ಮಾರ್ಗ_2.c_str());
+		ಹಿಂತಿರುಗಿ;
 	}
-	int ret;
-	while ((ret = flock(fd, LOCK_EX)) != 0 && errno == EINTR);
-	if (ret != 0)
-		log_warning("Cannot lock %s, proceeding without lock\n", path.c_str());
+	ಪೂರ್ಣಾಂಕ ret;
+	ಆಗ ((ret = flock(fd, ಬೀಗ_EX)) != 0 && errno == EINTR);
+	ಆದರೆ (ret != 0)
+		log_warning("Cannot lock %s, proceeding without lock\n", ಮಾರ್ಗ_2.c_str());
 }
 
-ScopedFileLock::~ScopedFileLock()
+Scoped_File_ಬೀಗ::~Scoped_File_ಬೀಗ()
 {
-	if (fd >= 0)
+	ಆದರೆ (fd >= 0)
 		close(fd); // releases the flock
 }
-#else
-ScopedFileLock::ScopedFileLock(const std::string &) {}
-ScopedFileLock::~ScopedFileLock() {}
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+Scoped_File_ಬೀಗ::Scoped_File_ಬೀಗ(ಸ್ಥಿರಾಂಕ std::string &) {}
+Scoped_File_ಬೀಗ::~Scoped_File_ಬೀಗ() {}
+#ಆದರೆ_ಅಂತ್ಯ
 
-unsigned get_process_id()
+ಚಿಹ್ನೆರಹಿತ get_process_id()
 {
-#if defined(_WIN32)
-	return GetCurrentProcessId();
-#elif defined(__wasi__)
-	return 0;
-#else
-	return getpid();
-#endif
+#ಆದರೆ defined(_WIN32)
+	ಹಿಂತಿರುಗಿ GetCurrentProcessId();
+#ಅಥವಾಆದರೆ defined(__wasi__)
+	ಹಿಂತಿರುಗಿ 0;
+#ಇಲ್ಲದಿದ್ದರೆ
+	ಹಿಂತಿರುಗಿ getpid();
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ

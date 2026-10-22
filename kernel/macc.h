@@ -17,288 +17,288 @@
  *
  */
 
-#ifndef MACC_H
-#define MACC_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ MACC_H
+#ವ್ಯಾಖ್ಯಾನಿಸು MACC_H
 
-#include "kernel/yosys.h"
+#ಅನ್ತರ್ಭಾವ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct Macc
+ರಚನೆ Macc
 {
-	struct term_t {
-		RTLIL::SigSpec in_a, in_b;
-		bool is_signed, do_subtract;
+	ರಚನೆ ಪದ_t {
+		RTLIL::SigSpec ಒಳ_a, ಒಳ_b;
+		bool is_signed, do_ಕಳೆ;
 	};
-	std::vector<term_t> terms;
+	std::ಸದಿಶ<ಪದ_t> terms;
 
-	void optimize(int width)
+	ಶೂನ್ಯ optimize(ಪೂರ್ಣಾಂಕ ಅಗಲ)
 	{
-		std::vector<term_t> new_terms;
-		RTLIL::Const off(0, width);
+		std::ಸದಿಶ<ಪದ_t> new_terms;
+		RTLIL::Const off(0, ಅಗಲ);
 
-		for (auto &port : terms)
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಪೋರ್ಟ್ : terms)
 		{
-			if (GetSize(port.in_a) == 0 && GetSize(port.in_b) == 0)
-				continue;
+			ಆದರೆ (Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_a) == 0 && Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_b) == 0)
+				ಮುಂದುವರಿ;
 
-			if (GetSize(port.in_a) < GetSize(port.in_b))
-				std::swap(port.in_a, port.in_b);
+			ಆದರೆ (Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_a) < Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_b))
+				std::ಅದಲುಬದಲು(ಪೋರ್ಟ್.ಒಳ_a, ಪೋರ್ಟ್.ಒಳ_b);
 
-			if (port.in_a.is_fully_const() && port.in_b.is_fully_const()) {
-				RTLIL::Const v = port.in_a.as_const();
-				if (GetSize(port.in_b))
-					v = const_mul(v, port.in_b.as_const(), port.is_signed, port.is_signed, width);
-				if (port.do_subtract)
-					off = const_sub(off, v, port.is_signed, port.is_signed, width);
-				else
-					off = const_add(off, v, port.is_signed, port.is_signed, width);
-				continue;
+			ಆದರೆ (ಪೋರ್ಟ್.ಒಳ_a.is_fully_const() && ಪೋರ್ಟ್.ಒಳ_b.is_fully_const()) {
+				RTLIL::Const v = ಪೋರ್ಟ್.ಒಳ_a.as_const();
+				ಆದರೆ (Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_b))
+					v = const_mul(v, ಪೋರ್ಟ್.ಒಳ_b.as_const(), ಪೋರ್ಟ್.is_signed, ಪೋರ್ಟ್.is_signed, ಅಗಲ);
+				ಆದರೆ (ಪೋರ್ಟ್.do_ಕಳೆ)
+					off = const_sub(off, v, ಪೋರ್ಟ್.is_signed, ಪೋರ್ಟ್.is_signed, ಅಗಲ);
+				ಇಲ್ಲದಿದ್ದರೆ
+					off = const_ಕೂಡಿಸು(off, v, ಪೋರ್ಟ್.is_signed, ಪೋರ್ಟ್.is_signed, ಅಗಲ);
+				ಮುಂದುವರಿ;
 			}
 
-			if (port.is_signed) {
-				while (GetSize(port.in_a) > 1 && port.in_a[GetSize(port.in_a)-1] == port.in_a[GetSize(port.in_a)-2])
-					port.in_a.remove(GetSize(port.in_a)-1);
-				while (GetSize(port.in_b) > 1 && port.in_b[GetSize(port.in_b)-1] == port.in_b[GetSize(port.in_b)-2])
-					port.in_b.remove(GetSize(port.in_b)-1);
-			} else {
-				while (GetSize(port.in_a) > 1 && port.in_a[GetSize(port.in_a)-1] == State::S0)
-					port.in_a.remove(GetSize(port.in_a)-1);
-				while (GetSize(port.in_b) > 1 && port.in_b[GetSize(port.in_b)-1] == State::S0)
-					port.in_b.remove(GetSize(port.in_b)-1);
+			ಆದರೆ (ಪೋರ್ಟ್.is_signed) {
+				ಆಗ (Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_a) > 1 && ಪೋರ್ಟ್.ಒಳ_a[Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_a)-1] == ಪೋರ್ಟ್.ಒಳ_a[Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_a)-2])
+					ಪೋರ್ಟ್.ಒಳ_a.remove(Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_a)-1);
+				ಆಗ (Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_b) > 1 && ಪೋರ್ಟ್.ಒಳ_b[Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_b)-1] == ಪೋರ್ಟ್.ಒಳ_b[Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_b)-2])
+					ಪೋರ್ಟ್.ಒಳ_b.remove(Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_b)-1);
+			} ಇಲ್ಲದಿದ್ದರೆ {
+				ಆಗ (Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_a) > 1 && ಪೋರ್ಟ್.ಒಳ_a[Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_a)-1] == State::S0)
+					ಪೋರ್ಟ್.ಒಳ_a.remove(Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_a)-1);
+				ಆಗ (Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_b) > 1 && ಪೋರ್ಟ್.ಒಳ_b[Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_b)-1] == State::S0)
+					ಪೋರ್ಟ್.ಒಳ_b.remove(Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_b)-1);
 			}
 
-			new_terms.push_back(port);
+			new_terms.ತಳ್ಳು_ಹಿಂಭಾಗ(ಪೋರ್ಟ್);
 		}
 
-		if (off.as_bool()) {
-			term_t port;
-			port.in_a = off;
-			port.is_signed = false;
-			port.do_subtract = false;
-			new_terms.push_back(port);
+		ಆದರೆ (off.as_bool()) {
+			ಪದ_t ಪೋರ್ಟ್;
+			ಪೋರ್ಟ್.ಒಳ_a = off;
+			ಪೋರ್ಟ್.is_signed = false;
+			ಪೋರ್ಟ್.do_ಕಳೆ = false;
+			new_terms.ತಳ್ಳು_ಹಿಂಭಾಗ(ಪೋರ್ಟ್);
 		}
 
-		new_terms.swap(terms);
+		new_terms.ಅದಲುಬದಲು(terms);
 	}
 
-	void from_cell_v1(RTLIL::Cell *cell)
+	ಶೂನ್ಯ from_cell_v1(RTLIL::Cell *cell)
 	{
-		RTLIL::SigSpec port_a = cell->getPort(ID::A);
+		RTLIL::SigSpec ಪೋರ್ಟ್_a = cell->get_ಪೋರ್ಟ್(ID::A);
 
 		terms.clear();
 
-		auto config_bits = cell->getParam(ID::CONFIG);
-		int config_cursor = 0;
+		ಸ್ವಯಂಚಾಲಿತ config_ಬಿಟ್ಟುಗಳು = cell->getParam(ID::CONFIG);
+		ಪೂರ್ಣಾಂಕ config_cursor = 0;
 
-		int config_width = cell->getParam(ID::CONFIG_WIDTH).as_int();
-		log_assert(GetSize(config_bits) >= config_width);
+		ಪೂರ್ಣಾಂಕ config_ಅಗಲ = cell->getParam(ID::CONFIG_ಅಗಲ).as_int();
+		log_assert(Get_ಗಾತ್ರ(config_ಬಿಟ್ಟುಗಳು) >= config_ಅಗಲ);
 
-		int num_bits = 0;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 1;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 2;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 4;
-		if (config_bits[config_cursor++] == State::S1) num_bits |= 8;
+		ಪೂರ್ಣಾಂಕ ಅಂಕೆ_ಬಿಟ್ಟುಗಳು = 0;
+		ಆದರೆ (config_ಬಿಟ್ಟುಗಳು[config_cursor++] == State::S1) ಅಂಕೆ_ಬಿಟ್ಟುಗಳು |= 1;
+		ಆದರೆ (config_ಬಿಟ್ಟುಗಳು[config_cursor++] == State::S1) ಅಂಕೆ_ಬಿಟ್ಟುಗಳು |= 2;
+		ಆದರೆ (config_ಬಿಟ್ಟುಗಳು[config_cursor++] == State::S1) ಅಂಕೆ_ಬಿಟ್ಟುಗಳು |= 4;
+		ಆದರೆ (config_ಬಿಟ್ಟುಗಳು[config_cursor++] == State::S1) ಅಂಕೆ_ಬಿಟ್ಟುಗಳು |= 8;
 
-		int port_a_cursor = 0;
-		while (port_a_cursor < GetSize(port_a))
+		ಪೂರ್ಣಾಂಕ ಪೋರ್ಟ್_a_cursor = 0;
+		ಆಗ (ಪೋರ್ಟ್_a_cursor < Get_ಗಾತ್ರ(ಪೋರ್ಟ್_a))
 		{
-			log_assert(config_cursor + 2 + 2*num_bits <= config_width);
+			log_assert(config_cursor + 2 + 2*ಅಂಕೆ_ಬಿಟ್ಟುಗಳು <= config_ಅಗಲ);
 
-			term_t this_port;
-			this_port.is_signed = config_bits[config_cursor++] == State::S1;
-			this_port.do_subtract = config_bits[config_cursor++] == State::S1;
+			ಪದ_t this_ಪೋರ್ಟ್;
+			this_ಪೋರ್ಟ್.is_signed = config_ಬಿಟ್ಟುಗಳು[config_cursor++] == State::S1;
+			this_ಪೋರ್ಟ್.do_ಕಳೆ = config_ಬಿಟ್ಟುಗಳು[config_cursor++] == State::S1;
 
-			int size_a = 0;
-			for (int i = 0; i < num_bits; i++)
-				if (config_bits[config_cursor++] == State::S1)
-					size_a |= 1 << i;
+			ಪೂರ್ಣಾಂಕ ಗಾತ್ರ_a = 0;
+			ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < ಅಂಕೆ_ಬಿಟ್ಟುಗಳು; i++)
+				ಆದರೆ (config_ಬಿಟ್ಟುಗಳು[config_cursor++] == State::S1)
+					ಗಾತ್ರ_a |= 1 << i;
 
-			this_port.in_a = port_a.extract(port_a_cursor, size_a);
-			port_a_cursor += size_a;
+			this_ಪೋರ್ಟ್.ಒಳ_a = ಪೋರ್ಟ್_a.ಹೊರತೆಗೆ(ಪೋರ್ಟ್_a_cursor, ಗಾತ್ರ_a);
+			ಪೋರ್ಟ್_a_cursor += ಗಾತ್ರ_a;
 
-			int size_b = 0;
-			for (int i = 0; i < num_bits; i++)
-				if (config_bits[config_cursor++] == State::S1)
-					size_b |= 1 << i;
+			ಪೂರ್ಣಾಂಕ ಗಾತ್ರ_b = 0;
+			ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < ಅಂಕೆ_ಬಿಟ್ಟುಗಳು; i++)
+				ಆದರೆ (config_ಬಿಟ್ಟುಗಳು[config_cursor++] == State::S1)
+					ಗಾತ್ರ_b |= 1 << i;
 
-			this_port.in_b = port_a.extract(port_a_cursor, size_b);
-			port_a_cursor += size_b;
+			this_ಪೋರ್ಟ್.ಒಳ_b = ಪೋರ್ಟ್_a.ಹೊರತೆಗೆ(ಪೋರ್ಟ್_a_cursor, ಗಾತ್ರ_b);
+			ಪೋರ್ಟ್_a_cursor += ಗಾತ್ರ_b;
 
-			if (size_a || size_b)
-				terms.push_back(this_port);
+			ಆದರೆ (ಗಾತ್ರ_a || ಗಾತ್ರ_b)
+				terms.ತಳ್ಳು_ಹಿಂಭಾಗ(this_ಪೋರ್ಟ್);
 		}
 
-		for (auto bit : cell->getPort(ID::B))
-			terms.push_back(term_t{{bit}, {}, false, false});
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ ಬಿಟ್ : cell->get_ಪೋರ್ಟ್(ID::B))
+			terms.ತಳ್ಳು_ಹಿಂಭಾಗ(ಪದ_t{{ಬಿಟ್}, {}, false, false});
 
-		log_assert(config_cursor == config_width);
-		log_assert(port_a_cursor == GetSize(port_a));
+		log_assert(config_cursor == config_ಅಗಲ);
+		log_assert(ಪೋರ್ಟ್_a_cursor == Get_ಗಾತ್ರ(ಪೋರ್ಟ್_a));
 	}
 
-	void from_cell(RTLIL::Cell *cell)
+	ಶೂನ್ಯ from_cell(RTLIL::Cell *cell)
 	{
-		if (cell->type == ID($macc)) {
+		ಆದರೆ (cell->type == ID($macc)) {
 			from_cell_v1(cell);
-			return;
+			ಹಿಂತಿರುಗಿ;
 		}
 		log_assert(cell->type == ID($macc_v2));
 
-		RTLIL::SigSpec port_a = cell->getPort(ID::A);
-		RTLIL::SigSpec port_b = cell->getPort(ID::B);
-		RTLIL::SigSpec port_c = cell->getPort(ID::C);
+		RTLIL::SigSpec ಪೋರ್ಟ್_a = cell->get_ಪೋರ್ಟ್(ID::A);
+		RTLIL::SigSpec ಪೋರ್ಟ್_b = cell->get_ಪೋರ್ಟ್(ID::B);
+		RTLIL::SigSpec ಪೋರ್ಟ್_c = cell->get_ಪೋರ್ಟ್(ID::C);
 
 		terms.clear();
 
-		int nproducts = cell->getParam(ID::NPRODUCTS).as_int();
-		const Const &product_neg = cell->getParam(ID::PRODUCT_NEGATED);
-		const Const &a_widths = cell->getParam(ID::A_WIDTHS);
-		const Const &b_widths = cell->getParam(ID::B_WIDTHS);
-		const Const &a_signed = cell->getParam(ID::A_SIGNED);
-		const Const &b_signed = cell->getParam(ID::B_SIGNED);
-		int ai = 0, bi = 0;
-		for (int i = 0; i < nproducts; i++) {
-			term_t term;
+		ಪೂರ್ಣಾಂಕ nproducts = cell->getParam(ID::NPRODUCTS).as_int();
+		ಸ್ಥಿರಾಂಕ Const &ಗುಣಲಬ್ಧ_neg = cell->getParam(ID::ಗುಣಲಬ್ಧ_NEGATED);
+		ಸ್ಥಿರಾಂಕ Const &a_widths = cell->getParam(ID::A_WIDTHS);
+		ಸ್ಥಿರಾಂಕ Const &b_widths = cell->getParam(ID::B_WIDTHS);
+		ಸ್ಥಿರಾಂಕ Const &a_signed = cell->getParam(ID::A_SIGNED);
+		ಸ್ಥಿರಾಂಕ Const &b_signed = cell->getParam(ID::B_SIGNED);
+		ಪೂರ್ಣಾಂಕ ai = 0, bi = 0;
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < nproducts; i++) {
+			ಪದ_t ಪದ;
 
 			log_assert(a_signed[i] == b_signed[i]);
-			term.is_signed = (a_signed[i] == State::S1);
-			int a_width = a_widths.extract(16 * i, 16).as_int(false);
-			int b_width = b_widths.extract(16 * i, 16).as_int(false);
+			ಪದ.is_signed = (a_signed[i] == State::S1);
+			ಪೂರ್ಣಾಂಕ a_ಅಗಲ = a_widths.ಹೊರತೆಗೆ(16 * i, 16).as_int(false);
+			ಪೂರ್ಣಾಂಕ b_ಅಗಲ = b_widths.ಹೊರತೆಗೆ(16 * i, 16).as_int(false);
 
-			term.in_a = port_a.extract(ai, a_width);
-			ai += a_width;
-			term.in_b = port_b.extract(bi, b_width);
-			bi += b_width;
-			term.do_subtract = (product_neg[i] == State::S1);
+			ಪದ.ಒಳ_a = ಪೋರ್ಟ್_a.ಹೊರತೆಗೆ(ai, a_ಅಗಲ);
+			ai += a_ಅಗಲ;
+			ಪದ.ಒಳ_b = ಪೋರ್ಟ್_b.ಹೊರತೆಗೆ(bi, b_ಅಗಲ);
+			bi += b_ಅಗಲ;
+			ಪದ.do_ಕಳೆ = (ಗುಣಲಬ್ಧ_neg[i] == State::S1);
 
-			terms.push_back(term);
+			terms.ತಳ್ಳು_ಹಿಂಭಾಗ(ಪದ);
 		}
-		log_assert(port_a.size() == ai);
-		log_assert(port_b.size() == bi);
+		log_assert(ಪೋರ್ಟ್_a.ಗಾತ್ರ_2() == ai);
+		log_assert(ಪೋರ್ಟ್_b.ಗಾತ್ರ_2() == bi);
 
-		int naddends = cell->getParam(ID::NADDENDS).as_int();
-		const Const &addend_neg = cell->getParam(ID::ADDEND_NEGATED);
-		const Const &c_widths = cell->getParam(ID::C_WIDTHS);
-		const Const &c_signed = cell->getParam(ID::C_SIGNED);
-		int ci = 0;
-		for (int i = 0; i < naddends; i++) {
-			term_t term;
+		ಪೂರ್ಣಾಂಕ naddends = cell->getParam(ID::NADDENDS).as_int();
+		ಸ್ಥಿರಾಂಕ Const &addend_neg = cell->getParam(ID::ADDEND_NEGATED);
+		ಸ್ಥಿರಾಂಕ Const &c_widths = cell->getParam(ID::C_WIDTHS);
+		ಸ್ಥಿರಾಂಕ Const &c_signed = cell->getParam(ID::C_SIGNED);
+		ಪೂರ್ಣಾಂಕ ci = 0;
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < naddends; i++) {
+			ಪದ_t ಪದ;
 
-			term.is_signed = (c_signed[i] == State::S1);
-			int c_width = c_widths.extract(16 * i, 16).as_int(false);
+			ಪದ.is_signed = (c_signed[i] == State::S1);
+			ಪೂರ್ಣಾಂಕ c_ಅಗಲ = c_widths.ಹೊರತೆಗೆ(16 * i, 16).as_int(false);
 
-			term.in_a = port_c.extract(ci, c_width);
-			ci += c_width;
-			term.do_subtract = (addend_neg[i] == State::S1);
+			ಪದ.ಒಳ_a = ಪೋರ್ಟ್_c.ಹೊರತೆಗೆ(ci, c_ಅಗಲ);
+			ci += c_ಅಗಲ;
+			ಪದ.do_ಕಳೆ = (addend_neg[i] == State::S1);
 
-			terms.push_back(term);
+			terms.ತಳ್ಳು_ಹಿಂಭಾಗ(ಪದ);
 		}
-		log_assert(port_c.size() == ci);
+		log_assert(ಪೋರ್ಟ್_c.ಗಾತ್ರ_2() == ci);
 	}
 
-	void to_cell(RTLIL::Cell *cell)
+	ಶೂನ್ಯ ಗಮ್ಯ_cell(RTLIL::Cell *cell)
 	{
 		cell->type = ID($macc_v2);
 
-		int nproducts = 0, naddends = 0;
-		Const a_signed, b_signed, a_widths, b_widths, product_negated;
+		ಪೂರ್ಣಾಂಕ nproducts = 0, naddends = 0;
+		Const a_signed, b_signed, a_widths, b_widths, ಗುಣಲಬ್ಧ_negated;
 		Const c_signed, c_widths, addend_negated;
 		SigSpec a, b, c;
 
-		for (int i = 0; i < (int) terms.size(); i++) {
-			SigSpec term_a = terms[i].in_a, term_b = terms[i].in_b;
+		ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < (ಪೂರ್ಣಾಂಕ) terms.ಗಾತ್ರ_2(); i++) {
+			SigSpec ಪದ_a = terms[i].ಒಳ_a, ಪದ_b = terms[i].ಒಳ_b;
 
-			if (term_b.empty()) {
+			ಆದರೆ (ಪದ_b.ಖಾಲಿಗಳು()) {
 				// addend
-				c_widths.append(Const(term_a.size(), 16));
+				c_widths.append(Const(ಪದ_a.ಗಾತ್ರ_2(), 16));
 				c_signed.append(terms[i].is_signed ? RTLIL::S1 : RTLIL::S0);
-				addend_negated.append(terms[i].do_subtract ? RTLIL::S1 : RTLIL::S0);
-				c.append(term_a);
+				addend_negated.append(terms[i].do_ಕಳೆ ? RTLIL::S1 : RTLIL::S0);
+				c.append(ಪದ_a);
 				naddends++;
-			} else {
-				// product
-				a_widths.append(Const(term_a.size(), 16));
-				b_widths.append(Const(term_b.size(), 16));
+			} ಇಲ್ಲದಿದ್ದರೆ {
+				//ಗುಣಲಬ್ಧ
+				a_widths.append(Const(ಪದ_a.ಗಾತ್ರ_2(), 16));
+				b_widths.append(Const(ಪದ_b.ಗಾತ್ರ_2(), 16));
 				a_signed.append(terms[i].is_signed ? RTLIL::S1 : RTLIL::S0);
 				b_signed.append(terms[i].is_signed ? RTLIL::S1 : RTLIL::S0);
-				product_negated.append(terms[i].do_subtract ? RTLIL::S1 : RTLIL::S0);
-				a.append(term_a);
-				b.append(term_b);
+				ಗುಣಲಬ್ಧ_negated.append(terms[i].do_ಕಳೆ ? RTLIL::S1 : RTLIL::S0);
+				a.append(ಪದ_a);
+				b.append(ಪದ_b);
 				nproducts++;
 			}
 		}
 
-		if (a_signed.empty())
+		ಆದರೆ (a_signed.ಖಾಲಿಗಳು())
 			a_signed = {RTLIL::Sx};
-		if (b_signed.empty())
+		ಆದರೆ (b_signed.ಖಾಲಿಗಳು())
 			b_signed = {RTLIL::Sx};
-		if (c_signed.empty())
+		ಆದರೆ (c_signed.ಖಾಲಿಗಳು())
 			c_signed = {RTLIL::Sx};
-		if (a_widths.empty())
+		ಆದರೆ (a_widths.ಖಾಲಿಗಳು())
 			a_widths = {RTLIL::Sx};
-		if (b_widths.empty())
+		ಆದರೆ (b_widths.ಖಾಲಿಗಳು())
 			b_widths = {RTLIL::Sx};
-		if (c_widths.empty())
+		ಆದರೆ (c_widths.ಖಾಲಿಗಳು())
 			c_widths = {RTLIL::Sx};
-		if (product_negated.empty())
-			product_negated = {RTLIL::Sx};
-		if (addend_negated.empty())
+		ಆದರೆ (ಗುಣಲಬ್ಧ_negated.ಖಾಲಿಗಳು())
+			ಗುಣಲಬ್ಧ_negated = {RTLIL::Sx};
+		ಆದರೆ (addend_negated.ಖಾಲಿಗಳು())
 			addend_negated = {RTLIL::Sx};
 
-		cell->setParam(ID::NPRODUCTS, nproducts);
-		cell->setParam(ID::PRODUCT_NEGATED, product_negated);
-		cell->setParam(ID::NADDENDS, naddends);
-		cell->setParam(ID::ADDEND_NEGATED, addend_negated);
-		cell->setParam(ID::A_SIGNED, a_signed);
-		cell->setParam(ID::B_SIGNED, b_signed);
-		cell->setParam(ID::C_SIGNED, c_signed);
-		cell->setParam(ID::A_WIDTHS, a_widths);
-		cell->setParam(ID::B_WIDTHS, b_widths);
-		cell->setParam(ID::C_WIDTHS, c_widths);
-		cell->setPort(ID::A, a);
-		cell->setPort(ID::B, b);
-		cell->setPort(ID::C, c);
+		cell->ಗಣ_Param(ID::NPRODUCTS, nproducts);
+		cell->ಗಣ_Param(ID::ಗುಣಲಬ್ಧ_NEGATED, ಗುಣಲಬ್ಧ_negated);
+		cell->ಗಣ_Param(ID::NADDENDS, naddends);
+		cell->ಗಣ_Param(ID::ADDEND_NEGATED, addend_negated);
+		cell->ಗಣ_Param(ID::A_SIGNED, a_signed);
+		cell->ಗಣ_Param(ID::B_SIGNED, b_signed);
+		cell->ಗಣ_Param(ID::C_SIGNED, c_signed);
+		cell->ಗಣ_Param(ID::A_WIDTHS, a_widths);
+		cell->ಗಣ_Param(ID::B_WIDTHS, b_widths);
+		cell->ಗಣ_Param(ID::C_WIDTHS, c_widths);
+		cell->ಗಣ_ಪೋರ್ಟ್(ID::A, a);
+		cell->ಗಣ_ಪೋರ್ಟ್(ID::B, b);
+		cell->ಗಣ_ಪೋರ್ಟ್(ID::C, c);
 	}
 
-	bool eval(RTLIL::Const &result) const
+	bool eval(RTLIL::Const &ಫಲಿತಾಂಶ) ಸ್ಥಿರಾಂಕ
 	{
-		for (auto bit : result)
-			bit = State::S0;
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ ಬಿಟ್ : ಫಲಿತಾಂಶ)
+			ಬಿಟ್ = State::S0;
 
-		for (auto &port : terms)
+		ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಪೋರ್ಟ್ : terms)
 		{
-			if (!port.in_a.is_fully_const() || !port.in_b.is_fully_const())
-				return false;
+			ಆದರೆ (!ಪೋರ್ಟ್.ಒಳ_a.is_fully_const() || !ಪೋರ್ಟ್.ಒಳ_b.is_fully_const())
+				ಹಿಂತಿರುಗಿ false;
 
 			RTLIL::Const summand;
-			if (GetSize(port.in_b) == 0)
-				summand = const_pos(port.in_a.as_const(), port.in_b.as_const(), port.is_signed, port.is_signed, GetSize(result));
-			else
-				summand = const_mul(port.in_a.as_const(), port.in_b.as_const(), port.is_signed, port.is_signed, GetSize(result));
+			ಆದರೆ (Get_ಗಾತ್ರ(ಪೋರ್ಟ್.ಒಳ_b) == 0)
+				summand = const_pos(ಪೋರ್ಟ್.ಒಳ_a.as_const(), ಪೋರ್ಟ್.ಒಳ_b.as_const(), ಪೋರ್ಟ್.is_signed, ಪೋರ್ಟ್.is_signed, Get_ಗಾತ್ರ(ಫಲಿತಾಂಶ));
+			ಇಲ್ಲದಿದ್ದರೆ
+				summand = const_mul(ಪೋರ್ಟ್.ಒಳ_a.as_const(), ಪೋರ್ಟ್.ಒಳ_b.as_const(), ಪೋರ್ಟ್.is_signed, ಪೋರ್ಟ್.is_signed, Get_ಗಾತ್ರ(ಫಲಿತಾಂಶ));
 
-			if (port.do_subtract)
-				result = const_sub(result, summand, port.is_signed, port.is_signed, GetSize(result));
-			else
-				result = const_add(result, summand, port.is_signed, port.is_signed, GetSize(result));
+			ಆದರೆ (ಪೋರ್ಟ್.do_ಕಳೆ)
+				ಫಲಿತಾಂಶ = const_sub(ಫಲಿತಾಂಶ, summand, ಪೋರ್ಟ್.is_signed, ಪೋರ್ಟ್.is_signed, Get_ಗಾತ್ರ(ಫಲಿತಾಂಶ));
+			ಇಲ್ಲದಿದ್ದರೆ
+				ಫಲಿತಾಂಶ = const_ಕೂಡಿಸು(ಫಲಿತಾಂಶ, summand, ಪೋರ್ಟ್.is_signed, ಪೋರ್ಟ್.is_signed, Get_ಗಾತ್ರ(ಫಲಿತಾಂಶ));
 		}
 
-		return true;
+		ಹಿಂತಿರುಗಿ true;
 	}
 
-	bool is_simple_product()
+	bool is_simple_ಗುಣಲಬ್ಧ()
 	{
-		return terms.size() == 1 &&
-				!terms[0].in_b.empty() &&
-				!terms[0].do_subtract;
+		ಹಿಂತಿರುಗಿ terms.ಗಾತ್ರ_2() == 1 &&
+				!terms[0].ಒಳ_b.ಖಾಲಿಗಳು() &&
+				!terms[0].do_ಕಳೆ;
 	}
 
 	Macc(RTLIL::Cell *cell = nullptr)
 	{
-		if (cell != nullptr)
+		ಆದರೆ (cell != nullptr)
 			from_cell(cell);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

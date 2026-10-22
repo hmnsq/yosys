@@ -17,387 +17,387 @@
  *
  */
 
-#ifndef COMPUTE_GRAPH_H
-#define COMPUTE_GRAPH_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ COMPUTE_ನಕ್ಷೆ_H
+#ವ್ಯಾಖ್ಯಾನಿಸು COMPUTE_ನಕ್ಷೆ_H
 
-#include <tuple>
-#include "kernel/yosys.h"
+#ಅನ್ತರ್ಭಾವ <tuple>
+#ಅನ್ತರ್ಭಾವ "kernel/yosys.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-template<
+ಮಾದರಿ<
     typename Fn, // Function type (deduplicated across whole graph)
     typename Attr = std::tuple<>, // Call attributes (present in every node)
     typename SparseAttr = std::tuple<>, // Sparse call attributes (optional per node)
-    typename Key = std::tuple<> // Stable keys to refer to nodes
+    typename ಕೀಲಿ_2 = std::tuple<> // Stable keys to refer to nodes
 >
-struct ComputeGraph
+ರಚನೆ Compute_ನಕ್ಷೆ
 {
-    struct Ref;
-private:
+    ರಚನೆ Ref;
+ಖಾಸಗಿ:
 
     // Functions are deduplicated by assigning unique ids
     idict<Fn> functions;
 
-    struct Node {
-        int fn_index;
-        int arg_offset;
-        int arg_count;
+    ರಚನೆ ಗಂಟು_2 {
+        ಪೂರ್ಣಾಂಕ fn_ಸೂಚ್ಯಂಕ;
+        ಪೂರ್ಣಾಂಕ arg_ಸ್ಥಾನಾಂತರ;
+        ಪೂರ್ಣಾಂಕ arg_ಎಣಿಕೆ;
         Attr attr;
 
-        Node(int fn_index, Attr &&attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(std::move(attr)) {}
+        ಗಂಟು_2(ಪೂರ್ಣಾಂಕ fn_ಸೂಚ್ಯಂಕ, Attr &&attr, ಪೂರ್ಣಾಂಕ arg_ಸ್ಥಾನಾಂತರ, ಪೂರ್ಣಾಂಕ arg_ಎಣಿಕೆ = 0)
+            : fn_ಸೂಚ್ಯಂಕ(fn_ಸೂಚ್ಯಂಕ), arg_ಸ್ಥಾನಾಂತರ(arg_ಸ್ಥಾನಾಂತರ), arg_ಎಣಿಕೆ(arg_ಎಣಿಕೆ), attr(std::move(attr)) {}
 
-        Node(int fn_index, Attr const &attr, int arg_offset, int arg_count = 0)
-            : fn_index(fn_index), arg_offset(arg_offset), arg_count(arg_count), attr(attr) {}
+        ಗಂಟು_2(ಪೂರ್ಣಾಂಕ fn_ಸೂಚ್ಯಂಕ, Attr ಸ್ಥಿರಾಂಕ &attr, ಪೂರ್ಣಾಂಕ arg_ಸ್ಥಾನಾಂತರ, ಪೂರ್ಣಾಂಕ arg_ಎಣಿಕೆ = 0)
+            : fn_ಸೂಚ್ಯಂಕ(fn_ಸೂಚ್ಯಂಕ), arg_ಸ್ಥಾನಾಂತರ(arg_ಸ್ಥಾನಾಂತರ), arg_ಎಣಿಕೆ(arg_ಎಣಿಕೆ), attr(attr) {}
     };
 
 
-    std::vector<Node> nodes;
-    std::vector<int> args;
-    dict<Key, int> keys_;
-    dict<int, SparseAttr> sparse_attrs;
+    std::ಸದಿಶ<ಗಂಟು_2> nodes;
+    std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> ವಾದಗಳು_2;
+    dict<ಕೀಲಿ_2, ಪೂರ್ಣಾಂಕ> ಕೀಲಿಗಳು;
+    dict<ಪೂರ್ಣಾಂಕ, SparseAttr> sparse_attrs;
 
-public:
-    template<typename Graph>
-    struct BaseRef
+ಸಾರ್ವಜನಿಕ:
+    ಮಾದರಿ<typename ನಕ್ಷೆ>
+    ರಚನೆ ತಳ_Ref
     {
-    protected:
-        friend struct ComputeGraph;
-        Graph *graph_;
-        int index_;
-        BaseRef(Graph *graph, int index) : graph_(graph), index_(index) {
-            log_assert(index_ >= 0);
+    ಸಂರಕ್ಷಿತ:
+        ಮಿತ್ರ ರಚನೆ Compute_ನಕ್ಷೆ;
+        ನಕ್ಷೆ *ನಕ್ಷೆ_2;
+        ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ_2;
+        ತಳ_Ref(ನಕ್ಷೆ *ನಕ್ಷೆ_3, ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ) : ನಕ್ಷೆ_2(ನಕ್ಷೆ_3), ಸೂಚ್ಯಂಕ_2(ಸೂಚ್ಯಂಕ) {
+            log_assert(ಸೂಚ್ಯಂಕ_2 >= 0);
             check();
         }
 
-        void check() const { log_assert(index_ < graph_->size()); }
+        ಶೂನ್ಯ check() ಸ್ಥಿರಾಂಕ { log_assert(ಸೂಚ್ಯಂಕ_2 < ನಕ್ಷೆ_2->ಗಾತ್ರ_2()); }
 
-        Node const &deref() const { check(); return graph_->nodes[index_]; }
+        ಗಂಟು_2 ಸ್ಥಿರಾಂಕ &deref() ಸ್ಥಿರಾಂಕ { check(); ಹಿಂತಿರುಗಿ ನಕ್ಷೆ_2->nodes[ಸೂಚ್ಯಂಕ_2]; }
 
-    public:
-        ComputeGraph const &graph() const { return graph_; }
-        int index() const { return index_; }
+    ಸಾರ್ವಜನಿಕ:
+        Compute_ನಕ್ಷೆ ಸ್ಥಿರಾಂಕ &ನಕ್ಷೆ_3() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ನಕ್ಷೆ_2; }
+        ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಸೂಚ್ಯಂಕ_2; }
 
-        int size() const { return deref().arg_count; }
+        ಪೂರ್ಣಾಂಕ ಗಾತ್ರ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ deref().arg_ಎಣಿಕೆ; }
 
-        BaseRef arg(int n) const
+        ತಳ_Ref arg(ಪೂರ್ಣಾಂಕ n) ಸ್ಥಿರಾಂಕ
         {
-            Node const &node = deref();
-            log_assert(n >= 0 && n < node.arg_count);
-            return BaseRef(graph_, graph_->args[node.arg_offset + n]);
+            ಗಂಟು_2 ಸ್ಥಿರಾಂಕ &ಗಂಟು = deref();
+            log_assert(n >= 0 && n < ಗಂಟು.arg_ಎಣಿಕೆ);
+            ಹಿಂತಿರುಗಿ ತಳ_Ref(ನಕ್ಷೆ_2, ನಕ್ಷೆ_2->ವಾದಗಳು_2[ಗಂಟು.arg_ಸ್ಥಾನಾಂತರ + n]);
         }
 
-        std::vector<int>::const_iterator arg_indices_cbegin() const
+        std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ>::const_iterator arg_indices_cbegin() ಸ್ಥಿರಾಂಕ
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset;
+            ಗಂಟು_2 ಸ್ಥಿರಾಂಕ &ಗಂಟು = deref();
+            ಹಿಂತಿರುಗಿ ನಕ್ಷೆ_2->ವಾದಗಳು_2.cbegin() + ಗಂಟು.arg_ಸ್ಥಾನಾಂತರ;
         }
 
-        std::vector<int>::const_iterator arg_indices_cend() const
+        std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ>::const_iterator arg_indices_cend() ಸ್ಥಿರಾಂಕ
         {
-            Node const &node = deref();
-            return graph_->args.cbegin() + node.arg_offset + node.arg_count;
+            ಗಂಟು_2 ಸ್ಥಿರಾಂಕ &ಗಂಟು = deref();
+            ಹಿಂತಿರುಗಿ ನಕ್ಷೆ_2->ವಾದಗಳು_2.cbegin() + ಗಂಟು.arg_ಸ್ಥಾನಾಂತರ + ಗಂಟು.arg_ಎಣಿಕೆ;
         }
 
-        Fn const &function() const { return graph_->functions[deref().fn_index]; }
-        Attr const &attr() const { return deref().attr; }
+        Fn ಸ್ಥಿರಾಂಕ &function() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ನಕ್ಷೆ_2->functions[deref().fn_ಸೂಚ್ಯಂಕ]; }
+        Attr ಸ್ಥಿರಾಂಕ &attr() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ deref().attr; }
 
-        bool has_sparse_attr() const { return graph_->sparse_attrs.count(index_); }
+        bool has_sparse_attr() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ನಕ್ಷೆ_2->sparse_attrs.ಎಣಿಕೆ_2(ಸೂಚ್ಯಂಕ_2); }
 
-        SparseAttr const &sparse_attr() const
+        SparseAttr ಸ್ಥಿರಾಂಕ &sparse_attr() ಸ್ಥಿರಾಂಕ
         {
-            auto found = graph_->sparse_attrs.find(index_);
-            log_assert(found != graph_->sparse_attrs.end());
-            return found->second;
+            ಸ್ವಯಂಚಾಲಿತ ಸಿಕ್ಕಿತು = ನಕ್ಷೆ_2->sparse_attrs.ಕಂಡುಹಿಡಿ(ಸೂಚ್ಯಂಕ_2);
+            log_assert(ಸಿಕ್ಕಿತು != ನಕ್ಷೆ_2->sparse_attrs.ಕೊನೆ());
+            ಹಿಂತಿರುಗಿ ಸಿಕ್ಕಿತು->ಎರಡನೇ;
         }
     };
 
-    using ConstRef = BaseRef<ComputeGraph const>;
+    using ConstRef = ತಳ_Ref<Compute_ನಕ್ಷೆ ಸ್ಥಿರಾಂಕ>;
 
-    struct Ref : public BaseRef<ComputeGraph>
+    ರಚನೆ Ref : ಸಾರ್ವಜನಿಕ ತಳ_Ref<Compute_ನಕ್ಷೆ>
     {
-    private:
-        friend struct ComputeGraph;
-        Ref(ComputeGraph *graph, int index) : BaseRef<ComputeGraph>(graph, index) {}
-        Node &deref() const { this->check(); return this->graph_->nodes[this->index_]; }
+    ಖಾಸಗಿ:
+        ಮಿತ್ರ ರಚನೆ Compute_ನಕ್ಷೆ;
+        Ref(Compute_ನಕ್ಷೆ *ನಕ್ಷೆ_3, ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ) : ತಳ_Ref<Compute_ನಕ್ಷೆ>(ನಕ್ಷೆ_3, ಸೂಚ್ಯಂಕ) {}
+        ಗಂಟು_2 &deref() ಸ್ಥಿರಾಂಕ { this->check(); ಹಿಂತಿರುಗಿ this->ನಕ್ಷೆ_2->nodes[this->ಸೂಚ್ಯಂಕ_2]; }
 
-    public:
-        Ref(BaseRef<ComputeGraph> ref) : Ref(ref.graph_, ref.index_) {}
+    ಸಾರ್ವಜನಿಕ:
+        Ref(ತಳ_Ref<Compute_ನಕ್ಷೆ> ref) : Ref(ref.ನಕ್ಷೆ_2, ref.ಸೂಚ್ಯಂಕ_2) {}
 
-        void set_function(Fn const &function) const
+        ಶೂನ್ಯ ಗಣ_function(Fn ಸ್ಥಿರಾಂಕ &function) ಸ್ಥಿರಾಂಕ
         {
-            deref().fn_index = this->graph_->functions(function);
+            deref().fn_ಸೂಚ್ಯಂಕ = this->ನಕ್ಷೆ_2->functions(function);
         }
 
-        Attr &attr() const { return deref().attr; }
+        Attr &attr() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ deref().attr; }
 
-        void append_arg(ConstRef arg) const
+        ಶೂನ್ಯ append_arg(ConstRef arg) ಸ್ಥಿರಾಂಕ
         {
-            log_assert(arg.graph_ == this->graph_);
-            append_arg(arg.index());
+            log_assert(arg.ನಕ್ಷೆ_2 == this->ನಕ್ಷೆ_2);
+            append_arg(arg.ಸೂಚ್ಯಂಕ());
         }
 
-        void append_arg(int arg) const
+        ಶೂನ್ಯ append_arg(ಪೂರ್ಣಾಂಕ arg) ಸ್ಥಿರಾಂಕ
         {
-            log_assert(arg >= 0 && arg < this->graph_->size());
-            Node &node = deref();
-            if (node.arg_offset + node.arg_count != GetSize(this->graph_->args))
-                move_args(node);
-            this->graph_->args.push_back(arg);
-            node.arg_count++;
+            log_assert(arg >= 0 && arg < this->ನಕ್ಷೆ_2->ಗಾತ್ರ_2());
+            ಗಂಟು_2 &ಗಂಟು = deref();
+            ಆದರೆ (ಗಂಟು.arg_ಸ್ಥಾನಾಂತರ + ಗಂಟು.arg_ಎಣಿಕೆ != Get_ಗಾತ್ರ(this->ನಕ್ಷೆ_2->ವಾದಗಳು_2))
+                move_ವಾದಗಳು(ಗಂಟು);
+            this->ನಕ್ಷೆ_2->ವಾದಗಳು_2.ತಳ್ಳು_ಹಿಂಭಾಗ(arg);
+            ಗಂಟು.arg_ಎಣಿಕೆ++;
         }
 
-        operator ConstRef() const
+        ಕ್ರಿಯಾಕಾರಕ ConstRef() ಸ್ಥಿರಾಂಕ
         {
-            return ConstRef(this->graph_, this->index_);
+            ಹಿಂತಿರುಗಿ ConstRef(this->ನಕ್ಷೆ_2, this->ಸೂಚ್ಯಂಕ_2);
         }
 
-        SparseAttr &sparse_attr() const
+        SparseAttr &sparse_attr() ಸ್ಥಿರಾಂಕ
         {
-            return this->graph_->sparse_attrs[this->index_];
+            ಹಿಂತಿರುಗಿ this->ನಕ್ಷೆ_2->sparse_attrs[this->ಸೂಚ್ಯಂಕ_2];
         }
 
-        void clear_sparse_attr() const
+        ಶೂನ್ಯ clear_sparse_attr() ಸ್ಥಿರಾಂಕ
         {
-            this->graph_->sparse_attrs.erase(this->index_);
+            this->ನಕ್ಷೆ_2->sparse_attrs.erase(this->ಸೂಚ್ಯಂಕ_2);
         }
 
-        void assign_key(Key const &key) const
+        ಶೂನ್ಯ ನಿಯೋಜಿಸು_ಕೀಲಿ(ಕೀಲಿ_2 ಸ್ಥಿರಾಂಕ &ಕೀಲಿ) ಸ್ಥಿರಾಂಕ
         {
-            this->graph_->keys_.emplace(key, this->index_);
+            this->ನಕ್ಷೆ_2->ಕೀಲಿಗಳು.emplace(ಕೀಲಿ, this->ಸೂಚ್ಯಂಕ_2);
         }
 
-    private:
-        void move_args(Node &node) const
+    ಖಾಸಗಿ:
+        ಶೂನ್ಯ move_ವಾದಗಳು(ಗಂಟು_2 &ಗಂಟು) ಸ್ಥಿರಾಂಕ
         {
-            auto &args = this->graph_->args;
-            int old_offset = node.arg_offset;
-            node.arg_offset = GetSize(args);
-            for (int i = 0; i != node.arg_count; ++i)
-                args.push_back(args[old_offset + i]);
+            ಸ್ವಯಂಚಾಲಿತ &ವಾದಗಳು_2 = this->ನಕ್ಷೆ_2->ವಾದಗಳು_2;
+            ಪೂರ್ಣಾಂಕ old_ಸ್ಥಾನಾಂತರ = ಗಂಟು.arg_ಸ್ಥಾನಾಂತರ;
+            ಗಂಟು.arg_ಸ್ಥಾನಾಂತರ = Get_ಗಾತ್ರ(ವಾದಗಳು_2);
+            ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i != ಗಂಟು.arg_ಎಣಿಕೆ; ++i)
+                ವಾದಗಳು_2.ತಳ್ಳು_ಹಿಂಭಾಗ(ವಾದಗಳು_2[old_ಸ್ಥಾನಾಂತರ + i]);
         }
 
     };
 
-    bool has_key(Key const &key) const
+    bool has_ಕೀಲಿ(ಕೀಲಿ_2 ಸ್ಥಿರಾಂಕ &ಕೀಲಿ) ಸ್ಥಿರಾಂಕ
     {
-        return keys_.count(key);
+        ಹಿಂತಿರುಗಿ ಕೀಲಿಗಳು.ಎಣಿಕೆ_2(ಕೀಲಿ);
     }
 
-    dict<Key, int> const &keys() const
+    dict<ಕೀಲಿ_2, ಪೂರ್ಣಾಂಕ> ಸ್ಥಿರಾಂಕ &ಕೀಲಿಗಳು_2() ಸ್ಥಿರಾಂಕ
     {
-        return keys_;
+        ಹಿಂತಿರುಗಿ ಕೀಲಿಗಳು;
     }
 
-    ConstRef operator()(Key const &key) const
+    ConstRef ಕ್ರಿಯಾಕಾರಕ()(ಕೀಲಿ_2 ಸ್ಥಿರಾಂಕ &ಕೀಲಿ) ಸ್ಥಿರಾಂಕ
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        ಸ್ವಯಂಚಾಲಿತ it = ಕೀಲಿಗಳು.ಕಂಡುಹಿಡಿ(ಕೀಲಿ);
+        log_assert(it != ಕೀಲಿಗಳು.ಕೊನೆ());
+        ಹಿಂತಿರುಗಿ (*this)[it->ಎರಡನೇ];
     }
 
-    Ref operator()(Key const &key)
+    Ref ಕ್ರಿಯಾಕಾರಕ()(ಕೀಲಿ_2 ಸ್ಥಿರಾಂಕ &ಕೀಲಿ)
     {
-        auto it = keys_.find(key);
-        log_assert(it != keys_.end());
-        return (*this)[it->second];
+        ಸ್ವಯಂಚಾಲಿತ it = ಕೀಲಿಗಳು.ಕಂಡುಹಿಡಿ(ಕೀಲಿ);
+        log_assert(it != ಕೀಲಿಗಳು.ಕೊನೆ());
+        ಹಿಂತಿರುಗಿ (*this)[it->ಎರಡನೇ];
     }
 
-    int size() const { return GetSize(nodes); }
+    ಪೂರ್ಣಾಂಕ ಗಾತ್ರ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ Get_ಗಾತ್ರ(nodes); }
 
-    ConstRef operator[](int index) const { return ConstRef(this, index); }
-    Ref operator[](int index) { return Ref(this, index); }
+    ConstRef ಕ್ರಿಯಾಕಾರಕ[](ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ConstRef(this, ಸೂಚ್ಯಂಕ); }
+    Ref ಕ್ರಿಯಾಕಾರಕ[](ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ) { ಹಿಂತಿರುಗಿ Ref(this, ಸೂಚ್ಯಂಕ); }
 
-    Ref add(Fn const &function, Attr &&attr)
+    Ref ಕೂಡಿಸು(Fn ಸ್ಥಿರಾಂಕ &function, Attr &&attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
-        nodes.emplace_back(fn_index, std::move(attr), GetSize(args));
-        return Ref(this, index);
+        ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ = Get_ಗಾತ್ರ(nodes);
+        ಪೂರ್ಣಾಂಕ fn_ಸೂಚ್ಯಂಕ = functions(function);
+        nodes.emplace_ಹಿಂಭಾಗ(fn_ಸೂಚ್ಯಂಕ, std::move(attr), Get_ಗಾತ್ರ(ವಾದಗಳು_2));
+        ಹಿಂತಿರುಗಿ Ref(this, ಸೂಚ್ಯಂಕ);
     }
 
-    Ref add(Fn const &function, Attr const &attr)
+    Ref ಕೂಡಿಸು(Fn ಸ್ಥಿರಾಂಕ &function, Attr ಸ್ಥಿರಾಂಕ &attr)
     {
-        int index = GetSize(nodes);
-        int fn_index = functions(function);
-        nodes.emplace_back(fn_index, attr,  GetSize(args));
-        return Ref(this, index);
+        ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ = Get_ಗಾತ್ರ(nodes);
+        ಪೂರ್ಣಾಂಕ fn_ಸೂಚ್ಯಂಕ = functions(function);
+        nodes.emplace_ಹಿಂಭಾಗ(fn_ಸೂಚ್ಯಂಕ, attr,  Get_ಗಾತ್ರ(ವಾದಗಳು_2));
+        ಹಿಂತಿರುಗಿ Ref(this, ಸೂಚ್ಯಂಕ);
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T &&args)
+    ಮಾದರಿ<typename T>
+    Ref ಕೂಡಿಸು(Fn ಸ್ಥಿರಾಂಕ &function, Attr ಸ್ಥಿರಾಂಕ &attr, T &&ವಾದಗಳು_2)
     {
-        Ref added = add(function, attr);
-        for (auto arg : args)
+        Ref added = ಕೂಡಿಸು(function, attr);
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ arg : ವಾದಗಳು_2)
             added.append_arg(arg);
-        return added;
+        ಹಿಂತಿರುಗಿ added;
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr &&attr, T &&args)
+    ಮಾದರಿ<typename T>
+    Ref ಕೂಡಿಸು(Fn ಸ್ಥಿರಾಂಕ &function, Attr &&attr, T &&ವಾದಗಳು_2)
     {
-        Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        Ref added = ಕೂಡಿಸು(function, std::move(attr));
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ arg : ವಾದಗಳು_2)
             added.append_arg(arg);
-        return added;
+        ಹಿಂತಿರುಗಿ added;
     }
 
-    Ref add(Fn const &function, Attr const &attr, std::initializer_list<Ref> args)
+    Ref ಕೂಡಿಸು(Fn ಸ್ಥಿರಾಂಕ &function, Attr ಸ್ಥಿರಾಂಕ &attr, std::initializer_list<Ref> ವಾದಗಳು_2)
     {
-        Ref added = add(function, attr);
-        for (auto arg : args)
+        Ref added = ಕೂಡಿಸು(function, attr);
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ arg : ವಾದಗಳು_2)
             added.append_arg(arg);
-        return added;
+        ಹಿಂತಿರುಗಿ added;
     }
 
-    Ref add(Fn const &function, Attr &&attr, std::initializer_list<Ref> args)
+    Ref ಕೂಡಿಸು(Fn ಸ್ಥಿರಾಂಕ &function, Attr &&attr, std::initializer_list<Ref> ವಾದಗಳು_2)
     {
-        Ref added = add(function, std::move(attr));
-        for (auto arg : args)
+        Ref added = ಕೂಡಿಸು(function, std::move(attr));
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ arg : ವಾದಗಳು_2)
             added.append_arg(arg);
-        return added;
+        ಹಿಂತಿರುಗಿ added;
     }
 
-    template<typename T>
-    Ref add(Fn const &function, Attr const &attr, T begin, T end)
+    ಮಾದರಿ<typename T>
+    Ref ಕೂಡಿಸು(Fn ಸ್ಥಿರಾಂಕ &function, Attr ಸ್ಥಿರಾಂಕ &attr, T begin, T ಕೊನೆ)
     {
-        Ref added = add(function, attr);
-        for (; begin != end; ++begin)
+        Ref added = ಕೂಡಿಸು(function, attr);
+        ಗಾಗಿ (; begin != ಕೊನೆ; ++begin)
             added.append_arg(*begin);
-        return added;
+        ಹಿಂತಿರುಗಿ added;
     }
 
-    void compact_args()
+    ಶೂನ್ಯ compact_ವಾದಗಳು()
     {
-        std::vector<int> new_args;
-        for (auto &node : nodes)
+        std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> new_ವಾದಗಳು;
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಗಂಟು : nodes)
         {
-            int new_offset = GetSize(new_args);
-            for (int i = 0; i < node.arg_count; i++)
-                new_args.push_back(args[node.arg_offset + i]);
-            node.arg_offset = new_offset;
+            ಪೂರ್ಣಾಂಕ new_ಸ್ಥಾನಾಂತರ = Get_ಗಾತ್ರ(new_ವಾದಗಳು);
+            ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < ಗಂಟು.arg_ಎಣಿಕೆ; i++)
+                new_ವಾದಗಳು.ತಳ್ಳು_ಹಿಂಭಾಗ(ವಾದಗಳು_2[ಗಂಟು.arg_ಸ್ಥಾನಾಂತರ + i]);
+            ಗಂಟು.arg_ಸ್ಥಾನಾಂತರ = new_ಸ್ಥಾನಾಂತರ;
         }
-        std::swap(args, new_args);
+        std::ಅದಲುಬದಲು(ವಾದಗಳು_2, new_ವಾದಗಳು);
     }
 
-    void permute(std::vector<int> const &perm)
+    ಶೂನ್ಯ ಕ್ರಮಬದಲಾವಣೆ(std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> ಸ್ಥಿರಾಂಕ &perm)
     {
-        log_assert(perm.size() <= nodes.size());
-        std::vector<int> inv_perm;
-        inv_perm.resize(nodes.size(), -1);
-        for (int i = 0; i < GetSize(perm); ++i)
+        log_assert(perm.ಗಾತ್ರ_2() <= nodes.ಗಾತ್ರ_2());
+        std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> inv_perm;
+        inv_perm.resize(nodes.ಗಾತ್ರ_2(), -1);
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < Get_ಗಾತ್ರ(perm); ++i)
         {
-            int j = perm[i];
-            log_assert(j >= 0 && j < GetSize(nodes));
+            ಪೂರ್ಣಾಂಕ j = perm[i];
+            log_assert(j >= 0 && j < Get_ಗಾತ್ರ(nodes));
             log_assert(inv_perm[j] == -1);
             inv_perm[j] = i;
         }
-        permute(perm, inv_perm);
+        ಕ್ರಮಬದಲಾವಣೆ(perm, inv_perm);
     }
 
-    void permute(std::vector<int> const &perm, std::vector<int> const &inv_perm)
+    ಶೂನ್ಯ ಕ್ರಮಬದಲಾವಣೆ(std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> ಸ್ಥಿರಾಂಕ &perm, std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> ಸ್ಥಿರಾಂಕ &inv_perm)
     {
-        log_assert(inv_perm.size() == nodes.size());
-        std::vector<Node> new_nodes;
-        new_nodes.reserve(perm.size());
-        dict<int, SparseAttr> new_sparse_attrs;
-        for (int i : perm)
+        log_assert(inv_perm.ಗಾತ್ರ_2() == nodes.ಗಾತ್ರ_2());
+        std::ಸದಿಶ<ಗಂಟು_2> new_nodes;
+        new_nodes.reserve(perm.ಗಾತ್ರ_2());
+        dict<ಪೂರ್ಣಾಂಕ, SparseAttr> new_sparse_attrs;
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i : perm)
         {
-            int j = GetSize(new_nodes);
-            new_nodes.emplace_back(std::move(nodes[i]));
-            auto found = sparse_attrs.find(i);
-            if (found != sparse_attrs.end())
-                new_sparse_attrs.emplace(j, std::move(found->second));
+            ಪೂರ್ಣಾಂಕ j = Get_ಗಾತ್ರ(new_nodes);
+            new_nodes.emplace_ಹಿಂಭಾಗ(std::move(nodes[i]));
+            ಸ್ವಯಂಚಾಲಿತ ಸಿಕ್ಕಿತು = sparse_attrs.ಕಂಡುಹಿಡಿ(i);
+            ಆದರೆ (ಸಿಕ್ಕಿತು != sparse_attrs.ಕೊನೆ())
+                new_sparse_attrs.emplace(j, std::move(ಸಿಕ್ಕಿತು->ಎರಡನೇ));
         }
 
-        std::swap(nodes, new_nodes);
-        std::swap(sparse_attrs, new_sparse_attrs);
+        std::ಅದಲುಬದಲು(nodes, new_nodes);
+        std::ಅದಲುಬದಲು(sparse_attrs, new_sparse_attrs);
 
-        compact_args();
-        for (int &arg : args)
+        compact_ವಾದಗಳು();
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ &arg : ವಾದಗಳು_2)
         {
-            log_assert(arg < GetSize(inv_perm));
+            log_assert(arg < Get_ಗಾತ್ರ(inv_perm));
             log_assert(inv_perm[arg] >= 0);
             arg = inv_perm[arg];
         }
 
-        for (auto &key : keys_)
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ &ಕೀಲಿ : ಕೀಲಿಗಳು)
         {
-            log_assert(key.second < GetSize(inv_perm));
-            log_assert(inv_perm[key.second] >= 0);
-            key.second = inv_perm[key.second];
+            log_assert(ಕೀಲಿ.ಎರಡನೇ < Get_ಗಾತ್ರ(inv_perm));
+            log_assert(inv_perm[ಕೀಲಿ.ಎರಡನೇ] >= 0);
+            ಕೀಲಿ.ಎರಡನೇ = inv_perm[ಕೀಲಿ.ಎರಡನೇ];
         }
     }
 
-    struct SccAdaptor
+    ರಚನೆ SccAdaptor
     {
-    private:
-        ComputeGraph const &graph_;
-        std::vector<int> indices_;
-    public:
-        SccAdaptor(ComputeGraph const &graph) : graph_(graph)
+    ಖಾಸಗಿ:
+        Compute_ನಕ್ಷೆ ಸ್ಥಿರಾಂಕ &ನಕ್ಷೆ_2;
+        std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> indices_;
+    ಸಾರ್ವಜನಿಕ:
+        SccAdaptor(Compute_ನಕ್ಷೆ ಸ್ಥಿರಾಂಕ &ನಕ್ಷೆ_3) : ನಕ್ಷೆ_2(ನಕ್ಷೆ_3)
         {
-            indices_.resize(graph.size(), -1);
+            indices_.resize(ನಕ್ಷೆ_3.ಗಾತ್ರ_2(), -1);
         }
 
 
-        typedef int node_type;
+        ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಪೂರ್ಣಾಂಕ ಗಂಟು_type;
 
-        struct node_enumerator {
-        private:
-            friend struct SccAdaptor;
-            int current, end;
-            node_enumerator(int current, int end) : current(current), end(end) {}
+        ರಚನೆ ಗಂಟು_enumerator {
+        ಖಾಸಗಿ:
+            ಮಿತ್ರ ರಚನೆ SccAdaptor;
+            ಪೂರ್ಣಾಂಕ current, ಕೊನೆ;
+            ಗಂಟು_enumerator(ಪೂರ್ಣಾಂಕ current, ಪೂರ್ಣಾಂಕ ಕೊನೆ) : current(current), ಕೊನೆ(ಕೊನೆ) {}
 
-        public:
+        ಸಾರ್ವಜನಿಕ:
 
-            bool finished() const { return current == end; }
-            node_type next() {
-                log_assert(!finished());
-                node_type result = current;
+            bool ಪೂರ್ಣಗೊಂಡ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ current == ಕೊನೆ; }
+            ಗಂಟು_type ಮುಂದಿನ() {
+                log_assert(!ಪೂರ್ಣಗೊಂಡ());
+                ಗಂಟು_type ಫಲಿತಾಂಶ = current;
                 ++current;
-                return result;
+                ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
             }
         };
 
-        node_enumerator enumerate_nodes() {
-            return node_enumerator(0, GetSize(indices_));
+        ಗಂಟು_enumerator enumerate_nodes() {
+            ಹಿಂತಿರುಗಿ ಗಂಟು_enumerator(0, Get_ಗಾತ್ರ(indices_));
         }
 
 
-        struct successor_enumerator {
-        private:
-            friend struct SccAdaptor;
-            std::vector<int>::const_iterator current, end;
-            successor_enumerator(std::vector<int>::const_iterator current, std::vector<int>::const_iterator end) :
-                current(current), end(end) {}
+        ರಚನೆ successor_enumerator {
+        ಖಾಸಗಿ:
+            ಮಿತ್ರ ರಚನೆ SccAdaptor;
+            std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ>::const_iterator current, ಕೊನೆ;
+            successor_enumerator(std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ>::const_iterator current, std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ>::const_iterator ಕೊನೆ) :
+                current(current), ಕೊನೆ(ಕೊನೆ) {}
 
-        public:
-            bool finished() const { return current == end; }
-            node_type next() {
-                log_assert(!finished());
-                node_type result = *current;
+        ಸಾರ್ವಜನಿಕ:
+            bool ಪೂರ್ಣಗೊಂಡ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ current == ಕೊನೆ; }
+            ಗಂಟು_type ಮುಂದಿನ() {
+                log_assert(!ಪೂರ್ಣಗೊಂಡ());
+                ಗಂಟು_type ಫಲಿತಾಂಶ = *current;
                 ++current;
-                return result;
+                ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
             }
         };
 
-        successor_enumerator enumerate_successors(int index) const {
-            auto const &ref = graph_[index];
-            return successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
+        successor_enumerator enumerate_ಉತ್ತರಾಧಿಕಾರಿಗಳು(ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ) ಸ್ಥಿರಾಂಕ {
+            ಸ್ವಯಂಚಾಲಿತ ಸ್ಥಿರಾಂಕ &ref = ನಕ್ಷೆ_2[ಸೂಚ್ಯಂಕ];
+            ಹಿಂತಿರುಗಿ successor_enumerator(ref.arg_indices_cbegin(), ref.arg_indices_cend());
         }
 
-        int &dfs_index(node_type const &node) { return indices_[node]; }
+        ಪೂರ್ಣಾಂಕ &dfs_ಸೂಚ್ಯಂಕ(ಗಂಟು_type ಸ್ಥಿರಾಂಕ &ಗಂಟು) { ಹಿಂತಿರುಗಿ indices_[ಗಂಟು]; }
 
-        std::vector<int> const &dfs_indices() { return indices_; }
+        std::ಸದಿಶ<ಪೂರ್ಣಾಂಕ> ಸ್ಥಿರಾಂಕ &dfs_indices() { ಹಿಂತಿರುಗಿ indices_; }
     };
 
 };
 
 
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_ಕೊನೆ
 
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
