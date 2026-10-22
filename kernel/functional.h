@@ -18,14 +18,14 @@
  *
  */
 
-#ifndef FUNCTIONAL_H
-#define FUNCTIONAL_H
+#اگر_تعریف_نشده FUNCTIONAL_H
+#تعریف_کن FUNCTIONAL_H
 
-#include "kernel/yosys.h"
-#include "kernel/compute_graph.h"
-#include "kernel/drivertools.h"
-#include "kernel/mem.h"
-#include "kernel/utils.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/compute_graph.h"
+#ضمن "kernel/drivertools.h"
+#ضمن "kernel/mem.h"
+#ضمن "kernel/utils.h"
 
 USING_YOSYS_NAMESPACE
 YOSYS_NAMESPACE_BEGIN
@@ -49,7 +49,7 @@ namespace Functional {
 	// additionally, they can carry a constant of sort int, Const[N] or IdString
 	// each node has a 'sort' field that stores the sort of the node
 	// slice, zero_extend, sign_extend use the sort field to store out_width
-	enum class Fn {
+	تعداد class Fn {
 		// invalid() = known-invalid/shouldn't happen value
 		// TODO: maybe remove this and use e.g. std::optional instead?
 		invalid,
@@ -60,7 +60,7 @@ namespace Functional {
 		buf,
 		// slice(a: bit[in_width], offset: int, out_width: int): bit[out_width] = a[offset +: out_width]
 		// required: offset + out_width <= in_width
-		slice,
+		برش,
 		// zero_extend(a: unsigned bit[in_width], out_width: int): unsigned bit[out_width] = a (zero extended)
 		// required: out_width > in_width
 		zero_extend,
@@ -71,7 +71,7 @@ namespace Functional {
 		// concatenates two bitvectors, with a in the least significant position and b in the more significant position
 		concat,
 		// add(a: bit[N], b: bit[N]): bit[N] = a + b
-		add,
+		جمع_کن,
 		// sub(a: bit[N], b: bit[N]): bit[N] = a - b
 		sub,
 		// mul(a: bit[N], b: bit[N]): bit[N] = a * b
@@ -110,535 +110,535 @@ namespace Functional {
 		unsigned_greater_equal,
 		// logical_shift_left(a: bit[N], b: unsigned bit[M]): bit[N] = a << b
 		// required: M == clog2(N)
-		logical_shift_left,
+		logical_لغزش_چپ,
 		// logical_shift_right(a: unsigned bit[N], b: unsigned bit[M]): unsigned bit[N] = a >> b
 		// required: M == clog2(N)
-		logical_shift_right,
+		logical_لغزش_راست,
 		// arithmetic_shift_right(a: signed bit[N], b: unsigned bit[M]): signed bit[N] = a >> b
 		// required: M == clog2(N)
-		arithmetic_shift_right,
+		arithmetic_لغزش_راست,
 		// mux(a: bit[N], b: bit[N], s: bit[1]): bit[N] = s ? b : a
 		mux,
 		// constant(a: Const[N]): bit[N] = a
 		constant,
 		// input(a: IdString): any
 		// returns the current value of the input with the specified name
-		input,
+		درون_داد,
 		// state(a: IdString): any
 		// returns the current value of the state variable with the specified name
 		state,
 		// memory_read(memory: memory[addr_width, data_width], addr: bit[addr_width]): bit[data_width] = memory[addr]
-		memory_read,
+		حافظه_read,
 		// memory_write(memory: memory[addr_width, data_width], addr: bit[addr_width], data: bit[data_width]): memory[addr_width, data_width]
 		// returns a copy of `memory` but with the value at `addr` changed to `data`
-		memory_write
+		حافظه_write
 	};
 	// returns the name of a Fn value, as a string literal
-	const char *fn_to_string(Fn);
+	ثابت حرف *fn_مقصد_string(Fn);
 	// Sort represents the sort or type of a node
 	// currently the only two sorts are signal/bit and memory
-	class Sort {
-		std::variant<int, std::pair<int, int>> _v;
-	public:
-		explicit Sort(int width) : _v(width) { }
-		Sort(int addr_width, int data_width) : _v(std::make_pair(addr_width, data_width)) { }
-		bool is_signal() const { return _v.index() == 0; }
-		bool is_memory() const { return _v.index() == 1; }
+	class مرتب_سازی_2 {
+		std::variant<صحيح, std::pair<صحيح, صحيح>> _v;
+	عام:
+		explicit مرتب_سازی_2(صحيح عرض) : _v(عرض) { }
+		مرتب_سازی_2(صحيح addr_عرض, صحيح داده_عرض) : _v(std::make_pair(addr_عرض, داده_عرض)) { }
+		bool is_signal() ثابت { أرجع _v.شاخص() == 0; }
+		bool is_حافظه() ثابت { أرجع _v.شاخص() == 1; }
 		// returns the width of a bitvector sort, errors out for other sorts
-		int width() const { return std::get<0>(_v); }
+		صحيح عرض() ثابت { أرجع std::get<0>(_v); }
 		// returns the address width of a bitvector sort, errors out for other sorts
-		int addr_width() const { return std::get<1>(_v).first; }
+		صحيح addr_عرض() ثابت { أرجع std::get<1>(_v).اولی; }
 		// returns the data width of a bitvector sort, errors out for other sorts
-		int data_width() const { return std::get<1>(_v).second; }
-		bool operator==(Sort const& other) const { return _v == other._v; }
-		[[nodiscard]] Hasher hash_into(Hasher h) const { h.eat(_v); return h; }
+		صحيح داده_عرض() ثابت { أرجع std::get<1>(_v).دومی; }
+		bool عملگر==(مرتب_سازی_2 ثابت& other) ثابت { أرجع _v == other._v; }
+		[[nodiscard]] Hasher hash_into(Hasher h) ثابت { h.eat(_v); أرجع h; }
 	};
 	class IR;
 	class Factory;
-	class Node;
+	class گره_2;
 	class IRInput {
-		friend class Factory;
-	public:
+		دوست class Factory;
+	عام:
 		PooledName name;
-		PooledName kind;
-		Sort sort;
-	private:
-		IRInput(IR &ir, IdString name, IdString kind, Sort sort);
+		PooledName نوع;
+		مرتب_سازی_2 مرتب_سازی;
+	خاص:
+		IRInput(IR &ir, IdString name, IdString نوع, مرتب_سازی_2 مرتب_سازی);
 	};
 	class IROutput {
-		friend class Factory;
+		دوست class Factory;
 		IR &_ir;
-	public:
+	عام:
 		PooledName name;
-		PooledName kind;
-		Sort sort;
-	private:
-		IROutput(IR &ir, IdString name, IdString kind, Sort sort);
-	public:
-		Node value() const;
-		bool has_value() const;
-		void set_value(Node value);
+		PooledName نوع;
+		مرتب_سازی_2 مرتب_سازی;
+	خاص:
+		IROutput(IR &ir, IdString name, IdString نوع, مرتب_سازی_2 مرتب_سازی);
+	عام:
+		گره_2 مقدار() ثابت;
+		bool has_مقدار() ثابت;
+		فراغ مجموعه_مقدار(گره_2 مقدار);
 	};
 	class IRState {
-		friend class Factory;
+		دوست class Factory;
 		IR &_ir;
-	public:
+	عام:
 		PooledName name;
-		PooledName kind;
-		Sort sort;
-	private:
+		PooledName نوع;
+		مرتب_سازی_2 مرتب_سازی;
+	خاص:
 		std::variant<RTLIL::Const, MemContents> _initial;
-		IRState(IR &ir, IdString name, IdString kind, Sort sort);
-	public:
-		Node next_value() const;
-		bool has_next_value() const;
-		RTLIL::Const const& initial_value_signal() const { return std::get<RTLIL::Const>(_initial); }
-		MemContents const& initial_value_memory() const { return std::get<MemContents>(_initial); }
-		void set_next_value(Node value);
-		void set_initial_value(RTLIL::Const value) { value.extu(sort.width()); _initial = std::move(value); }
-		void set_initial_value(MemContents value) { log_assert(Sort(value.addr_width(), value.data_width()) == sort); _initial = std::move(value); }
+		IRState(IR &ir, IdString name, IdString نوع, مرتب_سازی_2 مرتب_سازی);
+	عام:
+		گره_2 بعدی_مقدار() ثابت;
+		bool has_بعدی_مقدار() ثابت;
+		RTLIL::Const ثابت& initial_مقدار_signal() ثابت { أرجع std::get<RTLIL::Const>(_initial); }
+		MemContents ثابت& initial_مقدار_حافظه() ثابت { أرجع std::get<MemContents>(_initial); }
+		فراغ مجموعه_بعدی_مقدار(گره_2 مقدار);
+		فراغ مجموعه_initial_مقدار(RTLIL::Const مقدار) { مقدار.extu(مرتب_سازی.عرض()); _initial = std::move(مقدار); }
+		فراغ مجموعه_initial_مقدار(MemContents مقدار) { log_assert(مرتب_سازی_2(مقدار.addr_عرض(), مقدار.داده_عرض()) == مرتب_سازی); _initial = std::move(مقدار); }
 	};
 	class IR {
-		friend class Factory;
-		friend class Node;
-		friend class IRInput;
-		friend class IROutput;
-		friend class IRState;
+		دوست class Factory;
+		دوست class گره_2;
+		دوست class IRInput;
+		دوست class IROutput;
+		دوست class IRState;
 		// one NodeData is stored per Node, containing the function and non-node arguments
 		// note that NodeData is deduplicated by ComputeGraph
-		class NodeData {
+		class گره_داده {
 			Fn _fn;
 			std::variant<
 				std::monostate,
 				RTLIL::Const,
 				std::pair<IdString, IdString>,
-				int
+				صحيح
 			> _extra;
-		public:
-			NodeData() : _fn(Fn::invalid) {}
-			NodeData(Fn fn) : _fn(fn) {}
-			template<class T> NodeData(Fn fn, T &&extra) : _fn(fn), _extra(std::forward<T>(extra)) {}
-			Fn fn() const { return _fn; }
-			const RTLIL::Const &as_const() const { return std::get<RTLIL::Const>(_extra); }
-			std::pair<IdString, IdString> as_idstring_pair() const { return std::get<std::pair<IdString, IdString>>(_extra); }
-			int as_int() const { return std::get<int>(_extra); }
-			[[nodiscard]] Hasher hash_into(Hasher h) const {
-				h.eat((unsigned int) _fn);
+		عام:
+			گره_داده() : _fn(Fn::invalid) {}
+			گره_داده(Fn fn) : _fn(fn) {}
+			قالب<class T> گره_داده(Fn fn, T &&extra) : _fn(fn), _extra(std::forward<T>(extra)) {}
+			Fn fn() ثابت { أرجع _fn; }
+			ثابت RTLIL::Const &as_const() ثابت { أرجع std::get<RTLIL::Const>(_extra); }
+			std::pair<IdString, IdString> as_idstring_pair() ثابت { أرجع std::get<std::pair<IdString, IdString>>(_extra); }
+			صحيح as_int() ثابت { أرجع std::get<صحيح>(_extra); }
+			[[nodiscard]] Hasher hash_into(Hasher h) ثابت {
+				h.eat((بیعلامت صحيح) _fn);
 				h.eat(_extra);
-				return h;
+				أرجع h;
 			}
-			bool operator==(NodeData const &other) const {
-				return _fn == other._fn && _extra == other._extra;
+			bool عملگر==(گره_داده ثابت &other) ثابت {
+				أرجع _fn == other._fn && _extra == other._extra;
 			}
 		};
 		// Attr contains all the information about a note that should not be deduplicated
-		struct Attr {
-			Sort sort;
+		بنية Attr {
+			مرتب_سازی_2 مرتب_سازی;
 		};
 		// our specialised version of ComputeGraph
 		// the sparse_attr IdString stores a naming suggestion, retrieved with name()
 		// the key is currently used to identify the nodes that represent output and next state values
 		// the bool is true for next state values
-		using Graph = ComputeGraph<NodeData, Attr, IdString, std::tuple<IdString, IdString, bool>>;
-		Graph _graph;
+		using گراف = Compute_گراف<گره_داده, Attr, IdString, std::tuple<IdString, IdString, bool>>;
+		گراف گراف_4;
 		dict<std::pair<IdString, IdString>, IRInput> _inputs;
 		dict<std::pair<IdString, IdString>, IROutput> _outputs;
-		dict<std::pair<IdString, IdString>, IRState> _states;
-		IR::Graph::Ref mutate(Node n);
-	public:
+		dict<std::pair<IdString, IdString>, IRState> حالتها_2;
+		IR::گراف::Ref mutate(گره_2 n);
+	عام:
 		Design *design = nullptr;
-		static IR from_module(Module *module);
+		ساكن IR from_module(Module *module);
 		Factory factory();
-		int size() const { return _graph.size(); }
-		Node operator[](int i);
-		void topological_sort();
-		void forward_buf();
-		IRInput const& input(IdString name, IdString kind) const { return _inputs.at({name, kind}); }
-		IRInput const& input(IdString name) const { return input(name, ID($input)); }
-		IROutput const& output(IdString name, IdString kind) const { return _outputs.at({name, kind}); }
-		IROutput const& output(IdString name) const { return output(name, ID($output)); }
-		IRState const& state(IdString name, IdString kind) const { return _states.at({name, kind}); }
-		IRState const& state(IdString name) const { return state(name, ID($state)); }
-		bool has_input(IdString name, IdString kind) const { return _inputs.count({name, kind}); }
-		bool has_output(IdString name, IdString kind) const { return _outputs.count({name, kind}); }
-		bool has_state(IdString name, IdString kind) const { return _states.count({name, kind}); }
-		vector<IRInput const*> inputs(IdString kind) const;
-		vector<IRInput const*> inputs() const { return inputs(ID($input)); }
-		vector<IROutput const*> outputs(IdString kind) const;
-		vector<IROutput const*> outputs() const { return outputs(ID($output)); }
-		vector<IRState const*> states(IdString kind) const;
-		vector<IRState const*> states() const { return states(ID($state)); }
-		vector<IRInput const*> all_inputs() const;
-		vector<IROutput const*> all_outputs() const;
-		vector<IRState const*> all_states() const;
+		صحيح اندازه() ثابت { أرجع گراف_4.اندازه(); }
+		گره_2 عملگر[](صحيح i);
+		فراغ topological_مرتب_سازی();
+		فراغ forward_buf();
+		IRInput ثابت& درون_داد(IdString name, IdString نوع) ثابت { أرجع _inputs.at({name, نوع}); }
+		IRInput ثابت& درون_داد(IdString name) ثابت { أرجع درون_داد(name, ID($درون_داد)); }
+		IROutput ثابت& output(IdString name, IdString نوع) ثابت { أرجع _outputs.at({name, نوع}); }
+		IROutput ثابت& output(IdString name) ثابت { أرجع output(name, ID($output)); }
+		IRState ثابت& state(IdString name, IdString نوع) ثابت { أرجع حالتها_2.at({name, نوع}); }
+		IRState ثابت& state(IdString name) ثابت { أرجع state(name, ID($state)); }
+		bool has_درون_داد(IdString name, IdString نوع) ثابت { أرجع _inputs.شمار({name, نوع}); }
+		bool has_output(IdString name, IdString نوع) ثابت { أرجع _outputs.شمار({name, نوع}); }
+		bool has_state(IdString name, IdString نوع) ثابت { أرجع حالتها_2.شمار({name, نوع}); }
+		وکتور<IRInput ثابت*> inputs(IdString نوع) ثابت;
+		وکتور<IRInput ثابت*> inputs() ثابت { أرجع inputs(ID($درون_داد)); }
+		وکتور<IROutput ثابت*> outputs(IdString نوع) ثابت;
+		وکتور<IROutput ثابت*> outputs() ثابت { أرجع outputs(ID($output)); }
+		وکتور<IRState ثابت*> حالتها(IdString نوع) ثابت;
+		وکتور<IRState ثابت*> حالتها() ثابت { أرجع حالتها(ID($state)); }
+		وکتور<IRInput ثابت*> all_inputs() ثابت;
+		وکتور<IROutput ثابت*> all_outputs() ثابت;
+		وکتور<IRState ثابت*> all_حالتها() ثابت;
 		class iterator {
-			friend class IR;
+			دوست class IR;
 			IR *_ir;
-			int _index;
-			iterator(IR *ir, int index) : _ir(ir), _index(index) {}
-		public:
-			using iterator_category = std::input_iterator_tag;
-			using value_type = Node;
-			using pointer = arrow_proxy<Node>;
-			using reference = Node;
+			صحيح شاخص_3;
+			iterator(IR *ir, صحيح شاخص) : _ir(ir), شاخص_3(شاخص) {}
+		عام:
+			using iterator_category = std::درون_داد_iterator_برچسب;
+			using مقدار_type = گره_2;
+			using اشاره_گر = arrow_proxy<گره_2>;
+			using reference = گره_2;
 			using difference_type = ptrdiff_t;
-			Node operator*();
-			iterator &operator++() { _index++; return *this; }
-			bool operator!=(iterator const &other) const { return _ir != other._ir || _index != other._index; }
-			bool operator==(iterator const &other) const { return !(*this != other); }
-			pointer operator->();
+			گره_2 عملگر*();
+			iterator &عملگر++() { شاخص_3++; أرجع *this; }
+			bool عملگر!=(iterator ثابت &other) ثابت { أرجع _ir != other._ir || شاخص_3 != other.شاخص_3; }
+			bool عملگر==(iterator ثابت &other) ثابت { أرجع !(*this != other); }
+			اشاره_گر عملگر->();
 		};
-		iterator begin() { return iterator(this, 0); }
-		iterator end() { return iterator(this, _graph.size()); }
+		iterator begin() { أرجع iterator(this, 0); }
+		iterator انتها() { أرجع iterator(this, گراف_4.اندازه()); }
 	};
 	// Node is an immutable reference to a FunctionalIR node
-	class Node {
-		friend class Factory;
-		friend class IR;
-		friend class IRInput;
-		friend class IROutput;
-		friend class IRState;
-		IR::Graph::ConstRef _ref;
-		Node(IR::Graph::ConstRef ref, Design *design) : _ref(ref), design(design) { }
-		explicit operator IR::Graph::ConstRef() { return _ref; }
-	public:
+	class گره_2 {
+		دوست class Factory;
+		دوست class IR;
+		دوست class IRInput;
+		دوست class IROutput;
+		دوست class IRState;
+		IR::گراف::ConstRef _ref;
+		گره_2(IR::گراف::ConstRef ref, Design *design) : _ref(ref), design(design) { }
+		explicit عملگر IR::گراف::ConstRef() { أرجع _ref; }
+	عام:
 		Design *design = nullptr;
 		// the node's index. may change if nodes are added or removed
-		int id() const { return _ref.index(); }
+		صحيح id() ثابت { أرجع _ref.شاخص(); }
 		// a name suggestion for the node, which need not be unique
-		PooledName name() const {
-			if(_ref.has_sparse_attr())
-				return {design, _ref.sparse_attr()};
-			else
-				return {design, design->twines().add(std::string("\\n") + std::to_string(id()))};
+		PooledName name() ثابت {
+			إذا(_ref.has_sparse_attr())
+				أرجع {design, _ref.sparse_attr()};
+			وإلا
+				أرجع {design, design->twines().جمع_کن(std::string("\\n") + std::مقصد_string(id()))};
 		}
-		Fn fn() const { return _ref.function().fn(); }
-		Sort sort() const { return _ref.attr().sort; }
+		Fn fn() ثابت { أرجع _ref.function().fn(); }
+		مرتب_سازی_2 مرتب_سازی() ثابت { أرجع _ref.attr().مرتب_سازی; }
 		// returns the width of a bitvector node, errors out for other nodes
-		int width() const { return sort().width(); }
-		size_t arg_count() const { return _ref.size(); }
-		Node arg(int n) const { return Node(_ref.arg(n), design); }
+		صحيح عرض() ثابت { أرجع مرتب_سازی().عرض(); }
+		اندازه_t arg_شمار() ثابت { أرجع _ref.اندازه(); }
+		گره_2 arg(صحيح n) ثابت { أرجع گره_2(_ref.arg(n), design); }
 		// visit calls the appropriate visitor method depending on the type of the node
-		template<class Visitor> auto visit(Visitor v) const
+		قالب<class Visitor> خودکار بازدید(Visitor v) ثابت
 		{
 			// currently templated but could be switched to AbstractVisitor &
-			switch(_ref.function().fn()) {
-			case Fn::invalid: log_error("invalid node in visit\n"); break;
-			case Fn::buf: return v.buf(*this, arg(0)); break;
-			case Fn::slice: return v.slice(*this, arg(0), _ref.function().as_int(), sort().width()); break;
-			case Fn::zero_extend: return v.zero_extend(*this, arg(0), width()); break;
-			case Fn::sign_extend: return v.sign_extend(*this, arg(0), width()); break;
-			case Fn::concat: return v.concat(*this, arg(0), arg(1)); break;
-			case Fn::add: return v.add(*this, arg(0), arg(1)); break;
-			case Fn::sub: return v.sub(*this, arg(0), arg(1)); break;
-			case Fn::mul: return v.mul(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_div: return v.unsigned_div(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_mod: return v.unsigned_mod(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_and: return v.bitwise_and(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_or: return v.bitwise_or(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_xor: return v.bitwise_xor(*this, arg(0), arg(1)); break;
-			case Fn::bitwise_not: return v.bitwise_not(*this, arg(0)); break;
-			case Fn::unary_minus: return v.unary_minus(*this, arg(0)); break;
-			case Fn::reduce_and: return v.reduce_and(*this, arg(0)); break;
-			case Fn::reduce_or: return v.reduce_or(*this, arg(0)); break;
-			case Fn::reduce_xor: return v.reduce_xor(*this, arg(0)); break;
-			case Fn::equal: return v.equal(*this, arg(0), arg(1)); break;
-			case Fn::not_equal: return v.not_equal(*this, arg(0), arg(1)); break;
-			case Fn::signed_greater_than: return v.signed_greater_than(*this, arg(0), arg(1)); break;
-			case Fn::signed_greater_equal: return v.signed_greater_equal(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_greater_than: return v.unsigned_greater_than(*this, arg(0), arg(1)); break;
-			case Fn::unsigned_greater_equal: return v.unsigned_greater_equal(*this, arg(0), arg(1)); break;
-			case Fn::logical_shift_left: return v.logical_shift_left(*this, arg(0), arg(1)); break;
-			case Fn::logical_shift_right: return v.logical_shift_right(*this, arg(0), arg(1)); break;
-			case Fn::arithmetic_shift_right: return v.arithmetic_shift_right(*this, arg(0), arg(1)); break;
-			case Fn::mux: return v.mux(*this, arg(0), arg(1), arg(2)); break;
-			case Fn::constant: return v.constant(*this, _ref.function().as_const()); break;
-			case Fn::input: return v.input(*this, _ref.function().as_idstring_pair().first, _ref.function().as_idstring_pair().second); break;
-			case Fn::state: return v.state(*this, _ref.function().as_idstring_pair().first, _ref.function().as_idstring_pair().second); break;
-			case Fn::memory_read: return v.memory_read(*this, arg(0), arg(1)); break;
-			case Fn::memory_write: return v.memory_write(*this, arg(0), arg(1), arg(2)); break;
+			بدل(_ref.function().fn()) {
+			حالة Fn::invalid: log_error("invalid node in visit\n"); اكسر;
+			حالة Fn::buf: أرجع v.buf(*this, arg(0)); اكسر;
+			حالة Fn::برش: أرجع v.برش(*this, arg(0), _ref.function().as_int(), مرتب_سازی().عرض()); اكسر;
+			حالة Fn::zero_extend: أرجع v.zero_extend(*this, arg(0), عرض()); اكسر;
+			حالة Fn::sign_extend: أرجع v.sign_extend(*this, arg(0), عرض()); اكسر;
+			حالة Fn::concat: أرجع v.concat(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::جمع_کن: أرجع v.جمع_کن(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::sub: أرجع v.sub(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::mul: أرجع v.mul(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::unsigned_div: أرجع v.unsigned_div(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::unsigned_mod: أرجع v.unsigned_mod(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::bitwise_and: أرجع v.bitwise_and(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::bitwise_or: أرجع v.bitwise_or(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::bitwise_xor: أرجع v.bitwise_xor(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::bitwise_not: أرجع v.bitwise_not(*this, arg(0)); اكسر;
+			حالة Fn::unary_minus: أرجع v.unary_minus(*this, arg(0)); اكسر;
+			حالة Fn::reduce_and: أرجع v.reduce_and(*this, arg(0)); اكسر;
+			حالة Fn::reduce_or: أرجع v.reduce_or(*this, arg(0)); اكسر;
+			حالة Fn::reduce_xor: أرجع v.reduce_xor(*this, arg(0)); اكسر;
+			حالة Fn::equal: أرجع v.equal(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::not_equal: أرجع v.not_equal(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::signed_greater_than: أرجع v.signed_greater_than(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::signed_greater_equal: أرجع v.signed_greater_equal(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::unsigned_greater_than: أرجع v.unsigned_greater_than(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::unsigned_greater_equal: أرجع v.unsigned_greater_equal(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::logical_لغزش_چپ: أرجع v.logical_لغزش_چپ(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::logical_لغزش_راست: أرجع v.logical_لغزش_راست(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::arithmetic_لغزش_راست: أرجع v.arithmetic_لغزش_راست(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::mux: أرجع v.mux(*this, arg(0), arg(1), arg(2)); اكسر;
+			حالة Fn::constant: أرجع v.constant(*this, _ref.function().as_const()); اكسر;
+			حالة Fn::درون_داد: أرجع v.درون_داد(*this, _ref.function().as_idstring_pair().اولی, _ref.function().as_idstring_pair().دومی); اكسر;
+			حالة Fn::state: أرجع v.state(*this, _ref.function().as_idstring_pair().اولی, _ref.function().as_idstring_pair().دومی); اكسر;
+			حالة Fn::حافظه_read: أرجع v.حافظه_read(*this, arg(0), arg(1)); اكسر;
+			حالة Fn::حافظه_write: أرجع v.حافظه_write(*this, arg(0), arg(1), arg(2)); اكسر;
 			}
 			log_abort();
 		}
-		std::string to_string();
-		std::string to_string(std::function<std::string(Node)>);
+		std::string مقصد_string();
+		std::string مقصد_string(std::function<std::string(گره_2)>);
 	};
-	inline IRInput::IRInput(IR &ir, IdString name, IdString kind, Sort sort)
-		: name(ir.design, name), kind(ir.design, kind), sort(std::move(sort)) {}
-	inline IROutput::IROutput(IR &ir, IdString name, IdString kind, Sort sort)
-		: _ir(ir), name(ir.design, name), kind(ir.design, kind), sort(std::move(sort)) {}
-	inline IRState::IRState(IR &ir, IdString name, IdString kind, Sort sort)
-		: _ir(ir), name(ir.design, name), kind(ir.design, kind), sort(std::move(sort)) {}
-	inline IR::Graph::Ref IR::mutate(Node n) { return _graph[n._ref.index()]; }
-	inline Node IR::operator[](int i) { return Node(_graph[i], design); }
-	inline Node IROutput::value() const { return Node(_ir._graph({name, kind, false}), _ir.design); }
-	inline bool IROutput::has_value() const { return _ir._graph.has_key({name, kind, false}); }
-	inline void IROutput::set_value(Node value) { log_assert(sort == value.sort()); _ir.mutate(value).assign_key({name, kind, false}); }
-	inline Node IRState::next_value() const { return Node(_ir._graph({name, kind, true}), _ir.design); }
-	inline bool IRState::has_next_value() const { return _ir._graph.has_key({name, kind, true}); }
-	inline void IRState::set_next_value(Node value) { log_assert(sort == value.sort()); _ir.mutate(value).assign_key({name, kind, true}); }
-	inline Node IR::iterator::operator*() { return Node(_ir->_graph[_index], _ir->design); }
-	inline arrow_proxy<Node> IR::iterator::operator->() { return arrow_proxy<Node>(**this); }
+	مضمن IRInput::IRInput(IR &ir, IdString name, IdString نوع, مرتب_سازی_2 مرتب_سازی)
+		: name(ir.design, name), نوع(ir.design, نوع), مرتب_سازی(std::move(مرتب_سازی)) {}
+	مضمن IROutput::IROutput(IR &ir, IdString name, IdString نوع, مرتب_سازی_2 مرتب_سازی)
+		: _ir(ir), name(ir.design, name), نوع(ir.design, نوع), مرتب_سازی(std::move(مرتب_سازی)) {}
+	مضمن IRState::IRState(IR &ir, IdString name, IdString نوع, مرتب_سازی_2 مرتب_سازی)
+		: _ir(ir), name(ir.design, name), نوع(ir.design, نوع), مرتب_سازی(std::move(مرتب_سازی)) {}
+	مضمن IR::گراف::Ref IR::mutate(گره_2 n) { أرجع گراف_4[n._ref.شاخص()]; }
+	مضمن گره_2 IR::عملگر[](صحيح i) { أرجع گره_2(گراف_4[i], design); }
+	مضمن گره_2 IROutput::مقدار() ثابت { أرجع گره_2(_ir.گراف_4({name, نوع, false}), _ir.design); }
+	مضمن bool IROutput::has_مقدار() ثابت { أرجع _ir.گراف_4.has_کلید({name, نوع, false}); }
+	مضمن فراغ IROutput::مجموعه_مقدار(گره_2 مقدار) { log_assert(مرتب_سازی == مقدار.مرتب_سازی()); _ir.mutate(مقدار).تخصیص_بده_کلید({name, نوع, false}); }
+	مضمن گره_2 IRState::بعدی_مقدار() ثابت { أرجع گره_2(_ir.گراف_4({name, نوع, true}), _ir.design); }
+	مضمن bool IRState::has_بعدی_مقدار() ثابت { أرجع _ir.گراف_4.has_کلید({name, نوع, true}); }
+	مضمن فراغ IRState::مجموعه_بعدی_مقدار(گره_2 مقدار) { log_assert(مرتب_سازی == مقدار.مرتب_سازی()); _ir.mutate(مقدار).تخصیص_بده_کلید({name, نوع, true}); }
+	مضمن گره_2 IR::iterator::عملگر*() { أرجع گره_2(_ir->گراف_4[شاخص_3], _ir->design); }
+	مضمن arrow_proxy<گره_2> IR::iterator::عملگر->() { أرجع arrow_proxy<گره_2>(**this); }
 	// AbstractVisitor provides an abstract base class for visitors
-	template<class T> struct AbstractVisitor {
-		virtual T buf(Node self, Node n) = 0;
-		virtual T slice(Node self, Node a, int offset, int out_width) = 0;
-		virtual T zero_extend(Node self, Node a, int out_width) = 0;
-		virtual T sign_extend(Node self, Node a, int out_width) = 0;
-		virtual T concat(Node self, Node a, Node b) = 0;
-		virtual T add(Node self, Node a, Node b) = 0;
-		virtual T sub(Node self, Node a, Node b) = 0;
-		virtual T mul(Node self, Node a, Node b) = 0;
-		virtual T unsigned_div(Node self, Node a, Node b) = 0;
-		virtual T unsigned_mod(Node self, Node a, Node b) = 0;
-		virtual T bitwise_and(Node self, Node a, Node b) = 0;
-		virtual T bitwise_or(Node self, Node a, Node b) = 0;
-		virtual T bitwise_xor(Node self, Node a, Node b) = 0;
-		virtual T bitwise_not(Node self, Node a) = 0;
-		virtual T unary_minus(Node self, Node a) = 0;
-		virtual T reduce_and(Node self, Node a) = 0;
-		virtual T reduce_or(Node self, Node a) = 0;
-		virtual T reduce_xor(Node self, Node a) = 0;
-		virtual T equal(Node self, Node a, Node b) = 0;
-		virtual T not_equal(Node self, Node a, Node b) = 0;
-		virtual T signed_greater_than(Node self, Node a, Node b) = 0;
-		virtual T signed_greater_equal(Node self, Node a, Node b) = 0;
-		virtual T unsigned_greater_than(Node self, Node a, Node b) = 0;
-		virtual T unsigned_greater_equal(Node self, Node a, Node b) = 0;
-		virtual T logical_shift_left(Node self, Node a, Node b) = 0;
-		virtual T logical_shift_right(Node self, Node a, Node b) = 0;
-		virtual T arithmetic_shift_right(Node self, Node a, Node b) = 0;
-		virtual T mux(Node self, Node a, Node b, Node s) = 0;
-		virtual T constant(Node self, RTLIL::Const const & value) = 0;
-		virtual T input(Node self, IdString name, IdString kind) = 0;
-		virtual T state(Node self, IdString name, IdString kind) = 0;
-		virtual T memory_read(Node self, Node mem, Node addr) = 0;
-		virtual T memory_write(Node self, Node mem, Node addr, Node data) = 0;
+	قالب<class T> بنية AbstractVisitor {
+		مجازی T buf(گره_2 self, گره_2 n) = 0;
+		مجازی T برش(گره_2 self, گره_2 a, صحيح جابه_جایی, صحيح بیرون_عرض) = 0;
+		مجازی T zero_extend(گره_2 self, گره_2 a, صحيح بیرون_عرض) = 0;
+		مجازی T sign_extend(گره_2 self, گره_2 a, صحيح بیرون_عرض) = 0;
+		مجازی T concat(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T جمع_کن(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T sub(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T mul(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T unsigned_div(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T unsigned_mod(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T bitwise_and(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T bitwise_or(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T bitwise_xor(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T bitwise_not(گره_2 self, گره_2 a) = 0;
+		مجازی T unary_minus(گره_2 self, گره_2 a) = 0;
+		مجازی T reduce_and(گره_2 self, گره_2 a) = 0;
+		مجازی T reduce_or(گره_2 self, گره_2 a) = 0;
+		مجازی T reduce_xor(گره_2 self, گره_2 a) = 0;
+		مجازی T equal(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T not_equal(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T signed_greater_than(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T signed_greater_equal(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T unsigned_greater_than(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T unsigned_greater_equal(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T logical_لغزش_چپ(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T logical_لغزش_راست(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T arithmetic_لغزش_راست(گره_2 self, گره_2 a, گره_2 b) = 0;
+		مجازی T mux(گره_2 self, گره_2 a, گره_2 b, گره_2 s) = 0;
+		مجازی T constant(گره_2 self, RTLIL::Const ثابت & مقدار) = 0;
+		مجازی T درون_داد(گره_2 self, IdString name, IdString نوع) = 0;
+		مجازی T state(گره_2 self, IdString name, IdString نوع) = 0;
+		مجازی T حافظه_read(گره_2 self, گره_2 mem, گره_2 addr) = 0;
+		مجازی T حافظه_write(گره_2 self, گره_2 mem, گره_2 addr, گره_2 داده) = 0;
 	};
 	// DefaultVisitor provides defaults for all visitor methods which just calls default_handler
-	template<class T> struct DefaultVisitor : public AbstractVisitor<T> {
-		virtual T default_handler(Node self) = 0;
-		T buf(Node self, Node) override { return default_handler(self); }
-		T slice(Node self, Node, int, int) override { return default_handler(self); }
-		T zero_extend(Node self, Node, int) override { return default_handler(self); }
-		T sign_extend(Node self, Node, int) override { return default_handler(self); }
-		T concat(Node self, Node, Node) override { return default_handler(self); }
-		T add(Node self, Node, Node) override { return default_handler(self); }
-		T sub(Node self, Node, Node) override { return default_handler(self); }
-		T mul(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_div(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_mod(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_and(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_or(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_xor(Node self, Node, Node) override { return default_handler(self); }
-		T bitwise_not(Node self, Node) override { return default_handler(self); }
-		T unary_minus(Node self, Node) override { return default_handler(self); }
-		T reduce_and(Node self, Node) override { return default_handler(self); }
-		T reduce_or(Node self, Node) override { return default_handler(self); }
-		T reduce_xor(Node self, Node) override { return default_handler(self); }
-		T equal(Node self, Node, Node) override { return default_handler(self); }
-		T not_equal(Node self, Node, Node) override { return default_handler(self); }
-		T signed_greater_than(Node self, Node, Node) override { return default_handler(self); }
-		T signed_greater_equal(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_greater_than(Node self, Node, Node) override { return default_handler(self); }
-		T unsigned_greater_equal(Node self, Node, Node) override { return default_handler(self); }
-		T logical_shift_left(Node self, Node, Node) override { return default_handler(self); }
-		T logical_shift_right(Node self, Node, Node) override { return default_handler(self); }
-		T arithmetic_shift_right(Node self, Node, Node) override { return default_handler(self); }
-		T mux(Node self, Node, Node, Node) override { return default_handler(self); }
-		T constant(Node self, RTLIL::Const const &) override { return default_handler(self); }
-		T input(Node self, IdString, IdString) override { return default_handler(self); }
-		T state(Node self, IdString, IdString) override { return default_handler(self); }
-		T memory_read(Node self, Node, Node) override { return default_handler(self); }
-		T memory_write(Node self, Node, Node, Node) override { return default_handler(self); }
+	قالب<class T> بنية DefaultVisitor : عام AbstractVisitor<T> {
+		مجازی T default_handler(گره_2 self) = 0;
+		T buf(گره_2 self, گره_2) override { أرجع default_handler(self); }
+		T برش(گره_2 self, گره_2, صحيح, صحيح) override { أرجع default_handler(self); }
+		T zero_extend(گره_2 self, گره_2, صحيح) override { أرجع default_handler(self); }
+		T sign_extend(گره_2 self, گره_2, صحيح) override { أرجع default_handler(self); }
+		T concat(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T جمع_کن(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T sub(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T mul(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T unsigned_div(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T unsigned_mod(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T bitwise_and(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T bitwise_or(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T bitwise_xor(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T bitwise_not(گره_2 self, گره_2) override { أرجع default_handler(self); }
+		T unary_minus(گره_2 self, گره_2) override { أرجع default_handler(self); }
+		T reduce_and(گره_2 self, گره_2) override { أرجع default_handler(self); }
+		T reduce_or(گره_2 self, گره_2) override { أرجع default_handler(self); }
+		T reduce_xor(گره_2 self, گره_2) override { أرجع default_handler(self); }
+		T equal(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T not_equal(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T signed_greater_than(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T signed_greater_equal(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T unsigned_greater_than(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T unsigned_greater_equal(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T logical_لغزش_چپ(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T logical_لغزش_راست(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T arithmetic_لغزش_راست(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T mux(گره_2 self, گره_2, گره_2, گره_2) override { أرجع default_handler(self); }
+		T constant(گره_2 self, RTLIL::Const ثابت &) override { أرجع default_handler(self); }
+		T درون_داد(گره_2 self, IdString, IdString) override { أرجع default_handler(self); }
+		T state(گره_2 self, IdString, IdString) override { أرجع default_handler(self); }
+		T حافظه_read(گره_2 self, گره_2, گره_2) override { أرجع default_handler(self); }
+		T حافظه_write(گره_2 self, گره_2, گره_2, گره_2) override { أرجع default_handler(self); }
 	};
 	// a factory is used to modify a FunctionalIR. it creates new nodes and allows for some modification of existing nodes.
 	class Factory {
-		friend class IR;
+		دوست class IR;
 		IR &_ir;
 		explicit Factory(IR &ir) : _ir(ir) {}
-		Node add(IR::NodeData &&fn, Sort const &sort, std::initializer_list<Node> args) {
-			log_assert(!sort.is_signal() || sort.width() > 0);
-			log_assert(!sort.is_memory() || (sort.addr_width() > 0 && sort.data_width() > 0));
-			IR::Graph::Ref ref = _ir._graph.add(std::move(fn), {std::move(sort)});
-			for (auto arg : args)
-				ref.append_arg(IR::Graph::ConstRef(arg));
-			return Node(ref, _ir.design);
+		گره_2 جمع_کن(IR::گره_داده &&fn, مرتب_سازی_2 ثابت &مرتب_سازی, std::initializer_list<گره_2> آرگومانها_2) {
+			log_assert(!مرتب_سازی.is_signal() || مرتب_سازی.عرض() > 0);
+			log_assert(!مرتب_سازی.is_حافظه() || (مرتب_سازی.addr_عرض() > 0 && مرتب_سازی.داده_عرض() > 0));
+			IR::گراف::Ref ref = _ir.گراف_4.جمع_کن(std::move(fn), {std::move(مرتب_سازی)});
+			لكل (خودکار arg : آرگومانها_2)
+				ref.append_arg(IR::گراف::ConstRef(arg));
+			أرجع گره_2(ref, _ir.design);
 		}
-		void check_basic_binary(Node const &a, Node const &b) { log_assert(a.sort().is_signal() && a.sort() == b.sort()); }
-		void check_shift(Node const &a, Node const &b) { log_assert(a.sort().is_signal() && b.sort().is_signal() && b.width() == ceil_log2(a.width())); }
-		void check_unary(Node const &a) { log_assert(a.sort().is_signal()); }
-	public:
-		IR &ir() { return _ir; }
-		Node slice(Node a, int offset, int out_width) {
-			log_assert(a.sort().is_signal() && offset + out_width <= a.sort().width());
-			if(offset == 0 && out_width == a.width())
-				return a;
-			return add(IR::NodeData(Fn::slice, offset), Sort(out_width), {a});
+		فراغ check_basic_دودویی(گره_2 ثابت &a, گره_2 ثابت &b) { log_assert(a.مرتب_سازی().is_signal() && a.مرتب_سازی() == b.مرتب_سازی()); }
+		فراغ check_لغزش(گره_2 ثابت &a, گره_2 ثابت &b) { log_assert(a.مرتب_سازی().is_signal() && b.مرتب_سازی().is_signal() && b.عرض() == ceil_log2(a.عرض())); }
+		فراغ check_unary(گره_2 ثابت &a) { log_assert(a.مرتب_سازی().is_signal()); }
+	عام:
+		IR &ir() { أرجع _ir; }
+		گره_2 برش(گره_2 a, صحيح جابه_جایی, صحيح بیرون_عرض) {
+			log_assert(a.مرتب_سازی().is_signal() && جابه_جایی + بیرون_عرض <= a.مرتب_سازی().عرض());
+			إذا(جابه_جایی == 0 && بیرون_عرض == a.عرض())
+				أرجع a;
+			أرجع جمع_کن(IR::گره_داده(Fn::برش, جابه_جایی), مرتب_سازی_2(بیرون_عرض), {a});
 		}
 		// extend will either extend or truncate the provided value to reach the desired width
-		Node extend(Node a, int out_width, bool is_signed) {
-			int in_width = a.sort().width();
-			log_assert(a.sort().is_signal());
-			if(in_width == out_width)
-				return a;
-			if(in_width > out_width)
-				return slice(a, 0, out_width);
-			if(is_signed)
-				return add(Fn::sign_extend, Sort(out_width), {a});
-			else
-				return add(Fn::zero_extend, Sort(out_width), {a});
+		گره_2 extend(گره_2 a, صحيح بیرون_عرض, bool is_signed) {
+			صحيح درون_عرض = a.مرتب_سازی().عرض();
+			log_assert(a.مرتب_سازی().is_signal());
+			إذا(درون_عرض == بیرون_عرض)
+				أرجع a;
+			إذا(درون_عرض > بیرون_عرض)
+				أرجع برش(a, 0, بیرون_عرض);
+			إذا(is_signed)
+				أرجع جمع_کن(Fn::sign_extend, مرتب_سازی_2(بیرون_عرض), {a});
+			وإلا
+				أرجع جمع_کن(Fn::zero_extend, مرتب_سازی_2(بیرون_عرض), {a});
 		}
-		Node concat(Node a, Node b) {
-			log_assert(a.sort().is_signal() && b.sort().is_signal());
-			return add(Fn::concat, Sort(a.sort().width() + b.sort().width()), {a, b});
+		گره_2 concat(گره_2 a, گره_2 b) {
+			log_assert(a.مرتب_سازی().is_signal() && b.مرتب_سازی().is_signal());
+			أرجع جمع_کن(Fn::concat, مرتب_سازی_2(a.مرتب_سازی().عرض() + b.مرتب_سازی().عرض()), {a, b});
 		}
-		Node add(Node a, Node b) { check_basic_binary(a, b); return add(Fn::add, a.sort(), {a, b}); }
-		Node sub(Node a, Node b) { check_basic_binary(a, b); return add(Fn::sub, a.sort(), {a, b}); }
-		Node mul(Node a, Node b) { check_basic_binary(a, b); return add(Fn::mul, a.sort(), {a, b}); }
-		Node unsigned_div(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_div, a.sort(), {a, b}); }
-		Node unsigned_mod(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_mod, a.sort(), {a, b}); }
-		Node bitwise_and(Node a, Node b) { check_basic_binary(a, b); return add(Fn::bitwise_and, a.sort(), {a, b}); }
-		Node bitwise_or(Node a, Node b) { check_basic_binary(a, b); return add(Fn::bitwise_or, a.sort(), {a, b}); }
-		Node bitwise_xor(Node a, Node b) { check_basic_binary(a, b); return add(Fn::bitwise_xor, a.sort(), {a, b}); }
-		Node bitwise_not(Node a) { check_unary(a); return add(Fn::bitwise_not, a.sort(), {a}); }
-		Node unary_minus(Node a) { check_unary(a); return add(Fn::unary_minus, a.sort(), {a}); }
-		Node reduce_and(Node a) {
+		گره_2 جمع_کن(گره_2 a, گره_2 b) { check_basic_دودویی(a, b); أرجع جمع_کن(Fn::جمع_کن, a.مرتب_سازی(), {a, b}); }
+		گره_2 sub(گره_2 a, گره_2 b) { check_basic_دودویی(a, b); أرجع جمع_کن(Fn::sub, a.مرتب_سازی(), {a, b}); }
+		گره_2 mul(گره_2 a, گره_2 b) { check_basic_دودویی(a, b); أرجع جمع_کن(Fn::mul, a.مرتب_سازی(), {a, b}); }
+		گره_2 unsigned_div(گره_2 a, گره_2 b) { check_basic_دودویی(a, b); أرجع جمع_کن(Fn::unsigned_div, a.مرتب_سازی(), {a, b}); }
+		گره_2 unsigned_mod(گره_2 a, گره_2 b) { check_basic_دودویی(a, b); أرجع جمع_کن(Fn::unsigned_mod, a.مرتب_سازی(), {a, b}); }
+		گره_2 bitwise_and(گره_2 a, گره_2 b) { check_basic_دودویی(a, b); أرجع جمع_کن(Fn::bitwise_and, a.مرتب_سازی(), {a, b}); }
+		گره_2 bitwise_or(گره_2 a, گره_2 b) { check_basic_دودویی(a, b); أرجع جمع_کن(Fn::bitwise_or, a.مرتب_سازی(), {a, b}); }
+		گره_2 bitwise_xor(گره_2 a, گره_2 b) { check_basic_دودویی(a, b); أرجع جمع_کن(Fn::bitwise_xor, a.مرتب_سازی(), {a, b}); }
+		گره_2 bitwise_not(گره_2 a) { check_unary(a); أرجع جمع_کن(Fn::bitwise_not, a.مرتب_سازی(), {a}); }
+		گره_2 unary_minus(گره_2 a) { check_unary(a); أرجع جمع_کن(Fn::unary_minus, a.مرتب_سازی(), {a}); }
+		گره_2 reduce_and(گره_2 a) {
 			check_unary(a);
-			if(a.width() == 1)
-				return a;
-			return add(Fn::reduce_and, Sort(1), {a});
+			إذا(a.عرض() == 1)
+				أرجع a;
+			أرجع جمع_کن(Fn::reduce_and, مرتب_سازی_2(1), {a});
 		}
-		Node reduce_or(Node a) {
+		گره_2 reduce_or(گره_2 a) {
 			check_unary(a);
-			if(a.width() == 1)
-				return a;
-			return add(Fn::reduce_or, Sort(1), {a});
+			إذا(a.عرض() == 1)
+				أرجع a;
+			أرجع جمع_کن(Fn::reduce_or, مرتب_سازی_2(1), {a});
 		}
-		Node reduce_xor(Node a) {
+		گره_2 reduce_xor(گره_2 a) {
 			check_unary(a);
-			if(a.width() == 1)
-				return a;
-			return add(Fn::reduce_xor, Sort(1), {a});
+			إذا(a.عرض() == 1)
+				أرجع a;
+			أرجع جمع_کن(Fn::reduce_xor, مرتب_سازی_2(1), {a});
 		}
-		Node equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::equal, Sort(1), {a, b}); }
-		Node not_equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::not_equal, Sort(1), {a, b}); }
-		Node signed_greater_than(Node a, Node b) { check_basic_binary(a, b); return add(Fn::signed_greater_than, Sort(1), {a, b}); }
-		Node signed_greater_equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::signed_greater_equal, Sort(1), {a, b}); }
-		Node unsigned_greater_than(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_greater_than, Sort(1), {a, b}); }
-		Node unsigned_greater_equal(Node a, Node b) { check_basic_binary(a, b); return add(Fn::unsigned_greater_equal, Sort(1), {a, b}); }
-		Node logical_shift_left(Node a, Node b) { check_shift(a, b); return add(Fn::logical_shift_left, a.sort(), {a, b}); }
-		Node logical_shift_right(Node a, Node b) { check_shift(a, b); return add(Fn::logical_shift_right, a.sort(), {a, b}); }
-		Node arithmetic_shift_right(Node a, Node b) { check_shift(a, b); return add(Fn::arithmetic_shift_right, a.sort(), {a, b}); }
-		Node mux(Node a, Node b, Node s) {
-			log_assert(a.sort().is_signal() && a.sort() == b.sort() && s.sort() == Sort(1));
-			return add(Fn::mux, a.sort(), {a, b, s});
+		گره_2 equal(گره_2 a, گره_2 b) { check_basic_دودویی(a, b); أرجع جمع_کن(Fn::equal, مرتب_سازی_2(1), {a, b}); }
+		گره_2 not_equal(گره_2 a, گره_2 b) { check_basic_دودویی(a, b); أرجع جمع_کن(Fn::not_equal, مرتب_سازی_2(1), {a, b}); }
+		گره_2 signed_greater_than(گره_2 a, گره_2 b) { check_basic_دودویی(a, b); أرجع جمع_کن(Fn::signed_greater_than, مرتب_سازی_2(1), {a, b}); }
+		گره_2 signed_greater_equal(گره_2 a, گره_2 b) { check_basic_دودویی(a, b); أرجع جمع_کن(Fn::signed_greater_equal, مرتب_سازی_2(1), {a, b}); }
+		گره_2 unsigned_greater_than(گره_2 a, گره_2 b) { check_basic_دودویی(a, b); أرجع جمع_کن(Fn::unsigned_greater_than, مرتب_سازی_2(1), {a, b}); }
+		گره_2 unsigned_greater_equal(گره_2 a, گره_2 b) { check_basic_دودویی(a, b); أرجع جمع_کن(Fn::unsigned_greater_equal, مرتب_سازی_2(1), {a, b}); }
+		گره_2 logical_لغزش_چپ(گره_2 a, گره_2 b) { check_لغزش(a, b); أرجع جمع_کن(Fn::logical_لغزش_چپ, a.مرتب_سازی(), {a, b}); }
+		گره_2 logical_لغزش_راست(گره_2 a, گره_2 b) { check_لغزش(a, b); أرجع جمع_کن(Fn::logical_لغزش_راست, a.مرتب_سازی(), {a, b}); }
+		گره_2 arithmetic_لغزش_راست(گره_2 a, گره_2 b) { check_لغزش(a, b); أرجع جمع_کن(Fn::arithmetic_لغزش_راست, a.مرتب_سازی(), {a, b}); }
+		گره_2 mux(گره_2 a, گره_2 b, گره_2 s) {
+			log_assert(a.مرتب_سازی().is_signal() && a.مرتب_سازی() == b.مرتب_سازی() && s.مرتب_سازی() == مرتب_سازی_2(1));
+			أرجع جمع_کن(Fn::mux, a.مرتب_سازی(), {a, b, s});
 		}
-		Node memory_read(Node mem, Node addr) {
-			log_assert(mem.sort().is_memory() && addr.sort().is_signal() && mem.sort().addr_width() == addr.sort().width());
-			return add(Fn::memory_read, Sort(mem.sort().data_width()), {mem, addr});
+		گره_2 حافظه_read(گره_2 mem, گره_2 addr) {
+			log_assert(mem.مرتب_سازی().is_حافظه() && addr.مرتب_سازی().is_signal() && mem.مرتب_سازی().addr_عرض() == addr.مرتب_سازی().عرض());
+			أرجع جمع_کن(Fn::حافظه_read, مرتب_سازی_2(mem.مرتب_سازی().داده_عرض()), {mem, addr});
 		}
-		Node memory_write(Node mem, Node addr, Node data) {
-			log_assert(mem.sort().is_memory() && addr.sort().is_signal() && data.sort().is_signal() &&
-				mem.sort().addr_width() == addr.sort().width() && mem.sort().data_width() == data.sort().width());
-			return add(Fn::memory_write, mem.sort(), {mem, addr, data});
+		گره_2 حافظه_write(گره_2 mem, گره_2 addr, گره_2 داده) {
+			log_assert(mem.مرتب_سازی().is_حافظه() && addr.مرتب_سازی().is_signal() && داده.مرتب_سازی().is_signal() &&
+				mem.مرتب_سازی().addr_عرض() == addr.مرتب_سازی().عرض() && mem.مرتب_سازی().داده_عرض() == داده.مرتب_سازی().عرض());
+			أرجع جمع_کن(Fn::حافظه_write, mem.مرتب_سازی(), {mem, addr, داده});
 		}
-		Node constant(RTLIL::Const value) {
-			int s = value.size();
-			return add(IR::NodeData(Fn::constant, std::move(value)), Sort(s), {});
+		گره_2 constant(RTLIL::Const مقدار) {
+			صحيح s = مقدار.اندازه();
+			أرجع جمع_کن(IR::گره_داده(Fn::constant, std::move(مقدار)), مرتب_سازی_2(s), {});
 		}
-		Node create_pending(int width) {
-			return add(Fn::buf, Sort(width), {});
+		گره_2 create_pending(صحيح عرض) {
+			أرجع جمع_کن(Fn::buf, مرتب_سازی_2(عرض), {});
 		}
-		void update_pending(Node node, Node value) {
-			log_assert(node._ref.function() == Fn::buf && node._ref.size() == 0);
-			log_assert(node.sort() == value.sort());
-			_ir.mutate(node).append_arg(value._ref);
+		فراغ update_pending(گره_2 گره, گره_2 مقدار) {
+			log_assert(گره._ref.function() == Fn::buf && گره._ref.اندازه() == 0);
+			log_assert(گره.مرتب_سازی() == مقدار.مرتب_سازی());
+			_ir.mutate(گره).append_arg(مقدار._ref);
 		}
-		IRInput &add_input(IdString name, IdString kind, Sort sort) {
-			auto [it, inserted] = _ir._inputs.emplace({name, kind}, IRInput(_ir, name, kind, std::move(sort)));
-			if (!inserted) log_error("input `%s` was re-defined\n", _ir.design->twines().str(name));
-			return it->second;
+		IRInput &جمع_کن_درون_داد(IdString name, IdString نوع, مرتب_سازی_2 مرتب_سازی) {
+			خودکار [it, inserted] = _ir._inputs.emplace({name, نوع}, IRInput(_ir, name, نوع, std::move(مرتب_سازی)));
+			إذا (!inserted) log_error("input `%s` was re-defined\n", _ir.design->twines().str(name));
+			أرجع it->دومی;
 		}
-		IROutput &add_output(IdString name, IdString kind, Sort sort) {
-			auto [it, inserted] = _ir._outputs.emplace({name, kind}, IROutput(_ir, name, kind, std::move(sort)));
-			if (!inserted) log_error("output `%s` was re-defined\n", _ir.design->twines().str(name));
-			return it->second;
+		IROutput &جمع_کن_output(IdString name, IdString نوع, مرتب_سازی_2 مرتب_سازی) {
+			خودکار [it, inserted] = _ir._outputs.emplace({name, نوع}, IROutput(_ir, name, نوع, std::move(مرتب_سازی)));
+			إذا (!inserted) log_error("output `%s` was re-defined\n", _ir.design->twines().str(name));
+			أرجع it->دومی;
 		}
-		IRState &add_state(IdString name, IdString kind, Sort sort) {
-			auto [it, inserted] = _ir._states.emplace({name, kind}, IRState(_ir, name, kind, std::move(sort)));
-			if (!inserted) log_error("state `%s` was re-defined\n", _ir.design->twines().str(name));
-			return it->second;
+		IRState &جمع_کن_state(IdString name, IdString نوع, مرتب_سازی_2 مرتب_سازی) {
+			خودکار [it, inserted] = _ir.حالتها_2.emplace({name, نوع}, IRState(_ir, name, نوع, std::move(مرتب_سازی)));
+			إذا (!inserted) log_error("state `%s` was re-defined\n", _ir.design->twines().str(name));
+			أرجع it->دومی;
 		}
-		Node value(IRInput const& input) {
-			return add(IR::NodeData(Fn::input, std::pair(input.name, input.kind)), input.sort, {});
+		گره_2 مقدار(IRInput ثابت& درون_داد) {
+			أرجع جمع_کن(IR::گره_داده(Fn::درون_داد, std::pair(درون_داد.name, درون_داد.نوع)), درون_داد.مرتب_سازی, {});
 		}
-		Node value(IRState const& state) {
-			return add(IR::NodeData(Fn::state, std::pair(state.name, state.kind)), state.sort, {});
+		گره_2 مقدار(IRState ثابت& state) {
+			أرجع جمع_کن(IR::گره_داده(Fn::state, std::pair(state.name, state.نوع)), state.مرتب_سازی, {});
 		}
-		void suggest_name(Node node, IdString name) {
-			_ir.mutate(node).sparse_attr() = name;
+		فراغ suggest_name(گره_2 گره, IdString name) {
+			_ir.mutate(گره).sparse_attr() = name;
 		}
 		YS_NAME_FWD_2ND_POOL(suggest_name, _ir.design->twines())
 	};
-	inline Factory IR::factory() { return Factory(*this); }
-	template<class Id> class Scope {
-	protected:
-		char substitution_character = '_';
-		virtual bool is_character_legal(char, int) = 0;
-	private:
-		pool<std::string> _used_names;
+	مضمن Factory IR::factory() { أرجع Factory(*this); }
+	قالب<class Id> class Scope {
+	محمي:
+		حرف substitution_character = '_';
+		مجازی bool is_character_legal(حرف, صحيح) = 0;
+	خاص:
+		pool<std::string> استفاده_شده_نامها;
 		dict<Id, std::string> _by_id;
-	public:
-		void reserve(std::string name) {
-			_used_names.insert(std::move(name));
+	عام:
+		فراغ reserve(std::string name) {
+			استفاده_شده_نامها.درج(std::move(name));
 		}
-		template<typename N> std::string unique_name(const N &suggestion) {
+		قالب<typename N> std::string unique_name(ثابت N &suggestion) {
 			std::string str = RTLIL::unescape_id(suggestion);
-			for(size_t i = 0; i < str.size(); i++)
-				if(!is_character_legal(str[i], i))
+			لكل(اندازه_t i = 0; i < str.اندازه(); i++)
+				إذا(!is_character_legal(str[i], i))
 					str[i] = substitution_character;
-			if(_used_names.count(str) == 0) {
-				_used_names.insert(str);
-				return str;
+			إذا(استفاده_شده_نامها.شمار(str) == 0) {
+				استفاده_شده_نامها.درج(str);
+				أرجع str;
 			}
-			for (int idx = 0 ; ; idx++){
-				std::string suffixed = str + "_" + std::to_string(idx);
-				if(_used_names.count(suffixed) == 0) {
-					_used_names.insert(suffixed);
-					return suffixed;
+			لكل (صحيح idx = 0 ; ; idx++){
+				std::string suffixed = str + "_" + std::مقصد_string(idx);
+				إذا(استفاده_شده_نامها.شمار(suffixed) == 0) {
+					استفاده_شده_نامها.درج(suffixed);
+					أرجع suffixed;
 				}
 			}
 		}
-		template<typename N> std::string operator()(Id id, const N &suggestion) {
-			auto it = _by_id.find(id);
-			if(it != _by_id.end())
-				return it->second;
+		قالب<typename N> std::string عملگر()(Id id, ثابت N &suggestion) {
+			خودکار it = _by_id.پیدا_کن(id);
+			إذا(it != _by_id.انتها())
+				أرجع it->دومی;
 			std::string str = unique_name(suggestion);
-			_by_id.insert({id, str});
-			return str;
+			_by_id.درج({id, str});
+			أرجع str;
 		}
 	};
 	class Writer {
 		std::ostream *os;
-		void print_impl(const char *fmt, vector<std::function<void()>>& fns);
-	public:
+		فراغ print_impl(ثابت حرف *fmt, وکتور<std::function<فراغ()>>& fns);
+	عام:
 		Writer(std::ostream &os) : os(&os) {}
-		template<class T> Writer& operator <<(T&& arg) { *os << std::forward<T>(arg); return *this; }
-		template<typename... Args>
-		void print(const char *fmt, Args&&... args)
+		قالب<class T> Writer& عملگر <<(T&& arg) { *os << std::forward<T>(arg); أرجع *this; }
+		قالب<typename... آرگومانها_3>
+		فراغ print(ثابت حرف *fmt, آرگومانها_3&&... آرگومانها_2)
 		{
-			vector<std::function<void()>> fns { [&]() { *this << args; }... };
+			وکتور<std::function<فراغ()>> fns { [&]() { *this << آرگومانها_2; }... };
 			print_impl(fmt, fns);
 		}
-		template<typename Fn, typename... Args>
-		void print_with(Fn fn, const char *fmt, Args&&... args)
+		قالب<typename Fn, typename... آرگومانها_3>
+		فراغ print_with(Fn fn, ثابت حرف *fmt, آرگومانها_3&&... آرگومانها_2)
 		{
-			vector<std::function<void()>> fns { [&]() {
-				if constexpr (std::is_invocable_v<Fn, Args>)
-					*this << fn(args);
-				else
-					*this << args; }...
+			وکتور<std::function<فراغ()>> fns { [&]() {
+				إذا constexpr (std::is_invocable_v<Fn, آرگومانها_3>)
+					*this << fn(آرگومانها_2);
+				وإلا
+					*this << آرگومانها_2; }...
 			};
 			print_impl(fmt, fns);
 		}
@@ -646,6 +646,6 @@ namespace Functional {
 
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتها
 
-#endif
+#پایان_اگر

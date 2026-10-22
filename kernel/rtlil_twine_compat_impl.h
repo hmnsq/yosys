@@ -1,55 +1,55 @@
-#ifndef RTLIL_TWINE_COMPAT_IMPL_H
-#define RTLIL_TWINE_COMPAT_IMPL_H
+#اگر_تعریف_نشده RTLIL_TWINE_COMPAT_IMPL_H
+#تعریف_کن RTLIL_TWINE_COMPAT_IMPL_H
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Winvalid-offsetof"
-#endif
+#اگر_تعریف_شده __GNUC__
+#رهنمود GCC diagnostic افزودن
+#رهنمود GCC diagnostic ignored "-Winvalid-offsetof"
+#پایان_اگر
 
 namespace RTLIL {
 
-struct NameSlot {};
-struct CellTypeSlot {};
+بنية Name_جایگاه {};
+بنية Cell_Type_جایگاه {};
 
-template<typename Owner, typename Slot>
-inline const Owner *OwnedId<Owner, Slot>::owner() const {
-	size_t offset;
-	if constexpr (std::is_same_v<Slot, NameSlot>) {
-		offset = offsetof(Owner, name);
-	} else {
-		static_assert(std::is_same_v<Owner, Cell> && std::is_same_v<Slot, CellTypeSlot>);
-		offset = offsetof(Cell, type);
+قالب<typename Owner, typename جایگاه_2>
+مضمن ثابت Owner *OwnedId<Owner, جایگاه_2>::owner() ثابت {
+	اندازه_t جابه_جایی;
+	إذا constexpr (std::is_same_v<جایگاه_2, Name_جایگاه>) {
+		جابه_جایی = offsetof(Owner, name);
+	} وإلا {
+		static_assert(std::is_same_v<Owner, Cell> && std::is_same_v<جایگاه_2, Cell_Type_جایگاه>);
+		جابه_جایی = offsetof(Cell, type);
 	}
-	return reinterpret_cast<const Owner *>(reinterpret_cast<const char *>(this) - offset);
+	أرجع reinterpret_cast<ثابت Owner *>(reinterpret_cast<ثابت حرف *>(this) - جابه_جایی);
 }
 
-template<typename Owner, typename Slot>
-inline const TwinePool *OwnedId<Owner, Slot>::pool() const {
-	const Owner *o = owner();
-	if constexpr (std::is_same_v<Owner, Module>) {
-		return o->design ? &o->design->twines() : nullptr;
-	} else {
+قالب<typename Owner, typename جایگاه_2>
+مضمن ثابت TwinePool *OwnedId<Owner, جایگاه_2>::pool() ثابت {
+	ثابت Owner *o = owner();
+	إذا constexpr (std::is_same_v<Owner, Module>) {
+		أرجع o->design ? &o->design->twines() : nullptr;
+	} وإلا {
 		static_assert(std::is_same_v<Owner, Wire> || std::is_same_v<Owner, Cell>
-				|| std::is_same_v<Owner, Memory> || std::is_same_v<Owner, Process>);
-		return o->module && o->module->design ? &o->module->design->twines() : nullptr;
+				|| std::is_same_v<Owner, حافظه> || std::is_same_v<Owner, Process>);
+		أرجع o->module && o->module->design ? &o->module->design->twines() : nullptr;
 	}
 }
 
-inline PooledName::PooledName(const Design *design, IdString id)
+مضمن PooledName::PooledName(ثابت Design *design, IdString id)
 	: pool_(design ? &design->twines() : nullptr), id_(id) { }
 
-inline PooledName::PooledName(const Module *module, IdString id)
+مضمن PooledName::PooledName(ثابت Module *module, IdString id)
 	: PooledName(module ? module->design : nullptr, id) { }
 
 }
 
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
+#اگر_تعریف_شده __GNUC__
+#رهنمود GCC diagnostic برداشت
+#پایان_اگر
 
-template<typename Derived>
-inline void log_dump_val_worker(const RTLIL::WrappedIdBase<Derived> &name) {
-	log("%s", static_cast<const Derived &>(name).unescape());
+قالب<typename Derived>
+مضمن فراغ log_dump_val_کارگر(ثابت RTLIL::Wrapped_Id_پایه<Derived> &name) {
+	لگاریتم("%s", static_cast<ثابت Derived &>(name).unescape());
 }
 
-#endif
+#پایان_اگر

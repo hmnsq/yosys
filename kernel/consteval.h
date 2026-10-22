@@ -17,14 +17,14 @@
  *
  */
 
-#ifndef CONSTEVAL_H
-#define CONSTEVAL_H
+#اگر_تعریف_نشده CONSTEVAL_H
+#تعریف_کن CONSTEVAL_H
 
-#include "kernel/rtlil.h"
-#include "kernel/sigtools.h"
-#include "kernel/celltypes.h"
-#include "kernel/macc.h"
-#include "kernel/newcelltypes.h"
+#ضمن "kernel/rtlil.h"
+#ضمن "kernel/sigtools.h"
+#ضمن "kernel/celltypes.h"
+#ضمن "kernel/macc.h"
+#ضمن "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -32,413 +32,413 @@ YOSYS_NAMESPACE_BEGIN
  * ConstEval provides on-demand constant propagation by traversing input cones
  * with caching
  */
-struct ConstEval
+بنية ConstEval
 {
 	RTLIL::Module *module;
-	SigMap assign_map;
-	SigMap values_map;
-	SigPool stop_signals;
-	SigSet<RTLIL::Cell*> sig2driver;
-	std::set<RTLIL::Cell*> busy;
-	std::vector<SigMap> stack;
+	SigMap تخصیص_بده_map;
+	SigMap مقادیر_map;
+	SigPool stop_سیگنالها;
+	Sig_مجموعه<RTLIL::Cell*> sig2driver;
+	std::مجموعه<RTLIL::Cell*> busy;
+	std::وکتور<SigMap> پشته;
 	RTLIL::State defaultval;
 	bool model_barriers = false; // Model $barrier as a buffer
 
-	ConstEval(RTLIL::Module *module, RTLIL::State defaultval = RTLIL::State::Sm) : module(module), assign_map(module), defaultval(defaultval)
+	ConstEval(RTLIL::Module *module, RTLIL::State defaultval = RTLIL::State::Sm) : module(module), تخصیص_بده_map(module), defaultval(defaultval)
 	{
-		auto ct = NewCellTypes();
+		خودکار ct = NewCellTypes();
 		ct.static_cell_types = StaticCellTypes::Compat::nomem_noff;
 
-		for (auto &it : module->cells_) {
-			if (!ct.cell_known(it.second->type))
-				continue;
-			for (auto &it2 : it.second->connections())
-				if (ct.cell_output(it.second->type, it2.first))
-					sig2driver.insert(assign_map(it2.second), it.second);
+		لكل (خودکار &it : module->cells_) {
+			إذا (!ct.cell_معلوم(it.دومی->type))
+				استمر;
+			لكل (خودکار &it2 : it.دومی->connections())
+				إذا (ct.cell_output(it.دومی->type, it2.اولی))
+					sig2driver.درج(تخصیص_بده_map(it2.دومی), it.دومی);
 		}
 	}
 
-	void clear()
+	فراغ clear()
 	{
-		values_map.clear();
-		stop_signals.clear();
+		مقادیر_map.clear();
+		stop_سیگنالها.clear();
 	}
 
-	void push()
+	فراغ افزودن()
 	{
-		stack.push_back(values_map);
+		پشته.افزودن_پشت(مقادیر_map);
 	}
 
-	void pop()
+	فراغ برداشت()
 	{
-		values_map.swap(stack.back());
-		stack.pop_back();
+		مقادیر_map.جابجا(پشته.پشت());
+		پشته.برداشت_پشت();
 	}
 
-	void set(RTLIL::SigSpec sig, RTLIL::Const value)
+	فراغ مجموعه(RTLIL::SigSpec sig, RTLIL::Const مقدار)
 	{
-		assign_map.apply(sig);
-#ifndef NDEBUG
-		RTLIL::SigSpec current_val = values_map(sig);
-		for (int i = 0; i < GetSize(current_val); i++)
-			log_assert(current_val[i].wire != NULL || current_val[i] == value[i]);
-#endif
-		values_map.add(sig, RTLIL::SigSpec(value));
+		تخصیص_بده_map.apply(sig);
+#اگر_تعریف_نشده NDEBUG
+		RTLIL::SigSpec current_val = مقادیر_map(sig);
+		لكل (صحيح i = 0; i < Get_اندازه(current_val); i++)
+			log_assert(current_val[i].wire != عدم || current_val[i] == مقدار[i]);
+#پایان_اگر
+		مقادیر_map.جمع_کن(sig, RTLIL::SigSpec(مقدار));
 	}
 
-	void stop(RTLIL::SigSpec sig)
+	فراغ stop(RTLIL::SigSpec sig)
 	{
-		assign_map.apply(sig);
-		stop_signals.add(sig);
+		تخصیص_بده_map.apply(sig);
+		stop_سیگنالها.جمع_کن(sig);
 	}
 
 	bool eval(RTLIL::Cell *cell, RTLIL::SigSpec &undef)
 	{
-		if (cell->type == ID($lcu))
+		إذا (cell->type == ID($lcu))
 		{
-			RTLIL::SigSpec sig_p = cell->getPort(ID::P);
-			RTLIL::SigSpec sig_g = cell->getPort(ID::G);
-			RTLIL::SigSpec sig_ci = cell->getPort(ID::CI);
-			RTLIL::SigSpec sig_co = values_map(assign_map(cell->getPort(ID::CO)));
+			RTLIL::SigSpec sig_p = cell->get_پورت(ID::P);
+			RTLIL::SigSpec sig_g = cell->get_پورت(ID::G);
+			RTLIL::SigSpec sig_ci = cell->get_پورت(ID::CI);
+			RTLIL::SigSpec sig_co = مقادیر_map(تخصیص_بده_map(cell->get_پورت(ID::CO)));
 
-			if (sig_co.is_fully_const())
-				return true;
+			إذا (sig_co.is_fully_const())
+				أرجع true;
 
-			if (!eval(sig_p, undef, cell))
-				return false;
+			إذا (!eval(sig_p, undef, cell))
+				أرجع false;
 
-			if (!eval(sig_g, undef, cell))
-				return false;
+			إذا (!eval(sig_g, undef, cell))
+				أرجع false;
 
-			if (!eval(sig_ci, undef, cell))
-				return false;
+			إذا (!eval(sig_ci, undef, cell))
+				أرجع false;
 
-			if (sig_p.is_fully_def() && sig_g.is_fully_def() && sig_ci.is_fully_def())
+			إذا (sig_p.is_fully_def() && sig_g.is_fully_def() && sig_ci.is_fully_def())
 			{
-				RTLIL::Const coval(RTLIL::Sx, GetSize(sig_co));
-				bool carry = sig_ci.as_bool();
+				RTLIL::Const coval(RTLIL::Sx, Get_اندازه(sig_co));
+				bool انتقال = sig_ci.as_bool();
 
-				for (int i = 0; i < GetSize(coval); i++) {
-					carry = (sig_g[i] == State::S1) || (sig_p[i] == RTLIL::S1 && carry);
-					coval.set(i, carry ? State::S1 : State::S0);
+				لكل (صحيح i = 0; i < Get_اندازه(coval); i++) {
+					انتقال = (sig_g[i] == State::S1) || (sig_p[i] == RTLIL::S1 && انتقال);
+					coval.مجموعه(i, انتقال ? State::S1 : State::S0);
 				}
 
-				set(sig_co, coval);
+				مجموعه(sig_co, coval);
 			}
-			else
-				set(sig_co, RTLIL::Const(RTLIL::Sx, GetSize(sig_co)));
+			وإلا
+				مجموعه(sig_co, RTLIL::Const(RTLIL::Sx, Get_اندازه(sig_co)));
 
-			return true;
+			أرجع true;
 		}
 
 		RTLIL::SigSpec sig_a, sig_b, sig_s, sig_y;
 
-		log_assert(cell->hasPort(ID::Y));
-		sig_y = values_map(assign_map(cell->getPort(ID::Y)));
-		if (sig_y.is_fully_const())
-			return true;
+		log_assert(cell->has_پورت(ID::Y));
+		sig_y = مقادیر_map(تخصیص_بده_map(cell->get_پورت(ID::Y)));
+		إذا (sig_y.is_fully_const())
+			أرجع true;
 
-		if (cell->type == ID($barrier))
+		إذا (cell->type == ID($barrier))
 		{
-			if (!model_barriers) {
+			إذا (!model_barriers) {
 				undef.append(sig_y);
-				return false;
+				أرجع false;
 			}
-			sig_a = cell->getPort(ID::A);
-			if (!eval(sig_a, undef, cell))
-				return false;
-			set(sig_y, sig_a.as_const());
-			return true;
+			sig_a = cell->get_پورت(ID::A);
+			إذا (!eval(sig_a, undef, cell))
+				أرجع false;
+			مجموعه(sig_y, sig_a.as_const());
+			أرجع true;
 		}
 
-		if (cell->hasPort(ID::S)) {
-			sig_s = cell->getPort(ID::S);
+		إذا (cell->has_پورت(ID::S)) {
+			sig_s = cell->get_پورت(ID::S);
 		}
 
-		if (cell->hasPort(ID::A))
-			sig_a = cell->getPort(ID::A);
+		إذا (cell->has_پورت(ID::A))
+			sig_a = cell->get_پورت(ID::A);
 
-		if (cell->hasPort(ID::B))
-			sig_b = cell->getPort(ID::B);
+		إذا (cell->has_پورت(ID::B))
+			sig_b = cell->get_پورت(ID::B);
 
-		if (cell->type.in(ID($mux), ID($pmux), ID($_MUX_), ID($_NMUX_)))
+		إذا (cell->type.درون(ID($mux), ID($pmux), ID($_MUX_), ID($_NMUX_)))
 		{
-			std::vector<RTLIL::SigSpec> y_candidates;
-			int count_set_s_bits = 0;
+			std::وکتور<RTLIL::SigSpec> y_candidates;
+			صحيح شمار_مجموعه_s_بیتها = 0;
 
-			if (!eval(sig_s, undef, cell))
-				return false;
+			إذا (!eval(sig_s, undef, cell))
+				أرجع false;
 
-			for (int i = 0; i < sig_s.size(); i++)
+			لكل (صحيح i = 0; i < sig_s.اندازه(); i++)
 			{
-				RTLIL::State s_bit = sig_s.extract(i, 1).as_const().at(0);
-				RTLIL::SigSpec b_slice = sig_b.extract(sig_y.size()*i, sig_y.size());
+				RTLIL::State s_بیت = sig_s.استخراج(i, 1).as_const().at(0);
+				RTLIL::SigSpec b_برش = sig_b.استخراج(sig_y.اندازه()*i, sig_y.اندازه());
 
-				if (s_bit == RTLIL::State::Sx || s_bit == RTLIL::State::S1)
-					y_candidates.push_back(b_slice);
+				إذا (s_بیت == RTLIL::State::Sx || s_بیت == RTLIL::State::S1)
+					y_candidates.افزودن_پشت(b_برش);
 
-				if (s_bit == RTLIL::State::S1)
-					count_set_s_bits++;
+				إذا (s_بیت == RTLIL::State::S1)
+					شمار_مجموعه_s_بیتها++;
 			}
 
-			if (count_set_s_bits == 0)
-				y_candidates.push_back(sig_a);
+			إذا (شمار_مجموعه_s_بیتها == 0)
+				y_candidates.افزودن_پشت(sig_a);
 
-			std::vector<RTLIL::Const> y_values;
+			std::وکتور<RTLIL::Const> y_مقادیر;
 
-			log_assert(y_candidates.size() > 0);
-			for (auto &yc : y_candidates) {
-				if (!eval(yc, undef, cell))
-					return false;
-				if (cell->type == ID($_NMUX_))
-					y_values.push_back(RTLIL::const_not(yc.as_const(), Const(), false, false, GetSize(yc)));
-				else
-					y_values.push_back(yc.as_const());
+			log_assert(y_candidates.اندازه() > 0);
+			لكل (خودکار &yc : y_candidates) {
+				إذا (!eval(yc, undef, cell))
+					أرجع false;
+				إذا (cell->type == ID($_NMUX_))
+					y_مقادیر.افزودن_پشت(RTLIL::const_not(yc.as_const(), Const(), false, false, Get_اندازه(yc)));
+				وإلا
+					y_مقادیر.افزودن_پشت(yc.as_const());
 			}
 
-			if (y_values.size() > 1)
+			إذا (y_مقادیر.اندازه() > 1)
 			{
-				std::vector<RTLIL::State> master_bits = y_values.at(0).to_bits();
+				std::وکتور<RTLIL::State> master_بیتها = y_مقادیر.at(0).مقصد_بیتها();
 
-				for (size_t i = 1; i < y_values.size(); i++) {
-					std::vector<RTLIL::State> slave_bits = y_values.at(i).to_bits();
-					log_assert(master_bits.size() == slave_bits.size());
-					for (size_t j = 0; j < master_bits.size(); j++)
-						if (master_bits[j] != slave_bits[j])
-							master_bits[j] = RTLIL::State::Sx;
+				لكل (اندازه_t i = 1; i < y_مقادیر.اندازه(); i++) {
+					std::وکتور<RTLIL::State> slave_بیتها = y_مقادیر.at(i).مقصد_بیتها();
+					log_assert(master_بیتها.اندازه() == slave_بیتها.اندازه());
+					لكل (اندازه_t j = 0; j < master_بیتها.اندازه(); j++)
+						إذا (master_بیتها[j] != slave_بیتها[j])
+							master_بیتها[j] = RTLIL::State::Sx;
 				}
 
-				set(sig_y, RTLIL::Const(master_bits));
+				مجموعه(sig_y, RTLIL::Const(master_بیتها));
 			}
-			else
-				set(sig_y, y_values.front());
+			وإلا
+				مجموعه(sig_y, y_مقادیر.front());
 		}
-		else if (cell->type == ID($bmux))
+		وإلا إذا (cell->type == ID($bmux))
 		{
-			if (!eval(sig_s, undef, cell))
-				return false;
+			إذا (!eval(sig_s, undef, cell))
+				أرجع false;
 
-			if (sig_s.is_fully_def()) {
-				int sel = sig_s.as_int();
-				int width = GetSize(sig_y);
-				SigSpec res = sig_a.extract(sel * width, width);
-				if (!eval(res, undef, cell))
-					return false;
-				set(sig_y, res.as_const());
-			} else {
-				if (!eval(sig_a, undef, cell))
-					return false;
-				set(sig_y, const_bmux(sig_a.as_const(), sig_s.as_const()));
-			}
-		}
-		else if (cell->type == ID($demux))
-		{
-			if (!eval(sig_a, undef, cell))
-				return false;
-			if (sig_a.is_fully_zero()) {
-				set(sig_y, Const(0, GetSize(sig_y)));
-			} else {
-				if (!eval(sig_s, undef, cell))
-					return false;
-				set(sig_y, const_demux(sig_a.as_const(), sig_s.as_const()));
+			إذا (sig_s.is_fully_def()) {
+				صحيح sel = sig_s.as_int();
+				صحيح عرض = Get_اندازه(sig_y);
+				SigSpec res = sig_a.استخراج(sel * عرض, عرض);
+				إذا (!eval(res, undef, cell))
+					أرجع false;
+				مجموعه(sig_y, res.as_const());
+			} وإلا {
+				إذا (!eval(sig_a, undef, cell))
+					أرجع false;
+				مجموعه(sig_y, const_bmux(sig_a.as_const(), sig_s.as_const()));
 			}
 		}
-		else if (cell->type == ID($fa))
+		وإلا إذا (cell->type == ID($demux))
 		{
-			RTLIL::SigSpec sig_c = cell->getPort(ID::C);
-			RTLIL::SigSpec sig_x = cell->getPort(ID::X);
-			int width = GetSize(sig_c);
-
-			if (!eval(sig_a, undef, cell))
-				return false;
-
-			if (!eval(sig_b, undef, cell))
-				return false;
-
-			if (!eval(sig_c, undef, cell))
-				return false;
-
-			RTLIL::Const t1 = const_xor(sig_a.as_const(), sig_b.as_const(), false, false, width);
-			RTLIL::Const val_y = const_xor(t1, sig_c.as_const(), false, false, width);
-
-			RTLIL::Const t2 = const_and(sig_a.as_const(), sig_b.as_const(), false, false, width);
-			RTLIL::Const t3 = const_and(sig_c.as_const(), t1, false, false, width);
-			RTLIL::Const val_x = const_or(t2, t3, false, false, width);
-
-			for (int i = 0; i < GetSize(val_y); i++)
-				if (val_y[i] == RTLIL::Sx)
-					val_x.set(i, RTLIL::Sx);
-
-			set(sig_y, val_y);
-			set(sig_x, val_x);
+			إذا (!eval(sig_a, undef, cell))
+				أرجع false;
+			إذا (sig_a.is_fully_zero()) {
+				مجموعه(sig_y, Const(0, Get_اندازه(sig_y)));
+			} وإلا {
+				إذا (!eval(sig_s, undef, cell))
+					أرجع false;
+				مجموعه(sig_y, const_demux(sig_a.as_const(), sig_s.as_const()));
+			}
 		}
-		else if (cell->type == ID($alu))
+		وإلا إذا (cell->type == ID($fa))
 		{
-			bool signed_a = cell->parameters.count(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool();
-			bool signed_b = cell->parameters.count(ID::B_SIGNED) > 0 && cell->parameters[ID::B_SIGNED].as_bool();
+			RTLIL::SigSpec sig_c = cell->get_پورت(ID::C);
+			RTLIL::SigSpec sig_x = cell->get_پورت(ID::X);
+			صحيح عرض = Get_اندازه(sig_c);
 
-			RTLIL::SigSpec sig_ci = cell->getPort(ID::CI);
-			RTLIL::SigSpec sig_bi = cell->getPort(ID::BI);
+			إذا (!eval(sig_a, undef, cell))
+				أرجع false;
 
-			if (!eval(sig_a, undef, cell))
-				return false;
+			إذا (!eval(sig_b, undef, cell))
+				أرجع false;
 
-			if (!eval(sig_b, undef, cell))
-				return false;
+			إذا (!eval(sig_c, undef, cell))
+				أرجع false;
 
-			if (!eval(sig_ci, undef, cell))
-				return false;
+			RTLIL::Const t1 = const_xor(sig_a.as_const(), sig_b.as_const(), false, false, عرض);
+			RTLIL::Const val_y = const_xor(t1, sig_c.as_const(), false, false, عرض);
 
-			if (!eval(sig_bi, undef, cell))
-				return false;
+			RTLIL::Const t2 = const_and(sig_a.as_const(), sig_b.as_const(), false, false, عرض);
+			RTLIL::Const t3 = const_and(sig_c.as_const(), t1, false, false, عرض);
+			RTLIL::Const val_x = const_or(t2, t3, false, false, عرض);
 
-			RTLIL::SigSpec sig_x = cell->getPort(ID::X);
-			RTLIL::SigSpec sig_co = cell->getPort(ID::CO);
+			لكل (صحيح i = 0; i < Get_اندازه(val_y); i++)
+				إذا (val_y[i] == RTLIL::Sx)
+					val_x.مجموعه(i, RTLIL::Sx);
 
-			bool any_input_undef = !(sig_a.is_fully_def() && sig_b.is_fully_def() && sig_ci.is_fully_def() && sig_bi.is_fully_def());
-			sig_a.extend_u0(GetSize(sig_y), signed_a);
-			sig_b.extend_u0(GetSize(sig_y), signed_b);
+			مجموعه(sig_y, val_y);
+			مجموعه(sig_x, val_x);
+		}
+		وإلا إذا (cell->type == ID($alu))
+		{
+			bool signed_a = cell->parameters.شمار(ID::A_SIGNED) > 0 && cell->parameters[ID::A_SIGNED].as_bool();
+			bool signed_b = cell->parameters.شمار(ID::B_SIGNED) > 0 && cell->parameters[ID::B_SIGNED].as_bool();
 
-			bool carry = sig_ci[0] == State::S1;
+			RTLIL::SigSpec sig_ci = cell->get_پورت(ID::CI);
+			RTLIL::SigSpec sig_bi = cell->get_پورت(ID::BI);
+
+			إذا (!eval(sig_a, undef, cell))
+				أرجع false;
+
+			إذا (!eval(sig_b, undef, cell))
+				أرجع false;
+
+			إذا (!eval(sig_ci, undef, cell))
+				أرجع false;
+
+			إذا (!eval(sig_bi, undef, cell))
+				أرجع false;
+
+			RTLIL::SigSpec sig_x = cell->get_پورت(ID::X);
+			RTLIL::SigSpec sig_co = cell->get_پورت(ID::CO);
+
+			bool any_درون_داد_undef = !(sig_a.is_fully_def() && sig_b.is_fully_def() && sig_ci.is_fully_def() && sig_bi.is_fully_def());
+			sig_a.extend_u0(Get_اندازه(sig_y), signed_a);
+			sig_b.extend_u0(Get_اندازه(sig_y), signed_b);
+
+			bool انتقال = sig_ci[0] == State::S1;
 			bool b_inv = sig_bi[0] == State::S1;
 
-			for (int i = 0; i < GetSize(sig_y); i++)
+			لكل (صحيح i = 0; i < Get_اندازه(sig_y); i++)
 			{
 				RTLIL::SigSpec x_inputs = { sig_a[i], sig_b[i], sig_bi[0] };
 
-				if (!x_inputs.is_fully_def()) {
-					set(sig_x[i], RTLIL::Sx);
-				} else {
-					bool bit_a = sig_a[i] == State::S1;
-					bool bit_b = (sig_b[i] == State::S1) != b_inv;
-					bool bit_x = bit_a != bit_b;
-					set(sig_x[i], bit_x ? State::S1 : State::S0);
+				إذا (!x_inputs.is_fully_def()) {
+					مجموعه(sig_x[i], RTLIL::Sx);
+				} وإلا {
+					bool بیت_a = sig_a[i] == State::S1;
+					bool بیت_b = (sig_b[i] == State::S1) != b_inv;
+					bool بیت_x = بیت_a != بیت_b;
+					مجموعه(sig_x[i], بیت_x ? State::S1 : State::S0);
 				}
 
-				if (any_input_undef) {
-					set(sig_y[i], RTLIL::Sx);
-					set(sig_co[i], RTLIL::Sx);
-				} else {
-					bool bit_a = sig_a[i] == State::S1;
-					bool bit_b = (sig_b[i] == State::S1) != b_inv;
-					bool bit_y = (bit_a != bit_b) != carry;
-					carry = (bit_a && bit_b) || (bit_a && carry) || (bit_b && carry);
-					set(sig_y[i], bit_y ? State::S1 : State::S0);
-					set(sig_co[i], carry ? State::S1 : State::S0);
+				إذا (any_درون_داد_undef) {
+					مجموعه(sig_y[i], RTLIL::Sx);
+					مجموعه(sig_co[i], RTLIL::Sx);
+				} وإلا {
+					bool بیت_a = sig_a[i] == State::S1;
+					bool بیت_b = (sig_b[i] == State::S1) != b_inv;
+					bool بیت_y = (بیت_a != بیت_b) != انتقال;
+					انتقال = (بیت_a && بیت_b) || (بیت_a && انتقال) || (بیت_b && انتقال);
+					مجموعه(sig_y[i], بیت_y ? State::S1 : State::S0);
+					مجموعه(sig_co[i], انتقال ? State::S1 : State::S0);
 				}
 			}
 		}
-		else if (cell->type.in(ID($macc), ID($macc_v2)))
+		وإلا إذا (cell->type.درون(ID($macc), ID($macc_v2)))
 		{
 			Macc macc;
 			macc.from_cell(cell);
 
-			for (auto &port : macc.terms) {
-				if (!eval(port.in_a, undef, cell))
-					return false;
-				if (!eval(port.in_b, undef, cell))
-					return false;
+			لكل (خودکار &پورت : macc.terms) {
+				إذا (!eval(پورت.درون_a, undef, cell))
+					أرجع false;
+				إذا (!eval(پورت.درون_b, undef, cell))
+					أرجع false;
 			}
 
-			RTLIL::Const result(0, GetSize(cell->getPort(ID::Y)));
-			if (!macc.eval(result))
+			RTLIL::Const نتیجه(0, Get_اندازه(cell->get_پورت(ID::Y)));
+			إذا (!macc.eval(نتیجه))
 				log_abort();
 
-			set(cell->getPort(ID::Y), result);
+			مجموعه(cell->get_پورت(ID::Y), نتیجه);
 		}
-		else
+		وإلا
 		{
 			RTLIL::SigSpec sig_c, sig_d;
 
-			if (cell->type.in(ID($_AOI3_), ID($_OAI3_), ID($_AOI4_), ID($_OAI4_))) {
-				if (cell->hasPort(ID::C))
-					sig_c = cell->getPort(ID::C);
-				if (cell->hasPort(ID::D))
-					sig_d = cell->getPort(ID::D);
+			إذا (cell->type.درون(ID($_AOI3_), ID($_OAI3_), ID($_AOI4_), ID($_OAI4_))) {
+				إذا (cell->has_پورت(ID::C))
+					sig_c = cell->get_پورت(ID::C);
+				إذا (cell->has_پورت(ID::D))
+					sig_d = cell->get_پورت(ID::D);
 			}
 
-			if (sig_a.size() > 0 && !eval(sig_a, undef, cell))
-				return false;
-			if (sig_b.size() > 0 && !eval(sig_b, undef, cell))
-				return false;
-			if (sig_c.size() > 0 && !eval(sig_c, undef, cell))
-				return false;
-			if (sig_d.size() > 0 && !eval(sig_d, undef, cell))
-				return false;
+			إذا (sig_a.اندازه() > 0 && !eval(sig_a, undef, cell))
+				أرجع false;
+			إذا (sig_b.اندازه() > 0 && !eval(sig_b, undef, cell))
+				أرجع false;
+			إذا (sig_c.اندازه() > 0 && !eval(sig_c, undef, cell))
+				أرجع false;
+			إذا (sig_d.اندازه() > 0 && !eval(sig_d, undef, cell))
+				أرجع false;
 
 			bool eval_err = false;
 			RTLIL::Const eval_ret;
-			if (sig_s.size() > 0 && eval(sig_s, undef, cell)) {
+			إذا (sig_s.اندازه() > 0 && eval(sig_s, undef, cell)) {
 				eval_ret = CellTypes::eval(cell, sig_a.as_const(), sig_b.as_const(), sig_s.as_const(), &eval_err);
-			} else
+			} وإلا
 				eval_ret = CellTypes::eval(cell, sig_a.as_const(), sig_b.as_const(), sig_c.as_const(), sig_d.as_const(), &eval_err);
 
-			if (eval_err)
-				return false;
+			إذا (eval_err)
+				أرجع false;
 
-			set(sig_y, eval_ret);
+			مجموعه(sig_y, eval_ret);
 		}
 
-		return true;
+		أرجع true;
 	}
 
-	bool eval(RTLIL::SigSpec &sig, RTLIL::SigSpec &undef, RTLIL::Cell *busy_cell = NULL)
+	bool eval(RTLIL::SigSpec &sig, RTLIL::SigSpec &undef, RTLIL::Cell *busy_cell = عدم)
 	{
-		assign_map.apply(sig);
-		values_map.apply(sig);
+		تخصیص_بده_map.apply(sig);
+		مقادیر_map.apply(sig);
 
-		if (sig.is_fully_const())
-			return true;
+		إذا (sig.is_fully_const())
+			أرجع true;
 
-		if (stop_signals.check_any(sig)) {
-			undef = stop_signals.extract(sig);
-			return false;
+		إذا (stop_سیگنالها.check_any(sig)) {
+			undef = stop_سیگنالها.استخراج(sig);
+			أرجع false;
 		}
 
-		if (busy_cell) {
-			if (busy.count(busy_cell) > 0) {
+		إذا (busy_cell) {
+			إذا (busy.شمار(busy_cell) > 0) {
 				undef = sig;
-				return false;
+				أرجع false;
 			}
-			busy.insert(busy_cell);
+			busy.درج(busy_cell);
 		}
 
-		std::set<RTLIL::Cell*> driver_cells;
-		sig2driver.find(sig, driver_cells);
-		for (auto cell : driver_cells) {
-			if (!eval(cell, undef)) {
-				if (busy_cell)
+		std::مجموعه<RTLIL::Cell*> driver_cells;
+		sig2driver.پیدا_کن(sig, driver_cells);
+		لكل (خودکار cell : driver_cells) {
+			إذا (!eval(cell, undef)) {
+				إذا (busy_cell)
 					busy.erase(busy_cell);
-				return false;
+				أرجع false;
 			}
 		}
 
-		if (busy_cell)
+		إذا (busy_cell)
 			busy.erase(busy_cell);
 
-		values_map.apply(sig);
-		if (sig.is_fully_const())
-			return true;
+		مقادیر_map.apply(sig);
+		إذا (sig.is_fully_const())
+			أرجع true;
 
-		if (defaultval != RTLIL::State::Sm) {
-			for (auto &bit : sig)
-				if (bit.wire) bit = defaultval;
-			return true;
+		إذا (defaultval != RTLIL::State::Sm) {
+			لكل (خودکار &بیت : sig)
+				إذا (بیت.wire) بیت = defaultval;
+			أرجع true;
 		}
 
-		for (auto &c : sig.chunks())
-			if (c.wire != NULL)
+		لكل (خودکار &c : sig.chunks())
+			إذا (c.wire != عدم)
 				undef.append(c);
-		return false;
+		أرجع false;
 	}
 
 	bool eval(RTLIL::SigSpec &sig)
 	{
 		RTLIL::SigSpec undef;
-		return eval(sig, undef);
+		أرجع eval(sig, undef);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتها
 
-#endif
+#پایان_اگر

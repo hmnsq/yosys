@@ -1,297 +1,297 @@
-#include "compressor_tree.h"
+#ضمن "compressor_tree.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-namespace CompressorTree
+نطاق Compressor_درخت
 {
 
-std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, int width)
+std::pair<SigSpec, SigSpec> emit_compressor_32(Module *module, SigSpec a, SigSpec b, SigSpec c, صحيح عرض)
 {
-	SigSpec sum = module->addWire(NEW_ID, width);
-	SigSpec cout = module->addWire(NEW_ID, width);
-	module->addFa(NEW_ID, a, b, c, cout, sum);
+	SigSpec جمع = module->جمع_کن_Wire(NEW_ID, عرض);
+	SigSpec خروجی = module->جمع_کن_Wire(NEW_ID, عرض);
+	module->جمع_کن_Fa(NEW_ID, a, b, c, خروجی, جمع);
 
-	SigSpec carry;
-	carry.append(State::S0);
-	carry.append(cout.extract(0, width - 1));
-	return {sum, carry};
+	SigSpec انتقال;
+	انتقال.append(State::S0);
+	انتقال.append(خروجی.استخراج(0, عرض - 1));
+	أرجع {جمع, انتقال};
 }
 
-std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, int width)
+std::pair<SigSpec, SigSpec> emit_compressor_42(Module *module, SigSpec a, SigSpec b, SigSpec c, SigSpec d, صحيح عرض)
 {
 	// First FA: a + b + c -> s0
-	SigSpec s0 = module->addWire(NEW_ID, width);
-	SigSpec cout_h_full = module->addWire(NEW_ID, width);
-	module->addFa(NEW_ID, a, b, c, cout_h_full, s0);
+	SigSpec s0 = module->جمع_کن_Wire(NEW_ID, عرض);
+	SigSpec cout_h_پر = module->جمع_کن_Wire(NEW_ID, عرض);
+	module->جمع_کن_Fa(NEW_ID, a, b, c, cout_h_پر, s0);
 
 	// cin[0] = 0, cin[i] = cout_h_full[i-1]
-	SigSpec cin;
-	cin.append(State::S0);
-	if (width > 1)
-		cin.append(cout_h_full.extract(0, width - 1));
+	SigSpec ورودی;
+	ورودی.append(State::S0);
+	إذا (عرض > 1)
+		ورودی.append(cout_h_پر.استخراج(0, عرض - 1));
 
 	// Second FA: s0 + d + cin -> sum
-	SigSpec sum = module->addWire(NEW_ID, width);
-	SigSpec carry_full = module->addWire(NEW_ID, width);
-	module->addFa(NEW_ID, s0, d, cin, carry_full, sum);
+	SigSpec جمع = module->جمع_کن_Wire(NEW_ID, عرض);
+	SigSpec انتقال_پر = module->جمع_کن_Wire(NEW_ID, عرض);
+	module->جمع_کن_Fa(NEW_ID, s0, d, ورودی, انتقال_پر, جمع);
 
-	SigSpec carry;
-	carry.append(State::S0);
-	if (width > 1)
-		carry.append(carry_full.extract(0, width - 1));
+	SigSpec انتقال;
+	انتقال.append(State::S0);
+	إذا (عرض > 1)
+		انتقال.append(انتقال_پر.استخراج(0, عرض - 1));
 
-	return {sum, carry};
+	أرجع {جمع, انتقال};
 }
 
-std::vector<DepthSig> generate_partial_products(Module *module, SigSpec a, SigSpec b, bool a_signed, bool b_signed, int width) {
-	int width_a = GetSize(a);
-	int width_b = GetSize(b);
-	std::vector<DepthSig> products;
-	products.reserve(width_a + 3);
+std::وکتور<عمق_Sig> generate_partial_products(Module *module, SigSpec a, SigSpec b, منطقي a_signed, منطقي b_signed, صحيح عرض) {
+	صحيح عرض_a = Get_اندازه(a);
+	صحيح عرض_b = Get_اندازه(b);
+	std::وکتور<عمق_Sig> products;
+	products.reserve(عرض_a + 3);
 
-	for (int i = 0; i < width_a; i++) {
-		SigBit ai = a[i];
+	لكل (صحيح i = 0; i < عرض_a; i++) {
+		Sig_بیت ai = a[i];
 
 		// b_shifted = (0_i ## b)
 		SigSpec b_shifted = SigSpec(State::S0, i);
 		b_shifted.append(b);
-		b_shifted.extend_u0(width, false);
+		b_shifted.extend_u0(عرض, خطأ);
 
 		// row = b_shifted & replicate(a[i], width)
-		SigSpec ai_rep = SigSpec(ai, width);
-		SigSpec row = module->addWire(NEW_ID, width);
-		module->addAnd(NEW_ID, b_shifted, ai_rep, row);
+		SigSpec ai_rep = SigSpec(ai, عرض);
+		SigSpec ردیف = module->جمع_کن_Wire(NEW_ID, عرض);
+		module->جمع_کن_And(NEW_ID, b_shifted, ai_rep, ردیف);
 
 		// Apply Modified Baugh-Wooley inversions for this row
-		bool row_is_bottom = (i == width_a - 1);
-		bool any_inversion = (row_is_bottom && b_signed) || a_signed;
+		منطقي ردیف_is_bottom = (i == عرض_a - 1);
+		منطقي any_inversion = (ردیف_is_bottom && b_signed) || a_signed;
 
-		if (any_inversion) {
-			std::vector<RTLIL::State> mask(width, RTLIL::State::S0);
+		إذا (any_inversion) {
+			std::وکتور<RTLIL::State> ماسک(عرض, RTLIL::State::S0);
 
-			for (int j = 0; j < width_b; j++) {
-				int col = i + j;
-				if (col < 0 || col >= width)
-					continue;
-				bool col_is_right = (j == width_b - 1);
+			لكل (صحيح j = 0; j < عرض_b; j++) {
+				صحيح ستون = i + j;
+				إذا (ستون < 0 || ستون >= عرض)
+					استمر;
+				منطقي ستون_is_راست = (j == عرض_b - 1);
 				// Flip masks
-				bool invert = (row_is_bottom && b_signed) ^ (col_is_right && a_signed);
-				if (invert)
-					mask[col] = RTLIL::State::S1;
+				منطقي invert = (ردیف_is_bottom && b_signed) ^ (ستون_is_راست && a_signed);
+				إذا (invert)
+					ماسک[ستون] = RTLIL::State::S1;
 			}
 
 			// Skip the xor entirely if the mask is all zeroes
-			bool nonzero = false;
-			for (auto s : mask)
-				if (s == RTLIL::State::S1) {
-					nonzero = true;
-					break;
+			منطقي nonzero = خطأ;
+			لكل (خودکار s : ماسک)
+				إذا (s == RTLIL::State::S1) {
+					nonzero = درست;
+					اكسر;
 				}
-			if (nonzero) {
-				SigSpec inverted = module->addWire(NEW_ID, width);
-				module->addXor(NEW_ID, row, SigSpec(RTLIL::Const(mask)), inverted);
-				row = inverted;
+			إذا (nonzero) {
+				SigSpec inverted = module->جمع_کن_Wire(NEW_ID, عرض);
+				module->جمع_کن_Xor(NEW_ID, ردیف, SigSpec(RTLIL::Const(ماسک)), inverted);
+				ردیف = inverted;
 			}
 		}
 
-		products.push_back({row, 0});
+		products.افزودن_پشت({ردیف, 0});
 	}
 
 	// Correction constants
-	auto push_one_at = [&](int col) {
-		if (col < 0 || col >= width)
-			return;
-		std::vector<RTLIL::State> v(width, RTLIL::State::S0);
-		v[col] = RTLIL::State::S1;
-		products.push_back({SigSpec(RTLIL::Const(v)), 0});
+	خودکار افزودن_one_at = [&](صحيح ستون) {
+		إذا (ستون < 0 || ستون >= عرض)
+			أرجع;
+		std::وکتور<RTLIL::State> v(عرض, RTLIL::State::S0);
+		v[ستون] = RTLIL::State::S1;
+		products.افزودن_پشت({SigSpec(RTLIL::Const(v)), 0});
 	};
 
-	if (b_signed)
-		push_one_at(width_a - 1);
-	if (a_signed)
-		push_one_at(width_b - 1);
-	if (a_signed || b_signed) {
+	إذا (b_signed)
+		افزودن_one_at(عرض_a - 1);
+	إذا (a_signed)
+		افزودن_one_at(عرض_b - 1);
+	إذا (a_signed || b_signed) {
 		// Sign-extend the Baugh-Wooley correction to the accumulator width.
-		int sign_extension_start = width_a + width_b - 1;
-		if (sign_extension_start < width) {
-			std::vector<RTLIL::State> v(width, RTLIL::State::S0);
-			for (int i = sign_extension_start; i < width; i++)
+		صحيح sign_extension_شروع = عرض_a + عرض_b - 1;
+		إذا (sign_extension_شروع < عرض) {
+			std::وکتور<RTLIL::State> v(عرض, RTLIL::State::S0);
+			لكل (صحيح i = sign_extension_شروع; i < عرض; i++)
 				v[i] = RTLIL::State::S1;
-			products.push_back({SigSpec(RTLIL::Const(v)), 0});
+			products.افزودن_پشت({SigSpec(RTLIL::Const(v)), 0});
 		}
 	}
 
-	return products;
+	أرجع products;
 }
 
-std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::vector<DepthSig> operands, int width, Strategy strategy, int *out_compressor_count, int *out_final_depth) {
-	int levels = 0;
-	int fa_count = 0;
-	int c42_count = 0;
-	int final_depth = 0;
+std::pair<SigSpec, SigSpec> reduce_scheduled(Module *module, std::وکتور<عمق_Sig> operands, صحيح عرض, Strategy strategy, صحيح *بیرون_compressor_شمار, صحيح *بیرون_final_عمق) {
+	صحيح سطوح = 0;
+	صحيح fa_شمار = 0;
+	صحيح c42_شمار = 0;
+	صحيح final_عمق = 0;
 
-	for (auto &op : operands)
-		op.sig.extend_u0(width);
+	لكل (خودکار &op : operands)
+		op.sig.extend_u0(عرض);
 
 	// Only compress operands ready at current level
-	for (int level = 0; operands.size() > 2; level++) {
+	لكل (صحيح level = 0; operands.اندازه() > 2; level++) {
 		// Partition operands into ready and waiting
-		std::vector<DepthSig> ready;
-		std::vector<DepthSig> waiting;
-		ready.reserve(operands.size());
-		for (auto &op : operands) {
-			if (op.depth <= level)
-				ready.push_back(op);
-			else
-				waiting.push_back(op);
+		std::وکتور<عمق_Sig> ready;
+		std::وکتور<عمق_Sig> انتظار;
+		ready.reserve(operands.اندازه());
+		لكل (خودکار &op : operands) {
+			إذا (op.عمق <= level)
+				ready.افزودن_پشت(op);
+			وإلا
+				انتظار.افزودن_پشت(op);
 		}
 
-		if (ready.size() < 3) {
-			levels++;
-			continue;
+		إذا (ready.اندازه() < 3) {
+			سطوح++;
+			استمر;
 		}
 
 		// Apply compressors to ready operands
-		std::vector<DepthSig> compressed;
-		compressed.reserve(ready.size());
-		size_t i = 0;
+		std::وکتور<عمق_Sig> compressed;
+		compressed.reserve(ready.اندازه());
+		اندازه_t i = 0;
 
 		// PREFER_42 attempts 4:2 grouping greedily (falls back to 3:2 for the residual)
 		// FA_ONLY skips
 		// DADDA = PREFER_42 (TODO: inspect column heights?)
-		bool try_42 = (strategy == Strategy::PREFER_42 || strategy == Strategy::DADDA);
+		منطقي try_42 = (strategy == Strategy::PREFER_42 || strategy == Strategy::DADDA);
 
-		while (i < ready.size()) {
-			size_t remaining = ready.size() - i;
+		طالما (i < ready.اندازه()) {
+			اندازه_t مانده = ready.اندازه() - i;
 
-			if (try_42 && remaining >= 4) {
-				DepthSig a = ready[i + 0];
-				DepthSig b = ready[i + 1];
-				DepthSig c = ready[i + 2];
-				DepthSig d = ready[i + 3];
+			إذا (try_42 && مانده >= 4) {
+				عمق_Sig a = ready[i + 0];
+				عمق_Sig b = ready[i + 1];
+				عمق_Sig c = ready[i + 2];
+				عمق_Sig d = ready[i + 3];
 
-				auto [sum, carry] = emit_compressor_42(module, a.sig, b.sig, c.sig, d.sig, width);
-				int dmax = std::max({a.depth, b.depth, c.depth, d.depth});
+				خودکار [جمع, انتقال] = emit_compressor_42(module, a.sig, b.sig, c.sig, d.sig, عرض);
+				صحيح dmax = std::max({a.عمق, b.عمق, c.عمق, d.عمق});
 
-				compressed.push_back({sum, dmax + 2});
-				compressed.push_back({carry, dmax + 2});
+				compressed.افزودن_پشت({جمع, dmax + 2});
+				compressed.افزودن_پشت({انتقال, dmax + 2});
 
-				fa_count += 2;
-				c42_count += 1;
+				fa_شمار += 2;
+				c42_شمار += 1;
 				i += 4;
-			} else if (remaining >= 3) {
-				DepthSig a = ready[i + 0];
-				DepthSig b = ready[i + 1];
-				DepthSig c = ready[i + 2];
+			} وإلا إذا (مانده >= 3) {
+				عمق_Sig a = ready[i + 0];
+				عمق_Sig b = ready[i + 1];
+				عمق_Sig c = ready[i + 2];
 
-				auto [sum, carry] = emit_compressor_32(module, a.sig, b.sig, c.sig, width);
-				int dmax = std::max({a.depth, b.depth, c.depth});
+				خودکار [جمع, انتقال] = emit_compressor_32(module, a.sig, b.sig, c.sig, عرض);
+				صحيح dmax = std::max({a.عمق, b.عمق, c.عمق});
 
-				compressed.push_back({sum, dmax + 1});
-				compressed.push_back({carry, dmax + 1});
+				compressed.افزودن_پشت({جمع, dmax + 1});
+				compressed.افزودن_پشت({انتقال, dmax + 1});
 
-				fa_count += 1;
+				fa_شمار += 1;
 				i += 3;
-			} else {
+			} وإلا {
 				// Uncompressed operands pass through to next level
-				for (; i < ready.size(); i++)
-					compressed.push_back(ready[i]);
-				break;
+				لكل (; i < ready.اندازه(); i++)
+					compressed.افزودن_پشت(ready[i]);
+				اكسر;
 			}
 		}
 
 		// Merge compressed with waiting operands
-		for (auto &op : waiting)
-			compressed.push_back(op);
+		لكل (خودکار &op : انتظار)
+			compressed.افزودن_پشت(op);
 
 		operands = std::move(compressed);
-		levels++;
+		سطوح++;
 	}
 
-	if(out_compressor_count)
-		*out_compressor_count = fa_count;
-	if (operands.size() == 0) {
-		if (out_final_depth)
-			*out_final_depth = 0;
-		return {SigSpec(State::S0, width), SigSpec(State::S0, width)};
+	إذا(بیرون_compressor_شمار)
+		*بیرون_compressor_شمار = fa_شمار;
+	إذا (operands.اندازه() == 0) {
+		إذا (بیرون_final_عمق)
+			*بیرون_final_عمق = 0;
+		أرجع {SigSpec(State::S0, عرض), SigSpec(State::S0, عرض)};
 	}
-	if (operands.size() == 1) {
-		if (out_final_depth)
-			*out_final_depth = operands[0].depth;
-		return {operands[0].sig, SigSpec(State::S0, width)};
+	إذا (operands.اندازه() == 1) {
+		إذا (بیرون_final_عمق)
+			*بیرون_final_عمق = operands[0].عمق;
+		أرجع {operands[0].sig, SigSpec(State::S0, عرض)};
 	}
 
-	final_depth = std::max(operands[0].depth, operands[1].depth);
-	if (out_final_depth)
-		*out_final_depth = final_depth;
-	log_assert(operands.size() == 2);
-	log("    CompressorTree::reduce_scheduled: %d levels, %d $fa (%d as 4:2), final depth %d\n", levels, fa_count, c42_count, final_depth);
-	return {operands[0].sig, operands[1].sig};
+	final_عمق = std::max(operands[0].عمق, operands[1].عمق);
+	إذا (بیرون_final_عمق)
+		*بیرون_final_عمق = final_عمق;
+	log_assert(operands.اندازه() == 2);
+	لگاریتم("    CompressorTree::reduce_scheduled: %d levels, %d $fa (%d as 4:2), final depth %d\n", سطوح, fa_شمار, c42_شمار, final_عمق);
+	أرجع {operands[0].sig, operands[1].sig};
 }
 
-void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
+فراغ emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 {
-	int width = GetSize(y);
-	log_assert(GetSize(a) == width);
-	log_assert(GetSize(b) == width);
+	صحيح عرض = Get_اندازه(y);
+	log_assert(Get_اندازه(a) == عرض);
+	log_assert(Get_اندازه(b) == عرض);
 
-	if (width == 0)
-		return;
+	إذا (عرض == 0)
+		أرجع;
 
-	if (width == 1) {
-		module->addXorGate(NEW_ID, a[0], b[0], y[0]);
-		return;
+	إذا (عرض == 1) {
+		module->جمع_کن_Xor_Gate(NEW_ID, a[0], b[0], y[0]);
+		أرجع;
 	}
 
 	// Bit level gen and prop
-	std::vector<SigBit> g_pre(width), p_pre(width);
-	for (int i = 0; i < width; i++) {
-		SigBit gi = module->addWire(NEW_ID);
-		SigBit pi = module->addWire(NEW_ID);
-		module->addAndGate(NEW_ID, a[i], b[i], gi);
-		module->addXorGate(NEW_ID, a[i], b[i], pi);
+	std::وکتور<Sig_بیت> g_pre(عرض), p_pre(عرض);
+	لكل (صحيح i = 0; i < عرض; i++) {
+		Sig_بیت gi = module->جمع_کن_Wire(NEW_ID);
+		Sig_بیت pi = module->جمع_کن_Wire(NEW_ID);
+		module->جمع_کن_And_Gate(NEW_ID, a[i], b[i], gi);
+		module->جمع_کن_Xor_Gate(NEW_ID, a[i], b[i], pi);
 		g_pre[i] = gi;
 		p_pre[i] = pi;
 	}
 
 	// Propagate (g, p) through ceil(log2 W) levels
-	std::vector<SigBit> g = g_pre;
-	std::vector<SigBit> p = p_pre;
-	int num_levels = 0;
+	std::وکتور<Sig_بیت> g = g_pre;
+	std::وکتور<Sig_بیت> p = p_pre;
+	صحيح رقم_سطوح = 0;
 
-	while ((1 << num_levels) < width)
-		num_levels++;
+	طالما ((1 << رقم_سطوح) < عرض)
+		رقم_سطوح++;
 
-	for (int k = 1; k <= num_levels; k++) {
-		int s = 1 << (k - 1);
-		std::vector<SigBit> g_next(width), p_next(width);
-		for (int i = 0; i < width; i++) {
-			if (i < s) {
+	لكل (صحيح k = 1; k <= رقم_سطوح; k++) {
+		صحيح s = 1 << (k - 1);
+		std::وکتور<Sig_بیت> g_بعدی(عرض), p_بعدی(عرض);
+		لكل (صحيح i = 0; i < عرض; i++) {
+			إذا (i < s) {
 				// Nothing to do
-				g_next[i] = g[i];
-				p_next[i] = p[i];
-			} else {
+				g_بعدی[i] = g[i];
+				p_بعدی[i] = p[i];
+			} وإلا {
 				// g_i^k = g_i | (p_i & g_(i-s))
-				SigBit and_pg = module->addWire(NEW_ID);
-				module->addAndGate(NEW_ID, p[i], g[i - s], and_pg);
-				SigBit gnew = module->addWire(NEW_ID);
-				module->addOrGate(NEW_ID, g[i], and_pg, gnew);
-				g_next[i] = gnew;
+				Sig_بیت and_pg = module->جمع_کن_Wire(NEW_ID);
+				module->جمع_کن_And_Gate(NEW_ID, p[i], g[i - s], and_pg);
+				Sig_بیت gnew = module->جمع_کن_Wire(NEW_ID);
+				module->جمع_کن_Or_Gate(NEW_ID, g[i], and_pg, gnew);
+				g_بعدی[i] = gnew;
 
 				// p_i^k = p_i & p_(i-s)
-				if (k < num_levels) {
-					SigBit pnew = module->addWire(NEW_ID);
-					module->addAndGate(NEW_ID, p[i], p[i - s], pnew);
-					p_next[i] = pnew;
-				} else {
+				إذا (k < رقم_سطوح) {
+					Sig_بیت pnew = module->جمع_کن_Wire(NEW_ID);
+					module->جمع_کن_And_Gate(NEW_ID, p[i], p[i - s], pnew);
+					p_بعدی[i] = pnew;
+				} وإلا {
 					// Skip last level
-					p_next[i] = State::Sx;
+					p_بعدی[i] = State::Sx;
 				}
 			}
 		}
 
-		g = std::move(g_next);
-		p = std::move(p_next);
+		g = std::move(g_بعدی);
+		p = std::move(p_بعدی);
 	}
 
 	// Sum layer, g[i] is COUT of bit i
@@ -299,38 +299,38 @@ void emit_kogge_stone(Module *module, SigSpec a, SigSpec b, SigSpec y)
 	//   sum[0] = p_pre[0]
 	//   sum[i] = p_pre[i] ^ g[i-1] ...
 	module->connect(y[0], p_pre[0]);
-	for (int i = 1; i < width; i++)
-		module->addXorGate(NEW_ID, p_pre[i], g[i - 1], y[i]);
+	لكل (صحيح i = 1; i < عرض; i++)
+		module->جمع_کن_Xor_Gate(NEW_ID, p_pre[i], g[i - 1], y[i]);
 }
 
 Cell *emit_final_adder(Module *module, SigSpec a, SigSpec b, SigSpec y, FinalAdder choice) {
-	switch (choice) {
-		case FinalAdder::DEFAULT:
-		case FinalAdder::RIPPLE: {
-			return module->addAdd(NEW_ID, a, b, y, false);
+	بدل (choice) {
+		حالة FinalAdder::DEFAULT:
+		حالة FinalAdder::RIPPLE: {
+			أرجع module->جمع_کن_جمع_کن(NEW_ID, a, b, y, خطأ);
 		}
-		case FinalAdder::PARALLEL_PREFIX: {
+		حالة FinalAdder::PARALLEL_پیشوند: {
 			emit_kogge_stone(module, a, b, y);
-			return nullptr;
+			أرجع اشاره_تهی;
 		}
 	}
-	log_assert(false && "CompressorTree::emit_final_adder: invalid choice");
-	return nullptr;
+	log_assert(خطأ && "CompressorTree::emit_final_adder: invalid choice");
+	أرجع اشاره_تهی;
 }
 
-FinalAdder pick_final_adder(int width, int final_depth, FinalMode mode) {
-	switch (mode) {
-		case FinalMode::RIPPLE:  return FinalAdder::RIPPLE;
-		case FinalMode::PREFIX:  return FinalAdder::PARALLEL_PREFIX;
-		case FinalMode::AUTO:
-		default: {
-			bool wide = width >= RIPPLE_PREFIX_WIDTH_THRESHOLD;
-			bool deep = final_depth >= RIPPLE_PREFIX_DEPTH_THRESHOLD;
-			return (wide && deep) ? FinalAdder::PARALLEL_PREFIX : FinalAdder::DEFAULT;
+FinalAdder pick_final_adder(صحيح عرض, صحيح final_عمق, Final_نما نما) {
+	بدل (نما) {
+		حالة Final_نما::RIPPLE:  أرجع FinalAdder::RIPPLE;
+		حالة Final_نما::پیشوند:  أرجع FinalAdder::PARALLEL_پیشوند;
+		حالة Final_نما::AUTO:
+		افتراضي: {
+			منطقي wide = عرض >= RIPPLE_پیشوند_عرض_آستانه;
+			منطقي deep = final_عمق >= RIPPLE_پیشوند_عمق_آستانه;
+			أرجع (wide && deep) ? FinalAdder::PARALLEL_پیشوند : FinalAdder::DEFAULT;
 		}
 	}
 }
 
 } // namespace CompressorTree
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتها

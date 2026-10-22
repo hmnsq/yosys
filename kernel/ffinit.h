@@ -17,207 +17,207 @@
  *
  */
 
-#ifndef FFINIT_H
-#define FFINIT_H
+#اگر_تعریف_نشده FFINIT_H
+#تعریف_کن FFINIT_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/threading.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/sigtools.h"
+#ضمن "kernel/threading.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct FfInitVals
+بنية FfInitVals
 {
-	const SigMapView *sigmap;
-	dict<SigBit, std::pair<State,SigBit>> initbits;
+	ثابت SigMapView *sigmap;
+	dict<Sig_بیت, std::pair<State,Sig_بیت>> initbits;
 
-	void set(const SigMapView *sigmap_, RTLIL::Module *module)
+	فراغ مجموعه(ثابت SigMapView *sigmap_, RTLIL::Module *module)
 	{
 		sigmap = sigmap_;
 		initbits.clear();
-		for (auto wire : module->wires())
-			if (wire->attributes.count(ID::init))
+		لكل (خودکار wire : module->wires())
+			إذا (wire->صفات.شمار(ID::init))
 				process_wire(wire);
 	}
 
-	void process_wire(RTLIL::Wire *wire)
+	فراغ process_wire(RTLIL::Wire *wire)
 	{
 		SigSpec wirebits = (*sigmap)(wire);
-		Const initval = wire->attributes.at(ID::init);
+		Const initval = wire->صفات.at(ID::init);
 
-		for (int i = 0; i < GetSize(wirebits) && i < GetSize(initval); i++)
+		لكل (صحيح i = 0; i < Get_اندازه(wirebits) && i < Get_اندازه(initval); i++)
 		{
-			SigBit bit = wirebits[i];
+			Sig_بیت بیت = wirebits[i];
 			State val = initval[i];
 
-			if (val != State::S0 && val != State::S1 && bit.wire != nullptr)
-				continue;
+			إذا (val != State::S0 && val != State::S1 && بیت.wire != nullptr)
+				استمر;
 
-			if (initbits.count(bit)) {
-				if (initbits.at(bit).first != val)
+			إذا (initbits.شمار(بیت)) {
+				إذا (initbits.at(بیت).اولی != val)
 					log_error("Conflicting init values for signal %s (%s = %s != %s).\n",
-							log_signal(bit), log_signal(SigBit(wire, i)),
-							log_signal(val), log_signal(initbits.at(bit).first));
-				continue;
+							log_signal(بیت), log_signal(Sig_بیت(wire, i)),
+							log_signal(val), log_signal(initbits.at(بیت).اولی));
+				استمر;
 			}
 
-			initbits[bit] = std::make_pair(val,SigBit(wire,i));
+			initbits[بیت] = std::make_pair(val,Sig_بیت(wire,i));
 		}
 	}
 
-	void set_parallel(const SigMapView *sigmap_, ParallelDispatchThreadPool &thread_pool, RTLIL::Module *module)
+	فراغ مجموعه_parallel(ثابت SigMapView *sigmap_, ParallelDispatchThreadPool &thread_pool, RTLIL::Module *module)
 	{
 		sigmap = sigmap_;
 		initbits.clear();
 
-		const RTLIL::Module *const_module = module;
-		ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_size(0, module->wires_size(), 1000));
-		ShardedVector<RTLIL::Wire*> init_wires(subpool);
-		subpool.run([const_module, &init_wires](const ParallelDispatchThreadPool::RunCtx &ctx) {
-			for (int i : ctx.item_range(const_module->wires_size())) {
+		ثابت RTLIL::Module *const_module = module;
+		ParallelDispatchThreadPool::Subpool subpool(thread_pool, ThreadPool::work_pool_اندازه(0, module->wires_اندازه(), 1000));
+		Sharded_وکتور<RTLIL::Wire*> init_wires(subpool);
+		subpool.پیاپی([const_module, &init_wires](ثابت ParallelDispatchThreadPool::پیاپی_Ctx &ctx) {
+			لكل (صحيح i : ctx.قلم_range(const_module->wires_اندازه())) {
 				RTLIL::Wire *wire = const_module->wire_at(i);
-				if (wire->attributes.count(ID::init))
-					init_wires.insert(ctx, wire);
+				إذا (wire->صفات.شمار(ID::init))
+					init_wires.درج(ctx, wire);
 			}
 		});
 
-		for (RTLIL::Wire *wire : init_wires)
+		لكل (RTLIL::Wire *wire : init_wires)
 			process_wire(wire);
 	}
 
-	RTLIL::State operator()(RTLIL::SigBit bit) const
+	RTLIL::State عملگر()(RTLIL::Sig_بیت بیت) ثابت
 	{
-		auto it = initbits.find((*sigmap)(bit));
-		if (it != initbits.end())
-			return it->second.first;
-		else
-			return State::Sx;
+		خودکار it = initbits.پیدا_کن((*sigmap)(بیت));
+		إذا (it != initbits.انتها())
+			أرجع it->دومی.اولی;
+		وإلا
+			أرجع State::Sx;
 	}
 
-	RTLIL::Const operator()(const RTLIL::SigSpec &sig) const
+	RTLIL::Const عملگر()(ثابت RTLIL::SigSpec &sig) ثابت
 	{
-		RTLIL::Const::Builder res_bits(GetSize(sig));
-		for (auto bit : sig)
-			res_bits.push_back((*this)(bit));
-		return res_bits.build();
+		RTLIL::Const::Builder res_بیتها(Get_اندازه(sig));
+		لكل (خودکار بیت : sig)
+			res_بیتها.افزودن_پشت((*this)(بیت));
+		أرجع res_بیتها.build();
 	}
 
-	void set_init(RTLIL::SigBit bit, RTLIL::State val)
+	فراغ مجموعه_init(RTLIL::Sig_بیت بیت, RTLIL::State val)
 	{
-		SigBit mbit = (*sigmap)(bit);
-		SigBit abit = bit;
-		auto it = initbits.find(mbit);
-		if (it != initbits.end())
-			abit = it->second.second;
-		else if (val == State::Sx)
-			return;
+		Sig_بیت mbit = (*sigmap)(بیت);
+		Sig_بیت abit = بیت;
+		خودکار it = initbits.پیدا_کن(mbit);
+		إذا (it != initbits.انتها())
+			abit = it->دومی.دومی;
+		وإلا إذا (val == State::Sx)
+			أرجع;
 		log_assert(abit.wire);
 		initbits[mbit] = std::make_pair(val,abit);
-		auto it2 = abit.wire->attributes.find(ID::init);
-		if (it2 != abit.wire->attributes.end()) {
-			it2->second.set(abit.offset, val);
-			if (it2->second.is_fully_undef())
-				abit.wire->attributes.erase(it2);
-		} else if (val != State::Sx) {
-			Const cval(State::Sx, GetSize(abit.wire));
-			cval.set(abit.offset, val);
-			abit.wire->attributes[ID::init] = cval;
+		خودکار it2 = abit.wire->صفات.پیدا_کن(ID::init);
+		إذا (it2 != abit.wire->صفات.انتها()) {
+			it2->دومی.مجموعه(abit.جابه_جایی, val);
+			إذا (it2->دومی.is_fully_undef())
+				abit.wire->صفات.erase(it2);
+		} وإلا إذا (val != State::Sx) {
+			Const cval(State::Sx, Get_اندازه(abit.wire));
+			cval.مجموعه(abit.جابه_جایی, val);
+			abit.wire->صفات[ID::init] = cval;
 		}
 	}
 
-	void set_init(const RTLIL::SigSpec &sig, RTLIL::Const val)
+	فراغ مجموعه_init(ثابت RTLIL::SigSpec &sig, RTLIL::Const val)
 	{
-		log_assert(GetSize(sig) == GetSize(val));
-		for (int i = 0; i < GetSize(sig); i++)
-			set_init(sig[i], val[i]);
+		log_assert(Get_اندازه(sig) == Get_اندازه(val));
+		لكل (صحيح i = 0; i < Get_اندازه(sig); i++)
+			مجموعه_init(sig[i], val[i]);
 	}
 
-	void remove_init(RTLIL::SigBit bit)
+	فراغ remove_init(RTLIL::Sig_بیت بیت)
 	{
-		set_init(bit, State::Sx);
+		مجموعه_init(بیت, State::Sx);
 	}
 
-	void remove_init(const RTLIL::SigSpec &sig)
+	فراغ remove_init(ثابت RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sig)
-			remove_init(bit);
+		لكل (خودکار بیت : sig)
+			remove_init(بیت);
 	}
 
 	// Move $barrier output init value to it's input
-	void move_barrier_inits(RTLIL::Module *module)
+	فراغ move_barrier_inits(RTLIL::Module *module)
 	{
-		dict<RTLIL::SigBit, RTLIL::SigBit> next;
-		for (auto cell : module->cells()) {
-			if (cell->type != ID($barrier))
-				continue;
-			RTLIL::SigSpec sig_y = (*sigmap)(cell->getPort(ID::Y)), sig_a = cell->getPort(ID::A);
-			for (int i = 0; i < GetSize(sig_y); i++)
-				next[sig_y[i]] = sig_a[i];
+		dict<RTLIL::Sig_بیت, RTLIL::Sig_بیت> بعدی;
+		لكل (خودکار cell : module->cells()) {
+			إذا (cell->type != ID($barrier))
+				استمر;
+			RTLIL::SigSpec sig_y = (*sigmap)(cell->get_پورت(ID::Y)), sig_a = cell->get_پورت(ID::A);
+			لكل (صحيح i = 0; i < Get_اندازه(sig_y); i++)
+				بعدی[sig_y[i]] = sig_a[i];
 		}
-		if (next.empty() || initbits.empty())
-			return;
-		pool<RTLIL::SigBit> inputs = input_nets(module), moved;
-		for (auto [from, to] : next) {
+		إذا (بعدی.خالی() || initbits.خالی())
+			أرجع;
+		pool<RTLIL::Sig_بیت> inputs = درون_داد_nets(module), moved;
+		لكل (خودکار [from, مقصد] : بعدی) {
 			RTLIL::State val = (*this)(from);
-			if (val == State::Sx)
-				continue;
-			moved.insert(from);
-			for (int i = 0; i < GetSize(next) && next.count((*sigmap)(to)); i++)
-				to = next.at((*sigmap)(to));
-			RTLIL::SigBit to_net = (*sigmap)(to);
-			if (to_net.wire == nullptr || inputs.count(to_net))
-				continue;
-			RTLIL::State to_val = (*this)(to);
-			if (to_val == State::Sx)
-				set_init(to, val);
-			else if (to_val != val)
+			إذا (val == State::Sx)
+				استمر;
+			moved.درج(from);
+			لكل (صحيح i = 0; i < Get_اندازه(بعدی) && بعدی.شمار((*sigmap)(مقصد)); i++)
+				مقصد = بعدی.at((*sigmap)(مقصد));
+			RTLIL::Sig_بیت مقصد_net = (*sigmap)(مقصد);
+			إذا (مقصد_net.wire == nullptr || inputs.شمار(مقصد_net))
+				استمر;
+			RTLIL::State مقصد_val = (*this)(مقصد);
+			إذا (مقصد_val == State::Sx)
+				مجموعه_init(مقصد, val);
+			وإلا إذا (مقصد_val != val)
 				log_error("Conflicting init values for signal %s (%s = %s != %s).\n",
-						log_signal(to), log_signal(from), log_signal(val), log_signal(to_val));
+						log_signal(مقصد), log_signal(from), log_signal(val), log_signal(مقصد_val));
 		}
-		if (!moved.empty())
+		إذا (!moved.خالی())
 			remove_net_inits(module, moved);
 	}
 
-	pool<RTLIL::SigBit> input_nets(RTLIL::Module *module) const
+	pool<RTLIL::Sig_بیت> درون_داد_nets(RTLIL::Module *module) ثابت
 	{
-		pool<RTLIL::SigBit> nets;
-		for (auto wire : module->wires())
-			if (wire->port_input)
-				for (auto bit : (*sigmap)(wire))
-					nets.insert(bit);
-		return nets;
+		pool<RTLIL::Sig_بیت> nets;
+		لكل (خودکار wire : module->wires())
+			إذا (wire->پورت_درون_داد)
+				لكل (خودکار بیت : (*sigmap)(wire))
+					nets.درج(بیت);
+		أرجع nets;
 	}
 
-	void remove_net_inits(RTLIL::Module *module, const pool<RTLIL::SigBit> &nets)
+	فراغ remove_net_inits(RTLIL::Module *module, ثابت pool<RTLIL::Sig_بیت> &nets)
 	{
-		for (auto bit : nets)
-			initbits.erase(bit);
-		for (auto wire : module->wires()) {
-			auto it = wire->attributes.find(ID::init);
-			if (it == wire->attributes.end())
-				continue;
-			for (int i = 0; i < GetSize(wire) && i < GetSize(it->second); i++)
-				if (nets.count((*sigmap)(RTLIL::SigBit(wire, i))))
-					it->second.set(i, State::Sx);
-			if (it->second.is_fully_undef())
-				wire->attributes.erase(it);
+		لكل (خودکار بیت : nets)
+			initbits.erase(بیت);
+		لكل (خودکار wire : module->wires()) {
+			خودکار it = wire->صفات.پیدا_کن(ID::init);
+			إذا (it == wire->صفات.انتها())
+				استمر;
+			لكل (صحيح i = 0; i < Get_اندازه(wire) && i < Get_اندازه(it->دومی); i++)
+				إذا (nets.شمار((*sigmap)(RTLIL::Sig_بیت(wire, i))))
+					it->دومی.مجموعه(i, State::Sx);
+			إذا (it->دومی.is_fully_undef())
+				wire->صفات.erase(it);
 		}
 	}
 
-	void clear()
+	فراغ clear()
 	{
 		initbits.clear();
 	}
 
-	FfInitVals (const SigMapView *sigmap, RTLIL::Module *module)
+	FfInitVals (ثابت SigMapView *sigmap, RTLIL::Module *module)
 	{
-		set(sigmap, module);
+		مجموعه(sigmap, module);
 	}
 
 	FfInitVals () {}
 };
 
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتها
 
-#endif
+#پایان_اگر

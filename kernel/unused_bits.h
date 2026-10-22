@@ -1,54 +1,54 @@
-#ifndef UNUSED_BITS_H
-#define UNUSED_BITS_H
+#اگر_تعریف_نشده استفادهنشده_بیتها_H
+#تعریف_کن استفادهنشده_بیتها_H
 
-#include "kernel/yosys.h"
-#include "kernel/sigtools.h"
-#include "kernel/newcelltypes.h"
+#ضمن "kernel/yosys.h"
+#ضمن "kernel/sigtools.h"
+#ضمن "kernel/newcelltypes.h"
 
 YOSYS_NAMESPACE_BEGIN
 
-struct UnusedBits
+بنية استفادهنشده_بیتها
 {
 	SigMap sigmap;
-	pool<RTLIL::SigBit> used;
+	pool<RTLIL::Sig_بیت> استفاده_شده;
 
-	UnusedBits(RTLIL::Module *module) : sigmap(module)
+	استفادهنشده_بیتها(RTLIL::Module *module) : sigmap(module)
 	{
 		NewCellTypes ct(module->design);
-		collect_used(module, ct);
+		collect_استفاده_شده(module, ct);
 	}
 
-	UnusedBits(RTLIL::Module *module, const NewCellTypes &ct) : sigmap(module)
+	استفادهنشده_بیتها(RTLIL::Module *module, ثابت NewCellTypes &ct) : sigmap(module)
 	{
-		collect_used(module, ct);
+		collect_استفاده_شده(module, ct);
 	}
 
-	void collect_used(RTLIL::Module *module, const NewCellTypes &ct)
+	فراغ collect_استفاده_شده(RTLIL::Module *module, ثابت NewCellTypes &ct)
 	{
-		for (auto cell : module->cells())
-			for (auto &conn : cell->connections())
-				if (!ct.cell_output(cell->type, conn.first))
-					add_used(conn.second);
+		لكل (خودکار cell : module->cells())
+			لكل (خودکار &conn : cell->connections())
+				إذا (!ct.cell_output(cell->type, conn.اولی))
+					جمع_کن_استفاده_شده(conn.دومی);
 
-		for (auto wire : module->wires())
-			if (wire->port_output)
-				add_used(wire);
+		لكل (خودکار wire : module->wires())
+			إذا (wire->پورت_output)
+				جمع_کن_استفاده_شده(wire);
 	}
 
-	void add_used(const RTLIL::SigSpec &sig)
+	فراغ جمع_کن_استفاده_شده(ثابت RTLIL::SigSpec &sig)
 	{
-		for (auto bit : sigmap(sig))
-			if (bit.wire != nullptr)
-				used.insert(bit);
+		لكل (خودکار بیت : sigmap(sig))
+			إذا (بیت.wire != nullptr)
+				استفاده_شده.درج(بیت);
 	}
 
-	bool check(RTLIL::SigBit bit) const
+	bool check(RTLIL::Sig_بیت بیت) ثابت
 	{
-		RTLIL::SigBit mapped = sigmap(bit);
-		return mapped.wire != nullptr && !used.count(mapped);
+		RTLIL::Sig_بیت mapped = sigmap(بیت);
+		أرجع mapped.wire != nullptr && !استفاده_شده.شمار(mapped);
 	}
 };
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتها
 
-#endif
+#پایان_اگر

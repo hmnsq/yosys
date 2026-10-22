@@ -1,9 +1,9 @@
-#ifndef OPT_DFF_COMP_H
-#define OPT_DFF_COMP_H
+#اگر_تعریف_نشده OPT_DFF_COMP_H
+#تعریف_کن OPT_DFF_COMP_H
 
-#include "kernel/rtlil.h"
-#include <map>
-#include <optional>
+#ضمن "kernel/rtlil.h"
+#ضمن <map>
+#ضمن <optional>
 
 YOSYS_NAMESPACE_BEGIN
 
@@ -21,82 +21,82 @@ YOSYS_NAMESPACE_BEGIN
 
 // Pattern matching for clock enable
 // A pattern maps control signals to their required values for a MUX path
-typedef std::map<RTLIL::SigBit, bool> pattern_t; // Set of control signals that must ALL match required vals
-typedef std::set<pattern_t> patterns_t;          // Alternative patterns (OR)
-typedef std::pair<RTLIL::SigBit, bool> ctrl_t;   // Control signal
-typedef std::set<ctrl_t> ctrls_t;                // Set of control signals that must ALL be active
+تعريفنوع std::map<RTLIL::Sig_بیت, bool> الگو_t; // Set of control signals that must ALL match required vals
+تعريفنوع std::مجموعه<الگو_t> patterns_t;          // Alternative patterns (OR)
+تعريفنوع std::pair<RTLIL::Sig_بیت, bool> ctrl_t;   // Control signal
+تعريفنوع std::مجموعه<ctrl_t> ctrls_t;                // Set of control signals that must ALL be active
 
 /**
  * Find if two patterns differ in exactly one variable.
  * Example: {A=1,B=1} vs {A=1,B=0} returns B, allows simplification: (A&B) | (A&!B) => A
  */
-inline std::optional<RTLIL::SigBit> find_complementary_pattern_var(
-	const pattern_t& left,
-	const pattern_t& right
+مضمن std::optional<RTLIL::Sig_بیت> پیدا_کن_complementary_الگو_var(
+	ثابت الگو_t& چپ_3,
+	ثابت الگو_t& راست_3
 ) {
-	std::optional<RTLIL::SigBit> ret;
-	for (const auto &pt : left) {
+	std::optional<RTLIL::Sig_بیت> ret;
+	لكل (ثابت خودکار &pt : چپ_3) {
 		// Left requires signal that right doesn't constrain - incompatible domains
-		if (right.count(pt.first) == 0)
-			return std::nullopt;
+		إذا (راست_3.شمار(pt.اولی) == 0)
+			أرجع std::nullopt;
 		// Signal has same required value in both - not the complement variable
-		if (right.at(pt.first) == pt.second)
-			continue;
+		إذا (راست_3.at(pt.اولی) == pt.دومی)
+			استمر;
 		// Already found one differing signal, now found another - not simplifiable
-		if (ret)
-			return std::nullopt;
+		إذا (ret)
+			أرجع std::nullopt;
 		// First differing signal - candidate complement variable
-		ret = pt.first;
+		ret = pt.اولی;
 	}
-	return ret;
+	أرجع ret;
 }
 
 /**
  * Simplify a sum-of-products by merging complementary patterns: (A&B) | (A&!B) => A,
  * and removing redundant patterns: A | (A&B) => A
  */
-inline void simplify_patterns(patterns_t& patterns) {
-	auto new_patterns = patterns;
+مضمن فراغ simplify_patterns(patterns_t& patterns) {
+	خودکار new_patterns = patterns;
 
 	// Merge complementary patterns
 	bool optimized;
-	do {
+	افعل {
 		optimized = false;
-		for (auto i = patterns.begin(); i != patterns.end(); i++) {
-			for (auto j = std::next(i, 1); j != patterns.end(); j++) {
-				const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
-				auto right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
-				const auto complementary_var = find_complementary_pattern_var(left, right);
+		لكل (خودکار i = patterns.begin(); i != patterns.انتها(); i++) {
+			لكل (خودکار j = std::بعدی(i, 1); j != patterns.انتها(); j++) {
+				ثابت خودکار& چپ_3 = (Get_اندازه(*j) <= Get_اندازه(*i)) ? *j : *i;
+				خودکار راست_3 = (Get_اندازه(*i) < Get_اندازه(*j)) ? *j : *i;
+				ثابت خودکار complementary_var = پیدا_کن_complementary_الگو_var(چپ_3, راست_3);
 
-				if (complementary_var && new_patterns.count(right)) {
-					new_patterns.erase(right);
-					right.erase(complementary_var.value());
-					new_patterns.insert(right);
+				إذا (complementary_var && new_patterns.شمار(راست_3)) {
+					new_patterns.erase(راست_3);
+					راست_3.erase(complementary_var.مقدار());
+					new_patterns.درج(راست_3);
 					optimized = true;
 				}
 			}
 		}
 		patterns = new_patterns;
-	} while(optimized);
+	} طالما(optimized);
 
 	// Remove redundant patterns
-	for (auto i = patterns.begin(); i != patterns.end(); ++i) {
-		for (auto j = std::next(i, 1); j != patterns.end(); ++j) {
-			const auto& left = (GetSize(*j) <= GetSize(*i)) ? *j : *i;
-			const auto& right = (GetSize(*i) < GetSize(*j)) ? *j : *i;
+	لكل (خودکار i = patterns.begin(); i != patterns.انتها(); ++i) {
+		لكل (خودکار j = std::بعدی(i, 1); j != patterns.انتها(); ++j) {
+			ثابت خودکار& چپ_3 = (Get_اندازه(*j) <= Get_اندازه(*i)) ? *j : *i;
+			ثابت خودکار& راست_3 = (Get_اندازه(*i) < Get_اندازه(*j)) ? *j : *i;
 			bool redundant = true;
 
-			for (const auto& pt : left)
-				if (right.count(pt.first) == 0 || right.at(pt.first) != pt.second)
+			لكل (ثابت خودکار& pt : چپ_3)
+				إذا (راست_3.شمار(pt.اولی) == 0 || راست_3.at(pt.اولی) != pt.دومی)
 					redundant = false;
-			if (redundant)
-				new_patterns.erase(right);
+			إذا (redundant)
+				new_patterns.erase(راست_3);
 		}
 	}
 
 	patterns = std::move(new_patterns);
 }
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتها
 
-#endif
+#پایان_اگر

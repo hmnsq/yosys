@@ -17,32 +17,32 @@
  *
  */
 
-#ifndef LOG_H
-#define LOG_H
+#اگر_تعریف_نشده LOG_H
+#تعریف_کن LOG_H
 
-#include "kernel/yosys_common.h"
+#ضمن "kernel/yosys_common.h"
 
-#include <chrono>
-#include <time.h>
+#ضمن <chrono>
+#ضمن <time.h>
 
-#include <regex>
-#define YS_REGEX_COMPILE(param) std::regex(param, \
+#ضمن <regex>
+#تعریف_کن YS_REGEX_COMPILE(param) std::regex(param, \
 				std::regex_constants::nosubs | \
 				std::regex_constants::optimize | \
 				std::regex_constants::egrep)
-#define YS_REGEX_COMPILE_WITH_SUBS(param) std::regex(param, \
+#تعریف_کن YS_REGEX_COMPILE_WITH_SUBS(param) std::regex(param, \
 				std::regex_constants::optimize | \
 				std::regex_constants::egrep)
 
-#if defined(_WIN32)
+#إذا defined(_WIN32)
 #  include <intrin.h>
-#else
+#وإلا
 #  include <sys/time.h>
 #  include <sys/resource.h>
-#  if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+#  إذا defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 #    include <signal.h>
 #  endif
-#endif
+#پایان_اگر
 
 // from libs/sha1/sha1.h
 class SHA1;
@@ -53,202 +53,202 @@ YOSYS_NAMESPACE_BEGIN
 // if the platform provides such functionality, and does nothing otherwise.
 // If no debugger is attached, it starts a just-in-time debugger if available,
 // and crashes the process otherwise.
-#if defined(_WIN32)
+#إذا defined(_WIN32)
 # define YS_DEBUGTRAP __debugbreak()
-#else
+#وإلا
 # ifndef __has_builtin
 // __has_builtin is a GCC/Clang extension; on a different compiler (or old enough GCC/Clang)
 // that does not have it, using __has_builtin(...) is a syntax error.
 #  define __has_builtin(x) 0
 # endif
-# if __has_builtin(__builtin_debugtrap)
+# إذا __has_builtin(__builtin_debugtrap)
 #  define YS_DEBUGTRAP __builtin_debugtrap()
 # elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
-#  define YS_DEBUGTRAP raise(SIGTRAP)
-# else
-#  define YS_DEBUGTRAP do {} while(0)
+#  define YS_DEBUGTRAP ارفع(SIGTRAP)
+# وإلا
+#  define YS_DEBUGTRAP افعل {} طالما(0)
 # endif
-#endif
+#پایان_اگر
 
 // YS_DEBUGTRAP_IF_DEBUGGING is a macro that is functionally equivalent to a breakpoint
 // if a debugger is attached, and does nothing otherwise.
-#if defined(_WIN32)
-# define YS_DEBUGTRAP_IF_DEBUGGING do { if (IsDebuggerPresent()) DebugBreak(); } while(0)
+#إذا defined(_WIN32)
+# define YS_DEBUGTRAP_IF_DEBUGGING افعل { إذا (IsDebuggerPresent()) DebugBreak(); } طالما(0)
 # elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 // There is no reliable (or portable) *nix equivalent of IsDebuggerPresent(). However,
 // debuggers will stop when SIGTRAP is raised, even if the action is set to ignore.
-# define YS_DEBUGTRAP_IF_DEBUGGING do { \
-		auto old = signal(SIGTRAP, SIG_IGN); raise(SIGTRAP); signal(SIGTRAP, old); \
-	} while(0)
-#else
-# define YS_DEBUGTRAP_IF_DEBUGGING do {} while(0)
-#endif
+# define YS_DEBUGTRAP_IF_DEBUGGING افعل { \
+		خودکار old = إشارة(SIGTRAP, SIG_IGN); ارفع(SIGTRAP); إشارة(SIGTRAP, old); \
+	} طالما(0)
+#وإلا
+# define YS_DEBUGTRAP_IF_DEBUGGING افعل {} طالما(0)
+#پایان_اگر
 
-struct log_cmd_error_exception { };
+بنية log_cmd_error_exception { };
 
-enum class LogSeverity {
+تعداد class LogSeverity {
 	Debug,
 	Comment,
 	Info,
 	Highlight,
-	Header,
+	سرآیند,
 	Warning,
 	NonFatalError,
 	Error
 };
 
-struct LogSourceLocation {
-	LogSourceLocation() : filename({}),start_line(-1),start_col(-1),end_line(-1),end_col(-1) { }
-	LogSourceLocation(std::string filename) : filename(filename),start_line(-1),start_col(-1),end_line(-1),end_col(-1) { }
-	LogSourceLocation(std::string filename,int start_line) : filename(filename),start_line(start_line),start_col(-1),end_line(-1),end_col(-1) { }
-	LogSourceLocation(std::string filename,int start_line,int start_col,int end_line,int end_col) :
-		filename(filename),start_line(start_line),start_col(start_col),end_line(end_line),end_col(end_col) { }
+بنية Log_منبع_Location {
+	Log_منبع_Location() : filename({}),شروع_سطر(-1),شروع_ستون(-1),انتها_سطر(-1),انتها_ستون(-1) { }
+	Log_منبع_Location(std::string filename) : filename(filename),شروع_سطر(-1),شروع_ستون(-1),انتها_سطر(-1),انتها_ستون(-1) { }
+	Log_منبع_Location(std::string filename,صحيح شروع_سطر) : filename(filename),شروع_سطر(شروع_سطر),شروع_ستون(-1),انتها_سطر(-1),انتها_ستون(-1) { }
+	Log_منبع_Location(std::string filename,صحيح شروع_سطر,صحيح شروع_ستون,صحيح انتها_سطر,صحيح انتها_ستون) :
+		filename(filename),شروع_سطر(شروع_سطر),شروع_ستون(شروع_ستون),انتها_سطر(انتها_سطر),انتها_ستون(انتها_ستون) { }
 	std::string filename;
-	int start_line;
-	int start_col;
-	int end_line;
-	int end_col;
+	صحيح شروع_سطر;
+	صحيح شروع_ستون;
+	صحيح انتها_سطر;
+	صحيح انتها_ستون;
 };
 
-struct LogMessage {
-	LogMessage(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string_view message);
+بنية Log_پیام {
+	Log_پیام(LogSeverity severity, Log_منبع_Location src, std::string_view پیشوند_2, std::string_view format, std::string_view پیام_2);
 	LogSeverity severity;
-	std::string prefix;
+	std::string پیشوند_2;
 	std::string format;
-	std::string message;
-	std::chrono::steady_clock::time_point timestamp;
-	LogSourceLocation src;
+	std::string پیام_2;
+	std::chrono::steady_clock::زمان_نقطه timestamp;
+	Log_منبع_Location src;
 
-	std::string cached_msg;
+	std::string cached_پیام;
 };
 
 class LogSink
 {
-public:
-	virtual ~LogSink() = default;
+عام:
+	مجازی ~LogSink() = افتراضي;
 
-	virtual bool should_log(const LogMessage &) const { return true; }
-	virtual void log(const LogMessage &msg) = 0;
-	virtual void flush() {}
+	مجازی bool should_log(ثابت Log_پیام &) ثابت { أرجع true; }
+	مجازی فراغ لگاریتم(ثابت Log_پیام &پیام) = 0;
+	مجازی فراغ flush() {}
 	// TODO: Remove when AST/read_verilog removed
-	virtual FILE *file_handle() { return nullptr; }
+	مجازی FILE *file_handle() { أرجع nullptr; }
 };
 
-class LogSinkRef : public LogSink
+class LogSinkRef : عام LogSink
 {
-public:
+عام:
 	explicit LogSinkRef(LogSink *sink) : sink(sink) {}
-	bool should_log(const LogMessage &msg) const override { return sink->should_log(msg); }
-	void log(const LogMessage &msg) override { sink->log(msg); }
-	void flush() override { sink->flush(); }
-	FILE *file_handle() override { return sink->file_handle(); }
-private:
+	bool should_log(ثابت Log_پیام &پیام) ثابت override { أرجع sink->should_log(پیام); }
+	فراغ لگاریتم(ثابت Log_پیام &پیام) override { sink->لگاریتم(پیام); }
+	فراغ flush() override { sink->flush(); }
+	FILE *file_handle() override { أرجع sink->file_handle(); }
+خاص:
 	LogSink *sink;
 };
 
-class FileLogSink : public LogSink
+class FileLogSink : عام LogSink
 {
-public:
-	explicit FileLogSink(const std::string &filename, bool line_buffered, bool append);
+عام:
+	explicit FileLogSink(ثابت std::string &filename, bool سطر_buffered, bool append);
 	~FileLogSink() override;
-	void log(const LogMessage &msg) override;
-	void flush() override;
-	FILE *file_handle() override { return file; }
+	فراغ لگاریتم(ثابت Log_پیام &پیام) override;
+	فراغ flush() override;
+	FILE *file_handle() override { أرجع file; }
 
-private:
+خاص:
 	FILE *file;
 };
 
-class ConsoleLogSink : public LogSink
+class ConsoleLogSink : عام LogSink
 {
-public:
-	void log(const LogMessage &msg) override;
-	void flush() override;
-	FILE *file_handle() override { return stdout; }
+عام:
+	فراغ لگاریتم(ثابت Log_پیام &پیام) override;
+	فراغ flush() override;
+	FILE *file_handle() override { أرجع stdout; }
 };
 
-class StderrLogSink : public LogSink
+class StderrLogSink : عام LogSink
 {
-public:
+عام:
 	explicit StderrLogSink(bool quiet) : quiet_warnings(quiet) {}
-	bool should_log(const LogMessage &msg) const override;
-	void log(const LogMessage &msg) override;
-	void flush() override;
-private:
+	bool should_log(ثابت Log_پیام &پیام) ثابت override;
+	فراغ لگاریتم(ثابت Log_پیام &پیام) override;
+	فراغ flush() override;
+خاص:
 	bool quiet_warnings;
 };
 
-class StreamLogSink : public LogSink
+class جریان_Log_Sink : عام LogSink
 {
-public:
-	explicit StreamLogSink(std::ostream &stream) : stream(stream) {}
-	void log(const LogMessage &msg) override { stream << msg.cached_msg; }
-	void flush() override { stream.flush(); }
+عام:
+	explicit جریان_Log_Sink(std::ostream &جریان) : جریان(جریان) {}
+	فراغ لگاریتم(ثابت Log_پیام &پیام) override { جریان << پیام.cached_پیام; }
+	فراغ flush() override { جریان.flush(); }
 
-private:
-	std::ostream &stream;
+خاص:
+	std::ostream &جریان;
 };
 
-class ScratchPadLogSink : public LogSink
+class ScratchPadLogSink : عام LogSink
 {
-public:
+عام:
 	explicit ScratchPadLogSink(std::string scratchpad);
-	void log(const LogMessage &msg) override;
+	فراغ لگاریتم(ثابت Log_پیام &پیام) override;
 
-private:
+خاص:
 	std::string scratchpad;
 };
 
 class LogManager
 {
-private:
-	struct LogExpectedItem
+خاص:
+	بنية Log_Expected_قلم
 	{
-		LogExpectedItem(const std::regex &pat, int expected) :
-				pattern(pat), expected_count(expected), current_count(0) {}
-		LogExpectedItem() : expected_count(0), current_count(0) {}
+		Log_Expected_قلم(ثابت std::regex &pat, صحيح expected) :
+				الگو(pat), expected_شمار(expected), current_شمار(0) {}
+		Log_Expected_قلم() : expected_شمار(0), current_شمار(0) {}
 
-		std::regex pattern;
-		int expected_count;
-		int current_count;
+		std::regex الگو;
+		صحيح expected_شمار;
+		صحيح current_شمار;
 	};
 
-public:
-	LogManager() = default;
+عام:
+	LogManager() = افتراضي;
 
-	template<typename T, typename... Args>
-	T &add_sink(Args&&... args)
+	قالب<typename T, typename... آرگومانها_3>
+	T &جمع_کن_sink(آرگومانها_3&&... آرگومانها_2)
 	{
-		auto sink = std::make_unique<T>(std::forward<Args>(args)...);
+		خودکار sink = std::make_unique<T>(std::forward<آرگومانها_3>(آرگومانها_2)...);
 		T &ref = *sink;
-		sinks.push_back(std::move(sink));
-		return ref;
+		sinks.افزودن_پشت(std::move(sink));
+		أرجع ref;
 	}
 
-	template<typename F>
-	void for_each_sink(F &&func)
+	قالب<typename F>
+	فراغ for_each_sink(F &&func)
 	{
-		for (auto &sink : sinks)
+		لكل (خودکار &sink : sinks)
 			func(*sink);
 	}
 
-	bool empty() { return sinks.empty(); }
-	void clear() { sinks.clear(); }
-	void clear_original();
-	void flush() { for (auto &sink : sinks) sink->flush(); }
+	bool خالی() { أرجع sinks.خالی(); }
+	فراغ clear() { sinks.clear(); }
+	فراغ clear_original();
+	فراغ flush() { لكل (خودکار &sink : sinks) sink->flush(); }
 
 	class Scoped
 	{
-	public:
+	عام:
 		explicit Scoped(LogManager &manager) :
 			manager(manager),
 			backup_sinks(std::move(manager.sinks)),
 			backup_verbose_level(manager.verbose_level)
 		{
-			manager.sinks.reserve(backup_sinks.size());
+			manager.sinks.reserve(backup_sinks.اندازه());
 
-			for (const auto &sink : backup_sinks)
-				manager.sinks.push_back(std::make_unique<LogSinkRef>(sink.get()));
+			لكل (ثابت خودکار &sink : backup_sinks)
+				manager.sinks.افزودن_پشت(std::make_unique<LogSinkRef>(sink.get()));
 		}
 
 		~Scoped()
@@ -258,51 +258,51 @@ public:
 			manager.verbose_level = backup_verbose_level;
 		}
 
-		Scoped(const Scoped &) = delete;
-		Scoped &operator=(const Scoped &) = delete;
+		Scoped(ثابت Scoped &) = delete;
+		Scoped &عملگر=(ثابت Scoped &) = delete;
 
-	private:
+	خاص:
 		LogManager &manager;
-		std::vector<std::unique_ptr<LogSink>> backup_sinks;
-		int backup_verbose_level;
+		std::وکتور<std::unique_ptr<LogSink>> backup_sinks;
+		صحيح backup_verbose_level;
 	};
 
 	Scoped sink_scope()
 	{
-		return Scoped(*this);
+		أرجع Scoped(*this);
 	}
 
 	class ScopedCmdErrorThrow
 	{
-	public:
+	عام:
 		explicit ScopedCmdErrorThrow(LogManager &manager)
-			: manager(manager), previous(manager.cmd_error_throw)
+			: manager(manager), قبلی(manager.cmd_error_throw)
 		{
 			manager.cmd_error_throw = true;
 		}
 
 		~ScopedCmdErrorThrow()
 		{
-			manager.cmd_error_throw = previous;
+			manager.cmd_error_throw = قبلی;
 		}
 
-	private:
+	خاص:
 		LogManager &manager;
-		bool previous;
+		bool قبلی;
 	};
 
 	ScopedCmdErrorThrow error_throw_scope()
 	{
-		return ScopedCmdErrorThrow(*this);
+		أرجع ScopedCmdErrorThrow(*this);
 	}
 
 	class LogMakeDebugHdl
 	{
-	public:
-		explicit LogMakeDebugHdl(LogManager &manager, bool start_on = false)
+	عام:
+		explicit LogMakeDebugHdl(LogManager &manager, bool شروع_on = false)
 			: manager(manager)
 		{
-			if (start_on)
+			إذا (شروع_on)
 				on();
 		}
 
@@ -311,43 +311,43 @@ public:
 			off();
 		}
 
-		void on()
+		فراغ on()
 		{
-			if (status)
-				return;
-			status = true;
+			إذا (وضعیت)
+				أرجع;
+			وضعیت = true;
 			manager.make_debug++;
 		}
 
-		void off_silent()
+		فراغ off_silent()
 		{
-			if (!status)
-				return;
-			status = false;
+			إذا (!وضعیت)
+				أرجع;
+			وضعیت = false;
 			manager.make_debug--;
 		}
 
-		void off()
+		فراغ off()
 		{
 			off_silent();
 		}
-	private:
+	خاص:
 		LogManager &manager;
-		bool status = false;
+		bool وضعیت = false;
 	};
 
-	LogMakeDebugHdl make_debug_scope(bool start_on = false)
+	LogMakeDebugHdl make_debug_scope(bool شروع_on = false)
 	{
-		return LogMakeDebugHdl(*this, start_on);
+		أرجع LogMakeDebugHdl(*this, شروع_on);
 	}
 
 	class ForceDebug
 	{
-	public:
-		explicit ForceDebug(LogManager &manager, bool start_on = false)
+	عام:
+		explicit ForceDebug(LogManager &manager, bool شروع_on = false)
 			: manager(manager)
 		{
-			if (start_on)
+			إذا (شروع_on)
 				on();
 		}
 
@@ -356,247 +356,247 @@ public:
 			off();
 		}
 
-		void on()
+		فراغ on()
 		{
-			if (active)
-				return;
+			إذا (فعال)
+				أرجع;
 
-			active = true;
+			فعال = true;
 			manager.force_debug++;
 		}
 
-		void off()
+		فراغ off()
 		{
-			if (!active)
-				return;
+			إذا (!فعال)
+				أرجع;
 
-			active = false;
+			فعال = false;
 			manager.force_debug--;
 		}
-	private:
+	خاص:
 		LogManager &manager;
-		bool active = false;
+		bool فعال = false;
 	};
 
-	ForceDebug force_debug_scope(bool start_on = false)
+	ForceDebug force_debug_scope(bool شروع_on = false)
 	{
-		return ForceDebug(*this, start_on);
+		أرجع ForceDebug(*this, شروع_on);
 	}
 
-	void force_debug_on() { force_debug++; }
-	void force_debug_off() { if (force_debug > 0) force_debug--; }
-	void set_force_debug(bool enabled) { force_debug = enabled ? 1 : 0;	}
+	فراغ force_debug_on() { force_debug++; }
+	فراغ force_debug_off() { إذا (force_debug > 0) force_debug--; }
+	فراغ مجموعه_force_debug(bool enabled) { force_debug = enabled ? 1 : 0;	}
 
-	void report_unexpected_error();
+	فراغ report_unexpected_error();
 
-	void add_experimental_ignore(std::string name) { experimental_ignored.insert(name); }
-	void add_warn(std::string pattern) { warn_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_nowarn(std::string pattern) { nowarn_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_werror(std::string pattern) { werror_regexes.push_back(YS_REGEX_COMPILE(pattern)); }
-	void add_expect(std::string type, std::string pattern, int count);
+	فراغ جمع_کن_experimental_ignore(std::string name) { experimental_ignored.درج(name); }
+	فراغ جمع_کن_warn(std::string الگو) { warn_regexes.افزودن_پشت(YS_REGEX_COMPILE(الگو)); }
+	فراغ جمع_کن_nowarn(std::string الگو) { nowarn_regexes.افزودن_پشت(YS_REGEX_COMPILE(الگو)); }
+	فراغ جمع_کن_werror(std::string الگو) { werror_regexes.افزودن_پشت(YS_REGEX_COMPILE(الگو)); }
+	فراغ جمع_کن_expect(std::string type, std::string الگو, صحيح شمار);
 
-	void set_verbose_level(int level) { verbose_level = level; }
-	void add_verbose_level(int level) { verbose_level += level; }
-	void set_expect_no_warnings(bool value) { expect_no_warnings = value; }
-	void set_log_time(bool value) { log_time = value; }
-	void set_cmd_error_throw(bool value) { cmd_error_throw = value; }
-	void set_hdump_all(bool value) { hdump_all = value; }
-	int get_verbose_level() const { return verbose_level; }
-	bool get_log_time() const { return log_time; }
-	int get_warnings_unique() const { return GetSize(warnings); }
-	int get_warnings_total() const { return warnings_count; }
-	int get_errors_total() const { return errors_count; }
-	const std::set<std::string> &get_experimental() const { return experimental; }
-	const std::map<std::string, std::string> &get_deprecated() const { return deprecated; }
-	std::chrono::steady_clock::time_point get_initial_time() const;
+	فراغ مجموعه_verbose_level(صحيح level) { verbose_level = level; }
+	فراغ جمع_کن_verbose_level(صحيح level) { verbose_level += level; }
+	فراغ مجموعه_expect_no_warnings(bool مقدار) { expect_no_warnings = مقدار; }
+	فراغ مجموعه_log_زمان(bool مقدار) { log_زمان = مقدار; }
+	فراغ مجموعه_cmd_error_throw(bool مقدار) { cmd_error_throw = مقدار; }
+	فراغ مجموعه_hdump_all(bool مقدار) { hdump_all = مقدار; }
+	صحيح get_verbose_level() ثابت { أرجع verbose_level; }
+	bool get_log_زمان() ثابت { أرجع log_زمان; }
+	صحيح get_warnings_unique() ثابت { أرجع Get_اندازه(warnings); }
+	صحيح get_warnings_مجموع() ثابت { أرجع warnings_شمار; }
+	صحيح get_errors_مجموع() ثابت { أرجع errors_شمار; }
+	ثابت std::مجموعه<std::string> &get_experimental() ثابت { أرجع experimental; }
+	ثابت std::map<std::string, std::string> &get_deprecated() ثابت { أرجع deprecated; }
+	std::chrono::steady_clock::زمان_نقطه get_initial_زمان() ثابت;
 
-	void add_hdump(std::string name, std::string value) { hdump[name].insert(value); }
+	فراغ جمع_کن_hdump(std::string name, std::string مقدار) { hdump[name].درج(مقدار); }
 
-	void formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str);
-	void formatted_header(RTLIL::Design *design, std::string_view format, std::string str);
-	void formatted_warning(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
-	[[noreturn]] void formatted_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
-	void formatted_nonfatal_error(LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
-	[[noreturn]] void formatted_cmd_error(std::string_view format, std::string message);
-	void suppressed();
-	void add_experimental(const std::string &str);
-	void add_deprecated(const std::string &feature, const std::string &earliest_removal);
-	void spacer();
-	void push();
-	void pop();
+	فراغ formatted_string(LogSeverity severity, Log_منبع_Location src, std::string_view پیشوند_2, std::string_view format, std::string str);
+	فراغ formatted_سرآیند(RTLIL::Design *design, std::string_view format, std::string str);
+	فراغ formatted_warning(Log_منبع_Location src, std::string_view پیشوند_2, std::string_view format, std::string پیام_2);
+	[[noreturn]] فراغ formatted_error(Log_منبع_Location src, std::string_view پیشوند_2, std::string_view format, std::string پیام_2);
+	فراغ formatted_nonfatal_error(Log_منبع_Location src, std::string_view پیشوند_2, std::string_view format, std::string پیام_2);
+	[[noreturn]] فراغ formatted_cmd_error(std::string_view format, std::string پیام_2);
+	فراغ suppressed();
+	فراغ جمع_کن_experimental(ثابت std::string &str);
+	فراغ جمع_کن_deprecated(ثابت std::string &feature, ثابت std::string &earliest_removal);
+	فراغ spacer();
+	فراغ افزودن();
+	فراغ برداشت();
 
-	void reset_stack();
+	فراغ reset_پشته();
 
-	void check_expected();
-	bool expects_error() { return (expect_error.size() + expect_prefix_error.size())>0; }
-#ifndef NDEBUG
-	bool is_debug(int n = 0) { if (force_debug) return true; debug_suppressed += n; return false; }
-#else
-	bool is_debug(int = 0) { return false; }
-#endif
-	void start_hasher();
-	std::string finish_hasher();
+	فراغ check_expected();
+	bool expects_error() { أرجع (expect_error.اندازه() + expect_پیشوند_error.اندازه())>0; }
+#اگر_تعریف_نشده NDEBUG
+	bool is_debug(صحيح n = 0) { إذا (force_debug) أرجع true; debug_suppressed += n; أرجع false; }
+#وإلا
+	bool is_debug(صحيح = 0) { أرجع false; }
+#پایان_اگر
+	فراغ شروع_hasher();
+	std::string پایان_hasher();
 
-private:
-	void logv_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string str_in);
-	void error_with_prefix(LogSeverity severity, LogSourceLocation src, std::string_view prefix, std::string_view format, std::string message);
+خاص:
+	فراغ logv_string(LogSeverity severity, Log_منبع_Location src, std::string_view پیشوند_2, std::string_view format, std::string str_درون);
+	فراغ error_with_پیشوند(LogSeverity severity, Log_منبع_Location src, std::string_view پیشوند_2, std::string_view format, std::string پیام_2);
 
-	std::vector<std::unique_ptr<LogSink>> sinks;
-	int verbose_level = 0;
-	int newline_count = 0;
-	vector<int> header_count;
-	int errors_count = 0;
-	int warnings_count = 0;
-	int warnings_count_noexpect = 0;
-	std::set<std::string> warnings, experimental, experimental_ignored;
+	std::وکتور<std::unique_ptr<LogSink>> sinks;
+	صحيح verbose_level = 0;
+	صحيح newline_شمار = 0;
+	وکتور<صحيح> سرآیند_شمار;
+	صحيح errors_شمار = 0;
+	صحيح warnings_شمار = 0;
+	صحيح warnings_شمار_noexpect = 0;
+	std::مجموعه<std::string> warnings, experimental, experimental_ignored;
 	std::map<std::string, std::string> deprecated;
 
-	std::vector<std::regex> warn_regexes, nowarn_regexes, werror_regexes;
-	dict<std::string, LogExpectedItem> expect_log, expect_warning, expect_error;
-	dict<std::string, LogExpectedItem> expect_prefix_log, expect_prefix_warning, expect_prefix_error;
+	std::وکتور<std::regex> warn_regexes, nowarn_regexes, werror_regexes;
+	dict<std::string, Log_Expected_قلم> expect_log, expect_warning, expect_error;
+	dict<std::string, Log_Expected_قلم> expect_پیشوند_log, expect_پیشوند_warning, expect_پیشوند_error;
 	bool expect_no_warnings = false;
-	bool log_time = false;
+	bool log_زمان = false;
 	bool cmd_error_throw = false;
-	std::map<std::string, std::set<std::string>> hdump;
+	std::map<std::string, std::مجموعه<std::string>> hdump;
 	bool hdump_all = false;
 
-	int debug_suppressed = 0;
-	int make_debug = 0;
-	int force_debug = 0;
+	صحيح debug_suppressed = 0;
+	صحيح make_debug = 0;
+	صحيح force_debug = 0;
 	std::unique_ptr<SHA1> hasher;
 };
 
 LogManager &logger();
 
-extern void (*log_error_atexit)();
+خارجي فراغ (*log_error_atexit)();
 
-void set_verific_logging(void (*cb)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg));
-extern void (*log_verific_callback)(int msg_type, const char *message_id, LogSourceLocation src, const char *msg);
+فراغ مجموعه_verific_logging(فراغ (*cb)(صحيح پیام_type, ثابت حرف *پیام_id, Log_منبع_Location src, ثابت حرف *پیام));
+خارجي فراغ (*log_verific_callback)(صحيح پیام_type, ثابت حرف *پیام_id, Log_منبع_Location src, ثابت حرف *پیام);
 
-#ifndef NDEBUG
-static inline bool ys_debug(int n = 0) { return logger().is_debug(n); }
-#else
-static inline bool ys_debug(int = 0) { return false; }
-#endif
+#اگر_تعریف_نشده NDEBUG
+ساكن مضمن bool ys_debug(صحيح n = 0) { أرجع logger().is_debug(n); }
+#وإلا
+ساكن مضمن bool ys_debug(صحيح = 0) { أرجع false; }
+#پایان_اگر
 
-template <typename... Args>
-inline void log(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+قالب <typename... آرگومانها_3>
+مضمن فراغ لگاریتم(FmtString<Type_عنصر_خنثی<آرگومانها_3>...> fmt, ثابت آرگومانها_3 &... آرگومانها_2)
 {
-	logger().formatted_string(LogSeverity::Info, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Info, Log_منبع_Location{}, {}, fmt.format_string(), fmt.format(آرگومانها_2...));
 }
 
-template <typename... Args>
-inline void log_comment(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+قالب <typename... آرگومانها_3>
+مضمن فراغ log_comment(FmtString<Type_عنصر_خنثی<آرگومانها_3>...> fmt, ثابت آرگومانها_3 &... آرگومانها_2)
 {
-	logger().formatted_string(LogSeverity::Comment, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Comment, Log_منبع_Location{}, {}, fmt.format_string(), fmt.format(آرگومانها_2...));
 }
 
-template <typename... Args>
-inline void log_highlight(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+قالب <typename... آرگومانها_3>
+مضمن فراغ log_highlight(FmtString<Type_عنصر_خنثی<آرگومانها_3>...> fmt, ثابت آرگومانها_3 &... آرگومانها_2)
 {
-	logger().formatted_string(LogSeverity::Highlight, LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Highlight, Log_منبع_Location{}, {}, fmt.format_string(), fmt.format(آرگومانها_2...));
 }
 
-template <typename... Args>
-inline void log_formatted_string(LogSeverity severity, LogSourceLocation src, std::string_view prefix,
-		FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+قالب <typename... آرگومانها_3>
+مضمن فراغ log_formatted_string(LogSeverity severity, Log_منبع_Location src, std::string_view پیشوند_2,
+		FmtString<Type_عنصر_خنثی<آرگومانها_3>...> fmt, ثابت آرگومانها_3 &... آرگومانها_2)
 {
-	logger().formatted_string(severity, src, prefix, fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(severity, src, پیشوند_2, fmt.format_string(), fmt.format(آرگومانها_2...));
 }
 
-#define log_debug(...) do { if (ys_debug(1)) YOSYS_NAMESPACE_PREFIX log_formatted_string(YOSYS_NAMESPACE_PREFIX LogSeverity::Debug, {}, {}, __VA_ARGS__); } while (0)
+#تعریف_کن log_debug(...) افعل { إذا (ys_debug(1)) YOSYS_NAMESPACE_پیشوند log_formatted_string(YOSYS_NAMESPACE_پیشوند LogSeverity::Debug, {}, {}, __VA_ARGS__); } طالما (0)
 
-template <typename... Args>
-inline void log_header(RTLIL::Design *design, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+قالب <typename... آرگومانها_3>
+مضمن فراغ log_سرآیند(RTLIL::Design *design, FmtString<Type_عنصر_خنثی<آرگومانها_3>...> fmt, ثابت آرگومانها_3 &... آرگومانها_2)
 {
-	logger().formatted_header(design, fmt.format_string(), fmt.format(args...));
+	logger().formatted_سرآیند(design, fmt.format_string(), fmt.format(آرگومانها_2...));
 }
 
-template <typename... Args>
-inline void log_warning(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+قالب <typename... آرگومانها_3>
+مضمن فراغ log_warning(FmtString<Type_عنصر_خنثی<آرگومانها_3>...> fmt, ثابت آرگومانها_3 &... آرگومانها_2)
 {
-	logger().formatted_warning(LogSourceLocation{}, "Warning: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_warning(Log_منبع_Location{}, "Warning: ", fmt.format_string(), fmt.format(آرگومانها_2...));
 }
 
-template <typename... Args>
-inline void log_warning_noprefix(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+قالب <typename... آرگومانها_3>
+مضمن فراغ log_warning_noprefix(FmtString<Type_عنصر_خنثی<آرگومانها_3>...> fmt, ثابت آرگومانها_3 &... آرگومانها_2)
 {
-	logger().formatted_warning(LogSourceLocation{}, {}, fmt.format_string(), fmt.format(args...));
+	logger().formatted_warning(Log_منبع_Location{}, {}, fmt.format_string(), fmt.format(آرگومانها_2...));
 }
 
-inline void log_experimental(const std::string &str)
+مضمن فراغ log_experimental(ثابت std::string &str)
 {
-	logger().add_experimental(str);
+	logger().جمع_کن_experimental(str);
 }
 
-inline void log_deprecated(const std::string &feature, const std::string &earliest_removal = "")
+مضمن فراغ log_deprecated(ثابت std::string &feature, ثابت std::string &earliest_removal = "")
 {
-	logger().add_deprecated(feature, earliest_removal);
+	logger().جمع_کن_deprecated(feature, earliest_removal);
 }
 
 // Log with filename to report a problem in a source file.
-template <typename... Args>
-void log_file_warning(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+قالب <typename... آرگومانها_3>
+فراغ log_file_warning(Log_منبع_Location src, FmtString<Type_عنصر_خنثی<آرگومانها_3>...> fmt, ثابت آرگومانها_3 &... آرگومانها_2)
 {
-	logger().formatted_warning(src, "Warning: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_warning(src, "Warning: ", fmt.format_string(), fmt.format(آرگومانها_2...));
 }
 
-template <typename... Args>
-void log_file_info(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+قالب <typename... آرگومانها_3>
+فراغ log_file_info(Log_منبع_Location src, FmtString<Type_عنصر_خنثی<آرگومانها_3>...> fmt, ثابت آرگومانها_3 &... آرگومانها_2)
 {
-	logger().formatted_string(LogSeverity::Info, src, "NOTE: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_string(LogSeverity::Info, src, "NOTE: ", fmt.format_string(), fmt.format(آرگومانها_2...));
 }
 
-template <typename... Args>
-[[noreturn]] void log_error(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+قالب <typename... آرگومانها_3>
+[[noreturn]] فراغ log_error(FmtString<Type_عنصر_خنثی<آرگومانها_3>...> fmt, ثابت آرگومانها_3 &... آرگومانها_2)
 {
-	logger().formatted_error(LogSourceLocation{}, "ERROR: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_error(Log_منبع_Location{}, "ERROR: ", fmt.format_string(), fmt.format(آرگومانها_2...));
 }
 
-template <typename... Args>
-[[noreturn]] void log_file_error(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+قالب <typename... آرگومانها_3>
+[[noreturn]] فراغ log_file_error(Log_منبع_Location src, FmtString<Type_عنصر_خنثی<آرگومانها_3>...> fmt, ثابت آرگومانها_3 &... آرگومانها_2)
 {
-	logger().formatted_error(src, "ERROR: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_error(src, "ERROR: ", fmt.format_string(), fmt.format(آرگومانها_2...));
 }
 
-template <typename... Args>
-void log_file_nonfatal_error(LogSourceLocation src, FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+قالب <typename... آرگومانها_3>
+فراغ log_file_nonfatal_error(Log_منبع_Location src, FmtString<Type_عنصر_خنثی<آرگومانها_3>...> fmt, ثابت آرگومانها_3 &... آرگومانها_2)
 {
-	logger().formatted_nonfatal_error(src, "ERROR: ", fmt.format_string(), fmt.format(args...));
+	logger().formatted_nonfatal_error(src, "ERROR: ", fmt.format_string(), fmt.format(آرگومانها_2...));
 }
 
-template <typename... Args>
-[[noreturn]] void log_cmd_error(FmtString<TypeIdentity<Args>...> fmt, const Args &... args)
+قالب <typename... آرگومانها_3>
+[[noreturn]] فراغ log_cmd_error(FmtString<Type_عنصر_خنثی<آرگومانها_3>...> fmt, ثابت آرگومانها_3 &... آرگومانها_2)
 {
-	logger().formatted_cmd_error(fmt.format_string(), fmt.format(args...));
+	logger().formatted_cmd_error(fmt.format_string(), fmt.format(آرگومانها_2...));
 }
 
-inline void log_suppressed()
+مضمن فراغ log_suppressed()
 {
 	logger().suppressed();
 }
 
-inline void log_spacer() { logger().spacer(); }
-inline void log_push() { logger().push(); }
-inline void log_pop() { logger().pop(); }
+مضمن فراغ log_spacer() { logger().spacer(); }
+مضمن فراغ log_افزودن() { logger().افزودن(); }
+مضمن فراغ log_برداشت() { logger().برداشت(); }
 
-inline void log_reset_stack() { logger().reset_stack(); }
-inline void log_flush() { logger().flush(); }
+مضمن فراغ log_reset_پشته() { logger().reset_پشته(); }
+مضمن فراغ log_flush() { logger().flush(); }
 
-void log_backtrace(const char *prefix, int levels);
+فراغ log_backtrace(ثابت حرف *پیشوند_2, صحيح سطوح);
 
 
-std::string log_signal(const RTLIL::SigSpec &sig, bool autoint = true);
-std::string log_const(const RTLIL::Const &value, bool autoint = true);
+std::string log_signal(ثابت RTLIL::SigSpec &sig, bool autoint = true);
+std::string log_const(ثابت RTLIL::Const &مقدار, bool autoint = true);
 
-void log_module(RTLIL::Module *module, std::string indent = "");
-void log_cell(RTLIL::Cell *cell, std::string indent = "");
-void log_wire(RTLIL::Wire *wire, std::string indent = "");
+فراغ log_module(RTLIL::Module *module, std::string indent = "");
+فراغ log_cell(RTLIL::Cell *cell, std::string indent = "");
+فراغ log_wire(RTLIL::Wire *wire, std::string indent = "");
 
 [[noreturn]]
-void log_abort_internal(const char *file, int line);
-#define log_abort() YOSYS_NAMESPACE_PREFIX log_abort_internal(__FILE__, __LINE__)
-#define log_ping() YOSYS_NAMESPACE_PREFIX log("-- %s:%d %s --\n", __FILE__, __LINE__, __PRETTY_FUNCTION__)
+فراغ log_abort_داخلی(ثابت حرف *file, صحيح سطر);
+#تعریف_کن log_abort() YOSYS_NAMESPACE_پیشوند log_abort_داخلی(__FILE__, __LINE__)
+#تعریف_کن log_ping() YOSYS_NAMESPACE_پیشوند لگاریتم("-- %s:%d %s --\n", __FILE__, __LINE__, __PRETTY_FUNCTION__)
 
 
 // ------------------------------------------------------------
@@ -605,186 +605,186 @@ void log_abort_internal(const char *file, int line);
 
 // simple timer for performance measurements
 // toggle the '#if 1' to get a baseline for the performance penalty added by the measurement
-struct PerformanceTimer
+بنية PerformanceTimer
 {
-#if 1
-	int64_t total_ns;
+#إذا 1
+	int64_t مجموع_ns;
 
 	PerformanceTimer() {
-		total_ns = 0;
+		مجموع_ns = 0;
 	}
 
-	static int64_t query() {
+	ساكن int64_t query() {
 #  ifdef _WIN32
-		return 0;
+		أرجع 0;
 #  elif defined(RUSAGE_SELF)
-		struct rusage rusage;
+		بنية rusage rusage;
 		int64_t t = 0;
-		for (int who : {RUSAGE_SELF, RUSAGE_CHILDREN}) {
-			if (getrusage(who, &rusage) == -1) {
+		لكل (صحيح who : {RUSAGE_SELF, RUSAGE_CHILDREN}) {
+			إذا (getrusage(who, &rusage) == -1) {
 				log_cmd_error("getrusage failed!\n");
 				log_abort();
 			}
 			t += 1000000000ULL * (int64_t) rusage.ru_utime.tv_sec + (int64_t) rusage.ru_utime.tv_usec * 1000ULL;
 			t += 1000000000ULL * (int64_t) rusage.ru_stime.tv_sec + (int64_t) rusage.ru_stime.tv_usec * 1000ULL;
 		}
-		return t;
-#  else
+		أرجع t;
+#  وإلا
 #    error "Don't know how to measure per-process CPU time. Need alternative method (times()/clocks()/gettimeofday()?)."
 #  endif
 	}
 
-	void reset() {
-		total_ns = 0;
+	فراغ reset() {
+		مجموع_ns = 0;
 	}
 
-	void begin() {
-		total_ns -= query();
+	فراغ begin() {
+		مجموع_ns -= query();
 	}
 
-	void end() {
-		total_ns += query();
+	فراغ انتها() {
+		مجموع_ns += query();
 	}
 
-	float sec() const {
-		return total_ns * 1e-9f;
+	عائم sec() ثابت {
+		أرجع مجموع_ns * 1e-9f;
 	}
-#else
-	static int64_t query() { return 0; }
-	void reset() { }
-	void begin() { }
-	void end() { }
-	float sec() const { return 0; }
-#endif
+#وإلا
+	ساكن int64_t query() { أرجع 0; }
+	فراغ reset() { }
+	فراغ begin() { }
+	فراغ انتها() { }
+	عائم sec() ثابت { أرجع 0; }
+#پایان_اگر
 };
 
 // simple API for quickly dumping values when debugging
 
-static inline void log_dump_val_worker(short v) { log("%d", v); }
-static inline void log_dump_val_worker(unsigned short v) { log("%u", v); }
-static inline void log_dump_val_worker(int v) { log("%d", v); }
-static inline void log_dump_val_worker(unsigned int v) { log("%u", v); }
-static inline void log_dump_val_worker(long int v) { log("%ld", v); }
-static inline void log_dump_val_worker(unsigned long int v) { log("%lu", v); }
-#ifndef _WIN32
-static inline void log_dump_val_worker(long long int v) { log("%lld", v); }
-static inline void log_dump_val_worker(unsigned long long int v) { log("%lld", v); }
-#endif
-static inline void log_dump_val_worker(char c)
+ساكن مضمن فراغ log_dump_val_کارگر(کوتاه v) { لگاریتم("%d", v); }
+ساكن مضمن فراغ log_dump_val_کارگر(بیعلامت کوتاه v) { لگاریتم("%u", v); }
+ساكن مضمن فراغ log_dump_val_کارگر(صحيح v) { لگاریتم("%d", v); }
+ساكن مضمن فراغ log_dump_val_کارگر(بیعلامت صحيح v) { لگاریتم("%u", v); }
+ساكن مضمن فراغ log_dump_val_کارگر(دراز صحيح v) { لگاریتم("%ld", v); }
+ساكن مضمن فراغ log_dump_val_کارگر(بیعلامت دراز صحيح v) { لگاریتم("%lu", v); }
+#اگر_تعریف_نشده _WIN32
+ساكن مضمن فراغ log_dump_val_کارگر(دراز دراز صحيح v) { لگاریتم("%lld", v); }
+ساكن مضمن فراغ log_dump_val_کارگر(بیعلامت دراز دراز صحيح v) { لگاریتم("%lld", v); }
+#پایان_اگر
+ساكن مضمن فراغ log_dump_val_کارگر(حرف c)
 {
-	if (c >= 32 && c < 127) {
-		log("'%c'", c);
-	} else {
-		log("'\\x%02x'", c);
+	إذا (c >= 32 && c < 127) {
+		لگاریتم("'%c'", c);
+	} وإلا {
+		لگاریتم("'\\x%02x'", c);
 	}
 }
-static inline void log_dump_val_worker(unsigned char c)
+ساكن مضمن فراغ log_dump_val_کارگر(بیعلامت حرف c)
 {
-	if (c >= 32 && c < 127) {
-		log("'%c'", c);
-	} else {
-		log("'\\x%02x'", c);
+	إذا (c >= 32 && c < 127) {
+		لگاریتم("'%c'", c);
+	} وإلا {
+		لگاریتم("'\\x%02x'", c);
 	}
 }
-static inline void log_dump_val_worker(bool v) { log("%s", v ? "true" : "false"); }
-static inline void log_dump_val_worker(double v) { log("%f", v); }
-static inline void log_dump_val_worker(char *v) { log("%s", v); }
-static inline void log_dump_val_worker(const char *v) { log("%s", v); }
-static inline void log_dump_val_worker(std::string v) { log("%s", v); }
-static inline void log_dump_val_worker(PerformanceTimer p) { log("%f seconds", p.sec()); }
-static inline void log_dump_args_worker(const char *p) { log_assert(*p == 0); }
-void log_dump_val_worker(IdString v);
-void log_dump_val_worker(RTLIL::SigSpec v);
-void log_dump_val_worker(RTLIL::State v);
+ساكن مضمن فراغ log_dump_val_کارگر(bool v) { لگاریتم("%s", v ? "true" : "false"); }
+ساكن مضمن فراغ log_dump_val_کارگر(مزدوج v) { لگاریتم("%f", v); }
+ساكن مضمن فراغ log_dump_val_کارگر(حرف *v) { لگاریتم("%s", v); }
+ساكن مضمن فراغ log_dump_val_کارگر(ثابت حرف *v) { لگاریتم("%s", v); }
+ساكن مضمن فراغ log_dump_val_کارگر(std::string v) { لگاریتم("%s", v); }
+ساكن مضمن فراغ log_dump_val_کارگر(PerformanceTimer p) { لگاریتم("%f seconds", p.sec()); }
+ساكن مضمن فراغ log_dump_آرگومانها_کارگر(ثابت حرف *p) { log_assert(*p == 0); }
+فراغ log_dump_val_کارگر(IdString v);
+فراغ log_dump_val_کارگر(RTLIL::SigSpec v);
+فراغ log_dump_val_کارگر(RTLIL::State v);
 
-template<typename K, typename T> static inline void log_dump_val_worker(dict<K, T> &v);
-template<typename K> static inline void log_dump_val_worker(pool<K> &v);
-template<typename K> static inline void log_dump_val_worker(std::vector<K> &v);
-template<typename T> static inline void log_dump_val_worker(T *ptr);
+قالب<typename K, typename T> ساكن مضمن فراغ log_dump_val_کارگر(dict<K, T> &v);
+قالب<typename K> ساكن مضمن فراغ log_dump_val_کارگر(pool<K> &v);
+قالب<typename K> ساكن مضمن فراغ log_dump_val_کارگر(std::وکتور<K> &v);
+قالب<typename T> ساكن مضمن فراغ log_dump_val_کارگر(T *ptr);
 
-template<typename K, typename T>
-static inline void log_dump_val_worker(dict<K, T> &v) {
-	log("{");
-	bool first = true;
-	for (auto &it : v) {
-		log("%s ", first ? "" : ",");
-		log_dump_val_worker(it.first);
-		log(": ");
-		log_dump_val_worker(it.second);
-		first = false;
+قالب<typename K, typename T>
+ساكن مضمن فراغ log_dump_val_کارگر(dict<K, T> &v) {
+	لگاریتم("{");
+	bool اولی = true;
+	لكل (خودکار &it : v) {
+		لگاریتم("%s ", اولی ? "" : ",");
+		log_dump_val_کارگر(it.اولی);
+		لگاریتم(": ");
+		log_dump_val_کارگر(it.دومی);
+		اولی = false;
 	}
-	log(" }");
+	لگاریتم(" }");
 }
 
-template<typename K>
-static inline void log_dump_val_worker(pool<K> &v) {
-	log("{");
-	bool first = true;
-	for (auto &it : v) {
-		log("%s ", first ? "" : ",");
-		log_dump_val_worker(it);
-		first = false;
+قالب<typename K>
+ساكن مضمن فراغ log_dump_val_کارگر(pool<K> &v) {
+	لگاریتم("{");
+	bool اولی = true;
+	لكل (خودکار &it : v) {
+		لگاریتم("%s ", اولی ? "" : ",");
+		log_dump_val_کارگر(it);
+		اولی = false;
 	}
-	log(" }");
+	لگاریتم(" }");
 }
 
-template<typename K>
-static inline void log_dump_val_worker(std::vector<K> &v) {
-	log("{");
-	bool first = true;
-	for (auto &it : v) {
-		log("%s ", first ? "" : ",");
-		log_dump_val_worker(it);
-		first = false;
+قالب<typename K>
+ساكن مضمن فراغ log_dump_val_کارگر(std::وکتور<K> &v) {
+	لگاریتم("{");
+	bool اولی = true;
+	لكل (خودکار &it : v) {
+		لگاریتم("%s ", اولی ? "" : ",");
+		log_dump_val_کارگر(it);
+		اولی = false;
 	}
-	log(" }");
+	لگاریتم(" }");
 }
 
-template<typename T>
-static inline void log_dump_val_worker(T *ptr) { log("%p", ptr); }
+قالب<typename T>
+ساكن مضمن فراغ log_dump_val_کارگر(T *ptr) { لگاریتم("%p", ptr); }
 
-template<typename T, typename ... Args>
-void log_dump_args_worker(const char *p, T first, Args ... args)
+قالب<typename T, typename ... آرگومانها_3>
+فراغ log_dump_آرگومانها_کارگر(ثابت حرف *p, T اولی, آرگومانها_3 ... آرگومانها_2)
 {
-	int next_p_state = 0;
-	const char *next_p = p;
-	while (*next_p && (next_p_state != 0 || *next_p != ',')) {
-		if (*next_p == '"')
-			do {
-				next_p++;
-				while (*next_p == '\\' && *(next_p + 1))
-					next_p += 2;
-			} while (*next_p && *next_p != '"');
-		if (*next_p == '\'') {
-			next_p++;
-			if (*next_p == '\\')
-				next_p++;
-			if (*next_p)
-				next_p++;
+	صحيح بعدی_p_state = 0;
+	ثابت حرف *بعدی_p = p;
+	طالما (*بعدی_p && (بعدی_p_state != 0 || *بعدی_p != ',')) {
+		إذا (*بعدی_p == '"')
+			افعل {
+				بعدی_p++;
+				طالما (*بعدی_p == '\\' && *(بعدی_p + 1))
+					بعدی_p += 2;
+			} طالما (*بعدی_p && *بعدی_p != '"');
+		إذا (*بعدی_p == '\'') {
+			بعدی_p++;
+			إذا (*بعدی_p == '\\')
+				بعدی_p++;
+			إذا (*بعدی_p)
+				بعدی_p++;
 		}
-		if (*next_p == '(' || *next_p == '[' || *next_p == '{')
-			next_p_state++;
-		if ((*next_p == ')' || *next_p == ']' || *next_p == '}') && next_p_state > 0)
-			next_p_state--;
-		next_p++;
+		إذا (*بعدی_p == '(' || *بعدی_p == '[' || *بعدی_p == '{')
+			بعدی_p_state++;
+		إذا ((*بعدی_p == ')' || *بعدی_p == ']' || *بعدی_p == '}') && بعدی_p_state > 0)
+			بعدی_p_state--;
+		بعدی_p++;
 	}
-	log("\n\t%.*s => ", int(next_p - p), p);
-	if (*next_p == ',')
-		next_p++;
-	while (*next_p == ' ' || *next_p == '\t' || *next_p == '\r' || *next_p == '\n')
-		next_p++;
-	log_dump_val_worker(first);
-	log_dump_args_worker(next_p, args ...);
+	لگاریتم("\n\t%.*s => ", صحيح(بعدی_p - p), p);
+	إذا (*بعدی_p == ',')
+		بعدی_p++;
+	طالما (*بعدی_p == ' ' || *بعدی_p == '\t' || *بعدی_p == '\r' || *بعدی_p == '\n')
+		بعدی_p++;
+	log_dump_val_کارگر(اولی);
+	log_dump_آرگومانها_کارگر(بعدی_p, آرگومانها_2 ...);
 }
 
-#define log_dump(...) do { \
-	log("DEBUG DUMP IN %s AT %s:%d:", __PRETTY_FUNCTION__, __FILE__, __LINE__); \
-	log_dump_args_worker(#__VA_ARGS__, __VA_ARGS__); \
-	log("\n"); \
-} while (0)
+#تعریف_کن log_dump(...) افعل { \
+	لگاریتم("DEBUG DUMP IN %s AT %s:%d:", __PRETTY_FUNCTION__, __FILE__, __LINE__); \
+	log_dump_آرگومانها_کارگر(#__VA_ARGS__, __VA_ARGS__); \
+	لگاریتم("\n"); \
+} طالما (0)
 
-YOSYS_NAMESPACE_END
+YOSYS_NAMESPACE_انتها
 
-#include "kernel/yosys.h"
+#ضمن "kernel/yosys.h"
 
-#endif
+#پایان_اگر

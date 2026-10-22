@@ -17,115 +17,115 @@
  *
  */
 
-#include "kernel/fstdata.h"
+#ضمن "kernel/fstdata.h"
 
 USING_YOSYS_NAMESPACE
 
 
-#if defined(YOSYS_ENABLE_SPAWN)
-static std::string file_base_name(std::string const & path)
+#إذا defined(YOSYS_ENABLE_SPAWN)
+ساكن std::string file_پایه_name(std::string ثابت & مسیر_2)
 {
-	return path.substr(path.find_last_of("/\\") + 1);
+	أرجع مسیر_2.substr(مسیر_2.پیدا_کن_آخرین_از("/\\") + 1);
 }
-#endif
+#پایان_اگر
 
-FstData::FstData(std::string filename) : ctx(nullptr)
+Fst_داده::Fst_داده(std::string filename) : ctx(اشاره_تهی)
 {
-	#if defined(YOSYS_ENABLE_SPAWN)
-	std::string filename_trim = file_base_name(filename);
-	if (filename_trim.size() > 4 && filename_trim.compare(filename_trim.size()-4, std::string::npos, ".vcd") == 0) {
-		filename_trim.erase(filename_trim.size()-4);
-		tmp_file = stringf("%s/converted_%s.fst", get_base_tmpdir(), filename_trim);
+	#إذا defined(YOSYS_ENABLE_SPAWN)
+	std::string filename_trim = file_پایه_name(filename);
+	إذا (filename_trim.اندازه() > 4 && filename_trim.compare(filename_trim.اندازه()-4, std::string::npos, ".vcd") == 0) {
+		filename_trim.erase(filename_trim.اندازه()-4);
+		tmp_file = stringf("%s/converted_%s.fst", get_پایه_tmpdir(), filename_trim);
 		std::string cmd = stringf("vcd2fst %s %s", filename, tmp_file);
-		log("Exec: %s\n", cmd);
-		if (run_command(cmd) != 0)
+		لگاریتم("Exec: %s\n", cmd);
+		إذا (پیاپی_command(cmd) != 0)
 			log_cmd_error("Shell command failed!\n");
 		filename = tmp_file;
 	}
-	#endif
-	const std::vector<std::string> g_units = { "s", "ms", "us", "ns", "ps", "fs", "as", "zs" };
+	#پایان_اگر
+	ثابت std::وکتور<std::string> g_units = { "s", "ms", "us", "ns", "ps", "fs", "as", "zs" };
 	ctx = (fstReaderContext *)fstReaderOpen(filename.c_str());
-	if (!ctx)
+	إذا (!ctx)
 		log_error("Error opening '%s' as FST file\n", filename);
-	scale = (int)fstReaderGetTimescale(ctx);
+	scale = (صحيح)fstReaderGetTimescale(ctx);
 	timescale_str = "";
-	int unit = 0;
-	int zeros = 0;
-	if (scale > 0)  {
+	صحيح unit = 0;
+	صحيح zeros = 0;
+	إذا (scale > 0)  {
 		zeros = scale;
-	} else {
-		if ((scale % 3) == 0) {
+	} وإلا {
+		إذا ((scale % 3) == 0) {
 			zeros = (-scale % 3);
 			unit = (-scale / 3);
-		} else {
+		} وإلا {
 			zeros = 3 - (-scale % 3);
 			unit = (-scale / 3) + 1;
 		}
 	}
-	for (int i=0;i<zeros; i++) timescale_str += "0";
+	لكل (صحيح i=0;i<zeros; i++) timescale_str += "0";
 	timescale_str += g_units[unit];
-	extractVarNames();
+	استخراج_Var_نامها();
 }
 
-FstData::~FstData()
+Fst_داده::~Fst_داده()
 {
-	if (ctx)
+	إذا (ctx)
 		fstReaderClose(ctx);
-	if (!tmp_file.empty())
+	إذا (!tmp_file.خالی())
 		remove(tmp_file.c_str());
 }
 
-uint64_t FstData::getStartTime() { return fstReaderGetStartTime(ctx); }
+uint64_t Fst_داده::get_شروع_زمان() { أرجع fst_Reader_Get_شروع_زمان(ctx); }
 
-uint64_t FstData::getEndTime() { return fstReaderGetEndTime(ctx); }
+uint64_t Fst_داده::get_انتها_زمان() { أرجع fst_Reader_Get_انتها_زمان(ctx); }
 
-static void normalize_brackets(std::string &str)
+ساكن فراغ normalize_brackets(std::string &str)
 {
-	for (auto &c : str) {
-		if (c == '<')
+	لكل (خودکار &c : str) {
+		إذا (c == '<')
 			c = '[';
-		else if (c == '>')
+		وإلا إذا (c == '>')
 			c = ']';
 	}
 }
 
-fstHandle FstData::getHandle(std::string name) {
+fstHandle Fst_داده::getHandle(std::string name) {
 	normalize_brackets(name);
-	if (name_to_handle.find(name) != name_to_handle.end())
-		return name_to_handle[name];
-	else
-		return 0;
+	إذا (name_مقصد_handle.پیدا_کن(name) != name_مقصد_handle.انتها())
+		أرجع name_مقصد_handle[name];
+	وإلا
+		أرجع 0;
 };
 
-dict<int,fstHandle> FstData::getMemoryHandles(std::string name) {
-	if (memory_to_handle.find(name) != memory_to_handle.end())
-		return memory_to_handle[name];
-	else
-		return dict<int,fstHandle>();
+dict<صحيح,fstHandle> Fst_داده::get_حافظه_Handles(std::string name) {
+	إذا (حافظه_مقصد_handle.پیدا_کن(name) != حافظه_مقصد_handle.انتها())
+		أرجع حافظه_مقصد_handle[name];
+	وإلا
+		أرجع dict<صحيح,fstHandle>();
 };
 
-static std::string remove_spaces(std::string str)
+ساكن std::string remove_spaces(std::string str)
 {
-	str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
-	return str;
+	str.erase(std::remove(str.begin(), str.انتها(), ' '), str.انتها());
+	أرجع str;
 }
 
-void FstData::extractVarNames()
+فراغ Fst_داده::استخراج_Var_نامها()
 {
-	struct fstHier *h;
+	بنية fstHier *h;
 	std::string fst_scope_name;
 
-	while ((h = fstReaderIterateHier(ctx))) {
-		switch (h->htyp) {
-			case FST_HT_SCOPE: {
-				fst_scope_name = fstReaderPushScope(ctx, h->u.scope.name, NULL);
-				break;
+	طالما ((h = fstReaderIterateHier(ctx))) {
+		بدل (h->htyp) {
+			حالة FST_HT_SCOPE: {
+				fst_scope_name = fst_Reader_افزودن_Scope(ctx, h->u.scope.name, عدم);
+				اكسر;
 			}
-			case FST_HT_UPSCOPE: {
-				fst_scope_name = fstReaderPopScope(ctx);
-				break;
+			حالة FST_HT_UPSCOPE: {
+				fst_scope_name = fst_Reader_برداشت_Scope(ctx);
+				اكسر;
 			}
-			case FST_HT_VAR: {
+			حالة FST_HT_VAR: {
 				FstVar var;
 				var.id = h->u.var.handle;
 				var.is_alias = h->u.var.is_alias;
@@ -133,151 +133,151 @@ void FstData::extractVarNames()
 				var.name = remove_spaces(h->u.var.name);
 				var.scope = fst_scope_name;
 				normalize_brackets(var.scope);
-				var.width = h->u.var.length;
-				vars.push_back(var);
-				if (!var.is_alias)
-					handle_to_var[h->u.var.handle] = var;
+				var.عرض = h->u.var.درازی;
+				vars.افزودن_پشت(var);
+				إذا (!var.is_alias)
+					handle_مقصد_var[h->u.var.handle] = var;
 				std::string clean_name;
-				bool has_space = false;
-				for(size_t i=0;i<strlen(h->u.var.name);i++)
+				منطقي has_space = خطأ;
+				لكل(اندازه_t i=0;i<طول_رشته(h->u.var.name);i++)
 				{
-					char c = h->u.var.name[i];
-					if(c==' ') { has_space = true; break; }
+					حرف c = h->u.var.name[i];
+					إذا(c==' ') { has_space = درست; اكسر; }
 					clean_name += c;
 				}
-				if (clean_name[0]=='\\')
+				إذا (clean_name[0]=='\\')
 					clean_name = clean_name.substr(1);
-				if (!has_space) {
-					size_t pos = clean_name.find_last_of("[");
-					std::string index_or_range = clean_name.substr(pos+1);
-					if (index_or_range.find(":") != std::string::npos) {
+				إذا (!has_space) {
+					اندازه_t pos = clean_name.پیدا_کن_آخرین_از("[");
+					std::string شاخص_or_range = clean_name.substr(pos+1);
+					إذا (شاخص_or_range.پیدا_کن(":") != std::string::npos) {
 						clean_name = clean_name.substr(0,pos);
 					}
 				}
-				size_t pos = clean_name.find_last_of("<");
-				if (pos != std::string::npos && clean_name.back() == '>') {
+				اندازه_t pos = clean_name.پیدا_کن_آخرین_از("<");
+				إذا (pos != std::string::npos && clean_name.پشت() == '>') {
 					std::string mem_cell = clean_name.substr(0, pos);
 					normalize_brackets(mem_cell);
 					std::string addr = clean_name.substr(pos+1);
-					addr.pop_back(); // remove closing bracket
-					char *endptr;
-					int mem_addr = strtol(addr.c_str(), &endptr, 16);
-					if (*endptr) {
+					addr.برداشت_پشت(); // remove closing bracket
+					حرف *endptr;
+					صحيح mem_addr = strtol(addr.c_str(), &endptr, 16);
+					إذا (*endptr) {
 						log_debug("Error parsing memory address in : %s\n", clean_name);
-					} else {
-						memory_to_handle[var.scope+"."+mem_cell][mem_addr] = var.id;
+					} وإلا {
+						حافظه_مقصد_handle[var.scope+"."+mem_cell][mem_addr] = var.id;
 					}
 				}
-				pos = clean_name.find_last_of("[");
-				if (pos != std::string::npos && clean_name.back() == ']') {
+				pos = clean_name.پیدا_کن_آخرین_از("[");
+				إذا (pos != std::string::npos && clean_name.پشت() == ']') {
 					std::string mem_cell = clean_name.substr(0, pos);
 					normalize_brackets(mem_cell);
 					std::string addr = clean_name.substr(pos+1);
-					addr.pop_back(); // remove closing bracket
-					char *endptr;
-					int mem_addr = strtol(addr.c_str(), &endptr, 10);
-					if (*endptr) {
+					addr.برداشت_پشت(); // remove closing bracket
+					حرف *endptr;
+					صحيح mem_addr = strtol(addr.c_str(), &endptr, 10);
+					إذا (*endptr) {
 						log_debug("Error parsing memory address in : %s\n", clean_name);
-					} else {
-						memory_to_handle[var.scope+"."+mem_cell][mem_addr] = var.id;
+					} وإلا {
+						حافظه_مقصد_handle[var.scope+"."+mem_cell][mem_addr] = var.id;
 					}
 				}
 				normalize_brackets(clean_name);
-				name_to_handle[var.scope+"."+clean_name] = h->u.var.handle;
-				break;
+				name_مقصد_handle[var.scope+"."+clean_name] = h->u.var.handle;
+				اكسر;
 			}
 		}
 	}
 }
 
 
-static void reconstruct_clb_varlen_attimes(void *user_data, uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t plen)
+ساكن فراغ reconstruct_clb_varlen_attimes(فراغ *user_داده, uint64_t pnt_زمان, fstHandle pnt_facidx, ثابت بیعلامت حرف *pnt_مقدار, uint32_t plen)
 {
-	FstData *ptr = (FstData*)user_data;
-	ptr->reconstruct_callback_attimes(pnt_time, pnt_facidx, pnt_value, plen);
+	Fst_داده *ptr = (Fst_داده*)user_داده;
+	ptr->reconstruct_callback_attimes(pnt_زمان, pnt_facidx, pnt_مقدار, plen);
 }
 
-static void reconstruct_clb_attimes(void *user_data, uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value)
+ساكن فراغ reconstruct_clb_attimes(فراغ *user_داده, uint64_t pnt_زمان, fstHandle pnt_facidx, ثابت بیعلامت حرف *pnt_مقدار)
 {
-	FstData *ptr = (FstData*)user_data;
-	uint32_t plen = (pnt_value) ?  strlen((const char *)pnt_value) : 0;
-	ptr->reconstruct_callback_attimes(pnt_time, pnt_facidx, pnt_value, plen);
+	Fst_داده *ptr = (Fst_داده*)user_داده;
+	uint32_t plen = (pnt_مقدار) ?  طول_رشته((ثابت حرف *)pnt_مقدار) : 0;
+	ptr->reconstruct_callback_attimes(pnt_زمان, pnt_facidx, pnt_مقدار, plen);
 }
 
-void FstData::reconstruct_callback_attimes(uint64_t pnt_time, fstHandle pnt_facidx, const unsigned char *pnt_value, uint32_t /* plen */)
+فراغ Fst_داده::reconstruct_callback_attimes(uint64_t pnt_زمان, fstHandle pnt_facidx, ثابت بیعلامت حرف *pnt_مقدار, uint32_t /* plen */)
 {
-	if (pnt_time > end_time || !pnt_value) return;
-	if (curr_cycle > last_cycle) return;
+	إذا (pnt_زمان > انتها_زمان || !pnt_مقدار) أرجع;
+	إذا (curr_چرخه > آخرین_چرخه) أرجع;
 	// if we are past the timestamp
-	bool is_clock = false;
-	if (!all_samples) {
-		for(auto &s : clk_signals) {
-			if (s==pnt_facidx)  {
-				is_clock=true;
-				break;
+	منطقي is_clock = خطأ;
+	إذا (!all_samples) {
+		لكل(خودکار &s : clk_سیگنالها) {
+			إذا (s==pnt_facidx)  {
+				is_clock=درست;
+				اكسر;
 			}
 		}
 	}
 
-	if (pnt_time > past_time) {
-		past_data = last_data;
-		past_time = pnt_time;
+	إذا (pnt_زمان > past_زمان) {
+		past_داده = آخرین_داده;
+		past_زمان = pnt_زمان;
 	}
 
-	if (pnt_time > last_time) {
-		if (all_samples) {
-			callback(last_time);
-			curr_cycle++;
-			last_time = pnt_time;
-		} else {
-			if (is_clock) {
-				std::string val = std::string((const char *)pnt_value);
-				std::string prev = past_data[pnt_facidx];
-				if ((prev!="1" && val=="1") || (prev!="0" && val=="0")) {
-					callback(last_time);
-					curr_cycle++;
-					last_time = pnt_time;
+	إذا (pnt_زمان > آخرین_زمان) {
+		إذا (all_samples) {
+			callback(آخرین_زمان);
+			curr_چرخه++;
+			آخرین_زمان = pnt_زمان;
+		} وإلا {
+			إذا (is_clock) {
+				std::string val = std::string((ثابت حرف *)pnt_مقدار);
+				std::string prev = past_داده[pnt_facidx];
+				إذا ((prev!="1" && val=="1") || (prev!="0" && val=="0")) {
+					callback(آخرین_زمان);
+					curr_چرخه++;
+					آخرین_زمان = pnt_زمان;
 				}
 			}
 		}
 	}
 	// always update last_data
-	last_data[pnt_facidx] =  std::string((const char *)pnt_value);
+	آخرین_داده[pnt_facidx] =  std::string((ثابت حرف *)pnt_مقدار);
 }
 
-void FstData::reconstructAllAtTimes(std::vector<fstHandle> &signal, uint64_t start, uint64_t end, unsigned int end_cycle, CallbackFunction cb)
+فراغ Fst_داده::reconstructAllAtTimes(std::وکتور<fstHandle> &إشارة, uint64_t شروع, uint64_t انتها, بیعلامت صحيح انتها_چرخه, CallbackFunction cb)
 {
-	clk_signals = signal;
+	clk_سیگنالها = إشارة;
 	callback = cb;
-	start_time = start;
-	end_time = end;
-	curr_cycle = 0;
-	last_cycle = end_cycle;
-	last_data.clear();
-	last_time = start_time;
-	past_data.clear();
-	past_time = start_time;
-	all_samples = clk_signals.empty();
+	شروع_زمان = شروع;
+	انتها_زمان = انتها;
+	curr_چرخه = 0;
+	آخرین_چرخه = انتها_چرخه;
+	آخرین_داده.clear();
+	آخرین_زمان = شروع_زمان;
+	past_داده.clear();
+	past_زمان = شروع_زمان;
+	all_samples = clk_سیگنالها.خالی();
 
-	fstReaderSetUnlimitedTimeRange(ctx);
-	fstReaderSetFacProcessMaskAll(ctx);
-	fstReaderIterBlocks2(ctx, reconstruct_clb_attimes, reconstruct_clb_varlen_attimes, this, nullptr);
-	if (last_time!=end_time && curr_cycle <= last_cycle) {
-		past_data = last_data;
-		callback(last_time);
-		curr_cycle++;
+	fst_Reader_مجموعه_Unlimited_زمان_Range(ctx);
+	fst_Reader_مجموعه_Fac_Process_ماسک_All(ctx);
+	fstReaderIterBlocks2(ctx, reconstruct_clb_attimes, reconstruct_clb_varlen_attimes, هذا, اشاره_تهی);
+	إذا (آخرین_زمان!=انتها_زمان && curr_چرخه <= آخرین_چرخه) {
+		past_داده = آخرین_داده;
+		callback(آخرین_زمان);
+		curr_چرخه++;
 	}
-	if (curr_cycle <= last_cycle) {
-		past_data = last_data;
-		callback(end_time);
-		curr_cycle++;
+	إذا (curr_چرخه <= آخرین_چرخه) {
+		past_داده = آخرین_داده;
+		callback(انتها_زمان);
+		curr_چرخه++;
 	}
 }
 
-std::string FstData::valueOf(fstHandle signal)
+std::string Fst_داده::مقدار_از(fstHandle إشارة)
 {
-	if (past_data.find(signal) == past_data.end()) {
-		return std::string(handle_to_var[signal].width, 'x');
+	إذا (past_داده.پیدا_کن(إشارة) == past_داده.انتها()) {
+		أرجع std::string(handle_مقصد_var[إشارة].عرض, 'x');
 	}
-	return past_data[signal];
+	أرجع past_داده[إشارة];
 }

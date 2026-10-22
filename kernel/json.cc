@@ -17,155 +17,155 @@
  *
  */
 
-#include "kernel/json.h"
+#ضمن "kernel/json.h"
 
 USING_YOSYS_NAMESPACE
 
-void PrettyJson::emit_to_log()
+فراغ PrettyJson::emit_مقصد_log()
 {
-    struct LogTarget : public Target {
-        void emit(const char *data) override { log("%s", data); }
+    بنية Log_هدف : عام هدف {
+        فراغ emit(ثابت حرف *داده) override { لگاریتم("%s", داده); }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new LogTarget));
+    targets.افزودن_پشت(std::unique_ptr<هدف>(جديد Log_هدف));
 }
 
-void PrettyJson::append_to_string(std::string &target)
+فراغ PrettyJson::append_مقصد_string(std::string &هدف_2)
 {
-    struct AppendStringTarget : public Target {
-        std::string &target;
-        AppendStringTarget(std::string &target) : target(target) {}
-        void emit(const char *data) override { target += data; }
+    بنية Append_String_هدف : عام هدف {
+        std::string &هدف_2;
+        Append_String_هدف(std::string &هدف_2) : هدف_2(هدف_2) {}
+        فراغ emit(ثابت حرف *داده) override { هدف_2 += داده; }
     };
 
-    targets.push_back(std::unique_ptr<Target>(new AppendStringTarget(target)));
+    targets.افزودن_پشت(std::unique_ptr<هدف>(جديد Append_String_هدف(هدف_2)));
 }
 
-bool PrettyJson::write_to_file(const std::string &path)
+منطقي PrettyJson::write_مقصد_file(ثابت std::string &مسیر_2)
 {
-    struct WriteFileTarget : public Target {
-        std::ofstream target;
-        void emit(const char *data) override { target << data; }
-        void flush() override { target.flush(); }
+    بنية Write_File_هدف : عام هدف {
+        std::ofstream هدف_2;
+        فراغ emit(ثابت حرف *داده) override { هدف_2 << داده; }
+        فراغ flush() override { هدف_2.flush(); }
     };
 
-    auto target = std::unique_ptr<WriteFileTarget>(new WriteFileTarget);
-    target->target.open(path);
-    if (target->target.fail())
-        return false;
-    targets.push_back(std::unique_ptr<Target>(target.release()));
-    return true;
+    خودکار هدف_2 = std::unique_ptr<Write_File_هدف>(جديد Write_File_هدف);
+    هدف_2->هدف_2.open(مسیر_2);
+    إذا (هدف_2->هدف_2.fail())
+        أرجع خطأ;
+    targets.افزودن_پشت(std::unique_ptr<هدف>(هدف_2.release()));
+    أرجع درست;
 }
 
-void PrettyJson::line(bool space_if_inline)
+فراغ PrettyJson::سطر(منطقي space_if_inline)
 {
-    if (compact_depth != INT_MAX) {
-        if (space_if_inline)
+    إذا (compact_عمق != بیشترین_صحیح) {
+        إذا (space_if_inline)
             raw(" ");
-        return;
+        أرجع;
     }
-    int indent = state.size() - (state.empty() ? 0 : state.back() == VALUE);
+    صحيح indent = state.اندازه() - (state.خالی() ? 0 : state.پشت() == مقدار_2);
     newline_indent.resize(1 + 2 * indent, ' ');
     raw(newline_indent.c_str());
 }
 
-void PrettyJson::raw(const char *raw_json)
+فراغ PrettyJson::raw(ثابت حرف *raw_json)
 {
-    for (auto &target : targets)
-        target->emit(raw_json);
+    لكل (خودکار &هدف_2 : targets)
+        هدف_2->emit(raw_json);
 }
 
-void PrettyJson::flush()
+فراغ PrettyJson::flush()
 {
-    for (auto &target : targets)
-        target->flush();
+    لكل (خودکار &هدف_2 : targets)
+        هدف_2->flush();
 }
 
-void PrettyJson::begin_object()
+فراغ PrettyJson::begin_object()
 {
-    begin_value();
+    begin_مقدار();
     raw("{");
-    state.push_back(OBJECT_FIRST);
+    state.افزودن_پشت(OBJECT_اولی);
 }
 
-void PrettyJson::begin_array()
+فراغ PrettyJson::begin_array()
 {
-    begin_value();
+    begin_مقدار();
     raw("[");
-    state.push_back(ARRAY_FIRST);
+    state.افزودن_پشت(ARRAY_اولی);
 }
 
-void PrettyJson::end_object()
+فراغ PrettyJson::انتها_object()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == OBJECT)
-        line(false);
-    else
-        log_assert(top_scope == OBJECT_FIRST);
+    Scope بالاترین_scope = state.پشت();
+    state.برداشت_پشت();
+    إذا (بالاترین_scope == OBJECT)
+        سطر(خطأ);
+    وإلا
+        log_assert(بالاترین_scope == OBJECT_اولی);
     raw("}");
-    end_value();
+    انتها_مقدار();
 }
 
-void PrettyJson::end_array()
+فراغ PrettyJson::انتها_array()
 {
-    Scope top_scope = state.back();
-    state.pop_back();
-    if (top_scope == ARRAY)
-        line(false);
-    else
-        log_assert(top_scope == ARRAY_FIRST);
+    Scope بالاترین_scope = state.پشت();
+    state.برداشت_پشت();
+    إذا (بالاترین_scope == ARRAY)
+        سطر(خطأ);
+    وإلا
+        log_assert(بالاترین_scope == ARRAY_اولی);
     raw("]");
-    end_value();
+    انتها_مقدار();
 }
 
-void PrettyJson::name(const char *name)
+فراغ PrettyJson::name(ثابت حرف *name)
 {
-    if (state.back() == OBJECT_FIRST) {
-        state.back() = OBJECT;
-        line(false);
-    } else {
+    إذا (state.پشت() == OBJECT_اولی) {
+        state.پشت() = OBJECT;
+        سطر(خطأ);
+    } وإلا {
         raw(",");
-        line();
+        سطر();
     }
     raw(Json(name).dump().c_str());
     raw(": ");
-    state.push_back(VALUE);
+    state.افزودن_پشت(مقدار_2);
 }
 
-void PrettyJson::begin_value()
+فراغ PrettyJson::begin_مقدار()
 {
-    if (state.back() == ARRAY_FIRST) {
-        line(false);
-        state.back() = ARRAY;
-    } else if (state.back() == ARRAY) {
+    إذا (state.پشت() == ARRAY_اولی) {
+        سطر(خطأ);
+        state.پشت() = ARRAY;
+    } وإلا إذا (state.پشت() == ARRAY) {
         raw(",");
-        line();
-    } else {
-        log_assert(state.back() == VALUE);
-        state.pop_back();
+        سطر();
+    } وإلا {
+        log_assert(state.پشت() == مقدار_2);
+        state.برداشت_پشت();
     }
 }
 
-void PrettyJson::end_value()
+فراغ PrettyJson::انتها_مقدار()
 {
-    if (state.empty()) {
+    إذا (state.خالی()) {
         raw("\n");
         flush();
     }
-    if (GetSize(state) < compact_depth)
-        compact_depth = INT_MAX;
+    إذا (Get_اندازه(state) < compact_عمق)
+        compact_عمق = بیشترین_صحیح;
 }
 
-void PrettyJson::value_json(const Json &value)
+فراغ PrettyJson::مقدار_json(ثابت Json &مقدار)
 {
-    begin_value();
-    raw(value.dump().c_str());
-    end_value();
+    begin_مقدار();
+    raw(مقدار.dump().c_str());
+    انتها_مقدار();
 }
 
-void PrettyJson::entry_json(const char *name, const Json &value)
+فراغ PrettyJson::مدخل_json(ثابت حرف *name, ثابت Json &مقدار)
 {
-    this->name(name);
-    this->value(value);
+    هذا->name(name);
+    هذا->مقدار(مقدار);
 }

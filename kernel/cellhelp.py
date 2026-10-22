@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 
-from __future__ import annotations
-import fileinput
-import json
-from pathlib import Path
+من __future__ استورد annotations
+استورد fileinput
+استورد json
+من pathlib استورد مسیر
 
-class SimHelper:
+صنف SimHelper:
     name: str = ""
     title: str = ""
     ports: str = ""
-    source: str = ""
+    منبع: str = ""
     desc: list[str]
-    code: list[str]
-    group: str = ""
+    کد: list[str]
+    گروه: str = ""
     ver: str = "1"
-    tags: list[str]
+    برچسبها: list[str]
 
-    def __init__(self) -> None:
+    تعریف __init__(self) -> هیچ:
         self.desc = []
-        self.tags = []
+        self.برچسبها = []
 
-    def __str__(self) -> str:
+    تعریف __str__(self) -> str:
         printed_fields = [
             "name", "title", "ports", "source", "desc", "code", "group", "ver",
             "tags",
@@ -28,28 +28,28 @@ class SimHelper:
         # generate C++ struct
         val = f"cell_help[{json.dumps(self.name)}] = "
         val += "{\n"
-        for field in printed_fields:
-            field_val = getattr(self, field)
-            if isinstance(field_val, list):
-                field_val = "\n".join(field_val)
-            field_val = field_val.strip()
+        لكل فیلد في printed_fields:
+            فیلد_val = getattr(self, فیلد)
+            إذا isinstance(فیلد_val, list):
+                فیلد_val = "\n".join(فیلد_val)
+            فیلد_val = فیلد_val.strip()
             val += f'  {json.dumps(field_val)},\n'
         val += "};\n"
-        return val
+        أرجع val
 
-def simcells_reparse(cell: SimHelper):
+تعریف simcells_reparse(cell: SimHelper):
     # cut manual signature
     cell.desc = cell.desc[3:]
 
     # code-block truth table
     new_desc = []
     indent = ""
-    for line in cell.desc:
-        if line.startswith("Truth table:"):
+    لكل سطر في cell.desc:
+        إذا سطر.startswith("Truth table:"):
             indent = "   "
-            new_desc.pop()
+            new_desc.برداشت()
             new_desc.extend(["::", ""])
-        new_desc.append(indent + line)
+        new_desc.append(indent + سطر)
     cell.desc = new_desc
 
     # set version
@@ -57,43 +57,43 @@ def simcells_reparse(cell: SimHelper):
 
 simHelper = SimHelper()
 
-for line in fileinput.input():
-    line = line.rstrip()
+لكل سطر في fileinput.درون_داد():
+    سطر = سطر.rstrip()
     # special comments
-    if line.startswith("//-"):
-        simHelper.desc.append(line[4:] if len(line) > 4 else "")
-    elif line.startswith("//* "):
-        _, key, val = line.split(maxsplit=2)
-        setattr(simHelper, key, val)
+    إذا سطر.startswith("//-"):
+        simHelper.desc.append(سطر[4:] إذا طول(سطر) > 4 وإلا "")
+    وإلاإذا سطر.startswith("//* "):
+        _, کلید, val = سطر.تقسیم(maxsplit=2)
+        setattr(simHelper, کلید, val)
 
     # code parsing
-    if line.startswith("module "):
-        clean_line = line[7:].replace("\\", "").replace(";", "")
-        simHelper.name, simHelper.ports = clean_line.split(maxsplit=1)
-        simHelper.code = []
-        short_filename = Path(fileinput.filename()).name
-        simHelper.source = f'{short_filename}:{fileinput.filelineno()}'
-    elif not line.startswith("endmodule"):
-        line = "    " + line
-    try:
-        simHelper.code.append(line.replace("\t", "    "))
-    except AttributeError:
+    إذا سطر.startswith("module "):
+        clean_سطر = سطر[7:].replace("\\", "").replace(";", "")
+        simHelper.name, simHelper.ports = clean_سطر.تقسیم(maxsplit=1)
+        simHelper.کد = []
+        short_filename = مسیر(fileinput.filename()).name
+        simHelper.منبع = f'{short_filename}:{fileinput.filelineno()}'
+    وإلاإذا ليس سطر.startswith("endmodule"):
+        سطر = "    " + سطر
+    حاول:
+        simHelper.کد.append(سطر.replace("\t", "    "))
+    استثناء AttributeError:
         # no module definition, ignore line
-        pass
-    if line.startswith("endmodule"):
-        short_filename = Path(fileinput.filename()).name
-        if simHelper.ver == "1" and short_filename == "simcells.v":
+        بگذر
+    إذا سطر.startswith("endmodule"):
+        short_filename = مسیر(fileinput.filename()).name
+        إذا simHelper.ver == "1" و short_filename == "simcells.v":
             # default simcells parsing
             simcells_reparse(simHelper)
 
         # check help
-        if simHelper.desc and simHelper.ver == "1" and short_filename == "simlib.v" and simHelper.desc[1].startswith('    '):
-            simHelper.desc.pop(1)
+        إذا simHelper.desc و simHelper.ver == "1" و short_filename == "simlib.v" و simHelper.desc[1].startswith('    '):
+            simHelper.desc.برداشت(1)
 
         # check group
-        assert simHelper.group, f"techlibs/common/{simHelper.source}: {simHelper.name} cell missing group"
+        أكد simHelper.گروه, f"techlibs/common/{simHelper.source}: {simHelper.name} cell missing group"
 
         # dump
-        print(simHelper)
+        چاپ(simHelper)
         # new
         simHelper = SimHelper()
